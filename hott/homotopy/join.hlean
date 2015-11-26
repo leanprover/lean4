@@ -80,16 +80,16 @@ namespace join
   end
 
   protected definition symm : join A B ≃ join B A :=
-  begin
-    fapply equiv.MK, do 2 apply join.swap,
-    do 2 apply join.swap_involutive,
-  end
+  by fapply equiv.MK; do 2 apply join.swap; do 2 apply join.swap_involutive
 
   end
 
-  --This proves that the join operator is associative
-  --The proof is more or less ported from Evan Cavallo's agda version
+  /- This proves that the join operator is associative.
+     The proof is more or less ported from Evan Cavallo's agda version:
+     https://github.com/HoTT/HoTT-Agda/blob/master/homotopy/JoinAssocCubical.agda -/
+
   section join_switch
+
   private definition massage_sq' {A : Type} {a₀₀ a₂₀ a₀₂ a₂₂ : A}
     {p₁₀ : a₀₀ = a₂₀} {p₁₂ :  a₀₂ = a₂₂} {p₀₁ : a₀₀ = a₀₂} {p₂₁ : a₂₀ = a₂₂}
     (sq : square p₁₀ p₁₂ p₀₁ p₂₁) : square p₁₀⁻¹ p₀₁⁻¹ (p₂₁ ⬝ p₁₂⁻¹) idp :=
@@ -123,12 +123,13 @@ namespace join
     {p₂₁₀ : a₂₀₀ = a₂₂₀} {p₁₀₂ : a₀₀₂ = a₂₀₀} {p₀₁₂ : a₀₀₂ = a₀₂₂}
     {p₀₂₁ : a₀₂₀ = a₀₂₂} {p₁₂₂ : a₀₂₂ = a₂₂₀}
     {s₁₁₀ : square p₀₁₀ _ _ _} {s₁₁₂ : square p₀₁₂ p₂₁₀ p₁₀₂ p₁₂₂}
-    {s₀₁₁ : square p₀₁₀ p₀₁₂ p₀₀₁ p₀₂₁} {s₂₁₁ : square p₂₁₀ p₂₁₀ idp idp}
+    {s₀₁₁ : square p₀₁₀ p₀₁₂ p₀₀₁ p₀₂₁} --{s₂₁₁ : square p₂₁₀ p₂₁₀ idp idp}
     {s₁₀₁ : square p₁₀₀ p₁₀₂ p₀₀₁ idp} {s₁₂₁ : square p₁₂₀ p₁₂₂ p₀₂₁ idp}
-    (c : cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂) :
+    (c : cube s₀₁₁ vrfl s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂) :
     cube s₁₁₂⁻¹ᵛ vrfl (massage_sq s₁₀₁) (massage_sq s₁₂₁) s₁₁₀⁻¹ᵛ s₀₁₁⁻¹ᵛ :=
   begin
-    exact sorry,
+    cases p₁₀₀, cases p₁₀₂, cases p₁₂₂, let c' := massage_cube' c, esimp[massage_sq],
+    krewrite vdeg_v_eq_ph_pv_hp at c', exact c',
   end
 
   private definition massage_massage {A : Type} {a₀₀ a₀₂ a₂₀ : A}
@@ -141,9 +142,7 @@ namespace join
     {p₁ p₂ : Π a, f a = b} (α : Π a, p₁ a = p₂ a) {a₁ a₂ : A} (q : a₁ = a₂) :
     cube hrfl hrfl (square_Flr_ap_idp p₁ q) (square_Flr_ap_idp p₂ q) 
       (hdeg_square (α _)) (hdeg_square (α _)) :=
-  begin
-    cases q, esimp[square_Flr_ap_idp], apply deg3_cube, apply refl,
-  end
+  by cases q; esimp[square_Flr_ap_idp]; apply deg3_cube; esimp
 
   variables {A B C : Type}
 
@@ -217,10 +216,7 @@ namespace join
     (g : Π a, f a = b) {x y : A} (p : x = y) :
     cube (hdeg_square (ap_compose h f p)) ids (square_Flr_ap_idp (λ a, ap h (g a)) p)
     (aps h (square_Flr_ap_idp _ _)) hrfl hrfl :=
-  begin
-    cases p, esimp[square_Flr_ap_idp], apply deg2_cube,
-    cases (g x), reflexivity,
-  end
+  by cases p; esimp[square_Flr_ap_idp]; apply deg2_cube; cases (g x); esimp
 
   private definition switch_inv_cube_aux2 {A B : Type} {b : B} {f : A → B}
     (g : Π a, f a = b) {x y : A} (p : x = y) {sq : square (g x) (g y) (ap f p) idp}
@@ -259,24 +255,12 @@ namespace join
     (c : cube (natural_square_tr _ _) ids (square_Flr_ap_idp p₀ q) (square_Flr_ap_idp p₁ q)
        sqx sqy) :
     sqx =[q] sqy :=
-  begin
-    cases q, esimp [square_Flr_ap_idp] at *,
-    apply pathover_of_eq_tr, esimp, apply eq_of_deg12_cube, exact c,
-  end
+  by cases q; apply pathover_of_eq_tr; apply eq_of_deg12_cube; exact c
 
   private definition pathover_of_ap_ap_square {A : Type} {x y : A} {p : x = y}
     (g : B → A) (f : A → B) {u : g (f x) = x} {v : g (f y) = y}
     (sq : square (ap g (ap f p)) p u v) : u =[p] v :=
   by cases p; apply eq_pathover; apply transpose; exact sq
-
-
-  private definition hdeg_square_idp {A : Type} {a a' : A} {p : a = a'} :
-    hdeg_square (refl p) = hrfl :=
-  by cases p; reflexivity
-
-  private definition vdeg_square_idp {A : Type} {a a' : A} {p : a = a'} :
-    vdeg_square (refl p) = vrfl :=
-  by cases p; reflexivity
 
   private definition natural_square_tr_beta {A B : Type} {f₁ f₂ : A → B}
     (p : Π a, f₁ a = f₂ a) {x y : A} (q : x = y) {sq : square (p x) (p y) (ap f₁ q) (ap f₂ q)}
@@ -310,12 +294,10 @@ namespace join
 
   end join_switch 
 
-  protected definition switch_equiv (A B C : Type) :
-    join (join A B) C ≃ join (join C B) A :=
+  protected definition switch_equiv (A B C : Type) : join (join A B) C ≃ join (join C B) A :=
   by apply equiv.MK; do 2 apply join.switch_involutive
 
-  protected definition assoc (A B C : Type) :
-    join (join A B) C ≃ join A (join B C) :=
+  protected definition assoc (A B C : Type) : join (join A B) C ≃ join A (join B C) :=
   calc join (join A B) C ≃ join (join C B) A : join.switch_equiv
                      ... ≃ join A (join C B) : join.symm
                      ... ≃ join A (join B C) : join.symm

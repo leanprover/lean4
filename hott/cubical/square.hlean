@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2015 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Author: Floris van Doorn
+Authors: Floris van Doorn, Jakob von Raumer
 
 Squares in a type
 -/
@@ -505,6 +505,7 @@ namespace eq
   definition square_fill_r : Σ (p : a₂₀ = a₂₂) , square p₁₀ p₁₂ p₀₁ p :=
   by induction p₁₀; induction p₁₂; exact ⟨_, !hrefl⟩
 
+  /- Squares having an 'ap' term on one face -/
   --TODO find better names
   definition square_Flr_ap_idp {A B : Type} {c : B} {f : A → B} (p : Π a, f a = c)
     {a b : A} (q : a = b) : square (p a) (p b) (ap f q) idp  :=
@@ -517,5 +518,32 @@ namespace eq
   definition square_ap_idp_Flr {A B : Type} {b : B} {f : A → B} (p : Π a, f a = b)
     {a b : A} (q : a = b) : square (ap f q) idp (p a) (p b) :=
   by induction q; apply hrfl
+
+  /- Matching eq_hconcat with hconcat etc. -/
+  -- TODO maybe rename hconcat_eq and the like?
+  variable (s₁₁)
+  definition ph_eq_pv_h_vp {p : a₀₀ = a₀₂} (r : p = p₀₁) : 
+    r ⬝ph s₁₁ =  !idp_con⁻¹ ⬝pv ((hdeg_square r) ⬝h s₁₁) ⬝vp !idp_con :=
+  by cases r; cases s₁₁; esimp
+
+  definition hdeg_h_eq_pv_ph_vp {p : a₀₀ = a₀₂} (r : p = p₀₁) : 
+    hdeg_square r ⬝h s₁₁ = !idp_con ⬝pv (r ⬝ph s₁₁) ⬝vp !idp_con⁻¹ :=
+  by cases r; cases s₁₁; esimp
+
+  definition hp_eq_h {p : a₂₀ = a₂₂} (r : p₂₁ = p) :
+    s₁₁ ⬝hp r = s₁₁ ⬝h hdeg_square r :=
+  by cases r; cases s₁₁; esimp
+
+  definition pv_eq_ph_vdeg_v_vh {p : a₀₀ = a₂₀} (r : p = p₁₀) :
+    r ⬝pv s₁₁ = !idp_con⁻¹ ⬝ph ((vdeg_square r) ⬝v s₁₁) ⬝hp !idp_con :=
+  by cases r; cases s₁₁; esimp
+
+  definition vdeg_v_eq_ph_pv_hp {p : a₀₀ = a₂₀} (r : p = p₁₀) :
+    vdeg_square r ⬝v s₁₁ = !idp_con ⬝ph (r ⬝pv s₁₁) ⬝hp !idp_con⁻¹ :=
+  by cases r; cases s₁₁; esimp
+
+  definition vp_eq_v {p : a₀₂ = a₂₂} (r : p₁₂ = p) :
+    s₁₁ ⬝vp r = s₁₁ ⬝v vdeg_square r :=
+  by cases r; cases s₁₁; esimp
 
 end eq

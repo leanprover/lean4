@@ -322,18 +322,28 @@ void collect_pattern_hints(expr const & e, buffer<expr> & hints) {
         });
 }
 
-hi_lemma mk_hi_lemma_core(tmp_type_context & ctx, fun_info_manager & fm, expr const & H, unsigned num_uvars) {
+hi_lemma mk_hi_lemma_core(tmp_type_context & ctx, fun_info_manager & fm, expr const & H, unsigned num_uvars,
+                          unsigned priority) {
     // TODO(Leo):
+    std::cout << H << "\n";
     return hi_lemma();
 }
 
 hi_lemma mk_hi_lemma(tmp_type_context & ctx, fun_info_manager & fm, expr const & H) {
-    return mk_hi_lemma_core(ctx, fm, H, 0);
+    return mk_hi_lemma_core(ctx, fm, H, 0, LEAN_HI_LEMMA_DEFAULT_PRIORITY);
 }
 
 environment add_hi_lemma(environment const & env, name const & c, unsigned priority, bool persistent) {
-    // TODO(Leo):
-    return env;
+    tmp_type_context ctx(env, get_dummy_ios());
+    fun_info_manager fm(ctx);
+    declaration const & d = env.get(c);
+    buffer<level> us;
+    unsigned num_us = d.get_num_univ_params();
+    for (unsigned i = 0; i < num_us; i++)
+        us.push_back(ctx.mk_uvar());
+    expr H = mk_constant(c, to_list(us));
+    return hi_ext::add_entry(env, get_dummy_ios(), hi_entry(mk_hi_lemma_core(ctx, fm, H, num_us, priority)),
+                             persistent);
 }
 
 /** pattern_le */

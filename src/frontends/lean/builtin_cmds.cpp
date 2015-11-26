@@ -248,6 +248,13 @@ static void print_patterns(io_state_stream const & out, environment const & env,
     }
 }
 
+static name to_user_name(environment const & env, name const & n) {
+    if (auto r = hidden_to_user_name(env, n))
+        return *r;
+    else
+        return n;
+}
+
 static void print_definition(parser const & p, name const & n, pos_info const & pos) {
     environment const & env = p.env();
     declaration d = env.get(n);
@@ -256,10 +263,10 @@ static void print_definition(parser const & p, name const & n, pos_info const & 
     opts                = opts.update_if_undef(get_pp_beta_name(), false);
     io_state_stream new_out = out.update_options(opts);
     if (d.is_axiom())
-        throw parser_error(sstream() << "invalid 'print definition', theorem '" << n
-                           << "' is not available (suggestion: use command 'reveal " << n << "')", pos);
+        throw parser_error(sstream() << "invalid 'print definition', theorem '" << to_user_name(env, n)
+                           << "' is not available (suggestion: use command 'reveal " << to_user_name(env, n) << "')", pos);
     if (!d.is_definition())
-        throw parser_error(sstream() << "invalid 'print definition', '" << n << "' is not a definition", pos);
+        throw parser_error(sstream() << "invalid 'print definition', '" << to_user_name(env, n) << "' is not a definition", pos);
     new_out << d.get_value() << endl;
 }
 
@@ -364,7 +371,7 @@ static bool print_constant(parser const & p, char const * kind, declaration cons
         out << "noncomputable ";
     if (is_protected(p.env(), d.get_name()))
         out << "protected ";
-    out << kind << " " << d.get_name();
+    out << kind << " " << to_user_name(p.env(), d.get_name());
     print_attributes(p, d.get_name());
     out << " : " << d.get_type();
     if (is_def)
@@ -403,8 +410,8 @@ bool print_id_info(parser const & p, name const & id, bool show_value, pos_info 
                         if (p.in_theorem_queue(d.get_name())) {
                             print_constant(p, "theorem", d);
                             if (show_value) {
-                                out << "'" << d.get_name() << "' is still in the theorem queue, use command 'reveal "
-                                    << d.get_name() << "' to access its definition.\n";
+                                out << "'" << to_user_name(env, d.get_name()) << "' is still in the theorem queue, use command 'reveal "
+                                    << to_user_name(env, d.get_name()) << "' to access its definition.\n";
                             }
                         } else {
                             print_constant(p, "axiom", d);
@@ -594,7 +601,7 @@ environment print_cmd(parser & p) {
                 print_constant(p, "definition", d);
                 print_definition(p, c, pos);
             } else {
-                throw parser_error(sstream() << "invalid 'print definition', '" << c << "' is not a definition", pos);
+                throw parser_error(sstream() << "invalid 'print definition', '" << to_user_name(p.env(), c) << "' is not a definition", pos);
             }
         }
     } else if (p.curr_is_token_or_id(get_instances_tk())) {

@@ -29,13 +29,13 @@ bool is_lemma(expr const & _type) {
         has_antecedent = true;
         type = binding_body(type);
     }
-    if (has_antecedent && !is_pi(type)) return true;
+    if (has_antecedent) return true;
     else if (is_or(type)) return true;
     else return false;
 }
 
 bool is_fact(expr const & type) {
-    return is_prop(type) && !is_pi(type) && !is_or(type);
+    return !is_lemma(type);
 }
 
 expr flip(expr const & e) {
@@ -143,11 +143,14 @@ bool can_propagate(expr const & _type, buffer<expr, 2> & to_watch) {
     unsigned num_watching = 0;
     unit_branch_extension & ext = get_extension();
 
+    bool missing_non_Prop = false;
     /* Traverse the A_i */
     while (is_pi(type) && closed(binding_body(type))) {
         expr arg;
         hypothesis_idx const * fact_hidx = ext.find_fact(binding_domain(type));
         if (!fact_hidx) {
+            /* We do not support non-Prop antecedents since we cannot negate them */
+            if (!is_prop(binding_domain(type))) missing_non_Prop = true;
             to_watch.push_back(binding_domain(type));
             num_watching++;
             if (num_watching == 2) return false;
@@ -173,7 +176,7 @@ bool can_propagate(expr const & _type, buffer<expr, 2> & to_watch) {
         num_watching++;
         if (num_watching == 2) return false;
     }
-    return true;
+    return !missing_non_Prop;
 }
 
 action_result unit_lemma(hypothesis_idx hidx, expr const & _type, expr const & _proof) {
@@ -184,7 +187,6 @@ action_result unit_lemma(hypothesis_idx hidx, expr const & _type, expr const & _
     list<expr> const * watching = ext.find_facts_watching_lemma(hidx);
     if (watching) {
         lean_assert(length(*watching) == 2);
-        // TODO(dhs): is it safe to remove from these lists while I am iterating them with [for_each]?
         for_each(*watching, [&](expr const & fact) { ext.unwatch(hidx, fact); });
     }
 

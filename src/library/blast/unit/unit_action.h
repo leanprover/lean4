@@ -12,7 +12,7 @@ namespace blast {
    <tt>A_1 -> ... -> A_n -> B_1 \/ (B2 \/ ... \/ B_m)...)</tt>
 
    Whenever all but one of the literals is present as a hypothesis with
-   the appropriate polarity, we instantiate and resolve and necessary
+   the appropriate polarity, we instantiate and resolve as necessary
    to conclude a new literal.
 
    Remark: we assume that a pre-processing step will put lemmas

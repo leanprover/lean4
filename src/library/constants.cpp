@@ -66,6 +66,7 @@ name const * g_iff_elim_left = nullptr;
 name const * g_iff_elim_right = nullptr;
 name const * g_iff_false_intro = nullptr;
 name const * g_iff_true_intro = nullptr;
+name const * g_implies_resolve = nullptr;
 name const * g_implies = nullptr;
 name const * g_implies_of_if_pos = nullptr;
 name const * g_implies_of_if_neg = nullptr;
@@ -81,6 +82,7 @@ name const * g_nat_succ = nullptr;
 name const * g_nat_zero = nullptr;
 name const * g_neg = nullptr;
 name const * g_not = nullptr;
+name const * g_not_wrap = nullptr;
 name const * g_not_of_iff_false = nullptr;
 name const * g_num = nullptr;
 name const * g_num_zero = nullptr;
@@ -94,6 +96,11 @@ name const * g_or = nullptr;
 name const * g_or_elim = nullptr;
 name const * g_or_intro_left = nullptr;
 name const * g_or_intro_right = nullptr;
+name const * g_or_rec = nullptr;
+name const * g_or_resolve_left = nullptr;
+name const * g_or_resolve_right = nullptr;
+name const * g_or_neg_resolve_left = nullptr;
+name const * g_or_neg_resolve_right = nullptr;
 name const * g_poly_unit = nullptr;
 name const * g_poly_unit_star = nullptr;
 name const * g_pos_num = nullptr;
@@ -245,6 +252,7 @@ void initialize_constants() {
     g_iff_elim_right = new name{"iff", "elim_right"};
     g_iff_false_intro = new name{"iff_false_intro"};
     g_iff_true_intro = new name{"iff_true_intro"};
+    g_implies_resolve = new name{"implies", "resolve"};
     g_implies = new name{"implies"};
     g_implies_of_if_pos = new name{"implies_of_if_pos"};
     g_implies_of_if_neg = new name{"implies_of_if_neg"};
@@ -260,6 +268,7 @@ void initialize_constants() {
     g_nat_zero = new name{"nat", "zero"};
     g_neg = new name{"neg"};
     g_not = new name{"not"};
+    g_not_wrap = new name{"not", "wrap"};
     g_not_of_iff_false = new name{"not_of_iff_false"};
     g_num = new name{"num"};
     g_num_zero = new name{"num", "zero"};
@@ -273,6 +282,11 @@ void initialize_constants() {
     g_or_elim = new name{"or", "elim"};
     g_or_intro_left = new name{"or", "intro_left"};
     g_or_intro_right = new name{"or", "intro_right"};
+    g_or_rec = new name{"or", "rec"};
+    g_or_resolve_left = new name{"or", "resolve_left"};
+    g_or_resolve_right = new name{"or", "resolve_right"};
+    g_or_neg_resolve_left = new name{"or", "neg_resolve_left"};
+    g_or_neg_resolve_right = new name{"or", "neg_resolve_right"};
     g_poly_unit = new name{"poly_unit"};
     g_poly_unit_star = new name{"poly_unit", "star"};
     g_pos_num = new name{"pos_num"};
@@ -425,6 +439,7 @@ void finalize_constants() {
     delete g_iff_elim_right;
     delete g_iff_false_intro;
     delete g_iff_true_intro;
+    delete g_implies_resolve;
     delete g_implies;
     delete g_implies_of_if_pos;
     delete g_implies_of_if_neg;
@@ -440,6 +455,7 @@ void finalize_constants() {
     delete g_nat_zero;
     delete g_neg;
     delete g_not;
+    delete g_not_wrap;
     delete g_not_of_iff_false;
     delete g_num;
     delete g_num_zero;
@@ -453,6 +469,11 @@ void finalize_constants() {
     delete g_or_elim;
     delete g_or_intro_left;
     delete g_or_intro_right;
+    delete g_or_rec;
+    delete g_or_resolve_left;
+    delete g_or_resolve_right;
+    delete g_or_neg_resolve_left;
+    delete g_or_neg_resolve_right;
     delete g_poly_unit;
     delete g_poly_unit_star;
     delete g_pos_num;
@@ -604,6 +625,7 @@ name const & get_iff_elim_left_name() { return *g_iff_elim_left; }
 name const & get_iff_elim_right_name() { return *g_iff_elim_right; }
 name const & get_iff_false_intro_name() { return *g_iff_false_intro; }
 name const & get_iff_true_intro_name() { return *g_iff_true_intro; }
+name const & get_implies_resolve_name() { return *g_implies_resolve; }
 name const & get_implies_name() { return *g_implies; }
 name const & get_implies_of_if_pos_name() { return *g_implies_of_if_pos; }
 name const & get_implies_of_if_neg_name() { return *g_implies_of_if_neg; }
@@ -619,6 +641,7 @@ name const & get_nat_succ_name() { return *g_nat_succ; }
 name const & get_nat_zero_name() { return *g_nat_zero; }
 name const & get_neg_name() { return *g_neg; }
 name const & get_not_name() { return *g_not; }
+name const & get_not_wrap_name() { return *g_not_wrap; }
 name const & get_not_of_iff_false_name() { return *g_not_of_iff_false; }
 name const & get_num_name() { return *g_num; }
 name const & get_num_zero_name() { return *g_num_zero; }
@@ -632,6 +655,11 @@ name const & get_or_name() { return *g_or; }
 name const & get_or_elim_name() { return *g_or_elim; }
 name const & get_or_intro_left_name() { return *g_or_intro_left; }
 name const & get_or_intro_right_name() { return *g_or_intro_right; }
+name const & get_or_rec_name() { return *g_or_rec; }
+name const & get_or_resolve_left_name() { return *g_or_resolve_left; }
+name const & get_or_resolve_right_name() { return *g_or_resolve_right; }
+name const & get_or_neg_resolve_left_name() { return *g_or_neg_resolve_left; }
+name const & get_or_neg_resolve_right_name() { return *g_or_neg_resolve_right; }
 name const & get_poly_unit_name() { return *g_poly_unit; }
 name const & get_poly_unit_star_name() { return *g_poly_unit_star; }
 name const & get_pos_num_name() { return *g_pos_num; }

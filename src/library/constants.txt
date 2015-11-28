@@ -61,6 +61,7 @@ iff.elim_left
 iff.elim_right
 iff_false_intro
 iff_true_intro
+implies.resolve
 implies
 implies_of_if_pos
 implies_of_if_neg
@@ -76,6 +77,7 @@ nat.succ
 nat.zero
 neg
 not
+not.wrap
 not_of_iff_false
 num
 num.zero
@@ -89,6 +91,11 @@ or
 or.elim
 or.intro_left
 or.intro_right
+or.rec
+or.resolve_left
+or.resolve_right
+or.neg_resolve_left
+or.neg_resolve_right
 poly_unit
 poly_unit.star
 pos_num

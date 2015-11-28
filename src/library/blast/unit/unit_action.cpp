@@ -21,123 +21,88 @@ Author: Daniel Selsam
 namespace lean {
 namespace blast {
 
+bool is_lemma(expr const & _type) {
+    expr type = _type;
+    bool has_antecedent = false;
+    if (!is_prop(type)) return false;
+    while (is_pi(type) && closed(binding_body(type))) {
+        has_antecedent = true;
+        type = binding_body(type);
+    }
+    if (has_antecedent && !is_pi(type)) return true;
+    else if (is_or(type)) return true;
+    else return false;
+}
+
+bool is_fact(expr const & type) {
+    return is_prop(type) && !is_pi(type) && !is_or(type);
+}
+
+expr flip(expr const & e) {
+    expr not_e;
+    if (!blast::is_not(e, not_e)) not_e = get_app_builder().mk_not(e);
+    return not_e;
+}
+
+bool is_not(expr const & e) {
+    expr not_e;
+    return blast::is_not(e, not_e);
+}
+
 static unsigned g_ext_id = 0;
 struct unit_branch_extension : public branch_extension {
-    rb_multi_map<expr, hypothesis_idx, expr_quick_cmp> m_lemma_map;
-    rb_map<expr, hypothesis_idx, expr_quick_cmp> m_fact_map;
+    /* We map each lemma to the two facts that it is watching. */
+    rb_multi_map<hypothesis_idx, expr, unsigned_cmp> m_lemmas_to_facts;
+
+    /* We map each fact back to the lemma hypotheses that are watching it. */
+    rb_multi_map<expr, hypothesis_idx, expr_quick_cmp> m_facts_to_lemmas;
+
+    /* We map each fact expression to its hypothesis. */
+    rb_map<expr, hypothesis_idx, expr_quick_cmp>       m_facts;
 
     unit_branch_extension() {}
     unit_branch_extension(unit_branch_extension const & b):
-        m_lemma_map(b.m_lemma_map), m_fact_map(b.m_fact_map) {}
+        m_lemmas_to_facts(b.m_lemmas_to_facts),
+        m_facts_to_lemmas(b.m_facts_to_lemmas),
+        m_facts(b.m_facts) {}
     virtual ~unit_branch_extension() {}
     virtual branch_extension * clone() override { return new unit_branch_extension(*this); }
-
-    void insert(expr const & e, hypothesis_idx hidx, bool neg) {
-        expr A, B;
-        if (is_or(e, A, B)) {
-            lean_assert(!neg);
-            insert(A, hidx, neg);
-            insert(B, hidx, neg);
-        } else if (is_and(e, A, B)) {
-            lean_assert(neg);
-            insert(A, hidx, neg);
-            insert(B, hidx, neg);
-        } else if (neg) {
-            expr not_e;
-            if (blast::is_not(e, not_e)) m_lemma_map.insert(not_e, hidx);
-            else m_lemma_map.insert(get_app_builder().mk_not(e), hidx);
-        } else {
-            m_lemma_map.insert(e, hidx);
-        }
-    }
-
     virtual void hypothesis_activated(hypothesis const & h, hypothesis_idx hidx) override {
-        expr type = whnf(h.get_type());
-        if (!is_pi(type)) {
-            if (is_prop(type)) m_fact_map.insert(type, hidx);
-            return;
-        }
-        bool has_antecedent = false;
-        while (is_pi(type) && is_prop(binding_domain(type)) && closed(binding_body(type))) {
-            has_antecedent = true;
-            insert(binding_domain(type), hidx, false);
-            type = binding_body(type);
-        }
-        if (has_antecedent && is_prop(type)) {
-            insert(type, hidx, true);
-        }
+        if (is_fact(h.get_type())) m_facts.insert(h.get_type(), hidx);
     }
-
-    virtual void hypothesis_deleted(hypothesis const & , hypothesis_idx ) override {
-        /* We discard opportunistically when we encounter a hypothesis that is dead. */
+    virtual void hypothesis_deleted(hypothesis const & h, hypothesis_idx hidx) override {
+        if (is_lemma(h.get_type())) {
+            list<expr> const * facts = find_facts_watching_lemma(hidx);
+            if (facts) {
+                for_each(*facts, [&](expr const & fact) {
+                        unwatch(hidx, fact);
+                    });
+            }
+        } else if (is_fact(h.get_type())) {
+            m_facts.erase(h.get_type());
+            lean_assert(!find_lemmas_watching_fact(h.get_type()));
+        }
     }
 
 public:
-    list<hypothesis_idx> const * find_lemmas(expr const & e) { return m_lemma_map.find(e); }
-    template<typename P> void filter_lemmas(expr const & e, P && p) { return m_lemma_map.filter(e, p); }
-    hypothesis_idx const * find_fact(expr const & e) { return m_fact_map.find(e); }
-    void erase_fact(expr const & e) { return m_fact_map.erase(e); }
-
-    /* Returns a proof of the disjunction [e] */
-    optional<expr> find_live_fact_in_disjunction(expr const & e) {
-        expr A, B;
-        if (is_or(e, A, B)) {
-            if (auto A_fact = find_live_fact_in_disjunction(A)) {
-                return some_expr(get_app_builder().mk_app(get_or_intro_left_name(), {A, B, *A_fact}));
-            } else if (auto B_fact = find_live_fact_in_disjunction(B)) {
-                return some_expr(get_app_builder().mk_app(get_or_intro_right_name(), {A, B, *B_fact}));
-            } else {
-                return none_expr();
-            }
-        } else {
-            hypothesis_idx const * fact_hidx = find_fact(e);
-            if (fact_hidx) {
-                hypothesis const & fact_h = curr_state().get_hypothesis_decl(*fact_hidx);
-                if (fact_h.is_dead()) {
-                    erase_fact(e);
-                    return none_expr();
-                } else {
-                    return some_expr(fact_h.get_self());
-                }
-            } else {
-                return none_expr();
-            }
-        }
+    list<hypothesis_idx> const * find_lemmas_watching_fact(expr const & fact_type) {
+        return m_facts_to_lemmas.find(fact_type);
     }
-
-    /* Returns a proof of [false], by either applying a projection of [proof] to a hypothesis or vice versa. */
-    optional<expr> find_live_disproof_of_conjunction(expr const & e, expr const & proof) {
-        expr A, B;
-        if (is_and(e, A, B)) {
-            if (auto A_false = find_live_disproof_of_conjunction(A, get_app_builder().mk_app(get_and_elim_left_name(), {A, B, proof}))) {
-                return some_expr(*A_false);
-            } else if (auto B_false = find_live_disproof_of_conjunction(B, get_app_builder().mk_app(get_and_elim_right_name(), {A, B, proof}))) {
-                return some_expr(*B_false);
-            } else {
-                return none_expr();
-            }
-        } else {
-            expr not_e;
-            bool not_e_is_not = false;
-            if (!blast::is_not(e, not_e)) {
-                not_e_is_not = true;
-                not_e = get_app_builder().mk_not(e);
-            }
-
-            hypothesis_idx const * fact_hidx = find_fact(not_e);
-            if (fact_hidx) {
-                hypothesis const & fact_h = curr_state().get_hypothesis_decl(*fact_hidx);
-                if (fact_h.is_dead()) {
-                    erase_fact(e);
-                    return none_expr();
-                } else {
-                    if (not_e_is_not) return some_expr(mk_app(fact_h.get_self(), proof));
-                    else return some_expr(mk_app(proof, fact_h.get_self()));
-                }
-            } else {
-                return none_expr();
-            }
-        }
+    list<expr> const * find_facts_watching_lemma(hypothesis_idx lemma_hidx) {
+        return m_lemmas_to_facts.find(lemma_hidx);
+    }
+    void unwatch(hypothesis_idx lemma_hidx, expr const & fact_type) {
+        m_lemmas_to_facts.filter(lemma_hidx, [&](expr const & fact_type2) {
+                return fact_type != fact_type2;
+            });
+        m_facts_to_lemmas.erase(fact_type, lemma_hidx);
+    }
+    hypothesis_idx const * find_fact(expr const & fact_type) {
+        return m_facts.find(fact_type);
+    }
+    void watch(hypothesis_idx lemma_hidx, expr const & fact_type) {
+        m_lemmas_to_facts.insert(lemma_hidx, fact_type);
+        m_facts_to_lemmas.insert(fact_type, lemma_hidx);
     }
 };
 
@@ -151,72 +116,178 @@ static unit_branch_extension & get_extension() {
     return static_cast<unit_branch_extension&>(curr_state().get_extension(g_ext_id));
 }
 
-action_result unit_pi(expr const & _type, expr const & proof) {
-    unit_branch_extension & ext = get_extension();
-    bool missing_argument = false;
-    bool has_antecedent = false;
-    expr type = _type;
-    expr new_hypothesis = proof;
-    expr local;
+/* Recall the general form of the lemmas we handle in this module:
+   A_1 -> ... -> A_n -> B_1 \/ (B2 \/ ... \/ B_m)...)
 
-    while (is_pi(type) && is_prop(binding_domain(type)) && closed(binding_body(type))) {
-        has_antecedent = true;
-        optional<expr> fact = ext.find_live_fact_in_disjunction(binding_domain(type));
-        if (fact) {
-            new_hypothesis = mk_app(new_hypothesis, *fact);
-        } else {
-            if (missing_argument) return action_result::failed();
-            local = mk_fresh_local(binding_domain(type));
-            new_hypothesis = mk_app(new_hypothesis, local);
-            missing_argument = true;
+   There are three different scenarios in which we propagate:
+   (1) We have all of the A_i, and the negations of all but the last B_j.
+   (2) We are missing an A_i.
+   (3) We are missing a B_j.
+
+   The first thing we do is check whether or not we are able to propagate.
+   If so, we start instantiating the A_i. If we hit a missing literal,
+   we store the proof so far, create a local for the consequent, prove false,
+   and then conclude with [lemma imp_right : (A → B) → ¬ B → ¬ A].
+
+   If we instantiate all the A_i, we start using [lemma or_resolve_left : A ∨ B → ¬ A → B]
+   to cross of the B_j. If we have all but the last one, we simply return the resulting proof.
+
+   If we are missing a B_j, we store the proof so far, create a local for the right-hand-side of
+   the disjunct, prove false, and then conclude with [lemma or_resolve_right : A ∨ B → ¬ B → A].
+*/
+
+
+bool can_propagate(expr const & _type, buffer<expr, 2> & to_watch) {
+    lean_assert(is_lemma(_type));
+    expr type = _type;
+    unsigned num_watching = 0;
+    unit_branch_extension & ext = get_extension();
+
+    /* Traverse the A_i */
+    while (is_pi(type) && closed(binding_body(type))) {
+        expr arg;
+        hypothesis_idx const * fact_hidx = ext.find_fact(binding_domain(type));
+        if (!fact_hidx) {
+            to_watch.push_back(binding_domain(type));
+            num_watching++;
+            if (num_watching == 2) return false;
         }
         type = binding_body(type);
     }
 
-    if (!has_antecedent) {
-        return action_result::failed();
-    } else if (!missing_argument) {
-        curr_state().mk_hypothesis(type, new_hypothesis);
-        return action_result::new_branch();
-    } else if (is_prop(type)) {
-        optional<expr> disproof = ext.find_live_disproof_of_conjunction(type, new_hypothesis);
-        if (disproof) {
-            curr_state().mk_hypothesis(get_app_builder().mk_not(infer_type(local)),
-                                       Fun(local, *disproof));
-            return action_result::new_branch();
-        } else {
-            return action_result::failed();
+    /* Traverse the B_j */
+    expr lhs, rhs;
+    while (is_or(type, lhs, rhs)) {
+        hypothesis_idx const * fact_hidx = ext.find_fact(flip(lhs));
+        if (!fact_hidx) {
+            to_watch.push_back(flip(lhs));
+            num_watching++;
+            if (num_watching == 2) return false;
         }
-    } else {
+        type = rhs;
+    }
+
+    hypothesis_idx const * fact_hidx = ext.find_fact(flip(type));
+    if (!fact_hidx) {
+        to_watch.push_back(flip(type));
+        num_watching++;
+        if (num_watching == 2) return false;
+    }
+    return true;
+}
+
+action_result unit_lemma(hypothesis_idx hidx, expr const & _type, expr const & _proof) {
+    lean_assert(is_lemma(_type));
+    unit_branch_extension & ext = get_extension();
+
+    /* (1) Find the facts that are watching this lemma and clear them. */
+    list<expr> const * watching = ext.find_facts_watching_lemma(hidx);
+    if (watching) {
+        lean_assert(length(*watching) == 2);
+        // TODO(dhs): is it safe to remove from these lists while I am iterating them with [for_each]?
+        for_each(*watching, [&](expr const & fact) { ext.unwatch(hidx, fact); });
+    }
+
+    /* (2) Check if we can propagate */
+    buffer<expr, 2> to_watch;
+    if (!can_propagate(_type, to_watch)) {
+        for (expr const & e : to_watch) ext.watch(hidx, e);
         return action_result::failed();
     }
-    lean_unreachable();
+
+    expr type = _type;
+    expr proof = _proof;
+    expr final_type;
+    expr proof_left;
+    expr proof_init_right;
+    expr type_init_right;
+    bool missing_A = false;
+    bool missing_B = false;
+
+    /* (3) Traverse the binding domains */
+    while (is_pi(type) && closed(binding_body(type))) {
+        hypothesis_idx const * fact_hidx = ext.find_fact(binding_domain(type));
+        if (fact_hidx) {
+            proof = mk_app(proof, curr_state().get_hypothesis_decl(*fact_hidx).get_self());
+        } else {
+            lean_assert(!missing_A);
+            missing_A = true;
+            final_type = get_app_builder().mk_not(binding_domain(type));
+            proof_left = proof;
+            type_init_right = binding_body(type);
+            proof_init_right = mk_fresh_local(type_init_right);
+            proof = proof_init_right;
+        }
+        type = binding_body(type);
+    }
+
+    /* (4) Traverse the conclusion */
+    expr lhs, rhs;
+    while (is_or(type, lhs, rhs)) {
+        hypothesis_idx const * fact_hidx = ext.find_fact(flip(lhs));
+        if (fact_hidx) {
+            expr arg = curr_state().get_hypothesis_decl(*fact_hidx).get_self();
+            if (is_not(lhs)) {
+                proof = get_app_builder().mk_app(get_or_neg_resolve_left_name(),
+                                                 proof, arg);
+            } else {
+                proof = get_app_builder().mk_app(get_or_resolve_left_name(),
+                                                 proof, arg);
+            }
+        } else {
+            lean_assert(!missing_A);
+            lean_assert(!missing_B);
+            missing_B = true;
+            final_type = lhs;
+            proof_left = proof;
+            type_init_right = rhs;
+            proof_init_right = mk_fresh_local(type_init_right);
+            proof = proof_init_right;
+        }
+        type = rhs;
+    }
+
+    expr final_proof;
+    if (missing_A || missing_B) {
+        hypothesis_idx const * fact_hidx = ext.find_fact(flip(type));
+        lean_assert(fact_hidx);
+        expr arg = curr_state().get_hypothesis_decl(*fact_hidx).get_self();
+        if (is_not(type)) proof = mk_app(proof, arg);
+        else proof = mk_app(arg, proof);
+        expr proof_right = get_app_builder().mk_app(get_not_wrap_name(), type_init_right, Fun(proof_init_right, proof));
+        if (missing_A) {
+            final_proof = get_app_builder().mk_app(get_implies_resolve_name(), proof_left, proof_right);
+        } else {
+            final_proof = get_app_builder().mk_app(get_or_resolve_right_name(), proof_left, proof_right);
+        }
+    } else {
+        final_type = type;
+        final_proof = proof;
+    }
+
+    curr_state().mk_hypothesis(final_type, final_proof);
+    return action_result::new_branch();
 }
 
 action_result unit_fact(expr const & type) {
     unit_branch_extension & ext = get_extension();
-    list<hypothesis_idx> const * lemmas = ext.find_lemmas(type);
+    list<hypothesis_idx> const * lemmas = ext.find_lemmas_watching_fact(type);
     if (!lemmas) return action_result::failed();
     bool success = false;
-    ext.filter_lemmas(type, [&](hypothesis_idx const & hidx) {
+    for_each(*lemmas, [&](hypothesis_idx const & hidx) {
             hypothesis const & h = curr_state().get_hypothesis_decl(hidx);
-            if (h.is_dead()) {
-                return false;
-            } else {
-                action_result r = unit_pi(whnf(h.get_type()), h.get_self());
-                success = success || (r.get_kind() == action_result::NewBranch);
-                return true;
-            }
+            action_result r = unit_lemma(hidx, whnf(h.get_type()), h.get_self());
+            success = success || (r.get_kind() == action_result::NewBranch);
         });
     if (success) return action_result::new_branch();
     else return action_result::failed();
 }
 
-action_result unit_action(unsigned _hidx) {
-    hypothesis const & h = curr_state().get_hypothesis_decl(_hidx);
+action_result unit_action(unsigned hidx) {
+    hypothesis const & h = curr_state().get_hypothesis_decl(hidx);
     expr type = whnf(h.get_type());
-    if (is_pi(type)) return unit_pi(type, h.get_self());
-    else if (is_prop(type)) return unit_fact(type);
+    if (is_lemma(type)) return unit_lemma(hidx, type, h.get_self());
+    else if (is_fact(type)) return unit_fact(type);
     else return action_result::failed();
 }
 }}

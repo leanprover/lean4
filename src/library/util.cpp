@@ -304,6 +304,13 @@ expr mk_false_rec(type_checker & tc, expr const & f, expr const & t) {
     }
 }
 
+bool is_or(expr const & e) {
+    buffer<expr> args;
+    expr const & fn = get_app_args(e, args);
+    if (is_constant(fn) && const_name(fn) == get_or_name() && args.size() == 2) return true;
+    else return false;
+}
+
 bool is_or(expr const & e, expr & A, expr & B) {
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);

@@ -143,6 +143,7 @@ bool is_false(environment const & env, expr const & e);
 /** \brief Return an element of type t given an element \c f : false (in standard mode) and empty (in HoTT) mode */
 expr mk_false_rec(type_checker & tc, expr const & f, expr const & t);
 
+bool is_or(expr const & e);
 bool is_or(expr const & e, expr & A, expr & B);
 
 /** \brief Return true if \c e is of the form <tt>(not arg)</tt>, and store \c arg in \c a.

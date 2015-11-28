@@ -27,6 +27,8 @@ false.rec b (H2 H1)
 theorem mt {a b : Prop} (H1 : a → b) (H2 : ¬b) : ¬a :=
 assume Ha : a, absurd (H1 Ha) H2
 
+definition implies.resolve {a b : Prop} (H : a → b) (nb : ¬ b) : ¬ a := assume Ha, nb (H Ha)
+
 /- not -/
 
 theorem not_false : ¬false :=
@@ -36,6 +38,8 @@ definition non_contradictory (a : Prop) : Prop := ¬¬a
 
 theorem non_contradictory_intro {a : Prop} (Ha : a) : ¬¬a :=
 assume Hna : ¬a, absurd Ha Hna
+
+definition not.wrap {a : Prop} (na : a → false) : ¬ a := na
 
 /- false -/
 
@@ -458,6 +462,20 @@ iff.trans or.comm !or_false
 
 theorem or_self [simp] (a : Prop) : a ∨ a ↔ a :=
 iff.intro (or.rec id id) or.inl
+
+/- or resolution rulse -/
+
+definition or.resolve_left {a b : Prop} (H : a ∨ b) (na : ¬ a) : b :=
+  or.elim H (λ Ha, absurd Ha na) id
+
+definition or.neg_resolve_left {a b : Prop} (H : ¬ a ∨ b) (Ha : a) : b :=
+  or.elim H (λ na, absurd Ha na) id
+
+definition or.resolve_right {a b : Prop} (H : a ∨ b) (nb : ¬ b) : a :=
+  or.elim H id (λ Hb, absurd Hb nb)
+
+definition or.neg_resolve_right {a b : Prop} (H : a ∨ ¬ b) (Hb : b) : a :=
+  or.elim H id (λ nb, absurd Hb nb)
 
 /- iff simp rules -/
 

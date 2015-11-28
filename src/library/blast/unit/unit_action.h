@@ -8,18 +8,15 @@ Author: Daniel Selsam
 
 namespace lean {
 namespace blast {
-/* \brief Propagates lemmas of the form
-   <tt>(A11 \/ ... \/ ...) -> ... -> (Am1 \/ ... \/ ...) -> (B1 /\ ... /\ ...)</tt>
-   where each <tt>A</tt> and <tt>B</tt> can be any propositions, and can optionally
-   be negated.
+/* \brief The unit module handles lemmas of the form
+   <tt>A_1 -> ... -> A_n -> B_1 \/ (B2 \/ ... \/ B_m)...)</tt>
 
-   If we can find one disjunct for every antecedent, we instantiate the lemma
-   fully. On the other hand, if we can find one disjunct for all but one
-   antecedents, and one fact that disproves the conjunctive conclusion,
-   we conclude the negation of the missing disjunctive argument.
+   Whenever all but one of the literals is present as a hypothesis with
+   the appropriate polarity, we instantiate and resolve and necessary
+   to conclude a new literal.
 
-   Remark: conjunctions in the antecedents and disjunctions in the conclusion are
-   both treated as monolithic propositions, so some pre-processing may be necessary.
+   Remark: we assume that a pre-processing step will put lemmas
+   into the above form when possible.
 */
 action_result unit_action(unsigned hidx);
 

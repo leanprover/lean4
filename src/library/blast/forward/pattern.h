@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/rb_multi_map.h"
 #include "kernel/environment.h"
+#include "library/expr_lt.h"
 #include "library/tmp_type_context.h"
 
 #ifndef LEAN_HI_LEMMA_DEFAULT_PRIORITY
@@ -45,6 +46,9 @@ struct hi_lemma {
 
 inline bool operator==(hi_lemma const & l1, hi_lemma const & l2) { return l1.m_prop == l2.m_prop; }
 inline bool operator!=(hi_lemma const & l1, hi_lemma const & l2) { return l1.m_prop != l2.m_prop; }
+struct hi_lemma_cmp {
+    int operator()(hi_lemma const & l1, hi_lemma const & l2) const { return expr_quick_cmp()(l1.m_prop, l2.m_prop); }
+};
 
 /** \brief Mapping c -> S, where c is a constant name and S is a set of hi_lemmas that contain
     a pattern where the head symbol is c. */

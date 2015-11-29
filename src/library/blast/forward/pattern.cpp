@@ -656,6 +656,10 @@ hi_lemma const * get_hi_lemma(environment const & env, name const & c) {
     return hi_ext::get_state(env).m_name_to_lemma.find(c);
 }
 
+hi_lemmas get_hi_lemma_index(environment const & env) {
+    return hi_ext::get_state(env).m_lemmas;
+}
+
 void initialize_pattern() {
     g_hi_name           = new name("hi");
     g_key               = new std::string("HI");

@@ -1256,6 +1256,14 @@ expr congruence_closure::get_next(name const & R, expr const & e) const {
     }
 }
 
+unsigned congruence_closure::get_mt(name const & R, expr const & e) const {
+    if (auto n = m_entries.find(eqc_key(R, e))) {
+        return n->m_mt;
+    } else {
+        return m_gmt;
+    }
+}
+
 void congruence_closure::freeze_partitions() {
     m_froze_partitions = true;
     entries new_entries;

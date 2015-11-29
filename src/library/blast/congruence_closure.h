@@ -216,6 +216,9 @@ public:
 
     void inc_gmt() { m_gmt++; }
 
+    unsigned get_gmt() const { return m_gmt; }
+    unsigned get_mt(name const & R, expr const & e) const;
+
     /** \brief dump for debugging purposes. */
     void display() const;
     void display_eqcs() const;

@@ -65,8 +65,7 @@ void initialize_forward_extension() {
 
 void finalize_forward_extension() { }
 
-forward_branch_extension & get_extension() {
+forward_branch_extension & get_forward_extension() {
     return static_cast<forward_branch_extension&>(curr_state().get_extension(g_ext_id));
 }
-
 }}

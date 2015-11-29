@@ -25,7 +25,7 @@ public:
     head_map<expr> const & get_index() { return m_index; }
 };
 
-forward_branch_extension & get_extension();
+forward_branch_extension & get_forward_extension();
 
 void initialize_forward_extension();
 void finalize_forward_extension();

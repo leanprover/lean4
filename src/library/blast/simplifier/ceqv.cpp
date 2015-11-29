@@ -51,7 +51,7 @@ class to_ceqvs_fn {
     }
 
     // If restricted is true, we don't use (e <-> true) rewrite
-    list<expr_pair> apply(expr const & e, expr const & H, bool restrited) {
+    list<expr_pair> apply(expr const & e, expr const & H, bool restricted) {
         expr c, Hdec, A, arg1, arg2;
         if (is_relation(e)) {
             return mk_singleton(e, H);
@@ -63,15 +63,15 @@ class to_ceqvs_fn {
             // TODO(Leo): we can extend this trick to any type that has only one constructor
             expr H1 = mk_app(mk_constant(get_and_elim_left_name()), arg1, arg2, H);
             expr H2 = mk_app(mk_constant(get_and_elim_right_name()), arg1, arg2, H);
-            auto r1 = apply(arg1, H1, restrited);
-            auto r2 = apply(arg2, H2, restrited);
+            auto r1 = apply(arg1, H1, restricted);
+            auto r2 = apply(arg2, H2, restricted);
             return append(r1, r2);
         } else if (is_pi(e)) {
             // TODO(dhs): keep name?
             expr local = m_tctx.mk_tmp_local(binding_domain(e), binding_info(e));
             expr new_e = instantiate(binding_body(e), local);
             expr new_H = mk_app(H, local);
-            auto r = apply(new_e, new_H, restrited);
+            auto r = apply(new_e, new_H, restricted);
             unsigned len = length(r);
             if (len == 0) {
                 return r;
@@ -89,10 +89,10 @@ class to_ceqvs_fn {
                                  c, arg1, arg2, Hdec, e, Hc});
             expr H2    = mk_app({mk_constant(get_implies_of_if_neg_name()),
                                  c, arg1, arg2, Hdec, e, Hnc});
-            auto r1    = lift(Hc, apply(arg1, H1, restrited));
-            auto r2    = lift(Hnc, apply(arg2, H2, restrited));
+            auto r1    = lift(Hc, apply(arg1, H1, restricted));
+            auto r2    = lift(Hnc, apply(arg2, H2, restricted));
             return append(r1, r2);
-        } else if (!restrited) {
+        } else if (!restricted) {
             expr new_e = m_tctx.whnf(e);
             if (new_e != e) {
                 if (auto r = apply(new_e, H, true))
@@ -113,8 +113,8 @@ public:
     to_ceqvs_fn(tmp_type_context & tctx):m_env(tctx.env()), m_tctx(tctx) {}
 
     list<expr_pair> operator()(expr const & e, expr const & H) {
-        bool restrited = false;
-        list<expr_pair> lst = apply(e, H, restrited);
+        bool restricted = false;
+        list<expr_pair> lst = apply(e, H, restricted);
         return filter(lst, [&](expr_pair const & p) { return is_ceqv(m_tctx, p.first); });
     }
 };

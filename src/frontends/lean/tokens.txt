@@ -115,6 +115,7 @@ refl         [refl]
 subst        [subst]
 simp_attr    [simp]
 congr_attr   [congr]
+light_attr   [light
 backward_attr [backward]
 no_pattern_attr [no_pattern]
 forward_attr [forward]

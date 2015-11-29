@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/relation_manager.h"
 #include "library/congr_lemma_manager.h"
 #include "library/abstract_expr_manager.h"
+#include "library/light_lt_manager.h"
 #include "library/projection.h"
 #include "library/tactic/goal.h"
 #include "library/blast/expr.h"
@@ -62,6 +63,7 @@ class blastenv {
     fun_info_manager           m_fun_info_manager;
     congr_lemma_manager        m_congr_lemma_manager;
     abstract_expr_manager      m_abstract_expr_manager;
+    light_lt_manager           m_light_lt_manager;
     relation_info_getter       m_rel_getter;
     refl_info_getter           m_refl_getter;
     symm_info_getter           m_symm_getter;
@@ -442,6 +444,7 @@ public:
         m_fun_info_manager(*m_tmp_ctx),
         m_congr_lemma_manager(m_app_builder, m_fun_info_manager),
         m_abstract_expr_manager(m_fun_info_manager),
+        m_light_lt_manager(env),
         m_rel_getter(mk_relation_info_getter(env)),
         m_refl_getter(mk_refl_info_getter(env)),
         m_symm_getter(mk_symm_info_getter(env)),
@@ -548,6 +551,10 @@ public:
 
     bool abstract_is_equal(expr const & e1, expr const & e2) {
         return m_abstract_expr_manager.is_equal(e1, e2);
+    }
+
+    bool is_light_lt(expr const & e1, expr const & e2) {
+        return m_light_lt_manager.is_lt(e1, e2);
     }
 
     /** \brief Convert an external expression into a blast expression
@@ -754,6 +761,11 @@ unsigned abstract_hash(expr const & e) {
 bool abstract_is_equal(expr const & e1, expr const & e2) {
     lean_assert(g_blastenv);
     return g_blastenv->abstract_is_equal(e1, e2);
+}
+
+bool is_light_lt(expr const & e1, expr const & e2) {
+    lean_assert(g_blastenv);
+    return g_blastenv->is_light_lt(e1, e2);
 }
 
 void display_curr_state() {

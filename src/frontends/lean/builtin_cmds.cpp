@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/coercion.h"
 #include "library/constants.h"
 #include "library/reducible.h"
+#include "library/light_lt_manager.h"
 #include "library/normalize.h"
 #include "library/print.h"
 #include "library/noncomputable.h"
@@ -290,6 +291,8 @@ static void print_attributes(parser const & p, name const & n) {
         out << " [simp]";
     if (is_congr_rule(env, n))
         out << " [congr]";
+    if (auto light_arg = is_light_rule(env, n))
+        out << " [light " << *light_arg << "]";
     if (is_backward_rule(env, n))
         out << " [backward]";
     if (is_no_pattern(env, n))
@@ -536,6 +539,12 @@ static void print_congr_rules(parser & p) {
     out << s.pp_congr(out.get_formatter());
 }
 
+static void print_light_rules(parser & p) {
+    io_state_stream out = p.regular_stream();
+    light_rule_set lrs = get_light_rule_set(p.env());
+    out << lrs;
+}
+
 static void print_backward_rules(parser & p) {
     io_state_stream out = p.regular_stream();
     blast::backward_rule_set brs = get_backward_rule_set(p.env());
@@ -671,6 +680,10 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token(get_congr_attr_tk())) {
         p.next();
         print_congr_rules(p);
+    } else if (p.curr_is_token(get_light_attr_tk())) {
+        p.next();
+        p.check_token_next(get_rbracket_tk(), "invalid 'print [light]', ']' expected");
+        print_light_rules(p);
     } else if (p.curr_is_token(get_backward_attr_tk())) {
         p.next();
         print_backward_rules(p);

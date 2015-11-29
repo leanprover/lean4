@@ -28,6 +28,7 @@ Author: Leonardo de Moura
 #include "library/idx_metavar.h"
 #include "library/sorry.h"
 #include "library/placeholder.h"
+#include "library/light_lt_manager.h"
 #include "library/print.h"
 #include "library/fingerprint.h"
 #include "library/util.h"
@@ -89,9 +90,11 @@ void initialize_library_module() {
     initialize_norm_num();
     initialize_class_instance_resolution();
     initialize_type_context();
+    initialize_light_rule_set();
 }
 
 void finalize_library_module() {
+    finalize_light_rule_set();
     finalize_type_context();
     finalize_class_instance_resolution();
     finalize_norm_num();

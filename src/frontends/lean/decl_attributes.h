@@ -36,6 +36,7 @@ class decl_attributes {
     bool               m_no_pattern;
     optional<unsigned> m_recursor_major_pos;
     optional<unsigned> m_priority;
+    optional<unsigned> m_light_arg;
     list<unsigned>     m_unfold_hint;
 public:
     decl_attributes(bool is_abbrev = false, bool persistent = true);

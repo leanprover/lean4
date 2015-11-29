@@ -108,7 +108,7 @@ void init_token_table(token_table & t) {
         {"theorem", "axiom", "axioms", "variable", "protected", "private", "reveal",
          "definition", "example", "coercion", "abbreviation", "noncomputable",
          "variables", "parameter", "parameters", "constant", "constants",
-         "[persistent]", "[visible]", "[instance]", "[trans_instance]",
+         "[persistent]", "[visible]", "[instance]", "[trans_instance]", "[light",
          "[none]", "[class]", "[coercion]", "[reducible]", "[irreducible]", "[semireducible]", "[quasireducible]",
          "[simp]", "[congr]", "[parsing_only]", "[multiple_instances]", "[symm]", "[trans]", "[refl]", "[subst]", "[recursor",
          "evaluate", "check", "eval", "[wf]", "[whnf]", "[priority", "[unfold_full]", "[unfold_hints]", "[backward]",

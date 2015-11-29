@@ -120,6 +120,7 @@ static name const * g_refl_tk = nullptr;
 static name const * g_subst_tk = nullptr;
 static name const * g_simp_attr_tk = nullptr;
 static name const * g_congr_attr_tk = nullptr;
+static name const * g_light_attr_tk = nullptr;
 static name const * g_backward_attr_tk = nullptr;
 static name const * g_no_pattern_attr_tk = nullptr;
 static name const * g_forward_attr_tk = nullptr;
@@ -277,6 +278,7 @@ void initialize_tokens() {
     g_subst_tk = new name{"[subst]"};
     g_simp_attr_tk = new name{"[simp]"};
     g_congr_attr_tk = new name{"[congr]"};
+    g_light_attr_tk = new name{"[light"};
     g_backward_attr_tk = new name{"[backward]"};
     g_no_pattern_attr_tk = new name{"[no_pattern]"};
     g_forward_attr_tk = new name{"[forward]"};
@@ -435,6 +437,7 @@ void finalize_tokens() {
     delete g_subst_tk;
     delete g_simp_attr_tk;
     delete g_congr_attr_tk;
+    delete g_light_attr_tk;
     delete g_backward_attr_tk;
     delete g_no_pattern_attr_tk;
     delete g_forward_attr_tk;
@@ -592,6 +595,7 @@ name const & get_refl_tk() { return *g_refl_tk; }
 name const & get_subst_tk() { return *g_subst_tk; }
 name const & get_simp_attr_tk() { return *g_simp_attr_tk; }
 name const & get_congr_attr_tk() { return *g_congr_attr_tk; }
+name const & get_light_attr_tk() { return *g_light_attr_tk; }
 name const & get_backward_attr_tk() { return *g_backward_attr_tk; }
 name const & get_no_pattern_attr_tk() { return *g_no_pattern_attr_tk; }
 name const & get_forward_attr_tk() { return *g_forward_attr_tk; }

@@ -122,6 +122,7 @@ name const & get_refl_tk();
 name const & get_subst_tk();
 name const & get_simp_attr_tk();
 name const & get_congr_attr_tk();
+name const & get_light_attr_tk();
 name const & get_backward_attr_tk();
 name const & get_no_pattern_attr_tk();
 name const & get_forward_attr_tk();

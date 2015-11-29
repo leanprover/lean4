@@ -614,7 +614,7 @@ result simplifier::rewrite(expr const & e, simp_rule const & sr) {
     expr new_rhs = tmp_tctx->instantiate_uvars_mvars(sr.get_rhs());
 
     if (sr.is_perm()) {
-        if (!is_lt(new_rhs, new_lhs, false))
+        if (!is_light_lt(new_rhs, new_lhs))
             return result(e);
     }
 

@@ -164,6 +164,7 @@
      (,(rx "\[priority " (one-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      (,(rx "\[recursor " (one-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      (,(rx "\[unfold " (one-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
+     (,(rx "\[light " (one-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      ;; Constants which have a keyword as subterm
      (,(rx (or "∘if")) . 'font-lock-constant-face)
      ;; Keywords

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/relation_manager.h"
 #include "library/user_recursors.h"
 #include "library/coercion.h"
+#include "library/light_lt_manager.h"
 #include "library/blast/simplifier/simp_rule_set.h"
 #include "library/blast/backward/backward_rule_set.h"
 #include "library/blast/forward/pattern.h"
@@ -139,6 +140,10 @@ void decl_attributes::parse(parser & p) {
         } else if (p.curr_is_token(get_congr_attr_tk())) {
             p.next();
             m_congr = true;
+        } else if (p.curr_is_token(get_light_attr_tk())) {
+            p.next();
+            m_light_arg = p.parse_small_nat();
+            p.check_token_next(get_rbracket_tk(), "light attribute has form '[light <i>]'");
         } else if (p.curr_is_token(get_backward_attr_tk())) {
             p.next();
             m_backward = true;
@@ -233,6 +238,9 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
             env = add_congr_rule(env, d, *m_priority, m_persistent);
         else
             env = add_congr_rule(env, d, LEAN_SIMP_DEFAULT_PRIORITY, m_persistent);
+    }
+    if (m_light_arg) {
+        env = add_light_rule(env, d, *m_light_arg, m_persistent);
     }
     if (m_backward) {
         if (m_priority)

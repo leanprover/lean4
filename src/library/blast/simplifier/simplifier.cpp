@@ -134,6 +134,7 @@ static bool is_neg_app(expr const & e) {
 class simplifier {
     blast_tmp_type_context                       m_tmp_tctx;
     name                                         m_rel;
+    expr_predicate                               m_simp_pred;
 
     simp_rule_sets                               m_srss;
     simp_rule_sets                               m_ctx_srss;
@@ -255,7 +256,7 @@ class simplifier {
 
 
 public:
-    simplifier(name const & rel): m_rel(rel) { }
+    simplifier(name const & rel, expr_predicate const & simp_pred): m_rel(rel), m_simp_pred(simp_pred) { }
     result operator()(expr const & e, simp_rule_sets const & srss)  { return simplify(e, srss); }
 };
 
@@ -382,6 +383,8 @@ result simplifier::simplify(expr const & e, bool is_root) {
     if (m_memoize) {
         if (auto it = cache_lookup(e)) return *it;
     }
+
+    if (!m_simp_pred(e)) return result(e);
 
     if (m_numerals && using_eq()) {
         if (auto r = simplify_numeral(e)) {
@@ -719,7 +722,8 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
             lean_verify(is_simp_relation(env(), m_type, h_rel, h_lhs, h_rhs) && is_constant(h_rel));
             {
                 flet<name> set_name(m_rel, const_name(h_rel));
-                flet<simp_rule_sets> set_ctx_srss(m_ctx_srss, add_to_srss(m_ctx_srss, ls));
+
+                flet<simp_rule_sets> set_ctx_srss(m_ctx_srss, m_contextual ? add_to_srss(m_ctx_srss, ls) : m_ctx_srss);
 
                 h_lhs = tmp_tctx->instantiate_uvars_mvars(h_lhs);
                 lean_assert(!has_metavar(h_lhs));
@@ -756,9 +760,11 @@ bool simplifier::instantiate_emetas(blast_tmp_type_context & tmp_tctx, unsigned 
             expr m_type = tmp_tctx->instantiate_uvars_mvars(tmp_tctx->infer(m));
             lean_assert(!has_metavar(m_type));
 
+            if (tmp_tctx->is_mvar_assigned(i)) return;
+
             if (is_instance) {
                 if (auto v = tmp_tctx->mk_class_instance(m_type)) {
-                    if (!tmp_tctx->force_assign(m, *v)) {
+                    if (!tmp_tctx->assign(m, *v)) {
                         if (m_trace) {
                             ios().get_diagnostic_channel() << "unable to assign instance for: " << m_type << "\n";
                         }
@@ -1098,9 +1104,15 @@ void finalize_simplifier() {
     delete g_simplify_empty_namespace;
 }
 
-/* Entry point */
+/* Entry points */
+static bool simplify_all_pred(expr const &) { return true; }
+
 result simplify(name const & rel, expr const & e, simp_rule_sets const & srss) {
-    return simplifier(rel)(e, srss);
+    return simplifier(rel, simplify_all_pred)(e, srss);
+}
+
+result simplify(name const & rel, expr const & e, simp_rule_sets const & srss, expr_predicate const & simp_pred) {
+    return simplifier(rel, simp_pred)(e, srss);
 }
 
 }}

@@ -37,7 +37,11 @@ public:
 };
 }
 
+// TODO(dhs): put this outside of blast module
+typedef std::function<bool(expr const &)> expr_predicate; // NOLINT
+
 simp::result simplify(name const & rel, expr const & e, simp_rule_sets const & srss);
+simp::result simplify(name const & rel, expr const & e, simp_rule_sets const & srss, expr_predicate const & simp_pred);
 
 void initialize_simplifier();
 void finalize_simplifier();

@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "library/blast/backward/backward_strategy.h"
 #include "library/blast/forward/forward_actions.h"
 #include "library/blast/forward/ematch.h"
-#include "library/blast/unit/unit_action.h"
+#include "library/blast/unit/unit_actions.h"
 #include "library/blast/no_confusion_action.h"
 #include "library/blast/simplifier/simplifier_actions.h"
 #include "library/blast/recursor_action.h"
@@ -31,6 +31,7 @@ class simple_strategy : public strategy {
     action_result hypothesis_pre_activation(hypothesis_idx hidx) override {
         Try(assumption_contradiction_actions(hidx));
         Try(simplify_hypothesis_action(hidx));
+        Try(unit_preprocess(hidx));
         Try(no_confusion_action(hidx));
         TrySolve(assert_cc_action(hidx));
         Try(discard_action(hidx));
@@ -39,7 +40,7 @@ class simple_strategy : public strategy {
     }
 
     action_result hypothesis_post_activation(hypothesis_idx hidx) override {
-        Try(unit_action(hidx));
+        Try(unit_propagate(hidx));
         Try(recursor_preprocess_action(hidx));
         return action_result::new_branch();
     }

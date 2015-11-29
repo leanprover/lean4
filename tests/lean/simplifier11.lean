@@ -33,7 +33,7 @@ attribute if_ctx_simp_congr [congr]
 #simplify eq env 0 (ite b x y)
 end if_ctx_simp_congr
 
-namespace if_congr_prop
+namespace if_ctx_congr_prop
 constants {b c x y u v : Prop} (dec_b : decidable b) (dec_c : decidable c)
           (h_c : b ↔ c) (h_t : c → (x ↔ u)) (h_e : ¬c → (y ↔ v))
 
@@ -44,9 +44,8 @@ constants {b c x y u v : Prop} (dec_b : decidable b) (dec_c : decidable c)
  attribute h_e [simp]
 
 attribute if_ctx_congr_prop [congr]
-
 #simplify iff env 0 (ite b x y)
-end if_congr_prop
+end if_ctx_congr_prop
 
 namespace if_ctx_simp_congr_prop
 constants (b c x y u v : Prop) (dec_b : decidable b)

@@ -1,0 +1,13 @@
+(A → B) ∧ (A → C)
+(A → B) ∧ (A → C) ∧ (A → D)
+A → B → C → D
+(A → B → C → D) ∧ (A → B → C → E)
+(A → B → C → D → F) ∧ (A → B → C → D → G) ∧ (A → B → C → E → F) ∧ (A →
+ B → C → E → G)
+(A → B → C → D → F → G) ∧ (A → B → C → D → G → F) ∧ (A → B → C → E → F → G) ∧ (A →
+ B → C → E → G → F)
+(A → B) ∧ (¬A → C)
+((A → B) → (¬A → C) → B) ∧ ((A → B) → (¬A → C) → C)
+A → B
+(A → B → D → F → G) ∧ (A → B → D → G → F) ∧ (A → B → E → F → G) ∧ (A →
+ B → E → G → F)

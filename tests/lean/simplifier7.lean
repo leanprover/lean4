@@ -11,6 +11,5 @@ attribute H3 [simp]
 attribute Hf [simp]
 attribute Hg [simp]
 
-
 #simplify iff env 2 (and P1 (and P2 P3))
 #simplify iff env 2 (and P1 (iff P2 P3))

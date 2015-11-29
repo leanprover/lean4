@@ -10,7 +10,7 @@ Author: Daniel Selsam
 #include "library/util.h"
 #include "library/blast/blast.h"
 #include "library/blast/action_result.h"
-#include "library/blast/unit/unit_action.h"
+#include "library/blast/unit/unit_actions.h"
 #include "library/blast/proof_expr.h"
 #include "library/blast/choice_point.h"
 #include "library/blast/hypothesis.h"
@@ -106,11 +106,11 @@ public:
     }
 };
 
-void initialize_unit_action() {
+void initialize_unit_propagate() {
     g_ext_id = register_branch_extension(new unit_branch_extension());
 }
 
-void finalize_unit_action() { }
+void finalize_unit_propagate() { }
 
 static unit_branch_extension & get_extension() {
     return static_cast<unit_branch_extension&>(curr_state().get_extension(g_ext_id));
@@ -285,7 +285,7 @@ action_result unit_fact(expr const & type) {
     else return action_result::failed();
 }
 
-action_result unit_action(unsigned hidx) {
+action_result unit_propagate(unsigned hidx) {
     hypothesis const & h = curr_state().get_hypothesis_decl(hidx);
     expr type = whnf(h.get_type());
     if (is_lemma(type)) return unit_lemma(hidx, type, h.get_self());

@@ -340,6 +340,20 @@ bool is_not(environment const & env, expr const & e, expr & a) {
     }
 }
 
+bool is_not(environment const & env, expr const & e) {
+    if (is_app(e)) {
+        expr const & f = app_fn(e);
+        if (!is_constant(f) || const_name(f) != get_not_name())
+            return false;
+        return true;
+    } else if (is_pi(e)) {
+        if (!is_false(env, binding_body(e))) return false;
+        return true;
+    } else {
+        return false;
+    }
+}
+
 expr mk_not(type_checker & tc, expr const & e) {
     if (is_standard(tc.env())) {
         return mk_app(mk_constant(get_not_name()), e);
@@ -422,6 +436,16 @@ bool is_and(expr const & e, expr & arg1, expr & arg2) {
     }
 }
 
+bool is_and(expr const & e) {
+    if (get_app_fn(e) == *g_and) {
+        buffer<expr> args; get_app_args(e, args);
+        if (args.size() == 2) return true;
+        else return false;
+    } else {
+        return false;
+    }
+}
+
 expr mk_and(expr const & a, expr const & b) {
     return mk_app(*g_and, a, b);
 }
@@ -494,8 +518,20 @@ bool is_ite(expr const & e, expr & c, expr & H, expr & A, expr & t, expr & f) {
             c = args[0]; H = args[1]; A = args[2]; t = args[3]; f = args[4];
             return true;
         } else {
-            return true;
+            return false;
         }
+    } else {
+        return false;
+    }
+}
+
+bool is_ite(expr const & e) {
+    expr const & fn = get_app_fn(e);
+    if (is_constant(fn) && const_name(fn) == get_ite_name()) {
+        buffer<expr> args;
+        get_app_args(e, args);
+        if (args.size() == 5) return true;
+        else return false;
     } else {
         return false;
     }

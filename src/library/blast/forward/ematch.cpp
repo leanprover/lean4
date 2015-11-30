@@ -45,6 +45,7 @@ struct ematch_branch_extension : public branch_extension {
     hi_lemma_set                                  m_new_lemmas;
     rb_map<head_index, expr_set, head_index::cmp> m_apps;
     name_set                                      m_initialized;
+    expr_set                                      m_instances;
 
     ematch_branch_extension() {}
     ematch_branch_extension(ematch_branch_extension const &) {}
@@ -109,6 +110,14 @@ struct ematch_branch_extension : public branch_extension {
     }
     virtual void hypothesis_deleted(hypothesis const &, hypothesis_idx) override {}
     virtual void target_updated() override { collect_apps(curr_state().get_target()); }
+};
+
+/* Auxiliary proof step used to bump proof depth */
+struct noop_proof_step_cell : public proof_step_cell {
+    virtual ~noop_proof_step_cell() {}
+    virtual action_result resolve(expr const & pr) const override {
+        return action_result::solved(pr);
+    }
 };
 
 void initialize_ematch() {
@@ -217,7 +226,7 @@ struct ematch_fn {
         name R; frame_kind kind; expr p, t;
         std::tie(R, kind, p, t) = head(m_state);
         m_state = tail(m_state);
-        diagnostic(env(), ios()) << ">> " << R << ", " << ppb(p) << " =?= " << ppb(t) << "\n";
+        // diagnostic(env(), ios()) << ">> " << R << ", " << ppb(p) << " =?= " << ppb(t) << "\n";
         switch (kind) {
         case DefEqOnly:
             return m_ctx->is_def_eq(p, t);
@@ -256,9 +265,21 @@ struct ematch_fn {
             }
             it = &tail(*it);
         }
-        for (expr const & mvar : lemma.m_mvars) {
-            diagnostic(env(), ios()) << "[" << mvar << "] := " << ppb(m_ctx->instantiate_uvars_mvars(mvar)) << "\n";
+        expr new_inst  = normalize(m_ctx->instantiate_uvars_mvars(lemma.m_prop));
+        if (has_idx_metavar(new_inst))
+            return; // result contains temporary metavariables
+        if (m_ext.m_instances.contains(new_inst))
+            return; // already added this instance
+        if (!m_new_instances) {
+            trace_action("ematch");
         }
+        if (is_trace_enabled()) {
+            diagnostic(env(), ios()) << "ematch_instance: " << ppb(new_inst) << "\n";
+        }
+        m_new_instances = true;
+        expr new_proof = m_ctx->instantiate_uvars_mvars(lemma.m_proof);
+        m_ext.m_instances.insert(new_inst);
+        curr_state().mk_hypothesis(new_inst, new_proof);
     }
 
     void search(hi_lemma const & lemma) {
@@ -353,6 +374,8 @@ struct ematch_fn {
         m_ext.m_new_lemmas = hi_lemma_set();
         m_cc.inc_gmt();
         if (m_new_instances) {
+            curr_state().push_proof_step(new noop_proof_step_cell());
+            trace("");
             return action_result::new_branch();
         } else {
             return action_result::failed();

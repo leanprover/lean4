@@ -27,6 +27,9 @@ expr mk_idx_metavar(unsigned i, expr const & type);
 bool is_idx_metavar(expr const & l);
 unsigned to_meta_idx(expr const & e);
 
+/** \brief Return true iff \c e contains idx metavariables or universe metavariables */
+bool has_idx_metavar(expr const & e);
+
 void initialize_idx_metavar();
 void finalize_idx_metavar();
 }

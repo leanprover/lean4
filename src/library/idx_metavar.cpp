@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/interrupt.h"
+#include "kernel/for_each_fn.h"
 #include "library/idx_metavar.h"
 
 #ifndef LEAN_INSTANTIATE_METAIDX_CACHE_CAPACITY
@@ -52,5 +53,37 @@ bool is_idx_metavar(expr const & e) {
 unsigned to_meta_idx(expr const & e) {
     lean_assert(is_idx_metavar(e));
     return mlocal_name(e).get_numeral();
+}
+
+bool has_idx_metauniv(level const & l) {
+    if (!has_meta(l))
+        return false;
+    bool found = false;
+    for_each(l, [&](level const & l) {
+            if (found) return false;
+            if (!has_meta(l)) return false;
+            if (is_idx_metauniv(l))
+                found = true;
+            return true;
+        });
+    return found;
+}
+
+bool has_idx_metavar(expr const & e) {
+    if (!has_univ_metavar(e) && !has_expr_metavar(e))
+        return false;
+    bool found = false;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (found) return false;
+            if (!has_univ_metavar(e) && !has_expr_metavar(e)) return false;
+            if (is_idx_metavar(e))
+                found = true;
+            else if (is_constant(e) && std::any_of(const_levels(e).begin(), const_levels(e).end(), has_idx_metauniv))
+                found = true;
+            else if (is_sort(e) && has_idx_metauniv(sort_level(e)))
+                found = true;
+            return true;
+        });
+    return found;
 }
 }

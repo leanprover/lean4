@@ -116,16 +116,17 @@ section arith
   definition bv_sub : bv n → bv n → bv n
   | x y := pr₂ (bv_sbb x y ff)
 
-  definition bv_mul : bv n → bv n → bv n
-  | (tag x px) y :=
-    let f := λr b, (let r2 := bv_shl r 1 in cond b (bv_add r2 y) r2) in
-    foldl f (bv_zero n) x
-
   definition bv_has_zero [instance] : has_zero (bv n) := has_zero.mk (bv_zero n)
   definition bv_has_one  [instance] : has_one (bv n)  := has_one.mk (bv_one n)
   definition bv_has_add  [instance] : has_add (bv n)  := has_add.mk bv_add
   definition bv_has_sub  [instance] : has_sub (bv n)  := has_sub.mk bv_sub
   definition bv_has_neg  [instance] : has_neg (bv n)  := has_neg.mk bv_neg
+
+  definition bv_mul : bv n → bv n → bv n
+  | x y :=
+    let f := λr b, cond b (r + r + y) (r + r) in
+    foldl f 0 (to_list x)
+
   definition bv_has_mul  [instance] : has_mul (bv n)  := has_mul.mk bv_mul
 
   definition bv_ult : bv n → bv n → bool := λx y, pr₁ (bv_sbb x y ff)
@@ -150,15 +151,10 @@ end arith
 section from_bv
   variable {A : Type}
 
-  protected definition fold_list_bits [p : has_add A]  [q : has_one A]
-    : list bool → A → A
-  | [] r := r
-  | (tt::l) r := fold_list_bits l (r+r+1)
-  | (ff::l) r := fold_list_bits l (r+r)
-
   -- Convert a bitvector to another number.
-  definition from_bv [p : has_add A] [q0 : has_zero A] [q1 : has_one A] {w:nat} (v:bv w) : A :=
-    bv.fold_list_bits (to_list v) 0
+  definition from_bv [p : has_add A] [q0 : has_zero A] [q1 : has_one A] {n:nat} (v:bv n) : A :=
+    let f := λr b, cond b (r + r + 1) (r + r) in
+    foldl f 0 (to_list v)
 end from_bv
 
 end bv

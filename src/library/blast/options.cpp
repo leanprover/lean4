@@ -38,6 +38,9 @@ Author: Leonardo de Moura
 #ifndef LEAN_DEFAULT_BLAST_RECURSOR
 #define LEAN_DEFAULT_BLAST_RECURSOR true
 #endif
+#ifndef LEAN_DEFAULT_BLAST_EMATCH
+#define LEAN_DEFAULT_BLAST_EMATCH false
+#endif
 
 
 namespace lean {
@@ -52,6 +55,7 @@ static name * g_blast_simp         = nullptr;
 static name * g_blast_cc           = nullptr;
 static name * g_blast_trace_cc     = nullptr;
 static name * g_blast_recursor     = nullptr;
+static name * g_blast_ematch       = nullptr;
 static name * g_blast_show_failure = nullptr;
 
 unsigned get_blast_max_depth(options const & o) {
@@ -81,6 +85,9 @@ bool get_blast_trace_cc(options const & o) {
 bool get_blast_recursor(options const & o) {
     return o.get_bool(*g_blast_recursor, LEAN_DEFAULT_BLAST_RECURSOR);
 }
+bool get_blast_ematch(options const & o) {
+    return o.get_bool(*g_blast_ematch, LEAN_DEFAULT_BLAST_EMATCH);
+}
 bool get_blast_show_failure(options const & o) {
     return o.get_bool(*g_blast_show_failure, LEAN_DEFAULT_BLAST_SHOW_FAILURE);
 }
@@ -95,6 +102,7 @@ config::config(options const & o) {
     m_cc                = get_blast_cc(o);
     m_trace_cc          = get_blast_trace_cc(o);
     m_recursor          = get_blast_recursor(o);
+    m_ematch            = get_blast_ematch(o);
     m_show_failure      = get_blast_show_failure(o);
     m_pattern_max_steps = get_pattern_max_steps(o);
 }
@@ -126,6 +134,7 @@ void initialize_options() {
     g_blast_cc           = new name{"blast", "cc"};
     g_blast_trace_cc     = new name{"blast", "trace_cc"};
     g_blast_recursor     = new name{"blast", "recursor"};
+    g_blast_ematch       = new name{"blast", "ematch"};
     g_blast_show_failure = new name{"blast", "show_failure"};
 
     register_unsigned_option(*blast::g_blast_max_depth, LEAN_DEFAULT_BLAST_MAX_DEPTH,
@@ -146,6 +155,8 @@ void initialize_options() {
                          "(blast) (for debugging purposes) trace congruence closure");
     register_bool_option(*blast::g_blast_recursor, LEAN_DEFAULT_BLAST_RECURSOR,
                          "(blast) enable recursor action");
+    register_bool_option(*blast::g_blast_ematch, LEAN_DEFAULT_BLAST_EMATCH,
+                         "(blast) enable heuristic instantiation based on e-matching");
     register_bool_option(*blast::g_blast_show_failure, LEAN_DEFAULT_BLAST_SHOW_FAILURE,
                          "(blast) show failure state");
 }
@@ -159,6 +170,7 @@ void finalize_options() {
     delete g_blast_cc;
     delete g_blast_trace_cc;
     delete g_blast_recursor;
+    delete g_blast_ematch;
     delete g_blast_show_failure;
 }
 }}

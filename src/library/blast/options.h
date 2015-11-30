@@ -18,6 +18,7 @@ struct config {
     bool                       m_subst;
     bool                       m_simp;
     bool                       m_recursor;
+    bool                       m_ematch;
     bool                       m_cc;
     bool                       m_trace_cc;
     bool                       m_show_failure;

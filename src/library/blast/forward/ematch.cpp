@@ -5,8 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/constants.h"
+#include "library/idx_metavar.h"
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"
+#include "library/blast/options.h"
 #include "library/blast/congruence_closure.h"
 #include "library/blast/forward/pattern.h"
 
@@ -137,7 +139,7 @@ struct ematch_fn {
     }
 
     bool is_done() const {
-        return !m_state;
+        return is_nil(m_state);
     }
 
     bool is_eqv(name const & R, expr const & p, expr const & t) {
@@ -211,6 +213,7 @@ struct ematch_fn {
         name R; frame_kind kind; expr p, t;
         std::tie(R, kind, p, t) = head(m_state);
         m_state = tail(m_state);
+        diagnostic(env(), ios()) << ">> " << R << ", " << ppb(p) << " =?= " << ppb(t) << "\n";
         switch (kind) {
         case DefEqOnly:
             return m_ctx->is_def_eq(p, t);
@@ -222,19 +225,50 @@ struct ematch_fn {
         lean_unreachable();
     }
 
-    bool match() {
-        // TODO(Leo)
-        return false;
+    bool backtrack() {
+        if (m_choice_stack.empty())
+            return false;
+        m_ctx->pop();
+        lean_assert(m_choice_stack.back());
+        m_state = head(m_choice_stack.back());
+        m_ctx->push();
+        m_choice_stack.back() = tail(m_choice_stack.back());
+        if (!m_choice_stack.back())
+            m_choice_stack.pop_back();
+        return true;
+    }
+
+    void instantiate(hi_lemma const & lemma) {
+        std::cout << "FOUND\n";
+        for (expr const & mvar : lemma.m_mvars) {
+            diagnostic(env(), ios()) << "[" << mvar << "] := " << ppb(m_ctx->instantiate_uvars_mvars(mvar)) << "\n";
+        }
+    }
+
+    void search(hi_lemma const & lemma) {
+        while (true) {
+            if (is_done()) {
+                instantiate(lemma);
+                if (!backtrack())
+                    return;
+            }
+            if (!process_next()) {
+                if (!backtrack())
+                    return;
+            }
+        }
     }
 
     void instantiate_lemma_using(hi_lemma const & lemma, buffer<expr> const & ps, bool filter) {
         expr const & p0 = ps[0];
-        expr const & f  = get_app_fn(p0);
+        buffer<expr> p0_args;
+        expr const & f  = get_app_args(p0, p0_args);
         name const & R  = is_prop(p0) ? get_iff_name() : get_eq_name();
         unsigned gmt    = m_cc.get_gmt();
         if (auto s = m_ext.m_apps.find(f)) {
             s->for_each([&](expr const & t) {
                     if (m_cc.is_congr_root(R, t) && (!filter || m_cc.get_mt(R, t) == gmt)) {
+                        m_ctx->clear();
                         m_ctx->set_next_uvar_idx(lemma.m_num_uvars);
                         m_ctx->set_next_mvar_idx(lemma.m_num_mvars);
                         state s;
@@ -243,11 +277,27 @@ struct ematch_fn {
                             --i;
                             s = cons(entry(name(), Continue, ps[i], expr()), s);
                         }
-                        s = cons(entry(R, Match, p0, t), s);
-                        diagnostic(env(), ios()) << "ematch " << ppb(p0) << " =?= " << ppb(t) << "\n";
-                        if (match()) {
-                            // TODO(Leo): add instance
+                        m_choice_stack.clear();
+                        m_state = s;
+                        optional<ext_congr_lemma> cg_lemma = mk_ext_congr_lemma(R, f, p0_args.size());
+                        if (!cg_lemma)
+                            return;
+                        buffer<expr> t_args;
+                        get_app_args(t, t_args);
+                        if (p0_args.size() != t_args.size())
+                            return;
+                        auto const * r_names = &cg_lemma->m_rel_names;
+                        for (unsigned i = 0; i < p0_args.size(); i++) {
+                            lean_assert(*r_names);
+                            if (auto Rc = head(*r_names)) {
+                                m_state = cons(entry(*Rc, Match, p0_args[i], t_args[i]), m_state);
+
+                            } else {
+                                m_state = cons(entry(get_eq_name(), DefEqOnly, p0_args[i], t_args[i]), m_state);
+                            }
+                            r_names = &tail(*r_names);
                         }
+                        search(lemma);
                     }
                 });
         }
@@ -295,6 +345,9 @@ struct ematch_fn {
 };
 
 action_result ematch_action() {
-    return ematch_fn()();
+    if (get_config().m_ematch)
+        return ematch_fn()();
+    else
+        return action_result::failed();
 }
 }}

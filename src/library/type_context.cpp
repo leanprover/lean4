@@ -1298,13 +1298,15 @@ optional<pair<expr, expr>> type_context::find_unsynth_metavar(expr const & e) {
 }
 
 bool type_context::on_is_def_eq_failure(expr & e1, expr & e2) {
-    if (is_app(e1) && is_app(e2)) {
+    if (is_app(e1)) {
         if (auto p1 = find_unsynth_metavar(e1)) {
             if (mk_nested_instance(p1->first, p1->second)) {
                 e1 = instantiate_uvars_mvars(e1);
                 return true;
             }
         }
+    }
+    if (is_app(e2)) {
         if (auto p2 = find_unsynth_metavar(e2)) {
             if (mk_nested_instance(p2->first, p2->second)) {
                 e2 = instantiate_uvars_mvars(e2);

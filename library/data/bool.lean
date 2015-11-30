@@ -127,4 +127,6 @@ namespace bool
 
   theorem eq_ff_of_bnot_eq_tt {a : bool} : bnot a = tt → a = ff :=
   bool.cases_on a (λ h, rfl) (by contradiction)
+
+  definition bxor (x:bool) (y:bool) := cond x (bnot y) y
 end bool

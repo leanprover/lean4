@@ -128,6 +128,22 @@ section arith
   definition bv_has_neg  [instance] : has_neg (bv n)  := has_neg.mk bv_neg
   definition bv_has_mul  [instance] : has_mul (bv n)  := has_mul.mk bv_mul
 
+  definition bv_ult : bv n → bv n → bool := λx y, pr₁ (bv_sbb x y ff)
+  definition bv_ugt : bv n → bv n → bool := λx y, bv_ult y x
+  definition bv_ule : bv n → bv n → bool := λx y, bnot (bv_ult y x)
+  definition bv_uge : bv n → bv n → bool := λx y, bv_ule y x
+
+  definition bv_slt : bv (succ n) → bv (succ n) → bool := λx y,
+    cond (head x)
+         (cond (head y)
+               (bv_ult (tail x) (tail y)) -- both negative
+               tt)                        -- x is negative and y is not
+         (cond (head y)
+               ff                          -- y is negative and x is not
+               (bv_ult (tail x) (tail y))) -- both positive
+  definition bv_sgt : bv (succ n) → bv (succ n) → bool := λx y, bv_slt y x
+  definition bv_sle : bv (succ n) → bv (succ n) → bool := λx y, bnot (bv_slt y x)
+  definition bv_sge : bv (succ n) → bv (succ n) → bool := λx y, bv_sle y x
 end arith
 
 

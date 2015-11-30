@@ -269,4 +269,54 @@ namespace tuple
         {unfold tabulate, rewrite ith_zero},
         {unfold tabulate, rewrite [ith_succ, ih]}
   end
+
+  variable {n : ℕ}
+
+  definition replicate : A → tuple A n
+  | a := tag (list.replicate n a) (length_replicate n a)
+
+  definition dropn : Π (i:ℕ), tuple A n → tuple A (n - i)
+  | i (tag l p) := tag (list.dropn i l) (p ▸ list.length_dropn i l)
+
+  definition firstn : Π (i:ℕ) {p:i ≤ n}, tuple A n → tuple A i
+  | i isLe (tag l p) :=
+    let q := calc list.length (list.firstn i l)
+                     = min i (list.length l)  : list.length_firstn_eq
+                 ... = min i n : p
+                 ... = i : min_eq_left isLe in
+    tag (list.firstn i l) q
+
+  definition map₂ : (A → B → C) → tuple A n → tuple B n → tuple C n
+  | f (tag x px) (tag y py) :=
+    let z : list C := list.map₂ f x y in
+    let p : list.length z = n := calc
+         list.length z = min (list.length x) (list.length y) : list.length_map₂
+                   ... = min n n                             : by rewrite [px, py]
+                   ... = n                                   : min_self in
+    tag z p
+
+  section accum
+  open prod
+  variable {S : Type}
+
+  definition mapAccumR
+  : (A → S → S × B) → tuple A n → S → S × tuple B n
+  | f (tag x px) c :=
+    let z := list.mapAccumR f x c in
+    let p := calc
+          list.length (pr₂ (list.mapAccumR f x c))
+                  = length x                   : length_mapAccumR
+              ... = n                          : px in
+    (pr₁ z, tag (pr₂ z) p)
+
+  definition mapAccumR₂
+  : (A → B → S → S × C) → tuple A n → tuple B n → S → S × tuple C n
+  | f (tag x px) (tag y py) c :=
+    let z := list.mapAccumR₂ f x y c in
+    let p := calc
+          list.length (pr₂ (list.mapAccumR₂ f x y c))
+                  = min (length x) (length y)  : length_mapAccumR₂
+              ... = n                          : by rewrite [ px, py, min_self ] in
+    (pr₁ z, tag (pr₂ z) p)
+  end accum
 end tuple

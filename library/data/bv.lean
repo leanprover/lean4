@@ -74,67 +74,62 @@ end shift
 section bitwise
   variable { n : ℕ }
 
-  -- | Bitwise and
+  definition bv_not : bv n → bv n := map bnot
   definition bv_and : bv n → bv n → bv n := map₂ band
-
-  -- | Bitwise or
-  definition bv_or : bv n → bv n → bv n := map₂ bor
-
-  -- | Bitwise xor
+  definition bv_or  : bv n → bv n → bv n := map₂ bor
   definition bv_xor : bv n → bv n → bv n := map₂ bxor
 
 end bitwise
 
-protected definition xor3 (x:bool) (y:bool) (c:bool) := bxor (bxor x y) c
-protected definition carry (x:bool) (y:bool) (c:bool) :=
-  x && y || x && c || y && c
+section arith
 
--- Add with carry (no overflow)
-definition bv_adc {n:ℕ} : bv n → bv n → bool → bv (n+1)
-| x y c :=
-  let f := λx y c, (bv.carry x y c, bv.xor3 x y c) in
-  let z := tuple.mapAccumR₂ f x y c in
-  (pr₁ z) :: (pr₂ z)
+  variable { n : ℕ }
 
-definition bv_add {n:ℕ} : bv n → bv n → bv n
-| x y := tail (bv_adc x y ff)
+  protected definition xor3 (x:bool) (y:bool) (c:bool) := bxor (bxor x y) c
+  protected definition carry (x:bool) (y:bool) (c:bool) :=
+    x && y || x && c || y && c
 
-protected definition borrow (x:bool) (y:bool) (b:bool) :=
-  bnot x && y || bnot x && b || y && b
+  definition bv_neg : bv n → bv n
+  | x :=
+    let f := λy c, (y || c, bxor y c) in
+    pr₂ (mapAccumR f x ff)
 
--- Subtract with borrow
-definition bv_sbb {n:ℕ} : bv n → bv n → bool → bool × bv n
-| x y b :=
-  let f := λx y c, (bv.borrow x y c, bv.xor3 x y c) in
-  tuple.mapAccumR₂ f x y b
+  -- Add with carry (no overflow)
+  definition bv_adc : bv n → bv n → bool → bv (n+1)
+  | x y c :=
+    let f := λx y c, (bv.carry x y c, bv.xor3 x y c) in
+    let z := tuple.mapAccumR₂ f x y c in
+    (pr₁ z) :: (pr₂ z)
 
-definition bv_sub {n:ℕ} (x y: bv n) := pr₂ (bv_sbb x y ff)
+  definition bv_add : bv n → bv n → bv n
+  | x y := tail (bv_adc x y ff)
 
-definition bv_neg {n:ℕ} : bv n → bv n
-| x :=
-  let f := λy c, (y || c, bxor y c) in
-  pr₂ (mapAccumR f x ff)
+  protected definition borrow (x:bool) (y:bool) (b:bool) :=
+    bnot x && y || bnot x && b || y && b
 
-protected definition mulc {n:ℕ} : list bool → bv n → bv n → bv n
-| []      y r := r
-| (tt::x) y r := mulc x y (bv_add r (bv_shl y (length x)))
-| (ff::x) y r := mulc x y r
+  -- Subtract with borrow
+  definition bv_sbb : bv n → bv n → bool → bool × bv n
+  | x y b :=
+    let f := λx y c, (bv.borrow x y c, bv.xor3 x y c) in
+    tuple.mapAccumR₂ f x y b
 
-definition bv_mul {n:ℕ} : bv n → bv n → bv n
-| (tag x px) y := bv.mulc x y (bv_zero n)
+  definition bv_sub : bv n → bv n → bv n
+  | x y := pr₂ (bv_sbb x y ff)
 
-definition bv_has_zero [instance] {n : ℕ} : has_zero (bv n) :=
-  has_zero.mk (bv_zero n)
-definition bv_has_one [instance] {n : ℕ} : has_one (bv n) :=
-  has_one.mk (bv_one n)
-definition bv_has_add [instance] {n : ℕ} : has_add (bv n) :=
-  has_add.mk bv_add
-definition bv_has_sub [instance] {n : ℕ} : has_sub (bv n) :=
-  has_sub.mk bv_sub
-definition bv_has_neg [instance] {n : ℕ} : has_neg (bv n) :=
-  has_neg.mk bv_neg
-definition bv_has_mul [instance] {n : ℕ} : has_mul (bv n) :=
-  has_mul.mk bv_mul
+  definition bv_mul : bv n → bv n → bv n
+  | (tag x px) y :=
+    let f := λr b, (let r2 := bv_shl r 1 in cond b (bv_add r2 y) r2) in
+    foldl f (bv_zero n) x
+
+  definition bv_has_zero [instance] : has_zero (bv n) := has_zero.mk (bv_zero n)
+  definition bv_has_one  [instance] : has_one (bv n)  := has_one.mk (bv_one n)
+  definition bv_has_add  [instance] : has_add (bv n)  := has_add.mk bv_add
+  definition bv_has_sub  [instance] : has_sub (bv n)  := has_sub.mk bv_sub
+  definition bv_has_neg  [instance] : has_neg (bv n)  := has_neg.mk bv_neg
+  definition bv_has_mul  [instance] : has_mul (bv n)  := has_mul.mk bv_mul
+
+end arith
+
 
 section from_bv
   variable {A : Type}
@@ -149,4 +144,5 @@ section from_bv
   definition from_bv [p : has_add A] [q0 : has_zero A] [q1 : has_one A] {w:nat} (v:bv w) : A :=
     bv.fold_list_bits (to_list v) 0
 end from_bv
+
 end bv

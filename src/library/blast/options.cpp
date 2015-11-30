@@ -166,7 +166,7 @@ void initialize_options() {
                          "(blast) enable recursor action");
     register_bool_option(*blast::g_blast_ematch, LEAN_DEFAULT_BLAST_EMATCH,
                          "(blast) enable heuristic instantiation based on e-matching");
-    register_bool_option(*blast::g_blast_ematch, LEAN_DEFAULT_BLAST_BACKWARD,
+    register_bool_option(*blast::g_blast_backward, LEAN_DEFAULT_BLAST_BACKWARD,
                          "(blast) enable backward chaining");
     register_bool_option(*blast::g_blast_show_failure, LEAN_DEFAULT_BLAST_SHOW_FAILURE,
                          "(blast) show failure state");

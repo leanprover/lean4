@@ -76,6 +76,8 @@ class backward_strategy : public strategy {
 };
 
 optional<expr> apply_backward_strategy() {
+    if (!get_config().m_backward)
+        return none_expr();
     flet<bool> disable_show_failure(get_config().m_show_failure, false);
     return backward_strategy()();
 }

@@ -211,6 +211,7 @@ struct hi_config {
         if (!e.m_no_pattern) {
             hi_lemma const & l = e.m_lemma;
             s << l.m_num_uvars << l.m_num_mvars << l.m_priority << l.m_prop << l.m_proof;
+            write_list(s, l.m_mvars);
             write_list(s, l.m_multi_patterns);
         }
     }
@@ -221,6 +222,7 @@ struct hi_config {
         if (!e.m_no_pattern) {
             hi_lemma & l = e.m_lemma;
             d >> l.m_num_uvars >> l.m_num_mvars >> l.m_priority >> l.m_prop >> l.m_proof;
+            l.m_mvars          = read_list<expr>(d);
             l.m_multi_patterns = read_list<multi_pattern>(d);
         }
         return e;
@@ -621,6 +623,7 @@ struct mk_hi_lemma_fn {
         r.m_num_mvars      = m_mvars.size();
         r.m_priority       = m_priority;
         r.m_multi_patterns = mps;
+        r.m_mvars          = to_list(m_mvars);
         r.m_prop           = m_ctx.infer(proof);
         r.m_proof          = proof;
         return r;

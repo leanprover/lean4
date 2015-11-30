@@ -40,6 +40,7 @@ struct hi_lemma {
     unsigned             m_num_mvars;
     unsigned             m_priority;
     list<multi_pattern>  m_multi_patterns;
+    list<bool>           m_is_inst_implicit;
     list<expr>           m_mvars;
     expr                 m_prop;
     expr                 m_proof;

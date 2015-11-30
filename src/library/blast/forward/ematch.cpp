@@ -243,7 +243,19 @@ struct ematch_fn {
     }
 
     void instantiate(hi_lemma const & lemma) {
-        std::cout << "FOUND\n";
+        list<bool> const * it = &lemma.m_is_inst_implicit;
+        for (expr const & mvar : lemma.m_mvars) {
+            if (!m_ctx->get_assignment(mvar)) {
+                if (!head(*it))
+                    return; // fail, argument is not instance implicit
+                auto new_val = m_ctx->mk_class_instance(m_ctx->infer(mvar));
+                if (!new_val)
+                    return; // fail, instance could not be generated
+                if (!m_ctx->assign(mvar, *new_val))
+                    return; // fail, type error
+            }
+            it = &tail(*it);
+        }
         for (expr const & mvar : lemma.m_mvars) {
             diagnostic(env(), ios()) << "[" << mvar << "] := " << ppb(m_ctx->instantiate_uvars_mvars(mvar)) << "\n";
         }

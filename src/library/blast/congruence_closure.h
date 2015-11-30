@@ -129,7 +129,7 @@ class congruence_closure {
     void mk_entry(name const & R, expr const & e, bool to_propagate);
     void add_occurrence(name const & Rp, expr const & parent, name const & Rc, expr const & child);
     void add_congruence_table(ext_congr_lemma const & lemma, expr const & e);
-    void invert_trans(name const & R, expr const & e, optional<expr> new_target, optional<expr> new_proof);
+    void invert_trans(name const & R, expr const & e, bool new_flipped, optional<expr> new_target, optional<expr> new_proof);
     void invert_trans(name const & R, expr const & e);
     void remove_parents(name const & R, expr const & e);
     void reinsert_parents(name const & R, expr const & e);

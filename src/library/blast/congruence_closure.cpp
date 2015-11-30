@@ -654,20 +654,20 @@ void congruence_closure::internalize(expr const & e) {
   This method "inverts" the proof. That is, the m_target goes from root(e) to e after
   we execute it.
 */
-void congruence_closure::invert_trans(name const & R, expr const & e, optional<expr> new_target, optional<expr> new_proof) {
+void congruence_closure::invert_trans(name const & R, expr const & e, bool new_flipped, optional<expr> new_target, optional<expr> new_proof) {
     eqc_key k(R, e);
     auto n = m_entries.find(k);
     lean_assert(n);
     entry new_n = *n;
     if (n->m_target)
-        invert_trans(R, *new_n.m_target, some_expr(e), new_n.m_proof);
+        invert_trans(R, *new_n.m_target, !new_n.m_flipped, some_expr(e), new_n.m_proof);
     new_n.m_target  = new_target;
     new_n.m_proof   = new_proof;
-    new_n.m_flipped = !new_n.m_flipped;
+    new_n.m_flipped = new_flipped;
     m_entries.insert(k, new_n);
 }
 void congruence_closure::invert_trans(name const & R, expr const & e) {
-    invert_trans(R, e, none_expr(), none_expr());
+    invert_trans(R, e, false, none_expr(), none_expr());
 }
 
 void congruence_closure::remove_parents(name const & R, expr const & e) {

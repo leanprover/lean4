@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "library/constants.h"
 #include "library/idx_metavar.h"
+#include "library/head_map.h"
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"
 #include "library/blast/options.h"
@@ -40,10 +41,10 @@ typedef rb_tree<expr, expr_quick_cmp> expr_set;
 typedef rb_tree<hi_lemma, hi_lemma_cmp> hi_lemma_set;
 static unsigned g_ext_id = 0;
 struct ematch_branch_extension : public branch_extension {
-    hi_lemma_set                           m_lemmas;
-    hi_lemma_set                           m_new_lemmas;
-    rb_map<expr, expr_set, expr_quick_cmp> m_apps;
-    name_set                               m_initialized;
+    hi_lemma_set                                  m_lemmas;
+    hi_lemma_set                                  m_new_lemmas;
+    rb_map<head_index, expr_set, head_index::cmp> m_apps;
+    name_set                                      m_initialized;
 
     ematch_branch_extension() {}
     ematch_branch_extension(ematch_branch_extension const &) {}
@@ -78,10 +79,10 @@ struct ematch_branch_extension : public branch_extension {
             if ((is_constant(f) && !is_no_pattern(env(), const_name(f))) ||
                 (is_local(f))) {
                 expr_set s;
-                if (auto old_s = m_apps.find(f))
+                if (auto old_s = m_apps.find(head_index(f)))
                     s = *old_s;
                 s.insert(e);
-                m_apps.insert(f, s);
+                m_apps.insert(head_index(f), s);
             }
             for (expr const & arg : args) {
                 collect_apps(arg);
@@ -265,7 +266,7 @@ struct ematch_fn {
         expr const & f  = get_app_args(p0, p0_args);
         name const & R  = is_prop(p0) ? get_iff_name() : get_eq_name();
         unsigned gmt    = m_cc.get_gmt();
-        if (auto s = m_ext.m_apps.find(f)) {
+        if (auto s = m_ext.m_apps.find(head_index(f))) {
             s->for_each([&](expr const & t) {
                     if (m_cc.is_congr_root(R, t) && (!filter || m_cc.get_mt(R, t) == gmt)) {
                         m_ctx->clear();

@@ -10,6 +10,21 @@ open nat prod decidable function helper_tactics algebra
 
 namespace list
 variables {A B C : Type}
+
+section replicate
+
+-- 'replicate i n' returns the list contain i copies of n.
+definition replicate : ℕ → A → list A
+| 0 a := []
+| (succ n) a := a :: replicate n a
+
+theorem length_replicate : ∀ (i : ℕ) (a : A), length (replicate i a) = i
+| 0 a := rfl
+| (succ i) a := calc
+  length (replicate (succ i) a) = length (replicate i a) + 1 : rfl
+                           ...  = i + 1                      : length_replicate
+end replicate
+
 /- map -/
 definition map (f : A → B) : list A → list B
 | []       := []
@@ -80,6 +95,24 @@ definition map₂ (f : A → B → C) : list A → list B → list C
 | []      _       := []
 | _       []      := []
 | (x::xs) (y::ys) := f x y :: map₂ xs ys
+
+theorem map₂_nil1 (f : A → B → C) : ∀ (l : list B), map₂ f [] l = []
+| []     := rfl
+| (a::y) := rfl
+
+theorem map₂_nil2 (f : A → B → C) : ∀ (l : list A), map₂ f l [] = []
+| []     := rfl
+| (a::y) := rfl
+
+theorem length_map₂ : ∀(f : A → B → C) x y, length (map₂ f x y) = min (length x) (length y)
+| f []       [] := rfl
+| f (xh::xr) [] := rfl
+| f [] (yh::yr) := rfl
+| f (xh::xr) (yh::yr) := calc
+  length (map₂ f (xh::xr) (yh::yr))
+          = length (map₂ f xr yr) + 1               : rfl
+      ... = min (length xr) (length yr) + 1         : length_map₂
+      ... = min (length (xh::xr)) (length (yh::yr)) : min_succ_succ
 
 /- filter -/
 definition filter (p : A → Prop) [h : decidable_pred p] : list A → list A
@@ -307,6 +340,57 @@ theorem zip_unzip : ∀ (l : list (A × B)), zip (pr₁ (unzip l)) (pr₂ (unzip
     intro la lb r,
     rewrite -r
   end
+
+section mapAccumR
+variable {S : Type}
+
+-- This runs a function over a list returning the intermediate results and a
+-- a final result.
+definition mapAccumR : (A → S → S × B) → list A → S → (S × list B)
+| f [] c := (c, [])
+| f (y::yr) c :=
+  let r := mapAccumR f yr c in
+  let z := f y (pr₁ r) in
+  (pr₁ z, pr₂ z :: pr₂ r)
+
+theorem length_mapAccumR
+: ∀ (f : A → S → S × B) (x : list A) (s : S),
+  length (pr₂ (mapAccumR f x s)) = length x
+| f (a::x) s := calc
+  length (pr₂ (mapAccumR f (a::x) s))
+                = length x + 1              : { length_mapAccumR f x s }
+            ... = length (a::x)             : rfl
+| f [] s := calc
+  length (pr₂ (mapAccumR f [] s))
+                = 0 : rfl
+end mapAccumR
+
+section mapAccumR₂
+variable {S : Type}
+-- This runs a function over two lists returning the intermediate results and a
+-- a final result.
+definition mapAccumR₂
+: (A → B → S → S × C) → list A → list B → S → S × list C
+| f [] _ c := (c,[])
+| f _ [] c := (c,[])
+| f (x::xr) (y::yr) c :=
+  let r := mapAccumR₂ f xr yr c in
+  let q := f x y (pr₁ r) in
+  (pr₁ q, pr₂ q :: (pr₂ r))
+
+theorem length_mapAccumR₂
+: ∀ (f : A → B → S → S × C) (x : list A) (y : list B) (c : S),
+  length (pr₂ (mapAccumR₂ f x y c)) = min (length x) (length y)
+| f (a::x) (b::y) c := calc
+    length (pr₂ (mapAccumR₂ f (a::x) (b::y) c))
+              = length (pr₂ (mapAccumR₂ f x y c)) + 1  : rfl
+          ... = min (length x) (length y) + 1             : length_mapAccumR₂ f x y c
+          ... = min (length (a::x)) (length (b::y))       : min_succ_succ
+| f (a::x) [] c := rfl
+| f [] (b::y) c := rfl
+| f [] []     c := rfl
+
+end mapAccumR₂
 
 /- flat -/
 definition flat (l : list (list A)) : list A :=

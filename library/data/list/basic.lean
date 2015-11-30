@@ -5,7 +5,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn
 
 Basic properties of lists.
 -/
-import logic tools.helper_tactics data.nat.order
+import logic tools.helper_tactics data.nat.order data.nat.sub
 open eq.ops helper_tactics nat prod function option
 open algebra
 
@@ -668,6 +668,26 @@ lemma length_firstn_eq : ∀ (n) (l : list A), length (firstn n l) = min n (leng
 | (succ n) (a::l) := by rewrite [firstn_cons, *length_cons, *add_one, min_succ_succ, length_firstn_eq]
 | (succ n) []     := by rewrite [firstn_nil]
 end firstn
+
+section dropn
+variables {A : Type}
+-- 'dropn n l' drops the first 'n' elements of 'l'
+definition dropn : ℕ → list A → list A
+| 0 a := a
+| (succ n) [] := []
+| (succ n) (x::r) := dropn n r
+
+theorem length_dropn
+: ∀ (i : ℕ) (l : list A), length (dropn i l) = length l - i
+| 0 l := rfl
+| (succ i) [] := calc
+  length (dropn (succ i) []) = 0 - succ i : nat.zero_sub (succ i)
+| (succ i) (x::l) := calc
+  length (dropn (succ i) (x::l))
+          = length (dropn i l)       : rfl
+      ... = length l - i             : length_dropn i l
+      ... = succ (length l) - succ i : succ_sub_succ (length l) i
+end dropn
 
 section count
 variable {A : Type}

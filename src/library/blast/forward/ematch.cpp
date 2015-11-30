@@ -159,6 +159,27 @@ struct ematch_fn {
             return m_ctx->is_def_eq(p, t);
     }
 
+    bool match_args(state & s, name const & R, buffer<expr> const & p_args, expr const & t) {
+        optional<ext_congr_lemma> cg_lemma = mk_ext_congr_lemma(R, get_app_fn(t), p_args.size());
+        if (!cg_lemma)
+            return false;
+        buffer<expr> t_args;
+        get_app_args(t, t_args);
+        if (p_args.size() != t_args.size())
+            return false;
+        auto const * r_names = &cg_lemma->m_rel_names;
+        for (unsigned i = 0; i < p_args.size(); i++) {
+            lean_assert(*r_names);
+            if (auto Rc = head(*r_names)) {
+                s = cons(entry(*Rc, Match, p_args[i], t_args[i]), s);
+            } else {
+                s = cons(entry(get_eq_name(), DefEqOnly, p_args[i], t_args[i]), s);
+            }
+            r_names = &tail(*r_names);
+        }
+        return true;
+    }
+
     bool process_match(name const & R, expr const & p, expr const & t) {
         if (!is_app(p))
             return is_eqv(R, p, t);
@@ -180,30 +201,14 @@ struct ematch_fn {
         } while (it != t);
         if (candidates.empty())
             return false;
-        optional<ext_congr_lemma> lemma = mk_ext_congr_lemma(R, t_fn, p_args.size());
-        if (!lemma)
-            return false;
         buffer<state> new_states;
         for (expr const & c : candidates) {
-            buffer<expr> c_args;
-            get_app_args(c, c_args);
-            lean_assert(c_args.size() == p_args.size());
             state new_state = m_state;
-            auto const * r_names = &lemma->m_rel_names;
-            for (unsigned i = 0; i < p_args.size(); i++) {
-                lean_assert(*r_names);
-                if (auto Rc = head(*r_names)) {
-                    new_state = cons(entry(*Rc, Match, p_args[i], c_args[i]), new_state);
-
-                } else {
-                    new_state = cons(entry(get_eq_name(), DefEqOnly, p_args[i], c_args[i]), new_state);
-                }
-                r_names = &tail(*r_names);
+            if (match_args(new_state, R, p_args, c)) {
+                new_states.push_back(new_state);
             }
-            new_states.push_back(new_state);
         }
-        lean_assert(candidates.size() == new_states.size());
-        if (candidates.size() == 1) {
+        if (new_states.size() == 1) {
             m_state = new_states[0];
             return true;
         } else {
@@ -216,9 +221,34 @@ struct ematch_fn {
         }
     }
 
-    bool process_continue(expr const &) {
-        // TODO(Leo):
-        return false;
+    bool process_continue(name const & R, expr const & p) {
+        buffer<expr> p_args;
+        expr const & f = get_app_args(p, p_args);
+        buffer<state> new_states;
+        if (auto s = m_ext.m_apps.find(head_index(f))) {
+            s->for_each([&](expr const & t) {
+                    if (m_cc.is_congr_root(R, t)) {
+                        state new_state = m_state;
+                        if (match_args(new_state, R, p_args, t))
+                            new_states.push_back(new_state);
+                    }
+                });
+            if (new_states.empty()) {
+                return false;
+            } else if (new_states.size() == 1) {
+                m_state = new_states[0];
+                return true;
+            } else {
+                m_state = new_states.back();
+                new_states.pop_back();
+                choice c = to_list(new_states);
+                m_choice_stack.push_back(c);
+                m_ctx->push();
+                return true;
+            }
+        } else {
+            return false;
+        }
     }
 
     bool process_next() {
@@ -233,7 +263,7 @@ struct ematch_fn {
         case Match:
             return process_match(R, p, t);
         case Continue:
-            return process_continue(p);
+            return process_continue(R, p);
         }
         lean_unreachable();
     }
@@ -316,24 +346,8 @@ struct ematch_fn {
                         }
                         m_choice_stack.clear();
                         m_state = s;
-                        optional<ext_congr_lemma> cg_lemma = mk_ext_congr_lemma(R, get_app_fn(t), p0_args.size());
-                        if (!cg_lemma)
+                        if (!match_args(m_state, R, p0_args, t))
                             return;
-                        buffer<expr> t_args;
-                        get_app_args(t, t_args);
-                        if (p0_args.size() != t_args.size())
-                            return;
-                        auto const * r_names = &cg_lemma->m_rel_names;
-                        for (unsigned i = 0; i < p0_args.size(); i++) {
-                            lean_assert(*r_names);
-                            if (auto Rc = head(*r_names)) {
-                                m_state = cons(entry(*Rc, Match, p0_args[i], t_args[i]), m_state);
-
-                            } else {
-                                m_state = cons(entry(get_eq_name(), DefEqOnly, p0_args[i], t_args[i]), m_state);
-                            }
-                            r_names = &tail(*r_names);
-                        }
                         search(lemma);
                     }
                 });

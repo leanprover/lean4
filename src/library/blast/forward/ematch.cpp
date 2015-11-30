@@ -158,17 +158,20 @@ struct ematch_fn {
         if (m_ctx->is_mvar(fn))
             return is_eqv(R, p, t);
         buffer<expr> candidates;
+        expr t_fn;
         expr it = t;
         do {
-            if (m_cc.is_congr_root(R, t) && m_ctx->is_def_eq(get_app_fn(it), fn) &&
+            expr const & it_fn = get_app_fn(it);
+            if (m_cc.is_congr_root(R, t) && m_ctx->is_def_eq(it_fn, fn) &&
                 get_app_num_args(it) == p_args.size()) {
+                t_fn = it_fn;
                 candidates.push_back(it);
             }
             it = m_cc.get_next(R, it);
         } while (it != t);
         if (candidates.empty())
             return false;
-        optional<ext_congr_lemma> lemma = mk_ext_congr_lemma(R, fn, p_args.size());
+        optional<ext_congr_lemma> lemma = mk_ext_congr_lemma(R, t_fn, p_args.size());
         if (!lemma)
             return false;
         buffer<state> new_states;
@@ -280,7 +283,7 @@ struct ematch_fn {
                         }
                         m_choice_stack.clear();
                         m_state = s;
-                        optional<ext_congr_lemma> cg_lemma = mk_ext_congr_lemma(R, f, p0_args.size());
+                        optional<ext_congr_lemma> cg_lemma = mk_ext_congr_lemma(R, get_app_fn(t), p0_args.size());
                         if (!cg_lemma)
                             return;
                         buffer<expr> t_args;

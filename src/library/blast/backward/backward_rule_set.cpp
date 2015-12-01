@@ -15,6 +15,7 @@ namespace lean {
 using blast::backward_rule;
 using blast::backward_rule_set;
 using blast::gexpr;
+using std::function;
 
 static name * g_class_name = nullptr;
 static std::string * g_key = nullptr;
@@ -142,7 +143,7 @@ void backward_rule_set::for_each(std::function<void(head_index const & h, backwa
 list<gexpr> backward_rule_set::find(head_index const & h) const {
     list<backward_rule> const * rule_list = m_set.find(h);
     if (!rule_list) return list<gexpr>();
-    return map2<gexpr>(*rule_list, [&](backward_rule const & r) { return r.get_proof(); });
+    return map2<gexpr, backward_rule, function<gexpr(backward_rule)>>(*rule_list, [&](backward_rule const & r) { return r.get_proof(); });
 }
 
 void initialize_backward_rule_set() {

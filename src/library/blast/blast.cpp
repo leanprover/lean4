@@ -38,11 +38,38 @@ namespace blast {
 static name * g_prefix     = nullptr;
 static name * g_tmp_prefix = nullptr;
 
+class imp_extension_manager {
+    std::vector<pair<ext_state_maker &, unsigned> > m_entries;
+public:
+    std::vector<pair<ext_state_maker &, unsigned> > const & get_entries() { return m_entries; }
+
+    unsigned register_imp_extension(ext_state_maker & state_maker) {
+        unsigned state_id = m_entries.size();
+        unsigned ext_id = register_branch_extension(new imp_extension(state_id));
+        m_entries.emplace_back(state_maker, ext_id);
+        return state_id;
+    }
+};
+
+static imp_extension_manager * g_imp_extension_manager = nullptr;
+static imp_extension_manager & get_imp_extension_manager() {
+    return *g_imp_extension_manager;
+}
+
+struct imp_extension_entry {
+    std::unique_ptr<imp_extension_state>   m_ext_state;
+    unsigned                               m_ext_id;
+    imp_extension *                        m_ext_of_ext_state;
+    imp_extension_entry(imp_extension_state * ext_state, unsigned ext_id, imp_extension * ext_of_ext_state):
+        m_ext_state(ext_state), m_ext_id(ext_id), m_ext_of_ext_state(ext_of_ext_state) {}
+};
+
 class blastenv {
     friend class scope_assignment;
     friend class scope_unfold_macro_pred;
     typedef std::vector<tmp_type_context *> tmp_type_context_pool;
     typedef std::unique_ptr<tmp_type_context> tmp_type_context_ptr;
+    typedef std::vector<imp_extension_entry> imp_extension_entries;
 
     environment                m_env;
     io_state                   m_ios;
@@ -66,6 +93,7 @@ class blastenv {
     congr_lemma_manager        m_congr_lemma_manager;
     abstract_expr_manager      m_abstract_expr_manager;
     light_lt_manager           m_light_lt_manager;
+    imp_extension_entries      m_imp_extension_entries;
     relation_info_getter       m_rel_getter;
     refl_info_getter           m_refl_getter;
     symm_info_getter           m_symm_getter;
@@ -461,6 +489,7 @@ public:
     }
 
     ~blastenv() {
+        finalize_imp_extension_entries();
         for (auto ctx : m_tmp_ctx_pool)
             delete ctx;
     }
@@ -480,6 +509,7 @@ public:
 
     void init_state(goal const & g) {
         init_curr_state(g);
+        init_imp_extension_entries();
         save_initial_context();
         m_tctx.set_local_instances(m_initial_context);
         m_tmp_ctx->set_local_instances(m_initial_context);
@@ -566,6 +596,62 @@ public:
 
     unsigned abstract_hash(expr const & e) {
         return m_abstract_expr_manager.hash(e);
+    }
+
+    void init_imp_extension_entries() {
+        for (auto & p : get_imp_extension_manager().get_entries()) {
+            branch_extension & b_ext = curr_state().get_extension(p.second);
+            b_ext.inc_ref();
+            m_imp_extension_entries.emplace_back(p.first(), p.second, static_cast<imp_extension*>(&b_ext));
+        }
+    }
+
+    void finalize_imp_extension_entries() {
+        for (auto & e : m_imp_extension_entries) {
+            e.m_ext_of_ext_state->dec_ref();
+        }
+    }
+
+    list<imp_extension*> get_ext_path(imp_extension * _imp_ext) {
+        list<imp_extension*> path;
+        imp_extension * imp_ext = _imp_ext;
+        while (imp_ext != nullptr) {
+            path = cons(imp_ext, path);
+            imp_ext = imp_ext->m_parent;
+        }
+        return path;
+    }
+
+    imp_extension_state & get_imp_extension_state(unsigned state_id) {
+        lean_assert(state_id < m_imp_extension_entries.size());
+        imp_extension_entry & e = m_imp_extension_entries[state_id];
+        imp_extension_state * ext_state = e.m_ext_state.get();
+        imp_extension * ext_of_curr_state = static_cast<imp_extension*>(&curr_state().get_extension(e.m_ext_id));
+        lean_assert(e.m_ext_of_ext_state);
+        imp_extension * ext_of_ext_state = e.m_ext_of_ext_state;
+
+        list<imp_extension*> curr_state_path = get_ext_path(ext_of_curr_state);
+        list<imp_extension*> ext_state_path = get_ext_path(ext_of_ext_state);
+
+        while (true) {
+            if (is_nil(curr_state_path) || is_nil(ext_state_path)) break;
+            if (head(curr_state_path) != head(ext_state_path)) break;
+            curr_state_path = tail(curr_state_path);
+            ext_state_path = tail(ext_state_path);
+        }
+
+        for_each(reverse(ext_state_path), [&](imp_extension * imp_ext) {
+                ext_state->undo_actions(imp_ext);
+            });
+
+        for_each(curr_state_path, [&](imp_extension * imp_ext) {
+                ext_state->replay_actions(imp_ext);
+            });
+
+        ext_of_curr_state->inc_ref();
+        ext_of_ext_state->dec_ref();
+        e.m_ext_of_ext_state = ext_of_curr_state;
+        return *ext_state;
     }
 
     bool abstract_is_equal(expr const & e1, expr const & e2) {
@@ -795,6 +881,15 @@ unsigned abstract_hash(expr const & e) {
     return g_blastenv->abstract_hash(e);
 }
 
+unsigned register_imp_extension(std::function<imp_extension_state*()> & ext_state_maker) {
+    return get_imp_extension_manager().register_imp_extension(ext_state_maker);
+}
+
+imp_extension_state & get_imp_extension_state(unsigned state_id) {
+    lean_assert(g_blastenv);
+    return g_blastenv->get_imp_extension_state(state_id);
+}
+
 bool abstract_is_equal(expr const & e1, expr const & e2) {
     lean_assert(g_blastenv);
     return g_blastenv->abstract_is_equal(e1, e2);
@@ -963,10 +1058,12 @@ optional<expr> blast_goal(environment const & env, io_state const & ios, list<na
     return b(g);
 }
 void initialize_blast() {
-    blast::g_prefix           = new name(name::mk_internal_unique_name());
-    blast::g_tmp_prefix       = new name(name::mk_internal_unique_name());
+    blast::g_prefix                  = new name(name::mk_internal_unique_name());
+    blast::g_tmp_prefix              = new name(name::mk_internal_unique_name());
+    blast::g_imp_extension_manager   = new blast::imp_extension_manager();
 }
 void finalize_blast() {
+    delete blast::g_imp_extension_manager;
     delete blast::g_prefix;
     delete blast::g_tmp_prefix;
 }

@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/congr_lemma_manager.h"
 #include "library/fun_info_manager.h"
 #include "library/blast/state.h"
+#include "library/blast/imp_extension.h"
 
 namespace lean {
 struct projection_info;
@@ -120,6 +121,14 @@ bool is_light_lt(expr const & e1, expr const & e2);
 
 /** \brief Whether [classical] namespace is open. */
 bool classical();
+/** \brief This procedure must be invoked at Lean initialization time for each imperative branch extension.
+    The unique id returned should be used to retrieve the extension state associated with the current state. */
+unsigned register_imp_extension(ext_state_maker & state_maker);
+
+/** \brief This procedure returns a reference to the extension state associated with the current state.
+    It handles all the bookeeping so that the returned extension state is guaranteed to be in synch with
+    the current blast state. */
+imp_extension_state & get_imp_extension_state(unsigned state_id);
 
 /** \brief Display the current state of the blast tactic in the diagnostic channel. */
 void display_curr_state();

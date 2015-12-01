@@ -38,36 +38,36 @@ section shift
   -- shift left
   definition bv_shl {n:ℕ} : bv n → ℕ → bv n
     | x i :=
-       dite (i ≤ n)
-            (λle,
-             let r := dropn i x ++ replicate ff in
-             let eq := calc (n-i) + i = n : nat.sub_add_cancel le in
-             bv_cong eq r)
-            (λp, bv_zero n)
+       if le : i ≤ n then
+         let r := dropn i x ++ replicate ff in
+         let eq := calc (n-i) + i = n : nat.sub_add_cancel le in
+         bv_cong eq r
+       else
+         bv_zero n
 
   -- unsigned shift right
   definition bv_ushr {n:ℕ} : bv n → ℕ → bv n
     | x i :=
-      dite (i ≤ n)
-           (λle,
-            let y : bv (n-i) := @firstn _ _ (n - i) (sub_le n i) x in
-            let eq := calc (i+(n-i)) = (n - i) + i : add.comm
-                                ...  = n           : nat.sub_add_cancel le in
-            bv_cong eq (replicate ff ++ y))
-           (λgt, bv_zero n)
+      if le : i ≤ n then
+        let y : bv (n-i) := @firstn _ _ (n - i) (sub_le n i) x in
+        let eq := calc (i+(n-i)) = (n - i) + i : add.comm
+                            ...  = n           : nat.sub_add_cancel le in
+        bv_cong eq (replicate ff ++ y)
+      else
+        bv_zero n
 
   -- signed shift right
   definition bv_sshr {m:ℕ} : bv (succ m) → ℕ → bv (succ m)
     | x i :=
       let n := succ m in
-      dite (i ≤ n)
-           (λle,
-            let z : bv i := replicate (head x) in
-            let y : bv (n-i) := @firstn _ _ (n - i) (sub_le n i) x in
-            let eq := calc (i+(n-i)) = (n-i) + i : add.comm
-                                ...  = n         : nat.sub_add_cancel le in
-            bv_cong eq (z ++ y))
-           (λgt, bv_zero n)
+      if le : i ≤ n then
+        let z : bv i := replicate (head x) in
+        let y : bv (n-i) := @firstn _ _ (n - i) (sub_le n i) x in
+        let eq := calc (i+(n-i)) = (n-i) + i : add.comm
+                            ...  = n         : nat.sub_add_cancel le in
+        bv_cong eq (z ++ y)
+      else
+        bv_zero n
 
 end shift
 
@@ -137,8 +137,8 @@ section arith
   definition bv_slt : bv (succ n) → bv (succ n) → bool := λx y,
     cond (head x)
          (cond (head y)
-               (bv_ult (tail x) (tail y)) -- both negative
-               tt)                        -- x is negative and y is not
+               (bv_ult (tail x) (tail y))  -- both negative
+               tt)                         -- x is negative and y is not
          (cond (head y)
                ff                          -- y is negative and x is not
                (bv_ult (tail x) (tail y))) -- both positive

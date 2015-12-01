@@ -44,7 +44,7 @@ optional<expr> is_bit1(expr const & e) {
 }
 
 optional<expr> is_neg(expr const & e) {
-    if (!is_const_app(e, *new name("neg"), 3))
+    if (!is_const_app(e, get_neg_name(), 3))
         return none_expr();
     return some_expr(app_arg(e));
 }

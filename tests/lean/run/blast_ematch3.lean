@@ -35,11 +35,4 @@ set_option blast.ematch true
 
 theorem inv_mul_cancel_left (a b : A) : a⁻¹ * (a * b) = b :=
 by blast
-
-attribute mul_one [forward]
-attribute inv_mul_cancel_right [forward]
-
--- TODO(Leo): check if qfc can get this one
--- theorem inv_eq_of_mul_eq_one {a b : A} (H : a * b = 1) : a⁻¹ = b :=
--- by blast
 end

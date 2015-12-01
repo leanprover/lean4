@@ -191,7 +191,7 @@ struct ematch_fn {
         expr it = t;
         do {
             expr const & it_fn = get_app_fn(it);
-            if (m_cc.is_congr_root(R, t) && m_ctx->is_def_eq(it_fn, fn) &&
+            if (m_cc.is_congr_root(R, it) && m_ctx->is_def_eq(it_fn, fn) &&
                 get_app_num_args(it) == p_args.size()) {
                 t_fn = it_fn;
                 candidates.push_back(it);

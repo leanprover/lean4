@@ -187,6 +187,15 @@ You may also need to install [emacs-unicode-fonts](https://github.com/rolandwalk
 (unicode-fonts-setup)
    ```
 
+"Variable binding depth exceeds max-specpdl-size" Error
+---------------------------------------------------------
+
+See [Issue 906](https://github.com/leanprover/lean/issues/906) for details.
+[Moritz Kiefer](https://github.com/cocreature) reported that `proofgeneral` 
+comes with an old version of `mmm-mode` (0.4.8, released in 2004) on ArchLinux
+and it caused this problem. Either removing `proofgeneral` or upgrading
+`mmm-mode` to the latest version (0.5.1 as of 2015 Dec) resolves this issue.
+
 
 Contributions
 =============

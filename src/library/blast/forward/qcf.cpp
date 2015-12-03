@@ -19,7 +19,7 @@ Author: Daniel Selsam
 namespace lean {
 namespace blast {
 
-action_result qfc_action(list<gexpr> const & lemmas) {
+action_result qfc_action(list<gexpr> const &) {
     return action_result::failed();
 }
 

@@ -234,14 +234,12 @@ static void print_metaclasses(parser const & p) {
 
 static void print_patterns(parser & p, name const & n) {
     if (is_forward_lemma(p.env(), n)) {
-        blast::scope_debug scope(p.env(), p.ios());
         // we regenerate the patterns to make sure they reflect the current set of reducible constants
         try {
-            auto lemma = blast::mk_hi_lemma(n, LEAN_FORWARD_LEMMA_DEFAULT_PRIORITY);
-            if (lemma.m_multi_patterns) {
+            if (auto mps = mk_multipatterns(p.env(), p.ios(), n)) {
                 io_state_stream out = p.regular_stream();
                 out << "(multi-)patterns:\n";
-                for (multi_pattern const & mp : lemma.m_multi_patterns) {
+                for (multi_pattern const & mp : mps) {
                     out << "{";
                     bool first = true;
                     for (expr const & p : mp) {

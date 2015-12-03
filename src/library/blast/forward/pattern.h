@@ -48,6 +48,9 @@ struct hi_lemma_cmp {
     int operator()(hi_lemma const & l1, hi_lemma const & l2) const { return expr_quick_cmp()(l1.m_prop, l2.m_prop); }
 };
 
+/** \brief Try to compute multipatterns for declaration \c c using the current environment configuration. */
+list<multi_pattern> mk_multipatterns(environment const & env, io_state const & ios, name const & c);
+
 namespace blast {
 /** \brief Create a (local) heuristic instantiation lemma for \c H.
     The maximum number of steps is extracted from the blast config object. */

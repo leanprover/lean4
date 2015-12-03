@@ -16,3 +16,6 @@ reveal tst₀ tst₁ tst₃
 print tst₀
 print tst₁
 print tst₃
+
+definition tst₄ [forward] : ∀ x : nat, (: id x :) = x :=
+λ x, rfl

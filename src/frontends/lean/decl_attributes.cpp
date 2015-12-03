@@ -241,6 +241,7 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
             env = add_backward_rule(env, d, LEAN_BACKWARD_DEFAULT_PRIORITY, m_persistent);
     }
     if (forward) {
+        mk_multipatterns(env, ios, d); // try to create patterns
         if (m_priority)
             env = add_forward_lemma(env, d, *m_priority, m_persistent);
         else

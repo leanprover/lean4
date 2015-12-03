@@ -1,1 +1,13 @@
-bad_pattern.lean:6:33: error: invalid pattern hint, pattern must be applications
+bad_pattern.lean:9:33: error: invalid pattern hint, pattern must be applications
+theorem tst₀ [forward] : ∀ (x : ℕ), P x :=
+sorry
+(multi-)patterns:
+{P ?M_1}
+theorem tst₁ [forward] : ∀ (x : ℕ), (:P x:) :=
+sorry
+(multi-)patterns:
+{P ?M_1}
+theorem tst₃ [forward] : ∀ (x : ℕ), P (:id x:) :=
+sorry
+(multi-)patterns:
+{P ?M_1}

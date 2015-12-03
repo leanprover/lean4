@@ -232,11 +232,11 @@ static void print_metaclasses(parser const & p) {
         p.regular_stream() << "[" << n << "]" << endl;
 }
 
-static void print_patterns(parser const & p, name const & n) {
+static void print_patterns(parser & p, name const & n) {
     if (is_forward_lemma(p.env(), n)) {
         blast::scope_debug scope(p.env(), p.ios());
+        // we regenerate the patterns to make sure they reflect the current set of reducible constants
         try {
-            // we regenerate the patterns to make sure they reflect the current set of reducible constants
             auto lemma = blast::mk_hi_lemma(n, LEAN_FORWARD_LEMMA_DEFAULT_PRIORITY);
             if (lemma.m_multi_patterns) {
                 io_state_stream out = p.regular_stream();
@@ -251,7 +251,9 @@ static void print_patterns(parser const & p, name const & n) {
                     out << "}\n";
                 }
             }
-        } catch (exception &) {}
+        } catch (exception & ex) {
+            p.display_error(ex);
+        }
     }
 }
 
@@ -387,7 +389,7 @@ static bool print_constant(parser const & p, char const * kind, declaration cons
     return true;
 }
 
-bool print_id_info(parser const & p, name const & id, bool show_value, pos_info const & pos) {
+bool print_id_info(parser & p, name const & id, bool show_value, pos_info const & pos) {
     // declarations
     try {
         environment const & env = p.env();

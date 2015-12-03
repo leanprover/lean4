@@ -792,10 +792,12 @@ void scope_assignment::commit() {
 scope_unfold_macro_pred::scope_unfold_macro_pred(unfold_macro_pred const & pred):
     m_old_pred(g_blastenv->m_unfold_macro_pred) {
     g_blastenv->m_unfold_macro_pred = pred;
+    g_blastenv->m_norm_cache.clear(); // TODO(Leo): check if we need better solution
 }
 
 scope_unfold_macro_pred::~scope_unfold_macro_pred() {
     g_blastenv->m_unfold_macro_pred = m_old_pred;
+    g_blastenv->m_norm_cache.clear();
 }
 
 struct scope_debug::imp {

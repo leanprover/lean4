@@ -321,7 +321,12 @@ struct mk_hi_lemma_fn {
     void collect_pattern_hints(expr const & e, candidate_set & s) {
         for_each(e, [&](expr const & e, unsigned) {
                 if (is_pattern_hint(e)) {
-                    s.insert(candidate(get_pattern_hint_arg(e)));
+                    expr hint = get_pattern_hint_arg(e);
+                    // TODO(Leo): if hint was unfolded and is not an application anymore, we should
+                    // report to user this fact.
+                    if (is_app(hint)) {
+                        s.insert(candidate(hint));
+                    }
                     return false;
                 }
                 return true;
@@ -529,9 +534,13 @@ struct mk_hi_lemma_fn {
         }
     }
 
-    hi_lemma operator()() {
+    struct try_again_without_hints {};
+
+    hi_lemma operator()(bool erase_hints) {
         expr H_type;
-        {
+        if (erase_hints) {
+            H_type = normalize(m_ctx.infer(m_H));
+        } else {
             // preserve pattern hints
             scope_unfold_macro_pred scope1([](expr const & e) { return !is_pattern_hint(e); });
             H_type = normalize(m_ctx.infer(m_H));
@@ -548,6 +557,9 @@ struct mk_hi_lemma_fn {
         if (!hints.empty()) {
             mps = mk_multi_patterns_using(hints, false);
         } else {
+            if (has_pattern_hints(H_type)) {
+                throw try_again_without_hints();
+            }
             buffer<expr> places;
             candidate_set B_candidates = collect(B);
             if (auto r1 = mk_multi_patterns_using(B_candidates, true)) {
@@ -585,7 +597,18 @@ struct mk_hi_lemma_fn {
 
 hi_lemma mk_hi_lemma_core(tmp_type_context & ctx, expr const & H, unsigned num_uvars,
                           unsigned priority, unsigned max_steps) {
-    return mk_hi_lemma_fn(ctx, H, num_uvars, priority, max_steps)();
+    try {
+        bool erase_hints = false;
+        return mk_hi_lemma_fn(ctx, H, num_uvars, priority, max_steps)(erase_hints);
+    } catch (mk_hi_lemma_fn::try_again_without_hints &) {
+        ctx.clear();
+        try {
+            bool erase_hints = true;
+            return mk_hi_lemma_fn(ctx, H, num_uvars, priority, max_steps)(erase_hints);
+        } catch (mk_hi_lemma_fn::try_again_without_hints &) {
+            lean_unreachable();
+        }
+    }
 }
 
 hi_lemma mk_hi_lemma(expr const & H) {

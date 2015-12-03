@@ -1,0 +1,4 @@
+[cast]
+λ (a a_1 : P), eq.trans (eq.refl (q a)) (congr (eq.refl q) (subsingleton.elim a a_1))
+:
+∀ (a a_1 : P), q a = q a_1

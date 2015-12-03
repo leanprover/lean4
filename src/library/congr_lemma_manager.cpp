@@ -320,7 +320,8 @@ public:
             if (std::find(result_deps.begin(), result_deps.end(), i) != result_deps.end()) {
                 kinds[i] = congr_arg_kind::Fixed;
             } else if (pinfos[i].is_subsingleton()) {
-                if (empty(pinfos[i].get_dependencies()))
+                // See comment at mk_congr.
+                if (!pinfos[i].is_prop() && pinfos[i].is_dep())
                     kinds[i] = congr_arg_kind::Fixed;
                 else
                     kinds[i] = congr_arg_kind::Cast;

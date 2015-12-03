@@ -5,7 +5,6 @@ Author: Daniel Selsam
 */
 #pragma once
 #include "kernel/expr.h"
-#include "library/fun_info_manager.h"
 #include "library/congr_lemma_manager.h"
 
 namespace lean {

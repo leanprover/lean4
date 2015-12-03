@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
+#include "library/occurs.h"
 #include "library/blast/revert.h"
 #include "library/blast/intros_action.h"
 #include "library/blast/blast.h"
@@ -98,9 +99,9 @@ action_result subst_action(hypothesis_idx hidx) {
     expr lhs, rhs;
     if (!is_eq(type, lhs, rhs))
         return action_result::failed();
-    if (is_href(rhs)) {
+    if (is_href(rhs) && !occurs(rhs, lhs)) {
         return action_result(subst_core(hidx));
-    } else if (is_href(lhs)) {
+    } else if (is_href(lhs) && !occurs(lhs, rhs)) {
         if (s.has_forward_deps(href_index(lhs))) {
             // TODO(Leo): we don't handle this case yet.
             // Other hypotheses depend on this equality.

@@ -202,7 +202,7 @@ static optional<ext_congr_lemma> to_ext_congr_lemma(name const & R, expr const &
         }
         expr h_type = ctx->infer(h);
         name h_R; expr h_lhs, h_rhs;
-        if (!is_relation_app(h_type, h_R, h_lhs, h_rhs)) {
+        if (!is_equivalence_relation_app(h_type, h_R, h_lhs, h_rhs)) {
             return optional<ext_congr_lemma>();
         }
         bool found_lhs_rhs = false;
@@ -393,8 +393,8 @@ int congruence_closure::congr_key_cmp::operator()(congr_key const & k1, congr_ke
     } else if (k1.m_symm_rel) {
         name R1, R2;
         expr lhs1, rhs1, lhs2, rhs2;
-        lean_verify(is_relation_app(k1.m_expr, R1, lhs1, rhs1));
-        lean_verify(is_relation_app(k2.m_expr, R2, lhs2, rhs2));
+        lean_verify(is_equivalence_relation_app(k1.m_expr, R1, lhs1, rhs1));
+        lean_verify(is_equivalence_relation_app(k2.m_expr, R2, lhs2, rhs2));
         if (R1 != R2)
             return quick_cmp(R1, R2);
         return g_cc->compare_symm(R1, lhs1, rhs1, lhs2, rhs2);
@@ -466,7 +466,7 @@ auto congruence_closure::mk_congr_key(ext_congr_lemma const & lemma, expr const 
     } else if (std && is_iff(e, lhs, rhs)) {
         k.m_iff  = true;
         k.m_hash = symm_hash(get_iff_name(), lhs, rhs);
-    } else if (std && is_relation_app(e, R, lhs, rhs) && is_symmetric(R)) {
+    } else if (std && is_equivalence_relation_app(e, R, lhs, rhs) && is_symmetric(R)) {
         k.m_symm_rel = true;
         k.m_hash = symm_hash(R, lhs, rhs);
     } else {
@@ -513,7 +513,7 @@ void congruence_closure::check_iff_true(congr_key const & k) {
         lhs = app_arg(app_fn(e));
         rhs = app_arg(e);
     } else if (k.m_symm_rel) {
-        lean_verify(is_relation_app(e, R, lhs, rhs));
+        lean_verify(is_equivalence_relation_app(e, R, lhs, rhs));
     } else {
         return;
     }
@@ -908,7 +908,7 @@ void congruence_closure::add(expr const & type, expr const & proof) {
     if (is_neg && !is_standard(env()))
         return;
     name R; expr lhs, rhs;
-    if (is_relation_app(p, R, lhs, rhs)) {
+    if (is_equivalence_relation_app(p, R, lhs, rhs)) {
         if (is_neg) {
             bool toplevel = true; bool to_propagate = false;
             internalize_core(get_iff_name(), p, toplevel, to_propagate);
@@ -1011,9 +1011,9 @@ expr congruence_closure::mk_congr_proof_core(name const & R, expr const & lhs, e
 
 expr congruence_closure::mk_congr_proof(name const & R, expr const & e1, expr const & e2) const {
     name R1; expr lhs1, rhs1;
-    if (is_relation_app(e1, R1, lhs1, rhs1)) {
+    if (is_equivalence_relation_app(e1, R1, lhs1, rhs1)) {
         name R2; expr lhs2, rhs2;
-        if (is_relation_app(e2, R2, lhs2, rhs2) && R1 == R2) {
+        if (is_equivalence_relation_app(e2, R2, lhs2, rhs2) && R1 == R2) {
             if (!is_eqv(R1, lhs1, lhs2)) {
                 lean_assert(is_eqv(R1, lhs1, rhs2));
                 // We must apply symmetry.
@@ -1044,10 +1044,10 @@ expr congruence_closure::mk_proof(name const & R, expr const & lhs, expr const &
         bool flip;
         name R1; expr a, b;
         if (lhs == mk_true()) {
-            lean_verify(is_relation_app(rhs, R1, a, b));
+            lean_verify(is_equivalence_relation_app(rhs, R1, a, b));
             flip = true;
         } else {
-            lean_verify(is_relation_app(lhs, R1, a, b));
+            lean_verify(is_equivalence_relation_app(lhs, R1, a, b));
             flip = false;
         }
         expr H1 = get_app_builder().mk_iff_true_intro(*get_eqv_proof(R1, a, b));

@@ -46,6 +46,8 @@ inline optional<relation_info> is_relation(expr const & R) {
 }
 bool is_reflexive(name const & rop);
 bool is_symmetric(name const & rop);
+bool is_transitive(name const & rop);
+bool is_equivalence_relation_app(expr const & e, name & rop, expr & lhs, expr & rhs);
 
 /** \brief Put the given expression in weak-head-normal-form with respect to the
     current state being processed by the blast tactic. */

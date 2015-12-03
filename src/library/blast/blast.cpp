@@ -67,6 +67,7 @@ class blastenv {
     relation_info_getter       m_rel_getter;
     refl_info_getter           m_refl_getter;
     symm_info_getter           m_symm_getter;
+    trans_info_getter          m_trans_getter;
     unfold_macro_pred          m_unfold_macro_pred;
 
     class tctx : public type_context {
@@ -448,6 +449,7 @@ public:
         m_rel_getter(mk_relation_info_getter(env)),
         m_refl_getter(mk_refl_info_getter(env)),
         m_symm_getter(mk_symm_info_getter(env)),
+        m_trans_getter(mk_trans_info_getter(env)),
         m_unfold_macro_pred([](expr const &) { return true; }),
         m_tctx(*this),
         m_normalizer(m_tctx) {
@@ -595,6 +597,14 @@ public:
         return static_cast<bool>(m_symm_getter(rop));
     }
 
+    bool is_transitive(name const & rop) const {
+        return static_cast<bool>(m_trans_getter(rop, rop));
+    }
+
+    bool is_equivalence_relation_app(expr const & e, name & rop, expr & lhs, expr & rhs) {
+        return is_relation_app(e, rop, lhs, rhs) && is_reflexive(rop) && is_symmetric(rop) && is_transitive(rop);
+    }
+
     optional<relation_info> get_relation_info(name const & rop) const {
         return m_rel_getter(rop);
     }
@@ -661,6 +671,16 @@ bool is_reflexive(name const & rop) {
 bool is_symmetric(name const & rop) {
     lean_assert(g_blastenv);
     return g_blastenv->is_symmetric(rop);
+}
+
+bool is_transitive(name const & rop) {
+    lean_assert(g_blastenv);
+    return g_blastenv->is_transitive(rop);
+}
+
+bool is_equivalence_relation_app(expr const & e, name & rop, expr & lhs, expr & rhs) {
+    lean_assert(g_blastenv);
+    return g_blastenv->is_equivalence_relation_app(e, rop, lhs, rhs);
 }
 
 optional<relation_info> get_relation_info(name const & rop) {

@@ -37,6 +37,7 @@ static name * g_tmp_prefix = nullptr;
 
 class blastenv {
     friend class scope_assignment;
+    friend class scope_unfold_macro_pred;
     typedef std::vector<tmp_type_context *> tmp_type_context_pool;
     typedef std::unique_ptr<tmp_type_context> tmp_type_context_ptr;
 
@@ -64,6 +65,7 @@ class blastenv {
     relation_info_getter       m_rel_getter;
     refl_info_getter           m_refl_getter;
     symm_info_getter           m_symm_getter;
+    unfold_macro_pred          m_unfold_macro_pred;
 
     class tctx : public type_context {
         blastenv &                              m_benv;
@@ -73,38 +75,42 @@ class blastenv {
             type_context(benv.m_env, benv.m_ios, benv.m_tmp_local_generator),
             m_benv(benv) {}
 
-        virtual bool is_extra_opaque(name const & n) const {
+        virtual bool is_extra_opaque(name const & n) const override {
             // TODO(Leo): class and instances
             return m_benv.m_not_reducible_pred(n) || m_benv.m_projection_info.contains(n);
         }
 
-        virtual bool is_uvar(level const & l) const {
+        virtual bool should_unfold_macro(expr const & e) const override {
+            return m_benv.m_unfold_macro_pred(e);
+        }
+
+        virtual bool is_uvar(level const & l) const override {
             return blast::is_uref(l);
         }
 
-        virtual bool is_mvar(expr const & e) const {
+        virtual bool is_mvar(expr const & e) const override {
             return blast::is_mref(e);
         }
 
-        virtual optional<level> get_assignment(level const & u) const {
+        virtual optional<level> get_assignment(level const & u) const override {
             if (auto v = m_benv.m_curr_state.get_uref_assignment(u))
                 return some_level(*v);
             else
                 return none_level();
         }
 
-        virtual optional<expr> get_assignment(expr const & m) const {
+        virtual optional<expr> get_assignment(expr const & m) const override {
             if (auto v = m_benv.m_curr_state.get_mref_assignment(m))
                 return some_expr(*v);
             else
                 return none_expr();
         }
 
-        virtual void update_assignment(level const & u, level const & v) {
+        virtual void update_assignment(level const & u, level const & v) override {
             m_benv.m_curr_state.assign_uref(u, v);
         }
 
-        virtual void update_assignment(expr const & m, expr const & v) {
+        virtual void update_assignment(expr const & m, expr const & v) override {
             m_benv.m_curr_state.assign_mref(m, v);
         }
 
@@ -131,7 +137,7 @@ class blastenv {
             return check_href_core(d, h, visited);
         }
 
-        virtual bool validate_assignment(expr const & m, buffer<expr> const & locals, expr const & v) {
+        virtual bool validate_assignment(expr const & m, buffer<expr> const & locals, expr const & v) override {
             // We must check
             //   1. All href in new_v are in the context of m.
             //   2. The context of any (unassigned) mref in new_v must be a subset of the context of m.
@@ -172,7 +178,7 @@ class blastenv {
         /** \brief Return the type of a local constant (local or not).
             \remark This method allows the customer to store the type of local constants
             in a different place. */
-        virtual expr infer_local(expr const & e) const {
+        virtual expr infer_local(expr const & e) const override {
             if (is_href(e)) {
                 state const & s = m_benv.m_curr_state;
                 hypothesis const & h = s.get_hypothesis_decl(e);
@@ -182,7 +188,7 @@ class blastenv {
             }
         }
 
-        virtual expr infer_metavar(expr const & m) const {
+        virtual expr infer_metavar(expr const & m) const override {
             // Remark: we do not tolerate external meta-variables here.
             lean_assert(is_mref(m));
             state const & s = m_benv.m_curr_state;
@@ -191,24 +197,24 @@ class blastenv {
             return d->get_type();
         }
 
-        virtual level mk_uvar() {
+        virtual level mk_uvar() override {
             return mk_fresh_uref();
         }
 
-        virtual expr mk_mvar(expr const & type) {
+        virtual expr mk_mvar(expr const & type) override {
             return m_benv.m_curr_state.mk_metavar(type);
         }
 
-        virtual void push() {
+        virtual void push() override {
             m_stack.push_back(m_benv.m_curr_state.save_assignment());
         }
 
-        virtual void pop() {
+        virtual void pop() override {
             m_benv.m_curr_state.restore_assignment(m_stack.back());
             m_stack.pop_back();
         }
 
-        virtual void commit() {
+        virtual void commit() override {
             m_stack.pop_back();
         }
     };
@@ -439,6 +445,7 @@ public:
         m_rel_getter(mk_relation_info_getter(env)),
         m_refl_getter(mk_refl_info_getter(env)),
         m_symm_getter(mk_symm_info_getter(env)),
+        m_unfold_macro_pred([](expr const &) { return true; }),
         m_tctx(*this),
         m_normalizer(m_tctx) {
         init_uref_mref_href_idxs();
@@ -780,6 +787,15 @@ scope_assignment::~scope_assignment() {
 
 void scope_assignment::commit() {
     m_keep = true;
+}
+
+scope_unfold_macro_pred::scope_unfold_macro_pred(unfold_macro_pred const & pred):
+    m_old_pred(g_blastenv->m_unfold_macro_pred) {
+    g_blastenv->m_unfold_macro_pred = pred;
+}
+
+scope_unfold_macro_pred::~scope_unfold_macro_pred() {
+    g_blastenv->m_unfold_macro_pred = m_old_pred;
 }
 
 struct scope_debug::imp {

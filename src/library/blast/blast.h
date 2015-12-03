@@ -120,8 +120,7 @@ void display_expr(expr const & e);
 /** \brief Display message in the blast tactic diagnostic channel. */
 void display(char const * msg);
 void display(sstream const & msg);
-/**
-    \brief Create a local scope for saving the assignment and
+/** \brief Create a local scope for saving the assignment and
     metavariable declarations at curr_state() */
 class scope_assignment {
     bool m_keep;
@@ -131,8 +130,17 @@ public:
     void commit();
 };
 
-/** \brief Auxiliary object for setting thread local storage associated with blast tactic.
+typedef std::function<bool(expr const &)> unfold_macro_pred;
+/** \brief Auxiliary object used to temporarily set predicate used to decide
+    whether macros will be unfolded or not. */
+class scope_unfold_macro_pred {
+    unfold_macro_pred m_old_pred;
+public:
+    scope_unfold_macro_pred(unfold_macro_pred const & pred);
+    ~scope_unfold_macro_pred();
+};
 
+/** \brief Auxiliary object for setting thread local storage associated with blast tactic.
     This is for debugging purposes only. It allow us to debug/test procedures that can
     only be invoked from blast. */
 class scope_debug {

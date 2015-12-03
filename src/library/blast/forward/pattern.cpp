@@ -501,8 +501,10 @@ struct mk_hi_lemma_fn {
     // If heuristic is true, then
     //   1. Give preference to unary patterns
     //   2. If there are no unary patterns, then
-    //      delet any candidate c_1 if there is a c_2 s.t.
-    //      trackable(c_1) == trackable(c_2) and weight(c_1) > weight(c_2).
+    //      a) delete any candidate c_1 if there is a c_2 s.t.
+    //         trackable(c_1) == trackable(c_2) and weight(c_1) > weight(c_2).
+    //      b) delete any candidate c_1 if there is a c_2 s.t.
+    //         c_1 is a subterm of c_2, and c_2.m_vars is a strict superset of c_1.m_vars
     list<multi_pattern> mk_multi_patterns_using(candidate_set s, bool heuristic) {
         if (heuristic) {
             buffer<multi_pattern> unit_patterns;
@@ -514,13 +516,17 @@ struct mk_hi_lemma_fn {
                 return to_list(unit_patterns);
             }
             buffer<candidate> to_delete;
-            s.for_each([&](candidate const & c1) {
-                    if (s.find_if([&](candidate const & c2) {
+            s.for_each([&](candidate const & c_1) {
+                    if (s.find_if([&](candidate const & c_2) {
                                 return
-                                    c1.m_mvars == c2.m_mvars &&
-                                    get_weight(c1.m_expr) > get_weight(c2.m_expr);
+                                    //      a) delete any candidate c_1 if there is a c_2 s.t.
+                                    //         trackable(c_1) == trackable(c_2) and weight(c_1) > weight(c_2).
+                                    (c_1.m_mvars == c_2.m_mvars && get_weight(c_1.m_expr) > get_weight(c_2.m_expr)) ||
+                                    //      b) delete any candidate c_1 if there is a c_2 s.t.
+                                    //         c_1 is a subterm of c_2, and c_2.m_vars is a strict superset of c_1.m_vars
+                                    (occurs(c_1.m_expr, c_2.m_expr) && c_2.m_mvars.is_strict_superset(c_1.m_mvars));
                             })) {
-                        to_delete.push_back(c1);
+                        to_delete.push_back(c_1);
                     }
                 });
             for (candidate const & c : to_delete) {

@@ -155,7 +155,10 @@ bool type_context::is_opaque(declaration const & d) const {
 
 optional<expr> type_context::expand_macro(expr const & m) {
     lean_assert(is_macro(m));
-    return macro_def(m).expand(m, *m_ext_ctx);
+    if (should_unfold_macro(m))
+        return macro_def(m).expand(m, *m_ext_ctx);
+    else
+        return none_expr();
 }
 
 optional<expr> type_context::reduce_projection(expr const & e) {
@@ -1887,6 +1890,15 @@ expr normalizer::normalize_app(expr const & e) {
     }
 }
 
+expr normalizer::normalize_macro(expr const & e) {
+    // This method is invoked for macros that are not unfolded at whnf because
+    // the predicate should_unfold_macro(e) returned false
+    buffer<expr> new_args;
+    for (unsigned i = 0; i < macro_num_args(e); i++)
+        new_args.push_back(normalize(macro_arg(e, i)));
+    return update_macro(e, new_args.size(), new_args.data());
+}
+
 expr normalizer::normalize(expr e) {
     check_system("normalize");
     if (!should_normalize(e))
@@ -1894,8 +1906,10 @@ expr normalizer::normalize(expr e) {
     e = m_ctx.whnf(e);
     switch (e.kind()) {
     case expr_kind::Var:  case expr_kind::Constant: case expr_kind::Sort:
-    case expr_kind::Meta: case expr_kind::Local: case expr_kind::Macro:
+    case expr_kind::Meta: case expr_kind::Local:
         return e;
+    case expr_kind::Macro:
+        return normalize_macro(e);
     case expr_kind::Lambda: {
         e = normalize_binding(e);
         if (m_use_eta)

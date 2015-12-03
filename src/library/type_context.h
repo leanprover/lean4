@@ -319,6 +319,10 @@ public:
         \remark This class always treats projections and theorems as opaque. */
     virtual bool is_extra_opaque(name const & n) const = 0;
 
+    /** \brief This method is invoked when a term is being put in weak-head-normal-form.
+        It is used to decide whether a macro should be unfolded or not. */
+    virtual bool should_unfold_macro(expr const &) const { return true; }
+
     /** \brief Create a temporary local constant */
     expr mk_tmp_local(expr const & type, binder_info const & bi = binder_info()) {
         return m_local_gen->mk_tmp_local(type, bi);
@@ -572,6 +576,7 @@ class normalizer {
                                         buffer<unsigned> const & idxs, buffer<expr> & args, bool is_rec);
     optional<expr> unfold_recursor_major(expr const & f, unsigned idx, buffer<expr> & args);
     expr normalize_app(expr const & e);
+    expr normalize_macro(expr const & e);
     expr normalize(expr e);
 
 public:

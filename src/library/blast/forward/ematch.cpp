@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/blast/options.h"
 #include "library/blast/congruence_closure.h"
 #include "library/blast/forward/pattern.h"
+#include "library/blast/forward/forward_lemma_set.h"
 
 namespace lean {
 namespace blast {
@@ -45,7 +46,6 @@ struct ematch_branch_extension : public branch_extension {
     hi_lemma_set                                  m_lemmas;
     hi_lemma_set                                  m_new_lemmas;
     rb_map<head_index, expr_set, head_index::cmp> m_apps;
-    name_set                                      m_initialized;
     expr_set                                      m_instances;
 
     ematch_branch_extension() {}
@@ -70,14 +70,6 @@ struct ematch_branch_extension : public branch_extension {
         case expr_kind::App: {
             buffer<expr> args;
             expr const & f = get_app_args(e, args);
-            if (is_constant(f) && !m_initialized.contains(const_name(f))) {
-                m_initialized.insert(const_name(f));
-                if (auto lemmas = get_hi_lemma_index(env()).find(const_name(f))) {
-                    for (hi_lemma const & lemma : *lemmas) {
-                        m_new_lemmas.insert(lemma);
-                    }
-                }
-            }
             if ((is_constant(f) && !is_no_pattern(env(), const_name(f))) ||
                 (is_local(f))) {
                 expr_set s;
@@ -95,16 +87,22 @@ struct ematch_branch_extension : public branch_extension {
 
     void register_lemma(hypothesis const & h) {
         if (is_pi(h.get_type()) && !is_arrow(h.get_type())) {
-            blast_tmp_type_context ctx;
             try {
-                m_new_lemmas.insert(mk_hi_lemma(*ctx, h.get_self()));
+                m_new_lemmas.insert(mk_hi_lemma(h.get_self()));
             } catch (exception &) {}
         }
     }
 
     virtual ~ematch_branch_extension() {}
     virtual branch_extension * clone() override { return new ematch_branch_extension(*this); }
-    virtual void initialized() override {}
+    virtual void initialized() override {
+        forward_lemma_set s = get_forward_lemma_set(env());
+        s.for_each([&](name const & n, unsigned prio) {
+                try {
+                    m_new_lemmas.insert(mk_hi_lemma(n, prio));
+                } catch (exception &) {}
+            });
+    }
     virtual void hypothesis_activated(hypothesis const & h, hypothesis_idx) override {
         collect_apps(h.get_type());
         register_lemma(h);

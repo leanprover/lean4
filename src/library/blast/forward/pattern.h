@@ -10,10 +10,6 @@ Author: Leonardo de Moura
 #include "library/expr_lt.h"
 #include "library/tmp_type_context.h"
 
-#ifndef LEAN_HI_LEMMA_DEFAULT_PRIORITY
-#define LEAN_HI_LEMMA_DEFAULT_PRIORITY 1000
-#endif
-
 namespace lean {
 /** \brief Annotate \c e as a pattern hint */
 expr mk_pattern_hint(expr const & e);
@@ -52,27 +48,11 @@ struct hi_lemma_cmp {
     int operator()(hi_lemma const & l1, hi_lemma const & l2) const { return expr_quick_cmp()(l1.m_prop, l2.m_prop); }
 };
 
-/** \brief Mapping c -> S, where c is a constant name and S is a set of hi_lemmas that contain
-    a pattern where the head symbol is c. */
-typedef rb_multi_map<name, hi_lemma, name_quick_cmp> hi_lemmas;
-
-/** \brief Add the given theorem as a heuristic instantiation lemma in the current environment. */
-environment add_hi_lemma(environment const & env, options const & o, name const & c, unsigned priority, bool persistent);
-
-/** \brief Return the heuristic instantiation lemma data associated with constant \c c */
-hi_lemma const * get_hi_lemma(environment const & env, name const & c);
-
-/** \brief Retrieve the active set of heuristic instantiation lemmas. */
-hi_lemmas get_hi_lemma_index(environment const & env);
-
-hi_lemma mk_hi_lemma(tmp_type_context & ctx, expr const & H, unsigned max_steps);
-
-unsigned get_pattern_max_steps(options const & o);
-
 namespace blast {
 /** \brief Create a (local) heuristic instantiation lemma for \c H.
     The maximum number of steps is extracted from the blast config object. */
-hi_lemma mk_hi_lemma(tmp_type_context & ctx, expr const & H);
+hi_lemma mk_hi_lemma(expr const & H);
+hi_lemma mk_hi_lemma(name const & n, unsigned prio);
 }
 
 void initialize_pattern();

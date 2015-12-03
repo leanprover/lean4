@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/blast/simplifier/simp_rule_set.h"
 #include "library/blast/backward/backward_rule_set.h"
 #include "library/blast/forward/pattern.h"
+#include "library/blast/forward/forward_lemma_set.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
@@ -241,9 +242,9 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
     }
     if (forward) {
         if (m_priority)
-            env = add_hi_lemma(env, ios.get_options(), d, *m_priority, m_persistent);
+            env = add_forward_lemma(env, d, *m_priority, m_persistent);
         else
-            env = add_hi_lemma(env, ios.get_options(), d, LEAN_HI_LEMMA_DEFAULT_PRIORITY, m_persistent);
+            env = add_forward_lemma(env, d, LEAN_FORWARD_LEMMA_DEFAULT_PRIORITY, m_persistent);
     }
     if (m_no_pattern) {
         env = add_no_pattern(env, d, m_persistent);

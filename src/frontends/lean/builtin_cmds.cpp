@@ -50,6 +50,7 @@ Author: Leonardo de Moura
 #include "library/blast/simplifier/simplifier.h"
 #include "library/blast/backward/backward_rule_set.h"
 #include "library/blast/forward/pattern.h"
+#include "library/blast/forward/forward_lemma_set.h"
 #include "compiler/preprocess_rec.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
@@ -231,20 +232,26 @@ static void print_metaclasses(parser const & p) {
         p.regular_stream() << "[" << n << "]" << endl;
 }
 
-static void print_patterns(io_state_stream const & out, environment const & env, name const & n) {
-    if (auto lemma = get_hi_lemma(env, n)) {
-        if (lemma->m_multi_patterns) {
-            out << "(multi-)patterns:\n";
-            for (multi_pattern const & mp : lemma->m_multi_patterns) {
-                out << "{";
-                bool first = true;
-                for (expr const & p : mp) {
-                    if (first) first = false; else out << ", ";
-                    out << p;
+static void print_patterns(parser const & p, name const & n) {
+    if (is_forward_lemma(p.env(), n)) {
+        blast::scope_debug scope(p.env(), p.ios());
+        try {
+            // we regenerate the patterns to make sure they reflect the current set of reducible constants
+            auto lemma = blast::mk_hi_lemma(n, LEAN_FORWARD_LEMMA_DEFAULT_PRIORITY);
+            if (lemma.m_multi_patterns) {
+                io_state_stream out = p.regular_stream();
+                out << "(multi-)patterns:\n";
+                for (multi_pattern const & mp : lemma.m_multi_patterns) {
+                    out << "{";
+                    bool first = true;
+                    for (expr const & p : mp) {
+                        if (first) first = false; else out << ", ";
+                        out << p;
+                    }
+                    out << "}\n";
                 }
-                out << "}\n";
             }
-        }
+        } catch (exception &) {}
     }
 }
 
@@ -287,7 +294,7 @@ static void print_attributes(parser const & p, name const & n) {
         out << " [backward]";
     if (is_no_pattern(env, n))
         out << " [no_pattern]";
-    if (get_hi_lemma(env, n))
+    if (is_forward_lemma(env, n))
         out << " [forward]";
     switch (get_reducible_status(env, n)) {
     case reducible_status::Reducible:      out << " [reducible]"; break;
@@ -424,7 +431,7 @@ bool print_id_info(parser const & p, name const & id, bool show_value, pos_info 
                     if (show_value)
                         print_definition(p, c, pos);
                 }
-                print_patterns(out, env, c);
+                print_patterns(p, c);
             }
             return true;
         } catch (exception & ex) {}

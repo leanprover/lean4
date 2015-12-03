@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "util/sstream.h"
-#include "util/sexpr/option_declarations.h"
 #include "library/expr_lt.h"
 #include "kernel/find_fn.h"
 #include "kernel/for_each_fn.h"
@@ -21,19 +20,11 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/idx_metavar.h"
 #include "library/blast/options.h"
+#include "library/blast/blast.h"
 #include "library/blast/forward/pattern.h"
-
-#ifndef LEAN_DEFAULT_PATTERN_MAX_STEPS
-#define LEAN_DEFAULT_PATTERN_MAX_STEPS 1024
-#endif
+#include "library/blast/forward/forward_lemma_set.h"
 
 namespace lean {
-static name * g_pattern_max_steps  = nullptr;
-
-unsigned get_pattern_max_steps(options const & o) {
-    return o.get_unsigned(*g_pattern_max_steps, LEAN_DEFAULT_PATTERN_MAX_STEPS);
-}
-
 /*
 Step 1: Selecting which variables we should track.
 
@@ -143,66 +134,19 @@ expr mk_pattern_hint(expr const & e) {
     return mk_annotation(*g_pattern_hint, e);
 }
 
-static name * g_hi_name    = nullptr;
+static name * g_name    = nullptr;
 static std::string * g_key = nullptr;
 
-// "Poor man" union type
-struct hi_entry {
-    optional<name> m_no_pattern;
-    hi_lemma       m_lemma;
-    hi_entry() {}
-    hi_entry(name const & n):m_no_pattern(n) {}
-    hi_entry(hi_lemma const & l):m_lemma(l) {}
-};
-
-struct hi_state {
-    name_set           m_no_patterns;
-    name_map<hi_lemma> m_name_to_lemma;
-    hi_lemmas          m_lemmas;
-};
-
-serializer & operator<<(serializer & s, multi_pattern const & mp) {
-    write_list(s, mp);
-    return s;
-}
-
-deserializer & operator>>(deserializer & d, multi_pattern & mp) {
-    mp = read_list<expr>(d);
-    return d;
-}
-
-static optional<name> get_hi_lemma_name(expr const & H) {
-    if (is_lambda(H))
-        return get_hi_lemma_name(binding_body(H));
-    expr const & f = get_app_fn(H);
-    if (is_constant(f))
-        return optional<name>(const_name(f));
-    else
-        return optional<name>();
-}
-
-struct hi_config {
-    typedef hi_entry entry;
-    typedef hi_state state;
+struct no_pattern_config {
+    typedef name     entry;
+    typedef name_set state;
 
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
-        if (e.m_no_pattern) {
-            s.m_no_patterns.insert(*e.m_no_pattern);
-        } else {
-            if (auto n = get_hi_lemma_name(e.m_lemma.m_proof))
-                s.m_name_to_lemma.insert(*n, e.m_lemma);
-            for (multi_pattern const & mp : e.m_lemma.m_multi_patterns) {
-                for (expr const & p : mp) {
-                    lean_assert(is_app(p));
-                    lean_assert(is_constant(get_app_fn(p)));
-                    s.m_lemmas.insert(const_name(get_app_fn(p)), e.m_lemma);
-                }
-            }
-        }
+        s.insert(e);
     }
 
     static name const & get_class_name() {
-        return *g_hi_name;
+        return *g_name;
     }
 
     static std::string const & get_serialization_key() {
@@ -210,49 +154,36 @@ struct hi_config {
     }
 
     static void  write_entry(serializer & s, entry const & e) {
-        s << e.m_no_pattern;
-        if (!e.m_no_pattern) {
-            hi_lemma const & l = e.m_lemma;
-            s << l.m_num_uvars << l.m_num_mvars << l.m_priority << l.m_prop << l.m_proof;
-            write_list(s, l.m_mvars);
-            write_list(s, l.m_is_inst_implicit);
-            write_list(s, l.m_multi_patterns);
-        }
+        s << e;
     }
 
     static entry read_entry(deserializer & d) {
         entry e;
-        d >> e.m_no_pattern;
-        if (!e.m_no_pattern) {
-            hi_lemma & l = e.m_lemma;
-            d >> l.m_num_uvars >> l.m_num_mvars >> l.m_priority >> l.m_prop >> l.m_proof;
-            l.m_mvars            = read_list<expr>(d);
-            l.m_is_inst_implicit = read_list<bool>(d);
-            l.m_multi_patterns   = read_list<multi_pattern>(d);
-        }
+        d >> e;
         return e;
     }
 
     static optional<unsigned> get_fingerprint(entry const & e) {
-        return e.m_no_pattern ? some(e.m_no_pattern->hash()) : some(e.m_lemma.m_prop.hash());
+        return some(e.hash());
     }
 };
 
-template class scoped_ext<hi_config>;
-typedef scoped_ext<hi_config> hi_ext;
+template class scoped_ext<no_pattern_config>;
+typedef scoped_ext<no_pattern_config> no_pattern_ext;
 
 bool is_no_pattern(environment const & env, name const & n) {
-    return hi_ext::get_state(env).m_no_patterns.contains(n);
+    return no_pattern_ext::get_state(env).contains(n);
 }
 
 environment add_no_pattern(environment const & env, name const & n, bool persistent) {
-    return hi_ext::add_entry(env, get_dummy_ios(), hi_entry(n), persistent);
+    return no_pattern_ext::add_entry(env, get_dummy_ios(), n, persistent);
 }
 
 name_set const & get_no_patterns(environment const & env) {
-    return hi_ext::get_state(env).m_no_patterns;
+    return no_pattern_ext::get_state(env);
 }
 
+namespace blast {
 typedef rb_tree<unsigned, unsigned_cmp> idx_metavar_set;
 
 static bool is_higher_order(tmp_type_context & ctx, expr const & e) {
@@ -363,7 +294,7 @@ struct mk_hi_lemma_fn {
 
     mk_hi_lemma_fn(tmp_type_context & ctx, expr const & H,
                    unsigned num_uvars, unsigned prio, unsigned max_steps):
-        m_ctx(ctx), m_no_patterns(hi_ext::get_state(ctx.env()).m_no_patterns),
+        m_ctx(ctx), m_no_patterns(no_pattern_ext::get_state(ctx.env())),
         m_H(H), m_num_uvars(num_uvars), m_priority(prio), m_max_steps(max_steps) {}
 
     struct candidate {
@@ -599,7 +530,12 @@ struct mk_hi_lemma_fn {
     }
 
     hi_lemma operator()() {
-        expr H_type = m_ctx.infer(m_H);
+        expr H_type;
+        {
+            // preserve pattern hints
+            scope_unfold_macro_pred scope1([](expr const & e) { return !is_pattern_hint(e); });
+            H_type = normalize(m_ctx.infer(m_H));
+        }
         buffer<bool> inst_implicit_flags;
         expr B      = extract_trackable(m_ctx, H_type, m_mvars, inst_implicit_flags, m_trackable, m_residue);
         lean_assert(m_mvars.size() == inst_implicit_flags.size());
@@ -652,52 +588,37 @@ hi_lemma mk_hi_lemma_core(tmp_type_context & ctx, expr const & H, unsigned num_u
     return mk_hi_lemma_fn(ctx, H, num_uvars, priority, max_steps)();
 }
 
-namespace blast {
-hi_lemma mk_hi_lemma(tmp_type_context & ctx, expr const & H) {
+hi_lemma mk_hi_lemma(expr const & H) {
+    blast_tmp_type_context ctx;
     unsigned max_steps = get_config().m_pattern_max_steps;
-    ctx.clear();
-    return mk_hi_lemma_core(ctx, H, 0, LEAN_HI_LEMMA_DEFAULT_PRIORITY, max_steps);
-}}
+    return mk_hi_lemma_core(*ctx, H, 0, LEAN_FORWARD_LEMMA_DEFAULT_PRIORITY, max_steps);
+}
 
-environment add_hi_lemma(environment const & env, options const & o, name const & c, unsigned priority, bool persistent) {
-    tmp_type_context ctx(env, get_dummy_ios());
-    declaration const & d = env.get(c);
+hi_lemma mk_hi_lemma(name const & c, unsigned priority) {
+    blast_tmp_type_context ctx;
+    unsigned max_steps = get_config().m_pattern_max_steps;
+    declaration const & d = env().get(c);
     buffer<level> us;
     unsigned num_us = d.get_num_univ_params();
     for (unsigned i = 0; i < num_us; i++)
-        us.push_back(ctx.mk_uvar());
-    expr H             = mk_constant(c, to_list(us));
-    unsigned max_steps = get_pattern_max_steps(o);
-    return hi_ext::add_entry(env, get_dummy_ios(), hi_entry(mk_hi_lemma_core(ctx, H, num_us, priority, max_steps)),
-                             persistent);
+        us.push_back(ctx->mk_uvar());
+    expr H          = mk_constant(c, to_list(us));
+    return mk_hi_lemma_core(*ctx, H, num_us, priority, max_steps);
 }
-
-hi_lemma const * get_hi_lemma(environment const & env, name const & c) {
-    return hi_ext::get_state(env).m_name_to_lemma.find(c);
-}
-
-hi_lemmas get_hi_lemma_index(environment const & env) {
-    return hi_ext::get_state(env).m_lemmas;
 }
 
 void initialize_pattern() {
-    g_hi_name           = new name("hi");
-    g_key               = new std::string("HI");
-    hi_ext::initialize();
+    g_name              = new name("no_pattern");
+    g_key               = new std::string("NOPAT");
+    no_pattern_ext::initialize();
     g_pattern_hint      = new name("pattern_hint");
     register_annotation(*g_pattern_hint);
-    g_pattern_max_steps = new name{"pattern", "max_steps"};
-    register_unsigned_option(*g_pattern_max_steps, LEAN_DEFAULT_PATTERN_MAX_STEPS,
-                             "(pattern) max number of steps performed by pattern inference procedure, "
-                             "we have this threshold because in the worst case this procedure may take "
-                             "an exponetial number of steps");
 }
 
 void finalize_pattern() {
-    hi_ext::finalize();
-    delete g_hi_name;
+    no_pattern_ext::finalize();
+    delete g_name;
     delete g_key;
     delete g_pattern_hint;
-    delete g_pattern_max_steps;
 }
 }

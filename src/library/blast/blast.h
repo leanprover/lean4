@@ -130,7 +130,7 @@ public:
     void commit();
 };
 
-typedef std::function<bool(expr const &)> unfold_macro_pred;
+typedef std::function<bool(expr const &)> unfold_macro_pred; // NOLINT
 /** \brief Auxiliary object used to temporarily set predicate used to decide
     whether macros will be unfolded or not. */
 class scope_unfold_macro_pred {

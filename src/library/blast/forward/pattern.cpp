@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "library/kernel_serializer.h"
+#include "library/generic_exception.h"
 #include "library/tmp_type_context.h"
 #include "library/annotation.h"
 #include "library/occurs.h"
@@ -137,6 +138,8 @@ bool has_pattern_hints(expr const & e) {
 expr mk_pattern_hint(expr const & e) {
     if (has_pattern_hints(e))
         throw exception("invalid pattern hint, nested patterns hints are not allowed");
+    if (!is_app(e))
+        throw_generic_exception("invalid pattern hint, pattern must be applications", e);
     return mk_annotation(*g_pattern_hint, e);
 }
 

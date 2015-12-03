@@ -25,13 +25,19 @@ unsigned abstract_expr_manager::hash(expr const & e) {
         buffer<expr> args;
         expr f = get_app_args(e, args);
         fun_info f_info = m_fun_info_manager.get(f, args.size());
+        optional<congr_lemma> f_congr = m_congr_lemma_manager.mk_congr(f, args.size());
         unsigned h = hash(f);
-        int i = -1;
-        for_each(f_info.get_params_info(), [&](param_info const & p_info) {
-                i++;
-                if (p_info.is_subsingleton()) return;
-                h = ::lean::hash(h, hash(args[i]));
-            });
+        if (!f_congr) {
+            for (expr const & arg : args) h = ::lean::hash(h, hash(arg));
+        } else {
+            int i = -1;
+            for_each2(f_info.get_params_info(), f_congr->get_arg_kinds(),
+                      [&](param_info const & p_info, congr_arg_kind const & c_kind) {
+                          i++;
+                          if (p_info.is_subsingleton() && c_kind == congr_arg_kind::Cast) return;
+                          h = ::lean::hash(h, hash(args[i]));
+                });
+        }
         return h;
     }
     lean_unreachable();
@@ -66,13 +72,25 @@ bool abstract_expr_manager::is_equal(expr const & a, expr const & b) {
             if (!is_equal(f_a, f_b)) return false;
             if (a_args.size() != b_args.size()) return false;
             fun_info f_info = m_fun_info_manager.get(f_a, a_args.size());
-            int i = -1;
+            optional<congr_lemma> f_congr = m_congr_lemma_manager.mk_congr(f_a, a_args.size());
             bool not_equal = false;
-            for_each(f_info.get_params_info(), [&](param_info const & p_info) {
-                    i++;
-                    if (p_info.is_subsingleton()) return;
-                    if (!is_equal(a_args[i], b_args[i])) not_equal = true;
-                });
+            if (!f_congr) {
+                for (unsigned i = 0; i < a_args.size(); ++i) {
+                    if (!is_equal(a_args[i], b_args[i])) {
+                        not_equal = true;
+                        break;
+                    }
+                }
+            } else {
+                int i = -1;
+                for_each2(f_info.get_params_info(), f_congr->get_arg_kinds(),
+                          [&](param_info const & p_info, congr_arg_kind const & c_kind) {
+                              if (not_equal) return;
+                              i++;
+                              if (p_info.is_subsingleton() && c_kind == congr_arg_kind::Cast) return;
+                              if (!is_equal(a_args[i], b_args[i])) not_equal = true;
+                          });
+            }
             return !not_equal;
         }
         lean_unreachable(); // LCOV_EXCL_LINE

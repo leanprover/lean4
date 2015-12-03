@@ -1469,8 +1469,10 @@ static environment normalizer_cmd(parser & p) {
 static environment abstract_expr_cmd(parser & p) {
     unsigned o = p.parse_small_nat();
     default_type_context ctx(p.env(), p.ios());
+    app_builder builder(p.env(), p.ios());
     fun_info_manager fun_info(ctx);
-    abstract_expr_manager ae_manager(fun_info);
+    congr_lemma_manager congr_lemma(builder, fun_info);
+    abstract_expr_manager ae_manager(fun_info, congr_lemma);
 
     flycheck_information info(p.regular_stream());
     if (info.enabled()) p.display_information_pos(p.cmd_pos());

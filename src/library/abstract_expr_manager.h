@@ -6,18 +6,18 @@ Author: Daniel Selsam
 #pragma once
 #include "kernel/expr.h"
 #include "library/fun_info_manager.h"
+#include "library/congr_lemma_manager.h"
 
 namespace lean {
 
 /** \brief Abstract expression manager, to allow comparing expressions while ignoring subsingletons. */
 
 class abstract_expr_manager {
-    fun_info_manager & m_fun_info_manager;
-
+    fun_info_manager    & m_fun_info_manager;
+    congr_lemma_manager & m_congr_lemma_manager;
 public:
-    abstract_expr_manager(fun_info_manager & f_info_manager):
-        m_fun_info_manager(f_info_manager) { }
-
+    abstract_expr_manager(fun_info_manager & f_info_manager, congr_lemma_manager & c_lemma_manager):
+        m_fun_info_manager(f_info_manager), m_congr_lemma_manager(c_lemma_manager) { }
     unsigned hash(expr const & e);
     bool is_equal(expr const & a, expr const & b);
 };

@@ -475,7 +475,7 @@ public:
         m_app_builder(*m_tmp_ctx),
         m_fun_info_manager(*m_tmp_ctx),
         m_congr_lemma_manager(m_app_builder, m_fun_info_manager),
-        m_abstract_expr_manager(m_fun_info_manager),
+        m_abstract_expr_manager(m_fun_info_manager, m_congr_lemma_manager),
         m_light_lt_manager(env),
         m_rel_getter(mk_relation_info_getter(env)),
         m_refl_getter(mk_refl_info_getter(env)),

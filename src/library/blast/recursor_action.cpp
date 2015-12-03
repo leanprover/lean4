@@ -194,6 +194,11 @@ action_result recursor_action(hypothesis_idx hidx, name const & R) {
     s.collect_direct_forward_deps(hidx, to_revert);
     for (auto i : indices)
         s.collect_direct_forward_deps(href_index(i), to_revert);
+    if (!indices.empty()) {
+        // If the set of indices is not empty, then we must remove hidx from to_revert,
+        // since it depends on the indices.
+        to_revert.erase(hidx);
+    }
     revert(to_revert);
 
     expr target       = s.get_target();

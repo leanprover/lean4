@@ -72,6 +72,12 @@ public:
             m_buffer.push_back(h);
         }
     }
+
+    void erase(hypothesis_idx h) {
+        m_set.erase(h);
+        m_buffer.erase(h);
+    }
+
     unsigned size() const { return m_buffer.size(); }
     bool empty() const { return m_buffer.empty(); }
     hypothesis_idx_buffer const & as_buffer() const {

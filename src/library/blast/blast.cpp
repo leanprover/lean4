@@ -612,14 +612,12 @@ public:
         }
     }
 
-    list<imp_extension*> get_ext_path(imp_extension * _imp_ext) {
-        list<imp_extension*> path;
+    void get_ext_path(imp_extension * _imp_ext, buffer<imp_extension*> & path) {
         imp_extension * imp_ext = _imp_ext;
         while (imp_ext != nullptr) {
-            path = cons(imp_ext, path);
+            path.push_back(imp_ext);
             imp_ext = imp_ext->m_parent;
         }
-        return path;
     }
 
     imp_extension_state & get_imp_extension_state(unsigned state_id) {
@@ -630,23 +628,21 @@ public:
         lean_assert(e.m_ext_of_ext_state);
         imp_extension * ext_of_ext_state = e.m_ext_of_ext_state;
 
-        list<imp_extension*> curr_state_path = get_ext_path(ext_of_curr_state);
-        list<imp_extension*> ext_state_path = get_ext_path(ext_of_ext_state);
+        buffer<imp_extension*> curr_state_path, ext_state_path;
+        get_ext_path(ext_of_curr_state, curr_state_path);
+        get_ext_path(ext_of_ext_state, ext_state_path);
+
+        int i_curr = curr_state_path.size();
+        int i_ext = ext_state_path.size();
 
         while (true) {
-            if (is_nil(curr_state_path) || is_nil(ext_state_path)) break;
-            if (head(curr_state_path) != head(ext_state_path)) break;
-            curr_state_path = tail(curr_state_path);
-            ext_state_path = tail(ext_state_path);
+            if (curr_state_path[--i_curr] != ext_state_path[--i_ext]) break;
+            if (i_curr == 0 || i_ext == 0) break;
         }
 
-        for_each(reverse(ext_state_path), [&](imp_extension * imp_ext) {
-                ext_state->undo_actions(imp_ext);
-            });
-
-        for_each(curr_state_path, [&](imp_extension * imp_ext) {
-                ext_state->replay_actions(imp_ext);
-            });
+        while (i_ext >= 0) ext_state->undo_actions(ext_state_path[i_ext--]);
+        int j_curr = 0;
+        while (j_curr <= i_curr) ext_state->replay_actions(curr_state_path[j_curr++]);
 
         ext_of_curr_state->inc_ref();
         ext_of_ext_state->dec_ref();

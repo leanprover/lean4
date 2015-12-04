@@ -55,6 +55,14 @@ bool is_metaclass(name const & n);
 environment add_namespace(environment const & env, name const & ns);
 
 name const & get_namespace(environment const & env);
+/** \brief Return the current stack of namespaces.
+    Example: at
+      namespace foo
+      namespace bla
+      namespace boo
+      - It returns [foo.bla.boo, foo.bla, foo]
+
+    \remark This is *not* the set of opened namespaces. */
 list<name> const & get_namespaces(environment const & env);
 bool in_section(environment const & env);
 

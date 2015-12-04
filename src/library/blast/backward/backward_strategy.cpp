@@ -7,14 +7,14 @@ Author: Daniel Selsam
 #include "library/blast/trace.h"
 #include "library/blast/options.h"
 #include "library/blast/choice_point.h"
-#include "library/blast/simple_actions.h"
 #include "library/blast/proof_expr.h"
-#include "library/blast/intros_action.h"
-#include "library/blast/no_confusion_action.h"
-#include "library/blast/subst_action.h"
+#include "library/blast/strategy.h"
 #include "library/blast/backward/backward_rule_set.h"
 #include "library/blast/backward/backward_action.h"
-#include "library/blast/strategy.h"
+#include "library/blast/actions/simple_actions.h"
+#include "library/blast/actions/intros_action.h"
+#include "library/blast/actions/no_confusion_action.h"
+#include "library/blast/actions/subst_action.h"
 
 namespace lean {
 namespace blast {

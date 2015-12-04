@@ -5,11 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/constants.h"
-#include "library/blast/simple_actions.h"
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"
 #include "library/blast/options.h"
 #include "library/blast/simplifier/simplifier.h"
+#include "library/blast/actions/simple_actions.h"
 
 namespace lean {
 namespace blast {

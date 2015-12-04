@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/blast/assert_cc_action.h"
 #include "library/blast/congruence_closure.h"
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"
 #include "library/blast/options.h"
+#include "library/blast/actions/assert_cc_action.h"
 
 namespace lean {
 namespace blast {

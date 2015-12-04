@@ -10,11 +10,11 @@ Author: Leonardo de Moura
 #include "library/blast/blast_tactic.h"
 #include "library/blast/options.h"
 #include "library/blast/congruence_closure.h"
-#include "library/blast/recursor_action.h"
 #include "library/blast/simplifier/init_module.h"
 #include "library/blast/backward/init_module.h"
 #include "library/blast/forward/init_module.h"
 #include "library/blast/unit/init_module.h"
+#include "library/blast/actions/init_module.h"
 
 namespace lean {
 void initialize_blast_module() {
@@ -27,12 +27,12 @@ void initialize_blast_module() {
     blast::initialize_forward_module();
     blast::initialize_unit_module();
     initialize_blast_tactic();
-    blast::initialize_recursor_action();
+    blast::initialize_actions_module();
     blast::initialize_congruence_closure();
 }
 void finalize_blast_module() {
     blast::finalize_congruence_closure();
-    blast::finalize_recursor_action();
+    blast::finalize_actions_module();
     finalize_blast_tactic();
     blast::finalize_unit_module();
     blast::finalize_forward_module();

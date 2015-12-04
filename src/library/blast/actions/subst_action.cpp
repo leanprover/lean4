@@ -8,10 +8,10 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/occurs.h"
 #include "library/blast/revert.h"
-#include "library/blast/intros_action.h"
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"
 #include "library/blast/options.h"
+#include "library/blast/actions/intros_action.h"
 
 namespace lean {
 namespace blast {

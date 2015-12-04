@@ -2504,6 +2504,8 @@ struct unifier_fn {
         }
         if (!is_meta(m))
             return Continue;
+        if (occurs(m, lhs))
+            return Continue;
         if (assign(m, lhs, jst)) {
             return Solved;
         } else {

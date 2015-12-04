@@ -74,6 +74,7 @@ void substitution::assign(name const & m, expr const & t, justification const & 
 }
 
 void substitution::assign(name const & m, level const & l, justification const & j) {
+    lean_assert(!::lean::occurs(mk_meta_univ(m), l), m, l);
     m_level_subst.insert(m, l);
     if (!j.is_none())
         m_level_jsts.insert(m, j);

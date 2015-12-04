@@ -200,6 +200,9 @@ public:
 };
 template<typename F> level replace(level const & l, F const & f) { return replace_level_fn(f)(l); }
 
+/** \brief Return true if \c u occurs in \c l */
+bool occurs(level const & u, level const & l);
+
 typedef list<name> level_param_names;
 
 /** \brief If \c l contains a global that is not in \c env, then return it. Otherwise, return none. */

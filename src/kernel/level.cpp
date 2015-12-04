@@ -418,6 +418,16 @@ level replace_level_fn::apply(level const & l) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
+bool occurs(level const & u, level const & l) {
+    bool found = false;
+    for_each(l, [&](level const & l) {
+            if (found) return false;
+            if (l == u) { found = true; return false; }
+            return true;
+        });
+    return found;
+}
+
 optional<name> get_undef_param(level const & l, level_param_names const & ps) {
     optional<name> r;
     for_each(l, [&](level const & l) {

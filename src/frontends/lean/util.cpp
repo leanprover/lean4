@@ -305,16 +305,6 @@ level mk_result_level(environment const & env, buffer<level> const & r_lvls) {
     }
 }
 
-bool occurs(level const & u, level const & l) {
-    bool found = false;
-    for_each(l, [&](level const & l) {
-            if (found) return false;
-            if (l == u) { found = true; return false; }
-            return true;
-        });
-    return found;
-}
-
 /** \brief Functional object for converting the universe metavariables in an expression in new universe parameters.
     The substitution is updated with the mapping metavar -> new param.
     The set of parameter names m_params and the buffer m_new_params are also updated.

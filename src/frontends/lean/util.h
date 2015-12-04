@@ -78,8 +78,6 @@ expr Fun_as_is(buffer<expr> const & locals, expr const & e, parser & p);
 expr Pi_as_is(buffer<expr> const & locals, expr const & e, parser & p);
 /** \brief Create the resultant universe level using the levels computed during introduction rule elaboration */
 level mk_result_level(environment const & env, buffer<level> const & r_lvls);
-/** \brief Return true if \c u occurs in \c l */
-bool occurs(level const & u, level const & l);
 
 /** \brief Convert the universe metavariables in \c e in new universe parameters.
     The substitution \c s is updated with the mapping metavar -> new param.

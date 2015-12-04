@@ -13,12 +13,14 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/reducible.h"
 #include "library/class.h"
+#include "library/constants.h"
 #include "library/type_context.h"
 #include "library/relation_manager.h"
 #include "library/congr_lemma_manager.h"
 #include "library/abstract_expr_manager.h"
 #include "library/light_lt_manager.h"
 #include "library/projection.h"
+#include "library/scoped_ext.h"
 #include "library/tactic/goal.h"
 #include "library/blast/expr.h"
 #include "library/blast/state.h"
@@ -69,6 +71,7 @@ class blastenv {
     symm_info_getter           m_symm_getter;
     trans_info_getter          m_trans_getter;
     unfold_macro_pred          m_unfold_macro_pred;
+    bool                       m_classical{false};
 
     class tctx : public type_context {
         blastenv &                              m_benv;
@@ -462,8 +465,18 @@ public:
             delete ctx;
     }
 
+    void init_classical_flag() {
+        for_each(get_namespaces(m_env), [&](name const & ns) {
+                if (m_classical) return;
+                if (ns == get_classical_name()) m_classical = true;
+            });
+    }
+
+    bool classical() { return m_classical; }
+
     void init_state(goal const & g) {
         init_curr_state(g);
+        init_classical_flag();
         save_initial_context();
         m_tctx.set_local_instances(m_initial_context);
         m_tmp_ctx->set_local_instances(m_initial_context);
@@ -786,6 +799,11 @@ bool abstract_is_equal(expr const & e1, expr const & e2) {
 bool is_light_lt(expr const & e1, expr const & e2) {
     lean_assert(g_blastenv);
     return g_blastenv->is_light_lt(e1, e2);
+}
+
+bool classical() {
+    lean_assert(g_blastenv);
+    return g_blastenv->classical();
 }
 
 void display_curr_state() {

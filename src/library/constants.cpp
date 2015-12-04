@@ -19,6 +19,7 @@ name const * g_bool_ff = nullptr;
 name const * g_bool_tt = nullptr;
 name const * g_char = nullptr;
 name const * g_char_mk = nullptr;
+name const * g_classical = nullptr;
 name const * g_congr = nullptr;
 name const * g_congr_arg = nullptr;
 name const * g_congr_fun = nullptr;
@@ -196,6 +197,7 @@ void initialize_constants() {
     g_bool_tt = new name{"bool", "tt"};
     g_char = new name{"char"};
     g_char_mk = new name{"char", "mk"};
+    g_classical = new name{"classical"};
     g_congr = new name{"congr"};
     g_congr_arg = new name{"congr_arg"};
     g_congr_fun = new name{"congr_fun"};
@@ -374,6 +376,7 @@ void finalize_constants() {
     delete g_bool_tt;
     delete g_char;
     delete g_char_mk;
+    delete g_classical;
     delete g_congr;
     delete g_congr_arg;
     delete g_congr_fun;
@@ -551,6 +554,7 @@ name const & get_bool_ff_name() { return *g_bool_ff; }
 name const & get_bool_tt_name() { return *g_bool_tt; }
 name const & get_char_name() { return *g_char; }
 name const & get_char_mk_name() { return *g_char_mk; }
+name const & get_classical_name() { return *g_classical; }
 name const & get_congr_name() { return *g_congr; }
 name const & get_congr_arg_name() { return *g_congr_arg; }
 name const & get_congr_fun_name() { return *g_congr_fun; }

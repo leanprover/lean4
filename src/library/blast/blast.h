@@ -118,6 +118,9 @@ bool abstract_is_equal(expr const & e1, expr const & e2);
 /** \brief Order on expressions that supports the "light" annotation */
 bool is_light_lt(expr const & e1, expr const & e2);
 
+/** \brief Whether [classical] namespace is open. */
+bool classical();
+
 /** \brief Display the current state of the blast tactic in the diagnostic channel. */
 void display_curr_state();
 /** \brief Display the given expression in the diagnostic channel. */

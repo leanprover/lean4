@@ -21,6 +21,7 @@ name const & get_bool_ff_name();
 name const & get_bool_tt_name();
 name const & get_char_name();
 name const & get_char_mk_name();
+name const & get_classical_name();
 name const & get_congr_name();
 name const & get_congr_arg_name();
 name const & get_congr_fun_name();

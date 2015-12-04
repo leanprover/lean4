@@ -14,6 +14,7 @@ bool.ff
 bool.tt
 char
 char.mk
+classical
 congr
 congr_arg
 congr_fun

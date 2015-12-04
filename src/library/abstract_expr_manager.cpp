@@ -23,7 +23,11 @@ unsigned abstract_expr_manager::hash(expr const & e) {
     case expr_kind::Lambda:
     case expr_kind::Pi:
         h = hash(binding_domain(e));
-        m_locals.push_back(m_tctx.mk_tmp_local(binding_domain(e)));
+        // Remark binding_domain(e) may contain de-bruijn variables.
+        // We can instantiate them eagerly as we do here, or lazily.
+        // The lazy approach is potentially more efficient, but we would have
+        // to use something more sophisticated than an instantiate_rev at expr_kind::App
+        m_locals.push_back(instantiate_rev(m_tctx.mk_tmp_local(binding_domain(e)), m_locals.size(), m_locals.data()));
         h = ::lean::hash(h, hash(binding_body(e)));
         m_locals.pop_back();
         return h;
@@ -62,7 +66,8 @@ bool abstract_expr_manager::is_equal(expr const & a, expr const & b) {
             return mlocal_name(a) == mlocal_name(b) && is_equal(mlocal_type(a), mlocal_type(b));
         case expr_kind::Lambda: case expr_kind::Pi:
             if (!is_equal(binding_domain(a), binding_domain(b))) return false;
-            m_locals.push_back(m_tctx.mk_tmp_local(binding_domain(a)));
+            // see comment at abstract_expr_manager::hash
+            m_locals.push_back(instantiate_rev(m_tctx.mk_tmp_local(binding_domain(a)), m_locals.size(), m_locals.data()));
             is_eq = is_equal(binding_body(a), binding_body(b));
             m_locals.pop_back();
             return is_eq;

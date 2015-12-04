@@ -342,11 +342,13 @@ struct app_builder::imp {
     }
 
     expr mk_iff_symm(expr const & H) {
-        expr p    = m_ctx->whnf(m_ctx->infer(H));
+        expr p    = m_ctx->infer(H);
         expr lhs, rhs;
-        if (!is_iff(p, lhs, rhs))
-            throw app_builder_exception();
-        return ::lean::mk_app(mk_constant(get_iff_symm_name()), lhs, rhs, H);
+        if (is_iff(p, lhs, rhs)) {
+            return ::lean::mk_app(mk_constant(get_iff_symm_name()), lhs, rhs, H);
+        } else {
+            return mk_app(get_iff_symm_name(), {H});
+        }
     }
 
     expr mk_eq_trans(expr const & H1, expr const & H2) {
@@ -361,12 +363,14 @@ struct app_builder::imp {
     }
 
     expr mk_iff_trans(expr const & H1, expr const & H2) {
-        expr p1    = m_ctx->whnf(m_ctx->infer(H1));
-        expr p2    = m_ctx->whnf(m_ctx->infer(H2));
+        expr p1    = m_ctx->infer(H1);
+        expr p2    = m_ctx->infer(H2);
         expr lhs1, rhs1, lhs2, rhs2;
-        if (!is_iff(p1, lhs1, rhs1) || !is_iff(p2, lhs2, rhs2))
-            throw app_builder_exception();
-        return ::lean::mk_app({mk_constant(get_iff_trans_name()), lhs1, rhs1, rhs2, H1, H2});
+        if (is_iff(p1, lhs1, rhs1) && is_iff(p2, lhs2, rhs2)) {
+            return ::lean::mk_app({mk_constant(get_iff_trans_name()), lhs1, rhs1, rhs2, H1, H2});
+        } else {
+            return mk_app(get_iff_trans_name(), {H1, H2});
+        }
     }
 
     expr mk_rel(name const & n, expr const & lhs, expr const & rhs) {

@@ -27,11 +27,11 @@ Author: Leonardo de Moura
 #include "library/blast/blast.h"
 #include "library/blast/proof_expr.h"
 #include "library/blast/blast_exception.h"
-#include "library/blast/simple_strategy.h"
 #include "library/blast/choice_point.h"
 #include "library/blast/congruence_closure.h"
 #include "library/blast/trace.h"
 #include "library/blast/options.h"
+#include "library/blast/strategies/simple_strategy.h"
 
 namespace lean {
 namespace blast {

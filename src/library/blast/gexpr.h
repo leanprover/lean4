@@ -49,5 +49,5 @@ public:
 bool operator==(gexpr const & ge1, gexpr const & ge2);
 inline bool operator!=(gexpr const & ge1, gexpr const & ge2) { return !operator==(ge1, ge2); }
 std::ostream & operator<<(std::ostream & out, gexpr const & ge);
-
+io_state_stream const & operator<<(io_state_stream const & out, gexpr const & ge);
 }}

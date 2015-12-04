@@ -5,22 +5,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include <vector>
-#include "util/exception.h"
-#include "util/sexpr/options.h"
 #include "kernel/environment.h"
-#include "kernel/formatter.h"
+#include "kernel/ext_exception.h"
 
 namespace lean {
 class environment;
 /** \brief Base class for all kernel exceptions. */
-class kernel_exception : public exception {
+class kernel_exception : public ext_exception {
 protected:
     environment m_env;
 public:
     kernel_exception(environment const & env):m_env(env) {}
-    kernel_exception(environment const & env, char const * msg):exception(msg), m_env(env) {}
-    kernel_exception(environment const & env, sstream const & strm):exception(strm), m_env(env) {}
+    kernel_exception(environment const & env, char const * msg):ext_exception(msg), m_env(env) {}
+    kernel_exception(environment const & env, sstream const & strm):ext_exception(strm), m_env(env) {}
     virtual ~kernel_exception() noexcept {}
     environment const & get_environment() const { return m_env; }
     /**

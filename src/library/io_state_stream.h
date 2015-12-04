@@ -5,12 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <string>
+#include "kernel/ext_exception.h"
+#include "library/generic_exception.h"
 #include "library/io_state.h"
 
 namespace lean {
-/**
-   \brief Base class for \c regular and \c diagnostic wrapper classes.
-*/
+/** \brief Base class for \c regular and \c diagnostic wrapper classes. */
 class io_state_stream {
 protected:
     environment const &  m_env;
@@ -36,16 +37,20 @@ inline io_state_stream diagnostic(environment const & env, io_state const & ios)
 struct endl_class { endl_class() {} };
 const endl_class endl;
 
-class kernel_exception;
-class generic_exception;
+class ext_exception;
 
 io_state_stream const & operator<<(io_state_stream const & out, endl_class);
 io_state_stream const & operator<<(io_state_stream const & out, expr const & e);
-io_state_stream const & operator<<(io_state_stream const & out, kernel_exception const & ex);
-io_state_stream const & operator<<(io_state_stream const & out, generic_exception const & ex);
+io_state_stream const & operator<<(io_state_stream const & out, ext_exception const & ex);
 io_state_stream const & operator<<(io_state_stream const & out, format const & f);
-template<typename T> io_state_stream const & operator<<(io_state_stream const & out, T const & t) {
+template<typename T> io_state_stream const & display(io_state_stream const & out, T const & t) {
     out.get_stream() << t;
     return out;
 }
+inline io_state_stream const & operator<<(io_state_stream const & out, char const * d) { return display(out, d); }
+inline io_state_stream const & operator<<(io_state_stream const & out, name const & d) { return display(out, d); }
+inline io_state_stream const & operator<<(io_state_stream const & out, unsigned d) { return display(out, d); }
+inline io_state_stream const & operator<<(io_state_stream const & out, std::string const & d) { return display(out, d); }
+inline io_state_stream const & operator<<(io_state_stream const & out, options const & d) { return display(out, d); }
+inline io_state_stream const & operator<<(io_state_stream const & out, pair<format const &, options const &> const & d) { return display(out, d); }
 }

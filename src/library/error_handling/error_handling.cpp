@@ -8,12 +8,11 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/script_exception.h"
 #include "util/name_set.h"
-#include "kernel/kernel_exception.h"
+#include "kernel/ext_exception.h"
 #include "kernel/for_each_fn.h"
 #include "library/io_state_stream.h"
 #include "library/unifier.h"
 #include "library/parser_nested_exception.h"
-#include "library/generic_exception.h"
 #include "library/flycheck.h"
 #include "library/pp_options.h"
 #include "library/error_handling/error_handling.h"
@@ -79,12 +78,7 @@ void display_error_pos(io_state_stream const & ios, pos_info_provider const * p,
 
 void display_error(io_state_stream const & ios, pos_info_provider const * p, throwable const & ex);
 
-static void display_error(io_state_stream const & ios, pos_info_provider const * p, kernel_exception const & ex) {
-    display_error_pos(ios, p, ex.get_main_expr());
-    ios << " " << ex << endl;
-}
-
-static void display_error(io_state_stream const & ios, pos_info_provider const * p, generic_exception const & ex) {
+static void display_error(io_state_stream const & ios, pos_info_provider const * p, ext_exception const & ex) {
     display_error_pos(ios, p, ex.get_main_expr());
     ios << " " << ex << endl;
 }
@@ -147,10 +141,8 @@ static void display_error(io_state_stream const & ios, pos_info_provider const *
 
 void display_error(io_state_stream const & ios, pos_info_provider const * p, throwable const & ex) {
     flycheck_error err(ios);
-    if (auto k_ex = dynamic_cast<kernel_exception const *>(&ex)) {
+    if (auto k_ex = dynamic_cast<ext_exception const *>(&ex)) {
         display_error(ios, p, *k_ex);
-    } else if (auto g_ex = dynamic_cast<generic_exception const *>(&ex)) {
-        display_error(ios, p, *g_ex);
     } else if (auto e_ex = dynamic_cast<unifier_exception const *>(&ex)) {
         display_error(ios, p, *e_ex);
     } else if (auto ls_ex = dynamic_cast<script_nested_exception const *>(&ex)) {

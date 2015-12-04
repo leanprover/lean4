@@ -35,4 +35,9 @@ std::ostream & operator<<(std::ostream & out, gexpr const & ge) {
     return out;
 }
 
+io_state_stream const & operator<<(io_state_stream const & out, gexpr const & ge) {
+    out << ge.m_expr;
+    if (ge.is_universe_polymorphic()) out << " (poly)";
+    return out;
+}
 }}

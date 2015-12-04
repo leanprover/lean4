@@ -41,4 +41,8 @@ std::ostream & operator<<(std::ostream & out, head_index const & head_idx) {
         out << head_idx.m_kind;
     return out;
 }
+
+io_state_stream const & operator<<(io_state_stream const & out, head_index const & head_idx) {
+    return display(out, head_idx);
+}
 }

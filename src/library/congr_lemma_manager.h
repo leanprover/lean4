@@ -33,6 +33,8 @@ public:
     ~congr_lemma_manager();
     typedef congr_lemma result;
 
+    type_context & ctx();
+
     optional<result> mk_congr_simp(expr const & fn);
     optional<result> mk_congr_simp(expr const & fn, unsigned nargs);
 

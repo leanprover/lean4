@@ -301,6 +301,8 @@ public:
         m_builder(b), m_fmanager(fm), m_ctx(fm.ctx()),
         m_relation_info_getter(mk_relation_info_getter(fm.ctx().env())) {}
 
+    type_context & ctx() { return m_ctx; }
+
     optional<result> mk_congr_simp(expr const & fn) {
         fun_info finfo = m_fmanager.get(fn);
         return mk_congr_simp(fn, finfo.get_arity());
@@ -492,6 +494,8 @@ congr_lemma_manager::congr_lemma_manager(app_builder & b, fun_info_manager & fm)
 
 congr_lemma_manager::~congr_lemma_manager() {
 }
+
+type_context & congr_lemma_manager::ctx() { return m_ptr->ctx(); }
 
 auto congr_lemma_manager::mk_congr_simp(expr const & fn) -> optional<result> {
     return m_ptr->mk_congr_simp(fn);

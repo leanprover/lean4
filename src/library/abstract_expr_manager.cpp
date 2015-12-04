@@ -4,12 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Daniel Selsam
 */
 #include "library/abstract_expr_manager.h"
+#include "kernel/instantiate.h"
 #include "util/safe_arith.h"
 #include "util/list_fn.h"
 
 namespace lean {
 
 unsigned abstract_expr_manager::hash(expr const & e) {
+    unsigned h;
     switch (e.kind()) {
     case expr_kind::Constant:
     case expr_kind::Local:
@@ -20,12 +22,16 @@ unsigned abstract_expr_manager::hash(expr const & e) {
         return e.hash();
     case expr_kind::Lambda:
     case expr_kind::Pi:
-        return ::lean::hash(hash(binding_domain(e)), hash(binding_body(e)));
+        h = hash(binding_domain(e));
+        m_locals.push_back(m_tctx.mk_tmp_local(binding_domain(e)));
+        h = ::lean::hash(h, hash(binding_body(e)));
+        m_locals.pop_back();
+        return h;
     case expr_kind::App:
         buffer<expr> args;
-        expr f = get_app_args(e, args);
+        expr f = instantiate_rev(get_app_args(e, args), m_locals.size(), m_locals.data());
         optional<congr_lemma> f_congr = m_congr_lemma_manager.mk_congr(f, args.size());
-        unsigned h = hash(f);
+        h = hash(f);
         if (!f_congr) {
             for (expr const & arg : args) h = ::lean::hash(h, hash(arg));
         } else {
@@ -46,6 +52,7 @@ bool abstract_expr_manager::is_equal(expr const & a, expr const & b) {
         if (hash(a) != hash(b))    return false;
         if (a.kind() != b.kind())  return false;
         if (is_var(a))             return var_idx(a) == var_idx(b);
+        bool is_eq;
         switch (a.kind()) {
         case expr_kind::Var:
             lean_unreachable(); // LCOV_EXCL_LINE
@@ -54,7 +61,11 @@ bool abstract_expr_manager::is_equal(expr const & a, expr const & b) {
         case expr_kind::Meta: case expr_kind::Local:
             return mlocal_name(a) == mlocal_name(b) && is_equal(mlocal_type(a), mlocal_type(b));
         case expr_kind::Lambda: case expr_kind::Pi:
-            return is_equal(binding_domain(a), binding_domain(b)) && is_equal(binding_body(a), binding_body(b));
+            if (!is_equal(binding_domain(a), binding_domain(b))) return false;
+            m_locals.push_back(m_tctx.mk_tmp_local(binding_domain(a)));
+            is_eq = is_equal(binding_body(a), binding_body(b));
+            m_locals.pop_back();
+            return is_eq;
         case expr_kind::Macro:
             if (macro_def(a) != macro_def(b) || macro_num_args(a) != macro_num_args(b))
                 return false;
@@ -69,7 +80,8 @@ bool abstract_expr_manager::is_equal(expr const & a, expr const & b) {
             expr f_b = get_app_args(b, b_args);
             if (!is_equal(f_a, f_b)) return false;
             if (a_args.size() != b_args.size()) return false;
-            optional<congr_lemma> f_congr = m_congr_lemma_manager.mk_congr(f_a, a_args.size());
+            expr f = instantiate_rev(f_a, m_locals.size(), m_locals.data());
+            optional<congr_lemma> f_congr = m_congr_lemma_manager.mk_congr(f, a_args.size());
             bool not_equal = false;
             if (!f_congr) {
                 for (unsigned i = 0; i < a_args.size(); ++i) {

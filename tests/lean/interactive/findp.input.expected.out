@@ -14,6 +14,7 @@ false.cases_on|Π (C : Type), false → C
 false.induction_on|∀ (C : Prop), false → C
 false_of_true_iff_false|(true ↔ false) → false
 true_ne_false|¬true = false
+simplifier.unit_simp.false_imp|false → ?A ↔ true
 nat.lt_self_iff_false|∀ (n : ℕ), n < n ↔ false
 iff_false|∀ (a : Prop), a ↔ false ↔ ¬a
 true_iff_false|true ↔ false ↔ false
@@ -24,6 +25,7 @@ not_of_iff_false|(?a ↔ false) → ¬?a
 is_false|Π (c : Prop) [H : decidable c], Prop
 classical.eq_true_or_eq_false|∀ (a : Prop), a = true ∨ a = false
 classical.eq_false_or_eq_true|∀ (a : Prop), a = false ∨ a = true
+simplifier.unit_simp.not_true_of_false|¬true ↔ false
 nat.lt_zero_iff_false|∀ (a : ℕ), a < 0 ↔ false
 not_of_eq_false|?p = false → ¬?p
 nat.succ_le_self_iff_false|∀ (n : ℕ), nat.succ n ≤ n ↔ false

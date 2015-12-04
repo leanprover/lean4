@@ -69,6 +69,27 @@ public:
 
     expr mk_app(name const & c, unsigned mask_sz, bool const * mask, expr const * args);
 
+    /** \brief Shortcut for mk_app(c, total_nargs, mask, expl_nargs), where
+        \c mask starts with total_nargs - expl_nargs false's followed by expl_nargs true's
+        \pre total_nargs >= expl_nargs */
+    expr mk_app(name const & c, unsigned total_nargs, unsigned expl_nargs, expr const * expl_args);
+
+    expr mk_app(name const & c, unsigned total_nargs, std::initializer_list<expr> const & args) {
+        return mk_app(c, total_nargs, args.size(), args.begin());
+    }
+
+    expr mk_app(name const & c, unsigned total_nargs, expr const & a1) {
+        return mk_app(c, total_nargs, {a1});
+    }
+
+    expr mk_app(name const & c, unsigned total_nargs, expr const & a1, expr const & a2) {
+        return mk_app(c, total_nargs, {a1, a2});
+    }
+
+    expr mk_app(name const & c, unsigned total_nargs, expr const & a1, expr const & a2, expr const & a3) {
+        return mk_app(c, total_nargs, {a1, a2, a3});
+    }
+
     /** \brief Similar to mk_app(n, lhs, rhs), but handles eq and iff more efficiently. */
     expr mk_rel(name const & n, expr const & lhs, expr const & rhs);
     expr mk_eq(expr const & lhs, expr const & rhs);

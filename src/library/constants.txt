@@ -77,7 +77,6 @@ nat.succ
 nat.zero
 neg
 not
-not.wrap
 not_of_iff_false
 num
 num.zero

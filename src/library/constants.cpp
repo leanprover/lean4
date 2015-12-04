@@ -82,7 +82,6 @@ name const * g_nat_succ = nullptr;
 name const * g_nat_zero = nullptr;
 name const * g_neg = nullptr;
 name const * g_not = nullptr;
-name const * g_not_wrap = nullptr;
 name const * g_not_of_iff_false = nullptr;
 name const * g_num = nullptr;
 name const * g_num_zero = nullptr;
@@ -268,7 +267,6 @@ void initialize_constants() {
     g_nat_zero = new name{"nat", "zero"};
     g_neg = new name{"neg"};
     g_not = new name{"not"};
-    g_not_wrap = new name{"not", "wrap"};
     g_not_of_iff_false = new name{"not_of_iff_false"};
     g_num = new name{"num"};
     g_num_zero = new name{"num", "zero"};
@@ -455,7 +453,6 @@ void finalize_constants() {
     delete g_nat_zero;
     delete g_neg;
     delete g_not;
-    delete g_not_wrap;
     delete g_not_of_iff_false;
     delete g_num;
     delete g_num_zero;
@@ -641,7 +638,6 @@ name const & get_nat_succ_name() { return *g_nat_succ; }
 name const & get_nat_zero_name() { return *g_nat_zero; }
 name const & get_neg_name() { return *g_neg; }
 name const & get_not_name() { return *g_not; }
-name const & get_not_wrap_name() { return *g_not_wrap; }
 name const & get_not_of_iff_false_name() { return *g_not_of_iff_false; }
 name const & get_num_name() { return *g_num; }
 name const & get_num_zero_name() { return *g_num_zero; }

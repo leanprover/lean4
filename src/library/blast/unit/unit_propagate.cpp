@@ -256,9 +256,9 @@ action_result unit_lemma(hypothesis_idx hidx, expr const & _type, expr const & _
         expr arg = curr_state().get_hypothesis_decl(*fact_hidx).get_self();
         if (is_not(type)) proof = mk_app(proof, arg);
         else proof = mk_app(arg, proof);
-        expr proof_right = get_app_builder().mk_app(get_not_wrap_name(), type_init_right, Fun(proof_init_right, proof));
+        expr proof_right = Fun(proof_init_right, proof);
         if (missing_A) {
-            final_proof = get_app_builder().mk_app(get_implies_resolve_name(), proof_left, proof_right);
+            final_proof = get_app_builder().mk_app(get_implies_resolve_name(), 4, proof_left, proof_right);
         } else {
             final_proof = get_app_builder().mk_app(get_or_resolve_right_name(), proof_left, proof_right);
         }

@@ -39,8 +39,6 @@ definition non_contradictory (a : Prop) : Prop := ¬¬a
 theorem non_contradictory_intro {a : Prop} (Ha : a) : ¬¬a :=
 assume Hna : ¬a, absurd Ha Hna
 
-definition not.wrap {a : Prop} (na : a → false) : ¬ a := na
-
 /- false -/
 
 theorem false.elim {c : Prop} (H : false) : c :=

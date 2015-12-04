@@ -315,6 +315,21 @@ expr type_context::relaxed_whnf(expr const & e) {
     return whnf(e);
 }
 
+bool type_context::relaxed_assign(expr const & ma, expr const & v) {
+    flet<bool> relax(m_relax_is_opaque, true);
+    return assign(ma, v);
+}
+
+bool type_context::relaxed_force_assign(expr const & ma, expr const & v) {
+    flet<bool> relax(m_relax_is_opaque, true);
+    return force_assign(ma, v);
+}
+
+bool type_context::relaxed_is_def_eq(expr const & e1, expr const & e2) {
+    flet<bool> relax(m_relax_is_opaque, true);
+    return is_def_eq(e1, e2);
+}
+
 static bool is_max_like(level const & l) {
     return is_max(l) || is_imax(l);
 }

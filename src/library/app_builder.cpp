@@ -45,25 +45,6 @@ struct app_builder::imp {
         // If nonnil, then the mask is NOT of the form [false*, true*]
         list<bool> m_mask;
 
-        template<typename It>
-        static bool is_simple(It const & begin, It const & end) {
-            bool found_true = false;
-            for (auto it = begin; it != end; ++it) {
-                auto b = *it;
-                if (b) {
-                    found_true = true;
-                } else if (found_true) {
-                    // found (true, false)
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        static bool is_simple(list<bool> const & mask) {
-            return is_simple(mask.begin(), mask.end());
-        }
-
         key(name const & c, unsigned n):
             m_name(c), m_num_expl(n),
             m_hash(::lean::hash(c.hash(), n)) {
@@ -72,20 +53,17 @@ struct app_builder::imp {
         key(name const & c, list<bool> const & m):
             m_name(c), m_num_expl(length(m)) {
             m_hash = ::lean::hash(c.hash(), m_num_expl);
-            if (!is_simple(m)) {
-                m_mask = m;
-                for (bool b : m) {
-                    if (b)
-                        m_hash = ::lean::hash(m_hash, 17u);
-                    else
-                        m_hash = ::lean::hash(m_hash, 31u);
-                }
+            m_mask = m;
+            for (bool b : m) {
+                if (b)
+                    m_hash = ::lean::hash(m_hash, 17u);
+                else
+                    m_hash = ::lean::hash(m_hash, 31u);
             }
         }
 
         bool check_invariant() const {
             lean_assert(empty(m_mask) || length(m_mask) == m_num_expl);
-            lean_assert(empty(m_mask) || !is_simple(m_mask));
             return true;
         }
 
@@ -141,7 +119,7 @@ struct app_builder::imp {
             lvls_buffer.push_back(m_ctx->mk_uvar());
         }
         levels lvls = to_list(lvls_buffer);
-        expr type   = m_ctx->whnf(instantiate_type_univ_params(d, lvls));
+        expr type   = m_ctx->relaxed_whnf(instantiate_type_univ_params(d, lvls));
         while (is_pi(type)) {
             expr mvar = m_ctx->mk_mvar(binding_domain(type));
             if (binding_info(type).is_inst_implicit())
@@ -149,7 +127,7 @@ struct app_builder::imp {
             else
                 inst_args.push_back(none_expr());
             mvars.push_back(mvar);
-            type = m_ctx->whnf(instantiate(binding_body(type), mvar));
+            type = m_ctx->relaxed_whnf(instantiate(binding_body(type), mvar));
         }
         return lvls;
     }
@@ -181,6 +159,30 @@ struct app_builder::imp {
         }
     }
 
+    levels mk_metavars(declaration const & d, unsigned arity, buffer<expr> & mvars, buffer<optional<expr>> & inst_args) {
+        m_ctx->clear();
+        unsigned num_univ = d.get_num_univ_params();
+        buffer<level> lvls_buffer;
+        for (unsigned i = 0; i < num_univ; i++) {
+            lvls_buffer.push_back(m_ctx->mk_uvar());
+        }
+        levels lvls = to_list(lvls_buffer);
+        expr type   = instantiate_type_univ_params(d, lvls);
+        for (unsigned i = 0; i < arity; i++) {
+            type   = m_ctx->relaxed_whnf(type);
+            if (!is_pi(type))
+                throw app_builder_exception();
+            expr mvar = m_ctx->mk_mvar(binding_domain(type));
+            if (binding_info(type).is_inst_implicit())
+                inst_args.push_back(some_expr(mvar));
+            else
+                inst_args.push_back(none_expr());
+            mvars.push_back(mvar);
+            type = instantiate(binding_body(type), mvar);
+        }
+        return lvls;
+    }
+
     optional<entry> get_entry(name const & c, unsigned mask_sz, bool const * mask) {
         key k(c, to_list(mask, mask+mask_sz));
         lean_assert(k.check_invariant());
@@ -189,7 +191,7 @@ struct app_builder::imp {
             if (auto d = m_ctx->env().find(c)) {
                 buffer<expr> mvars;
                 buffer<optional<expr>> inst_args;
-                levels lvls = mk_metavars(*d, mvars, inst_args);
+                levels lvls = mk_metavars(*d, mask_sz, mvars, inst_args);
                 entry e;
                 e.m_num_umeta = d->get_num_univ_params();
                 e.m_num_emeta = mvars.size();
@@ -223,7 +225,7 @@ struct app_builder::imp {
             if (inst_arg) {
                 expr type = m_ctx->instantiate_uvars_mvars(mlocal_type(*inst_arg));
                 if (auto v = m_ctx->mk_class_instance(type)) {
-                    if (!m_ctx->force_assign(*inst_arg, *v))
+                    if (!m_ctx->relaxed_force_assign(*inst_arg, *v))
                         return false;
                 } else {
                     return false;
@@ -255,8 +257,9 @@ struct app_builder::imp {
             if (i == 0)
                 throw app_builder_exception();
             --i;
-            if (!m_ctx->assign(m, args[i]))
+            if (!m_ctx->relaxed_assign(m, args[i])) {
                 throw app_builder_exception();
+            }
         }
         if (!check_all_assigned(*e))
             throw app_builder_exception();
@@ -278,34 +281,42 @@ struct app_builder::imp {
 
     expr mk_app(name const & c, unsigned mask_sz, bool const * mask, expr const * args) {
         unsigned nargs = get_nargs(mask_sz, mask);
-        if (key::is_simple(mask, mask + mask_sz)) {
-            return mk_app(c, nargs, args);
-        } else {
-            optional<entry> e = get_entry(c, mask_sz, mask);
-            if (!e)
-                throw app_builder_exception();
-            init_ctx_for(*e);
-            unsigned i    = mask_sz;
-            unsigned j    = nargs;
-            list<expr> it = e->m_expl_args;
-            while (i > 0) {
-                --i;
-                if (mask[i]) {
-                    --j;
-                    expr const & m = head(it);
-                    if (!m_ctx->assign(m, args[j]))
-                        throw app_builder_exception();
-                    it = tail(it);
-                }
+        optional<entry> e = get_entry(c, mask_sz, mask);
+        if (!e)
+            throw app_builder_exception();
+        init_ctx_for(*e);
+        unsigned i    = mask_sz;
+        unsigned j    = nargs;
+        list<expr> it = e->m_expl_args;
+        while (i > 0) {
+            --i;
+            if (mask[i]) {
+                --j;
+                expr const & m = head(it);
+                if (!m_ctx->relaxed_assign(m, args[j]))
+                    throw app_builder_exception();
+                it = tail(it);
             }
-            if (!check_all_assigned(*e))
-                throw app_builder_exception();
-            return m_ctx->instantiate_uvars_mvars(e->m_app);
         }
+        if (!check_all_assigned(*e))
+            throw app_builder_exception();
+        return m_ctx->instantiate_uvars_mvars(e->m_app);
+    }
+
+    expr mk_app(name const & c, unsigned total_nargs, unsigned expl_nargs, expr const * expl_args) {
+        lean_assert(total_nargs >= expl_nargs);
+        buffer<bool> mask;
+        mask.resize(total_nargs - expl_nargs, false);
+        mask.resize(total_nargs, true);
+        return mk_app(c, mask.size(), mask.data(), expl_args);
+    }
+
+    expr mk_app(name const & c, unsigned total_nargs, std::initializer_list<expr> const & it) {
+        return mk_app(c, total_nargs, it.size(), it.begin());
     }
 
     level get_level(expr const & A) {
-        expr Type = m_ctx->whnf(m_ctx->infer(A));
+        expr Type = m_ctx->relaxed_whnf(m_ctx->infer(A));
         if (!is_sort(Type))
             throw app_builder_exception();
         return sort_level(Type);
@@ -332,7 +343,7 @@ struct app_builder::imp {
     }
 
     expr mk_eq_symm(expr const & H) {
-        expr p    = m_ctx->whnf(m_ctx->infer(H));
+        expr p    = m_ctx->relaxed_whnf(m_ctx->infer(H));
         expr lhs, rhs;
         if (!is_eq(p, lhs, rhs))
             throw app_builder_exception();
@@ -352,8 +363,8 @@ struct app_builder::imp {
     }
 
     expr mk_eq_trans(expr const & H1, expr const & H2) {
-        expr p1    = m_ctx->whnf(m_ctx->infer(H1));
-        expr p2    = m_ctx->whnf(m_ctx->infer(H2));
+        expr p1    = m_ctx->relaxed_whnf(m_ctx->infer(H1));
+        expr p2    = m_ctx->relaxed_whnf(m_ctx->infer(H2));
         expr lhs1, rhs1, lhs2, rhs2;
         if (!is_eq(p1, lhs1, rhs1) || !is_eq(p2, lhs2, rhs2))
             throw app_builder_exception();
@@ -447,13 +458,13 @@ struct app_builder::imp {
     expr mk_eq_rec(expr const & motive, expr const & H1, expr const & H2) {
         if (is_constant(get_app_fn(H2), get_eq_refl_name()))
             return H1;
-        expr p       = m_ctx->whnf(m_ctx->infer(H2));
+        expr p       = m_ctx->relaxed_whnf(m_ctx->infer(H2));
         expr lhs, rhs;
         if (!is_eq(p, lhs, rhs))
             throw app_builder_exception();
         expr A      = m_ctx->infer(lhs);
         level A_lvl = get_level(A);
-        expr mtype  = m_ctx->whnf(m_ctx->infer(motive));
+        expr mtype  = m_ctx->relaxed_whnf(m_ctx->infer(motive));
         if (!is_pi(mtype) || !is_sort(binding_body(mtype)))
             throw app_builder_exception();
         level l_1    = sort_level(binding_body(mtype));
@@ -464,13 +475,13 @@ struct app_builder::imp {
     expr mk_eq_drec(expr const & motive, expr const & H1, expr const & H2) {
         if (is_constant(get_app_fn(H2), get_eq_refl_name()))
             return H1;
-        expr p       = m_ctx->whnf(m_ctx->infer(H2));
+        expr p       = m_ctx->relaxed_whnf(m_ctx->infer(H2));
         expr lhs, rhs;
         if (!is_eq(p, lhs, rhs))
             throw app_builder_exception();
         expr A      = m_ctx->infer(lhs);
         level A_lvl = get_level(A);
-        expr mtype  = m_ctx->whnf(m_ctx->infer(motive));
+        expr mtype  = m_ctx->relaxed_whnf(m_ctx->infer(motive));
         if (!is_pi(mtype) || !is_pi(binding_body(mtype)) || !is_sort(binding_body(binding_body(mtype))))
             throw app_builder_exception();
         level l_1    = sort_level(binding_body(binding_body(mtype)));
@@ -509,7 +520,7 @@ struct app_builder::imp {
             return app_arg(H);
         }
         // TODO(Leo): implement custom version if bottleneck.
-        return mk_app(get_not_of_iff_false_name(), {H});
+        return mk_app(get_not_of_iff_false_name(), 2, {H});
     }
 
     expr mk_of_iff_true(expr const & H) {
@@ -604,6 +615,10 @@ expr app_builder::mk_app(name const & c, unsigned nargs, expr const * args) {
 
 expr app_builder::mk_app(name const & c, unsigned mask_sz, bool const * mask, expr const * args) {
     return m_ptr->mk_app(c, mask_sz, mask, args);
+}
+
+expr app_builder::mk_app(name const & c, unsigned total_nargs, unsigned expl_nargs, expr const * expl_args) {
+    return m_ptr->mk_app(c, total_nargs, expl_nargs, expl_args);
 }
 
 expr app_builder::mk_rel(name const & n, expr const & lhs, expr const & rhs) {

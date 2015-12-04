@@ -20,7 +20,7 @@ imp_extension * imp_extension::clone() {
     return new imp_extension(this);
 }
 
-void imp_extension::hypothesis_activated(hypothesis const & h, hypothesis_idx hidx) {
+void imp_extension::hypothesis_activated(hypothesis const & h, hypothesis_idx) {
     imp_extension_state & state = get_imp_extension_state(m_state_id);
     if (is_nil(m_asserts)) state.push();
     m_asserts = cons(h, m_asserts);

@@ -466,20 +466,24 @@ public:
     }
 
     void init_classical_flag() {
-        for_each(get_namespaces(m_env), [&](name const & ns) {
-                if (m_classical) return;
-                if (ns == get_classical_name()) m_classical = true;
-            });
+        if (is_standard(env())) {
+            expr p     = m_tmp_ctx->mk_tmp_local(mk_Prop());
+            expr dec_p = mk_app(mk_constant(get_decidable_name()), p);
+            if (m_tmp_ctx->mk_class_instance(dec_p)) {
+                m_classical = true;
+            }
+            m_tmp_ctx->clear_cache();
+        }
     }
 
     bool classical() { return m_classical; }
 
     void init_state(goal const & g) {
         init_curr_state(g);
-        init_classical_flag();
         save_initial_context();
         m_tctx.set_local_instances(m_initial_context);
         m_tmp_ctx->set_local_instances(m_initial_context);
+        init_classical_flag();
     }
 
     optional<expr> operator()(goal const & g) {

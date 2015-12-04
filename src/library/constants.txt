@@ -18,6 +18,7 @@ classical
 congr
 congr_arg
 congr_fun
+decidable
 dite
 div
 empty

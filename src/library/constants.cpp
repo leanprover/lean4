@@ -23,6 +23,7 @@ name const * g_classical = nullptr;
 name const * g_congr = nullptr;
 name const * g_congr_arg = nullptr;
 name const * g_congr_fun = nullptr;
+name const * g_decidable = nullptr;
 name const * g_dite = nullptr;
 name const * g_div = nullptr;
 name const * g_empty = nullptr;
@@ -201,6 +202,7 @@ void initialize_constants() {
     g_congr = new name{"congr"};
     g_congr_arg = new name{"congr_arg"};
     g_congr_fun = new name{"congr_fun"};
+    g_decidable = new name{"decidable"};
     g_dite = new name{"dite"};
     g_div = new name{"div"};
     g_empty = new name{"empty"};
@@ -380,6 +382,7 @@ void finalize_constants() {
     delete g_congr;
     delete g_congr_arg;
     delete g_congr_fun;
+    delete g_decidable;
     delete g_dite;
     delete g_div;
     delete g_empty;
@@ -558,6 +561,7 @@ name const & get_classical_name() { return *g_classical; }
 name const & get_congr_name() { return *g_congr; }
 name const & get_congr_arg_name() { return *g_congr_arg; }
 name const & get_congr_fun_name() { return *g_congr_fun; }
+name const & get_decidable_name() { return *g_decidable; }
 name const & get_dite_name() { return *g_dite; }
 name const & get_div_name() { return *g_div; }
 name const & get_empty_name() { return *g_empty; }

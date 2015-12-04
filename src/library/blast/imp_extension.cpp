@@ -8,7 +8,6 @@ Author: Daniel Selsam
 
 namespace lean {
 namespace blast {
-
 imp_extension::imp_extension(unsigned state_id): m_state_id(state_id), m_parent(nullptr) {}
 imp_extension::imp_extension(imp_extension * parent):
     m_state_id(parent->m_state_id), m_parent(parent) {
@@ -40,5 +39,4 @@ void imp_extension_state::undo_actions(imp_extension * imp_ext) {
     if (is_nil(asserts)) return;
     pop();
 }
-
 }}

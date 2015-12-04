@@ -616,7 +616,7 @@ public:
         imp_extension * imp_ext = _imp_ext;
         while (imp_ext != nullptr) {
             path.push_back(imp_ext);
-            imp_ext = imp_ext->m_parent;
+            imp_ext = imp_ext->get_parent();
         }
     }
 

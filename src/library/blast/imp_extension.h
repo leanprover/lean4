@@ -9,11 +9,11 @@ Author: Daniel Selsam
 namespace lean {
 namespace blast {
 
-struct imp_extension : branch_extension {
+class imp_extension : public branch_extension {
     unsigned              m_state_id;
     imp_extension *       m_parent;
     list<hypothesis>      m_asserts;
-
+public:
     imp_extension(unsigned state_id);
     imp_extension(imp_extension * parent);
     ~imp_extension();
@@ -26,7 +26,8 @@ struct imp_extension : branch_extension {
     virtual void hypothesis_activated(hypothesis const & h, hypothesis_idx hidx) override;
 };
 
-struct imp_extension_state {
+class imp_extension_state {
+public:
     virtual void push() =0;
     virtual void pop()  =0;
     virtual void assert(hypothesis const & h) =0;
@@ -38,5 +39,4 @@ struct imp_extension_state {
 };
 
 typedef std::function<imp_extension_state*()> ext_state_maker;
-
 }}

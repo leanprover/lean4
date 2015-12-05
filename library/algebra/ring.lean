@@ -196,7 +196,7 @@ section
      end
 
   theorem neg_mul_eq_neg_mul_symm : - a * b = - (a * b) := eq.symm !algebra.neg_mul_eq_neg_mul
-  theorem neg_mul_eq_mul_neg_symm : a * - b = - (a * b) := eq.symm !algebra.neg_mul_eq_mul_neg
+  theorem mul_neg_eq_neg_mul_symm : a * - b = - (a * b) := eq.symm !algebra.neg_mul_eq_mul_neg
 
   theorem neg_mul_neg : -a * -b = a * b :=
   calc
@@ -415,7 +415,7 @@ end unit
 
 namespace neg
 attribute algebra.neg_mul_eq_neg_mul_symm [simp]
-attribute algebra.neg_mul_eq_mul_neg_symm [simp]
+attribute algebra.mul_neg_eq_neg_mul_symm [simp]
 end neg
 
 namespace distrib

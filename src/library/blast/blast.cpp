@@ -105,6 +105,17 @@ class blastenv {
     unfold_macro_pred          m_unfold_macro_pred;
     bool                       m_classical{false};
 
+    bool is_extra_opaque(name const & n) const {
+        // TODO(Leo, Daniel): should we force 'not' to be always opaque?
+        // If we do that, we can remove the whnf-trick from unit_propagate.
+        // We can also avoid the `is_pi(type) && !is_prop(type)`
+        if (n == get_ne_name())
+            return false;
+        return
+            (m_not_reducible_pred(n) ||
+             m_projection_info.contains(n));
+    }
+
     class tctx : public type_context {
         blastenv &                              m_benv;
         std::vector<state::assignment_snapshot> m_stack;
@@ -114,8 +125,7 @@ class blastenv {
             m_benv(benv) {}
 
         virtual bool is_extra_opaque(name const & n) const override {
-            // TODO(Leo): class and instances
-            return m_benv.m_not_reducible_pred(n) || m_benv.m_projection_info.contains(n);
+            return m_benv.is_extra_opaque(n);
         }
 
         virtual bool should_unfold_macro(expr const & e) const override {

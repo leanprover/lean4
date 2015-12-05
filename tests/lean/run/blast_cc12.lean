@@ -22,4 +22,9 @@ attribute not [reducible]
 definition foo4 (a b c d : nat) (p : Prop) : a ≠ d → (d ≠ a → p) → p :=
 by blast
 
-print foo4
+attribute ne [semireducible]
+
+definition foo5 (a b c d : nat) (p : Prop) : a ≠ d → (d ≠ a → p) → p :=
+by blast
+
+print foo5

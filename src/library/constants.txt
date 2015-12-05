@@ -75,6 +75,7 @@ nat
 nat.of_num
 nat.succ
 nat.zero
+ne
 neg
 not
 not_of_iff_false

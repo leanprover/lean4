@@ -16,3 +16,10 @@ definition foo3 (a b c d : nat) (p : Prop) : a ≠ d → (d ≠ a → p) → p :
 by blast
 
 print foo3
+
+attribute not [reducible]
+
+definition foo4 (a b c d : nat) (p : Prop) : a ≠ d → (d ≠ a → p) → p :=
+by blast
+
+print foo4

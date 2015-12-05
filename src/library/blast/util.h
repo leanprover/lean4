@@ -10,5 +10,6 @@ namespace lean {
 namespace blast {
 /** \brief Return true iff \c e is of the form (not a) or (a -> false), and false otherwise */
 bool is_not(expr const & e, expr & a);
+bool is_not(expr const & e);
 bool is_false(expr const & e);
 }}

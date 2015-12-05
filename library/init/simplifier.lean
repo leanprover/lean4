@@ -55,8 +55,8 @@ lemma true_imp [simp] : (true → A) ↔ A :=
 iff.intro (assume H, H trivial)
           (assume a t, a)
 
-lemma fold_not [simp] : (A → false) ↔ ¬ A :=
-iff.intro id id
+-- lemma fold_not [simp] : (A → false) ↔ ¬ A :=
+-- iff.intro id id
 
 lemma false_imp [simp] : (false → A) ↔ true :=
 iff.intro (assume H, trivial)

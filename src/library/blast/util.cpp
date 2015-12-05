@@ -12,6 +12,10 @@ namespace blast {
 bool is_not(expr const & e, expr & a) {
     return ::lean::is_not(env(), e, a);
 }
+bool is_not(expr const & e) {
+    expr not_e;
+    return is_not(e, not_e);
+}
 bool is_false(expr const & e) {
     return ::lean::is_false(env(), e);
 }

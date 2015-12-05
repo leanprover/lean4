@@ -25,7 +25,7 @@ bool is_lemma(expr const & _type) {
     expr type = _type;
     bool has_antecedent = false;
     if (!is_prop(type)) return false;
-    while (is_pi(type) && closed(binding_body(type))) {
+    while (is_pi(type) && !is_not(type) && closed(binding_body(type))) {
         has_antecedent = true;
         type = binding_body(type);
     }
@@ -40,13 +40,12 @@ bool is_fact(expr const & type) {
 
 expr flip(expr const & e) {
     expr not_e;
-    if (!blast::is_not(e, not_e)) not_e = get_app_builder().mk_not(e);
+    if (!blast::is_not(e, not_e)) {
+        // we use whnf to make sure we get a uniform representation
+        // even if 'not' is marked '[reducible]'
+        not_e = whnf(get_app_builder().mk_not(e));
+    }
     return not_e;
-}
-
-bool is_not(expr const & e) {
-    expr not_e;
-    return blast::is_not(e, not_e);
 }
 
 static unsigned g_ext_id = 0;
@@ -145,7 +144,7 @@ bool can_propagate(expr const & _type, buffer<expr, 2> & to_watch) {
 
     bool missing_non_Prop = false;
     /* Traverse the A_i */
-    while (is_pi(type) && closed(binding_body(type))) {
+    while (is_pi(type) && !is_not(type) && closed(binding_body(type))) {
         expr arg;
         hypothesis_idx const * fact_hidx = ext.find_fact(binding_domain(type));
         if (!fact_hidx) {
@@ -207,14 +206,14 @@ action_result unit_lemma(hypothesis_idx hidx, expr const & _type, expr const & _
     bool missing_B = false;
 
     /* (3) Traverse the binding domains */
-    while (is_pi(type) && closed(binding_body(type))) {
+    while (is_pi(type) && !is_not(type) && closed(binding_body(type))) {
         hypothesis_idx const * fact_hidx = ext.find_fact(binding_domain(type));
         if (fact_hidx) {
             proof = mk_app(proof, curr_state().get_hypothesis_decl(*fact_hidx).get_self());
         } else {
             lean_assert(!missing_A);
             missing_A = true;
-            final_type = get_app_builder().mk_not(binding_domain(type));
+            final_type = whnf(get_app_builder().mk_not(binding_domain(type)));
             proof_left = proof;
             type_init_right = binding_body(type);
             proof_init_right = mk_fresh_local(type_init_right);

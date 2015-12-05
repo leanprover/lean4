@@ -63,8 +63,8 @@ struct brs_config {
 template class scoped_ext<brs_config>;
 typedef scoped_ext<brs_config> brs_ext;
 
-environment add_backward_rule(environment const & env, name const & n, unsigned priority,  bool persistent) {
-    return brs_ext::add_entry(env, get_dummy_ios(), brs_entry(n, priority), persistent);
+environment add_backward_rule(environment const & env, name const & n, unsigned priority, name const & ns, bool persistent) {
+    return brs_ext::add_entry(env, get_dummy_ios(), brs_entry(n, priority), ns, persistent);
 }
 
 bool is_backward_rule(environment const & env, name const & n) {

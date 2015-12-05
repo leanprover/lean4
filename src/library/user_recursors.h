@@ -56,7 +56,7 @@ public:
     static recursor_info read(deserializer & d);
 };
 
-environment add_user_recursor(environment const & env, name const & r, optional<unsigned> const & major_pos, bool persistent);
+environment add_user_recursor(environment const & env, name const & r, optional<unsigned> const & major_pos, name const & ns, bool persistent);
 recursor_info get_recursor_info(environment const & env, name const & r);
 list<name> get_recursors_for(environment const & env, name const & I);
 bool is_user_defined_recursor(environment const & env, name const & r);

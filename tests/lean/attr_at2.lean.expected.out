@@ -1,0 +1,35 @@
+sec 3. 
+definition foo.bah.bla.f [reducible] : ℕ → ℕ :=
+λ (a : ℕ), a + 1
+definition foo.bah.bla.g [reducible] : ℕ → ℕ :=
+λ (a : ℕ), a + a
+sec 2. 
+definition foo.bah.bla.f [reducible] : ℕ → ℕ :=
+λ (a : ℕ), a + 1
+definition foo.bah.bla.g [reducible] : ℕ → ℕ :=
+λ (a : ℕ), a + a
+sec 1. 
+definition foo.bah.bla.f [reducible] : ℕ → ℕ :=
+λ (a : ℕ), a + 1
+definition foo.bah.bla.g [reducible] : ℕ → ℕ :=
+λ (a : ℕ), a + a
+foo.bah.bla. 
+definition foo.bah.bla.f [reducible] : ℕ → ℕ :=
+λ (a : ℕ), a + 1
+definition foo.bah.bla.g [reducible] : ℕ → ℕ :=
+λ (a : ℕ), a + a
+foo.bah. 
+definition foo.bah.bla.f [reducible] : ℕ → ℕ :=
+λ (a : ℕ), a + 1
+definition foo.bah.bla.g [reducible] : ℕ → ℕ :=
+λ (a : ℕ), a + a
+foo. 
+definition foo.bah.bla.f : ℕ → ℕ :=
+λ (a : ℕ), a + 1
+definition foo.bah.bla.g [reducible] : ℕ → ℕ :=
+λ (a : ℕ), a + a
+root. 
+definition foo.bah.bla.f : ℕ → ℕ :=
+λ (a : ℕ), a + 1
+definition foo.bah.bla.g [reducible] : ℕ → ℕ :=
+λ (a : ℕ), a + a

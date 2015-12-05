@@ -103,12 +103,12 @@ static void check_valid_tactic(environment const & env, expr const & pre_tac) {
 
 environment add_begin_end_pre_tactic(environment const & env, expr const & pre_tac) {
     check_valid_tactic(env, pre_tac);
-    return begin_end_ext::add_entry(env, get_dummy_ios(), be_entry(true, pre_tac));
+    return begin_end_ext::add_entry(env, get_dummy_ios(), be_entry(true, pre_tac), get_namespace(env), true);
 }
 
 environment set_begin_end_pre_tactic(environment const & env, expr const & pre_tac) {
     check_valid_tactic(env, pre_tac);
-    return begin_end_ext::add_entry(env, get_dummy_ios(), be_entry(false, pre_tac));
+    return begin_end_ext::add_entry(env, get_dummy_ios(), be_entry(false, pre_tac), get_namespace(env), true);
 }
 
 optional<expr> get_begin_end_pre_tactic(environment const & env) {

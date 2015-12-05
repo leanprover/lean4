@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/normalize.h"
 #include "library/aux_recursors.h"
+#include "library/scoped_ext.h"
 
 namespace lean {
 static void throw_corrupted(name const & n) {
@@ -146,9 +147,9 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
     declaration new_d = mk_definition(env, below_name, blvls, below_type, below_value,
                                       use_conv_opt);
     environment new_env = module::add(env, check(env, new_d));
-    new_env = set_reducible(new_env, below_name, reducible_status::Reducible);
+    new_env = set_reducible(new_env, below_name, reducible_status::Reducible, get_namespace(new_env), true);
     if (!ibelow)
-        new_env = add_unfold_hint(new_env, below_name, nparams + nindices + ntypeformers);
+        new_env = add_unfold_hint(new_env, below_name, nparams + nindices + ntypeformers, get_namespace(new_env), true);
     return add_protected(new_env, below_name);
 }
 
@@ -332,9 +333,9 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     declaration new_d = mk_definition(env, brec_on_name, blps, brec_on_type, brec_on_value,
                                       use_conv_opt);
     environment new_env = module::add(env, check(env, new_d));
-    new_env = set_reducible(new_env, brec_on_name, reducible_status::Reducible);
+    new_env = set_reducible(new_env, brec_on_name, reducible_status::Reducible, get_namespace(new_env), true);
     if (!ind)
-        new_env = add_unfold_hint(new_env, brec_on_name, nparams + nindices + ntypeformers);
+        new_env = add_unfold_hint(new_env, brec_on_name, nparams + nindices + ntypeformers, get_namespace(new_env), true);
     new_env = add_aux_recursor(new_env, brec_on_name);
     return add_protected(new_env, brec_on_name);
 }

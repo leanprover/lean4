@@ -185,24 +185,24 @@ struct rel_config {
 template class scoped_ext<rel_config>;
 typedef scoped_ext<rel_config> rel_ext;
 
-environment add_relation(environment const & env, name const & n, bool persistent) {
-    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Relation, n), persistent);
+environment add_relation(environment const & env, name const & n, name const & ns, bool persistent) {
+    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Relation, n), ns, persistent);
 }
 
-environment add_subst(environment const & env, name const & n, bool persistent) {
-    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Subst, n), persistent);
+environment add_subst(environment const & env, name const & n, name const & ns, bool persistent) {
+    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Subst, n), ns, persistent);
 }
 
-environment add_refl(environment const & env, name const & n, bool persistent) {
-    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Refl, n), persistent);
+environment add_refl(environment const & env, name const & n, name const & ns, bool persistent) {
+    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Refl, n), ns, persistent);
 }
 
-environment add_symm(environment const & env, name const & n, bool persistent) {
-    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Symm, n), persistent);
+environment add_symm(environment const & env, name const & n, name const & ns, bool persistent) {
+    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Symm, n), ns, persistent);
 }
 
-environment add_trans(environment const & env, name const & n, bool persistent) {
-    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Trans, n), persistent);
+environment add_trans(environment const & env, name const & n, name const & ns, bool persistent) {
+    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Trans, n), ns, persistent);
 }
 
 static optional<relation_lemma_info> get_info(name_map<relation_lemma_info> const & table, name const & op) {

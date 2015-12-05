@@ -44,14 +44,14 @@ typedef std::function<bool(expr const &, name &, expr &, expr &)> is_relation_pr
 is_relation_pred mk_is_relation_pred(environment const & env);
 
 /** \brief Declare a new binary relation named \c n */
-environment add_relation(environment const & env, name const & n, bool persistent = true);
+environment add_relation(environment const & env, name const & n, name const & ns, bool persistent);
 
 /** \brief Declare subst/refl/symm/trans lemmas for a binary relation,
  * it also declares the relation if it has not been declared yet */
-environment add_subst(environment const & env, name const & n, bool persistent = true);
-environment add_refl(environment const & env, name const & n, bool persistent = true);
-environment add_symm(environment const & env, name const & n, bool persistent = true);
-environment add_trans(environment const & env, name const & n, bool persistent = true);
+environment add_subst(environment const & env, name const & n, name const & ns, bool persistent);
+environment add_refl(environment const & env, name const & n, name const & ns, bool persistent);
+environment add_symm(environment const & env, name const & n, name const & ns, bool persistent);
+environment add_trans(environment const & env, name const & n, name const & ns, bool persistent);
 
 struct relation_lemma_info {
     name     m_name;

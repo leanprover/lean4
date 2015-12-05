@@ -111,12 +111,12 @@ struct unfold_hint_config {
 template class scoped_ext<unfold_hint_config>;
 typedef scoped_ext<unfold_hint_config> unfold_hint_ext;
 
-environment add_unfold_hint(environment const & env, name const & n, list<unsigned> const & idxs, bool persistent) {
+environment add_unfold_hint(environment const & env, name const & n, list<unsigned> const & idxs, name const & ns, bool persistent) {
     lean_assert(idxs);
     declaration const & d = env.get(n);
     if (!d.is_definition())
         throw exception("invalid [unfold] hint, declaration must be a non-opaque definition");
-    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_add_unfold_entry(n, idxs), persistent);
+    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_add_unfold_entry(n, idxs), ns, persistent);
 }
 
 list<unsigned> has_unfold_hint(environment const & env, name const & d) {
@@ -127,15 +127,15 @@ list<unsigned> has_unfold_hint(environment const & env, name const & d) {
         return list<unsigned>();
 }
 
-environment erase_unfold_hint(environment const & env, name const & n, bool persistent) {
-    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_erase_unfold_entry(n), persistent);
+environment erase_unfold_hint(environment const & env, name const & n, name const & ns, bool persistent) {
+    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_erase_unfold_entry(n), ns, persistent);
 }
 
-environment add_unfold_full_hint(environment const & env, name const & n, bool persistent) {
+environment add_unfold_full_hint(environment const & env, name const & n, name const & ns, bool persistent) {
     declaration const & d = env.get(n);
     if (!d.is_definition())
         throw exception("invalid [unfold_full] hint, declaration must be a non-opaque definition");
-    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_add_unfold_full_entry(n), persistent);
+    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_add_unfold_full_entry(n), ns, persistent);
 }
 
 bool has_unfold_full_hint(environment const & env, name const & d) {
@@ -143,13 +143,13 @@ bool has_unfold_full_hint(environment const & env, name const & d) {
     return s.m_unfold_full.contains(d);
 }
 
-environment erase_unfold_full_hint(environment const & env, name const & n, bool persistent) {
-    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_erase_unfold_full_entry(n), persistent);
+environment erase_unfold_full_hint(environment const & env, name const & n, name const & ns, bool persistent) {
+    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_erase_unfold_full_entry(n), ns, persistent);
 }
 
-environment add_constructor_hint(environment const & env, name const & n, bool persistent) {
+environment add_constructor_hint(environment const & env, name const & n, name const & ns, bool persistent) {
     env.get(n);
-    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_add_constructor_entry(n), persistent);
+    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_add_constructor_entry(n), ns, persistent);
 }
 
 bool has_constructor_hint(environment const & env, name const & d) {
@@ -157,8 +157,8 @@ bool has_constructor_hint(environment const & env, name const & d) {
     return s.m_constructor.contains(d);
 }
 
-environment erase_constructor_hint(environment const & env, name const & n, bool persistent) {
-    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_erase_constructor_entry(n), persistent);
+environment erase_constructor_hint(environment const & env, name const & n, name const & ns, bool persistent) {
+    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_erase_constructor_entry(n), ns, persistent);
 }
 
 void initialize_normalize() {

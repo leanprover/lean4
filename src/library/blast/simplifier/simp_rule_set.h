@@ -134,8 +134,8 @@ public:
 simp_rule_sets add(tmp_type_context & tctx, simp_rule_sets const & s, name const & id, expr const & e, expr const & h, unsigned priority);
 simp_rule_sets join(simp_rule_sets const & s1, simp_rule_sets const & s2);
 
-environment add_simp_rule(environment const & env, name const & n, unsigned priority,  bool persistent);
-environment add_congr_rule(environment const & env, name const & n, unsigned priority, bool persistent);
+environment add_simp_rule(environment const & env, name const & n, unsigned priority,  name const & ns, bool persistent);
+environment add_congr_rule(environment const & env, name const & n, unsigned priority, name const & ns, bool persistent);
 
 /** \brief Return true if \c n is an active simplification rule in \c env */
 bool is_simp_rule(environment const & env, name const & n);

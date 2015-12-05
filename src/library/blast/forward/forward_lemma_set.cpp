@@ -53,8 +53,8 @@ struct forward_lemma_set_config {
 template class scoped_ext<forward_lemma_set_config>;
 typedef scoped_ext<forward_lemma_set_config> forward_lemma_set_ext;
 
-environment add_forward_lemma(environment const & env, name const & n, unsigned priority, bool persistent) {
-    return forward_lemma_set_ext::add_entry(env, get_dummy_ios(), forward_lemma(n, priority), persistent);
+environment add_forward_lemma(environment const & env, name const & n, unsigned priority, name const & ns, bool persistent) {
+    return forward_lemma_set_ext::add_entry(env, get_dummy_ios(), forward_lemma(n, priority), ns, persistent);
 }
 
 bool is_forward_lemma(environment const & env, name const & n) {

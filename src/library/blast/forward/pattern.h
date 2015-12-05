@@ -22,7 +22,7 @@ bool has_pattern_hints(expr const & e);
 
 /** \brief Hint for the pattern inference procedure.
     It should not consider/infer patterns containing the constant \c n. */
-environment add_no_pattern(environment const & env, name const & n, bool persistent);
+environment add_no_pattern(environment const & env, name const & n, name const & ns, bool persistent);
 /** \brief Return true if constant \c n is marked as [no_pattern] in the given environment. */
 bool is_no_pattern(environment const & env, name const & n);
 /** \brief Return the set of constants marked as no-patterns */

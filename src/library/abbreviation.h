@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-environment add_abbreviation(environment const & env, name const & n, bool parsing_only, bool persistent = true);
+environment add_abbreviation(environment const & env, name const & n, bool parsing_only, name const & ns, bool persistent);
 bool is_abbreviation(environment const & env, name const & n);
 bool is_parsing_only_abbreviation(environment const & env, name const & n);
 optional<name> is_abbreviated(environment const & env, expr const & e);

@@ -156,8 +156,8 @@ struct lrs_config {
 template class scoped_ext<lrs_config>;
 typedef scoped_ext<lrs_config> lrs_ext;
 
-environment add_light_rule(environment const & env, name const & id, unsigned light_arg,  bool persistent) {
-    return lrs_ext::add_entry(env, get_dummy_ios(), lrs_entry(id, light_arg), persistent);
+environment add_light_rule(environment const & env, name const & id, unsigned light_arg, name const & ns, bool persistent) {
+    return lrs_ext::add_entry(env, get_dummy_ios(), lrs_entry(id, light_arg), ns, persistent);
 }
 
 optional<unsigned> is_light_rule(environment const & env, name const & n) {

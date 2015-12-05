@@ -13,7 +13,7 @@ namespace lean {
 
 typedef name_map<unsigned> light_rule_set;
 
-environment add_light_rule(environment const & env, name const & id, unsigned light_arg,  bool persistent);
+environment add_light_rule(environment const & env, name const & id, unsigned light_arg, name const & ns, bool persistent);
 optional<unsigned> is_light_rule(environment const & env, name const & n);
 light_rule_set get_light_rule_set(environment const & env);
 light_rule_set get_light_rule_set(environment const & env, io_state const & ios, name const & ns);

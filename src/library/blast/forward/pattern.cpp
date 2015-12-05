@@ -175,8 +175,8 @@ bool is_no_pattern(environment const & env, name const & n) {
     return no_pattern_ext::get_state(env).contains(n);
 }
 
-environment add_no_pattern(environment const & env, name const & n, bool persistent) {
-    return no_pattern_ext::add_entry(env, get_dummy_ios(), n, persistent);
+environment add_no_pattern(environment const & env, name const & n, name const & ns, bool persistent) {
+    return no_pattern_ext::add_entry(env, get_dummy_ios(), n, ns, persistent);
 }
 
 name_set const & get_no_patterns(environment const & env) {

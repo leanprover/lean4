@@ -772,7 +772,7 @@ struct inductive_cmd_fn {
     environment apply_modifiers(environment env) {
         m_modifiers.for_each([&](name const & n, modifiers const & m) {
                 if (m.is_class())
-                    env = add_class(env, n);
+                    env = add_class(env, n, get_namespace(env), true);
             });
         return env;
     }

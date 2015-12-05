@@ -89,9 +89,9 @@ static void check_declaration(environment const & env, name const & n) {
         throw exception(sstream() << "invalid reducible command, '" << n << "' is not a definition");
 }
 
-environment set_reducible(environment const & env, name const & n, reducible_status s, bool persistent) {
+environment set_reducible(environment const & env, name const & n, reducible_status s, name const & ns, bool persistent) {
     check_declaration(env, n);
-    return reducible_ext::add_entry(env, get_dummy_ios(), reducible_entry(s, n), persistent);
+    return reducible_ext::add_entry(env, get_dummy_ios(), reducible_entry(s, n), ns, persistent);
 }
 
 reducible_status get_reducible_status(environment const & env, name const & n) {
@@ -184,13 +184,15 @@ static int mk_non_irreducible_type_checker(lua_State * L) {
 
 static int set_reducible(lua_State * L) {
     int nargs = lua_gettop(L);
+    environment const & env = to_environment(L, 1);
     if (nargs == 3) {
-        return push_environment(L, set_reducible(to_environment(L, 1), to_name_ext(L, 2),
-                                                 static_cast<reducible_status>(lua_tonumber(L, 3))));
-    } else {
-        return push_environment(L, set_reducible(to_environment(L, 1), to_name_ext(L, 2),
+        return push_environment(L, set_reducible(env, to_name_ext(L, 2),
                                                  static_cast<reducible_status>(lua_tonumber(L, 3)),
-                                                 lua_toboolean(L, 4)));
+                                                 get_namespace(env), true));
+    } else {
+        return push_environment(L, set_reducible(env, to_name_ext(L, 2),
+                                                 static_cast<reducible_status>(lua_tonumber(L, 3)),
+                                                 get_namespace(env), lua_toboolean(L, 4)));
     }
 }
 

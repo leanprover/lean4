@@ -169,7 +169,7 @@ public:
         if (new_name != new_real_name)
             m_env = add_expr_alias_rec(m_env, new_name, new_real_name);
         decl_attributes const & attrs = get_nested_declaration_attributes(e);
-        m_env = attrs.apply(m_env, m_ios, new_real_name);
+        m_env = attrs.apply(m_env, m_ios, new_real_name, get_namespace(m_env));
         return mk_app(mk_constant(new_real_name, ls), locals.get_collected());
     }
 

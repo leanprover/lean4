@@ -53,7 +53,7 @@ typedef scoped_ext<local_ref_config> local_ref_ext;
 
 environment save_local_ref_info(environment const & env, name const & n, expr const & ref) {
     bool persistent = false;
-    return local_ref_ext::add_entry(env, get_dummy_ios(), local_ref_entry(n, ref), persistent);
+    return local_ref_ext::add_entry(env, get_dummy_ios(), local_ref_entry(n, ref), get_namespace(env), persistent);
 }
 
 optional<expr> get_local_ref_info(environment const & env, name const & n) {

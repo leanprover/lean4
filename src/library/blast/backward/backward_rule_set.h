@@ -53,7 +53,7 @@ void initialize_backward_rule_set();
 void finalize_backward_rule_set();
 }
 
-environment add_backward_rule(environment const & env, name const & n, unsigned priority, bool persistent);
+environment add_backward_rule(environment const & env, name const & n, unsigned priority, name const & ns, bool persistent);
 
 /** \brief Return true if \c n is an active backward rule in \c env */
 bool is_backward_rule(environment const & env, name const & n);

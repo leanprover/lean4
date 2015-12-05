@@ -87,7 +87,7 @@ expr parse_tactic_name(parser & p) {
 
 environment tactic_hint_cmd(parser & p) {
     expr pre_tac = parse_tactic_name(p);
-    return tactic_hint_ext::add_entry(p.env(), get_dummy_ios(), pre_tac);
+    return tactic_hint_ext::add_entry(p.env(), get_dummy_ios(), pre_tac, get_namespace(p.env()), true);
 }
 
 void register_tactic_hint_cmd(cmd_table & r) {

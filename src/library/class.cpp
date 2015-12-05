@@ -235,9 +235,9 @@ name get_class_name(environment const & env, expr const & e) {
     return c_name;
 }
 
-environment add_class(environment const & env, name const & n, bool persistent) {
+environment add_class(environment const & env, name const & n, name const & ns, bool persistent) {
     check_class(env, n);
-    environment new_env = class_ext::add_entry(env, get_dummy_ios(), class_entry(n), persistent);
+    environment new_env = class_ext::add_entry(env, get_dummy_ios(), class_entry(n), ns, persistent);
     return mark_class_instance_somewhere(new_env, n);
 }
 
@@ -262,7 +262,7 @@ type_checker_ptr mk_class_type_checker(environment const & env, name_generator &
 }
 
 static name * g_tmp_prefix = nullptr;
-environment add_instance(environment const & env, name const & n, unsigned priority, bool persistent) {
+environment add_instance(environment const & env, name const & n, unsigned priority, name const & ns, bool persistent) {
     declaration d = env.get(n);
     expr type = d.get_type();
     name_generator ngen(*g_tmp_prefix);
@@ -275,12 +275,13 @@ environment add_instance(environment const & env, name const & n, unsigned prior
     }
     name c = get_class_name(env, get_app_fn(type));
     check_is_class(env, c);
-    environment new_env = class_ext::add_entry(env, get_dummy_ios(), class_entry(class_entry_kind::Instance, c, n, priority), persistent);
+    environment new_env = class_ext::add_entry(env, get_dummy_ios(), class_entry(class_entry_kind::Instance, c, n, priority),
+                                               ns, persistent);
     return mark_class_instance_somewhere(new_env, n);
 }
 
-environment add_instance(environment const & env, name const & n, bool persistent) {
-    return add_instance(env, n, LEAN_INSTANCE_DEFAULT_PRIORITY, persistent);
+environment add_instance(environment const & env, name const & n, name const & ns, bool persistent) {
+    return add_instance(env, n, LEAN_INSTANCE_DEFAULT_PRIORITY, ns, persistent);
 }
 
 static name * g_source = nullptr;
@@ -307,7 +308,7 @@ static pair<name, name> get_source_target(environment const & env, type_checker 
     return mk_pair(*src, *tgt);
 }
 
-environment add_trans_instance(environment const & env, name const & n, unsigned priority, bool persistent) {
+environment add_trans_instance(environment const & env, name const & n, unsigned priority, name const & ns, bool persistent) {
     type_checker_ptr  tc     = mk_type_checker(env, name_generator());
     pair<name, name> src_tgt = get_source_target(env, *tc, n);
     class_state const & s = class_ext::get_state(env);
@@ -315,25 +316,25 @@ environment add_trans_instance(environment const & env, name const & n, unsigned
     pair<environment, list<tc_edge>> new_env_insts = g.add(env, src_tgt.first, n, src_tgt.second);
     environment new_env = new_env_insts.first;
     new_env = class_ext::add_entry(new_env, get_dummy_ios(),
-                                   class_entry::mk_trans_inst(src_tgt.first, src_tgt.second, n, priority), persistent);
+                                   class_entry::mk_trans_inst(src_tgt.first, src_tgt.second, n, priority), ns, persistent);
     new_env = mark_class_instance_somewhere(new_env, n);
     for (tc_edge const & edge : new_env_insts.second) {
         new_env = class_ext::add_entry(new_env, get_dummy_ios(),
-                                       class_entry::mk_derived_trans_inst(edge.m_from, edge.m_to, edge.m_cnst), persistent);
-        new_env = set_reducible(new_env, edge.m_cnst, reducible_status::Reducible, persistent);
+                                       class_entry::mk_derived_trans_inst(edge.m_from, edge.m_to, edge.m_cnst), ns, persistent);
+        new_env = set_reducible(new_env, edge.m_cnst, reducible_status::Reducible, ns, persistent);
         new_env = add_protected(new_env, edge.m_cnst);
         new_env = mark_class_instance_somewhere(new_env, edge.m_cnst);
     }
     return new_env;
 }
 
-environment add_trans_instance(environment const & env, name const & n, bool persistent) {
-    return add_trans_instance(env, n, LEAN_INSTANCE_DEFAULT_PRIORITY, persistent);
+environment add_trans_instance(environment const & env, name const & n, name const & ns, bool persistent) {
+    return add_trans_instance(env, n, LEAN_INSTANCE_DEFAULT_PRIORITY, ns, persistent);
 }
 
-environment mark_multiple_instances(environment const & env, name const & n, bool persistent) {
+environment mark_multiple_instances(environment const & env, name const & n, name const & ns, bool persistent) {
     check_class(env, n);
-    return class_ext::add_entry(env, get_dummy_ios(), class_entry(n, true), persistent);
+    return class_ext::add_entry(env, get_dummy_ios(), class_entry(n, true), ns, persistent);
 }
 
 bool try_multiple_instances(environment const & env, name const & n) {

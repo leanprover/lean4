@@ -21,7 +21,7 @@ enum class reducible_status { Reducible, Quasireducible, Semireducible, Irreduci
     "Reducible" definitions can be freely unfolded by automation (i.e., elaborator, simplifier, etc).
     We should view it as a hint to automation.
 */
-environment set_reducible(environment const & env, name const & n, reducible_status s, bool persistent = true);
+environment set_reducible(environment const & env, name const & n, reducible_status s, name const & ns, bool persistent);
 
 reducible_status get_reducible_status(environment const & env, name const & n);
 

@@ -10,15 +10,15 @@ namespace lean {
 /** \brief Create type checker that treats classes as opaque constants */
 type_checker_ptr mk_class_type_checker(environment const & env, name_generator && ngen, bool conservative);
 /** \brief Add a new 'class' to the environment (if it is not already declared) */
-environment add_class(environment const & env, name const & n, bool persistent = true);
+environment add_class(environment const & env, name const & n, name const & ns, bool persistent);
 /** \brief Add a new 'class instance' to the environment with default priority. */
-environment add_instance(environment const & env, name const & n, bool persistent = true);
+environment add_instance(environment const & env, name const & n, name const & ns, bool persistent);
 /** \brief Add a new 'class instance' to the environment. */
-environment add_instance(environment const & env, name const & n, unsigned priority, bool persistent);
+environment add_instance(environment const & env, name const & n, unsigned priority, name const & ns, bool persistent);
 /** \brief Add a new 'class transitive instance' to the environment with default priority. */
-environment add_trans_instance(environment const & env, name const & n, bool persistent = true);
+environment add_trans_instance(environment const & env, name const & n, name const & ns, bool persistent);
 /** \brief Add a new 'class transitive instance' to the environment. */
-environment add_trans_instance(environment const & env, name const & n, unsigned priority, bool persistent);
+environment add_trans_instance(environment const & env, name const & n, unsigned priority, name const & ns, bool persistent);
 /** \brief Return true iff \c c was declared with \c add_class. */
 bool is_class(environment const & env, name const & c);
 /** \brief Return true iff \c i was declared with \c add_instance. */
@@ -38,7 +38,7 @@ void get_classes(environment const & env, buffer<name> & classes);
 name get_class_name(environment const & env, expr const & e);
 
 /** \brief Mark that multiple instances of class \c n must be explored. */
-environment mark_multiple_instances(environment const & env, name const & n, bool persistent);
+environment mark_multiple_instances(environment const & env, name const & n, name const & ns, bool persistent);
 /** \brief Return true iff multiple instances of class \c n must be explored. */
 bool try_multiple_instances(environment const & env, name const & n);
 

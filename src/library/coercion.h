@@ -38,7 +38,7 @@ namespace lean {
 
    \remark if persistent == true, then coercion is saved in .olean files
 */
-environment add_coercion(environment const & env, io_state const & ios, name const & f, bool persistent = true);
+environment add_coercion(environment const & env, io_state const & ios, name const & f, name const & ns, bool persistent);
 /** \brief If \c f is a coercion, then return the name of the 'from-class' and the number of
     class parameters.
 */

@@ -1,0 +1,8 @@
+definition f : ℕ → ℕ :=
+λ (a : ℕ), a + 1
+definition f [reducible] : ℕ → ℕ :=
+λ (a : ℕ), a + 1
+definition f : ℕ → ℕ :=
+λ (a : ℕ), a + 1
+definition f [reducible] : ℕ → ℕ :=
+λ (a : ℕ), a + 1

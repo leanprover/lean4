@@ -169,7 +169,7 @@ void decl_attributes::parse(parser & p) {
     }
 }
 
-environment decl_attributes::apply(environment env, io_state const & ios, name const & d) const {
+environment decl_attributes::apply(environment env, io_state const & ios, name const & d, name const & ns) const {
     bool forward = m_forward;
     if (has_pattern_hints(env.get(d).get_type())) {
         // turn on [forward] if patterns hints have been used in the type.
@@ -181,9 +181,9 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
             #if defined(__GNUC__) && !defined(__CLANG__)
             #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
             #endif
-            env = add_instance(env, d, *m_priority, m_persistent);
+            env = add_instance(env, d, *m_priority, ns, m_persistent);
         } else {
-            env = add_instance(env, d, m_persistent);
+            env = add_instance(env, d, ns, m_persistent);
         }
     }
     if (m_is_trans_instance) {
@@ -191,75 +191,75 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
             #if defined(__GNUC__) && !defined(__CLANG__)
             #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
             #endif
-            env = add_trans_instance(env, d, *m_priority, m_persistent);
+            env = add_trans_instance(env, d, *m_priority, ns, m_persistent);
         } else {
-            env = add_trans_instance(env, d, m_persistent);
+            env = add_trans_instance(env, d, ns, m_persistent);
         }
     }
     if (m_is_coercion)
-        env = add_coercion(env, ios, d, m_persistent);
+        env = add_coercion(env, ios, d, ns, m_persistent);
     auto decl = env.find(d);
     if (decl && decl->is_definition()) {
         if (m_is_reducible)
-            env = set_reducible(env, d, reducible_status::Reducible, m_persistent);
+            env = set_reducible(env, d, reducible_status::Reducible, ns, m_persistent);
         if (m_is_irreducible)
-            env = set_reducible(env, d, reducible_status::Irreducible, m_persistent);
+            env = set_reducible(env, d, reducible_status::Irreducible, ns, m_persistent);
         if (m_is_semireducible)
-            env = set_reducible(env, d, reducible_status::Semireducible, m_persistent);
+            env = set_reducible(env, d, reducible_status::Semireducible, ns, m_persistent);
         if (m_is_quasireducible)
-            env = set_reducible(env, d, reducible_status::Quasireducible, m_persistent);
+            env = set_reducible(env, d, reducible_status::Quasireducible, ns, m_persistent);
         if (m_unfold_hint)
-            env = add_unfold_hint(env, d, m_unfold_hint, m_persistent);
+            env = add_unfold_hint(env, d, m_unfold_hint, ns, m_persistent);
         if (m_unfold_full_hint)
-            env = add_unfold_full_hint(env, d, m_persistent);
+            env = add_unfold_full_hint(env, d, ns, m_persistent);
     }
     if (m_constructor_hint)
-        env = add_constructor_hint(env, d, m_persistent);
+        env = add_constructor_hint(env, d, ns, m_persistent);
     if (m_symm)
-        env = add_symm(env, d, m_persistent);
+        env = add_symm(env, d, ns, m_persistent);
     if (m_refl)
-        env = add_refl(env, d, m_persistent);
+        env = add_refl(env, d, ns, m_persistent);
     if (m_trans)
-        env = add_trans(env, d, m_persistent);
+        env = add_trans(env, d, ns, m_persistent);
     if (m_subst)
-        env = add_subst(env, d, m_persistent);
+        env = add_subst(env, d, ns, m_persistent);
     if (m_recursor)
-        env = add_user_recursor(env, d, m_recursor_major_pos, m_persistent);
+        env = add_user_recursor(env, d, m_recursor_major_pos, ns, m_persistent);
     if (m_is_class)
-        env = add_class(env, d, m_persistent);
+        env = add_class(env, d, ns, m_persistent);
     if (m_simp) {
         if (m_priority)
-            env = add_simp_rule(env, d, *m_priority, m_persistent);
+            env = add_simp_rule(env, d, *m_priority, ns, m_persistent);
         else
-            env = add_simp_rule(env, d, LEAN_SIMP_DEFAULT_PRIORITY, m_persistent);
+            env = add_simp_rule(env, d, LEAN_SIMP_DEFAULT_PRIORITY, ns, m_persistent);
     }
     if (m_congr) {
         if (m_priority)
-            env = add_congr_rule(env, d, *m_priority, m_persistent);
+            env = add_congr_rule(env, d, *m_priority, ns, m_persistent);
         else
-            env = add_congr_rule(env, d, LEAN_SIMP_DEFAULT_PRIORITY, m_persistent);
+            env = add_congr_rule(env, d, LEAN_SIMP_DEFAULT_PRIORITY, ns, m_persistent);
     }
     if (m_light_arg) {
-        env = add_light_rule(env, d, *m_light_arg, m_persistent);
+        env = add_light_rule(env, d, *m_light_arg, ns, m_persistent);
     }
     if (m_backward) {
         if (m_priority)
-            env = add_backward_rule(env, d, *m_priority, m_persistent);
+            env = add_backward_rule(env, d, *m_priority, ns, m_persistent);
         else
-            env = add_backward_rule(env, d, LEAN_BACKWARD_DEFAULT_PRIORITY, m_persistent);
+            env = add_backward_rule(env, d, LEAN_BACKWARD_DEFAULT_PRIORITY, ns, m_persistent);
     }
     if (forward) {
         mk_multipatterns(env, ios, d); // try to create patterns
         if (m_priority)
-            env = add_forward_lemma(env, d, *m_priority, m_persistent);
+            env = add_forward_lemma(env, d, *m_priority, ns, m_persistent);
         else
-            env = add_forward_lemma(env, d, LEAN_FORWARD_LEMMA_DEFAULT_PRIORITY, m_persistent);
+            env = add_forward_lemma(env, d, LEAN_FORWARD_LEMMA_DEFAULT_PRIORITY, ns, m_persistent);
     }
     if (m_no_pattern) {
-        env = add_no_pattern(env, d, m_persistent);
+        env = add_no_pattern(env, d, ns, m_persistent);
     }
     if (m_has_multiple_instances)
-        env = mark_multiple_instances(env, d, m_persistent);
+        env = mark_multiple_instances(env, d, ns, m_persistent);
     return env;
 }
 

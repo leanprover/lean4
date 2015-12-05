@@ -524,12 +524,12 @@ struct rrs_config {
 template class scoped_ext<rrs_config>;
 typedef scoped_ext<rrs_config> rrs_ext;
 
-environment add_simp_rule(environment const & env, name const & n, unsigned prio, bool persistent) {
-    return rrs_ext::add_entry(env, get_dummy_ios(), rrs_entry(true, n, prio), persistent);
+environment add_simp_rule(environment const & env, name const & n, unsigned prio, name const & ns, bool persistent) {
+    return rrs_ext::add_entry(env, get_dummy_ios(), rrs_entry(true, n, prio), ns, persistent);
 }
 
-environment add_congr_rule(environment const & env, name const & n, unsigned prio, bool persistent) {
-    return rrs_ext::add_entry(env, get_dummy_ios(), rrs_entry(false, n, prio), persistent);
+environment add_congr_rule(environment const & env, name const & n, unsigned prio, name const & ns, bool persistent) {
+    return rrs_ext::add_entry(env, get_dummy_ios(), rrs_entry(false, n, prio), ns, persistent);
 }
 
 bool is_simp_rule(environment const & env, name const & n) {

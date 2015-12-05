@@ -73,16 +73,13 @@ bool in_section(environment const & env);
          namespace bla
            namespace boo
               ...
-    Then, the procedure tries n, 'foo.bla.boo'+n, 'foo.bla'+n, 'foo'+n.
-*/
+    Then, the procedure tries n, 'foo.bla.boo'+n, 'foo.bla'+n, 'foo'+n. */
 optional<name> to_valid_namespace_name(environment const & env, name const & n);
 
 void open_scoped_ext(lua_State * L);
 
-/**
-   \brief Auxilary template used to simplify the creation of environment extensions that support
-   the scope
-*/
+/** \brief Auxilary template used to simplify the creation of environment extensions that support
+    the scope */
 template<typename Config>
 class scoped_ext : public environment_extension {
     typedef typename Config::state            state;
@@ -98,11 +95,19 @@ class scoped_ext : public environment_extension {
         return Config::get_fingerprint(e);
     }
 
+    /* Current state */
     state                 m_state;
+    /* Stack of states, it is updated using push/pop operations */
     list<state>           m_scopes;
-    list<list<entry>>     m_nonlocal_entries; // nonlocal entries per scope (for sections)
-    name_map<list<entry>> m_entries_map;      // namespace -> entries
+    /* Nonlocal entries per scope (for sections).
+       The nonlocal attributes declared in a section are not discarded when we close the section.
+       So, we keep a stack of the nonlocal entries associated with these attributes.
+       We re-add/declare them whenever a section is closed. */
+    list<list<entry>>     m_nonlocal_entries;
+    /* Mapping namespace -> entries for this namespace */
+    name_map<list<entry>> m_entries_map;
 
+    /* Update curret state with the entries from namespace \c n */
     void using_namespace_core(environment const & env, io_state const & ios, name const & n) {
         if (auto it = m_entries_map.find(n)) {
             buffer<entry> entries;
@@ -115,6 +120,7 @@ class scoped_ext : public environment_extension {
         }
     }
 
+    /* Add entry \c e to namespace \c n */
     void register_entry_core(name n, entry const & e) {
         if (auto it = m_entries_map.find(n))
             m_entries_map.insert(n, cons(e, *it));
@@ -122,10 +128,9 @@ class scoped_ext : public environment_extension {
             m_entries_map.insert(n, to_list(e));
     }
 
-    void add_entry_core(environment const & env, io_state const & ios, entry const & e) {
-        add_entry(env, ios, m_state, e);
-    }
-
+    /* Add entry \c e to namespace \c n. If \c n is the anonymous/root
+       namespace, then update current state with this entry.
+       This method is invoked when importing files. */
     scoped_ext _register_entry(environment const & env, io_state const & ios, name n, entry const & e) const {
         lean_assert(get_namespace(env).is_anonymous());
         scoped_ext r(*this);
@@ -135,6 +140,8 @@ class scoped_ext : public environment_extension {
         return r;
     }
 
+    /* Add a nonlocal entry. Register it in the current namespace, mark it as nonlocal, and
+       update current state */
     scoped_ext _add_entry(environment const & env, io_state const & ios, entry const & e) const {
         scoped_ext r(*this);
         r.register_entry_core(get_namespace(env), e);
@@ -144,32 +151,76 @@ class scoped_ext : public environment_extension {
         return r;
     }
 
+    /* Add entry to current state */
     scoped_ext _add_tmp_entry(environment const & env, io_state const & ios, entry const & e) const {
         scoped_ext r(*this);
         add_entry(env, ios, r.m_state, e);
         return r;
     }
 
+    /* Add \c e to the first \c n states in \c l.
+       \pre length(l) >= n */
+    static list<state> add_first_n(environment const & env, io_state const & ios, list<state> const & l, entry const & e, unsigned n) {
+        if (n == 0) {
+            return l;
+        } else {
+            state new_s = head(l);
+            add_entry(env, ios, new_s, e);
+            return cons(new_s, add_first_n(env, ios, tail(l), e, n-1));
+        }
+    }
+
+    scoped_ext _add_entry_at(environment const & env, io_state const & ios, entry const & e, name const & ns) const {
+        lean_assert(get_namespace(env) != ns);
+        scoped_ext r(*this);
+        r.register_entry_core(ns, e);
+        unsigned n     = 0;
+        bool     found = false;
+        lean_assert(length(m_scopes) == length(get_namespaces(env)));
+        if (ns.is_anonymous()) {
+            found = true;
+            n     = length(m_scopes);
+        } else {
+            for (name const & ns2 : get_namespaces(env)) {
+                if (ns == ns2) {
+                    found = true;
+                    break;
+                }
+                n++;
+            }
+        }
+        if (found) {
+            // must update m_nonlocal_entries
+            r.m_scopes = add_first_n(env, ios, r.m_scopes, e, n);
+            add_entry(env, ios, r.m_state, e);
+        }
+        return r;
+    }
+
 public:
+    /** \brief Return an updated state with the entries from namespace \c n. */
     scoped_ext using_namespace(environment const & env, io_state const & ios, name const & n) const {
         scoped_ext r(*this);
         r.using_namespace_core(env, ios, n);
         return r;
     }
 
-    environment export_namespace(environment env, io_state const & ios, name const & n) const {
-        if (auto it = m_entries_map.find(n)) {
+    /** \brief Copy entries from the given namespace to the current namespace. */
+    environment export_namespace(environment env, io_state const & ios, name const & ns) const {
+        if (auto it = m_entries_map.find(ns)) {
             buffer<entry> entries;
             to_buffer(*it, entries);
-            unsigned i = entries.size();
+            unsigned i      = entries.size();
+            name current_ns = get_namespace(env);
             while (i > 0) {
                 --i;
-                env = add_entry(env, ios, entries[i]);
+                env = add_entry(env, ios, entries[i], current_ns, true);
             }
         }
         return env;
     }
 
+    /** \brief Open a namespace/section. It return the new updated state. */
     scoped_ext push() const {
         scoped_ext r(*this);
         r.m_scopes           = cons(m_state, r.m_scopes);
@@ -177,6 +228,9 @@ public:
         return r;
     }
 
+    /** \brief Close namespace/section. It returns the new updated
+        state, and a list of entries that must be re-added/declared.
+        \pre There are open namespaces */
     pair<scoped_ext, list<entry>> pop(scope_kind k) const {
         lean_assert(!is_nil(m_scopes));
         scoped_ext r(*this);
@@ -234,24 +288,38 @@ public:
         }
         return new_env;
     }
+
     static environment register_entry(environment const & env, io_state const & ios, name const & n, entry const & e) {
         return update(env, get(env)._register_entry(env, ios, n, e));
     }
-    static environment add_entry(environment env, io_state const & ios, entry const & e, bool persistent = true) {
+
+    static environment add_entry(environment env, io_state const & ios, entry const & e, name const & n, bool persistent) {
         if (auto h = get_fingerprint(e)) {
             env = update_fingerprint(env, *h);
         }
-        if (!persistent) {
-            return update(env, get(env)._add_tmp_entry(env, ios, e));
+        if (n == get_namespace(env)) {
+            if (!persistent) {
+                return update(env, get(env)._add_tmp_entry(env, ios, e));
+            } else {
+                name n = get_namespace(env);
+                env = module::add(env, get_serialization_key(), [=](environment const &, serializer & s) {
+                        s << n;
+                        write_entry(s, e);
+                    });
+                return update(env, get(env)._add_entry(env, ios, e));
+            }
         } else {
-            name n = get_namespace(env);
+            lean_assert(!persistent);
+            // add entry in a namespace that is not the current one
             env = module::add(env, get_serialization_key(), [=](environment const &, serializer & s) {
                     s << n;
                     write_entry(s, e);
                 });
-            return update(env, get(env)._add_entry(env, ios, e));
+            env = add_namespace(env, n);
+            return update(env, get(env)._add_entry_at(env, ios, e, n));
         }
     }
+
     static void reader(deserializer & d, shared_environment &,
                        std::function<void(asynch_update_fn const &)> &,
                        std::function<void(delayed_update_fn const &)> & add_delayed_update) {
@@ -265,6 +333,7 @@ public:
     static state const & get_state(environment const & env) {
         return get(env).m_state;
     }
+    /** \brief Return the entries/attributes associated with the given namespace */
     static list<entry> const * get_entries(environment const & env, name const & n) {
         return get(env).m_entries_map.find(n);
     }

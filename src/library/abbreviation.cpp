@@ -80,8 +80,8 @@ struct abbrev_config {
 template class scoped_ext<abbrev_config>;
 typedef scoped_ext<abbrev_config> abbrev_ext;
 
-environment add_abbreviation(environment const & env, name const & n, bool parsing_only, bool persistent) {
-    return abbrev_ext::add_entry(env, get_dummy_ios(), abbrev_entry(n, parsing_only), persistent);
+environment add_abbreviation(environment const & env, name const & n, bool parsing_only, name const & ns, bool persistent) {
+    return abbrev_ext::add_entry(env, get_dummy_ios(), abbrev_entry(n, parsing_only), ns, persistent);
 }
 
 bool is_abbreviation(environment const & env, name const & n) {

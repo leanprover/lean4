@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/normalize.h"
 #include "library/aux_recursors.h"
+#include "library/scoped_ext.h"
 
 namespace lean {
 static void throw_corrupted(name const & n) {
@@ -182,8 +183,8 @@ environment mk_cases_on(environment const & env, name const & n) {
     declaration new_d = mk_definition(env, cases_on_name, rec_decl.get_univ_params(), cases_on_type, cases_on_value,
                                       use_conv_opt);
     environment new_env = module::add(env, check(env, new_d));
-    new_env = set_reducible(new_env, cases_on_name, reducible_status::Reducible);
-    new_env = add_unfold_hint(new_env, cases_on_name, cases_on_major_idx);
+    new_env = set_reducible(new_env, cases_on_name, reducible_status::Reducible, get_namespace(new_env), true);
+    new_env = add_unfold_hint(new_env, cases_on_name, cases_on_major_idx, get_namespace(new_env), true);
     new_env = add_aux_recursor(new_env, cases_on_name);
     return add_protected(new_env, cases_on_name);
 }

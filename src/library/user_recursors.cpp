@@ -315,11 +315,11 @@ template class scoped_ext<recursor_config>;
 typedef scoped_ext<recursor_config> recursor_ext;
 
 environment add_user_recursor(environment const & env, name const & r, optional<unsigned> const & major_pos,
-                              bool persistent) {
+                              name const & ns, bool persistent) {
     if (inductive::is_elim_rule(env, r))
         throw exception(sstream() << "invalid user defined recursor, '" << r << "' is a builtin recursor");
     recursor_info info = mk_recursor_info(env, r, major_pos);
-    return recursor_ext::add_entry(env, get_dummy_ios(), info, persistent);
+    return recursor_ext::add_entry(env, get_dummy_ios(), info, ns, persistent);
 }
 
 recursor_info get_recursor_info(environment const & env, name const & r) {

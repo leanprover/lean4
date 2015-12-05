@@ -115,7 +115,7 @@ template class scoped_ext<token_config>;
 typedef scoped_ext<token_config> token_ext;
 
 environment add_token(environment const & env, token_entry const & e, bool persistent) {
-    return token_ext::add_entry(env, get_dummy_ios(), e, persistent);
+    return token_ext::add_entry(env, get_dummy_ios(), e, get_namespace(env), persistent);
 }
 
 environment add_expr_token(environment const & env, char const * val, unsigned prec) {
@@ -348,7 +348,7 @@ template class scoped_ext<notation_config>;
 typedef scoped_ext<notation_config> notation_ext;
 
 environment add_notation(environment const & env, notation_entry const & e, bool persistent) {
-    return notation_ext::add_entry(env, get_dummy_ios(), e, persistent);
+    return notation_ext::add_entry(env, get_dummy_ios(), e, get_namespace(env), persistent);
 }
 
 parse_table const & get_nud_table(environment const & env) {

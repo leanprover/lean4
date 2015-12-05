@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/blast/expr.h"
 #include "library/blast/state.h"
 #include "library/blast/blast.h"
 #include "library/blast/blast_tactic.h"
@@ -19,7 +18,6 @@ Author: Leonardo de Moura
 namespace lean {
 void initialize_blast_module() {
     blast::initialize_options();
-    blast::initialize_expr();
     blast::initialize_state();
     initialize_blast();
     blast::initialize_simplifier_module();
@@ -40,7 +38,6 @@ void finalize_blast_module() {
     blast::finalize_simplifier_module();
     finalize_blast();
     blast::finalize_state();
-    blast::finalize_expr();
     blast::finalize_options();
 }
 }

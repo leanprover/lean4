@@ -20,6 +20,43 @@ struct projection_info;
 class goal;
 typedef std::unique_ptr<tmp_type_context> tmp_type_context_ptr;
 namespace blast {
+/** \brief Create a blast-state universe meta-variable */
+level mk_uref(unsigned idx);
+/** \brief Return true iff \c l is a blast-state universe meta-variable */
+bool is_uref(level const & l);
+/** \brief Return the index of the given blast-state universe meta-variable */
+unsigned uref_index(level const & l);
+
+/** \brief Create a blast-state hypothesis (reference).
+    \remark these references are local constants, but they do **not** store their types */
+expr mk_href(unsigned idx);
+/** \brief Create a blast-state meta-variable (reference).
+    \remark these references are local constants, but they do **not** store their types */
+expr mk_mref(unsigned idx);
+
+/** \brief Return true iff \c e is a hypothesis reference */
+bool is_href(expr const & e);
+/** \brief Return the index of the given hypothesis reference */
+unsigned href_index(expr const & e);
+/** \brief Return true iff \c e is a blast-state meta-variable (reference) */
+bool is_mref(expr const & e);
+/** \brief Return the index of the given blast-state meta-variable (reference) */
+unsigned mref_index(expr const & e);
+/** \brief Return true iff \c e contain href's */
+bool has_href(expr const & e);
+/** \brief Return true iff \c e contain mref's */
+bool has_mref(expr const & e);
+/** \brief Return true if \c is a local constant, but it is not a hypothesis reference */
+inline bool is_local_non_href(expr const & e) { return is_local(e) && !is_href(e); }
+
+/** \brief Return the a fresh index for uref/mref/href.
+    \remark It is implemented using thread local storage. */
+unsigned mk_uref_idx();
+unsigned mk_mref_idx();
+unsigned mk_href_idx();
+
+inline level mk_fresh_uref() { return mk_uref(mk_uref_idx()); }
+
 /** \brief Return the thread local environment being used by the blast tactic. */
 environment const & env();
 /** \brief Return the thread local io_state being used by the blast tactic. */

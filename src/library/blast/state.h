@@ -31,7 +31,7 @@ public:
         m_assumptions(a), m_type(t) {}
     /** \brief Return true iff \c h is in the context of the this metavar declaration */
     bool contains_href(unsigned hidx) const { return m_assumptions.contains(hidx); }
-    bool contains_href(expr const & h) const { return contains_href(href_index(h)); }
+    bool contains_href(expr const & h) const;
     expr const & get_type() const { return m_type; }
     /** \brief Make sure the declaration context of this declaration is a subset of \c other.
         \remark Return true iff the context has been modified. */
@@ -231,7 +231,7 @@ public:
         in the current branch. */
     expr mk_metavar(expr const & type);
     metavar_decl const * get_metavar_decl(hypothesis_idx idx) const { return m_metavar_decls.find(idx); }
-    metavar_decl const * get_metavar_decl(expr const & e) const { return get_metavar_decl(mref_index(e)); }
+    metavar_decl const * get_metavar_decl(expr const & e) const;
 
     /************************
        Save/Restore branch
@@ -284,7 +284,7 @@ public:
     bool hidx_depends_on(hypothesis_idx hidx_user, hypothesis_idx hidx_provider) const;
 
     hypothesis const & get_hypothesis_decl(hypothesis_idx hidx) const { auto h = m_branch.m_hyp_decls.find(hidx); lean_assert(h); return *h; }
-    hypothesis const & get_hypothesis_decl(expr const & h) const { return get_hypothesis_decl(href_index(h)); }
+    hypothesis const & get_hypothesis_decl(expr const & h) const;
 
     void for_each_hypothesis(std::function<void(hypothesis_idx, hypothesis const &)> const & fn) const { m_branch.m_hyp_decls.for_each(fn); }
     optional<hypothesis_idx> find_active_hypothesis(std::function<bool(hypothesis_idx, hypothesis const &)> const & fn) const { // NOLINT
@@ -349,7 +349,7 @@ public:
     expr const & get_target() const { return m_branch.m_target; }
     /** \brief Return true iff the target depends on the given hypothesis */
     bool target_depends_on(hypothesis_idx hidx) const { return m_branch.m_target_deps.contains(hidx); }
-    bool target_depends_on(expr const & h) const { return target_depends_on(href_index(h)); }
+    bool target_depends_on(expr const & h) const;
 
     /************************
        Proof steps
@@ -395,40 +395,26 @@ public:
        Assignment management
     *************************/
 
-    bool is_uref_assigned(level const & l) const {
-        return m_uassignment.contains(uref_index(l));
-    }
-
+    bool is_uref_assigned(level const & l) const;
     /* u := l */
-    void assign_uref(level const & u, level const & l) {
-        m_uassignment.insert(uref_index(u), l);
-    }
+    void assign_uref(level const & u, level const & l);
 
-    level const * get_uref_assignment(level const & l) const {
-        return m_uassignment.find(uref_index(l));
-    }
+    level const * get_uref_assignment(level const & l) const;
 
     /** \brief Make sure the metavariable declaration context of mref1 is a
         subset of the metavariable declaration context of mref2. */
     void restrict_mref_context_using(expr const & mref1, expr const & mref2);
 
-    bool is_mref_assigned(expr const & e) const {
-        lean_assert(is_mref(e));
-        return m_eassignment.contains(mref_index(e));
-    }
+    bool is_mref_assigned(expr const & e) const;
 
     /** \brief Return true iff \c l contains an assigned uref */
     bool has_assigned_uref(level const & l) const;
     bool has_assigned_uref(levels const & ls) const;
 
-    expr const * get_mref_assignment(expr const & e) const {
-        return m_eassignment.find(mref_index(e));
-    }
+    expr const * get_mref_assignment(expr const & e) const;
 
     /* m := e */
-    void assign_mref(expr const & m, expr const & e) {
-        m_eassignment.insert(mref_index(m), e);
-    }
+    void assign_mref(expr const & m, expr const & e);
 
     /** \brief Return true if \c e contains an assigned mref or uref */
     bool has_assigned_uref_mref(expr const & e) const;

@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/scoped_ext.h"
 #include "library/tactic/goal.h"
-#include "library/blast/expr.h"
 #include "library/blast/state.h"
 #include "library/blast/blast.h"
 #include "library/blast/proof_expr.h"
@@ -36,7 +35,9 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 static name * g_prefix     = nullptr;
+static name * g_ref_prefix = nullptr;
 static name * g_tmp_prefix = nullptr;
+static expr * g_dummy_type = nullptr; // dummy type for href/mref
 
 class imp_extension_manager {
     std::vector<pair<ext_state_maker &, unsigned> > m_entries;
@@ -74,6 +75,9 @@ class blastenv {
     environment                m_env;
     io_state                   m_ios;
     name_generator             m_ngen;
+    unsigned                   m_next_uref_idx{0};
+    unsigned                   m_next_mref_idx{0};
+    unsigned                   m_next_href_idx{0};
     tmp_local_generator        m_tmp_local_generator;
     list<expr>                 m_initial_context; // for setting type_context local instances
     name_set                   m_lemma_hints;
@@ -484,7 +488,6 @@ public:
         m_unfold_macro_pred([](expr const &) { return true; }),
         m_tctx(*this),
         m_normalizer(m_tctx) {
-        init_uref_mref_href_idxs();
         clear_choice_points();
     }
 
@@ -707,6 +710,24 @@ public:
     optional<relation_info> get_relation_info(name const & rop) const {
         return m_rel_getter(rop);
     }
+
+    unsigned mk_uref_idx() {
+        unsigned r = m_next_uref_idx;
+        m_next_uref_idx++;
+        return r;
+    }
+
+    unsigned mk_mref_idx() {
+        unsigned r = m_next_mref_idx;
+        m_next_mref_idx++;
+        return r;
+    }
+
+    unsigned mk_href_idx() {
+        unsigned r = m_next_href_idx;
+        m_next_href_idx++;
+        return r;
+    }
 };
 
 LEAN_THREAD_PTR(blastenv, g_blastenv);
@@ -716,6 +737,68 @@ public:
     scope_blastenv(blastenv & c):m_prev_blastenv(g_blastenv) { g_blastenv = &c; }
     ~scope_blastenv() { g_blastenv = m_prev_blastenv; }
 };
+
+level mk_uref(unsigned idx) {
+    return lean::mk_meta_univ(name(*g_ref_prefix, idx));
+}
+
+bool is_uref(level const & l) {
+    return is_meta(l) && meta_id(l).is_numeral();
+}
+
+unsigned uref_index(level const & l) {
+    lean_assert(is_uref(l));
+    return meta_id(l).get_numeral();
+}
+
+expr mk_href(unsigned idx) {
+    return lean::mk_local(name(*g_ref_prefix, idx), *g_dummy_type);
+}
+
+bool is_href(expr const & e) {
+    return lean::is_local(e) && mlocal_type(e) == *g_dummy_type;
+}
+
+expr mk_mref(unsigned idx) {
+    return mk_metavar(name(*g_ref_prefix, idx), *g_dummy_type);
+}
+
+bool is_mref(expr const & e) {
+    return is_metavar(e) && mlocal_type(e) == *g_dummy_type;
+}
+
+unsigned mref_index(expr const & e) {
+    lean_assert(is_mref(e));
+    return mlocal_name(e).get_numeral();
+}
+
+unsigned href_index(expr const & e) {
+    lean_assert(is_href(e));
+    return mlocal_name(e).get_numeral();
+}
+
+bool has_href(expr const & e) {
+    return lean::has_local(e);
+}
+
+bool has_mref(expr const & e) {
+    return lean::has_expr_metavar(e);
+}
+
+unsigned mk_uref_idx() {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_uref_idx();
+}
+
+unsigned mk_mref_idx() {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_mref_idx();
+}
+
+unsigned mk_href_idx() {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_href_idx();
+}
 
 environment const & env() {
     lean_assert(g_blastenv);
@@ -1056,11 +1139,15 @@ optional<expr> blast_goal(environment const & env, io_state const & ios, list<na
 void initialize_blast() {
     blast::g_prefix                  = new name(name::mk_internal_unique_name());
     blast::g_tmp_prefix              = new name(name::mk_internal_unique_name());
+    blast::g_ref_prefix              = new name(name::mk_internal_unique_name());
     blast::g_imp_extension_manager   = new blast::imp_extension_manager();
+    blast::g_dummy_type              = new expr(mk_constant(*blast::g_ref_prefix));
 }
 void finalize_blast() {
     delete blast::g_imp_extension_manager;
     delete blast::g_prefix;
     delete blast::g_tmp_prefix;
+    delete blast::g_ref_prefix;
+    delete blast::g_dummy_type;
 }
 }

@@ -10,7 +10,6 @@
 #include "library/expr_lt.h"
 #include "library/class_instance_resolution.h"
 #include "library/relation_manager.h"
-#include "library/blast/expr.h"
 #include "library/blast/blast_exception.h"
 #include "library/blast/blast.h"
 #include "library/blast/simplifier/simplifier.h"

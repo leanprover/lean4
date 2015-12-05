@@ -20,6 +20,10 @@ namespace blast {
 static name * g_prefix = nullptr;
 static name * g_H      = nullptr;
 
+bool metavar_decl::contains_href(expr const & h) const {
+    return contains_href(href_index(h));
+}
+
 bool metavar_decl::restrict_context_using(metavar_decl const & other) {
     buffer<unsigned> to_erase;
     m_assumptions.for_each([&](unsigned hidx) {
@@ -140,6 +144,10 @@ branch & branch::operator=(branch s) {
 
 state::state() {}
 
+metavar_decl const * state::get_metavar_decl(expr const & e) const {
+    return get_metavar_decl(mref_index(e));
+}
+
 expr state::mk_metavar(hypothesis_idx_set const & c, expr const & type) {
     unsigned midx = mk_mref_idx();
     m_metavar_decls.insert(midx, metavar_decl(c, type));
@@ -157,6 +165,32 @@ expr state::mk_metavar(expr const & type) {
     return state::mk_metavar(get_assumptions(), type);
 }
 
+bool state::is_uref_assigned(level const & l) const {
+    return m_uassignment.contains(uref_index(l));
+}
+
+/* u := l */
+void state::assign_uref(level const & u, level const & l) {
+    m_uassignment.insert(uref_index(u), l);
+}
+
+level const * state::get_uref_assignment(level const & l) const {
+    return m_uassignment.find(uref_index(l));
+}
+
+bool state::is_mref_assigned(expr const & e) const {
+    lean_assert(is_mref(e));
+    return m_eassignment.contains(mref_index(e));
+}
+
+expr const * state::get_mref_assignment(expr const & e) const {
+    return m_eassignment.find(mref_index(e));
+}
+
+void state::assign_mref(expr const & m, expr const & e) {
+    m_eassignment.insert(mref_index(m), e);
+}
+
 void state::restrict_mref_context_using(expr const & mref1, expr const & mref2) {
     metavar_decl const * d1 = m_metavar_decls.find(mref_index(mref1));
     metavar_decl const * d2 = m_metavar_decls.find(mref_index(mref2));
@@ -165,6 +199,10 @@ void state::restrict_mref_context_using(expr const & mref1, expr const & mref2) 
     metavar_decl new_d1(*d1);
     if (new_d1.restrict_context_using(*d2))
         m_metavar_decls.insert(mref_index(mref1), new_d1);
+}
+
+hypothesis const & state::get_hypothesis_decl(expr const & h) const {
+    return get_hypothesis_decl(href_index(h));
 }
 
 expr state::to_kernel_expr(expr const & e, hypothesis_idx_map<expr> & hidx2local, metavar_idx_map<expr> & midx2meta) const {
@@ -810,6 +848,10 @@ void state::set_target(expr const & t) {
         branch_extension * ext = get_extension_core(i);
         if (ext) ext->target_updated();
     }
+}
+
+bool state::target_depends_on(expr const & h) const {
+    return target_depends_on(href_index(h));
 }
 
 struct expand_hrefs_fn : public replace_visitor {

@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/rc.h"
 #include "util/rb_map.h"
-#include "library/blast/expr.h"
+#include "kernel/expr.h"
 
 namespace lean {
 namespace blast {
@@ -51,8 +51,8 @@ public:
     expr const & get_type() const { return m_type; }
     optional<expr> const & get_value() const { return m_value; }
     /** \brief Return true iff this hypothesis depends on \c h. */
-    bool depends_on(expr const & h) const { return m_deps.contains(href_index(h)); }
-    bool is_assumption() const { return !m_value || is_local_non_href(*m_value); }
+    bool depends_on(expr const & h) const;
+    bool is_assumption() const;
 };
 
 class hypothesis_idx_buffer_set {

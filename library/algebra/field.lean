@@ -470,3 +470,62 @@ section discrete_field
 end discrete_field
 
 end algebra
+
+namespace norm_num
+open algebra
+variable {A : Type}
+
+theorem div_add_helper [s : field A] (n d b c val : A) (Hd : d ≠ 0) (H : n + b * d = val)
+        (H2 : c * d = val) : n / d + b = c :=
+  begin
+    apply eq_of_mul_eq_mul_of_nonzero_right Hd,
+    rewrite [H2, -H, right_distrib, div_mul_cancel _ Hd]
+ end
+
+theorem add_div_helper [s : field A] (n d b c val : A) (Hd : d ≠ 0) (H : d * b + n = val)
+        (H2 : d * c = val) : b + n / d = c :=
+  begin
+    apply eq_of_mul_eq_mul_of_nonzero_left Hd,
+    rewrite [H2, -H, left_distrib, mul_div_cancel' Hd]
+ end
+
+theorem div_mul_helper [s : field A] (n d c v : A) (Hd : d ≠ 0) (H : (n * c) / d = v) :
+        (n / d) * c = v :=
+  by rewrite [-H, field.div_mul_eq_mul_div_comm _ _ Hd, mul_div_assoc]
+
+theorem mul_div_helper [s : field A] (a n d v : A) (Hd : d ≠ 0) (H : (a * n) / d = v) :
+        a * (n / d) = v :=
+  by rewrite [-H, mul_div_assoc]
+
+theorem nonzero_of_div_helper [s : field A] (a b : A) (Ha : a ≠ 0) (Hb : b ≠ 0) : a / b ≠ 0 :=
+  begin
+    intro Hab,
+    have Habb : (a / b) * b = 0, by rewrite [Hab, zero_mul],
+    rewrite [div_mul_cancel _ Hb at Habb],
+    exact Ha Habb
+  end
+
+theorem div_helper [s : field A] (n d v : A) (Hd : d ≠ 0) (H : v * d = n) : n / d = v :=
+  begin
+    apply eq_of_mul_eq_mul_of_nonzero_right Hd,
+    rewrite (div_mul_cancel _ Hd),
+    exact eq.symm H
+  end
+
+theorem div_eq_div_helper [s : field A] (a b c d v : A) (H1 : a * d = v) (H2 : c * b = v)
+        (Hb : b ≠ 0) (Hd : d ≠ 0) : a / b = c / d :=
+  begin
+    apply eq_div_of_mul_eq,
+    exact Hd,
+    rewrite div_mul_eq_mul_div,
+    apply eq.symm,
+    apply eq_div_of_mul_eq,
+    exact Hb,
+    rewrite [H1, H2]
+  end
+
+theorem subst_into_div [s : has_div A] (a₁ b₁ a₂ b₂ v : A) (H : a₁ / b₁ = v) (H1 : a₂ = a₁)
+        (H2 : b₂ = b₁) : a₂ / b₂ = v :=
+  by rewrite [H1, H2, H]
+
+end norm_num

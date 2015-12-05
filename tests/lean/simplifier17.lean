@@ -1,4 +1,4 @@
-import algebra.ring algebra.numeral
+import algebra.ring
 open algebra
 universe l
 constants (A : Type.{l}) (s : comm_ring A) (x : A)

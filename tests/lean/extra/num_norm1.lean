@@ -1,6 +1,5 @@
-import algebra.numeral data.real
+import data.real
 open algebra real
-
 
 /-
 variable {A : Type}

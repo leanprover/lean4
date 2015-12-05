@@ -1,5 +1,5 @@
 -- Nested fusion
-import algebra.ring algebra.numeral
+import algebra.ring
 open algebra
 
 universe l

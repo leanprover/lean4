@@ -715,3 +715,32 @@ end
 /- TODO: Multiplication and one, starting with mult_right_le_one_le. -/
 
 end algebra
+
+namespace norm_num
+open algebra
+variable {A : Type}
+
+theorem pos_bit0_helper [s : linear_ordered_semiring A] (a : A) (H : a > 0) : bit0 a > 0 :=
+  by rewrite ↑bit0; apply add_pos H H
+
+theorem nonneg_bit0_helper [s : linear_ordered_semiring A] (a : A) (H : a ≥ 0) : bit0 a ≥ 0 :=
+  by rewrite ↑bit0; apply add_nonneg H H
+
+theorem pos_bit1_helper [s : linear_ordered_semiring A] (a : A) (H : a ≥ 0) : bit1 a > 0 :=
+  begin
+    rewrite ↑bit1,
+    apply add_pos_of_nonneg_of_pos,
+    apply nonneg_bit0_helper _ H,
+    apply zero_lt_one
+  end
+
+theorem nonneg_bit1_helper [s : linear_ordered_semiring A] (a : A) (H : a ≥ 0) : bit1 a ≥ 0 :=
+  by apply le_of_lt; apply pos_bit1_helper _ H
+
+theorem nonzero_of_pos_helper [s : linear_ordered_semiring A] (a : A) (H : a > 0) : a ≠ 0 :=
+  ne_of_gt H
+
+theorem nonzero_of_neg_helper [s : linear_ordered_ring A] (a : A) (H : a ≠ 0) : -a ≠ 0 :=
+  begin intro Ha, apply H, apply eq_of_neg_eq_neg, rewrite neg_zero, exact Ha end
+
+end norm_num

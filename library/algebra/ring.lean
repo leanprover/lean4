@@ -406,6 +406,90 @@ end
 
 end algebra
 
+namespace norm_num
+open algebra
+variables {A : Type}
+
+theorem mul_zero [s : mul_zero_class A] (a : A) : a * zero = zero :=
+  by rewrite [↑zero, mul_zero]
+
+theorem zero_mul [s : mul_zero_class A] (a : A) : zero * a = zero :=
+  by rewrite [↑zero, zero_mul]
+
+theorem mul_one [s : monoid A] (a : A) : a * one = a :=
+  by rewrite [↑one, mul_one]
+
+theorem mul_bit0 [s : distrib A] (a b : A) : a * (bit0 b) = bit0 (a * b) :=
+  by rewrite [↑bit0, left_distrib]
+
+theorem mul_bit0_helper [s : distrib A] (a b t : A) (H : a * b = t) : a * (bit0 b) = bit0 t :=
+  by rewrite -H; apply mul_bit0
+
+theorem mul_bit1 [s : semiring A] (a b : A) : a * (bit1 b) = bit0 (a * b) + a :=
+  by rewrite [↑bit1, ↑bit0, +left_distrib, ↑one, mul_one]
+
+theorem mul_bit1_helper [s : semiring A] (a b s t : A) (Hs : a * b = s) (Ht : bit0 s + a  = t) :
+        a * (bit1 b) = t :=
+  begin rewrite [-Ht, -Hs, mul_bit1] end
+
+theorem subst_into_prod [s : has_mul A] (l r tl tr t : A) (prl : l = tl) (prr : r = tr)
+        (prt : tl * tr = t) :
+        l * r = t :=
+   by rewrite [prl, prr, prt]
+
+theorem mk_cong (op : A → A) (a b : A) (H : a = b) : op a = op b :=
+  by congruence; exact H
+
+theorem mk_eq (a : A) : a = a := rfl
+
+theorem neg_add_neg_eq_of_add_add_eq_zero [s : add_comm_group A] (a b c : A) (H : c + a + b = 0) :
+        -a + -b = c :=
+  begin
+    apply add_neg_eq_of_eq_add,
+    apply neg_eq_of_add_eq_zero,
+    rewrite [add.comm, add.assoc, add.comm b, -add.assoc, H]
+  end
+
+theorem neg_add_neg_helper [s : add_comm_group A] (a b c : A) (H : a + b = c) : -a + -b = -c :=
+  begin apply iff.mp !neg_eq_neg_iff_eq, rewrite [neg_add, *neg_neg, H] end
+
+theorem neg_add_pos_eq_of_eq_add [s : add_comm_group A] (a b c : A) (H : b = c + a) : -a + b = c :=
+  begin apply neg_add_eq_of_eq_add, rewrite add.comm, exact H end
+
+theorem neg_add_pos_helper1 [s : add_comm_group A] (a b c : A) (H : b + c = a) : -a + b = -c :=
+  begin apply neg_add_eq_of_eq_add, apply eq_add_neg_of_add_eq H end
+
+theorem neg_add_pos_helper2 [s : add_comm_group A] (a b c : A) (H : a + c = b) : -a + b = c :=
+  begin apply neg_add_eq_of_eq_add, rewrite H end
+
+theorem pos_add_neg_helper [s : add_comm_group A] (a b c : A) (H : b + a = c) : a + b = c :=
+  by rewrite [add.comm, H]
+
+theorem sub_eq_add_neg_helper [s : add_comm_group A] (t₁ t₂ e w₁ w₂: A) (H₁ : t₁ = w₁)
+        (H₂ : t₂ = w₂) (H : w₁ + -w₂ = e) : t₁ - t₂ = e :=
+  by rewrite [sub_eq_add_neg, H₁, H₂, H]
+
+theorem pos_add_pos_helper [s : add_comm_group A] (a b c h₁ h₂ : A) (H₁ : a = h₁) (H₂ : b = h₂)
+        (H : h₁ + h₂ = c) : a + b = c :=
+  by rewrite [H₁, H₂, H]
+
+theorem subst_into_subtr [s : add_group A] (l r t : A) (prt : l + -r = t) : l - r = t :=
+   by rewrite [sub_eq_add_neg, prt]
+
+theorem neg_neg_helper [s : add_group A] (a b : A) (H : a = -b) : -a = b :=
+  by rewrite [H, neg_neg]
+
+theorem neg_mul_neg_helper [s : ring A] (a b c : A) (H : a * b = c) : (-a) * (-b) = c :=
+  begin rewrite [neg_mul_neg, H] end
+
+theorem neg_mul_pos_helper [s : ring A] (a b c : A) (H : a * b = c) : (-a) * b = -c :=
+  begin rewrite [-neg_mul_eq_neg_mul, H] end
+
+theorem pos_mul_neg_helper [s : ring A] (a b c : A) (H : a * b = c) : a * (-b) = -c :=
+  begin rewrite [-neg_mul_comm, -neg_mul_eq_neg_mul, H] end
+
+end norm_num
+
 namespace simplifier
 
 namespace unit

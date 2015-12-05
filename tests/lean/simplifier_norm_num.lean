@@ -1,4 +1,4 @@
-import algebra.ring algebra.numeral
+import algebra.ring
 open algebra
 
 set_option simplify.max_steps 5000000

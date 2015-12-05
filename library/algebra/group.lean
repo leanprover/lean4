@@ -690,29 +690,15 @@ theorem neg_zero_helper [s : add_group A] (a : A) (H : a = 0) : - a = 0 :=
 
 end norm_num
 
-namespace simplifier
+attribute [simp]
+  algebra.zero_add algebra.add_zero algebra.one_mul algebra.mul_one
+  at simplifier.unit
 
-namespace unit
-attribute algebra.zero_add [simp]
-attribute algebra.add_zero [simp]
+attribute [simp]
+  algebra.neg_neg algebra.sub_eq_add_neg
+  at simplifier.neg
 
-attribute algebra.one_mul [simp]
-attribute algebra.mul_one [simp]
-end unit
-
-namespace neg
-attribute algebra.neg_neg [simp]
-attribute algebra.sub_eq_add_neg [simp]
-end neg
-
-namespace ac
-attribute algebra.add.assoc [simp]
-attribute algebra.add.comm [simp]
-attribute algebra.add.left_comm [simp]
-
-attribute algebra.mul.left_comm [simp]
-attribute algebra.mul.comm [simp]
-attribute algebra.mul.assoc [simp]
-end ac
-
-end simplifier
+attribute [simp]
+  algebra.add.assoc algebra.add.comm algebra.add.left_comm
+  algebra.mul.left_comm algebra.mul.comm algebra.mul.assoc
+  at simplifier.ac

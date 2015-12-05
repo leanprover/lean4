@@ -490,21 +490,14 @@ theorem pos_mul_neg_helper [s : ring A] (a b c : A) (H : a * b = c) : a * (-b) =
 
 end norm_num
 
-namespace simplifier
+attribute [simp]
+  algebra.zero_mul algebra.mul_zero
+  at simplifier.unit
 
-namespace unit
-attribute algebra.zero_mul [simp]
-attribute algebra.mul_zero [simp]
-end unit
+attribute [simp]
+  algebra.neg_mul_eq_neg_mul_symm algebra.mul_neg_eq_neg_mul_symm
+  at simplifier.neg
 
-namespace neg
-attribute algebra.neg_mul_eq_neg_mul_symm [simp]
-attribute algebra.mul_neg_eq_neg_mul_symm [simp]
-end neg
-
-namespace distrib
-attribute algebra.left_distrib [simp]
-attribute algebra.right_distrib [simp]
-end distrib
-
-end simplifier
+attribute [simp]
+  algebra.left_distrib algebra.right_distrib
+  at simplifier.distrib

@@ -1252,14 +1252,20 @@ static environment omit_cmd(parser & p) {
 
 static environment attribute_cmd_core(parser & p, bool persistent) {
     buffer<name> ds;
+    bool abbrev       = false;
+    decl_attributes attributes(abbrev, persistent);
+    bool parsed_attrs = false;
+    if (!p.curr_is_identifier()) {
+        attributes.parse(p);
+        parsed_attrs  = true;
+    }
     name d          = p.check_constant_next("invalid 'attribute' command, constant expected");
     ds.push_back(d);
     while (p.curr_is_identifier()) {
         ds.push_back(p.check_constant_next("invalid 'attribute' command, constant expected"));
     }
-    bool abbrev     = false;
-    decl_attributes attributes(abbrev, persistent);
-    attributes.parse(p);
+    if (!parsed_attrs)
+        attributes.parse(p);
     name ns = get_namespace(p.env());
     if (p.curr_is_token(get_at_tk())) {
         if (!persistent)

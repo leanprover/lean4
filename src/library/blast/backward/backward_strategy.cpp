@@ -49,7 +49,7 @@ static backward_branch_extension & get_extension() {
 }
 
 /** \brief Basic backwards chaining, inspired by Coq's [auto]. */
-class backward_strategy : public strategy {
+class backward_strategy_fn : public strategy_fn {
     virtual optional<expr> preprocess() override { return none_expr(); }
 
     virtual action_result hypothesis_pre_activation(hypothesis_idx hidx) override {
@@ -75,10 +75,13 @@ class backward_strategy : public strategy {
     }
 };
 
-optional<expr> apply_backward_strategy() {
+strategy mk_backward_strategy() {
     if (!get_config().m_backward)
-        return none_expr();
-    flet<bool> disable_show_failure(get_config().m_show_failure, false);
-    return backward_strategy()();
+        return []() { return none_expr(); };
+    else
+        return []() {
+            flet<bool> disable_show_failure(get_config().m_show_failure, false);
+            return backward_strategy_fn()();
+        };
 }
 }}

@@ -13,9 +13,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
-strategy::strategy() {}
+strategy_fn::strategy_fn() {}
 
-action_result strategy::activate_hypothesis(bool preprocess) {
+action_result strategy_fn::activate_hypothesis(bool preprocess) {
     scope_trace scope(!preprocess && get_config().m_trace);
     auto hidx = curr_state().select_hypothesis_to_activate();
     if (!hidx) return action_result::failed();
@@ -28,7 +28,7 @@ action_result strategy::activate_hypothesis(bool preprocess) {
     }
 }
 
-action_result strategy::next_branch(expr pr) {
+action_result strategy_fn::next_branch(expr pr) {
     while (curr_state().has_proof_steps()) {
         proof_step s     = curr_state().top_proof_step();
         action_result r  = s.resolve(unfold_hypotheses_ge(curr_state(), pr));
@@ -47,7 +47,7 @@ action_result strategy::next_branch(expr pr) {
     return action_result::solved(pr);
 }
 
-optional<expr> strategy::search_upto(unsigned depth) {
+optional<expr> strategy_fn::search_upto(unsigned depth) {
     if (is_trace_enabled()) {
         ios().get_diagnostic_channel() << "* Search upto depth " << depth << "\n\n";
     }
@@ -88,7 +88,7 @@ optional<expr> strategy::search_upto(unsigned depth) {
     }
 }
 
-optional<expr> strategy::invoke_preprocess() {
+optional<expr> strategy_fn::invoke_preprocess() {
     if (auto pr = preprocess()) {
         auto r = next_branch(*pr);
         if (!solved(r)) {
@@ -101,7 +101,7 @@ optional<expr> strategy::invoke_preprocess() {
     }
 }
 
-optional<expr> strategy::search() {
+optional<expr> strategy_fn::init_search() {
     scope_choice_points scope1;
     curr_state().clear_proof_steps();
     m_init_num_choices = get_num_choice_points();
@@ -109,6 +109,10 @@ optional<expr> strategy::search() {
         return pr;
     if (get_num_choice_points() > m_init_num_choices)
         throw exception("invalid blast preprocessing action, preprocessing actions should not create choice points");
+    return none_expr();
+}
+
+optional<expr> strategy_fn::iterative_deepening() {
     state s    = curr_state();
     unsigned d = get_config().m_init_depth;
     while (true) {
@@ -123,5 +127,11 @@ optional<expr> strategy::search() {
         curr_state() = s;
         shrink_choice_points(m_init_num_choices);
     }
+}
+
+optional<expr> strategy_fn::search() {
+    if (auto r = init_search())
+        return r;
+    return iterative_deepening();
 }
 }}

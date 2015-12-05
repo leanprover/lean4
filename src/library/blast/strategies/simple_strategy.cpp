@@ -28,7 +28,7 @@ namespace lean {
 namespace blast {
 /** \brief Implement a simple proof strategy for blast.
     We use it mainly for testing new actions and the whole blast infra-structure. */
-class simple_strategy : public strategy {
+class simple_strategy_fn : public strategy_fn {
     action_result hypothesis_pre_activation(hypothesis_idx hidx) override {
         Try(assumption_contradiction_actions(hidx));
         Try(simplify_hypothesis_action(hidx));
@@ -72,7 +72,7 @@ class simple_strategy : public strategy {
         Try(constructor_action());
         Try(ematch_action());
         Try(by_contradiction_action());
-        TryStrategy(apply_backward_strategy());
+        TryStrategy(mk_backward_strategy());
         Try(qfc_action(list<gexpr>()));
 
         // TODO(Leo): add more actions...
@@ -81,7 +81,7 @@ class simple_strategy : public strategy {
     }
 };
 
-optional<expr> apply_simple_strategy() {
-    return simple_strategy()();
+strategy mk_simple_strategy() {
+    return []() { return simple_strategy_fn()(); };
 }
 }}

@@ -531,7 +531,7 @@ public:
 
     optional<expr> operator()(goal const & g) {
         init_state(g);
-        if (auto r = apply_simple_strategy()) {
+        if (auto r = mk_simple_strategy()()) {
             return some_expr(to_tactic_proof(*r));
         } else {
             return none_expr();

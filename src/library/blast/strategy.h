@@ -18,27 +18,32 @@ namespace blast {
     1- Preprocessing (preprocess method)
     2- Next action to be performed (next_action method)
  */
-class strategy {
+class strategy_fn {
     unsigned m_init_num_choices;
     optional<expr> invoke_preprocess();
 protected:
     virtual optional<expr> preprocess() = 0;
     virtual action_result next_action() = 0;
+
     virtual action_result hypothesis_pre_activation(hypothesis_idx hidx) = 0;
     virtual action_result hypothesis_post_activation(hypothesis_idx hidx) = 0;
-
     action_result activate_hypothesis(bool preprocess = false);
+
     action_result next_branch(expr pr);
     optional<expr> search_upto(unsigned depth);
-    optional<expr> search();
+    optional<expr> init_search();
+    optional<expr> iterative_deepening();
+    virtual optional<expr> search();
 public:
-    strategy();
+    strategy_fn();
     optional<expr> operator()() { return search(); }
 };
 
-#define TryStrategy(Code) {\
+#define TryStrategy(S) {\
         flet<state> save_state(curr_state(), curr_state());\
         curr_state().clear_proof_steps();\
-        if (optional<expr> pf = Code) { return action_result::solved(*pf); }\
+        if (optional<expr> pf = S()) { return action_result::solved(*pf); } \
     }
+
+typedef std::function<optional<expr>()> strategy;
 }}

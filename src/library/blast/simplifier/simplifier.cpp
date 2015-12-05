@@ -1,7 +1,7 @@
 /*
-  Copyright (c) 2015 Daniel Selsam. All rights reserved.
-  Released under Apache 2.0 license as described in the file LICENSE.
-  Author: Daniel Selsam
+Copyright (c) 2015 Daniel Selsam. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Author: Daniel Selsam
 */
 #include "kernel/abstract.h"
 #include "kernel/expr_maps.h"
@@ -60,10 +60,11 @@ using simp::result;
 
 /* Names */
 
-static name * g_simplify_empty_namespace     = nullptr;
+static name * g_simplify_prove_namespace     = nullptr;
+static name * g_simplify_neg_namespace       = nullptr;
 static name * g_simplify_unit_namespace      = nullptr;
 static name * g_simplify_ac_namespace        = nullptr;
-static name * g_simplify_som_namespace       = nullptr;
+static name * g_simplify_distrib_namespace   = nullptr;
 static name * g_simplify_numeral_namespace   = nullptr;
 
 /* Options */
@@ -980,7 +981,9 @@ result simplifier::fuse(expr const & e) {
     /* Prove (1) == (3) using simplify with [ac] */
     flet<bool> no_simplify_numerals(m_numerals, false);
     auto pf_1_3 = prove(get_app_builder().mk_eq(e, e_grp),
-                        get_simp_rule_sets(env(), ios(), *g_simplify_ac_namespace));
+                        get_simp_rule_sets(env(), ios(),
+                                           {*g_simplify_prove_namespace, *g_simplify_unit_namespace,
+                                                   *g_simplify_neg_namespace, *g_simplify_ac_namespace}));
     if (!pf_1_3) {
         diagnostic(env(), ios()) << e << "\n\n =?=\n\n" << e_grp << "\n";
         throw blast_exception("Failed to prove (1) == (3) during fusion", e);
@@ -988,7 +991,10 @@ result simplifier::fuse(expr const & e) {
 
     /* Prove (4) == (5) using simplify with [som] */
     auto pf_4_5 = prove(get_app_builder().mk_eq(e_grp_ls, e_fused_ls),
-                        get_simp_rule_sets(env(), ios(), *g_simplify_som_namespace));
+                        get_simp_rule_sets(env(), ios(),
+                                           {*g_simplify_prove_namespace, *g_simplify_unit_namespace,
+                                                   *g_simplify_neg_namespace, *g_simplify_ac_namespace,
+                                                   *g_simplify_distrib_namespace}));
     if (!pf_4_5) {
         diagnostic(env(), ios()) << e_grp_ls << "\n\n =?=\n\n" << e_fused_ls << "\n";
         throw blast_exception("Failed to prove (4) == (5) during fusion", e);
@@ -996,7 +1002,9 @@ result simplifier::fuse(expr const & e) {
 
     /* Prove (5) == (6) using simplify with [numeral] */
     flet<bool> simplify_numerals(m_numerals, true);
-    result r_simp_ls = simplify(e_fused_ls, get_simp_rule_sets(env(), ios(), *g_simplify_ac_namespace));
+    result r_simp_ls = simplify(e_fused_ls, get_simp_rule_sets(env(), ios(),
+                                                               {*g_simplify_unit_namespace, *g_simplify_neg_namespace,
+                                                                       *g_simplify_ac_namespace}));
 
     /* Prove (4) == (6) by transitivity of proofs (2) and (3) */
     expr pf_4_6;
@@ -1049,10 +1057,11 @@ expr_pair simplifier::split_summand(expr const & e, expr const & f_mul, expr con
 /* Setup and teardown */
 
 void initialize_simplifier() {
-    g_simplify_empty_namespace     = new name{"simplifier", "empty"};
+    g_simplify_prove_namespace     = new name{"simplifier", "prove"};
+    g_simplify_neg_namespace       = new name{"simplifier", "neg"};
     g_simplify_unit_namespace      = new name{"simplifier", "unit"};
     g_simplify_ac_namespace        = new name{"simplifier", "ac"};
-    g_simplify_som_namespace       = new name{"simplifier", "som"};
+    g_simplify_distrib_namespace   = new name{"simplifier", "distrib"};
     g_simplify_numeral_namespace   = new name{"simplifier", "numeral"};
 
     g_simplify_max_steps     = new name{"simplify", "max_steps"};
@@ -1097,10 +1106,11 @@ void finalize_simplifier() {
     delete g_simplify_max_steps;
 
     delete g_simplify_numeral_namespace;
-    delete g_simplify_som_namespace;
+    delete g_simplify_distrib_namespace;
     delete g_simplify_ac_namespace;
     delete g_simplify_unit_namespace;
-    delete g_simplify_empty_namespace;
+    delete g_simplify_neg_namespace;
+    delete g_simplify_prove_namespace;
 }
 
 /* Entry points */

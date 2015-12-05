@@ -1,5 +1,5 @@
 -- normalizing reducible non-subsingleton instances
-import algebra.simplifier
+import algebra.ring
 open algebra
 
 universe l

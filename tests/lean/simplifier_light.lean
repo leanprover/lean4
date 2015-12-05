@@ -1,8 +1,8 @@
 -- Test [light] annotation
 -- Remark: it will take some additional work to get ⁻¹ to rewrite well
 -- when there is a proof obligation.
-import algebra.simplifier algebra.field data.set data.finset
-open algebra simplifier.ac
+import algebra.ring algebra.field data.set data.finset
+open algebra
 attribute neg [light 2]
 attribute inv [light 2]
 
@@ -11,6 +11,8 @@ attribute add_neg_cancel_left [simp]
 
 attribute mul.right_inv [simp]
 attribute mul_inv_cancel_left [simp]
+
+open simplifier.unit simplifier.ac
 
 namespace ag
 universe l

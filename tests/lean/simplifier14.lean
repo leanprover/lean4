@@ -1,5 +1,5 @@
 -- Basic fusion
-import algebra.simplifier
+import algebra.ring algebra.numeral
 open algebra
 
 universe l
@@ -9,19 +9,21 @@ attribute s [instance]
 set_option simplify.max_steps 50000
 set_option simplify.fuse true
 
-#simplify eq simplifier.som 0 x1
-#simplify eq simplifier.som 0 x1 + x1
-#simplify eq simplifier.som 0 (x1 + x1) + x1
-#simplify eq simplifier.som 0 (x1 + x1) + (x1 + x1)
-#simplify eq simplifier.som 0 x1 + x1 + x1 + x1
-#simplify eq simplifier.som 0 x1 + x1 + (x1 + x1) + x1
-#simplify eq simplifier.som 0 x1 - x1
-#simplify eq simplifier.som 0 (x1 - x1) + x1
-#simplify eq simplifier.som 0 (x1 + x1) - (x1 + x1)
-#simplify eq simplifier.som 0 x1 + x1 - x1 - x1
-#simplify eq simplifier.som 0 x1 + x1 + (x1 + x1) + x1
-#simplify eq simplifier.som 0 (x1 - x2) + x2 - x1
-#simplify eq simplifier.som 0 (x1 + x1 + x2 + x1) - 2* x2 + 1 * x2 - 3 * x1
-#simplify eq simplifier.som 0 x2 + x1 - x2 - - x1
-#simplify eq simplifier.som 0 (x1 - 2 * x3 * x2) + x2 * x3 * 3 - 1 * 0 * x1 * x2
-#simplify eq simplifier.som 0 x2 + x1 - x2 - (- x1)
+open simplifier.unit simplifier.ac simplifier.neg
+
+#simplify eq env 0 x1
+#simplify eq env 0 x1 + x1
+#simplify eq env 0 (x1 + x1) + x1
+#simplify eq env 0 (x1 + x1) + (x1 + x1)
+#simplify eq env 0 x1 + x1 + x1 + x1
+#simplify eq env 0 x1 + x1 + (x1 + x1) + x1
+#simplify eq env 0 x1 - x1
+#simplify eq env 0 (x1 - x1) + x1
+#simplify eq env 0 (x1 + x1) - (x1 + x1)
+#simplify eq env 0 x1 + x1 - x1 - x1
+#simplify eq env 0 x1 + x1 + (x1 + x1) + x1
+#simplify eq env 0 (x1 - x2) + x2 - x1
+#simplify eq env 0 (x1 + x1 + x2 + x1) - 2* x2 + 1 * x2 - 3 * x1
+#simplify eq env 0 x2 + x1 - x2 - - x1
+#simplify eq env 0 (x1 - 2 * x3 * x2) + x2 * x3 * 3 - 1 * 0 * x1 * x2
+#simplify eq env 0 x2 + x1 - x2 - (- x1)

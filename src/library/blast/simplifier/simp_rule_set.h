@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "library/tmp_type_context.h"
 #include "library/head_map.h"
 #include "library/io_state_stream.h"
-#include <vector>
 
 #ifndef LEAN_SIMP_DEFAULT_PRIORITY
 #define LEAN_SIMP_DEFAULT_PRIORITY 1000
@@ -146,6 +145,8 @@ bool is_congr_rule(environment const & env, name const & n);
 simp_rule_sets get_simp_rule_sets(environment const & env);
 /** \brief Get simplification rule sets in the given namespace. */
 simp_rule_sets get_simp_rule_sets(environment const & env, io_state const & ios, name const & ns);
+/** \brief Get simplification rule sets in the given namespaces. */
+simp_rule_sets get_simp_rule_sets(environment const & env, io_state const & ios, std::initializer_list<name> const & nss);
 
 io_state_stream const & operator<<(io_state_stream const & out, simp_rule_sets const & s);
 

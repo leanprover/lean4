@@ -556,6 +556,20 @@ simp_rule_sets get_simp_rule_sets(environment const & env, io_state const & ios,
     return set;
 }
 
+simp_rule_sets get_simp_rule_sets(environment const & env, io_state const & ios, std::initializer_list<name> const & nss) {
+    simp_rule_sets set;
+    for (name const & ns : nss) {
+        list<rrs_entry> const * entries = rrs_ext::get_entries(env, ns);
+        if (entries) {
+            for (auto const & e : *entries) {
+                tmp_type_context tctx(env, ios);
+                set = add_core(tctx, set, e.m_name, e.m_priority);
+            }
+        }
+    }
+    return set;
+}
+
 io_state_stream const & operator<<(io_state_stream const & out, simp_rule_sets const & s) {
     options const & opts = out.get_options();
     out.get_stream() << mk_pair(s.pp(out.get_formatter()), opts);

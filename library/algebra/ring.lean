@@ -195,6 +195,9 @@ section
        rewrite [-left_distrib, add.right_inv, mul_zero]
      end
 
+  theorem neg_mul_eq_neg_mul_symm : - a * b = - (a * b) := eq.symm !algebra.neg_mul_eq_neg_mul
+  theorem neg_mul_eq_mul_neg_symm : a * - b = - (a * b) := eq.symm !algebra.neg_mul_eq_mul_neg
+
   theorem neg_mul_neg : -a * -b = a * b :=
   calc
      -a * -b = -(a * -b) : by rewrite -neg_mul_eq_neg_mul
@@ -402,3 +405,22 @@ section
 end
 
 end algebra
+
+namespace simplifier
+
+namespace unit
+attribute algebra.zero_mul [simp]
+attribute algebra.mul_zero [simp]
+end unit
+
+namespace neg
+attribute algebra.neg_mul_eq_neg_mul_symm [simp]
+attribute algebra.neg_mul_eq_mul_neg_symm [simp]
+end neg
+
+namespace distrib
+attribute algebra.left_distrib [simp]
+attribute algebra.right_distrib [simp]
+end distrib
+
+end simplifier

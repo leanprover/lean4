@@ -1,5 +1,5 @@
 -- Nested fusion
-import algebra.simplifier
+import algebra.ring algebra.numeral
 open algebra
 
 universe l
@@ -9,4 +9,6 @@ attribute s [instance]
 set_option simplify.max_steps 50000
 set_option simplify.fuse true
 
-#simplify eq simplifier.som 0 f (x1 * x2 * 3 * 4 - 4 * 3 * x1 * x2) + g (x1 * x2 * 3 * 4 - 4 * 3 * x1 * x2)
+open simplifier.unit simplifier.ac simplifier.neg
+
+#simplify eq env 0 f (x1 * x2 * 3 * 4 - 4 * 3 * x1 * x2) + g (x1 * x2 * 3 * 4 - 4 * 3 * x1 * x2)

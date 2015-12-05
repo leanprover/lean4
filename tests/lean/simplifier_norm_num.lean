@@ -1,9 +1,10 @@
-import algebra.simplifier
+import algebra.ring algebra.numeral
 open algebra
 
-open simplifier.numeral
-
 set_option simplify.max_steps 5000000
+-- TODO(dhs): we need to create the simplifier.numeral namespace incrementally.
+-- Once it exists, we can uncomment the following line to use it simplify.
+set_option simplify.numerals true
 universe l
 constants (A : Type.{l}) (A_comm_ring : comm_ring A)
 attribute A_comm_ring [instance]
@@ -54,5 +55,4 @@ attribute A_comm_ring [instance]
 
 #simplify eq env 0 (0 + 45343453:A) * (53653343 + 1) * (53453 + 2) + (0 + 1 + 2 + 2200000000034733)
 
--- The following test is too slow
--- #simplify eq 0 (23000000000343434534345316:A) * (53653343563534534 + 5367536453653573573453) * 53453756475777536 + 2200000000034733531531531534536
+#simplify eq env 0 (23000000000343434534345316:A) * (53653343563534534 + 5367536453653573573453) * 53453756475777536 + 2200000000034733531531531534536

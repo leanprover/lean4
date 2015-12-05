@@ -8,6 +8,13 @@ import init.logic
 
 namespace simplifier
 
+namespace empty
+end empty
+
+namespace prove
+attribute eq_self_iff_true [simp]
+end prove
+
 namespace unit_simp
 open eq.ops
 

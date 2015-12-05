@@ -580,3 +580,30 @@ definition group_of_add_group (A : Type) [G : add_group A] : group A :=
   mul_left_inv    := add.left_inv⦄
 
 end algebra
+
+namespace simplifier
+
+namespace unit
+attribute algebra.zero_add [simp]
+attribute algebra.add_zero [simp]
+
+attribute algebra.one_mul [simp]
+attribute algebra.mul_one [simp]
+end unit
+
+namespace neg
+attribute algebra.neg_neg [simp]
+attribute algebra.sub_eq_add_neg [simp]
+end neg
+
+namespace ac
+attribute algebra.add.assoc [simp]
+attribute algebra.add.comm [simp]
+attribute algebra.add.left_comm [simp]
+
+attribute algebra.mul.left_comm [simp]
+attribute algebra.mul.comm [simp]
+attribute algebra.mul.assoc [simp]
+end ac
+
+end simplifier

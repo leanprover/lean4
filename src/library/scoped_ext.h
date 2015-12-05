@@ -309,7 +309,7 @@ public:
                 return update(env, get(env)._add_entry(env, ios, e));
             }
         } else {
-            lean_assert(!persistent);
+            lean_assert(persistent);
             // add entry in a namespace that is not the current one
             env = module::add(env, get_serialization_key(), [=](environment const &, serializer & s) {
                     s << n;

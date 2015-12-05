@@ -3,6 +3,7 @@ Copyright (c) 2015 Daniel Selsam. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Daniel Selsam
 */
+#include "util/interrupt.h"
 #include "kernel/abstract.h"
 #include "kernel/expr_maps.h"
 #include "kernel/instantiate.h"
@@ -370,6 +371,7 @@ result simplifier::simplify(expr const & e, simp_rule_sets const & srss) {
 }
 
 result simplifier::simplify(expr const & e, bool is_root) {
+    check_system("simplifier");
     m_num_steps++;
     flet<unsigned> inc_depth(m_depth, m_depth+1);
 

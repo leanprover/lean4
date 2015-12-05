@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
+#include "util/interrupt.h"
 #include "library/constants.h"
 #include "library/idx_metavar.h"
 #include "library/head_map.h"
@@ -313,6 +314,7 @@ struct ematch_fn {
 
     void search(hi_lemma const & lemma) {
         while (true) {
+            check_system("ematching");
             if (is_done()) {
                 instantiate(lemma);
                 if (!backtrack())

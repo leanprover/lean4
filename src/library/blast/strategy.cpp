@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/interrupt.h"
 #include "library/blast/strategy.h"
 #include "library/blast/choice_point.h"
 #include "library/blast/blast.h"
@@ -54,6 +55,7 @@ optional<expr> strategy::search_upto(unsigned depth) {
     action_result r = next_action();
     trace_curr_state_if(r);
     while (true) {
+        check_system("blast");
         lean_assert(curr_state().check_invariant());
         if (curr_state().get_proof_depth() > depth) {
             trace(">>> maximum search depth reached <<<");

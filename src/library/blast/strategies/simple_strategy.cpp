@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/blast/actions/intros_action.h"
 #include "library/blast/actions/subst_action.h"
 #include "library/blast/actions/recursor_action.h"
+#include "library/blast/actions/by_contradiction_action.h"
 #include "library/blast/actions/assert_cc_action.h"
 #include "library/blast/actions/no_confusion_action.h"
 
@@ -70,6 +71,7 @@ class simple_strategy : public strategy {
         Try(recursor_action());
         Try(constructor_action());
         Try(ematch_action());
+        Try(by_contradiction_action());
         TryStrategy(apply_backward_strategy());
         Try(qfc_action(list<gexpr>()));
 

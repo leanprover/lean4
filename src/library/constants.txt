@@ -19,6 +19,7 @@ congr
 congr_arg
 congr_fun
 decidable
+decidable.by_contradiction
 dite
 div
 empty

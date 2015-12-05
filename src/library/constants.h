@@ -26,6 +26,7 @@ name const & get_congr_name();
 name const & get_congr_arg_name();
 name const & get_congr_fun_name();
 name const & get_decidable_name();
+name const & get_decidable_by_contradiction_name();
 name const & get_dite_name();
 name const & get_div_name();
 name const & get_empty_name();

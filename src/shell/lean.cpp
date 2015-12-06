@@ -125,6 +125,9 @@ static void display_help(std::ostream & out) {
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
 #endif
+    DEBUG_CODE(
+    std::cout << "  --debug=tag       enable assertions with the given tag\n";
+        )
     std::cout << "  -D name=value     set a configuration option (see set_option command)\n";
     std::cout << "  --dir=directory   display information about identifier or token in the given posivition\n";
     std::cout << "Frontend query interface:\n";
@@ -188,10 +191,14 @@ static struct option g_long_options[] = {
     {"hole",         no_argument,       0, 'Z'},
     {"info",         no_argument,       0, 'I'},
     {"dir",          required_argument, 0, 'T'},
+#ifdef LEAN_DEBUG
+    {"debug",        required_argument, 0, 'B'},
+#endif
+    {"dir",          required_argument, 0, 'T'},
     {0, 0, 0, 0}
 };
 
-#define OPT_STR "PHRXFdD:qrlupgvhk:012t:012o:E:c:i:L:012O:012GZAIT:"
+#define OPT_STR "PHRXFdD:qrlupgvhk:012t:012o:E:c:i:L:012O:012GZAIT:B:"
 
 #if defined(LEAN_TRACK_MEMORY)
 #define OPT_STR2 OPT_STR "M:012"
@@ -381,6 +388,11 @@ int main(int argc, char ** argv) {
         case 'E':
             export_txt = std::string(optarg);
             break;
+#ifdef LEAN_DEBUG
+        case 'B':
+            lean::enable_debug(optarg);
+            break;
+#endif
         case 'A':
             export_all_txt = std::string(optarg);
             break;

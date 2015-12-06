@@ -29,7 +29,7 @@ namespace blast {
 /** \brief Implement a simple proof strategy for blast.
     We use it mainly for testing new actions and the whole blast infra-structure. */
 class simple_strategy_fn : public strategy_fn {
-    action_result hypothesis_pre_activation(hypothesis_idx hidx) override {
+    virtual action_result hypothesis_pre_activation(hypothesis_idx hidx) override {
         Try(assumption_contradiction_actions(hidx));
         Try(simplify_hypothesis_action(hidx));
         Try(unit_preprocess(hidx));
@@ -40,32 +40,15 @@ class simple_strategy_fn : public strategy_fn {
         return action_result::new_branch();
     }
 
-    action_result hypothesis_post_activation(hypothesis_idx hidx) override {
+    virtual action_result hypothesis_post_activation(hypothesis_idx hidx) override {
         Try(unit_propagate(hidx));
         Try(recursor_preprocess_action(hidx));
         return action_result::new_branch();
     }
 
-    /* \brief Preprocess state
-       It keeps applying intros, activating and finally simplify target.
-       Return an expression if the goal has been proved during preprocessing step. */
-    virtual optional<expr> preprocess() override {
-        trace("* Preprocess");
-        while (true) {
-            if (!failed(intros_action()))
-                continue;
-            auto r = activate_hypothesis(true);
-            if (solved(r)) return r.to_opt_expr();
-            if (failed(r)) break;
-        }
-        TrySolveToOptExpr(assumption_action());
-        TrySolveToOptExpr(simplify_target_action());
-        return none_expr();
-    }
-
     virtual action_result next_action() override {
         Try(intros_action());
-        Try(activate_hypothesis(false));
+        Try(activate_hypothesis());
         Try(trivial_action());
         Try(assumption_action());
         Try(recursor_action());
@@ -74,9 +57,6 @@ class simple_strategy_fn : public strategy_fn {
         Try(by_contradiction_action());
         TryStrategy(mk_backward_strategy());
         Try(qfc_action(list<gexpr>()));
-
-        // TODO(Leo): add more actions...
-
         return action_result::failed();
     }
 };

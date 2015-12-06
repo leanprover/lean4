@@ -15,8 +15,7 @@ namespace lean {
 namespace blast {
 strategy_fn::strategy_fn() {}
 
-action_result strategy_fn::activate_hypothesis(bool preprocess) {
-    scope_trace scope(!preprocess && get_config().m_trace);
+action_result strategy_fn::activate_hypothesis() {
     auto hidx = curr_state().select_hypothesis_to_activate();
     if (!hidx) return action_result::failed();
     auto r    = hypothesis_pre_activation(*hidx);
@@ -29,7 +28,7 @@ action_result strategy_fn::activate_hypothesis(bool preprocess) {
 }
 
 action_result strategy_fn::next_branch(expr pr) {
-    while (curr_state().has_proof_steps()) {
+    while (m_ps_check_point.has_new_proof_steps(curr_state())) {
         proof_step s     = curr_state().top_proof_step();
         action_result r  = s.resolve(unfold_hypotheses_ge(curr_state(), pr));
         switch (r.get_kind()) {
@@ -47,9 +46,14 @@ action_result strategy_fn::next_branch(expr pr) {
     return action_result::solved(pr);
 }
 
-optional<expr> strategy_fn::search_upto(unsigned depth) {
+optional<expr> strategy_fn::search() {
+    scope_choice_points scope1;
+    m_ps_check_point          = curr_state().mk_proof_steps_check_point();
+    m_init_num_choices        = get_num_choice_points();
+    unsigned init_proof_depth = curr_state().get_proof_depth();
+    unsigned max_depth        = get_config().m_max_depth;
     if (is_trace_enabled()) {
-        ios().get_diagnostic_channel() << "* Search upto depth " << depth << "\n\n";
+        ios().get_diagnostic_channel() << "* Search upto depth " << max_depth << "\n\n";
     }
     trace_curr_state();
     action_result r = next_action();
@@ -57,7 +61,7 @@ optional<expr> strategy_fn::search_upto(unsigned depth) {
     while (true) {
         check_system("blast");
         lean_assert(curr_state().check_invariant());
-        if (curr_state().get_proof_depth() > depth) {
+        if (curr_state().get_proof_depth() > max_depth) {
             trace(">>> maximum search depth reached <<<");
             r = action_result::failed();
         }
@@ -76,7 +80,7 @@ optional<expr> strategy_fn::search_upto(unsigned depth) {
             if (r.get_kind() == action_result::Solved) {
                 // all branches have been solved
                 trace("* found proof");
-                return some_expr(r.get_proof());
+                return some_expr(unfold_hypotheses_ge(curr_state(), r.get_proof(), init_proof_depth));
             }
             trace("* next branch");
             break;
@@ -86,52 +90,5 @@ optional<expr> strategy_fn::search_upto(unsigned depth) {
         }
         trace_curr_state_if(r);
     }
-}
-
-optional<expr> strategy_fn::invoke_preprocess() {
-    if (auto pr = preprocess()) {
-        auto r = next_branch(*pr);
-        if (!solved(r)) {
-            throw exception("invalid blast preprocessing action, preprocessing actions should not create branches");
-        } else {
-                return r.to_opt_expr();
-        }
-    } else {
-        return none_expr();
-    }
-}
-
-optional<expr> strategy_fn::init_search() {
-    scope_choice_points scope1;
-    curr_state().clear_proof_steps();
-    m_init_num_choices = get_num_choice_points();
-    if (auto pr = invoke_preprocess())
-        return pr;
-    if (get_num_choice_points() > m_init_num_choices)
-        throw exception("invalid blast preprocessing action, preprocessing actions should not create choice points");
-    return none_expr();
-}
-
-optional<expr> strategy_fn::iterative_deepening() {
-    state s    = curr_state();
-    unsigned d = get_config().m_init_depth;
-    while (true) {
-        if (auto r = search_upto(d))
-            return r;
-        d += get_config().m_inc_depth;
-        if (d > get_config().m_max_depth) {
-            if (get_config().m_show_failure)
-                display_curr_state();
-            return none_expr();
-        }
-        curr_state() = s;
-        shrink_choice_points(m_init_num_choices);
-    }
-}
-
-optional<expr> strategy_fn::search() {
-    if (auto r = init_search())
-        return r;
-    return iterative_deepening();
 }
 }}

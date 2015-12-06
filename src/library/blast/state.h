@@ -355,6 +355,23 @@ public:
        Proof steps
     *************************/
 
+    /** \brief Auxiliary object for checking whether m_proof_steps has new proof_step objects since
+        the check point was created */
+    class proof_steps_check_point {
+        proof_steps m_ps;
+    public:
+        proof_steps_check_point() {}
+        proof_steps_check_point(proof_steps const & ps):m_ps(ps) {}
+        bool has_new_proof_steps(state const & s) const {
+            lean_assert(is_suffix_eqp(m_ps, s.m_proof_steps));
+            return !is_eqp(s.m_proof_steps, m_ps);
+        }
+    };
+
+    proof_steps_check_point mk_proof_steps_check_point() const {
+        return proof_steps_check_point(m_proof_steps);
+    }
+
     void push_proof_step(proof_step const & ps) {
         if (!ps.is_silent())
             m_proof_depth++;
@@ -363,10 +380,6 @@ public:
 
     void push_proof_step(proof_step_cell * cell) {
         push_proof_step(proof_step(cell));
-    }
-
-    bool has_proof_steps() const {
-        return static_cast<bool>(m_proof_steps);
     }
 
     proof_step top_proof_step() const {
@@ -384,11 +397,6 @@ public:
 
     unsigned get_proof_depth() const {
         return m_proof_depth;
-    }
-
-    void clear_proof_steps() {
-        m_proof_steps = list<proof_step>();
-        m_proof_depth = 0;
     }
 
     /************************

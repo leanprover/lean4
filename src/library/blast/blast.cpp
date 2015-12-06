@@ -30,7 +30,7 @@ Author: Leonardo de Moura
 #include "library/blast/congruence_closure.h"
 #include "library/blast/trace.h"
 #include "library/blast/options.h"
-#include "library/blast/strategies/simple_strategy.h"
+#include "library/blast/strategies/portfolio.h"
 
 namespace lean {
 namespace blast {
@@ -531,7 +531,7 @@ public:
 
     optional<expr> operator()(goal const & g) {
         init_state(g);
-        if (auto r = mk_simple_strategy()()) {
+        if (auto r = apply_strategy()) {
             return some_expr(to_tactic_proof(*r));
         } else {
             return none_expr();

@@ -50,8 +50,6 @@ static backward_branch_extension & get_extension() {
 
 /** \brief Basic backwards chaining, inspired by Coq's [auto]. */
 class backward_strategy_fn : public strategy_fn {
-    virtual optional<expr> preprocess() override { return none_expr(); }
-
     virtual action_result hypothesis_pre_activation(hypothesis_idx hidx) override {
         Try(assumption_contradiction_actions(hidx));
         Try(subst_action(hidx));

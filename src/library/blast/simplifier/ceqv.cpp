@@ -23,7 +23,7 @@ bool is_simp_relation(environment const & env, name const & n) {
 /** \brief Auxiliary functional object for creating "conditional equations" */
 class to_ceqvs_fn {
     environment const &   m_env;
-    tmp_type_context &        m_tctx;
+    tmp_type_context &    m_tctx;
 
     static list<expr_pair> mk_singleton(expr const & e, expr const & H) {
         return list<expr_pair>(mk_pair(e, H));

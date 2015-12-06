@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "library/blast/trace.h"
 #include "library/blast/options.h"
 #include "library/blast/simplifier/simplifier.h"
-#include "library/blast/actions/simple_actions.h"
+#include "library/blast/simplifier/ceqv.h"
 
 namespace lean {
 namespace blast {
@@ -120,5 +120,27 @@ action_result simplify_hypothesis_action(hypothesis_idx hidx) {
     s.mk_hypothesis(r.get_new(), new_h_proof);
     s.del_hypothesis(hidx);
     return action_result::new_branch();
+}
+
+action_result add_simp_rule_action(hypothesis_idx hidx) {
+    if (!get_config().m_simp)
+        return action_result::failed();
+    blast_tmp_type_context ctx;
+    state & s            = curr_state();
+    hypothesis const & h = s.get_hypothesis_decl(hidx);
+    list<expr_pair> ps   = to_ceqvs(*ctx, h.get_type(), h.get_self());
+    if (!ps)
+        return action_result::failed();
+    auto & ext           = get_extension();
+    bool added           = false;
+    for (auto const & p : ps) {
+        try {
+            ext.m_srss = add(*ctx, ext.m_srss, h.get_name(), p.first, p.second, LEAN_SIMP_DEFAULT_PRIORITY);
+            added      = true;
+        } catch (exception &) {
+            // TODO(Leo, Daniel): store event
+        }
+    }
+    return added ? action_result::new_branch() : action_result::failed();
 }
 }}

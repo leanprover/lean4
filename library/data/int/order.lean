@@ -8,7 +8,6 @@ and transfer the results.
 -/
 import .basic algebra.ordered_ring
 open nat
-open algebra
 open decidable
 open int eq.ops
 
@@ -234,8 +233,8 @@ protected theorem lt_of_le_of_lt  {a b c : ℤ} (Hab : a ≤ b) (Hbc : b < c) : 
     (assume Heq, int.not_le_of_gt (Heq⁻¹ ▸ Hbc) Hab))
 
 protected definition linear_ordered_comm_ring [reducible] [trans_instance] :
-    algebra.linear_ordered_comm_ring int :=
-⦃algebra.linear_ordered_comm_ring, int.integral_domain,
+    linear_ordered_comm_ring int :=
+⦃linear_ordered_comm_ring, int.integral_domain,
   le               := int.le,
   le_refl          := int.le_refl,
   le_trans         := @int.le_trans,
@@ -255,8 +254,8 @@ protected definition linear_ordered_comm_ring [reducible] [trans_instance] :
   add_lt_add_left  := @int.add_lt_add_left⦄
 
 protected definition decidable_linear_ordered_comm_ring [reducible] [instance] :
-    algebra.decidable_linear_ordered_comm_ring int :=
-⦃algebra.decidable_linear_ordered_comm_ring,
+    decidable_linear_ordered_comm_ring int :=
+⦃decidable_linear_ordered_comm_ring,
  int.linear_ordered_comm_ring,
  decidable_lt := decidable_lt⦄
 
@@ -315,13 +314,13 @@ have H1 : a + 1 ≤ b + 1, from add_one_le_of_lt H,
 le_of_add_le_add_right H1
 
 theorem sub_one_le_of_lt {a b : ℤ} (H : a ≤ b) : a - 1 < b :=
-lt_of_add_one_le (begin rewrite algebra.sub_add_cancel, exact H end)
+lt_of_add_one_le (begin rewrite sub_add_cancel, exact H end)
 
 theorem lt_of_sub_one_le {a b : ℤ} (H : a - 1 < b) : a ≤ b :=
 !sub_add_cancel ▸ add_one_le_of_lt H
 
 theorem le_sub_one_of_lt {a b : ℤ} (H : a < b) : a ≤ b - 1 :=
-le_of_lt_add_one begin rewrite algebra.sub_add_cancel, exact H end
+le_of_lt_add_one begin rewrite sub_add_cancel, exact H end
 
 theorem lt_of_le_sub_one {a b : ℤ} (H : a ≤ b - 1) : a < b :=
 !sub_add_cancel ▸ (lt_add_one_of_le H)
@@ -376,7 +375,7 @@ theorem exists_least_of_bdd {P : ℤ → Prop} [HP : decidable_pred P]
     end,
     have H' : P (b + of_nat (nat_abs (elt - b))), begin
       rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt (iff.mpr !sub_pos_iff_lt Heltb)),
-              add.comm, algebra.sub_add_cancel],
+              add.comm, sub_add_cancel],
       apply Helt
     end,
     apply and.intro,
@@ -387,13 +386,13 @@ theorem exists_least_of_bdd {P : ℤ → Prop} [HP : decidable_pred P]
     let Hzb' := lt_of_not_ge Hzb,
     let Hpos := iff.mpr !sub_pos_iff_lt Hzb',
     have Hzbk : z = b + of_nat (nat_abs (z - b)),
-      by rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos), int.add_comm, algebra.sub_add_cancel],
+      by rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos), int.add_comm, sub_add_cancel],
     have Hk : nat_abs (z - b) < least (λ n, P (b + of_nat n)) (nat.succ (nat_abs (elt - b))), begin
      let Hz' := iff.mp !lt_add_iff_sub_lt_left Hz,
      rewrite [-of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos) at Hz'],
      apply lt_of_of_nat_lt_of_nat Hz'
     end,
-    let Hk' := algebra.not_le_of_gt Hk,
+    let Hk' := not_le_of_gt Hk,
     rewrite Hzbk,
     apply λ p, mt (ge_least_of_lt _ p) Hk',
     apply nat.lt_trans Hk,
@@ -431,7 +430,7 @@ theorem exists_greatest_of_bdd {P : ℤ → Prop} [HP : decidable_pred P]
       rewrite [-of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos) at Hz'],
       apply lt_of_of_nat_lt_of_nat Hz'
     end,
-    let Hk' := algebra.not_le_of_gt Hk,
+    let Hk' := not_le_of_gt Hk,
     rewrite Hzbk,
     apply λ p, mt (ge_least_of_lt _ p) Hk',
     apply nat.lt_trans Hk,

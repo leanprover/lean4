@@ -7,10 +7,10 @@ Author : Haitao Zhang
 
 import data algebra.group algebra.group_power .finsubg .hom .perm
 
-open function algebra finset
+open function finset
 open eq.ops
 
-namespace group
+namespace group_theory
 
 section cyclic
 open nat fin list
@@ -389,4 +389,4 @@ lemma rotl_perm_order (Pex : ∃ a b : A, a ≠ b) : order (rotl_perm A (succ n)
 order_of_min_pow rotl_perm_pow_eq_one (rotl_perm_pow_ne_one Pex)
 
 end rotg
-end group
+end group_theory

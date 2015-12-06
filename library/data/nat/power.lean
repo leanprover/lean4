@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Jeremy Avigad
 The power function on the natural numbers.
 -/
 import data.nat.basic data.nat.order data.nat.div data.nat.gcd algebra.ring_power
-open algebra
 
 namespace nat
 
@@ -14,7 +13,7 @@ definition nat_has_pow_nat [instance] [reducible] [priority nat.prio] : has_pow_
 has_pow_nat.mk has_pow_nat.pow_nat
 
 theorem pow_le_pow_of_le {x y : ℕ} (i : ℕ) (H : x ≤ y) : x^i ≤ y^i :=
-algebra.pow_le_pow_of_le i !zero_le H
+pow_le_pow_of_le i !zero_le H
 
 theorem eq_zero_of_pow_eq_zero {a m : ℕ} (H : a^m = 0) : a = 0 :=
 or.elim (eq_zero_or_pos m)

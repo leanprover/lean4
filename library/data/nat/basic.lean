@@ -285,9 +285,8 @@ nat.cases_on n
              ... = succ (succ n' * m' + n') : add_succ)⁻¹
           !succ_ne_zero))
 
-open algebra
-protected definition comm_semiring [reducible] [trans_instance] : algebra.comm_semiring nat :=
-⦃algebra.comm_semiring,
+protected definition comm_semiring [reducible] [trans_instance] : comm_semiring nat :=
+⦃comm_semiring,
  add            := nat.add,
  add_assoc      := nat.add_assoc,
  zero           := nat.zero,

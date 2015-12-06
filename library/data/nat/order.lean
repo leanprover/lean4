@@ -6,7 +6,7 @@ Authors: Floris van Doorn, Leonardo de Moura, Jeremy Avigad
 The order relation on the natural numbers.
 -/
 import data.nat.basic algebra.ordered_ring
-open eq.ops algebra
+open eq.ops
 
 namespace nat
 
@@ -90,11 +90,9 @@ protected theorem mul_lt_mul_of_pos_right {n m k : ℕ} (H : n < m) (Hk : k > 0)
 
 /- nat is an instance of a linearly ordered semiring and a lattice -/
 
-open algebra
-
 protected definition decidable_linear_ordered_semiring [reducible] [trans_instance] :
-algebra.decidable_linear_ordered_semiring nat :=
-⦃ algebra.decidable_linear_ordered_semiring, nat.comm_semiring,
+decidable_linear_ordered_semiring nat :=
+⦃ decidable_linear_ordered_semiring, nat.comm_semiring,
   add_left_cancel            := @nat.add_left_cancel,
   add_right_cancel           := @nat.add_right_cancel,
   lt                         := nat.lt,
@@ -123,38 +121,38 @@ definition nat_has_dvd [reducible] [instance] [priority nat.prio] : has_dvd nat 
 has_dvd.mk has_dvd.dvd
 
 theorem add_pos_left {a : ℕ} (H : 0 < a) (b : ℕ) : 0 < a + b :=
-@algebra.add_pos_of_pos_of_nonneg _ _ a b H !zero_le
+@add_pos_of_pos_of_nonneg _ _ a b H !zero_le
 
 theorem add_pos_right {a : ℕ} (H : 0 < a) (b : ℕ) : 0 < b + a :=
 by rewrite add.comm; apply add_pos_left H b
 
 theorem add_eq_zero_iff_eq_zero_and_eq_zero {a b : ℕ} :
 a + b = 0 ↔ a = 0 ∧ b = 0 :=
-@algebra.add_eq_zero_iff_eq_zero_and_eq_zero_of_nonneg_of_nonneg _ _ a b !zero_le !zero_le
+@add_eq_zero_iff_eq_zero_and_eq_zero_of_nonneg_of_nonneg _ _ a b !zero_le !zero_le
 
 theorem le_add_of_le_left {a b c : ℕ} (H : b ≤ c) : b ≤ a + c :=
-@algebra.le_add_of_nonneg_of_le _ _ a b c !zero_le H
+@le_add_of_nonneg_of_le _ _ a b c !zero_le H
 
 theorem le_add_of_le_right {a b c : ℕ} (H : b ≤ c) : b ≤ c + a :=
-@algebra.le_add_of_le_of_nonneg _ _ a b c H !zero_le
+@le_add_of_le_of_nonneg _ _ a b c H !zero_le
 
 theorem lt_add_of_lt_left {b c : ℕ} (H : b < c) (a : ℕ) : b < a + c :=
-@algebra.lt_add_of_nonneg_of_lt _ _ a b c !zero_le H
+@lt_add_of_nonneg_of_lt _ _ a b c !zero_le H
 
 theorem lt_add_of_lt_right {b c : ℕ} (H : b < c) (a : ℕ) : b < c + a :=
-@algebra.lt_add_of_lt_of_nonneg _ _ a b c H !zero_le
+@lt_add_of_lt_of_nonneg _ _ a b c H !zero_le
 
 theorem lt_of_mul_lt_mul_left {a b c : ℕ} (H : c * a < c * b) : a < b :=
-@algebra.lt_of_mul_lt_mul_left _ _ a b c H !zero_le
+@lt_of_mul_lt_mul_left _ _ a b c H !zero_le
 
 theorem lt_of_mul_lt_mul_right {a b c : ℕ} (H : a * c < b * c) : a < b :=
-@algebra.lt_of_mul_lt_mul_right _ _ a b c H !zero_le
+@lt_of_mul_lt_mul_right _ _ a b c H !zero_le
 
 theorem pos_of_mul_pos_left {a b : ℕ} (H : 0 < a * b) : 0 < b :=
-@algebra.pos_of_mul_pos_left _ _ a b H !zero_le
+@pos_of_mul_pos_left _ _ a b H !zero_le
 
 theorem pos_of_mul_pos_right {a b : ℕ} (H : 0 < a * b) : 0 < a :=
-@algebra.pos_of_mul_pos_right _ _ a b H !zero_le
+@pos_of_mul_pos_right _ _ a b H !zero_le
 
 theorem zero_le_one : (0:nat) ≤ 1 :=
 dec_trivial

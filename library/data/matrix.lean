@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 Matrices
 -/
 import algebra.ring data.fin data.fintype
-open algebra fin nat
+open fin nat
 
 definition matrix [reducible] (A : Type) (m n : nat) := fin m → fin n → A
 
@@ -83,17 +83,17 @@ has_mul.mk matrix.mul
 infix ` × ` := mul
 infix `⬝`    := smul
 
-lemma add_zero (M : matrix A m n) : M + 0 = M :=
-matrix.ext (λ i j, !algebra.add_zero)
+protected lemma add_zero (M : matrix A m n) : M + 0 = M :=
+matrix.ext (λ i j, !add_zero)
 
-lemma zero_add (M : matrix A m n) : 0 + M = M :=
-matrix.ext (λ i j, !algebra.zero_add)
+protected lemma zero_add (M : matrix A m n) : 0 + M = M :=
+matrix.ext (λ i j, !zero_add)
 
-lemma add.comm (M : matrix A m n) (N : matrix A m n) : M + N = N + M :=
-matrix.ext (λ i j, !algebra.add.comm)
+protected lemma add.comm (M : matrix A m n) (N : matrix A m n) : M + N = N + M :=
+matrix.ext (λ i j, !add.comm)
 
-lemma add.assoc (M : matrix A m n) (N : matrix A m n) (P : matrix A m n) : (M + N) + P = M + (N + P) :=
-matrix.ext (λ i j, !algebra.add.assoc)
+protected lemma add.assoc (M : matrix A m n) (N : matrix A m n) (P : matrix A m n) : (M + N) + P = M + (N + P) :=
+matrix.ext (λ i j, !add.assoc)
 
 definition is_diagonal (M : matrix A n n) :=
 ∀ i j, i = j ∨ M[i, j] = 0

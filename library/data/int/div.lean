@@ -10,7 +10,6 @@ Following SSReflect and the SMTlib standard, we define a % b so that 0 ≤ a % b
 import data.int.order data.nat.div
 open [coercions] [reduce_hints] nat
 open [declarations] [classes] nat (succ)
-open algebra
 open eq.ops
 
 namespace int
@@ -162,7 +161,7 @@ or.elim (nat.lt_or_ge m (n * k))
     have (-[1+m] + n * k) / k = -[1+m] / k + n, from calc
       (-[1+m] + n * k) / k
             = of_nat ((k * n - (m + 1)) / k) :
-                by rewrite [add.comm, neg_succ_of_nat_eq, of_nat_div, algebra.mul.comm k n,
+                by rewrite [add.comm, neg_succ_of_nat_eq, of_nat_div, mul.comm k n,
                             of_nat_sub H3]
         ... = of_nat (n - m / k - 1)         :
                 nat.mul_sub_div_of_lt (!nat.mul_comm ▸ m_lt_nk)

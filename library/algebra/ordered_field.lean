@@ -6,8 +6,6 @@ Authors: Robert Lewis
 import algebra.ordered_ring algebra.field
 open eq eq.ops
 
-namespace algebra
-
 structure linear_ordered_field [class] (A : Type) extends linear_ordered_ring A, field A
 
 section linear_ordered_field
@@ -516,4 +514,3 @@ section discrete_linear_ordered_field
       !eq_div_of_mul_eq this !eq_sign_mul_abs⁻¹)
 
 end discrete_linear_ordered_field
-end algebra

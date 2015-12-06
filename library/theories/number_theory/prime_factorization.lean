@@ -9,12 +9,10 @@ Multiplicity and prime factors. We have:
   prime_factors n := the finite set of prime factors of n, assuming n > 0
 
 -/
-import data.nat data.finset .primes
-open eq.ops finset well_founded decidable nat.finset
-open algebra
+import data.nat data.finset .primes algebra.group_set_bigops
+open eq.ops finset well_founded decidable
 
 namespace nat
-
 -- TODO: this should be proved more generally in ring_bigops
 theorem Prod_pos {A : Type} [deceqA : decidable_eq A]
     {s : finset A} {f : A → ℕ} (fpos : ∀ n, n ∈ s → f n > 0) :

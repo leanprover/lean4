@@ -12,8 +12,6 @@ import algebra.binary algebra.priority
 open eq eq.ops   -- note: ⁻¹ will be overloaded
 open binary
 
-namespace algebra
-
 variable {A : Type}
 
 /- semigroup -/
@@ -453,7 +451,7 @@ section add_group
   /- sub -/
 
   -- TODO: derive corresponding facts for div in a field
-  definition sub [reducible] (a b : A) : A := a + -b
+  protected definition algebra.sub [reducible] (a b : A) : A := a + -b
 
   definition add_group_has_sub [reducible] [instance] : has_sub A :=
   has_sub.mk algebra.sub
@@ -579,12 +577,8 @@ definition group_of_add_group (A : Type) [G : add_group A] : group A :=
   inv             := has_neg.neg,
   mul_left_inv    := add.left_inv⦄
 
-end algebra
-
 namespace norm_num
-open algebra
 reveal add.assoc
-variable {A : Type}
 
 definition add1 [s : has_add A] [s' : has_one A] (a : A) : A := add a one
 
@@ -691,14 +685,14 @@ theorem neg_zero_helper [s : add_group A] (a : A) (H : a = 0) : - a = 0 :=
 end norm_num
 
 attribute [simp]
-  algebra.zero_add algebra.add_zero algebra.one_mul algebra.mul_one
+  zero_add add_zero one_mul mul_one
   at simplifier.unit
 
 attribute [simp]
-  algebra.neg_neg algebra.sub_eq_add_neg
+  neg_neg sub_eq_add_neg
   at simplifier.neg
 
 attribute [simp]
-  algebra.add.assoc algebra.add.comm algebra.add.left_comm
-  algebra.mul.left_comm algebra.mul.comm algebra.mul.assoc
+  add.assoc add.comm add.left_comm
+  mul.left_comm mul.comm mul.assoc
   at simplifier.ac

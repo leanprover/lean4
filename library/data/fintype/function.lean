@@ -7,7 +7,6 @@ Author : Haitao Zhang
 import data
 
 open nat function eq.ops
-open algebra
 
 namespace list
 -- this is in preparation for counting the number of finite functions

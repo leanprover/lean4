@@ -5,8 +5,6 @@ Author: Jeremy Avigad
 -/
 import .order
 
-namespace algebra
-
 variable {A : Type}
 
 /- lattices (we could split this to upper- and lower-semilattices, if needed) -/
@@ -108,5 +106,3 @@ section
   theorem sup_eq_right {a b : A} (H : a ≤ b) : a ⊔ b = b :=
   eq.subst !sup.comm (sup_eq_left H)
 end
-
-end algebra

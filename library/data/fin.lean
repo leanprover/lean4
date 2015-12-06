@@ -7,7 +7,6 @@ Finite ordinal types.
 -/
 import data.list.basic data.finset.basic data.fintype.card algebra.group data.equiv
 open eq.ops nat function list finset fintype
-open algebra
 
 structure fin (n : nat) := (val : nat) (is_lt : val < n)
 
@@ -259,8 +258,6 @@ lemma madd_left_inv : ∀ i : fin (succ n), madd (minv i) i = fin.zero n
 | (mk iv ilt) := eq_of_veq (by
   rewrite [val_madd, ↑minv, ↑fin.zero, mod_add_mod, nat.sub_add_cancel (le_of_lt ilt), mod_self])
 
-open algebra
-
 definition madd_is_comm_group [instance] : add_comm_group (fin (succ n)) :=
 add_comm_group.mk madd madd_assoc (fin.zero n) zero_madd madd_zero minv madd_left_inv madd_comm
 
@@ -411,7 +408,7 @@ definition fin_sum_equiv (n m : nat) : (fin n + fin m) ≃ fin (n+m) :=
 assert aux₁ : ∀ {v}, v < m → (v + n) < (n + m), from
   take v, suppose v < m, calc
      v + n < m + n   : add_lt_add_of_lt_of_le this !le.refl
-       ... = n + m   : algebra.add.comm,
+       ... = n + m   : add.comm,
 ⦃ equiv,
   to_fun := λ s : sum (fin n) (fin m),
     match s with

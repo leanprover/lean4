@@ -6,8 +6,8 @@ Author : Haitao Zhang
 -/
 import algebra.group data .hom .perm .finsubg
 
-namespace group
-open finset algebra function
+namespace group_theory
+open finset function
 
 local attribute perm.f [coercion]
 
@@ -249,7 +249,7 @@ lemma subg_moversets_of_orbit_eq_stab_lcosets :
       existsi b, subst Ph₂, assumption
       end))
 
-open nat nat.finset
+open nat
 
 theorem orbit_stabilizer_theorem : card H = card (orbit hom H a) * card (stab hom H a) :=
         calc card H = card (fin_lcosets (stab hom H a) H) * card (stab hom H a) : lagrange_theorem stab_subset
@@ -297,7 +297,7 @@ take a b, propext (iff.intro
   (assume Peq, Peq ▸ in_orbit_refl))
 
 variables (hom) (H)
-open nat nat.finset finset.partition fintype
+open nat finset.partition fintype
 
 definition orbit_partition : @partition S _ :=
 mk univ (orbit hom H) orbit_is_partition
@@ -572,4 +572,4 @@ lemma card_perm_step : card (perm (fin (succ n))) = (succ n) * card (perm (fin n
 ... = (succ n) * card (perm (fin n))                       : by rewrite -card_lift_to_stab
 
 end perm_fin
-end group
+end group_theory

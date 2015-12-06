@@ -10,8 +10,6 @@ Properties of the power operation in an ordered ring or field.
 import .group_power .ordered_field
 open nat
 
-namespace algebra
-
 variable {A : Type}
 
 section semiring
@@ -172,5 +170,3 @@ begin
 end
 
 end discrete_field
-
-end algebra

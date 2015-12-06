@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Jeremy Avigad
 Prime numbers.
 -/
 import data.nat logic.identities
-open bool algebra
+open bool
 
 namespace nat
 open decidable

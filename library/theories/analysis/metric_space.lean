@@ -6,7 +6,7 @@ Author: Jeremy Avigad
 Metric spaces.
 -/
 import data.real.division
-open real eq.ops classical algebra
+open real eq.ops classical
 
 structure metric_space [class] (M : Type) : Type :=
   (dist : M → M → ℝ)

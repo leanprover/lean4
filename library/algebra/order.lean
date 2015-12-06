@@ -8,8 +8,6 @@ Weak orders "≤", strict orders "<", and structures that include both.
 import logic.eq logic.connectives algebra.binary algebra.priority
 open eq eq.ops
 
-namespace algebra
-
 variable {A : Type}
 
 /- weak orders -/
@@ -431,5 +429,3 @@ section
     (assume H : a ≤ b, by rewrite (max_eq_right H); apply H₂)
     (assume H : a > b, by rewrite (max_eq_left_of_lt H); apply H₁)
 end
-
-end algebra

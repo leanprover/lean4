@@ -29,7 +29,6 @@ structure has_pow_int [class] (A : Type) :=
 definition pow_int {A : Type} [s : has_pow_int A] : A → int → A :=
 has_pow_int.pow_int
 
-namespace algebra
  /- monoid -/
 section monoid
 open nat
@@ -262,5 +261,3 @@ theorem add_imul (i j : ℤ) (a : A) : imul (i + j) a = imul i a + imul j a :=
 theorem imul_comm (i j : ℤ) (a : A) : imul i a + imul j a = imul j a + imul i a := gpow_comm a i j
 
 end add_group
-
-end algebra

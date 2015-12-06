@@ -11,7 +11,6 @@ import data.list
 import data.tuple
 
 namespace bv
-open algebra
 open bool
 open eq.ops
 open list

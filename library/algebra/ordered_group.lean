@@ -10,8 +10,6 @@ import logic.eq data.unit data.sigma data.prod
 import algebra.binary algebra.group algebra.order
 open eq eq.ops   -- note: ⁻¹ will be overloaded
 
-namespace algebra
-
 variable {A : Type}
 
 /- partially ordered monoids, such as the natural numbers -/
@@ -790,7 +788,7 @@ section
       abs a - abs b + abs b = abs a : by rewrite sub_add_cancel
         ... = abs (a - b + b)       : by rewrite sub_add_cancel
         ... ≤ abs (a - b) + abs b   : abs_add_le_abs_add_abs,
-  algebra.le_of_add_le_add_right H1
+  le_of_add_le_add_right H1
 
   theorem abs_sub_le (a b c : A) : abs (a - c) ≤ abs (a - b) + abs (b - c) :=
   calc
@@ -823,5 +821,3 @@ section
 
   end
 end
-
-end algebra

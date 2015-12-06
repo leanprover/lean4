@@ -6,7 +6,7 @@ Authors: Jacob Gross, Jeremy Avigad
 The complex numbers.
 -/
 import data.real
-open real eq.ops algebra
+open real eq.ops
 
 record complex : Type :=
 (re : ℝ) (im : ℝ)
@@ -156,9 +156,9 @@ iff.intro eq_of_of_real_eq_of_real !congr_arg
 
 /- make complex an instance of ring -/
 
-protected definition comm_ring [reducible] : algebra.comm_ring complex :=
+protected definition comm_ring [reducible] : comm_ring complex :=
   begin
-    fapply algebra.comm_ring.mk,
+    fapply comm_ring.mk,
     exact complex.add,
     exact complex.add_assoc,
     exact 0,

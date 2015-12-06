@@ -6,15 +6,14 @@ Author : Haitao Zhang
 -/
 import algebra.group data.set .subgroup
 
-namespace group
+namespace group_theory
 
-open algebra
 -- ⁻¹ in eq.ops conflicts with group ⁻¹
 -- open eq.ops
 notation H1 ▸ H2 := eq.subst H1 H2
 open set
 open function
-open group.ops
+open group_theory.ops
 open quot
 local attribute set [reducible]
 
@@ -65,7 +64,7 @@ include h
 
 theorem hom_map_one : f 1 = 1 :=
         have P : f 1 = (f 1) * (f 1), from
-        calc f 1 = f (1*1) : mul_one
+        calc f 1 = f (1*1)  : mul_one
         ... = (f 1) * (f 1) : is_hom f,
         eq.symm (mul.right_inv (f 1) ▸ (mul_inv_eq_of_eq_mul P))
 
@@ -190,4 +189,4 @@ theorem first_isomorphism_theorem : isomorphic (ker_natural_map : coset_of (ker 
         and.intro ker_map_is_inj ker_map_is_hom
 
 end hom_theorem
-end group
+end group_theory

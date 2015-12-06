@@ -8,7 +8,7 @@ Note that every encodable type is countable.
 -/
 import data.fintype data.list data.list.sort data.sum data.nat.div data.countable data.equiv
 import data.finset
-open option list nat function algebra
+open option list nat function
 
 structure encodable [class] (A : Type) :=
 (encode : A → nat) (decode : nat → option A) (encodek : ∀ a, decode (encode a) = some a)

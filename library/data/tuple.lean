@@ -7,7 +7,7 @@ Tuples are lists of a fixed size.
 It is implemented as a subtype.
 -/
 import logic data.list data.fin
-open nat list subtype function algebra
+open nat list subtype function
 
 definition tuple [reducible] (A : Type) (n : nat) := {l : list A | length l = n}
 

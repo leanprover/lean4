@@ -13,7 +13,6 @@ section Bezout
 
 open nat int
 open eq.ops well_founded decidable prod
-open algebra
 
 private definition pair_nat.lt : ℕ × ℕ → ℕ × ℕ → Prop := measure pr₂
 private definition pair_nat.lt.wf : well_founded pair_nat.lt := intro_k (measure.wf pr₂) 20
@@ -53,7 +52,7 @@ end
 
 theorem egcd_prop (x y : ℕ) : (pr₁ (egcd x y)) * x + (pr₂ (egcd x y)) * y = gcd x y :=
 gcd.induction x y
-  (take m, by krewrite [egcd_zero, algebra.mul_zero, algebra.one_mul])
+  (take m, by krewrite [egcd_zero, mul_zero, one_mul])
   (take m n,
     assume npos : 0 < n,
     assume IH,
@@ -62,13 +61,13 @@ gcd.induction x y
       rewrite H,
       esimp,
       rewrite [gcd_rec, -IH],
-      rewrite [algebra.add.comm],
+      rewrite [add.comm],
       rewrite [-of_nat_mod],
       rewrite [int.mod_def],
-      rewrite [+algebra.mul_sub_right_distrib],
-      rewrite [+algebra.mul_sub_left_distrib, *left_distrib],
-      rewrite [*sub_eq_add_neg, {pr₂ (egcd n (m % n)) * of_nat m + - _}algebra.add.comm],
-      rewrite [-algebra.add.assoc ,algebra.mul.assoc]
+      rewrite [+mul_sub_right_distrib],
+      rewrite [+mul_sub_left_distrib, *left_distrib],
+      rewrite [*sub_eq_add_neg, {pr₂ (egcd n (m % n)) * of_nat m + - _}add.comm],
+      rewrite [-add.assoc, mul.assoc]
     end)
 
 theorem Bezout_aux (x y : ℕ) : ∃ a b : ℤ, a * x + b * y = gcd x y :=
@@ -90,7 +89,7 @@ implies prime (dvd_or_dvd_of_prime_of_dvd_mul).
 -/
 
 namespace nat
-open int algebra
+open int
 
 example {p x y : ℕ} (pp : prime p) (H : p ∣ x * y) : p ∣ x ∨ p ∣ y :=
 decidable.by_cases

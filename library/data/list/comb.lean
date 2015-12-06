@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Haitao Zhang, Floris van Doorn
 List combinators.
 -/
 import data.list.basic data.equiv
-open nat prod decidable function helper_tactics algebra
+open nat prod decidable function helper_tactics
 
 namespace list
 variables {A B C : Type}

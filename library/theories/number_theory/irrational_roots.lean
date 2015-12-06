@@ -7,7 +7,6 @@ A proof that if n > 1 and a > 0, then the nth root of a is irrational, unless a 
 -/
 import data.rat .prime_factorization
 open eq.ops
-open algebra
 
 /- First, a textbook proof that sqrt 2 is irrational. -/
 
@@ -23,7 +22,7 @@ section
   obtain (c : nat) (aeq : a = 2 * c),
     from exists_of_even this,
   have 2 * (2 * c^2) = 2 * b^2,
-    by rewrite [-H, aeq, *pow_two, algebra.mul.assoc, algebra.mul.left_comm c],
+    by rewrite [-H, aeq, *pow_two, mul.assoc, mul.left_comm c],
   have 2 * c^2 = b^2,
     from eq_of_mul_eq_mul_left dec_trivial this,
   have even (b^2),
@@ -99,9 +98,9 @@ section
   have bnz : b ≠ (0 : ℚ),
     from assume H, `b ≠ 0` (of_int.inj H),
   have bnnz : ((b : rat)^n ≠ 0),
-    from assume bneqz, bnz (algebra.eq_zero_of_pow_eq_zero bneqz),
+    from assume bneqz, bnz (eq_zero_of_pow_eq_zero bneqz),
   have a^n /[rat] b^n = c,
-    using bnz, begin rewrite [*of_int_pow, -algebra.div_pow, -eq_num_div_denom, -H] end,
+    using bnz, begin rewrite [*of_int_pow, -div_pow, -eq_num_div_denom, -H] end,
   have (a^n : rat) = c *[rat] b^n,
     from eq.symm (!mul_eq_of_eq_div bnnz this⁻¹),
   have a^n = c * b^n,  -- int version
@@ -123,7 +122,7 @@ section
           have ane0 : a ≠ 0, from
             suppose aeq0 : a = 0,
             have qeq0 : q = 0,
-              by rewrite [eq_num_div_denom, aeq0, of_int_zero, algebra.zero_div],
+              by rewrite [eq_num_div_denom, aeq0, of_int_zero, zero_div],
             show false,
               from qne0 qeq0,
           have nat_abs a ≠ 0, from

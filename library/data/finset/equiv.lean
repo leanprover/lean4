@@ -4,14 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 import data.finset.card
-open nat nat.finset decidable
-open algebra
+open nat decidable
 
 namespace finset
 variable {A : Type}
 
 protected definition to_nat (s : finset nat) : nat :=
-nat.finset.Sum s (λ n, 2^n)
+finset.Sum s (λ n, 2^n)
 
 open finset (to_nat)
 

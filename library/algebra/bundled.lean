@@ -7,7 +7,6 @@ Bundled structures
 -/
 import algebra.group
 
-namespace algebra
 structure Semigroup :=
 (carrier : Type) (struct : semigroup carrier)
 
@@ -79,4 +78,3 @@ structure AddCommGroup :=
 
 attribute AddCommGroup.carrier [coercion]
 attribute AddCommGroup.struct [instance]
-end algebra

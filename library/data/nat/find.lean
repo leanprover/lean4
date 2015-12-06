@@ -11,7 +11,7 @@ choose      {p : nat → Prop} [d : decidable_pred p] : (∃ x, p x) → nat
 choose_spec {p : nat → Prop} [d : decidable_pred p] (ex : ∃ x, p x) : p (choose ex)
 -/
 import data.nat.basic data.nat.order
-open nat subtype decidable well_founded algebra
+open nat subtype decidable well_founded
 
 namespace nat
 section find_x

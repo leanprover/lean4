@@ -11,8 +11,6 @@ of "linear_ordered_comm_ring". This development is modeled after Isabelle's libr
 import algebra.ordered_group algebra.ring
 open eq eq.ops
 
-namespace algebra
-
 variable {A : Type}
 
 private definition absurd_a_lt_a {B : Type} {a : A} [s : strict_order A] (H : a < a) : B :=
@@ -714,11 +712,7 @@ end
 
 /- TODO: Multiplication and one, starting with mult_right_le_one_le. -/
 
-end algebra
-
 namespace norm_num
-open algebra
-variable {A : Type}
 
 theorem pos_bit0_helper [s : linear_ordered_semiring A] (a : A) (H : a > 0) : bit0 a > 0 :=
   by rewrite ↑bit0; apply add_pos H H

@@ -12,9 +12,8 @@ Bigops based on finsets go in the namespace algebra.finset. There are also versi
 defined in group_set_bigops.lean.
 -/
 import .group .group_power data.list.basic data.list.perm data.finset.basic
-open algebra function binary quot subtype list finset
+open function binary quot subtype list finset
 
-namespace algebra
 variables {A B : Type}
 variable [deceqA : decidable_eq A]
 
@@ -80,7 +79,7 @@ section monoid
   open nat
   lemma Prodl_eq_pow_of_const {f : A → B} :
     ∀ {l : list A} b, (∀ a, a ∈ l → f a = b) → Prodl l f = b ^ length l
-  | nil    := take b, assume Pconst, by rewrite [length_nil, {b^0}algebra.pow_zero]
+  | nil    := take b, assume Pconst, by rewrite [length_nil, {b^0}pow_zero]
   | (a::l) := take b, assume Pconst,
     assert Pconstl : ∀ a', a' ∈ l → f a' = b,
       from take a' Pa'in, Pconst a' (mem_cons_of_mem a Pa'in),
@@ -119,7 +118,7 @@ namespace finset
     (λ l₁ l₂ p, Prodl_eq_Prodl_of_perm f p)
 
   -- ∏ x ∈ s, f x
-  notation `∏` binders `∈` s, r:(scoped f, prod s f) := r
+  notation `∏` binders `∈` s, r:(scoped f, Prod s f) := r
 
   theorem Prod_empty (f : A → B) : Prod ∅ f = 1 :=
   Prodl_nil f
@@ -232,5 +231,3 @@ namespace finset
 
   theorem Sum_zero (s : finset A) : Sum s (λ x, 0) = (0:B) := Prod_one s
 end finset
-
-end algebra

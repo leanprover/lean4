@@ -176,7 +176,6 @@ have p  : sort R l₁ ~ sort R l₂, from calc
 eq_of_sorted_of_perm tr asy p s₁ s₂
 
 section
-open algebra
 omit decR
 lemma strongly_sorted_sort [ord : decidable_linear_order A] (l : list A) : strongly_sorted le (sort le l) :=
 strongly_sorted_sort_core le.total (@le.trans A _) le.refl l

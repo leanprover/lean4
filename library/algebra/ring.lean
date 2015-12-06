@@ -11,8 +11,6 @@ import logic.eq logic.connectives data.unit data.sigma data.prod
 import algebra.binary algebra.group
 open eq eq.ops
 
-namespace algebra
-
 variable {A : Type}
 
 /- auxiliary classes -/
@@ -75,7 +73,7 @@ section comm_semiring
   variables [s : comm_semiring A] (a b c : A)
   include s
 
-  protected definition dvd (a b : A) : Prop := ∃c, b = a * c
+  protected definition algebra.dvd (a b : A) : Prop := ∃c, b = a * c
 
   definition comm_semiring_has_dvd [reducible] [instance] [priority algebra.prio] : has_dvd A :=
   has_dvd.mk algebra.dvd
@@ -195,8 +193,8 @@ section
        rewrite [-left_distrib, add.right_inv, mul_zero]
      end
 
-  theorem neg_mul_eq_neg_mul_symm : - a * b = - (a * b) := eq.symm !algebra.neg_mul_eq_neg_mul
-  theorem mul_neg_eq_neg_mul_symm : a * - b = - (a * b) := eq.symm !algebra.neg_mul_eq_mul_neg
+  theorem neg_mul_eq_neg_mul_symm : - a * b = - (a * b) := eq.symm !neg_mul_eq_neg_mul
+  theorem mul_neg_eq_neg_mul_symm : a * - b = - (a * b) := eq.symm !neg_mul_eq_mul_neg
 
   theorem neg_mul_neg : -a * -b = a * b :=
   calc
@@ -404,11 +402,7 @@ section
       dvd.intro this)
 end
 
-end algebra
-
 namespace norm_num
-open algebra
-variables {A : Type}
 
 theorem mul_zero [s : mul_zero_class A] (a : A) : a * zero = zero :=
   by rewrite [↑zero, mul_zero]
@@ -491,13 +485,13 @@ theorem pos_mul_neg_helper [s : ring A] (a b c : A) (H : a * b = c) : a * (-b) =
 end norm_num
 
 attribute [simp]
-  algebra.zero_mul algebra.mul_zero
+  zero_mul mul_zero
   at simplifier.unit
 
 attribute [simp]
-  algebra.neg_mul_eq_neg_mul_symm algebra.mul_neg_eq_neg_mul_symm
+  neg_mul_eq_neg_mul_symm mul_neg_eq_neg_mul_symm
   at simplifier.neg
 
 attribute [simp]
-  algebra.left_distrib algebra.right_distrib
+  left_distrib right_distrib
   at simplifier.distrib

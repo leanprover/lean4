@@ -260,7 +260,7 @@ take s, suppose s ∈ F₂,
     (bounded_exists.intro `s ∈ F₂` (by rewrite univ_inter; apply subset.refl))
 
 theorem inf_refines (H₁ : F₁ ≽ F) (H₂ : F₂ ≽ F) : F₁ ⊓ F₂ ≽ F :=
-take s, suppose s ∈ F₁ ⊓ F₂,
+take s : set A, suppose (#set.filter s ∈ F₁ ⊓ F₂),
   obtain a₁ [a₁F₁ [a₂ [a₂F₂ (Hsub : s ⊇ a₁ ∩ a₂)]]], from this,
   have a₁ ∈ F, from H₁ a₁F₁,
   have a₂ ∈ F, from H₂ a₂F₂,
@@ -278,9 +278,8 @@ Sup_refines H
 theorem refines_Inf {F : filter A} {S : set (filter A)} (FS : F ∈ S) : F ≽ ⨅ S :=
 refines_Sup (λ G GS, GS F FS)
 
-open algebra
 protected definition complete_lattice_Inf [reducible] [instance] : complete_lattice_Inf (filter A) :=
-⦃ algebra.complete_lattice_Inf,
+⦃ complete_lattice_Inf,
   le           := weakens,
   le_refl      := weakens.refl,
   le_trans     := @weakens.trans A,

@@ -10,7 +10,6 @@ are those needed for that construction.
 -/
 import data.rat.order data.nat
 open nat rat subtype eq.ops
-open algebra
 
 namespace pnat
 
@@ -150,7 +149,7 @@ begin
   unfold inv,
   change 1 / rat_of_pnat n ≤ 1 / 1,
   apply one_div_le_one_div_of_le,
-  apply algebra.zero_lt_one,
+  apply zero_lt_one,
   apply rat_of_pnat_ge_one
 end
 
@@ -159,7 +158,7 @@ begin
   unfold inv,
   change 1 / rat_of_pnat n < 1 / 1,
   apply one_div_lt_one_div_of_lt,
-  apply algebra.zero_lt_one,
+  apply zero_lt_one,
   rewrite pnat.to_rat_of_nat,
   apply (of_nat_lt_of_nat_of_lt H)
 end
@@ -177,7 +176,7 @@ protected theorem one_mul (n : ℕ+) : pone * n = n :=
 begin
   apply pnat.eq,
   unfold pone,
-  rewrite [pnat.mul_def, ↑nat_of_pnat, algebra.one_mul]
+  rewrite [pnat.mul_def, ↑nat_of_pnat, one_mul]
 end
 
 theorem pone_le (n : ℕ+) : pone ≤ n :=
@@ -220,9 +219,9 @@ pnat_le_of_rat_of_pnat_le (le_of_one_div_le_one_div !rat_of_pnat_is_pos H)
 theorem two_mul (p : ℕ+) : rat_of_pnat (2 * p) = (1 + 1) * rat_of_pnat p :=
 by rewrite pnat_to_rat_mul
 
-theorem add_halves (p : ℕ+) : (2 * p)⁻¹ + (2 * p)⁻¹ = p⁻¹ :=
+protected theorem add_halves (p : ℕ+) : (2 * p)⁻¹ + (2 * p)⁻¹ = p⁻¹ :=
 begin
-  rewrite [↑inv, -(add_halves (1 / (rat_of_pnat p))), algebra.div_div_eq_div_mul],
+  rewrite [↑inv, -(add_halves (1 / (rat_of_pnat p))), div_div_eq_div_mul],
   have H : rat_of_pnat (2 * p) = rat_of_pnat p * (1 + 1), by rewrite [rat.mul_comm, two_mul],
   rewrite *H
 end
@@ -231,15 +230,15 @@ theorem add_halves_double (m n : ℕ+) :
         m⁻¹ + n⁻¹ = ((2 * m)⁻¹ + (2 * n)⁻¹) + ((2 * m)⁻¹ + (2 * n)⁻¹) :=
 have hsimp [visible] : ∀ a b : ℚ, (a + a) + (b + b) = (a + b) + (a + b),
   by intros; rewrite [rat.add_assoc, -(rat.add_assoc a b b), {_+b}rat.add_comm, -*rat.add_assoc],
-by rewrite [-add_halves m, -add_halves n, hsimp]
+by rewrite [-pnat.add_halves m, -pnat.add_halves n, hsimp]
 
 protected theorem inv_mul_eq_mul_inv {p q : ℕ+} : (p * q)⁻¹ = p⁻¹ * q⁻¹ :=
-begin rewrite [↑inv, pnat_to_rat_mul, algebra.one_div_mul_one_div] end
+begin rewrite [↑inv, pnat_to_rat_mul, one_div_mul_one_div] end
 
 protected theorem inv_mul_le_inv (p q : ℕ+) : (p * q)⁻¹ ≤ q⁻¹ :=
 begin
   rewrite [pnat.inv_mul_eq_mul_inv, -{q⁻¹}rat.one_mul at {2}],
-  apply algebra.mul_le_mul,
+  apply mul_le_mul,
   apply inv_le_one,
   apply le.refl,
   apply le_of_lt,
@@ -251,7 +250,7 @@ theorem pnat_mul_le_mul_left' (a b c : ℕ+) : a ≤ b → c * a ≤ c * b :=
 begin
   rewrite +pnat.le_def, intro H,
   apply mul_le_mul_of_nonneg_left H,
-  apply algebra.le_of_lt,
+  apply le_of_lt,
   apply pnat_pos
 end
 
@@ -298,8 +297,8 @@ by apply inv_gt_of_lt; apply lt_add_left
 
 theorem div_le_pnat (q : ℚ) (n : ℕ+) (H : q ≥ n⁻¹) : 1 / q ≤ rat_of_pnat n :=
 begin
-  apply algebra.div_le_of_le_mul,
-  apply algebra.lt_of_lt_of_le,
+  apply div_le_of_le_mul,
+  apply lt_of_lt_of_le,
   apply pnat.inv_pos,
   rotate 1,
   apply H,
@@ -320,7 +319,7 @@ by rewrite [rat.mul_comm, *pnat.inv_mul_eq_mul_inv, hsimp, *pnat.inv_cancel_left
 definition pceil (a : ℚ) : ℕ+ := tag (ubound a) !ubound_pos
 
 theorem pceil_helper {a : ℚ} {n : ℕ+} (H : pceil a ≤ n) (Ha : a > 0) : n⁻¹ ≤ 1 / a :=
-algebra.le.trans (inv_ge_of_le H) (one_div_le_one_div_of_le Ha (ubound_ge a))
+le.trans (inv_ge_of_le H) (one_div_le_one_div_of_le Ha (ubound_ge a))
 
 theorem inv_pceil_div (a b : ℚ) (Ha : a > 0) (Hb : b > 0) : (pceil (a / b))⁻¹ ≤ b / a :=
 assert (pceil (a / b))⁻¹ ≤ 1 / (1 / (b / a)),
@@ -331,7 +330,7 @@ assert (pceil (a / b))⁻¹ ≤ 1 / (1 / (b / a)),
     show 1 / (b / a) ≤ rat_of_pnat (pceil (a / b)),
     begin
       rewrite div_div_eq_mul_div,
-      rewrite algebra.one_mul,
+      rewrite one_mul,
       apply ubound_ge
     end
   end,
@@ -347,14 +346,14 @@ begin
   apply exists.elim (exists_add_lt_and_pos_of_lt H),
   intro c Hc,
   existsi (pceil ((1 + 1 + 1) / c)),
-  apply algebra.lt.trans,
+  apply lt.trans,
   rotate 1,
   apply and.left Hc,
   rewrite rat.add_assoc,
   apply rat.add_lt_add_left,
-  rewrite -(algebra.add_halves c) at {3},
+  rewrite -(add_halves c) at {3},
   apply add_lt_add,
-  repeat (apply algebra.lt_of_le_of_lt;
+  repeat (apply lt_of_le_of_lt;
     apply inv_pceil_div;
     apply dec_trivial;
     apply and.right Hc;
@@ -367,10 +366,10 @@ end
 theorem nonneg_of_ge_neg_invs (a : ℚ) : (∀ n : ℕ+, -n⁻¹ ≤ a) → 0 ≤ a :=
 begin
   intro H,
-  apply algebra.le_of_not_gt,
+  apply le_of_not_gt,
   suppose a < 0,
   have H2 : 0 < -a, from neg_pos_of_neg this,
-  (algebra.not_lt_of_ge !H) (iff.mp !lt_neg_iff_lt_neg (calc
+  (not_lt_of_ge !H) (iff.mp !lt_neg_iff_lt_neg (calc
     (pceil (of_num 2 / -a))⁻¹ ≤ -a / of_num 2
         : !inv_pceil_div dec_trivial H2
                            ... < -a / 1

@@ -10,8 +10,6 @@ import logic.eq logic.connectives data.unit data.sigma data.prod
 import algebra.binary algebra.group algebra.ring
 open eq eq.ops
 
-namespace algebra
-
 variable {A : Type}
 
 structure division_ring [class] (A : Type) extends ring A, has_inv A, zero_ne_one_class A :=
@@ -22,7 +20,7 @@ section division_ring
   variables [s : division_ring A] {a b c : A}
   include s
 
-  protected definition div (a b : A) : A := a * b⁻¹
+  protected definition algebra.div (a b : A) : A := a * b⁻¹
 
   definition division_ring_has_div [reducible] [instance] : has_div A :=
   has_div.mk algebra.div
@@ -469,11 +467,7 @@ section discrete_field
 
 end discrete_field
 
-end algebra
-
 namespace norm_num
-open algebra
-variable {A : Type}
 
 theorem div_add_helper [s : field A] (n d b c val : A) (Hd : d ≠ 0) (H : n + b * d = val)
         (H2 : c * d = val) : n / d + b = c :=

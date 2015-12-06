@@ -10,7 +10,6 @@ TODO: define dual complete lattice and simplify proof of dual theorems.
 import algebra.lattice data.set.basic
 open set
 
-namespace algebra
 variable {A : Type}
 
 structure complete_lattice [class] (A : Type) extends lattice A :=
@@ -271,4 +270,3 @@ have le₂ : ⨅ univ ≤ ⨆ (∅ : set A), from
 le.antisymm le₁ le₂
 
 end complete_lattice
-end algebra

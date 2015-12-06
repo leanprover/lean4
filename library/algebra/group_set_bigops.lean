@@ -8,7 +8,6 @@ Set-based version of group_bigops.
 import .group_bigops data.set.finite
 open set classical
 
-namespace algebra
 namespace set
 
 variables {A B : Type}
@@ -19,7 +18,7 @@ section Prod
   variable [cmB : comm_monoid B]
   include cmB
 
-  noncomputable definition Prod (s : set A) (f : A → B) : B := algebra.finset.Prod (to_finset s) f
+  noncomputable definition Prod (s : set A) (f : A → B) : B := finset.Prod (to_finset s) f
 
   -- ∏ x ∈ s, f x
   notation `∏` binders `∈` s, r:(scoped f, prod s f) := r
@@ -101,6 +100,3 @@ section Sum
 end Sum
 
 end set
-
-
-end algebra

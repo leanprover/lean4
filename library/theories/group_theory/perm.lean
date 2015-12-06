@@ -6,9 +6,9 @@ Author : Haitao Zhang
 -/
 import algebra.group data data.fintype.function
 
-open nat list algebra function
+open nat list function
 
-namespace group
+namespace group_theory
 open fintype
 
 section perm
@@ -117,4 +117,4 @@ lemma perm_one : (1 : perm A) = perm.one := rfl
 
 end perm
 
-end group
+end group_theory

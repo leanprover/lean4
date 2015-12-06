@@ -9,7 +9,6 @@ import data.nat.power logic.identities
 
 namespace nat
 open decidable
-open algebra
 
 definition even (n : nat) := n % 2 = 0
 

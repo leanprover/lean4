@@ -16,7 +16,7 @@ are independent of each other.
 -/
 
 import data.real.basic data.real.order data.real.division data.rat data.nat data.pnat
-open rat algebra
+open rat
 local postfix ⁻¹ := pnat.inv
 open eq.ops pnat classical
 
@@ -31,8 +31,8 @@ theorem rat_approx {s : seq} (H : regular s) :
     intro m Hm,
     apply le.trans,
     apply H,
-    rewrite -(add_halves n),
-    apply algebra.add_le_add_right,
+    rewrite -(pnat.add_halves n),
+    apply add_le_add_right,
     apply inv_ge_of_le Hm
   end
 
@@ -54,13 +54,13 @@ theorem rat_approx_seq {s : seq} (H : regular s) :
     apply le.trans,
     rotate 1,
     rewrite -sub_eq_add_neg,
-    apply algebra.sub_le_sub_left,
+    apply sub_le_sub_left,
     apply HN,
     apply pnat.le_trans,
     apply Hp,
     rewrite -*pnat.mul_assoc,
     apply pnat.mul_le_mul_left,
-    rewrite [algebra.sub_self, -neg_zero],
+    rewrite [sub_self, -neg_zero],
     apply neg_le_neg,
     apply rat.le_of_lt,
     apply pnat.inv_pos
@@ -79,7 +79,7 @@ theorem const_bound {s : seq} (Hs : regular s) (n : ℕ+) :
     apply iff.mp !le_add_iff_neg_le_sub_left,
     apply le.trans,
     apply Hs,
-    apply algebra.add_le_add_right,
+    apply add_le_add_right,
     rewrite -*pnat.mul_assoc,
     apply inv_ge_of_le,
     apply pnat.mul_le_mul_left
@@ -101,7 +101,7 @@ theorem equiv_abs_of_ge_zero {s : seq} (Hs : regular s) (Hz : s_le zero s) : s_a
     existsi 2 * j,
     intro n Hn,
     cases em (s n ≥ 0) with [Hpos, Hneg],
-    rewrite [abs_of_nonneg Hpos, algebra.sub_self, abs_zero],
+    rewrite [abs_of_nonneg Hpos, sub_self, abs_zero],
     apply rat.le_of_lt,
     apply pnat.inv_pos,
     let Hneg' := lt_of_not_ge Hneg,
@@ -148,7 +148,7 @@ theorem equiv_neg_abs_of_le_zero {s : seq} (Hs : regular s) (Hz : s_le s zero) :
     krewrite pnat.add_halves,
     apply le.refl,
     let Hneg' := lt_of_not_ge Hneg,
-    rewrite [abs_of_neg Hneg', ↑sneg, sub_neg_eq_add, neg_add_eq_sub, algebra.sub_self,
+    rewrite [abs_of_neg Hneg', ↑sneg, sub_neg_eq_add, neg_add_eq_sub, sub_self,
                 abs_zero],
     apply rat.le_of_lt,
     apply pnat.inv_pos
@@ -166,15 +166,15 @@ namespace real
 open [classes] rat_seq
 
 private theorem rewrite_helper9 (a b c : ℝ) : b - c = (b - a) - (c - a) :=
-  by rewrite [-sub_add_eq_sub_sub_swap, algebra.sub_add_cancel]
+  by rewrite [-sub_add_eq_sub_sub_swap, sub_add_cancel]
 
 private theorem rewrite_helper10 (a b c d : ℝ) : c - d = (c - a) + (a - b) + (b - d) :=
-  by rewrite [*add_sub, *algebra.sub_add_cancel]
+  by rewrite [*add_sub, *sub_add_cancel]
 
 noncomputable definition rep (x : ℝ) : rat_seq.reg_seq := some (quot.exists_rep x)
 
 definition re_abs (x : ℝ) : ℝ :=
-  quot.lift_on x (λ a, quot.mk (rat_seq.r_abs a)) 
+  quot.lift_on x (λ a, quot.mk (rat_seq.r_abs a))
     (take a b Hab, quot.sound (rat_seq.r_abs_well_defined Hab))
 
 theorem r_abs_nonneg {x : ℝ} : zero ≤ x → re_abs x = x :=
@@ -183,7 +183,7 @@ theorem r_abs_nonneg {x : ℝ} : zero ≤ x → re_abs x = x :=
 theorem r_abs_nonpos {x : ℝ} : x ≤ zero → re_abs x = -x :=
   quot.induction_on x (λ a Ha, quot.sound (rat_seq.r_equiv_neg_abs_of_le_zero Ha))
 
-private theorem abs_const' (a : ℚ) : of_rat (abs a) = re_abs (of_rat a) := 
+private theorem abs_const' (a : ℚ) : of_rat (abs a) = re_abs (of_rat a) :=
   quot.sound (rat_seq.r_abs_const a)
 
 private theorem re_abs_is_abs : re_abs = abs := funext
@@ -192,7 +192,7 @@ private theorem re_abs_is_abs : re_abs = abs := funext
     apply eq.symm,
     cases em (zero ≤ x) with [Hor1, Hor2],
     rewrite [abs_of_nonneg Hor1, r_abs_nonneg Hor1],
-    have Hor2' : x ≤ zero, from algebra.le_of_lt (lt_of_not_ge Hor2),
+    have Hor2' : x ≤ zero, from le_of_lt (lt_of_not_ge Hor2),
     rewrite [abs_of_neg (lt_of_not_ge Hor2), r_abs_nonpos Hor2']
   end)
 
@@ -227,9 +227,9 @@ theorem cauchy_with_rate_of_converges_to_with_rate {X : r_seq} {a : ℝ} {N : �
   begin
     intro k m n Hm Hn,
     rewrite (rewrite_helper9 a),
-    apply algebra.le.trans,
+    apply le.trans,
     apply abs_add_le_abs_add_abs,
-    apply algebra.le.trans,
+    apply le.trans,
     apply add_le_add,
     apply Hc,
     apply Hm,
@@ -261,7 +261,7 @@ private theorem lim_seq_reg_helper {m n : ℕ+} (Hmn : M (2 * n) ≤M (2 * m)) :
            abs (of_rat (lim_seq m) - X (Nb M m)) + abs (X (Nb M m) - X (Nb M n)) + abs
             (X (Nb M n) - of_rat (lim_seq n)) ≤ of_rat (m⁻¹ + n⁻¹) :=
   begin
-    apply algebra.le.trans,
+    apply le.trans,
     apply add_le_add_three,
     apply approx_spec',
     rotate 1,
@@ -276,7 +276,7 @@ private theorem lim_seq_reg_helper {m n : ℕ+} (Hmn : M (2 * n) ≤M (2 * m)) :
     apply Nb_spec_right,
     krewrite [-+of_rat_add],
     change of_rat ((2 * m)⁻¹ + (2 * n)⁻¹ + (2 * n)⁻¹) ≤ of_rat (m⁻¹ + n⁻¹),
-    rewrite [algebra.add.assoc],
+    rewrite [add.assoc],
     krewrite pnat.add_halves,
     apply of_rat_le_of_rat_of_le,
     apply add_le_add_right,
@@ -290,7 +290,7 @@ theorem lim_seq_reg : rat_seq.regular lim_seq :=
     intro m n,
     apply le_of_of_rat_le_of_rat,
     rewrite [abs_const, of_rat_sub, (rewrite_helper10 (X (Nb M m)) (X (Nb M n)))],
-    apply algebra.le.trans,
+    apply le.trans,
     apply abs_add_three,
     cases em (M (2 * m) ≥ M (2 * n)) with [Hor1, Hor2],
     apply lim_seq_reg_helper Hor1,
@@ -331,9 +331,9 @@ theorem converges_to_with_rate_of_cauchy_with_rate : converges_to_with_rate X li
   begin
     intro k n Hn,
     rewrite (rewrite_helper10 (X (Nb M n)) (of_rat (lim_seq n))),
-    apply algebra.le.trans,
+    apply le.trans,
     apply abs_add_three,
-    apply algebra.le.trans,
+    apply le.trans,
     apply add_le_add_three,
     apply Hc,
     apply pnat.le_trans,
@@ -357,7 +357,7 @@ theorem converges_to_with_rate_of_cauchy_with_rate : converges_to_with_rate X li
     krewrite [-+of_rat_add],
     change of_rat ((2 * k)⁻¹ + (2 * n)⁻¹ + n⁻¹) ≤ of_rat k⁻¹,
     apply of_rat_le_of_rat_of_le,
-    apply algebra.le.trans,
+    apply le.trans,
     apply add_le_add_three,
     apply rat.le_refl,
     apply inv_ge_of_le,
@@ -407,7 +407,7 @@ theorem archimedean_upper_strict (x : ℝ) : ∃ z : ℤ, x < of_int z :=
   begin
     cases archimedean_upper x with [z, Hz],
     existsi z + 1,
-    apply algebra.lt_of_le_of_lt,
+    apply lt_of_le_of_lt,
     apply Hz,
     apply of_int_lt_of_int_of_lt,
     apply lt_add_of_pos_right,
@@ -436,8 +436,8 @@ private definition ex_floor (x : ℝ) :=
       existsi some (archimedean_upper_strict x),
       let Har := some_spec (archimedean_upper_strict x),
       intros z Hz,
-      apply algebra.not_le_of_gt,
-      apply algebra.lt_of_lt_of_le,
+      apply not_le_of_gt,
+      apply lt_of_lt_of_le,
       apply Har,
       have H : of_int (some (archimedean_upper_strict x)) ≤ of_int z, begin
         apply of_int_le_of_int_of_le,
@@ -493,7 +493,7 @@ theorem floor_succ (x : ℝ) : floor (x + 1) = floor x + 1 :=
 theorem floor_sub_one_lt_floor (x : ℝ) : floor (x - 1) < floor x :=
   begin
 
-    apply @algebra.lt_of_add_lt_add_right ℤ _ _ 1,
+    apply @lt_of_add_lt_add_right ℤ _ _ 1,
     rewrite [-floor_succ (x - 1), sub_add_cancel],
     apply lt_add_of_pos_right dec_trivial
   end
@@ -511,9 +511,9 @@ let n := int.nat_abs (ceil (2 / ε)) in
 assert int.of_nat n ≥ ceil (2 / ε),
   by rewrite of_nat_nat_abs; apply le_abs_self,
 have int.of_nat (succ n) ≥ ceil (2 / ε),
-  begin apply algebra.le.trans, exact this, apply int.of_nat_le_of_nat_of_le, apply le_succ end,
+  begin apply le.trans, exact this, apply int.of_nat_le_of_nat_of_le, apply le_succ end,
 have H₁ : succ n ≥ ceil (2 / ε), from of_int_le_of_int_of_le this,
-have H₂ : succ n ≥ 2 / ε, from !algebra.le.trans !le_ceil H₁,
+have H₂ : succ n ≥ 2 / ε, from !le.trans !le_ceil H₁,
 have H₃ : 2 / ε > 0, from div_pos_of_pos_of_pos two_pos H,
 have 1 / succ n < ε, from calc
   1 / succ n ≤ 1 / (2 / ε) : one_div_le_one_div_of_le H₃ H₂
@@ -564,7 +564,7 @@ private theorem under_spec1 : of_rat under < elt :=
     apply of_int_lt_of_int_of_lt,
     apply floor_sub_one_lt_floor
   end,
-  algebra.lt_of_lt_of_le H !floor_le
+  lt_of_lt_of_le H !floor_le
 
 private theorem under_spec : ¬ ub under :=
   begin
@@ -584,14 +584,14 @@ private theorem over_spec1 : bound < of_rat over :=
     apply of_int_lt_of_int_of_lt,
     apply ceil_lt_ceil_succ
   end,
-  algebra.lt_of_le_of_lt !le_ceil H
+  lt_of_le_of_lt !le_ceil H
 
 private theorem over_spec : ub over :=
   begin
     rewrite ↑ub,
     intro y Hy,
-    apply algebra.le_of_lt,
-    apply algebra.lt_of_le_of_lt,
+    apply le_of_lt,
+    apply lt_of_le_of_lt,
     apply bdd,
     apply Hy,
     apply over_spec1
@@ -656,9 +656,9 @@ private theorem width (n : ℕ) : over_seq n - under_seq n = (over - under) / ((
         ... = (over - under) / ((2^a) * 2) : by rewrite div_div_eq_div_mul
         ... = (over - under) / 2^(a + 1) : by rewrite pow_add,
       cases em (ub (avg_seq a)),
-      rewrite [*if_pos a_1, -add_one, -Hou, ↑avg_seq, ↑avg, sub_eq_add_neg, algebra.add.assoc, -sub_eq_add_neg, div_two_sub_self],
+      rewrite [*if_pos a_1, -add_one, -Hou, ↑avg_seq, ↑avg, sub_eq_add_neg, add.assoc, -sub_eq_add_neg, div_two_sub_self],
       rewrite [*if_neg a_1, -add_one, -Hou, ↑avg_seq, ↑avg, sub_add_eq_sub_sub,
-              algebra.sub_self_div_two]
+              sub_self_div_two]
     end)
 
 private theorem width_narrows : ∃ n : ℕ, over_seq n - under_seq n ≤ 1 :=
@@ -732,7 +732,7 @@ private theorem under_lt_over : under < over :=
     cases exists_not_of_not_forall under_spec with [x, Hx],
     cases iff.mp not_implies_iff_and_not Hx with [HXx, Hxu],
     apply lt_of_of_rat_lt_of_rat,
-    apply algebra.lt_of_lt_of_le,
+    apply lt_of_lt_of_le,
     apply lt_of_not_ge Hxu,
     apply over_spec _ HXx
   end
@@ -743,7 +743,7 @@ private theorem under_seq_lt_over_seq : ∀ m n : ℕ, under_seq m < over_seq n 
     cases exists_not_of_not_forall (PA m) with [x, Hx],
     cases iff.mp not_implies_iff_and_not Hx with [HXx, Hxu],
     apply lt_of_of_rat_lt_of_rat,
-    apply algebra.lt_of_lt_of_le,
+    apply lt_of_lt_of_le,
     apply lt_of_not_ge Hxu,
     apply PB,
     apply HXx
@@ -898,8 +898,8 @@ private theorem under_lowest_bound : ∀ y : ℝ, ub y → sup_under ≤ y :=
     intro n,
     cases exists_not_of_not_forall (PA _) with [x, Hx],
     cases iff.mp not_implies_iff_and_not Hx with [HXx, Hxn],
-    apply algebra.le.trans,
-    apply algebra.le_of_lt,
+    apply le.trans,
+    apply le_of_lt,
     apply lt_of_not_ge Hxn,
     apply Hy,
     apply HXx

@@ -7,7 +7,6 @@ Definitions and properties of gcd, lcm, and coprime.
 -/
 import .div data.nat.gcd
 open eq.ops
-open algebra
 
 namespace int
 

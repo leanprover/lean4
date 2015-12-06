@@ -9,8 +9,6 @@ open function eq.ops
 
 open set
 
-namespace algebra
-
 namespace coset
 -- semigroup coset definition
 section
@@ -54,19 +52,16 @@ definition rmul_by (a : A) := λ x, x * a
 definition glcoset a (H : set A) : set A := λ x, H (a⁻¹ * x)
 definition grcoset H (a : A) : set A := λ x, H (x * a⁻¹)
 end
-end algebra
 
-namespace group
-open algebra
+namespace group_theory
   namespace ops
     infixr `∘>`:55 := glcoset -- stronger than = (50), weaker than * (70)
     infixl `<∘`:55 := grcoset
     infixr `∘c`:55 := conj_by
   end ops
-end group
+end group_theory
 
-namespace algebra
-open group.ops
+open group_theory.ops
 section
 variable {A : Type}
 variable [s : group A]
@@ -359,7 +354,7 @@ definition mk_quotient_group : group (coset_of N):=
 
 end normal_subg
 
-namespace group
+namespace group_theory
 namespace quotient
 section
 open quot
@@ -376,6 +371,4 @@ definition natural (a : A) : coset_of N := ⟦a⟧
 
 end
 end quotient
-end group
-
-end algebra
+end group_theory

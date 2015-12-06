@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 (set A) is an instance of a commutative semiring
 -/
 import data.set.basic algebra.ring
-open algebra set
+open set
 
 definition set_comm_semiring [instance] (A : Type) : comm_semiring (set A) :=
 ⦃ comm_semiring,

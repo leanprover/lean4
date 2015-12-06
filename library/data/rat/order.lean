@@ -7,7 +7,6 @@ Adds the ordering, and instantiates the rationals as an ordered field.
 -/
 import data.int algebra.ordered_field algebra.group_power data.rat.basic
 open quot eq.ops
-open algebra
 
 /- the ordering on representations -/
 
@@ -303,8 +302,8 @@ let H' := rat.le_of_lt H in
                                    !rat.lt_irrefl (Heq' ▸ H)))
 
 protected definition discrete_linear_ordered_field [reducible] [trans_instance] :
-    algebra.discrete_linear_ordered_field rat :=
-⦃algebra.discrete_linear_ordered_field,
+    discrete_linear_ordered_field rat :=
+⦃discrete_linear_ordered_field,
  rat.discrete_field,
  le_refl          := rat.le_refl,
  le_trans         := @rat.le_trans,
@@ -433,7 +432,7 @@ theorem binary_nat_bound (a : ℕ) : of_nat a ≤ 2^a :=
    (take n : nat, assume Hn,
     calc
      of_nat (nat.succ n) = (of_nat n) + 1 : of_nat_add
-       ... ≤ 2^n + 1           : algebra.add_le_add_right Hn
+       ... ≤ 2^n + 1           : add_le_add_right Hn
        ... ≤ 2^n + (2:rat)^n   : add_le_add_left (pow_ge_one_of_ge_one two_ge_one _)
        ... = 2^(succ n)        : pow_two_add)
 

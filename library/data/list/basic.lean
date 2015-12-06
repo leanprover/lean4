@@ -7,7 +7,6 @@ Basic properties of lists.
 -/
 import logic tools.helper_tactics data.nat.order data.nat.sub
 open eq.ops helper_tactics nat prod function option
-open algebra
 
 inductive list (T : Type) : Type :=
 | nil {} : list T

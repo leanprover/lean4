@@ -6,9 +6,9 @@ Author : Haitao Zhang
 import theories.number_theory.primes data algebra.group algebra.group_power algebra.group_bigops
 import .cyclic .finsubg .hom .perm .action
 
-open nat fin list algebra function subtype
+open nat fin list function subtype
 
-namespace group
+namespace group_theory
 
 section pgroup
 
@@ -145,7 +145,7 @@ lemma peo_const_one : ∀ {n : nat}, peo (λ i : fin n, (1 : A))
   assert Pconst : constseq s, from take i, rfl,
   calc prodseq s = (s !zero) ^ succ n : prodseq_eq_pow_of_constseq s Pconst
              ... = (1 : A) ^ succ n : rfl
-             ... = 1 : algebra.one_pow
+             ... = 1 : one_pow
 
 variable [deceqA : decidable_eq A]
 include deceqA
@@ -389,4 +389,4 @@ theorem first_sylow_theorem {p : nat} (Pp : prime p) :
 
 end sylow
 
-end group
+end group_theory

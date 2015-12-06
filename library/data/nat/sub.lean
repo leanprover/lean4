@@ -6,7 +6,7 @@ Authors: Floris van Doorn, Jeremy Avigad
 Subtraction on the natural numbers, as well as min, max, and distance.
 -/
 import .order
-open eq.ops algebra
+open eq.ops
 
 namespace nat
 
@@ -144,7 +144,7 @@ calc
           ... = n * m - n * k : {!mul.comm}
 
 protected theorem mul_self_sub_mul_self_eq (a b : nat) : a * a - b * b = (a + b) * (a - b) :=
-by rewrite [nat.mul_sub_left_distrib, *right_distrib, mul.comm b a, add.comm (a*a) (a*b), 
+by rewrite [nat.mul_sub_left_distrib, *right_distrib, mul.comm b a, add.comm (a*a) (a*b),
             nat.add_sub_add_left]
 
 theorem succ_mul_succ_eq (a : nat) : succ a * succ a = a*a + a + a + 1 :=
@@ -289,8 +289,6 @@ sub.cases
                ... = k            : Hm
                ... = k - n + n    : nat.sub_add_cancel H3,
     le.intro (add.right_cancel H4))
-
-open algebra
 
 protected theorem sub_pos_of_lt {m n : ℕ} (H : m < n) : n - m > 0 :=
 assert H1 : n = n - m + m, from (nat.sub_add_cancel (le_of_lt H))⁻¹,
@@ -484,7 +482,7 @@ or.elim !le.total
 
 lemma dist_eq_max_sub_min {i j : nat} : dist i j = (max i j) - min i j :=
 or.elim (lt_or_ge i j)
-  (suppose i < j, 
+  (suppose i < j,
     by rewrite [max_eq_right_of_lt this, min_eq_left_of_lt this, dist_eq_sub_of_lt this])
   (suppose i ≥ j,
     by rewrite [max_eq_left this , min_eq_right this, dist_eq_sub_of_ge this])

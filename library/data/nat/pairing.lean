@@ -7,7 +7,6 @@ Elegant pairing function.
 -/
 import data.nat.sqrt data.nat.div
 open prod decidable
-open algebra
 
 namespace nat
 definition mkpair (a b : nat) : nat :=
@@ -30,7 +29,7 @@ by_cases
   (suppose h₁ : ¬ n - s*s < s,
     have   s ≤ n - s*s,                  from le_of_not_gt h₁,
     assert s + s*s ≤ n - s*s + s*s,      from add_le_add_right this (s*s),
-    assert s*s + s ≤ n,                  by rewrite [nat.sub_add_cancel (sqrt_lower n) at this, 
+    assert s*s + s ≤ n,                  by rewrite [nat.sub_add_cancel (sqrt_lower n) at this,
                                               add.comm at this]; assumption,
     have   n ≤ s*s + s + s,              from sqrt_upper n,
     have   n - s*s ≤ s + s,              from calc
@@ -69,7 +68,7 @@ by_cases
     esimp [mkpair],
     rewrite [if_neg `¬ a < b`],
     esimp [unpair],
-    rewrite [add.assoc (a * a) a b, sqrt_offset_eq `a + b ≤ a + a`, *nat.add_sub_cancel_left, 
+    rewrite [add.assoc (a * a) a b, sqrt_offset_eq `a + b ≤ a + a`, *nat.add_sub_cancel_left,
              if_neg `¬ a + b < a`]
   end)
 

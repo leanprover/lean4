@@ -7,7 +7,6 @@ Binomial coefficients, "n choose k".
 -/
 import data.nat.div data.nat.fact data.finset
 open decidable
-open algebra
 
 namespace nat
 

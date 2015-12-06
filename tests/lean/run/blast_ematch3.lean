@@ -10,9 +10,7 @@ include s
 attribute add.comm [forward]
 attribute add.assoc [forward]
 
-set_option blast.simp   false
-set_option blast.subst  false
-set_option blast.ematch true
+set_option blast.strategy "ematch"
 
 theorem add_comm_three  (a b c : A) : a + b + c = c + b + a :=
 by blast
@@ -29,9 +27,7 @@ attribute mul.assoc [forward]
 attribute mul.left_inv [forward]
 attribute one_mul [forward]
 
-set_option blast.simp   false
-set_option blast.subst  false
-set_option blast.ematch true
+set_option blast.strategy "ematch"
 
 theorem inv_mul_cancel_left (a b : A) : a⁻¹ * (a * b) = b :=
 by blast

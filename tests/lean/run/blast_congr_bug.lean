@@ -4,17 +4,13 @@ attribute P_sub [instance]
 constant q : P → Prop
 
 section
-set_option blast.simp true
-set_option blast.cc   false
-
 example (h₁ h₂ : P) : q h₁ = q h₂ :=
-by blast
+by simp
 end
 
 
 section
-set_option blast.simp false
-set_option blast.cc   true
+set_option blast.strategy "cc"
 
 example (h₁ h₂ : P) : q h₁ = q h₂ :=
 by blast

@@ -3,9 +3,7 @@ open algebra nat
 
 section
 open nat
-set_option blast.simp   false
-set_option blast.subst  false
-set_option blast.ematch true
+set_option blast.strategy "ematch"
 
 attribute add.comm  [forward]
 attribute add.assoc [forward]

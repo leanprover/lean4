@@ -7,6 +7,8 @@ Author: Leonardo de Moura
 #include <string>
 #include "library/blast/actions/assert_cc_action.h"
 #include "library/blast/simplifier/simplifier_strategies.h"
+#include "library/blast/unit/unit_actions.h"
+#include "library/blast/forward/ematch.h"
 #include "library/blast/strategies/simple_strategy.h"
 #include "library/blast/strategies/preprocess_strategy.h"
 #include "library/blast/strategies/debug_action_strategy.h"
@@ -18,10 +20,12 @@ static optional<expr> apply_preprocess() {
 }
 
 static optional<expr> apply_simp() {
+    flet<bool> set(get_config().m_simp, true);
     return mk_simplify_using_hypotheses_strategy()();
 }
 
 static optional<expr> apply_simp_nohyps() {
+    flet<bool> set(get_config().m_simp, true);
     return mk_simplify_all_strategy()();
 }
 
@@ -30,7 +34,15 @@ static optional<expr> apply_simple() {
 }
 
 static optional<expr> apply_cc() {
+    flet<bool> set(get_config().m_cc, true);
     return mk_debug_pre_action_strategy(assert_cc_action)();
+}
+
+static optional<expr> apply_ematch() {
+    flet<bool> set(get_config().m_ematch, true);
+    return mk_debug_action_strategy([](hypothesis_idx hidx) { Try(unit_propagate(hidx)); TrySolve(assert_cc_action(hidx)); return action_result::new_branch(); },
+                                    unit_propagate,
+                                    ematch_action)();
 }
 
 optional<expr> apply_strategy() {
@@ -45,6 +57,8 @@ optional<expr> apply_strategy() {
         return apply_simple();
     } else if (s_name == "cc") {
         return apply_cc();
+    } else if (s_name == "ematch") {
+        return apply_ematch();
     } else {
         // TODO(Leo): add more builtin strategies
         return apply_simple();

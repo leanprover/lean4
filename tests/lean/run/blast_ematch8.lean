@@ -5,9 +5,7 @@ variables {A : Type}
 variables [s : group A]
 include s
 namespace foo
-set_option blast.ematch true
-set_option blast.subst  false
-set_option blast.simp   false
+set_option blast.strategy "ematch"
 attribute inv_inv mul.left_inv mul.assoc one_mul mul_one [forward]
 
 theorem mul.right_inv (a : A) : a * a⁻¹ = 1 :=

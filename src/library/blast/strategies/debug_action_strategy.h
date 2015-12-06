@@ -13,4 +13,7 @@ namespace blast {
 strategy mk_debug_action_strategy(std::function<action_result()> const & a);
 strategy mk_debug_pre_action_strategy(std::function<action_result(hypothesis_idx)> const & a);
 strategy mk_debug_post_action_strategy(std::function<action_result(hypothesis_idx)> const & a);
+strategy mk_debug_action_strategy(std::function<action_result(hypothesis_idx)> const & pre,
+                                  std::function<action_result(hypothesis_idx)> const & post,
+                                  std::function<action_result()> const & next);
 }}

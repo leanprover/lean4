@@ -61,6 +61,21 @@ public:
         m_action(a) {}
 };
 
+class xdebug_action_strategy_fn : public debug_action_strategy_core_fn {
+    std::function<action_result(hypothesis_idx)> m_pre;
+    std::function<action_result(hypothesis_idx)> m_post;
+    std::function<action_result()>               m_next;
+
+    virtual action_result pre(hypothesis_idx hidx) { return m_pre(hidx); }
+    virtual action_result post(hypothesis_idx hidx) { return m_post(hidx); }
+    virtual action_result next() { return m_next(); }
+public:
+    xdebug_action_strategy_fn(std::function<action_result(hypothesis_idx)> const & pre,
+                              std::function<action_result(hypothesis_idx)> const & post,
+                              std::function<action_result()> const & next):
+        m_pre(pre), m_post(post), m_next(next) {}
+};
+
 strategy mk_debug_action_strategy(std::function<action_result()> const & a) {
     return [=]() { return debug_action_strategy_fn(a)(); }; // NOLINT
 }
@@ -71,5 +86,11 @@ strategy mk_debug_pre_action_strategy(std::function<action_result(hypothesis_idx
 
 strategy mk_debug_post_action_strategy(std::function<action_result(hypothesis_idx)> const & a) {
     return [=]() { return debug_post_action_strategy_fn(a)(); }; // NOLINT
+}
+
+strategy mk_debug_action_strategy(std::function<action_result(hypothesis_idx)> const & pre,
+                                  std::function<action_result(hypothesis_idx)> const & post,
+                                  std::function<action_result()> const & next) {
+    return [=]() { return xdebug_action_strategy_fn(pre, post, next)(); }; // NOLINT
 }
 }}

@@ -7,9 +7,7 @@ section
 variable [s : group A]
 include s
 
-set_option blast.simp   false
-set_option blast.subst  false
-set_option blast.ematch true
+set_option blast.strategy "ematch"
 
 attribute mul_one      [forward]
 attribute mul.assoc    [forward]

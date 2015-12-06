@@ -100,6 +100,17 @@ public:
     friend bool is_eqp(list const & l1, list const & l2) { return l1.m_ptr == l2.m_ptr; }
     friend bool is_eqp(list const & l1, cell const * l2) { return l1.m_ptr == l2; }
 
+    /** \brief Return true iff l_2 is of the form [a_1, ..., a_n, l_1] for n >= 0 */
+    friend bool is_suffix_eqp(list const & l_1, list const & l_2) {
+        list const * it = &l_2;
+        while (!empty(*it)) {
+            if (is_eqp(*it, l_1))
+                return true;
+            it = &tail(*it);
+        }
+        return is_eqp(*it, l_1);
+    }
+
     template<typename... Args>
     void emplace_front(Args&&... args) {
         cell * new_ptr = new (get_allocator().allocate()) cell(true, *this, args...);

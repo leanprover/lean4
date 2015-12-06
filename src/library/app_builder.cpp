@@ -572,16 +572,16 @@ struct app_builder::imp {
 
     expr mk_partial_left_distrib(expr const & A) {
         level lvl = get_level(A);
-        auto A_distrib = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_algebra_distrib_name(), {lvl}), A));
+        auto A_distrib = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_distrib_name(), {lvl}), A));
         if (!A_distrib) throw app_builder_exception();
-        return ::lean::mk_app(mk_constant(get_algebra_left_distrib_name(), {lvl}), A, *A_distrib);
+        return ::lean::mk_app(mk_constant(get_left_distrib_name(), {lvl}), A, *A_distrib);
     }
 
     expr mk_partial_right_distrib(expr const & A) {
         level lvl = get_level(A);
-        auto A_distrib = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_algebra_distrib_name(), {lvl}), A));
+        auto A_distrib = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_distrib_name(), {lvl}), A));
         if (!A_distrib) throw app_builder_exception();
-        return ::lean::mk_app(mk_constant(get_algebra_right_distrib_name(), {lvl}), A, *A_distrib);
+        return ::lean::mk_app(mk_constant(get_right_distrib_name(), {lvl}), A, *A_distrib);
     }
 
     expr mk_false_rec(expr const & c, expr const & H) {

@@ -4,9 +4,9 @@
 #include "util/name.h"
 namespace lean{
 name const * g_absurd = nullptr;
-name const * g_algebra_distrib = nullptr;
-name const * g_algebra_left_distrib = nullptr;
-name const * g_algebra_right_distrib = nullptr;
+name const * g_distrib = nullptr;
+name const * g_left_distrib = nullptr;
+name const * g_right_distrib = nullptr;
 name const * g_add = nullptr;
 name const * g_and = nullptr;
 name const * g_and_elim_left = nullptr;
@@ -191,9 +191,9 @@ name const * g_well_founded = nullptr;
 name const * g_zero = nullptr;
 void initialize_constants() {
     g_absurd = new name{"absurd"};
-    g_algebra_distrib = new name{"algebra", "distrib"};
-    g_algebra_left_distrib = new name{"algebra", "left_distrib"};
-    g_algebra_right_distrib = new name{"algebra", "right_distrib"};
+    g_distrib = new name{"distrib"};
+    g_left_distrib = new name{"left_distrib"};
+    g_right_distrib = new name{"right_distrib"};
     g_add = new name{"add"};
     g_and = new name{"and"};
     g_and_elim_left = new name{"and", "elim_left"};
@@ -379,9 +379,9 @@ void initialize_constants() {
 }
 void finalize_constants() {
     delete g_absurd;
-    delete g_algebra_distrib;
-    delete g_algebra_left_distrib;
-    delete g_algebra_right_distrib;
+    delete g_distrib;
+    delete g_left_distrib;
+    delete g_right_distrib;
     delete g_add;
     delete g_and;
     delete g_and_elim_left;
@@ -566,9 +566,9 @@ void finalize_constants() {
     delete g_zero;
 }
 name const & get_absurd_name() { return *g_absurd; }
-name const & get_algebra_distrib_name() { return *g_algebra_distrib; }
-name const & get_algebra_left_distrib_name() { return *g_algebra_left_distrib; }
-name const & get_algebra_right_distrib_name() { return *g_algebra_right_distrib; }
+name const & get_distrib_name() { return *g_distrib; }
+name const & get_left_distrib_name() { return *g_left_distrib; }
+name const & get_right_distrib_name() { return *g_right_distrib; }
 name const & get_add_name() { return *g_add; }
 name const & get_and_name() { return *g_and; }
 name const & get_and_elim_left_name() { return *g_and_elim_left; }

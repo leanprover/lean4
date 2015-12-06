@@ -1,7 +1,7 @@
 absurd
-algebra.distrib
-algebra.left_distrib
-algebra.right_distrib
+distrib
+left_distrib
+right_distrib
 add
 and
 and.elim_left

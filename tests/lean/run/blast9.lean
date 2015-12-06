@@ -1,5 +1,6 @@
 import data.list
 open list
+set_option blast.strategy "preprocess"
 
 example (p : Prop) (a b c : nat) : [a, b, c] = [] → p :=
 by blast

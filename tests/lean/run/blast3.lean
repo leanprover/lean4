@@ -1,4 +1,5 @@
-set_option blast.init_depth 10
+-- TODO(Leo): use better strategy
+set_option blast.strategy "simple"
 set_option blast.cc false
 
 example (a b c : Prop) : b → c → b ∧ c :=

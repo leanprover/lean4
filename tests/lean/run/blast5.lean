@@ -1,4 +1,4 @@
-set_option blast.init_depth 10
+set_option blast.strategy "preprocess"
 
 example (a b : nat) : a = b → b = a :=
 by blast

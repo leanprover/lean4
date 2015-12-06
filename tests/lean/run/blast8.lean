@@ -1,6 +1,5 @@
 open nat
-set_option blast.init_depth 10
-set_option blast.max_depth 10
+set_option blast.strategy "preprocess"
 
 lemma l1 (a : nat) : zero = succ a → a = a → false :=
 by blast

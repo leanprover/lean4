@@ -1,3 +1,5 @@
+set_option blast.strategy "preprocess"
+
 lemma T1 (a b : Prop) : false → a :=
 by blast
 

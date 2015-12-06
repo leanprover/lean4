@@ -310,9 +310,22 @@ expr type_context::whnf(expr const & e) {
     }
 }
 
+expr type_context::try_to_pi(expr const & e) {
+    expr new_e = whnf(e);
+    if (is_pi(new_e))
+        return new_e;
+    else
+        return e;
+}
+
 expr type_context::relaxed_whnf(expr const & e) {
     flet<bool> relax(m_relax_is_opaque, true);
     return whnf(e);
+}
+
+expr type_context::relaxed_try_to_pi(expr const & e) {
+    flet<bool> relax(m_relax_is_opaque, true);
+    return try_to_pi(e);
 }
 
 bool type_context::relaxed_assign(expr const & ma, expr const & v) {

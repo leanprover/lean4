@@ -36,13 +36,13 @@ list<unsigned> fun_info_manager::collect_deps(expr const & type, buffer<expr> co
 auto fun_info_manager::get(expr const & e) -> fun_info {
     if (auto r = m_fun_info.find(e))
         return *r;
-    expr type = m_ctx.infer(e);
+    expr type = m_ctx.relaxed_try_to_pi(m_ctx.infer(e));
     buffer<param_info> info;
     buffer<expr> locals;
     while (is_pi(type)) {
         expr local      = m_ctx.mk_tmp_local_from_binding(type);
         expr local_type = m_ctx.infer(local);
-        expr new_type   = m_ctx.whnf(instantiate(binding_body(type), local));
+        expr new_type   = m_ctx.relaxed_try_to_pi(instantiate(binding_body(type), local));
         bool is_prop    = m_ctx.is_prop(local_type);
         bool is_sub     = is_prop;
         bool is_dep     = !closed(binding_body(type));

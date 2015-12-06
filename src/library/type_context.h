@@ -439,6 +439,11 @@ public:
     /** \brief Infer the type of \c e. */
     expr infer(expr const & e);
 
+    /** \brief Put \c e in whnf, it is a Pi, then return whnf, otherwise return e */
+    expr try_to_pi(expr const & e);
+    /** \brief Put \c e in relaxed_whnf, it is a Pi, then return whnf, otherwise return e */
+    expr relaxed_try_to_pi(expr const & e);
+
     /** \brief Return true if \c e1 and \c e2 are definitionally equal.
         When \c e1 and \c e2, this method is not as complete as the one in the kernel.
         That is, it may return false even when \c e1 and \c e2 may be definitionally equal.

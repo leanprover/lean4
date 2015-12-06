@@ -39,7 +39,7 @@ void trace_action(char const * a) {
 }
 
 void trace_curr_state_if(action_result r) {
-    if (g_trace && !failed(r))
+    if (g_trace && !failed(r) && !solved(r))
         trace_curr_state();
 }
 

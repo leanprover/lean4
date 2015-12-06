@@ -1,24 +1,23 @@
 (refl): x1
-(refl): @add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s)) x1 x1
-(refl): @add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s))
-  (@add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s)) x1 x1)
+(refl): @add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s)) x1 x1
+(refl): @add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s)) (@add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s)) x1 x1)
   x1
-(refl): @add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s))
-  (@add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s))
-     (@add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s)) x1 x1)
+(refl): @add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s))
+  (@add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s))
+     (@add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s)) x1 x1)
      x1)
   x1
-(refl): @add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s))
-  (@add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s))
-     (@add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s)) x1 x1)
-     (@add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s)) x1 x1))
+(refl): @add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s))
+  (@add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s))
+     (@add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s)) x1 x1)
+     (@add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s)) x1 x1))
   x1
-@add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s)) x1
-  (@add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s)) x1 x1)
-@add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s)) x1
-  (@add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s)) x1
-     (@add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s)) x1 x1))
-@add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s)) x1
-  (@add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s)) x1
-     (@add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s)) x1
-        (@add.{l} T (@has_add.mk.{l} T (@algebra.comm_ring.add.{l} T s)) x1 x1)))
+@add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s)) x1
+  (@add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s)) x1 x1)
+@add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s)) x1
+  (@add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s)) x1
+     (@add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s)) x1 x1))
+@add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s)) x1
+  (@add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s)) x1
+     (@add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s)) x1
+        (@add.{l} T (@has_add.mk.{l} T (@comm_ring.add.{l} T s)) x1 x1)))

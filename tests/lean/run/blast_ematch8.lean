@@ -4,7 +4,7 @@ open algebra
 variables {A : Type}
 variables [s : group A]
 include s
-
+namespace foo
 set_option blast.ematch true
 set_option blast.subst  false
 set_option blast.simp   false
@@ -47,3 +47,4 @@ theorem eq_of_mul_inv_eq_one₂ {a b : A} (H : a * b⁻¹ = 1) : a = b :=
 calc
   a = a * b⁻¹ * b : by blast
 ... = b           : by blast
+end foo

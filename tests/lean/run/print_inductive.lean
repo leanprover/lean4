@@ -2,6 +2,6 @@ import data.list algebra.group
 
 print inductive nat
 
-print inductive algebra.group
+print inductive group
 
 print inductive list

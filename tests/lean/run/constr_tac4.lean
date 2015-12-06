@@ -1,7 +1,7 @@
 import data.nat
 
 open nat
-
+namespace foo
 definition lt.trans {a b c : nat} (H₁ : a < b) (H₂ : b < c) : a < c :=
 have aux : a < b → a < c, from
   le.rec_on H₂
@@ -18,3 +18,4 @@ definition lt_of_succ_lt {a b : nat} (H : succ a < b) : a < b :=
 le.rec_on H
   (by constructor; constructor)
   (λ b h ih, by constructor; exact ih)
+end foo

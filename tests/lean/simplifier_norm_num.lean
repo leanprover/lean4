@@ -1,5 +1,4 @@
 import algebra.ring
-open algebra
 
 set_option simplify.max_steps 5000000
 -- TODO(dhs): we need to create the simplifier.numeral namespace incrementally.

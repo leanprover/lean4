@@ -52,7 +52,7 @@ section
   theorem lt.irrefl (a : A) : ¬ a < a := !strict_order.lt_irrefl
   theorem not_lt_self (a : A) : ¬ a < a := !lt.irrefl   -- alternate syntax
 
-  theorem lt_self_iff_false [simp] (a : A) : a < a ↔ false :=
+  theorem lt_self_iff_false (a : A) : a < a ↔ false :=
   iff_false_intro (lt.irrefl a)
 
   theorem lt.trans [trans] {a b c : A} : a < b → b < c → a < c := !strict_order.lt_trans
@@ -333,10 +333,10 @@ section
     (assume H : a ≤ b, by rewrite [↑max, if_pos H]; apply H₂)
     (assume H : ¬ a ≤ b, by rewrite [↑max, if_neg H]; apply H₁)
 
-  theorem le_max_left_iff_true [simp] (a b : A) : a ≤ max a b ↔ true :=
+  theorem le_max_left_iff_true (a b : A) : a ≤ max a b ↔ true :=
   iff_true_intro (le_max_left a b)
 
-  theorem le_max_right_iff_true [simp] (a b : A) : b ≤ max a b ↔ true :=
+  theorem le_max_right_iff_true (a b : A) : b ≤ max a b ↔ true :=
   iff_true_intro (le_max_right a b)
 
   /- these are also proved for lattices, but with inf and sup in place of min and max -/

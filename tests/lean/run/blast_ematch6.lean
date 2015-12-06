@@ -16,7 +16,7 @@ attribute mul.assoc    [forward]
 attribute mul.left_inv [forward]
 attribute one_mul      [forward]
 
-theorem inv_eq_of_mul_eq_one {a b : A} (H : a * b = 1) : a⁻¹ = b :=
+theorem inv_eq_of_mul_eq_one₁ {a b : A} (H : a * b = 1) : a⁻¹ = b :=
 -- This is the kind of theorem that can be easily proved using superposition,
 -- but cannot to be proved using E-matching.
 -- To prove it using E-matching, we must provide the following auxiliary assertion.

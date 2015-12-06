@@ -20,19 +20,17 @@ multiplication are put in a namespace that begins with the name of the
 operation:
 #+BEGIN_SRC lean
 import standard algebra.ordered_ring
-open nat algebra
 
 check and.comm
 check mul.comm
 check and.assoc
 check mul.assoc
-check @algebra.mul.left_cancel  -- multiplication is left cancelative
+check @mul.left_cancel  -- multiplication is left cancelative
 #+END_SRC
 In particular, this includes =intro= and =elim= operations for logical
 connectives, and properties of relations:
 #+BEGIN_SRC lean
 import standard algebra.ordered_ring
-open nat algebra
 
 check and.intro
 check and.elim
@@ -49,8 +47,7 @@ For the most part, however, we rely on descriptive names. Often the
 name of theorem simply describes the conclusion:
 #+BEGIN_SRC lean
 import standard algebra.ordered_ring
-open nat algebra
-
+open nat
 check succ_ne_zero
 check mul_zero
 check mul_one
@@ -61,7 +58,6 @@ If only a prefix of the description is enough to convey the meaning,
 the name may be made even shorter:
 #+BEGIN_SRC lean
 import standard algebra.ordered_ring
-open nat algebra
 
 check @neg_neg
 check nat.pred_succ
@@ -75,8 +71,7 @@ intended reference, it is necessary to describe some of the
 hypotheses. The word "of" is used to separate these hypotheses:
 #+BEGIN_SRC lean
 import standard algebra.ordered_ring
-open nat algebra
-
+open nat
 check lt_of_succ_le
 check lt_of_not_ge
 check lt_of_le_of_ne
@@ -87,8 +82,7 @@ with. For example, we use =pos=, =neg=, =nonpos=, =nonneg= rather than
 =zero_lt=, =lt_zero=, =le_zero=, and =zero_le=.
 #+BEGIN_SRC lean
 import standard algebra.ordered_ring
-open nat algebra
-
+open nat
 check mul_pos
 check mul_nonpos_of_nonneg_of_nonpos
 check add_lt_of_lt_of_nonpos
@@ -105,7 +99,6 @@ Sometimes the word "left" or "right" is helpful to describe variants
 of a theorem.
 #+BEGIN_SRC lean
 import standard algebra.ordered_ring
-open nat algebra
 
 check add_le_add_left
 check add_le_add_right

@@ -1,6 +1,6 @@
 import algebra.ring data.nat
-open algebra
 
+namespace foo
 variables {A : Type}
 
 section
@@ -36,3 +36,4 @@ set_option blast.ematch true
 theorem inv_mul_cancel_left (a b : A) : a⁻¹ * (a * b) = b :=
 by blast
 end
+end foo

@@ -1,4 +1,4 @@
-import data.finset
+import data.finset data.set
 open set finset
 
 structure finite_set [class] {T : Type} (xs : set T) :=

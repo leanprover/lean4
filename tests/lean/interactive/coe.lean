@@ -1,7 +1,7 @@
 import data.int
 open int
 
-protected theorem has_decidable_eq [instance] : decidable_eq ℤ :=
+protected theorem has_decidable_eq₁ [instance] : decidable_eq ℤ :=
 take (a b : ℤ), _
 
 constant n : nat

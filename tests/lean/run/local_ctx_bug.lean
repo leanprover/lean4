@@ -1,5 +1,5 @@
 import data.finset data.finset.card data.finset.equiv
-open nat nat.finset decidable
+open nat decidable
 
 namespace finset
 variable {A : Type}

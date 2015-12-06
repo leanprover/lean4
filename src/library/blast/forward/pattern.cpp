@@ -550,9 +550,9 @@ struct mk_hi_lemma_fn {
         lean_assert(m_mvars.size() == inst_implicit_flags.size());
         buffer<expr> subst;
         buffer<expr> residue_locals;
+        candidate_set hints = collect_pattern_hints(m_mvars, B);
         expr proof  = mk_proof(residue_locals, subst);
         B           = replace_mvars(B, subst);
-        candidate_set hints = collect_pattern_hints(m_mvars, B);
         list<multi_pattern> mps;
         if (!hints.empty()) {
             mps = mk_multi_patterns_using(hints, false);

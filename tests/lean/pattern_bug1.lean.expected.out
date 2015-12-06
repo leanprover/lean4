@@ -1,0 +1,4 @@
+definition H [forward] : ∀ (a : A), (:P a:) → Exists (R a) :=
+sorry
+(multi-)patterns:
+{P ?M_1}

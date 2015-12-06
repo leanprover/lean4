@@ -52,8 +52,8 @@ class simple_strategy_fn : public strategy_fn {
         Try(trivial_action());
         Try(assumption_action());
         Try(recursor_action());
-        Try(constructor_action());
         Try(ematch_action());
+        Try(constructor_action());
         Try(by_contradiction_action());
         TryStrategy(mk_backward_strategy());
         Try(qfc_action(list<gexpr>()));

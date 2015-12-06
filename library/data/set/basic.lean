@@ -422,6 +422,31 @@ ext (take x, iff.intro
         obtain c [(cs : c ∈ s) (xc : x ∈ c)], from this,
         have c ∈ insert a s, from or.inr cs,
         show x ∈ sUnion (insert a s), from exists.intro c (and.intro this `x ∈ c`))))
+        
+  lemma sInter_insert (s : set (set X)) (a : set X) :
+  sInter (insert a s) = a ∩ sInter s := 
+ext (take x, iff.intro
+  (suppose x ∈ sInter (insert a s), 
+    have ∀c, c ∈ insert a s → x ∈ c, from this,
+    have x ∈ a, from (this a) !mem_insert,
+    show x ∈ a ∩ sInter s, from and.intro
+      `x ∈ a`
+      take c,
+      suppose c ∈ s,
+        (`∀c, c ∈ insert a s → x ∈ c` c) (!mem_insert_of_mem this))
+  (suppose x ∈ a ∩ sInter s,
+    show ∀c, c ∈ insert a s → x ∈ c, from 
+    take c,
+    suppose c ∈ insert a s,
+    have c = a → x ∈ c, from 
+      suppose c = a,
+      show x ∈ c, from this⁻¹ ▸ and.elim_left `x ∈ a ∩ sInter s`,
+    have c ∈ s → x ∈ c, from 
+      suppose c ∈ s,
+      have ∀c, c ∈ s → x ∈ c, from and.elim_right `x ∈ a ∩ sInter s`, 
+      show x ∈ c, from (this c) `c ∈ s`,
+    show x ∈ c, from !or.elim `c ∈ insert a s` `c = a → x ∈ c` this))
+    
 end
 
 end set

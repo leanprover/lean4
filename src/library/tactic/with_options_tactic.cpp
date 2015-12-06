@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "kernel/type_checker.h"
+#include "library/constants.h"
 #include "library/kernel_serializer.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
@@ -13,8 +14,6 @@ Author: Leonardo de Moura
 namespace lean {
 static name * g_options_name             = nullptr;
 static std::string * g_options_opcode    = nullptr;
-
-[[ noreturn ]] static void throw_ex() { throw exception("unexpected occurrence of 'options' expression"); }
 
 // Auxiliary macro for wrapping a options object as an expression
 class options_macro_cell : public macro_definition_cell {
@@ -25,8 +24,12 @@ public:
     virtual void write(serializer & s) const {
         s << *g_options_opcode << m_info;
     }
-    virtual pair<expr, constraint_seq> check_type(expr const &, extension_context &, bool) const { throw_ex(); }
-    virtual optional<expr> expand(expr const &, extension_context &) const { throw_ex(); }
+    virtual pair<expr, constraint_seq> check_type(expr const &, extension_context &, bool) const {
+        return mk_pair(mk_constant(get_tactic_expr_name()), constraint_seq());
+    }
+    virtual optional<expr> expand(expr const &, extension_context &) const {
+        return some_expr(mk_constant(get_tactic_expr_builtin_name()));
+    }
     virtual bool operator==(macro_definition_cell const & other) const {
         if (auto o = dynamic_cast<options_macro_cell const *>(&other))
             return m_info == o->m_info;

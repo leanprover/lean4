@@ -135,6 +135,7 @@ void tmp_type_context::pop() {
     lean_assert(m_trail.size() == old_sz);
     m_uassignment.resize(s.m_uassignment_sz);
     m_eassignment.resize(s.m_eassignment_sz);
+    m_scopes.pop_back();
 }
 
 void tmp_type_context::commit() {

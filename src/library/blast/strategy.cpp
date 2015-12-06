@@ -71,6 +71,8 @@ optional<expr> strategy_fn::search() {
             if (failed(r)) {
                 // all choice points failed...
                 trace(">>> proof not found, no choice points left <<<");
+                if (get_config().m_show_failure)
+                    display_curr_state();
                 return none_expr();
             }
             trace("* next choice point");

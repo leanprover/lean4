@@ -40,4 +40,5 @@ void register_option(name const & n, option_kind k, char const * default_value, 
 #define register_bool_option(n, v, d) register_option(n, BoolOption, LEAN_STR(v), d)
 #define register_unsigned_option(n, v, d) register_option(n, UnsignedOption, LEAN_STR(v), d)
 #define register_double_option(n, v, d) register_option(n, DoubleOption, LEAN_STR(v), d)
+#define register_string_option(n, v, d) register_option(n, StringOption, LEAN_STR(v), d)
 }

@@ -328,18 +328,18 @@ public:
 
     void insert(T const & v) {
         m_root = set_black(insert(m_root.steal(), v));
-        lean_assert(check_invariant());
+        lean_cond_assert("rb_tree", check_invariant());
     }
 
     void erase_min() {
         m_root = set_black(erase_min(m_root.steal()));
-        lean_assert(check_invariant());
+        lean_cond_assert("rb_tree", check_invariant());
     }
 
     void erase_core(T const & v) {
         lean_assert(contains(v));
         m_root = set_black(erase(m_root.steal(), v));
-        lean_assert(check_invariant());
+        lean_cond_assert("rb_tree", check_invariant());
     }
 
     void erase(T const & v) {

@@ -75,7 +75,7 @@ public:
 
     void erase(hypothesis_idx h) {
         m_set.erase(h);
-        m_buffer.erase(h);
+        m_buffer.erase_elem(h);
     }
 
     unsigned size() const { return m_buffer.size(); }

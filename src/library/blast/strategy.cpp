@@ -93,4 +93,13 @@ optional<expr> strategy_fn::search() {
         trace_curr_state_if(r);
     }
 }
+
+strategy operator|(strategy const & s1, strategy const & s2) {
+    return [=]() {
+        if (auto r = s1())
+            return r;
+        else
+            return s2();
+    }
+}
 }}

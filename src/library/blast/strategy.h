@@ -41,4 +41,6 @@ public:
     }
 
 typedef std::function<optional<expr>()> strategy;
+
+strategy operator|(strategy const & s1, strategy const & s2);
 }}

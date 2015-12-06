@@ -1,7 +1,4 @@
-set_option blast.subst false
-set_option blast.simp  false
-set_option blast.init_depth 10
-set_option blast.inc_depth  100
+set_option blast.strategy "cc"
 
 example (p : nat → nat → Prop) (f : nat → nat) (a b c d : nat) :
         p (f a) (f b) → a = c → b = d → b = c → p (f c) (f c) :=

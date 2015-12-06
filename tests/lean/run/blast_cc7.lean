@@ -1,7 +1,4 @@
-set_option blast.init_depth 10
-set_option blast.inc_depth 1000
-set_option blast.subst false
-set_option blast.simp  false
+set_option blast.strategy "cc"
 
 example (a b c d : Prop)
      [d₁ : decidable a] [d₂ : decidable b] [d₃ : decidable c] [d₄ : decidable d]

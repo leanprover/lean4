@@ -94,12 +94,12 @@ optional<expr> strategy_fn::search() {
     }
 }
 
-strategy operator|(strategy const & s1, strategy const & s2) {
-    return [=]() {
+strategy operator||(strategy const & s1, strategy const & s2) {
+    return [=]() { // NOLINT
         if (auto r = s1())
             return r;
         else
             return s2();
-    }
+    };
 }
 }}

@@ -1,6 +1,4 @@
-set_option blast.subst false
-set_option blast.simp false
-set_option pp.all true
+set_option blast.strategy "simple"
 
 definition foo1 (a b : nat) (p : Prop) : a = b → (b = a → p) → p :=
 by blast

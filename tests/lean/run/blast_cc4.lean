@@ -1,5 +1,5 @@
 open nat
-set_option blast.subst false
+set_option blast.strategy "cc"
 
 definition tst
         (a₁ a₂ b₁ b₂ c d : nat) :

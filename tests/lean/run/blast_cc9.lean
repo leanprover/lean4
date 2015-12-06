@@ -1,7 +1,6 @@
 import data.list
 open perm
-set_option blast.subst false
-set_option blast.simp  false
+set_option blast.strategy "cc"
 
 example (a b : nat) : a = b → (b = a ↔ true) :=
 by blast

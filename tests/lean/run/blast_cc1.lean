@@ -2,7 +2,7 @@ import data.list
 
 constant f {A : Type} : A → A → A
 constant g : nat → nat
-set_option blast.subst false
+set_option blast.strategy "cc"
 
 example (a b c : nat) : a = b → g a == g b :=
 by blast

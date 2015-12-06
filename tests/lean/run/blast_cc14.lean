@@ -1,3 +1,5 @@
+set_option blast.strategy "cc"
+
 constant R : nat → nat → Prop
 axiom R_trans : ∀ a b c, R a b → R b c → R a c
 attribute R_trans [trans]

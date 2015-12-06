@@ -1,7 +1,5 @@
-set_option blast.simp  false
-set_option blast.subst false
+set_option blast.strategy "cc"
 
-set_option blast.trace true
 example (a b c : Prop) : (a ↔ b) → ((a ∧ (c ∨ b)) ↔ (b ∧ (c ∨ a))) :=
 by blast
 

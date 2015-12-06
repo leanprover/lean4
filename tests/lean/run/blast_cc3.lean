@@ -1,5 +1,6 @@
 open nat
-set_option blast.subst false
+set_option blast.strategy "cc"
+
 constant f (a b : nat) : a > b → nat
 constant g : nat → nat
 

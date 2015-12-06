@@ -1,6 +1,5 @@
 import data.list
-set_option blast.subst false
-set_option blast.simp  false
+set_option blast.strategy "cc"
 
 definition t1 (a b : nat) : (a = b) ↔ (b = a) :=
 by blast

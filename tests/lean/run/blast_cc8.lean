@@ -1,5 +1,6 @@
 import data.finset data.set
 open set finset
+set_option blast.strategy "cc"
 
 structure finite_set [class] {T : Type} (xs : set T) :=
 (to_finset : finset T) (is_equiv : to_set to_finset = xs)
@@ -27,9 +28,6 @@ definition finite_set_set_of [instance] (xs : set A) [fxs : finite_set xs] : fin
 /- Defined cardinality using finite_set type class -/
 noncomputable definition mycard {T : Type} (xs : set T) [fxs : finite_set xs] :=
 finset.card (to_finset xs)
-
-set_option blast.subst false
-set_option blast.simp  false
 
 /- Congruence closure still works :-) -/
 definition tst

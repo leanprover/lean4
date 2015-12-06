@@ -67,10 +67,10 @@ public:
 };
 
 strategy preprocess_and_then(strategy const & S) {
-    return [=]() { scope_trace s(false); return preprocess_strategy_fn(S, false)(); };
+    return [=]() { scope_trace s(false); return preprocess_strategy_fn(S, false)(); }; // NOLINT
 }
 
 strategy basic_preprocess_and_then(strategy const & S) {
-    return [=]() { scope_trace s(false); return preprocess_strategy_fn(S, true)(); };
+    return [=]() { scope_trace s(false); return preprocess_strategy_fn(S, true)(); }; // NOLINT
 }
 }}

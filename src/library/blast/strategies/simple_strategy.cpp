@@ -62,6 +62,6 @@ class simple_strategy_fn : public strategy_fn {
 };
 
 strategy mk_simple_strategy() {
-    return []() { return simple_strategy_fn()(); };
+    return []() { return simple_strategy_fn()(); }; // NOLINT
 }
 }}

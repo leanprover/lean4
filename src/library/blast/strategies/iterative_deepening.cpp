@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 strategy iterative_deepening(strategy const & S, unsigned init, unsigned inc, unsigned max) {
-    return [=]() {
+    return [=]() { // NOLINT
         state s      = curr_state();
         unsigned ncs = get_num_choice_points();
         unsigned d   = init;

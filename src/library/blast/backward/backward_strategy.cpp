@@ -75,9 +75,9 @@ class backward_strategy_fn : public strategy_fn {
 
 strategy mk_backward_strategy() {
     if (!get_config().m_backward)
-        return []() { return none_expr(); };
+        return []() { return none_expr(); }; // NOLINT
     else
-        return []() {
+        return []() { // NOLINT
             flet<bool> disable_show_failure(get_config().m_show_failure, false);
             return backward_strategy_fn()();
         };

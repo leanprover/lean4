@@ -23,6 +23,7 @@ struct config {
     bool                       m_backward;
     bool                       m_trace_cc;
     bool                       m_show_failure;
+    char const *               m_strategy;
     unsigned                   m_pattern_max_steps;
     config(options const & o);
 };

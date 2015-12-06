@@ -44,6 +44,9 @@ Author: Leonardo de Moura
 #ifndef LEAN_DEFAULT_BLAST_BACKWARD
 #define LEAN_DEFAULT_BLAST_BACKWARD true
 #endif
+#ifndef LEAN_DEFAULT_BLAST_STRATEGY
+#define LEAN_DEFAULT_BLAST_STRATEGY "all"
+#endif
 #ifndef LEAN_DEFAULT_PATTERN_MAX_STEPS
 #define LEAN_DEFAULT_PATTERN_MAX_STEPS 1024
 #endif
@@ -63,6 +66,7 @@ static name * g_blast_recursor     = nullptr;
 static name * g_blast_ematch       = nullptr;
 static name * g_blast_backward     = nullptr;
 static name * g_blast_show_failure = nullptr;
+static name * g_blast_strategy     = nullptr;
 static name * g_pattern_max_steps  = nullptr;
 
 unsigned get_blast_max_depth(options const & o) {
@@ -98,6 +102,9 @@ bool get_blast_ematch(options const & o) {
 bool get_blast_backward(options const & o) {
     return o.get_bool(*g_blast_backward, LEAN_DEFAULT_BLAST_BACKWARD);
 }
+char const * get_blast_strategy(options const & o) {
+    return o.get_string(*g_blast_strategy, LEAN_DEFAULT_BLAST_STRATEGY);
+}
 bool get_blast_show_failure(options const & o) {
     return o.get_bool(*g_blast_show_failure, LEAN_DEFAULT_BLAST_SHOW_FAILURE);
 }
@@ -118,6 +125,7 @@ config::config(options const & o) {
     m_ematch            = get_blast_ematch(o);
     m_backward          = get_blast_backward(o);
     m_show_failure      = get_blast_show_failure(o);
+    m_strategy          = get_blast_strategy(o);
     m_pattern_max_steps = get_pattern_max_steps(o);
 }
 
@@ -151,6 +159,7 @@ void initialize_options() {
     g_blast_ematch       = new name{"blast", "ematch"};
     g_blast_backward     = new name{"blast", "backward"};
     g_blast_show_failure = new name{"blast", "show_failure"};
+    g_blast_strategy     = new name{"blast", "strategy"};
     g_pattern_max_steps  = new name{"pattern", "max_steps"};
 
     register_unsigned_option(*blast::g_blast_max_depth, LEAN_DEFAULT_BLAST_MAX_DEPTH,
@@ -177,6 +186,8 @@ void initialize_options() {
                          "(blast) enable backward chaining");
     register_bool_option(*blast::g_blast_show_failure, LEAN_DEFAULT_BLAST_SHOW_FAILURE,
                          "(blast) show failure state");
+    register_string_option(*blast::g_blast_strategy, LEAN_DEFAULT_BLAST_STRATEGY,
+                         "(blast) strategy");
     register_unsigned_option(*g_pattern_max_steps, LEAN_DEFAULT_PATTERN_MAX_STEPS,
                              "(pattern) max number of steps performed by pattern inference procedure, "
                              "we have this threshold because in the worst case this procedure may take "
@@ -195,6 +206,7 @@ void finalize_options() {
     delete g_blast_ematch;
     delete g_blast_backward;
     delete g_blast_show_failure;
+    delete g_blast_strategy;
     delete g_pattern_max_steps;
 }
 }}

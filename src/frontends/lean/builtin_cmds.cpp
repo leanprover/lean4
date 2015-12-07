@@ -240,7 +240,10 @@ static void print_patterns(parser & p, name const & n) {
             blast::scope_debug scope(p.env(), p.ios());
             auto hi = blast::mk_hi_lemma(n, LEAN_FORWARD_LEMMA_DEFAULT_PRIORITY);
             if (hi.m_multi_patterns) {
-                io_state_stream out = p.regular_stream();
+                io_state_stream _out = p.regular_stream();
+                options opts         = _out.get_options();
+                opts                 = opts.update_if_undef(get_pp_metavar_args_name(), true);
+                io_state_stream out  = _out.update_options(opts);
                 out << "(multi-)patterns:\n";
                 if (!is_nil(hi.m_mvars)) {
                     expr m = head(hi.m_mvars);

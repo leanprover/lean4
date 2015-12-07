@@ -41,6 +41,21 @@ static optional<expr> try_not_refl_relation(hypothesis const & h) {
     return none_expr();
 }
 
+static unsigned consume_not(expr & e) {
+    unsigned n = 0;
+    while (is_not(e, e))
+        n++;
+    return n;
+}
+
+static void reduce_nots(expr & pr, unsigned & num_not) {
+    app_builder & b      = get_app_builder();
+    while (num_not > 2) {
+        pr = b.mk_app(get_not_of_not_not_not_name(), 2, pr);
+        num_not -= 2;
+    }
+}
+
 action_result assumption_contradiction_actions(hypothesis_idx hidx) {
     state const & s      = curr_state();
     app_builder & b      = get_app_builder();
@@ -59,21 +74,24 @@ action_result assumption_contradiction_actions(hypothesis_idx hidx) {
         return action_result(*pr);
     }
     expr p1 = type;
-    bool is_neg1 = is_not(type, p1);
+    unsigned num_not1 = consume_not(p1);
     /* try to find complement */
     for (hypothesis_idx hidx2 : s.get_head_related(hidx)) {
         hypothesis const & h2 = s.get_hypothesis_decl(hidx2);
-        expr type2 = h2.get_type();
-        expr p2    = type2;
-        bool is_neg2 = is_not(type2, p2);
-        if (is_neg1 != is_neg2) {
+        expr p2    = h2.get_type();
+        unsigned num_not2 = consume_not(p2);
+        if ((num_not1 % 2) != (num_not2 % 2)) {
             if (is_def_eq(p1, p2)) {
                 trace_action("contradiction");
-                if (is_neg1) {
-                    return action_result(b.mk_app(get_absurd_name(), {s.get_target(), h2.get_self(), h.get_self()}));
+                expr pr1 = h.get_self();
+                expr pr2 = h2.get_self();
+                reduce_nots(pr1, num_not1);
+                reduce_nots(pr2, num_not2);
+                if (num_not1 > num_not2) {
+                    return action_result(b.mk_app(get_absurd_name(), {s.get_target(), pr2, pr1}));
                 } else {
                     lean_assert(is_neg2);
-                    return action_result(b.mk_app(get_absurd_name(), {s.get_target(), h.get_self(), h2.get_self()}));
+                    return action_result(b.mk_app(get_absurd_name(), {s.get_target(), pr1, pr2}));
                 }
             }
         }

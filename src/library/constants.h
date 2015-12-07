@@ -87,6 +87,7 @@ name const & get_ne_name();
 name const & get_neg_name();
 name const & get_not_name();
 name const & get_not_of_iff_false_name();
+name const & get_not_of_not_not_not_name();
 name const & get_num_name();
 name const & get_num_zero_name();
 name const & get_num_pos_name();

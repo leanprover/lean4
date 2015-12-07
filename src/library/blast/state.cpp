@@ -711,7 +711,7 @@ hypothesis_idx_set state::get_direct_forward_deps(hypothesis_idx hidx) const {
 }
 
 static optional<head_index> to_head_index(expr type) {
-    is_not(type, type);
+    while (is_not(type, type));
     expr const & f = get_app_fn(type);
     if (is_constant(f) || is_local(f))
         return optional<head_index>(head_index(f));

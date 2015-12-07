@@ -25,6 +25,9 @@ assume H : empty, H
 definition not_not_intro {a : Type} (Ha : a) : ¬¬a :=
 assume Hna : ¬a, absurd Ha Hna
 
+theorem not_of_not_not_not {a : Type} (H : ¬¬¬a) : ¬a :=
+λ Ha, absurd (not_not_intro Ha) H
+
 definition not.elim {a : Type} (H₁ : ¬a) (H₂ : a) : empty := H₁ H₂
 
 definition not.intro {a : Type} (H : a → empty) : ¬a := H

@@ -340,6 +340,9 @@ iff.intro
 theorem not_not_intro (Ha : a) : ¬¬a :=
 assume Hna : ¬a, Hna Ha
 
+theorem not_of_not_not_not (H : ¬¬¬a) : ¬a :=
+λ Ha, absurd (not_not_intro Ha) H
+
 theorem not_true [simp] : (¬ true) ↔ false :=
 iff_false_intro (not_not_intro trivial)
 

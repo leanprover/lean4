@@ -237,10 +237,20 @@ static void print_patterns(parser & p, name const & n) {
     if (is_forward_lemma(p.env(), n)) {
         // we regenerate the patterns to make sure they reflect the current set of reducible constants
         try {
-            if (auto mps = mk_multipatterns(p.env(), p.ios(), n)) {
+            blast::scope_debug scope(p.env(), p.ios());
+            auto hi = blast::mk_hi_lemma(n, LEAN_FORWARD_LEMMA_DEFAULT_PRIORITY);
+            if (hi.m_multi_patterns) {
                 io_state_stream out = p.regular_stream();
                 out << "(multi-)patterns:\n";
-                for (multi_pattern const & mp : mps) {
+                if (!is_nil(hi.m_mvars)) {
+                    expr m = head(hi.m_mvars);
+                    out << m << " : " << mlocal_type(m);
+                    for (expr const & m : tail(hi.m_mvars)) {
+                        out << ", " << m << " : " << mlocal_type(m);
+                    }
+                }
+                out << "\n";
+                for (multi_pattern const & mp : hi.m_multi_patterns) {
                     out << "{";
                     bool first = true;
                     for (expr const & p : mp) {

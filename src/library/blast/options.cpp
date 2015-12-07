@@ -20,6 +20,9 @@ Author: Leonardo de Moura
 #ifndef LEAN_DEFAULT_BLAST_TRACE
 #define LEAN_DEFAULT_BLAST_TRACE false
 #endif
+#ifndef LEAN_DEFAULT_BLAST_TRACE_PREPROCESSOR
+#define LEAN_DEFAULT_BLAST_TRACE_PREPROCESSOR false
+#endif
 #ifndef LEAN_DEFAULT_BLAST_SHOW_FAILURE
 #define LEAN_DEFAULT_BLAST_SHOW_FAILURE true
 #endif
@@ -58,6 +61,7 @@ static name * g_blast_max_depth    = nullptr;
 static name * g_blast_init_depth   = nullptr;
 static name * g_blast_inc_depth    = nullptr;
 static name * g_blast_trace        = nullptr;
+static name * g_blast_trace_pre    = nullptr;
 static name * g_blast_subst        = nullptr;
 static name * g_blast_simp         = nullptr;
 static name * g_blast_cc           = nullptr;
@@ -80,6 +84,9 @@ unsigned get_blast_inc_depth(options const & o) {
 }
 bool get_blast_trace(options const & o) {
     return o.get_bool(*g_blast_trace, LEAN_DEFAULT_BLAST_TRACE);
+}
+bool get_blast_trace_pre(options const & o) {
+    return o.get_bool(*g_blast_trace_pre, LEAN_DEFAULT_BLAST_TRACE_PREPROCESSOR);
 }
 bool get_blast_subst(options const & o) {
     return o.get_bool(*g_blast_subst, LEAN_DEFAULT_BLAST_SUBST);
@@ -117,6 +124,7 @@ config::config(options const & o) {
     m_init_depth        = get_blast_init_depth(o);
     m_inc_depth         = get_blast_inc_depth(o);
     m_trace             = get_blast_trace(o);
+    m_trace_pre         = get_blast_trace_pre(o);
     m_subst             = get_blast_subst(o);
     m_simp              = get_blast_simp(o);
     m_cc                = get_blast_cc(o);
@@ -151,6 +159,7 @@ void initialize_options() {
     g_blast_init_depth   = new name{"blast", "init_depth"};
     g_blast_inc_depth    = new name{"blast", "inc_depth"};
     g_blast_trace        = new name{"blast", "trace"};
+    g_blast_trace_pre    = new name{"blast", "trace_preprocessor"};
     g_blast_subst        = new name{"blast", "subst"};
     g_blast_simp         = new name{"blast", "simp"};
     g_blast_cc           = new name{"blast", "cc"};
@@ -170,6 +179,8 @@ void initialize_options() {
                              "(blast) search depth increment for blast (remark: blast uses iteration deepening)");
     register_bool_option(*blast::g_blast_trace, LEAN_DEFAULT_BLAST_TRACE,
                          "(blast) trace");
+    register_bool_option(*blast::g_blast_trace_pre, LEAN_DEFAULT_BLAST_TRACE_PREPROCESSOR,
+                         "(blast) trace preprocessor");
     register_bool_option(*blast::g_blast_subst, LEAN_DEFAULT_BLAST_SUBST,
                          "(blast) enable subst action");
     register_bool_option(*blast::g_blast_simp, LEAN_DEFAULT_BLAST_SIMP,
@@ -198,6 +209,7 @@ void finalize_options() {
     delete g_blast_init_depth;
     delete g_blast_inc_depth;
     delete g_blast_trace;
+    delete g_blast_trace_pre;
     delete g_blast_subst;
     delete g_blast_simp;
     delete g_blast_cc;

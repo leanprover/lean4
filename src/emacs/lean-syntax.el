@@ -55,7 +55,7 @@
            "class" "parsing_only" "coercion" "unfold_full" "constructor"
            "reducible" "irreducible" "semireducible" "quasireducible" "wf"
            "whnf" "multiple_instances" "none" "decls" "declarations"
-           "coercions" "classes" "symm" "subst" "refl" "trans" "simp" "congr" "backward"
+           "coercions" "classes" "symm" "subst" "refl" "trans" "simp" "simps" "congr" "backward"
            "forward" "no_pattern" "notations" "abbreviations" "begin_end_hints" "tactic_hints"
            "reduce_hints" "unfold_hints" "aliases" "eqv"
            "localrefinfo" "recursor"))

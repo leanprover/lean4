@@ -1,5 +1,5 @@
 import data.nat
-open - [rrs] nat
+open - [simps] nat
 
 definition Sum : nat → (nat → nat) → nat :=
 sorry

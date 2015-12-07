@@ -353,8 +353,13 @@ struct mk_hi_lemma_fn {
             lean_unreachable();
         case expr_kind::Sort:   case expr_kind::Constant:
         case expr_kind::Meta:   case expr_kind::Local:
-        case expr_kind::Lambda: case expr_kind::Pi:
+        case expr_kind::Pi:
             return candidate_set();
+        case expr_kind::Lambda:
+            if (has_idx_metavar(a))
+                return candidate_set(candidate(a));
+            else
+                return candidate_set();
         case expr_kind::Macro:
             for (unsigned i = 0; i < macro_num_args(a); i++) {
                 candidate_set s = collect_core(macro_arg(a, i));

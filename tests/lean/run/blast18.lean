@@ -1,4 +1,5 @@
 -- Backward chaining with tagged rules
+set_option blast.strategy "backward"
 constants {P Q R S T U : Prop} (Hpq : P → Q) (Hqr : Q → R) (Hrs : R → S) (Hst : S → T)
 constants (Huq : U → Q) (Hur : U → R) (Hus : U → S) (Hut : U → T)
 attribute Hpq [backward]

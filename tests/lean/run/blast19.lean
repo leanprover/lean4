@@ -1,4 +1,5 @@
 -- Backward chaining with hypotheses
+set_option blast.strategy "backward"
 constants {P Q R S T U : Prop}
 constants (Huq : U → Q) (Hur : U → R) (Hus : U → S) (Hut : U → T)
 attribute Huq [backward]

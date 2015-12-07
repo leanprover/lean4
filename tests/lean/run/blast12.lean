@@ -1,5 +1,5 @@
 import data.nat
-open algebra nat
+open nat
 
 example (a b : nat) : 0 + a + b + 1 = 1 + a + b :=
-by blast
+by simp

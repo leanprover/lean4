@@ -1,6 +1,5 @@
 -- TODO(Leo): use better strategy
-set_option blast.strategy "simple"
-set_option blast.cc false
+set_option blast.strategy "constructor"
 
 example (a b c : Prop) : b → c → b ∧ c :=
 by blast

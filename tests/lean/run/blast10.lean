@@ -1,6 +1,6 @@
 import data.list
 
-set_option blast.trace true
+set_option blast.strategy "unit"
 
 definition lemma1 : true :=
 by blast

@@ -10,6 +10,8 @@ Author: Leonardo de Moura
 #include "library/blast/simplifier/simplifier_strategies.h"
 #include "library/blast/unit/unit_actions.h"
 #include "library/blast/forward/ematch.h"
+#include "library/blast/backward/backward_action.h"
+#include "library/blast/backward/backward_strategy.h"
 #include "library/blast/strategies/simple_strategy.h"
 #include "library/blast/strategies/preprocess_strategy.h"
 #include "library/blast/strategies/debug_action_strategy.h"
@@ -46,6 +48,14 @@ static optional<expr> apply_ematch() {
                                     ematch_action)();
 }
 
+static optional<expr> apply_constructor() {
+    return mk_debug_action_strategy([]() { return constructor_action(); })();
+}
+
+static optional<expr> apply_backward() {
+    return preprocess_and_then(mk_backward_strategy())();
+}
+
 static optional<expr> apply_unit() {
     return mk_debug_action_strategy(unit_preprocess,
                                     unit_propagate,
@@ -69,8 +79,12 @@ optional<expr> apply_strategy() {
         return apply_cc();
     } else if (s_name == "ematch") {
         return apply_ematch();
+    } else if (s_name == "constructor") {
+        return apply_constructor();
     } else if (s_name == "unit") {
         return apply_unit();
+    } else if (s_name == "backward") {
+        return apply_backward();
     } else {
         throw exception(sstream() << "unknown blast strategy '" << s_name << "'");
     }

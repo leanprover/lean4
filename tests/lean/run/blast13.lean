@@ -1,5 +1,6 @@
 import data.list
 open perm
+set_option blast.strategy "cc"
 
 example (p : Prop) (l : list nat) : ¬ l ~ l → p :=
 by blast

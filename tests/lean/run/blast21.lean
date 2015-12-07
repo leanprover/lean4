@@ -1,4 +1,5 @@
 namespace ex
+set_option blast.strategy "backward"
 
 constant typ : Type₁
 

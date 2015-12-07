@@ -1,2 +1,2 @@
-λ (x x x : bool), g y
-λ (x x x : bool), h z
+λ (a b c : bool), g y
+λ (a b c : bool), h z

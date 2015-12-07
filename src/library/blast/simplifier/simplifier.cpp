@@ -3,29 +3,30 @@ Copyright (c) 2015 Daniel Selsam. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Daniel Selsam
 */
+#include <functional>
+#include <iostream>
+#include "util/flet.h"
+#include "util/freset.h"
+#include "util/pair.h"
 #include "util/interrupt.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/abstract.h"
 #include "kernel/expr_maps.h"
 #include "kernel/instantiate.h"
 #include "library/constants.h"
 #include "library/normalize.h"
 #include "library/expr_lt.h"
+#include "library/num.h"
+#include "library/norm_num.h"
 #include "library/class_instance_resolution.h"
 #include "library/relation_manager.h"
-#include "library/blast/blast_exception.h"
+#include "library/app_builder.h"
 #include "library/blast/blast.h"
+#include "library/blast/trace.h"
+#include "library/blast/blast_exception.h"
 #include "library/blast/simplifier/simplifier.h"
 #include "library/blast/simplifier/simp_rule_set.h"
 #include "library/blast/simplifier/ceqv.h"
-#include "library/app_builder.h"
-#include "library/num.h"
-#include "library/norm_num.h"
-#include "util/flet.h"
-#include "util/freset.h"
-#include "util/pair.h"
-#include "util/sexpr/option_declarations.h"
-#include <functional>
-#include <iostream>
 
 #ifndef LEAN_DEFAULT_SIMPLIFY_MAX_STEPS
 #define LEAN_DEFAULT_SIMPLIFY_MAX_STEPS 1000
@@ -196,7 +197,7 @@ class simplifier {
         for (unsigned i = 0; i < ls.size(); i++) {
             expr & l = ls[i];
             if (m_trace) {
-                ios().get_diagnostic_channel() << "Local: " << l << " : " << mlocal_type(l) << "\n";
+                diagnostic(env(), ios()) << "Local: " << l << " : " << mlocal_type(l) << "\n";
             }
             tmp_type_context tctx(env(), ios());
             try {
@@ -387,7 +388,7 @@ result simplifier::simplify(expr const & e, bool is_root) {
     flet<unsigned> inc_depth(m_depth, m_depth+1);
 
     if (m_trace) {
-        ios().get_diagnostic_channel() << m_depth << "." << m_rel << ": " << e << "\n";
+        diagnostic(env(), ios()) << m_depth << "." << m_rel << ": " << ppb(e) << "\n";
     }
 
     if (m_num_steps > m_max_steps)
@@ -463,7 +464,7 @@ result simplifier::simplify_lambda(expr const & e) {
     buffer<expr> ls;
     while (is_lambda(t)) {
         expr d = instantiate_rev(binding_domain(t), ls.size(), ls.data());
-        expr l = m_tmp_tctx->mk_tmp_local(d, binding_info(t));
+        expr l = m_tmp_tctx->mk_tmp_local(binding_name(t), d, binding_info(t));
         ls.push_back(l);
         t = instantiate(binding_body(t), l);
     }
@@ -615,9 +616,9 @@ result simplifier::rewrite(expr const & e, simp_rule const & sr) {
     if (m_trace) {
         expr new_lhs = tmp_tctx->instantiate_uvars_mvars(sr.get_lhs());
         expr new_rhs = tmp_tctx->instantiate_uvars_mvars(sr.get_rhs());
-        ios().get_diagnostic_channel()
+        diagnostic(env(), ios())
             << "REW(" << sr.get_id() << ") "
-            << "[" << new_lhs << " =?= " << new_rhs << "]\n";
+            << "[" << ppb(new_lhs) << " =?= " << ppb(new_rhs) << "]\n";
     }
 
     if (!instantiate_emetas(tmp_tctx, sr.get_num_emeta(), sr.get_emetas(), sr.get_instances())) return result(e);
@@ -709,9 +710,9 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
     if (m_trace) {
         expr new_lhs = tmp_tctx->instantiate_uvars_mvars(cr.get_lhs());
         expr new_rhs = tmp_tctx->instantiate_uvars_mvars(cr.get_rhs());
-        ios().get_diagnostic_channel()
+        diagnostic(env(), ios())
             << "CONGR(" << cr.get_id() << ") "
-            << "[" << new_lhs << " =?= " << new_rhs << "]\n";
+            << "[" << ppb(new_lhs) << " =?= " << ppb(new_rhs) << "]\n";
     }
 
     /* First, iterate over the congruence hypotheses */
@@ -779,14 +780,14 @@ bool simplifier::instantiate_emetas(blast_tmp_type_context & tmp_tctx, unsigned 
                 if (auto v = tmp_tctx->mk_class_instance(m_type)) {
                     if (!tmp_tctx->assign(m, *v)) {
                         if (m_trace) {
-                            ios().get_diagnostic_channel() << "unable to assign instance for: " << m_type << "\n";
+                            diagnostic(env(), ios()) << "unable to assign instance for: " << ppb(m_type) << "\n";
                         }
                         failed = true;
                         return;
                     }
                 } else {
                     if (m_trace) {
-                        ios().get_diagnostic_channel() << "unable to synthesize instance for: " << m_type << "\n";
+                        diagnostic(env(), ios()) << "unable to synthesize instance for: " << ppb(m_type) << "\n";
                     }
                     failed = true;
                     return;
@@ -803,7 +804,7 @@ bool simplifier::instantiate_emetas(blast_tmp_type_context & tmp_tctx, unsigned 
             }
 
             if (m_trace) {
-                ios().get_diagnostic_channel() << "failed to assign: " << m << " : " << m_type << "\n";
+                diagnostic(env(), ios()) << "failed to assign: " << m << " : " << ppb(m_type) << "\n";
             }
 
             failed = true;
@@ -998,7 +999,7 @@ result simplifier::fuse(expr const & e) {
                                            {*g_simplify_prove_namespace, *g_simplify_unit_namespace,
                                                    *g_simplify_neg_namespace, *g_simplify_ac_namespace}));
     if (!pf_1_3) {
-        diagnostic(env(), ios()) << e << "\n\n =?=\n\n" << e_grp << "\n";
+        diagnostic(env(), ios()) << ppb(e) << "\n\n =?=\n\n" << ppb(e_grp) << "\n";
         throw blast_exception("Failed to prove (1) == (3) during fusion", e);
     }
 
@@ -1009,7 +1010,7 @@ result simplifier::fuse(expr const & e) {
                                                    *g_simplify_neg_namespace, *g_simplify_ac_namespace,
                                                    *g_simplify_distrib_namespace}));
     if (!pf_4_5) {
-        diagnostic(env(), ios()) << e_grp_ls << "\n\n =?=\n\n" << e_fused_ls << "\n";
+        diagnostic(env(), ios()) << ppb(e_grp_ls) << "\n\n =?=\n\n" << ppb(e_fused_ls) << "\n";
         throw blast_exception("Failed to prove (4) == (5) during fusion", e);
     }
 

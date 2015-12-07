@@ -1,4 +1,5 @@
 definition foo [forward] : ∀ (m n k : ℕ), P (f m) → P (g n) → P (f k) → P k ∧ R (g m) (f n) ∧ P (g m) ∧ P (f n) :=
 λ (m n k : ℕ), sorry
 (multi-)patterns:
-{P ?M_1, R (g ?M_2) (f ?M_3)}
+?M_1 : ℕ, ?M_2 : ℕ, ?M_3 : ℕ
+{P ?M_3, R (g ?M_1) (f ?M_2)}

@@ -1,13 +1,16 @@
 definition foo₁ [forward] : ∀ (x : ℕ), f x ∧ g x :=
 sorry
 (multi-)patterns:
+?M_1 : ℕ
 {f ?M_1}
 {g ?M_1}
 definition foo₂ [forward] : ∀ (x : ℕ), (:f x:) ∧ g x :=
 sorry
 (multi-)patterns:
+?M_1 : ℕ
 {f ?M_1}
 definition foo₃ [forward] : ∀ (x : ℕ), (:f (id x):) ∧ g x :=
 sorry
 (multi-)patterns:
+?M_1 : ℕ
 {f ?M_1}

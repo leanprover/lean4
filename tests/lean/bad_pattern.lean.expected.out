@@ -2,13 +2,16 @@ bad_pattern.lean:9:33: error: invalid pattern hint, pattern hints must be applic
 theorem tst₀ [forward] : ∀ (x : ℕ), P x :=
 sorry
 (multi-)patterns:
+?M_1 : ℕ
 {P ?M_1}
 theorem tst₁ [forward] : ∀ (x : ℕ), (:P x:) :=
 sorry
 (multi-)patterns:
+?M_1 : ℕ
 {P ?M_1}
 theorem tst₃ [forward] : ∀ (x : ℕ), P (:id x:) :=
 sorry
 (multi-)patterns:
+?M_1 : ℕ
 {P ?M_1}
 bad_pattern.lean:20:0: error: pattern inference failed for [forward] annotation, (solution: provide pattern hints using the notation '(: t :)' )

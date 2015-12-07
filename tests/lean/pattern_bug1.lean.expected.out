@@ -1,4 +1,5 @@
 definition H [forward] : ∀ (a : A), (:P a:) → Exists (R a) :=
 sorry
 (multi-)patterns:
+?M_1 : A
 {P ?M_1}

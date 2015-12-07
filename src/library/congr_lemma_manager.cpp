@@ -147,7 +147,7 @@ struct congr_lemma_manager::imp {
 
     optional<result> mk_congr_simp(expr const & fn, buffer<param_info> const & pinfos, buffer<congr_arg_kind> const & kinds) {
         try {
-            expr fn_type = whnf(infer(fn));
+            expr fn_type = relaxed_whnf(infer(fn));
             name e_name("e");
             buffer<expr> lhss;
             buffer<expr> rhss;          // it contains the right-hand-side argument
@@ -183,7 +183,7 @@ struct congr_lemma_manager::imp {
                     eqs.push_back(none_expr());
                     break;
                 }}
-                fn_type  = whnf(instantiate(binding_body(fn_type), lhs));
+                fn_type  = relaxed_whnf(instantiate(binding_body(fn_type), lhs));
             }
             expr lhs = mk_app(fn, lhss);
             expr rhs = mk_app(fn, rhss);

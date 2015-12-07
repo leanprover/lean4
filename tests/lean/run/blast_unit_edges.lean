@@ -1,5 +1,6 @@
 -- Testing all possible cases of [unit_action]
-set_option blast.recursor false
+set_option blast.strategy "unit"
+
 universes l1 l2
 variables {A B C : Prop}
 variables {X : Type.{l1}} {Y : Type.{l2}}

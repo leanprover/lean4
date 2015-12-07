@@ -45,6 +45,12 @@ static optional<expr> apply_ematch() {
                                     ematch_action)();
 }
 
+static optional<expr> apply_unit() {
+    return mk_debug_action_strategy(unit_preprocess,
+                                    unit_propagate,
+                                    []() { return action_result::failed(); })();
+}
+
 optional<expr> apply_strategy() {
     std::string s_name(get_config().m_strategy);
     if (s_name == "preprocess") {
@@ -59,6 +65,8 @@ optional<expr> apply_strategy() {
         return apply_cc();
     } else if (s_name == "ematch") {
         return apply_ematch();
+    } else if (s_name == "unit") {
+        return apply_unit();
     } else {
         // TODO(Leo): add more builtin strategies
         return apply_simple();

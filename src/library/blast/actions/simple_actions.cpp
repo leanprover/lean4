@@ -90,7 +90,7 @@ action_result assumption_contradiction_actions(hypothesis_idx hidx) {
                 if (num_not1 > num_not2) {
                     return action_result(b.mk_app(get_absurd_name(), {s.get_target(), pr2, pr1}));
                 } else {
-                    lean_assert(is_neg2);
+                    lean_assert(num_not1 < num_not2);
                     return action_result(b.mk_app(get_absurd_name(), {s.get_target(), pr1, pr2}));
                 }
             }

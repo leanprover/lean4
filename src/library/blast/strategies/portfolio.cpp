@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "util/sstream.h"
 #include "library/blast/actions/assert_cc_action.h"
 #include "library/blast/simplifier/simplifier_strategies.h"
 #include "library/blast/unit/unit_actions.h"
@@ -61,6 +62,9 @@ optional<expr> apply_strategy() {
         return apply_simp_nohyps();
     } else if (s_name == "simple") {
         return apply_simple();
+    } else if (s_name == "all") {
+        // TODO(Leo):
+        return apply_simple();
     } else if (s_name == "cc") {
         return apply_cc();
     } else if (s_name == "ematch") {
@@ -68,8 +72,7 @@ optional<expr> apply_strategy() {
     } else if (s_name == "unit") {
         return apply_unit();
     } else {
-        // TODO(Leo): add more builtin strategies
-        return apply_simple();
+        throw exception(sstream() << "unknown blast strategy '" << s_name << "'");
     }
 }
 }}

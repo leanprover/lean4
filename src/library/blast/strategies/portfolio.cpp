@@ -40,7 +40,7 @@ static optional<expr> apply_cc() {
 
 static optional<expr> apply_ematch() {
     flet<bool> set(get_config().m_ematch, true);
-    return mk_debug_action_strategy([](hypothesis_idx hidx) { Try(unit_propagate(hidx)); TrySolve(assert_cc_action(hidx)); return action_result::new_branch(); },
+    return mk_debug_action_strategy(assert_cc_action,
                                     unit_propagate,
                                     ematch_action)();
 }

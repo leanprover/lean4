@@ -61,7 +61,7 @@ bool is_backward_rule(environment const & env, name const & n);
 /** \brief Get current backward rule set */
 blast::backward_rule_set get_backward_rule_set(environment const & env);
 /** \brief Get backward rule set in the given namespace. */
-blast::backward_rule_set get_backward_rule_sets(environment const & env, io_state const & ios, name const & ns);
+blast::backward_rule_set get_backward_rule_sets(environment const & env, options const & o, name const & ns);
 
 io_state_stream const & operator<<(io_state_stream const & out, blast::backward_rule_set const & r);
 

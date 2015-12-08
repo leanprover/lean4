@@ -50,7 +50,7 @@ action_result unit_preprocess(unsigned hidx) {
         return action_result::failed();
     }
 
-    simp_rule_sets srss = get_simp_rule_sets(env(), ios(), *g_simplify_unit_simp_namespace);
+    simp_rule_sets srss = get_simp_rule_sets(env(), ios().get_options(), *g_simplify_unit_simp_namespace);
     // TODO(dhs): disable contextual rewriting
     auto r = simplify(get_iff_name(), h.get_type(), srss, is_propositional);
 

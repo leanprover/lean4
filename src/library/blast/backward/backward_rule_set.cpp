@@ -23,8 +23,8 @@ static std::string * g_key = nullptr;
 struct brs_state {
     backward_rule_set        m_backward_rule_set;
     name_set                 m_names;
-    void add(environment const & env, io_state const & ios, name const & cname, unsigned prio) {
-        default_type_context tctx(env, ios);
+    void add(environment const & env, options const & o, name const & cname, unsigned prio) {
+        default_type_context tctx(env, o);
         m_backward_rule_set.insert(tctx, cname, prio);
         m_names.insert(cname);
     }
@@ -41,7 +41,7 @@ struct brs_config {
     typedef brs_entry  entry;
     typedef brs_state  state;
     static void add_entry(environment const & env, io_state const & ios, state & s, entry const & e) {
-        s.add(env, ios, e.m_name, e.m_priority);
+        s.add(env, ios.get_options(), e.m_name, e.m_priority);
     }
     static name const & get_class_name() {
         return *g_class_name;
@@ -75,12 +75,12 @@ backward_rule_set get_backward_rule_set(environment const & env) {
     return brs_ext::get_state(env).m_backward_rule_set;
 }
 
-backward_rule_set get_backward_rule_sets(environment const & env, io_state const & ios, name const & ns) {
+backward_rule_set get_backward_rule_sets(environment const & env, options const & o, name const & ns) {
     backward_rule_set brs;
     list<brs_entry> const * entries = brs_ext::get_entries(env, ns);
     if (entries) {
         for (auto const & e : *entries) {
-            default_type_context tctx(env, ios);
+            default_type_context tctx(env, o);
             brs.insert(tctx, e.m_name, e.m_priority);
         }
     }

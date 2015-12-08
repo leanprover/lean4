@@ -44,8 +44,8 @@ struct cienv {
     typedef std::unique_ptr<default_type_context> ti_ptr;
     ti_ptr m_ti_ptr;
 
-    void reset(environment const & env, io_state const & ios, list<expr> const & ctx) {
-        m_ti_ptr.reset(new default_type_context(env, ios, ctx));
+    void reset(environment const & env, options const & o, list<expr> const & ctx) {
+        m_ti_ptr.reset(new default_type_context(env, o, ctx));
     }
 
     bool compatible_env(environment const & env) {
@@ -53,17 +53,17 @@ struct cienv {
         return env.is_descendant(curr_env) && curr_env.is_descendant(env);
     }
 
-    void ensure_compatible(environment const & env, io_state const & ios, list<expr> const & ctx) {
+    void ensure_compatible(environment const & env, options const & o, list<expr> const & ctx) {
         if (!m_ti_ptr || !compatible_env(env) || !m_ti_ptr->compatible_local_instances(ctx))
-            reset(env, ios, ctx);
-        if (!m_ti_ptr->update_options(ios.get_options()))
+            reset(env, o, ctx);
+        if (!m_ti_ptr->update_options(o))
             m_ti_ptr->clear_cache();
     }
 
-    optional<expr> operator()(environment const & env, io_state const & ios,
+    optional<expr> operator()(environment const & env, options const & o,
                               pos_info_provider const * pip, list<expr> const & ctx, expr const & type,
                               expr const & pos_ref) {
-        ensure_compatible(env, ios, ctx);
+        ensure_compatible(env, o, ctx);
         type_context::scope_pos_info scope(*m_ti_ptr, pip, pos_ref);
         return m_ti_ptr->mk_class_instance(type);
     }
@@ -71,18 +71,19 @@ struct cienv {
 
 MK_THREAD_LOCAL_GET_DEF(cienv, get_cienv);
 
-static optional<expr> mk_class_instance(environment const & env, io_state const & ios, list<expr> const & ctx,
+static optional<expr> mk_class_instance(environment const & env, options const & o, list<expr> const & ctx,
                                         expr const & e, pos_info_provider const * pip, expr const & pos_ref) {
-    return get_cienv()(env, ios, pip, ctx, e, pos_ref);
+    return get_cienv()(env, o, pip, ctx, e, pos_ref);
 }
 
-optional<expr> mk_class_instance(environment const & env, io_state const & ios, list<expr> const & ctx,
+optional<expr> mk_class_instance(environment const & env, options const & o, list<expr> const & ctx,
                                  expr const & e, pos_info_provider const * pip) {
-    return mk_class_instance(env, ios, ctx, e, pip, e);
+    return mk_class_instance(env, o, ctx, e, pip, e);
 }
 
-optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx, expr const & e, pos_info_provider const * pip) {
-    return mk_class_instance(env, get_dummy_ios(), ctx, e, pip);
+optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx, expr const & e,
+                                 pos_info_provider const * pip) {
+    return mk_class_instance(env, options(), ctx, e, pip);
 }
 
 // Auxiliary class for generating a lazy-stream of instances.
@@ -100,7 +101,7 @@ public:
                                   bool is_strict):
         choice_iterator(!is_strict),
         m_ios(ios),
-        m_ti(env, ios, ctx, true),
+        m_ti(env, ios.get_options(), ctx, true),
         m_scope_pos_info(m_ti, pip, pos_ref),
         m_new_meta(new_meta),
         m_new_j(new_j) {
@@ -134,7 +135,7 @@ static constraint mk_class_instance_root_cnstr(environment const & env, io_state
         if (use_local_instances)
             ctx = _ctx.instantiate(substitution(s));
         cienv & cenv = get_cienv();
-        cenv.ensure_compatible(env, ios, ctx.get_data());
+        cenv.ensure_compatible(env, ios.get_options(), ctx.get_data());
         auto cls_name = cenv.m_ti_ptr->is_class(meta_type);
         if (!cls_name) {
             // do nothing, since type is not a class.
@@ -149,7 +150,7 @@ static constraint mk_class_instance_root_cnstr(environment const & env, io_state
                                                                                              meta_type, pip, meta,
                                                                                              new_meta, new_j, is_strict)));
         } else {
-            if (auto r = mk_class_instance(env, ios, ctx.get_data(), meta_type, pip, meta)) {
+            if (auto r = mk_class_instance(env, ios.get_options(), ctx.get_data(), meta_type, pip, meta)) {
                 constraint c = mk_eq_cnstr(new_meta, *r, new_j);
                 return lazy_list<constraints>(constraints(c));
             } else if (is_strict) {
@@ -189,15 +190,15 @@ optional<expr> mk_class_instance(environment const & env, local_context const & 
     return mk_class_instance(env, ctx.get_data(), type, nullptr);
 }
 
-optional<expr> mk_hset_instance(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & type) {
+optional<expr> mk_hset_instance(type_checker & tc, options const & o, list<expr> const & ctx, expr const & type) {
     level lvl        = sort_level(tc.ensure_type(type).first);
     expr is_hset     = tc.whnf(mk_app(mk_constant(get_is_trunc_is_hset_name(), {lvl}), type)).first;
-    return mk_class_instance(tc.env(), ios, ctx, is_hset);
+    return mk_class_instance(tc.env(), o, ctx, is_hset);
 }
 
-optional<expr> mk_subsingleton_instance(environment const & env, io_state const & ios, list<expr> const & ctx, expr const & type) {
+optional<expr> mk_subsingleton_instance(environment const & env, options const & o, list<expr> const & ctx, expr const & type) {
     cienv & cenv = get_cienv();
-    cenv.ensure_compatible(env, ios, ctx);
+    cenv.ensure_compatible(env, o, ctx);
     return cenv.m_ti_ptr->mk_subsingleton_instance(type);
 }
 

@@ -98,8 +98,8 @@ struct app_builder::imp {
         m_trans_getter(mk_trans_info_getter(m_ctx->env())) {
     }
 
-    imp(environment const & env, io_state const & ios, reducible_behavior b):
-        imp(*new tmp_type_context(env, ios, b), true) {
+    imp(environment const & env, options const & o, reducible_behavior b):
+        imp(*new tmp_type_context(env, o, b), true) {
     }
 
     imp(tmp_type_context & ctx):
@@ -676,12 +676,12 @@ struct app_builder::imp {
     }
 };
 
-app_builder::app_builder(environment const & env, io_state const & ios, reducible_behavior b):
-    m_ptr(new imp(env, ios, b)) {
+app_builder::app_builder(environment const & env, options const & o, reducible_behavior b):
+    m_ptr(new imp(env, o, b)) {
 }
 
 app_builder::app_builder(environment const & env, reducible_behavior b):
-    app_builder(env, get_dummy_ios(), b) {
+    app_builder(env, options(), b) {
 }
 
 app_builder::app_builder(tmp_type_context & ctx):

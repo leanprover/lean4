@@ -99,7 +99,7 @@ struct type_context::ext_ctx : public extension_context {
     }
 };
 
-type_context::type_context(environment const & env, io_state const & ios, tmp_local_generator * gen,
+type_context::type_context(environment const & env, options const & o, tmp_local_generator * gen,
                            bool gen_owner, bool multiple_instances):
     m_env(env),
     m_ngen(*g_prefix),
@@ -115,7 +115,7 @@ type_context::type_context(environment const & env, io_state const & ios, tmp_lo
     // TODO(Leo): use compilation options for setting config
     m_ci_max_depth       = 32;
     m_ci_trans_instances = true;
-    update_options(ios.get_options());
+    update_options(o);
 }
 
 type_context::~type_context() {
@@ -1739,9 +1739,9 @@ type_context::scope_pos_info::~scope_pos_info() {
     m_owner.m_ci_pos = m_old_pos;
 }
 
-default_type_context::default_type_context(environment const & env, io_state const & ios,
+default_type_context::default_type_context(environment const & env, options const & o,
                                            list<expr> const & insts, bool multiple_instances):
-    type_context(env, ios, multiple_instances),
+    type_context(env, o, multiple_instances),
     m_not_reducible_pred(mk_not_reducible_pred(env)) {
     m_ignore_if_zero = false;
     m_next_uvar_idx  = 0;

@@ -541,7 +541,7 @@ static void print_simp_rules(parser & p) {
     if (p.curr_is_identifier()) {
         ns = p.get_name_val();
         p.next();
-        s = get_simp_rule_sets(p.env(), p.ios(), ns);
+        s = get_simp_rule_sets(p.env(), p.get_options(), ns);
     } else {
         s = get_simp_rule_sets(p.env());
     }
@@ -1394,7 +1394,7 @@ static environment replace_cmd(parser & p) {
     parse_expr_vector(p, to);
     if (from.size() != to.size())
         throw parser_error("invalid #replace command, from/to vectors have different size", pos);
-    tmp_type_context ctx(env, p.ios());
+    tmp_type_context ctx(env, p.get_options());
     fun_info_manager infom(ctx);
     auto r = replace(infom, e, from, to);
     if (!r)
@@ -1410,7 +1410,7 @@ static environment congr_cmd_core(parser & p, congr_kind kind) {
     auto pos = p.pos();
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
-    tmp_type_context    ctx(env, p.ios());
+    tmp_type_context    ctx(env, p.get_options());
     app_builder         b(ctx);
     fun_info_manager    infom(ctx);
     congr_lemma_manager cm(b, infom);
@@ -1468,7 +1468,7 @@ static environment simplify_cmd(parser & p) {
     } else if (ns == name("env")) {
         srss = get_simp_rule_sets(p.env());
     } else {
-        srss = get_simp_rule_sets(p.env(), p.ios(), ns);
+        srss = get_simp_rule_sets(p.env(), p.get_options(), ns);
     }
 
     blast::simp::result r = blast::simplify(rel, e, srss);
@@ -1506,8 +1506,8 @@ static environment normalizer_cmd(parser & p) {
 
 static environment abstract_expr_cmd(parser & p) {
     unsigned o = p.parse_small_nat();
-    default_type_context ctx(p.env(), p.ios());
-    app_builder builder(p.env(), p.ios());
+    default_type_context ctx(p.env(), p.get_options());
+    app_builder builder(p.env(), p.get_options());
     fun_info_manager fun_info(ctx);
     congr_lemma_manager congr_lemma(builder, fun_info);
     abstract_expr_manager ae_manager(congr_lemma);

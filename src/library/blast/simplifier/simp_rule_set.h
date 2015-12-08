@@ -144,9 +144,9 @@ bool is_congr_rule(environment const & env, name const & n);
 /** \brief Get current simplification rule sets */
 simp_rule_sets get_simp_rule_sets(environment const & env);
 /** \brief Get simplification rule sets in the given namespace. */
-simp_rule_sets get_simp_rule_sets(environment const & env, io_state const & ios, name const & ns);
+simp_rule_sets get_simp_rule_sets(environment const & env, options const & o, name const & ns);
 /** \brief Get simplification rule sets in the given namespaces. */
-simp_rule_sets get_simp_rule_sets(environment const & env, io_state const & ios, std::initializer_list<name> const & nss);
+simp_rule_sets get_simp_rule_sets(environment const & env, options const & o, std::initializer_list<name> const & nss);
 
 io_state_stream const & operator<<(io_state_stream const & out, simp_rule_sets const & s);
 

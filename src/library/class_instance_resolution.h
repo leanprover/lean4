@@ -12,8 +12,10 @@ Author: Leonardo de Moura
 #include "library/local_context.h"
 
 namespace lean {
-optional<expr> mk_class_instance(environment const & env, io_state const & ios, list<expr> const & ctx, expr const & e, pos_info_provider const * pip = nullptr);
-optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx, expr const & e, pos_info_provider const * pip = nullptr);
+optional<expr> mk_class_instance(environment const & env, options const & o,
+                                 list<expr> const & ctx, expr const & e, pos_info_provider const * pip = nullptr);
+optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx, expr const & e,
+                                 pos_info_provider const * pip = nullptr);
 
 // Old API
 
@@ -37,8 +39,9 @@ pair<expr, constraint> mk_class_instance_elaborator(
 
 optional<expr> mk_class_instance(environment const & env, io_state const & ios, local_context const & ctx, expr const & type, bool use_local_instances);
 optional<expr> mk_class_instance(environment const & env, local_context const & ctx, expr const & type);
-optional<expr> mk_hset_instance(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & type);
-optional<expr> mk_subsingleton_instance(environment const & env, io_state const & ios, list<expr> const & ctx, expr const & type);
+optional<expr> mk_hset_instance(type_checker & tc, options const & o, list<expr> const & ctx, expr const & type);
+optional<expr> mk_subsingleton_instance(environment const & env, options const & o,
+                                        list<expr> const & ctx, expr const & type);
 
 void initialize_class_instance_resolution();
 void finalize_class_instance_resolution();

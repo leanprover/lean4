@@ -55,7 +55,7 @@ optional<expr> apply_eq_rec_eq(type_checker & tc, io_state const & ios, list<exp
     if (!is_local(p) || !is_eq_a_a(tc, mlocal_type(p)))
         return none_expr();
     expr const & A = args[0];
-    auto is_hset_A = mk_hset_instance(tc, ios, ctx, A);
+    auto is_hset_A = mk_hset_instance(tc, ios.get_options(), ctx, A);
     if (!is_hset_A)
         return none_expr();
     levels ls = const_levels(eq_rec_fn);

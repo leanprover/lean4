@@ -25,7 +25,7 @@ definition assump := eassumption
 tactic_hint assump
 
 theorem tst {A B : Type} (H : inh B) : inh (A → B → B)
-set_option class.trace_instances true
+set_option trace.class_instances true
 
 theorem T1 {A B C D : Type} {P : C → Prop} (a : A) (H1 : inh B) (H2 : ∃x, P x) : inh ((A → A) × B × (D → C) × Prop) :=
 have h1 [visible] : inh A, from inh.intro a,

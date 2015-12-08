@@ -296,14 +296,14 @@ class type_context {
     optional<expr> mk_class_instance_core(expr const & type);
     optional<expr> check_ci_cache(expr const & type) const;
     void cache_ci_result(expr const & type, expr const & inst);
-    type_context(environment const & env, io_state const & ios, tmp_local_generator * gen,
+    type_context(environment const & env, options const & o, tmp_local_generator * gen,
                  bool gen_owner, bool multiple_instances);
 public:
-    type_context(environment const & env, io_state const & ios, bool multiple_instances = false):
-        type_context(env, ios, new tmp_local_generator(), true, multiple_instances) {}
-    type_context(environment const & env, io_state const & ios, tmp_local_generator & gen,
+    type_context(environment const & env, options const & o, bool multiple_instances = false):
+        type_context(env, o, new tmp_local_generator(), true, multiple_instances) {}
+    type_context(environment const & env, options const & o, tmp_local_generator & gen,
                  bool multiple_instances = false):
-        type_context(env, ios, &gen, false, multiple_instances) {}
+        type_context(env, o, &gen, false, multiple_instances) {}
     virtual ~type_context();
 
     void set_local_instances(list<expr> const & insts);
@@ -551,7 +551,7 @@ class default_type_context : public type_context {
     unsigned mvar_idx(expr const & m) const;
 
 public:
-    default_type_context(environment const & env, io_state const & ios,
+    default_type_context(environment const & env, options const & o,
                            list<expr> const & insts = list<expr>(), bool multiple_instances = false);
     virtual ~default_type_context();
     virtual bool is_extra_opaque(name const & n) const { return m_not_reducible_pred(n); }

@@ -188,10 +188,10 @@ class simplifier {
         simp_rule_sets srss = _srss;
         for (unsigned i = 0; i < ls.size(); i++) {
             expr & l = ls[i];
-            tmp_type_context tctx(env(), ios());
+            blast_tmp_type_context tctx;
             try {
                 // TODO(Leo,Daniel): should we allow the user to set the priority of local lemmas
-                srss = add(tctx, srss, mlocal_name(l), tctx.infer(l), l, LEAN_SIMP_DEFAULT_PRIORITY);
+                srss = add(*tctx, srss, mlocal_name(l), tctx->infer(l), l, LEAN_SIMP_DEFAULT_PRIORITY);
             } catch (exception e) {
             }
         }
@@ -976,9 +976,9 @@ result simplifier::fuse(expr const & e) {
     /* Prove (1) == (3) using simplify with [ac] */
     flet<bool> no_simplify_numerals(m_numerals, false);
     auto pf_1_3 = prove(get_app_builder().mk_eq(e, e_grp),
-                        get_simp_rule_sets(env(), ios(),
+                        get_simp_rule_sets(env(), ios().get_options(),
                                            {*g_simplify_prove_namespace, *g_simplify_unit_namespace,
-                                                   *g_simplify_neg_namespace, *g_simplify_ac_namespace}));
+                                            *g_simplify_neg_namespace, *g_simplify_ac_namespace}));
     if (!pf_1_3) {
         diagnostic(env(), ios()) << ppb(e) << "\n\n =?=\n\n" << ppb(e_grp) << "\n";
         throw blast_exception("Failed to prove (1) == (3) during fusion", e);
@@ -986,10 +986,10 @@ result simplifier::fuse(expr const & e) {
 
     /* Prove (4) == (5) using simplify with [som] */
     auto pf_4_5 = prove(get_app_builder().mk_eq(e_grp_ls, e_fused_ls),
-                        get_simp_rule_sets(env(), ios(),
+                        get_simp_rule_sets(env(), ios().get_options(),
                                            {*g_simplify_prove_namespace, *g_simplify_unit_namespace,
-                                                   *g_simplify_neg_namespace, *g_simplify_ac_namespace,
-                                                   *g_simplify_distrib_namespace}));
+                                            *g_simplify_neg_namespace, *g_simplify_ac_namespace,
+                                            *g_simplify_distrib_namespace}));
     if (!pf_4_5) {
         diagnostic(env(), ios()) << ppb(e_grp_ls) << "\n\n =?=\n\n" << ppb(e_fused_ls) << "\n";
         throw blast_exception("Failed to prove (4) == (5) during fusion", e);
@@ -997,9 +997,9 @@ result simplifier::fuse(expr const & e) {
 
     /* Prove (5) == (6) using simplify with [numeral] */
     flet<bool> simplify_numerals(m_numerals, true);
-    result r_simp_ls = simplify(e_fused_ls, get_simp_rule_sets(env(), ios(),
+    result r_simp_ls = simplify(e_fused_ls, get_simp_rule_sets(env(), ios().get_options(),
                                                                {*g_simplify_unit_namespace, *g_simplify_neg_namespace,
-                                                                       *g_simplify_ac_namespace}));
+                                                                *g_simplify_ac_namespace}));
 
     /* Prove (4) == (6) by transitivity of proofs (2) and (3) */
     expr pf_4_6;

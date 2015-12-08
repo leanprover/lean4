@@ -17,7 +17,7 @@ is_iso.mk (inverse f) f
 
 constant a : A
 
-set_option class.trace_instances true
+set_option trace.class_instances true
 
 definition foo := inverse (id a)
 

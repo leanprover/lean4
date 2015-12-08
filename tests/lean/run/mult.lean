@@ -6,7 +6,7 @@ attribute C [multiple_instances]
 definition c1 [instance] : C := C.mk 1
 definition c2 [instance] : C := C.mk 2
 
-set_option class.trace_instances true
+set_option trace.class_instances true
 
 definition f [s : C] : nat := C.val
 

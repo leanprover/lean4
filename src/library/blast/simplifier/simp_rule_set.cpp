@@ -475,13 +475,13 @@ struct rrs_state {
     name_set                 m_congr_names;
 
     void add_simp(environment const & env, io_state const & ios, name const & cname, unsigned prio) {
-        tmp_type_context tctx{env, ios};
+        tmp_type_context tctx(env, ios.get_options());
         m_sets = add_core(tctx, m_sets, cname, prio);
         m_simp_names.insert(cname);
     }
 
     void add_congr(environment const & env, io_state const & ios, name const & n, unsigned prio) {
-        tmp_type_context tctx{env, ios};
+        tmp_type_context tctx(env, ios.get_options());
         add_congr_core(tctx, m_sets, n, prio);
         m_congr_names.insert(n);
     }
@@ -544,25 +544,25 @@ simp_rule_sets get_simp_rule_sets(environment const & env) {
     return rrs_ext::get_state(env).m_sets;
 }
 
-simp_rule_sets get_simp_rule_sets(environment const & env, io_state const & ios, name const & ns) {
+simp_rule_sets get_simp_rule_sets(environment const & env, options const & o, name const & ns) {
     simp_rule_sets set;
     list<rrs_entry> const * entries = rrs_ext::get_entries(env, ns);
     if (entries) {
         for (auto const & e : *entries) {
-            tmp_type_context tctx(env, ios);
+            tmp_type_context tctx(env, o);
             set = add_core(tctx, set, e.m_name, e.m_priority);
         }
     }
     return set;
 }
 
-simp_rule_sets get_simp_rule_sets(environment const & env, io_state const & ios, std::initializer_list<name> const & nss) {
+simp_rule_sets get_simp_rule_sets(environment const & env, options const & o, std::initializer_list<name> const & nss) {
     simp_rule_sets set;
     for (name const & ns : nss) {
         list<rrs_entry> const * entries = rrs_ext::get_entries(env, ns);
         if (entries) {
             for (auto const & e : *entries) {
-                tmp_type_context tctx(env, ios);
+                tmp_type_context tctx(env, o);
                 set = add_core(tctx, set, e.m_name, e.m_priority);
             }
         }

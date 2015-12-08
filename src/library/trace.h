@@ -32,7 +32,7 @@ public:
     void activate();
 };
 
-#define LEAN_MERGE_(a,b)  a##b
+#define LEAN_MERGE_(a, b)  a##b
 #define LEAN_LABEL_(a) LEAN_MERGE_(unique_name_, a)
 #define LEAN_UNIQUE_NAME LEAN_LABEL_(__LINE__)
 

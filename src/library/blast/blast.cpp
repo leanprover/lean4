@@ -122,7 +122,7 @@ class blastenv {
         std::vector<state::assignment_snapshot> m_stack;
     public:
         tctx(blastenv & benv):
-            type_context(benv.m_env, benv.m_ios, benv.m_tmp_local_generator),
+            type_context(benv.m_env, benv.m_ios.get_options(), benv.m_tmp_local_generator),
             m_benv(benv) {}
 
         virtual bool is_extra_opaque(name const & n) const override {
@@ -1067,8 +1067,8 @@ scope_debug::~scope_debug() {}
     and blast meta-variables are stored in the blast state */
 class tmp_tctx : public tmp_type_context {
 public:
-    tmp_tctx(environment const & env, io_state const & ios, tmp_local_generator & gen):
-        tmp_type_context(env, ios, gen) {}
+    tmp_tctx(environment const & env, options const & o, tmp_local_generator & gen):
+        tmp_type_context(env, o, gen) {}
 
     /** \brief Return the type of a local constant (local or not).
         \remark This method allows the customer to store the type of local constants
@@ -1101,7 +1101,7 @@ public:
 tmp_type_context * blastenv::mk_tmp_type_context() {
     tmp_type_context * r;
     if (m_tmp_ctx_pool.empty()) {
-        r = new tmp_tctx(m_env, m_ios, m_tmp_local_generator);
+        r = new tmp_tctx(m_env, m_ios.get_options(), m_tmp_local_generator);
         // Design decision: in the blast tactic, we only consider the instances that were
         // available in initial goal provided to the blast tactic.
         // So, we only need to setup the local instances when we create a new (temporary) type context.

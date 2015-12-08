@@ -88,7 +88,7 @@ optional<name> get_intro_target(tmp_type_context & ctx, name const & c) {
 }
 
 environment add_intro_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent) {
-    tmp_type_context ctx(env, ios);
+    tmp_type_context ctx(env, ios.get_options());
     if (!get_intro_target(ctx, c))
         throw exception(sstream() << "invalid [intro] attribute for '" << c << "', head symbol of resulting type must be a constant");
     return intro_elim_ext::add_entry(env, ios, intro_elim_entry(false, prio, c), ns, persistent);

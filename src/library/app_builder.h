@@ -36,7 +36,7 @@ class app_builder {
     struct imp;
     std::unique_ptr<imp> m_ptr;
 public:
-    app_builder(environment const & env, io_state const & ios, reducible_behavior b = UnfoldReducible);
+    app_builder(environment const & env, options const & o, reducible_behavior b = UnfoldReducible);
     app_builder(environment const & env, reducible_behavior b = UnfoldReducible);
     app_builder(tmp_type_context & ctx);
     ~app_builder();

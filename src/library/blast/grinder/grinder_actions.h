@@ -7,12 +7,11 @@ Author: Leonardo de Moura
 #pragma once
 #include "library/blast/action_result.h"
 #include "library/blast/hypothesis.h"
+
 namespace lean {
 namespace blast {
-action_result recursor_action(hypothesis_idx hidx, name const & R);
-action_result recursor_preprocess_action(hypothesis_idx hidx);
-action_result recursor_action();
-
-void initialize_recursor_action();
-void finalize_recursor_action();
+action_result grinder_elim_action(hypothesis_idx hidx);
+action_result grinder_intro_action();
+void initialize_grinder_actions();
+void finalize_grinder_actions();
 }}

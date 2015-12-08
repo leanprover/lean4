@@ -11,6 +11,8 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/user_recursors.h"
 #include "library/tmp_type_context.h"
+#include "library/blast/blast.h"
+#include "library/blast/grinder/intro_elim_lemmas.h"
 
 namespace lean {
 static name * g_class_name = nullptr;
@@ -119,4 +121,39 @@ void finalize_intro_elim_lemmas() {
     delete g_key;
     delete g_class_name;
 }
+
+namespace blast {
+head_map<gexpr> mk_intro_lemma_index() {
+    head_map<gexpr> r;
+    buffer<name> lemmas;
+    blast_tmp_type_context ctx;
+    get_intro_lemmas(env(), lemmas);
+    unsigned i = lemmas.size();
+    while (i > 0) {
+        --i;
+        ctx->clear();
+        optional<name> target = get_intro_target(*ctx, lemmas[i]);
+        if (!target) {
+            // TODO(Leo): generate event
+        } else {
+            r.insert(head_index(*target), gexpr(lemmas[i]));
+        }
+    }
+    return r;
 }
+
+name_map<name> mk_elim_lemma_index() {
+    name_map<name> r;
+    buffer<name> lemmas;
+    get_elim_lemmas(env(), lemmas);
+    for (name const & lemma : lemmas) {
+        try {
+            recursor_info info = get_recursor_info(env(), lemma);
+            r.insert(info.get_type_name(), lemma);
+        } catch (exception &) {
+            // TODO(Leo): generate event
+        }
+    }
+    return r;
+}
+}}

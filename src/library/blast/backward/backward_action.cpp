@@ -114,7 +114,7 @@ public:
     }
 };
 
-action_result backward_action(list<gexpr> const & lemmas, bool prop_only_branches, char const * action_name) {
+action_result backward_action_core(list<gexpr> const & lemmas, bool prop_only_branches, char const * action_name, bool cut) {
     state  s = curr_state();
     auto it  = lemmas;
     while (!empty(it)) {
@@ -122,7 +122,7 @@ action_result backward_action(list<gexpr> const & lemmas, bool prop_only_branche
         it              = tail(it);
         if (!failed(r)) {
             // create choice point
-            if (!empty(it))
+            if (!cut && !empty(it))
                 push_choice_point(choice_point(new backward_choice_point_cell(s, it, prop_only_branches)));
             trace_action(action_name);
             return r;
@@ -133,7 +133,11 @@ action_result backward_action(list<gexpr> const & lemmas, bool prop_only_branche
 }
 
 action_result backward_action(list<gexpr> const & lemmas, bool prop_only_branches) {
-    return backward_action(lemmas, prop_only_branches, "backward");
+    return backward_action_core(lemmas, prop_only_branches, "backward", false);
+}
+
+action_result backward_cut_action(list<gexpr> const & lemmas, bool prop_only_branches) {
+    return backward_action_core(lemmas, prop_only_branches, "backward", true);
 }
 
 action_result constructor_action(bool prop_only_branches) {
@@ -146,6 +150,6 @@ action_result constructor_action(bool prop_only_branches) {
     buffer<gexpr> lemmas;
     for (name c_name : c_names)
         lemmas.push_back(gexpr(c_name));
-    return backward_action(to_list(lemmas), prop_only_branches, "constructor");
+    return backward_action_core(to_list(lemmas), prop_only_branches, "constructor", false);
 }
 }}

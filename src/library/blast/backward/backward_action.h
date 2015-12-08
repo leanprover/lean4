@@ -11,5 +11,8 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 action_result backward_action(list<gexpr> const & lemmas, bool prop_only_branches = true);
+/** Similar to previous action, but does not generate a choice point.
+    It commits to the first lemma that unifies with the target */
+action_result backward_cut_action(list<gexpr> const & lemmas, bool prop_only_branches = true);
 action_result constructor_action(bool prop_only_branches = true);
 }}

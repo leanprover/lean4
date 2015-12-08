@@ -126,6 +126,8 @@ name const & get_light_attr_tk();
 name const & get_backward_attr_tk();
 name const & get_no_pattern_attr_tk();
 name const & get_forward_attr_tk();
+name const & get_intro_attr_tk();
+name const & get_elim_attr_tk();
 name const & get_recursor_tk();
 name const & get_attribute_tk();
 name const & get_with_tk();

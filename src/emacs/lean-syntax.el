@@ -57,7 +57,7 @@
            "whnf" "multiple_instances" "none" "decls" "declarations"
            "coercions" "classes" "symm" "subst" "refl" "trans" "simp" "simps" "congr" "backward"
            "forward" "no_pattern" "notations" "abbreviations" "begin_end_hints" "tactic_hints"
-           "reduce_hints" "unfold_hints" "aliases" "eqv"
+           "reduce_hints" "unfold_hints" "aliases" "eqv" "intro" "elim"
            "localrefinfo" "recursor"))
   "lean modifiers")
 (defconst lean-modifiers-regexp

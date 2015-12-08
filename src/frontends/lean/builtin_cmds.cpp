@@ -52,6 +52,7 @@ Author: Leonardo de Moura
 #include "library/blast/backward/backward_rule_set.h"
 #include "library/blast/forward/pattern.h"
 #include "library/blast/forward/forward_lemma_set.h"
+#include "library/blast/grinder/intro_elim_lemmas.h"
 #include "compiler/preprocess_rec.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
@@ -238,7 +239,7 @@ static void print_patterns(parser & p, name const & n) {
         // we regenerate the patterns to make sure they reflect the current set of reducible constants
         try {
             blast::scope_debug scope(p.env(), p.ios());
-            auto hi = blast::mk_hi_lemma(n, LEAN_FORWARD_LEMMA_DEFAULT_PRIORITY);
+            auto hi = blast::mk_hi_lemma(n, LEAN_FORWARD_DEFAULT_PRIORITY);
             if (hi.m_multi_patterns) {
                 io_state_stream _out = p.regular_stream();
                 options opts         = _out.get_options();
@@ -312,6 +313,10 @@ static void print_attributes(parser const & p, name const & n) {
         out << " [no_pattern]";
     if (is_forward_lemma(env, n))
         out << " [forward]";
+    if (is_elim_lemma(env, n))
+        out << " [elim]";
+    if (is_intro_lemma(env, n))
+        out << " [intro]";
     switch (get_reducible_status(env, n)) {
     case reducible_status::Reducible:      out << " [reducible]"; break;
     case reducible_status::Irreducible:    out << " [irreducible]"; break;
@@ -558,6 +563,20 @@ static void print_light_rules(parser & p) {
     out << lrs;
 }
 
+static void print_elim_lemmas(parser & p) {
+    buffer<name> lemmas;
+    get_elim_lemmas(p.env(), lemmas);
+    for (auto n : lemmas)
+        p.regular_stream() << n << "\n";
+}
+
+static void print_intro_lemmas(parser & p) {
+    buffer<name> lemmas;
+    get_intro_lemmas(p.env(), lemmas);
+    for (auto n : lemmas)
+        p.regular_stream() << n << "\n";
+}
+
 static void print_backward_rules(parser & p) {
     io_state_stream out = p.regular_stream();
     blast::backward_rule_set brs = get_backward_rule_set(p.env());
@@ -690,6 +709,12 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token(get_simp_attr_tk())) {
         p.next();
         print_simp_rules(p);
+    } else if (p.curr_is_token(get_intro_attr_tk())) {
+        p.next();
+        print_intro_lemmas(p);
+    } else if (p.curr_is_token(get_elim_attr_tk())) {
+        p.next();
+        print_elim_lemmas(p);
     } else if (p.curr_is_token(get_congr_attr_tk())) {
         p.next();
         print_congr_rules(p);

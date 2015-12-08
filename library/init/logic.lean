@@ -24,6 +24,9 @@ prefix `¬` := not
 definition absurd {a : Prop} {b : Type} (H1 : a) (H2 : ¬a) : b :=
 false.rec b (H2 H1)
 
+lemma not.intro [intro] {a : Prop} (H : a → false) : ¬ a :=
+H
+
 theorem mt {a b : Prop} (H1 : a → b) (H2 : ¬b) : ¬a :=
 assume Ha : a, absurd (H1 Ha) H2
 
@@ -239,6 +242,8 @@ notation a ∧ b  := and a b
 
 variables {a b c d : Prop}
 
+attribute and.rec [elim]
+
 theorem and.elim (H₁ : a ∧ b) (H₂ : a → b → c) : c :=
 and.rec H₂ H₁
 
@@ -249,6 +254,8 @@ and.rec (λHa Hb, and.intro Hb Ha)
 
 notation a \/ b := or a b
 notation a ∨ b := or a b
+
+attribute or.rec [elim]
 
 namespace or
   theorem elim (H₁ : a ∨ b) (H₂ : a → c) (H₃ : b → c) : c :=
@@ -270,40 +277,41 @@ definition iff (a b : Prop) := (a → b) ∧ (b → a)
 notation a <-> b := iff a b
 notation a ↔ b := iff a b
 
-namespace iff
-  theorem intro : (a → b) → (b → a) → (a ↔ b) := and.intro
+theorem iff.intro : (a → b) → (b → a) → (a ↔ b) := and.intro
 
-  theorem elim : ((a → b) → (b → a) → c) → (a ↔ b) → c := and.rec
+attribute iff.intro [intro]
 
-  theorem elim_left : (a ↔ b) → a → b := and.left
+theorem iff.elim : ((a → b) → (b → a) → c) → (a ↔ b) → c := and.rec
 
-  definition mp := @elim_left
+attribute iff.elim [elim]
 
-  theorem elim_right : (a ↔ b) → b → a := and.right
+theorem iff.elim_left : (a ↔ b) → a → b := and.left
 
-  definition mpr := @elim_right
+definition iff.mp := @iff.elim_left
 
-  theorem refl (a : Prop) : a ↔ a :=
-  intro (assume H, H) (assume H, H)
+theorem iff.elim_right : (a ↔ b) → b → a := and.right
 
-  theorem rfl {a : Prop} : a ↔ a :=
-  refl a
+definition iff.mpr := @iff.elim_right
 
-  theorem trans (H₁ : a ↔ b) (H₂ : b ↔ c) : a ↔ c :=
-  intro
-    (assume Ha, mp H₂ (mp H₁ Ha))
-    (assume Hc, mpr H₁ (mpr H₂ Hc))
+theorem iff.refl [refl] (a : Prop) : a ↔ a :=
+iff.intro (assume H, H) (assume H, H)
 
-  theorem symm (H : a ↔ b) : b ↔ a :=
-  intro (elim_right H) (elim_left H)
+theorem iff.rfl {a : Prop} : a ↔ a :=
+iff.refl a
 
-  theorem comm : (a ↔ b) ↔ (b ↔ a) :=
-  intro symm symm
+theorem iff.trans [trans] (H₁ : a ↔ b) (H₂ : b ↔ c) : a ↔ c :=
+iff.intro
+  (assume Ha, iff.mp H₂ (iff.mp H₁ Ha))
+  (assume Hc, iff.mpr H₁ (iff.mpr H₂ Hc))
 
-  open eq.ops
-  theorem of_eq {a b : Prop} (H : a = b) : a ↔ b :=
-  H ▸ rfl
-end iff
+theorem iff.symm [symm] (H : a ↔ b) : b ↔ a :=
+iff.intro (iff.elim_right H) (iff.elim_left H)
+
+theorem iff.comm : (a ↔ b) ↔ (b ↔ a) :=
+iff.intro iff.symm iff.symm
+
+theorem iff.of_eq {a b : Prop} (H : a = b) : a ↔ b :=
+eq.rec_on H iff.rfl
 
 theorem not_iff_not_of_iff (H₁ : a ↔ b) : ¬a ↔ ¬b :=
 iff.intro
@@ -327,10 +335,6 @@ theorem not_non_contradictory_iff_absurd (a : Prop) : ¬¬¬a ↔ ¬a :=
 iff.intro
   (λ (Hl : ¬¬¬a) (Ha : a), Hl (non_contradictory_intro Ha))
   absurd
-
-attribute iff.refl [refl]
-attribute iff.symm [symm]
-attribute iff.trans [trans]
 
 theorem imp_congr [congr] (H1 : a ↔ c) (H2 : b ↔ d) : (a → b) ↔ (c → d) :=
 iff.intro
@@ -503,10 +507,16 @@ and_congr (imp_congr H1 H2) (imp_congr H2 H1)
 inductive Exists {A : Type} (P : A → Prop) : Prop :=
 intro : ∀ (a : A), P a → Exists P
 
+-- Remark: we don't mark exists.intro with [intro] because the [intro]
+-- rules are applied eagerly.
+attribute Exists.intro [backward]
+
 definition exists.intro := @Exists.intro
 
 notation `exists` binders `, ` r:(scoped P, Exists P) := r
 notation `∃` binders `, ` r:(scoped P, Exists P) := r
+
+attribute Exists.rec [elim]
 
 theorem exists.elim {A : Type} {p : A → Prop} {B : Prop}
   (H1 : ∃x, p x) (H2 : ∀ (a : A), p a → B) : B :=
@@ -519,11 +529,11 @@ definition exists_unique {A : Type} (p : A → Prop) :=
 
 notation `∃!` binders `, ` r:(scoped P, exists_unique P) := r
 
-theorem exists_unique.intro {A : Type} {p : A → Prop} (w : A) (H1 : p w) (H2 : ∀y, p y → y = w) :
+theorem exists_unique.intro [backward] {A : Type} {p : A → Prop} (w : A) (H1 : p w) (H2 : ∀y, p y → y = w) :
   ∃!x, p x :=
 exists.intro w (and.intro H1 H2)
 
-theorem exists_unique.elim {A : Type} {p : A → Prop} {b : Prop}
+theorem exists_unique.elim [recursor 4] [elim] {A : Type} {p : A → Prop} {b : Prop}
     (H2 : ∃!x, p x) (H1 : ∀x, p x → (∀y, p y → y = x) → b) : b :=
 exists.elim H2 (λ w Hw, H1 w (and.left Hw) (and.right Hw))
 

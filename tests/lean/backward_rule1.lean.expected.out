@@ -2,6 +2,8 @@ constant H [backward] : A → B
 constant G [backward] : A → B → C
 constant f [backward] : T → A
 backward rules
+exists_unique ==> exists_unique.intro (poly)
 B ==> H
 A ==> f (poly)
 C ==> G
+Exists ==> Exists.intro (poly)

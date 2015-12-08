@@ -41,8 +41,6 @@ iff_true_intro false.elim
 
 theorem not.elim {A : Type} (H1 : ¬a) (H2 : a) : A := absurd H2 H1
 
-theorem not.intro (H : a → false) : ¬a := H
-
 theorem not.mto {a b : Prop} : (a → b) → ¬b → ¬a := imp.left
 
 theorem not_imp_not_of_imp {a b : Prop} : (a → b) → ¬b → ¬a := not.mto

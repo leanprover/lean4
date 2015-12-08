@@ -33,6 +33,8 @@ class decl_attributes {
     bool               m_congr;
     bool               m_backward;
     bool               m_forward;
+    bool               m_intro;
+    bool               m_elim;
     bool               m_no_pattern;
     optional<unsigned> m_recursor_major_pos;
     optional<unsigned> m_priority;

@@ -56,6 +56,8 @@ section
     ... = f₂              : rfl
 end
 
+attribute funext [intro]
+
 open function.equiv_notation
 
 definition subsingleton_pi [instance] {A : Type} {B : A → Type} (H : ∀ a, subsingleton (B a)) :

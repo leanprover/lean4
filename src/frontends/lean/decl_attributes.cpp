@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/blast/backward/backward_rule_set.h"
 #include "library/blast/forward/pattern.h"
 #include "library/blast/forward/forward_lemma_set.h"
+#include "library/blast/grinder/intro_elim_lemmas.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
@@ -47,6 +48,8 @@ decl_attributes::decl_attributes(bool is_abbrev, bool persistent):
     m_congr                  = false;
     m_backward               = false;
     m_forward                = false;
+    m_intro                  = false;
+    m_elim                   = false;
     m_no_pattern             = false;
 }
 
@@ -94,8 +97,9 @@ void decl_attributes::parse(parser & p) {
             p.next();
         } else if (auto it = parse_priority(p)) {
             m_priority = *it;
-            if (!m_is_instance && !m_simp && !m_congr && !m_backward && !m_forward) {
-                throw parser_error("invalid '[priority]' attribute, declaration must be marked as an '[instance]', '[simp]', '[congr]', '[backward]' or '[forward]'", pos);
+            if (!m_is_instance && !m_simp && !m_congr && !m_backward && !m_forward && !m_elim && !m_intro) {
+                throw parser_error("invalid '[priority]' attribute, declaration must be marked as an '[instance]', '[simp]', '[congr]', "
+                                   "'[backward]', '[forward]', '[intro]' or '[elim]'", pos);
             }
         } else if (p.curr_is_token(get_parsing_only_tk())) {
             if (!m_is_abbrev)
@@ -150,6 +154,12 @@ void decl_attributes::parse(parser & p) {
         } else if (p.curr_is_token(get_forward_attr_tk())) {
             p.next();
             m_forward = true;
+        } else if (p.curr_is_token(get_elim_attr_tk())) {
+            p.next();
+            m_elim = true;
+        } else if (p.curr_is_token(get_intro_attr_tk())) {
+            p.next();
+            m_intro = true;
         } else if (p.curr_is_token(get_no_pattern_attr_tk())) {
             p.next();
             m_no_pattern = true;
@@ -253,7 +263,19 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
         if (m_priority)
             env = add_forward_lemma(env, d, *m_priority, ns, m_persistent);
         else
-            env = add_forward_lemma(env, d, LEAN_FORWARD_LEMMA_DEFAULT_PRIORITY, ns, m_persistent);
+            env = add_forward_lemma(env, d, LEAN_FORWARD_DEFAULT_PRIORITY, ns, m_persistent);
+    }
+    if (m_intro) {
+        if (m_priority)
+            env = add_intro_lemma(env, ios, d, *m_priority, ns, m_persistent);
+        else
+            env = add_intro_lemma(env, ios, d, LEAN_INTRO_DEFAULT_PRIORITY, ns, m_persistent);
+    }
+    if (m_elim) {
+        if (m_priority)
+            env = add_elim_lemma(env, ios, d, *m_priority, ns, m_persistent);
+        else
+            env = add_elim_lemma(env, ios, d, LEAN_ELIM_DEFAULT_PRIORITY, ns, m_persistent);
     }
     if (m_no_pattern) {
         env = add_no_pattern(env, d, ns, m_persistent);
@@ -269,7 +291,7 @@ void decl_attributes::write(serializer & s) const {
       << m_is_class << m_is_parsing_only << m_has_multiple_instances << m_unfold_full_hint
       << m_constructor_hint << m_symm << m_trans << m_refl << m_subst << m_recursor
       << m_simp << m_congr << m_recursor_major_pos << m_priority << m_backward
-      << m_forward << m_no_pattern;
+      << m_forward << m_elim << m_intro << m_no_pattern;
     write_list(s, m_unfold_hint);
 }
 
@@ -279,7 +301,7 @@ void decl_attributes::read(deserializer & d) {
       >> m_is_class >> m_is_parsing_only >> m_has_multiple_instances >> m_unfold_full_hint
       >> m_constructor_hint >> m_symm >> m_trans >> m_refl >> m_subst >> m_recursor
       >> m_simp >> m_congr >> m_recursor_major_pos >> m_priority >> m_backward
-      >> m_forward >> m_no_pattern;
+      >> m_forward >> m_elim >> m_intro >> m_no_pattern;
     m_unfold_hint = read_list<unsigned>(d);
 }
 }

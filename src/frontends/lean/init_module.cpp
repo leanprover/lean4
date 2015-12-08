@@ -18,7 +18,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/builtin_tactics.h"
 #include "frontends/lean/inductive_cmd.h"
 #include "frontends/lean/structure_cmd.h"
-#include "frontends/lean/migrate_cmd.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/parse_table.h"
 #include "frontends/lean/token_table.h"
@@ -54,7 +53,6 @@ void initialize_frontend_lean_module() {
     initialize_begin_end_ext();
     initialize_inductive_cmd();
     initialize_structure_cmd();
-    initialize_migrate_cmd();
     initialize_info_manager();
     initialize_info_tactic();
     initialize_pp();
@@ -77,7 +75,6 @@ void finalize_frontend_lean_module() {
     finalize_pp();
     finalize_info_tactic();
     finalize_info_manager();
-    finalize_migrate_cmd();
     finalize_structure_cmd();
     finalize_inductive_cmd();
     finalize_begin_end_ext();

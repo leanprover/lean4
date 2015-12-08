@@ -135,9 +135,17 @@ section
     mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left,
     mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right ⦄
 
-  migrate from algebra with nat
-    replacing has_le.ge → ge, has_lt.gt → gt
-    hiding pos_of_mul_pos_left, pos_of_mul_pos_right, lt_of_mul_lt_mul_left, lt_of_mul_lt_mul_right
+  variables {a b c d : nat}
+  theorem ne_of_lt (lt_ab : a < b) : a ≠ b   := algebra.ne_of_lt lt_ab
+  theorem ne_of_gt (gt_ab : a > b) : a ≠ b   := algebra.ne_of_gt gt_ab
+  theorem lt_of_not_le (H : ¬ a ≥ b) : a < b := algebra.lt_of_not_le H
+  theorem le_or_gt (a b : nat) : sum (a ≤ b) (a > b)     := algebra.le_or_gt a b
+  theorem le_of_mul_le_mul_left (H : c * a ≤ c * b) (Hc : c > 0) : a ≤ b := algebra.le_of_mul_le_mul_left H Hc
+  theorem not_lt_of_le (H : a ≤ b) : ¬ b < a := algebra.not_lt_of_le H
+  theorem not_le_of_lt (H : a < b) : ¬ b ≤ a := algebra.not_le_of_lt H
+  theorem add_le_add (Hab : a ≤ b) (Hcd : c ≤ d) : a + c ≤ b + d := algebra.add_le_add Hab Hcd
+  theorem lt_of_add_lt_add_right (H : a + b < c + b) : a < c := algebra.lt_of_add_lt_add_right H
+  theorem lt_of_add_lt_add_left (H : a + b < a + c) : b < c := algebra.lt_of_add_lt_add_left H
 end
 
 section port_algebra

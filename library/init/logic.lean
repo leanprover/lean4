@@ -283,7 +283,7 @@ attribute iff.intro [intro]
 
 theorem iff.elim : ((a → b) → (b → a) → c) → (a ↔ b) → c := and.rec
 
-attribute iff.elim [elim]
+attribute iff.elim [recursor 5] [elim]
 
 theorem iff.elim_left : (a ↔ b) → a → b := and.left
 

@@ -5,11 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "util/sstream.h"
 #include "util/priority_queue.h"
 #include "kernel/instantiate.h"
 #include "library/scoped_ext.h"
 #include "library/user_recursors.h"
-#include "library/type_context.h"
+#include "library/tmp_type_context.h"
 
 namespace lean {
 static name * g_class_name = nullptr;
@@ -61,12 +62,33 @@ struct intro_elim_config {
 typedef scoped_ext<intro_elim_config> intro_elim_ext;
 
 environment add_elim_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent) {
-    // TODO(Leo): VALIDATE
+    get_recursor_info(env, c);
     return intro_elim_ext::add_entry(env, ios, intro_elim_entry(true, prio, c), ns, persistent);
 }
 
+optional<name> get_intro_target(tmp_type_context & ctx, name const & c) {
+    declaration const & d = ctx.env().get(c);
+    buffer<level> us;
+    unsigned num_us = d.get_num_univ_params();
+    for (unsigned i = 0; i < num_us; i++)
+        us.push_back(ctx.mk_uvar());
+    // TODO(Leo): should we use relaxed_try_to_pi?
+    expr type = ctx.try_to_pi(instantiate_type_univ_params(d, to_list(us)));
+    while (is_pi(type)) {
+        expr local = ctx.mk_tmp_local(binding_domain(type));
+        type = ctx.try_to_pi(instantiate(binding_body(type), local));
+    }
+    expr const & fn = get_app_fn(type);
+    if (is_constant(fn))
+        return optional<name>(const_name(fn));
+    else
+        return optional<name>();
+}
+
 environment add_intro_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent) {
-    // TODO(Leo): VALIDATE
+    tmp_type_context ctx(env, ios);
+    if (!get_intro_target(ctx, c))
+        throw exception(sstream() << "invalid [intro] attribute for '" << c << "', head symbol of resulting type must be a constant");
     return intro_elim_ext::add_entry(env, ios, intro_elim_entry(false, prio, c), ns, persistent);
 }
 

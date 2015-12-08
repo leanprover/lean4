@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/memory_pool.h"
 #include "util/hash.h"
-#include "util/trace.h"
 #include "util/ascii.h"
 #include "util/utf8.h"
 #include "util/object_serializer.h"

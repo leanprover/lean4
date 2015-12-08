@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include <vector>
 #include <algorithm>
 #include "util/test.h"
-#include "util/trace.h"
 #include "util/numerics/double.h"
 #include "util/numerics/mpq.h"
 #include "util/numerics/mpfp.h"
@@ -160,7 +159,6 @@ static void tst3() {
 }
 
 int main() {
-    enable_trace("numerics");
     tst1();
     tst2();
     tst3();

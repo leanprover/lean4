@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Soonho Kong
 */
 #include "util/test.h"
-#include "util/trace.h"
 #include "util/numerics/double.h"
 #include "util/interval/interval.h"
 #include "tests/util/interval/check.h"
@@ -1031,7 +1030,6 @@ static void double_interval_trans() {
 }
 
 int main() {
-    enable_trace("numerics");
     double_interval_arith();
     double_interval_inf1();
     double_interval_inf2();

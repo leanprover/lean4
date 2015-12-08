@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "util/ascii.h"
 #include "util/debug.h"
-#include "util/trace.h"
 #include "util/serializer.h"
 #include "util/thread_script_state.h"
 #include "util/script_state.h"
@@ -19,7 +18,6 @@ Author: Leonardo de Moura
 namespace lean {
 void initialize_util_module() {
     initialize_debug();
-    initialize_trace();
     initialize_serializer();
     initialize_thread();
     initialize_ascii();
@@ -38,7 +36,6 @@ void finalize_util_module() {
     finalize_ascii();
     finalize_thread();
     finalize_serializer();
-    finalize_trace();
     finalize_debug();
 }
 }

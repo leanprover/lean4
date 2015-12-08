@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Soonho Kong
 */
 #include "util/test.h"
-#include "util/trace.h"
 #include "util/numerics/mpfp.h"
 #include "util/interval/interval.h"
 #include "tests/util/interval/check.h"
@@ -1031,7 +1030,6 @@ static void mpfp_interval_trans() {
 }
 
 int main() {
-    enable_trace("numerics");
     mpfp_interval_arith();
     mpfp_interval_inf1();
     mpfp_interval_inf2();

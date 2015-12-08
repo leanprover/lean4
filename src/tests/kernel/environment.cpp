@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/test.h"
 #include "util/exception.h"
-#include "util/trace.h"
 #include "util/init_module.h"
 #include "util/sexpr/init_module.h"
 #include "kernel/environment.h"

@@ -1,4 +1,4 @@
-add_library(util OBJECT trace.cpp debug.cpp name.cpp name_set.cpp
+add_library(util OBJECT debug.cpp name.cpp name_set.cpp
   name_generator.cpp exception.cpp interrupt.cpp hash.cpp escaped.cpp
   bit_tricks.cpp safe_arith.cpp ascii.cpp memory.cpp shared_mutex.cpp
   realpath.cpp script_state.cpp script_exception.cpp rb_map.cpp

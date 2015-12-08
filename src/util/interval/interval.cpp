@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include <mpfr.h>
 #include <utility>
 #include <algorithm>
-#include "util/trace.h"
 #include "util/numerics/mpz.h"
 #include "util/interval/interval.h"
 
@@ -284,12 +283,10 @@ interval<T> & interval<T>::sub(interval<T> const & o, interval_deps & deps) {
         T new_l_val;
         T new_u_val;
         xnumeral_kind new_l_kind, new_u_kind;
-        lean_trace("numerics", tout << "this: " << *this << " o: " << o << "\n";);
         round_to_minus_inf();
         lean::sub(new_l_val, new_l_kind, m_lower, lower_kind(), o.m_upper, o.upper_kind());
         round_to_plus_inf();
         lean::sub(new_u_val, new_u_kind, m_upper, upper_kind(), o.m_lower, o.lower_kind());
-        lean_trace("numerics", tout << "new: " << new_l_val << " " << new_u_val << "\n";);
         swap(new_l_val, m_lower);
         swap(new_u_val, m_upper);
         m_lower_inf = new_l_kind == XN_MINUS_INFINITY;

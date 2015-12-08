@@ -173,4 +173,6 @@ public:
         the initialization can be performed outside. */
     void set_local_instances(list<expr> const & insts);
 };
+void initialize_app_builder();
+void finalize_app_builder();
 }

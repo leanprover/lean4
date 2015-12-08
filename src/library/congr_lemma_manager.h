@@ -52,4 +52,7 @@ public:
           R a1 a2 -> R b1 b2 -> (R a1 b1) = (R a2 b2) */
     optional<result> mk_rel_eq_congr(expr const & R);
 };
+
+void initialize_congr_lemma_manager();
+void finalize_congr_lemma_manager();
 }

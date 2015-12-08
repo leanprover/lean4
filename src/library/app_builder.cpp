@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/name_map.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "library/trace.h"
 #include "library/match.h"
 #include "library/constants.h"
 #include "library/app_builder.h"
@@ -159,6 +160,20 @@ struct app_builder::imp {
         }
     }
 
+    void trace_fun(name const & n) {
+        tout() << "failed to create an '" << n << "'-application";
+    }
+
+    void trace_failure(name const & n, unsigned nargs, char const * msg) {
+        lean_trace("app_builder",
+                   trace_fun(n); tout() << " with " << nargs << ", " << msg << "\n";);
+    }
+
+    void trace_failure(name const & n, char const * msg) {
+        lean_trace("app_builder",
+                   trace_fun(n); tout() << ", " << msg << "\n";);
+    }
+
     levels mk_metavars(declaration const & d, unsigned arity, buffer<expr> & mvars, buffer<optional<expr>> & inst_args) {
         m_ctx->clear();
         unsigned num_univ = d.get_num_univ_params();
@@ -170,8 +185,10 @@ struct app_builder::imp {
         expr type   = instantiate_type_univ_params(d, lvls);
         for (unsigned i = 0; i < arity; i++) {
             type   = m_ctx->relaxed_whnf(type);
-            if (!is_pi(type))
+            if (!is_pi(type)) {
+                trace_failure(d.get_name(), arity, "too many arguments");
                 throw app_builder_exception();
+            }
             expr mvar = m_ctx->mk_mvar(binding_domain(type));
             if (binding_info(type).is_inst_implicit())
                 inst_args.push_back(some_expr(mvar));
@@ -247,22 +264,36 @@ struct app_builder::imp {
         m_ctx->set_next_mvar_idx(e.m_num_emeta);
     }
 
+    void trace_unify_failure(name const & n, unsigned i, expr const & m, expr const & v) {
+        lean_trace("app_builder",
+                   trace_fun(n);
+                   tout () << ", failed to solve unification constraint for #" << (i+1)
+                   << "argument (" << m_ctx->infer(m) << " =?= " << m_ctx->infer(v) << ")\n";);
+    }
+
     expr mk_app(name const & c, unsigned nargs, expr const * args) {
         optional<entry> e = get_entry(c, nargs);
-        if (!e)
+        if (!e) {
+            trace_failure(c, "failed to retrieve declaration");
             throw app_builder_exception();
+        }
         init_ctx_for(*e);
         unsigned i = nargs;
         for (auto m : e->m_expl_args) {
-            if (i == 0)
+            if (i == 0) {
+                trace_failure(c, "too many explicit arguments");
                 throw app_builder_exception();
+            }
             --i;
             if (!m_ctx->relaxed_assign(m, args[i])) {
+                trace_unify_failure(c, i, m, args[i]);
                 throw app_builder_exception();
             }
         }
-        if (!check_all_assigned(*e))
+        if (!check_all_assigned(*e)) {
+            trace_failure(c, "there are missing implicit arguments");
             throw app_builder_exception();
+        }
         return m_ctx->instantiate_uvars_mvars(e->m_app);
     }
 
@@ -282,8 +313,10 @@ struct app_builder::imp {
     expr mk_app(name const & c, unsigned mask_sz, bool const * mask, expr const * args) {
         unsigned nargs = get_nargs(mask_sz, mask);
         optional<entry> e = get_entry(c, mask_sz, mask);
-        if (!e)
+        if (!e) {
+            trace_failure(c, "failed to retrieve declaration");
             throw app_builder_exception();
+        }
         init_ctx_for(*e);
         unsigned i    = mask_sz;
         unsigned j    = nargs;
@@ -293,13 +326,17 @@ struct app_builder::imp {
             if (mask[i]) {
                 --j;
                 expr const & m = head(it);
-                if (!m_ctx->relaxed_assign(m, args[j]))
+                if (!m_ctx->relaxed_assign(m, args[j])) {
+                    trace_unify_failure(c, j, m, args[j]);
                     throw app_builder_exception();
+                }
                 it = tail(it);
             }
         }
-        if (!check_all_assigned(*e))
+        if (!check_all_assigned(*e)) {
+            trace_failure(c, "there are missing implicit arguments");
             throw app_builder_exception();
+        }
         return m_ctx->instantiate_uvars_mvars(e->m_app);
     }
 
@@ -317,8 +354,10 @@ struct app_builder::imp {
 
     level get_level(expr const & A) {
         expr Type = m_ctx->relaxed_whnf(m_ctx->infer(A));
-        if (!is_sort(Type))
+        if (!is_sort(Type)) {
+            lean_trace("app_builder", tout() << "failed to infer universe level for type " << A << "\n";);
             throw app_builder_exception();
+        }
         return sort_level(Type);
     }
 
@@ -345,8 +384,10 @@ struct app_builder::imp {
     expr mk_eq_symm(expr const & H) {
         expr p    = m_ctx->relaxed_whnf(m_ctx->infer(H));
         expr lhs, rhs;
-        if (!is_eq(p, lhs, rhs))
+        if (!is_eq(p, lhs, rhs)) {
+            lean_trace("app_builder", tout() << "failed to build eq.symm, equality expected:\n" << H << "\n";);
             throw app_builder_exception();
+        }
         expr A    = m_ctx->infer(lhs);
         level lvl = get_level(A);
         return ::lean::mk_app(mk_constant(get_eq_symm_name(), {lvl}), A, lhs, rhs, H);
@@ -366,8 +407,11 @@ struct app_builder::imp {
         expr p1    = m_ctx->relaxed_whnf(m_ctx->infer(H1));
         expr p2    = m_ctx->relaxed_whnf(m_ctx->infer(H2));
         expr lhs1, rhs1, lhs2, rhs2;
-        if (!is_eq(p1, lhs1, rhs1) || !is_eq(p2, lhs2, rhs2))
+        if (!is_eq(p1, lhs1, rhs1) || !is_eq(p2, lhs2, rhs2)) {
+            lean_trace("app_builder", tout() << "failed to build eq.trans, equality expected:\n"
+                       << H1 << "\n" << H2 << "\n";);
             throw app_builder_exception();
+        }
         expr A     = m_ctx->infer(lhs1);
         level lvl  = get_level(A);
         return ::lean::mk_app({mk_constant(get_eq_trans_name(), {lvl}), A, lhs1, rhs1, rhs2, H1, H2});
@@ -411,6 +455,8 @@ struct app_builder::imp {
         } else if (auto info = m_refl_getter(relname)) {
             return mk_app(info->m_name, 1, &a);
         } else {
+            lean_trace("app_builder", tout() << "failed to build reflexivity proof, '" << relname
+                       << "' is not registered as a reflexive relation\n";);
             throw app_builder_exception();
         }
     }
@@ -423,6 +469,8 @@ struct app_builder::imp {
         } else if (auto info = m_symm_getter(relname)) {
             return mk_app(info->m_name, 1, &H);
         } else {
+            lean_trace("app_builder", tout() << "failed to build symmetry proof, '" << relname
+                       << "' is not registered as a symmetric relation\n";);
             throw app_builder_exception();
         }
     }
@@ -436,6 +484,8 @@ struct app_builder::imp {
             expr args[2] = {H1, H2};
             return mk_app(info->m_name, 2, args);
         } else {
+            lean_trace("app_builder", tout() << "failed to build symmetry proof, '" << relname
+                       << "' is not registered as a transitive relation\n";);
             throw app_builder_exception();
         }
     }
@@ -460,13 +510,17 @@ struct app_builder::imp {
             return H1;
         expr p       = m_ctx->relaxed_whnf(m_ctx->infer(H2));
         expr lhs, rhs;
-        if (!is_eq(p, lhs, rhs))
+        if (!is_eq(p, lhs, rhs)) {
+            lean_trace("app_builder", tout() << "failed to build eq.rec, equality proof expected:\n" << H2 << "\n";);
             throw app_builder_exception();
+        }
         expr A      = m_ctx->infer(lhs);
         level A_lvl = get_level(A);
         expr mtype  = m_ctx->relaxed_whnf(m_ctx->infer(motive));
-        if (!is_pi(mtype) || !is_sort(binding_body(mtype)))
+        if (!is_pi(mtype) || !is_sort(binding_body(mtype))) {
+            lean_trace("app_builder", tout() << "failed to build eq.rec, invalid motive:\n" << motive << "\n";);
             throw app_builder_exception();
+        }
         level l_1    = sort_level(binding_body(mtype));
         name const & eqrec = is_standard(m_ctx->env()) ? get_eq_rec_name() : get_eq_nrec_name();
         return ::lean::mk_app({mk_constant(eqrec, {l_1, A_lvl}), A, lhs, motive, H1, rhs, H2});
@@ -477,13 +531,17 @@ struct app_builder::imp {
             return H1;
         expr p       = m_ctx->relaxed_whnf(m_ctx->infer(H2));
         expr lhs, rhs;
-        if (!is_eq(p, lhs, rhs))
+        if (!is_eq(p, lhs, rhs)) {
+            lean_trace("app_builder", tout() << "failed to build eq.drec, equality proof expected:\n" << H2 << "\n";);
             throw app_builder_exception();
+        }
         expr A      = m_ctx->infer(lhs);
         level A_lvl = get_level(A);
         expr mtype  = m_ctx->relaxed_whnf(m_ctx->infer(motive));
-        if (!is_pi(mtype) || !is_pi(binding_body(mtype)) || !is_sort(binding_body(binding_body(mtype))))
+        if (!is_pi(mtype) || !is_pi(binding_body(mtype)) || !is_sort(binding_body(binding_body(mtype)))) {
+            lean_trace("app_builder", tout() << "failed to build eq.drec, invalid motive:\n" << motive << "\n";);
             throw app_builder_exception();
+        }
         level l_1    = sort_level(binding_body(binding_body(mtype)));
         name const & eqrec = is_standard(m_ctx->env()) ? get_eq_drec_name() : get_eq_rec_name();
         return ::lean::mk_app({mk_constant(eqrec, {l_1, A_lvl}), A, lhs, motive, H1, rhs, H2});
@@ -542,45 +600,68 @@ struct app_builder::imp {
         return mk_app(get_not_name(), {H});
     }
 
+    void trace_inst_failure(expr const & A, char const * n) {
+        lean_trace("app_builder",
+                   tout() << "failed to build instance of '" << n << "' for:\n" << A << "\n";);
+    }
+
     expr mk_partial_add(expr const & A) {
         level lvl = get_level(A);
         auto A_has_add = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_has_add_name(), {lvl}), A));
-        if (!A_has_add) throw app_builder_exception();
+        if (!A_has_add) {
+            trace_inst_failure(A, "has_add");
+            throw app_builder_exception();
+        }
         return ::lean::mk_app(mk_constant(get_add_name(), {lvl}), A, *A_has_add);
     }
 
     expr mk_partial_mul(expr const & A) {
         level lvl = get_level(A);
         auto A_has_mul = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_has_mul_name(), {lvl}), A));
-        if (!A_has_mul) throw app_builder_exception();
+        if (!A_has_mul) {
+            trace_inst_failure(A, "has_mul");
+            throw app_builder_exception();
+        }
         return ::lean::mk_app(mk_constant(get_mul_name(), {lvl}), A, *A_has_mul);
     }
 
     expr mk_zero(expr const & A) {
         level lvl = get_level(A);
         auto A_has_zero = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_has_zero_name(), {lvl}), A));
-        if (!A_has_zero) throw app_builder_exception();
+        if (!A_has_zero) {
+            trace_inst_failure(A, "has_zero");
+            throw app_builder_exception();
+        }
         return ::lean::mk_app(mk_constant(get_zero_name(), {lvl}), A, *A_has_zero);
     }
 
     expr mk_one(expr const & A) {
         level lvl = get_level(A);
         auto A_has_one = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_has_one_name(), {lvl}), A));
-        if (!A_has_one) throw app_builder_exception();
+        if (!A_has_one) {
+            trace_inst_failure(A, "has_one");
+            throw app_builder_exception();
+        }
         return ::lean::mk_app(mk_constant(get_one_name(), {lvl}), A, *A_has_one);
     }
 
     expr mk_partial_left_distrib(expr const & A) {
         level lvl = get_level(A);
         auto A_distrib = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_distrib_name(), {lvl}), A));
-        if (!A_distrib) throw app_builder_exception();
+        if (!A_distrib) {
+            trace_inst_failure(A, "distrib");
+            throw app_builder_exception();
+        }
         return ::lean::mk_app(mk_constant(get_left_distrib_name(), {lvl}), A, *A_distrib);
     }
 
     expr mk_partial_right_distrib(expr const & A) {
         level lvl = get_level(A);
         auto A_distrib = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_distrib_name(), {lvl}), A));
-        if (!A_distrib) throw app_builder_exception();
+        if (!A_distrib) {
+            trace_inst_failure(A, "distrib");
+            throw app_builder_exception();
+        }
         return ::lean::mk_app(mk_constant(get_right_distrib_name(), {lvl}), A, *A_distrib);
     }
 
@@ -751,4 +832,8 @@ expr app_builder::mk_false_rec(expr const & c, expr const & H) {
 void app_builder::set_local_instances(list<expr> const & insts) {
     m_ptr->m_ctx->set_local_instances(insts);
 }
+void initialize_app_builder() {
+    register_trace_class("app_builder");
+}
+void finalize_app_builder() {}
 }

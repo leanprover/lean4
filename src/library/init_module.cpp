@@ -47,6 +47,8 @@ Author: Leonardo de Moura
 #include "library/norm_num.h"
 #include "library/class_instance_resolution.h"
 #include "library/type_context.h"
+#include "library/congr_lemma_manager.h"
+#include "library/app_builder.h"
 
 namespace lean {
 void initialize_library_module() {
@@ -93,9 +95,13 @@ void initialize_library_module() {
     initialize_class_instance_resolution();
     initialize_type_context();
     initialize_light_rule_set();
+    initialize_congr_lemma_manager();
+    initialize_app_builder();
 }
 
 void finalize_library_module() {
+    finalize_app_builder();
+    finalize_congr_lemma_manager();
     finalize_light_rule_set();
     finalize_type_context();
     finalize_class_instance_resolution();

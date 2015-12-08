@@ -183,6 +183,8 @@ class state {
     void add_deps(hypothesis & h_user, hypothesis_idx hidx_user);
     void del_forward_dep(unsigned hidx_user, unsigned hidx_provider);
 
+    void add_todo_queue(hypothesis_idx hidx);
+
     expr mk_hypothesis(hypothesis_idx new_hidx, name const & n, expr const & type, optional<expr> const & value);
 
     unsigned add_metavar_decl(metavar_decl const & decl);
@@ -296,6 +298,9 @@ public:
     /** \brief Select next hypothesis in the TODO queue, return none if the TODO queue is empty. */
     optional<hypothesis_idx> select_hypothesis_to_activate();
     void activate_hypothesis(hypothesis_idx hidx);
+
+    /** \brief Deactivate all active hypotheses */
+    void deactivate_all();
 
     /** \brief Store in \c r the hypotheses in this branch sorted by dependency depth */
     void get_sorted_hypotheses(hypothesis_idx_buffer & r) const;

@@ -42,9 +42,16 @@ action_result grinder_strategy_core_fn::next_action() {
 }
 
 strategy grind_and_then(strategy const & S) {
-    return [=]() { return grinder_strategy_fn([](hypothesis_idx) { return action_result::failed(); },       // NOLINT
-                                              [](hypothesis_idx) { return action_result::failed(); },       // NOLINT
-                                              [=]() { TryStrategy(S); return action_result::failed(); })(); // NOLINT
+    return [=]() { // NOLINT
+        curr_state().deactivate_all();
+        return grinder_strategy_fn([](hypothesis_idx) { return action_result::failed(); }, // NOLINT
+                                   [](hypothesis_idx) { return action_result::failed(); }, // NOLINT
+                                   [=]() { // NOLINT
+                                       if (optional<expr> pf = S()) {
+                                           return action_result::solved(*pf);
+                                       }
+                                       return action_result::failed();
+                                   })();
     };
 }
 }}

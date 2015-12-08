@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/blast/blast.h"
+#include "library/blast/trace.h"
 #include "library/blast/actions/recursor_action.h"
 #include "library/blast/backward/backward_action.h"
 #include "library/blast/grinder/intro_elim_lemmas.h"
@@ -18,7 +19,9 @@ struct grinder_branch_extension : public branch_extension {
     name_map<name>  m_elim_lemmas;
 
     grinder_branch_extension() {}
-    grinder_branch_extension(grinder_branch_extension const &) {}
+    grinder_branch_extension(grinder_branch_extension const & e):
+        m_intro_lemmas(e.m_intro_lemmas),
+        m_elim_lemmas(e.m_elim_lemmas) {}
     virtual ~grinder_branch_extension() {}
     virtual branch_extension * clone() override { return new grinder_branch_extension(*this); }
     virtual void initialized() override {

@@ -37,5 +37,5 @@ public:
         m_pre(pre), m_post(post), m_next(next) {}
 };
 
-strategy grind_and_then(strategy & S);
+strategy grind_and_then(strategy const & S);
 }}

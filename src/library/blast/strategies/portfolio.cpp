@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/blast/forward/ematch.h"
 #include "library/blast/backward/backward_action.h"
 #include "library/blast/backward/backward_strategy.h"
+#include "library/blast/grinder/grinder_strategy.h"
 #include "library/blast/strategies/simple_strategy.h"
 #include "library/blast/strategies/preprocess_strategy.h"
 #include "library/blast/strategies/debug_action_strategy.h"
@@ -62,6 +63,14 @@ static optional<expr> apply_unit() {
                                     []() { return action_result::failed(); })();
 }
 
+static optional<expr> apply_grind() {
+    return preprocess_and_then(grind_and_then([]() { return none_expr(); }))();
+}
+
+static optional<expr> apply_core_grind() {
+    return grind_and_then([]() { return none_expr(); })();
+}
+
 optional<expr> apply_strategy() {
     std::string s_name(get_config().m_strategy);
     if (s_name == "preprocess") {
@@ -77,6 +86,10 @@ optional<expr> apply_strategy() {
         return apply_simple();
     } else if (s_name == "cc") {
         return apply_cc();
+    } else if (s_name == "grind") {
+        return apply_grind();
+    } else if (s_name == "core_grind") {
+        return apply_core_grind();
     } else if (s_name == "ematch") {
         return apply_ematch();
     } else if (s_name == "constructor") {

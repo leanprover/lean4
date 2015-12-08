@@ -243,6 +243,7 @@ notation a ∧ b  := and a b
 variables {a b c d : Prop}
 
 attribute and.rec [elim]
+attribute and.intro [intro]
 
 theorem and.elim (H₁ : a ∧ b) (H₂ : a → b → c) : c :=
 and.rec H₂ H₁

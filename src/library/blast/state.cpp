@@ -595,6 +595,11 @@ double state::compute_weight(unsigned hidx, expr const & /* type */) {
     return 1.0 / (static_cast<double>(hidx) + 1.0);
 }
 
+void state::add_todo_queue(hypothesis_idx hidx) {
+    double w = compute_weight(hidx, get_hypothesis_decl(hidx).get_type());
+    m_branch.m_todo_queue.insert(w, hidx);
+}
+
 expr state::mk_hypothesis(unsigned new_hidx, name const & n, expr const & type, optional<expr> const & value) {
     hypothesis new_h;
     expr r                = mk_href(new_hidx);
@@ -607,8 +612,7 @@ expr state::mk_hypothesis(unsigned new_hidx, name const & n, expr const & type, 
     m_branch.m_hyp_decls.insert(new_hidx, new_h);
     if (new_h.is_assumption())
         m_branch.m_assumption.insert(new_hidx);
-    double w = compute_weight(new_hidx, type);
-    m_branch.m_todo_queue.insert(w, new_hidx);
+    add_todo_queue(new_hidx);
     return r;
 }
 
@@ -778,6 +782,21 @@ branch_extension & state::get_extension(unsigned extid) {
         lean_assert(ext);
         return *ext;
     }
+}
+
+void state::deactivate_all() {
+    m_branch.m_head_to_hyps = head_map<hypothesis_idx>();
+    unsigned n = get_extension_manager().get_num_extensions();
+    for (unsigned i = 0; i < n; i++) {
+        if (m_branch.m_extensions[i]) {
+            m_branch.m_extensions[i]->dec_ref();
+            m_branch.m_extensions[i] = nullptr;
+        }
+    }
+    m_branch.m_active.for_each([&](hypothesis_idx hidx) {
+            add_todo_queue(hidx);
+        });
+    m_branch.m_active = hypothesis_idx_set();
 }
 
 void state::update_indices(hypothesis_idx hidx) {

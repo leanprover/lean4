@@ -31,9 +31,9 @@ class decl_attributes {
     bool               m_recursor;
     bool               m_simp;
     bool               m_congr;
-    bool               m_backward;
     bool               m_forward;
     bool               m_intro;
+    bool               m_intro_bang;
     bool               m_elim;
     bool               m_no_pattern;
     optional<unsigned> m_recursor_major_pos;

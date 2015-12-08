@@ -56,7 +56,7 @@ section
     ... = f₂              : rfl
 end
 
-attribute funext [intro]
+attribute funext [intro!]
 
 open function.equiv_notation
 

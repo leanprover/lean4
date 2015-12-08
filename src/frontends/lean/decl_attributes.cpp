@@ -46,9 +46,9 @@ decl_attributes::decl_attributes(bool is_abbrev, bool persistent):
     m_recursor               = false;
     m_simp                   = false;
     m_congr                  = false;
-    m_backward               = false;
     m_forward                = false;
     m_intro                  = false;
+    m_intro_bang             = false;
     m_elim                   = false;
     m_no_pattern             = false;
 }
@@ -97,9 +97,9 @@ void decl_attributes::parse(parser & p) {
             p.next();
         } else if (auto it = parse_priority(p)) {
             m_priority = *it;
-            if (!m_is_instance && !m_simp && !m_congr && !m_backward && !m_forward && !m_elim && !m_intro) {
+            if (!m_is_instance && !m_simp && !m_congr && !m_forward && !m_elim && !m_intro && !m_intro_bang) {
                 throw parser_error("invalid '[priority]' attribute, declaration must be marked as an '[instance]', '[simp]', '[congr]', "
-                                   "'[backward]', '[forward]', '[intro]' or '[elim]'", pos);
+                                   "'[forward]', '[intro!]', '[intro]' or '[elim]'", pos);
             }
         } else if (p.curr_is_token(get_parsing_only_tk())) {
             if (!m_is_abbrev)
@@ -148,9 +148,6 @@ void decl_attributes::parse(parser & p) {
             p.next();
             m_light_arg = p.parse_small_nat();
             p.check_token_next(get_rbracket_tk(), "light attribute has form '[light <i>]'");
-        } else if (p.curr_is_token(get_backward_attr_tk())) {
-            p.next();
-            m_backward = true;
         } else if (p.curr_is_token(get_forward_attr_tk())) {
             p.next();
             m_forward = true;
@@ -160,6 +157,9 @@ void decl_attributes::parse(parser & p) {
         } else if (p.curr_is_token(get_intro_attr_tk())) {
             p.next();
             m_intro = true;
+        } else if (p.curr_is_token(get_intro_bang_attr_tk())) {
+            p.next();
+            m_intro_bang = true;
         } else if (p.curr_is_token(get_no_pattern_attr_tk())) {
             p.next();
             m_no_pattern = true;
@@ -252,12 +252,6 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
     if (m_light_arg) {
         env = add_light_rule(env, d, *m_light_arg, ns, m_persistent);
     }
-    if (m_backward) {
-        if (m_priority)
-            env = add_backward_rule(env, d, *m_priority, ns, m_persistent);
-        else
-            env = add_backward_rule(env, d, LEAN_BACKWARD_DEFAULT_PRIORITY, ns, m_persistent);
-    }
     if (forward) {
         mk_multipatterns(env, ios, d); // try to create patterns
         if (m_priority)
@@ -266,6 +260,12 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
             env = add_forward_lemma(env, d, LEAN_FORWARD_DEFAULT_PRIORITY, ns, m_persistent);
     }
     if (m_intro) {
+        if (m_priority)
+            env = add_backward_rule(env, d, *m_priority, ns, m_persistent);
+        else
+            env = add_backward_rule(env, d, LEAN_BACKWARD_DEFAULT_PRIORITY, ns, m_persistent);
+    }
+    if (m_intro_bang) {
         if (m_priority)
             env = add_intro_lemma(env, ios, d, *m_priority, ns, m_persistent);
         else
@@ -290,8 +290,8 @@ void decl_attributes::write(serializer & s) const {
       << m_is_reducible << m_is_irreducible << m_is_semireducible << m_is_quasireducible
       << m_is_class << m_is_parsing_only << m_has_multiple_instances << m_unfold_full_hint
       << m_constructor_hint << m_symm << m_trans << m_refl << m_subst << m_recursor
-      << m_simp << m_congr << m_recursor_major_pos << m_priority << m_backward
-      << m_forward << m_elim << m_intro << m_no_pattern;
+      << m_simp << m_congr << m_recursor_major_pos << m_priority
+      << m_forward << m_elim << m_intro << m_intro_bang << m_no_pattern;
     write_list(s, m_unfold_hint);
 }
 
@@ -300,8 +300,8 @@ void decl_attributes::read(deserializer & d) {
       >> m_is_reducible >> m_is_irreducible >> m_is_semireducible >> m_is_quasireducible
       >> m_is_class >> m_is_parsing_only >> m_has_multiple_instances >> m_unfold_full_hint
       >> m_constructor_hint >> m_symm >> m_trans >> m_refl >> m_subst >> m_recursor
-      >> m_simp >> m_congr >> m_recursor_major_pos >> m_priority >> m_backward
-      >> m_forward >> m_elim >> m_intro >> m_no_pattern;
+      >> m_simp >> m_congr >> m_recursor_major_pos >> m_priority
+      >> m_forward >> m_elim >> m_intro >> m_intro_bang >> m_no_pattern;
     m_unfold_hint = read_list<unsigned>(d);
 }
 }

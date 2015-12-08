@@ -24,7 +24,7 @@ prefix `¬` := not
 definition absurd {a : Prop} {b : Type} (H1 : a) (H2 : ¬a) : b :=
 false.rec b (H2 H1)
 
-lemma not.intro [intro] {a : Prop} (H : a → false) : ¬ a :=
+lemma not.intro [intro!] {a : Prop} (H : a → false) : ¬ a :=
 H
 
 theorem mt {a b : Prop} (H1 : a → b) (H2 : ¬b) : ¬a :=
@@ -243,7 +243,7 @@ notation a ∧ b  := and a b
 variables {a b c d : Prop}
 
 attribute and.rec [elim]
-attribute and.intro [intro]
+attribute and.intro [intro!]
 
 theorem and.elim (H₁ : a ∧ b) (H₂ : a → b → c) : c :=
 and.rec H₂ H₁
@@ -280,7 +280,7 @@ notation a ↔ b := iff a b
 
 theorem iff.intro : (a → b) → (b → a) → (a ↔ b) := and.intro
 
-attribute iff.intro [intro]
+attribute iff.intro [intro!]
 
 theorem iff.elim : ((a → b) → (b → a) → c) → (a ↔ b) → c := and.rec
 
@@ -508,9 +508,7 @@ and_congr (imp_congr H1 H2) (imp_congr H2 H1)
 inductive Exists {A : Type} (P : A → Prop) : Prop :=
 intro : ∀ (a : A), P a → Exists P
 
--- Remark: we don't mark exists.intro with [intro] because the [intro]
--- rules are applied eagerly.
-attribute Exists.intro [backward]
+attribute Exists.intro [intro]
 
 definition exists.intro := @Exists.intro
 
@@ -530,7 +528,7 @@ definition exists_unique {A : Type} (p : A → Prop) :=
 
 notation `∃!` binders `, ` r:(scoped P, exists_unique P) := r
 
-theorem exists_unique.intro [backward] {A : Type} {p : A → Prop} (w : A) (H1 : p w) (H2 : ∀y, p y → y = w) :
+theorem exists_unique.intro [intro] {A : Type} {p : A → Prop} (w : A) (H1 : p w) (H2 : ∀y, p y → y = w) :
   ∃!x, p x :=
 exists.intro w (and.intro H1 H2)
 

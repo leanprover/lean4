@@ -2,15 +2,15 @@
 set_option blast.strategy "backward"
 constants {P Q R S T U : Prop} (Hpq : P → Q) (Hqr : Q → R) (Hrs : R → S) (Hst : S → T)
 constants (Huq : U → Q) (Hur : U → R) (Hus : U → S) (Hut : U → T)
-attribute Hpq [backward]
-attribute Hqr [backward]
-attribute Hrs [backward]
-attribute Hst [backward]
+attribute Hpq [intro]
+attribute Hqr [intro]
+attribute Hrs [intro]
+attribute Hst [intro]
 
-attribute Huq [backward]
-attribute Hur [backward]
-attribute Hus [backward]
-attribute Hut [backward]
+attribute Huq [intro]
+attribute Hur [intro]
+attribute Hus [intro]
+attribute Hut [intro]
 
 definition lemma1 (p : P) : Q := by blast
 definition lemma2 (p : P) : R := by blast

@@ -12,7 +12,7 @@ by blast
 example : ∀ (F F' : Prop), F ∧ F' → F :=
 by blast
 
-attribute and.intro [backward]
+attribute and.intro [intro]
 
 example : ∀ (P Q R : nat → Prop) (F : Prop), (F ∧ (∀ n m, (Q m ∧ R n) → P n)) →
             (F → R 2) → Q 1 → P 2 ∧ F :=

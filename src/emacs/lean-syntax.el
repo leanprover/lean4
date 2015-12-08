@@ -55,9 +55,9 @@
            "class" "parsing_only" "coercion" "unfold_full" "constructor"
            "reducible" "irreducible" "semireducible" "quasireducible" "wf"
            "whnf" "multiple_instances" "none" "decls" "declarations"
-           "coercions" "classes" "symm" "subst" "refl" "trans" "simp" "simps" "congr" "backward"
+           "coercions" "classes" "symm" "subst" "refl" "trans" "simp" "simps" "congr"
            "forward" "no_pattern" "notations" "abbreviations" "begin_end_hints" "tactic_hints"
-           "reduce_hints" "unfold_hints" "aliases" "eqv" "intro" "elim"
+           "reduce_hints" "unfold_hints" "aliases" "eqv" "intro" "intro!" "elim"
            "localrefinfo" "recursor"))
   "lean modifiers")
 (defconst lean-modifiers-regexp

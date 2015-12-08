@@ -709,7 +709,7 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token(get_simp_attr_tk())) {
         p.next();
         print_simp_rules(p);
-    } else if (p.curr_is_token(get_intro_attr_tk())) {
+    } else if (p.curr_is_token(get_intro_bang_attr_tk())) {
         p.next();
         print_intro_lemmas(p);
     } else if (p.curr_is_token(get_elim_attr_tk())) {
@@ -722,7 +722,7 @@ environment print_cmd(parser & p) {
         p.next();
         p.check_token_next(get_rbracket_tk(), "invalid 'print [light]', ']' expected");
         print_light_rules(p);
-    } else if (p.curr_is_token(get_backward_attr_tk())) {
+    } else if (p.curr_is_token(get_intro_attr_tk())) {
         p.next();
         print_backward_rules(p);
     } else if (print_polymorphic(p)) {

@@ -14,6 +14,11 @@ io_state_stream const & operator<<(io_state_stream const & out, endl_class) {
     return out;
 }
 
+io_state_stream const & operator<<(io_state_stream const & out, option_kind k) {
+    out.get_stream() << k;
+    return out;
+}
+
 io_state_stream const & operator<<(io_state_stream const & out, expr_kind const & k) {
     out.get_stream() << k;
     return out;

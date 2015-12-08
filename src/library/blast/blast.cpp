@@ -1149,13 +1149,17 @@ optional<expr> blast_goal(environment const & env, io_state const & ios, list<na
 }
 void initialize_blast() {
     register_trace_class("blast");
-    register_trace_class(name{"blast", "all"});
+    register_trace_class(name{"blast_detailed"});
     register_trace_class(name({"blast", "event"}));
+
     register_trace_class_alias("app_builder", name({"blast", "event"}));
     register_trace_class_alias(name({"simplifier", "failure"}), name({"blast", "event"}));
-    register_trace_class_alias("app_builder", name({"blast", "all"}));
-    register_trace_class_alias(name({"simplifier", "failure"}), name({"blast", "all"}));
-    register_trace_class_alias(name({"congruence_closure", "merge"}), name({"blast", "all"}));
+
+    register_trace_class_alias("blast", "blast_detailed");
+    register_trace_class_alias("app_builder", "blast_detailed");
+    register_trace_class_alias(name({"simplifier", "failure"}), "blast_detailed");
+    register_trace_class_alias(name({"congruence_closure", "merge"}), "blast_detailed");
+
     blast::g_prefix                  = new name(name::mk_internal_unique_name());
     blast::g_tmp_prefix              = new name(name::mk_internal_unique_name());
     blast::g_ref_prefix              = new name(name::mk_internal_unique_name());

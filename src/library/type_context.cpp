@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/inductive/inductive.h"
 #include "library/trace.h"
+#include "library/util.h"
 #include "library/projection.h"
 #include "library/normalize.h"
 #include "library/replace_visitor.h"
@@ -22,10 +23,6 @@ Author: Leonardo de Moura
 #include "library/generic_exception.h"
 #include "library/class.h"
 #include "library/constants.h"
-
-#ifndef LEAN_DEFAULT_CLASS_TRACE_INSTANCES
-#define LEAN_DEFAULT_CLASS_TRACE_INSTANCES false
-#endif
 
 #ifndef LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH
 #define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 32
@@ -37,13 +34,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name * g_prefix                       = nullptr;
-static name * g_class_trace_instances        = nullptr;
 static name * g_class_instance_max_depth     = nullptr;
 static name * g_class_trans_instances        = nullptr;
-
-bool get_class_trace_instances(options const & o) {
-    return o.get_bool(*g_class_trace_instances, LEAN_DEFAULT_CLASS_TRACE_INSTANCES);
-}
 
 unsigned get_class_instance_max_depth(options const & o) {
     return o.get_unsigned(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH);
@@ -110,7 +102,6 @@ struct type_context::ext_ctx : public extension_context {
 type_context::type_context(environment const & env, io_state const & ios, tmp_local_generator * gen,
                            bool gen_owner, bool multiple_instances):
     m_env(env),
-    m_ios(ios),
     m_ngen(*g_prefix),
     m_ext_ctx(new ext_ctx(*this)),
     m_local_gen(gen),
@@ -124,7 +115,6 @@ type_context::type_context(environment const & env, io_state const & ios, tmp_lo
     // TODO(Leo): use compilation options for setting config
     m_ci_max_depth       = 32;
     m_ci_trans_instances = true;
-    m_ci_trace_instances = false;
     update_options(ios.get_options());
 }
 
@@ -1371,34 +1361,22 @@ bool type_context::update_options(options const & opts) {
     options o = opts;
     unsigned max_depth    = get_class_instance_max_depth(o);
     bool trans_instances  = get_class_trans_instances(o);
-    bool trace_instances  = get_class_trace_instances(o);
-    if (trace_instances) {
-        o = o.update_if_undef(get_pp_purify_metavars_name(), false);
-        o = o.update_if_undef(get_pp_implicit_name(), true);
-    }
     bool r = true;
     if (m_ci_max_depth        != max_depth        ||
-        m_ci_trans_instances  != trans_instances  ||
-        m_ci_trace_instances  != trace_instances) {
+        m_ci_trans_instances  != trans_instances) {
         r = false;
     }
     m_ci_max_depth        = max_depth;
     m_ci_trans_instances  = trans_instances;
-    m_ci_trace_instances  = trace_instances;
-    m_ios.set_options(o);
     return r;
 }
 
 [[ noreturn ]] static void throw_class_exception(char const * msg, expr const & m) { throw_generic_exception(msg, m); }
 
-io_state_stream type_context::diagnostic() {
-    return lean::diagnostic(m_env, m_ios);
-}
-
 void type_context::trace(unsigned depth, expr const & mvar, expr const & mvar_type, expr const & r) {
-    lean_assert(m_ci_trace_instances);
-    auto out = diagnostic();
+    auto out = tout();
     if (!m_ci_displayed_trace_header && m_ci_choices.size() == m_ci_choices_ini_sz + 1) {
+        out << tclass("class_instances");
         if (m_pip) {
             if (auto fname = m_pip->get_file_name()) {
                 out << fname << ":";
@@ -1409,10 +1387,7 @@ void type_context::trace(unsigned depth, expr const & mvar, expr const & mvar_ty
         out << " class-instance resolution trace" << endl;
         m_ci_displayed_trace_header = true;
     }
-    for (unsigned i = 0; i < depth; i++)
-        out << " ";
-    if (depth > 0)
-        out << "[" << depth << "] ";
+    out << tclass("class_instances") << "(" << depth << ") ";
     out << mvar << " : " << instantiate_uvars_mvars(mvar_type) << " := " << r << endl;
 }
 
@@ -1446,9 +1421,7 @@ bool type_context::try_instance(ci_stack_entry const & e, expr const & inst, exp
             r    = mk_app(r, new_arg);
             type = instantiate(binding_body(type), new_arg);
         }
-        if (m_ci_trace_instances) {
-            trace(e.m_depth, mk_app(mvar, locals), mvar_type, r);
-        }
+        lean_trace_plain("class_instances", trace(e.m_depth, mk_app(mvar, locals), mvar_type, r););
         if (!is_def_eq(mvar_type, type)) {
             return false;
         }
@@ -1504,7 +1477,7 @@ bool type_context::mk_choice_point(expr const & mvar) {
         throw_class_exception("maximum class-instance resolution depth has been reached "
                               "(the limit can be increased by setting option 'class.instance_max_depth') "
                               "(the class-instance resolution trace can be visualized "
-                              "by setting option 'class.trace_instances')",
+                              "by setting option 'trace.class_instances')",
                               infer(m_ci_main_mvar));
     }
     // Remark: we initially tried to reject branches where mvar_type contained unassigned metavariables.
@@ -1675,9 +1648,7 @@ optional<expr> type_context::ensure_no_meta(optional<expr> r) {
 
 optional<expr> type_context::mk_class_instance_core(expr const & type) {
     if (auto r = check_ci_cache(type)) {
-        if (m_ci_trace_instances) {
-            diagnostic() << "cached instance for " << type << "\n" << *r << "\n";
-        }
+        lean_trace("class_instances", tout() << "cached instance for " << type << "\n" << *r << "\n";);
         return r;
     }
     init_search(type);
@@ -1697,6 +1668,8 @@ void type_context::restore_choices(unsigned old_sz) {
 optional<expr> type_context::mk_class_instance(expr const & type) {
     m_ci_choices.clear();
     ci_choices_scope scope(*this);
+    lean_trace_init_bool("class_instances", get_pp_purify_metavars_name(), false);
+    lean_trace_init_bool("class_instances", get_pp_implicit_name(), true);
     m_ci_displayed_trace_header = false;
     auto r = mk_class_instance_core(type);
     if (r)
@@ -1962,15 +1935,11 @@ normalizer::normalizer(type_context & ctx, bool eta, bool nested_prop):
 
 void initialize_type_context() {
     g_prefix = new name(name::mk_internal_unique_name());
-    g_class_trace_instances        = new name{"class", "trace_instances"};
+    register_trace_class("class_instances");
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
     g_class_trans_instances        = new name{"class", "trans_instances"};
-    register_bool_option(*g_class_trace_instances,  LEAN_DEFAULT_CLASS_TRACE_INSTANCES,
-                         "(class) display messages showing the class-instances resolution execution trace");
-
     register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,
                              "(class) max allowed depth in class-instance resolution");
-
     register_bool_option(*g_class_trans_instances,  LEAN_DEFAULT_CLASS_TRANS_INSTANCES,
                          "(class) use automatically derived instances from the transitive closure of "
                          "the structure instance graph");
@@ -1978,7 +1947,6 @@ void initialize_type_context() {
 
 void finalize_type_context() {
     delete g_prefix;
-    delete g_class_trace_instances;
     delete g_class_instance_max_depth;
     delete g_class_trans_instances;
 }

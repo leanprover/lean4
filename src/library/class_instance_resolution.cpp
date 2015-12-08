@@ -225,6 +225,10 @@ void finalize_class_instance_resolution() {
     (p : x = y) : (is_equiv (transport P p)) := ...
 */
 
+static bool get_class_trace_instances(options const & o) {
+    return o.get_bool(name("trace", "class_instances"), false);
+}
+
 /** \brief Context for handling class-instance metavariable choice constraint */
 struct class_instance_context {
     io_state                  m_ios;

@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 
 namespace lean {
-bool get_class_trace_instances(options const & o);
 unsigned get_class_instance_max_depth(options const & o);
 bool get_class_trans_instances(options const & o);
 
@@ -119,7 +118,6 @@ class type_context {
     struct ext_ctx;
     friend struct ext_ctx;
     environment                     m_env;
-    io_state                        m_ios;
     name_generator                  m_ngen;
     std::unique_ptr<ext_ctx>        m_ext_ctx;
     tmp_local_generator *           m_local_gen;
@@ -271,7 +269,6 @@ class type_context {
     bool                          m_ci_trans_instances;
     bool                          m_ci_trace_instances;
 
-    io_state_stream diagnostic();
     optional<name> constant_is_class(expr const & e);
     optional<name> is_full_class(expr type);
     lbool is_quick_class(expr const & type, name & result);

@@ -101,19 +101,21 @@ scope_trace_inc_depth::~scope_trace_inc_depth() {
         g_depth--;
 }
 
-scope_trace_init_bool_option::scope_trace_init_bool_option(name const & n, bool v) {
+void scope_trace_init_bool_option::init(name const & n, bool v) {
     m_old_ios = g_ios;
     if (g_env && g_ios) {
-        m_tmp_ios = *g_ios;
-        options o = m_tmp_ios.get_options();
+        m_tmp_ios.reset(new io_state(*g_ios));
+        options o = m_tmp_ios->get_options();
         o         = o.update_if_undef(n, v);
-        m_tmp_ios.set_options(o);
-        g_ios     = &m_tmp_ios;
+        m_tmp_ios->set_options(o);
+        g_ios     = m_tmp_ios.get();
     }
 }
 
 scope_trace_init_bool_option::~scope_trace_init_bool_option() {
-    g_ios = const_cast<io_state*>(m_old_ios);
+    if (m_tmp_ios) {
+        g_ios = const_cast<io_state*>(m_old_ios);
+    }
 }
 
 io_state_stream tout() {

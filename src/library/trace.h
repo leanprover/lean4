@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <memory>
 #include "library/io_state_stream.h"
 
 namespace lean {
@@ -12,6 +13,8 @@ void register_trace_class(name const & n);
 void register_trace_class_alias(name const & n, name const & alias);
 bool is_trace_enabled();
 bool is_trace_class_enabled(name const & n);
+
+#define lean_is_trace_enabled(CName) (::lean::is_trace_enabled() && ::lean::is_trace_class_enabled(CName))
 
 class scope_trace_env {
     unsigned            m_sz;
@@ -29,19 +32,29 @@ public:
     void activate();
 };
 
-/* Temporarily set an option if it is not already set in the trace environment. */
-class scope_trace_init_bool_option {
-    io_state const * m_old_ios;
-    io_state         m_tmp_ios;
-public:
-    scope_trace_init_bool_option(name const & n, bool v);
-    ~scope_trace_init_bool_option();
-};
+#define LEAN_MERGE_(a,b)  a##b
+#define LEAN_LABEL_(a) LEAN_MERGE_(unique_name_, a)
+#define LEAN_UNIQUE_NAME LEAN_LABEL_(__LINE__)
 
 #define lean_trace_inc_depth(CName)                             \
-scope_trace_inc_depth trace_inc_depth_helper ## __LINE__;       \
+scope_trace_inc_depth LEAN_UNIQUE_NAME;                         \
 if (is_trace_enabled() && is_trace_class_enabled(name(CName)))  \
-    trace_inc_depth_helper ## __LINE__.activate();
+    LEAN_UNIQUE_NAME.activate();
+
+/* Temporarily set an option if it is not already set in the trace environment. */
+class scope_trace_init_bool_option {
+    io_state const *          m_old_ios{nullptr};
+    std::unique_ptr<io_state> m_tmp_ios;
+public:
+    ~scope_trace_init_bool_option();
+    void init(name const & opt, bool val);
+};
+
+#define lean_trace_init_bool(CName, Opt, Val)           \
+    scope_trace_init_bool_option LEAN_UNIQUE_NAME;      \
+if (lean_is_trace_enabled(CName)) {                     \
+    LEAN_UNIQUE_NAME.init(Opt, Val);                    \
+}
 
 struct tdepth {};
 struct tclass { name m_cls; tclass(name const & c):m_cls(c) {} };
@@ -49,8 +62,6 @@ struct tclass { name m_cls; tclass(name const & c):m_cls(c) {} };
 io_state_stream tout();
 io_state_stream const & operator<<(io_state_stream const & ios, tdepth const &);
 io_state_stream const & operator<<(io_state_stream const & ios, tclass const &);
-
-#define lean_is_trace_enabled(CName) (::lean::is_trace_enabled() && ::lean::is_trace_class_enabled(CName))
 
 #define lean_trace_plain(CName, CODE) {         \
 if (lean_is_trace_enabled(CName)) {             \

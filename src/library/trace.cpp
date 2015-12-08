@@ -38,14 +38,16 @@ bool is_trace_enabled() {
 
 void enable_trace_class(name const & c) {
     std::vector<name> & cs = get_enabled_trace_classes();
-    if (std::find(cs.begin(), cs.end(), c) == cs.end())
+    if (std::find(cs.begin(), cs.end(), c) == cs.end()) {
         cs.push_back(c);
+    }
 }
 
 bool is_trace_class_enabled_core(name const & n) {
     for (name const & p : get_enabled_trace_classes()) {
-        if (is_prefix_of(p, n))
+        if (is_prefix_of(p, n)) {
             return true;
+        }
     }
     return false;
 }
@@ -97,6 +99,21 @@ void scope_trace_inc_depth::activate() {
 scope_trace_inc_depth::~scope_trace_inc_depth() {
     if (m_active)
         g_depth--;
+}
+
+scope_trace_init_bool_option::scope_trace_init_bool_option(name const & n, bool v) {
+    m_old_ios = g_ios;
+    if (g_env && g_ios) {
+        m_tmp_ios = *g_ios;
+        options o = m_tmp_ios.get_options();
+        o         = o.update_if_undef(n, v);
+        m_tmp_ios.set_options(o);
+        g_ios     = &m_tmp_ios;
+    }
+}
+
+scope_trace_init_bool_option::~scope_trace_init_bool_option() {
+    g_ios = const_cast<io_state*>(m_old_ios);
 }
 
 io_state_stream tout() {

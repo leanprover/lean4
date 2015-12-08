@@ -29,10 +29,19 @@ public:
     void activate();
 };
 
+/* Temporarily set an option if it is not already set in the trace environment. */
+class scope_trace_init_bool_option {
+    io_state const * m_old_ios;
+    io_state         m_tmp_ios;
+public:
+    scope_trace_init_bool_option(name const & n, bool v);
+    ~scope_trace_init_bool_option();
+};
+
 #define lean_trace_inc_depth(CName)                             \
-scope_trace_inc_depth trace_inc_depth_helper;                   \
+scope_trace_inc_depth trace_inc_depth_helper ## __LINE__;       \
 if (is_trace_enabled() && is_trace_class_enabled(name(CName)))  \
-    trace_inc_depth_helper.activate();
+    trace_inc_depth_helper ## __LINE__.activate();
 
 struct tdepth {};
 struct tclass { name m_cls; tclass(name const & c):m_cls(c) {} };
@@ -41,21 +50,21 @@ io_state_stream tout();
 io_state_stream const & operator<<(io_state_stream const & ios, tdepth const &);
 io_state_stream const & operator<<(io_state_stream const & ios, tclass const &);
 
-#define lean_is_trace_enabled(CName) (is_trace_enabled() && is_trace_class_enabled(name(CName)))
+#define lean_is_trace_enabled(CName) (::lean::is_trace_enabled() && ::lean::is_trace_class_enabled(CName))
 
-#define lean_trace_core(CName, CODE) {          \
-if (lean_is_trace_class_enabled(CName)) {       \
+#define lean_trace_plain(CName, CODE) {         \
+if (lean_is_trace_enabled(CName)) {             \
     CODE                                        \
 }}
 
 #define lean_trace(CName, CODE) {               \
 if (lean_is_trace_enabled(CName)) {             \
-    tout() << tclass(name(CName)); CODE         \
+    tout() << tclass(CName); CODE               \
 }}
 
-#define lean_dtrace(CName, CODE) {                      \
-if (lean_is_trace_enabled(CName)) {                     \
-    tout() << tdepth() << tclass(name(CName)); CODE     \
+#define lean_trace_d(CName, CODE) {               \
+if (lean_is_trace_enabled(CName)) {               \
+    tout() << tdepth() << tclass(CName); CODE     \
 }}
 
 void initialize_trace();

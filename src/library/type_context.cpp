@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/inductive/inductive.h"
+#include "library/trace.h"
 #include "library/projection.h"
 #include "library/normalize.h"
 #include "library/replace_visitor.h"

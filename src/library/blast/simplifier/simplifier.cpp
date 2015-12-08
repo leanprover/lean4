@@ -13,6 +13,7 @@ Author: Daniel Selsam
 #include "kernel/abstract.h"
 #include "kernel/expr_maps.h"
 #include "kernel/instantiate.h"
+#include "library/trace.h"
 #include "library/constants.h"
 #include "library/normalize.h"
 #include "library/expr_lt.h"
@@ -46,9 +47,6 @@ Author: Daniel Selsam
 #ifndef LEAN_DEFAULT_SIMPLIFY_EXPAND_MACROS
 #define LEAN_DEFAULT_SIMPLIFY_EXPAND_MACROS false
 #endif
-#ifndef LEAN_DEFAULT_SIMPLIFY_TRACE
-#define LEAN_DEFAULT_SIMPLIFY_TRACE false
-#endif
 #ifndef LEAN_DEFAULT_SIMPLIFY_FUSE
 #define LEAN_DEFAULT_SIMPLIFY_FUSE false
 #endif
@@ -78,7 +76,6 @@ static name * g_simplify_exhaustive    = nullptr;
 static name * g_simplify_memoize       = nullptr;
 static name * g_simplify_contextual    = nullptr;
 static name * g_simplify_expand_macros = nullptr;
-static name * g_simplify_trace         = nullptr;
 static name * g_simplify_fuse          = nullptr;
 static name * g_simplify_numerals      = nullptr;
 
@@ -104,10 +101,6 @@ bool get_simplify_contextual() {
 
 bool get_simplify_expand_macros() {
     return ios().get_options().get_bool(*g_simplify_expand_macros, LEAN_DEFAULT_SIMPLIFY_EXPAND_MACROS);
-}
-
-bool get_simplify_trace() {
-    return ios().get_options().get_bool(*g_simplify_trace, LEAN_DEFAULT_SIMPLIFY_TRACE);
 }
 
 bool get_simplify_fuse() {
@@ -153,7 +146,6 @@ class simplifier {
     bool                                         m_memoize{get_simplify_memoize()};
     bool                                         m_contextual{get_simplify_contextual()};
     bool                                         m_expand_macros{get_simplify_expand_macros()};
-    bool                                         m_trace{get_simplify_trace()};
     bool                                         m_fuse{get_simplify_fuse()};
     bool                                         m_numerals{get_simplify_numerals()};
 
@@ -196,9 +188,6 @@ class simplifier {
         simp_rule_sets srss = _srss;
         for (unsigned i = 0; i < ls.size(); i++) {
             expr & l = ls[i];
-            if (m_trace) {
-                diagnostic(env(), ios()) << "Local: " << l << " : " << mlocal_type(l) << "\n";
-            }
             tmp_type_context tctx(env(), ios());
             try {
                 // TODO(Leo,Daniel): should we allow the user to set the priority of local lemmas
@@ -385,11 +374,8 @@ result simplifier::simplify(expr const & e, simp_rule_sets const & srss) {
 result simplifier::simplify(expr const & e, bool is_root) {
     check_system("simplifier");
     m_num_steps++;
-    flet<unsigned> inc_depth(m_depth, m_depth+1);
-
-    if (m_trace) {
-        diagnostic(env(), ios()) << m_depth << "." << m_rel << ": " << ppb(e) << "\n";
-    }
+    lean_trace_inc_depth("simplifier");
+    lean_trace_d("simplifier", tout() << m_rel << ": " << ppb(e) << "\n";);
 
     if (m_num_steps > m_max_steps)
         throw blast_exception("simplifier failed, maximum number of steps exceeded", e);
@@ -613,13 +599,11 @@ result simplifier::rewrite(expr const & e, simp_rule const & sr) {
 
     if (!tmp_tctx->is_def_eq(e, sr.get_lhs())) return result(e);
 
-    if (m_trace) {
-        expr new_lhs = tmp_tctx->instantiate_uvars_mvars(sr.get_lhs());
-        expr new_rhs = tmp_tctx->instantiate_uvars_mvars(sr.get_rhs());
-        diagnostic(env(), ios())
-            << "REW(" << sr.get_id() << ") "
-            << "[" << ppb(new_lhs) << " =?= " << ppb(new_rhs) << "]\n";
-    }
+    lean_trace(name({"simplifier", "rewrite"}),
+               expr new_lhs = tmp_tctx->instantiate_uvars_mvars(sr.get_lhs());
+               expr new_rhs = tmp_tctx->instantiate_uvars_mvars(sr.get_rhs());
+               tout() << "(" << sr.get_id() << ") "
+               << "[" << ppb(new_lhs) << " =?= " << ppb(new_rhs) << "]\n";);
 
     if (!instantiate_emetas(tmp_tctx, sr.get_num_emeta(), sr.get_emetas(), sr.get_instances())) return result(e);
 
@@ -707,13 +691,12 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
 
     if (!tmp_tctx->is_def_eq(e, cr.get_lhs())) return result(e);
 
-    if (m_trace) {
-        expr new_lhs = tmp_tctx->instantiate_uvars_mvars(cr.get_lhs());
-        expr new_rhs = tmp_tctx->instantiate_uvars_mvars(cr.get_rhs());
-        diagnostic(env(), ios())
-            << "CONGR(" << cr.get_id() << ") "
-            << "[" << ppb(new_lhs) << " =?= " << ppb(new_rhs) << "]\n";
-    }
+    lean_trace(name({"simplifier", "congruence"}),
+               expr new_lhs = tmp_tctx->instantiate_uvars_mvars(cr.get_lhs());
+               expr new_rhs = tmp_tctx->instantiate_uvars_mvars(cr.get_rhs());
+               diagnostic(env(), ios())
+               << "(" << cr.get_id() << ") "
+               << "[" << ppb(new_lhs) << " =?= " << ppb(new_rhs) << "]\n";);
 
     /* First, iterate over the congruence hypotheses */
     bool failed = false;
@@ -779,16 +762,14 @@ bool simplifier::instantiate_emetas(blast_tmp_type_context & tmp_tctx, unsigned 
             if (is_instance) {
                 if (auto v = tmp_tctx->mk_class_instance(m_type)) {
                     if (!tmp_tctx->assign(m, *v)) {
-                        if (m_trace) {
-                            diagnostic(env(), ios()) << "unable to assign instance for: " << ppb(m_type) << "\n";
-                        }
+                        lean_trace(name({"simplifier", "failure"}),
+                                   tout() << "unable to assign instance for: " << ppb(m_type) << "\n";);
                         failed = true;
                         return;
                     }
                 } else {
-                    if (m_trace) {
-                        diagnostic(env(), ios()) << "unable to synthesize instance for: " << ppb(m_type) << "\n";
-                    }
+                    lean_trace(name({"simplifier", "failure"}),
+                               tout() << "unable to synthesize instance for: " << ppb(m_type) << "\n";);
                     failed = true;
                     return;
                 }
@@ -803,9 +784,8 @@ bool simplifier::instantiate_emetas(blast_tmp_type_context & tmp_tctx, unsigned 
                 }
             }
 
-            if (m_trace) {
-                diagnostic(env(), ios()) << "failed to assign: " << m << " : " << ppb(m_type) << "\n";
-            }
+            lean_trace(name({"simplifier", "failure"}),
+                       tout() << "failed to assign: " << m << " : " << ppb(m_type) << "\n";);
 
             failed = true;
             return;
@@ -1071,6 +1051,11 @@ expr_pair simplifier::split_summand(expr const & e, expr const & f_mul, expr con
 /* Setup and teardown */
 
 void initialize_simplifier() {
+    register_trace_class("simplifier");
+    register_trace_class(name({"simplifier", "rewrite"}));
+    register_trace_class(name({"simplifier", "congruence"}));
+    register_trace_class(name({"simplifier", "failure"}));
+
     g_simplify_prove_namespace     = new name{"simplifier", "prove"};
     g_simplify_neg_namespace       = new name{"simplifier", "neg"};
     g_simplify_unit_namespace      = new name{"simplifier", "unit"};
@@ -1084,7 +1069,6 @@ void initialize_simplifier() {
     g_simplify_memoize       = new name{"simplify", "memoize"};
     g_simplify_contextual    = new name{"simplify", "contextual"};
     g_simplify_expand_macros = new name{"simplify", "expand_macros"};
-    g_simplify_trace         = new name{"simplify", "trace"};
     g_simplify_fuse          = new name{"simplify", "fuse"};
     g_simplify_numerals      = new name{"simplify", "numerals"};
 
@@ -1100,8 +1084,6 @@ void initialize_simplifier() {
                          "(simplify) use contextual simplification");
     register_bool_option(*g_simplify_expand_macros, LEAN_DEFAULT_SIMPLIFY_EXPAND_MACROS,
                          "(simplify) expand macros");
-    register_bool_option(*g_simplify_trace, LEAN_DEFAULT_SIMPLIFY_TRACE,
-                         "(simplify) trace");
     register_bool_option(*g_simplify_fuse, LEAN_DEFAULT_SIMPLIFY_FUSE,
                          "(simplify) fuse addition in distrib structures");
     register_bool_option(*g_simplify_numerals, LEAN_DEFAULT_SIMPLIFY_NUMERALS,
@@ -1111,7 +1093,6 @@ void initialize_simplifier() {
 void finalize_simplifier() {
     delete g_simplify_numerals;
     delete g_simplify_fuse;
-    delete g_simplify_trace;
     delete g_simplify_expand_macros;
     delete g_simplify_contextual;
     delete g_simplify_memoize;

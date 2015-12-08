@@ -1942,6 +1942,7 @@ void parser::parse_command() {
     name const & cmd_name = get_token_info().value();
     m_cmd_token = get_token_info().token();
     if (auto it = cmds().find(cmd_name)) {
+        scope_trace_env scope(m_env, m_ios);
         if (is_notation_cmd(cmd_name)) {
             in_notation_ctx ctx(*this);
             next();
@@ -1950,7 +1951,6 @@ void parser::parse_command() {
         } else {
             next();
             m_local_decls_size_at_beg_cmd = m_local_decls.size();
-            scope_trace_env scope(m_env, m_ios);
             m_env = it->get_fn()(*this);
         }
     } else {

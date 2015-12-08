@@ -24,6 +24,8 @@ class preprocess_strategy_fn : public strategy_fn {
     bool     m_simple;
     bool     m_done{false};
 
+    virtual bool show_failure() const override { return false; }
+
     virtual action_result hypothesis_pre_activation(hypothesis_idx hidx) override {
         Try(assumption_contradiction_actions(hidx));
         Try(simplify_hypothesis_action(hidx));
@@ -55,10 +57,8 @@ class preprocess_strategy_fn : public strategy_fn {
         }
         if (get_num_choice_points() > get_initial_num_choice_points())
             throw exception("invalid blast preprocessing action, preprocessing actions should not create choice points");
-        {
-            scope_trace s(get_config().m_trace);
-            TryStrategy(m_main);
-        }
+        scope_trace s(get_config().m_trace);
+        if (optional<expr> pf = m_main()) { return action_result::solved(*pf); }
         return action_result::failed();
     }
 public:

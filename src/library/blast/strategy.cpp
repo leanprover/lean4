@@ -46,6 +46,10 @@ action_result strategy_fn::next_branch(expr pr) {
     return action_result::solved(pr);
 }
 
+bool strategy_fn::show_failure() const {
+    return get_config().m_show_failure;
+}
+
 optional<expr> strategy_fn::search() {
     scope_choice_points scope1;
     m_ps_check_point          = curr_state().mk_proof_steps_check_point();
@@ -71,7 +75,7 @@ optional<expr> strategy_fn::search() {
             if (failed(r)) {
                 // all choice points failed...
                 trace(">>> proof not found, no choice points left <<<");
-                if (get_config().m_show_failure)
+                if (show_failure())
                     display_curr_state();
                 return none_expr();
             }

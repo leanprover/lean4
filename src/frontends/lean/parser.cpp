@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/error_msgs.h"
+#include "library/trace.h"
 #include "library/parser_nested_exception.h"
 #include "library/aliases.h"
 #include "library/constants.h"
@@ -1949,6 +1950,7 @@ void parser::parse_command() {
         } else {
             next();
             m_local_decls_size_at_beg_cmd = m_local_decls.size();
+            scope_trace_env scope(m_env, m_ios);
             m_env = it->get_fn()(*this);
         }
     } else {

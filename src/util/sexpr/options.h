@@ -49,6 +49,8 @@ public:
     char const * get_string(char const * n, char const * default_value = nullptr) const;
     sexpr        get_sexpr(char const * n, sexpr const & default_value = sexpr()) const;
 
+    void for_each(std::function<void(name const &)> const & fn) const;
+
     options update(name const & n, sexpr const & v) const;
     template<typename T> options update(name const & n, T v) const { return update(n, sexpr(v)); }
     options update(name const & n, unsigned v) const { return update(n, sexpr(static_cast<int>(v))); }

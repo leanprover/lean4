@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/error_msgs.h"
+#include "library/trace.h"
 #include "library/normalize.h"
 #include "library/occurs.h"
 #include "library/locals.h"
@@ -570,7 +571,7 @@ struct unifier_fn {
         try {
             auto dcs = m_tc->is_def_eq(t1, t2, j);
             if (!dcs.first) {
-                // std::cout << "conflict: " << t1 << " =?= " << t2 << "\n";
+                lean_trace("unifier", tout() << "conflict: " << t1 << " =?= " << t2 << "\n";);
                 set_conflict(j);
                 return false;
             } else {
@@ -1215,7 +1216,7 @@ struct unifier_fn {
         if (in_conflict())
             return false;
         check_full();
-        // std::cout << "process: " << c << "\n";
+        lean_trace("unifier", tout() << "process: " << c << "\n";);
         switch (c.kind()) {
         case constraint_kind::Choice:
             return preprocess_choice_constraint(c);
@@ -2664,7 +2665,7 @@ struct unifier_fn {
             postpone(c);
             return true;
         }
-        // std::cout << "process_next: " << c << "\n";
+        lean_trace("unifier", tout() << "process_next: " << c << "\n";);
         m_cnstrs.erase_min();
         if (is_choice_cnstr(c)) {
             return process_choice_constraint(c);
@@ -2978,6 +2979,7 @@ void open_unifier(lua_State * L) {
 }
 
 void initialize_unifier() {
+    register_trace_class(name{"unifier"});
     g_unifier_max_steps            = new name{"unifier", "max_steps"};
     g_unifier_normalizer_max_steps = new name{"unifier", "normalizer_max_steps"};
     g_unifier_computation          = new name{"unifier", "computation"};

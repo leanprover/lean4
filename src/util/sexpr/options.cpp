@@ -200,6 +200,12 @@ format pp(options const & o) {
     return group(nest(1, open + r + close));
 }
 
+void options::for_each(std::function<void(name const &)> const & fn) const {
+    ::lean::for_each(m_value, [&](sexpr const & p) {
+            fn(to_name(head(p)));
+        });
+}
+
 std::ostream & operator<<(std::ostream & out, options const & o) {
     bool unicode = get_pp_unicode(o);
     out << (unicode ? g_left_angle_bracket : "(");

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <vector>
 #include "kernel/abstract.h"
+#include "library/trace.h"
 #include "library/constants.h"
 #include "library/blast/simplifier/simp_rule_set.h"
 #include "library/blast/congruence_closure.h"
@@ -846,10 +847,8 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
 
     update_mt(R, e2_root);
 
-    if (get_config().m_trace_cc) {
-        diagnostic(env(), ios()) << "added equivalence " << ppb(e1) << " [" << R << "] " << ppb(e2) << "\n";
-        display();
-    }
+    lean_trace(name({"congruence_closure", "merge"}), tout() << ppb(e1) << " [" << R << "] " << ppb(e2) << "\n";);
+    lean_trace(name({"congruence_closure", "state"}), trace(););
 }
 
 void congruence_closure::process_todo() {
@@ -1275,8 +1274,8 @@ void congruence_closure::freeze_partitions() {
     m_entries = new_entries;
 }
 
-void congruence_closure::display_eqc(name const & R, expr const & e) const {
-    auto out = diagnostic(env(), ios());
+void congruence_closure::trace_eqc(name const & R, expr const & e) const {
+    auto out   = tout();
     bool first = true;
     expr it = e;
     out << R << " {";
@@ -1289,42 +1288,42 @@ void congruence_closure::display_eqc(name const & R, expr const & e) const {
     out << "}";
 }
 
-void congruence_closure::display_eqcs() const {
-    auto out = diagnostic(env(), ios());
+void congruence_closure::trace_eqcs() const {
+    auto out = tout();
     m_entries.for_each([&](eqc_key const & k, entry const & n) {
             if (k.m_expr == n.m_root) {
-                display_eqc(k.m_R, k.m_expr);
+                trace_eqc(k.m_R, k.m_expr);
                 out << "\n";
             }
         });
 }
 
-static void display_rel(io_state_stream & out, name const & R) {
+static void trace_rel(io_state_stream & out, name const & R) {
     if (R != get_eq_name())
-        out << "[" << R << "] ";
+        out << "(" << R << ") ";
 }
 
-void congruence_closure::display_parents() const {
-    auto out = diagnostic(env(), ios());
+void congruence_closure::trace_parents() const {
+    auto out = tout();
     m_parents.for_each([&](child_key const & k, parent_occ_set const & ps) {
-            display_rel(out, k.m_R);
+            trace_rel(out, k.m_R);
             out << ppb(k.m_expr);
             out << ", parents: {";
             bool first = true;
             ps.for_each([&](parent_occ const & o) {
                     if (first) first = false; else out << ", ";
-                    display_rel(out, o.m_R);
+                    trace_rel(out, o.m_R);
                     out << ppb(o.m_expr);
                 });
             out << "}\n";
         });
 }
 
-void congruence_closure::display() const {
-    diagnostic(env(), ios()) << "congruence closure state\n";
-    display_eqcs();
-    display_parents();
-    diagnostic(env(), ios()) << "\n";
+void congruence_closure::trace() const {
+    tout() << "\n";
+    trace_eqcs();
+    trace_parents();
+    tout() << "\n";
 }
 
 bool congruence_closure::check_eqc(name const & R, expr const & e) const {
@@ -1376,6 +1375,9 @@ congruence_closure & get_cc() {
 }
 
 void initialize_congruence_closure() {
+    register_trace_class("congruence_closure");
+    register_trace_class({"congruence_closure", "state"});
+    register_trace_class({"congruence_closure", "merge"});
     g_ext_id = register_branch_extension(new cc_branch_extension());
     name prefix = name::mk_internal_unique_name();
     g_congr_mark    = new expr(mk_constant(name(prefix, "[congruence]")));

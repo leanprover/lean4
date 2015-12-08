@@ -143,7 +143,7 @@ class congruence_closure {
     expr mk_congr_proof(name const & R, expr const & lhs, expr const & rhs) const;
     expr mk_proof(name const & R, expr const & lhs, expr const & rhs, expr const & H) const;
 
-    void display_eqc(name const & R, expr const & e) const;
+    void trace_eqc(name const & R, expr const & e) const;
 public:
     void initialize();
 
@@ -220,9 +220,9 @@ public:
     unsigned get_mt(name const & R, expr const & e) const;
 
     /** \brief dump for debugging purposes. */
-    void display() const;
-    void display_eqcs() const;
-    void display_parents() const;
+    void trace() const;
+    void trace_eqcs() const;
+    void trace_parents() const;
     bool check_eqc(name const & R, expr const & e) const;
     bool check_invariant() const;
 };

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/priority_queue.h"
 #include "kernel/instantiate.h"
+#include "library/trace.h"
 #include "library/scoped_ext.h"
 #include "library/user_recursors.h"
 #include "library/tmp_type_context.h"
@@ -134,7 +135,8 @@ head_map<gexpr> mk_intro_lemma_index() {
         ctx->clear();
         optional<name> target = get_intro_target(*ctx, lemmas[i]);
         if (!target) {
-            // TODO(Leo): generate event
+            lean_trace(name({"blast", "event"}),
+                       tout() << "discarding [intro] lemma '" << lemmas[i] << "', failed to find target type\n";);
         } else {
             r.insert(head_index(*target), gexpr(lemmas[i]));
         }
@@ -151,7 +153,8 @@ name_map<name> mk_elim_lemma_index() {
             recursor_info info = get_recursor_info(env(), lemma);
             r.insert(info.get_type_name(), lemma);
         } catch (exception &) {
-            // TODO(Leo): generate event
+            lean_trace(name({"blast", "event"}),
+                       tout() << "discarding [elim] lemma '" << lemma << "', failed to compute recursor information\n";);
         }
     }
     return r;

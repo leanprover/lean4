@@ -8,8 +8,8 @@ Author: Leonardo de Moura
 #include "util/rb_tree.h"
 #include "kernel/expr.h"
 
-#ifndef LEAN_FORWARD_LEMMA_DEFAULT_PRIORITY
-#define LEAN_FORWARD_LEMMA_DEFAULT_PRIORITY 1000
+#ifndef LEAN_FORWARD_DEFAULT_PRIORITY
+#define LEAN_FORWARD_DEFAULT_PRIORITY 1000
 #endif
 
 namespace lean {

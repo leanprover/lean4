@@ -1,0 +1,100 @@
+/*
+Copyright (c) 2015 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
+#include <string>
+#include "util/priority_queue.h"
+#include "kernel/instantiate.h"
+#include "library/scoped_ext.h"
+#include "library/user_recursors.h"
+#include "library/type_context.h"
+
+namespace lean {
+static name * g_class_name = nullptr;
+static std::string * g_key = nullptr;
+
+struct intro_elim_state {
+    priority_queue<name, name_quick_cmp> m_elim_lemmas;
+    priority_queue<name, name_quick_cmp> m_intro_lemmas;
+};
+
+typedef std::tuple<bool, unsigned, name> intro_elim_entry;
+
+struct intro_elim_config {
+    typedef intro_elim_entry entry;
+    typedef intro_elim_state state;
+
+    static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
+        bool is_elim; unsigned prio; name n;
+        std::tie(is_elim, prio, n) = e;
+        if (is_elim) {
+            s.m_elim_lemmas.insert(n, prio);
+        } else {
+            s.m_intro_lemmas.insert(n, prio);
+        }
+    }
+    static name const & get_class_name() {
+        return *g_class_name;
+    }
+    static std::string const & get_serialization_key() {
+        return *g_key;
+    }
+    static void  write_entry(serializer & s, entry const & e) {
+        bool is_elim; unsigned prio; name n;
+        std::tie(is_elim, prio, n) = e;
+        s << is_elim << prio << n;
+    }
+    static entry read_entry(deserializer & d) {
+        bool is_elim; unsigned prio; name n;
+        d >> is_elim >> prio >> n;
+        return entry(is_elim, prio, n);
+    }
+    static optional<unsigned> get_fingerprint(entry const & e) {
+        bool is_elim; unsigned prio; name n;
+        std::tie(is_elim, prio, n) = e;
+        return some(hash(hash(n.hash(), prio), is_elim ? 17u : 31u));
+    }
+};
+
+typedef scoped_ext<intro_elim_config> intro_elim_ext;
+
+environment add_elim_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent) {
+    // TODO(Leo): VALIDATE
+    return intro_elim_ext::add_entry(env, ios, intro_elim_entry(true, prio, c), ns, persistent);
+}
+
+environment add_intro_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent) {
+    // TODO(Leo): VALIDATE
+    return intro_elim_ext::add_entry(env, ios, intro_elim_entry(false, prio, c), ns, persistent);
+}
+
+bool is_elim_lemma(environment const & env, name const & c) {
+    return intro_elim_ext::get_state(env).m_elim_lemmas.contains(c);
+}
+
+bool is_intro_lemma(environment const & env, name const & c) {
+    return intro_elim_ext::get_state(env).m_intro_lemmas.contains(c);
+}
+
+void get_elim_lemmas(environment const & env, buffer<name> & r) {
+    return intro_elim_ext::get_state(env).m_elim_lemmas.to_buffer(r);
+}
+
+void get_intro_lemmas(environment const & env, buffer<name> & r) {
+    return intro_elim_ext::get_state(env).m_intro_lemmas.to_buffer(r);
+}
+
+void initialize_intro_elim_lemmas() {
+    g_class_name = new name("grinder");
+    g_key        = new std::string("grinder");
+    intro_elim_ext::initialize();
+}
+
+void finalize_intro_elim_lemmas() {
+    intro_elim_ext::finalize();
+    delete g_key;
+    delete g_class_name;
+}
+}

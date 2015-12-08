@@ -1,6 +1,8 @@
 algebra.category
 ================
 
+Everything in this folder is outdated. See HoTT category folder for a up-to-date version.
+
 Algebraic structures.
 
 * [basic](basic.lean) : definition of fully and partially bundled categories

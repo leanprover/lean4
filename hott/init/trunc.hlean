@@ -11,8 +11,9 @@ Ported from Coq HoTT.
 --TODO: can we replace some definitions with a hprop as codomain by theorems?
 
 prelude
-import .logic .equiv .types .pathover
+import .nat .logic .equiv .pathover
 open eq nat sigma unit
+set_option class.force_new true
 
 namespace is_trunc
 
@@ -22,15 +23,19 @@ namespace is_trunc
   | minus_two : trunc_index
   | succ : trunc_index → trunc_index
 
+  open trunc_index
+
+  definition has_zero_trunc_index [instance] [reducible] : has_zero trunc_index :=
+  has_zero.mk (succ (succ minus_two))
+
   /-
      notation for trunc_index is -2, -1, 0, 1, ...
      from 0 and up this comes from a coercion from num to trunc_index (via nat)
   -/
+  notation `-1` := trunc_index.succ trunc_index.minus_two -- ISSUE: -1 gets printed as -2.+1?
+  notation `-2` := trunc_index.minus_two
   postfix ` .+1`:(max+1) := trunc_index.succ
   postfix ` .+2`:(max+1) := λn, (n .+1 .+1)
-  notation `-2` := trunc_index.minus_two
-  notation `-1` := -2.+1 -- ISSUE: -1 gets printed as -2.+1
-  export [coercions] nat
   notation `ℕ₋₂` := trunc_index
 
   namespace trunc_index
@@ -157,7 +162,7 @@ namespace is_trunc
 
   -- these must be definitions, because we need them to compute sometimes
   definition is_trunc_of_is_contr (A : Type) (n : trunc_index) [H : is_contr A] : is_trunc n A :=
-  trunc_index.rec_on n H _
+  trunc_index.rec_on n H (λn H, _)
 
   definition is_trunc_succ_of_is_hprop (A : Type) (n : trunc_index) [H : is_hprop A]
       : is_trunc (n.+1) A :=
@@ -165,7 +170,7 @@ namespace is_trunc
 
   definition is_trunc_succ_succ_of_is_hset (A : Type) (n : trunc_index) [H : is_hset A]
       : is_trunc (n.+2) A :=
-  is_trunc_of_leq A (show 0 ≤ n.+2, from star)
+  @(is_trunc_of_leq A (show 0 ≤ n.+2, from proof star qed)) H
 
   /- hprops -/
 

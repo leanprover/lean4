@@ -14,6 +14,10 @@
 # The arguments "fromi" and "toi" are optional, but should be provided in pairs.
 # These arguments will replace "fromi" by "toi" in the specified file,
 # before doing any other renamings.
+#
+# We use slightly different regular expressions here. Given the replacement rule foo:bar, we replace
+# foo by bar except is foo is preceded or followed by a letter. We still replace foo if it's
+# followed by a digit, underscore, period or similar.
 
 use strict;
 use warnings;
@@ -61,17 +65,17 @@ sub show_renamings {
 # rename all identifiers a file; original goes in file.orig
 sub rename_in_file {
     my $filename = shift;
-    local($^I, @ARGV) = ('.orig', $filename);
+    local($^I, @ARGV) = ('.temp', $filename);
     while (<>) {
 	foreach my $lkey (keys %literalrenamings2) {
 	    # replace all instances of lkey
 	    # if (/$lkey/) {print STDOUT "renamed ", $lkey, "\n"; }
-	    s/$lkey/$literalrenamings2{$lkey}/g
+	    s/$lkey/$literalrenamings2{$lkey}/g;
 	}
 	foreach my $key (keys %renamings) {
 	    # replace instances of key, not preceeded by a letter, and not
 	    # followed by a letter, number, or '
-	    s/(?<![a-zA-z])$key(?![\w'])/$renamings{$key}/g;
+	    s/(?<![a-zA-Z])$key(?![a-zA-Z])/$renamings{$key}/g;
 	}
 	foreach my $lkey (keys %literalrenamings) {
 	    # replace all instances of lkey
@@ -83,10 +87,14 @@ sub rename_in_file {
 
 my $oldfile = shift;
 my $newfile = shift;
-if (-e $newfile) {move($newfile,$newfile.".orig") or die "Move failed: $!"; }
-print "copying ", $oldfile, " to ",$newfile, ".\n";
+my $backup = "${newfile}.orig";
+if (-e $newfile)  {
+  print "backing up file ${newfile}.\n" unless -e $backup;
+  copy($newfile,$backup) or die "Copy failed: $!" unless -e $backup ;
+}
+print "porting ", $oldfile, " to ",$newfile, ".\n";
 copy($oldfile,$newfile) or die "Copy failed: $!";
 get_renamings;
 # show_renamings;
 rename_in_file $newfile;
-unlink $newfile.".orig";
+unlink "${newfile}.temp";

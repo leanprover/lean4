@@ -92,10 +92,14 @@ inductive string : Type :=
 | empty : string
 | str   : char → string → string
 
-inductive nat :=
-| zero : nat
-| succ : nat → nat
-
 inductive option (A : Type) : Type :=
 | none {} : option A
 | some    : A → option A
+
+-- Remark: we manually generate the nat.rec_on, nat.induction_on, nat.cases_on and nat.no_confusion.
+-- We do that because we want 0 instead of nat.zero in these eliminators.
+set_option inductive.rec_on   false
+set_option inductive.cases_on false
+inductive nat :=
+| zero : nat
+| succ : nat → nat

@@ -1611,10 +1611,10 @@ expr elaborator::visit_prenum(expr const & e, constraint_seq & cs) {
     // We fix A to num, and we rely on coercions to cast them to other types.
     // This is quite different from the approach used in the standard library
     expr A;
-    if (is_standard(env()))
+    // if (is_standard(env()))
         A = m_full_context.mk_meta(m_ngen, none_expr(), e_tag);
-    else
-        A = mk_constant(get_num_name()).set_tag(e_tag);
+    // else
+    //     A = mk_constant(get_num_name()).set_tag(e_tag);
     level A_lvl = sort_level(m_tc->ensure_type(A, cs));
     levels ls(A_lvl);
     bool is_strict = true;

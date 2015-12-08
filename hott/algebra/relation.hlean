@@ -18,6 +18,7 @@ section
   definition transitive : Type := Π⦃x y z⦄, R x y → R y z → R x z
 end
 
+
 /- classes for equivalence relations -/
 
 structure is_reflexive [class] {T : Type} (R : T → T → Type) := (refl : reflexive R)
@@ -70,39 +71,39 @@ namespace is_congruence
 
   /- tools to build instances -/
 
-  theorem compose
+  definition compose
       {T2 : Type} {R2 : T2 → T2 → Type}
       {T3 : Type} {R3 : T3 → T3 → Type}
       {g : T2 → T3} (C2 : is_congruence R2 R3 g)
       ⦃T1 : Type⦄ {R1 : T1 → T1 → Type}
-      {f : T1 → T2} (C1 : is_congruence R1 R2 f) :
+      {f : T1 → T2} [C1 : is_congruence R1 R2 f] :
     is_congruence R1 R3 (λx, g (f x)) :=
   is_congruence.mk (λx1 x2 H, app C2 (app C1 H))
 
-  theorem compose21
+  definition compose21
       {T2 : Type} {R2 : T2 → T2 → Type}
       {T3 : Type} {R3 : T3 → T3 → Type}
       {T4 : Type} {R4 : T4 → T4 → Type}
       {g : T2 → T3 → T4} (C3 : is_congruence2 R2 R3 R4 g)
       ⦃T1 : Type⦄ {R1 : T1 → T1 → Type}
-      {f1 : T1 → T2} (C1 : is_congruence R1 R2 f1)
-      {f2 : T1 → T3} (C2 : is_congruence R1 R3 f2) :
+      {f1 : T1 → T2} [C1 : is_congruence R1 R2 f1]
+      {f2 : T1 → T3} [C2 : is_congruence R1 R3 f2] :
     is_congruence R1 R4 (λx, g (f1 x) (f2 x)) :=
   is_congruence.mk (λx1 x2 H, app2 C3 (app C1 H) (app C2 H))
 
-  theorem const {T2 : Type} (R2 : T2 → T2 → Type) (H : relation.reflexive R2)
+  definition const {T2 : Type} (R2 : T2 → T2 → Type) (H : relation.reflexive R2)
       ⦃T1 : Type⦄ (R1 : T1 → T1 → Type) (c : T2) :
     is_congruence R1 R2 (λu : T1, c) :=
   is_congruence.mk (λx y H1, H c)
 
 end is_congruence
 
-theorem congruence_const [instance] {T2 : Type} (R2 : T2 → T2 → Type)
+definition congruence_const [instance] {T2 : Type} (R2 : T2 → T2 → Type)
     [C : is_reflexive R2] ⦃T1 : Type⦄ (R1 : T1 → T1 → Type) (c : T2) :
   is_congruence R1 R2 (λu : T1, c) :=
 is_congruence.const R2 (is_reflexive.refl R2) R1 c
 
-theorem congruence_trivial [instance] {T : Type} (R : T → T → Type) :
+definition congruence_star [instance] {T : Type} (R : T → T → Type) :
   is_congruence R R (λu, u) :=
 is_congruence.mk (λx y H, H)
 

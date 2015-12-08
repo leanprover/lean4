@@ -208,7 +208,6 @@ theorem ordered_comm_group.lt_of_add_lt_add_left [s : ordered_comm_group A] {a b
 assert H' : -a + (a + b) < -a + (a + c), from ordered_comm_group.add_lt_add_left _ _ H _,
 by rewrite *neg_add_cancel_left at H'; exact H'
 
-set_option pp.all true
 definition ordered_comm_group.to_ordered_cancel_comm_monoid [trans_instance] [reducible]
     [s : ordered_comm_group A] : ordered_cancel_comm_monoid A :=
 ⦃ ordered_cancel_comm_monoid, s,

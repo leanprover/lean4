@@ -61,12 +61,12 @@ namespace eq
   theorem mpr {a b : Type} : (a = b) → b → a :=
   assume H₁ H₂, eq.rec_on (eq.symm H₁) H₂
 
-  namespace ops
-    postfix ⁻¹ := symm --input with \sy or \-1 or \inv
-    infixl ⬝ := trans
-    infixr ▸ := subst
-  end ops
+  namespace ops end ops -- this is just to ensure that this namespace exists. There is nothing in it
 end eq
+
+local postfix ⁻¹ := eq.symm --input with \sy or \-1 or \inv
+local infixl ⬝ := eq.trans
+local infixr ▸ := eq.subst
 
 -- Auxiliary definition used by automation. It has the same type of eq.rec in the standard library
 definition eq.nrec.{l₁ l₂} {A : Type.{l₂}} {a : A} {C : A → Type.{l₁}} (H₁ : C a) (b : A) (H₂ : a = b) : C b :=

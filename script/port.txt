@@ -1,18 +1,14 @@
 Prop:Type
-by simp;by exact sorry
 
 true:unit
 trivial:star
-is_true:is_unit
 
 false:empty
-is_false:is_empty
 
-induction:rec
 induction_on:rec_on
 
 ∨;⊎
-or.elim:sum.rec_on
+or.elim:sum.elim
 or.inl:sum.inl
 or.inr:sum.inr
 or.intro_left _;sum.inl
@@ -41,3 +37,4 @@ exists.elim:sigma.rec_on
 
 eq.symm:inverse
 congr_arg:ap
+eq.substr;tr_rev _

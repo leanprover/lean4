@@ -167,7 +167,7 @@ section group
   theorem inv_inv (a : A) : (a⁻¹)⁻¹ = a := inv_eq_of_mul_eq_one (mul.left_inv a)
 
   theorem inv.inj {a b : A} (H : a⁻¹ = b⁻¹) : a = b :=
-  by rewrite [-inv_inv, H, inv_inv]
+  by rewrite [-inv_inv a, H, inv_inv b]
 
   theorem inv_eq_inv_iff_eq (a b : A) : a⁻¹ = b⁻¹ ↔ a = b :=
   iff.intro (assume H, inv.inj H) (assume H, congr_arg _ H)
@@ -185,7 +185,7 @@ section group
   iff.intro !eq_inv_of_eq_inv !eq_inv_of_eq_inv
 
   theorem eq_inv_of_mul_eq_one {a b : A} (H : a * b = 1) : a = b⁻¹ :=
-  begin rewrite [eq_inv_iff_eq_inv], apply eq.symm, exact inv_eq_of_mul_eq_one H end
+  begin apply eq_inv_of_eq_inv, symmetry, exact inv_eq_of_mul_eq_one H end
 
   theorem mul.right_inv (a : A) : a * a⁻¹ = 1 :=
   calc

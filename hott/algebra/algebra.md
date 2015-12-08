@@ -1,16 +1,20 @@
 algebra
 =======
 
-The following files are ported from the standard library. If anything needs to be changed, it is probably a good idea to change it in the standard library and then port the file again (see also [script/port.pl](../../script/port.pl)).
+The following files are [ported](port.md) from the standard library. If anything needs to be changed, it is probably a good idea to change it in the standard library and then port the file again (see also [script/port.pl](../../script/port.pl)).
 
-* [binary](binary.hlean) : properties of binary operations
-* [relation](relation.hlean) : properties of relations
-* [group](group.hlean)
-* [ring](ring.hlean)
-* [order](order.hlean)
-* [ordered_group](ordered_group.hlean)
-* [ordered_ring](ordered_ring.hlean)
-* [field](field.hlean)
+* [priority](priority.lean) : priority for algebraic operations
+* [relation](relation.lean)
+* [binary](binary.lean) : binary operations
+* [order](order.lean)
+* [lattice](lattice.lean)
+* [group](group.lean)
+* [ring](ring.lean)
+* [ordered_group](ordered_group.lean)
+* [ordered_ring](ordered_ring.lean)
+* [field](field.lean)
+* [ordered_field](ordered_field.lean)
+* [bundled](bundled.lean) : bundled versions of the algebraic structures
 
 Files which are not ported:
 
@@ -19,6 +23,6 @@ Files which are not ported:
 * [homotopy_group](homotopy_group.hlean) : homotopy groups of a pointed type
 * [e_closure](e_closure.hlean) : the type of words formed by a relation
 
-Subfolders:
+Subfolders (not ported):
 
 * [category](category/category.md) : Category Theory

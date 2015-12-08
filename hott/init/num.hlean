@@ -3,24 +3,16 @@ Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-
 prelude
-import init.logic init.bool
-open bool
-
-definition pos_num.is_inhabited [instance] : inhabited pos_num :=
-inhabited.mk pos_num.one
+import init.bool
+open bool algebra
 
 namespace pos_num
-  notation a + b := add a b
-
-  definition mul (a b : pos_num) : pos_num :=
+  protected definition mul (a b : pos_num) : pos_num :=
   pos_num.rec_on a
     b
     (λn r, bit0 r + b)
     (λn r, bit0 r)
-
-  notation a * b := mul a b
 
   definition lt (a b : pos_num) : bool :=
   pos_num.rec_on a
@@ -39,15 +31,11 @@ namespace pos_num
     b
 
   definition le (a b : pos_num) : bool :=
-  lt a (succ b)
-
-  definition equal (a b : pos_num) : bool :=
-  le a b && le b a
-
+  pos_num.lt a (succ b)
 end pos_num
 
-definition num.is_inhabited [instance] : inhabited num :=
-inhabited.mk num.zero
+definition pos_num_has_mul [instance] [reducible] : has_mul pos_num :=
+has_mul.mk pos_num.mul
 
 namespace num
   open pos_num
@@ -58,13 +46,15 @@ namespace num
   definition size (a : num) : num :=
   num.rec_on a (pos one) (λp, pos (size p))
 
-  definition mul (a b : num) : num :=
+  protected definition mul (a b : num) : num :=
   num.rec_on a zero (λpa, num.rec_on b zero (λpb, pos (pos_num.mul pa pb)))
+end num
 
-  notation a + b := add a b
-  notation a * b := mul a b
+definition num_has_mul [instance] [reducible] : has_mul num :=
+has_mul.mk num.mul
 
-  definition le (a b : num) : bool :=
+namespace num
+  protected definition le (a b : num) : bool :=
   num.rec_on a tt (λpa, num.rec_on b ff (λpb, pos_num.le pa pb))
 
   private definition psub (a b : pos_num) : num :=
@@ -86,23 +76,9 @@ namespace num
            (λm, 2 * f m)))
     b
 
-  definition sub (a b : num) : num :=
+  protected definition sub (a b : num) : num :=
   num.rec_on a zero (λpa, num.rec_on b a (λpb, psub pa pb))
-
-  notation a ≤ b := le a b
-  notation a - b := sub a b
 end num
 
--- the coercion from num to nat is defined here,
--- so that it can already be used in init.trunc and init.tactic
-namespace nat
-  definition add (a b : nat) : nat :=
-  nat.rec_on b a (λ b₁ r, succ r)
-
-  notation a + b := add a b
-
-  definition of_num [coercion] (n : num) : nat :=
-  num.rec zero
-    (λ n, pos_num.rec (succ zero) (λ n r, r + r + (succ zero)) (λ n r, r + r) n) n
-end nat
-attribute nat.of_num [reducible] -- of_num is also reducible if namespace "nat" is not opened
+definition num_has_sub [instance] [reducible] : has_sub num :=
+has_sub.mk num.sub

@@ -6,23 +6,22 @@ Authors: Jeremy Avigad
 Here an "ordered_ring" is partially ordered ring, which is ordered with respect to both a weak
 order and an associated strict order. Our numeric structures (int, rat, and real) will be instances
 of "linear_ordered_comm_ring". This development is modeled after Isabelle's library.
-
-Ported from the standard library
 -/
 
 import algebra.ordered_group algebra.ring
-open core
-
-namespace algebra
+open eq eq.ops
+set_option class.force_new true
 
 variable {A : Type}
 
-definition absurd_a_lt_a {B : Type} {a : A} [s : strict_order A] (H : a < a) : B :=
+namespace algebra
+private definition absurd_a_lt_a {B : Type} {a : A} [s : strict_order A] (H : a < a) : B :=
 absurd H (lt.irrefl a)
 
+/- semiring structures -/
+
 structure ordered_semiring [class] (A : Type)
-  extends has_mul A, has_zero A, has_lt A, -- TODO: remove hack for improving performance
-    semiring A, ordered_cancel_comm_monoid A, zero_ne_one_class A :=
+  extends semiring A, ordered_cancel_comm_monoid A :=
 (mul_le_mul_of_nonneg_left: Πa b c, le a b → le zero c → le (mul c a) (mul c b))
 (mul_le_mul_of_nonneg_right: Πa b c, le a b → le zero c → le (mul a c) (mul b c))
 (mul_lt_mul_of_pos_left: Πa b c, lt a b → lt zero c → lt (mul c a) (mul c b))
@@ -33,126 +32,174 @@ section
   variables (a b c d e : A)
   include s
 
-  definition mul_le_mul_of_nonneg_left {a b c : A} (Hab : a ≤ b) (Hc : 0 ≤ c) :
+  theorem mul_le_mul_of_nonneg_left {a b c : A} (Hab : a ≤ b) (Hc : 0 ≤ c) :
     c * a ≤ c * b := !ordered_semiring.mul_le_mul_of_nonneg_left Hab Hc
 
-  definition mul_le_mul_of_nonneg_right {a b c : A} (Hab : a ≤ b) (Hc : 0 ≤ c) :
+  theorem mul_le_mul_of_nonneg_right {a b c : A} (Hab : a ≤ b) (Hc : 0 ≤ c) :
     a * c ≤ b * c := !ordered_semiring.mul_le_mul_of_nonneg_right Hab Hc
 
   -- TODO: there are four variations, depending on which variables we assume to be nonneg
-  definition mul_le_mul {a b c d : A} (Hac : a ≤ c) (Hbd : b ≤ d) (nn_b : 0 ≤ b) (nn_c : 0 ≤ c) :
+  theorem mul_le_mul {a b c d : A} (Hac : a ≤ c) (Hbd : b ≤ d) (nn_b : 0 ≤ b) (nn_c : 0 ≤ c) :
     a * b ≤ c * d :=
   calc
     a * b ≤ c * b : mul_le_mul_of_nonneg_right Hac nn_b
       ... ≤ c * d : mul_le_mul_of_nonneg_left Hbd nn_c
 
-  definition mul_nonneg {a b : A} (Ha : a ≥ 0) (Hb : b ≥ 0) : a * b ≥ 0 :=
+  theorem mul_nonneg {a b : A} (Ha : a ≥ 0) (Hb : b ≥ 0) : a * b ≥ 0 :=
   begin
     have H : 0 * b ≤ a * b, from mul_le_mul_of_nonneg_right Ha Hb,
     rewrite zero_mul at H,
     exact H
   end
 
-  definition mul_nonpos_of_nonneg_of_nonpos {a b : A} (Ha : a ≥ 0) (Hb : b ≤ 0) : a * b ≤ 0 :=
+  theorem mul_nonpos_of_nonneg_of_nonpos {a b : A} (Ha : a ≥ 0) (Hb : b ≤ 0) : a * b ≤ 0 :=
   begin
     have H : a * b ≤ a * 0, from mul_le_mul_of_nonneg_left Hb Ha,
     rewrite mul_zero at H,
     exact H
   end
 
-  definition mul_nonpos_of_nonpos_of_nonneg {a b : A} (Ha : a ≤ 0) (Hb : b ≥ 0) : a * b ≤ 0 :=
+  theorem mul_nonpos_of_nonpos_of_nonneg {a b : A} (Ha : a ≤ 0) (Hb : b ≥ 0) : a * b ≤ 0 :=
   begin
     have H : a * b ≤ 0 * b, from mul_le_mul_of_nonneg_right Ha Hb,
     rewrite zero_mul at H,
     exact H
   end
 
-  definition mul_lt_mul_of_pos_left {a b c : A} (Hab : a < b) (Hc : 0 < c) :
+  theorem mul_lt_mul_of_pos_left {a b c : A} (Hab : a < b) (Hc : 0 < c) :
     c * a < c * b := !ordered_semiring.mul_lt_mul_of_pos_left Hab Hc
 
-  definition mul_lt_mul_of_pos_right {a b c : A} (Hab : a < b) (Hc : 0 < c) :
+  theorem mul_lt_mul_of_pos_right {a b c : A} (Hab : a < b) (Hc : 0 < c) :
     a * c < b * c := !ordered_semiring.mul_lt_mul_of_pos_right Hab Hc
 
   -- TODO: once again, there are variations
-  definition mul_lt_mul {a b c d : A} (Hac : a < c) (Hbd : b ≤ d) (pos_b : 0 < b) (nn_c : 0 ≤ c) :
+  theorem mul_lt_mul {a b c d : A} (Hac : a < c) (Hbd : b ≤ d) (pos_b : 0 < b) (nn_c : 0 ≤ c) :
     a * b < c * d :=
   calc
     a * b < c * b : mul_lt_mul_of_pos_right Hac pos_b
       ... ≤ c * d : mul_le_mul_of_nonneg_left Hbd nn_c
 
-  definition mul_pos {a b : A} (Ha : a > 0) (Hb : b > 0) : a * b > 0 :=
+  theorem mul_pos {a b : A} (Ha : a > 0) (Hb : b > 0) : a * b > 0 :=
   begin
     have H : 0 * b < a * b, from mul_lt_mul_of_pos_right Ha Hb,
     rewrite zero_mul at H,
     exact H
   end
 
-  definition mul_neg_of_pos_of_neg {a b : A} (Ha : a > 0) (Hb : b < 0) : a * b < 0 :=
+  theorem mul_neg_of_pos_of_neg {a b : A} (Ha : a > 0) (Hb : b < 0) : a * b < 0 :=
   begin
     have H : a * b < a * 0, from mul_lt_mul_of_pos_left Hb Ha,
     rewrite mul_zero at H,
     exact H
   end
 
-  definition mul_neg_of_neg_of_pos {a b : A} (Ha : a < 0) (Hb : b > 0) : a * b < 0 :=
+  theorem mul_neg_of_neg_of_pos {a b : A} (Ha : a < 0) (Hb : b > 0) : a * b < 0 :=
   begin
     have H : a * b < 0 * b, from mul_lt_mul_of_pos_right Ha Hb,
     rewrite zero_mul at  H,
     exact H
   end
-
 end
 
 structure linear_ordered_semiring [class] (A : Type)
-  extends ordered_semiring A, linear_strong_order_pair A
+  extends ordered_semiring A, linear_strong_order_pair A :=
+(zero_lt_one : lt zero one)
 
 section
   variable [s : linear_ordered_semiring A]
   variables {a b c : A}
   include s
 
-  definition lt_of_mul_lt_mul_left (H : c * a < c * b) (Hc : c ≥ 0) : a < b :=
-  lt_of_not_le
+  theorem zero_lt_one : 0 < (1:A) := linear_ordered_semiring.zero_lt_one A
+
+  theorem lt_of_mul_lt_mul_left (H : c * a < c * b) (Hc : c ≥ 0) : a < b :=
+  lt_of_not_ge
     (assume H1 : b ≤ a,
       have H2 : c * b ≤ c * a, from mul_le_mul_of_nonneg_left H1 Hc,
-      not_lt_of_le H2 H)
+      not_lt_of_ge H2 H)
 
-  definition lt_of_mul_lt_mul_right (H : a * c < b * c) (Hc : c ≥ 0) : a < b :=
-  lt_of_not_le
+  theorem lt_of_mul_lt_mul_right (H : a * c < b * c) (Hc : c ≥ 0) : a < b :=
+  lt_of_not_ge
     (assume H1 : b ≤ a,
       have H2 : b * c ≤ a * c, from mul_le_mul_of_nonneg_right H1 Hc,
-      not_lt_of_le H2 H)
+      not_lt_of_ge H2 H)
 
-  definition le_of_mul_le_mul_left (H : c * a ≤ c * b) (Hc : c > 0) : a ≤ b :=
-  le_of_not_lt
+  theorem le_of_mul_le_mul_left (H : c * a ≤ c * b) (Hc : c > 0) : a ≤ b :=
+  le_of_not_gt
     (assume H1 : b < a,
       have H2 : c * b < c * a, from mul_lt_mul_of_pos_left H1 Hc,
-      not_le_of_lt H2 H)
+      not_le_of_gt H2 H)
 
-  definition le_of_mul_le_mul_right (H : a * c ≤ b * c) (Hc : c > 0) : a ≤ b :=
-  le_of_not_lt
+  theorem le_of_mul_le_mul_right (H : a * c ≤ b * c) (Hc : c > 0) : a ≤ b :=
+  le_of_not_gt
     (assume H1 : b < a,
       have H2 : b * c < a * c, from mul_lt_mul_of_pos_right H1 Hc,
-      not_le_of_lt H2 H)
+      not_le_of_gt H2 H)
 
-  definition pos_of_mul_pos_left (H : 0 < a * b) (H1 : 0 ≤ a) : 0 < b :=
-  lt_of_not_le
+  theorem le_iff_mul_le_mul_left (a b : A) {c : A} (H : c > 0) : a ≤ b ↔ c * a ≤ c * b :=
+  iff.intro
+    (assume H', mul_le_mul_of_nonneg_left H' (le_of_lt H))
+    (assume H', le_of_mul_le_mul_left H' H)
+
+  theorem le_iff_mul_le_mul_right (a b : A) {c : A} (H : c > 0) : a ≤ b ↔ a * c ≤ b * c :=
+  iff.intro
+    (assume H', mul_le_mul_of_nonneg_right H' (le_of_lt H))
+    (assume H', le_of_mul_le_mul_right H' H)
+
+  theorem pos_of_mul_pos_left (H : 0 < a * b) (H1 : 0 ≤ a) : 0 < b :=
+  lt_of_not_ge
     (assume H2 : b ≤ 0,
       have H3 : a * b ≤ 0, from mul_nonpos_of_nonneg_of_nonpos H1 H2,
-      not_lt_of_le H3 H)
+      not_lt_of_ge H3 H)
 
-  definition pos_of_mul_pos_right (H : 0 < a * b) (H1 : 0 ≤ b) : 0 < a :=
-  lt_of_not_le
+  theorem pos_of_mul_pos_right (H : 0 < a * b) (H1 : 0 ≤ b) : 0 < a :=
+  lt_of_not_ge
     (assume H2 : a ≤ 0,
       have H3 : a * b ≤ 0, from mul_nonpos_of_nonpos_of_nonneg H2 H1,
-      not_lt_of_le H3 H)
+      not_lt_of_ge H3 H)
+
+  theorem nonneg_of_mul_nonneg_left (H : 0 ≤ a * b) (H1 : 0 < a) : 0 ≤ b :=
+  le_of_not_gt
+    (assume H2 : b < 0,
+      not_le_of_gt (mul_neg_of_pos_of_neg H1 H2) H)
+
+  theorem nonneg_of_mul_nonneg_right (H : 0 ≤ a * b) (H1 : 0 < b) : 0 ≤ a :=
+  le_of_not_gt
+    (assume H2 : a < 0,
+      not_le_of_gt (mul_neg_of_neg_of_pos H2 H1) H)
+
+  theorem neg_of_mul_neg_left (H : a * b < 0) (H1 : 0 ≤ a) : b < 0 :=
+  lt_of_not_ge
+    (assume H2 : b ≥ 0,
+      not_lt_of_ge (mul_nonneg H1 H2) H)
+
+  theorem neg_of_mul_neg_right (H : a * b < 0) (H1 : 0 ≤ b) : a < 0 :=
+  lt_of_not_ge
+    (assume H2 : a ≥ 0,
+      not_lt_of_ge (mul_nonneg H2 H1) H)
+
+  theorem nonpos_of_mul_nonpos_left (H : a * b ≤ 0) (H1 : 0 < a) : b ≤ 0 :=
+  le_of_not_gt
+    (assume H2 : b > 0,
+      not_le_of_gt (mul_pos H1 H2) H)
+
+  theorem nonpos_of_mul_nonpos_right (H : a * b ≤ 0) (H1 : 0 < b) : a ≤ 0 :=
+  le_of_not_gt
+    (assume H2 : a > 0,
+      not_le_of_gt (mul_pos H2 H1) H)
 end
 
-structure ordered_ring [class] (A : Type) extends ring A, ordered_comm_group A, zero_ne_one_class A :=
+structure decidable_linear_ordered_semiring [class] (A : Type)
+  extends linear_ordered_semiring A, decidable_linear_order A
+
+/- ring structures -/
+
+structure ordered_ring [class] (A : Type)
+    extends ring A, ordered_comm_group A, zero_ne_one_class A :=
 (mul_nonneg : Πa b, le zero a → le zero b → le zero (mul a b))
 (mul_pos : Πa b, lt zero a → lt zero b → lt zero (mul a b))
 
-definition ordered_ring.mul_le_mul_of_nonneg_left [s : ordered_ring A] {a b c : A}
+theorem ordered_ring.mul_le_mul_of_nonneg_left [s : ordered_ring A] {a b c : A}
         (Hab : a ≤ b) (Hc : 0 ≤ c) : c * a ≤ c * b :=
 have H1 : 0 ≤ b - a, from iff.elim_right !sub_nonneg_iff_le Hab,
 assert H2 : 0 ≤ c * (b - a), from ordered_ring.mul_nonneg _ _ Hc H1,
@@ -161,7 +208,7 @@ begin
   exact (iff.mp !sub_nonneg_iff_le H2)
 end
 
-definition ordered_ring.mul_le_mul_of_nonneg_right [s : ordered_ring A] {a b c : A}
+theorem ordered_ring.mul_le_mul_of_nonneg_right [s : ordered_ring A] {a b c : A}
         (Hab : a ≤ b) (Hc : 0 ≤ c) : a * c ≤ b * c  :=
 have H1 : 0 ≤ b - a, from iff.elim_right !sub_nonneg_iff_le Hab,
 assert H2 : 0 ≤ (b - a) * c, from ordered_ring.mul_nonneg _ _ H1 Hc,
@@ -170,7 +217,7 @@ begin
   exact (iff.mp !sub_nonneg_iff_le H2)
 end
 
-definition ordered_ring.mul_lt_mul_of_pos_left [s : ordered_ring A] {a b c : A}
+theorem ordered_ring.mul_lt_mul_of_pos_left [s : ordered_ring A] {a b c : A}
        (Hab : a < b) (Hc : 0 < c) : c * a < c * b :=
 have H1 : 0 < b - a, from iff.elim_right !sub_pos_iff_lt Hab,
 assert H2 : 0 < c * (b - a), from ordered_ring.mul_pos _ _ Hc H1,
@@ -179,7 +226,7 @@ begin
   exact (iff.mp !sub_pos_iff_lt H2)
 end
 
-definition ordered_ring.mul_lt_mul_of_pos_right [s : ordered_ring A] {a b c : A}
+theorem ordered_ring.mul_lt_mul_of_pos_right [s : ordered_ring A] {a b c : A}
        (Hab : a < b) (Hc : 0 < c) : a * c < b * c :=
 have H1 : 0 < b - a, from iff.elim_right !sub_pos_iff_lt Hab,
 assert H2 : 0 < (b - a) * c, from ordered_ring.mul_pos _ _ H1 Hc,
@@ -188,7 +235,8 @@ begin
   exact (iff.mp !sub_pos_iff_lt H2)
 end
 
-definition ordered_ring.to_ordered_semiring [instance] [reducible] [s : ordered_ring A] :
+definition ordered_ring.to_ordered_semiring [trans_instance] [reducible]
+    [s : ordered_ring A] :
   ordered_semiring A :=
 ⦃ ordered_semiring, s,
   mul_zero                   := mul_zero,
@@ -199,14 +247,15 @@ definition ordered_ring.to_ordered_semiring [instance] [reducible] [s : ordered_
   mul_le_mul_of_nonneg_left  := @ordered_ring.mul_le_mul_of_nonneg_left A _,
   mul_le_mul_of_nonneg_right := @ordered_ring.mul_le_mul_of_nonneg_right A _,
   mul_lt_mul_of_pos_left     := @ordered_ring.mul_lt_mul_of_pos_left A _,
-  mul_lt_mul_of_pos_right    := @ordered_ring.mul_lt_mul_of_pos_right A _ ⦄
+  mul_lt_mul_of_pos_right    := @ordered_ring.mul_lt_mul_of_pos_right A _,
+  lt_of_add_lt_add_left      := @lt_of_add_lt_add_left A _⦄
 
 section
   variable [s : ordered_ring A]
   variables {a b c : A}
   include s
 
-  definition mul_le_mul_of_nonpos_left (H : b ≤ a) (Hc : c ≤ 0) : c * a ≤ c * b :=
+  theorem mul_le_mul_of_nonpos_left (H : b ≤ a) (Hc : c ≤ 0) : c * a ≤ c * b :=
   have Hc' : -c ≥ 0, from iff.mpr !neg_nonneg_iff_nonpos Hc,
   assert H1 : -c * b ≤ -c * a, from mul_le_mul_of_nonneg_left H Hc',
   have H2 : -(c * b) ≤ -(c * a),
@@ -216,7 +265,7 @@ section
     end,
   iff.mp !neg_le_neg_iff_le H2
 
-  definition mul_le_mul_of_nonpos_right (H : b ≤ a) (Hc : c ≤ 0) : a * c ≤ b * c :=
+  theorem mul_le_mul_of_nonpos_right (H : b ≤ a) (Hc : c ≤ 0) : a * c ≤ b * c :=
   have Hc' : -c ≥ 0, from iff.mpr !neg_nonneg_iff_nonpos Hc,
   assert H1 : b * -c ≤ a * -c, from mul_le_mul_of_nonneg_right H Hc',
   have H2 : -(b * c) ≤ -(a * c),
@@ -226,14 +275,14 @@ section
     end,
   iff.mp !neg_le_neg_iff_le H2
 
-  definition mul_nonneg_of_nonpos_of_nonpos (Ha : a ≤ 0) (Hb : b ≤ 0) : 0 ≤ a * b :=
+  theorem mul_nonneg_of_nonpos_of_nonpos (Ha : a ≤ 0) (Hb : b ≤ 0) : 0 ≤ a * b :=
   begin
     have H : 0 * b ≤ a * b, from mul_le_mul_of_nonpos_right Ha Hb,
     rewrite zero_mul at H,
     exact H
   end
 
-  definition mul_lt_mul_of_neg_left (H : b < a) (Hc : c < 0) : c * a < c * b :=
+  theorem mul_lt_mul_of_neg_left (H : b < a) (Hc : c < 0) : c * a < c * b :=
   have Hc' : -c > 0, from iff.mpr !neg_pos_iff_neg Hc,
   assert H1 : -c * b < -c * a, from mul_lt_mul_of_pos_left H Hc',
   have H2 : -(c * b) < -(c * a),
@@ -243,7 +292,7 @@ section
     end,
   iff.mp !neg_lt_neg_iff_lt H2
 
-  definition mul_lt_mul_of_neg_right (H : b < a) (Hc : c < 0) : a * c < b * c :=
+  theorem mul_lt_mul_of_neg_right (H : b < a) (Hc : c < 0) : a * c < b * c :=
   have Hc' : -c > 0, from iff.mpr !neg_pos_iff_neg Hc,
   assert H1 : b * -c < a * -c, from mul_lt_mul_of_pos_right H Hc',
   have H2 : -(b * c) < -(a * c),
@@ -253,7 +302,7 @@ section
     end,
   iff.mp !neg_lt_neg_iff_lt H2
 
-  definition mul_pos_of_neg_of_neg (Ha : a < 0) (Hb : b < 0) : 0 < a * b :=
+  theorem mul_pos_of_neg_of_neg (Ha : a < 0) (Hb : b < 0) : 0 < a * b :=
   begin
     have H : 0 * b < a * b, from mul_lt_mul_of_neg_right Ha Hb,
     rewrite zero_mul at H,
@@ -264,11 +313,11 @@ end
 
 -- TODO: we can eliminate mul_pos_of_pos, but now it is not worth the effort to redeclare the
 -- class instance
-structure linear_ordered_ring [class] (A : Type) extends ordered_ring A, linear_strong_order_pair A
+structure linear_ordered_ring [class] (A : Type)
+    extends ordered_ring A, linear_strong_order_pair A :=
+  (zero_lt_one : lt zero one)
 
--- print fields linear_ordered_semiring
-
-definition linear_ordered_ring.to_linear_ordered_semiring [instance] [reducible]
+definition linear_ordered_ring.to_linear_ordered_semiring [trans_instance] [reducible]
     [s : linear_ordered_ring A] :
   linear_ordered_semiring A :=
 ⦃ linear_ordered_semiring, s,
@@ -281,11 +330,12 @@ definition linear_ordered_ring.to_linear_ordered_semiring [instance] [reducible]
   mul_le_mul_of_nonneg_right := @mul_le_mul_of_nonneg_right A _,
   mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left A _,
   mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right A _,
-  le_total                   := linear_ordered_ring.le_total ⦄
+  le_total                   := linear_ordered_ring.le_total,
+  lt_of_add_lt_add_left      := @lt_of_add_lt_add_left A _ ⦄
 
 structure linear_ordered_comm_ring [class] (A : Type) extends linear_ordered_ring A, comm_monoid A
 
-definition linear_ordered_comm_ring.eq_zero_or_eq_zero_of_mul_eq_zero [s : linear_ordered_comm_ring A]
+theorem linear_ordered_comm_ring.eq_zero_or_eq_zero_of_mul_eq_zero [s : linear_ordered_comm_ring A]
         {a b : A} (H : a * b = 0) : a = 0 ⊎ b = 0 :=
 lt.by_cases
   (assume Ha : 0 < a,
@@ -321,7 +371,7 @@ lt.by_cases
         end))
 
 -- Linearity implies no zero divisors. Doesn't need commutativity.
-definition linear_ordered_comm_ring.to_integral_domain [instance] [reducible]
+definition linear_ordered_comm_ring.to_integral_domain [trans_instance] [reducible]
     [s: linear_ordered_comm_ring A] : integral_domain A :=
 ⦃ integral_domain, s,
   eq_zero_or_eq_zero_of_mul_eq_zero :=
@@ -332,15 +382,14 @@ section
   variables (a b c : A)
   include s
 
-  definition mul_self_nonneg : a * a ≥ 0 :=
-  sum.rec_on (le.total 0 a)
+  theorem mul_self_nonneg : a * a ≥ 0 :=
+  sum.elim (le.total 0 a)
     (assume H : a ≥ 0, mul_nonneg H H)
     (assume H : a ≤ 0, mul_nonneg_of_nonpos_of_nonpos H H)
 
-  definition zero_le_one : 0 ≤ (1:A) := one_mul 1 ▸ mul_self_nonneg (1 : A)
-  definition zero_lt_one : 0 < (1:A) := lt_of_le_of_ne zero_le_one zero_ne_one
+  theorem zero_le_one : 0 ≤ (1:A) := one_mul 1 ▸ mul_self_nonneg 1
 
-  definition pos_and_pos_or_neg_and_neg_of_mul_pos {a b : A} (Hab : a * b > 0) :
+  theorem pos_and_pos_or_neg_and_neg_of_mul_pos {a b : A} (Hab : a * b > 0) :
     (a > 0 × b > 0) ⊎ (a < 0 × b < 0) :=
   lt.by_cases
     (assume Ha : 0 < a,
@@ -369,7 +418,7 @@ section
           end)
         (assume Hb : b < 0, sum.inr (pair Ha Hb)))
 
-  definition gt_of_mul_lt_mul_neg_left {a b c : A} (H : c * a < c * b) (Hc : c ≤ 0) : a > b :=
+  theorem gt_of_mul_lt_mul_neg_left {a b c : A} (H : c * a < c * b) (Hc : c ≤ 0) : a > b :=
     have nhc : -c ≥ 0, from neg_nonneg_of_nonpos Hc,
     have H2 : -(c * b) < -(c * a), from iff.mpr (neg_lt_neg_iff_lt _ _) H,
     have H3 : (-c) * b < (-c) * a, from calc
@@ -378,9 +427,27 @@ section
            ... = (-c) * a     : neg_mul_eq_neg_mul,
     lt_of_mul_lt_mul_left H3 nhc
 
-  definition zero_gt_neg_one : -1 < (0 : A) :=
+  theorem zero_gt_neg_one : -1 < (0:A) :=
     neg_zero ▸ (neg_lt_neg zero_lt_one)
 
+  theorem le_of_mul_le_of_ge_one {a b c : A} (H : a * c ≤ b) (Hb : b ≥ 0) (Hc : c ≥ 1) : a ≤ b :=
+    have H' : a * c ≤ b * c, from calc
+      a * c ≤ b : H
+        ... = b * 1 : mul_one
+        ... ≤ b * c : mul_le_mul_of_nonneg_left Hc Hb,
+    le_of_mul_le_mul_right H' (lt_of_lt_of_le zero_lt_one Hc)
+
+  theorem nonneg_le_nonneg_of_squares_le {a b : A} (Ha : a ≥ 0) (Hb : b ≥ 0) (H : a * a ≤ b * b) :
+      a ≤ b :=
+    begin
+      apply le_of_not_gt,
+      intro Hab,
+      let Hposa := lt_of_le_of_lt Hb Hab,
+      let H' := calc
+        b * b ≤ a * b : mul_le_mul_of_nonneg_right (le_of_lt Hab) Hb
+        ... < a * a : mul_lt_mul_of_pos_left Hab Hposa,
+      apply (not_le_of_gt H') H
+    end
 end
 
 /- TODO: Isabelle's library has all kinds of cancelation rules for the simplifier.
@@ -396,17 +463,17 @@ section
 
   definition sign (a : A) : A := lt.cases a 0 (-1) 0 1
 
-  definition sign_of_neg (H : a < 0) : sign a = -1 := lt.cases_of_lt H
+  theorem sign_of_neg (H : a < 0) : sign a = -1 := lt.cases_of_lt H
 
-  definition sign_zero : sign 0 = (0:A) := lt.cases_of_eq rfl
+  theorem sign_zero : sign 0 = (0:A) := lt.cases_of_eq rfl
 
-  definition sign_of_pos (H : a > 0) : sign a = 1 := lt.cases_of_gt H
+  theorem sign_of_pos (H : a > 0) : sign a = 1 := lt.cases_of_gt H
 
-  definition sign_one : sign 1 = (1:A) := sign_of_pos zero_lt_one
+  theorem sign_one : sign 1 = (1:A) := sign_of_pos zero_lt_one
 
-  definition sign_neg_one : sign (-1) = -(1:A) := sign_of_neg (neg_neg_of_pos zero_lt_one)
+  theorem sign_neg_one : sign (-1) = -(1:A) := sign_of_neg (neg_neg_of_pos zero_lt_one)
 
-  definition sign_sign (a : A) : sign (sign a) = sign a :=
+  theorem sign_sign (a : A) : sign (sign a) = sign a :=
   lt.by_cases
     (assume H : a > 0,
       calc
@@ -424,7 +491,7 @@ section
                   ... = -1            : by rewrite sign_neg_one
                   ... = sign a        : by rewrite (sign_of_neg H))
 
-  definition pos_of_sign_eq_one (H : sign a = 1) : a > 0 :=
+  theorem pos_of_sign_eq_one (H : sign a = 1) : a > 0 :=
   lt.by_cases
     (assume H1 : 0 < a, H1)
     (assume H1 : 0 = a,
@@ -436,7 +503,7 @@ section
       have H2 : -1 = 1, from (sign_of_neg H1)⁻¹ ⬝ H,
       absurd ((eq_zero_of_neg_eq H2)⁻¹) zero_ne_one)
 
-  definition eq_zero_of_sign_eq_zero (H : sign a = 0) : a = 0 :=
+  theorem eq_zero_of_sign_eq_zero (H : sign a = 0) : a = 0 :=
   lt.by_cases
     (assume H1 : 0 < a,
       absurd (H⁻¹ ⬝ sign_of_pos H1) zero_ne_one)
@@ -446,7 +513,7 @@ section
       have H3 : 1 = 0, from eq_neg_of_eq_neg H2 ⬝ neg_zero,
       absurd (H3⁻¹) zero_ne_one)
 
-  definition neg_of_sign_eq_neg_one (H : sign a = -1) : a < 0 :=
+  theorem neg_of_sign_eq_neg_one (H : sign a = -1) : a < 0 :=
   lt.by_cases
     (assume H1 : 0 < a,
       have H2 : -1 = 1, from H⁻¹ ⬝ (sign_of_pos H1),
@@ -461,7 +528,7 @@ section
       absurd (H3⁻¹) zero_ne_one)
     (assume H1 : 0 > a, H1)
 
-  definition sign_neg (a : A) : sign (-a) = -(sign a) :=
+  theorem sign_neg (a : A) : sign (-a) = -(sign a) :=
   lt.by_cases
     (assume H1 : 0 < a,
       calc
@@ -481,7 +548,7 @@ section
               ... = -(-1)     : by rewrite neg_neg
               ... = -(sign a) : sign_of_neg H1)
 
-  definition sign_mul (a b : A) : sign (a * b) = sign a * sign b :=
+  theorem sign_mul (a b : A) : sign (a * b) = sign a * sign b :=
   lt.by_cases
     (assume z_lt_a : 0 < a,
       lt.by_cases
@@ -504,7 +571,7 @@ section
                      sign_of_pos (mul_pos_of_neg_of_neg z_gt_a z_gt_b),
                      neg_mul_neg, one_mul]))
 
-  definition abs_eq_sign_mul (a : A) : abs a = sign a * a :=
+  theorem abs_eq_sign_mul (a : A) : abs a = sign a * a :=
   lt.by_cases
     (assume H1 : 0 < a,
       calc
@@ -524,7 +591,7 @@ section
           ... = -1 * a     : by rewrite neg_eq_neg_one_mul
           ... = sign a * a : by rewrite (sign_of_neg H1))
 
-  definition eq_sign_mul_abs (a : A) : a = sign a * abs a :=
+  theorem eq_sign_mul_abs (a : A) : a = sign a * abs a :=
   lt.by_cases
     (assume H1 : 0 < a,
       calc
@@ -544,16 +611,22 @@ section
           ... = -1 * abs a     : by rewrite neg_eq_neg_one_mul
           ... = sign a * abs a : by rewrite (sign_of_neg H1))
 
-  definition abs_dvd_iff (a b : A) : abs a ∣ b ↔ a ∣ b :=
+  theorem abs_dvd_iff (a b : A) : abs a ∣ b ↔ a ∣ b :=
   abs.by_cases !iff.refl !neg_dvd_iff_dvd
 
-  definition dvd_abs_iff (a b : A) : a ∣ abs b ↔ a ∣ b :=
+  theorem abs_dvd_of_dvd {a b : A} : a ∣ b → abs a ∣ b :=
+    iff.mpr !abs_dvd_iff
+
+  theorem dvd_abs_iff (a b : A) : a ∣ abs b ↔ a ∣ b :=
   abs.by_cases !iff.refl !dvd_neg_iff_dvd
 
-  definition abs_mul (a b : A) : abs (a * b) = abs a * abs b :=
-  sum.rec_on (le.total 0 a)
+  theorem dvd_abs_of_dvd {a b : A} : a ∣ b → a ∣ abs b :=
+    iff.mpr !dvd_abs_iff
+
+  theorem abs_mul (a b : A) : abs (a * b) = abs a * abs b :=
+  sum.elim (le.total 0 a)
     (assume H1 : 0 ≤ a,
-      sum.rec_on (le.total 0 b)
+      sum.elim (le.total 0 b)
         (assume H2 : 0 ≤ b,
           calc
             abs (a * b) = a * b         : abs_of_nonneg (mul_nonneg H1 H2)
@@ -566,7 +639,7 @@ section
                     ... = abs a * -b    : by rewrite (abs_of_nonneg H1)
                     ... = abs a * abs b : by rewrite (abs_of_nonpos H2)))
     (assume H1 : a ≤ 0,
-      sum.rec_on (le.total 0 b)
+      sum.elim (le.total 0 b)
         (assume H2 : 0 ≤ b,
           calc
             abs (a * b) = -(a * b)      : abs_of_nonpos (mul_nonpos_of_nonpos_of_nonneg H1 H2)
@@ -580,10 +653,92 @@ section
                     ... = abs a * -b    : by rewrite (abs_of_nonpos H1)
                     ... = abs a * abs b : by rewrite (abs_of_nonpos H2)))
 
-  definition abs_mul_self (a : A) : abs a * abs a = a * a :=
+  theorem abs_mul_abs_self (a : A) : abs a * abs a = a * a :=
   abs.by_cases rfl !neg_mul_neg
+
+  theorem abs_mul_self (a : A) : abs (a * a) = a * a :=
+  by rewrite [abs_mul, abs_mul_abs_self]
+
+  theorem sub_le_of_abs_sub_le_left (H : abs (a - b) ≤ c) : b - c ≤ a :=
+    if Hz : 0 ≤ a - b then
+      (calc
+        a ≥ b : (iff.mp !sub_nonneg_iff_le) Hz
+      ... ≥ b - c : sub_le_of_nonneg _ (le.trans !abs_nonneg H))
+    else
+      (have Habs : b - a ≤ c, by rewrite [abs_of_neg (lt_of_not_ge Hz) at H, neg_sub at H]; apply H,
+       have Habs' : b ≤ c + a, from (iff.mpr !le_add_iff_sub_right_le) Habs,
+       (iff.mp !le_add_iff_sub_left_le) Habs')
+
+  theorem sub_le_of_abs_sub_le_right (H : abs (a - b) ≤ c) : a - c ≤ b :=
+    sub_le_of_abs_sub_le_left (!abs_sub ▸ H)
+
+  theorem sub_lt_of_abs_sub_lt_left (H : abs (a - b) < c) : b - c < a :=
+    if Hz : 0 ≤ a - b then
+      (calc
+        a ≥ b : (iff.mp !sub_nonneg_iff_le) Hz
+      ... > b - c : sub_lt_of_pos _ (lt_of_le_of_lt !abs_nonneg H))
+    else
+      (have Habs : b - a < c, by rewrite [abs_of_neg (lt_of_not_ge Hz) at H, neg_sub at H]; apply H,
+       have Habs' : b < c + a, from lt_add_of_sub_lt_right Habs,
+       sub_lt_left_of_lt_add Habs')
+
+  theorem sub_lt_of_abs_sub_lt_right (H : abs (a - b) < c) : a - c < b :=
+    sub_lt_of_abs_sub_lt_left (!abs_sub ▸ H)
+
+  theorem abs_sub_square (a b : A) : abs (a - b) * abs (a - b) = a * a + b * b - (1 + 1) * a * b :=
+    begin
+      rewrite [abs_mul_abs_self, *mul_sub_left_distrib, *mul_sub_right_distrib,
+               sub_eq_add_neg (a*b), sub_add_eq_sub_sub, sub_neg_eq_add, *right_distrib, sub_add_eq_sub_sub, *one_mul,
+               *add.assoc, {_ + b * b}add.comm, *sub_eq_add_neg],
+      rewrite [{a*a + b*b}add.comm],
+      rewrite [mul.comm b a, *add.assoc]
+    end
+
+  theorem abs_abs_sub_abs_le_abs_sub (a b : A) : abs (abs a - abs b) ≤ abs (a - b) :=
+  begin
+    apply nonneg_le_nonneg_of_squares_le,
+    repeat apply abs_nonneg,
+    rewrite [*abs_sub_square, *abs_abs, *abs_mul_abs_self],
+    apply sub_le_sub_left,
+    rewrite *mul.assoc,
+    apply mul_le_mul_of_nonneg_left,
+    rewrite -abs_mul,
+    apply le_abs_self,
+    apply le_of_lt,
+    apply add_pos,
+    apply zero_lt_one,
+    apply zero_lt_one
+  end
+
 end
 
 /- TODO: Multiplication and one, starting with mult_right_le_one_le. -/
+
+namespace norm_num
+
+theorem pos_bit0_helper [s : linear_ordered_semiring A] (a : A) (H : a > 0) : bit0 a > 0 :=
+  by rewrite ↑bit0; apply add_pos H H
+
+theorem nonneg_bit0_helper [s : linear_ordered_semiring A] (a : A) (H : a ≥ 0) : bit0 a ≥ 0 :=
+  by rewrite ↑bit0; apply add_nonneg H H
+
+theorem pos_bit1_helper [s : linear_ordered_semiring A] (a : A) (H : a ≥ 0) : bit1 a > 0 :=
+  begin
+    rewrite ↑bit1,
+    apply add_pos_of_nonneg_of_pos,
+    apply nonneg_bit0_helper _ H,
+    apply zero_lt_one
+  end
+
+theorem nonneg_bit1_helper [s : linear_ordered_semiring A] (a : A) (H : a ≥ 0) : bit1 a ≥ 0 :=
+  by apply le_of_lt; apply pos_bit1_helper _ H
+
+theorem nonzero_of_pos_helper [s : linear_ordered_semiring A] (a : A) (H : a > 0) : a ≠ 0 :=
+  ne_of_gt H
+
+theorem nonzero_of_neg_helper [s : linear_ordered_ring A] (a : A) (H : a ≠ 0) : -a ≠ 0 :=
+  begin intro Ha, apply H, apply eq_of_neg_eq_neg, rewrite neg_zero, exact Ha end
+
+end norm_num
 
 end algebra

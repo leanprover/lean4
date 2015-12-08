@@ -192,7 +192,7 @@ namespace nat
   well_founded.intro (nat.rec
     (!acc.intro (λn H, absurd H (not_lt_zero n)))
     (λn IH, !acc.intro (λm H,
-      elim (nat.eq_or_lt_of_le (le_of_succ_le_succ H))
+      or.elim (nat.eq_or_lt_of_le (le_of_succ_le_succ H))
         (λe, eq.substr e IH) (acc.inv IH))))
 
   definition measure {A : Type} : (A → ℕ) → A → A → Prop :=
@@ -222,10 +222,10 @@ namespace nat
   protected theorem lt_or_ge (a b : ℕ) : a < b ∨ a ≥ b :=
   nat.rec (inr !zero_le) (λn, or.rec
     (λh, inl (le_succ_of_le h))
-    (λh, elim (nat.eq_or_lt_of_le h) (λe, inl (eq.subst e !nat.le_refl)) inr)) b
+    (λh, or.elim (nat.eq_or_lt_of_le h) (λe, inl (eq.subst e !nat.le_refl)) inr)) b
 
   protected definition lt_ge_by_cases {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a ≥ b → P) : P :=
-  by_cases H1 (λh, H2 (elim !nat.lt_or_ge (λa, absurd a h) (λa, a)))
+  by_cases H1 (λh, H2 (or.elim !nat.lt_or_ge (λa, absurd a h) (λa, a)))
 
   protected definition lt_by_cases {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a = b → P)
     (H3 : b < a → P) : P :=

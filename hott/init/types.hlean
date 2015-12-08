@@ -48,10 +48,10 @@ end sigma
 
 -- Sum type
 -- --------
+infixr ⊎ := sum
+infixr + := sum
 
 namespace sum
-  infixr ⊎ := sum
-  infixr + := sum
   infixr [parsing_only] `+t`:25 := sum -- notation which is never overloaded
   namespace low_precedence_plus
     reserve infixr ` + `:25  -- conflicts with notation for addition
@@ -59,6 +59,9 @@ namespace sum
   end low_precedence_plus
 
   variables {a b c d : Type}
+
+  protected definition elim (H : a ⊎ b) (f : a → c) (g : b → c) := sum.rec_on H f g
+
   definition sum_of_sum_of_imp_of_imp (H₁ : a ⊎ b) (H₂ : a → c) (H₃ : b → d) : c ⊎ d :=
   sum.rec_on H₁
     (assume Ha : a, sum.inl (H₂ Ha))
@@ -79,12 +82,12 @@ end sum
 -- ------------
 
 abbreviation pair [constructor] := @prod.mk
+infixr × := prod
 
 namespace prod
 
   -- notation for n-ary tuples
   notation `(` h `, ` t:(foldl `,` (e r, prod.mk r e) h) `)` := t
-  infixr × := prod
   infixr [parsing_only] `×t`:30 := prod -- notation which is never overloaded
 
   namespace ops

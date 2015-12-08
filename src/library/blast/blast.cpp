@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/replace_visitor.h"
 #include "library/util.h"
+#include "library/trace.h"
 #include "library/reducible.h"
 #include "library/class.h"
 #include "library/constants.h"
@@ -1147,6 +1148,10 @@ optional<expr> blast_goal(environment const & env, io_state const & ios, list<na
     return b(g);
 }
 void initialize_blast() {
+    register_trace_class("blast");
+    register_trace_class(name({"blast", "event"}));
+    register_trace_class_alias("app_builder", name({"blast", "event"}));
+    register_trace_class_alias(name({"simplifier", "failure"}), name({"blast", "event"}));
     blast::g_prefix                  = new name(name::mk_internal_unique_name());
     blast::g_tmp_prefix              = new name(name::mk_internal_unique_name());
     blast::g_ref_prefix              = new name(name::mk_internal_unique_name());

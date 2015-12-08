@@ -602,7 +602,7 @@ struct app_builder::imp {
 
     void trace_inst_failure(expr const & A, char const * n) {
         lean_trace("app_builder",
-                   tout() << "failed to build instance of '" << n << "' for:\n" << A << "\n";);
+                   tout() << "failed to build instance of '" << n << "' for " << A << "\n";);
     }
 
     expr mk_partial_add(expr const & A) {

@@ -914,7 +914,8 @@ result simplifier::fuse(expr const & e) {
         one = get_app_builder().mk_one(T);
         expr left_distrib = get_app_builder().mk_partial_left_distrib(T);
     } catch (app_builder_exception & ex) {
-        ios().get_diagnostic_channel() << "Cannot synthesize necessary instances\n";
+        lean_trace(name({"simplifier", "failure"}),
+                   tout() << "cannot synthesize necessary instances\n";);
         return result(e);
     }
 

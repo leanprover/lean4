@@ -3,19 +3,18 @@ Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad, Leonardo de Moura
 
-Structures with multiplicative and additive components, including semirings, rings, and fields.
+Structures with multiplicative prod additive components, including semirings, rings, prod fields.
 The development is modeled after Isabelle's library.
 -/
 
-import algebra.group
-open algebra eq
-
-variable {A : Type}
+import algebra.binary algebra.group
+open eq eq.ops algebra
 set_option class.force_new true
 
+variable {A : Type}
+namespace algebra
 /- auxiliary classes -/
 
-namespace algebra
 structure distrib [class] (A : Type) extends has_mul A, has_add A :=
 (left_distrib : Πa b c, mul a (add b c) = add (mul a b) (mul a c))
 (right_distrib : Πa b c, mul (add a b) c = add (mul a c) (mul b c))
@@ -247,7 +246,7 @@ section
              ... = 0              : mul_zero,
     symm (neg_eq_of_add_eq_zero this)
 
-  theorem ne_zero_and_ne_zero_of_mul_ne_zero {a b : A} (H : a * b ≠ 0) : a ≠ 0 × b ≠ 0 :=
+  theorem ne_zero_prod_ne_zero_of_mul_ne_zero {a b : A} (H : a * b ≠ 0) : a ≠ 0 × b ≠ 0 :=
     have a ≠ 0, from
       (suppose a = 0,
         have a * b = 0, by rewrite [this, zero_mul],
@@ -256,7 +255,7 @@ section
       (suppose b = 0,
         have a * b = 0, by rewrite [this, mul_zero],
         absurd this H),
-    pair `a ≠ 0` `b ≠ 0`
+    prod.mk `a ≠ 0` `b ≠ 0`
 end
 
 structure comm_ring [class] (A : Type) extends ring A, comm_semigroup A
@@ -327,11 +326,11 @@ end
 /- integral domains -/
 
 structure no_zero_divisors [class] (A : Type) extends has_mul A, has_zero A :=
-(eq_zero_or_eq_zero_of_mul_eq_zero : Πa b, mul a b = zero → a = zero ⊎ b = zero)
+(eq_zero_sum_eq_zero_of_mul_eq_zero : Πa b, mul a b = zero → a = zero ⊎ b = zero)
 
-theorem eq_zero_or_eq_zero_of_mul_eq_zero {A : Type} [s : no_zero_divisors A] {a b : A}
+theorem eq_zero_sum_eq_zero_of_mul_eq_zero {A : Type} [s : no_zero_divisors A] {a b : A}
     (H : a * b = 0) :
-  a = 0 ⊎ b = 0 := !no_zero_divisors.eq_zero_or_eq_zero_of_mul_eq_zero H
+  a = 0 ⊎ b = 0 := !no_zero_divisors.eq_zero_sum_eq_zero_of_mul_eq_zero H
 
 structure integral_domain [class] (A : Type) extends comm_ring A, no_zero_divisors A,
     zero_ne_one_class A
@@ -342,18 +341,18 @@ section
 
   theorem mul_ne_zero {a b : A} (H1 : a ≠ 0) (H2 : b ≠ 0) : a * b ≠ 0 :=
   suppose a * b = 0,
-    sum.elim (eq_zero_or_eq_zero_of_mul_eq_zero this) (assume H3, H1 H3) (assume H4, H2 H4)
+    sum.elim (eq_zero_sum_eq_zero_of_mul_eq_zero this) (assume H3, H1 H3) (assume H4, H2 H4)
 
   theorem eq_of_mul_eq_mul_right {a b c : A} (Ha : a ≠ 0) (H : b * a = c * a) : b = c :=
   have b * a - c * a = 0, from iff.mp !eq_iff_sub_eq_zero H,
   have (b - c) * a = 0, using this, by rewrite [mul_sub_right_distrib, this],
-  have b - c = 0, from sum_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero this) Ha,
+  have b - c = 0, from sum_resolve_left (eq_zero_sum_eq_zero_of_mul_eq_zero this) Ha,
   iff.elim_right !eq_iff_sub_eq_zero this
 
   theorem eq_of_mul_eq_mul_left {a b c : A} (Ha : a ≠ 0) (H : a * b = a * c) : b = c :=
   have a * b - a * c = 0, from iff.mp !eq_iff_sub_eq_zero H,
   have a * (b - c) = 0, using this, by rewrite [mul_sub_left_distrib, this],
-  have b - c = 0, from sum_resolve_right (eq_zero_or_eq_zero_of_mul_eq_zero this) Ha,
+  have b - c = 0, from sum_resolve_right (eq_zero_sum_eq_zero_of_mul_eq_zero this) Ha,
   iff.elim_right !eq_iff_sub_eq_zero this
 
   -- TODO: do we want the iff versions?
@@ -363,7 +362,7 @@ section
     suppose b - 1 = 0, H₁ (!zero_add ▸ eq_add_of_sub_eq this),
   have a * b - a = 0, by rewrite H₂; apply sub_self,
   have a * (b - 1) = 0, by+ rewrite [mul_sub_left_distrib, mul_one]; apply this,
-    show a = 0, from sum_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero this) `b - 1 ≠ 0`
+    show a = 0, from sum_resolve_left (eq_zero_sum_eq_zero_of_mul_eq_zero this) `b - 1 ≠ 0`
 
   theorem eq_zero_of_mul_eq_self_left {a b : A} (H₁ : b ≠ 1) (H₂ : b * a = a) : a = 0 :=
     eq_zero_of_mul_eq_self_right H₁ (!mul.comm ▸ H₂)
@@ -373,7 +372,7 @@ section
     (suppose a * a = b * b,
       have (a - b) * (a + b) = 0,
         by rewrite [mul.comm, -mul_self_sub_mul_self_eq, this, sub_self],
-      assert a - b = 0 ⊎ a + b = 0, from !eq_zero_or_eq_zero_of_mul_eq_zero this,
+      assert a - b = 0 ⊎ a + b = 0, from !eq_zero_sum_eq_zero_of_mul_eq_zero this,
       sum.elim this
         (suppose a - b = 0, sum.inl (eq_of_sub_eq_zero this))
         (suppose a + b = 0, sum.inr (eq_neg_of_add_eq_zero this)))
@@ -385,7 +384,7 @@ section
   assert a * a = 1 * 1 ↔ a = 1 ⊎ a = -1, from mul_self_eq_mul_self_iff a 1,
   by rewrite mul_one at this; exact this
 
-  -- TODO: c - b * c → c = 0 ⊎ b = 1 and variants
+  -- TODO: c - b * c → c = 0 ⊎ b = 1 prod variants
 
   theorem dvd_of_mul_dvd_mul_left {a b c : A} (Ha : a ≠ 0) (Hdvd : (a * b ∣ a * c)) : (b ∣ c) :=
   dvd.elim Hdvd

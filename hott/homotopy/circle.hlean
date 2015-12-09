@@ -10,7 +10,7 @@ import .sphere
 import types.bool types.int.hott types.equiv
 import algebra.homotopy_group algebra.hott
 
-open eq susp bool sphere_index is_equiv equiv equiv.ops is_trunc pi
+open eq susp bool sphere_index is_equiv equiv equiv.ops is_trunc pi algebra
 
 definition circle : Type₀ := sphere 1
 
@@ -227,16 +227,18 @@ namespace circle
   definition base_eq_base_equiv [constructor] : base = base ≃ ℤ :=
   circle_eq_equiv base
 
-  definition decode_add (a b : ℤ) : circle.decode a ⬝ circle.decode b = circle.decode (a + b) :=
+  definition decode_add (a b : ℤ) : circle.decode a ⬝ circle.decode b = circle.decode (a +[ℤ] b) :=
   !power_con_power
 
-  definition encode_con (p q : base = base) : circle.encode (p ⬝ q) = circle.encode p + circle.encode q :=
-  preserve_binary_of_inv_preserve base_eq_base_equiv concat add decode_add p q
+  definition encode_con (p q : base = base)
+    : circle.encode (p ⬝ q) = circle.encode p +[ℤ] circle.encode q :=
+  preserve_binary_of_inv_preserve base_eq_base_equiv concat (@add ℤ _) decode_add p q
 
   --the carrier of π₁(S¹) is the set-truncation of base = base.
   open algebra trunc equiv.ops
+
   definition fg_carrier_equiv_int : π[1](S¹.) ≃ ℤ :=
-  trunc_equiv_trunc 0 base_eq_base_equiv ⬝e !trunc_equiv
+  trunc_equiv_trunc 0 base_eq_base_equiv ⬝e @(trunc_equiv ℤ _) proof _ qed
 
   definition con_comm_base (p q : base = base) : p ⬝ q = q ⬝ p :=
   eq_of_fn_eq_fn base_eq_base_equiv (by esimp;rewrite [+encode_con,add.comm])

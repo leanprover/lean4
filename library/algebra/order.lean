@@ -23,6 +23,8 @@ section
 
   theorem le.refl (a : A) : a ≤ a := !weak_order.le_refl
 
+  theorem le_of_eq {a b : A} (H : a = b) : a ≤ b := H ▸ le.refl a
+
   theorem le.trans [trans] {a b c : A} : a ≤ b → b ≤ c → a ≤ c := !weak_order.le_trans
 
   theorem ge.trans [trans] {a b c : A} (H1 : a ≥ b) (H2: b ≥ c) : a ≥ c := le.trans H2 H1
@@ -217,6 +219,9 @@ section
   or.elim !lt.trichotomy
     (assume H, H1 H)
     (assume H, or.elim H (assume H', H2 H') (assume H', H3 H'))
+
+  definition lt_ge_by_cases {a b : A} {P : Prop} (H1 : a < b → P) (H2 : a ≥ b → P) : P :=
+  lt.by_cases H1 (λH, H2 (H ▸ le.refl a)) (λH, H2 (le_of_lt H))
 
   theorem le_of_not_gt {a b : A} (H : ¬ a > b) : a ≤ b :=
   lt.by_cases (assume H', absurd H' H) (assume H', H' ▸ !le.refl) (assume H', le_of_lt H')

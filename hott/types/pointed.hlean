@@ -7,7 +7,7 @@ Ported from Coq HoTT
 -/
 
 import arity .eq .bool .unit .sigma .nat.basic
-open is_trunc eq prod sigma nat equiv option is_equiv bool unit
+open is_trunc eq prod sigma nat equiv option is_equiv bool unit algebra
 
 structure pointed [class] (A : Type) :=
   (point : A)
@@ -134,7 +134,7 @@ namespace pointed
   end
 
   definition pid [constructor] (A : Type*) : A →* A :=
-  pmap.mk function.id idp
+  pmap.mk id idp
 
   definition pcompose [constructor] (g : B →* C) (f : A →* B) : A →* C :=
   pmap.mk (λa, g (f a)) (ap g (respect_pt f) ⬝ respect_pt g)
@@ -273,7 +273,7 @@ namespace pointed
     Ω[succ n](Pointed.mk p) = Ω[n](Ω (Pointed.mk p)) : loop_space_succ_eq_in
       ... = Ω[n] (Ω[2] A)                            : loop_space_loop_irrel
       ... = Ω[2+n] A                                 : loop_space_add
-      ... = Ω[n+2] A                                 : add.comm
+      ... = Ω[n+2] A                                 : by rewrite [algebra.add.comm]
 
   -- TODO:
   -- definition apn_compose (n : ℕ) (g : B →* C) (f : A →* B) : apn n (g ∘* f) ~* apn n g ∘* apn n f :=

@@ -179,10 +179,10 @@ namespace nat
   theorem lt_zero_iff_empty [simp] (a : ℕ) : a < 0 ↔ empty :=
   iff_empty_intro (not_lt_zero a)
 
-  protected theorem eq_or_lt_of_le {a b : ℕ} (H : a ≤ b) : a = b ⊎ a < b :=
+  protected theorem eq_sum_lt_of_le {a b : ℕ} (H : a ≤ b) : a = b ⊎ a < b :=
   le.cases_on H (inl rfl) (λn h, inr (succ_le_succ h))
 
-  protected theorem le_of_eq_or_lt {a b : ℕ} (H : a = b ⊎ a < b) : a ≤ b :=
+  protected theorem le_of_eq_sum_lt {a b : ℕ} (H : a = b ⊎ a < b) : a ≤ b :=
   sum.rec_on H !nat.le_of_eq !nat.le_of_lt
 
   -- less-than is well-founded
@@ -222,13 +222,13 @@ namespace nat
   definition decidable_lt [instance] [priority nat.prio] : Π a b : nat, decidable (a < b) :=
   λ a b, decidable_le (succ a) b
 
-  protected theorem lt_or_ge (a b : ℕ) : a < b ⊎ a ≥ b :=
+  protected theorem lt_sum_ge (a b : ℕ) : a < b ⊎ a ≥ b :=
   nat.rec (inr !zero_le) (λn, sum.rec
     (λh, inl (le_succ_of_le h))
-    (λh, sum.rec_on (nat.eq_or_lt_of_le h) (λe, inl (eq.subst e !nat.le_refl)) inr)) b
+    (λh, sum.rec_on (nat.eq_sum_lt_of_le h) (λe, inl (eq.subst e !nat.le_refl)) inr)) b
 
   protected definition lt_ge_by_cases {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a ≥ b → P) : P :=
-  by_cases H1 (λh, H2 (sum.rec_on !nat.lt_or_ge (λa, absurd a h) (λa, a)))
+  by_cases H1 (λh, H2 (sum.rec_on !nat.lt_sum_ge (λa, absurd a h) (λa, a)))
 
   protected definition lt_by_cases {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a = b → P)
     (H3 : b < a → P) : P :=
@@ -238,7 +238,7 @@ namespace nat
   protected theorem lt_trichotomy (a b : ℕ) : a < b ⊎ a = b ⊎ b < a :=
   nat.lt_by_cases (λH, inl H) (λH, inr (inl H)) (λH, inr (inr H))
 
-  protected theorem eq_or_lt_of_not_lt {a b : ℕ} (hnlt : ¬ a < b) : a = b ⊎ b < a :=
+  protected theorem eq_sum_lt_of_not_lt {a b : ℕ} (hnlt : ¬ a < b) : a = b ⊎ b < a :=
   sum.rec_on (nat.lt_trichotomy a b)
     (λ hlt, absurd hlt hnlt)
     (λ h, h)

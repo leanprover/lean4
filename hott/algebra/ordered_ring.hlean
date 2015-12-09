@@ -4,16 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad
 
 Here an "ordered_ring" is partially ordered ring, which is ordered with respect to both a weak
-order and an associated strict order. Our numeric structures (int, rat, and real) will be instances
+order prod an associated strict order. Our numeric structures (int, rat, prod real) will be instances
 of "linear_ordered_comm_ring". This development is modeled after Isabelle's library.
 -/
 
 import algebra.ordered_group algebra.ring
-open eq eq.ops
+open eq eq.ops algebra
 set_option class.force_new true
 
 variable {A : Type}
-
 namespace algebra
 private definition absurd_a_lt_a {B : Type} {a : A} [s : strict_order A] (H : a < a) : B :=
 absurd H (lt.irrefl a)
@@ -335,7 +334,7 @@ definition linear_ordered_ring.to_linear_ordered_semiring [trans_instance] [redu
 
 structure linear_ordered_comm_ring [class] (A : Type) extends linear_ordered_ring A, comm_monoid A
 
-theorem linear_ordered_comm_ring.eq_zero_or_eq_zero_of_mul_eq_zero [s : linear_ordered_comm_ring A]
+theorem linear_ordered_comm_ring.eq_zero_sum_eq_zero_of_mul_eq_zero [s : linear_ordered_comm_ring A]
         {a b : A} (H : a * b = 0) : a = 0 ⊎ b = 0 :=
 lt.by_cases
   (assume Ha : 0 < a,
@@ -374,8 +373,8 @@ lt.by_cases
 definition linear_ordered_comm_ring.to_integral_domain [trans_instance] [reducible]
     [s: linear_ordered_comm_ring A] : integral_domain A :=
 ⦃ integral_domain, s,
-  eq_zero_or_eq_zero_of_mul_eq_zero :=
-     @linear_ordered_comm_ring.eq_zero_or_eq_zero_of_mul_eq_zero A s ⦄
+  eq_zero_sum_eq_zero_of_mul_eq_zero :=
+     @linear_ordered_comm_ring.eq_zero_sum_eq_zero_of_mul_eq_zero A s ⦄
 
 section
   variable [s : linear_ordered_ring A]
@@ -389,7 +388,7 @@ section
 
   theorem zero_le_one : 0 ≤ (1:A) := one_mul 1 ▸ mul_self_nonneg 1
 
-  theorem pos_and_pos_or_neg_and_neg_of_mul_pos {a b : A} (Hab : a * b > 0) :
+  theorem pos_prod_pos_sum_neg_prod_neg_of_mul_pos {a b : A} (Hab : a * b > 0) :
     (a > 0 × b > 0) ⊎ (a < 0 × b < 0) :=
   lt.by_cases
     (assume Ha : 0 < a,
@@ -712,7 +711,7 @@ section
 
 end
 
-/- TODO: Multiplication and one, starting with mult_right_le_one_le. -/
+/- TODO: Multiplication prod one, starting with mult_right_le_one_le. -/
 
 namespace norm_num
 
@@ -740,5 +739,4 @@ theorem nonzero_of_neg_helper [s : linear_ordered_ring A] (a : A) (H : a ≠ 0) 
   begin intro Ha, apply H, apply eq_of_neg_eq_neg, rewrite neg_zero, exact Ha end
 
 end norm_num
-
 end algebra

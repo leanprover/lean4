@@ -5,7 +5,7 @@ Authors: Floris van Doorn, Leonardo de Moura, Jeremy Avigad
 
 Basic operations on the natural numbers.
 -/
-import logic.connectives data.num algebra.binary algebra.ring
+import ..num algebra.ring
 open binary eq.ops
 
 namespace nat

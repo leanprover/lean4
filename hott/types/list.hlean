@@ -10,7 +10,7 @@ Some lemmas are commented out, their proofs need to be repaired when needed
 
 import .pointed .nat .pi
 
-open eq lift nat is_trunc pi pointed sum function prod option sigma
+open eq lift nat is_trunc pi pointed sum function prod option sigma algebra
 
 inductive list (T : Type) : Type :=
 | nil {} : list T

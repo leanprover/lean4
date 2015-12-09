@@ -35,7 +35,7 @@ namespace functor
     apply nat_trans_eq,
     intro d, calc
     natural_map (Fhom F (f' ∘ f)) d = F (f' ∘ f, id) : by esimp
-      ... = F (f' ∘ f, id ∘ id)                      : by rewrite id_id
+      ... = F (f' ∘ f, category.id ∘ category.id)    : by rewrite id_id
       ... = F ((f',id) ∘ (f, id))                    : by esimp
       ... = F (f',id) ∘ F (f, id)                    : by rewrite [respect_comp F]
       ... = natural_map ((Fhom F f') ∘ (Fhom F f)) d : by esimp
@@ -119,10 +119,11 @@ namespace functor
     apply id_leftright,
     show (functor_uncurry (functor_curry F)) (f, g) = F (f,g),
       from calc
-        (functor_uncurry (functor_curry F)) (f, g) = to_fun_hom F (id, g) ∘ to_fun_hom F (f, id) : by esimp
-          ... = F (id ∘ f, g ∘ id) : by krewrite [-respect_comp F (id,g) (f,id)]
-          ... = F (f, g ∘ id)      : by rewrite id_left
-          ... = F (f,g)            : by rewrite id_right,
+        (functor_uncurry (functor_curry F)) (f, g)
+              = to_fun_hom F (id, g) ∘ to_fun_hom F (f, id) : by esimp
+          ... = F (category.id ∘ f, g ∘ category.id)        : (respect_comp F (id,g) (f,id))⁻¹
+          ... = F (f, g ∘ category.id)                      : by rewrite id_left
+          ... = F (f,g)                                     : by rewrite id_right,
   end
 
   definition functor_curry_functor_uncurry_ob (c : C)

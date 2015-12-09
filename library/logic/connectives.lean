@@ -145,8 +145,13 @@ iff.trans (iff.trans !or.comm !or.left_distrib) (and_congr !or.comm !or.comm)
 
 definition iff.def : (a ↔ b) = ((a → b) ∧ (b → a)) := rfl
 
-theorem forall_imp_forall {A : Type} {P Q : A → Prop} (H : ∀a, (P a → Q a)) (p : ∀a, P a) (a : A) : Q a :=
+theorem forall_imp_forall {A : Type} {P Q : A → Prop} (H : ∀a, (P a → Q a)) (p : ∀a, P a) (a : A)
+  : Q a :=
 (H a) (p a)
+
+theorem forall_iff_forall {A : Type} {P Q : A → Prop} (H : ∀a, (P a ↔ Q a))
+  : (∀a, P a) ↔ (∀a, Q a) :=
+iff.intro (λp a, iff.elim_left (H a) (p a)) (λq a, iff.elim_right (H a) (q a))
 
 theorem imp_iff {P : Prop} (Q : Prop) (p : P) : (P → Q) ↔ Q :=
 iff.intro (λf, f p) imp.intro

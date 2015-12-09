@@ -169,7 +169,7 @@ namespace susp
              (!ap_con ⬝
              whisker_left _ !ap_inv) ⬝
              (!elim_merid ◾ inverse2 !elim_merid)},
-    { rewrite [▸*,inverse2_right_inv (elim_merid function.id idp)],
+    { rewrite [▸*,inverse2_right_inv (elim_merid id idp)],
       refine !con.assoc ⬝ _,
       xrewrite [ap_con_right_inv (susp.elim x x (λa, a)) (merid idp),idp_con_idp,-ap_compose]}
   end

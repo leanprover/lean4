@@ -36,10 +36,16 @@ namespace sphere_index
      notation for sphere_index is -1, 0, 1, ...
      from 0 and up this comes from a coercion from num to sphere_index (via nat)
   -/
+
+  definition has_zero_sphere_index [instance] [reducible] : has_zero sphere_index :=
+  has_zero.mk (succ minus_one)
+
+  definition has_one_sphere_index [instance] [reducible] : has_one sphere_index :=
+  has_one.mk (succ (succ minus_one))
+
   postfix `.+1`:(max+1) := sphere_index.succ
   postfix `.+2`:(max+1) := λ(n : sphere_index), (n .+1 .+1)
   notation `-1` := minus_one
-  export [coercions] nat
   notation `ℕ₋₁` := sphere_index
 
   definition add (n m : sphere_index) : sphere_index :=
@@ -50,11 +56,11 @@ namespace sphere_index
 
   infix `+1+`:65 := sphere_index.add
 
-  notation x <= y := sphere_index.leq x y
-  notation x ≤ y := sphere_index.leq x y
+  definition has_le_sphere_index [instance] [reducible] : has_le sphere_index :=
+  has_le.mk leq
 
-  definition succ_le_succ {n m : sphere_index} (H : n ≤ m) : n.+1 ≤ m.+1 := H
-  definition le_of_succ_le_succ {n m : sphere_index} (H : n.+1 ≤ m.+1) : n ≤ m := H
+  definition succ_le_succ {n m : sphere_index} (H : n ≤ m) : n.+1 ≤ m.+1 := proof H qed
+  definition le_of_succ_le_succ {n m : sphere_index} (H : n.+1 ≤ m.+1) : n ≤ m := proof H qed
   definition minus_two_le (n : sphere_index) : -1 ≤ n := star
   definition empty_of_succ_le_minus_two {n : sphere_index} (H : n .+1 ≤ -1) : empty := H
 
@@ -104,17 +110,17 @@ namespace sphere
 
 
   definition bool_of_sphere : S 0 → bool :=
-  susp.rec ff tt (λx, empty.elim x)
+  proof susp.rec ff tt (λx, empty.elim x) qed
 
   definition sphere_of_bool : bool → S 0
-  | ff := north
-  | tt := south
+  | ff := proof north qed
+  | tt := proof south qed
 
   definition sphere_equiv_bool : S 0 ≃ bool :=
   equiv.MK bool_of_sphere
            sphere_of_bool
            (λb, match b with | tt := idp | ff := idp end)
-           (λx, susp.rec_on x idp idp (empty.rec _))
+           (λx, proof susp.rec_on x idp idp (empty.rec _) qed)
 
   definition sphere_eq_bool : S 0 = bool :=
   ua sphere_equiv_bool

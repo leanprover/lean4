@@ -3,11 +3,11 @@ Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Jeremy Avigad
 
-Weak orders "≤", strict orders "<", and structures that include both.
+Weak orders "≤", strict orders "<", prod structures that include both.
 -/
 import algebra.binary algebra.priority
 open eq eq.ops algebra
---set_option class.force_new true
+-- set_option class.force_new true
 
 variable {A : Type}
 
@@ -24,6 +24,8 @@ section
   include s
 
   theorem le.refl (a : A) : a ≤ a := !weak_order.le_refl
+
+  theorem le_of_eq {a b : A} (H : a = b) : a ≤ b := H ▸ le.refl a
 
   theorem le.trans [trans] {a b c : A} : a ≤ b → b ≤ c → a ≤ c := !weak_order.le_trans
 
@@ -83,9 +85,7 @@ definition wf.rec_on {A : Type} [s : wf_strict_order A] {P : A → Type}
     (x : A) (H : Πx, (Πy, wf_strict_order.lt y x → P y) → P x) : P x :=
 wf_strict_order.wf_rec P H x
 
-definition wf.ind_on := @wf.rec_on
-
-/- structures with a weak and a strict order -/
+/- structures with a weak prod a strict order -/
 
 structure order_pair [class] (A : Type) extends weak_order A, has_lt A :=
 (le_of_lt : Π a b, lt a b → le a b)
@@ -126,36 +126,36 @@ section
 end
 
 structure strong_order_pair [class] (A : Type) extends weak_order A, has_lt A :=
-(le_iff_lt_or_eq : Πa b, le a b ↔ lt a b ⊎ a = b)
+(le_iff_lt_sum_eq : Πa b, le a b ↔ lt a b ⊎ a = b)
 (lt_irrefl : Π a, ¬ lt a a)
 
-theorem le_iff_lt_or_eq [s : strong_order_pair A] {a b : A} : a ≤ b ↔ a < b ⊎ a = b :=
-!strong_order_pair.le_iff_lt_or_eq
+theorem le_iff_lt_sum_eq [s : strong_order_pair A] {a b : A} : a ≤ b ↔ a < b ⊎ a = b :=
+!strong_order_pair.le_iff_lt_sum_eq
 
-theorem lt_or_eq_of_le [s : strong_order_pair A] {a b : A} (le_ab : a ≤ b) : a < b ⊎ a = b :=
-iff.mp le_iff_lt_or_eq le_ab
+theorem lt_sum_eq_of_le [s : strong_order_pair A] {a b : A} (le_ab : a ≤ b) : a < b ⊎ a = b :=
+iff.mp le_iff_lt_sum_eq le_ab
 
-theorem le_of_lt_or_eq [s : strong_order_pair A] {a b : A} (lt_or_eq : a < b ⊎ a = b) : a ≤ b :=
-iff.mpr le_iff_lt_or_eq lt_or_eq
+theorem le_of_lt_sum_eq [s : strong_order_pair A] {a b : A} (lt_sum_eq : a < b ⊎ a = b) : a ≤ b :=
+iff.mpr le_iff_lt_sum_eq lt_sum_eq
 
 private theorem lt_irrefl' [s : strong_order_pair A] (a : A) : ¬ a < a :=
 !strong_order_pair.lt_irrefl
 
 private theorem le_of_lt' [s : strong_order_pair A] (a b : A) : a < b → a ≤ b :=
-take Hlt, le_of_lt_or_eq (sum.inl Hlt)
+take Hlt, le_of_lt_sum_eq (sum.inl Hlt)
 
-private theorem lt_iff_le_and_ne [s : strong_order_pair A] {a b : A} : a < b ↔ (a ≤ b × a ≠ b) :=
+private theorem lt_iff_le_prod_ne [s : strong_order_pair A] {a b : A} : a < b ↔ (a ≤ b × a ≠ b) :=
 iff.intro
-  (take Hlt, pair (le_of_lt_or_eq (sum.inl Hlt)) (take Hab, absurd (Hab ▸ Hlt) !lt_irrefl'))
+  (take Hlt, pair (le_of_lt_sum_eq (sum.inl Hlt)) (take Hab, absurd (Hab ▸ Hlt) !lt_irrefl'))
   (take Hand,
-   have Hor : a < b ⊎ a = b, from lt_or_eq_of_le (prod.pr1 Hand),
+   have Hor : a < b ⊎ a = b, from lt_sum_eq_of_le (prod.pr1 Hand),
    sum_resolve_left Hor (prod.pr2 Hand))
 
 theorem lt_of_le_of_ne [s : strong_order_pair A] {a b : A} : a ≤ b → a ≠ b → a < b :=
-take H1 H2, iff.mpr lt_iff_le_and_ne (pair H1 H2)
+take H1 H2, iff.mpr lt_iff_le_prod_ne (pair H1 H2)
 
 private theorem ne_of_lt' [s : strong_order_pair A] {a b : A} (H : a < b) : a ≠ b :=
-prod.pr2 (iff.mp (@lt_iff_le_and_ne _ _ _ _) H)
+prod.pr2 ((iff.mp (@lt_iff_le_prod_ne _ _ _ _)) H)
 
 private theorem lt_of_lt_of_le' [s : strong_order_pair A] (a b c : A) : a < b → b ≤ c → a < c :=
 assume lt_ab : a < b,
@@ -166,7 +166,7 @@ have ne_ac : a ≠ c, from
   have le_ba : b ≤ a, from eq_ac⁻¹ ▸ le_bc,
   have eq_ab : a = b, from le.antisymm  (le_of_lt' _ _ lt_ab) le_ba,
   show empty, from ne_of_lt' lt_ab eq_ab,
-show a < c, from iff.mpr (lt_iff_le_and_ne) (pair le_ac ne_ac)
+show a < c, from iff.mpr (lt_iff_le_prod_ne) (pair le_ac ne_ac)
 
 theorem lt_of_le_of_lt' [s : strong_order_pair A] (a b c : A) : a ≤ b → b < c → a < c :=
 assume le_ab : a ≤ b,
@@ -177,7 +177,7 @@ have ne_ac : a ≠ c, from
   have le_cb : c ≤ b, from eq_ac ▸ le_ab,
   have eq_bc : b = c, from le.antisymm  (le_of_lt' _ _ lt_bc) le_cb,
   show empty, from ne_of_lt' lt_bc eq_bc,
-show a < c, from iff.mpr (lt_iff_le_and_ne) (pair le_ac ne_ac)
+show a < c, from iff.mpr (lt_iff_le_prod_ne) (pair le_ac ne_ac)
 
 definition strong_order_pair.to_order_pair [trans_instance] [reducible]
     [s : strong_order_pair A] : order_pair A :=
@@ -206,17 +206,20 @@ section
   theorem lt.trichotomy : a < b ⊎ a = b ⊎ b < a :=
   sum.elim (le.total a b)
     (assume H : a ≤ b,
-      sum.elim (iff.mp (@le_iff_lt_or_eq _ _ _ _) H) (assume H1, sum.inl H1) (assume H1, sum.inr (sum.inl H1)))
+      sum.elim (iff.mp !le_iff_lt_sum_eq H) (assume H1, sum.inl H1) (assume H1, sum.inr (sum.inl H1)))
     (assume H : b ≤ a,
-      sum.elim (iff.mp (@le_iff_lt_or_eq _ _ _ _) H)
+      sum.elim (iff.mp !le_iff_lt_sum_eq H)
         (assume H1, sum.inr (sum.inr H1))
         (assume H1, sum.inr (sum.inl (H1⁻¹))))
 
-  theorem lt.by_cases {a b : A} {P : Type}
+  definition lt.by_cases {a b : A} {P : Type}
     (H1 : a < b → P) (H2 : a = b → P) (H3 : b < a → P) : P :=
   sum.elim !lt.trichotomy
     (assume H, H1 H)
     (assume H, sum.elim H (assume H', H2 H') (assume H', H3 H'))
+
+  definition lt_ge_by_cases {a b : A} {P : Type} (H1 : a < b → P) (H2 : a ≥ b → P) : P :=
+  lt.by_cases H1 (λH, H2 (H ▸ le.refl a)) (λH, H2 (le_of_lt H))
 
   theorem le_of_not_gt {a b : A} (H : ¬ a > b) : a ≤ b :=
   lt.by_cases (assume H', absurd H' H) (assume H', H' ▸ !le.refl) (assume H', le_of_lt H')
@@ -227,16 +230,16 @@ section
     (assume H', absurd (H' ▸ !le.refl) H)
     (assume H', H')
 
-  theorem lt_or_ge : a < b ⊎ a ≥ b :=
+  theorem lt_sum_ge : a < b ⊎ a ≥ b :=
   lt.by_cases
     (assume H1 : a < b, sum.inl H1)
     (assume H1 : a = b, sum.inr (H1 ▸ le.refl a))
     (assume H1 : a > b, sum.inr (le_of_lt H1))
 
-  theorem le_or_gt : a ≤ b ⊎ a > b :=
-  !sum.swap (lt_or_ge b a)
+  theorem le_sum_gt : a ≤ b ⊎ a > b :=
+  !sum.swap (lt_sum_ge b a)
 
-  theorem lt_or_gt_of_ne {a b : A} (H : a ≠ b) : a < b ⊎ a > b :=
+  theorem lt_sum_gt_of_ne {a b : A} (H : a ≠ b) : a < b ⊎ a > b :=
   lt.by_cases (assume H1, sum.inl H1) (assume H1, absurd H1 H) (assume H1, sum.inr H1)
 end
 
@@ -272,12 +275,12 @@ section
     (assume H : ¬ a ≤ b,
       (inr (assume H1 : a = b, H (H1 ▸ !le.refl))))
 
-  theorem eq_or_lt_of_not_lt {a b : A} (H : ¬ a < b) : a = b ⊎ b < a :=
+  theorem eq_sum_lt_of_not_lt {a b : A} (H : ¬ a < b) : a = b ⊎ b < a :=
     if Heq : a = b then sum.inl Heq else sum.inr (lt_of_not_ge (λ Hge, H (lt_of_le_of_ne Hge Heq)))
 
-  theorem eq_or_lt_of_le {a b : A} (H : a ≤ b) : a = b ⊎ a < b :=
+  theorem eq_sum_lt_of_le {a b : A} (H : a ≤ b) : a = b ⊎ a < b :=
     begin
-      cases eq_or_lt_of_not_lt (not_lt_of_ge H),
+      cases eq_sum_lt_of_not_lt (not_lt_of_ge H),
       exact sum.inl a_1⁻¹,
       exact sum.inr a_1
     end
@@ -301,7 +304,7 @@ section
   definition min (a b : A) : A := if a ≤ b then a else b
   definition max (a b : A) : A := if a ≤ b then b else a
 
-  /- these show min and max form a lattice -/
+  /- these show min prod max form a lattice -/
 
   theorem min_le_left (a b : A) : min a b ≤ a :=
   by_cases
@@ -339,7 +342,7 @@ section
   theorem le_max_right_iff_unit (a b : A) : b ≤ max a b ↔ unit :=
   iff_unit_intro (le_max_right a b)
 
-  /- these are also proved for lattices, but with inf and sup in place of min and max -/
+  /- these are also proved for lattices, but with inf prod sup in place of min prod max -/
 
   theorem eq_min {a b c : A} (H₁ : c ≤ a) (H₂ : c ≤ b) (H₃ : Π{d}, d ≤ a → d ≤ b → d ≤ c) :
     c = min a b :=
@@ -420,12 +423,12 @@ section
   /- these use the fact that it is a linear ordering -/
 
   theorem lt_min {a b c : A} (H₁ : a < b) (H₂ : a < c) : a < min b c :=
-  sum.elim !le_or_gt
+  sum.elim !le_sum_gt
     (assume H : b ≤ c, by rewrite (min_eq_left H); apply H₁)
     (assume H : b > c, by rewrite (min_eq_right_of_lt H); apply H₂)
 
   theorem max_lt {a b c : A} (H₁ : a < c) (H₂ : b < c) : max a b < c :=
-  sum.elim !le_or_gt
+  sum.elim !le_sum_gt
     (assume H : a ≤ b, by rewrite (max_eq_right H); apply H₂)
     (assume H : a > b, by rewrite (max_eq_left_of_lt H); apply H₁)
 end

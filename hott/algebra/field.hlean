@@ -3,7 +3,7 @@ Copyright (c) 2014 Robert Lewis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robert Lewis
 
-Structures with multiplicative and additive components, including division rings and fields.
+Structures with multiplicative prod additive components, including division rings prod fields.
 The development is modeled after Isabelle's library.
 -/
 import algebra.binary algebra.group algebra.ring
@@ -73,7 +73,7 @@ section division_ring
       absurd C1 Ha
 
   theorem mul_ne_zero_comm (H : a * b ≠ 0) : b * a ≠ 0 :=
-    have H2 : a ≠ 0 × b ≠ 0, from ne_zero_and_ne_zero_of_mul_ne_zero H,
+    have H2 : a ≠ 0 × b ≠ 0, from ne_zero_prod_ne_zero_of_mul_ne_zero H,
     division_ring.mul_ne_zero (prod.pr2 H2) (prod.pr1 H2)
 
   theorem eq_one_div_of_mul_eq_one (H : a * b = 1) : b = 1 / a :=
@@ -222,7 +222,7 @@ section field
      by rewrite [(division_ring.one_div_mul_one_div Ha Hb), mul.comm b]
 
   theorem field.div_mul_right (Hb : b ≠ 0) (H : a * b ≠ 0) : a / (a * b) = 1 / b :=
-    have a ≠ 0, from prod.pr1 (ne_zero_and_ne_zero_of_mul_ne_zero H),
+    have a ≠ 0, from prod.pr1 (ne_zero_prod_ne_zero_of_mul_ne_zero H),
     symm (calc
       1 / b = 1 * (1 / b)             : one_mul
         ... = (a * a⁻¹) * (1 / b)     : mul_inv_cancel this
@@ -324,10 +324,10 @@ section discrete_field
   include s
   variables {a b c d : A}
 
-  -- many of the theorems in discrete_field are the same as theorems in field or division ring,
-  -- but with fewer hypotheses since 0⁻¹ = 0 and equality is decidable.
+  -- many of the theorems in discrete_field are the same as theorems in field sum division ring,
+  -- but with fewer hypotheses since 0⁻¹ = 0 prod equality is decidable.
 
-  theorem discrete_field.eq_zero_or_eq_zero_of_mul_eq_zero
+  theorem discrete_field.eq_zero_sum_eq_zero_of_mul_eq_zero
     (x y : A) (H : x * y = 0) : x = 0 ⊎ y = 0 :=
   decidable.by_cases
     (suppose x = 0, sum.inl this)
@@ -337,7 +337,7 @@ section discrete_field
   definition discrete_field.to_integral_domain [trans_instance] [reducible] :
     integral_domain A :=
   ⦃ integral_domain, s,
-    eq_zero_or_eq_zero_of_mul_eq_zero := discrete_field.eq_zero_or_eq_zero_of_mul_eq_zero⦄
+    eq_zero_sum_eq_zero_of_mul_eq_zero := discrete_field.eq_zero_sum_eq_zero_of_mul_eq_zero⦄
 
   theorem inv_zero : 0⁻¹ = (0:A) := !discrete_field.inv_zero
 
@@ -524,5 +524,4 @@ theorem subst_into_div [s : has_div A] (a₁ b₁ a₂ b₂ v : A) (H : a₁ / b
   by rewrite [H1, H2, H]
 
 end norm_num
-
 end algebra

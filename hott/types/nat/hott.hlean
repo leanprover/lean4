@@ -6,9 +6,9 @@ Author: Floris van Doorn
 Theorems about the natural numbers specific to HoTT
 -/
 
-import .basic
+import .order
 
-open is_trunc unit empty eq equiv
+open is_trunc unit empty eq equiv algebra
 
 namespace nat
   definition is_hprop_le [instance] (n m : ℕ) : is_hprop (n ≤ m) :=
@@ -24,6 +24,8 @@ namespace nat
       { exfalso, apply not_succ_le_self a},
       { exact ap le.step !v_0}},
   end
+
+  definition is_hprop_lt [instance] (n m : ℕ) : is_hprop (n < m) := !is_hprop_le
 
   definition le_equiv_succ_le_succ (n m : ℕ) : (n ≤ m) ≃ (succ n ≤ succ m) :=
   equiv_of_is_hprop succ_le_succ le_of_succ_le_succ
@@ -73,8 +75,9 @@ namespace nat
     unfold [lt_ge_by_cases,lt.by_cases], induction (lt.trichotomy n m) with H' H',
     { esimp, apply ap H1 !is_hprop.elim},
     { cases H' with H' H',
-        esimp, exact !Heq⁻¹ ⬝ ap H1 !is_hprop.elim,
-        exfalso, apply lt.irrefl, apply lt_of_le_of_lt H H'}
+      { esimp, induction H', esimp, symmetry,
+        exact ap H1 !is_hprop.elim ⬝ Heq idp ⬝ ap H2 !is_hprop.elim},
+      { exfalso, apply lt.irrefl, apply lt_of_le_of_lt H H'}}
   end
 
   protected definition code [reducible] [unfold 1 2] : ℕ → ℕ → Type₀

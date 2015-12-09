@@ -8,32 +8,35 @@ false:empty
 induction_on:rec_on
 
 ∨;⊎
-or.elim:sum.elim
-or.inl:sum.inl
-or.inr:sum.inr
+or:sum
+sum.intro_left _;sum.inl
+sum.intro_right _;sum.inr
+
 or.intro_left _;sum.inl
 or.intro_right _;sum.inr
-or_resolve_right:sum_resolve_right
-or_resolve_left:sum_resolve_left
-or.swap:sum.swap
-or.rec_on:sum.rec_on
-or_of_or_of_imp_of_imp:sum_of_sum_of_imp_of_imp
-or_of_or_of_imp_left:sum_of_sum_of_imp_left
-or_of_or_of_imp_right:sum_of_sum_of_imp_right
 
 ∧;×
+and:prod
+
 and.intro:pair
-and.left:
 and.elim_left:prod.pr1
 and.left:prod.pr1
 and.elim_right:prod.pr2
 and.right:prod.pr2
+
+prod.intro:pair
+prod.elim_left:prod.pr1
+prod.left:prod.pr1
+prod.elim_right:prod.pr2
+prod.right:prod.pr2
+
 
 ∀;Π
 
 ∃;Σ
 exists.intro:sigma.mk
 exists.elim:sigma.rec_on
+Exists.rec:sigma.rec
 
 eq.symm:inverse
 congr_arg:ap

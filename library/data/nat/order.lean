@@ -5,7 +5,7 @@ Authors: Floris van Doorn, Leonardo de Moura, Jeremy Avigad
 
 The order relation on the natural numbers.
 -/
-import data.nat.basic algebra.ordered_ring
+import .basic algebra.ordered_ring
 open eq.ops
 
 namespace nat
@@ -269,7 +269,7 @@ or.elim !eq_zero_or_pos (take H2 : n = 0, by contradiction) (take H2 : n > 0, H2
 theorem ne_zero_of_pos {n : ℕ} (H : n > 0) : n ≠ 0 :=
 ne.symm (ne_of_lt H)
 
-theorem exists_eq_succ_of_pos {n : ℕ} (H : n > 0) : exists l, n = succ l :=
+theorem exists_eq_succ_of_pos {n : ℕ} (H : n > 0) : ∃l, n = succ l :=
 exists_eq_succ_of_lt H
 
 theorem pos_of_dvd_of_pos {m n : ℕ} (H1 : m ∣ n) (H2 : n > 0) : m > 0 :=

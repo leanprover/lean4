@@ -65,8 +65,7 @@ namespace eq
     fapply Group_eq,
     { apply equiv_of_eq, exact ap (λ(X : Type*), trunc 0 X) (loop_space_succ_eq_in A (succ n))},
     { exact abstract [irreducible] begin refine trunc.rec _, intro p, refine trunc.rec _, intro q,
-      rewrite [▸*,-+tr_eq_cast_ap, +trunc_transport, ↑[group_homotopy_group, group.to_monoid,
-        monoid.to_semigroup, semigroup.to_has_mul, trunc_mul], trunc_transport], apply ap tr,
+      rewrite [▸*,-+tr_eq_cast_ap, +trunc_transport], refine !trunc_transport ⬝ _, apply ap tr,
       apply loop_space_succ_eq_in_concat end end},
   end
 

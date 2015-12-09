@@ -13,6 +13,7 @@ set_option class.force_new true
 variable {A : Type}
 
 /- partially ordered monoids, such as the natural numbers -/
+
 namespace algebra
 structure ordered_cancel_comm_monoid [class] (A : Type) extends add_comm_monoid A,
   add_left_cancel_semigroup A, add_right_cancel_semigroup A, order_pair A :=
@@ -122,7 +123,7 @@ section
   !zero_add ▸ (add_lt_add_of_le_of_lt Ha Hb)
 
   -- TODO: add nonpos version (will be easier with simplifier)
-  theorem add_eq_zero_iff_eq_zero_and_eq_zero_of_nonneg_of_nonneg
+  theorem add_eq_zero_iff_eq_zero_prod_eq_zero_of_nonneg_of_nonneg
     (Ha : 0 ≤ a) (Hb : 0 ≤ b) : a + b = 0 ↔ a = 0 × b = 0 :=
   iff.intro
     (assume Hab : a + b = 0,
@@ -336,7 +337,7 @@ section
     iff.mp !add_le_iff_le_sub_left
 
   theorem add_le_iff_le_sub_right : a + b ≤ c ↔ a ≤ c - b :=
-  have H: a + b ≤ c ↔ a + b - b ≤ c - b, from proof iff.symm (!add_le_add_right_iff) qed,
+  have H: a + b ≤ c ↔ a + b - b ≤ c - b, from iff.symm (!add_le_add_right_iff),
   !add_neg_cancel_right ▸ H
 
   theorem add_le_of_le_sub_right {a b c : A} : a ≤ c - b → a + b ≤ c :=
@@ -718,7 +719,7 @@ section
   show a = b, from eq_of_sub_eq_zero this
 
   theorem abs_pos_of_ne_zero (H : a ≠ 0) : abs a > 0 :=
-  sum.elim (lt_or_gt_of_ne H) abs_pos_of_neg abs_pos_of_pos
+  sum.elim (lt_sum_gt_of_ne H) abs_pos_of_neg abs_pos_of_pos
 
   theorem abs.by_cases {P : A → Type} {a : A} (H1 : P a) (H2 : P (-a)) : P (abs a) :=
   sum.elim (le.total 0 a)
@@ -820,5 +821,4 @@ section
 
   end
 end
-
 end algebra

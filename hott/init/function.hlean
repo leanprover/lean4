@@ -24,9 +24,6 @@ definition compose_right [reducible] [unfold_full] (f : B → B → B) (g : A �
 definition compose_left [reducible] [unfold_full] (f : B → B → B) (g : A → B) : A → B → B :=
 λ a b, f (g a) b
 
-definition id [reducible] [unfold_full] (a : A) : A :=
-a
-
 definition on_fun [reducible] [unfold_full] (f : B → B → C) (g : A → B) : A → A → C :=
 λx y, f (g x) (g y)
 

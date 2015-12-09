@@ -28,6 +28,9 @@ namespace is_trunc
   definition has_zero_trunc_index [instance] [reducible] : has_zero trunc_index :=
   has_zero.mk (succ (succ minus_two))
 
+  definition has_one_trunc_index [instance] [reducible] : has_one trunc_index :=
+  has_one.mk (succ (succ (succ minus_two)))
+
   /-
      notation for trunc_index is -2, -1, 0, 1, ...
      from 0 and up this comes from a coercion from num to trunc_index (via nat)
@@ -44,15 +47,17 @@ namespace is_trunc
 
   definition leq (n m : trunc_index) : Type₀ :=
   trunc_index.rec_on n (λm, unit) (λ n p m, trunc_index.rec_on m (λ p, empty) (λ m q p, p m) p) m
-  infix <= := trunc_index.leq
-  infix ≤  := trunc_index.leq
+
+  definition has_le_trunc_index [instance] [reducible] : has_le trunc_index :=
+  has_le.mk leq
+
   end trunc_index
 
   infix `+2+`:65 := trunc_index.add
 
   namespace trunc_index
-  definition succ_le_succ {n m : trunc_index} (H : n ≤ m) : n.+1 ≤ m.+1 := H
-  definition le_of_succ_le_succ {n m : trunc_index} (H : n.+1 ≤ m.+1) : n ≤ m := H
+  definition succ_le_succ {n m : trunc_index} (H : n ≤ m) : n.+1 ≤ m.+1 := proof H qed
+  definition le_of_succ_le_succ {n m : trunc_index} (H : n.+1 ≤ m.+1) : n ≤ m := proof H qed
   definition minus_two_le (n : trunc_index) : -2 ≤ n := star
   definition le.refl (n : trunc_index) : n ≤ n := by induction n with n IH; exact star; exact IH
   definition empty_of_succ_le_minus_two {n : trunc_index} (H : n .+1 ≤ -2) : empty := H
@@ -101,6 +106,10 @@ namespace is_trunc
     (n : trunc_index) [H : is_trunc (n.+1) A] (x y : A) : is_trunc n (x = y) :=
   is_trunc.mk (is_trunc.to_internal (n.+1) A x y)
 
+  definition is_trunc_eq_zero [instance] [priority 1250] [H : is_trunc 1 A] (x y : A)
+    : is_hset (x = y) :=
+  @is_trunc_eq A 0 H x y
+
   /- contractibility -/
 
   definition is_contr.mk (center : A) (center_eq : Π(a : A), center = a) : is_contr A :=
@@ -133,6 +142,9 @@ namespace is_trunc
     (λ n IH A (H : is_trunc (n.+1) A), @is_trunc_succ_intro _ _ (λ x y, IH _ _))
     A H
   --in the proof the type of H is given explicitly to make it available for class inference
+
+  theorem is_trunc_succ_zero [instance] [priority 950] (A : Type) [H : is_hset A] : is_trunc 1 A :=
+  !is_trunc_succ
 
   theorem is_trunc_of_leq.{l} (A : Type.{l}) {n m : trunc_index} (Hnm : n ≤ m)
     [Hn : is_trunc n A] : is_trunc m A :=

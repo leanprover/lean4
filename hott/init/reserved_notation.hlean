@@ -155,8 +155,8 @@ reserve infixr ` ▹ `:75
 
 /- types and type constructors -/
 
-reserve infixr ` ⊎ `:25
-reserve infixr ` × `:30
+reserve infixr ` ⊎ `:30
+reserve infixr ` × `:35
 
 /- arithmetic operations -/
 

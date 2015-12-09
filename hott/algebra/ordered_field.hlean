@@ -5,6 +5,7 @@ Authors: Robert Lewis
 -/
 import algebra.ordered_ring algebra.field
 open eq eq.ops algebra
+set_option class.force_new true
 
 namespace algebra
 structure linear_ordered_field [class] (A : Type) extends linear_ordered_ring A, field A
@@ -339,7 +340,7 @@ section linear_ordered_field
       apply one_div_pos_of_pos He
     end
 
-  theorem exists_add_lt_and_pos_of_lt (H : b < a) : Σ c : A, b + c < a × c > 0 :=
+  theorem exists_add_lt_prod_pos_of_lt (H : b < a) : Σ c : A, b + c < a × c > 0 :=
   sigma.mk ((a - b) / (1 + 1))
       (pair (assert H2 : a + a > (b + b) + (a - b), from calc
         a + a > b + a : add_lt_add_right H
@@ -356,7 +357,7 @@ section linear_ordered_field
   begin
     apply le_of_not_gt,
     intro Hb,
-    cases exists_add_lt_and_pos_of_lt Hb with [c, Hc],
+    cases exists_add_lt_prod_pos_of_lt Hb with [c, Hc],
     let Hc' := H c (prod.pr2 Hc),
     apply (not_le_of_gt (prod.pr1 Hc)) (iff.mpr !le_add_iff_sub_right_le Hc')
   end

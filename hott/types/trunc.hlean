@@ -152,13 +152,13 @@ namespace is_trunc
     revert A, induction n with n IH,
     { intro A, esimp [Iterated_loop_space], transitivity _,
       { apply is_trunc_succ_iff_is_trunc_loop, apply le.refl},
-      { apply iff.pi_iff_pi, intro a, esimp, apply is_hprop_iff_is_contr, reflexivity}},
+      { apply pi_iff_pi, intro a, esimp, apply is_hprop_iff_is_contr, reflexivity}},
     { intro A, esimp [Iterated_loop_space],
       transitivity _, apply @is_trunc_succ_iff_is_trunc_loop @n, esimp, constructor,
-      apply iff.pi_iff_pi, intro a, transitivity _, apply IH,
-      transitivity _, apply iff.pi_iff_pi, intro p,
+      apply pi_iff_pi, intro a, transitivity _, apply IH,
+      transitivity _, apply pi_iff_pi, intro p,
       rewrite [iterated_loop_space_loop_irrel n p], apply iff.refl, esimp,
-      apply iff.imp_iff, reflexivity}
+      apply imp_iff, reflexivity}
   end
 
   theorem is_trunc_iff_is_contr_loop (n : ℕ) (A : Type)

@@ -25,8 +25,7 @@ following:
   padd_congr (p p' q q' : ℕ × ℕ) (H1 : p ≡ p') (H2 : q ≡ q') : padd p q ≡ p' q'
 
 -/
-import data.nat.basic data.nat.order data.nat.sub data.prod
-import algebra.relation algebra.binary algebra.ordered_ring
+import data.nat.sub algebra.relation data.prod
 open eq.ops
 open prod relation nat
 open decidable binary
@@ -495,9 +494,11 @@ private theorem pmul_assoc_prep {p1 p2 q1 q2 r1 r2 : ℕ} :
   ((p1*q1+p2*q2)*r1+(p1*q2+p2*q1)*r2, (p1*q1+p2*q2)*r2+(p1*q2+p2*q1)*r1) =
    (p1*(q1*r1+q2*r2)+p2*(q1*r2+q2*r1), p1*(q1*r2+q2*r1)+p2*(q1*r1+q2*r2)) :=
 begin
-  rewrite[+left_distrib,+right_distrib,*mul.assoc],
-  exact (congr_arg2 pair (!add.comm4 ⬝ (!congr_arg !nat.add_comm))
-                         (!add.comm4 ⬝ (!congr_arg !nat.add_comm)))
+   rewrite [+left_distrib, +right_distrib, *mul.assoc],
+   rewrite (add.comm4 (p1 * (q1 * r1)) (p2 * (q2 * r1)) (p1 * (q2 * r2)) (p2 * (q1 * r2))),
+   rewrite (add.comm (p2 * (q2 * r1)) (p2 * (q1 * r2))),
+   rewrite (add.comm4 (p1 * (q1 * r2)) (p2 * (q2 * r2)) (p1 * (q2 * r1)) (p2 * (q1 * r1))),
+   rewrite (add.comm (p2 * (q2 * r2)) (p2 * (q1 * r1)))
 end
 
 theorem pmul_assoc (p q r: ℕ × ℕ) : pmul (pmul p q) r = pmul p (pmul q r) := pmul_assoc_prep
@@ -592,6 +593,7 @@ by rewrite [neg_succ_of_nat_eq, neg_add]
 
 definition succ (a : ℤ) := a + (succ zero)
 definition pred (a : ℤ) := a - (succ zero)
+definition nat_succ_eq_int_succ (n : ℕ) : nat.succ n = int.succ n := rfl
 theorem pred_succ (a : ℤ) : pred (succ a) = a := !sub_add_cancel
 theorem succ_pred (a : ℤ) : succ (pred a) = a := !add_sub_cancel
 

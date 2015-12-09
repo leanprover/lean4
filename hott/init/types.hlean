@@ -11,13 +11,6 @@ open iff
 -- Empty type
 -- ----------
 
-namespace empty
-
-  protected theorem elim {A : Type} (H : empty) : A :=
-  empty.rec (λe, A) H
-
-end empty
-
 protected definition empty.has_decidable_eq [instance] : decidable_eq empty :=
 take (a b : empty), decidable.inl (!empty.elim a)
 
@@ -48,8 +41,6 @@ end sigma
 
 -- Sum type
 -- --------
-infixr ⊎ := sum
-infixr + := sum
 
 namespace sum
   infixr [parsing_only] `+t`:25 := sum -- notation which is never overloaded
@@ -59,8 +50,6 @@ namespace sum
   end low_precedence_plus
 
   variables {a b c d : Type}
-
-  protected definition elim (H : a ⊎ b) (f : a → c) (g : b → c) := sum.rec_on H f g
 
   definition sum_of_sum_of_imp_of_imp (H₁ : a ⊎ b) (H₂ : a → c) (H₃ : b → d) : c ⊎ d :=
   sum.rec_on H₁
@@ -81,8 +70,6 @@ end sum
 -- Product type
 -- ------------
 
-abbreviation pair [constructor] := @prod.mk
-infixr × := prod
 
 namespace prod
 
@@ -168,168 +155,9 @@ namespace prod
 
 end prod
 
-/- logic using prod and sum -/
+/- logic (ported from standard library as second half of logic file) -/
+
+/- iff -/
 
 variables {a b c d : Type}
 open prod sum unit
-
-/- prod -/
-
-definition not_prod_of_not_left (b : Type) (Hna : ¬a) : ¬(a × b) :=
-assume H : a × b, absurd (pr1 H) Hna
-
-definition not_prod_of_not_right (a : Type) {b : Type} (Hnb : ¬b) : ¬(a × b) :=
-assume H : a × b, absurd (pr2 H) Hnb
-
-definition prod.swap (H : a × b) : b × a :=
-pair (pr2 H) (pr1 H)
-
-definition prod_of_prod_of_imp_of_imp (H₁ : a × b) (H₂ : a → c) (H₃ : b → d) : c × d :=
-by cases H₁ with aa bb; exact (H₂ aa, H₃ bb)
-
-definition prod_of_prod_of_imp_left (H₁ : a × c) (H : a → b) : b × c :=
-by cases H₁ with aa cc; exact (H aa, cc)
-
-definition prod_of_prod_of_imp_right (H₁ : c × a) (H : a → b) : c × b :=
-by cases H₁ with cc aa; exact (cc, H aa)
-
-definition prod.comm : a × b ↔ b × a :=
-iff.intro (λH, prod.swap H) (λH, prod.swap H)
-
-definition prod.assoc : (a × b) × c ↔ a × (b × c) :=
-iff.intro
-  (assume H, pair
-    (pr1 (pr1 H))
-    (pair (pr2 (pr1 H)) (pr2 H)))
-  (assume H, pair
-    (pair (pr1 H) (pr1 (pr2 H)))
-    (pr2 (pr2 H)))
-
-definition prod_unit (a : Type) : a × unit ↔ a :=
-iff.intro (assume H, pr1 H) (assume H, pair H star)
-
-definition unit_prod (a : Type) : unit × a ↔ a :=
-iff.intro (assume H, pr2 H) (assume H, pair star H)
-
-definition prod_empty (a : Type) : a × empty ↔ empty :=
-iff.intro (assume H, pr2 H) (assume H, !empty.elim H)
-
-definition empty_prod (a : Type) : empty × a ↔ empty :=
-iff.intro (assume H, pr1 H) (assume H, !empty.elim H)
-
-definition prod_self (a : Type) : a × a ↔ a :=
-iff.intro (assume H, pr1 H) (assume H, pair H H)
-
-/- sum -/
-
-definition not_sum (Hna : ¬a) (Hnb : ¬b) : ¬(a ⊎ b) :=
-assume H : a ⊎ b, sum.rec_on H
-  (assume Ha, absurd Ha Hna)
-  (assume Hb, absurd Hb Hnb)
-
-definition sum_of_sum_of_imp_of_imp (H₁ : a ⊎ b) (H₂ : a → c) (H₃ : b → d) : c ⊎ d :=
-sum.rec_on H₁
-  (assume Ha : a, sum.inl (H₂ Ha))
-  (assume Hb : b, sum.inr (H₃ Hb))
-
-definition sum_of_sum_of_imp_left (H₁ : a ⊎ c) (H : a → b) : b ⊎ c :=
-sum.rec_on H₁
-  (assume H₂ : a, sum.inl (H H₂))
-  (assume H₂ : c, sum.inr H₂)
-
-definition sum_of_sum_of_imp_right (H₁ : c ⊎ a) (H : a → b) : c ⊎ b :=
-sum.rec_on H₁
-  (assume H₂ : c, sum.inl H₂)
-  (assume H₂ : a, sum.inr (H H₂))
-
-definition sum.elim3 (H : a ⊎ b ⊎ c) (Ha : a → d) (Hb : b → d) (Hc : c → d) : d :=
-sum.rec_on H Ha (assume H₂, sum.rec_on H₂ Hb Hc)
-
-definition sum_resolve_right (H₁ : a ⊎ b) (H₂ : ¬a) : b :=
-sum.rec_on H₁ (assume Ha, absurd Ha H₂) (assume Hb, Hb)
-
-definition sum_resolve_left (H₁ : a ⊎ b) (H₂ : ¬b) : a :=
-sum.rec_on H₁ (assume Ha, Ha) (assume Hb, absurd Hb H₂)
-
-definition sum.swap (H : a ⊎ b) : b ⊎ a :=
-sum.rec_on H (assume Ha, sum.inr Ha) (assume Hb, sum.inl Hb)
-
-definition sum.comm : a ⊎ b ↔ b ⊎ a :=
-iff.intro (λH, sum.swap H) (λH, sum.swap H)
-
-definition sum.assoc : (a ⊎ b) ⊎ c ↔ a ⊎ (b ⊎ c) :=
-iff.intro
-  (assume H, sum.rec_on H
-    (assume H₁, sum.rec_on H₁
-      (assume Ha, sum.inl Ha)
-      (assume Hb, sum.inr (sum.inl Hb)))
-    (assume Hc, sum.inr (sum.inr Hc)))
-  (assume H, sum.rec_on H
-    (assume Ha, (sum.inl (sum.inl Ha)))
-    (assume H₁, sum.rec_on H₁
-      (assume Hb, sum.inl (sum.inr Hb))
-      (assume Hc, sum.inr Hc)))
-
-definition sum_unit (a : Type) : a ⊎ unit ↔ unit :=
-iff.intro (assume H, star) (assume H, sum.inr H)
-
-definition unit_sum (a : Type) : unit ⊎ a ↔ unit :=
-iff.intro (assume H, star) (assume H, sum.inl H)
-
-definition sum_empty (a : Type) : a ⊎ empty ↔ a :=
-iff.intro
-  (assume H, sum.rec_on H (assume H1 : a, H1) (assume H1 : empty, !empty.elim H1))
-  (assume H, sum.inl H)
-
-definition empty_sum (a : Type) : empty ⊎ a ↔ a :=
-iff.intro
-  (assume H, sum.rec_on H (assume H1 : empty, !empty.elim H1) (assume H1 : a, H1))
-  (assume H, sum.inr H)
-
-definition sum_self (a : Type) : a ⊎ a ↔ a :=
-iff.intro
-  (assume H, sum.rec_on H (assume H1, H1) (assume H1, H1))
-  (assume H, sum.inl H)
-
-/- TODO
-theorem sum.right_comm (a b c : Type) : (a + b) + c ↔ (a + c) + b :=
-calc
-  (a + b) + c ↔ a + (b + c) : sum.assoc
-     ... ↔ a + (c + b)      : {sum.comm}
-     ... ↔ (a + c) + b      : iff.symm sum.assoc
-
-theorem sum.left_comm (a b c : Type) : a + (b + c) ↔ b + (a + c) :=
-calc
-  a + (b + c) ↔ (a + b) + c : iff.symm sum.assoc
-    ... ↔ (b + a) + c       : {sum.comm}
-     ... ↔ b + (a + c)      : sum.assoc
-
-theorem prod.right_comm (a b c : Type) : (a × b) × c ↔ (a × c) × b :=
-calc
-  (a × b) × c ↔ a × (b × c) : prod.assoc
-     ... ↔ a × (c × b)      : _
-     ... ↔ (a × c) × b      : iff.symm prod.assoc
-
-theorem prod_not_self_iff {a : Type} : a × ¬ a ↔ false :=
-iff.intro (assume H, (prod.right H) (prod.left H)) (assume H, false.elim H)
-
-theorem not_prod_self_iff {a : Type} : ¬ a × a ↔ false :=
-!prod.comm ▸ !prod_not_self_iff
-
-theorem prod.left_comm [simp] (a b c : Type) : a × (b × c) ↔ b × (a × c) :=
-calc
-  a × (b × c) ↔ (a × b) × c : iff.symm prod.assoc
-    ... ↔ (b × a) × c       : {prod.comm}
-     ... ↔ b × (a × c)      : prod.assoc
--/
-
-theorem imp.syl (H : a → b) (H₂ : c → a) (Hc : c) : b :=
-H (H₂ Hc)
-
-theorem sum.imp_distrib : ((a + b) → c) ↔ ((a → c) × (b → c)) :=
-iff.intro
-  (λH, prod.mk (imp.syl H sum.inl) (imp.syl H sum.inr))
-  (prod.rec sum.rec)
-
-theorem not_sum_iff_not_prod_not {a b : Type} : ¬(a + b) ↔ ¬a × ¬b :=
-sum.imp_distrib

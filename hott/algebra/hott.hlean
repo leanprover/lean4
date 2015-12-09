@@ -6,11 +6,20 @@ Author: Floris van Doorn
 Theorems about algebra specific to HoTT
 -/
 
-import .group arity types.pi hprop_trunc types.unit
+import .group arity types.pi hprop_trunc types.unit .bundled
 
-open equiv eq equiv.ops is_trunc
+open equiv eq equiv.ops is_trunc unit
 
 namespace algebra
+
+  definition trivial_group [constructor] : group unit :=
+  group.mk (λx y, star) _ (λx y z, idp) star (unit.rec idp) (unit.rec idp) (λx, star) (λx, idp)
+
+  definition Trivial_group [constructor] : Group :=
+  Group.mk _ trivial_group
+
+  notation `G0` := Trivial_group
+
   open Group has_mul has_inv
   -- we prove under which conditions two groups are equal
 

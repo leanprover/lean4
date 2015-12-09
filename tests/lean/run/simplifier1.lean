@@ -5,7 +5,7 @@ constant q : P → nat → Prop
 
 set_option blast.simp false
 set_option trace.blast true
-set_option trace.congruence_closure true
+set_option trace.cc true
 
 example (a : nat) (h₁ h₂ : P) : q h₁ a = q h₂ a :=
 by blast

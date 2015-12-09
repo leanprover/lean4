@@ -37,7 +37,7 @@ io_state::io_state(options const & opts, formatter_factory const & fmtf):
     m_regular_channel(std::make_shared<stdout_channel>()),
     m_diagnostic_channel(std::make_shared<stderr_channel>()) {
 }
-io_state::io_state(io_state const & ios, std::shared_ptr<output_channel> const & r, std::shared_ptr<output_channel> const d):
+io_state::io_state(io_state const & ios, std::shared_ptr<output_channel> const & r, std::shared_ptr<output_channel> const & d):
     m_options(ios.m_options),
     m_formatter_factory(ios.m_formatter_factory),
     m_regular_channel(r),

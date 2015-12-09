@@ -181,9 +181,9 @@ pair<expr, constraint> mk_new_class_instance_elaborator(
 
 optional<expr> mk_class_instance(environment const & env, io_state const & ios, local_context const & ctx, expr const & type, bool use_local_instances) {
     if (use_local_instances)
-        return mk_class_instance(env, ios, ctx.get_data(), type, nullptr);
+        return mk_class_instance(env, ios.get_options(), ctx.get_data(), type, nullptr);
     else
-        return mk_class_instance(env, ios, list<expr>(), type, nullptr);
+        return mk_class_instance(env, ios.get_options(), list<expr>(), type, nullptr);
 }
 
 optional<expr> mk_class_instance(environment const & env, local_context const & ctx, expr const & type) {

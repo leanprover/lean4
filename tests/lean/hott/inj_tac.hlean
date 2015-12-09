@@ -12,8 +12,8 @@ notation `[` l:(foldr `,` (h t, cons h t) nil `]`) := l
 example (a b : nat) : succ a = succ b → a + 2 = b + 2 :=
 begin
   intro H,
-  injection H,
-  rewrite e_1
+  injection H with p,
+  rewrite p
 end
 
 example (A : Type) (n : nat) (v w : vector A n) (a : A) (b : A) :

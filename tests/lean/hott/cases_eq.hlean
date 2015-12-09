@@ -1,4 +1,4 @@
-open eq.ops
+open eq
 
 theorem trans {A : Type} {a b c : A} (h₁ : a = b) (h₂ : b = c) : a = c :=
 begin

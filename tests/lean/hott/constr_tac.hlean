@@ -22,7 +22,7 @@ end
 
 open nat
 
-example (a : nat) : a > 0 → Σ x, x > 0 :=
+example (a : nat) : a > 0 → Σ(x : ℕ), x > 0 :=
 begin
   intro Ha,
   existsi a,

@@ -12,7 +12,7 @@ open nat unit equiv eq
 
 
   definition encode (n m : ℕ) : (n = m) ≃ code n m :=
-  equiv.MK (λp, sorry) -- p ▸ refl n)
+  equiv.MK (λp, p ▸ refl n)
            (match n m with
             | 0 0 := sorry
             end)

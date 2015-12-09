@@ -62,9 +62,6 @@ definition heq.trans : ∀ {A B C : Type} {a : A} {b : B} {c : C}, a == b → b 
 theorem cast_heq : ∀ {A B : Type} (H : A = B) (a : A), cast H a == a
 | A A (eq.refl A) a := ⟨eq.refl A, eq.refl a⟩
 
-definition default (A : Type) [H : inhabited A] : A :=
-inhabited.rec_on H (λ a, a)
-
 definition lem_eq (A : Type) : Type :=
 ∀ (n m : nat) (v : vector A n) (w : vector A m), v == w → n = m
 

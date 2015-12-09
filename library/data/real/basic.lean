@@ -947,7 +947,7 @@ section
   eq_of_forall_abs_sub_le
     (take ε,
       suppose ε > 0,
-      have ε / 2 > 0, from div_pos_of_pos_of_pos this two_pos,
+      have ε / 2 > 0, begin exact div_pos_of_pos_of_pos this two_pos end,
       obtain n (Hn : n⁻¹ ≤ ε / 2), from pnat_bound this,
       show abs (a - b) ≤ ε, from calc
         abs (a - b) ≤ n⁻¹ + n⁻¹     : H₁ n

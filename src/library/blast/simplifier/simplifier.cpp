@@ -137,7 +137,6 @@ class simplifier {
 
     /* Logging */
     unsigned                                     m_num_steps{0};
-    unsigned                                     m_depth{0};
 
     /* Options */
     unsigned                                     m_max_steps{get_simplify_max_steps()};

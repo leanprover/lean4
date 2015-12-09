@@ -30,6 +30,11 @@ Author: Leonardo de Moura
 #include "frontends/lean/update_environment_exception.h"
 #include "frontends/lean/nested_declaration.h"
 
+// We don't display profiling information for declarations that take less than 0.01 secs
+#ifndef LEAN_PROFILE_THRESHOLD
+#define LEAN_PROFILE_THRESHOLD 0.01
+#endif
+
 namespace lean {
 static environment declare_universe(parser & p, environment env, name const & n, bool local) {
     if (local) {
@@ -799,7 +804,7 @@ class definition_cmd_fn {
             std::ostringstream msg;
             display_pos(msg);
             msg << " type checking time for " << m_name;
-            timeit timer(m_p.diagnostic_stream().get_stream(), msg.str().c_str());
+            timeit timer(m_p.diagnostic_stream().get_stream(), msg.str().c_str(), LEAN_PROFILE_THRESHOLD);
             return ::lean::check(m_env, d);
         } else {
             return ::lean::check(m_env, d);
@@ -955,7 +960,7 @@ class definition_cmd_fn {
             std::ostringstream msg;
             display_pos(msg);
             msg << " type elaboration time for " << m_name;
-            timeit timer(m_p.diagnostic_stream().get_stream(), msg.str().c_str());
+            timeit timer(m_p.diagnostic_stream().get_stream(), msg.str().c_str(), LEAN_PROFILE_THRESHOLD);
             return m_p.elaborate_type(e, list<expr>(), clear_pre_info);
         } else {
             return m_p.elaborate_type(e, list<expr>(), clear_pre_info);
@@ -968,7 +973,7 @@ class definition_cmd_fn {
             std::ostringstream msg;
             display_pos(msg);
             msg << " elaboration time for " << m_name;
-            timeit timer(m_p.diagnostic_stream().get_stream(), msg.str().c_str());
+            timeit timer(m_p.diagnostic_stream().get_stream(), msg.str().c_str(), LEAN_PROFILE_THRESHOLD);
             return m_p.elaborate_definition(def_name, type, value);
         } else {
             return m_p.elaborate_definition(def_name, type, value);

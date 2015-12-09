@@ -595,6 +595,19 @@ static void print_no_patterns(parser & p) {
     out << "\n";
 }
 
+static void print_aliases(parser const & p) {
+    io_state_stream out = p.regular_stream();
+    for_each_expr_alias(p.env(), [&](name const & n, list<name> const & as) {
+            out << n << " -> {";
+            bool first = true;
+            for (name const & a : as) {
+                if (first) first = false; else out << ", ";
+                out << a;
+            }
+            out << "}\n";
+        });
+}
+
 environment print_cmd(parser & p) {
     flycheck_information info(p.regular_stream());
     if (info.enabled()) {
@@ -676,6 +689,9 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_prefix_tk())) {
         p.next();
         print_prefix(p);
+    } else if (p.curr_is_token_or_id(get_aliases_tk())) {
+        p.next();
+        print_aliases(p);
     } else if (p.curr_is_token_or_id(get_coercions_tk())) {
         p.next();
         optional<name> C;

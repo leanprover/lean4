@@ -3,6 +3,7 @@
 // DO NOT EDIT, automatically generated file, generator scripts/gen_tokens_cpp.py
 #include "util/name.h"
 namespace lean{
+static name const * g_aliases_tk = nullptr;
 static name const * g_period_tk = nullptr;
 static name const * g_placeholder_tk = nullptr;
 static name const * g_colon_tk = nullptr;
@@ -163,6 +164,7 @@ static name const * g_this_tk = nullptr;
 static name const * g_noncomputable_tk = nullptr;
 static name const * g_theory_tk = nullptr;
 void initialize_tokens() {
+    g_aliases_tk = new name{"aliases"};
     g_period_tk = new name{"."};
     g_placeholder_tk = new name{"_"};
     g_colon_tk = new name{":"};
@@ -324,6 +326,7 @@ void initialize_tokens() {
     g_theory_tk = new name{"theory"};
 }
 void finalize_tokens() {
+    delete g_aliases_tk;
     delete g_period_tk;
     delete g_placeholder_tk;
     delete g_colon_tk;
@@ -484,6 +487,7 @@ void finalize_tokens() {
     delete g_noncomputable_tk;
     delete g_theory_tk;
 }
+name const & get_aliases_tk() { return *g_aliases_tk; }
 name const & get_period_tk() { return *g_period_tk; }
 name const & get_placeholder_tk() { return *g_placeholder_tk; }
 name const & get_colon_tk() { return *g_colon_tk; }

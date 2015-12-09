@@ -324,6 +324,9 @@ public:
     /** \brief Return (active) hypotheses whose head symbol is equal to target or it is the negation of */
     list<hypothesis_idx> get_head_related() const;
 
+    /** \brief If there is an hypothesis with the given type (return it), otherwise return none */
+    optional<hypothesis_idx> contains_hypothesis(expr const & type) const;
+
     /************************
        Abstracting hypotheses
     *************************/

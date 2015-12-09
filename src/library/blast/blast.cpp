@@ -1157,10 +1157,12 @@ void initialize_blast() {
     register_trace_class_alias("app_builder", name({"blast", "event"}));
     register_trace_class_alias(name({"simplifier", "failure"}), name({"blast", "event"}));
 
+    register_trace_class_alias(name({"cc", "propagation"}), "blast");
+
     register_trace_class_alias("blast", "blast_detailed");
     register_trace_class_alias("app_builder", "blast_detailed");
     register_trace_class_alias(name({"simplifier", "failure"}), "blast_detailed");
-    register_trace_class_alias(name({"congruence_closure", "merge"}), "blast_detailed");
+    register_trace_class_alias(name({"cc", "merge"}), "blast_detailed");
 
     blast::g_prefix                  = new name(name::mk_internal_unique_name());
     blast::g_tmp_prefix              = new name(name::mk_internal_unique_name());

@@ -117,7 +117,7 @@ class congruence_closure {
 
     void register_to_propagate(expr const & e);
     void internalize_core(name const & R, expr const & e, bool toplevel, bool to_propagate);
-    void process_todo();
+    void process_todo(optional<expr> const & added_prop);
 
     int compare_symm(name const & R, expr lhs1, expr rhs1, expr lhs2, expr rhs2) const;
     int compare_root(name const & R, expr e1, expr e2) const;
@@ -136,8 +136,8 @@ class congruence_closure {
     void update_mt(name const & R, expr const & e);
     expr mk_iff_false_intro(expr const & proof);
     expr mk_iff_true_intro(expr const & proof);
-    void add_eqv_step(name const & R, expr e1, expr e2, expr const & H);
-    void add_eqv_core(name const & R, expr const & lhs, expr const & rhs, expr const & H);
+    void add_eqv_step(name const & R, expr e1, expr e2, expr const & H, optional<expr> const & added_prop);
+    void add_eqv_core(name const & R, expr const & lhs, expr const & rhs, expr const & H, optional<expr> const & added_prop);
 
     expr mk_congr_proof_core(name const & R, expr const & lhs, expr const & rhs) const;
     expr mk_congr_proof(name const & R, expr const & lhs, expr const & rhs) const;

@@ -756,6 +756,15 @@ list<hypothesis_idx> state::get_head_related() const {
         return list<hypothesis_idx>();
 }
 
+optional<hypothesis_idx> state::contains_hypothesis(expr const & type) const {
+    for (auto hidx : get_occurrences_of(head_index(type))) {
+        hypothesis const & h = get_hypothesis_decl(hidx);
+        if (h.get_type() == type)
+            return optional<hypothesis_idx>(hidx);
+    }
+    return optional<hypothesis_idx>();
+}
+
 branch_extension * state::get_extension_core(unsigned i) {
     branch_extension * ext = m_branch.m_extensions[i];
     if (ext && ext->get_rc() > 1) {
@@ -844,6 +853,7 @@ void state::activate_hypothesis(hypothesis_idx hidx) {
     lean_trace_search(
         hypothesis const & h = get_hypothesis_decl(hidx);
         tout() << "activate " << h.get_name() << " : " << ppb(h.get_type()) << "\n";);
+    lean_assert(!get_hypothesis_decl(hidx).is_dead());
     m_branch.m_active.insert(hidx);
     update_indices(hidx);
 }

@@ -20,7 +20,8 @@ action_result strategy_fn::activate_hypothesis() {
     auto hidx = curr_state().select_hypothesis_to_activate();
     if (!hidx) return action_result::failed();
     auto r    = hypothesis_pre_activation(*hidx);
-    if (!solved(r) && !failed(r)) {
+    // The pre-activation may delete the hypothesis (e.g., subsumption)
+    if (!solved(r) && !failed(r) && !curr_state().get_hypothesis_decl(*hidx).is_dead()) {
         curr_state().activate_hypothesis(*hidx);
         return hypothesis_post_activation(*hidx);
     } else {

@@ -632,7 +632,7 @@ void congruence_closure::internalize(name const & R, expr const & e, bool toplev
     flet<congruence_closure *> set_cc(g_cc, this);
     bool to_propagate = false; // We don't need to mark units for propagation
     internalize_core(R, e, toplevel, to_propagate);
-    process_todo();
+    process_todo(none_expr());
 }
 
 void congruence_closure::internalize(expr const & e) {
@@ -716,7 +716,9 @@ static bool is_true_or_false(expr const & e) {
     return is_constant(e, get_true_name()) || is_constant(e, get_false_name());
 }
 
-void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr const & H) {
+/* Remark: If added_prop is not none, then it contains the proposition provided to ::add.
+   We use it here to avoid an unnecessary propagation back to the current_state. */
+void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr const & H, optional<expr> const & added_prop) {
     auto n1 = m_entries.find(eqc_key(R, e1));
     auto n2 = m_entries.find(eqc_key(R, e2));
     if (!n1 || !n2)
@@ -834,36 +836,40 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
         for (expr const & e : to_propagate) {
             lean_assert(R == get_iff_name());
             expr type = e;
-            expr pr   = *get_eqv_proof(R, e, e2_root);
-            if (is_true) {
-                pr = b.mk_of_iff_true(pr);
-            } else {
-                type = b.mk_not(e);
-                pr   = b.mk_not_of_iff_false(pr);
+            if ((!added_prop || *added_prop != type) && !s.contains_hypothesis(type)) {
+                expr pr   = *get_eqv_proof(R, e, e2_root);
+                if (is_true) {
+                    pr = b.mk_of_iff_true(pr);
+                } else {
+                    type = b.mk_not(e);
+                    pr   = b.mk_not_of_iff_false(pr);
+                }
+                expr H = s.mk_hypothesis(type, pr);
+                lean_trace(name({"cc", "propagation"}),
+                           tout() << ppb(H) << " : " << ppb(infer_type(H)) << "\n";);
             }
-            s.mk_hypothesis(type, pr);
         }
     }
 
     update_mt(R, e2_root);
 
-    lean_trace(name({"congruence_closure", "merge"}), tout() << ppb(e1) << " [" << R << "] " << ppb(e2) << "\n";);
-    lean_trace(name({"congruence_closure", "state"}), trace(););
+    lean_trace(name({"cc", "merge"}), tout() << ppb(e1) << " [" << R << "] " << ppb(e2) << "\n";);
+    lean_trace(name({"cc", "state"}), trace(););
 }
 
-void congruence_closure::process_todo() {
+void congruence_closure::process_todo(optional<expr> const & added_prop) {
     auto & todo = get_todo();
     while (!todo.empty()) {
         name R; expr lhs, rhs, H;
         std::tie(R, lhs, rhs, H) = todo.back();
         todo.pop_back();
-        add_eqv_step(R, lhs, rhs, H);
+        add_eqv_step(R, lhs, rhs, H, added_prop);
     }
 }
 
-void congruence_closure::add_eqv_core(name const & R, expr const & lhs, expr const & rhs, expr const & H) {
+void congruence_closure::add_eqv_core(name const & R, expr const & lhs, expr const & rhs, expr const & H, optional<expr> const & added_prop) {
     push_todo(R, lhs, rhs, H);
-    process_todo();
+    process_todo(added_prop);
 }
 
 void congruence_closure::add_eqv(name const & R, expr const & lhs, expr const & rhs, expr const & H) {
@@ -874,7 +880,7 @@ void congruence_closure::add_eqv(name const & R, expr const & lhs, expr const & 
     bool toplevel = false; bool to_propagate = false;
     internalize_core(R, lhs, toplevel, to_propagate);
     internalize_core(R, rhs, toplevel, to_propagate);
-    add_eqv_core(R, lhs, rhs, H);
+    add_eqv_core(R, lhs, rhs, H, none_expr());
 }
 
 void congruence_closure::add(hypothesis_idx hidx) {
@@ -911,20 +917,20 @@ void congruence_closure::add(expr const & type, expr const & proof) {
         if (is_neg) {
             bool toplevel = true; bool to_propagate = false;
             internalize_core(get_iff_name(), p, toplevel, to_propagate);
-            add_eqv_core(get_iff_name(), p, mk_false(), mk_iff_false_intro(proof));
+            add_eqv_core(get_iff_name(), p, mk_false(), mk_iff_false_intro(proof), some_expr(type));
         } else {
             bool toplevel = false; bool to_propagate = false;
             internalize_core(R, lhs, toplevel, to_propagate);
             internalize_core(R, rhs, toplevel, to_propagate);
-            add_eqv_core(R, lhs, rhs, proof);
+            add_eqv_core(R, lhs, rhs, proof, some_expr(type));
         }
     } else if (is_prop(p)) {
         bool toplevel = true; bool to_propagate = false;
         internalize_core(get_iff_name(), p, toplevel, to_propagate);
         if (is_neg) {
-            add_eqv_core(get_iff_name(), p, mk_false(), mk_iff_false_intro(proof));
+            add_eqv_core(get_iff_name(), p, mk_false(), mk_iff_false_intro(proof), some_expr(type));
         } else {
-            add_eqv_core(get_iff_name(), p, mk_true(), mk_iff_true_intro(proof));
+            add_eqv_core(get_iff_name(), p, mk_true(), mk_iff_true_intro(proof), some_expr(type));
         }
     }
 }
@@ -1375,9 +1381,10 @@ congruence_closure & get_cc() {
 }
 
 void initialize_congruence_closure() {
-    register_trace_class("congruence_closure");
-    register_trace_class({"congruence_closure", "state"});
-    register_trace_class({"congruence_closure", "merge"});
+    register_trace_class("cc");
+    register_trace_class({"cc", "state"});
+    register_trace_class({"cc", "propagation"});
+    register_trace_class({"cc", "merge"});
     g_ext_id = register_branch_extension(new cc_branch_extension());
     name prefix = name::mk_internal_unique_name();
     g_congr_mark    = new expr(mk_constant(name(prefix, "[congruence]")));

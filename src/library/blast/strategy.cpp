@@ -93,6 +93,9 @@ optional<expr> strategy_fn::search() {
             r = next_action();
             break;
         }
+        lean_trace(name({"blast", "search"}),
+                   tout() << "depth [" << curr_state().get_proof_depth() << "], #choice: "
+                   << get_num_choice_points() << "\n";);
         trace_curr_state_if(r);
     }
 }

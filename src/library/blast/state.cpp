@@ -6,12 +6,14 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <algorithm>
+#include "library/trace.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
 #include "library/replace_visitor.h"
 #include "library/blast/util.h"
+#include "library/blast/trace.h"
 #include "library/blast/blast.h"
 #include "library/blast/state.h"
 
@@ -840,6 +842,9 @@ optional<unsigned> state::select_hypothesis_to_activate() {
 }
 
 void state::activate_hypothesis(hypothesis_idx hidx) {
+    lean_trace(name({"blast", "search"}),
+               hypothesis const & h = get_hypothesis_decl(hidx);
+               tout() << "activate: " << h.get_name() << " : " << ppb(h.get_type()) << "\n";);
     m_branch.m_active.insert(hidx);
     update_indices(hidx);
 }

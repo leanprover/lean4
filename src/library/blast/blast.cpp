@@ -1148,7 +1148,7 @@ optional<expr> blast_goal(environment const & env, io_state const & ios, list<na
 void initialize_blast() {
     register_trace_class("blast");
     register_trace_class(name{"blast_detailed"});
-    register_trace_class(name({"blast", "event"}));
+    register_trace_class(name{"blast", "event"});
     register_trace_class(name{"blast", "state"});
     register_trace_class(name{"blast", "action"});
     register_trace_class(name{"blast", "search"});

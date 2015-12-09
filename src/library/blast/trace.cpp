@@ -14,9 +14,7 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 void trace_curr_state() {
-    lean_trace(name({"blast", "state"}),
-               tout() << "[" << curr_state().get_proof_depth() << "], #choice: " << get_num_choice_points() << "\n";
-               curr_state().display(tout()););
+    lean_trace(name({"blast", "state"}), tout() << "\n"; curr_state().display(tout()););
 }
 
 void trace_search(char const * msg) {

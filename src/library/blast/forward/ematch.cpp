@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "util/interrupt.h"
-#include "library/trace.h"
 #include "library/constants.h"
 #include "library/idx_metavar.h"
 #include "library/head_map.h"
@@ -305,7 +304,7 @@ struct ematch_fn {
         if (!m_new_instances) {
             trace_action("ematch");
         }
-        lean_trace(name({"blast", "ematch"}), tout() << "ematch_instance: " << ppb(new_inst) << "\n";);
+        lean_trace(name({"blast", "ematch"}), tout() << "instance: " << ppb(new_inst) << "\n";);
         m_new_instances = true;
         expr new_proof = m_ctx->instantiate_uvars_mvars(lemma.m_proof);
         m_ext.m_instances.insert(new_inst);

@@ -14,8 +14,6 @@ struct config {
     unsigned                   m_max_depth;
     unsigned                   m_init_depth;
     unsigned                   m_inc_depth;
-    bool                       m_trace;
-    bool                       m_trace_pre;
     bool                       m_subst;
     bool                       m_simp;
     bool                       m_recursor;

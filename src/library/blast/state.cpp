@@ -277,7 +277,7 @@ goal state::to_goal() const {
     return goal(new_meta, new_target);
 }
 
-void state::display_active(output_channel & out) const {
+void state::display_active(std::ostream & out) const {
     out << "active := {";
     bool first = true;
     m_branch.m_active.for_each([&](hypothesis_idx hidx) {
@@ -287,11 +287,16 @@ void state::display_active(output_channel & out) const {
     out << "}\n";
 }
 
+void state::display(io_state_stream const & ios) const {
+    ios << mk_pair(to_goal().pp(ios.get_formatter()), ios.get_options()) << "\n";
+    display_active(ios.get_stream());
+}
+
 void state::display(environment const & env, io_state const & ios) const {
     formatter fmt = ios.get_formatter_factory()(env, ios.get_options());
     auto & out = ios.get_diagnostic_channel();
     out << mk_pair(to_goal().pp(fmt), ios.get_options()) << "\n";
-    display_active(out);
+    display_active(out.get_stream());
 }
 
 bool state::has_assigned_uref(level const & l) const {

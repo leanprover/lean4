@@ -36,9 +36,9 @@ public:
 #define LEAN_LABEL_(a) LEAN_MERGE_(unique_name_, a)
 #define LEAN_UNIQUE_NAME LEAN_LABEL_(__LINE__)
 
-#define lean_trace_inc_depth(CName)                             \
-scope_trace_inc_depth LEAN_UNIQUE_NAME;                         \
-if (is_trace_enabled() && is_trace_class_enabled(name(CName)))  \
+#define lean_trace_inc_depth(CName)                                     \
+scope_trace_inc_depth LEAN_UNIQUE_NAME;                                 \
+if (::lean::is_trace_enabled() && ::lean::is_trace_class_enabled(name(CName))) \
     LEAN_UNIQUE_NAME.activate();
 
 /* Temporarily set an option if it is not already set in the trace environment. */
@@ -55,6 +55,14 @@ public:
 if (lean_is_trace_enabled(CName)) {                     \
     LEAN_UNIQUE_NAME.init(Opt, Val);                    \
 }
+
+/* Helper object for temporarily silencing trace messages */
+class scope_trace_silent {
+    io_state * m_old_ios{nullptr};
+public:
+    scope_trace_silent(bool flag);
+    ~scope_trace_silent();
+};
 
 struct tdepth {};
 struct tclass { name m_cls; tclass(name const & c):m_cls(c) {} };

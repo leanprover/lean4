@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/trace.h"
 #include "library/blast/trace.h"
 #include "library/blast/options.h"
 #include "library/blast/choice_point.h"
@@ -57,7 +58,6 @@ class preprocess_strategy_fn : public strategy_fn {
         }
         if (get_num_choice_points() > get_initial_num_choice_points())
             throw exception("invalid blast preprocessing action, preprocessing actions should not create choice points");
-        scope_trace s(get_config().m_trace);
         if (optional<expr> pf = m_main()) { return action_result::solved(*pf); }
         return action_result::failed();
     }
@@ -67,10 +67,10 @@ public:
 };
 
 strategy preprocess_and_then(strategy const & S) {
-    return [=]() { scope_trace s(get_config().m_trace_pre); return preprocess_strategy_fn(S, false)(); }; // NOLINT
+    return [=]() { return preprocess_strategy_fn(S, false)(); }; // NOLINT
 }
 
 strategy basic_preprocess_and_then(strategy const & S) {
-    return [=]() { scope_trace s(get_config().m_trace_pre); return preprocess_strategy_fn(S, true)(); }; // NOLINT
+    return [=]() { return preprocess_strategy_fn(S, true)(); }; // NOLINT
 }
 }}

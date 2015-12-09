@@ -1045,7 +1045,6 @@ struct scope_debug::imp {
     scope_blastenv           m_scope2;
     scope_congruence_closure m_scope3;
     scope_config             m_scope4;
-    scope_trace              m_scope5;
     imp(environment const & env, io_state const & ios):
         m_scope1(true),
         m_benv(env, ios, list<name>(), list<name>()),
@@ -1144,13 +1143,15 @@ optional<expr> blast_goal(environment const & env, io_state const & ios, list<na
     blast::scope_blastenv           scope2(b);
     blast::scope_congruence_closure scope3;
     blast::scope_config             scope4(ios.get_options());
-    blast::scope_trace              scope5;
     return b(g);
 }
 void initialize_blast() {
     register_trace_class("blast");
     register_trace_class(name{"blast_detailed"});
     register_trace_class(name({"blast", "event"}));
+    register_trace_class(name{"blast", "state"});
+    register_trace_class(name{"blast", "action"});
+    register_trace_class(name{"blast", "search"});
 
     register_trace_class_alias("app_builder", name({"blast", "event"}));
     register_trace_class_alias(name({"simplifier", "failure"}), name({"blast", "event"}));

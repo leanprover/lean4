@@ -206,7 +206,7 @@ class state {
     void del_hypotheses(buffer<hypothesis_idx> const & to_delete, hypothesis_idx_set const & to_delete_set);
     bool safe_to_delete(buffer<hypothesis_idx> const & to_delete);
 
-    void display_active(output_channel & out) const;
+    void display_active(std::ostream & out) const;
 
     branch_extension * get_extension_core(unsigned i);
 
@@ -463,6 +463,7 @@ public:
         and types can be inferred by pretty printer. */
     expr to_kernel_expr(expr const & e) const;
 
+    void display(io_state_stream const & ios) const;
     void display(environment const & env, io_state const & ios) const;
 
     #ifdef LEAN_DEBUG

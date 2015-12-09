@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "util/interrupt.h"
+#include "library/trace.h"
 #include "library/constants.h"
 #include "library/idx_metavar.h"
 #include "library/head_map.h"
@@ -122,6 +123,7 @@ struct noop_proof_step_cell : public proof_step_cell {
 
 void initialize_ematch() {
     g_ext_id = register_branch_extension(new ematch_branch_extension());
+    register_trace_class(name{"blast", "ematch"});
 }
 
 void finalize_ematch() {}
@@ -303,9 +305,7 @@ struct ematch_fn {
         if (!m_new_instances) {
             trace_action("ematch");
         }
-        if (is_trace_enabled()) {
-            diagnostic(env(), ios()) << "ematch_instance: " << ppb(new_inst) << "\n";
-        }
+        lean_trace(name({"blast", "ematch"}), tout() << "ematch_instance: " << ppb(new_inst) << "\n";);
         m_new_instances = true;
         expr new_proof = m_ctx->instantiate_uvars_mvars(lemma.m_proof);
         m_ext.m_instances.insert(new_inst);
@@ -390,7 +390,6 @@ struct ematch_fn {
         m_cc.inc_gmt();
         if (m_new_instances) {
             curr_state().push_proof_step(new noop_proof_step_cell());
-            trace("");
             return action_result::new_branch();
         } else {
             return action_result::failed();

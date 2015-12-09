@@ -58,16 +58,21 @@ bool is_trace_class_enabled(name const & n) {
         return false;
     if (is_trace_class_enabled_core(n))
         return true;
-    if (auto s = g_trace_aliases->find(n)) {
-        bool found = false;
-        s->for_each([&](name const & alias) {
-                if (!found && is_trace_class_enabled_core(alias))
-                    found = true;
-            });
-        if (found)
-            return true;
+    auto it = n;
+    while (true) {
+        if (auto s = g_trace_aliases->find(it)) {
+            bool found = false;
+            s->for_each([&](name const & alias) {
+                    if (!found && is_trace_class_enabled_core(alias))
+                        found = true;
+                });
+            if (found)
+                return true;
+        }
+        if (it.is_atomic())
+            return false;
+        it = it.get_prefix();
     }
-    return false;
 }
 
 scope_trace_env::scope_trace_env(environment const & env, io_state const & ios) {
@@ -128,6 +133,16 @@ struct silent_ios_helper {
 };
 
 MK_THREAD_LOCAL_GET_DEF(silent_ios_helper, get_silent_ios_helper);
+
+scope_trace_silent::scope_trace_silent(bool flag) {
+    m_old_ios = g_ios;
+    if (flag)
+        g_ios     = &get_silent_ios_helper().m_ios;
+}
+
+scope_trace_silent::~scope_trace_silent() {
+    g_ios     = m_old_ios;
+}
 
 io_state_stream tout() {
     if (g_env) {

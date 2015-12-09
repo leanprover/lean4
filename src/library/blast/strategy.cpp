@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/interrupt.h"
+#include "library/trace.h"
 #include "library/blast/strategy.h"
 #include "library/blast/choice_point.h"
 #include "library/blast/blast.h"
@@ -33,7 +34,7 @@ action_result strategy_fn::next_branch(expr pr) {
         action_result r  = s.resolve(unfold_hypotheses_ge(curr_state(), pr));
         switch (r.get_kind()) {
         case action_result::Failed:
-            trace(">>> next-branch FAILED <<<");
+            trace_search(">>> next-branch FAILED <<<");
             return r;
         case action_result::Solved:
             pr = r.get_proof();
@@ -56,9 +57,7 @@ optional<expr> strategy_fn::search() {
     m_init_num_choices        = get_num_choice_points();
     unsigned init_proof_depth = curr_state().get_proof_depth();
     unsigned max_depth        = get_config().m_max_depth;
-    if (is_trace_enabled()) {
-        ios().get_diagnostic_channel() << "* Search upto depth " << max_depth << "\n\n";
-    }
+    lean_trace(name({"blast", "search"}), tout() << "search upto depth " << max_depth << "\n";);
     trace_curr_state();
     action_result r = next_action();
     trace_curr_state_if(r);
@@ -66,7 +65,7 @@ optional<expr> strategy_fn::search() {
         check_system("blast");
         lean_assert(curr_state().check_invariant());
         if (curr_state().get_proof_depth() > max_depth) {
-            trace(">>> maximum search depth reached <<<");
+            trace_search(">>> maximum search depth reached <<<");
             r = action_result::failed();
         }
         switch (r.get_kind()) {
@@ -74,21 +73,21 @@ optional<expr> strategy_fn::search() {
             r = next_choice_point(m_init_num_choices);
             if (failed(r)) {
                 // all choice points failed...
-                trace(">>> proof not found, no choice points left <<<");
+                trace_search(">>> proof not found, no choice points left <<<");
                 if (show_failure())
                     display_curr_state();
                 return none_expr();
             }
-            trace("* next choice point");
+            trace_search("* next choice point");
             break;
         case action_result::Solved:
             r = next_branch(r.get_proof());
             if (r.get_kind() == action_result::Solved) {
                 // all branches have been solved
-                trace("* found proof");
+                trace_search("* found proof");
                 return some_expr(unfold_hypotheses_ge(curr_state(), r.get_proof(), init_proof_depth));
             }
-            trace("* next branch");
+            trace_search("* next branch");
             break;
         case action_result::NewBranch:
             r = next_action();

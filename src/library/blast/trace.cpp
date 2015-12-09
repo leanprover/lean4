@@ -56,6 +56,21 @@ void trace_curr_state() {
     }
 }
 
+typedef pair<unsigned, unsigned> unsigned_pair;
+MK_THREAD_LOCAL_GET(unsigned_pair, get_depth_num_choices, mk_pair(-1, -1));
+
+void trace_depth_nchoices() {
+    if (!lean_is_trace_enabled(name({"blast", "search"})))
+        return;
+    auto & p = get_depth_num_choices();
+    if (p.first == curr_state().get_proof_depth() &&
+        p.second == get_num_choice_points())
+        return;
+    p = mk_pair(curr_state().get_proof_depth(), get_num_choice_points());
+    lean_trace(name({"blast", "search"}),
+               tout() << "depth: " << p.first << ", #choice: " << p.second << "\n";);
+}
+
 void trace_search(char const * msg) {
     lean_trace(name({"blast", "search"}), tout() << msg << "\n";);
 }

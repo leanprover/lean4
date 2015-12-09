@@ -1,6 +1,4 @@
-set_option blast.init_depth 10
-set_option blast.inc_depth 100
-set_option blast.trace true
+set_option trace.blast true
 
 example (p q : Prop) : p ∨ q → q ∨ p :=
 by blast

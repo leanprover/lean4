@@ -602,7 +602,7 @@ result simplifier::rewrite(expr const & e, simp_rule const & sr) {
                expr new_lhs = tmp_tctx->instantiate_uvars_mvars(sr.get_lhs());
                expr new_rhs = tmp_tctx->instantiate_uvars_mvars(sr.get_rhs());
                tout() << "(" << sr.get_id() << ") "
-               << "[" << ppb(new_lhs) << " =?= " << ppb(new_rhs) << "]\n";);
+               << "[" << ppb(new_lhs) << " --> " << ppb(new_rhs) << "]\n";);
 
     if (!instantiate_emetas(tmp_tctx, sr.get_num_emeta(), sr.get_emetas(), sr.get_instances())) return result(e);
 

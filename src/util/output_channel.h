@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include <fstream>
 #include <sstream>
 #include <string>
-
+#include "util/null_ostream.h"
 namespace lean {
 /**
     \brief Wrapper for std::ostream.
@@ -51,6 +51,13 @@ public:
     virtual ~string_output_channel() {}
     virtual std::ostream & get_stream() { return m_out; }
     std::string str() const { return m_out.str(); }
+};
+class null_output_channel : public output_channel {
+    null_ostream m_out;
+public:
+    null_output_channel() {}
+    virtual ~null_output_channel() {}
+    virtual std::ostream & get_stream() { return m_out; }
 };
 template<typename T>
 output_channel & operator<<(output_channel & out, T const & v) {

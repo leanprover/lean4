@@ -20,7 +20,8 @@ LEAN_THREAD_PTR(io_state,    g_ios);
 LEAN_THREAD_VALUE(unsigned,  g_depth, 0);
 
 void register_trace_class(name const & n) {
-    register_option(name("trace") + n, BoolOption, "false", "(trace) enable/disable tracing for the given module and submodules");
+    register_option(name("trace") + n, BoolOption, "false",
+                    "(trace) enable/disable tracing for the given module and submodules");
     g_trace_classes->insert(n);
 }
 
@@ -118,11 +119,21 @@ scope_trace_init_bool_option::~scope_trace_init_bool_option() {
     }
 }
 
+struct silent_ios_helper {
+    std::shared_ptr<output_channel> m_out;
+    io_state                        m_ios;
+    silent_ios_helper():
+        m_out(new null_output_channel()),
+        m_ios(get_dummy_ios(), m_out, m_out) {}
+};
+
+MK_THREAD_LOCAL_GET_DEF(silent_ios_helper, get_silent_ios_helper);
+
 io_state_stream tout() {
     if (g_env) {
         return diagnostic(*g_env, *g_ios);
     } else {
-        return diagnostic(get_dummy_env(), get_dummy_ios());
+        return diagnostic(get_dummy_env(), get_silent_ios_helper().m_ios);
     }
 }
 

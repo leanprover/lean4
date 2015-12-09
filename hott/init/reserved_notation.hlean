@@ -22,8 +22,8 @@ structure has_dvd.{l} [class] (A : Type.{l}) : Type.{l+1} := (dvd : A → A → 
 structure has_le.{l}  [class] (A : Type.{l}) : Type.{l+1} := (le : A → A → Type.{l})
 structure has_lt.{l}  [class] (A : Type.{l}) : Type.{l+1} := (lt : A → A → Type.{l})
 
-definition zero [reducible] {A : Type} [s : has_zero A] : A:= has_zero.zero A
-definition one              {A : Type} [s : has_one A]  : A            := has_one.one A
+definition zero [reducible] {A : Type} [s : has_zero A] : A            := has_zero.zero A
+definition one  [reducible] {A : Type} [s : has_one A]  : A            := has_one.one A
 definition add              {A : Type} [s : has_add A]  : A → A → A    := has_add.add
 definition mul              {A : Type} [s : has_mul A]  : A → A → A    := has_mul.mul
 definition sub              {A : Type} [s : has_sub A]  : A → A → A    := has_sub.sub

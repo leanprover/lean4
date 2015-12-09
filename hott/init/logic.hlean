@@ -42,6 +42,11 @@ empty.rec _ H
 infix = := eq
 definition rfl {A : Type} {a : A} := eq.refl a
 
+/-
+  These notions are here only to make porting from the standard library easier.
+  They are defined again in init/path.hlean, and those definitions will be used
+  throughout the HoTT-library. That's why the notation for eq below is only local.
+-/
 namespace eq
   variables {A : Type} {a b c : A}
 

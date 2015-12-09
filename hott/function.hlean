@@ -37,19 +37,6 @@ structure is_conditionally_constant [class] (f : A → B) :=
   (g : ∥A∥ → B)
   (eq : Π(a : A), f a = g (tr a))
 
--- structure is_retract (g : A → B) :=
---   (X Y : Type)
---   (f : X → Y)
---   (s : A → X)
---   (r : X → A)
---   (s' : B → Y)
---   (r' : Y → B)
---   (R : Πa, r (s a) = a)
---   (R' : Πb, r' (s' b) = b)
---   (L : Πa, f (s a) = s' (g a))
---   (K : Πx, g (r x) = r' (f x))
---   (H : Πa, square (K (s a)) (R' (g a))⁻¹ (ap g (R a)) (ap r' (L a)))
-
 namespace function
 
   abbreviation sect          [unfold 4] := @is_retraction.sect
@@ -198,40 +185,7 @@ namespace function
   is_constant.mk b (λv, by induction v with a p;exact p)
 
   definition is_embedding_of_is_hprop_fiber [H : Π(b : B), is_hprop (fiber f b)] : is_embedding f :=
-  begin
-    intro a a',
-    fapply adjointify,
-    { intro p, exact ap point (is_hprop.elim (fiber.mk a p) (fiber.mk a' idp))},
-    { exact abstract begin
-      intro p, rewrite [-ap_compose],
-      apply @is_constant.eq _ _ _ (is_constant_ap (f ∘ point) (fiber.mk a p) (fiber.mk a' idp))
-      end end },
-    { intro p, induction p, rewrite [▸*,is_hprop_elim_self]},
-  end
-
-  -- definition is_embedding_of_is_section_inv' [H : is_section f] {a : A} {b : B} (p : f a = b) :
-  --   a = retr f b :=
-  -- (left_inverse f a)⁻¹ ⬝ ap (retr f) p
-
-  -- definition is_embedding_of_is_section_inv [H : is_section f] {a a' : A} (p : f a = f a') :
-  --   a = a' :=
-  -- is_embedding_of_is_section_inv' f p ⬝ left_inverse f a'
-
-  -- definition is_embedding_of_is_section [constructor] [instance] [H : is_section f]
-  --   : is_embedding f :=
-  -- begin
-  --   intro a a',
-  --   fapply adjointify,
-  --   { exact is_embedding_of_is_section_inv f},
-  --   { exact abstract begin
-  --     assert H2 : Π {b : B} (p : f a = b), ap f (is_embedding_of_is_section_inv' f p) = p ⬝ _,
-  --     { }
-  --           -- intro p, rewrite [+ap_con,-ap_compose],
-  --           -- check_expr natural_square (left_inverse f),
-  --           -- induction H with g q, esimp,
-  --           end end },
-  --   { intro p, induction p, esimp, apply con.left_inv},
-  -- end
+  is_embedding_of_is_hprop_fun _
 
   definition is_retraction_of_is_equiv [instance] [H : is_equiv f] : is_retraction f :=
   is_retraction.mk f⁻¹ (right_inv f)
@@ -303,6 +257,8 @@ namespace function
       is_surjective_of_is_equiv
       is_equiv_equiv_is_embedding_times_is_surjective
     are in types.trunc
+
+    See types.arrow_2 for retractions
   -/
 
 end function

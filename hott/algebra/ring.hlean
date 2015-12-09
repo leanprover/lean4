@@ -328,7 +328,7 @@ end
 structure no_zero_divisors [class] (A : Type) extends has_mul A, has_zero A :=
 (eq_zero_sum_eq_zero_of_mul_eq_zero : Πa b, mul a b = zero → a = zero ⊎ b = zero)
 
-theorem eq_zero_sum_eq_zero_of_mul_eq_zero {A : Type} [s : no_zero_divisors A] {a b : A}
+definition eq_zero_sum_eq_zero_of_mul_eq_zero {A : Type} [s : no_zero_divisors A] {a b : A}
     (H : a * b = 0) :
   a = 0 ⊎ b = 0 := !no_zero_divisors.eq_zero_sum_eq_zero_of_mul_eq_zero H
 

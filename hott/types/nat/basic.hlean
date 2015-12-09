@@ -103,48 +103,49 @@ general m
 
 /- addition -/
 
-protected theorem add_zero [simp] (n : ℕ) : n + 0 = n :=
+protected definition add_zero [simp] (n : ℕ) : n + 0 = n :=
 rfl
 
-theorem add_succ [simp] (n m : ℕ) : n + succ m = succ (n + m) :=
+definition add_succ [simp] (n m : ℕ) : n + succ m = succ (n + m) :=
 rfl
 
-protected theorem zero_add [simp] (n : ℕ) : 0 + n = n :=
-nat.rec_on n
-    !nat.add_zero
-    (take m IH, show 0 + succ m = succ m, from
-      calc
-        0 + succ m = succ (0 + m) : add_succ
-               ... = succ m       : IH)
+protected definition zero_add [simp] (n : ℕ) : 0 + n = n :=
+begin
+  induction n with n IH,
+    reflexivity,
+    exact ap succ IH
+end
 
-theorem succ_add [simp] (n m : ℕ) : (succ n) + m = succ (n + m) :=
-nat.rec_on m
-    (!nat.add_zero ▸ !nat.add_zero)
-    (take k IH, calc
-      succ n + succ k = succ (succ n + k)    : add_succ
-                  ... = succ (succ (n + k))  : IH
-                  ... = succ (n + succ k)    : add_succ)
+definition succ_add [simp] (n m : ℕ) : (succ n) + m = succ (n + m) :=
+begin
+  induction m with m IH,
+    reflexivity,
+    exact ap succ IH
+end
 
-protected theorem add_comm [simp] (n m : ℕ) : n + m = m + n :=
-nat.rec_on m
-    (by rewrite [nat.add_zero, nat.zero_add])
-    (take k IH, calc
-        n + succ k = succ (n+k)   : add_succ
-               ... = succ (k + n) : IH
-               ... = succ k + n   : succ_add)
+protected definition add_comm [simp] (n m : ℕ) : n + m = m + n :=
+begin
+  induction n with n IH,
+  { apply nat.zero_add},
+  { exact !succ_add ⬝ ap succ IH}
+end
 
-theorem succ_add_eq_succ_add (n m : ℕ) : succ n + m = n + succ m :=
-!succ_add ⬝ !add_succ⁻¹
+protected definition add_add (n l k : ℕ) : n + l + k = n + (k + l) :=
+begin
+  induction l with l IH,
+    reflexivity,
+    exact succ_add (n + l) k ⬝ ap succ IH
+end
 
-protected theorem add_assoc [simp] (n m k : ℕ) : (n + m) + k = n + (m + k) :=
-nat.rec_on k
-    (by rewrite +nat.add_zero)
-    (take l IH,
-      calc
-        (n + m) + succ l = succ ((n + m) + l)  : add_succ
-                     ... = succ (n + (m + l))  : IH
-                     ... = n + succ (m + l)    : add_succ
-                     ... = n + (m + succ l)    : add_succ)
+definition succ_add_eq_succ_add (n m : ℕ) : succ n + m = n + succ m :=
+!succ_add
+
+protected definition add_assoc [simp] (n m k : ℕ) : (n + m) + k = n + (m + k) :=
+begin
+  induction k with k IH,
+    reflexivity,
+    exact ap succ IH
+end
 
 protected theorem add_left_comm : Π (n m k : ℕ), n + (m + k) = m + (n + k) :=
 left_comm nat.add_comm nat.add_assoc

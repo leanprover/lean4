@@ -70,7 +70,6 @@ end sum
 -- Product type
 -- ------------
 
-
 namespace prod
 
   -- notation for n-ary tuples
@@ -154,10 +153,3 @@ namespace prod
   end
 
 end prod
-
-/- logic (ported from standard library as second half of logic file) -/
-
-/- iff -/
-
-variables {a b c d : Type}
-open prod sum unit

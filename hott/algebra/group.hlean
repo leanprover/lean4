@@ -24,13 +24,13 @@ structure semigroup [class] (A : Type) extends has_mul A :=
 
 attribute semigroup.is_hset_carrier [instance]
 
-theorem mul.assoc [s : semigroup A] (a b c : A) : a * b * c = a * (b * c) :=
+definition mul.assoc [s : semigroup A] (a b c : A) : a * b * c = a * (b * c) :=
 !semigroup.mul_assoc
 
 structure comm_semigroup [class] (A : Type) extends semigroup A :=
 (mul_comm : Πa b, mul a b = mul b a)
 
-theorem mul.comm [s : comm_semigroup A] (a b : A) : a * b = b * a :=
+definition mul.comm [s : comm_semigroup A] (a b : A) : a * b = b * a :=
 !comm_semigroup.mul_comm
 
 theorem mul.left_comm [s : comm_semigroup A] (a b c : A) : a * (b * c) = b * (a * c) :=
@@ -51,7 +51,7 @@ abbreviation eq_of_mul_eq_mul_left' := @mul.left_cancel
 structure right_cancel_semigroup [class] (A : Type) extends semigroup A :=
 (mul_right_cancel : Πa b c, mul a b = mul c b → a = c)
 
-theorem mul.right_cancel [s : right_cancel_semigroup A] {a b c : A} :
+definition mul.right_cancel [s : right_cancel_semigroup A] {a b c : A} :
   a * b = c * b → a = c :=
 !right_cancel_semigroup.mul_right_cancel
 
@@ -65,13 +65,13 @@ structure add_semigroup [class] (A : Type) extends has_add A :=
 
 attribute add_semigroup.is_hset_carrier [instance]
 
-theorem add.assoc [s : add_semigroup A] (a b c : A) : a + b + c = a + (b + c) :=
+definition add.assoc [s : add_semigroup A] (a b c : A) : a + b + c = a + (b + c) :=
 !add_semigroup.add_assoc
 
 structure add_comm_semigroup [class] (A : Type) extends add_semigroup A :=
 (add_comm : Πa b, add a b = add b a)
 
-theorem add.comm [s : add_comm_semigroup A] (a b : A) : a + b = b + a :=
+definition add.comm [s : add_comm_semigroup A] (a b : A) : a + b = b + a :=
 !add_comm_semigroup.add_comm
 
 theorem add.left_comm [s : add_comm_semigroup A] (a b c : A) :
@@ -84,7 +84,7 @@ binary.right_comm (@add.comm A _) (@add.assoc A _) a b c
 structure add_left_cancel_semigroup [class] (A : Type) extends add_semigroup A :=
 (add_left_cancel : Πa b c, add a b = add a c → b = c)
 
-theorem add.left_cancel [s : add_left_cancel_semigroup A] {a b c : A} :
+definition add.left_cancel [s : add_left_cancel_semigroup A] {a b c : A} :
   a + b = a + c → b = c :=
 !add_left_cancel_semigroup.add_left_cancel
 
@@ -93,7 +93,7 @@ abbreviation eq_of_add_eq_add_left := @add.left_cancel
 structure add_right_cancel_semigroup [class] (A : Type) extends add_semigroup A :=
 (add_right_cancel : Πa b c, add a b = add c b → a = c)
 
-theorem add.right_cancel [s : add_right_cancel_semigroup A] {a b c : A} :
+definition add.right_cancel [s : add_right_cancel_semigroup A] {a b c : A} :
   a + b = c + b → a = c :=
 !add_right_cancel_semigroup.add_right_cancel
 
@@ -104,9 +104,9 @@ abbreviation eq_of_add_eq_add_right := @add.right_cancel
 structure monoid [class] (A : Type) extends semigroup A, has_one A :=
 (one_mul : Πa, mul one a = a) (mul_one : Πa, mul a one = a)
 
-theorem one_mul [s : monoid A] (a : A) : 1 * a = a := !monoid.one_mul
+definition one_mul [s : monoid A] (a : A) : 1 * a = a := !monoid.one_mul
 
-theorem mul_one [s : monoid A] (a : A) : a * 1 = a := !monoid.mul_one
+definition mul_one [s : monoid A] (a : A) : a * 1 = a := !monoid.mul_one
 
 structure comm_monoid [class] (A : Type) extends monoid A, comm_semigroup A
 
@@ -115,9 +115,9 @@ structure comm_monoid [class] (A : Type) extends monoid A, comm_semigroup A
 structure add_monoid [class] (A : Type) extends add_semigroup A, has_zero A :=
 (zero_add : Πa, add zero a = a) (add_zero : Πa, add a zero = a)
 
-theorem zero_add [s : add_monoid A] (a : A) : 0 + a = a := !add_monoid.zero_add
+definition zero_add [s : add_monoid A] (a : A) : 0 + a = a := !add_monoid.zero_add
 
-theorem add_zero [s : add_monoid A] (a : A) : a + 0 = a := !add_monoid.add_zero
+definition add_zero [s : add_monoid A] (a : A) : a + 0 = a := !add_monoid.add_zero
 
 structure add_comm_monoid [class] (A : Type) extends add_monoid A, add_comm_semigroup A
 
@@ -160,7 +160,7 @@ section group
   variable [s : group A]
   include s
 
-  theorem mul.left_inv (a : A) : a⁻¹ * a = 1 := !group.mul_left_inv
+  definition mul.left_inv (a : A) : a⁻¹ * a = 1 := !group.mul_left_inv
 
   theorem inv_mul_cancel_left (a b : A) : a⁻¹ * (a * b) = b :=
   by rewrite [-mul.assoc, mul.left_inv, one_mul]

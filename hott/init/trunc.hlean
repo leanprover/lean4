@@ -13,7 +13,7 @@ Ported from Coq HoTT.
 prelude
 import .nat .logic .equiv .pathover
 open eq nat sigma unit
-set_option class.force_new true
+--set_option class.force_new true
 
 namespace is_trunc
 
@@ -42,10 +42,10 @@ namespace is_trunc
   notation `ℕ₋₂` := trunc_index
 
   namespace trunc_index
-  definition add (n m : trunc_index) : trunc_index :=
+  definition add [reducible] (n m : trunc_index) : trunc_index :=
   trunc_index.rec_on m n (λ k l, l .+1)
 
-  definition leq (n m : trunc_index) : Type₀ :=
+  definition leq [reducible] (n m : trunc_index) : Type₀ :=
   trunc_index.rec_on n (λm, unit) (λ n p m, trunc_index.rec_on m (λ p, empty) (λ m q p, p m) p) m
 
   definition has_le_trunc_index [instance] [reducible] : has_le trunc_index :=
@@ -106,10 +106,6 @@ namespace is_trunc
     (n : trunc_index) [H : is_trunc (n.+1) A] (x y : A) : is_trunc n (x = y) :=
   is_trunc.mk (is_trunc.to_internal (n.+1) A x y)
 
-  definition is_trunc_eq_zero [instance] [priority 1250] [H : is_trunc 1 A] (x y : A)
-    : is_hset (x = y) :=
-  @is_trunc_eq A 0 H x y
-
   /- contractibility -/
 
   definition is_contr.mk (center : A) (center_eq : Π(a : A), center = a) : is_contr A :=
@@ -142,9 +138,6 @@ namespace is_trunc
     (λ n IH A (H : is_trunc (n.+1) A), @is_trunc_succ_intro _ _ (λ x y, IH _ _))
     A H
   --in the proof the type of H is given explicitly to make it available for class inference
-
-  theorem is_trunc_succ_zero [instance] [priority 950] (A : Type) [H : is_hset A] : is_trunc 1 A :=
-  !is_trunc_succ
 
   theorem is_trunc_of_leq.{l} (A : Type.{l}) {n m : trunc_index} (Hnm : n ≤ m)
     [Hn : is_trunc n A] : is_trunc m A :=

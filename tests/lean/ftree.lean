@@ -26,6 +26,6 @@ inductive ftree (A : Type) (B : Type) : Type :=
 leafa : A → ftree A B |
 leafb : B → ftree A B |
 node  : (list A → ftree A B) → (B → ftree A B) → ftree A B
-
+set_option pp.universes true
 check ftree
 end implicit2

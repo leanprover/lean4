@@ -27,5 +27,6 @@ by blast
 example (a : nat) : a = 0 → (λ x, x + a) = (λ x, x + 0) :=
 by blast
 
+set_option trace.blast true
 example (p q : nat → Prop) : (∃ x, p x ∧ q x) → (∃ x, q x) ∧ (∃ x, p x) :=
 by blast

@@ -231,7 +231,7 @@ class parser {
     friend environment namespace_cmd(parser & p);
     friend environment end_scoped_cmd(parser & p);
 
-    void push_local_scope(bool save_options = false);
+    void push_local_scope(bool save_options = true);
     void pop_local_scope();
 
     void save_snapshot();

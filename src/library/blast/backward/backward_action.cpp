@@ -94,12 +94,13 @@ static action_result try_lemma(gexpr const & e, bool prop_only_branches) {
 }
 
 class backward_choice_point_cell : public choice_point_cell {
-    state       m_state;
-    list<gexpr> m_lemmas;
-    bool        m_prop_only;
+    char const * m_action_name;
+    state        m_state;
+    list<gexpr>  m_lemmas;
+    bool         m_prop_only;
 public:
-    backward_choice_point_cell(state const & s, list<gexpr> const & lemmas, bool prop_only):
-        m_state(s), m_lemmas(lemmas), m_prop_only(prop_only) {}
+    backward_choice_point_cell(char const * a, state const & s, list<gexpr> const & lemmas, bool prop_only):
+        m_action_name(a), m_state(s), m_lemmas(lemmas), m_prop_only(prop_only) {}
 
     virtual action_result next() {
         while (!empty(m_lemmas)) {
@@ -107,8 +108,10 @@ public:
             gexpr lemma     = head(m_lemmas);
             m_lemmas        = tail(m_lemmas);
             action_result r = try_lemma(lemma, m_prop_only);
-            if (!failed(r))
+            if (!failed(r)) {
+                lean_trace(name({"blast", "action"}), tout() << m_action_name << " (next) " << lemma << "\n";);
                 return r;
+            }
         }
         return action_result::failed();
     }
@@ -118,13 +121,14 @@ action_result backward_action_core(list<gexpr> const & lemmas, bool prop_only_br
     state  s = curr_state();
     auto it  = lemmas;
     while (!empty(it)) {
-        action_result r = try_lemma(head(it), prop_only_branches);
+        gexpr H         = head(it);
+        action_result r = try_lemma(H, prop_only_branches);
         it              = tail(it);
         if (!failed(r)) {
             // create choice point
             if (!cut && !empty(it))
-                push_choice_point(choice_point(new backward_choice_point_cell(s, it, prop_only_branches)));
-            trace_action(action_name);
+                push_choice_point(choice_point(new backward_choice_point_cell(action_name, s, it, prop_only_branches)));
+            lean_trace(name({"blast", "action"}), tout() << action_name << " " << H << "\n";);
             return r;
         }
         curr_state() = s;

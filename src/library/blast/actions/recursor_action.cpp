@@ -290,7 +290,7 @@ action_result recursor_action(hypothesis_idx hidx, name const & R) {
         return action_result::failed(); // ill-formed recursor
 
     save_state.commit();
-    lean_trace(name({"blast", "action"}), tout() << "recursor " << R << "\n";);
+    lean_trace_action(tout() << "recursor " << R << "\n";);
     if (new_goals.empty()) {
         return action_result::solved(rec);
     }

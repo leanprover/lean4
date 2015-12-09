@@ -57,7 +57,7 @@ optional<expr> strategy_fn::search() {
     m_init_num_choices        = get_num_choice_points();
     unsigned init_proof_depth = curr_state().get_proof_depth();
     unsigned max_depth        = get_config().m_max_depth;
-    lean_trace(name({"blast", "search"}), tout() << "search upto depth " << max_depth << "\n";);
+    lean_trace_search(tout() << "search upto depth " << max_depth << "\n";);
     trace_curr_state();
     trace_target();
     action_result r = next_action();

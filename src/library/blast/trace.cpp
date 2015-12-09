@@ -19,7 +19,7 @@ MK_THREAD_LOCAL_GET_DEF(expr, get_last_target);
 void trace_target() {
     if (lean_is_trace_enabled(name({"blast", "search"})) &&
         curr_state().get_target() != get_last_target()) {
-        lean_trace(name({"blast", "search"}), tout() << "target " << ppb(curr_state().get_target()) << "\n";);
+        lean_trace_search(tout() << "target " << ppb(curr_state().get_target()) << "\n";);
         get_last_target() = curr_state().get_target();
     }
 }
@@ -67,16 +67,15 @@ void trace_depth_nchoices() {
         p.second == get_num_choice_points())
         return;
     p = mk_pair(curr_state().get_proof_depth(), get_num_choice_points());
-    lean_trace(name({"blast", "search"}),
-               tout() << "depth: " << p.first << ", #choice: " << p.second << "\n";);
+    lean_trace_search(tout() << "depth: " << p.first << ", #choice: " << p.second << "\n";);
 }
 
 void trace_search(char const * msg) {
-    lean_trace(name({"blast", "search"}), tout() << msg << "\n";);
+    lean_trace_search(tout() << msg << "\n";);
 }
 
 void trace_action(char const * a) {
-    lean_trace(name({"blast", "action"}), tout() << a << "\n";);
+    lean_trace_action(tout() << a << "\n";);
 }
 
 void trace_curr_state_if(action_result r) {
@@ -87,6 +86,11 @@ void trace_curr_state_if(action_result r) {
 io_state_stream const & operator<<(io_state_stream const & out, ppb const & e) {
     expr tmp = curr_state().to_kernel_expr(e.m_expr);
     out << tmp;
+    return out;
+}
+
+io_state_stream const & operator<<(io_state_stream const & out, hypothesis const & h) {
+    out << ppb(h.get_self());
     return out;
 }
 }}

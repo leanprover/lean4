@@ -18,14 +18,14 @@ action_result assumption_action() {
     for (hypothesis_idx hidx : s.get_head_related()) {
         hypothesis const & h = s.get_hypothesis_decl(hidx);
         if (is_def_eq(h.get_type(), target)) {
-            trace_action("assumption");
+            lean_trace_action(tout() << "assumption " << h << "\n";);
             return action_result(h.get_self());
         }
     }
     return action_result::failed();
 }
 
-/* Close branch IF h is of the form (H : a ~ a) where ~ is a reflexive relation */
+/* Close branch IF h is of the form (H : not a ~ a) where ~ is a reflexive relation */
 static optional<expr> try_not_refl_relation(hypothesis const & h) {
     expr p;
     if (!is_not(h.get_type(), p))
@@ -62,15 +62,15 @@ action_result assumption_contradiction_actions(hypothesis_idx hidx) {
     hypothesis const & h = s.get_hypothesis_decl(hidx);
     expr const & type    = h.get_type();
     if (blast::is_false(type)) {
-        trace_action("contradiction");
+        lean_trace_action(tout() << "contradiction " << h << "\n";);
         return action_result(b.mk_false_rec(s.get_target(), h.get_self()));
     }
     if (is_def_eq(type, s.get_target())) {
-        trace_action("assumption");
+        lean_trace_action(tout() << "assumption " << h << "\n";);
         return action_result(h.get_self());
     }
     if (auto pr = try_not_refl_relation(h)) {
-        trace_action("contradiction");
+        lean_trace_action(tout() << "contradiction " << h << "\n";);
         return action_result(*pr);
     }
     expr p1 = type;
@@ -82,7 +82,7 @@ action_result assumption_contradiction_actions(hypothesis_idx hidx) {
         unsigned num_not2 = consume_not(p2);
         if ((num_not1 % 2) != (num_not2 % 2)) {
             if (is_def_eq(p1, p2)) {
-                trace_action("contradiction");
+                lean_trace_action(tout() << "contradiction " << h << " " << h2 << "\n";);
                 expr pr1 = h.get_self();
                 expr pr2 = h2.get_self();
                 reduce_nots(pr1, num_not1);
@@ -158,7 +158,7 @@ bool discard(hypothesis_idx hidx) {
 action_result discard_action(hypothesis_idx hidx) {
     if (discard(hidx)) {
         curr_state().del_hypothesis(hidx);
-        trace_action("discard");
+        lean_trace_action(tout() << "discard " << curr_state().get_hypothesis_decl(hidx) << "\n";);
         return action_result::new_branch();
     } else {
         return action_result::failed();

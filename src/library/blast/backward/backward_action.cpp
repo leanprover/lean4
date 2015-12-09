@@ -109,7 +109,7 @@ public:
             m_lemmas        = tail(m_lemmas);
             action_result r = try_lemma(lemma, m_prop_only);
             if (!failed(r)) {
-                lean_trace(name({"blast", "action"}), tout() << m_action_name << " (next) " << lemma << "\n";);
+                lean_trace_action(tout() << m_action_name << " (next) " << lemma << "\n";);
                 return r;
             }
         }
@@ -128,7 +128,7 @@ action_result backward_action_core(list<gexpr> const & lemmas, bool prop_only_br
             // create choice point
             if (!cut && !empty(it))
                 push_choice_point(choice_point(new backward_choice_point_cell(action_name, s, it, prop_only_branches)));
-            lean_trace(name({"blast", "action"}), tout() << action_name << " " << H << "\n";);
+            lean_trace_action(tout() << action_name << " " << H << "\n";);
             return r;
         }
         curr_state() = s;

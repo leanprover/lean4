@@ -5,8 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/trace.h"
-#include "library/blast/action_result.h"
 #include "library/io_state_stream.h"
+#include "library/blast/action_result.h"
+#include "library/blast/hypothesis.h"
 
 namespace lean {
 namespace blast {
@@ -17,6 +18,9 @@ void trace_depth_nchoices();
 void trace_action(char const * a);
 void trace_curr_state_if(action_result r);
 
+#define lean_trace_action(Code) lean_trace(name({"blast", "action"}), Code)
+#define lean_trace_search(Code) lean_trace(name({"blast", "search"}), Code)
+
 /** \brief Helper class for pretty printing blast expressions.
     It uses state::to_kernel_expr to export a blast expression
     into an expression that can be processed by the pretty printer */
@@ -26,4 +30,5 @@ struct ppb {
 };
 
 io_state_stream const & operator<<(io_state_stream const & out, ppb const & e);
+io_state_stream const & operator<<(io_state_stream const & out, hypothesis const & h);
 }}

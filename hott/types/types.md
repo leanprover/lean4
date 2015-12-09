@@ -1,10 +1,11 @@
 hott.types
 ==========
 
-Types (not necessarily HoTT-related):
+Types in Martin-Lӧf Type Theory:
 
 * [unit](unit.hlean)
 * [bool](bool.hlean)
+* [num[(num.hlean) (natural numbers written in binary form)
 * [nat](nat/nat.md) (subfolder)
 * [int](int/int.md) (subfolder)
 * [prod](prod.hlean)
@@ -17,7 +18,9 @@ Types (not necessarily HoTT-related):
 * [lift](lift.hlean)
 * [list](list.hlean)
 
-HoTT types
+The number systems (num, nat, int, ...) are for a large part ported from the standard libary.
+
+Specific HoTT types
 
 * [eq](eq.hlean): show that functions related to the identity type are equivalences
 * [pointed](pointed.hlean): pointed types, maps, homotopies, and equivalences

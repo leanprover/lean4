@@ -1143,6 +1143,7 @@ optional<expr> blast_goal(environment const & env, io_state const & ios, list<na
     blast::scope_blastenv           scope2(b);
     blast::scope_congruence_closure scope3;
     blast::scope_config             scope4(ios.get_options());
+    scope_trace_env                 scope5(env, ios);
     return b(g);
 }
 void initialize_blast() {

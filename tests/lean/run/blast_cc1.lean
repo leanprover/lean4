@@ -18,7 +18,7 @@ open perm
 example (a b c d : list nat) : a ~ b → c ~ b → d ~ c → a ~ d :=
 by blast
 
-set_option trace.congruence_closure true
+set_option trace.cc true
 
 example (a b c d : list nat) : a ~ b → c ~ b → d = c → a ~ d :=
 by blast

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <vector>
 #include "library/trace.h"
 #include "library/io_state_stream.h"
 #include "library/blast/blast.h"
@@ -23,8 +24,36 @@ void trace_target() {
     }
 }
 
+MK_THREAD_LOCAL_GET_DEF(std::string, get_state_str);
+
 void trace_curr_state() {
-    lean_trace(name({"blast", "state"}), tout() << "\n"; curr_state().display(tout()););
+    if (lean_is_trace_enabled(name({"blast", "state"}))) {
+        std::shared_ptr<output_channel> out(new string_output_channel());
+        io_state tmp(ios(), out, out);
+        io_state_stream strm(env(), tmp);
+        curr_state().display(strm);
+        std::string new_str = static_cast<string_output_channel*>(out.get())->str();
+        if (get_state_str() == new_str)
+            return;
+        unsigned i = 0;
+        unsigned sz1 = get_state_str().size();
+        unsigned sz2 = new_str.size();
+        while (i < sz1 && i < sz2 && get_state_str()[i] == new_str[i]) {
+            i++;
+        }
+        if (i == 0) {
+            lean_trace(name({"blast", "state"}), tout() << "\n" << new_str;);
+        } else {
+            // consume trailing ,
+            if (i + 1 < sz2 && new_str[i] == ',' && new_str[i+1] == '\n')
+                i += 2;
+            // move to beginning of the line
+            while (i > 0 && new_str[i-1] != '\n')
+                i--;
+            lean_trace(name({"blast", "state"}), tout() << "\n...\n" << new_str.substr(i););
+        }
+        get_state_str() = new_str;
+    }
 }
 
 void trace_search(char const * msg) {

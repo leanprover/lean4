@@ -291,7 +291,6 @@ void state::display_active(std::ostream & out) const {
 
 void state::display(io_state_stream const & ios) const {
     ios << mk_pair(to_goal().pp(ios.get_formatter()), ios.get_options()) << "\n";
-    display_active(ios.get_stream());
 }
 
 void state::display(environment const & env, io_state const & ios) const {

@@ -13,6 +13,16 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
+MK_THREAD_LOCAL_GET_DEF(expr, get_last_target);
+
+void trace_target() {
+    if (lean_is_trace_enabled(name({"blast", "search"})) &&
+        curr_state().get_target() != get_last_target()) {
+        lean_trace(name({"blast", "search"}), tout() << "target " << ppb(curr_state().get_target()) << "\n";);
+        get_last_target() = curr_state().get_target();
+    }
+}
+
 void trace_curr_state() {
     lean_trace(name({"blast", "state"}), tout() << "\n"; curr_state().display(tout()););
 }

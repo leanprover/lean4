@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 void trace_curr_state();
+void trace_target();
 void trace_search(char const * msg);
 void trace_action(char const * a);
 void trace_curr_state_if(action_result r);

@@ -6,4 +6,6 @@ Port instructions:
 - All of the algebraic hierarchy is in the algebra namespace in the HoTT library.
 - Open namespaces `eq` and `algebra` if needed
 - (optional) add option `set_option class.force_new true`
-- fix all remaining errors
+- fix all remaining errors. Typical errors include
+  - Replacing "and" by "prod" in comments
+  - and.intro is replaced by prod.intro, which should be prod.mk.

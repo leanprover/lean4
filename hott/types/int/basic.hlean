@@ -3,11 +3,11 @@ Copyright (c) 2014 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Floris van Doorn, Jeremy Avigad
 
-The integers, with addition, multiplication, prod subtraction. The representation of the integers is
+The integers, with addition, multiplication, and subtraction. The representation of the integers is
 chosen to compute efficiently.
 
 To faciliate proving things about these operations, we show that the integers are a quotient of
-ℕ × ℕ with the usual equivalence relation, ≡, prod functions
+ℕ × ℕ with the usual equivalence relation, ≡, and functions
 
   abstr : ℕ × ℕ → ℤ
   repr : ℤ → ℕ × ℕ
@@ -69,7 +69,7 @@ definition neg_of_nat : ℕ → ℤ
 definition sub_nat_nat (m n : ℕ) : ℤ :=
 match (n - m : nat) with
   | 0        := of_nat (m - n)  -- m ≥ n
-  | (succ k) := -[1+ k]         -- m < n, prod n - m = succ k
+  | (succ k) := -[1+ k]         -- m < n, and n - m = succ k
 end
 
 protected definition neg (a : ℤ) : ℤ :=
@@ -105,7 +105,7 @@ rfl
 lemma mul_neg_succ_of_nat_neg_succ_of_nat (m n : nat) : -[1+ m] * -[1+ n] = succ m * succ n :=
 rfl
 
-/- some basic functions prod properties -/
+/- some basic functions and properties -/
 
 theorem of_nat.inj {m n : ℕ} (H : of_nat m = of_nat n) : m = n :=
 down (int.no_confusion H imp.id)
@@ -199,7 +199,7 @@ sum.elim (@le_sum_gt _ _ (pr2 p) (pr1 p))
 
 protected theorem equiv_of_eq {p q : ℕ × ℕ} (H : p = q) : p ≡ q := H ▸ equiv.refl
 
-/- the representation prod abstraction functions -/
+/- the representation and abstraction functions -/
 
 definition abstr (a : ℕ × ℕ) : ℤ := sub_nat_nat (pr1 a) (pr2 a)
 

@@ -18,6 +18,10 @@
 # We use slightly different regular expressions here. Given the replacement rule foo:bar, we replace
 # foo by bar except is foo is preceded or followed by a letter. We still replace foo if it's
 # followed by a digit, underscore, period or similar.
+#
+# TODO: Currently we use dictionaries to store the renamings. This has the unfortunate consequence
+# that we cannot control the order in which the substitutions happens. This makes it very hard to
+# replace all occurrences of "and" by "prod", but all occurrences of "and.intro" by "prod.mk"
 
 use strict;
 use warnings;

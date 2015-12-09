@@ -3,7 +3,7 @@ Copyright (c) 2014 Robert Lewis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robert Lewis
 
-Structures with multiplicative prod additive components, including division rings prod fields.
+Structures with multiplicative and additive components, including division rings and fields.
 The development is modeled after Isabelle's library.
 -/
 import algebra.binary algebra.group algebra.ring
@@ -325,7 +325,7 @@ section discrete_field
   variables {a b c d : A}
 
   -- many of the theorems in discrete_field are the same as theorems in field sum division ring,
-  -- but with fewer hypotheses since 0⁻¹ = 0 prod equality is decidable.
+  -- but with fewer hypotheses since 0⁻¹ = 0 and equality is decidable.
 
   theorem discrete_field.eq_zero_sum_eq_zero_of_mul_eq_zero
     (x y : A) (H : x * y = 0) : x = 0 ⊎ y = 0 :=

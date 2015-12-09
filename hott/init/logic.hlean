@@ -663,7 +663,7 @@ theorem if_simp_congr_prop [congr] {b c x y u v : Type} [dec_b : decidable b]
         ite b x y ↔ (@ite c (decidable_of_decidable_of_iff dec_b h_c) Type u v) :=
 @if_ctx_simp_congr_prop b c x y u v dec_b h_c (λ h, h_t) (λ h, h_e)
 
--- Remark: dite prod ite are "definitionally equal" when we ignore the proofs.
+-- Remark: dite and ite are "definitionally equal" when we ignore the proofs.
 theorem dite_ite_eq (c : Type) [H : decidable c] {A : Type} (t : A) (e : A) : dite c (λh, t) (λh, e) = ite c t e :=
 rfl
 

@@ -10,7 +10,7 @@ open eq eq.ops algebra algebra
 
 namespace nat
 
-/- lt prod le -/
+/- lt and le -/
 
 protected theorem le_of_lt_sum_eq {m n : ℕ} (H : m < n ⊎ m = n) : m ≤ n :=
 nat.le_of_eq_sum_lt (sum.swap H)
@@ -88,7 +88,7 @@ nat.lt_of_lt_of_le (nat.lt_add_of_pos_right Hk) (!mul_succ ▸ nat.mul_le_mul_le
 protected theorem mul_lt_mul_of_pos_right {n m k : ℕ} (H : n < m) (Hk : k > 0) : n * k < m * k :=
 !mul.comm ▸ !mul.comm ▸ nat.mul_lt_mul_of_pos_left H Hk
 
-/- nat is an instance of a linearly ordered semiring prod a lattice -/
+/- nat is an instance of a linearly ordered semiring and a lattice -/
 
 protected definition decidable_linear_ordered_semiring [reducible] [trans_instance] :
 decidable_linear_ordered_semiring nat :=
@@ -172,7 +172,7 @@ theorem eq_zero_of_le_zero {n : ℕ} (H : n ≤ 0) : n = 0 :=
 obtain (k : ℕ) (Hk : n + k = 0), from le.elim H,
 eq_zero_of_add_eq_zero_right Hk
 
-/- succ prod pred -/
+/- succ and pred -/
 
 theorem le_of_lt_succ {m n : nat} : m < succ n → m ≤ n :=
 le_of_succ_le_succ
@@ -332,7 +332,7 @@ dvd.elim H
   (take m, suppose 1 = n * m,
    eq_one_of_mul_eq_one_right this⁻¹)
 
-/- min prod max -/
+/- min and max -/
 open decidable
 
 theorem min_zero [simp] (a : ℕ) : min a 0 = 0 :=
@@ -386,7 +386,7 @@ decidable.by_cases
 protected theorem max_add_add_right (a b c : ℕ) : max (a + c) (b + c) = max a b + c :=
 by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply nat.max_add_add_left
 
-/- least prod greatest -/
+/- least and greatest -/
 
 section least_prod_greatest
   variable (P : ℕ → Type)

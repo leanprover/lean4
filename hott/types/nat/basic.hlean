@@ -43,7 +43,7 @@ nat.rec_on x
                    ...  = succ (succ x₁ ⊕ y₁) : {ih₂}
                    ...  = succ x₁ ⊕ succ y₁   : addl_succ_right))
 
-/- successor prod predecessor -/
+/- successor and predecessor -/
 
 theorem succ_ne_zero (n : ℕ) : succ n ≠ 0 :=
 by contradiction

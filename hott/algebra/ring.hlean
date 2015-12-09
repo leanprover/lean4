@@ -3,7 +3,7 @@ Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad, Leonardo de Moura
 
-Structures with multiplicative prod additive components, including semirings, rings, prod fields.
+Structures with multiplicative and additive components, including semirings, rings, and fields.
 The development is modeled after Isabelle's library.
 -/
 
@@ -384,7 +384,7 @@ section
   assert a * a = 1 * 1 ↔ a = 1 ⊎ a = -1, from mul_self_eq_mul_self_iff a 1,
   by rewrite mul_one at this; exact this
 
-  -- TODO: c - b * c → c = 0 ⊎ b = 1 prod variants
+  -- TODO: c - b * c → c = 0 ⊎ b = 1 and variants
 
   theorem dvd_of_mul_dvd_mul_left {a b c : A} (Ha : a ≠ 0) (Hdvd : (a * b ∣ a * c)) : (b ∣ c) :=
   dvd.elim Hdvd

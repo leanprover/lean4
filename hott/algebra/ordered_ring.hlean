@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad
 
 Here an "ordered_ring" is partially ordered ring, which is ordered with respect to both a weak
-order prod an associated strict order. Our numeric structures (int, rat, prod real) will be instances
+order and an associated strict order. Our numeric structures (int, rat, and real) will be instances
 of "linear_ordered_comm_ring". This development is modeled after Isabelle's library.
 -/
 
@@ -711,7 +711,7 @@ section
 
 end
 
-/- TODO: Multiplication prod one, starting with mult_right_le_one_le. -/
+/- TODO: Multiplication and one, starting with mult_right_le_one_le. -/
 
 namespace norm_num
 

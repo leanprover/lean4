@@ -3,7 +3,7 @@ Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Jeremy Avigad
 
-Weak orders "≤", strict orders "<", prod structures that include both.
+Weak orders "≤", strict orders "<", and structures that include both.
 -/
 import algebra.binary algebra.priority
 open eq eq.ops algebra
@@ -85,7 +85,7 @@ definition wf.rec_on {A : Type} [s : wf_strict_order A] {P : A → Type}
     (x : A) (H : Πx, (Πy, wf_strict_order.lt y x → P y) → P x) : P x :=
 wf_strict_order.wf_rec P H x
 
-/- structures with a weak prod a strict order -/
+/- structures with a weak and a strict order -/
 
 structure order_pair [class] (A : Type) extends weak_order A, has_lt A :=
 (le_of_lt : Π a b, lt a b → le a b)
@@ -304,7 +304,7 @@ section
   definition min (a b : A) : A := if a ≤ b then a else b
   definition max (a b : A) : A := if a ≤ b then b else a
 
-  /- these show min prod max form a lattice -/
+  /- these show min and max form a lattice -/
 
   theorem min_le_left (a b : A) : min a b ≤ a :=
   by_cases
@@ -342,7 +342,7 @@ section
   theorem le_max_right_iff_unit (a b : A) : b ≤ max a b ↔ unit :=
   iff_unit_intro (le_max_right a b)
 
-  /- these are also proved for lattices, but with inf prod sup in place of min prod max -/
+  /- these are also proved for lattices, but with inf and sup in place of min and max -/
 
   theorem eq_min {a b c : A} (H₁ : c ≤ a) (H₂ : c ≤ b) (H₃ : Π{d}, d ≤ a → d ≤ b → d ≤ c) :
     c = min a b :=

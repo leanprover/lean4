@@ -13,6 +13,7 @@ namespace blast {
     The methods pre/post/next can be redefined to extend the set of actions
     applied by the grinder. This strategy applies the grinder intro/elim actions. */
 class grinder_strategy_core_fn : public strategy_fn {
+    virtual char const * get_name() const override { return "grinder"; }
     virtual action_result hypothesis_pre_activation(hypothesis_idx hidx) override;
     virtual action_result hypothesis_post_activation(hypothesis_idx hidx) override;
     virtual action_result next_action() override;

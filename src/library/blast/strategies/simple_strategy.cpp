@@ -29,6 +29,8 @@ namespace blast {
 /** \brief Implement a simple proof strategy for blast.
     We use it mainly for testing new actions and the whole blast infra-structure. */
 class simple_strategy_fn : public strategy_fn {
+    virtual char const * get_name() const override { return "simple"; }
+
     virtual action_result hypothesis_pre_activation(hypothesis_idx hidx) override {
         Try(assumption_contradiction_actions(hidx));
         Try(simplify_hypothesis_action(hidx));

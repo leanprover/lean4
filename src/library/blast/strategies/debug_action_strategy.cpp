@@ -15,6 +15,8 @@ class debug_action_strategy_core_fn : public strategy_fn {
     virtual action_result post(hypothesis_idx) { return action_result::failed(); }
     virtual action_result next() { return action_result::failed(); }
 
+    virtual char const * get_name() const override { return "debug-action"; }
+
     virtual action_result hypothesis_pre_activation(hypothesis_idx hidx) override {
         Try(assumption_contradiction_actions(hidx));
         Try(discard_action(hidx));

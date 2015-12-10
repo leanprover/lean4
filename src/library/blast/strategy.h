@@ -27,6 +27,7 @@ protected:
     virtual action_result hypothesis_pre_activation(hypothesis_idx hidx) = 0;
     virtual action_result hypothesis_post_activation(hypothesis_idx hidx) = 0;
     virtual bool show_failure() const;
+    virtual char const * get_name() const = 0;
     action_result activate_hypothesis();
     unsigned get_initial_num_choice_points() const { return m_init_num_choices; }
     action_result next_branch(expr pr);

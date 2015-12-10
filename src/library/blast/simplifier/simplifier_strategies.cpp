@@ -19,6 +19,8 @@ class simplifier_strategy_fn : public strategy_fn {
     bool m_simp_hyps;
     bool m_use_hyps;
 
+    virtual char const * get_name() const override { return "simp"; }
+
     virtual action_result hypothesis_pre_activation(hypothesis_idx hidx) override {
         Try(assumption_contradiction_actions(hidx));
         if (m_simp_hyps) {

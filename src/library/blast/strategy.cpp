@@ -58,7 +58,7 @@ optional<expr> strategy_fn::search() {
     m_init_num_choices        = get_num_choice_points();
     unsigned init_proof_depth = curr_state().get_proof_depth();
     unsigned max_depth        = get_config().m_max_depth;
-    lean_trace_search(tout() << "search upto depth " << max_depth << "\n";);
+    lean_trace_search(tout() << "begin '" << get_name() << "' strategy (max-depth: " << max_depth << ")\n";);
     trace_curr_state();
     trace_target();
     action_result r = next_action();
@@ -75,7 +75,7 @@ optional<expr> strategy_fn::search() {
             r = next_choice_point(m_init_num_choices);
             if (failed(r)) {
                 // all choice points failed...
-                trace_search(">>> proof not found, no choice points left <<<");
+                lean_trace_search(tout() << "strategy '" << get_name() << "' failed, no proof found\n";);
                 if (show_failure())
                     display_curr_state();
                 return none_expr();
@@ -86,7 +86,7 @@ optional<expr> strategy_fn::search() {
             r = next_branch(r.get_proof());
             if (r.get_kind() == action_result::Solved) {
                 // all branches have been solved
-                trace_search("* found proof");
+                lean_trace_search(tout() << "strategy '" << get_name() << "' succeeded, proof found\n";);
                 return some_expr(unfold_hypotheses_ge(curr_state(), r.get_proof(), init_proof_depth));
             }
             trace_search("* next branch");

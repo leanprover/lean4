@@ -470,6 +470,7 @@ public:
     void add_local_level(name const & n, level const & l, bool is_variable = false);
     void add_local_expr(name const & n, expr const & p, bool is_variable = false);
     environment add_local_ref(environment const & env, name const & n, expr const & ref);
+    void add_variable(name const & n, expr const & p);
     void add_parameter(name const & n, expr const & p);
     void add_local(expr const & p) { return add_local_expr(local_pp_name(p), p); }
     bool has_params() const { return m_has_params; }

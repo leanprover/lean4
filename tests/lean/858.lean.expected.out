@@ -1,0 +1,2 @@
+858.lean:2:2: error: failed to add declaration 'n' to local context, type has metavariables
+  ?M_1 → ℕ

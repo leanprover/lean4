@@ -30,4 +30,5 @@ struct scoped_set_distinguishing_pp_options {
     ~scoped_set_distinguishing_pp_options() { set_distinguishing_pp_options(m_old); }
 };
 std::tuple<format, format> pp_until_different(formatter const & fmt, expr const & e1, expr const & e2);
+format pp_until_meta_visible(formatter const & fmt, expr const & e);
 }

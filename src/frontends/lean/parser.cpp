@@ -604,8 +604,28 @@ environment parser::add_local_ref(environment const & env, name const & n, expr 
     }
 }
 
+static void check_no_metavars(name const & n, expr const & e) {
+    lean_assert(is_local(e));
+    if (has_metavar(e)) {
+        throw_generic_exception(none_expr(), [=](formatter const & fmt) {
+                format r("failed to add declaration '");
+                r += format(n);
+                r += format("' to local context, type has metavariables");
+                r += pp_until_meta_visible(fmt, mlocal_type(e));
+                return r;
+            });
+    }
+}
+
+void parser::add_variable(name const & n, expr const & v) {
+    lean_assert(is_local(v));
+    check_no_metavars(n, v);
+    add_local_expr(n, v, true);
+}
+
 void parser::add_parameter(name const & n, expr const & p) {
     lean_assert(is_local(p));
+    check_no_metavars(n, p);
     add_local_expr(n, p, false);
     m_has_params = true;
 }

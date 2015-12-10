@@ -144,7 +144,7 @@ static environment declare_var(parser & p, environment env,
         if (k == variable_kind::Parameter)
             p.add_parameter(n, l);
         else
-            p.add_local_expr(n, l, k == variable_kind::Variable);
+            p.add_variable(n, l);
         return env;
     } else {
         lean_assert(k == variable_kind::Constant || k == variable_kind::Axiom);

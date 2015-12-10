@@ -240,9 +240,9 @@ namespace sum
            begin intro z, induction z with a b, all_goals reflexivity end
 
 end sum
+open sum pi
 
 namespace decidable
-  open sum pi
 
   definition decidable_equiv [constructor] (A : Type) : decidable A ≃ A + ¬A :=
   begin
@@ -263,3 +263,8 @@ namespace decidable
 end decidable
 
 attribute sum.is_trunc_sum [instance] [priority 1480]
+
+definition tsum [constructor] {n : trunc_index} (A B : (n.+2)-Type) : (n.+2)-Type :=
+trunctype.mk (A + B) _
+
+infixr `+t`:25 := tsum

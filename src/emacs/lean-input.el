@@ -595,6 +595,7 @@ order for the change to take effect."
   ("nat"  . ("ℕ"))
   ("Nat"  . ("ℕ"))
   ("N"    . ("ℕ"))
+  ("N-2"  . ("ℕ₋₂"))
   ("int"  . ("ℤ"))
   ("Int"  . ("ℤ"))
   ("Z"    . ("ℤ"))

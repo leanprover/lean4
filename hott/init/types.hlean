@@ -43,7 +43,6 @@ end sigma
 -- --------
 
 namespace sum
-  infixr [parsing_only] `+t`:25 := sum -- notation which is never overloaded
   namespace low_precedence_plus
     reserve infixr ` + `:25  -- conflicts with notation for addition
     infixr ` + ` := sum
@@ -74,10 +73,8 @@ namespace prod
 
   -- notation for n-ary tuples
   notation `(` h `, ` t:(foldl `,` (e r, prod.mk r e) h) `)` := t
-  infixr [parsing_only] `×t`:30 := prod -- notation which is never overloaded
 
   namespace ops
-  infixr [parsing_only] * := prod
   postfix `.1`:(max+1) := pr1
   postfix `.2`:(max+1) := pr2
   abbreviation pr₁ := @pr1

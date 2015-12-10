@@ -352,6 +352,9 @@ namespace pointed
   definition equiv_of_pequiv [constructor] (f : A ≃* B) : A ≃ B :=
   equiv.mk f _
 
+  definition to_pinv [constructor] (f : A ≃* B) : B →* A :=
+  pmap.mk f⁻¹ (ap f⁻¹ (respect_pt f)⁻¹ ⬝ !left_inv)
+
   definition pua {A B : Type*} (f : A ≃* B) : A = B :=
   Pointed_eq (equiv_of_pequiv f) !respect_pt
 

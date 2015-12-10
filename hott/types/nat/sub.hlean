@@ -46,7 +46,7 @@ nat.rec_on k
                               ... = (n + l) - (m + l)           : !succ_sub_succ
                               ... =  n - m                      : IH)
 protected theorem add_sub_add_left (k n m : ℕ) : (k + n) - (k + m) = n - m :=
-!add.comm ▸ !add.comm ▸ !nat.add_sub_add_right
+add.comm n k ▸ add.comm m k ▸ nat.add_sub_add_right n k m
 
 protected theorem add_sub_cancel (n m : ℕ) : n + m - m = n :=
 nat.rec_on m
@@ -315,7 +315,7 @@ lt_of_not_ge
 
 protected theorem sub_lt_sub_add_sub (n m k : ℕ) : n - k ≤ (n - m) + (m - k) :=
 sub.cases
-  (assume H : n ≤ m, !zero_add⁻¹ ▸ nat.sub_le_sub_right H k)
+  (assume H : n ≤ m, (zero_add (m - k))⁻¹ ▸ nat.sub_le_sub_right H k)
   (take mn : ℕ,
     assume Hmn : m + mn = n,
     sub.cases
@@ -441,7 +441,7 @@ dist_eq_intro H2
 
 theorem dist_sub_eq_dist_add_right {k m : ℕ} (H : k ≥ m) (n : ℕ) :
   dist n (k - m) = dist (n + m) k :=
-(dist_sub_eq_dist_add_left H n ▸ !dist.comm) ▸ !dist.comm
+dist.comm (k - m) n ▸ dist.comm k (n + m) ▸ dist_sub_eq_dist_add_left H n
 
 theorem dist.triangle_inequality (n m k : ℕ) : dist n k ≤ dist n m + dist m k :=
 have (n - m) + (m - k) + ((k - m) + (m - n)) = (n - m) + (m - n) + ((m - k) + (k - m)),

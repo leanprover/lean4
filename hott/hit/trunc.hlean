@@ -16,7 +16,7 @@ open is_trunc eq equiv is_equiv function prod sum sigma
 
 namespace trunc
 
-  protected definition elim [recursor 6] {n : trunc_index} {A : Type} {P : Type}
+  protected definition elim {n : trunc_index} {A : Type} {P : Type}
     [Pt : is_trunc n P] (H : A → P) : trunc n A → P :=
   trunc.rec H
 
@@ -27,7 +27,7 @@ namespace trunc
 end trunc
 
 attribute trunc.elim_on [unfold 4]
-attribute trunc.rec [recursor]
+attribute trunc.rec [recursor 6]
 attribute trunc.elim [recursor 6] [unfold 6]
 
 namespace trunc

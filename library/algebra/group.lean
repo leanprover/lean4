@@ -602,7 +602,7 @@ theorem bit1_add_bit0_helper [add_comm_semigroup A] [has_one A] (a b t : A)
 
 theorem bit0_add_bit1 [add_comm_semigroup A] [has_one A] (a b : A) :
         bit0 a + bit1 b = bit1 (a + b) :=
-  by rewrite [{bit0 a + _}add.comm, {a + _}add.comm]; apply bit1_add_bit0
+  by rewrite [{bit0 a + bit1 b}add.comm,{a + b}add.comm]; exact bit1_add_bit0 b a
 
 theorem bit0_add_bit1_helper [add_comm_semigroup A] [has_one A] (a b t : A)
         (H : a + b = t) : bit0 a + bit1 b = bit1 t :=

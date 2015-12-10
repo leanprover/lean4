@@ -24,7 +24,7 @@ structure has_lt.{l}  [class] (A : Type.{l}) : Type.{l+1} := (lt : A → A → T
 
 definition zero [reducible] {A : Type} [s : has_zero A] : A            := has_zero.zero A
 definition one  [reducible] {A : Type} [s : has_one A]  : A            := has_one.one A
-definition add              {A : Type} [s : has_add A]  : A → A → A    := has_add.add
+definition add  [reducible] {A : Type} [s : has_add A]  : A → A → A    := has_add.add
 definition mul              {A : Type} [s : has_mul A]  : A → A → A    := has_mul.mul
 definition sub              {A : Type} [s : has_sub A]  : A → A → A    := has_sub.sub
 definition div              {A : Type} [s : has_div A]  : A → A → A    := has_div.div
@@ -37,8 +37,9 @@ definition lt               {A : Type} [s : has_lt A]   : A → A → Type := ha
 
 definition ge [reducible] {A : Type} [s : has_le A] (a b : A) : Type := le b a
 definition gt [reducible] {A : Type} [s : has_lt A] (a b : A) : Type := lt b a
-definition bit0 {A : Type} [s  : has_add A] (a  : A)                 : A := add a a
-definition bit1 {A : Type} [s₁ : has_one A] [s₂ : has_add A] (a : A) : A := add (bit0 a) one
+definition bit0 [reducible] {A : Type} [s  : has_add A] (a  : A)                 : A := add a a
+definition bit1 [reducible] {A : Type} [s₁ : has_one A] [s₂ : has_add A] (a : A) : A :=
+add (bit0 a) one
 
 definition num_has_zero [reducible] [instance] : has_zero num :=
 has_zero.mk num.zero

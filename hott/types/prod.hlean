@@ -215,3 +215,7 @@ namespace prod
 end prod
 
 attribute prod.is_trunc_prod [instance] [priority 1510]
+definition tprod [constructor] {n : trunc_index} (A B : n-Type) : n-Type :=
+trunctype.mk (A × B) _
+
+infixr `×t`:30 := tprod

@@ -54,7 +54,7 @@ namespace nat
   definition pred [unfold 1] (a : nat) : nat :=
   nat.cases_on a zero (λ a₁, a₁)
 
-  -- add is defined in init.num
+  -- add is defined in init.reserved_notation
 
   protected definition sub (a b : nat) : nat :=
   nat.rec_on b a (λ b₁, pred)

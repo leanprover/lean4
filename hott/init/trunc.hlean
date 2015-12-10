@@ -39,11 +39,20 @@ namespace is_trunc
   notation `-2` := trunc_index.minus_two
   postfix ` .+1`:(max+1) := trunc_index.succ
   postfix ` .+2`:(max+1) := λn, (n .+1 .+1)
-  notation `ℕ₋₂` := trunc_index
+  notation `ℕ₋₂` := trunc_index -- input using \N-2
 
   namespace trunc_index
-  definition add [reducible] (n m : trunc_index) : trunc_index :=
+  --addition, where we add two to the result
+  definition add_plus_two [reducible] (n m : trunc_index) : trunc_index :=
   trunc_index.rec_on m n (λ k l, l .+1)
+
+  -- addition of trunc_indices, where results smaller than -2 are changed to -2
+  definition tr_add (n m : trunc_index) : trunc_index :=
+  trunc_index.cases_on m
+    (trunc_index.cases_on n -2 (λn', (trunc_index.cases_on n' -2 id)))
+    (λm', trunc_index.cases_on m'
+      (trunc_index.cases_on n -2 id)
+      (trunc_index.rec n (λn' r, succ r)))
 
   definition leq [reducible] (n m : trunc_index) : Type₀ :=
   trunc_index.rec_on n (λm, unit) (λ n p m, trunc_index.rec_on m (λ p, empty) (λ m q p, p m) p) m
@@ -53,7 +62,10 @@ namespace is_trunc
 
   end trunc_index
 
-  infix `+2+`:65 := trunc_index.add
+  attribute trunc_index.tr_add [reducible]
+  infix `+2+`:65 := trunc_index.add_plus_two
+  definition has_add_trunc_index [instance] [reducible] : has_add ℕ₋₂ :=
+  has_add.mk trunc_index.tr_add
 
   namespace trunc_index
   definition succ_le_succ {n m : trunc_index} (H : n ≤ m) : n.+1 ≤ m.+1 := proof H qed

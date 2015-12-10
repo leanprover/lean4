@@ -298,15 +298,16 @@ public:
 
     expr normalize_H_type(expr const & H) {
         lean_assert(is_local(H));
+        expr H_type = m_subst.instantiate_all(mlocal_type(H));
         if (m_rec_name) {
             recursor_info info      = get_recursor_info(m_env, *m_rec_name);
             name tname              = info.get_type_name();
             type_checker_ptr aux_tc = mk_type_checker(m_env, m_ngen.mk_child(), [=](name const & n) { return n == tname; });
-            return aux_tc->whnf(mlocal_type(H)).first;
+            return aux_tc->whnf(H_type).first;
         } else {
             has_recursors_pred pred(m_env);
             type_checker_ptr aux_tc = mk_type_checker(m_env, m_ngen.mk_child(), pred);
-            return aux_tc->whnf(mlocal_type(H)).first;
+            return aux_tc->whnf(H_type).first;
         }
     }
 

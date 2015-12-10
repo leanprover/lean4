@@ -1,0 +1,16 @@
+893.hlean:3:2: error:invalid 'induction' tactic, invalid 'induction' tactic, argument #3 of major premise 'H' type is an index, but it occurs in previous arguments
+proof state:
+A : Type,
+f : A → A,
+a : A,
+H : f a = a
+⊢ unit
+893.hlean:5:0: error: don't know how to synthesize placeholder
+A : Type,
+f : A → A,
+a : A,
+H : f a = a
+⊢ unit
+893.hlean:5:0: error: failed to add declaration 'example' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  ?M_1

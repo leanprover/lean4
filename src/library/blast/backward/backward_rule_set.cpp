@@ -90,7 +90,7 @@ backward_rule_set get_backward_rule_sets(environment const & env, options const 
 io_state_stream const & operator<<(io_state_stream const & out, backward_rule_set const & brs) {
     out << "backward rules\n";
     brs.for_each([&](head_index const & head_idx, backward_rule const & r) {
-            out << head_idx << " ==> " << r.get_proof() << "\n";
+            out << head_idx << " ==> " << r.get_proof().to_bare_expr() << "\n";
         });
     return out;
 }

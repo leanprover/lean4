@@ -128,7 +128,7 @@ namespace join
     (c : cube s₀₁₁ vrfl s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂) :
     cube s₁₁₂⁻¹ᵛ vrfl (massage_sq s₁₀₁) (massage_sq s₁₂₁) s₁₁₀⁻¹ᵛ s₀₁₁⁻¹ᵛ :=
   begin
-    cases p₁₀₀, cases p₁₀₂, cases p₁₂₂, let c' := massage_cube' c, esimp[massage_sq],
+    cases p₁₀₀, cases p₁₀₂, cases p₁₂₂, note c' := massage_cube' c, esimp[massage_sq],
     krewrite vdeg_v_eq_ph_pv_hp at c', exact c',
   end
 

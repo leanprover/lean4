@@ -124,12 +124,12 @@ namespace category
     fapply nat_trans.mk: esimp,
     { intro c, exact natural_map (to_hom θ) (c, F c) id},
     { intro c c' f,
-      let H := naturality (to_hom θ) (ID c, F f),
-      let K := ap10 H id,
+      note H := naturality (to_hom θ) (ID c, F f),
+      note K := ap10 H id,
       rewrite [▸* at K, id_right at K, ▸*, K, respect_id, +id_right],
       clear H K,
-      let H := naturality (to_hom θ) (f, ID (F c')),
-      let K := ap10 H id,
+      note H := naturality (to_hom θ) (f, ID (F c')),
+      note K := ap10 H id,
       rewrite [▸* at K, respect_id at K,+id_left at K, K]}
   end
 
@@ -138,12 +138,12 @@ namespace category
     fapply nat_trans.mk: esimp,
     { intro d, exact natural_map (to_inv θ) (G d, d) id, },
     { intro d d' g,
-      let H := naturality (to_inv θ) (Gᵒᵖᶠ g, ID d'),
-      let K := ap10 H id,
+      note H := naturality (to_inv θ) (Gᵒᵖᶠ g, ID d'),
+      note K := ap10 H id,
       rewrite [▸* at K, id_left at K, ▸*, K, respect_id, +id_left],
       clear H K,
-      let H := naturality (to_inv θ) (ID (G d), g),
-      let K := ap10 H id,
+      note H := naturality (to_inv θ) (ID (G d), g),
+      note K := ap10 H id,
       rewrite [▸* at K, respect_id at K,+id_right at K, K]}
   end
 
@@ -151,8 +151,8 @@ namespace category
     : natural_map (to_hom θ) (c, d) f = G f ∘ adj_unit c :=
   begin
     esimp,
-    let H := naturality (to_hom θ) (ID c, f),
-    let K := ap10 H id,
+    note H := naturality (to_hom θ) (ID c, f),
+    note K := ap10 H id,
     rewrite [▸* at K, id_right at K, K, respect_id, +id_right],
   end
 
@@ -160,8 +160,8 @@ namespace category
     : natural_map (to_inv θ) (c, d) g = adj_counit d ∘ F g :=
   begin
     esimp,
-    let H := naturality (to_inv θ) (g, ID d),
-    let K := ap10 H id,
+    note H := naturality (to_inv θ) (g, ID d),
+    note K := ap10 H id,
     rewrite [▸* at K, id_left at K, K, respect_id, +id_left],
   end
 

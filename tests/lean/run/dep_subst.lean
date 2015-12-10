@@ -23,6 +23,6 @@ begin
   induction fn₁ with fxs₁ h₁,
   induction fn₂ with fxs₂ h₂,
   subst xs,
-  let aux := to_set.inj h₂,
+  note aux := to_set.inj h₂,
   subst aux
 end

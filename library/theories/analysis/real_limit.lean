@@ -544,7 +544,7 @@ theorem pos_on_nbhd_of_cts_of_pos {f : ℝ → ℝ} (Hf : continuous f) {b : ℝ
     exact and.left Hδ,
     intro y Hy,
     let Hy' := and.right Hδ y Hy,
-    let Hlt := sub_lt_of_abs_sub_lt_right Hy',
+    note Hlt := sub_lt_of_abs_sub_lt_right Hy',
     rewrite sub_self at Hlt,
     assumption
   end
@@ -560,7 +560,7 @@ theorem neg_on_nbhd_of_cts_of_neg {f : ℝ → ℝ} (Hf : continuous f) {b : ℝ
     intro y Hy,
     let Hy' := and.right Hδ y Hy,
     let Hlt := sub_lt_of_abs_sub_lt_left Hy',
-    let Hlt' := lt_add_of_sub_lt_right Hlt,
+    note Hlt' := lt_add_of_sub_lt_right Hlt,
     rewrite [-sub_eq_add_neg at Hlt', sub_self at Hlt'],
     assumption
   end
@@ -780,7 +780,7 @@ theorem intermediate_value_incr_zero : ∃ c, a < c ∧ c < b ∧ f c = 0 :=
     intro Hxgt,
     have Hxgt' : b - x < δ, from sub_lt_of_sub_lt Hxgt,
     krewrite -(abs_of_pos (sub_pos_of_lt (and.left Hx))) at Hxgt',
-    let Hxgt'' := and.right Hδ _ Hxgt',
+    note Hxgt'' := and.right Hδ _ Hxgt',
     exact not_lt_of_ge (le_of_lt Hxgt'') (and.right Hx)},
     {exact sup_fn_interval}
   end

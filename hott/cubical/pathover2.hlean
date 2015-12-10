@@ -109,7 +109,7 @@ namespace eq
   begin
     rewrite [apdo_eq_apdo_ap _ _ p],
     let y := !change_path_of_pathover (apdo (apdo id) (ap_constant p b))⁻¹ᵒ,
-    rewrite -y, esimp, clear y,
+    rewrite -y, esimp,
     refine !pathover_ap_pathover_of_pathover_ap ⬝ _,
     rewrite pathover_ap_change_path,
     rewrite -change_path_con, apply ap (λx, change_path x idpo),

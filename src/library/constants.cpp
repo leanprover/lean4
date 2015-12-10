@@ -229,8 +229,8 @@ name const * g_tactic_identifier_list = nullptr;
 name const * g_tactic_interleave = nullptr;
 name const * g_tactic_intro = nullptr;
 name const * g_tactic_intros = nullptr;
-name const * g_tactic_lettac = nullptr;
 name const * g_tactic_none_expr = nullptr;
+name const * g_tactic_notetac = nullptr;
 name const * g_tactic_now = nullptr;
 name const * g_tactic_opt_expr = nullptr;
 name const * g_tactic_opt_expr_list = nullptr;
@@ -487,8 +487,8 @@ void initialize_constants() {
     g_tactic_interleave = new name{"tactic", "interleave"};
     g_tactic_intro = new name{"tactic", "intro"};
     g_tactic_intros = new name{"tactic", "intros"};
-    g_tactic_lettac = new name{"tactic", "lettac"};
     g_tactic_none_expr = new name{"tactic", "none_expr"};
+    g_tactic_notetac = new name{"tactic", "notetac"};
     g_tactic_now = new name{"tactic", "now"};
     g_tactic_opt_expr = new name{"tactic", "opt_expr"};
     g_tactic_opt_expr_list = new name{"tactic", "opt_expr_list"};
@@ -746,8 +746,8 @@ void finalize_constants() {
     delete g_tactic_interleave;
     delete g_tactic_intro;
     delete g_tactic_intros;
-    delete g_tactic_lettac;
     delete g_tactic_none_expr;
+    delete g_tactic_notetac;
     delete g_tactic_now;
     delete g_tactic_opt_expr;
     delete g_tactic_opt_expr_list;
@@ -1004,8 +1004,8 @@ name const & get_tactic_identifier_list_name() { return *g_tactic_identifier_lis
 name const & get_tactic_interleave_name() { return *g_tactic_interleave; }
 name const & get_tactic_intro_name() { return *g_tactic_intro; }
 name const & get_tactic_intros_name() { return *g_tactic_intros; }
-name const & get_tactic_lettac_name() { return *g_tactic_lettac; }
 name const & get_tactic_none_expr_name() { return *g_tactic_none_expr; }
+name const & get_tactic_notetac_name() { return *g_tactic_notetac; }
 name const & get_tactic_now_name() { return *g_tactic_now; }
 name const & get_tactic_opt_expr_name() { return *g_tactic_opt_expr; }
 name const & get_tactic_opt_expr_list_name() { return *g_tactic_opt_expr_list; }

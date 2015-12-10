@@ -404,7 +404,7 @@ theorem inv_well_defined {s t : seq} (Hs : regular s) (Ht : regular t) (Heq : s 
         s_inv Hs ≡ s_inv Ht :=
   if Hsep : sep s zero then
     (begin
-       let Hsept := sep_of_equiv_sep Hs Ht Heq Hsep,
+       note Hsept := sep_of_equiv_sep Hs Ht Heq Hsep,
        have Hm : smul t (s_inv Hs) ≡ smul s (s_inv Hs), begin
          apply mul_well_defined,
          repeat (assumption | apply reg_inv_reg),
@@ -462,15 +462,15 @@ theorem s_le_total {s t : seq} (Hs : regular s) (Ht : regular t) : s_le s t ∨ 
           intro m,
           apply by_contradiction,
           intro Hm,
-          let Hm' := lt_of_not_ge Hm,
-          let Hex'' := exists.intro m Hm',
+          note Hm' := lt_of_not_ge Hm,
+          note Hex'' := exists.intro m Hm',
           apply Hex Hex''
         end,
         apply H Hex'
       end,
       eapply exists.elim H',
       intro m Hm,
-      let Hm' := neg_lt_neg Hm,
+      note Hm' := neg_lt_neg Hm,
       rewrite neg_neg at Hm',
       apply s_nonneg_of_pos,
       rotate 1,

@@ -236,7 +236,7 @@ theorem s_neg_add_eq_s_add_neg (s t : seq) : sneg (sadd s t) ≡ sadd (sneg s) (
 theorem equiv_cancel_middle {s t u : seq} (Hs : regular s) (Ht : regular t)
         (Hu : regular u) : sadd (sadd u t) (sneg (sadd u s)) ≡ sadd t (sneg s) :=
   begin
-    let Hz := zero_is_reg,
+    note Hz := zero_is_reg,
     apply equiv.trans,
     rotate 3,
     apply add_well_defined,
@@ -308,7 +308,7 @@ protected theorem le_trans {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu :
           (Lst : s_le s t) (Ltu : s_le t u) : s_le s u :=
   begin
     rewrite ↑s_le at *,
-    let Rz := zero_is_reg,
+    note Rz := zero_is_reg,
     have Hsum : nonneg (sadd (sadd u (sneg t)) (sadd t (sneg s))),
                 from rat_seq.add_nonneg_of_nonneg Ltu Lst,
     have H' : nonneg (sadd (sadd u (sadd (sneg t) t)) (sneg s)), begin
@@ -384,7 +384,7 @@ theorem le_and_sep_of_lt {s t : seq} (Hs : regular s) (Ht : regular t) (Lst : s_
     cases Lst with [N, HN],
     let Rns := reg_neg_reg Hs,
     let Rtns := reg_add_reg Ht Rns,
-    let Habs := sub_le_of_abs_sub_le_right (Rtns N n),
+    note Habs := sub_le_of_abs_sub_le_right (Rtns N n),
     rewrite [sub_add_eq_sub_sub at Habs],
     exact (calc
       sadd t (sneg s) n ≥ sadd t (sneg s) N -  N⁻¹ - n⁻¹ : Habs
@@ -401,14 +401,14 @@ theorem le_and_sep_of_lt {s t : seq} (Hs : regular s) (Ht : regular t) (Lst : s_
 theorem lt_of_le_and_sep {s t : seq} (Hs : regular s) (Ht : regular t) (H : s_le s t ∧ sep s t) :
         s_lt s t :=
   begin
-    let Le := and.left H,
+    note Le := and.left H,
     cases and.right H with [P, Hlt],
     exact P,
     rewrite [↑s_le at Le, ↑nonneg at Le, ↑s_lt at Hlt, ↑pos at Hlt],
     apply exists.elim Hlt,
     intro N HN,
     let LeN := Le N,
-    let HN' := (iff.mpr !neg_lt_neg_iff_lt) HN,
+    note HN' := (iff.mpr !neg_lt_neg_iff_lt) HN,
     rewrite [↑sadd at HN', ↑sneg at HN', neg_add at HN', neg_neg at HN', add.comm at HN'],
     let HN'' := not_le_of_gt HN',
     apply absurd LeN HN''
@@ -652,8 +652,8 @@ theorem s_mul_nonneg_of_nonneg {s t : seq} (Hs : regular s) (Ht : regular t)
 theorem s_mul_ge_zero_of_ge_zero {s t : seq} (Hs : regular s) (Ht : regular t)
         (Hzs : s_le zero s) (Hzt : s_le zero t) : s_le zero (smul s t) :=
   begin
-    let Hzs' := s_nonneg_of_ge_zero Hs Hzs,
-    let Htz' := s_nonneg_of_ge_zero Ht Hzt,
+    note Hzs' := s_nonneg_of_ge_zero Hs Hzs,
+    note Htz' := s_nonneg_of_ge_zero Ht Hzt,
     apply s_ge_zero_of_nonneg,
     rotate 1,
     apply s_mul_nonneg_of_nonneg,

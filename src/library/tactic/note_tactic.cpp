@@ -13,12 +13,12 @@ Author: Leonardo de Moura
 #include "library/tactic/expr_to_tactic.h"
 
 namespace lean {
-expr mk_let_tactic_expr(name const & id, expr const & e) {
-    return mk_app(mk_constant(get_tactic_lettac_name()),
+expr mk_note_tactic_expr(name const &id, expr const &e) {
+    return mk_app(mk_constant(get_tactic_notetac_name()),
                   mk_constant(id), e);
 }
 
-tactic let_tactic(elaborate_fn const & elab, name const & id, expr const & e) {
+tactic note_tactic(elaborate_fn const & elab, name const & id, expr const & e) {
     return tactic01([=](environment const & env, io_state const & ios, proof_state const & s) {
             proof_state new_s = s;
             goals const & gs  = new_s.get_goals();
@@ -33,7 +33,7 @@ tactic let_tactic(elaborate_fn const & elab, name const & id, expr const & e) {
             expr new_e; substitution new_subst; constraints cs;
             std::tie(new_e, new_subst, cs) = esc;
             if (cs)
-                throw_tactic_exception_if_enabled(s, "invalid 'let' tactic, fail to resolve generated constraints");
+                throw_tactic_exception_if_enabled(s, "invalid 'note' tactic, fail to resolve generated constraints");
             auto tc         = mk_type_checker(env, ngen.mk_child());
             expr new_e_type = tc->infer(new_e).first;
             expr new_local  = mk_local(ngen.next(), id, new_e_type, binder_info());
@@ -50,14 +50,14 @@ tactic let_tactic(elaborate_fn const & elab, name const & id, expr const & e) {
         });
 }
 
-void initialize_let_tactic() {
-    register_tac(get_tactic_lettac_name(),
+void initialize_note_tactic() {
+    register_tac(get_tactic_notetac_name(),
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
-                     name id = tactic_expr_to_id(app_arg(app_fn(e)), "invalid 'let' tactic, argument must be an identifier");
-                     check_tactic_expr(app_arg(e), "invalid 'let' tactic, argument must be an expression");
-                     return let_tactic(fn, id, get_tactic_expr_expr(app_arg(e)));
+                     name id = tactic_expr_to_id(app_arg(app_fn(e)), "invalid 'note' tactic, argument must be an identifier");
+                     check_tactic_expr(app_arg(e), "invalid 'note' tactic, argument must be an expression");
+                     return note_tactic(fn, id, get_tactic_expr_expr(app_arg(e)));
                  });
 }
-void finalize_let_tactic() {
+void finalize_note_tactic() {
 }
 }

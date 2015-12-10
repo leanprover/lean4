@@ -263,7 +263,7 @@ namespace circle
     induction x,
     { apply base_eq_base_equiv},
     { apply equiv_pathover, intro p p' q, apply pathover_of_eq,
-      let H := eq_of_square (square_of_pathover q),
+      note H := eq_of_square (square_of_pathover q),
       rewrite con_comm_base at H,
       let H' := cancel_left H,
       induction H', reflexivity}

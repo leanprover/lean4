@@ -52,10 +52,10 @@ namespace univ
     intro f,
     have u : ¬¬bool, by exact (λg, g tt),
     let H1 := apdo f eq_bnot,
-    let H2 := apo10 H1 u,
+    note H2 := apo10 H1 u,
     have p : eq_bnot ▸ u = u, from !is_hprop.elim,
     rewrite p at H2,
-    let H3 := eq_of_pathover_ua H2, esimp at H3, --TODO: use apply ... at after #700
+    note H3 := eq_of_pathover_ua H2, esimp at H3, --TODO: use apply ... at after #700
     exact absurd H3 (bnot_ne (f bool u)),
   end
 

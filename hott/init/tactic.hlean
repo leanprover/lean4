@@ -126,7 +126,7 @@ definition change (e : expr) : tactic := builtin
 
 definition assert_hypothesis (id : identifier) (e : expr) : tactic := builtin
 
-definition lettac (id : identifier) (e : expr) : tactic := builtin
+definition notetac (id : identifier) (e : expr) : tactic := builtin
 
 definition constructor (k : option num)  : tactic := builtin
 definition fconstructor (k : option num) : tactic := builtin

@@ -472,7 +472,7 @@ theorem le_ceil (x : ℝ) : x ≤ ceil x :=
 theorem lt_of_lt_ceil {x : ℝ} {z : ℤ} (Hz : z < ceil x) : z < x :=
   begin
     rewrite ↑ceil at Hz,
-    let Hz' := lt_of_floor_lt (iff.mp !lt_neg_iff_lt_neg Hz),
+    note Hz' := lt_of_floor_lt (iff.mp !lt_neg_iff_lt_neg Hz),
     rewrite [of_int_neg at Hz'],
     apply lt_of_neg_lt_neg Hz'
   end
@@ -482,10 +482,10 @@ theorem floor_succ (x : ℝ) : floor (x + 1) = floor x + 1 :=
     apply by_contradiction,
     intro H,
     cases lt_or_gt_of_ne H with [Hgt, Hlt],
-    let Hl := lt_of_floor_lt Hgt,
+    note Hl := lt_of_floor_lt Hgt,
     rewrite [of_int_add at Hl],
     apply not_le_of_gt (lt_of_add_lt_add_right Hl) !floor_le,
-    let Hl := lt_of_floor_lt (iff.mp !add_lt_iff_lt_sub_right Hlt),
+    note Hl := lt_of_floor_lt (iff.mp !add_lt_iff_lt_sub_right Hlt),
     rewrite [of_int_sub at Hl],
     apply not_le_of_gt (iff.mpr !add_lt_iff_lt_sub_right Hl) !floor_le
   end
@@ -844,7 +844,7 @@ private theorem regular_lemma (s : seq) (H : ∀ n i : ℕ+, i ≥ n → under_s
     intros,
     cases em (m ≤ n) with [Hm, Hn],
     apply regular_lemma_helper Hm H,
-    let T := regular_lemma_helper (pnat.le_of_lt (pnat.lt_of_not_le Hn)) H,
+    note T := regular_lemma_helper (pnat.le_of_lt (pnat.lt_of_not_le Hn)) H,
     rewrite [abs_sub at T, {n⁻¹ + _}add.comm at T],
     exact T
   end

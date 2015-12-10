@@ -57,7 +57,7 @@ gcd.induction x y
     assume npos : 0 < n,
     assume IH,
     begin
-      let H := egcd_of_pos m npos, esimp at H,
+      note H := egcd_of_pos m npos, esimp at H,
       rewrite H,
       esimp,
       rewrite [gcd_rec, -IH],

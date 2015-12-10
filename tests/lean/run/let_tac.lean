@@ -4,6 +4,8 @@ open algebra
 example (a b : Prop) : a → b → a ∧ b :=
 begin
   intro Ha, intro Hb,
+  let Ha' := Ha,
+  let Hb' := Hb,
   let aux := and.intro Ha Hb,
   exact aux
 end

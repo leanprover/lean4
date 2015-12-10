@@ -11,7 +11,7 @@ begin
   induction a with f₁ h₁,
   induction b with f₂ h₂,
   subst xs,
-  let e := to_set.inj h₂,
+  note e := to_set.inj h₂,
   subst e
 end
 

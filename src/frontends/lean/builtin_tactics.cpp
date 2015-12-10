@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/tactic/let_tactic.h"
+#include <library/let.h>
+#include <library/constants.h>
+#include "library/tactic/note_tactic.h"
 #include "library/tactic/generalize_tactic.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/parser.h"
@@ -43,10 +45,22 @@ static expr parse_rparen(parser &, unsigned, expr const * args, pos_info const &
 }
 
 static expr parse_let_tactic(parser & p, unsigned, expr const *, pos_info const & pos) {
+    auto id_pos     = p.pos();
     name id    = p.check_atomic_id_next("invalid 'let' tactic, identifier expected");
     p.check_token_next(get_assign_tk(), "invalid 'let' tactic, ':=' expected");
     expr value = p.parse_tactic_expr_arg();
-    return p.save_pos(mk_let_tactic_expr(id, value), pos);
+    // Register value as expandable local expr. Identical to let term parsing, but without surrounding mk_let.
+    value = p.save_pos(mk_let_value(value), id_pos);
+    p.add_local_expr(id, value);
+    // nothing to do, so return the id tactic
+    return p.save_pos(mk_constant(get_tactic_id_name()), pos);
+}
+
+static expr parse_note_tactic(parser & p, unsigned, expr const *, pos_info const & pos) {
+    name id    = p.check_atomic_id_next("invalid 'note' tactic, identifier expected");
+    p.check_token_next(get_assign_tk(), "invalid 'note' tactic, ':=' expected");
+    expr value = p.parse_tactic_expr_arg();
+    return p.save_pos(mk_note_tactic_expr(id, value), pos);
 }
 
 static expr parse_with_options_tactic_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
@@ -87,6 +101,7 @@ parse_table init_tactic_nud_table() {
     r = r.add({transition("unfold",          mk_ext_action(parse_unfold_tactic_expr))}, x0);
     r = r.add({transition("fold",            mk_ext_action(parse_fold_tactic_expr))}, x0);
     r = r.add({transition("let",             mk_ext_action(parse_let_tactic))}, x0);
+    r = r.add({transition("note",            mk_ext_action(parse_note_tactic))}, x0);
     r = r.add({transition("with_options",    mk_ext_action(parse_with_options_tactic_expr))}, x0);
     r = r.add({transition("with_attributes", mk_ext_action(parse_with_attributes_tactic_expr))}, x0);
     r = r.add({transition("with_attrs",      mk_ext_action(parse_with_attributes_tactic_expr))}, x0);

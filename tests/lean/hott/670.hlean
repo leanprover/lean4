@@ -16,7 +16,7 @@ by krewrite [to_right_inv e b]
 
 example (b : B) : g (f (g b)) = g b :=
 begin
-  let H := to_right_inv e b,
+  note H := to_right_inv e b,
   esimp at H,
   rewrite H
 end

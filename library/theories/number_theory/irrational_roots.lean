@@ -156,7 +156,7 @@ section
   have pnez : p ≠ 0, from
     (suppose p = 0,
       show false,
-        by let H := (pos_of_prime primep); rewrite this at H; exfalso; exact !lt.irrefl H),
+        by note H := (pos_of_prime primep); rewrite this at H; exfalso; exact !lt.irrefl H),
   assert agtz : a > 0, from pos_of_ne_zero
     (suppose a = 0,
       show false, using npos pnez, by revert peq; rewrite [this, zero_pow npos]; exact pnez),

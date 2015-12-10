@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-expr mk_let_tactic_expr(name const & id, expr const & e);
-void initialize_let_tactic();
-void finalize_let_tactic();
+expr mk_note_tactic_expr(name const &id, expr const &e);
+void initialize_note_tactic();
+void finalize_note_tactic();
 }

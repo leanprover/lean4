@@ -36,8 +36,8 @@ private theorem s_mul_assoc_lemma_4 {n : ℕ+} {ε q : ℚ} (Hε : ε > 0) (Hq :
   (H : n ≥ pceil (q / ε)) :
         q * n⁻¹ ≤ ε :=
 begin
-  let H2 := pceil_helper H (div_pos_of_pos_of_pos Hq Hε),
-  let H3 := mul_le_of_le_div (div_pos_of_pos_of_pos Hq Hε) H2,
+  note H2 := pceil_helper H (div_pos_of_pos_of_pos Hq Hε),
+  note H3 := mul_le_of_le_div (div_pos_of_pos_of_pos Hq Hε) H2,
   rewrite -(one_mul ε),
   apply mul_le_mul_of_mul_div_le,
   repeat assumption
@@ -138,7 +138,7 @@ private theorem factor_lemma (a b c d e : ℚ) : abs (a + b + c - (d + (b + e)))
 
 private theorem factor_lemma_2 (a b c d : ℚ) : (a + b) + (c + d) = (a + c) + (d + b) :=
 begin
-   let H := (binary.comm4 add.comm add.assoc a b c d),
+   note H := (binary.comm4 add.comm add.assoc a b c d),
    rewrite [add.comm b d at H],
    exact H
 end
@@ -773,7 +773,7 @@ theorem equiv_of_diff_equiv_zero {s t : seq} (Hs : regular s) (Ht : regular t)
                          ... = b + d + a + e + c   : add.comm,
     apply eq_of_bdd Hs Ht,
     intros,
-    let He := bdd_of_eq H,
+    note He := bdd_of_eq H,
     existsi 2 * (2 * (2 * j)),
     intros n Hn,
     rewrite (rewrite_helper5 _ _ (s (2 * n)) (t (2 * n))),
@@ -908,7 +908,7 @@ theorem zero_nequiv_one : ¬ zero ≡ one :=
   begin
     intro Hz,
     rewrite [↑equiv at Hz, ↑zero at Hz, ↑one at Hz],
-    let H := Hz (2 * 2),
+    note H := Hz (2 * 2),
     rewrite [zero_sub at H, abs_neg at H, pnat.add_halves at H],
     have H' : pone⁻¹ ≤ 2⁻¹, from calc
       pone⁻¹ = 1 : by rewrite -pone_inv

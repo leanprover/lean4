@@ -21,7 +21,7 @@ Author: Leonardo de Moura
 #include "library/tactic/rewrite_tactic.h"
 #include "library/tactic/change_tactic.h"
 #include "library/tactic/check_expr_tactic.h"
-#include "library/tactic/let_tactic.h"
+#include "library/tactic/note_tactic.h"
 #include "library/tactic/contradiction_tactic.h"
 #include "library/tactic/exfalso_tactic.h"
 #include "library/tactic/constructor_tactic.h"
@@ -52,7 +52,7 @@ void initialize_tactic_module() {
     initialize_rewrite_tactic();
     initialize_change_tactic();
     initialize_check_expr_tactic();
-    initialize_let_tactic();
+    initialize_note_tactic();
     initialize_contradiction_tactic();
     initialize_exfalso_tactic();
     initialize_constructor_tactic();
@@ -78,7 +78,7 @@ void finalize_tactic_module() {
     finalize_constructor_tactic();
     finalize_exfalso_tactic();
     finalize_contradiction_tactic();
-    finalize_let_tactic();
+    finalize_note_tactic();
     finalize_check_expr_tactic();
     finalize_change_tactic();
     finalize_rewrite_tactic();

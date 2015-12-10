@@ -224,8 +224,8 @@ tactic.identifier_list
 tactic.interleave
 tactic.intro
 tactic.intros
-tactic.lettac
 tactic.none_expr
+tactic.notetac
 tactic.now
 tactic.opt_expr
 tactic.opt_expr_list

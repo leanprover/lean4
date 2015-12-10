@@ -20,6 +20,7 @@ void trace_curr_state_if(action_result r);
 
 #define lean_trace_action(Code) lean_trace(name({"blast", "action"}), Code)
 #define lean_trace_search(Code) lean_trace(name({"blast", "search"}), Code)
+#define lean_trace_deadend(Code) lean_trace(name({"blast", "deadend"}), Code)
 
 /** \brief Helper class for pretty printing blast expressions.
     It uses state::to_kernel_expr to export a blast expression

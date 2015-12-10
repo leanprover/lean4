@@ -98,9 +98,11 @@ class backward_choice_point_cell : public choice_point_cell {
     state        m_state;
     list<gexpr>  m_lemmas;
     bool         m_prop_only;
+    unsigned     m_choice_idx;
 public:
-    backward_choice_point_cell(char const * a, state const & s, list<gexpr> const & lemmas, bool prop_only):
-        m_action_name(a), m_state(s), m_lemmas(lemmas), m_prop_only(prop_only) {}
+    backward_choice_point_cell(char const * a, state const & s, list<gexpr> const & lemmas, bool prop_only,
+                               unsigned choice_idx):
+        m_action_name(a), m_state(s), m_lemmas(lemmas), m_prop_only(prop_only), m_choice_idx(choice_idx) {}
 
     virtual action_result next() {
         while (!empty(m_lemmas)) {
@@ -109,7 +111,7 @@ public:
             m_lemmas        = tail(m_lemmas);
             action_result r = try_lemma(lemma, m_prop_only);
             if (!failed(r)) {
-                lean_trace_action(tout() << m_action_name << " (next) " << lemma << "\n";);
+                lean_trace_action(tout() << m_action_name << " (next of choice #" << m_choice_idx << ") " << lemma << "\n";);
                 return r;
             }
         }
@@ -126,9 +128,13 @@ action_result backward_action_core(list<gexpr> const & lemmas, bool prop_only_br
         it              = tail(it);
         if (!failed(r)) {
             // create choice point
-            if (!cut && !empty(it))
-                push_choice_point(choice_point(new backward_choice_point_cell(action_name, s, it, prop_only_branches)));
-            lean_trace_action(tout() << action_name << " " << H << "\n";);
+            if (!cut && !empty(it)) {
+                unsigned cidx = mk_choice_point_idx();
+                push_choice_point(choice_point(new backward_choice_point_cell(action_name, s, it, prop_only_branches, cidx)));
+                lean_trace_action(tout() << action_name << " (choice #" << cidx << ") " << H << "\n";);
+            } else {
+                lean_trace_action(tout() << action_name << " " << H << "\n";);
+            }
             return r;
         }
         curr_state() = s;

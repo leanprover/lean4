@@ -72,6 +72,7 @@ optional<expr> strategy_fn::search() {
         }
         switch (r.get_kind()) {
         case action_result::Failed:
+            lean_trace_deadend(tout() << "strategy '" << get_name() << "'\n"; curr_state().display(tout()););
             r = next_choice_point(m_init_num_choices);
             if (failed(r)) {
                 // all choice points failed...
@@ -80,7 +81,6 @@ optional<expr> strategy_fn::search() {
                     display_curr_state();
                 return none_expr();
             }
-            trace_search("* next choice point");
             break;
         case action_result::Solved:
             r = next_branch(r.get_proof());

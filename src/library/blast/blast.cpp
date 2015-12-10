@@ -79,6 +79,8 @@ class blastenv {
     unsigned                   m_next_uref_idx{0};
     unsigned                   m_next_mref_idx{0};
     unsigned                   m_next_href_idx{0};
+    unsigned                   m_next_choice_idx{0};
+    unsigned                   m_next_split_idx{0};
     tmp_local_generator        m_tmp_local_generator;
     list<expr>                 m_initial_context; // for setting type_context local instances
     name_set                   m_lemma_hints;
@@ -739,6 +741,18 @@ public:
         m_next_href_idx++;
         return r;
     }
+
+    unsigned mk_choice_point_idx() {
+        unsigned r = m_next_choice_idx;
+        m_next_choice_idx++;
+        return r;
+    }
+
+    unsigned mk_split_idx() {
+        unsigned r = m_next_split_idx;
+        m_next_split_idx++;
+        return r;
+    }
 };
 
 LEAN_THREAD_PTR(blastenv, g_blastenv);
@@ -995,6 +1009,16 @@ bool classical() {
     return g_blastenv->classical();
 }
 
+unsigned mk_choice_point_idx() {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_choice_point_idx();
+}
+
+unsigned mk_split_idx() {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_split_idx();
+}
+
 void display_curr_state() {
     curr_state().display(env(), ios());
     display("\n");
@@ -1153,6 +1177,7 @@ void initialize_blast() {
     register_trace_class(name{"blast", "state"});
     register_trace_class(name{"blast", "action"});
     register_trace_class(name{"blast", "search"});
+    register_trace_class(name{"blast", "deadend"});
 
     register_trace_class_alias("app_builder", name({"blast", "event"}));
     register_trace_class_alias(name({"simplifier", "failure"}), name({"blast", "event"}));

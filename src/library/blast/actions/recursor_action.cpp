@@ -77,9 +77,12 @@ struct recursor_proof_step_cell : public proof_step_cell {
     expr       m_proof;       // recursor-application (the position where the goal-proofs are marked by the local constants).
     list<expr> m_goals;       // type of each subgoal/branch encoded as a local constant
     list<expr> m_goal_proofs; // proofs generated so far
+    optional<unsigned> m_split_idx;
 
-    recursor_proof_step_cell(bool dep, branch const & b, expr const & pr, list<expr> const & goals, list<expr> const & goal_proofs):
-        m_dep(dep), m_branch(b), m_proof(pr), m_goals(goals), m_goal_proofs(goal_proofs) {
+    recursor_proof_step_cell(bool dep, branch const & b, expr const & pr, list<expr> const & goals, list<expr> const & goal_proofs,
+                             optional<unsigned> const & split_idx):
+        m_dep(dep), m_branch(b), m_proof(pr), m_goals(goals), m_goal_proofs(goal_proofs),
+        m_split_idx(split_idx) {
     }
 
     virtual ~recursor_proof_step_cell() {}
@@ -108,6 +111,9 @@ struct recursor_proof_step_cell : public proof_step_cell {
             }
             if (skip) {
                 lean_assert(closed(it));
+                if (m_split_idx) {
+                    lean_trace_action(tout() << "backjumping recursor (split #" << *m_split_idx << ")\n";);
+                }
                 return action_result::solved(it);
             }
         }
@@ -127,11 +133,15 @@ struct recursor_proof_step_cell : public proof_step_cell {
                 }
             }
             expr result = mk_app(rec, proof_args);
+            if (m_split_idx)
+                lean_trace_action(tout() << "solved recursor (split #" << *m_split_idx << ")\n";);
             return action_result::solved(result);
         } else {
             s.pop_proof_step();
-            s.push_proof_step(new recursor_proof_step_cell(m_dep, m_branch, m_proof, new_goals, new_prs));
+            s.push_proof_step(new recursor_proof_step_cell(m_dep, m_branch, m_proof, new_goals, new_prs, m_split_idx));
             s.set_target(mlocal_type(head(new_goals)));
+            lean_assert(m_split_idx);
+            lean_trace_action(tout() << "recursor (next of split #" << *m_split_idx << ")\n";);
             return action_result::new_branch();
         }
     }
@@ -290,12 +300,20 @@ action_result recursor_action(hypothesis_idx hidx, name const & R) {
         return action_result::failed(); // ill-formed recursor
 
     save_state.commit();
-    lean_trace_action(tout() << "recursor " << R << "\n";);
+    optional<unsigned> split_idx;
+    if (new_goals.size() > 1) {
+        split_idx = mk_split_idx();
+    }
+    lean_trace_action(
+        tout() << "recursor ";
+        if (split_idx)
+            tout () << "(split #" << *split_idx << ") ";
+        tout() << R << " " << h << "\n";);
     if (new_goals.empty()) {
         return action_result::solved(rec);
     }
     s.del_hypothesis(hidx);
-    s.push_proof_step(new recursor_proof_step_cell(rec_info.has_dep_elim(), s.get_branch(), rec, to_list(new_goals), list<expr>()));
+    s.push_proof_step(new recursor_proof_step_cell(rec_info.has_dep_elim(), s.get_branch(), rec, to_list(new_goals), list<expr>(), split_idx));
     s.set_target(mlocal_type(new_goals[0]));
     return action_result::new_branch();
 }

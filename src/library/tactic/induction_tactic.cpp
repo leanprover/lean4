@@ -332,11 +332,16 @@ public:
                             // last one
                             return execute(g, H, H_type, r);
                         } else {
+                            list<name>     saved_ids   = m_ids;
+                            constraint_seq saved_cs    = m_cs;
+                            substitution   saved_subst = m_subst;
                             try {
-                                flet<list<name>>     save_ids(m_ids, m_ids);
-                                flet<constraint_seq> save_cs(m_cs, m_cs);
                                 return execute(g, H, H_type, r);
-                            } catch (exception &) {}
+                            } catch (exception &) {
+                                m_ids   = saved_ids;
+                                m_cs    = saved_cs;
+                                m_subst = saved_subst;
+                            }
                         }
                     }
                 }

@@ -112,7 +112,7 @@ struct recursor_proof_step_cell : public proof_step_cell {
             if (skip) {
                 lean_assert(closed(it));
                 if (m_split_idx) {
-                    lean_trace_action(tout() << "backjumping recursor (split #" << *m_split_idx << ")\n";);
+                    lean_trace_search(tout() << "backjumping split #" << *m_split_idx << "\n";);
                 }
                 return action_result::solved(it);
             }
@@ -134,14 +134,14 @@ struct recursor_proof_step_cell : public proof_step_cell {
             }
             expr result = mk_app(rec, proof_args);
             if (m_split_idx)
-                lean_trace_action(tout() << "solved recursor (split #" << *m_split_idx << ")\n";);
+                lean_trace_search(tout() << "solved split #" << *m_split_idx << "\n";);
             return action_result::solved(result);
         } else {
             s.pop_proof_step();
             s.push_proof_step(new recursor_proof_step_cell(m_dep, m_branch, m_proof, new_goals, new_prs, m_split_idx));
             s.set_target(mlocal_type(head(new_goals)));
             lean_assert(m_split_idx);
-            lean_trace_action(tout() << "recursor (next of split #" << *m_split_idx << ")\n";);
+            lean_trace_search(tout() << "next of split #" << *m_split_idx << "\n";);
             return action_result::new_branch();
         }
     }
@@ -304,7 +304,7 @@ action_result recursor_action(hypothesis_idx hidx, name const & R) {
     if (new_goals.size() > 1) {
         split_idx = mk_split_idx();
     }
-    lean_trace_action(
+    lean_trace_search(
         tout() << "recursor ";
         if (split_idx)
             tout () << "(split #" << *split_idx << ") ";

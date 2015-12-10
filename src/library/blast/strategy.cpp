@@ -89,7 +89,6 @@ optional<expr> strategy_fn::search() {
                 lean_trace_search(tout() << "strategy '" << get_name() << "' succeeded, proof found\n";);
                 return some_expr(unfold_hypotheses_ge(curr_state(), r.get_proof(), init_proof_depth));
             }
-            trace_search("* next branch");
             break;
         case action_result::NewBranch:
             r = next_action();

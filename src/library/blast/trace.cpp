@@ -67,7 +67,7 @@ void trace_depth_nchoices() {
         p.second == get_num_choice_points())
         return;
     p = mk_pair(curr_state().get_proof_depth(), get_num_choice_points());
-    lean_trace_search(tout() << "depth: " << p.first << ", #choice: " << p.second << "\n";);
+    lean_trace_search(tout() << "depth: " << p.first << ", #choices: " << p.second << "\n";);
 }
 
 void trace_search(char const * msg) {

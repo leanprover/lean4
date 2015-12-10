@@ -111,7 +111,8 @@ public:
             m_lemmas        = tail(m_lemmas);
             action_result r = try_lemma(lemma, m_prop_only);
             if (!failed(r)) {
-                lean_trace_action(tout() << m_action_name << " (next of choice #" << m_choice_idx << ") " << lemma << "\n";);
+                lean_trace_search(tout() << "next of choice #" << m_choice_idx
+                                  << ", " << m_action_name << " " << lemma << "\n";);
                 return r;
             }
         }
@@ -131,9 +132,9 @@ action_result backward_action_core(list<gexpr> const & lemmas, bool prop_only_br
             if (!cut && !empty(it)) {
                 unsigned cidx = mk_choice_point_idx();
                 push_choice_point(choice_point(new backward_choice_point_cell(action_name, s, it, prop_only_branches, cidx)));
-                lean_trace_action(tout() << action_name << " (choice #" << cidx << ") " << H << "\n";);
+                lean_trace_search(tout() << action_name << " (choice #" << cidx << ") " << H << "\n";);
             } else {
-                lean_trace_action(tout() << action_name << " " << H << "\n";);
+                lean_trace_search(tout() << action_name << " " << H << "\n";);
             }
             return r;
         }

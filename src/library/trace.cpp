@@ -14,6 +14,7 @@ namespace lean {
 static name_set *            g_trace_classes = nullptr;
 static name_map<name_set>  * g_trace_aliases = nullptr;
 MK_THREAD_LOCAL_GET_DEF(std::vector<name>, get_enabled_trace_classes);
+MK_THREAD_LOCAL_GET_DEF(std::vector<name>, get_disabled_trace_classes);
 MK_THREAD_LOCAL_GET_DEF(environment, get_dummy_env);
 LEAN_THREAD_PTR(environment, g_env);
 LEAN_THREAD_PTR(io_state,    g_ios);
@@ -37,15 +38,23 @@ bool is_trace_enabled() {
     return !get_enabled_trace_classes().empty();
 }
 
-void enable_trace_class(name const & c) {
-    std::vector<name> & cs = get_enabled_trace_classes();
+static void update_class(std::vector<name> & cs, name const & c) {
     if (std::find(cs.begin(), cs.end(), c) == cs.end()) {
         cs.push_back(c);
     }
 }
 
-bool is_trace_class_enabled_core(name const & n) {
-    for (name const & p : get_enabled_trace_classes()) {
+
+static void enable_trace_class(name const & c) {
+    update_class(get_enabled_trace_classes(), c);
+}
+
+static void disable_trace_class(name const & c) {
+    update_class(get_disabled_trace_classes(), c);
+}
+
+static bool is_trace_class_set_core(std::vector<name> const & cs, name const & n) {
+    for (name const & p : cs) {
         if (is_prefix_of(p, n)) {
             return true;
         }
@@ -53,17 +62,15 @@ bool is_trace_class_enabled_core(name const & n) {
     return false;
 }
 
-bool is_trace_class_enabled(name const & n) {
-    if (!is_trace_enabled())
-        return false;
-    if (is_trace_class_enabled_core(n))
+static bool is_trace_class_set(std::vector<name> const & cs, name const & n) {
+    if (is_trace_class_set_core(cs, n))
         return true;
     auto it = n;
     while (true) {
         if (auto s = g_trace_aliases->find(it)) {
             bool found = false;
             s->for_each([&](name const & alias) {
-                    if (!found && is_trace_class_enabled_core(alias))
+                    if (!found && is_trace_class_set_core(cs, alias))
                         found = true;
                 });
             if (found)
@@ -75,17 +82,30 @@ bool is_trace_class_enabled(name const & n) {
     }
 }
 
+bool is_trace_class_enabled(name const & n) {
+    if (!is_trace_enabled())
+        return false;
+    if (is_trace_class_set(get_disabled_trace_classes(), n))
+        return false; // it was explicitly disabled
+    return is_trace_class_set(get_enabled_trace_classes(), n);
+}
+
 scope_trace_env::scope_trace_env(environment const & env, io_state const & ios) {
-    m_sz      = get_enabled_trace_classes().size();
-    m_old_env = g_env;
-    m_old_ios = g_ios;
-    g_env     = const_cast<environment*>(&env);
-    g_ios     = const_cast<io_state*>(&ios);
+    m_enable_sz  = get_enabled_trace_classes().size();
+    m_disable_sz = get_disabled_trace_classes().size();
+    m_old_env    = g_env;
+    m_old_ios    = g_ios;
+    g_env        = const_cast<environment*>(&env);
+    g_ios        = const_cast<io_state*>(&ios);
+    options const & opts = ios.get_options();
     name trace("trace");
-    ios.get_options().for_each([&](name const & n) {
+    opts.for_each([&](name const & n) {
             if (is_prefix_of(trace, n)) {
                 name cls        = n.replace_prefix(trace, name());
-                enable_trace_class(cls);
+                if (opts.get_bool(n, false))
+                    enable_trace_class(cls);
+                else
+                    disable_trace_class(cls);
             }
         });
 }
@@ -93,7 +113,8 @@ scope_trace_env::scope_trace_env(environment const & env, io_state const & ios) 
 scope_trace_env::~scope_trace_env() {
     g_env = const_cast<environment*>(m_old_env);
     g_ios = const_cast<io_state*>(m_old_ios);
-    get_enabled_trace_classes().resize(m_sz);
+    get_enabled_trace_classes().resize(m_enable_sz);
+    get_disabled_trace_classes().resize(m_disable_sz);
 }
 
 void scope_trace_inc_depth::activate() {

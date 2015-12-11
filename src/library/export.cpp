@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/expr_maps.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/inductive/inductive.h"
-#include "library/max_sharing.h"
 #include "library/module.h"
 #include "library/unfold_macros.h"
 
@@ -21,14 +20,13 @@ using name_hmap = typename std::unordered_map<name, T, name_hash, name_eq>;
 
 
 class exporter {
-    std::ostream &        m_out;
-    environment           m_env;
-    bool                  m_all;
-    name_set              m_exported;
-    max_sharing_fn        m_max_sharing;
-    name_hmap<unsigned>   m_name2idx;
-    level_map<unsigned>   m_level2idx;
-    expr_map<unsigned>    m_expr2idx;
+    std::ostream &               m_out;
+    environment                  m_env;
+    bool                         m_all;
+    name_set                     m_exported;
+    name_hmap<unsigned>          m_name2idx;
+    level_map<unsigned>          m_level2idx;
+    expr_bi_struct_map<unsigned> m_expr2idx;
 
     void mark(name const & n) {
         m_exported.insert(n);
@@ -180,7 +178,7 @@ class exporter {
     }
 
     unsigned export_root_expr(expr const & e) {
-        return export_expr(m_max_sharing(unfold_all_macros(m_env, e)));
+        return export_expr(unfold_all_macros(m_env, e));
     }
 
     void export_dependencies(expr const & e) {

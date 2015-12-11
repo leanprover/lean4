@@ -186,15 +186,14 @@ namespace trunc
 
   protected definition encode (n : trunc_index) (aa aa' : trunc n.+1 A) : aa = aa' → trunc.code n aa aa' :=
   begin
-    intro p, induction p, apply (trunc.rec_on aa),
-    intro a, esimp [trunc.code,trunc.rec_on], exact (tr idp)
+    intro p, induction p, induction aa with a, esimp [trunc.code,trunc.rec_on], exact (tr idp)
   end
 
   protected definition decode (n : trunc_index) (aa aa' : trunc n.+1 A) : trunc.code n aa aa' → aa = aa' :=
   begin
-    eapply (trunc.rec_on aa'), eapply (trunc.rec_on aa),
-    intro a a' x, esimp [trunc.code, trunc.rec_on] at x,
-    apply (trunc.rec_on x), intro p, exact (ap tr p)
+    induction aa' with a', induction aa with a,
+    esimp [trunc.code, trunc.rec_on], intro x,
+    induction x with p, exact ap tr p,
   end
 
   definition trunc_eq_equiv [constructor] (n : trunc_index) (aa aa' : trunc n.+1 A)

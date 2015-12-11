@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 Declaration of set-quotients, i.e. quotient of a mere relation which is then set-truncated.
 -/
 
-import function algebra.relation types.trunc types.eq
+import function algebra.relation types.trunc types.eq hit.quotient
 
 open eq is_trunc trunc quotient equiv
 
@@ -32,9 +32,9 @@ section
   begin
     apply (@trunc.rec_on _ _ P x),
     { intro x', apply Pt},
-    { intro y, fapply (quotient.rec_on y),
-      { exact Pc},
-      { intros, exact pathover_of_pathover_ap P tr (Pp H)}}
+    { intro y, induction y,
+      { apply Pc},
+      { exact pathover_of_pathover_ap P tr (Pp H)}}
   end
 
   protected definition rec_on [reducible] {P : set_quotient → Type} (x : set_quotient)

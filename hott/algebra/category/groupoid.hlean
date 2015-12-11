@@ -6,7 +6,7 @@ Authors: Jakob von Raumer, Floris van Doorn
 Ported from Coq HoTT
 -/
 
-import .iso ..group
+import .iso algebra.group
 
 open eq is_trunc iso category algebra nat unit
 

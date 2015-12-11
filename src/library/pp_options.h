@@ -8,15 +8,17 @@ Author: Leonardo de Moura
 #include "util/sexpr/options.h"
 namespace lean {
 name const & get_pp_implicit_name();
-name const & get_pp_coercions_option_name();
-name const & get_pp_full_names_option_name();
-name const & get_pp_universes_option_name();
-name const & get_pp_notation_option_name();
+name const & get_pp_coercions_name();
+name const & get_pp_full_names_name();
+name const & get_pp_universes_name();
+name const & get_pp_notation_name();
 name const & get_pp_metavar_args_name();
 name const & get_pp_purify_metavars_name();
 name const & get_pp_purify_locals_name();
 name const & get_pp_beta_name();
 name const & get_pp_preterm_name();
+name const & get_pp_numerals_name();
+name const & get_pp_abbreviations_name();
 
 unsigned get_pp_max_depth(options const & opts);
 unsigned get_pp_max_steps(options const & opts);

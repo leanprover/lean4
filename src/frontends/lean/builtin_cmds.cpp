@@ -71,7 +71,7 @@ namespace lean {
 static void print_coercions(parser & p, optional<name> const & C) {
     environment const & env = p.env();
     options opts = p.regular_stream().get_options();
-    opts = opts.update(get_pp_coercions_option_name(), true);
+    opts = opts.update(get_pp_coercions_name(), true);
     io_state_stream out = p.regular_stream().update_options(opts);
     char const * arrow = get_pp_unicode(opts) ? "↣" : ">->";
     for_each_coercion_user(env, [&](name const & C1, name const & c, name const & D) {
@@ -194,8 +194,8 @@ static bool print_parse_table(parser const & p, parse_table const & t, bool nud,
     bool found = false;
     io_state ios = p.ios();
     options os   = ios.get_options();
-    os = os.update_if_undef(get_pp_full_names_option_name(), true);
-    os = os.update(get_pp_notation_option_name(), false);
+    os = os.update_if_undef(get_pp_full_names_name(), true);
+    os = os.update(get_pp_notation_name(), false);
     os = os.update(get_pp_preterm_name(), true);
     ios.set_options(os);
     optional<token_table> tt(get_token_table(p.env()));
@@ -622,7 +622,7 @@ environment print_cmd(parser & p) {
         expr e = p.parse_expr();
         io_state_stream out = p.regular_stream();
         options opts = out.get_options();
-        opts = opts.update(get_pp_notation_option_name(), false);
+        opts = opts.update(get_pp_notation_name(), false);
         out.update_options(opts) << e << endl;
     } else if (p.curr_is_token_or_id(get_no_pattern_attr_tk())) {
         p.next();

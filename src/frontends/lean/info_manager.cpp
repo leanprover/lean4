@@ -176,7 +176,7 @@ public:
     virtual void display(io_state_stream const & ios, unsigned line) const {
         ios << "-- OVERLOAD|" << line << "|" << get_column() << "\n";
         options os = ios.get_options();
-        os = os.update_if_undef(get_pp_full_names_option_name(), true);
+        os = os.update_if_undef(get_pp_full_names_name(), true);
         auto new_ios = ios.update_options(os);
         for (unsigned i = 0; i < get_num_choices(m_choices); i++) {
             if (i > 0)
@@ -197,8 +197,8 @@ public:
     virtual void display(io_state_stream const & ios, unsigned line) const {
         ios << "-- OVERLOAD|" << line << "|" << get_column() << "\n";
         options os = ios.get_options();
-        os = os.update_if_undef(get_pp_full_names_option_name(), true);
-        os = os.update_if_undef(get_pp_notation_option_name(), false);
+        os = os.update_if_undef(get_pp_full_names_name(), true);
+        os = os.update_if_undef(get_pp_notation_name(), false);
         auto new_ios = ios.update_options(os);
         bool first = true;
         for (expr const & e : m_alts) {
@@ -221,7 +221,7 @@ public:
     virtual void display(io_state_stream const & ios, unsigned line) const {
         ios << "-- COERCION|" << line << "|" << get_column() << "\n";
         options os = ios.get_options();
-        os = os.update_if_undef(get_pp_coercions_option_name(), true);
+        os = os.update_if_undef(get_pp_coercions_name(), true);
         ios.update_options(os) << m_expr << endl << "--" << endl << m_type << endl;
         ios << "-- ACK" << endl;
     }

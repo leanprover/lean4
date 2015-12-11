@@ -1155,7 +1155,7 @@ static expr assign_equation_lhs_metas(type_checker & tc, expr const & eqns) {
                         lean_assert(r.first == Inaccessible);
                         throw_elaborator_exception(eqns, [=](formatter const & fmt) {
                                 options o = fmt.get_options().update_if_undef(get_pp_implicit_name(), true);
-                                o = o.update_if_undef(get_pp_notation_option_name(), false);
+                                o = o.update_if_undef(get_pp_notation_name(), false);
                                 formatter new_fmt = fmt.update_options(o);
                                 expr const & f = get_app_fn(lhs);
                                 format r;
@@ -2198,7 +2198,7 @@ void elaborator::check_sort_assignments(substitution const & s) {
                         substitution saved_s(s);
                         throw_kernel_exception(env(), pre, [=](formatter const & fmt) {
                                 options o = fmt.get_options();
-                                o  = o.update(get_pp_universes_option_name(), true);
+                                o  = o.update(get_pp_universes_name(), true);
                                 format r("solution computed by the elaborator forces a universe placeholder"
                                          " to be a fixed value, computed sort is");
                                 r += pp_indent_expr(fmt.update_options(o), substitution(saved_s).instantiate(post));

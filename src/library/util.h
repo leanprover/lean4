@@ -282,6 +282,9 @@ expr instantiate_meta(expr const & meta, substitution & subst);
     metavariable application \c m of the form (?m l_1 ... l_k) */
 justification mk_failed_to_synthesize_jst(environment const & env, expr const & m);
 
+/** \brief Return true if it is a lean internal name, i.e., the name starts with a `_` */
+bool is_internal_name(name const & n);
+
 void initialize_library_util();
 void finalize_library_util();
 }

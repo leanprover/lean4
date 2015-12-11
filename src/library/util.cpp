@@ -996,4 +996,8 @@ type_checker_ptr mk_simple_type_checker(environment const & env, name_generator 
     return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
                                          std::unique_ptr<converter>(new hint_converter<default_converter>(env, pred))));
 }
+
+bool is_internal_name(name const & n) {
+    return !n.is_anonymous() && n.is_string() && n.get_string() && n.get_string()[0] == '_';
+}
 }

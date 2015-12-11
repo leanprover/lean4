@@ -514,11 +514,30 @@ name parser::check_id_next(char const * msg) {
     return r;
 }
 
+static void check_not_internal(name const & id, pos_info const & p) {
+    if (is_internal_name(id))
+        throw parser_error(sstream() << "invalid declaration name '" << id << "', identifiers starting with '_' are reserved to the system", p);
+}
+
+name parser::check_decl_id_next(char const * msg) {
+    auto p  = pos();
+    name id = check_id_next(msg);
+    check_not_internal(id, p);
+    return id;
+}
+
 name parser::check_atomic_id_next(char const * msg) {
     auto p  = pos();
     name id = check_id_next(msg);
     if (!id.is_atomic())
         throw parser_error(msg, p);
+    return id;
+}
+
+name parser::check_atomic_decl_id_next(char const * msg) {
+    auto p  = pos();
+    name id = check_atomic_id_next(msg);
+    check_not_internal(id, p);
     return id;
 }
 

@@ -1,0 +1,3 @@
+internal_names.lean:1:11: error: invalid declaration name '_foo', identifiers starting with '_' are reserved to the system
+internal_names.lean:3:10: error: invalid declaration name '_bla', identifiers starting with '_' are reserved to the system
+internal_names.lean:5:10: error: invalid declaration name '_empty', identifiers starting with '_' are reserved to the system

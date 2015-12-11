@@ -197,7 +197,7 @@ struct inductive_cmd_fn {
     */
     pair<name, name> parse_decl_name(optional<name> const & ind_name) {
         m_pos   = m_p.pos();
-        name id = m_p.check_id_next("invalid declaration, identifier expected");
+        name id = m_p.check_decl_id_next("invalid declaration, identifier expected");
         if (ind_name) {
             // for intro rules, we append the name of the inductive datatype
             check_atomic(id);

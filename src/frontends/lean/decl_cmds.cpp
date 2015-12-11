@@ -73,7 +73,7 @@ static environment universe_cmd(parser & p) {
             p.next();
             local = true;
         }
-        name n = p.check_id_next("invalid 'universe' command, identifier expected");
+        name n = p.check_decl_id_next("invalid 'universe' command, identifier expected");
         return declare_universe(p, p.env(), n, local);
     }
 }
@@ -222,7 +222,7 @@ static environment variable_cmd_core(parser & p, variable_kind k, bool is_protec
     check_variable_kind(p, k);
     auto pos = p.pos();
     optional<binder_info> bi = parse_binder_info(p, k);
-    name n = p.check_id_next("invalid declaration, identifier expected");
+    name n = p.check_decl_id_next("invalid declaration, identifier expected");
     buffer<name> ls_buffer;
     if (p.curr_is_token(get_llevel_curly_tk()) && (k == variable_kind::Parameter || k == variable_kind::Variable))
         throw parser_error("invalid declaration, only constants/axioms can be universe polymorphic", p.pos());
@@ -473,7 +473,7 @@ static void parse_equations_core(parser & p, buffer<expr> const & fns, buffer<ex
             auto lhs_pos = p.pos();
             if (p.curr_is_token(get_explicit_tk())) {
                 p.next();
-                name fn_name = p.check_id_next("invalid recursive equation, identifier expected");
+                name fn_name = p.check_decl_id_next("invalid recursive equation, identifier expected");
                 lhs_args.push_back(p.save_pos(mk_explicit(get_equation_fn(fns, fn_name, lhs_pos)), lhs_pos));
             } else {
                 expr first = p.parse_expr(get_max_prec());
@@ -534,7 +534,7 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
             while (p.curr_is_token(get_with_tk())) {
                 p.next();
                 auto pos = p.pos();
-                name g_name = p.check_id_next("invalid declaration, identifier expected");
+                name g_name = p.check_decl_id_next("invalid declaration, identifier expected");
                 p.check_token_next(get_colon_tk(), "invalid declaration, ':' expected");
                 expr g_type = p.parse_expr();
                 expr g      = p.save_pos(mk_local(g_name, g_type), pos);
@@ -683,7 +683,7 @@ class definition_cmd_fn {
         if (m_kind == Example)
             m_name = get_this_tk();
         else
-            m_name = m_p.check_id_next("invalid declaration, identifier expected");
+            m_name = m_p.check_decl_id_next("invalid declaration, identifier expected");
     }
 
     expr extract_nested(expr const & v) {

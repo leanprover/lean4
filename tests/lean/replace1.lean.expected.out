@@ -7,4 +7,14 @@ replace1.lean:29:9: error: #replace commad failed
 @eq.rec.{0 1} nat a (λ (x : nat), p x) H1 b (@eq.refl.{1} nat a)
 @eq.rec.{0 1} nat a (λ (x : nat), p x) H1 a (@eq.refl.{1} nat a)
 replace1.lean:40:9: error: #replace commad failed
-λ (v₁ v₂ : bv 11), @eq.{1} (bv 11) v₁ v₂
+λ
+(v₁ v₂ :
+  bv
+    (@bit1.{1} nat nat_has_one nat_has_add
+       (@bit1.{1} nat nat_has_one nat_has_add (@bit0.{1} nat nat_has_add (@one.{1} nat nat_has_one))))),
+  @eq.{1}
+    (bv
+       (@bit1.{1} nat nat_has_one nat_has_add
+          (@bit1.{1} nat nat_has_one nat_has_add (@bit0.{1} nat nat_has_add (@one.{1} nat nat_has_one)))))
+    v₁
+    v₂

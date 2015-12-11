@@ -280,7 +280,7 @@ void pretty_fn::set_options_core(options const & o) {
     m_purify_metavars = get_pp_purify_metavars(o);
     m_purify_locals   = get_pp_purify_locals(o);
     m_beta            = !all && get_pp_beta(o);
-    m_numerals        = get_pp_numerals(o);
+    m_numerals        = !all && get_pp_numerals(o);
     m_abbreviations   = !all && get_pp_abbreviations(o);
     m_preterm         = get_pp_preterm(o);
     m_hide_full_terms = get_formatter_hide_full_terms(o);

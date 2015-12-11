@@ -473,7 +473,7 @@ list<expr> get_local_instances(type_checker & tc, list<expr> const & ctx, name c
 
 void initialize_class() {
     g_tmp_prefix = new name(name::mk_internal_unique_name());
-    g_source     = new name(*g_tmp_prefix, "source");
+    g_source     = new name("_source");
     g_class_name = new name("classes");
     g_key = new std::string("class");
     class_ext::initialize();

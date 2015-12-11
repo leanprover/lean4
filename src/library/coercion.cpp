@@ -77,9 +77,8 @@ template class scoped_ext<coercion_config>;
 typedef scoped_ext<coercion_config> coercion_ext;
 
 void initialize_coercion() {
-    name p       = name::mk_internal_unique_name();
-    g_fun        = new name(p, "Fun");
-    g_sort       = new name(p, "Sort");
+    g_fun        = new name("_Fun");
+    g_sort       = new name("_Sort");
     g_class_name = new name("coercions");
     g_key        = new std::string("coerce");
     coercion_ext::initialize();

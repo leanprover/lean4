@@ -1,0 +1,6 @@
+category.equivalence.to._Fun :
+  Π {C : category.Precategory} {D : category.Precategory} (c : category.equivalence C D)
+  {a b : category.Precategory.carrier C},
+    category.hom a b →
+    category.hom (functor.to_fun_ob (category.equivalence.to_functor c) a)
+      (functor.to_fun_ob (category.equivalence.to_functor c) b)

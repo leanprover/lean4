@@ -1,2 +1,2 @@
 a + of_num b = 10 : Prop
-@eq.{1} nat (@add.{1} nat 11.source.to.has_add ((λ (x : nat), x) a) (nat.of_num 2)) 10 : Prop
+@eq.{1} nat (@add.{1} nat _source.to.has_add ((λ (x : nat), x) a) (nat.of_num 2)) 10 : Prop

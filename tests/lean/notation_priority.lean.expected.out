@@ -1,4 +1,4 @@
-@add.{1} nat 11.source.to.has_add a b : nat
-@add.{1} int 11.source.to.has_add_1 i j : int
-@add.{1} nat 11.source.to.has_add a b : nat
-@add.{1} int 11.source.to.has_add_1 i j : int
+@add.{1} nat _source.to.has_add a b : nat
+@add.{1} int _source.to.has_add_1 i j : int
+@add.{1} nat _source.to.has_add a b : nat
+@add.{1} int _source.to.has_add_1 i j : int

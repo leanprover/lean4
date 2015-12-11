@@ -192,7 +192,9 @@
 ;; -----
 (defun company-lean--need-autocomplete ()
   (interactive)
-  (cond ((looking-back
+  (cond ((looking-back (rx "print" (+ white) "definition" (+ white) (* (not white))))
+         t)
+        ((looking-back
           (rx (or "theorem" "definition" "lemma" "axiom" "parameter"
                   "variable" "hypothesis" "conjecture"
                   "corollary" "open")

@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/util.h"
+#include "frontends/lean/nested_declaration.h"
 
 namespace lean {
 static std::string parse_symbol(parser & p, char const * msg) {
@@ -742,6 +743,7 @@ static environment mixfix_cmd(parser & p, mixfix_kind k, bool overload, notation
 }
 
 static environment notation_cmd(parser & p) {
+    allow_nested_decls_scope scope(true);
     bool overload = true;
     notation_entry_group grp = notation_entry_group::Main;
     bool persistent = true;
@@ -749,6 +751,7 @@ static environment notation_cmd(parser & p) {
 }
 
 static environment infixl_cmd(parser & p) {
+    allow_nested_decls_scope scope(true);
     bool overload = true;
     notation_entry_group grp = notation_entry_group::Main;
     bool persistent = true;
@@ -756,6 +759,7 @@ static environment infixl_cmd(parser & p) {
 }
 
 static environment infixr_cmd(parser & p) {
+    allow_nested_decls_scope scope(true);
     bool overload = true;
     notation_entry_group grp = notation_entry_group::Main;
     bool persistent = true;
@@ -763,6 +767,7 @@ static environment infixr_cmd(parser & p) {
 }
 
 static environment postfix_cmd(parser & p) {
+    allow_nested_decls_scope scope(true);
     bool overload = true;
     notation_entry_group grp = notation_entry_group::Main;
     bool persistent = true;
@@ -770,6 +775,7 @@ static environment postfix_cmd(parser & p) {
 }
 
 static environment prefix_cmd(parser & p) {
+    allow_nested_decls_scope scope(true);
     bool overload = true;
     notation_entry_group grp = notation_entry_group::Main;
     bool persistent = true;
@@ -777,6 +783,7 @@ static environment prefix_cmd(parser & p) {
 }
 
 static environment tactic_notation_cmd(parser & p) {
+    allow_nested_decls_scope scope(true);
     bool overload = false;
     notation_entry_group grp = notation_entry_group::Tactic;
     bool persistent = true;
@@ -784,6 +791,7 @@ static environment tactic_notation_cmd(parser & p) {
 }
 
 static environment tactic_infixl_cmd(parser & p) {
+    allow_nested_decls_scope scope(true);
     bool overload = false;
     notation_entry_group grp = notation_entry_group::Tactic;
     bool persistent = true;
@@ -791,6 +799,7 @@ static environment tactic_infixl_cmd(parser & p) {
 }
 
 static environment tactic_infixr_cmd(parser & p) {
+    allow_nested_decls_scope scope(true);
     bool overload = false;
     notation_entry_group grp = notation_entry_group::Tactic;
     bool persistent = true;
@@ -798,6 +807,7 @@ static environment tactic_infixr_cmd(parser & p) {
 }
 
 static environment tactic_postfix_cmd(parser & p) {
+    allow_nested_decls_scope scope(true);
     bool overload = false;
     notation_entry_group grp = notation_entry_group::Tactic;
     bool persistent = true;
@@ -805,6 +815,7 @@ static environment tactic_postfix_cmd(parser & p) {
 }
 
 static environment tactic_prefix_cmd(parser & p) {
+    allow_nested_decls_scope scope(true);
     bool overload = false;
     notation_entry_group grp = notation_entry_group::Tactic;
     bool persistent = true;
@@ -838,6 +849,7 @@ static environment dispatch_notation_cmd(parser & p, bool overload, notation_ent
 }
 
 environment local_notation_cmd(parser & p) {
+    allow_nested_decls_scope scope(true);
     parser::in_notation_ctx ctx(p);
     bool overload   = false; // REMARK: local notation override global one
     notation_entry_group grp = notation_entry_group::Main;

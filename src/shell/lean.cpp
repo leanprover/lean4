@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "util/thread.h"
 #include "util/thread_script_state.h"
 #include "util/lean_path.h"
+#include "util/file_lock.h"
 #include "util/sexpr/options.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/environment.h"
@@ -65,6 +66,8 @@ using lean::declaration_index;
 using lean::keep_theorem_mode;
 using lean::module_name;
 using lean::simple_pos_info_provider;
+using lean::shared_file_lock;
+using lean::exclusive_file_lock;
 
 enum class input_kind { Unspecified, Lean, HLean, Lua, Trace };
 
@@ -463,6 +466,7 @@ int main(int argc, char ** argv) {
     if (read_cache) {
         try {
             cache_ptr = &cache;
+            shared_file_lock cache_lock(cache_name);
             std::ifstream in(cache_name, std::ifstream::binary);
             if (!in.bad() && !in.fail())
                 cache.load(in);
@@ -535,6 +539,7 @@ int main(int argc, char ** argv) {
                 ok = false;
         }
         if (save_cache) {
+            exclusive_file_lock cache_lock(cache_name);
             std::ofstream out(cache_name, std::ofstream::binary);
             cache.save(out);
         }
@@ -544,14 +549,17 @@ int main(int argc, char ** argv) {
             index.save(regular(env, ios));
         }
         if (export_objects && ok) {
+            exclusive_file_lock output_lock(output);
             std::ofstream out(output, std::ofstream::binary);
             export_module(out, env);
         }
         if (export_txt) {
+            exclusive_file_lock expor_lock(*export_txt);
             std::ofstream out(*export_txt);
             export_module_as_lowtext(out, env);
         }
         if (export_all_txt) {
+            exclusive_file_lock export_lock(*export_all_txt);
             std::ofstream out(*export_all_txt);
             export_all_as_lowtext(out, env);
         }

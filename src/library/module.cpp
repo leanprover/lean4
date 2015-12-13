@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/interrupt.h"
 #include "util/name_map.h"
+#include "util/file_lock.h"
 #include "kernel/type_checker.h"
 #include "kernel/quotient/quotient.h"
 #include "kernel/hits/hits.h"
@@ -347,27 +348,32 @@ struct import_modules_fn {
             throw exception(sstream() << "circular dependency detected at '" << fname << "'");
         m_visited.insert(fname);
         m_imported.insert(fname);
-        std::ifstream in(fname, std::ifstream::binary);
-        if (!in.good())
-            throw exception(sstream() << "failed to open file '" << fname << "'");
         try {
-            deserializer d1(in);
-            std::string header;
-            d1 >> header;
-            if (header != g_olean_header)
-                throw exception(sstream() << "file '" << fname << "' does not seem to be a valid object Lean file, invalid header");
             unsigned major, minor, patch, claimed_hash;
-            d1 >> major >> minor >> patch >> claimed_hash;
-            // Enforce version?
-
-            unsigned num_imports  = d1.read_unsigned();
+            unsigned code_size;
             buffer<module_name> imports;
-            for (unsigned i = 0; i < num_imports; i++)
-                imports.push_back(read_module_name(d1));
+            std::vector<char> code;
+            {
+                shared_file_lock fname_lock(fname);
+                std::ifstream in(fname, std::ifstream::binary);
+                if (!in.good())
+                    throw exception(sstream() << "failed to open file '" << fname << "'");
+                deserializer d1(in);
+                std::string header;
+                d1 >> header;
+                if (header != g_olean_header)
+                    throw exception(sstream() << "file '" << fname << "' does not seem to be a valid object Lean file, invalid header");
+                d1 >> major >> minor >> patch >> claimed_hash;
+                // Enforce version?
 
-            unsigned code_size    = d1.read_unsigned();
-            std::vector<char> code(code_size);
-            d1.read(code);
+                unsigned num_imports  = d1.read_unsigned();
+                for (unsigned i = 0; i < num_imports; i++)
+                    imports.push_back(read_module_name(d1));
+
+                code_size = d1.read_unsigned();
+                code.resize(code_size);
+                d1.read(code);
+            }
 
             if (m_senv.env().trust_lvl() <= LEAN_BELIEVER_TRUST_LEVEL) {
                 unsigned computed_hash = hash(code_size, [&](unsigned i) { return code[i]; });

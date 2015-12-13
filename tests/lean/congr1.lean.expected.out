@@ -1,7 +1,7 @@
 [fixed, fixed, eq, eq]
-λ (A : Type) (c : has_add A) (a a_1 : A) (e_3 : a = a_1) (a_2 a_3 : A) (e_4 : a_2 = a_3), congr (congr_arg add e_3) e_4
+λ (A : Type) (s : has_add A) (a a_1 : A) (e_3 : a = a_1) (a_2 a_3 : A) (e_4 : a_2 = a_3), congr (congr_arg add e_3) e_4
 :
-∀ (A : Type) (c : has_add A) (a a_1 : A), a = a_1 → (∀ (a_2 a_3 : A), a_2 = a_3 → a + a_2 = a_1 + a_3)
+∀ (A : Type) (s : has_add A) (a a_1 : A), a = a_1 → (∀ (a_2 a_3 : A), a_2 = a_3 → a + a_2 = a_1 + a_3)
 [eq, cast, fixed, eq, eq]
 λ (c c_1 : Prop) (e_1 : c = c_1) (H : decidable c) (A : Type) (t t_1 : A) (e_4 : t = t_1) (e e_2 : A) (e_5 : e = e_2),
   eq.drec (eq.drec (eq.drec (eq.refl (ite c t e)) e_5) e_4) e_1

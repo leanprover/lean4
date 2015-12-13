@@ -92,6 +92,7 @@ class expr_eq_fn {
             return
                 apply(binding_domain(a), binding_domain(b)) &&
                 apply(binding_body(a), binding_body(b)) &&
+                (!CompareBinderInfo || binding_name(a) == binding_name(b)) &&
                 (!CompareBinderInfo || binding_info(a) == binding_info(b));
         case expr_kind::Sort:
             return sort_level(a) == sort_level(b);

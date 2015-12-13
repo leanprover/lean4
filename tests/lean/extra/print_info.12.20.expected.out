@@ -1,3 +1,3 @@
 LEAN_INFORMATION
-definition mul : Π {A : Type} [c : has_mul A], A → A → A
+definition mul : Π {A : Type} [s : has_mul A], A → A → A
 END_LEAN_INFORMATION

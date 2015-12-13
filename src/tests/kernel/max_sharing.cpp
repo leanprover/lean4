@@ -28,7 +28,7 @@ static void tst1() {
     lean_assert(!is_eqp(app_arg(app_fn(F1)), app_arg(F1)));
     F2 = max_fn(F1);
     std::cout << F2 << "\n";
-    lean_assert(is_eqp(app_arg(app_fn(F2)), app_arg(F2)));
+    lean_assert(!is_eqp(app_arg(app_fn(F2)), app_arg(F2))); // name matter
     max_fn.clear();
 }
 

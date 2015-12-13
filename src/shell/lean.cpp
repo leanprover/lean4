@@ -544,6 +544,7 @@ int main(int argc, char ** argv) {
             cache.save(out);
         }
         if (gen_index) {
+            exclusive_file_lock index_lock(index_name);
             std::shared_ptr<lean::file_output_channel> out(new lean::file_output_channel(index_name.c_str()));
             ios.set_regular_channel(out);
             index.save(regular(env, ios));

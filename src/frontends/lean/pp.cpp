@@ -693,7 +693,7 @@ format pretty_fn::pp_binders(buffer<expr> const & locals) {
     format r;
     for (unsigned i = 1; i < num; i++) {
         expr local = locals[i];
-        if (mlocal_type(local) == type && local_info(local) == bi) {
+        if (!bi.is_inst_implicit() && mlocal_type(local) == type && local_info(local) == bi) {
             names.push_back(local_pp_name(local));
         } else {
             r += group(compose(line(), pp_binder_block(names, type, bi)));

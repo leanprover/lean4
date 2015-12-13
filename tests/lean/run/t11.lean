@@ -5,7 +5,7 @@ check f a b
 section
   parameters A B : Type
   parameters {C D : Type}
-  parameters [e d : A]
+  parameters [e : A] [d : A]
   check A
   check B
   definition g (a : A) (b : B) (c : C) : A := e

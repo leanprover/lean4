@@ -128,6 +128,24 @@ static void collect_locals_ignoring_tactics(expr const & e, collected_locals & l
         });
 }
 
+static void collect_annonymous_inst_implicit(parser const & p, collected_locals & ls) {
+    for (auto const & entry : p.get_local_entries()) {
+        if (is_local(entry.second) && !ls.contains(entry.second) && local_info(entry.second).is_inst_implicit() &&
+            // remark: remove the following condition condition, if we want to auto inclusion also for non anonymous ones.
+            p.is_anonymous_inst_name(entry.first)) {
+            bool ok = true;
+            for_each(mlocal_type(entry.second), [&](expr const & e, unsigned) {
+                    if (!ok) return false; // stop
+                    if (is_local(e) && !ls.contains(e))
+                        ok = false;
+                    return true;
+                });
+            if (ok)
+                ls.insert(entry.second);
+        }
+    }
+}
+
 // Collect local constants occurring in type and value, sort them, and store in ctx_ps
 void collect_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & ctx_ps) {
     collected_locals ls;
@@ -141,6 +159,7 @@ void collect_locals(expr const & type, expr const & value, parser const & p, buf
     }
     collect_locals_ignoring_tactics(type, ls);
     collect_locals_ignoring_tactics(value, ls);
+    collect_annonymous_inst_implicit(p, ls);
     sort_locals(ls.get_collected(), p, ctx_ps);
 }
 
@@ -187,6 +206,7 @@ levels remove_local_vars(parser const & p, levels const & ls) {
 list<expr> locals_to_context(expr const & e, parser const & p) {
     collected_locals ls;
     collect_locals_ignoring_tactics(e, ls);
+    collect_annonymous_inst_implicit(p, ls);
     buffer<expr> locals;
     sort_locals(ls.get_collected(), p, locals);
     std::reverse(locals.begin(), locals.end());

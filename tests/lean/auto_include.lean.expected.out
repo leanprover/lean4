@@ -1,0 +1,8 @@
+definition foo : ∀ {A : Type} [_inst_1 : group A] (a b : A), a * b = b * a :=
+λ (A : Type) (_inst_1 : group A) (a b : A), sorry
+definition bla : ∀ {B : Type} [_inst_2 : group B] (b : B), b * 1 = b :=
+λ (B : Type) (_inst_2 : group B) (b : B), sorry
+definition foo2 : ∀ {A : Type} [_inst_1 : group A] (a b : A), a * b = b * a :=
+λ (A : Type) (_inst_1 : group A) (a b : A), sorry
+definition bla2 : ∀ {B : Type} [_inst_2 : group B] (b : B), b * 1 = b :=
+λ (B : Type) (_inst_2 : group B) (b : B), sorry

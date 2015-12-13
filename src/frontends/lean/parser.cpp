@@ -425,6 +425,14 @@ name parser::mk_anonymous_inst_name() {
     return n;
 }
 
+bool parser::is_anonymous_inst_name(name const & n) const {
+    return
+        n.is_atomic() &&
+        n.is_string() &&
+        strlen(n.get_string()) >= strlen(g_anonymous_inst_name_prefix->get_string()) &&
+        memcmp(n.get_string(), g_anonymous_inst_name_prefix->get_string(), strlen(g_anonymous_inst_name_prefix->get_string())) == 0;
+}
+
 expr parser::save_pos(expr e, pos_info p) {
     auto t = get_tag(e);
     if (!m_pos_table.contains(t))
@@ -1067,7 +1075,8 @@ void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi, unsign
     }
 }
 
-void parser::parse_inst_implicit_decl(buffer<expr> & r, binder_info const & bi) {
+expr parser::parse_inst_implicit_decl() {
+    binder_info bi = mk_inst_implicit_binder_info();
     auto id_pos = pos();
     name id;
     expr type;
@@ -1093,6 +1102,12 @@ void parser::parse_inst_implicit_decl(buffer<expr> & r, binder_info const & bi) 
     save_identifier_info(id_pos, id);
     expr local = save_pos(mk_local(id, type, bi), id_pos);
     add_local(local);
+    return local;
+}
+
+
+void parser::parse_inst_implicit_decl(buffer<expr> & r) {
+    expr local = parse_inst_implicit_decl();
     r.push_back(local);
 }
 
@@ -1115,7 +1130,7 @@ void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentr
                 rbp = 0;
                 last_block_delimited = true;
                 if (bi->is_inst_implicit()) {
-                    parse_inst_implicit_decl(r, *bi);
+                    parse_inst_implicit_decl(r);
                 } else {
                     if (simple_only || !parse_local_notation_decl(nentries))
                         parse_binder_block(r, *bi, rbp);

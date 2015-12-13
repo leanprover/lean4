@@ -187,8 +187,6 @@ class parser {
     tag get_tag(expr e);
     expr copy_with_new_pos(expr const & e, pos_info p);
 
-    name mk_anonymous_inst_name();
-
     parse_table const & nud() const { return get_nud_table(env()); }
     parse_table const & led() const { return get_led_table(env()); }
     parse_table const & tactic_nud() const { return get_tactic_nud_table(env()); }
@@ -221,7 +219,8 @@ class parser {
     expr parse_numeral_expr(bool user_notation = true);
     expr parse_decimal_expr();
     expr parse_string_expr();
-    void parse_inst_implicit_decl(buffer<expr> & r, binder_info const & bi);
+    expr parse_inst_implicit_decl();
+    void parse_inst_implicit_decl(buffer<expr> & r);
     expr parse_binder_core(binder_info const & bi, unsigned rbp);
     void parse_binder_block(buffer<expr> & r, binder_info const & bi, unsigned rbp);
     void parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentries, bool & last_block_delimited, unsigned rbp, bool simple_only);
@@ -285,6 +284,9 @@ public:
 
     bool ignore_noncomputable() const { return m_ignore_noncomputable; }
     void set_ignore_noncomputable() { m_ignore_noncomputable = true; }
+
+    name mk_anonymous_inst_name();
+    bool is_anonymous_inst_name(name const & n) const;
 
     unsigned curr_expr_lbp() const { return curr_lbp_core(false); }
     unsigned curr_tactic_lbp() const { return curr_lbp_core(true); }

@@ -52,14 +52,15 @@ struct parser_scope_stack_elem {
     name_set           m_variables;
     name_set           m_include_vars;
     unsigned           m_num_undef_ids;
+    unsigned           m_next_inst_idx;
     bool               m_has_params;
     local_level_decls  m_local_level_decls;
     local_expr_decls   m_local_decls;
     parser_scope_stack_elem(optional<options> const & o, name_set const & lvs, name_set const & vs, name_set const & ivs,
-                            unsigned num_undef_ids, bool has_params,
+                            unsigned num_undef_ids, unsigned next_inst_idx, bool has_params,
                             local_level_decls const & lld, local_expr_decls const & led):
         m_options(o), m_level_variables(lvs), m_variables(vs), m_include_vars(ivs),
-        m_num_undef_ids(num_undef_ids), m_has_params(has_params), m_local_level_decls(lld), m_local_decls(led) {}
+        m_num_undef_ids(num_undef_ids), m_next_inst_idx(next_inst_idx), m_has_params(has_params), m_local_level_decls(lld), m_local_decls(led) {}
 };
 typedef list<parser_scope_stack_elem> parser_scope_stack;
 
@@ -111,6 +112,7 @@ class parser {
     pos_info                m_last_cmd_pos;
     pos_info                m_last_script_pos;
     unsigned                m_next_tag_idx;
+    unsigned                m_next_inst_idx;
     bool                    m_found_errors;
     bool                    m_used_sorry;
     pos_info_table          m_pos_table;
@@ -184,6 +186,8 @@ class parser {
 
     tag get_tag(expr e);
     expr copy_with_new_pos(expr const & e, pos_info p);
+
+    name mk_anonymous_inst_name();
 
     parse_table const & nud() const { return get_nud_table(env()); }
     parse_table const & led() const { return get_led_table(env()); }

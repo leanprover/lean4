@@ -80,6 +80,8 @@ bool get_parser_parallel_import(options const & opts) {
 }
 // ==========================================
 
+static name * g_anonymous_inst_name_prefix = nullptr;
+
 parser::local_scope::local_scope(parser & p, bool save_options):
     m_p(p), m_env(p.env()) {
     m_p.push_local_scope(save_options);
@@ -156,7 +158,8 @@ parser::parser(environment const & env, io_state const & ios,
     m_found_errors = false;
     m_used_sorry = false;
     updt_options();
-    m_next_tag_idx = 0;
+    m_next_tag_idx  = 0;
+    m_next_inst_idx = 1;
     m_curr = scanner::token_kind::Identifier;
     protected_call([&]() { scan(); },
                    [&]() { sync_command(); });
@@ -416,6 +419,12 @@ tag parser::get_tag(expr e) {
     return t;
 }
 
+name parser::mk_anonymous_inst_name() {
+    name n = g_anonymous_inst_name_prefix->append_after(m_next_inst_idx);
+    m_next_inst_idx++;
+    return n;
+}
+
 expr parser::save_pos(expr e, pos_info p) {
     auto t = get_tag(e);
     if (!m_pos_table.contains(t))
@@ -560,7 +569,7 @@ void parser::push_local_scope(bool save_options) {
     if (save_options)
         opts = m_ios.get_options();
     m_parser_scope_stack = cons(parser_scope_stack_elem(opts, m_level_variables, m_variables, m_include_vars,
-                                                        m_undef_ids.size(), m_has_params, m_local_level_decls,
+                                                        m_undef_ids.size(), m_next_inst_idx, m_has_params, m_local_level_decls,
                                                         m_local_decls),
                                 m_parser_scope_stack);
 }
@@ -580,6 +589,7 @@ void parser::pop_local_scope() {
     m_variables          = s.m_variables;
     m_include_vars       = s.m_include_vars;
     m_has_params         = s.m_has_params;
+    m_next_inst_idx      = s.m_next_inst_idx;
     m_undef_ids.shrink(s.m_num_undef_ids);
     m_parser_scope_stack = tail(m_parser_scope_stack);
 }
@@ -1069,7 +1079,7 @@ void parser::parse_inst_implicit_decl(buffer<expr> & r, binder_info const & bi) 
             type = parse_expr();
         } else {
             expr left    = id_to_expr(id, id_pos);
-            id           = name("_inst");
+            id           = mk_anonymous_inst_name();
             unsigned rbp = 0;
             while (rbp < curr_expr_lbp()) {
                 left = parse_led(left);
@@ -1077,7 +1087,7 @@ void parser::parse_inst_implicit_decl(buffer<expr> & r, binder_info const & bi) 
             type = left;
         }
     } else {
-        id   = name("_inst");
+        id   = mk_anonymous_inst_name();
         type = parse_expr();
     }
     save_identifier_info(id_pos, id);
@@ -2396,9 +2406,11 @@ void initialize_parser() {
     g_tmp_prefix = new name(name::mk_internal_unique_name());
     g_lua_module_key = new std::string("lua_module");
     register_module_object_reader(*g_lua_module_key, lua_module_reader);
+    g_anonymous_inst_name_prefix = new name("_inst");
 }
 
 void finalize_parser() {
+    delete g_anonymous_inst_name_prefix;
     delete g_lua_module_key;
     delete g_tmp_prefix;
     delete g_parser_show_errors;

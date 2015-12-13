@@ -1057,6 +1057,35 @@ void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi, unsign
     }
 }
 
+void parser::parse_inst_implicit_decl(buffer<expr> & r, binder_info const & bi) {
+    auto id_pos = pos();
+    name id;
+    expr type;
+    if (curr_is_identifier()) {
+        id = get_name_val();
+        next();
+        if (curr_is_token(get_colon_tk())) {
+            next();
+            type = parse_expr();
+        } else {
+            expr left    = id_to_expr(id, id_pos);
+            id           = name("_inst");
+            unsigned rbp = 0;
+            while (rbp < curr_expr_lbp()) {
+                left = parse_led(left);
+            }
+            type = left;
+        }
+    } else {
+        id   = name("_inst");
+        type = parse_expr();
+    }
+    save_identifier_info(id_pos, id);
+    expr local = save_pos(mk_local(id, type, bi), id_pos);
+    add_local(local);
+    r.push_back(local);
+}
+
 void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentries,
                                 bool & last_block_delimited, unsigned rbp, bool simple_only) {
     while (true) {
@@ -1075,8 +1104,12 @@ void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentr
             if (bi) {
                 rbp = 0;
                 last_block_delimited = true;
-                if (simple_only || !parse_local_notation_decl(nentries))
-                    parse_binder_block(r, *bi, rbp);
+                if (bi->is_inst_implicit()) {
+                    parse_inst_implicit_decl(r, *bi);
+                } else {
+                    if (simple_only || !parse_local_notation_decl(nentries))
+                        parse_binder_block(r, *bi, rbp);
+                }
                 parse_close_binder_info(bi);
             } else {
                 return;

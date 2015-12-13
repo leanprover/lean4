@@ -217,6 +217,7 @@ class parser {
     expr parse_numeral_expr(bool user_notation = true);
     expr parse_decimal_expr();
     expr parse_string_expr();
+    void parse_inst_implicit_decl(buffer<expr> & r, binder_info const & bi);
     expr parse_binder_core(binder_info const & bi, unsigned rbp);
     void parse_binder_block(buffer<expr> & r, binder_info const & bi, unsigned rbp);
     void parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentries, bool & last_block_delimited, unsigned rbp, bool simple_only);

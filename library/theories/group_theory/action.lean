@@ -15,13 +15,12 @@ private lemma and_left_true {a b : Prop} (Pa : a) : a ∧ b ↔ b :=
 by rewrite [iff_true_intro Pa, true_and]
 
 section def
-variables {G S : Type} [ambientG : group G] [finS : fintype S] [deceqS : decidable_eq S]
-include ambientG finS
+variables {G S : Type} [group G] [fintype S]
 
 definition is_fixed_point (hom : G → perm S) (H : finset G) (a : S) : Prop :=
 ∀ h, h ∈ H → hom h a = a
 
-include deceqS
+variables [decidable_eq S]
 
 definition orbit (hom : G → perm S) (H : finset G) (a : S) : finset S :=
            image (move_by a) (image hom H)
@@ -29,8 +28,7 @@ definition orbit (hom : G → perm S) (H : finset G) (a : S) : finset S :=
 definition fixed_points [reducible] (hom : G → perm S) (H : finset G) : finset S :=
 {a ∈ univ | orbit hom H a = singleton a}
 
-variable [deceqG : decidable_eq G]
-include deceqG -- required by {x ∈ H |p x} filtering
+variable [decidable_eq G] -- required by {x ∈ H |p x} filtering
 
 definition moverset (hom : G → perm S) (H : finset G) (a b : S) : finset G :=
            {f ∈ H | hom f a = b}
@@ -42,13 +40,7 @@ end def
 
 section orbit_stabilizer
 
-variables {G S : Type}
-variable [ambientG : group G]
-include ambientG
-variable [finS : fintype S]
-include finS
-variable [deceqS : decidable_eq S]
-include deceqS
+variables {G S : Type} [group G] [fintype S] [decidable_eq S]
 
 section
 
@@ -108,8 +100,7 @@ by rewrite [fixed_points_of_one]
 
 end
 
-variable [deceqG : decidable_eq G]
-include deceqG
+variable [decidable_eq G]
 
 -- these are already specified by stab hom H a
 variables {hom : G → perm S} {H : finset G} {a : S}
@@ -152,8 +143,7 @@ lemma moverset_inj_on_orbit : set.inj_on (moverset hom H a) (ts (orbit hom H a))
         apply of_mem_sep Ph1b1
       end
 
-variable [subgH : is_finsubg H]
-include subgH
+variable [is_finsubg H]
 
 lemma subg_stab_of_move {h g : G} :
       h ∈ H → g ∈ moverset hom H a (hom h a) → h⁻¹*g ∈ stab hom H a :=
@@ -244,7 +234,7 @@ lemma subg_moversets_of_orbit_eq_stab_lcosets :
       existsi h, subst Pb₂, assumption
       end)
       (assume Pr, obtain h Ph₁ Ph₂, from exists_of_mem_image Pr,
-      obtain b Pb, from @subg_lcoset_of_stab_is_moverset_of_orbit G S ambientG finS deceqS deceqG hom H a Hom subgH h Ph₁, begin
+      obtain b Pb, from @subg_lcoset_of_stab_is_moverset_of_orbit G S _ _ _ _ hom H a Hom _ h Ph₁, begin
       rewrite [mem_image_eq],
       existsi b, subst Ph₂, assumption
       end))
@@ -260,9 +250,7 @@ end orbit_stabilizer
 
 section orbit_partition
 
-variables {G S : Type} [ambientG : group G] [finS : fintype S]
-variables [deceqS : decidable_eq S]
-include ambientG finS deceqS
+variables {G S : Type} [group G] [fintype S] [decidable_eq S]
 variables {hom : G → perm S} [Hom : is_hom_class hom] {H : finset G} [subgH : is_finsubg H]
 include Hom subgH
 
@@ -377,17 +365,12 @@ calc card S = Sum (orbits hom H) finset.card                                    
 end orbit_partition
 
 section cayley
-variables {G : Type}
-variable [ambientG : group G]
-include ambientG
-variable [finG : fintype G]
-include finG
+variables {G : Type} [group G] [fintype G]
 
 definition action_by_lmul : G → perm G :=
 take g, perm.mk (lmul_by g) (lmul_inj g)
 
-variable [deceqG : decidable_eq G]
-include deceqG
+variable [decidable_eq G]
 
 lemma action_by_lmul_hom : homomorphic (@action_by_lmul G _ _) :=
 take g₁ (g₂ : G), eq.symm (calc
@@ -411,8 +394,7 @@ end cayley
 section lcosets
 open fintype subtype
 
-variables {G : Type} [ambientG : group G] [finG : fintype G] [deceqG : decidable_eq G]
-include ambientG deceqG finG
+variables {G : Type} [group G] [fintype G] [decidable_eq G]
 
 variables H : finset G
 

@@ -129,8 +129,7 @@ definition add_comm_monoid.to_comm_monoid {A : Type} [add_comm_monoid A] : comm_
 ⦄
 
 section add_comm_monoid
-  variables [s : add_comm_monoid A]
-  include s
+  variables [add_comm_monoid A]
 
   theorem add_comm_three  (a b c : A) : a + b + c = c + b + a :=
     by rewrite [{a + _}add.comm, {_ + c}add.comm, -*add.assoc]
@@ -147,9 +146,7 @@ structure group [class] (A : Type) extends monoid A, has_inv A :=
 -- Note: with more work, we could derive the axiom one_mul
 
 section group
-
-  variable [s : group A]
-  include s
+  variable [group A]
 
   theorem mul.left_inv (a : A) : a⁻¹ * a = 1 := !group.mul_left_inv
 
@@ -306,18 +303,17 @@ section group
       x*y ∘c c = x ∘c y ∘c c : conj_compose
       ... = x ∘c b : Py
       ... = a : Px)
-
-  definition group.to_left_cancel_semigroup [trans_instance] [reducible] :
-    left_cancel_semigroup A :=
-  ⦃ left_cancel_semigroup, s,
-    mul_left_cancel := @mul_left_cancel A s ⦄
-
-  definition group.to_right_cancel_semigroup [trans_instance] [reducible] :
-    right_cancel_semigroup A :=
-  ⦃ right_cancel_semigroup, s,
-    mul_right_cancel := @mul_right_cancel A s ⦄
-
 end group
+
+definition group.to_left_cancel_semigroup [trans_instance] [reducible] [s : group A] :
+    left_cancel_semigroup A :=
+⦃ left_cancel_semigroup, s,
+  mul_left_cancel := @mul_left_cancel A s ⦄
+
+definition group.to_right_cancel_semigroup [trans_instance] [reducible] [s : group A] :
+    right_cancel_semigroup A :=
+⦃ right_cancel_semigroup, s,
+  mul_right_cancel := @mul_right_cancel A s ⦄
 
 structure comm_group [class] (A : Type) extends group A, comm_monoid A
 
@@ -332,7 +328,6 @@ definition add_group.to_group {A : Type} [add_group A] : group A :=
 
 
 section add_group
-
   variables [s : add_group A]
   include s
 

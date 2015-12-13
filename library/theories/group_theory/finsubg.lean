@@ -18,9 +18,7 @@ open ops
 
 section subg
 -- we should be able to prove properties using finsets directly
-variable {G : Type}
-variable [ambientG : group G]
-include ambientG
+variables {G : Type} [group G]
 
 definition finset_mul_closed_on [reducible] (H : finset G) : Prop :=
            ∀ x y : G, x ∈ H → y ∈ H → x * y ∈ H
@@ -47,8 +45,7 @@ lemma finsubg_mul_closed (H : finset G) [h : is_finsubg H] {x y : G} : x ∈ H �
 lemma finsubg_has_inv (H : finset G) [h : is_finsubg H] {a : G} :  a ∈ H → a⁻¹ ∈ H :=
       @is_finsubg.has_inv G _ H h a
 
-variable [deceqG : decidable_eq G]
-include deceqG
+variable [decidable_eq G]
 
 definition finsubg_to_subg [instance] {H : finset G} [h : is_finsubg H]
          : is_subgroup (ts H) :=
@@ -72,11 +69,7 @@ section fin_lcoset
 
 open set
 
-variable {A : Type}
-variable [deceq : decidable_eq A]
-include deceq
-variable [s : group A]
-include s
+variables {A : Type} [decidable_eq A] [group A]
 
 definition fin_lcoset (H : finset A) (a : A) := finset.image (lmul_by a) H
 
@@ -195,8 +188,7 @@ end
 section lcoset_fintype
 open fintype list subtype
 
-variables {A : Type} [ambientA : group A] [finA : fintype A] [deceqA : decidable_eq A]
-include ambientA deceqA finA
+variables {A : Type} [group A] [fintype A] [decidable_eq A]
 
 variables G H : finset A
 

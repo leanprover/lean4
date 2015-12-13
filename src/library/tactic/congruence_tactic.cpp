@@ -79,7 +79,7 @@ optional<expr> mk_congr_subsingleton_thm(type_checker & tc, io_state const & ios
         if (ss[i]) {
             arg_kinds.push_back(congr_arg_kind::Singleton);
             expr new_type = replace_locals(mlocal_type(d_i), rhss, lhss);
-            expr new_d_i  = mk_local(get_unused_name(name(local_pp_name(d_i), "new"), hyps), new_type);
+            expr new_d_i  = mk_local(get_unused_name(local_pp_name(d_i).append_after("new"), hyps), new_type);
             hyps.push_back(new_d_i);
             rhss.push_back(d_i);
             lhss.push_back(new_d_i);
@@ -99,7 +99,7 @@ optional<expr> mk_congr_subsingleton_thm(type_checker & tc, io_state const & ios
             } else {
                 arg_kinds.push_back(congr_arg_kind::Eq);
                 expr new_type   = replace_locals(mlocal_type(d_i), rhss, lhss);
-                expr new_d_i    = mk_local(get_unused_name(name(local_pp_name(d_i), "new"), hyps), new_type);
+                expr new_d_i    = mk_local(get_unused_name(local_pp_name(d_i).append_after("new"), hyps), new_type);
                 name new_h_name = get_unused_name(name(h, eqidx), hyps);
                 eqidx++;
                 expr new_eq     = mk_local(new_h_name, mk_eq(tc, new_d_i, d_i));

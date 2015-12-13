@@ -100,13 +100,13 @@ section
         (λ p_neg, inr (not_ball_of_not p_neg)))
       (λ ih_neg, inr (not_ball_succ_of_not_ball ih_neg)))
 
-  definition decidable_bex_le [instance] (n : nat) (P : nat → Prop) [H : decidable_pred P]
+  definition decidable_bex_le [instance] (n : nat) (P : nat → Prop) [decidable_pred P]
     : decidable (∃ x, x ≤ n ∧ P x) :=
   decidable_of_decidable_of_iff
     (decidable_bex (succ n) P)
     (exists_congr (λn, and_congr !lt_succ_iff_le !iff.refl))
 
-  definition decidable_ball_le [instance] (n : nat) (P : nat → Prop) [H : decidable_pred P]
+  definition decidable_ball_le [instance] (n : nat) (P : nat → Prop) [decidable_pred P]
     : decidable (∀ x, x ≤ n → P x) :=
   decidable_of_decidable_of_iff
     (decidable_ball (succ n) P)

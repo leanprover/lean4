@@ -18,7 +18,7 @@ variables {A B : Type} [deceqA : decidable_eq A] [deceqB : decidable_eq B]
 
 section union
 
-definition to_comm_monoid_Union (B : Type) [deceqB : decidable_eq B] :
+definition to_comm_monoid_Union (B : Type) [decidable_eq B] :
   comm_monoid (finset B) :=
 ⦃ comm_monoid,
   mul         := union,
@@ -117,7 +117,7 @@ section deceqA
         (by rewrite Union_empty)
         (take s1 a Pa IH, by rewrite [image_insert, *Union_insert, IH])
 
-  lemma Union_const [deceqB : decidable_eq B] {f : A → finset B} {s : finset A} {t : finset B} :
+  lemma Union_const [decidable_eq B] {f : A → finset B} {s : finset A} {t : finset B} :
     s ≠ ∅ → (∀ x, x ∈ s → f x = t) → Union s f = t :=
   begin
     induction s with a' s' H IH,

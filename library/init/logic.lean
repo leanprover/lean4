@@ -604,9 +604,9 @@ namespace decidable
 
   definition by_cases {q : Type} [C : decidable p] : (p → q) → (¬p → q) → q := !dite
 
-  theorem em (p : Prop) [H : decidable p] : p ∨ ¬p := by_cases or.inl or.inr
+  theorem em (p : Prop) [decidable p] : p ∨ ¬p := by_cases or.inl or.inr
 
-  theorem by_contradiction [Hp : decidable p] (H : ¬p → false) : p :=
+  theorem by_contradiction [decidable p] (H : ¬p → false) : p :=
   if H1 : p then H1 else false.rec _ (H H1)
 end decidable
 
@@ -620,7 +620,7 @@ section
   definition  decidable_of_decidable_of_eq (Hp : decidable p) (H : p = q) : decidable q :=
   decidable_of_decidable_of_iff Hp (iff.of_eq H)
 
-  protected definition or.by_cases [Hp : decidable p] [Hq : decidable q] {A : Type}
+  protected definition or.by_cases [decidable p] [decidable q] {A : Type}
                                    (h : p ∨ q) (h₁ : p → A) (h₂ : q → A) : A :=
   if hp : p then h₁ hp else
     if hq : q then h₂ hq else
@@ -631,27 +631,27 @@ section
   variables {p q : Prop}
   open decidable (rec_on inl inr)
 
-  definition decidable_and [instance] [Hp : decidable p] [Hq : decidable q] : decidable (p ∧ q) :=
+  definition decidable_and [instance] [decidable p] [decidable q] : decidable (p ∧ q) :=
   if hp : p then
     if hq : q then inl (and.intro hp hq)
     else inr (assume H : p ∧ q, hq (and.right H))
   else inr (assume H : p ∧ q, hp (and.left H))
 
-  definition decidable_or [instance] [Hp : decidable p] [Hq : decidable q] : decidable (p ∨ q) :=
+  definition decidable_or [instance] [decidable p] [decidable q] : decidable (p ∨ q) :=
   if hp : p then inl (or.inl hp) else
     if hq : q then inl (or.inr hq) else
       inr (or.rec hp hq)
 
-  definition decidable_not [instance] [Hp : decidable p] : decidable (¬p) :=
+  definition decidable_not [instance] [decidable p] : decidable (¬p) :=
   if hp : p then inr (absurd hp) else inl hp
 
-  definition decidable_implies [instance] [Hp : decidable p] [Hq : decidable q] : decidable (p → q) :=
+  definition decidable_implies [instance] [decidable p] [decidable q] : decidable (p → q) :=
   if hp : p then
     if hq : q then inl (assume H, hq)
     else inr (assume H : p → q, absurd (H hp) hq)
   else inl (assume Hp, absurd Hp hp)
 
-  definition decidable_iff [instance] [Hp : decidable p] [Hq : decidable q] : decidable (p ↔ q) :=
+  definition decidable_iff [instance] [decidable p] [decidable q] : decidable (p ↔ q) :=
   decidable_and
 
 end
@@ -659,7 +659,7 @@ end
 definition decidable_pred [reducible] {A : Type} (R : A   →   Prop) := Π (a   : A), decidable (R a)
 definition decidable_rel  [reducible] {A : Type} (R : A → A → Prop) := Π (a b : A), decidable (R a b)
 definition decidable_eq   [reducible] (A : Type) := decidable_rel (@eq A)
-definition decidable_ne [instance] {A : Type} [H : decidable_eq A] (a b : A) : decidable (a ≠ b) :=
+definition decidable_ne [instance] {A : Type} [decidable_eq A] (a b : A) : decidable (a ≠ b) :=
 decidable_implies
 
 namespace bool
@@ -719,7 +719,7 @@ inhabited.mk true
 definition inhabited_fun [instance] (A : Type) {B : Type} [H : inhabited B] : inhabited (A → B) :=
 inhabited.rec_on H (λb, inhabited.mk (λa, b))
 
-definition inhabited_Pi [instance] (A : Type) {B : A → Type} [H : Πx, inhabited (B x)] :
+definition inhabited_Pi [instance] (A : Type) {B : A → Type} [Πx, inhabited (B x)] :
   inhabited (Πx, B x) :=
 inhabited.mk (λa, !default)
 
@@ -738,7 +738,7 @@ intro : A → nonempty A
 protected definition nonempty.elim {A : Type} {B : Prop} (H1 : nonempty A) (H2 : A → B) : B :=
 nonempty.rec H2 H1
 
-theorem nonempty_of_inhabited [instance] {A : Type} [H : inhabited A] : nonempty A :=
+theorem nonempty_of_inhabited [instance] {A : Type} [inhabited A] : nonempty A :=
 nonempty.intro !default
 
 theorem nonempty_of_exists {A : Type} {P : A → Prop} : (∃x, P x) → nonempty A :=
@@ -794,10 +794,10 @@ decidable.rec
   (λ Hnc : ¬c, eq.refl (@ite c (decidable.inr Hnc) A t t))
   H
 
-theorem implies_of_if_pos {c t e : Prop} [H : decidable c] (h : ite c t e) : c → t :=
+theorem implies_of_if_pos {c t e : Prop} [decidable c] (h : ite c t e) : c → t :=
 assume Hc, eq.rec_on (if_pos Hc) h
 
-theorem implies_of_if_neg {c t e : Prop} [H : decidable c] (h : ite c t e) : ¬c → e :=
+theorem implies_of_if_neg {c t e : Prop} [decidable c] (h : ite c t e) : ¬c → e :=
 assume Hnc, eq.rec_on (if_neg Hnc) h
 
 theorem if_ctx_congr {A : Type} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
@@ -903,13 +903,13 @@ theorem dif_ctx_simp_congr {A : Type} {b c : Prop} [dec_b : decidable b]
 @dif_ctx_congr A b c dec_b (decidable_of_decidable_of_iff dec_b h_c) x u y v h_c h_t h_e
 
 -- Remark: dite and ite are "definitionally equal" when we ignore the proofs.
-theorem dite_ite_eq (c : Prop) [H : decidable c] {A : Type} (t : A) (e : A) : dite c (λh, t) (λh, e) = ite c t e :=
+theorem dite_ite_eq (c : Prop) [decidable c] {A : Type} (t : A) (e : A) : dite c (λh, t) (λh, e) = ite c t e :=
 rfl
 
-definition is_true (c : Prop) [H : decidable c] : Prop :=
+definition is_true (c : Prop) [decidable c] : Prop :=
 if c then true else false
 
-definition is_false (c : Prop) [H : decidable c] : Prop :=
+definition is_false (c : Prop) [decidable c] : Prop :=
 if c then false else true
 
 definition of_is_true {c : Prop} [H₁ : decidable c] (H₂ : is_true c) : c :=
@@ -917,14 +917,14 @@ decidable.rec_on H₁ (λ Hc, Hc) (λ Hnc, !false.rec (if_neg Hnc ▸ H₂))
 
 notation `dec_trivial` := of_is_true trivial
 
-theorem not_of_not_is_true {c : Prop} [H₁ : decidable c] (H₂ : ¬ is_true c) : ¬ c :=
-if Hc : c then absurd trivial (if_pos Hc ▸ H₂) else Hc
+theorem not_of_not_is_true {c : Prop} [decidable c] (H : ¬ is_true c) : ¬ c :=
+if Hc : c then absurd trivial (if_pos Hc ▸ H) else Hc
 
-theorem not_of_is_false {c : Prop} [H₁ : decidable c] (H₂ : is_false c) : ¬ c :=
-if Hc : c then !false.rec (if_pos Hc ▸ H₂) else Hc
+theorem not_of_is_false {c : Prop} [decidable c] (H : is_false c) : ¬ c :=
+if Hc : c then !false.rec (if_pos Hc ▸ H) else Hc
 
-theorem of_not_is_false {c : Prop} [H₁ : decidable c] (H₂ : ¬ is_false c) : c :=
-if Hc : c then Hc else absurd trivial (if_neg Hc ▸ H₂)
+theorem of_not_is_false {c : Prop} [decidable c] (H : ¬ is_false c) : c :=
+if Hc : c then Hc else absurd trivial (if_neg Hc ▸ H)
 
 -- The following symbols should not be considered in the pattern inference procedure used by
 -- heuristic instantiation.

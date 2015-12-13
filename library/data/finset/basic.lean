@@ -16,7 +16,7 @@ variable {A : Type}
 definition to_nodup_list_of_nodup {l : list A} (n : nodup l) : nodup_list A :=
 tag l n
 
-definition to_nodup_list [h : decidable_eq A] (l : list A) : nodup_list A :=
+definition to_nodup_list [decidable_eq A] (l : list A) : nodup_list A :=
 @to_nodup_list_of_nodup A (erase_dup l) (nodup_erase_dup l)
 
 private definition eqv (l₁ l₂ : nodup_list A) :=
@@ -47,10 +47,10 @@ protected definition prio : num := num.succ std.priority.default
 definition to_finset_of_nodup (l : list A) (n : nodup l) : finset A :=
 ⟦to_nodup_list_of_nodup n⟧
 
-definition to_finset [h : decidable_eq A] (l : list A) : finset A :=
+definition to_finset [decidable_eq A] (l : list A) : finset A :=
 ⟦to_nodup_list l⟧
 
-lemma to_finset_eq_of_nodup [h : decidable_eq A] {l : list A} (n : nodup l) :
+lemma to_finset_eq_of_nodup [decidable_eq A] {l : list A} (n : nodup l) :
   to_finset_of_nodup l n = to_finset l :=
 assert P : to_nodup_list_of_nodup n = to_nodup_list l, from
   begin
@@ -60,7 +60,7 @@ assert P : to_nodup_list_of_nodup n = to_nodup_list l, from
   end,
 quot.sound (eq.subst P !setoid.refl)
 
-definition has_decidable_eq [instance] [h : decidable_eq A] : decidable_eq (finset A) :=
+definition has_decidable_eq [instance] [decidable_eq A] : decidable_eq (finset A) :=
 λ s₁ s₂, quot.rec_on_subsingleton₂ s₁ s₂
   (λ l₁ l₂,
      match decidable_perm (elt_of l₁) (elt_of l₂) with
@@ -106,7 +106,7 @@ definition decidable_mem [instance] [h : decidable_eq A] : ∀ (a : A) (s : fins
         | decidable.inr n := decidable.inr (λ p, absurd (mem_list_of_mem p) n)
         end)
 
-theorem mem_to_finset [h : decidable_eq A] {a : A} {l : list A} : a ∈ l → a ∈ to_finset l :=
+theorem mem_to_finset [decidable_eq A] {a : A} {l : list A} : a ∈ l → a ∈ to_finset l :=
 λ ainl, mem_erase_dup ainl
 
 theorem mem_to_finset_of_nodup {a : A} {l : list A} (n : nodup l) : a ∈ l → a ∈ to_finset_of_nodup l n :=
@@ -138,10 +138,10 @@ ext (take x, iff_false_intro (H x))
 definition univ [h : fintype A] : finset A :=
 to_finset_of_nodup (@fintype.elems A h) (@fintype.unique A h)
 
-theorem mem_univ [h : fintype A] (x : A) : x ∈ univ :=
+theorem mem_univ [fintype A] (x : A) : x ∈ univ :=
 fintype.complete x
 
-theorem mem_univ_eq [h : fintype A] (x : A) : x ∈ univ = true := propext (iff_true_intro !mem_univ)
+theorem mem_univ_eq [fintype A] (x : A) : x ∈ univ = true := propext (iff_true_intro !mem_univ)
 
 /- card -/
 definition card (s : finset A) : nat :=

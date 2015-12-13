@@ -177,10 +177,10 @@ eq_of_sorted_of_perm tr asy p s₁ s₂
 
 section
 omit decR
-lemma strongly_sorted_sort [ord : decidable_linear_order A] (l : list A) : strongly_sorted le (sort le l) :=
+lemma strongly_sorted_sort [decidable_linear_order A] (l : list A) : strongly_sorted le (sort le l) :=
 strongly_sorted_sort_core le.total (@le.trans A _) le.refl l
 
-lemma sort_eq_of_perm {l₁ l₂ : list A} [ord : decidable_linear_order A] (h : l₁ ~ l₂) : sort le l₁ = sort le l₂ :=
+lemma sort_eq_of_perm {l₁ l₂ : list A} [decidable_linear_order A] (h : l₁ ~ l₂) : sort le l₁ = sort le l₂ :=
 sort_eq_of_perm_core le.total (@le.trans A _) le.refl (@le.antisymm A _) h
 end
 end list

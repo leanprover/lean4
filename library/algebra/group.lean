@@ -19,25 +19,25 @@ variable {A : Type}
 structure semigroup [class] (A : Type) extends has_mul A :=
 (mul_assoc : ∀a b c, mul (mul a b) c = mul a (mul b c))
 
-theorem mul.assoc [s : semigroup A] (a b c : A) : a * b * c = a * (b * c) :=
+theorem mul.assoc [semigroup A] (a b c : A) : a * b * c = a * (b * c) :=
 !semigroup.mul_assoc
 
 structure comm_semigroup [class] (A : Type) extends semigroup A :=
 (mul_comm : ∀a b, mul a b = mul b a)
 
-theorem mul.comm [s : comm_semigroup A] (a b : A) : a * b = b * a :=
+theorem mul.comm [comm_semigroup A] (a b : A) : a * b = b * a :=
 !comm_semigroup.mul_comm
 
-theorem mul.left_comm [s : comm_semigroup A] (a b c : A) : a * (b * c) = b * (a * c) :=
+theorem mul.left_comm [comm_semigroup A] (a b c : A) : a * (b * c) = b * (a * c) :=
 binary.left_comm (@mul.comm A _) (@mul.assoc A _) a b c
 
-theorem mul.right_comm [s : comm_semigroup A] (a b c : A) : (a * b) * c = (a * c) * b :=
+theorem mul.right_comm [comm_semigroup A] (a b c : A) : (a * b) * c = (a * c) * b :=
 binary.right_comm (@mul.comm A _) (@mul.assoc A _) a b c
 
 structure left_cancel_semigroup [class] (A : Type) extends semigroup A :=
 (mul_left_cancel : ∀a b c, mul a b = mul a c → b = c)
 
-theorem mul.left_cancel [s : left_cancel_semigroup A] {a b c : A} :
+theorem mul.left_cancel [left_cancel_semigroup A] {a b c : A} :
   a * b = a * c → b = c :=
 !left_cancel_semigroup.mul_left_cancel
 
@@ -46,7 +46,7 @@ abbreviation eq_of_mul_eq_mul_left' := @mul.left_cancel
 structure right_cancel_semigroup [class] (A : Type) extends semigroup A :=
 (mul_right_cancel : ∀a b c, mul a b = mul c b → a = c)
 
-theorem mul.right_cancel [s : right_cancel_semigroup A] {a b c : A} :
+theorem mul.right_cancel [right_cancel_semigroup A] {a b c : A} :
   a * b = c * b → a = c :=
 !right_cancel_semigroup.mul_right_cancel
 
@@ -57,26 +57,26 @@ abbreviation eq_of_mul_eq_mul_right' := @mul.right_cancel
 structure add_semigroup [class] (A : Type) extends has_add A :=
 (add_assoc : ∀a b c, add (add a b) c = add a (add b c))
 
-theorem add.assoc [s : add_semigroup A] (a b c : A) : a + b + c = a + (b + c) :=
+theorem add.assoc [add_semigroup A] (a b c : A) : a + b + c = a + (b + c) :=
 !add_semigroup.add_assoc
 
 structure add_comm_semigroup [class] (A : Type) extends add_semigroup A :=
 (add_comm : ∀a b, add a b = add b a)
 
-theorem add.comm [s : add_comm_semigroup A] (a b : A) : a + b = b + a :=
+theorem add.comm [add_comm_semigroup A] (a b : A) : a + b = b + a :=
 !add_comm_semigroup.add_comm
 
-theorem add.left_comm [s : add_comm_semigroup A] (a b c : A) :
+theorem add.left_comm [add_comm_semigroup A] (a b c : A) :
   a + (b + c) = b + (a + c) :=
 binary.left_comm (@add.comm A _) (@add.assoc A _) a b c
 
-theorem add.right_comm [s : add_comm_semigroup A] (a b c : A) : (a + b) + c = (a + c) + b :=
+theorem add.right_comm [add_comm_semigroup A] (a b c : A) : (a + b) + c = (a + c) + b :=
 binary.right_comm (@add.comm A _) (@add.assoc A _) a b c
 
 structure add_left_cancel_semigroup [class] (A : Type) extends add_semigroup A :=
 (add_left_cancel : ∀a b c, add a b = add a c → b = c)
 
-theorem add.left_cancel [s : add_left_cancel_semigroup A] {a b c : A} :
+theorem add.left_cancel [add_left_cancel_semigroup A] {a b c : A} :
   a + b = a + c → b = c :=
 !add_left_cancel_semigroup.add_left_cancel
 
@@ -85,7 +85,7 @@ abbreviation eq_of_add_eq_add_left := @add.left_cancel
 structure add_right_cancel_semigroup [class] (A : Type) extends add_semigroup A :=
 (add_right_cancel : ∀a b c, add a b = add c b → a = c)
 
-theorem add.right_cancel [s : add_right_cancel_semigroup A] {a b c : A} :
+theorem add.right_cancel [add_right_cancel_semigroup A] {a b c : A} :
   a + b = c + b → a = c :=
 !add_right_cancel_semigroup.add_right_cancel
 
@@ -96,9 +96,9 @@ abbreviation eq_of_add_eq_add_right := @add.right_cancel
 structure monoid [class] (A : Type) extends semigroup A, has_one A :=
 (one_mul : ∀a, mul one a = a) (mul_one : ∀a, mul a one = a)
 
-theorem one_mul [s : monoid A] (a : A) : 1 * a = a := !monoid.one_mul
+theorem one_mul [monoid A] (a : A) : 1 * a = a := !monoid.one_mul
 
-theorem mul_one [s : monoid A] (a : A) : a * 1 = a := !monoid.mul_one
+theorem mul_one [monoid A] (a : A) : a * 1 = a := !monoid.mul_one
 
 structure comm_monoid [class] (A : Type) extends monoid A, comm_semigroup A
 
@@ -107,13 +107,13 @@ structure comm_monoid [class] (A : Type) extends monoid A, comm_semigroup A
 structure add_monoid [class] (A : Type) extends add_semigroup A, has_zero A :=
 (zero_add : ∀a, add zero a = a) (add_zero : ∀a, add a zero = a)
 
-theorem zero_add [s : add_monoid A] (a : A) : 0 + a = a := !add_monoid.zero_add
+theorem zero_add [add_monoid A] (a : A) : 0 + a = a := !add_monoid.zero_add
 
-theorem add_zero [s : add_monoid A] (a : A) : a + 0 = a := !add_monoid.add_zero
+theorem add_zero [add_monoid A] (a : A) : a + 0 = a := !add_monoid.add_zero
 
 structure add_comm_monoid [class] (A : Type) extends add_monoid A, add_comm_semigroup A
 
-definition add_monoid.to_monoid {A : Type} [s : add_monoid A] : monoid A :=
+definition add_monoid.to_monoid {A : Type} [add_monoid A] : monoid A :=
 ⦃ monoid,
   mul         := add_monoid.add,
   mul_assoc   := add_monoid.add_assoc,
@@ -122,7 +122,7 @@ definition add_monoid.to_monoid {A : Type} [s : add_monoid A] : monoid A :=
   one_mul     := add_monoid.zero_add
 ⦄
 
-definition add_comm_monoid.to_comm_monoid {A : Type} [s : add_comm_monoid A] : comm_monoid A :=
+definition add_comm_monoid.to_comm_monoid {A : Type} [add_comm_monoid A] : comm_monoid A :=
 ⦃ comm_monoid,
   add_monoid.to_monoid,
   mul_comm    := add_comm_monoid.add_comm
@@ -326,7 +326,7 @@ structure comm_group [class] (A : Type) extends group A, comm_monoid A
 structure add_group [class] (A : Type) extends add_monoid A, has_neg A :=
 (add_left_inv : ∀a, add (neg a) a = zero)
 
-definition add_group.to_group {A : Type} [s : add_group A] : group A :=
+definition add_group.to_group {A : Type} [add_group A] : group A :=
 ⦃ group, add_monoid.to_monoid,
   mul_left_inv := add_group.add_left_inv ⦄
 
@@ -580,40 +580,40 @@ definition group_of_add_group (A : Type) [G : add_group A] : group A :=
 namespace norm_num
 reveal add.assoc
 
-definition add1 [s : has_add A] [s' : has_one A] (a : A) : A := add a one
+definition add1 [has_add A] [has_one A] (a : A) : A := add a one
 
-theorem add_comm_four [s : add_comm_semigroup A] (a b : A) : a + a + (b + b) = (a + b) + (a + b) :=
+theorem add_comm_four [add_comm_semigroup A] (a b : A) : a + a + (b + b) = (a + b) + (a + b) :=
   by rewrite [-add.assoc at {1}, add.comm, {a + b}add.comm at {1}, *add.assoc]
 
-theorem add_comm_middle [s : add_comm_semigroup A] (a b c : A) : a + b + c = a + c + b :=
+theorem add_comm_middle [add_comm_semigroup A] (a b c : A) : a + b + c = a + c + b :=
   by rewrite [add.assoc, add.comm b, -add.assoc]
 
-theorem bit0_add_bit0 [s : add_comm_semigroup A] (a b : A) : bit0 a + bit0 b = bit0 (a + b) :=
+theorem bit0_add_bit0 [add_comm_semigroup A] (a b : A) : bit0 a + bit0 b = bit0 (a + b) :=
   !add_comm_four
 
-theorem bit0_add_bit0_helper [s : add_comm_semigroup A] (a b t : A) (H : a + b = t) :
+theorem bit0_add_bit0_helper [add_comm_semigroup A] (a b t : A) (H : a + b = t) :
         bit0 a + bit0 b = bit0 t :=
   by rewrite -H; apply bit0_add_bit0
 
-theorem bit1_add_bit0 [s : add_comm_semigroup A] [s' : has_one A] (a b : A) :
+theorem bit1_add_bit0 [add_comm_semigroup A] [has_one A] (a b : A) :
         bit1 a + bit0 b = bit1 (a + b) :=
   begin
     rewrite [↑bit0, ↑bit1, add_comm_middle], congruence, apply add_comm_four
   end
 
-theorem bit1_add_bit0_helper [s : add_comm_semigroup A] [s' : has_one A] (a b t : A)
+theorem bit1_add_bit0_helper [add_comm_semigroup A] [has_one A] (a b t : A)
         (H : a + b = t) : bit1 a + bit0 b = bit1 t :=
   by rewrite -H; apply bit1_add_bit0
 
-theorem bit0_add_bit1 [s : add_comm_semigroup A] [s' : has_one A] (a b : A) :
+theorem bit0_add_bit1 [add_comm_semigroup A] [has_one A] (a b : A) :
         bit0 a + bit1 b = bit1 (a + b) :=
   by rewrite [{bit0 a + _}add.comm, {a + _}add.comm]; apply bit1_add_bit0
 
-theorem bit0_add_bit1_helper [s : add_comm_semigroup A] [s' : has_one A] (a b t : A)
+theorem bit0_add_bit1_helper [add_comm_semigroup A] [has_one A] (a b t : A)
         (H : a + b = t) : bit0 a + bit1 b = bit1 t :=
   by rewrite -H; apply bit0_add_bit1
 
-theorem bit1_add_bit1 [s : add_comm_semigroup A] [s' : has_one A] (a b : A) :
+theorem bit1_add_bit1 [add_comm_semigroup A] [has_one A] (a b : A) :
         bit1 a + bit1 b = bit0 (add1 (a + b)) :=
   begin
     rewrite ↑[bit0, bit1, add1, add.assoc],
@@ -622,64 +622,64 @@ theorem bit1_add_bit1 [s : add_comm_semigroup A] [s' : has_one A] (a b : A) :
       {b + a}add.comm, *add.assoc]
   end
 
-theorem bit1_add_bit1_helper [s : add_comm_semigroup A] [s' : has_one A] (a b t s: A)
+theorem bit1_add_bit1_helper [add_comm_semigroup A] [has_one A] (a b t s: A)
         (H : (a + b) = t) (H2 : add1 t = s) : bit1 a + bit1 b = bit0 s :=
   begin rewrite [-H2, -H], apply bit1_add_bit1 end
 
-theorem bin_add_zero [s : add_monoid A] (a : A) : a + zero = a := !add_zero
+theorem bin_add_zero [add_monoid A] (a : A) : a + zero = a := !add_zero
 
-theorem bin_zero_add [s : add_monoid A] (a : A) : zero + a = a := !zero_add
+theorem bin_zero_add [add_monoid A] (a : A) : zero + a = a := !zero_add
 
-theorem one_add_bit0 [s : add_comm_semigroup A] [s' : has_one A] (a : A) : one + bit0 a = bit1 a :=
+theorem one_add_bit0 [add_comm_semigroup A] [has_one A] (a : A) : one + bit0 a = bit1 a :=
   begin rewrite ↑[bit0, bit1], rewrite add.comm end
 
-theorem bit0_add_one [s : has_add A] [s' : has_one A] (a : A) : bit0 a + one = bit1 a :=
+theorem bit0_add_one [has_add A] [has_one A] (a : A) : bit0 a + one = bit1 a :=
   rfl
 
-theorem bit1_add_one [s : has_add A] [s' : has_one A] (a : A) : bit1 a + one = add1 (bit1 a) :=
+theorem bit1_add_one [has_add A] [has_one A] (a : A) : bit1 a + one = add1 (bit1 a) :=
   rfl
 
-theorem bit1_add_one_helper [s : has_add A] [s' : has_one A] (a t : A) (H : add1 (bit1 a) = t) :
+theorem bit1_add_one_helper [has_add A] [has_one A] (a t : A) (H : add1 (bit1 a) = t) :
         bit1 a + one = t :=
   by rewrite -H
 
-theorem one_add_bit1 [s : add_comm_semigroup A] [s' : has_one A] (a : A) :
+theorem one_add_bit1 [add_comm_semigroup A] [has_one A] (a : A) :
         one + bit1 a = add1 (bit1 a) := !add.comm
 
-theorem one_add_bit1_helper [s : add_comm_semigroup A] [s' : has_one A] (a t : A)
+theorem one_add_bit1_helper [add_comm_semigroup A] [has_one A] (a t : A)
         (H : add1 (bit1 a) = t) : one + bit1 a = t :=
   by rewrite -H; apply one_add_bit1
 
-theorem add1_bit0 [s : has_add A] [s' : has_one A] (a : A) : add1 (bit0 a) = bit1 a :=
+theorem add1_bit0 [has_add A] [has_one A] (a : A) : add1 (bit0 a) = bit1 a :=
   rfl
 
-theorem add1_bit1 [s : add_comm_semigroup A] [s' : has_one A] (a : A) :
+theorem add1_bit1 [add_comm_semigroup A] [has_one A] (a : A) :
         add1 (bit1 a) = bit0 (add1 a) :=
   begin
     rewrite ↑[add1, bit1, bit0],
     rewrite [add.assoc, add_comm_four]
   end
 
-theorem add1_bit1_helper [s : add_comm_semigroup A] [s' : has_one A] (a t : A) (H : add1 a = t) :
+theorem add1_bit1_helper [add_comm_semigroup A] [has_one A] (a t : A) (H : add1 a = t) :
         add1 (bit1 a) = bit0 t :=
   by rewrite -H; apply add1_bit1
 
-theorem add1_one [s : has_add A] [s' : has_one A] : add1 (one : A) = bit0 one :=
+theorem add1_one [has_add A] [has_one A] : add1 (one : A) = bit0 one :=
   rfl
 
-theorem add1_zero [s : add_monoid A] [s' : has_one A] : add1 (zero : A) = one :=
+theorem add1_zero [add_monoid A] [has_one A] : add1 (zero : A) = one :=
   begin
     rewrite [↑add1, zero_add]
   end
 
-theorem one_add_one [s : has_add A] [s' : has_one A] : (one : A) + one = bit0 one :=
+theorem one_add_one [has_add A] [has_one A] : (one : A) + one = bit0 one :=
   rfl
 
-theorem subst_into_sum [s : has_add A] (l r tl tr t : A) (prl : l = tl) (prr : r = tr)
+theorem subst_into_sum [has_add A] (l r tl tr t : A) (prl : l = tl) (prr : r = tr)
         (prt : tl + tr = t) : l + r = t :=
    by rewrite [prl, prr, prt]
 
-theorem neg_zero_helper [s : add_group A] (a : A) (H : a = 0) : - a = 0 :=
+theorem neg_zero_helper [add_group A] (a : A) (H : a = 0) : - a = 0 :=
   by rewrite [H, neg_zero]
 
 end norm_num

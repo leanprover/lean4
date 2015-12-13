@@ -42,12 +42,12 @@ section Prod
       assert ¬ finite (insert a s), from assume H, nfs (finite_of_finite_insert H),
       by rewrite [Prod_of_not_finite nfs, Prod_of_not_finite this])
 
-  theorem Prod_insert_of_not_mem (f : A → B) {a : A} {s : set A} [fins : finite s] (H : a ∉ s) :
+  theorem Prod_insert_of_not_mem (f : A → B) {a : A} {s : set A} [finite s] (H : a ∉ s) :
     Prod (insert a s) f = f a * Prod s f :=
   assert (#finset a ∉ set.to_finset s), by rewrite mem_to_finset_eq; apply H,
   by rewrite [↑Prod, to_finset_insert, finset.Prod_insert_of_not_mem f this]
 
-  theorem Prod_union (f : A → B) {s₁ s₂ : set A} [fins₁ : finite s₁] [fins₂ : finite s₂]
+  theorem Prod_union (f : A → B) {s₁ s₂ : set A} [finite s₁] [finite s₂]
       (disj : s₁ ∩ s₂ = ∅) :
     Prod (s₁ ∪ s₂) f = Prod s₁ f * Prod s₂ f :=
   begin
@@ -88,9 +88,9 @@ section Sum
 
   theorem Sum_insert_of_mem (f : A → B) {a : A} {s : set A} (H : a ∈ s) :
     Sum (insert a s) f = Sum s f := Prod_insert_of_mem f H
-  theorem Sum_insert_of_not_mem (f : A → B) {a : A} {s : set A} [fins : finite s] (H : a ∉ s) :
+  theorem Sum_insert_of_not_mem (f : A → B) {a : A} {s : set A} [finite s] (H : a ∉ s) :
     Sum (insert a s) f = f a + Sum s f := Prod_insert_of_not_mem f H
-  theorem Sum_union (f : A → B) {s₁ s₂ : set A} [fins₁ : finite s₁] [fins₂ : finite s₂]
+  theorem Sum_union (f : A → B) {s₁ s₂ : set A} [finite s₁] [finite s₂]
       (disj : s₁ ∩ s₂ = ∅) :
     Sum (s₁ ∪ s₂) f = Sum s₁ f + Sum s₂ f := Prod_union f disj
   theorem Sum_ext {s : set A} {f g : A → B} (H : ∀x, x ∈ s → f x = g x) :

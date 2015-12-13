@@ -30,7 +30,7 @@ by rewrite [↑to_finset, dif_neg nfins]
 theorem to_set_to_finset (s : set A) [fins : finite s] : finset.to_set (to_finset s) = s :=
 by rewrite [↑to_finset, dif_pos fins]; exact eq.symm (some_spec fins)
 
-theorem mem_to_finset_eq (a : A) (s : set A) [fins : finite s] :
+theorem mem_to_finset_eq (a : A) (s : set A) [finite s] :
   (#finset a ∈ to_finset s) = (a ∈ s) :=
 by rewrite [-to_set_to_finset at {2}]
 
@@ -57,64 +57,61 @@ by rewrite [-finset.to_set_empty]; apply finite_finset
 theorem to_finset_empty : to_finset (∅ : set A) = (#finset ∅) :=
 to_finset_eq_of_to_set_eq !finset.to_set_empty
 
-theorem finite_insert [instance] (a : A) (s : set A) [fins : finite s] : finite (insert a s) :=
+theorem finite_insert [instance] (a : A) (s : set A) [finite s] : finite (insert a s) :=
 exists.intro (finset.insert a (to_finset s))
   (by rewrite [finset.to_set_insert, to_set_to_finset])
 
-theorem to_finset_insert (a : A) (s : set A) [fins : finite s] :
+theorem to_finset_insert (a : A) (s : set A) [finite s] :
   to_finset (insert a s) = finset.insert a (to_finset s) :=
 by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_insert, to_set_to_finset]
 
-theorem finite_union [instance] (s t : set A) [fins : finite s] [fint : finite t] :
+theorem finite_union [instance] (s t : set A) [finite s] [finite t] :
   finite (s ∪ t) :=
 exists.intro (#finset to_finset s ∪ to_finset t)
   (by rewrite [finset.to_set_union, *to_set_to_finset])
 
-theorem to_finset_union (s t : set A) [fins : finite s] [fint : finite t] :
+theorem to_finset_union (s t : set A) [finite s] [finite t] :
   to_finset (s ∪ t) = (#finset to_finset s ∪ to_finset t) :=
 by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_union, *to_set_to_finset]
 
-theorem finite_inter [instance] (s t : set A) [fins : finite s] [fint : finite t] :
+theorem finite_inter [instance] (s t : set A) [finite s] [finite t] :
   finite (s ∩ t) :=
 exists.intro (#finset to_finset s ∩ to_finset t)
   (by rewrite [finset.to_set_inter, *to_set_to_finset])
 
-theorem to_finset_inter (s t : set A) [fins : finite s] [fint : finite t] :
+theorem to_finset_inter (s t : set A) [finite s] [finite t] :
   to_finset (s ∩ t) = (#finset to_finset s ∩ to_finset t) :=
 by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_inter, *to_set_to_finset]
 
-theorem finite_sep [instance] (s : set A) (p : A → Prop) [h : decidable_pred p]
-    [fins : finite s] :
+theorem finite_sep [instance] (s : set A) (p : A → Prop) [decidable_pred p] [finite s] :
   finite {x ∈ s | p x}  :=
 exists.intro (finset.sep p (to_finset s))
   (by rewrite [finset.to_set_sep, *to_set_to_finset])
 
-theorem to_finset_sep (s : set A) (p : A → Prop) [h : decidable_pred p] [fins : finite s] :
+theorem to_finset_sep (s : set A) (p : A → Prop) [decidable_pred p] [finite s] :
   to_finset {x ∈ s | p x} = (#finset {x ∈ to_finset s | p x}) :=
 by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_sep, to_set_to_finset]
 
-theorem finite_image [instance] {B : Type} [h : decidable_eq B] (f : A → B) (s : set A)
-    [fins : finite s] :
+theorem finite_image [instance] {B : Type} [decidable_eq B] (f : A → B) (s : set A) [finite s] :
   finite (f '[s]) :=
 exists.intro (finset.image f (to_finset s))
   (by rewrite [finset.to_set_image, *to_set_to_finset])
 
-theorem to_finset_image {B : Type} [h : decidable_eq B] (f : A → B) (s : set A)
+theorem to_finset_image {B : Type} [decidable_eq B] (f : A → B) (s : set A)
     [fins : finite s] :
   to_finset (f '[s]) = (#finset f '[to_finset s]) :=
 by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_image, to_set_to_finset]
 
-theorem finite_diff [instance] (s t : set A) [fins : finite s] : finite (s \ t) :=
+theorem finite_diff [instance] (s t : set A) [finite s] : finite (s \ t) :=
 !finite_sep
 
-theorem to_finset_diff (s t : set A) [fins : finite s] [fint : finite t] :
-  to_finset (s \ t) = (#finset to_finset s \ to_finset t) :=
+theorem to_finset_diff (s t : set A) [finite s] [finite t] : to_finset (s \ t) = (#finset to_finset s \ to_finset t) :=
 by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_diff, *to_set_to_finset]
 
-theorem finite_subset {s t : set A} [fint : finite t] (ssubt : s ⊆ t) : finite s :=
+theorem finite_subset {s t : set A} [finite t] (ssubt : s ⊆ t) : finite s :=
 by rewrite (eq_sep_of_subset ssubt); apply finite_sep
 
-theorem to_finset_subset_to_finset_eq (s t : set A) [fins : finite s] [fint : finite t] :
+theorem to_finset_subset_to_finset_eq (s t : set A) [finite s] [finite t] :
   (#finset to_finset s ⊆ to_finset t) = (s ⊆ t) :=
 by rewrite [finset.subset_eq_to_set_subset, *to_set_to_finset]
 
@@ -127,7 +124,7 @@ by rewrite [-finset.to_set_upto n]; apply finite_finset
 theorem to_finset_upto (n : ℕ) : to_finset {i | i < n} = finset.upto n :=
 by apply (to_finset_eq_of_to_set_eq !finset.to_set_upto)
 
-theorem finite_powerset (s : set A) [fins : finite s] : finite 𝒫 s :=
+theorem finite_powerset (s : set A) [finite s] : finite 𝒫 s :=
 assert H : 𝒫 s = finset.to_set '[finset.to_set (#finset 𝒫 (to_finset s))],
   from ext (take t, iff.intro
     (suppose t ∈ 𝒫 s,
@@ -150,9 +147,8 @@ by rewrite H; apply finite_image
 /- induction for finite sets -/
 
 theorem induction_finite [recursor 6] {P : set A → Prop}
-    (H1 : P ∅)
-    (H2 : ∀ ⦃a : A⦄, ∀ {s : set A} [fins : finite s], a ∉ s → P s → P (insert a s)) :
-  ∀ (s : set A) [fins : finite s], P s :=
+    (H1 : P ∅) (H2 : ∀ ⦃a : A⦄, ∀ {s : set A} [finite s], a ∉ s → P s → P (insert a s)) :
+  ∀ (s : set A) [finite s], P s :=
 begin
   intro s fins,
   rewrite [-to_set_to_finset s],
@@ -166,9 +162,8 @@ begin
   exact ih
 end
 
-theorem induction_on_finite {P : set A → Prop} (s : set A) [fins : finite s]
-    (H1 : P ∅)
-    (H2 : ∀ ⦃a : A⦄, ∀ {s : set A} [fins : finite s], a ∉ s → P s → P (insert a s)) :
+theorem induction_on_finite {P : set A → Prop} (s : set A) [finite s]
+    (H1 : P ∅) (H2 : ∀ ⦃a : A⦄, ∀ {s : set A} [finite s], a ∉ s → P s → P (insert a s)) :
   P s :=
 induction_finite H1 H2 s
 

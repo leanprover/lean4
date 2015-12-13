@@ -169,7 +169,7 @@ assume p, calc
    ... ~ l₁++(a::l₂)   : perm_app_right l₁ (perm.symm (perm_cons_app a l₂))
 
 open decidable
-theorem perm_erase [H : decidable_eq A] {a : A} : ∀ {l : list A}, a ∈ l → l ~ a::(erase a l)
+theorem perm_erase [decidable_eq A] {a : A} : ∀ {l : list A}, a ∈ l → l ~ a::(erase a l)
 | []     h := absurd h !not_mem_nil
 | (x::t) h :=
   by_cases
@@ -181,7 +181,7 @@ theorem perm_erase [H : decidable_eq A] {a : A} : ∀ {l : list A}, a ∈ l → 
             ... ~ a::x::(erase a t)   : swap
             ... = a::(erase a (x::t)) : by rewrite [!erase_cons_tail naeqx])
 
-theorem erase_perm_erase_of_perm [congr] [H : decidable_eq A] (a : A) {l₁ l₂ : list A} : l₁ ~ l₂ → erase a l₁ ~ erase a l₂ :=
+theorem erase_perm_erase_of_perm [congr] [decidable_eq A] (a : A) {l₁ l₂ : list A} : l₁ ~ l₂ → erase a l₁ ~ erase a l₂ :=
 assume p, perm.induction_on p
   nil
   (λ x t₁ t₂ p r,
@@ -786,7 +786,7 @@ assume p₁ p₂, trans (perm_product_left t₁ p₁) (perm_product_right l₂ p
 end product
 
 /- filter -/
-theorem perm_filter [congr] {l₁ l₂ : list A} {p : A → Prop} [decp : decidable_pred p] :
+theorem perm_filter [congr] {l₁ l₂ : list A} {p : A → Prop} [decidable_pred p] :
   l₁ ~ l₂ → (filter p l₁) ~ (filter p l₂) :=
 assume u, perm.induction_on u
   perm.nil

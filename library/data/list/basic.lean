@@ -496,7 +496,7 @@ theorem nth_eq_some : ∀ {l : list T} {n : nat}, n < length l → Σ a : T, nth
   ⟨r, by rewrite [nth_succ, req]⟩
 
 open decidable
-theorem find_nth [h : decidable_eq T] {a : T} : ∀ {l}, a ∈ l → nth l (find a l) = some a
+theorem find_nth [decidable_eq T] {a : T} : ∀ {l}, a ∈ l → nth l (find a l) = some a
 | []     ain   := absurd ain !not_mem_nil
 | (b::l) ainbl := by_cases
   (λ aeqb : a = b, by rewrite [find_cons_of_eq _ aeqb, nth_zero, aeqb])
@@ -510,9 +510,9 @@ match nth l n with
 | none   := arbitrary T
 end
 
-theorem inth_zero [h : inhabited T] (a : T) (l : list T) : inth (a :: l) 0 = a
+theorem inth_zero [inhabited T] (a : T) (l : list T) : inth (a :: l) 0 = a
 
-theorem inth_succ [h : inhabited T] (a : T) (l : list T) (n : nat) : inth (a::l) (n+1) = inth l n
+theorem inth_succ [inhabited T] (a : T) (l : list T) (n : nat) : inth (a::l) (n+1) = inth l n
 end nth
 
 section ith

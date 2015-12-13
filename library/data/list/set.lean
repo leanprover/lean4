@@ -290,7 +290,7 @@ theorem nodup_map {f : A → B} (inj : injective f) : ∀ {l : list A}, nodup l 
       by subst y; contradiction,
   nodup_cons nfxinm ndmfxs
 
-theorem nodup_erase_of_nodup [h : decidable_eq A] (a : A) : ∀ {l}, nodup l → nodup (erase a l)
+theorem nodup_erase_of_nodup [decidable_eq A] (a : A) : ∀ {l}, nodup l → nodup (erase a l)
 | []     n := nodup_nil
 | (b::l) n := by_cases
   (λ aeqb : a = b, by rewrite [aeqb, erase_cons_head]; exact (nodup_of_nodup_cons n))
@@ -302,7 +302,7 @@ theorem nodup_erase_of_nodup [h : decidable_eq A] (a : A) : ∀ {l}, nodup l →
     assert aux   : nodup (b :: erase a l), from nodup_cons nbineal ndeal,
     by rewrite [erase_cons_tail _ aneb]; exact aux)
 
-theorem mem_erase_of_nodup [h : decidable_eq A] (a : A) : ∀ {l}, nodup l → a ∉ erase a l
+theorem mem_erase_of_nodup [decidable_eq A] (a : A) : ∀ {l}, nodup l → a ∉ erase a l
 | []     n := !not_mem_nil
 | (b::l) n :=
   have ndl     : nodup l,       from nodup_of_nodup_cons n,
@@ -317,23 +317,23 @@ theorem mem_erase_of_nodup [h : decidable_eq A] (a : A) : ∀ {l}, nodup l → a
         (λ aineal : a ∈ erase a l, absurd aineal naineal),
     by rewrite [erase_cons_tail _ aneb]; exact aux)
 
-definition erase_dup [H : decidable_eq A] : list A → list A
+definition erase_dup [decidable_eq A] : list A → list A
 | []        :=  []
 | (x :: xs) :=  if x ∈ xs then erase_dup xs else x :: erase_dup xs
 
-theorem erase_dup_nil [H : decidable_eq A] : erase_dup [] = ([] : list A)
+theorem erase_dup_nil [decidable_eq A] : erase_dup [] = ([] : list A)
 
-theorem erase_dup_cons_of_mem [H : decidable_eq A] {a : A} {l : list A} : a ∈ l → erase_dup (a::l) = erase_dup l :=
+theorem erase_dup_cons_of_mem [decidable_eq A] {a : A} {l : list A} : a ∈ l → erase_dup (a::l) = erase_dup l :=
 assume ainl, calc
   erase_dup (a::l) = if a ∈ l then erase_dup l else a :: erase_dup l : rfl
               ...  = erase_dup l                                     : if_pos ainl
 
-theorem erase_dup_cons_of_not_mem [H : decidable_eq A] {a : A} {l : list A} : a ∉ l → erase_dup (a::l) = a :: erase_dup l :=
+theorem erase_dup_cons_of_not_mem [decidable_eq A] {a : A} {l : list A} : a ∉ l → erase_dup (a::l) = a :: erase_dup l :=
 assume nainl, calc
   erase_dup (a::l) = if a ∈ l then erase_dup l else a :: erase_dup l : rfl
               ...  = a :: erase_dup l                                : if_neg nainl
 
-theorem mem_erase_dup [H : decidable_eq A] {a : A} : ∀ {l}, a ∈ l → a ∈ erase_dup l
+theorem mem_erase_dup [decidable_eq A] {a : A} : ∀ {l}, a ∈ l → a ∈ erase_dup l
 | []     h  := absurd h !not_mem_nil
 | (b::l) h  := by_cases
   (λ binl  : b ∈ l, or.elim (eq_or_mem_of_mem_cons h)
@@ -343,7 +343,7 @@ theorem mem_erase_dup [H : decidable_eq A] {a : A} : ∀ {l}, a ∈ l → a ∈ 
     (λ aeqb : a = b, by rewrite [erase_dup_cons_of_not_mem nbinl, aeqb]; exact !mem_cons)
     (λ ainl : a ∈ l, by rewrite [erase_dup_cons_of_not_mem nbinl]; exact (or.inr (mem_erase_dup ainl))))
 
-theorem mem_of_mem_erase_dup [H : decidable_eq A] {a : A} : ∀ {l}, a ∈ erase_dup l → a ∈ l
+theorem mem_of_mem_erase_dup [decidable_eq A] {a : A} : ∀ {l}, a ∈ erase_dup l → a ∈ l
 | []     h := by rewrite [erase_dup_nil at h]; exact h
 | (b::l) h := by_cases
   (λ binl  : b ∈ l,
@@ -355,13 +355,13 @@ theorem mem_of_mem_erase_dup [H : decidable_eq A] {a : A} : ∀ {l}, a ∈ erase
       (λ aeqb  : a = b, by rewrite aeqb; exact !mem_cons)
       (λ ainel : a ∈ erase_dup l, or.inr (mem_of_mem_erase_dup ainel)))
 
-theorem erase_dup_sub [H : decidable_eq A] (l : list A) : erase_dup l ⊆ l :=
+theorem erase_dup_sub [decidable_eq A] (l : list A) : erase_dup l ⊆ l :=
 λ a i, mem_of_mem_erase_dup i
 
-theorem sub_erase_dup [H : decidable_eq A] (l : list A) : l ⊆ erase_dup l :=
+theorem sub_erase_dup [decidable_eq A] (l : list A) : l ⊆ erase_dup l :=
 λ a i, mem_erase_dup i
 
-theorem nodup_erase_dup [H : decidable_eq A] : ∀ l : list A, nodup (erase_dup l)
+theorem nodup_erase_dup [decidable_eq A] : ∀ l : list A, nodup (erase_dup l)
 | []        := by rewrite erase_dup_nil; exact nodup_nil
 | (a::l)    := by_cases
   (λ ainl  : a ∈ l, by rewrite [erase_dup_cons_of_mem ainl]; exact (nodup_erase_dup l))
@@ -371,14 +371,14 @@ theorem nodup_erase_dup [H : decidable_eq A] : ∀ l : list A, nodup (erase_dup 
       assume ab : a ∈ erase_dup l, absurd (mem_of_mem_erase_dup ab) nainl,
     by rewrite [erase_dup_cons_of_not_mem nainl]; exact (nodup_cons nin r))
 
-theorem erase_dup_eq_of_nodup [H : decidable_eq A] : ∀ {l : list A}, nodup l → erase_dup l = l
+theorem erase_dup_eq_of_nodup [decidable_eq A] : ∀ {l : list A}, nodup l → erase_dup l = l
 | []     d := rfl
 | (a::l) d :=
   assert nainl : a ∉ l, from not_mem_of_nodup_cons d,
   assert dl : nodup l,  from nodup_of_nodup_cons d,
   by rewrite [erase_dup_cons_of_not_mem nainl, erase_dup_eq_of_nodup dl]
 
-definition decidable_nodup [instance] [h : decidable_eq A] : ∀ (l : list A), decidable (nodup l)
+definition decidable_nodup [instance] [decidable_eq A] : ∀ (l : list A), decidable (nodup l)
 | []     := inl nodup_nil
 | (a::l) :=
   match decidable_mem a l with
@@ -416,7 +416,7 @@ theorem nodup_product : ∀ {l₁ : list A} {l₂ : list B}, nodup l₁ → nodu
          end,
   nodup_append_of_nodup_of_nodup_of_disjoint dm n₄ dsj
 
-theorem nodup_filter (p : A → Prop) [h : decidable_pred p] : ∀ {l : list A}, nodup l → nodup (filter p l)
+theorem nodup_filter (p : A → Prop) [decidable_pred p] : ∀ {l : list A}, nodup l → nodup (filter p l)
 | []     nd := nodup_nil
 | (a::l) nd :=
   have   nainl : a ∉ l,              from not_mem_of_nodup_cons nd,

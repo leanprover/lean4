@@ -306,6 +306,7 @@ struct structure_cmd_fn {
         }
         for (expr const & p : m_params)
             ::lean::collect_locals(mlocal_type(p), dep_set);
+        collect_annonymous_inst_implicit(m_p, dep_set);
         buffer<expr> ctx;
         sort_locals(dep_set.get_collected(), m_p, ctx);
 

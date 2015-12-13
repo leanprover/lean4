@@ -431,6 +431,7 @@ struct inductive_cmd_fn {
         collect_locals_core(decls, local_set);
         if (local_set.empty())
             return;
+        collect_annonymous_inst_implicit(m_p, local_set);
         sort_locals(local_set.get_collected(), m_p, locals);
         m_num_params += locals.size();
     }

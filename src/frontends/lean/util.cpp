@@ -128,7 +128,7 @@ static void collect_locals_ignoring_tactics(expr const & e, collected_locals & l
         });
 }
 
-static void collect_annonymous_inst_implicit(parser const & p, collected_locals & ls) {
+void collect_annonymous_inst_implicit(parser const & p, collected_locals & ls) {
     for (auto const & entry : p.get_local_entries()) {
         if (is_local(entry.second) && !ls.contains(entry.second) && local_info(entry.second).is_inst_implicit() &&
             // remark: remove the following condition condition, if we want to auto inclusion also for non anonymous ones.

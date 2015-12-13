@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/expr_sets.h"
 #include "kernel/type_checker.h"
 #include "library/util.h"
+#include "library/locals.h"
 #include "library/tactic/util.h"
 #include "frontends/lean/local_decls.h"
 
@@ -36,6 +37,7 @@ name remove_root_prefix(name const & n);
 levels collect_local_nonvar_levels(parser & p, level_param_names const & ls);
 /** \brief Collect local constants occurring in \c type and \c value, sort them, and store in ctx_ps */
 void collect_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & ctx_ps);
+void collect_annonymous_inst_implicit(parser const & p, collected_locals & ls);
 name_set collect_univ_params_ignoring_tactics(expr const & e, name_set const & ls = name_set());
 /** \brief Copy the local names to \c ps, then sort \c ps (using the order in which they were declared). */
 void sort_locals(buffer<expr> const & locals, parser const & p, buffer<expr> & ps);

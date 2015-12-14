@@ -8,11 +8,12 @@ Author: Robert Y. Lewis
 #include "library/reducible.h"
 #include "library/normalize.h"
 #include "library/norm_num.h"
+#include "library/tmp_type_context.h"
 #include "library/tactic/expr_to_tactic.h"
 
 namespace lean {
 tactic norm_num_tactic() {
-    return tactic01([=](environment const & env, io_state const &, proof_state const & s) {
+    return tactic01([=](environment const & env, io_state const & ios, proof_state const & s) {
             goals const & gs = s.get_goals();
             if (empty(gs)) {
                 throw_no_goal_if_enabled(s);
@@ -30,15 +31,16 @@ tactic norm_num_tactic() {
             rhs = normalize(*rtc, rhs);
             buffer<expr> hyps;
             g.get_hyps(hyps);
-            local_context ctx(to_list(hyps));
             try {
-                pair<expr, expr> p = mk_norm_num(env, ctx, lhs);
+                tmp_type_context ctx(env, ios.get_options());
+                ctx.set_local_instances(to_list(hyps));
+                pair<expr, expr> p = mk_norm_num(ctx, lhs);
                 expr new_lhs = p.first;
                 expr new_lhs_pr  = p.second;
-                pair<expr, expr> p2 = mk_norm_num(env, ctx, rhs);
+                pair<expr, expr> p2 = mk_norm_num(ctx, rhs);
                 expr new_rhs = p2.first;
                 expr new_rhs_pr = p2.second;
-                mpq v_lhs = mpq_of_expr(env, ctx, new_lhs), v_rhs = mpq_of_expr(env, ctx, new_rhs);
+                mpq v_lhs = mpq_of_expr(ctx, new_lhs), v_rhs = mpq_of_expr(ctx, new_rhs);
                 if (v_lhs == v_rhs) {
                     type_checker tc(env);
                     expr g_prf = mk_trans(tc, new_lhs_pr, mk_symm(tc, new_rhs_pr));

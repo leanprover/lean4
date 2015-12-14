@@ -103,7 +103,4 @@ inline mpz num_of_expr(type_context & type_ctx, expr const & e) {
 inline mpq mpq_of_expr(type_context & type_ctx, expr const & e) {
     return norm_num_context(type_ctx).mpq_of_expr(e);
 }
-
-void initialize_norm_num();
-void finalize_norm_num();
 }

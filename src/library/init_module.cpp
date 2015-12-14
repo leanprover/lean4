@@ -44,7 +44,6 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/decl_stats.h"
 #include "library/meng_paulson.h"
-#include "library/norm_num.h"
 #include "library/class_instance_resolution.h"
 #include "library/type_context.h"
 #include "library/congr_lemma_manager.h"
@@ -91,7 +90,6 @@ void initialize_library_module() {
     initialize_aux_recursors();
     initialize_decl_stats();
     initialize_meng_paulson();
-    initialize_norm_num();
     initialize_class_instance_resolution();
     initialize_type_context();
     initialize_light_rule_set();
@@ -105,7 +103,6 @@ void finalize_library_module() {
     finalize_light_rule_set();
     finalize_type_context();
     finalize_class_instance_resolution();
-    finalize_norm_num();
     finalize_meng_paulson();
     finalize_decl_stats();
     finalize_aux_recursors();

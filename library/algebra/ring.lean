@@ -434,8 +434,6 @@ theorem subst_into_prod [has_mul A] (l r tl tr t : A) (prl : l = tl) (prr : r = 
 theorem mk_cong (op : A → A) (a b : A) (H : a = b) : op a = op b :=
   by congruence; exact H
 
-theorem mk_eq (a : A) : a = a := rfl
-
 theorem neg_add_neg_eq_of_add_add_eq_zero [add_comm_group A] (a b c : A) (H : c + a + b = 0) :
         -a + -b = c :=
   begin

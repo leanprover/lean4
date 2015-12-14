@@ -1,5 +1,5 @@
 import data.real
-open algebra real
+open real
 
 /-
 variable {A : Type}

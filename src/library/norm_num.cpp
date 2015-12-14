@@ -603,7 +603,7 @@ expr norm_num_context::mk_norm_eq_pos_add_pos(expr & s_lhs, expr & s_rhs, expr &
 expr norm_num_context::mk_norm_eq_neg_mul_neg(expr & s_lhs, expr & s_rhs, expr & rhs) {
     lean_assert(is_neg_app(s_lhs));
     lean_assert(is_neg_app(s_rhs));
-    // lean_assert(is_neg_app(rhs)); // Leo: we get an assertion violation when testing norm_num1.lean
+    lean_assert(!is_neg_app(rhs));
     auto s_lhs_v = get_type_and_arg_of_neg(s_lhs).second;
     expr s_rhs_v, type;
     std::tie(type, s_rhs_v) = get_type_and_arg_of_neg(s_rhs);

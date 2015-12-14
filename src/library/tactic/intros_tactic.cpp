@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/tactic/expr_to_tactic.h"
 
 namespace lean {
-tactic intros_tactic(list<name> _ns) {
+static tactic intro_intros_tactic(list<name> _ns, bool is_intros) {
     auto fn = [=](environment const & env, io_state const &, proof_state const & s) {
         list<name> ns    = _ns;
         goals const & gs = s.get_goals();
@@ -24,10 +24,12 @@ tactic intros_tactic(list<name> _ns) {
         auto tc             = mk_type_checker(env, ngen.mk_child());
         expr t              = g.get_type();
         expr m              = g.get_meta();
-        bool gen_names      = empty(ns);
+        bool gen_names      = is_intros && empty(ns);
+        bool gen_one_name   = !is_intros && empty(ns);
+        bool first          = true;
         try {
             while (true) {
-                if (!gen_names && is_nil(ns))
+                if (!gen_names && (!gen_one_name || !first) && is_nil(ns))
                     break;
                 if (!is_pi(t)) {
                     if (!is_nil(ns)) {
@@ -49,6 +51,7 @@ tactic intros_tactic(list<name> _ns) {
                 expr new_local = mk_local(ngen.next(), new_name, binding_domain(t), binding_info(t));
                 t              = instantiate(binding_body(t), new_local);
                 m              = mk_app(m, new_local);
+                first          = false;
             }
             goal new_g(m, t);
             return some(proof_state(s, goals(new_g, tail(gs)), ngen));
@@ -59,14 +62,27 @@ tactic intros_tactic(list<name> _ns) {
     return tactic01(fn);
 }
 
+tactic intro_tactic(list<name> const & ns) {
+    return intro_intros_tactic(ns, false);
+}
+
+tactic intros_tactic(list<name> const & ns) {
+    return intro_intros_tactic(ns, true);
+}
+
 void initialize_intros_tactic() {
-    auto fn = [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-        buffer<name> ns;
-        get_tactic_id_list_elements(app_arg(e), ns, "invalid 'intro' tactic, arguments must be identifiers");
-        return intros_tactic(to_list(ns.begin(), ns.end()));
-    };
-    register_tac(get_tactic_intro_name(), fn);
-    register_tac(get_tactic_intros_name(), fn);
+    register_tac(get_tactic_intro_name(),
+                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+                     buffer<name> ns;
+                     get_tactic_id_list_elements(app_arg(e), ns, "invalid 'intro' tactic, arguments must be identifiers");
+                     return intro_tactic(to_list(ns.begin(), ns.end()));
+                 });
+    register_tac(get_tactic_intros_name(),
+                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+                     buffer<name> ns;
+                     get_tactic_id_list_elements(app_arg(e), ns, "invalid 'intros' tactic, arguments must be identifiers");
+                     return intros_tactic(to_list(ns.begin(), ns.end()));
+                 });
 }
 
 void finalize_intros_tactic() {

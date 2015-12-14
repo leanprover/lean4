@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "library/tactic/tactic.h"
 namespace lean {
-tactic intros_tactic(list<name> ns);
+tactic intros_tactic(list<name> const & ns);
 void initialize_intros_tactic();
 void finalize_intros_tactic();
 }

@@ -17,20 +17,20 @@ Author: Leonardo de Moura
 #define   LOCK_EX   2    /* exclusive lock */
 #define   LOCK_NB   4    /* don't block when locking */
 #define   LOCK_UN   8    /* unlock */
-			
+
 static BOOL lock(HANDLE h, int non_blocking, int exclusive) {
     DWORD lower, upper;
     OVERLAPPED ovlp;
     int flags = 0;
-    
+
     lower = GetFileSize(h, &upper);
     memset (&ovlp, 0, sizeof(ovlp));
-    
+
     if (non_blocking)
-	flags |= LOCKFILE_FAIL_IMMEDIATELY;
+        flags |= LOCKFILE_FAIL_IMMEDIATELY;
     if (exclusive)
-	flags |= LOCKFILE_EXCLUSIVE_LOCK;
-    
+        flags |= LOCKFILE_EXCLUSIVE_LOCK;
+
     return LockFileEx(h, flags, 0, lower, upper, &ovlp);
 }
 
@@ -44,25 +44,25 @@ int flock(int fd, int op) {
     HANDLE h = (HANDLE)_get_osfhandle(fd);
     DWORD res;
     int non_blocking;
-    
+
     if (h == INVALID_HANDLE_VALUE)
-	return -1;
-    
+        return -1;
+
     non_blocking = op & LOCK_NB;
     op          &= ~LOCK_NB;
-    
+
     switch (op) {
     case LOCK_SH:
-	res = lock(h, non_blocking, 0);
-	break;
+        res = lock(h, non_blocking, 0);
+        break;
     case LOCK_EX:
-	res = lock(h, non_blocking, 1);
-	break;
+        res = lock(h, non_blocking, 1);
+        break;
     case LOCK_UN:
-	res = unlock(h);
-	break;
+        res = unlock(h);
+        break;
     default:
-	return -1;
+        return -1;
     }
     return !res ? -1 : 0;
 }

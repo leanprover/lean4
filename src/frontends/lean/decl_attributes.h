@@ -47,5 +47,7 @@ public:
     bool is_parsing_only() const { return m_is_parsing_only; }
     void write(serializer & s) const;
     void read(deserializer & d);
+    friend bool operator==(decl_attributes const & d1, decl_attributes const & d2);
 };
+bool operator==(decl_attributes const & d1, decl_attributes const & d2);
 }

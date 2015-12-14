@@ -304,4 +304,37 @@ void decl_attributes::read(deserializer & d) {
       >> m_forward >> m_elim >> m_intro >> m_intro_bang >> m_no_pattern;
     m_unfold_hint = read_list<unsigned>(d);
 }
+
+bool operator==(decl_attributes const & d1, decl_attributes const & d2) {
+    return
+        d1.m_is_abbrev == d2.m_is_abbrev &&
+        d1.m_persistent == d2.m_persistent &&
+        d1.m_is_instance == d2.m_is_instance &&
+        d1.m_is_trans_instance == d2.m_is_trans_instance &&
+        d1.m_is_coercion == d2.m_is_coercion &&
+        d1.m_is_reducible == d2.m_is_reducible &&
+        d1.m_is_irreducible == d2.m_is_irreducible &&
+        d1.m_is_semireducible == d2.m_is_semireducible &&
+        d1.m_is_quasireducible == d2.m_is_quasireducible &&
+        d1.m_is_class == d2.m_is_class &&
+        d1.m_is_parsing_only == d2.m_is_parsing_only &&
+        d1.m_has_multiple_instances == d2.m_has_multiple_instances &&
+        d1.m_unfold_full_hint == d2.m_unfold_full_hint &&
+        d1.m_constructor_hint == d2.m_constructor_hint &&
+        d1.m_symm == d2.m_symm &&
+        d1.m_trans == d2.m_trans &&
+        d1.m_refl == d2.m_refl &&
+        d1.m_subst == d2.m_subst &&
+        d1.m_recursor == d2.m_recursor &&
+        d1.m_simp == d1.m_simp &&
+        d1.m_congr == d2.m_congr &&
+        d1.m_recursor_major_pos == d2.m_recursor_major_pos &&
+        d1.m_priority == d2.m_priority &&
+        d1.m_forward == d2.m_forward &&
+        d1.m_elim == d2.m_elim &&
+        d1.m_intro == d2.m_intro &&
+        d1.m_intro_bang == d2.m_intro_bang &&
+        d1.m_no_pattern == d2.m_no_pattern &&
+        d1.m_unfold_hint == d2.m_unfold_hint;
+}
 }

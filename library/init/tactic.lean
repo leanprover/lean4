@@ -108,6 +108,8 @@ definition blast (ls : opt_identifier_list) (ds : opt_identifier_list) : tactic 
 
 -- with_options_tac is just a marker for the builtin 'with_options' notation
 definition with_options_tac (o : expr) (t : tactic) : tactic := builtin
+-- with_options_tac is just a marker for the builtin 'with_attributes' notation
+definition with_attributes_tac (o : expr) (n : identifier_list) (t : tactic) : tactic := builtin
 
 definition simp        : tactic := #tactic with_options [blast.strategy "simp"] blast
 definition simp_nohyps : tactic := #tactic with_options [blast.strategy "simp_nohyps"] blast

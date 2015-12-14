@@ -11,6 +11,7 @@ bool.eq_ff_of_bnot_eq_tt|eq (bool.bnot ?a) bool.tt → eq ?a bool.ff
 tactic.lettac|tactic.identifier → tactic.expr → tactic
 bool.absurd_of_eq_ff_of_eq_tt|eq ?a bool.ff → eq ?a bool.tt → ?B
 bool.eq_tt_of_ne_ff|ne ?a bool.ff → eq ?a bool.tt
+tactic.with_attributes_tac|tactic.expr → tactic.identifier_list → tactic → tactic
 bool.tt_band|∀ (a : bool), eq (bool.band bool.tt a) a
 bool.cond_tt|∀ (t e : ?A), eq (bool.cond bool.tt t e) t
 bool.ff_ne_tt|eq bool.ff bool.tt → false
@@ -30,6 +31,7 @@ eq_ff_of_bnot_eq_tt|eq (bnot ?a) tt → eq ?a ff
 tactic.lettac|tactic.identifier → tactic.expr → tactic
 absurd_of_eq_ff_of_eq_tt|eq ?a ff → eq ?a tt → ?B
 eq_tt_of_ne_ff|ne ?a ff → eq ?a tt
+tactic.with_attributes_tac|tactic.expr → tactic.identifier_list → tactic → tactic
 cond_tt|∀ (t e : ?A), eq (cond tt t e) t
 ff_ne_tt|eq ff tt → false
 eq_ff_of_ne_tt|ne ?a tt → eq ?a ff

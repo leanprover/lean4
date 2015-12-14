@@ -1902,16 +1902,29 @@ expr parser::parse_tactic_expr_list() {
 expr parser::parse_tactic_id_list() {
     auto p = pos();
     buffer<expr> args;
-    if (curr_is_identifier()) {
-        while (curr_is_identifier()) {
-            name id = get_name_val();
+    if (curr_is_identifier() || curr_is_token(get_placeholder_tk())) {
+        while (curr_is_identifier() || curr_is_token(get_placeholder_tk())) {
+            name id;
+            if (curr_is_identifier())
+                id = get_name_val();
+            else
+                id = name("_");
             args.push_back(mk_local(id, mk_expr_placeholder()));
             next();
         }
     } else {
-        check_token_next(get_lbracket_tk(), "invalid tactic, '[' or identifier expected");
+        check_token_next(get_lbracket_tk(), "invalid tactic, '[', identifier or '_' expected");
         while (true) {
-            args.push_back(mk_local(check_id_next("invalid tactic, identifier expected"), mk_expr_placeholder()));
+            auto id_pos = pos();
+            name id;
+            if (curr_is_identifier())
+                id = get_name_val();
+            else if (curr_is_token(get_placeholder_tk()))
+                id = name("_");
+            else
+                throw parser_error("invalid tactic, identifier or '_' expected", id_pos);
+            next();
+            args.push_back(mk_local(id, mk_expr_placeholder()));
             if (!curr_is_token(get_comma_tk()))
                 break;
             next();
@@ -1933,7 +1946,7 @@ expr parser::parse_tactic_opt_expr_list() {
 }
 
 expr parser::parse_tactic_opt_id_list() {
-    if (curr_is_token(get_lbracket_tk()) || curr_is_identifier()) {
+    if (curr_is_token(get_lbracket_tk()) || curr_is_identifier() || curr_is_token(get_placeholder_tk())) {
         return parse_tactic_id_list();
     } else if (curr_is_token(get_with_tk())) {
         next();

@@ -44,6 +44,8 @@ static tactic intro_intros_tactic(list<name> _ns, bool is_intros) {
                 name new_name;
                 if (!is_nil(ns)) {
                     new_name = head(ns);
+                    if (new_name == "_")
+                        new_name = get_unused_name(binding_name(t), m);
                     ns       = tail(ns);
                 } else {
                     new_name = get_unused_name(binding_name(t), m);

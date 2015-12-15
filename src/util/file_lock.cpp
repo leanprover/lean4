@@ -5,10 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include <sys/file.h>
+#include <errno.h>
 #include "util/exception.h"
 #include "util/sstream.h"
 #include "util/file_lock.h"
-#include <sys/file.h>
 
 #ifdef LEAN_WINDOWS
 #include <windows.h>
@@ -75,12 +76,19 @@ file_lock::file_lock(char const * fname, bool exclusive):
     m_fname(fname), m_fd(-1) {
     m_fname += ".lock";
     m_fd = open(m_fname.c_str(), O_CREAT, 0xFFFF);
-    if (m_fd == -1)
-        throw exception(sstream() << "failed to lock file '" << fname << "'");
-    int status = flock(m_fd, exclusive ? LOCK_EX : LOCK_SH);
-    // TODO(Leo): should we use a loop and keep checking, and fail after k seconds?
-    if (status == -1)
-        throw exception(sstream() << "failed to lock file '" << fname << "'");
+    if (m_fd == -1) {
+        if (errno == EACCES) {
+            // We don't have permission to create the file, the folder containing fname is probably readonly.
+            // fname is probably part of the Lean installation in a system directory.
+            // So, we ignore the file_lock in this case.
+        } else {
+            throw exception(sstream() << "failed to lock file '" << fname << "'");
+        }
+    } else {
+        int status = flock(m_fd, exclusive ? LOCK_EX : LOCK_SH);
+        if (status == -1)
+            throw exception(sstream() << "failed to lock file '" << fname << "'");
+    }
 }
 file_lock::~file_lock() {
     if (m_fd != -1) {

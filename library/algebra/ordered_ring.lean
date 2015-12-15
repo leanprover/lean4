@@ -440,8 +440,8 @@ section
     begin
       apply le_of_not_gt,
       intro Hab,
-      let Hposa := lt_of_le_of_lt Hb Hab,
-      let H' := calc
+      note Hposa := lt_of_le_of_lt Hb Hab,
+      note H' := calc
         b * b ≤ a * b : mul_le_mul_of_nonneg_right (le_of_lt Hab) Hb
         ... < a * a : mul_lt_mul_of_pos_left Hab Hposa,
       apply (not_le_of_gt H') H

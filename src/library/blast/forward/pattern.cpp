@@ -40,7 +40,7 @@ patterns used by heuristic instantiation.
      a_i is NOT trackable.
      Reason: we can infer a_i from a_j using type inference.
 
-  b) a_i is a proposition -> a_i is NOT trackable.
+  b) a_i is a non dependent proposition -> a_i is NOT trackable.
      Reason: we can leave a_i as hypothesis whenever we instantiate H.
 
   c) a_i is instance implicit -> a_i is NOT trackable.
@@ -214,9 +214,10 @@ expr extract_trackable(tmp_type_context & ctx, expr const & type,
         bool is_inst_implicit = binding_info(it).is_inst_implicit();
         inst_implicit_flags.push_back(is_inst_implicit);
         bool is_prop          = ctx.is_prop(binding_domain(it));
+        bool dep              = !closed(binding_body(it));
         if (!is_inst_implicit) {
             unsigned midx = to_meta_idx(new_mvar);
-            if (is_prop)
+            if (is_prop && !dep)
                 residue.insert(midx);
             else
                 trackable.insert(midx);

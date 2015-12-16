@@ -14,8 +14,6 @@ sorry
 
 attribute add.assoc add.comm add.left_comm mul_one add_zero zero_add one_mul mul.comm mul.assoc mul.left_comm [simp]
 
-exit -- There is a bug in how local constants are handled in blast, disable tests for now.
-
 example (f : nat → nat) (n : nat) : (Σ x < n, f x + 1) = (Σ x < n, f x) + n :=
 by simp
 

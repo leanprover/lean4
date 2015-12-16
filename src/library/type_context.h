@@ -106,13 +106,21 @@ public:
 
     So, type_context provides a more liberal approach. It allows "customers" of this
     class to provide their own validation mechanism for meta-variable assignments.
-    In the simplifier and type class resolution, we use very basic validation,
-    where we just check whether ?m occurs in the value being assigned to it.
+    In the simplifier and type class resolution, we use very basic validation.
+    Given `?m x_1 ... x_n =?= t`, before assigning `?m := fun x_1 ... x_n, t`,
+    we check whether ?m does not occurs in t, and whether all internal local constants
+    in t occur in `x_1 ... x_n`.
 
     In blast, we have our own mechanism for tracking hypotheses (i.e., the representation
     of local constants in the blast search branches). This is a more efficient
     representation that doesn't require us to create N-nested Pi expressions
     whenever we want to create a meta-variable in a branch that has N hypotheses.
+
+    In blast, the full local context is a telescope of the form
+
+        1- (all hypotheses in the current state)
+        2- (all temporary local constants created by auxiliary procedure)    Example: simplifier goes inside of a lambda.
+        3- (all internal local constants created by type_context)            Example: when processing is_def_eq.
 */
 class type_context {
     struct ext_ctx;
@@ -275,6 +283,12 @@ class type_context {
 
     optional<pair<expr, expr>> find_unsynth_metavar(expr const & e);
 
+    expr mk_internal_local(name const & n, expr const & type, binder_info const & bi = binder_info());
+    expr mk_internal_local(expr const & type, binder_info const & bi = binder_info());
+    expr mk_internal_local_from_binding(expr const & b) {
+        return mk_internal_local(binding_name(b), binding_domain(b), binding_info(b));
+    }
+
     void trace(unsigned depth, expr const & mvar, expr const & mvar_type, expr const & r);
     bool try_instance(ci_stack_entry const & e, expr const & inst, expr const & inst_type, bool trans_inst);
     bool try_instance(ci_stack_entry const & e, name const & inst_name, bool trans_inst);
@@ -319,6 +333,9 @@ public:
     /** \brief This method is invoked when a term is being put in weak-head-normal-form.
         It is used to decide whether a macro should be unfolded or not. */
     virtual bool should_unfold_macro(expr const &) const { return true; }
+
+    /** \brief Return true iff \c e is an internal local constant created by this object */
+    bool is_internal_local(expr const & e) const;
 
     /** \brief Create a temporary local constant */
     expr mk_tmp_local(expr const & type, binder_info const & bi = binder_info()) {
@@ -377,7 +394,8 @@ public:
     /** \brief Given a metavariable m that takes locals as arguments, this method
         should return true if m can be assigned to an abstraction of \c v.
 
-        \remark This method should check at least if m does not occur in v.
+        \remark This method should check at least if m does not occur in v, and
+        whether all internal local constants in v occur in locals.
         The default implementation only checks that. */
     virtual bool validate_assignment(expr const & m, buffer<expr> const & locals, expr const & v);
 

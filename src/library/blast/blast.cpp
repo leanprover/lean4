@@ -207,7 +207,7 @@ class blastenv {
                             ok = false; // failed 1
                             return false;
                         }
-                    } else if (is_local(e) && !is_tmp_local(e)) {
+                    } else if (is_local(e) && !is_internal_local(e)) {
                         if (std::all_of(locals.begin(), locals.end(), [&](expr const & a) {
                                     return mlocal_name(a) != mlocal_name(e); })) {
                             ok = false; // failed 3

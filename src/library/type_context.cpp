@@ -33,7 +33,8 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-static name * g_prefix                       = nullptr;
+static name * g_tmp_prefix                   = nullptr;
+static name * g_internal_prefix              = nullptr;
 static name * g_class_instance_max_depth     = nullptr;
 static name * g_class_trans_instances        = nullptr;
 
@@ -51,7 +52,7 @@ tmp_local_generator::tmp_local_generator():
 name tmp_local_generator::mk_fresh_name() {
     unsigned idx = m_next_local_idx;
     m_next_local_idx++;
-    return name(*g_prefix, idx);
+    return name(*g_tmp_prefix, idx);
 }
 
 expr tmp_local_generator::mk_tmp_local(expr const & type, binder_info const & bi) {
@@ -68,7 +69,7 @@ bool tmp_local_generator::is_tmp_local(expr const & e) const {
     if (!is_local(e))
         return false;
     name const & n = mlocal_name(e);
-    return !n.is_atomic() && n.get_prefix() == *g_prefix;
+    return !n.is_atomic() && n.get_prefix() == *g_tmp_prefix;
 }
 
 struct type_context::ext_ctx : public extension_context {
@@ -102,7 +103,7 @@ struct type_context::ext_ctx : public extension_context {
 type_context::type_context(environment const & env, options const & o, tmp_local_generator * gen,
                            bool gen_owner, bool multiple_instances):
     m_env(env),
-    m_ngen(*g_prefix),
+    m_ngen(*g_internal_prefix),
     m_ext_ctx(new ext_ctx(*this)),
     m_local_gen(gen),
     m_local_gen_owner(gen_owner),
@@ -121,6 +122,22 @@ type_context::type_context(environment const & env, options const & o, tmp_local
 type_context::~type_context() {
     if (m_local_gen_owner)
         delete m_local_gen;
+}
+
+expr type_context::mk_internal_local(name const & n, expr const & type, binder_info const & bi) {
+    return mk_local(m_ngen.next(), n, type, bi);
+}
+
+expr type_context::mk_internal_local(expr const & type, binder_info const & bi) {
+    name n = m_ngen.next();
+    return mk_local(n, n, type, bi);
+}
+
+bool type_context::is_internal_local(expr const & e) const {
+    if (!is_local(e))
+        return false;
+    name const & n = mlocal_name(e);
+    return !n.is_atomic() && n.get_prefix() == m_ngen.prefix();
 }
 
 void type_context::set_local_instances(list<expr> const & insts) {
@@ -662,7 +679,7 @@ bool type_context::is_def_eq_binding(expr e1, expr e2) {
             // local is used inside t or s
             if (!var_e1_type)
                 var_e1_type = instantiate_rev(binding_domain(e1), subst.size(), subst.data());
-            subst.push_back(mk_tmp_local(binding_name(e1), *var_e1_type));
+            subst.push_back(mk_internal_local(binding_name(e1), *var_e1_type));
         } else {
             expr const & dont_care = mk_Prop();
             subst.push_back(dont_care);
@@ -788,7 +805,7 @@ bool type_context::process_assignment_core(expr const & ma, expr const & v) {
                 return false;
             lean_assert(i <= locals.size());
             if (i == locals.size())
-                locals.push_back(mk_tmp_local_from_binding(m_type));
+                locals.push_back(mk_internal_local_from_binding(m_type));
             lean_assert(i < locals.size());
             m_type = instantiate(binding_body(m_type), locals[i]);
         }
@@ -1073,7 +1090,7 @@ expr type_context::infer_lambda(expr e) {
         es.push_back(e);
         ds.push_back(binding_domain(e));
         expr d = instantiate_rev(binding_domain(e), ls.size(), ls.data());
-        expr l = mk_tmp_local(binding_name(e), d, binding_info(e));
+        expr l = mk_internal_local(binding_name(e), d, binding_info(e));
         ls.push_back(l);
         e = binding_body(e);
     }
@@ -1109,7 +1126,7 @@ expr type_context::infer_pi(expr const & e0) {
     while (is_pi(e)) {
         expr d      = instantiate_rev(binding_domain(e), ls.size(), ls.data());
         us.push_back(get_level(d));
-        expr l  = mk_tmp_local(d, binding_info(e));
+        expr l  = mk_internal_local(d, binding_info(e));
         ls.push_back(l);
         e = binding_body(e);
     }
@@ -1207,7 +1224,7 @@ optional<name> type_context::constant_is_class(expr const & e) {
 optional<name> type_context::is_full_class(expr type) {
     type = whnf(type);
     if (is_pi(type)) {
-        return is_full_class(instantiate(binding_body(type), mk_tmp_local_from_binding(type)));
+        return is_full_class(instantiate(binding_body(type), mk_internal_local_from_binding(type)));
     } else {
         expr f = get_app_fn(type);
         if (!is_constant(f))
@@ -1352,7 +1369,7 @@ bool type_context::on_is_def_eq_failure(expr & e1, expr & e2) {
     return false;
 }
 
-bool type_context::validate_assignment(expr const & m, buffer<expr> const & /* locals */, expr const & v) {
+bool type_context::validate_assignment(expr const & m, buffer<expr> const & locals, expr const & v) {
     // Basic check: m does not occur in v
     bool ok = true;
     for_each(v, [&](expr const & e, unsigned) {
@@ -1364,6 +1381,13 @@ bool type_context::validate_assignment(expr const & m, buffer<expr> const & /* l
                     return false;
                 }
                 return false;
+            }
+            if (is_internal_local(e)) {
+                if (std::all_of(locals.begin(), locals.end(), [&](expr const & a) {
+                            return mlocal_name(a) != mlocal_name(e); })) {
+                    ok = false; // failed 3
+                    return false;
+                }
             }
             return true;
         });
@@ -1415,7 +1439,7 @@ bool type_context::try_instance(ci_stack_entry const & e, expr const & inst, exp
             mvar_type = whnf(mvar_type);
             if (!is_pi(mvar_type))
                 break;
-            expr local  = mk_tmp_local_from_binding(mvar_type);
+            expr local  = mk_internal_local_from_binding(mvar_type);
             locals.push_back(local);
             mvar_type = instantiate(binding_body(mvar_type), local);
         }
@@ -1768,14 +1792,14 @@ bool default_type_context::is_uvar(level const & l) const {
     if (!is_meta(l))
         return false;
     name const & n = meta_id(l);
-    return !n.is_atomic() && n.get_prefix() == *g_prefix;
+    return !n.is_atomic() && n.get_prefix() == *g_tmp_prefix;
 }
 
 bool default_type_context::is_mvar(expr const & e) const {
     if (!is_metavar(e))
         return false;
     name const & n = mlocal_name(e);
-    return !n.is_atomic() && n.get_prefix() == *g_prefix;
+    return !n.is_atomic() && n.get_prefix() == *g_tmp_prefix;
 }
 
 unsigned default_type_context::uvar_idx(level const & l) const {
@@ -1813,13 +1837,13 @@ void default_type_context::update_assignment(expr const & m, expr const & v) {
 level default_type_context::mk_uvar() {
     unsigned idx = m_next_uvar_idx;
     m_next_uvar_idx++;
-    return mk_meta_univ(name(*g_prefix, idx));
+    return mk_meta_univ(name(*g_tmp_prefix, idx));
 }
 
 expr default_type_context::mk_mvar(expr const & type) {
     unsigned idx = m_next_mvar_idx;
     m_next_mvar_idx++;
-    return mk_metavar(name(*g_prefix, idx), type);
+    return mk_metavar(name(*g_tmp_prefix, idx), type);
 }
 
 optional<expr> default_type_context::mk_subsingleton_instance(expr const & type) {
@@ -1947,7 +1971,8 @@ normalizer::normalizer(type_context & ctx, bool eta, bool nested_prop):
 }
 
 void initialize_type_context() {
-    g_prefix = new name(name::mk_internal_unique_name());
+    g_tmp_prefix      = new name(name::mk_internal_unique_name());
+    g_internal_prefix = new name(name::mk_internal_unique_name());
     register_trace_class("class_instances");
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
     g_class_trans_instances        = new name{"class", "trans_instances"};
@@ -1959,7 +1984,8 @@ void initialize_type_context() {
 }
 
 void finalize_type_context() {
-    delete g_prefix;
+    delete g_tmp_prefix;
+    delete g_internal_prefix;
     delete g_class_instance_max_depth;
     delete g_class_trans_instances;
 }

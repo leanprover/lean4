@@ -688,14 +688,25 @@ bool type_context::is_def_eq_args(expr const & e1, expr const & e2) {
     return true;
 }
 
+/** \brief Try to solve e1 := (lambda x : A, t) =?= e2 by eta-expanding e2.
+
+    \remark eta-reduction is not a good alternative (even in a system without cumulativity like Lean).
+    Example:
+         (lambda x : A, f ?M) =?= f
+    The lhs cannot be eta-reduced because ?M is a meta-variable. */
 bool type_context::is_def_eq_eta(expr const & e1, expr const & e2) {
-    expr new_e1 = try_eta(e1);
-    expr new_e2 = try_eta(e2);
-    if (e1 != new_e1 || e2 != new_e2) {
-        scope s(*this);
-        if (is_def_eq_core(new_e1, new_e2)) {
-            s.commit();
-            return true;
+    if (is_lambda(e1) && !is_lambda(e2)) {
+        expr e2_type = relaxed_whnf(infer(e2));
+        if (is_pi(e2_type)) {
+            // e2_type may not be a Pi because it is a stuck term.
+            // We are ignoring this case and just failing.
+            expr new_e2 = mk_lambda(binding_name(e2_type), binding_domain(e2_type),
+                                    mk_app(e2, Var(0)), binding_info(e2_type));
+            scope s(*this);
+            if (is_def_eq_core(e1, new_e2)) {
+                s.commit();
+                return true;
+            }
         }
     }
     return false;
@@ -973,6 +984,8 @@ bool type_context::is_def_eq_core(expr const & t, expr const & s) {
     }
 
     if (is_def_eq_eta(t_n, s_n))
+        return true;
+    if (is_def_eq_eta(s_n, t_n))
         return true;
 
     if (is_def_eq_proof_irrel(t_n, s_n))

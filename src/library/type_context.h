@@ -16,6 +16,14 @@ namespace lean {
 unsigned get_class_instance_max_depth(options const & o);
 bool get_class_trans_instances(options const & o);
 
+/** \brief Many procedures need to create temporary local constants.
+    So, in the type_context class we provide this capability.
+    It is just a convenience, and allows many procedures to have a simpler
+    interface. Example: no need to take a type_context AND a name_generator.
+    However, in some procedures (e.g., simplifier) use multiple type_context
+    objects, and they want to make sure the local constants created by them
+    are distinct. So, we can accomplish that by providing the same
+    tmp_local_generator to different type_context objects. */
 class tmp_local_generator {
     unsigned m_next_local_idx;
     name mk_fresh_name();

@@ -64,6 +64,11 @@ definition opt_expr_list := expr_list
 definition identifier := expr
 definition identifier_list := expr_list
 definition opt_identifier_list := expr_list
+-- Remark: the parser has special support for tactics containing `location` parameters.
+-- It will parse the optional `at ...` modifier.
+definition location := expr
+-- Marker for instructing the parser to parse it as 'with <expr>'
+definition with_expr := expr
 
 -- Marker for instructing the parser to parse it as '?(using <expr>)'
 definition using_expr := expr

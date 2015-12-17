@@ -231,6 +231,8 @@ name const & get_tactic_identifier_list_name();
 name const & get_tactic_interleave_name();
 name const & get_tactic_intro_name();
 name const & get_tactic_intros_name();
+name const & get_tactic_location_name();
+name const & get_tactic_with_expr_name();
 name const & get_tactic_none_expr_name();
 name const & get_tactic_note_tac_name();
 name const & get_tactic_now_name();

@@ -36,6 +36,9 @@ optional<unsigned> get_optional_unsigned(type_checker & tc, expr const & e);
 
 expr const & get_tactic_expr_type();
 expr const & get_tactic_identifier_type();
+expr const & get_tactic_with_expr_type();
+expr const & get_tactic_location_type();
+expr const & get_tactic_with_expr_type();
 expr mk_tactic_expr(expr const & e);
 bool is_tactic_expr(expr const & e);
 expr const & get_tactic_expr_expr(expr const & e);

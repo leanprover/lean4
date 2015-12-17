@@ -43,6 +43,7 @@ Author: Leonardo de Moura
 #include "library/noncomputable.h"
 #include "library/error_handling/error_handling.h"
 #include "library/tactic/expr_to_tactic.h"
+#include "library/tactic/location.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
@@ -51,6 +52,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/parse_rewrite_tactic.h"
+#include "frontends/lean/parse_tactic_location.h"
 #include "frontends/lean/update_environment_exception.h"
 #include "frontends/lean/local_ref_info.h"
 #include "frontends/lean/opt_cmd.h"
@@ -1847,6 +1849,14 @@ static bool is_option_num(expr const & e) {
         is_constant(app_arg(e)) && const_name(app_arg(e)) == get_num_name();
 }
 
+static bool is_tactic_location_type(expr const & e) {
+    return is_constant(e) && const_name(e) == get_tactic_location_name();
+}
+
+static bool is_tactic_with_expr_type(expr const & e) {
+    return is_constant(e) && const_name(e) == get_tactic_with_expr_name();
+}
+
 static bool is_tactic_command_type(expr e) {
     while (is_pi(e))
         e = binding_body(e);
@@ -2009,13 +2019,22 @@ expr parser::parse_tactic_nud() {
                     r = mk_app(r, parse_tactic_using_expr(), id_pos);
                 } else if (arity == 1 && is_option_num(d)) {
                     r = mk_app(r, parse_tactic_option_num(), id_pos);
+                } else if (is_tactic_with_expr_type(d)) {
+                    check_token_next(get_with_tk(), "invalid tactic expression, 'with' expected");
+                    expr e = parse_expr();
+                    r = mk_app(r, e, id_pos);
+                } else if (is_tactic_location_type(d)) {
+                    location l = parse_tactic_location(*this);
+                    r = mk_app(r, mk_location_expr(l), id_pos);
                 } else {
                     unsigned rbp;
                     if ((arity == 1) ||
-                        (arity >= 2 && i == 0 && (is_tactic_opt_identifier_list_type(ds[1]) || is_tactic_using_expr(ds[1]))))
+                        (arity > i+1 && (is_tactic_opt_identifier_list_type(ds[i+1]) || is_tactic_using_expr(ds[i+1]) ||
+                                         is_tactic_with_expr_type(ds[i+1]) || is_tactic_location_type(ds[i+1])))) {
                         rbp = 0;
-                    else
+                    } else {
                         rbp = get_max_prec();
+                    }
                     r = mk_app(r, parse_tactic_expr_arg(rbp), id_pos);
                 }
             }

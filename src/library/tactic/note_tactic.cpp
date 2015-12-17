@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 expr mk_note_tactic_expr(name const &id, expr const &e) {
-    return mk_app(mk_constant(get_tactic_notetac_name()),
+    return mk_app(mk_constant(get_tactic_note_tac_name()),
                   mk_constant(id), e);
 }
 
@@ -51,7 +51,7 @@ tactic note_tactic(elaborate_fn const & elab, name const & id, expr const & e) {
 }
 
 void initialize_note_tactic() {
-    register_tac(get_tactic_notetac_name(),
+    register_tac(get_tactic_note_tac_name(),
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      name id = tactic_expr_to_id(app_arg(app_fn(e)), "invalid 'note' tactic, argument must be an identifier");
                      check_tactic_expr(app_arg(e), "invalid 'note' tactic, argument must be an expression");

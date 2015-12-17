@@ -43,7 +43,7 @@ namespace nat
 
   definition nat_has_le [instance] [reducible] [priority nat.prio]: has_le nat := has_le.mk nat.le
 
-  protected lemma le_refl [refl] : Π a : nat, a ≤ a :=
+  protected definition le_refl [refl] : Π a : nat, a ≤ a :=
   le.nat_refl
 
   protected definition lt [reducible] (n m : ℕ) := succ n ≤ m
@@ -83,28 +83,28 @@ namespace nat
 
   /- properties of inequality -/
 
-  protected theorem le_of_eq {n m : ℕ} (p : n = m) : n ≤ m := p ▸ !nat.le_refl
+  protected definition le_of_eq {n m : ℕ} (p : n = m) : n ≤ m := p ▸ !nat.le_refl
 
-  theorem le_succ (n : ℕ) : n ≤ succ n := le.step !nat.le_refl
+  definition le_succ (n : ℕ) : n ≤ succ n := le.step !nat.le_refl
 
-  theorem pred_le (n : ℕ) : pred n ≤ n := by cases n;repeat constructor
+  definition pred_le (n : ℕ) : pred n ≤ n := by cases n;repeat constructor
 
-  theorem le_succ_iff_unit [simp] (n : ℕ) : n ≤ succ n ↔ unit :=
+  definition le_succ_iff_unit [simp] (n : ℕ) : n ≤ succ n ↔ unit :=
   iff_unit_intro (le_succ n)
 
-  theorem pred_le_iff_unit [simp] (n : ℕ) : pred n ≤ n ↔ unit :=
+  definition pred_le_iff_unit [simp] (n : ℕ) : pred n ≤ n ↔ unit :=
   iff_unit_intro (pred_le n)
 
-  protected theorem le_trans {n m k : ℕ} (H1 : n ≤ m) : m ≤ k → n ≤ k :=
+  protected definition le_trans {n m k : ℕ} (H1 : n ≤ m) : m ≤ k → n ≤ k :=
   le.rec H1 (λp H2, le.step)
 
-  theorem le_succ_of_le {n m : ℕ} (H : n ≤ m) : n ≤ succ m := nat.le_trans H !le_succ
+  definition le_succ_of_le {n m : ℕ} (H : n ≤ m) : n ≤ succ m := nat.le_trans H !le_succ
 
-  theorem le_of_succ_le {n m : ℕ} (H : succ n ≤ m) : n ≤ m := nat.le_trans !le_succ H
+  definition le_of_succ_le {n m : ℕ} (H : succ n ≤ m) : n ≤ m := nat.le_trans !le_succ H
 
-  protected theorem le_of_lt {n m : ℕ} (H : n < m) : n ≤ m := le_of_succ_le H
+  protected definition le_of_lt {n m : ℕ} (H : n < m) : n ≤ m := le_of_succ_le H
 
-  theorem succ_le_succ {n m : ℕ} : n ≤ m → succ n ≤ succ m :=
+  definition succ_le_succ {n m : ℕ} : n ≤ m → succ n ≤ succ m :=
   le.rec !nat.le_refl (λa b, le.step)
 
   theorem pred_le_pred {n m : ℕ} : n ≤ m → pred n ≤ pred m :=
@@ -128,7 +128,7 @@ namespace nat
   theorem succ_le_self_iff_empty [simp] (n : ℕ) : succ n ≤ n ↔ empty :=
   iff_empty_intro not_succ_le_self
 
-  theorem zero_le : Π (n : ℕ), 0 ≤ n :=
+  definition zero_le : Π (n : ℕ), 0 ≤ n :=
   nat.rec !nat.le_refl (λa, le.step)
 
   theorem zero_le_iff_unit [simp] (n : ℕ) : 0 ≤ n ↔ unit :=

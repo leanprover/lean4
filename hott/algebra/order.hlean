@@ -23,24 +23,24 @@ section
   variable [s : weak_order A]
   include s
 
-  theorem le.refl (a : A) : a ≤ a := !weak_order.le_refl
+  definition le.refl (a : A) : a ≤ a := !weak_order.le_refl
 
-  theorem le_of_eq {a b : A} (H : a = b) : a ≤ b := H ▸ le.refl a
+  definition le_of_eq {a b : A} (H : a = b) : a ≤ b := H ▸ le.refl a
 
-  theorem le.trans [trans] {a b c : A} : a ≤ b → b ≤ c → a ≤ c := !weak_order.le_trans
+  definition le.trans [trans] {a b c : A} : a ≤ b → b ≤ c → a ≤ c := !weak_order.le_trans
 
-  theorem ge.trans [trans] {a b c : A} (H1 : a ≥ b) (H2: b ≥ c) : a ≥ c := le.trans H2 H1
+  definition ge.trans [trans] {a b c : A} (H1 : a ≥ b) (H2: b ≥ c) : a ≥ c := le.trans H2 H1
 
-  theorem le.antisymm {a b : A} : a ≤ b → b ≤ a → a = b := !weak_order.le_antisymm
+  definition le.antisymm {a b : A} : a ≤ b → b ≤ a → a = b := !weak_order.le_antisymm
 
   -- Alternate syntax. (Abbreviations do not migrate well.)
-  theorem eq_of_le_of_ge {a b : A} : a ≤ b → b ≤ a → a = b := !le.antisymm
+  definition eq_of_le_of_ge {a b : A} : a ≤ b → b ≤ a → a = b := !le.antisymm
 end
 
 structure linear_weak_order [class] (A : Type) extends weak_order A :=
 (le_total : Πa b, le a b ⊎ le b a)
 
-theorem le.total [s : linear_weak_order A] (a b : A) : a ≤ b ⊎ b ≤ a :=
+definition le.total [s : linear_weak_order A] (a b : A) : a ≤ b ⊎ b ≤ a :=
 !linear_weak_order.le_total
 
 /- strict orders -/
@@ -53,15 +53,15 @@ section
   variable [s : strict_order A]
   include s
 
-  theorem lt.irrefl (a : A) : ¬ a < a := !strict_order.lt_irrefl
-  theorem not_lt_self (a : A) : ¬ a < a := !lt.irrefl   -- alternate syntax
+  definition lt.irrefl (a : A) : ¬ a < a := !strict_order.lt_irrefl
+  definition not_lt_self (a : A) : ¬ a < a := !lt.irrefl   -- alternate syntax
 
   theorem lt_self_iff_empty (a : A) : a < a ↔ empty :=
   iff_empty_intro (lt.irrefl a)
 
-  theorem lt.trans [trans] {a b c : A} : a < b → b < c → a < c := !strict_order.lt_trans
+  definition lt.trans [trans] {a b c : A} : a < b → b < c → a < c := !strict_order.lt_trans
 
-  theorem gt.trans [trans] {a b c : A} (H1 : a > b) (H2: b > c) : a > c := lt.trans H2 H1
+  definition gt.trans [trans] {a b c : A} (H1 : a > b) (H2: b > c) : a > c := lt.trans H2 H1
 
   theorem ne_of_lt {a b : A} (lt_ab : a < b) : a ≠ b :=
   assume eq_ab : a = b,
@@ -98,13 +98,13 @@ section
   variables {a b c : A}
   include s
 
-  theorem le_of_lt : a < b → a ≤ b := !order_pair.le_of_lt
+  definition le_of_lt : a < b → a ≤ b := !order_pair.le_of_lt
 
-  theorem lt_of_lt_of_le [trans] : a < b → b ≤ c → a < c := !order_pair.lt_of_lt_of_le
+  definition lt_of_lt_of_le [trans] : a < b → b ≤ c → a < c := !order_pair.lt_of_lt_of_le
 
-  theorem lt_of_le_of_lt [trans] : a ≤ b → b < c → a < c := !order_pair.lt_of_le_of_lt
+  definition lt_of_le_of_lt [trans] : a ≤ b → b < c → a < c := !order_pair.lt_of_le_of_lt
 
-  private theorem lt_irrefl (s' : order_pair A) (a : A) : ¬ a < a := !order_pair.lt_irrefl
+  private definition lt_irrefl (s' : order_pair A) (a : A) : ¬ a < a := !order_pair.lt_irrefl
 
   private theorem lt_trans (s' : order_pair A) (a b c: A) (lt_ab : a < b) (lt_bc : b < c) : a < c :=
     lt_of_lt_of_le lt_ab (le_of_lt lt_bc)
@@ -112,9 +112,9 @@ section
   definition order_pair.to_strict_order [trans_instance] [reducible] : strict_order A :=
   ⦃ strict_order, s, lt_irrefl := lt_irrefl s, lt_trans := lt_trans s ⦄
 
-  theorem gt_of_gt_of_ge [trans] (H1 : a > b) (H2 : b ≥ c) : a > c := lt_of_le_of_lt H2 H1
+  definition gt_of_gt_of_ge [trans] (H1 : a > b) (H2 : b ≥ c) : a > c := lt_of_le_of_lt H2 H1
 
-  theorem gt_of_ge_of_gt [trans] (H1 : a ≥ b) (H2 : b > c) : a > c := lt_of_lt_of_le H2 H1
+  definition gt_of_ge_of_gt [trans] (H1 : a ≥ b) (H2 : b > c) : a > c := lt_of_lt_of_le H2 H1
 
   theorem not_le_of_gt (H : a > b) : ¬ a ≤ b :=
   assume H1 : a ≤ b,
@@ -129,7 +129,7 @@ structure strong_order_pair [class] (A : Type) extends weak_order A, has_lt A :=
 (le_iff_lt_sum_eq : Πa b, le a b ↔ lt a b ⊎ a = b)
 (lt_irrefl : Π a, ¬ lt a a)
 
-theorem le_iff_lt_sum_eq [s : strong_order_pair A] {a b : A} : a ≤ b ↔ a < b ⊎ a = b :=
+definition le_iff_lt_sum_eq [s : strong_order_pair A] {a b : A} : a ≤ b ↔ a < b ⊎ a = b :=
 !strong_order_pair.le_iff_lt_sum_eq
 
 theorem lt_sum_eq_of_le [s : strong_order_pair A] {a b : A} (le_ab : a ≤ b) : a < b ⊎ a = b :=
@@ -138,7 +138,7 @@ iff.mp le_iff_lt_sum_eq le_ab
 theorem le_of_lt_sum_eq [s : strong_order_pair A] {a b : A} (lt_sum_eq : a < b ⊎ a = b) : a ≤ b :=
 iff.mpr le_iff_lt_sum_eq lt_sum_eq
 
-private theorem lt_irrefl' [s : strong_order_pair A] (a : A) : ¬ a < a :=
+private definition lt_irrefl' [s : strong_order_pair A] (a : A) : ¬ a < a :=
 !strong_order_pair.lt_irrefl
 
 private theorem le_of_lt' [s : strong_order_pair A] (a b : A) : a < b → a ≤ b :=

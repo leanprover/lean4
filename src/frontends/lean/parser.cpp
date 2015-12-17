@@ -2025,6 +2025,8 @@ expr parser::parse_tactic_nud() {
         }
     } else if (curr_is_keyword()) {
         return parse_tactic_notation(tactic_nud(), nullptr);
+    } else if (curr_is_numeral() || curr_is_decimal()) {
+        return parse_expr();
     } else {
         throw parser_error("invalid tactic expression", pos());
     }

@@ -357,6 +357,7 @@ public:
     bool curr_is_identifier() const { return curr() == scanner::token_kind::Identifier; }
     /** \brief Return true iff the current token is a numeral */
     bool curr_is_numeral() const { return curr() == scanner::token_kind::Numeral; }
+    bool curr_is_decimal() const { return curr() == scanner::token_kind::Decimal; }
     /** \brief Return true iff the current token is a string */
     bool curr_is_string() const { return curr() == scanner::token_kind::String; }
     /** \brief Return true iff the current token is a keyword */

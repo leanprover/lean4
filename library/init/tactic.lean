@@ -92,15 +92,6 @@ definition rewrite_tac  (e : expr_list) : tactic := builtin
 definition xrewrite_tac (e : expr_list) : tactic := builtin
 definition krewrite_tac (e : expr_list) : tactic := builtin
 
--- simp_tac is just a marker for the builtin 'simp' notation
--- used to create instances of this tactic.
--- Arguments:
---  - e : additional rewrites to be considered
---  - n : add rewrites from the give namespaces
---  - x : exclude the give global rewrites
---  - t : tactic for discharging conditions
---  - l : location
-definition simp_tac (e : expr_list) (n : identifier_list) (x : identifier_list) (t : option tactic) (l : expr) : tactic := builtin
 -- Arguments:
 --  - ls : lemmas to be used (if not provided, then blast will choose them)
 --  - ds : definitions that can be unfolded (if not provided, then blast will choose them)

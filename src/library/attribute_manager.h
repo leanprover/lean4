@@ -52,14 +52,14 @@ attribute_kind get_attribute_kind (char const * attr);
 
 environment set_attribute(environment const & env, io_state const & ios, char const * attr,
                           name const & d, name const & ns, bool persistent);
-environment set_attribute(environment const & env, io_state const & ios, char const * attr,
-                          name const & d, unsigned prio, name const & ns, bool persistent);
-environment set_attribute(environment const & env, io_state const & ios, char const * attr,
-                          name const & d, unsigned const & param, name const & ns, bool persistent);
-environment set_attribute(environment const & env, io_state const & ios, char const * attr,
-                          name const & d, optional<unsigned> const & param, name const & ns, bool persistent);
-environment set_attribute(environment const & env, io_state const & ios, char const * attr,
-                          name const & d, list<unsigned> const & params, name const & ns, bool persistent);
+environment set_prio_attribute(environment const & env, io_state const & ios, char const * attr,
+                               name const & d, unsigned prio, name const & ns, bool persistent);
+environment set_param_attribute(environment const & env, io_state const & ios, char const * attr,
+                                name const & d, unsigned param, name const & ns, bool persistent);
+environment set_opt_param_attribute(environment const & env, io_state const & ios, char const * attr,
+                                    name const & d, optional<unsigned> const & param, name const & ns, bool persistent);
+environment set_params_attribute(environment const & env, io_state const & ios, char const * attr,
+                                 name const & d, list<unsigned> const & params, name const & ns, bool persistent);
 
 bool has_attribute(environment const & env, char const * attr, name const & d);
 

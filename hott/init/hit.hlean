@@ -85,5 +85,4 @@ namespace quotient
 end quotient
 
 attribute quotient.class_of trunc.tr [constructor]
-attribute quotient.rec trunc.rec [unfold 6]
 attribute quotient.rec_on trunc.rec_on [unfold 4]

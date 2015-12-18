@@ -239,8 +239,8 @@ environment set_attribute(environment const & env, io_state const & ios, char co
     throw_unknown_attribute(attr);
 }
 
-environment set_attribute(environment const & env, io_state const & ios, char const * attr,
-                          name const & d, unsigned prio, name const & ns, bool persistent) {
+environment set_prio_attribute(environment const & env, io_state const & ios, char const * attr,
+                               name const & d, unsigned prio, name const & ns, bool persistent) {
     for (auto const & decl : *g_prio_attrs) {
         if (decl.m_id == attr)
             return decl.m_setter(env, ios, d, prio, ns, persistent);
@@ -248,8 +248,8 @@ environment set_attribute(environment const & env, io_state const & ios, char co
     throw_unknown_attribute(attr);
 }
 
-environment set_attribute(environment const & env, io_state const & ios, char const * attr,
-                          name const & d, unsigned const & param, name const & ns, bool persistent) {
+environment set_param_attribute(environment const & env, io_state const & ios, char const * attr,
+                                name const & d, unsigned param, name const & ns, bool persistent) {
     for (auto const & decl : *g_param_attrs) {
         if (decl.m_id == attr)
             return decl.m_setter(env, ios, d, param, ns, persistent);
@@ -257,8 +257,8 @@ environment set_attribute(environment const & env, io_state const & ios, char co
     throw_unknown_attribute(attr);
 }
 
-environment set_attribute(environment const & env, io_state const & ios, char const * attr,
-                          name const & d, optional<unsigned> const & param, name const & ns, bool persistent) {
+environment set_opt_param_attribute(environment const & env, io_state const & ios, char const * attr,
+                                    name const & d, optional<unsigned> const & param, name const & ns, bool persistent) {
     for (auto const & decl : *g_opt_param_attrs) {
         if (decl.m_id == attr)
             return decl.m_setter(env, ios, d, param, ns, persistent);
@@ -266,8 +266,8 @@ environment set_attribute(environment const & env, io_state const & ios, char co
     throw_unknown_attribute(attr);
 }
 
-environment set_attribute(environment const & env, io_state const & ios, char const * attr,
-                          name const & d, list<unsigned> const & params, name const & ns, bool persistent) {
+environment set_params_attribute(environment const & env, io_state const & ios, char const * attr,
+                                 name const & d, list<unsigned> const & params, name const & ns, bool persistent) {
     for (auto const & decl : *g_params_attrs) {
         if (decl.m_id == attr)
             return decl.m_setter(env, ios, d, params, ns, persistent);

@@ -10,41 +10,28 @@ Author: Leonardo de Moura
 namespace lean {
 class parser;
 class decl_attributes {
+public:
+    struct entry {
+        std::string    m_attr;
+        list<unsigned> m_params;
+        entry() {}
+        entry(char const * attr):m_attr(attr) {}
+        entry(char const * attr, unsigned p):m_attr(attr), m_params(to_list(p)) {}
+        entry(char const * attr, list<unsigned> const & ps):m_attr(attr), m_params(ps) {}
+        bool operator==(entry const & e) const { return m_attr == e.m_attr && m_params == e.m_params; }
+        bool operator!=(entry const & e) const { return !operator==(e); }
+    };
+private:
     bool               m_is_abbrev; // if true only abbreviation attributes are allowed
     bool               m_persistent;
-    bool               m_is_instance;
-    bool               m_is_trans_instance;
-    bool               m_is_coercion;
-    bool               m_is_reducible;
-    bool               m_is_irreducible;
-    bool               m_is_semireducible;
-    bool               m_is_quasireducible;
-    bool               m_is_class;
-    bool               m_is_parsing_only;
-    bool               m_has_multiple_instances;
-    bool               m_unfold_full_hint;
-    bool               m_constructor_hint;
-    bool               m_symm;
-    bool               m_trans;
-    bool               m_refl;
-    bool               m_subst;
-    bool               m_recursor;
-    bool               m_simp;
-    bool               m_congr;
-    bool               m_forward;
-    bool               m_intro;
-    bool               m_intro_bang;
-    bool               m_elim;
-    bool               m_no_pattern;
-    optional<unsigned> m_recursor_major_pos;
-    optional<unsigned> m_priority;
-    optional<unsigned> m_light_arg;
-    list<unsigned>     m_unfold_hint;
+    bool               m_parsing_only;
+    list<entry>        m_entries;
+    optional<unsigned> m_prio;
 public:
     decl_attributes(bool is_abbrev = false, bool persistent = true);
     void parse(parser & p);
     environment apply(environment env, io_state const & ios, name const & d, name const & ns) const;
-    bool is_parsing_only() const { return m_is_parsing_only; }
+    bool is_parsing_only() const { return m_parsing_only; }
     void write(serializer & s) const;
     void read(deserializer & d);
     friend bool operator==(decl_attributes const & d1, decl_attributes const & d2);

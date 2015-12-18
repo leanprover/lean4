@@ -180,6 +180,24 @@ char const * get_attribute_from_token(char const * tk) {
     return nullptr;
 }
 
+template<typename Decls>
+char const * get_attribute_token(Decls const & decls, char const * attr) {
+    for (auto const & d : decls) {
+        if (d.m_id == attr)
+            return d.m_token.c_str();
+    }
+    return nullptr;
+}
+
+char const * get_attribute_token(char const * attr) {
+    if (auto r = get_attribute_token(*g_default_attrs, attr)) return r;
+    if (auto r = get_attribute_token(*g_prio_attrs, attr)) return r;
+    if (auto r = get_attribute_token(*g_param_attrs, attr)) return r;
+    if (auto r = get_attribute_token(*g_opt_param_attrs, attr)) return r;
+    if (auto r = get_attribute_token(*g_params_attrs, attr)) return r;
+    return nullptr;
+}
+
 attribute_kind get_attribute_kind (char const * attr) {
     lean_assert(is_attribute(attr));
     if (is_attribute(*g_default_attrs, attr)) return attribute_kind::Default;

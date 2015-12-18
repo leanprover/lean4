@@ -47,6 +47,7 @@ bool is_attribute(char const * attr);
 void get_attributes(buffer<char const *> &);
 void get_attribute_tokens(buffer<char const *> &);
 char const * get_attribute_from_token(char const * attr_token);
+char const * get_attribute_token(char const * attr);
 attribute_kind get_attribute_kind (char const * attr);
 
 environment set_attribute(environment const & env, io_state const & ios, char const * attr,

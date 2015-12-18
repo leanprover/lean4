@@ -23,7 +23,6 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/coercion.h"
 #include "library/constants.h"
-#include "library/reducible.h"
 #include "library/light_lt_manager.h"
 #include "library/normalize.h"
 #include "library/print.h"
@@ -36,8 +35,8 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/composition_manager.h"
 #include "library/aux_recursors.h"
-#include "library/relation_manager.h"
 #include "library/projection.h"
+#include "library/attribute_manager.h"
 #include "library/private.h"
 #include "library/decl_stats.h"
 #include "library/app_builder.h"
@@ -46,7 +45,6 @@ Author: Leonardo de Moura
 #include "library/congr_lemma_manager.h"
 #include "library/abstract_expr_manager.h"
 #include "library/definitional/projection.h"
-#include "library/blast/simplifier/simp_rule_set.h"
 #include "library/blast/blast.h"
 #include "library/blast/simplifier/simplifier.h"
 #include "library/blast/backward/backward_rule_set.h"
@@ -294,33 +292,35 @@ static void print_definition(parser const & p, name const & n, pos_info const & 
 static void print_attributes(parser const & p, name const & n) {
     environment const & env = p.env();
     io_state_stream out = p.regular_stream();
-    if (is_coercion(env, n))
-        out << " [coercion]";
-    if (is_class(env, n))
-        out << " [class]";
-    if (is_instance(env, n))
-        out << " [instance]";
-    if (is_simp_rule(env, n))
-        out << " [simp]";
-    if (is_congr_rule(env, n))
-        out << " [congr]";
-    if (auto light_arg = is_light_rule(env, n))
-        out << " [light " << *light_arg << "]";
-    if (is_backward_rule(env, n))
-        out << " [backward]";
-    if (is_no_pattern(env, n))
-        out << " [no_pattern]";
-    if (is_forward_lemma(env, n))
-        out << " [forward]";
-    if (is_elim_lemma(env, n))
-        out << " [elim]";
-    if (is_intro_lemma(env, n))
-        out << " [intro]";
-    switch (get_reducible_status(env, n)) {
-    case reducible_status::Reducible:      out << " [reducible]"; break;
-    case reducible_status::Irreducible:    out << " [irreducible]"; break;
-    case reducible_status::Quasireducible: out << " [quasireducible]"; break;
-    case reducible_status::Semireducible:  break;
+    buffer<char const *> attrs;
+    get_attributes(attrs);
+    for (char const * attr : attrs) {
+        if (strcmp(attr, "semireducible") == 0)
+            continue;
+        if (has_attribute(env, attr, n)) {
+            out << " " << get_attribute_token(attr);
+            switch (get_attribute_kind(attr)) {
+            case attribute_kind::Default:
+                break;
+            case attribute_kind::Prioritized: {
+                unsigned prio = get_attribute_prio(env, attr, n);
+                if (prio != LEAN_DEFAULT_PRIORITY)
+                    out << " [priority " << prio << "]";
+                break;
+            }
+            case attribute_kind::Parametric:
+            case attribute_kind::OptParametric:
+                out << " " << get_attribute_param(env, attr, n) << "]";
+                break;
+            case attribute_kind::MultiParametric: {
+                list<unsigned> ps = get_attribute_params(env, attr, n);
+                for (auto p : ps) {
+                    out << " " << p;
+                }
+                out << "]";
+                break;
+            }}
+        }
     }
 }
 

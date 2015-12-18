@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/reducible.h"
 #include "library/kernel_bindings.h"
+#include "library/attribute_manager.h"
 
 namespace lean {
 struct reducible_entry {
@@ -69,6 +70,37 @@ void initialize_reducible() {
     g_key        = new std::string("redu");
     g_tmp_prefix = new name(name::mk_internal_unique_name());
     reducible_ext::initialize();
+
+    register_attribute("reducible", "reducible",
+                       [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
+                           return set_reducible(env, d, reducible_status::Reducible, ns, persistent);
+                       },
+                       [](environment const & env, name const & d) { return get_reducible_status(env, d) == reducible_status::Reducible; });
+
+    register_attribute("quasireducible", "quasireducible",
+                       [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
+                           return set_reducible(env, d, reducible_status::Quasireducible, ns, persistent);
+                       },
+                       [](environment const & env, name const & d) { return get_reducible_status(env, d) == reducible_status::Quasireducible; });
+
+    register_attribute("semireducible", "semireducible",
+                       [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
+                           return set_reducible(env, d, reducible_status::Semireducible, ns, persistent);
+                       },
+                       [](environment const & env, name const & d) { return get_reducible_status(env, d) == reducible_status::Semireducible; });
+
+    register_attribute("irreducible", "irreducible",
+                       [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
+                           return set_reducible(env, d, reducible_status::Irreducible, ns, persistent);
+                       },
+                       [](environment const & env, name const & d) { return get_reducible_status(env, d) == reducible_status::Irreducible; });
+
+    register_incompatible("reducible", "quasireducible");
+    register_incompatible("reducible", "semireducible");
+    register_incompatible("reducible", "irreducible");
+    register_incompatible("quasireducible", "semireducible");
+    register_incompatible("quasireducible", "irreducible");
+    register_incompatible("semireducible", "irreducible");
 }
 
 void finalize_reducible() {

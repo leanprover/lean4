@@ -18,11 +18,6 @@ class parser;
 /** \brief Consume tokes until 'end' token is consumed */
 void consume_until_end(parser & p);
 
-/** \brief Parse optional '[persistent]' modifier.
-    return true if it is was found, and paremeter \c persistent to true.
-*/
-bool parse_persistent(parser & p, bool & persistent);
-
 /** \brief Throw and error if the current token is not a command, nor a '.', nor an end-of-file. */
 void check_command_period_or_eof(parser const & p);
 /** \brief Throw and error if the current token is not a command, nor an open binder, nor a '.', nor an end-of-file. */

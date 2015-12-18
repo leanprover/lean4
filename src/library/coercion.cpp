@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/pp_options.h"
 #include "library/generic_exception.h"
+#include "library/attribute_manager.h"
 
 namespace lean {
 static name * g_fun  = nullptr;
@@ -75,22 +76,6 @@ struct coercion_config {
 
 template class scoped_ext<coercion_config>;
 typedef scoped_ext<coercion_config> coercion_ext;
-
-void initialize_coercion() {
-    g_fun        = new name("_Fun");
-    g_sort       = new name("_Sort");
-    g_class_name = new name("coercions");
-    g_key        = new std::string("coerce");
-    coercion_ext::initialize();
-}
-
-void finalize_coercion() {
-    coercion_ext::finalize();
-    delete g_key;
-    delete g_class_name;
-    delete g_fun;
-    delete g_sort;
-}
 
 optional<pair<name, unsigned>> is_coercion(environment const & env, name const & f) {
     coercion_state const & ext = coercion_ext::get_state(env);
@@ -383,5 +368,26 @@ environment add_coercion(environment const & env, io_state const &, name const &
         }
     }
     lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+void initialize_coercion() {
+    g_fun        = new name("_Fun");
+    g_sort       = new name("_Sort");
+    g_class_name = new name("coercions");
+    g_key        = new std::string("coerce");
+    coercion_ext::initialize();
+    register_attribute("coercion", "coercion",
+                       [](environment const & env, io_state const & ios, name const & d, name const & ns, bool persistent) {
+                           return add_coercion(env, ios, d, ns, persistent);
+                       },
+                       [](environment const & env, name const & n) { return static_cast<bool>(is_coercion(env, n)); });
+}
+
+void finalize_coercion() {
+    coercion_ext::finalize();
+    delete g_key;
+    delete g_class_name;
+    delete g_fun;
+    delete g_sort;
 }
 }

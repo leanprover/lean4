@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/occurs.h"
 #include "library/scoped_ext.h"
+#include "library/attribute_manager.h"
 #include "library/idx_metavar.h"
 #include "library/blast/options.h"
 #include "library/blast/blast.h"
@@ -649,6 +650,12 @@ void initialize_pattern() {
     no_pattern_ext::initialize();
     g_pattern_hint      = new name("pattern_hint");
     register_annotation(*g_pattern_hint);
+
+    register_attribute("no_pattern", "do not consider terms containing this declaration in the pattern inference procedure",
+                       [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
+                           return add_no_pattern(env, d, ns, persistent);
+                       },
+                       is_no_pattern);
 }
 
 void finalize_pattern() {

@@ -5,16 +5,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include <vector>
 #include "util/sstream.h"
 #include "kernel/instantiate.h"
 #include "kernel/find_fn.h"
 #include "kernel/error_msgs.h"
 #include "library/scoped_ext.h"
 #include "library/expr_pair.h"
+#include "library/attribute_manager.h"
 #include "library/relation_manager.h"
 #include "library/blast/simplifier/ceqv.h"
 #include "library/blast/simplifier/simp_rule_set.h"
-#include <vector>
 
 namespace lean {
 simp_rule_core::simp_rule_core(name const & id, levels const & umetas, list<expr> const & emetas,
@@ -581,6 +582,25 @@ void initialize_simplifier_rule_set() {
     g_class_name = new name("simps");
     g_key        = new std::string("simp");
     rrs_ext::initialize();
+    register_prio_attribute("simp", "simplification rule",
+                            [](environment const & env, io_state const &, name const & d, unsigned prio, name const & ns, bool persistent) {
+                                return add_simp_rule(env, d, prio, ns, persistent);
+                            },
+                            is_simp_rule,
+                            [](environment const &, name const &) {
+                                // TODO(Leo): fix it after we refactor simp_rule_set
+                                return LEAN_DEFAULT_PRIORITY;
+                            });
+
+    register_prio_attribute("congr", "congruence rule",
+                            [](environment const & env, io_state const &, name const & d, unsigned prio, name const & ns, bool persistent) {
+                                return add_congr_rule(env, d, prio, ns, persistent);
+                            },
+                            is_congr_rule,
+                            [](environment const &, name const &) {
+                                // TODO(Leo): fix it after we refactor simp_rule_set
+                                return LEAN_DEFAULT_PRIORITY;
+                            });
 }
 
 void finalize_simplifier_rule_set() {

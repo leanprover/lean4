@@ -149,7 +149,6 @@ tactic_notation tactic_notation
 call         call
 calc         calc
 obtain       obtain
-persistent   [persistent]
 root         _root_
 fields       fields
 trust        trust

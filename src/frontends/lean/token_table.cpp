@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <limits>
 #include <utility>
 #include "util/pair.h"
+#include "library/attribute_manager.h"
 #include "frontends/lean/token_table.h"
 
 namespace lean {
@@ -108,12 +109,9 @@ void init_token_table(token_table & t) {
         {"theorem", "axiom", "axioms", "variable", "protected", "private", "reveal",
          "definition", "example", "coercion", "abbreviation", "noncomputable",
          "variables", "parameter", "parameters", "constant", "constants",
-         "[persistent]", "[visible]", "[instance]", "[trans_instance]", "[light",
-         "[none]", "[class]", "[coercion]", "[reducible]", "[irreducible]", "[semireducible]", "[quasireducible]",
-         "[simp]", "[congr]", "[parsing_only]", "[multiple_instances]", "[symm]", "[trans]", "[refl]", "[subst]", "[recursor",
-         "evaluate", "check", "eval", "[wf]", "[whnf]", "[priority", "[unfold_full]", "[unfold_hints]", "[intro]",
-         "[forward]", "[no_pattern]", "[constructor]", "[elim]", "[intro!]", "[unfold", "print",
-         "end", "namespace", "section", "prelude", "help",
+         "[visible]", "[none]", "[parsing_only]",
+         "evaluate", "check", "eval", "[wf]", "[whnf]", "[priority", "[unfold_hints]",
+         "print", "end", "namespace", "section", "prelude", "help",
          "import", "inductive", "record", "structure", "module", "universe", "universes", "local",
          "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation",
          "tactic_infixl", "tactic_infixr", "tactic_infix", "tactic_postfix", "tactic_prefix", "tactic_notation",
@@ -144,6 +142,11 @@ void init_token_table(token_table & t) {
         t = add_command_token(t, *it2);
         ++it2;
     }
+
+    buffer<char const *> attrs;
+    get_attribute_tokens(attrs);
+    for (char const * attr : attrs)
+        t = add_command_token(t, attr);
 
     auto it3 = aliases;
     while (it3->first) {

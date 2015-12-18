@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/kernel_serializer.h"
 #include "library/user_recursors.h"
+#include "library/attribute_manager.h"
 
 namespace lean {
 bool recursor_info::is_minor(unsigned pos) const {
@@ -346,6 +347,15 @@ void initialize_user_recursors() {
     g_class_name = new name("recursor");
     g_key        = new std::string("urec");
     recursor_ext::initialize();
+    register_opt_param_attribute("recursor", "user defined recursor",
+                                 [](environment const & env, io_state const &, name const & d, optional<unsigned> const & major, name const & ns, bool persistent) {
+                                     return add_user_recursor(env, d, major, ns, persistent);
+                                 },
+                                 is_user_defined_recursor,
+                                 [](environment const & env, name const & d) {
+                                     auto info = get_recursor_info(env, d);
+                                     return info.get_major_pos();
+                                 });
 }
 
 void finalize_user_recursors() {

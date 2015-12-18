@@ -39,16 +39,6 @@ void consume_until_end(parser & p) {
     p.next();
 }
 
-bool parse_persistent(parser & p, bool & persistent) {
-    if (p.curr_is_token_or_id(get_persistent_tk())) {
-        p.next();
-        persistent = true;
-        return true;
-    } else {
-        return false;
-    }
-}
-
 void check_command_period_or_eof(parser const & p) {
     if (!p.curr_is_command() && !p.curr_is_eof() && !p.curr_is_token(get_period_tk()) &&
         !p.curr_is_script_block())

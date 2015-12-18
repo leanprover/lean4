@@ -3,12 +3,13 @@ Copyright (c) 2015 Daniel Selsam. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Daniel Selsam
 */
-#include "library/blast/backward/backward_rule_set.h"
+#include <string>
 #include "util/sstream.h"
 #include "kernel/error_msgs.h"
 #include "kernel/instantiate.h"
 #include "library/scoped_ext.h"
-#include <string>
+#include "library/attribute_manager.h"
+#include "library/blast/backward/backward_rule_set.h"
 
 namespace lean {
 
@@ -150,6 +151,15 @@ void initialize_backward_rule_set() {
     g_class_name = new name("brs");
     g_key        = new std::string("brs");
     brs_ext::initialize();
+    register_prio_attribute("intro", "backward chaining",
+                            [](environment const & env, io_state const &, name const & d, unsigned prio, name const & ns, bool persistent) {
+                                return add_backward_rule(env, d, prio, ns, persistent);
+                            },
+                            is_backward_rule,
+                            [](environment const &, name const &) {
+                                // TODO(Leo): fix it after we refactor backward_rule_set
+                                return LEAN_DEFAULT_PRIORITY;
+                            });
 }
 
 void finalize_backward_rule_set() {

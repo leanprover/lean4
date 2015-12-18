@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "library/scoped_ext.h"
+#include "library/attribute_manager.h"
 #include "library/blast/forward/forward_lemma_set.h"
 
 namespace lean {
@@ -69,6 +70,18 @@ void initialize_forward_lemma_set() {
     g_name              = new name("forward");
     g_key               = new std::string("FWD");
     forward_lemma_set_ext::initialize();
+
+    register_prio_attribute("forward", "forward chaining",
+                            [](environment const & env, io_state const &, name const & d, unsigned prio, name const & ns, bool persistent) {
+                                return add_forward_lemma(env, d, prio, ns, persistent);
+                            },
+                            is_forward_lemma,
+                            [](environment const & env, name const & n) {
+                                if (auto prio = get_forward_lemma_set(env).find(n))
+                                    return *prio;
+                                else
+                                    return LEAN_DEFAULT_PRIORITY;
+                            });
 }
 
 void finalize_forward_lemma_set() {

@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/user_recursors.h"
 #include "library/tmp_type_context.h"
+#include "library/attribute_manager.h"
 #include "library/blast/blast.h"
 #include "library/blast/grinder/intro_elim_lemmas.h"
 
@@ -115,6 +116,26 @@ void initialize_intro_elim_lemmas() {
     g_class_name = new name("grinder");
     g_key        = new std::string("grinder");
     intro_elim_ext::initialize();
+
+    register_prio_attribute("elim", "elimination rule that is eagerly applied by blast grinder",
+                            add_elim_lemma,
+                            is_elim_lemma,
+                            [](environment const & env, name const & d) {
+                                if (auto p = intro_elim_ext::get_state(env).m_elim_lemmas.get_prio(d))
+                                    return *p;
+                                else
+                                    return LEAN_DEFAULT_PRIORITY;
+                            });
+
+    register_prio_attribute("intro!", "introduction rule that is eagerly applied by blast grinder",
+                            add_intro_lemma,
+                            is_intro_lemma,
+                            [](environment const & env, name const & d) {
+                                if (auto p = intro_elim_ext::get_state(env).m_intro_lemmas.get_prio(d))
+                                    return *p;
+                                else
+                                    return LEAN_DEFAULT_PRIORITY;
+                            });
 }
 
 void finalize_intro_elim_lemmas() {

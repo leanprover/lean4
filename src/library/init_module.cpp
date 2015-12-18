@@ -48,9 +48,11 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/congr_lemma_manager.h"
 #include "library/app_builder.h"
+#include "library/attribute_manager.h"
 
 namespace lean {
 void initialize_library_module() {
+    initialize_attribute_manager();
     initialize_trace();
     initialize_constants();
     initialize_fingerprint();
@@ -142,5 +144,6 @@ void finalize_library_module() {
     finalize_fingerprint();
     finalize_constants();
     finalize_trace();
+    finalize_attribute_manager();
 }
 }

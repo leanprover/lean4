@@ -53,7 +53,7 @@ list<unsigned> has_unfold_hint(environment const & env, name const & d);
 environment add_unfold_full_hint(environment const & env, name const & n, name const & ns, bool persistent);
 environment erase_unfold_full_hint(environment const & env, name const & n, name const & ns, bool persistent);
 /** \brief Retrieve the hint added with the procedure add_unfold_full_hint. */
-optional<unsigned> has_unfold_full_hint(environment const & env, name const & d);
+bool has_unfold_full_hint(environment const & env, name const & d);
 
 
 /** \brief unfold-m hint instructs normalizer (and simplifier) that function application
@@ -61,7 +61,7 @@ optional<unsigned> has_unfold_full_hint(environment const & env, name const & d)
 environment add_constructor_hint(environment const & env, name const & n, name const & ns, bool persistent);
 environment erase_constructor_hint(environment const & env, name const & n, name const & ns, bool persistent);
 /** \brief Retrieve the hint added with the procedure add_constructor_hint. */
-optional<unsigned> has_constructor_hint(environment const & env, name const & d);
+bool has_constructor_hint(environment const & env, name const & d);
 
 expr try_eta(expr const & e);
 expr beta_reduce(expr t);

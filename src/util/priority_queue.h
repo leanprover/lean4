@@ -56,6 +56,13 @@ public:
         return m_key_to_pos.contains(k);
     }
 
+    optional<unsigned> get_prio(K const & k) const {
+        if (auto p = m_key_to_pos.find(k))
+            return optional<unsigned>(p->first);
+        else
+            return optional<unsigned>();
+    }
+
     void clear() {
         m_key_to_pos.clear();
         m_pos_to_key.clear();

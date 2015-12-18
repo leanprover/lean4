@@ -3,8 +3,8 @@
 -- when there is a proof obligation.
 import algebra.ring algebra.field data.set data.finset
 open algebra
-attribute neg [light 2]
-attribute inv [light 2]
+attribute neg [light 3]
+attribute inv [light 3]
 
 attribute add.right_inv [simp]
 attribute add_neg_cancel_left [simp]
@@ -40,7 +40,7 @@ namespace s
 open set
 universe l
 constants (A : Type.{l}) (x y z v w : set A)
-attribute complement [light 1]
+attribute complement [light 2]
 
 -- TODO(dhs, leo): Where do we put this group of simp rules?
 attribute union_comp_self [simp]

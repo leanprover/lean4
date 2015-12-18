@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/attribute_manager.h"
 #include "library/blast/forward/forward_lemma_set.h"
+#include "library/blast/forward/pattern.h"
 
 namespace lean {
 static name * g_name       = nullptr;
@@ -72,7 +73,8 @@ void initialize_forward_lemma_set() {
     forward_lemma_set_ext::initialize();
 
     register_prio_attribute("forward", "forward chaining",
-                            [](environment const & env, io_state const &, name const & d, unsigned prio, name const & ns, bool persistent) {
+                            [](environment const & env, io_state const & ios, name const & d, unsigned prio, name const & ns, bool persistent) {
+                                mk_multipatterns(env, ios, d); // try to create patterns
                                 return add_forward_lemma(env, d, prio, ns, persistent);
                             },
                             is_forward_lemma,

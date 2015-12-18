@@ -10,7 +10,10 @@
 
 (setq lean-emacs-dependencies-path (format "%s/dependencies" lean-emacs-path))
 
-(setq lean-logo (create-image (format "%s/lean.pgm" lean-emacs-path)))
+(setq lean-logo
+      (condition-case nil
+	  (create-image (format "%s/lean.pgm" lean-emacs-path))
+	(error nil)))
 (setq lean-required-packages '(company dash dash-functional f fill-column-indicator flycheck let-alist lua-mode mmm-mode s))
 
 (setq load-path
@@ -32,7 +35,7 @@
     (erase-buffer)
     (insert "\n\n")
     (insert "           ")
-    (insert-image lean-logo)
+    (when lean-logo (insert-image lean-logo))
     (setq cpoint (1+ (point)))
     (insert "\n")
     (insert "\n\nPlease check our website periodically for news of later versions")

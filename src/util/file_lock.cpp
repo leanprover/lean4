@@ -69,6 +69,7 @@ int flock(int fd, int op) {
 }
 #else
 #include <unistd.h>
+#include <fcntl.h>
 #endif
 
 namespace lean {

@@ -37,6 +37,9 @@ namespace prod
   end ops
   open ops
 
+  protected definition ap_pr1 (p : u = v) : ap pr1 p = p..1 := idp
+  protected definition ap_pr2 (p : u = v) : ap pr2 p = p..2 := idp
+
   definition pair_prod_eq (p : u.1 = v.1) (q : u.2 = v.2)
     : ((prod_eq p q)..1, (prod_eq p q)..2) = (p, q) :=
   by induction u; induction v; esimp at *; induction p; induction q; reflexivity
@@ -77,11 +80,23 @@ namespace prod
   definition prod_eq_equiv [constructor] (u v : A × B) : (u = v) ≃ (u.1 = v.1 × u.2 = v.2) :=
   (equiv.mk prod_eq_unc _)⁻¹ᵉ
 
+  /- Groupoid structure -/
+  definition prod_eq_inv (p : a = a') (q : b = b') : (prod_eq p q)⁻¹ = prod_eq p⁻¹ q⁻¹ :=
+  by cases p; cases q; reflexivity
+
+  definition prod_eq_concat (p : a = a') (p' : a' = a'') (q : b = b') (q' : b' = b'')
+    : prod_eq p q ⬝ prod_eq p' q' = prod_eq (p ⬝ p') (q ⬝ q') :=
+  by cases p; cases q; cases p'; cases q'; reflexivity
+
   /- Transport -/
 
   definition prod_transport (p : a = a') (u : P a × Q a)
     : p ▸ u = (p ▸ u.1, p ▸ u.2) :=
   by induction p; induction u; reflexivity
+
+  definition prod_eq_transport (p : a = a') (q : b = b') {R : A × B → Type} (r : R (a, b))
+    : (prod_eq p q) ▸ r = p ▸ q ▸ r :=
+  by induction p; induction q; reflexivity
 
   /- Pathovers -/
 

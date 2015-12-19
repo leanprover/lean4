@@ -69,6 +69,8 @@ namespace sigma
     : transport (λx, B' x.1) (sigma_eq p q) = transport B' p :=
   by induction u; induction v; esimp at *;induction q; reflexivity
 
+  protected definition ap_pr1 (p : u = v) : ap (λx : sigma B, x.1) p = p..1 := idp
+
   /- the uncurried version of sigma_eq. We will prove that this is an equivalence -/
 
   definition sigma_eq_unc : Π (pq : Σ(p : u.1 = v.1), u.2 =[p] v.2), u = v

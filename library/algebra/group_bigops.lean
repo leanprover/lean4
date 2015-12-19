@@ -104,6 +104,46 @@ section comm_monoid
        by rewrite [*Prodl_cons, IH, *mul.assoc, mul.left_comm (Prodl l f)])
 end comm_monoid
 
+/- Suml: sum indexed by a list -/
+
+section add_monoid
+  variable [amB : add_monoid B]
+  include amB
+  local attribute add_monoid.to_monoid [trans_instance]
+
+  definition Suml (l : list A) (f : A → B) : B := Prodl l f
+
+  -- ∑ x ← l, f x
+  notation `∑` binders `←` l, r:(scoped f, Suml l f) := r
+
+  theorem Suml_nil (f : A → B) : Suml [] f = 0 := Prodl_nil f
+  theorem Suml_cons (f : A → B) (a : A) (l : list A) : Suml (a::l) f = f a + Suml l f :=
+    Prodl_cons f a l
+  theorem Suml_append (l₁ l₂ : list A) (f : A → B) : Suml (l₁++l₂) f = Suml l₁ f + Suml l₂ f :=
+    Prodl_append l₁ l₂ f
+
+  section deceqA
+    include deceqA
+    theorem Suml_insert_of_mem (f : A → B) {a : A} {l : list A} (H : a ∈ l) :
+      Suml (insert a l) f = Suml l f := Prodl_insert_of_mem f H
+    theorem Suml_insert_of_not_mem (f : A → B) {a : A} {l : list A} (H : a ∉ l) :
+      Suml (insert a l) f = f a + Suml l f := Prodl_insert_of_not_mem f H
+    theorem Suml_union {l₁ l₂ : list A} (f : A → B) (d : disjoint l₁ l₂) :
+      Suml (union l₁ l₂) f = Suml l₁ f + Suml l₂ f := Prodl_union f d
+  end deceqA
+
+  theorem Suml_zero (l : list A) : Suml l (λ x, 0) = (0:B) := Prodl_one l
+end add_monoid
+
+section add_comm_monoid
+  variable [acmB : add_comm_monoid B]
+  include acmB
+  local attribute add_comm_monoid.to_comm_monoid [trans_instance]
+
+  theorem Suml_add (l : list A) (f g : A → B) : Suml l (λx, f x + g x) = Suml l f + Suml l g :=
+    Prodl_mul l f g
+end add_comm_monoid
+
 /-
 -- finset versions
 -/
@@ -172,45 +212,7 @@ namespace finset
   quot.induction_on s (take u, !Prodl_one)
 end finset
 
-section add_monoid
-  variable [amB : add_monoid B]
-  include amB
-  local attribute add_monoid.to_monoid [trans_instance]
-
-  definition Suml (l : list A) (f : A → B) : B := Prodl l f
-
-  -- ∑ x ← l, f x
-  notation `∑` binders `←` l, r:(scoped f, Suml l f) := r
-
-  theorem Suml_nil (f : A → B) : Suml [] f = 0 := Prodl_nil f
-  theorem Suml_cons (f : A → B) (a : A) (l : list A) : Suml (a::l) f = f a + Suml l f :=
-    Prodl_cons f a l
-  theorem Suml_append (l₁ l₂ : list A) (f : A → B) : Suml (l₁++l₂) f = Suml l₁ f + Suml l₂ f :=
-    Prodl_append l₁ l₂ f
-
-  section deceqA
-    include deceqA
-    theorem Suml_insert_of_mem (f : A → B) {a : A} {l : list A} (H : a ∈ l) :
-      Suml (insert a l) f = Suml l f := Prodl_insert_of_mem f H
-    theorem Suml_insert_of_not_mem (f : A → B) {a : A} {l : list A} (H : a ∉ l) :
-      Suml (insert a l) f = f a + Suml l f := Prodl_insert_of_not_mem f H
-    theorem Suml_union {l₁ l₂ : list A} (f : A → B) (d : disjoint l₁ l₂) :
-      Suml (union l₁ l₂) f = Suml l₁ f + Suml l₂ f := Prodl_union f d
-  end deceqA
-
-  theorem Suml_zero (l : list A) : Suml l (λ x, 0) = (0:B) := Prodl_one l
-end add_monoid
-
-section add_comm_monoid
-  variable [acmB : add_comm_monoid B]
-  include acmB
-  local attribute add_comm_monoid.to_comm_monoid [trans_instance]
-
-  theorem Suml_add (l : list A) (f g : A → B) : Suml l (λx, f x + g x) = Suml l f + Suml l g :=
-    Prodl_mul l f g
-end add_comm_monoid
-
-/- Sum -/
+/- Sum: sum indexed by a finset -/
 
 namespace finset
   variable [acmB : add_comm_monoid B]
@@ -257,7 +259,7 @@ section Prod
   noncomputable definition Prod (s : set A) (f : A → B) : B := finset.Prod (to_finset s) f
 
   -- ∏ x ∈ s, f x
-  notation `∏` binders `∈` s, r:(scoped f, prod s f) := r
+  notation `∏` binders `∈` s, r:(scoped f, Prod s f) := r
 
   theorem Prod_empty (f : A → B) : Prod ∅ f = 1 :=
   by rewrite [↑Prod, to_finset_empty]
@@ -304,7 +306,7 @@ section Prod
   by rewrite [↑Prod, finset.Prod_one]
 end Prod
 
-/- Sum -/
+/- Sum: sum indexed by a set -/
 
 section Sum
   variable [acmB : add_comm_monoid B]
@@ -312,6 +314,8 @@ section Sum
   local attribute add_comm_monoid.to_comm_monoid [trans_instance]
 
   noncomputable definition Sum (s : set A) (f : A → B) : B := Prod s f
+
+  proposition Sum_def (s : set A) (f : A → B) : Sum s f = finset.Sum (to_finset s) f := rfl
 
   -- ∑ x ∈ s, f x
   notation `∑` binders `∈` s, r:(scoped f, Sum s f) := r

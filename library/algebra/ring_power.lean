@@ -3,9 +3,7 @@ Copyright (c) 2015 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Jeremy Avigad
 
-Properties of the power operation in an ordered ring or field.
-
-(Right now, this file is just a stub. More soon.)
+Properties of the power operation in various structures, including ordered rings and fields.
 -/
 import .group_power .ordered_field
 open nat

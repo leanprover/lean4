@@ -11,15 +11,12 @@ Algebraic structures.
 * [complete lattice](complete_lattice.lean)
 * [group](group.lean)
 * [group_power](group_power.lean) : nat and int powers
-* [group_bigops](group_bigops.lean) : products and sums over finsets
-* [group_set_bigops](group_set_bigops.lean) : products and sums over finite sets
+* [group_bigops](group_bigops.lean) : products and sums over lists, finsets and sets
 * [ring](ring.lean)
 * [ordered_group](ordered_group.lean)
 * [ordered_ring](ordered_ring.lean)
-* [ring_power](ring_power.lean) : power in ring structures
 * [field](field.lean)
 * [ordered_field](ordered_field.lean)
+* [ring_power](ring_power.lean) : power in ring structures
 * [bundled](bundled.lean) : bundled versions of the algebraic structures
 * [category](category/category.md) : category theory (outdated, see HoTT category theory folder)
-
-We set a low priority for algebraic operations, so that the elaborator tries concrete structures first.

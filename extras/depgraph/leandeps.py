@@ -16,25 +16,39 @@ import subprocess
 import platform
 import graphviz
 
-g_lean_exec_name  = "lean"
-if platform.system() == "Windows" or platform.system().startswith("MSYS"):
-    g_lean_exec_name  = "lean.exe"
+def find_lean():
+    lean_path = None
+    if platform.system() == "Windows" or platform.system().startswith("MSYS"):
+        lean_exec_name  = "lean.exe"
+    else:
+        lean_exec_name  = "lean"
+        
+    # Check whether lean_exec_name is in the $PATH
+    for path in os.environ["PATH"].split(os.pathsep):
+        path = path.strip('"')
+        exe_file = os.path.join(path, lean_exec_name)
+        if os.path.isfile(exe_file) and os.access(exe_file, os.X_OK):
+            g_lean_path = exe_file
+            break
 
-if platform.system().startswith("MSYS"):
-    # In MSYS platform, realpath has a strange behavior.
-    #    os.path.realpath("c:\a\b\c") => \:\a\b\c
-    g_leanutil_path   = os.path.abspath(os.path.normpath(__file__))
-else:
-    g_leanutil_path   = os.path.abspath(os.path.realpath(__file__))
+    if lean_path == None:
+        # lean_exec_name is not the in $PATH,
+        # so assume we're being called from "extras/depgraph"
+        if platform.system().startswith("MSYS"):
+            # In MSYS platform, realpath has a strange behavior.
+            #    os.path.realpath("c:\a\b\c") => \:\a\b\c
+            extras_depgraph_leandeps_path   = os.path.abspath(os.path.normpath(__file__))
+        else:
+            extras_depgraph_leandeps_path   = os.path.abspath(os.path.realpath(__file__))
+        lean_dir = os.path.dirname(os.path.dirname(os.path.dirname(extras_depgraph_leandeps_path)))
+    lean_path = os.path.join(lean_dir, "bin", lean_exec_name)
 
-g_lean_bin_dir = os.path.dirname(g_leanutil_path)
+    if not (os.path.isfile(lean_path) and os.access(lean_path, os.X_OK)):
+        print("cannot find lean executable at ", os.path.abspath(lean_path), file=sys.stderr)
+        sys.exit(2)
+    return lean_path
 
-g_lean_dir = os.path.dirname(g_lean_bin_dir)
-
-g_lean_path = os.path.join(g_lean_bin_dir, g_lean_exec_name)
-
-if not os.path.isfile(g_lean_path):
-    error("cannot find lean executable at " + os.path.abspath(g_lean_path))
+g_lean_path = find_lean()
 
 class lean_exception(Exception):
     def __init__(self, value):
@@ -91,15 +105,6 @@ def lean_to_olean(fname):
         return fname[:-5] + "olean"
     else:
         raise lean_exception("file '%s' is not a lean source file" % fname)
-
-def get_timestamp(fname):
-    try:
-        return os.path.getmtime(fname)
-    except OSError:
-        return 0
-
-def is_uptodate(fname):
-    return get_timestamp(lean_to_olean(fname)) > get_timestamp(fname)
 
 def lean_direct_deps(lean_file):
     deps = []

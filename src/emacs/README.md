@@ -140,6 +140,10 @@ Case 4: Install Lean in Windows
 (require 'lean-mode)
 ```
 
+
+Trying It Out
+=============
+
 If things are working correctly, you should see the word ``Lean`` in the
 Emacs mode line when you open a file with extension `.lean` (for the
 standard Lean mode) or `.hlean` (for hott mode). If you type

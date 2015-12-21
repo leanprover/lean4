@@ -132,13 +132,25 @@ lean-mode files are located. With that information, update the
 
 Case 4: Install Lean in Windows
 -------------------------------
-```
+```elisp
 ;; Set up lean-root path
 (setq lean-rootdir "\\lean-0.2.0-windows")
 (setq-local lean-emacs-path "\\lean-0.2.0-windows\\share\\emacs\\site-lisp\\lean")
 (add-to-list 'load-path (expand-file-name lean-emacs-path))
 (require 'lean-mode)
 ```
+
+If things are working correctly, you should see the word ``Lean`` in the
+Emacs mode line when you open a file with extension `.lean` (for the
+standard Lean mode) or `.hlean` (for hott mode). If you type
+```lean
+check id
+```
+the word ``check`` will be underlined, and hovering over it will show
+you the type of ``id``. The mode line will show ``FlyC:0/1``, indicating
+that there are no errors and one piece of information displayed. Whenever
+you type, an asterisk should briefly appear after ``FlyC``, indicating that 
+your file is being checked.
 
 
 Key Bindings

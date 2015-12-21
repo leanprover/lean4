@@ -12,12 +12,12 @@ set_option structure.proj_mk_thm true
 structure subtype {A : Type} (P : A → Prop) :=
 tag :: (elt_of : A) (has_property : P elt_of)
 
-notation `{` binder ` | ` r:(scoped:1 P, subtype P) `}` := r
-
-definition ex_of_sub {A : Type} {P : A → Prop} : { x | P x } → ∃ x, P x
-| (subtype.tag a h) := exists.intro a h
-
 namespace subtype
+  notation `{` binder ` | ` r:(scoped:1 P, subtype P) `}` := r
+
+  definition exists_of_subtype {A : Type} {P : A → Prop} : { x | P x } → ∃ x, P x
+  | (subtype.tag a h) := exists.intro a h
+
   variables {A : Type} {P : A → Prop}
 
   theorem tag_irrelevant {a : A} (H1 H2 : P a) : tag a H1 = tag a H2 :=

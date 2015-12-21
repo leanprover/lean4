@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Jeremy Avigad
 Prime numbers.
 -/
 import data.nat logic.identities
-open bool
+open bool subtype
 
 namespace nat
 open decidable
@@ -84,7 +84,7 @@ have ¬ m = 1 ∧ ¬ m = n,  from iff.mp !not_or_iff_not_and_not h₅,
 subtype.tag m (and.intro `m ∣ n` this)
 
 theorem exists_dvd_of_not_prime {n : nat} : n ≥ 2 → ¬ prime n → ∃ m, m ∣ n ∧ m ≠ 1 ∧ m ≠ n :=
-assume h₁ h₂, ex_of_sub (sub_dvd_of_not_prime h₁ h₂)
+assume h₁ h₂, exists_of_subtype (sub_dvd_of_not_prime h₁ h₂)
 
 definition sub_dvd_of_not_prime2 {n : nat} : n ≥ 2 → ¬ prime n → {m | m ∣ n ∧ m ≥ 2 ∧ m < n} :=
 assume h₁ h₂,
@@ -101,7 +101,7 @@ begin
 end
 
 theorem exists_dvd_of_not_prime2 {n : nat} : n ≥ 2 → ¬ prime n → ∃ m, m ∣ n ∧ m ≥ 2 ∧ m < n :=
-assume h₁ h₂, ex_of_sub (sub_dvd_of_not_prime2 h₁ h₂)
+assume h₁ h₂, exists_of_subtype (sub_dvd_of_not_prime2 h₁ h₂)
 
 definition sub_prime_and_dvd {n : nat} : n ≥ 2 → {p | prime p ∧ p ∣ n} :=
 nat.strong_rec_on n
@@ -117,7 +117,7 @@ nat.strong_rec_on n
       subtype.tag p (and.intro hp this)))
 
 lemma exists_prime_and_dvd {n : nat} : n ≥ 2 → ∃ p, prime p ∧ p ∣ n :=
-assume h, ex_of_sub (sub_prime_and_dvd h)
+assume h, exists_of_subtype (sub_prime_and_dvd h)
 
 open eq.ops
 
@@ -139,7 +139,7 @@ have p ≥ n, from by_contradiction
 subtype.tag p (and.intro this `prime p`)
 
 lemma exists_infinite_primes (n : nat) : ∃ p, p ≥ n ∧ prime p :=
-ex_of_sub (infinite_primes n)
+exists_of_subtype (infinite_primes n)
 
 lemma odd_of_prime {p : nat} : prime p → p > 2 → odd p :=
 λ pp p_gt_2, by_contradiction (λ hn,

@@ -29,7 +29,7 @@ namespace nat
   ∀ x, x < n → P x
 
   lemma bex_of_bsub {n : nat} {P : nat → Prop} : bsub n P → bex n P :=
-  assume h, ex_of_sub h
+  assume h, exists_of_subtype h
 
   theorem not_bex_zero (P : nat → Prop) : ¬ bex 0 P :=
   λ H, obtain (w : nat) (Hw : w < 0 ∧ P w), from H,
@@ -114,7 +114,7 @@ section
 end
 
 namespace nat
-  open decidable
+  open decidable subtype
   variable {P : nat → Prop}
   variable [decP : decidable_pred P]
   include decP

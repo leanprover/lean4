@@ -339,6 +339,6 @@ namespace vector
   | (mk f g l r) n :=
     mk (map f) (map g)
      begin intros, rewrite [map_map, id_of_left_inverse l, map_id], reflexivity end
-     begin intros, rewrite [map_map, id_of_righ_inverse r, map_id], reflexivity end
+     begin intros, rewrite [map_map, id_of_right_inverse r, map_id], reflexivity end
   end
 end vector

@@ -563,7 +563,7 @@ definition list_equiv_of_equiv {A B : Type} : A ≃ B → list A ≃ list B
 | (mk f g l r) :=
   mk (map f) (map g)
    begin intros, rewrite [map_map, id_of_left_inverse l, map_id], try reflexivity end
-   begin intros, rewrite [map_map, id_of_righ_inverse r, map_id], try reflexivity end
+   begin intros, rewrite [map_map, id_of_right_inverse r, map_id], try reflexivity end
 
 private definition to_nat : list nat → nat
 | []      := 0

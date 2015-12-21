@@ -622,7 +622,7 @@ lemma stream_equiv_of_equiv {A B : Type} : A ≃ B → stream A ≃ stream B
 | (mk f g l r) :=
   mk (map f) (map g)
    begin intros, rewrite [map_map, id_of_left_inverse l, map_id] end
-   begin intros, rewrite [map_map, id_of_righ_inverse r, map_id] end
+   begin intros, rewrite [map_map, id_of_right_inverse r, map_id] end
 end
 
 definition lex (rel : A → A → Prop) (s₁ s₂ : stream A) : Prop :=

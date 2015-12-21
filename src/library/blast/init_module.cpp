@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/blast/blast_tactic.h"
 #include "library/blast/options.h"
 #include "library/blast/congruence_closure.h"
+#include "library/blast/discr_tree.h"
 #include "library/blast/simplifier/init_module.h"
 #include "library/blast/backward/init_module.h"
 #include "library/blast/forward/init_module.h"
@@ -21,6 +22,7 @@ void initialize_blast_module() {
     blast::initialize_options();
     blast::initialize_state();
     initialize_blast();
+    blast::initialize_discr_tree();
     blast::initialize_simplifier_module();
     blast::initialize_backward_module();
     blast::initialize_forward_module();
@@ -39,6 +41,7 @@ void finalize_blast_module() {
     blast::finalize_forward_module();
     blast::finalize_backward_module();
     blast::finalize_simplifier_module();
+    blast::finalize_discr_tree();
     finalize_blast();
     blast::finalize_state();
     blast::finalize_options();

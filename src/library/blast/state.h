@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "library/head_map.h"
 #include "library/tactic/goal.h"
+#include "library/blast/discr_tree.h"
 #include "library/blast/action_result.h"
 #include "library/blast/hypothesis.h"
 
@@ -155,6 +156,7 @@ class branch {
     forward_deps             m_forward_deps; // given an entry (h -> {h_1, ..., h_n}), we have that each h_i uses h.
     expr                     m_target;
     hypothesis_idx_set       m_target_deps;
+    discr_tree               m_hyp_index;
     branch_extension **      m_extensions;
 public:
     branch();
@@ -287,6 +289,7 @@ public:
 
     hypothesis const & get_hypothesis_decl(hypothesis_idx hidx) const { auto h = m_branch.m_hyp_decls.find(hidx); lean_assert(h); return *h; }
     hypothesis const & get_hypothesis_decl(expr const & h) const;
+    hypothesis const * find_hypothesis_decl(hypothesis_idx hidx) const { return m_branch.m_hyp_decls.find(hidx); }
 
     void for_each_hypothesis(std::function<void(hypothesis_idx, hypothesis const &)> const & fn) const { m_branch.m_hyp_decls.for_each(fn); }
     optional<hypothesis_idx> find_active_hypothesis(std::function<bool(hypothesis_idx, hypothesis const &)> const & fn) const { // NOLINT

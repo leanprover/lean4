@@ -824,7 +824,7 @@ void state::update_indices(hypothesis_idx hidx) {
         branch_extension * ext = get_extension_core(i);
         if (ext) ext->hypothesis_activated(h, hidx);
     }
-    /* TODO(Leo): update congruence closure indices */
+    m_branch.m_hyp_index.insert(h.get_type(), h.get_self());
 }
 
 void state::remove_from_indices(hypothesis const & h, hypothesis_idx hidx) {

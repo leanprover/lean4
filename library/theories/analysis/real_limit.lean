@@ -28,7 +28,7 @@ namespace real
 local postfix ⁻¹ := pnat.inv
 /- the reals form a metric space -/
 
-protected definition to_metric_space [instance] : metric_space ℝ :=
+protected definition metric_space [instance] : metric_space ℝ :=
 ⦃ metric_space,
   dist               := λ x y, abs (x - y),
   dist_self          := λ x, abstract by rewrite [sub_self, abs_zero] end,
@@ -168,6 +168,12 @@ exists.intro l
         let n' : ℕ+ := tag n (nat.lt_of_lt_of_le (has_property N) Hn) in
         have abs (X n - l) ≤ real.of_rat k⁻¹, by apply conv k n' Hn,
         show abs (X n - l) < ε, from lt_of_le_of_lt this Hk))
+
+protected definition complete_metric_space [reducible] [trans_instance] :
+    complete_metric_space ℝ :=
+⦃complete_metric_space, real.metric_space,
+  complete := @converges_seq_of_cauchy
+⦄
 
 open set
 

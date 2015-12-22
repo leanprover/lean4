@@ -17,6 +17,7 @@ Algebraic structures.
 * [ordered_ring](ordered_ring.lean)
 * [field](field.lean)
 * [ordered_field](ordered_field.lean)
+* [module](module.lean) : modules, vector spaces, and linear maps
 * [ring_power](ring_power.lean) : power in ring structures
 * [ring_bigops](ring_bigops.lean) : products and sums in various structures
 * [bundled](bundled.lean) : bundled versions of the algebraic structures

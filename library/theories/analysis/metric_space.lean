@@ -244,3 +244,7 @@ open metric_space
 
 structure complete_metric_space [class] (M : Type) extends metricM : metric_space M : Type :=
 (complete : ∀ X, @cauchy M metricM X → @converges_seq M metricM X)
+
+proposition complete (M : Type) [cmM : complete_metric_space M] {X : ℕ → M} (H : cauchy X) :
+  converges_seq X :=
+complete_metric_space.complete X H

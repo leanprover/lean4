@@ -16,10 +16,10 @@ infixl ` • `:73 := has_scalar.smul
 
 structure left_module [class] (R M : Type) [ringR : ring R]
   extends has_scalar R M, add_comm_group M :=
-(smul_distrib_left : ∀ (r : R) (x y : M), smul r (add x y) = (add (smul r x) (smul r y)))
-(smul_distrib_right : ∀ (r s : R) (x : M), smul (ring.add r s) x = (add (smul r x) (smul s x)))
+(smul_left_distrib : ∀ (r : R) (x y : M), smul r (add x y) = (add (smul r x) (smul r y)))
+(smul_right_distrib : ∀ (r s : R) (x : M), smul (ring.add r s) x = (add (smul r x) (smul s x)))
 (smul_mul : ∀ r s x, smul (mul r s) x = smul r (smul s x))
-(smul_one : ∀ x, smul one x = x)
+(one_smul : ∀ x, smul one x = x)
 
 section left_module
   variables {R M : Type}
@@ -29,27 +29,27 @@ section left_module
 
   -- Note: the anonymous include does not work in the propositions below.
 
-  proposition smul_distrib_left (a : R) (u v : M) : a • (u + v) = a • u + a • v :=
-  !left_module.smul_distrib_left
+  proposition smul_left_distrib (a : R) (u v : M) : a • (u + v) = a • u + a • v :=
+  !left_module.smul_left_distrib
 
-  proposition smul_distrib_right (a b : R) (u : M) : (a + b)•u = a•u + b•u :=
-  !left_module.smul_distrib_right
+  proposition smul_right_distrib (a b : R) (u : M) : (a + b)•u = a•u + b•u :=
+  !left_module.smul_right_distrib
 
   proposition smul_mul (a : R) (b : R) (u : M) : (a * b) • u = a • (b • u) :=
   !left_module.smul_mul
 
-  proposition one_smul (u : M) : (1 : R) • u = u := !left_module.smul_one
+  proposition one_smul (u : M) : (1 : R) • u = u := !left_module.one_smul
 
   proposition zero_smul (u : M) : (0 : R) • u = 0 :=
-  have (0 : R) • u + 0 • u = 0 • u + 0, by rewrite [-smul_distrib_right, *add_zero],
+  have (0 : R) • u + 0 • u = 0 • u + 0, by rewrite [-smul_right_distrib, *add_zero],
   !add.left_cancel this
 
   proposition smul_zero (a : R) : a • (0 : M) = 0 :=
-  have a • 0 + a • 0 = a • 0 + 0, by rewrite [-smul_distrib_left, *add_zero],
+  have a • 0 + a • 0 = a • 0 + 0, by rewrite [-smul_left_distrib, *add_zero],
   !add.left_cancel this
 
   proposition neg_smul (a : R) (u : M) : (-a) • u = - (a • u) :=
-  eq_neg_of_add_eq_zero (by rewrite [-smul_distrib_right, add.left_inv, zero_smul])
+  eq_neg_of_add_eq_zero (by rewrite [-smul_right_distrib, add.left_inv, zero_smul])
 
   proposition neg_one_smul (u : M) : -(1 : R) • u = -u :=
   by rewrite [neg_smul, one_smul]

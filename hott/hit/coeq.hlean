@@ -6,9 +6,9 @@ Authors: Floris van Doorn
 Declaration of the coequalizer
 -/
 
-import .quotient
+import .quotient_functor types.equiv
 
-open quotient eq equiv equiv.ops is_trunc
+open quotient eq equiv equiv.ops is_trunc sigma sigma.ops
 
 namespace coeq
 section
@@ -90,3 +90,63 @@ attribute coeq.rec coeq.elim [unfold 8] [recursor 8]
 attribute coeq.elim_type [unfold 7]
 attribute coeq.rec_on coeq.elim_on [unfold 6]
 attribute coeq.elim_type_on [unfold 5]
+
+/- Flattening -/
+namespace coeq
+section
+  open function
+
+  universe u
+  parameters {A B : Type.{u}} (f g : A → B) (P_i : B → Type)
+             (Pcp : Πx : A, P_i (f x) ≃ P_i (g x))
+
+  local abbreviation P := coeq.elim_type f g P_i Pcp
+
+  local abbreviation F : sigma (P_i ∘ f) → sigma P_i :=
+  λz, ⟨f z.1, z.2⟩
+
+  local abbreviation G : sigma (P_i ∘ f) → sigma P_i :=
+  λz, ⟨g z.1, Pcp z.1 z.2⟩
+
+  local abbreviation Pr : Π⦃b b' : B⦄,
+    coeq_rel f g b b' → P_i b ≃ P_i b' :=
+  @coeq_rel.rec A B f g _ Pcp
+
+  local abbreviation P' := quotient.elim_type P_i Pr
+
+  protected definition flattening : sigma P ≃ coeq F G :=
+  begin
+    assert H : Πz, P z ≃ P' z,
+    { intro z, apply equiv_of_eq,
+      assert H1 : coeq.elim_type f g P_i Pcp = quotient.elim_type P_i Pr,
+      { change
+    quotient.rec P_i
+      (λb b' r, coeq_rel.cases_on r (λx, pathover_of_eq (ua (Pcp x))))
+  = quotient.rec P_i
+      (λb b' r, pathover_of_eq (ua (coeq_rel.cases_on r Pcp))),
+        assert H2 : Π⦃b b' : B⦄ (r : coeq_rel f g b b'),
+    coeq_rel.cases_on r (λx, pathover_of_eq (ua (Pcp x)))
+  = pathover_of_eq (ua (coeq_rel.cases_on r Pcp))
+    :> P_i b =[eq_of_rel (coeq_rel f g) r] P_i b',
+        { intros b b' r, cases r, reflexivity },
+       rewrite (eq_of_homotopy3 H2) },
+      apply ap10 H1 },
+    apply equiv.trans (sigma_equiv_sigma_id H),
+    apply equiv.trans !quotient.flattening.flattening_lemma,
+    fapply quotient.equiv,
+    { reflexivity },
+    { intros bp bp',
+      fapply equiv.MK,
+      { intro r, induction r with b b' r p,
+        induction r with x, exact coeq_rel.Rmk F G ⟨x, p⟩ },
+      { esimp, intro r, induction r with xp,
+        induction xp with x p,
+        exact quotient.flattening.flattening_rel.mk Pr
+          (coeq_rel.Rmk f g x) p },
+      { esimp, intro r, induction r with xp,
+        induction xp with x p, reflexivity },
+      { intro r, induction r with b b' r p,
+        induction r with x, reflexivity } }
+  end
+end
+end coeq

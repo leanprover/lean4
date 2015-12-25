@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 Declaration of the pushout
 -/
 
-import .quotient cubical.square
+import .quotient cubical.square types.sigma
 
 open quotient eq sum equiv equiv.ops is_trunc
 
@@ -120,5 +120,84 @@ namespace pushout
       apply eq_pathover, apply hdeg_square, esimp, apply elim_glue},
   end
 
+end pushout
+
+open function sigma.ops
+
+namespace pushout
+
+  /- The flattening lemma -/
+  section
+
+    universe variable u
+    parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
+               (Pinl : BL → Type.{u}) (Pinr : TR → Type.{u})
+               (Pglue : Π(x : TL), Pinl (f x) ≃ Pinr (g x))
+    include Pglue
+
+    local abbreviation A := BL + TR
+    local abbreviation R : A → A → Type := pushout_rel f g
+    local abbreviation P [unfold 5] := pushout.elim_type Pinl Pinr Pglue
+
+    local abbreviation F : sigma (Pinl ∘ f) → sigma Pinl :=
+    λz, ⟨ f z.1 , z.2 ⟩
+
+    local abbreviation G : sigma (Pinl ∘ f) → sigma Pinr :=
+    λz, ⟨ g z.1 , Pglue z.1 z.2 ⟩
+
+    local abbreviation Pglue' : Π ⦃a a' : A⦄,
+      R a a' → sum.rec Pinl Pinr a ≃ sum.rec Pinl Pinr a' :=
+    @pushout_rel.rec TL BL TR f g
+     (λ ⦃a a' ⦄ (r : R a a'),
+       (sum.rec Pinl Pinr a) ≃ (sum.rec Pinl Pinr a')) Pglue
+
+    protected definition flattening : sigma P ≃ pushout F G :=
+    begin
+      assert H : Πz, P z ≃ quotient.elim_type (sum.rec Pinl Pinr) Pglue' z,
+      { intro z, apply equiv_of_eq,
+        assert H1 : pushout.elim_type Pinl Pinr Pglue
+                  = quotient.elim_type (sum.rec Pinl Pinr) Pglue',
+        { change
+      quotient.rec (sum.rec Pinl Pinr)
+        (λa a' r, pushout_rel.cases_on r (λx, pathover_of_eq (ua (Pglue x))))
+    = quotient.rec (sum.rec Pinl Pinr)
+        (λa a' r, pathover_of_eq (ua (pushout_rel.cases_on r Pglue))),
+          assert H2 : Π⦃a a'⦄ r : pushout_rel f g a a',
+      pushout_rel.cases_on r (λx, pathover_of_eq (ua (Pglue x)))
+    = pathover_of_eq (ua (pushout_rel.cases_on r Pglue))
+      :> sum.rec Pinl Pinr a =[eq_of_rel (pushout_rel f g) r]
+         sum.rec Pinl Pinr a',
+          { intros a a' r, cases r, reflexivity },
+          rewrite (eq_of_homotopy3 H2) },
+        apply ap10 H1 },
+      apply equiv.trans (sigma_equiv_sigma_id H),
+      apply equiv.trans (quotient.flattening.flattening_lemma R (sum.rec Pinl Pinr) Pglue'),
+      fapply equiv.MK,
+      { intro q, induction q with z z z' fr,
+        { induction z with a p, induction a with x x,
+          { exact inl ⟨x, p⟩ },
+          { exact inr ⟨x, p⟩ } },
+        { induction fr with a a' r p, induction r with x,
+          exact glue ⟨x, p⟩ } },
+      { intro q, induction q with xp xp xp,
+        { exact class_of _ ⟨sum.inl xp.1, xp.2⟩ },
+        { exact class_of _ ⟨sum.inr xp.1, xp.2⟩ },
+        { apply eq_of_rel, constructor } },
+      { intro q, induction q with xp xp xp: induction xp with x p,
+        { apply ap inl, reflexivity },
+        { apply ap inr, reflexivity },
+        { unfold F, unfold G, apply eq_pathover,
+          rewrite [ap_id,ap_compose' (quotient.elim _ _)],
+          krewrite elim_glue, krewrite elim_eq_of_rel, apply hrefl } },
+      { intro q, induction q with z z z' fr,
+        { induction z with a p, induction a with x x,
+          { reflexivity },
+          { reflexivity } },
+        { induction fr with a a' r p, induction r with x,
+          esimp, apply eq_pathover,
+          rewrite [ap_id,ap_compose' (pushout.elim _ _ _)],
+          krewrite elim_eq_of_rel, krewrite elim_glue, apply hrefl } }
+    end
+  end
 
 end pushout

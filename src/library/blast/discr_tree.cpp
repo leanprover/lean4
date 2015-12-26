@@ -134,28 +134,29 @@ int discr_tree::node_cmp::operator()(node const & n1, node const & n2) const {
     }
 }
 
-auto discr_tree::insert_atom(node && n, edge const & e, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip) -> node {
+auto discr_tree::insert_erase_atom(node && n, edge const & e, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins) -> node {
     node new_n = ensure_unshared(n.steal());
     if (auto child = new_n.m_ptr->m_children.find(e)) {
         node new_child(*child);
         new_n.m_ptr->m_children.erase(e);
-        new_child = insert(new_child.steal(), false, todo, v, skip);
+        new_child = insert_erase(new_child.steal(), false, todo, v, skip, ins);
         new_n.m_ptr->m_children.insert(e, new_child);
         return new_n;
     } else {
-        node new_child = insert(node(), false, todo, v, skip);
+        node new_child = insert_erase(node(), false, todo, v, skip, ins);
         new_n.m_ptr->m_children.insert(e, new_child);
         return new_n;
     }
 }
 
-auto discr_tree::insert_star(node && n, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip) -> node {
+auto discr_tree::insert_erase_star(node && n, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins) -> node {
     node new_n = ensure_unshared(n.steal());
-    new_n.m_ptr->m_star_child = insert(new_n.m_ptr->m_star_child.steal(), false, todo, v, skip);
+    new_n.m_ptr->m_star_child = insert_erase(new_n.m_ptr->m_star_child.steal(), false, todo, v, skip, ins);
     return new_n;
 }
 
-auto discr_tree::insert_app(node && n, bool is_root, expr const & e, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip) -> node {
+auto discr_tree::insert_erase_app(node && n, bool is_root, expr const & e, buffer<expr> & todo, expr const & v,
+                                  buffer<pair<node, node>> & skip, bool ins) -> node {
     lean_assert(is_app(e));
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);
@@ -174,7 +175,7 @@ auto discr_tree::insert_app(node && n, bool is_root, expr const & e, buffer<expr
             todo.push_back(args[i]);
         }
         todo.push_back(fn);
-        node new_n = insert(std::move(n), false, todo, v, skip);
+        node new_n = insert_erase(std::move(n), false, todo, v, skip, ins);
         if (!is_root) {
             lean_assert(!skip.empty());
             // Update fn flag.
@@ -189,16 +190,19 @@ auto discr_tree::insert_app(node && n, bool is_root, expr const & e, buffer<expr
         }
         return new_n;
     } else if (is_meta(fn)) {
-        return insert_star(std::move(n), todo, v, skip);
+        return insert_erase_star(std::move(n), todo, v, skip, ins);
     } else {
-        return insert_atom(std::move(n), edge(edge_kind::Unsupported), todo, v, skip);
+        return insert_erase_atom(std::move(n), edge(edge_kind::Unsupported), todo, v, skip, ins);
     }
 }
 
-auto discr_tree::insert(node && n, bool is_root, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip) -> node {
+auto discr_tree::insert_erase(node && n, bool is_root, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins) -> node {
     if (todo.empty()) {
         node new_n = ensure_unshared(n.steal());
-        new_n.m_ptr->m_values.insert(v);
+        if (ins)
+            new_n.m_ptr->m_values.insert(v);
+        else
+            new_n.m_ptr->m_values.erase(v);
         return new_n;
     }
 
@@ -207,33 +211,37 @@ auto discr_tree::insert(node && n, bool is_root, buffer<expr> & todo, expr const
 
     if (is_eqp(e, *g_delimiter)) {
         node old_n(n);
-        node new_n = insert(std::move(n), false, todo, v, skip);
+        node new_n = insert_erase(std::move(n), false, todo, v, skip, ins);
         skip.emplace_back(old_n, new_n);
         return new_n;
     }
 
     switch (e.kind()) {
     case expr_kind::Constant: case expr_kind::Local:
-        return insert_atom(std::move(n), edge(e), todo, v, skip);
+        return insert_erase_atom(std::move(n), edge(e), todo, v, skip, ins);
     case expr_kind::Meta:
-        return insert_star(std::move(n), todo, v, skip);
+        return insert_erase_star(std::move(n), todo, v, skip, ins);
     case expr_kind::App:
-        return insert_app(std::move(n), is_root, e, todo, v, skip);
+        return insert_erase_app(std::move(n), is_root, e, todo, v, skip, ins);
     case expr_kind::Var:
         lean_unreachable();
     case expr_kind::Sort: case expr_kind::Lambda:
     case expr_kind::Pi:   case expr_kind::Macro:
         // unsupported
-        return insert_atom(std::move(n), edge(edge_kind::Unsupported), todo, v, skip);
+        return insert_erase_atom(std::move(n), edge(edge_kind::Unsupported), todo, v, skip, ins);
     }
     lean_unreachable();
 }
 
-void discr_tree::insert(expr const & k, expr const & v) {
+void discr_tree::insert_erase(expr const & k, expr const & v, bool ins) {
+    // insert & erase operations.
+    // The erase operation is not optimal because it does not eliminate dead branches from the tree.
+    // If this becomes an issue, we can remove dead branches from time to time and/or reconstruct
+    // the tree from time to time.
     buffer<expr> todo;
     buffer<pair<node, node>> skip;
     todo.push_back(k);
-    m_root = insert(m_root.steal(), true, todo, v, skip);
+    m_root = insert_erase(m_root.steal(), true, todo, v, skip, ins);
     lean_trace("discr_tree", tout() << "\n"; trace(););
 }
 

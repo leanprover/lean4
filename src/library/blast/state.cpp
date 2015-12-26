@@ -814,6 +814,11 @@ void state::deactivate_all() {
     m_branch.m_active = hypothesis_idx_set();
 }
 
+static expr get_key_for(expr type) {
+    while (is_not(type, type)) {}
+    return type;
+}
+
 void state::update_indices(hypothesis_idx hidx) {
     hypothesis const & h = get_hypothesis_decl(hidx);
     /* update m_head_to_hyps */
@@ -824,7 +829,7 @@ void state::update_indices(hypothesis_idx hidx) {
         branch_extension * ext = get_extension_core(i);
         if (ext) ext->hypothesis_activated(h, hidx);
     }
-    m_branch.m_hyp_index.insert(h.get_type(), h.get_self());
+    m_branch.m_hyp_index.insert(get_key_for(h.get_type()), h.get_self());
 }
 
 void state::remove_from_indices(hypothesis const & h, hypothesis_idx hidx) {
@@ -835,6 +840,7 @@ void state::remove_from_indices(hypothesis const & h, hypothesis_idx hidx) {
     }
     if (auto i = to_head_index(h))
         m_branch.m_head_to_hyps.erase(*i, hidx);
+    m_branch.m_hyp_index.erase(get_key_for(h.get_type()), h.get_self());
 }
 
 optional<unsigned> state::select_hypothesis_to_activate() {

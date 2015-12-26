@@ -52,16 +52,17 @@ private:
     };
 
     static node ensure_unshared(node && n);
-    static node insert_atom(node && n, edge const & e, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip);
-    static node insert_star(node && n, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip);
-    static node insert_app(node && n, bool is_root, expr const & e, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip);
-    static node insert(node && n, bool is_root, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip);
+    static node insert_erase_atom(node && n, edge const & e, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
+    static node insert_erase_star(node && n, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
+    static node insert_erase_app(node && n, bool is_root, expr const & e, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
+    static node insert_erase(node && n, bool is_root, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
+    void insert_erase(expr const & k, expr const & v, bool ins);
 
     node m_root;
 public:
-    void insert(expr const & k, expr const & v);
+    void insert(expr const & k, expr const & v) { insert_erase(k, v, true); }
     void insert(expr const & k) { insert(k, k); }
-    void erase(expr const & k, expr const & v);
+    void erase(expr const & k, expr const & v) { insert_erase(k, v, false); }
     void erase(expr const & k) { erase(k, k); }
 
     void find(expr const & e, std::function<bool(expr const &)> const & fn) const;

@@ -28,15 +28,27 @@ struct discr_tree::node_cmp {
 
 struct discr_tree::edge {
     edge_kind m_kind;
-    bool      m_fn; // TODO(Leo): set this field
+    bool      m_fn;
     name      m_name; // only relevant for Local/Const
-    edge():m_kind(edge_kind::Unsupported), m_fn(false) {}
-    edge(edge_kind k, bool fn = false):m_kind(k), m_fn(fn) {}
-    edge(edge_kind k, name const & n, bool fn = false):m_kind(k), m_fn(fn), m_name(n) {}
+    edge(edge_kind k):m_kind(k), m_fn(false) {}
+    edge(expr const & e, bool fn = false) {
+        m_fn = fn;
+        lean_assert(is_constant(e) || is_local(e));
+        if (is_constant(e)) {
+            m_kind = edge_kind::Constant;
+            m_name = const_name(e);
+        } else {
+            lean_assert(is_local(e));
+            m_kind = edge_kind::Local;
+            m_name = mlocal_name(e);
+        }
+    }
 };
 
 struct discr_tree::edge_cmp {
     int operator()(edge const & e1, edge const & e2) const {
+        if (e1.m_fn != e2.m_fn)
+            return static_cast<int>(e1.m_fn) - static_cast<int>(e2.m_fn);
         if (e1.m_kind != e2.m_kind)
             return static_cast<int>(e1.m_kind) - static_cast<int>(e2.m_kind);
         return quick_cmp(e1.m_name, e2.m_name);
@@ -158,13 +170,18 @@ auto discr_tree::insert_app(node && n, bool is_root, expr const & e, buffer<expr
         while (i > 0) {
             --i;
             if (pinfos[i].is_prop() || pinfos[i].is_inst_implicit() || pinfos[i].is_implicit())
-                continue; // we ignore propositions, implicit and inst-implict arguments
+                continue; // We ignore propositions, implicit and inst-implict arguments
             todo.push_back(args[i]);
         }
         todo.push_back(fn);
         node new_n = insert(std::move(n), false, todo, v, skip);
         if (!is_root) {
             lean_assert(!skip.empty());
+            // Update fn flag.
+            auto child = new_n.m_ptr->m_children.find(edge(fn));
+            lean_assert(child);
+            new_n.m_ptr->m_children.insert(edge(fn, true), *child);
+            // Update skip set.
             pair<node, node> const & p = skip.back();
             new_n.m_ptr->m_skip.erase(p.first);   // remove old skip node
             new_n.m_ptr->m_skip.insert(p.second); // insert new skip node
@@ -174,7 +191,7 @@ auto discr_tree::insert_app(node && n, bool is_root, expr const & e, buffer<expr
     } else if (is_meta(fn)) {
         return insert_star(std::move(n), todo, v, skip);
     } else {
-        return insert_atom(std::move(n), edge(), todo, v, skip);
+        return insert_atom(std::move(n), edge(edge_kind::Unsupported), todo, v, skip);
     }
 }
 
@@ -196,10 +213,8 @@ auto discr_tree::insert(node && n, bool is_root, buffer<expr> & todo, expr const
     }
 
     switch (e.kind()) {
-    case expr_kind::Constant:
-        return insert_atom(std::move(n), edge(edge_kind::Constant, const_name(e)), todo, v, skip);
-    case expr_kind::Local:
-        return insert_atom(std::move(n), edge(edge_kind::Local, mlocal_name(e)), todo, v, skip);
+    case expr_kind::Constant: case expr_kind::Local:
+        return insert_atom(std::move(n), edge(e), todo, v, skip);
     case expr_kind::Meta:
         return insert_star(std::move(n), todo, v, skip);
     case expr_kind::App:
@@ -209,7 +224,7 @@ auto discr_tree::insert(node && n, bool is_root, buffer<expr> & todo, expr const
     case expr_kind::Sort: case expr_kind::Lambda:
     case expr_kind::Pi:   case expr_kind::Macro:
         // unsupported
-        return insert_atom(std::move(n), edge(), todo, v, skip);
+        return insert_atom(std::move(n), edge(edge_kind::Unsupported), todo, v, skip);
     }
     lean_unreachable();
 }
@@ -259,6 +274,8 @@ void discr_tree::node::trace(optional<edge> const & e, unsigned depth, bool disj
             tout() << "#";
             break;
         }
+        if (e->m_fn)
+            tout() << " (fn)";
         tout() << " -> ";
     }
     tout() << "[" << m_ptr->m_id << "] {";

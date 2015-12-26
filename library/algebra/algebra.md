@@ -7,6 +7,7 @@ Algebraic structures.
 * [relation](relation.lean)
 * [binary](binary.lean) : binary operations
 * [order](order.lean)
+* [intervals](intervals.lean)
 * [lattice](lattice.lean)
 * [complete lattice](complete_lattice.lean)
 * [group](group.lean)

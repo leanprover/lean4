@@ -31,7 +31,7 @@ struct discr_tree::edge {
     bool      m_fn;
     name      m_name; // only relevant for Local/Const
     edge(edge_kind k):m_kind(k), m_fn(false) {}
-    edge(expr const & e, bool fn = false) {
+    edge(expr const & e, bool fn) {
         m_fn = fn;
         lean_assert(is_constant(e) || is_local(e));
         if (is_constant(e)) {
@@ -134,7 +134,8 @@ int discr_tree::node_cmp::operator()(node const & n1, node const & n2) const {
     }
 }
 
-auto discr_tree::insert_erase_atom(node && n, edge const & e, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins) -> node {
+auto discr_tree::insert_erase_atom(node && n, edge const & e, buffer<pair<expr, bool>> & todo,
+                                   expr const & v, buffer<pair<node, node>> & skip, bool ins) -> node {
     node new_n = ensure_unshared(n.steal());
     if (auto child = new_n.m_ptr->m_children.find(e)) {
         node new_child(*child);
@@ -149,20 +150,21 @@ auto discr_tree::insert_erase_atom(node && n, edge const & e, buffer<expr> & tod
     }
 }
 
-auto discr_tree::insert_erase_star(node && n, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins) -> node {
+auto discr_tree::insert_erase_star(node && n, buffer<pair<expr, bool>> & todo, expr const & v,
+                                   buffer<pair<node, node>> & skip, bool ins) -> node {
     node new_n = ensure_unshared(n.steal());
     new_n.m_ptr->m_star_child = insert_erase(new_n.m_ptr->m_star_child.steal(), false, todo, v, skip, ins);
     return new_n;
 }
 
-auto discr_tree::insert_erase_app(node && n, bool is_root, expr const & e, buffer<expr> & todo, expr const & v,
+auto discr_tree::insert_erase_app(node && n, bool is_root, expr const & e, buffer<pair<expr, bool>> & todo, expr const & v,
                                   buffer<pair<node, node>> & skip, bool ins) -> node {
     lean_assert(is_app(e));
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);
     if (is_constant(fn) || is_local(fn)) {
         if (!is_root)
-            todo.push_back(*g_delimiter);
+            todo.push_back(mk_pair(*g_delimiter, false));
         fun_info info = get_fun_info(fn);
         buffer<param_info> pinfos;
         to_buffer(info.get_params_info(), pinfos);
@@ -172,16 +174,12 @@ auto discr_tree::insert_erase_app(node && n, bool is_root, expr const & e, buffe
             --i;
             if (pinfos[i].is_prop() || pinfos[i].is_inst_implicit() || pinfos[i].is_implicit())
                 continue; // We ignore propositions, implicit and inst-implict arguments
-            todo.push_back(args[i]);
+            todo.push_back(mk_pair(args[i], false));
         }
-        todo.push_back(fn);
+        todo.push_back(mk_pair(fn, true));
         node new_n = insert_erase(std::move(n), false, todo, v, skip, ins);
         if (!is_root) {
             lean_assert(!skip.empty());
-            // Update fn flag.
-            auto child = new_n.m_ptr->m_children.find(edge(fn));
-            lean_assert(child);
-            new_n.m_ptr->m_children.insert(edge(fn, true), *child);
             // Update skip set.
             pair<node, node> const & p = skip.back();
             new_n.m_ptr->m_skip.erase(p.first);   // remove old skip node
@@ -196,7 +194,8 @@ auto discr_tree::insert_erase_app(node && n, bool is_root, expr const & e, buffe
     }
 }
 
-auto discr_tree::insert_erase(node && n, bool is_root, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins) -> node {
+auto discr_tree::insert_erase(node && n, bool is_root, buffer<pair<expr, bool>> & todo,
+                              expr const & v, buffer<pair<node, node>> & skip, bool ins) -> node {
     if (todo.empty()) {
         node new_n = ensure_unshared(n.steal());
         if (ins)
@@ -206,8 +205,10 @@ auto discr_tree::insert_erase(node && n, bool is_root, buffer<expr> & todo, expr
         return new_n;
     }
 
-    expr e = todo.back();
+    pair<expr, bool> p = todo.back();
     todo.pop_back();
+    expr const & e = p.first;
+    bool fn        = p.second;
 
     if (is_eqp(e, *g_delimiter)) {
         node old_n(n);
@@ -218,7 +219,7 @@ auto discr_tree::insert_erase(node && n, bool is_root, buffer<expr> & todo, expr
 
     switch (e.kind()) {
     case expr_kind::Constant: case expr_kind::Local:
-        return insert_erase_atom(std::move(n), edge(e), todo, v, skip, ins);
+        return insert_erase_atom(std::move(n), edge(e, fn), todo, v, skip, ins);
     case expr_kind::Meta:
         return insert_erase_star(std::move(n), todo, v, skip, ins);
     case expr_kind::App:
@@ -238,14 +239,14 @@ void discr_tree::insert_erase(expr const & k, expr const & v, bool ins) {
     // The erase operation is not optimal because it does not eliminate dead branches from the tree.
     // If this becomes an issue, we can remove dead branches from time to time and/or reconstruct
     // the tree from time to time.
-    buffer<expr> todo;
+    buffer<pair<expr, bool>> todo;
     buffer<pair<node, node>> skip;
-    todo.push_back(k);
+    todo.push_back(mk_pair(k, false));
     m_root = insert_erase(m_root.steal(), true, todo, v, skip, ins);
     lean_trace("discr_tree", tout() << "\n"; trace(););
 }
 
-bool discr_tree::find_atom(node const & n, edge const & e, list<expr> todo, std::function<bool(expr const &)> const & fn) {
+bool discr_tree::find_atom(node const & n, edge const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) {
     if (auto child = n.m_ptr->m_children.find(e)) {
         return find(*child, todo, fn);
     } else {
@@ -253,7 +254,7 @@ bool discr_tree::find_atom(node const & n, edge const & e, list<expr> todo, std:
     }
 }
 
-bool discr_tree::find_star(node const & n, list<expr> todo, std::function<bool(expr const &)> const & fn) {
+bool discr_tree::find_star(node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) {
     bool cont = true;
     n.m_ptr->m_skip.for_each([&](node const & skip_child) {
             if (cont && !find(skip_child, todo, fn))
@@ -269,7 +270,7 @@ bool discr_tree::find_star(node const & n, list<expr> todo, std::function<bool(e
     return cont;
 }
 
-bool discr_tree::find_app(node const & n, expr const & e, list<expr> todo, std::function<bool(expr const &)> const & fn) {
+bool discr_tree::find_app(node const & n, expr const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) {
     lean_assert(is_app(e));
     buffer<expr> args;
     expr const & f = get_app_args(e, args);
@@ -279,14 +280,14 @@ bool discr_tree::find_app(node const & n, expr const & e, list<expr> todo, std::
         to_buffer(info.get_params_info(), pinfos);
         lean_assert(pinfos.size() == args.size());
         unsigned i = args.size();
-        list<expr> new_todo = todo;
+        list<pair<expr, bool>> new_todo = todo;
         while (i > 0) {
             --i;
             if (pinfos[i].is_prop() || pinfos[i].is_inst_implicit() || pinfos[i].is_implicit())
                 continue; // We ignore propositions, implicit and inst-implict arguments
-            new_todo = cons(args[i], new_todo);
+            new_todo = cons(mk_pair(args[i], false), new_todo);
         }
-        new_todo = cons(f, new_todo);
+        new_todo = cons(mk_pair(f, true), new_todo);
         return find(n, new_todo, fn);
     } else if (is_meta(f)) {
         return find_star(n, todo, fn);
@@ -295,7 +296,7 @@ bool discr_tree::find_app(node const & n, expr const & e, list<expr> todo, std::
     }
 }
 
-bool discr_tree::find(node const & n, list<expr> todo, std::function<bool(expr const &)> const & fn) {
+bool discr_tree::find(node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) {
     if (!todo) {
         bool cont = true;
         n.m_ptr->m_values.for_each([&](expr const & v) {
@@ -308,11 +309,13 @@ bool discr_tree::find(node const & n, list<expr> todo, std::function<bool(expr c
     if (n.m_ptr->m_star_child && !find(n.m_ptr->m_star_child, tail(todo), fn))
         return false; // stop search
 
-    expr const & e = head(todo);
+    pair<expr, bool> const & p = head(todo);
+    expr const & e = p.first;
+    bool is_fn     = p.second;
 
     switch (e.kind()) {
     case expr_kind::Constant: case expr_kind::Local:
-        return find_atom(n, edge(e), tail(todo), fn);
+        return find_atom(n, edge(e, is_fn), tail(todo), fn);
     case expr_kind::Meta:
         return find_star(n, tail(todo), fn);
     case expr_kind::App:
@@ -329,7 +332,7 @@ bool discr_tree::find(node const & n, list<expr> todo, std::function<bool(expr c
 
 void discr_tree::find(expr const & e, std::function<bool(expr const &)> const & fn) const {
     if (m_root)
-        find(m_root, to_list(e), fn);
+        find(m_root, to_list(mk_pair(e, false)), fn);
 }
 
 void discr_tree::collect(expr const & e, buffer<expr> & r) const {

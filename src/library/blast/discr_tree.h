@@ -52,16 +52,17 @@ private:
     };
 
     static node ensure_unshared(node && n);
-    static node insert_erase_atom(node && n, edge const & e, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
-    static node insert_erase_star(node && n, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
-    static node insert_erase_app(node && n, bool is_root, expr const & e, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
-    static node insert_erase(node && n, bool is_root, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
+    static node insert_erase_atom(node && n, edge const & e, buffer<pair<expr, bool>> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
+    static node insert_erase_star(node && n, buffer<pair<expr, bool>> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
+    static node insert_erase_app(node && n, bool is_root, expr const & e, buffer<pair<expr, bool>> & todo, expr const & v,
+                                 buffer<pair<node, node>> & skip, bool ins);
+    static node insert_erase(node && n, bool is_root, buffer<pair<expr, bool>> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
     void insert_erase(expr const & k, expr const & v, bool ins);
 
-    static bool find_atom(node const & n, edge const & e, list<expr> todo, std::function<bool(expr const &)> const & fn);
-    static bool find_star(node const & n, list<expr> todo, std::function<bool(expr const &)> const & fn);
-    static bool find_app(node const & n, expr const & e, list<expr> todo, std::function<bool(expr const &)> const & fn);
-    static bool find(node const & n, list<expr> todo, std::function<bool(expr const &)> const & fn);
+    static bool find_atom(node const & n, edge const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn);
+    static bool find_star(node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn);
+    static bool find_app(node const & n, expr const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn);
+    static bool find(node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn);
 
     node m_root;
 public:

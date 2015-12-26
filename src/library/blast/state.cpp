@@ -97,10 +97,10 @@ branch::branch(branch const & b):
     m_assumption(b.m_assumption),
     m_active(b.m_active),
     m_todo_queue(b.m_todo_queue),
-    m_head_to_hyps(b.m_head_to_hyps),
     m_forward_deps(b.m_forward_deps),
     m_target(b.m_target),
-    m_target_deps(b.m_target_deps) {
+    m_target_deps(b.m_target_deps),
+    m_hyp_index(b.m_hyp_index) {
     unsigned n = get_extension_manager().get_num_extensions();
     m_extensions = new branch_extension*[n];
     for (unsigned i = 0; i < n; i++) {
@@ -115,10 +115,10 @@ branch::branch(branch && b):
     m_assumption(std::move(b.m_assumption)),
     m_active(std::move(b.m_active)),
     m_todo_queue(std::move(b.m_todo_queue)),
-    m_head_to_hyps(std::move(b.m_head_to_hyps)),
     m_forward_deps(std::move(b.m_forward_deps)),
     m_target(std::move(b.m_target)),
-    m_target_deps(std::move(b.m_target_deps)) {
+    m_target_deps(std::move(b.m_target_deps)),
+    m_hyp_index(std::move(b.m_hyp_index)) {
     unsigned n = get_extension_manager().get_num_extensions();
     m_extensions = new branch_extension*[n];
     for (unsigned i = 0; i < n; i++) {
@@ -132,7 +132,7 @@ void branch::swap(branch & b) {
     std::swap(m_assumption, b.m_assumption);
     std::swap(m_active, b.m_active);
     std::swap(m_todo_queue, b.m_todo_queue);
-    std::swap(m_head_to_hyps, b.m_head_to_hyps);
+    std::swap(m_hyp_index, b.m_hyp_index);
     std::swap(m_forward_deps, b.m_forward_deps);
     std::swap(m_target, b.m_target);
     std::swap(m_target_deps, b.m_target_deps);
@@ -720,49 +720,18 @@ hypothesis_idx_set state::get_direct_forward_deps(hypothesis_idx hidx) const {
         return hypothesis_idx_set();
 }
 
-static optional<head_index> to_head_index(expr type) {
-    while (is_not(type, type)) {}
-    expr const & f = get_app_fn(type);
-    if (is_constant(f) || is_local(f))
-        return optional<head_index>(head_index(f));
-    else
-        return optional<head_index>();
-}
-
-static optional<head_index> to_head_index(hypothesis const & h) {
-    return to_head_index(h.get_type());
-}
-
-list<hypothesis_idx> state::get_occurrences_of(head_index const & h) const {
-    if (auto r = m_branch.m_head_to_hyps.find(h))
-        return *r;
-    else
-        return list<hypothesis_idx>();
-}
-
-list<hypothesis_idx> state::get_head_related(hypothesis_idx hidx) const {
-    hypothesis const & h = get_hypothesis_decl(hidx);
-    /* update m_head_to_hyps */
-    if (auto i = to_head_index(h))
-        return get_occurrences_of(*i);
-    else
-        return list<hypothesis_idx>();
-}
-
-list<hypothesis_idx> state::get_head_related() const {
-    if (auto i = to_head_index(m_branch.m_target))
-        return get_occurrences_of(*i);
-    else
-        return list<hypothesis_idx>();
-}
-
 optional<hypothesis_idx> state::contains_hypothesis(expr const & type) const {
-    for (auto hidx : get_occurrences_of(head_index(type))) {
-        hypothesis const & h = get_hypothesis_decl(hidx);
-        if (h.get_type() == type)
-            return optional<hypothesis_idx>(hidx);
-    }
-    return optional<hypothesis_idx>();
+    optional<hypothesis_idx> r;
+    find_hypotheses(type, [&](hypothesis_idx hidx) {
+            hypothesis const & h = get_hypothesis_decl(hidx);
+            if (h.get_type() == type) {
+                r = hidx;
+                return false; // stop search
+            } else {
+                return true; // continue search
+            }
+        });
+    return r;
 }
 
 branch_extension * state::get_extension_core(unsigned i) {
@@ -800,7 +769,7 @@ branch_extension & state::get_extension(unsigned extid) {
 }
 
 void state::deactivate_all() {
-    m_branch.m_head_to_hyps = head_map<hypothesis_idx>();
+    m_branch.m_hyp_index = discr_tree();
     unsigned n = get_extension_manager().get_num_extensions();
     for (unsigned i = 0; i < n; i++) {
         if (m_branch.m_extensions[i]) {
@@ -821,9 +790,6 @@ static expr get_key_for(expr type) {
 
 void state::update_indices(hypothesis_idx hidx) {
     hypothesis const & h = get_hypothesis_decl(hidx);
-    /* update m_head_to_hyps */
-    if (auto i = to_head_index(h))
-        m_branch.m_head_to_hyps.insert(*i, hidx);
     unsigned n = get_extension_manager().get_num_extensions();
     for (unsigned i = 0; i < n; i++) {
         branch_extension * ext = get_extension_core(i);
@@ -838,9 +804,11 @@ void state::remove_from_indices(hypothesis const & h, hypothesis_idx hidx) {
         branch_extension * ext = get_extension_core(i);
         if (ext) ext->hypothesis_deleted(h, hidx);
     }
-    if (auto i = to_head_index(h))
-        m_branch.m_head_to_hyps.erase(*i, hidx);
     m_branch.m_hyp_index.erase(get_key_for(h.get_type()), h.get_self());
+}
+
+void state::find_hypotheses(expr const & e, std::function<bool(hypothesis_idx)> const & fn) const {
+    m_branch.m_hyp_index.find(get_key_for(e), [&](expr const & h) { return fn(href_index(h)); });
 }
 
 optional<unsigned> state::select_hypothesis_to_activate() {

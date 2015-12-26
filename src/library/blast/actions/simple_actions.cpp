@@ -15,14 +15,18 @@ namespace blast {
 action_result assumption_action() {
     state const & s     = curr_state();
     expr const & target = s.get_target();
-    for (hypothesis_idx hidx : s.get_head_related()) {
-        hypothesis const & h = s.get_hypothesis_decl(hidx);
-        if (is_def_eq(h.get_type(), target)) {
-            lean_trace_action(tout() << "assumption " << h << "\n";);
-            return action_result(h.get_self());
-        }
-    }
-    return action_result::failed();
+    action_result r = action_result::failed();
+    s.find_hypotheses(target, [&](hypothesis_idx hidx) {
+            hypothesis const & h = s.get_hypothesis_decl(hidx);
+            if (is_def_eq(h.get_type(), target)) {
+                lean_trace_action(tout() << "assumption " << h << "\n";);
+                r = action_result(h.get_self());
+                return false; // stop search
+            } else {
+                return true; // continue
+            }
+        });
+    return r;
 }
 
 /* Close branch IF h is of the form (H : not a ~ a) where ~ is a reflexive relation */
@@ -76,27 +80,31 @@ action_result assumption_contradiction_actions(hypothesis_idx hidx) {
     expr p1 = type;
     unsigned num_not1 = consume_not(p1);
     /* try to find complement */
-    for (hypothesis_idx hidx2 : s.get_head_related(hidx)) {
-        hypothesis const & h2 = s.get_hypothesis_decl(hidx2);
-        expr p2    = h2.get_type();
-        unsigned num_not2 = consume_not(p2);
-        if ((num_not1 % 2) != (num_not2 % 2)) {
-            if (is_def_eq(p1, p2)) {
-                lean_trace_action(tout() << "contradiction " << h << " " << h2 << "\n";);
-                expr pr1 = h.get_self();
-                expr pr2 = h2.get_self();
-                reduce_nots(pr1, num_not1);
-                reduce_nots(pr2, num_not2);
-                if (num_not1 > num_not2) {
-                    return action_result(b.mk_app(get_absurd_name(), {s.get_target(), pr2, pr1}));
-                } else {
-                    lean_assert(num_not1 < num_not2);
-                    return action_result(b.mk_app(get_absurd_name(), {s.get_target(), pr1, pr2}));
+    action_result r = action_result::failed();
+    s.find_hypotheses(type, [&](hypothesis_idx hidx2) {
+            hypothesis const & h2 = s.get_hypothesis_decl(hidx2);
+            expr p2    = h2.get_type();
+            unsigned num_not2 = consume_not(p2);
+            if ((num_not1 % 2) != (num_not2 % 2)) {
+                if (is_def_eq(p1, p2)) {
+                    lean_trace_action(tout() << "contradiction " << h << " " << h2 << "\n";);
+                    expr pr1 = h.get_self();
+                    expr pr2 = h2.get_self();
+                    reduce_nots(pr1, num_not1);
+                    reduce_nots(pr2, num_not2);
+                    if (num_not1 > num_not2) {
+                        r = action_result(b.mk_app(get_absurd_name(), {s.get_target(), pr2, pr1}));
+                        return false; // stop search
+                    } else {
+                        lean_assert(num_not1 < num_not2);
+                        r = action_result(b.mk_app(get_absurd_name(), {s.get_target(), pr1, pr2}));
+                        return false; // stop search
+                    }
                 }
             }
-        }
-    }
-    return action_result::failed();
+            return true; // continue search
+        });
+    return r;
 }
 
 action_result trivial_action() {
@@ -144,15 +152,20 @@ bool discard(hypothesis_idx hidx) {
     if (is_relation_app(type, rop, lhs, rhs) && is_def_eq(lhs, rhs) && is_reflexive(rop))
         return true;
     // 3- We already have an equivalent hypothesis
-    for (hypothesis_idx hidx2 : s.get_head_related(hidx)) {
-        if (hidx == hidx2)
-            continue;
-        hypothesis const & h2 = s.get_hypothesis_decl(hidx2);
-        expr type2 = h2.get_type();
-        if (is_def_eq(type, type2))
-            return true;
-    }
-    return false;
+    bool r = false;
+    s.find_hypotheses(type, [&](hypothesis_idx hidx2) {
+            if (hidx == hidx2)
+                return true; // continue
+            hypothesis const & h2 = s.get_hypothesis_decl(hidx2);
+            expr type2 = h2.get_type();
+            if (is_def_eq(type, type2)) {
+                r = true;
+                return false; // stop search
+            } else {
+                return true; // continue
+            }
+        });
+    return r;
 }
 
 action_result discard_action(hypothesis_idx hidx) {

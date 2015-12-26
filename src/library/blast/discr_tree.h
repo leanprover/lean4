@@ -58,6 +58,11 @@ private:
     static node insert_erase(node && n, bool is_root, buffer<expr> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
     void insert_erase(expr const & k, expr const & v, bool ins);
 
+    static bool find_atom(node const & n, edge const & e, list<expr> todo, std::function<bool(expr const &)> const & fn);
+    static bool find_star(node const & n, list<expr> todo, std::function<bool(expr const &)> const & fn);
+    static bool find_app(node const & n, expr const & e, list<expr> todo, std::function<bool(expr const &)> const & fn);
+    static bool find(node const & n, list<expr> todo, std::function<bool(expr const &)> const & fn);
+
     node m_root;
 public:
     void insert(expr const & k, expr const & v) { insert_erase(k, v, true); }

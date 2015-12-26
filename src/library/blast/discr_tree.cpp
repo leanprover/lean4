@@ -245,6 +245,97 @@ void discr_tree::insert_erase(expr const & k, expr const & v, bool ins) {
     lean_trace("discr_tree", tout() << "\n"; trace(););
 }
 
+bool discr_tree::find_atom(node const & n, edge const & e, list<expr> todo, std::function<bool(expr const &)> const & fn) {
+    if (auto child = n.m_ptr->m_children.find(e)) {
+        return find(*child, todo, fn);
+    } else {
+        return true; // continue
+    }
+}
+
+bool discr_tree::find_star(node const & n, list<expr> todo, std::function<bool(expr const &)> const & fn) {
+    bool cont = true;
+    n.m_ptr->m_skip.for_each([&](node const & skip_child) {
+            if (cont && !find(skip_child, todo, fn))
+                cont = false;
+        });
+    if (!cont)
+        return false;
+    // we also have to traverse children whose edge is an atom.
+    n.m_ptr->m_children.for_each([&](edge const & e, node const & child) {
+            if (cont && !e.m_fn && !find(child, todo, fn))
+                cont = false;
+        });
+    return cont;
+}
+
+bool discr_tree::find_app(node const & n, expr const & e, list<expr> todo, std::function<bool(expr const &)> const & fn) {
+    lean_assert(is_app(e));
+    buffer<expr> args;
+    expr const & f = get_app_args(e, args);
+    if (is_constant(f) || is_local(f)) {
+        fun_info info = get_fun_info(f);
+        buffer<param_info> pinfos;
+        to_buffer(info.get_params_info(), pinfos);
+        lean_assert(pinfos.size() == args.size());
+        unsigned i = args.size();
+        list<expr> new_todo = todo;
+        while (i > 0) {
+            --i;
+            if (pinfos[i].is_prop() || pinfos[i].is_inst_implicit() || pinfos[i].is_implicit())
+                continue; // We ignore propositions, implicit and inst-implict arguments
+            new_todo = cons(args[i], new_todo);
+        }
+        new_todo = cons(f, new_todo);
+        return find(n, new_todo, fn);
+    } else if (is_meta(f)) {
+        return find_star(n, todo, fn);
+    } else {
+        return find_atom(n, edge(edge_kind::Unsupported), todo, fn);
+    }
+}
+
+bool discr_tree::find(node const & n, list<expr> todo, std::function<bool(expr const &)> const & fn) {
+    if (!todo) {
+        bool cont = true;
+        n.m_ptr->m_values.for_each([&](expr const & v) {
+                if (cont && !fn(v))
+                    cont = false;
+            });
+        return cont;
+    }
+
+    if (n.m_ptr->m_star_child && !find(n.m_ptr->m_star_child, tail(todo), fn))
+        return false; // stop search
+
+    expr const & e = head(todo);
+
+    switch (e.kind()) {
+    case expr_kind::Constant: case expr_kind::Local:
+        return find_atom(n, edge(e), tail(todo), fn);
+    case expr_kind::Meta:
+        return find_star(n, tail(todo), fn);
+    case expr_kind::App:
+        return find_app(n, e, tail(todo), fn);
+    case expr_kind::Var:
+        lean_unreachable();
+    case expr_kind::Sort: case expr_kind::Lambda:
+    case expr_kind::Pi:   case expr_kind::Macro:
+        // unsupported
+        return find_atom(n, edge(edge_kind::Unsupported), tail(todo), fn);
+    }
+    lean_unreachable();
+}
+
+void discr_tree::find(expr const & e, std::function<bool(expr const &)> const & fn) const {
+    if (m_root)
+        find(m_root, to_list(e), fn);
+}
+
+void discr_tree::collect(expr const & e, buffer<expr> & r) const {
+    find(e, [&](expr const & v) { r.push_back(v); return true; });
+}
+
 static void indent(unsigned depth) {
     for (unsigned i = 0; i < depth; i++) tout() << "  ";
 }

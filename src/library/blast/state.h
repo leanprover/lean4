@@ -152,7 +152,6 @@ class branch {
     hypothesis_idx_set       m_assumption;
     hypothesis_idx_set       m_active;
     todo_queue               m_todo_queue;
-    head_map<hypothesis_idx> m_head_to_hyps;
     forward_deps             m_forward_deps; // given an entry (h -> {h_1, ..., h_n}), we have that each h_i uses h.
     expr                     m_target;
     hypothesis_idx_set       m_target_deps;
@@ -318,17 +317,11 @@ public:
 
     hypothesis_idx_set get_assumptions() const { return m_branch.m_assumption; }
 
-    /** \brief Return (active) hypotheses whose head symbol is h or (not h) */
-    list<hypothesis_idx> get_occurrences_of(head_index const & h) const;
-
-    /** \brief Return (active) hypotheses whose head symbol is equal to the of hidx or it is the negation of */
-    list<hypothesis_idx> get_head_related(hypothesis_idx hidx) const;
-
-    /** \brief Return (active) hypotheses whose head symbol is equal to target or it is the negation of */
-    list<hypothesis_idx> get_head_related() const;
-
     /** \brief If there is an hypothesis with the given type (return it), otherwise return none */
     optional<hypothesis_idx> contains_hypothesis(expr const & type) const;
+
+    /** \brief Find hypotheses whose type may unify with \c e or its negation */
+    void find_hypotheses(expr const & e, std::function<bool(hypothesis_idx)> const & fn) const;
 
     /************************
        Abstracting hypotheses

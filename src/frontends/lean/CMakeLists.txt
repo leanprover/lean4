@@ -10,4 +10,5 @@ init_module.cpp elaborator_context.cpp calc_proof_elaborator.cpp
 parse_tactic_location.cpp parse_rewrite_tactic.cpp builtin_tactics.cpp
 type_util.cpp elaborator_exception.cpp local_ref_info.cpp
 obtain_expr.cpp decl_attributes.cpp nested_declaration.cpp
-parse_with_options_tactic.cpp opt_cmd.cpp prenum.cpp parse_with_attributes_tactic.cpp)
+parse_with_options_tactic.cpp opt_cmd.cpp prenum.cpp
+parse_with_attributes_tactic.cpp print_cmd.cpp)

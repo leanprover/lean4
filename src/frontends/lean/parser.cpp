@@ -2165,12 +2165,22 @@ void parser::parse_imports() {
         next();
         while (true) {
             optional<unsigned> k;
-            while (curr_is_token(get_period_tk())) {
-                next();
-                if (!k)
-                    k = 0;
-                else
-                    k = *k + 1;
+            while (true) {
+                if (curr_is_token(get_period_tk())) {
+                    next();
+                    if (!k)
+                        k = 0;
+                    else
+                        k = *k + 1;
+                } else if (curr_is_token(get_ellipsis_tk())) {
+                    next();
+                    if (!k)
+                        k = 2;
+                    else
+                        k = *k + 3;
+                } else {
+                    break;
+                }
             }
             if (!curr_is_identifier())
                 break;

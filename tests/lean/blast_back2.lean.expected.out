@@ -1,0 +1,4 @@
+definition lemma1 : ∀ (a : ℕ), r a → s a → p a :=
+λ (a : ℕ) (H.1 : r a) (H.2 : s a), rq₁ a H.1
+definition lemma2 : ∀ (a : ℕ), r a → s a → p a :=
+λ (a : ℕ) (H.1 : r a), rq₂ a

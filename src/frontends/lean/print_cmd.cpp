@@ -29,7 +29,7 @@ Author: Leonardo de Moura
 #include "library/definitional/projection.h"
 #include "library/blast/blast.h"
 #include "library/blast/simplifier/simplifier.h"
-#include "library/blast/backward/backward_rule_set.h"
+#include "library/blast/backward/backward_lemmas.h"
 #include "library/blast/forward/forward_lemma_set.h"
 #include "library/blast/forward/pattern.h"
 #include "library/blast/grinder/intro_elim_lemmas.h"
@@ -543,16 +543,19 @@ static void print_elim_lemmas(parser & p) {
 }
 
 static void print_intro_lemmas(parser & p) {
+    io_state_stream out = p.regular_stream();
     buffer<name> lemmas;
     get_intro_lemmas(p.env(), lemmas);
     for (auto n : lemmas)
-        p.regular_stream() << n << "\n";
+        out << n << "\n";
 }
 
-static void print_backward_rules(parser & p) {
+static void print_backward_lemmas(parser & p) {
     io_state_stream out = p.regular_stream();
-    blast::backward_rule_set brs = get_backward_rule_set(p.env());
-    out << brs;
+    buffer<name> lemmas;
+    get_backward_lemmas(p.env(), lemmas);
+    for (auto n : lemmas)
+        out << n << "\n";
 }
 
 static void print_no_patterns(parser & p) {
@@ -712,7 +715,7 @@ environment print_cmd(parser & p) {
         print_light_rules(p);
     } else if (p.curr_is_token(get_intro_attr_tk())) {
         p.next();
-        print_backward_rules(p);
+        print_backward_lemmas(p);
     } else if (print_polymorphic(p)) {
     } else {
         throw parser_error("invalid print command", p.pos());

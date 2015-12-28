@@ -82,7 +82,7 @@ optional<name> get_intro_target(tmp_type_context & ctx, name const & c) {
         expr local = ctx.mk_tmp_local(binding_domain(type));
         type = ctx.try_to_pi(instantiate(binding_body(type), local));
     }
-    expr const & fn = get_app_fn(type);
+    expr const & fn = get_app_fn(ctx.whnf(type));
     if (is_constant(fn))
         return optional<name>(const_name(fn));
     else
@@ -92,7 +92,7 @@ optional<name> get_intro_target(tmp_type_context & ctx, name const & c) {
 environment add_intro_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent) {
     tmp_type_context ctx(env, ios.get_options());
     if (!get_intro_target(ctx, c))
-        throw exception(sstream() << "invalid [intro] attribute for '" << c << "', head symbol of resulting type must be a constant");
+        throw exception(sstream() << "invalid [intro!] attribute for '" << c << "', head symbol of resulting type must be a constant");
     return intro_elim_ext::add_entry(env, ios, intro_elim_entry(false, prio, c), ns, persistent);
 }
 
@@ -157,7 +157,7 @@ head_map<gexpr> mk_intro_lemma_index() {
         optional<name> target = get_intro_target(*ctx, lemmas[i]);
         if (!target) {
             lean_trace(name({"blast", "event"}),
-                       tout() << "discarding [intro] lemma '" << lemmas[i] << "', failed to find target type\n";);
+                       tout() << "discarding [intro!] lemma '" << lemmas[i] << "', failed to find target type\n";);
         } else {
             r.insert(head_index(*target), gexpr(lemmas[i]));
         }

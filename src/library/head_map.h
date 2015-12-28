@@ -17,6 +17,7 @@ struct head_index {
     explicit head_index(expr_kind k = expr_kind::Var):m_kind(k) {}
     explicit head_index(name const & c):m_kind(expr_kind::Constant), m_name(c) {}
     head_index(expr const & e);
+    expr_kind kind() const { return m_kind; }
 
     struct cmp {
         int operator()(head_index const & i1, head_index const & i2) const;
@@ -53,6 +54,7 @@ class head_map_prio : private GetPrio {
 public:
     head_map_prio() {}
     head_map_prio(GetPrio const & g):GetPrio(g) {}
+    void clear() { m_map = rb_map<head_index, list<V>, head_index::cmp>(); }
     bool empty() const { return m_map.empty(); }
     bool contains(head_index const & h) const { return m_map.contains(h); }
     list<V> const * find(head_index const & h) const { return m_map.find(h); }

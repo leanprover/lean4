@@ -45,6 +45,8 @@ public:
     /** \brief Return "bare" expression (without adding fresh metavariables if universe polymorphic) */
     expr to_bare_expr() const { return m_expr; }
 
+    name const & to_name() const { lean_assert(is_universe_polymorphic()); return const_name(m_expr); }
+
     friend bool operator==(gexpr const & ge1, gexpr const & ge2);
     friend std::ostream const & operator<<(std::ostream const & out, gexpr const & ge);
 };

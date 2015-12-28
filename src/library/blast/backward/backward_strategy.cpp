@@ -10,7 +10,7 @@ Author: Daniel Selsam
 #include "library/blast/choice_point.h"
 #include "library/blast/proof_expr.h"
 #include "library/blast/strategy.h"
-#include "library/blast/backward/backward_rule_set.h"
+#include "library/blast/backward/backward_lemmas.h"
 #include "library/blast/backward/backward_action.h"
 #include "library/blast/actions/simple_actions.h"
 #include "library/blast/actions/intros_action.h"
@@ -21,21 +21,20 @@ namespace lean {
 namespace blast {
 static unsigned g_ext_id = 0;
 struct backward_branch_extension : public branch_extension {
-    backward_rule_set m_backward_rule_set;
+    backward_lemma_index m_backward_lemmas;
     backward_branch_extension() {}
     backward_branch_extension(backward_branch_extension const & b):
-        m_backward_rule_set(b.m_backward_rule_set) {}
+        m_backward_lemmas(b.m_backward_lemmas) {}
     virtual ~backward_branch_extension() {}
     virtual branch_extension * clone() override { return new backward_branch_extension(*this); }
-    virtual void initialized() override { m_backward_rule_set = ::lean::get_backward_rule_set(env()); }
-    virtual void hypothesis_activated(hypothesis const & h, hypothesis_idx hidx) override {
-        m_backward_rule_set.insert(get_type_context(), h.get_name(), gexpr(mk_href(hidx)),
-                                   h.get_type(), LEAN_DEFAULT_PRIORITY);
+    virtual void initialized() override { m_backward_lemmas.init(); }
+    virtual void hypothesis_activated(hypothesis const & h, hypothesis_idx) override {
+        m_backward_lemmas.insert(h.get_self());
     }
     virtual void hypothesis_deleted(hypothesis const & h, hypothesis_idx) override {
-        m_backward_rule_set.erase(h.get_name());
+        m_backward_lemmas.erase(h.get_self());
     }
-    backward_rule_set const & get_backward_rule_set() const { return m_backward_rule_set; }
+    backward_lemma_index const & get_backward_lemmas() const { return m_backward_lemmas; }
 };
 
 void initialize_backward_strategy() {
@@ -70,7 +69,7 @@ class backward_strategy_fn : public strategy_fn {
         Try(activate_hypothesis());
         Try(trivial_action());
         Try(assumption_action());
-        list<gexpr> backward_rules = get_extension().get_backward_rule_set().find(head_index(curr_state().get_target()));
+        list<gexpr> backward_rules = get_extension().get_backward_lemmas().find(head_index(curr_state().get_target()));
         Try(backward_action(backward_rules, true));
         return action_result::failed();
     }

@@ -1,9 +1,8 @@
 constant H [intro] : A → B
 constant G [intro] : A → B → C
 constant f [intro] : T → A
-backward rules
-exists_unique ==> exists_unique.intro
-B ==> H
-A ==> f
-C ==> G
-Exists ==> Exists.intro
+f
+G
+H
+exists_unique.intro
+Exists.intro

@@ -204,7 +204,7 @@ static bool is_next_metaclass_tk(parser const & p) {
     return p.curr_is_token(get_lbracket_tk()) || p.curr_is_token(get_unfold_hints_bracket_tk());
 }
 
-static name parse_metaclass(parser & p) {
+static optional<name> parse_metaclass(parser & p) {
     if (p.curr_is_token(get_lbracket_tk())) {
         p.next();
         auto pos = p.pos();
@@ -223,13 +223,21 @@ static name parse_metaclass(parser & p) {
         p.check_token_next(get_rbracket_tk(), "invalid 'open' command, ']' expected");
         if (!is_metaclass(n) && n != get_decls_tk() && n != get_declarations_tk())
             throw parser_error(sstream() << "invalid metaclass name '[" << n << "]'", pos);
-        return n;
-    } else if (p.curr_is_token(get_unfold_hints_bracket_tk())) {
-        p.next();
-        return get_unfold_hints_tk();
-    } else {
-        return name();
+        return optional<name>(n);
+    } else if (p.curr() == scanner::token_kind::CommandKeyword) {
+        name v = p.get_token_info().value();
+        if (v.is_atomic() && v.is_string() && v.size() > 2 && v.get_string()[0] == '[' && v.get_string()[v.size()-1] == ']') {
+            auto pos = p.pos();
+            p.next();
+            std::string s(v.get_string() + 1);
+            s.pop_back();
+            name n(s);
+            if (!is_metaclass(n) && n != get_decls_tk() && n != get_declarations_tk())
+                throw parser_error(sstream() << "invalid metaclass name '[" << n << "]'", pos);
+            return optional<name>(n);
+        }
     }
+    return optional<name>();
 }
 
 static void parse_metaclasses(parser & p, buffer<name> & r) {
@@ -238,16 +246,23 @@ static void parse_metaclasses(parser & p, buffer<name> & r) {
         buffer<name> tmp;
         get_metaclasses(tmp);
         tmp.push_back(get_decls_tk());
-        while (is_next_metaclass_tk(p)) {
-            name m = parse_metaclass(p);
-            tmp.erase_elem(m);
-            if (m == get_declarations_tk())
-                tmp.erase_elem(get_decls_tk());
+        while (true) {
+            if (optional<name> m = parse_metaclass(p)) {
+                tmp.erase_elem(*m);
+                if (*m == get_declarations_tk())
+                    tmp.erase_elem(get_decls_tk());
+            } else {
+                break;
+            }
         }
         r.append(tmp);
     } else {
-        while (is_next_metaclass_tk(p)) {
-            r.push_back(parse_metaclass(p));
+        while (true) {
+            if (optional<name> m = parse_metaclass(p)) {
+                r.push_back(*m);
+            } else {
+                break;
+            }
         }
     }
 }

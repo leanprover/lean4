@@ -326,5 +326,6 @@ void finalize_attribute_manager() {
     delete g_param_attrs;
     delete g_opt_param_attrs;
     delete g_params_attrs;
+    delete g_incomp;
 }
 }

@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
-#include "library/attribute_manager.h"
 #include "library/io_state.h"
 #include "library/head_map.h"
 #include "library/blast/gexpr.h"

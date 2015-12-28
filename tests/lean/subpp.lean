@@ -1,4 +1,4 @@
 -- import data.subtype
-open nat
+open nat subtype
 
 check {x : nat| x > 0 }

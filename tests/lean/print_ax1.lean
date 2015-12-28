@@ -1,1 +1,2 @@
+open subtype
 print axioms

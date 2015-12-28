@@ -1,4 +1,4 @@
-example (f : nat → nat) (a b : nat) : f a = a → f (f a) = a :=
+open subtype example (f : nat → nat) (a b : nat) : f a = a → f (f a) = a :=
 begin
   intro h₁,
   subst h₁ -- ERROR

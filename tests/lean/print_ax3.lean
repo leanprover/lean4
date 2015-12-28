@@ -1,3 +1,4 @@
+open subtype
 theorem foo1 : 0 = (0:num) :=
 rfl
 

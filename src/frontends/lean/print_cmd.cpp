@@ -30,7 +30,7 @@ Author: Leonardo de Moura
 #include "library/blast/blast.h"
 #include "library/blast/simplifier/simplifier.h"
 #include "library/blast/backward/backward_lemmas.h"
-#include "library/blast/forward/forward_lemma_set.h"
+#include "library/blast/forward/forward_lemmas.h"
 #include "library/blast/forward/pattern.h"
 #include "library/blast/grinder/intro_elim_lemmas.h"
 #include "frontends/lean/parser.h"

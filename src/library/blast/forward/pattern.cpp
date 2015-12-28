@@ -23,7 +23,7 @@ Author: Leonardo de Moura
 #include "library/blast/options.h"
 #include "library/blast/blast.h"
 #include "library/blast/forward/pattern.h"
-#include "library/blast/forward/forward_lemma_set.h"
+#include "library/blast/forward/forward_lemmas.h"
 
 namespace lean {
 /*

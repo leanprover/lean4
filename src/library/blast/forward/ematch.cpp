@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "library/blast/options.h"
 #include "library/blast/congruence_closure.h"
 #include "library/blast/forward/pattern.h"
-#include "library/blast/forward/forward_lemma_set.h"
+#include "library/blast/forward/forward_lemmas.h"
 
 namespace lean {
 namespace blast {
@@ -97,7 +97,7 @@ struct ematch_branch_extension : public branch_extension {
     virtual ~ematch_branch_extension() {}
     virtual branch_extension * clone() override { return new ematch_branch_extension(*this); }
     virtual void initialized() override {
-        forward_lemma_set s = get_forward_lemma_set(env());
+        forward_lemmas s = get_forward_lemmas(env());
         s.for_each([&](name const & n, unsigned prio) {
                 try {
                     m_new_lemmas.insert(mk_hi_lemma(n, prio));

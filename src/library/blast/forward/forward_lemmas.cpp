@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "library/scoped_ext.h"
 #include "library/attribute_manager.h"
-#include "library/blast/forward/forward_lemma_set.h"
+#include "library/blast/forward/forward_lemmas.h"
 #include "library/blast/forward/pattern.h"
 
 namespace lean {
@@ -21,9 +21,9 @@ struct forward_lemma {
     forward_lemma(name const & n, unsigned p):m_name(n), m_priority(p) {}
 };
 
-struct forward_lemma_set_config {
-    typedef forward_lemma     entry;
-    typedef forward_lemma_set state;
+struct forward_lemmas_config {
+    typedef forward_lemma  entry;
+    typedef forward_lemmas state;
 
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
         s.insert(e.m_name, e.m_priority);
@@ -52,25 +52,25 @@ struct forward_lemma_set_config {
     }
 };
 
-template class scoped_ext<forward_lemma_set_config>;
-typedef scoped_ext<forward_lemma_set_config> forward_lemma_set_ext;
+template class scoped_ext<forward_lemmas_config>;
+typedef scoped_ext<forward_lemmas_config> forward_lemmas_ext;
 
 environment add_forward_lemma(environment const & env, name const & n, unsigned priority, name const & ns, bool persistent) {
-    return forward_lemma_set_ext::add_entry(env, get_dummy_ios(), forward_lemma(n, priority), ns, persistent);
+    return forward_lemmas_ext::add_entry(env, get_dummy_ios(), forward_lemma(n, priority), ns, persistent);
 }
 
 bool is_forward_lemma(environment const & env, name const & n) {
-    return forward_lemma_set_ext::get_state(env).contains(n);
+    return forward_lemmas_ext::get_state(env).contains(n);
 }
 
-forward_lemma_set get_forward_lemma_set(environment const & env) {
-    return forward_lemma_set_ext::get_state(env);
+forward_lemmas get_forward_lemmas(environment const & env) {
+    return forward_lemmas_ext::get_state(env);
 }
 
-void initialize_forward_lemma_set() {
+void initialize_forward_lemmas() {
     g_name              = new name("forward");
     g_key               = new std::string("FWD");
-    forward_lemma_set_ext::initialize();
+    forward_lemmas_ext::initialize();
 
     register_prio_attribute("forward", "forward chaining",
                             [](environment const & env, io_state const & ios, name const & d, unsigned prio, name const & ns, bool persistent) {
@@ -79,15 +79,15 @@ void initialize_forward_lemma_set() {
                             },
                             is_forward_lemma,
                             [](environment const & env, name const & n) {
-                                if (auto prio = get_forward_lemma_set(env).find(n))
+                                if (auto prio = get_forward_lemmas(env).find(n))
                                     return *prio;
                                 else
                                     return LEAN_DEFAULT_PRIORITY;
                             });
 }
 
-void finalize_forward_lemma_set() {
-    forward_lemma_set_ext::finalize();
+void finalize_forward_lemmas() {
+    forward_lemmas_ext::finalize();
     delete g_name;
     delete g_key;
 }

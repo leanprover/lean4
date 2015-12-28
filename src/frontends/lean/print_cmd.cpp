@@ -209,7 +209,7 @@ static void print_patterns(parser & p, name const & n) {
         // we regenerate the patterns to make sure they reflect the current set of reducible constants
         try {
             blast::scope_debug scope(p.env(), p.ios());
-            auto hi = blast::mk_hi_lemma(n, LEAN_FORWARD_DEFAULT_PRIORITY);
+            auto hi = blast::mk_hi_lemma(n, LEAN_DEFAULT_PRIORITY);
             if (hi.m_multi_patterns) {
                 io_state_stream _out = p.regular_stream();
                 options opts         = _out.get_options();

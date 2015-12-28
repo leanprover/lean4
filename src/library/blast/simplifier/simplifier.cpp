@@ -19,6 +19,7 @@ Author: Daniel Selsam
 #include "library/expr_lt.h"
 #include "library/num.h"
 #include "library/norm_num.h"
+#include "library/attribute_manager.h"
 #include "library/class_instance_resolution.h"
 #include "library/relation_manager.h"
 #include "library/app_builder.h"
@@ -190,7 +191,7 @@ class simplifier {
             blast_tmp_type_context tctx;
             try {
                 // TODO(Leo,Daniel): should we allow the user to set the priority of local lemmas
-                srss = add(*tctx, srss, mlocal_name(l), tctx->infer(l), l, LEAN_SIMP_DEFAULT_PRIORITY);
+                srss = add(*tctx, srss, mlocal_name(l), tctx->infer(l), l, LEAN_DEFAULT_PRIORITY);
             } catch (exception e) {
             }
         }

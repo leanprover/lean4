@@ -4,15 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Daniel Selsam
 */
 #pragma once
+#include <vector>
 #include "library/type_context.h"
 #include "library/head_map.h"
 #include "library/io_state_stream.h"
 #include "library/blast/gexpr.h"
-#include <vector>
-
-#ifndef LEAN_BACKWARD_DEFAULT_PRIORITY
-#define LEAN_BACKWARD_DEFAULT_PRIORITY 1000
-#endif
 
 namespace lean {
 namespace blast {

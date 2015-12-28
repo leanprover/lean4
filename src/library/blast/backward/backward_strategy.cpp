@@ -3,6 +3,7 @@ Copyright (c) 2015 Daniel Selsam. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Daniel Selsam
 */
+#include "library/attribute_manager.h"
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"
 #include "library/blast/options.h"
@@ -29,7 +30,7 @@ struct backward_branch_extension : public branch_extension {
     virtual void initialized() override { m_backward_rule_set = ::lean::get_backward_rule_set(env()); }
     virtual void hypothesis_activated(hypothesis const & h, hypothesis_idx hidx) override {
         m_backward_rule_set.insert(get_type_context(), h.get_name(), gexpr(mk_href(hidx)),
-                                   h.get_type(), LEAN_BACKWARD_DEFAULT_PRIORITY);
+                                   h.get_type(), LEAN_DEFAULT_PRIORITY);
     }
     virtual void hypothesis_deleted(hypothesis const & h, hypothesis_idx) override {
         m_backward_rule_set.erase(h.get_name());

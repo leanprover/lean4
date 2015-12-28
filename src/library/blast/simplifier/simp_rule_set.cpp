@@ -37,7 +37,7 @@ bool operator==(simp_rule const & r1, simp_rule const & r2) {
 format simp_rule::pp(formatter const & fmt) const {
     format r;
     r += format("#") + format(get_num_emeta());
-    if (m_priority != LEAN_SIMP_DEFAULT_PRIORITY)
+    if (m_priority != LEAN_DEFAULT_PRIORITY)
         r += space() + paren(format(m_priority));
     if (m_is_permutation)
         r += space() + format("perm");
@@ -60,7 +60,7 @@ bool operator==(congr_rule const & r1, congr_rule const & r2) {
 format congr_rule::pp(formatter const & fmt) const {
     format r;
     r += format("#") + format(get_num_emeta());
-    if (m_priority != LEAN_SIMP_DEFAULT_PRIORITY)
+    if (m_priority != LEAN_DEFAULT_PRIORITY)
         r += space() + paren(format(m_priority));
     format r1;
     for (expr const & h : m_congr_hyps) {

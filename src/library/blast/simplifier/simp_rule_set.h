@@ -9,10 +9,6 @@ Author: Leonardo de Moura
 #include "library/head_map.h"
 #include "library/io_state_stream.h"
 
-#ifndef LEAN_SIMP_DEFAULT_PRIORITY
-#define LEAN_SIMP_DEFAULT_PRIORITY 1000
-#endif
-
 namespace lean {
 class simp_rule_sets;
 

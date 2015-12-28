@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/attribute_manager.h"
 #include "library/constants.h"
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"
@@ -135,7 +136,7 @@ action_result add_simp_rule_action(hypothesis_idx hidx) {
     bool added           = false;
     for (auto const & p : ps) {
         try {
-            ext.m_srss = add(*ctx, ext.m_srss, h.get_name(), p.first, p.second, LEAN_SIMP_DEFAULT_PRIORITY);
+            ext.m_srss = add(*ctx, ext.m_srss, h.get_name(), p.first, p.second, LEAN_DEFAULT_PRIORITY);
             added      = true;
         } catch (exception &) {
             // TODO(Leo, Daniel): store event

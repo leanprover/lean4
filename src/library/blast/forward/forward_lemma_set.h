@@ -8,10 +8,6 @@ Author: Leonardo de Moura
 #include "util/rb_tree.h"
 #include "kernel/expr.h"
 
-#ifndef LEAN_FORWARD_DEFAULT_PRIORITY
-#define LEAN_FORWARD_DEFAULT_PRIORITY 1000
-#endif
-
 namespace lean {
 /** \brief The forward lemma set is actually a mapping from lemma name to priority */
 typedef rb_map<name, unsigned, name_quick_cmp> forward_lemma_set;

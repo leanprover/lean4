@@ -18,10 +18,6 @@ Author: Leonardo de Moura
 #include "library/decl_stats.h"
 #include "library/attribute_manager.h"
 
-#ifndef LEAN_INSTANCE_DEFAULT_PRIORITY
-#define LEAN_INSTANCE_DEFAULT_PRIORITY 1000
-#endif
-
 namespace lean {
 enum class class_entry_kind { Class, Multi, Instance, TransInstance, DerivedTransInstance };
 struct class_entry {
@@ -66,7 +62,7 @@ struct class_state {
         if (auto it = m_priorities.find(i))
             return *it;
         else
-            return LEAN_INSTANCE_DEFAULT_PRIORITY;
+            return LEAN_DEFAULT_PRIORITY;
     }
 
     bool is_instance(name const & i) const {
@@ -282,7 +278,7 @@ environment add_instance(environment const & env, name const & n, unsigned prior
 }
 
 environment add_instance(environment const & env, name const & n, name const & ns, bool persistent) {
-    return add_instance(env, n, LEAN_INSTANCE_DEFAULT_PRIORITY, ns, persistent);
+    return add_instance(env, n, LEAN_DEFAULT_PRIORITY, ns, persistent);
 }
 
 static name * g_source = nullptr;
@@ -330,7 +326,7 @@ environment add_trans_instance(environment const & env, name const & n, unsigned
 }
 
 environment add_trans_instance(environment const & env, name const & n, name const & ns, bool persistent) {
-    return add_trans_instance(env, n, LEAN_INSTANCE_DEFAULT_PRIORITY, ns, persistent);
+    return add_trans_instance(env, n, LEAN_DEFAULT_PRIORITY, ns, persistent);
 }
 
 environment mark_multiple_instances(environment const & env, name const & n, name const & ns, bool persistent) {

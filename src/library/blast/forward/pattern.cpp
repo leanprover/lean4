@@ -621,7 +621,7 @@ hi_lemma mk_hi_lemma_core(tmp_type_context & ctx, expr const & H, unsigned num_u
 hi_lemma mk_hi_lemma(expr const & H) {
     blast_tmp_type_context ctx;
     unsigned max_steps = get_config().m_pattern_max_steps;
-    return mk_hi_lemma_core(*ctx, H, 0, LEAN_FORWARD_DEFAULT_PRIORITY, max_steps);
+    return mk_hi_lemma_core(*ctx, H, 0, LEAN_DEFAULT_PRIORITY, max_steps);
 }
 
 hi_lemma mk_hi_lemma(name const & c, unsigned priority) {
@@ -640,7 +640,7 @@ hi_lemma mk_hi_lemma(name const & c, unsigned priority) {
 list<multi_pattern> mk_multipatterns(environment const & env, io_state const & ios, name const & c) {
     blast::scope_debug scope(env, ios);
     // we regenerate the patterns to make sure they reflect the current set of reducible constants
-    auto lemma = blast::mk_hi_lemma(c, LEAN_FORWARD_DEFAULT_PRIORITY);
+    auto lemma = blast::mk_hi_lemma(c, LEAN_DEFAULT_PRIORITY);
     return lemma.m_multi_patterns;
 }
 

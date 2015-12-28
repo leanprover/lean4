@@ -10,14 +10,6 @@ Author: Leonardo de Moura
 #include "library/head_map.h"
 #include "library/blast/gexpr.h"
 
-#ifndef LEAN_ELIM_DEFAULT_PRIORITY
-#define LEAN_ELIM_DEFAULT_PRIORITY 1000
-#endif
-
-#ifndef LEAN_INTRO_DEFAULT_PRIORITY
-#define LEAN_INTRO_DEFAULT_PRIORITY 1000
-#endif
-
 namespace lean {
 environment add_elim_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent);
 environment add_intro_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent);

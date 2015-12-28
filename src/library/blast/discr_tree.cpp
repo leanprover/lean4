@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <algorithm>
+#include <vector>
 #include "util/rb_map.h"
 #include "util/memory_pool.h"
 #include "library/blast/trace.h"
@@ -25,6 +27,10 @@ static expr * g_delimiter = nullptr;
 struct discr_tree::node_cmp {
     int operator()(node const & n1, node const & n2) const;
 };
+
+void discr_tree::swap(node & n1, node & n2) {
+    std::swap(n1.m_ptr, n2.m_ptr);
+}
 
 struct discr_tree::edge {
     edge_kind m_kind;
@@ -246,7 +252,7 @@ void discr_tree::insert_erase(expr const & k, expr const & v, bool ins) {
     lean_trace("discr_tree", tout() << "\n"; trace(););
 }
 
-bool discr_tree::find_atom(node const & n, edge const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) {
+bool discr_tree::find_atom(node const & n, edge const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) { // NOLINT
     if (auto child = n.m_ptr->m_children.find(e)) {
         return find(*child, todo, fn);
     } else {
@@ -254,7 +260,7 @@ bool discr_tree::find_atom(node const & n, edge const & e, list<pair<expr, bool>
     }
 }
 
-bool discr_tree::find_star(node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) {
+bool discr_tree::find_star(node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) { // NOLINT
     bool cont = true;
     n.m_ptr->m_skip.for_each([&](node const & skip_child) {
             if (cont && !find(skip_child, todo, fn))
@@ -270,7 +276,7 @@ bool discr_tree::find_star(node const & n, list<pair<expr, bool>> todo, std::fun
     return cont;
 }
 
-bool discr_tree::find_app(node const & n, expr const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) {
+bool discr_tree::find_app(node const & n, expr const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) { // NOLINT
     lean_assert(is_app(e));
     buffer<expr> args;
     expr const & f = get_app_args(e, args);
@@ -296,7 +302,7 @@ bool discr_tree::find_app(node const & n, expr const & e, list<pair<expr, bool>>
     }
 }
 
-bool discr_tree::find(node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) {
+bool discr_tree::find(node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn) { // NOLINT
     if (!todo) {
         bool cont = true;
         n.m_ptr->m_values.for_each([&](expr const & v) {
@@ -330,7 +336,7 @@ bool discr_tree::find(node const & n, list<pair<expr, bool>> todo, std::function
     lean_unreachable();
 }
 
-void discr_tree::find(expr const & e, std::function<bool(expr const &)> const & fn) const {
+void discr_tree::find(expr const & e, std::function<bool(expr const &)> const & fn) const { // NOLINT
     if (m_root)
         find(m_root, to_list(mk_pair(e, false)), fn);
 }

@@ -48,9 +48,8 @@ private:
         bool is_shared() const;
         node steal() { node r; swap(r, *this); return r; }
         void trace(optional<edge> const & e, unsigned depth, bool disj) const;
-        friend void swap(node & n1, node & n2) { std::swap(n1.m_ptr, n2.m_ptr); }
     };
-
+    static void swap(node & n1, node & n2);
     static node ensure_unshared(node && n);
     static node insert_erase_atom(node && n, edge const & e, buffer<pair<expr, bool>> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
     static node insert_erase_star(node && n, buffer<pair<expr, bool>> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
@@ -59,10 +58,10 @@ private:
     static node insert_erase(node && n, bool is_root, buffer<pair<expr, bool>> & todo, expr const & v, buffer<pair<node, node>> & skip, bool ins);
     void insert_erase(expr const & k, expr const & v, bool ins);
 
-    static bool find_atom(node const & n, edge const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn);
-    static bool find_star(node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn);
-    static bool find_app(node const & n, expr const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn);
-    static bool find(node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn);
+    static bool find_atom(node const & n, edge const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn); // NOLINT
+    static bool find_star(node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn); // NOLINT
+    static bool find_app(node const & n, expr const & e, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn); // NOLINT
+    static bool find(node const & n, list<pair<expr, bool>> todo, std::function<bool(expr const &)> const & fn); // NOLINT
 
     node m_root;
 public:
@@ -71,7 +70,7 @@ public:
     void erase(expr const & k, expr const & v) { insert_erase(k, v, false); }
     void erase(expr const & k) { erase(k, k); }
 
-    void find(expr const & e, std::function<bool(expr const &)> const & fn) const;
+    void find(expr const & e, std::function<bool(expr const &)> const & fn) const; // NOLINT
     void collect(expr const & e, buffer<expr> & r) const;
 
     void trace() const;

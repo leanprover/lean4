@@ -807,7 +807,7 @@ void state::remove_from_indices(hypothesis const & h, hypothesis_idx hidx) {
     m_branch.m_hyp_index.erase(get_key_for(h.get_type()), h.get_self());
 }
 
-void state::find_hypotheses(expr const & e, std::function<bool(hypothesis_idx)> const & fn) const {
+void state::find_hypotheses(expr const & e, std::function<bool(hypothesis_idx)> const & fn) const { // NOLINT
     m_branch.m_hyp_index.find(get_key_for(e), [&](expr const & h) { return fn(href_index(h)); });
 }
 

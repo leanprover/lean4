@@ -321,7 +321,7 @@ public:
     optional<hypothesis_idx> contains_hypothesis(expr const & type) const;
 
     /** \brief Find hypotheses whose type may unify with \c e or its negation */
-    void find_hypotheses(expr const & e, std::function<bool(hypothesis_idx)> const & fn) const;
+    void find_hypotheses(expr const & e, std::function<bool(hypothesis_idx)> const & fn) const; // NOLINT
 
     /************************
        Abstracting hypotheses

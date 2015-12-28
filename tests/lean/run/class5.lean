@@ -31,7 +31,7 @@ section
 end
 
 section
-  open [notations] algebra
+  open [notation] algebra
   open nat
   -- check mul_struct nat  << This is an error, we opened only the notation from algebra
   variables a b c : nat

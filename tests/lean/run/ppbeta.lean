@@ -1,6 +1,6 @@
 import data.int
-open [coercions] [classes] int
-open [coercions] nat
+open [coercion] [class] int
+open [coercion] nat
 
 definition lt1 (a b : int) := int.le (int.add a 1) b
 infix `<`     := lt1

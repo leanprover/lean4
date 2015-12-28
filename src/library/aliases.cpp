@@ -264,7 +264,7 @@ void open_aliases(lua_State * L) {
 }
 
 void initialize_aliases() {
-    g_aliases = new name("aliases");
+    g_aliases = new name("alias");
     g_ext     = new aliases_ext_reg();
 }
 

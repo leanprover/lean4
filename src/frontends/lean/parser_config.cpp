@@ -437,11 +437,11 @@ cmd_table const & get_cmd_table(environment const & env) {
 }
 
 void initialize_parser_config() {
-    token_config::g_class_name = new name("notations");
-    token_config::g_key        = new std::string("tk");
+    token_config::g_class_name = new name("notation");
+    token_config::g_key        = new std::string("TK");
     token_ext::initialize();
-    notation_config::g_class_name = new name("notations");
-    notation_config::g_key        = new std::string("nota");
+    notation_config::g_class_name = new name("notation");
+    notation_config::g_key        = new std::string("NOTA");
     notation_ext::initialize();
     g_ext = new cmd_ext_reg();
 }

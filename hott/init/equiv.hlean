@@ -373,5 +373,5 @@ namespace is_equiv
 
 end is_equiv
 
-export [unfold_hints] equiv
-export [unfold_hints] is_equiv
+export [unfold] equiv
+export [unfold] is_equiv

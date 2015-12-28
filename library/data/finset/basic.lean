@@ -7,7 +7,7 @@ Finite sets.
 -/
 import data.fintype.basic data.nat data.list.perm algebra.binary
 open nat quot list subtype binary function eq.ops
-open [declarations] perm
+open [decl] perm
 
 definition nodup_list (A : Type) := {l : list A | nodup l}
 

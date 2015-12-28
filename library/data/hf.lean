@@ -11,7 +11,7 @@ this bijection is implemeted using the Ackermann coding.
 -/
 import data.nat data.finset.equiv data.list
 open nat binary
-open - [notations] finset
+open - [notation] finset
 
 definition hf := nat
 
@@ -479,7 +479,7 @@ theorem empty_mem_powerset (s : hf) : ∅ ∈ 𝒫 s :=
 mem_powerset_of_subset (empty_subset s)
 
 /- hf as lists -/
-open - [notations] list
+open - [notation] list
 
 definition of_list (s : list hf) : hf :=
 @equiv.to_fun _ _ list_nat_equiv_nat s

@@ -1015,7 +1015,7 @@ theorem r_le_of_reprs_le (s t : reg_seq) (Hle : ∀ n : ℕ+, r_le (r_const (reg
 end rat_seq
 
 open real
-open [classes] rat_seq
+open [class] rat_seq
 namespace real
 
 protected definition lt (x y : ℝ) :=

@@ -156,4 +156,4 @@ theorem bijective_id : bijective (@id A) := and.intro injective_id surjective_id
 end function
 
 -- copy reducible annotations to top-level
-export [reduce_hints] [unfold_hints] function
+export [reducible] [unfold] function

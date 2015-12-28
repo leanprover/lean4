@@ -38,7 +38,7 @@ protected definition metric_space [instance] : metric_space ℝ :=
 ⦄
 
 open nat
-open [classes] rat
+open [class] rat
 
 definition converges_to_seq (X : ℕ → ℝ) (y : ℝ) : Prop :=
 ∀ ⦃ε : ℝ⦄, ε > 0 → ∃ N : ℕ, ∀ {n}, n ≥ N → abs (X n - y) < ε

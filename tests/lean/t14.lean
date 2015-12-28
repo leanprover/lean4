@@ -41,13 +41,13 @@ section
 end
 
 section
-  open [notations] foo -- use only the notation
+  open [notation] foo -- use only the notation
   check foo.a * foo.c
   check a * c -- Error
 end
 
 section
-  open [decls] foo -- use only the declarations
+  open [decl] foo -- use only the declarations
   check f a c
   check a*c -- Error
 end

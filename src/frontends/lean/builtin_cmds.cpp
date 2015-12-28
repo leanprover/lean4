@@ -221,19 +221,26 @@ static optional<name> parse_metaclass(parser & p) {
             p.next();
         }
         p.check_token_next(get_rbracket_tk(), "invalid 'open' command, ']' expected");
-        if (!is_metaclass(n) && n != get_decls_tk() && n != get_declarations_tk())
+        if (!is_metaclass(n) && n != get_decl_tk() && n != get_declaration_tk())
             throw parser_error(sstream() << "invalid metaclass name '[" << n << "]'", pos);
         return optional<name>(n);
     } else if (p.curr() == scanner::token_kind::CommandKeyword) {
+        // Meta-classes whose name conflict with tokens of the form `[<id>]` `[<id>`
+        // Example: [class] and [unfold
         name v = p.get_token_info().value();
-        if (v.is_atomic() && v.is_string() && v.size() > 2 && v.get_string()[0] == '[' && v.get_string()[v.size()-1] == ']') {
+        if (v.is_atomic() && v.is_string() && v.size() > 1 && v.get_string()[0] == '[') {
             auto pos = p.pos();
             p.next();
             std::string s(v.get_string() + 1);
-            s.pop_back();
+            if (v.get_string()[v.size()-1] == ']')
+                s.pop_back();
             name n(s);
-            if (!is_metaclass(n) && n != get_decls_tk() && n != get_declarations_tk())
+            if (!is_metaclass(n) && n != get_decl_tk() && n != get_declaration_tk())
                 throw parser_error(sstream() << "invalid metaclass name '[" << n << "]'", pos);
+            if (v.get_string()[v.size()-1] != ']') {
+                // Consume ']' for tokens such as `[unfold`
+                p.check_token_next(get_rbracket_tk(), "invalid 'open' command, ']' expected");
+            }
             return optional<name>(n);
         }
     }
@@ -245,12 +252,12 @@ static void parse_metaclasses(parser & p, buffer<name> & r) {
         p.next();
         buffer<name> tmp;
         get_metaclasses(tmp);
-        tmp.push_back(get_decls_tk());
+        tmp.push_back(get_decl_tk());
         while (true) {
             if (optional<name> m = parse_metaclass(p)) {
                 tmp.erase_elem(*m);
-                if (*m == get_declarations_tk())
-                    tmp.erase_elem(get_decls_tk());
+                if (*m == get_declaration_tk())
+                    tmp.erase_elem(get_decl_tk());
             } else {
                 break;
             }
@@ -299,8 +306,8 @@ environment open_export_cmd(parser & p, bool open) {
         parse_metaclasses(p, metacls);
         bool decls = false;
         if (metacls.empty() ||
-            std::find(metacls.begin(), metacls.end(), get_decls_tk()) != metacls.end() ||
-            std::find(metacls.begin(), metacls.end(), get_declarations_tk()) != metacls.end())
+            std::find(metacls.begin(), metacls.end(), get_decl_tk()) != metacls.end() ||
+            std::find(metacls.begin(), metacls.end(), get_declaration_tk()) != metacls.end())
             decls = true;
         for (name const & n : metacls)
             fingerprint = hash(fingerprint, n.hash());

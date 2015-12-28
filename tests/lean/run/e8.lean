@@ -17,10 +17,10 @@ attribute of_nat [coercion]
 end int
 
 -- Open "only" the notation and declarations from the namespaces nat and int
-open [notations] nat
-open [notations] int
-open [decls] nat
-open [decls] int
+open [notation] nat
+open [notation] int
+open [decl] nat
+open [decl] int
 
 constants n m : nat
 constants i j : int

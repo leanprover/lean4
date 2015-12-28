@@ -327,8 +327,8 @@ is_relation_pred mk_is_relation_pred(environment const & env) {
 }
 
 void initialize_relation_manager() {
-    g_rel_name = new name("rel");
-    g_key       = new std::string("rel");
+    g_rel_name = new name("relation");
+    g_key       = new std::string("REL");
     rel_ext::initialize();
     register_attribute("refl", "reflexive relation",
                        [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {

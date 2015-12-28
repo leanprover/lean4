@@ -163,7 +163,7 @@ theorem r_equiv_neg_abs_of_le_zero {s : reg_seq} (Hz : r_le s r_zero) : requiv (
 end rat_seq
 
 namespace real
-open [classes] rat_seq
+open [class] rat_seq
 
 private theorem rewrite_helper9 (a b c : ℝ) : b - c = (b - a) - (c - a) :=
   by rewrite [-sub_add_eq_sub_sub_swap, sub_add_cancel]

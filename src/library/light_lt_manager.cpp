@@ -191,8 +191,8 @@ io_state_stream const & operator<<(io_state_stream const & out, light_rule_set c
 }
 
 void initialize_light_rule_set() {
-    g_class_name = new name("lrs");
-    g_key        = new std::string("lrs");
+    g_class_name = new name("light");
+    g_key        = new std::string("LIGHT");
     lrs_ext::initialize();
     register_param_attribute("light", "hint for simplifier",
                              [](environment const & env, io_state const &, name const & d, unsigned idx, name const & ns, bool persistent) {

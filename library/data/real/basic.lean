@@ -22,7 +22,7 @@ The construction of the reals is arranged in four files.
 -/
 import data.nat data.rat.order data.pnat
 open nat eq pnat
-open - [coercions] rat
+open - [coercion] rat
 
 local postfix `⁻¹` := pnat.inv
 

@@ -345,7 +345,7 @@ has_recursors_pred::has_recursors_pred(environment const & env):
 
 void initialize_user_recursors() {
     g_class_name = new name("recursor");
-    g_key        = new std::string("urec");
+    g_key        = new std::string("UREC");
     recursor_ext::initialize();
     register_opt_param_attribute("recursor", "user defined recursor",
                                  [](environment const & env, io_state const &, name const & d, optional<unsigned> const & major, name const & ns, bool persistent) {

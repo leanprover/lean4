@@ -78,8 +78,8 @@ bool is_begin_end_annotation(expr const & e) { return is_annotation(e, *g_begin_
 bool is_begin_end_element_annotation(expr const & e) { return is_annotation(e, *g_begin_end_element); }
 
 void initialize_begin_end_ext() {
-    g_class_name = new name("begin_end_hints");
-    g_key        = new std::string("bepretac");
+    g_class_name = new name("begin_end");
+    g_key        = new std::string("BEPRETAC");
     begin_end_ext::initialize();
     g_begin_end  = new name("begin_end");
     g_begin_end_element = new name("begin_end_element");

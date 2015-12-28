@@ -7,9 +7,9 @@ namespace f2
 end f2
 
 namespace f3
-  export [declarations] f1
-  export - [declarations] f2
+  export [declaration] f1
+  export - [declaration] f2
 end f3
 
-export [declarations] f1
-export - [declarations] f2
+export [declaration] f1
+export - [declaration] f2

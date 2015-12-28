@@ -119,8 +119,8 @@ expr expand_abbreviations(environment const & env, expr const & e) {
 }
 
 void initialize_abbreviation() {
-    g_class_name = new name("abbreviations");
-    g_key        = new std::string("abbrev");
+    g_class_name = new name("abbreviation");
+    g_key        = new std::string("ABBREV");
     abbrev_ext::initialize();
 }
 

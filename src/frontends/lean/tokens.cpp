@@ -63,8 +63,8 @@ static name const * g_instances_tk = nullptr;
 static name const * g_classes_tk = nullptr;
 static name const * g_coercions_tk = nullptr;
 static name const * g_arrow_tk = nullptr;
-static name const * g_declarations_tk = nullptr;
-static name const * g_decls_tk = nullptr;
+static name const * g_declaration_tk = nullptr;
+static name const * g_decl_tk = nullptr;
 static name const * g_hiding_tk = nullptr;
 static name const * g_exposing_tk = nullptr;
 static name const * g_renaming_tk = nullptr;
@@ -213,8 +213,8 @@ void initialize_tokens() {
     g_classes_tk = new name{"classes"};
     g_coercions_tk = new name{"coercions"};
     g_arrow_tk = new name{"->"};
-    g_declarations_tk = new name{"declarations"};
-    g_decls_tk = new name{"decls"};
+    g_declaration_tk = new name{"declaration"};
+    g_decl_tk = new name{"decl"};
     g_hiding_tk = new name{"hiding"};
     g_exposing_tk = new name{"exposing"};
     g_renaming_tk = new name{"renaming"};
@@ -364,8 +364,8 @@ void finalize_tokens() {
     delete g_classes_tk;
     delete g_coercions_tk;
     delete g_arrow_tk;
-    delete g_declarations_tk;
-    delete g_decls_tk;
+    delete g_declaration_tk;
+    delete g_decl_tk;
     delete g_hiding_tk;
     delete g_exposing_tk;
     delete g_renaming_tk;
@@ -514,8 +514,8 @@ name const & get_instances_tk() { return *g_instances_tk; }
 name const & get_classes_tk() { return *g_classes_tk; }
 name const & get_coercions_tk() { return *g_coercions_tk; }
 name const & get_arrow_tk() { return *g_arrow_tk; }
-name const & get_declarations_tk() { return *g_declarations_tk; }
-name const & get_decls_tk() { return *g_decls_tk; }
+name const & get_declaration_tk() { return *g_declaration_tk; }
+name const & get_decl_tk() { return *g_decl_tk; }
 name const & get_hiding_tk() { return *g_hiding_tk; }
 name const & get_exposing_tk() { return *g_exposing_tk; }
 name const & get_renaming_tk() { return *g_renaming_tk; }

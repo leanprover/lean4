@@ -148,8 +148,8 @@ list<gexpr> backward_rule_set::find(head_index const & h) const {
 }
 
 void initialize_backward_rule_set() {
-    g_class_name = new name("brs");
-    g_key        = new std::string("brs");
+    g_class_name = new name("backward");
+    g_key        = new std::string("BWD");
     brs_ext::initialize();
     register_prio_attribute("intro", "backward chaining",
                             [](environment const & env, io_state const &, name const & d, unsigned prio, name const & ns, bool persistent) {

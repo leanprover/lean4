@@ -60,4 +60,4 @@ notation f ` -[` op `]- ` g  := combine f op g
 end function
 
 -- copy reducible annotations to top-level
-export [reduce_hints] [unfold_hints] function
+export [reducible] [unfold] function

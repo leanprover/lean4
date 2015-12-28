@@ -58,8 +58,8 @@ instances    instances
 classes      classes
 coercions    coercions
 arrow        ->
-declarations declarations
-decls        decls
+declaration  declaration
+decl         decl
 hiding       hiding
 exposing     exposing
 renaming     renaming

@@ -11,7 +11,7 @@ section
 end
 
 section
-  open - [classes] nat
+  open - [class] nat
   variable a : nat
   check a + a
   check add a a
@@ -21,7 +21,7 @@ section
 end
 
 section
-  open - [classes] [decls] nat
+  open - [class] [decl] nat
   variable a : nat
   check a + a
   check a + 1
@@ -30,7 +30,7 @@ section
 end
 
 section
-  open [classes] nat
+  open [class] nat
   definition foo3 : inhabited nat :=
   _
 

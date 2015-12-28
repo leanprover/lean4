@@ -1,3 +1,3 @@
 open "nat"
 
-open [classes] "nat"
+open [class] "nat"

@@ -114,7 +114,7 @@ void get_intro_lemmas(environment const & env, buffer<name> & r) {
 
 void initialize_intro_elim_lemmas() {
     g_class_name = new name("grinder");
-    g_key        = new std::string("grinder");
+    g_key        = new std::string("GRD");
     intro_elim_ext::initialize();
 
     register_prio_attribute("elim", "elimination rule that is eagerly applied by blast grinder",

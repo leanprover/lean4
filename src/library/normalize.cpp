@@ -163,8 +163,8 @@ environment erase_constructor_hint(environment const & env, name const & n, name
 }
 
 void initialize_normalize() {
-    g_unfold_hint_name = new name("unfold_hints");
-    g_key = new std::string("unfoldh");
+    g_unfold_hint_name = new name("unfold");
+    g_key = new std::string("UNFOLDH");
     unfold_hint_ext::initialize();
     register_params_attribute("unfold", "unfold definition when the given positions are constructors",
                               [](environment const & env, io_state const &, name const & d, list<unsigned> const & idxs, name const & ns, bool persistent) {

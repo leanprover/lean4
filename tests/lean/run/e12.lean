@@ -20,17 +20,17 @@ constants n m : nat.nat
 constants i j : int.int
 
 section
-  open [notations] nat
-  open [notations] int
-  open [decls] nat
-  open [decls] int
+  open [notation] nat
+  open [notation] int
+  open [decl] nat
+  open [decl] int
   check n+m
   check i+j
   --  check i+n -- Error
 end
 
 namespace int
-  open [decls] nat (nat)
+  open [decl] nat (nat)
   -- Here is a possible trick for this kind of configuration
   definition add_ni (a : nat) (b : int) := (of_nat a) + b
   definition add_in (a : int) (b : nat) := a + (of_nat b)
@@ -39,10 +39,10 @@ namespace int
 end int
 
 section
-  open [notations] nat
-  open [notations] int
-  open [declarations] nat
-  open [declarations] int
+  open [notation] nat
+  open [notation] int
+  open [declaration] nat
+  open [declaration] int
   check n+m
   check i+n
   check n+i

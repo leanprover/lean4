@@ -581,7 +581,7 @@ theorem r_abs_well_defined {s t : reg_seq} (H : requiv s t) : requiv (r_abs s) (
 end rat_seq
 
 namespace real
-open [classes] rat_seq
+open [class] rat_seq
 
 noncomputable protected definition inv (x : ℝ) : ℝ :=
   quot.lift_on x (λ a, quot.mk (rat_seq.r_inv a))

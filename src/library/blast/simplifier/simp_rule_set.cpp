@@ -579,8 +579,8 @@ io_state_stream const & operator<<(io_state_stream const & out, simp_rule_sets c
 
 void initialize_simplifier_rule_set() {
     g_prefix     = new name(name::mk_internal_unique_name());
-    g_class_name = new name("simps");
-    g_key        = new std::string("simp");
+    g_class_name = new name("simp");
+    g_key        = new std::string("SIMP");
     rrs_ext::initialize();
     register_prio_attribute("simp", "simplification rule",
                             [](environment const & env, io_state const &, name const & d, unsigned prio, name const & ns, bool persistent) {

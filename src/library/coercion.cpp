@@ -373,8 +373,8 @@ environment add_coercion(environment const & env, io_state const &, name const &
 void initialize_coercion() {
     g_fun        = new name("_Fun");
     g_sort       = new name("_Sort");
-    g_class_name = new name("coercions");
-    g_key        = new std::string("coerce");
+    g_class_name = new name("coercion");
+    g_key        = new std::string("COERCE");
     coercion_ext::initialize();
     register_attribute("coercion", "coercion",
                        [](environment const & env, io_state const & ios, name const & d, name const & ns, bool persistent) {

@@ -29,8 +29,8 @@ structure mul_zero_class [class] (A : Type) extends has_mul A, has_zero A :=
 (zero_mul : ∀a, mul zero a = zero)
 (mul_zero : ∀a, mul a zero = zero)
 
-theorem zero_mul [mul_zero_class A] (a : A) : 0 * a = 0 := !mul_zero_class.zero_mul
-theorem mul_zero [mul_zero_class A] (a : A) : a * 0 = 0 := !mul_zero_class.mul_zero
+theorem zero_mul [simp] [mul_zero_class A] (a : A) : 0 * a = 0 := !mul_zero_class.zero_mul
+theorem mul_zero [simp] [mul_zero_class A] (a : A) : a * 0 = 0 := !mul_zero_class.mul_zero
 
 structure zero_ne_one_class [class] (A : Type) extends has_zero A, has_one A :=
 (zero_ne_one : zero ≠ one)
@@ -59,8 +59,10 @@ section semiring
   have a * b = 0, from this⁻¹ ▸ mul_zero a,
   H this
 
+  local attribute right_distrib [simp]
+
   theorem distrib_three_right (a b c d : A) : (a + b + c) * d = a * d + b * d + c * d :=
-    by rewrite *right_distrib
+  by simp
 end semiring
 
 /- comm semiring -/
@@ -99,7 +101,8 @@ section comm_semiring
   theorem dvd.elim_left {P : Prop} {a b : A} (H₁ : a ∣ b) (H₂ : ∀c, b = c * a → P) : P :=
   exists.elim (exists_eq_mul_left_of_dvd H₁) (take c, assume H₃ : b = c * a, H₂ c H₃)
 
-  theorem dvd.refl : a ∣ a := dvd.intro !mul_one
+  theorem dvd.refl [simp] : a ∣ a :=
+  dvd.intro !mul_one
 
   theorem dvd.trans {a b c : A} (H₁ : a ∣ b) (H₂ : b ∣ c) : a ∣ c :=
   dvd.elim H₁
@@ -112,20 +115,21 @@ section comm_semiring
   theorem eq_zero_of_zero_dvd {a : A} (H : 0 ∣ a) : a = 0 :=
     dvd.elim H (take c, assume H' : a = 0 * c, H' ⬝ !zero_mul)
 
-  theorem dvd_zero : a ∣ 0 := dvd.intro !mul_zero
+  theorem dvd_zero [simp] : a ∣ 0 := dvd.intro !mul_zero
 
-  theorem one_dvd : 1 ∣ a := dvd.intro !one_mul
+  theorem one_dvd [simp] : 1 ∣ a := dvd.intro !one_mul
 
-  theorem dvd_mul_right : a ∣ a * b := dvd.intro rfl
+  theorem dvd_mul_right [simp] : a ∣ a * b := dvd.intro rfl
 
-  theorem dvd_mul_left : a ∣ b * a := mul.comm a b ▸ dvd_mul_right a b
+  theorem dvd_mul_left [simp] : a ∣ b * a :=
+  by simp
 
   theorem dvd_mul_of_dvd_left {a b : A} (H : a ∣ b) (c : A) : a ∣ b * c :=
   dvd.elim H
     (take d,
       suppose b = a * d,
       dvd.intro
-        (show a * (d * c) = b * c, from by rewrite [-mul.assoc]; substvars))
+        (show a * (d * c) = b * c, by simp))
 
   theorem dvd_mul_of_dvd_right {a b : A} (H : a ∣ b) (c : A) : a ∣ c * b :=
   !mul.comm ▸ (dvd_mul_of_dvd_left H _)
@@ -137,7 +141,7 @@ section comm_semiring
         (take f, suppose d = c * f,
           dvd.intro
             (show a * c * (e * f) = b * d,
-             by rewrite [mul.assoc, {c*_}mul.left_comm, -mul.assoc]; substvars)))
+             by simp)))
 
   theorem dvd_of_mul_right_dvd {a b c : A} (H : a * b ∣ c) : a ∣ c :=
   dvd.elim H (take d, assume Habdc : c = a * b * d, dvd.intro (!mul.assoc⁻¹ ⬝ Habdc⁻¹))
@@ -158,18 +162,16 @@ end comm_semiring
 
 structure ring [class] (A : Type) extends add_comm_group A, monoid A, distrib A
 
-theorem ring.mul_zero [ring A] (a : A) : a * 0 = 0 :=
+theorem ring.mul_zero [simp] [ring A] (a : A) : a * 0 = 0 :=
 have a * 0 + 0 = a * 0 + a * 0, from calc
-  a * 0 + 0 = a * 0         : by rewrite add_zero
-        ... = a * (0 + 0)   : by rewrite add_zero
-        ... = a * 0 + a * 0 : by rewrite {a*_}ring.left_distrib,
+  a * 0 + 0 = a * (0 + 0)   : by simp
+        ... = a * 0 + a * 0 : by rewrite left_distrib,
 show a * 0 = 0, from (add.left_cancel this)⁻¹
 
-theorem ring.zero_mul [ring A] (a : A) : 0 * a = 0 :=
+theorem ring.zero_mul [simp] [ring A] (a : A) : 0 * a = 0 :=
 have 0 * a + 0 = 0 * a + 0 * a, from calc
-  0 * a + 0 = 0 * a         : by rewrite add_zero
-        ... = (0 + 0) * a   : by rewrite add_zero
-        ... = 0 * a + 0 * a : by rewrite {_*a}ring.right_distrib,
+  0 * a + 0 = (0 + 0) * a   : by simp
+        ... = 0 * a + 0 * a : by rewrite right_distrib,
 show 0 * a = 0, from  (add.left_cancel this)⁻¹
 
 definition ring.to_semiring [trans_instance] [reducible] [s : ring A] : semiring A :=
@@ -193,33 +195,27 @@ section
        rewrite [-left_distrib, add.right_inv, mul_zero]
      end
 
-  theorem neg_mul_eq_neg_mul_symm : - a * b = - (a * b) := eq.symm !neg_mul_eq_neg_mul
-  theorem mul_neg_eq_neg_mul_symm : a * - b = - (a * b) := eq.symm !neg_mul_eq_mul_neg
+  theorem neg_mul_eq_neg_mul_symm [simp] : - a * b = - (a * b) := eq.symm !neg_mul_eq_neg_mul
+  theorem mul_neg_eq_neg_mul_symm [simp] : a * - b = - (a * b) := eq.symm !neg_mul_eq_mul_neg
 
   theorem neg_mul_neg : -a * -b = a * b :=
-  calc
-     -a * -b = -(a * -b) : by rewrite -neg_mul_eq_neg_mul
-       ... = - -(a * b)  : by rewrite -neg_mul_eq_mul_neg
-       ... = a * b       : by rewrite neg_neg
+  by simp
 
-  theorem neg_mul_comm : -a * b = a * -b := !neg_mul_eq_neg_mul⁻¹ ⬝ !neg_mul_eq_mul_neg
+  theorem neg_mul_comm : -a * b = a * -b :=
+  by simp
 
   theorem neg_eq_neg_one_mul : -a = -1 * a :=
-  calc
-    -a = -(1 * a)  : by rewrite one_mul
-      ... = -1 * a : by rewrite neg_mul_eq_neg_mul
+  by simp
 
   theorem mul_sub_left_distrib : a * (b - c) = a * b - a * c :=
   calc
     a * (b - c) = a * b + a * -c : left_distrib
-      ... = a * b + - (a * c)    : by rewrite -neg_mul_eq_mul_neg
-      ... = a * b - a * c        : rfl
+            ... = a * b - a * c  : by simp
 
   theorem mul_sub_right_distrib : (a - b) * c = a * c - b * c :=
   calc
     (a - b) * c = a * c  + -b * c : right_distrib
-      ... = a * c + - (b * c)     : by rewrite neg_mul_eq_neg_mul
-      ... = a * c - b * c         : rfl
+            ... = a * c - b * c   : by simp
 
   -- TODO: can calc mode be improved to make this easier?
   -- TODO: there is also the other direction. It will be easier when we
@@ -233,17 +229,16 @@ section
       ... ↔ (a - b) * e + c = d   : by rewrite mul_sub_right_distrib
 
   theorem mul_add_eq_mul_add_of_sub_mul_add_eq : (a - b) * e + c = d → a * e + c = b * e + d :=
-    iff.mpr !mul_add_eq_mul_add_iff_sub_mul_add_eq
+  iff.mpr !mul_add_eq_mul_add_iff_sub_mul_add_eq
 
   theorem sub_mul_add_eq_of_mul_add_eq_mul_add : a * e + c = b * e + d → (a - b) * e + c = d :=
-    iff.mp !mul_add_eq_mul_add_iff_sub_mul_add_eq
+  iff.mp !mul_add_eq_mul_add_iff_sub_mul_add_eq
 
   theorem mul_neg_one_eq_neg : a * (-1) = -a :=
     have a + a * -1 = 0, from calc
-      a + a * -1 = a * 1 + a * -1 : mul_one
+      a + a * -1 = a * 1 + a * -1 : by simp
              ... = a * (1 + -1)   : left_distrib
-             ... = a * 0          : add.right_inv
-             ... = 0              : mul_zero,
+             ... = 0              : by simp,
     symm (neg_eq_of_add_eq_zero this)
 
   theorem ne_zero_and_ne_zero_of_mul_ne_zero {a b : A} (H : a * b ≠ 0) : a ≠ 0 ∧ b ≠ 0 :=
@@ -269,15 +264,13 @@ section
   variables [s : comm_ring A] (a b c d e : A)
   include s
 
+  local attribute left_distrib right_distrib [simp]
+
   theorem mul_self_sub_mul_self_eq : a * a - b * b = (a + b) * (a - b) :=
-  begin
-    krewrite [left_distrib, *right_distrib, add.assoc],
-    rewrite [-{b*a + _}add.assoc,
-             -*neg_mul_eq_mul_neg, {a*b}mul.comm, add.right_inv, zero_add]
-  end
+  by simp
 
   theorem mul_self_sub_one_eq : a * a - 1 = (a + 1) * (a - 1) :=
-  by rewrite [-mul_self_sub_mul_self_eq, mul_one]
+  by simp
 
   theorem dvd_neg_iff_dvd : (a ∣ -b) ↔ (a ∣ b) :=
   iff.intro
@@ -295,10 +288,10 @@ section
              by rewrite [-neg_mul_eq_mul_neg, -this])))
 
   theorem dvd_neg_of_dvd : (a ∣ b) → (a ∣ -b) :=
-    iff.mpr !dvd_neg_iff_dvd
+  iff.mpr !dvd_neg_iff_dvd
 
   theorem dvd_of_dvd_neg : (a ∣ -b) → (a ∣ b) :=
-    iff.mp !dvd_neg_iff_dvd
+  iff.mp !dvd_neg_iff_dvd
 
   theorem neg_dvd_iff_dvd : (-a ∣ b) ↔ (a ∣ b) :=
   iff.intro
@@ -314,10 +307,10 @@ section
             (show -a * -c = b, by rewrite [neg_mul_neg, this])))
 
   theorem neg_dvd_of_dvd : (a ∣ b) → (-a ∣ b) :=
-    iff.mpr !neg_dvd_iff_dvd
+  iff.mpr !neg_dvd_iff_dvd
 
   theorem dvd_of_neg_dvd : (-a ∣ b) → (a ∣ b) :=
-    iff.mp !neg_dvd_iff_dvd
+  iff.mp !neg_dvd_iff_dvd
 
   theorem dvd_sub (H₁ : (a ∣ b)) (H₂ : (a ∣ c)) : (a ∣ b - c) :=
   dvd_add H₁ (!dvd_neg_of_dvd H₂)
@@ -341,7 +334,7 @@ section
 
   theorem mul_ne_zero {a b : A} (H1 : a ≠ 0) (H2 : b ≠ 0) : a * b ≠ 0 :=
   suppose a * b = 0,
-    or.elim (eq_zero_or_eq_zero_of_mul_eq_zero this) (assume H3, H1 H3) (assume H4, H2 H4)
+  or.elim (eq_zero_or_eq_zero_of_mul_eq_zero this) (assume H3, H1 H3) (assume H4, H2 H4)
 
   theorem eq_of_mul_eq_mul_right {a b c : A} (Ha : a ≠ 0) (H : b * a = c * a) : b = c :=
   have b * a - c * a = 0, from iff.mp !eq_iff_sub_eq_zero H,
@@ -360,7 +353,7 @@ section
   theorem eq_zero_of_mul_eq_self_right {a b : A} (H₁ : b ≠ 1) (H₂ : a * b = a) : a = 0 :=
   have b - 1 ≠ 0, from
     suppose b - 1 = 0, H₁ (!zero_add ▸ eq_add_of_sub_eq this),
-  have a * b - a = 0, by rewrite H₂; apply sub_self,
+  have a * b - a = 0,   by  simp,
   have a * (b - 1) = 0, by+ rewrite [mul_sub_left_distrib, mul_one]; apply this,
     show a = 0, from or_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero this) `b - 1 ≠ 0`
 
@@ -404,81 +397,84 @@ end
 
 namespace norm_num
 
+local attribute bit0 bit1 add1 [reducible]
+local attribute right_distrib left_distrib [simp]
+
 theorem mul_zero [mul_zero_class A] (a : A) : a * zero = zero :=
-  by rewrite [↑zero, mul_zero]
+by simp
 
 theorem zero_mul [mul_zero_class A] (a : A) : zero * a = zero :=
-  by rewrite [↑zero, zero_mul]
+by simp
 
 theorem mul_one [monoid A] (a : A) : a * one = a :=
-  by rewrite [↑one, mul_one]
+by simp
 
 theorem mul_bit0 [distrib A] (a b : A) : a * (bit0 b) = bit0 (a * b) :=
-  by rewrite [↑bit0, left_distrib]
+by simp
 
 theorem mul_bit0_helper [distrib A] (a b t : A) (H : a * b = t) : a * (bit0 b) = bit0 t :=
-  by rewrite -H; apply mul_bit0
+by rewrite -H; simp
 
 theorem mul_bit1 [semiring A] (a b : A) : a * (bit1 b) = bit0 (a * b) + a :=
-  by rewrite [↑bit1, ↑bit0, +left_distrib, ↑one, mul_one]
+by simp
 
 theorem mul_bit1_helper [semiring A] (a b s t : A) (Hs : a * b = s) (Ht : bit0 s + a  = t) :
         a * (bit1 b) = t :=
-  begin rewrite [-Ht, -Hs, mul_bit1] end
+by simp
 
 theorem subst_into_prod [has_mul A] (l r tl tr t : A) (prl : l = tl) (prr : r = tr)
         (prt : tl * tr = t) :
         l * r = t :=
-   by rewrite [prl, prr, prt]
+by simp
 
 theorem mk_cong (op : A → A) (a b : A) (H : a = b) : op a = op b :=
-  by congruence; exact H
+by simp
 
 theorem neg_add_neg_eq_of_add_add_eq_zero [add_comm_group A] (a b c : A) (H : c + a + b = 0) :
         -a + -b = c :=
-  begin
-    apply add_neg_eq_of_eq_add,
-    apply neg_eq_of_add_eq_zero,
-    rewrite [add.comm, add.assoc, add.comm b, -add.assoc, H]
-  end
+begin
+  apply add_neg_eq_of_eq_add,
+  apply neg_eq_of_add_eq_zero,
+  simp
+end
 
 theorem neg_add_neg_helper [add_comm_group A] (a b c : A) (H : a + b = c) : -a + -b = -c :=
-  begin apply iff.mp !neg_eq_neg_iff_eq, rewrite [neg_add, *neg_neg, H] end
+begin apply iff.mp !neg_eq_neg_iff_eq, simp end
 
 theorem neg_add_pos_eq_of_eq_add [add_comm_group A] (a b c : A) (H : b = c + a) : -a + b = c :=
-  begin apply neg_add_eq_of_eq_add, rewrite add.comm, exact H end
+begin apply neg_add_eq_of_eq_add, simp end
 
 theorem neg_add_pos_helper1 [add_comm_group A] (a b c : A) (H : b + c = a) : -a + b = -c :=
-  begin apply neg_add_eq_of_eq_add, apply eq_add_neg_of_add_eq H end
+begin apply neg_add_eq_of_eq_add, apply eq_add_neg_of_add_eq H end
 
 theorem neg_add_pos_helper2 [add_comm_group A] (a b c : A) (H : a + c = b) : -a + b = c :=
-  begin apply neg_add_eq_of_eq_add, rewrite H end
+begin apply neg_add_eq_of_eq_add, rewrite H end
 
 theorem pos_add_neg_helper [add_comm_group A] (a b c : A) (H : b + a = c) : a + b = c :=
-  by rewrite [add.comm, H]
+by simp
 
 theorem sub_eq_add_neg_helper [add_comm_group A] (t₁ t₂ e w₁ w₂: A) (H₁ : t₁ = w₁)
         (H₂ : t₂ = w₂) (H : w₁ + -w₂ = e) : t₁ - t₂ = e :=
-  by rewrite [sub_eq_add_neg, H₁, H₂, H]
+by simp
 
 theorem pos_add_pos_helper [add_comm_group A] (a b c h₁ h₂ : A) (H₁ : a = h₁) (H₂ : b = h₂)
         (H : h₁ + h₂ = c) : a + b = c :=
-  by rewrite [H₁, H₂, H]
+by simp
 
 theorem subst_into_subtr [add_group A] (l r t : A) (prt : l + -r = t) : l - r = t :=
-   by rewrite [sub_eq_add_neg, prt]
+by simp
 
 theorem neg_neg_helper [add_group A] (a b : A) (H : a = -b) : -a = b :=
-  by rewrite [H, neg_neg]
+by simp
 
 theorem neg_mul_neg_helper [ring A] (a b c : A) (H : a * b = c) : (-a) * (-b) = c :=
-  begin rewrite [neg_mul_neg, H] end
+by simp
 
 theorem neg_mul_pos_helper [ring A] (a b c : A) (H : a * b = c) : (-a) * b = -c :=
-  begin rewrite [-neg_mul_eq_neg_mul, H] end
+by simp
 
 theorem pos_mul_neg_helper [ring A] (a b c : A) (H : a * b = c) : a * (-b) = -c :=
-  begin rewrite [-neg_mul_comm, -neg_mul_eq_neg_mul, H] end
+by simp
 
 end norm_num
 

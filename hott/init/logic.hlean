@@ -266,7 +266,7 @@ iff_empty_intro (not_not_intro star)
 definition not_empty_iff [simp] : (¬ empty) ↔ unit :=
 iff_unit_intro not_empty
 
-definition not_congr [congr] (H : a ↔ b) : ¬a ↔ ¬b :=
+definition not_congr (H : a ↔ b) : ¬a ↔ ¬b :=
 iff.intro (λ H₁ H₂, H₁ (iff.mpr H H₂)) (λ H₁ H₂, H₁ (iff.mp H H₂))
 
 definition ne_self_iff_empty [simp] {A : Type} (a : A) : (not (a = a)) ↔ empty :=

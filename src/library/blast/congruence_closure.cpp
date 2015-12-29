@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "library/trace.h"
 #include "library/constants.h"
-#include "library/blast/simplifier/simp_rule_set.h"
+#include "library/blast/simplifier/simp_lemmas.h"
 #include "library/blast/congruence_closure.h"
 #include "library/blast/util.h"
 #include "library/blast/blast.h"
@@ -159,7 +159,7 @@ static bool all_distinct(buffer<expr> const & es) {
 }
 
 /* Try to convert user-defined congruence rule into an ext_congr_lemma */
-static optional<ext_congr_lemma> to_ext_congr_lemma(name const & R, expr const & fn, unsigned nargs, congr_rule const & r) {
+static optional<ext_congr_lemma> to_ext_congr_lemma(name const & R, expr const & fn, unsigned nargs, user_congr_lemma const & r) {
     buffer<expr> lhs_args, rhs_args;
     expr const & lhs_fn = get_app_args(r.get_lhs(), lhs_args);
     expr const & rhs_fn = get_app_args(r.get_rhs(), rhs_args);
@@ -280,11 +280,11 @@ static optional<ext_congr_lemma> to_ext_congr_lemma(name const & R, expr const &
 }
 
 static optional<ext_congr_lemma> mk_ext_congr_lemma_core(name const & R, expr const & fn, unsigned nargs) {
-    simp_rule_set const * sr = get_simp_rule_sets(env()).find(R);
+    simp_lemmas_for const * sr = get_simp_lemmas().find(R);
     if (sr) {
-        list<congr_rule> const * crs = sr->find_congr(fn);
+        list<user_congr_lemma> const * crs = sr->find_congr(fn);
         if (crs) {
-            for (congr_rule const & r : *crs) {
+            for (user_congr_lemma const & r : *crs) {
                 if (auto lemma = to_ext_congr_lemma(R, fn, nargs, r))
                     return lemma;
             }

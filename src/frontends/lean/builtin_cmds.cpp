@@ -536,7 +536,7 @@ static environment accessible_cmd(parser & p) {
             name const & n = d.get_name();
             total++;
             if ((d.is_theorem() || d.is_definition()) &&
-                !is_instance(env, n) && !is_simp_rule(env, n) && !is_congr_rule(env, n) &&
+                !is_instance(env, n) && !is_simp_lemma(env, n) && !is_congr_lemma(env, n) &&
                 !is_user_defined_recursor(env, n) && !is_aux_recursor(env, n) &&
                 !is_projection(env, n) && !is_private(env, n) &&
                 !is_user_defined_recursor(env, n) && !is_aux_recursor(env, n) &&
@@ -799,12 +799,12 @@ static environment simplify_cmd(parser & p) {
     std::tie(e, ls) = parse_local_expr(p);
 
     blast::scope_debug scope(p.env(), p.ios());
-    simp_rule_sets srss;
+    blast::simp_lemmas srss;
     if (ns == name("null")) {
     } else if (ns == name("env")) {
-        srss = get_simp_rule_sets(p.env());
+        srss = blast::get_simp_lemmas();
     } else {
-        srss = get_simp_rule_sets(p.env(), p.get_options(), ns);
+        srss = blast::get_simp_lemmas(ns);
     }
 
     blast::simp::result r = blast::simplify(rel, e, srss);

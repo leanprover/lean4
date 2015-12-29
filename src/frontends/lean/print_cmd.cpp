@@ -508,14 +508,15 @@ static void print_reducible_info(parser & p, reducible_status s1) {
 
 static void print_simp_rules(parser & p) {
     io_state_stream out = p.regular_stream();
-    simp_rule_sets s;
+    blast::scope_debug scope(p.env(), p.ios());
+    blast::simp_lemmas s;
     name ns;
     if (p.curr_is_identifier()) {
         ns = p.get_name_val();
         p.next();
-        s = get_simp_rule_sets(p.env(), p.get_options(), ns);
+        s = blast::get_simp_lemmas(ns);
     } else {
-        s = get_simp_rule_sets(p.env());
+        s = blast::get_simp_lemmas();
     }
     format header;
     if (!ns.is_anonymous())
@@ -525,7 +526,8 @@ static void print_simp_rules(parser & p) {
 
 static void print_congr_rules(parser & p) {
     io_state_stream out = p.regular_stream();
-    simp_rule_sets s = get_simp_rule_sets(p.env());
+    blast::scope_debug scope(p.env(), p.ios());
+    blast::simp_lemmas s = blast::get_simp_lemmas();
     out << s.pp_congr(out.get_formatter());
 }
 

@@ -27,7 +27,7 @@ Author: Daniel Selsam
 #include "library/blast/trace.h"
 #include "library/blast/blast_exception.h"
 #include "library/blast/simplifier/simplifier.h"
-#include "library/blast/simplifier/simp_rule_set.h"
+#include "library/blast/simplifier/simp_lemmas.h"
 #include "library/blast/simplifier/ceqv.h"
 
 #ifndef LEAN_DEFAULT_SIMPLIFY_MAX_STEPS
@@ -60,14 +60,11 @@ namespace blast {
 
 using simp::result;
 
-/* Names */
+/* Keys */
 
-static name * g_simplify_prove_namespace     = nullptr;
-static name * g_simplify_neg_namespace       = nullptr;
-static name * g_simplify_unit_namespace      = nullptr;
-static name * g_simplify_ac_namespace        = nullptr;
-static name * g_simplify_distrib_namespace   = nullptr;
-static name * g_simplify_numeral_namespace   = nullptr;
+static unsigned g_ac_key;
+static unsigned g_som_key;
+static unsigned g_numeral_key;
 
 /* Options */
 
@@ -133,8 +130,8 @@ class simplifier {
     name                                         m_rel;
     expr_predicate                               m_simp_pred;
 
-    simp_rule_sets                               m_srss;
-    simp_rule_sets                               m_ctx_srss;
+    simp_lemmas                                  m_srss;
+    simp_lemmas                                  m_ctx_srss;
 
     /* Logging */
     unsigned                                     m_num_steps{0};
@@ -184,8 +181,8 @@ class simplifier {
         return has_free_vars(binding_body(f_type));
     }
 
-    simp_rule_sets add_to_srss(simp_rule_sets const & _srss, buffer<expr> & ls) {
-        simp_rule_sets srss = _srss;
+    simp_lemmas add_to_srss(simp_lemmas const & _srss, buffer<expr> & ls) {
+        simp_lemmas srss = _srss;
         for (unsigned i = 0; i < ls.size(); i++) {
             expr & l = ls[i];
             blast_tmp_type_context tctx;
@@ -211,7 +208,7 @@ class simplifier {
     result finalize(result const & r);
 
     /* Simplification */
-    result simplify(expr const & e, simp_rule_sets const & srss);
+    result simplify(expr const & e, simp_lemmas const & srss);
     result simplify(expr const & e, bool is_root);
     result simplify_lambda(expr const & e);
     result simplify_pi(expr const & e);
@@ -221,12 +218,12 @@ class simplifier {
 
     /* Proving */
     optional<expr> prove(expr const & thm);
-    optional<expr> prove(expr const & thm, simp_rule_sets const & srss);
+    optional<expr> prove(expr const & thm, simp_lemmas const & srss);
 
     /* Rewriting */
     result rewrite(expr const & e);
-    result rewrite(expr const & e, simp_rule_sets const & srss);
-    result rewrite(expr const & e, simp_rule const & sr);
+    result rewrite(expr const & e, simp_lemmas const & srss);
+    result rewrite(expr const & e, simp_lemma const & sr);
 
     /* Congruence */
     result congr_fun_arg(result const & r_f, result const & r_arg);
@@ -236,7 +233,7 @@ class simplifier {
     result congr_funs(result const & r_f, buffer<expr> const & args);
 
     result try_congrs(expr const & e);
-    result try_congr(expr const & e, congr_rule const & cr);
+    result try_congr(expr const & e, user_congr_lemma const & cr);
 
     template<typename F>
     optional<result> synth_congr(expr const & e, F && simp);
@@ -254,7 +251,7 @@ class simplifier {
 
 public:
     simplifier(name const & rel, expr_predicate const & simp_pred): m_rel(rel), m_simp_pred(simp_pred) { }
-    result operator()(expr const & e, simp_rule_sets const & srss)  { return simplify(e, srss); }
+    result operator()(expr const & e, simp_lemmas const & srss)  { return simplify(e, srss); }
 };
 
 /* Cache */
@@ -365,8 +362,8 @@ expr simplifier::whnf_eta(expr const & e) {
 
 /* Simplification */
 
-result simplifier::simplify(expr const & e, simp_rule_sets const & srss) {
-    flet<simp_rule_sets> set_srss(m_srss, srss);
+result simplifier::simplify(expr const & e, simp_lemmas const & srss) {
+    flet<simp_lemmas> set_srss(m_srss, srss);
     freset<simplify_cache> reset(m_cache);
     return simplify(e, true);
 }
@@ -552,7 +549,7 @@ optional<expr> simplifier::prove(expr const & thm) {
     return none_expr();
 }
 
-optional<expr> simplifier::prove(expr const & thm, simp_rule_sets const & srss) {
+optional<expr> simplifier::prove(expr const & thm, simp_lemmas const & srss) {
     flet<name> set_name(m_rel, get_iff_name());
     result r_cond = simplify(thm, srss);
     if (is_constant(r_cond.get_new()) && const_name(r_cond.get_new()) == get_true_name()) {
@@ -577,16 +574,16 @@ result simplifier::rewrite(expr const & e) {
     return r;
 }
 
-result simplifier::rewrite(expr const & e, simp_rule_sets const & srss) {
+result simplifier::rewrite(expr const & e, simp_lemmas const & srss) {
     result r(e);
 
-    simp_rule_set const * sr = srss.find(m_rel);
+    simp_lemmas_for const * sr = srss.find(m_rel);
     if (!sr) return r;
 
-    list<simp_rule> const * srs = sr->find_simp(e);
+    list<simp_lemma> const * srs = sr->find_simp(e);
     if (!srs) return r;
 
-    for_each(*srs, [&](simp_rule const & sr) {
+    for_each(*srs, [&](simp_lemma const & sr) {
             result r_new = rewrite(r.get_new(), sr);
             if (!r_new.has_proof()) return;
             r = join(r, r_new);
@@ -594,7 +591,7 @@ result simplifier::rewrite(expr const & e, simp_rule_sets const & srss) {
     return r;
 }
 
-result simplifier::rewrite(expr const & e, simp_rule const & sr) {
+result simplifier::rewrite(expr const & e, simp_lemma const & sr) {
     blast_tmp_type_context tmp_tctx(sr.get_num_umeta(), sr.get_num_emeta());
 
     if (!tmp_tctx->is_def_eq(e, sr.get_lhs())) return result(e);
@@ -672,21 +669,21 @@ result simplifier::congr_funs(result const & r_f, buffer<expr> const & args) {
 }
 
 result simplifier::try_congrs(expr const & e) {
-    simp_rule_set const * sr = get_simp_rule_sets(env()).find(m_rel);
+    simp_lemmas_for const * sr = get_simp_lemmas().find(m_rel);
     if (!sr) return result(e);
 
-    list<congr_rule> const * crs = sr->find_congr(e);
+    list<user_congr_lemma> const * crs = sr->find_congr(e);
     if (!crs) return result(e);
 
     result r(e);
-    for_each(*crs, [&](congr_rule const & cr) {
+    for_each(*crs, [&](user_congr_lemma const & cr) {
             if (r.has_proof()) return;
             r = try_congr(e, cr);
         });
     return r;
 }
 
-result simplifier::try_congr(expr const & e, congr_rule const & cr) {
+result simplifier::try_congr(expr const & e, user_congr_lemma const & cr) {
     blast_tmp_type_context tmp_tctx(cr.get_num_umeta(), cr.get_num_emeta());
 
     if (!tmp_tctx->is_def_eq(e, cr.get_lhs())) return result(e);
@@ -720,7 +717,7 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
             {
                 flet<name> set_name(m_rel, const_name(h_rel));
 
-                flet<simp_rule_sets> set_ctx_srss(m_ctx_srss, m_contextual ? add_to_srss(m_ctx_srss, ls) : m_ctx_srss);
+                flet<simp_lemmas> set_ctx_srss(m_ctx_srss, m_contextual ? add_to_srss(m_ctx_srss, ls) : m_ctx_srss);
 
                 h_lhs = tmp_tctx->instantiate_uvars_mvars(h_lhs);
                 lean_assert(!has_metavar(h_lhs));
@@ -976,9 +973,8 @@ result simplifier::fuse(expr const & e) {
     /* Prove (1) == (3) using simplify with [ac] */
     flet<bool> no_simplify_numerals(m_numerals, false);
     auto pf_1_3 = prove(get_app_builder().mk_eq(e, e_grp),
-                        get_simp_rule_sets(env(), ios().get_options(),
-                                           {*g_simplify_prove_namespace, *g_simplify_unit_namespace,
-                                            *g_simplify_neg_namespace, *g_simplify_ac_namespace}));
+                        get_simp_lemmas(g_ac_key));
+
     if (!pf_1_3) {
         diagnostic(env(), ios()) << ppb(e) << "\n\n =?=\n\n" << ppb(e_grp) << "\n";
         throw blast_exception("Failed to prove (1) == (3) during fusion", e);
@@ -986,10 +982,8 @@ result simplifier::fuse(expr const & e) {
 
     /* Prove (4) == (5) using simplify with [som] */
     auto pf_4_5 = prove(get_app_builder().mk_eq(e_grp_ls, e_fused_ls),
-                        get_simp_rule_sets(env(), ios().get_options(),
-                                           {*g_simplify_prove_namespace, *g_simplify_unit_namespace,
-                                            *g_simplify_neg_namespace, *g_simplify_ac_namespace,
-                                            *g_simplify_distrib_namespace}));
+                        get_simp_lemmas(g_som_key));
+
     if (!pf_4_5) {
         diagnostic(env(), ios()) << ppb(e_grp_ls) << "\n\n =?=\n\n" << ppb(e_fused_ls) << "\n";
         throw blast_exception("Failed to prove (4) == (5) during fusion", e);
@@ -997,9 +991,7 @@ result simplifier::fuse(expr const & e) {
 
     /* Prove (5) == (6) using simplify with [numeral] */
     flet<bool> simplify_numerals(m_numerals, true);
-    result r_simp_ls = simplify(e_fused_ls, get_simp_rule_sets(env(), ios().get_options(),
-                                                               {*g_simplify_unit_namespace, *g_simplify_neg_namespace,
-                                                                *g_simplify_ac_namespace}));
+    result r_simp_ls = simplify(e_fused_ls, get_simp_lemmas(g_numeral_key));
 
     /* Prove (4) == (6) by transitivity of proofs (2) and (3) */
     expr pf_4_6;
@@ -1057,12 +1049,11 @@ void initialize_simplifier() {
     register_trace_class(name({"simplifier", "congruence"}));
     register_trace_class(name({"simplifier", "failure"}));
 
-    g_simplify_prove_namespace     = new name{"simplifier", "prove"};
-    g_simplify_neg_namespace       = new name{"simplifier", "neg"};
-    g_simplify_unit_namespace      = new name{"simplifier", "unit"};
-    g_simplify_ac_namespace        = new name{"simplifier", "ac"};
-    g_simplify_distrib_namespace   = new name{"simplifier", "distrib"};
-    g_simplify_numeral_namespace   = new name{"simplifier", "numeral"};
+    g_ac_key      = register_simp_lemmas({name{"simplifier", "prove"}, name{"simplifier", "unit"},
+                                          name{"simplifier", "neg"}, name{"simplifier", "ac"}});
+    g_som_key     = register_simp_lemmas({name{"simplifier", "prove"}, name{"simplifier", "unit"},
+                                          name{"simplifier", "neg"}, name{"simplifier", "ac"}, name{"simplifier", "distrib"}});
+    g_numeral_key = register_simp_lemmas({name{"simplifier", "unit"}, name{"simplifier", "neg"}, name{"simplifier", "ac"}});
 
     g_simplify_max_steps     = new name{"simplify", "max_steps"};
     g_simplify_top_down      = new name{"simplify", "top_down"};
@@ -1100,23 +1091,16 @@ void finalize_simplifier() {
     delete g_simplify_exhaustive;
     delete g_simplify_top_down;
     delete g_simplify_max_steps;
-
-    delete g_simplify_numeral_namespace;
-    delete g_simplify_distrib_namespace;
-    delete g_simplify_ac_namespace;
-    delete g_simplify_unit_namespace;
-    delete g_simplify_neg_namespace;
-    delete g_simplify_prove_namespace;
 }
 
 /* Entry points */
 static bool simplify_all_pred(expr const &) { return true; }
 
-result simplify(name const & rel, expr const & e, simp_rule_sets const & srss) {
+result simplify(name const & rel, expr const & e, simp_lemmas const & srss) {
     return simplifier(rel, simplify_all_pred)(e, srss);
 }
 
-result simplify(name const & rel, expr const & e, simp_rule_sets const & srss, expr_predicate const & simp_pred) {
+result simplify(name const & rel, expr const & e, simp_lemmas const & srss, expr_predicate const & simp_pred) {
     return simplifier(rel, simp_pred)(e, srss);
 }
 

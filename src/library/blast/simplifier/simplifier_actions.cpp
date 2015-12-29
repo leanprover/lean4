@@ -16,18 +16,18 @@ namespace lean {
 namespace blast {
 static unsigned g_ext_id = 0;
 struct simplifier_branch_extension : public branch_extension {
-    simp_rule_sets m_srss;
-    bool           m_simp_target{false}; // true if target needs to be simplified again
+    simp_lemmas m_simp_lemmas;
+    bool        m_simp_target{false}; // true if target needs to be simplified again
     simplifier_branch_extension() {}
     simplifier_branch_extension(simplifier_branch_extension const & b):
-        m_srss(b.m_srss) {}
+        m_simp_lemmas(b.m_simp_lemmas) {}
     virtual ~simplifier_branch_extension() {}
     virtual branch_extension * clone() override { return new simplifier_branch_extension(*this); }
-    virtual void initialized() override { m_srss = ::lean::get_simp_rule_sets(env()); }
+    virtual void initialized() override { m_simp_lemmas = ::lean::blast::get_simp_lemmas(); }
     virtual void target_updated() override { m_simp_target = true; }
     virtual void hypothesis_activated(hypothesis const &, hypothesis_idx) override { }
     virtual void hypothesis_deleted(hypothesis const &, hypothesis_idx) override { }
-    simp_rule_sets const & get_simp_rule_sets() const { return m_srss; }
+    simp_lemmas const & get_simp_lemmas() const { return m_simp_lemmas; }
 };
 
 void initialize_simplifier_actions() {
@@ -78,7 +78,7 @@ action_result simplify_target_action() {
     expr target       = s.get_target();
     bool iff          = use_iff(target);
     name rname        = iff ? get_iff_name() : get_eq_name();
-    auto r = simplify(rname, target, ext.get_simp_rule_sets());
+    auto r = simplify(rname, target, ext.get_simp_lemmas());
     if (r.get_new() == target)
         return action_result::failed(); // did nothing
     if (r.has_proof()) {
@@ -108,7 +108,7 @@ action_result simplify_hypothesis_action(hypothesis_idx hidx) {
         return action_result::failed();
     }
     auto & ext           = get_extension();
-    auto r = simplify(get_iff_name(), h.get_type(), ext.get_simp_rule_sets());
+    auto r = simplify(get_iff_name(), h.get_type(), ext.get_simp_lemmas());
     if (r.get_new() == h.get_type())
         return action_result::failed(); // did nothing
     expr new_h_proof;
@@ -123,7 +123,7 @@ action_result simplify_hypothesis_action(hypothesis_idx hidx) {
     return action_result::new_branch();
 }
 
-action_result add_simp_rule_action(hypothesis_idx hidx) {
+action_result add_simp_lemma_action(hypothesis_idx hidx) {
     if (!get_config().m_simp)
         return action_result::failed();
     blast_tmp_type_context ctx;
@@ -136,8 +136,8 @@ action_result add_simp_rule_action(hypothesis_idx hidx) {
     bool added           = false;
     for (auto const & p : ps) {
         try {
-            ext.m_srss = add(*ctx, ext.m_srss, h.get_name(), p.first, p.second, LEAN_DEFAULT_PRIORITY);
-            added      = true;
+            ext.m_simp_lemmas = add(*ctx, ext.m_simp_lemmas, h.get_name(), p.first, p.second, LEAN_DEFAULT_PRIORITY);
+            added             = true;
         } catch (exception &) {
             // TODO(Leo, Daniel): store event
         }

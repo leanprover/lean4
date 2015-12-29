@@ -15,16 +15,15 @@ Author: Daniel Selsam
 #include "library/blast/choice_point.h"
 #include "library/blast/hypothesis.h"
 #include "library/blast/util.h"
-#include "library/blast/simplifier/simp_rule_set.h"
+#include "library/blast/simplifier/simp_lemmas.h"
 #include "library/blast/simplifier/simplifier.h"
 #include "library/expr_lt.h"
 #include "util/rb_multi_map.h"
 
 namespace lean {
 namespace blast {
-
-static name * g_simplify_unit_simp_namespace = nullptr;
-static name * g_simplify_contextual          = nullptr;
+static unsigned g_unit_simp_key;
+static name *   g_simplify_contextual          = nullptr;
 
 static bool is_propositional(expr const & e) {
     // TODO(dhs): This predicate will need to evolve, and will eventually be thrown out
@@ -50,7 +49,7 @@ action_result unit_preprocess(unsigned hidx) {
         return action_result::failed();
     }
 
-    simp_rule_sets srss = get_simp_rule_sets(env(), ios().get_options(), *g_simplify_unit_simp_namespace);
+    simp_lemmas srss = get_simp_lemmas(g_unit_simp_key);
     // TODO(dhs): disable contextual rewriting
     auto r = simplify(get_iff_name(), h.get_type(), srss, is_propositional);
 
@@ -68,13 +67,11 @@ action_result unit_preprocess(unsigned hidx) {
 }
 
 void initialize_unit_preprocess() {
-    g_simplify_unit_simp_namespace = new name{"simplifier", "unit_simp"};
+    g_unit_simp_key       = register_simp_lemmas({name{"simplifier", "unit_simp"}});
     g_simplify_contextual = new name{"simplify", "contextual"};
 }
 
 void finalize_unit_preprocess() {
     delete g_simplify_contextual;
-    delete g_simplify_unit_simp_namespace;
 }
-
 }}

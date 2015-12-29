@@ -501,7 +501,7 @@ section foldr
   variable lcomm : left_commutative f
   include  lcomm
 
-  theorem foldr_eq_of_perm [congr] : l₁ ~ l₂ → ∀ b, foldr f b l₁ = foldr f b l₂ :=
+  theorem foldr_eq_of_perm : l₁ ~ l₂ → ∀ b, foldr f b l₁ = foldr f b l₂ :=
   assume p, perm_induction_on p
     (λ b, by rewrite *foldl_nil)
     (λ x t₁ t₂ p r b, calc

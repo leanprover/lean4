@@ -11,7 +11,7 @@ namespace lean {
 namespace blast {
 action_result simplify_hypothesis_action(hypothesis_idx hidx);
 action_result simplify_target_action();
-action_result add_simp_rule_action(hypothesis_idx hidx);
+action_result add_simp_lemma_action(hypothesis_idx hidx);
 
 void initialize_simplifier_actions();
 void finalize_simplifier_actions();

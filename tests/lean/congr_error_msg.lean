@@ -15,7 +15,7 @@ sorry
 lemma C₃ [congr] (a b : nat) : R (g a b) (g 0 0) := -- ERROR
 sorry
 
-lemma C₄ [congr] (A B : Type) : (A → B) = (λ a : nat, B → A) 0 := -- ERROR
+lemma C₄ [congr] (A B : Type) : (A → B) = (λ a : nat, B → A) 0 :=
 sorry
 
 lemma C₅ [congr] (A B : Type₁) : (A → nat) = (B → nat) := -- ERROR

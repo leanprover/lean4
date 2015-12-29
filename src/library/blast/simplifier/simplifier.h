@@ -6,7 +6,7 @@ Author: Daniel Selsam
 #pragma once
 #include "kernel/expr_pair.h"
 #include "library/blast/state.h"
-#include "library/blast/simplifier/simp_rule_set.h"
+#include "library/blast/simplifier/simp_lemmas.h"
 
 namespace lean {
 namespace blast {
@@ -40,8 +40,8 @@ public:
 // TODO(dhs): put this outside of blast module
 typedef std::function<bool(expr const &)> expr_predicate; // NOLINT
 
-simp::result simplify(name const & rel, expr const & e, simp_rule_sets const & srss);
-simp::result simplify(name const & rel, expr const & e, simp_rule_sets const & srss, expr_predicate const & simp_pred);
+simp::result simplify(name const & rel, expr const & e, simp_lemmas const & srss);
+simp::result simplify(name const & rel, expr const & e, simp_lemmas const & srss, expr_predicate const & simp_pred);
 
 void initialize_simplifier();
 void finalize_simplifier();

@@ -35,7 +35,7 @@ class simplifier_strategy_fn : public strategy_fn {
 
     virtual action_result hypothesis_post_activation(hypothesis_idx hidx) override {
         if (m_use_hyps)
-            add_simp_rule_action(hidx);
+            add_simp_lemma_action(hidx);
         return action_result::new_branch();
     }
 

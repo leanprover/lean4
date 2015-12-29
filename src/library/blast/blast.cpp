@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 #include "library/blast/trace.h"
 #include "library/blast/options.h"
 #include "library/blast/strategies/portfolio.h"
+#include "library/blast/simplifier/simp_lemmas.h"
 
 namespace lean {
 namespace blast {
@@ -1069,6 +1070,7 @@ struct scope_debug::imp {
     scope_blastenv           m_scope2;
     scope_congruence_closure m_scope3;
     scope_config             m_scope4;
+    scope_simp               m_scope5;
     imp(environment const & env, io_state const & ios):
         m_scope1(true),
         m_benv(env, ios, list<name>(), list<name>()),
@@ -1168,6 +1170,7 @@ optional<expr> blast_goal(environment const & env, io_state const & ios, list<na
     blast::scope_congruence_closure scope3;
     blast::scope_config             scope4(ios.get_options());
     scope_trace_env                 scope5(env, ios);
+    blast::scope_simp               scope6;
     return b(g);
 }
 void initialize_blast() {

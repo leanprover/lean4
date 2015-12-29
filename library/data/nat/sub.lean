@@ -12,144 +12,86 @@ namespace nat
 
 /- subtraction -/
 
-protected theorem sub_zero (n : ℕ) : n - 0 = n :=
+protected theorem sub_zero [simp] (n : ℕ) : n - 0 = n :=
 rfl
 
-theorem sub_succ (n m : ℕ) : n - succ m = pred (n - m) :=
+theorem sub_succ [simp] (n m : ℕ) : n - succ m = pred (n - m) :=
 rfl
 
-protected theorem zero_sub (n : ℕ) : 0 - n = 0 :=
-nat.induction_on n !nat.sub_zero
-  (take k : nat,
-    assume IH : 0 - k = 0,
-    calc
-      0 - succ k = pred (0 - k) : sub_succ
-             ... = pred 0       : IH
-             ... = 0            : pred_zero)
+protected theorem zero_sub [simp] (n : ℕ) : 0 - n = 0 :=
+nat.induction_on n (by simp) (by simp)
 
-theorem succ_sub_succ (n m : ℕ) : succ n - succ m = n - m :=
+theorem succ_sub_succ [simp] (n m : ℕ) : succ n - succ m = n - m :=
 succ_sub_succ_eq_sub n m
 
-protected theorem sub_self (n : ℕ) : n - n = 0 :=
-nat.induction_on n !nat.sub_zero (take k IH, !succ_sub_succ ⬝ IH)
+protected theorem sub_self [simp] (n : ℕ) : n - n = 0 :=
+nat.induction_on n (by simp) (by simp)
 
-protected theorem add_sub_add_right (n k m : ℕ) : (n + k) - (m + k) = n - m :=
-nat.induction_on k
-  (calc
-    (n + 0) - (m + 0) = n - (m + 0) : {!add_zero}
-                  ... = n - m       : {!add_zero})
-  (take l : nat,
-    assume IH : (n + l) - (m + l) = n - m,
-    calc
-      (n + succ l) - (m + succ l) = succ (n + l) - (m + succ l) : {!add_succ}
-                              ... = succ (n + l) - succ (m + l) : {!add_succ}
-                              ... = (n + l) - (m + l)           : !succ_sub_succ
-                              ... =  n - m                      : IH)
-protected theorem add_sub_add_left (k n m : ℕ) : (k + n) - (k + m) = n - m :=
-add.comm n k ▸ add.comm m k ▸ nat.add_sub_add_right n k m
+local attribute nat.add_succ [simp]
 
-protected theorem add_sub_cancel (n m : ℕ) : n + m - m = n :=
-nat.induction_on m
-  (begin rewrite add_zero end)
-  (take k : ℕ,
-    assume IH : n + k - k = n,
-    calc
-      n + succ k - succ k = succ (n + k) - succ k : add_succ
-                      ... = n + k - k             : succ_sub_succ
-                      ... = n                     : IH)
+protected theorem add_sub_add_right [simp] (n k m : ℕ) : (n + k) - (m + k) = n - m :=
+nat.induction_on k (by simp) (by simp)
 
-protected theorem add_sub_cancel_left (n m : ℕ) : n + m - n = m :=
-!add.comm ▸ !nat.add_sub_cancel
+protected theorem add_sub_add_left [simp] (k n m : ℕ) : (k + n) - (k + m) = n - m :=
+nat.induction_on k (by simp) (by simp)
 
-protected theorem sub_sub (n m k : ℕ) : n - m - k = n - (m + k) :=
-nat.induction_on k
-  (calc
-    n - m - 0 = n - m        : nat.sub_zero
-          ... =  n - (m + 0) : add_zero)
-  (take l : nat,
-    assume IH : n - m - l = n - (m + l),
-    calc
-      n - m - succ l = pred (n - m - l)   : !sub_succ
-                 ... = pred (n - (m + l)) : IH
-                 ... = n - succ (m + l)   : sub_succ
-                 ... = n - (m + succ l)   : by rewrite add_succ)
+protected theorem add_sub_cancel [simp] (n m : ℕ) : n + m - m = n :=
+nat.induction_on m (by simp) (by simp)
 
-theorem succ_sub_sub_succ (n m k : ℕ) : succ n - m - succ k = n - m - k :=
+protected theorem add_sub_cancel_left [simp] (n m : ℕ) : n + m - n = m :=
+nat.induction_on n (by simp) (by simp)
+
+protected theorem sub_sub [simp] (n m k : ℕ) : n - m - k = n - (m + k) :=
+nat.induction_on k (by simp) (by simp)
+
+theorem succ_sub_sub_succ [simp] (n m k : ℕ) : succ n - m - succ k = n - m - k :=
+by simp
+
+theorem sub_self_add [simp] (n m : ℕ) : n - (n + m) = 0 :=
 calc
-  succ n - m - succ k = succ n - (m + succ k) : nat.sub_sub
-                  ... = succ n - succ (m + k) : add_succ
-                  ... = n - (m + k)           : succ_sub_succ
-                  ... = n - m - k             : nat.sub_sub
-
-theorem sub_self_add (n m : ℕ) : n - (n + m) = 0 :=
-calc
-  n - (n + m) = n - n - m : nat.sub_sub
-          ... = 0 - m     : nat.sub_self
-          ... = 0         : nat.zero_sub
+  n - (n + m) = n - n - m : by topdown_simp
+          ... = 0         : by simp
 
 protected theorem sub.right_comm (m n k : ℕ) : m - n - k = m - k - n :=
-calc
-  m - n - k = m - (n + k) : !nat.sub_sub
-        ... = m - (k + n) : {!add.comm}
-        ... = m - k - n   : !nat.sub_sub⁻¹
+by simp
 
 theorem sub_one (n : ℕ) : n - 1 = pred n :=
 rfl
 
-theorem succ_sub_one (n : ℕ) : succ n - 1 = n :=
+theorem succ_sub_one [simp] (n : ℕ) : succ n - 1 = n :=
 rfl
+
+local attribute nat.succ_mul nat.mul_succ [simp]
 
 /- interaction with multiplication -/
 
 theorem mul_pred_left (n m : ℕ) : pred n * m = n * m - m :=
-nat.induction_on n
-  (calc
-    pred 0 * m = 0 * m     : pred_zero
-           ... = 0         : zero_mul
-           ... = 0 - m     : nat.zero_sub
-           ... = 0 * m - m : zero_mul)
-  (take k : nat,
-    assume IH : pred k * m = k * m - m,
-    calc
-      pred (succ k) * m = k * m          : pred_succ
-                    ... = k * m + m - m  : nat.add_sub_cancel
-                    ... = succ k * m - m : succ_mul)
+nat.induction_on n (by simp) (by simp)
 
 theorem mul_pred_right (n m : ℕ) : n * pred m = n * m - n :=
 calc
-  n * pred m = pred m * n : mul.comm
+  n * pred m = pred m * n : by simp
          ... = m * n - n  : mul_pred_left
-         ... = n * m - n  : mul.comm
+         ... = n * m - n  : by simp
 
-protected theorem mul_sub_right_distrib (n m k : ℕ) : (n - m) * k = n * k - m * k :=
-nat.induction_on m
-  (calc
-    (n - 0) * k = n * k         : nat.sub_zero
-            ... = n * k - 0     : nat.sub_zero
-            ... = n * k - 0 * k : zero_mul)
-  (take l : nat,
-    assume IH : (n - l) * k = n * k - l * k,
-    calc
-      (n - succ l) * k = pred (n - l) * k     : sub_succ
-                   ... = (n - l) * k - k      : mul_pred_left
-                   ... = n * k - l * k - k    : IH
-                   ... = n * k - (l * k + k)  : nat.sub_sub
-                   ... = n * k - (succ l * k) : succ_mul)
+attribute mul_pred_left mul_pred_right [simp]
 
-protected theorem mul_sub_left_distrib (n m k : ℕ) : n * (m - k) = n * m - n * k :=
+protected theorem mul_sub_right_distrib [simp] (n m k : ℕ) : (n - m) * k = n * k - m * k :=
+nat.induction_on m (by simp) (by simp)
+
+protected theorem mul_sub_left_distrib [simp] (n m k : ℕ) : n * (m - k) = n * m - n * k :=
 calc
-  n * (m - k) = (m - k) * n   : !mul.comm
-          ... = m * n - k * n : !nat.mul_sub_right_distrib
-          ... = n * m - k * n : {!mul.comm}
-          ... = n * m - n * k : {!mul.comm}
+  n * (m - k) = (m - k) * n   : by rewrite mul.comm
+          ... = n * m - n * k : by simp
 
 protected theorem mul_self_sub_mul_self_eq (a b : nat) : a * a - b * b = (a + b) * (a - b) :=
 by rewrite [nat.mul_sub_left_distrib, *right_distrib, mul.comm b a, add.comm (a*a) (a*b),
             nat.add_sub_add_left]
 
+local attribute succ_eq_add_one right_distrib left_distrib [simp]
+
 theorem succ_mul_succ_eq (a : nat) : succ a * succ a = a*a + a + a + 1 :=
-calc succ a * succ a = (a+1)*(a+1)     : by rewrite [add_one]
-                ...  = a*a + a + a + 1 : by rewrite [right_distrib, left_distrib, one_mul, mul_one]
+by simp
 
 /- interaction with inequalities -/
 
@@ -213,11 +155,7 @@ exists.intro k
 protected theorem add_sub_assoc {m k : ℕ} (H : k ≤ m) (n : ℕ) : n + m - k = n + (m - k) :=
 have l1 : k ≤ m → n + m - k = n + (m - k), from
   sub_induction k m
-    (take m : ℕ,
-      assume H : 0 ≤ m,
-      calc
-        n + m - 0 = n + m       : nat.sub_zero
-              ... = n + (m - 0) : nat.sub_zero)
+    (by simp)
     (take k : ℕ, assume H : succ k ≤ 0, absurd H !not_succ_le_zero)
     (take k m,
       assume IH : k ≤ m → n + m - k = n + (m - k),
@@ -267,10 +205,9 @@ or.elim !le.total
   (assume H2 : k ≤ n,
     have H3 : n - k + l = m - k, from
       calc
-        n - k + l = l + (n - k) : add.comm
+        n - k + l = l + (n - k) : by simp
               ... = l + n - k   : nat.add_sub_assoc H2 l
-              ... = n + l - k   : add.comm
-              ... = m - k       : Hl,
+              ... = m - k       : by simp,
     le.intro H3)
 
 protected theorem sub_le_sub_left {n m : ℕ} (H : n ≤ m) (k : ℕ) : k - m ≤ k - n :=
@@ -280,14 +217,7 @@ sub.cases
   (take m' : ℕ,
     assume Hm : m + m' = k,
     have H3 : n ≤ k, from le.trans H (le.intro Hm),
-    have H4 : m' + l + n = k - n + n, from
-      calc
-        m' + l + n = n + (m' + l) : add.comm
-               ... = n + (l + m') : add.comm
-               ... = n + l + m'   : add.assoc
-               ... = m + m'       : Hl
-               ... = k            : Hm
-               ... = k - n + n    : nat.sub_add_cancel H3,
+    have H4 : m' + l + n = k - n + n, by simp,
     le.intro (add.right_cancel H4))
 
 protected theorem sub_pos_of_lt {m n : ℕ} (H : m < n) : n - m > 0 :=
@@ -327,8 +257,7 @@ sub.cases
         assume Hkm : k + km = m,
         have H : k + (mn + km) = n, from
           calc
-            k + (mn + km) = k + (km + mn): add.comm
-                      ... = k + km + mn  : add.assoc
+            k + (mn + km) = k + km + mn  : by simp
                       ... = m + mn       : Hkm
                       ... = n            : Hmn,
         have H2 : n - k = mn + km, from nat.sub_eq_of_add_eq H,
@@ -366,13 +295,10 @@ lt_of_succ_le this
 definition dist [reducible] (n m : ℕ) := (n - m) + (m - n)
 
 theorem dist.comm (n m : ℕ) : dist n m = dist m n :=
-!add.comm
+by simp
 
 theorem dist_self (n : ℕ) : dist n n = 0 :=
-calc
-  (n - n) + (n - n) = 0 + (n - n) : nat.sub_self
-                ... = 0 + 0       : nat.sub_self
-                ... = 0           : rfl
+by simp
 
 theorem eq_of_dist_eq_zero {n m : ℕ} (H : dist n m = 0) : n = m :=
 have H2 : n - m = 0, from eq_zero_of_add_eq_zero_right H,
@@ -433,10 +359,9 @@ theorem dist_sub_eq_dist_add_left {n m : ℕ} (H : n ≥ m) (k : ℕ) :
   dist (n - m) k = dist n (k + m) :=
 have H2 : n - m + (k + m) = k + n, from
   calc
-    n - m + (k + m) = n - m + (m + k) : add.comm
-                ... = n - m + m + k   : add.assoc
+    n - m + (k + m) = n - m + m + k   : by simp
                 ... = n + k           : nat.sub_add_cancel H
-                ... = k + n           : add.comm,
+                ... = k + n           : by simp,
 dist_eq_intro H2
 
 theorem dist_sub_eq_dist_add_right {k m : ℕ} (H : k ≥ m) (n : ℕ) :
@@ -444,10 +369,7 @@ theorem dist_sub_eq_dist_add_right {k m : ℕ} (H : k ≥ m) (n : ℕ) :
 dist.comm (k - m) n ▸ dist.comm k (n + m) ▸ dist_sub_eq_dist_add_left H n
 
 theorem dist.triangle_inequality (n m k : ℕ) : dist n k ≤ dist n m + dist m k :=
-have (n - m) + (m - k) + ((k - m) + (m - n)) = (n - m) + (m - n) + ((m - k) + (k - m)),
-begin rewrite [add.comm (k - m) (m - n),
-               {n - m + _ + _}add.assoc,
-               {m - k + _}add.left_comm, -add.assoc] end,
+have (n - m) + (m - k) + ((k - m) + (m - n)) = (n - m) + (m - n) + ((m - k) + (k - m)), by simp,
 this ▸ add_le_add !nat.sub_lt_sub_add_sub !nat.sub_lt_sub_add_sub
 
 theorem dist_add_add_le_add_dist_dist (n m k l : ℕ) : dist (n + m) (k + l) ≤ dist n k + dist m l :=

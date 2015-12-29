@@ -255,8 +255,6 @@ protected definition comm_semiring [reducible] [trans_instance] : comm_semiring 
  mul_zero       := nat.mul_zero,
  mul_comm       := nat.mul_comm⦄
 
-attribute succ_eq_add_one [simp]
-
 end nat
 
 section

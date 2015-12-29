@@ -169,20 +169,15 @@ local infix ≡ := int.equiv
 
 protected theorem equiv.refl [refl] {p : ℕ × ℕ} : p ≡ p := !add.comm
 
+local attribute int.equiv [reducible]
+
 protected theorem equiv.symm [symm] {p q : ℕ × ℕ} (H : p ≡ q) : q ≡ p :=
-calc
-  pr1 q + pr2 p = pr2 p + pr1 q : by rewrite add.comm
-    ... = pr1 p + pr2 q         : H⁻¹
-    ... = pr2 q + pr1 p         : by rewrite add.comm
+by simp
 
 protected theorem equiv.trans [trans] {p q r : ℕ × ℕ} (H1 : p ≡ q) (H2 : q ≡ r) : p ≡ r :=
 add.right_cancel (calc
-   pr1 p + pr2 r + pr2 q = pr1 p + pr2 q + pr2 r : by rewrite add.right_comm
-    ... = pr2 p + pr1 q + pr2 r                  : {H1}
-    ... = pr2 p + (pr1 q + pr2 r)                : by rewrite add.assoc
-    ... = pr2 p + (pr2 q + pr1 r)                : {H2}
-    ... = pr2 p + pr2 q + pr1 r                  : by rewrite add.assoc
-    ... = pr2 p + pr1 r + pr2 q                  : by rewrite add.right_comm)
+   pr1 p + pr2 r + pr2 q = pr1 p + pr2 q + pr2 r : by simp_nohyps
+                     ... = pr2 p + pr1 r + pr2 q : by simp)
 
 protected theorem equiv_equiv : is_equivalence int.equiv :=
 is_equivalence.mk @equiv.refl @equiv.symm @equiv.trans
@@ -239,7 +234,7 @@ or.elim (int.equiv_cases Hequiv)
            = pr1 p + pr2 q - pr2 q - pr2 p   : by rewrite nat.add_sub_cancel
        ... = pr2 p + pr1 q - pr2 q - pr2 p   : Hequiv
        ... = pr2 p + (pr1 q - pr2 q) - pr2 p : nat.add_sub_assoc Hq
-       ... = pr1 q - pr2 q + pr2 p - pr2 p   : by rewrite add.comm
+       ... = pr1 q - pr2 q + pr2 p - pr2 p   : by simp
        ... = pr1 q - pr2 q                   : by rewrite nat.add_sub_cancel,
     abstr_of_ge Hp ⬝ (H ▸ rfl) ⬝ (abstr_of_ge Hq)⁻¹))
   (and.rec (assume (Hp : pr1 p < pr2 p) (Hq : pr1 q < pr2 q),
@@ -324,20 +319,16 @@ theorem repr_add : Π (a b : ℤ), repr (add a b) ≡ padd (repr a) (repr b)
 
 theorem padd_congr {p p' q q' : ℕ × ℕ} (Ha : p ≡ p') (Hb : q ≡ q') : padd p q ≡ padd p' q' :=
 calc pr1 p + pr1 q + (pr2 p' + pr2 q')
-        = pr1 p + pr2 p' + (pr1 q + pr2 q') : add.comm4
-    ... = pr2 p + pr1 p' + (pr1 q + pr2 q') : {Ha}
-    ... = pr2 p + pr1 p' + (pr2 q + pr1 q') : {Hb}
-    ... = pr2 p + pr2 q + (pr1 p' + pr1 q') : add.comm4
+        = pr1 p + pr2 p' + (pr1 q + pr2 q') : by simp_nohyps
+    ... = pr2 p + pr1 p' + (pr2 q + pr1 q') : by simp
+    ... = pr2 p + pr2 q + (pr1 p' + pr1 q') : by simp_nohyps
 
 theorem padd_comm (p q : ℕ × ℕ) : padd p q = padd q p :=
-calc (pr1 p + pr1 q, pr2 p + pr2 q)
-        = (pr1 q + pr1 p, pr2 p + pr2 q) : by rewrite add.comm
-    ... = (pr1 q + pr1 p, pr2 q + pr2 p) : by rewrite (add.comm (pr2 p) (pr2 q))
+calc (pr1 p + pr1 q, pr2 p + pr2 q) = (pr1 q + pr1 p, pr2 q + pr2 p) : by simp
 
 theorem padd_assoc (p q r : ℕ × ℕ) : padd (padd p q) r = padd p (padd q r) :=
 calc (pr1 p + pr1 q + pr1 r, pr2 p + pr2 q + pr2 r)
-        = (pr1 p + (pr1 q + pr1 r), pr2 p + pr2 q + pr2 r)   : by rewrite add.assoc
-    ... = (pr1 p + (pr1 q + pr1 r), pr2 p + (pr2 q + pr2 r)) : by rewrite add.assoc
+     = (pr1 p + (pr1 q + pr1 r), pr2 p + (pr2 q + pr2 r)) : by simp
 
 protected theorem add_comm (a b : ℤ) : a + b = b + a :=
 eq_of_repr_equiv_repr (equiv.trans !repr_add
@@ -383,13 +374,7 @@ theorem padd_pneg (p : ℕ × ℕ) : padd p (pneg p) ≡ (0, 0) :=
 show pr1 p + pr2 p + 0 = pr2 p + pr1 p + 0, from !nat.add_comm ▸ rfl
 
 theorem padd_padd_pneg (p q : ℕ × ℕ) : padd (padd p q) (pneg q) ≡ p :=
-calc      pr1 p + pr1 q + pr2 q + pr2 p
-        = pr1 p + (pr1 q + pr2 q) + pr2 p : add.assoc
-    ... = pr1 p + (pr1 q + pr2 q + pr2 p) : add.assoc
-    ... = pr1 p + (pr2 q + pr1 q + pr2 p) : add.comm
-    ... = pr1 p + (pr2 q + pr2 p + pr1 q) : add.right_comm
-    ... = pr1 p + (pr2 p + pr2 q + pr1 q) : add.comm
-    ... = pr2 p + pr2 q + pr1 q + pr1 p   : add.comm
+by unfold [padd, pneg]; simp
 
 protected theorem add_left_inv (a : ℤ) : -a + a = 0 :=
 have H : repr (-a + a) ≡ repr 0, from
@@ -457,31 +442,19 @@ theorem repr_mul : Π (a b : ℤ), repr (a * b) = pmul (repr a) (repr b)
           (succ m * succ n, 0) = (succ m * succ n, 0 * succ n) : by rewrite zero_mul
             ... = (0 + succ m * succ n, 0 * succ n) : nat.zero_add
 
+local attribute left_distrib right_distrib [simp]
 theorem equiv_mul_prep {xa ya xb yb xn yn xm ym : ℕ}
-  (H1 : xa + yb = ya + xb) (H2 : xn + ym = yn + xm)
-: xa*xn+ya*yn+(xb*ym+yb*xm) = xa*yn+ya*xn+(xb*xm+yb*ym) :=
-nat.add_right_cancel (calc
-            xa*xn+ya*yn + (xb*ym+yb*xm) + (yb*xn+xb*yn + (xb*xn+yb*yn))
-          = xa*xn+ya*yn + (yb*xn+xb*yn) + (xb*ym+yb*xm + (xb*xn+yb*yn)) : by rewrite add.comm4
-      ... = xa*xn+ya*yn + (yb*xn+xb*yn) + (xb*xn+yb*yn + (xb*ym+yb*xm)) : by rewrite {xb*ym+yb*xm +_}nat.add_comm
-      ... = xa*xn+yb*xn + (ya*yn+xb*yn) + (xb*xn+xb*ym + (yb*yn+yb*xm)) : by exact !congr_arg2 !add.comm4 !add.comm4
-      ... = ya*xn+xb*xn + (xa*yn+yb*yn) + (xb*yn+xb*xm + (yb*xn+yb*ym)) : by rewrite[-+left_distrib,-+right_distrib]; exact H1 ▸ H2 ▸ rfl
-      ... = ya*xn+xa*yn + (xb*xn+yb*yn) + (xb*yn+yb*xn + (xb*xm+yb*ym)) : by exact !congr_arg2 !add.comm4 !add.comm4
-      ... = xa*yn+ya*xn + (xb*xn+yb*yn) + (xb*yn+yb*xn + (xb*xm+yb*ym)) : by rewrite {xa*yn + _}nat.add_comm
-      ... = xa*yn+ya*xn + (xb*xn+yb*yn) + (yb*xn+xb*yn + (xb*xm+yb*ym)) : by rewrite {xb*yn + _}nat.add_comm
-      ... = xa*yn+ya*xn + (yb*xn+xb*yn) + (xb*xn+yb*yn + (xb*xm+yb*ym)) : by rewrite (!add.comm4)
-      ... = xa*yn+ya*xn + (yb*xn+xb*yn) + (xb*xm+yb*ym + (xb*xn+yb*yn)) : by rewrite {xb*xn+yb*yn + _}nat.add_comm
-      ... = xa*yn+ya*xn + (xb*xm+yb*ym) + (yb*xn+xb*yn + (xb*xn+yb*yn)) : by rewrite add.comm4)
+  (H1 : xa + yb = ya + xb) (H2 : xn + ym = yn + xm) : xa*xn+ya*yn+(xb*ym+yb*xm) = xa*yn+ya*xn+(xb*xm+yb*ym) :=
+nat.add_right_cancel (
+calc xa*xn+ya*yn + (xb*ym+yb*xm) + (yb*xn+xb*yn + (xb*xn+yb*yn))
+         = (xa + yb)*xn + (ya + xb)*yn  + (xb*(xn + ym)) + (yb*(yn + xm)) : by simp_nohyps
+     ... = (ya + xb)*xn + (xa + yb)*yn  + (xb*(yn + xm)) + (yb*(xn + ym)) : by simp
+     ... = xa*yn+ya*xn + (xb*xm+yb*ym) + (yb*xn+xb*yn + (xb*xn+yb*yn))    : by simp_nohyps)
 
 theorem pmul_congr {p p' q q' : ℕ × ℕ} : p ≡ p' → q ≡ q' → pmul p q ≡ pmul p' q' := equiv_mul_prep
 
 theorem pmul_comm (p q : ℕ × ℕ) : pmul p q = pmul q p :=
-show (_,_) = (_,_),
-begin
-  congruence,
-    { congruence, repeat rewrite mul.comm },
-    { rewrite add.comm, congruence, repeat rewrite mul.comm }
-end
+by unfold pmul; simp
 
 protected theorem mul_comm (a b : ℤ) : a * b = b * a :=
 eq_of_repr_equiv_repr
@@ -493,13 +466,7 @@ eq_of_repr_equiv_repr
 private theorem pmul_assoc_prep {p1 p2 q1 q2 r1 r2 : ℕ} :
   ((p1*q1+p2*q2)*r1+(p1*q2+p2*q1)*r2, (p1*q1+p2*q2)*r2+(p1*q2+p2*q1)*r1) =
    (p1*(q1*r1+q2*r2)+p2*(q1*r2+q2*r1), p1*(q1*r2+q2*r1)+p2*(q1*r1+q2*r2)) :=
-begin
-   rewrite [+left_distrib, +right_distrib, *mul.assoc],
-   rewrite (add.comm4 (p1 * (q1 * r1)) (p2 * (q2 * r1)) (p1 * (q2 * r2)) (p2 * (q1 * r2))),
-   rewrite (add.comm (p2 * (q2 * r1)) (p2 * (q1 * r2))),
-   rewrite (add.comm4 (p1 * (q1 * r2)) (p2 * (q2 * r2)) (p1 * (q2 * r1)) (p2 * (q1 * r1))),
-   rewrite (add.comm (p2 * (q2 * r2)) (p2 * (q1 * r1)))
-end
+by simp
 
 theorem pmul_assoc (p q r: ℕ × ℕ) : pmul (pmul p q) r = pmul p (pmul q r) := pmul_assoc_prep
 
@@ -522,11 +489,7 @@ int.mul_comm a 1 ▸ int.mul_one a
 private theorem mul_distrib_prep {a1 a2 b1 b2 c1 c2 : ℕ} :
  ((a1+b1)*c1+(a2+b2)*c2,     (a1+b1)*c2+(a2+b2)*c1) =
  (a1*c1+a2*c2+(b1*c1+b2*c2), a1*c2+a2*c1+(b1*c2+b2*c1)) :=
-begin
-  rewrite +right_distrib, congruence,
-    {rewrite add.comm4},
-    {rewrite add.comm4}
-end
+by simp
 
 protected theorem right_distrib (a b c : ℤ) : (a + b) * c = a * c + b * c :=
 eq_of_repr_equiv_repr

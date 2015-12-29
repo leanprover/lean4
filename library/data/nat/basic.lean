@@ -102,81 +102,62 @@ general m
 
 /- addition -/
 
-protected theorem add_zero [simp] (n : ℕ) : n + 0 = n :=
+protected theorem add_zero (n : ℕ) : n + 0 = n :=
 rfl
 
-theorem add_succ [simp] (n m : ℕ) : n + succ m = succ (n + m) :=
+theorem add_succ (n m : ℕ) : n + succ m = succ (n + m) :=
 rfl
 
-protected theorem zero_add [simp] (n : ℕ) : 0 + n = n :=
-nat.induction_on n
-    !nat.add_zero
-    (take m IH, show 0 + succ m = succ m, from
-      calc
-        0 + succ m = succ (0 + m) : add_succ
-               ... = succ m       : IH)
+/-
+Remark: we use 'local attributes' because in the end of the file
+we show not is a comm_semiring, and we will automatically inherit
+the associated [simp] lemmas from algebra
+-/
+local attribute nat.add_zero nat.add_succ [simp]
 
-theorem succ_add [simp] (n m : ℕ) : (succ n) + m = succ (n + m) :=
-nat.induction_on m
-    (!nat.add_zero ▸ !nat.add_zero)
-    (take k IH, calc
-      succ n + succ k = succ (succ n + k)    : add_succ
-                  ... = succ (succ (n + k))  : IH
-                  ... = succ (n + succ k)    : add_succ)
+protected theorem zero_add (n : ℕ) : 0 + n = n :=
+nat.induction_on n (by simp) (by simp)
 
-protected theorem add_comm [simp] (n m : ℕ) : n + m = m + n :=
-nat.induction_on m
-    (by rewrite [nat.add_zero, nat.zero_add])
-    (take k IH, calc
-        n + succ k = succ (n+k)   : add_succ
-               ... = succ (k + n) : IH
-               ... = succ k + n   : succ_add)
+theorem succ_add (n m : ℕ) : (succ n) + m = succ (n + m) :=
+nat.induction_on m (by simp) (by simp)
+
+local attribute nat.zero_add nat.succ_add [simp]
+
+protected theorem add_comm (n m : ℕ) : n + m = m + n :=
+nat.induction_on m (by simp) (by simp)
 
 theorem succ_add_eq_succ_add (n m : ℕ) : succ n + m = n + succ m :=
-!succ_add ⬝ !add_succ⁻¹
+by simp
 
-protected theorem add_assoc [simp] (n m k : ℕ) : (n + m) + k = n + (m + k) :=
-nat.induction_on k
-    (by rewrite +nat.add_zero)
-    (take l IH,
-      calc
-        (n + m) + succ l = succ ((n + m) + l)  : add_succ
-                     ... = succ (n + (m + l))  : IH
-                     ... = n + succ (m + l)    : add_succ
-                     ... = n + (m + succ l)    : add_succ)
+protected theorem add_assoc (n m k : ℕ) : (n + m) + k = n + (m + k) :=
+nat.induction_on k (by simp) (by simp)
 
 protected theorem add_left_comm : Π (n m k : ℕ), n + (m + k) = m + (n + k) :=
 left_comm nat.add_comm nat.add_assoc
+
+local attribute nat.add_comm nat.add_assoc nat.add_left_comm [simp]
 
 protected theorem add_right_comm : Π (n m k : ℕ), n + m + k = n + k + m :=
 right_comm nat.add_comm nat.add_assoc
 
 protected theorem add_left_cancel {n m k : ℕ} : n + m = n + k → m = k :=
-nat.induction_on n
-  (take H : 0 + m = 0 + k,
-    !nat.zero_add⁻¹ ⬝ H ⬝ !nat.zero_add)
+nat.induction_on n (by simp)
   (take (n : ℕ) (IH : n + m = n + k → m = k) (H : succ n + m = succ n + k),
-    have succ (n + m) = succ (n + k),
-    from calc
-      succ (n + m) = succ n + m   : succ_add
-               ... = succ n + k   : H
-               ... = succ (n + k) : succ_add,
+    have succ (n + m) = succ (n + k), by simp,
     have n + m = n + k, from succ.inj this,
     IH this)
 
 protected theorem add_right_cancel {n m k : ℕ} (H : n + m = k + m) : n = k :=
-have H2 : m + n = m + k, from !nat.add_comm ⬝ H ⬝ !nat.add_comm,
-  nat.add_left_cancel H2
+have H2 : m + n = m + k, by simp,
+nat.add_left_cancel H2
 
 theorem eq_zero_of_add_eq_zero_right {n m : ℕ} : n + m = 0 → n = 0 :=
 nat.induction_on n
-  (take (H : 0 + m = 0), rfl)
+  (by simp)
   (take k IH,
     assume H : succ k + m = 0,
     absurd
-      (show succ (k + m) = 0, from calc
-         succ (k + m) = succ k + m : succ_add
-                  ... = 0          : H)
+      (show succ (k + m) = 0, by simp)
       !succ_ne_zero)
 
 theorem eq_zero_of_add_eq_zero_left {n m : ℕ} (H : n + m = 0) : m = 0 :=
@@ -185,104 +166,74 @@ eq_zero_of_add_eq_zero_right (!nat.add_comm ⬝ H)
 theorem eq_zero_and_eq_zero_of_add_eq_zero {n m : ℕ} (H : n + m = 0) : n = 0 ∧ m = 0 :=
 and.intro (eq_zero_of_add_eq_zero_right H) (eq_zero_of_add_eq_zero_left H)
 
-theorem add_one [simp] (n : ℕ) : n + 1 = succ n := rfl
+theorem add_one (n : ℕ) : n + 1 = succ n := rfl
+
+local attribute add_one [simp]
 
 theorem one_add (n : ℕ) : 1 + n = succ n :=
-!nat.zero_add ▸ !succ_add
+by simp
+
+theorem succ_eq_add_one (n : ℕ) : succ n = n + 1 :=
+rfl
 
 /- multiplication -/
 
-protected theorem mul_zero [simp] (n : ℕ) : n * 0 = 0 :=
+protected theorem mul_zero (n : ℕ) : n * 0 = 0 :=
 rfl
 
-theorem mul_succ [simp] (n m : ℕ) : n * succ m = n * m + n :=
+theorem mul_succ (n m : ℕ) : n * succ m = n * m + n :=
 rfl
+
+local attribute nat.mul_zero nat.mul_succ [simp]
 
 -- commutativity, distributivity, associativity, identity
 
-protected theorem zero_mul [simp] (n : ℕ) : 0 * n = 0 :=
-nat.induction_on n
-  !nat.mul_zero
-  (take m IH, !mul_succ ⬝ !nat.add_zero ⬝ IH)
+protected theorem zero_mul (n : ℕ) : 0 * n = 0 :=
+nat.induction_on n (by simp) (by simp)
 
-theorem succ_mul [simp] (n m : ℕ) : (succ n) * m = (n * m) + m :=
-nat.induction_on m
-  (by rewrite nat.mul_zero)
-  (take k IH, calc
-    succ n * succ k = succ n * k + succ n   : mul_succ
-                ... = n * k + k + succ n    : IH
-                ... = n * k + (k + succ n)  : nat.add_assoc
-                ... = n * k + (succ n + k)  : nat.add_comm
-                ... = n * k + (n + succ k)  : succ_add_eq_succ_add
-                ... = n * k + n + succ k    : nat.add_assoc
-                ... = n * succ k + succ k   : mul_succ)
+theorem succ_mul (n m : ℕ) : (succ n) * m = (n * m) + m :=
+nat.induction_on m (by simp) (by simp)
 
-protected theorem mul_comm [simp] (n m : ℕ) : n * m = m * n :=
-nat.induction_on m
-  (!nat.mul_zero ⬝ !nat.zero_mul⁻¹)
-  (take k IH, calc
-    n * succ k = n * k + n    : mul_succ
-           ... = k * n + n    : IH
-           ... = (succ k) * n : succ_mul)
+local attribute nat.zero_mul nat.succ_mul [simp]
+
+protected theorem mul_comm (n m : ℕ) : n * m = m * n :=
+nat.induction_on m (by simp) (by simp)
 
 protected theorem right_distrib (n m k : ℕ) : (n + m) * k = n * k + m * k :=
-nat.induction_on k
-  (calc
-    (n + m) * 0 = 0             : nat.mul_zero
-            ... = 0 + 0         : nat.add_zero
-            ... = n * 0 + 0     : nat.mul_zero
-            ... = n * 0 + m * 0 : nat.mul_zero)
-  (take l IH, calc
-    (n + m) * succ l = (n + m) * l + (n + m)    : mul_succ
-                 ... = n * l + m * l + (n + m)  : IH
-                 ... = n * l + m * l + n + m    : nat.add_assoc
-                 ... = n * l + n + m * l + m    : nat.add_right_comm
-                 ... = n * l + n + (m * l + m)  : nat.add_assoc
-                 ... = n * succ l + (m * l + m) : mul_succ
-                 ... = n * succ l + m * succ l  : mul_succ)
+nat.induction_on k (by simp) (by simp)
 
 protected theorem left_distrib (n m k : ℕ) : n * (m + k) = n * m + n * k :=
-calc
-  n * (m + k) = (m + k) * n    : nat.mul_comm
-          ... = m * n + k * n  : nat.right_distrib
-          ... = n * m + k * n  : nat.mul_comm
-          ... = n * m + n * k  : nat.mul_comm
+nat.induction_on k (by simp) (by simp)
 
-protected theorem mul_assoc [simp] (n m k : ℕ) : (n * m) * k = n * (m * k) :=
-nat.induction_on k
-  (calc
-    (n * m) * 0 = n * (m * 0) : nat.mul_zero)
-  (take l IH,
-    calc
-      (n * m) * succ l = (n * m) * l + n * m : mul_succ
-                   ... = n * (m * l) + n * m : IH
-                   ... = n * (m * l + m)     : nat.left_distrib
-                   ... = n * (m * succ l)    : mul_succ)
+local attribute nat.mul_comm nat.right_distrib nat.left_distrib [simp]
 
-protected theorem mul_one [simp] (n : ℕ) : n * 1 = n :=
+protected theorem mul_assoc (n m k : ℕ) : (n * m) * k = n * (m * k) :=
+nat.induction_on k (by simp) (by simp)
+
+local attribute nat.mul_assoc [simp]
+
+protected theorem mul_one (n : ℕ) : n * 1 = n :=
 calc
   n * 1 = n * 0 + n : mul_succ
-    ... = 0 + n     : nat.mul_zero
-    ... = n         : nat.zero_add
+    ... = n         : by simp
 
-protected theorem one_mul [simp] (n : ℕ) : 1 * n = n :=
-calc
-  1 * n = n * 1 : nat.mul_comm
-    ... = n     : nat.mul_one
+local attribute nat.mul_one [simp]
+
+protected theorem one_mul (n : ℕ) : 1 * n = n :=
+by simp
+
+local attribute nat.one_mul [simp]
 
 theorem eq_zero_or_eq_zero_of_mul_eq_zero {n m : ℕ} : n * m = 0 → n = 0 ∨ m = 0 :=
-nat.cases_on n
-  (assume H, or.inl rfl)
+nat.cases_on n (by simp)
   (take n',
     nat.cases_on m
-      (assume H, or.inr rfl)
-      (take m',
-        assume H : succ n' * succ m' = 0,
+      (by simp)
+      (take m', assume H : succ n' * succ m' = 0,
         absurd
           (calc
-            0 = succ n' * succ m' : H
-             ... = succ n' * m' + succ n' : mul_succ
-             ... = succ (succ n' * m' + n') : add_succ)⁻¹
+               0 = succ n' * succ m'        : by simp
+             ... = succ (succ n' * m' + n') : by simp)⁻¹
           !succ_ne_zero))
 
 protected definition comm_semiring [reducible] [trans_instance] : comm_semiring nat :=
@@ -303,6 +254,9 @@ protected definition comm_semiring [reducible] [trans_instance] : comm_semiring 
  zero_mul       := nat.zero_mul,
  mul_zero       := nat.mul_zero,
  mul_comm       := nat.mul_comm⦄
+
+attribute succ_eq_add_one [simp]
+
 end nat
 
 section

@@ -257,9 +257,9 @@ namespace nat
   nat.rec rfl (λ a, congr_arg pred) a
 
   theorem zero_eq_zero_sub (a : ℕ) : 0 = 0 - a :=
-  eq.symm !zero_sub_eq_zero
+  by simp
 
-  theorem sub_le (a b : ℕ) : a - b ≤ a :=
+  theorem sub_le [simp] (a b : ℕ) : a - b ≤ a :=
   nat.rec_on b !nat.le_refl (λ b₁, nat.le_trans !pred_le)
 
   theorem sub_le_iff_true [simp] (a b : ℕ) : a - b ≤ a ↔ true :=

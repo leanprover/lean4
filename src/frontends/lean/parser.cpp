@@ -41,7 +41,7 @@ Author: Leonardo de Moura
 #include "library/flycheck.h"
 #include "library/pp_options.h"
 #include "library/noncomputable.h"
-#include "library/error_handling/error_handling.h"
+#include "library/error_handling.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/location.h"
 #include "frontends/lean/tokens.h"

@@ -41,7 +41,7 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/class_instance_resolution.h"
 #include "library/tactic/expr_to_tactic.h"
-#include "library/error_handling/error_handling.h"
+#include "library/error_handling.h"
 #include "library/definitional/equations.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/structure_cmd.h"

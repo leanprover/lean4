@@ -22,7 +22,7 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/abbreviation.h"
 #include "library/definitional/equations.h"
-#include "library/error_handling/error_handling.h"
+#include "library/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"

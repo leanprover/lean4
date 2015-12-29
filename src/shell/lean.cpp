@@ -34,7 +34,7 @@ Author: Leonardo de Moura
 #include "library/definition_cache.h"
 #include "library/declaration_index.h"
 #include "library/export.h"
-#include "library/error_handling/error_handling.h"
+#include "library/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/server.h"

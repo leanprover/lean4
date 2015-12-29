@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "library/parser_nested_exception.h"
 #include "library/flycheck.h"
 #include "library/pp_options.h"
-#include "library/error_handling/error_handling.h"
+#include "library/error_handling.h"
 
 namespace lean {
 void display_pos(std::ostream & out, options const & o, char const * strm_name, unsigned line, unsigned pos) {

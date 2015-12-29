@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/standard_kernel.h"
 #include "library/kernel_bindings.h"
-#include "library/error_handling/error_handling.h"
+#include "library/error_handling.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/parser.h"
 #include "init/init.h"

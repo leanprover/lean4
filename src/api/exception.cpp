@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "library/unifier.h"
 #include "library/print.h"
 #include "library/tactic/tactic.h"
-#include "library/error_handling/error_handling.h"
+#include "library/error_handling.h"
 #include "api/exception.h"
 #include "api/string.h"
 using namespace lean; // NOLINT

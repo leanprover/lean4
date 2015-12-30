@@ -7,6 +7,8 @@ Author: Leonardo de Moura
 #include <functional>
 #include <utility>
 #include <vector>
+#include <string>
+#include <unordered_set>
 #include "util/flet.h"
 #include "util/list_fn.h"
 #include "util/lazy_list_fn.h"
@@ -60,6 +62,51 @@ Author: Leonardo de Moura
 #include "frontends/lean/prenum.h"
 
 namespace lean {
+typedef pair<std::string, pos_info> fname_pos_info;
+
+struct fname_pos_info_hash_fn {
+    bool operator()(fname_pos_info const & p) const {
+        return hash(hash_str(p.first.size(), p.first.c_str(), 17u), hash(p.second.first, p.second.second));
+    }
+};
+
+typedef std::unordered_set<fname_pos_info, fname_pos_info_hash_fn> fname_pos_info_set;
+
+/** \brief Auxiliary class used to avoid "don't know how to synthesize placeholder" message when
+    tactic failures have already been reported. We only use this class when flycheck is enabled.
+    The idea is to minimize the amount of redundant information in the flycheck pannel. */
+class elaborator_reported_errors {
+    /* This object may be accessed by different threads. Recall that the elaborator may indirectly
+       create threads when invoking tactics. */
+    mutex              m_mutex;
+    fname_pos_info_set m_reported_positions;
+public:
+    /* \brief Return true if this is the first time we store information for the position associated with \c e.
+       Otherwise, return false.
+       \remark We also return true if \c pip is nullptr, or if there is no position information associated with \c e. */
+    bool save(pos_info_provider const * pip, expr const & e) {
+        if (!pip) return true;
+        if (auto p = pip->get_pos_info(e)) {
+            lock_guard<mutex> lc(m_mutex);
+            fname_pos_info entry(pip->get_file_name(), *p);
+            if (m_reported_positions.find(entry) == m_reported_positions.end()) {
+                m_reported_positions.insert(entry);
+                return true;
+            } else {
+                return false; // have already been saved
+            }
+        } else {
+            return true;
+        }
+    }
+};
+
+static elaborator_reported_errors * g_elaborator_reported_errors = nullptr;
+
+static bool save_error(pos_info_provider const * pip, expr const & e) {
+    return g_elaborator_reported_errors->save(pip, e);
+}
+
 type_checker_ptr mk_coercion_from_type_checker(environment const & env, name_generator && ngen) {
     auto irred_pred = mk_irreducible_pred(env);
     return mk_type_checker(env, std::move(ngen), [=](name const & n) {
@@ -1814,8 +1861,10 @@ void elaborator::display_unsolved_proof_state(expr const & mvar, proof_state con
         m_displayed_errors.insert(mlocal_name(mvar));
         auto out = regular(env(), ios());
         flycheck_error err(out);
-        display_error_pos(out, pip(), pos);
-        out << " " << msg << "\n" << ps.pp(env(), ios()) << endl;
+        if (!err.enabled() || save_error(pip(), pos)) {
+            display_error_pos(out, pip(), pos);
+            out << " " << msg << "\n" << ps.pp(env(), ios()) << endl;
+        }
     }
 }
 
@@ -1854,10 +1903,12 @@ optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
     } catch (expr_to_tactic_exception & ex) {
         auto out = regular(env(), ios());
         flycheck_error err(out);
-        display_error_pos(out, pip(), ex.get_expr());
-        out << " " << ex.what();
-        out << pp_indent_expr(out.get_formatter(), pre_tac) << endl << "failed at:"
-            << pp_indent_expr(out.get_formatter(), ex.get_expr()) << endl;
+        if (!err.enabled() || save_error(pip(), ex.get_expr())) {
+            display_error_pos(out, pip(), ex.get_expr());
+            out << " " << ex.what();
+            out << pp_indent_expr(out.get_formatter(), pre_tac) << endl << "failed at:"
+                << pp_indent_expr(out.get_formatter(), ex.get_expr()) << endl;
+        }
         return optional<tactic>();
     }
 }
@@ -1865,10 +1916,15 @@ optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
 void elaborator::display_tactic_exception(tactic_exception const & ex, proof_state const & ps, expr const & pre_tac) {
     auto out = regular(env(), ios());
     flycheck_error err(out);
-    if (optional<expr> const & e = ex.get_main_expr())
+    if (optional<expr> const & e = ex.get_main_expr()) {
+        if (err.enabled() && !save_error(pip(), *e))
+            return;
         display_error_pos(out, pip(), *e);
-    else
+    } else {
+        if (err.enabled() && !save_error(pip(), pre_tac))
+            return;
         display_error_pos(out, pip(), pre_tac);
+    }
     out << ex.pp(out.get_formatter()) << "\nproof state:\n";
     if (auto curr_ps = ex.get_proof_state())
         out << curr_ps->pp(env(), ios()) << "\n";
@@ -2023,9 +2079,11 @@ bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
                 } catch (throwable & ex) {
                     auto out = regular(env(), ios());
                     flycheck_error err(out);
-                    display_error_pos(out, pip(), ptac);
-                    out << ex.what() << "\nproof state:\n";
-                    out << ps.pp(env(), ios()) << "\n";
+                    if (!err.enabled() || save_error(pip(), ptac)) {
+                        display_error_pos(out, pip(), ptac);
+                        out << ex.what() << "\nproof state:\n";
+                        out << ps.pp(env(), ios()) << "\n";
+                    }
                     return false;
                 }
             } else {
@@ -2409,9 +2467,11 @@ std::tuple<expr, expr, level_param_names> elaborate(elaborator_context & env, na
 
 void initialize_elaborator() {
     g_tmp_prefix = new name(name::mk_internal_unique_name());
+    g_elaborator_reported_errors = new elaborator_reported_errors();
 }
 
 void finalize_elaborator() {
     delete g_tmp_prefix;
+    delete g_elaborator_reported_errors;
 }
 }

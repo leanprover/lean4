@@ -27,13 +27,13 @@ has_div.mk nat.div
 theorem div_def (x y : nat) : div x y = if 0 < y ∧ y ≤ x then div (x - y) y + 1 else 0 :=
 congr_fun (fix_eq div.F x) y
 
-protected theorem div_zero (a : ℕ) : a / 0 = 0 :=
+protected theorem div_zero [simp] (a : ℕ) : a / 0 = 0 :=
 div_def a 0 ⬝ if_neg (!not_and_of_not_left (lt.irrefl 0))
 
 theorem div_eq_zero_of_lt {a b : ℕ} (h : a < b) : a / b = 0 :=
 div_def a b ⬝ if_neg (!not_and_of_not_right (not_le_of_gt h))
 
-protected theorem zero_div (b : ℕ) : 0 / b = 0 :=
+protected theorem zero_div [simp] (b : ℕ) : 0 / b = 0 :=
 div_def 0 b ⬝ if_neg (and.rec not_le_of_gt)
 
 theorem div_eq_succ_sub_div {a b : ℕ} (h₁ : b > 0) (h₂ : a ≥ b) : a / b = succ ((a - b) / b) :=
@@ -48,27 +48,25 @@ calc
 theorem add_div_self_left {x : ℕ} (z : ℕ) (H : x > 0) : (x + z) / x = succ (z / x) :=
 !add.comm ▸ !add_div_self H
 
+local attribute succ_mul [simp]
+
 theorem add_mul_div_self {x y z : ℕ} (H : z > 0) : (x + y * z) / z = x / z + y :=
 nat.induction_on y
-  (calc (x + 0 * z) / z = (x + 0) / z : zero_mul
-                    ...   = x / z     : add_zero
-                    ...   = x / z + 0 : add_zero)
+  (by simp)
   (take y,
     assume IH : (x + y * z) / z = x / z + y, calc
-      (x + succ y * z) / z = (x + (y * z + z)) / z    : succ_mul
-                         ... = (x + y * z + z) / z    : add.assoc
-                         ... = succ ((x + y * z) / z) : !add_div_self H
-                         ... = succ (x / z + y)       : IH)
+      (x + succ y * z) / z = (x + y * z + z) / z    : by msimp
+                       ... = succ ((x + y * z) / z) : !add_div_self H
+                       ... = succ (x / z + y)       : IH)
 
 theorem add_mul_div_self_left (x z : ℕ) {y : ℕ} (H : y > 0) : (x + y * z) / y = x / y + z :=
 !mul.comm ▸ add_mul_div_self H
 
 protected theorem mul_div_cancel (m : ℕ) {n : ℕ} (H : n > 0) : m * n / n = m :=
 calc
-  m * n / n = (0 + m * n) / n : zero_add
+  m * n / n = (0 + m * n) / n : by simp
           ... = 0 / n + m     : add_mul_div_self H
-          ... = 0 + m         : nat.zero_div
-          ... = m             : zero_add
+          ... = m             : by simp
 
 protected theorem mul_div_cancel_left {m : ℕ} (n : ℕ) (H : m > 0) : m * n / m = n :=
 !mul.comm ▸ !nat.mul_div_cancel H
@@ -88,19 +86,19 @@ notation [priority nat.prio] a ≡ b `[mod `:0 c:0 `]` := a % c = b % c
 theorem mod_def (x y : nat) : mod x y = if 0 < y ∧ y ≤ x then mod (x - y) y else x :=
 congr_fun (fix_eq mod.F x) y
 
-theorem mod_zero (a : ℕ) : a % 0 = a :=
+theorem mod_zero [simp] (a : ℕ) : a % 0 = a :=
 mod_def a 0 ⬝ if_neg (!not_and_of_not_left (lt.irrefl 0))
 
 theorem mod_eq_of_lt {a b : ℕ} (h : a < b) : a % b = a :=
 mod_def a b ⬝ if_neg (!not_and_of_not_right (not_le_of_gt h))
 
-theorem zero_mod (b : ℕ) : 0 % b = 0 :=
+theorem zero_mod [simp] (b : ℕ) : 0 % b = 0 :=
 mod_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt_of_lt_of_le l r) (lt.irrefl 0)))
 
 theorem mod_eq_sub_mod {a b : ℕ} (h₁ : b > 0) (h₂ : a ≥ b) : a % b = (a - b) % b :=
 mod_def a b ⬝ if_pos (and.intro h₁ h₂)
 
-theorem add_mod_self (x z : ℕ) : (x + z) % z = x % z :=
+theorem add_mod_self [simp] (x z : ℕ) : (x + z) % z = x % z :=
 by_cases_zero_pos z
   (by rewrite add_zero)
   (take z, assume H : z > 0,
@@ -109,29 +107,23 @@ by_cases_zero_pos z
                 ... = (x + z - z) % z   : if_pos (and.intro H (le_add_left z x))
                 ... = x % z             : nat.add_sub_cancel)
 
-theorem add_mod_self_left (x z : ℕ) : (x + z) % x = z % x :=
+theorem add_mod_self_left [simp] (x z : ℕ) : (x + z) % x = z % x :=
 !add.comm ▸ !add_mod_self
 
-theorem add_mul_mod_self (x y z : ℕ) : (x + y * z) % z = x % z :=
-nat.induction_on y
-  (calc (x + 0 * z) % z = (x + 0) % z : zero_mul
-                      ... = x % z     : add_zero)
-  (take y,
-    assume IH : (x + y * z) % z = x % z,
-    calc
-      (x + succ y * z) % z = (x + (y * z + z)) % z : succ_mul
-                         ... = (x + y * z + z) % z : add.assoc
-                         ... = (x + y * z) % z     : !add_mod_self
-                         ... = x % z               : IH)
+local attribute succ_mul [simp]
 
-theorem add_mul_mod_self_left (x y z : ℕ) : (x + y * z) % y = x % y :=
-!mul.comm ▸ !add_mul_mod_self
+theorem add_mul_mod_self [simp] (x y z : ℕ) : (x + y * z) % z = x % z :=
+nat.induction_on y (by simp) (by msimp)
 
-theorem mul_mod_left (m n : ℕ) : (m * n) % n = 0 :=
-by rewrite [-zero_add (m * n), add_mul_mod_self, zero_mod]
+theorem add_mul_mod_self_left [simp] (x y z : ℕ) : (x + y * z) % y = x % y :=
+by msimp
 
-theorem mul_mod_right (m n : ℕ) : (m * n) % m = 0 :=
-!mul.comm ▸ !mul_mod_left
+theorem mul_mod_left [simp] (m n : ℕ) : (m * n) % n = 0 :=
+calc (m * n) % n = (0 + m * n) % n : by simp
+            ...  = 0               : by msimp
+
+theorem mul_mod_right [simp] (m n : ℕ) : (m * n) % m = 0 :=
+by msimp
 
 theorem mod_lt (x : ℕ) {y : ℕ} (H : y > 0) : x % y < y :=
 nat.case_strong_induction_on x

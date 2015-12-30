@@ -141,24 +141,14 @@ protected theorem add_right_comm : Π (n m k : ℕ), n + m + k = n + k + m :=
 right_comm nat.add_comm nat.add_assoc
 
 protected theorem add_left_cancel {n m k : ℕ} : n + m = n + k → m = k :=
-nat.induction_on n (by simp)
-  (take (n : ℕ) (IH : n + m = n + k → m = k) (H : succ n + m = succ n + k),
-    have succ (n + m) = succ (n + k), by simp,
-    have n + m = n + k, from succ.inj this,
-    IH this)
+nat.induction_on n (by simp) (by msimp)
 
 protected theorem add_right_cancel {n m k : ℕ} (H : n + m = k + m) : n = k :=
 have H2 : m + n = m + k, by simp,
 nat.add_left_cancel H2
 
 theorem eq_zero_of_add_eq_zero_right {n m : ℕ} : n + m = 0 → n = 0 :=
-nat.induction_on n
-  (by simp)
-  (take k IH,
-    assume H : succ k + m = 0,
-    absurd
-      (show succ (k + m) = 0, by simp)
-      !succ_ne_zero)
+nat.induction_on n (by simp) (by msimp)
 
 theorem eq_zero_of_add_eq_zero_left {n m : ℕ} (H : n + m = 0) : m = 0 :=
 eq_zero_of_add_eq_zero_right (!nat.add_comm ⬝ H)
@@ -229,11 +219,9 @@ nat.cases_on n (by simp)
   (take n',
     nat.cases_on m
       (by simp)
-      (take m', assume H : succ n' * succ m' = 0,
+      (take m', assume H,
         absurd
-          (calc
-               0 = succ n' * succ m'        : by simp
-             ... = succ (succ n' * m' + n') : by simp)⁻¹
+          (show succ (succ n' * m' + n') = 0, by simp)
           !succ_ne_zero))
 
 protected definition comm_semiring [reducible] [trans_instance] : comm_semiring nat :=

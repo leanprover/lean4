@@ -28,9 +28,9 @@ definition gcd.F : Π (p₁ : nat × nat), (Π p₂ : nat × nat, p₂ ≺ p₁ 
 
 definition gcd (x y : nat) := fix gcd.F (x, y)
 
-theorem gcd_zero_right (x : nat) : gcd x 0 = x := rfl
+theorem gcd_zero_right [simp] (x : nat) : gcd x 0 = x := rfl
 
-theorem gcd_succ (x y : nat) : gcd x (succ y) = gcd (succ y) (x % succ y) :=
+theorem gcd_succ [simp] (x y : nat) : gcd x (succ y) = gcd (succ y) (x % succ y) :=
 well_founded.fix_eq gcd.F (x, succ y)
 
 theorem gcd_one_right (n : ℕ) : gcd n 1 = 1 :=

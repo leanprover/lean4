@@ -48,9 +48,7 @@ theorem succ_sub_sub_succ [simp] (n m k : ℕ) : succ n - m - succ k = n - m - k
 by simp
 
 theorem sub_self_add [simp] (n m : ℕ) : n - (n + m) = 0 :=
-calc
-  n - (n + m) = n - n - m : by topdown_simp
-          ... = 0         : by simp
+by msimp
 
 protected theorem sub.right_comm (m n k : ℕ) : m - n - k = m - k - n :=
 by simp
@@ -65,24 +63,17 @@ local attribute nat.succ_mul nat.mul_succ [simp]
 
 /- interaction with multiplication -/
 
-theorem mul_pred_left (n m : ℕ) : pred n * m = n * m - m :=
+theorem mul_pred_left [simp] (n m : ℕ) : pred n * m = n * m - m :=
 nat.induction_on n (by simp) (by simp)
 
-theorem mul_pred_right (n m : ℕ) : n * pred m = n * m - n :=
-calc
-  n * pred m = pred m * n : by simp
-         ... = m * n - n  : mul_pred_left
-         ... = n * m - n  : by simp
-
-attribute mul_pred_left mul_pred_right [simp]
+theorem mul_pred_right [simp] (n m : ℕ) : n * pred m = n * m - n :=
+by msimp
 
 protected theorem mul_sub_right_distrib [simp] (n m k : ℕ) : (n - m) * k = n * k - m * k :=
 nat.induction_on m (by simp) (by simp)
 
 protected theorem mul_sub_left_distrib [simp] (n m k : ℕ) : n * (m - k) = n * m - n * k :=
-calc
-  n * (m - k) = (m - k) * n   : by rewrite mul.comm
-          ... = n * m - n * k : by simp
+by msimp
 
 protected theorem mul_self_sub_mul_self_eq (a b : nat) : a * a - b * b = (a + b) * (a - b) :=
 by rewrite [nat.mul_sub_left_distrib, *right_distrib, mul.comm b a, add.comm (a*a) (a*b),

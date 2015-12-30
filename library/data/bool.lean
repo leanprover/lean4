@@ -14,10 +14,10 @@ namespace bool
   theorem dichotomy (b : bool) : b = ff ∨ b = tt :=
   bool.cases_on b (or.inl rfl) (or.inr rfl)
 
-  theorem cond_ff {A : Type} (t e : A) : cond ff t e = e :=
+  theorem cond_ff [simp] {A : Type} (t e : A) : cond ff t e = e :=
   rfl
 
-  theorem cond_tt {A : Type} (t e : A) : cond tt t e = t :=
+  theorem cond_tt [simp] {A : Type} (t e : A) : cond tt t e = t :=
   rfl
 
   theorem eq_tt_of_ne_ff : ∀ {a : bool}, a ≠ ff → a = tt
@@ -31,27 +31,27 @@ namespace bool
   theorem absurd_of_eq_ff_of_eq_tt {B : Prop} {a : bool} (H₁ : a = ff) (H₂ : a = tt) : B :=
   absurd (H₁⁻¹ ⬝ H₂) ff_ne_tt
 
-  theorem tt_bor (a : bool) : bor tt a = tt :=
+  theorem tt_bor [simp] (a : bool) : bor tt a = tt :=
   rfl
 
   notation a || b := bor a b
 
-  theorem bor_tt (a : bool) : a || tt = tt :=
+  theorem bor_tt [simp] (a : bool) : a || tt = tt :=
   bool.cases_on a rfl rfl
 
-  theorem ff_bor (a : bool) : ff || a = a :=
+  theorem ff_bor [simp] (a : bool) : ff || a = a :=
   bool.cases_on a rfl rfl
 
-  theorem bor_ff (a : bool) : a || ff = a :=
+  theorem bor_ff [simp] (a : bool) : a || ff = a :=
   bool.cases_on a rfl rfl
 
-  theorem bor_self (a : bool) : a || a = a :=
+  theorem bor_self [simp] (a : bool) : a || a = a :=
   bool.cases_on a rfl rfl
 
-  theorem bor.comm (a b : bool) : a || b = b || a :=
+  theorem bor.comm [simp] (a b : bool) : a || b = b || a :=
   by cases a; repeat (cases b | reflexivity)
 
-  theorem bor.assoc (a b c : bool) : (a || b) || c = a || (b || c) :=
+  theorem bor.assoc [simp] (a b c : bool) : (a || b) || c = a || (b || c) :=
   match a with
   | ff := by rewrite *ff_bor
   | tt := by rewrite *tt_bor
@@ -71,27 +71,27 @@ namespace bool
   theorem bor_inr {a b : bool} (H : b = tt) : a || b = tt :=
   bool.rec_on a (by rewrite H) (by rewrite H)
 
-  theorem ff_band (a : bool) : ff && a = ff :=
+  theorem ff_band [simp] (a : bool) : ff && a = ff :=
   rfl
 
-  theorem tt_band (a : bool) : tt && a = a :=
+  theorem tt_band [simp] (a : bool) : tt && a = a :=
   bool.cases_on a rfl rfl
 
-  theorem band_ff (a : bool) : a && ff = ff :=
+  theorem band_ff [simp] (a : bool) : a && ff = ff :=
   bool.cases_on a rfl rfl
 
-  theorem band_tt (a : bool) : a && tt = a :=
+  theorem band_tt [simp] (a : bool) : a && tt = a :=
   bool.cases_on a rfl rfl
 
-  theorem band_self (a : bool) : a && a = a :=
+  theorem band_self [simp] (a : bool) : a && a = a :=
   bool.cases_on a rfl rfl
 
-  theorem band.comm (a b : bool) : a && b = b && a :=
+  theorem band.comm [simp] (a b : bool) : a && b = b && a :=
   bool.cases_on a
     (bool.cases_on b rfl rfl)
     (bool.cases_on b rfl rfl)
 
-  theorem band.assoc (a b c : bool) : (a && b) && c = a && (b && c) :=
+  theorem band.assoc [simp] (a b c : bool) : (a && b) && c = a && (b && c) :=
   match a with
   | ff := by rewrite *ff_band
   | tt := by rewrite *tt_band
@@ -100,11 +100,7 @@ namespace bool
   theorem band_elim_left {a b : bool} (H : a && b = tt) : a = tt :=
   or.elim (dichotomy a)
     (suppose a = ff,
-      absurd
-        (calc ff = ff && b : ff_band
-             ... = a && b  : this
-             ... = tt      : H)
-        ff_ne_tt)
+      absurd (by msimp) ff_ne_tt)
     (suppose a = tt, this)
 
   theorem band_intro {a b : bool} (H₁ : a = tt) (H₂ : b = tt) : a && b = tt :=
@@ -113,13 +109,13 @@ namespace bool
   theorem band_elim_right {a b : bool} (H : a && b = tt) : b = tt :=
   band_elim_left (!band.comm ⬝ H)
 
-  theorem bnot_bnot (a : bool) : bnot (bnot a) = a :=
+  theorem bnot_bnot [simp] (a : bool) : bnot (bnot a) = a :=
   bool.cases_on a rfl rfl
 
-  theorem bnot_false : bnot ff = tt :=
+  theorem bnot_false [simp] : bnot ff = tt :=
   rfl
 
-  theorem bnot_true  : bnot tt = ff :=
+  theorem bnot_true [simp] : bnot tt = ff :=
   rfl
 
   theorem eq_tt_of_bnot_eq_ff {a : bool} : bnot a = ff → a = tt :=

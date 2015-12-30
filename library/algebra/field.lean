@@ -25,97 +25,86 @@ section division_ring
   definition division_ring_has_div [reducible] [instance] : has_div A :=
   has_div.mk algebra.div
 
-  lemma division.def (a b : A) : a / b = a * b⁻¹ :=
+  lemma division.def [simp] (a b : A) : a / b = a * b⁻¹ :=
   rfl
 
-  theorem mul_inv_cancel (H : a ≠ 0) : a * a⁻¹ = 1 :=
+  theorem mul_inv_cancel [simp] (H : a ≠ 0) : a * a⁻¹ = 1 :=
   division_ring.mul_inv_cancel H
 
-  theorem inv_mul_cancel (H : a ≠ 0) : a⁻¹ * a = 1 :=
+  theorem inv_mul_cancel [simp] (H : a ≠ 0) : a⁻¹ * a = 1 :=
   division_ring.inv_mul_cancel H
 
   theorem inv_eq_one_div (a : A) : a⁻¹ = 1 / a := !one_mul⁻¹
 
   theorem div_eq_mul_one_div (a b : A) : a / b = a * (1 / b) :=
-    by rewrite [*division.def, one_mul]
+  by simp
 
-  theorem mul_one_div_cancel (H : a ≠ 0) : a * (1 / a) = 1 :=
-    by rewrite [-inv_eq_one_div, (mul_inv_cancel H)]
+  theorem mul_one_div_cancel [simp] (H : a ≠ 0) : a * (1 / a) = 1 :=
+  by simp
 
-  theorem one_div_mul_cancel (H : a ≠ 0) : (1 / a) * a = 1 :=
-    by rewrite [-inv_eq_one_div, (inv_mul_cancel H)]
+  theorem one_div_mul_cancel [simp] (H : a ≠ 0) : (1 / a) * a = 1 :=
+  by simp
 
-  theorem div_self (H : a ≠ 0) : a / a = 1 := mul_inv_cancel H
+  theorem div_self [simp] (H : a ≠ 0) : a / a = 1 :=
+  by simp
 
-  theorem one_div_one : 1 / 1 = (1:A) := div_self (ne.symm zero_ne_one)
+  theorem one_div_one [simp] : 1 / 1 = (1:A) :=
+  div_self (ne.symm zero_ne_one)
 
-  theorem mul_div_assoc (a b : A) : (a * b) / c = a * (b / c) := !mul.assoc
+  theorem mul_div_assoc (a b : A) : (a * b) / c = a * (b / c) :=
+  by simp
 
   theorem one_div_ne_zero (H : a ≠ 0) : 1 / a ≠ 0 :=
     assume H2 : 1 / a = 0,
     have C1 : 0 = (1:A), from symm (by rewrite [-(mul_one_div_cancel H), H2, mul_zero]),
     absurd C1 zero_ne_one
 
-  theorem one_inv_eq : 1⁻¹ = (1:A) :=
+  theorem one_inv_eq [simp] : 1⁻¹ = (1:A) :=
   by rewrite [-mul_one, inv_mul_cancel (ne.symm (@zero_ne_one A _))]
 
-  theorem div_one (a : A) : a / 1 = a :=
-    by rewrite [*division.def, one_inv_eq, mul_one]
+  theorem div_one [simp] (a : A) : a / 1 = a :=
+  by simp
 
-  theorem zero_div (a : A) : 0 / a = 0 := !zero_mul
+  theorem zero_div [simp] (a : A) : 0 / a = 0 :=
+  by simp
 
   -- note: integral domain has a "mul_ne_zero". A commutative division ring is an integral
   -- domain, but let's not define that class for now.
   theorem division_ring.mul_ne_zero (Ha : a ≠ 0) (Hb : b ≠ 0) : a * b ≠ 0 :=
-    assume H : a * b = 0,
-    have C1 : a = 0, by rewrite [-mul_one, -(mul_one_div_cancel Hb), -mul.assoc, H, zero_mul],
-      absurd C1 Ha
+  assume H : a * b = 0,
+  have C1 : a = 0, by rewrite [-mul_one, -(mul_one_div_cancel Hb), -mul.assoc, H, zero_mul],
+  absurd C1 Ha
 
   theorem mul_ne_zero_comm (H : a * b ≠ 0) : b * a ≠ 0 :=
-    have H2 : a ≠ 0 ∧ b ≠ 0, from ne_zero_and_ne_zero_of_mul_ne_zero H,
-    division_ring.mul_ne_zero (and.right H2) (and.left H2)
+  have H2 : a ≠ 0 ∧ b ≠ 0, from ne_zero_and_ne_zero_of_mul_ne_zero H,
+  division_ring.mul_ne_zero (and.right H2) (and.left H2)
 
   theorem eq_one_div_of_mul_eq_one (H : a * b = 1) : b = 1 / a :=
-    have a ≠ 0, from
-      (suppose a = 0,
-       have 0 = (1:A), by rewrite [-(zero_mul b), -this, H],
-       absurd this zero_ne_one),
-    show b = 1 / a, from symm (calc
-      1 / a = (1 / a) * 1       : mul_one
-        ... = (1 / a) * (a * b) : H
-        ... = (1 / a) * a * b   : mul.assoc
-        ... = 1 * b             : one_div_mul_cancel this
-        ... = b                 : one_mul)
+  assert a ≠ 0, from
+    suppose a = 0,
+    have 0 = (1:A), by msimp,
+      absurd this zero_ne_one,
+  by msimp
 
   theorem eq_one_div_of_mul_eq_one_left (H : b * a = 1) : b = 1 / a :=
-    have a ≠ 0, from
-      (suppose a = 0,
-       have 0 = 1, from symm (calc
-          1 = b * a : symm H
-        ... = b * 0 : this
-        ... = 0     : mul_zero),
-      absurd this zero_ne_one),
-    show b = 1 / a, from symm (calc
-      1 / a = 1 * (1 / a)       : one_mul
-        ... = b * a * (1 / a)   : H
-        ... = b * (a * (1 / a)) : mul.assoc
-        ... = b * 1             : mul_one_div_cancel this
-        ... = b                 : mul_one)
+  assert a ≠ 0, from
+    suppose a = 0,
+    have 0 = (1:A), by msimp,
+      absurd this zero_ne_one,
+  by msimp
 
   theorem division_ring.one_div_mul_one_div (Ha : a ≠ 0) (Hb : b ≠ 0) :
       (1 / a) * (1 / b) = 1 / (b * a) :=
-    have (b * a) * ((1 / a) * (1 / b)) = 1, by
-      rewrite [mul.assoc, -(mul.assoc a), (mul_one_div_cancel Ha), one_mul,
-               (mul_one_div_cancel Hb)],
-    eq_one_div_of_mul_eq_one this
+  have (b * a) * ((1 / a) * (1 / b)) = 1, by msimp,
+  eq_one_div_of_mul_eq_one this
 
   theorem one_div_neg_one_eq_neg_one : (1:A) / (-1) = -1 :=
-    have (-1) * (-1) = (1:A), by rewrite [-neg_eq_neg_one_mul, neg_neg],
-    symm (eq_one_div_of_mul_eq_one this)
+  have (-1) * (-1) = (1:A), by msimp,
+  symm (eq_one_div_of_mul_eq_one this)
 
   theorem division_ring.one_div_neg_eq_neg_one_div (H : a ≠ 0) : 1 / (- a) = - (1 / a) :=
-    have -1 ≠ 0, from
-      (suppose -1 = 0, absurd (symm (calc
+  have -1 ≠ 0, from
+   (suppose -1 = 0, absurd (symm (calc
           1 = -(-1) : neg_neg
         ... = -0    : this
         ... = (0:A) : neg_zero)) zero_ne_one),
@@ -145,23 +134,22 @@ section division_ring
       a = b :=
     by rewrite [-(division_ring.one_div_one_div Ha), H, (division_ring.one_div_one_div Hb)]
 
-  theorem mul_inv_eq (Ha : a ≠ 0) (Hb : b ≠ 0) : (b * a)⁻¹ = a⁻¹ * b⁻¹ :=
+  theorem mul_inv_eq [simp] (Ha : a ≠ 0) (Hb : b ≠ 0) : (b * a)⁻¹ = a⁻¹ * b⁻¹ :=
     eq.symm (calc
-      a⁻¹ * b⁻¹ = (1 / a) * b⁻¹ : inv_eq_one_div
-      ... = (1 / a) * (1 / b)   : inv_eq_one_div
-      ... = (1 / (b * a))       : division_ring.one_div_mul_one_div Ha Hb
-      ... = (b * a)⁻¹           : inv_eq_one_div)
+      a⁻¹ * b⁻¹ = (1 / a) * (1 / b) : by msimp
+      ... = (1 / (b * a))           : division_ring.one_div_mul_one_div Ha Hb
+      ... = (b * a)⁻¹               : by simp)
 
   theorem mul_div_cancel (a : A) {b : A} (Hb : b ≠ 0) : a * b / b = a :=
-    by rewrite [*division.def, mul.assoc, (mul_inv_cancel Hb), mul_one]
+  by simp
 
   theorem div_mul_cancel (a : A) {b : A} (Hb : b ≠ 0) : a / b * b = a :=
-    by rewrite [*division.def, mul.assoc, (inv_mul_cancel Hb), mul_one]
+  by simp
 
   theorem div_add_div_same (a b c : A) : a / c + b / c = (a + b) / c := !right_distrib⁻¹
 
   theorem div_sub_div_same (a b c : A) : (a / c) - (b / c) = (a - b) / c :=
-    by rewrite [sub_eq_add_neg, -neg_div, div_add_div_same]
+  by rewrite [sub_eq_add_neg, -neg_div, div_add_div_same]
 
   theorem one_div_mul_add_mul_one_div_eq_one_div_add_one_div (Ha : a ≠ 0) (Hb : b ≠ 0) :
           (1 / a) * (a + b) * (1 / b) = 1 / a + 1 / b :=
@@ -175,13 +163,11 @@ section division_ring
 
   theorem div_eq_one_iff_eq (a : A) {b : A} (Hb : b ≠ 0) : a / b = 1 ↔ a = b :=
     iff.intro
-    (suppose a / b = 1, symm (calc
-      b   = 1 * b     : one_mul
-      ... = a / b * b : this
-      ... = a         : div_mul_cancel _ Hb))
-    (suppose a = b, calc
-      a / b = b / b : this
-        ... = 1     : div_self Hb)
+    (suppose a / b = 1, calc
+      a   = a / b * b : by msimp
+      ... = 1 * b     : this
+      ... = b         : by simp)
+    (suppose a = b, by simp)
 
   theorem eq_of_div_eq_one (a : A) {b : A} (Hb : b ≠ 0) : a / b = 1 → a = b :=
     iff.mp (!div_eq_one_iff_eq Hb)
@@ -202,10 +188,7 @@ section division_ring
     (iff.elim_right (!eq_div_iff_mul_eq Hc)) this
 
   theorem mul_mul_div (a : A) {c : A} (Hc : c ≠ 0) : a = a * c * (1 / c) :=
-    calc
-      a   = a * 1             : mul_one
-      ... = a * (c * (1 / c)) : mul_one_div_cancel Hc
-      ... = a * c * (1 / c)   : mul.assoc
+  by simp
 
   -- There are many similar rules to these last two in the Isabelle library
   -- that haven't been ported yet. Do as necessary.
@@ -221,15 +204,11 @@ section field
      by rewrite [(division_ring.one_div_mul_one_div Ha Hb), mul.comm b]
 
   theorem field.div_mul_right (Hb : b ≠ 0) (H : a * b ≠ 0) : a / (a * b) = 1 / b :=
-    have a ≠ 0, from and.left (ne_zero_and_ne_zero_of_mul_ne_zero H),
+  assert a ≠ 0, from and.left (ne_zero_and_ne_zero_of_mul_ne_zero H),
     symm (calc
-      1 / b = 1 * (1 / b)             : one_mul
-        ... = (a * a⁻¹) * (1 / b)     : mul_inv_cancel this
-        ... = a * (a⁻¹ * (1 / b))     : mul.assoc
-        ... = a * ((1 / a) * (1 / b)) : inv_eq_one_div
+      1 / b = a * ((1 / a) * (1 / b)) : by msimp
         ... = a * (1 / (b * a))       : division_ring.one_div_mul_one_div this Hb
-        ... = a * (1 / (a * b))       : mul.comm
-        ... = a * (a * b)⁻¹           : inv_eq_one_div)
+        ... = a * (a * b)⁻¹           : by msimp)
 
   theorem field.div_mul_left (Ha : a ≠ 0) (H : a * b ≠ 0) : b / (a * b) = 1 / a :=
     let H1 : b * a ≠ 0 := mul_ne_zero_comm H in
@@ -248,7 +227,7 @@ section field
 
   theorem field.div_mul_div (a : A) {b : A} (c : A) {d : A} (Hb : b ≠ 0) (Hd : d ≠ 0) :
       (a / b) * (c / d) = (a * c) / (b * d) :=
-     by rewrite [*division.def, 2 mul.assoc, (mul.comm b⁻¹), mul.assoc, (mul_inv_eq Hd Hb)]
+  by msimp
 
   theorem mul_div_mul_left (a : A) {b c : A} (Hb : b ≠ 0) (Hc : c ≠ 0) :
       (c * a) / (c * b) = a / b :=

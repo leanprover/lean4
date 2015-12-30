@@ -19,6 +19,7 @@ void trace_action(char const * a);
 void trace_curr_state_if(action_result r);
 
 #define lean_trace_action(Code) lean_trace(name({"blast", "action"}), Code)
+#define lean_trace_event(Code) lean_trace(name({"blast", "event"}), Code)
 #define lean_trace_search(Code) lean_trace(name({"blast", "search"}), Code)
 #define lean_trace_deadend(Code) lean_trace(name({"blast", "deadend"}), Code)
 

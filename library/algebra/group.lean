@@ -325,9 +325,7 @@ section add_group
   by msimp
 
   theorem neg.inj {a b : A} (H : -a = -b) : a = b :=
-  calc
-    a = -(-a) : by simp_nohyps
-  ... = b : begin apply neg_eq_of_add_eq_zero, simp end
+  by msimp
 
   theorem neg_eq_neg_iff_eq (a b : A) : -a = -b ↔ a = b :=
   iff.intro (assume H, neg.inj H) (by simp)

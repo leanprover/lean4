@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "util/interrupt.h"
+#include "util/sexpr/option_declarations.h"
 #include "library/constants.h"
 #include "library/idx_metavar.h"
 #include "library/head_map.h"
@@ -17,22 +18,45 @@ Author: Leonardo de Moura
 #include "library/blast/forward/forward_lemmas.h"
 #include "library/blast/simplifier/simp_lemmas.h"
 
+// TODO(Leo, Daniel): should we store all options at blast/options.cpp?
+// Leo: I think we should only put the main options there, i.e.,
+// the ones that are accessed/checked all the time. The config structure
+// provides fast access to these options, and allows us to update them without
+// using the expensive options object methods.
+// Alternative design: each main module (forward/backward/simplifier/...) maintains
+// its own config object.
+#ifndef LEAN_DEFAULT_BLAST_EMATCH_MAX_INSTANCES
+#define LEAN_DEFAULT_BLAST_EMATCH_MAX_INSTANCES 1000
+#endif
+
 namespace lean {
 namespace blast {
 #define lean_trace_ematch(Code) lean_trace(name({"blast", "ematch"}), Code)
+
+static name * g_blast_ematch_max_instances = nullptr;
+
+unsigned get_blast_ematch_max_instances(options const & o) {
+    return o.get_unsigned(*g_blast_ematch_max_instances, LEAN_DEFAULT_BLAST_EMATCH_MAX_INSTANCES);
+}
 
 typedef rb_tree<expr, expr_quick_cmp> expr_set;
 /* Branch extension for supporting heuristic instantiations methods.
    It contains
    1- mapping functions to its applications.
    2- set of lemmas that have been instantiated. */
-struct instances_branch_extension : public branch_extension {
+class instances_branch_extension : public branch_extension {
     rb_map<head_index, expr_set, head_index::cmp> m_apps;
     expr_set                                      m_instances;
-
+    unsigned                                      m_num_instances{0};
+    unsigned                                      m_max_instances{0};
+    bool                                          m_max_instances_exceeded{false};
+public:
     instances_branch_extension() {}
+
     instances_branch_extension(instances_branch_extension const & src):
-        m_apps(src.m_apps), m_instances(src.m_instances) {}
+        m_apps(src.m_apps), m_instances(src.m_instances),
+        m_num_instances(src.m_num_instances), m_max_instances(src.m_max_instances),
+        m_max_instances_exceeded(src.m_max_instances_exceeded) {}
 
     void collect_apps(expr const & e) {
         switch (e.kind()) {
@@ -68,6 +92,10 @@ struct instances_branch_extension : public branch_extension {
         }}
     }
 
+    virtual void initialized() override {
+        m_max_instances = get_blast_ematch_max_instances(ios().get_options());
+    }
+
     virtual void hypothesis_activated(hypothesis const & h, hypothesis_idx) override {
         collect_apps(h.get_type());
     }
@@ -75,6 +103,30 @@ struct instances_branch_extension : public branch_extension {
     virtual void target_updated() override { collect_apps(curr_state().get_target()); }
 
     virtual branch_extension * clone() override { return new instances_branch_extension(*this); }
+
+    bool max_instances_exceeded() const { return m_max_instances_exceeded; }
+
+    bool save_instance(expr const & i) {
+        if (m_num_instances >= m_max_instances) {
+            if (!m_max_instances_exceeded) {
+                lean_trace_event(tout() << "maximum number of ematching instances (" << m_max_instances << ") has been reached, "
+                                 << "set option blast.ematch.max_instances to increase limit\n";);
+            }
+            m_max_instances_exceeded = true;
+            return false;
+        }
+        if (m_instances.contains(i)) {
+            return false;
+        } else {
+            m_num_instances++;
+            m_instances.insert(i);
+            return true;
+        }
+    }
+
+    rb_map<head_index, expr_set, head_index::cmp> const & get_apps() const {
+        return m_apps;
+    }
 };
 
 static unsigned g_inst_ext_id = 0;
@@ -181,6 +233,11 @@ void initialize_ematch() {
     g_ematch_ext_id      = register_branch_extension(new ematch_branch_extension());
     g_ematch_simp_ext_id = register_branch_extension(new ematch_simp_branch_extension());
     register_trace_class(name{"blast", "ematch"});
+
+    g_blast_ematch_max_instances = new name{"blast", "ematch", "max_instances"};
+
+    register_unsigned_option(*g_blast_ematch_max_instances, LEAN_DEFAULT_BLAST_EMATCH_MAX_INSTANCES,
+                             "(blast.ematch) max number of instances created by ematching based procedures");
 }
 
 void finalize_ematch() {}
@@ -287,7 +344,7 @@ struct ematch_fn {
         buffer<expr> p_args;
         expr const & f = get_app_args(p, p_args);
         buffer<state> new_states;
-        if (auto s = m_inst_ext.m_apps.find(head_index(f))) {
+        if (auto s = m_inst_ext.get_apps().find(head_index(f))) {
             s->for_each([&](expr const & t) {
                     if (m_cc.is_congr_root(R, t)) {
                         state new_state = m_state;
@@ -360,7 +417,7 @@ struct ematch_fn {
         expr new_inst  = normalize(m_ctx->instantiate_uvars_mvars(lemma.m_prop));
         if (has_idx_metavar(new_inst))
             return; // result contains temporary metavariables
-        if (m_inst_ext.m_instances.contains(new_inst))
+        if (!m_inst_ext.save_instance(new_inst))
             return; // already added this instance
         if (!m_new_instances) {
             trace_action("ematch");
@@ -368,7 +425,6 @@ struct ematch_fn {
         lean_trace_ematch(tout() << "instance: " << ppb(new_inst) << "\n";);
         m_new_instances = true;
         expr new_proof = m_ctx->instantiate_uvars_mvars(lemma.m_proof);
-        m_inst_ext.m_instances.insert(new_inst);
         curr_state().mk_hypothesis(new_inst, new_proof);
     }
 
@@ -393,7 +449,7 @@ struct ematch_fn {
         expr const & f  = get_app_args(p0, p0_args);
         name const & R  = is_prop(p0) ? get_iff_name() : get_eq_name();
         unsigned gmt    = m_cc.get_gmt();
-        if (auto s = m_inst_ext.m_apps.find(head_index(f))) {
+        if (auto s = m_inst_ext.get_apps().find(head_index(f))) {
             s->for_each([&](expr const & t) {
                     if (m_cc.is_congr_root(R, t) && (!filter || m_cc.get_mt(R, t) == gmt)) {
                         m_ctx->clear();
@@ -438,11 +494,14 @@ struct ematch_fn {
     /* (Try to) instantiate lemmas in \c s. If \c filter is true, then use gmt optimization. */
     void instantiate_lemmas(hi_lemma_set const & s, bool filter) {
         s.for_each([&](hi_lemma const & l) {
-                instantiate_lemma(l, filter);
+                if (!m_inst_ext.max_instances_exceeded())
+                    instantiate_lemma(l, filter);
             });
     }
 
     action_result operator()() {
+        if (m_inst_ext.max_instances_exceeded())
+            return action_result::failed();
         instantiate_lemmas(m_ext.m_new_lemmas, false);
         instantiate_lemmas(m_ext.m_lemmas, true);
         m_ext.m_lemmas.merge(m_ext.m_new_lemmas);

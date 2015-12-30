@@ -35,7 +35,8 @@ bool     get_pp_purify_locals(options const & opts);
 bool     get_pp_numerals(options const & opts);
 bool     get_pp_abbreviations(options const & opts);
 bool     get_pp_preterm(options const & opts);
-bool     get_pp_compact_goals(options const & opts);
+bool     get_pp_goal_compact(options const & opts);
+unsigned get_pp_goal_max_hyps(options const & opts);
 bool     get_pp_all(options const & opts);
 list<options> const & get_distinguishing_pp_options();
 

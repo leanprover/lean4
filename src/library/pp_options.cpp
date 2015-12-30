@@ -67,8 +67,12 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_PRETERM false
 #endif
 
-#ifndef LEAN_DEFAULT_PP_COMPACT_GOALS
-#define LEAN_DEFAULT_PP_COMPACT_GOALS false
+#ifndef LEAN_DEFAULT_PP_GOAL_COMPACT
+#define LEAN_DEFAULT_PP_GOAL_COMPACT false
+#endif
+
+#ifndef LEAN_DEFAULT_PP_GOAL_MAX_HYPS
+#define LEAN_DEFAULT_PP_GOAL_MAX_HYPS 200
 #endif
 
 #ifndef LEAN_DEFAULT_PP_ALL
@@ -91,7 +95,8 @@ static name * g_pp_beta            = nullptr;
 static name * g_pp_numerals        = nullptr;
 static name * g_pp_abbreviations   = nullptr;
 static name * g_pp_preterm         = nullptr;
-static name * g_pp_compact_goals   = nullptr;
+static name * g_pp_goal_compact    = nullptr;
+static name * g_pp_goal_max_hyps   = nullptr;
 static name * g_pp_all             = nullptr;
 static list<options> * g_distinguishing_pp_options = nullptr;
 
@@ -112,7 +117,9 @@ void initialize_pp_options() {
     g_pp_abbreviations   = new name{"pp", "abbreviations"};
     g_pp_preterm         = new name{"pp", "preterm"};
     g_pp_all             = new name{"pp", "all"};
-    g_pp_compact_goals   = new name{"pp", "compact_goals"};
+    g_pp_goal_compact    = new name{"pp", "goal", "compact"};
+    g_pp_goal_max_hyps   = new name{"pp", "goal", "max_hypotheses"};
+
     register_unsigned_option(*g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH,
                              "(pretty printer) maximum expression depth, after that it will use ellipsis");
     register_unsigned_option(*g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS,
@@ -145,8 +152,10 @@ void initialize_pp_options() {
                          "(pretty printer) display abbreviations (i.e., revert abbreviation expansion when pretty printing)");
     register_bool_option(*g_pp_preterm, LEAN_DEFAULT_PP_PRETERM,
                          "(pretty printer) assume the term is a preterm (i.e., a term before elaboration)");
-    register_bool_option(*g_pp_compact_goals, LEAN_DEFAULT_PP_COMPACT_GOALS,
+    register_bool_option(*g_pp_goal_compact, LEAN_DEFAULT_PP_GOAL_COMPACT,
                          "(pretty printer) try to display goal in a single line when possible");
+    register_unsigned_option(*g_pp_goal_max_hyps, LEAN_DEFAULT_PP_GOAL_MAX_HYPS,
+                             "(pretty printer) maximum number of hypotheses to be displayed");
     register_bool_option(*g_pp_all, LEAN_DEFAULT_PP_ALL,
                          "(pretty printer) display coercions, implicit parameters, fully qualified names, universes, "
                          "and disable abbreviations, beta reduction and notation during pretty printing");
@@ -178,7 +187,8 @@ void finalize_pp_options() {
     delete g_pp_purify_metavars;
     delete g_pp_purify_locals;
     delete g_pp_beta;
-    delete g_pp_compact_goals;
+    delete g_pp_goal_compact;
+    delete g_pp_goal_max_hyps;
     delete g_pp_all;
     delete g_distinguishing_pp_options;
 }
@@ -211,7 +221,8 @@ bool     get_pp_beta(options const & opts)            { return opts.get_bool(*g_
 bool     get_pp_numerals(options const & opts)        { return opts.get_bool(*g_pp_numerals, LEAN_DEFAULT_PP_NUMERALS); }
 bool     get_pp_abbreviations(options const & opts)   { return opts.get_bool(*g_pp_abbreviations, LEAN_DEFAULT_PP_ABBREVIATIONS); }
 bool     get_pp_preterm(options const & opts)         { return opts.get_bool(*g_pp_preterm, LEAN_DEFAULT_PP_PRETERM); }
-bool     get_pp_compact_goals(options const & opts)   { return opts.get_bool(*g_pp_compact_goals, LEAN_DEFAULT_PP_COMPACT_GOALS); }
+bool     get_pp_goal_compact(options const & opts)    { return opts.get_bool(*g_pp_goal_compact, LEAN_DEFAULT_PP_GOAL_COMPACT); }
+unsigned get_pp_goal_max_hyps(options const & opts)   { return opts.get_unsigned(*g_pp_goal_max_hyps, LEAN_DEFAULT_PP_GOAL_MAX_HYPS); }
 bool     get_pp_all(options const & opts)             { return opts.get_bool(*g_pp_all, LEAN_DEFAULT_PP_ALL); }
 
 list<options> const & get_distinguishing_pp_options() { return *g_distinguishing_pp_options; }

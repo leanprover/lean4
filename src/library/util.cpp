@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <algorithm>
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/error_msgs.h"
@@ -918,11 +919,12 @@ format format_goal(formatter const & _fmt, buffer<expr> const & hyps, expr const
     formatter fmt    = _fmt.update_options(opts);
     unsigned indent  = get_pp_indent(opts);
     bool unicode     = get_pp_unicode(opts);
-    bool compact     = get_pp_compact_goals(opts);
+    bool compact     = get_pp_goal_compact(opts);
+    unsigned max_hs  = get_pp_goal_max_hyps(opts);
     format turnstile = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
     format r;
-    unsigned i = hyps.size();
-    bool first = true;
+    unsigned i     = std::min(max_hs, hyps.size());
+    bool first     = true;
     while (i > 0) {
         i--;
         expr l     = hyps[i];
@@ -943,6 +945,8 @@ format format_goal(formatter const & _fmt, buffer<expr> const & hyps, expr const
             r = compose(comma(), line()) + r;
         r = group(ids + space() + colon() + nest(indent, line() + fmt(t))) + r;
     }
+    if (hyps.size() > max_hs)
+        r = r + compose(comma(), line()) + format("... (set pp.goal.max_hypotheses to display remaining hypotheses)");
     if (compact)
         r = group(r);
     r += line() + turnstile + space() + nest(indent, fmt(tmp_subst.instantiate(conclusion)));

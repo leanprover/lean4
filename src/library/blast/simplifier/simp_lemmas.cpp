@@ -84,6 +84,13 @@ bool is_simp_lemma(environment const & env, name const & c) {
     return simp_ext::get_state(env).m_simp_lemmas.contains(c);
 }
 
+unsigned get_simp_lemma_priority(environment const & env, name const & n) {
+    if (auto r = simp_ext::get_state(env).m_simp_lemmas.get_prio(n))
+        return *r;
+    else
+        return LEAN_DEFAULT_PRIORITY;
+}
+
 bool is_congr_lemma(environment const & env, name const & c) {
     return simp_ext::get_state(env).m_congr_lemmas.contains(c);
 }

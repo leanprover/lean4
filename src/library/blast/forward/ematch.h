@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 action_result ematch_action();
+action_result ematch_simp_action();
 void initialize_ematch();
 void finalize_ematch();
 }}

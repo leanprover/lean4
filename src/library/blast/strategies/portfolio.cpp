@@ -49,6 +49,13 @@ static optional<expr> apply_ematch() {
                                     ematch_action)();
 }
 
+static optional<expr> apply_ematch_simp() {
+    flet<bool> set(get_config().m_ematch, true);
+    return mk_debug_action_strategy(assert_cc_action,
+                                    unit_propagate,
+                                    ematch_simp_action)();
+}
+
 static optional<expr> apply_constructor() {
     return mk_debug_action_strategy([]() { return constructor_action(); })();
 }
@@ -92,6 +99,8 @@ optional<expr> apply_strategy() {
         return apply_core_grind();
     } else if (s_name == "ematch") {
         return apply_ematch();
+    } else if (s_name == "ematch_simp") {
+        return apply_ematch_simp();
     } else if (s_name == "constructor") {
         return apply_constructor();
     } else if (s_name == "unit") {

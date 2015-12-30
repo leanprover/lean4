@@ -155,9 +155,7 @@ section group
   by simp
 
   theorem inv_eq_of_mul_eq_one {a b : A} (H : a * b = 1) : a⁻¹ = b :=
-  calc a⁻¹ = a⁻¹ * 1       : by simp
-       ... = a⁻¹ * (a * b) : by simp
-       ... = b             : by simp_nohyps
+  by msimp
 
   theorem one_inv [simp] : 1⁻¹ = (1 : A) :=
   inv_eq_of_mul_eq_one (one_mul 1)
@@ -166,7 +164,7 @@ section group
   inv_eq_of_mul_eq_one (mul.left_inv a)
 
   theorem inv.inj {a b : A} (H : a⁻¹ = b⁻¹) : a = b :=
-  by rewrite [-inv_inv a, H, inv_inv b]
+  by msimp
 
   theorem inv_eq_inv_iff_eq (a b : A) : a⁻¹ = b⁻¹ ↔ a = b :=
   iff.intro (assume H, inv.inj H) (by simp)
@@ -187,33 +185,19 @@ section group
   begin apply eq_inv_of_eq_inv, symmetry, exact inv_eq_of_mul_eq_one H end
 
   theorem mul.right_inv [simp] (a : A) : a * a⁻¹ = 1 :=
-  calc
-    a * a⁻¹ = (a⁻¹)⁻¹ * a⁻¹ : by simp
-        ... = 1             : mul.left_inv
+  by msimp
 
   theorem mul_inv_cancel_left [simp] (a b : A) : a * (a⁻¹ * b) = b :=
-  calc
-    a * (a⁻¹ * b) = a * a⁻¹ * b : by rewrite mul.assoc
-      ... = 1 * b               : by simp
-      ... = b                   : by simp
+  by msimp
 
   theorem mul_inv_cancel_right [simp] (a b : A) : a * b * b⁻¹ = a :=
-  calc
-    a * b * b⁻¹ = a * (b * b⁻¹) : by simp
-      ... = a * 1               : by simp
-      ... = a                   : by simp
+  by msimp
 
   theorem mul_inv [simp] (a b : A) : (a * b)⁻¹ = b⁻¹ * a⁻¹ :=
-  inv_eq_of_mul_eq_one
-    (calc
-      a * b * (b⁻¹ * a⁻¹) = a * (b * (b⁻¹ * a⁻¹)) : by simp
-        ... = a * a⁻¹                             : by simp
-        ... = 1                                   : by simp)
+  inv_eq_of_mul_eq_one (by msimp)
 
   theorem eq_of_mul_inv_eq_one {a b : A} (H : a * b⁻¹ = 1) : a = b :=
-  calc
-    a = a * b⁻¹ * b : by simp_nohyps
-      ... = b       : by simp
+  by msimp
 
   theorem eq_mul_inv_of_mul_eq {a b c : A} (H : a * c = b) : a = b * c⁻¹ :=
   by simp
@@ -246,13 +230,13 @@ section group
   iff.intro eq_mul_inv_of_mul_eq mul_eq_of_eq_mul_inv
 
   theorem mul_left_cancel {a b c : A} (H : a * b = a * c) : b = c :=
-  by rewrite [-inv_mul_cancel_left a b, H, inv_mul_cancel_left]
+  by msimp
 
   theorem mul_right_cancel {a b c : A} (H : a * b = c * b) : a = c :=
-  by rewrite [-mul_inv_cancel_right a b, H, mul_inv_cancel_right]
+  by msimp
 
   theorem mul_eq_one_of_mul_eq_one {a b : A} (H : b * a = 1) : a * b = 1 :=
-  by rewrite [-inv_eq_of_mul_eq_one H, mul.left_inv]
+  by msimp
 
   theorem mul_eq_one_iff_mul_eq_one (a b : A) : a * b = 1 ↔ b * a = 1 :=
   iff.intro !mul_eq_one_of_mul_eq_one !mul_eq_one_of_mul_eq_one
@@ -263,29 +247,22 @@ section group
   local infixl ` ~ ` := is_conjugate
   local infixr ` ∘c `:55 := conj_by
 
+  local attribute conj_by [reducible]
+
   lemma conj_compose [simp] (f g a : A) : f ∘c g ∘c a = f*g ∘c a :=
-  calc f ∘c g ∘c a = f * (g * a * g⁻¹) * f⁻¹ : rfl
-               ... = f * g * a * (f * g)⁻¹   : by simp
+  by msimp
 
   lemma conj_id [simp] (a : A) : 1 ∘c a = a :=
-  calc 1 * a * 1⁻¹ = a * 1⁻¹ : by simp
-               ... = a       : by simp
+  by msimp
 
   lemma conj_one [simp] (g : A) : g ∘c 1 = 1 :=
-  calc g * 1 * g⁻¹ = g * g⁻¹ : by simp
-               ... = 1       : by simp
+  by msimp
 
   lemma conj_inv_cancel [simp] (g : A) : ∀ a, g⁻¹ ∘c g ∘c a = a :=
-  assume a, calc
-      g⁻¹ ∘c g ∘c a = g⁻¹*g ∘c a : by simp
-                ... = a          : by simp
+  by msimp
 
   lemma conj_inv [simp] (g : A) : ∀ a, (g ∘c a)⁻¹ = g ∘c a⁻¹ :=
-  take a, calc
-    (g * a * g⁻¹)⁻¹ = g⁻¹⁻¹ * (g * a)⁻¹   : by simp
-                ... = g⁻¹⁻¹ * (a⁻¹ * g⁻¹) : by simp
-                ... = g⁻¹⁻¹ * a⁻¹ * g⁻¹   : by simp
-                ... = g * a⁻¹ * g⁻¹       : by simp
+  by msimp
 
   lemma is_conj.refl (a : A) : a ~ a := exists.intro 1 (conj_id a)
 
@@ -298,10 +275,8 @@ section group
   assume Pab, assume Pbc,
   obtain x (Px : x ∘c b = a), from Pab,
   obtain y (Py : y ∘c c = b), from Pbc,
-  exists.intro (x*y) (calc
-      x*y ∘c c = x ∘c y ∘c c : by simp
-           ... = x ∘c b      : Py
-           ... = a           : Px)
+  exists.intro (x*y) (by msimp)
+
 end group
 
 definition group.to_left_cancel_semigroup [trans_instance] [reducible] [s : group A] :
@@ -340,19 +315,19 @@ section add_group
   by simp
 
   theorem neg_eq_of_add_eq_zero {a b : A} (H : a + b = 0) : -a = b :=
-  by rewrite [-add_zero, -H, neg_add_cancel_left]
+  by msimp
 
   theorem neg_zero [simp] : -0 = (0 : A) := neg_eq_of_add_eq_zero (zero_add 0)
 
   theorem neg_neg [simp] (a : A) : -(-a) = a := neg_eq_of_add_eq_zero (add.left_inv a)
 
   theorem eq_neg_of_add_eq_zero {a b : A} (H : a + b = 0) : a = -b :=
-  by rewrite [-neg_eq_of_add_eq_zero H, neg_neg]
+  by msimp
 
   theorem neg.inj {a b : A} (H : -a = -b) : a = b :=
   calc
     a = -(-a) : by simp_nohyps
-      ... = b : begin apply neg_eq_of_add_eq_zero, simp end
+  ... = b : begin apply neg_eq_of_add_eq_zero, simp end
 
   theorem neg_eq_neg_iff_eq (a b : A) : -a = -b ↔ a = b :=
   iff.intro (assume H, neg.inj H) (by simp)
@@ -373,13 +348,10 @@ section add_group
   iff.intro !eq_neg_of_eq_neg !eq_neg_of_eq_neg
 
   theorem add.right_inv [simp] (a : A) : a + -a = 0 :=
-  calc
-    a + -a = -(-a) + -a : by simp
-      ... = 0           : add.left_inv
+  by msimp
 
   theorem add_neg_cancel_left [simp] (a b : A) : a + (-a + b) = b :=
-  calc a + (-a + b) = (a + -a) + b : by rewrite add.assoc
-             ...    = b            : by simp
+  by msimp
 
   theorem add_neg_cancel_right [simp] (a b : A) : a + b + -b = a :=
   by simp
@@ -419,14 +391,10 @@ section add_group
   iff.intro eq_add_neg_of_add_eq add_eq_of_eq_add_neg
 
   theorem add_left_cancel {a b c : A} (H : a + b = a + c) : b = c :=
-  calc b = -a + (a + b) : by simp_nohyps
-     ... = -a + (a + c) : by simp
-     ... = c            : by simp
+  by msimp
 
   theorem add_right_cancel {a b c : A} (H : a + b = c + b) : a = c :=
-  calc a = (a + b) + -b : by simp_nohyps
-     ... = (c + b) + -b : by simp
-     ... = c            : by simp
+  by msimp
 
   definition add_group.to_left_cancel_semigroup [trans_instance] [reducible] :
     add_left_cancel_semigroup A :=
@@ -458,10 +426,7 @@ section add_group
   theorem add_sub_cancel (a b : A) : a + b - b = a := !add_neg_cancel_right
 
   theorem eq_of_sub_eq_zero {a b : A} (H : a - b = 0) : a = b :=
-  calc
-    a = (a - b) + b : by simp_nohyps
-      ... = 0 + b   : H
-      ... = b       : by simp
+  by msimp
 
   theorem eq_iff_sub_eq_zero (a b : A) : a = b ↔ a - b = 0 :=
   iff.intro (assume H, H ▸ !sub_self) (assume H, eq_of_sub_eq_zero H)
@@ -475,18 +440,12 @@ section add_group
   by simp
 
   theorem neg_sub (a b : A) : -(a - b) = b - a :=
-  neg_eq_of_add_eq_zero
-    (calc
-      a - b + (b - a) = a - b + b - a : by simp
-        ... = a - a                   : by simp
-        ... = 0                       : by simp)
+  neg_eq_of_add_eq_zero (by msimp)
 
   theorem add_sub (a b c : A) : a + (b - c) = a + b - c := !add.assoc⁻¹
 
   theorem sub_add_eq_sub_sub_swap (a b c : A) : a - (b + c) = a - c - b :=
-  calc
-    a - (b + c) = a + (-c - b) : by simp
-            ... = a - c - b    : by simp
+  by msimp
 
   theorem sub_eq_iff_eq_add (a b c : A) : a - b = c ↔ a = c + b :=
   iff.intro (assume H, eq_add_of_add_neg_eq H) (assume H, add_neg_eq_of_eq_add H)
@@ -616,9 +575,7 @@ by simp
 
 theorem bit1_add_bit1_helper [add_comm_semigroup A] [has_one A] (a b t s: A)
         (H : (a + b) = t) (H2 : add1 t = s) : bit1 a + bit1 b = bit0 s :=
-calc bit1 a + bit1 b = bit0 (add1 (a + b)) : by simp_nohyps
-           ...       = bit0 (add1 t)       : by simp
-           ...       = bit0 s              : by simp
+by msimp
 
 theorem bin_add_zero [add_monoid A] (a : A) : a + zero = a :=
 by simp
@@ -637,14 +594,14 @@ rfl
 
 theorem bit1_add_one_helper [has_add A] [has_one A] (a t : A) (H : add1 (bit1 a) = t) :
         bit1 a + one = t :=
-by rewrite -H
+by msimp
 
 theorem one_add_bit1 [add_comm_semigroup A] [has_one A] (a : A) : one + bit1 a = add1 (bit1 a) :=
 by simp
 
 theorem one_add_bit1_helper [add_comm_semigroup A] [has_one A] (a t : A)
         (H : add1 (bit1 a) = t) : one + bit1 a = t :=
-by rewrite -H; simp
+by msimp
 
 theorem add1_bit0 [has_add A] [has_one A] (a : A) : add1 (bit0 a) = bit1 a :=
 rfl
@@ -655,7 +612,7 @@ by simp
 
 theorem add1_bit1_helper [add_comm_semigroup A] [has_one A] (a t : A) (H : add1 a = t) :
         add1 (bit1 a) = bit0 t :=
-by rewrite -H; simp
+by msimp
 
 theorem add1_one [has_add A] [has_one A] : add1 (one : A) = bit0 one :=
 rfl

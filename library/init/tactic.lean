@@ -110,6 +110,7 @@ definition with_attributes_tac (o : expr) (n : identifier_list) (t : tactic) : t
 definition simp         : tactic := #tactic with_options [blast.strategy "simp"] blast
 definition simp_nohyps  : tactic := #tactic with_options [blast.strategy "simp_nohyps"] blast
 definition topdown_simp : tactic := #tactic with_options [blast.strategy "simp", simplify.top_down true] blast
+definition msimp        : tactic := #tactic with_options [blast.strategy "ematch_simp"] blast
 
 definition cases (h : expr) (ids : opt_identifier_list) : tactic := builtin
 

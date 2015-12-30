@@ -15,42 +15,24 @@ Author: Leonardo de Moura
 #include "library/blast/congruence_closure.h"
 #include "library/blast/forward/pattern.h"
 #include "library/blast/forward/forward_lemmas.h"
+#include "library/blast/simplifier/simp_lemmas.h"
 
 namespace lean {
 namespace blast {
-/*
-When a hypothesis hidx is activated:
-1- Traverse its type and for each f-application.
-   If it is the first f-application found, and f is a constant then
-   retrieve lemmas which contain a multi-pattern starting with f.
+#define lean_trace_ematch(Code) lean_trace(name({"blast", "ematch"}), Code)
 
-2- If hypothesis is a proposition and a quantifier,
-try to create a hi-lemma for it, and add it to
-set of recently activated hi_lemmas
-
-E-match round action
-
-1- For each active hi-lemma L, and mulit-pattern P,
-   If L has been recently activated, then we ematch ignoring
-   gmt.
-
-   If L has been processed before, we try to ematch starting
-   at each each element of the multi-pattern.
-   We only consider the head f-applications that have a mt
-   equal to gmt
-
-*/
 typedef rb_tree<expr, expr_quick_cmp> expr_set;
-typedef rb_tree<hi_lemma, hi_lemma_cmp> hi_lemma_set;
-static unsigned g_ext_id = 0;
-struct ematch_branch_extension : public branch_extension {
-    hi_lemma_set                                  m_lemmas;
-    hi_lemma_set                                  m_new_lemmas;
+/* Branch extension for supporting heuristic instantiations methods.
+   It contains
+   1- mapping functions to its applications.
+   2- set of lemmas that have been instantiated. */
+struct instances_branch_extension : public branch_extension {
     rb_map<head_index, expr_set, head_index::cmp> m_apps;
     expr_set                                      m_instances;
 
-    ematch_branch_extension() {}
-    ematch_branch_extension(ematch_branch_extension const &) {}
+    instances_branch_extension() {}
+    instances_branch_extension(instances_branch_extension const & src):
+        m_apps(src.m_apps), m_instances(src.m_instances) {}
 
     void collect_apps(expr const & e) {
         switch (e.kind()) {
@@ -86,6 +68,52 @@ struct ematch_branch_extension : public branch_extension {
         }}
     }
 
+    virtual void hypothesis_activated(hypothesis const & h, hypothesis_idx) override {
+        collect_apps(h.get_type());
+    }
+
+    virtual void target_updated() override { collect_apps(curr_state().get_target()); }
+
+    virtual branch_extension * clone() override { return new instances_branch_extension(*this); }
+};
+
+static unsigned g_inst_ext_id = 0;
+instances_branch_extension & get_inst_ext() {
+    return static_cast<instances_branch_extension&>(curr_state().get_extension(g_inst_ext_id));
+}
+
+/*
+When a hypothesis hidx is activated:
+1- Traverse its type and for each f-application.
+   If it is the first f-application found, and f is a constant then
+   retrieve lemmas which contain a multi-pattern starting with f.
+
+2- If hypothesis is a proposition and a quantifier,
+try to create a hi-lemma for it, and add it to
+set of recently activated hi_lemmas
+
+E-match round action
+
+1- For each active hi-lemma L, and mulit-pattern P,
+   If L has been recently activated, then we ematch ignoring
+   gmt.
+
+   If L has been processed before, we try to ematch starting
+   at each each element of the multi-pattern.
+   We only consider the head f-applications that have a mt
+   equal to gmt
+
+*/
+typedef rb_tree<hi_lemma, hi_lemma_cmp> hi_lemma_set;
+struct ematch_branch_extension_core : public branch_extension {
+    hi_lemma_set                                  m_lemmas;
+    hi_lemma_set                                  m_new_lemmas;
+
+    ematch_branch_extension_core() {}
+    ematch_branch_extension_core(ematch_branch_extension_core const & src):
+        m_lemmas(src.m_lemmas), m_new_lemmas(src.m_new_lemmas) {}
+    virtual ~ematch_branch_extension_core() {}
+
     void register_lemma(hypothesis const & h) {
         if (is_pi(h.get_type()) && !is_arrow(h.get_type())) {
             try {
@@ -94,23 +122,51 @@ struct ematch_branch_extension : public branch_extension {
         }
     }
 
-    virtual ~ematch_branch_extension() {}
-    virtual branch_extension * clone() override { return new ematch_branch_extension(*this); }
+    virtual void hypothesis_activated(hypothesis const & h, hypothesis_idx) override {
+        register_lemma(h);
+    }
+};
+
+/* Extension that populates initial lemma set using [forward] lemmas */
+struct ematch_branch_extension : public ematch_branch_extension_core {
     virtual void initialized() override {
         forward_lemmas s = get_forward_lemmas(env());
         s.for_each([&](name const & n, unsigned prio) {
                 try {
                     m_new_lemmas.insert(mk_hi_lemma(n, prio));
-                } catch (exception &) {}
+                } catch (exception & ex) {
+                    lean_trace_ematch(tout() << "discarding [forward] '" << n << "', " << ex.what() << "\n";);
+                }
             });
     }
-    virtual void hypothesis_activated(hypothesis const & h, hypothesis_idx) override {
-        collect_apps(h.get_type());
-        register_lemma(h);
-    }
-    virtual void hypothesis_deleted(hypothesis const &, hypothesis_idx) override {}
-    virtual void target_updated() override { collect_apps(curr_state().get_target()); }
+    virtual branch_extension * clone() override { return new ematch_branch_extension(*this); }
 };
+
+static unsigned g_ematch_ext_id = 0;
+ematch_branch_extension_core & get_ematch_ext() {
+    return static_cast<ematch_branch_extension&>(curr_state().get_extension(g_ematch_ext_id));
+}
+
+/* Extension that populates initial lemma set using [simp] lemmas */
+struct ematch_simp_branch_extension : public ematch_branch_extension_core {
+    virtual void initialized() override {
+        buffer<name> simp_lemmas;
+        get_simp_lemmas(env(), simp_lemmas);
+        for (name const & n : simp_lemmas) {
+            try {
+                m_new_lemmas.insert(mk_hi_lemma(n, get_simp_lemma_priority(env(), n)));
+            } catch (exception & ex) {
+                lean_trace_ematch(tout() << "discarding [simp] '" << n << "', " << ex.what() << "\n";);
+            }
+        }
+    }
+    virtual branch_extension * clone() override { return new ematch_simp_branch_extension(*this); }
+};
+
+static unsigned g_ematch_simp_ext_id = 0;
+ematch_branch_extension_core & get_ematch_simp_ext() {
+    return static_cast<ematch_simp_branch_extension&>(curr_state().get_extension(g_ematch_simp_ext_id));
+}
 
 /* Auxiliary proof step used to bump proof depth */
 struct noop_proof_step_cell : public proof_step_cell {
@@ -121,16 +177,19 @@ struct noop_proof_step_cell : public proof_step_cell {
 };
 
 void initialize_ematch() {
-    g_ext_id = register_branch_extension(new ematch_branch_extension());
+    g_inst_ext_id        = register_branch_extension(new instances_branch_extension());
+    g_ematch_ext_id      = register_branch_extension(new ematch_branch_extension());
+    g_ematch_simp_ext_id = register_branch_extension(new ematch_simp_branch_extension());
     register_trace_class(name{"blast", "ematch"});
 }
 
 void finalize_ematch() {}
 
 struct ematch_fn {
-    ematch_branch_extension &  m_ext;
-    blast_tmp_type_context     m_ctx;
-    congruence_closure &       m_cc;
+    ematch_branch_extension_core & m_ext;
+    instances_branch_extension &   m_inst_ext;
+    blast_tmp_type_context         m_ctx;
+    congruence_closure &           m_cc;
 
     enum frame_kind { DefEqOnly, Match, Continue };
 
@@ -143,8 +202,10 @@ struct ematch_fn {
 
     bool                       m_new_instances;
 
-    ematch_fn():
-        m_ext(static_cast<ematch_branch_extension&>(curr_state().get_extension(g_ext_id))),
+    /** If fwd == true, then use [forward] lemmas, otherwise use [simp] lemmas */
+    ematch_fn(bool fwd = true):
+        m_ext(fwd ? get_ematch_ext() : get_ematch_simp_ext()),
+        m_inst_ext(get_inst_ext()),
         m_cc(get_cc()),
         m_new_instances(false) {
     }
@@ -226,7 +287,7 @@ struct ematch_fn {
         buffer<expr> p_args;
         expr const & f = get_app_args(p, p_args);
         buffer<state> new_states;
-        if (auto s = m_ext.m_apps.find(head_index(f))) {
+        if (auto s = m_inst_ext.m_apps.find(head_index(f))) {
             s->for_each([&](expr const & t) {
                     if (m_cc.is_congr_root(R, t)) {
                         state new_state = m_state;
@@ -299,15 +360,15 @@ struct ematch_fn {
         expr new_inst  = normalize(m_ctx->instantiate_uvars_mvars(lemma.m_prop));
         if (has_idx_metavar(new_inst))
             return; // result contains temporary metavariables
-        if (m_ext.m_instances.contains(new_inst))
+        if (m_inst_ext.m_instances.contains(new_inst))
             return; // already added this instance
         if (!m_new_instances) {
             trace_action("ematch");
         }
-        lean_trace(name({"blast", "ematch"}), tout() << "instance: " << ppb(new_inst) << "\n";);
+        lean_trace_ematch(tout() << "instance: " << ppb(new_inst) << "\n";);
         m_new_instances = true;
         expr new_proof = m_ctx->instantiate_uvars_mvars(lemma.m_proof);
-        m_ext.m_instances.insert(new_inst);
+        m_inst_ext.m_instances.insert(new_inst);
         curr_state().mk_hypothesis(new_inst, new_proof);
     }
 
@@ -332,7 +393,7 @@ struct ematch_fn {
         expr const & f  = get_app_args(p0, p0_args);
         name const & R  = is_prop(p0) ? get_iff_name() : get_eq_name();
         unsigned gmt    = m_cc.get_gmt();
-        if (auto s = m_ext.m_apps.find(head_index(f))) {
+        if (auto s = m_inst_ext.m_apps.find(head_index(f))) {
             s->for_each([&](expr const & t) {
                     if (m_cc.is_congr_root(R, t) && (!filter || m_cc.get_mt(R, t) == gmt)) {
                         m_ctx->clear();
@@ -398,7 +459,14 @@ struct ematch_fn {
 
 action_result ematch_action() {
     if (get_config().m_ematch)
-        return ematch_fn()();
+        return ematch_fn(true)();
+    else
+        return action_result::failed();
+}
+
+action_result ematch_simp_action() {
+    if (get_config().m_ematch)
+        return ematch_fn(false)();
     else
         return action_result::failed();
 }

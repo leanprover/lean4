@@ -301,6 +301,8 @@ public:
     optional<hypothesis_idx> select_hypothesis_to_activate();
     void activate_hypothesis(hypothesis_idx hidx);
 
+    bool is_active(hypothesis_idx hidx) const { return m_branch.m_active.contains(hidx); }
+
     /** \brief Deactivate all active hypotheses */
     void deactivate_all();
 

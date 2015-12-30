@@ -517,9 +517,21 @@ struct hypothesis_dep_depth_lt {
     bool operator()(unsigned hidx1, unsigned hidx2) const {
         hypothesis const & h1 = m_state.get_hypothesis_decl(hidx1);
         hypothesis const & h2 = m_state.get_hypothesis_decl(hidx2);
-        return
-            h1.get_dep_depth() < h2.get_dep_depth() &&
-            (h1.get_dep_depth() == h2.get_dep_depth() && hidx1 < hidx2);
+        bool act1             = m_state.is_active(hidx1);
+        bool act2             = m_state.is_active(hidx2);
+        if (act1 != act2) {
+            return act1 && !act2; // active hypotheses should occur before non-active ones
+        } else if (act1) {
+            lean_assert(act1 && act2);
+            if (h1.get_dep_depth() != h2.get_dep_depth())
+                return h1.get_dep_depth() < h2.get_dep_depth();
+            else
+                return hidx1 < hidx2;
+        } else {
+            // for inactive hypotheses we just compare hidx's
+            lean_assert(!act1 && !act2);
+            return hidx1 < hidx2;
+        }
     }
 };
 

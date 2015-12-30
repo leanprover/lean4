@@ -256,13 +256,16 @@ expr state::to_kernel_expr(expr const & e) const {
     return to_kernel_expr(e, hidx2local, midx2meta);
 }
 
-goal state::to_goal() const {
+goal state::to_goal(bool include_inactive) const {
     hypothesis_idx_map<expr> hidx2local;
     metavar_idx_map<expr>    midx2meta;
     hypothesis_idx_buffer hidxs;
     get_sorted_hypotheses(hidxs);
     buffer<expr> hyps;
     for (unsigned hidx : hidxs) {
+        if (!include_inactive && !is_active(hidx)) {
+            break; // inactive hypotheses occur after active ones after sorting
+        }
         hypothesis const & h = get_hypothesis_decl(hidx);
         // after we add support for let-decls in goals, we must convert back h->get_value() if it is available
         expr new_h = lean::mk_local(name(name("H"), hidx),
@@ -289,14 +292,14 @@ void state::display_active(std::ostream & out) const {
     out << "}\n";
 }
 
-void state::display(io_state_stream const & ios) const {
-    ios << mk_pair(to_goal().pp(ios.get_formatter()), ios.get_options()) << "\n";
+void state::display(io_state_stream const & ios, bool include_inactive) const {
+    ios << mk_pair(to_goal(include_inactive).pp(ios.get_formatter()), ios.get_options()) << "\n";
 }
 
-void state::display(environment const & env, io_state const & ios) const {
+void state::display(environment const & env, io_state const & ios, bool include_inactive) const {
     formatter fmt = ios.get_formatter_factory()(env, ios.get_options());
     auto & out = ios.get_diagnostic_channel();
-    out << mk_pair(to_goal().pp(fmt), ios.get_options()) << "\n";
+    out << mk_pair(to_goal(include_inactive).pp(fmt), ios.get_options()) << "\n";
 }
 
 bool state::has_assigned_uref(level const & l) const {
@@ -517,8 +520,8 @@ struct hypothesis_dep_depth_lt {
     bool operator()(unsigned hidx1, unsigned hidx2) const {
         hypothesis const & h1 = m_state.get_hypothesis_decl(hidx1);
         hypothesis const & h2 = m_state.get_hypothesis_decl(hidx2);
-        bool act1             = m_state.is_active(hidx1);
-        bool act2             = m_state.is_active(hidx2);
+        bool act1             = true; // m_state.is_active(hidx1);
+        bool act2             = true; // m_state.is_active(hidx2);
         if (act1 != act2) {
             return act1 && !act2; // active hypotheses should occur before non-active ones
         } else if (act1) {

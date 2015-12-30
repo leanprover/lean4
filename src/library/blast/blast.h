@@ -183,7 +183,7 @@ void display(char const * msg);
 void display(sstream const & msg);
 
 /** \brief Display curr state at buffered diagnostic channel used to craft an exception for user */
-void display_curr_state_at_buffer();
+void display_curr_state_at_buffer(bool include_inactive = true);
 /** \brief Display msng at buffered diagnostic channel used to craft an exception for user */
 void display_at_buffer(sstream const & msg);
 

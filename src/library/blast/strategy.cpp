@@ -79,7 +79,8 @@ optional<expr> strategy_fn::search() {
                 lean_trace_search(tout() << "strategy '" << get_name() << "' failed, no proof found\n";);
                 if (show_failure()) {
                     display_at_buffer(sstream() << "strategy '" << get_name() << "' failed, no proof found, final state:\n");
-                    display_curr_state_at_buffer();
+                    bool include_inactive = false;
+                    display_curr_state_at_buffer(include_inactive);
                 }
                 return none_expr();
             }

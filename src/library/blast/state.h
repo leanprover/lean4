@@ -458,14 +458,14 @@ public:
     /** \brief Convert current branch into a goal.
         This is mainly used for pretty printing. However, in the future, we may use this capability
         to invoke the tactic framework from the blast tactic. */
-    goal to_goal() const;
+    goal to_goal(bool include_inactive = true) const;
 
     /** \brief Convert expression into a kernel expression that can be pretty printed using better names,
         and types can be inferred by pretty printer. */
     expr to_kernel_expr(expr const & e) const;
 
-    void display(io_state_stream const & ios) const;
-    void display(environment const & env, io_state const & ios) const;
+    void display(io_state_stream const & ios, bool include_inactive = true) const;
+    void display(environment const & env, io_state const & ios, bool include_inactive = true) const;
 
     #ifdef LEAN_DEBUG
     bool check_invariant() const;

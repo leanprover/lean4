@@ -1058,9 +1058,9 @@ void display_at_buffer(sstream const & msg) {
     g_blastenv->get_buffer_ios().get_diagnostic_channel() << msg.str();
 }
 
-void display_curr_state_at_buffer() {
+void display_curr_state_at_buffer(bool include_inactive) {
     lean_assert(g_blastenv);
-    curr_state().display(g_blastenv->get_env(), g_blastenv->get_buffer_ios());
+    curr_state().display(g_blastenv->get_env(), g_blastenv->get_buffer_ios(), include_inactive);
 }
 
 scope_assignment::scope_assignment():m_keep(false) {

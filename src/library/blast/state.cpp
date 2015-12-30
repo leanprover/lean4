@@ -297,7 +297,6 @@ void state::display(environment const & env, io_state const & ios) const {
     formatter fmt = ios.get_formatter_factory()(env, ios.get_options());
     auto & out = ios.get_diagnostic_channel();
     out << mk_pair(to_goal().pp(fmt), ios.get_options()) << "\n";
-    display_active(out.get_stream());
 }
 
 bool state::has_assigned_uref(level const & l) const {

@@ -10,12 +10,14 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
-class debug_action_strategy_core_fn : public strategy_fn {
+class action_strategy_core_fn : public strategy_fn {
+    char const * m_name;
+
     virtual action_result pre(hypothesis_idx) { return action_result::failed(); }
     virtual action_result post(hypothesis_idx) { return action_result::failed(); }
     virtual action_result next() { return action_result::failed(); }
 
-    virtual char const * get_name() const override { return "debug-action"; }
+    virtual char const * get_name() const override { return m_name; }
 
     virtual action_result hypothesis_pre_activation(hypothesis_idx hidx) override {
         Try(assumption_contradiction_actions(hidx));
@@ -37,33 +39,38 @@ class debug_action_strategy_core_fn : public strategy_fn {
         Try(next());
         return action_result::failed();
     }
+public:
+    action_strategy_core_fn(char const * n):m_name(n) {}
 };
 
-class debug_pre_action_strategy_fn : public debug_action_strategy_core_fn {
+class pre_action_strategy_fn : public action_strategy_core_fn {
     std::function<action_result(hypothesis_idx)> m_action;
     virtual action_result pre(hypothesis_idx hidx) { return m_action(hidx); }
 public:
-    debug_pre_action_strategy_fn(std::function<action_result(hypothesis_idx)> const & a):
+    pre_action_strategy_fn(char const * n, std::function<action_result(hypothesis_idx)> const & a):
+        action_strategy_core_fn(n),
         m_action(a) {}
 };
 
-class debug_post_action_strategy_fn : public debug_action_strategy_core_fn {
+class post_action_strategy_fn : public action_strategy_core_fn {
     std::function<action_result(hypothesis_idx)> m_action;
     virtual action_result post(hypothesis_idx hidx) { return m_action(hidx); }
 public:
-    debug_post_action_strategy_fn(std::function<action_result(hypothesis_idx)> const & a):
+    post_action_strategy_fn(char const * n, std::function<action_result(hypothesis_idx)> const & a):
+        action_strategy_core_fn(n),
         m_action(a) {}
 };
 
-class debug_action_strategy_fn : public debug_action_strategy_core_fn {
+class action_strategy_fn : public action_strategy_core_fn {
     std::function<action_result()> m_action;
     virtual action_result next() { return m_action(); }
 public:
-    debug_action_strategy_fn(std::function<action_result()> const & a):
+    action_strategy_fn(char const * n, std::function<action_result()> const & a):
+        action_strategy_core_fn(n),
         m_action(a) {}
 };
 
-class xdebug_action_strategy_fn : public debug_action_strategy_core_fn {
+class xaction_strategy_fn : public action_strategy_core_fn {
     std::function<action_result(hypothesis_idx)> m_pre;
     std::function<action_result(hypothesis_idx)> m_post;
     std::function<action_result()>               m_next;
@@ -72,27 +79,30 @@ class xdebug_action_strategy_fn : public debug_action_strategy_core_fn {
     virtual action_result post(hypothesis_idx hidx) { return m_post(hidx); }
     virtual action_result next() { return m_next(); }
 public:
-    xdebug_action_strategy_fn(std::function<action_result(hypothesis_idx)> const & pre,
-                              std::function<action_result(hypothesis_idx)> const & post,
-                              std::function<action_result()> const & next):
+    xaction_strategy_fn(char const * n,
+                        std::function<action_result(hypothesis_idx)> const & pre,
+                        std::function<action_result(hypothesis_idx)> const & post,
+                        std::function<action_result()> const & next):
+        action_strategy_core_fn(n),
         m_pre(pre), m_post(post), m_next(next) {}
 };
 
-strategy mk_debug_action_strategy(std::function<action_result()> const & a) {
-    return [=]() { return debug_action_strategy_fn(a)(); }; // NOLINT
+strategy mk_action_strategy(char const * n, std::function<action_result()> const & a) {
+    return [=]() { return action_strategy_fn(n, a)(); }; // NOLINT
 }
 
-strategy mk_debug_pre_action_strategy(std::function<action_result(hypothesis_idx)> const & a) {
-    return [=]() { return debug_pre_action_strategy_fn(a)(); }; // NOLINT
+strategy mk_pre_action_strategy(char const * n, std::function<action_result(hypothesis_idx)> const & a) {
+    return [=]() { return pre_action_strategy_fn(n, a)(); }; // NOLINT
 }
 
-strategy mk_debug_post_action_strategy(std::function<action_result(hypothesis_idx)> const & a) {
-    return [=]() { return debug_post_action_strategy_fn(a)(); }; // NOLINT
+strategy mk_post_action_strategy(char const * n, std::function<action_result(hypothesis_idx)> const & a) {
+    return [=]() { return post_action_strategy_fn(n, a)(); }; // NOLINT
 }
 
-strategy mk_debug_action_strategy(std::function<action_result(hypothesis_idx)> const & pre,
-                                  std::function<action_result(hypothesis_idx)> const & post,
-                                  std::function<action_result()> const & next) {
-    return [=]() { return xdebug_action_strategy_fn(pre, post, next)(); }; // NOLINT
+strategy mk_action_strategy(char const * n,
+                            std::function<action_result(hypothesis_idx)> const & pre,
+                            std::function<action_result(hypothesis_idx)> const & post,
+                            std::function<action_result()> const & next) {
+    return [=]() { return xaction_strategy_fn(n, pre, post, next)(); }; // NOLINT
 }
 }}

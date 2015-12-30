@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "library/blast/grinder/grinder_strategy.h"
 #include "library/blast/strategies/simple_strategy.h"
 #include "library/blast/strategies/preprocess_strategy.h"
-#include "library/blast/strategies/debug_action_strategy.h"
+#include "library/blast/strategies/action_strategy.h"
 
 namespace lean {
 namespace blast {
@@ -39,25 +39,28 @@ static optional<expr> apply_simple() {
 
 static optional<expr> apply_cc() {
     flet<bool> set(get_config().m_cc, true);
-    return mk_debug_pre_action_strategy(assert_cc_action)();
+    return mk_pre_action_strategy("cc", assert_cc_action)();
 }
 
 static optional<expr> apply_ematch() {
     flet<bool> set(get_config().m_ematch, true);
-    return mk_debug_action_strategy(assert_cc_action,
-                                    unit_propagate,
-                                    ematch_action)();
+    return mk_action_strategy("ematch",
+                              assert_cc_action,
+                              unit_propagate,
+                              ematch_action)();
 }
 
 static optional<expr> apply_ematch_simp() {
     flet<bool> set(get_config().m_ematch, true);
-    return mk_debug_action_strategy(assert_cc_action,
-                                    unit_propagate,
-                                    ematch_simp_action)();
+    return mk_action_strategy("ematch_simp",
+                              assert_cc_action,
+                              unit_propagate,
+                              ematch_simp_action)();
 }
 
 static optional<expr> apply_constructor() {
-    return mk_debug_action_strategy([]() { return constructor_action(); })();
+    return mk_action_strategy("constructor",
+                              []() { return constructor_action(); })();
 }
 
 static optional<expr> apply_backward() {
@@ -65,9 +68,10 @@ static optional<expr> apply_backward() {
 }
 
 static optional<expr> apply_unit() {
-    return mk_debug_action_strategy(unit_preprocess,
-                                    unit_propagate,
-                                    []() { return action_result::failed(); })();
+    return mk_action_strategy("unit",
+                              unit_preprocess,
+                              unit_propagate,
+                              []() { return action_result::failed(); })();
 }
 
 static optional<expr> apply_grind() {

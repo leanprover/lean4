@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <string>
 #include <vector>
 #include "util/sstream.h"
 #include "kernel/for_each_fn.h"
@@ -76,6 +77,11 @@ class blastenv {
 
     environment                m_env;
     io_state                   m_ios;
+    /* blast may use different strategies.
+       We use m_buffer_ios to store messages describing failed attempts.
+       These messages are reported to the user only if none of the strategies have worked.
+       We dump the content of the diagnostic channel into an blast_exception. */
+    io_state                   m_buffer_ios;
     name_generator             m_ngen;
     unsigned                   m_next_uref_idx{0};
     unsigned                   m_next_mref_idx{0};
@@ -484,7 +490,8 @@ class blastenv {
 
 public:
     blastenv(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds):
-        m_env(env), m_ios(ios), m_ngen(*g_prefix), m_lemma_hints(to_name_set(ls)), m_unfold_hints(to_name_set(ds)),
+        m_env(env), m_ios(ios), m_buffer_ios(ios),
+        m_ngen(*g_prefix), m_lemma_hints(to_name_set(ls)), m_unfold_hints(to_name_set(ds)),
         m_not_reducible_pred(mk_not_reducible_pred(env)),
         m_class_pred(mk_class_pred(env)),
         m_instance_pred(mk_instance_pred(env)),
@@ -502,6 +509,7 @@ public:
         m_unfold_macro_pred([](expr const &) { return true; }),
         m_tctx(*this),
         m_normalizer(m_tctx) {
+        m_buffer_ios.set_diagnostic_channel(std::shared_ptr<output_channel>(new string_output_channel()));
         clear_choice_points();
     }
 
@@ -533,18 +541,26 @@ public:
         init_classical_flag();
     }
 
-    optional<expr> operator()(goal const & g) {
+    expr operator()(goal const & g) {
         init_state(g);
         if (auto r = apply_strategy()) {
-            return some_expr(to_tactic_proof(*r));
+            return to_tactic_proof(*r);
         } else {
-            return none_expr();
+            string_output_channel & channel = static_cast<string_output_channel &>(m_buffer_ios.get_diagnostic_channel());
+            std::string buffer = channel.str();
+            if (buffer.empty()) {
+                throw blast_exception(sstream() << " blast tactic failed");
+            } else {
+                throw blast_exception(sstream() << " blast tactic failed\n" << buffer << "-------");
+            }
         }
     }
 
     environment const & get_env() const { return m_env; }
 
     io_state const & get_ios() const { return m_ios; }
+
+    io_state const & get_buffer_ios() const { return m_buffer_ios; }
 
     state & get_curr_state() { return m_curr_state; }
 
@@ -1037,6 +1053,16 @@ void display(sstream const & msg) {
     ios().get_diagnostic_channel() << msg.str();
 }
 
+void display_at_buffer(sstream const & msg) {
+    lean_assert(g_blastenv);
+    g_blastenv->get_buffer_ios().get_diagnostic_channel() << msg.str();
+}
+
+void display_curr_state_at_buffer() {
+    lean_assert(g_blastenv);
+    curr_state().display(g_blastenv->get_env(), g_blastenv->get_buffer_ios());
+}
+
 scope_assignment::scope_assignment():m_keep(false) {
     lean_assert(g_blastenv);
     g_blastenv->m_tctx.push();
@@ -1162,7 +1188,7 @@ expr internalize(expr const & e) {
     return g_blastenv->internalize(e);
 }
 }
-optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
+expr blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
                           goal const & g) {
     scoped_expr_caching             scope1(true);
     blast::blastenv                 b(env, ios, ls, ds);

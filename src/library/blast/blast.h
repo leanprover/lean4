@@ -181,6 +181,12 @@ void display_expr(expr const & e);
 /** \brief Display message in the blast tactic diagnostic channel. */
 void display(char const * msg);
 void display(sstream const & msg);
+
+/** \brief Display curr state at buffered diagnostic channel used to craft an exception for user */
+void display_curr_state_at_buffer();
+/** \brief Display msng at buffered diagnostic channel used to craft an exception for user */
+void display_at_buffer(sstream const & msg);
+
 /** \brief Create a local scope for saving the assignment and
     metavariable declarations at curr_state() */
 class scope_assignment {
@@ -245,8 +251,8 @@ public:
     \remark This procedure should only be used for **debugging purposes**. */
 expr internalize(expr const & e);
 }
-optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
-                          goal const & g);
+expr blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
+                goal const & g);
 void initialize_blast();
 void finalize_blast();
 }

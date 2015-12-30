@@ -77,8 +77,10 @@ optional<expr> strategy_fn::search() {
             if (failed(r)) {
                 // all choice points failed...
                 lean_trace_search(tout() << "strategy '" << get_name() << "' failed, no proof found\n";);
-                if (show_failure())
-                    display_curr_state();
+                if (show_failure()) {
+                    display_at_buffer(sstream() << "strategy '" << get_name() << "' failed, no proof found, final state:\n");
+                    display_curr_state_at_buffer();
+                }
                 return none_expr();
             }
             break;

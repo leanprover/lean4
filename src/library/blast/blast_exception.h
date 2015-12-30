@@ -11,10 +11,12 @@ Author: Leonardo de Moura
 
 namespace lean {
 class blast_exception : public exception {
-    expr m_expr;
+    optional<expr> m_expr;
 public:
     blast_exception(char const * msg, expr const & e):exception(msg), m_expr(e) {}
+    blast_exception(std::string const & msg, optional<expr> const & e):exception(msg), m_expr(e) {}
     blast_exception(std::string const & msg, expr const & e):exception(msg), m_expr(e) {}
+    blast_exception(sstream const & strm):exception(strm) {}
     virtual ~blast_exception() {}
     virtual throwable * clone() const { return new blast_exception(m_msg, m_expr); }
     virtual void rethrow() const { throw *this; }

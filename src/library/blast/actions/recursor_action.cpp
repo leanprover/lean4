@@ -139,7 +139,7 @@ struct recursor_proof_step_cell : public proof_step_cell {
         } else {
             s.pop_proof_step();
             s.push_proof_step(new recursor_proof_step_cell(m_dep, m_branch, m_proof, new_goals, new_prs, m_split_idx));
-            s.set_target(mlocal_type(head(new_goals)));
+            s.set_target(normalize(mlocal_type(head(new_goals))));
             lean_assert(m_split_idx);
             lean_trace_search(tout() << "next of split #" << *m_split_idx << "\n";);
             return action_result::new_branch();
@@ -314,7 +314,7 @@ action_result recursor_action(hypothesis_idx hidx, name const & R) {
     }
     s.del_hypothesis(hidx);
     s.push_proof_step(new recursor_proof_step_cell(rec_info.has_dep_elim(), s.get_branch(), rec, to_list(new_goals), list<expr>(), split_idx));
-    s.set_target(mlocal_type(new_goals[0]));
+    s.set_target(normalize(mlocal_type(new_goals[0])));
     return action_result::new_branch();
 }
 

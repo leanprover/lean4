@@ -251,7 +251,7 @@ protected theorem induction_on {P : finset A → Prop} (s : finset A)
   P s :=
 finset.induction H1 H2 s
 
-theorem exists_of_not_empty {s : finset A} : s ≠ ∅ → ∃ a : A, a ∈ s :=
+theorem exists_me_of_ne_empty {s : finset A} : s ≠ ∅ → ∃ a : A, a ∈ s :=
 begin
   induction s with a s nin ih,
     {intro h, exact absurd rfl h},

@@ -167,9 +167,6 @@ ext (take x, iff.intro
   (suppose x ∈ s, mem_sep_of_mem (mem_of_subset_of_mem ssubt this) this)
   (suppose x ∈ {x ∈ t | x ∈ s}, of_mem_sep this))
 
-theorem mem_singleton_eq' (x a : A) : x ∈ '{a} = (x = a) :=
-by rewrite [mem_insert_eq, mem_empty_eq, or_false]
-
 end
 
 /- set difference -/

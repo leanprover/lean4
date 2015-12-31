@@ -191,6 +191,9 @@ propext (iff.intro !eq_or_mem_of_mem_insert
 
 theorem insert_empty_eq (a : A) : '{a} = singleton a := rfl
 
+theorem mem_singleton_eq' (x a : A) : x ∈ '{a} = (x = a) :=
+by rewrite [mem_insert_eq, mem_empty_eq, or_false]
+
 theorem insert_eq_of_mem {a : A} {s : finset A} (H : a ∈ s) : insert a s = s :=
 ext (λ x, eq.substr (mem_insert_eq x a s)
    (or_iff_right_of_imp (λH1, eq.substr H1 H)))
@@ -667,6 +670,14 @@ iff.intro lt_of_mem_upto mem_upto_of_lt
 theorem mem_upto_eq (a n : nat) : a ∈ upto n = (a < n) :=
 propext !mem_upto_iff
 end upto
+
+theorem upto_zero : upto 0 = ∅ := rfl
+
+theorem upto_succ (n : ℕ) : upto (succ n) = upto n ∪ '{n} :=
+begin
+  apply ext, intro x,
+  rewrite [mem_union_iff, *mem_upto_iff, mem_singleton_eq', lt_succ_iff_le, nat.le_iff_lt_or_eq],
+end
 
 /- useful rules for calculations with quantifiers -/
 theorem exists_mem_empty_iff {A : Type} (P : A → Prop) : (∃ x, x ∈ ∅ ∧ P x) ↔ false :=

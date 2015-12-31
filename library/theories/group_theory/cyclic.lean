@@ -305,7 +305,7 @@ lemma rotl_map {A B : Type} {f : A → B} : ∀ {l : list A}, list.rotl (map f l
 lemma rotl_eq_rotl : ∀ {n : nat}, map (rotl 1) (upto n) = list.rotl (upto n)
 | 0        := rfl
 | (succ n) := begin
-  rewrite [upto_step at {1}, upto_succ, rotl_cons, map_append],
+  rewrite [upto_step at {1}, fin.upto_succ, rotl_cons, map_append],
   congruence,
     rewrite [map_map], congruence, exact rotl_succ,
     rewrite [map_singleton], congruence, rewrite [↑rotl, mul_one n, ↑mk_mod, ↑maxi, ↑madd],

@@ -47,6 +47,10 @@ have H1 : ∃₀ x' ∈ a, f x' = f x, from exists.intro x (and.intro xa rfl),
 have H2 : f' (f x) ∈ a ∧ f (f' (f x)) = f x, from inv_fun_pos H1,
 show f' (f x) = x, from H (and.left H2) xa (and.right H2)
 
+theorem surj_on_inv_fun_of_inj_on (dflt : X) (mapsto : maps_to f a b) (H : inj_on f a) :
+  surj_on (inv_fun f a dflt) b a :=
+surj_on_of_right_inv_on mapsto (left_inv_on_inv_fun_of_inj_on dflt H)
+
 theorem right_inv_on_inv_fun_of_surj_on (dflt : X) (H : surj_on f a b) :
   right_inv_on (inv_fun f a dflt) f b :=
 let f' := inv_fun f a dflt in
@@ -55,6 +59,10 @@ assume yb: y ∈ b,
 obtain x (Hx : x ∈ a ∧ f x = y), from H yb,
 have Hy : f' y ∈ a ∧ f (f' y) = y, from inv_fun_pos (exists.intro x Hx),
 and.right Hy
+
+theorem inj_on_inv_fun (dflt : X) (H : surj_on f a b) :
+  inj_on (inv_fun f a dflt) b :=
+inj_on_of_left_inv_on (right_inv_on_inv_fun_of_surj_on dflt H)
 
 end set
 

@@ -31,7 +31,7 @@ take x, assume H : x ∈ a, H1 (H2 H)
 theorem maps_to_univ_univ (f : X → Y) : maps_to f univ univ :=
 take x, assume H, trivial
 
-theorem image_subset_of_maps_to {f : X → Y} {a : set X} {b : set Y} (mfab : maps_to f a b)
+theorem image_subset_of_maps_to_of_subset {f : X → Y} {a : set X} {b : set Y} (mfab : maps_to f a b)
     {c : set X} (csuba : c ⊆ a) :
   f '[c] ⊆ b :=
 take y,
@@ -40,6 +40,10 @@ obtain x [(xc : x ∈ c) (yeq : f x = y)], from this,
 have x ∈ a, from csuba `x ∈ c`,
 have f x ∈ b, from mfab this,
 show y ∈ b, from yeq ▸ this
+
+theorem image_subset_of_maps_to {f : X → Y} {a : set X} {b : set Y} (mfab : maps_to f a b) :
+  f '[a] ⊆ b :=
+image_subset_of_maps_to_of_subset mfab (subset.refl a)
 
 /- injectivity -/
 
@@ -121,10 +125,32 @@ iff.intro
     obtain x H1x H2x, from H y trivial,
     exists.intro x H2x)
 
+lemma image_eq_of_maps_to_of_surj_on {f : X → Y} {a : set X} {b : set Y}
+    (H1 : maps_to f a b) (H2 : surj_on f a b) :
+  f '[a] = b :=
+eq_of_subset_of_subset (image_subset_of_maps_to H1) H2
+
 /- bijectivity -/
 
 definition bij_on [reducible] (f : X → Y) (a : set X) (b : set Y) : Prop :=
 maps_to f a b ∧ inj_on f a ∧ surj_on f a b
+
+lemma maps_to_of_bij_on {f : X → Y} {a : set X} {b : set Y} (H : bij_on f a b) :
+      maps_to f a b :=
+and.left H
+
+lemma inj_on_of_bij_on {f : X → Y} {a : set X} {b : set Y} (H : bij_on f a b) :
+      inj_on f a :=
+and.left (and.right H)
+
+lemma surj_on_of_bij_on {f : X → Y} {a : set X} {b : set Y} (H : bij_on f a b) :
+      surj_on f a b :=
+and.right (and.right H)
+
+lemma bij_on.mk {f : X → Y} {a : set X} {b : set Y}
+                (H₁ : maps_to f a b) (H₂ : inj_on f a) (H₃ : surj_on f a b) :
+      bij_on f a b :=
+and.intro H₁ (and.intro H₂ H₃)
 
 theorem bij_on_of_eq_on {f1 f2 : X → Y} {a : set X} {b : set Y} (eqf : eq_on f1 f2 a)
      (H : bij_on f1 a b) : bij_on f2 a b :=
@@ -135,6 +161,10 @@ match H with and.intro Hmap (and.intro Hinj Hsurj) :=
       (inj_on_of_eq_on eqf Hinj)
       (surj_on_of_eq_on eqf Hsurj))
 end
+
+lemma image_eq_of_bij_on {f : X → Y} {a : set X} {b : set Y} (bfab : bij_on f a b) :
+  f '[a] = b :=
+image_eq_of_maps_to_of_surj_on (and.left bfab) (and.right (and.right bfab))
 
 theorem bij_on_compose {g : Y → Z} {f : X → Y} {a : set X} {b : set Y} {c : set Z}
   (Hg : bij_on g b c) (Hf: bij_on f a b) :

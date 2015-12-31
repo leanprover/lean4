@@ -35,7 +35,7 @@ section monoid
   list.foldl (mulf f) 1 l
 
   -- ∏ x ← l, f x
-  notation `∏` binders `←` l, r:(scoped f, Prodl l f) := r
+  notation `∏` binders `←` l `, ` r:(scoped f, Prodl l f) := r
 
   private theorem foldl_const (f : A → B) :
     ∀ (l : list A) (b : B), foldl (mulf f) b l = b * foldl (mulf f) 1 l
@@ -73,7 +73,7 @@ section monoid
   | []     := rfl
   | (a::l) := by rewrite [Prodl_cons, Prodl_one, mul_one]
 
-  lemma Prodl_singleton {a : A} {f : A → B} : Prodl [a] f = f a :=
+  lemma Prodl_singleton (a : A) (f : A → B) : Prodl [a] f = f a :=
   !one_mul
 
   lemma Prodl_map {f : A → B} :
@@ -88,7 +88,8 @@ section monoid
   | (a::l) := take b, assume Pconst,
     assert Pconstl : ∀ a', a' ∈ l → f a' = b,
       from take a' Pa'in, Pconst a' (mem_cons_of_mem a Pa'in),
-    by rewrite [Prodl_cons f, Pconst a !mem_cons, Prodl_eq_pow_of_const b Pconstl, length_cons, add_one, pow_succ b]
+    by rewrite [Prodl_cons f, Pconst a !mem_cons, Prodl_eq_pow_of_const b Pconstl, length_cons,
+                add_one, pow_succ b]
 
 end monoid
 
@@ -114,7 +115,7 @@ section add_monoid
   definition Suml (l : list A) (f : A → B) : B := Prodl l f
 
   -- ∑ x ← l, f x
-  notation `∑` binders `←` l, r:(scoped f, Suml l f) := r
+  notation `∑` binders `←` l `, ` r:(scoped f, Suml l f) := r
 
   theorem Suml_nil (f : A → B) : Suml [] f = 0 := Prodl_nil f
   theorem Suml_cons (f : A → B) (a : A) (l : list A) : Suml (a::l) f = f a + Suml l f :=
@@ -133,6 +134,8 @@ section add_monoid
   end deceqA
 
   theorem Suml_zero (l : list A) : Suml l (λ x, 0) = (0:B) := Prodl_one l
+  theorem Suml_singleton (a : A) (f : A → B) : Suml [a] f = f a := Prodl_singleton a f
+
 end add_monoid
 
 section add_comm_monoid
@@ -167,13 +170,16 @@ namespace finset
     (λ l₁ l₂ p, Prodl_eq_Prodl_of_perm f p)
 
   -- ∏ x ∈ s, f x
-  notation `∏` binders `∈` s, r:(scoped f, Prod s f) := r
+  notation `∏` binders `∈` s `, ` r:(scoped f, Prod s f) := r
 
   theorem Prod_empty (f : A → B) : Prod ∅ f = 1 :=
   Prodl_nil f
 
   theorem Prod_mul (s : finset A) (f g : A → B) : Prod s (λx, f x * g x) = Prod s f * Prod s g :=
   quot.induction_on s (take u, !Prodl_mul)
+
+  theorem Prod_one (s : finset A) : Prod s (λ x, 1) = (1:B) :=
+  quot.induction_on s (take u, !Prodl_one)
 
   section deceqA
     include deceqA
@@ -206,10 +212,38 @@ namespace finset
           take y, assume H', H2 (mem_insert_of_mem _ H'),
         assert H4 : f x = g x, from H2 !mem_insert,
         by rewrite [Prod_insert_of_not_mem f H1, Prod_insert_of_not_mem g H1, IH H3, H4])
-  end deceqA
 
-  theorem Prod_one (s : finset A) : Prod s (λ x, 1) = (1:B) :=
-  quot.induction_on s (take u, !Prodl_one)
+    theorem Prod_singleton (a : A) (f : A → B) : Prod '{a} f = f a :=
+    have a ∉ ∅, from not_mem_empty a,
+    by+ rewrite [Prod_insert_of_not_mem f this, Prod_empty, mul_one]
+
+    theorem Prod_image {C : Type} [deceqC : decidable_eq C] {s : finset A} (f : C → B) {g : A → C}
+                       (H : set.inj_on g (to_set s)) :
+            (∏ j ∈ image g s, f j) = (∏ i ∈ s, f (g i)) :=
+    begin
+      induction s with a s anins ih,
+        {rewrite [*Prod_empty]},
+      have injg : set.inj_on g (to_set s),
+        from set.inj_on_of_inj_on_of_subset H (λ x, mem_insert_of_mem a),
+      have g a ∉ g '[s], from
+        suppose g a ∈ g '[s],
+        obtain b [(bs : b ∈ s) (gbeq : g b = g a)], from exists_of_mem_image this,
+        have aias : set.mem a (to_set (insert a s)),
+          by rewrite to_set_insert; apply set.mem_insert a s,
+        have bias : set.mem b (to_set (insert a s)),
+          by rewrite to_set_insert; apply set.mem_insert_of_mem; exact bs,
+        have b = a, from H bias aias gbeq,
+        show false, from anins (eq.subst this bs),
+      rewrite [image_insert, Prod_insert_of_not_mem _ this, Prod_insert_of_not_mem _ anins, ih injg]
+    end
+
+    theorem Prod_eq_of_bij_on {C : Type} [deceqC : decidable_eq C] {s : finset A} {t : finset C}
+                              (f : C → B) {g : A → C} (H : set.bij_on g (to_set s) (to_set t)) :
+            (∏ j ∈ t, f j) = (∏ i ∈ s, f (g i)) :=
+    have g '[s] = t,
+      by apply eq_of_to_set_eq_to_set; rewrite to_set_image; exact set.image_eq_of_bij_on H,
+    using this, by rewrite [-this, Prod_image f (and.left (and.right H))]
+  end deceqA
 end finset
 
 /- Sum: sum indexed by a finset -/
@@ -222,11 +256,12 @@ namespace finset
   definition Sum (s : finset A) (f : A → B) : B := Prod s f
 
   -- ∑ x ∈ s, f x
-  notation `∑` binders `∈` s, r:(scoped f, Sum s f) := r
+  notation `∑` binders `∈` s `, ` r:(scoped f, Sum s f) := r
 
   theorem Sum_empty (f : A → B) : Sum ∅ f = 0 := Prod_empty f
   theorem Sum_add (s : finset A) (f g : A → B) :
     Sum s (λx, f x + g x) = Sum s f + Sum s g := Prod_mul s f g
+  theorem Sum_zero (s : finset A) : Sum s (λ x, 0) = (0:B) := Prod_one s
 
   section deceqA
     include deceqA
@@ -238,9 +273,15 @@ namespace finset
       Sum (s₁ ∪ s₂) f = Sum s₁ f + Sum s₂ f := Prod_union f disj
     theorem Sum_ext {s : finset A} {f g : A → B} (H : ∀x, x ∈ s → f x = g x) :
       Sum s f = Sum s g := Prod_ext H
-  end deceqA
+    theorem Sum_singleton (a : A) (f : A → B) : Sum '{a} f = f a := Prod_singleton a f
 
-  theorem Sum_zero (s : finset A) : Sum s (λ x, 0) = (0:B) := Prod_one s
+    theorem Sum_image {C : Type} [deceqC : decidable_eq C] {s : finset A} (f : C → B) {g : A → C}
+                      (H : set.inj_on g (to_set s)) :
+            (∑ j ∈ image g s, f j) = (∑ i ∈ s, f (g i)) := Prod_image f H
+    theorem Sum_eq_of_bij_on {C : Type} [deceqC : decidable_eq C] {s : finset A} {t : finset C}
+                             (f : C → B) {g : A → C} (H : set.bij_on g (to_set s) (to_set t)) :
+            (∑ j ∈ t, f j) = (∑ i ∈ s, f (g i)) := Prod_eq_of_bij_on f H
+  end deceqA
 end finset
 
 /-
@@ -259,7 +300,7 @@ section Prod
   noncomputable definition Prod (s : set A) (f : A → B) : B := finset.Prod (to_finset s) f
 
   -- ∏ x ∈ s, f x
-  notation `∏` binders `∈` s, r:(scoped f, Prod s f) := r
+  notation `∏` binders `∈` s `, ` r:(scoped f, Prod s f) := r
 
   theorem Prod_empty (f : A → B) : Prod ∅ f = 1 :=
   by rewrite [↑Prod, to_finset_empty]
@@ -269,6 +310,9 @@ section Prod
 
   theorem Prod_mul (s : set A) (f g : A → B) : Prod s (λx, f x * g x) = Prod s f * Prod s g :=
   by rewrite [↑Prod, finset.Prod_mul]
+
+  theorem Prod_one (s : set A) : Prod s (λ x, 1) = (1:B) :=
+  by rewrite [↑Prod, finset.Prod_one]
 
   theorem Prod_insert_of_mem (f : A → B) {a : A} {s : set A} (H : a ∈ s) :
     Prod (insert a s) f = Prod s f :=
@@ -302,8 +346,30 @@ section Prod
     (assume nfs : ¬ finite s,
       by rewrite [*Prod_of_not_finite nfs])
 
-  theorem Prod_one (s : set A) : Prod s (λ x, 1) = (1:B) :=
-  by rewrite [↑Prod, finset.Prod_one]
+  theorem Prod_singleton (a : A) (f : A → B) : Prod '{a} f = f a :=
+  by rewrite [↑Prod, to_finset_insert, to_finset_empty, finset.Prod_singleton]
+
+  theorem Prod_image {C : Type} {s : set A} [fins : finite s] (f : C → B) {g : A → C}
+                     (H : inj_on g s) :
+          (∏ j ∈ image g s, f j) = (∏ i ∈ s, f (g i)) :=
+  begin
+    have H' : inj_on g (finset.to_set (set.to_finset s)), by rewrite to_set_to_finset; exact H,
+    rewrite [↑Prod, to_finset_image g s, finset.Prod_image f H']
+  end
+
+  theorem Prod_eq_of_bij_on {C : Type} {s : set A} {t : set C} (f : C → B)
+                            {g : A → C} (H : bij_on g s t) :
+          (∏ j ∈ t, f j) = (∏ i ∈ s, f (g i)) :=
+  by_cases
+    (suppose finite s,
+      have g '[s] = t, from image_eq_of_bij_on H,
+      using this, by rewrite [-this, Prod_image f (and.left (and.right H))])
+    (assume nfins : ¬ finite s,
+      have nfint : ¬ finite t, from
+        suppose finite t,
+        have finite s, from finite_of_bij_on' H,
+        show false, from nfins this,
+      by+ rewrite [Prod_of_not_finite nfins, Prod_of_not_finite nfint])
 end Prod
 
 /- Sum: sum indexed by a set -/
@@ -318,13 +384,14 @@ section Sum
   proposition Sum_def (s : set A) (f : A → B) : Sum s f = finset.Sum (to_finset s) f := rfl
 
   -- ∑ x ∈ s, f x
-  notation `∑` binders `∈` s, r:(scoped f, Sum s f) := r
+  notation `∑` binders `∈` s `, ` r:(scoped f, Sum s f) := r
 
   theorem Sum_empty (f : A → B) : Sum ∅ f = 0 := Prod_empty f
   theorem Sum_of_not_finite {s : set A} (nfins : ¬ finite s) (f : A → B) : Sum s f = 0 :=
     Prod_of_not_finite nfins f
   theorem Sum_add (s : set A) (f g : A → B) :
     Sum s (λx, f x + g x) = Sum s f + Sum s g := Prod_mul s f g
+  theorem Sum_zero (s : set A) : Sum s (λ x, 0) = (0:B) := Prod_one s
 
   theorem Sum_insert_of_mem (f : A → B) {a : A} {s : set A} (H : a ∈ s) :
     Sum (insert a s) f = Sum s f := Prod_insert_of_mem f H
@@ -336,7 +403,15 @@ section Sum
   theorem Sum_ext {s : set A} {f g : A → B} (H : ∀x, x ∈ s → f x = g x) :
     Sum s f = Sum s g := Prod_ext H
 
-  theorem Sum_zero (s : set A) : Sum s (λ x, 0) = (0:B) := Prod_one s
+  theorem Sum_singleton (a : A) (f : A → B) : Sum '{a} f = f a :=
+    Prod_singleton a f
+
+  theorem Sum_image {C : Type} {s : set A} [fins : finite s] (f : C → B) {g : A → C}
+                    (H : inj_on g s) :
+          (∑ j ∈ image g s, f j) = (∑ i ∈ s, f (g i)) := Prod_image f H
+  theorem Sum_eq_of_bij_on {C : Type} {s : set A} {t : set C} (f : C → B) {g : A → C}
+                           (H : bij_on g s t) :
+          (∑ j ∈ t, f j) = (∑ i ∈ s, f (g i)) := Prod_eq_of_bij_on f H
 end Sum
 
 end set

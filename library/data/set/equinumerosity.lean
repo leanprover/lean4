@@ -31,7 +31,7 @@ show false, from `x ∉ f x` this
 
 theorem not_inj_on_pow {f : set X → X} (H : maps_to f (𝒫 A) A) : ¬ inj_on f (𝒫 A) :=
 let diag := f '[{x ∈ 𝒫 A | f x ∉ x}] in
-have diag ⊆ A, from image_subset_of_maps_to H (sep_subset _ _),
+have diag ⊆ A, from image_subset_of_maps_to_of_subset H (sep_subset _ _),
 assume H₁ : inj_on f (𝒫 A),
 have f diag ∈ diag, from by_contradiction
   (suppose f diag ∉ diag,
@@ -90,9 +90,9 @@ open set
   | 0       := show U 0 ⊆ A,
                  from diff_subset _ _
   | (n + 1) := have f '[U n] ⊆ B,
-                 from image_subset_of_maps_to f_maps_to (U_subset_A n),
+                 from image_subset_of_maps_to_of_subset f_maps_to (U_subset_A n),
                show U (n + 1) ⊆ A,
-                 from image_subset_of_maps_to g_maps_to this
+                 from image_subset_of_maps_to_of_subset g_maps_to this
 
   lemma g_ginv_eq {a : X} (aA : a ∈ A) (anU  : a ∉ Union U) : g (ginv a) = a :=
   have a ∈ g '[B], from by_contradiction

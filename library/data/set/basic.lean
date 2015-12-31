@@ -79,6 +79,13 @@ ext (take x, iff.intro
   (assume xs, absurd xs (H x))
   (assume xe, absurd xe !not_mem_empty))
 
+section
+  open classical
+
+  theorem exists_mem_of_ne_empty {s : set X} (H : s ≠ ∅) : ∃ x, x ∈ s :=
+  by_contradiction (assume H', H (eq_empty_of_forall_not_mem (forall_not_of_not_exists H')))
+end
+
 theorem empty_subset (s : set X) : ∅ ⊆ s :=
 take x, assume H, false.elim H
 

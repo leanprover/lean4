@@ -7,7 +7,7 @@ The notion of "finiteness" for sets. This approach is not computational: for exa
 an element  s : set A  satsifies  finite s  doesn't mean that we can compute the cardinality. For
 a computational representation, use the finset type.
 -/
-import data.set.function data.finset.to_set
+import data.finset.to_set .classical_inverse
 open nat classical
 
 variable {A : Type}
@@ -83,21 +83,21 @@ theorem to_finset_inter (s t : set A) [finite s] [finite t] :
   to_finset (s ∩ t) = (#finset to_finset s ∩ to_finset t) :=
 by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_inter, *to_set_to_finset]
 
-theorem finite_sep [instance] (s : set A) (p : A → Prop) [decidable_pred p] [finite s] :
+theorem finite_sep [instance] (s : set A) (p : A → Prop) [finite s] :
   finite {x ∈ s | p x}  :=
 exists.intro (finset.sep p (to_finset s))
   (by rewrite [finset.to_set_sep, *to_set_to_finset])
 
-theorem to_finset_sep (s : set A) (p : A → Prop) [decidable_pred p] [finite s] :
+theorem to_finset_sep (s : set A) (p : A → Prop) [finite s] :
   to_finset {x ∈ s | p x} = (#finset {x ∈ to_finset s | p x}) :=
 by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_sep, to_set_to_finset]
 
-theorem finite_image [instance] {B : Type} [decidable_eq B] (f : A → B) (s : set A) [finite s] :
+theorem finite_image [instance] {B : Type} (f : A → B) (s : set A) [finite s] :
   finite (f '[s]) :=
 exists.intro (finset.image f (to_finset s))
   (by rewrite [finset.to_set_image, *to_set_to_finset])
 
-theorem to_finset_image {B : Type} [decidable_eq B] (f : A → B) (s : set A)
+theorem to_finset_image {B : Type}  (f : A → B) (s : set A)
     [fins : finite s] :
   to_finset (f '[s]) = (#finset f '[to_finset s]) :=
 by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_image, to_set_to_finset]
@@ -105,7 +105,8 @@ by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_image, to_set_to_fins
 theorem finite_diff [instance] (s t : set A) [finite s] : finite (s \ t) :=
 !finite_sep
 
-theorem to_finset_diff (s t : set A) [finite s] [finite t] : to_finset (s \ t) = (#finset to_finset s \ to_finset t) :=
+theorem to_finset_diff (s t : set A) [finite s] [finite t] :
+        to_finset (s \ t) = (#finset to_finset s \ to_finset t) :=
 by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_diff, *to_set_to_finset]
 
 theorem finite_subset {s t : set A} [finite t] (ssubt : s ⊆ t) : finite s :=
@@ -123,6 +124,37 @@ by rewrite [-finset.to_set_upto n]; apply finite_finset
 
 theorem to_finset_upto (n : ℕ) : to_finset {i | i < n} = finset.upto n :=
 by apply (to_finset_eq_of_to_set_eq !finset.to_set_upto)
+
+theorem finite_of_surj_on {B : Type} {f : A → B} {s : set A} [finite s] {t : set B}
+                          (H : surj_on f s t) :
+        finite t :=
+finite_subset H
+
+theorem finite_of_inj_on {B : Type} {f : A → B} {s : set A} {t : set B} [finite t]
+                         (mapsto : maps_to f s t) (injf : inj_on f s) :
+        finite s :=
+if H : s = ∅ then
+  by rewrite H; apply _
+else
+  obtain (dflt : A) (xs : dflt ∈ s), from exists_mem_of_ne_empty H,
+  let finv := inv_fun f s dflt in
+  have surj_on finv t s, from surj_on_inv_fun_of_inj_on dflt mapsto injf,
+  finite_of_surj_on this
+
+theorem finite_of_bij_on {B : Type} {f : A → B} {s : set A} {t : set B} [finite s]
+                         (bijf : bij_on f s t) :
+        finite t :=
+finite_of_surj_on (surj_on_of_bij_on bijf)
+
+theorem finite_of_bij_on' {B : Type} {f : A → B} {s : set A} {t : set B} [finite t]
+                         (bijf : bij_on f s t) :
+        finite s :=
+finite_of_inj_on (maps_to_of_bij_on bijf) (inj_on_of_bij_on bijf)
+
+theorem finite_iff_finite_of_bij_on {B : Type} {f : A → B} {s : set A} {t : set B}
+                                    (bijf : bij_on f s t) :
+        finite s ↔ finite t :=
+iff.intro (assume fs, finite_of_bij_on bijf) (assume ft, finite_of_bij_on' bijf)
 
 theorem finite_powerset (s : set A) [finite s] : finite 𝒫 s :=
 assert H : 𝒫 s = finset.to_set '[finset.to_set (#finset 𝒫 (to_finset s))],

@@ -77,6 +77,10 @@ check lt_of_not_ge
 check lt_of_le_of_ne
 check add_lt_add_of_lt_of_le
 #+END_SRC
+The hypotheses are listed in the order they appear, /not/ reverse
+order. For example, the theorem =A → B → C= would be named
+=C_of_A_of_B=.
+
 Sometimes abbreviations or alternative descriptions are easier to work
 with. For example, we use =pos=, =neg=, =nonpos=, =nonneg= rather than
 =zero_lt=, =lt_zero=, =le_zero=, and =zero_le=.

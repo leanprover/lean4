@@ -12,4 +12,6 @@ namespace lean {
 namespace blast {
 /** \brief Assert the given hypothesis into the congruence closure module */
 action_result assert_cc_action(hypothesis_idx hidx);
+/** \brief Check if target can be proved using equivalence classes */
+action_result target_cc_action();
 }}

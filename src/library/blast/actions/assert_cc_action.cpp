@@ -12,6 +12,25 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
+action_result target_cc_action() {
+    if (!get_config().m_cc)
+        return action_result::failed();
+    congruence_closure & cc = get_cc();
+    expr const & target = curr_state().get_target();
+    name R; expr lhs, rhs;
+    if (is_relation_app(target, R, lhs, rhs) && cc.is_eqv(R, lhs, rhs)) {
+        expr proof = *cc.get_eqv_proof(R, lhs, rhs);
+        trace_action("equivalence by congruence closure");
+        return action_result(proof);
+    } else if (is_prop(target) && !is_false(target) && cc.proved(target)) {
+        expr proof = *cc.get_proof(target);
+        trace_action("equivalent to true by congruence closure");
+        return action_result(proof);
+    } else {
+        return action_result::failed();
+    }
+}
+
 action_result assert_cc_action(hypothesis_idx hidx) {
     if (!get_config().m_cc)
         return action_result::failed();
@@ -30,19 +49,10 @@ action_result assert_cc_action(hypothesis_idx hidx) {
             return action_result::failed();
         }
     } else {
-        expr const & target = curr_state().get_target();
-        name R; expr lhs, rhs;
-        if (is_relation_app(target, R, lhs, rhs) && cc.is_eqv(R, lhs, rhs)) {
-            expr proof = *cc.get_eqv_proof(R, lhs, rhs);
-            trace_action("equivalence by congruence closure");
-            return action_result(proof);
-        } else if (is_prop(target) && !is_false(target) && cc.proved(target)) {
-            expr proof = *cc.get_proof(target);
-            trace_action("equivalent to true by congruence closure");
-            return action_result(proof);
-        } else {
-            return action_result::new_branch();
-        }
+        action_result r = target_cc_action();
+        if (!failed(r))
+            return r;
+        return action_result::new_branch();
     }
 }
 }}

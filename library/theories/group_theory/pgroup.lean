@@ -32,7 +32,7 @@ lemma card_mod_eq_of_action_by_psubg {p : nat} :
 | 0        := by rewrite [↑psubg, pow_zero]; intro Psubg;
   rewrite [finsubg_eq_singleton_one_of_card_one (and.right Psubg), fixed_points_of_one]
 | (succ m) := take Ppsubg, begin
-  rewrite [@orbit_class_equation' G S ambientG finS deceqS hom Hom H subgH],
+  rewrite [@orbit_class_equation' G S ambientG _ finS deceqS hom Hom H subgH],
   apply add_mod_eq_of_dvd, apply dvd_Sum_of_dvd,
   intro s Psin,
   rewrite mem_sep_iff at Psin,
@@ -370,9 +370,9 @@ include ambientG deceqG finG
 
 theorem first_sylow_theorem {p : nat} (Pp : prime p) :
   ∀ n, p^n ∣ card G → ∃ (H : finset G) (finsubgH : is_finsubg H), card H = p^n
-| 0        := assume Pdvd, exists.intro (singleton 1)
+| 0        := assume Pdvd, exists.intro ('{1})
   (exists.intro one_is_finsubg
-    (by rewrite [card_singleton, pow_zero]))
+    (by rewrite [pow_zero]))
 | (succ n) := assume Pdvd,
   obtain H PfinsubgH PcardH, from first_sylow_theorem n (pow_dvd_of_pow_succ_dvd Pdvd),
   assert Ppsubg : psubg H p n, from and.intro Pp PcardH,

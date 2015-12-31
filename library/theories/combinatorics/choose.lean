@@ -130,15 +130,15 @@ private theorem aux₀ (s : finset A) : {t ∈ powerset s | card t = 0} = '{∅}
 ext (take t, iff.intro
   (assume H,
     assert t = ∅, from eq_empty_of_card_eq_zero (of_mem_sep H),
-    show t ∈ '{ ∅ }, by rewrite [this, mem_singleton_eq'])
+    show t ∈ '{ ∅ }, by rewrite [this, mem_singleton_iff])
   (assume H,
-    assert t = ∅, by rewrite mem_singleton_eq' at H; assumption,
+    assert t = ∅, by rewrite mem_singleton_iff at H; assumption,
     by substvars; exact mem_sep_of_mem !empty_mem_powerset rfl))
 
 private theorem aux₁ (k : ℕ) : {t ∈ powerset (∅ : finset A) | card t = succ k} = ∅ :=
 eq_empty_of_forall_not_mem (take t, assume H,
   assert t ∈ powerset ∅, from mem_of_mem_sep H,
-  assert t = ∅, by rewrite [powerset_empty at this, mem_singleton_eq' at this]; assumption,
+  assert t = ∅, by rewrite [powerset_empty at this, mem_singleton_iff at this]; assumption,
   have card (∅ : finset A) = succ k, by rewrite -this; apply of_mem_sep H,
   nat.no_confusion this)
 

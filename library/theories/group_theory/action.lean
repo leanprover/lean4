@@ -26,7 +26,7 @@ definition orbit (hom : G → perm S) (H : finset G) (a : S) : finset S :=
            image (move_by a) (image hom H)
 
 definition fixed_points [reducible] (hom : G → perm S) (H : finset G) : finset S :=
-{a ∈ univ | orbit hom H a = singleton a}
+{a ∈ univ | orbit hom H a = '{a}}
 
 variable [decidable_eq G] -- required by {x ∈ H |p x} filtering
 
@@ -40,7 +40,7 @@ end def
 
 section orbit_stabilizer
 
-variables {G S : Type} [group G] [fintype S] [decidable_eq S]
+variables {G S : Type} [group G] [decidable_eq G] [fintype S] [decidable_eq S]
 
 section
 
@@ -71,9 +71,9 @@ lemma mem_fixed_points_of_exists_of_is_fixed_point :
 assume Pex Pfp, mem_sep_of_mem !mem_univ
   (ext take x, iff.intro
     (assume Porb, obtain h Phin Pha, from exists_of_orbit Porb,
-      by rewrite [mem_singleton_eq, -Pha, Pfp h Phin])
+      by rewrite [mem_singleton_iff, -Pha, Pfp h Phin])
     (obtain h Phin, from Pex,
-      by rewrite mem_singleton_eq;
+      by rewrite mem_singleton_iff;
          intro Peq; rewrite Peq;
          apply orbit_of_exists;
          existsi h; apply and.intro Phin (Pfp h Phin)))
@@ -86,21 +86,19 @@ lemma is_fixed_point_iff_mem_fixed_points [finsubgH : is_finsubg H] :
   a ∈ fixed_points hom H ↔ is_fixed_point hom H a :=
 is_fixed_point_iff_mem_fixed_points_of_exists (exists.intro 1 !finsubg_has_one)
 
-lemma is_fixed_point_of_one : is_fixed_point hom (singleton 1) a :=
+lemma is_fixed_point_of_one : is_fixed_point hom ('{1}) a :=
 take h, assume Ph, by rewrite [eq_of_mem_singleton Ph, hom_map_one]
 
-lemma fixed_points_of_one : fixed_points hom (singleton 1) = univ :=
+lemma fixed_points_of_one : fixed_points hom ('{1}) = univ :=
 ext take s, iff.intro (assume Pl, mem_univ s)
   (assume Pr, mem_fixed_points_of_exists_of_is_fixed_point
     (exists.intro 1 !mem_singleton) is_fixed_point_of_one)
 
 open fintype
-lemma card_fixed_points_of_one : card (fixed_points hom (singleton 1)) = card S :=
+lemma card_fixed_points_of_one : card (fixed_points hom ('{1})) = card S :=
 by rewrite [fixed_points_of_one]
 
 end
-
-variable [decidable_eq G]
 
 -- these are already specified by stab hom H a
 variables {hom : G → perm S} {H : finset G} {a : S}
@@ -143,7 +141,8 @@ lemma moverset_inj_on_orbit : set.inj_on (moverset hom H a) (ts (orbit hom H a))
         apply of_mem_sep Ph1b1
       end
 
-variable [is_finsubg H]
+variable [finsubgH : is_finsubg H]
+include finsubgH
 
 lemma subg_stab_of_move {h g : G} :
       h ∈ H → g ∈ moverset hom H a (hom h a) → h⁻¹*g ∈ stab hom H a :=
@@ -250,7 +249,7 @@ end orbit_stabilizer
 
 section orbit_partition
 
-variables {G S : Type} [group G] [fintype S] [decidable_eq S]
+variables {G S : Type} [group G] [decidable_eq G] [fintype S] [decidable_eq S]
 variables {hom : G → perm S} [Hom : is_hom_class hom] {H : finset G} [subgH : is_finsubg H]
 include Hom subgH
 
@@ -325,7 +324,7 @@ ext take s, iff.intro
    obtain a Pa, from exists_of_mem_orbits Psin,
    mem_image
      (mem_sep_of_mem !mem_univ (eq.symm
-       (eq_of_card_eq_of_subset (by rewrite [card_singleton, Pa, Ps])
+       (eq_of_card_eq_of_subset (by rewrite [Pa, Ps])
          (subset_of_forall
            take x, assume Pxin, eq_of_mem_singleton Pxin ▸ in_orbit_refl))))
      Pa)

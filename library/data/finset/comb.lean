@@ -441,7 +441,7 @@ begin
   induction s with a s nains ih,
     intro x,
     rewrite powerset_empty,
-    show x ∈ '{∅} ↔ x ⊆ ∅, by rewrite [mem_singleton_eq', subset_empty_iff],
+    show x ∈ '{∅} ↔ x ⊆ ∅, by rewrite [mem_singleton_iff, subset_empty_iff],
   intro x,
     rewrite [powerset_insert nains, mem_union_iff, ih, mem_image_iff],
     exact

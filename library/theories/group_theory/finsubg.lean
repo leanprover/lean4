@@ -19,6 +19,7 @@ open ops
 section subg
 -- we should be able to prove properties using finsets directly
 variables {G : Type} [group G]
+variable [decidable_eq G]
 
 definition finset_mul_closed_on [reducible] (H : finset G) : Prop :=
            ∀ x y : G, x ∈ H → y ∈ H → x * y ∈ H
@@ -33,19 +34,17 @@ structure is_finsubg [class] (H : finset G) : Type :=
 definition univ_is_finsubg [instance] [finG : fintype G] : is_finsubg (@finset.univ G _) :=
 is_finsubg.mk !mem_univ (λ x y Px Py, !mem_univ) (λ a Pa, !mem_univ)
 
-definition one_is_finsubg [instance] : is_finsubg (singleton (1:G)) :=
+definition one_is_finsubg [instance] : is_finsubg ('{(1:G)}) :=
 is_finsubg.mk !mem_singleton
   (λ x y Px Py, by rewrite [eq_of_mem_singleton Px, eq_of_mem_singleton Py, one_mul]; apply mem_singleton)
   (λ x Px, by rewrite [eq_of_mem_singleton Px, one_inv]; apply mem_singleton)
 
 lemma finsubg_has_one (H : finset G) [h : is_finsubg H] : 1 ∈ H :=
-      @is_finsubg.has_one G _ H h
+      @is_finsubg.has_one G _ _ H h
 lemma finsubg_mul_closed (H : finset G) [h : is_finsubg H] {x y : G} : x ∈ H → y ∈ H → x * y ∈ H :=
-      @is_finsubg.mul_closed G _ H h x y
+      @is_finsubg.mul_closed G _ _ H h x y
 lemma finsubg_has_inv (H : finset G) [h : is_finsubg H] {a : G} :  a ∈ H → a⁻¹ ∈ H :=
-      @is_finsubg.has_inv G _ H h a
-
-variable [decidable_eq G]
+      @is_finsubg.has_inv G _ _ H h a
 
 definition finsubg_to_subg [instance] {H : finset G} [h : is_finsubg H]
          : is_subgroup (ts H) :=
@@ -58,10 +57,10 @@ definition finsubg_to_subg [instance] {H : finset G} [h : is_finsubg H]
 
 open nat
 lemma finsubg_eq_singleton_one_of_card_one {H : finset G} [h : is_finsubg H] :
-  card H = 1 → H = singleton 1 :=
+  card H = 1 → H = '{1} :=
 assume Pcard, eq.symm (eq_of_card_eq_of_subset (by rewrite [Pcard])
   (subset_of_forall take g,
-    by rewrite [mem_singleton_eq]; intro Pg; rewrite Pg; exact finsubg_has_one H))
+    by rewrite [mem_singleton_iff]; intro Pg; rewrite Pg; exact finsubg_has_one H))
 
 end subg
 

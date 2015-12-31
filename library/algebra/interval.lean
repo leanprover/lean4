@@ -107,6 +107,25 @@ open nat eq.ops
   proposition Icc_zero (n : ℕ) : '[0, n] = '(-∞, n] :=
   have '[0, n] = '[0, ∞) ∩ '(-∞, n], from rfl,
   by+ rewrite [this, Icu_zero, univ_inter]
+
+  proposition bij_on_add_Icc_zero (m n : ℕ) : bij_on (add m) ('[0, n]) ('[m, m+n]) :=
+  have mapsto : ∀₀ i ∈ '[0, n], m + i ∈ '[m, m+n], from
+    (take i, assume imem,
+      have H1 : m ≤ m + i, from !le_add_right,
+      have H2 : m + i ≤ m + n, from add_le_add_left (and.right imem) m,
+      show m + i ∈ '[m, m+n], from and.intro H1 H2),
+  have injon : inj_on (add m) ('[0, n]), from
+    (take i j, assume Hi Hj H, !eq_of_add_eq_add_left H),
+  have surjon : surj_on (add m) ('[0, n]) ('[m, m+n]), from
+    (take j, assume Hj : j ∈ '[m, m+n],
+      obtain lej jle, from Hj,
+      let i := j - m in
+      have ile : i ≤ n, from calc
+        j - m ≤ m + n - m : nat.sub_le_sub_right jle m
+          ... = n         : nat.add_sub_cancel_left,
+      have iadd : m + i = j, by rewrite add.comm; apply nat.sub_add_cancel lej,
+      exists.intro i (and.intro (and.intro !zero_le ile) iadd)),
+  bij_on.mk mapsto injon surjon
 end nat
 
 section nat -- put the instances in the intervals namespace

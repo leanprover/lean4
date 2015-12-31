@@ -192,8 +192,4 @@ proposition prod_range_offset (m n : ℕ) (f : ℕ → A) :
 
 end set
 
-
-
-
-
 end nat

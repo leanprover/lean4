@@ -22,12 +22,12 @@ static action_result try_hypothesis(hypothesis_idx hidx) {
     expr const & I       = get_app_fn(type);
     lean_assert(is_constant(I));
     name const & I_name  = const_name(I);
-    if (inductive::is_inductive_decl(env(), I_name)) {
-        return recursor_action(hidx, inductive::get_elim_name(I_name));
-    }
     list<name> Rs = get_recursors_for(env(), const_name(I));
     if (Rs) {
         return recursor_action(hidx, head(Rs));
+    }
+    if (inductive::is_inductive_decl(env(), I_name)) {
+        return recursor_action(hidx, inductive::get_elim_name(I_name));
     }
     return action_result::failed();
 }

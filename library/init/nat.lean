@@ -22,6 +22,8 @@ namespace nat
                        {C : ℕ → Type} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C (succ a)) : C n :=
   nat.rec H₁ (λ a ih, H₂ a) n
 
+  attribute nat.rec_on [recursor] -- Hack: force rec_on to be the first one. TODO(Leo): we should add priorities to recursors
+
   protected definition no_confusion_type [reducible] (P : Type) (v₁ v₂ : ℕ) : Type :=
   nat.rec
     (nat.rec

@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 #define lean_trace_ematch(Code) lean_trace(name({"blast", "ematch"}), Code)
+#define lean_trace_event_ematch(Code) lean_trace(name({"blast", "event", "ematch"}), Code)
 
 static name * g_blast_ematch_max_instances = nullptr;
 
@@ -109,8 +110,8 @@ public:
     bool save_instance(expr const & i) {
         if (m_num_instances >= m_max_instances) {
             if (!m_max_instances_exceeded) {
-                lean_trace_event(tout() << "maximum number of ematching instances (" << m_max_instances << ") has been reached, "
-                                 << "set option blast.ematch.max_instances to increase limit\n";);
+                lean_trace_ematch(tout() << "maximum number of ematching instances (" << m_max_instances << ") has been reached, "
+                                  << "set option blast.ematch.max_instances to increase limit\n";);
             }
             m_max_instances_exceeded = true;
             return false;
@@ -187,7 +188,7 @@ struct ematch_branch_extension : public ematch_branch_extension_core {
                 try {
                     m_new_lemmas.insert(mk_hi_lemma(n, prio));
                 } catch (exception & ex) {
-                    lean_trace_ematch(tout() << "discarding [forward] '" << n << "', " << ex.what() << "\n";);
+                    lean_trace_event_ematch(tout() << "ematcher discarding [forward] '" << n << "', " << ex.what() << "\n";);
                 }
             });
     }
@@ -208,7 +209,7 @@ struct ematch_simp_branch_extension : public ematch_branch_extension_core {
             try {
                 m_new_lemmas.insert(mk_hi_lemma(n, get_simp_lemma_priority(env(), n)));
             } catch (exception & ex) {
-                lean_trace_ematch(tout() << "discarding [simp] '" << n << "', " << ex.what() << "\n";);
+                lean_trace_event_ematch(tout() << "ematcher discarding [simp] '" << n << "', " << ex.what() << "\n";);
             }
         }
     }
@@ -233,6 +234,7 @@ void initialize_ematch() {
     g_ematch_ext_id      = register_branch_extension(new ematch_branch_extension());
     g_ematch_simp_ext_id = register_branch_extension(new ematch_simp_branch_extension());
     register_trace_class(name{"blast", "ematch"});
+    register_trace_class(name{"blast", "event", "ematch"});
 
     g_blast_ematch_max_instances = new name{"blast", "ematch", "max_instances"};
 

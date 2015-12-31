@@ -6,7 +6,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn
 Basic properties of lists.
 -/
 import logic tools.helper_tactics data.nat.order data.nat.sub
-open eq.ops helper_tactics nat prod function option
+open eq.ops nat prod function option
 
 inductive list (T : Type) : Type :=
 | nil {} : list T
@@ -43,48 +43,37 @@ definition append : list T → list T → list T
 
 notation l₁ ++ l₂ := append l₁ l₂
 
-theorem append_nil_left [simp] (t : list T) : [] ++ t = t
+theorem append_nil_left [simp] (t : list T) : [] ++ t = t :=
+rfl
 
-theorem append_cons [simp] (x : T) (s t : list T) : (x::s) ++ t = x::(s ++ t)
+theorem append_cons [simp] (x : T) (s t : list T) : (x::s) ++ t = x::(s ++ t) :=
+rfl
 
-theorem append_nil_right [simp] : ∀ (t : list T), t ++ [] = t
-| []       := rfl
-| (a :: l) := calc
-  (a :: l) ++ [] = a :: (l ++ []) : rfl
-             ... = a :: l         : append_nil_right l
+theorem append_nil_right [simp] : ∀ (t : list T), t ++ [] = t :=
+by rec_inst_simp
 
-theorem append.assoc [simp] : ∀ (s t u : list T), s ++ t ++ u = s ++ (t ++ u)
-| []       t u := rfl
-| (a :: l) t u :=
-  show a :: (l ++ t ++ u) = (a :: l) ++ (t ++ u),
-  by rewrite (append.assoc l t u)
+theorem append.assoc [simp] : ∀ (s t u : list T), s ++ t ++ u = s ++ (t ++ u) :=
+by rec_inst_simp
 
 /- length -/
 definition length : list T → nat
 | []       := 0
 | (a :: l) := length l + 1
 
-theorem length_nil [simp] : length (@nil T) = 0
+theorem length_nil [simp] : length (@nil T) = 0 :=
+rfl
 
-theorem length_cons [simp] (x : T) (t : list T) : length (x::t) = length t + 1
+theorem length_cons [simp] (x : T) (t : list T) : length (x::t) = length t + 1 :=
+rfl
 
-theorem length_append [simp] : ∀ (s t : list T), length (s ++ t) = length s + length t
-| []       t := calc
-    length ([] ++ t)  = length t             : rfl
-                  ... = length [] + length t : by rewrite [length_nil, zero_add]
-| (a :: s) t := calc
-    length (a :: s ++ t) = length (s ++ t) + 1        : rfl
-                    ...  = length s + length t + 1    : length_append
-                    ...  = (length s + 1) + length t  : succ_add
-                    ...  = length (a :: s) + length t : rfl
+theorem length_append [simp] : ∀ (s t : list T), length (s ++ t) = length s + length t :=
+by rec_inst_simp
 
-theorem eq_nil_of_length_eq_zero : ∀ {l : list T}, length l = 0 → l = []
-| []     H := rfl
-| (a::s) H := by contradiction
+theorem eq_nil_of_length_eq_zero : ∀ {l : list T}, length l = 0 → l = [] :=
+by rec_inst_simp
 
-theorem ne_nil_of_length_eq_succ : ∀ {l : list T} {n : nat}, length l = succ n → l ≠ []
-| []     n h := by contradiction
-| (a::l) n h := by contradiction
+theorem ne_nil_of_length_eq_succ : ∀ {l : list T} {n : nat}, length l = succ n → l ≠ [] :=
+by rec_inst_simp
 
 -- add_rewrite length_nil length_cons
 
@@ -94,30 +83,26 @@ definition concat : Π (x : T), list T → list T
 | a []       := [a]
 | a (b :: l) := b :: concat a l
 
-theorem concat_nil [simp] (x : T) : concat x [] = [x]
+theorem concat_nil [simp] (x : T) : concat x [] = [x] :=
+rfl
 
-theorem concat_cons [simp] (x y : T) (l : list T) : concat x (y::l)  = y::(concat x l)
+theorem concat_cons [simp] (x y : T) (l : list T) : concat x (y::l)  = y::(concat x l) :=
+rfl
 
-theorem concat_eq_append (a : T) : ∀ (l : list T), concat a l = l ++ [a]
-| []       := rfl
-| (b :: l) :=
-  show b :: (concat a l) = (b :: l) ++ (a :: []),
-  by rewrite concat_eq_append
+theorem concat_eq_append [simp] (a : T) : ∀ (l : list T), concat a l = l ++ [a] :=
+by rec_inst_simp
 
 theorem concat_ne_nil [simp] (a : T) : ∀ (l : list T), concat a l ≠ [] :=
-by intro l; induction l; repeat contradiction
+by rec_inst_simp
 
-theorem length_concat [simp] (a : T) : ∀ (l : list T), length (concat a l) = length l + 1
-| []      := rfl
-| (x::xs) := by rewrite [concat_cons, *length_cons, length_concat]
+theorem length_concat [simp] (a : T) : ∀ (l : list T), length (concat a l) = length l + 1 :=
+by rec_inst_simp
 
-theorem concat_append (a : T) : ∀ (l₁ l₂ : list T), concat a l₁ ++ l₂ = l₁ ++ a :: l₂
-| []      := λl₂, rfl
-| (x::xs) := λl₂, begin rewrite [concat_cons,append_cons, concat_append] end
+theorem concat_append [simp] (a : T) : ∀ (l₁ l₂ : list T), concat a l₁ ++ l₂ = l₁ ++ a :: l₂ :=
+by rec_inst_simp
 
-theorem append_concat (a : T)  : ∀(l₁ l₂ : list T), l₁ ++ concat a l₂ = concat a (l₁ ++ l₂)
-| []      := λl₂, rfl
-| (x::xs) := λl₂, begin rewrite [+append_cons, concat_cons, append_concat] end
+theorem append_concat (a : T)  : ∀(l₁ l₂ : list T), l₁ ++ concat a l₂ = concat a (l₁ ++ l₂) :=
+by rec_inst_simp
 
 /- last -/
 
@@ -154,42 +139,26 @@ definition reverse : list T → list T
 | []       := []
 | (a :: l) := concat a (reverse l)
 
-theorem reverse_nil [simp] : reverse (@nil T) = []
+theorem reverse_nil [simp] : reverse (@nil T) = [] :=
+rfl
 
-theorem reverse_cons [simp] (x : T) (l : list T) : reverse (x::l) = concat x (reverse l)
+theorem reverse_cons [simp] (x : T) (l : list T) : reverse (x::l) = concat x (reverse l) :=
+rfl
 
-theorem reverse_singleton [simp] (x : T) : reverse [x] = [x]
+theorem reverse_singleton [simp] (x : T) : reverse [x] = [x] :=
+rfl
 
-theorem reverse_append [simp] : ∀ (s t : list T), reverse (s ++ t) = (reverse t) ++ (reverse s)
-| []         t2 := calc
-    reverse ([] ++ t2) = reverse t2                    : rfl
-                ...    = (reverse t2) ++ []           : append_nil_right
-                ...    = (reverse t2) ++ (reverse []) : by rewrite reverse_nil
-| (a2 :: s2) t2 := calc
-    reverse ((a2 :: s2) ++ t2) = concat a2 (reverse (s2 ++ t2))         : rfl
-                        ...    = concat a2 (reverse t2 ++ reverse s2)   : reverse_append
-                        ...    = (reverse t2 ++ reverse s2) ++ [a2]     : concat_eq_append
-                        ...    = reverse t2 ++ (reverse s2 ++ [a2])     : append.assoc
-                        ...    = reverse t2 ++ concat a2 (reverse s2)   : concat_eq_append
-                        ...    = reverse t2 ++ reverse (a2 :: s2)       : rfl
+theorem reverse_append [simp] : ∀ (s t : list T), reverse (s ++ t) = (reverse t) ++ (reverse s) :=
+by rec_inst_simp
 
-theorem reverse_reverse [simp] : ∀ (l : list T), reverse (reverse l) = l
-| []       := rfl
-| (a :: l) := calc
-    reverse (reverse (a :: l)) = reverse (concat a (reverse l))     : rfl
-                          ...  = reverse (reverse l ++ [a])         : concat_eq_append
-                          ...  = reverse [a] ++ reverse (reverse l) : reverse_append
-                          ...  = reverse [a] ++ l                   : reverse_reverse
-                          ...  = a :: l                             : rfl
+theorem reverse_reverse [simp] : ∀ (l : list T), reverse (reverse l) = l :=
+by rec_inst_simp
 
 theorem concat_eq_reverse_cons (x : T) (l : list T) : concat x l = reverse (x :: reverse l) :=
-calc
-  concat x l = concat x (reverse (reverse l)) : reverse_reverse
-         ... = reverse (x :: reverse l)       : rfl
+by inst_simp
 
-theorem length_reverse : ∀ (l : list T), length (reverse l) = length l
-| []      := rfl
-| (x::xs) := begin unfold reverse, rewrite [length_concat, length_cons, length_reverse] end
+theorem length_reverse : ∀ (l : list T), length (reverse l) = length l :=
+by rec_inst_simp
 
 /- head and tail -/
 
@@ -197,26 +166,24 @@ definition head [h : inhabited T] : list T → T
 | []       := arbitrary T
 | (a :: l) := a
 
-theorem head_cons [simp] [h : inhabited T] (a : T) (l : list T) : head (a::l) = a
+theorem head_cons [simp] [h : inhabited T] (a : T) (l : list T) : head (a::l) = a :=
+rfl
 
-theorem head_append [simp] [h : inhabited T] (t : list T) : ∀ {s : list T}, s ≠ [] → head (s ++ t) = head s
-| []       H := absurd rfl H
-| (a :: s) H :=
-  show head (a :: (s ++ t)) = head (a :: s),
-  by  rewrite head_cons
+theorem head_append [simp] [h : inhabited T] (t : list T) : ∀ {s : list T}, s ≠ [] → head (s ++ t) = head s :=
+by rec_inst_simp
 
 definition tail : list T → list T
 | []       := []
 | (a :: l) := l
 
-theorem tail_nil [simp] : tail (@nil T) = []
+theorem tail_nil [simp] : tail (@nil T) = [] :=
+rfl
 
-theorem tail_cons [simp] (a : T) (l : list T) : tail (a::l) = l
+theorem tail_cons [simp] (a : T) (l : list T) : tail (a::l) = l :=
+rfl
 
 theorem cons_head_tail [h : inhabited T] {l : list T} : l ≠ [] → (head l)::(tail l) = l :=
-list.cases_on l
-  (suppose [] ≠ [], absurd rfl this)
-  (take x l, suppose x::l ≠ [], rfl)
+by rec_inst_simp
 
 /- list membership -/
 
@@ -227,7 +194,7 @@ definition mem : T → list T → Prop
 notation e ∈ s := mem e s
 notation e ∉ s := ¬ e ∈ s
 
-theorem mem_nil_iff [simp] (x : T) : x ∈ [] ↔ false :=
+theorem mem_nil_iff (x : T) : x ∈ [] ↔ false :=
 iff.rfl
 
 theorem not_mem_nil (x : T) : x ∉ [] :=
@@ -295,6 +262,7 @@ lemma length_pos_of_mem {a : T} : ∀ {l : list T}, a ∈ l → 0 < length l
 | []     := assume Pinnil, by contradiction
 | (b::l) := assume Pin, !zero_lt_succ
 
+section
 local attribute mem [reducible]
 local attribute append [reducible]
 theorem mem_split {x : T} {l : list T} : x ∈ l → ∃s t : list T, l = s ++ (x::t) :=
@@ -312,6 +280,7 @@ list.induction_on l
         have y :: l = (y::s) ++ (x::t),
           from H3 ▸ rfl,
         !exists.intro (!exists.intro this)))
+end
 
 theorem mem_append_left {a : T} {l₁ : list T} (l₂ : list T) : a ∈ l₁ → a ∈ l₁ ++ l₂ :=
 assume ainl₁, mem_append_of_mem_or_mem (or.inl ainl₁)
@@ -421,9 +390,11 @@ definition find : T → list T → nat
 | a []       := 0
 | a (b :: l) := if a = b then 0 else succ (find a l)
 
-theorem find_nil [simp] (x : T) : find x [] = 0
+theorem find_nil [simp] (x : T) : find x [] = 0 :=
+rfl
 
-theorem find_cons (x y : T) (l : list T) : find x (y::l) = if x = y then 0 else succ (find x l)
+theorem find_cons (x y : T) (l : list T) : find x (y::l) = if x = y then 0 else succ (find x l) :=
+rfl
 
 theorem find_cons_of_eq {x y : T} (l : list T) : x = y → find x (y::l) = 0 :=
 assume e, if_pos e
@@ -433,7 +404,7 @@ assume n, if_neg n
 
 theorem find_of_not_mem {l : list T} {x : T} : ¬x ∈ l → find x l = length l :=
 list.rec_on l
-   (suppose ¬x ∈ [], _)
+   (suppose ¬x ∈ [], rfl)
    (take y l,
       assume iH : ¬x ∈ l → find x l = length l,
       suppose ¬x ∈ y::l,
@@ -483,9 +454,11 @@ definition nth : list T → nat → option T
 | (a :: l) 0     := some a
 | (a :: l) (n+1) := nth l n
 
-theorem nth_zero [simp] (a : T) (l : list T) : nth (a :: l) 0 = some a
+theorem nth_zero [simp] (a : T) (l : list T) : nth (a :: l) 0 = some a :=
+rfl
 
-theorem nth_succ [simp] (a : T) (l : list T) (n : nat) : nth (a::l) (succ n) = nth l n
+theorem nth_succ [simp] (a : T) (l : list T) (n : nat) : nth (a::l) (succ n) = nth l n :=
+rfl
 
 theorem nth_eq_some : ∀ {l : list T} {n : nat}, n < length l → Σ a : T, nth l n = some a
 | []     n        h := absurd h !not_lt_zero
@@ -510,9 +483,12 @@ match nth l n with
 | none   := arbitrary T
 end
 
-theorem inth_zero [inhabited T] (a : T) (l : list T) : inth (a :: l) 0 = a
+theorem inth_zero [inhabited T] (a : T) (l : list T) : inth (a :: l) 0 = a :=
+rfl
 
-theorem inth_succ [inhabited T] (a : T) (l : list T) (n : nat) : inth (a::l) (n+1) = inth l n
+theorem inth_succ [inhabited T] (a : T) (l : list T) (n : nat) : inth (a::l) (n+1) = inth l n :=
+rfl
+
 end nth
 
 section ith
@@ -631,10 +607,10 @@ definition firstn : nat → list A → list A
 | (n+1) []     := []
 | (n+1) (a::l) := a :: firstn n l
 
-lemma firstn_zero : ∀ (l : list A), firstn 0 l = [] :=
+lemma firstn_zero [simp] : ∀ (l : list A), firstn 0 l = [] :=
 by intros; reflexivity
 
-lemma firstn_nil : ∀ n, firstn n [] = ([] : list A)
+lemma firstn_nil [simp] : ∀ n, firstn n [] = ([] : list A)
 | 0     := rfl
 | (n+1) := rfl
 

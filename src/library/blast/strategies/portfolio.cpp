@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/blast/strategies/simple_strategy.h"
 #include "library/blast/strategies/preprocess_strategy.h"
 #include "library/blast/strategies/action_strategy.h"
+#include "library/blast/strategies/rec_strategy.h"
 
 namespace lean {
 namespace blast {
@@ -56,6 +57,10 @@ static optional<expr> apply_ematch_simp() {
                               assert_cc_action,
                               unit_propagate,
                               ematch_simp_action)();
+}
+
+static optional<expr> apply_ematch_simp_rec() {
+    return rec_and_then(apply_ematch_simp)();
 }
 
 static optional<expr> apply_constructor() {
@@ -105,6 +110,8 @@ optional<expr> apply_strategy() {
         return apply_ematch();
     } else if (s_name == "ematch_simp") {
         return apply_ematch_simp();
+    } else if (s_name == "ematch_simp_rec") {
+        return apply_ematch_simp_rec();
     } else if (s_name == "constructor") {
         return apply_constructor();
     } else if (s_name == "unit") {

@@ -111,6 +111,7 @@ definition simp          : tactic := #tactic with_options [blast.strategy "simp"
 definition simp_nohyps   : tactic := #tactic with_options [blast.strategy "simp_nohyps"] blast
 definition simp_topdown  : tactic := #tactic with_options [blast.strategy "simp", simplify.top_down true] blast
 definition inst_simp     : tactic := #tactic with_options [blast.strategy "ematch_simp"] blast
+definition rec_simp      : tactic := #tactic with_options [blast.strategy "rec_simp"] blast
 definition rec_inst_simp : tactic := #tactic with_options [blast.strategy "rec_ematch_simp"] blast
 
 definition cases (h : expr) (ids : opt_identifier_list) : tactic := builtin

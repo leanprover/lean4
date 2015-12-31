@@ -116,21 +116,21 @@ the associated [simp] lemmas from algebra
 local attribute nat.add_zero nat.add_succ [simp]
 
 protected theorem zero_add (n : ℕ) : 0 + n = n :=
-nat.induction_on n (by simp) (by simp)
+by rec_simp
 
 theorem succ_add (n m : ℕ) : (succ n) + m = succ (n + m) :=
-nat.induction_on m (by simp) (by simp)
+by rec_simp
 
 local attribute nat.zero_add nat.succ_add [simp]
 
 protected theorem add_comm (n m : ℕ) : n + m = m + n :=
-nat.induction_on m (by simp) (by simp)
+by rec_simp
 
 theorem succ_add_eq_succ_add (n m : ℕ) : succ n + m = n + succ m :=
 by simp
 
 protected theorem add_assoc (n m k : ℕ) : (n + m) + k = n + (m + k) :=
-nat.induction_on k (by simp) (by simp)
+by rec_simp
 
 protected theorem add_left_comm : Π (n m k : ℕ), n + (m + k) = m + (n + k) :=
 left_comm nat.add_comm nat.add_assoc
@@ -179,26 +179,26 @@ local attribute nat.mul_zero nat.mul_succ [simp]
 -- commutativity, distributivity, associativity, identity
 
 protected theorem zero_mul (n : ℕ) : 0 * n = 0 :=
-nat.induction_on n (by simp) (by simp)
+by rec_simp
 
 theorem succ_mul (n m : ℕ) : (succ n) * m = (n * m) + m :=
-nat.induction_on m (by simp) (by simp)
+by rec_simp
 
 local attribute nat.zero_mul nat.succ_mul [simp]
 
 protected theorem mul_comm (n m : ℕ) : n * m = m * n :=
-nat.induction_on m (by simp) (by simp)
+by rec_simp
 
 protected theorem right_distrib (n m k : ℕ) : (n + m) * k = n * k + m * k :=
-nat.induction_on k (by simp) (by simp)
+by rec_simp
 
 protected theorem left_distrib (n m k : ℕ) : n * (m + k) = n * m + n * k :=
-nat.induction_on k (by simp) (by simp)
+by rec_simp
 
 local attribute nat.mul_comm nat.right_distrib nat.left_distrib [simp]
 
 protected theorem mul_assoc (n m k : ℕ) : (n * m) * k = n * (m * k) :=
-nat.induction_on k (by simp) (by simp)
+by rec_simp
 
 local attribute nat.mul_assoc [simp]
 

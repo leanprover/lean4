@@ -59,6 +59,10 @@ static optional<expr> apply_ematch_simp() {
                               ematch_simp_action)();
 }
 
+static optional<expr> apply_rec_simp() {
+    return rec_and_then(apply_simp)();
+}
+
 static optional<expr> apply_rec_ematch_simp() {
     return rec_and_then(apply_ematch_simp)();
 }
@@ -112,6 +116,8 @@ optional<expr> apply_strategy() {
         return apply_ematch_simp();
     } else if (s_name == "rec_ematch_simp") {
         return apply_rec_ematch_simp();
+    } else if (s_name == "rec_simp") {
+        return apply_rec_simp();
     } else if (s_name == "constructor") {
         return apply_constructor();
     } else if (s_name == "unit") {

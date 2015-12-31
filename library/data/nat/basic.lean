@@ -141,14 +141,14 @@ protected theorem add_right_comm : Π (n m k : ℕ), n + m + k = n + k + m :=
 right_comm nat.add_comm nat.add_assoc
 
 protected theorem add_left_cancel {n m k : ℕ} : n + m = n + k → m = k :=
-nat.induction_on n (by simp) (by msimp)
+nat.induction_on n (by simp) (by inst_simp)
 
 protected theorem add_right_cancel {n m k : ℕ} (H : n + m = k + m) : n = k :=
 have H2 : m + n = m + k, by simp,
 nat.add_left_cancel H2
 
 theorem eq_zero_of_add_eq_zero_right {n m : ℕ} : n + m = 0 → n = 0 :=
-nat.induction_on n (by simp) (by msimp)
+nat.induction_on n (by simp) (by inst_simp)
 
 theorem eq_zero_of_add_eq_zero_left {n m : ℕ} (H : n + m = 0) : m = 0 :=
 eq_zero_of_add_eq_zero_right (!nat.add_comm ⬝ H)

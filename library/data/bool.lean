@@ -100,7 +100,7 @@ namespace bool
   theorem band_elim_left {a b : bool} (H : a && b = tt) : a = tt :=
   or.elim (dichotomy a)
     (suppose a = ff,
-      absurd (by msimp) ff_ne_tt)
+      absurd (by inst_simp) ff_ne_tt)
     (suppose a = tt, this)
 
   theorem band_intro {a b : bool} (H₁ : a = tt) (H₂ : b = tt) : a && b = tt :=

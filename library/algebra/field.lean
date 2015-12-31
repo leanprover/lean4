@@ -82,24 +82,24 @@ section division_ring
   theorem eq_one_div_of_mul_eq_one (H : a * b = 1) : b = 1 / a :=
   assert a ≠ 0, from
     suppose a = 0,
-    have 0 = (1:A), by msimp,
+    have 0 = (1:A), by inst_simp,
       absurd this zero_ne_one,
-  by msimp
+  by inst_simp
 
   theorem eq_one_div_of_mul_eq_one_left (H : b * a = 1) : b = 1 / a :=
   assert a ≠ 0, from
     suppose a = 0,
-    have 0 = (1:A), by msimp,
+    have 0 = (1:A), by inst_simp,
       absurd this zero_ne_one,
-  by msimp
+  by inst_simp
 
   theorem division_ring.one_div_mul_one_div (Ha : a ≠ 0) (Hb : b ≠ 0) :
       (1 / a) * (1 / b) = 1 / (b * a) :=
-  have (b * a) * ((1 / a) * (1 / b)) = 1, by msimp,
+  have (b * a) * ((1 / a) * (1 / b)) = 1, by inst_simp,
   eq_one_div_of_mul_eq_one this
 
   theorem one_div_neg_one_eq_neg_one : (1:A) / (-1) = -1 :=
-  have (-1) * (-1) = (1:A), by msimp,
+  have (-1) * (-1) = (1:A), by inst_simp,
   symm (eq_one_div_of_mul_eq_one this)
 
   theorem division_ring.one_div_neg_eq_neg_one_div (H : a ≠ 0) : 1 / (- a) = - (1 / a) :=
@@ -136,7 +136,7 @@ section division_ring
 
   theorem mul_inv_eq [simp] (Ha : a ≠ 0) (Hb : b ≠ 0) : (b * a)⁻¹ = a⁻¹ * b⁻¹ :=
     eq.symm (calc
-      a⁻¹ * b⁻¹ = (1 / a) * (1 / b) : by msimp
+      a⁻¹ * b⁻¹ = (1 / a) * (1 / b) : by inst_simp
       ... = (1 / (b * a))           : division_ring.one_div_mul_one_div Ha Hb
       ... = (b * a)⁻¹               : by simp)
 
@@ -164,7 +164,7 @@ section division_ring
   theorem div_eq_one_iff_eq (a : A) {b : A} (Hb : b ≠ 0) : a / b = 1 ↔ a = b :=
     iff.intro
     (suppose a / b = 1, calc
-      a   = a / b * b : by msimp
+      a   = a / b * b : by inst_simp
       ... = 1 * b     : this
       ... = b         : by simp)
     (suppose a = b, by simp)
@@ -206,9 +206,9 @@ section field
   theorem field.div_mul_right (Hb : b ≠ 0) (H : a * b ≠ 0) : a / (a * b) = 1 / b :=
   assert a ≠ 0, from and.left (ne_zero_and_ne_zero_of_mul_ne_zero H),
     symm (calc
-      1 / b = a * ((1 / a) * (1 / b)) : by msimp
+      1 / b = a * ((1 / a) * (1 / b)) : by inst_simp
         ... = a * (1 / (b * a))       : division_ring.one_div_mul_one_div this Hb
-        ... = a * (a * b)⁻¹           : by msimp)
+        ... = a * (a * b)⁻¹           : by inst_simp)
 
   theorem field.div_mul_left (Ha : a ≠ 0) (H : a * b ≠ 0) : b / (a * b) = 1 / a :=
     let H1 : b * a ≠ 0 := mul_ne_zero_comm H in
@@ -227,7 +227,7 @@ section field
 
   theorem field.div_mul_div (a : A) {b : A} (c : A) {d : A} (Hb : b ≠ 0) (Hd : d ≠ 0) :
       (a / b) * (c / d) = (a * c) / (b * d) :=
-  by msimp
+  by inst_simp
 
   theorem mul_div_mul_left (a : A) {b c : A} (Hb : b ≠ 0) (Hc : c ≠ 0) :
       (c * a) / (c * b) = a / b :=

@@ -55,7 +55,7 @@ nat.induction_on y
   (by simp)
   (take y,
     assume IH : (x + y * z) / z = x / z + y, calc
-      (x + succ y * z) / z = (x + y * z + z) / z    : by msimp
+      (x + succ y * z) / z = (x + y * z + z) / z    : by inst_simp
                        ... = succ ((x + y * z) / z) : !add_div_self H
                        ... = succ (x / z + y)       : IH)
 
@@ -113,17 +113,17 @@ theorem add_mod_self_left [simp] (x z : ℕ) : (x + z) % x = z % x :=
 local attribute succ_mul [simp]
 
 theorem add_mul_mod_self [simp] (x y z : ℕ) : (x + y * z) % z = x % z :=
-nat.induction_on y (by simp) (by msimp)
+nat.induction_on y (by simp) (by inst_simp)
 
 theorem add_mul_mod_self_left [simp] (x y z : ℕ) : (x + y * z) % y = x % y :=
-by msimp
+by inst_simp
 
 theorem mul_mod_left [simp] (m n : ℕ) : (m * n) % n = 0 :=
 calc (m * n) % n = (0 + m * n) % n : by simp
-            ...  = 0               : by msimp
+            ...  = 0               : by inst_simp
 
 theorem mul_mod_right [simp] (m n : ℕ) : (m * n) % m = 0 :=
-by msimp
+by inst_simp
 
 theorem mod_lt (x : ℕ) {y : ℕ} (H : y > 0) : x % y < y :=
 nat.case_strong_induction_on x

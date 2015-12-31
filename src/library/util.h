@@ -110,6 +110,7 @@ level get_datatype_level(expr ind_type);
 expr instantiate_univ_param (expr const & e, name const & p, level const & l);
 
 expr mk_true();
+bool is_true(expr const & e);
 expr mk_true_intro();
 
 bool is_and(expr const & e, expr & arg1, expr & arg2);

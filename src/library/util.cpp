@@ -418,6 +418,10 @@ expr mk_true() {
     return *g_true;
 }
 
+bool is_true(expr const & e) {
+    return e == *g_true;
+}
+
 expr mk_true_intro() {
     return *g_true_intro;
 }

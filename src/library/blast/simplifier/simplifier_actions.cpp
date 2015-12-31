@@ -118,7 +118,8 @@ action_result simplify_hypothesis_action(hypothesis_idx hidx) {
         // they are definitionally equal
         new_h_proof = h.get_self();
     }
-    s.mk_hypothesis(r.get_new(), new_h_proof);
+    if (!is_true(r.get_new()))
+        s.mk_hypothesis(r.get_new(), new_h_proof);
     s.del_hypothesis(hidx);
     return action_result::new_branch();
 }

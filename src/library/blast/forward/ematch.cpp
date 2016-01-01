@@ -424,7 +424,7 @@ struct ematch_fn {
         if (!m_new_instances) {
             trace_action("ematch");
         }
-        lean_trace_ematch(tout() << "instance: " << ppb(new_inst) << "\n";);
+        lean_trace_ematch(tout() << "instance [" << ppb(lemma.m_expr) << "]: " << ppb(new_inst) << "\n";);
         m_new_instances = true;
         expr new_proof = m_ctx->instantiate_uvars_mvars(lemma.m_proof);
         curr_state().mk_hypothesis(new_inst, new_proof);

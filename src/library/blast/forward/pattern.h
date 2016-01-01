@@ -40,6 +40,8 @@ struct hi_lemma {
     list<expr>           m_mvars;
     expr                 m_prop;
     expr                 m_proof;
+    /* term that was used to generate hi_lemma, it is only used for tracing and profiling */
+    expr                 m_expr;
 };
 
 inline bool operator==(hi_lemma const & l1, hi_lemma const & l2) { return l1.m_prop == l2.m_prop; }

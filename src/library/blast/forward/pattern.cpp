@@ -598,6 +598,7 @@ struct mk_hi_lemma_fn {
         r.m_is_inst_implicit = to_list(inst_implicit_flags);
         r.m_prop             = m_ctx.infer(proof);
         r.m_proof            = proof;
+        r.m_expr             = m_H;
         return r;
     }
 };

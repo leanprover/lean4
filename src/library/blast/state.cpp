@@ -256,12 +256,26 @@ expr state::to_kernel_expr(expr const & e) const {
     return to_kernel_expr(e, hidx2local, midx2meta);
 }
 
+static name mk_name(name const & n, name_set & already_used) {
+    name curr    = n;
+    unsigned idx = 1;
+    while (true) {
+        if (!already_used.contains(curr)) {
+            already_used.insert(curr);
+            return curr;
+        }
+        curr = n.append_after(idx);
+        idx++;
+    }
+}
+
 goal state::to_goal(bool include_inactive) const {
     hypothesis_idx_map<expr> hidx2local;
     metavar_idx_map<expr>    midx2meta;
     hypothesis_idx_buffer hidxs;
     get_sorted_hypotheses(hidxs);
     buffer<expr> hyps;
+    name_set already_used;
     for (unsigned hidx : hidxs) {
         if (!include_inactive && !is_active(hidx)) {
             break; // inactive hypotheses occur after active ones after sorting
@@ -269,7 +283,7 @@ goal state::to_goal(bool include_inactive) const {
         hypothesis const & h = get_hypothesis_decl(hidx);
         // after we add support for let-decls in goals, we must convert back h->get_value() if it is available
         expr new_h = lean::mk_local(name(name("H"), hidx),
-                                    h.get_name(),
+                                    mk_name(h.get_name(), already_used),
                                     to_kernel_expr(h.get_type(), hidx2local, midx2meta),
                                     binder_info());
         hidx2local.insert(hidx, new_h);

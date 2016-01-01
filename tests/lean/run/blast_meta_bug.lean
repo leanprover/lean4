@@ -1,5 +1,5 @@
 constants {A : Type.{1}} (P : A → Prop) (Q : A → Prop)
-definition H : ∀ a, (: P a :) → Exists Q := sorry
+definition H [forward] : ∀ a, (: P a :) → Exists Q := sorry
 
 set_option blast.strategy "ematch"
 

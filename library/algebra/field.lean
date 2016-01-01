@@ -84,7 +84,8 @@ section division_ring
     suppose a = 0,
     have 0 = (1:A), by inst_simp,
       absurd this zero_ne_one,
-  by inst_simp
+  assert b = (1 / a) * a * b, by inst_simp,
+  show b = 1 / a, by inst_simp
 
   theorem eq_one_div_of_mul_eq_one_left (H : b * a = 1) : b = 1 / a :=
   assert a ≠ 0, from

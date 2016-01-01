@@ -4,8 +4,8 @@ import logic data.nat.basic
 open nat eq.ops algebra
 
 theorem tst (a b c : nat) : a + b + c = a + c + b :=
-calc a + b + c = a + (b + c) : !add.assoc
-         ...   = a + (c + b) : {!add.comm}
-         ...   = a + c + b   : (!add.assoc)⁻¹
+calc a + b + c = a + (b + c) : by rewrite add.assoc
+         ...   = a + (c + b) : by rewrite (add.comm b c)
+         ...   = a + c + b   : by rewrite add.assoc
 WAIT
 INFO 7

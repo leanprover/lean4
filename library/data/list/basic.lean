@@ -69,13 +69,13 @@ rfl
 theorem length_append [simp] : ∀ (s t : list T), length (s ++ t) = length s + length t :=
 by rec_inst_simp
 
-theorem eq_nil_of_length_eq_zero : ∀ {l : list T}, length l = 0 → l = [] :=
-by rec_inst_simp
+theorem eq_nil_of_length_eq_zero : ∀ {l : list T}, length l = 0 → l = []
+| []     H := rfl
+| (a::s) H := by contradiction
 
-theorem ne_nil_of_length_eq_succ : ∀ {l : list T} {n : nat}, length l = succ n → l ≠ [] :=
-by rec_inst_simp
-
--- add_rewrite length_nil length_cons
+theorem ne_nil_of_length_eq_succ : ∀ {l : list T} {n : nat}, length l = succ n → l ≠ []
+| []     n h := by contradiction
+| (a::l) n h := by contradiction
 
 /- concat -/
 
@@ -93,7 +93,7 @@ theorem concat_eq_append [simp] (a : T) : ∀ (l : list T), concat a l = l ++ [a
 by rec_inst_simp
 
 theorem concat_ne_nil [simp] (a : T) : ∀ (l : list T), concat a l ≠ [] :=
-by rec_inst_simp
+by intro l; induction l; repeat contradiction
 
 theorem length_concat [simp] (a : T) : ∀ (l : list T), length (concat a l) = length l + 1 :=
 by rec_inst_simp

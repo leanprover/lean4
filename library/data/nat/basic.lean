@@ -44,7 +44,10 @@ nat.induction_on x
 
 /- successor and predecessor -/
 
-theorem succ_ne_zero (n : ℕ) : succ n ≠ 0 :=
+theorem succ_ne_zero [simp] (n : ℕ) : succ n ≠ 0 :=
+by contradiction
+
+theorem add_one_ne_zero [simp] (n : ℕ) : n + 1 ≠ 0 :=
 by contradiction
 
 -- add_rewrite succ_ne_zero
@@ -141,14 +144,24 @@ protected theorem add_right_comm : Π (n m k : ℕ), n + m + k = n + k + m :=
 right_comm nat.add_comm nat.add_assoc
 
 protected theorem add_left_cancel {n m k : ℕ} : n + m = n + k → m = k :=
-nat.induction_on n (by simp) (by inst_simp)
+nat.induction_on n
+  (by simp)
+  (take a iH,
+    -- TODO(Leo): replace with forward reasoning after we add strategies for it.
+    assert succ (a + m) = succ (a + k) → a + m = a + k, from !succ.inj,
+    by inst_simp)
 
 protected theorem add_right_cancel {n m k : ℕ} (H : n + m = k + m) : n = k :=
 have H2 : m + n = m + k, by simp,
 nat.add_left_cancel H2
 
 theorem eq_zero_of_add_eq_zero_right {n m : ℕ} : n + m = 0 → n = 0 :=
-nat.induction_on n (by simp) (by inst_simp)
+nat.induction_on n
+  (by simp)
+  (take k iH, assume H : succ k + m = 0,
+    absurd
+      (show succ (k + m) = 0, by simp)
+      !succ_ne_zero)
 
 theorem eq_zero_of_add_eq_zero_left {n m : ℕ} (H : n + m = 0) : m = 0 :=
 eq_zero_of_add_eq_zero_right (!nat.add_comm ⬝ H)

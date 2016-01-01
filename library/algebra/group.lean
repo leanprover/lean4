@@ -9,7 +9,6 @@ Various multiplicative and additive structures. Partially modeled on Isabelle's 
 import logic.eq data.unit data.sigma data.prod
 import algebra.binary algebra.priority
 
-open eq eq.ops   -- note: ⁻¹ will be overloaded
 open binary
 
 variable {A : Type}
@@ -22,7 +21,9 @@ attribute neg [light 3]
 structure semigroup [class] (A : Type) extends has_mul A :=
 (mul_assoc : ∀a b c, mul (mul a b) c = mul a (mul b c))
 
-theorem mul.assoc [simp] [semigroup A] (a b c : A) : a * b * c = a * (b * c) :=
+-- We add pattern hints to the following lemma because we want it to be used in both directions
+-- at inst_simp strategy.
+theorem mul.assoc [simp] [semigroup A] (a b c : A) : (: a * b * c :) = (: a * (b * c) :) :=
 !semigroup.mul_assoc
 
 structure comm_semigroup [class] (A : Type) extends semigroup A :=
@@ -58,7 +59,7 @@ abbreviation eq_of_mul_eq_mul_right' := @mul.right_cancel
 structure add_semigroup [class] (A : Type) extends has_add A :=
 (add_assoc : ∀a b c, add (add a b) c = add a (add b c))
 
-theorem add.assoc [simp] [add_semigroup A] (a b c : A) : a + b + c = a + (b + c) :=
+theorem add.assoc [simp] [add_semigroup A] (a b c : A) : (: a + b + c :) = (: a + (b + c) :) :=
 !add_semigroup.add_assoc
 
 structure add_comm_semigroup [class] (A : Type) extends add_semigroup A :=
@@ -155,6 +156,7 @@ section group
   by simp
 
   theorem inv_eq_of_mul_eq_one {a b : A} (H : a * b = 1) : a⁻¹ = b :=
+  assert a⁻¹ * 1 = b, by inst_simp,
   by inst_simp
 
   theorem one_inv [simp] : 1⁻¹ = (1 : A) :=
@@ -164,13 +166,15 @@ section group
   inv_eq_of_mul_eq_one (mul.left_inv a)
 
   theorem inv.inj {a b : A} (H : a⁻¹ = b⁻¹) : a = b :=
+  assert a = a⁻¹⁻¹, by simp_nohyps,
   by inst_simp
 
   theorem inv_eq_inv_iff_eq (a b : A) : a⁻¹ = b⁻¹ ↔ a = b :=
   iff.intro (assume H, inv.inj H) (by simp)
 
   theorem inv_eq_one_iff_eq_one (a : A) : a⁻¹ = 1 ↔ a = 1 :=
-  one_inv ▸ inv_eq_inv_iff_eq a 1
+  assert a⁻¹ = 1⁻¹ ↔ a = 1, from inv_eq_inv_iff_eq a 1,
+  by simp
 
   theorem eq_one_of_inv_eq_one (a : A) : a⁻¹ = 1 → a = 1 :=
   iff.mp !inv_eq_one_iff_eq_one
@@ -182,9 +186,11 @@ section group
   iff.intro !eq_inv_of_eq_inv !eq_inv_of_eq_inv
 
   theorem eq_inv_of_mul_eq_one {a b : A} (H : a * b = 1) : a = b⁻¹ :=
-  begin apply eq_inv_of_eq_inv, symmetry, exact inv_eq_of_mul_eq_one H end
+  assert a⁻¹ = b, from inv_eq_of_mul_eq_one H,
+  by inst_simp
 
   theorem mul.right_inv [simp] (a : A) : a * a⁻¹ = 1 :=
+  assert a = a⁻¹⁻¹, by simp,
   by inst_simp
 
   theorem mul_inv_cancel_left [simp] (a b : A) : a * (a⁻¹ * b) = b :=
@@ -194,9 +200,11 @@ section group
   by inst_simp
 
   theorem mul_inv [simp] (a b : A) : (a * b)⁻¹ = b⁻¹ * a⁻¹ :=
+  assert a * a⁻¹ = 1, by inst_simp, -- why do we need it?
   inv_eq_of_mul_eq_one (by inst_simp)
 
   theorem eq_of_mul_inv_eq_one {a b : A} (H : a * b⁻¹ = 1) : a = b :=
+  assert a⁻¹ * 1 = a⁻¹, by inst_simp,
   by inst_simp
 
   theorem eq_mul_inv_of_mul_eq {a b c : A} (H : a * c = b) : a = b * c⁻¹ :=
@@ -230,13 +238,15 @@ section group
   iff.intro eq_mul_inv_of_mul_eq mul_eq_of_eq_mul_inv
 
   theorem mul_left_cancel {a b c : A} (H : a * b = a * c) : b = c :=
+  assert a⁻¹ * (a * b) = b, by inst_simp,
   by inst_simp
 
   theorem mul_right_cancel {a b c : A} (H : a * b = c * b) : a = c :=
+  assert a * b * b⁻¹ = a, by inst_simp,
   by inst_simp
 
   theorem mul_eq_one_of_mul_eq_one {a b : A} (H : b * a = 1) : a * b = 1 :=
-  by inst_simp
+  by rewrite [-inv_eq_of_mul_eq_one H, mul.left_inv]
 
   theorem mul_eq_one_iff_mul_eq_one (a b : A) : a * b = 1 ↔ b * a = 1 :=
   iff.intro !mul_eq_one_of_mul_eq_one !mul_eq_one_of_mul_eq_one
@@ -256,6 +266,7 @@ section group
   by inst_simp
 
   lemma conj_one [simp] (g : A) : g ∘c 1 = 1 :=
+  assert g * g⁻¹ = 1, by inst_simp, -- why do we need it?
   by inst_simp
 
   lemma conj_inv_cancel [simp] (g : A) : ∀ a, g⁻¹ ∘c g ∘c a = a :=
@@ -315,6 +326,7 @@ section add_group
   by simp
 
   theorem neg_eq_of_add_eq_zero {a b : A} (H : a + b = 0) : -a = b :=
+  assert -a + 0 = b, by inst_simp,
   by inst_simp
 
   theorem neg_zero [simp] : -0 = (0 : A) := neg_eq_of_add_eq_zero (zero_add 0)
@@ -322,9 +334,11 @@ section add_group
   theorem neg_neg [simp] (a : A) : -(-a) = a := neg_eq_of_add_eq_zero (add.left_inv a)
 
   theorem eq_neg_of_add_eq_zero {a b : A} (H : a + b = 0) : a = -b :=
+  assert -a = b, from neg_eq_of_add_eq_zero H,
   by inst_simp
 
   theorem neg.inj {a b : A} (H : -a = -b) : a = b :=
+  assert a = -(-a), by simp_nohyps,
   by inst_simp
 
   theorem neg_eq_neg_iff_eq (a b : A) : -a = -b ↔ a = b :=
@@ -334,7 +348,8 @@ section add_group
   iff.mp !neg_eq_neg_iff_eq
 
   theorem neg_eq_zero_iff_eq_zero (a : A) : -a = 0 ↔ a = 0 :=
-  neg_zero ▸ !neg_eq_neg_iff_eq
+  assert -a = -0 ↔ a = 0, from neg_eq_neg_iff_eq a 0,
+  by simp
 
   theorem eq_zero_of_neg_eq_zero {a : A} : -a = 0 → a = 0 :=
   iff.mp !neg_eq_zero_iff_eq_zero
@@ -346,6 +361,7 @@ section add_group
   iff.intro !eq_neg_of_eq_neg !eq_neg_of_eq_neg
 
   theorem add.right_inv [simp] (a : A) : a + -a = 0 :=
+  assert a = -(-a), by simp,
   by inst_simp
 
   theorem add_neg_cancel_left [simp] (a b : A) : a + (-a + b) = b :=
@@ -389,9 +405,11 @@ section add_group
   iff.intro eq_add_neg_of_add_eq add_eq_of_eq_add_neg
 
   theorem add_left_cancel {a b c : A} (H : a + b = a + c) : b = c :=
+  assert -a + (a + b) = b, by inst_simp,
   by inst_simp
 
   theorem add_right_cancel {a b c : A} (H : a + b = c + b) : a = c :=
+  assert a + b + -b = a, by inst_simp,
   by inst_simp
 
   definition add_group.to_left_cancel_semigroup [trans_instance] [reducible] :
@@ -424,10 +442,11 @@ section add_group
   theorem add_sub_cancel (a b : A) : a + b - b = a := !add_neg_cancel_right
 
   theorem eq_of_sub_eq_zero {a b : A} (H : a - b = 0) : a = b :=
+  assert -a + 0 = -a, by inst_simp,
   by inst_simp
 
   theorem eq_iff_sub_eq_zero (a b : A) : a = b ↔ a - b = 0 :=
-  iff.intro (assume H, H ▸ !sub_self) (assume H, eq_of_sub_eq_zero H)
+  iff.intro (assume H, eq.subst H !sub_self) (assume H, eq_of_sub_eq_zero H)
 
   theorem zero_sub (a : A) : 0 - a = -a := !zero_add
 
@@ -440,7 +459,8 @@ section add_group
   theorem neg_sub (a b : A) : -(a - b) = b - a :=
   neg_eq_of_add_eq_zero (by inst_simp)
 
-  theorem add_sub (a b c : A) : a + (b - c) = a + b - c := !add.assoc⁻¹
+  theorem add_sub (a b c : A) : a + (b - c) = a + b - c :=
+  by simp
 
   theorem sub_add_eq_sub_sub_swap (a b c : A) : a - (b + c) = a - c - b :=
   by inst_simp

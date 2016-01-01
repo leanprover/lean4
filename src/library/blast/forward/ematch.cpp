@@ -207,7 +207,7 @@ struct ematch_simp_branch_extension : public ematch_branch_extension_core {
         get_simp_lemmas(env(), simp_lemmas);
         for (name const & n : simp_lemmas) {
             try {
-                m_new_lemmas.insert(mk_hi_lemma(n, get_simp_lemma_priority(env(), n)));
+                m_new_lemmas.insert(mk_hi_simp_lemma(n, get_simp_lemma_priority(env(), n)));
             } catch (exception & ex) {
                 lean_trace_event_ematch(tout() << "ematcher discarding [simp] '" << n << "', " << ex.what() << "\n";);
             }

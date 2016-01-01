@@ -35,29 +35,15 @@ c
 b
 -- ACK
 -- SYMBOL|7|31
-(
+by
 -- ACK
--- SYMBOL|7|32
-!
+-- SYMBOL|7|34
+rewrite
 -- ACK
--- TYPE|7|33
-a + c + b = a + (c + b)
+-- TYPE|7|42
+∀ (a_1 b_1 c_1 : ?A), (:a_1 + b_1 + c_1:) = (:a_1 + (b_1 + c_1):)
 -- ACK
--- IDENTIFIER|7|33
+-- IDENTIFIER|7|42
 add.assoc
--- ACK
--- TYPE|7|43
-a + c + b = a + (c + b) → a + (c + b) = a + c + b
--- ACK
--- OVERLOAD|7|43
-eq.symm #0
---
-inv #0
--- ACK
--- SYMBOL|7|43
-⁻¹
--- ACK
--- IDENTIFIER|7|43
-eq.symm
 -- ACK
 -- ENDINFO

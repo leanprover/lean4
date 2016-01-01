@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "library/replace_visitor.h"
 #include "library/attribute_manager.h"
-#include "library/blast/forward/pattern.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
@@ -108,10 +107,6 @@ void decl_attributes::parse(parser & p) {
 environment decl_attributes::apply(environment env, io_state const & ios, name const & d, name const & ns) const {
     buffer<entry> entries;
     to_buffer(m_entries, entries);
-    if (has_pattern_hints(env.get(d).get_type())) {
-        // turn on [forward] if patterns hints have been used in the type.
-        entries.push_back(entry("forward"));
-    }
     unsigned i = entries.size();
     while (i > 0) {
         --i;

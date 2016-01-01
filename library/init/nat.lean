@@ -26,14 +26,8 @@ namespace nat
 
   protected definition no_confusion_type [reducible] (P : Type) (v₁ v₂ : ℕ) : Type :=
   nat.rec
-    (nat.rec
-       (P → P)
-       (λ a₂ ih, P)
-       v₂)
-    (λ a₁ ih, nat.rec
-       P
-       (λ a₂ ih, (a₁ = a₂ → P) → P)
-       v₂)
+    (nat.rec (P → P) (λ a₂ ih, P) v₂)
+    (λ a₁ ih, nat.rec P (λ a₂ ih, (a₁ = a₂ → P) → P) v₂)
     v₁
 
   protected definition no_confusion [reducible] [unfold 4]
@@ -87,11 +81,14 @@ namespace nat
 
   /- properties of inequality -/
 
-  protected theorem le_of_eq {n m : ℕ} (p : n = m) : n ≤ m := p ▸ !nat.le_refl
+  protected theorem le_of_eq {n m : ℕ} (p : n = m) : n ≤ m :=
+  by simp
 
-  theorem le_succ (n : ℕ) : n ≤ succ n := le.step !nat.le_refl
+  theorem le_succ (n : ℕ) : n ≤ succ n :=
+  le.step !nat.le_refl
 
-  theorem pred_le (n : ℕ) : pred n ≤ n := by cases n;repeat constructor
+  theorem pred_le (n : ℕ) : pred n ≤ n :=
+  by cases n; repeat constructor
 
   theorem le_succ_iff_true [simp] (n : ℕ) : n ≤ succ n ↔ true :=
   iff_true_intro (le_succ n)
@@ -102,11 +99,14 @@ namespace nat
   protected theorem le_trans {n m k : ℕ} (H1 : n ≤ m) : m ≤ k → n ≤ k :=
   le.rec H1 (λp H2, le.step)
 
-  theorem le_succ_of_le {n m : ℕ} (H : n ≤ m) : n ≤ succ m := nat.le_trans H !le_succ
+  theorem le_succ_of_le {n m : ℕ} (H : n ≤ m) : n ≤ succ m :=
+  nat.le_trans H !le_succ
 
-  theorem le_of_succ_le {n m : ℕ} (H : succ n ≤ m) : n ≤ m := nat.le_trans !le_succ H
+  theorem le_of_succ_le {n m : ℕ} (H : succ n ≤ m) : n ≤ m :=
+  nat.le_trans !le_succ H
 
-  protected theorem le_of_lt {n m : ℕ} (H : n < m) : n ≤ m := le_of_succ_le H
+  protected theorem le_of_lt {n m : ℕ} (H : n < m) : n ≤ m :=
+  le_of_succ_le H
 
   theorem succ_le_succ {n m : ℕ} : n ≤ m → succ n ≤ succ m :=
   le.rec !nat.le_refl (λa b, le.step)
@@ -224,7 +224,7 @@ namespace nat
   protected theorem lt_or_ge (a b : ℕ) : a < b ∨ a ≥ b :=
   nat.rec (inr !zero_le) (λn, or.rec
     (λh, inl (le_succ_of_le h))
-    (λh, or.elim (nat.eq_or_lt_of_le h) (λe, inl (eq.subst e !nat.le_refl)) inr)) b
+    (λh, or.elim (nat.eq_or_lt_of_le h) (λe, inl (by simp)) inr)) b
 
   protected definition lt_ge_by_cases {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a ≥ b → P) : P :=
   by_cases H1 (λh, H2 (or.elim !nat.lt_or_ge (λa, absurd a h) (λa, a)))
@@ -261,7 +261,7 @@ namespace nat
   theorem zero_eq_zero_sub (a : ℕ) : 0 = 0 - a :=
   by simp
 
-  theorem sub_le [simp] (a b : ℕ) : a - b ≤ a :=
+  theorem sub_le (a b : ℕ) : a - b ≤ a :=
   nat.rec_on b !nat.le_refl (λ b₁, nat.le_trans !pred_le)
 
   theorem sub_le_iff_true [simp] (a b : ℕ) : a - b ≤ a ↔ true :=

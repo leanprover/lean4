@@ -10,8 +10,8 @@ Author: Leonardo de Moura
 #include "library/blast/trace.h"
 #include "library/blast/choice_point.h"
 #include "library/blast/actions/intros_action.h"
-#include "library/blast/actions/recursor_action.h"
-#include "library/blast/strategies/rec_strategy.h"
+#include "library/blast/recursor/recursor_action.h"
+#include "library/blast/recursor/recursor_strategy.h"
 
 namespace lean {
 namespace blast {

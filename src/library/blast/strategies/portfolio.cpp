@@ -10,13 +10,13 @@ Author: Leonardo de Moura
 #include "library/blast/simplifier/simplifier_strategies.h"
 #include "library/blast/unit/unit_actions.h"
 #include "library/blast/forward/ematch.h"
+#include "library/blast/recursor/recursor_strategy.h"
 #include "library/blast/backward/backward_action.h"
 #include "library/blast/backward/backward_strategy.h"
 #include "library/blast/grinder/grinder_strategy.h"
 #include "library/blast/strategies/simple_strategy.h"
 #include "library/blast/strategies/preprocess_strategy.h"
 #include "library/blast/strategies/action_strategy.h"
-#include "library/blast/strategies/rec_strategy.h"
 
 namespace lean {
 namespace blast {

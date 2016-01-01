@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "library/blast/actions/subst_action.h"
 #include "library/blast/actions/no_confusion_action.h"
 #include "library/blast/actions/assert_cc_action.h"
-#include "library/blast/actions/recursor_action.h"
+#include "library/blast/recursor/recursor_action.h"
 #include "library/blast/strategies/preprocess_strategy.h"
 
 namespace lean {

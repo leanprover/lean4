@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"
-#include "library/blast/actions/recursor_action.h"
+#include "library/blast/recursor/recursor_action.h"
 #include "library/blast/backward/backward_action.h"
 #include "library/blast/grinder/intro_elim_lemmas.h"
 

@@ -200,7 +200,6 @@ section group
   by inst_simp
 
   theorem mul_inv [simp] (a b : A) : (a * b)⁻¹ = b⁻¹ * a⁻¹ :=
-  assert a * a⁻¹ = 1, by inst_simp, -- why do we need it?
   inv_eq_of_mul_eq_one (by inst_simp)
 
   theorem eq_of_mul_inv_eq_one {a b : A} (H : a * b⁻¹ = 1) : a = b :=
@@ -266,7 +265,6 @@ section group
   by inst_simp
 
   lemma conj_one [simp] (g : A) : g ∘c 1 = 1 :=
-  assert g * g⁻¹ = 1, by inst_simp, -- why do we need it?
   by inst_simp
 
   lemma conj_inv_cancel [simp] (g : A) : ∀ a, g⁻¹ ∘c g ∘c a = a :=

@@ -274,10 +274,22 @@ struct ematch_fn {
     }
 
     bool is_eqv(name const & R, expr const & p, expr const & t) {
-        if (!has_expr_metavar(p))
+        if (!has_expr_metavar(p)) {
             return m_cc.is_eqv(R, p, t) || m_ctx->is_def_eq(p, t);
-        else
+        } else if (is_meta(p)) {
+            expr const & m = get_app_fn(p);
+            if (!m_ctx->is_assigned(m)) {
+                return m_ctx->is_def_eq(p, t);
+            } else {
+                expr new_p = m_ctx->instantiate_uvars_mvars(p);
+                if (!has_expr_metavar(new_p))
+                    return m_cc.is_eqv(R, new_p, t) || m_ctx->is_def_eq(new_p, t);
+                else
+                    return m_ctx->is_def_eq(new_p, t);
+            }
+        } else {
             return m_ctx->is_def_eq(p, t);
+        }
     }
 
     bool match_args(state & s, name const & R, buffer<expr> const & p_args, expr const & t) {

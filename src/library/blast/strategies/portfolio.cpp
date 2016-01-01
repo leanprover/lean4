@@ -7,9 +7,10 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/sstream.h"
 #include "library/blast/actions/assert_cc_action.h"
-#include "library/blast/simplifier/simplifier_strategies.h"
+#include "library/blast/actions/no_confusion_action.h"
 #include "library/blast/unit/unit_actions.h"
 #include "library/blast/forward/ematch.h"
+#include "library/blast/simplifier/simplifier_strategies.h"
 #include "library/blast/recursor/recursor_strategy.h"
 #include "library/blast/backward/backward_action.h"
 #include "library/blast/backward/backward_strategy.h"
@@ -54,7 +55,11 @@ static optional<expr> apply_ematch() {
 static optional<expr> apply_ematch_simp() {
     flet<bool> set(get_config().m_ematch, true);
     return mk_action_strategy("ematch_simp",
-                              assert_cc_action,
+                              [](hypothesis_idx hidx) {
+                                  Try(no_confusion_action(hidx));
+                                  TrySolve(assert_cc_action(hidx));
+                                  return action_result::new_branch();
+                              },
                               unit_propagate,
                               ematch_simp_action)();
 }

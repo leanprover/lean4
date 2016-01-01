@@ -146,7 +146,7 @@ strategy rec_and_then(strategy const & S, rec_candidate_selector const & selecto
     return [=]() { // NOLINT
         state s = curr_state();
         unsigned max_rounds = get_blast_recursion_max_rounds(ios().get_options());
-        for (unsigned i = 1; i <= max_rounds; i++) {
+        for (unsigned i = 0; i <= max_rounds; i++) {
             lean_trace_search(tout() << "starting recursor strategy with max #" << i << " round(s)\n";);
             curr_state() = s;
             if (auto pr = rec_strategy_fn(S, selector, i)())

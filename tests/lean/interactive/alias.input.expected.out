@@ -3,11 +3,15 @@
 -- BEGINWAIT
 -- ENDWAIT
 -- BEGINFINDP
+bool.tt_bxor_tt|eq (bool.bxor bool.tt bool.tt) bool.ff
+bool.tt_bxor_ff|eq (bool.bxor bool.tt bool.ff) bool.tt
 bool.bor_tt|∀ (a : bool), eq (bool.bor a bool.tt) bool.tt
 bool.band_tt|∀ (a : bool), eq (bool.band a bool.tt) a
 bool.tt|bool
+bool.bxor_tt|∀ (a : bool), eq (bool.bxor a bool.tt) (bool.bnot a)
 bool.eq_tt_of_bnot_eq_ff|eq (bool.bnot ?a) bool.ff → eq ?a bool.tt
 bool.eq_ff_of_bnot_eq_tt|eq (bool.bnot ?a) bool.tt → eq ?a bool.ff
+bool.ff_bxor_tt|eq (bool.bxor bool.ff bool.tt) bool.tt
 bool.absurd_of_eq_ff_of_eq_tt|eq ?a bool.ff → eq ?a bool.tt → ?B
 bool.eq_tt_of_ne_ff|ne ?a bool.ff → eq ?a bool.tt
 tactic.with_attributes_tac|tactic.expr → tactic.identifier_list → tactic → tactic
@@ -15,6 +19,7 @@ bool.tt_band|∀ (a : bool), eq (bool.band bool.tt a) a
 bool.cond_tt|∀ (t e : ?A), eq (bool.cond bool.tt t e) t
 bool.ff_ne_tt|eq bool.ff bool.tt → false
 bool.eq_ff_of_ne_tt|ne ?a bool.tt → eq ?a bool.ff
+bool.tt_bxor|∀ (a : bool), eq (bool.bxor bool.tt a) (bool.bnot a)
 bool.tt_bor|∀ (a : bool), eq (bool.bor bool.tt a) bool.tt
 -- ENDFINDP
 -- BEGINWAIT
@@ -23,10 +28,15 @@ bool.tt_bor|∀ (a : bool), eq (bool.bor bool.tt a) bool.tt
 tt|bool
 tt_bor|∀ (a : bool), eq (bor tt a) tt
 tt_band|∀ (a : bool), eq (band tt a) a
+tt_bxor|∀ (a : bool), eq (bxor tt a) (bnot a)
+tt_bxor_tt|eq (bxor tt tt) ff
+tt_bxor_ff|eq (bxor tt ff) tt
 bor_tt|∀ (a : bool), eq (bor a tt) tt
 band_tt|∀ (a : bool), eq (band a tt) a
+bxor_tt|∀ (a : bool), eq (bxor a tt) (bnot a)
 eq_tt_of_bnot_eq_ff|eq (bnot ?a) ff → eq ?a tt
 eq_ff_of_bnot_eq_tt|eq (bnot ?a) tt → eq ?a ff
+ff_bxor_tt|eq (bxor ff tt) tt
 absurd_of_eq_ff_of_eq_tt|eq ?a ff → eq ?a tt → ?B
 eq_tt_of_ne_ff|ne ?a ff → eq ?a tt
 tactic.with_attributes_tac|tactic.expr → tactic.identifier_list → tactic → tactic

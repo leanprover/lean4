@@ -11,8 +11,10 @@ namespace lean {
 namespace blast {
 void initialize_recursor_module() {
     initialize_recursor_action();
+    initialize_recursor_strategy();
 }
 void finalize_recursor_module() {
+    finalize_recursor_strategy();
     finalize_recursor_action();
 }
 }}

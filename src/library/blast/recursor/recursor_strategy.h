@@ -46,4 +46,7 @@ strategy rec_and_then(strategy const & S, rec_candidate_selector const & selecto
 
 /* Use default selector */
 strategy rec_and_then(strategy const & S);
+
+void initialize_recursor_strategy();
+void finalize_recursor_strategy();
 }}

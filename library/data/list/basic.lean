@@ -120,16 +120,8 @@ rfl
 theorem last_congr {l₁ l₂ : list T} (h₁ : l₁ ≠ []) (h₂ : l₂ ≠ []) (h₃ : l₁ = l₂) : last l₁ h₁ = last l₂ h₂ :=
 by subst l₁
 
-theorem last_concat [simp] {x : T} : ∀ {l : list T} (h : concat x l ≠ []), last (concat x l) h = x
-| []          h := rfl
-| [a]         h := rfl
-| (a₁::a₂::l) h :=
-  begin
-    change last (a₁::a₂::concat x l) !cons_ne_nil = x,
-    rewrite last_cons_cons,
-    change last (concat x (a₂::l)) !concat_ne_nil = x,
-    apply last_concat
-  end
+theorem last_concat [simp] {x : T} : ∀ {l : list T} (h : concat x l ≠ []), last (concat x l) h = x :=
+by rec_simp
 
 -- add_rewrite append_nil append_cons
 

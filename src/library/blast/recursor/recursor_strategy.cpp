@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/sexpr/option_declarations.h"
 #include "kernel/inductive/inductive.h"
 #include "library/user_recursors.h"
 #include "library/blast/blast.h"
@@ -13,8 +14,28 @@ Author: Leonardo de Moura
 #include "library/blast/recursor/recursor_action.h"
 #include "library/blast/recursor/recursor_strategy.h"
 
+#ifndef LEAN_DEFAULT_BLAST_RECURSION_MAX_ROUNDS
+#define LEAN_DEFAULT_BLAST_RECURSION_MAX_ROUNDS 3
+#endif
+
 namespace lean {
 namespace blast {
+static name * g_blast_recursion_max_rounds = nullptr;
+
+unsigned get_blast_recursion_max_rounds(options const & o) {
+    return o.get_unsigned(*g_blast_recursion_max_rounds, LEAN_DEFAULT_BLAST_RECURSION_MAX_ROUNDS);
+}
+
+void initialize_recursor_strategy() {
+    g_blast_recursion_max_rounds = new name{"blast", "recursion", "max_rounds"};
+    register_unsigned_option(*blast::g_blast_recursion_max_rounds, LEAN_DEFAULT_BLAST_RECURSION_MAX_ROUNDS,
+                             "(blast) maximum number of nested recursion/induction steps");
+}
+
+void finalize_recursor_strategy() {
+    delete g_blast_recursion_max_rounds;
+}
+
 static action_result try_hypothesis(hypothesis_idx hidx) {
     state & s = curr_state();
     hypothesis const & h = s.get_hypothesis_decl(hidx);
@@ -115,16 +136,24 @@ class rec_strategy_fn : public strategy_fn {
     }
 
 public:
-    rec_strategy_fn(strategy const & S, rec_candidate_selector const & sel):
+    rec_strategy_fn(strategy const & S, rec_candidate_selector const & sel, unsigned max_rounds):
         m_S(S), m_selector(sel), m_init_depth(curr_state().get_proof_depth()),
-        // TODO(Leo): use iterative deepening
-        // TODO(Leo): add option: max number of rounds (aka max depth)
         // TODO(Leo): add option: max number of steps
-        m_max_depth(m_init_depth + 1) {}
+        m_max_depth(m_init_depth + max_rounds) {}
 };
 
 strategy rec_and_then(strategy const & S, rec_candidate_selector const & selector) {
-    return [=]() { return rec_strategy_fn(S, selector)(); }; // NOLINT
+    return [=]() { // NOLINT
+        state s = curr_state();
+        unsigned max_rounds = get_blast_recursion_max_rounds(ios().get_options());
+        for (unsigned i = 1; i <= max_rounds; i++) {
+            lean_trace_search(tout() << "starting recursor strategy with max #" << i << " round(s)\n";);
+            curr_state() = s;
+            if (auto pr = rec_strategy_fn(S, selector, i)())
+                return pr;
+        }
+        return none_expr();
+    };
 }
 
 static void default_selector(hypothesis_idx_buffer & r) {

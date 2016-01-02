@@ -354,7 +354,7 @@ void initialize_user_recursors() {
                                  is_user_defined_recursor,
                                  [](environment const & env, name const & d) {
                                      auto info = get_recursor_info(env, d);
-                                     return info.get_major_pos();
+                                     return info.get_major_pos()+1; // internally major pos is 0-based
                                  });
 }
 

@@ -11,12 +11,12 @@ by blast
 
 print ex1
 
-attribute Exists.intro [intro!] -- grind and core_grind only process [intro!] declarations
+attribute Exists.intro [intro!] -- core_grind only process [intro!] declarations
 
 example (p q : nat → Prop) : (∃ x, p x ∧ q x) → (∃ x, q x) ∧ (∃ x, p x) :=
 by blast
 
-set_option blast.strategy "grind"
+set_option blast.strategy "core_grind"
 
 example (a b c : nat) : a = b ∨ a = c → b = c → b = a :=
 by blast

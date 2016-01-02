@@ -22,9 +22,10 @@ void register_scoped_ext(name const & c, using_namespace_fn use, export_namespac
 }
 
 struct scope_mng_ext : public environment_extension {
-    name_set         m_namespace_set; // all namespaces registered in the system
-    list<name>       m_namespaces;    // stack of namespaces/sections
-    list<name>       m_headers;       // namespace/section header
+    name_set         m_namespace_set;     // all namespaces registered in the system
+    name_set         m_opened_namespaces; // set of namespaces marked as "open"
+    list<name>       m_namespaces;        // stack of namespaces/sections
+    list<name>       m_headers;           // namespace/section header
     list<scope_kind> m_scope_kinds;
 };
 
@@ -69,6 +70,16 @@ bool is_metaclass(name const & n) {
             return true;
     }
     return false;
+}
+
+environment mark_namespace_as_open(environment const & env, name const & n) {
+    scope_mng_ext ext = get_extension(env);
+    ext.m_opened_namespaces.insert(n);
+    return update(env, ext);
+}
+
+name_set get_opened_namespaces(environment const & env) {
+    return get_extension(env).m_opened_namespaces;
 }
 
 environment using_namespace(environment const & env, io_state const & ios, name const & n, buffer<name> const & metaclasses) {

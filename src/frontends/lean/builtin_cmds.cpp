@@ -327,6 +327,7 @@ environment open_export_cmd(parser & p, bool open) {
             env = export_namespace(env, p.ios(), ns, metacls);
         if (decls) {
             // Remark: we currently to not allow renaming and hiding of universe levels
+            env = mark_namespace_as_open(env, ns);
             buffer<name> exceptions;
             bool found_explicit = false;
             while (p.curr_is_token(get_lparen_tk())) {

@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "util/sstream.h"
+#include "library/blast/strategy.h"
+#include "library/blast/actions/simple_actions.h"
 #include "library/blast/actions/assert_cc_action.h"
 #include "library/blast/actions/no_confusion_action.h"
 #include "library/blast/unit/unit_actions.h"
@@ -22,7 +24,7 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 static optional<expr> apply_preprocess() {
-    return preprocess_and_then([]() { return none_expr(); })();
+    return preprocess_and_then(fail_strategy())();
 }
 
 static optional<expr> apply_simp() {
@@ -85,15 +87,15 @@ static optional<expr> apply_unit() {
     return mk_action_strategy("unit",
                               unit_preprocess,
                               unit_propagate,
-                              []() { return action_result::failed(); })();
+                              fail_action)();
 }
 
 static optional<expr> apply_grind() {
-    return preprocess_and_then(grind_and_then([]() { return none_expr(); }))();
+    return preprocess_and_then(grind_and_then(fail_strategy()))();
 }
 
 static optional<expr> apply_core_grind() {
-    return grind_and_then([]() { return none_expr(); })();
+    return grind_and_then(fail_strategy())();
 }
 
 optional<expr> apply_strategy() {

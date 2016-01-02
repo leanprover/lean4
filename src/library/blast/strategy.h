@@ -44,5 +44,8 @@ public:
 
 typedef std::function<optional<expr>()> strategy;
 
+/** \brief Strategy that always returns none_expr */
+strategy fail_strategy();
+
 strategy operator||(strategy const & s1, strategy const & s2);
 }}

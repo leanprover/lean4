@@ -10,6 +10,11 @@ Author: Leonardo de Moura
 #include "library/blast/action_result.h"
 namespace lean {
 namespace blast {
+/** \brief Actions that always fails */
+action_result fail_action();
+action_result fail_action_h(hypothesis_idx);
+
+/** \brief Apply assumption action */
 action_result assumption_action();
 /** \brief Apply assumption and contradiction actions using the given hypothesis.
     \remark This action is supposed to be applied when a hypothesis is activated. */

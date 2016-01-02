@@ -11,6 +11,14 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
+action_result fail_action() {
+    return action_result::failed();
+}
+
+action_result fail_action_h(hypothesis_idx) {
+    return action_result::failed();
+}
+
 // TODO(Leo): we should create choice points when there are meta-variables
 action_result assumption_action() {
     state const & s     = curr_state();

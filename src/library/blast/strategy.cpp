@@ -111,4 +111,8 @@ strategy operator||(strategy const & s1, strategy const & s2) {
             return s2();
     };
 }
+
+strategy fail_strategy() {
+    return []() { return none_expr(); }; // NOLINT
+}
 }}

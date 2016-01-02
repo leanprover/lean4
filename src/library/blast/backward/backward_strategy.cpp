@@ -1,7 +1,7 @@
 /*
 Copyright (c) 2015 Daniel Selsam. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Author: Daniel Selsam
+Author: Daniel Selsam, Leonardo de Moura
 */
 #include "util/sexpr/option_declarations.h"
 #include "library/attribute_manager.h"
@@ -65,21 +65,32 @@ static backward_branch_extension & get_extension() {
     return static_cast<backward_branch_extension&>(curr_state().get_extension(g_ext_id));
 }
 
-/** \brief Basic backwards chaining, inspired by Coq's [auto]. */
+/** \brief Extensible backward chaining strategy */
 class backward_strategy_fn : public strategy_fn {
     unsigned m_max_rounds;
 
     virtual char const * get_name() const override { return "backward"; }
+
+    /* action to be executed before hypothesis is activated */
+    virtual action_result pre(hypothesis_idx) { return action_result::failed(); }
+    /* action to be executed after hypothesis is activated */
+    virtual action_result post(hypothesis_idx) { return action_result::failed(); }
+    /* action to be executed before trying backward chaining */
+    virtual action_result pre_next() { return action_result::failed(); }
+    /* action to be executed after trying backward chaining */
+    virtual action_result post_next() { return action_result::failed(); }
 
     virtual action_result hypothesis_pre_activation(hypothesis_idx hidx) override {
         Try(assumption_contradiction_actions(hidx));
         Try(subst_action(hidx));
         Try(no_confusion_action(hidx));
         Try(discard_action(hidx));
+        Try(pre(hidx));
         return action_result::new_branch();
     }
 
-    virtual action_result hypothesis_post_activation(hypothesis_idx) override {
+    virtual action_result hypothesis_post_activation(hypothesis_idx hidx) override {
+        Try(post(hidx));
         return action_result::new_branch();
     }
 
@@ -88,16 +99,45 @@ class backward_strategy_fn : public strategy_fn {
         Try(activate_hypothesis());
         Try(trivial_action());
         Try(assumption_action());
-        auto & ext = get_extension();
-        if (ext.m_num_rounds < m_max_rounds) {
-            list<gexpr> backward_rules = ext.get_backward_lemmas().find(head_index(curr_state().get_target()));
-            ext.m_num_rounds++;
-            Try(backward_action(backward_rules, true));
+        Try(pre_next());
+        if (get_extension().m_num_rounds < m_max_rounds) {
+            list<gexpr> backward_rules = get_extension().get_backward_lemmas().find(head_index(curr_state().get_target()));
+            action_result r = backward_action(backward_rules, true);
+            if (!failed(r)) {
+                get_extension().m_num_rounds++;
+                return r;
+            }
         }
+        Try(post_next());
         return action_result::failed();
     }
 public:
     backward_strategy_fn(unsigned max_rounds):m_max_rounds(max_rounds) {}
+};
+
+/* Backward strategy that can be extended using closures. */
+class xbackward_strategy_fn : public backward_strategy_fn {
+    char const * m_name;
+    std::function<action_result(hypothesis_idx)> m_pre;
+    std::function<action_result(hypothesis_idx)> m_post;
+    std::function<action_result()>               m_pre_next;
+    std::function<action_result()>               m_post_next;
+
+    virtual char const * get_name() const override { return m_name; }
+    virtual action_result pre(hypothesis_idx hidx) { return m_pre(hidx); }
+    virtual action_result post(hypothesis_idx hidx) { return m_post(hidx); }
+    virtual action_result pre_next() { return m_pre_next(); }
+    virtual action_result post_next() { return m_post_next(); }
+public:
+    xbackward_strategy_fn(
+        char const * n,
+        unsigned max_rounds,
+        std::function<action_result(hypothesis_idx)> const & pre,
+        std::function<action_result(hypothesis_idx)> const & post,
+        std::function<action_result()> const & pre_next,
+        std::function<action_result()> const & post_next):
+        backward_strategy_fn(max_rounds),
+        m_name(n), m_pre(pre), m_post(post), m_pre_next(pre_next), m_post_next(post_next) {}
 };
 
 strategy mk_backward_strategy() {
@@ -106,6 +146,17 @@ strategy mk_backward_strategy() {
     return []() { // NOLINT
         unsigned max_rounds = get_blast_backward_max_rounds(ios().get_options());
         return backward_strategy_fn(max_rounds)();
+    };
+}
+
+strategy mk_xbackward_strategy(char const * n,
+                               std::function<action_result(hypothesis_idx)> const & pre,
+                               std::function<action_result(hypothesis_idx)> const & post,
+                               std::function<action_result()> const & pre_next,
+                               std::function<action_result()> const & post_next) {
+    return [=]() { // NOLINT
+        unsigned max_rounds = get_blast_backward_max_rounds(ios().get_options());
+        return xbackward_strategy_fn(n, max_rounds, pre, post, pre_next, post_next)();
     };
 }
 }}

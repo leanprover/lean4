@@ -8,6 +8,7 @@ Author: Daniel Selsam
 namespace lean {
 namespace blast {
 strategy mk_backward_strategy();
+strategy mk_backward_strategy(char const * n);
 
 /* Extensible backward chaining strategy
    - n         : name of the new strategy

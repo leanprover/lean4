@@ -113,6 +113,8 @@ definition simp_topdown  : tactic := #tactic with_options [blast.strategy "simp"
 definition inst_simp     : tactic := #tactic with_options [blast.strategy "ematch_simp"] blast
 definition rec_simp      : tactic := #tactic with_options [blast.strategy "rec_simp"] blast
 definition rec_inst_simp : tactic := #tactic with_options [blast.strategy "rec_ematch_simp"] blast
+definition grind         : tactic := #tactic with_options [blast.strategy "grind"] blast
+definition grind_simp    : tactic := #tactic with_options [blast.strategy "grind_simp"] blast
 
 definition cases (h : expr) (ids : opt_identifier_list) : tactic := builtin
 

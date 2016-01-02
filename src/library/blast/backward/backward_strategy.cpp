@@ -67,9 +67,10 @@ static backward_branch_extension & get_extension() {
 
 /** \brief Extensible backward chaining strategy */
 class backward_strategy_fn : public strategy_fn {
+    char const * m_name;
     unsigned m_max_rounds;
 
-    virtual char const * get_name() const override { return "backward"; }
+    virtual char const * get_name() const override { return m_name; }
 
     /* action to be executed before hypothesis is activated */
     virtual action_result pre(hypothesis_idx) { return action_result::failed(); }
@@ -112,18 +113,17 @@ class backward_strategy_fn : public strategy_fn {
         return action_result::failed();
     }
 public:
-    backward_strategy_fn(unsigned max_rounds):m_max_rounds(max_rounds) {}
+    backward_strategy_fn(char const * n, unsigned max_rounds):
+        m_name(n), m_max_rounds(max_rounds) {}
 };
 
 /* Backward strategy that can be extended using closures. */
 class xbackward_strategy_fn : public backward_strategy_fn {
-    char const * m_name;
     std::function<action_result(hypothesis_idx)> m_pre;
     std::function<action_result(hypothesis_idx)> m_post;
     std::function<action_result()>               m_pre_next;
     std::function<action_result()>               m_post_next;
 
-    virtual char const * get_name() const override { return m_name; }
     virtual action_result pre(hypothesis_idx hidx) { return m_pre(hidx); }
     virtual action_result post(hypothesis_idx hidx) { return m_post(hidx); }
     virtual action_result pre_next() { return m_pre_next(); }
@@ -136,17 +136,21 @@ public:
         std::function<action_result(hypothesis_idx)> const & post,
         std::function<action_result()> const & pre_next,
         std::function<action_result()> const & post_next):
-        backward_strategy_fn(max_rounds),
-        m_name(n), m_pre(pre), m_post(post), m_pre_next(pre_next), m_post_next(post_next) {}
+        backward_strategy_fn(n, max_rounds),
+        m_pre(pre), m_post(post), m_pre_next(pre_next), m_post_next(post_next) {}
 };
 
-strategy mk_backward_strategy() {
+strategy mk_backward_strategy(char const * n) {
     if (!get_config().m_backward)
         return []() { return none_expr(); }; // NOLINT
-    return []() { // NOLINT
+    return [=]() { // NOLINT
         unsigned max_rounds = get_blast_backward_max_rounds(ios().get_options());
-        return backward_strategy_fn(max_rounds)();
+        return backward_strategy_fn(n, max_rounds)();
     };
+}
+
+strategy mk_backward_strategy() {
+    return mk_backward_strategy("backward");
 }
 
 strategy mk_xbackward_strategy(char const * n,

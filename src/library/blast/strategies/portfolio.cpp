@@ -90,12 +90,19 @@ static optional<expr> apply_unit() {
                               fail_action)();
 }
 
-static optional<expr> apply_grind() {
-    return preprocess_and_then(grind_and_then(fail_strategy()))();
-}
-
 static optional<expr> apply_core_grind() {
     return grind_and_then(fail_strategy())();
+}
+
+static optional<expr> apply_grind() {
+    return preprocess_and_then(grind_and_then(mk_backward_strategy("grind_back")))();
+}
+
+static optional<expr> apply_grind_simp() {
+    strategy main = mk_xbackward_strategy("grind_simp",
+                                          fail_action_h, fail_action_h, fail_action,
+                                          []() { TryStrategy(apply_simp); return action_result::failed(); });
+    return preprocess_and_then(grind_and_then(main))();
 }
 
 optional<expr> apply_strategy() {
@@ -115,6 +122,8 @@ optional<expr> apply_strategy() {
         return apply_cc();
     } else if (s_name == "grind") {
         return apply_grind();
+    } else if (s_name == "grind_simp") {
+        return apply_grind_simp();
     } else if (s_name == "core_grind") {
         return apply_core_grind();
     } else if (s_name == "ematch") {

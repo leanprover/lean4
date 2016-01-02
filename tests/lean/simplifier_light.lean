@@ -46,18 +46,18 @@ attribute complement [light 2]
 attribute union_comp_self [simp]
 lemma union_comp_self_left [simp] {X : Type} (s t : set X) : s ∪ (-s ∪ t)= univ := sorry
 
-attribute union.comm [simp]
-attribute union.assoc [simp]
-attribute union.left_comm [simp]
+attribute union_comm [simp]
+attribute union_assoc [simp]
+attribute union_left_comm [simp]
 
 #simplify eq env 0 x ∪ y ∪ z ∪ -x
 
 attribute inter_comp_self [simp]
 lemma inter_comp_self_left [simp] {X : Type} (s t : set X) : s ∩ (-s ∩ t)= empty := sorry
 
-attribute inter.comm [simp]
-attribute inter.assoc [simp]
-attribute inter.left_comm [simp]
+attribute inter_comm [simp]
+attribute inter_assoc [simp]
+attribute inter_left_comm [simp]
 
 #simplify eq env 0 x ∩ y ∩ z ∩ -x
 

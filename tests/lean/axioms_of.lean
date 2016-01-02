@@ -10,4 +10,4 @@ print axioms finset.union
 print "-----"
 print axioms finset.mem
 print "-----"
-print axioms finset.union.comm
+print axioms finset.union_comm

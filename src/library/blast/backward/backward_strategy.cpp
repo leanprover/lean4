@@ -3,6 +3,7 @@ Copyright (c) 2015 Daniel Selsam. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Daniel Selsam
 */
+#include "util/sexpr/option_declarations.h"
 #include "library/attribute_manager.h"
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"
@@ -17,14 +18,26 @@ Author: Daniel Selsam
 #include "library/blast/actions/no_confusion_action.h"
 #include "library/blast/actions/subst_action.h"
 
+#ifndef LEAN_DEFAULT_BLAST_BACKWARD_MAX_ROUNDS
+#define LEAN_DEFAULT_BLAST_BACKWARD_MAX_ROUNDS 8
+#endif
+
 namespace lean {
 namespace blast {
+static name * g_blast_backward_max_rounds = nullptr;
+
+unsigned get_blast_backward_max_rounds(options const & o) {
+    return o.get_unsigned(*g_blast_backward_max_rounds, LEAN_DEFAULT_BLAST_BACKWARD_MAX_ROUNDS);
+}
+
 static unsigned g_ext_id = 0;
 struct backward_branch_extension : public branch_extension {
     backward_lemma_index m_backward_lemmas;
+    unsigned             m_num_rounds{0};
+
     backward_branch_extension() {}
     backward_branch_extension(backward_branch_extension const & b):
-        m_backward_lemmas(b.m_backward_lemmas) {}
+        m_backward_lemmas(b.m_backward_lemmas), m_num_rounds(b.m_num_rounds) {}
     virtual ~backward_branch_extension() {}
     virtual branch_extension * clone() override { return new backward_branch_extension(*this); }
     virtual void initialized() override { m_backward_lemmas.init(); }
@@ -39,9 +52,13 @@ struct backward_branch_extension : public branch_extension {
 
 void initialize_backward_strategy() {
     g_ext_id = register_branch_extension(new backward_branch_extension());
+    g_blast_backward_max_rounds = new name{"blast", "backward", "max_rounds"};
+    register_unsigned_option(*blast::g_blast_backward_max_rounds, LEAN_DEFAULT_BLAST_BACKWARD_MAX_ROUNDS,
+                             "(blast) maximum number of nested backward chaining steps");
 }
 
 void finalize_backward_strategy() {
+    delete g_blast_backward_max_rounds;
 }
 
 static backward_branch_extension & get_extension() {
@@ -50,6 +67,8 @@ static backward_branch_extension & get_extension() {
 
 /** \brief Basic backwards chaining, inspired by Coq's [auto]. */
 class backward_strategy_fn : public strategy_fn {
+    unsigned m_max_rounds;
+
     virtual char const * get_name() const override { return "backward"; }
 
     virtual action_result hypothesis_pre_activation(hypothesis_idx hidx) override {
@@ -69,19 +88,24 @@ class backward_strategy_fn : public strategy_fn {
         Try(activate_hypothesis());
         Try(trivial_action());
         Try(assumption_action());
-        list<gexpr> backward_rules = get_extension().get_backward_lemmas().find(head_index(curr_state().get_target()));
-        Try(backward_action(backward_rules, true));
+        auto & ext = get_extension();
+        if (ext.m_num_rounds < m_max_rounds) {
+            list<gexpr> backward_rules = ext.get_backward_lemmas().find(head_index(curr_state().get_target()));
+            ext.m_num_rounds++;
+            Try(backward_action(backward_rules, true));
+        }
         return action_result::failed();
     }
+public:
+    backward_strategy_fn(unsigned max_rounds):m_max_rounds(max_rounds) {}
 };
 
 strategy mk_backward_strategy() {
     if (!get_config().m_backward)
         return []() { return none_expr(); }; // NOLINT
-    else
-        return []() { // NOLINT
-            flet<bool> disable_show_failure(get_config().m_show_failure, false);
-            return backward_strategy_fn()();
-        };
+    return []() { // NOLINT
+        unsigned max_rounds = get_blast_backward_max_rounds(ios().get_options());
+        return backward_strategy_fn(max_rounds)();
+    };
 }
 }}

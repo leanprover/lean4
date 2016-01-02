@@ -206,7 +206,7 @@ ext (take x, iff.intro
       (suppose x ∉ s, mem_union_right _ (mem_diff `x ∈ t` this))))
 
 theorem diff_union_cancel {s t : finset A} (H : s ⊆ t) : (t \ s) ∪ s = t :=
-eq.subst !union.comm (!union_diff_cancel H)
+eq.subst !union_comm (!union_diff_cancel H)
 end diff
 
 /- set complement -/
@@ -414,7 +414,7 @@ perm.induction_on p
   rfl
   (λ x l₁ l₂ p ih, by rewrite [↑list_powerset, ih])
   (λ x y l, by rewrite [↑list_powerset, ↑list_powerset, *image_union, image_insert_comm,
-                        *union.assoc, union.left_comm (finset.image (finset.insert x) _)])
+                        *union_assoc, union_left_comm (finset.image (finset.insert x) _)])
   (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂, eq.trans r₁ r₂)
 
 definition powerset (s : finset A) : finset (finset A) :=

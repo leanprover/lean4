@@ -363,17 +363,17 @@ iff.intro
 theorem mem_union_eq (a : A) (s₁ s₂ : finset A) : (a ∈ s₁ ∪ s₂) = (a ∈ s₁ ∨ a ∈ s₂) :=
 propext !mem_union_iff
 
-theorem union.comm (s₁ s₂ : finset A) : s₁ ∪ s₂ = s₂ ∪ s₁ :=
+theorem union_comm (s₁ s₂ : finset A) : s₁ ∪ s₂ = s₂ ∪ s₁ :=
 ext (λ a, by rewrite [*mem_union_eq]; exact or.comm)
 
-theorem union.assoc (s₁ s₂ s₃ : finset A) : (s₁ ∪ s₂) ∪ s₃ = s₁ ∪ (s₂ ∪ s₃) :=
+theorem union_assoc (s₁ s₂ s₃ : finset A) : (s₁ ∪ s₂) ∪ s₃ = s₁ ∪ (s₂ ∪ s₃) :=
 ext (λ a, by rewrite [*mem_union_eq]; exact or.assoc)
 
-theorem union.left_comm (s₁ s₂ s₃ : finset A) : s₁ ∪ (s₂ ∪ s₃) = s₂ ∪ (s₁ ∪ s₃) :=
-!left_comm union.comm union.assoc s₁ s₂ s₃
+theorem union_left_comm (s₁ s₂ s₃ : finset A) : s₁ ∪ (s₂ ∪ s₃) = s₂ ∪ (s₁ ∪ s₃) :=
+!left_comm union_comm union_assoc s₁ s₂ s₃
 
-theorem union.right_comm (s₁ s₂ s₃ : finset A) : (s₁ ∪ s₂) ∪ s₃ = (s₁ ∪ s₃) ∪ s₂ :=
-!right_comm union.comm union.assoc s₁ s₂ s₃
+theorem union_right_comm (s₁ s₂ s₃ : finset A) : (s₁ ∪ s₂) ∪ s₃ = (s₁ ∪ s₃) ∪ s₂ :=
+!right_comm union_comm union_assoc s₁ s₂ s₃
 
 theorem union_self (s : finset A) : s ∪ s = s :=
 ext (λ a, iff.intro
@@ -386,14 +386,14 @@ ext (λ a, iff.intro
   (suppose a ∈ s, mem_union_left _ this))
 
 theorem empty_union (s : finset A) : ∅ ∪ s = s :=
-calc ∅ ∪ s = s ∪ ∅ : union.comm
+calc ∅ ∪ s = s ∪ ∅ : union_comm
        ... = s     : union_empty
 
 theorem insert_eq (a : A) (s : finset A) : insert a s = '{a} ∪ s :=
 ext (take x, by rewrite [mem_insert_iff, mem_union_iff, mem_singleton_iff])
 
 theorem insert_union (a : A) (s t : finset A) : insert a (s ∪ t) = insert a s ∪ t :=
-by rewrite [insert_eq, insert_eq a s, union.assoc]
+by rewrite [insert_eq, insert_eq a s, union_assoc]
 end union
 
 /- inter -/
@@ -427,17 +427,17 @@ iff.intro
 theorem mem_inter_eq (a : A) (s₁ s₂ : finset A) : (a ∈ s₁ ∩ s₂) = (a ∈ s₁ ∧ a ∈ s₂) :=
 propext !mem_inter_iff
 
-theorem inter.comm (s₁ s₂ : finset A) : s₁ ∩ s₂ = s₂ ∩ s₁ :=
+theorem inter_comm (s₁ s₂ : finset A) : s₁ ∩ s₂ = s₂ ∩ s₁ :=
 ext (λ a, by rewrite [*mem_inter_eq]; exact and.comm)
 
-theorem inter.assoc (s₁ s₂ s₃ : finset A) : (s₁ ∩ s₂) ∩ s₃ = s₁ ∩ (s₂ ∩ s₃) :=
+theorem inter_assoc (s₁ s₂ s₃ : finset A) : (s₁ ∩ s₂) ∩ s₃ = s₁ ∩ (s₂ ∩ s₃) :=
 ext (λ a, by rewrite [*mem_inter_eq]; exact and.assoc)
 
-theorem inter.left_comm (s₁ s₂ s₃ : finset A) : s₁ ∩ (s₂ ∩ s₃) = s₂ ∩ (s₁ ∩ s₃) :=
-!left_comm inter.comm inter.assoc s₁ s₂ s₃
+theorem inter_left_comm (s₁ s₂ s₃ : finset A) : s₁ ∩ (s₂ ∩ s₃) = s₂ ∩ (s₁ ∩ s₃) :=
+!left_comm inter_comm inter_assoc s₁ s₂ s₃
 
-theorem inter.right_comm (s₁ s₂ s₃ : finset A) : (s₁ ∩ s₂) ∩ s₃ = (s₁ ∩ s₃) ∩ s₂ :=
-!right_comm inter.comm inter.assoc s₁ s₂ s₃
+theorem inter_right_comm (s₁ s₂ s₃ : finset A) : (s₁ ∩ s₂) ∩ s₃ = (s₁ ∩ s₃) ∩ s₂ :=
+!right_comm inter_comm inter_assoc s₁ s₂ s₃
 
 theorem inter_self (s : finset A) : s ∩ s = s :=
 ext (λ a, iff.intro
@@ -450,7 +450,7 @@ ext (λ a, iff.intro
   (suppose a ∈ ∅,     absurd this !not_mem_empty))
 
 theorem empty_inter (s : finset A) : ∅ ∩ s = ∅ :=
-calc ∅ ∩ s = s ∩ ∅ : inter.comm
+calc ∅ ∩ s = s ∩ ∅ : inter_comm
        ... = ∅     : inter_empty
 
 theorem singleton_inter_of_mem {a : A} {s : finset A} (H : a ∈ s) :
@@ -479,16 +479,16 @@ section inter
 variable [h : decidable_eq A]
 include h
 
-theorem inter.distrib_left (s t u : finset A) : s ∩ (t ∪ u) = (s ∩ t) ∪ (s ∩ u) :=
+theorem inter_distrib_left (s t u : finset A) : s ∩ (t ∪ u) = (s ∩ t) ∪ (s ∩ u) :=
 ext (take x, by rewrite [mem_inter_eq, *mem_union_eq, *mem_inter_eq]; apply and.left_distrib)
 
-theorem inter.distrib_right (s t u : finset A) : (s ∪ t) ∩ u = (s ∩ u) ∪ (t ∩ u) :=
+theorem inter_distrib_right (s t u : finset A) : (s ∪ t) ∩ u = (s ∩ u) ∪ (t ∩ u) :=
 ext (take x, by rewrite [mem_inter_eq, *mem_union_eq, *mem_inter_eq]; apply and.right_distrib)
 
-theorem union.distrib_left (s t u : finset A) : s ∪ (t ∩ u) = (s ∪ t) ∩ (s ∪ u) :=
+theorem union_distrib_left (s t u : finset A) : s ∪ (t ∩ u) = (s ∪ t) ∩ (s ∪ u) :=
 ext (take x, by rewrite [mem_union_eq, *mem_inter_eq, *mem_union_eq]; apply or.left_distrib)
 
-theorem union.distrib_right (s t u : finset A) : (s ∩ t) ∪ u = (s ∪ u) ∩ (t ∪ u) :=
+theorem union_distrib_right (s t u : finset A) : (s ∩ t) ∪ u = (s ∪ u) ∩ (t ∪ u) :=
 ext (take x, by rewrite [mem_union_eq, *mem_inter_eq, *mem_union_eq]; apply or.right_distrib)
 end inter
 

@@ -476,14 +476,14 @@ quot.induction_on₂ b₁ b₂ (λ l₁ l₂, by_cases
       rewrite [count_eq_zero_of_not_mem n]
     end))
 
-lemma union.comm (b₁ b₂ : bag A) : b₁ ∪ b₂ = b₂ ∪ b₁ :=
+lemma union_comm (b₁ b₂ : bag A) : b₁ ∪ b₂ = b₂ ∪ b₁ :=
 bag.ext (λ a, by rewrite [*count_union, max.comm])
 
-lemma union.assoc (b₁ b₂ b₃ : bag A) : (b₁ ∪ b₂) ∪ b₃ = b₁ ∪ (b₂ ∪ b₃) :=
+lemma union_assoc (b₁ b₂ b₃ : bag A) : (b₁ ∪ b₂) ∪ b₃ = b₁ ∪ (b₂ ∪ b₃) :=
 bag.ext (λ a, by rewrite [*count_union, max.assoc])
 
-theorem union.left_comm (s₁ s₂ s₃ : bag A) : s₁ ∪ (s₂ ∪ s₃) = s₂ ∪ (s₁ ∪ s₃) :=
-!left_comm union.comm union.assoc s₁ s₂ s₃
+theorem union_left_comm (s₁ s₂ s₃ : bag A) : s₁ ∪ (s₂ ∪ s₃) = s₂ ∪ (s₁ ∪ s₃) :=
+!left_comm union_comm union_assoc s₁ s₂ s₃
 
 lemma union_self (b : bag A) : b ∪ b = b :=
 bag.ext (λ a, by rewrite [*count_union, max_self])
@@ -492,17 +492,17 @@ lemma union_empty (b : bag A) : b ∪ empty = b :=
 bag.ext (λ a, by rewrite [*count_union, count_empty, max_zero])
 
 lemma empty_union (b : bag A) : empty ∪ b = b :=
-calc empty ∪ b = b ∪ empty : union.comm
+calc empty ∪ b = b ∪ empty : union_comm
            ... = b         : union_empty
 
-lemma inter.comm (b₁ b₂ : bag A) : b₁ ∩ b₂ = b₂ ∩ b₁ :=
+lemma inter_comm (b₁ b₂ : bag A) : b₁ ∩ b₂ = b₂ ∩ b₁ :=
 bag.ext (λ a, by rewrite [*count_inter, min.comm])
 
-lemma inter.assoc (b₁ b₂ b₃ : bag A) : (b₁ ∩ b₂) ∩ b₃ = b₁ ∩ (b₂ ∩ b₃) :=
+lemma inter_assoc (b₁ b₂ b₃ : bag A) : (b₁ ∩ b₂) ∩ b₃ = b₁ ∩ (b₂ ∩ b₃) :=
 bag.ext (λ a, by rewrite [*count_inter, min.assoc])
 
-theorem inter.left_comm (s₁ s₂ s₃ : bag A) : s₁ ∩ (s₂ ∩ s₃) = s₂ ∩ (s₁ ∩ s₃) :=
-!left_comm inter.comm inter.assoc s₁ s₂ s₃
+theorem inter_left_comm (s₁ s₂ s₃ : bag A) : s₁ ∩ (s₂ ∩ s₃) = s₂ ∩ (s₁ ∩ s₃) :=
+!left_comm inter_comm inter_assoc s₁ s₂ s₃
 
 lemma inter_self (b : bag A) : b ∩ b = b :=
 bag.ext (λ a, by rewrite [*count_inter, min_self])
@@ -511,7 +511,7 @@ lemma inter_empty (b : bag A) : b ∩ empty = empty :=
 bag.ext (λ a, by rewrite [*count_inter, count_empty, min_zero])
 
 lemma empty_inter (b : bag A) : empty ∩ b = empty :=
-calc empty ∩ b = b ∩ empty : inter.comm
+calc empty ∩ b = b ∩ empty : inter_comm
            ... = empty     : inter_empty
 
 lemma append_union_inter (b₁ b₂ : bag A) : (b₁ ∪ b₂) ++ (b₁ ∩ b₂) = b₁ ++ b₂ :=
@@ -522,7 +522,7 @@ bag.ext (λ a, begin
   { intro H, rewrite [min_eq_right H, max_eq_left H, add.comm] }
 end)
 
-lemma inter.left_distrib (b₁ b₂ b₃ : bag A) : b₁ ∩ (b₂ ∪ b₃) = (b₁ ∩ b₂) ∪ (b₁ ∩ b₃) :=
+lemma inter_left_distrib (b₁ b₂ b₃ : bag A) : b₁ ∩ (b₂ ∪ b₃) = (b₁ ∩ b₂) ∪ (b₁ ∩ b₃) :=
 bag.ext (λ a, begin
   rewrite [*count_inter, *count_union, *count_inter],
   apply (@by_cases (count a b₁ ≤ count a b₂)),
@@ -549,11 +549,11 @@ bag.ext (λ a, begin
       rewrite [min.comm, min_eq_left_of_lt H₁₃, max.comm, max_eq_right_of_lt (lt_of_not_ge H₂₃)] } }
 end)
 
-lemma inter.right_distrib (b₁ b₂ b₃ : bag A) : (b₁ ∪ b₂) ∩ b₃ = (b₁ ∩ b₃) ∪ (b₂ ∩ b₃) :=
-calc (b₁ ∪ b₂) ∩ b₃ = b₃ ∩ (b₁ ∪ b₂)        : inter.comm
-              ...   = (b₃ ∩ b₁) ∪ (b₃ ∩ b₂) : inter.left_distrib
-              ...   = (b₁ ∩ b₃) ∪ (b₃ ∩ b₂) : inter.comm
-              ...   = (b₁ ∩ b₃) ∪ (b₂ ∩ b₃) : inter.comm
+lemma inter_right_distrib (b₁ b₂ b₃ : bag A) : (b₁ ∪ b₂) ∩ b₃ = (b₁ ∩ b₃) ∪ (b₂ ∩ b₃) :=
+calc (b₁ ∪ b₂) ∩ b₃ = b₃ ∩ (b₁ ∪ b₂)        : inter_comm
+              ...   = (b₃ ∩ b₁) ∪ (b₃ ∩ b₂) : inter_left_distrib
+              ...   = (b₁ ∩ b₃) ∪ (b₃ ∩ b₂) : inter_comm
+              ...   = (b₁ ∩ b₃) ∪ (b₂ ∩ b₃) : inter_comm
 end union_inter
 
 section subbag

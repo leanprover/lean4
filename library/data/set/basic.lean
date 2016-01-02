@@ -153,17 +153,17 @@ ext (take x, !or_false)
 theorem empty_union (a : set X) : ∅ ∪ a = a :=
 ext (take x, !false_or)
 
-theorem union.comm (a b : set X) : a ∪ b = b ∪ a :=
+theorem union_comm (a b : set X) : a ∪ b = b ∪ a :=
 ext (take x, or.comm)
 
-theorem union.assoc (a b c : set X) : (a ∪ b) ∪ c = a ∪ (b ∪ c) :=
+theorem union_assoc (a b c : set X) : (a ∪ b) ∪ c = a ∪ (b ∪ c) :=
 ext (take x, or.assoc)
 
-theorem union.left_comm (s₁ s₂ s₃ : set X) : s₁ ∪ (s₂ ∪ s₃) = s₂ ∪ (s₁ ∪ s₃) :=
-!left_comm union.comm union.assoc s₁ s₂ s₃
+theorem union_left_comm (s₁ s₂ s₃ : set X) : s₁ ∪ (s₂ ∪ s₃) = s₂ ∪ (s₁ ∪ s₃) :=
+!left_comm union_comm union_assoc s₁ s₂ s₃
 
-theorem union.right_comm (s₁ s₂ s₃ : set X) : (s₁ ∪ s₂) ∪ s₃ = (s₁ ∪ s₃) ∪ s₂ :=
-!right_comm union.comm union.assoc s₁ s₂ s₃
+theorem union_right_comm (s₁ s₂ s₃ : set X) : (s₁ ∪ s₂) ∪ s₃ = (s₁ ∪ s₃) ∪ s₂ :=
+!right_comm union_comm union_assoc s₁ s₂ s₃
 
 theorem subset_union_left (s t : set X) : s ⊆ s ∪ t := λ x H, or.inl H
 
@@ -199,17 +199,17 @@ ext (take x, !and_false)
 theorem empty_inter (a : set X) : ∅ ∩ a = ∅ :=
 ext (take x, !false_and)
 
-theorem inter.comm (a b : set X) : a ∩ b = b ∩ a :=
+theorem inter_comm (a b : set X) : a ∩ b = b ∩ a :=
 ext (take x, !and.comm)
 
-theorem inter.assoc (a b c : set X) : (a ∩ b) ∩ c = a ∩ (b ∩ c) :=
+theorem inter_assoc (a b c : set X) : (a ∩ b) ∩ c = a ∩ (b ∩ c) :=
 ext (take x, !and.assoc)
 
-theorem inter.left_comm (s₁ s₂ s₃ : set X) : s₁ ∩ (s₂ ∩ s₃) = s₂ ∩ (s₁ ∩ s₃) :=
-!left_comm inter.comm inter.assoc s₁ s₂ s₃
+theorem inter_left_comm (s₁ s₂ s₃ : set X) : s₁ ∩ (s₂ ∩ s₃) = s₂ ∩ (s₁ ∩ s₃) :=
+!left_comm inter_comm inter_assoc s₁ s₂ s₃
 
-theorem inter.right_comm (s₁ s₂ s₃ : set X) : (s₁ ∩ s₂) ∩ s₃ = (s₁ ∩ s₃) ∩ s₂ :=
-!right_comm inter.comm inter.assoc s₁ s₂ s₃
+theorem inter_right_comm (s₁ s₂ s₃ : set X) : (s₁ ∩ s₂) ∩ s₃ = (s₁ ∩ s₃) ∩ s₂ :=
+!right_comm inter_comm inter_assoc s₁ s₂ s₃
 
 theorem inter_univ (a : set X) : a ∩ univ = a :=
 ext (take x, !and_true)
@@ -226,16 +226,16 @@ theorem subset_inter {s t r : set X} (rs : r ⊆ s) (rt : r ⊆ t) : r ⊆ s ∩
 
 /- distributivity laws -/
 
-theorem inter.distrib_left (s t u : set X) : s ∩ (t ∪ u) = (s ∩ t) ∪ (s ∩ u) :=
+theorem inter_distrib_left (s t u : set X) : s ∩ (t ∪ u) = (s ∩ t) ∪ (s ∩ u) :=
 ext (take x, !and.left_distrib)
 
-theorem inter.distrib_right (s t u : set X) : (s ∪ t) ∩ u = (s ∩ u) ∪ (t ∩ u) :=
+theorem inter_distrib_right (s t u : set X) : (s ∪ t) ∩ u = (s ∩ u) ∪ (t ∩ u) :=
 ext (take x, !and.right_distrib)
 
-theorem union.distrib_left (s t u : set X) : s ∪ (t ∩ u) = (s ∪ t) ∩ (s ∪ u) :=
+theorem union_distrib_left (s t u : set X) : s ∪ (t ∩ u) = (s ∪ t) ∩ (s ∪ u) :=
 ext (take x, !or.left_distrib)
 
-theorem union.distrib_right (s t u : set X) : (s ∩ t) ∪ u = (s ∪ u) ∩ (t ∪ u) :=
+theorem union_distrib_right (s t u : set X) : (s ∩ t) ∪ u = (s ∪ u) ∩ (t ∪ u) :=
 ext (take x, !or.right_distrib)
 
 /- set-builder notation -/

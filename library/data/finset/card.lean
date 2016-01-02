@@ -24,8 +24,8 @@ begin
         (assume as1 : a ∈ s₁,
           assert H : a ∉ s₁ ∩ s₂, from assume H', ans2 (mem_of_mem_inter_right H'),
           begin
-            rewrite [card_insert_of_not_mem ans2, union.comm, -insert_union, union.comm],
-            rewrite [insert_union, insert_eq_of_mem as1, insert_eq, inter.distrib_left, inter.comm],
+            rewrite [card_insert_of_not_mem ans2, union_comm, -insert_union, union_comm],
+            rewrite [insert_union, insert_eq_of_mem as1, insert_eq, inter_distrib_left, inter_comm],
             rewrite [singleton_inter_of_mem as1, -insert_eq, card_insert_of_not_mem H, -*add.assoc],
             rewrite IH
           end)
@@ -33,8 +33,8 @@ begin
           assert H : a ∉ s₁ ∪ s₂, from assume H',
             or.elim (mem_or_mem_of_mem_union H') (assume as1, ans1 as1) (assume as2, ans2 as2),
           begin
-            rewrite [card_insert_of_not_mem ans2, union.comm, -insert_union, union.comm],
-            rewrite [card_insert_of_not_mem H, insert_eq, inter.distrib_left, inter.comm],
+            rewrite [card_insert_of_not_mem ans2, union_comm, -insert_union, union_comm],
+            rewrite [card_insert_of_not_mem H, insert_eq, inter_distrib_left, inter_comm],
             rewrite [singleton_inter_of_not_mem ans1, empty_union, add.right_comm],
             rewrite [-add.assoc, IH]
           end)

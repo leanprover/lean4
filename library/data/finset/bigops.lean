@@ -22,11 +22,11 @@ definition to_comm_monoid_Union (B : Type) [decidable_eq B] :
   comm_monoid (finset B) :=
 ⦃ comm_monoid,
   mul         := union,
-  mul_assoc   := union.assoc,
+  mul_assoc   := union_assoc,
   one         := empty,
   mul_one     := union_empty,
   one_mul     := empty_union,
-  mul_comm    := union.comm
+  mul_comm    := union_comm
 ⦄
 
 local attribute finset.to_comm_monoid_Union [instance]
@@ -77,7 +77,7 @@ section deceqA
   begin
     induction t with s' x H IH,
       rewrite [*Union_empty, inter_empty],
-      rewrite [*Union_insert_of_not_mem _ H, inter.distrib_left, IH],
+      rewrite [*Union_insert_of_not_mem _ H, inter_distrib_left, IH],
   end
 
   theorem mem_Union_iff (s : finset A) (f : A → finset B) (b : B) :

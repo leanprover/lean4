@@ -169,7 +169,7 @@ definition inf (F₁ F₂ : filter A) : filter A :=
                      obtain a₁ [a₁F₁ [a₂ [a₂F₂ (Ha' : a ⊇ a₁ ∩ a₂)]]], from Ha,
                      obtain b₁ [b₁F₁ [b₂ [b₂F₂ (Hb' : b ⊇ b₁ ∩ b₂)]]], from Hb,
                      assert a₁ ∩ b₁ ∩ (a₂ ∩ b₂) = a₁ ∩ a₂ ∩ (b₁ ∩ b₂),
-                       by rewrite [*inter.assoc, inter.left_comm b₁],
+                       by rewrite [*inter_assoc, inter_left_comm b₁],
                      have a ∩ b ⊇ a₁ ∩ b₁ ∩ (a₂ ∩ b₂),
                        begin
                          rewrite this,

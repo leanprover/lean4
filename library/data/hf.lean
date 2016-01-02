@@ -181,17 +181,17 @@ iff.intro
 theorem mem_union_eq {a : hf} (s₁ s₂ : hf) : (a ∈ s₁ ∪ s₂) = (a ∈ s₁ ∨ a ∈ s₂) :=
 propext !mem_union_iff
 
-theorem union.comm (s₁ s₂ : hf) : s₁ ∪ s₂ = s₂ ∪ s₁ :=
+theorem union_comm (s₁ s₂ : hf) : s₁ ∪ s₂ = s₂ ∪ s₁ :=
 hf.ext (λ a, by rewrite [*mem_union_eq]; exact or.comm)
 
-theorem union.assoc (s₁ s₂ s₃ : hf) : (s₁ ∪ s₂) ∪ s₃ = s₁ ∪ (s₂ ∪ s₃) :=
+theorem union_assoc (s₁ s₂ s₃ : hf) : (s₁ ∪ s₂) ∪ s₃ = s₁ ∪ (s₂ ∪ s₃) :=
 hf.ext (λ a, by rewrite [*mem_union_eq]; exact or.assoc)
 
-theorem union.left_comm (s₁ s₂ s₃ : hf) : s₁ ∪ (s₂ ∪ s₃) = s₂ ∪ (s₁ ∪ s₃) :=
-!left_comm union.comm union.assoc s₁ s₂ s₃
+theorem union_left_comm (s₁ s₂ s₃ : hf) : s₁ ∪ (s₂ ∪ s₃) = s₂ ∪ (s₁ ∪ s₃) :=
+!left_comm union_comm union_assoc s₁ s₂ s₃
 
-theorem union.right_comm (s₁ s₂ s₃ : hf) : (s₁ ∪ s₂) ∪ s₃ = (s₁ ∪ s₃) ∪ s₂ :=
-!right_comm union.comm union.assoc s₁ s₂ s₃
+theorem union_right_comm (s₁ s₂ s₃ : hf) : (s₁ ∪ s₂) ∪ s₃ = (s₁ ∪ s₃) ∪ s₂ :=
+!right_comm union_comm union_assoc s₁ s₂ s₃
 
 theorem union_self (s : hf) : s ∪ s = s :=
 hf.ext (λ a, iff.intro
@@ -204,7 +204,7 @@ hf.ext (λ a, iff.intro
   (suppose a ∈ s, mem_union_left _ this))
 
 theorem empty_union (s : hf) : ∅ ∪ s = s :=
-calc ∅ ∪ s = s ∪ ∅ : union.comm
+calc ∅ ∪ s = s ∪ ∅ : union_comm
        ... = s     : union_empty
 
 /- inter -/
@@ -230,17 +230,17 @@ iff.intro
 theorem mem_inter_eq (a : hf) (s₁ s₂ : hf) : (a ∈ s₁ ∩ s₂) = (a ∈ s₁ ∧ a ∈ s₂) :=
 propext !mem_inter_iff
 
-theorem inter.comm (s₁ s₂ : hf) : s₁ ∩ s₂ = s₂ ∩ s₁ :=
+theorem inter_comm (s₁ s₂ : hf) : s₁ ∩ s₂ = s₂ ∩ s₁ :=
 hf.ext (λ a, by rewrite [*mem_inter_eq]; exact and.comm)
 
-theorem inter.assoc (s₁ s₂ s₃ : hf) : (s₁ ∩ s₂) ∩ s₃ = s₁ ∩ (s₂ ∩ s₃) :=
+theorem inter_assoc (s₁ s₂ s₃ : hf) : (s₁ ∩ s₂) ∩ s₃ = s₁ ∩ (s₂ ∩ s₃) :=
 hf.ext (λ a, by rewrite [*mem_inter_eq]; exact and.assoc)
 
-theorem inter.left_comm (s₁ s₂ s₃ : hf) : s₁ ∩ (s₂ ∩ s₃) = s₂ ∩ (s₁ ∩ s₃) :=
-!left_comm inter.comm inter.assoc s₁ s₂ s₃
+theorem inter_left_comm (s₁ s₂ s₃ : hf) : s₁ ∩ (s₂ ∩ s₃) = s₂ ∩ (s₁ ∩ s₃) :=
+!left_comm inter_comm inter_assoc s₁ s₂ s₃
 
-theorem inter.right_comm (s₁ s₂ s₃ : hf) : (s₁ ∩ s₂) ∩ s₃ = (s₁ ∩ s₃) ∩ s₂ :=
-!right_comm inter.comm inter.assoc s₁ s₂ s₃
+theorem inter_right_comm (s₁ s₂ s₃ : hf) : (s₁ ∩ s₂) ∩ s₃ = (s₁ ∩ s₃) ∩ s₂ :=
+!right_comm inter_comm inter_assoc s₁ s₂ s₃
 
 theorem inter_self (s : hf) : s ∩ s = s :=
 hf.ext (λ a, iff.intro
@@ -253,7 +253,7 @@ hf.ext (λ a, iff.intro
   (suppose a ∈ ∅,     absurd this !not_mem_empty))
 
 theorem empty_inter (s : hf) : ∅ ∩ s = ∅ :=
-calc ∅ ∩ s = s ∩ ∅ : inter.comm
+calc ∅ ∩ s = s ∩ ∅ : inter_comm
        ... = ∅     : inter_empty
 
 /- card -/

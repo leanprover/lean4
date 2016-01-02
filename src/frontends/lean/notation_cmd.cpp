@@ -662,9 +662,16 @@ notation_entry parse_notation(parser & p, bool overload, buffer<token_entry> & n
     return parse_notation(p, overload, grp, new_tokens, allow_local);
 }
 
-static char g_reserved_chars[] = {'(', ')', ',', 0};
+static char g_reserved_chars[] = {',', 0};
 
 static void check_token(char const * tk) {
+    if (!tk || !*tk)
+        throw exception("invalid null token");
+    if (tk[0] == '(')
+        throw exception(sstream() << "invalid token `" << tk << "`, it starts with '('");
+    unsigned sz = strlen(tk);
+    if (tk[sz-1] == ')')
+        throw exception(sstream() << "invalid token `" << tk << "`, it ends with ')'");
     while (tk && *tk) {
         unsigned sz = get_utf8_size(*tk);
         if (sz == 0) {

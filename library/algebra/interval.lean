@@ -32,14 +32,14 @@ definition Icu (a : A)   : set A := {x | a ≤ x}
 definition Iuo (b : A)   : set A := {x | x < b}
 definition Iuc (b : A)   : set A := {x | x ≤ b}
 
-notation `'` `(` a `, ` b `)`     := Ioo a b
-notation `'` `(` a `, ` b `]`     := Ioc a b
-notation `'[` a `, ` b `)`        := Ico a b
-notation `'[` a `, ` b `]`       := Icc a b
-notation `'` `(` a `, ` `∞` `)`   := Iou a
-notation `'[` a `, ` `∞` `)`      := Icu a
-notation `'` `(` `-∞` `, ` b `)`  := Iuo b
-notation `'` `(` `-∞` `, ` b `]`  := Iuc b
+notation `'(` a `, ` b `)`     := Ioo a b
+notation `'(` a `, ` b `]`     := Ioc a b
+notation `'[` a `, ` b `)`     := Ico a b
+notation `'[` a `, ` b `]`     := Icc a b
+notation `'(` a `, ` `∞` `)`   := Iou a
+notation `'[` a `, ` `∞` `)`   := Icu a
+notation `'(` `-∞` `, ` b `)`  := Iuo b
+notation `'(` `-∞` `, ` b `]`  := Iuc b
 
 variables a b : A
 

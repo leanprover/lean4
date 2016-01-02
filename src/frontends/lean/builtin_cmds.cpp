@@ -22,8 +22,6 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/aux_recursors.h"
 #include "library/private.h"
-#include "library/decl_stats.h"
-#include "library/meng_paulson.h"
 #include "library/fun_info_manager.h"
 #include "library/congr_lemma_manager.h"
 #include "library/abstract_expr_manager.h"
@@ -551,54 +549,6 @@ static environment accessible_cmd(parser & p) {
     return env;
 }
 
-static void display_name_set(parser & p, name const & n, name_set const & s) {
-    if (s.empty())
-        return;
-    io_state_stream out = p.regular_stream();
-    out << "  " << n << " := {";
-    bool first = true;
-    s.for_each([&](name const & n2) {
-            if (is_private(p.env(), n2))
-                return;
-            if (first)
-                first = false;
-            else
-                out << ", ";
-            out << n2;
-        });
-    out << "}\n";
-}
-
-static environment decl_stats_cmd(parser & p) {
-    environment const & env = p.env();
-    io_state_stream out = p.regular_stream();
-    out << "Use sets\n";
-    env.for_each_declaration([&](declaration const & d) {
-            if ((d.is_theorem() || d.is_axiom()) && !is_private(env, d.get_name()))
-                display_name_set(p, d.get_name(), get_use_set(env, d.get_name()));
-        });
-    out << "Used-by sets\n";
-    env.for_each_declaration([&](declaration const & d) {
-            if (!d.is_theorem() && !d.is_axiom() && !is_private(env, d.get_name()))
-                display_name_set(p, d.get_name(), get_used_by_set(env, d.get_name()));
-        });
-    return env;
-}
-
-static environment relevant_thms_cmd(parser & p) {
-    environment const & env = p.env();
-    name_set R;
-    while (p.curr_is_identifier()) {
-        R.insert(p.check_constant_next("invalid #relevant_thms command, constant expected"));
-    }
-    name_set TS = get_relevant_thms(env, p.get_options(), R);
-    io_state_stream out = p.regular_stream();
-    TS.for_each([&](name const & T) {
-            out << T << "\n";
-        });
-    return env;
-}
-
 static void check_expr_and_print(parser & p, expr const & e) {
     environment const & env = p.env();
     type_checker tc(env);
@@ -903,8 +853,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#congr_rel",        "(for debugging purposes)", congr_rel_cmd));
     add_cmd(r, cmd_info("#normalizer",       "(for debugging purposes)", normalizer_cmd));
     add_cmd(r, cmd_info("#accessible",       "(for debugging purposes) display number of accessible declarations for blast tactic", accessible_cmd));
-    add_cmd(r, cmd_info("#decl_stats",       "(for debugging purposes) display declaration statistics", decl_stats_cmd));
-    add_cmd(r, cmd_info("#relevant_thms",    "(for debugging purposes) select relevant theorems using Meng&Paulson heuristic", relevant_thms_cmd));
     add_cmd(r, cmd_info("#simplify",         "(for debugging purposes) simplify given expression", simplify_cmd));
     add_cmd(r, cmd_info("#abstract_expr",    "(for debugging purposes) call abstract expr methods", abstract_expr_cmd));
 

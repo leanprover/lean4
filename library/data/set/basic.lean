@@ -296,10 +296,13 @@ iff.intro
 
 theorem mem_singleton (a : X) : a ∈ '{a} := !mem_insert
 
-theorem eq_of_mem_singleton {x y : X} : x ∈ insert y ∅ → x = y :=
-assume h, or.elim (eq_or_mem_of_mem_insert h)
+theorem eq_of_mem_singleton {x y : X} (h : x ∈ '{y}) : x = y :=
+or.elim (eq_or_mem_of_mem_insert h)
   (suppose x = y, this)
   (suppose x ∈ ∅, absurd this !not_mem_empty)
+
+theorem mem_singleton_of_eq {x y : X} (H : x = y) : x ∈ '{y} :=
+eq.symm H ▸ mem_singleton y
 
 theorem insert_eq (x : X) (s : set X) : insert x s = '{x} ∪ s :=
 ext (take y, iff.intro

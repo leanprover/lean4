@@ -14,11 +14,9 @@ open set
 section
   open set
 
-  theorem mem_singleton_of_eq {A : Type} {x a : A} (H : x = a) : x ∈ '{a} :=
-  eq.subst (eq.symm H) (mem_singleton a)
 end
 
-namespace intervals
+namespace interval
 
 section order_pair
 variables {A : Type} [order_pair A]
@@ -158,4 +156,4 @@ open nat eq.ops
   finite_subset this
 end nat
 
-end intervals
+end interval

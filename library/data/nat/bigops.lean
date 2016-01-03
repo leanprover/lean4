@@ -71,7 +71,7 @@ end finset
 
 section set
   variables {A : Type} [add_comm_monoid A]
-  open set intervals
+  open set interval
 
 proposition sum_range_eq_sum_interval_aux (m n : ℕ) (f : ℕ → A) :
             (∑ i = m...m+n, f i) = (∑ i ∈ '[m, m + n], f i) :=
@@ -162,7 +162,7 @@ end finset
 
 section set
   variables {A : Type} [comm_monoid A]
-  open set intervals
+  open set interval
 
 proposition prod_range_eq_prod_interval_aux (m n : ℕ) (f : ℕ → A) :
             (∏ i = m...m+n, f i) = (∏ i ∈ '[m, m + n], f i) :=

@@ -268,7 +268,7 @@ struct app_builder::imp {
         lean_trace("app_builder",
                    trace_fun(n);
                    tout () << ", failed to solve unification constraint for #" << (i+1)
-                   << "argument (" << m_ctx->infer(m) << " =?= " << m_ctx->infer(v) << ")\n";);
+                   << " argument (" << m_ctx->infer(m) << " =?= " << m_ctx->infer(v) << ")\n";);
     }
 
     expr mk_app(name const & c, unsigned nargs, expr const * args) {

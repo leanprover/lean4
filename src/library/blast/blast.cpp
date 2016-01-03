@@ -400,7 +400,7 @@ class blastenv {
                 lean_assert(is_meta(aux));
                 expr type = visit(m_tc.infer(aux).first);
                 expr mref = m_state.mk_metavar(ctx, type);
-                m_mvar2meta_mref.insert(mlocal_name(mvar), mk_pair(e, mref));
+                m_mvar2meta_mref.insert(mlocal_name(mvar), mk_pair(aux, mref));
                 return mk_mref_app(mref, args.size() - prefix_sz, args.data() + prefix_sz);
             }
         }

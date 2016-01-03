@@ -512,7 +512,7 @@ assert int.of_nat n ≥ ceil (2 / ε),
   by rewrite of_nat_nat_abs; apply le_abs_self,
 have int.of_nat (succ n) ≥ ceil (2 / ε),
   begin apply le.trans, exact this, apply int.of_nat_le_of_nat_of_le, apply le_succ end,
-have H₁ : succ n ≥ ceil (2 / ε), from of_int_le_of_int_of_le this,
+have H₁ : int.succ n ≥ ceil (2 / ε), from of_int_le_of_int_of_le this,
 have H₂ : succ n ≥ 2 / ε, from !le.trans !le_ceil H₁,
 have H₃ : 2 / ε > 0, from div_pos_of_pos_of_pos two_pos H,
 have 1 / succ n < ε, from calc

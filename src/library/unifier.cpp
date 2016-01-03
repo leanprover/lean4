@@ -1023,14 +1023,9 @@ struct unifier_fn {
         }
 
         if (is_eq_deltas(lhs, rhs)) {
-            if (!split_delta(lhs) && is_type(lhs)) {
-                // If lhs (and consequently rhs) is a type, and not case-split is generated, then process delta constraint eagerly.
-                return process_delta(c);
-            } else {
-                // we need to create a backtracking point for this one
-                add_cnstr(c, cnstr_group::Basic);
-                return true;
-            }
+            // we need to create a backtracking point for this one
+            add_cnstr(c, cnstr_group::Basic);
+            return true;
         } else if (is_meta(lhs) && is_meta(rhs)) {
             // flex-flex constraints are delayed the most.
             unsigned cidx = add_cnstr(c, cnstr_group::FlexFlex);
@@ -2681,7 +2676,7 @@ struct unifier_fn {
                 }
             } else {
                 lean_assert(is_eq_cnstr(c));
-                if (is_delta_cnstr(c)) {
+                if (is_delta_cnstr(c) && (!modified || has_expr_metavar_relaxed(cnstr_lhs_expr(c)) || has_expr_metavar_relaxed(cnstr_rhs_expr(c)))) {
                     return process_delta(c);
                 } else if (modified) {
                     return is_def_eq(cnstr_lhs_expr(c), cnstr_rhs_expr(c), c.get_justification());

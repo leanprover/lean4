@@ -173,8 +173,10 @@ namespace is_trunc
 
   theorem is_contr_loop_of_is_trunc (n : ℕ) (A : Type*) [H : is_trunc (n.-2.+1) A] :
     is_contr (Ω[n] A) :=
-  by induction A; exact iff.mp !is_trunc_iff_is_contr_loop _ _
-
+  begin
+    induction A,
+    apply iff.mp !is_trunc_iff_is_contr_loop H
+  end
 
 end is_trunc open is_trunc
 

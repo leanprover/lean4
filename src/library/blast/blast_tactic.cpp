@@ -19,11 +19,16 @@ tactic mk_blast_tactic(list<name> const & ls, list<name> const & ds) {
             }
             goal const & g = head(gs);
             try {
-                expr pr = blast_goal(env, ios, ls, ds, g);
+                pair<expr, constraint_seq> pr_cs = blast_goal(env, ios, ls, ds, g);
+                expr pr                = pr_cs.first;
+                constraint_seq cs      = pr_cs.second;
                 goals new_gs           = tail(gs);
                 substitution new_subst = s.get_subst();
                 assign(new_subst, g, pr);
-                return some_proof_state(proof_state(s, new_gs, new_subst));
+                proof_state new_ps(s, new_gs, new_subst);
+                if (solve_constraints(env, ios, new_ps, cs))
+                    return some_proof_state(new_ps);
+                return none_proof_state();
             } catch (blast_exception & ex) {
                 throw_tactic_exception_if_enabled(s, ex.what());
                 return none_proof_state();

@@ -474,7 +474,7 @@ class blastenv {
         m_initial_context = to_list(ctx);
     }
 
-    name_map<level> mk_uref2uvar() {
+    name_map<level> mk_uref2uvar() const {
         name_map<level> r;
         m_uvar2uref.for_each([&](name const & uvar_id, level const & uref) {
                 lean_assert(is_uref(uref));
@@ -483,7 +483,7 @@ class blastenv {
         return r;
     }
 
-    name_map<expr> mk_mref2meta() {
+    name_map<expr> mk_mref2meta() const {
         name_map<expr> r;
         m_mvar2meta_mref.for_each([&](name const &, pair<expr, expr> const & p) {
                 lean_assert(is_mref(p.second));
@@ -492,7 +492,7 @@ class blastenv {
         return r;
     }
 
-    level restore_uvars(level const & l, name_map<level> const & uref2uvar) {
+    level restore_uvars(level const & l, name_map<level> const & uref2uvar) const {
         return replace(l, [&](level const & l) {
                 if (is_meta(l)) {
                     if (auto uvar = uref2uvar.find(meta_id(l)))
@@ -502,16 +502,12 @@ class blastenv {
             });
     }
 
-    levels restore_uvars(levels const & ls, name_map<level> const & uref2uvar) {
+    levels restore_uvars(levels const & ls, name_map<level> const & uref2uvar) const {
         return map(ls, [&](level const & l) { return restore_uvars(l, uref2uvar); });
     }
 
     /* Convert uref's and mref's back into tactic metavariables */
-    expr restore_uvars_mvars(expr const & e) {
-        if (m_uvar2uref.empty())
-            return e;
-        name_map<level> uref2uvar = mk_uref2uvar();
-        name_map<expr>  mref2meta = mk_mref2meta();
+    expr restore_uvars_mvars(expr const & e, name_map<level> const & uref2uvar, name_map<expr> const & mref2meta) const {
         return replace(e, [&](expr const & e, unsigned) {
                 if (is_mref(e))  {
                     if (auto m = mref2meta.find(mlocal_name(e))) {
@@ -529,7 +525,11 @@ class blastenv {
             });
     }
 
-    expr to_tactic_proof(expr const & pr) {
+    level to_tactic_univ(level const & l, name_map<level> const & uref2uvar) {
+        return restore_uvars(m_curr_state.instantiate_urefs(l), uref2uvar);
+    }
+
+    expr to_tactic_expr(expr const & pr, name_map<level> const & uref2uvar, name_map<expr> const & mref2meta) {
         // When a proof is found we must
         // 1- Remove all occurrences of href's from pr
         expr pr1 = unfold_hypotheses_ge(m_curr_state, pr, 0);
@@ -537,11 +537,34 @@ class blastenv {
         //    and convert unassigned meta-variables back into
         //    tactic meta-variables.
         expr pr2 = m_curr_state.instantiate_urefs_mrefs(pr1);
-        expr pr3 = restore_uvars_mvars(pr2);
-        // TODO(Leo):
-        // 3- The external tactic meta-variables that have been instantiated
-        //    by blast must also be communicated back to the tactic framework.
-        return pr3;
+        return restore_uvars_mvars(pr2, uref2uvar, mref2meta);
+    }
+
+
+    /* The external tactic meta-variables that have been instantiated
+       by blast must also be communicated back to the tactic framework. */
+    constraint_seq mk_cnstrs_for_assignments(name_map<level> const & uref2uvar, name_map<expr> const & mref2meta) {
+        constraint_seq r;
+        justification j = mk_justification("assigned by blast");
+        m_uvar2uref.for_each([&](name const & uvar_id, level const & uref) {
+                lean_assert(is_uref(uref));
+                if (auto v = m_curr_state.get_uref_assignment(uref)) {
+                    r += mk_level_eq_cnstr(mk_meta_univ(uvar_id), to_tactic_univ(*v, uref2uvar), j);
+                }
+            });
+        m_mvar2meta_mref.for_each([&](name const &, pair<expr, expr> const & p) {
+                lean_assert(is_mref(p.second));
+                if (auto v = m_curr_state.get_mref_assignment(p.second)) {
+                    r += mk_eq_cnstr(p.first, to_tactic_expr(*v, uref2uvar, mref2meta), j);
+                }
+            });
+        return r;
+    }
+
+    pair<expr, constraint_seq> to_tactic_proof(expr const & pr) {
+        name_map<level> uref2uvar = mk_uref2uvar();
+        name_map<expr>  mref2meta = mk_mref2meta();
+        return mk_pair(to_tactic_expr(pr, uref2uvar, mref2meta), mk_cnstrs_for_assignments(uref2uvar, mref2meta));
     }
 
 public:
@@ -597,7 +620,7 @@ public:
         init_classical_flag();
     }
 
-    expr operator()(goal const & g) {
+    pair<expr, constraint_seq> operator()(goal const & g) {
         init_state(g);
         if (auto r = apply_strategy()) {
             return to_tactic_proof(*r);
@@ -1244,8 +1267,8 @@ expr internalize(expr const & e) {
     return g_blastenv->internalize(e);
 }
 }
-expr blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
-                          goal const & g) {
+pair<expr, constraint_seq> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
+                                      goal const & g) {
     scoped_expr_caching             scope1(true);
     blast::blastenv                 b(env, ios, ls, ds);
     blast::scope_blastenv           scope2(b);

@@ -251,8 +251,8 @@ public:
     \remark This procedure should only be used for **debugging purposes**. */
 expr internalize(expr const & e);
 }
-expr blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
-                goal const & g);
+pair<expr, constraint_seq> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
+                                      goal const & g);
 void initialize_blast();
 void finalize_blast();
 }

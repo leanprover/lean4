@@ -520,6 +520,29 @@ by rewrite [-image_compose, complement_compose_complement, image_id]
 
 end image
 
+/- collections of disjoint sets -/
+
+definition disjoint_sets (S : set (set X)) : Prop := ∀ a b, a ∈ S → b ∈ S → a ≠ b → a ∩ b = ∅
+
+theorem disjoint_sets_empty : disjoint_sets (∅ : set (set X)) :=
+take a b, assume H, !not.elim !not_mem_empty H
+
+theorem disjoint_sets_union {s t : set (set X)} (Hs : disjoint_sets s) (Ht : disjoint_sets t)
+    (H : ∀ x y, x ∈ s ∧ y ∈ t → x ∩ y = ∅) :
+  disjoint_sets (s ∪ t) :=
+take a b, assume Ha Hb Hneq, or.elim Ha
+ (assume H1, or.elim Hb
+   (suppose b ∈ s, (Hs a b) H1 this Hneq)
+   (suppose b ∈ t, (H a b) (and.intro H1 this)))
+ (assume H2, or.elim Hb
+   (suppose b ∈ s, !inter_comm ▸ ((H b a) (and.intro this H2)))
+   (suppose b ∈ t, (Ht a b) H2 this Hneq))
+
+theorem disjoint_sets_singleton (s : set (set X)) : disjoint_sets '{s} :=
+take a b, assume Ha Hb  Hneq,
+absurd (eq.trans ((iff.elim_left !mem_singleton_iff) Ha) ((iff.elim_left !mem_singleton_iff) Hb)⁻¹)
+    Hneq
+
 /- large unions -/
 
 section large_unions
@@ -528,54 +551,43 @@ section large_unions
   variable b : I → set X
   variable C : set (set X)
 
-  definition Inter  : set X := {x : X | ∀i, x ∈ b i}
-  definition bInter : set X := {x : X | ∀₀ i ∈ a, x ∈ b i}
-  definition sInter : set X := {x : X | ∀₀ c ∈ C, x ∈ c}
-  definition Union  : set X := {x : X | ∃i, x ∈ b i}
-  definition bUnion : set X := {x : X | ∃₀ i ∈ a, x ∈ b i}
   definition sUnion : set X := {x : X | ∃₀ c ∈ C, x ∈ c}
+  definition sInter : set X := {x : X | ∀₀ c ∈ C, x ∈ c}
+
+  prefix `⋃₀`:110 := sUnion
+  prefix `⋂₀`:110 := sInter
+
+  definition Union  : set X := {x : X | ∃i, x ∈ b i}
+  definition Inter  : set X := {x : X | ∀i, x ∈ b i}
 
   notation `⋃` binders, r:(scoped f, Union f) := r
-  notation `⋃` binders `∈` s, r:(scoped f, bUnion s f) := r
-  prefix `⋃₀`:110 := sUnion
-
   notation `⋂` binders, r:(scoped f, Inter f) := r
+
+  definition bUnion : set X := {x : X | ∃₀ i ∈ a, x ∈ b i}
+  definition bInter : set X := {x : X | ∀₀ i ∈ a, x ∈ b i}
+
+  notation `⋃` binders `∈` s, r:(scoped f, bUnion s f) := r
   notation `⋂` binders `∈` s, r:(scoped f, bInter s f) := r
-  prefix `⋂₀`:110 := sInter
 
 end large_unions
 
-theorem Union_subset {I : Type} {b : I → set X} {c : set X} (H : ∀ i, b i ⊆ c) : Union b ⊆ c :=
-take x,
-suppose x ∈ Union b,
-obtain i (Hi : x ∈ b i), from this,
-show x ∈ c, from H i Hi
+-- sUnion and sInter: a collection (set) of sets
 
 theorem mem_sUnion {x : X} {t : set X} {S : set (set X)} (Hx : x ∈ t) (Ht : t ∈ S) :
   x ∈ ⋃₀ S :=
 exists.intro t (and.intro Ht Hx)
 
-theorem Union_eq_sUnion_image {X I : Type} (s : I → set X) : (⋃ i, s i) = ⋃₀ (s '[univ]) :=
-ext (take x, iff.intro
-  (suppose x ∈ Union s,
-    obtain i (Hi : x ∈ s i), from this,
-    mem_sUnion Hi (mem_image_of_mem s trivial))
-  (suppose x ∈ sUnion (s '[univ]),
-    obtain t [(Ht : t ∈ s '[univ]) (Hx : x ∈ t)], from this,
-    obtain i [univi (Hi : s i = t)], from Ht,
-    exists.intro i (show x ∈ s i, by rewrite Hi; apply Hx)))
+theorem mem_sInter {x : X} {t : set X} {S : set (set X)} (H : ∀₀ t ∈ S, x ∈ t) :
+  x ∈ ⋂₀ S :=
+H
 
-theorem Inter_eq_sInter_image {X I : Type} (s : I → set X) : (⋂ i, s i) = ⋂₀ (s '[univ]) :=
-ext (take x, iff.intro
-  (assume H : x ∈ Inter s,
-    take t,
-    suppose t ∈ s '[univ],
-    obtain i [univi (Hi : s i = t)], from this,
-    show x ∈ t, by rewrite -Hi; exact H i)
-  (assume H : x ∈ ⋂₀ (s '[univ]),
-    take i,
-    have s i ∈ s '[univ], from mem_image_of_mem s trivial,
-    show x ∈ s i, from H this))
+theorem sInter_subset_of_mem {S : set (set X)} {t : set X} (tS : t ∈ S) :
+  (⋂₀ S) ⊆ t :=
+take x, assume H, H t tS
+
+theorem subset_sUnion_of_mem {S : set (set X)} {t : set X} (tS : t ∈ S) :
+  t ⊆ (⋃₀ S) :=
+take x, assume H, exists.intro t (and.intro tS H)
 
 theorem sUnion_empty : ⋃₀ ∅ = (∅ : set X) :=
 eq_empty_of_forall_not_mem
@@ -659,16 +671,101 @@ theorem sInter_eq_comp_sUnion_comp (S : set (set X)) :
    ⋂₀ S = -(⋃₀ (complement '[S])) :=
 by rewrite [-comp_comp, comp_sInter]
 
+-- Union and Inter: a family of sets indexed by a type
+
+theorem Union_subset {I : Type} {b : I → set X} {c : set X} (H : ∀ i, b i ⊆ c) : (⋃ i, b i) ⊆ c :=
+take x,
+suppose x ∈ Union b,
+obtain i (Hi : x ∈ b i), from this,
+show x ∈ c, from H i Hi
+
+theorem subset_Inter {I : Type} {b : I → set X} {c : set X} (H : ∀ i, c ⊆ b i) : c ⊆ ⋂ i, b i :=
+λ x cx i, H i cx
+
+theorem Union_eq_sUnion_image {X I : Type} (s : I → set X) : (⋃ i, s i) = ⋃₀ (s '[univ]) :=
+ext (take x, iff.intro
+  (suppose x ∈ Union s,
+    obtain i (Hi : x ∈ s i), from this,
+    mem_sUnion Hi (mem_image_of_mem s trivial))
+  (suppose x ∈ sUnion (s '[univ]),
+    obtain t [(Ht : t ∈ s '[univ]) (Hx : x ∈ t)], from this,
+    obtain i [univi (Hi : s i = t)], from Ht,
+    exists.intro i (show x ∈ s i, by rewrite Hi; apply Hx)))
+
+theorem Inter_eq_sInter_image {X I : Type} (s : I → set X) : (⋂ i, s i) = ⋂₀ (s '[univ]) :=
+ext (take x, iff.intro
+  (assume H : x ∈ Inter s,
+    take t,
+    suppose t ∈ s '[univ],
+    obtain i [univi (Hi : s i = t)], from this,
+    show x ∈ t, by rewrite -Hi; exact H i)
+  (assume H : x ∈ ⋂₀ (s '[univ]),
+    take i,
+    have s i ∈ s '[univ], from mem_image_of_mem s trivial,
+    show x ∈ s i, from H this))
+
 theorem comp_Union {X I : Type} (s : I → set X) : - (⋃ i, s i) = (⋂ i, - s i) :=
 by rewrite [Union_eq_sUnion_image, comp_sUnion, -image_compose, -Inter_eq_sInter_image]
-
-theorem Union_eq_comp_Inter_comp {X I : Type} (s : I → set X) : (⋃ i, s i) = - (⋂ i, - s i) :=
-by rewrite [-comp_comp, comp_Union]
 
 theorem comp_Inter {X I : Type} (s : I → set X) : -(⋂ i, s i) = (⋃ i, - s i) :=
 by rewrite [Inter_eq_sInter_image, comp_sInter, -image_compose, -Union_eq_sUnion_image]
 
+theorem Union_eq_comp_Inter_comp {X I : Type} (s : I → set X) : (⋃ i, s i) = - (⋂ i, - s i) :=
+by rewrite [-comp_comp, comp_Union]
+
 theorem Inter_eq_comp_Union_comp {X I : Type} (s : I → set X) : (⋂ i, s i) = - (⋃ i, -s i) :=
 by rewrite [-comp_comp, comp_Inter]
+
+-- these are useful for turning binary union / intersection into countable ones
+
+definition bin_ext (s t : set X) (n : ℕ) : set X :=
+nat.cases_on n s (λ m, t)
+
+lemma Union_bin_ext (s t : set X) : (⋃ i, bin_ext s t i) = s ∪ t :=
+ext (take x, iff.intro
+  (assume H,
+    obtain i (Hi : x ∈ (bin_ext s t) i), from H,
+    by cases i; apply or.inl Hi; apply or.inr Hi)
+  (assume H,
+    or.elim H
+      (suppose x ∈ s, exists.intro 0 this)
+      (suppose x ∈ t, exists.intro 1 this)))
+
+lemma Inter_bin_ext (s t : set X) : (⋂ i, bin_ext s t i) = s ∩ t :=
+ext (take x, iff.intro
+  (assume H, and.intro (H 0) (H 1))
+  (assume H, by intro i; cases i;
+    apply and.elim_left H; apply and.elim_right H))
+
+-- bUnion and bInter: a family of sets indexed by a set ("b" is for bounded)
+
+variable {Y : Type}
+
+theorem mem_bUnion {s : set X} {f : X → set Y} {x : X} {y : Y}
+    (xs : x ∈ s) (yfx : y ∈ f x) :
+  y ∈ ⋃ x ∈ s, f x :=
+exists.intro x (and.intro xs yfx)
+
+theorem mem_bInter {s : set X} {f : X → set Y} {y : Y} (H : ∀₀ x ∈ s, y ∈ f x) :
+  y ∈ ⋂ x ∈ s, f x :=
+H
+
+theorem bUnion_subset {s : set X} {t : set Y} {f : X → set Y} (H : ∀₀ x ∈ s, f x ⊆ t) :
+  (⋃ x ∈ s, f x) ⊆ t :=
+take y, assume Hy,
+obtain x [xs yfx], from Hy,
+show y ∈ t, from H xs yfx
+
+theorem subset_bInter {s : set X} {t : set Y} {f : X → set Y} (H : ∀₀ x ∈ s, t ⊆ f x) :
+  t ⊆ ⋂ x ∈ s, f x :=
+take y, assume yt, take x, assume xs, H xs yt
+
+theorem subset_bUnion_of_mem {s : set X} {f : X → set Y} {x : X} (xs : x ∈ s) :
+  f x ⊆ ⋃ x ∈ s, f x :=
+take y, assume Hy, mem_bUnion xs Hy
+
+theorem bInter_subset_of_mem {s : set X} {f : X → set Y} {x : X} (xs : x ∈ s) :
+  (⋂ x ∈ s, f x) ⊆ f x :=
+take y, assume Hy, Hy x xs
 
 end set

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
+#include "kernel/replace_fn.h"
 #include "kernel/type_checker.h"
 #include "library/replace_visitor.h"
 #include "library/util.h"
@@ -473,6 +474,60 @@ class blastenv {
         m_initial_context = to_list(ctx);
     }
 
+    name_map<level> mk_uref2uvar() {
+        name_map<level> r;
+        m_uvar2uref.for_each([&](name const & uvar_id, level const & uref) {
+                lean_assert(is_uref(uref));
+                r.insert(meta_id(uref), mk_meta_univ(uvar_id));
+            });
+        return r;
+    }
+
+    name_map<expr> mk_mref2meta() {
+        name_map<expr> r;
+        m_mvar2meta_mref.for_each([&](name const &, pair<expr, expr> const & p) {
+                lean_assert(is_mref(p.second));
+                r.insert(mlocal_name(p.second), p.first);
+            });
+        return r;
+    }
+
+    level restore_uvars(level const & l, name_map<level> const & uref2uvar) {
+        return replace(l, [&](level const & l) {
+                if (is_meta(l)) {
+                    if (auto uvar = uref2uvar.find(meta_id(l)))
+                        return some_level(*uvar);
+                }
+                return none_level();
+            });
+    }
+
+    levels restore_uvars(levels const & ls, name_map<level> const & uref2uvar) {
+        return map(ls, [&](level const & l) { return restore_uvars(l, uref2uvar); });
+    }
+
+    /* Convert uref's and mref's back into tactic metavariables */
+    expr restore_uvars_mvars(expr const & e) {
+        if (m_uvar2uref.empty())
+            return e;
+        name_map<level> uref2uvar = mk_uref2uvar();
+        name_map<expr>  mref2meta = mk_mref2meta();
+        return replace(e, [&](expr const & e, unsigned) {
+                if (is_mref(e))  {
+                    if (auto m = mref2meta.find(mlocal_name(e))) {
+                        return some_expr(*m);
+                    } else {
+                        throw blast_exception(sstream() << "blast tactic failed, resultant proof still contains internal meta-variables");
+                    }
+                } else if (is_sort(e)) {
+                    return some_expr(update_sort(e, restore_uvars(sort_level(e), uref2uvar)));
+                } else if (is_constant(e)) {
+                    return some_expr(update_constant(e, restore_uvars(const_levels(e), uref2uvar)));
+                } else {
+                    return none_expr();
+                }
+            });
+    }
 
     expr to_tactic_proof(expr const & pr) {
         // When a proof is found we must
@@ -482,10 +537,11 @@ class blastenv {
         //    and convert unassigned meta-variables back into
         //    tactic meta-variables.
         expr pr2 = m_curr_state.instantiate_urefs_mrefs(pr1);
+        expr pr3 = restore_uvars_mvars(pr2);
         // TODO(Leo):
         // 3- The external tactic meta-variables that have been instantiated
         //    by blast must also be communicated back to the tactic framework.
-        return pr2;
+        return pr3;
     }
 
 public:

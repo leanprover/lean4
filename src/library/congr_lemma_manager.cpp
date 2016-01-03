@@ -99,8 +99,11 @@ struct congr_lemma_manager::imp {
         return std::find(kinds.begin(), kinds.end(), congr_arg_kind::Cast) != kinds.end();
     }
 
+    /** \brief Create simple congruence theorem using just congr, congr_arg, and congr_fun lemmas.
+        \pre There are no "cast" arguments. */
     expr mk_simple_congr_proof(expr const & fn, buffer<expr> const & lhss,
                                buffer<optional<expr>> const & eqs, buffer<congr_arg_kind> const & kinds) {
+        lean_assert(!has_cast(kinds));
         unsigned i = 0;
         for (; i < kinds.size(); i++) {
             if (kinds[i] != congr_arg_kind::Fixed)
@@ -124,6 +127,9 @@ struct congr_lemma_manager::imp {
         return pr;
     }
 
+    /** \brief Given a the set of hypotheses \c eqs, build a proof for <tt>lhs = rhs</tt> using \c eq.drec and \c eqs.
+        \remark eqs are the proofs for the Eq arguments.
+        \remark This is an auxiliary method used by mk_congr_simp. */
     expr mk_congr_proof(unsigned i, expr const & lhs, expr const & rhs, buffer<optional<expr>> const & eqs) {
         if (i == eqs.size()) {
             return m_builder.mk_eq_refl(rhs);
@@ -156,6 +162,12 @@ struct congr_lemma_manager::imp {
                    << " failed to build proof (enable 'trace.app_builder' for details\n";);
     }
 
+    /** \brief Create a congruence lemma that is useful for the simplifier.
+        In this kind of lemma, if the i-th argument is a Cast argument, then the lemma
+        contains an input a_i representing the i-th argument in the left-hand-side, and
+        it appears with a cast (e.g., eq.drec ... a_i ...) in the right-hand-side.
+        The idea is that the right-hand-side of this lemma "tells" the simplifier
+        how the resulting term looks like. */
     optional<result> mk_congr_simp(expr const & fn, buffer<param_info> const & pinfos, buffer<congr_arg_kind> const & kinds) {
         try {
             expr fn_type = relaxed_whnf(infer(fn));
@@ -215,6 +227,13 @@ struct congr_lemma_manager::imp {
         }
     }
 
+    /** \brief Create a congruence lemma for the congruence closure module.
+        In this kind of lemma, if the i-th argument is a Cast argument, then the lemma
+        contains two inputs a_i and b_i representing the i-th argument in the left-hand-side and
+        right-hand-side.
+        This lemma is based on the congruence lemma for the simplifier.
+        It uses subsinglenton elimination to show that the congr-simp lemma right-hand-side
+        is equal to the right-hand-side of this lemma. */
     optional<result> mk_congr(expr const & fn, optional<result> const & simp_lemma,
                               buffer<param_info> const & pinfos, buffer<congr_arg_kind> const & kinds) {
         try {
@@ -318,11 +337,6 @@ public:
 
     type_context & ctx() { return m_ctx; }
 
-    optional<result> mk_congr_simp(expr const & fn) {
-        fun_info finfo = m_fmanager.get(fn);
-        return mk_congr_simp(fn, finfo.get_arity());
-    }
-
     optional<result> mk_congr_simp(expr const & fn, unsigned nargs) {
         auto r = m_simp_cache.find(key(fn, nargs));
         if (r != m_simp_cache.end())
@@ -381,9 +395,9 @@ public:
         }
     }
 
-    optional<result> mk_congr(expr const & fn) {
+    optional<result> mk_congr_simp(expr const & fn) {
         fun_info finfo = m_fmanager.get(fn);
-        return mk_congr(fn, finfo.get_arity());
+        return mk_congr_simp(fn, finfo.get_arity());
     }
 
     optional<result> mk_congr(expr const & fn, unsigned nargs) {
@@ -422,6 +436,20 @@ public:
         return new_r;
     }
 
+    optional<result> mk_congr(expr const & fn) {
+        fun_info finfo = m_fmanager.get(fn);
+        return mk_congr(fn, finfo.get_arity());
+    }
+
+    /** \brief Given an equivalence relation \c R, create the congruence lemma
+
+            forall a1 a2 b1 b2, R a1 a2 -> R b1 b2 -> (R a1 b1 <-> R a2 b2)
+
+        If is_iff == false, then, it creates the lemma
+
+            forall a1 a2 b1 b2, R a1 a2 -> R b1 b2 -> (R a1 b1 = R a2 b2)
+
+        Propositional extensionality is used when is_iff == false */
     optional<result> mk_rel_congr(expr const & R, bool is_iff) {
         try {
             if (!is_constant(R))

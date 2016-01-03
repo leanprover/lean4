@@ -277,22 +277,26 @@ optional<result> simplifier::cache_lookup(expr const & e) {
 
     unsigned i = 0;
     for_each(congr_lemma->get_arg_kinds(), [&](congr_arg_kind const & ckind) {
-            if (ckind != congr_arg_kind::Cast) {
-                lean_assert(new_args[i] == old_args[i]);
-            }
-            proof = mk_app(proof, new_args[i]);
-            type = instantiate(binding_body(type), new_args[i]);
+            lean_assert(ckind == congr_arg_kind::Cast || new_args[i] == old_args[i]);
             expr rfl;
             switch (ckind) {
             case congr_arg_kind::Fixed:
+                proof = mk_app(proof, new_args[i]);
+                type = instantiate(binding_body(type), new_args[i]);
+                break;
+            case congr_arg_kind::FixedNoParam:
                 break;
             case congr_arg_kind::Eq:
+                proof = mk_app(proof, new_args[i]);
+                type = instantiate(binding_body(type), new_args[i]);
                 rfl = get_app_builder().mk_eq_refl(old_args[i]);
                 proof = mk_app(proof, old_args[i], rfl);
                 type = instantiate(binding_body(type), old_args[i]);
                 type = instantiate(binding_body(type), rfl);
                 break;
             case congr_arg_kind::Cast:
+                proof = mk_app(proof, new_args[i]);
+                type = instantiate(binding_body(type), new_args[i]);
                 proof = mk_app(proof, old_args[i]);
                 type = instantiate(binding_body(type), old_args[i]);
                 break;
@@ -807,17 +811,30 @@ optional<result> simplifier::synth_congr(expr const & e, F && simp) {
     bool has_cast = false;
     buffer<expr> locals;
     for_each(congr_lemma->get_arg_kinds(), [&](congr_arg_kind const & ckind) {
-            proof = mk_app(proof, args[i]);
-            type = instantiate(binding_body(type), args[i]);
-            if (ckind == congr_arg_kind::Eq) {
-                result r_arg = simp(args[i]);
-                if (r_arg.has_proof()) has_proof = true;
-                r_arg = finalize(r_arg);
-                proof = mk_app(proof, r_arg.get_new(), r_arg.get_proof());
-                type = instantiate(binding_body(type), r_arg.get_new());
-                type = instantiate(binding_body(type), r_arg.get_proof());
-            } else if (ckind == congr_arg_kind::Cast) {
+            switch (ckind) {
+            case congr_arg_kind::Fixed:
+                proof = mk_app(proof, args[i]);
+                type = instantiate(binding_body(type), args[i]);
+                break;
+            case congr_arg_kind::FixedNoParam:
+                break;
+            case congr_arg_kind::Eq:
+                proof = mk_app(proof, args[i]);
+                type = instantiate(binding_body(type), args[i]);
+                {
+                    result r_arg = simp(args[i]);
+                    if (r_arg.has_proof()) has_proof = true;
+                    r_arg = finalize(r_arg);
+                    proof = mk_app(proof, r_arg.get_new(), r_arg.get_proof());
+                    type = instantiate(binding_body(type), r_arg.get_new());
+                    type = instantiate(binding_body(type), r_arg.get_proof());
+                }
+                break;
+            case congr_arg_kind::Cast:
+                proof = mk_app(proof, args[i]);
+                type = instantiate(binding_body(type), args[i]);
                 has_cast = true;
+                break;
             }
             i++;
         });

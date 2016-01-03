@@ -10,7 +10,15 @@ Author: Leonardo de Moura
 #include "library/fun_info_manager.h"
 
 namespace lean {
-enum class congr_arg_kind { Fixed, Eq, Cast };
+enum class congr_arg_kind {
+    Fixed,        /* It is a parameter for the congruence lemma, the parit occurs in the left and right hand sides. */
+    FixedNoParam, /* It is not a parameter for the congruence lemma, the lemma was specialized for this parameter.
+                     This only happens if the parameter is a subsingleton/proposition, and other parameters depend on it. */
+    Eq, /* The lemma contains three parameters for this kind of argument a_i, b_i and (eq_i : a_i = b_i).
+           a_i and b_i represent the left and right hand sides, and eq_i is a proof for their equality. */
+    Cast /* congr-simp lemma contains only one parameter for this kind of argument, and congr-lemmas contains two.
+            They correspond to arguments that are subsingletons/propositions. */
+};
 
 class congr_lemma {
     expr                 m_type;

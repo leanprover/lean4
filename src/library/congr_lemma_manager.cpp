@@ -199,6 +199,9 @@ struct congr_lemma_manager::imp {
                     rhss.push_back(lhs);
                     eqs.push_back(none_expr());
                     break;
+                case congr_arg_kind::FixedNoParam:
+                    lean_unreachable(); // TODO(Leo): not implemented yet
+                    break;
                 case congr_arg_kind::Cast: {
                     expr rhs_type = mlocal_type(lhs);
                     rhs_type = instantiate_rev(abstract_locals(rhs_type, lhss.size()-1, lhss.data()), rhss.size(), rhss.data());
@@ -273,6 +276,9 @@ struct congr_lemma_manager::imp {
                     rhs = lhs;
                     rhss.push_back(rhs);
                     eqs.push_back(none_expr());
+                    break;
+                case congr_arg_kind::FixedNoParam:
+                    lean_unreachable(); // TODO(Leo): not implemented yet
                     break;
                 case congr_arg_kind::Cast: {
                     rhs     = m_ctx.mk_tmp_local(binding_name(fn_type2), binding_domain(fn_type2));

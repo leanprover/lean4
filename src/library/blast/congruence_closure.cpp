@@ -192,6 +192,7 @@ static optional<ext_congr_lemma> to_ext_congr_lemma(name const & R, expr const &
     Rcs.resize(lhs_args.size(), optional<name>());
     r_hyps.resize(lhs_args.size(), none_expr());
     // Set Fixed args
+    // TODO(Leo): handle FixedNoParam case?
     for (unsigned i = 0; i < lhs_args.size(); i++) {
         if (lhs_args[i] == rhs_args[i])
             kinds[i] = congr_arg_kind::Fixed;
@@ -241,6 +242,9 @@ static optional<ext_congr_lemma> to_ext_congr_lemma(name const & R, expr const &
             return optional<ext_congr_lemma>();
         }
         switch (kinds[i]) {
+        case congr_arg_kind::FixedNoParam:
+            // TODO(Leo): revise this code
+            break;
         case congr_arg_kind::Fixed:
             break;
         case congr_arg_kind::Eq: {
@@ -431,6 +435,7 @@ int congruence_closure::congr_key_cmp::operator()(congr_key const & k1, congr_ke
                     if (r != 0) return r;
                     break;
                 case congr_arg_kind::Fixed:
+                case congr_arg_kind::FixedNoParam:
                     r = expr_quick_cmp()(args1[i], args2[i]);
                     if (r != 0) return r;
                     break;
@@ -491,6 +496,7 @@ auto congruence_closure::mk_congr_key(ext_congr_lemma const & lemma, expr const 
                     h = hash(h, get_root(*head(*it1), args[i]).hash());
                     break;
                 case congr_arg_kind::Fixed:
+                case congr_arg_kind::FixedNoParam:
                     h = hash(h, args[i].hash());
                     break;
                 case congr_arg_kind::Cast:
@@ -966,6 +972,8 @@ expr congruence_closure::mk_congr_proof_core(name const & R, expr const & lhs, e
                 break;
             case congr_arg_kind::Fixed:
                 lemma_args.push_back(lhs_args[i]);
+                break;
+            case congr_arg_kind::FixedNoParam:
                 break;
             case congr_arg_kind::Cast:
                 lemma_args.push_back(lhs_args[i]);

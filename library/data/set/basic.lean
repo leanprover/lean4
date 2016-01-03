@@ -563,14 +563,14 @@ section large_unions
   definition Union  : set X := {x : X | ∃i, x ∈ b i}
   definition Inter  : set X := {x : X | ∀i, x ∈ b i}
 
-  notation `⋃` binders, r:(scoped f, Union f) := r
-  notation `⋂` binders, r:(scoped f, Inter f) := r
+  notation `⋃` binders `, ` r:(scoped f, Union f) := r
+  notation `⋂` binders `, ` r:(scoped f, Inter f) := r
 
   definition bUnion : set X := {x : X | ∃₀ i ∈ a, x ∈ b i}
   definition bInter : set X := {x : X | ∀₀ i ∈ a, x ∈ b i}
 
-  notation `⋃` binders `∈` s, r:(scoped f, bUnion s f) := r
-  notation `⋂` binders `∈` s, r:(scoped f, bInter s f) := r
+  notation `⋃` binders ` ∈ ` s `, ` r:(scoped f, bUnion s f) := r
+  notation `⋂` binders ` ∈ ` s `, ` r:(scoped f, bInter s f) := r
 
 end large_unions
 

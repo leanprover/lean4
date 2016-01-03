@@ -15,7 +15,6 @@ mk : Π (id : Π (A : ob), mor A A),
 definition id (Cat : category) := category.rec (λ id idl, id) Cat
 constant Cat : category
 
-set_option unifier.computation true
 print "-----------------"
 theorem id_left (A : ob) (f : mor A A) : @eq (mor A A) (id Cat A) f :=
 @category.rec

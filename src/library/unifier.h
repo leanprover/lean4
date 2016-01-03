@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 unsigned get_unifier_max_steps(options const & opts);
-bool get_unifier_computation(options const & opts);
 
 bool is_simple_meta(expr const & e);
 expr mk_aux_metavar_for(name_generator & ngen, expr const & t);
@@ -38,7 +37,6 @@ struct unifier_config {
     bool     m_use_exceptions;
     unsigned m_max_steps;
     unsigned m_normalizer_max_steps;
-    bool     m_computation;
     bool     m_expensive_classes;
     // If m_discard is true, then constraints that cannot be solved are discarded (or incomplete methods are used)
     // If m_discard is false, unify returns the set of constraints that could not be handled.

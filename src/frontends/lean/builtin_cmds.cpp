@@ -715,9 +715,10 @@ static environment congr_cmd_core(parser & p, congr_kind kind) {
     for (auto k : r->get_arg_kinds()) {
         if (!first) out << ", "; else first = false;
         switch (k) {
-        case congr_arg_kind::Fixed: out << "fixed"; break;
-        case congr_arg_kind::Eq:    out << "eq";    break;
-        case congr_arg_kind::Cast:  out << "cast";  break;
+        case congr_arg_kind::Fixed:        out << "fixed"; break;
+        case congr_arg_kind::FixedNoParam: out << "fixed-noparm"; break;
+        case congr_arg_kind::Eq:           out << "eq";    break;
+        case congr_arg_kind::Cast:         out << "cast";  break;
         }
     }
     out << "]\n";

@@ -21,14 +21,14 @@ structure complete_lattice [class] (A : Type) extends lattice A :=
 (Sup_le : ∀ {b : A} {s : set A} (h : ∀ (a : A), a ∈ s → le a b), le (Sup s) b)
 
 -- Minimal complete_lattice definition based just on Inf.
--- We latet show that complete_lattice_Inf is a complete_lattice
+-- We later show that complete_lattice_Inf is a complete_lattice.
 structure complete_lattice_Inf [class] (A : Type) extends weak_order A :=
 (Inf : set A → A)
 (Inf_le : ∀ {a : A} {s : set A}, a ∈ s → le (Inf s) a)
 (le_Inf : ∀ {b : A} {s : set A}, (∀ (a : A), a ∈ s → le b a) → le b (Inf s))
 
 -- Minimal complete_lattice definition based just on Sup.
--- We later show that complete_lattice_Sup is a complete_lattice
+-- We later show that complete_lattice_Sup is a complete_lattice.
 structure complete_lattice_Sup [class] (A : Type) extends weak_order A :=
 (Sup : set A → A)
 (le_Sup : ∀ {a : A} {s : set A}, a ∈ s → le a (Sup s))

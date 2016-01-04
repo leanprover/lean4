@@ -744,6 +744,10 @@ bool type_context::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
     return false;
 }
 
+bool type_context::validate_assignment_types(expr const & m, expr const & v) {
+    return is_def_eq_core(infer_metavar(m), infer(v));
+}
+
 /** \brief Given \c ma of the form <tt>?m t_1 ... t_n</tt>, (try to) assign
     ?m to (an abstraction of) v. Return true if success and false otherwise. */
 bool type_context::process_assignment_core(expr const & ma, expr const & v) {
@@ -789,11 +793,8 @@ bool type_context::process_assignment_core(expr const & ma, expr const & v) {
 
     if (args.empty()) {
         // easy case
-        update_assignment(m, new_v);
-        return true;
     } else if (args.size() == locals.size()) {
-        update_assignment(m, Fun(locals, new_v));
-        return true;
+        new_v = Fun(locals, new_v);
     } else {
         // This case is imprecise since it is not a higher order pattern.
         // That the term \c ma is of the form (?m t_1 ... t_n) and the t_i's are not pairwise
@@ -810,9 +811,10 @@ bool type_context::process_assignment_core(expr const & ma, expr const & v) {
             m_type = instantiate(binding_body(m_type), locals[i]);
         }
         lean_assert(locals.size() == args.size());
-        update_assignment(m, Fun(locals, new_v));
-        return true;
+        new_v = Fun(locals, new_v);
     }
+    update_assignment(m, new_v);
+    return validate_assignment_types(m, new_v);
 }
 
 bool type_context::process_assignment(expr const & ma, expr const & v) {
@@ -1106,17 +1108,29 @@ expr type_context::infer_lambda(expr e) {
 
 optional<level> type_context::get_level_core(expr const & A) {
     expr A_type = relaxed_whnf(infer(A));
-    if (is_sort(A_type))
-        return some_level(sort_level(A_type));
-    else
-        return none_level();
+    while (true) {
+        if (is_sort(A_type)) {
+            return some_level(sort_level(A_type));
+        } else if (is_mvar(A_type)) {
+            if (auto v = get_assignment(A_type)) {
+                A_type = *v;
+            } else {
+                level r = mk_uvar();
+                update_assignment(A_type, mk_sort(r));
+                return some_level(r);
+            }
+        } else {
+            return none_level();
+        }
+    }
 }
 
 level type_context::get_level(expr const & A) {
-    if (auto r = get_level_core(A))
+    if (auto r = get_level_core(A)) {
         return *r;
-    else
+    } else {
         throw exception("infer type failed, sort expected");
+    }
 }
 
 expr type_context::infer_pi(expr const & e0) {
@@ -1864,6 +1878,13 @@ bool default_type_context::ignore_universe_def_eq(level const & l1, level const 
     } else {
         return false;
     }
+}
+
+bool default_type_context::validate_assignment_types(expr const &, expr const &) {
+    // We disable this check because the interface between type_context and the elaborator unifier
+    // is currently quite brittle.
+    // Recall that this class is used to implement the type class inference in the Lean frontend.
+    return true;
 }
 
 expr normalizer::normalize_binding(expr const & e) {

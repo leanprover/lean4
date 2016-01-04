@@ -406,6 +406,13 @@ public:
         whether all internal local constants in v occur in locals.
         The default implementation only checks that. */
     virtual bool validate_assignment(expr const & m, buffer<expr> const & locals, expr const & v);
+    /** \brief Given a metavariable and the value \c v that has already been abstracted.
+        Check if the types match.
+        \remark By checking the types we may be able to assign additional metavariables.
+        The default implementation is:
+
+        return is_def_eq_core(infer_metavar(m), infer(v)); */
+    virtual bool validate_assignment_types(expr const & m, expr const & v);
 
     /** \brief Return the type of a local constant (local or not).
         \remark This method allows the customer to store the type of local constants
@@ -596,6 +603,7 @@ public:
     virtual void pop() { lean_assert(!m_trail.empty()); m_assignment = m_trail.back(); m_trail.pop_back(); }
     virtual void commit() { lean_assert(!m_trail.empty()); m_trail.pop_back(); }
     virtual optional<expr> mk_subsingleton_instance(expr const & type);
+    virtual bool validate_assignment_types(expr const & m, expr const & v);
     // TODO(REMOVE)
     bool & get_ignore_if_zero() { return m_ignore_if_zero; }
 };

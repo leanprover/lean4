@@ -3,7 +3,7 @@ open set function eq.ops
 
 variables {X Y Z : Type}
 
-lemma image_compose (f : Y → X) (g : X → Y) (a : set X) : (f ∘ g) '[a] = f '[g '[a]] :=
+lemma image_compose (f : Y → X) (g : X → Y) (a : set X) : (f ∘ g) ' a = f ' (g ' a) :=
 ext (take z,
   iff.intro
     (assume Hz,

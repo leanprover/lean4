@@ -117,7 +117,6 @@ void initialize_replace_tactic() {
                  [](type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
                      return mk_replace_tactic(elab, e);
                  });
-
 }
 
 void finalize_replace_tactic() {

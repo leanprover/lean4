@@ -126,7 +126,7 @@ protected theorem le_antisymm (M N : sigma_algebra X) : M ≤ N → N ≤ M → 
 assume H1, assume H2,
 sigma_algebra.eq (subset.antisymm H1 H2)
 
-theorem generated_by_initial {G : set (set X)} {M : sigma_algebra X} (H : G ⊆ @sets X M) :
+protected theorem generated_by_initial {G : set (set X)} {M : sigma_algebra X} (H : G ⊆ @sets X M) :
   sigma_algebra.generated_by G ≤ M :=
 sets_generated_by_initial H
 

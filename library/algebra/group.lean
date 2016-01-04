@@ -423,6 +423,24 @@ section add_group
   theorem add_neg_eq_neg_add_rev {a b : A} : a + -b = -(b + -a) :=
   by simp
 
+  theorem ne_add_of_ne_zero_right (a : A) {b : A} (H : b ≠ 0) : a ≠ b + a :=
+    begin
+      intro Heq,
+      apply H,
+      rewrite [-zero_add a at Heq{1}],
+      let Heq' := eq_of_add_eq_add_right Heq,
+      apply eq.symm Heq'
+    end
+
+  theorem ne_add_of_ne_zero_left (a : A) {b : A} (H : b ≠ 0) : a ≠ a + b :=
+    begin
+      intro Heq,
+      apply H,
+      rewrite [-add_zero a at Heq{1}],
+      let Heq' := eq_of_add_eq_add_left Heq,
+      apply eq.symm Heq'
+    end
+
   /- sub -/
 
   -- TODO: derive corresponding facts for div in a field
@@ -439,6 +457,9 @@ section add_group
 
   theorem add_sub_cancel (a b : A) : a + b - b = a := !add_neg_cancel_right
 
+  theorem add_sub_assoc (a b c : A) : a + b - c = a + (b - c) :=
+    by rewrite [sub_eq_add_neg, add.assoc, -sub_eq_add_neg]
+
   theorem eq_of_sub_eq_zero {a b : A} (H : a - b = 0) : a = b :=
   assert -a + 0 = -a, by inst_simp,
   by inst_simp
@@ -450,6 +471,13 @@ section add_group
 
   theorem sub_zero (a : A) : a - 0 = a :=
   by simp
+
+  theorem sub_ne_zero_of_ne {a b : A} (H : a ≠ b) : a - b ≠ 0 :=
+    begin
+      intro Hab,
+      apply H,
+      apply eq_of_sub_eq_zero Hab
+    end
 
   theorem sub_neg_eq_add (a b : A) : a - (-b) = a + b :=
   by simp

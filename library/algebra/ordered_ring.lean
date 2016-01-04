@@ -77,6 +77,12 @@ section
     a * b < c * b : mul_lt_mul_of_pos_right Hac pos_b
       ... ≤ c * d : mul_le_mul_of_nonneg_left Hbd nn_c
 
+theorem mul_lt_mul' (a b c d : A) (H1 : a < c) (H2 : b < d) (H3 : b ≥ 0) (H4 : c > 0) :
+        a * b < c * d :=
+  calc
+    a * b ≤ c * b : mul_le_mul_of_nonneg_right (le_of_lt H1) H3
+      ... < c * d : mul_lt_mul_of_pos_left H2 H4
+
   theorem mul_pos {a b : A} (Ha : a > 0) (Hb : b > 0) : a * b > 0 :=
   begin
     have H : 0 * b < a * b, from mul_lt_mul_of_pos_right Ha Hb,

@@ -106,3 +106,35 @@ section
   theorem sup_eq_right {a b : A} (H : a ≤ b) : a ⊔ b = b :=
   eq.subst !sup.comm (sup_eq_left H)
 end
+
+/- lattice instances  -/
+
+definition lattice_Prop [instance] : lattice Prop :=
+⦃ lattice, weak_order_Prop,
+  inf          := and,
+  le_inf       := take a b c Ha Hb Hc, and.intro (Ha Hc) (Hb Hc),
+  inf_le_left  := @and.elim_left,
+  inf_le_right := @and.elim_right,
+  sup          := or,
+  sup_le       := @or.rec,
+  le_sup_left  := @or.intro_left,
+  le_sup_right := @or.intro_right
+⦄
+
+definition lattice_fun [instance] {A B : Type} [lattice B] : lattice (A → B) :=
+⦃ lattice, weak_order_fun,
+  inf          := λf g x, inf (f x) (g x),
+  le_inf       := take f g h Hf Hg x, le_inf (Hf x) (Hg x),
+  inf_le_left  := take f g x, !inf_le_left,
+  inf_le_right := take f g x, !inf_le_right,
+  sup          := λf g x, sup (f x) (g x),
+  sup_le       := take f g h Hf Hg x, sup_le (Hf x) (Hg x),
+  le_sup_left  := take f g x, !le_sup_left,
+  le_sup_right := take t g x, !le_sup_right
+⦄
+
+/-
+  Should we add a trans-instance from total orders to lattices?
+  If we added we should add it with lower priority:
+    Prop is added as a lattice, but in the classical case it is a total order!
+-/

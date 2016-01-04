@@ -64,6 +64,54 @@ theorem bounded_exists.intro {P : X → Prop} {s : set X} {x : X} (xs : x ∈ s)
   ∃₀ x ∈ s, P x :=
 exists.intro x (and.intro xs Px)
 
+lemma bounded_forall_congr {A : Type} {S : set A} {P Q : A → Prop} (H : ∀₀ x∈S, P x ↔ Q x) :
+  (∀₀ x ∈ S, P x) = (∀₀ x ∈ S, Q x) :=
+begin
+  apply propext,
+  apply forall_congr,
+  intros x,
+  apply imp_congr_right,
+  apply H
+end
+
+lemma bounded_exists_congr {A : Type} {S : set A} {P Q : A → Prop} (H : ∀₀ x∈S, P x ↔ Q x) :
+  (∃₀ x ∈ S, P x) = (∃₀ x ∈ S, Q x) :=
+begin
+  apply propext,
+  apply exists_congr,
+  intros x,
+  apply and_congr_right,
+  apply H
+end
+
+section
+  open classical
+
+  lemma not_bounded_exists {A : Type} {S : set A} {P : A → Prop} :
+    (¬ (∃₀ x ∈ S, P x)) = (∀₀ x ∈ S, ¬ P x) :=
+  begin
+    rewrite forall_iff_not_exists,
+    apply propext,
+    apply forall_congr,
+    intro x,
+    rewrite not_and_iff_not_or_not,
+    rewrite imp_iff_not_or
+  end
+
+  lemma not_bounded_forall {A : Type} {S : set A} {P : A → Prop} :
+    (¬ (∀₀ x ∈ S, P x)) = (∃₀ x ∈ S, ¬ P x) :=
+  calc (¬ (∀₀ x ∈ S, P x)) = ¬ ¬ (∃₀ x ∈ S, ¬ P x) :
+    begin
+      rewrite not_bounded_exists,
+      apply (congr_arg not),
+      apply bounded_forall_congr,
+      intros x H,
+      rewrite not_not_iff
+    end
+    ... = (∃₀ x ∈ S, ¬ P x) : by (rewrite not_not_iff)
+
+end
+
 /- empty set -/
 
 definition empty : set X := λx, false
@@ -94,6 +142,10 @@ subset.antisymm H (empty_subset s)
 
 theorem subset_empty_iff (s : set X) : s ⊆ ∅ ↔ s = ∅ :=
 iff.intro eq_empty_of_subset_empty (take xeq, by rewrite xeq; apply subset.refl ∅)
+
+lemma bounded_forall_empty_iff {P : X → Prop} :
+  (∀₀x∈∅, P x) ↔ true :=
+iff.intro (take H, true.intro) (take H, by contradiction)
 
 /- universal set -/
 
@@ -286,6 +338,18 @@ theorem forall_of_forall_insert {P : X → Prop} {a : X} {s : set X}
     (H : ∀ x, x ∈ insert a s → P x) :
   ∀ x, x ∈ s → P x :=
 λ x xs, H x (!mem_insert_of_mem xs)
+
+lemma forall_insert_iff {P : X → Prop} {a : X} {s : set X} :
+  (∀₀x ∈ insert a s, P x) ↔ P a ∧ (∀₀x ∈ s, P x) :=
+begin
+  apply iff.intro, all_goals (intro H),
+  { apply and.intro,
+    { apply H, apply mem_insert },
+    { intro x Hx, apply H, apply mem_insert_of_mem, assumption } },
+  { intro x Hx, cases Hx with eq Hx,
+    { cases eq, apply (and.elim_left H) },
+    { apply (and.elim_right H), assumption } }
+end
 
 /- singleton -/
 
@@ -521,7 +585,44 @@ theorem complement_complement_image (S : set (set X)) :
   complement ' (complement ' S) = S :=
 by rewrite [-image_compose, complement_compose_complement, image_id]
 
+lemma forall_image_implies_forall {f : X → Y} {S : set X} {P : Y → Prop} (H : ∀₀ x ∈ S, P (f x)) :
+  ∀₀ y ∈ f ' S, P y :=
+begin
+  intro x' Hx;
+  cases Hx with x Hx;
+  cases Hx with Hx eq;
+  rewrite (eq⁻¹);
+  apply H;
+  assumption
+end
+
+lemma forall_image_iff {f : X → Y} {S : set X} {P : Y → Prop} :
+  (∀₀ y ∈ f ' S, P y) ↔ (∀₀ x ∈ S, P (f x)) :=
+iff.intro (take H x Hx, H _ (!mem_image_of_mem `x ∈ S`)) forall_image_implies_forall
+
+lemma image_insert_eq {f : X → Y} {a : X} {S : set X} :
+  f ' insert a S = insert (f a) (f ' S) :=
+begin
+  apply set.ext,
+  intro x, apply iff.intro, all_goals (intros H),
+  { cases H with y Hy, cases Hy with Hy eq, rewrite (eq⁻¹), cases Hy with y_eq,
+    { rewrite y_eq, apply mem_insert },
+    { apply mem_insert_of_mem, apply mem_image_of_mem, assumption } },
+  { cases H with eq Hx,
+    { rewrite eq, apply mem_image_of_mem, apply mem_insert },
+    { cases Hx with y Hy, cases Hy with Hy eq,
+      rewrite (eq⁻¹), apply mem_image_of_mem, apply mem_insert_of_mem, assumption } }
+end
+
 end image
+
+/- function pre image  -/
+
+definition preimage {A B:Type} (f : A → B) (Y : set B) : set A := { x | f x ∈ Y }
+
+lemma image_subset_iff {A B : Type} {f : A → B} {X : set A} {Y : set B} :
+  f ' X ⊆ Y ↔ X ⊆ preimage f Y :=
+@forall_image_iff A B f X Y
 
 /- collections of disjoint sets -/
 

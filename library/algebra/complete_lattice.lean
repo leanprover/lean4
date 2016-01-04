@@ -270,3 +270,92 @@ have le₂ : ⨅ univ ≤ ⨆ (∅ : set A), from
 le.antisymm le₁ le₂
 
 end complete_lattice
+
+/- complete lattice instances  -/
+
+section
+open eq.ops complete_lattice
+
+definition complete_lattice_fun [instance] {A B : Type} [complete_lattice B] :
+    complete_lattice (A → B) :=
+⦃ complete_lattice, lattice_fun,
+  Inf := λS x, Inf ((λf, f x) ' S),
+  le_Inf := take f S H x,
+    le_Inf (take y Hy, obtain g `g ∈ S` `g x = y`, from Hy, `g x = y` ▸ H g `g ∈ S` x),
+  Inf_le := take f S `f ∈ S` x,
+    Inf_le (exists.intro f (and.intro `f ∈ S` rfl)),
+  Sup := λS x, Sup ((λf, f x) ' S),
+  le_Sup := take f S `f ∈ S` x,
+    le_Sup (exists.intro f (and.intro `f ∈ S` rfl)),
+  Sup_le := take f S H x,
+    Sup_le (take y Hy, obtain g `g ∈ S` `g x = y`, from Hy, `g x = y` ▸ H g `g ∈ S` x)
+⦄
+
+section
+open classical -- Prop and set are only in the classical setting a complete lattice
+
+definition complete_lattice_Prop [instance] : complete_lattice Prop :=
+⦃ complete_lattice, lattice_Prop,
+  Inf := λS, false ∉ S,
+  le_Inf := take x S H Hx Hf,
+    H _ Hf Hx,
+  Inf_le := take x S Hx Hf,
+    (classical.cases_on x (take x, true.intro) Hf) Hx,
+  Sup := λS, true ∈ S,
+  le_Sup := take x S Hx H,
+    iff_subst (iff.intro (take H, true.intro) (take H', H)) Hx,
+  Sup_le := take x S H Ht,
+    H _ Ht true.intro
+⦄
+
+lemma sInter_eq_fun_Inf {A : Type} (S : set (set A)) : ⋂₀ S = @Inf (A → Prop) _ S :=
+funext (take x,
+  calc
+    (⋂₀ S) x = ∀₀ P ∈ S, P x : rfl
+    ... = ¬ (∃₀ P ∈ S, P x = false) :
+    begin
+      rewrite not_bounded_exists,
+      apply bounded_forall_congr,
+      intros,
+      rewrite eq_false,
+      rewrite not_not_iff
+    end
+    ... = @Inf (A → Prop) _ S x : rfl)
+
+lemma sUnion_eq_fun_Sup {A : Type} (S : set (set A)) : ⋃₀ S = @Sup (A → Prop) _ S :=
+funext (take x,
+  calc
+    (⋃₀ S) x = ∃₀ P ∈ S, P x : rfl
+    ... = (∃₀ P ∈ S, P x = true) :
+    begin 
+      apply bounded_exists_congr,
+      intros,
+      rewrite eq_true
+    end
+    ... = @Sup (A → Prop) _ S x : rfl)
+
+definition complete_lattice_set [instance] {A : Type} : complete_lattice (set A) :=
+⦃ complete_lattice,
+  le := subset,
+  le_refl := @le_refl (A → Prop) _,
+  le_trans := @le_trans (A → Prop) _,
+  le_antisymm := @le_antisymm (A → Prop) _,
+  inf := inter,
+  sup := union,
+  inf_le_left := @inf_le_left (A → Prop) _,
+  inf_le_right := @inf_le_right (A → Prop) _,
+  le_inf := @le_inf (A → Prop) _,
+  le_sup_left := @le_sup_left (A → Prop) _,
+  le_sup_right := @le_sup_right (A → Prop) _,
+  sup_le := @sup_le (A → Prop) _,
+  Inf := sInter,
+  Sup := sUnion,
+  le_Inf := begin intros X S H, rewrite sInter_eq_fun_Inf, apply (@le_Inf (A → Prop) _), exact H end,
+  Inf_le := begin intros X S H, rewrite sInter_eq_fun_Inf, apply (@Inf_le (A → Prop) _), exact H end,
+  le_Sup := begin intros X S H, rewrite sUnion_eq_fun_Sup, apply (@le_Sup (A → Prop) _), exact H end,
+  Sup_le := begin intros X S H, rewrite sUnion_eq_fun_Sup, apply (@Sup_le (A → Prop) _), exact H end
+⦄
+
+end
+
+end

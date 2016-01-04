@@ -159,6 +159,18 @@ propext (iff.intro
   (assume H, eq.of_iff H)
   (assume H, iff.of_eq H))
 
+lemma eq_false {a : Prop} : (a = false) = (¬ a) :=
+begin
+  rewrite ((@iff_eq_eq a false)⁻¹),
+  rewrite iff_false
+end
+
+lemma eq_true {a : Prop} : (a = true) = a :=
+begin
+  rewrite ((@iff_eq_eq a true)⁻¹),
+  rewrite iff_true
+end
+
 end aux
 
 /- All propositions are decidable -/

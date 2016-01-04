@@ -434,3 +434,35 @@ section
     (assume H : a ≤ b, by rewrite (max_eq_right H); apply H₂)
     (assume H : a > b, by rewrite (max_eq_left_of_lt H); apply H₁)
 end
+
+/- order instances -/
+
+definition weak_order_Prop [instance] : weak_order Prop :=
+⦃ weak_order,
+  le           := λx y, x → y,
+  le_refl      := λx, id,
+  le_trans     := λa b c H1 H2 x, H2 (H1 x),
+  le_antisymm  := λf g H1 H2, propext (and.intro H1 H2)
+⦄
+
+definition weak_order_fun [instance] {A B : Type} [weak_order B] : weak_order (A → B) :=
+⦃ weak_order,
+  le := λx y, ∀b, x b ≤ y b,
+  le_refl := λf b, !le.refl,
+  le_trans := λf g h H1 H2 b, !le.trans (H1 b) (H2 b),
+  le_antisymm := λf g H1 H2, funext (λb, !le.antisymm (H1 b) (H2 b))
+⦄
+
+definition weak_order_dual {A : Type} (wo : weak_order A) : weak_order A :=
+⦃ weak_order,
+  le := λx y, y ≤ x,
+  le_refl := le.refl,
+  le_trans := take a b c `b ≤ a` `c ≤ b`, le.trans `c ≤ b` `b ≤ a`,
+  le_antisymm := take a b `b ≤ a` `a ≤ b`, le.antisymm `a ≤ b` `b ≤ a` ⦄
+
+lemma dual {A : Type} (wo : weak_order A) (a b : A) :
+  @le _ (@weak_order.to_has_le _ (weak_order_dual wo)) a b =
+  @le _ (@weak_order.to_has_le _ wo) b a :=
+rfl
+
+-- what to do with the strict variants?

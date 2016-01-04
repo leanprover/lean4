@@ -342,6 +342,11 @@ iff.intro
   (λHab Hc, iff.mp H2 (Hab (iff.mpr H1 Hc)))
   (λHcd Ha, iff.mpr H2 (Hcd (iff.mp H1 Ha)))
 
+theorem imp_congr_right (H : a → (b ↔ c)) : (a → b) ↔ (a → c) :=
+iff.intro
+  (take Hab Ha, iff.elim_left (H Ha) (Hab Ha))
+  (take Hab Ha, iff.elim_right (H Ha) (Hab Ha))
+
 theorem not_not_intro (Ha : a) : ¬¬a :=
 assume Hna : ¬a, Hna Ha
 
@@ -391,6 +396,11 @@ and.rec (λHa Hb, and.intro (H₂ Ha) (H₃ Hb))
 
 theorem and_congr [congr] (H1 : a ↔ c) (H2 : b ↔ d) : (a ∧ b) ↔ (c ∧ d) :=
 iff.intro (and.imp (iff.mp H1) (iff.mp H2)) (and.imp (iff.mpr H1) (iff.mpr H2))
+
+theorem and_congr_right (H : a → (b ↔ c)) : (a ∧ b) ↔ (a ∧ c) :=
+iff.intro
+  (take Hab, obtain `a` `b`, from Hab, and.intro `a` (iff.elim_left (H `a`) `b`))
+  (take Hac, obtain `a` `c`, from Hac, and.intro `a` (iff.elim_right (H `a`) `c`))
 
 theorem and.comm [simp] : a ∧ b ↔ b ∧ a :=
 iff.intro and.swap and.swap

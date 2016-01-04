@@ -33,6 +33,7 @@ Author: Leonardo de Moura
 #include "library/tactic/location.h"
 #include "library/tactic/with_options_tactic.h"
 #include "library/tactic/norm_num_tactic.h"
+#include "library/tactic/replace_tactic.h"
 
 namespace lean {
 void initialize_tactic_module() {
@@ -64,6 +65,7 @@ void initialize_tactic_module() {
     initialize_location();
     initialize_with_options_tactic();
     initialize_norm_num_tactic();
+    initialize_replace_tactic();
 }
 
 void finalize_tactic_module() {
@@ -95,5 +97,6 @@ void finalize_tactic_module() {
     finalize_apply_tactic();
     finalize_expr_to_tactic();
     finalize_proof_state();
+    finalize_replace_tactic();
 }
 }

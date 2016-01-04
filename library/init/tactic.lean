@@ -96,6 +96,7 @@ definition trace      (s : string)       : tactic := builtin
 definition rewrite_tac  (e : expr_list) : tactic := builtin
 definition xrewrite_tac (e : expr_list) : tactic := builtin
 definition krewrite_tac (e : expr_list) : tactic := builtin
+definition replace (old : expr) (new : with_expr) (loc : location) : tactic := builtin
 
 -- Arguments:
 --  - ls : lemmas to be used (if not provided, then blast will choose them)
@@ -161,3 +162,4 @@ end tactic
 tactic_infixl `;`:15 := tactic.and_then
 tactic_notation T1 `:`:15 T2 := tactic.focus (tactic.and_then T1 (tactic.all_goals T2))
 tactic_notation `(` h `|` r:(foldl `|` (e r, tactic.or_else r e) h) `)` := r
+--tactic_notation `replace` s `with` t := tactic.replace_tac s t

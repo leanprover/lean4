@@ -1,0 +1,35 @@
+replace_tac.lean:7:0: error: 1 unsolved subgoal
+H : false
+⊢ succ 0 + 1 = 2
+replace_tac.lean:7:0: error: failed to add declaration 'example' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  ?M_1
+replace_tac.lean:11:2: error:invalid 'replace' tactic, the new type
+  succ 1
+does not match the old type
+  1
+proof state:
+H : false
+⊢ 1 + 1 = 2
+replace_tac.lean:12:0: error: don't know how to synthesize placeholder
+H : false
+⊢ 1 + 1 = 2
+replace_tac.lean:12:0: error: failed to add declaration 'example' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  ?M_1
+replace_tac.lean:18:2: error:replacing in hypotheses not implemented
+proof state:
+h : true
+⊢ foo 2 = bar 2
+replace_tac.lean:20:0: error: don't know how to synthesize placeholder
+h : true
+⊢ foo 2 = bar 2
+replace_tac.lean:20:0: error: failed to add declaration 'example' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  ?M_1
+replace_tac.lean:26:0: error: 1 unsolved subgoal
+
+⊢ f 4 = p
+replace_tac.lean:26:0: error: failed to add declaration 'example' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  ?M_1

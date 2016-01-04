@@ -34,8 +34,8 @@ theorem Open_sUnion {S : set (set X)} (H : ∀₀ t ∈ S, Open t) : Open (⋃�
 sUnion_mem_opens H
 
 theorem Open_Union {I : Type} {s : I → set X} (H : ∀ i, Open (s i)) : Open (⋃ i, s i) :=
-have ∀₀ t ∈ s '[univ], Open t,
-  from take t, suppose t ∈ s '[univ],
+have ∀₀ t ∈ s ' univ, Open t,
+  from take t, suppose t ∈ s ' univ,
     obtain i [univi (Hi : s i = t)], from this,
     show Open t, by rewrite -Hi; exact H i,
 using this, by rewrite Union_eq_sUnion_image; apply Open_sUnion this

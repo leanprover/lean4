@@ -75,9 +75,9 @@ theorem hom_map_inv (a : A) : f a⁻¹ = (f a)⁻¹ :=
         assert P3 : (f a⁻¹) * (f a) = (f a)⁻¹ * (f a), from eq.symm (mul.left_inv (f a)) ▸ P2,
         mul_right_cancel P3
 
-theorem hom_map_mul_closed (H : set A) : mul_closed_on H → mul_closed_on (f '[H]) :=
+theorem hom_map_mul_closed (H : set A) : mul_closed_on H → mul_closed_on (f ' H) :=
         assume Pclosed, assume b1, assume b2,
-        assume Pb1 : b1 ∈ f '[ H], assume Pb2 : b2 ∈ f '[ H],
+        assume Pb1 : b1 ∈ f ' H, assume Pb2 : b2 ∈ f ' H,
         obtain a1 (Pa1 : a1 ∈ H ∧ f a1 = b1), from Pb1,
         obtain a2 (Pa2 : a2 ∈ H ∧ f a2 = b2), from Pb2,
         assert Pa1a2 : a1 * a2 ∈ H, from Pclosed a1 a2 (and.left Pa1) (and.left Pa2),
@@ -115,14 +115,14 @@ variable {H : set A}
 variable [is_subgH : is_subgroup H]
 include is_subgH
 
-theorem hom_map_subgroup : is_subgroup (f '[H]) :=
-  have Pone : 1 ∈ f '[H], from mem_image (@subg_has_one _ _ H _) (hom_map_one f),
-  have Pclosed : mul_closed_on (f '[H]), from hom_map_mul_closed f H subg_mul_closed,
-  assert Pinv : ∀ b, b ∈ f '[H] → b⁻¹ ∈ f '[H], from
+theorem hom_map_subgroup : is_subgroup (f ' H) :=
+  have Pone : 1 ∈ f ' H, from mem_image (@subg_has_one _ _ H _) (hom_map_one f),
+  have Pclosed : mul_closed_on (f ' H), from hom_map_mul_closed f H subg_mul_closed,
+  assert Pinv : ∀ b, b ∈ f ' H → b⁻¹ ∈ f ' H, from
   assume b, assume Pimg,
   obtain a (Pa : a ∈ H ∧ f a = b), from Pimg,
   assert Painv : a⁻¹ ∈ H, from subg_has_inv a (and.left Pa),
-  assert Pfainv : (f a)⁻¹ ∈ f '[H], from mem_image Painv (hom_map_inv f a),
+  assert Pfainv : (f a)⁻¹ ∈ f ' H, from mem_image Painv (hom_map_inv f a),
     and.right Pa ▸ Pfainv,
   is_subgroup.mk Pone Pclosed Pinv
 end

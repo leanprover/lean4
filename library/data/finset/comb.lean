@@ -20,7 +20,8 @@ definition image (f : A → B) (s : finset A) : finset B :=
 quot.lift_on s
   (λ l, to_finset (list.map f (elt_of l)))
   (λ l₁ l₂ p, quot.sound (perm_erase_dup_of_perm (perm_map _ p)))
-notation [priority finset.prio] f `'[`:max a `]` := image f a
+
+infix [priority finset.prio] `'` := image
 
 theorem image_empty (f : A → B) : image f ∅ = ∅ :=
 rfl
@@ -87,9 +88,9 @@ ext (take z, iff.intro
     obtain x (Hx : x ∈ s) (Hgx : g x = y), from exists_of_mem_image Hy,
     mem_image Hx (by esimp; rewrite [Hgx, Hfy])))
 
-lemma image_subset {a b : finset A} (f : A → B) (H : a ⊆ b) : f '[a] ⊆ f '[b] :=
+lemma image_subset {a b : finset A} (f : A → B) (H : a ⊆ b) : f ' a ⊆ f ' b :=
 subset_of_forall
-  (take y, assume Hy : y ∈ f '[a],
+  (take y, assume Hy : y ∈ f ' a,
     obtain x (Hx₁ : x ∈ a) (Hx₂ : f x = y), from exists_of_mem_image Hy,
     mem_image (mem_of_subset_of_mem H Hx₁) Hx₂)
 

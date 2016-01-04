@@ -17,8 +17,8 @@ variable [s : semigroup A]
 include s
 definition lmul (a : A) := λ x, a * x
 definition rmul (a : A) := λ x, x * a
-definition l a (S : set A) := (lmul a) '[S]
-definition r a (S : set A) := (rmul a) '[S]
+definition l a (S : set A) := (lmul a) ' S
+definition r a (S : set A) := (rmul a) ' S
 lemma lmul_compose : ∀ (a b : A), (lmul a) ∘ (lmul b) = lmul (a*b) :=
       take a, take b,
       funext (assume x, by
@@ -28,11 +28,11 @@ lemma rmul_compose : ∀ (a b : A), (rmul a) ∘ (rmul b) = rmul (b*a) :=
       funext (assume x, by
         rewrite [↑function.compose, ↑rmul, mul.assoc])
 lemma lcompose a b (S : set A) : l a (l b S) = l (a*b) S :=
-      calc (lmul a) '[(lmul b) '[S]] = ((lmul a) ∘ (lmul b)) '[S] : image_compose
-      ... = lmul (a*b) '[S] : lmul_compose
+      calc (lmul a) ' ((lmul b) ' S) = ((lmul a) ∘ (lmul b)) ' S : image_compose
+      ... = lmul (a*b) ' S : lmul_compose
 lemma rcompose a b (S : set A) : r a (r b S) = r (b*a) S :=
-      calc (rmul a) '[(rmul b) '[S]] = ((rmul a) ∘ (rmul b)) '[S] : image_compose
-      ... = rmul (b*a) '[S] : rmul_compose
+      calc (rmul a) ' ((rmul b) ' S) = ((rmul a) ∘ (rmul b)) ' S : image_compose
+      ... = rmul (b*a) ' S : rmul_compose
 lemma l_sub a (S H : set A) : S ⊆ H → (l a S) ⊆ (l a H) := image_subset (lmul a)
 definition l_same S (a b : A) := l a S = l b S
 definition r_same S (a b : A) := r a S = r b S

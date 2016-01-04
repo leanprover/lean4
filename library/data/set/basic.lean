@@ -437,10 +437,10 @@ abbreviation eq_on (f1 f2 : X → Y) (a : set X) : Prop :=
 ∀₀ x ∈ a, f1 x = f2 x
 
 definition image (f : X → Y) (a : set X) : set Y := {y : Y | ∃x, x ∈ a ∧ f x = y}
-notation f `'[`:max a `]` := image f a
+infix `'` := image
 
 theorem image_eq_image_of_eq_on {f1 f2 : X → Y} {a : set X} (H1 : eq_on f1 f2 a) :
-  f1 '[a] = f2 '[a] :=
+  f1 ' a = f2 ' a :=
 ext (take y, iff.intro
   (assume H2,
     obtain x (H3 : x ∈ a ∧ f1 x = y), from H2,
@@ -454,26 +454,26 @@ ext (take y, iff.intro
     exists.intro x (and.intro H4 H5)))
 
 theorem mem_image {f : X → Y} {a : set X} {x : X} {y : Y}
-  (H1 : x ∈ a) (H2 : f x = y) : y ∈ f '[a] :=
+  (H1 : x ∈ a) (H2 : f x = y) : y ∈ f ' a :=
 exists.intro x (and.intro H1 H2)
 
 theorem mem_image_of_mem (f : X → Y) {x : X} {a : set X} (H : x ∈ a) : f x ∈ image f a :=
 mem_image H rfl
 
-lemma image_compose (f : Y → Z) (g : X → Y) (a : set X) : (f ∘ g) '[a] = f '[g '[a]] :=
+lemma image_compose (f : Y → Z) (g : X → Y) (a : set X) : (f ∘ g) ' a = f ' (g ' a) :=
 ext (take z,
   iff.intro
-    (assume Hz : z ∈ (f ∘ g) '[a],
+    (assume Hz : z ∈ (f ∘ g) ' a,
       obtain x (Hx₁ : x ∈ a) (Hx₂ : f (g x) = z), from Hz,
-      have Hgx : g x ∈ g '[a], from mem_image Hx₁ rfl,
-      show z ∈ f '[g '[a]], from mem_image Hgx Hx₂)
-    (assume Hz : z ∈ f '[g '[a]],
-      obtain y (Hy₁ : y ∈ g '[a]) (Hy₂ : f y = z), from Hz,
+      have Hgx : g x ∈ g ' a, from mem_image Hx₁ rfl,
+      show z ∈ f ' (g ' a), from mem_image Hgx Hx₂)
+    (assume Hz : z ∈ f ' (g 'a),
+      obtain y (Hy₁ : y ∈ g ' a) (Hy₂ : f y = z), from Hz,
       obtain x (Hz₁ : x ∈ a) (Hz₂ : g x = y),      from Hy₁,
-      show z ∈ (f ∘ g) '[a], from mem_image Hz₁ (Hz₂⁻¹ ▸ Hy₂)))
+      show z ∈ (f ∘ g) ' a, from mem_image Hz₁ (Hz₂⁻¹ ▸ Hy₂)))
 
-lemma image_subset {a b : set X} (f : X → Y) (H : a ⊆ b) : f '[a] ⊆ f '[b] :=
-take y, assume Hy : y ∈ f '[a],
+lemma image_subset {a b : set X} (f : X → Y) (H : a ⊆ b) : f ' a ⊆ f ' b :=
+take y, assume Hy : y ∈ f ' a,
 obtain x (Hx₁ : x ∈ a) (Hx₂ : f x = y), from Hy,
 mem_image (H Hx₁) Hx₂
 
@@ -501,24 +501,24 @@ eq_empty_of_forall_not_mem
     H)
 
 theorem mem_image_complement (t : set X) (S : set (set X)) :
-  t ∈ complement '[S] ↔ -t ∈ S :=
+  t ∈ complement ' S ↔ -t ∈ S :=
 iff.intro
-  (suppose t ∈ complement '[S],
+  (suppose t ∈ complement ' S,
     obtain t' [(Ht' : t' ∈ S) (Ht : -t' = t)], from this,
     show -t ∈ S, by rewrite [-Ht, comp_comp]; exact Ht')
   (suppose -t ∈ S,
-    have -(-t) ∈ complement '[S], from mem_image_of_mem complement this,
-    show t ∈ complement '[S], from comp_comp t ▸ this)
+    have -(-t) ∈ complement 'S, from mem_image_of_mem complement this,
+    show t ∈ complement 'S, from comp_comp t ▸ this)
 
-theorem image_id (s : set X) : id '[s] = s :=
+theorem image_id (s : set X) : id ' s = s :=
 ext (take x, iff.intro
-  (suppose x ∈ id '[s],
+  (suppose x ∈ id ' s,
     obtain x' [(Hx' : x' ∈ s) (x'eq : x' = x)], from this,
     show x ∈ s, by rewrite [-x'eq]; apply Hx')
   (suppose x ∈ s, mem_image_of_mem id this))
 
 theorem complement_complement_image (S : set (set X)) :
-  complement '[complement '[S]] = S :=
+  complement ' (complement ' S) = S :=
 by rewrite [-image_compose, complement_compose_complement, image_id]
 
 end image
@@ -648,30 +648,30 @@ theorem sInter_insert (s : set X) (T : set (set X)) :
 by rewrite [insert_eq, sInter_union, sInter_singleton]
 
 theorem comp_sUnion (S : set (set X)) :
-  - ⋃₀ S = ⋂₀ (complement '[S]) :=
+  - ⋃₀ S = ⋂₀ (complement ' S) :=
 ext (take x, iff.intro
   (assume H : x ∈ -(⋃₀ S),
-    take t, suppose t ∈ complement '[S],
+    take t, suppose t ∈ complement ' S,
     obtain t' [(Ht' : t' ∈ S) (Ht : -t' = t)], from this,
     have x ∈ -t', from suppose x ∈ t', H (mem_sUnion this Ht'),
     show x ∈ t, using this, by rewrite -Ht; apply this)
-  (assume H : x ∈ ⋂₀ (complement '[S]),
+  (assume H : x ∈ ⋂₀ (complement ' S),
     suppose x ∈ ⋃₀ S,
     obtain t [(tS : t ∈ S) (xt : x ∈ t)], from this,
-    have -t ∈ complement '[S], from mem_image_of_mem complement tS,
+    have -t ∈ complement ' S, from mem_image_of_mem complement tS,
     have x ∈ -t, from H this,
     show false, proof this xt qed))
 
 theorem sUnion_eq_comp_sInter_comp (S : set (set X)) :
-  ⋃₀ S = - ⋂₀ (complement '[S]) :=
+  ⋃₀ S = - ⋂₀ (complement ' S) :=
 by rewrite [-comp_comp, comp_sUnion]
 
 theorem comp_sInter (S : set (set X)) :
-  - ⋂₀ S = ⋃₀ (complement '[S]) :=
+  - ⋂₀ S = ⋃₀ (complement ' S) :=
 by rewrite [sUnion_eq_comp_sInter_comp, complement_complement_image]
 
 theorem sInter_eq_comp_sUnion_comp (S : set (set X)) :
-   ⋂₀ S = -(⋃₀ (complement '[S])) :=
+   ⋂₀ S = -(⋃₀ (complement ' S)) :=
 by rewrite [-comp_comp, comp_sInter]
 
 -- Union and Inter: a family of sets indexed by a type
@@ -685,26 +685,26 @@ show x ∈ c, from H i Hi
 theorem subset_Inter {I : Type} {b : I → set X} {c : set X} (H : ∀ i, c ⊆ b i) : c ⊆ ⋂ i, b i :=
 λ x cx i, H i cx
 
-theorem Union_eq_sUnion_image {X I : Type} (s : I → set X) : (⋃ i, s i) = ⋃₀ (s '[univ]) :=
+theorem Union_eq_sUnion_image {X I : Type} (s : I → set X) : (⋃ i, s i) = ⋃₀ (s ' univ) :=
 ext (take x, iff.intro
   (suppose x ∈ Union s,
     obtain i (Hi : x ∈ s i), from this,
     mem_sUnion Hi (mem_image_of_mem s trivial))
-  (suppose x ∈ sUnion (s '[univ]),
-    obtain t [(Ht : t ∈ s '[univ]) (Hx : x ∈ t)], from this,
+  (suppose x ∈ sUnion (s ' univ),
+    obtain t [(Ht : t ∈ s ' univ) (Hx : x ∈ t)], from this,
     obtain i [univi (Hi : s i = t)], from Ht,
     exists.intro i (show x ∈ s i, by rewrite Hi; apply Hx)))
 
-theorem Inter_eq_sInter_image {X I : Type} (s : I → set X) : (⋂ i, s i) = ⋂₀ (s '[univ]) :=
+theorem Inter_eq_sInter_image {X I : Type} (s : I → set X) : (⋂ i, s i) = ⋂₀ (s ' univ) :=
 ext (take x, iff.intro
   (assume H : x ∈ Inter s,
     take t,
-    suppose t ∈ s '[univ],
+    suppose t ∈ s 'univ,
     obtain i [univi (Hi : s i = t)], from this,
     show x ∈ t, by rewrite -Hi; exact H i)
-  (assume H : x ∈ ⋂₀ (s '[univ]),
+  (assume H : x ∈ ⋂₀ (s ' univ),
     take i,
-    have s i ∈ s '[univ], from mem_image_of_mem s trivial,
+    have s i ∈ s ' univ, from mem_image_of_mem s trivial,
     show x ∈ s i, from H this))
 
 theorem comp_Union {X I : Type} (s : I → set X) : - (⋃ i, s i) = (⋂ i, - s i) :=

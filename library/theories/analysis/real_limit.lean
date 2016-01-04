@@ -250,7 +250,7 @@ exists.intro x
 section
 local attribute mem [quasireducible]
 -- TODO: is there a better place to put this?
-proposition image_neg_eq (X : set ℝ) : (λ x, -x) '[X] = {x | -x ∈ X} :=
+proposition image_neg_eq (X : set ℝ) : (λ x, -x) ' X = {x | -x ∈ X} :=
 set.ext (take x, iff.intro
   (assume H, obtain y [(Hy₁ : y ∈ X) (Hy₂ : -y = x)], from H,
     show -x ∈ X, by rewrite [-Hy₂, neg_neg]; exact Hy₁)
@@ -425,20 +425,20 @@ have X i ≤ X (i + (j - i)), from !this,
 by+ rewrite [add_sub_of_le `i ≤ j` at this]; exact this
 
 proposition converges_to_seq_sup_of_nondecreasing (nondecX : nondecreasing X) {b : ℝ}
-    (Hb : ∀ i, X i ≤ b) : X ⟶ sup (X '[univ]) in ℕ :=
-let sX := sup (X '[univ]) in
+    (Hb : ∀ i, X i ≤ b) : X ⟶ sup (X ' univ) in ℕ :=
+let sX := sup (X ' univ) in
 have Xle : ∀ i, X i ≤ sX, from
   take i,
-  have ∀ x, x ∈ X '[univ] → x ≤ b, from
+  have ∀ x, x ∈ X ' univ → x ≤ b, from
     (take x, assume H,
       obtain i [H' (Hi : X i = x)], from H,
       by rewrite -Hi; exact Hb i),
   show X i ≤ sX, from le_sup (mem_image_of_mem X !mem_univ) this,
-have exX : ∃ x, x ∈ X '[univ],
+have exX : ∃ x, x ∈ X ' univ,
   from exists.intro (X 0) (mem_image_of_mem X !mem_univ),
 take ε, assume epos : ε > 0,
 have sX - ε < sX, from !sub_lt_of_pos epos,
-obtain x' [(H₁x' : x' ∈ X '[univ]) (H₂x' : sX - ε < x')],
+obtain x' [(H₁x' : x' ∈ X ' univ) (H₂x' : sX - ε < x')],
   from exists_mem_and_lt_of_lt_sup exX this,
 obtain i [H' (Hi : X i = x')], from H₁x',
 have Hi' : ∀ j, j ≥ i → sX - ε < X j, from
@@ -488,15 +488,15 @@ begin
 end
 
 proposition converges_to_seq_inf_of_nonincreasing (nonincX : nonincreasing X) {b : ℝ}
-    (Hb : ∀ i, b ≤ X i) : X ⟶ inf (X '[univ]) in ℕ :=
-have H₁ : ∃ x, x ∈ X '[univ], from exists.intro (X 0) (mem_image_of_mem X !mem_univ),
-have H₂ : ∀ x, x ∈ X '[univ] → b ≤ x, from
+    (Hb : ∀ i, b ≤ X i) : X ⟶ inf (X ' univ) in ℕ :=
+have H₁ : ∃ x, x ∈ X ' univ, from exists.intro (X 0) (mem_image_of_mem X !mem_univ),
+have H₂ : ∀ x, x ∈ X ' univ → b ≤ x, from
   (take x, assume H,
     obtain i [Hi₁ (Hi₂ : X i = x)], from H,
     show b ≤ x, by rewrite -Hi₂; apply Hb i),
-have H₃ : {x : ℝ | -x ∈ X '[univ]} = {x : ℝ | x ∈ (λ n, -X n) '[univ]}, from calc
-  {x : ℝ | -x ∈ X '[univ]} = (λ y, -y) '[X '[univ]] : by rewrite image_neg_eq
-                       ... = {x : ℝ | x ∈ (λ n, -X n) '[univ]} : image_compose,
+have H₃ : {x : ℝ | -x ∈ X ' univ} = {x : ℝ | x ∈ (λ n, -X n) ' univ}, from calc
+  {x : ℝ | -x ∈ X ' univ} = (λ y, -y) ' (X ' univ) : by rewrite image_neg_eq
+                       ... = {x : ℝ | x ∈ (λ n, -X n) ' univ} : image_compose,
 have H₄ : ∀ i, - X i ≤ - b, from take i, neg_le_neg (Hb i),
 begin+
   rewrite [-neg_converges_to_seq_iff, -sup_neg H₁ H₂, H₃, -nondecreasing_neg_iff at nonincX],
@@ -515,7 +515,7 @@ suffices H' : (λ n, (abs x)^n) ⟶ 0 in ℕ, from
   using this,
     by rewrite this at H'; exact converges_to_seq_zero_of_abs_converges_to_seq_zero H',
 let  aX := (λ n, (abs x)^n),
-    iaX := inf (aX '[univ]),
+    iaX := inf (aX ' univ),
     asX := (λ n, (abs x)^(succ n)) in
 have noninc_aX : nonincreasing aX, from
   nonincreasing_of_forall_succ_le

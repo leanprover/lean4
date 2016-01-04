@@ -81,7 +81,7 @@ theorem surjective_compose {g : map b c} {f : map a b} (Hg : map.surjective g)
   map.surjective (g ∘ f) :=
 surj_on_compose Hg Hf
 
-theorem image_eq_of_surjective {f : map a b} (H : map.surjective f) : f '[a] = b :=
+theorem image_eq_of_surjective {f : map a b} (H : map.surjective f) : f ' a = b :=
 image_eq_of_maps_to_of_surj_on (map.mapsto f) H
 
 /- bijective -/
@@ -98,7 +98,7 @@ obtain Hg₁ Hg₂, from Hg,
 obtain Hf₁ Hf₂, from Hf,
 and.intro (injective_compose Hg₁ Hf₁) (surjective_compose Hg₂ Hf₂)
 
-theorem image_eq_of_bijective {f : map a b} (H : map.bijective f) : f '[a] = b :=
+theorem image_eq_of_bijective {f : map a b} (H : map.bijective f) : f ' a = b :=
 image_eq_of_surjective (proof and.right H qed)
 
 /- left inverse -/

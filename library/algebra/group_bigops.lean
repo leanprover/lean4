@@ -225,8 +225,8 @@ namespace finset
         {rewrite [*Prod_empty]},
       have injg : set.inj_on g (to_set s),
         from set.inj_on_of_inj_on_of_subset H (λ x, mem_insert_of_mem a),
-      have g a ∉ g '[s], from
-        suppose g a ∈ g '[s],
+      have g a ∉ g ' s, from
+        suppose g a ∈ g ' s,
         obtain b [(bs : b ∈ s) (gbeq : g b = g a)], from exists_of_mem_image this,
         have aias : set.mem a (to_set (insert a s)),
           by rewrite to_set_insert; apply set.mem_insert a s,
@@ -240,7 +240,7 @@ namespace finset
     theorem Prod_eq_of_bij_on {C : Type} [deceqC : decidable_eq C] {s : finset A} {t : finset C}
                               (f : C → B) {g : A → C} (H : set.bij_on g (to_set s) (to_set t)) :
             (∏ j ∈ t, f j) = (∏ i ∈ s, f (g i)) :=
-    have g '[s] = t,
+    have g ' s = t,
       by apply eq_of_to_set_eq_to_set; rewrite to_set_image; exact set.image_eq_of_bij_on H,
     using this, by rewrite [-this, Prod_image f (and.left (and.right H))]
   end deceqA
@@ -362,7 +362,7 @@ section Prod
           (∏ j ∈ t, f j) = (∏ i ∈ s, f (g i)) :=
   by_cases
     (suppose finite s,
-      have g '[s] = t, from image_eq_of_bij_on H,
+      have g ' s = t, from image_eq_of_bij_on H,
       using this, by rewrite [-this, Prod_image f (and.left (and.right H))])
     (assume nfins : ¬ finite s,
       have nfint : ¬ finite t, from

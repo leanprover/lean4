@@ -33,16 +33,16 @@ take x, assume H, trivial
 
 theorem image_subset_of_maps_to_of_subset {f : X → Y} {a : set X} {b : set Y} (mfab : maps_to f a b)
     {c : set X} (csuba : c ⊆ a) :
-  f '[c] ⊆ b :=
+  f ' c ⊆ b :=
 take y,
-suppose y ∈ f '[c],
+suppose y ∈ f ' c,
 obtain x [(xc : x ∈ c) (yeq : f x = y)], from this,
 have x ∈ a, from csuba `x ∈ c`,
 have f x ∈ b, from mfab this,
 show y ∈ b, from yeq ▸ this
 
 theorem image_subset_of_maps_to {f : X → Y} {a : set X} {b : set Y} (mfab : maps_to f a b) :
-  f '[a] ⊆ b :=
+  f ' a ⊆ b :=
 image_subset_of_maps_to_of_subset mfab (subset.refl a)
 
 /- injectivity -/
@@ -90,7 +90,7 @@ iff.intro
 
 /- surjectivity -/
 
-definition surj_on [reducible] (f : X → Y) (a : set X) (b : set Y) : Prop := b ⊆ f '[a]
+definition surj_on [reducible] (f : X → Y) (a : set X) (b : set Y) : Prop := b ⊆ f ' a
 
 theorem surj_on_of_eq_on {f1 f2 : X → Y} {a : set X} {b : set Y} (eq_f1_f2 : eq_on f1 f2 a)
     (surj_f1 : surj_on f1 a b) :
@@ -127,7 +127,7 @@ iff.intro
 
 lemma image_eq_of_maps_to_of_surj_on {f : X → Y} {a : set X} {b : set Y}
     (H1 : maps_to f a b) (H2 : surj_on f a b) :
-  f '[a] = b :=
+  f ' a = b :=
 eq_of_subset_of_subset (image_subset_of_maps_to H1) H2
 
 /- bijectivity -/
@@ -163,7 +163,7 @@ match H with and.intro Hmap (and.intro Hinj Hsurj) :=
 end
 
 lemma image_eq_of_bij_on {f : X → Y} {a : set X} {b : set Y} (bfab : bij_on f a b) :
-  f '[a] = b :=
+  f ' a = b :=
 image_eq_of_maps_to_of_surj_on (and.left bfab) (and.right (and.right bfab))
 
 theorem bij_on_compose {g : Y → Z} {f : X → Y} {a : set X} {b : set Y} {c : set Z}

@@ -93,13 +93,13 @@ theorem to_finset_sep (s : set A) (p : A → Prop) [finite s] :
 by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_sep, to_set_to_finset]
 
 theorem finite_image [instance] {B : Type} (f : A → B) (s : set A) [finite s] :
-  finite (f '[s]) :=
+  finite (f ' s) :=
 exists.intro (finset.image f (to_finset s))
   (by rewrite [finset.to_set_image, *to_set_to_finset])
 
 theorem to_finset_image {B : Type}  (f : A → B) (s : set A)
     [fins : finite s] :
-  to_finset (f '[s]) = (#finset f '[to_finset s]) :=
+  to_finset (f ' s) = (#finset f ' (to_finset s)) :=
 by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_image, to_set_to_finset]
 
 theorem finite_diff [instance] (s t : set A) [finite s] : finite (s \ t) :=
@@ -157,7 +157,7 @@ theorem finite_iff_finite_of_bij_on {B : Type} {f : A → B} {s : set A} {t : se
 iff.intro (assume fs, finite_of_bij_on bijf) (assume ft, finite_of_bij_on' bijf)
 
 theorem finite_powerset (s : set A) [finite s] : finite 𝒫 s :=
-assert H : 𝒫 s = finset.to_set '[finset.to_set (#finset 𝒫 (to_finset s))],
+assert H : 𝒫 s = finset.to_set ' (finset.to_set (#finset 𝒫 (to_finset s))),
   from ext (take t, iff.intro
     (suppose t ∈ 𝒫 s,
       assert t ⊆ s, from this,

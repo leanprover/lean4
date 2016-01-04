@@ -227,7 +227,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & start_pos,
                 expr assert_tac = p.save_pos(mk_assert_tactic_expr(id, A), pos);
                 tacs.push_back(mk_begin_end_element_annotation(assert_tac));
                 if (p.curr_is_token(get_bar_tk())) {
-                    expr local = p.save_pos(mk_local(id, A), id_pos);
+                    expr local = p.save_pos(mk_local(id, A, mk_rec_info(true)), id_pos);
                     expr t     = parse_local_equations(p, local);
                     t      = p.mk_app(get_rexact_tac_fn(), t, pos);
                     t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
@@ -438,7 +438,7 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
     }
     expr proof;
     if (p.curr_is_token(get_bar_tk()) && !prev_local) {
-        expr fn = p.save_pos(mk_local(id, prop), id_pos);
+        expr fn = p.save_pos(mk_local(id, prop, mk_rec_info(true)), id_pos);
         proof = parse_local_equations(p, fn);
     } else {
         p.check_token_next(get_comma_tk(), "invalid 'have/assert' declaration, ',' expected");
@@ -521,7 +521,7 @@ static expr parse_suppose(parser & p, unsigned, expr const *, pos_info const & p
 static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos) {
     expr prop  = p.parse_expr();
     if (p.curr_is_token(get_bar_tk())) {
-        expr fn = p.save_pos(mk_local(get_this_tk(), prop), pos);
+        expr fn = p.save_pos(mk_local(get_this_tk(), prop, mk_rec_info(true)), pos);
         return parse_local_equations(p, fn);
     } else {
         p.check_token_next(get_comma_tk(), "invalid 'show' declaration, ',' expected");

@@ -604,7 +604,7 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
         for (expr const & param : ps)
             p.add_local(param);
         lean_assert(is_curr_with_or_comma_or_bar(p));
-        fns.push_back(mk_local(n, type));
+        fns.push_back(mk_local(n, type, mk_rec_info(true)));
         if (p.curr_is_token(get_with_tk())) {
             while (p.curr_is_token(get_with_tk())) {
                 p.next();
@@ -612,7 +612,7 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
                 name g_name = p.check_decl_id_next("invalid declaration, identifier expected");
                 p.check_token_next(get_colon_tk(), "invalid declaration, ':' expected");
                 expr g_type = p.parse_expr();
-                expr g      = p.save_pos(mk_local(g_name, g_type), pos);
+                expr g      = p.save_pos(mk_local(g_name, g_type, mk_rec_info(true)), pos);
                 auxs.push_back(g_name);
                 fns.push_back(g);
             }

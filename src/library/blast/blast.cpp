@@ -451,9 +451,46 @@ class blastenv {
         g.get_hyps(hs);
         for (expr const & h : hs) {
             lean_assert(is_local(h));
-            expr new_type = normalize(to_blast_expr(mlocal_type(h)));
-            expr href     = s.mk_hypothesis(local_pp_name(h), new_type, h);
-            local2href.insert(mlocal_name(h), href);
+            if (!local_info(h).is_rec()) {
+                /*
+                  We do not add auxiliary locals used to compile recursive equations.
+                  The problem is that blast doesn't know when it is safe to use this kind of hypothesis.
+                  For example: suppose we are defining the following function using recursive equations and blast.
+
+                         lemma comm : ∀ a b : nat, a + b = b + a
+                         | a        0        := by simp
+                         | a        (succ n) := by simp
+
+                  Both goals will contain the (rec) hypothesis
+
+                         comm :  ∀ a b : nat, a + b = b + a
+
+                  If we the recursive equation is being compiled using structural recursion, then we can only apply
+                  'comm' to strucuturall smaller terms. If we are using well-founded recursion, then we need the well-founded relation.
+                  Blast does not have access to this information. We address this issue by simply ignoring this kind of
+                  auxiliary rec hypothesis.
+
+                  Of course, this workaround forces the user to provide a valid induction hypothesis.
+                  Example:
+
+                        lemma comm : ∀ a b : nat, a + b = b + a
+                        | a        0        := by simp
+                        | a        (succ n) :=
+                          assert a + n = n + a, from !comm,
+                          by simp
+
+                  In this simple example, we can simply ask blast to apply the recursor automatically for use.
+
+                        lemma comm : ∀ a b : nat, a + b = b + a :=
+                        by rec_simp
+
+                  However, this is not always possible. Sometimes, we will be defining a complex function using recursive equations.
+                  The definition may contain nested proofs that we may want to discharge using blast.
+                */
+                expr new_type = normalize(to_blast_expr(mlocal_type(h)));
+                expr href     = s.mk_hypothesis(local_pp_name(h), new_type, h);
+                local2href.insert(mlocal_name(h), href);
+            }
         }
         expr new_target = normalize(to_blast_expr(g.get_type()));
         s.set_target(new_target);

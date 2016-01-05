@@ -73,7 +73,7 @@
     "inst_simp" "simp" "simp_nohyps" "simp_topdown" "esimp" "unfold" "change" "check_expr" "contradiction"
     "exfalso" "split" "existsi" "constructor" "fconstructor" "left" "right" "injection" "congruence" "reflexivity"
     "symmetry" "transitivity" "state" "induction" "induction_using" "fail" "append"
-    "substvars" "now" "with_options" "with_attributes" "with_attrs" "note")
+    "substvars" "now" "with_options" "with_attributes" "with_attrs" "note" "replace")
   "lean tactics")
 (defconst lean-tactics-regexp
   (eval `(rx word-start (or ,@lean-tactics) word-end)))

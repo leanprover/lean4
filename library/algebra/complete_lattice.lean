@@ -278,7 +278,7 @@ open eq.ops complete_lattice
 
 definition complete_lattice_fun [instance] (A B : Type) [complete_lattice B] :
     complete_lattice (A → B) :=
-⦃ complete_lattice, lattice_fun,
+⦃ complete_lattice, lattice_fun A B,
   Inf := λS x, Inf ((λf, f x) ' S),
   le_Inf := take f S H x,
     le_Inf (take y Hy, obtain g `g ∈ S` `g x = y`, from Hy, `g x = y` ▸ H g `g ∈ S` x),

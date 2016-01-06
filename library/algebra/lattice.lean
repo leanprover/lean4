@@ -121,8 +121,8 @@ definition lattice_Prop [instance] : lattice Prop :=
   le_sup_right := @or.intro_right
 ⦄
 
-definition lattice_fun [instance] {A B : Type} [lattice B] : lattice (A → B) :=
-⦃ lattice, weak_order_fun,
+definition lattice_fun [instance] (A B : Type) [lattice B] : lattice (A → B) :=
+⦃ lattice, weak_order_fun A B,
   inf          := λf g x, inf (f x) (g x),
   le_inf       := take f g h Hf Hg x, le_inf (Hf x) (Hg x),
   inf_le_left  := take f g x, !inf_le_left,

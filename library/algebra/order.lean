@@ -445,7 +445,7 @@ definition weak_order_Prop [instance] : weak_order Prop :=
   le_antisymm  := λf g H1 H2, propext (and.intro H1 H2)
 ⦄
 
-definition weak_order_fun [instance] {A B : Type} [weak_order B] : weak_order (A → B) :=
+definition weak_order_fun [instance] (A B : Type) [weak_order B] : weak_order (A → B) :=
 ⦃ weak_order,
   le := λx y, ∀b, x b ≤ y b,
   le_refl := λf b, !le.refl,

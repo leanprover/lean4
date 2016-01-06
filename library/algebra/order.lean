@@ -460,7 +460,7 @@ definition weak_order_dual {A : Type} (wo : weak_order A) : weak_order A :=
   le_trans := take a b c `b ≤ a` `c ≤ b`, le.trans `c ≤ b` `b ≤ a`,
   le_antisymm := take a b `b ≤ a` `a ≤ b`, le.antisymm `a ≤ b` `b ≤ a` ⦄
 
-lemma dual {A : Type} (wo : weak_order A) (a b : A) :
+lemma le_dual_eq_le {A : Type} (wo : weak_order A) (a b : A) :
   @le _ (@weak_order.to_has_le _ (weak_order_dual wo)) a b =
   @le _ (@weak_order.to_has_le _ wo) b a :=
 rfl

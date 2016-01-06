@@ -276,7 +276,7 @@ end complete_lattice
 section
 open eq.ops complete_lattice
 
-definition complete_lattice_fun [instance] {A B : Type} [complete_lattice B] :
+definition complete_lattice_fun [instance] (A B : Type) [complete_lattice B] :
     complete_lattice (A → B) :=
 ⦃ complete_lattice, lattice_fun,
   Inf := λS x, Inf ((λf, f x) ' S),
@@ -308,7 +308,7 @@ definition complete_lattice_Prop [instance] : complete_lattice Prop :=
     H _ Ht true.intro
 ⦄
 
-lemma sInter_eq_fun_Inf {A : Type} (S : set (set A)) : ⋂₀ S = @Inf (A → Prop) _ S :=
+lemma sInter_eq_Inf_fun {A : Type} (S : set (set A)) : ⋂₀ S = @Inf (A → Prop) _ S :=
 funext (take x,
   calc
     (⋂₀ S) x = ∀₀ P ∈ S, P x : rfl
@@ -322,19 +322,19 @@ funext (take x,
     end
     ... = @Inf (A → Prop) _ S x : rfl)
 
-lemma sUnion_eq_fun_Sup {A : Type} (S : set (set A)) : ⋃₀ S = @Sup (A → Prop) _ S :=
+lemma sUnion_eq_Sup_fun {A : Type} (S : set (set A)) : ⋃₀ S = @Sup (A → Prop) _ S :=
 funext (take x,
   calc
     (⋃₀ S) x = ∃₀ P ∈ S, P x : rfl
     ... = (∃₀ P ∈ S, P x = true) :
-    begin 
+    begin
       apply bounded_exists_congr,
       intros,
       rewrite eq_true
     end
     ... = @Sup (A → Prop) _ S x : rfl)
 
-definition complete_lattice_set [instance] {A : Type} : complete_lattice (set A) :=
+definition complete_lattice_set [instance] (A : Type) : complete_lattice (set A) :=
 ⦃ complete_lattice,
   le := subset,
   le_refl := @le_refl (A → Prop) _,
@@ -350,10 +350,10 @@ definition complete_lattice_set [instance] {A : Type} : complete_lattice (set A)
   sup_le := @sup_le (A → Prop) _,
   Inf := sInter,
   Sup := sUnion,
-  le_Inf := begin intros X S H, rewrite sInter_eq_fun_Inf, apply (@le_Inf (A → Prop) _), exact H end,
-  Inf_le := begin intros X S H, rewrite sInter_eq_fun_Inf, apply (@Inf_le (A → Prop) _), exact H end,
-  le_Sup := begin intros X S H, rewrite sUnion_eq_fun_Sup, apply (@le_Sup (A → Prop) _), exact H end,
-  Sup_le := begin intros X S H, rewrite sUnion_eq_fun_Sup, apply (@Sup_le (A → Prop) _), exact H end
+  le_Inf := begin intros X S H, rewrite sInter_eq_Inf_fun, apply (@le_Inf (A → Prop) _), exact H end,
+  Inf_le := begin intros X S H, rewrite sInter_eq_Inf_fun, apply (@Inf_le (A → Prop) _), exact H end,
+  le_Sup := begin intros X S H, rewrite sUnion_eq_Sup_fun, apply (@le_Sup (A → Prop) _), exact H end,
+  Sup_le := begin intros X S H, rewrite sUnion_eq_Sup_fun, apply (@Sup_le (A → Prop) _), exact H end
 ⦄
 
 end

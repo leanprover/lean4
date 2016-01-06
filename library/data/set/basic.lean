@@ -339,7 +339,7 @@ theorem forall_of_forall_insert {P : X → Prop} {a : X} {s : set X}
   ∀ x, x ∈ s → P x :=
 λ x xs, H x (!mem_insert_of_mem xs)
 
-lemma forall_insert_iff {P : X → Prop} {a : X} {s : set X} :
+lemma bounded_forall_insert_iff {P : X → Prop} {a : X} {s : set X} :
   (∀₀x ∈ insert a s, P x) ↔ P a ∧ (∀₀x ∈ s, P x) :=
 begin
   apply iff.intro, all_goals (intro H),
@@ -585,8 +585,8 @@ theorem complement_complement_image (S : set (set X)) :
   complement ' (complement ' S) = S :=
 by rewrite [-image_compose, complement_compose_complement, image_id]
 
-lemma forall_image_implies_forall {f : X → Y} {S : set X} {P : Y → Prop} (H : ∀₀ x ∈ S, P (f x)) :
-  ∀₀ y ∈ f ' S, P y :=
+lemma bounded_forall_image_of_bounded_forall {f : X → Y} {S : set X} {P : Y → Prop}
+  (H : ∀₀ x ∈ S, P (f x)) : ∀₀ y ∈ f ' S, P y :=
 begin
   intro x' Hx;
   cases Hx with x Hx;
@@ -596,9 +596,9 @@ begin
   assumption
 end
 
-lemma forall_image_iff {f : X → Y} {S : set X} {P : Y → Prop} :
+lemma bounded_forall_image_iff {f : X → Y} {S : set X} {P : Y → Prop} :
   (∀₀ y ∈ f ' S, P y) ↔ (∀₀ x ∈ S, P (f x)) :=
-iff.intro (take H x Hx, H _ (!mem_image_of_mem `x ∈ S`)) forall_image_implies_forall
+iff.intro (take H x Hx, H _ (!mem_image_of_mem `x ∈ S`)) bounded_forall_image_of_bounded_forall
 
 lemma image_insert_eq {f : X → Y} {a : X} {S : set X} :
   f ' insert a S = insert (f a) (f ' S) :=
@@ -622,7 +622,7 @@ definition preimage {A B:Type} (f : A → B) (Y : set B) : set A := { x | f x �
 
 lemma image_subset_iff {A B : Type} {f : A → B} {X : set A} {Y : set B} :
   f ' X ⊆ Y ↔ X ⊆ preimage f Y :=
-@forall_image_iff A B f X Y
+@bounded_forall_image_iff A B f X Y
 
 /- collections of disjoint sets -/
 

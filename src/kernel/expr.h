@@ -567,6 +567,16 @@ inline bool closed(expr const & e) { return !has_free_vars(e); }
     It returns the f.
 */
 expr const & get_app_args(expr const & e, buffer<expr> & args);
+/** \brief Similar to \c get_app_args, but stores at most num args.
+    Examples:
+    1) get_app_args_at_most(f a b c, 2, args);
+    stores {b, c} in args and returns (f a)
+
+    2) get_app_args_at_most(f a b c, 4, args);
+    stores {a, b, c} in args and returns f
+*/
+expr const & get_app_args_at_most(expr const & e, unsigned num, buffer<expr> & args);
+
 /**
    \brief Similar to \c get_app_args, but arguments are stored in reverse order in \c args.
    If e is of the form <tt>(...(f a1) ... an)</tt>, then the procedure stores [an, ..., a1] in \c args.

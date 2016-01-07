@@ -447,6 +447,21 @@ expr const & get_app_args(expr const & e, buffer<expr> & args) {
     return *it;
 }
 
+expr const & get_app_args_at_most(expr const & e, unsigned num, buffer<expr> & args) {
+    unsigned sz = args.size();
+    expr const * it = &e;
+    unsigned i = 0;
+    while (is_app(*it)) {
+        if (i == num)
+            break;
+        args.push_back(app_arg(*it));
+        it = &(app_fn(*it));
+        i++;
+    }
+    std::reverse(args.begin() + sz, args.end());
+    return *it;
+}
+
 expr const & get_app_rev_args(expr const & e, buffer<expr> & args) {
     expr const * it = &e;
     while (is_app(*it)) {

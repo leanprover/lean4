@@ -257,6 +257,8 @@ public:
 /* Cache */
 
 optional<result> simplifier::cache_lookup(expr const & e) {
+    /* cache_lookup is based on congr_lemma, and assumes \c e is an application */
+    if (!is_app(e)) return optional<result>();
     auto it = m_cache.find(key(m_rel, e));
     if (it == m_cache.end()) return optional<result>();
     /* The cache ignores subsingletons, so we may need to

@@ -100,11 +100,21 @@ scope_congruence_closure::~scope_congruence_closure() {
 }
 
 void congruence_closure::initialize() {
-    mk_entry_core(get_iff_name(), mk_true(), false, true);
-    mk_entry_core(get_iff_name(), mk_false(), false, true);
+    bool propagate_back = false;
+    bool interpreted    = true;
+    bool constructor    = false;
+    mk_entry_core(get_iff_name(), mk_true(), propagate_back, interpreted, constructor);
+    mk_entry_core(get_iff_name(), mk_false(), propagate_back, interpreted, constructor);
+
+    /* Put (nat.zero) and (@zero nat nat_has_zero) in the same equivalence class.
+       TODO(Leo): this is hackish, we should have a more general solution for this kind of equality. */
+    app_builder & b = get_app_builder();
+    expr nat_zero   = mk_constant(get_nat_zero_name());
+    expr zero_nat   = normalize(b.mk_zero(mk_constant(get_nat_name())));
+    add_eqv(get_eq_name(), nat_zero, zero_nat, b.mk_eq_refl(nat_zero));
 }
 
-void congruence_closure::mk_entry_core(name const & R, expr const & e, bool to_propagate, bool interpreted) {
+void congruence_closure::mk_entry_core(name const & R, expr const & e, bool to_propagate, bool interpreted, bool constructor) {
     lean_assert(!m_entries.find(eqc_key(R, e)));
     entry n;
     n.m_next         = e;
@@ -113,6 +123,7 @@ void congruence_closure::mk_entry_core(name const & R, expr const & e, bool to_p
     n.m_size         = 1;
     n.m_flipped      = false;
     n.m_interpreted  = interpreted;
+    n.m_constructor  = constructor;
     n.m_to_propagate = to_propagate;
     n.m_mt           = m_gmt;
     m_entries.insert(eqc_key(R, e), n);
@@ -135,6 +146,12 @@ void congruence_closure::mk_entry_core(name const & R, expr const & e, bool to_p
     }
 }
 
+void congruence_closure::mk_entry_core(name const & R, expr const & e, bool to_propagate) {
+    bool interpreted = false;
+    bool constructor = R == get_eq_name() && is_constructor_app(env(), e);
+    return mk_entry_core(R, e, to_propagate, interpreted, constructor);
+}
+
 void congruence_closure::mk_entry(name const & R, expr const & e, bool to_propagate) {
     if (to_propagate && !is_prop(e))
         to_propagate = false;
@@ -146,8 +163,7 @@ void congruence_closure::mk_entry(name const & R, expr const & e, bool to_propag
         }
         return;
     }
-    bool interpreted = false;
-    mk_entry_core(R, e, to_propagate, interpreted);
+    mk_entry_core(R, e, to_propagate);
 }
 
 static bool all_distinct(buffer<expr> const & es) {
@@ -618,15 +634,15 @@ void congruence_closure::internalize_core(name const & R, expr const & e, bool t
         return;
     case expr_kind::Constant: case expr_kind::Local:
     case expr_kind::Meta:
-        mk_entry_core(R, e, to_propagate, false);
+        mk_entry_core(R, e, to_propagate);
         return;
     case expr_kind::Lambda:
-        mk_entry_core(R, e, false, false);
+        mk_entry_core(R, e, false);
         return;
     case expr_kind::Macro:
         for (unsigned i = 0; i < macro_num_args(e); i++)
             internalize_core(R, macro_arg(e, i), false, false);
-        mk_entry_core(R, e, to_propagate, false);
+        mk_entry_core(R, e, to_propagate);
         break;
     case expr_kind::Pi:
         // TODO(Leo): should we support congruence for arrows?
@@ -636,12 +652,12 @@ void congruence_closure::internalize_core(name const & R, expr const & e, bool t
             internalize_core(R, binding_body(e), toplevel, to_propagate);
         }
         if (is_prop(e)) {
-            mk_entry_core(R, e, false, false);
+            mk_entry_core(R, e, false);
         }
         return;
     case expr_kind::App: {
         bool is_lapp = is_logical_app(e);
-        mk_entry_core(R, e, to_propagate && !is_lapp, false);
+        mk_entry_core(R, e, to_propagate && !is_lapp);
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
         if (toplevel) {
@@ -757,6 +773,19 @@ static bool is_true_or_false(expr const & e) {
     return is_constant(e, get_true_name()) || is_constant(e, get_false_name());
 }
 
+void congruence_closure::propagate_no_confusion_eq(expr const & e1, expr const & e2) {
+    lean_assert(is_constructor_app(env(), e1));
+    lean_assert(is_constructor_app(env(), e2));
+    /* Add equality e1 =?= e2 to set of hypotheses. no_confusion_action will process it */
+    app_builder & b = get_app_builder();
+    state & s       = curr_state();
+    expr type       = b.mk_eq(e1, e2);
+    expr pr         = *get_eqv_proof(get_eq_name(), e1, e2);
+    expr H          = s.mk_hypothesis(type, pr);
+    lean_trace(name({"cc", "propagation"}),
+               tout() << "no confusion eq: " << ppb(H) << " : " << ppb(infer_type(H)) << "\n";);
+}
+
 /* Remark: If added_prop is not none, then it contains the proposition provided to ::add.
    We use it here to avoid an unnecessary propagation back to the current_state. */
 void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr const & H, optional<expr> const & added_prop) {
@@ -774,14 +803,18 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
     // We want r2 to be the root of the combined class.
 
     // We swap (e1,n1,r1) with (e2,n2,r2) when
-    // 1- is_interpreted(n1->m_root) && !is_interpreted(n2->m_root).
+    // 1- r1->m_interpreted && !r2->m_interpreted.
     //    Reason: to decide when to propagate we check whether the root of the equivalence class
     //    is true/false. So, this condition is to make sure if true/false is an equivalence class,
     //    then one of them is the root. If both are, it doesn't matter, since the state is inconsistent
     //    anyway.
-    // 2- r1->m_size > r2->m_size
-    //    Reason: performance. Condition was has precedence
-    if ((r1->m_size > r2->m_size && !r2->m_interpreted) || r1->m_interpreted) {
+    // 2- r1->m_constructor && !r2->m_interpreted && !r2->m_constructor
+    //    Reason: we want constructors to be the representative of their equivalence classes.
+    // 2- r1->m_size > r2->m_size && !r2->m_interpreted && !r2->m_constructor
+    //    Reason: performance.
+    if ((r1->m_interpreted && !r2->m_interpreted) ||
+        (r1->m_constructor && !r2->m_interpreted && !r2->m_constructor) ||
+        (r1->m_size > r2->m_size && !r2->m_interpreted && !r2->m_constructor)) {
         std::swap(e1, e2);
         std::swap(n1, n2);
         std::swap(r1, r2);
@@ -791,6 +824,8 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
 
     if (r1->m_interpreted && r2->m_interpreted)
         m_inconsistent = true;
+
+    bool use_no_confusion = R == get_eq_name() && r1->m_constructor && r2->m_constructor;
 
     expr e1_root   = n1->m_root;
     expr e2_root   = n2->m_root;
@@ -862,8 +897,9 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
         for (name const & R2 : m_non_eq_relations) {
             if (m_entries.find(eqc_key(R2, e1)) ||
                 m_entries.find(eqc_key(R2, e2))) {
-                mk_entry(R2, e1, false);
-                mk_entry(R2, e2, false);
+                bool propagate_back = false;
+                mk_entry(R2, e1, propagate_back);
+                mk_entry(R2, e2, propagate_back);
                 push_todo(R2, e1, e2, *g_lift_mark);
             }
         }
@@ -892,9 +928,13 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
         }
     }
 
+    if (use_no_confusion) {
+        propagate_no_confusion_eq(e1_root, e2_root);
+    }
+
     update_mt(R, e2_root);
 
-    lean_trace(name({"cc", "merge"}), tout() << ppb(e1) << " [" << R << "] " << ppb(e2) << "\n";);
+    lean_trace(name({"cc", "merge"}), tout() << ppb(e1_root) << " [" << R << "] " << ppb(e2_root) << "\n";);
     lean_trace(name({"cc", "state"}), trace(););
 }
 

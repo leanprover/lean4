@@ -43,7 +43,12 @@ static optional<expr> apply_simple() {
 
 static optional<expr> apply_cc() {
     flet<bool> set(get_config().m_cc, true);
-    return mk_pre_action_strategy("cc", assert_cc_action)();
+    return mk_pre_action_strategy("cc",
+                                  [](hypothesis_idx hidx) {
+                                      Try(no_confusion_action(hidx));
+                                      Try(assert_cc_action(hidx));
+                                      return action_result::new_branch();
+                                  })();
 }
 
 static optional<expr> apply_ematch() {

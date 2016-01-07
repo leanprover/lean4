@@ -47,6 +47,7 @@ class congruence_closure {
         unsigned       m_flipped:1;      // proof has been flipped
         unsigned       m_to_propagate:1; // must be propagated back to state when in equivalence class containing true/false
         unsigned       m_interpreted:1;  // true if the node should be viewed as an abstract value
+        unsigned       m_constructor:1;  // true if head symbol is a constructor
         unsigned       m_size;           // number of elements in the equivalence class, it is meaningless if 'e' != m_root
         unsigned       m_mt;
         // The field m_mt is used to implement the mod-time optimization introduce by the Simplify theorem prover.
@@ -125,7 +126,8 @@ class congruence_closure {
     congr_key mk_congr_key(ext_congr_lemma const & lemma, expr const & e) const;
     void check_iff_true(congr_key const & k);
 
-    void mk_entry_core(name const & R, expr const & e, bool to_propagate, bool interpreted);
+    void mk_entry_core(name const & R, expr const & e, bool to_propagate, bool interpreted, bool constructor);
+    void mk_entry_core(name const & R, expr const & e, bool to_propagate);
     void mk_entry(name const & R, expr const & e, bool to_propagate);
     void add_occurrence(name const & Rp, expr const & parent, name const & Rc, expr const & child);
     void add_congruence_table(ext_congr_lemma const & lemma, expr const & e);
@@ -138,6 +140,7 @@ class congruence_closure {
     expr mk_iff_true_intro(expr const & proof);
     void add_eqv_step(name const & R, expr e1, expr e2, expr const & H, optional<expr> const & added_prop);
     void add_eqv_core(name const & R, expr const & lhs, expr const & rhs, expr const & H, optional<expr> const & added_prop);
+    void propagate_no_confusion_eq(expr const & e1, expr const & e2);
 
     expr mk_congr_proof_core(name const & R, expr const & lhs, expr const & rhs) const;
     expr mk_congr_proof(name const & R, expr const & lhs, expr const & rhs) const;

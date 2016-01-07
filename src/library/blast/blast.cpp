@@ -719,12 +719,20 @@ public:
         return m_congr_lemma_manager.mk_congr_simp(fn);
     }
 
+    optional<congr_lemma> mk_specialized_congr_lemma_for_simp(expr const & fn) {
+        return m_congr_lemma_manager.mk_specialized_congr_simp(fn);
+    }
+
     optional<congr_lemma> mk_congr_lemma(expr const & fn, unsigned num_args) {
         return m_congr_lemma_manager.mk_congr(fn, num_args);
     }
 
     optional<congr_lemma> mk_congr_lemma(expr const & fn) {
         return m_congr_lemma_manager.mk_congr(fn);
+    }
+
+    optional<congr_lemma> mk_specialized_congr_lemma(expr const & a) {
+        return m_congr_lemma_manager.mk_specialized_congr(a);
     }
 
     optional<congr_lemma> mk_rel_iff_congr(expr const & fn) {
@@ -741,6 +749,10 @@ public:
 
     fun_info get_fun_info(expr const & fn, unsigned nargs) {
         return m_fun_info_manager.get(fn, nargs);
+    }
+
+    fun_info get_specialized_fun_info(expr const & a) {
+        return m_fun_info_manager.get_specialized(a);
     }
 
     unsigned abstract_hash(expr const & e) {
@@ -1083,6 +1095,11 @@ optional<congr_lemma> mk_congr_lemma_for_simp(expr const & fn) {
     return g_blastenv->mk_congr_lemma_for_simp(fn);
 }
 
+optional<congr_lemma> mk_specialized_congr_lemma_for_simp(expr const & a) {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_specialized_congr_lemma_for_simp(a);
+}
+
 optional<congr_lemma> mk_congr_lemma(expr const & fn, unsigned num_args) {
     lean_assert(g_blastenv);
     return g_blastenv->mk_congr_lemma(fn, num_args);
@@ -1091,6 +1108,11 @@ optional<congr_lemma> mk_congr_lemma(expr const & fn, unsigned num_args) {
 optional<congr_lemma> mk_congr_lemma(expr const & fn) {
     lean_assert(g_blastenv);
     return g_blastenv->mk_congr_lemma(fn);
+}
+
+optional<congr_lemma> mk_specialized_congr_lemma(expr const & a) {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_specialized_congr_lemma(a);
 }
 
 optional<congr_lemma> mk_rel_iff_congr(expr const & fn) {
@@ -1111,6 +1133,11 @@ fun_info get_fun_info(expr const & fn) {
 fun_info get_fun_info(expr const & fn, unsigned nargs) {
     lean_assert(g_blastenv);
     return g_blastenv->get_fun_info(fn, nargs);
+}
+
+fun_info get_specialized_fun_info(expr const & a) {
+    lean_assert(g_blastenv);
+    return g_blastenv->get_specialized_fun_info(a);
 }
 
 unsigned abstract_hash(expr const & e) {
@@ -1326,11 +1353,13 @@ void initialize_blast() {
 
     register_trace_class_alias("app_builder", name({"blast", "event"}));
     register_trace_class_alias(name({"simplifier", "failure"}), name({"blast", "event"}));
+    register_trace_class_alias("fun_info", name({"blast", "event"}));
 
     register_trace_class_alias(name({"cc", "propagation"}), "blast");
 
     register_trace_class_alias("blast", "blast_detailed");
     register_trace_class_alias("app_builder", "blast_detailed");
+    register_trace_class_alias("fun_info", "blast_detailed");
     register_trace_class_alias(name({"simplifier", "failure"}), "blast_detailed");
     register_trace_class_alias(name({"cc", "merge"}), "blast_detailed");
 

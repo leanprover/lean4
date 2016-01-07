@@ -49,9 +49,13 @@ public:
 
     optional<result> mk_congr_simp(expr const & fn);
     optional<result> mk_congr_simp(expr const & fn, unsigned nargs);
+    /* Create a specialized theorem using (a prefix of) the arguments of the given application. */
+    optional<result> mk_specialized_congr_simp(expr const & a);
 
     optional<result> mk_congr(expr const & fn);
     optional<result> mk_congr(expr const & fn, unsigned nargs);
+    /* Create a specialized theorem using (a prefix of) the arguments of the given application. */
+    optional<result> mk_specialized_congr(expr const & a);
 
     /** \brief If R is an equivalence relation, construct the congruence lemma
 

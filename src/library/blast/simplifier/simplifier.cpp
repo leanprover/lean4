@@ -267,17 +267,17 @@ optional<result> simplifier::cache_lookup(expr const & e) {
     if (e == e_old) return optional<result>(r_old);
     lean_assert(is_app(e_old));
     buffer<expr> new_args, old_args;
-    expr const & f_new = get_app_args(e, new_args);
+    DEBUG_CODE(expr const & f_new =) get_app_args(e, new_args);
     DEBUG_CODE(expr const & f_old =) get_app_args(e_old, old_args);
     lean_assert(f_new == f_old);
-    auto congr_lemma = mk_congr_lemma(f_new, new_args.size());
+    auto congr_lemma = mk_specialized_congr_lemma(e);
     if (!congr_lemma) return optional<result>();
     expr proof = congr_lemma->get_proof();
     expr type = congr_lemma->get_type();
 
     unsigned i = 0;
     for_each(congr_lemma->get_arg_kinds(), [&](congr_arg_kind const & ckind) {
-            lean_assert(ckind == congr_arg_kind::Cast || new_args[i] == old_args[i]);
+            lean_assert(ckind == congr_arg_kind::Cast || new_args[i] == old_args[i], static_cast<unsigned>(ckind), new_args[i], old_args[i]);
             expr rfl;
             switch (ckind) {
             case congr_arg_kind::Fixed:
@@ -469,7 +469,7 @@ result simplifier::simplify_pi(expr const & e) {
 expr simplifier::unfold_reducible_instances(expr const & e) {
     buffer<expr> args;
     expr f = get_app_args(e, args);
-    fun_info f_info = get_fun_info(f, args.size());
+    fun_info f_info = get_specialized_fun_info(e);
     int i = -1;
     for_each(f_info.get_params_info(), [&](param_info const & p_info) {
             i++;
@@ -802,7 +802,7 @@ optional<result> simplifier::synth_congr(expr const & e, F && simp) {
     lean_assert(is_app(e));
     buffer<expr> args;
     expr f = get_app_args(e, args);
-    auto congr_lemma = mk_congr_lemma_for_simp(f, args.size());
+    auto congr_lemma = mk_specialized_congr_lemma_for_simp(e);
     if (!congr_lemma) return optional<result>();
     expr proof = congr_lemma->get_proof();
     expr type = congr_lemma->get_type();
@@ -849,7 +849,7 @@ optional<result> simplifier::synth_congr(expr const & e, F && simp) {
 expr simplifier::remove_unnecessary_casts(expr const & e) {
     buffer<expr> args;
     expr f = get_app_args(e, args);
-    fun_info f_info = get_fun_info(f, args.size());
+    fun_info f_info = get_specialized_fun_info(e);
     int i = -1;
     for_each(f_info.get_params_info(), [&](param_info const & p_info) {
             i++;

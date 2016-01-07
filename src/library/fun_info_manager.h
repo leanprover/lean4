@@ -61,20 +61,16 @@ public:
 
 /** \brief Function information produced by \c fun_info_manager */
 class fun_info {
-    /* m_specialized is true if the information was produced using the function arguments,
-       and all m_specialized = true for all m_params_info */
     unsigned         m_arity;
-    bool             m_specialized;
     list<param_info> m_params_info;
     list<unsigned>   m_deps; // resulting type dependencies
 public:
-    fun_info():m_arity(0), m_specialized(false) {}
-    fun_info(unsigned arity, list<param_info> const & info, list<unsigned> const & deps, bool spec = false):
-        m_arity(arity), m_specialized(spec), m_params_info(info), m_deps(deps) {}
+    fun_info():m_arity(0) {}
+    fun_info(unsigned arity, list<param_info> const & info, list<unsigned> const & deps):
+        m_arity(arity), m_params_info(info), m_deps(deps) {}
     unsigned get_arity() const { return m_arity; }
     list<param_info> const & get_params_info() const { return m_params_info; }
     list<unsigned> const & get_result_dependencies() const { return m_deps; }
-    bool fully_specialized() const { return m_specialized; }
 };
 
 /** \brief Helper object for retrieving a summary for the parameters
@@ -90,8 +86,8 @@ class fun_info_manager {
     narg_cache m_cache_get_spec;
     list<unsigned> collect_deps(expr const & e, buffer<expr> const & locals);
     list<unsigned> get_core(expr const & e, buffer<param_info> & pinfos, unsigned max_args);
-    fun_info get_specialization(expr const & fn, buffer<expr> const & args,
-                                buffer<param_info> const & pinfos, list<unsigned> const & result_deps);
+    void trace_if_unsupported(expr const & fn, buffer<expr> const & args, unsigned prefix_sz,
+                              buffer<param_info> const & pinfos, fun_info const & result);
 public:
     fun_info_manager(type_context & ctx);
     type_context & ctx() { return m_ctx; }
@@ -115,6 +111,9 @@ public:
 
         \remark \c get and \c get_specialization return the same result for all but
         is_prop and is_subsingleton. */
-    fun_info get_specialization(expr const & app);
+    fun_info get_specialized(expr const & app);
 };
+
+void initialize_fun_info_manager();
+void finalize_fun_info_manager();
 }

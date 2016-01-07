@@ -126,6 +126,10 @@ optional<expr> mk_class_instance(expr const & e);
 optional<congr_lemma> mk_congr_lemma_for_simp(expr const & fn, unsigned num_args);
 /** \brief Similar to previous procedure, but num_args == arith of fn */
 optional<congr_lemma> mk_congr_lemma_for_simp(expr const & fn);
+/** \brief Similar to previous procedures, but \c a is a function application,
+    and the arguments are taken into account when computing the lemma.
+    \pre is_app(a) */
+optional<congr_lemma> mk_specialized_congr_lemma_for_simp(expr const & a);
 
 /** \brief Create a congruence lemma for the given function.
     \pre num_args <= arity of fn
@@ -140,6 +144,10 @@ optional<congr_lemma> mk_congr_lemma_for_simp(expr const & fn);
 optional<congr_lemma> mk_congr_lemma(expr const & fn, unsigned num_args);
 /** \brief Similar to previous procedure, but num_args == arith of fn */
 optional<congr_lemma> mk_congr_lemma(expr const & fn);
+/** \brief Similar to previous procedures, but \c a is a function application,
+    and the arguments are taken into account when computing the lemma.
+    \pre is_app(a) */
+optional<congr_lemma> mk_specialized_congr_lemma(expr const & a);
 optional<congr_lemma> mk_rel_iff_congr(expr const & fn);
 optional<congr_lemma> mk_rel_eq_congr(expr const & fn);
 
@@ -148,6 +156,10 @@ fun_info get_fun_info(expr const & fn);
 /** \brief Retrieve information for the given function.
     \pre nargs <= arity fn. */
 fun_info get_fun_info(expr const & fn, unsigned nargs);
+/** \brief Retrieve information for the given function-application
+    taking into account the actual arguments.
+    \pre is_app(a) */
+fun_info get_specialized_fun_info(expr const & a);
 
 /** \brief Hash and equality test for abstract expressions */
 unsigned abstract_hash(expr const & e);

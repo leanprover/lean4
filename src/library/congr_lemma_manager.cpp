@@ -28,7 +28,9 @@ struct congr_lemma_manager::imp {
     typedef expr_unsigned key;
     typedef expr_unsigned_map<result> cache;
     cache                m_simp_cache;
+    cache                m_simp_cache_spec;
     cache                m_cache;
+    cache                m_cache_spec;
     cache                m_rel_cache[2];
     relation_info_getter m_relation_info_getter;
 
@@ -298,7 +300,7 @@ struct congr_lemma_manager::imp {
                 return optional<result>(congr_type, congr_proof, to_list(kinds));
             }
             buffer<expr> rhss1;
-            get_app_args(rhs1, rhss1);
+            get_app_args_at_most(rhs1, rhss.size(), rhss1);
             lean_assert(rhss.size() == rhss1.size());
             expr a   = mk_app(fn, i, rhss1.data());
             expr pr2 = m_builder.mk_eq_refl(a);
@@ -321,18 +323,10 @@ struct congr_lemma_manager::imp {
         }
     }
 
-public:
-    imp(app_builder & b, fun_info_manager & fm):
-        m_builder(b), m_fmanager(fm), m_ctx(fm.ctx()),
-        m_relation_info_getter(mk_relation_info_getter(fm.ctx().env())) {}
-
-    type_context & ctx() { return m_ctx; }
-
-    optional<result> mk_congr_simp(expr const & fn, unsigned nargs) {
+    optional<result> mk_congr_simp(expr const & fn, unsigned nargs, fun_info const & finfo) {
         auto r = m_simp_cache.find(key(fn, nargs));
         if (r != m_simp_cache.end())
             return optional<result>(r->second);
-        fun_info finfo = m_fmanager.get(fn, nargs);
         list<unsigned> const & result_deps = finfo.get_result_dependencies();
         buffer<congr_arg_kind> kinds;
         buffer<param_info>     pinfos;
@@ -386,16 +380,10 @@ public:
         }
     }
 
-    optional<result> mk_congr_simp(expr const & fn) {
-        fun_info finfo = m_fmanager.get(fn);
-        return mk_congr_simp(fn, finfo.get_arity());
-    }
-
-    optional<result> mk_congr(expr const & fn, unsigned nargs) {
+    optional<result> mk_congr(expr const & fn, unsigned nargs, fun_info const & finfo) {
         auto r = m_cache.find(key(fn, nargs));
         if (r != m_cache.end())
             return optional<result>(r->second);
-        fun_info finfo = m_fmanager.get(fn, nargs);
         optional<result> simp_lemma = mk_congr_simp(fn, nargs);
         if (!simp_lemma)
             return optional<result>();
@@ -427,9 +415,86 @@ public:
         return new_r;
     }
 
+    void pre_specialize(expr const & a, expr & g, unsigned & prefix_sz, unsigned & num_rest_args) {
+        fun_info finfo = m_fmanager.get_specialized(a);
+        prefix_sz = 0;
+        for (param_info const & pinfo : finfo.get_params_info()) {
+            if (!pinfo.specialized())
+                break;
+            prefix_sz++;
+        }
+        num_rest_args = finfo.get_arity() - prefix_sz;
+        g = a;
+        for (unsigned i = 0; i < num_rest_args; i++) {
+            g = app_fn(g);
+        }
+    }
+
+    result mk_specialize_result(result const & r, unsigned prefix_sz) {
+        list<congr_arg_kind> new_arg_kinds = r.get_arg_kinds();
+        for (unsigned i = 0; i < prefix_sz; i++)
+            new_arg_kinds = cons(congr_arg_kind::FixedNoParam, new_arg_kinds);
+        return result(r.get_type(), r.get_proof(), new_arg_kinds);
+    }
+
+public:
+    imp(app_builder & b, fun_info_manager & fm):
+        m_builder(b), m_fmanager(fm), m_ctx(fm.ctx()),
+        m_relation_info_getter(mk_relation_info_getter(fm.ctx().env())) {}
+
+    type_context & ctx() { return m_ctx; }
+
+    optional<result> mk_congr_simp(expr const & fn, unsigned nargs) {
+        fun_info finfo = m_fmanager.get(fn, nargs);
+        return mk_congr_simp(fn, nargs, finfo);
+    }
+
+    optional<result> mk_congr_simp(expr const & fn) {
+        fun_info finfo = m_fmanager.get(fn);
+        return mk_congr_simp(fn, finfo.get_arity(), finfo);
+    }
+
+    optional<result> mk_specialized_congr_simp(expr const & a) {
+        lean_assert(is_app(a));
+        expr g; unsigned prefix_sz, num_rest_args;
+        pre_specialize(a, g, prefix_sz, num_rest_args);
+        key k(g, num_rest_args);
+        auto it = m_simp_cache_spec.find(k);
+        if (it != m_simp_cache_spec.end())
+            return optional<result>(it->second);
+        auto r = mk_congr_simp(g, num_rest_args);
+        if (!r)
+            return optional<result>();
+        result new_r = mk_specialize_result(*r, prefix_sz);
+        m_simp_cache_spec.insert(mk_pair(k, new_r));
+        return optional<result>(new_r);
+    }
+
+    optional<result> mk_congr(expr const & fn, unsigned nargs) {
+        fun_info finfo = m_fmanager.get(fn, nargs);
+        return mk_congr(fn, nargs, finfo);
+    }
+
     optional<result> mk_congr(expr const & fn) {
         fun_info finfo = m_fmanager.get(fn);
-        return mk_congr(fn, finfo.get_arity());
+        return mk_congr(fn, finfo.get_arity(), finfo);
+    }
+
+    optional<result> mk_specialized_congr(expr const & a) {
+        lean_assert(is_app(a));
+        expr g; unsigned prefix_sz, num_rest_args;
+        pre_specialize(a, g, prefix_sz, num_rest_args);
+        key k(g, num_rest_args);
+        auto it = m_cache_spec.find(k);
+        if (it != m_cache_spec.end())
+            return optional<result>(it->second);
+        auto r = mk_congr(g, num_rest_args);
+        if (!r) {
+            return optional<result>();
+        }
+        result new_r = mk_specialize_result(*r, prefix_sz);
+        m_cache_spec.insert(mk_pair(k, new_r));
+        return optional<result>(new_r);
     }
 
     /** \brief Given an equivalence relation \c R, create the congruence lemma
@@ -538,13 +603,18 @@ auto congr_lemma_manager::mk_congr_simp(expr const & fn) -> optional<result> {
 auto congr_lemma_manager::mk_congr_simp(expr const & fn, unsigned nargs) -> optional<result> {
     return m_ptr->mk_congr_simp(fn, nargs);
 }
+auto congr_lemma_manager::mk_specialized_congr_simp(expr const & a) -> optional<result> {
+    return m_ptr->mk_specialized_congr_simp(a);
+}
 auto congr_lemma_manager::mk_congr(expr const & fn) -> optional<result> {
     return m_ptr->mk_congr(fn);
 }
 auto congr_lemma_manager::mk_congr(expr const & fn, unsigned nargs) -> optional<result> {
     return m_ptr->mk_congr(fn, nargs);
 }
-
+auto congr_lemma_manager::mk_specialized_congr(expr const & fn) -> optional<result> {
+    return m_ptr->mk_specialized_congr(fn);
+}
 auto congr_lemma_manager::mk_rel_iff_congr(expr const & R) -> optional<result> {
     return m_ptr->mk_rel_iff_congr(R);
 }

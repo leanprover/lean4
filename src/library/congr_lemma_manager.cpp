@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/replace_visitor.h"
 #include "library/relation_manager.h"
+#include "library/expr_unsigned_map.h"
 #include "library/congr_lemma_manager.h"
 
 namespace lean {
@@ -24,28 +25,12 @@ struct congr_lemma_manager::imp {
     app_builder &      m_builder;
     fun_info_manager & m_fmanager;
     type_context &     m_ctx;
-    struct key {
-        expr         m_fn;
-        unsigned     m_nargs;
-        unsigned     m_hash;
-        key(expr const & fn, unsigned nargs):
-            m_fn(fn), m_nargs(nargs), m_hash(hash(m_fn.hash(), m_nargs)) {}
-    };
-
-    struct key_hash_fn {
-        unsigned operator()(key const & k) const { return k.m_hash; }
-    };
-
-    struct key_eq_fn {
-        bool operator()(key const & k1, key const & k2) const {
-            return k1.m_fn == k2.m_fn && k1.m_nargs == k2.m_nargs;
-        }
-    };
-
-    std::unordered_map<key, result, key_hash_fn, key_eq_fn> m_simp_cache;
-    std::unordered_map<key, result, key_hash_fn, key_eq_fn> m_cache;
-    std::unordered_map<key, result, key_hash_fn, key_eq_fn> m_rel_cache[2];
-    relation_info_getter                                    m_relation_info_getter;
+    typedef expr_unsigned key;
+    typedef expr_unsigned_map<result> cache;
+    cache                m_simp_cache;
+    cache                m_cache;
+    cache                m_rel_cache[2];
+    relation_info_getter m_relation_info_getter;
 
     expr infer(expr const & e) { return m_ctx.infer(e); }
     expr whnf(expr const & e) { return m_ctx.whnf(e); }

@@ -51,8 +51,10 @@ list<unsigned> fun_info_manager::collect_deps(expr const & type, buffer<expr> co
     return to_list(deps);
 }
 
-/* Store parameter info for fn in \c pinfos and return the dependencies of the resulting type. */
-list<unsigned> fun_info_manager::get_core(expr const & fn, buffer<param_info> & pinfos, unsigned max_args) {
+/* Store parameter info for fn in \c pinfos and return the dependencies of the resulting type
+   (if compute_resulting_deps == true). */
+list<unsigned> fun_info_manager::get_core(expr const & fn, buffer<param_info> & pinfos,
+                                          unsigned max_args, bool compute_resulting_deps) {
     expr type = m_ctx.relaxed_try_to_pi(m_ctx.infer(fn));
     buffer<expr> locals;
     unsigned i = 0;
@@ -78,7 +80,10 @@ list<unsigned> fun_info_manager::get_core(expr const & fn, buffer<param_info> & 
         type = new_type;
         i++;
     }
-    return collect_deps(type, locals);
+    if (compute_resulting_deps)
+        return collect_deps(type, locals);
+    else
+        return list<unsigned>();
 }
 
 fun_info fun_info_manager::get(expr const & e) {
@@ -86,7 +91,7 @@ fun_info fun_info_manager::get(expr const & e) {
     if (it != m_cache_get.end())
         return it->second;
     buffer<param_info> pinfos;
-    auto result_deps = get_core(e, pinfos, std::numeric_limits<unsigned>::max());
+    auto result_deps = get_core(e, pinfos, std::numeric_limits<unsigned>::max(), true);
     fun_info r(pinfos.size(), to_list(pinfos), result_deps);
     m_cache_get.insert(mk_pair(e, r));
     return r;
@@ -98,7 +103,7 @@ fun_info fun_info_manager::get(expr const & e, unsigned nargs) {
     if (it != m_cache_get_nargs.end())
         return it->second;
     buffer<param_info> pinfos;
-    auto result_deps = get_core(e, pinfos, nargs);
+    auto result_deps = get_core(e, pinfos, nargs, true);
     fun_info r(pinfos.size(), to_list(pinfos), result_deps);
     m_cache_get_nargs.insert(mk_pair(key, r));
     return r;
@@ -119,17 +124,12 @@ static bool has_nonprop_nonsubsingleton_fwd_dep(unsigned i, buffer<param_info> c
     return false;
 }
 
-/* Copy the first prefix_sz entries from pinfos to new_pinfos and mark them as m_specialized = true */
-static void copy_prefix(unsigned prefix_sz, buffer<param_info> const & pinfos, buffer<param_info> & new_pinfos) {
-    for (unsigned i = 0; i < prefix_sz; i++) {
-        new_pinfos.push_back(pinfos[i].mk_specialized());
-    }
-}
-
-void fun_info_manager::trace_if_unsupported(expr const & fn, buffer<expr> const & args, unsigned prefix_sz,
-                                            buffer<param_info> const & pinfos, fun_info const & result) {
+void fun_info_manager::trace_if_unsupported(expr const & fn, buffer<expr> const & args, unsigned prefix_sz, fun_info const & result) {
     if (!is_fun_info_trace_enabled())
         return;
+    fun_info info = get(fn, args.size());
+    buffer<param_info> pinfos;
+    to_buffer(info.get_params_info(), pinfos);
     /* Check if all remaining arguments are nondependent or
        dependent (but all forward dependencies are propositions or subsingletons) */
     unsigned i = prefix_sz;
@@ -164,13 +164,9 @@ void fun_info_manager::trace_if_unsupported(expr const & fn, buffer<expr> const 
     }
 }
 
-fun_info fun_info_manager::get_specialized(expr const & a) {
-    lean_assert(is_app(a));
-    buffer<expr> args;
-    expr const & fn = get_app_args(a, args);
-    fun_info info = get(fn, args.size());
+unsigned fun_info_manager::get_prefix(expr const & fn, unsigned nargs) {
     /*
-      We say info is "cheap" if it is of the form:
+      We say a function is "cheap" if it is of the form:
 
       a) 0 or more dependent parameters p s.t. there is at least one forward dependency x : C[p]
          which is not a proposition nor a subsingleton.
@@ -196,7 +192,14 @@ fun_info fun_info_manager::get_specialized(expr const & a) {
       Therefore, we ignore the non-cheap cases, and pretend they are "cheap".
       If tracing is enabled, we produce a tracing message whenever we find
       a non-cheap case.
+
+      This procecure returns the size of group a)
     */
+    expr_unsigned key(fn, nargs);
+    auto it = m_cache_prefix.find(key);
+    if (it != m_cache_prefix.end())
+        return it->second;
+    fun_info info = get(fn, nargs);
     buffer<param_info> pinfos;
     to_buffer(info.get_params_info(), pinfos);
     /* Compute "prefix": 0 or more parameters s.t.
@@ -211,12 +214,16 @@ fun_info fun_info_manager::get_specialized(expr const & a) {
             break;
     }
     unsigned prefix_sz = i;
-    if (prefix_sz == 0) {
-        trace_if_unsupported(fn, args, prefix_sz, pinfos, info);
-        return info;
-    }
-    /* Get g : fn + prefix */
-    unsigned num_rest_args = pinfos.size() - prefix_sz;
+    m_cache_prefix.insert(mk_pair(key, prefix_sz));
+    return prefix_sz;
+}
+
+fun_info fun_info_manager::get_specialized(expr const & a) {
+    lean_assert(is_app(a));
+    buffer<expr> args;
+    expr const & fn        = get_app_args(a, args);
+    unsigned prefix_sz     = get_prefix(fn, args.size());
+    unsigned num_rest_args = args.size() - prefix_sz;
     expr g = a;
     for (unsigned i = 0; i < num_rest_args; i++)
         g = app_fn(g);
@@ -225,12 +232,16 @@ fun_info fun_info_manager::get_specialized(expr const & a) {
     if (it != m_cache_get_spec.end()) {
         return it->second;
     }
-    buffer<param_info> new_pinfos;
-    copy_prefix(prefix_sz, pinfos, new_pinfos);
-    auto result_deps = get_core(g, new_pinfos, num_rest_args);
-    fun_info r(new_pinfos.size(), to_list(new_pinfos), result_deps);
+    /* fun_info is not cached */
+    buffer<param_info> pinfos;
+    get_core(fn, pinfos, prefix_sz, false);
+    for (unsigned i = 0; i < prefix_sz; i++) {
+        pinfos[i].m_specialized = true;
+    }
+    auto result_deps = get_core(g, pinfos, num_rest_args, true);
+    fun_info r(pinfos.size(), to_list(pinfos), result_deps);
     m_cache_get_spec.insert(mk_pair(key, r));
-    trace_if_unsupported(fn, args, prefix_sz, pinfos, r);
+    trace_if_unsupported(fn, args, prefix_sz, r);
     return r;
 }
 }

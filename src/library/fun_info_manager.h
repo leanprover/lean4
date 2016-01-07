@@ -52,11 +52,6 @@ public:
     bool is_prop() const { return m_prop; }
     bool is_subsingleton() const { return m_subsingleton; }
     bool is_dep() const { return m_is_dep; }
-    param_info mk_specialized() const {
-        param_info r(*this);
-        r.m_specialized = true;
-        return r;
-    }
 };
 
 /** \brief Function information produced by \c fun_info_manager */
@@ -81,13 +76,14 @@ class fun_info_manager {
     type_context &                         m_ctx;
     typedef expr_map<fun_info>          cache;
     typedef expr_unsigned_map<fun_info> narg_cache;
-    cache      m_cache_get;
-    narg_cache m_cache_get_nargs;
-    narg_cache m_cache_get_spec;
+    typedef expr_unsigned_map<unsigned> prefix_cache;
+    cache        m_cache_get;
+    narg_cache   m_cache_get_nargs;
+    narg_cache   m_cache_get_spec;
+    prefix_cache m_cache_prefix;
     list<unsigned> collect_deps(expr const & e, buffer<expr> const & locals);
-    list<unsigned> get_core(expr const & e, buffer<param_info> & pinfos, unsigned max_args);
-    void trace_if_unsupported(expr const & fn, buffer<expr> const & args, unsigned prefix_sz,
-                              buffer<param_info> const & pinfos, fun_info const & result);
+    list<unsigned> get_core(expr const & e, buffer<param_info> & pinfos, unsigned max_args, bool compute_resulting_deps);
+    void trace_if_unsupported(expr const & fn, buffer<expr> const & args, unsigned prefix_sz, fun_info const & result);
 public:
     fun_info_manager(type_context & ctx);
     type_context & ctx() { return m_ctx; }
@@ -112,6 +108,21 @@ public:
         \remark \c get and \c get_specialization return the same result for all but
         is_prop and is_subsingleton. */
     fun_info get_specialized(expr const & app);
+
+    /** \brief Return the number of arguments that are used to specialize \c fn
+        at \c get_specialized.
+
+        Examples:
+        a) (eq : Pi (A : Type), A -> A -> Prop)
+           result 1
+
+        b) (add : Pi {A : Type} [s : has_add A] (x y : A), A)
+           result 2
+
+        c) (inv : Pi {A : Type} [s : has_inv A] (x : A) (h : invertible x), A)
+           result 2
+    */
+    unsigned get_prefix(expr const & fn, unsigned nargs);
 };
 
 void initialize_fun_info_manager();

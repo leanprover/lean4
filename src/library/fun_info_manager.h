@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 namespace lean {
 /** \brief Function parameter information. It is used by \c fun_info_manager. */
 class param_info {
+    friend class fun_info_manager;
     /* m_specialized is true if the result of fun_info has been specifialized
        using this argument.
        For example, consider the function
@@ -50,20 +51,29 @@ public:
     bool is_prop() const { return m_prop; }
     bool is_subsingleton() const { return m_subsingleton; }
     bool is_dep() const { return m_is_dep; }
+    param_info mk_specialized() const {
+        param_info r(*this);
+        r.m_specialized = true;
+        return r;
+    }
 };
 
 /** \brief Function information produced by \c fun_info_manager */
 class fun_info {
+    /* m_specialized is true if the information was produced using the function arguments,
+       and all m_specialized = true for all m_params_info */
     unsigned         m_arity;
+    bool             m_specialized;
     list<param_info> m_params_info;
     list<unsigned>   m_deps; // resulting type dependencies
 public:
-    fun_info():m_arity(0) {}
-    fun_info(unsigned arity, list<param_info> const & info, list<unsigned> const & deps):
-        m_arity(arity), m_params_info(info), m_deps(deps) {}
+    fun_info():m_arity(0), m_specialized(false) {}
+    fun_info(unsigned arity, list<param_info> const & info, list<unsigned> const & deps, bool spec = false):
+        m_arity(arity), m_specialized(spec), m_params_info(info), m_deps(deps) {}
     unsigned get_arity() const { return m_arity; }
     list<param_info> const & get_params_info() const { return m_params_info; }
     list<unsigned> const & get_result_dependencies() const { return m_deps; }
+    bool fully_specialized() const { return m_specialized; }
 };
 
 /** \brief Helper object for retrieving a summary for the parameters
@@ -72,8 +82,23 @@ public:
     dependencies, implicit binder info, etc. */
 class fun_info_manager {
     type_context &                         m_ctx;
-    rb_map<expr, fun_info, expr_quick_cmp> m_fun_info;
+    struct unsigned_expr_cmp {
+        int operator()(pair<unsigned, expr> const & p1, pair<unsigned, expr> const & p2) const {
+            if (p1.first != p2.first)
+                return p1.first < p2.first ? -1 : 1;
+            else
+                return expr_quick_cmp()(p1.second, p2.second);
+        }
+    };
+    typedef rb_map<expr, fun_info, expr_quick_cmp>                    cache;
+    typedef rb_map<pair<unsigned, expr>, fun_info, unsigned_expr_cmp> narg_cache;
+    cache      m_cache_get;
+    narg_cache m_cache_get_nargs;
+    narg_cache m_cache_get_spec;
     list<unsigned> collect_deps(expr const & e, buffer<expr> const & locals);
+    list<unsigned> get_core(expr const & e, buffer<param_info> & pinfos, unsigned max_args);
+    fun_info get_specialization(expr const & fn, buffer<expr> const & args,
+                                buffer<param_info> const & pinfos, list<unsigned> const & result_deps);
 public:
     fun_info_manager(type_context & ctx);
     type_context & ctx() { return m_ctx; }

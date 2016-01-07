@@ -348,7 +348,7 @@ public:
         if (r != m_simp_cache.end())
             return optional<result>(r->second);
         fun_info finfo = m_fmanager.get(fn, nargs);
-        list<unsigned> const & result_deps = finfo.get_dependencies();
+        list<unsigned> const & result_deps = finfo.get_result_dependencies();
         buffer<congr_arg_kind> kinds;
         buffer<param_info>     pinfos;
         to_buffer(finfo.get_params_info(), pinfos);

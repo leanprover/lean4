@@ -1,6 +1,8 @@
 import data.list
 open nat
 
+set_option blast.strategy "cc"
+
 constant f : nat → nat
 
 example (a b c d : nat) : f d = f b → succ a = f b → f d = succ c → a = c :=

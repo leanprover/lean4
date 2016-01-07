@@ -807,9 +807,8 @@ optional<result> simplifier::synth_congr(expr const & e, F && simp) {
     expr proof = congr_lemma->get_proof();
     expr type = congr_lemma->get_type();
     unsigned i = 0;
-    bool has_proof = false;
-    bool has_cast = false;
-    buffer<expr> locals;
+    bool has_proof              = false;
+    bool has_cast               = false;
     for_each(congr_lemma->get_arg_kinds(), [&](congr_arg_kind const & ckind) {
             switch (ckind) {
             case congr_arg_kind::Fixed:

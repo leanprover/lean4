@@ -5,7 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "library/expr_lt.h"
+#include "kernel/expr_maps.h"
+#include "library/expr_unsigned_map.h"
 #include "library/type_context.h"
 
 namespace lean {
@@ -82,16 +83,8 @@ public:
     dependencies, implicit binder info, etc. */
 class fun_info_manager {
     type_context &                         m_ctx;
-    struct unsigned_expr_cmp {
-        int operator()(pair<unsigned, expr> const & p1, pair<unsigned, expr> const & p2) const {
-            if (p1.first != p2.first)
-                return p1.first < p2.first ? -1 : 1;
-            else
-                return expr_quick_cmp()(p1.second, p2.second);
-        }
-    };
-    typedef rb_map<expr, fun_info, expr_quick_cmp>                    cache;
-    typedef rb_map<pair<unsigned, expr>, fun_info, unsigned_expr_cmp> narg_cache;
+    typedef expr_map<fun_info>          cache;
+    typedef expr_unsigned_map<fun_info> narg_cache;
     cache      m_cache_get;
     narg_cache m_cache_get_nargs;
     narg_cache m_cache_get_spec;

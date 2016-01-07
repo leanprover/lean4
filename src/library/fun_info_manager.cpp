@@ -65,22 +65,25 @@ list<unsigned> fun_info_manager::get_core(expr const & fn, buffer<param_info> & 
 }
 
 fun_info fun_info_manager::get(expr const & e) {
-    if (auto r = m_cache_get.find(e))
-        return *r;
+    auto it = m_cache_get.find(e);
+    if (it != m_cache_get.end())
+        return it->second;
     buffer<param_info> pinfos;
     auto result_deps = get_core(e, pinfos, std::numeric_limits<unsigned>::max());
     fun_info r(pinfos.size(), to_list(pinfos), result_deps);
-    m_cache_get.insert(e, r);
+    m_cache_get.insert(mk_pair(e, r));
     return r;
 }
 
 fun_info fun_info_manager::get(expr const & e, unsigned nargs) {
-    if (auto r = m_cache_get_nargs.find(mk_pair(nargs, e)))
-        return *r;
+    expr_unsigned key(e, nargs);
+    auto it = m_cache_get_nargs.find(key);
+    if (it != m_cache_get_nargs.end())
+        return it->second;
     buffer<param_info> pinfos;
     auto result_deps = get_core(e, pinfos, nargs);
     fun_info r(pinfos.size(), to_list(pinfos), result_deps);
-    m_cache_get_nargs.insert(mk_pair(nargs, e), r);
+    m_cache_get_nargs.insert(mk_pair(key, r));
     return r;
 }
 
@@ -191,13 +194,15 @@ fun_info fun_info_manager::get_specialization(expr const & a) {
         expr g = a;
         for (unsigned i = 0; i < num_rest_args; i++)
             g = app_fn(g);
-        if (auto r = m_cache_get_spec.find(mk_pair(num_rest_args, g)))
-            return *r;
+        expr_unsigned key(g, num_rest_args);
+        auto it = m_cache_get_spec.find(key);
+        if (it != m_cache_get_spec.end())
+            return it->second;
         buffer<param_info> new_pinfos;
         copy_prefix(prefix_sz, pinfos, new_pinfos);
         auto result_deps = get_core(g, new_pinfos, num_rest_args);
         fun_info r(new_pinfos.size(), to_list(new_pinfos), result_deps);
-        m_cache_get_spec.insert(mk_pair(num_rest_args, g), r);
+        m_cache_get_spec.insert(mk_pair(key, r));
         return r;
     }
 }

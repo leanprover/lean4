@@ -18,22 +18,48 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_BLAST_RECURSION_MAX_ROUNDS 3
 #endif
 
+#ifndef LEAN_DEFAULT_BLAST_RECURSION_STRUCTURE
+#define LEAN_DEFAULT_BLAST_RECURSION_STRUCTURE false
+#endif
+
+#ifndef LEAN_DEFAULT_BLAST_RECURSION_CLASS
+#define LEAN_DEFAULT_BLAST_RECURSION_CLASS false
+#endif
+
 namespace lean {
 namespace blast {
-static name * g_blast_recursion_max_rounds = nullptr;
+static name * g_blast_recursion_max_rounds    = nullptr;
+static name * g_blast_recursion_structure     = nullptr;
+static name * g_blast_recursion_class         = nullptr;
 
 unsigned get_blast_recursion_max_rounds(options const & o) {
     return o.get_unsigned(*g_blast_recursion_max_rounds, LEAN_DEFAULT_BLAST_RECURSION_MAX_ROUNDS);
 }
 
+bool get_blast_recursion_structure(options const & o) {
+    return o.get_bool(*g_blast_recursion_structure, LEAN_DEFAULT_BLAST_RECURSION_STRUCTURE);
+}
+
+bool get_blast_recursion_class(options const & o) {
+    return o.get_bool(*g_blast_recursion_class, LEAN_DEFAULT_BLAST_RECURSION_CLASS);
+}
+
 void initialize_recursor_strategy() {
     g_blast_recursion_max_rounds = new name{"blast", "recursion", "max_rounds"};
+    g_blast_recursion_structure  = new name{"blast", "recursion", "structure"};
+    g_blast_recursion_class      = new name{"blast", "recursion", "class"};
     register_unsigned_option(*blast::g_blast_recursion_max_rounds, LEAN_DEFAULT_BLAST_RECURSION_MAX_ROUNDS,
                              "(blast) maximum number of nested recursion/induction steps");
+    register_bool_option(*blast::g_blast_recursion_structure, LEAN_DEFAULT_BLAST_RECURSION_STRUCTURE,
+                         "(blast) if true recursion strategy also considers inductive types with only one constructor");
+    register_bool_option(*blast::g_blast_recursion_class, LEAN_DEFAULT_BLAST_RECURSION_CLASS,
+                         "(blast) if true recursion strategy also considers inductive types that are marked as type classes");
 }
 
 void finalize_recursor_strategy() {
     delete g_blast_recursion_max_rounds;
+    delete g_blast_recursion_structure;
+    delete g_blast_recursion_class;
 }
 
 static action_result try_hypothesis(hypothesis_idx hidx) {
@@ -159,6 +185,8 @@ strategy rec_and_then(strategy const & S, rec_candidate_selector const & selecto
 static void default_selector(hypothesis_idx_buffer & r) {
     // TODO(Leo): add options to control selection
     state & s = curr_state();
+    bool classes     = get_blast_recursion_class(ios().get_options());
+    bool structures  = get_blast_recursion_structure(ios().get_options());
     s.for_each_hypothesis([&](hypothesis_idx hidx, hypothesis const & h) {
             expr const & type = h.get_type();
             if (!is_app(type) && !is_constant(type))
@@ -167,13 +195,13 @@ static void default_selector(hypothesis_idx_buffer & r) {
                 return;
             if (is_relation_app(type))
                 return; // we don't apply recursors to equivalence relations: =, ~, <->, etc.
-            if (get_type_context().is_class(type))
+            if (!classes && get_type_context().is_class(type))
                 return; // ignore type classes
             expr const & I    = get_app_fn(type);
             if (!is_constant(I))
                 return;
             name const & I_name = const_name(I);
-            if (inductive::is_inductive_decl(env(), I_name) && *inductive::get_num_intro_rules(env(), I_name) > 1) {
+            if (inductive::is_inductive_decl(env(), I_name) && (structures || *inductive::get_num_intro_rules(env(), I_name) > 1)) {
                 // builtin recursive datatype with more than one constructor
                 r.push_back(hidx);
                 return;

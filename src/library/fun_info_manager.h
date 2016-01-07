@@ -122,7 +122,7 @@ public:
         c) (inv : Pi {A : Type} [s : has_inv A] (x : A) (h : invertible x), A)
            result 2
     */
-    unsigned get_prefix(expr const & fn, unsigned nargs);
+    unsigned get_specialization_prefix_size(expr const & fn, unsigned nargs);
 };
 
 void initialize_fun_info_manager();

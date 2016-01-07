@@ -164,7 +164,7 @@ void fun_info_manager::trace_if_unsupported(expr const & fn, buffer<expr> const 
     }
 }
 
-unsigned fun_info_manager::get_prefix(expr const & fn, unsigned nargs) {
+unsigned fun_info_manager::get_specialization_prefix_size(expr const & fn, unsigned nargs) {
     /*
       We say a function is "cheap" if it is of the form:
 
@@ -222,7 +222,7 @@ fun_info fun_info_manager::get_specialized(expr const & a) {
     lean_assert(is_app(a));
     buffer<expr> args;
     expr const & fn        = get_app_args(a, args);
-    unsigned prefix_sz     = get_prefix(fn, args.size());
+    unsigned prefix_sz     = get_specialization_prefix_size(fn, args.size());
     unsigned num_rest_args = args.size() - prefix_sz;
     expr g = a;
     for (unsigned i = 0; i < num_rest_args; i++)

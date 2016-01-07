@@ -586,6 +586,10 @@ public:
     optional<result> mk_rel_eq_congr(expr const & R) {
         return mk_rel_congr(R, false);
     }
+
+    unsigned get_specialization_prefix_size(expr const & fn, unsigned nargs) {
+        return m_fmanager.get_specialization_prefix_size(fn, nargs);
+    }
 };
 
 congr_lemma_manager::congr_lemma_manager(app_builder & b, fun_info_manager & fm):
@@ -618,9 +622,11 @@ auto congr_lemma_manager::mk_specialized_congr(expr const & fn) -> optional<resu
 auto congr_lemma_manager::mk_rel_iff_congr(expr const & R) -> optional<result> {
     return m_ptr->mk_rel_iff_congr(R);
 }
-
 auto congr_lemma_manager::mk_rel_eq_congr(expr const & R) -> optional<result> {
     return m_ptr->mk_rel_eq_congr(R);
+}
+unsigned congr_lemma_manager::get_specialization_prefix_size(expr const & fn, unsigned nargs) {
+    return m_ptr->get_specialization_prefix_size(fn, nargs);
 }
 
 void initialize_congr_lemma_manager() {

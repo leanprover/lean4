@@ -34,7 +34,7 @@ unsigned abstract_expr_manager::hash(expr const & e) {
     case expr_kind::App:
         buffer<expr> args;
         expr const & f     = get_app_args(e, args);
-        unsigned prefix_sz = m_congr_lemma_manager.get_specialization_prefix_size(f, args.size());
+        unsigned prefix_sz = m_congr_lemma_manager.get_specialization_prefix_size(instantiate_rev(f, m_locals.size(), m_locals.data()), args.size());
         expr new_f = e;
         unsigned rest_sz   = args.size() - prefix_sz;
         for (unsigned i = 0; i < rest_sz; i++)
@@ -96,7 +96,7 @@ bool abstract_expr_manager::is_equal(expr const & a, expr const & b) {
             return false;
         if (a_args.size() != b_args.size())
             return false;
-        unsigned prefix_sz = m_congr_lemma_manager.get_specialization_prefix_size(f_a, a_args.size());
+        unsigned prefix_sz = m_congr_lemma_manager.get_specialization_prefix_size(instantiate_rev(f_a, m_locals.size(), m_locals.data()), a_args.size());
         for (unsigned i = 0; i < prefix_sz; i++) {
             if (!is_equal(a_args[i], b_args[i]))
                 return false;

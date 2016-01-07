@@ -99,28 +99,4 @@ public:
         is_prop and is_subsingleton. */
     fun_info get_specialization(expr const & app);
 };
-
-/** \brief Given a term \c e of the form F[ts[0], ..., ts[n-1]],
-    return F[rs[0], ..., rs[n-1]] only if the replacement does not produce type errors.
-
-    Note that even if each ts[i] and rs[i] have the same type, the result may be none.
-
-    Here is a very simple example:
-    Given (f : Pi (n : nat), bv n -> bv n) (v : bv 10), then (F[v] := f 10 v) is type
-    correct, but (f 11 v) is not.
-
-    If
-      a) F[ts[0], ..., ts[n-1] is type correct, and
-      b) If there is a telescope T s.t. (ts[0], ..., ts[n-1]) and (rs[0], ..., rs[n-1]) are instances of T, and
-      c) the result is not none
-    Then
-      the result is type correct.
-
-    TODO(Leo): move to a different file?
-*/
-optional<expr> replace(fun_info_manager & infom, expr const & e, unsigned n, expr const * ts, expr const * rs);
-inline optional<expr> replace(fun_info_manager & infom, expr const & e, buffer<expr> const & ts, buffer<expr> const & rs) {
-    lean_assert(ts.size() == rs.size());
-    return replace(infom, e, ts.size(), ts.data(), rs.data());
-}
 }

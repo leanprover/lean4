@@ -655,41 +655,6 @@ static environment trans_cmd(parser & p) {
     return env;
 }
 
-static void parse_expr_vector(parser & p, buffer<expr> & r) {
-    p.check_token_next(get_lbracket_tk(), "invalid command, '[' expected");
-    while (true) {
-        expr e; level_param_names ls;
-        std::tie(e, ls) = parse_local_expr(p);
-        r.push_back(e);
-        if (!p.curr_is_token(get_comma_tk()))
-            break;
-        p.next();
-    }
-    p.check_token_next(get_rbracket_tk(), "invalid command, ']' expected");
-}
-
-static environment replace_cmd(parser & p) {
-    environment const & env = p.env();
-    auto pos = p.pos();
-    expr e; level_param_names ls;
-    buffer<expr> from;
-    buffer<expr> to;
-    std::tie(e, ls) =  parse_local_expr(p);
-    p.check_token_next(get_comma_tk(), "invalid #replace command, ',' expected");
-    parse_expr_vector(p, from);
-    p.check_token_next(get_comma_tk(), "invalid #replace command, ',' expected");
-    parse_expr_vector(p, to);
-    if (from.size() != to.size())
-        throw parser_error("invalid #replace command, from/to vectors have different size", pos);
-    tmp_type_context ctx(env, p.get_options());
-    fun_info_manager infom(ctx);
-    auto r = replace(infom, e, from, to);
-    if (!r)
-        throw parser_error("#replace commad failed", pos);
-    p.regular_stream() << *r << "\n";
-    return env;
-}
-
 enum class congr_kind { Simp, Default, Rel };
 
 static environment congr_cmd_core(parser & p, congr_kind kind) {
@@ -849,7 +814,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#trans",            "(for debugging purposes)", trans_cmd));
     add_cmd(r, cmd_info("#symm",             "(for debugging purposes)", symm_cmd));
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
-    add_cmd(r, cmd_info("#replace",          "(for debugging purposes)", replace_cmd));
     add_cmd(r, cmd_info("#congr",            "(for debugging purposes)", congr_cmd));
     add_cmd(r, cmd_info("#congr_simp",       "(for debugging purposes)", congr_simp_cmd));
     add_cmd(r, cmd_info("#congr_rel",        "(for debugging purposes)", congr_rel_cmd));

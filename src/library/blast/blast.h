@@ -160,6 +160,8 @@ fun_info get_fun_info(expr const & fn, unsigned nargs);
     taking into account the actual arguments.
     \pre is_app(a) */
 fun_info get_specialized_fun_info(expr const & a);
+/** \brief Return the given function specialization prefix size. */
+unsigned get_specialization_prefix_size(expr const & fn, unsigned nargs);
 
 /** \brief Hash and equality test for abstract expressions */
 unsigned abstract_hash(expr const & e);

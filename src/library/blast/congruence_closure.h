@@ -261,9 +261,9 @@ struct ext_congr_lemma {
     list<optional<name>> const & get_arg_rel_names() const { return m_rel_names; }
 };
 
-/** \brief Build an extended congruence lemma for function \c fn with \c nargs expected arguments over relation \c R.
+/** \brief Build an extended congruence lemma for function the function application \c e over relation \c R.
     A subset of user-defined congruence lemmas is considered by this procedure. */
-optional<ext_congr_lemma> mk_ext_congr_lemma(name const & R, expr const & fn, unsigned nargs);
+optional<ext_congr_lemma> mk_ext_congr_lemma(name const & R, expr const & e);
 
 void initialize_congruence_closure();
 void finalize_congruence_closure();

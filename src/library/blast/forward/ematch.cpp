@@ -293,7 +293,7 @@ struct ematch_fn {
     }
 
     bool match_args(state & s, name const & R, buffer<expr> const & p_args, expr const & t) {
-        optional<ext_congr_lemma> cg_lemma = mk_ext_congr_lemma(R, get_app_fn(t), p_args.size());
+        optional<ext_congr_lemma> cg_lemma = mk_ext_congr_lemma(R, t);
         if (!cg_lemma)
             return false;
         buffer<expr> t_args;

@@ -755,6 +755,10 @@ public:
         return m_fun_info_manager.get_specialized(a);
     }
 
+    unsigned get_specialization_prefix_size(expr const & fn, unsigned nargs) {
+        return m_fun_info_manager.get_specialization_prefix_size(fn, nargs);
+    }
+
     unsigned abstract_hash(expr const & e) {
         return m_abstract_expr_manager.hash(e);
     }
@@ -1138,6 +1142,11 @@ fun_info get_fun_info(expr const & fn, unsigned nargs) {
 fun_info get_specialized_fun_info(expr const & a) {
     lean_assert(g_blastenv);
     return g_blastenv->get_specialized_fun_info(a);
+}
+
+unsigned get_specialization_prefix_size(expr const & fn, unsigned nargs) {
+    lean_assert(g_blastenv);
+    return g_blastenv->get_specialization_prefix_size(fn, nargs);
 }
 
 unsigned abstract_hash(expr const & e) {

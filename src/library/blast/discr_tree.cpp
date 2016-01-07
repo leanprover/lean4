@@ -171,7 +171,7 @@ auto discr_tree::insert_erase_app(node && n, bool is_root, expr const & e, buffe
     if (is_constant(fn) || is_local(fn)) {
         if (!is_root)
             todo.push_back(mk_pair(*g_delimiter, false));
-        fun_info info = get_fun_info(fn);
+        fun_info info = get_fun_info(fn, args.size());
         buffer<param_info> pinfos;
         to_buffer(info.get_params_info(), pinfos);
         lean_assert(pinfos.size() == args.size());
@@ -281,7 +281,7 @@ bool discr_tree::find_app(node const & n, expr const & e, list<pair<expr, bool>>
     buffer<expr> args;
     expr const & f = get_app_args(e, args);
     if (is_constant(f) || is_local(f)) {
-        fun_info info = get_fun_info(f);
+        fun_info info = get_fun_info(f, args.size());
         buffer<param_info> pinfos;
         to_buffer(info.get_params_info(), pinfos);
         lean_assert(pinfos.size() == args.size());

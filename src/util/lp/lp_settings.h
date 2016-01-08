@@ -196,7 +196,7 @@ struct lp_settings {
     unsigned column_norms_update_frequency = 1000;
     bool scale_with_ratio = true;
     double density_threshold = 0.7; // need to tune it up, todo
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     bool dense_deb;
     static unsigned ddd; // used for debugging
 #endif

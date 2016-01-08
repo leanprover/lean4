@@ -41,7 +41,7 @@ public:
     void push_back(unsigned index, T val) {
         m_data.emplace_back(index, val);
     }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     T operator[] (unsigned i) const {
         for (auto t : m_data) {
             if (t.first == i) return t.second;

@@ -576,7 +576,7 @@ public: // todo : move public lower ; it is for debug only
         m_low_bound_values_dummy.resize(A.column_count(), zero_of_type<T>());
         m_enter_price_eps = numeric_traits<T>::precise() ? numeric_traits<T>::zero() : T(1e-5);
         this->m_column_norm_update_counter = settings.column_norms_update_frequency;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // check_correctness();
 #endif
     }
@@ -618,7 +618,7 @@ public: // todo : move public lower ; it is for debug only
         return true;
     }
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     void check_Ax_equal_b() {
         dense_matrix<T, X> d(this->m_A);
         T * ls = d.apply_from_left_with_different_dims(this->m_x);
@@ -646,7 +646,7 @@ public: // todo : move public lower ; it is for debug only
     // the basis structures have not changed yet
     void update_reduced_costs_from_pivot_row(unsigned entering, int leaving) {
         // the basis heading has changed already
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         auto & basis_heading = this->m_factorization->m_basis_heading;
         lean_assert(basis_heading[entering] >= 0 && basis_heading[entering] < this->m_ed.size());
         lean_assert(basis_heading[leaving] < 0);
@@ -942,7 +942,7 @@ public: // todo : move public lower ; it is for debug only
 
     void forget_last_columns(unsigned how_many_to_forget) {
         lean_assert(this->m_n > how_many_to_forget);
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         for (unsigned i = 0; i <  this->m_A.row_count(); i++) {
             lean_assert(this->m_basis[i] < this->m_n - how_many_to_forget);
         }

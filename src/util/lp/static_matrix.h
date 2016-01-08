@@ -53,11 +53,11 @@ private:
     // each assignment for this matrix should be issued only once!!!
 template <typename T, typename X>
 class static_matrix
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     : public matrix<T, X>
 #endif
 {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     std::set<pair<unsigned, unsigned>> m_domain;
 #endif
 public:
@@ -123,7 +123,7 @@ public:
         m_work_pivot_vector.clear();
         m_rows.clear();
         m_columns.clear();
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         m_domain.clear();
 #endif
     }
@@ -227,7 +227,7 @@ public:
         }
     }
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     void regen_domain() {
         m_domain.clear();
         for (int i = 0; i < m_rows.size(); i++){
@@ -252,7 +252,7 @@ public:
     void set(unsigned row, unsigned col, T const & val) {
         if (numeric_traits<T>::is_zero(val)) return;
         lean_assert(row < row_count() && col < column_count());
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         pair<unsigned, unsigned> p(row, col);
         lean_assert(m_domain.find(p) == m_domain.end());
         m_domain.insert(p);
@@ -350,7 +350,7 @@ public:
         return ret;
     }
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     void check_consistency() {
         unordered_map<std::pair<unsigned, unsigned>, T> by_rows;
         for (int i = 0; i < m_rows.size(); i++){
@@ -383,13 +383,13 @@ public:
 
 
     void cross_out_row(unsigned k) {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         check_consistency();
 #endif
         cross_out_row_from_columns(k, m_rows[k]);
         fix_row_indices_in_each_column_for_crossed_row(k);
         m_rows.erase(m_rows.begin() + k);
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         regen_domain();
         check_consistency();
 #endif
@@ -454,7 +454,7 @@ public:
     }
 
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     unsigned get_number_of_rows() const { return row_count(); }
     unsigned get_number_of_columns() const { return column_count(); }
     virtual void set_number_of_rows(unsigned /*m*/) { }

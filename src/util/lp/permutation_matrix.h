@@ -186,7 +186,7 @@ namespace lean {
         return r;
     }
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     // used for debugging purposes only
     template <typename T, typename X>
     class matrix {
@@ -231,7 +231,7 @@ namespace lean {
     // These matrices appear at the end of the list
     template <typename T, typename X>
     class tail_matrix
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         : public matrix<T, X>
 #endif
     {
@@ -242,7 +242,7 @@ namespace lean {
         virtual ~tail_matrix() {}
     };
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     template <typename T, typename X>
     void apply_to_vector(matrix<T, X> & m, T * w) {
         // here m is a square matrix
@@ -548,7 +548,7 @@ namespace lean {
             cout << ' ';
         }
     }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     inline void print_matrix_with_widths(vector<vector<string>> & A, vector<unsigned> & ws) {
         for (unsigned i = 0; i < A.size(); i++) {
             for (unsigned j = 0; j < A[i].size(); j++) {
@@ -638,7 +638,7 @@ namespace lean {
             return m_rev[i];
         }
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         permutation_matrix get_inverse() const {
             return permutation_matrix(m_length, m_rev);
         }
@@ -678,7 +678,7 @@ namespace lean {
 
         template <typename L>
         void apply_from_left_perm(vector<L> & w) {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // dense_matrix<L, X> deb(*this);
             // L * deb_w = clone_vector<L>(w, row_count());
             // deb.apply_from_left(deb_w);
@@ -692,7 +692,7 @@ namespace lean {
                 w[i] = t[i];
             }
             delete [] t;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // lean_assert(vectors_are_equal<L>(deb_w, w, row_count()));
             // delete [] deb_w;
 #endif
@@ -709,7 +709,7 @@ namespace lean {
 
         template <typename L>
         void apply_from_left_perm(indexed_vector<L> & w, lp_settings &) {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // dense_matrix<T, L> deb(*this);
             // T * deb_w = clone_vector<T>(w.m_data, row_count());
             // deb.apply_from_right(deb_w);
@@ -725,7 +725,7 @@ namespace lean {
                 w[j] = t[i];
                 w.m_index[i] = j;
             }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // lean_assert(vectors_are_equal<T>(deb_w, w.m_data, row_count()));
             // delete [] deb_w;
 #endif
@@ -733,7 +733,7 @@ namespace lean {
 
 
         void apply_from_right(vector<T> & w) {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // dense_matrix<T, X> deb(*this);
             // T * deb_w = clone_vector<T>(w, row_count());
             // deb.apply_from_right(deb_w);
@@ -747,7 +747,7 @@ namespace lean {
                 w[i] = t[i];
             }
             delete [] t;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // lean_assert(vectors_are_equal<T>(deb_w, w, row_count()));
             // delete [] deb_w;
 #endif
@@ -755,7 +755,7 @@ namespace lean {
 
 //         void apply_from_right(indexed_vector<T> & w) {
 //             lean_assert(false); // i think it is never called
-// #ifndef NDEBUG
+// #ifdef LEAN_DEBUG
 //             // dense_matrix<T, X> deb(*this);
 //             // T * deb_w = clone_vector<T>(w.m_data, row_count());
 //             // deb.apply_from_right(deb_w);
@@ -774,7 +774,7 @@ namespace lean {
 //             for (unsigned i = 0; i < m_length; i++) {
 //                 w[i] = t[i];
 //             }
-// #ifndef NDEBUG
+// #ifdef LEAN_DEBUG
 //             // lean_assert(vectors_are_equal<T>(deb_w, w.m_data, row_count()));
 //             // delete [] deb_w;
 // #endif
@@ -803,7 +803,7 @@ namespace lean {
         template <typename L>
         void apply_reverse_from_left(indexed_vector<L> & w) {
             // the result will be w = p(-1) * w
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // dense_matrix<L, X> deb(get_reverse());
             // L * deb_w = clone_vector<L>(w.m_data, row_count());
             // deb.apply_from_left(deb_w);
@@ -821,7 +821,7 @@ namespace lean {
                 w[j] = t[i];
                 w.m_index[i] = j;
             }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // lean_assert(vectors_are_equal<L>(deb_w, w.m_data, row_count()));
             // delete [] deb_w;
 #endif
@@ -830,7 +830,7 @@ namespace lean {
         template <typename L>
         void apply_reverse_from_left(std::vector<L> & w) {
             // the result will be w = p(-1) * w
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // dense_matrix<T, X> deb(get_reverse());
             // T * deb_w = clone_vector<T>(w, row_count());
             // deb.apply_from_left(deb_w);
@@ -843,7 +843,7 @@ namespace lean {
             for (unsigned i = 0; i < m_length; i++) {
                 w[i] = t[i];
             }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // lean_assert(vectors_are_equal<T>(deb_w, w, row_count()));
             // delete [] deb_w;
 #endif
@@ -851,7 +851,7 @@ namespace lean {
         template <typename L>
         void apply_reverse_from_right(vector<L> & w) {
             // the result will be w = w * p(-1)
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // dense_matrix<T, X> deb(get_reverse());
             // T * deb_w = clone_vector<T>(w, row_count());
             // deb.apply_from_right(deb_w);
@@ -865,7 +865,7 @@ namespace lean {
                 w[i] = t[i];
             }
             delete [] t;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // lean_assert(vectors_are_equal<T>(deb_w, w, row_count()));
             // delete deb_w;
 #endif
@@ -898,7 +898,7 @@ namespace lean {
             set_val(i, pj);
             set_val(j, pi);
         }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         T get_elem(unsigned i, unsigned j) const{
             return m_permutation[i] == j? numeric_traits<T>::one() : numeric_traits<T>::zero();
         }
@@ -980,7 +980,7 @@ namespace lean {
         unsigned * values() const { return m_permutation; }
     }; // end of the permutation class
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     template <typename T, typename X>
     class permutation_generator {
         unsigned m_n;
@@ -1114,25 +1114,25 @@ namespace lean {
         }
 
         one_off_diagonal_matrix(const one_off_diagonal_matrix<T, X> * o):m_i(o.m_i), m_j(o.m_j), m_val_jj(o.m_val_jj), m_val_ij(o.m_val_ij) {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             m_m = m_n = o.m_m;
 #endif
         }
 
         void conjugate_by_permutation(permutation_matrix<T, X> & p) {
             // this = p * this * p(-1)
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // auto rev = p.get_reverse();
             // auto deb = ((*this) * rev);
             // deb = p * deb;
 #endif
             m_j = p.get_rev(m_j);
             m_i = p.get_rev(m_i);
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // lean_assert(deb == *this);
 #endif
         }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         unsigned m_m;
         unsigned m_n;
         virtual void set_number_of_rows(unsigned m) { m_n = m_m = m; }
@@ -1156,7 +1156,7 @@ namespace lean {
         unsigned column_count() const { return m_n; } // not defined  }
 #endif
         void apply_from_left(vector<X> & w, lp_settings &) {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // dense_matrix<T, X> deb(*this);
             // T * deb_w = clone_vector<T>(w, row_count());
             // deb.apply_from_left(deb_w);
@@ -1164,7 +1164,7 @@ namespace lean {
             auto wj = w[m_j];
             w[m_j] =  wj / m_val_jj;
             w[m_i] += wj * m_val_ij;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // lean_assert(vectors_are_equal<T>(deb_w, w, row_count()));
             // delete deb_w;
 #endif
@@ -1172,7 +1172,7 @@ namespace lean {
 
         template <typename L>
         void apply_from_left_local(indexed_vector<L> & w, lp_settings & settings) {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // dense_matrix<T, X> deb(*this);
             // T * deb_w = clone_vector<T>(w.m_data, row_count());
             // deb.apply_from_left(deb_w);
@@ -1193,7 +1193,7 @@ namespace lean {
 
             lean_assert(check_vector_for_small_values(w, settings ));
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // lean_assert(vectors_are_equal<T>(deb_w, w.m_data, row_count()));
             // delete deb_w;
 #endif
@@ -1203,20 +1203,20 @@ namespace lean {
             apply_from_left_local(w, settings);
         }
         void apply_from_right(vector<T> & w) {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // dense_matrix<T, X> deb(*this);
             // T * deb_w = clone_vector<T>(w, row_count());
             // deb.apply_from_right(deb_w);
 #endif
             w[m_j] = w[m_j] / m_val_jj + m_val_ij * w[m_i];
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // lean_assert(vectors_are_equal<T>(deb_w, w, row_count()));
             // delete deb_w;
 #endif
         }
 
 //         void apply_from_right(indexed_vector<T> & w) {
-// #ifndef NDEBUG
+// #ifdef LEAN_DEBUG
 //             //        dense_matrix<T, X> deb(*this);
 //             // vector<T> deb_w(w.m_data);
 //             // deb.apply_from_right(deb_w);
@@ -1228,7 +1228,7 @@ namespace lean {
 //                 w[m_j] = m_val_ij * w[m_i];
 //                 w.m_index.push_back(m_j);
 //             }
-// #ifndef NDEBUG
+// #ifdef LEAN_DEBUG
 //             // lean_assert(vectors_are_equal<T>(deb_w, w.m_data, row_count()));
 //             // delete deb_w;
 // #endif

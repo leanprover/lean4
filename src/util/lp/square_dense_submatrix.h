@@ -266,7 +266,7 @@ public:
 
     template <typename L>
     void apply_from_left_local(indexed_vector<L> & w, lp_settings & settings) {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // dense_matrix<T, X> deb(*this);
         // vector<L>  deb_w(w.m_data.size());
         // for (unsigned i = 0; i < w.m_data.size(); i++)
@@ -318,7 +318,7 @@ public:
             w.m_data[i] = v;
         }
 #endif
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // cout << "w final" << endl;
         // print_vector(w.m_data);
         //        lean_assert(vectors_are_equal<T>(deb_w, w.m_data));
@@ -348,7 +348,7 @@ public:
         for (unsigned i = 0; i < m_parent->dimension(); i++) {
             w[i] = t[i];
         }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // cout << "w final" << endl;
         // print_vector(w.m_data);
         //  lean_assert(vectors_are_equal<L>(deb_w, w));
@@ -388,7 +388,7 @@ public:
     }
 
     void apply_from_right(vector<T> & w) {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // dense_matrix<T, X> deb(*this);
         // vector<T>  deb_w(w);
         // deb.apply_from_right(deb_w);
@@ -403,7 +403,7 @@ public:
         //                std::copy(t.begin(), t.end(), w); // does not compile
         lean_assert(w.size() == t.size());
         w = t;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         //  lean_assert(vectors_are_equal<T>(deb_w, w));
 #endif
     }
@@ -411,7 +411,7 @@ public:
 
 
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
 
     T get_elem (unsigned i, unsigned j) const {
         i = adjust_row(i);

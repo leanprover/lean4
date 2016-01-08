@@ -26,20 +26,20 @@ namespace lean {
 template <typename T, typename X>
 class row_eta_matrix
         : public tail_matrix<T, X> {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     unsigned m_dimension;
 #endif
     unsigned m_row_start;
     unsigned m_row;
     sparse_vector<T> m_row_vector;
 public:
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     row_eta_matrix(unsigned row_start, unsigned row, unsigned dim):
 #else
     row_eta_matrix(unsigned row_start, unsigned row):
 #endif
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     m_dimension(dim),
 #endif
     m_row_start(row_start), m_row(row) {
@@ -55,11 +55,11 @@ public:
     }
 
     void apply_from_left(vector<X> & w, lp_settings &
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
                          //  settings
 #endif
 ) {
-// #ifndef NDEBUG
+// #ifdef LEAN_DEBUG
 //         dense_matrix<T> deb(*this);
 //         auto clone_w = clone_vector<T>(w, m_dimension);
 //         deb.apply_from_left(clone_w, settings);
@@ -69,7 +69,7 @@ public:
             w_at_row += w[it.index()] * it.value();
         }
         w[m_row] = w_at_row;
-// #ifndef NDEBUG
+// #ifdef LEAN_DEBUG
 //         lean_assert(vectors_are_equal<T>(clone_w, w, m_dimension));
 //         delete [] clone_w;
 // #endif
@@ -77,7 +77,7 @@ public:
 
     template <typename L>
     void apply_from_left_local(indexed_vector<L> & w, lp_settings & settings) {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // dense_matrix<T> deb(*this);
         // auto clone_w = clone_vector<T>(w.m_data, m_dimension);
         // deb.apply_from_left(clone_w);
@@ -100,7 +100,7 @@ public:
             w.m_index.erase(it);
         }
         lean_assert(check_vector_for_small_values(w, settings));
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // lean_assert(vectors_are_equal<T>(clone_w, w.m_data, m_dimension));
         // delete clone_w;
 #endif
@@ -117,7 +117,7 @@ public:
     void apply_from_right(vector<T> & w) {
         T w_row = w[m_row];
         if (numeric_traits<T>::is_zero(w_row)) return;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // dense_matrix<T> deb(*this);
         // auto clone_w = clone_vector<T>(w, m_dimension);
         // deb.apply_from_right(clone_w);
@@ -125,7 +125,7 @@ public:
         for (auto it = sparse_vector_iterator<T>(m_row_vector); !it.done(); it.move()) {
             w[it.index()] += w_row * it.value();
         }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // lean_assert(vectors_are_equal<T>(clone_w, w, m_dimension));
         // delete clone_w;
 #endif
@@ -134,7 +134,7 @@ public:
     void apply_from_right(indexed_vector<T> & w) {
         T w_row = w[m_row];
         if (numeric_traits<T>::is_zero(w_row)) return;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         //        dense_matrix<T> deb(*this);
         // auto clone_w = clone_vector<T>(w.m_data, m_dimension);
         // deb.apply_from_right(clone_w);
@@ -150,7 +150,7 @@ public:
                 w.m_index.erase(w_it);
             }
         }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // lean_assert(vectors_are_equal<T>(clone_w, w.m_data, m_dimension));
         // for (unsigned i = 0; i < m_dimension; i++) {
         //     if (!numeric_traits<T>::is_zero(w.m_data[i])) {
@@ -163,7 +163,7 @@ public:
 
     void conjugate_by_permutation(permutation_matrix<T, X> & p) {
         // this = p * this * p(-1)
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // auto rev = p.get_reverse();
         // auto deb = ((*this) * rev);
         // deb = p * deb;
@@ -177,7 +177,7 @@ public:
         for (unsigned i = columns.size(); i-- > 0;) {
             m_row_vector.m_data[i].first = p.get_rev(columns[i]);
         }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // lean_assert(deb == *this);
 #endif
     }
@@ -192,7 +192,7 @@ public:
 
         return col == row ? numeric_traits<T>::one() : numeric_traits<T>::zero();
     }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     unsigned row_count() const { return m_dimension; }
     unsigned column_count() const { return m_dimension; }
     void set_number_of_rows(unsigned /*m*/) { }

@@ -24,7 +24,7 @@
 namespace lean {
 template <typename T>
 std::string T_to_string(const T & t); // forward definition
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
 template <typename T, typename X> // print the nr x nc submatrix at the top left corner
 void print_submatrix(sparse_matrix<T, X> & m, unsigned mr, unsigned nc) {
     vector<vector<string>> A;
@@ -99,7 +99,7 @@ class one_elem_on_diag: public tail_matrix<T, X> {
     T m_val;
 public:
     one_elem_on_diag(unsigned i, T val) : m_i(i), m_val(val) {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         m_one_over_val = numeric_traits<T>::one() / m_val;
 #endif
     }
@@ -108,13 +108,13 @@ public:
         m_i = o.m_i;
         m_val = o.m_val;
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         m_m = m_n = o.m_m;
         m_one_over_val = numeric_traits<T>::one() / o.m_val;
 #endif
     }
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     unsigned m_m;
     unsigned m_n;
     virtual void set_number_of_rows(unsigned m) { m_m = m; m_n = m; }
@@ -153,14 +153,14 @@ public:
 
     void conjugate_by_permutation(permutation_matrix<T, X> & p) {
         // this = p * this * p(-1)
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // auto rev = p.get_reverse();
         // auto deb = ((*this) * rev);
         // deb = p * deb;
 #endif
         m_i = p.apply_reverse(m_i);
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // lean_assert(*this == deb);
 #endif
     }
@@ -209,7 +209,7 @@ public:
         m_basis_heading(basis_heading),
         m_non_basic_columns(non_basic_columns),
         m_row_eta_work_vector(A.row_count()){
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         debug_test_of_basis(A, basis);
 #endif
         create_initial_factorization();
@@ -221,7 +221,7 @@ public:
             }
             return;
         }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // lean_assert(check_correctness());
 #endif
     }
@@ -325,7 +325,7 @@ public:
         m_U.solve_y_U(y); // got y*U=cb*R(-1)
         m_Q.apply_reverse_from_right(y); //
         for (auto e = m_tail.rbegin(); e != m_tail.rend(); ++e) {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             (*e)->set_number_of_columns(m_dim);
 #endif
             (*e)->apply_from_right(y);
@@ -501,7 +501,7 @@ public:
         return column_to_replace;
     }
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     void check_vector_w(unsigned entering) {
         T * w = new T[m_dim];
         m_A.copy_column_to_vector(entering, w);
@@ -572,7 +572,7 @@ public:
     }
 
     bool is_correct() {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         if (get_status() != LU_status::OK) {
             return false;
         }
@@ -589,7 +589,7 @@ public:
         return m_basis_heading[j];
     }
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     dense_matrix<T, X> tail_product() {
         lean_assert(tail_size() > 0);
         dense_matrix<T, X> left_side = permutation_matrix<T, X>(m_dim);
@@ -776,7 +776,7 @@ public:
         pivot_and_solve_the_system(replaced_column, lowest_row_of_the_bump);
         T denom = std::max(T(1), abs(pivot_elem_for_checking));
         if (
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             !is_zero(pivot_elem_for_checking) &&
 #endif
             !m_settings.abs_val_is_smaller_than_pivot_tolerance((m_row_eta_work_vector[lowest_row_of_the_bump] - pivot_elem_for_checking) / denom)) {
@@ -785,7 +785,7 @@ public:
             //            cout << "diagonal element is off" << endl;
             return nullptr;
         }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         auto ret = new row_eta_matrix<T, X>(replaced_column, lowest_row_of_the_bump, m_dim);
 #else
         auto ret = new row_eta_matrix<T, X>(replaced_column, lowest_row_of_the_bump);
@@ -848,7 +848,7 @@ public:
 
     void calculate_Lwave_Pwave_for_last_row(unsigned lowest_row_of_the_bump, T diagonal_element) {
         auto l = new one_elem_on_diag<T, X>(lowest_row_of_the_bump, diagonal_element);
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         l->set_number_of_columns(m_dim);
 #endif
         push_matrix_to_tail(l);
@@ -872,7 +872,7 @@ void init_factorization(lu<T, X>* & factorization, static_matrix<T, X> & m_A, st
     }
 }
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
 template <typename T, typename X>
 dense_matrix<T, X>  get_B(lu<T, X>& f) {
     dense_matrix<T, X>  B(f.dimension(), f.dimension());

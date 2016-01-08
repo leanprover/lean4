@@ -119,7 +119,7 @@ public:
 
 
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     bool is_OK() const {
         int size = 0;
         for (unsigned i = 0; i < m_data.size(); i++) {

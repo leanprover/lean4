@@ -178,7 +178,7 @@ class lar_solver {
         for (auto & t : m_column_indices_to_canonic_left_sides)
             if (valid_index(t.second->m_row_index))
                 add_row_to_A(A, i++, t.second);
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // print_matrix(m_A);
 #endif
     }

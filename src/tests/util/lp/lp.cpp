@@ -34,7 +34,7 @@ Author: Lev Nachmanson
 using namespace lean;
 using namespace std;
 unsigned seed = 1;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
 unsigned lp_settings::ddd = 0;
 #endif
 std::unordered_map<unsigned, std::string> default_column_names(unsigned n) {
@@ -154,7 +154,7 @@ void tst1() {
 
     test_matrix(m10by9);
     std::cout <<"zeroing m10by9\n";
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     for (unsigned int i = 0; i < m10by9.dimension(); i++)
         for (unsigned int j = 0; j < m10by9.column_count(); j++)
             m10by9.set(i, j, 0);
@@ -180,7 +180,7 @@ void test_small_lu(lp_settings & settings) {
     m(1, 1) = 4; m(1, 4) = 7;
     m(2, 0) = 1.8; m(2, 2) = 5; m(2, 4) = 2; m(2, 5) = 8;
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     print_matrix(m);
 #endif
     vector<int> heading = allocate_basis_heading(m.column_count());
@@ -193,7 +193,7 @@ void test_small_lu(lp_settings & settings) {
     l.prepare_entering(2, w); // to init vector w
     l.replace_column(0, 0, w);
     l.change_basis(2, 0);
-    // #ifndef NDEBUG
+    // #ifdef LEAN_DEBUG
     // cout << "we were factoring " << endl;
     // print_matrix(get_B(l));
     // #endif
@@ -203,7 +203,7 @@ void test_small_lu(lp_settings & settings) {
     l.replace_column(3, 0, w);
     l.change_basis(4, 3);
     cout << "we were factoring " << endl;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     print_matrix(get_B(l));
 #endif
     lean_assert(l.is_correct());
@@ -213,7 +213,7 @@ void test_small_lu(lp_settings & settings) {
     l.replace_column(1, 0, w);
     l.change_basis(5, 1);
     cout << "we were factoring " << endl;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     print_matrix(get_B(l));
 #endif
     lean_assert(l.is_correct());
@@ -222,7 +222,7 @@ void test_small_lu(lp_settings & settings) {
     l.replace_column(2, 0, w);
     l.change_basis(3, 2);
     cout << "we were factoring " << endl;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     print_matrix(get_B(l));
 #endif
     lean_assert(l.is_correct());
@@ -285,7 +285,7 @@ void fill_larger_sparse_matrix(static_matrix<double, double> & m){
 
 int perm_id = 0;
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
 void test_larger_lu_exp(lp_settings & settings) {
     std::cout << " test_larger_lu_exp" << std::endl;
     static_matrix<double, double> m(6, 12);
@@ -481,7 +481,7 @@ void test_lp_1() {
     m(1, 0) = -1;                m(1, 2) = 3;  m(1, 4) = 1;
     m(2, 0) =  2;  m(2, 1) = -1; m(2, 2) = 2;  m(2, 5) = 1;
     m(3, 0) =  2;  m(3, 1) =  3; m(3, 2) = -1; m(3, 6) = 1;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     print_matrix(m);
 #endif
     std::vector<double> x_star(7);
@@ -529,7 +529,7 @@ void test_lp_primal_core_solver() {
     test_lp_0();
     test_lp_1();
 }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
 template <typename T, typename X>
 void test_swap_rows_with_permutation(sparse_matrix<T, X>& m){
     cout << "testing swaps" << endl;
@@ -553,7 +553,7 @@ void test_swap_rows_with_permutation(sparse_matrix<T, X>& m){
 #endif
 template <typename T, typename X>
 void fill_matrix(sparse_matrix<T, X>& m); // forward definition
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
 void matrix_repro_test() {
     unsigned dim = 10;
     sparse_matrix<double, double> m(dim);
@@ -686,7 +686,7 @@ void test_pivot_like_swaps_and_pivot(){
     m(target_row, 3) = 0;
     m(target_row, 5) = 0;
     m(pivot_row, 6) = 0;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     print_matrix(m);
 #endif
 
@@ -707,7 +707,7 @@ void test_pivot_like_swaps_and_pivot(){
     }
 }
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
 void test_swap_rows() {
     sparse_matrix<float, float> m(10);
     fill_matrix(m);
@@ -917,7 +917,7 @@ void test_swap_operations() {
     test_swap_columns();
 }
 #endif
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
 void test_dense_matrix() {
     dense_matrix<double, double> d(3, 2);
     d.set_elem(0, 0, 1);
@@ -953,7 +953,7 @@ void test_conjugate_eta_matrix() {
     p[4] = 0;
 
     cout << "p="; p.print();
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     eta_matrix<double, double> l(2, 5);
 #else
     eta_matrix<double, double> l(2);
@@ -1072,7 +1072,7 @@ void test_apply_reverse_from_right_to_perm(permutation_matrix<double, double> & 
     pclone[4] = 1;
 
     p.multiply_by_reverse_from_right(l);
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     auto rev = l.get_inverse();
     auto rs = pclone * rev;
     lean_assert(p == rs)
@@ -1090,7 +1090,7 @@ void test_permutations() {
     test_apply_reverse_from_right();
 }
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
 void test_perm_apply_reverse_from_right() {
     permutation_generator<double, double> allp(5);
     vector<double> w(6);
@@ -1378,7 +1378,7 @@ void test_binary_priority_queue() {
     q.dequeue();
     q.remove(33);
     q.enqueue(0, 0);
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     unsigned t = 0;
 #endif
     while (q.size() > 0) {
@@ -1854,7 +1854,7 @@ void test_init_U() {
     m(0, 0) = 10; m(0, 1) = 11; m(0, 2) = 12; m(0, 3) = 13; m(0, 4) = 14;
     m(1, 0) = 20; m(1, 1) = 21; m(1, 2) = 22; m(1, 3) = 23; m(1, 5) = 24;
     m(2, 0) = 30; m(2, 1) = 31; m(2, 2) = 32; m(2, 3) = 33; m(2, 6) = 34;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     print_matrix(m);
 #endif
     std::vector<unsigned> basis(3);
@@ -2524,12 +2524,12 @@ void check_lu_from_file(string lufile_name) {
     vector<unsigned> non_basic_columns;
     lu<double, double> lsuhl(A, basis, basis_heading, settings, non_basic_columns);
     vector<double> d(A.row_count());
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     lp_settings::ddd = 1;
 #endif
     unsigned entering = 26;
     lsuhl.solve_Bd(entering, d, v);
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     auto B = get_B(lsuhl);
     vector<double>  a(m);
     A.copy_column_to_vector(entering, a);
@@ -2550,7 +2550,7 @@ void test_square_dense_submatrix() {
     for (unsigned i = index_start; i < parent_dim; i++)
         for (unsigned j = index_start; j < parent_dim; j++)
             d[i][j] = i*3+j*2;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     unsigned dim = parent_dim - index_start;
     dense_matrix<double, double> m(dim, dim);
     for (unsigned i = index_start; i < parent_dim; i++)
@@ -2561,7 +2561,7 @@ void test_square_dense_submatrix() {
     for (unsigned i = index_start; i < parent_dim; i++)
         for (unsigned j = index_start; j < parent_dim; j++)
             d[i][j] = d[j][i];
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     for (unsigned i = index_start; i < parent_dim; i++)
         for (unsigned j = index_start; j < parent_dim; j++)
             m[i-index_start][j-index_start] = d[i][j];
@@ -2593,7 +2593,7 @@ int main(int argn, char * const * argv) {
         return finalize(0);
     }
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     if (args_parser.option_is_used("--test_swaps")) {
         sparse_matrix<double, double> m(10);
         fill_matrix(m);
@@ -2624,7 +2624,7 @@ int main(int argn, char * const * argv) {
         return finalize(ret);
     }
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     lp_settings settings;
     update_settings(args_parser, settings);
     if (args_parser.option_is_used("--test_lu")) {
@@ -2674,7 +2674,7 @@ int main(int argn, char * const * argv) {
     return finalize(0);
     test_init_U();
     test_replace_column();
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     test_perm_apply_reverse_from_right();
     test_conjugate_perm();
     sparse_matrix_with_permutaions_test();

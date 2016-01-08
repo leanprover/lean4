@@ -12,20 +12,20 @@ namespace lean {
     template <typename T, typename X>
     class eta_matrix
         : public tail_matrix<T, X> {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         unsigned m_length;
 #endif
         unsigned m_column_index;
         sparse_vector<T> m_column_vector;
         T m_diagonal_element;
     public:
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         eta_matrix(unsigned column_index, unsigned length):
 #else
             eta_matrix(unsigned column_index):
 #endif
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             m_length(length),
 #endif
             m_column_index(column_index) {
@@ -101,7 +101,7 @@ namespace lean {
         }
 
         void apply_from_right(vector<T> & w) {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // dense_matrix<T, X> deb(*this);
             // auto clone_w = clone_vector<T>(w, get_number_of_rows());
             // deb.apply_from_right(clone_w);
@@ -111,14 +111,14 @@ namespace lean {
                 t += w[it.index()] * it.value();
             }
             w[m_column_index] = t;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // lean_assert(vectors_are_equal<T>(clone_w, w, get_number_of_rows()));
             // delete clone_w;
 #endif
         }
 
 //         void apply_from_right(indexed_vector<T> & w) {
-// #ifndef NDEBUG
+// #ifdef LEAN_DEBUG
 //             // dense_matrix<T, X> deb(*this);
 //             // auto clone_w = clone_vector<T>(w, get_number_of_rows());
 //             // deb.apply_from_right(clone_w);
@@ -131,7 +131,7 @@ namespace lean {
 //                 w.m_index.push_back(m_column_index);
 //             }
 //             w[m_column_index] = t; // we might get a zero here
-// #ifndef NDEBUG
+// #ifdef LEAN_DEBUG
 //             // lean_assert(vectors_are_equal<T>(clone_w, w, get_number_of_rows()));
 //             // delete clone_w;
 // #endif
@@ -147,7 +147,7 @@ namespace lean {
 
             return i == j ? numeric_traits<T>::one() : numeric_traits<T>::zero();
         }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         unsigned row_count() const { return m_length; }
         unsigned column_count() const { return m_length; }
         void set_number_of_rows(unsigned /*m*/) { }
@@ -162,7 +162,7 @@ namespace lean {
         }
         void conjugate_by_permutation(permutation_matrix<T, X> & p) {
                     // this = p * this * p(-1)
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // auto rev = p.get_reverse();
             // auto deb = ((*this) * rev);
             // deb = p * deb;
@@ -171,7 +171,7 @@ namespace lean {
             for (auto & pair : m_column_vector.m_data) {
                 pair.first = p.get_rev(pair.first);
             }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
             // lean_assert(deb == *this);
 #endif
 }

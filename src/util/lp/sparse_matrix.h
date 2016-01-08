@@ -29,7 +29,7 @@ using std::cout;
     // it is a square matrix
 template <typename T, typename X>
 class sparse_matrix
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     : public matrix<T, X>
 #endif
 {
@@ -55,7 +55,7 @@ public:
     permutation_matrix<T, X>  m_row_permutation;
     permutation_matrix<T, X>  m_column_permutation;
     indexed_vector<T> m_work_pivot_vector;
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     // dense_matrix<T> m_dense;
 #endif
     /*
@@ -233,7 +233,7 @@ public:
 
     unsigned dimension() const {return m_row_permutation.size();}
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     unsigned row_count() const {return dimension();}
     unsigned column_count() const {return dimension();}
 #endif
@@ -398,7 +398,7 @@ public:
             }
         }
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         lean_assert(numeric_traits<T>::is_zero(m_work_pivot_vector[pivot_col]));
 #endif
         if (!set_row_from_work_vector_and_clean_work_vector(i0)) {
@@ -580,7 +580,7 @@ public:
     // solving x * this = y, and putting the answer into y
     // the matrix here has to be upper triangular
     void solve_y_U(std::vector<T> & y) const { // works by rows
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // T * rs = clone_vector<T>(y, dimension());
 #endif
         unsigned end = dimension() - 1;
@@ -596,7 +596,7 @@ public:
                 }
             }
         }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // dense_matrix<T> deb(*this);
         // T * clone_y = clone_vector<T>(y, dimension());
         // deb.apply_from_right(clone_y);
@@ -635,7 +635,7 @@ public:
     // solving this * x = y, and putting the answer into y
     // the matrix here has to be upper triangular
     void solve_U_y_(T * y) {  // the row wise version
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // T * rs = clone_vector<T>(y, dimension());
 #endif
         lean_assert(dimension() == dimension());
@@ -650,7 +650,7 @@ public:
                 y[i] -= y[col] * c.m_value;
             }
         }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // dense_matrix<T> deb(*this);
         // T * clone_y = clone_vector<T>(y, dimension());
         // deb.apply_from_left(clone_y);
@@ -662,7 +662,7 @@ public:
     // solving this * x = y, and putting the answer into y
     // the matrix here has to be upper triangular
     void solve_U_y(T * y) { // the columns have to be correct - it is a column wise version
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // T * rs = clone_vector<T>(y, dimension());
 #endif
         for (unsigned j = dimension() - 1; j > 0; j--) {
@@ -676,7 +676,7 @@ public:
                 }
             }
         }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // dense_matrix<T> deb(*this);
         // T * clone_y = clone_vector<T>(y, dimension());
         // deb.apply_from_left(clone_y);
@@ -713,7 +713,7 @@ public:
     // the matrix here has to be upper triangular
     template <typename L>
     void solve_U_y(std::vector<L> & y) { // it is a column wise version
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // T * rs = clone_vector<T>(y, dimension());
 #endif
 
@@ -728,7 +728,7 @@ public:
                 }
             }
         }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         // dense_matrix<T> deb(*this);
         // T * clone_y = clone_vector<T>(y, dimension());
         // deb.apply_from_left(clone_y);
@@ -736,7 +736,7 @@ public:
 #endif
     }
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     T get_elem(unsigned i, unsigned j) const { return get(i, j); }
     unsigned get_number_of_rows() const { return dimension(); }
     unsigned get_number_of_columns() const { return dimension(); }
@@ -999,7 +999,7 @@ public:
         lean_assert(cnz > 0);
         return m_rows[i].m_values.size() * (cnz - 1);
     }
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     bool can_improve_score_for_row(unsigned row, unsigned score, T const & c_partial_pivoting, unsigned k) {
         unsigned arow = adjust_row(row);
         auto & row_vals = m_rows[arow].m_values;
@@ -1080,7 +1080,7 @@ public:
             if (j_inv < k) continue;
             int small = elem_is_too_small(i, j, c_partial_pivoting);
             if (!small) {
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
                 // if (!really_best_pivot(i, j, c_partial_pivoting, k)) {
                 //     print_active_matrix(k);
                 //     lean_assert(false);
@@ -1182,7 +1182,7 @@ public:
             return;
         }
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
         *eta = new eta_matrix<T, X>(j, dimension());
 #else
         *eta = new eta_matrix<T, X>(j);
@@ -1311,7 +1311,7 @@ public:
         }
     }
 
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     void check_matrix() {
         check_rows_vs_columns();
         check_columns_vs_rows();

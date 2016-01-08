@@ -170,7 +170,7 @@ public:
     void solve_Bd(unsigned entering) {
         m_factorization->solve_Bd(entering, m_ed, m_w);
         update_index_of_ed();
-#ifndef NDEBUG
+#ifdef LEAN_DEBUG
     // auto B = get_B(m_factorization);
     // vector<T>  a(m_m);
     // m_A.copy_column_to_vector(entering, a);

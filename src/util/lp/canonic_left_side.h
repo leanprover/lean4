@@ -11,74 +11,74 @@
 #include <algorithm>
 
 namespace lean {
-    typedef unsigned var_index;
-    typedef unsigned constraint_index;
-    enum lconstraint_kind {
-        LE = -2, LT = -1 , GE = 2, GT = 1, EQ = 0
-    };
+typedef unsigned var_index;
+typedef unsigned constraint_index;
+enum lconstraint_kind {
+    LE = -2, LT = -1 , GE = 2, GT = 1, EQ = 0
+};
 
-    class lar_normalized_constraint; // forward definition
-    bool compare(const pair<mpq, var_index> & a, const pair<mpq, var_index> & b) {
-        return a.second < b.second;
+class lar_normalized_constraint; // forward definition
+bool compare(const pair<mpq, var_index> & a, const pair<mpq, var_index> & b) {
+    return a.second < b.second;
+}
+
+class canonic_left_side {
+public:
+    int m_row_index = -1;
+    int  m_column_index = -1; // this is the column of the left side variable in the matrix
+    std::vector<pair<mpq, var_index>> m_coeffs;
+    column_info<mpq> m_column_info;
+    lar_normalized_constraint * m_low_bound_witness = nullptr;
+    lar_normalized_constraint * m_upper_bound_witness = nullptr;
+
+    canonic_left_side(buffer<pair<mpq, var_index>> buffer) {
+        for (auto it : buffer) {
+            if (numeric_traits<mpq>::is_zero(it.first)) continue;
+            m_coeffs.push_back(it);
+        }
+
+        std::sort(m_coeffs.begin(), m_coeffs.end(), compare);
+        normalize();
     }
 
-    class canonic_left_side {
-    public:
-        int m_row_index = -1;
-        int  m_column_index = -1; // this is the column of the left side variable in the matrix
-        std::vector<pair<mpq, var_index>> m_coeffs;
-        column_info<mpq> m_column_info;
-        lar_normalized_constraint * m_low_bound_witness = nullptr;
-        lar_normalized_constraint * m_upper_bound_witness = nullptr;
+    void set_name(std::string name) {
+        m_column_info.set_name(name);
+    }
 
-        canonic_left_side(buffer<pair<mpq, var_index>> buffer) {
-            for (auto it : buffer) {
-                if (numeric_traits<mpq>::is_zero(it.first)) continue;
-                m_coeffs.push_back(it);
-            }
+    unsigned size() const { return m_coeffs.size(); }
 
-            std::sort(m_coeffs.begin(), m_coeffs.end(), compare);
-            normalize();
+    void normalize() {
+        if (m_coeffs.size() == 0) return;
+        auto t = m_coeffs[0].first;
+        for (auto & it : m_coeffs)
+            it.first /= t;
+    }
+
+    bool operator==(const canonic_left_side& a) const {
+        if (m_coeffs.size() != a.m_coeffs.size()) return false;
+        for (unsigned i = 0; i < m_coeffs.size(); i++) {
+            if (m_coeffs[i] != a.m_coeffs[i])
+                return false;
         }
+        return true;
+    }
 
-        void set_name(string name) {
-            m_column_info.set_name(name);
+    std::size_t hash_of_ls() const {
+        std::size_t ret = 0;
+        std::hash<pair<mpq, var_index>> hash_fun;
+        for (auto v : m_coeffs) {
+            ret |= (hash_fun(v) << 2);
         }
+        return ret;
+    }
+};
 
-        unsigned size() const { return m_coeffs.size(); }
-
-        void normalize() {
-            if (m_coeffs.size() == 0) return;
-            auto t = m_coeffs[0].first;
-            for (auto & it : m_coeffs)
-                it.first /= t;
-        }
-
-        bool operator==(const canonic_left_side& a) const {
-            if (m_coeffs.size() != a.m_coeffs.size()) return false;
-            for (unsigned i = 0; i < m_coeffs.size(); i++) {
-                if (m_coeffs[i] != a.m_coeffs[i])
-                    return false;
-            }
-            return true;
-        }
-
-        std::size_t hash_of_ls() const {
-            std::size_t ret = 0;
-            std::hash<pair<mpq, var_index>> hash_fun;
-            for (auto v : m_coeffs) {
-                ret |= (hash_fun(v) << 2);
-            }
-            return ret;
-        }
-    };
-
-    struct hash_and_equal_of_canonic_left_side_struct {
-        std::size_t operator() (const canonic_left_side* ls) const {
-            return ls->hash_of_ls();
-        }
-        bool operator() (const canonic_left_side* a, const canonic_left_side* b) const {
-            return (*a) == (*b);
-        }
-    };
+struct hash_and_equal_of_canonic_left_side_struct {
+    std::size_t operator() (const canonic_left_side* ls) const {
+        return ls->hash_of_ls();
+    }
+    bool operator() (const canonic_left_side* a, const canonic_left_side* b) const {
+        return (*a) == (*b);
+    }
+};
 }

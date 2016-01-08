@@ -54,7 +54,7 @@ public:
         return m_row_vector.m_data[m_row];
     }
 
-    void apply_from_left(vector<X> & w, lp_settings &
+    void apply_from_left(std::vector<X> & w, lp_settings &
 #ifdef LEAN_DEBUG
                          //  settings
 #endif
@@ -114,7 +114,7 @@ public:
         m_row_vector.push_back(row_index, val);
     }
 
-    void apply_from_right(vector<T> & w) {
+    void apply_from_right(std::vector<T> & w) {
         T w_row = w[m_row];
         if (numeric_traits<T>::is_zero(w_row)) return;
 #ifdef LEAN_DEBUG
@@ -170,7 +170,7 @@ public:
 #endif
         m_row = p.apply_reverse(m_row);
         // copy aside the column indices
-        vector<unsigned> columns;
+        std::vector<unsigned> columns;
         for (auto it = sparse_vector_iterator<T>(m_row_vector); !it.done(); it.move()) {
             columns.push_back(it.index());
         }

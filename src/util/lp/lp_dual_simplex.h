@@ -4,17 +4,18 @@
 
   Author: Lev Nachmanson
 */
-
 #pragma once
+#include <vector>
+#include "util/sstream.h"
+#include "util/exception.h"
 #include "util/lp/lp_solver.h"
 #include "util/lp/lp_dual_core_solver.h"
-#include <vector>
 namespace lean {
 
 template <typename T, typename X>
 class lp_dual_simplex: public lp_solver<T, X> {
     lp_dual_core_solver<T, X> * m_core_solver = nullptr;
-    vector<T> m_b_copy;
+    std::vector<T> m_b_copy;
     std::vector<T> m_low_bounds; // We don't have a convention here that all low bounds are zeros. At least it does not hold for the first stage solver
     std::vector<column_type> m_column_types_of_core_solver;
     std::vector<column_type> m_column_types_of_logicals;
@@ -31,33 +32,28 @@ public:
         case OPTIMAL:
             if (this->m_settings.abs_val_is_smaller_than_artificial_tolerance(m_core_solver->get_cost())) {
                 this->m_status = FEASIBLE;
-                cout << "status is FEASIBLE" << endl;
+                std::cout << "status is FEASIBLE" << std::endl;
             } else {
-                cout << "status is UNBOUNDED" << endl;
+                std::cout << "status is UNBOUNDED" << std::endl;
                 this->m_status = UNBOUNDED;
             }
             break;
         case DUAL_UNBOUNDED:
-            cout << "the status cannot be DUAL_UNBOUNDED since the price is not positive!" << endl;
-            lean_assert(false);
-            throw "unexpected status DUAL_UNBOUNDED";
-            break;
+            lean_unreachable();
         case ITERATIONS_EXHAUSTED:
-            cout << "status is ITERATIONS_EXHAUSTED" << endl;
+            std::cout << "status is ITERATIONS_EXHAUSTED" << std::endl;
             this->m_status = ITERATIONS_EXHAUSTED;
             break;
         case TIME_EXHAUSTED:
-            cout << "status is TIME_EXHAUSTED" << endl;
+            std::cout << "status is TIME_EXHAUSTED" << std::endl;
             this->m_status = TIME_EXHAUSTED;
             break;
         case FLOATING_POINT_ERROR:
-            cout << "status is FLOATING_POINT_ERROR" << endl;
+            std::cout << "status is FLOATING_POINT_ERROR" << std::endl;
             this->m_status = FLOATING_POINT_ERROR;
             break;
         default:
-            cout << "the status is not expected: " << lp_status_to_string(m_core_solver->get_status()) << endl;
-            lean_assert(false);
-            throw "unexpected status";
+            lean_unreachable();
         }
     }
 
@@ -75,8 +71,7 @@ public:
             m_can_enter_basis[j] = false;
             break;
         default:
-            throw 1;
-            lean_assert(false);
+            lean_unreachable();
         }
     }
 
@@ -90,9 +85,7 @@ public:
             break;
         case fixed:
         case upper_bound:
-            lean_assert(false);
-            throw "unexpected bound type";
-            break;
+            lean_unreachable();
         case boxed:
             this->m_upper_bounds[j] = ci->get_adjusted_upper_bound() / this->m_column_scale[j];
             m_low_bounds[j] = numeric_traits<T>::zero();
@@ -104,14 +97,13 @@ public:
             m_column_types_of_core_solver[j] = free_column;
             break;
         default:
-            lean_assert(false);
-            throw "unexpected bound type";
+            lean_unreachable();
         }
         T cost_was = this->m_costs[j];
         this->set_scaled_cost(j);
         bool in_basis = m_core_solver->m_factorization->m_basis_heading[j] >= 0;
         if (in_basis && cost_was != this->m_costs[j]) {
-            cout << "cost change in basis" << endl;
+            std::cout << "cost change in basis" << std::endl;
         }
     }
 
@@ -154,9 +146,7 @@ public:
             this->m_status = FLOATING_POINT_ERROR;
             break;
         default:
-            cout << "status of core solver is " << lp_status_to_string(m_core_solver->get_status()) << endl;
-            lean_assert(false);
-            throw "unexpected status";
+            lean_unreachable();
         }
         this->m_second_stage_iterations = m_core_solver->m_total_iterations;
     }
@@ -187,11 +177,11 @@ public:
         m_core_solver->fill_reduced_costs_from_m_y_by_rows();
         m_core_solver->start_with_initial_basis_and_make_it_dual_feasible();
         if (this->m_settings.abs_val_is_smaller_than_artificial_tolerance(m_core_solver->get_cost())) {
-            cout << "skipping stage 1" << endl;
+            std::cout << "skipping stage 1" << std::endl;
             m_core_solver->set_status(OPTIMAL);
             m_core_solver->m_total_iterations = 0;
         } else {
-            cout << "stage 1" << endl;
+            std::cout << "stage 1" << std::endl;
             m_core_solver->solve();
         }
         decide_on_status_after_stage1();
@@ -199,7 +189,7 @@ public:
     }
 
     void stage2() {
-        cout << "starting stage2" << endl;
+        std::cout << "starting stage2" << std::endl;
         unmark_boxed_and_fixed_columns_and_fix_structural_costs();
         restore_right_sides();
         solve_for_stage2();
@@ -230,15 +220,12 @@ public:
 
         T free_bound = T(1e4); // see 4.8
         unsigned jj = this->m_core_solver_columns_to_external_columns[j];
-    lean_assert(this->m_columns.find(jj) != this->m_columns.end());
+        lean_assert(this->m_columns.find(jj) != this->m_columns.end());
         column_info<T> * ci = this->m_columns[jj];
         switch (ci->get_column_type()) {
         case upper_bound:
-            cout << j << endl;
-            cout << column_type_to_string(get_column_type(j)) << endl;
-            cout << "throwing upper_bound case " << endl;
-            throw "unexpected bound type"; // we flip columns so this case is impossible
-            break;
+            throw exception(sstream() << "unexpected bound type " << j << " "
+                            << column_type_to_string(get_column_type(j)));
         case low_bound: {
             m_can_enter_basis[j] = true;
             this->set_scaled_cost(j);
@@ -259,9 +246,7 @@ public:
             this->m_upper_bounds[j] = this->m_low_bounds[j] =  numeric_traits<T>::zero(); // is it needed?
             break;
         default:
-            lean_assert(false);
-            throw "unexpected column type";
-            break;
+            lean_unreachable();
         }
         m_column_types_of_core_solver[j] = boxed;
     }

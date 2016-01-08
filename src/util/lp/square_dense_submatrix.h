@@ -23,8 +23,6 @@
 #include "util/lp/eta_matrix.h"
 #include "util/lp/binary_heap_upair_queue.h"
 namespace lean {
-using std::vector;
-using std::cout;
 template <typename T, typename X>
 class square_dense_submatrix : public tail_matrix<T, X> {
     // the submatrix uses the permutations of the parent matrix to access the elements
@@ -45,7 +43,7 @@ class square_dense_submatrix : public tail_matrix<T, X> {
 public: // debug
     unsigned m_index_start;
     unsigned m_dim;
-    vector<T> m_v;
+    std::vector<T> m_v;
     sparse_matrix<T, X> * m_parent = nullptr;
     permutation_matrix<T, X>  m_row_permutation;
 public:
@@ -230,7 +228,7 @@ public:
         }
     }
     template <typename L>
-    L row_by_vector_product(unsigned i, const vector<L> & v) {
+    L row_by_vector_product(unsigned i, const std::vector<L> & v) {
         lean_assert(i >= m_index_start);
 
         unsigned row_in_subm = i - m_index_start;
@@ -242,7 +240,7 @@ public:
     }
 
     template <typename L>
-    L column_by_vector_product(unsigned j, const vector<L> & v) {
+    L column_by_vector_product(unsigned j, const std::vector<L> & v) {
         lean_assert(j >= m_index_start);
 
         unsigned offset = j - m_index_start;
@@ -276,7 +274,7 @@ public:
 #endif // use indexed vector here
 
 #ifndef DO_NOT_USE_INDEX
-        vector<L> t(m_parent->dimension(), zero_of_type<L>());
+        std::vector<L> t(m_parent->dimension(), zero_of_type<L>());
         for (auto k : w.m_index) {
             unsigned j = adjust_column(k); // k-th element will contribute only to column j
             if (j < m_index_start) {
@@ -301,7 +299,7 @@ public:
             }
         }
 #else
-        vector<L> t(m_parent->dimension());
+        std::vector<L> t(m_parent->dimension());
         for (unsigned i = 0; i < m_index_start; i++) {
             t[adjust_row_inverse(i)] = w[adjust_column_inverse(i)];
         }
@@ -327,7 +325,7 @@ public:
     }
 
     template <typename L>
-    void apply_from_left_to_vector(vector<L> & w) {
+    void apply_from_left_to_vector(std::vector<L> & w) {
         // lp_settings & settings) {
         // dense_matrix<T, L> deb(*this);
         // vector<L>  deb_w(w);
@@ -338,7 +336,7 @@ public:
         // // print_vector(w.m_data);
         // // cout << "deb_w" << endl;
         // // print_vector(deb_w);
-        vector<L> t(m_parent->dimension());
+        std::vector<L> t(m_parent->dimension());
         for (unsigned i = 0; i < m_index_start; i++) {
             t[adjust_row_inverse(i)] = w[adjust_column_inverse(i)];
         }
@@ -383,17 +381,17 @@ public:
     void apply_from_right(indexed_vector<T> & w) {
         lean_assert(false); // not implemented
     }
-    void apply_from_left(vector<X> & w, lp_settings & /*settings*/) {
+    void apply_from_left(std::vector<X> & w, lp_settings & /*settings*/) {
         apply_from_left_to_vector(w);// , settings);
     }
 
-    void apply_from_right(vector<T> & w) {
+    void apply_from_right(std::vector<T> & w) {
 #ifdef LEAN_DEBUG
         // dense_matrix<T, X> deb(*this);
         // vector<T>  deb_w(w);
         // deb.apply_from_right(deb_w);
 #endif
-        vector<T> t(w.size());
+        std::vector<T> t(w.size());
         for (unsigned j = 0; j < m_index_start; j++) {
             t[adjust_column_inverse(j)] = w[adjust_row_inverse(j)];
         }
@@ -404,7 +402,7 @@ public:
         lean_assert(w.size() == t.size());
         w = t;
 #ifdef LEAN_DEBUG
-        //  lean_assert(vectors_are_equal<T>(deb_w, w));
+        //  lean_assert(vector_are_equal<T>(deb_w, w));
 #endif
     }
 

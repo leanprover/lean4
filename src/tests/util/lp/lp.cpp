@@ -4,35 +4,34 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Lev Nachmanson
 */
+#include <dirent.h>
+#include <algorithm>
+#include <string>
+#include <set>
 #include <iostream>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <cstdlib>
-#include "util/lp/lp.h"
-#include "util/lp/lp_primal_simplex.h"
 #include <ctime>
 #include <vector>
-
+#include <stdlib.h>
+#include <utility>
+#include "util/pair.h"
+#include "util/lp/lp.h"
+#include "util/lp/lp_primal_simplex.h"
 #include "tests/util/lp/mps_reader.h"
 #include "tests/util/lp/smt_reader.h"
 #include "util/numerics/mpq.h"
 #include "util/lp/binary_heap_priority_queue.h"
 #include "tests/util/lp/argument_parser.h"
 #include "tests/util/lp/test_file_reader.h"
-#include <string>
-#include <set>
 #include "util/lp/indexed_value.h"
-#include <stdlib.h>
 #include "tests/util/lp/init_module.h"
 #include "util/numerics/init_module.h"
-#include <dirent.h>
-#include <algorithm>
 #include "util/lp/lar_solver.h"
 #include "util/lp/numeric_pair.h"
 #include "util/lp/binary_heap_upair_queue.h"
-#include <utility>
 using namespace lean;
-using namespace std;
 unsigned seed = 1;
 #ifdef LEAN_DEBUG
 unsigned lp_settings::ddd = 0;
@@ -136,7 +135,7 @@ void tst1() {
 
     float test = m10by9(0, 1);
 
-    std::cout << "got " << test << std:: endl;
+    std::cout << "got " << test << std::endl;
 
 
     m10by9.set(0, 8, 8);
@@ -189,39 +188,39 @@ void test_small_lu(lp_settings & settings) {
     lu<double, double> l(m, basis, heading, settings, non_basic_columns);
     lean_assert(l.is_correct());
     indexed_vector<double> w(m.row_count());
-    cout << "entering 2, leaving 0" << endl;
+    cout << "entering 2, leaving 0" << std::endl;
     l.prepare_entering(2, w); // to init vector w
     l.replace_column(0, 0, w);
     l.change_basis(2, 0);
     // #ifdef LEAN_DEBUG
-    // cout << "we were factoring " << endl;
+    // cout << "we were factoring " << std::endl;
     // print_matrix(get_B(l));
     // #endif
     lean_assert(l.is_correct());
-    cout << "entering 4, leaving 3" << endl;
+    cout << "entering 4, leaving 3" << std::endl;
     l.prepare_entering(4, w); // to init vector w
     l.replace_column(3, 0, w);
     l.change_basis(4, 3);
-    cout << "we were factoring " << endl;
+    cout << "we were factoring " << std::endl;
 #ifdef LEAN_DEBUG
     print_matrix(get_B(l));
 #endif
     lean_assert(l.is_correct());
 
-    cout << "entering 5, leaving 1" << endl;
+    cout << "entering 5, leaving 1" << std::endl;
     l.prepare_entering(5, w); // to init vector w
     l.replace_column(1, 0, w);
     l.change_basis(5, 1);
-    cout << "we were factoring " << endl;
+    cout << "we were factoring " << std::endl;
 #ifdef LEAN_DEBUG
     print_matrix(get_B(l));
 #endif
     lean_assert(l.is_correct());
-    cout << "entering 3, leaving 2" << endl;
+    cout << "entering 3, leaving 2" << std::endl;
     l.prepare_entering(3, w); // to init vector w
     l.replace_column(2, 0, w);
     l.change_basis(3, 2);
-    cout << "we were factoring " << endl;
+    cout << "we were factoring " << std::endl;
 #ifdef LEAN_DEBUG
     print_matrix(get_B(l));
 #endif
@@ -400,13 +399,13 @@ void test_larger_lu(lp_settings& settings) {
     dense_matrix<double, double> left_side = l.get_left_side();
     dense_matrix<double, double> right_side = l.get_right_side();
     if (!(left_side == right_side)) {
-        cout << "left side" << endl;
+        cout << "left side" << std::endl;
         print_matrix(left_side);
-        cout << "right side" << endl;
+        cout << "right side" << std::endl;
         print_matrix(right_side);
 
         std::cout << "different sides" << std::endl;
-        cout << "initial factorization is incorrect" << endl;
+        cout << "initial factorization is incorrect" << std::endl;
         exit(1);
     }
     indexed_vector<double> w(m.row_count());
@@ -532,7 +531,7 @@ void test_lp_primal_core_solver() {
 #ifdef LEAN_DEBUG
 template <typename T, typename X>
 void test_swap_rows_with_permutation(sparse_matrix<T, X>& m){
-    cout << "testing swaps" << endl;
+    cout << "testing swaps" << std::endl;
     unsigned dim = m.row_count();
     dense_matrix<double, double> original(m);
     permutation_matrix<double, double> q(dim);
@@ -542,12 +541,12 @@ void test_swap_rows_with_permutation(sparse_matrix<T, X>& m){
         unsigned row1 = lrand48() % dim;
         unsigned row2 = lrand48() % dim;
         if (row1 == row2) continue;
-        cout << "swap " << row1 << " " << row2 << endl;
+        cout << "swap " << row1 << " " << row2 << std::endl;
         m.swap_rows(row1, row2);
         q.transpose_from_left(row1, row2);
         lean_assert(original == q * m);
         print_matrix(m);
-        cout << endl;
+        cout << std::endl;
     }
 }
 #endif
@@ -579,14 +578,14 @@ void matrix_repro_test() {
 
     auto l = d * m.m_column_permutation;
     l = m.m_row_permutation * l;
-    cout << "matrix_repro_test" << endl;
+    cout << "matrix_repro_test" << std::endl;
     print_matrix(l);
     lean_assert(l == m);
 }
 
 template <typename T, typename X>
 void test_swap_cols_with_permutation(sparse_matrix<T, X>& m){
-    cout << "testing swaps" << endl;
+    cout << "testing swaps" << std::endl;
     unsigned dim = m.row_count();
     dense_matrix<double, double> original(m);
     permutation_matrix<double, double> q(dim);
@@ -596,12 +595,12 @@ void test_swap_cols_with_permutation(sparse_matrix<T, X>& m){
         unsigned row1 = lrand48() % dim;
         unsigned row2 = lrand48() % dim;
         if (row1 == row2) continue;
-        cout << "swap " << row1 << " " << row2 << endl;
+        cout << "swap " << row1 << " " << row2 << std::endl;
         m.swap_rows(row1, row2);
         q.transpose_from_right(row1, row2);
         lean_assert(original == q * m);
         print_matrix(m);
-        cout << endl;
+        cout << std::endl;
     }
 }
 
@@ -697,7 +696,7 @@ void test_pivot_like_swaps_and_pivot(){
     for (auto & t : row) {
         cout << t << ",";
     }
-    cout << endl;
+    cout << std::endl;
     lp_settings settings;
     m.pivot_row_to_row(pivot_row, alpha, target_row, settings);
     m.pivot_row_to_row(pivot_row_0, beta, target_row, settings);
@@ -963,7 +962,7 @@ void test_conjugate_eta_matrix() {
 
     l.set_diagonal_element(10);
 
-    cout << "l" << endl;
+    cout << "l" << std::endl;
     print_matrix(l);
     dense_matrix<double, double> lcopy(l);
 
@@ -972,12 +971,12 @@ void test_conjugate_eta_matrix() {
     permutation_matrix<double, double> pr = p.get_inverse();
 
     auto conj = lcopy * pr;
-    cout << "U*pr" << endl;
+    cout << "U*pr" << std::endl;
     print_matrix(conj);
     conj = p * conj;
-    cout << "conj " << endl;
+    cout << "conj " << std::endl;
     print_matrix(conj);
-    cout << "l" << endl;
+    cout << "l" << std::endl;
     print_matrix(l);
     lean_assert(conj == l);
 }
@@ -1135,19 +1134,19 @@ void update_settings(argument_parser & args_parser, lp_settings& settings) {
     if (get_int_from_args_parser("--percent_for_enter", args_parser, n))
         settings.percent_of_entering_to_check = n;
     if (get_int_from_args_parser("--partial_pivot", args_parser, n)) {
-        cout << "setting partial pivot constant to " << n << endl;
+        cout << "setting partial pivot constant to " << n << std::endl;
         settings.c_partial_pivoting = n;
     }
     if (get_int_from_args_parser("--density", args_parser, n)) {
         double density = static_cast<double>(n) / 100.0;
-        cout << "setting density to " << density << endl;
+        cout << "setting density to " << density << std::endl;
         settings.density_threshold = density;
     }
     if (get_int_from_args_parser("--maxng", args_parser, n))
         settings.max_number_of_iterations_with_no_improvements = n;
     double d;
     if (get_double_from_args_parser("--harris_toler", args_parser, d)) {
-        cout << "setting harris_feasibility_tolerance to " << d << endl;
+        cout << "setting harris_feasibility_tolerance to " << d << std::endl;
         settings.harris_feasibility_tolerance = d;
     }
 }
@@ -1172,7 +1171,7 @@ void print_x(mps_reader<double, double> & reader, lp_solver<double, double> * so
     for (auto name : reader.column_names()) {
         std::cout << name << "=" << solver->get_column_value_by_name(name) << ' ';
     }
-    cout << endl;
+    cout << std::endl;
 }
 
 void compare_solutions(mps_reader<double, double> & reader, lp_solver<double, double> * solver, lp_solver<double, double> * solver0) {
@@ -1180,7 +1179,7 @@ void compare_solutions(mps_reader<double, double> & reader, lp_solver<double, do
         double a = solver->get_column_value_by_name(name);
         double b = solver0->get_column_value_by_name(name);
         if (!values_are_one_percent_close(a, b)) {
-            cout << "different values for " << name << ":" << a << " and "  << b << endl;
+            cout << "different values for " << name << ":" << a << " and "  << b << std::endl;
         }
     }
 }
@@ -1197,7 +1196,7 @@ void solve_mps_double(std::string file_name, bool look_for_min, unsigned max_ite
     setup_solver(max_iterations, time_limit, look_for_min, args_parser, solver);
     int begin = get_millisecond_count();
     if (dual) {
-        cout << "solving for dual" << endl;
+        cout << "solving for dual" << std::endl;
     }
     solver->find_maximal_solution();
     int span = get_millisecond_span(begin);
@@ -1212,13 +1211,13 @@ void solve_mps_double(std::string file_name, bool look_for_min, unsigned max_ite
         }
         std::cout << "cost = " << cost << std::endl;
     }
-    cout << "processed in " << span / 1000.0  << " seconds, running for " << solver->m_total_iterations << " iterations" << endl;
+    cout << "processed in " << span / 1000.0  << " seconds, running for " << solver->m_total_iterations << " iterations" << std::endl;
     if (compare_with_primal) {
         auto * primal_solver = reader.create_solver(false);
         setup_solver(max_iterations, time_limit, look_for_min, args_parser, primal_solver);
         primal_solver->find_maximal_solution();
         if (solver->get_status() != primal_solver->get_status()) {
-            cout << "statuses are different: dual " << lp_status_to_string(solver->get_status()) << " primal = " << lp_status_to_string(primal_solver->get_status()) << endl;
+            cout << "statuses are different: dual " << lp_status_to_string(solver->get_status()) << " primal = " << lp_status_to_string(primal_solver->get_status()) << std::endl;
         } else {
             if (solver->get_status() == lp_status::OPTIMAL) {
                 double cost = solver->get_current_cost();
@@ -1229,11 +1228,11 @@ void solve_mps_double(std::string file_name, bool look_for_min, unsigned max_ite
                 if (look_for_min) {
                     primal_cost = -primal_cost;
                 }
-                cout << "primal cost = " << primal_cost << endl;
+                cout << "primal cost = " << primal_cost << std::endl;
                 if (!values_are_one_percent_close(cost, primal_cost)) {
                     compare_solutions(reader, primal_solver, solver);
                     print_x(reader, primal_solver);
-                    cout << "dual cost is " << cost << ", but primal cost is " << primal_cost << endl;
+                    cout << "dual cost is " << cost << ", but primal cost is " << primal_cost << std::endl;
                     lean_assert(false);
                 }
             }
@@ -1272,7 +1271,7 @@ void solve_mps_rational(std::string file_name, bool look_for_min, unsigned max_i
             }
             std::cout << "cost = " << cost.get_double() << std::endl;
         }
-        cout << "processed in " << get_millisecond_span(begin) / 1000.0 << " seconds, running for " << solver->m_total_iterations << " iterations" << endl;
+        cout << "processed in " << get_millisecond_span(begin) / 1000.0 << " seconds, running for " << solver->m_total_iterations << " iterations" << std::endl;
         delete solver;
     } else {
         std::cout << "cannot process " << file_name << std::endl;
@@ -1360,7 +1359,7 @@ void test_binary_priority_queue() {
     for (unsigned i = 0; i < 10; i++) {
         unsigned de = q.dequeue();
         lean_assert(i == de);
-        cout << de << endl;
+        cout << de << std::endl;
     }
     q.enqueue(2, 2);
     q.enqueue(1, 1);
@@ -1384,11 +1383,11 @@ void test_binary_priority_queue() {
     while (q.size() > 0) {
         unsigned d =q.dequeue();
         lean_assert(t++ == d);
-        cout << d << endl;
+        cout << d << std::endl;
     }
 
     test_upair_queue();
-    cout << " done" << endl;
+    cout << " done" << std::endl;
 }
 
 bool solution_is_feasible(std::string file_name, const std::unordered_map<string, double> & solution) {
@@ -1411,7 +1410,7 @@ void solve_mps_with_known_solution(std::string file_name, std::unordered_map<str
         solver->find_maximal_solution();
         std::cout << "status is " << lp_status_to_string(solver->get_status()) << std::endl;
         if (status != solver->get_status()){
-            cout << "status should be " << lp_status_to_string(status) << endl;
+            cout << "status should be " << lp_status_to_string(status) << std::endl;
             lean_assert(status == solver->get_status());
             throw "status is wrong";
         }
@@ -1430,7 +1429,7 @@ void solve_mps_with_known_solution(std::string file_name, std::unordered_map<str
                 for (auto name : reader.column_names()) {
                     std::cout << name << "=" << solver->get_column_value_by_name(name) << ' ';
                 }
-                cout << endl;
+                cout << std::endl;
             }
         }
         delete solver;
@@ -1484,7 +1483,7 @@ void random_test_on_i(unsigned i) {
     srand(i);
     auto *solver = generate_random_solver();
     solver->find_maximal_solution();
-    //    cout << lp_status_to_string(solver->get_status()) << endl;
+    //    cout << lp_status_to_string(solver->get_status()) << std::endl;
     delete solver;
 }
 
@@ -1494,7 +1493,7 @@ void random_test() {
             random_test_on_i(i);
         }
         catch (const char * error) {
-            cout << "i = " << i << ", throwing at ' " << error << "'" << endl;
+            cout << "i = " << i << ", throwing at ' " << error << "'" << std::endl;
             break;
         }
     }
@@ -1634,10 +1633,10 @@ void fill_file_names(std::vector<std::string> &file_names,  std::set<string> & m
 void test_out_dir(string out_dir) {
     DIR *out_dir_p = opendir(out_dir.c_str());
     if (out_dir_p == nullptr) {
-        cout << "creating directory " << out_dir << endl;
+        cout << "creating directory " << out_dir << std::endl;
         int res = mkdir(out_dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
         if (res) {
-            cout << "Cannot open output directory \"" << out_dir << "\"" << endl;
+            cout << "Cannot open output directory \"" << out_dir << "\"" << std::endl;
         }
         return;
     }
@@ -1648,13 +1647,13 @@ void find_dir_and_file_name(string a, string & dir, string& fn) {
     // todo: make it system independent
     size_t last_slash_pos = a.find_last_of("/");
     if (last_slash_pos >= a.size()) {
-        cout << "cannot find file name in " << a << endl;
+        cout << "cannot find file name in " << a << std::endl;
         throw;
     }
     dir = a.substr(0, last_slash_pos);
-    // cout << "dir = " << dir << endl;
+    // cout << "dir = " << dir << std::endl;
     fn = a.substr(last_slash_pos + 1);
-    //    cout << "fn = " << fn << endl;
+    //    cout << "fn = " << fn << std::endl;
 }
 
 void process_test_file(string test_dir, string test_file_name, argument_parser & args_parser, string out_dir, unsigned max_iters, unsigned time_limit, unsigned & successes, unsigned & failures, unsigned & inconclusives);
@@ -1689,7 +1688,7 @@ void solve_some_mps(argument_parser & args_parser) {
                 std::cout<< "exception: "<< s << std::endl;
             }
         }
-        cout << "comparing with glpk: successes " << successes << ", failures " << failures << ", inconclusives " << inconclusives << endl;
+        cout << "comparing with glpk: successes " << successes << ", failures " << failures << ", inconclusives " << inconclusives << std::endl;
         return;
     }
     if (!solve_for_rational) {
@@ -1807,7 +1806,7 @@ bool contains(string const & s, char const * pattern) {
 unordered_map<string, double> * get_solution_from_glpsol_output(string & file_name) {
     ifstream file(file_name);
     if (!file.is_open()){
-        cerr << "cannot  open " << file_name << endl;
+        cerr << "cannot  open " << file_name << std::endl;
         return nullptr;
     }
     string s;
@@ -1815,7 +1814,7 @@ unordered_map<string, double> * get_solution_from_glpsol_output(string & file_na
     do {
         s = read_line(end, file);
         if (end) {
-            cerr << "unexpected file end " << file_name << endl;
+            cerr << "unexpected file end " << file_name << std::endl;
             return nullptr;
         }
         if (contains(s, "Column name")){
@@ -1825,7 +1824,7 @@ unordered_map<string, double> * get_solution_from_glpsol_output(string & file_na
 
     read_line(end, file);
     if (end) {
-        cerr << "unexpected file end " << file_name << endl;
+        cerr << "unexpected file end " << file_name << std::endl;
         return nullptr;
     }
 
@@ -1834,7 +1833,7 @@ unordered_map<string, double> * get_solution_from_glpsol_output(string & file_na
     do {
         s = read_line(end, file);
         if (end) {
-            cerr << "unexpected file end " << file_name << endl;
+            cerr << "unexpected file end " << file_name << std::endl;
             return nullptr;
         }
         auto split = string_split(s, " \t", false);
@@ -1956,7 +1955,7 @@ void solve_test_flipped(bool dual) {
     // solving a problem with a constraint xj <= c, a flipped constraint
     char * home_dir = getenv("HOME");
     if (home_dir == nullptr) {
-        cout << "cannot find home directory" << endl;
+        cout << "cannot find home directory" << std::endl;
         return;
     }
     string file_name = string(home_dir) + "/projects/lean/src/tests/util/lp/l4.mps";
@@ -1968,7 +1967,7 @@ void solve_test_flipped(bool dual) {
         solver->find_maximal_solution();
         lean_assert(solver->get_status() == OPTIMAL);
         double x1_val = solver->get_column_value_by_name("X1");
-        cout << "X1 = " << x1_val << endl;
+        cout << "X1 = " << x1_val << std::endl;
         mps_reader<double, double> reader_(file_name);
         reader_.read();
         auto solver_ = reader_.create_solver(dual);
@@ -1977,7 +1976,7 @@ void solve_test_flipped(bool dual) {
         solver_-> unset_low_bound(j);
         solver_->set_upper_bound(j, x1_val + 1);
         solver_->find_maximal_solution();
-        cout << "new X1 = " << solver_->get_column_value_by_name("X1") << endl;
+        cout << "new X1 = " << solver_->get_column_value_by_name("X1") << std::endl;
         lean_assert(fabs(x1_val - solver_->get_column_value_by_name("X1")) < 1e-10);
         delete solver;
         delete solver_;
@@ -1989,7 +1988,7 @@ void print_chunk(T * arr, unsigned len) {
     for (unsigned i = 0; i < len; i++) {
         cout << arr[i] << ", ";
     }
-    cout << endl;
+    cout << std::endl;
 }
 
 struct mem_cpy_place_holder {
@@ -2043,7 +2042,7 @@ int run_glpk(string file_name, string glpk_out_file_name, bool minimize, unsigne
 string get_status(string file_name) {
     std::ifstream f(file_name);
     if (!f.is_open()) {
-        cout << "cannot open " << file_name << endl;
+        cout << "cannot open " << file_name << std::endl;
         throw 0;
     }
     string str;
@@ -2051,13 +2050,13 @@ string get_status(string file_name) {
         if (str.find("Status") != string::npos) {
             vector<string> tokens = split_and_trim(str);
             if (tokens.size() != 2) {
-                cout << "unexpected Status string " << str << endl;
+                cout << "unexpected Status string " << str << std::endl;
                 throw 0;
             }
             return tokens[1];
         }
     }
-    cout << "cannot find the status line in " << file_name << endl;
+    cout << "cannot find the status line in " << file_name << std::endl;
     throw 0;
 }
 
@@ -2072,7 +2071,7 @@ bool compare_statuses(string glpk_out_file_name, string lp_out_file_name, unsign
             return false;
         } else {
             cout << "glpsol and lp_tst disagree: glpsol status is " << glpk_status;
-            cout << " but lp_tst status is " << lp_tst_status << endl;
+            cout << " but lp_tst status is " << lp_tst_status << std::endl;
             failures++;
             return false;
         }
@@ -2083,7 +2082,7 @@ bool compare_statuses(string glpk_out_file_name, string lp_out_file_name, unsign
 double get_glpk_cost(string file_name) {
     std::ifstream f(file_name);
     if (!f.is_open()) {
-        cout << "cannot open " << file_name << endl;
+        cout << "cannot open " << file_name << std::endl;
         throw 0;
     }
     string str;
@@ -2091,20 +2090,20 @@ double get_glpk_cost(string file_name) {
         if (str.find("Objective") != string::npos) {
             vector<string> tokens = split_and_trim(str);
             if (tokens.size() != 5) {
-                cout << "unexpected Objective string " << str << endl;
+                cout << "unexpected Objective string " << str << std::endl;
                 throw 0;
             }
             return atof(tokens[3].c_str());
         }
     }
-    cout << "cannot find the Objective line in " << file_name << endl;
+    cout << "cannot find the Objective line in " << file_name << std::endl;
     throw 0;
 }
 
 double get_lp_tst_cost(string file_name) {
     std::ifstream f(file_name);
     if (!f.is_open()) {
-        cout << "cannot open " << file_name << endl;
+        cout << "cannot open " << file_name << std::endl;
         throw 0;
     }
     string str;
@@ -2115,13 +2114,13 @@ double get_lp_tst_cost(string file_name) {
         }
     }
     if (cost_string.size() == 0) {
-        cout << "cannot find the cost line in " << file_name << endl;
+        cout << "cannot find the cost line in " << file_name << std::endl;
         throw 0;
     }
 
     vector<string> tokens = split_and_trim(cost_string);
     if (tokens.size() != 3) {
-        cout << "unexpected cost string " << cost_string << endl;
+        cout << "unexpected cost string " << cost_string << std::endl;
         throw 0;
     }
     return atof(tokens[2].c_str());
@@ -2149,7 +2148,7 @@ void compare_costs(string glpk_out_file_name,
         successes++;
     } else {
         failures++;
-        cout << "glpsol cost is " << a << " lp_tst cost is " << b << endl;
+        cout << "glpsol cost is " << a << " lp_tst cost is " << b << std::endl;
     }
 }
 
@@ -2158,9 +2157,9 @@ void compare_costs(string glpk_out_file_name,
 void compare_with_glpk(string glpk_out_file_name, string lp_out_file_name, unsigned & successes, unsigned & failures, string lp_file_name) {
     std::unordered_map<string, double> * solution_table =  get_solution_from_glpsol_output(glpk_out_file_name);
     if (solution_is_feasible(lp_file_name, *solution_table)) {
-        cout << "glpk solution is feasible" << endl;
+        cout << "glpk solution is feasible" << std::endl;
     } else {
-        cout << "glpk solution is infeasible" << endl;
+        cout << "glpk solution is infeasible" << std::endl;
     }
     delete solution_table;
     if (compare_statuses(glpk_out_file_name, lp_out_file_name, successes, failures)) {
@@ -2176,14 +2175,14 @@ void process_test_file(string test_dir, string test_file_name, argument_parser &
 
     string input_file_name = test_dir + "/" + test_file_name;
     if (input_file_name[input_file_name.size() - 1] == '~') {
-        //        cout << "ignoring " << input_file_name << endl;
+        //        cout << "ignoring " << input_file_name << std::endl;
         return;
     }
-    cout <<"processing " <<  input_file_name << endl;
+    cout <<"processing " <<  input_file_name << std::endl;
 
     std::ofstream out(full_lp_tst_out_name);
     if (!out.is_open()) {
-        cout << "cannot open file " << full_lp_tst_out_name << endl;
+        cout << "cannot open file " << full_lp_tst_out_name << std::endl;
         throw 0;
     }
     std::streambuf *coutbuf = std::cout.rdbuf(); // save old buffer
@@ -2196,7 +2195,7 @@ void process_test_file(string test_dir, string test_file_name, argument_parser &
             solve_mps(input_file_name, minimize, max_iters, time_limit, use_mpq, dual, false, args_parser);
     }
     catch(...) {
-        cout << "catching the failure" << endl;
+        cout << "catching the failure" << std::endl;
         failures++;
         std::cout.rdbuf(coutbuf); // reset to standard output again
         return;
@@ -2207,7 +2206,7 @@ void process_test_file(string test_dir, string test_file_name, argument_parser &
         string glpk_out_file_name =  out_dir + "/" + create_output_file_name_for_glpsol(minimize, string(test_file_name));
         int glpk_exit_code = run_glpk(input_file_name, glpk_out_file_name, minimize, time_limit);
         if (glpk_exit_code != 0) {
-            cout << "glpk failed" << endl;
+            cout << "glpk failed" << std::endl;
             inconclusives++;
         } else {
             compare_with_glpk(glpk_out_file_name, full_lp_tst_out_name, successes, failures, input_file_name);
@@ -2215,13 +2214,13 @@ void process_test_file(string test_dir, string test_file_name, argument_parser &
     }
 }
 
-vector<pair<string, int>> get_file_list_of_dir(string test_file_dir) {
+std::vector<std::pair<std::string, int>> get_file_list_of_dir(std::string test_file_dir) {
     DIR *dir;
     if ((dir  = opendir(test_file_dir.c_str())) == nullptr) {
-        cout << "Cannot open directory " << test_file_dir << endl;
+        std::cout << "Cannot open directory " << test_file_dir << std::endl;
         throw 0;
     }
-    vector<pair<string, int>> ret;
+    std::vector<std::pair<std::string, int>> ret;
     struct dirent entry;
     struct dirent* result;
     int return_code;
@@ -2231,7 +2230,7 @@ vector<pair<string, int>> get_file_list_of_dir(string test_file_dir) {
         DIR *tmp_dp = opendir(entry.d_name);
         struct stat file_record;
         if (tmp_dp == nullptr) {
-            string s = test_file_dir+ "/" + entry.d_name;
+            std::string s = test_file_dir+ "/" + entry.d_name;
             int stat_ret = stat(s.c_str(), & file_record);
             if (stat_ret!= -1) {
                 ret.push_back(make_pair(entry.d_name, file_record.st_size));
@@ -2249,24 +2248,24 @@ vector<pair<string, int>> get_file_list_of_dir(string test_file_dir) {
 
 
 struct file_size_comp {
-    unordered_map<string, int>& m_file_sizes;
-    file_size_comp(unordered_map<string, int>& fs) :m_file_sizes(fs) {}
-    int operator()(string a, string b) {
-        cout << m_file_sizes.size() << endl;
-        cout << a << endl;
-        cout << b << endl;
+    unordered_map<std::string, int>& m_file_sizes;
+    file_size_comp(unordered_map<std::string, int>& fs) :m_file_sizes(fs) {}
+    int operator()(std::string a, std::string b) {
+        std::cout << m_file_sizes.size() << std::endl;
+        std::cout << a << std::endl;
+        std::cout << b << std::endl;
 
         auto ls = m_file_sizes.find(a);
-        cout << "fa" << endl;
+        std::cout << "fa" << std::endl;
         auto rs = m_file_sizes.find(b);
-        cout << "fb" << endl;
+        std::cout << "fb" << std::endl;
         if (ls != m_file_sizes.end() && rs != m_file_sizes.end()) {
-            cout << "fc " << endl;
+            std::cout << "fc " << std::endl;
             int r = (*ls < *rs? -1: (*ls > *rs)? 1 : 0);
-            cout << "calc r " << endl;
+            std::cout << "calc r " << std::endl;
             return r;
         } else {
-            cout << "sc " << endl;
+            std::cout << "sc " << std::endl;
             return 0;
         }
     }
@@ -2274,25 +2273,25 @@ struct file_size_comp {
 
 
 struct sort_pred {
-    bool operator()(const std::pair<string, int> &left, const std::pair<string, int> &right) {
+    bool operator()(const std::pair<std::string, int> &left, const std::pair<std::string, int> &right) {
         return left.second < right.second;
     }
 };
 
 
-void test_files_from_directory(string test_file_dir, argument_parser & args_parser) {
-    cout << "loading files from directory \"" << test_file_dir << "\"" << endl;
-    string out_dir = args_parser.get_option_value("--out_dir");
+void test_files_from_directory(std::string test_file_dir, argument_parser & args_parser) {
+    std::cout << "loading files from directory \"" << test_file_dir << "\"" << std::endl;
+    std::string out_dir = args_parser.get_option_value("--out_dir");
     if (out_dir.size() == 0) {
         out_dir = "/tmp/test";
     }
     DIR *out_dir_p = opendir(out_dir.c_str());
     if (out_dir_p == nullptr) {
-        cout << "Cannot open output directory \"" << out_dir << "\"" << endl;
+        std::cout << "Cannot open output directory \"" << out_dir << "\"" << std::endl;
         return;
     }
     closedir(out_dir_p);
-    vector<pair<string, int>> files = get_file_list_of_dir(test_file_dir);
+    std::vector<std::pair<std::string, int>> files = get_file_list_of_dir(test_file_dir);
     std::sort(files.begin(), files.end(), sort_pred());
     unsigned max_iters, time_limit;
     get_time_limit_and_max_iters_from_parser(args_parser, time_limit, max_iters);
@@ -2300,12 +2299,12 @@ void test_files_from_directory(string test_file_dir, argument_parser & args_pars
     for  (auto & t : files) {
         process_test_file(test_file_dir, t.first, args_parser, out_dir, max_iters, time_limit, successes, failures, inconclusives);
     }
-    cout << "comparing with glpk: successes " << successes << ", failures " << failures << ", inconclusives " << inconclusives << endl;
+    std::cout << "comparing with glpk: successes " << successes << ", failures " << failures << ", inconclusives " << inconclusives << std::endl;
 }
 
 
-unordered_map<string, mpq> get_solution_map(lp_solver<mpq, mpq> * lps, mps_reader<mpq, mpq> & reader) {
-    unordered_map<string, mpq> ret;
+unordered_map<std::string, mpq> get_solution_map(lp_solver<mpq, mpq> * lps, mps_reader<mpq, mpq> & reader) {
+    unordered_map<std::string, mpq> ret;
     for (auto it : reader.column_names()) {
         ret[it] = lps->get_column_value_by_name(it);
     }
@@ -2313,7 +2312,7 @@ unordered_map<string, mpq> get_solution_map(lp_solver<mpq, mpq> * lps, mps_reade
 }
 
 void run_lar_solver(argument_parser & args_parser, lar_solver * solver, mps_reader<mpq, mpq> * reader) {
-    string maxng = args_parser.get_option_value("--maxng");
+    std::string maxng = args_parser.get_option_value("--maxng");
     if (maxng.size() > 0) {
         solver->settings().max_number_of_iterations_with_no_improvements = atoi(maxng.c_str());
     }
@@ -2323,34 +2322,34 @@ void run_lar_solver(argument_parser & args_parser, lar_solver * solver, mps_read
     if (args_parser.option_is_used("--mpq")) {
         solver->settings().use_double_solver_for_lar = false;
     }
-    string iter = args_parser.get_option_value("--max_iters");
+    std::string iter = args_parser.get_option_value("--max_iters");
     if (iter.size() > 0) {
         solver->settings().max_total_number_of_iterations = atoi(iter.c_str());
     }
     if (args_parser.option_is_used("--compare_with_primal")){
         if (reader == nullptr) {
-            cout << "cannot compare with primal, the reader is null " << endl;
+            std::cout << "cannot compare with primal, the reader is null " << std::endl;
             return;
         }
         auto * lps = reader->create_solver(false);
         lps->find_maximal_solution();
-        unordered_map<string, mpq> sol = get_solution_map(lps, *reader);
+        unordered_map<std::string, mpq> sol = get_solution_map(lps, *reader);
         mpq inf = solver->get_infeasibility_of_solution(sol);
-        cout << "inf with primal = " << inf <<  endl;
+        std::cout << "inf with primal = " << inf <<  std::endl;
         return;
     }
     int begin = get_millisecond_count();
     lp_status status = solver->check();
-    cout << "status is " <<  lp_status_to_string(status) << ", processed for " << get_millisecond_span(begin) / 1000.0 <<" seconds, and " << solver->get_total_iterations() << " iterations" << endl;
+    std::cout << "status is " <<  lp_status_to_string(status) << ", processed for " << get_millisecond_span(begin) / 1000.0 <<" seconds, and " << solver->get_total_iterations() << " iterations" << std::endl;
     if (solver->get_status() == INFEASIBLE) {
-        buffer<pair<mpq, constraint_index>> evidence;
+        buffer<std::pair<mpq, constraint_index>> evidence;
         solver->get_infeasibility_evidence(evidence);
     }
 }
 
-void test_lar_on_file(string file_name, argument_parser & args_parser) {
+void test_lar_on_file(std::string file_name, argument_parser & args_parser) {
     lar_solver * solver = nullptr;
-    cout << "processing " << file_name << endl;
+    std::cout << "processing " << file_name << std::endl;
     if (args_parser.option_is_used("--smt")) {
         smt_reader reader(file_name);
         reader.read();
@@ -2374,16 +2373,16 @@ void test_lar_on_file(string file_name, argument_parser & args_parser) {
     delete solver;
 }
 
-vector<string> get_file_names_from_file_list(string filelist) {
+vector<std::string> get_file_names_from_file_list(std::string filelist) {
     ifstream file(filelist);
     if (!file.is_open()) {
-        cout << "cannot open " << filelist << endl;
-        return vector<string>();
+        std::cout << "cannot open " << filelist << std::endl;
+        return vector<std::string>();
     }
-    vector<string> ret;
+    vector<std::string> ret;
     bool end;
     do {
-        string s = read_line(end, file);
+        std::string s = read_line(end, file);
         if (end)
             break;
         if (s.size() == 0)
@@ -2394,15 +2393,15 @@ vector<string> get_file_names_from_file_list(string filelist) {
 }
 
 void test_lar_solver(argument_parser & args_parser) {
-    string file_name = args_parser.get_option_value("--file");
+    std::string file_name = args_parser.get_option_value("--file");
     if (file_name.size() > 0) {
         test_lar_on_file(file_name, args_parser);
         return;
     }
 
-    string file_list = args_parser.get_option_value("--filelist");
+    std::string file_list = args_parser.get_option_value("--filelist");
     if (file_list.size() > 0) {
-        for (string fn : get_file_names_from_file_list(file_list))
+        for (std::string fn : get_file_names_from_file_list(file_list))
             test_lar_on_file(fn, args_parser);
         return;
     }
@@ -2417,7 +2416,7 @@ void test_numeric_pair() {
     a -= c;
     lean_assert (a == b + c);
     numeric_pair<mpq> d = a * 2;
-    cout << a  << endl;
+    std::cout << a  << std::endl;
     lean_assert(b == b);
     lean_assert(b < a);
     lean_assert(b <= a);
@@ -2429,15 +2428,15 @@ void test_numeric_pair() {
     lean_assert(b + b > a);
     lean_assert(mpq(2.1) * b + b > a);
     lean_assert(-b * mpq(2.1) - b < mpq(0.99)  * a);
-    cout << - b * mpq(2.1) - b << endl;
+    std::cout << - b * mpq(2.1) - b << std::endl;
     lean_assert(-b *(mpq(2.1) + 1) == - b * mpq(2.1) - b);
 }
 
 void get_matrix_dimensions(ifstream & f, unsigned & m, unsigned & n) {
-    string line;
+    std::string line;
     getline(f, line);
     getline(f, line);
-    vector<string> r = split_and_trim(line);
+    vector<std::string> r = split_and_trim(line);
     m = atoi(r[1].c_str());
     getline(f, line);
     r = split_and_trim(line);
@@ -2446,7 +2445,7 @@ void get_matrix_dimensions(ifstream & f, unsigned & m, unsigned & n) {
 
 void read_row_cols(unsigned i, static_matrix<double, double>& A, ifstream & f) {
     do {
-        string line;
+        std::string line;
         getline(f, line);
         if (line== "row_end")
             break;
@@ -2459,13 +2458,13 @@ void read_row_cols(unsigned i, static_matrix<double, double>& A, ifstream & f) {
 }
 
 bool read_row(static_matrix<double, double> & A, ifstream & f) {
-    string line;
+    std::string line;
     getline(f, line);
     if (static_cast<int>(line.find("row")) == -1)
         return false;
     auto r = split_and_trim(line);
     if (r[0] != "row")
-        cout << "wrong row line" << line << endl;
+        std::cout << "wrong row line" << line << std::endl;
     unsigned i = atoi(r[1].c_str());
     read_row_cols(i, A, f);
     return true;
@@ -2476,8 +2475,8 @@ void read_rows(static_matrix<double, double>& A, ifstream & f) {
 }
 
 void read_basis(vector<unsigned> & basis, ifstream & f) {
-    cout << "reading basis" << endl;
-    string line;
+    std::cout << "reading basis" << std::endl;
+    std::string line;
     getline(f, line);
     lean_assert(line == "basis_start");
     do {
@@ -2490,7 +2489,7 @@ void read_basis(vector<unsigned> & basis, ifstream & f) {
 }
 
 void read_indexed_vector(indexed_vector<double> & v, ifstream & f) {
-    string line;
+    std::string line;
     getline(f, line);
     lean_assert(line == "vector_start");
     do {
@@ -2500,18 +2499,18 @@ void read_indexed_vector(indexed_vector<double> & v, ifstream & f) {
         unsigned i = atoi(r[0].c_str());
         double val = atof(r[1].c_str());
         v.set_value(val, i);
-        cout << "setting value " << i << " = " << val << endl;
+        std::cout << "setting value " << i << " = " << val << std::endl;
     } while (true);
 }
 
-void check_lu_from_file(string lufile_name) {
+void check_lu_from_file(std::string lufile_name) {
     ifstream f(lufile_name);
     if (!f.is_open()) {
-        cout << "cannot open file " << lufile_name << endl;
+        std::cout << "cannot open file " << lufile_name << std::endl;
     }
     unsigned m, n;
     get_matrix_dimensions(f, m, n);
-    cout << "init matrix " << m << " by " << n << endl;
+    std::cout << "init matrix " << m << " by " << n << std::endl;
     static_matrix<double, double> A(m, n);
     read_rows(A, f);
     vector<unsigned> basis;
@@ -2540,7 +2539,7 @@ void check_lu_from_file(string lufile_name) {
 }
 
 void test_square_dense_submatrix() {
-    cout << "testing square_dense_submatrix" << endl;
+    std::cout << "testing square_dense_submatrix" << std::endl;
     unsigned parent_dim = 7;
     sparse_matrix<double, double> parent(parent_dim);
     fill_matrix(parent);
@@ -2567,7 +2566,7 @@ void test_square_dense_submatrix() {
             m[i-index_start][j-index_start] = d[i][j];
 
     print_matrix(m);
-    cout << endl;
+    std::cout << std::endl;
 #endif
 }
 
@@ -2580,14 +2579,14 @@ int main(int argn, char * const * argv) {
     setup_args_parser(args_parser);
 
     if (!args_parser.parse()) {
-        cout << args_parser.m_error_message << endl;
-        cout << args_parser.usage_string();
+        std::cout << args_parser.m_error_message << std::endl;
+        std::cout << args_parser.usage_string();
         ret = 1;
         return finalize(ret);
     }
-    cout << "the options are " << endl;
+    std::cout << "the options are " << std::endl;
     args_parser.print();
-    string lufile = args_parser.get_option_value("--checklu");
+    std::string lufile = args_parser.get_option_value("--checklu");
     if (lufile.size()) {
         check_lu_from_file(lufile);
         return finalize(0);
@@ -2607,13 +2606,13 @@ int main(int argn, char * const * argv) {
         return finalize(0);
     }
     if (args_parser.option_is_used("--lar")){
-        cout <<"calling test_lar_solver" << endl;
+        std::cout <<"calling test_lar_solver" << std::endl;
         test_lar_solver(args_parser);
         return finalize(0);
     }
-    string file_list = args_parser.get_option_value("--filelist");
+    std::string file_list = args_parser.get_option_value("--filelist");
     if (file_list.size() > 0) {
-        for (string fn : get_file_names_from_file_list(file_list))
+        for (std::string fn : get_file_names_from_file_list(file_list))
             solve_mps(fn, args_parser);
         return finalize(0);
     }
@@ -2658,7 +2657,7 @@ int main(int argn, char * const * argv) {
     get_time_limit_and_max_iters_from_parser(args_parser, time_limit, max_iters);
     bool dual = args_parser.option_is_used("--dual");
     bool solve_for_rational = args_parser.option_is_used("--mpq");
-    string file_name = args_parser.get_option_value("--file");
+    std::string file_name = args_parser.get_option_value("--file");
     if (file_name.size() > 0) {
         solve_mps(file_name, args_parser.option_is_used("--min"), max_iters, time_limit, solve_for_rational, dual, args_parser.option_is_used("--compare_with_primal"), args_parser);
         ret = 0;

@@ -13,6 +13,8 @@ template <typename T, typename X> class lp_core_solver_base; // forward definiti
 
 template <typename T, typename X>
 class core_solver_pretty_printer {
+    template<typename A> using vector = std::vector<A>;
+    typedef std::string string;
     lp_core_solver_base<T, X> & m_core_solver;
     vector<unsigned> m_column_widths;
     vector<vector<string>> m_A;
@@ -207,7 +209,7 @@ public:
         }
 
         int blanks = m_title_width + 1 - m_x_title.size();
-        cout << m_x_title;
+        std::cout << m_x_title;
         print_blanks(blanks);
 
         auto bh = m_core_solver.m_x;
@@ -215,9 +217,9 @@ public:
             string s = T_to_string(bh[i]);
             int blanks = m_column_widths[i] - s.size();
             print_blanks(blanks);
-            cout << s << "   "; // the column interval
+            std::cout << s << "   "; // the column interval
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 
     std::string get_low_bound_string(unsigned j) {
@@ -228,7 +230,7 @@ public:
             if (m_core_solver.low_bounds_are_set())
                 return T_to_string(m_core_solver.low_bound_value(j));
             else
-                return string("0");
+                return std::string("0");
             break;
         default:
             return std::string();
@@ -253,16 +255,16 @@ public:
             return;
         }
         int blanks = m_title_width + 1 - m_low_bounds_title.size();
-        cout << m_low_bounds_title;
+        std::cout << m_low_bounds_title;
         print_blanks(blanks);
 
         for (unsigned i = 0; i < ncols(); i++) {
             string s = get_low_bound_string(i);
             int blanks = m_column_widths[i] - s.size();
             print_blanks(blanks);
-            cout << s << "   "; // the column interval
+            std::cout << s << "   "; // the column interval
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 
     void print_upps() {
@@ -270,16 +272,16 @@ public:
             return;
         }
         int blanks = m_title_width + 1 - m_upp_bounds_title.size();
-        cout << m_upp_bounds_title;
+        std::cout << m_upp_bounds_title;
         print_blanks(blanks);
 
         for (unsigned i = 0; i < ncols(); i++) {
             string s = get_upp_bound_string(i);
             int blanks = m_column_widths[i] - s.size();
             print_blanks(blanks);
-            cout << s << "   "; // the column interval
+            std::cout << s << "   "; // the column interval
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 
     string get_exact_column_norm_string(unsigned col) {
@@ -288,28 +290,28 @@ public:
 
     void print_exact_norms() {
         int blanks = m_title_width + 1 - m_exact_norm_title.size();
-        cout << m_exact_norm_title;
+        std::cout << m_exact_norm_title;
         print_blanks(blanks);
         for (unsigned i = 0; i < ncols(); i++) {
             string s = get_exact_column_norm_string(i);
             int blanks = m_column_widths[i] - s.size();
             print_blanks(blanks);
-            cout << s << "   ";
+            std::cout << s << "   ";
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 
     void print_approx_norms() {
         int blanks = m_title_width + 1 - m_approx_norm_title.size();
-        cout << m_approx_norm_title;
+        std::cout << m_approx_norm_title;
         print_blanks(blanks);
         for (unsigned i = 0; i < ncols(); i++) {
             string s = T_to_string(m_core_solver.m_column_norms[i]);
             int blanks = m_column_widths[i] - s.size();
             print_blanks(blanks);
-            cout << s << "   ";
+            std::cout << s << "   ";
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 
     void print() {
@@ -324,12 +326,12 @@ public:
         print_upps();
         print_exact_norms();
         print_approx_norms();
-        cout << endl;
+        std::cout << std::endl;
     }
 
     void print_basis_heading() {
         int blanks = m_title_width + 1 - m_basis_heading_title.size();
-        cout << m_basis_heading_title;
+        std::cout << m_basis_heading_title;
         print_blanks(blanks);
 
         if (ncols() == 0) {
@@ -340,9 +342,9 @@ public:
             string s = T_to_string(bh[i]);
             int blanks = m_column_widths[i] - s.size();
             print_blanks(blanks);
-            cout << s << "   "; // the column interval
+            std::cout << s << "   "; // the column interval
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 
     void print_bottom_line() {
@@ -351,7 +353,7 @@ public:
 
     void print_cost() {
         int blanks = m_title_width + 1 - m_cost_title.size();
-        cout << m_cost_title;
+        std::cout << m_cost_title;
         print_blanks(blanks);
         print_given_rows(m_costs, m_cost_signs, m_core_solver.get_cost());
     }
@@ -363,18 +365,18 @@ public:
             int number_of_blanks = width - s.size();
             lean_assert(number_of_blanks >= 0);
             print_blanks(number_of_blanks);
-            cout << s << ' ';
+            std::cout << s << ' ';
             if (col < row.size() - 1) {
-                cout << signs[col + 1] << ' ';
+                std::cout << signs[col + 1] << ' ';
             }
         }
-        cout << '=';
+        std::cout << '=';
 
         string rs = T_to_string(rst);
         int nb = m_rs_width - rs.size();
         lean_assert(nb >= 0);
         print_blanks(nb + 1);
-        cout << rs << std::endl;
+        std::cout << rs << std::endl;
     }
 
     void print_row(unsigned i){

@@ -37,15 +37,15 @@ public: // todo : move public lower ; it is for debug only
     T m_enter_price_eps;
     X m_infeasibility = zero_of_type<X>();
     int m_sign_of_entering_delta;
-    vector<breakpoint<X>> m_breakpoints;
+    std::vector<breakpoint<X>> m_breakpoints;
     binary_heap_priority_queue<X> m_breakpoint_indices_queue;
     bool m_using_inf_costs = false;
     bool m_recalc_reduced_costs = false;
     std::set<unsigned> m_forbidden_enterings;
-    vector<T> m_beta; // see Swietanowski working vector beta for column norms
+    std::vector<T> m_beta; // see Swietanowski working vector beta for column norms
     T m_epsilon_of_reduced_cost = T(1e-7);
     bool m_exit_on_feasible_solution = false;
-    vector<T> m_costs_backup;
+    std::vector<T> m_costs_backup;
     bool m_current_x_is_feasible;
 
     int choose_entering_column(unsigned number_of_benefitial_columns_to_go_over) { // at this moment m_y = cB * B(-1)
@@ -82,9 +82,7 @@ public: // todo : move public lower ; it is for debug only
                 }
                 continue;
             default:
-                cout << "unexpected column type " << column_type_to_string(this->m_column_type[j]) << endl;
-                throw "unexpected column_type";
-                break;
+                lean_unreachable();
             }
 
             // if we are here then j is a candidate to enter the basis
@@ -196,11 +194,11 @@ public: // todo : move public lower ; it is for debug only
         } while ( i != initial_i);
         restore_harris_eps();
         //    if (m_j_uht.size() > 1) {
-        // cout << "under set "  << endl;
+        // cout << "under set "  << std::endl;
         //     for(auto j : m_j_uht)
         //         print_column(j);
         //     // }
-        //     cout << "done with under set" << endl;
+        //     cout << "done with under set" << std::endl;
         return leaving; // debug
         //        return leaving_fixed != -1 ? leaving_fixed : leaving;
     }
@@ -443,8 +441,7 @@ public: // todo : move public lower ; it is for debug only
 
             break;
         default:
-            cout << column_type_to_string(this->m_column_type[j]) << endl;
-            throw "unexpected type";
+            lean_unreachable();
         }
         if (theta < zero_of_type<X>())
             theta = zero_of_type<X>();
@@ -515,9 +512,9 @@ public: // todo : move public lower ; it is for debug only
     }
 
 
-    vector<T> m_low_bound_values_dummy; // needed for the base class only
+    std::vector<T> m_low_bound_values_dummy; // needed for the base class only
 
-    X get_max_bound(vector<X> & b) {
+    X get_max_bound(std::vector<X> & b) {
         X ret = zero_of_type<X>();
         for (auto & v : b) {
             X a = abs(v);
@@ -528,7 +525,7 @@ public: // todo : move public lower ; it is for debug only
 
     // stage1 constructor
     lp_primal_core_solver(static_matrix<T, X> & A,
-                          vector<X> & b, // the right side vector
+                          std::vector<X> & b, // the right side vector
                           std::vector<X> & x, // the number of elements in x needs to be at least as large as the number of columns in A
                           std::vector<unsigned> & basis,
                           std::vector<T> & costs,
@@ -536,7 +533,7 @@ public: // todo : move public lower ; it is for debug only
                           std::vector<X> & low_bound_values,
                           std::vector<X> & upper_bound_values,
                           lp_settings & settings,
-                          unordered_map<unsigned, string> const & column_names):
+                          std::unordered_map<unsigned, std::string> const & column_names):
         lp_core_solver_base<T, X>(A, b,
                                   basis,
                                   x,
@@ -553,14 +550,14 @@ public: // todo : move public lower ; it is for debug only
 
     // constructor
     lp_primal_core_solver(static_matrix<T, X> & A,
-                          vector<X> & b, // the right side vector
+                          std::vector<X> & b, // the right side vector
                           std::vector<X> & x, // the number of elements in x needs to be at least as large as the number of columns in A
                           std::vector<unsigned> & basis,
                           std::vector<T> & costs,
                           std::vector<column_type> & column_type_array,
                           std::vector<X> & upper_bound_values,
                           lp_settings & settings,
-                          unordered_map<unsigned, string> const & column_names):
+                          std::unordered_map<unsigned, std::string> const & column_names):
         lp_core_solver_base<T, X>(A, b,
                                basis,
                                x,
@@ -593,19 +590,19 @@ public: // todo : move public lower ; it is for debug only
         }
         for (int j = 0; j < this->m_n; j++) {
             if (column_has_low_bound(j) && this->m_x[j] < numeric_traits<T>::zero()) {
-                cout << "low bound for variable " << j << " does not hold: this->m_x[" << j << "] = " << this->m_x[j] << " is negative " << endl;
+                std::cout << "low bound for variable " << j << " does not hold: this->m_x[" << j << "] = " << this->m_x[j] << " is negative " << std::endl;
                 return false;
             }
 
             if (column_has_upper_bound(j) && this->m_x[j] > this->m_upper_bound_values[j]) {
-                cout << "upper bound for " << j << " does not hold: "  << this->m_upper_bound_values[j] << ">" << this->m_x[j] << endl;
+                std::cout << "upper bound for " << j << " does not hold: "  << this->m_upper_bound_values[j] << ">" << this->m_x[j] << std::endl;
                 return false;
             }
 
             if (basis_set.find(j) != basis_set.end()) continue;
             if (this->m_column_type[j] == low_bound)  {
                 if (numeric_traits<T>::zero() != this->m_x[j]) {
-                    cout << "only low bound is set for " << j << " but low bound value " << numeric_traits<T>::zero() << " is not equal to " << this->m_x[j] << endl;
+                    std::cout << "only low bound is set for " << j << " but low bound value " << numeric_traits<T>::zero() << " is not equal to " << this->m_x[j] << std::endl;
                     return false;
                 }
             }
@@ -754,7 +751,7 @@ public: // todo : move public lower ; it is for debug only
                     this->restore_x(entering, t * m_sign_of_entering_delta);
                     m_forbidden_enterings.insert(entering);
                     this->m_iters_with_no_cost_growing++;
-                    cout << "failing in advance_on_entering_and_leaving for entering == leaving = " << leaving << endl;
+                    std::cout << "failing in advance_on_entering_and_leaving for entering == leaving = " << leaving << std::endl;
                     return;
                 }
             }
@@ -827,7 +824,7 @@ public: // todo : move public lower ; it is for debug only
         if (leaving == -1){
             if (get_current_x_is_infeasible()) {
                 if (this->m_status == UNSTABLE) {
-                    cout << "setting status to FLOATING_POINT_ERROR" << endl;
+                    std::cout << "setting status to FLOATING_POINT_ERROR" << std::endl;
                     this->m_status = FLOATING_POINT_ERROR;
                     return;
                 }
@@ -861,12 +858,12 @@ public: // todo : move public lower ; it is for debug only
     }
 
     void print_column_norms() {
-        cout << " column norms " << endl;
+        std::cout << " column norms " << std::endl;
         for (unsigned j = 0; j < this->m_n; j++) {
-            cout << this->m_column_norms[j] << " ";
+            std::cout << this->m_column_norms[j] << " ";
         }
-        cout << endl;
-        cout << endl;
+        std::cout << std::endl;
+        std::cout << std::endl;
     }
 
     void set_current_x_is_feasible() {
@@ -987,7 +984,7 @@ public: // todo : move public lower ; it is for debug only
     T calculate_column_norm_exactly(unsigned j) {
         indexed_vector<T> w(this->m_m);
         this->m_A.copy_column_to_vector(j, w);
-        vector<T> d(this->m_m);
+        std::vector<T> d(this->m_m);
         this->m_factorization->solve_Bd_when_w_is_ready(d, w);
         T ret = zero_of_type<T>();
         for (auto v : d)
@@ -1277,11 +1274,11 @@ public: // todo : move public lower ; it is for debug only
             return true;
         }
         if (this->m_iters_with_no_cost_growing >= this->m_settings.max_number_of_iterations_with_no_improvements) {
-            cout << "m_iters_with_no_cost_growing = " << this->m_iters_with_no_cost_growing << endl;
+            std::cout << "m_iters_with_no_cost_growing = " << this->m_iters_with_no_cost_growing << std::endl;
             this->m_status = ITERATIONS_EXHAUSTED; return true;
         }
         if (this->m_total_iterations >= this->m_settings.max_total_number_of_iterations) {
-            cout << "max_total_number_of_iterations " <<  this->m_total_iterations << " is reached " << endl;
+            std::cout << "max_total_number_of_iterations " <<  this->m_total_iterations << " is reached " << std::endl;
             this->m_status = ITERATIONS_EXHAUSTED; return true;
         }
         return false;
@@ -1301,22 +1298,22 @@ public: // todo : move public lower ; it is for debug only
     }
 
     void print_column(unsigned j) {
-        cout << this->column_name(j) << " " <<   j << " " << column_type_to_string(this->m_column_type[j]) << " x = " << this->m_x[j] << " " << "c = " << this->m_costs[j];;
+        std::cout << this->column_name(j) << " " <<   j << " " << column_type_to_string(this->m_column_type[j]) << " x = " << this->m_x[j] << " " << "c = " << this->m_costs[j];;
         switch (this->m_column_type[j]) {
         case fixed:
         case boxed:
-            cout <<  "( " << this->m_low_bound_values[j] << " " << this->m_x[j] << " " << this->m_upper_bound_values[j] << ")" << endl;
+            std::cout <<  "( " << this->m_low_bound_values[j] << " " << this->m_x[j] << " " << this->m_upper_bound_values[j] << ")" << std::endl;
             break;
         case upper_bound:
-            cout <<  "( _"  << this->m_x[j] << " " << this->m_upper_bound_values[j] << ")" << endl;
+            std::cout <<  "( _"  << this->m_x[j] << " " << this->m_upper_bound_values[j] << ")" << std::endl;
             break;
         case low_bound:
-            cout <<  "( " << this->m_low_bound_values[j] << " " << this->m_x[j] << " " << "_ )" << endl;
+            std::cout <<  "( " << this->m_low_bound_values[j] << " " << this->m_x[j] << " " << "_ )" << std::endl;
             break;
         case free_column:
-            cout << "( _" << this->m_x[j] << "_)" << endl;
+            std::cout << "( _" << this->m_x[j] << "_)" << std::endl;
         default:
-            throw "unexpected type";
+            lean_unreachable();
         }
     }
 

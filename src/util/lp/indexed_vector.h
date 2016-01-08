@@ -20,11 +20,6 @@
 #include "util/lp/sparse_vector.h"
 #include <iomanip>
 namespace lean {
-using std::string;
-using std::cout;
-using std::endl;
-using std::vector;
-
 template <typename T>
 void print_vector(const T * t, unsigned l) {
     for (unsigned i = 0; i < l; i++)
@@ -33,7 +28,7 @@ void print_vector(const T * t, unsigned l) {
 }
 
 template <typename T>
-void print_vector(const vector<T> & t) {
+void print_vector(const std::vector<T> & t) {
     for (unsigned i = 0; i < t.size(); i++)
         std::cout << t[i] << " ";
     std::cout << std::endl;
@@ -47,7 +42,7 @@ void print_vector(const buffer<T> & t) {
 }
 
 template <typename T>
-void print_sparse_vector(const vector<T> & t) {
+void print_sparse_vector(const std::vector<T> & t) {
     for (unsigned i = 0; i < t.size(); i++) {
         if (is_zero(t[i]))continue;
         std::cout << "[" << i << "] = " << t[i] << ", ";
@@ -55,7 +50,7 @@ void print_sparse_vector(const vector<T> & t) {
     std::cout << std::endl;
 }
 
-void print_vector(const vector<mpq> & t) {
+void print_vector(const std::vector<mpq> & t) {
     for (unsigned i = 0; i < t.size(); i++)
         std::cout << t[i].get_double() << std::setprecision(3) << " ";
     std::cout << std::endl;
@@ -66,7 +61,7 @@ class indexed_vector {
 public:
     // m_index points to non-zero elements of m_data
     buffer<T> m_data;
-    vector<unsigned> m_index;
+    std::vector<unsigned> m_index;
     indexed_vector(unsigned data_size) {
         m_data.resize(data_size, numeric_traits<T>::zero());
     }
@@ -117,8 +112,6 @@ public:
         if (it != m_index.end()) m_index.erase(it);
     }
 
-
-
 #ifdef LEAN_DEBUG
     bool is_OK() const {
         int size = 0;
@@ -132,11 +125,11 @@ public:
         return size == m_index.size();
     }
     void print() {
-        cout << "m_index " << endl;
+        std::cout << "m_index " << std::endl;
         for (unsigned i = 0; i < m_index.size(); i++) {
-            cout << m_index[i] << " ";
+            std::cout << m_index[i] << " ";
         }
-        cout << endl;
+        std::cout << std::endl;
         print_vector(m_data);
     }
 #endif

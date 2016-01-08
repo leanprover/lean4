@@ -23,8 +23,6 @@ enum lp_relation  {
     Greater_or_equal
 };
 
-
-
 template <typename T, typename X>
 struct lp_constraint {
     X m_rs; // right side of the constraint
@@ -50,26 +48,26 @@ protected:
 public:
     unsigned m_total_iterations;
     static_matrix<T, X>* m_A = nullptr; // this is the matrix of constraints
-    vector<T> m_b; // the right side vector
+    std::vector<T> m_b; // the right side vector
     unsigned m_first_stage_iterations = 0;
     unsigned m_second_stage_iterations = 0;
-    unordered_map<unsigned, lp_constraint<T, X>> m_constraints;
-    unordered_map<unsigned, column_info<T>*> m_columns;
-    unordered_map<unsigned, unordered_map<unsigned, T> > m_A_values;
-    unordered_map<string, unsigned> m_names_to_columns; // don't have to use it
-    unordered_map<unsigned, unsigned> m_external_rows_to_core_solver_rows;
-    unordered_map<unsigned, unsigned> m_core_solver_rows_to_external_rows;
-    unordered_map<unsigned, unsigned> m_external_columns_to_core_solver_columns;
-    unordered_map<unsigned, unsigned> m_core_solver_columns_to_external_columns;
-    vector<T> m_column_scale;
-    unordered_map<unsigned, std::string>  m_name_map;
+    std::unordered_map<unsigned, lp_constraint<T, X>> m_constraints;
+    std::unordered_map<unsigned, column_info<T>*> m_columns;
+    std::unordered_map<unsigned, std::unordered_map<unsigned, T> > m_A_values;
+    std::unordered_map<std::string, unsigned> m_names_to_columns; // don't have to use it
+    std::unordered_map<unsigned, unsigned> m_external_rows_to_core_solver_rows;
+    std::unordered_map<unsigned, unsigned> m_core_solver_rows_to_external_rows;
+    std::unordered_map<unsigned, unsigned> m_external_columns_to_core_solver_columns;
+    std::unordered_map<unsigned, unsigned> m_core_solver_columns_to_external_columns;
+    std::vector<T> m_column_scale;
+    std::unordered_map<unsigned, std::string>  m_name_map;
     unsigned m_artificials = 0;
     unsigned m_slacks = 0;
-    vector<column_type> m_column_types;
-    vector<T> m_costs;
-    vector<T> m_x;
-    vector<T> m_upper_bounds;
-    vector<unsigned> m_basis;
+    std::vector<column_type> m_column_types;
+    std::vector<T> m_costs;
+    std::vector<T> m_x;
+    std::vector<T> m_upper_bounds;
+    std::vector<unsigned> m_basis;
 
     lp_status m_status = lp_status::UNKNOWN;
 
@@ -94,7 +92,7 @@ public:
     // returns the current cost
     virtual T get_current_cost() const = 0;
        // do not have to call it
-    void give_symbolic_name_to_column(string name, unsigned column) {
+    void give_symbolic_name_to_column(std::string name, unsigned column) {
         auto it = m_columns.find(column);
         column_info<T> *ci;
         if (it == m_columns.end()){
@@ -111,7 +109,7 @@ public:
     T get_column_value_by_name(std::string name) const {
         auto it = m_names_to_columns.find(name);
         if (it == m_names_to_columns.end()) {
-            cout << "throwing in get_column_value_by_name" << endl;
+            std::cout << "throwing in get_column_value_by_name" << std::endl;
             throw "get_column_value_by_name";
         }
         return get_column_value(it -> second);
@@ -211,29 +209,29 @@ protected:
 
 
     void print_rows_scale_stats() {
-        cout << "rows max" << endl;
-         for (unsigned i = 0; i < m_A->row_count(); i++) {
+        std::cout << "rows max" << std::endl;
+        for (unsigned i = 0; i < m_A->row_count(); i++) {
             print_row_scale_stats(i);
         }
-         cout << endl;
+        std::cout << std::endl;
     }
 
     void print_columns_scale_stats() {
-        cout << "columns max" << endl;
+        std::cout << "columns max" << std::endl;
         for (unsigned i = 0; i < m_A->column_count(); i++) {
             print_column_scale_stats(i);
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 
     void print_row_scale_stats(unsigned i) {
-        cout << "(" << std::min(m_A->get_min_abs_in_row(i), abs(m_b[i])) << " ";
-        cout << std::max(m_A->get_max_abs_in_row(i), abs(m_b[i])) << ")";
+        std::cout << "(" << std::min(m_A->get_min_abs_in_row(i), abs(m_b[i])) << " ";
+        std::cout << std::max(m_A->get_max_abs_in_row(i), abs(m_b[i])) << ")";
     }
 
     void print_column_scale_stats(unsigned j) {
-        cout << "(" << m_A->get_min_abs_in_row(j) << " ";
-        cout <<  m_A->get_max_abs_in_column(j) << ")";
+        std::cout << "(" << m_A->get_min_abs_in_row(j) << " ";
+        std::cout <<  m_A->get_max_abs_in_column(j) << ")";
     }
 
     void print_scale_stats() {
@@ -241,7 +239,7 @@ protected:
         print_columns_scale_stats();
     }
 
-    void get_max_abs_in_row(unordered_map<unsigned, T> & row_map) {
+    void get_max_abs_in_row(std::unordered_map<unsigned, T> & row_map) {
         T ret = numeric_traits<T>::zero();
         for (auto jp : row_map) {
             T ac = numeric_traits<T>::abs(jp->second);
@@ -252,16 +250,16 @@ protected:
         return ret;
     }
 
-    void pin_vars_down_on_row(unordered_map<unsigned, T> & row) {
+    void pin_vars_down_on_row(std::unordered_map<unsigned, T> & row) {
         pin_vars_on_row_with_sign(row, - numeric_traits<T>::one());
     }
 
-    void pin_vars_up_on_row(unordered_map<unsigned, T> & row) {
+    void pin_vars_up_on_row(std::unordered_map<unsigned, T> & row) {
         pin_vars_on_row_with_sign(row, numeric_traits<T>::one());
     }
 
-    void pin_vars_on_row_with_sign(unordered_map<unsigned, T> & row, T sign ) {
-        unordered_map<unsigned, T> pinned;
+    void pin_vars_on_row_with_sign(std::unordered_map<unsigned, T> & row, T sign ) {
+        std::unordered_map<unsigned, T> pinned;
         for (auto t : row) {
             unsigned j = t.first;
             column_info<T> * ci = m_columns[j];
@@ -276,7 +274,7 @@ protected:
         }
     }
 
-    bool get_minimal_row_value(unordered_map<unsigned, T> & row, T & low_bound) {
+    bool get_minimal_row_value(std::unordered_map<unsigned, T> & row, T & low_bound) {
         low_bound = numeric_traits<T>::zero();
         for (auto & t : row) {
             T a = t.second;
@@ -298,7 +296,7 @@ protected:
         return true;
     }
 
-    bool get_maximal_row_value(unordered_map<unsigned, T> & row, T & low_bound) {
+    bool get_maximal_row_value(std::unordered_map<unsigned, T> & row, T & low_bound) {
         low_bound = numeric_traits<T>::zero();
         for (auto & t : row) {
             T a = t.second;
@@ -320,7 +318,7 @@ protected:
         return true;
     }
 
-    bool row_is_zero(unordered_map<unsigned, T> & row) {
+    bool row_is_zero(std::unordered_map<unsigned, T> & row) {
         for (auto & t : row) {
             if (!is_zero(t.second))
                 return false;
@@ -328,7 +326,7 @@ protected:
         return true;
     }
 
-    bool row_e_is_obsolete(unordered_map<unsigned, T> & row, unsigned row_index) {
+    bool row_e_is_obsolete(std::unordered_map<unsigned, T> & row, unsigned row_index) {
         T rs = m_constraints[row_index].m_rs;
         if (row_is_zero(row)) {
             if (!is_zero(rs))
@@ -369,7 +367,7 @@ protected:
         return false;
     }
 
-    int row_ge_is_obsolete(unordered_map<unsigned, T> & row, unsigned row_index) {
+    int row_ge_is_obsolete(std::unordered_map<unsigned, T> & row, unsigned row_index) {
         T rs = m_constraints[row_index].m_rs;
         if (row_is_zero(row)) {
             if (rs > zero_of_type<X>())
@@ -394,7 +392,7 @@ protected:
         return false;
     }
 
-    bool row_le_is_obsolete(unordered_map<unsigned, T> & row, unsigned row_index) {
+    bool row_le_is_obsolete(std::unordered_map<unsigned, T> & row, unsigned row_index) {
         T low_bound;
         T rs = m_constraints[row_index].m_rs;
         if (row_is_zero(row)) {
@@ -425,7 +423,7 @@ protected:
     // the low boundary of the var and for a negative - the upper.
 
     // this routing also pins the variables to the boundaries
-    bool row_is_obsolete(unordered_map<unsigned, T> & row, unsigned row_index ) {
+    bool row_is_obsolete(std::unordered_map<unsigned, T> & row, unsigned row_index ) {
         auto & constraint = m_constraints[row_index];
         switch (constraint.m_relation) {
         case lp_relation::Equal:
@@ -448,9 +446,9 @@ protected:
         }
     }
 
-    void remove_fixed_or_zero_columns_from_row(unsigned i, unordered_map<unsigned, T> & row) {
+    void remove_fixed_or_zero_columns_from_row(unsigned i, std::unordered_map<unsigned, T> & row) {
         auto & constraint = m_constraints[i];
-        vector<unsigned> removed;
+        std::vector<unsigned> removed;
         for (auto & col : row) {
             unsigned j = col.first;
             lean_assert(m_columns.find(j) != m_columns.end());
@@ -472,7 +470,7 @@ protected:
     }
 
     unsigned try_to_remove_some_rows() {
-        vector<unsigned> rows_to_delete;
+        std::vector<unsigned> rows_to_delete;
         for (auto & t : m_A_values) {
             if (row_is_obsolete(t.second, t.first)) {
                 rows_to_delete.push_back(t.first);
@@ -498,9 +496,9 @@ protected:
             n += d;
 
         if (n == 1)
-            cout << "deleted one row" << endl;
+            std::cout << "deleted one row" << std::endl;
         else if (n)
-            cout << "deleted " << n << " rows" << endl;
+            std::cout << "deleted " << n << " rows" << std::endl;
     }
 
     void map_external_rows_to_core_solver_rows() {
@@ -517,7 +515,7 @@ protected:
         for (auto & row : m_A_values) {
             for (auto & col : row.second) {
                 if (col.second == numeric_traits<T>::zero() || m_columns[col.first]->is_fixed()) {
-                    cout << "found fixed column " << endl;
+                    std::cout << "found fixed column " << std::endl;
                     throw "map_external_columns_to_core_solver_columns";
                 }
                 unsigned j = col.first;
@@ -675,10 +673,10 @@ protected:
         this->m_costs[j] = cost * this->m_column_scale[j];
     }
     void print_statistics_on_A() {
-        cout << "extended A[" << this->m_A->row_count() << "," << this->m_A->column_count() << "]" << endl;
+        std::cout << "extended A[" << this->m_A->row_count() << "," << this->m_A->column_count() << "]" << std::endl;
         // for (unsigned i = 0; i < this->m_A->row_count(); i++) {
         //  if (this->m_A->number_of_non_zeroes_in_row(i) <= 2 ) {
-        //      cout << "m_p[" << i << "] = " << this->m_A->number_of_non_zeroes_in_row(i) << endl;
+        //      std::cout << "m_p[" << i << "] = " << this->m_A->number_of_non_zeroes_in_row(i) << std::endl;
         //  }
         // }
     }

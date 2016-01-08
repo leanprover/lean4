@@ -4,19 +4,17 @@
 
   Author: Lev Nachmanson
 */
-
 #pragma once
 #include <vector>
 namespace lean {
-using std::vector;
-    // the elements with the smallest priority are dequeued first
+// the elements with the smallest priority are dequeued first
 template <typename T>
 class binary_heap_priority_queue {
-    vector<T> m_priorities;
+    std::vector<T> m_priorities;
 
     // indexing for A starts from 1
-    vector<unsigned> m_heap; // keeps the elements of the queue
-    vector<int> m_heap_inverse; // o = m_heap[m_heap_inverse[o]]
+    std::vector<unsigned> m_heap; // keeps the elements of the queue
+    std::vector<int> m_heap_inverse; // o = m_heap[m_heap_inverse[o]]
     unsigned m_heap_size = 0;
 
     // is is the child place in heap
@@ -33,15 +31,15 @@ class binary_heap_priority_queue {
     }
 
     void decrease_priority(unsigned o, T newPriority) {
-            m_priorities[o] = newPriority;
-            int i = m_heap_inverse[o];
-            while (i > 1) {
-                if (m_priorities[m_heap[i]] < m_priorities[m_heap[i >> 1]])
-                    swap_with_parent(i);
-                else
-                    break;
-                i >>= 1;
-            }
+        m_priorities[o] = newPriority;
+        int i = m_heap_inverse[o];
+        while (i > 1) {
+            if (m_priorities[m_heap[i]] < m_priorities[m_heap[i >> 1]])
+                swap_with_parent(i);
+            else
+                break;
+            i >>= 1;
+        }
     }
 
 public:
@@ -56,13 +54,13 @@ public:
             for (int k = 0; k < 2; k++) {
                 if (ch > m_heap_size) break;
                 if (!(m_priorities[m_heap[i]] <= m_priorities[m_heap[ch]])){
-                    cout << "m_heap_size = " << m_heap_size << endl;
-                    cout << "i = " << i << endl;
-                    cout << "m_heap[i] = " << m_heap[i] << endl;
-                    cout << "ch = " << ch << endl;
-                    cout << "m_heap[ch] = " << m_heap[ch] << endl;
-                    cout << "m_priorities[m_heap[i]] = " << m_priorities[m_heap[i]] << endl;
-                    cout << "m_priorities[m_heap[ch]] = " << m_priorities[m_heap[ch]]<< endl;
+                    std::cout << "m_heap_size = " << m_heap_size << std::endl;
+                    std::cout << "i = " << i << std::endl;
+                    std::cout << "m_heap[i] = " << m_heap[i] << std::endl;
+                    std::cout << "ch = " << ch << std::endl;
+                    std::cout << "m_heap[ch] = " << m_heap[ch] << std::endl;
+                    std::cout << "m_priorities[m_heap[i]] = " << m_priorities[m_heap[i]] << std::endl;
+                    std::cout << "m_priorities[m_heap[ch]] = " << m_priorities[m_heap[ch]]<< std::endl;
                     return false;
                 }
                 ch++;
@@ -109,7 +107,7 @@ public:
         m_priorities(n),
         m_heap(n + 1), // because the indexing for A starts from 1
         m_heap_inverse(n, -1)
-    { }
+        { }
 
     void clear() {
         m_heap_size = 0;
@@ -127,15 +125,15 @@ public:
     }
 
     void enqueue_new(unsigned o, const T& priority) {
-            m_heap_size++;
-            int i = m_heap_size;
-            lean_assert(o < m_priorities.size());
-            m_priorities[o] = priority;
-            put_at(i, o);
-            while (i > 1 && m_priorities[m_heap[i >> 1]] > priority) {
-                swap_with_parent(i);
-                i >>= 1;
-            }
+        m_heap_size++;
+        int i = m_heap_size;
+        lean_assert(o < m_priorities.size());
+        m_priorities[o] = priority;
+        put_at(i, o);
+        while (i > 1 && m_priorities[m_heap[i >> 1]] > priority) {
+            swap_with_parent(i);
+            i >>= 1;
+        }
     }
     // This method can work with an element that is already in the queue.
     // In this case the priority will be changed and the queue adjusted.
@@ -168,9 +166,7 @@ public:
 
     /// return the first element of the queue and removes it from the queue
     unsigned dequeue_and_get_priority(T & priority) {
-        if (m_heap_size == 0) {
-            throw "invalid size";
-        }
+        lean_assert(m_heap_size != 0);
         int ret = m_heap[1];
         priority = m_priorities[ret];
         put_the_last_at_the_top_and_fix_the_heap();
@@ -202,7 +198,7 @@ public:
             m_heap_size--;
         }
     }
-        /// return the first element of the queue and removes it from the queue
+    /// return the first element of the queue and removes it from the queue
     unsigned dequeue() {
         lean_assert(m_heap_size);
         int ret = m_heap[1];
@@ -212,16 +208,16 @@ public:
     }
 
     void print() {
-        vector<int> index;
-        vector<T> prs;
+        std::vector<int> index;
+        std::vector<T> prs;
         while (size()) {
             T prior;
             int j = dequeue_and_get_priority(prior);
             index.push_back(j);
             prs.push_back(prior);
-            cout << "(" << j << ", " << prior << ")";
+            std::cout << "(" << j << ", " << prior << ")";
         }
-        cout << endl;
+        std::cout << std::endl;
         // restore the queue
         for (int i = 0; i < index.size(); i++)
             enqueue(index[i], prs[i]);

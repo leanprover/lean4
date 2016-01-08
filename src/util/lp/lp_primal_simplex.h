@@ -4,24 +4,22 @@
 
   Author: Lev Nachmanson
 */
-
 #pragma once
-#include "util/lp/lp_primal_core_solver.h"
-#include "util/lp/lp_solver.h"
 #include <vector>
 #include <unordered_map>
 #include <string>
 #include <algorithm>
+#include "util/exception.h"
+#include "util/sstream.h"
 #include "util/lp/column_info.h"
+#include "util/lp/lp_primal_core_solver.h"
+#include "util/lp/lp_solver.h"
 
 namespace lean {
-using std::vector;
-using std::tuple;
-
 template <typename T, typename X>
 class lp_primal_simplex: public lp_solver<T, X> {
     lp_primal_core_solver<T, X> * m_core_solver = nullptr;
-    vector<X> m_low_bounds;
+    std::vector<X> m_low_bounds;
 private:
     unsigned original_rows() { return this->m_external_rows_to_core_solver_rows.size(); }
 
@@ -34,7 +32,7 @@ private:
         }
     }
 
-    void init_buffer(unsigned k, vector<T> & r) {
+    void init_buffer(unsigned k, std::vector<T> & r) {
         for (unsigned i = 0; i < k; i++) {
             r[i] = 0;
         }
@@ -47,8 +45,7 @@ private:
     void refactor() {
         m_core_solver->init_lu();
         if (m_core_solver->factorization()->get_status() != LU_status::OK) {
-            cout << "cannot refactor \n";
-            throw "cannot refactor";
+            throw exception("cannot refactor");
         }
     }
 
@@ -60,7 +57,7 @@ private:
     }
 
     void stage_two() {
-        cout << "starting stage 2" << endl;
+        std::cout << "starting stage 2" << std::endl;
         lean_assert(!m_core_solver->A_mult_x_is_off());
         int j = this->m_A->column_count() - 1;
         unsigned core_solver_cols = this->number_of_core_structurals();
@@ -73,7 +70,7 @@ private:
         m_core_solver->set_status(lp_status::FEASIBLE);
         this->m_second_stage_iterations = m_core_solver->solve();
         this->m_status = m_core_solver->get_status();
-        //     cout << "status is " << lp_status_to_string(this->m_status) << endl;
+        //     std::cout << "status is " << lp_status_to_string(this->m_status) << std::endl;
     }
 public:
     lp_primal_simplex() {}
@@ -175,11 +172,11 @@ public:
 
 
 
-    string name_of_core_solver_column(unsigned j) { // j here is the core solver index
+    std::string name_of_core_solver_column(unsigned j) { // j here is the core solver index
         unsigned external_j = this->m_core_solver_columns_to_external_columns[j];
         auto t = this->m_columns.find(external_j);
         if (t == this->m_columns.end()) {
-            return string("name_not_found");
+            return std::string("name_not_found");
         }
         return t->m_name;
     }
@@ -274,7 +271,7 @@ public:
     }
 
     void solve_with_total_inf() {
-        cout << "starting solve_with_total_inf()" << endl;
+        std::cout << "starting solve_with_total_inf()" << std::endl;
         int total_vars = this->m_A->column_count() + this->row_count();
         m_low_bounds.clear();
         m_low_bounds.resize(total_vars, zero_of_type<X>());  // low bounds are shifted ot zero
@@ -308,7 +305,7 @@ public:
 
 
     // void stage_one_of_total_inf() {
-    //     cout << "starting stage_one_of_total_inf()" << endl;
+    //     std::cout << "starting stage_one_of_total_inf()" << std::endl;
     //     int total_vars = this->m_A->column_count() + this->row_count();
     //     m_low_bounds.clear();
     //     m_low_bounds.resize(total_vars, zero_of_type<X>());  // low bounds are shifted ot zero
@@ -339,16 +336,16 @@ public:
          }
     }
 
-    bool bounds_hold(unordered_map<string, T> const & solution) {
+    bool bounds_hold(std::unordered_map<std::string, T> const & solution) {
         for (auto it : this->m_columns) {
             auto sol_it = solution.find(it.second->get_name());
             if (sol_it == solution.end()) {
-                cout << "cannot find column " << it.first << " in solution " << endl;
+                std::cout << "cannot find column " << it.first << " in solution " << std::endl;
                 throw;
             }
 
             if (!it.second->bounds_hold(sol_it->second)) {
-                cout << "bounds do not hold for " << it.second->get_name() << endl;
+                std::cout << "bounds do not hold for " << it.second->get_name() << std::endl;
                 it.second->bounds_hold(sol_it->second);
                 return false;
             }
@@ -356,37 +353,37 @@ public:
         return true;
     }
 
-    T get_row_value(unsigned i, unordered_map<string, T> const & solution, bool print) {
+    T get_row_value(unsigned i, std::unordered_map<std::string, T> const & solution, bool print) {
         auto it = this->m_A_values.find(i);
         if (it == this->m_A_values.end()) {
-            cout << "cannot find row " << i << endl;
+            std::cout << "cannot find row " << i << std::endl;
             throw "get_row_value";
         }
         T ret = numeric_traits<T>::zero();
         for (auto & pair : it->second) {
             auto cit = this->m_columns.find(pair.first);
             if (cit == this->m_columns.end()){
-                cout << "cannot find column " << pair.first << endl;
+                std::cout << "cannot find column " << pair.first << std::endl;
             }
 
             column_info<T> * ci = cit->second;
             auto sol_it = solution.find(ci->get_name());
             if (sol_it == solution.end()) {
-                cout << "cannot find in the solution column " << ci->get_name() << endl;
+                std::cout << "cannot find in the solution column " << ci->get_name() << std::endl;
             }
             T column_val = sol_it->second;
             if (print) {
-                cout << pair.second << "(" << ci->get_name() << "=" << column_val << ") ";
+                std::cout << pair.second << "(" << ci->get_name() << "=" << column_val << ") ";
             }
             ret += pair.second * column_val;
         }
         if (print) {
-            cout << " = " << ret << endl;
+            std::cout << " = " << ret << std::endl;
         }
         return ret;
     }
 
-    bool row_constraint_holds(unsigned i, unordered_map<string, T> const & solution, bool print) {
+    bool row_constraint_holds(unsigned i, std::unordered_map<std::string, T> const & solution, bool print) {
         T row_val = get_row_value(i, solution, print);
         auto & constraint = this->m_constraints[i];
         T rs = constraint.m_rs;
@@ -394,7 +391,7 @@ public:
         case Equal:
             if (fabs(numeric_traits<T>::get_double(row_val - rs)) > 0.00001) {
                 if (print) {
-                    cout << "should be = " << rs << endl;
+                    std::cout << "should be = " << rs << std::endl;
                 }
                 return false;
             }
@@ -402,7 +399,7 @@ public:
         case Greater_or_equal:
             if (numeric_traits<T>::get_double(row_val - rs) < -0.00001) {
                 if (print) {
-                    cout << "should be >= " << rs << endl;
+                    std::cout << "should be >= " << rs << std::endl;
                 }
                 return false;
             }
@@ -411,17 +408,17 @@ public:
         case Less_or_equal:
             if (numeric_traits<T>::get_double(row_val - rs) > 0.00001) {
                 if (print) {
-                    cout << "should be <= " << rs << endl;
+                    std::cout << "should be <= " << rs << std::endl;
                 }
                 return false;
             }
             return true;;
         }
-        cout << "throw in row_constraint_holds " << endl;
+        std::cout << "throw in row_constraint_holds " << std::endl;
         throw "wrong case";
     }
 
-    bool row_constraints_hold(unordered_map<string, T> const & solution) {
+    bool row_constraints_hold(std::unordered_map<std::string, T> const & solution) {
         for (auto it : this->m_A_values) {
             if (!row_constraint_holds(it.first, solution, false)) {
                 row_constraint_holds(it.first, solution, true);
@@ -432,21 +429,19 @@ public:
     }
 
 
-    T * get_array_from_map(unordered_map<string, T> const & solution) {
+    T * get_array_from_map(std::unordered_map<std::string, T> const & solution) {
         T * t = new T[solution.size()];
         for (auto it : solution) {
             auto g = this->m_names_to_columns.find(it.first);
             if (g == this->m_names_to_columns.end()) {
-                string s = string("cannot find name ") + " "+ it.first;
-                cout << "throw in get_array_from_map" << endl;
-                throw s;
+                throw exception(sstream() << "cannot find name " << it.first);
             }
             t[g->second] = it.second;
         }
         return t;
     }
 
-    bool solution_is_feasible(unordered_map<string, T> const & solution) {
+    bool solution_is_feasible(std::unordered_map<std::string, T> const & solution) {
         return bounds_hold(solution) && row_constraints_hold(solution);
     }
 

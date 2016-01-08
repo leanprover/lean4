@@ -4,7 +4,6 @@
 
   Author: Lev Nachmanson
 */
-
 #pragma once
 #include <vector>
 #include "util/debug.h"
@@ -23,77 +22,68 @@
 #include "util/lp/scaler.h"
 
 namespace std {
-    template<>
-    struct hash<lean::mpq> {
-        inline size_t operator()(const lean::mpq & v) const {
-            return v.hash();
+template<>
+struct hash<lean::mpq> {
+    inline size_t operator()(const lean::mpq & v) const {
+        return v.hash();
     }
 };
 }
 
 namespace lean {
-    using std::string;
-    using std::cout;
-    using std::endl;
-    using std::vector;
-    using std::unordered_map;
-    using std::unordered_set;
+template <typename V>
+struct conversion_helper {
+    static V get_low_bound(const column_info<mpq> & ci) {
+        return V(ci.get_low_bound(), ci.low_bound_is_strict()? 1 : 0);
+    }
 
-    template <typename V>
-    struct conversion_helper {
-        static V get_low_bound(const column_info<mpq> & ci) {
-            return V(ci.get_low_bound(), ci.low_bound_is_strict()? 1 : 0);
-        }
+    static V get_upper_bound(const column_info<mpq> & ci) {
+        return V(ci.get_upper_bound(), ci.upper_bound_is_strict()? -1 : 0);
+    }
+};
 
-        static V get_upper_bound(const column_info<mpq> & ci) {
-            return V(ci.get_upper_bound(), ci.upper_bound_is_strict()? -1 : 0);
-        }
-    };
-
-    template<>
-    struct conversion_helper <double> {
-        static double get_low_bound(const column_info<mpq> & ci) {
-            if (!ci.low_bound_is_strict())
-                return ci.get_low_bound().get_double();
-            double eps = 0.00001;
-            if (!ci.upper_bound_is_set())
-                return ci.get_low_bound().get_double() + eps;
-            eps = std::min((ci.get_upper_bound() - ci.get_low_bound()).get_double()/1000, eps);
+template<>
+struct conversion_helper <double> {
+    static double get_low_bound(const column_info<mpq> & ci) {
+        if (!ci.low_bound_is_strict())
+            return ci.get_low_bound().get_double();
+        double eps = 0.00001;
+        if (!ci.upper_bound_is_set())
             return ci.get_low_bound().get_double() + eps;
-        }
-        static double get_upper_bound(const column_info<mpq> & ci) {
-            if (!ci.upper_bound_is_strict())
-                return ci.get_upper_bound().get_double();
-            double eps = 0.00001;
-            if (!ci.low_bound_is_set())
-                return ci.get_upper_bound().get_double() - eps;
-            eps = std::min((ci.get_upper_bound() - ci.get_low_bound()).get_double()/1000, eps);
+        eps = std::min((ci.get_upper_bound() - ci.get_low_bound()).get_double()/1000, eps);
+        return ci.get_low_bound().get_double() + eps;
+    }
+    static double get_upper_bound(const column_info<mpq> & ci) {
+        if (!ci.upper_bound_is_strict())
+            return ci.get_upper_bound().get_double();
+        double eps = 0.00001;
+        if (!ci.low_bound_is_set())
             return ci.get_upper_bound().get_double() - eps;
-        }
-    };
-
-
+        eps = std::min((ci.get_upper_bound() - ci.get_low_bound()).get_double()/1000, eps);
+        return ci.get_upper_bound().get_double() - eps;
+    }
+};
 
 class lar_solver {
     unsigned m_available_var_index = 0;
     unsigned m_available_constr_index = 0;
     lp_status m_status = UNKNOWN;
-    unordered_map<string, var_index> m_var_names_to_var_index;
-    unordered_map<var_index, canonic_left_side*> m_map_from_var_index_to_left_side;
-    unordered_set<canonic_left_side*, hash_and_equal_of_canonic_left_side_struct, hash_and_equal_of_canonic_left_side_struct> m_canonic_left_sides;
-    unordered_map<unsigned, canonic_left_side*> m_column_indices_to_canonic_left_sides;
-    unordered_map<constraint_index, lar_normalized_constraint> m_normalized_constraints;
+    std::unordered_map<std::string, var_index> m_var_names_to_var_index;
+    std::unordered_map<var_index, canonic_left_side*> m_map_from_var_index_to_left_side;
+    std::unordered_set<canonic_left_side*, hash_and_equal_of_canonic_left_side_struct, hash_and_equal_of_canonic_left_side_struct> m_canonic_left_sides;
+    std::unordered_map<unsigned, canonic_left_side*> m_column_indices_to_canonic_left_sides;
+    std::unordered_map<constraint_index, lar_normalized_constraint> m_normalized_constraints;
     static_matrix<mpq, numeric_pair<mpq>> m_A;
     lar_core_solver<mpq, numeric_pair<mpq>> m_mpq_core_solver;
     lp_settings m_settings;
-    vector<column_type> m_column_types; // this field is passed to the core solver
-    vector<numeric_pair<mpq>> m_low_bounds; // passed to the core solver
-    vector<numeric_pair<mpq>> m_upper_bounds; // passed to the core solver
-    vector<unsigned> m_basis;
-    vector<numeric_pair<mpq>> m_x; // the solution
-    unordered_map<unsigned, string> m_column_names;
-    vector<numeric_pair<mpq>> m_right_side_vector; // this vector will be all zeroes, it might change when the optimization with fixed variables will used
-    vector<mpq> m_costs;
+    std::vector<column_type> m_column_types; // this field is passed to the core solver
+    std::vector<numeric_pair<mpq>> m_low_bounds; // passed to the core solver
+    std::vector<numeric_pair<mpq>> m_upper_bounds; // passed to the core solver
+    std::vector<unsigned> m_basis;
+    std::vector<numeric_pair<mpq>> m_x; // the solution
+    std::unordered_map<unsigned, std::string> m_column_names;
+    std::vector<numeric_pair<mpq>> m_right_side_vector; // this vector will be all zeroes, it might change when the optimization with fixed variables will used
+    std::vector<mpq> m_costs;
     canonic_left_side * m_infeasible_canonic_left_side = nullptr; // such can be found at the initialization step
     canonic_left_side * create_or_fetch_existing_left_side(const buffer<pair<mpq, var_index>>& left_side_par) {
         auto left_side = new canonic_left_side(left_side_par);
@@ -125,7 +115,7 @@ class lar_solver {
         return it->second;
     }
 
-    void add_canonic_left_side_for_var(var_index i, string var_name) {
+    void add_canonic_left_side_for_var(var_index i, std::string var_name) {
         buffer<pair<mpq, var_index>> b;
         b.push_back(std::make_pair(numeric_traits<mpq>::one(), i));
         auto can_ls = new canonic_left_side(b);
@@ -265,11 +255,11 @@ class lar_solver {
             break;
 
         case EQ:
-            {
-                set_upper_bound_for_column_info(&norm_constr);
-                set_low_bound_for_column_info(&norm_constr);
-            }
-            break;
+        {
+            set_upper_bound_for_column_info(&norm_constr);
+            set_low_bound_for_column_info(&norm_constr);
+        }
+        break;
         default:
             throw "unexpected";
         }
@@ -290,9 +280,9 @@ class lar_solver {
             auto & ci = t->m_column_info;
             unsigned j = t->m_column_index;
             lean_assert(valid_index(j));
-            string name = ci.get_name();
+            std::string name = ci.get_name();
             if (name.size() == 0)
-                name = string("_s") + T_to_string(j);
+                name = std::string("_s") + T_to_string(j);
             m_column_names[j] = name;
         }
     }
@@ -309,7 +299,7 @@ class lar_solver {
     }
 
     template <typename V>
-    void fill_bounds_for_core_solver(vector<V> & lb, vector<V> & ub) {
+    void fill_bounds_for_core_solver(std::vector<V> & lb, std::vector<V> & ub) {
         unsigned n = m_canonic_left_sides.size(); // this is the number of columns
         lb.resize(n);
         ub.resize(n);
@@ -326,14 +316,14 @@ class lar_solver {
 
 
     template <typename V>
-    void resize_x_and_init_with_zeros(vector<V> & x, unsigned n) {
+    void resize_x_and_init_with_zeros(std::vector<V> & x, unsigned n) {
         x.clear();
         x.resize(n, zero_of_type<V>()); // init with zeroes
     }
 
     template <typename V>
-    void resize_x_and_init_with_signature(vector<V> & x, vector<V> & low_bound,
-                                          vector<V> & upper_bound, const lar_solution_signature & signature) {
+    void resize_x_and_init_with_signature(std::vector<V> & x, std::vector<V> & low_bound,
+                                          std::vector<V> & upper_bound, const lar_solution_signature & signature) {
         x.clear();
         x.resize(low_bound.size());
         for (auto & t : signature.non_basic_column_value_positions) {
@@ -341,7 +331,7 @@ class lar_solver {
         }
     }
 
-    template <typename V> V get_column_val(vector<V> & low_bound, vector<V> & upper_bound, non_basic_column_value_position pos_type, unsigned j) {
+    template <typename V> V get_column_val(std::vector<V> & low_bound, std::vector<V> & upper_bound, non_basic_column_value_position pos_type, unsigned j) {
         switch (pos_type) {
         case at_low_bound: return low_bound[j];
         case at_fixed:
@@ -354,7 +344,7 @@ class lar_solver {
 
 public:
     ~lar_solver() {
-        vector<canonic_left_side*> to_delete;
+        std::vector<canonic_left_side*> to_delete;
         for (auto it : m_canonic_left_sides)
             to_delete.push_back(it);
         for (auto t : to_delete)
@@ -380,7 +370,7 @@ public:
     }
 
 
-    var_index add_var(string s) {
+    var_index add_var(std::string s) {
         auto got = m_var_names_to_var_index.find(s);
         if (got != m_var_names_to_var_index.end()) return got->second;
 
@@ -392,7 +382,7 @@ public:
 
     constraint_index add_constraint(const buffer<pair<mpq, var_index>>& left_side, lconstraint_kind kind_par, mpq right_side_par) {
         if (left_side.size() == 0) {
-            cout << "cannot add a constraint without left side" << endl;
+            std::cout << "cannot add a constraint without left side" << std::endl;
             return (constraint_index)(-1);
         }
         constraint_index i = m_available_constr_index++;
@@ -412,18 +402,18 @@ public:
     }
 
     bool all_constraints_hold() {
-        unordered_map<var_index, mpq> var_map;
+        std::unordered_map<var_index, mpq> var_map;
         get_model(var_map);
         for ( auto & it : m_normalized_constraints )
             if (!constraint_holds(it.second.m_origin_constraint, var_map)) {
                 print_constraint(&it.second.m_origin_constraint);
-                cout << endl;
+                std::cout << std::endl;
                 return false;
             }
         return true;
     }
 
-    bool constraint_holds(const lar_constraint & constr, unordered_map<var_index, mpq> & var_map) {
+    bool constraint_holds(const lar_constraint & constr, std::unordered_map<var_index, mpq> & var_map) {
         mpq left_side_val = get_left_side_val(constr, var_map);
         switch (constr.m_kind) {
         case LE: return left_side_val <= constr.m_right_side;
@@ -453,9 +443,9 @@ public:
         for (auto & it : evidence) {
             mpq coeff = it.first;
             constraint_index con_ind = it.second;
-            cout << coeff.get_double() << endl;
+            std::cout << coeff.get_double() << std::endl;
             lar_constraint & constr = m_normalized_constraints[con_ind].m_origin_constraint;
-            print_constraint(&constr); cout << endl;
+            print_constraint(&constr); std::cout << std::endl;
 
             lconstraint_kind kind = coeff.is_pos()?  constr.m_kind: flip_kind(constr.m_kind);
             if (kind == GT || kind == LT)
@@ -470,7 +460,7 @@ public:
         return n_of_G == 0 || n_of_L == 0;
     }
 
-    void register_in_map(unordered_map<var_index, mpq> & coeffs, lar_constraint & cn, const mpq & a) {
+    void register_in_map(std::unordered_map<var_index, mpq> & coeffs, lar_constraint & cn, const mpq & a) {
         for (auto & it : cn.m_left_side) {
             unsigned j = it.first;
             auto p = coeffs.find(j);
@@ -479,7 +469,7 @@ public:
         }
     }
     bool the_left_sides_sum_to_zero(const buffer<pair<mpq, unsigned>> & evidence) {
-        unordered_map<var_index, mpq> coeff_map;
+        std::unordered_map<var_index, mpq> coeff_map;
         for (auto & it : evidence) {
             mpq coeff = it.first;
             constraint_index con_ind = it.second;
@@ -533,7 +523,7 @@ public:
     }
 
     template <typename V>
-    void init_right_sides_with_zeros(vector<V> & rs) {
+    void init_right_sides_with_zeros(std::vector<V> & rs) {
         rs.clear();
         rs.resize(m_basis.size(), zero_of_type<V>());
     }
@@ -556,10 +546,10 @@ public:
     }
 
     template <typename U, typename V>
-    void prepare_core_solver_fields(static_matrix<U, V> & A, vector<V> & x,
-                                    vector<V> & right_side_vector,
-                                    vector<V> & low_bound,
-                                    vector<V> & upper_bound) {
+    void prepare_core_solver_fields(static_matrix<U, V> & A, std::vector<V> & x,
+                                    std::vector<V> & right_side_vector,
+                                    std::vector<V> & low_bound,
+                                    std::vector<V> & upper_bound) {
         create_matrix_A(A);
         fill_bounds_for_core_solver(low_bound, upper_bound);
         if (m_status == INFEASIBLE) {
@@ -571,10 +561,10 @@ public:
     }
 
     template <typename U, typename V>
-    void prepare_core_solver_fields_with_signature(static_matrix<U, V> & A, vector<V> & x,
-                                                   vector<V> & right_side_vector,
-                                                   vector<V> & low_bound,
-                                                   vector<V> & upper_bound, const lar_solution_signature & signature) {
+    void prepare_core_solver_fields_with_signature(static_matrix<U, V> & A, std::vector<V> & x,
+                                                   std::vector<V> & right_side_vector,
+                                                   std::vector<V> & low_bound,
+                                                   std::vector<V> & upper_bound, const lar_solution_signature & signature) {
         create_matrix_A(A);
         fill_bounds_for_core_solver(low_bound, upper_bound);
         if (m_status == INFEASIBLE) {
@@ -586,9 +576,9 @@ public:
 
     void find_solution_signature_with_doubles(lar_solution_signature & signature) {
         static_matrix<double, double> A;
-        vector<double> x, right_side_vector, low_bounds, upper_bounds;
+        std::vector<double> x, right_side_vector, low_bounds, upper_bounds;
         prepare_core_solver_fields<double, double>(A, x, right_side_vector, low_bounds, upper_bounds);
-        vector<double> column_scale_vector;
+        std::vector<double> column_scale_vector;
         scaler<double, double > scaler(right_side_vector, A, m_settings.scaling_minimum, m_settings.scaling_maximum, column_scale_vector, this->m_settings);
         if (!scaler.scale()) {
             // the scale did not succeed, unscaling
@@ -597,7 +587,7 @@ public:
             for (auto & s : column_scale_vector)
                 s = one_of_type<double>();
         }
-        vector<double> costs(A.column_count());
+        std::vector<double> costs(A.column_count());
         auto core_solver = lp_primal_core_solver<double, double>(A,
                                                                  right_side_vector,
                                                                  x,
@@ -643,7 +633,7 @@ public:
     }
     void get_infeasibility_evidence(buffer<pair<mpq, constraint_index>> & evidence){
         if (!m_mpq_core_solver.get_infeasible_row_sign()) {
-            cout << "don't have the infeasibility evidence" << endl;
+            std::cout << "don't have the infeasibility evidence" << std::endl;
             return;
         }
         // the infeasibility sign
@@ -654,7 +644,7 @@ public:
     }
 
     void get_infeasibility_evidence_for_inf_sign(buffer<pair<mpq, constraint_index>> & evidence,
-                                                 const vector<pair<mpq, unsigned>> & inf_row,
+                                                 const std::vector<pair<mpq, unsigned>> & inf_row,
                                                  int inf_sign) {
         for (auto & it : inf_row) {
             mpq coeff = it.first;
@@ -714,19 +704,19 @@ public:
         }
     }
 
-    void get_model(unordered_map<var_index, mpq> & variable_values){
+    void get_model(std::unordered_map<var_index, mpq> & variable_values){
         lean_assert(m_status == OPTIMAL);
         mpq delta = find_delta_for_strict_bounds();
         for (auto & it : m_map_from_var_index_to_left_side) {
             numeric_pair<mpq> & rp = m_x[it.second->m_column_index];
-            //  cout << it.second->m_column_info.get_name() << " = " << rp << endl;
+            //  std::cout << it.second->m_column_info.get_name() << " = " << rp << std::endl;
             variable_values[it.first] =  rp.x + delta * rp.y;
         }
     }
 
-    string get_variable_name(var_index vi) {
+    std::string get_variable_name(var_index vi) {
         if (m_map_from_var_index_to_left_side.size() <= vi) {
-            string s="variable " + T_to_string(vi) + " is not found";
+            std::string s = "variable " + T_to_string(vi) + " is not found";
             return s;
         }
         return m_map_from_var_index_to_left_side[vi]->m_column_info.get_name();
@@ -735,8 +725,8 @@ public:
     // ********** print region start
     void print_constraint(constraint_index ci) {
         if (m_normalized_constraints.size() <= ci) {
-            string s = "constraint " + T_to_string(ci) + " is not found";
-            cout << s << endl;
+            std::string s = "constraint " + T_to_string(ci) + " is not found";
+            std::cout << s << std::endl;
             return;
         }
 
@@ -751,15 +741,15 @@ public:
                 first = false;
             } else {
                 if (val.is_pos()) {
-                    cout << " + ";
+                    std::cout << " + ";
                 } else {
-                    cout << " - ";
+                    std::cout << " - ";
                     val = -val;
                 }
             }
             if (val != numeric_traits<mpq>::one())
-                cout << T_to_string(val);
-            cout << m_map_from_var_index_to_left_side[it.second]->m_column_info.get_name();
+                std::cout << T_to_string(val);
+            std::cout << m_map_from_var_index_to_left_side[it.second]->m_column_info.get_name();
         }
     }
 
@@ -772,21 +762,20 @@ public:
                 first = false;
             } else {
                 if (val.is_pos()) {
-                    cout << " + ";
+                    std::cout << " + ";
                 } else {
-                    cout << " - ";
+                    std::cout << " - ";
                     val = -val;
                 }
             }
 
             if (val != numeric_traits<mpq>::one())
-                cout << val;
-            cout << m_map_from_var_index_to_left_side[it.second]->m_column_info.get_name();
+                std::cout << val;
+            std::cout << m_map_from_var_index_to_left_side[it.second]->m_column_info.get_name();
         }
     }
 
-
-    numeric_pair<mpq> get_infeasibility_from_core_solver(unordered_map<string, mpq> & solution) {
+    numeric_pair<mpq> get_infeasibility_from_core_solver(std::unordered_map<std::string, mpq> & solution) {
         prepare_independently_of_numeric_type();
         prepare_core_solver_fields(m_A, m_x, m_right_side_vector, m_low_bounds, m_upper_bounds);
         m_mpq_core_solver.prefix(); // just to fill the core solver
@@ -803,34 +792,34 @@ public:
             if (static_cast<unsigned>(ls->m_column_index) == j) {
                 auto & ci = ls->m_column_info;
                 if (ci.low_bound_is_set()) {
-                    cout << "l = " << ci.get_low_bound();
+                    std::cout << "l = " << ci.get_low_bound();
                 }
                 if (ci.upper_bound_is_set()) {
-                    cout << "u = " << ci.get_upper_bound();
+                    std::cout << "u = " << ci.get_upper_bound();
                 }
-                cout << endl;
+                std::cout << std::endl;
                 m_mpq_core_solver.print_column_info(j);
             }
         }
     }
 
-    mpq get_infeasibility_of_solution(unordered_map<string, mpq> & solution) {
-        cout << "solution" << endl;
+    mpq get_infeasibility_of_solution(std::unordered_map<std::string, mpq> & solution) {
+        std::cout << "solution" << std::endl;
         for (auto it : solution) {
-            cout << it.first << " = " << it.second.get_double() << endl;
+            std::cout << it.first << " = " << it.second.get_double() << std::endl;
         }
         mpq ret = numeric_traits<mpq>::zero();
         for (auto it : m_normalized_constraints) {
             ret += get_infeasibility_of_constraint(it.second, solution);
         }
-        cout << "ret = " << ret.get_double() << endl;
+        std::cout << "ret = " << ret.get_double() << std::endl;
         auto core_inf = get_infeasibility_from_core_solver(solution);
-        cout << "core inf = " << T_to_string(core_inf) << endl;
+        std::cout << "core inf = " << T_to_string(core_inf) << std::endl;
         lean_assert(numeric_pair<mpq>(ret, 0) == core_inf);
         return ret;
     }
 
-    mpq get_infeasibility_of_constraint(const lar_normalized_constraint & norm_constr, unordered_map<string, mpq> & solution) {
+    mpq get_infeasibility_of_constraint(const lar_normalized_constraint & norm_constr, std::unordered_map<std::string, mpq> & solution) {
         auto kind = norm_constr.m_kind;
         mpq left_side_val = get_canonic_left_side_val(norm_constr.m_canonic_left_side, solution);
 
@@ -849,14 +838,14 @@ public:
         }
     }
 
-    mpq get_canonic_left_side_val(canonic_left_side * ls, unordered_map<string, mpq> & solution) {
+    mpq get_canonic_left_side_val(canonic_left_side * ls, std::unordered_map<std::string, mpq> & solution) {
         mpq ret = numeric_traits<mpq>::zero();
         for (auto it : ls->m_coeffs) {
             var_index j = it.second;
             auto vi = m_map_from_var_index_to_left_side.find(j);
             lean_assert(vi != m_map_from_var_index_to_left_side.end());
             canonic_left_side * var_ls = vi->second;
-            string s = var_ls->m_column_info.get_name();
+            std::string s = var_ls->m_column_info.get_name();
             auto t = solution.find(s);
             lean_assert(t != solution.end());
             ret += it.first * (t->second);
@@ -864,7 +853,7 @@ public:
         return ret;
     }
 
-    mpq get_left_side_val(const lar_constraint &  cns, const unordered_map<var_index, mpq> & var_map) {
+    mpq get_left_side_val(const lar_constraint &  cns, const std::unordered_map<var_index, mpq> & var_map) {
         mpq ret = numeric_traits<mpq>::zero();
         for (auto it : cns.m_left_side) {
             var_index j = it.first;
@@ -877,7 +866,7 @@ public:
 
     void print_constraint(const lar_base_constraint * c) {
         print_left_side_of_constraint(c);
-        cout <<" " << lconstraint_kind_string(c->m_kind) << " " << c->m_right_side;
+        std::cout <<" " << lconstraint_kind_string(c->m_kind) << " " << c->m_right_side;
     }
     unsigned get_total_iterations() const { return m_mpq_core_solver.m_total_iterations; }
 };

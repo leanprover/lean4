@@ -18,8 +18,8 @@ namespace lean {
 template <typename  T>
 class binary_heap_upair_queue {
     binary_heap_priority_queue<T> m_q;
-    unordered_map<upair, unsigned> m_pairs_to_index;
-    vector<upair> m_pairs; // inverse to index
+    std::unordered_map<upair, unsigned> m_pairs_to_index;
+    std::vector<upair> m_pairs; // inverse to index
     std::vector<unsigned> m_available_spots;
 public:
     binary_heap_upair_queue(unsigned size) : m_q(size), m_pairs(size) {
@@ -113,7 +113,8 @@ public:
             unsigned j = p.second;
             auto it = tmp.find(j);
             if (it != tmp.end()) {
-                cout << "for pair (" << p.first.first << ", " << p.first.second << "),  the index " << j << " is already inside " << endl;
+                std::cout << "for pair (" << p.first.first << ", " << p.first.second << "),  the index " << j
+                          << " is already inside " << std::endl;
                 lean_assert(false);
             } else {
                 tmp.insert(j);

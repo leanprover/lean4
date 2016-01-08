@@ -23,10 +23,7 @@
 #include "util/lp/eta_matrix.h"
 #include "util/lp/binary_heap_upair_queue.h"
 namespace lean {
-
-using std::vector;
-using std::cout;
-    // it is a square matrix
+// it is a square matrix
 template <typename T, typename X>
 class sparse_matrix
 #ifdef LEAN_DEBUG
@@ -35,7 +32,7 @@ class sparse_matrix
 {
     struct col_header {
         unsigned m_shortened_markovitz = 0;
-        vector<indexed_value<T>> m_values; // the actual column values
+        std::vector<indexed_value<T>> m_values; // the actual column values
 
         col_header()  {}
 
@@ -50,8 +47,8 @@ class sparse_matrix
 
     binary_heap_upair_queue<unsigned> m_pivot_queue;
 public:
-    vector<vector<indexed_value<T>>>  m_rows;
-    vector<col_header> m_columns;
+    std::vector<std::vector<indexed_value<T>>>  m_rows;
+    std::vector<col_header> m_columns;
     permutation_matrix<T, X>  m_row_permutation;
     permutation_matrix<T, X>  m_column_permutation;
     indexed_vector<T> m_work_pivot_vector;
@@ -80,13 +77,13 @@ public:
     }
 
     void copy_column_from_static_matrix(unsigned col, static_matrix<T, X> const &A, unsigned col_index_in_the_new_matrix) {
-        vector<column_cell<T>> const & A_col_vector = A.m_columns[col];
+        std::vector<column_cell<T>> const & A_col_vector = A.m_columns[col];
         unsigned size = A_col_vector.size();
-        vector<indexed_value<T>> & new_column_vector = m_columns[col_index_in_the_new_matrix].m_values;
+        std::vector<indexed_value<T>> & new_column_vector = m_columns[col_index_in_the_new_matrix].m_values;
         for (unsigned l = 0; l < size; l++) {
             column_cell<T> const & col_cell = A_col_vector[l];
             unsigned col_offset = new_column_vector.size();
-            vector<indexed_value<T>> & row_vector = m_rows[col_cell.m_i];
+            std::vector<indexed_value<T>> & row_vector = m_rows[col_cell.m_i];
             unsigned row_offset = row_vector.size();
             new_column_vector.push_back(indexed_value<T>(col_cell.m_value, col_cell.m_i, row_offset));
             row_vector.push_back(indexed_value<T>(col_cell.m_value, col_index_in_the_new_matrix, col_offset));
@@ -134,7 +131,7 @@ public:
     };
 
     void set_with_no_adjusting_for_row(unsigned row, unsigned col, T val) { // should not be used in efficient code
-        vector<indexed_value<T>> & row_vec = m_rows[row];
+        std::vector<indexed_value<T>> & row_vec = m_rows[row];
         for (auto & iv : row_vec) {
             if (iv.m_index == col) {
                 iv.set_value(val);
@@ -146,7 +143,7 @@ public:
     }
 
     void set_with_no_adjusting_for_col(unsigned row, unsigned col, T val) { // should not be used in efficient code
-        vector<indexed_value<T>> & col_vec = m_columns[col].m_values;
+        std::vector<indexed_value<T>> & col_vec = m_columns[col].m_values;
         for (auto & iv : col_vec) {
             if (iv.m_index == row) {
                 iv.set_value(val);
@@ -203,19 +200,19 @@ public:
 
     // end of access for debugging helpers
 
-    vector<indexed_value<T>> & get_row_values(unsigned row) {
+    std::vector<indexed_value<T>> & get_row_values(unsigned row) {
         return m_rows[row];
     }
 
-    vector<indexed_value<T>> const & get_row_values(unsigned row) const {
+    std::vector<indexed_value<T>> const & get_row_values(unsigned row) const {
         return m_rows[row];
     }
 
-    vector<indexed_value<T>> & get_column_values(unsigned col) {
+    std::vector<indexed_value<T>> & get_column_values(unsigned col) {
         return m_columns[col].m_values;
     }
 
-    vector<indexed_value<T>> const & get_column_values(unsigned col) const {
+    std::vector<indexed_value<T>> const & get_column_values(unsigned col) const {
         return m_columns[col].m_values;
     }
 
@@ -240,7 +237,7 @@ public:
 
     void init_row_headers() {
         for (unsigned l = 0; l < m_row_permutation.size(); l++) {
-            m_rows.push_back(vector<indexed_value<T>>());
+            m_rows.push_back(std::vector<indexed_value<T>>());
         }
     }
 
@@ -284,7 +281,7 @@ public:
     }
 
 
-    void remove_element(vector<indexed_value<T>> & row_vals, unsigned row_offset, vector<indexed_value<T>> & column_vals, unsigned column_offset) {
+    void remove_element(std::vector<indexed_value<T>> & row_vals, unsigned row_offset, std::vector<indexed_value<T>> & column_vals, unsigned column_offset) {
         if (column_offset != column_vals.size() - 1) {
             auto & column_iv = column_vals[column_offset] = column_vals.back(); // copy from the tail
             column_iv_other(column_iv).m_other = column_offset;
@@ -301,13 +298,13 @@ public:
         row_vals.pop_back();
     }
 
-    void remove_element(vector<indexed_value<T>> & row_chunk, indexed_value<T> & row_el_iv) {
+    void remove_element(std::vector<indexed_value<T>> & row_chunk, indexed_value<T> & row_el_iv) {
         auto & column_chunk = get_column_values(row_el_iv.m_index);
         indexed_value<T> & col_el_iv = column_chunk[row_el_iv.m_other];
         remove_element(row_chunk, col_el_iv.m_other, column_chunk, row_el_iv.m_other);
     }
 
-    void put_max_index_to_0(vector<indexed_value<T>> & row_vals, unsigned max_index)  {
+    void put_max_index_to_0(std::vector<indexed_value<T>> & row_vals, unsigned max_index)  {
         if (max_index == 0) return;
         indexed_value<T> * max_iv = & row_vals[max_index];
         indexed_value<T> * start_iv = & row_vals[0];
@@ -325,7 +322,7 @@ public:
         set_max_in_row(m_rows[row]);
     }
 
-    void set_max_in_row(vector<indexed_value<T>> & row_vals) {
+    void set_max_in_row(std::vector<indexed_value<T>> & row_vals) {
         if (row_vals.size() == 0)
             return;
         T max_val = numeric_traits<T>::zero();
@@ -535,11 +532,11 @@ public:
     }
 
     void swap_columns(unsigned a, unsigned b) {
-       // cout << "swaapoiiin" << endl;
-       // dense_matrix<T, X> d(*this);
+        // cout << "swaapoiiin" << std::endl;
+        // dense_matrix<T, X> d(*this);
         m_column_permutation.transpose_from_left(a, b);
-       // d.swap_columns(a, b);
-       // lean_assert(*this == d);
+        // d.swap_columns(a, b);
+        // lean_assert(*this == d);
     }
 
     void swap_rows(unsigned a, unsigned b) {
@@ -554,7 +551,7 @@ public:
         for (auto & iv : m_rows[i]) {
             T v = iv.m_value / t;
             if (settings.abs_val_is_smaller_than_drop_tolerance(v)){
-                 v = numeric_traits<T>::zero();
+                v = numeric_traits<T>::zero();
             }
             m_columns[iv.m_index].m_values[iv.m_other].set_value(iv.m_value = v);
         }
@@ -685,7 +682,7 @@ public:
     }
 
     template <typename L>
-        void find_error_in_solution_U_y(vector<L>& y_orig, vector<L> & y) {
+    void find_error_in_solution_U_y(std::vector<L>& y_orig, std::vector<L> & y) {
         unsigned i = dimension();
         while (i--) {
             y_orig[i] -= dot_product_with_row(i, y);
@@ -693,7 +690,7 @@ public:
     }
 
     template <typename L>
-    void add_delta_to_solution(const vector<L>& del, vector<L> & y) {
+    void add_delta_to_solution(const std::vector<L>& del, std::vector<L> & y) {
         unsigned i = dimension();
         while (i--) {
             y[i] += del[i];
@@ -701,8 +698,8 @@ public:
     }
 
     template <typename L>
-    void double_solve_U_y(vector<L>& y){
-        vector<L> y_orig(y); // copy y aside
+    void double_solve_U_y(std::vector<L>& y){
+        std::vector<L> y_orig(y); // copy y aside
         solve_U_y(y);
         find_error_in_solution_U_y(y_orig, y);
         // y_orig contains the error now
@@ -744,7 +741,7 @@ public:
     virtual void set_number_of_columns(unsigned /*n*/) { }
 #endif
     template <typename L>
-        L dot_product_with_row (unsigned row, const vector<L> & y) const {
+    L dot_product_with_row (unsigned row, const std::vector<L> & y) const {
         L ret = zero_of_type<L>();
         auto & mc = get_row_values(adjust_row(row));
         for (auto & c : mc) {
@@ -781,7 +778,7 @@ public:
         return false;
     }
 
-    void remove_element_that_is_not_in_w(vector<indexed_value<T>> & column_vals, indexed_value<T> & col_el_iv) {
+    void remove_element_that_is_not_in_w(std::vector<indexed_value<T>> & column_vals, indexed_value<T> & col_el_iv) {
         auto & row_chunk = m_rows[col_el_iv.m_index];
         indexed_value<T> & row_el_iv = row_chunk[col_el_iv.m_other];
         unsigned index_in_row = col_el_iv.m_other;
@@ -865,11 +862,11 @@ public:
 
 
     unsigned pivot_score(unsigned i, unsigned j) {
-          // It goes like this (rnz-1)(cnz-1) is the Markovitz number, that is the max number of
-            // new non zeroes we can obtain after the pivoting.
-            // In addition we will get another cnz - 1 elements in the eta matrix created for this pivot,
-            // which gives rnz(cnz-1). For example, is 0 for a column singleton, but not for
-            // a row singleton ( which is not a column singleton).
+        // It goes like this (rnz-1)(cnz-1) is the Markovitz number, that is the max number of
+        // new non zeroes we can obtain after the pivoting.
+        // In addition we will get another cnz - 1 elements in the eta matrix created for this pivot,
+        // which gives rnz(cnz-1). For example, is 0 for a column singleton, but not for
+        // a row singleton ( which is not a column singleton).
 
         auto col_header = m_columns[j];
 
@@ -906,7 +903,7 @@ public:
         enqueue_domain_into_pivot_queue();
     }
 
-    void recover_pivot_queue(vector<upair> & rejected_pivots)  {
+    void recover_pivot_queue(std::vector<upair> & rejected_pivots)  {
         for (auto p : rejected_pivots) {
             m_pivot_queue.enqueue(p.first, p.second, pivot_score(p.first, p.second));
         }
@@ -925,8 +922,6 @@ public:
                 return abs(iv.m_value) * c_partial_pivoting < max ? 1: 0;
         }
         return 2;  // the element became zero but it still sits in the active pivots?
-        cout << "column " << j << " does not belong to row " << i << endl;
-        throw "cannot be here";
     }
 
     bool remove_row_from_active_pivots_and_shorten_columns(unsigned row) {
@@ -994,7 +989,7 @@ public:
         unsigned cnz = cols.size();
         for (auto & iv : cols) {
             if (adjust_row_inverse(iv.m_index) < k)
-                 cnz--;
+                cnz--;
         }
         lean_assert(cnz > 0);
         return m_rows[i].m_values.size() * (cnz - 1);
@@ -1030,9 +1025,9 @@ public:
         return true;
     }
     void print_active_matrix(unsigned k) {
-        cout << "active matrix for k = " << k << endl;
+        std::cout << "active matrix for k = " << k << std::endl;
         if (k >= dimension()) {
-            cout << "empty" << endl;
+            std::cout << "empty" << std::endl;
             return;
         }
         unsigned dim = dimension() - k;
@@ -1057,7 +1052,7 @@ public:
         unsigned arow = adjust_row(i);
         for (auto & iv : m_rows[arow].m_values) {
             lean_assert(pivot_score_without_shortened_counters(arow, iv.m_index, k + 1) ==
-                m_pivot_queue.get_priority(arow, iv.m_index));
+                        m_pivot_queue.get_priority(arow, iv.m_index));
         }
         return true;
     }
@@ -1071,7 +1066,7 @@ public:
 
 
     bool get_pivot_for_column(unsigned &i, unsigned &j, T const & c_partial_pivoting, unsigned k) {
-        vector<upair> pivots_candidates_that_are_too_small;
+        std::vector<upair> pivots_candidates_that_are_too_small;
         while (!m_pivot_queue.is_empty()) {
             m_pivot_queue.dequeue(i, j);
             unsigned i_inv = adjust_row_inverse(i);
@@ -1098,26 +1093,26 @@ public:
         recover_pivot_queue(pivots_candidates_that_are_too_small);
         return false;
         /*
-        unsigned m = dimension();
-        unsigned markovitz_number_min = m * m;
-        unsigned iterations = 0;
-        for (unsigned k = 2; k <= m; k++){
-            if (markovitz_number_min < (k-1) * (k-1))
-                return true;
+          unsigned m = dimension();
+          unsigned markovitz_number_min = m * m;
+          unsigned iterations = 0;
+          for (unsigned k = 2; k <= m; k++){
+          if (markovitz_number_min < (k-1) * (k-1))
+          return true;
 
-            if (get_pivot_in_k_short_columns(k, markovitz_number_min, i, j, c_partial_pivoting, iterations)
-                ||
-                get_pivot_in_k_short_rows(k, markovitz_number_min, i, j, c_partial_pivoting, iterations)) {
-                return true;
-            }
-            if (iterations > search_depth * 2 &&  markovitz_number_min < m * m)
-                return true;
-        }
-        return  markovitz_number_min < m * m;
+          if (get_pivot_in_k_short_columns(k, markovitz_number_min, i, j, c_partial_pivoting, iterations)
+          ||
+          get_pivot_in_k_short_rows(k, markovitz_number_min, i, j, c_partial_pivoting, iterations)) {
+          return true;
+          }
+          if (iterations > search_depth * 2 &&  markovitz_number_min < m * m)
+          return true;
+          }
+          return  markovitz_number_min < m * m;
         */
     }
 
-    bool elem_is_too_small(vector<indexed_value<T>> & row_chunk, indexed_value<T> & iv, T const & c_partial_pivoting) {
+    bool elem_is_too_small(std::vector<indexed_value<T>> & row_chunk, indexed_value<T> & iv, T const & c_partial_pivoting) {
         if (&iv == &row_chunk[0]) {
             return false; // the max element is at the head
         }
@@ -1137,7 +1132,7 @@ public:
 
 
     bool shorten_columns_by_pivot_row(unsigned i, unsigned pivot_column) {
-        vector<indexed_value<T>> & row_chunk = get_row_values(i);
+        std::vector<indexed_value<T>> & row_chunk = get_row_values(i);
 
         for (indexed_value<T> & iv : row_chunk) {
             unsigned j = iv.m_index;
@@ -1163,7 +1158,7 @@ public:
     }
 
     void fill_eta_matrix(unsigned j, eta_matrix<T, X> ** eta) {
-        vector<indexed_value<T>> & col_chunk = get_column_values(adjust_column(j));
+        std::vector<indexed_value<T>> & col_chunk = get_column_values(adjust_column(j));
         bool is_unit = true;
         for (auto & iv : col_chunk) {
             unsigned i = adjust_row_inverse(iv.m_index);
@@ -1203,7 +1198,7 @@ public:
 
     bool is_upper_triangular_and_maximums_are_set_correctly_in_rows(lp_settings & settings) const {
         for (unsigned i = 0; i < dimension(); i++) {
-            vector<indexed_value<T>> const & row_chunk = get_row_values(i);
+            std::vector<indexed_value<T>> const & row_chunk = get_row_values(i);
             lean_assert(row_chunk.size());
             T const & max = abs(row_chunk[0].m_value);
             unsigned ai = adjust_row_inverse(i);
@@ -1214,7 +1209,7 @@ public:
                     return false;
                 if (aj == ai) {
                     if (iv.m_value != 1) {
-                        cout << "value at diagonal = " << iv.m_value << endl;
+                        std::cout << "value at diagonal = " << iv.m_value << std::endl;
                         return false;
                     }
                 }
@@ -1245,18 +1240,18 @@ public:
         for (indexed_value<T> & column_iv : mc) {
             indexed_value<T> & row_iv = column_iv_other(column_iv);
             if (row_iv.m_index != col) {
-                cout << "m_other in row does not belong to column " << col << ", but to column  " << row_iv.m_index << endl;
+                std::cout << "m_other in row does not belong to column " << col << ", but to column  " << row_iv.m_index << std::endl;
                 lean_assert(false);
             }
 
             if (& row_iv_other(row_iv) != &column_iv) {
-                cout << "row and col do not point to each other" << endl;
+                std::cout << "row and col do not point to each other" << std::endl;
                 lean_assert(false);
             }
 
             if (row_iv.m_value != column_iv.m_value) {
-                cout << "the data from col " << col << " for row " << column_iv.m_index << " is different in the column " << endl;
-                cout << "in the col it is " << column_iv.m_value << ", but in the row it is " << row_iv.m_value << endl;
+                std::cout << "the data from col " << col << " for row " << column_iv.m_index << " is different in the column " << std::endl;
+                std::cout << "in the col it is " << column_iv.m_value << ", but in the row it is " << row_iv.m_value << std::endl;
                 lean_assert(false);
             }
         }
@@ -1268,18 +1263,18 @@ public:
             indexed_value<T> & column_iv = row_iv_other(row_iv);
 
             if (column_iv.m_index != row) {
-                cout << "col_iv does not point to correct row " << row << " but to " << column_iv.m_index << endl;
+                std::cout << "col_iv does not point to correct row " << row << " but to " << column_iv.m_index << std::endl;
                 lean_assert(false);
             }
 
             if (& row_iv != & column_iv_other(column_iv)) {
-                cout << "row and col do not point to each other" << endl;
+                std::cout << "row and col do not point to each other" << std::endl;
                 lean_assert(false);
             }
 
             if (row_iv.m_value != column_iv.m_value) {
-                cout << "the data from col " << column_iv.m_index << " for row " << row << " is different in the column " << endl;
-                cout << "in the col it is " << column_iv.m_value << ", but in the row it is " << row_iv.m_value << endl;
+                std::cout << "the data from col " << column_iv.m_index << " for row " << row << " is different in the column " << std::endl;
+                std::cout << "in the col it is " << column_iv.m_value << ", but in the row it is " << row_iv.m_value << std::endl;
                 lean_assert(false);
             }
         }
@@ -1297,10 +1292,11 @@ public:
         }
     }
 
-    void map_domain_to_vector(unordered_map<pair<unsigned, unsigned>, unsigned> & domain, vector<pair<unsigned, unsigned>> & vec) {
+    void map_domain_to_vector(std::unordered_map<pair<unsigned, unsigned>, unsigned> & domain,
+                              std::vector<pair<unsigned, unsigned>> & vec) {
         lean_assert(domain.size() == 0 && vec.size() == 0);
         for (unsigned i = 0; i < dimension(); i++) {
-            vector<indexed_value<T>> & row = get_row_values(i);
+            std::vector<indexed_value<T>> & row = get_row_values(i);
             for (auto & iv : row) {
                 unsigned j = iv.m_index;
                 unsigned nz = vec.size();

@@ -17,7 +17,7 @@ namespace lean {
 template <typename T, typename X>
 class lp_dual_core_solver:public lp_core_solver_base<T, X> {
 public:
-    vector<bool> & m_can_enter_basis;
+    std::vector<bool> & m_can_enter_basis;
     int m_r; // the row of the leaving column
     int m_p; // leaving column; that is m_p = m_basis[m_r]
     T m_delta; // the offset of the leaving basis variable
@@ -29,21 +29,21 @@ public:
     std::set<unsigned> m_breakpoint_set; // it is F in "Progress in the dual simplex method ..."
     std::set<unsigned> m_flipped_boxed;
     std::set<unsigned> m_tight_set; // it is the set of all breakpoints that become tight when m_q becomes tight
-    vector<T> m_a_wave;
-    vector<T> m_betas; // m_betas[i] is approximately a square of the norm of the i-th row of the reverse of B
+    std::vector<T> m_a_wave;
+    std::vector<T> m_betas; // m_betas[i] is approximately a square of the norm of the i-th row of the reverse of B
     T m_harris_tolerance;
 
     lp_dual_core_solver(static_matrix<T, X> & A,
-                        vector<bool> & can_enter_basis,
-                        vector<X> & b, // the right side vector
-                        vector<X> & x, // the number of elements in x needs to be at least as large as the number of columns in A
-                        vector<unsigned> & basis,
-                        vector<T> & costs,
-                        vector<column_type> & column_type_array,
-                        vector<X> & low_bound_values,
-                        vector<X> & upper_bound_values,
+                        std::vector<bool> & can_enter_basis,
+                        std::vector<X> & b, // the right side std::vector
+                        std::vector<X> & x, // the number of elements in x needs to be at least as large as the number of columns in A
+                        std::vector<unsigned> & basis,
+                        std::vector<T> & costs,
+                        std::vector<column_type> & column_type_array,
+                        std::vector<X> & low_bound_values,
+                        std::vector<X> & upper_bound_values,
                         lp_settings & settings,
-                        unordered_map<unsigned, string> const & column_names):
+                        std::unordered_map<unsigned, std::string> const & column_names):
         lp_core_solver_base<T, X>(A,
                                b,
                                basis,
@@ -82,11 +82,11 @@ public:
     }
 
     void print_nb() {
-        cout << "this is nb " << endl;
+        std::cout << "this is nb " << std::endl;
         for (auto l : this->m_factorization->m_non_basic_columns) {
-            cout << l << " ";
+            std::cout << l << " ";
         }
-        cout << endl;
+        std::cout << std::endl;
     }
 
     void restore_non_basis() {
@@ -108,7 +108,7 @@ public:
         if (!(this->m_refactor_counter++ >= 200)) {
             this->m_factorization->replace_column(leaving, this->m_ed[this->m_factorization->basis_heading(leaving)], this->m_w);
             if (this->m_factorization->get_status() != LU_status::OK) {
-                cout << "failed on replace_column( " << leaving << ", " <<  this->m_ed[this->m_factorization->basis_heading(leaving)] << ") total_iterations = " << this->m_total_iterations << endl;
+                std::cout << "failed on replace_column( " << leaving << ", " <<  this->m_ed[this->m_factorization->basis_heading(leaving)] << ") total_iterations = " << this->m_total_iterations << std::endl;
                 init_factorization(this->m_factorization, this->m_A, this->m_basis, this->m_basis_heading, this->m_settings, this->m_non_basic_columns);
                 this->m_iters_with_no_cost_growing++;
                 this->m_status = UNSTABLE;
@@ -119,7 +119,7 @@ public:
             this->m_factorization->change_basis(entering, leaving);
             init_factorization(this->m_factorization, this->m_A, this->m_basis, this->m_basis_heading, this->m_settings, this->m_non_basic_columns);
             if (this->m_factorization->get_status() != LU_status::OK) {
-                cout << "failing refactor for entering = " << entering << ", leaving = " << leaving << " total_iterations = " << this->m_total_iterations << endl;
+                std::cout << "failing refactor for entering = " << entering << ", leaving = " << leaving << " total_iterations = " << this->m_total_iterations << std::endl;
                 this->m_iters_with_no_cost_growing++;
                 return false;
             }
@@ -137,7 +137,7 @@ public:
        this->fill_reduced_costs_from_m_y_by_rows();
     }
 
-    vector<unsigned> & non_basis() { return this->m_factorization->m_non_basic_columns; }
+    std::vector<unsigned> & non_basis() { return this->m_factorization->m_non_basic_columns; }
 
     void init_betas() {
         // todo : look at page 194 of Progress in the dual simplex algorithm for solving large scale LP problems : techniques for a fast and stable implementation
@@ -185,10 +185,10 @@ public:
     }
 
     // void print_x_and_low_bound(unsigned p) {
-    //     cout << "x l[" << p << "] = " << this->m_x[p] << " " << this->m_low_bound_values[p] << endl;
+    //     std::cout << "x l[" << p << "] = " << this->m_x[p] << " " << this->m_low_bound_values[p] << std::endl;
     // }
     // void print_x_and_upper_bound(unsigned p) {
-    //     cout << "x u[" << p << "] = " << this->m_x[p] << " " << this->m_upper_bound_values[p] << endl;
+    //     std::cout << "x u[" << p << "] = " << this->m_x[p] << " " << this->m_upper_bound_values[p] << std::endl;
     // }
 
     // returns the
@@ -199,13 +199,13 @@ public:
         case boxed:
             if (this->x_below_low_bound(p)) {
                 T del =  get_edge_steepness_for_low_bound(p);
-                // cout << "case boxed low_bound in pricing" << endl;
+                // std::cout << "case boxed low_bound in pricing" << std::endl;
                 // print_x_and_low_bound(p);
                 return del;
             }
             if (this->x_above_upper_bound(p)) {
                 T del =  get_edge_steepness_for_upper_bound(p);
-                // cout << "case boxed at upper_bound in pricing" << endl;
+                // std::cout << "case boxed at upper_bound in pricing" << std::endl;
                 // print_x_and_upper_bound(p);
                 return del;
             }
@@ -213,7 +213,7 @@ public:
         case low_bound:
             if (this->x_below_low_bound(p)) {
                 T del =  get_edge_steepness_for_low_bound(p);
-                // cout << "case low_bound in pricing" << endl;
+                // std::cout << "case low_bound in pricing" << std::endl;
                 // print_x_and_low_bound(p);
                 return del;
             }
@@ -222,7 +222,7 @@ public:
         case upper_bound:
             if (this->x_above_upper_bound(p)) {
                 T del =  get_edge_steepness_for_upper_bound(p);
-                // cout << "case upper_bound in pricing" << endl;
+                // std::cout << "case upper_bound in pricing" << std::endl;
                 // print_x_and_upper_bound(p);
                 return del;
             }
@@ -232,11 +232,7 @@ public:
             lean_assert(numeric_traits<T>::is_zero(this->m_d[p]));
             return numeric_traits<T>::zero();
         default:
-            cout << "row = " << i << " p = " << p << endl;
-            cout << "unexpected column type = " << column_type_to_string(this->m_column_type[p]) << endl;
-            lean_assert(false);
-            throw "unexpected column type";
-            break;
+            lean_unreachable();
         }
      }
 
@@ -282,7 +278,7 @@ public:
             rows_left = number_of_rows_to_try;
             goto loop_start;
             // if (this->m_total_iterations % 80 == 0) {
-            //     cout << "m_delta = " << m_delta << endl;
+            //     std::cout << "m_delta = " << m_delta << std::endl;
             // }
         }
     }
@@ -312,57 +308,21 @@ public:
             if (this->x_above_upper_bound(m_p)) {
                 return 1;
             }
-            lean_assert(false); // wrong choice of leaving row
-            throw "wrong choice of leaving row";
+            lean_unreachable();
         case low_bound:
             if (this->x_below_low_bound(m_p)) {
                 return -1;
             }
-            lean_assert(false); // wrong choice of leaving row
-            throw "wrong choice of leaving row";
+            lean_unreachable();
         case upper_bound:
             if (this->x_above_upper_bound(m_p)) {
                 return 1;
             }
-            lean_assert(false); // wrong choice of leaving row
-            throw "wrong choice of leaving row";
+            lean_unreachable();
         default:
-            cout << column_type_to_string(this->m_column_type[m_p]) << endl;
-            lean_assert(false); // wrong choice of leaving row
-            throw "wrong choice of leaving row";
-            break;
+            lean_unreachable();
         }
     }
-
-
-    // void try_update_theta_D_and_q_for_boxed(unsigned j) {
-    //     if (this->m_settings.abs_val_is_smaller_than_zero_tolerance(this->m_pivot_row[j])) {
-    //         return;
-    //     }
-
-    //     T ratio = abs(this->m_d[j] / this->m_pivot_row[j]);
-    //     if (ratio < m_theta_D) {
-    //         m_theta_D = ratio;
-    //         m_q = j;
-    //         m_delta -= abs(bound_span(j) *  this->m_pivot_row[j]);
-    //     }
-    // }
-
-
-    // void try_update_theta_D_and_q(unsigned j) {
-    //     if (this->m_settings.abs_val_is_smaller_than_zero_tolerance(this->m_pivot_row[j])) {
-    //         return;
-    //         cout << " investigate " << endl;
-    //         throw "try_update_theta_D_and_q";
-    //     }
-
-    //     T ratio = this->m_d[j] / (m_sign_of_alpha_r * this->m_pivot_row[j]);
-    //     if (ratio < m_theta_D) {
-    //         m_theta_D = ratio;
-    //         m_q = j;
-    //     }
-    // }
-
 
     bool can_be_breakpoint(unsigned j) {
         if (this->pivot_row_element_is_too_small_for_ratio_test(j)) return false;
@@ -416,35 +376,26 @@ public:
             if (this->x_above_upper_bound(m_p)) {
                 return this->m_x[m_p] - this->m_upper_bound_values[m_p];;
             }
-            cout << "incorrect m_p = " << m_p << endl;
-            lean_assert(false);
-            throw "incorrect m_p";
+            lean_unreachable();
         case low_bound:
             if (this->x_below_low_bound(m_p)) {
                 return this->m_x[m_p] - this->m_low_bound_values[m_p];
             }
-            cout << "incorrect m_p = " << m_p << endl;
-            lean_assert(false);
-            throw "incorrect m_p";
-
+            lean_unreachable();
         case upper_bound:
             if (this->x_above_upper_bound(m_p)) {
                 return get_edge_steepness_for_upper_bound(m_p);
             }
-            cout << "incorrect m_p = " << m_p << endl;
-            lean_assert(false);
-            throw "incorrect m_p";
+            lean_unreachable();
         case fixed:
             return this->m_x[m_p] - this->m_upper_bound_values[m_p];;
         default:
-            cout << "unsigned column type " << this->m_column_type[m_p] << endl;
-            throw "unhandled column type";
-            break;
+            lean_unreachable();
         }
     }
 
     void restore_d() {
-        cout << "restore_d" << endl;
+        std::cout << "restore_d" << std::endl;
         this->m_d[m_p] = numeric_traits<T>::zero();
         for (auto j : non_basis()) {
             this->m_d[j] += m_theta_D * this->m_pivot_row[j];
@@ -456,8 +407,8 @@ public:
         for  (auto j : non_basis()) {
             T d = this->m_costs[j] -  this->m_A.dot_product_with_column(this->m_y, j);
             if (numeric_traits<T>::get_double(abs(d - this->m_d[j])) >= 0.001) {
-                cout << "m_total_iterations = " << this->m_total_iterations << endl;
-                cout << "d[" << j << "] = " << this->m_d[j] << " but should be " << d << endl;
+                std::cout << "m_total_iterations = " << this->m_total_iterations << std::endl;
+                std::cout << "d[" << j << "] = " << this->m_d[j] << " but should be " << d << std::endl;
                 return false;
             }
         }
@@ -517,11 +468,7 @@ public:
         case free_column:
             break;
         default:
-            cout << "column = " << j << endl;
-            cout << "unexpected column type = " << column_type_to_string(this->m_column_type[j]) << endl;
-            lean_assert(false);
-            throw "unexpected column type";
-            break;
+            lean_unreachable();
         }
     }
 
@@ -532,7 +479,7 @@ public:
     }
 
     void init_beta_precisely(unsigned i) {
-        vector<T> vec(this->m_m, numeric_traits<T>::zero());
+        std::vector<T> vec(this->m_m, numeric_traits<T>::zero());
         vec[i] = numeric_traits<T>::one();
         this->m_factorization->solve_yB(vec);
         T beta = numeric_traits<T>::zero();
@@ -543,12 +490,12 @@ public:
     }
 
     void init_betas_precisely() {
-        cout << "init beta precisely..." << endl;
+        std::cout << "init beta precisely..." << std::endl;
         unsigned i = this->m_m;
         while (i--) {
             init_beta_precisely(i);
         }
-        cout << "done" << endl;
+        std::cout << "done" << std::endl;
     }
 
     // step 7 of the algorithm from Progress
@@ -569,7 +516,7 @@ public:
     }
 
     void revert_to_previous_basis() {
-        cout << "recovering basis p = " << m_p << " q = " << m_q << endl;
+        std::cout << "recovering basis p = " << m_p << " q = " << m_q << std::endl;
         this->m_factorization->change_basis(m_p, m_q);
         init_factorization(this->m_factorization, this->m_A, this->m_basis, this->m_basis_heading, this->m_settings, this->m_non_basic_columns);
         if (this->m_factorization->get_status() != LU_status::OK) {
@@ -590,15 +537,12 @@ public:
     bool problem_is_dual_feasible() {
         for (unsigned j : non_basis()){
             if (!this->column_is_dual_feasible(j)) {
-                cout << "column " << j << " is not dual feasible" << endl;
-                cout << "m_d[" << j << "] = " << this->m_d[j] << endl;
-                cout << "x[" << j << "] = " << this->m_x[j] << endl;
-                cout << "type = " << column_type_to_string(this->m_column_type[j]) << endl;
-                cout << "bounds = " << this->m_low_bound_values[j] << "," << this->m_upper_bound_values[j] << endl;
-                cout << "m_total_iterations = " << this->m_total_iterations << endl;
-                //                cout << "m_betas ";
-                //     print_vector(m_betas);
-                // column_is_dual_feasible(j); // debug
+                std::cout << "column " << j << " is not dual feasible" << std::endl;
+                std::cout << "m_d[" << j << "] = " << this->m_d[j] << std::endl;
+                std::cout << "x[" << j << "] = " << this->m_x[j] << std::endl;
+                std::cout << "type = " << column_type_to_string(this->m_column_type[j]) << std::endl;
+                std::cout << "bounds = " << this->m_low_bound_values[j] << "," << this->m_upper_bound_values[j] << std::endl;
+                std::cout << "m_total_iterations = " << this->m_total_iterations << std::endl;
                 return false;
             }
         }
@@ -628,14 +572,14 @@ public:
     }
 
     void set_status_to_tentative_dual_unbounded_or_dual_unbounded() {
-                cout << "cost = " << this->get_cost() << endl;
-                if (this->m_status == TENTATIVE_DUAL_UNBOUNDED) {
-                    cout << "setting status to DUAL_UNBOUNDED" << endl;
-                    this->m_status = DUAL_UNBOUNDED;
-                } else {
-                    cout << "setting to TENTATIVE_DUAL_UNBOUNDED" << endl;
-                    this->m_status = TENTATIVE_DUAL_UNBOUNDED;
-                }
+        std::cout << "cost = " << this->get_cost() << std::endl;
+        if (this->m_status == TENTATIVE_DUAL_UNBOUNDED) {
+            std::cout << "setting status to DUAL_UNBOUNDED" << std::endl;
+            this->m_status = DUAL_UNBOUNDED;
+        } else {
+            std::cout << "setting to TENTATIVE_DUAL_UNBOUNDED" << std::endl;
+            this->m_status = TENTATIVE_DUAL_UNBOUNDED;
+        }
     }
 
     // it is positive if going from low bound to upper bound and negative if going from upper bound to low bound
@@ -817,7 +761,7 @@ public:
         this->m_total_iterations = 0;
         this->m_iters_with_no_cost_growing = 0;
         do {
-            if (this->print_statistics_with_iterations_and_nonzeroes_and_cost_and_check_that_the_time_is_over(string(), this->m_total_iterations)){
+            if (this->print_statistics_with_iterations_and_nonzeroes_and_cost_and_check_that_the_time_is_over(std::string(), this->m_total_iterations)){
                 this->m_status = lp_status::TIME_EXHAUSTED;
                 return;
             }

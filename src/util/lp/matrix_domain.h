@@ -36,15 +36,13 @@ template<typename S, typename T> struct hash<pair<S, T>> {
 }
 
 namespace lean {
-using std::unordered_map;
-
 template <typename T>
 class matrix_domain {
-    vector<unordered_map<unsigned, void *>> m_domain;
+    std::vector<std::unordered_map<unsigned, void *>> m_domain;
 public:
     matrix_domain(unsigned rows) {
         while (rows--) {
-            unordered_map<unsigned, void *> t;
+            std::unordered_map<unsigned, void *> t;
             m_domain.push_back(t);
         }
     }

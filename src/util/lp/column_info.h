@@ -13,12 +13,9 @@
 #include <string>
 #include <algorithm>
 namespace lean {
-using std::vector;
-using std::tuple;
-
 template <typename T>
 class column_info {
-    string m_name;
+    std::string m_name;
     bool m_low_bound_is_set = false;
     bool m_low_bound_is_strict = false;
     bool m_upper_bound_is_set = false;
@@ -124,11 +121,11 @@ public:
         m_cost = cost;
     }
 
-    void set_name(string const & s) {
+    void set_name(std::string const & s) {
         m_name = s;
     }
 
-    string get_name() const {
+    std::string get_name() const {
         return m_name;
     }
 

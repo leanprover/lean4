@@ -4,23 +4,24 @@
 
   Author: Lev Nachmanson
 */
-
 #pragma once
-#include <string>
-#include "util/lp/lp.h"
-#include "util/lp/core_solver_pretty_printer.h"
 #include <set>
 #include <vector>
+#include <string>
+#include "util/sstream.h"
+#include "util/exception.h"
+#include "util/lp/lp.h"
+#include "util/lp/core_solver_pretty_printer.h"
 #include "util/lp/numeric_pair.h"
 namespace lean {
-    void init_basic_part_of_basis_heading(std::vector<unsigned> & basis, unsigned m, vector<int> & basis_heading) {
+void init_basic_part_of_basis_heading(std::vector<unsigned> & basis, unsigned m, std::vector<int> & basis_heading) {
     for (unsigned i = 0; i < m; i++) {
         unsigned column = basis[i];
         basis_heading[column] = i;
     }
 }
 
-void init_non_basic_part_of_basis_heading(vector<int> & basis_heading, vector<unsigned> & non_basic_columns, unsigned n) {
+void init_non_basic_part_of_basis_heading(std::vector<int> & basis_heading, std::vector<unsigned> & non_basic_columns, unsigned n) {
     for (int j = n; j--;){
         if (basis_heading[j] < 0) {
             non_basic_columns.push_back(j);
@@ -30,10 +31,10 @@ void init_non_basic_part_of_basis_heading(vector<int> & basis_heading, vector<un
     }
 }
 void init_basis_heading_and_non_basic_columns_vector(std::vector<unsigned> & basis,
-                                                         unsigned m,
-                                                         vector<int> & basis_heading,
-                                                         unsigned n,
-                                                         vector<unsigned> & non_basic_columns) {
+                                                     unsigned m,
+                                                     std::vector<int> & basis_heading,
+                                                     unsigned n,
+                                                     std::vector<unsigned> & non_basic_columns) {
     init_basic_part_of_basis_heading(basis, m, basis_heading);
     init_non_basic_part_of_basis_heading(basis_heading, non_basic_columns, n);
 }
@@ -45,9 +46,9 @@ public:
     unsigned m_n; // the number of columns in the matrix m_A
     std::vector<T> m_pivot_row_of_B_1;  // the pivot row of the reverse of B
     std::vector<T> m_pivot_row; // this is the real pivot row of the simplex tableu
-    vector<unsigned> m_pivot_row_index;
+    std::vector<unsigned> m_pivot_row_index;
     static_matrix<T, X> & m_A; // the matrix A
-    vector<X> & m_b; // the right side
+    std::vector<X> & m_b; // the right side
     std::vector<unsigned> & m_basis;
     std::vector<int> m_basis_heading;
     std::vector<X> & m_x; // a feasible solution, the fist time set in the constructor
@@ -57,31 +58,31 @@ public:
     lp_status m_status;
     // a device that is able to solve Bx=c, xB=d, and change the basis
     lu<T, X> * m_factorization;
-    const unordered_map<unsigned, string> & m_column_names;
+    const std::unordered_map<unsigned, std::string> & m_column_names;
     indexed_vector<T> m_w; // the vector featuring in 24.3 of the Chvatal book
     std::vector<T> m_d; // the vector of reduced costs
     std::vector<T> m_ed; // the solution of B*m_ed = a
-    vector<unsigned>  m_index_of_ed;
+    std::vector<unsigned>  m_index_of_ed;
     unsigned m_total_iterations = 0;
     int m_start_time;
     unsigned m_iters_with_no_cost_growing = 0;
-    vector<unsigned> m_non_basic_columns;
-    vector<column_type> & m_column_type;
-    vector<X> & m_low_bound_values;
-    vector<X> & m_upper_bound_values;
-    vector<T> m_column_norms; // the approximate squares of column norms that help choosing a profitable column
-    vector<X> m_copy_of_xB;
+    std::vector<unsigned> m_non_basic_columns;
+    std::vector<column_type> & m_column_type;
+    std::vector<X> & m_low_bound_values;
+    std::vector<X> & m_upper_bound_values;
+    std::vector<T> m_column_norms; // the approximate squares of column norms that help choosing a profitable column
+    std::vector<X> m_copy_of_xB;
     unsigned m_refactor_counter = 200;
     lp_core_solver_base(static_matrix<T, X> & A,
-                        vector<X> & b, // the right side vector
+                        std::vector<X> & b, // the right side vector
                         std::vector<unsigned> & basis,
                         std::vector<X> & x,
                         std::vector<T> & costs,
                         lp_settings & settings,
-                        const unordered_map<unsigned, string> & column_names,
-                        vector<column_type> & column_types,
-                        vector<X> & low_bound_values,
-                        vector<X> & upper_bound_values):
+                        const std::unordered_map<unsigned, std::string> & column_names,
+                        std::vector<column_type> & column_types,
+                        std::vector<X> & low_bound_values,
+                        std::vector<X> & upper_bound_values):
         m_m(A.row_count()),
         m_n(A.column_count()),
         m_pivot_row_of_B_1(m_m),
@@ -130,7 +131,7 @@ public:
             delete m_factorization;
      }
 
-    vector<unsigned> & non_basis() {
+    std::vector<unsigned> & non_basis() {
         return m_factorization->m_non_basic_columns;
     }
 
@@ -242,11 +243,11 @@ public:
             X eps = feps * (one + T(0.1) * abs(m_b[i]));
 
             if (delta >eps) {
-                cout << "x is off (";
-                cout << "m_b[" << i  << "] = " << m_b[i] << " ";
-                cout << "left side = " << m_A.dot_product_with_row(i, m_x) << ' ';
-                cout << "delta = " << delta << ' ';
-                cout << "iters = " << m_total_iterations << ")" << endl;
+                std::cout << "x is off (";
+                std::cout << "m_b[" << i  << "] = " << m_b[i] << " ";
+                std::cout << "left side = " << m_A.dot_product_with_row(i, m_x) << ' ';
+                std::cout << "delta = " << delta << ' ';
+                std::cout << "iters = " << m_total_iterations << ")" << std::endl;
                 return true;
             }
         }
@@ -307,13 +308,13 @@ public:
     }
 
     void print_statistics(X cost) {
-        cout << "cost = " << T_to_string(cost) <<
-            ", nonzeros = " << m_factorization->get_number_of_nonzeroes() << endl;
+        std::cout << "cost = " << T_to_string(cost) <<
+            ", nonzeros = " << m_factorization->get_number_of_nonzeroes() << std::endl;
     }
 
     bool print_statistics_with_iterations_and_check_that_the_time_is_over(unsigned total_iterations) {
         if (total_iterations % m_settings.report_frequency == 0) {
-            cout << "iterations = " << total_iterations  <<  ", nonzeros = " << m_factorization->get_number_of_nonzeroes() << endl;
+            std::cout << "iterations = " << total_iterations  <<  ", nonzeros = " << m_factorization->get_number_of_nonzeroes() << std::endl;
             if (time_is_over()) {
                 return true;
             }
@@ -321,9 +322,9 @@ public:
         return false;
     }
 
-    bool print_statistics_with_iterations_and_nonzeroes_and_cost_and_check_that_the_time_is_over(string str, unsigned total_iterations) {
+    bool print_statistics_with_iterations_and_nonzeroes_and_cost_and_check_that_the_time_is_over(std::string str, unsigned total_iterations) {
         if (total_iterations % m_settings.report_frequency == 0) {
-            cout << str << " iterations = " << total_iterations  <<  " cost = " << T_to_string(get_cost()) <<", nonzeros = " << m_factorization->get_number_of_nonzeroes() << endl;
+            std::cout << str << " iterations = " << total_iterations  <<  " cost = " << T_to_string(get_cost()) <<", nonzeros = " << m_factorization->get_number_of_nonzeroes() << std::endl;
             if (time_is_over()) {
                 return true;
             }
@@ -333,7 +334,7 @@ public:
 
     bool print_statistics_with_cost_and_check_that_the_time_is_over(unsigned total_iterations, X cost) {
         if (total_iterations % m_settings.report_frequency == 0) {
-            cout << "iterations = " << total_iterations  <<  ", ";
+            std::cout << "iterations = " << total_iterations  <<  ", ";
             print_statistics(cost);
             if (time_is_over()) {
                 return true;
@@ -344,7 +345,7 @@ public:
 
     bool print_statistics_and_check_that_the_time_is_over(unsigned total_iterations) {
         if (total_iterations % (numeric_traits<T>::precise()? static_cast<unsigned>(m_settings.report_frequency/10) : m_settings.report_frequency) == 0) {
-            cout << "iterations = " << total_iterations  <<  ", ";
+            std::cout << "iterations = " << total_iterations  <<  ", ";
             if (time_is_over()) {
                 return true;
             }
@@ -414,16 +415,14 @@ public:
         case low_bound:
             return x_is_at_low_bound(j) && d_is_not_negative(j);
         case upper_bound:
-            cout << "upper_bound type should be switched to low_bound" << endl;
+            std::cout << "upper_bound type should be switched to low_bound" << std::endl;
             lean_assert(false); // impossible case
         case free_column:
             return numeric_traits<X>::is_zero(m_d[j]);
         default:
-            cout << "column = " << j << endl;
-            cout << "unexpected column type = " << column_type_to_string(m_column_type[j]) << endl;
-            lean_assert(false);
-            throw "unexpected column type";
-            break;
+            std::cout << "column = " << j << std::endl;
+            std::cout << "unexpected column type = " << column_type_to_string(m_column_type[j]) << std::endl;
+            lean_unreachable();
         }
     }
     bool d_is_not_negative(unsigned j) {
@@ -444,13 +443,13 @@ public:
     bool time_is_over() {
         int span_in_mills = get_millisecond_span(m_start_time);
         if (span_in_mills / 1000.0  > m_settings.time_limit) {
-            cout << "time is over" << endl;
+            std::cout << "time is over" << std::endl;
             return true;
         }
         return false;
     }
 
-    void rs_minus_Anx(vector<X> & rs) {
+    void rs_minus_Anx(std::vector<X> & rs) {
         unsigned row = m_m;
         while (row--) {
             auto &rsv = rs[row] = m_b[row];
@@ -467,9 +466,9 @@ public:
         solve_Ax_eq_b();
         bool ret=  !A_mult_x_is_off();
         if (ret)
-            cout << "find_x_by_solving succeeded" << endl;
+            std::cout << "find_x_by_solving succeeded" << std::endl;
         else
-            cout << "find_x_by_solving did not succeed" << endl;
+            std::cout << "find_x_by_solving did not succeed" << std::endl;
         return ret;
     }
 
@@ -487,8 +486,7 @@ public:
                     m_refactor_counter = 0;
                     m_iters_with_no_cost_growing++;
                     if (m_factorization->get_status() != LU_status::OK) {
-                        cout << "failing refactor on off_result for entering = " << entering << ", leaving = " << leaving << " total_iterations = " << m_total_iterations << endl;
-                        throw "";
+                        throw exception(sstream() << "failing refactor on off_result for entering = " << entering << ", leaving = " << leaving << " total_iterations = " << m_total_iterations);
                     }
                     return false;
                 }
@@ -509,11 +507,11 @@ public:
         m_factorization->change_basis(entering, leaving);
         init_factorization(m_factorization, m_A, m_basis, m_basis_heading, m_settings, m_non_basic_columns);
         if (m_factorization->get_status() != LU_status::OK || A_mult_x_is_off()) {
-            cout << "failing refactor for entering = " << entering << ", leaving = " << leaving << " total_iterations = " << m_total_iterations << endl;
+            std::cout << "failing refactor for entering = " << entering << ", leaving = " << leaving << " total_iterations = " << m_total_iterations << std::endl;
             restore_x_and_refactor(entering, leaving, tt);
             lean_assert(!A_mult_x_is_off());
             m_iters_with_no_cost_growing++;
-            cout << "rolled back after failing of init_factorization()" << endl;
+            std::cout << "rolled back after failing of init_factorization()" << std::endl;
             m_status = UNSTABLE;
             return false;
         }
@@ -571,12 +569,12 @@ public:
         restore_x(entering, t);
         init_factorization(m_factorization, m_A, m_basis, m_basis_heading, m_settings, m_non_basic_columns);
         if (m_factorization->get_status() == LU_status::Degenerated) {
-            cout << "cannot refactor" << endl;
+            std::cout << "cannot refactor" << std::endl;
             m_status = lp_status::FLOATING_POINT_ERROR;
         }
         //   solve_Ax_eq_b();
         if (A_mult_x_is_off()) {
-            cout << "cannot restore solution" << endl;
+            std::cout << "cannot restore solution" << std::endl;
             m_status = lp_status::FLOATING_POINT_ERROR;
             return;
         }
@@ -584,7 +582,7 @@ public:
 
     void restore_x(unsigned entering, X const & t) {
         if (is_zero(t)) return;
-        cout << "calling restore for entering " << entering << endl;
+        std::cout << "calling restore for entering " << entering << std::endl;
         m_x[entering] -= t;
         for (unsigned i : m_index_of_ed) {
             m_x[m_basis[i]]  = m_copy_of_xB[i];
@@ -612,7 +610,7 @@ public:
         }
     }
 
-    void copy_rs_to_xB(vector<X> & rs) {
+    void copy_rs_to_xB(std::vector<X> & rs) {
         unsigned j = m_m;
         while (j--) {
             m_x[m_basis[j]] = rs[j];
@@ -636,26 +634,26 @@ public:
         auto it = m_column_names.find(column);
         if (it == m_column_names.end()) {
             std::string name = T_to_string(column);
-            return std::string(string("u") + name);
+            return std::string(std::string("u") + name);
         }
         return it->second;
     }
 
-    void copy_right_side(vector<X> & rs) {
+    void copy_right_side(std::vector<X> & rs) {
         unsigned i = m_m;
         while (i --) {
             rs[i] = m_b[i];
         }
     }
 
-    void add_delta_to_xB(vector<X> & del) {
+    void add_delta_to_xB(std::vector<X> & del) {
         unsigned i = m_m;
         while (i--) {
             this->m_x[this->m_basis[i]] -= del[i];
         }
     }
 
-    void find_error_in_BxB(vector<X>& rs){
+    void find_error_in_BxB(std::vector<X>& rs){
         unsigned row = m_m;
         while (row--) {
             auto &rsv = rs[row];
@@ -670,9 +668,9 @@ public:
 
     // recalculates the projection of x to B, such that Ax = b, whereab is the right side
     void solve_Ax_eq_b() {
-        vector<X> rs(m_m);
+        std::vector<X> rs(m_m);
         rs_minus_Anx(rs);
-        vector<X> rrs = rs; // another copy of rs
+        std::vector<X> rrs = rs; // another copy of rs
         m_factorization->solve_By(rs);
         copy_rs_to_xB(rs);
         find_error_in_BxB(rrs);

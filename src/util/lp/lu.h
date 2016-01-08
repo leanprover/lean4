@@ -27,10 +27,10 @@ std::string T_to_string(const T & t); // forward definition
 #ifdef LEAN_DEBUG
 template <typename T, typename X> // print the nr x nc submatrix at the top left corner
 void print_submatrix(sparse_matrix<T, X> & m, unsigned mr, unsigned nc) {
-    vector<vector<string>> A;
-    vector<unsigned> widths;
+    std::vector<std::vector<std::string>> A;
+    std::vector<unsigned> widths;
     for (unsigned i = 0; i < m.row_count() && i < mr ; i++) {
-        A.push_back(vector<string>());
+        A.push_back(std::vector<std::string>());
         for (unsigned j = 0; j < m.column_count() && j < nc; j++) {
             A[i].push_back(T_to_string(static_cast<T>(m(i, j))));
         }
@@ -45,11 +45,11 @@ void print_submatrix(sparse_matrix<T, X> & m, unsigned mr, unsigned nc) {
 
 template<typename T, typename X>
 void print_matrix(static_matrix<T, X> &m) {
-    vector<vector<string>> A;
-    vector<unsigned> widths;
+    std::vector<std::vector<std::string>> A;
+    std::vector<unsigned> widths;
     std::set<pair<unsigned, unsigned>> domain = m.get_domain();
     for (unsigned i = 0; i < m.row_count(); i++) {
-        A.push_back(vector<string>());
+        A.push_back(std::vector<std::string>());
         for (unsigned j = 0; j < m.column_count(); j++) {
             A[i].push_back(T_to_string(static_cast<T>(m(i, j))));
         }
@@ -64,10 +64,10 @@ void print_matrix(static_matrix<T, X> &m) {
 
 template <typename T, typename X>
 void print_matrix(sparse_matrix<T, X>& m) {
-    vector<vector<string>> A;
-    vector<unsigned> widths;
+    std::vector<std::vector<std::string>> A;
+    std::vector<unsigned> widths;
     for (unsigned i = 0; i < m.row_count(); i++) {
-        A.push_back(vector<string>());
+        A.push_back(std::vector<std::string>());
         for (unsigned j = 0; j < m.column_count(); j++) {
             A[i].push_back(T_to_string(static_cast<T>(m(i, j))));
         }
@@ -135,11 +135,11 @@ public:
     unsigned row_count() const { return m_m; } // not defined }
     unsigned column_count() const { return m_m; } // not defined  }
 #endif
-    void apply_from_left(vector<X> & w, lp_settings &) {
+    void apply_from_left(std::vector<X> & w, lp_settings &) {
         w[m_i] /= m_val;
     }
 
-    void apply_from_right(vector<T> & w) {
+    void apply_from_right(std::vector<T> & w) {
         w[m_i] /= m_val;
     }
 
@@ -177,7 +177,7 @@ public:
     // the fields
     unsigned m_dim;
     static_matrix<T, X> const &m_A;
-    vector<unsigned>& m_basis;
+    std::vector<unsigned>& m_basis;
     permutation_matrix<T, X> m_Q;
     permutation_matrix<T, X> m_R;
     sparse_matrix<T, X> m_U;
@@ -185,20 +185,20 @@ public:
 
     // m_tail is composed of tail_matrices:
     // one_off_diagonal_matrix, and transposition_matrix
-    vector<tail_matrix<T, X> *> m_tail;
+    std::vector<tail_matrix<T, X> *> m_tail;
     lp_settings & m_settings;
-    vector<int> & m_basis_heading;
+    std::vector<int> & m_basis_heading;
     bool m_failure = false;
-    vector<unsigned> & m_non_basic_columns;
+    std::vector<unsigned> & m_non_basic_columns;
     indexed_vector<T>  m_row_eta_work_vector;
     // constructor
     // if A is an m by n matrix then basis has length m and values in [0,n); the values are all different
     // they represent the set of m columns
     lu(static_matrix<T, X> const & A,
-       vector<unsigned>& basis,
-       vector<int> & basis_heading,
+       std::vector<unsigned>& basis,
+       std::vector<int> & basis_heading,
        lp_settings & settings,
-       vector<unsigned> & non_basic_columns):
+       std::vector<unsigned> & non_basic_columns):
         m_dim(A.row_count()),
         m_A(A),
         m_basis(basis),
@@ -215,9 +215,9 @@ public:
         create_initial_factorization();
         if (get_status() != LU_status::OK) {
             if (get_status() == LU_status::Degenerated) {
-                cout << "lu status is Degenerated" << endl;
+                std::cout << "lu status is Degenerated" << std::endl;
             } else {
-                cout << "lu status is " <<static_cast<int>(get_status()) << endl;
+                std::cout << "lu status is " <<static_cast<int>(get_status()) << std::endl;
             }
             return;
         }
@@ -240,7 +240,7 @@ public:
         return - m_basis_heading[j] - 1;
     }
 
-    void solve_By(vector<X> & y) {
+    void solve_By(std::vector<X> & y) {
         init_vector_y(y);
         solve_By_when_y_is_ready(y);
     }
@@ -253,7 +253,7 @@ public:
     }
 
     template <typename L>
-    void solve_By_when_y_is_ready(vector<L> & y) {
+    void solve_By_when_y_is_ready(std::vector<L> & y) {
         m_U.double_solve_U_y(y);
         m_R.apply_reverse_from_left(y); // see 24.3 from Chvatal
         if (precise<X>()) return;
@@ -268,42 +268,42 @@ public:
 
 
     void print_indexed_vector(indexed_vector<T> & w, std::ofstream & f) {
-        f << "vector_start" << endl;
+        f << "vector_start" << std::endl;
         for (unsigned j : w.m_index) {
-            f << j << " " << w[j] << endl;
+            f << j << " " << w[j] << std::endl;
         }
-        f << "vector_end" << endl;
+        f << "vector_end" << std::endl;
     }
     void print_basis(std::ofstream & f) {
-        f << "basis_start" << endl;
+        f << "basis_start" << std::endl;
         for (unsigned j : m_basis)
-            f << j << endl;
-        f << "basis_end" << endl;
+            f << j << std::endl;
+        f << "basis_end" << std::endl;
     }
     void print_matrix_compact(std::ofstream & f) {
-        f << "matrix_start" << endl;
-        f << "nrows " << m_A.row_count() << endl;
-        f << "ncolumns " << m_A.column_count() << endl;
+        f << "matrix_start" << std::endl;
+        f << "nrows " << m_A.row_count() << std::endl;
+        f << "ncolumns " << m_A.column_count() << std::endl;
         for (unsigned i = 0; i < m_A.row_count(); i++) {
             auto & row = m_A.m_rows[i];
-            f << "row " << i << endl;
+            f << "row " << i << std::endl;
             for (auto & t : row.m_cells) {
-                f << "column " << t.m_j << " value " << t.m_value << endl;
+                f << "column " << t.m_j << " value " << t.m_value << std::endl;
             }
-            f << "row_end" << endl;
+            f << "row_end" << std::endl;
         }
-        f << "matrix_end" << endl;
+        f << "matrix_end" << std::endl;
     }
 
     void print(indexed_vector<T> & w) {
-        string dump_file_name("/tmp/lu");
+        std::string dump_file_name("/tmp/lu");
         remove(dump_file_name.c_str());
         std::ofstream f(dump_file_name);
         if (!f.is_open()) {
-            cout << "cannot open file " << dump_file_name << endl;
+            std::cout << "cannot open file " << dump_file_name << std::endl;
             return;
         }
-        cout << "writing lu dump to " << dump_file_name << endl;
+        std::cout << "writing lu dump to " << dump_file_name << std::endl;
         print_matrix_compact(f);
         print_basis(f);
         print_indexed_vector(w, f);
@@ -319,7 +319,7 @@ public:
         return m_basis_heading[i] < 0;
     }
 
-    void  solve_yB_internal(vector<T>& y) {
+    void  solve_yB_internal(std::vector<T>& y) {
         // first solve yU = cb*R(-1)
         m_R.apply_reverse_from_right(y); // got y = cb*R(-1)
         m_U.solve_y_U(y); // got y*U=cb*R(-1)
@@ -332,13 +332,13 @@ public:
         }
     }
 
-    void add_delta_to_solution(vector<T>& yc, vector<T>& y){
+    void add_delta_to_solution(std::vector<T>& yc, std::vector<T>& y){
         unsigned i = y.size();
         while (i--)
             y[i]+=yc[i];
     }
 
-    void find_error_of_yB(vector<T>& yc, const vector<T>& y) {
+    void find_error_of_yB(std::vector<T>& yc, const std::vector<T>& y) {
         unsigned i = m_dim;
         while (i--) {
             yc[i] -= m_A.dot_product_with_column(y, m_basis[i]);
@@ -348,8 +348,8 @@ public:
     // solves y*B = y
     // y is the input
 
-    void solve_yB(vector<T> & y) {
-        vector<T> yc(y); // copy y aside
+    void solve_yB(std::vector<T> & y) {
+        std::vector<T> yc(y); // copy y aside
         solve_yB_internal(y);
         find_error_of_yB(yc, y);
         solve_yB_internal(yc);
@@ -400,7 +400,7 @@ public:
         return m_A(i, m_basis[j]);
     }
 
-    void init_vector_y(vector<X> & y) {
+    void init_vector_y(std::vector<X> & y) {
         apply_lp_lists_to_y(y);
         m_Q.apply_reverse_from_left(y);
     }
@@ -426,7 +426,7 @@ public:
         }
     }
 
-    void apply_lp_lists_to_y(vector<X>& y) {
+    void apply_lp_lists_to_y(std::vector<X>& y) {
         for (unsigned i = 0; i < m_tail.size(); i++) {
             m_tail[i]->apply_from_left(y, m_settings);
         }
@@ -559,14 +559,14 @@ public:
         unsigned pi, pj;
         m_U.get_pivot_for_column(pi, pj, T(m_settings.c_partial_pivoting), j);
         if (pi == -1) {
-            cout << "cannot find the pivot for column " << j << endl;
+            std::cout << "cannot find the pivot for column " << j << std::endl;
             m_failure = true;
             return;
         }
         swap_columns(j, pj);
         swap_rows(j, pi);
         if (!pivot_the_row(j)) {
-            cout << "pivot_the_row(" << j << ") failed" << endl;
+            std::cout << "pivot_the_row(" << j << ") failed" << std::endl;
             m_failure = true;
         }
     }
@@ -681,7 +681,7 @@ public:
             return;
         }
         j++;
-        //        cout << "switching to dense factoring for " << j << endl;
+        //        std::cout << "switching to dense factoring for " << j << endl;
         m_dense_LU = new square_dense_submatrix<T, X>(&m_U, j);
         for (; j < m_dim; j++) {
             pivot_in_dense_mode(j);
@@ -715,7 +715,7 @@ public:
     }
 
     void scan_last_row_to_work_vector(unsigned lowest_row_of_the_bump) {
-        vector<indexed_value<T>> & last_row_vec = m_U.get_row_values(m_U.adjust_row(lowest_row_of_the_bump));
+        std::vector<indexed_value<T>> & last_row_vec = m_U.get_row_values(m_U.adjust_row(lowest_row_of_the_bump));
         for (auto & iv : last_row_vec) {
             if (is_zero(iv.m_value)) continue;
             lean_assert(!m_settings.abs_val_is_smaller_than_drop_tolerance(iv.m_value));
@@ -739,7 +739,7 @@ public:
             T v = m_row_eta_work_vector[j];
             if (numeric_traits<T>::is_zero(v)) continue; // this column does not contribute to the solution
             unsigned aj = m_U.adjust_row(j);
-            vector<indexed_value<T>> & row = m_U.get_row_values(aj);
+            std::vector<indexed_value<T>> & row = m_U.get_row_values(aj);
             for (auto & iv : row) {
                 unsigned col = m_U.adjust_column_inverse(iv.m_index);
                 lean_assert(col >= j || numeric_traits<T>::is_zero(iv.m_value));
@@ -780,9 +780,9 @@ public:
             !is_zero(pivot_elem_for_checking) &&
 #endif
             !m_settings.abs_val_is_smaller_than_pivot_tolerance((m_row_eta_work_vector[lowest_row_of_the_bump] - pivot_elem_for_checking) / denom)) {
-            //            cout << "m_row_eta_work_vector[" << lowest_row_of_the_bump << "] = " << T_to_string(m_row_eta_work_vector[lowest_row_of_the_bump]) << ", but pivot = " << T_to_string(pivot_elem_for_checking) << endl;
+            //            std::cout << "m_row_eta_work_vector[" << lowest_row_of_the_bump << "] = " << T_to_string(m_row_eta_work_vector[lowest_row_of_the_bump]) << ", but pivot = " << T_to_string(pivot_elem_for_checking) << endl;
             set_status(LU_status::Degenerated);
-            //            cout << "diagonal element is off" << endl;
+            //            std::cout << "diagonal element is off" << endl;
             return nullptr;
         }
 #ifdef LEAN_DEBUG
@@ -861,13 +861,13 @@ public:
     }
 }; // end of lu
 template <typename T, typename X>
-void init_factorization(lu<T, X>* & factorization, static_matrix<T, X> & m_A, std::vector<unsigned> & m_basis, vector<int> & m_basis_heading, lp_settings &m_settings, vector<unsigned> & non_basic_columns) {
+void init_factorization(lu<T, X>* & factorization, static_matrix<T, X> & m_A, std::vector<unsigned> & m_basis, std::vector<int> & m_basis_heading, lp_settings &m_settings, std::vector<unsigned> & non_basic_columns) {
     if (factorization != nullptr) {
         delete factorization;
     }
     factorization = new lu<T, X>(m_A, m_basis, m_basis_heading, m_settings, non_basic_columns);
     if (factorization->get_status() != LU_status::OK) {
-        cout << "failing in init_factorization" << endl;
+        std::cout << "failing in init_factorization" << std::endl;
         return;
     }
 }

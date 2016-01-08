@@ -8,6 +8,7 @@
 #pragma once
 #include <vector>
 #include "util/debug.h"
+#include "util/pair.h"
 #include "util/numerics/numeric_traits.h"
 #include "util/numerics/xnumeral.h"
 #include "util/numerics/mpq.h"
@@ -18,8 +19,6 @@
 #include "util/numerics/mpfp.h"
 #include "util/lp/lp_settings.h"
 namespace lean {
-using std::vector;
-using std::pair;
 template <typename T>
 void zero_vector(T * t, unsigned size) {
     while (size-- > 0) { // it can be made faster by copying big chunks
@@ -37,7 +36,7 @@ class sparse_vector_iterator; // forward definition
 template <typename T>
 class sparse_vector {
 public:
-    vector<pair<unsigned, T>>  m_data;
+    std::vector<pair<unsigned, T>>  m_data;
     void push_back(unsigned index, T val) {
         m_data.emplace_back(index, val);
     }
@@ -66,7 +65,7 @@ public:
 
 template <typename T>
 class sparse_vector_iterator {
-    typedef typename vector< pair<unsigned, T> >::iterator p_it;
+    typedef typename std::vector<pair<unsigned, T>>::iterator p_it;
     p_it m_it;
     p_it m_end;
 public:

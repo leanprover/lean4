@@ -61,12 +61,12 @@ class static_matrix
     std::set<pair<unsigned, unsigned>> m_domain;
 #endif
 public:
-    typedef vector<row_cell<T>> row_strip;
-    typedef vector<column_cell<T>> column_strip;
-    vector<T> m_work_pivot_vector;
+    typedef std::vector<row_cell<T>> row_strip;
+    typedef std::vector<column_cell<T>> column_strip;
+    std::vector<T> m_work_pivot_vector;
 
-    vector<row_strip> m_rows;
-    vector<column_strip> m_columns;
+    std::vector<row_strip> m_rows;
+    std::vector<column_strip> m_columns;
     // starting inner classes
     class ref {
         static_matrix & m_matrix;
@@ -283,7 +283,7 @@ public:
                  v.set_value(it.m_value, it.m_i);
         }
     }
-    void copy_column_to_vector (unsigned j, vector<T> & v) const {
+    void copy_column_to_vector (unsigned j, std::vector<T> & v) const {
         v.resize(row_count(), numeric_traits<T>::zero());
         for (auto & it : m_columns[j]) {
             if (!is_zero(it.m_value))
@@ -352,7 +352,7 @@ public:
 
 #ifdef LEAN_DEBUG
     void check_consistency() {
-        unordered_map<std::pair<unsigned, unsigned>, T> by_rows;
+        std::unordered_map<std::pair<unsigned, unsigned>, T> by_rows;
         for (int i = 0; i < m_rows.size(); i++){
             for (auto & t : m_rows[i]) {
                 pair<unsigned, unsigned> p(i, t.m_j);
@@ -360,7 +360,7 @@ public:
                 by_rows[p] = t.get_val();
             }
         }
-        unordered_map<pair<unsigned, unsigned>, T> by_cols;
+        std::unordered_map<pair<unsigned, unsigned>, T> by_cols;
         for (int i = 0; i < m_columns.size(); i++){
             for (auto & t : m_columns[i]) {
                 pair<unsigned, unsigned> p(t.m_i, i);
@@ -373,7 +373,8 @@ public:
         for (auto & t : by_rows) {
             auto ic = by_cols.find(t.first);
             if (ic == by_cols.end()){
-                cout << "rows have pair (" << t.first.first <<"," << t.first.second << "), but columns don't " << endl;
+                std::cout << "rows have pair (" << t.first.first <<"," << t.first.second
+                          << "), but columns don't " << std::endl;
             }
             lean_assert(ic != by_cols.end());
             lean_assert(t.second == ic->second);

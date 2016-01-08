@@ -14,7 +14,7 @@
       (condition-case nil
 	  (create-image (format "%s/lean.pgm" lean-emacs-path))
 	(error nil)))
-(setq lean-required-packages '(company dash dash-functional f fill-column-indicator flycheck let-alist lua-mode mmm-mode s))
+(setq lean-required-packages '(company dash dash-functional f fill-column-indicator flycheck let-alist lua-mode mmm-mode s seq))
 
 (setq load-path
       (append

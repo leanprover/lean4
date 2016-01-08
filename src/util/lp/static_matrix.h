@@ -7,6 +7,9 @@
 
 #pragma once
 #include <vector>
+#include <set>
+#include <unordered_map>
+#include <utility>
 #include "util/numerics/numeric_traits.h"
 #include "util/numerics/xnumeral.h"
 #include "util/numerics/mpq.h"
@@ -15,10 +18,7 @@
 #include "util/numerics/double.h"
 #include "util/numerics/float.h"
 #include "util/numerics/mpfp.h"
-#include <set>
 #include "util/lp/sparse_vector.h"
-#include <unordered_map>
-#include <utility>
 #include "util/lp/matrix_domain.h"
 #include "util/lp/indexed_vector.h"
 
@@ -48,9 +48,7 @@ private:
     T m_value;
 };
 
-
-
-    // each assignment for this matrix should be issued only once!!!
+// each assignment for this matrix should be issued only once!!!
 template <typename T, typename X>
 class static_matrix
 #ifdef LEAN_DEBUG
@@ -461,15 +459,9 @@ public:
     virtual void set_number_of_rows(unsigned /*m*/) { }
     virtual void set_number_of_columns(unsigned /*n*/) { }
 #endif
-    // const T & get_value_of_column_cell(column_cell<T> const & cc) const {
-    //     lean_assert(cc.m_i < m_rows.size());
-    //     lean_assert(cc.m_offset < m_rows[cc.m_i].size());
-    //     return m_rows[cc.m_i][cc.m_offset].get_val();
-    // }
 
     T get_max_val_in_row(unsigned i) const {
-        lean_assert(false);
-        throw 0;// not implemented
+        lean_unreachable();
     }
 
     T get_balance() const {

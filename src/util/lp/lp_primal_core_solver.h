@@ -1159,8 +1159,7 @@ public: // todo : move public lower ; it is for debug only
             slope_at_entering += delta;
             break;
         default:
-            throw 1;
-            lean_assert(false); // such a type does not exist
+            lean_unreachable();
         }
     }
 
@@ -1222,9 +1221,7 @@ public: // todo : move public lower ; it is for debug only
             return true;
             break;
         default:
-            lean_assert(false);
-            throw "cannot be here";
-            break;
+            lean_unreachable();
         }
     }
 

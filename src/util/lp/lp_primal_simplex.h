@@ -340,8 +340,7 @@ public:
         for (auto it : this->m_columns) {
             auto sol_it = solution.find(it.second->get_name());
             if (sol_it == solution.end()) {
-                std::cout << "cannot find column " << it.first << " in solution " << std::endl;
-                throw;
+                throw exception(sstream() << "cannot find column " << it.first << " in solutio");
             }
 
             if (!it.second->bounds_hold(sol_it->second)) {
@@ -356,8 +355,7 @@ public:
     T get_row_value(unsigned i, std::unordered_map<std::string, T> const & solution, bool print) {
         auto it = this->m_A_values.find(i);
         if (it == this->m_A_values.end()) {
-            std::cout << "cannot find row " << i << std::endl;
-            throw "get_row_value";
+            throw exception(sstream() << "cannot find row " << i);
         }
         T ret = numeric_traits<T>::zero();
         for (auto & pair : it->second) {
@@ -414,8 +412,7 @@ public:
             }
             return true;;
         }
-        std::cout << "throw in row_constraint_holds " << std::endl;
-        throw "wrong case";
+        lean_unreachable();
     }
 
     bool row_constraints_hold(std::unordered_map<std::string, T> const & solution) {

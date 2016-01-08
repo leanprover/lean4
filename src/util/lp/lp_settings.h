@@ -35,7 +35,7 @@ inline std::string column_type_to_string(column_type t) {
     case free_column:
         return std::string("free_column");
     default:
-        throw "unexpected";
+        lean_unreachable();
     }
 }
 
@@ -70,8 +70,7 @@ inline const char* lp_status_to_string(lp_status status) {
     case EMPTY: return "EMPTY";
     case UNSTABLE: return "UNSTABLE";
     default:
-        std::cout << "throwing in lp_status_to_string " << std::endl;
-        throw "lp_status_to_string";
+        lean_unreachable();
     }
 }
 
@@ -85,8 +84,7 @@ inline lp_status lp_status_from_string(std::string status) {
     if (status == "TIME_EXHAUSTED") return lp_status::TIME_EXHAUSTED;
     if (status == "ITERATIONS_EXHAUSTED") return lp_status::ITERATIONS_EXHAUSTED;
     if (status == "EMPTY") return lp_status::EMPTY;
-    std::cout << "unexpected status " << status << std::endl;
-    throw "wrong status in a test file";
+    lean_unreachable();
 }
 
 enum non_basic_column_value_position { at_low_bound, at_upper_bound, at_fixed, free_of_bounds };

@@ -6,15 +6,16 @@
 */
 
 #pragma once
-
-#include "util/lp/lp_settings.h"
 #include <string>
 #include <unordered_map>
+#include <algorithm>
+#include <vector>
+#include "util/exception.h"
+#include "util/sstream.h"
+#include "util/lp/lp_settings.h"
 #include "util/lp/column_info.h"
 #include "util/lp/static_matrix.h"
-#include <algorithm>
 #include "util/lp/lp_core_solver_base.h"
-#include <vector>
 #include "util/lp/scaler.h"
 namespace lean {
 enum lp_relation  {
@@ -109,8 +110,7 @@ public:
     T get_column_value_by_name(std::string name) const {
         auto it = m_names_to_columns.find(name);
         if (it == m_names_to_columns.end()) {
-            std::cout << "throwing in get_column_value_by_name" << std::endl;
-            throw "get_column_value_by_name";
+            throw exception(sstream() << "get_column_value_by_name " << name);
         }
         return get_column_value(it -> second);
     }
@@ -435,10 +435,8 @@ protected:
         case lp_relation::Less_or_equal:
             return row_le_is_obsolete(row, row_index);
         }
-
-        throw "unexpected relation";
+        lean_unreachable();
     }
-
 
     void remove_fixed_or_zero_columns() {
         for (auto & i_row : m_A_values) {
@@ -515,8 +513,7 @@ protected:
         for (auto & row : m_A_values) {
             for (auto & col : row.second) {
                 if (col.second == numeric_traits<T>::zero() || m_columns[col.first]->is_fixed()) {
-                    std::cout << "found fixed column " << std::endl;
-                    throw "map_external_columns_to_core_solver_columns";
+                    throw exception("found fixed column");
                 }
                 unsigned j = col.first;
                 auto j_place = m_external_columns_to_core_solver_columns.find(j);
@@ -615,7 +612,7 @@ protected:
 
         auto row = this->m_A_values.find(i);
         if (row == this->m_A_values.end()) {
-            throw "cannot find row ";
+            throw exception("cannot find row");
         }
         for (auto col : row->second) {
             ret += col.second * this->m_columns[col.first]->get_shift();

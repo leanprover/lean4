@@ -748,7 +748,7 @@ public:
         case upper_bound:
             return at_upper_bound;
         default:
-            throw "unexpected column type";
+            lean_unreachable();
         }
     }
 };

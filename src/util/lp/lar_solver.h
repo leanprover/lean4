@@ -261,7 +261,7 @@ class lar_solver {
         }
         break;
         default:
-            throw "unexpected";
+            lean_unreachable();
         }
     }
 
@@ -338,7 +338,7 @@ class lar_solver {
         case at_upper_bound: return upper_bound[j];
         case free_of_bounds: return zero_of_type<V>();
         default:
-            throw "unexpected type";
+            lean_unreachable();
         }
     }
 
@@ -421,10 +421,8 @@ public:
         case GE: return left_side_val >= constr.m_right_side;
         case GT: return left_side_val >= constr.m_right_side;
         case EQ: return left_side_val == constr.m_right_side;
-
         default:
-            throw "unexpected";
-            return false;
+            lean_unreachable();
         }
     }
 
@@ -833,8 +831,7 @@ public:
             return abs(left_side_val - norm_constr.m_right_side);
 
         default:
-            throw "unexpected";
-            return numeric_traits<mpq>::zero();
+            lean_unreachable();
         }
     }
 

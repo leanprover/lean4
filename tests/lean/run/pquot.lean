@@ -43,7 +43,7 @@ pquot.rec f
     have aux₁ : f a == f b, from sound a b H,
     have aux₂ : pquot.abs R a = pquot.abs R b, from pquot.eq R H,
     have aux₃ : ∀ (c₁ c₂ : C (pquot.abs R a)) (e : c₁ == c₂), P (pquot.abs R a) c₁ → P (pquot.abs R a) c₂, from
-      λ c₁ c₂ e H, eq.rec_on (heq.to_eq e) H,
+      λ c₁ c₂ e H, eq.rec_on (eq_of_heq e) H,
     have aux₄ : ∀ (c₁ : C (pquot.abs R a)) (c₂ : C (pquot.abs R b)) (e : c₁ == c₂), P (pquot.abs R a) c₁ → P (pquot.abs R b) c₂, from
       eq.rec_on aux₂ aux₃,
     show P (pquot.abs R b) (f b), from
@@ -55,7 +55,7 @@ definition pquot.lift {A : Type} {R : A → A → Prop} {B : Type}
                       (sound : ∀ (a b : A), R a b → f a = f b)
                       (q : pquot R)
                       : B :=
-pquot.rec_on q f (λ (a b : A) (H : R a b), heq.of_eq (sound a b H))
+pquot.rec_on q f (λ (a b : A) (H : R a b), heq_of_eq (sound a b H))
 
 theorem pquot.induction_on {A : Type} {R : A → A → Prop} {P : pquot R → Prop}
                            (q : pquot R)

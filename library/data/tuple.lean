@@ -91,7 +91,7 @@ namespace tuple
   theorem list_eq_of_heq {n m} {v₁ : tuple A n} {v₂ : tuple A m} : v₁ == v₂ → n = m → to_list v₁ = to_list v₂ :=
   begin
     intro h₁ h₂, revert v₁ v₂ h₁,
-    subst n, intro v₁ v₂ h₁, rewrite [heq.to_eq h₁]
+    subst n, intro v₁ v₂ h₁, rewrite [eq_of_heq h₁]
   end
 
   theorem of_list_to_list {n : nat} (v : tuple A n) : of_list (to_list v) == v :=

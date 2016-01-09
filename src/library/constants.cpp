@@ -44,6 +44,7 @@ name const * g_eq_refl = nullptr;
 name const * g_eq_subst = nullptr;
 name const * g_eq_symm = nullptr;
 name const * g_eq_trans = nullptr;
+name const * g_eq_of_heq = nullptr;
 name const * g_exists_elim = nullptr;
 name const * g_false = nullptr;
 name const * g_false_of_true_iff_false = nullptr;
@@ -61,7 +62,9 @@ name const * g_has_zero = nullptr;
 name const * g_has_zero_zero = nullptr;
 name const * g_heq = nullptr;
 name const * g_heq_refl = nullptr;
-name const * g_heq_to_eq = nullptr;
+name const * g_heq_symm = nullptr;
+name const * g_heq_trans = nullptr;
+name const * g_heq_of_eq = nullptr;
 name const * g_iff = nullptr;
 name const * g_iff_elim_left = nullptr;
 name const * g_iff_elim_right = nullptr;
@@ -304,6 +307,7 @@ void initialize_constants() {
     g_eq_subst = new name{"eq", "subst"};
     g_eq_symm = new name{"eq", "symm"};
     g_eq_trans = new name{"eq", "trans"};
+    g_eq_of_heq = new name{"eq_of_heq"};
     g_exists_elim = new name{"exists", "elim"};
     g_false = new name{"false"};
     g_false_of_true_iff_false = new name{"false_of_true_iff_false"};
@@ -321,7 +325,9 @@ void initialize_constants() {
     g_has_zero_zero = new name{"has_zero", "zero"};
     g_heq = new name{"heq"};
     g_heq_refl = new name{"heq", "refl"};
-    g_heq_to_eq = new name{"heq", "to_eq"};
+    g_heq_symm = new name{"heq", "symm"};
+    g_heq_trans = new name{"heq", "trans"};
+    g_heq_of_eq = new name{"heq_of_eq"};
     g_iff = new name{"iff"};
     g_iff_elim_left = new name{"iff", "elim_left"};
     g_iff_elim_right = new name{"iff", "elim_right"};
@@ -565,6 +571,7 @@ void finalize_constants() {
     delete g_eq_subst;
     delete g_eq_symm;
     delete g_eq_trans;
+    delete g_eq_of_heq;
     delete g_exists_elim;
     delete g_false;
     delete g_false_of_true_iff_false;
@@ -582,7 +589,9 @@ void finalize_constants() {
     delete g_has_zero_zero;
     delete g_heq;
     delete g_heq_refl;
-    delete g_heq_to_eq;
+    delete g_heq_symm;
+    delete g_heq_trans;
+    delete g_heq_of_eq;
     delete g_iff;
     delete g_iff_elim_left;
     delete g_iff_elim_right;
@@ -825,6 +834,7 @@ name const & get_eq_refl_name() { return *g_eq_refl; }
 name const & get_eq_subst_name() { return *g_eq_subst; }
 name const & get_eq_symm_name() { return *g_eq_symm; }
 name const & get_eq_trans_name() { return *g_eq_trans; }
+name const & get_eq_of_heq_name() { return *g_eq_of_heq; }
 name const & get_exists_elim_name() { return *g_exists_elim; }
 name const & get_false_name() { return *g_false; }
 name const & get_false_of_true_iff_false_name() { return *g_false_of_true_iff_false; }
@@ -842,7 +852,9 @@ name const & get_has_zero_name() { return *g_has_zero; }
 name const & get_has_zero_zero_name() { return *g_has_zero_zero; }
 name const & get_heq_name() { return *g_heq; }
 name const & get_heq_refl_name() { return *g_heq_refl; }
-name const & get_heq_to_eq_name() { return *g_heq_to_eq; }
+name const & get_heq_symm_name() { return *g_heq_symm; }
+name const & get_heq_trans_name() { return *g_heq_trans; }
+name const & get_heq_of_eq_name() { return *g_heq_of_eq; }
 name const & get_iff_name() { return *g_iff; }
 name const & get_iff_elim_left_name() { return *g_iff_elim_left; }
 name const & get_iff_elim_right_name() { return *g_iff_elim_right; }

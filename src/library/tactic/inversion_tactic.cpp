@@ -605,7 +605,7 @@ class inversion_tac {
             goal new_g(new_meta, new_type);
             hyps.pop_back();
             expr H        = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), binding_domain(type), binder_info());
-            expr to_eq    = mk_app(mk_constant(get_heq_to_eq_name(), const_levels(heq_fn)), args[0], args[1], args[3], H);
+            expr to_eq    = mk_app(mk_constant(get_eq_of_heq_name(), const_levels(heq_fn)), args[0], args[1], args[3], H);
             expr val      = Fun(H, mk_app(mk_app(new_mvar, hyps), to_eq));
             assign(g, val);
             return new_g;

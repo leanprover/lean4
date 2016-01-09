@@ -123,7 +123,7 @@ tactic intros_num_tactic(unsigned num, list<name> _ns) {
                 goal new_goal(new_meta, new_type);
                 expr H         = mk_local(ngen.next(), binding_domain(t));
                 levels heq_lvl = const_levels(get_app_fn(Htype));
-                expr arg       = mk_app(mk_constant(get_heq_to_eq_name(), heq_lvl), A, lhs, rhs, H);
+                expr arg       = mk_app(mk_constant(get_eq_of_heq_name(), heq_lvl), A, lhs, rhs, H);
                 expr V         = Fun(H, mk_app(new_meta, arg));
                 substitution new_subst = s.get_subst();
                 assign(new_subst, g, V);

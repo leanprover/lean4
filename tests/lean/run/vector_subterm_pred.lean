@@ -34,8 +34,8 @@ well_founded.intro (λ (bv : vec A),
                 have gen₂ : ∀ (m : nat) (Heq₁ : n₂ = m) (v : vector A m) (ih : acc (direct_subterm A) (to_vec v))
                               (Heq₂ : @cons A a₂ n₂ v₂ == @cons A a₁ m v), acc (direct_subterm A) (to_vec v₂), from
                   λ m Heq₁, eq.rec_on Heq₁ (λ (v : vector A n₂) (ih : acc (direct_subterm A) (to_vec v)) (Heq₂ : @cons A a₂ n₂ v₂ == @cons A a₁ n₂ v),
-                    vector.no_confusion (heq.to_eq Heq₂) (λ (e₄ : a₂ = a₁) (e₅ : n₂ = n₂) (e₆ : v₂ == v),
-                      eq.rec_on (heq.to_eq (heq.symm e₆)) ih)),
+                    vector.no_confusion (eq_of_heq Heq₂) (λ (e₄ : a₂ = a₁) (e₅ : n₂ = n₂) (e₆ : v₂ == v),
+                      eq.rec_on (eq_of_heq (heq.symm e₆)) ih)),
                 gen₂ n₁ e₃ v₁ ih e₂))),
             gen (to_vec (cons a₁ v₁)) lt₁ rfl))))
 

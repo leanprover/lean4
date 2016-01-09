@@ -33,7 +33,7 @@ namespace heq
     C b H₁ :=
   heq.rec (λ H₁ : a == a, show C a H₁, from H₂) H₁ H₁
 
-  theorem to_cast_eq (H : a == b) : cast (type_eq H) a = b :=
+  theorem to_cast_eq (H : a == b) : cast (type_eq_of_heq H) a = b :=
   drec_on H !cast_eq
 end heq
 
@@ -96,7 +96,7 @@ section
 
   theorem rec_on_pull (H : P = P') (f : Π x, P x) (a : A) :
     eq.rec_on H f a = eq.rec_on (congr_fun H a) (f a) :=
-  heq.to_eq (calc
+  eq_of_heq (calc
     eq.rec_on H f a == f a                   : rec_on_app H f a
       ... == eq.rec_on (congr_fun H a) (f a) : heq.symm (eq_rec_heq (congr_fun H a) (f a)))
 
@@ -107,7 +107,7 @@ end
 -- function extensionality wrt heterogeneous equality
 theorem hfunext {A : Type} {B : A → Type} {B' : A → Type} {f : Π x, B x} {g : Π x, B' x}
                 (H : ∀ a, f a == g a) : f == g :=
-cast_to_heq (funext (λ a, heq.to_eq (heq.trans (cast_app (funext (λ x, heq.type_eq (H x))) f a) (H a))))
+cast_to_heq (funext (λ a, eq_of_heq (heq.trans (cast_app (funext (λ x, type_eq_of_heq (H x))) f a) (H a))))
 
 section
   variables {A : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type}
@@ -123,34 +123,34 @@ section
 
   theorem dcongr_arg2 (f : Πa, B a → F) (Ha : a = a') (Hb : eq.rec_on Ha b = b')
       : f a b = f a' b' :=
-  heq.to_eq (hcongr_arg2 f Ha (eq_rec_to_heq Hb))
+  eq_of_heq (hcongr_arg2 f Ha (eq_rec_to_heq Hb))
 
   theorem dcongr_arg3 (f : Πa b, C a b → F) (Ha : a = a') (Hb : eq.rec_on Ha b = b')
       (Hc : cast (dcongr_arg2 C Ha Hb) c = c') : f a b c = f a' b' c' :=
-  heq.to_eq (hcongr_arg3 f Ha (eq_rec_to_heq Hb) (eq_rec_to_heq Hc))
+  eq_of_heq (hcongr_arg3 f Ha (eq_rec_to_heq Hb) (eq_rec_to_heq Hc))
 
   theorem dcongr_arg4 (f : Πa b c, D a b c → F) (Ha : a = a') (Hb : eq.rec_on Ha b = b')
       (Hc : cast (dcongr_arg2 C Ha Hb) c = c')
       (Hd : cast (dcongr_arg3 D Ha Hb Hc) d = d') : f a b c d = f a' b' c' d' :=
-  heq.to_eq (hcongr_arg4 f Ha (eq_rec_to_heq Hb) (eq_rec_to_heq Hc) (eq_rec_to_heq Hd))
+  eq_of_heq (hcongr_arg4 f Ha (eq_rec_to_heq Hb) (eq_rec_to_heq Hc) (eq_rec_to_heq Hd))
 
   -- mixed versions (we want them for example if C a' b' is a subsingleton, like a proposition.
   -- Then proving eq is easier than proving heq)
   theorem hdcongr_arg3 (f : Πa b, C a b → F) (Ha : a = a') (Hb : b == b')
-      (Hc : cast (heq.to_eq (hcongr_arg2 C Ha Hb)) c = c')
+      (Hc : cast (eq_of_heq (hcongr_arg2 C Ha Hb)) c = c')
         : f a b c = f a' b' c' :=
-  heq.to_eq (hcongr_arg3 f Ha Hb (eq_rec_to_heq Hc))
+  eq_of_heq (hcongr_arg3 f Ha Hb (eq_rec_to_heq Hc))
 
   theorem hhdcongr_arg4 (f : Πa b c, D a b c → F) (Ha : a = a') (Hb : b == b')
       (Hc : c == c')
       (Hd : cast (dcongr_arg3 D Ha (!eq.rec_on_irrel_arg ⬝ heq.to_cast_eq Hb)
                                    (!eq.rec_on_irrel_arg ⬝ heq.to_cast_eq Hc)) d = d')
         : f a b c d = f a' b' c' d' :=
-  heq.to_eq (hcongr_arg4 f Ha Hb Hc (eq_rec_to_heq Hd))
+  eq_of_heq (hcongr_arg4 f Ha Hb Hc (eq_rec_to_heq Hd))
 
   theorem hddcongr_arg4 (f : Πa b c, D a b c → F) (Ha : a = a') (Hb : b == b')
-      (Hc : cast (heq.to_eq (hcongr_arg2 C Ha Hb)) c = c')
+      (Hc : cast (eq_of_heq (hcongr_arg2 C Ha Hb)) c = c')
       (Hd : cast (hdcongr_arg3 D Ha Hb Hc) d = d')
         : f a b c d = f a' b' c' d' :=
-  heq.to_eq (hcongr_arg4 f Ha Hb (eq_rec_to_heq Hc) (eq_rec_to_heq Hd))
+  eq_of_heq (hcongr_arg4 f Ha Hb (eq_rec_to_heq Hc) (eq_rec_to_heq Hd))
 end

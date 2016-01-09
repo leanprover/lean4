@@ -19,7 +19,7 @@ namespace vector
 
   theorem vcons.inj₂ {A : Type} {n : nat} (a₁ a₂ : A) (v₁ v₂ : vector A n) : vcons a₁ v₁ = vcons a₂ v₂ → v₁ = v₂ :=
   begin
-     intro h, apply heq.to_eq, apply (no_confusion h), intros, eassumption,
+     intro h, apply eq_of_heq, apply (no_confusion h), intros, eassumption,
   end
 
   set_option pp.universes true

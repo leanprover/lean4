@@ -78,7 +78,7 @@ namespace quot
   protected definition hrec_on [reducible]
      (q : quot s) (f : Π a, B ⟦a⟧) (c : ∀ (a b : A) (p : a ≈ b), f a == f b) : B q :=
   quot.rec_on q f
-    (λ a b p, heq.to_eq (calc
+    (λ a b p, eq_of_heq (calc
       eq.rec (f a) (sound p) == f a : eq_rec_heq
                          ... == f b : c a b p))
   end

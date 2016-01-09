@@ -37,13 +37,28 @@ public:
     bool all_eq_kind() const;
 };
 
+enum class hcongr_arg_kind { Eq, HEq };
+
+class hcongr_lemma {
+    expr                  m_type;
+    expr                  m_proof;
+    list<hcongr_arg_kind> m_arg_kinds;
+public:
+    hcongr_lemma(expr const & type, expr const & proof, list<hcongr_arg_kind> const & ks):
+        m_type(type), m_proof(proof), m_arg_kinds(ks) {}
+    expr const & get_type() const { return m_type; }
+    expr const & get_proof() const { return m_proof; }
+    list<hcongr_arg_kind> const & get_arg_kinds() const { return m_arg_kinds; }
+};
+
 class congr_lemma_manager {
     struct imp;
     std::unique_ptr<imp> m_ptr;
 public:
     congr_lemma_manager(app_builder & b, fun_info_manager & fm);
     ~congr_lemma_manager();
-    typedef congr_lemma result;
+    typedef congr_lemma  result;
+    typedef hcongr_lemma hresult;
 
     type_context & ctx();
     unsigned get_specialization_prefix_size(expr const & fn, unsigned nargs);
@@ -57,6 +72,9 @@ public:
     optional<result> mk_congr(expr const & fn, unsigned nargs);
     /* Create a specialized theorem using (a prefix of) the arguments of the given application. */
     optional<result> mk_specialized_congr(expr const & a);
+
+    optional<hresult> mk_hcongr(expr const & fn);
+    optional<hresult> mk_hcongr(expr const & fn, unsigned nargs);
 
     /** \brief If R is an equivalence relation, construct the congruence lemma
 

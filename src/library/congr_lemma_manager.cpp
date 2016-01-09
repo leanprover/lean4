@@ -437,6 +437,32 @@ struct congr_lemma_manager::imp {
         return result(r.get_type(), r.get_proof(), new_arg_kinds);
     }
 
+    expr mk_hcongr_proof(expr type) {
+        expr A, B, a, b;
+        if (is_eq(type, a, b)) {
+            return m_builder.mk_eq_refl(a);
+        } else if (is_heq(type, A, a, B, b)) {
+            return m_builder.mk_heq_refl(a);
+        } else {
+            lean_assert(is_pi(type) && is_pi(binding_body(type)) && is_pi(binding_body(binding_body(type))));
+            expr a      = m_ctx.mk_tmp_local(binding_name(type), binding_domain(type));
+            type        = instantiate(binding_body(type), a);
+            expr b      = m_ctx.mk_tmp_local(binding_name(type), binding_domain(type));
+            expr motive = instantiate(binding_body(type), b);
+            type        = instantiate(binding_body(type), a);
+            expr eq_pr  = m_ctx.mk_tmp_local(binding_name(motive), binding_domain(motive));
+            type        = binding_body(type);
+            motive      = binding_body(motive);
+            lean_assert(closed(type) && closed(motive));
+            expr minor  = mk_hcongr_proof(type);
+            expr major  = eq_pr;
+            if (is_heq(mlocal_type(eq_pr)))
+                major  = m_builder.mk_eq_of_heq(eq_pr);
+            motive      = Fun(b, motive);
+            return Fun({a, b, eq_pr}, m_builder.mk_eq_rec(motive, minor, major));
+        }
+    }
+
 public:
     imp(app_builder & b, fun_info_manager & fm):
         m_builder(b), m_fmanager(fm), m_ctx(fm.ctx()),
@@ -495,6 +521,60 @@ public:
         result new_r = mk_specialize_result(*r, prefix_sz);
         m_cache_spec.insert(mk_pair(k, new_r));
         return optional<result>(new_r);
+    }
+
+    optional<hresult> mk_hcongr(expr const & fn, unsigned nargs) {
+        try {
+            expr fn_type_lhs = relaxed_whnf(infer(fn));
+            expr fn_type_rhs = fn_type_lhs;
+            name e_name("e");
+            buffer<expr> lhss;
+            buffer<expr> rhss;
+            buffer<expr> eqs;
+            buffer<expr> hyps;    // contains lhss + rhss + eqs
+            buffer<hcongr_arg_kind> kinds;
+            for (unsigned i = 0; i < nargs; i++) {
+                if (!is_pi(fn_type_lhs)) {
+                    trace_too_many_arguments(fn, nargs);
+                    return optional<hresult>();
+                }
+                expr lhs = m_ctx.mk_tmp_local(binding_name(fn_type_lhs), binding_domain(fn_type_lhs));
+                lhss.push_back(lhs); hyps.push_back(lhs);
+                expr rhs = m_ctx.mk_tmp_local(binding_name(fn_type_rhs).append_after("'"), binding_domain(fn_type_rhs));
+                rhss.push_back(rhs); hyps.push_back(rhs);
+                expr eq_type;
+                if (binding_domain(fn_type_lhs) == binding_domain(fn_type_rhs)) {
+                    eq_type = m_builder.mk_eq(lhs, rhs);
+                    kinds.push_back(hcongr_arg_kind::Eq);
+                } else {
+                    eq_type = m_builder.mk_heq(lhs, rhs);
+                    kinds.push_back(hcongr_arg_kind::HEq);
+                }
+                expr h_eq = m_ctx.mk_tmp_local(e_name.append_after(i), eq_type);
+                eqs.push_back(h_eq); hyps.push_back(h_eq);
+                fn_type_lhs  = relaxed_whnf(instantiate(binding_body(fn_type_lhs), lhs));
+                fn_type_rhs  = relaxed_whnf(instantiate(binding_body(fn_type_rhs), rhs));
+            }
+            expr lhs = mk_app(fn, lhss);
+            expr rhs = mk_app(fn, rhss);
+            expr eq_type;
+            if (fn_type_lhs == fn_type_rhs) {
+                eq_type = m_builder.mk_eq(lhs, rhs);
+            } else {
+                eq_type = m_builder.mk_heq(lhs, rhs);
+            }
+            expr result_type  = Pi(hyps, eq_type);
+            expr result_proof = mk_hcongr_proof(result_type);
+            return optional<hresult>(result_type, result_proof, to_list(kinds));
+        } catch (app_builder_exception &) {
+            trace_app_builder_failure(fn);
+            return optional<hresult>();
+        }
+    }
+
+    optional<hresult> mk_hcongr(expr const & fn) {
+        fun_info finfo = m_fmanager.get(fn);
+        return mk_hcongr(fn, finfo.get_arity());
     }
 
     /** \brief Given an equivalence relation \c R, create the congruence lemma
@@ -618,6 +698,12 @@ auto congr_lemma_manager::mk_congr(expr const & fn, unsigned nargs) -> optional<
 }
 auto congr_lemma_manager::mk_specialized_congr(expr const & fn) -> optional<result> {
     return m_ptr->mk_specialized_congr(fn);
+}
+auto congr_lemma_manager::mk_hcongr(expr const & fn) -> optional<hresult> {
+    return m_ptr->mk_hcongr(fn);
+}
+auto congr_lemma_manager::mk_hcongr(expr const & fn, unsigned nargs) -> optional<hresult> {
+    return m_ptr->mk_hcongr(fn, nargs);
 }
 auto congr_lemma_manager::mk_rel_iff_congr(expr const & R) -> optional<result> {
     return m_ptr->mk_rel_iff_congr(R);

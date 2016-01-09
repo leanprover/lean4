@@ -707,6 +707,27 @@ static environment congr_rel_cmd(parser & p) {
     return congr_cmd_core(p, congr_kind::Rel);
 }
 
+static environment hcongr_cmd(parser & p) {
+    environment const & env = p.env();
+    auto pos = p.pos();
+    expr e; level_param_names ls;
+    std::tie(e, ls) = parse_local_expr(p);
+    tmp_type_context    ctx(env, p.get_options());
+    app_builder         b(ctx);
+    fun_info_manager    infom(ctx);
+    congr_lemma_manager cm(b, infom);
+    optional<hcongr_lemma> r = cm.mk_hcongr(e);
+    if (!r)
+        throw parser_error("failed to generated heterogeneous congruence lemma", pos);
+    auto out = p.regular_stream();
+    out << r->get_proof() << "\n:\n" << r->get_type() << "\n";;
+    type_checker tc(env);
+    expr type = tc.check(r->get_proof(), ls).first;
+    if (!tc.is_def_eq(type, r->get_type()).first)
+        throw parser_error("heterogeneous congruence lemma reported type does not match given type", pos);
+    return env;
+}
+
 static environment simplify_cmd(parser & p) {
     name rel = p.check_constant_next("invalid #simplify command, constant expected");
     name ns = p.check_id_next("invalid #simplify command, id expected");
@@ -815,6 +836,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#symm",             "(for debugging purposes)", symm_cmd));
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
     add_cmd(r, cmd_info("#congr",            "(for debugging purposes)", congr_cmd));
+    add_cmd(r, cmd_info("#hcongr",           "(for debugging purposes)", hcongr_cmd));
     add_cmd(r, cmd_info("#congr_simp",       "(for debugging purposes)", congr_simp_cmd));
     add_cmd(r, cmd_info("#congr_rel",        "(for debugging purposes)", congr_rel_cmd));
     add_cmd(r, cmd_info("#normalizer",       "(for debugging purposes)", normalizer_cmd));

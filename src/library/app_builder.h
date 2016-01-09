@@ -100,6 +100,7 @@ public:
     expr mk_refl(name const & relname, expr const & a);
     expr mk_eq_refl(expr const & a);
     expr mk_iff_refl(expr const & a);
+    expr mk_heq_refl(expr const & a);
 
     /** \brief Similar a symmetry proof for the given relation */
     expr mk_symm(name const & relname, expr const & H);

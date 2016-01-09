@@ -791,6 +791,10 @@ expr app_builder::mk_iff_refl(expr const & a) {
     return m_ptr->mk_iff_refl(a);
 }
 
+expr app_builder::mk_heq_refl(expr const & a) {
+    return m_ptr->mk_heq_refl(a);
+}
+
 expr app_builder::mk_symm(name const & relname, expr const & H) {
     return m_ptr->mk_symm(relname, H);
 }

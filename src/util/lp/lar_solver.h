@@ -451,7 +451,7 @@ public:
             if (kind == GE || kind == GT) n_of_G++;
             else if (kind == LE || kind == LT) n_of_L++;
         }
-        the_kind_of_sum = n_of_G? GE : LE;
+        the_kind_of_sum = n_of_G? GE : (n_of_L? LE : EQ);
         if (strict)
             the_kind_of_sum = static_cast<lconstraint_kind>((static_cast<int>(the_kind_of_sum)/2));
 

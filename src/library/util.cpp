@@ -660,8 +660,17 @@ bool is_eq(expr const & e) {
 }
 
 bool is_eq(expr const & e, expr & lhs, expr & rhs) {
-    if (!is_eq(e) || !is_app(app_fn(e)))
+    if (!is_eq(e) || get_app_num_args(e) != 3)
         return false;
+    lhs = app_arg(app_fn(e));
+    rhs = app_arg(e);
+    return true;
+}
+
+bool is_eq(expr const & e, expr & A, expr & lhs, expr & rhs) {
+    if (!is_eq(e) || get_app_num_args(e) != 3)
+        return false;
+    A   = app_arg(app_fn(app_fn(e)));
     lhs = app_arg(app_fn(e));
     rhs = app_arg(e);
     return true;

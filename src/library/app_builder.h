@@ -94,6 +94,7 @@ public:
     expr mk_rel(name const & n, expr const & lhs, expr const & rhs);
     expr mk_eq(expr const & lhs, expr const & rhs);
     expr mk_iff(expr const & lhs, expr const & rhs);
+    expr mk_heq(expr const & lhs, expr const & rhs);
 
     /** \brief Similar a reflexivity proof for the given relation */
     expr mk_refl(name const & relname, expr const & a);
@@ -104,11 +105,13 @@ public:
     expr mk_symm(name const & relname, expr const & H);
     expr mk_eq_symm(expr const & H);
     expr mk_iff_symm(expr const & H);
+    expr mk_heq_symm(expr const & H);
 
     /** \brief Similar a transitivity proof for the given relation */
     expr mk_trans(name const & relname, expr const & H1, expr const & H2);
     expr mk_eq_trans(expr const & H1, expr const & H2);
     expr mk_iff_trans(expr const & H1, expr const & H2);
+    expr mk_heq_trans(expr const & H1, expr const & H2);
 
     /** \brief Create a (non-dependent) eq.rec application.
         C is the motive. The expected types for C, H1 and H2 are
@@ -131,6 +134,9 @@ public:
         In the HoTT library, we actually create an eq.rec application
         because eq.rec is a dependent eliminator in HoTT. */
     expr mk_eq_drec(expr const & C, expr const & H1, expr const & H2);
+
+    expr mk_eq_of_heq(expr const & H);
+    expr mk_heq_of_eq(expr const & H);
 
     expr mk_congr_arg(expr const & f, expr const & H);
     expr mk_congr_fun(expr const & H, expr const & a);

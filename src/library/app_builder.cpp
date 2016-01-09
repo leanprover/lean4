@@ -371,6 +371,13 @@ struct app_builder::imp {
         return ::lean::mk_app(mk_constant(get_iff_name()), a, b);
     }
 
+    expr mk_heq(expr const & a, expr const & b) {
+        expr A    = m_ctx->infer(a);
+        expr B    = m_ctx->infer(b);
+        level lvl = get_level(A);
+        return ::lean::mk_app(mk_constant(get_heq_name(), {lvl}), A, a, B, b);
+    }
+
     expr mk_eq_refl(expr const & a) {
         expr A     = m_ctx->infer(a);
         level lvl  = get_level(A);
@@ -381,14 +388,19 @@ struct app_builder::imp {
         return ::lean::mk_app(mk_constant(get_iff_refl_name()), a);
     }
 
+    expr mk_heq_refl(expr const & a) {
+        expr A     = m_ctx->infer(a);
+        level lvl  = get_level(A);
+        return ::lean::mk_app(mk_constant(get_heq_refl_name(), {lvl}), A, a);
+    }
+
     expr mk_eq_symm(expr const & H) {
         expr p    = m_ctx->relaxed_whnf(m_ctx->infer(H));
-        expr lhs, rhs;
-        if (!is_eq(p, lhs, rhs)) {
+        expr A, lhs, rhs;
+        if (!is_eq(p, A, lhs, rhs)) {
             lean_trace("app_builder", tout() << "failed to build eq.symm, equality expected:\n" << H << "\n";);
             throw app_builder_exception();
         }
-        expr A    = m_ctx->infer(lhs);
         level lvl = get_level(A);
         return ::lean::mk_app(mk_constant(get_eq_symm_name(), {lvl}), A, lhs, rhs, H);
     }
@@ -403,16 +415,26 @@ struct app_builder::imp {
         }
     }
 
+    expr mk_heq_symm(expr const & H) {
+        expr p     = m_ctx->relaxed_whnf(m_ctx->infer(H));
+        expr A, a, B, b;
+        if (!is_heq(p, A, a, B, b)) {
+            lean_trace("app_builder", tout() << "failed to build heq.symm, heterogeneous equality expected:\n" << H << "\n";);
+            throw app_builder_exception();
+        }
+        level lvl = get_level(A);
+        return ::lean::mk_app({mk_constant(get_heq_symm_name(), {lvl}), A, B, a, b, H});
+    }
+
     expr mk_eq_trans(expr const & H1, expr const & H2) {
         expr p1    = m_ctx->relaxed_whnf(m_ctx->infer(H1));
         expr p2    = m_ctx->relaxed_whnf(m_ctx->infer(H2));
-        expr lhs1, rhs1, lhs2, rhs2;
-        if (!is_eq(p1, lhs1, rhs1) || !is_eq(p2, lhs2, rhs2)) {
+        expr A, lhs1, rhs1, lhs2, rhs2;
+        if (!is_eq(p1, A, lhs1, rhs1) || !is_eq(p2, lhs2, rhs2)) {
             lean_trace("app_builder", tout() << "failed to build eq.trans, equality expected:\n"
                        << H1 << "\n" << H2 << "\n";);
             throw app_builder_exception();
         }
-        expr A     = m_ctx->infer(lhs1);
         level lvl  = get_level(A);
         return ::lean::mk_app({mk_constant(get_eq_trans_name(), {lvl}), A, lhs1, rhs1, rhs2, H1, H2});
     }
@@ -426,6 +448,19 @@ struct app_builder::imp {
         } else {
             return mk_app(get_iff_trans_name(), {H1, H2});
         }
+    }
+
+    expr mk_heq_trans(expr const & H1, expr const & H2) {
+        expr p1    = m_ctx->relaxed_whnf(m_ctx->infer(H1));
+        expr p2    = m_ctx->relaxed_whnf(m_ctx->infer(H2));
+        expr A1, a1, B1, b1, A2, a2, B2, b2;
+        if (!is_heq(p1, A1, a1, B1, b1) || !is_heq(p2, A2, a2, B2, b2)) {
+            lean_trace("app_builder", tout() << "failed to build heq.trans, heterogeneous equality expected:\n"
+                       << H1 << "\n" << H2 << "\n";);
+            throw app_builder_exception();
+        }
+        level lvl  = get_level(A1);
+        return ::lean::mk_app({mk_constant(get_heq_trans_name(), {lvl}), A1, B1, B2, a1, b1, b2, H1, H2});
     }
 
     expr mk_rel(name const & n, expr const & lhs, expr const & rhs) {
@@ -452,6 +487,8 @@ struct app_builder::imp {
             return mk_eq_refl(a);
         } else if (relname == get_iff_name()) {
             return mk_iff_refl(a);
+        } else if (relname == get_heq_name()) {
+            return mk_heq_refl(a);
         } else if (auto info = m_refl_getter(relname)) {
             return mk_app(info->m_name, 1, &a);
         } else {
@@ -466,6 +503,8 @@ struct app_builder::imp {
             return mk_eq_symm(H);
         } else if (relname == get_iff_name()) {
             return mk_iff_symm(H);
+        } else if (relname == get_heq_name()) {
+            return mk_heq_symm(H);
         } else if (auto info = m_symm_getter(relname)) {
             return mk_app(info->m_name, 1, &H);
         } else {
@@ -480,6 +519,8 @@ struct app_builder::imp {
             return mk_eq_trans(H1, H2);
         } else if (relname == get_iff_name()) {
             return mk_iff_trans(H1, H2);
+        } else if (relname == get_heq_name()) {
+            return mk_heq_trans(H1, H2);
         } else if (auto info = m_trans_getter(relname, relname)) {
             expr args[2] = {H1, H2};
             return mk_app(info->m_name, 2, args);
@@ -509,12 +550,11 @@ struct app_builder::imp {
         if (is_constant(get_app_fn(H2), get_eq_refl_name()))
             return H1;
         expr p       = m_ctx->relaxed_whnf(m_ctx->infer(H2));
-        expr lhs, rhs;
-        if (!is_eq(p, lhs, rhs)) {
+        expr A, lhs, rhs;
+        if (!is_eq(p, A, lhs, rhs)) {
             lean_trace("app_builder", tout() << "failed to build eq.rec, equality proof expected:\n" << H2 << "\n";);
             throw app_builder_exception();
         }
-        expr A      = m_ctx->infer(lhs);
         level A_lvl = get_level(A);
         expr mtype  = m_ctx->relaxed_whnf(m_ctx->infer(motive));
         if (!is_pi(mtype) || !is_sort(binding_body(mtype))) {
@@ -530,12 +570,11 @@ struct app_builder::imp {
         if (is_constant(get_app_fn(H2), get_eq_refl_name()))
             return H1;
         expr p       = m_ctx->relaxed_whnf(m_ctx->infer(H2));
-        expr lhs, rhs;
-        if (!is_eq(p, lhs, rhs)) {
+        expr A, lhs, rhs;
+        if (!is_eq(p, A, lhs, rhs)) {
             lean_trace("app_builder", tout() << "failed to build eq.drec, equality proof expected:\n" << H2 << "\n";);
             throw app_builder_exception();
         }
-        expr A      = m_ctx->infer(lhs);
         level A_lvl = get_level(A);
         expr mtype  = m_ctx->relaxed_whnf(m_ctx->infer(motive));
         if (!is_pi(mtype) || !is_pi(binding_body(mtype)) || !is_sort(binding_body(binding_body(mtype)))) {
@@ -545,6 +584,28 @@ struct app_builder::imp {
         level l_1    = sort_level(binding_body(binding_body(mtype)));
         name const & eqrec = is_standard(m_ctx->env()) ? get_eq_drec_name() : get_eq_rec_name();
         return ::lean::mk_app({mk_constant(eqrec, {l_1, A_lvl}), A, lhs, motive, H1, rhs, H2});
+    }
+
+    expr mk_eq_of_heq(expr const & H) {
+        expr p    = m_ctx->relaxed_whnf(m_ctx->infer(H));
+        expr A, a, B, b;
+        if (!is_heq(p, A, a, B, b)) {
+            lean_trace("app_builder", tout() << "failed to build eq_of_heq, heterogeneous equality expected:\n" << H << "\n";);
+            throw app_builder_exception();
+        }
+        level lvl  = get_level(A);
+        return ::lean::mk_app({mk_constant(get_eq_of_heq_name(), {lvl}), A, a, b, H});
+    }
+
+    expr mk_heq_of_eq(expr const & H) {
+        expr p    = m_ctx->relaxed_whnf(m_ctx->infer(H));
+        expr A, a, b;
+        if (!is_eq(p, A, a, b)) {
+            lean_trace("app_builder", tout() << "failed to build heq_of_eq equality expected:\n" << H << "\n";);
+            throw app_builder_exception();
+        }
+        level lvl  = get_level(A);
+        return ::lean::mk_app({mk_constant(get_heq_of_eq_name(), {lvl}), A, a, b, H});
     }
 
     expr mk_congr_arg(expr const & f, expr const & H) {
@@ -714,6 +775,10 @@ expr app_builder::mk_iff(expr const & lhs, expr const & rhs) {
     return m_ptr->mk_iff(lhs, rhs);
 }
 
+expr app_builder::mk_heq(expr const & lhs, expr const & rhs) {
+    return m_ptr->mk_heq(lhs, rhs);
+}
+
 expr app_builder::mk_refl(name const & relname, expr const & a) {
     return m_ptr->mk_refl(relname, a);
 }
@@ -738,6 +803,10 @@ expr app_builder::mk_iff_symm(expr const & H) {
     return m_ptr->mk_iff_symm(H);
 }
 
+expr app_builder::mk_heq_symm(expr const & H) {
+    return m_ptr->mk_heq_symm(H);
+}
+
 expr app_builder::mk_trans(name const & relname, expr const & H1, expr const & H2) {
     return m_ptr->mk_trans(relname, H1, H2);
 }
@@ -748,6 +817,10 @@ expr app_builder::mk_eq_trans(expr const & H1, expr const & H2) {
 
 expr app_builder::mk_iff_trans(expr const & H1, expr const & H2) {
     return m_ptr->mk_iff_trans(H1, H2);
+}
+
+expr app_builder::mk_heq_trans(expr const & H1, expr const & H2) {
+    return m_ptr->mk_heq_trans(H1, H2);
 }
 
 expr app_builder::mk_eq_rec(expr const & C, expr const & H1, expr const & H2) {
@@ -772,6 +845,14 @@ expr app_builder::mk_congr(expr const & H1, expr const & H2) {
 
 expr app_builder::lift_from_eq(name const & R, expr const & H) {
     return m_ptr->lift_from_eq(R, H);
+}
+
+expr app_builder::mk_eq_of_heq(expr const & H) {
+    return m_ptr->mk_eq_of_heq(H);
+}
+
+expr app_builder::mk_heq_of_eq(expr const & H) {
+    return m_ptr->mk_heq_of_eq(H);
 }
 
 expr app_builder::mk_iff_false_intro(expr const & H) {

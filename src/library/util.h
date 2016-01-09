@@ -179,6 +179,7 @@ bool is_eq_drec(environment const & env, expr const & e);
 
 bool is_eq(expr const & e);
 bool is_eq(expr const & e, expr & lhs, expr & rhs);
+bool is_eq(expr const & e, expr & A, expr & lhs, expr & rhs);
 /** \brief Return true iff \c e is of the form (eq A a a) */
 bool is_eq_a_a(expr const & e);
 /** \brief Return true iff \c e is of the form (eq A a a') where \c a and \c a' are definitionally equal */

@@ -26,11 +26,13 @@ struct congr_lemma_manager::imp {
     fun_info_manager & m_fmanager;
     type_context &     m_ctx;
     typedef expr_unsigned key;
-    typedef expr_unsigned_map<result> cache;
+    typedef expr_unsigned_map<result>  cache;
+    typedef expr_unsigned_map<hresult> hcache;
     cache                m_simp_cache;
     cache                m_simp_cache_spec;
     cache                m_cache;
     cache                m_cache_spec;
+    hcache               m_hcache;
     cache                m_rel_cache[2];
     relation_info_getter m_relation_info_getter;
 
@@ -463,6 +465,55 @@ struct congr_lemma_manager::imp {
         }
     }
 
+    optional<hresult> mk_hcongr_core(expr const & fn, unsigned nargs) {
+        try {
+            expr fn_type_lhs = relaxed_whnf(infer(fn));
+            expr fn_type_rhs = fn_type_lhs;
+            name e_name("e");
+            buffer<expr> lhss;
+            buffer<expr> rhss;
+            buffer<expr> eqs;
+            buffer<expr> hyps;    // contains lhss + rhss + eqs
+            buffer<hcongr_arg_kind> kinds;
+            for (unsigned i = 0; i < nargs; i++) {
+                if (!is_pi(fn_type_lhs)) {
+                    trace_too_many_arguments(fn, nargs);
+                    return optional<hresult>();
+                }
+                expr lhs = m_ctx.mk_tmp_local(binding_name(fn_type_lhs), binding_domain(fn_type_lhs));
+                lhss.push_back(lhs); hyps.push_back(lhs);
+                expr rhs = m_ctx.mk_tmp_local(binding_name(fn_type_rhs).append_after("'"), binding_domain(fn_type_rhs));
+                rhss.push_back(rhs); hyps.push_back(rhs);
+                expr eq_type;
+                if (binding_domain(fn_type_lhs) == binding_domain(fn_type_rhs)) {
+                    eq_type = m_builder.mk_eq(lhs, rhs);
+                    kinds.push_back(hcongr_arg_kind::Eq);
+                } else {
+                    eq_type = m_builder.mk_heq(lhs, rhs);
+                    kinds.push_back(hcongr_arg_kind::HEq);
+                }
+                expr h_eq = m_ctx.mk_tmp_local(e_name.append_after(i), eq_type);
+                eqs.push_back(h_eq); hyps.push_back(h_eq);
+                fn_type_lhs  = relaxed_whnf(instantiate(binding_body(fn_type_lhs), lhs));
+                fn_type_rhs  = relaxed_whnf(instantiate(binding_body(fn_type_rhs), rhs));
+            }
+            expr lhs = mk_app(fn, lhss);
+            expr rhs = mk_app(fn, rhss);
+            expr eq_type;
+            if (fn_type_lhs == fn_type_rhs) {
+                eq_type = m_builder.mk_eq(lhs, rhs);
+            } else {
+                eq_type = m_builder.mk_heq(lhs, rhs);
+            }
+            expr result_type  = Pi(hyps, eq_type);
+            expr result_proof = mk_hcongr_proof(result_type);
+            return optional<hresult>(result_type, result_proof, to_list(kinds));
+        } catch (app_builder_exception &) {
+            trace_app_builder_failure(fn);
+            return optional<hresult>();
+        }
+    }
+
 public:
     imp(app_builder & b, fun_info_manager & fm):
         m_builder(b), m_fmanager(fm), m_ctx(fm.ctx()),
@@ -524,52 +575,14 @@ public:
     }
 
     optional<hresult> mk_hcongr(expr const & fn, unsigned nargs) {
-        try {
-            expr fn_type_lhs = relaxed_whnf(infer(fn));
-            expr fn_type_rhs = fn_type_lhs;
-            name e_name("e");
-            buffer<expr> lhss;
-            buffer<expr> rhss;
-            buffer<expr> eqs;
-            buffer<expr> hyps;    // contains lhss + rhss + eqs
-            buffer<hcongr_arg_kind> kinds;
-            for (unsigned i = 0; i < nargs; i++) {
-                if (!is_pi(fn_type_lhs)) {
-                    trace_too_many_arguments(fn, nargs);
-                    return optional<hresult>();
-                }
-                expr lhs = m_ctx.mk_tmp_local(binding_name(fn_type_lhs), binding_domain(fn_type_lhs));
-                lhss.push_back(lhs); hyps.push_back(lhs);
-                expr rhs = m_ctx.mk_tmp_local(binding_name(fn_type_rhs).append_after("'"), binding_domain(fn_type_rhs));
-                rhss.push_back(rhs); hyps.push_back(rhs);
-                expr eq_type;
-                if (binding_domain(fn_type_lhs) == binding_domain(fn_type_rhs)) {
-                    eq_type = m_builder.mk_eq(lhs, rhs);
-                    kinds.push_back(hcongr_arg_kind::Eq);
-                } else {
-                    eq_type = m_builder.mk_heq(lhs, rhs);
-                    kinds.push_back(hcongr_arg_kind::HEq);
-                }
-                expr h_eq = m_ctx.mk_tmp_local(e_name.append_after(i), eq_type);
-                eqs.push_back(h_eq); hyps.push_back(h_eq);
-                fn_type_lhs  = relaxed_whnf(instantiate(binding_body(fn_type_lhs), lhs));
-                fn_type_rhs  = relaxed_whnf(instantiate(binding_body(fn_type_rhs), rhs));
-            }
-            expr lhs = mk_app(fn, lhss);
-            expr rhs = mk_app(fn, rhss);
-            expr eq_type;
-            if (fn_type_lhs == fn_type_rhs) {
-                eq_type = m_builder.mk_eq(lhs, rhs);
-            } else {
-                eq_type = m_builder.mk_heq(lhs, rhs);
-            }
-            expr result_type  = Pi(hyps, eq_type);
-            expr result_proof = mk_hcongr_proof(result_type);
-            return optional<hresult>(result_type, result_proof, to_list(kinds));
-        } catch (app_builder_exception &) {
-            trace_app_builder_failure(fn);
-            return optional<hresult>();
-        }
+        auto r = m_hcache.find(key(fn, nargs));
+        if (r != m_hcache.end())
+            return optional<hresult>(r->second);
+        auto new_r = mk_hcongr_core(fn, nargs);
+        if (new_r)
+            m_hcache.insert(mk_pair(key(fn, nargs), *new_r));
+        return new_r;
+
     }
 
     optional<hresult> mk_hcongr(expr const & fn) {

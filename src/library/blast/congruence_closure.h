@@ -146,9 +146,9 @@ class congruence_closure {
     void add_eqv_core(name const & R, expr const & lhs, expr const & rhs, expr const & H, optional<expr> const & added_prop, bool heq_proof);
     void propagate_no_confusion_eq(expr const & e1, expr const & e2);
 
-    expr mk_congr_proof_core(name const & R, expr const & lhs, expr const & rhs) const;
-    expr mk_congr_proof(name const & R, expr const & lhs, expr const & rhs) const;
-    expr mk_proof(name const & R, expr const & lhs, expr const & rhs, expr const & H) const;
+    expr mk_congr_proof_core(name const & R, expr const & lhs, expr const & rhs, bool heq_proofs) const;
+    expr mk_congr_proof(name const & R, expr const & lhs, expr const & rhs, bool heq_proofs) const;
+    expr mk_proof(name const & R, expr const & lhs, expr const & rhs, expr const & H, bool heq_proofs) const;
 
     bool has_heq_proofs(expr const & root) const;
 
@@ -261,10 +261,10 @@ struct ext_congr_lemma {
     /* If m_fixed_fun is false, then we build equivalences for functions, and use generic congr lemma, and ignore m_congr_lemma.
        That is, even the function can be treated as an Eq argument. */
     unsigned             m_fixed_fun:1;
-    /* If m_uses_heq is true, then lemma is based on heterogeneous equality. */
-    unsigned             m_heq_based:1;
+    /* If m_heq_result is true, then lemma is based on heterogeneous equality and the conclusion is a heterogeneous equality. */
+    unsigned             m_heq_result:1;
     ext_congr_lemma(congr_lemma const & H);
-    ext_congr_lemma(name const & R, congr_lemma const & H, bool lift_needed, bool heq_based);
+    ext_congr_lemma(name const & R, congr_lemma const & H, bool lift_needed, bool heq_result);
     ext_congr_lemma(name const & R, congr_lemma const & H, list<optional<name>> const & rel_names, bool lift_needed);
 
     name const & get_relation() const { return m_R; }

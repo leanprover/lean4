@@ -285,6 +285,8 @@ optional<result> simplifier::cache_lookup(expr const & e) {
             lean_assert(ckind == congr_arg_kind::Cast || new_args[i] == old_args[i], static_cast<unsigned>(ckind), new_args[i], old_args[i]);
             expr rfl;
             switch (ckind) {
+            case congr_arg_kind::HEq:
+                lean_unreachable();
             case congr_arg_kind::Fixed:
                 proof = mk_app(proof, new_args[i]);
                 type = instantiate(binding_body(type), new_args[i]);
@@ -830,6 +832,8 @@ optional<result> simplifier::normalize_subsingleton_args(expr const & e) {
     for_each(congr_lemma->get_arg_kinds(), [&](congr_arg_kind const & ckind) {
             expr rfl;
             switch (ckind) {
+            case congr_arg_kind::HEq:
+                lean_unreachable();
             case congr_arg_kind::Fixed:
                 proof = mk_app(proof, args[i]);
                 type = instantiate(binding_body(type), args[i]);
@@ -887,6 +891,8 @@ optional<result> simplifier::synth_congr(expr const & e, F && simp) {
     bool has_cast               = false;
     for_each(congr_lemma->get_arg_kinds(), [&](congr_arg_kind const & ckind) {
             switch (ckind) {
+            case congr_arg_kind::HEq:
+                lean_unreachable();
             case congr_arg_kind::Fixed:
                 proof = mk_app(proof, args[i]);
                 type = instantiate(binding_body(type), args[i]);

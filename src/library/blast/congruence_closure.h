@@ -260,7 +260,6 @@ struct ext_congr_lemma {
     ext_congr_lemma(name const & R, congr_lemma const & H, list<optional<name>> const & rel_names, bool lift_needed);
 
     name const & get_relation() const { return m_R; }
-    congr_lemma const & get_congr_lemma() const { return m_congr_lemma; }
     list<optional<name>> const & get_arg_rel_names() const { return m_rel_names; }
 };
 

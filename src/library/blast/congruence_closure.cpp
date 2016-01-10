@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <vector>
+#include "util/sexpr/option_declarations.h"
 #include "kernel/abstract.h"
 #include "library/trace.h"
 #include "library/constants.h"
@@ -16,8 +17,18 @@ Author: Leonardo de Moura
 #include "library/blast/trace.h"
 #include "library/blast/options.h"
 
+#ifndef LEAN_DEFAULT_BLAST_CC_HEQ
+#define LEAN_DEFAULT_BLAST_CC_HEQ true
+#endif
+
 namespace lean {
 namespace blast {
+static name * g_blast_cc_heq = nullptr;
+
+bool get_blast_cc_heq(options const & o) {
+    return o.get_bool(*g_blast_cc_heq, LEAN_DEFAULT_BLAST_CC_HEQ);
+}
+
 /* Not all user-defined congruence lemmas can be use by this module
    We cache the ones that can be used. */
 struct congr_lemma_key {
@@ -258,6 +269,7 @@ static optional<ext_congr_lemma> to_ext_congr_lemma(name const & R, expr const &
         }
         switch (kinds[i]) {
         case congr_arg_kind::FixedNoParam:
+        case congr_arg_kind::HEq:
             // User defined congruence rules do not use FixedNoParam
             lean_unreachable();
             break;
@@ -483,6 +495,8 @@ int congruence_closure::congr_key_cmp::operator()(congr_key const & k1, congr_ke
             for (unsigned i = 0; i < args1.size(); i++) {
                 lean_assert(*it1); lean_assert(*it2);
                 switch (head(*it2)) {
+                case congr_arg_kind::HEq:
+                    lean_unreachable();
                 case congr_arg_kind::Eq:
                     lean_assert(head(*it1));
                     r = g_cc->compare_root(*head(*it1), args1[i], args2[i]);
@@ -545,6 +559,8 @@ auto congruence_closure::mk_congr_key(ext_congr_lemma const & lemma, expr const 
             for (unsigned i = 0; i < args.size(); i++) {
                 lean_assert(*it1); lean_assert(*it2);
                 switch (head(*it2)) {
+                case congr_arg_kind::HEq:
+                    lean_unreachable();
                 case congr_arg_kind::Eq:
                     lean_assert(head(*it1));
                     h = hash(h, get_root(*head(*it1), args[i]).hash());
@@ -1039,6 +1055,8 @@ expr congruence_closure::mk_congr_proof_core(name const & R, expr const & lhs, e
         for (unsigned i = 0; i < lhs_args.size(); i++) {
             lean_assert(*it1 && *it2);
             switch (head(*it2)) {
+            case congr_arg_kind::HEq:
+                lean_unreachable();
             case congr_arg_kind::Eq:
                 lean_assert(head(*it1));
                 lemma_args.push_back(lhs_args[i]);
@@ -1473,9 +1491,17 @@ void initialize_congruence_closure() {
     g_congr_mark    = new expr(mk_constant(name(prefix, "[congruence]")));
     g_iff_true_mark = new expr(mk_constant(name(prefix, "[iff-true]")));
     g_lift_mark     = new expr(mk_constant(name(prefix, "[lift]")));
+
+    g_blast_cc_heq  = new name{"blast", "cc", "heq"};
+
+    register_bool_option(*g_blast_cc_heq, LEAN_DEFAULT_BLAST_CC_HEQ,
+                         "(blast) enable support for heterogeneous equality "
+                         "and more general congruence lemmas in the congruence closure module "
+                         "(this option is ignore in HoTT mode)");
 }
 
 void finalize_congruence_closure() {
+    delete g_blast_cc_heq;
     delete g_congr_mark;
     delete g_iff_true_mark;
     delete g_lift_mark;

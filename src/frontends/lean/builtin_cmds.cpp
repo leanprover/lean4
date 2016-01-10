@@ -683,6 +683,7 @@ static environment congr_cmd_core(parser & p, congr_kind kind) {
         case congr_arg_kind::Fixed:        out << "fixed"; break;
         case congr_arg_kind::FixedNoParam: out << "fixed-noparm"; break;
         case congr_arg_kind::Eq:           out << "eq";    break;
+        case congr_arg_kind::HEq:          out << "heq";    break;
         case congr_arg_kind::Cast:         out << "cast";  break;
         }
     }
@@ -716,7 +717,7 @@ static environment hcongr_cmd(parser & p) {
     app_builder         b(ctx);
     fun_info_manager    infom(ctx);
     congr_lemma_manager cm(b, infom);
-    optional<hcongr_lemma> r = cm.mk_hcongr(e);
+    optional<congr_lemma> r = cm.mk_hcongr(e);
     if (!r)
         throw parser_error("failed to generated heterogeneous congruence lemma", pos);
     auto out = p.regular_stream();

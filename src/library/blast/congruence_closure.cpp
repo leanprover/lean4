@@ -1220,6 +1220,7 @@ expr congruence_closure::mk_congr_proof_core(name const & R, expr const & lhs, e
                 it = &(tail(*it));
             }
             expr r = mk_app(spec_lemma->m_congr_lemma.get_proof(), lemma_args);
+            lean_assert(g_heq_based);
             if (spec_lemma->m_heq_result && !heq_proofs)
                 r = b.mk_eq_of_heq(r);
             else if (!spec_lemma->m_heq_result && heq_proofs)
@@ -1263,10 +1264,12 @@ expr congruence_closure::mk_congr_proof_core(name const & R, expr const & lhs, e
                 lean_assert(!lemma->m_heq_result);
                 r = b.lift_from_eq(R, r);
             }
-            if (lemma->m_heq_result && !heq_proofs)
-                r = b.mk_eq_of_heq(r);
-            else if (!lemma->m_heq_result && heq_proofs)
-                r = b.mk_heq_of_eq(r);
+            if (g_heq_based) {
+                if (lemma->m_heq_result && !heq_proofs)
+                    r = b.mk_eq_of_heq(r);
+                else if (!lemma->m_heq_result && heq_proofs)
+                    r = b.mk_heq_of_eq(r);
+            }
             return r;
         }
     } else {
@@ -1458,10 +1461,12 @@ optional<expr> congruence_closure::get_eqv_proof(name const & R, expr const & e1
         lhs = path2[i];
     }
     lean_assert(pr);
-    if (heq_proofs && R == get_eq_name())
-        pr = b.mk_eq_of_heq(*pr);
-    else if (!heq_proofs && R == get_heq_name())
-        pr = b.mk_heq_of_eq(*pr);
+    if (g_heq_based) {
+        if (heq_proofs && R == get_eq_name())
+            pr = b.mk_eq_of_heq(*pr);
+        else if (!heq_proofs && R == get_heq_name())
+            pr = b.mk_heq_of_eq(*pr);
+    }
     return pr;
 }
 

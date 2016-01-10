@@ -148,6 +148,9 @@ optional<congr_lemma> mk_congr_lemma(expr const & fn);
     and the arguments are taken into account when computing the lemma.
     \pre is_app(a) */
 optional<congr_lemma> mk_specialized_congr_lemma(expr const & a);
+/** \brief Create more general congruence lemma based on heterogeneous equality. */
+optional<congr_lemma> mk_hcongr_lemma(expr const & fn, unsigned num_args);
+
 optional<congr_lemma> mk_rel_iff_congr(expr const & fn);
 optional<congr_lemma> mk_rel_eq_congr(expr const & fn);
 

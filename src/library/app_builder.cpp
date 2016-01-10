@@ -587,6 +587,8 @@ struct app_builder::imp {
     }
 
     expr mk_eq_of_heq(expr const & H) {
+        if (is_constant(get_app_fn(H), get_heq_of_eq_name()))
+            return app_arg(H);
         expr p    = m_ctx->relaxed_whnf(m_ctx->infer(H));
         expr A, a, B, b;
         if (!is_heq(p, A, a, B, b)) {

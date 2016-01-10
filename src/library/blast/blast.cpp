@@ -731,6 +731,10 @@ public:
         return m_congr_lemma_manager.mk_congr(fn);
     }
 
+    optional<congr_lemma> mk_hcongr_lemma(expr const & fn, unsigned num_args) {
+        return m_congr_lemma_manager.mk_hcongr(fn, num_args);
+    }
+
     optional<congr_lemma> mk_specialized_congr_lemma(expr const & a) {
         return m_congr_lemma_manager.mk_specialized_congr(a);
     }
@@ -1112,6 +1116,11 @@ optional<congr_lemma> mk_congr_lemma(expr const & fn, unsigned num_args) {
 optional<congr_lemma> mk_congr_lemma(expr const & fn) {
     lean_assert(g_blastenv);
     return g_blastenv->mk_congr_lemma(fn);
+}
+
+optional<congr_lemma> mk_hcongr_lemma(expr const & fn, unsigned num_args) {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_hcongr_lemma(fn, num_args);
 }
 
 optional<congr_lemma> mk_specialized_congr_lemma(expr const & a) {

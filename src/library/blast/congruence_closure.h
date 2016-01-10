@@ -263,8 +263,10 @@ struct ext_congr_lemma {
     unsigned             m_fixed_fun:1;
     /* If m_heq_result is true, then lemma is based on heterogeneous equality and the conclusion is a heterogeneous equality. */
     unsigned             m_heq_result:1;
+    /* If m_heq_lemma is true, then lemma was created using mk_hcongr_lemma. */
+    unsigned             m_hcongr_lemma:1;
     ext_congr_lemma(congr_lemma const & H);
-    ext_congr_lemma(name const & R, congr_lemma const & H, bool lift_needed, bool heq_result);
+    ext_congr_lemma(name const & R, congr_lemma const & H, bool lift_needed);
     ext_congr_lemma(name const & R, congr_lemma const & H, list<optional<name>> const & rel_names, bool lift_needed);
 
     name const & get_relation() const { return m_R; }

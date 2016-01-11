@@ -18,11 +18,11 @@ Author: Leonardo de Moura
 #include "library/blast/options.h"
 
 #ifndef LEAN_DEFAULT_BLAST_CC_HEQ
-#define LEAN_DEFAULT_BLAST_CC_HEQ false
+#define LEAN_DEFAULT_BLAST_CC_HEQ true
 #endif
 
 #ifndef LEAN_DEFAULT_BLAST_CC_SUBSINGLETON
-#define LEAN_DEFAULT_BLAST_CC_SUBSINGLETON false
+#define LEAN_DEFAULT_BLAST_CC_SUBSINGLETON true
 #endif
 
 namespace lean {

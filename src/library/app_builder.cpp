@@ -592,7 +592,7 @@ struct app_builder::imp {
         expr p    = m_ctx->relaxed_whnf(m_ctx->infer(H));
         expr A, a, B, b;
         if (!is_heq(p, A, a, B, b)) {
-            lean_trace("app_builder", tout() << "failed to build eq_of_heq, heterogeneous equality expected:\n" << H << "\n";);
+            lean_trace("app_builder", tout() << "failed to build eq_of_heq, heterogeneous equality proof expected:\n" << H << "\n";);
             throw app_builder_exception();
         }
         level lvl  = get_level(A);
@@ -603,7 +603,7 @@ struct app_builder::imp {
         expr p    = m_ctx->relaxed_whnf(m_ctx->infer(H));
         expr A, a, b;
         if (!is_eq(p, A, a, b)) {
-            lean_trace("app_builder", tout() << "failed to build heq_of_eq equality expected:\n" << H << "\n";);
+            lean_trace("app_builder", tout() << "failed to build heq_of_eq equality proof expected:\n" << H << "\n";);
             throw app_builder_exception();
         }
         level lvl  = get_level(A);

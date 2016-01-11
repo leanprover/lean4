@@ -297,18 +297,36 @@ struct ematch_fn {
         if (!cg_lemma)
             return false;
         buffer<expr> t_args;
-        get_app_args(t, t_args);
+        expr const & fn = get_app_args(t, t_args);
         if (p_args.size() != t_args.size())
             return false;
-        auto const * r_names = &cg_lemma->m_rel_names;
-        for (unsigned i = 0; i < p_args.size(); i++) {
-            lean_assert(*r_names);
-            if (auto Rc = head(*r_names)) {
-                s = cons(entry(*Rc, Match, p_args[i], t_args[i]), s);
-            } else {
-                s = cons(entry(get_eq_name(), DefEqOnly, p_args[i], t_args[i]), s);
+        if (cg_lemma->m_hcongr_lemma) {
+            /* Lemma was created using mk_hcongr_lemma */
+            lean_assert(is_standard(env()));
+            fun_info finfo = get_fun_info(fn, t_args.size());
+            list<param_info> const * pinfos = &finfo.get_params_info();
+            lean_assert(length(*pinfos) == t_args.size());
+            for (unsigned i = 0; i < t_args.size(); i++) {
+                param_info const & pinfo = head(*pinfos);
+                if (!pinfo.is_inst_implicit() && !pinfo.is_implicit() && !pinfo.is_subsingleton()) {
+                    /* We only match explicit arguments that are *not* subsingletons */
+                    s = cons(entry(get_eq_name(), Match, p_args[i], t_args[i]), s);
+                } else {
+                    s = cons(entry(get_eq_name(), DefEqOnly, p_args[i], t_args[i]), s);
+                }
+                pinfos = &tail(*pinfos);
             }
-            r_names = &tail(*r_names);
+        } else {
+            auto const * r_names = &cg_lemma->m_rel_names;
+            for (unsigned i = 0; i < p_args.size(); i++) {
+                lean_assert(*r_names);
+                if (auto Rc = head(*r_names)) {
+                    s = cons(entry(*Rc, Match, p_args[i], t_args[i]), s);
+                } else {
+                    s = cons(entry(get_eq_name(), DefEqOnly, p_args[i], t_args[i]), s);
+                }
+                r_names = &tail(*r_names);
+            }
         }
         return true;
     }

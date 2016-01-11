@@ -1379,6 +1379,8 @@ expr congruence_closure::mk_congr_proof_core(name const & R, expr const & lhs, e
         }
         if (lemma->m_lift_needed)
             r = b.lift_from_eq(R, *r);
+        if (g_heq_based && heq_proofs)
+            r = b.mk_heq_of_eq(*r);
         return *r;
     }
 }

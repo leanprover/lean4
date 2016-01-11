@@ -32,6 +32,34 @@ by blast
 example : a1 == x a2 → a2 == y a1 → mk_B1 (x (y a1)) == mk_B1 (x (y (x a2))) :=
 by blast
 
--- The following one needs subsingleton support
--- example : a1 == y a2 → mk_B1 a1 == mk_B2 (y a2) → f (mk_C1 (mk_B2 a1)) == f (mk_C2 (mk_B1 (y a2))) :=
--- by blast
+-- The following examples need subsingleton equality propagation
+set_option blast.cc.subsingleton true
+
+example : a1 == y a2 → mk_B1 a1 == mk_B2 (y a2) → f (mk_C1 (mk_B2 a1)) == f (mk_C2 (mk_B1 (y a2))) :=
+by blast
+
+example : a1 == y a2 → tr_B (mk_B1 a1) == mk_B2 (y a2) → f (mk_C1 (mk_B2 a1)) == f (mk_C2 (tr_B (mk_B1 (y a2)))) :=
+by blast
+
+example : a1 == y a2 → mk_B1 a1 == mk_B2 (y a2) → g (f (mk_C1 (mk_B2 a1))) == g (f (mk_C2 (mk_B1 (y a2)))) :=
+by blast
+
+example : a1 == y a2 → tr_B (mk_B1 a1) == mk_B2 (y a2) → g (f (mk_C1 (mk_B2 a1))) == g (f (mk_C2 (tr_B (mk_B1 (y a2))))) :=
+by blast
+
+example : a1 == y a2 → a2 == z a3 → a3 == x a1 → mk_B1 a1 == mk_B2 (y (z (x a1))) →
+          f (mk_C1 (mk_B2 (y (z (x a1))))) == f' (mk_C2 (mk_B1 a1)) →
+          g (f (mk_C1 (mk_B2 (y (z (x a1)))))) == g (f' (mk_C2 (mk_B1 a1))) :=
+by blast
+
+example : a1 == y a2 → a2 == z a3 → a3 == x a1 → mk_B1 a1 == mk_B2 (y (z (x a1))) →
+          f (mk_C1 (mk_B2 (y (z (x a1))))) == f' (mk_C2 (mk_B1 a1)) →
+          f' (mk_C1 (mk_B1 a1)) == f (mk_C2 (mk_B2 (y (z (x a1))))) →
+          g (f (mk_C1 (mk_B1 (y (z (x a1)))))) == g (f' (mk_C2 (mk_B2 a1))) :=
+by blast
+
+example : a1 == y a2 → a2 == z a3 → a3 == x a1 → tr_B (mk_B1 a1) == mk_B2 (y (z (x a1))) →
+          f (mk_C1 (mk_B2 (y (z (x a1))))) == f' (mk_C2 (tr_B (mk_B1 a1))) →
+          f' (mk_C1 (tr_B (mk_B1 a1))) == f (mk_C2 (mk_B2 (y (z (x a1))))) →
+          g (f (mk_C1 (tr_B (mk_B1 (y (z (x a1))))))) == g (f' (mk_C2 (mk_B2 a1))) :=
+by blast

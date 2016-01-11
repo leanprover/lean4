@@ -106,10 +106,12 @@ class congruence_closure {
     typedef rb_tree<parent_occ, parent_occ_cmp>              parent_occ_set;
     typedef rb_map<child_key, parent_occ_set, child_key_cmp> parents;
     typedef rb_tree<congr_key, congr_key_cmp>                congruences;
-
-    entries     m_entries;
-    parents     m_parents;
-    congruences m_congruences;
+    typedef rb_map<expr, expr, expr_quick_cmp>               subsingleton_reprs;
+    entries            m_entries;
+    parents            m_parents;
+    congruences        m_congruences;
+    /** The following mapping store a representative for each subsingleton type */
+    subsingleton_reprs m_subsingleton_reprs;
     list<name>  m_non_eq_relations;
     /** The congruence closure module has a mode where the root of
         each equivalence class is marked as an interpreted/abstract
@@ -130,6 +132,9 @@ class congruence_closure {
     congr_key mk_congr_key(ext_congr_lemma const & lemma, expr const & e) const;
     void check_iff_true(congr_key const & k);
 
+    void push_subsingleton_eq(expr const & a, expr const & b);
+    void check_new_subsingleton_eq(expr const & old_root, expr const & new_root);
+    void process_subsingleton_elem(expr const & e);
     void mk_entry_core(name const & R, expr const & e, bool to_propagate, bool interpreted, bool constructor);
     void mk_entry_core(name const & R, expr const & e, bool to_propagate);
     void mk_entry(name const & R, expr const & e, bool to_propagate);

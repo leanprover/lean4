@@ -195,6 +195,7 @@ name const * g_string_str = nullptr;
 name const * g_sub = nullptr;
 name const * g_subsingleton = nullptr;
 name const * g_subsingleton_elim = nullptr;
+name const * g_subsingleton_helim = nullptr;
 name const * g_tactic = nullptr;
 name const * g_tactic_all_goals = nullptr;
 name const * g_tactic_and_then = nullptr;
@@ -458,6 +459,7 @@ void initialize_constants() {
     g_sub = new name{"sub"};
     g_subsingleton = new name{"subsingleton"};
     g_subsingleton_elim = new name{"subsingleton", "elim"};
+    g_subsingleton_helim = new name{"subsingleton", "helim"};
     g_tactic = new name{"tactic"};
     g_tactic_all_goals = new name{"tactic", "all_goals"};
     g_tactic_and_then = new name{"tactic", "and_then"};
@@ -722,6 +724,7 @@ void finalize_constants() {
     delete g_sub;
     delete g_subsingleton;
     delete g_subsingleton_elim;
+    delete g_subsingleton_helim;
     delete g_tactic;
     delete g_tactic_all_goals;
     delete g_tactic_and_then;
@@ -985,6 +988,7 @@ name const & get_string_str_name() { return *g_string_str; }
 name const & get_sub_name() { return *g_sub; }
 name const & get_subsingleton_name() { return *g_subsingleton; }
 name const & get_subsingleton_elim_name() { return *g_subsingleton_elim; }
+name const & get_subsingleton_helim_name() { return *g_subsingleton_helim; }
 name const & get_tactic_name() { return *g_tactic; }
 name const & get_tactic_all_goals_name() { return *g_tactic_all_goals; }
 name const & get_tactic_and_then_name() { return *g_tactic_and_then; }

@@ -190,6 +190,7 @@ string.str
 sub
 subsingleton
 subsingleton.elim
+subsingleton.helim
 tactic
 tactic.all_goals
 tactic.and_then

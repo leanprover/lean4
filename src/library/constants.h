@@ -197,6 +197,7 @@ name const & get_string_str_name();
 name const & get_sub_name();
 name const & get_subsingleton_name();
 name const & get_subsingleton_elim_name();
+name const & get_subsingleton_helim_name();
 name const & get_tactic_name();
 name const & get_tactic_all_goals_name();
 name const & get_tactic_and_then_name();

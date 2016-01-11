@@ -762,6 +762,9 @@ intro : (∀ a b : A, a = b) → subsingleton A
 protected definition subsingleton.elim {A : Type} [H : subsingleton A] : ∀(a b : A), a = b :=
 subsingleton.rec (λp, p) H
 
+protected definition subsingleton.helim {A B : Type} [H : subsingleton A] (h : A = B) (a : A) (b : B) : a == b :=
+by induction h; apply heq_of_eq; apply subsingleton.elim
+
 definition subsingleton_prop [instance] (p : Prop) : subsingleton p :=
 subsingleton.intro (λa b, !proof_irrel)
 

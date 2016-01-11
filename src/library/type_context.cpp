@@ -1223,6 +1223,7 @@ expr type_context::infer(expr const & e) {
 
 void type_context::clear_cache() {
     m_ci_cache.clear();
+    m_ss_cache.clear();
 }
 
 /** \brief If the constant \c e is a class, return its name */
@@ -1729,16 +1730,23 @@ optional<expr> type_context::mk_class_instance(expr const & type) {
 }
 
 optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
+    auto it = m_ss_cache.find(type);
+    if (it != m_ss_cache.end())
+        return it->second;
     expr Type  = whnf(infer(type));
-    if (!is_sort(Type))
+    if (!is_sort(Type)) {
+        m_ss_cache.insert(mk_pair(type, none_expr()));
         return none_expr();
+    }
     level lvl    = sort_level(Type);
     expr subsingleton;
     if (is_standard(m_env))
         subsingleton = mk_app(mk_constant(get_subsingleton_name(), {lvl}), type);
     else
         subsingleton = whnf(mk_app(mk_constant(get_is_trunc_is_hprop_name(), {lvl}), type));
-    return mk_class_instance(subsingleton);
+    auto r = mk_class_instance(subsingleton);
+    m_ss_cache.insert(mk_pair(type, r));
+    return r;
 }
 
 optional<expr> type_context::next_class_instance() {

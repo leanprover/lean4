@@ -280,6 +280,9 @@ class type_context {
     bool                          m_ci_displayed_trace_header;
     optional<pos_info>            m_ci_pos;
 
+    /* subsingleton instance cache, we also cache failures */
+    expr_struct_map<optional<expr>> m_ss_cache;
+
     // configuration options
     unsigned                      m_ci_max_depth;
     bool                          m_ci_trans_instances;

@@ -432,9 +432,15 @@ static optional<ext_congr_lemma> mk_relation_congr_lemma(name const & R, expr co
                 }
             }
             if (optional<congr_lemma> cgr = mk_rel_eq_congr(fn)) {
+                bool heq_proof       = false;
+                if (g_heq_based && R == get_heq_name()) {
+                    heq_proof        = true;
+                }
                 auto child_rel_names = rel_names_from_arg_kinds(cgr->get_arg_kinds(), const_name(fn));
                 bool lift_needed     = R != get_eq_name();
-                return optional<ext_congr_lemma>(R, *cgr, child_rel_names, lift_needed);
+                ext_congr_lemma r(R, *cgr, child_rel_names, lift_needed);
+                r.m_heq_result       = heq_proof;
+                return optional<ext_congr_lemma>(r);
             }
         }
     }
@@ -1332,7 +1338,6 @@ expr congruence_closure::mk_congr_proof_core(name const & R, expr const & lhs, e
             }
             expr r = mk_app(lemma->m_congr_lemma.get_proof(), lemma_args);
             if (lemma->m_lift_needed) {
-                lean_assert(!lemma->m_heq_result);
                 r = b.lift_from_eq(R, r);
             }
             if (g_heq_based) {
@@ -1406,7 +1411,15 @@ expr congruence_closure::mk_congr_proof(name const & R, expr const & e1, expr co
                     if (R != get_eq_name())
                         e1_eqv_new_e1 = b.lift_from_eq(R, e1_eqv_new_e1);
                 }
-                return b.mk_trans(R, e1_eqv_new_e1, mk_congr_proof_core(R, new_e1, e2, heq_proofs));
+                bool cgr_heq_proofs = g_heq_based && R == get_heq_name();
+                expr r = b.mk_trans(R, e1_eqv_new_e1, mk_congr_proof_core(R, new_e1, e2, cgr_heq_proofs));
+                if (g_heq_based) {
+                    if (cgr_heq_proofs && !heq_proofs)
+                        r = b.mk_eq_of_heq(r);
+                    else if (!cgr_heq_proofs && heq_proofs)
+                        r = b.mk_heq_of_eq(r);
+                }
+                return r;
             }
         }
     }

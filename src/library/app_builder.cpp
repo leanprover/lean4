@@ -398,7 +398,7 @@ struct app_builder::imp {
         expr p    = m_ctx->relaxed_whnf(m_ctx->infer(H));
         expr A, lhs, rhs;
         if (!is_eq(p, A, lhs, rhs)) {
-            lean_trace("app_builder", tout() << "failed to build eq.symm, equality expected:\n" << H << "\n";);
+            lean_trace("app_builder", tout() << "failed to build eq.symm, equality expected:\n" << p << "\n";);
             throw app_builder_exception();
         }
         level lvl = get_level(A);
@@ -419,7 +419,7 @@ struct app_builder::imp {
         expr p     = m_ctx->relaxed_whnf(m_ctx->infer(H));
         expr A, a, B, b;
         if (!is_heq(p, A, a, B, b)) {
-            lean_trace("app_builder", tout() << "failed to build heq.symm, heterogeneous equality expected:\n" << H << "\n";);
+            lean_trace("app_builder", tout() << "failed to build heq.symm, heterogeneous equality expected:\n" << p << "\n";);
             throw app_builder_exception();
         }
         level lvl = get_level(A);
@@ -432,7 +432,7 @@ struct app_builder::imp {
         expr A, lhs1, rhs1, lhs2, rhs2;
         if (!is_eq(p1, A, lhs1, rhs1) || !is_eq(p2, lhs2, rhs2)) {
             lean_trace("app_builder", tout() << "failed to build eq.trans, equality expected:\n"
-                       << H1 << "\n" << H2 << "\n";);
+                       << p1 << "\n" << p2 << "\n";);
             throw app_builder_exception();
         }
         level lvl  = get_level(A);
@@ -456,7 +456,7 @@ struct app_builder::imp {
         expr A1, a1, B1, b1, A2, a2, B2, b2;
         if (!is_heq(p1, A1, a1, B1, b1) || !is_heq(p2, A2, a2, B2, b2)) {
             lean_trace("app_builder", tout() << "failed to build heq.trans, heterogeneous equality expected:\n"
-                       << H1 << "\n" << H2 << "\n";);
+                       << p1 << "\n" << p2 << "\n";);
             throw app_builder_exception();
         }
         level lvl  = get_level(A1);

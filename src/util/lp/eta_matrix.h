@@ -6,6 +6,7 @@
 */
 
 #pragma once
+#include <vector>
 namespace lean {
 
 // This is the sum of a unit matrix and a one-column matrix

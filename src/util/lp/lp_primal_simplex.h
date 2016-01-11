@@ -230,12 +230,12 @@ public:
         solve_with_total_inf();
     }
 
-    void fill_A_x_and_basis_for_stage_on_total_inf() {
+    void fill_A_x_and_basis_for_stage_one_total_inf() {
         for (unsigned row = 0; row < this->row_count(); row++)
-            fill_A_x_and_basis_for_stage_on_total_inf_for_row(row);
+            fill_A_x_and_basis_for_stage_one_total_inf_for_row(row);
     }
 
-    void fill_A_x_and_basis_for_stage_on_total_inf_for_row(unsigned row) {
+    void fill_A_x_and_basis_for_stage_one_total_inf_for_row(unsigned row) {
         lean_assert(row < this->row_count());
         auto ext_row_it = this->m_core_solver_rows_to_external_rows.find(row);
         lean_assert(ext_row_it != this->m_core_solver_rows_to_external_rows.end());
@@ -279,7 +279,7 @@ public:
         this->m_basis.resize(this->row_count());
         this->m_costs.clear();
         this->m_costs.resize(total_vars, zero_of_type<T>());
-        fill_A_x_and_basis_for_stage_on_total_inf();
+        fill_A_x_and_basis_for_stage_one_total_inf();
         this->print_statistics_on_A();
         this->fill_column_names_for_core_solver();
         int j = this->m_A->column_count() - 1;
@@ -303,32 +303,6 @@ public:
         this->m_total_iterations = m_core_solver->m_total_iterations;
      }
 
-
-    // void stage_one_of_total_inf() {
-    //     std::cout << "starting stage_one_of_total_inf()" << std::endl;
-    //     int total_vars = this->m_A->column_count() + this->row_count();
-    //     m_low_bounds.clear();
-    //     m_low_bounds.resize(total_vars, zero_of_type<X>());  // low bounds are shifted ot zero
-    //     this->m_x.resize(total_vars, numeric_traits<T>::zero());
-    //     this->m_basis.resize(this->row_count());
-    //     this->m_costs.clear();
-    //     this->m_costs.resize(total_vars, zero_of_type<T>());
-    //     fill_A_x_and_basis_for_stage_on_total_inf();
-    //     this->print_statistics_on_A();
-    //     this->fill_column_names_for_core_solver();
-    //     m_core_solver = new lp_primal_core_solver<T, X>(*this->m_A,
-    //                                                     this->m_b,
-    //                                                     this->m_x,
-    //                                                     this->m_basis,
-    //                                                     this->m_costs,
-    //                                                     this->m_column_types,
-    //                                                     m_low_bounds,
-    //                                                     this->m_upper_bounds,
-    //                                                     this->m_settings, this->m_name_map);
-    //     m_core_solver->find_feasible_solution();
-    //     this->m_first_stage_iterations = m_core_solver->m_total_iterations;
-    //     this->m_status = m_core_solver->m_status == lp_status::OPTIMAL? lp_status::FEASIBLE: m_core_solver->m_status; // just map FEASIBLE to OPTIMAL and do not change the rest
-    // }
 
     ~lp_primal_simplex() {
         if (m_core_solver != nullptr) {

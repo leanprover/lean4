@@ -148,7 +148,6 @@ public: // todo : move public lower ; it is for debug only
 
     int find_leaving_on_harris_theta(X const & harris_theta, X & t) {
         int leaving = -1;
-        int leaving_fixed = -1; // we would like to get rid of fixed columns in the basis first because they might bring t to zero
         T pivot_abs_max;
         T pivot_abs_max_fixed;
         // we know already that there is no bound flip on entering
@@ -167,7 +166,7 @@ public: // todo : move public lower ; it is for debug only
             unsigned j = this->m_basis[i];
             limit_theta_on_basis_column(j, - this->m_ed[i] * m_sign_of_entering_delta, ratio);
             if (ratio <= harris_theta) {
-                if (get_current_x_is_infeasible() && !m_recalc_reduced_costs) { // when we have made several basic variables feasible then we need to recalculate the costs and the reduced costs: here we are catching this case
+                if (!m_recalc_reduced_costs && get_current_x_is_infeasible()) { // when we have made several basic variables feasible we need to recalculate the costs and the reduced costs: here we are catching this case
                     if (!is_zero(this->m_costs[j])) {
                         if (column_with_non_zero_cost != -1)
                             m_recalc_reduced_costs = true;
@@ -179,28 +178,12 @@ public: // todo : move public lower ; it is for debug only
                     t = ratio;
                     leaving = j;
                     pivot_abs_max = abs(this->m_ed[i]);
-                    if (this->m_column_type[j] == fixed) {
-                        leaving_fixed = j;
-                        pivot_abs_max_fixed = pivot_abs_max;
-                    }
-                } else if (this->m_column_type[j] == fixed) {
-                    if (leaving_fixed == -1 || abs(this->m_ed[i]) > pivot_abs_max_fixed) {
-                        pivot_abs_max_fixed = abs(this->m_ed[i]);
-                        leaving_fixed = j;
-                    }
                 }
             }
             if (++i == this->m_m) i = 0;
         } while ( i != initial_i);
         restore_harris_eps();
-        //    if (m_j_uht.size() > 1) {
-        // cout << "under set "  << std::endl;
-        //     for(auto j : m_j_uht)
-        //         print_column(j);
-        //     // }
-        //     cout << "done with under set" << std::endl;
-        return leaving; // debug
-        //        return leaving_fixed != -1 ? leaving_fixed : leaving;
+        return leaving;
     }
 
 

@@ -8,6 +8,7 @@
 #pragma once
 #include <string>
 #include <algorithm>
+#include <vector>
 namespace lean {
 template <typename T, typename X> class lp_core_solver_base; // forward definition
 

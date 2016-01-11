@@ -701,7 +701,14 @@ public:
     expr infer_type(expr const & e) { return m_tctx.infer(e); }
     bool is_prop(expr const & e) { return m_tctx.is_prop(e); }
     bool is_def_eq(expr const & e1, expr const & e2) { return m_tctx.is_def_eq(e1, e2); }
-    optional<expr> mk_class_instance(expr const & e) { return m_tctx.mk_class_instance(e); }
+    optional<expr> mk_class_instance(expr const & e) {
+        m_tmp_ctx->clear();
+        return m_tmp_ctx->mk_class_instance(e);
+    }
+    optional<expr> mk_subsingleton_instance(expr const & type) {
+        m_tmp_ctx->clear();
+        return m_tmp_ctx->mk_subsingleton_instance(type);
+    }
 
     tmp_type_context * mk_tmp_type_context();
 
@@ -1081,6 +1088,11 @@ bool is_def_eq(expr const & e1, expr const & e2) {
 optional<expr> mk_class_instance(expr const & e) {
     lean_assert(g_blastenv);
     return g_blastenv->mk_class_instance(e);
+}
+
+optional<expr> mk_subsingleton_instance(expr const & type) {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_subsingleton_instance(type);
 }
 
 expr mk_fresh_local(expr const & type, binder_info const & bi) {

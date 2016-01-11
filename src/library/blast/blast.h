@@ -112,6 +112,8 @@ bool is_prop(expr const & e);
 bool is_def_eq(expr const & e1, expr const & e2);
 /** \brief Try to synthesize an element of the given type class with respect to the blast local context. */
 optional<expr> mk_class_instance(expr const & e);
+/** \brief Try to synthesize an instance of (subsingleton type) with respect to the blast local context. */
+optional<expr> mk_subsingleton_instance(expr const & type);
 
 /** \brief Create a congruence lemma for the given function.
     \pre num_args <= arity of fn

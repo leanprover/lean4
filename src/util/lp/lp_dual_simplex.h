@@ -27,254 +27,33 @@ public:
         }
     }
 
-    void decide_on_status_after_stage1() {
-        switch (m_core_solver->get_status()) {
-        case OPTIMAL:
-            if (this->m_settings.abs_val_is_smaller_than_artificial_tolerance(m_core_solver->get_cost())) {
-                this->m_status = FEASIBLE;
-                std::cout << "status is FEASIBLE" << std::endl;
-            } else {
-                std::cout << "status is UNBOUNDED" << std::endl;
-                this->m_status = UNBOUNDED;
-            }
-            break;
-        case DUAL_UNBOUNDED:
-            lean_unreachable();
-        case ITERATIONS_EXHAUSTED:
-            std::cout << "status is ITERATIONS_EXHAUSTED" << std::endl;
-            this->m_status = ITERATIONS_EXHAUSTED;
-            break;
-        case TIME_EXHAUSTED:
-            std::cout << "status is TIME_EXHAUSTED" << std::endl;
-            this->m_status = TIME_EXHAUSTED;
-            break;
-        case FLOATING_POINT_ERROR:
-            std::cout << "status is FLOATING_POINT_ERROR" << std::endl;
-            this->m_status = FLOATING_POINT_ERROR;
-            break;
-        default:
-            lean_unreachable();
-        }
-    }
+    void decide_on_status_after_stage1();
 
-    void fix_logical_for_stage2(unsigned j) {
-        lean_assert(j >= this->number_of_core_structurals());
-        switch (m_column_types_of_logicals[j - this->number_of_core_structurals()]) {
-        case low_bound:
-            m_low_bounds[j] = numeric_traits<T>::zero();
-            m_column_types_of_core_solver[j] = low_bound;
-            m_can_enter_basis[j] = true;
-            break;
-        case fixed:
-            this->m_upper_bounds[j] = m_low_bounds[j] = numeric_traits<T>::zero();
-            m_column_types_of_core_solver[j] = fixed;
-            m_can_enter_basis[j] = false;
-            break;
-        default:
-            lean_unreachable();
-        }
-    }
+    void fix_logical_for_stage2(unsigned j);
 
-    void fix_structural_for_stage2(unsigned j) {
-        column_info<T> * ci = this->m_columns[this->m_core_solver_columns_to_external_columns[j]];
-        switch (ci->get_column_type()) {
-        case low_bound:
-            m_low_bounds[j] = numeric_traits<T>::zero();
-            m_column_types_of_core_solver[j] = low_bound;
-            m_can_enter_basis[j] = true;
-            break;
-        case fixed:
-        case upper_bound:
-            lean_unreachable();
-        case boxed:
-            this->m_upper_bounds[j] = ci->get_adjusted_upper_bound() / this->m_column_scale[j];
-            m_low_bounds[j] = numeric_traits<T>::zero();
-            m_column_types_of_core_solver[j] = boxed;
-            m_can_enter_basis[j] = true;
-            break;
-        case free_column:
-            m_can_enter_basis[j] = true;
-            m_column_types_of_core_solver[j] = free_column;
-            break;
-        default:
-            lean_unreachable();
-        }
-        T cost_was = this->m_costs[j];
-        this->set_scaled_cost(j);
-        bool in_basis = m_core_solver->m_factorization->m_basis_heading[j] >= 0;
-        if (in_basis && cost_was != this->m_costs[j]) {
-            std::cout << "cost change in basis" << std::endl;
-        }
-    }
+    void fix_structural_for_stage2(unsigned j);
 
-    void unmark_boxed_and_fixed_columns_and_fix_structural_costs() {
-        unsigned j = this->m_A->column_count();
-        while (j-- > this->number_of_core_structurals()) {
-            fix_logical_for_stage2(j);
-        }
-        j = this->number_of_core_structurals();
-        while (j--) {
-            fix_structural_for_stage2(j);
-        }
-    }
+    void unmark_boxed_and_fixed_columns_and_fix_structural_costs();
 
-    void restore_right_sides() {
-        unsigned i = this->m_A->row_count();
-        while (i--) {
-            this->m_b[i] = m_b_copy[i];
-        }
-    }
+    void restore_right_sides();
 
-    void solve_for_stage2() {
-        m_core_solver->restore_non_basis();
-        m_core_solver->solve_yB(m_core_solver->m_y);
-        m_core_solver->fill_reduced_costs_from_m_y_by_rows();
-        m_core_solver->start_with_initial_basis_and_make_it_dual_feasible();
-        m_core_solver->set_status(FEASIBLE);
-        m_core_solver->solve();
-        switch (m_core_solver->get_status()) {
-        case OPTIMAL:
-            this->m_status = OPTIMAL;
-            break;
-        case DUAL_UNBOUNDED:
-            this->m_status = INFEASIBLE;
-            break;
-        case TIME_EXHAUSTED:
-            this->m_status = TIME_EXHAUSTED;
-            break;
-        case FLOATING_POINT_ERROR:
-            this->m_status = FLOATING_POINT_ERROR;
-            break;
-        default:
-            lean_unreachable();
-        }
-        this->m_second_stage_iterations = m_core_solver->m_total_iterations;
-    }
+    void solve_for_stage2();
 
-    void fill_x_with_zeros() {
-        unsigned j = this->m_A->column_count();
-        while (j--) {
-            this->m_x[j] = numeric_traits<T>::zero();
-        }
-    }
+    void fill_x_with_zeros();
 
-    void stage1() {
-        lean_assert(m_core_solver == nullptr);
-        this->m_x.resize(this->m_A->column_count(), numeric_traits<T>::zero());
-        this->print_statistics_on_A();
-        m_core_solver = new lp_dual_core_solver<T, X>(
-                                                   *this->m_A,
-                                                   m_can_enter_basis,
-                                                   this->m_b, // the right side vector
-                                                   this->m_x,
-                                                   this->m_basis,
-                                                   this->m_costs,
-                                                   this->m_column_types_of_core_solver,
-                                                   this->m_low_bounds,
-                                                   this->m_upper_bounds,
-                                                   this->m_settings,
-                                                   this->m_name_map);
-        m_core_solver->fill_reduced_costs_from_m_y_by_rows();
-        m_core_solver->start_with_initial_basis_and_make_it_dual_feasible();
-        if (this->m_settings.abs_val_is_smaller_than_artificial_tolerance(m_core_solver->get_cost())) {
-            std::cout << "skipping stage 1" << std::endl;
-            m_core_solver->set_status(OPTIMAL);
-            m_core_solver->m_total_iterations = 0;
-        } else {
-            std::cout << "stage 1" << std::endl;
-            m_core_solver->solve();
-        }
-        decide_on_status_after_stage1();
-        this->m_first_stage_iterations = m_core_solver->m_total_iterations;
-    }
+    void stage1();
 
-    void stage2() {
-        std::cout << "starting stage2" << std::endl;
-        unmark_boxed_and_fixed_columns_and_fix_structural_costs();
-        restore_right_sides();
-        solve_for_stage2();
-    }
+    void stage2();
 
-    void fill_first_stage_solver_fields() {
-        unsigned slack_var = this->number_of_core_structurals();
-        unsigned artificial = this->number_of_core_structurals() + this->m_slacks;
+    void fill_first_stage_solver_fields();
 
-        for (unsigned row = 0; row < this->row_count(); row++) {
-            fill_first_stage_solver_fields_for_row_slack_and_artificial(row, slack_var, artificial);
-        }
-        fill_costs_and_bounds_and_column_types_for_the_first_stage_solver();
-    }
+    column_type get_column_type(unsigned j);
 
-    column_type get_column_type(unsigned j) {
-        lean_assert(j < this->m_A->column_count());
-        if (j >= this->number_of_core_structurals()) {
-            return m_column_types_of_logicals[j - this->number_of_core_structurals()];
-        }
-        return this->m_columns[this->m_core_solver_columns_to_external_columns[j]]->get_column_type();
-    }
+    void fill_costs_bounds_types_and_can_enter_basis_for_the_first_stage_solver_structural_column(unsigned j);
 
-    void fill_costs_bounds_types_and_can_enter_basis_for_the_first_stage_solver_structural_column(unsigned j) {
-        // see 4.7 in the dissertation of Achim Koberstein
-        lean_assert(this->m_core_solver_columns_to_external_columns.find(j) !=
-                    this->m_core_solver_columns_to_external_columns.end());
+    void fill_costs_bounds_types_and_can_enter_basis_for_the_first_stage_solver_logical_column(unsigned j);
 
-        T free_bound = T(1e4); // see 4.8
-        unsigned jj = this->m_core_solver_columns_to_external_columns[j];
-        lean_assert(this->m_columns.find(jj) != this->m_columns.end());
-        column_info<T> * ci = this->m_columns[jj];
-        switch (ci->get_column_type()) {
-        case upper_bound:
-            throw exception(sstream() << "unexpected bound type " << j << " "
-                            << column_type_to_string(get_column_type(j)));
-        case low_bound: {
-            m_can_enter_basis[j] = true;
-            this->set_scaled_cost(j);
-            this->m_low_bounds[j] = numeric_traits<T>::zero();
-            this->m_upper_bounds[j] =numeric_traits<T>::one();
-            break;
-        }
-        case free_column: {
-            m_can_enter_basis[j] = true;
-            this->set_scaled_cost(j);
-            this->m_upper_bounds[j] = free_bound;
-            this->m_low_bounds[j] =  -free_bound;
-            break;
-        }
-        case boxed:
-            m_can_enter_basis[j] = false;
-            this->m_costs[j] = numeric_traits<T>::zero();
-            this->m_upper_bounds[j] = this->m_low_bounds[j] =  numeric_traits<T>::zero(); // is it needed?
-            break;
-        default:
-            lean_unreachable();
-        }
-        m_column_types_of_core_solver[j] = boxed;
-    }
-
-    void fill_costs_bounds_types_and_can_enter_basis_for_the_first_stage_solver_logical_column(unsigned j) {
-        this->m_costs[j] = 0;
-        lean_assert(get_column_type(j) != upper_bound);
-        if ((m_can_enter_basis[j] = (get_column_type(j) == low_bound))) {
-            m_column_types_of_core_solver[j] = boxed;
-            this->m_low_bounds[j] = numeric_traits<T>::zero();
-            this->m_upper_bounds[j] = numeric_traits<T>::one();
-        } else {
-            m_column_types_of_core_solver[j] = fixed;
-            this->m_low_bounds[j] = numeric_traits<T>::zero();
-            this->m_upper_bounds[j] = numeric_traits<T>::zero();
-        }
-    }
-
-    void fill_costs_and_bounds_and_column_types_for_the_first_stage_solver() {
-        unsigned j = this->m_A->column_count();
-        while (j-- > this->number_of_core_structurals()) { // go over logicals here
-            fill_costs_bounds_types_and_can_enter_basis_for_the_first_stage_solver_logical_column(j);
-        }
-        j = this->number_of_core_structurals();
-        while (j--) {
-            fill_costs_bounds_types_and_can_enter_basis_for_the_first_stage_solver_structural_column(j);
-        }
-    }
+    void fill_costs_and_bounds_and_column_types_for_the_first_stage_solver();
 
     void set_type_for_logical(unsigned j, column_type col_type) {
         this->m_column_types_of_logicals[j - this->number_of_core_structurals()] = col_type;
@@ -282,115 +61,20 @@ public:
 
     void fill_first_stage_solver_fields_for_row_slack_and_artificial(unsigned row,
                                                               unsigned & slack_var,
-                                                              unsigned & artificial) {
-        lean_assert(row < this->row_count());
-        auto & constraint = this->m_constraints[this->m_core_solver_rows_to_external_rows[row]];
-        // we need to bring the program to the form Ax = b
-        T rs = this->m_b[row];
-        switch (constraint.m_relation) {
-        case Equal: // no slack variable here
-            set_type_for_logical(artificial, fixed);
-            this->m_basis[row] = artificial;
-            this->m_costs[artificial] = numeric_traits<T>::zero();
-            (*this->m_A)(row, artificial) = numeric_traits<T>::one();
-            artificial++;
-            break;
+                                                                     unsigned & artificial);
 
-        case Greater_or_equal:
-            set_type_for_logical(slack_var, low_bound);
-            (*this->m_A)(row, slack_var) = - numeric_traits<T>::one();
-            if (rs > 0) {
-                // adding one artificial
-                set_type_for_logical(artificial, fixed);
-                (*this->m_A)(row, artificial) = numeric_traits<T>::one();
-                this->m_basis[row] = artificial;
-                this->m_costs[artificial] = numeric_traits<T>::zero();
-                artificial++;
-            } else {
-                // we can put a slack_var into the basis, and avoid adding an artificial variable
-                this->m_basis[row] = slack_var;
-                this->m_costs[slack_var] = numeric_traits<T>::zero();
-            }
-            slack_var++;
-            break;
-        case Less_or_equal:
-            // introduce a non-negative slack variable
-            set_type_for_logical(slack_var, low_bound);
-            (*this->m_A)(row, slack_var) = numeric_traits<T>::one();
-            if (rs < 0) {
-                // adding one artificial
-                set_type_for_logical(artificial, fixed);
-                (*this->m_A)(row, artificial) = - numeric_traits<T>::one();
-                this->m_basis[row] = artificial;
-                this->m_costs[artificial] = numeric_traits<T>::zero();
-                artificial++;
-            } else {
-                // we can put slack_var into the basis, and avoid adding an artificial variable
-                this->m_basis[row] = slack_var;
-                this->m_costs[slack_var] = numeric_traits<T>::zero();
-            }
-            slack_var++;
-            break;
-        }
-    }
-
-    void augment_matrix_A_and_fill_x_and_allocate_some_fields() {
-        this->count_slacks_and_artificials();
-        this->m_A->add_columns_at_the_end(this->m_slacks + this->m_artificials);
-        unsigned n = this->m_A->column_count();
-        this->m_column_types_of_core_solver.resize(n);
-        m_column_types_of_logicals.resize(this->m_slacks + this->m_artificials);
-        this->m_costs.resize(n);
-        this->m_upper_bounds.resize(n);
-        this->m_low_bounds.resize(n);
-        m_can_enter_basis.resize(n);
-        this->m_basis.resize(this->m_A->row_count());
-    }
+    void augment_matrix_A_and_fill_x_and_allocate_some_fields();
 
 
 
-    void copy_m_b_aside_and_set_it_to_zeros() {
-        for (int i = 0; i < this->m_b.size(); i++) {
-            m_b_copy.push_back(this->m_b[i]);
-            this->m_b[i] = numeric_traits<T>::zero(); // preparing for the first stage
-        }
-    }
+    void copy_m_b_aside_and_set_it_to_zeros();
 
-    void find_maximal_solution(){
-        if (this->problem_is_empty()) {
-             this->m_status = lp_status::EMPTY;
-             return;
-        }
-
-        this->flip_costs(); // do it for now, todo ( remove the flipping)
-
-        this->cleanup();
-        if (this->m_status == INFEASIBLE) {
-             return;
-        }
-        this->fill_matrix_A_and_init_right_side();
-        this->fill_m_b();
-        this->scale();
-        augment_matrix_A_and_fill_x_and_allocate_some_fields();
-        fill_first_stage_solver_fields();
-        this->fill_column_names_for_core_solver();
-        copy_m_b_aside_and_set_it_to_zeros();
-        stage1();
-        if (this->m_status == FEASIBLE) {
-            stage2();
-        }
-    }
+    void find_maximal_solution();
 
     virtual T get_column_value(unsigned column) const {
         return this->get_column_value_with_core_solver(column, m_core_solver);
     }
 
-    T get_current_cost() const {
-        T ret = numeric_traits<T>::zero();
-        for (auto it : this->m_columns) {
-            ret += this->get_column_cost_value(it.first, it.second);
-        }
-        return -ret; // we flip costs for now
-    }
+    T get_current_cost() const;
 };
 }

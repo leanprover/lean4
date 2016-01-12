@@ -17,7 +17,6 @@ Author: Lev Nachmanson
 #include <stdlib.h>
 #include <utility>
 #include "util/pair.h"
-#include "util/lp/lp.h"
 #include "util/lp/lp_primal_simplex.h"
 #include "tests/util/lp/mps_reader.h"
 #include "tests/util/lp/smt_reader.h"
@@ -69,8 +68,8 @@ void test_matrix(sparse_matrix<T, X> & a) {
             a.set(row, col, T(0));
 
 
-    unsigned i = rand_r(& seed) % m;
-    unsigned j = rand_r(& seed) % m;
+    unsigned i = my_random() % m;
+    unsigned j = my_random() % m;
 
     auto t = T(1);
 
@@ -248,7 +247,7 @@ void fill_long_row_exp(sparse_matrix<double, double> &m, int i) {
     int n = m.dimension();
 
     for (int j = 0; j < n; j ++) {
-        m(i, j) = rand_r(& seed) % 20;
+        m(i, j) = my_random() % 20;
     }
 }
 
@@ -256,7 +255,7 @@ void fill_long_row_exp(static_matrix<double, double> &m, int i) {
     int n = m.column_count();
 
     for (int j = 0; j < n; j ++) {
-        m(i, j) = rand_r(& seed) % 20;
+        m(i, j) = my_random() % 20;
     }
 }
 
@@ -528,6 +527,8 @@ void test_lp_primal_core_solver() {
     test_lp_0();
     test_lp_1();
 }
+
+
 #ifdef LEAN_DEBUG
 template <typename T, typename X>
 void test_swap_rows_with_permutation(sparse_matrix<T, X>& m){
@@ -538,8 +539,8 @@ void test_swap_rows_with_permutation(sparse_matrix<T, X>& m){
     print_matrix(m);
     lean_assert(original == q * m);
     for (int i = 0; i < 100; i++) {
-        unsigned row1 = lrand48() % dim;
-        unsigned row2 = lrand48() % dim;
+        unsigned row1 = my_random() % dim;
+        unsigned row2 = my_random() % dim;
         if (row1 == row2) continue;
         cout << "swap " << row1 << " " << row2 << std::endl;
         m.swap_rows(row1, row2);
@@ -553,36 +554,6 @@ void test_swap_rows_with_permutation(sparse_matrix<T, X>& m){
 template <typename T, typename X>
 void fill_matrix(sparse_matrix<T, X>& m); // forward definition
 #ifdef LEAN_DEBUG
-void matrix_repro_test() {
-    unsigned dim = 10;
-    sparse_matrix<double, double> m(dim);
-    fill_matrix(m);
-    for (int i = 0; i < 100; i++) {
-        unsigned row1 = lrand48() % dim;
-        unsigned row2 = lrand48() % dim;
-        if (row1 == row2) continue;
-        m.swap_rows(row1, row2);
-    }
-
-    for (int i = 0; i < 100; i++) {
-        unsigned col1 = lrand48() % dim;
-        unsigned col2 = lrand48() % dim;
-        if (col1 == col2) continue;
-        m.swap_columns(col1, col2);
-    }
-
-    dense_matrix<double, double> d(m);
-    for (unsigned i = 0; i < d.row_count(); i++)
-        for (unsigned j = 0; j < d.column_count(); j++)
-            d.set_elem(i, j, m.get_not_adjusted(i, j));
-
-    auto l = d * m.m_column_permutation;
-    l = m.m_row_permutation * l;
-    cout << "matrix_repro_test" << std::endl;
-    print_matrix(l);
-    lean_assert(l == m);
-}
-
 template <typename T, typename X>
 void test_swap_cols_with_permutation(sparse_matrix<T, X>& m){
     cout << "testing swaps" << std::endl;
@@ -592,8 +563,8 @@ void test_swap_cols_with_permutation(sparse_matrix<T, X>& m){
     print_matrix(m);
     lean_assert(original == q * m);
     for (int i = 0; i < 100; i++) {
-        unsigned row1 = lrand48() % dim;
-        unsigned row2 = lrand48() % dim;
+        unsigned row1 = my_random() % dim;
+        unsigned row2 = my_random() % dim;
         if (row1 == row2) continue;
         cout << "swap " << row1 << " " << row2 << std::endl;
         m.swap_rows(row1, row2);
@@ -915,8 +886,7 @@ void test_swap_operations() {
     test_swap_rows();
     test_swap_columns();
 }
-#endif
-#ifdef LEAN_DEBUG
+
 void test_dense_matrix() {
     dense_matrix<double, double> d(3, 2);
     d.set_elem(0, 0, 1);
@@ -945,104 +915,9 @@ void test_dense_matrix() {
     p2.set_elem(1, 0, 1);
     auto c2 = d * p2;
 }
-
-void test_conjugate_eta_matrix() {
-    permutation_matrix<double, double> p(5);
-    p[0] = 3; p[1] = 2; p[2] = 1; p[3] = 4;
-    p[4] = 0;
-
-    cout << "p="; p.print();
-#ifdef LEAN_DEBUG
-    eta_matrix<double, double> l(2, 5);
-#else
-    eta_matrix<double, double> l(2);
 #endif
-    for (unsigned i = 3; i <= 4; i++)
-        l.push_back(i, i+2); // i+2 for the value
 
-    l.set_diagonal_element(10);
 
-    cout << "l" << std::endl;
-    print_matrix(l);
-    dense_matrix<double, double> lcopy(l);
-
-    l.conjugate_by_permutation(p);
-
-    permutation_matrix<double, double> pr = p.get_inverse();
-
-    auto conj = lcopy * pr;
-    cout << "U*pr" << std::endl;
-    print_matrix(conj);
-    conj = p * conj;
-    cout << "conj " << std::endl;
-    print_matrix(conj);
-    cout << "l" << std::endl;
-    print_matrix(l);
-    lean_assert(conj == l);
-}
-
-void test_conjugate0() {
-    permutation_matrix<double, double> p(5);
-    p[0] = 3; p[1] = 2; p[2] = 1; p[3] = 4;
-    p[4] = 0;
-
-    one_off_diagonal_matrix<double, double> one_off(1, 4, 2, 3);
-    one_off.set_number_of_rows(5);
-    one_off.set_number_of_columns(5);
-    one_off_diagonal_matrix<double, double> one_off_copy(1, 4, 2, 3);
-    one_off_copy.set_number_of_rows(5);
-    one_off_copy.set_number_of_columns(5);
-    one_off.conjugate_by_permutation(p);
-
-    permutation_matrix<double, double> pr = p.get_inverse();
-
-    auto conj = one_off_copy * (pr);
-    conj = p * conj;
-    lean_assert(conj == one_off);
-}
-
-void test_conjugate_perm(){
-    permutation_matrix<double, double> p(5);
-    p[0] = 1; p[1] = 2; p[2] = 3; p[3] = 4;
-    p[4] = 0;
-
-    one_off_diagonal_matrix<double, double> one_off(1, 3, 2, 3);
-    one_off.set_number_of_rows(5);
-    one_off.set_number_of_columns(5);
-    one_off_diagonal_matrix<double, double> one_off_copy(1, 3, 2, 3);
-    one_off_copy.set_number_of_rows(5);
-    one_off_copy.set_number_of_columns(5);
-    one_off.conjugate_by_permutation(p);
-
-    permutation_matrix<double, double> pr = p.get_inverse();
-
-    auto conj = one_off_copy * pr;
-    conj = p * conj;
-    lean_assert(conj == one_off);
-    test_conjugate0();
-}
-
-void test_conjugate() {
-    permutation_matrix<double, double> p(5);
-    p[0] = 1; p[1] = 2; p[2] = 3; p[3] = 4;
-    p[4] = 0;
-
-    one_off_diagonal_matrix<double, double> one_off(1, 3, 2, 3);
-    one_off.set_number_of_rows(5);
-    one_off.set_number_of_columns(5);
-    one_off_diagonal_matrix<double, double> one_off_copy(1, 3, 2, 3);
-    one_off_copy.set_number_of_rows(5);
-    one_off_copy.set_number_of_columns(5);
-    one_off.conjugate_by_permutation(p);
-
-    permutation_matrix<double, double> pr = p.get_inverse();
-
-    auto conj = one_off_copy * pr;
-    conj = p * conj;
-    lean_assert(conj == one_off);
-    test_conjugate0();
-}
-#endif
 
 std::vector<permutation_matrix<double, double>> vector_of_permutaions() {
     std::vector<permutation_matrix<double, double>> ret;
@@ -1327,9 +1202,9 @@ void test_upair_queue() {
     binary_heap_upair_queue<int> q(2);
     unordered_map<upair, int> m;
     for (int k = 0; k < 100; k++) {
-        int i = lrand48()%n;
-        int j = lrand48()%n;
-        q.enqueue(i, j, lrand48()%n);
+        int i = my_random()%n;
+        int j = my_random()%n;
+        q.enqueue(i, j, my_random()%n);
     }
 
     q.remove(5, 5);
@@ -1439,15 +1314,15 @@ void solve_mps_with_known_solution(std::string file_name, std::unordered_map<str
 }
 
 int get_random_rows() {
-    return 5 + rand_r(& seed) % 2;
+    return 5 + my_random() % 2;
 }
 
 int get_random_columns() {
-    return 5 + rand_r(& seed) % 3;
+    return 5 + my_random() % 3;
 }
 
 int get_random_int() {
-    return -1 + rand_r(& seed) % 2; // (1.0 + RAND_MAX);
+    return -1 + my_random() % 2; // (1.0 + RAND_MAX);
 }
 
 void add_random_row(lp_primal_simplex<double, double> * solver, int cols, int row) {
@@ -1634,7 +1509,11 @@ void test_out_dir(string out_dir) {
     DIR *out_dir_p = opendir(out_dir.c_str());
     if (out_dir_p == nullptr) {
         cout << "creating directory " << out_dir << std::endl;
+#ifdef LEAN_WINDOWS
+        int res = mkdir(out_dir.c_str());
+#else
         int res = mkdir(out_dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+#endif
         if (res) {
             cout << "Cannot open output directory \"" << out_dir << "\"" << std::endl;
         }
@@ -1898,26 +1777,6 @@ void test_replace_column() {
     }
 }
 
-void test_eta_matrix() {
-    sparse_matrix<double, double> m(8);
-    fill_matrix(m);
-    lp_settings settings;
-    for (unsigned j = 0; j < m.dimension(); j++){
-        eta_matrix<double, double> * eta;
-        m.fill_eta_matrix(j, &eta);
-        m.prepare_for_factorization();
-
-        for (auto it = eta->get_sparse_vector_iterator(); !it.done(); it.move()) {
-            m.pivot_row_to_row(j, it.value(), it.index(), settings);
-            double de = eta->get_diagonal_element();
-            m.divide_row_by_constant(j, de, settings);
-        }
-        delete eta;
-    }
-
-    lean_assert(m.is_upper_triangular_and_maximums_are_set_correctly_in_rows(settings));
-}
-
 
 void setup_args_parser(argument_parser & parser) {
     parser.add_option_with_after_string_with_help("--density", "the percentage of non-zeroes in the matrix below which it is not dense");
@@ -2154,7 +2013,8 @@ void compare_costs(string glpk_out_file_name,
 
 
 
-void compare_with_glpk(string glpk_out_file_name, string lp_out_file_name, unsigned & successes, unsigned & failures, string lp_file_name) {
+void compare_with_glpk(string glpk_out_file_name, string lp_out_file_name, unsigned & successes, unsigned & failures, string /*lp_file_name*/) {
+#ifdef CHECK_GLPK_SOLUTION
     std::unordered_map<string, double> * solution_table =  get_solution_from_glpsol_output(glpk_out_file_name);
     if (solution_is_feasible(lp_file_name, *solution_table)) {
         cout << "glpk solution is feasible" << std::endl;
@@ -2162,6 +2022,7 @@ void compare_with_glpk(string glpk_out_file_name, string lp_out_file_name, unsig
         cout << "glpk solution is infeasible" << std::endl;
     }
     delete solution_table;
+#endif
     if (compare_statuses(glpk_out_file_name, lp_out_file_name, successes, failures)) {
         compare_costs(glpk_out_file_name, lp_out_file_name, successes, failures);
     }
@@ -2213,6 +2074,14 @@ void process_test_file(string test_dir, string test_file_name, argument_parser &
         }
     }
 }
+int my_readdir(DIR *dirp, struct dirent *entry, struct dirent **result) {
+#ifdef LEAN_WINDOWS
+    *result = readdir(dirp);
+    return *result != nullptr? 0 : 1;
+#else
+    return readdir_r(dirp, entry, result);
+#endif
+}
 
 std::vector<std::pair<std::string, int>> get_file_list_of_dir(std::string test_file_dir) {
     DIR *dir;
@@ -2224,16 +2093,19 @@ std::vector<std::pair<std::string, int>> get_file_list_of_dir(std::string test_f
     struct dirent entry;
     struct dirent* result;
     int return_code;
-    for (return_code = readdir_r(dir, &entry, &result);
-         result != NULL && return_code == 0;
-         return_code = readdir_r(dir, &entry, &result)) {
-        DIR *tmp_dp = opendir(entry.d_name);
+    for (return_code = my_readdir(dir, &entry, &result);
+#ifndef LEAN_WINDOWS
+         result != nullptr &&
+#endif
+         return_code == 0;
+         return_code = my_readdir(dir, &entry, &result)) {
+      DIR *tmp_dp = opendir(result->d_name);
         struct stat file_record;
         if (tmp_dp == nullptr) {
-            std::string s = test_file_dir+ "/" + entry.d_name;
+            std::string s = test_file_dir+ "/" + result->d_name;
             int stat_ret = stat(s.c_str(), & file_record);
             if (stat_ret!= -1) {
-                ret.push_back(make_pair(entry.d_name, file_record.st_size));
+                ret.push_back(make_pair(result->d_name, file_record.st_size));
             } else {
                 perror("stat");
                 exit(1);
@@ -2577,7 +2449,6 @@ int main(int argn, char * const * argv) {
     int ret;
     argument_parser args_parser(argn, argv);
     setup_args_parser(args_parser);
-
     if (!args_parser.parse()) {
         std::cout << args_parser.m_error_message << std::endl;
         std::cout << args_parser.usage_string();
@@ -2675,9 +2546,7 @@ int main(int argn, char * const * argv) {
     test_replace_column();
 #ifdef LEAN_DEBUG
     test_perm_apply_reverse_from_right();
-    test_conjugate_perm();
     sparse_matrix_with_permutaions_test();
-    test_conjugate();
     test_dense_matrix();
     test_swap_operations();
     test_permutations();

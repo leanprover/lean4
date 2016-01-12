@@ -16,11 +16,11 @@
 #include <algorithm>
 #include "util/lp/canonic_left_side.h"
 namespace lean {
-lconstraint_kind flip_kind(lconstraint_kind t) {
+inline lconstraint_kind flip_kind(lconstraint_kind t) {
     return static_cast<lconstraint_kind>( - static_cast<int>(t));
 }
 
-std::string lconstraint_kind_string(lconstraint_kind t) {
+inline std::string lconstraint_kind_string(lconstraint_kind t) {
     switch (t) {
     case LE: return std::string("<=");
     case LT: return std::string("<");
@@ -35,7 +35,7 @@ class lar_base_constraint {
 public:
     lconstraint_kind m_kind;
     mpq m_right_side;
-    virtual buffer<pair<mpq, var_index>> get_left_side_coefficients() const = 0;
+    virtual buffer<std::pair<mpq, var_index>> get_left_side_coefficients() const = 0;
     constraint_index m_index; // the index of constraint
     lar_base_constraint() {}
     lar_base_constraint(lconstraint_kind kind, mpq right_side, constraint_index index) :m_kind(kind), m_right_side(right_side), m_index(index) {}
@@ -48,33 +48,15 @@ class lar_constraint : public lar_base_constraint {
 public:
     std::unordered_map<var_index, mpq> m_left_side;
     lar_constraint() {}
-    lar_constraint(const buffer<pair<mpq, var_index>> & left_side, lconstraint_kind kind, mpq right_side, constraint_index index) :  lar_base_constraint(kind, right_side, index) {
-        for (auto & it : left_side) {
-            auto r = m_left_side.find(it.second);
-            if (r == m_left_side.end()) {
-                m_left_side[it.second] = it.first;
-            } else {
-                r->second += it.first;
-            }
-        }
-    }
+    lar_constraint(const buffer<std::pair<mpq, var_index>> & left_side, lconstraint_kind kind, mpq right_side, constraint_index index);
 
-    lar_constraint(const lar_base_constraint & c): lar_base_constraint(c.m_kind, c.m_right_side, c.m_index) {
-        for (auto t : c.get_left_side_coefficients())
-            m_left_side.insert(std::make_pair(t.second, t.first));
-    }
+    lar_constraint(const lar_base_constraint & c);
 
     unsigned size() const {
         return m_left_side.size();
     }
 
-    buffer<pair<mpq, var_index>> get_left_side_coefficients() const {
-        buffer<pair<mpq, var_index>> ret;
-        for (auto it : m_left_side) {
-            ret.push_back(std::make_pair(it.second, it.first));
-        }
-        return ret;
-    }
+    buffer<std::pair<mpq, var_index>> get_left_side_coefficients() const;
 };
 
 class lar_normalized_constraint : public lar_base_constraint {
@@ -91,12 +73,8 @@ public:
 
     lar_normalized_constraint() {}
 
-    virtual buffer<pair<mpq, var_index>> get_left_side_coefficients() const {
-        buffer<pair<mpq, var_index>> ret;
-        for (auto t : m_canonic_left_side->m_coeffs) ret.push_back(t);
-        return ret;
-    }
-    virtual unsigned size() const {
+    buffer<std::pair<mpq, var_index>> get_left_side_coefficients() const;
+    unsigned size() const {
         return m_canonic_left_side->size();
     }
 };

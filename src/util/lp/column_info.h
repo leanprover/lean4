@@ -6,12 +6,11 @@
 */
 
 #pragma once
-#include "util/lp/lp_primal_core_solver.h"
-#include "util/lp/lp_solver.h"
 #include <vector>
 #include <unordered_map>
 #include <string>
 #include <algorithm>
+#include "util/lp/lp_settings.h"
 namespace lean {
 template <typename T>
 class column_info {
@@ -27,16 +26,8 @@ class column_info {
     bool m_is_fixed = false;
 
 public:
-    column_type get_column_type() {
-        if (m_is_fixed) {
-            return column_type::fixed;
-        }
-
-        if (m_low_bound_is_set) {
-            return m_upper_bound_is_set? boxed: low_bound;
-        }
-        // we are flipping the bounds!
-        return m_upper_bound_is_set? low_bound: free_column;
+    column_type get_column_type() const {
+        return m_is_fixed? fixed : (m_low_bound_is_set? (m_upper_bound_is_set? boxed : low_bound) : (m_upper_bound_is_set? upper_bound: free_column));
     }
 
      column_type get_column_type_no_flipping() {

@@ -10,7 +10,10 @@
 #include <algorithm>
 #include <limits>
 #include <sys/timeb.h>
-
+#include "util/debug.h"
+#include "util/numerics/numeric_traits.h"
+#include "util/sstream.h"
+#include "util/numerics/mpq.h"
 
 namespace lean {
 
@@ -22,22 +25,7 @@ enum column_type  {
     free_column
 };
 
-inline std::string column_type_to_string(column_type t) {
-    switch (t) {
-    case fixed:
-        return std::string("fixed");
-    case boxed:
-        return std::string("boxed");
-    case low_bound:
-        return std::string("low_bound");
-    case upper_bound:
-        return std::string("upper_bound");
-    case free_column:
-        return std::string("free_column");
-    default:
-        lean_unreachable();
-    }
-}
+std::string column_type_to_string(column_type t);
 
 enum lp_status {
     UNKNOWN,
@@ -55,37 +43,9 @@ enum lp_status {
     UNSTABLE
 };
 
-inline const char* lp_status_to_string(lp_status status) {
-    switch (status) {
-    case UNKNOWN: return "UNKNOWN";
-    case INFEASIBLE: return "INFEASIBLE";
-    case UNBOUNDED: return "UNBOUNDED";
-    case TENTATIVE_DUAL_UNBOUNDED: return "TENTATIVE_DUAL_UNBOUNDED";
-    case DUAL_UNBOUNDED: return "DUAL_UNBOUNDED";
-    case OPTIMAL: return "OPTIMAL";
-    case FEASIBLE: return "FEASIBLE";
-    case FLOATING_POINT_ERROR: return "FLOATING_POINT_ERROR";
-    case TIME_EXHAUSTED: return "TIME_EXHAUSTED";
-    case ITERATIONS_EXHAUSTED: return "ITERATIONS_EXHAUSTED";
-    case EMPTY: return "EMPTY";
-    case UNSTABLE: return "UNSTABLE";
-    default:
-        lean_unreachable();
-    }
-}
+const char* lp_status_to_string(lp_status status);
 
-inline lp_status lp_status_from_string(std::string status) {
-    if (status == "UNKNOWN") return  lp_status::UNKNOWN;
-    if (status == "INFEASIBLE") return lp_status::INFEASIBLE;
-    if (status == "UNBOUNDED") return lp_status::UNBOUNDED;
-    if (status == "OPTIMAL") return lp_status::OPTIMAL;
-    if (status == "FEASIBLE") return lp_status::FEASIBLE;
-    if (status == "FLOATING_POINT_ERROR") return lp_status::FLOATING_POINT_ERROR;
-    if (status == "TIME_EXHAUSTED") return lp_status::TIME_EXHAUSTED;
-    if (status == "ITERATIONS_EXHAUSTED") return lp_status::ITERATIONS_EXHAUSTED;
-    if (status == "EMPTY") return lp_status::EMPTY;
-    lean_unreachable();
-}
+lp_status lp_status_from_string(std::string status);
 
 enum non_basic_column_value_position { at_low_bound, at_upper_bound, at_fixed, free_of_bounds };
 
@@ -198,17 +158,55 @@ struct lp_settings {
     bool dense_deb;
     static unsigned ddd; // used for debugging
 #endif
-};
-int get_millisecond_count() {
-    timeb tb;
-    ftime(&tb);
-    return tb.millitm + (tb.time & 0xfffff) * 1000;
+}; // end of lp_settings class
+
+int get_millisecond_count();
+int get_millisecond_span(int start_time);
+void my_random_init(unsigned * seed);
+unsigned my_random();
+
+template <typename T>
+std::string T_to_string(const T & t) {
+    std::ostringstream strs;
+    strs << t;
+    return strs.str();
 }
 
-int get_millisecond_span(int start_time) {
-    int span = get_millisecond_count() - start_time;
-    if (span < 0)
-        span += 0x100000 * 1000;
-    return span;
+inline std::string T_to_string(const mpq & t) {
+    std::ostringstream strs;
+    strs << t.get_double();
+    return strs.str();
+}
+
+template <typename T>
+bool val_is_smaller_than_eps(T const & t, double const & eps) {
+    if (!numeric_traits<T>::precise()) {
+        return numeric_traits<T>::get_double(t) < eps;
+    }
+    return t <= numeric_traits<T>::zero();
+}
+
+template <typename T>
+bool vectors_are_equal(T * a, std::vector<T>  &b, unsigned n);
+
+template <typename T>
+bool vectors_are_equal(const std::vector<T> & a, const buffer<T>  &b);
+
+template <typename T>
+bool vectors_are_equal(const std::vector<T> & a, const std::vector<T> &b);
+
+template <typename T>
+T abs (T const & v) { return v >= zero_of_type<T>() ? v : -v; }
+
+template <typename X>
+X max_abs_in_vector(std::vector<X>& t){
+    X r(zero_of_type<X>());
+    for (auto & v : t)
+        r = std::max(abs(v) , r);
+    return r;
+}
+inline void print_blanks(int n) {
+    while (n--) {std::cout << ' '; }
 }
 }
+

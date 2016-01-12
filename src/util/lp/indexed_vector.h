@@ -20,42 +20,12 @@
 #include "util/lp/sparse_vector.h"
 #include <iomanip>
 namespace lean {
-template <typename T>
-void print_vector(const T * t, unsigned l) {
-    for (unsigned i = 0; i < l; i++)
-        std::cout << t[i] << " ";
-    std::cout << std::endl;
-}
 
-template <typename T>
-void print_vector(const std::vector<T> & t) {
-    for (unsigned i = 0; i < t.size(); i++)
-        std::cout << t[i] << " ";
-    std::cout << std::endl;
-}
-
-template <typename T>
-void print_vector(const buffer<T> & t) {
-    for (unsigned i = 0; i < t.size(); i++)
-        std::cout << t[i] << " ";
-    std::cout << std::endl;
-}
-
-template <typename T>
-void print_sparse_vector(const std::vector<T> & t) {
-    for (unsigned i = 0; i < t.size(); i++) {
-        if (is_zero(t[i]))continue;
-        std::cout << "[" << i << "] = " << t[i] << ", ";
-    }
-    std::cout << std::endl;
-}
-
-void print_vector(const std::vector<mpq> & t) {
-    for (unsigned i = 0; i < t.size(); i++)
-        std::cout << t[i].get_double() << std::setprecision(3) << " ";
-    std::cout << std::endl;
-}
-
+template <typename T> void print_vector(const std::vector<T> & t);
+template <typename T> void print_vector(const buffer<T> & t);
+template <typename T> void print_sparse_vector(const std::vector<T> & t);
+    
+void print_vector(const std::vector<mpq> & t);
 template <typename T>
 class indexed_vector {
 public:
@@ -66,11 +36,7 @@ public:
         m_data.resize(data_size, numeric_traits<T>::zero());
     }
 
-    void resize(unsigned data_size) {
-        m_index.clear();
-        m_data.resize(data_size, numeric_traits<T>::zero());
-    }
-
+    void resize(unsigned data_size);
     unsigned data_size() const {
         return m_data.size();
     }
@@ -79,25 +45,9 @@ public:
         return m_index.size();
     }
 
-    void set_value(T value, unsigned index) {
-        m_data[index] = value;
-        m_index.push_back(index);
-    }
-
-    void clear() {
-        for (unsigned i : m_index) {
-            m_data[i] = numeric_traits<T>::zero();
-        }
-        m_index.clear();
-    }
-
-    void clear_all() {
-        unsigned i = m_data.size();
-        while (i--)  m_data[i] = numeric_traits<T>::zero();
-
-        m_index.clear();
-    }
-
+    void set_value(T value, unsigned index);
+    void clear();
+    void clear_all();
     const T& operator[] (unsigned i) const {
         return m_data[i];
     }
@@ -107,31 +57,10 @@ public:
     }
 
 
-    void erase_from_index(unsigned j) {
-        auto it = std::find(m_index.begin(), m_index.end(), j);
-        if (it != m_index.end()) m_index.erase(it);
-    }
-
+    void erase_from_index(unsigned j);
 #ifdef LEAN_DEBUG
-    bool is_OK() const {
-        int size = 0;
-        for (unsigned i = 0; i < m_data.size(); i++) {
-            if (!is_zero(m_data[i])) {
-                if (std::find(m_index.begin(), m_index.end(), i) == m_index.end())
-                    return false;
-                size++;
-            }
-        }
-        return size == m_index.size();
-    }
-    void print() {
-        std::cout << "m_index " << std::endl;
-        for (unsigned i = 0; i < m_index.size(); i++) {
-            std::cout << m_index[i] << " ";
-        }
-        std::cout << std::endl;
-        print_vector(m_data);
-    }
+    bool is_OK() const;
+    void print();
 #endif
 };
 }

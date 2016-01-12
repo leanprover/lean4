@@ -9,6 +9,7 @@
 #include <algorithm>
 #include "util/numerics/mpq.h"
 #include "util/numerics/double.h"
+#include "util/lp/lp_settings.h"
 
 namespace lean {
 template <typename T>
@@ -17,7 +18,7 @@ std::string T_to_string(const T & t); // forward definition
 template <typename X, typename Y>
 struct convert_struct {
     static X convert(const Y & y){ return X(y);}
-    static bool is_epsilon_small(const X & x,  const double & y) { return abs(get_double(x)) < y; }
+    static bool is_epsilon_small(const X & x,  const double & y) { return std::abs(get_double(x)) < y; }
     static bool below_bound_numeric(const X &, const X &, const Y &) { lean_unreachable(); }
     static bool above_bound_numeric(const X &, const X &, const Y &) { lean_unreachable(); }
 };

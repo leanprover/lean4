@@ -9,7 +9,10 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-
+#include <utility>
+#include "util/numerics/mpq.h"
+#include "util/lp/column_info.h"
+#include "util/lp/hash_helper.h"
 namespace lean {
 typedef unsigned var_index;
 typedef unsigned constraint_index;
@@ -18,7 +21,7 @@ enum lconstraint_kind {
 };
 
 class lar_normalized_constraint; // forward definition
-bool compare(const pair<mpq, var_index> & a, const pair<mpq, var_index> & b) {
+inline   bool compare(const std::pair<mpq, var_index> & a, const std::pair<mpq, var_index> & b) {
     return a.second < b.second;
 }
 
@@ -26,12 +29,12 @@ class canonic_left_side {
 public:
     int m_row_index = -1;
     int  m_column_index = -1; // this is the column of the left side variable in the matrix
-    std::vector<pair<mpq, var_index>> m_coeffs;
+    std::vector<std::pair<mpq, var_index>> m_coeffs;
     column_info<mpq> m_column_info;
     lar_normalized_constraint * m_low_bound_witness = nullptr;
     lar_normalized_constraint * m_upper_bound_witness = nullptr;
 
-    canonic_left_side(buffer<pair<mpq, var_index>> buffer) {
+    canonic_left_side(buffer<std::pair<mpq, var_index>> buffer) {
         for (auto it : buffer) {
             if (numeric_traits<mpq>::is_zero(it.first)) continue;
             m_coeffs.push_back(it);
@@ -65,7 +68,7 @@ public:
 
     std::size_t hash_of_ls() const {
         std::size_t ret = 0;
-        std::hash<pair<mpq, var_index>> hash_fun;
+        std::hash<std::pair<mpq, var_index>> hash_fun;
         for (auto v : m_coeffs) {
             ret |= (hash_fun(v) << 2);
         }

@@ -46,6 +46,7 @@ public:
         m_value = val;
     }
 };
+#ifdef LEAN_DEBUG
 template <typename X>
 bool check_vector_for_small_values(indexed_vector<X> & w, lp_settings & settings) {
     for (unsigned i : w.m_index) {
@@ -55,4 +56,5 @@ bool check_vector_for_small_values(indexed_vector<X> & w, lp_settings & settings
     }
     return true;
 }
+#endif
 }

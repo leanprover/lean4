@@ -198,7 +198,7 @@
   (string-join (lean-info-symbol-body symbol) "\n"))
 
 (defun lean-info-id-symbol-body-str (info)
-  (case (lean-info-kind info)
+  (cl-case (lean-info-kind info)
     ('IDENTIFIER (string-join (lean-info-symbol-body info) "\n"))
     ('SYMBOL     (string-join (lean-info-identifier-body info) "\n"))))
 

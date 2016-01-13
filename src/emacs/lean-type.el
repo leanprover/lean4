@@ -29,7 +29,7 @@
     (when synth
       (let ((synth-str
              (replace-regexp-in-string "?M_[0-9]+" "_" (lean-info-synth-body-str synth))))
-        (when (search " " synth-str)
+        (when (cl-search " " synth-str)
           (setq synth-str (concat "(" synth-str ")")))
         (when (looking-at "_")
           (delete-forward-char 1)

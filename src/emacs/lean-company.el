@@ -10,6 +10,7 @@
 (require 'dash-functional)
 (require 'f)
 (require 's)
+(require 'cl-lib)
 (require 'lean-util)
 (require 'lean-tags)
 (require 'lean-server)
@@ -106,7 +107,7 @@
     `(,file-name . 1)))
 
 (defun company-lean--import (command &optional arg &rest ignored)
-  (case command
+  (cl-case command
     (prefix (company-lean--import-prefix))
     (candidates (company-lean--import-candidates arg))
     (location   (company-lean--import-location arg))
@@ -146,7 +147,7 @@
     (--filter (s-starts-with? prefix it) candidates)))
 
 (defun company-lean--option-name (command &optional arg &rest ignored)
-  (case command
+  (cl-case command
     (prefix (company-lean--option-name-prefix))
     (candidates (company-lean--option-name-candidates arg))
     (meta       (company-lean--option-name-meta arg))
@@ -180,7 +181,7 @@
     (delete-forward-char 1)))
 
 (defun company-lean--findg (command &optional arg &rest ignored)
-  (case command
+  (cl-case command
     (prefix (company-lean--findg-prefix))
     (candidates (company-lean--findg-candidates arg))
     (annotation (company-lean--findp-annotation arg))
@@ -290,7 +291,7 @@ triggers a completion immediately."
       0)))
 
 (defun company-lean--findp (command &optional arg &rest ignored)
-  (case command
+  (cl-case command
     (prefix (company-lean--findp-prefix))
     (candidates (company-lean--findp-candidates arg))
     (annotation (company-lean--findp-annotation arg))

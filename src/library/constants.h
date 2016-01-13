@@ -20,6 +20,7 @@ name const & get_bit1_name();
 name const & get_bool_name();
 name const & get_bool_ff_name();
 name const & get_bool_tt_name();
+name const & get_cast_name();
 name const & get_char_name();
 name const & get_char_mk_name();
 name const & get_classical_name();

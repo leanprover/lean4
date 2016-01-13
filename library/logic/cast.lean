@@ -9,22 +9,6 @@ Casts and heterogeneous equality. See also init.datatypes and init.logic.
 import logic.eq logic.quantifiers
 open eq.ops
 
-section
-  universe variable u
-  variables {A B : Type.{u}}
-  definition cast (H : A = B) (a : A) : B :=
-  eq.rec a H
-
-  theorem cast_refl (a : A) : cast (eq.refl A) a = a :=
-  rfl
-
-  theorem cast_proof_irrel (H₁ H₂ : A = B) (a : A) : cast H₁ a = cast H₂ a :=
-  rfl
-
-  theorem cast_eq (H : A = A) (a : A) : cast H a = a :=
-  rfl
-end
-
 namespace heq
   universe variable u
   variables {A B C : Type.{u}} {a a' : A} {b b' : B} {c : C}

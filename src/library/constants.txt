@@ -13,6 +13,7 @@ bit1
 bool
 bool.ff
 bool.tt
+cast
 char
 char.mk
 classical

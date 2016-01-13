@@ -130,6 +130,15 @@ attribute eq.refl [refl]
 attribute eq.trans [trans]
 attribute eq.symm [symm]
 
+definition cast {A B : Type} (H : A = B) (a : A) : B :=
+eq.rec a H
+
+theorem cast_proof_irrel {A B : Type} (H₁ H₂ : A = B) (a : A) : cast H₁ a = cast H₂ a :=
+rfl
+
+theorem cast_eq {A : Type} (H : A = A) (a : A) : cast H a = a :=
+rfl
+
 /- ne -/
 
 definition ne [reducible] {A : Type} (a b : A) := ¬(a = b)

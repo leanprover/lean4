@@ -18,6 +18,7 @@ name const * g_bit1 = nullptr;
 name const * g_bool = nullptr;
 name const * g_bool_ff = nullptr;
 name const * g_bool_tt = nullptr;
+name const * g_cast = nullptr;
 name const * g_char = nullptr;
 name const * g_char_mk = nullptr;
 name const * g_classical = nullptr;
@@ -282,6 +283,7 @@ void initialize_constants() {
     g_bool = new name{"bool"};
     g_bool_ff = new name{"bool", "ff"};
     g_bool_tt = new name{"bool", "tt"};
+    g_cast = new name{"cast"};
     g_char = new name{"char"};
     g_char_mk = new name{"char", "mk"};
     g_classical = new name{"classical"};
@@ -547,6 +549,7 @@ void finalize_constants() {
     delete g_bool;
     delete g_bool_ff;
     delete g_bool_tt;
+    delete g_cast;
     delete g_char;
     delete g_char_mk;
     delete g_classical;
@@ -811,6 +814,7 @@ name const & get_bit1_name() { return *g_bit1; }
 name const & get_bool_name() { return *g_bool; }
 name const & get_bool_ff_name() { return *g_bool_ff; }
 name const & get_bool_tt_name() { return *g_bool_tt; }
+name const & get_cast_name() { return *g_cast; }
 name const & get_char_name() { return *g_char; }
 name const & get_char_mk_name() { return *g_char_mk; }
 name const & get_classical_name() { return *g_classical; }

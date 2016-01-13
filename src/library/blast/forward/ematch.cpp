@@ -308,11 +308,12 @@ struct ematch_fn {
             lean_assert(length(*pinfos) == t_args.size());
             for (unsigned i = 0; i < t_args.size(); i++) {
                 param_info const & pinfo = head(*pinfos);
-                if (!pinfo.is_inst_implicit() && !pinfo.is_subsingleton()) {
-                    /* We only match explicit arguments that are *not* subsingletons */
-                    s = cons(entry(get_eq_name(), Match, p_args[i], t_args[i]), s);
-                } else {
+                if (pinfo.is_inst_implicit()) {
                     s = cons(entry(get_eq_name(), DefEqOnly, p_args[i], t_args[i]), s);
+                } else if (pinfo.is_subsingleton()) {
+                    /* we ignore subsingletons during ematching */
+                } else {
+                    s = cons(entry(get_eq_name(), Match, p_args[i], t_args[i]), s);
                 }
                 pinfos = &tail(*pinfos);
             }

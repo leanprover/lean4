@@ -155,6 +155,9 @@ class rec_strategy_fn : public strategy_fn {
             Try(activate_hypothesis());
             Try(rec_action(m_selector));
         }
+        /* The recursor tactic does very little, so we deactivate all hypotheses
+           and allow m_S to process them again. */
+        curr_state().deactivate_all();
         if (optional<expr> pf = m_S()) {
             return action_result::solved(*pf);
         }

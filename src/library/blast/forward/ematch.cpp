@@ -250,7 +250,7 @@ struct ematch_fn {
     blast_tmp_type_context         m_ctx;
     congruence_closure &           m_cc;
 
-    enum frame_kind { DefEqOnly, Match, Continue };
+    enum frame_kind { DefEqOnly, Match, MatchSS /* match subsingleton */, Continue };
 
     typedef std::tuple<name, frame_kind, expr, expr> entry;
     typedef list<entry>                              state;
@@ -306,12 +306,25 @@ struct ematch_fn {
             fun_info finfo = get_fun_info(fn, t_args.size());
             list<param_info> const * pinfos = &finfo.get_params_info();
             lean_assert(length(*pinfos) == t_args.size());
+            /* Process subsingletons first.
+               We want them to be on the bottom of the "stack".
+               That is, we want the other arguments to be processed first.
+               Motivation: instantiate meta-variables in the subsingleton before we process it. */
+            for (unsigned i = 0; i < t_args.size(); i++) {
+                param_info const & pinfo = head(*pinfos);
+                if (pinfo.is_subsingleton()) {
+                    s = cons(entry(get_eq_name(), MatchSS, p_args[i], t_args[i]), s);
+                }
+                pinfos = &tail(*pinfos);
+            }
+            /* Process non-subsingletons */
+            pinfos = &finfo.get_params_info();
             for (unsigned i = 0; i < t_args.size(); i++) {
                 param_info const & pinfo = head(*pinfos);
                 if (pinfo.is_inst_implicit()) {
                     s = cons(entry(get_eq_name(), DefEqOnly, p_args[i], t_args[i]), s);
                 } else if (pinfo.is_subsingleton()) {
-                    /* we ignore subsingletons during ematching */
+                    /* already processed in previous loop */
                 } else {
                     s = cons(entry(get_eq_name(), Match, p_args[i], t_args[i]), s);
                 }
@@ -403,6 +416,32 @@ struct ematch_fn {
         }
     }
 
+    /* (Basic) subsingleton matching support: solve p =?= t when
+       typeof(p) and typeof(t) are subsingletons */
+    bool process_matchss(expr const & p, expr const & t) {
+        lean_assert(is_standard(env()));
+        if (!is_metavar(p)) {
+            /* If p is not a metavariable we simply ignore it.
+               We should improve this case in the future.
+               TODO(Leo, Daniel): add debug.blast.ematch message here */
+            return true;
+        }
+        expr p_type = m_ctx->instantiate_uvars_mvars(m_ctx->infer(p));
+        expr t_type = m_ctx->infer(t);
+        if (m_ctx->is_def_eq(p_type, t_type)) {
+            return m_ctx->assign(p, t);
+        } else {
+            /* Check if the types are provably equal, and cast t */
+            m_cc.internalize(get_eq_name(), p_type, false);
+            if (auto H = m_cc.get_eqv_proof(get_eq_name(), t_type, p_type)) {
+                expr cast_H_t = get_app_builder().mk_app(get_cast_name(), *H, t);
+                return m_ctx->assign(p, cast_H_t);
+            }
+        }
+        /* TODO(Leo, Daniel): add debug.blast.ematch message here */
+        return false;
+    }
+
     bool process_next() {
         lean_assert(!is_done());
         name R; frame_kind kind; expr p, t;
@@ -414,6 +453,8 @@ struct ematch_fn {
             return m_ctx->is_def_eq(p, t);
         case Match:
             return process_match(R, p, t);
+        case MatchSS:
+            return process_matchss(p, t);
         case Continue:
             return process_continue(R, p);
         }

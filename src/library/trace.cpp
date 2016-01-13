@@ -186,6 +186,8 @@ io_state_stream const & operator<<(io_state_stream const & ios, tclass const & c
 void initialize_trace() {
     g_trace_classes = new name_set();
     g_trace_aliases = new name_map<name_set>();
+
+    register_trace_class(name{"debug"});
 }
 
 void finalize_trace() {

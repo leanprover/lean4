@@ -1380,6 +1380,7 @@ void initialize_blast() {
     register_trace_class(name{"blast", "action"});
     register_trace_class(name{"blast", "search"});
     register_trace_class(name{"blast", "deadend"});
+    register_trace_class(name{"debug", "blast"});
 
     register_trace_class_alias("app_builder", name({"blast", "event"}));
     register_trace_class_alias(name({"simplifier", "failure"}), name({"blast", "event"}));

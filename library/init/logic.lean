@@ -244,6 +244,9 @@ attribute heq_of_heq_of_eq [trans]
 attribute heq_of_eq_of_heq [trans]
 attribute heq.symm [symm]
 
+theorem cast_heq : ∀ {A B : Type} (H : A = B) (a : A), cast H a == a
+| A A (eq.refl A) a := !heq.refl
+
 /- and -/
 
 notation a /\ b := and a b

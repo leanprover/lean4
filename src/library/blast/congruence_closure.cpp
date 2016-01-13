@@ -1397,8 +1397,21 @@ expr congruence_closure::mk_congr_proof(name const & R, expr const & e1, expr co
         if (is_equivalence_relation_app(e2, R2, lhs2, rhs2) && R1 == R2) {
             if (!is_eqv(R1, lhs1, lhs2)) {
                 lean_assert(is_eqv(R1, lhs1, rhs2));
-                // We must apply symmetry.
-                // The congruence table is implicitly using symmetry.
+                /*
+                   We must apply symmetry.
+                   The congruence table is implicitly using symmetry.
+                   That is, we have
+                        e1 := lhs1 ~R1~ rhs1
+                   and
+                        e2 := lhs2 ~R1~ rhs2
+                   But,
+                        (lhs1 ~R1 ~rhs2) and (rhs1 ~R1~ lhs2)
+                */
+
+                /* Given e1 := lhs1 ~R1~ rhs1,
+                   create proof for
+                         (lhs1 ~R1~ rhs1) <-> (rhs1 ~R1~ lhs1)
+                */
                 app_builder & b = get_app_builder();
                 expr new_e1 = b.mk_rel(R1, rhs1, lhs1);
                 expr h1  = mk_fresh_local(e1);
@@ -1407,11 +1420,19 @@ expr congruence_closure::mk_congr_proof(name const & R, expr const & e1, expr co
                                               Fun(h1, b.mk_symm(R1, h1)),
                                               Fun(h2, b.mk_symm(R1, h2)));
                 if (R != get_iff_name()) {
+                    /* Convert
+                          (lhs1 ~R1~ rhs1) <-> (rhs1 ~R1~ lhs1)
+                       into
+                          (lhs1 ~R1~ rhs1) ~R~ (rhs1 ~R1~ lhs1)
+                    */
                     e1_eqv_new_e1 = b.mk_app(get_propext_name(), e1_eqv_new_e1);
                     if (R != get_eq_name())
                         e1_eqv_new_e1 = b.lift_from_eq(R, e1_eqv_new_e1);
                 }
                 bool cgr_heq_proofs = g_heq_based && R == get_heq_name();
+                /*  Create transitivity proof
+                         (lhs1 ~R1~ rhs1) ~R~ (rhs1 ~R1~ lhs1) ~R~ (lhs2 ~R1~ rhs2)
+                */
                 expr r = b.mk_trans(R, e1_eqv_new_e1, mk_congr_proof_core(R, new_e1, e2, cgr_heq_proofs));
                 if (g_heq_based) {
                     if (cgr_heq_proofs && !heq_proofs)

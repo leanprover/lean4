@@ -21,6 +21,16 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 
 namespace lean {
+bool is_app_of(expr const & t, name const & f_name) {
+    expr const & fn = get_app_fn(t);
+    return is_constant(fn) && const_name(fn) == f_name;
+}
+
+bool is_app_of(expr const & t, name const & f_name, unsigned nargs) {
+    expr const & fn = get_app_fn(t);
+    return is_constant(fn) && const_name(fn) == f_name && get_app_num_args(t) == nargs;
+}
+
 bool is_standard(environment const & env) {
     return env.prop_proof_irrel() && env.impredicative();
 }

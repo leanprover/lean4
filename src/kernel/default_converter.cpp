@@ -322,12 +322,6 @@ bool default_converter::is_def_eq_args(expr t, expr s, constraint_seq & cs) {
     return !is_app(t) && !is_app(s);
 }
 
-/** \brief Return true iff t is a constant named f_name or an application of the form (f_name a_1 ... a_k) */
-bool default_converter::is_app_of(expr t, name const & f_name) {
-    t = get_app_fn(t);
-    return is_constant(t) && const_name(t) == f_name;
-}
-
 /** \brief Try to solve (fun (x : A), B) =?= s by trying eta-expansion on s */
 bool default_converter::try_eta_expansion_core(expr const & t, expr const & s, constraint_seq & cs) {
     if (is_lambda(t) && !is_lambda(s)) {

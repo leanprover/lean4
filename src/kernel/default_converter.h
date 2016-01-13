@@ -61,7 +61,6 @@ protected:
 
     lbool quick_is_def_eq(expr const & t, expr const & s, constraint_seq & cs, bool use_hash = false);
     bool is_def_eq_args(expr t, expr s, constraint_seq & cs);
-    bool is_app_of(expr t, name const & f_name);
     bool try_eta_expansion_core(expr const & t, expr const & s, constraint_seq & cs);
     bool try_eta_expansion(expr const & t, expr const & s, constraint_seq & cs) {
         return try_eta_expansion_core(t, s, cs) || try_eta_expansion_core(s, t, cs);

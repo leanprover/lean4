@@ -33,6 +33,7 @@ namespace lean {
 namespace blast {
 #define lean_trace_ematch(Code) lean_trace(name({"blast", "ematch"}), Code)
 #define lean_trace_event_ematch(Code) lean_trace(name({"blast", "event", "ematch"}), Code)
+#define lean_trace_debug_ematch(Code) lean_trace(name({"debug", "blast", "ematch"}), Code)
 
 static name * g_blast_ematch_max_instances = nullptr;
 
@@ -235,6 +236,7 @@ void initialize_ematch() {
     g_ematch_simp_ext_id = register_branch_extension(new ematch_simp_branch_extension());
     register_trace_class(name{"blast", "ematch"});
     register_trace_class(name{"blast", "event", "ematch"});
+    register_trace_class(name{"debug", "blast", "ematch"});
 
     g_blast_ematch_max_instances = new name{"blast", "ematch", "max_instances"};
 
@@ -346,6 +348,8 @@ struct ematch_fn {
     }
 
     bool process_match(name const & R, expr const & p, expr const & t) {
+        lean_trace_debug_ematch(tout() << "try process_match: "
+                                << ppb(p) << " <=?=> " << ppb(t) << "\n";);
         if (!is_app(p))
             return is_eqv(R, p, t);
         buffer<expr> p_args;
@@ -450,6 +454,8 @@ struct ematch_fn {
         // diagnostic(env(), ios()) << ">> " << R << ", " << ppb(p) << " =?= " << ppb(t) << "\n";
         switch (kind) {
         case DefEqOnly:
+            lean_trace_debug_ematch(tout() << "must be def-eq: "
+                                    << ppb(p) << " <=?=> " << ppb(t) << "...";);
             return m_ctx->is_def_eq(p, t);
         case Match:
             return process_match(R, p, t);

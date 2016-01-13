@@ -810,6 +810,48 @@ static bool is_logical_app(expr const & n) {
          (const_name(fn) == get_ite_name() && is_prop(n)));
 }
 
+/* This method is invoked during internalization and eagerly apply basic equivalences for term \c e
+   Examples:
+   - If e := cast H e', then it merges the equivalence classes of (cast H e') and e'
+
+   In principle, we could mark theorems such as cast_eq as simplification rules, but this creates
+   problems with the builtin support for cast-introduction in the ematching module.
+
+   Eagerly merging the equivalence classes is also more efficient. */
+void congruence_closure::apply_simple_eqvs(expr const & e) {
+    if (g_heq_based) {
+        /* equivalences when == support is enabled */
+        if (is_app_of(e, get_cast_name(), 4)) {
+            /* cast H a == a
+
+               theorem cast_heq : ∀ {A B : Type.{l_1}} (H : A = B) (a : A), @cast.{l_1} A B H a == a
+            */
+            buffer<expr> args;
+            expr const & cast = get_app_args(e, args);
+            expr const & a    = args[3];
+            expr proof     = mk_app(mk_constant(get_cast_heq_name(), const_levels(cast)), args);
+            bool heq_proof = true;
+            push_todo(get_eq_name(), e, a, proof, heq_proof);
+        }
+
+        if (is_app_of(e, get_eq_rec_name(), 6)) {
+            /* eq.rec p H == p
+
+               theorem eq_rec_heq : ∀ {A : Type.{l_1}} {P : A → Type.{l_2}} {a a' : A} (H : a = a') (p : P a), @eq.rec.{l_2 l_1} A a P p a' H == p
+            */
+            buffer<expr> args;
+            expr const & eq_rec = get_app_args(e, args);
+            expr A = args[0]; expr a = args[1]; expr P = args[2]; expr p = args[3];
+            expr a_prime = args[4]; expr H = args[5];
+            level l_2  = head(const_levels(eq_rec));
+            level l_1  = head(tail(const_levels(eq_rec)));
+            expr proof = mk_app({mk_constant(get_eq_rec_heq_name(), {l_1, l_2}), A, P, a, a_prime, H, p});
+            bool heq_proof = true;
+            push_todo(get_eq_name(), e, p, proof, heq_proof);
+        }
+    }
+}
+
 void congruence_closure::internalize_core(name R, expr const & e, bool toplevel, bool to_propagate) {
     lean_assert(closed(e));
     if (g_heq_based && R == get_heq_name())
@@ -878,6 +920,7 @@ void congruence_closure::internalize_core(name R, expr const & e, bool toplevel,
             }
             add_congruence_table(*lemma, e);
         }
+        apply_simple_eqvs(e);
         break;
     }}
 }

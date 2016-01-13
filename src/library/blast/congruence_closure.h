@@ -122,6 +122,7 @@ class congruence_closure {
     unsigned    m_gmt{0};
     void update_non_eq_relations(name const & R);
 
+    void apply_simple_eqvs(expr const & e);
     void register_to_propagate(expr const & e);
     void internalize_core(name R, expr const & e, bool toplevel, bool to_propagate);
     void process_todo(optional<expr> const & added_prop);

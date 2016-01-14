@@ -76,7 +76,22 @@ class congruence_closure {
         }
     };
 
-    /* Key for the congruence set */
+    /* Key for the equality congruence table.
+
+       \remark We only use the equality congruence table when the support for heterogeneous equality
+       is turned on (see blast.cc.heq option). Otherwise, we store equality congruences in the
+       generic congruence table and rely on automatically generated congruence lemmas for
+       weakly dependent functions. */
+    struct eq_congr_key {
+        expr      m_expr;
+        unsigned  m_hash;
+    };
+
+    struct eq_congr_key_cmp {
+        int operator()(eq_congr_key const & k1, eq_congr_key const & k2) const;
+    };
+
+    /* Key for the congruence table. */
     struct congr_key {
         name     m_R;
         expr     m_expr;
@@ -93,6 +108,9 @@ class congruence_closure {
         congr_key() { m_eq = 0; m_iff = 0; m_symm_rel = 0; }
     };
 
+    int cmp_eq_iff_keys(congr_key const & k1, congr_key const & k2) const;
+    int cmp_symm_rel_keys(congr_key const & k1, congr_key const & k2) const;
+
     struct congr_key_cmp {
         int operator()(congr_key const & k1, congr_key const & k2) const;
     };
@@ -105,10 +123,12 @@ class congruence_closure {
     typedef eqc_key_cmp parent_occ_cmp;
     typedef rb_tree<parent_occ, parent_occ_cmp>              parent_occ_set;
     typedef rb_map<child_key, parent_occ_set, child_key_cmp> parents;
+    typedef rb_tree<eq_congr_key, eq_congr_key_cmp>          eq_congruences;
     typedef rb_tree<congr_key, congr_key_cmp>                congruences;
     typedef rb_map<expr, expr, expr_quick_cmp>               subsingleton_reprs;
     entries            m_entries;
     parents            m_parents;
+    eq_congruences     m_eq_congruences;
     congruences        m_congruences;
     /** The following mapping store a representative for each subsingleton type */
     subsingleton_reprs m_subsingleton_reprs;
@@ -129,6 +149,7 @@ class congruence_closure {
 
     int compare_symm(name const & R, expr lhs1, expr rhs1, expr lhs2, expr rhs2) const;
     int compare_root(name const & R, expr e1, expr e2) const;
+    eq_congr_key mk_eq_congr_key(expr const & e) const;
     unsigned symm_hash(name const & R, expr const & lhs, expr const & rhs) const;
     congr_key mk_congr_key(ext_congr_lemma const & lemma, expr const & e) const;
     void check_iff_true(congr_key const & k);
@@ -140,6 +161,7 @@ class congruence_closure {
     void mk_entry_core(name const & R, expr const & e, bool to_propagate);
     void mk_entry(name const & R, expr const & e, bool to_propagate);
     void add_occurrence(name const & Rp, expr const & parent, name const & Rc, expr const & child);
+    void add_eq_congruence_table(expr const & e);
     void add_congruence_table(ext_congr_lemma const & lemma, expr const & e);
     void invert_trans(name const & R, expr const & e, bool new_flipped, optional<expr> new_target, optional<expr> new_proof);
     void invert_trans(name const & R, expr const & e);
@@ -152,6 +174,7 @@ class congruence_closure {
     void add_eqv_core(name const & R, expr const & lhs, expr const & rhs, expr const & H, optional<expr> const & added_prop, bool heq_proof);
     void propagate_no_confusion_eq(expr const & e1, expr const & e2);
 
+    expr mk_eq_congr_proof(expr const & lhs, expr const & rhs, bool heq_proofs) const;
     expr mk_congr_proof_core(name const & R, expr const & lhs, expr const & rhs, bool heq_proofs) const;
     expr mk_congr_proof(name const & R, expr const & lhs, expr const & rhs, bool heq_proofs) const;
     expr mk_proof(name const & R, expr const & lhs, expr const & rhs, expr const & H, bool heq_proofs) const;

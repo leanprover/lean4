@@ -492,7 +492,7 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     (setq str-list
           (-take (- (length str-list) 2)
                  (-drop 1 str-list)))
-    (string-join str-list "\n")))
+    (s-join "\n" str-list)))
 
 (defun lean-findp-parse-string (str)
   "Parse the output of findp command."

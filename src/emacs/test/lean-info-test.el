@@ -5,6 +5,7 @@
 ;;
 
 (require 'ert)
+(require 's)
 (require 'lean-info)
 
 (ert-deftest lean-test-info-type ()
@@ -291,7 +292,7 @@
                      "H_3 : c"
                      "⊢ and b c"))
                   'show-all)
-                 (string-join '("a : Prop,"
+                 (s-join "\n" '("a : Prop,"
                                 "b : Prop,"
                                 "c : Prop,"
                                 "H_1 : a,"
@@ -305,7 +306,7 @@
                                 "H_1 : a,"
                                 "H_2 : b,"
                                 "H_3 : c"
-                                "⊢ and b c") "\n")))
+                                "⊢ and b c"))))
   (should (equal (lean-info-proofstate-states-str
                   (lean-info-proofstate-parse
                    '("-- PROOF_STATE|6|17"
@@ -325,13 +326,13 @@
                      "H_3 : c"
                      "⊢ and b c"))
                   'show-first)
-                 (string-join '("a : Prop,"
+                 (s-join "\n" '("a : Prop,"
                                 "b : Prop,"
                                 "c : Prop,"
                                 "H_1 : a,"
                                 "H_2 : b,"
                                 "H_3 : c"
-                                "⊢ a") "\n")))
+                                "⊢ a"))))
   (should (equal (lean-info-proofstate-states-str
                   (lean-info-proofstate-parse
                    '("-- PROOF_STATE|6|17"
@@ -351,7 +352,7 @@
                      "H_3 : c"
                      "⊢ and b c"))
                   'show-first-and-other-conclusions)
-                 (string-join '("a : Prop,"
+                 (s-join "\n" '("a : Prop,"
                                 "b : Prop,"
                                 "c : Prop,"
                                 "H_1 : a,"
@@ -359,7 +360,7 @@
                                 "H_3 : c"
                                 "⊢ a"
                                 ""
-                                "⊢ and b c") "\n"))))
+                                "⊢ and b c")))))
 
 (ert-deftest lean-test-info-pos ()
   "Test lean-info-pos"

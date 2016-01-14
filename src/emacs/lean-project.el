@@ -4,6 +4,7 @@
 ;; Author: Soonho Kong
 ;;
 
+(require 's)
 (require 'lean-util)
 
 (defconst lean-project-file-name ".project"
@@ -23,17 +24,17 @@
     (if (file-exists-p project-file)
         (user-error "project-file %s already exists" project-file))
     (find-file project-file)
-    (insert (string-join '("# Lean project file"
-                           ""
-                           "# Include all .lean files under this directory"
-                           "+ *.lean"
-                           ""
-                           "# Exclude flycheck generated temp files"
-                           "- flycheck*.lean"
-                           ""
-                           "# Exclude emacs temp files"
-                           "- .#*.lean")
-                         "\n"))
+    (insert (s-join "\n"
+                    '("# Lean project file"
+                      ""
+                      "# Include all .lean files under this directory"
+                      "+ *.lean"
+                      ""
+                      "# Exclude flycheck generated temp files"
+                      "- flycheck*.lean"
+                      ""
+                      "# Exclude emacs temp files"
+                      "- .#*.lean")))
     (save-buffer)))
 
 (provide 'lean-project)

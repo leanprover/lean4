@@ -7,6 +7,7 @@
 
 (require 'dash)
 (require 'dash-functional)
+(require 's)
 
 (cl-defstruct lean-option-record name type value desc)
 
@@ -24,7 +25,7 @@
     (setq str-list
           (-take (- (length str-list) 2)
                  (-drop 1 str-list)))
-    (string-join str-list "\n")))
+    (s-join "\n" str-list)))
 
 (defun lean-option-string (&optional use-flycheck)
   "Return string of Lean options set by lean-set-option command"

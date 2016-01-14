@@ -7,6 +7,7 @@
 (require 'cl-lib)
 (require 'dash)
 (require 'dash-functional)
+(require 's)
 (require 'lean-util)
 (require 'lean-debug)
 
@@ -33,7 +34,7 @@
 (defun lean-info-type-body (typeinfo)
   (cl-third typeinfo))
 (defun lean-info-type-body-str (typeinfo)
-  (string-join (lean-info-type-body typeinfo) "\n"))
+  (s-join "\n" (lean-info-type-body typeinfo)))
 
 ;; Overload Information
 ;; --------------------
@@ -48,7 +49,7 @@
   (cl-second overload))
 (defun lean-info-overload-names (overload)
   (cl-loop for seq in (cl-third overload)
-           collect (string-join seq "\n")))
+           collect (s-join "\n" seq)))
 (defun lean-info-overload-parse-header (str)
   (let ((items (split-string str "|")))
     (list (string-to-number (cl-second items))
@@ -82,7 +83,7 @@
 (defun lean-info-synth-body (synth)
   (cl-third synth))
 (defun lean-info-synth-body-str (synth)
-  (string-join (lean-info-synth-body synth) "\n"))
+  (s-join "\n" (lean-info-synth-body synth)))
 
 ;; Coercion Information
 ;; ----------------
@@ -109,11 +110,11 @@
 (defun lean-info-coercion-expr (coercion)
   (cl-third coercion))
 (defun lean-info-coercion-expr-str (coercion)
-  (string-join (lean-info-coercion-expr coercion) "\n"))
+  (s-join "\n" (lean-info-coercion-expr coercion)))
 (defun lean-info-coercion-type (coercion)
   (cl-fourth coercion))
 (defun lean-info-coercion-type-str (coercion)
-  (string-join (lean-info-coercion-type coercion) "\n"))
+  (s-join "\n" (lean-info-coercion-type coercion)))
 
 ;; Extra Information
 ;; ----------------
@@ -140,11 +141,11 @@
 (defun lean-info-extra-expr (extra)
   (cl-third extra))
 (defun lean-info-extra-expr-str (extra)
-  (string-join (lean-info-extra-expr extra) "\n"))
+  (s-join "\n" (lean-info-extra-expr extra)))
 (defun lean-info-extra-type (extra)
   (cl-fourth extra))
 (defun lean-info-extra-type-str (extra)
-  (string-join (lean-info-extra-type extra) "\n"))
+  (s-join "\n" (lean-info-extra-type extra)))
 
 ;; Identifier Information
 ;; ----------------------
@@ -169,7 +170,7 @@
 (defun lean-info-identifier-body (identifier)
   (cl-third identifier))
 (defun lean-info-identifier-body-str (identifier)
-  (string-join (lean-info-identifier-body identifier) "\n"))
+  (s-join "\n" (lean-info-identifier-body identifier)))
 
 
 ;; Symbol Information
@@ -195,12 +196,12 @@
 (defun lean-info-symbol-body (symbol)
   (cl-third symbol))
 (defun lean-info-symbol-body-str (symbol)
-  (string-join (lean-info-symbol-body symbol) "\n"))
+  (s-join "\n" (lean-info-symbol-body symbol)))
 
 (defun lean-info-id-symbol-body-str (info)
   (cl-case (lean-info-kind info)
-    ('IDENTIFIER (string-join (lean-info-symbol-body info) "\n"))
-    ('SYMBOL     (string-join (lean-info-identifier-body info) "\n"))))
+    ('IDENTIFIER (s-join "\n" (lean-info-symbol-body info)))
+    ('SYMBOL     (s-join "\n" (lean-info-identifier-body info)))))
 
 
 ;; Proofstate Information
@@ -227,7 +228,7 @@
 (defun lean-info-proofstate-states (proofstate)
   (cl-third proofstate))
 (defun lean-info-proofstate-state-str (string-seq)
-  (string-join string-seq "\n"))
+  (s-join "\n" string-seq))
 (defun lean-info-proofstate-extract-conclusion (string-seq)
   (--drop-while (not (s-starts-with? "⊢" it)) string-seq))
 (defun lean-info-proofstate-extract-premises (string-seq)
@@ -241,18 +242,18 @@
      (first-state
       (pcase display-style
         (`show-all
-         (string-join
-          (-map 'lean-info-proofstate-state-str states)
-          "\n\n"))
+         (s-join
+          "\n\n"
+          (-map 'lean-info-proofstate-state-str states)))
         (`show-first
          (lean-info-proofstate-state-str first-state))
         (`show-first-and-other-conclusions
-         (string-join
+         (s-join
+          "\n\n"
           (-map 'lean-info-proofstate-state-str
                 (cons first-state (-map
                                    'lean-info-proofstate-extract-conclusion
-                                   rest-states)))
-          "\n\n"))))
+                                   rest-states)))))))
      (t "No Goal"))))
 
 ;; Basic
@@ -470,13 +471,13 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
       (setq type-str (lean-info-type-body-str type)))
     (when (and name-str overload)
       (setq overload-str
-            (string-join
-             (--remove
-              (or
-               (and id  (string-prefix-p (lean-info-id-symbol-body-str id) it))
-               (and sym (string-prefix-p (lean-info-id-symbol-body-str sym) it)))
-              (lean-info-overload-names overload))
-             ", ")))
+            (s-join
+	     ", "
+	     (--remove
+	      (or
+	       (and id	(string-prefix-p (lean-info-id-symbol-body-str id) it))
+	       (and sym (string-prefix-p (lean-info-id-symbol-body-str sym) it)))
+	      (lean-info-overload-names overload)))))
     (when extra
       (setq str
             (cond (lean-show-only-type-in-parens (format ": %s" (lean-info-extra-type-str extra)))

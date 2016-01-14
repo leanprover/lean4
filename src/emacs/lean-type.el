@@ -8,6 +8,7 @@
 (require 'cl-lib)
 (require 'dash)
 (require 'dash-functional)
+(require 's)
 (require 'lean-variable)
 (require 'lean-util)
 (require 'lean-cmd)
@@ -65,7 +66,7 @@ buffer. It's used to avoid outputting the same message")
 (defun lean-eldoc-documentation-function-cont (info-record &optional add-to-kill-ring)
   "Continuation for lean-eldoc-documentation-function"
   (let* ((info-strings (lean-info-record-to-strings info-record))
-         (info-string-mini-buffer (and info-strings (string-join info-strings " ")))
+         (info-string-mini-buffer (and info-strings (s-join " " info-strings)))
          (info-string-info-buffer (and info-strings (-last-item info-strings)))
          (proofstate (lean-info-record-proofstate info-record)))
     (when info-strings
@@ -112,7 +113,7 @@ buffer. It's used to avoid outputting the same message")
     (setq str-list
           (-take (- (length str-list) 2)
                  (-drop 1 str-list)))
-    (string-join str-list "\n")))
+    (s-join "\n" str-list)))
 
 (defun lean-eval-cmd (lean-cmd)
   "Evaluate lean command."

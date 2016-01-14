@@ -1,4 +1,5 @@
 open subtype
+set_option blast.strategy "cc"
 
 example (f g : Π {A : Type₁}, A → A → A) (h : nat → nat) (a b : nat) :
         h = f a → h b = f a b :=

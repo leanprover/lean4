@@ -350,8 +350,16 @@ struct ematch_fn {
     bool process_match(name const & R, expr const & p, expr const & t) {
         lean_trace_debug_ematch(tout() << "try process_match: "
                                 << ppb(p) << " <=?=> " << ppb(t) << "\n";);
-        if (!is_app(p))
-            return is_eqv(R, p, t);
+        if (!is_app(p)) {
+            bool success = is_eqv(R, p, t);
+            lean_trace_debug_ematch(
+                expr new_p = m_ctx->instantiate_uvars_mvars(p);
+                expr new_p_type = m_ctx->instantiate_uvars_mvars(m_ctx->infer(p));
+                expr t_type = m_ctx->infer(t);
+                tout() << "is_eqv " << ppb(new_p) << " : " << ppb(new_p_type)
+                << " <- " << ppb(t) << " : " << ppb(t_type) << " ... " << (success ? "succeeded" : "failed") << "\n";);
+            return success;
+        }
         buffer<expr> p_args;
         expr const & fn = get_app_args(p, p_args);
         if (m_ctx->is_mvar(fn))
@@ -361,26 +369,34 @@ struct ematch_fn {
         expr it = t;
         do {
             expr const & it_fn = get_app_fn(it);
+            bool ok = false;
             if (m_cc.is_congr_root(R, it) && m_ctx->is_def_eq(it_fn, fn) &&
                 get_app_num_args(it) == p_args.size()) {
                 t_fn = it_fn;
+                ok = true;
                 candidates.push_back(it);
             }
+            lean_trace_debug_ematch(tout() << "candidate: " << ppb(it) << "..." << (ok ? "ok" : "skip") << "\n";);
             it = m_cc.get_next(R, it);
         } while (it != t);
-        if (candidates.empty())
+        if (candidates.empty()) {
+            lean_trace_debug_ematch(tout() << "(no candidates)\n";);
             return false;
+        }
         buffer<state> new_states;
         for (expr const & c : candidates) {
             state new_state = m_state;
             if (match_args(new_state, R, p_args, c)) {
+                lean_trace_debug_ematch(tout() << "match: " << ppb(c) << "\n";);
                 new_states.push_back(new_state);
             }
         }
         if (new_states.size() == 1) {
+            lean_trace_debug_ematch(tout() << "(only one match)\n";);
             m_state = new_states[0];
             return true;
         } else {
+            lean_trace_debug_ematch(tout() << "# matches: " << new_states.size() << "\n";);
             m_state = new_states.back();
             new_states.pop_back();
             choice c = to_list(new_states);
@@ -391,6 +407,7 @@ struct ematch_fn {
     }
 
     bool process_continue(name const & R, expr const & p) {
+        lean_trace_debug_ematch(tout() << "process_continue: " << ppb(p) << "\n";);
         buffer<expr> p_args;
         expr const & f = get_app_args(p, p_args);
         buffer<state> new_states;
@@ -468,6 +485,7 @@ struct ematch_fn {
     }
 
     bool backtrack() {
+        lean_trace_debug_ematch(tout() << "backtrack\n";);
         if (m_choice_stack.empty())
             return false;
         m_ctx->pop();
@@ -484,13 +502,19 @@ struct ematch_fn {
         list<bool> const * it = &lemma.m_is_inst_implicit;
         for (expr const & mvar : lemma.m_mvars) {
             if (!m_ctx->get_assignment(mvar)) {
-                if (!head(*it))
+                if (!head(*it)) {
+                    lean_trace_debug_ematch(tout() << "unassigned argument not inst-implicit: " << ppb(m_ctx->infer(mvar)) << "\n";);
                     return; // fail, argument is not instance implicit
+                }
                 auto new_val = m_ctx->mk_class_instance(m_ctx->infer(mvar));
-                if (!new_val)
+                if (!new_val) {
+                    lean_trace_debug_ematch(tout() << "cannot synthesize unassigned inst-implicit argument: " << ppb(m_ctx->infer(mvar)) << "\n";);
                     return; // fail, instance could not be generated
-                if (!m_ctx->assign(mvar, *new_val))
+                }
+                if (!m_ctx->assign(mvar, *new_val)) {
+                    lean_trace_debug_ematch(tout() << "unable to assign inst-implicit argument: " << ppb(*new_val) << " : " << ppb(m_ctx->infer(mvar)) << "\n";);
                     return; // fail, type error
+                }
             }
             it = &tail(*it);
         }

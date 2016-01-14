@@ -300,6 +300,9 @@ action_result recursor_action(hypothesis_idx hidx, name const & R) {
         return action_result::failed(); // ill-formed recursor
 
     save_state.commit();
+#if defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
     optional<unsigned> split_idx;
     if (new_goals.size() > 1) {
         split_idx = mk_split_idx();

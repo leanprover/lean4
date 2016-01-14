@@ -455,7 +455,7 @@ struct ematch_fn {
         switch (kind) {
         case DefEqOnly:
             lean_trace_debug_ematch(tout() << "must be def-eq: "
-                                    << ppb(p) << " <=?=> " << ppb(t) << "...";);
+                                    << ppb(p) << " <=?=> " << ppb(t) << "\n";);
             return m_ctx->is_def_eq(p, t);
         case Match:
             return process_match(R, p, t);
@@ -532,6 +532,7 @@ struct ematch_fn {
         if (auto s = m_inst_ext.get_apps().find(head_index(f))) {
             s->for_each([&](expr const & t) {
                     if (m_cc.is_congr_root(R, t) && (!filter || m_cc.get_mt(R, t) == gmt)) {
+                        lean_trace_debug_ematch(tout() << "ematch " << ppb(get_app_fn(lemma.m_proof)) << " [using] " << ppb(t) << "\n";);
                         m_ctx->clear();
                         m_ctx->set_next_uvar_idx(lemma.m_num_uvars);
                         m_ctx->set_next_mvar_idx(lemma.m_num_mvars);

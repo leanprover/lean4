@@ -112,6 +112,7 @@ ext_congr_lemma::ext_congr_lemma(name const & R, congr_lemma const & H, list<opt
 typedef std::unordered_map<congr_lemma_key, optional<ext_congr_lemma>, congr_lemma_key_hash_fn, congr_lemma_key_eq_fn> congr_cache;
 typedef std::tuple<name, expr, expr, expr, bool> cc_todo_entry;
 
+static expr * g_eq_congr_mark = nullptr; // dummy eq congruence proof, it is just a placeholder.
 static expr * g_congr_mark    = nullptr; // dummy congruence proof, it is just a placeholder.
 static expr * g_iff_true_mark = nullptr; // dummy iff_true proof, it is just a placeholder.
 static expr * g_lift_mark     = nullptr; // dummy lift eq proof, it is just a placeholder.
@@ -579,12 +580,12 @@ void congruence_closure::update_non_eq_relations(name const & R) {
         m_non_eq_relations = cons(R, m_non_eq_relations);
 }
 
-void congruence_closure::add_occurrence(name const & Rp, expr const & parent, name const & Rc, expr const & child) {
+void congruence_closure::add_occurrence(name const & Rp, expr const & parent, name const & Rc, expr const & child, bool eq_table) {
     child_key k(Rc, child);
     parent_occ_set ps;
     if (auto old_ps = m_parents.find(k))
         ps = *old_ps;
-    ps.insert(parent_occ(Rp, parent));
+    ps.insert(parent_occ(Rp, parent, eq_table));
     m_parents.insert(k, ps);
 }
 
@@ -841,7 +842,7 @@ void congruence_closure::add_eq_congruence_table(expr const & e) {
         /* 2. Put new equivalence in the TODO queue */
         /* TODO(Leo): check if the following line is a bottleneck */
         bool heq_proof = !is_def_eq(infer_type(e), infer_type(old_k->m_expr));
-        push_todo(get_eq_name(), e, old_k->m_expr, *g_congr_mark, heq_proof);
+        push_todo(get_eq_name(), e, old_k->m_expr, *g_eq_congr_mark, heq_proof);
     } else {
         m_eq_congruences.insert(k);
     }
@@ -969,41 +970,41 @@ void congruence_closure::internalize_core(name R, expr const & e, bool toplevel,
     case expr_kind::App: {
         bool is_lapp = is_logical_app(e);
         mk_entry_core(R, e, to_propagate && !is_lapp);
-        if (R == get_eq_name() && g_heq_based) {
-            bool toplevel     = false;
-            bool to_propagate = false;
-            internalize_core(R, app_fn(e), toplevel, to_propagate);
-            internalize_core(R, app_arg(e), toplevel, to_propagate);
-            add_occurrence(R, e, R, app_fn(e));
-            add_occurrence(R, e, R, app_arg(e));
-            add_eq_congruence_table(e);
-        } else {
-            /* Handle user-defined congruence lemmas, congruence lemmas for other relations,
-               and automatically generated lemmas for weakly-dependent-functions and relations. */
-            buffer<expr> args;
-            expr const & fn = get_app_args(e, args);
-            if (toplevel) {
-                if (is_lapp) {
-                    to_propagate = true; // we must propagate the children of a top-level logical app (or, and, iff, ite)
-                } else {
-                    toplevel = false;    // children of a non-logical application will not be marked as toplevel
-                }
+        if (toplevel) {
+            if (is_lapp) {
+                to_propagate = true; // we must propagate the children of a top-level logical app (or, and, iff, ite)
             } else {
-                to_propagate = false;
+                toplevel = false;    // children of a non-logical application will not be marked as toplevel
             }
-            if (auto lemma = mk_ext_congr_lemma(R, e)) {
+        } else {
+            to_propagate = false;
+        }
+        if (auto lemma = mk_ext_congr_lemma(R, e)) {
+            if (g_heq_based && lemma->m_hcongr_lemma && R == get_eq_name()) {
+                internalize_core(R, app_fn(e), toplevel, to_propagate);
+                internalize_core(R, app_arg(e), toplevel, to_propagate);
+                bool eq_table = true;
+                add_occurrence(R, e, R, app_fn(e), eq_table);
+                add_occurrence(R, e, R, app_arg(e), eq_table);
+                add_eq_congruence_table(e);
+            } else {
+                /* Handle user-defined congruence lemmas, congruence lemmas for other relations,
+                   and automatically generated lemmas for weakly-dependent-functions and relations. */
+                bool eq_table = false;
+                buffer<expr> args;
+                expr const & fn = get_app_args(e, args);
                 list<optional<name>> const * it = &(lemma->m_rel_names);
                 for (expr const & arg : args) {
                     lean_assert(*it);
                     if (auto R1 = head(*it)) {
                         internalize_core(*R1, arg, toplevel, to_propagate);
-                        add_occurrence(R, e, *R1, arg);
+                        add_occurrence(R, e, *R1, arg, eq_table);
                     }
                     it = &tail(*it);
                 }
                 if (!lemma->m_fixed_fun) {
                     internalize_core(get_eq_name(), fn, false, false);
-                    add_occurrence(get_eq_name(), e, get_eq_name(), fn);
+                    add_occurrence(get_eq_name(), e, get_eq_name(), fn, eq_table);
                 }
                 add_congruence_table(*lemma, e);
             }
@@ -1060,7 +1061,7 @@ void congruence_closure::remove_parents(name const & R, expr const & e) {
     auto ps = m_parents.find(child_key(R, e));
     if (!ps) return;
     ps->for_each([&](parent_occ const & p) {
-            if (g_heq_based && R == get_eq_name() && p.m_R == get_eq_name()) {
+            if (p.m_eq_table) {
                 eq_congr_key k = mk_eq_congr_key(p.m_expr);
                 m_eq_congruences.erase(k);
             } else {
@@ -1076,7 +1077,7 @@ void congruence_closure::reinsert_parents(name const & R, expr const & e) {
     auto ps = m_parents.find(child_key(R, e));
     if (!ps) return;
     ps->for_each([&](parent_occ const & p) {
-            if (g_heq_based && R == get_eq_name() && p.m_R == get_eq_name()) {
+            if (p.m_eq_table) {
                 add_eq_congruence_table(p.m_expr);
             } else {
                 auto lemma = mk_ext_congr_lemma(p.m_R, p.m_expr);
@@ -1461,10 +1462,6 @@ expr congruence_closure::mk_eq_congr_proof(expr const & lhs, expr const & rhs, b
 }
 
 expr congruence_closure::mk_congr_proof_core(name const & R, expr const & lhs, expr const & rhs, bool heq_proofs) const {
-    if (g_heq_based && (R == get_eq_name() || R == get_heq_name())) {
-        /* Use general eq congruence lemmas when heterogeneous equality is enabled. */
-        return mk_eq_congr_proof(lhs, rhs, heq_proofs);
-    }
     app_builder & b = get_app_builder();
     buffer<expr> lhs_args, rhs_args;
     expr const & lhs_fn = get_app_args(lhs, lhs_args);
@@ -1616,7 +1613,9 @@ expr congruence_closure::mk_congr_proof(name const & R, expr const & e1, expr co
 }
 
 expr congruence_closure::mk_proof(name const & R, expr const & lhs, expr const & rhs, expr const & H, bool heq_proofs) const {
-    if (H == *g_congr_mark) {
+    if (H == *g_eq_congr_mark) {
+        return mk_eq_congr_proof(lhs, rhs, heq_proofs);
+    } else if (H == *g_congr_mark) {
         return mk_congr_proof(R, lhs, rhs, heq_proofs);
     } else if (H == *g_iff_true_mark) {
         bool flip;
@@ -1641,7 +1640,7 @@ expr congruence_closure::mk_proof(name const & R, expr const & lhs, expr const &
 }
 
 static expr flip_proof(name const & R, expr const & H, bool flipped, bool heq_proofs) {
-    if (H == *g_congr_mark || H == *g_iff_true_mark || H == *g_lift_mark) {
+    if (H == *g_eq_congr_mark || H == *g_congr_mark || H == *g_iff_true_mark || H == *g_lift_mark) {
         return H;
     } else {
         auto & b = get_app_builder();
@@ -1982,6 +1981,7 @@ void initialize_congruence_closure() {
     register_trace_class({"cc", "merge"});
     g_ext_id = register_branch_extension(new cc_branch_extension());
     name prefix = name::mk_internal_unique_name();
+    g_eq_congr_mark = new expr(mk_constant(name(prefix, "[eq-congruence]")));
     g_congr_mark    = new expr(mk_constant(name(prefix, "[congruence]")));
     g_iff_true_mark = new expr(mk_constant(name(prefix, "[iff-true]")));
     g_lift_mark     = new expr(mk_constant(name(prefix, "[lift]")));
@@ -2001,6 +2001,7 @@ void initialize_congruence_closure() {
 void finalize_congruence_closure() {
     delete g_blast_cc_heq;
     delete g_blast_cc_subsingleton;
+    delete g_eq_congr_mark;
     delete g_congr_mark;
     delete g_iff_true_mark;
     delete g_lift_mark;

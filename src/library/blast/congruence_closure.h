@@ -76,6 +76,12 @@ class congruence_closure {
         }
     };
 
+    struct parent_occ : public eqc_key {
+        bool m_eq_table; // If true, then we should use the m_eq_congruences, otherwise m_congruences
+        parent_occ() {}
+        parent_occ(name const & n, expr const & e, bool eq_table):eqc_key(n, e), m_eq_table(eq_table) {}
+    };
+
     /* Key for the equality congruence table.
 
        \remark We only use the equality congruence table when the support for heterogeneous equality
@@ -119,7 +125,6 @@ class congruence_closure {
     typedef rb_map<eqc_key, entry, eqc_key_cmp>              entries;
     typedef eqc_key     child_key;
     typedef eqc_key_cmp child_key_cmp;
-    typedef eqc_key     parent_occ;
     typedef eqc_key_cmp parent_occ_cmp;
     typedef rb_tree<parent_occ, parent_occ_cmp>              parent_occ_set;
     typedef rb_map<child_key, parent_occ_set, child_key_cmp> parents;
@@ -160,7 +165,7 @@ class congruence_closure {
     void mk_entry_core(name const & R, expr const & e, bool to_propagate, bool interpreted, bool constructor);
     void mk_entry_core(name const & R, expr const & e, bool to_propagate);
     void mk_entry(name const & R, expr const & e, bool to_propagate);
-    void add_occurrence(name const & Rp, expr const & parent, name const & Rc, expr const & child);
+    void add_occurrence(name const & Rp, expr const & parent, name const & Rc, expr const & child, bool eq_table);
     void add_eq_congruence_table(expr const & e);
     void add_congruence_table(ext_congr_lemma const & lemma, expr const & e);
     void invert_trans(name const & R, expr const & e, bool new_flipped, optional<expr> new_target, optional<expr> new_proof);

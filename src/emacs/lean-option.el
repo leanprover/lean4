@@ -76,7 +76,7 @@
 
 (defun lean-option-read-int (prompt)
   (let* ((str (read-string prompt))
-         (val (string-to-int str))
+         (val (string-to-number str))
          tmp-str)
     (setq tmp-str (int-to-string val))
     (if (and (integerp val)
@@ -87,7 +87,7 @@
 
 (defun lean-option-read-uint (prompt)
   (let* ((str (read-string prompt))
-         (val (string-to-int str))
+         (val (string-to-number str))
          tmp-str)
     (setq tmp-str (int-to-string val))
     (if (and (integerp val)

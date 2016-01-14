@@ -493,7 +493,6 @@ static name * g_default_name = nullptr;
 static name const & get_default_var_name() {
     return *g_default_name;
 }
-static name const & g_default_var_name = get_default_var_name(); // force it to be initialized
 
 bool is_default_var_name(name const & n) { return n == get_default_var_name(); }
 expr mk_arrow(expr const & t, expr const & e, tag g) {

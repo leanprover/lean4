@@ -32,12 +32,12 @@ definition append {n m : nat} (v : vector A n) (w : vector A m) : vector A (n + 
 ⟨append_aux v w⟩
 
 section
-local attribute append [reducible]
+
 theorem append_nil_left [simp] {n : nat} (v : vector A n) : append [] v == v :=
-by inst_simp
+by unfold append ; inst_simp
 
 theorem append_cons [simp] {n m : nat} (h : A) (t : vector A n) (v : vector A m) : (: append (h::t) v :) == (: h::(append t v) :) :=
-by inst_simp
+by unfold append ; inst_simp
 end
 
 theorem append_nil_right [simp] {n : nat} (v : vector A n) : append v [] == v :=
@@ -73,5 +73,24 @@ by rec_inst_simp
 
 theorem reverse_reverse [simp] : ∀ {n : nat} (xs : vector A n), reverse (reverse xs) = xs :=
 by rec_inst_simp
+
+theorem append_reverse_cons [simp] {n : nat} (v : vector A n) : ∀ (m : ℕ) (w : vector A m) (a : A),
+  append v (reverse (cons a w)) == concat (append v (reverse w)) a :=
+by induction v; inst_simp; inst_simp
+
+theorem reverse_append [simp] : ∀ {n m : nat} (v : vector A n) (w : vector A m),
+  reverse (append v w) == append (reverse w) (reverse v) :=
+by rec_inst_simp
+
+definition vplus : Π {n : ℕ} (v₁ v₂ : vector ℕ n), vector ℕ n
+| nat.zero [] [] := []
+| (nat.succ m) (x::xs) (y::ys) := (x + y) :: vplus xs ys
+
+lemma vplus.def1 [simp] : vplus [] [] = @nil ℕ := rfl
+lemma vplus.def2 [simp] {n : ℕ} (v₁ v₂ : vector ℕ n) (a₁ a₂ : ℕ) : (: vplus (a₁ :: v₁) (a₂ :: v₂) :) = (a₁ + a₂) :: vplus v₁ v₂ := rfl
+
+lemma vplus_weird {n₁ n₂ : ℕ} (v₁ : vector ℕ n₁) (v₂ : vector ℕ n₂) (a b : ℕ) :
+  vplus (a :: append v₁ v₂) ⟨b :: append v₂ v₁⟩ == (a + b) :: vplus (append v₁ v₂) ⟨append v₂ v₁⟩ :=
+sorry -- TODO need to traverse equivalence class when matching against a meta-variable
 
 end vector

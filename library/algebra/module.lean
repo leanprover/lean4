@@ -18,7 +18,7 @@ structure left_module [class] (R M : Type) [ringR : ring R]
   extends has_scalar R M, add_comm_group M :=
 (smul_left_distrib : ∀ (r : R) (x y : M), smul r (add x y) = (add (smul r x) (smul r y)))
 (smul_right_distrib : ∀ (r s : R) (x : M), smul (ring.add r s) x = (add (smul r x) (smul s x)))
-(smul_mul : ∀ r s x, smul (mul r s) x = smul r (smul s x))
+(mul_smul : ∀ r s x, smul (mul r s) x = smul r (smul s x))
 (one_smul : ∀ x, smul one x = x)
 
 section left_module
@@ -32,11 +32,11 @@ section left_module
   proposition smul_left_distrib (a : R) (u v : M) : a • (u + v) = a • u + a • v :=
   !left_module.smul_left_distrib
 
-  proposition smul_right_distrib (a b : R) (u : M) : (a + b)•u = a•u + b•u :=
+  proposition smul_right_distrib (a b : R) (u : M) : (a + b) • u = a • u + b • u :=
   !left_module.smul_right_distrib
 
-  proposition smul_mul (a : R) (b : R) (u : M) : (a * b) • u = a • (b • u) :=
-  !left_module.smul_mul
+  proposition mul_smul (a : R) (b : R) (u : M) : (a * b) • u = a • (b • u) :=
+  !left_module.mul_smul
 
   proposition one_smul (u : M) : (1 : R) • u = u := !left_module.one_smul
 
@@ -53,6 +53,15 @@ section left_module
 
   proposition neg_one_smul (u : M) : -(1 : R) • u = -u :=
   by rewrite [neg_smul, one_smul]
+
+  proposition smul_neg (a : R) (u : M) : a • (-u) = -(a • u) :=
+  by rewrite [-neg_one_smul, -mul_smul, mul_neg_one_eq_neg, neg_smul]
+
+  proposition smul_sub_left_distrib (a : R) (u v : M) : a • (u - v) = a • u - a • v :=
+  by rewrite [sub_eq_add_neg, smul_left_distrib, smul_neg]
+
+  proposition sub_smul_right_distrib (a b : R) (v : M) : (a - b) • v = a • v - b • v :=
+  by rewrite [sub_eq_add_neg, smul_right_distrib, neg_smul]
 end left_module
 
 /- linear maps -/

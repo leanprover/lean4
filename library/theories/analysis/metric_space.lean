@@ -6,23 +6,34 @@ Author: Jeremy Avigad
 Metric spaces.
 -/
 import data.real.division
-open real eq.ops classical
+open nat real eq.ops classical
 
 structure metric_space [class] (M : Type) : Type :=
   (dist : M → M → ℝ)
   (dist_self : ∀ x : M, dist x x = 0)
   (eq_of_dist_eq_zero : ∀ {x y : M}, dist x y = 0 → x = y)
   (dist_comm : ∀ x y : M, dist x y = dist y x)
-  (dist_triangle : ∀ x y z : M, dist x y + dist y z ≥ dist x z)
+  (dist_triangle : ∀ x y z : M, dist x z ≤ dist x y + dist y z)
 
-namespace metric_space
+namespace analysis
 
 section metric_space_M
-variables {M : Type} [strucM : metric_space M]
-include strucM
+variables {M : Type} [metric_space M]
+
+definition dist (x y : M) : ℝ := metric_space.dist x y
+
+proposition dist_self (x : M) : dist x x = 0 := metric_space.dist_self x
+
+proposition eq_of_dist_eq_zero {x y : M} (H : dist x y = 0) : x = y :=
+metric_space.eq_of_dist_eq_zero H
+
+proposition dist_comm (x y : M) : dist x y = dist y x := metric_space.dist_comm x y
 
 proposition dist_eq_zero_iff (x y : M) : dist x y = 0 ↔ x = y :=
 iff.intro eq_of_dist_eq_zero (suppose x = y, this ▸ !dist_self)
+
+proposition dist_triangle (x y z : M) : dist x z ≤ dist x y + dist y z :=
+metric_space.dist_triangle x y z
 
 proposition dist_nonneg (x y : M) : 0 ≤ dist x y :=
 have dist x y + dist y x ≥ 0, by rewrite -(dist_self x); apply dist_triangle,
@@ -35,8 +46,6 @@ lt_of_le_of_ne !dist_nonneg (suppose 0 = dist x y, H (iff.mp !dist_eq_zero_iff t
 
 proposition eq_of_forall_dist_le {x y : M} (H : ∀ ε, ε > 0 → dist x y ≤ ε) : x = y :=
 eq_of_dist_eq_zero (eq_zero_of_nonneg_of_forall_le !dist_nonneg H)
-
-open nat
 
 /- convergence of a sequence -/
 
@@ -133,7 +142,7 @@ by+ rewrite aux at H; exact converges_to_seq_of_converges_to_seq_offset H
 proposition converges_to_seq_of_converges_to_seq_offset_succ
     {X : ℕ → M} {y : M} (H : (λ n, X (succ n)) ⟶ y in ℕ) :
   X ⟶ y in ℕ :=
-@converges_to_seq_of_converges_to_seq_offset M strucM X y 1 H
+@converges_to_seq_of_converges_to_seq_offset M _ X y 1 H
 
 proposition converges_to_seq_offset_iff (X : ℕ → M) (y : M) (k : ℕ) :
   ((λ n, X (n + k)) ⟶ y in ℕ) ↔ (X ⟶ y in ℕ) :=
@@ -180,7 +189,7 @@ variables {M N : Type} [strucM : metric_space M] [strucN : metric_space N]
 include strucM strucN
 
 definition converges_to_at (f : M → N) (y : N) (x : M) :=
-∀ ⦃ε⦄, ε > 0 → ∃ δ, δ > 0 ∧ ∀ x', x ≠ x' ∧ dist x x' < δ → dist (f x') y < ε
+∀ ⦃ε⦄, ε > 0 → ∃ δ, δ > 0 ∧ ∀ ⦃x'⦄, x' ≠ x ∧ dist x' x < δ → dist (f x') (f x) < ε
 
 notation f `⟶` y `at` x := converges_to_at f y x
 
@@ -194,25 +203,38 @@ proposition converges_to_limit_at (f : M → N) (x : M) [H : converges_at f x] :
   (f ⟶ limit_at f x at x) :=
 some_spec H
 
-definition continuous_at (f : M → N) (x : M) := converges_to_at f (f x) x
+/- continuity at a point -/
 
-definition continuous (f : M → N) := ∀ x, continuous_at f x
+definition continuous_at (f : M → N) (x : M) :=
+∀ ⦃ε⦄, ε > 0 → ∃ δ, δ > 0 ∧ ∀ ⦃x'⦄, dist x' x < δ → dist (f x') (f x) < ε
 
-theorem continuous_at_spec {f : M → N} {x : M} (Hf : continuous_at f x)  :
-        ∀ ⦃ε⦄, ε > 0 → ∃ δ, δ > 0 ∧ ∀ x', dist x x' < δ → dist (f x') (f x) < ε :=
+theorem continuous_at_of_converges_to_at {f : M → N} {x : M} (Hf : f ⟶ f x at x) :
+  continuous_at f x :=
 take ε, suppose ε > 0,
 obtain δ Hδ, from Hf this,
 exists.intro δ (and.intro
   (and.left Hδ)
-  (take x', suppose dist x x' < δ,
-   if Heq : x = x' then
-     by rewrite [Heq, dist_self]; assumption
+  (take x', suppose dist x' x < δ,
+   if Heq : x' = x then
+     by rewrite [-Heq, dist_self]; assumption
    else
-     (suffices dist x x' < δ, from and.right Hδ x' (and.intro Heq this),
+     (suffices dist x' x < δ, from and.right Hδ x' (and.intro Heq this),
       this)))
 
-theorem image_seq_converges_of_converges [instance] (X : ℕ → M) [HX : converges_seq X] {f : M → N}
-                                                    (Hf : continuous f) :
+theorem converges_to_at_of_continuous_at {f : M → N} {x : M} (Hf : continuous_at f x) :
+  f ⟶ f x at x :=
+take ε, suppose ε > 0,
+obtain δ Hδ, from Hf this,
+exists.intro δ (and.intro
+  (and.left Hδ)
+  (take x',
+    assume H : x' ≠ x ∧ dist x' x < δ,
+    show dist (f x') (f x) < ε, from and.right Hδ x' (and.right H)))
+
+definition continuous (f : M → N) : Prop := ∀ x, continuous_at f x
+
+theorem converges_seq_of_comp [instance] (X : ℕ → M) [HX : converges_seq X] {f : M → N}
+                                         (Hf : continuous f) :
         converges_seq (λ n, f (X n)) :=
   begin
     cases HX with xlim Hxlim,
@@ -228,23 +250,33 @@ theorem image_seq_converges_of_converges [instance] (X : ℕ → M) [HX : conver
     rewrite [a, dist_self],
     assumption,
     apply and.right Hδ,
-    split,
-    exact a,
-    rewrite dist_comm,
     apply HB Hn
   end
 
 end metric_space_M_N
 
-end metric_space
+end analysis
 
 /- complete metric spaces -/
 
-open metric_space
-
 structure complete_metric_space [class] (M : Type) extends metricM : metric_space M : Type :=
-(complete : ∀ X, @cauchy M metricM X → @converges_seq M metricM X)
+(complete : ∀ X, @analysis.cauchy M metricM X → @analysis.converges_seq M metricM X)
+
+namespace analysis
 
 proposition complete (M : Type) [cmM : complete_metric_space M] {X : ℕ → M} (H : cauchy X) :
   converges_seq X :=
 complete_metric_space.complete X H
+
+end analysis
+
+/- the reals form a metris space -/
+
+noncomputable definition metric_space_real [instance] : metric_space ℝ :=
+⦃ metric_space,
+  dist               := λ x y, abs (x - y),
+  dist_self          := λ x, abstract by rewrite [sub_self, abs_zero] end,
+  eq_of_dist_eq_zero := λ x y, eq_of_abs_sub_eq_zero,
+  dist_comm          := abs_sub,
+  dist_triangle      := abs_sub_le
+⦄

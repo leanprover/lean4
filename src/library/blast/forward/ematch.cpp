@@ -355,9 +355,9 @@ struct ematch_fn {
         if (R == get_eq_name() && m_cc.eq_class_heterogeneous(t)) {
             lean_trace_debug_ematch(tout() << "match_leaf with heq\n";);
             buffer<state> new_states;
+            expr_set types_seen;
             expr it = t;
             do {
-                expr_set types_seen;
                 expr it_type = m_ctx->infer(it);
                 if (types_seen.find(it_type)) continue;
                 types_seen.insert(it_type);

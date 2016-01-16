@@ -78,7 +78,7 @@ file_lock::file_lock(char const * fname, bool exclusive):
     m_fname += ".lock";
     m_fd = open(m_fname.c_str(), O_CREAT, 0xFFFF);
     if (m_fd == -1) {
-        if (errno == EACCES) {
+        if (errno == EACCES || errno == EROFS) {
             // We don't have permission to create the file, the folder containing fname is probably readonly.
             // fname is probably part of the Lean installation in a system directory.
             // So, we ignore the file_lock in this case.

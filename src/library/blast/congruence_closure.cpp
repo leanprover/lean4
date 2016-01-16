@@ -1881,7 +1881,9 @@ expr congruence_closure::get_next(name const & R, expr const & e) const {
 }
 
 bool congruence_closure::eq_class_heterogeneous(expr const & e) const {
-    return has_heq_proofs(get_root(get_eq_name(), e));
+    expr root = get_root(get_eq_name(), e);
+    if (auto e = m_entries.find(eqc_key(get_eq_name(), root))) return e->m_heq_proofs;
+    else return false;
 }
 
 unsigned congruence_closure::get_mt(name const & R, expr const & e) const {

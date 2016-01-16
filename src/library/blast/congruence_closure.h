@@ -252,6 +252,8 @@ public:
     expr get_root(name const & R, expr const & e) const;
     expr get_next(name const & R, expr const & e) const;
 
+    bool eq_class_heterogeneous(expr const & e) const;
+
     /** \brief Mark the root of each equivalence class as an "abstract value"
         After this method is invoked, proof production is disabled. Moreover,
         merging two different partitions will trigger an inconsistency. */

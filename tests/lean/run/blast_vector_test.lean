@@ -91,6 +91,6 @@ lemma vplus.def2 [simp] {n : ℕ} (v₁ v₂ : vector ℕ n) (a₁ a₂ : ℕ) :
 
 lemma vplus_weird {n₁ n₂ : ℕ} (v₁ : vector ℕ n₁) (v₂ : vector ℕ n₂) (a b : ℕ) :
   vplus (a :: append v₁ v₂) ⟨b :: append v₂ v₁⟩ == (a + b) :: vplus (append v₁ v₂) ⟨append v₂ v₁⟩ :=
-sorry -- TODO need to traverse equivalence class when matching against a meta-variable
+  by inst_simp
 
 end vector

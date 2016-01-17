@@ -999,8 +999,12 @@ void congruence_closure::internalize_core(name R, expr const & e, bool toplevel,
                 internalize_core(R, app_fn(e), toplevel, to_propagate);
                 internalize_core(R, app_arg(e), toplevel, to_propagate);
                 bool eq_table = true;
-                add_occurrence(R, e, R, app_fn(e), eq_table);
-                add_occurrence(R, e, R, app_arg(e), eq_table);
+                expr it = e;
+                while (is_app(it)) {
+                    add_occurrence(R, e, R, app_fn(it), eq_table);
+                    add_occurrence(R, e, R, app_arg(it), eq_table);
+                    it = app_fn(it);
+                }
                 add_eq_congruence_table(e);
             } else {
                 /* Handle user-defined congruence lemmas, congruence lemmas for other relations,
@@ -1419,12 +1423,18 @@ expr congruence_closure::mk_eq_congr_proof(expr const & lhs, expr const & rhs, b
     buffer<expr> lhs_args, rhs_args;
     expr const * lhs_it = &lhs;
     expr const * rhs_it = &rhs;
-    while (is_app(*lhs_it) && is_app(*rhs_it) && *lhs_it != *rhs_it) {
-        lean_assert(is_eqv(get_eq_name(), *lhs_it, *rhs_it));
-        lhs_args.push_back(app_arg(*lhs_it));
-        rhs_args.push_back(app_arg(*rhs_it));
-        lhs_it = &app_fn(*lhs_it);
-        rhs_it = &app_fn(*rhs_it);
+    if (lhs != rhs) {
+        while (true) {
+            lean_assert(is_eqv(get_eq_name(), *lhs_it, *rhs_it));
+            lhs_args.push_back(app_arg(*lhs_it));
+            rhs_args.push_back(app_arg(*rhs_it));
+            lhs_it = &app_fn(*lhs_it);
+            rhs_it = &app_fn(*rhs_it);
+            if (*lhs_it == *rhs_it)
+                break;
+            if (is_def_eq(infer_type(*lhs_it), infer_type(*rhs_it)))
+                break;
+        }
     }
     if (lhs_args.empty()) {
         if (heq_proofs)

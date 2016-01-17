@@ -614,33 +614,48 @@ int congruence_closure::compare_root(name const & R, expr e1, expr e2) const {
     return expr_quick_cmp()(e1, e2);
 }
 
-int congruence_closure::eq_congr_key_cmp::operator()(eq_congr_key const & k1, eq_congr_key const & k2) const {
-    lean_assert(g_heq_based);
-    if (k1.m_hash != k2.m_hash)
-        return unsigned_cmp()(k1.m_hash, k2.m_hash);
-    lean_assert(is_app(k1.m_expr) && is_app(k2.m_expr));
-    expr const & f1 = app_fn(k1.m_expr);
-    expr const & a1 = app_arg(k1.m_expr);
-    expr const & f2 = app_fn(k2.m_expr);
-    expr const & a2 = app_arg(k2.m_expr);
-    int r = g_cc->compare_root(get_eq_name(), a1, a2);
-    if (r != 0) return r;
-    r = g_cc->compare_root(get_eq_name(), f1, f2);
-    if (r != 0) return r;
-    if (is_app(f1) && is_app(f2)) return 0; /* composite */
-    if (f1 == f2) return 0; /* identical functions */
-    expr f1_type = infer_type(f1);
-    expr f2_type = infer_type(f2);
-    if (is_def_eq(f1_type, f2_type)) return 0; /* same function type */
+/** \brief Return true iff the given function application are congruent */
+static bool is_eq_congruent(expr const & e1, expr const & e2) {
+    lean_assert(is_app(e1) && is_app(e2));
+    /* Given e1 := f a,  e2 := g b */
+    expr f = app_fn(e1);
+    expr a = app_arg(e1);
+    expr g = app_fn(e2);
+    expr b = app_arg(e2);
+    if (g_cc->get_root(get_eq_name(), a) != g_cc->get_root(get_eq_name(), b)) {
+        /* a and b are not equivalent */
+        return false;
+    }
+    if (g_cc->get_root(get_eq_name(), f) != g_cc->get_root(get_eq_name(), g)) {
+        /* f and g are not equivalent */
+        return false;
+    }
+    if (is_def_eq(infer_type(f), infer_type(g))) {
+        /* Case 1: f and g have the same type, then we can create a congruence proof for f a == g b */
+        return true;
+    }
+    if (is_app(f) && is_app(g)) {
+        /* Case 2: f and g are congruent */
+        return is_eq_congruent(f, g);
+    }
     /*
-      f1 and f2 are not applications and have different types.
+      f and g are not congruent nor they have the same type.
       We can't generate a congruence proof in this case because the following lemma
 
           hcongr : f1 == f2 -> a1 == a2 -> f1 a1 == f2 a2
 
       is not provable. Remark: it is also not provable in MLTT, Coq and Agda (even if we assume UIP).
     */
-    return expr_quick_cmp()(f1, f2);
+    return false;
+}
+
+int congruence_closure::eq_congr_key_cmp::operator()(eq_congr_key const & k1, eq_congr_key const & k2) const {
+    lean_assert(g_heq_based);
+    if (k1.m_hash != k2.m_hash)
+        return unsigned_cmp()(k1.m_hash, k2.m_hash);
+    if (is_eq_congruent(k1.m_expr, k2.m_expr))
+        return 0;
+    return expr_quick_cmp()(k1.m_expr, k2.m_expr);
 }
 
 /* \brief Create a equality congruence table key.

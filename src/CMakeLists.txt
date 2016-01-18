@@ -74,6 +74,12 @@ if("${CYGWIN}" EQUAL "1")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_CYGWIN")
 endif()
 
+if(MINGW AND CMAKE_COMPILER_IS_GNUCXX)
+  # See https://github.com/leanprover/lean/issues/930#issuecomment-172555475
+  message(STATUS "Set _GLIBCXX_USE_CXX11_ABI = 0 for a system using MSYS2 + g++")
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
+endif()
+
 if(NOT MULTI_THREAD)
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
 else()

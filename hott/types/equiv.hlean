@@ -182,4 +182,21 @@ namespace equiv
         apply is_hprop.elimo}
   end
 
+  definition is_contr_equiv (A B : Type) [HA : is_contr A] [HB : is_contr B] : is_contr (A ≃ B) :=
+  begin 
+    apply @is_contr_of_inhabited_hprop, apply is_hprop.mk, 
+    intro x y, cases x with fx Hx, cases y with fy Hy, generalize Hy, 
+    apply (eq_of_homotopy (λ a, !eq_of_is_contr)) ▸ (λ Hy, !is_hprop.elim ▸ rfl), 
+    apply equiv_of_is_contr_of_is_contr 
+  end
+  
+  definition is_trunc_succ_equiv (n : trunc_index) (A B : Type)
+  [HA : is_trunc n.+1 A] [HB : is_trunc n.+1 B] : is_trunc n.+1 (A ≃ B) :=
+  @is_trunc_equiv_closed _ _ n.+1 (equiv.symm !equiv.sigma_char)
+  (@is_trunc_sigma _ _ _ _ (λ f, !is_trunc_succ_of_is_hprop))
+  
+  definition is_trunc_equiv (n : trunc_index) (A B : Type) 
+  [HA : is_trunc n A] [HB : is_trunc n B] : is_trunc n (A ≃ B) :=
+  by cases n; apply !is_contr_equiv; apply !is_trunc_succ_equiv 
+
 end equiv

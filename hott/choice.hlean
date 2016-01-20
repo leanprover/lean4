@@ -83,7 +83,7 @@ section
   end
 
   -- 3.8.5. There exists a type X and a family Y : X → U such that each Y(x) is a set, but such that (3.8.3) is false.
-  definition index_must_be_hset : Σ (X : Type.{1}) (Y : X -> Type.{1})
+  definition X_must_be_hset : Σ (X : Type.{1}) (Y : X -> Type.{1})
   (HA : Π x : X, is_hset (Y x)), ¬ ((Π x : X, ∥ Y x ∥) -> ∥ Π x : X, Y x ∥) :=
   ⟨X, Y, is_hset_Yx, λ H, trunc.rec_on (H trunc_Yx)
   (λ H0, not_is_hset_X (@is_trunc_of_is_contr _ _ (is_contr.mk x0 H0)))⟩ 

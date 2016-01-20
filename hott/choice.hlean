@@ -28,13 +28,13 @@ section
   (to_inv !sigma_pi_equiv_pi_sigma) (H X A P HX HA HP HI))
 
   -- AC_cart can be derived from AC' by setting P := λ _ _ , unit.
-  definition AC'_to_AC_cart : AC'.{u} -> AC_cart.{u} :=
+  definition AC_cart_of_AC' : AC'.{u} -> AC_cart.{u} :=
   λ H X A HX HA HI, trunc_functor _ (λ H0 x, (H0 x).1) 
   (H X A (λ x a, lift.{0 u} unit) HX HA (λ x a, !is_trunc_lift) 
   (λ x, trunc_functor _ (λ a, ⟨a, lift.up.{0 u} unit.star⟩) (HI x))) 
 
   -- And the converse, by setting A := λ x, Σ a, P x a.
-  definition AC_cart_to_AC' : AC_cart.{u} -> AC'.{u} :=
+  definition AC'_of_AC_cart : AC_cart.{u} -> AC'.{u} :=
   by intro H X A P HX HA HP HI;
   apply H X (λ x, Σ a, P x a) HX (λ x, !is_trunc_sigma) HI
   

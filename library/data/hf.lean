@@ -270,8 +270,8 @@ by intros; substvars; contradiction
 definition erase (a : hf) (s : hf) : hf :=
 of_finset (erase a (to_finset s))
 
-theorem mem_erase (a : hf) (s : hf) : a ∉ erase a s :=
-begin unfold [mem, erase], rewrite to_finset_of_finset, apply finset.mem_erase end
+theorem not_mem_erase (a : hf) (s : hf) : a ∉ erase a s :=
+begin unfold [mem, erase], rewrite to_finset_of_finset, apply finset.not_mem_erase end
 
 theorem card_erase_of_mem {a : hf} {s : hf} : a ∈ s → card (erase a s) = pred (card s) :=
 begin unfold mem, intro h, unfold [erase, card], rewrite to_finset_of_finset, apply finset.card_erase_of_mem h end
@@ -283,7 +283,7 @@ theorem erase_empty (a : hf) : erase a ∅ = ∅ :=
 rfl
 
 theorem ne_of_mem_erase {a b : hf} {s : hf} : b ∈ erase a s → b ≠ a :=
-by intro h beqa; subst b; exact absurd h !mem_erase
+by intro h beqa; subst b; exact absurd h !not_mem_erase
 
 theorem mem_of_mem_erase {a b : hf} {s : hf} : b ∈ erase a s → b ∈ s :=
 begin unfold [erase, mem], rewrite to_finset_of_finset, intro h, apply mem_of_mem_erase h end
@@ -389,7 +389,7 @@ begin
    take s₂, suppose ∅ ⊆ s₂, !zero_le,
    take s₂, suppose insert a s₁ ⊆ s₂,
      assert a ∈ s₂,          from mem_of_subset_of_mem this !mem_insert,
-     have   a ∉ erase a s₂,  from !mem_erase,
+     have   a ∉ erase a s₂,  from !not_mem_erase,
      have   s₁ ⊆ erase a s₂, from subset_of_forall
        (take x xin, by_cases
          (suppose x = a, by subst x; contradiction)

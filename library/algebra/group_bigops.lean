@@ -9,27 +9,77 @@ Finite products on a monoid, and finite sums on an additive monoid. There are th
   Prod, Sum (in namespace finset) : products and sums over finsets
   Prod, Sum (in namespace set) : products and sums over finite sets
 
+We also define internal functions Prodl_semigroup and Prod_semigroup that can be used to define
+operations over commutative semigroups where there is no unit. We put them into their own namespaces
+so that they won't be very prominent. They can be used to define Min and Max in the number systems,
+or Inter for finsets.
+
 We have to be careful with dependencies. This theory imports files from finset and list, which
 import basic files from nat.
 -/
 import .group .group_power data.list.basic data.list.perm data.finset.basic data.set.finite
-open function binary quot subtype list finset
+open function binary quot subtype list
 
 variables {A B : Type}
 variable [deceqA : decidable_eq A]
+
+definition mulf [sgB : semigroup B] (f : A → B) : B → A → B :=
+λ b a, b * f a
 
 /-
 -- list versions.
 -/
 
+/- Prodl_semigroup: product indexed by a list, with a default for the empty list -/
+
+namespace Prodl_semigroup
+  variable [semigroup B]
+
+  definition Prodl_semigroup (dflt : B) : ∀ (l : list A) (f : A → B), B
+  | []            f := dflt
+  | (a :: l)      f := list.foldl (mulf f) (f a) l
+
+  theorem Prodl_semigroup_nil (dflt : B) (f : A → B) : Prodl_semigroup dflt nil f = dflt := rfl
+
+  theorem Prodl_semigroup_cons (dflt : B) (f : A → B) (a : A) (l : list A) :
+    Prodl_semigroup dflt (a::l) f = list.foldl (mulf f) (f a) l := rfl
+
+  theorem Prodl_semigroup_singleton (dflt : B) (f : A → B) (a : A) :
+    Prodl_semigroup dflt [a] f = f a := rfl
+
+  theorem Prodl_semigroup_cons_cons (dflt : B) (f : A → B) (a₁ a₂ : A) (l : list A) :
+    Prodl_semigroup dflt (a₁::a₂::l) f = f a₁ * Prodl_semigroup dflt (a₂::l) f :=
+  begin
+    rewrite [↑Prodl_semigroup, foldl_cons, ↑mulf at {2}],
+    generalize (f a₂),
+    induction l with a l ih,
+      {intro x, exact rfl},
+    intro x,
+    rewrite [*foldl_cons, ↑mulf at {2,3}, mul.assoc, ih]
+  end
+
+  theorem Prodl_semigroup_binary (dflt : B) (f : A → B) (a₁ a₂ : A) :
+    Prodl_semigroup dflt [a₁, a₂] f = f a₁ * f a₂ := rfl
+
+  section deceqA
+    include deceqA
+
+    theorem Prodl_semigroup_insert_of_mem (dflt : B) (f : A → B) {a : A} {l : list A} : a ∈ l →
+      Prodl_semigroup dflt (insert a l) f = Prodl_semigroup dflt l f :=
+    assume ainl, by rewrite [insert_eq_of_mem ainl]
+
+    theorem Prodl_semigroup_insert_insert_of_not_mem (dflt : B) (f : A → B)
+        {a₁ a₂ : A} {l : list A} (h₁ : a₂ ∉ l) (h₂ : a₁ ∉ insert a₂ l) :
+      Prodl_semigroup dflt (insert a₁ (insert a₂ l)) f =
+        f a₁ * Prodl_semigroup dflt (insert a₂ l) f :=
+    by rewrite [insert_eq_of_not_mem h₂, insert_eq_of_not_mem h₁, Prodl_semigroup_cons_cons]
+  end deceqA
+end Prodl_semigroup
+
 /- Prodl: product indexed by a list -/
 
 section monoid
-  variable [mB : monoid B]
-  include mB
-
-  definition mulf (f : A → B) : B → A → B :=
-  λ b a, b * f a
+  variable [monoid B]
 
   definition Prodl (l : list A) (f : A → B) : B :=
   list.foldl (mulf f) 1 l
@@ -90,12 +140,10 @@ section monoid
       from take a' Pa'in, Pconst a' (mem_cons_of_mem a Pa'in),
     by rewrite [Prodl_cons f, Pconst a !mem_cons, Prodl_eq_pow_of_const b Pconstl, length_cons,
                 add_one, pow_succ b]
-
 end monoid
 
 section comm_monoid
-  variable [cmB : comm_monoid B]
-  include cmB
+  variable [comm_monoid B]
 
   theorem Prodl_mul (l : list A) (f g : A → B) : Prodl l (λx, f x * g x) = Prodl l f * Prodl l g :=
   list.induction_on l
@@ -108,8 +156,7 @@ end comm_monoid
 /- Suml: sum indexed by a list -/
 
 section add_monoid
-  variable [amB : add_monoid B]
-  include amB
+  variable [add_monoid B]
   local attribute add_monoid.to_monoid [trans_instance]
 
   definition Suml (l : list A) (f : A → B) : B := Prodl l f
@@ -135,7 +182,6 @@ section add_monoid
 
   theorem Suml_zero (l : list A) : Suml l (λ x, 0) = (0:B) := Prodl_one l
   theorem Suml_singleton (a : A) (f : A → B) : Suml [a] f = f a := Prodl_singleton a f
-
 end add_monoid
 
 section add_comm_monoid
@@ -151,14 +197,64 @@ end add_comm_monoid
 -- finset versions
 -/
 
-/- Prod: product indexed by a finset -/
+/- Prod_semigroup : product indexed by a finset, with a default for the empty finset -/
 
 namespace finset
-  variable [cmB : comm_monoid B]
-  include cmB
+  variable [comm_semigroup B]
 
   theorem mulf_rcomm (f : A → B) : right_commutative (mulf f) :=
   right_commutative_compose_right (@has_mul.mul B _) f (@mul.right_comm B _)
+
+  namespace Prod_semigroup
+  open Prodl_semigroup
+
+  private theorem Prodl_semigroup_eq_Prodl_semigroup_of_perm
+        (dflt : B) (f : A → B) {l₁ l₂ : list A} (p : perm l₁ l₂) :
+      Prodl_semigroup dflt l₁ f = Prodl_semigroup dflt l₂ f :=
+    perm.induction_on p
+      rfl    -- nil nil
+      (take x l₁ l₂ p ih,
+        by rewrite [*Prodl_semigroup_cons, perm.foldl_eq_of_perm (mulf_rcomm f) p])
+      (take x y l,
+        begin rewrite [*Prodl_semigroup_cons, *foldl_cons, ↑mulf, mul.comm] end)
+      (take l₁ l₂ l₃ p₁ p₂ ih₁ ih₂, eq.trans ih₁ ih₂)
+
+  definition Prod_semigroup (dflt : B) (s : finset A) (f : A → B) : B :=
+  quot.lift_on s
+    (λ l, Prodl_semigroup dflt (elt_of l) f)
+    (λ l₁ l₂ p, Prodl_semigroup_eq_Prodl_semigroup_of_perm dflt f p)
+
+  theorem Prod_semigroup_empty (dflt : B) (f : A → B) : Prod_semigroup dflt ∅ f = dflt := rfl
+
+  section deceqA
+    include deceqA
+
+    theorem Prod_semigroup_singleton (dflt : B) (f : A → B) (a : A) :
+      Prod_semigroup dflt '{a} f = f a := rfl
+
+    theorem Prod_semigroup_insert_insert (dflt : B) (f : A → B) {a₁ a₂ : A} {s : finset A} :
+        a₂ ∉ s → a₁ ∉ insert a₂ s →
+      Prod_semigroup dflt (insert a₁ (insert a₂ s)) f =
+        f a₁ * Prod_semigroup dflt (insert a₂ s) f :=
+    quot.induction_on s
+      (take l h₁ h₂, Prodl_semigroup_insert_insert_of_not_mem dflt f h₁ h₂)
+
+    theorem Prod_semigroup_insert (dflt : B) (f : A → B) {a : A} {s : finset A} (anins : a ∉ s)
+        (sne : s ≠ ∅) :
+      Prod_semigroup dflt (insert a s) f = f a * Prod_semigroup dflt s f :=
+    obtain a' (a's : a' ∈ s), from exists_mem_of_ne_empty sne,
+    have H : s = insert a' (erase a' s), from eq.symm (insert_erase a's),
+    begin+
+      rewrite [H, Prod_semigroup_insert_insert dflt f !not_mem_erase (eq.subst H anins)]
+    end
+  end deceqA
+  end Prod_semigroup
+end finset
+
+/- Prod: product indexed by a finset -/
+
+namespace finset
+  variable [comm_monoid B]
 
   theorem Prodl_eq_Prodl_of_perm (f : A → B) {l₁ l₂ : list A} :
     perm l₁ l₂ → Prodl l₁ f = Prodl l₂ f :=
@@ -249,8 +345,7 @@ end finset
 /- Sum: sum indexed by a finset -/
 
 namespace finset
-  variable [acmB : add_comm_monoid B]
-  include acmB
+  variable [add_comm_monoid B]
   local attribute add_comm_monoid.to_comm_monoid [trans_instance]
 
   definition Sum (s : finset A) (f : A → B) : B := Prod s f
@@ -294,8 +389,7 @@ open classical
 /- Prod: product indexed by a set -/
 
 section Prod
-  variable [cmB : comm_monoid B]
-  include cmB
+  variable [comm_monoid B]
 
   noncomputable definition Prod (s : set A) (f : A → B) : B := finset.Prod (to_finset s) f
 
@@ -375,8 +469,7 @@ end Prod
 /- Sum: sum indexed by a set -/
 
 section Sum
-  variable [acmB : add_comm_monoid B]
-  include acmB
+  variable [add_comm_monoid B]
   local attribute add_comm_monoid.to_comm_monoid [trans_instance]
 
   noncomputable definition Sum (s : set A) (f : A → B) : B := Prod s f
@@ -413,5 +506,48 @@ section Sum
                            (H : bij_on g s t) :
           (∑ j ∈ t, f j) = (∑ i ∈ s, f (g i)) := Prod_eq_of_bij_on f H
 end Sum
+
+/- Prod_semigroup : product indexed by a set, with a default for the empty set -/
+
+namespace Prod_semigroup
+  variable [comm_semigroup B]
+
+  noncomputable definition Prod_semigroup (dflt : B) (s : set A) (f : A → B) : B :=
+  finset.Prod_semigroup.Prod_semigroup dflt (to_finset s) f
+
+  theorem Prod_semigroup_empty (dflt : B) (f : A → B) : Prod_semigroup dflt ∅ f = dflt :=
+  by rewrite [↑Prod_semigroup, to_finset_empty]
+
+  theorem Prod_semigroup_of_not_finite (dflt : B) {s : set A} (nfins : ¬ finite s) (f : A → B) :
+    Prod_semigroup dflt s f = dflt :=
+  by rewrite [↑Prod_semigroup, to_finset_of_not_finite nfins]
+
+  theorem Prod_semigroup_singleton (dflt : B) (f : A → B) (a : A) :
+    Prod_semigroup dflt ('{a}) f = f a :=
+  by rewrite [↑Prod_semigroup, to_finset_insert, to_finset_empty,
+               finset.Prod_semigroup.Prod_semigroup_singleton dflt f a]
+
+  theorem Prod_semigroup_insert_insert (dflt : B) (f : A → B) {a₁ a₂ : A} {s : set A}
+        [h : finite s]  :
+      a₂ ∉ s → a₁ ∉ insert a₂ s →
+    Prod_semigroup dflt (insert a₁ (insert a₂ s)) f =
+      f a₁ * Prod_semigroup dflt (insert a₂ s) f :=
+  begin
+    rewrite [↑Prod_semigroup, -+mem_to_finset_eq, +to_finset_insert],
+    intro h1 h2,
+    apply finset.Prod_semigroup.Prod_semigroup_insert_insert dflt f h1 h2
+  end
+
+  theorem Prod_semigroup_insert (dflt : B) (f : A → B) {a : A} {s : set A} [h : finite s] :
+    a ∉ s → s ≠ ∅ → Prod_semigroup dflt (insert a s) f = f a * Prod_semigroup dflt s f :=
+  begin
+    rewrite [↑Prod_semigroup, -mem_to_finset_eq, +to_finset_insert, -finset.to_set_empty],
+    intro h1 h2,
+    apply finset.Prod_semigroup.Prod_semigroup_insert dflt f h1,
+    intro h3, revert h2, rewrite [-h3, to_set_to_finset],
+    intro h4, exact (h4 rfl)
+  end
+
+end Prod_semigroup
 
 end set

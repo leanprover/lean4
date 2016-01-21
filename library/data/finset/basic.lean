@@ -244,7 +244,7 @@ protected theorem induction_on {P : finset A → Prop} (s : finset A)
   P s :=
 finset.induction H1 H2 s
 
-theorem exists_me_of_ne_empty {s : finset A} : s ≠ ∅ → ∃ a : A, a ∈ s :=
+theorem exists_mem_of_ne_empty {s : finset A} : s ≠ ∅ → ∃ a : A, a ∈ s :=
 begin
   induction s with a s nin ih,
     {intro h, exact absurd rfl h},
@@ -270,7 +270,7 @@ quot.lift_on s
   (λ l, to_finset_of_nodup (erase a (elt_of l)) (nodup_erase_of_nodup a (has_property l)))
   (λ (l₁ l₂ : nodup_list A) (p : l₁ ~ l₂), quot.sound (erase_perm_erase_of_perm a p))
 
-theorem mem_erase (a : A) (s : finset A) : a ∉ erase a s :=
+theorem not_mem_erase (a : A) (s : finset A) : a ∉ erase a s :=
 quot.induction_on s
   (λ l, list.mem_erase_of_nodup _ (has_property l))
 
@@ -284,7 +284,7 @@ theorem erase_empty (a : A) : erase a ∅ = ∅ :=
 rfl
 
 theorem ne_of_mem_erase {a b : A} {s : finset A} : b ∈ erase a s → b ≠ a :=
-by intro h beqa; subst b; exact absurd h !mem_erase
+by intro h beqa; subst b; exact absurd h !not_mem_erase
 
 theorem mem_of_mem_erase {a b : A} {s : finset A} : b ∈ erase a s → b ∈ s :=
 quot.induction_on s (λ l bin, mem_of_mem_erase bin)
@@ -304,7 +304,7 @@ open decidable
 theorem erase_insert {a : A} {s : finset A} : a ∉ s → erase a (insert a s) = s :=
 λ anins, finset.ext (λ b, by_cases
   (λ beqa : b = a, iff.intro
-    (λ bin, by subst b; exact absurd bin !mem_erase)
+    (λ bin, by subst b; exact absurd bin !not_mem_erase)
     (λ bin, by subst b; contradiction))
   (λ bnea : b ≠ a, iff.intro
     (λ bin,

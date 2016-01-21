@@ -148,7 +148,7 @@ template <typename T> unsigned binary_heap_priority_queue<T>::dequeue_and_get_pr
         return ret;
     }
 
-    template <typename T> void binary_heap_priority_queue<T>::fix_heap_under(unsigned i) {
+template <typename T> void binary_heap_priority_queue<T>::fix_heap_under(unsigned i) {
         while (true) {
             int smallest = i;
             int l = i << 1;
@@ -165,7 +165,7 @@ template <typename T> unsigned binary_heap_priority_queue<T>::dequeue_and_get_pr
         }
     }
 
-    template <typename T> void binary_heap_priority_queue<T>::put_the_last_at_the_top_and_fix_the_heap() {
+template <typename T> void binary_heap_priority_queue<T>::put_the_last_at_the_top_and_fix_the_heap() {
         if (m_heap_size > 1) {
             put_at(1, m_heap[m_heap_size--]);
             fix_heap_under(1);
@@ -174,7 +174,7 @@ template <typename T> unsigned binary_heap_priority_queue<T>::dequeue_and_get_pr
         }
     }
     /// return the first element of the queue and removes it from the queue
-    template <typename T> unsigned binary_heap_priority_queue<T>::dequeue() {
+template <typename T> unsigned binary_heap_priority_queue<T>::dequeue() {
         lean_assert(m_heap_size);
         int ret = m_heap[1];
         put_the_last_at_the_top_and_fix_the_heap();
@@ -182,7 +182,7 @@ template <typename T> unsigned binary_heap_priority_queue<T>::dequeue_and_get_pr
         return ret;
     }
 #ifdef LEAN_DEBUG
-    template <typename T> void binary_heap_priority_queue<T>::print() {
+template <typename T> void binary_heap_priority_queue<T>::print() {
         std::vector<int> index;
         std::vector<T> prs;
         while (size()) {

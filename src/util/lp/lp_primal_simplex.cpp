@@ -7,7 +7,7 @@
 #include "util/lp/lp_primal_simplex.h"
 
 namespace lean {
-template <typename T, typename X> void lp_primal_simplex<T, X>:: fill_costs_and_x_for_first_stage_solver(unsigned original_number_of_columns) {
+template <typename T, typename X> void lp_primal_simplex<T, X>::fill_costs_and_x_for_first_stage_solver(unsigned original_number_of_columns) {
     unsigned slack_var = original_number_of_columns;
     unsigned artificial = original_number_of_columns + this->m_slacks;
 
@@ -16,7 +16,7 @@ template <typename T, typename X> void lp_primal_simplex<T, X>:: fill_costs_and_
     }
 }
 
-template <typename T, typename X> void lp_primal_simplex<T, X>:: init_buffer(unsigned k, std::vector<T> & r) {
+template <typename T, typename X> void lp_primal_simplex<T, X>::init_buffer(unsigned k, std::vector<T> & r) {
     for (unsigned i = 0; i < k; i++) {
         r[i] = 0;
     }
@@ -26,21 +26,21 @@ template <typename T, typename X> void lp_primal_simplex<T, X>:: init_buffer(uns
     }
 }
 
-template <typename T, typename X> void lp_primal_simplex<T, X>:: refactor() {
+template <typename T, typename X> void lp_primal_simplex<T, X>::refactor() {
     m_core_solver->init_lu();
     if (m_core_solver->factorization()->get_status() != LU_status::OK) {
         throw exception("cannot refactor");
     }
 }
 
-template <typename T, typename X> void lp_primal_simplex<T, X>:: set_scaled_costs() {
+template <typename T, typename X> void lp_primal_simplex<T, X>::set_scaled_costs() {
     unsigned j = this->number_of_core_structurals();
     while (j-- > 0) {
         this->set_scaled_cost(j);
     }
 }
 
-template <typename T, typename X> void lp_primal_simplex<T, X>:: stage_two() {
+template <typename T, typename X> void lp_primal_simplex<T, X>::stage_two() {
     std::cout << "starting stage 2" << std::endl;
     lean_assert(!m_core_solver->A_mult_x_is_off());
     int j = this->m_A->column_count() - 1;
@@ -62,7 +62,7 @@ template <typename T, typename X>     column_info<T> * lp_primal_simplex<T, X>::
     return (it == this->m_columns.end())? ( this->m_columns[column] = new column_info<T>) : it->second;
 }
 
-template <typename T, typename X> void lp_primal_simplex<T, X>:: fill_acceptable_values_for_x() {
+template <typename T, typename X> void lp_primal_simplex<T, X>::fill_acceptable_values_for_x() {
     for (auto t : this->m_core_solver_columns_to_external_columns) {
         this->m_x[t.first] = numeric_traits<T>::zero();
         lean_assert(this->m_x[t.first] >= 0);
@@ -70,12 +70,12 @@ template <typename T, typename X> void lp_primal_simplex<T, X>:: fill_acceptable
 }
 
 
-template <typename T, typename X> void lp_primal_simplex<T, X>:: set_zero_bound(bool * bound_is_set, T * bounds,  unsigned i) {
+template <typename T, typename X> void lp_primal_simplex<T, X>::set_zero_bound(bool * bound_is_set, T * bounds,  unsigned i) {
     bound_is_set[i] = true;
     bounds[i] = numeric_traits<T>::zero();
 }
 
-template <typename T, typename X> void lp_primal_simplex<T, X>:: fill_costs_and_x_for_first_stage_solver_for_row(
+template <typename T, typename X> void lp_primal_simplex<T, X>::fill_costs_and_x_for_first_stage_solver_for_row(
                                                                                                                  int row,
                                                                                                                  unsigned & slack_var,
                                                                                                                  unsigned & artificial) {
@@ -113,7 +113,7 @@ template <typename T, typename X> void lp_primal_simplex<T, X>:: fill_costs_and_
             this->m_x[artificial] = rs;
             artificial++;
         } else {
-            // we can put a slack_var into the basis, and atemplate <typename T, typename X> void lp_primal_simplex<T, X>:: adding an artificial variable
+            // we can put a slack_var into the basis, and atemplate <typename T, typename X> void lp_primal_simplex<T, X>::adding an artificial variable
             this->m_basis[row] = slack_var;
             this->m_x[slack_var] = - rs;
         }
@@ -133,7 +133,7 @@ template <typename T, typename X> void lp_primal_simplex<T, X>:: fill_costs_and_
             this->m_x[artificial] = - rs;
             this->m_basis[row] = artificial++;
         } else {
-            // we can put slack_var into the basis, and atemplate <typename T, typename X> void lp_primal_simplex<T, X>:: adding an artificial variable
+            // we can put slack_var into the basis, and atemplate <typename T, typename X> void lp_primal_simplex<T, X>::adding an artificial variable
             this->m_basis[row] = slack_var;
             this->m_x[slack_var] = rs;
         }
@@ -154,7 +154,7 @@ template <typename T, typename X>    std::string lp_primal_simplex<T, X>::name_o
 }
 
 
-template <typename T, typename X> void lp_primal_simplex<T, X>:: set_core_solver_bounds() {
+template <typename T, typename X> void lp_primal_simplex<T, X>::set_core_solver_bounds() {
     unsigned total_vars = this->m_A->column_count() + this->m_slacks + this->m_artificials;
     this->m_column_types.resize(total_vars);
     this->m_upper_bounds.resize(total_vars);
@@ -177,7 +177,7 @@ template <typename T, typename X> void lp_primal_simplex<T, X>:: set_core_solver
 }
 
 
-template <typename T, typename X> void lp_primal_simplex<T, X>:: find_maximal_solution() {
+template <typename T, typename X> void lp_primal_simplex<T, X>::find_maximal_solution() {
     int preprocessing_start_time = get_millisecond_count();
     if (this->problem_is_empty()) {
         this->m_status = lp_status::EMPTY;
@@ -199,12 +199,12 @@ template <typename T, typename X> void lp_primal_simplex<T, X>:: find_maximal_so
     solve_with_total_inf();
 }
 
-template <typename T, typename X> void lp_primal_simplex<T, X>:: fill_A_x_and_basis_for_stage_one_total_inf() {
+template <typename T, typename X> void lp_primal_simplex<T, X>::fill_A_x_and_basis_for_stage_one_total_inf() {
     for (unsigned row = 0; row < this->row_count(); row++)
         fill_A_x_and_basis_for_stage_one_total_inf_for_row(row);
 }
 
-template <typename T, typename X> void lp_primal_simplex<T, X>:: fill_A_x_and_basis_for_stage_one_total_inf_for_row(unsigned row) {
+template <typename T, typename X> void lp_primal_simplex<T, X>::fill_A_x_and_basis_for_stage_one_total_inf_for_row(unsigned row) {
     lean_assert(row < this->row_count());
     auto ext_row_it = this->m_core_solver_rows_to_external_rows.find(row);
     lean_assert(ext_row_it != this->m_core_solver_rows_to_external_rows.end());
@@ -239,7 +239,7 @@ template <typename T, typename X> void lp_primal_simplex<T, X>:: fill_A_x_and_ba
     }
 }
 
-template <typename T, typename X> void lp_primal_simplex<T, X>:: solve_with_total_inf() {
+template <typename T, typename X> void lp_primal_simplex<T, X>::solve_with_total_inf() {
     std::cout << "starting solve_with_total_inf()" << std::endl;
     int total_vars = this->m_A->column_count() + this->row_count();
     m_low_bounds.clear();

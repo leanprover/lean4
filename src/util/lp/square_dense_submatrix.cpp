@@ -286,7 +286,7 @@ void square_dense_submatrix<T, X>::apply_from_left_to_vector(std::vector<L> & w)
 #endif
 }
 
-    template <typename T, typename X>    bool square_dense_submatrix<T, X>::is_L_matrix() const {
+template <typename T, typename X>    bool square_dense_submatrix<T, X>::is_L_matrix() const {
 #ifdef LEAN_DEBUG
     lean_assert(m_row_permutation.is_identity());
     for (unsigned i = 0; i < m_parent->dimension(); i++) {

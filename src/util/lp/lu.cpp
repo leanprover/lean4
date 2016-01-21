@@ -221,7 +221,7 @@ void lu<T, X>::solve_Bd(unsigned a_column, std::vector<T> & d, indexed_vector<T>
 }
 
 template <typename T, typename X>
-void lu<T, X>:: solve_yB_internal(std::vector<T>& y) {
+void lu<T, X>::solve_yB_internal(std::vector<T>& y) {
     // first solve yU = cb*R(-1)
     m_R.apply_reverse_from_right(y); // got y = cb*R(-1)
     m_U.solve_y_U(y); // got y*U=cb*R(-1)

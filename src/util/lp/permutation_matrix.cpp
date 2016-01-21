@@ -42,8 +42,8 @@ template <typename T, typename X> void permutation_matrix<T, X>::print() const {
 }
 #endif
 
-template <typename T, typename X> template <typename L>
-void permutation_matrix<T, X>:: apply_from_left_perm(std::vector<L> & w) {
+template <typename T, typename X>template <typename L>
+void permutation_matrix<T, X>::apply_from_left_perm(std::vector<L> & w) {
 #ifdef LEAN_DEBUG
     // dense_matrix<L, X> deb(*this);
     // L * deb_w = clone_vector<L>(w, row_count());
@@ -64,8 +64,8 @@ void permutation_matrix<T, X>:: apply_from_left_perm(std::vector<L> & w) {
 #endif
 }
 
-template <typename T, typename X> template <typename L>
-void permutation_matrix<T, X>:: apply_from_left_perm(indexed_vector<L> & w, lp_settings &) {
+template <typename T, typename X>template <typename L>
+void permutation_matrix<T, X>::apply_from_left_perm(indexed_vector<L> & w, lp_settings &) {
 #ifdef LEAN_DEBUG
     // dense_matrix<T, L> deb(*this);
     // T * deb_w = clone_vector<T>(w.m_data, row_count());
@@ -89,7 +89,7 @@ void permutation_matrix<T, X>:: apply_from_left_perm(indexed_vector<L> & w, lp_s
 }
 
 
-template <typename T, typename X> void permutation_matrix<T, X>:: apply_from_right(std::vector<T> & w) {
+template <typename T, typename X> void permutation_matrix<T, X>::apply_from_right(std::vector<T> & w) {
 #ifdef LEAN_DEBUG
     // dense_matrix<T, X> deb(*this);
     // T * deb_w = clone_vector<T>(w, row_count());
@@ -110,8 +110,8 @@ template <typename T, typename X> void permutation_matrix<T, X>:: apply_from_rig
 #endif
 }
 
-template <typename T, typename X>     template <typename L>
-void permutation_matrix<T, X>:: copy_aside(std::vector<L> & t, std::vector<unsigned> & tmp_index, indexed_vector<L> & w) {
+template <typename T, typename X> template <typename L>
+void permutation_matrix<T, X>::copy_aside(std::vector<L> & t, std::vector<unsigned> & tmp_index, indexed_vector<L> & w) {
     for (unsigned i = t.size(); i > 0;) {
         i--;
         unsigned j = w.m_index[i];
@@ -120,8 +120,8 @@ void permutation_matrix<T, X>:: copy_aside(std::vector<L> & t, std::vector<unsig
     }
 }
 
-template <typename T, typename X>     template <typename L>
-void permutation_matrix<T, X>:: clear_data(indexed_vector<L> & w) {
+template <typename T, typename X> template <typename L>
+void permutation_matrix<T, X>::clear_data(indexed_vector<L> & w) {
     // clear old non-zeroes
     for (unsigned i = w.m_index.size(); i > 0;) {
         i--;
@@ -130,7 +130,7 @@ void permutation_matrix<T, X>:: clear_data(indexed_vector<L> & w) {
     }
 }
 
-template <typename T, typename X> template <typename L>
+template <typename T, typename X>template <typename L>
 void permutation_matrix<T, X>::apply_reverse_from_left(indexed_vector<L> & w) {
     // the result will be w = p(-1) * w
 #ifdef LEAN_DEBUG
@@ -157,7 +157,7 @@ void permutation_matrix<T, X>::apply_reverse_from_left(indexed_vector<L> & w) {
 #endif
 }
 
-template <typename T, typename X> template <typename L>
+template <typename T, typename X>template <typename L>
 void permutation_matrix<T, X>::apply_reverse_from_left(std::vector<L> & w) {
     // the result will be w = p(-1) * w
 #ifdef LEAN_DEBUG
@@ -179,8 +179,8 @@ void permutation_matrix<T, X>::apply_reverse_from_left(std::vector<L> & w) {
 #endif
 }
 
-template <typename T, typename X> template <typename L>
-void permutation_matrix<T, X>:: apply_reverse_from_right(std::vector<L> & w) {
+template <typename T, typename X>template <typename L>
+void permutation_matrix<T, X>::apply_reverse_from_right(std::vector<L> & w) {
     // the result will be w = w * p(-1)
 #ifdef LEAN_DEBUG
     // dense_matrix<T, X> deb(get_reverse());
@@ -202,7 +202,7 @@ void permutation_matrix<T, X>:: apply_reverse_from_right(std::vector<L> & w) {
 #endif
 }
 
-template <typename T, typename X> void permutation_matrix<T, X>:: transpose_from_left(unsigned i, unsigned j) {
+template <typename T, typename X> void permutation_matrix<T, X>::transpose_from_left(unsigned i, unsigned j) {
     // the result will be this = (i,j)*this
     lean_assert(i < m_length && j < m_length && i != j);
     auto pi = m_rev[i];
@@ -211,7 +211,7 @@ template <typename T, typename X> void permutation_matrix<T, X>:: transpose_from
     set_val(pj, i);
 }
 
-template <typename T, typename X> void permutation_matrix<T, X>:: transpose_from_right(unsigned i, unsigned j) {
+template <typename T, typename X> void permutation_matrix<T, X>::transpose_from_right(unsigned i, unsigned j) {
     // the result will be this = this * (i,j)
     lean_assert(i < m_length && j < m_length && i != j);
     auto pi = m_permutation[i];
@@ -256,7 +256,7 @@ template <typename T, typename X> void permutation_matrix<T, X>::multiply_by_rev
     delete clone;
 }
 
-template <typename T, typename X> void permutation_matrix<T, X>:: multiply_by_permutation_reverse_from_left(permutation_matrix<T, X> & r){ // todo : condensed permutations?
+template <typename T, typename X> void permutation_matrix<T, X>::multiply_by_permutation_reverse_from_left(permutation_matrix<T, X> & r){ // todo : condensed permutations?
     // the result is this = r(-1)*this
     auto clone = clone_m_permutation();
     // the result is this = this*q(-1)

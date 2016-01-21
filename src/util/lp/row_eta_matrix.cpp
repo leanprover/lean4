@@ -47,7 +47,7 @@ template <typename T, typename X>
         lean_assert(check_vector_for_small_values(w, settings));
 }
 
-    template <typename T, typename X>
+template <typename T, typename X>
     void row_eta_matrix<T, X>::apply_from_left_local_to_X(indexed_vector<X> & w, lp_settings & settings) {
         auto w_at_row = w[m_row];
         bool was_zero_at_m_row = is_zero(w_at_row);
@@ -69,7 +69,7 @@ template <typename T, typename X>
         lean_assert(check_vector_for_small_values(w, settings));
 }
 
-    template <typename T, typename X>
+template <typename T, typename X>
     void row_eta_matrix<T, X>::apply_from_right(std::vector<T> & w) {
         T w_row = w[m_row];
         if (numeric_traits<T>::is_zero(w_row)) return;
@@ -87,7 +87,7 @@ template <typename T, typename X>
 #endif
     }
 
-    template <typename T, typename X>
+template <typename T, typename X>
     void row_eta_matrix<T, X>::apply_from_right(indexed_vector<T> & w) {
         T w_row = w[m_row];
         if (numeric_traits<T>::is_zero(w_row)) return;
@@ -118,7 +118,7 @@ template <typename T, typename X>
 #endif
     }
 
-    template <typename T, typename X>
+template <typename T, typename X>
     void row_eta_matrix<T, X>::conjugate_by_permutation(permutation_matrix<T, X> & p) {
         // this = p * this * p(-1)
 #ifdef LEAN_DEBUG
@@ -138,7 +138,7 @@ template <typename T, typename X>
 #endif
     }
 #ifdef LEAN_DEBUG
-    template <typename T, typename X>
+template <typename T, typename X>
     T row_eta_matrix<T, X>::get_elem(unsigned row, unsigned col) const {
         if (row == m_row){
             if (col == row) {

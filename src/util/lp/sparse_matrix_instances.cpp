@@ -7,14 +7,14 @@
 #include "util/lp/lu.h"
 #include "util/lp/sparse_matrix.cpp"
 namespace lean {
-    template double sparse_matrix<double, double>::dot_product_with_row<double>(unsigned int, std::vector<double> const&) const;
-    template void sparse_matrix<double, double>::add_new_element(unsigned int, unsigned int, double);
-    template void sparse_matrix<double, double>::divide_row_by_constant(unsigned int, double&, lp_settings&);
-    template void sparse_matrix<double, double>::fill_eta_matrix(unsigned int, eta_matrix<double, double>**);
-    template const double & sparse_matrix<double, double>::get(unsigned int, unsigned int) const;
-    template unsigned sparse_matrix<double, double>::get_number_of_nonzeroes() const;
-    template unsigned sparse_matrix<double, double>::get_number_of_nonzeroes_below_row(unsigned int) const;
-    template bool sparse_matrix<double, double>::get_pivot_for_column(unsigned int&, unsigned int&, double const&, unsigned int);
+template double sparse_matrix<double, double>::dot_product_with_row<double>(unsigned int, std::vector<double> const&) const;
+template void sparse_matrix<double, double>::add_new_element(unsigned int, unsigned int, double);
+template void sparse_matrix<double, double>::divide_row_by_constant(unsigned int, double&, lp_settings&);
+template void sparse_matrix<double, double>::fill_eta_matrix(unsigned int, eta_matrix<double, double>**);
+template const double & sparse_matrix<double, double>::get(unsigned int, unsigned int) const;
+template unsigned sparse_matrix<double, double>::get_number_of_nonzeroes() const;
+template unsigned sparse_matrix<double, double>::get_number_of_nonzeroes_below_row(unsigned int) const;
+template bool sparse_matrix<double, double>::get_pivot_for_column(unsigned int&, unsigned int&, double const&, unsigned int);
 template unsigned sparse_matrix<double, double>::lowest_row_in_column(unsigned int);
 template bool sparse_matrix<double, double>::pivot_row_to_row(unsigned int, double, unsigned int, lp_settings&);
 template bool sparse_matrix<double, double>::pivot_with_eta(unsigned int, eta_matrix<double, double>*, lp_settings&);
@@ -70,7 +70,7 @@ template sparse_matrix<mpq, numeric_pair<mpq>>::sparse_matrix(static_matrix<mpq,
 template void sparse_matrix<double, double>::double_solve_U_y<double>(std::vector<double>&);
 template void sparse_matrix<mpq, mpq>::double_solve_U_y<mpq>(std::vector<mpq>&);
 template void sparse_matrix<mpq, numeric_pair<mpq>>::double_solve_U_y<mpq>(std::vector<mpq>&);
-    template void sparse_matrix<mpq, numeric_pair<mpq> >::double_solve_U_y<numeric_pair<mpq> >(std::vector<numeric_pair<mpq>>&);
+template void sparse_matrix<mpq, numeric_pair<mpq> >::double_solve_U_y<numeric_pair<mpq> >(std::vector<numeric_pair<mpq>>&);
 
     /////////////////////
     /*

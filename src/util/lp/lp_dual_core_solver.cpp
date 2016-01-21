@@ -78,7 +78,7 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::restore_non_ba
     }
 }
 
-template <typename T, typename X> bool lp_dual_core_solver<T, X>:: update_basis(int entering, int leaving) {
+template <typename T, typename X> bool lp_dual_core_solver<T, X>::update_basis(int entering, int leaving) {
     // the second argument is the element of the entering column from the pivot row - its value should be equal to the low diagonal element of the bump after all pivoting is done
     if (!(this->m_refactor_counter++ >= 200)) {
         this->m_factorization->replace_column(leaving, this->m_ed[this->m_factorization->basis_heading(leaving)], this->m_w);
@@ -132,7 +132,7 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::start_with_ini
     adjust_xb_for_changed_xn_and_init_betas();
 }
 
-template <typename T, typename X> bool lp_dual_core_solver<T, X>:: done() {
+template <typename T, typename X> bool lp_dual_core_solver<T, X>::done() {
     if (this->m_status == OPTIMAL) {
         return true;
     }
@@ -157,10 +157,10 @@ template <typename T, typename X> T lp_dual_core_solver<T, X>::get_edge_steepnes
     return del / this->m_betas[this->m_basis_heading[p]];
 }
 
-// template <typename T, typename X> void lp_dual_core_solver<T, X>::print_x_and_low_bound(unsigned p) {
+//template <typename T, typename X> void lp_dual_core_solver<T, X>::print_x_and_low_bound(unsigned p) {
 //     std::cout << "x l[" << p << "] = " << this->m_x[p] << " " << this->m_low_bound_values[p] << std::endl;
 // }
-// template <typename T, typename X> void lp_dual_core_solver<T, X>::print_x_and_upper_bound(unsigned p) {
+//template <typename T, typename X> void lp_dual_core_solver<T, X>::print_x_and_upper_bound(unsigned p) {
 //     std::cout << "x u[" << p << "] = " << this->m_x[p] << " " << this->m_upper_bound_values[p] << std::endl;
 // }
 
@@ -256,7 +256,7 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::pricing_loop(u
     }
 }
 
-template <typename T, typename X> bool lp_dual_core_solver<T, X>:: advance_on_known_p() {
+template <typename T, typename X> bool lp_dual_core_solver<T, X>::advance_on_known_p() {
     if (done()) {
         return true;
     }
@@ -271,7 +271,7 @@ template <typename T, typename X> bool lp_dual_core_solver<T, X>:: advance_on_kn
     return basis_change_and_update();
 }
 
-template <typename T, typename X> int lp_dual_core_solver<T, X>:: define_sign_of_alpha_r() {
+template <typename T, typename X> int lp_dual_core_solver<T, X>::define_sign_of_alpha_r() {
     switch (this->m_column_type[m_p]) {
     case boxed:
     case fixed:
@@ -297,7 +297,7 @@ template <typename T, typename X> int lp_dual_core_solver<T, X>:: define_sign_of
     }
 }
 
-template <typename T, typename X> bool lp_dual_core_solver<T, X>:: can_be_breakpoint(unsigned j) {
+template <typename T, typename X> bool lp_dual_core_solver<T, X>::can_be_breakpoint(unsigned j) {
     if (this->pivot_row_element_is_too_small_for_ratio_test(j)) return false;
     switch (this->m_column_type[j]) {
     case low_bound:
@@ -369,7 +369,7 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::restore_d() {
     }
 }
 
-template <typename T, typename X> bool lp_dual_core_solver<T, X>:: d_is_correct() {
+template <typename T, typename X> bool lp_dual_core_solver<T, X>::d_is_correct() {
     this->solve_yB(this->m_y);
     for  (auto j : non_basis()) {
         T d = this->m_costs[j] -  this->m_A.dot_product_with_column(this->m_y, j);
@@ -466,7 +466,7 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::init_betas_pre
 }
 
 // step 7 of the algorithm from Progress
-template <typename T, typename X> bool lp_dual_core_solver<T, X>:: basis_change_and_update() {
+template <typename T, typename X> bool lp_dual_core_solver<T, X>::basis_change_and_update() {
     update_betas();
     update_d_and_xB();
     m_theta_P = m_delta / this->m_ed[m_r];
@@ -501,7 +501,7 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::revert_to_prev
 }
 
 
-template <typename T, typename X> bool lp_dual_core_solver<T, X>:: problem_is_dual_feasible() {
+template <typename T, typename X> bool lp_dual_core_solver<T, X>::problem_is_dual_feasible() {
     for (unsigned j : non_basis()){
         if (!this->column_is_dual_feasible(j)) {
             std::cout << "column " << j << " is not dual feasible" << std::endl;
@@ -516,7 +516,7 @@ template <typename T, typename X> bool lp_dual_core_solver<T, X>:: problem_is_du
     return true;
 }
 
-template <typename T, typename X> unsigned lp_dual_core_solver<T, X>:: get_number_of_rows_to_try_for_leaving() {
+template <typename T, typename X> unsigned lp_dual_core_solver<T, X>::get_number_of_rows_to_try_for_leaving() {
     unsigned s = this->m_m;
     if (this->m_m > 300) {
         s = (unsigned)(s / this->m_settings.percent_of_entering_to_check * 100);
@@ -524,7 +524,7 @@ template <typename T, typename X> unsigned lp_dual_core_solver<T, X>:: get_numbe
     return my_random() % s + 1;
 }
 
-template <typename T, typename X> bool lp_dual_core_solver<T, X>:: delta_keeps_the_sign(int initial_delta_sign, const T & delta) {
+template <typename T, typename X> bool lp_dual_core_solver<T, X>::delta_keeps_the_sign(int initial_delta_sign, const T & delta) {
     if (numeric_traits<T>::precise())
         return ((delta > numeric_traits<T>::zero()) && (initial_delta_sign == 1)) ||
             ((delta < numeric_traits<T>::zero()) && (initial_delta_sign == -1));
@@ -560,7 +560,7 @@ template <typename T, typename X> T lp_dual_core_solver<T, X>::delta_lost_on_fli
     return ret;
 }
 
-template <typename T, typename X> bool lp_dual_core_solver<T, X>:: tight_breakpoinst_are_all_boxed() {
+template <typename T, typename X> bool lp_dual_core_solver<T, X>::tight_breakpoinst_are_all_boxed() {
     if (this->m_column_type[m_q] != boxed) return false;
     for (auto j : m_tight_set) {
         if (this->m_column_type[j] != boxed) return false;
@@ -636,7 +636,7 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::erase_tight_br
     }
 }
 
-template <typename T, typename X> bool lp_dual_core_solver<T, X>:: ratio_test() {
+template <typename T, typename X> bool lp_dual_core_solver<T, X>::ratio_test() {
     m_sign_of_alpha_r = define_sign_of_alpha_r();
     fill_breakpoint_set();
     m_flipped_boxed.clear();

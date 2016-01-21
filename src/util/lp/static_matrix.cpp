@@ -33,7 +33,7 @@ static_matrix<T, X>::static_matrix(static_matrix const &A, unsigned * basis) :
     }
 }
     
-template <typename T, typename X>    void static_matrix<T, X>:: clear() {
+template <typename T, typename X>    void static_matrix<T, X>::clear() {
     m_work_pivot_vector.clear();
     m_rows.clear();
     m_columns.clear();
@@ -42,11 +42,11 @@ template <typename T, typename X>    void static_matrix<T, X>:: clear() {
 #endif
 }
 
-template <typename T, typename X>    void static_matrix<T, X>:: init_work_pivot_vector(unsigned m) {
+template <typename T, typename X>    void static_matrix<T, X>::init_work_pivot_vector(unsigned m) {
     while (m--) m_work_pivot_vector.push_back(numeric_traits<T>::zero());
 }
     
-template <typename T, typename X>    void static_matrix<T, X>:: init_empty_matrix(unsigned m, unsigned n) {
+template <typename T, typename X>    void static_matrix<T, X>::init_empty_matrix(unsigned m, unsigned n) {
     init_work_pivot_vector(m);
     init_row_columns(m, n);
 }
@@ -61,7 +61,7 @@ template <typename L>
     return ret;
 };
 
-template <typename T, typename X>    unsigned static_matrix<T, X>:: lowest_row_in_column(unsigned col) {
+template <typename T, typename X>    unsigned static_matrix<T, X>::lowest_row_in_column(unsigned col) {
     lean_assert(col < column_count());
     column_strip & colstrip = m_columns[col];
     lean_assert(colstrip.size() > 0);
@@ -74,7 +74,7 @@ template <typename T, typename X>    unsigned static_matrix<T, X>:: lowest_row_i
     return ret;
 }
 
-template <typename T, typename X>    T static_matrix<T, X>:: dot_product_with_column(const std::vector<T> & y, unsigned j) const {
+template <typename T, typename X>    T static_matrix<T, X>::dot_product_with_column(const std::vector<T> & y, unsigned j) const {
     lean_assert(j < column_count());
     T ret = numeric_traits<T>::zero();
     for (auto & it : m_columns[j]) {
@@ -83,12 +83,12 @@ template <typename T, typename X>    T static_matrix<T, X>:: dot_product_with_co
     return ret;
 }
 
-template <typename T, typename X>    void static_matrix<T, X>:: add_columns_at_the_end(unsigned delta) {
+template <typename T, typename X>    void static_matrix<T, X>::add_columns_at_the_end(unsigned delta) {
     for (unsigned i = 0; i < delta; i++)
         add_column();
 }
 
-template <typename T, typename X>    void static_matrix<T, X>:: forget_last_columns(unsigned how_many_to_forget) {
+template <typename T, typename X>    void static_matrix<T, X>::forget_last_columns(unsigned how_many_to_forget) {
     lean_assert(m_columns.size() >= how_many_to_forget);
     unsigned j = column_count() - 1;
     for (; how_many_to_forget > 0; how_many_to_forget--) {
@@ -96,7 +96,7 @@ template <typename T, typename X>    void static_matrix<T, X>:: forget_last_colu
     }
 }
 
-template <typename T, typename X>    void static_matrix<T, X>:: remove_last_column(unsigned j) {
+template <typename T, typename X>    void static_matrix<T, X>::remove_last_column(unsigned j) {
     column_strip & col = m_columns.back();
     for (auto & it : col) {
         auto & row = m_rows[it.m_i];
@@ -113,7 +113,7 @@ template <typename T, typename X>    void static_matrix<T, X>:: remove_last_colu
 }
 
 template <typename T, typename X>
-void static_matrix<T, X>:: scale_row(unsigned row, T const & alpha) {
+void static_matrix<T, X>::scale_row(unsigned row, T const & alpha) {
     for (auto & t : m_rows[row]) {
         t.set_val(t.get_val() * alpha);
         m_columns[t.m_j][t.m_offset].m_value *= alpha;
@@ -121,7 +121,7 @@ void static_matrix<T, X>:: scale_row(unsigned row, T const & alpha) {
 }
 
 template <typename T, typename X>
-void static_matrix<T, X>:: divide_row_by_constant(unsigned row, T const & alpha) {
+void static_matrix<T, X>::divide_row_by_constant(unsigned row, T const & alpha) {
     for (auto & t : m_rows[row]) {
         t.set_val(t.get_val() / alpha);
         m_columns[t.m_j][t.m_offset].m_value /= alpha;
@@ -129,7 +129,7 @@ void static_matrix<T, X>:: divide_row_by_constant(unsigned row, T const & alpha)
 }
     
 template <typename T, typename X>
-void static_matrix<T, X>:: scale_column(unsigned column, T const & alpha) {
+void static_matrix<T, X>::scale_column(unsigned column, T const & alpha) {
     for (auto & t : m_columns[column]) {
         t.m_value *= alpha;
         auto & r = m_rows[t.m_i][t.m_offset];
@@ -138,7 +138,7 @@ void static_matrix<T, X>:: scale_column(unsigned column, T const & alpha) {
 }
 
 #ifdef LEAN_DEBUG
-template <typename T, typename X>    void static_matrix<T, X>:: regen_domain() {
+template <typename T, typename X>    void static_matrix<T, X>::regen_domain() {
     m_domain.clear();
     for (int i = 0; i < m_rows.size(); i++){
         for (auto & t : m_rows[i]) {
@@ -148,7 +148,7 @@ template <typename T, typename X>    void static_matrix<T, X>:: regen_domain() {
 }
 #endif
 
-template <typename T, typename X>    void static_matrix<T, X>:: set(unsigned row, unsigned col, T const & val) {
+template <typename T, typename X>    void static_matrix<T, X>::set(unsigned row, unsigned col, T const & val) {
     if (numeric_traits<T>::is_zero(val)) return;
     lean_assert(row < row_count() && col < column_count());
 #ifdef LEAN_DEBUG
@@ -174,14 +174,15 @@ std::set<pair<unsigned, unsigned>>  static_matrix<T, X>::get_domain() {
 }
 
 
-template <typename T, typename X>    void static_matrix<T, X>:: copy_column_to_vector (unsigned j, indexed_vector<T> & v) const {
+template <typename T, typename X>    void static_matrix<T, X>::copy_column_to_vector (unsigned j, indexed_vector<T> & v) const {
     lean_assert(j < m_columns.size());
     for (auto & it : m_columns[j]) {
         if (!is_zero(it.m_value))
             v.set_value(it.m_value, it.m_i);
     }
 }
-    template <typename T, typename X>    void static_matrix<T, X>:: copy_column_to_vector (unsigned j, std::vector<T> & v) const {
+    
+template <typename T, typename X>    void static_matrix<T, X>::copy_column_to_vector (unsigned j, std::vector<T> & v) const {
         v.resize(row_count(), numeric_traits<T>::zero());
         for (auto & it : m_columns[j]) {
             if (!is_zero(it.m_value))
@@ -189,13 +190,13 @@ template <typename T, typename X>    void static_matrix<T, X>:: copy_column_to_v
         }
     }
 
-template <typename T, typename X>    void static_matrix<T, X>:: add_column_to_vector (const T & a, unsigned j, T * v) const {
+template <typename T, typename X>    void static_matrix<T, X>::add_column_to_vector (const T & a, unsigned j, T * v) const {
     for (auto & it : m_columns[j]) {
         v[it.m_i] += a * it.m_value;
     }
 }
     
-template <typename T, typename X>    T static_matrix<T, X>:: get_max_abs_in_row(unsigned row) const {
+template <typename T, typename X>    T static_matrix<T, X>::get_max_abs_in_row(unsigned row) const {
     T ret = numeric_traits<T>::zero();
     for (auto & t : m_rows[row]) {
         T a = abs(t.get_val());
@@ -206,7 +207,7 @@ template <typename T, typename X>    T static_matrix<T, X>:: get_max_abs_in_row(
     return ret;
 }
     
-template <typename T, typename X>    T static_matrix<T, X>:: get_min_abs_in_row(unsigned row) const {
+template <typename T, typename X>    T static_matrix<T, X>::get_min_abs_in_row(unsigned row) const {
     bool first_time = true;
     T ret = numeric_traits<T>::zero();
     for (auto & t : m_rows[row]) {
@@ -222,7 +223,7 @@ template <typename T, typename X>    T static_matrix<T, X>:: get_min_abs_in_row(
 }
 
 
-template <typename T, typename X>    T static_matrix<T, X>:: get_max_abs_in_column(unsigned column) const {
+template <typename T, typename X>    T static_matrix<T, X>::get_max_abs_in_column(unsigned column) const {
     T ret = numeric_traits<T>::zero();
     for (auto & t : m_columns[column]) {
         T a = abs(t.m_value);
@@ -233,7 +234,7 @@ template <typename T, typename X>    T static_matrix<T, X>:: get_max_abs_in_colu
     return ret;
 }
 
-template <typename T, typename X>     T static_matrix<T, X>:: get_min_abs_in_column(unsigned column) const {
+template <typename T, typename X>     T static_matrix<T, X>::get_min_abs_in_column(unsigned column) const {
     bool first_time = true;
     T ret = numeric_traits<T>::zero();
     for (auto & t : m_columns[column]) {
@@ -249,7 +250,7 @@ template <typename T, typename X>     T static_matrix<T, X>:: get_min_abs_in_col
 }
     
 #ifdef LEAN_DEBUG
-template <typename T, typename X>    void static_matrix<T, X>:: check_consistency() {
+template <typename T, typename X>    void static_matrix<T, X>::check_consistency() {
     std::unordered_map<std::pair<unsigned, unsigned>, T> by_rows;
     for (int i = 0; i < m_rows.size(); i++){
         for (auto & t : m_rows[i]) {
@@ -281,7 +282,7 @@ template <typename T, typename X>    void static_matrix<T, X>:: check_consistenc
 #endif
 
 
-template <typename T, typename X>    void static_matrix<T, X>:: cross_out_row(unsigned k) {
+template <typename T, typename X>    void static_matrix<T, X>::cross_out_row(unsigned k) {
 #ifdef LEAN_DEBUG
     check_consistency();
 #endif
@@ -295,7 +296,7 @@ template <typename T, typename X>    void static_matrix<T, X>:: cross_out_row(un
 }
 
 
-template <typename T, typename X>    void static_matrix<T, X>:: fix_row_indices_in_each_column_for_crossed_row(unsigned k) {
+template <typename T, typename X>    void static_matrix<T, X>::fix_row_indices_in_each_column_for_crossed_row(unsigned k) {
     for (unsigned j = 0; j < m_columns.size(); j++) {
         auto & col = m_columns[j];
         for (int i = 0; i < col.size(); i++) {
@@ -306,13 +307,13 @@ template <typename T, typename X>    void static_matrix<T, X>:: fix_row_indices_
     }
 }
 
-template <typename T, typename X>    void static_matrix<T, X>:: cross_out_row_from_columns(unsigned k, row_strip & row) {
+template <typename T, typename X>    void static_matrix<T, X>::cross_out_row_from_columns(unsigned k, row_strip & row) {
     for (auto & t : row) {
         cross_out_row_from_column(t.m_j, k);
     }
 }
     
-template <typename T, typename X>    void static_matrix<T, X>:: cross_out_row_from_column(unsigned col, unsigned k) {
+template <typename T, typename X>    void static_matrix<T, X>::cross_out_row_from_column(unsigned col, unsigned k) {
     auto & s = m_columns[col];
     for (unsigned i = 0; i < s.size(); i++) {
         if (s[i].m_i == k) {
@@ -322,7 +323,7 @@ template <typename T, typename X>    void static_matrix<T, X>:: cross_out_row_fr
     }
 }
 
-template <typename T, typename X>    T static_matrix<T, X>:: get_elem(unsigned i, unsigned j) const { // should not be used in efficient code !!!!
+template <typename T, typename X>    T static_matrix<T, X>::get_elem(unsigned i, unsigned j) const { // should not be used in efficient code !!!!
     for (auto & t : m_rows[i]) {
         if (t.m_j == j) {
             return t.get_val();
@@ -332,20 +333,20 @@ template <typename T, typename X>    T static_matrix<T, X>:: get_elem(unsigned i
 }
 
 
-template <typename T, typename X>    void static_matrix<T, X>:: scan_row_to_work_vector(unsigned i) {
+template <typename T, typename X>    void static_matrix<T, X>::scan_row_to_work_vector(unsigned i) {
     for (auto & rc : m_rows[i]) {
         m_work_pivot_vector[rc.m_j] = rc.get_val();
     }
 }
     
-template <typename T, typename X>    void static_matrix<T, X>:: clean_row_work_vector(unsigned i) {
+template <typename T, typename X>    void static_matrix<T, X>::clean_row_work_vector(unsigned i) {
     for (auto & rc : m_rows[i]) {
         m_work_pivot_vector[rc.m_j] = numeric_traits<T>::zero();
     }
 }
     
 
-template <typename T, typename X>    T static_matrix<T, X>:: get_balance() const {
+template <typename T, typename X>    T static_matrix<T, X>::get_balance() const {
     T ret = zero_of_type<T>();
     for (unsigned i = 0; i < row_count();  i++) {
         ret += get_row_balance(i);
@@ -353,7 +354,7 @@ template <typename T, typename X>    T static_matrix<T, X>:: get_balance() const
     return ret;
 }
 
-template <typename T, typename X>    T static_matrix<T, X>:: get_row_balance(unsigned row) const {
+template <typename T, typename X>    T static_matrix<T, X>::get_row_balance(unsigned row) const {
     T ret = zero_of_type<T>();
     for (auto & t : m_rows[row]) {
         if (numeric_traits<T>::is_zero(t.get_val())) continue;
@@ -364,7 +365,7 @@ template <typename T, typename X>    T static_matrix<T, X>:: get_row_balance(uns
     return ret;
 }
 #ifdef LEAN_DEBUG
-template <typename T, typename X> bool static_matrix<T, X>:: col_val_equal_to_row_val() const {
+template <typename T, typename X> bool static_matrix<T, X>::col_val_equal_to_row_val() const {
     for (auto & r : m_rows) {
         for (auto & rc : r) {
             lean_assert(rc.get_val() == m_columns[rc.m_j][rc.m_offset].m_value);

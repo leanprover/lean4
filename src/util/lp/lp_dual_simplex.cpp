@@ -7,7 +7,7 @@
 #include "util/lp/lp_dual_simplex.h"
 namespace lean {
 
-template <typename T, typename X> void lp_dual_simplex<T, X>:: decide_on_status_after_stage1() {
+template <typename T, typename X> void lp_dual_simplex<T, X>::decide_on_status_after_stage1() {
     switch (m_core_solver->get_status()) {
     case OPTIMAL:
         if (this->m_settings.abs_val_is_smaller_than_artificial_tolerance(m_core_solver->get_cost())) {
@@ -37,7 +37,7 @@ template <typename T, typename X> void lp_dual_simplex<T, X>:: decide_on_status_
     }
 }
 
-template <typename T, typename X> void lp_dual_simplex<T, X>:: fix_logical_for_stage2(unsigned j) {
+template <typename T, typename X> void lp_dual_simplex<T, X>::fix_logical_for_stage2(unsigned j) {
     lean_assert(j >= this->number_of_core_structurals());
     switch (m_column_types_of_logicals[j - this->number_of_core_structurals()]) {
     case low_bound:
@@ -55,7 +55,7 @@ template <typename T, typename X> void lp_dual_simplex<T, X>:: fix_logical_for_s
     }
 }
 
-template <typename T, typename X> void lp_dual_simplex<T, X>:: fix_structural_for_stage2(unsigned j) {
+template <typename T, typename X> void lp_dual_simplex<T, X>::fix_structural_for_stage2(unsigned j) {
     column_info<T> * ci = this->m_columns[this->m_core_solver_columns_to_external_columns[j]];
     switch (ci->get_column_type()) {
     case low_bound:
@@ -87,7 +87,7 @@ template <typename T, typename X> void lp_dual_simplex<T, X>:: fix_structural_fo
     }
 }
 
-template <typename T, typename X> void lp_dual_simplex<T, X>:: unmark_boxed_and_fixed_columns_and_fix_structural_costs() {
+template <typename T, typename X> void lp_dual_simplex<T, X>::unmark_boxed_and_fixed_columns_and_fix_structural_costs() {
     unsigned j = this->m_A->column_count();
     while (j-- > this->number_of_core_structurals()) {
         fix_logical_for_stage2(j);
@@ -98,14 +98,14 @@ template <typename T, typename X> void lp_dual_simplex<T, X>:: unmark_boxed_and_
     }
 }
 
-template <typename T, typename X> void lp_dual_simplex<T, X>:: restore_right_sides() {
+template <typename T, typename X> void lp_dual_simplex<T, X>::restore_right_sides() {
     unsigned i = this->m_A->row_count();
     while (i--) {
         this->m_b[i] = m_b_copy[i];
     }
 }
 
-template <typename T, typename X> void lp_dual_simplex<T, X>:: solve_for_stage2() {
+template <typename T, typename X> void lp_dual_simplex<T, X>::solve_for_stage2() {
     m_core_solver->restore_non_basis();
     m_core_solver->solve_yB(m_core_solver->m_y);
     m_core_solver->fill_reduced_costs_from_m_y_by_rows();
@@ -131,14 +131,14 @@ template <typename T, typename X> void lp_dual_simplex<T, X>:: solve_for_stage2(
     this->m_second_stage_iterations = m_core_solver->m_total_iterations;
 }
 
-template <typename T, typename X> void lp_dual_simplex<T, X>:: fill_x_with_zeros() {
+template <typename T, typename X> void lp_dual_simplex<T, X>::fill_x_with_zeros() {
     unsigned j = this->m_A->column_count();
     while (j--) {
         this->m_x[j] = numeric_traits<T>::zero();
     }
 }
 
-template <typename T, typename X> void lp_dual_simplex<T, X>:: stage1() {
+template <typename T, typename X> void lp_dual_simplex<T, X>::stage1() {
     lean_assert(m_core_solver == nullptr);
     this->m_x.resize(this->m_A->column_count(), numeric_traits<T>::zero());
     this->print_statistics_on_A();
@@ -168,14 +168,14 @@ template <typename T, typename X> void lp_dual_simplex<T, X>:: stage1() {
     this->m_first_stage_iterations = m_core_solver->m_total_iterations;
 }
 
-template <typename T, typename X> void lp_dual_simplex<T, X>:: stage2() {
+template <typename T, typename X> void lp_dual_simplex<T, X>::stage2() {
     std::cout << "starting stage2" << std::endl;
     unmark_boxed_and_fixed_columns_and_fix_structural_costs();
     restore_right_sides();
     solve_for_stage2();
 }
 
-template <typename T, typename X> void lp_dual_simplex<T, X>:: fill_first_stage_solver_fields() {
+template <typename T, typename X> void lp_dual_simplex<T, X>::fill_first_stage_solver_fields() {
     unsigned slack_var = this->number_of_core_structurals();
     unsigned artificial = this->number_of_core_structurals() + this->m_slacks;
 
@@ -185,7 +185,7 @@ template <typename T, typename X> void lp_dual_simplex<T, X>:: fill_first_stage_
     fill_costs_and_bounds_and_column_types_for_the_first_stage_solver();
 }
 
-template <typename T, typename X> column_type lp_dual_simplex<T, X>:: get_column_type(unsigned j) {
+template <typename T, typename X> column_type lp_dual_simplex<T, X>::get_column_type(unsigned j) {
     lean_assert(j < this->m_A->column_count());
     if (j >= this->number_of_core_structurals()) {
         return m_column_types_of_logicals[j - this->number_of_core_structurals()];
@@ -193,7 +193,7 @@ template <typename T, typename X> column_type lp_dual_simplex<T, X>:: get_column
     return this->m_columns[this->m_core_solver_columns_to_external_columns[j]]->get_column_type();
 }
 
-template <typename T, typename X> void lp_dual_simplex<T, X>:: fill_costs_bounds_types_and_can_enter_basis_for_the_first_stage_solver_structural_column(unsigned j) {
+template <typename T, typename X> void lp_dual_simplex<T, X>::fill_costs_bounds_types_and_can_enter_basis_for_the_first_stage_solver_structural_column(unsigned j) {
     // see 4.7 in the dissertation of Achim Koberstein
     lean_assert(this->m_core_solver_columns_to_external_columns.find(j) !=
                 this->m_core_solver_columns_to_external_columns.end());
@@ -231,7 +231,7 @@ template <typename T, typename X> void lp_dual_simplex<T, X>:: fill_costs_bounds
     m_column_types_of_core_solver[j] = boxed;
 }
 
-template <typename T, typename X> void lp_dual_simplex<T, X>:: fill_costs_bounds_types_and_can_enter_basis_for_the_first_stage_solver_logical_column(unsigned j) {
+template <typename T, typename X> void lp_dual_simplex<T, X>::fill_costs_bounds_types_and_can_enter_basis_for_the_first_stage_solver_logical_column(unsigned j) {
     this->m_costs[j] = 0;
     lean_assert(get_column_type(j) != upper_bound);
     if ((m_can_enter_basis[j] = (get_column_type(j) == low_bound))) {
@@ -245,7 +245,7 @@ template <typename T, typename X> void lp_dual_simplex<T, X>:: fill_costs_bounds
     }
 }
 
-template <typename T, typename X> void lp_dual_simplex<T, X>:: fill_costs_and_bounds_and_column_types_for_the_first_stage_solver() {
+template <typename T, typename X> void lp_dual_simplex<T, X>::fill_costs_and_bounds_and_column_types_for_the_first_stage_solver() {
     unsigned j = this->m_A->column_count();
     while (j-- > this->number_of_core_structurals()) { // go over logicals here
         fill_costs_bounds_types_and_can_enter_basis_for_the_first_stage_solver_logical_column(j);
@@ -256,7 +256,7 @@ template <typename T, typename X> void lp_dual_simplex<T, X>:: fill_costs_and_bo
     }
 }
 
-template <typename T, typename X> void lp_dual_simplex<T, X>:: fill_first_stage_solver_fields_for_row_slack_and_artificial(unsigned row,
+template <typename T, typename X> void lp_dual_simplex<T, X>::fill_first_stage_solver_fields_for_row_slack_and_artificial(unsigned row,
                                                                                                                            unsigned & slack_var,
                                                                                                                            unsigned & artificial) {
     lean_assert(row < this->row_count());
@@ -283,7 +283,7 @@ template <typename T, typename X> void lp_dual_simplex<T, X>:: fill_first_stage_
             this->m_costs[artificial] = numeric_traits<T>::zero();
             artificial++;
         } else {
-            // we can put a slack_var into the basis, and atemplate <typename T, typename X> void lp_dual_simplex<T, X>:: adding an artificial variable
+            // we can put a slack_var into the basis, and atemplate <typename T, typename X> void lp_dual_simplex<T, X>::adding an artificial variable
             this->m_basis[row] = slack_var;
             this->m_costs[slack_var] = numeric_traits<T>::zero();
         }
@@ -301,7 +301,7 @@ template <typename T, typename X> void lp_dual_simplex<T, X>:: fill_first_stage_
             this->m_costs[artificial] = numeric_traits<T>::zero();
             artificial++;
         } else {
-            // we can put slack_var into the basis, and atemplate <typename T, typename X> void lp_dual_simplex<T, X>:: adding an artificial variable
+            // we can put slack_var into the basis, and atemplate <typename T, typename X> void lp_dual_simplex<T, X>::adding an artificial variable
             this->m_basis[row] = slack_var;
             this->m_costs[slack_var] = numeric_traits<T>::zero();
         }
@@ -310,7 +310,7 @@ template <typename T, typename X> void lp_dual_simplex<T, X>:: fill_first_stage_
     }
 }
 
-template <typename T, typename X> void lp_dual_simplex<T, X>:: augment_matrix_A_and_fill_x_and_allocate_some_fields() {
+template <typename T, typename X> void lp_dual_simplex<T, X>::augment_matrix_A_and_fill_x_and_allocate_some_fields() {
     this->count_slacks_and_artificials();
     this->m_A->add_columns_at_the_end(this->m_slacks + this->m_artificials);
     unsigned n = this->m_A->column_count();
@@ -325,14 +325,14 @@ template <typename T, typename X> void lp_dual_simplex<T, X>:: augment_matrix_A_
 
 
 
-template <typename T, typename X> void lp_dual_simplex<T, X>:: copy_m_b_aside_and_set_it_to_zeros() {
+template <typename T, typename X> void lp_dual_simplex<T, X>::copy_m_b_aside_and_set_it_to_zeros() {
     for (int i = 0; i < this->m_b.size(); i++) {
         m_b_copy.push_back(this->m_b[i]);
         this->m_b[i] = numeric_traits<T>::zero(); // preparing for the first stage
     }
 }
 
-template <typename T, typename X> void lp_dual_simplex<T, X>:: find_maximal_solution(){
+template <typename T, typename X> void lp_dual_simplex<T, X>::find_maximal_solution(){
     if (this->problem_is_empty()) {
         this->m_status = lp_status::EMPTY;
         return;
@@ -358,7 +358,7 @@ template <typename T, typename X> void lp_dual_simplex<T, X>:: find_maximal_solu
 }
 
 
-template <typename T, typename X> T lp_dual_simplex<T, X>:: get_current_cost() const {
+template <typename T, typename X> T lp_dual_simplex<T, X>::get_current_cost() const {
     T ret = numeric_traits<T>::zero();
     for (auto it : this->m_columns) {
         ret += this->get_column_cost_value(it.first, it.second);

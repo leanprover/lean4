@@ -359,9 +359,10 @@ struct ematch_fn {
             expr it = t;
             do {
                 expr it_type = m_ctx->infer(it);
-                if (types_seen.find(it_type)) continue;
-                types_seen.insert(it_type);
-                new_states.emplace_back(cons(entry(get_eq_name(), EqvOnly, p, it), m_state));
+                if (!types_seen.find(it_type)) {
+                    types_seen.insert(it_type);
+                    new_states.emplace_back(cons(entry(get_eq_name(), EqvOnly, p, it), m_state));
+                }
                 it = m_cc.get_next(R, it);
             } while (it != t);
             push_states(new_states);

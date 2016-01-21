@@ -1,4 +1,4 @@
-We port a lot of algebra files from the standard library to the HoTT library.
+We port a lot of algebra and number systems (nat, int, ...) files from the standard library to the HoTT library.
 
 Port instructions:
 - use the script port.pl in scripts/ to port the file. e.g. execute the following in the `scripts` folder: `./port.pl ../library/algebra/lattice.lean ../hott/algebra/lattice.hlean`

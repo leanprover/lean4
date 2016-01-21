@@ -17,7 +17,7 @@ The rows indicate the chapters, the columns the sections.
 |-------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|
 | Ch 1  | . | . | . | . | + | + | + | + | + | .  | +  | +  |    |    |    |
 | Ch 2  | + | + | + | + | . | + | + | + | + | +  | +  | +  | +  | +  | +  |
-| Ch 3  | + | + | + | + | ½ | + | + | - | + | .  | +  |    |    |    |    |
+| Ch 3  | + | + | + | + | ½ | + | + | + | + | .  | +  |    |    |    |    |
 | Ch 4  | - | + | + | + | . | + | ½ | + | + |    |    |    |    |    |    |
 | Ch 5  | - | . | ½ | - | - | . | . | ½ |   |    |    |    |    |    |    |
 | Ch 6  | . | + | + | + | + | ½ | ½ | + | ¾ | ¼  | ¾  | +  | .  |    |    |
@@ -78,7 +78,7 @@ Chapter 3: Sets and logic
 - 3.5 (Subsets and propositional resizing): Lemma 3.5.1 is subtype_eq in [types.sigma](types/sigma.hlean), we don't have propositional resizing as axiom yet.
 - 3.6 (The logic of mere propositions): in the corresponding file in the [types](types/types.md) folder. (is_trunc_prod is defined in [types.sigma](types/sigma.hlean))
 - 3.7 (Propositional truncation): [init.hit](init/hit.hlean) and [hit.trunc](hit/trunc.hlean)
-- 3.8 (The axiom of choice): not formalized
+- 3.8 (The axiom of choice): [choice](choice.hlean)
 - 3.9 (The principle of unique choice): Lemma 9.3.1 in [hit.trunc](hit/trunc.hlean), Lemma 9.3.2 in [types.trunc](types/trunc.hlean)
 - 3.10 (When are propositions truncated?): no formalizable content
 - 3.11 (Contractibility): [init.trunc](init/trunc.hlean) (mostly), [types.pi](types/pi.hlean) (Lemma 3.11.6), [types.trunc](types/trunc.hlean) (Lemma 3.11.7), [types.sigma](types/sigma.hlean) (Lemma 3.11.9)

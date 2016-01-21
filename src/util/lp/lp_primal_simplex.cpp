@@ -76,9 +76,9 @@ template <typename T, typename X> void lp_primal_simplex<T, X>::set_zero_bound(b
 }
 
 template <typename T, typename X> void lp_primal_simplex<T, X>::fill_costs_and_x_for_first_stage_solver_for_row(
-                                                                                                                 int row,
-                                                                                                                 unsigned & slack_var,
-                                                                                                                 unsigned & artificial) {
+                                                                                                                int row,
+                                                                                                                unsigned & slack_var,
+                                                                                                                unsigned & artificial) {
     lean_assert(row >= 0 && row < this->row_count());
     auto & constraint = this->m_constraints[this->m_core_solver_rows_to_external_rows[row]];
     // we need to bring the program to the form Ax = b

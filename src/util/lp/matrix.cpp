@@ -9,26 +9,26 @@
 namespace lean {
 template <typename T, typename X>
 bool matrix<T, X>::is_equal(const matrix<T, X>& other) {
-        if (other.row_count() != row_count() || other.column_count() != column_count())
-            return false;
-        for (unsigned i = 0; i < row_count(); i++) {
-            for (unsigned j = 0; j < column_count(); j++) {
-                auto a = get_elem(i, j);
-                auto b = other.get_elem(i, j);
-                if (numeric_traits<T>::precise()) {
-                    if (a != b) return false;
-                } else if (fabs(numeric_traits<T>::get_double(a - b)) > 0.000001) {
-                    // cout << "returning false from operator== of matrix comparison" << endl;
-                    // cout << "this matrix is " << endl;
-                    // print_matrix(*this);
-                    // cout << "other matrix is " << endl;
-                    // print_matrix(other);
-                    return false;
-                }
+    if (other.row_count() != row_count() || other.column_count() != column_count())
+        return false;
+    for (unsigned i = 0; i < row_count(); i++) {
+        for (unsigned j = 0; j < column_count(); j++) {
+            auto a = get_elem(i, j);
+            auto b = other.get_elem(i, j);
+            if (numeric_traits<T>::precise()) {
+                if (a != b) return false;
+            } else if (fabs(numeric_traits<T>::get_double(a - b)) > 0.000001) {
+                // cout << "returning false from operator== of matrix comparison" << endl;
+                // cout << "this matrix is " << endl;
+                // print_matrix(*this);
+                // cout << "other matrix is " << endl;
+                // print_matrix(other);
+                return false;
             }
         }
-        return true;
     }
+    return true;
+}
 
 template <typename T, typename X>
 void apply_to_vector(matrix<T, X> & m, T * w) {

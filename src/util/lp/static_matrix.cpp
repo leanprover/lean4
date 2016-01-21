@@ -20,7 +20,7 @@ void  static_matrix<T, X>::init_row_columns(unsigned m, unsigned n) {
     }
 }
     
-    // constructor that copies columns of the basis from A
+// constructor that copies columns of the basis from A
 template <typename T, typename X>
 static_matrix<T, X>::static_matrix(static_matrix const &A, unsigned * basis) :
     m_work_pivot_vector(A.row_count(), numeric_traits<T>::zero()) {
@@ -52,7 +52,7 @@ template <typename T, typename X>    void static_matrix<T, X>::init_empty_matrix
 }
 template <typename T, typename X>  
 template <typename L>
-    L static_matrix<T, X>::dot_product_with_row(unsigned row, const std::vector<L> & w) {
+L static_matrix<T, X>::dot_product_with_row(unsigned row, const std::vector<L> & w) {
     L ret = zero_of_type<L>();
     lean_assert(row < m_rows.size());
     for (auto & it : m_rows[row]) {
@@ -107,7 +107,7 @@ template <typename T, typename X>    void static_matrix<T, X>::remove_last_colum
                 break;
             }
             offset--;
-            }
+        }
     }
     m_columns.pop_back();
 }
@@ -144,7 +144,7 @@ template <typename T, typename X>    void static_matrix<T, X>::regen_domain() {
         for (auto & t : m_rows[i]) {
             m_domain.insert(std::make_pair(i, t.m_j));
         }
-        }
+    }
 }
 #endif
 
@@ -183,12 +183,12 @@ template <typename T, typename X>    void static_matrix<T, X>::copy_column_to_ve
 }
     
 template <typename T, typename X>    void static_matrix<T, X>::copy_column_to_vector (unsigned j, std::vector<T> & v) const {
-        v.resize(row_count(), numeric_traits<T>::zero());
-        for (auto & it : m_columns[j]) {
-            if (!is_zero(it.m_value))
-                v[it.m_i]=it.m_value;
-        }
+    v.resize(row_count(), numeric_traits<T>::zero());
+    for (auto & it : m_columns[j]) {
+        if (!is_zero(it.m_value))
+            v[it.m_i]=it.m_value;
     }
+}
 
 template <typename T, typename X>    void static_matrix<T, X>::add_column_to_vector (const T & a, unsigned j, T * v) const {
     for (auto & it : m_columns[j]) {

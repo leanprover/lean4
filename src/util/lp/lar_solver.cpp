@@ -17,7 +17,7 @@ double conversion_helper <double>::get_low_bound(const column_info<mpq> & ci) {
     return ci.get_low_bound().get_double() + eps;
 }
 
- double conversion_helper <double>::get_upper_bound(const column_info<mpq> & ci) {
+double conversion_helper <double>::get_upper_bound(const column_info<mpq> & ci) {
     if (!ci.upper_bound_is_strict())
         return ci.get_upper_bound().get_double();
     double eps = 0.00001;
@@ -285,11 +285,11 @@ template <typename V> V lar_solver::get_column_val(std::vector<V> & low_bound, s
 }
 
 lar_solver::~lar_solver() {
-        std::vector<canonic_left_side*> to_delete;
-        for (auto it : m_canonic_left_sides)
-            to_delete.push_back(it);
-        for (auto t : to_delete)
-            delete t;
+    std::vector<canonic_left_side*> to_delete;
+    for (auto it : m_canonic_left_sides)
+        to_delete.push_back(it);
+    for (auto t : to_delete)
+        delete t;
 }
 
 

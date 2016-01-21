@@ -210,15 +210,15 @@ template <typename T, typename X>    X lp_primal_core_solver<T, X>::get_max_boun
 
 // stage1 constructor
 template <typename T, typename X> lp_primal_core_solver<T, X>::   lp_primal_core_solver(static_matrix<T, X> & A,
-                                                                                         std::vector<X> & b, // the right side vector
-                                                                                         std::vector<X> & x, // the number of elements in x needs to be at least as large as the number of columns in A
-                                                                                         std::vector<unsigned> & basis,
-                                                                                         std::vector<T> & costs,
-                                                                                         std::vector<column_type> & column_type_array,
-                                                                                         std::vector<X> & low_bound_values,
-                                                                                         std::vector<X> & upper_bound_values,
-                                                                                         lp_settings & settings,
-                                                                                         std::unordered_map<unsigned, std::string> const & column_names):
+                                                                                        std::vector<X> & b, // the right side vector
+                                                                                        std::vector<X> & x, // the number of elements in x needs to be at least as large as the number of columns in A
+                                                                                        std::vector<unsigned> & basis,
+                                                                                        std::vector<T> & costs,
+                                                                                        std::vector<column_type> & column_type_array,
+                                                                                        std::vector<X> & low_bound_values,
+                                                                                        std::vector<X> & upper_bound_values,
+                                                                                        lp_settings & settings,
+                                                                                        std::unordered_map<unsigned, std::string> const & column_names):
     lp_core_solver_base<T, X>(A, b,
                               basis,
                               x,

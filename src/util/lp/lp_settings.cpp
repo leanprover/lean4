@@ -69,7 +69,7 @@ int get_millisecond_span(int start_time) {
 }
 void my_random_init(unsigned * seed) {
 #ifdef LEAN_WINDOWS
-     srand(*seed);
+    srand(*seed);
 #else
     rand_r(seed);
 #endif

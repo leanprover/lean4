@@ -257,8 +257,8 @@ template <typename T, typename X> void lp_dual_simplex<T, X>::fill_costs_and_bou
 }
 
 template <typename T, typename X> void lp_dual_simplex<T, X>::fill_first_stage_solver_fields_for_row_slack_and_artificial(unsigned row,
-                                                                                                                           unsigned & slack_var,
-                                                                                                                           unsigned & artificial) {
+                                                                                                                          unsigned & slack_var,
+                                                                                                                          unsigned & artificial) {
     lean_assert(row < this->row_count());
     auto & constraint = this->m_constraints[this->m_core_solver_rows_to_external_rows[row]];
     // we need to bring the program to the form Ax = b

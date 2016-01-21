@@ -72,23 +72,23 @@ template void sparse_matrix<mpq, mpq>::double_solve_U_y<mpq>(std::vector<mpq>&);
 template void sparse_matrix<mpq, numeric_pair<mpq>>::double_solve_U_y<mpq>(std::vector<mpq>&);
 template void sparse_matrix<mpq, numeric_pair<mpq> >::double_solve_U_y<numeric_pair<mpq> >(std::vector<numeric_pair<mpq>>&);
 
-    /////////////////////
-    /*
-template void lu<double, double>::create_initial_factorization();
-template void lu<mpq, mpq>::create_initial_factorization();
-template void lu<mpq, mpq>::replace_column(unsigned int, mpq, indexed_vector<mpq>&);
-template void lu<mpq, numeric_pair<mpq> >::create_initial_factorization();
-template void lu<mpq, numeric_pair<mpq> >::replace_column(unsigned int, mpq, indexed_vector<mpq>&);
-template void lu<double, double>::init_vector_w(unsigned int, indexed_vector<double>&);
-template void lu<mpq, mpq>::find_error_of_yB(std::vector<mpq, std::allocator<mpq> >&, std::vector<mpq, std::allocator<mpq> > const&);
-template void lu<mpq, mpq>::init_vector_w(unsigned int, indexed_vector<mpq>&);
-template void lu<mpq, numeric_pair<mpq> >::find_error_of_yB(std::vector<mpq, std::allocator<mpq> >&, std::vector<mpq, std::allocator<mpq> > const&);
-template void lu<mpq, numeric_pair<mpq> >::init_vector_w(unsigned int, indexed_vector<mpq>&);
-template void lu<double, double>::find_error_of_yB(std::vector<double, std::allocator<double> >&, std::vector<double, std::allocator<double> > const&);
-#ifdef LEAN_DEBUG
-template void print_matrix<double, double>(static_matrix<double, double>&);
-#endif
-    */
+/////////////////////
+/*
+  template void lu<double, double>::create_initial_factorization();
+  template void lu<mpq, mpq>::create_initial_factorization();
+  template void lu<mpq, mpq>::replace_column(unsigned int, mpq, indexed_vector<mpq>&);
+  template void lu<mpq, numeric_pair<mpq> >::create_initial_factorization();
+  template void lu<mpq, numeric_pair<mpq> >::replace_column(unsigned int, mpq, indexed_vector<mpq>&);
+  template void lu<double, double>::init_vector_w(unsigned int, indexed_vector<double>&);
+  template void lu<mpq, mpq>::find_error_of_yB(std::vector<mpq, std::allocator<mpq> >&, std::vector<mpq, std::allocator<mpq> > const&);
+  template void lu<mpq, mpq>::init_vector_w(unsigned int, indexed_vector<mpq>&);
+  template void lu<mpq, numeric_pair<mpq> >::find_error_of_yB(std::vector<mpq, std::allocator<mpq> >&, std::vector<mpq, std::allocator<mpq> > const&);
+  template void lu<mpq, numeric_pair<mpq> >::init_vector_w(unsigned int, indexed_vector<mpq>&);
+  template void lu<double, double>::find_error_of_yB(std::vector<double, std::allocator<double> >&, std::vector<double, std::allocator<double> > const&);
+  #ifdef LEAN_DEBUG
+  template void print_matrix<double, double>(static_matrix<double, double>&);
+  #endif
+*/
 #ifdef LEAN_DEBUG
 template bool sparse_matrix<double, double>::is_upper_triangular_and_maximums_are_set_correctly_in_rows(lp_settings&) const;
 template bool sparse_matrix<mpq, mpq>::is_upper_triangular_and_maximums_are_set_correctly_in_rows(lp_settings&) const;

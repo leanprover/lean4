@@ -27,10 +27,10 @@ namespace pushout
   pointed.mk' (pushout f g)
   
   parameters {f g}
-  definition pinl : BL →* Pushout :=
+  definition pinl [constructor] : BL →* Pushout :=
   pmap.mk inl idp
 
-  definition pinr : TR →* Pushout :=
+  definition pinr [constructor] : TR →* Pushout :=
   pmap.mk inr ((ap inr (respect_pt g))⁻¹ ⬝ !glue⁻¹ ⬝ (ap inl (respect_pt f)))
 
   definition pglue (x : TL) : pinl (f x) = pinr (g x) := -- TODO do we need this?

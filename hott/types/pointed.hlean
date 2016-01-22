@@ -141,6 +141,10 @@ namespace pointed
 
   infixr ` ∘* `:60 := pcompose
 
+  -- The constant pointed map between any two types
+  definition pconst [constructor] (A B : Type*) : A →* B :=
+  pmap.mk (λ a, Point B) idp
+
   structure phomotopy (f g : A →* B) :=
     (homotopy : f ~ g)
     (homotopy_pt : homotopy pt ⬝ respect_pt g = respect_pt f)
@@ -358,5 +362,13 @@ namespace pointed
   definition pua {A B : Type*} (f : A ≃* B) : A = B :=
   Pointed_eq (equiv_of_pequiv f) !respect_pt
 
+  definition pequiv_refl [refl] [constructor] : A ≃* A :=
+  pequiv.mk !pid !is_equiv_id
+
+  definition pequiv_symm [symm] (f : A ≃* B) : B ≃* A :=
+  pequiv.mk (to_pinv f) !is_equiv_inv
+
+  definition pequiv_trans [trans] (f : A ≃* B) (g : B ≃*C) : A ≃* C :=
+  pequiv.mk (pcompose g f) !is_equiv_compose
 
 end pointed

@@ -82,7 +82,7 @@ optional<name> get_intro_target(tmp_type_context & ctx, name const & c) {
         expr local = ctx.mk_tmp_local(binding_domain(type));
         type = ctx.try_to_pi(instantiate(binding_body(type), local));
     }
-    expr const & fn = get_app_fn(ctx.whnf(type));
+    expr const fn = get_app_fn(ctx.whnf(type));
     if (is_constant(fn))
         return optional<name>(const_name(fn));
     else

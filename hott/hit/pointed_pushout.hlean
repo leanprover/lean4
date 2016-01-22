@@ -17,7 +17,7 @@ namespace pointed
 
 end pointed
 
-open pointed
+open pointed Pointed
 
 namespace pushout
   section
@@ -39,6 +39,18 @@ namespace pushout
   definition prec {P : Pushout → Type} (Pinl : Π x, P (pinl x)) (Pinr : Π x, P (pinr x))
     (H : Π x, Pinl (f x) =[pglue x] Pinr (g x)) : (Π y, P y) :=
   pushout.rec Pinl Pinr H
+  end
+
+  section
+  variables {TL BL TR : Type*} (f : TL →* BL) (g : TL →* TR)
+
+  protected definition psymm : Pushout f g ≃* Pushout g f :=
+  begin
+    fapply pequiv.mk,
+    { fapply pmap.mk, exact !pushout.transpose,
+      exact ap inr (respect_pt f)⁻¹ ⬝ !glue⁻¹ ⬝ ap inl (respect_pt g) },
+    { esimp, apply equiv.to_is_equiv !pushout.symm },
+  end
 
   end
 end pushout

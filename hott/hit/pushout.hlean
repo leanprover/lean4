@@ -200,4 +200,31 @@ namespace pushout
     end
   end
 
+  -- Commutativity of pushouts
+  section
+  variables {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
+
+  protected definition transpose [constructor] : pushout f g → pushout g f :=
+  begin
+    intro x, induction x, apply inr a, apply inl a, apply !glue⁻¹
+  end
+
+  --TODO prove without krewrite?
+  protected definition transpose_involutive (x : pushout f g) :
+    pushout.transpose g f (pushout.transpose f g x) = x :=
+  begin
+      induction x, apply idp, apply idp,
+      apply eq_pathover, refine _ ⬝hp !ap_id⁻¹, 
+      refine !(ap_compose (pushout.transpose _ _)) ⬝ph _, esimp[pushout.transpose],
+      krewrite [elim_glue, ap_inv, elim_glue, inv_inv], apply hrfl
+  end
+
+  protected definition symm : pushout f g ≃ pushout g f :=
+  begin
+    fapply equiv.MK, do 2 exact !pushout.transpose,
+    do 2 (intro x; apply pushout.transpose_involutive),
+  end
+
+  end
+
 end pushout

@@ -465,25 +465,35 @@ struct ematch_fn {
        typeof(p) and typeof(t) are subsingletons */
     bool process_matchss(expr const & p, expr const & t) {
         lean_assert(is_standard(env()));
+        lean_trace_debug_ematch(
+            expr new_p = m_ctx->instantiate_uvars_mvars(p);
+            expr new_p_type = m_ctx->instantiate_uvars_mvars(m_ctx->infer(p));
+            expr t_type = m_ctx->infer(t);
+            tout() << "process_matchss: " << ppb(new_p) << " : " << ppb(new_p_type) << " <=?=> "
+            << ppb(t) << " : " << ppb(t_type) << "\n";);
         if (!is_metavar(p)) {
             /* If p is not a metavariable we simply ignore it.
-               We should improve this case in the future.
-               TODO(Leo, Daniel): add debug.blast.ematch message here */
+               We should improve this case in the future. */
+            lean_trace_debug_ematch(tout() << "(p not a metavar)\n";);
             return true;
         }
         expr p_type = m_ctx->instantiate_uvars_mvars(m_ctx->infer(p));
         expr t_type = m_ctx->infer(t);
         if (m_ctx->is_def_eq(p_type, t_type)) {
-            return m_ctx->assign(p, t);
+            bool success = m_ctx->assign(p, t);
+            lean_trace_debug_ematch(tout() << "types are def_eq and assignment..." << (success ? "succeeded" : "failed") << "\n";);
+            return success;
         } else {
             /* Check if the types are provably equal, and cast t */
             m_cc.internalize(get_eq_name(), p_type, false);
             if (auto H = m_cc.get_eqv_proof(get_eq_name(), t_type, p_type)) {
                 expr cast_H_t = get_app_builder().mk_app(get_cast_name(), *H, t);
-                return m_ctx->assign(p, cast_H_t);
+                bool success = m_ctx->assign(p, cast_H_t);
+                lean_trace_debug_ematch(tout() << "types can be proved equal and assignment..." << (success ? "succeeded" : "failed") << "\n";);
+                return success;
             }
         }
-        /* TODO(Leo, Daniel): add debug.blast.ematch message here */
+        lean_trace_debug_ematch(tout() << "types cannot be proved equal\n";);
         return false;
     }
 

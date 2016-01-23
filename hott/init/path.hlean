@@ -233,6 +233,11 @@ namespace eq
   definition apd10' [unfold 6] {f g : Πx, P x} (a : A) (H : f = g) : f a = g a :=
   eq.rec_on H idp
 
+  --apd10 is also ap evaluation
+  definition apd10_eq_ap_eval {f g : Πx, P x} (H : f = g) (a : A)
+    : apd10 H a = ap (λs : Πx, P x, s a) H :=
+  eq.rec_on H idp
+
   definition ap10 [reducible] [unfold 5] {f g : A → B} (H : f = g) : f ~ g := apd10 H
 
   definition ap11 {f g : A → B} (H : f = g) {x y : A} (p : x = y) : f x = g y :=
@@ -525,12 +530,17 @@ namespace eq
     ap (λh, h ∘ f) p = transport (λh : B → C, g ∘ f = h ∘ f) p idp :=
   eq.rec_on p idp
 
-  definition apd10_ap_precompose (f : A → B) (g g' : B → C) (p : g = g') (a : A) :
-    apd10 (ap (λh : B → C, h ∘ f) p) a = apd10 p (f a) :=
+  definition apd10_ap_precompose (f : A → B) (g g' : B → C) (p : g = g') :
+    apd10 (ap (λh : B → C, h ∘ f) p) = λa, apd10 p (f a) :=
   eq.rec_on p idp
 
-  definition apd10_ap_postcompose (f : B → C) (g g' : A → B) (p : g = g') (a : A) :
-    apd10 (ap (λh : A → B, f ∘ h) p) a = ap f (apd10 p a) :=
+  definition apd10_ap_precompose_dependent {C : B → Type}
+    (f : A → B) {g g' : Πb : B, C b} (p : g = g')
+    : apd10 (ap (λ(h : (Πb : B, C b))(a : A), h (f a)) p) = λa, apd10 p (f a) :=
+  eq.rec_on p idp
+
+  definition apd10_ap_postcompose (f : B → C) (g g' : A → B) (p : g = g') :
+    apd10 (ap (λh : A → B, f ∘ h) p) = λa, ap f (apd10 p a) :=
   eq.rec_on p idp
 
   -- A special case of [tr_compose] which seems to come up a lot.

@@ -3,9 +3,9 @@ Copyright (c) 2015 Ulrik Buchholtz. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Ulrik Buchholtz
 -/
-import types.trunc types.arrow_2 types.fiber .susp
+import types.trunc types.eq types.arrow_2 types.fiber .susp
 
-open eq is_trunc is_equiv nat equiv trunc function fiber
+open eq is_trunc is_equiv nat equiv trunc function fiber funext
 
 namespace homotopy
 
@@ -29,31 +29,71 @@ namespace homotopy
     parameters {n : trunc_index} {A B : Type} {h : A → B}
                (H : is_conn_map n h) (P : B → n -Type)
 
-    private definition helper : (Πa : A, P (h a)) → Πb : B, trunc n (fiber h b) → P b :=
+    private definition rec.helper : (Πa : A, P (h a)) → Πb : B, trunc n (fiber h b) → P b :=
     λt b, trunc.rec (λx, point_eq x ▸ t (point x))
 
-    private definition g : (Πa : A, P (h a)) → (Πb : B, P b) :=
-    λt b, helper t b (@center (trunc n (fiber h b)) (H b))
+    private definition rec.g : (Πa : A, P (h a)) → (Πb : B, P b) :=
+    λt b, rec.helper t b (@center (trunc n (fiber h b)) (H b))
 
     -- induction principle for n-connected maps (Lemma 7.5.7)
-    definition rec : is_equiv (λs : Πb : B, P b, λa : A, s (h a)) :=
-    adjointify (λs a, s (h a)) g
+    protected definition rec : is_equiv (λs : Πb : B, P b, λa : A, s (h a)) :=
+    adjointify (λs a, s (h a)) rec.g
     begin
-      intro t, apply eq_of_homotopy, intro a, unfold g, unfold helper,
+      intro t, apply eq_of_homotopy, intro a, unfold rec.g, unfold rec.helper,
       rewrite [@center_eq _ (H (h a)) (tr (fiber.mk a idp))],
     end
     begin
-      intro k, apply eq_of_homotopy, intro b, unfold g,
+      intro k, apply eq_of_homotopy, intro b, unfold rec.g,
       generalize (@center _ (H b)), apply trunc.rec, apply fiber.rec,
       intros a p, induction p, reflexivity
     end
 
-    definition elim : (Πa : A, P (h a)) → (Πb : B, P b) :=
+    protected definition elim : (Πa : A, P (h a)) → (Πb : B, P b) :=
     @is_equiv.inv _ _ (λs a, s (h a)) rec
 
-    definition elim_β : Πf : (Πa : A, P (h a)), Πa : A, elim f (h a) = f a :=
+    protected definition elim_β : Πf : (Πa : A, P (h a)), Πa : A, elim f (h a) = f a :=
     λf, apd10 (@is_equiv.right_inv _ _ (λs a, s (h a)) rec f)
 
+  end
+
+  section
+    parameters {n k : trunc_index} {A B : Type} {f : A → B}
+               (H : is_conn_map n f) (P : B → (n +2+ k)-Type)
+
+    include H
+    -- Lemma 8.6.1
+    proposition elim_general (t : Πa : A, P (f a))
+      : is_trunc k (fiber (λs : (Πb : B, P b), (λa, s (f a))) t) :=
+    begin
+      induction k with k IH,
+      { apply is_contr_fiber_of_is_equiv, apply is_conn_map.rec, exact H },
+      { apply is_trunc_succ_intro,
+        intros x y, cases x with g p, cases y with h q,
+        assert e : fiber (λr : g ~ h, (λa, r (f a))) (apd10 (p ⬝ q⁻¹))
+                 ≃ (fiber.mk g p = fiber.mk h q
+                     :> fiber (λs : (Πb, P b), (λa, s (f a))) t),
+        { apply equiv.trans !fiber.sigma_char,
+          assert e' : Πr : g ~ h,
+                 ((λa, r (f a)) = apd10 (p ⬝ q⁻¹))
+               ≃ (ap (λv, (λa, v (f a))) (eq_of_homotopy r) ⬝ q = p),
+          { intro r,
+            refine equiv.trans _ (eq_con_inv_equiv_con_eq q p
+                                   (ap (λv a, v (f a)) (eq_of_homotopy r))),
+            rewrite [-(ap (λv a, v (f a)) (apd10_eq_of_homotopy r))],
+            rewrite [-(apd10_ap_precompose_dependent f (eq_of_homotopy r))],
+            apply equiv.symm,
+            apply eq_equiv_fn_eq (@apd10 A (λa, P (f a)) (λa, g (f a)) (λa, h (f a))) },
+          apply equiv.trans (sigma.sigma_equiv_sigma_id e'), clear e',
+          apply equiv.trans (equiv.symm (sigma.sigma_equiv_sigma_left
+                                           eq_equiv_homotopy)),
+          apply equiv.symm, apply equiv.trans !fiber_eq_equiv,
+          apply sigma.sigma_equiv_sigma_id, intro r,
+          apply eq_equiv_eq_symm },
+        apply @is_trunc_equiv_closed _ _ k e, clear e,
+        apply IH (λb : B, trunctype.mk (g b = h b)
+                           (@is_trunc_eq (P b) (n +2+ k) (trunctype.struct (P b))
+                           (g b) (h b))) }
+    end
   end
 
   section
@@ -112,6 +152,44 @@ namespace homotopy
     end
 
   end
+
+  -- as special case we get elimination principles for pointed connected types
+  namespace is_conn
+    open pointed Pointed unit
+    section
+      parameters {n : trunc_index} {A : Type*}
+                 [H : is_conn n .+1 A] (P : A → n -Type)
+
+      include H
+      protected definition rec : is_equiv (λs : Πa : A, P a, s (Point A)) :=
+      @is_equiv_compose
+        (Πa : A, P a) (unit → P (Point A)) (P (Point A))
+        (λs x, s (Point A)) (λf, f unit.star)
+        (is_conn_map.rec (is_conn_map_from_unit n A (Point A)) P)
+        (to_is_equiv (unit.unit_imp_equiv (P (Point A))))
+
+      protected definition elim : P (Point A) → (Πa : A, P a) :=
+      @is_equiv.inv _ _ (λs, s (Point A)) rec
+
+      protected definition elim_β (p : P (Point A)) : elim p (Point A) = p :=
+      @is_equiv.right_inv _ _ (λs, s (Point A)) rec p
+    end
+
+    section
+      parameters {n k : trunc_index} {A : Type*}
+                 [H : is_conn n .+1 A] (P : A → (n +2+ k)-Type)
+
+      include H
+      proposition elim_general (p : P (Point A))
+        : is_trunc k (fiber (λs : (Πa : A, P a), s (Point A)) p) :=
+      @is_trunc_equiv_closed
+        (fiber (λs x, s (Point A)) (λx, p))
+        (fiber (λs, s (Point A)) p)
+        k
+        (equiv.symm (fiber.equiv_postcompose (to_fun (unit.unit_imp_equiv (P (Point A))))))
+        (is_conn_map.elim_general (is_conn_map_from_unit n A (Point A)) P (λx, p))
+    end
+  end is_conn
 
   -- Lemma 7.5.2
   definition minus_one_conn_of_surjective {A B : Type} (f : A → B)

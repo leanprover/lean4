@@ -269,4 +269,30 @@ namespace circle
       induction H', reflexivity}
   end
 
+  definition circle_mul [reducible] (x y : S¹) : S¹ :=
+  begin
+    induction x,
+    { induction y,
+      { exact base },
+      { exact loop } },
+    { induction y,
+      { exact loop },
+      { apply eq_pathover, rewrite elim_loop,
+        apply square_of_eq, reflexivity } }
+  end
+
+  definition circle_mul_base (x : S¹) : circle_mul x base = x :=
+  begin
+    induction x,
+    { reflexivity },
+    { apply eq_pathover, krewrite [elim_loop,ap_id], apply hrefl }
+  end
+
+  definition circle_base_mul (x : S¹) : circle_mul base x = x :=
+  begin
+    induction x,
+    { reflexivity },
+    { apply eq_pathover, krewrite [elim_loop,ap_id], apply hrefl }
+  end
+
 end circle

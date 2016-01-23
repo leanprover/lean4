@@ -68,7 +68,30 @@ namespace fiber
 
   definition is_trunc_fun [reducible] (n : trunc_index) (f : A → B) :=
   Π(b : B), is_trunc n (fiber f b)
+
   definition is_contr_fun [reducible] (f : A → B) := is_trunc_fun -2 f
+
+  -- pre and post composition with equivalences
+  open function
+  protected definition equiv_postcompose {B' : Type} (g : B → B') [H : is_equiv g]
+    : fiber (g ∘ f) (g b) ≃ fiber f b :=
+  calc
+    fiber (g ∘ f) (g b) ≃ Σa : A, g (f a) = g b : fiber.sigma_char
+                    ... ≃ Σa : A, f a = b       : begin
+                                                    apply sigma_equiv_sigma_id, intro a,
+                                                    apply equiv.symm, apply eq_equiv_fn_eq
+                                                  end
+                    ... ≃ fiber f b             : fiber.sigma_char
+
+  protected definition equiv_precompose {A' : Type} (g : A' → A) [H : is_equiv g]
+    : fiber (f ∘ g) b ≃ fiber f b :=
+  calc
+    fiber (f ∘ g) b ≃ Σa' : A', f (g a') = b   : fiber.sigma_char
+                ... ≃ Σa : A, f a = b          : begin
+                                                   apply sigma_equiv_sigma (equiv.mk g H),
+                                                   intro a', apply erfl
+                                                 end
+                ... ≃ fiber f b                : fiber.sigma_char
 
 end fiber
 

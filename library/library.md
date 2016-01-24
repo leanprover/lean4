@@ -7,15 +7,17 @@ The Lean standard library is contained in the following files and directories:
 * [logic](logic/logic.md) : logical constructs and axioms
 * [data](data/data.md) : concrete datatypes and type constructors
 * [algebra](algebra/algebra.md) : algebraic structures
+* [theories](theories.md) : more domain-specific theories
 * [tools](tools/tools.md) : additional tools
 
-Modules can be loaded individually, but they are also be loaded by importing the
-following packages:
+The files in `init` are loaded by default, and hence do not need to be
+imported manually.  Other files can be imported individually, but the
+following is designed to load most of the standard library:
 
 * [standard](standard.lean) : constructive logic and datatypes
-* [classical](classical.lean) : classical mathematics
 
-Lean's default logical framework is a version of the Calculus of Constructions with:
+Lean's default logical framework is a version of the Calculus of
+Constructions with:
 
 * an impredicative, proof-irrelevant type `Prop` of propositions
 * universe polymorphism
@@ -23,12 +25,28 @@ Lean's default logical framework is a version of the Calculus of Constructions w
 * inductively defined types
 * quotient types
 
-The `standard` library does not rely on any axioms beyond this framework, and is
-hence constructive. It includes theories of the natural numbers, integers,
-lists, and so on.
+Most of the `standard` library does not rely on any axioms beyond this
+framework, and is hence fully constructive.
 
-The `classical` library also imports a choice function axiom, which implies 
-the law of the excluded middle and propositional extensionality. See [logic.choice](logic/choice.lean) for details.
+The following additional axioms are defined in `init`:
+
+* quotients and propositional extensionality (in `quot`)
+* Hilbert choice (in `classical`)
+
+Function extensionality is derived from the quotient construction, and
+excluded middle is derived from Hilbert choice. For Hilbert choice and
+excluded middle, use `open classical`. The additional axioms are used
+sparingly. For example:
+
+* The constructions of finite sets and the rationals use quotients.
+* The set library uses propext and funext, as well as excluded middle to prove 
+  some classical identities.
+* Hilbert choice is used to define the multiplicative inverse on the reals, and 
+  also to define function inverses classically.
+
+You can use `print axioms foo` to see which axioms `foo` depends
+on. Many of the theories in the `theories` folder are unreservedly
+classical.
 
 See also the [hott library](../hott/hott.md), a library for homotopy
 type theory based on a predicative foundation.

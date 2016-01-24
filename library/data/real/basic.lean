@@ -1148,15 +1148,15 @@ protected theorem zero_ne_one : ¬ (0 : ℝ) = 1 :=
 protected definition comm_ring [reducible] : comm_ring ℝ :=
   begin
     fapply comm_ring.mk,
-    exact add,
+    exact real.add,
     exact real.add_assoc,
     exact of_num 0,
     exact real.zero_add,
     exact real.add_zero,
-    exact neg,
+    exact real.neg,
     exact real.neg_cancel,
     exact real.add_comm,
-    exact mul,
+    exact real.mul,
     exact real.mul_assoc,
     apply of_num 1,
     apply real.one_mul,

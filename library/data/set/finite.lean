@@ -57,6 +57,17 @@ by rewrite [-finset.to_set_empty]; apply finite_finset
 theorem to_finset_empty : to_finset (∅ : set A) = (#finset ∅) :=
 to_finset_eq_of_to_set_eq !finset.to_set_empty
 
+theorem to_finset_eq_empty_of_eq_empty {s : set A} [fins : finite s] (H : s = ∅) :
+  to_finset s = finset.empty := by rewrite [H, to_finset_empty]
+
+theorem eq_empty_of_to_finset_eq_empty {s : set A} [fins : finite s]
+    (H : to_finset s = finset.empty) :
+  s = ∅ := by rewrite [-finset.to_set_empty, -H, to_set_to_finset]
+
+theorem to_finset_eq_empty (s : set A) [fins : finite s] :
+  (to_finset s = finset.empty) ↔ (s = ∅) :=
+iff.intro eq_empty_of_to_finset_eq_empty to_finset_eq_empty_of_eq_empty
+
 theorem finite_insert [instance] (a : A) (s : set A) [finite s] : finite (insert a s) :=
 exists.intro (finset.insert a (to_finset s))
   (by rewrite [finset.to_set_insert, to_set_to_finset])

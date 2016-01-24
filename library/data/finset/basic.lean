@@ -191,6 +191,17 @@ theorem insert_eq_of_mem {a : A} {s : finset A} (H : a ∈ s) : insert a s = s :
 ext (λ x, eq.substr (mem_insert_eq x a s)
    (or_iff_right_of_imp (λH1, eq.substr H1 H)))
 
+theorem singleton_ne_empty (a : A) : '{a} ≠ ∅ :=
+begin
+  intro H,
+  apply not_mem_empty a,
+  rewrite -H,
+  apply mem_insert
+end
+
+theorem pair_eq_singleton (a : A) : '{a, a} = '{a} :=
+by rewrite [insert_eq_of_mem !mem_singleton]
+
 -- useful in proofs by induction
 theorem forall_of_forall_insert {P : A → Prop} {a : A} {s : finset A}
     (H : ∀ x, x ∈ insert a s → P x) :

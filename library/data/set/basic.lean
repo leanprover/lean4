@@ -377,6 +377,17 @@ ext (take y, iff.intro
       (suppose y ∈ '{x}, or.inl (eq_of_mem_singleton this))
       (suppose y ∈ s, or.inr this)))
 
+theorem pair_eq_singleton (a : X) : '{a, a} = '{a} :=
+by rewrite [insert_eq_of_mem !mem_singleton]
+
+theorem singleton_ne_empty (a : X) : '{a} ≠ ∅ :=
+begin
+  intro H,
+  apply not_mem_empty a,
+  rewrite -H,
+  apply mem_insert
+end
+
 /- separation -/
 
 theorem mem_sep {s : set X} {P : X → Prop} {x : X} (xs : x ∈ s) (Px : P x) : x ∈ {x ∈ s | P x} :=

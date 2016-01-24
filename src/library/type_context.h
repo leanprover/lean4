@@ -292,6 +292,7 @@ class type_context {
     optional<name> is_full_class(expr type);
     lbool is_quick_class(expr const & type, name & result);
 
+    optional<pair<expr, expr>> find_unsynth_metavar_at_args(expr const & e);
     optional<pair<expr, expr>> find_unsynth_metavar(expr const & e);
 
     expr mk_internal_local(name const & n, expr const & type, binder_info const & bi = binder_info());

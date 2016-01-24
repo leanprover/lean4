@@ -1325,6 +1325,8 @@ bool type_context::compatible_local_instances(list<expr> const & ctx) {
 
 // Helper function for find_unsynth_metavar
 static bool has_meta_arg(expr e) {
+    if (!has_expr_metavar(e))
+        return false;
     while (is_app(e)) {
         if (is_meta(app_arg(e)))
             return true;
@@ -1337,7 +1339,7 @@ static bool has_meta_arg(expr e) {
     metavariable whose type is a type class, and (?m t_1 ... t_n) must be synthesized
     by type class resolution, then we return ?m.
     Otherwise, we return none */
-optional<pair<expr, expr>> type_context::find_unsynth_metavar(expr const & e) {
+optional<pair<expr, expr>> type_context::find_unsynth_metavar_at_args(expr const & e) {
     if (!has_meta_arg(e))
         return optional<pair<expr, expr>>();
     buffer<expr> args;
@@ -1362,6 +1364,32 @@ optional<pair<expr, expr>> type_context::find_unsynth_metavar(expr const & e) {
         i++;
     }
     return optional<pair<expr, expr>>();
+}
+
+/** Search in \c e for an expression of the form (f ... (?m t_1 ... t_n) ...) where ?m is an unassigned
+    metavariable whose type is a type class, and (?m t_1 ... t_n) must be synthesized
+    by type class resolution, then we return ?m.
+    Otherwise, we return none.
+    This procedure goes inside lambdas. */
+optional<pair<expr, expr>> type_context::find_unsynth_metavar(expr const & e) {
+    if (!has_expr_metavar(e))
+        return optional<pair<expr, expr>>();
+    if (is_app(e)) {
+        if (auto r = find_unsynth_metavar_at_args(e))
+            return r;
+        expr it = e;
+        while (is_app(it)) {
+            if (auto r = find_unsynth_metavar(app_arg(it)))
+                return r;
+            it = app_fn(it);
+        }
+        return optional<pair<expr, expr>>();
+    } else if (is_lambda(e)) {
+        expr l = mk_tmp_local_from_binding(e);
+        return find_unsynth_metavar(instantiate(binding_body(e), l));
+    } else {
+        return optional<pair<expr, expr>>();
+    }
 }
 
 bool type_context::on_is_def_eq_failure(expr & e1, expr & e2) {

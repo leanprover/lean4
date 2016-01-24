@@ -194,7 +194,7 @@ section
 end
 
 structure decidable_linear_ordered_semiring [class] (A : Type)
-  extends linear_ordered_semiring A, decidable_linear_order A
+  extends linear_ordered_semiring A, decidable_linear_ordered_cancel_comm_monoid A
 
 /- ring structures -/
 
@@ -459,6 +459,11 @@ end
 
 structure decidable_linear_ordered_comm_ring [class] (A : Type) extends linear_ordered_comm_ring A,
     decidable_linear_ordered_comm_group A
+
+definition decidable_linear_ordered_comm_ring.to_decidable_linear_ordered_semiring
+    [trans_instance] [reducible] [s : decidable_linear_ordered_comm_ring A] :
+  decidable_linear_ordered_semiring A :=
+⦃decidable_linear_ordered_semiring, s, @linear_ordered_ring.to_linear_ordered_semiring A _⦄
 
 section
   variable [s : decidable_linear_ordered_comm_ring A]

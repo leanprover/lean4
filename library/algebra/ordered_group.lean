@@ -192,6 +192,47 @@ section
   !add_zero ▸ add_lt_add Hbc Ha
 end
 
+/- ordered cancelative commutative monoids with a decidable linear order -/
+
+structure decidable_linear_ordered_cancel_comm_monoid [class] (A : Type)
+  extends ordered_cancel_comm_monoid A, decidable_linear_order A
+
+section
+  variables [s : decidable_linear_ordered_cancel_comm_monoid A]
+  variables {a b c d e : A}
+  include s
+
+  theorem min_add_add_left : min (a + b) (a + c) = a + min b c :=
+  eq.symm (eq_min
+    (show a + min b c ≤ a + b, from add_le_add_left !min_le_left _)
+    (show a + min b c ≤ a + c, from add_le_add_left !min_le_right _)
+    (take d,
+      assume H₁ : d ≤ a + b,
+      assume H₂ : d ≤ a + c,
+      decidable.by_cases
+        (suppose b ≤ c, using this, by rewrite [min_eq_left this]; apply H₁)
+        (suppose ¬ b ≤ c, using this,
+          by rewrite [min_eq_right (le_of_lt (lt_of_not_ge this))]; apply H₂)))
+
+  theorem min_add_add_right : min (a + c) (b + c) = min a b + c :=
+  by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply min_add_add_left
+
+  theorem max_add_add_left : max (a + b) (a + c) = a + max b c :=
+  eq.symm (eq_max
+    (add_le_add_left !le_max_left _)
+    (add_le_add_left !le_max_right _)
+    (take d,
+      assume H₁ : a + b ≤ d,
+      assume H₂ : a + c ≤ d,
+      decidable.by_cases
+        (suppose b ≤ c, using this, by rewrite [max_eq_right this]; apply H₂)
+        (suppose ¬ b ≤ c, using this,
+          by rewrite [max_eq_left (le_of_lt (lt_of_not_ge this))]; apply H₁)))
+
+  theorem max_add_add_right : max (a + c) (b + c) = max a b + c :=
+  by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply max_add_add_left
+end
+
 /- partially ordered groups -/
 
 structure ordered_comm_group [class] (A : Type) extends add_comm_group A, order_pair A :=
@@ -587,38 +628,16 @@ definition decidable_linear_ordered_comm_group.to_ordered_comm_group
   lt_of_le_of_lt := @lt_of_le_of_lt A _,
   lt_of_lt_of_le := @lt_of_lt_of_le A _ ⦄
 
+definition decidable_linear_ordered_comm_group.to_decidable_linear_ordered_cancel_comm_monoid
+    [trans_instance] [reducible] (A : Type) [s : decidable_linear_ordered_comm_group A] :
+  decidable_linear_ordered_cancel_comm_monoid A :=
+⦃ decidable_linear_ordered_cancel_comm_monoid, s,
+    @ordered_comm_group.to_ordered_cancel_comm_monoid A _ ⦄
+
 section
   variables [s : decidable_linear_ordered_comm_group A]
   variables {a b c d e : A}
   include s
-
-  /- these can be generalized to a lattice ordered group -/
-
-  theorem min_add_add_left : min (a + b) (a + c) = a + min b c :=
-  eq.symm (eq_min
-    (show a + min b c ≤ a + b, from add_le_add_left !min_le_left _)
-    (show a + min b c ≤ a + c, from add_le_add_left !min_le_right _)
-    (take d,
-      assume H₁ : d ≤ a + b,
-      assume H₂ : d ≤ a + c,
-      have H : d - a ≤ min b c,
-        from le_min (iff.mp !le_add_iff_sub_left_le H₁) (iff.mp !le_add_iff_sub_left_le H₂),
-      show d ≤ a + min b c, from iff.mpr !le_add_iff_sub_left_le H))
-
-  theorem min_add_add_right : min (a + c) (b + c) = min a b + c :=
-  by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply min_add_add_left
-
-  theorem max_add_add_left : max (a + b) (a + c) = a + max b c :=
-  eq.symm (eq_max
-    (add_le_add_left !le_max_left _)
-    (add_le_add_left !le_max_right _)
-    (λ d H₁ H₂,
-      have H : max b c ≤ d - a,
-        from max_le (iff.mp !add_le_iff_le_sub_left H₁) (iff.mp !add_le_iff_le_sub_left H₂),
-      show a + max b c ≤ d, from iff.mpr !add_le_iff_le_sub_left H))
-
-  theorem max_add_add_right : max (a + c) (b + c) = max a b + c :=
-  by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply max_add_add_left
 
   theorem max_neg_neg : max (-a) (-b) = - min a b  :=
   eq.symm (eq_max

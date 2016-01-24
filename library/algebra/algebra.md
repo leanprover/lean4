@@ -22,5 +22,6 @@ Algebraic structures.
 * [module](module.lean) : modules, vector spaces, and linear maps
 * [ring_power](ring_power.lean) : power in ring structures
 * [ring_bigops](ring_bigops.lean) : products and sums in various structures
+* [order_bigops](order_bigops.lean) : min and max over finsets and finite sets
 * [bundled](bundled.lean) : bundled versions of the algebraic structures
 * [category](category/category.md) : category theory (outdated, see HoTT category theory folder)

@@ -161,8 +161,8 @@ void congruence_closure::initialize() {
 }
 
 void congruence_closure::push_subsingleton_eq(expr const & a, expr const & b) {
-    expr A = infer_type(a);
-    expr B = infer_type(b);
+    expr A = normalize(infer_type(a));
+    expr B = normalize(infer_type(b));
     if (is_def_eq(A, B)) {
         // TODO(Leo): to improve performance we can create the following proof lazily
         bool heq_proof = false;
@@ -192,7 +192,7 @@ void congruence_closure::check_new_subsingleton_eq(expr const & old_root, expr c
 void congruence_closure::process_subsingleton_elem(expr const & e) {
     if (!g_propagate_subsingletons)
         return;
-    expr type = infer_type(e);
+    expr type = normalize(infer_type(e));
     optional<expr> ss = mk_subsingleton_instance(type);
     if (!ss)
         return; /* type is not a subsingleton */

@@ -21,6 +21,9 @@ Author: Daniel Selsam
 
 namespace lean {
 namespace blast {
+#define lean_trace_unit_propagate(Code) lean_trace(name({"blast", "unit", "propagate"}), Code)
+#define lean_trace_debug_unit_propagate(Code) lean_trace(name({"debug", "blast", "unit", "propagate"}), Code)
+
 static bool is_lemma(expr const & _type) {
     expr type = _type;
     bool has_antecedent = false;
@@ -129,6 +132,8 @@ public:
 
 void initialize_unit_propagate() {
     g_ext_id = register_branch_extension(new unit_branch_extension());
+    register_trace_class(name{"blast", "unit", "propagate"});
+    register_trace_class(name{"debug", "blast", "unit", "propagate"});
 }
 
 void finalize_unit_propagate() { }
@@ -289,6 +294,7 @@ static action_result unit_lemma(hypothesis_idx hidx, expr const & _type, expr co
     }
 
     curr_state().mk_hypothesis(final_type, final_proof);
+    lean_trace_unit_propagate(tout() << final_type << "\n";);
     return action_result::new_branch();
 }
 
@@ -310,6 +316,7 @@ static action_result unit_dep_lemma(hypothesis_idx hidx, expr type, expr proof) 
     if (propagated) {
         curr_state().del_hypothesis(hidx);
         curr_state().mk_hypothesis(type, proof);
+        lean_trace_unit_propagate(tout() << type << "\n";);
         return action_result::new_branch();
     }
     lean_assert(is_pi(type));
@@ -344,6 +351,7 @@ static action_result unit_fact(expr const & type) {
 action_result unit_propagate(unsigned hidx) {
     hypothesis const & h = curr_state().get_hypothesis_decl(hidx);
     expr type = whnf(h.get_type());
+    lean_trace_debug_unit_propagate(tout() << type << "\n";);
     if (is_lemma(type)) return unit_lemma(hidx, type, h.get_self());
     else if (is_dep_lemma(type)) return unit_dep_lemma(hidx, type, h.get_self());
     else if (is_fact(type)) return unit_fact(type);

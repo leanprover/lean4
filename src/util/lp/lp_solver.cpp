@@ -96,35 +96,35 @@ template <typename T, typename X> void lp_solver<T, X>::scale() {
 }
 
 
-template <typename T, typename X> void lp_solver<T, X>::print_rows_scale_stats() {
-    std::cout << "rows max" << std::endl;
+template <typename T, typename X> void lp_solver<T, X>::print_rows_scale_stats(std::ostream & out) {
+    out << "rows max" << std::endl;
     for (unsigned i = 0; i < m_A->row_count(); i++) {
-        print_row_scale_stats(i);
+        print_row_scale_stats(i, out);
     }
-    std::cout << std::endl;
+    out << std::endl;
 }
 
-template <typename T, typename X> void lp_solver<T, X>::print_columns_scale_stats() {
-    std::cout << "columns max" << std::endl;
+template <typename T, typename X> void lp_solver<T, X>::print_columns_scale_stats(std::ostream & out) {
+    out << "columns max" << std::endl;
     for (unsigned i = 0; i < m_A->column_count(); i++) {
-        print_column_scale_stats(i);
+        print_column_scale_stats(i, out);
     }
-    std::cout << std::endl;
+    out << std::endl;
 }
 
-template <typename T, typename X> void lp_solver<T, X>::print_row_scale_stats(unsigned i) {
-    std::cout << "(" << std::min(m_A->get_min_abs_in_row(i), abs(m_b[i])) << " ";
-    std::cout << std::max(m_A->get_max_abs_in_row(i), abs(m_b[i])) << ")";
+template <typename T, typename X> void lp_solver<T, X>::print_row_scale_stats(unsigned i, std::ostream & out) {
+    out << "(" << std::min(m_A->get_min_abs_in_row(i), abs(m_b[i])) << " ";
+    out << std::max(m_A->get_max_abs_in_row(i), abs(m_b[i])) << ")";
 }
 
-template <typename T, typename X> void lp_solver<T, X>::print_column_scale_stats(unsigned j) {
-    std::cout << "(" << m_A->get_min_abs_in_row(j) << " ";
-    std::cout <<  m_A->get_max_abs_in_column(j) << ")";
+template <typename T, typename X> void lp_solver<T, X>::print_column_scale_stats(unsigned j, std::ostream & out) {
+    out << "(" << m_A->get_min_abs_in_row(j) << " ";
+    out <<  m_A->get_max_abs_in_column(j) << ")";
 }
 
-template <typename T, typename X> void lp_solver<T, X>::print_scale_stats() {
-    print_rows_scale_stats();
-    print_columns_scale_stats();
+template <typename T, typename X> void lp_solver<T, X>::print_scale_stats(std::ostream & out) {
+    print_rows_scale_stats(out);
+    print_columns_scale_stats(out);
 }
 
 template <typename T, typename X> void lp_solver<T, X>::get_max_abs_in_row(std::unordered_map<unsigned, T> & row_map) {

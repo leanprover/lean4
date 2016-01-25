@@ -10,13 +10,15 @@ namespace lean {
 
 
 template <typename T, typename X>
-core_solver_pretty_printer<T, X>::core_solver_pretty_printer(lp_core_solver_base<T, X > & core_solver): m_core_solver(core_solver),
-                                                                                                        m_column_widths(core_solver.m_A.column_count(), 0),
-                                                                                                        m_A(core_solver.m_A.row_count(), vector<string>(core_solver.m_A.column_count(), "")),
-                                                                                                        m_signs(core_solver.m_A.row_count(), vector<string>(core_solver.m_A.column_count(), " ")),
-                                                                                                        m_costs(ncols(), ""),
-                                                                                                        m_cost_signs(ncols(), " "),
-                                                                                                        m_rs(ncols(), zero_of_type<X>()) {
+core_solver_pretty_printer<T, X>::core_solver_pretty_printer(lp_core_solver_base<T, X > & core_solver, std::ostream & out):
+    m_out(out),
+    m_core_solver(core_solver),
+    m_column_widths(core_solver.m_A.column_count(), 0),
+    m_A(core_solver.m_A.row_count(), vector<string>(core_solver.m_A.column_count(), "")),
+    m_signs(core_solver.m_A.row_count(), vector<string>(core_solver.m_A.column_count(), " ")),
+    m_costs(ncols(), ""),
+    m_cost_signs(ncols(), " "),
+    m_rs(ncols(), zero_of_type<X>()) {
     m_w_buff = new T[m_core_solver.m_m];
     m_ed_buff = new T[m_core_solver.m_m];
     m_core_solver.save_state(m_w_buff, m_ed_buff);
@@ -167,17 +169,17 @@ template <typename T, typename X> void core_solver_pretty_printer<T, X>::print_x
     }
 
     int blanks = m_title_width + 1 - m_x_title.size();
-    std::cout << m_x_title;
-    print_blanks(blanks);
+    m_out << m_x_title;
+    print_blanks(blanks, m_out);
 
     auto bh = m_core_solver.m_x;
     for (unsigned i = 0; i < ncols(); i++) {
         string s = T_to_string(bh[i]);
         int blanks = m_column_widths[i] - s.size();
-        print_blanks(blanks);
-        std::cout << s << "   "; // the column interval
+        print_blanks(blanks, m_out);
+        m_out << s << "   "; // the column interval
     }
-    std::cout << std::endl;
+    m_out << std::endl;
 }
 
 template <typename T, typename X> std::string core_solver_pretty_printer<T, X>::get_low_bound_string(unsigned j) {
@@ -213,16 +215,16 @@ template <typename T, typename X> void core_solver_pretty_printer<T, X>::print_l
         return;
     }
     int blanks = m_title_width + 1 - m_low_bounds_title.size();
-    std::cout << m_low_bounds_title;
-    print_blanks(blanks);
+    m_out << m_low_bounds_title;
+    print_blanks(blanks, m_out);
 
     for (unsigned i = 0; i < ncols(); i++) {
         string s = get_low_bound_string(i);
         int blanks = m_column_widths[i] - s.size();
-        print_blanks(blanks);
-        std::cout << s << "   "; // the column interval
+        print_blanks(blanks, m_out);
+        m_out << s << "   "; // the column interval
     }
-    std::cout << std::endl;
+    m_out << std::endl;
 }
 
 template <typename T, typename X> void core_solver_pretty_printer<T, X>::print_upps() {
@@ -230,42 +232,42 @@ template <typename T, typename X> void core_solver_pretty_printer<T, X>::print_u
         return;
     }
     int blanks = m_title_width + 1 - m_upp_bounds_title.size();
-    std::cout << m_upp_bounds_title;
-    print_blanks(blanks);
+    m_out << m_upp_bounds_title;
+    print_blanks(blanks, m_out);
 
     for (unsigned i = 0; i < ncols(); i++) {
         string s = get_upp_bound_string(i);
         int blanks = m_column_widths[i] - s.size();
-        print_blanks(blanks);
-        std::cout << s << "   "; // the column interval
+        print_blanks(blanks, m_out);
+        m_out << s << "   "; // the column interval
     }
-    std::cout << std::endl;
+    m_out << std::endl;
 }
 
 template <typename T, typename X> void core_solver_pretty_printer<T, X>::print_exact_norms() {
     int blanks = m_title_width + 1 - m_exact_norm_title.size();
-    std::cout << m_exact_norm_title;
-    print_blanks(blanks);
+    m_out << m_exact_norm_title;
+    print_blanks(blanks, m_out);
     for (unsigned i = 0; i < ncols(); i++) {
         string s = get_exact_column_norm_string(i);
         int blanks = m_column_widths[i] - s.size();
-        print_blanks(blanks);
-        std::cout << s << "   ";
+        print_blanks(blanks, m_out);
+        m_out << s << "   ";
     }
-    std::cout << std::endl;
+    m_out << std::endl;
 }
 
 template <typename T, typename X> void core_solver_pretty_printer<T, X>::print_approx_norms() {
     int blanks = m_title_width + 1 - m_approx_norm_title.size();
-    std::cout << m_approx_norm_title;
-    print_blanks(blanks);
+    m_out << m_approx_norm_title;
+    print_blanks(blanks, m_out);
     for (unsigned i = 0; i < ncols(); i++) {
         string s = T_to_string(m_core_solver.m_column_norms[i]);
         int blanks = m_column_widths[i] - s.size();
-        print_blanks(blanks);
-        std::cout << s << "   ";
+        print_blanks(blanks, m_out);
+        m_out << s << "   ";
     }
-    std::cout << std::endl;
+    m_out << std::endl;
 }
 
 template <typename T, typename X> void core_solver_pretty_printer<T, X>::print() {
@@ -280,13 +282,13 @@ template <typename T, typename X> void core_solver_pretty_printer<T, X>::print()
     print_upps();
     print_exact_norms();
     print_approx_norms();
-    std::cout << std::endl;
+    m_out << std::endl;
 }
 
 template <typename T, typename X> void core_solver_pretty_printer<T, X>::print_basis_heading() {
     int blanks = m_title_width + 1 - m_basis_heading_title.size();
-    std::cout << m_basis_heading_title;
-    print_blanks(blanks);
+    m_out << m_basis_heading_title;
+    print_blanks(blanks, m_out);
 
     if (ncols() == 0) {
         return;
@@ -295,16 +297,16 @@ template <typename T, typename X> void core_solver_pretty_printer<T, X>::print_b
     for (unsigned i = 0; i < ncols(); i++) {
         string s = T_to_string(bh[i]);
         int blanks = m_column_widths[i] - s.size();
-        print_blanks(blanks);
-        std::cout << s << "   "; // the column interval
+        print_blanks(blanks, m_out);
+        m_out << s << "   "; // the column interval
     }
-    std::cout << std::endl;
+    m_out << std::endl;
 }
 
 template <typename T, typename X> void core_solver_pretty_printer<T, X>::print_cost() {
     int blanks = m_title_width + 1 - m_cost_title.size();
-    std::cout << m_cost_title;
-    print_blanks(blanks);
+    m_out << m_cost_title;
+    print_blanks(blanks, m_out);
     print_given_rows(m_costs, m_cost_signs, m_core_solver.get_cost());
 }
 
@@ -314,23 +316,23 @@ template <typename T, typename X> void core_solver_pretty_printer<T, X>::print_g
         string s = row[col];
         int number_of_blanks = width - s.size();
         lean_assert(number_of_blanks >= 0);
-        print_blanks(number_of_blanks);
-        std::cout << s << ' ';
+        print_blanks(number_of_blanks, m_out);
+        m_out << s << ' ';
         if (col < row.size() - 1) {
-            std::cout << signs[col + 1] << ' ';
+            m_out << signs[col + 1] << ' ';
         }
     }
-    std::cout << '=';
+    m_out << '=';
 
     string rs = T_to_string(rst);
     int nb = m_rs_width - rs.size();
     lean_assert(nb >= 0);
-    print_blanks(nb + 1);
-    std::cout << rs << std::endl;
+    print_blanks(nb + 1, m_out);
+    m_out << rs << std::endl;
 }
 
 template <typename T, typename X> void core_solver_pretty_printer<T, X>::print_row(unsigned i){
-    print_blanks(m_title_width + 1);
+    print_blanks(m_title_width + 1, m_out);
     auto row = m_A[i];
     auto sign_row = m_signs[i];
     auto rs = m_rs[i];

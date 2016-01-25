@@ -9,7 +9,7 @@
 namespace lean {
 #ifdef LEAN_DEBUG
 template <typename T, typename X> // print the nr x nc submatrix at the top left corner
-void print_submatrix(sparse_matrix<T, X> & m, unsigned mr, unsigned nc) {
+void print_submatrix(sparse_matrix<T, X> & m, unsigned mr, unsigned nc, std::ostream & out) {
     std::vector<std::vector<std::string>> A;
     std::vector<unsigned> widths;
     for (unsigned i = 0; i < m.row_count() && i < mr ; i++) {
@@ -23,11 +23,11 @@ void print_submatrix(sparse_matrix<T, X> & m, unsigned mr, unsigned nc) {
         widths.push_back(get_width_of_column(j, A));
     }
 
-    print_matrix_with_widths(A, widths);
+    print_matrix_with_widths(A, widths, out);
 }
 
 template<typename T, typename X>
-void print_matrix(static_matrix<T, X> &m) {
+void print_matrix(static_matrix<T, X> &m, std::ostream & out) {
     std::vector<std::vector<std::string>> A;
     std::vector<unsigned> widths;
     std::set<pair<unsigned, unsigned>> domain = m.get_domain();
@@ -42,11 +42,11 @@ void print_matrix(static_matrix<T, X> &m) {
         widths.push_back(get_width_of_column(j, A));
     }
 
-    print_matrix_with_widths(A, widths);
+    print_matrix_with_widths(A, widths, out);
 }
 
 template <typename T, typename X>
-void print_matrix(sparse_matrix<T, X>& m) {
+void print_matrix(sparse_matrix<T, X>& m, std::ostream & out) {
     std::vector<std::vector<std::string>> A;
     std::vector<unsigned> widths;
     for (unsigned i = 0; i < m.row_count(); i++) {
@@ -60,7 +60,7 @@ void print_matrix(sparse_matrix<T, X>& m) {
         widths.push_back(get_width_of_column(j, A));
     }
 
-    print_matrix_with_widths(A, widths);
+    print_matrix_with_widths(A, widths, out);
 }
 #endif
 
@@ -177,15 +177,9 @@ void lu<T, X>::solve_By_when_y_is_ready(std::vector<L> & y) {
         }
     }
 }
+
 template <typename T, typename X>
-void lu<T, X>::print_basis(std::ofstream & f) {
-    f << "basis_start" << std::endl;
-    for (unsigned j : m_basis)
-        f << j << std::endl;
-    f << "basis_end" << std::endl;
-}
-template <typename T, typename X>
-void lu<T, X>::print_matrix_compact(std::ofstream & f) {
+void lu<T, X>::print_matrix_compact(std::ostream & f) {
     f << "matrix_start" << std::endl;
     f << "nrows " << m_A.row_count() << std::endl;
     f << "ncolumns " << m_A.column_count() << std::endl;
@@ -371,29 +365,27 @@ eta_matrix<T, X> * lu<T, X>::get_eta_matrix_for_pivot(unsigned j, sparse_matrix<
 }
 
 template <typename T, typename X>
-void lu<T, X>::print_basis() {
-    std::cout << "basis ";
+void lu<T, X>::print_basis(std::ostream & out) {
+    out << "basis ";
     for (unsigned i = 0; i < m_dim; i++) {
-        std::cout << m_basis[i] << " ";
+        out << m_basis[i] << " ";
     }
-    std::cout << std::endl;
+    out << std::endl;
 }
 template <typename T, typename X>
-void lu<T, X>::print_basis_heading() {
-    print_basis();
+void lu<T, X>::print_basis_heading(std::ostream & out) {
+    print_basis(out);
     for (unsigned i = 0; i < m_A.column_count(); i++) {
-        std::cout << m_basis_heading[i] << ",";
+        out << m_basis_heading[i] << ",";
     }
-    std::cout << std::endl;
+    out << std::endl;
 }
 
 // see page 407 of Chvatal
 template <typename T, typename X>
 unsigned lu<T, X>::transform_U_to_V_by_replacing_column(unsigned leaving, indexed_vector<T> & w) {
     int leaving_column = m_basis_heading[leaving];
-    // std::cout << "leaving_column = " << leaving_column << std::endl;
     unsigned column_to_replace = m_R.apply_reverse(leaving_column);
-    // std::cout << "leaving_column modified = " << column_to_replace << std::endl;
     m_U.replace_column(column_to_replace, w, m_settings);
     return column_to_replace;
 }
@@ -427,7 +419,6 @@ void lu<T, X>::check_apply_lp_lists_to_w(T * w) {
     }
 }
 
-// provide some access operators for testing
 #endif
 template <typename T, typename X>
 void lu<T, X>::process_column(int j) {
@@ -557,7 +548,6 @@ void lu<T, X>::create_initial_factorization(){
         return;
     }
     j++;
-    //        std::cout << "switching to dense factoring for " << j << endl;
     m_dense_LU = new square_dense_submatrix<T, X>(&m_U, j);
     for (; j < m_dim; j++) {
         pivot_in_dense_mode(j);
@@ -655,9 +645,8 @@ row_eta_matrix<T, X> *lu<T, X>::get_row_eta_matrix_and_set_row_vector(unsigned r
         !is_zero(pivot_elem_for_checking) &&
 #endif
         !m_settings.abs_val_is_smaller_than_pivot_tolerance((m_row_eta_work_vector[lowest_row_of_the_bump] - pivot_elem_for_checking) / denom)) {
-        //            std::cout << "m_row_eta_work_vector[" << lowest_row_of_the_bump << "] = " << T_to_string(m_row_eta_work_vector[lowest_row_of_the_bump]) << ", but pivot = " << T_to_string(pivot_elem_for_checking) << endl;
         set_status(LU_status::Degenerated);
-        //            std::cout << "diagonal element is off" << endl;
+        std::cout << "diagonal element is off" << std::endl;
         return nullptr;
     }
 #ifdef LEAN_DEBUG

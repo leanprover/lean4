@@ -55,15 +55,15 @@ template void lean::lp_core_solver_base<lean::mpq, lean::numeric_pair<lean::mpq>
 template lean::lp_core_solver_base<lean::mpq, lean::mpq>::lp_core_solver_base(lean::static_matrix<lean::mpq, lean::mpq>&, std::vector<lean::mpq, std::allocator<lean::mpq> >&, std::vector<unsigned int, std::allocator<unsigned int> >&, std::vector<lean::mpq, std::allocator<lean::mpq> >&, std::vector<lean::mpq, std::allocator<lean::mpq> >&, lean::lp_settings&, std::unordered_map<unsigned int, std::string, std::hash<unsigned int>, std::equal_to<unsigned int>, std::allocator<std::pair<unsigned int const, std::string> > > const&, std::vector<lean::column_type, std::allocator<lean::column_type> >&, std::vector<lean::mpq, std::allocator<lean::mpq> >&, std::vector<lean::mpq, std::allocator<lean::mpq> >&);
 template bool lean::lp_core_solver_base<lean::mpq, lean::numeric_pair<lean::mpq> >::print_statistics_with_iterations_and_check_that_the_time_is_over(unsigned int);
 template std::string lean::lp_core_solver_base<double, double>::column_name(unsigned int) const;
-template void lean::lp_core_solver_base<double, double>::pretty_print();
+template void lean::lp_core_solver_base<double, double>::pretty_print(std::ostream & out);
 template void lean::lp_core_solver_base<double, double>::restore_state(double*, double*);
 template void lean::lp_core_solver_base<double, double>::save_state(double*, double*);
 template std::string lean::lp_core_solver_base<lean::mpq, lean::mpq>::column_name(unsigned int) const;
-template void lean::lp_core_solver_base<lean::mpq, lean::mpq>::pretty_print();
+template void lean::lp_core_solver_base<lean::mpq, lean::mpq>::pretty_print(std::ostream & out);
 template void lean::lp_core_solver_base<lean::mpq, lean::mpq>::restore_state(lean::mpq*, lean::mpq*);
 template void lean::lp_core_solver_base<lean::mpq, lean::mpq>::save_state(lean::mpq*, lean::mpq*);
 template std::string lean::lp_core_solver_base<lean::mpq, lean::numeric_pair<lean::mpq> >::column_name(unsigned int) const;
-template void lean::lp_core_solver_base<lean::mpq, lean::numeric_pair<lean::mpq> >::pretty_print();
+template void lean::lp_core_solver_base<lean::mpq, lean::numeric_pair<lean::mpq> >::pretty_print(std::ostream & out);
 template void lean::lp_core_solver_base<lean::mpq, lean::numeric_pair<lean::mpq> >::restore_state(lean::mpq*, lean::mpq*);
 template void lean::lp_core_solver_base<lean::mpq, lean::numeric_pair<lean::mpq> >::save_state(lean::mpq*, lean::mpq*);
 template void lean::lp_core_solver_base<lean::mpq, lean::numeric_pair<lean::mpq> >::solve_yB(std::vector<lean::mpq, std::allocator<lean::mpq> >&);

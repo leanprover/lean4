@@ -40,23 +40,6 @@ template <typename T, typename X> void lp_primal_simplex<T, X>::set_scaled_costs
     }
 }
 
-template <typename T, typename X> void lp_primal_simplex<T, X>::stage_two() {
-    std::cout << "starting stage 2" << std::endl;
-    lean_assert(!m_core_solver->A_mult_x_is_off());
-    int j = this->m_A->column_count() - 1;
-    unsigned core_solver_cols = this->number_of_core_structurals();
-
-    while (j >= core_solver_cols) {
-        this->m_costs[j--] = numeric_traits<T>::zero();
-    }
-
-    set_scaled_costs();
-    m_core_solver->set_status(lp_status::FEASIBLE);
-    this->m_second_stage_iterations = m_core_solver->solve();
-    this->m_status = m_core_solver->get_status();
-    //     std::cout << "status is " << lp_status_to_string(this->m_status) << std::endl;
-}
-
 template <typename T, typename X>     column_info<T> * lp_primal_simplex<T, X>::get_or_create_column_info(unsigned column) {
     auto it = this->m_columns.find(column);
     return (it == this->m_columns.end())? ( this->m_columns[column] = new column_info<T>) : it->second;
@@ -240,7 +223,6 @@ template <typename T, typename X> void lp_primal_simplex<T, X>::fill_A_x_and_bas
 }
 
 template <typename T, typename X> void lp_primal_simplex<T, X>::solve_with_total_inf() {
-    std::cout << "starting solve_with_total_inf()" << std::endl;
     int total_vars = this->m_A->column_count() + this->row_count();
     m_low_bounds.clear();
     m_low_bounds.resize(total_vars, zero_of_type<X>());  // low bounds are shifted ot zero

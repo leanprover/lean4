@@ -46,8 +46,8 @@ public:
         lean_assert(dim > 0);
     }
 
-    void print() {
-        print_matrix(*this);
+    void print(std::ostream & out) {
+        print_matrix(*this, out);
     }
 
     const T & get_diagonal_element() const {

@@ -64,31 +64,31 @@ unsigned get_width_of_column(unsigned j, std::vector<std::vector<std::string>> &
     return r;
 }
 
-void print_matrix_with_widths(std::vector<std::vector<std::string>> & A, std::vector<unsigned> & ws) {
+void print_matrix_with_widths(std::vector<std::vector<std::string>> & A, std::vector<unsigned> & ws, std::ostream & out) {
     for (unsigned i = 0; i < A.size(); i++) {
         for (unsigned j = 0; j < A[i].size(); j++) {
-            print_blanks(ws[j] - A[i][j].size());
-            std::cout << A[i][j] << " ";
+            print_blanks(ws[j] - A[i][j].size(), out);
+            out << A[i][j] << " ";
         }
-        std::cout << std::endl;
+        out << std::endl;
     }
 }
 
-void print_string_matrix(std::vector<std::vector<std::string>> & A) {
+void print_string_matrix(std::vector<std::vector<std::string>> & A, std::ostream & out) {
     std::vector<unsigned> widths;
 
     for (unsigned j = 0; j < A[0].size(); j++) {
         widths.push_back(get_width_of_column(j, A));
     }
 
-    print_matrix_with_widths(A, widths);
-    std::cout << std::endl;
+    print_matrix_with_widths(A, widths, out);
+    out << std::endl;
 }
 
 template <typename T, typename X>
-void print_matrix(matrix<T, X> const & m) {
+void print_matrix(matrix<T, X> const & m, std::ostream & out) {
     if (&m == nullptr) {
-        std::cout << "null"  << std::endl;
+        out << "null"  << std::endl;
         return;
     }
     std::vector<std::vector<std::string>> A(m.row_count());
@@ -98,7 +98,7 @@ void print_matrix(matrix<T, X> const & m) {
         }
     }
 
-    print_string_matrix(A);
+    print_string_matrix(A, out);
 }
 
 }

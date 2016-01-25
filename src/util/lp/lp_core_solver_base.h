@@ -100,7 +100,7 @@ public:
 
     void solve_Bd(unsigned entering);
 
-    void pretty_print();
+    void pretty_print(std::ostream & out);
 
     void save_state(T * w_buffer, T * d_buffer);
 

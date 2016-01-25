@@ -63,7 +63,7 @@ namespace lean {
         permutation_matrix get_inverse() const {
             return permutation_matrix(m_length, m_rev);
         }
-        void print() const;
+        void print(std::ostream & out) const;
 #endif
 
         ref operator[](unsigned i) { return ref(*this, i); }

@@ -55,7 +55,7 @@ public:
     /// return the first element of the queue and removes it from the queue
     unsigned dequeue();
 #ifdef LEAN_DEBUG
-    void print();
+    void print(std::ostream & out);
 #endif
 };
 }

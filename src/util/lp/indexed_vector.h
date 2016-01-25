@@ -21,11 +21,11 @@
 #include <iomanip>
 namespace lean {
 
-template <typename T> void print_vector(const std::vector<T> & t);
-template <typename T> void print_vector(const buffer<T> & t);
-template <typename T> void print_sparse_vector(const std::vector<T> & t);
+template <typename T> void print_vector(const std::vector<T> & t, std::ostream & out);
+template <typename T> void print_vector(const buffer<T> & t, std::ostream & out);
+template <typename T> void print_sparse_vector(const std::vector<T> & t, std::ostream & out);
     
-void print_vector(const std::vector<mpq> & t);
+void print_vector(const std::vector<mpq> & t, std::ostream & out);
 template <typename T>
 class indexed_vector {
 public:
@@ -60,7 +60,7 @@ public:
     void erase_from_index(unsigned j);
 #ifdef LEAN_DEBUG
     bool is_OK() const;
-    void print();
+    void print(std::ostream & out);
 #endif
 };
 }

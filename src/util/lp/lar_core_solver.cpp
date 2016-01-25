@@ -33,7 +33,7 @@ lar_core_solver<T, X>::lar_core_solver(std::vector<X> & x, std::vector<column_ty
                               upper_bounds) {
 }
 
-template <typename T, typename X>    void lar_core_solver<T, X>::init_costs() {
+template <typename T, typename X> void lar_core_solver<T, X>::init_costs() {
     lean_assert(this->m_x.size() >= this->m_n);
     lean_assert(this->m_column_type.size() >= this->m_n);
     X inf = m_infeasibility;
@@ -42,8 +42,8 @@ template <typename T, typename X>    void lar_core_solver<T, X>::init_costs() {
         init_cost_for_column(j);
     if (!(this->m_total_iterations ==0 || inf >= m_infeasibility)) {
         std::cout << "inf was " << T_to_string(inf) << " and now " << T_to_string(m_infeasibility) << std::endl;
+        lean_unreachable();
     }
-    lean_assert(this->m_total_iterations ==0 || inf >= m_infeasibility);
     if (inf == m_infeasibility)
         this->m_iters_with_no_cost_growing++;
 }
@@ -171,7 +171,7 @@ template <typename T, typename X>    void lar_core_solver<T, X>::calculate_pivot
     this->calculate_pivot_row_when_pivot_row_of_B1_is_ready();
 }
 
-
+#ifdef LEAN_DEBUG
 template <typename T, typename X>    X lar_core_solver<T, X>::get_deb_inf_column(unsigned j) {
     const X & x = this->m_x[j];
     switch (this->m_column_type[j]) {
@@ -206,31 +206,28 @@ template <typename T, typename X>    X lar_core_solver<T, X>::get_deb_inf() {
     X ret = zero_of_type<X>();
     for (unsigned j = 0; j < this->m_n; j++) {
         X d = get_deb_inf_column(j);
-        // if (! numeric_traits<T>::is_zero(d)) {
-        //     std::cout << "column " << j << ", " << this->column_name(j) << " inf is " << d.get_double() << std::endl;
-        // }
         ret += d;
     }
     return ret;
 }
 
-template <typename T, typename X>    bool lar_core_solver<T, X>::debug_profit_delta(unsigned j, const T & delta) {
+template <typename T, typename X> bool lar_core_solver<T, X>::debug_profit_delta(unsigned j, const T & delta, std::ostream & out) {
     this->update_x(j, delta);
     bool ret = m_infeasibility > get_deb_inf();
     if (ret) {
-        std::cout << "found profit for " << this->column_name(j) << " and delta = " << delta.get_double() << std::endl;
-        std::cout << "improvement = " << (m_infeasibility -  get_deb_inf()).get_double() << std::endl;
+        out << "found profit for " << this->column_name(j) << " and delta = " << delta.get_double() << std::endl;
+        out << "improvement = " << (m_infeasibility -  get_deb_inf()).get_double() << std::endl;
     }
     return ret;
 }
 
-template <typename T, typename X>    bool lar_core_solver<T, X>::debug_profit(unsigned j) {
+template <typename T, typename X>    bool lar_core_solver<T, X>::debug_profit(unsigned j, std::ostream & out) {
     if (this->m_column_type[j] == fixed) return false;
     T delta = numeric_traits<T>::one() / 10000000;
     delta /= 10000000;
-    return debug_profit_delta(j, -delta) || debug_profit_delta(j, delta);
+    return debug_profit_delta(j, -delta, out) || debug_profit_delta(j, delta, out);
 }
-
+#endif
 template <typename T, typename X>    int lar_core_solver<T, X>::choose_column_entering_basis() {
     unsigned offset = my_random() % this->m_non_basic_columns.size();
     unsigned initial_offset_in_non_basis = offset;
@@ -253,7 +250,6 @@ template <typename T, typename X>    void lar_core_solver<T, X>::one_iteration()
     }
     int entering = choose_column_entering_basis();
     if (entering == -1) {
-        std::cout << "cannot choose entering" << std::endl;
         decide_on_status_when_cannot_enter();
     } else {
         advance_on_entering(entering);
@@ -266,7 +262,6 @@ template <typename T, typename X>    void lar_core_solver<T, X>::decide_on_statu
         this->m_status = INFEASIBLE;
     else
         this->m_status = FEASIBLE;
-    std::cout << "status is " << lp_status_to_string(this->m_status) << std::endl;
 }
 
 // j is the basic column, x is the value at x[j]
@@ -339,27 +334,27 @@ template <typename T, typename X>  std::string  lar_core_solver<T, X>::break_typ
     return "type is not found";
 }
 
-template <typename T, typename X>    void lar_core_solver<T, X>::print_breakpoint(const breakpoint<X> * b) {
-    std::cout << "(" << this->column_name(b->m_j) << "," << break_type_to_string(b->m_type) << "," << T_to_string(b->m_delta) << ")" << std::endl;
+template <typename T, typename X> void lar_core_solver<T, X>::print_breakpoint(const breakpoint<X> * b, std::ostream & out) {
+    out << "(" << this->column_name(b->m_j) << "," << break_type_to_string(b->m_type) << "," << T_to_string(b->m_delta) << ")" << std::endl;
     print_bound_info_and_x(b->m_j);
 }
 
-template <typename T, typename X>    void lar_core_solver<T, X>::print_bound_info_and_x(unsigned j) {
-    std::cout << "type of " << this->column_name(j) << " is " << column_type_to_string(this->m_column_type[j]) << std::endl;
-    std::cout << "x[" << this->column_name(j) << "] = " << this->m_x[j] << std::endl;
+template <typename T, typename X> void lar_core_solver<T, X>::print_bound_info_and_x(unsigned j, std::ostream & out) {
+    out << "type of " << this->column_name(j) << " is " << column_type_to_string(this->m_column_type[j]) << std::endl;
+    out << "x[" << this->column_name(j) << "] = " << this->m_x[j] << std::endl;
     switch (this->m_column_type[j]) {
     case fixed:
     case boxed:
-        std::cout << "[" << this->m_low_bound_values[j] << "," << this->m_upper_bound_values[j] << "]" << std::endl;
+        out << "[" << this->m_low_bound_values[j] << "," << this->m_upper_bound_values[j] << "]" << std::endl;
         break;
     case low_bound:
-        std::cout << "[" << this->m_low_bound_values[j] << ", inf" << std::endl;
+        out << "[" << this->m_low_bound_values[j] << ", inf" << std::endl;
         break;
     case upper_bound:
-        std::cout << "inf ," << this->m_upper_bound_values[j] << "]" << std::endl;
+        out << "inf ," << this->m_upper_bound_values[j] << "]" << std::endl;
         break;
     case free_column:
-        std::cout << "inf, inf" << std::endl;
+        out << "inf, inf" << std::endl;
         break;
     default:
         lean_assert(false);
@@ -393,16 +388,16 @@ template <typename T, typename X>    void lar_core_solver<T, X>::advance_on_ente
     advance_on_sorted_breakpoints(entering);
 }
 
-template <typename T, typename X>    void lar_core_solver<T, X>::print_cost() {
-    std::cout << "reduced costs " << std::endl;
+template <typename T, typename X> void lar_core_solver<T, X>::print_cost(std::ostream & out) {
+    out << "reduced costs " << std::endl;
     for (unsigned j = 0; j < this->m_n; j++) {
         if (numeric_traits<T>::is_zero(this->m_d[j])) continue;
-        std::cout << T_to_string(this->m_d[j]) << this->column_name(j) << " ";
+        out << T_to_string(this->m_d[j]) << this->column_name(j) << " ";
     }
-    std::cout << std::endl;
+    out << std::endl;
 }
 
-template <typename T, typename X>    void lar_core_solver<T, X>::update_basis_and_x_with_comparison(unsigned entering, unsigned leaving, X delta) {
+template <typename T, typename X> void lar_core_solver<T, X>::update_basis_and_x_with_comparison(unsigned entering, unsigned leaving, X delta) {
     if (entering != leaving)
         this->update_basis_and_x(entering, leaving, delta);
     else
@@ -487,30 +482,22 @@ template <typename T, typename X>    bool lar_core_solver<T, X>::find_evidence_r
 }
 
 
-template <typename T, typename X>    bool lar_core_solver<T, X>::done() {
+template <typename T, typename X> bool lar_core_solver<T, X>::done() {
     if (this->m_status == OPTIMAL) return true;
     if (this->m_status == INFEASIBLE) {
         if (this->m_settings.row_feasibility == false) {
-            if (find_evidence_row()) {
-                std::cout << "found evidence" << std::endl;
-            } else {
-                std::cout << "did not find evidence" << std::endl;
-                std::cout << "started feasibility_loop at iteration " << this->m_total_iterations << std::endl;
-                unsigned iters = this->m_total_iterations;
+            if (!find_evidence_row()) {
                 this->m_status = FEASIBLE;
                 row_feasibility_loop();
-                std::cout << "made another " << this->m_total_iterations - iters << ", percentage is " << 100.0 * (this->m_total_iterations - iters) / this->m_total_iterations << std::endl;
             }
         }
         return true;
     }
 
     if (this->m_iters_with_no_cost_growing >= this->m_settings.max_number_of_iterations_with_no_improvements) {
-        std::cout << "m_iters_with_no_cost_growing = " << this->m_iters_with_no_cost_growing << std::endl;
         this->m_status = ITERATIONS_EXHAUSTED; return true;
     }
     if (this->m_total_iterations >= this->m_settings.max_total_number_of_iterations) {
-        std::cout << "max_total_number_of_iterations " <<  this->m_total_iterations << " is reached " << std::endl;
         this->m_status = ITERATIONS_EXHAUSTED; return true;
     }
     return false;
@@ -789,26 +776,24 @@ template <typename T, typename X>    void lar_core_solver<T, X>::solve() {
     lean_assert(non_basis_columns_are_set_correctly());
 
     if (this->m_settings.row_feasibility) {
-        std::cout << "optimizing by rows " << std::endl;
         row_feasibility_loop();
     } else {
-        std::cout << "optimizing total infeasibility" << std::endl;
         feasibility_loop();
     }
 }
 
-template <typename T, typename X>    void lar_core_solver<T, X>::print_column_info(unsigned j) {
-    std::cout << "type = " << column_type_to_string(this->m_column_type[j]) << std::endl;
+template <typename T, typename X> void lar_core_solver<T, X>::print_column_info(unsigned j, std::ostream & out) {
+    out << "type = " << column_type_to_string(this->m_column_type[j]) << std::endl;
     switch (this->m_column_type[j]) {
     case fixed:
     case boxed:
-        std::cout << "(" << this->m_low_bound_values[j] << ", " << this->m_upper_bound_values[j] << ")" << std::endl;
+        out << "(" << this->m_low_bound_values[j] << ", " << this->m_upper_bound_values[j] << ")" << std::endl;
         break;
     case low_bound:
-        std::cout << this->m_low_bound_values[j] << std::endl;
+        out << this->m_low_bound_values[j] << std::endl;
         break;
     case upper_bound:
-        std::cout << this->m_upper_bound_values[j] << std::endl;
+        out << this->m_upper_bound_values[j] << std::endl;
         break;
     default:
         lean_unreachable();

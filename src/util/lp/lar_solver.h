@@ -217,15 +217,15 @@ public:
 
     std::string get_variable_name(var_index vi);
 
-    void print_constraint(constraint_index ci);
+    void print_constraint(constraint_index ci, std::ostream & out);
 
-    void print_canonic_left_side(const canonic_left_side & c);
+    void print_canonic_left_side(const canonic_left_side & c, std::ostream & out);
 
-    void print_left_side_of_constraint(const lar_base_constraint * c);
+    void print_left_side_of_constraint(const lar_base_constraint * c, std::ostream & out);
 
     numeric_pair<mpq> get_infeasibility_from_core_solver(std::unordered_map<std::string, mpq> & solution);
 
-    void print_info_on_column(unsigned j);
+    void print_info_on_column(unsigned j, std::ostream & out);
 
     mpq get_infeasibility_of_solution(std::unordered_map<std::string, mpq> & solution);
 
@@ -235,7 +235,7 @@ public:
 
     mpq get_left_side_val(const lar_constraint &  cns, const std::unordered_map<var_index, mpq> & var_map);
 
-    void print_constraint(const lar_base_constraint * c);
+    void print_constraint(const lar_base_constraint * c, std::ostream & out);
     unsigned get_total_iterations() const { return m_mpq_core_solver.m_total_iterations; }
 };
 }

@@ -9,32 +9,32 @@
 namespace lean {
 
 template <typename T>
-void print_vector(const std::vector<T> & t) {
+void print_vector(const std::vector<T> & t, std::ostream & out) {
     for (unsigned i = 0; i < t.size(); i++)
-        std::cout << t[i] << " ";
-    std::cout << std::endl;
+        out << t[i] << " ";
+    out << std::endl;
 }
 
 template <typename T>
-void print_vector(const buffer<T> & t) {
+void print_vector(const buffer<T> & t, std::ostream & out) {
     for (unsigned i = 0; i < t.size(); i++)
-        std::cout << t[i] << " ";
-    std::cout << std::endl;
+        out << t[i] << " ";
+    out << std::endl;
 }
 
 template <typename T>
-void print_sparse_vector(const std::vector<T> & t) {
+void print_sparse_vector(const std::vector<T> & t, std::ostream & out) {
     for (unsigned i = 0; i < t.size(); i++) {
         if (is_zero(t[i]))continue;
-        std::cout << "[" << i << "] = " << t[i] << ", ";
+        out << "[" << i << "] = " << t[i] << ", ";
     }
-    std::cout << std::endl;
+    out << std::endl;
 }
 
-void print_vector(const std::vector<mpq> & t) {
+void print_vector(const std::vector<mpq> & t, std::ostream & out) {
     for (unsigned i = 0; i < t.size(); i++)
-        std::cout << t[i].get_double() << std::setprecision(3) << " ";
-    std::cout << std::endl;
+        out << t[i].get_double() << std::setprecision(3) << " ";
+    out << std::endl;
 }
 
 template <typename T> 
@@ -81,13 +81,13 @@ bool indexed_vector<T>::is_OK() const {
     return size == m_index.size();
 }
 template <typename T> 
-void indexed_vector<T>::print() {
-    std::cout << "m_index " << std::endl;
+void indexed_vector<T>::print(std::ostream & out) {
+    out << "m_index " << std::endl;
     for (unsigned i = 0; i < m_index.size(); i++) {
-        std::cout << m_index[i] << " ";
+        out << m_index[i] << " ";
     }
-    std::cout << std::endl;
-    print_vector(m_data);
+    out << std::endl;
+    print_vector(m_data, out);
 }
 #endif
 

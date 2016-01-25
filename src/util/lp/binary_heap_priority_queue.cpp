@@ -42,13 +42,6 @@ template <typename T> bool binary_heap_priority_queue<T>::is_consistent() const 
         for (int k = 0; k < 2; k++) {
             if (ch > m_heap_size) break;
             if (!(m_priorities[m_heap[i]] <= m_priorities[m_heap[ch]])){
-                std::cout << "m_heap_size = " << m_heap_size << std::endl;
-                std::cout << "i = " << i << std::endl;
-                std::cout << "m_heap[i] = " << m_heap[i] << std::endl;
-                std::cout << "ch = " << ch << std::endl;
-                std::cout << "m_heap[ch] = " << m_heap[ch] << std::endl;
-                std::cout << "m_priorities[m_heap[i]] = " << m_priorities[m_heap[i]] << std::endl;
-                std::cout << "m_priorities[m_heap[ch]] = " << m_priorities[m_heap[ch]]<< std::endl;
                 return false;
             }
             ch++;
@@ -182,7 +175,7 @@ template <typename T> unsigned binary_heap_priority_queue<T>::dequeue() {
     return ret;
 }
 #ifdef LEAN_DEBUG
-template <typename T> void binary_heap_priority_queue<T>::print() {
+template <typename T> void binary_heap_priority_queue<T>::print(std::ostream & out) {
     std::vector<int> index;
     std::vector<T> prs;
     while (size()) {
@@ -190,9 +183,9 @@ template <typename T> void binary_heap_priority_queue<T>::print() {
         int j = dequeue_and_get_priority(prior);
         index.push_back(j);
         prs.push_back(prior);
-        std::cout << "(" << j << ", " << prior << ")";
+        out << "(" << j << ", " << prior << ")";
     }
-    std::cout << std::endl;
+    out << std::endl;
     // restore the queue
     for (int i = 0; i < index.size(); i++)
         enqueue(index[i], prs[i]);

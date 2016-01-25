@@ -858,10 +858,10 @@ bool sparse_matrix<T, X>::really_best_pivot(unsigned i, unsigned j, T const & c_
     return true;
 }
 template <typename T, typename X>
-void sparse_matrix<T, X>::print_active_matrix(unsigned k) {
-    std::cout << "active matrix for k = " << k << std::endl;
+void sparse_matrix<T, X>::print_active_matrix(unsigned k, std::ostream & out) {
+    out << "active matrix for k = " << k << std::endl;
     if (k >= dimension()) {
-        std::cout << "empty" << std::endl;
+        out << "empty" << std::endl;
         return;
     }
     unsigned dim = dimension() - k;
@@ -879,7 +879,7 @@ void sparse_matrix<T, X>::print_active_matrix(unsigned k) {
             b.set_elem(row_ex - k, i -k, v);
         }
     }
-    print_matrix(b);
+    print_matrix(b, out);
 }
 
 template <typename T, typename X>

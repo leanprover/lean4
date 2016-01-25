@@ -30,12 +30,8 @@ private:
     void refactor();
 
     void set_scaled_costs();
-
-    void stage_two();
 public:
     lp_primal_simplex() {}
-
-
 
     column_info<T> * get_or_create_column_info(unsigned column);
 

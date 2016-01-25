@@ -9,12 +9,14 @@
 #include <string>
 #include <algorithm>
 #include <vector>
+#include <ostream>
 #include "util/lp/lp_settings.h"
 namespace lean {
 template <typename T, typename X> class lp_core_solver_base; // forward definition
 
 template <typename T, typename X>
 class core_solver_pretty_printer {
+    std::ostream & m_out;
     template<typename A> using vector = std::vector<A>;
     typedef std::string string;
     lp_core_solver_base<T, X> & m_core_solver;
@@ -47,7 +49,7 @@ class core_solver_pretty_printer {
     vector<T> m_exact_column_norms;
 
 public:
-    core_solver_pretty_printer(lp_core_solver_base<T, X > & core_solver);
+    core_solver_pretty_printer(lp_core_solver_base<T, X > & core_solver, std::ostream & out);
 
     void init_costs();
 
@@ -104,7 +106,7 @@ public:
     void print_basis_heading();
 
     void print_bottom_line() {
-        std::cout << "----------------------" << std::endl;
+        m_out << "----------------------" << std::endl;
     }
 
     void print_cost();

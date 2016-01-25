@@ -143,15 +143,15 @@ protected:
     void scale();
 
 
-    void print_rows_scale_stats();
+    void print_rows_scale_stats(std::ostream & out);
 
-    void print_columns_scale_stats();
+    void print_columns_scale_stats(std::ostream & out);
 
-    void print_row_scale_stats(unsigned i);
+    void print_row_scale_stats(unsigned i, std::ostream & out);
 
-    void print_column_scale_stats(unsigned j);
+    void print_column_scale_stats(unsigned j, std::ostream & out);
 
-    void print_scale_stats();
+    void print_scale_stats(std::ostream & out);
 
     void get_max_abs_in_row(std::unordered_map<unsigned, T> & row_map);
 

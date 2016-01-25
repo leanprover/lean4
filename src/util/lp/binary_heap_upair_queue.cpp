@@ -88,14 +88,10 @@ template <typename T> bool binary_heap_upair_queue<T>::pair_to_index_is_a_biject
     std::set<int> tmp;
     for (auto p : m_pairs_to_index) {
         unsigned j = p.second;
-        auto it = tmp.find(j);
-        if (it != tmp.end()) {
-            std::cout << "for pair (" << p.first.first << ", " << p.first.second << "),  the index " << j
-                      << " is already inside " << std::endl;
-            lean_assert(false);
-        } else {
-            tmp.insert(j);
-        }
+        unsigned size = tmp.size();
+        tmp.insert(j);
+        if (tmp.size() == size)
+            return false;
     }
     return true;
 }

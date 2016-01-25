@@ -150,7 +150,7 @@ struct lp_settings {
     // the method of lar solver to use
     bool row_feasibility = true;
     bool use_double_solver_for_lar = true;
-    int report_frequency = 1000;
+    int report_frequency = 10000000;
     unsigned column_norms_update_frequency = 1000;
     bool scale_with_ratio = true;
     double density_threshold = 0.7; // need to tune it up, todo
@@ -205,8 +205,8 @@ X max_abs_in_vector(std::vector<X>& t){
         r = std::max(abs(v) , r);
     return r;
 }
-inline void print_blanks(int n) {
-    while (n--) {std::cout << ' '; }
+inline void print_blanks(int n, std::ostream & out) {
+    while (n--) {out << ' '; }
 }
 }
 

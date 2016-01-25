@@ -133,8 +133,8 @@ solve_Bd(unsigned entering) {
 }
 
 template <typename T, typename X> void lp_core_solver_base<T, X>::
-pretty_print() {
-    core_solver_pretty_printer<T, X> pp(*this);
+pretty_print(std::ostream & out) {
+    core_solver_pretty_printer<T, X> pp(*this, out);
     pp.print();
 }
 
@@ -197,7 +197,7 @@ A_mult_x_is_off() {
         X delta = abs(m_b[i] - m_A.dot_product_with_row(i, m_x));
         X eps = feps * (one + T(0.1) * abs(m_b[i]));
 
-        if (delta >eps) {
+        if (delta > eps) {
             std::cout << "x is off (";
             std::cout << "m_b[" << i  << "] = " << m_b[i] << " ";
             std::cout << "left side = " << m_A.dot_product_with_row(i, m_x) << ' ';
@@ -373,7 +373,6 @@ template <typename T, typename X> bool lp_core_solver_base<T, X>::
 time_is_over() {
     int span_in_mills = get_millisecond_span(m_start_time);
     if (span_in_mills / 1000.0  > m_settings.time_limit) {
-        std::cout << "time is over" << std::endl;
         return true;
     }
     return false;
@@ -397,10 +396,6 @@ template <typename T, typename X> bool lp_core_solver_base<T, X>::
 find_x_by_solving() {
     solve_Ax_eq_b();
     bool ret=  !A_mult_x_is_off();
-    if (ret)
-        std::cout << "find_x_by_solving succeeded" << std::endl;
-    else
-        std::cout << "find_x_by_solving did not succeed" << std::endl;
     return ret;
 }
 
@@ -523,7 +518,6 @@ restore_x_and_refactor(int entering, int leaving, X const & t) {
 template <typename T, typename X> void lp_core_solver_base<T, X>::
 restore_x(unsigned entering, X const & t) {
     if (is_zero(t)) return;
-    std::cout << "calling restore for entering " << entering << std::endl;
     m_x[entering] -= t;
     for (unsigned i : m_index_of_ed) {
         m_x[m_basis[i]]  = m_copy_of_xB[i];

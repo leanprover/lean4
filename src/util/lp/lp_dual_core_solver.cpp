@@ -56,12 +56,12 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::fill_non_basis
     }
 }
 
-template <typename T, typename X> void lp_dual_core_solver<T, X>::print_nb() {
-    std::cout << "this is nb " << std::endl;
+template <typename T, typename X> void lp_dual_core_solver<T, X>::print_nb(std::ostream & out) {
+    out << "this is nb " << std::endl;
     for (auto l : this->m_factorization->m_non_basic_columns) {
-        std::cout << l << " ";
+        out << l << " ";
     }
-    std::cout << std::endl;
+    out << std::endl;
 }
 
 template <typename T, typename X> void lp_dual_core_solver<T, X>::restore_non_basis() {
@@ -83,7 +83,9 @@ template <typename T, typename X> bool lp_dual_core_solver<T, X>::update_basis(i
     if (!(this->m_refactor_counter++ >= 200)) {
         this->m_factorization->replace_column(leaving, this->m_ed[this->m_factorization->basis_heading(leaving)], this->m_w);
         if (this->m_factorization->get_status() != LU_status::OK) {
+#ifdef LEAN_DEBUG
             std::cout << "failed on replace_column( " << leaving << ", " <<  this->m_ed[this->m_factorization->basis_heading(leaving)] << ") total_iterations = " << this->m_total_iterations << std::endl;
+#endif
             init_factorization(this->m_factorization, this->m_A, this->m_basis, this->m_basis_heading, this->m_settings, this->m_non_basic_columns);
             this->m_iters_with_no_cost_growing++;
             this->m_status = UNSTABLE;
@@ -94,7 +96,9 @@ template <typename T, typename X> bool lp_dual_core_solver<T, X>::update_basis(i
         this->m_factorization->change_basis(entering, leaving);
         init_factorization(this->m_factorization, this->m_A, this->m_basis, this->m_basis_heading, this->m_settings, this->m_non_basic_columns);
         if (this->m_factorization->get_status() != LU_status::OK) {
+#ifdef LEAN_DEBUG
             std::cout << "failing refactor for entering = " << entering << ", leaving = " << leaving << " total_iterations = " << this->m_total_iterations << std::endl;
+#endif
             this->m_iters_with_no_cost_growing++;
             return false;
         }
@@ -157,14 +161,6 @@ template <typename T, typename X> T lp_dual_core_solver<T, X>::get_edge_steepnes
     return del / this->m_betas[this->m_basis_heading[p]];
 }
 
-//template <typename T, typename X> void lp_dual_core_solver<T, X>::print_x_and_low_bound(unsigned p) {
-//     std::cout << "x l[" << p << "] = " << this->m_x[p] << " " << this->m_low_bound_values[p] << std::endl;
-// }
-//template <typename T, typename X> void lp_dual_core_solver<T, X>::print_x_and_upper_bound(unsigned p) {
-//     std::cout << "x u[" << p << "] = " << this->m_x[p] << " " << this->m_upper_bound_values[p] << std::endl;
-// }
-
-// returns the
 template <typename T, typename X> T lp_dual_core_solver<T, X>::pricing_for_row(unsigned i) {
     unsigned p = this->m_basis[i];
     switch (this->m_column_type[p]) {
@@ -172,22 +168,16 @@ template <typename T, typename X> T lp_dual_core_solver<T, X>::pricing_for_row(u
     case boxed:
         if (this->x_below_low_bound(p)) {
             T del =  get_edge_steepness_for_low_bound(p);
-            // std::cout << "case boxed low_bound in pricing" << std::endl;
-            // print_x_and_low_bound(p);
             return del;
         }
         if (this->x_above_upper_bound(p)) {
             T del =  get_edge_steepness_for_upper_bound(p);
-            // std::cout << "case boxed at upper_bound in pricing" << std::endl;
-            // print_x_and_upper_bound(p);
             return del;
         }
         return numeric_traits<T>::zero();
     case low_bound:
         if (this->x_below_low_bound(p)) {
             T del =  get_edge_steepness_for_low_bound(p);
-            // std::cout << "case low_bound in pricing" << std::endl;
-            // print_x_and_low_bound(p);
             return del;
         }
         return numeric_traits<T>::zero();
@@ -195,8 +185,6 @@ template <typename T, typename X> T lp_dual_core_solver<T, X>::pricing_for_row(u
     case upper_bound:
         if (this->x_above_upper_bound(p)) {
             T del =  get_edge_steepness_for_upper_bound(p);
-            // std::cout << "case upper_bound in pricing" << std::endl;
-            // print_x_and_upper_bound(p);
             return del;
         }
         return numeric_traits<T>::zero();
@@ -250,9 +238,6 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::pricing_loop(u
         steepest_edge_max = numeric_traits<T>::zero();
         rows_left = number_of_rows_to_try;
         goto loop_start;
-        // if (this->m_total_iterations % 80 == 0) {
-        //     std::cout << "m_delta = " << m_delta << std::endl;
-        // }
     }
 }
 
@@ -362,7 +347,6 @@ template <typename T, typename X> T lp_dual_core_solver<T, X>::get_delta() {
 }
 
 template <typename T, typename X> void lp_dual_core_solver<T, X>::restore_d() {
-    std::cout << "restore_d" << std::endl;
     this->m_d[m_p] = numeric_traits<T>::zero();
     for (auto j : non_basis()) {
         this->m_d[j] += m_theta_D * this->m_pivot_row[j];
@@ -457,12 +441,10 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::init_beta_prec
 }
 
 template <typename T, typename X> void lp_dual_core_solver<T, X>::init_betas_precisely() {
-    std::cout << "init beta precisely..." << std::endl;
     unsigned i = this->m_m;
     while (i--) {
         init_beta_precisely(i);
     }
-    std::cout << "done" << std::endl;
 }
 
 // step 7 of the algorithm from Progress
@@ -483,7 +465,6 @@ template <typename T, typename X> bool lp_dual_core_solver<T, X>::basis_change_a
 }
 
 template <typename T, typename X> void lp_dual_core_solver<T, X>::revert_to_previous_basis() {
-    std::cout << "recovering basis p = " << m_p << " q = " << m_q << std::endl;
     this->m_factorization->change_basis(m_p, m_q);
     init_factorization(this->m_factorization, this->m_A, this->m_basis, this->m_basis_heading, this->m_settings, this->m_non_basic_columns);
     if (this->m_factorization->get_status() != LU_status::OK) {
@@ -535,12 +516,9 @@ template <typename T, typename X> bool lp_dual_core_solver<T, X>::delta_keeps_th
 }
 
 template <typename T, typename X> void lp_dual_core_solver<T, X>::set_status_to_tentative_dual_unbounded_or_dual_unbounded() {
-    std::cout << "cost = " << this->get_cost() << std::endl;
     if (this->m_status == TENTATIVE_DUAL_UNBOUNDED) {
-        std::cout << "setting status to DUAL_UNBOUNDED" << std::endl;
         this->m_status = DUAL_UNBOUNDED;
     } else {
-        std::cout << "setting to TENTATIVE_DUAL_UNBOUNDED" << std::endl;
         this->m_status = TENTATIVE_DUAL_UNBOUNDED;
     }
 }

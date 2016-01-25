@@ -28,10 +28,10 @@ template <typename T, typename X> // print the nr x nc submatrix at the top left
 void print_submatrix(sparse_matrix<T, X> & m, unsigned mr, unsigned nc);
 
 template<typename T, typename X>
-void print_matrix(static_matrix<T, X> &m);
+void print_matrix(static_matrix<T, X> &m, std::ostream & out);
 
 template <typename T, typename X>
-void print_matrix(sparse_matrix<T, X>& m);
+void print_matrix(sparse_matrix<T, X>& m, std::ostream & out);
 #endif
 
 template <typename T, typename X>
@@ -133,8 +133,8 @@ public:
     void solve_By_when_y_is_ready(std::vector<L> & y);
     void print_indexed_vector(indexed_vector<T> & w, std::ofstream & f);
     
-    void print_basis(std::ofstream & f);
-    void print_matrix_compact(std::ofstream & f);
+    void print_basis(std::ostream & f);
+    void print_matrix_compact(std::ostream & f);
 
     void print(indexed_vector<T> & w);
     void solve_Bd(unsigned a_column, std::vector<T> & d, indexed_vector<T> & w);
@@ -185,9 +185,7 @@ public:
     // we're processing the column j now
     eta_matrix<T, X> * get_eta_matrix_for_pivot(unsigned j, sparse_matrix<T, X>& copy_of_U);
 
-    void print_basis();
-
-    void print_basis_heading();
+    void print_basis_heading(std::ostream & out);
 
     // see page 407 of Chvatal
     unsigned transform_U_to_V_by_replacing_column(unsigned leaving, indexed_vector<T> & w);

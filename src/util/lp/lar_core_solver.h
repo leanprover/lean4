@@ -62,9 +62,9 @@ public:
 
     X get_deb_inf();
 
-    bool debug_profit_delta(unsigned j, const T & delta);
+    bool debug_profit_delta(unsigned j, const T & delta, std::ostream & out);
 
-    bool debug_profit(unsigned j);
+    bool debug_profit(unsigned j, std::ostream & out);
 
     int choose_column_entering_basis();
 
@@ -86,9 +86,9 @@ public:
 
     std::string break_type_to_string(breakpoint_type type);
 
-    void print_breakpoint(const breakpoint<X> * b);
+    void print_breakpoint(const breakpoint<X> * b, std::ostream & out);
 
-    void print_bound_info_and_x(unsigned j);
+    void print_bound_info_and_x(unsigned j, std::ostream & out);
 
     void clear_breakpoints();
 
@@ -96,7 +96,7 @@ public:
 
     void advance_on_entering(unsigned entering);
 
-    void print_cost();
+    void print_cost(std::ostream & out);
 
     void update_basis_and_x_with_comparison(unsigned entering, unsigned leaving, X delta);
 
@@ -171,6 +171,6 @@ public:
 
     bool low_bounds_are_set() const { return true; }
 
-    void print_column_info(unsigned j);
+    void print_column_info(unsigned j, std::ostream & out);
 };
 }

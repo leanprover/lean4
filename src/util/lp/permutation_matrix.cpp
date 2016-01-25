@@ -28,17 +28,17 @@ template <typename T, typename X> void permutation_matrix<T, X>::init(unsigned l
 }
 
 #ifdef LEAN_DEBUG
-template <typename T, typename X> void permutation_matrix<T, X>::print() const {
-    std::cout << "[";
+template <typename T, typename X> void permutation_matrix<T, X>::print(std::ostream & out) const {
+    out << "[";
     for (unsigned i = 0; i < m_length; i++) {
-        std::cout << m_permutation[i];
+        out << m_permutation[i];
         if (i < m_length - 1) {
-            std::cout << ",";
+            out << ",";
         } else {
-            std::cout << "]";
+            out << "]";
         }
     }
-    std::cout << std::endl;
+    out << std::endl;
 }
 #endif
 

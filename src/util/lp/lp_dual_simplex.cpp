@@ -12,24 +12,19 @@ template <typename T, typename X> void lp_dual_simplex<T, X>::decide_on_status_a
     case OPTIMAL:
         if (this->m_settings.abs_val_is_smaller_than_artificial_tolerance(m_core_solver->get_cost())) {
             this->m_status = FEASIBLE;
-            std::cout << "status is FEASIBLE" << std::endl;
         } else {
-            std::cout << "status is UNBOUNDED" << std::endl;
             this->m_status = UNBOUNDED;
         }
         break;
     case DUAL_UNBOUNDED:
         lean_unreachable();
     case ITERATIONS_EXHAUSTED:
-        std::cout << "status is ITERATIONS_EXHAUSTED" << std::endl;
         this->m_status = ITERATIONS_EXHAUSTED;
         break;
     case TIME_EXHAUSTED:
-        std::cout << "status is TIME_EXHAUSTED" << std::endl;
         this->m_status = TIME_EXHAUSTED;
         break;
     case FLOATING_POINT_ERROR:
-        std::cout << "status is FLOATING_POINT_ERROR" << std::endl;
         this->m_status = FLOATING_POINT_ERROR;
         break;
     default:
@@ -79,12 +74,8 @@ template <typename T, typename X> void lp_dual_simplex<T, X>::fix_structural_for
     default:
         lean_unreachable();
     }
-    T cost_was = this->m_costs[j];
+    //    T cost_was = this->m_costs[j];
     this->set_scaled_cost(j);
-    bool in_basis = m_core_solver->m_factorization->m_basis_heading[j] >= 0;
-    if (in_basis && cost_was != this->m_costs[j]) {
-        std::cout << "cost change in basis" << std::endl;
-    }
 }
 
 template <typename T, typename X> void lp_dual_simplex<T, X>::unmark_boxed_and_fixed_columns_and_fix_structural_costs() {
@@ -157,11 +148,10 @@ template <typename T, typename X> void lp_dual_simplex<T, X>::stage1() {
     m_core_solver->fill_reduced_costs_from_m_y_by_rows();
     m_core_solver->start_with_initial_basis_and_make_it_dual_feasible();
     if (this->m_settings.abs_val_is_smaller_than_artificial_tolerance(m_core_solver->get_cost())) {
-        std::cout << "skipping stage 1" << std::endl;
+        // skipping stage 1
         m_core_solver->set_status(OPTIMAL);
         m_core_solver->m_total_iterations = 0;
     } else {
-        std::cout << "stage 1" << std::endl;
         m_core_solver->solve();
     }
     decide_on_status_after_stage1();
@@ -169,7 +159,6 @@ template <typename T, typename X> void lp_dual_simplex<T, X>::stage1() {
 }
 
 template <typename T, typename X> void lp_dual_simplex<T, X>::stage2() {
-    std::cout << "starting stage2" << std::endl;
     unmark_boxed_and_fixed_columns_and_fix_structural_costs();
     restore_right_sides();
     solve_for_stage2();

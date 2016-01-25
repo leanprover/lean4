@@ -34,8 +34,8 @@ public:
         m_column_index(column_index) {
     }
 
-    void print() {
-        print_matrix(*this);
+    void print(std::ostream & out) {
+        print_matrix(*this, out);
     }
 
     bool is_unit() {

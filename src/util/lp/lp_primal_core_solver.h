@@ -166,7 +166,7 @@ public:
 
     unsigned get_number_of_non_basic_column_to_try_for_enter();
 
-    void print_column_norms();
+    void print_column_norms(std::ostream & out);
 
     void set_current_x_is_feasible() { m_current_x_is_feasible = calc_current_x_is_feasible(); }
     // returns the number of iterations
@@ -400,7 +400,7 @@ public:
 
     void init_infeasibility_costs();
 
-    void print_column(unsigned j);
+    void print_column(unsigned j, std::ostream & out);
 
     void init_infeasibility_cost_for_column(unsigned j);
 

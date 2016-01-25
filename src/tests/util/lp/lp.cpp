@@ -179,7 +179,7 @@ void test_small_lu(lp_settings & settings) {
     m(2, 0) = 1.8; m(2, 2) = 5; m(2, 4) = 2; m(2, 5) = 8;
 
 #ifdef LEAN_DEBUG
-    print_matrix(m);
+    print_matrix(m, std::cout);
 #endif
     vector<int> heading = allocate_basis_heading(m.column_count());
     vector<unsigned> non_basic_columns;
@@ -202,7 +202,7 @@ void test_small_lu(lp_settings & settings) {
     l.change_basis(4, 3);
     cout << "we were factoring " << std::endl;
 #ifdef LEAN_DEBUG
-    print_matrix(get_B(l));
+    print_matrix(get_B(l), std::cout);
 #endif
     lean_assert(l.is_correct());
 
@@ -212,7 +212,7 @@ void test_small_lu(lp_settings & settings) {
     l.change_basis(5, 1);
     cout << "we were factoring " << std::endl;
 #ifdef LEAN_DEBUG
-    print_matrix(get_B(l));
+    print_matrix(get_B(l), std::cout);
 #endif
     lean_assert(l.is_correct());
     cout << "entering 3, leaving 2" << std::endl;
@@ -221,7 +221,7 @@ void test_small_lu(lp_settings & settings) {
     l.change_basis(3, 2);
     cout << "we were factoring " << std::endl;
 #ifdef LEAN_DEBUG
-    print_matrix(get_B(l));
+    print_matrix(get_B(l),std::cout);
 #endif
     lean_assert(l.is_correct());
 }
@@ -341,7 +341,7 @@ void test_larger_lu_with_holes(lp_settings & settings) {
     m(5, 4) = 28; m(5, 5) = -18; m(5, 6) = 19; m(5, 7) = 25;
     /*        */  m(6, 5) = 20; m(6, 6) = -21;
     /*        */  m(7, 5) = 22; m(7, 6) = 23; m(7, 7) = 24; m(7, 8) = 88;
-    print_matrix(m);
+    print_matrix(m, std::cout);
     vector<int> heading = allocate_basis_heading(m.column_count());
     vector<unsigned> non_basic_columns;
     init_basis_heading_and_non_basic_columns_vector(basis, m.row_count(), heading, m.column_count(), non_basic_columns);
@@ -351,7 +351,7 @@ void test_larger_lu_with_holes(lp_settings & settings) {
         auto lp = l.get_lp_matrix(i);
         lp->set_number_of_columns(m.row_count());
         lp->set_number_of_rows(m.row_count());
-        print_matrix(* lp);
+        print_matrix(* lp, std::cout);
     }
 
     dense_matrix<double, double> left_side = l.get_left_side();
@@ -381,7 +381,7 @@ void test_larger_lu(lp_settings& settings) {
 
 
     fill_larger_sparse_matrix(m);
-    print_matrix(m);
+    print_matrix(m, std::cout);
 
     vector<int> heading = allocate_basis_heading(m.column_count());
     vector<unsigned> non_basic_columns;
@@ -399,9 +399,9 @@ void test_larger_lu(lp_settings& settings) {
     dense_matrix<double, double> right_side = l.get_right_side();
     if (!(left_side == right_side)) {
         cout << "left side" << std::endl;
-        print_matrix(left_side);
+        print_matrix(left_side, std::cout);
         cout << "right side" << std::endl;
-        print_matrix(right_side);
+        print_matrix(right_side, std::cout);
 
         std::cout << "different sides" << std::endl;
         cout << "initial factorization is incorrect" << std::endl;
@@ -480,7 +480,7 @@ void test_lp_1() {
     m(2, 0) =  2;  m(2, 1) = -1; m(2, 2) = 2;  m(2, 5) = 1;
     m(3, 0) =  2;  m(3, 1) =  3; m(3, 2) = -1; m(3, 6) = 1;
 #ifdef LEAN_DEBUG
-    print_matrix(m);
+    print_matrix(m, std::cout);
 #endif
     std::vector<double> x_star(7);
     x_star[0] = 0; x_star[1] = 0; x_star[2] = 0;
@@ -536,7 +536,7 @@ void test_swap_rows_with_permutation(sparse_matrix<T, X>& m){
     unsigned dim = m.row_count();
     dense_matrix<double, double> original(m);
     permutation_matrix<double, double> q(dim);
-    print_matrix(m);
+    print_matrix(m, std::cout);
     lean_assert(original == q * m);
     for (int i = 0; i < 100; i++) {
         unsigned row1 = my_random() % dim;
@@ -546,7 +546,7 @@ void test_swap_rows_with_permutation(sparse_matrix<T, X>& m){
         m.swap_rows(row1, row2);
         q.transpose_from_left(row1, row2);
         lean_assert(original == q * m);
-        print_matrix(m);
+        print_matrix(m, std::cout);
         cout << std::endl;
     }
 }
@@ -560,7 +560,7 @@ void test_swap_cols_with_permutation(sparse_matrix<T, X>& m){
     unsigned dim = m.row_count();
     dense_matrix<double, double> original(m);
     permutation_matrix<double, double> q(dim);
-    print_matrix(m);
+    print_matrix(m, std::cout);
     lean_assert(original == q * m);
     for (int i = 0; i < 100; i++) {
         unsigned row1 = my_random() % dim;
@@ -570,7 +570,7 @@ void test_swap_cols_with_permutation(sparse_matrix<T, X>& m){
         m.swap_rows(row1, row2);
         q.transpose_from_right(row1, row2);
         lean_assert(original == q * m);
-        print_matrix(m);
+        print_matrix(m, std::cout);
         cout << std::endl;
     }
 }
@@ -657,7 +657,7 @@ void test_pivot_like_swaps_and_pivot(){
     m(target_row, 5) = 0;
     m(pivot_row, 6) = 0;
 #ifdef LEAN_DEBUG
-    print_matrix(m);
+    print_matrix(m, std::cout);
 #endif
 
     for (unsigned j = 0; j < m.dimension(); j++) {
@@ -1005,6 +1005,8 @@ void update_settings(argument_parser & args_parser, lp_settings& settings) {
     unsigned n;
     if (get_int_from_args_parser("--rep_frq", args_parser, n))
         settings.report_frequency = n;
+    else
+        settings.report_frequency = 1000;
 
     if (get_int_from_args_parser("--percent_for_enter", args_parser, n))
         settings.percent_of_entering_to_check = n;
@@ -1733,7 +1735,7 @@ void test_init_U() {
     m(1, 0) = 20; m(1, 1) = 21; m(1, 2) = 22; m(1, 3) = 23; m(1, 5) = 24;
     m(2, 0) = 30; m(2, 1) = 31; m(2, 2) = 32; m(2, 3) = 33; m(2, 6) = 34;
 #ifdef LEAN_DEBUG
-    print_matrix(m);
+    print_matrix(m, std::cout);
 #endif
     std::vector<unsigned> basis(3);
     basis[0] = 1;
@@ -2427,7 +2429,7 @@ void test_square_dense_submatrix() {
     for (unsigned i = index_start; i < parent_dim; i++)
         for (unsigned j = index_start; j < parent_dim; j++)
             m[i-index_start][j-index_start] = d[i][j];
-    print_matrix(m);
+    print_matrix(m, std::cout);
 #endif
     for (unsigned i = index_start; i < parent_dim; i++)
         for (unsigned j = index_start; j < parent_dim; j++)
@@ -2437,7 +2439,7 @@ void test_square_dense_submatrix() {
         for (unsigned j = index_start; j < parent_dim; j++)
             m[i-index_start][j-index_start] = d[i][j];
 
-    print_matrix(m);
+    print_matrix(m, std::cout);
     std::cout << std::endl;
 #endif
 }

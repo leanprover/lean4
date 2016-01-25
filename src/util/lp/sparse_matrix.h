@@ -330,7 +330,7 @@ public:
 #ifdef LEAN_DEBUG
     bool can_improve_score_for_row(unsigned row, unsigned score, T const & c_partial_pivoting, unsigned k);
     bool really_best_pivot(unsigned i, unsigned j, T const & c_partial_pivoting, unsigned k);
-    void print_active_matrix(unsigned k);
+    void print_active_matrix(unsigned k, std::ostream & out);
 #endif
     bool pivot_queue_is_correct_for_row(unsigned i, unsigned k);
 

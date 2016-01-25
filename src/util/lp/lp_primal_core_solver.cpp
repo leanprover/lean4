@@ -4,10 +4,7 @@
 
   Author: Lev Nachmanson
 */
-
-
-
-
+#include <fstream>
 #include "util/lp/lp_primal_core_solver.h"
 namespace lean {
 
@@ -269,7 +266,7 @@ template <typename T, typename X>    void lp_primal_core_solver<T, X>::init_lu()
     this->m_refactor_counter = 0;
 }
 
-template <typename T, typename X>    bool lp_primal_core_solver<T, X>::initial_x_is_correct() {
+template <typename T, typename X> bool lp_primal_core_solver<T, X>::initial_x_is_correct() {
     std::set<unsigned> basis_set;
     for (int i = 0; i < this->m_A.row_count(); i++) {
         basis_set.insert(this->m_basis[i]);
@@ -539,17 +536,17 @@ template <typename T, typename X>    unsigned lp_primal_core_solver<T, X>::get_n
     return std::max(static_cast<unsigned>(my_random() % ret), 1u);
 }
 
-template <typename T, typename X>    void lp_primal_core_solver<T, X>::print_column_norms() {
-    std::cout << " column norms " << std::endl;
+template <typename T, typename X> void lp_primal_core_solver<T, X>::print_column_norms(std::ostream & out) {
+    out << " column norms " << std::endl;
     for (unsigned j = 0; j < this->m_n; j++) {
-        std::cout << this->m_column_norms[j] << " ";
+        out << this->m_column_norms[j] << " ";
     }
-    std::cout << std::endl;
-    std::cout << std::endl;
+    out << std::endl;
+    out << std::endl;
 }
 
 // returns the number of iterations
-template <typename T, typename X>    unsigned lp_primal_core_solver<T, X>::solve() {
+template <typename T, typename X> unsigned lp_primal_core_solver<T, X>::solve() {
     init_run();
     lean_assert(!this->A_mult_x_is_off());
     do {
@@ -902,17 +899,15 @@ template <typename T, typename X>    bool lp_primal_core_solver<T, X>::can_enter
 
 
 
-template <typename T, typename X>    bool lp_primal_core_solver<T, X>::done() {
+template <typename T, typename X> bool lp_primal_core_solver<T, X>::done() {
     if (this->m_status == OPTIMAL ||this->m_status == FLOATING_POINT_ERROR) return true;
     if (this->m_status == INFEASIBLE) {
         return true;
     }
     if (this->m_iters_with_no_cost_growing >= this->m_settings.max_number_of_iterations_with_no_improvements) {
-        std::cout << "m_iters_with_no_cost_growing = " << this->m_iters_with_no_cost_growing << std::endl;
         this->m_status = ITERATIONS_EXHAUSTED; return true;
     }
     if (this->m_total_iterations >= this->m_settings.max_total_number_of_iterations) {
-        std::cout << "max_total_number_of_iterations " <<  this->m_total_iterations << " is reached " << std::endl;
         this->m_status = ITERATIONS_EXHAUSTED; return true;
     }
     return false;
@@ -931,21 +926,21 @@ template <typename T, typename X>    void lp_primal_core_solver<T, X>::init_infe
     m_using_inf_costs = true;
 }
 
-template <typename T, typename X> void lp_primal_core_solver<T, X>::print_column(unsigned j) {
-    std::cout << this->column_name(j) << " " <<   j << " " << column_type_to_string(this->m_column_type[j]) << " x = " << this->m_x[j] << " " << "c = " << this->m_costs[j];;
+template <typename T, typename X> void lp_primal_core_solver<T, X>::print_column(unsigned j, std::ostream & out) {
+    out << this->column_name(j) << " " <<   j << " " << column_type_to_string(this->m_column_type[j]) << " x = " << this->m_x[j] << " " << "c = " << this->m_costs[j];;
     switch (this->m_column_type[j]) {
     case fixed:
     case boxed:
-        std::cout <<  "( " << this->m_low_bound_values[j] << " " << this->m_x[j] << " " << this->m_upper_bound_values[j] << ")" << std::endl;
+        out <<  "( " << this->m_low_bound_values[j] << " " << this->m_x[j] << " " << this->m_upper_bound_values[j] << ")" << std::endl;
         break;
     case upper_bound:
-        std::cout <<  "( _"  << this->m_x[j] << " " << this->m_upper_bound_values[j] << ")" << std::endl;
+        out <<  "( _"  << this->m_x[j] << " " << this->m_upper_bound_values[j] << ")" << std::endl;
         break;
     case low_bound:
-        std::cout <<  "( " << this->m_low_bound_values[j] << " " << this->m_x[j] << " " << "_ )" << std::endl;
+        out <<  "( " << this->m_low_bound_values[j] << " " << this->m_x[j] << " " << "_ )" << std::endl;
         break;
     case free_column:
-        std::cout << "( _" << this->m_x[j] << "_)" << std::endl;
+        out << "( _" << this->m_x[j] << "_)" << std::endl;
     default:
         lean_unreachable();
     }

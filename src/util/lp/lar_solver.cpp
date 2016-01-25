@@ -306,10 +306,7 @@ var_index lar_solver::add_var(std::string s) {
 }
 
 constraint_index lar_solver::add_constraint(const buffer<pair<mpq, var_index>>& left_side, lconstraint_kind kind_par, mpq right_side_par) {
-    if (left_side.size() == 0) {
-        std::cout << "cannot add a constraint without left side" << std::endl;
-        return (constraint_index)(-1);
-    }
+    lean_assert(left_side.size());
     constraint_index i = m_available_constr_index++;
     lar_constraint original_constr(left_side, kind_par, right_side_par, i);
     canonic_left_side * ls = create_or_fetch_existing_left_side(left_side);
@@ -317,7 +314,6 @@ constraint_index lar_solver::add_constraint(const buffer<pair<mpq, var_index>>& 
     auto kind = ratio.is_neg()? flip_kind(kind_par): kind_par;
     mpq right_side = right_side_par / ratio;
     lar_normalized_constraint normalized_constraint(ls, ratio, kind, right_side, original_constr);
-
     m_normalized_constraints[i] = normalized_constraint;
     return i;
 }
@@ -327,8 +323,6 @@ bool lar_solver::all_constraints_hold() {
     get_model(var_map);
     for ( auto & it : m_normalized_constraints )
         if (!constraint_holds(it.second.m_origin_constraint, var_map)) {
-            print_constraint(&it.second.m_origin_constraint);
-            std::cout << std::endl;
             return false;
         }
     return true;
@@ -362,9 +356,7 @@ bool lar_solver::the_relations_are_of_same_type(const buffer<pair<mpq, unsigned>
     for (auto & it : evidence) {
         mpq coeff = it.first;
         constraint_index con_ind = it.second;
-        std::cout << coeff.get_double() << std::endl;
         lar_constraint & constr = m_normalized_constraints[con_ind].m_origin_constraint;
-        print_constraint(&constr); std::cout << std::endl;
 
         lconstraint_kind kind = coeff.is_pos()?  constr.m_kind: flip_kind(constr.m_kind);
         if (kind == GT || kind == LT)
@@ -553,7 +545,6 @@ lp_status lar_solver::check() {
 }
 void lar_solver::get_infeasibility_evidence(buffer<pair<mpq, constraint_index>> & evidence){
     if (!m_mpq_core_solver.get_infeasible_row_sign()) {
-        std::cout << "don't have the infeasibility evidence" << std::endl;
         return;
     }
     // the infeasibility sign
@@ -629,7 +620,6 @@ void lar_solver::get_model(std::unordered_map<var_index, mpq> & variable_values)
     mpq delta = find_delta_for_strict_bounds();
     for (auto & it : m_map_from_var_index_to_left_side) {
         numeric_pair<mpq> & rp = m_x[it.second->m_column_index];
-        //  std::cout << it.second->m_column_info.get_name() << " = " << rp << std::endl;
         variable_values[it.first] =  rp.x + delta * rp.y;
     }
 }
@@ -643,17 +633,17 @@ std::string lar_solver::get_variable_name(var_index vi) {
 }
 
 // ********** print region start
-void lar_solver::print_constraint(constraint_index ci) {
+void lar_solver::print_constraint(constraint_index ci, std::ostream & out) {
     if (m_normalized_constraints.size() <= ci) {
         std::string s = "constraint " + T_to_string(ci) + " is not found";
-        std::cout << s << std::endl;
+        out << s << std::endl;
         return;
     }
 
-    print_constraint(&m_normalized_constraints[ci]);
+    print_constraint(&m_normalized_constraints[ci], out);
 }
 
-void lar_solver::print_canonic_left_side(const canonic_left_side & c) {
+void lar_solver::print_canonic_left_side(const canonic_left_side & c, std::ostream & out) {
     bool first = true;
     for (auto it : c.m_coeffs) {
         auto val = it.first;
@@ -661,19 +651,19 @@ void lar_solver::print_canonic_left_side(const canonic_left_side & c) {
             first = false;
         } else {
             if (val.is_pos()) {
-                std::cout << " + ";
+                out << " + ";
             } else {
-                std::cout << " - ";
+                out << " - ";
                 val = -val;
             }
         }
         if (val != numeric_traits<mpq>::one())
-            std::cout << T_to_string(val);
-        std::cout << m_map_from_var_index_to_left_side[it.second]->m_column_info.get_name();
+            out << T_to_string(val);
+        out << m_map_from_var_index_to_left_side[it.second]->m_column_info.get_name();
     }
 }
 
-void lar_solver::print_left_side_of_constraint(const lar_base_constraint * c) {
+void lar_solver::print_left_side_of_constraint(const lar_base_constraint * c, std::ostream & out) {
     bool first = true;
     for (auto it : c->get_left_side_coefficients()) {
         auto val = it.first;
@@ -682,60 +672,40 @@ void lar_solver::print_left_side_of_constraint(const lar_base_constraint * c) {
             first = false;
         } else {
             if (val.is_pos()) {
-                std::cout << " + ";
+                out << " + ";
             } else {
-                std::cout << " - ";
+                out << " - ";
                 val = -val;
             }
         }
 
         if (val != numeric_traits<mpq>::one())
-            std::cout << val;
-        std::cout << m_map_from_var_index_to_left_side[it.second]->m_column_info.get_name();
+            out << val;
+        out << m_map_from_var_index_to_left_side[it.second]->m_column_info.get_name();
     }
 }
 
-numeric_pair<mpq> lar_solver::get_infeasibility_from_core_solver(std::unordered_map<std::string, mpq> & solution) {
-    prepare_independently_of_numeric_type();
-    prepare_core_solver_fields(m_A, m_x, m_right_side_vector, m_low_bounds, m_upper_bounds);
-    m_mpq_core_solver.prefix(); // just to fill the core solver
-
-    for (auto ls : m_canonic_left_sides) {
-        lean_assert(valid_index(ls->m_column_index));
-        m_x[ls->m_column_index] = numeric_pair<mpq>(get_canonic_left_side_val(ls, solution), 0);
-    }
-    return m_mpq_core_solver.get_deb_inf();
-}
-
-void lar_solver::print_info_on_column(unsigned j) {
+void lar_solver::print_info_on_column(unsigned j, std::ostream & out) {
     for (auto ls : m_canonic_left_sides) {
         if (static_cast<unsigned>(ls->m_column_index) == j) {
             auto & ci = ls->m_column_info;
             if (ci.low_bound_is_set()) {
-                std::cout << "l = " << ci.get_low_bound();
+                out << "l = " << ci.get_low_bound();
             }
             if (ci.upper_bound_is_set()) {
-                std::cout << "u = " << ci.get_upper_bound();
+                out << "u = " << ci.get_upper_bound();
             }
-            std::cout << std::endl;
-            m_mpq_core_solver.print_column_info(j);
+            out << std::endl;
+            m_mpq_core_solver.print_column_info(j, out);
         }
     }
 }
 
 mpq lar_solver::get_infeasibility_of_solution(std::unordered_map<std::string, mpq> & solution) {
-    std::cout << "solution" << std::endl;
-    for (auto it : solution) {
-        std::cout << it.first << " = " << it.second.get_double() << std::endl;
-    }
     mpq ret = numeric_traits<mpq>::zero();
     for (auto it : m_normalized_constraints) {
         ret += get_infeasibility_of_constraint(it.second, solution);
     }
-    std::cout << "ret = " << ret.get_double() << std::endl;
-    auto core_inf = get_infeasibility_from_core_solver(solution);
-    std::cout << "core inf = " << T_to_string(core_inf) << std::endl;
-    lean_assert(numeric_pair<mpq>(ret, 0) == core_inf);
     return ret;
 }
 
@@ -783,9 +753,9 @@ mpq lar_solver::get_left_side_val(const lar_constraint &  cns, const std::unorde
     return ret;
 }
 
-void lar_solver::print_constraint(const lar_base_constraint * c) {
-    print_left_side_of_constraint(c);
-    std::cout <<" " << lconstraint_kind_string(c->m_kind) << " " << c->m_right_side;
+void lar_solver::print_constraint(const lar_base_constraint * c, std::ostream & out) {
+    print_left_side_of_constraint(c, out);
+    out <<" " << lconstraint_kind_string(c->m_kind) << " " << c->m_right_side;
 }
 }
 

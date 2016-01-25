@@ -7,11 +7,12 @@ The Wedge Sum of Two Pointed Types
 -/
 import hit.pointed_pushout .connectedness
 
-open eq pushout pointed Pointed
+open eq pushout pointed Pointed unit
 
 definition Wedge (A B : Type*) : Type* := Pushout (pconst Unit A) (pconst Unit B)
 
 namespace wedge
+
   -- TODO maybe find a cleaner proof
   protected definition unit (A : Type*) : A ≃* Wedge Unit A :=
   begin

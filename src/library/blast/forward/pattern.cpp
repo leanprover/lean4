@@ -28,6 +28,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 /*
+TODO(Leo): we need to revise this module (e.g., support for HoTT).
+
 Step 1: Selecting which variables we should track.
 
 Given (H : Pi (a_1 : A_1) ... (a_n : A_n), B) where B is not a Pi,
@@ -42,8 +44,9 @@ patterns used by heuristic instantiation.
      a_i is NOT trackable.
      Reason: we can infer a_i from a_j using type inference.
 
-  b) a_i is a non dependent proposition -> a_i is NOT trackable.
-     Reason: we can leave a_i as hypothesis whenever we instantiate H.
+  b) a_i is a proposition -> a_i is NOT trackable.
+     Reason: we leave a_i as hypothesis whenever we instantiate H,
+     and rely on unit propagate to discharge it.
 
   c) a_i is instance implicit -> a_i is NOT trackable.
      We should use type class resolution to infer a_i.
@@ -55,7 +58,7 @@ We define the set of "residue" hypotheses a_i as the least fix point of
   a) a_i is a proposition
   b) a_i is not inst_implicit
   c) a_i is not trackable
-  d) there is no j > i s.t. a_j is not residue
+  d) a_i is not a proposition and there is no j > i s.t. a_j is not residue
      and type(a_j) depends on a_i, and type(a_i) is not higher-order
 
 That is, if a_i is a "residue" hypothesis, we cannot infer it
@@ -216,10 +219,9 @@ expr extract_trackable(tmp_type_context & ctx, expr const & type,
         bool is_inst_implicit = binding_info(it).is_inst_implicit();
         inst_implicit_flags.push_back(is_inst_implicit);
         bool is_prop          = ctx.is_prop(binding_domain(it));
-        bool dep              = !closed(binding_body(it));
         if (!is_inst_implicit) {
             unsigned midx = to_meta_idx(new_mvar);
-            if (is_prop && !dep)
+            if (is_prop)
                 residue.insert(midx);
             else
                 trackable.insert(midx);

@@ -2076,7 +2076,11 @@ void process_test_file(string test_dir, string test_file_name, argument_parser &
         }
     }
 }
-int my_readdir(DIR *dirp, struct dirent *entry, struct dirent **result) {
+int my_readdir(DIR *dirp, struct dirent *
+#ifndef LEAN_WINDOWS
+               entry
+#endif
+               , struct dirent **result) {
 #ifdef LEAN_WINDOWS
     *result = readdir(dirp);
     return *result != nullptr? 0 : 1;

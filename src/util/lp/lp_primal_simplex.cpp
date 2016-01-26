@@ -233,7 +233,7 @@ template <typename T, typename X> void lp_primal_simplex<T, X>::solve_with_total
     fill_A_x_and_basis_for_stage_one_total_inf();
     this->print_statistics_on_A();
     this->fill_column_names_for_core_solver();
-    int j = this->m_A->column_count() - 1;
+    unsigned j = this->m_A->column_count() - 1;
     unsigned core_solver_cols = this->number_of_core_structurals();
 
     while (j >= core_solver_cols)

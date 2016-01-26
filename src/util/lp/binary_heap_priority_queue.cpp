@@ -57,7 +57,7 @@ template <typename T> void binary_heap_priority_queue<T>::remove(unsigned o) {
         return;  // nothing to do
     }
     lean_assert(o_in_heap <= m_heap_size);
-    if (o_in_heap < m_heap_size) {
+    if (static_cast<unsigned>(o_in_heap) < m_heap_size) {
         put_at(o_in_heap, m_heap[m_heap_size--]);
         if (m_priorities[m_heap[o_in_heap]] > priority_of_o) {
             fix_heap_under(o_in_heap);
@@ -143,11 +143,11 @@ template <typename T> unsigned binary_heap_priority_queue<T>::dequeue_and_get_pr
 
 template <typename T> void binary_heap_priority_queue<T>::fix_heap_under(unsigned i) {
     while (true) {
-        int smallest = i;
-        int l = i << 1;
+        unsigned smallest = i;
+        unsigned l = i << 1;
         if (l <= m_heap_size && m_priorities[m_heap[l]] < m_priorities[m_heap[i]])
             smallest = l;
-        int r = l + 1;
+        unsigned r = l + 1;
         if (r <= m_heap_size && m_priorities[m_heap[r]] < m_priorities[m_heap[smallest]])
             smallest = r;
         if (smallest != i)

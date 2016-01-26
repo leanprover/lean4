@@ -315,7 +315,7 @@ template <typename T, typename X> void lp_dual_simplex<T, X>::augment_matrix_A_a
 
 
 template <typename T, typename X> void lp_dual_simplex<T, X>::copy_m_b_aside_and_set_it_to_zeros() {
-    for (int i = 0; i < this->m_b.size(); i++) {
+    for (unsigned i = 0; i < this->m_b.size(); i++) {
         m_b_copy.push_back(this->m_b[i]);
         this->m_b[i] = numeric_traits<T>::zero(); // preparing for the first stage
     }

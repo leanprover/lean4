@@ -239,7 +239,7 @@ class mps_reader {
 
     void read_column(string column_name, string column_data){
         auto tokens = split_and_trim(column_data);
-        for (int i = 0; i < tokens.size() - 1; i+= 2) {
+        for (unsigned i = 0; i < tokens.size() - 1; i+= 2) {
             auto row_name = tokens[i];
             if (row_name == "'MARKER'") return; // it is the integrality marker, no real data here
             auto t = m_rows.find(row_name);

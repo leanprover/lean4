@@ -474,18 +474,18 @@ non_basis_has_no_doubles() {
 template <typename T, typename X> bool lp_core_solver_base<T, X>::
 basis_is_correctly_represented_in_heading() {
     for (unsigned i = 0; i < m_m; i++) {
-        if (m_basis_heading[m_basis[i]] != i)
+        if (m_basis_heading[m_basis[i]] != static_cast<int>(i))
             return false;
     }
     return true;
 }
 template <typename T, typename X> bool lp_core_solver_base<T, X>::
 non_basis_is_correctly_represented_in_heading() {
-    for (int i = 0; i < m_non_basic_columns.size(); i++) {
-        if (m_basis_heading[m_non_basic_columns[i]] !=  - i - 1)
+    for (unsigned i = 0; i < m_non_basic_columns.size(); i++) {
+        if (m_basis_heading[m_non_basic_columns[i]] !=  - static_cast<int>(i) - 1)
             return false;
     }
-    for (int j = 0; j < m_A.column_count(); j++) {
+    for (unsigned j = 0; j < m_A.column_count(); j++) {
         if (m_basis_heading[j] >= 0) {
             lean_assert(m_basis_heading[j] < m_A.row_count() && m_basis[m_basis_heading[j]] == j);
         }

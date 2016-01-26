@@ -379,7 +379,7 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::update_betas()
     T k = -2 * one_over_arq;
     unsigned i = this->m_m;
     while (i--) {
-        if (i == m_r) continue;
+        if (static_cast<int>(i) == m_r) continue;
         T a = this->m_ed[i];
         m_betas[i] += a * (a * beta_r + k * this->m_pivot_row_of_B_1[i]);
         if (m_betas[i] < T(0.0001))

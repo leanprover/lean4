@@ -424,7 +424,7 @@ template <typename T, typename X>
 void lu<T, X>::process_column(int j) {
     unsigned pi, pj;
     m_U.get_pivot_for_column(pi, pj, T(m_settings.c_partial_pivoting), j);
-    if (pi == -1) {
+    if (static_cast<int>(pi) == -1) {
         std::cout << "cannot find the pivot for column " << j << std::endl;
         m_failure = true;
         return;
@@ -523,7 +523,7 @@ void lu<T, X>::pivot_in_dense_mode(unsigned i) {
         m_failure = true;
         return;
     }
-    if (i != j) {
+    if (i != static_cast<unsigned>(j)) {
         swap_columns(i, j);
         m_dense_LU->swap_columns(i, j);
     }

@@ -6,6 +6,7 @@
 */
 #pragma once
 #include <string>
+#include <cmath>
 #include <algorithm>
 #include "util/numerics/mpq.h"
 #include "util/numerics/double.h"

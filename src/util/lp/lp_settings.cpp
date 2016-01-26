@@ -4,6 +4,7 @@
 
   Author: Lev Nachmanson
 */
+#include <cmath>
 #include "util/numerics/double.h"
 #include "util/lp/lp_settings.h"
 namespace lean {
@@ -93,7 +94,7 @@ bool vectors_are_equal(T * a, std::vector<T>  &b, unsigned n) {
         }
     } else {
         for (unsigned i = 0; i < n; i ++){
-            if (fabs(numeric_traits<T>::get_double(a[i] - b[i])) > 0.000001) {
+            if (std::abs(numeric_traits<T>::get_double(a[i] - b[i])) > 0.000001) {
                 std::cout << "a[" << i <<"]" << a[i] << ", " << "b[" << i <<"]" << b[i] << std::endl;
                 return false;
             }
@@ -146,4 +147,3 @@ bool vectors_are_equal(const std::vector<T> & a, const std::vector<T>  &b) {
     return true;
 }
 }
-

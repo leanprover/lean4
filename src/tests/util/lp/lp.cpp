@@ -1628,25 +1628,25 @@ void solve_rational() {
     solver.add_constraint(lp_relation::Equal, mpq(-3), 1);
 
     // setting the cost
-    std::array<int, 8> cost = {{-3, -1, -1, 2, -1, 1, 1, -4}};
-    std::array<std::string, 8> var_names={{"x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8"}};
+    int cost[] = {-3, -1, -1, 2, -1, 1, 1, -4};
+    std::string var_names[8] = {"x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8"};
 
     for (unsigned i = 0; i < 8; i++) {
         solver.set_cost_for_column(i, mpq(cost[i]));
         solver.give_symbolic_name_to_column(var_names[i], i);
     }
 
-    std::array<int, 8> row0 = {{1, 0, 3, 1, -5, -2 , 4, -6}};
+    int row0[] = {1, 0, 3, 1, -5, -2 , 4, -6};
     for (unsigned i = 0; i < 8; i++) {
         solver.set_row_column_coefficient(0, i, mpq(row0[i]));
     }
 
-    std::array<int, 8> row1 = {{0, 1, -2, -1, 4, 1, -3, 5}};
+    int row1[] = {0, 1, -2, -1, 4, 1, -3, 5};
     for (unsigned i = 0; i < 8; i++) {
         solver.set_row_column_coefficient(1, i, mpq(row1[i]));
     }
 
-    std::array<int, 8> bounds = {{8, 6, 4, 15, 2, 10, 10, 3}};
+    int bounds[] = {8, 6, 4, 15, 2, 10, 10, 3};
     for (unsigned i = 0; i < 8; i++) {
         solver.set_low_bound(i, mpq(0));
         solver.set_upper_bound(i, mpq(bounds[i]));

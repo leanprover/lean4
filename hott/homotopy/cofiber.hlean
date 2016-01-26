@@ -26,8 +26,8 @@ namespace cofiber
     { cases u, reflexivity },
     { exact !glue ⬝ ap inr (right_inv f b) },
     { apply eq_pathover, refine _ ⬝hp !ap_id⁻¹, refine !ap_constant ⬝ph _, 
-      esimp, krewrite adj, apply move_bot_of_left, krewrite idp_con, 
-      apply transpose, refine _ ⬝hp !ap_compose, apply square_Flr_idp_ap },
+      apply move_bot_of_left, refine !idp_con ⬝ph _, apply transpose, esimp,
+      refine _ ⬝hp (ap (ap inr) !adj⁻¹), refine _ ⬝hp !ap_compose, apply square_Flr_idp_ap },
   end
 
   end

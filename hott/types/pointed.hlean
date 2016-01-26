@@ -57,6 +57,11 @@ namespace pointed
   definition pointed_bool [instance] [constructor] : pointed bool :=
   pointed.mk ff
 
+  definition Prod [constructor] (A B : Type*) : Type* :=
+  pointed.mk' (A × B)
+
+  infixr ` ×* `:35 := Prod
+
   definition Bool [constructor] : Type* :=
   pointed.mk' bool
 

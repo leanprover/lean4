@@ -60,9 +60,9 @@ Chapter 2: Homotopy type theory
 - 2.6 (Cartesian product types): [types.prod](types/prod.hlean)
 - 2.7 (Σ-types): [types.sigma](types/sigma.hlean)
 - 2.8 (The unit type): special case of [init.trunc](init/trunc.hlean)
-- 2.9 (Π-types and the function extensionality axiom): [init.funext](init/funext.hlean) and [types.pi](types/pi.hlean)
+- 2.9 (Π-types and the function extensionality axiom): [init.funext](init/funext.hlean), [types.pi](types/pi.hlean) and [types.arrow](types/arrow.hlean)
 - 2.10 (Universes and the univalence axiom): [init.ua](init/ua.hlean)
-- 2.11 (Identity type): [init.equiv](init/equiv.hlean) (ap is equivalence), [types.eq](types/eq.hlean) and [cubical.square](cubical/square.hlean) (characterization of pathovers in equality types)
+- 2.11 (Identity type): [init.equiv](init/equiv.hlean) (ap is an equivalence), [types.eq](types/eq.hlean) and [cubical.square](cubical/square.hlean) (characterization of pathovers in equality types)
 - 2.12 (Coproducts): [types.sum](types/sum.hlean)
 - 2.13 (Natural numbers): [types.nat.hott](types/nat/hott.hlean)
 - 2.14 (Example: equality of structures): algebra formalized in [algebra.group](algebra/group.hlean).

@@ -294,7 +294,7 @@ static action_result unit_lemma(hypothesis_idx hidx, expr const & _type, expr co
     }
 
     curr_state().mk_hypothesis(final_type, final_proof);
-    lean_trace_unit_propagate(tout() << final_type << "\n";);
+    lean_trace_unit_propagate(tout() << ppb(final_type) << "\n";);
     return action_result::new_branch();
 }
 
@@ -316,7 +316,7 @@ static action_result unit_dep_lemma(hypothesis_idx hidx, expr type, expr proof) 
     if (propagated) {
         curr_state().del_hypothesis(hidx);
         curr_state().mk_hypothesis(type, proof);
-        lean_trace_unit_propagate(tout() << type << "\n";);
+        lean_trace_unit_propagate(tout() << ppb(type) << "\n";);
         return action_result::new_branch();
     }
     lean_assert(is_pi(type));
@@ -351,7 +351,7 @@ static action_result unit_fact(expr const & type) {
 action_result unit_propagate(unsigned hidx) {
     hypothesis const & h = curr_state().get_hypothesis_decl(hidx);
     expr type = whnf(h.get_type());
-    lean_trace_debug_unit_propagate(tout() << type << "\n";);
+    lean_trace_debug_unit_propagate(tout() << ppb(type) << "\n";);
     if (is_lemma(type)) return unit_lemma(hidx, type, h.get_self());
     else if (is_dep_lemma(type)) return unit_dep_lemma(hidx, type, h.get_self());
     else if (is_fact(type)) return unit_fact(type);

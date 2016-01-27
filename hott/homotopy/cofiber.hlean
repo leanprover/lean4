@@ -5,9 +5,9 @@ Authors: Jakob von Raumer
 
 The Cofiber Type
 -/
-import hit.pointed_pushout function
+import hit.pointed_pushout function .susp
 
-open eq pushout unit pointed is_trunc is_equiv
+open eq pushout unit pointed is_trunc is_equiv susp unit
 
 definition cofiber {A B : Type} (f : A → B) := pushout (λ (a : A), ⋆) f
 
@@ -37,4 +37,24 @@ end cofiber
 
 definition Cofiber {A B : Type*} (f : A →* B) : Type* := Pushout (pconst A Unit) f
 
+namespace cofiber
+  variables (A : Type*)
 
+  definition cofiber_unit : Cofiber (pconst A Unit) ≃* Susp A :=
+  begin
+    fconstructor,
+    { fconstructor, intro x, induction x, exact north, exact south, exact merid x,
+      reflexivity },
+    { esimp, fapply adjointify,
+      intro s, induction s, exact inl ⋆, exact inr ⋆, apply glue a,
+      intro s, induction s, do 2 reflexivity, esimp,
+      apply eq_pathover, refine _ ⬝hp !ap_id⁻¹, apply hdeg_square, 
+      refine !(ap_compose (pushout.elim _ _ _)) ⬝ _, 
+      refine ap _ !elim_merid ⬝ _, apply elim_glue,
+      intro c, induction c with [n, s], induction n, reflexivity, 
+      induction s, reflexivity, esimp, apply eq_pathover, apply hdeg_square, 
+      refine _ ⬝ !ap_id⁻¹, refine !(ap_compose (pushout.elim _ _ _)) ⬝ _, 
+      refine ap _ !elim_glue ⬝ _, apply elim_merid },
+  end
+
+end cofiber

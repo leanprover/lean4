@@ -1,9 +1,9 @@
 namespace foo
-  definition C¹ := nat
-  definition foo (c : C¹) := nat.rec_on c _ _
+  definition C₁ := nat
+  definition foo (c : C₁) := nat.rec_on c _ _
 end foo
 
 namespace boo
-  notation `C¹` := nat
-  definition foo (c : C¹) := nat.rec_on c _ _
+  notation `C₁` := nat
+  definition foo (c : C₁) := nat.rec_on c _ _
 end boo

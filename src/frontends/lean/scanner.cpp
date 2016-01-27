@@ -59,14 +59,10 @@ bool is_letter_like_unicode(unsigned u) {
         (0x1f00 <= u && u <= 0x1ffe) ||              // Polytonic Greek Extended Character Set
         (0x2100 <= u && u <= 0x214f);                // Letter like block
 }
-bool is_super_sub_script_alnum_unicode(unsigned u) {
+bool is_sub_script_alnum_unicode(unsigned u) {
     return
-        (0x2070 <= u && u <= 0x2079) || // most (numeric) superscripts
         (0x207f <= u && u <= 0x2089) || // n superscript and numberic subscripts
-        (0x2090 <= u && u <= 0x209c) || // letter-like subscripts
-        u == 0x00B2 ||  // 2 superscript
-        u == 0x00B3 ||  // 3 superscript
-        u == 0x00B9;    // 1 superscript
+        (0x2090 <= u && u <= 0x209c);   // letter-like subscripts
 }
 
 void scanner::next() {
@@ -333,7 +329,7 @@ bool is_id_rest(char const * begin, char const * end) {
     if (std::isalnum(*begin) || *begin == '_' || *begin == '\'')
         return true;
     unsigned u = utf8_to_unicode(begin, end);
-    return is_letter_like_unicode(u) || is_super_sub_script_alnum_unicode(u);
+    return is_letter_like_unicode(u) || is_sub_script_alnum_unicode(u);
 }
 
 static char const * g_error_key_msg = "unexpected token";

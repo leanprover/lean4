@@ -434,6 +434,8 @@ public:
     virtual void push() = 0;
     /** \brief Retore assignment (inverse for push) */
     virtual void pop() = 0;
+    /** \brief Return the number of checkpoints created using \c push and not popped yet. */
+    virtual unsigned get_num_check_points() const = 0;
     /** \brief Keep the changes since last push */
     virtual void commit() = 0;
 
@@ -605,6 +607,7 @@ public:
     virtual expr infer_metavar(expr const & e) const { return mlocal_type(e); }
     virtual void push() { m_trail.push_back(m_assignment); }
     virtual void pop() { lean_assert(!m_trail.empty()); m_assignment = m_trail.back(); m_trail.pop_back(); }
+    virtual unsigned get_num_check_points() const { return m_trail.size(); }
     virtual void commit() { lean_assert(!m_trail.empty()); m_trail.pop_back(); }
     virtual optional<expr> mk_subsingleton_instance(expr const & type);
     virtual bool validate_assignment_types(expr const & m, expr const & v);

@@ -79,6 +79,7 @@ public:
 
     virtual void push();
     virtual void pop();
+    virtual unsigned get_num_check_points() const;
     virtual void commit();
 
     bool is_uvar_assigned(unsigned idx) const {

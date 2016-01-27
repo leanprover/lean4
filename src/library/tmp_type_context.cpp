@@ -139,6 +139,10 @@ void tmp_type_context::pop() {
     m_scopes.pop_back();
 }
 
+unsigned tmp_type_context::get_num_check_points() const {
+    return m_scopes.size();
+}
+
 void tmp_type_context::commit() {
     lean_assert(!m_scopes.empty());
     m_scopes.pop_back();

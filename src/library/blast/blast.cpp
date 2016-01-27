@@ -273,6 +273,10 @@ class blastenv {
             m_stack.pop_back();
         }
 
+        virtual unsigned get_num_check_points() const {
+            return m_stack.size();
+        }
+
         virtual void commit() override {
             m_stack.pop_back();
         }

@@ -86,9 +86,9 @@ struct unit_branch_extension : public branch_extension {
     }
     virtual void hypothesis_deleted(hypothesis const & h, hypothesis_idx hidx) override {
         if (is_lemma(h.get_type())) {
-            list<expr> const * facts = find_facts_watching_lemma(hidx);
+            list<expr> facts = find_facts_watching_lemma(hidx);
             if (facts) {
-                for_each(*facts, [&](expr const & fact) {
+                for_each(facts, [&](expr const & fact) {
                         unwatch(hidx, fact);
                     });
             }
@@ -106,11 +106,11 @@ struct unit_branch_extension : public branch_extension {
     }
 
 public:
-    list<hypothesis_idx> const * find_lemmas_watching_fact(expr const & fact_type) {
-        return m_facts_to_lemmas.find(fact_type);
+    list<hypothesis_idx> find_lemmas_watching_fact(expr const & fact_type) {
+        return ptr_to_list(m_facts_to_lemmas.find(fact_type));
     }
-    list<expr> const * find_facts_watching_lemma(hypothesis_idx lemma_hidx) {
-        return m_lemmas_to_facts.find(lemma_hidx);
+    list<expr> find_facts_watching_lemma(hypothesis_idx lemma_hidx) {
+        return ptr_to_list(m_lemmas_to_facts.find(lemma_hidx));
     }
     void unwatch(hypothesis_idx lemma_hidx, expr const & fact_type) {
         m_lemmas_to_facts.filter(lemma_hidx, [&](expr const & fact_type2) {
@@ -125,8 +125,8 @@ public:
         m_lemmas_to_facts.insert(lemma_hidx, fact_type);
         m_facts_to_lemmas.insert(fact_type, lemma_hidx);
     }
-    list<hypothesis_idx> const * find_dep_lemmas_watching_fact(expr const & fact_type) {
-        return m_facts_to_dep_lemmas.find(fact_type);
+    list<hypothesis_idx> find_dep_lemmas_watching_fact(expr const & fact_type) {
+        return ptr_to_list(m_facts_to_dep_lemmas.find(fact_type));
     }
 };
 
@@ -210,10 +210,10 @@ static action_result unit_lemma(hypothesis_idx hidx, expr const & _type, expr co
     unit_branch_extension & ext = get_extension();
 
     /* (1) Find the facts that are watching this lemma and clear them. */
-    list<expr> const * watching = ext.find_facts_watching_lemma(hidx);
+    list<expr> watching = ext.find_facts_watching_lemma(hidx);
     if (watching) {
-        lean_assert(length(*watching) == 2);
-        for_each(*watching, [&](expr const & fact) { ext.unwatch(hidx, fact); });
+        lean_assert(length(watching) == 2);
+        for_each(watching, [&](expr const & fact) { ext.unwatch(hidx, fact); });
     }
 
     /* (2) Check if we can propagate */
@@ -328,8 +328,8 @@ static action_result unit_fact(expr const & type) {
     unit_branch_extension & ext = get_extension();
     bool success = false;
     /* non dependent lemmas */
-    if (list<hypothesis_idx> const * lemmas = ext.find_lemmas_watching_fact(type)) {
-        for_each(*lemmas, [&](hypothesis_idx const & hidx) {
+    if (list<hypothesis_idx> lemmas = ext.find_lemmas_watching_fact(type)) {
+        for_each(lemmas, [&](hypothesis_idx const & hidx) {
                 hypothesis const & h = curr_state().get_hypothesis_decl(hidx);
                 // TODO(Leo): it is not clear to me why we need whnf in the following statement.
                 action_result r = unit_lemma(hidx, whnf(h.get_type()), h.get_self());
@@ -337,8 +337,8 @@ static action_result unit_fact(expr const & type) {
             });
     }
     /* dependent lemmas */
-    if (list<hypothesis_idx> const * lemmas = ext.find_dep_lemmas_watching_fact(type)) {
-        for_each(*lemmas, [&](hypothesis_idx const & hidx) {
+    if (list<hypothesis_idx> lemmas = ext.find_dep_lemmas_watching_fact(type)) {
+        for_each(lemmas, [&](hypothesis_idx const & hidx) {
                 hypothesis const & h = curr_state().get_hypothesis_decl(hidx);
                 action_result r = unit_dep_lemma(hidx, whnf(h.get_type()), h.get_self());
                 success = success || (r.get_kind() == action_result::NewBranch);

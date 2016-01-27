@@ -50,7 +50,7 @@ struct backward_proof_step_cell : public proof_step_cell {
 static action_result try_lemma(gexpr const & e, bool prop_only_branches) {
     state & s = curr_state();
     expr f    = e.to_expr();
-    expr type = infer_type(f);
+    expr type = normalize(infer_type(f));
     expr pr   = f;
     buffer<expr> mvars;
     while (true) {

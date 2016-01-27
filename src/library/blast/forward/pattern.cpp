@@ -342,10 +342,12 @@ struct mk_hi_lemma_fn {
             });
     }
 
-    candidate_set collect_pattern_hints(buffer<expr> const & mvars, expr const & B) {
+    candidate_set collect_pattern_hints(buffer<expr> const & mvars, buffer<expr> const & residue, expr const & B) {
         candidate_set s;
         for (expr const & mvar : mvars)
             collect_pattern_hints(m_ctx.infer(mvar), s);
+        for (expr const & r : residue)
+            collect_pattern_hints(m_ctx.infer(r), s);
         collect_pattern_hints(B, s);
         return s;
     }
@@ -571,9 +573,9 @@ struct mk_hi_lemma_fn {
         lean_assert(m_mvars.size() == inst_implicit_flags.size());
         buffer<expr> subst;
         buffer<expr> residue_locals;
-        candidate_set hints = collect_pattern_hints(m_mvars, B);
         expr proof  = mk_proof(residue_locals, subst);
         B           = replace_mvars(B, subst);
+        candidate_set hints = collect_pattern_hints(m_mvars, residue_locals, B);
         list<multi_pattern> mps;
         if (!hints.empty()) {
             mps = mk_multi_patterns_using(hints, false);

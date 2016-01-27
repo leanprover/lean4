@@ -15,9 +15,9 @@ namespace cofiber
   section
   parameters {A B : Type} (f : A → B)
 
-  protected definition base : cofiber f := inl ⋆
+  protected definition base [constructor] : cofiber f := inl ⋆
 
-  protected definition cod : B → cofiber f := inr
+  protected definition cod [constructor] : B → cofiber f := inr
 
   protected definition contr_of_equiv [H : is_equiv f] : is_contr (cofiber f) :=
   begin
@@ -30,6 +30,14 @@ namespace cofiber
       refine _ ⬝hp (ap (ap inr) !adj⁻¹), refine _ ⬝hp !ap_compose, apply square_Flr_idp_ap },
   end
 
+  protected definition rec {A : Type} {B : Type} {f : A → B} {P : cofiber f → Type}
+    (Pinl : P (inl ⋆)) (Pinr : Π (x : B), P (inr x))
+    (Pglue : Π (x : A), pathover P Pinl (glue x) (Pinr (f x))) :
+    (Π y, P y) :=
+  begin
+    intro y, induction y, induction x, exact Pinl, exact Pinr x, esimp, exact Pglue x,
+  end
+
   end
 end cofiber
 
@@ -38,6 +46,18 @@ end cofiber
 definition Cofiber {A B : Type*} (f : A →* B) : Type* := Pushout (pconst A Unit) f
 
 namespace cofiber
+
+  protected definition prec {A : Type*} {B : Type*}
+    {f : A →* B} {P : Cofiber f → Type}
+    (Pinl : P (inl ⋆)) (Pinr : Π (x : B), P (inr x))
+    (Pglue : Π (x : A), pathover P Pinl (pglue x) (Pinr (f x))) :
+    (Π (y : Cofiber f), P y) :=
+  begin
+    intro y, induction y, induction x, exact Pinl, exact Pinr x, esimp, exact Pglue x,
+  end
+
+  --TODO more pointed recursors
+
   variables (A : Type*)
 
   definition cofiber_unit : Cofiber (pconst A Unit) ≃* Susp A :=

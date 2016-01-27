@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/rb_map.h"
 #include "util/memory_pool.h"
+#include "library/annotation.h"
 #include "library/blast/trace.h"
 #include "library/blast/blast.h"
 #include "library/blast/discr_tree.h"
@@ -200,6 +201,13 @@ auto discr_tree::insert_erase_app(node && n, bool is_root, expr const & e, buffe
     }
 }
 
+static expr consume_annotations(expr const & e) {
+    if (is_annotation(e))
+        return consume_annotations(get_annotation_arg(e));
+    else
+        return e;
+}
+
 auto discr_tree::insert_erase(node && n, bool is_root, buffer<pair<expr, bool>> & todo,
                               expr const & v, buffer<pair<node, node>> & skip, bool ins) -> node {
     if (todo.empty()) {
@@ -213,8 +221,8 @@ auto discr_tree::insert_erase(node && n, bool is_root, buffer<pair<expr, bool>> 
 
     pair<expr, bool> p = todo.back();
     todo.pop_back();
-    expr const & e = p.first;
-    bool fn        = p.second;
+    expr e   = consume_annotations(p.first);
+    bool fn  = p.second;
 
     if (is_eqp(e, *g_delimiter)) {
         node old_n(n);
@@ -316,8 +324,8 @@ bool discr_tree::find(node const & n, list<pair<expr, bool>> todo, std::function
         return false; // stop search
 
     pair<expr, bool> const & p = head(todo);
-    expr const & e = p.first;
-    bool is_fn     = p.second;
+    expr e     = consume_annotations(p.first);
+    bool is_fn = p.second;
 
     switch (e.kind()) {
     case expr_kind::Constant: case expr_kind::Local:

@@ -38,6 +38,13 @@ namespace cofiber
     intro y, induction y, induction x, exact Pinl, exact Pinr x, esimp, exact Pglue x,
   end
 
+  protected definition rec_on {A : Type} {B : Type} {f : A → B} {P : cofiber f → Type}
+    (y : cofiber f) (Pinl : P (inl ⋆)) (Pinr : Π (x : B), P (inr x))
+    (Pglue : Π (x : A), pathover P Pinl (glue x) (Pinr (f x))) : P y :=
+   begin
+     induction y, induction x, exact Pinl, exact Pinr x, esimp, exact Pglue x,
+   end
+
   end
 end cofiber
 
@@ -47,13 +54,25 @@ definition Cofiber {A B : Type*} (f : A →* B) : Type* := Pushout (pconst A Uni
 
 namespace cofiber
 
-  protected definition prec {A : Type*} {B : Type*}
-    {f : A →* B} {P : Cofiber f → Type}
+  protected definition prec {A B : Type*} {f : A →* B} {P : Cofiber f → Type}
     (Pinl : P (inl ⋆)) (Pinr : Π (x : B), P (inr x))
     (Pglue : Π (x : A), pathover P Pinl (pglue x) (Pinr (f x))) :
     (Π (y : Cofiber f), P y) :=
   begin
-    intro y, induction y, induction x, exact Pinl, exact Pinr x, esimp, exact Pglue x,
+    intro y, induction y, induction x, exact Pinl, exact Pinr x, esimp, exact Pglue x
+  end
+
+  protected definition prec_on {A B : Type*} {f : A →* B} {P : Cofiber f → Type}
+    (y : Cofiber f) (Pinl : P (inl ⋆)) (Pinr : Π (x : B), P (inr x))
+    (Pglue : Π (x : A), pathover P Pinl (pglue x) (Pinr (f x))) : P y :=
+  begin
+    induction y, induction x, exact Pinl, exact Pinr x, esimp, exact Pglue x
+  end
+
+  protected definition pelim_on {A B C : Type*} {f : A →* B} (y : Cofiber f) 
+    (c : C) (g : B → C) (p : Π x, c = g (f x)) : C :=
+  begin
+    fapply pushout.elim_on y, exact (λ x, c), exact g, exact p
   end
 
   --TODO more pointed recursors

@@ -388,8 +388,12 @@ struct ematch_fn {
     }
 
     bool process_match(name const & R, expr const & p, expr const & t) {
-        lean_trace_debug_ematch(tout() << "try process_match: "
-                                << ppb(p) << " <=?=> " << ppb(t) << "\n";);
+        lean_trace_debug_ematch(
+            expr new_p = m_ctx->instantiate_uvars_mvars(p);
+            expr new_p_type = m_ctx->instantiate_uvars_mvars(m_ctx->infer(p));
+            expr t_type = m_ctx->infer(t);
+            tout() << "try process_match: " << ppb(p) << " ::= " << ppb(new_p) << " : " << ppb(new_p_type) << " <=?=> "
+            << ppb(t) << " : " << ppb(t_type) << "\n";);
         if (!is_app(p)) {
             bool success = match_leaf(R, p, t);
             return success;
@@ -469,7 +473,7 @@ struct ematch_fn {
             expr new_p = m_ctx->instantiate_uvars_mvars(p);
             expr new_p_type = m_ctx->instantiate_uvars_mvars(m_ctx->infer(p));
             expr t_type = m_ctx->infer(t);
-            tout() << "process_matchss: " << ppb(new_p) << " : " << ppb(new_p_type) << " <=?=> "
+            tout() << "process_matchss: " << ppb(p) << " ::= " << ppb(new_p) << " : " << ppb(new_p_type) << " <=?=> "
             << ppb(t) << " : " << ppb(t_type) << "\n";);
         if (!is_metavar(p)) {
             /* If p is not a metavariable we simply ignore it.

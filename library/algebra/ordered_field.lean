@@ -121,6 +121,12 @@ section linear_ordered_field
   theorem mul_lt_of_gt_div_of_neg (Hc : c < 0) (H : a > b / c) : a * c < b :=
     !div_mul_cancel (ne_of_lt Hc) ▸ mul_lt_mul_of_neg_right H Hc
 
+  theorem div_lt_of_mul_lt_of_pos (Hc : c > 0) (H : b < a * c) : b / c < a :=
+    calc
+      a   = a * c * (1 / c) : !mul_mul_div (ne_of_gt Hc)
+      ... > b * (1 / c)     : mul_lt_mul_of_pos_right H (one_div_pos_of_pos Hc)
+      ... = b / c           : div_eq_mul_one_div
+
   theorem div_lt_of_mul_gt_of_neg (Hc : c < 0) (H : a * c < b) : b / c < a :=
     calc
       a   = a * c * (1 / c) : !mul_mul_div (ne_of_lt Hc)
@@ -462,6 +468,21 @@ section discrete_linear_ordered_field
     le_of_not_gt
       (assume H',
       absurd H (not_le_of_gt (lt_of_one_div_lt_one_div_of_neg Hb H')))
+
+  theorem one_div_le_of_one_div_le_of_pos (Ha : a > 0) (H : 1 / a ≤ b) : 1 / b ≤ a :=
+    begin
+      rewrite -(one_div_one_div a),
+      apply one_div_le_one_div_of_le,
+      apply one_div_pos_of_pos,
+      repeat assumption
+    end
+
+  theorem one_div_le_of_one_div_le_of_neg (Ha : b < 0) (H : 1 / a ≤ b) : 1 / b ≤ a :=
+    begin
+      rewrite -(one_div_one_div a),
+      apply one_div_le_one_div_of_le_of_neg,
+      repeat assumption
+    end
 
   theorem one_lt_one_div (H1 : 0 < a) (H2 : a < 1) : 1 < 1 / a :=
     one_div_one ▸ one_div_lt_one_div_of_lt H1 H2

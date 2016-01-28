@@ -5,7 +5,7 @@ Author: Jeremy Avigad
 
 Metric spaces.
 -/
-import data.real.division
+import data.real.complete data.pnat
 open nat real eq.ops classical
 
 structure metric_space [class] (M : Type) : Type :=
@@ -43,6 +43,11 @@ nonneg_of_mul_nonneg_left this two_pos
 
 proposition dist_pos_of_ne {x y : M} (H : x ≠ y) : dist x y > 0 :=
 lt_of_le_of_ne !dist_nonneg (suppose 0 = dist x y, H (iff.mp !dist_eq_zero_iff this⁻¹))
+
+proposition ne_of_dist_pos {x y : M} (H : dist x y > 0) : x ≠ y :=
+suppose x = y,
+have H1 [visible] : dist x x > 0, by rewrite this at {2}; exact H,
+by rewrite dist_self at H1; apply not_lt_self _ H1
 
 proposition eq_of_forall_dist_le {x y : M} (H : ∀ ε, ε > 0 → dist x y ≤ ε) : x = y :=
 eq_of_dist_eq_zero (eq_zero_of_nonneg_of_forall_le !dist_nonneg H)
@@ -189,7 +194,7 @@ variables {M N : Type} [strucM : metric_space M] [strucN : metric_space N]
 include strucM strucN
 
 definition converges_to_at (f : M → N) (y : N) (x : M) :=
-∀ ⦃ε⦄, ε > 0 → ∃ δ, δ > 0 ∧ ∀ ⦃x'⦄, x' ≠ x ∧ dist x' x < δ → dist (f x') (f x) < ε
+∀ ⦃ε⦄, ε > 0 → ∃ δ, δ > 0 ∧ ∀ ⦃x'⦄, x' ≠ x ∧ dist x' x < δ → dist (f x') y < ε
 
 notation f `⟶` y `at` x := converges_to_at f y x
 
@@ -231,6 +236,128 @@ exists.intro δ (and.intro
     assume H : x' ≠ x ∧ dist x' x < δ,
     show dist (f x') (f x) < ε, from and.right Hδ x' (and.right H)))
 
+section
+omit strucN
+set_option pp.coercions true
+--set_option pp.all true
+
+open pnat rat
+
+section
+omit strucM
+
+theorem of_rat_rat_of_pnat_eq_of_nat_nat_of_pnat {p : pnat} : of_rat (rat_of_pnat p) = of_nat (nat_of_pnat p) :=
+  rfl
+
+end
+
+theorem cnv_real_of_cnv_nat {X : ℕ → M} {c : M} (H : ∀ n : ℕ, dist (X n) c < 1 / (real.of_nat n + 1)) :
+        ∀ ε : ℝ, ε > 0 → ∃ N : ℕ, ∀ n : ℕ, n ≥ N → dist (X n) c < ε :=
+  begin
+    intros ε Hε,
+    cases ex_rat_pos_lower_bound_of_pos Hε with q Hq,
+    cases Hq with Hq1 Hq2,
+    cases pnat_bound Hq1 with p Hp,
+    existsi nat_of_pnat p,
+    intros n Hn,
+    apply lt_of_lt_of_le,
+    apply H,
+    apply le.trans,
+    rotate 1,
+    apply Hq2,
+    have Hrat : of_rat (inv p) ≤ of_rat q, from of_rat_le_of_rat_of_le Hp,
+    apply le.trans,
+    rotate 1,
+    exact Hrat,
+    change 1 / (of_nat n + 1) ≤ of_rat ((1 : ℚ) / (rat_of_pnat p)),
+    rewrite [of_rat_divide, of_rat_one],
+    eapply one_div_le_one_div_of_le,
+    krewrite -of_rat_zero,
+    apply of_rat_lt_of_rat_of_lt,
+    apply rat_of_pnat_is_pos,
+    krewrite [of_rat_rat_of_pnat_eq_of_nat_nat_of_pnat, -real.of_nat_add],
+    apply real.of_nat_le_of_nat_of_le,
+    apply le_add_of_le_right,
+    assumption
+  end
+end
+
+theorem converges_to_at_of_all_conv_seqs {f : M → N} (c : M) (l : N)
+  (Hseq : ∀ X : ℕ → M, ((∀ n : ℕ, ((X n) ≠ c) ∧ (X ⟶ c in ℕ)) → ((λ n : ℕ, f (X n)) ⟶ l in ℕ)))
+  : f ⟶ l at c :=
+  by_contradiction
+    (assume Hnot : ¬ (f ⟶ l at c),
+    obtain ε Hε, from exists_not_of_not_forall Hnot,
+    let Hε' := iff.mp not_implies_iff_and_not Hε in
+    obtain (H1 : ε > 0) H2, from Hε',
+    have H3 [visible] : ∀ δ : ℝ, (δ > 0 → ∃ x' : M, x' ≠ c ∧ dist x' c < δ ∧ dist (f x') l ≥ ε), begin -- tedious!!
+      intros δ Hδ,
+      note Hε'' := forall_not_of_not_exists H2,
+      note H4 := forall_not_of_not_exists H2 δ,
+      have ¬ (∀ x' : M, x' ≠ c ∧ dist x' c < δ → dist (f x') l < ε), from λ H', H4 (and.intro Hδ H'),
+      note H5 := exists_not_of_not_forall this,
+      cases H5 with x' Hx',
+      existsi x',
+      note H6 := iff.mp not_implies_iff_and_not Hx',
+      rewrite and.assoc at H6,
+      cases H6,
+      split,
+      assumption,
+      cases a_1,
+      split,
+      assumption,
+      apply le_of_not_gt,
+      assumption
+    end,
+    let S : ℕ → M → Prop := λ n x, 0 < dist x c ∧ dist x c < 1 / (of_nat n + 1) ∧ dist (f x) l ≥ ε in
+    have HS [visible] : ∀ n : ℕ, ∃ m : M, S n m, begin
+      intro k,
+      have Hpos : 0 < of_nat k + 1, from of_nat_succ_pos k,
+      cases H3 (1 / (k + 1)) (one_div_pos_of_pos Hpos) with x' Hx',
+      cases Hx' with Hne Hx',
+      cases Hx' with Hdistl Hdistg,
+      existsi x',
+      esimp,
+      split,
+      apply dist_pos_of_ne,
+      assumption,
+      split,
+      repeat assumption
+    end,
+    let X : ℕ → M := λ n, some (HS n) in
+    have H4 [visible] : ∀ n : ℕ, ((X n) ≠ c) ∧ (X ⟶ c in ℕ), from
+      (take n, and.intro
+        (begin
+          note Hspec := some_spec (HS n),
+          esimp, esimp at Hspec,
+          cases Hspec,
+          apply ne_of_dist_pos,
+          assumption
+        end)
+        (begin
+          apply cnv_real_of_cnv_nat,
+          intro m,
+          note Hspec := some_spec (HS m),
+          esimp, esimp at Hspec,
+          cases Hspec with Hspec1 Hspec2,
+          cases Hspec2,
+          assumption
+        end)),
+    have H5 [visible] : (λ n : ℕ, f (X n)) ⟶ l in ℕ, from Hseq X H4,
+    begin
+      note H6 := H5 H1,
+      cases H6 with Q HQ,
+      note HQ' := HQ !le.refl,
+      esimp at HQ',
+      apply absurd HQ',
+      apply not_lt_of_ge,
+      note H7 := some_spec (HS Q),
+      esimp at H7,
+      cases H7 with H71 H72,
+      cases H72,
+      assumption
+    end)
+
 definition continuous (f : M → N) : Prop := ∀ x, continuous_at f x
 
 theorem converges_seq_of_comp [instance] (X : ℕ → M) [HX : converges_seq X] {f : M → N}
@@ -251,6 +378,18 @@ theorem converges_seq_of_comp [instance] (X : ℕ → M) [HX : converges_seq X] 
     assumption,
     apply and.right Hδ,
     apply HB Hn
+  end
+
+omit strucN
+
+theorem id_continuous : continuous (λ x : M, x) :=
+  begin
+    intros x ε Hε,
+    existsi ε,
+    split,
+    assumption,
+    intros,
+    assumption
   end
 
 end metric_space_M_N

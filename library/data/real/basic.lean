@@ -1206,6 +1206,10 @@ theorem of_rat_neg (a : ℚ) : of_rat (-a) = -of_rat a :=
 theorem of_rat_mul (a b : ℚ) : of_rat (a * b) = of_rat a * of_rat b :=
   quot.sound (r_mul_consts a b)
 
+theorem of_rat_zero : of_rat 0 = 0 := rfl
+
+theorem of_rat_one : of_rat 1 = 1 := rfl
+
 open int
 
 theorem of_int_add (a b : ℤ) : of_int (a + b) = of_int a + of_int b :=

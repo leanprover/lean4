@@ -649,10 +649,6 @@ protected noncomputable definition discrete_linear_ordered_field [reducible] [tr
     decidable_lt    := dec_lt
    ⦄
 
-theorem of_rat_zero : of_rat (0:rat) = (0:real) := rfl
-
-theorem of_rat_one : of_rat (1:rat) = (1:real) := rfl
-
 theorem of_rat_divide (x y : ℚ) : of_rat (x / y) = of_rat x / of_rat y :=
 by_cases
   (assume yz : y = 0, by krewrite [yz, div_zero, +of_rat_zero, div_zero])

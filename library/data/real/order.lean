@@ -1165,8 +1165,23 @@ theorem of_nat_lt_of_nat_of_lt {a b : ℕ} : (a < b) → of_nat a < of_nat b :=
 theorem lt_of_of_nat_lt_of_nat {a b : ℕ} : of_nat a < of_nat b → (a < b) :=
   iff.mp !of_nat_lt_of_nat_iff
 
+theorem of_rat_pos_of_pos {q : ℚ} (Hq : q > 0) : of_rat q > 0 :=
+  of_rat_lt_of_rat_of_lt Hq
+
+theorem of_rat_nonneg_of_nonneg {q : ℚ} (Hq : q ≥ 0) : of_rat q ≥ 0 :=
+  of_rat_le_of_rat_of_le Hq
+
+theorem of_rat_neg_of_neg {q : ℚ} (Hq : q < 0) : of_rat q < 0 :=
+  of_rat_lt_of_rat_of_lt Hq
+
+theorem of_rat_nonpos_of_nonpos {q : ℚ} (Hq : q ≤ 0) : of_rat q ≤ 0 :=
+  of_rat_le_of_rat_of_le Hq
+
 theorem of_nat_nonneg (a : ℕ) : of_nat a ≥ 0 :=
 of_rat_le_of_rat_of_le !rat.of_nat_nonneg
+
+theorem of_nat_succ_pos (k : ℕ) : 0 < of_nat k + 1 :=
+  add_pos_of_nonneg_of_pos (of_nat_nonneg k) real.zero_lt_one
 
 theorem of_rat_pow (a : ℚ) (n : ℕ) : of_rat (a^n) = (of_rat a)^n :=
 begin

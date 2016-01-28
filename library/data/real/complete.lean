@@ -213,6 +213,56 @@ theorem approx_spec (x : ℝ) (n : ℕ+) : abs (x - (of_rat (approx x n))) ≤ o
 theorem approx_spec' (x : ℝ) (n : ℕ+) : abs ((of_rat (approx x n)) - x) ≤ of_rat n⁻¹ :=
   by rewrite abs_sub; apply approx_spec
 
+theorem ex_rat_pos_lower_bound_of_pos {x : ℝ} (H : x > 0) : ∃ q : ℚ, q > 0 ∧ of_rat q ≤ x :=
+  if Hgeo : x ≥ 1 then
+    exists.intro 1 (and.intro zero_lt_one Hgeo)
+  else
+    have Hdp : 1 / x > 0, from one_div_pos_of_pos H,
+    begin
+      cases rat_approx (1 / x) 2 with q Hq,
+      have Hqp : q > 0, begin
+        apply lt_of_not_ge,
+        intro Hq2,
+        note Hx' := one_div_lt_one_div_of_lt H (lt_of_not_ge Hgeo),
+        rewrite div_one at Hx',
+        have Horqn : of_rat q ≤ 0, begin
+          krewrite -of_rat_zero,
+          apply of_rat_le_of_rat_of_le Hq2
+        end,
+        have Hgt1 : 1 / x - of_rat q > 1, from calc
+          1 / x - of_rat q = 1 / x + -of_rat q : sub_eq_add_neg
+                       ... ≥ 1 / x             : le_add_of_nonneg_right (neg_nonneg_of_nonpos Horqn)
+                       ... > 1                 : Hx',
+        have Hpos : 1 / x - of_rat q > 0, from gt.trans Hgt1 zero_lt_one,
+        rewrite [abs_of_pos Hpos at Hq],
+        apply not_le_of_gt Hgt1,
+        apply le.trans,
+        apply Hq,
+        krewrite -of_rat_one,
+        apply of_rat_le_of_rat_of_le,
+        apply inv_le_one
+      end,
+      existsi 1 / (2⁻¹ + q),
+      split,
+      apply div_pos_of_pos_of_pos,
+      exact zero_lt_one,
+      apply add_pos,
+      apply pnat.inv_pos,
+      exact Hqp,
+      note Hle2 := sub_le_of_abs_sub_le_right Hq,
+      note Hle3 := le_add_of_sub_left_le Hle2,
+      note Hle4 := one_div_le_of_one_div_le_of_pos H Hle3,
+      rewrite [of_rat_divide, of_rat_add],
+      exact Hle4
+    end
+
+theorem ex_rat_neg_upper_bound_of_neg {x : ℝ} (H : x < 0) : ∃ q : ℚ, q < 0 ∧ x ≤ of_rat q :=
+  have H' : -x > 0, from neg_pos_of_neg H,
+  obtain q [Hq1 Hq2], from ex_rat_pos_lower_bound_of_pos H',
+  exists.intro (-q) (and.intro
+    (neg_neg_of_pos Hq1)
+    (le_neg_of_le_neg Hq2))
+
 notation `r_seq` := ℕ+ → ℝ
 
 noncomputable definition converges_to_with_rate (X : r_seq) (a : ℝ) (N : ℕ+ → ℕ+) :=

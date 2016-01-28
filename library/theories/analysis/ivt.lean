@@ -235,3 +235,85 @@ theorem intermediate_value_decr {f : ℝ → ℝ} (Hf : continuous f) {a b : ℝ
   obtain c Hc, from Hiv,
   exists.intro c
     (and.intro (and.left Hc) (and.intro (and.left (and.right Hc)) (eq_of_sub_eq_zero (and.right (and.right Hc)))))
+
+theorem intermediate_value_incr_weak {f : ℝ → ℝ} (Hf : continuous f) {a b : ℝ} (Hab : a ≤ b) {v : ℝ}
+        (Hav : f a ≤ v) (Hbv : f b ≥ v) : ∃ c, a ≤ c ∧ c ≤ b ∧ f c = v :=
+  begin
+    cases lt_or_eq_of_le Hab with Hlt Heq,
+    cases lt_or_eq_of_le Hav with Hlt' Heq',
+    cases lt_or_eq_of_le Hbv with Hlt'' Heq'',
+    cases intermediate_value_incr Hf Hlt Hlt' Hlt'' with c Hc,
+    cases Hc with Hc1 Hc2,
+    cases Hc2 with Hc2 Hc3,
+    existsi c,
+    repeat (split; apply le_of_lt; assumption),
+    assumption,
+    existsi b,
+    split,
+    apply le_of_lt,
+    assumption,
+    split,
+    apply le.refl,
+    rewrite Heq'',
+    existsi a,
+    split,
+    apply le.refl,
+    split,
+    apply le_of_lt,
+    repeat assumption,
+    existsi a,
+    split,
+    apply le.refl,
+    split,
+    assumption,
+    apply eq_of_le_of_ge,
+    apply Hav,
+    rewrite Heq,
+    apply Hbv
+  end
+
+section roots
+
+private definition sqr_lb (x : ℝ) : ℝ := 0
+
+private theorem sqr_lb_is_lb (x : ℝ) (H : x ≥ 0) : (sqr_lb x) * (sqr_lb x) ≤ x :=
+  by rewrite [↑sqr_lb, zero_mul]; assumption
+
+private definition sqr_ub (x : ℝ) : ℝ := x + 1
+
+private theorem sqr_ub_is_ub (x : ℝ) (H : x ≥ 0) : (sqr_ub x) * (sqr_ub x) ≥ x :=
+  begin
+    rewrite [↑sqr_ub, left_distrib, mul_one, right_distrib, one_mul, {x + 1}add.comm, -*add.assoc],
+    apply le_add_of_nonneg_left,
+    repeat apply add_nonneg,
+    apply mul_nonneg,
+    repeat assumption,
+    apply zero_le_one
+  end
+
+private theorem lb_le_ub (x : ℝ) (H : x ≥ 0) : sqr_lb x ≤ sqr_ub x :=
+  begin
+    rewrite [↑sqr_lb, ↑sqr_ub],
+    apply add_nonneg,
+    assumption,
+    apply zero_le_one
+  end
+
+private lemma sqr_cts : continuous (λ x : ℝ, x * x) := continuous_mul_of_continuous id_continuous id_continuous
+
+definition sqrt (x : ℝ) : ℝ :=
+  if H : x ≥ 0 then
+    some (intermediate_value_incr_weak sqr_cts (lb_le_ub x H) (sqr_lb_is_lb x H) (sqr_ub_is_ub x H))
+  else 0
+
+theorem sqrt_spec (x : ℝ) (H : x ≥ 0) : sqrt x * sqrt x = x :=
+  begin
+    rewrite [↑sqrt, dif_pos H],
+    note Hs := some_spec
+           (intermediate_value_incr_weak sqr_cts (lb_le_ub x H) (sqr_lb_is_lb x H) (sqr_ub_is_ub x H)),
+    cases Hs with Hs1 Hs2,
+    cases Hs2,
+    assumption
+  end
+
+end roots

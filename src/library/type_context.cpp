@@ -1694,32 +1694,21 @@ void type_context::init_search(expr const & type) {
     m_ci_choices_ini_sz = m_ci_choices.size();
 }
 
-optional<expr> type_context::check_ci_cache(expr const & type) const {
-    if (m_ci_multiple_instances) {
+void type_context::cache_ci_result(expr const & type, optional<expr> const & inst) {
+    if (!m_ci_multiple_instances) {
         // We do not cache results when multiple instances have to be generated.
-        return none_expr();
+        m_ci_cache.insert(mk_pair(type, inst));
     }
-    auto it = m_ci_cache.find(type);
-    if (it != m_ci_cache.end())
-        return some_expr(it->second);
-    else
-        return none_expr();
-}
-
-void type_context::cache_ci_result(expr const & type, expr const & inst) {
-    if (m_ci_multiple_instances) {
-        // We do not cache results when multiple instances have to be generated.
-        return;
-    }
-    m_ci_cache.insert(mk_pair(type, inst));
 }
 
 optional<expr> type_context::ensure_no_meta(optional<expr> r) {
     while (true) {
-        if (!r)
+        if (!r) {
+            cache_ci_result(mlocal_type(m_ci_main_mvar), r);
             return none_expr();
+        }
         if (!has_expr_metavar_relaxed(*r)) {
-            cache_ci_result(mlocal_type(m_ci_main_mvar), *r);
+            cache_ci_result(mlocal_type(m_ci_main_mvar), r);
             return r;
         }
         r = next_solution();
@@ -1727,9 +1716,18 @@ optional<expr> type_context::ensure_no_meta(optional<expr> r) {
 }
 
 optional<expr> type_context::mk_class_instance_core(expr const & type) {
-    if (auto r = check_ci_cache(type)) {
-        lean_trace("class_instances", tout() << "cached instance for " << type << "\n" << *r << "\n";);
-        return r;
+    if (!m_ci_multiple_instances) {
+        /* We do not cache results when multiple instances have to be generated. */
+        auto it = m_ci_cache.find(type);
+        if (it != m_ci_cache.end()) {
+            /* instance/failure is already cached */
+            lean_trace("class_instances",
+                       if (it->second)
+                           tout() << "cached instance for " << type << "\n" << *(it->second) << "\n";
+                       else
+                           tout() << "cached failure for " << type << "\n";);
+            return it->second;
+        }
     }
     init_search(type);
     auto r = search();

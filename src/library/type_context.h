@@ -269,24 +269,24 @@ class type_context {
         void commit() { m_keep = true; }
     };
 
-    pos_info_provider const *     m_pip;
-    std::vector<pair<name, expr>> m_ci_local_instances;
-    expr_struct_map<expr>         m_ci_cache;
-    bool                          m_ci_multiple_instances;
-    expr                          m_ci_main_mvar;
-    ci_state                      m_ci_state;    // active state
-    std::vector<ci_choice>        m_ci_choices;
-    unsigned                      m_ci_choices_ini_sz;
-    bool                          m_ci_displayed_trace_header;
-    optional<pos_info>            m_ci_pos;
+    pos_info_provider const *       m_pip;
+    std::vector<pair<name, expr>>   m_ci_local_instances;
+    expr_struct_map<optional<expr>> m_ci_cache;
+    bool                            m_ci_multiple_instances;
+    expr                            m_ci_main_mvar;
+    ci_state                        m_ci_state;    // active state
+    std::vector<ci_choice>          m_ci_choices;
+    unsigned                        m_ci_choices_ini_sz;
+    bool                            m_ci_displayed_trace_header;
+    optional<pos_info>              m_ci_pos;
 
     /* subsingleton instance cache, we also cache failures */
     expr_struct_map<optional<expr>> m_ss_cache;
 
     // configuration options
-    unsigned                      m_ci_max_depth;
-    bool                          m_ci_trans_instances;
-    bool                          m_ci_trace_instances;
+    unsigned                        m_ci_max_depth;
+    bool                            m_ci_trans_instances;
+    bool                            m_ci_trace_instances;
 
     optional<name> constant_is_class(expr const & e);
     optional<name> is_full_class(expr type);
@@ -320,8 +320,7 @@ class type_context {
     optional<expr> mk_nested_instance(expr const & type);
     bool mk_nested_instance(expr const & m, expr const & m_type);
     optional<expr> mk_class_instance_core(expr const & type);
-    optional<expr> check_ci_cache(expr const & type) const;
-    void cache_ci_result(expr const & type, expr const & inst);
+    void cache_ci_result(expr const & type, optional<expr> const & inst);
     type_context(environment const & env, options const & o, tmp_local_generator * gen,
                  bool gen_owner, bool multiple_instances);
 public:

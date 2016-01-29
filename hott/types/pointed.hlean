@@ -362,6 +362,10 @@ namespace pointed
     pequiv A B :=
   pequiv.mk to_pmap is_equiv_to_pmap
 
+  definition pequiv_of_equiv [constructor] 
+    (eqv : A ≃ B) (resp : equiv.to_fun eqv (point A) = point B) : A ≃* B :=
+  pequiv.mk' (pmap.mk (equiv.to_fun eqv) resp)
+
   definition equiv_of_pequiv [constructor] (f : A ≃* B) : A ≃ B :=
   equiv.mk f _
 

@@ -281,7 +281,45 @@ struct ematch_fn {
         } else if (is_meta(p)) {
             expr const & m = get_app_fn(p);
             if (!m_ctx->is_assigned(m)) {
-                return m_ctx->is_def_eq(p, t);
+                expr p_type = m_ctx->instantiate_uvars_mvars(m_ctx->infer(p));
+                expr t_type = m_ctx->infer(t);
+                if (m_ctx->is_def_eq(p_type, t_type)) {
+                    /* Types are definitionally equal. So, we just assign */
+                    return m_ctx->is_def_eq(p, t);
+                } else if (!has_expr_metavar(p_type) && !has_expr_metavar(t_type)) {
+                    /* Check if types are provably equal and apply cast
+
+                       Here is some background on this case. p is a metavariable ?m, and
+                       it is the argument of some function application (f a_1 ... a_k ?m ...).
+                       Then, t should be the argument of a function application (f b_1 ... b_k t ...).
+                       The types of ?m and t should be of the form
+                             ?m : A[a_1 ... a_k]
+                             t  : A[b_1 ... b_k]
+                       The subproblems a_i == b_i have already been processed. So,
+                       A[a_1 ... a_k] is probably congruent to A[b_1 ... b_k].
+                       We say "probably" because there are corner cases we cannot handle.
+                       1- There are binders in A[...]. The cc module does not support them.
+                       2- User specified a congruence rule for f.
+
+                       Important: we must process arguments from left to right. Otherwise, the "story"
+                       above will not work.
+                    */
+                    p_type = normalize(p_type);
+                    t_type = normalize(t_type);
+                    m_cc.internalize(get_eq_name(), p_type, false);
+                    m_cc.internalize(get_eq_name(), t_type, false);
+                    if (auto H = m_cc.get_eqv_proof(get_eq_name(), t_type, p_type)) {
+                        expr cast_H_t = get_app_builder().mk_app(get_cast_name(), *H, t);
+                        return m_ctx->is_def_eq(p, cast_H_t);
+                    } else {
+                        /* Types are not definitionally equal nor probably equal */
+                        return false;
+                    }
+                } else {
+                    /* Types are not definitionally equal, and we cannot check whether they are probably equal
+                       using cc since they contain metavariables */
+                    return false;
+                }
             } else {
                 expr new_p = m_ctx->instantiate_uvars_mvars(p);
                 if (!has_expr_metavar(new_p))
@@ -308,30 +346,19 @@ struct ematch_fn {
             fun_info finfo = get_fun_info(fn, t_args.size());
             list<param_info> const * pinfos = &finfo.get_params_info();
             lean_assert(length(*pinfos) == t_args.size());
-            /* Process subsingletons first.
-               We want them to be on the bottom of the "stack".
-               That is, we want the other arguments to be processed first.
-               Motivation: instantiate meta-variables in the subsingleton before we process it. */
-            for (unsigned i = 0; i < t_args.size(); i++) {
-                param_info const & pinfo = head(*pinfos);
-                if (pinfo.is_subsingleton()) {
-                    s = cons(entry(get_eq_name(), MatchSS, p_args[i], t_args[i]), s);
-                }
-                pinfos = &tail(*pinfos);
-            }
-            /* Process non-subsingletons */
-            pinfos = &finfo.get_params_info();
+            buffer<entry> new_entries;
             for (unsigned i = 0; i < t_args.size(); i++) {
                 param_info const & pinfo = head(*pinfos);
                 if (pinfo.is_inst_implicit()) {
-                    s = cons(entry(get_eq_name(), DefEqOnly, p_args[i], t_args[i]), s);
+                    new_entries.emplace_back(get_eq_name(), DefEqOnly, p_args[i], t_args[i]);
                 } else if (pinfo.is_subsingleton()) {
-                    /* already processed in previous loop */
+                    new_entries.emplace_back(get_eq_name(), MatchSS, p_args[i], t_args[i]);
                 } else {
-                    s = cons(entry(get_eq_name(), Match, p_args[i], t_args[i]), s);
+                    new_entries.emplace_back(get_eq_name(), Match, p_args[i], t_args[i]);
                 }
                 pinfos = &tail(*pinfos);
             }
+            s = to_list(new_entries.begin(), new_entries.end(), s);
         } else {
             auto const * r_names = &cg_lemma->m_rel_names;
             for (unsigned i = 0; i < p_args.size(); i++) {

@@ -289,17 +289,23 @@ struct ematch_fn {
                 } else if (!has_expr_metavar(p_type) && !has_expr_metavar(t_type)) {
                     /* Check if types are provably equal and apply cast
 
-                       Here is some background on this case. p is a metavariable ?m, and
-                       it is the argument of some function application (f a_1 ... a_k ?m ...).
-                       Then, t should be the argument of a function application (f b_1 ... b_k t ...).
-                       The types of ?m and t should be of the form
-                             ?m : A[a_1 ... a_k]
-                             t  : A[b_1 ... b_k]
+                       Here is some background on this case. p is a metavariable ?m.
+                       So, it should be the argument of some function application (f a_1 ... a_k ?m ...).
+                       Reason: p is a subterm of a valid pattern.
+                       Then, t should also be the argument of a function application (f b_1 ... b_k t ...).
+                       Reason: how the ematching procedure works.
+                       Moreover, the types of ?m and t should be of the form
+                             ?m : A_{k+1}[a_1 ... a_k]
+                             t  : A_{k+1}[b_1 ... b_k]
+                       The function applications are type correct, and the type of f should be of the form:
+
+                          f : Pi (x_1 : A_1) (x_2 : A_2[x_1]) ... (x_k : A_k[x_1, ... x_{k-1}]) (x_{k+1} : A_{k+1}[x_1, ..., x_k]) ..., B
+
                        The subproblems a_i == b_i have already been processed. So,
                        A[a_1 ... a_k] is probably congruent to A[b_1 ... b_k].
                        We say "probably" because there are corner cases we cannot handle.
-                       1- There are binders in A[...]. The cc module does not support them.
-                       2- User specified a congruence rule for f.
+                       1- A_{k+1}[...] may contain binders, and the cc module does not support them.
+                       2- The congruence rule for f was defined by the user.
 
                        Important: we must process arguments from left to right. Otherwise, the "story"
                        above will not work.
@@ -312,11 +318,11 @@ struct ematch_fn {
                         expr cast_H_t = get_app_builder().mk_app(get_cast_name(), *H, t);
                         return m_ctx->is_def_eq(p, cast_H_t);
                     } else {
-                        /* Types are not definitionally equal nor probably equal */
+                        /* Types are not definitionally equal nor provably equal */
                         return false;
                     }
                 } else {
-                    /* Types are not definitionally equal, and we cannot check whether they are probably equal
+                    /* Types are not definitionally equal, and we cannot check whether they are provably equal
                        using cc since they contain metavariables */
                     return false;
                 }

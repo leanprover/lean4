@@ -272,6 +272,10 @@ section
   theorem mul_self_sub_one_eq : a * a - 1 = (a + 1) * (a - 1) :=
   by simp
 
+  theorem add_mul_self_eq : (a + b) * (a + b) = a*a + 2*a*b + b*b :=
+  calc (a + b)*(a + b) = a*a + (1+1)*a*b + b*b : by simp
+               ...     = a*a + 2*a*b + b*b     : by rewrite one_add_one_eq_two
+
   theorem dvd_neg_iff_dvd : (a ∣ -b) ↔ (a ∣ b) :=
   iff.intro
     (suppose a ∣ -b,

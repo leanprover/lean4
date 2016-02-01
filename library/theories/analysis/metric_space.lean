@@ -5,7 +5,7 @@ Author: Jeremy Avigad
 
 Metric spaces.
 -/
-import data.real.complete data.pnat
+import data.real.complete data.pnat data.list.sort data.fin
 open nat real eq.ops classical
 
 structure metric_space [class] (M : Type) : Type :=
@@ -161,6 +161,74 @@ proposition converges_to_seq_offset_succ_iff (X : ℕ → M) (y : M) :
   ((λ n, X (succ n)) ⟶ y in ℕ) ↔ (X ⟶ y in ℕ) :=
 iff.intro converges_to_seq_of_converges_to_seq_offset_succ !converges_to_seq_offset_succ
 
+section
+open list
+definition r_trans : transitive (@le ℝ _) := λ a b c, !le.trans
+definition r_refl : reflexive (@le ℝ _) := λ a, !le.refl
+
+theorem dec_prf_eq (P : Prop) (H1 H2 : decidable P) : H1 = H2 :=
+  begin
+    induction H1,
+    induction H2,
+    reflexivity,
+    apply absurd a a_1,
+    induction H2,
+    apply absurd a_1 a,
+    reflexivity
+  end
+
+-- there's a very ugly part of this proof.
+
+proposition bounded_of_converges_seq {X : ℕ → M} {x : M} (H : X ⟶ x in ℕ) :
+            ∃ K : ℝ, ∀ n : ℕ, dist (X n) x ≤ K :=
+  begin
+    cases H zero_lt_one with N HN,
+    cases em (N = 0),
+    existsi 1,
+    intro n,
+    apply le_of_lt,
+    apply HN,
+    rewrite a,
+    apply zero_le,
+    let l := map (λ n : ℕ, -dist (X n) x) (upto N),
+    have Hnenil : l ≠ nil, from (map_ne_nil_of_ne_nil _ (upto_ne_nil_of_ne_zero a)),
+    existsi max (-list.min (λ a b : ℝ, le a b) l Hnenil) 1,
+    intro n,
+    have Hsmn : ∀ m : ℕ, m < N → dist (X m) x ≤ max (-list.min (λ a b : ℝ, le a b) l Hnenil) 1, begin
+      intro m Hm,
+      apply le.trans,
+      rotate 1,
+      apply le_max_left,
+      note Hall := min_lemma real.le_total r_trans r_refl Hnenil,
+      have Hmem : -dist (X m) x ∈ (map (λ (n : ℕ), -dist (X n) x) (upto N)), from mem_map _ (mem_upto_of_lt Hm),
+      note Hallm' := of_mem_of_all Hmem Hall,
+      apply le_neg_of_le_neg,
+      esimp, esimp at Hallm',
+      have Heqs : (λ (a b : real), classical.prop_decidable (@le.{1} real real.real_has_le a b))
+                   =
+                   (@decidable_le.{1} real
+                     (@decidable_linear_ordered_comm_group.to_decidable_linear_order.{1} real
+                        (@decidable_linear_ordered_comm_ring.to_decidable_linear_ordered_comm_group.{1} real
+                           (@discrete_linear_ordered_field.to_decidable_linear_ordered_comm_ring.{1} real
+                             real.discrete_linear_ordered_field)))),
+      begin
+        apply funext, intro, apply funext, intro,
+        apply dec_prf_eq
+      end,
+      rewrite -Heqs,
+      exact Hallm'
+    end,
+    cases em (n < N) with Elt Ege,
+    apply Hsmn,
+    exact Elt,
+    apply le_of_lt,
+    apply lt_of_lt_of_le,
+    apply HN,
+    apply le_of_not_gt Ege,
+    apply le_max_right
+  end
+end
+
 /- cauchy sequences -/
 
 definition cauchy (X : ℕ → M) : Prop :=
@@ -282,6 +350,24 @@ theorem cnv_real_of_cnv_nat {X : ℕ → M} {c : M} (H : ∀ n : ℕ, dist (X n)
   end
 end
 
+theorem all_conv_seqs_of_converges_to_at {f : M → N} {c : M} {l : N} (Hconv : f ⟶ l at c) :
+        ∀ X : ℕ → M, ((∀ n : ℕ, ((X n) ≠ c) ∧ (X ⟶ c in ℕ)) → ((λ n : ℕ, f (X n)) ⟶ l in ℕ)) :=
+   begin
+     intros X HX,
+     rewrite [↑converges_to_at at Hconv, ↑converges_to_seq],
+     intros ε Hε,
+     cases Hconv Hε with δ Hδ,
+     cases Hδ with Hδ1 Hδ2,
+     cases HX 0 with _ HXlim,
+     cases HXlim Hδ1 with N1 HN1,
+     existsi N1,
+     intro n Hn,
+     apply Hδ2,
+     split,
+     apply and.left (HX _),
+     exact HN1 Hn
+   end
+
 theorem converges_to_at_of_all_conv_seqs {f : M → N} (c : M) (l : N)
   (Hseq : ∀ X : ℕ → M, ((∀ n : ℕ, ((X n) ≠ c) ∧ (X ⟶ c in ℕ)) → ((λ n : ℕ, f (X n)) ⟶ l in ℕ)))
   : f ⟶ l at c :=
@@ -360,7 +446,7 @@ theorem converges_to_at_of_all_conv_seqs {f : M → N} (c : M) (l : N)
 
 definition continuous (f : M → N) : Prop := ∀ x, continuous_at f x
 
-theorem converges_seq_of_comp [instance] (X : ℕ → M) [HX : converges_seq X] {f : M → N}
+theorem converges_seq_comp_of_converges_seq_of_cts [instance] (X : ℕ → M) [HX : converges_seq X] {f : M → N}
                                          (Hf : continuous f) :
         converges_seq (λ n, f (X n)) :=
   begin

@@ -263,6 +263,141 @@ proposition mul_right_converges_to_seq (c : ℝ) (HX : X ⟶ x in ℕ) :
 have (λ n, X n * c) = (λ n, c * X n), from funext (take x, !mul.comm),
 by+ rewrite [this, mul.comm]; apply mul_left_converges_to_seq c HX
 
+protected lemma add_half_quarter {a : ℝ} (H : a > 0) : a / 2 + a / 4 < a :=
+  begin
+    replace (4 : ℝ) with (2 : ℝ) + 2,
+    have Hne : (2 + 2 : ℝ) ≠ 0, from ne_of_gt four_pos,
+    krewrite (div_add_div _ _ two_ne_zero Hne),
+    have Hnum : (2 + 2 + 2) / (2 * (2 + 2)) = (3 : ℝ) / 4, by norm_num,
+    rewrite [{2 * a}mul.comm, -left_distrib, mul_div_assoc, -mul_one a at {2}], krewrite Hnum,
+    apply mul_lt_mul_of_pos_left,
+    apply div_lt_of_mul_lt_of_pos,
+    apply four_pos,
+    rewrite one_mul,
+    replace (3 : ℝ) with (2 : ℝ) + 1,
+    replace (4 : ℝ) with (2 : ℝ) + 2,
+    apply add_lt_add_left,
+    apply two_gt_one,
+    exact H
+  end
+
+theorem converges_to_seq_squeeze (HX : X ⟶ x in ℕ) (HY : Y ⟶ x in ℕ) {Z : ℕ → ℝ} (HZX : ∀ n, X n ≤ Z n)
+        (HZY : ∀ n, Z n ≤ Y n) : Z ⟶ x in ℕ :=
+  begin
+    intros ε Hε,
+    have Hε4 : ε / 4 > 0, from div_pos_of_pos_of_pos Hε four_pos,
+    cases HX Hε4 with N1 HN1,
+    cases HY Hε4 with N2 HN2,
+    existsi max N1 N2,
+    intro n Hn,
+    have HXY : abs (Y n - X n) < ε / 2, begin
+      apply lt_of_le_of_lt,
+      apply abs_sub_le _ x,
+      have Hε24 : ε / 2 = ε / 4 + ε / 4, from eq.symm !add_quarters,
+      rewrite Hε24,
+      apply add_lt_add,
+      apply HN2,
+      apply ge.trans Hn !le_max_right,
+      rewrite abs_sub,
+      apply HN1,
+      apply ge.trans Hn !le_max_left
+    end,
+    have HZX : abs (Z n - X n) < ε / 2, begin
+      have HZXnp : Z n - X n ≥ 0, from sub_nonneg_of_le !HZX,
+      have HXYnp : Y n - X n ≥ 0, from sub_nonneg_of_le (le.trans !HZX !HZY),
+      rewrite [abs_of_nonneg HZXnp, abs_of_nonneg HXYnp at HXY],
+      note Hgt := lt_add_of_sub_lt_right HXY,
+      have Hlt : Z n < ε / 2 + X n, from calc
+        Z n ≤ Y n : HZY
+        ... < ε / 2 + X n : Hgt,
+      apply sub_lt_right_of_lt_add Hlt
+    end,
+    have H : abs (Z n - x) < ε, begin
+      apply lt_of_le_of_lt,
+      apply abs_sub_le _ (X n),
+      apply lt.trans,
+      apply add_lt_add,
+      apply HZX,
+      apply HN1,
+      apply ge.trans Hn !le_max_left,
+      apply add_half_quarter Hε
+    end,
+    exact H
+  end
+
+proposition converges_to_seq_of_abs_sub_converges_to_seq (Habs : (λ n, abs (X n - x)) ⟶ 0 in ℕ) :
+            X ⟶ x in ℕ :=
+  begin
+    intros ε Hε,
+    cases Habs Hε with N HN,
+    existsi N,
+    intro n Hn,
+    have Hn' : abs (abs (X n - x) - 0) < ε, from HN Hn,
+    rewrite [sub_zero at Hn', abs_abs at Hn'],
+    exact Hn'
+  end
+
+proposition abs_sub_converges_to_seq_of_converges_to_seq (HX : X ⟶ x in ℕ) :
+            (λ n, abs (X n - x)) ⟶ 0 in ℕ :=
+  begin
+    intros ε Hε,
+    cases HX Hε with N HN,
+    existsi N,
+    intro n Hn,
+    have Hn' : abs (abs (X n - x) - 0) < ε, by rewrite [sub_zero, abs_abs]; apply HN Hn,
+    exact Hn'
+  end
+
+proposition mul_converges_to_seq (HX : X ⟶ x in ℕ) (HY : Y ⟶ y in ℕ) :
+            (λ n, X n * Y n) ⟶ x * y in ℕ :=
+  begin
+    have Hbd : ∃ K : ℝ, ∀ n : ℕ, abs (X n) ≤ K, begin
+      cases bounded_of_converges_seq HX with K HK,
+      existsi K + abs x,
+      intro n,
+      note Habs := le.trans (abs_abs_sub_abs_le_abs_sub (X n) x) !HK,
+      apply le_add_of_sub_right_le,
+      apply le.trans,
+      apply le_abs_self,
+      assumption
+    end,
+    cases Hbd with K HK,
+    have Habsle : ∀ n, abs (X n * Y n - x * y) ≤ K * abs (Y n - y) + abs y * abs (X n - x), begin
+      intro,
+      have Heq : X n * Y n - x * y = (X n * Y n - X n * y) + (X n * y - x * y), by
+        rewrite [-sub_add_cancel (X n * Y n) (X n * y) at {1}, sub_eq_add_neg, *add.assoc],
+      apply le.trans,
+      rewrite Heq,
+      apply abs_add_le_abs_add_abs,
+      apply add_le_add,
+      rewrite [-mul_sub_left_distrib, abs_mul],
+      apply mul_le_mul_of_nonneg_right,
+      apply HK,
+      apply abs_nonneg,
+      rewrite [-mul_sub_right_distrib, abs_mul, mul.comm],
+      apply le.refl
+    end,
+    have Hdifflim : (λ n, abs (X n * Y n - x * y)) ⟶ 0 in ℕ, begin
+      apply converges_to_seq_squeeze,
+      rotate 2,
+      intro, apply abs_nonneg,
+      apply Habsle,
+      apply converges_to_seq_constant,
+      rewrite -{0}zero_add,
+      apply add_converges_to_seq,
+      rewrite -(mul_zero K),
+      apply mul_left_converges_to_seq,
+      apply abs_sub_converges_to_seq_of_converges_to_seq,
+      exact HY,
+      rewrite -(mul_zero (abs y)),
+      apply mul_left_converges_to_seq,
+      apply abs_sub_converges_to_seq_of_converges_to_seq,
+      exact HX
+    end,
+    apply converges_to_seq_of_abs_sub_converges_to_seq,
+    apply Hdifflim
+  end
+
 -- TODO: converges_to_seq_div, converges_to_seq_mul_left_iff, etc.
 
 proposition abs_converges_to_seq_zero (HX : X ⟶ 0 in ℕ) : (λ n, abs (X n)) ⟶ 0 in ℕ :=
@@ -279,6 +414,25 @@ iff.intro converges_to_seq_zero_of_abs_converges_to_seq_zero abs_converges_to_se
 -- TODO: products of two sequences, converges_seq, limit_seq
 
 end limit_operations
+
+/- properties of converges_to_at -/
+
+section limit_operations_continuous
+variables {f g : ℝ → ℝ}
+variables {a b x y : ℝ}
+
+theorem mul_converges_to_at (Hf : f ⟶ a at x) (Hg : g ⟶ b at x) : (λ z, f z * g z) ⟶ a * b at x :=
+  begin
+    apply converges_to_at_of_all_conv_seqs,
+    intro X HX,
+    apply mul_converges_to_seq,
+    note Hfc := all_conv_seqs_of_converges_to_at Hf,
+    apply Hfc _ HX,
+    note Hgb := all_conv_seqs_of_converges_to_at Hg,
+    apply Hgb _ HX
+  end
+
+end limit_operations_continuous
 
 /- monotone sequences -/
 
@@ -485,6 +639,17 @@ theorem continuous_offset_of_continuous {f : ℝ → ℝ} (Hcon : continuous f) 
     rewrite [add_sub_comm, sub_self, add_zero],
     apply Hδ₂,
     assumption
+  end
+
+theorem continuous_mul_of_continuous {f g : ℝ → ℝ} (Hconf : continuous f) (Hcong : continuous g) :
+        continuous (λ x, f x * g x) :=
+  begin
+    intro x,
+    apply continuous_at_of_converges_to_at,
+    apply mul_converges_to_at,
+    all_goals apply converges_to_at_of_continuous_at,
+    apply Hconf,
+    apply Hcong
   end
 
 end continuous

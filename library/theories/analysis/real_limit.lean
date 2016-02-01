@@ -263,24 +263,6 @@ proposition mul_right_converges_to_seq (c : ℝ) (HX : X ⟶ x in ℕ) :
 have (λ n, X n * c) = (λ n, c * X n), from funext (take x, !mul.comm),
 by+ rewrite [this, mul.comm]; apply mul_left_converges_to_seq c HX
 
-protected lemma add_half_quarter {a : ℝ} (H : a > 0) : a / 2 + a / 4 < a :=
-  begin
-    replace (4 : ℝ) with (2 : ℝ) + 2,
-    have Hne : (2 + 2 : ℝ) ≠ 0, from ne_of_gt four_pos,
-    krewrite (div_add_div _ _ two_ne_zero Hne),
-    have Hnum : (2 + 2 + 2) / (2 * (2 + 2)) = (3 : ℝ) / 4, by norm_num,
-    rewrite [{2 * a}mul.comm, -left_distrib, mul_div_assoc, -mul_one a at {2}], krewrite Hnum,
-    apply mul_lt_mul_of_pos_left,
-    apply div_lt_of_mul_lt_of_pos,
-    apply four_pos,
-    rewrite one_mul,
-    replace (3 : ℝ) with (2 : ℝ) + 1,
-    replace (4 : ℝ) with (2 : ℝ) + 2,
-    apply add_lt_add_left,
-    apply two_gt_one,
-    exact H
-  end
-
 theorem converges_to_seq_squeeze (HX : X ⟶ x in ℕ) (HY : Y ⟶ x in ℕ) {Z : ℕ → ℝ} (HZX : ∀ n, X n ≤ Z n)
         (HZY : ∀ n, Z n ≤ Y n) : Z ⟶ x in ℕ :=
   begin
@@ -320,7 +302,7 @@ theorem converges_to_seq_squeeze (HX : X ⟶ x in ℕ) (HY : Y ⟶ x in ℕ) {Z 
       apply HZX,
       apply HN1,
       apply ge.trans Hn !le_max_left,
-      apply add_half_quarter Hε
+      apply div_two_add_div_four_lt Hε
     end,
     exact H
   end

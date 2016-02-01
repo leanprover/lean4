@@ -13,3 +13,5 @@ template void lean::lp_dual_core_solver<double, double>::start_with_initial_basi
 template void lean::lp_dual_core_solver<double, double>::solve();
 template void lean::lp_dual_core_solver<lean::mpq, lean::mpq>::restore_non_basis();
 template void lean::lp_dual_core_solver<double, double>::restore_non_basis();
+template void lean::lp_dual_core_solver<double, double>::revert_to_previous_basis();
+template void lean::lp_dual_core_solver<lean::mpq, lean::mpq>::revert_to_previous_basis();

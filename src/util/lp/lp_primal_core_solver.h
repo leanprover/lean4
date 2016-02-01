@@ -127,7 +127,6 @@ public:
                           std::vector<X> & upper_bound_values,
                           lp_settings & settings,
                           std::unordered_map<unsigned, std::string> const & column_names);
-    void init_lu();
     bool initial_x_is_correct();
 #ifdef LEAN_DEBUG
     void check_Ax_equal_b();
@@ -147,8 +146,6 @@ public:
     void normalize_costs_and_backup_costs();
 
     void init_run();
-
-    int pivots_in_column_and_row_are_different(int entering, int leaving) const;
 
     void calc_working_vector_beta_for_column_norms();
 

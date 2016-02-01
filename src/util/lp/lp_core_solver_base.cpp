@@ -198,11 +198,11 @@ A_mult_x_is_off() {
         X eps = feps * (one + T(0.1) * abs(m_b[i]));
 
         if (delta > eps) {
-            std::cout << "x is off (";
-            std::cout << "m_b[" << i  << "] = " << m_b[i] << " ";
-            std::cout << "left side = " << m_A.dot_product_with_row(i, m_x) << ' ';
-            std::cout << "delta = " << delta << ' ';
-            std::cout << "iters = " << m_total_iterations << ")" << std::endl;
+            // std::cout << "x is off (";
+            // std::cout << "m_b[" << i  << "] = " << m_b[i] << " ";
+            // std::cout << "left side = " << m_A.dot_product_with_row(i, m_x) << ' ';
+            // std::cout << "delta = " << delta << ' ';
+            // std::cout << "iters = " << m_total_iterations << ")" << std::endl;
             return true;
         }
     }
@@ -333,7 +333,7 @@ set_non_basic_x_to_correct_bounds() {
     }
 }
 template <typename T, typename X> bool lp_core_solver_base<T, X>::
-column_is_dual_feasible(unsigned j) {
+column_is_dual_feasible(unsigned j) const {
     switch (m_column_type[j]) {
     case fixed:
     case boxed:
@@ -353,7 +353,7 @@ column_is_dual_feasible(unsigned j) {
     }
 }
 template <typename T, typename X> bool lp_core_solver_base<T, X>::
-d_is_not_negative(unsigned j) {
+d_is_not_negative(unsigned j) const {
     if (numeric_traits<T>::precise()) {
         return m_d[j] >= numeric_traits<T>::zero();
     }
@@ -361,7 +361,7 @@ d_is_not_negative(unsigned j) {
 }
 
 template <typename T, typename X> bool lp_core_solver_base<T, X>::
-d_is_not_positive(unsigned j) {
+d_is_not_positive(unsigned j) const {
     if (numeric_traits<T>::precise()) {
         return m_d[j] <= numeric_traits<T>::zero();
     }
@@ -686,4 +686,29 @@ get_non_basic_column_value_position(unsigned j) {
         lean_unreachable();
     }
 }
+
+template <typename T, typename X> void lp_core_solver_base<T, X>::init_lu() {
+    init_factorization(this->m_factorization, this->m_A, this->m_basis, this->m_basis_heading, this->m_settings, this->m_non_basic_columns);
+    this->m_refactor_counter = 0;
 }
+
+template <typename T, typename X> int lp_core_solver_base<T, X>::pivots_in_column_and_row_are_different(int entering, int leaving) const {
+    const T & column_p = this->m_ed[this->m_basis_heading[leaving]];
+    const T & row_p = this->m_pivot_row[entering];
+    if (is_zero(column_p) || is_zero(row_p)) return true; // pivots cannot be zero
+    // the pivots have to have the same sign
+    if (column_p < 0) {
+        if (row_p > 0)
+            return 2;
+    } else { // column_p > 0
+        if (row_p < 0)
+            return 2;
+    }
+    T diff_normalized = abs((column_p - row_p) / (numeric_traits<T>::one() + abs(row_p)));
+    if ( !this->m_settings.abs_val_is_smaller_than_harris_tolerance(diff_normalized / T(10)))
+        return 1;
+    return 0;
+}
+
+}
+

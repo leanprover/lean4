@@ -261,11 +261,6 @@ lp_primal_core_solver(static_matrix<T, X> & A,
 #endif
 }
 
-template <typename T, typename X>    void lp_primal_core_solver<T, X>::init_lu() {
-    init_factorization(this->m_factorization, this->m_A, this->m_basis, this->m_basis_heading, this->m_settings, this->m_non_basic_columns);
-    this->m_refactor_counter = 0;
-}
-
 template <typename T, typename X> bool lp_primal_core_solver<T, X>::initial_x_is_correct() {
     std::set<unsigned> basis_set;
     for (int i = 0; i < this->m_A.row_count(); i++) {
@@ -396,23 +391,6 @@ template <typename T, typename X>    void lp_primal_core_solver<T, X>::init_run(
     init_reduced_costs();
 }
 
-template <typename T, typename X>    int lp_primal_core_solver<T, X>::pivots_in_column_and_row_are_different(int entering, int leaving) const {
-    const T & column_p = this->m_ed[this->m_basis_heading[leaving]];
-    const T & row_p = this->m_pivot_row[entering];
-    if (is_zero(column_p) || is_zero(row_p)) return true; // pivots cannot be zero
-    // the pivots have to have the same sign
-    if (column_p < 0) {
-        if (row_p > 0)
-            return 2;
-    } else { // column_p > 0
-        if (row_p < 0)
-            return 2;
-    }
-    T diff_normalized = abs((column_p - row_p) / (numeric_traits<T>::one() + abs(row_p)));
-    if ( !this->m_settings.abs_val_is_smaller_than_harris_tolerance(diff_normalized / T(10)))
-        return 1;
-    return 0;
-}
 
 template <typename T, typename X>    void lp_primal_core_solver<T, X>::calc_working_vector_beta_for_column_norms(){
     unsigned i = this->m_m;
@@ -429,7 +407,7 @@ template <typename T, typename X>void lp_primal_core_solver<T, X>::advance_on_en
         lean_assert(!this->A_mult_x_is_off() );
         this->update_x(entering, t * m_sign_of_entering_delta);
         if (this->A_mult_x_is_off() && !this->find_x_by_solving()) {
-            init_lu();
+            this->init_lu();
             if (!this->find_x_by_solving()) {
                 this->restore_x(entering, t * m_sign_of_entering_delta);
                 m_forbidden_enterings.insert(entering);
@@ -447,7 +425,7 @@ template <typename T, typename X>void lp_primal_core_solver<T, X>::advance_on_en
     unsigned pivot_row = this->m_factorization->basis_heading(leaving);
     this->calculate_pivot_row_of_B_1(pivot_row);
     this->calculate_pivot_row_when_pivot_row_of_B1_is_ready();
-    int pivot_compare_result = pivots_in_column_and_row_are_different(entering, leaving);
+    int pivot_compare_result = this->pivots_in_column_and_row_are_different(entering, leaving);
     if (!pivot_compare_result){;}
     else if (pivot_compare_result == 2) { // the sign is changed, cannot continue
         m_forbidden_enterings.insert(entering);
@@ -456,7 +434,7 @@ template <typename T, typename X>void lp_primal_core_solver<T, X>::advance_on_en
         return;
     } else {
         lean_assert(pivot_compare_result == 1);
-        init_lu();
+        this->init_lu();
     }
     calc_working_vector_beta_for_column_norms();
     if (!this->update_basis_and_x(entering, leaving, t * m_sign_of_entering_delta)) {
@@ -491,7 +469,7 @@ template <typename T, typename X>    void lp_primal_core_solver<T, X>::advance_o
     this->solve_Bd(entering);
     int refresh_result = refresh_reduced_cost_at_entering_and_check_that_it_is_off(entering);
     if (refresh_result) {
-        init_lu();
+        this->init_lu();
         init_reduced_costs();
         if (refresh_result == 2) {
             this->m_iters_with_no_cost_growing++;
@@ -565,7 +543,7 @@ template <typename T, typename X> unsigned lp_primal_core_solver<T, X>::solve() 
         case OPTIMAL:  // double check that we are at optimum
         case INFEASIBLE:
             m_forbidden_enterings.clear();
-            init_lu();
+            this->init_lu();
             lean_assert(this->m_factorization->get_status() == LU_status::OK);
             set_current_x_is_feasible();
             init_reduced_costs();
@@ -577,7 +555,7 @@ template <typename T, typename X> unsigned lp_primal_core_solver<T, X>::solve() 
             break;
         case TENTATIVE_UNBOUNDED:
             m_forbidden_enterings.clear();
-            init_lu();
+            this->init_lu();
             lean_assert(this->m_factorization->get_status() == LU_status::OK);
             init_reduced_costs();
             break;
@@ -586,7 +564,7 @@ template <typename T, typename X> unsigned lp_primal_core_solver<T, X>::solve() 
 
         case UNSTABLE:
             // m_forbidden_enterings.clear();
-            init_lu();
+            this->init_lu();
             init_reduced_costs();
             this->m_status = UNKNOWN;
             break;

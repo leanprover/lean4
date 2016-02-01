@@ -163,6 +163,15 @@ public:
         return below_bound(m_x[p], m_low_bound_values[p]);
     }
 
+    bool x_above_low_bound(unsigned p) {
+        return above_bound(m_x[p], m_low_bound_values[p]);
+    }
+
+    bool x_below_upper_bound(unsigned p) {
+        return below_bound(m_x[p], m_upper_bound_values[p]);
+    }
+
+    
     bool x_above_upper_bound(unsigned p) {
         return above_bound(m_x[p], m_upper_bound_values[p]);
     }
@@ -177,10 +186,11 @@ public:
         return x_is_at_low_bound(j) || x_is_at_upper_bound(j);
     }
 
-    bool column_is_dual_feasible(unsigned j);
-    bool d_is_not_negative(unsigned j);
+    bool column_is_dual_feasible(unsigned j) const;
 
-    bool d_is_not_positive(unsigned j);
+    bool d_is_not_negative(unsigned j) const;
+
+    bool d_is_not_positive(unsigned j) const;
 
 
     bool time_is_over();
@@ -190,7 +200,6 @@ public:
     bool find_x_by_solving();
 
     bool update_basis_and_x(int entering, int leaving, X const & tt);
-
 
     void init_basis_heading();
 
@@ -244,5 +253,8 @@ public:
     void init_reduced_costs_for_one_iteration();
 
     non_basic_column_value_position get_non_basic_column_value_position(unsigned j);
+
+    void init_lu();
+    int pivots_in_column_and_row_are_different(int entering, int leaving) const;
 };
 }

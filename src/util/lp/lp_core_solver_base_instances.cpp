@@ -9,7 +9,7 @@ template bool lean::lp_core_solver_base<double, double>::A_mult_x_is_off();
 template bool lean::lp_core_solver_base<double, double>::basis_heading_is_correct();
 template void lean::lp_core_solver_base<double, double>::calculate_pivot_row_of_B_1(unsigned int);
 template void lean::lp_core_solver_base<double, double>::calculate_pivot_row_when_pivot_row_of_B1_is_ready();
-template bool lean::lp_core_solver_base<double, double>::column_is_dual_feasible(unsigned int);
+template bool lean::lp_core_solver_base<double, double>::column_is_dual_feasible(unsigned int) const;
 template void lean::lp_core_solver_base<double, double>::fill_reduced_costs_from_m_y_by_rows();
 template bool lean::lp_core_solver_base<double, double>::find_x_by_solving();
 template lean::non_basic_column_value_position lean::lp_core_solver_base<double, double>::get_non_basic_column_value_position(unsigned int);
@@ -29,7 +29,7 @@ template bool lean::lp_core_solver_base<lean::mpq, lean::mpq>::A_mult_x_is_off()
 template bool lean::lp_core_solver_base<lean::mpq, lean::mpq>::basis_heading_is_correct();
 template void lean::lp_core_solver_base<lean::mpq, lean::mpq>::calculate_pivot_row_of_B_1(unsigned int);
 template void lean::lp_core_solver_base<lean::mpq, lean::mpq>::calculate_pivot_row_when_pivot_row_of_B1_is_ready();
-template bool lean::lp_core_solver_base<lean::mpq, lean::mpq>::column_is_dual_feasible(unsigned int);
+template bool lean::lp_core_solver_base<lean::mpq, lean::mpq>::column_is_dual_feasible(unsigned int) const;
 template void lean::lp_core_solver_base<lean::mpq, lean::mpq>::fill_reduced_costs_from_m_y_by_rows();
 template bool lean::lp_core_solver_base<lean::mpq, lean::mpq>::find_x_by_solving();
 template void lean::lp_core_solver_base<lean::mpq, lean::mpq>::init_reduced_costs_for_one_iteration();
@@ -67,3 +67,7 @@ template void lean::lp_core_solver_base<lean::mpq, lean::numeric_pair<lean::mpq>
 template void lean::lp_core_solver_base<lean::mpq, lean::numeric_pair<lean::mpq> >::restore_state(lean::mpq*, lean::mpq*);
 template void lean::lp_core_solver_base<lean::mpq, lean::numeric_pair<lean::mpq> >::save_state(lean::mpq*, lean::mpq*);
 template void lean::lp_core_solver_base<lean::mpq, lean::numeric_pair<lean::mpq> >::solve_yB(std::vector<lean::mpq, std::allocator<lean::mpq> >&);
+template void lean::lp_core_solver_base<double, double>::init_lu();
+template void lean::lp_core_solver_base<lean::mpq, lean::mpq>::init_lu();
+template int lean::lp_core_solver_base<double, double>::pivots_in_column_and_row_are_different(int, int) const;
+template int lean::lp_core_solver_base<lean::mpq, lean::mpq>::pivots_in_column_and_row_are_different(int, int) const;

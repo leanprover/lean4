@@ -32,7 +32,7 @@ public:
     std::vector<T> m_a_wave;
     std::vector<T> m_betas; // m_betas[i] is approximately a square of the norm of the i-th row of the reverse of B
     T m_harris_tolerance;
-
+    std::set<unsigned> m_forbidden_rows;
     lp_dual_core_solver(static_matrix<T, X> & A,
                         std::vector<bool> & can_enter_basis,
                         std::vector<X> & b, // the right side std::vector
@@ -59,7 +59,7 @@ public:
 
     void recalculate_d();
 
-    std::vector<unsigned> & non_basis() { return this->m_factorization->m_non_basic_columns; }
+    const std::vector<unsigned> & non_basis() const { return this->m_factorization->m_non_basic_columns; }
 
     void init_betas();
 
@@ -85,14 +85,7 @@ public:
 
     void fill_breakpoint_set();
 
-    void FTran();
-
-    // this calculation is needed for the steepest edge update,
-    // it hijackes m_pivot_row_of_B_1 for this purpose since we will need it anymore to the end of the cycle
-    void DSE_FTran() { // todo, see algorithm 7 from page 35
-        this->m_factorization->solve_By(this->m_pivot_row_of_B_1);
-    }
-
+    void DSE_FTran();
     T get_delta();
 
     void restore_d();
@@ -118,8 +111,16 @@ public:
 
     void revert_to_previous_basis();
 
-    bool problem_is_dual_feasible();
+    non_basic_column_value_position m_entering_boundary_position;
+    bool update_basis_and_x_local(int entering, int leaving, X const & tt);
+    void recover_leaving();
 
+    bool problem_is_dual_feasible() const;
+
+    bool snap_runaway_nonbasic_column(unsigned);
+
+    bool snap_runaway_nonbasic_columns();
+    
     unsigned get_number_of_rows_to_try_for_leaving();
 
     void update_a_wave(const T & del, unsigned j) {

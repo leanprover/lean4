@@ -80,28 +80,21 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::restore_non_ba
 
 template <typename T, typename X> bool lp_dual_core_solver<T, X>::update_basis(int entering, int leaving) {
     // the second argument is the element of the entering column from the pivot row - its value should be equal to the low diagonal element of the bump after all pivoting is done
-    if (!(this->m_refactor_counter++ >= 200)) {
+    if (this->m_refactor_counter++ < 200) {
         this->m_factorization->replace_column(leaving, this->m_ed[this->m_factorization->basis_heading(leaving)], this->m_w);
-        if (this->m_factorization->get_status() != LU_status::OK) {
-#ifdef LEAN_DEBUG
-            std::cout << "failed on replace_column( " << leaving << ", " <<  this->m_ed[this->m_factorization->basis_heading(leaving)] << ") total_iterations = " << this->m_total_iterations << std::endl;
-#endif
-            init_factorization(this->m_factorization, this->m_A, this->m_basis, this->m_basis_heading, this->m_settings, this->m_non_basic_columns);
-            this->m_iters_with_no_cost_growing++;
-            this->m_status = UNSTABLE;
-            return false;
+        if (this->m_factorization->get_status() == LU_status::OK) {
+            this->m_factorization->change_basis(entering, leaving);
+            return true;
         }
-        this->m_factorization->change_basis(entering, leaving);
-    } else { // need to refactor
-        this->m_factorization->change_basis(entering, leaving);
-        init_factorization(this->m_factorization, this->m_A, this->m_basis, this->m_basis_heading, this->m_settings, this->m_non_basic_columns);
-        if (this->m_factorization->get_status() != LU_status::OK) {
-#ifdef LEAN_DEBUG
-            std::cout << "failing refactor for entering = " << entering << ", leaving = " << leaving << " total_iterations = " << this->m_total_iterations << std::endl;
-#endif
-            this->m_iters_with_no_cost_growing++;
-            return false;
-        }
+    }
+    // need to refactor
+    this->m_factorization->change_basis(entering, leaving);
+    init_factorization(this->m_factorization, this->m_A, this->m_basis, this->m_basis_heading, this->m_settings, this->m_non_basic_columns);
+    this->m_refactor_counter = 0;
+    if (this->m_factorization->get_status() != LU_status::OK) {
+        std::cout << "failing refactor for entering = " << entering << ", leaving = " << leaving << " total_iterations = " << this->m_total_iterations << std::endl;
+        this->m_iters_with_no_cost_growing++;
+        return false;
     }
     return true;
 }
@@ -204,19 +197,24 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::pricing_loop(u
     unsigned i = offset_in_rows;
     unsigned rows_left = number_of_rows_to_try;
     do  {
-    loop_start:
+        if (m_forbidden_rows.find(i) != m_forbidden_rows.end()) {
+            if (++i == this->m_m) {
+                i = 0;
+            }
+            continue;
+        }
         T se = pricing_for_row(i);
         if (se > steepest_edge_max) {
             steepest_edge_max = se;
             m_r = i;
+            if (rows_left > 0) {
+                rows_left--;
+            }
         }
         if (++i == this->m_m) {
             i = 0;
         }
-        if (rows_left > 0) {
-            rows_left--;
-        }
-    }  while (rows_left || (steepest_edge_max < T(1e-5) && i != initial_offset_in_rows));
+    } while (i != initial_offset_in_rows && (rows_left || steepest_edge_max < T(1e-5)));
     if (m_r == -1) {
         if (this->m_status != UNSTABLE) {
             this->m_status = OPTIMAL;
@@ -225,20 +223,22 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::pricing_loop(u
         m_p = this->m_basis[m_r];
         m_delta = get_delta();
         if (advance_on_known_p()){
+            m_forbidden_rows.clear();
             return;
         }
+        // failure in advance_on_known_p
         if (this->m_status == FLOATING_POINT_ERROR) {
             return;
         }
         this->m_status = UNSTABLE;
-        if (i == initial_offset_in_rows) {
-            return; // made a full loop
-        }
-        m_p = m_r = -1;
-        steepest_edge_max = numeric_traits<T>::zero();
-        rows_left = number_of_rows_to_try;
-        goto loop_start;
+        m_forbidden_rows.insert(m_r);
     }
+}
+
+    // this calculation is needed for the steepest edge update,
+    // it hijackes m_pivot_row_of_B_1 for this purpose since we will need it anymore to the end of the cycle
+template <typename T, typename X> void lp_dual_core_solver<T, X>::DSE_FTran() { // todo, see algorithm 7 from page 35
+    this->m_factorization->solve_By(this->m_pivot_row_of_B_1);
 }
 
 template <typename T, typename X> bool lp_dual_core_solver<T, X>::advance_on_known_p() {
@@ -251,7 +251,15 @@ template <typename T, typename X> bool lp_dual_core_solver<T, X>::advance_on_kno
         return true;
     }
     calculate_beta_r_precisely();
-    FTran();
+    this->solve_Bd(m_q); //FTRAN
+    int pivot_compare_result = this->pivots_in_column_and_row_are_different(m_q, m_p);
+    if (!pivot_compare_result){;}
+    else if (pivot_compare_result == 2) { // the sign is changed, cannot continue
+        lean_unreachable(); // not implemented yet
+    } else {
+        lean_assert(pivot_compare_result == 1);
+        this->init_lu();
+    }
     DSE_FTran();
     return basis_change_and_update();
 }
@@ -315,9 +323,9 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::fill_breakpoin
     }
 }
 
-template <typename T, typename X> void lp_dual_core_solver<T, X>::FTran() {
-    this->solve_Bd(m_q);
-}
+// template <typename T, typename X> void lp_dual_core_solver<T, X>::FTran() {
+//     this->solve_Bd(m_q);
+// }
 
 template <typename T, typename X> T lp_dual_core_solver<T, X>::get_delta() {
     switch (this->m_column_type[m_p]) {
@@ -451,46 +459,115 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::init_betas_pre
 template <typename T, typename X> bool lp_dual_core_solver<T, X>::basis_change_and_update() {
     update_betas();
     update_d_and_xB();
-    m_theta_P = m_delta / this->m_ed[m_r];
-    xb_minus_delta_p_pivot_column();
+    //    m_theta_P = m_delta / this->m_ed[m_r];
+    m_theta_P = m_delta / this->m_pivot_row[m_q];
+    //    xb_minus_delta_p_pivot_column();
     apply_flips();
-    this->m_x[m_q] += m_theta_P;
-    if (!update_basis(m_q, m_p) || this->A_mult_x_is_off() || !problem_is_dual_feasible()) {
+    if (!this->update_basis_and_x(m_q, m_p, m_theta_P)) {
+          init_betas_precisely();
+          return false;
+    }
+
+    if (snap_runaway_nonbasic_column(m_p)) {
+        if(!this->find_x_by_solving()) {
+            revert_to_previous_basis();
+            this->m_iters_with_no_cost_growing++;
+            return false;
+        }
+    }
+
+    if (!problem_is_dual_feasible() ) {
+        // todo : shift the costs!!!!
         revert_to_previous_basis();
         this->m_iters_with_no_cost_growing++;
         return false;
     }
+    
     lean_assert(d_is_correct());
     return true;
 }
 
+template <typename T, typename X> void lp_dual_core_solver<T, X>::recover_leaving() {
+    switch (m_entering_boundary_position) {
+    case at_low_bound:
+    case at_fixed:
+        this->m_x[m_q] = this->m_low_bound_values[m_q];
+        break;
+    case at_upper_bound:
+        this->m_x[m_q] = this->m_upper_bound_values[m_q];
+        break;
+    case free_of_bounds:
+        this->m_x[m_q] = zero_of_type<X>();
+    default:
+        lean_unreachable();
+    }
+}
+
 template <typename T, typename X> void lp_dual_core_solver<T, X>::revert_to_previous_basis() {
+    //    std::cout << "recovering basis p = " << m_p << " q = " << m_q << std::endl;
     this->m_factorization->change_basis(m_p, m_q);
     init_factorization(this->m_factorization, this->m_A, this->m_basis, this->m_basis_heading, this->m_settings, this->m_non_basic_columns);
     if (this->m_factorization->get_status() != LU_status::OK) {
+        this->m_status = FLOATING_POINT_ERROR; // complete failure
+        return;
+    }
+    recover_leaving();
+    if (!this->find_x_by_solving()) {
         this->m_status = FLOATING_POINT_ERROR;
         return;
     }
-    this->m_x[m_q] -= m_theta_P;
-    snap_xN_to_bounds();
     recalculate_xB_and_d();
-    if (this->A_mult_x_is_off()) {
-        this->m_status = FLOATING_POINT_ERROR;
-        return;
-    }
     init_betas_precisely();
 }
 
+// returns true if the column has been snapped
+template <typename T, typename X> bool lp_dual_core_solver<T, X>::snap_runaway_nonbasic_column(unsigned j) {
+    switch (this->m_column_type[j]) {
+    case fixed:
+    case low_bound:
+        if (! this->x_is_at_low_bound(j)) { 
+            this->m_x[j] = this->m_low_bound_values[j];
+            return true;
+        }
+        break;
+    case boxed:
+        {
+            bool closer_to_low_bound = abs(this->m_low_bound_values[j] - this->m_x[j]) < abs(this->m_upper_bound_values[j] - this->m_x[j]);
+            if (closer_to_low_bound) {
+                if (! this->x_is_at_low_bound(j)) { 
+                    this->m_x[j] = this->m_low_bound_values[j];
+                    return true;
+                }
+            } else {
+                if (! this->x_is_at_upper_bound(j)) { 
+                    this->m_x[j] = this->m_low_bound_values[j];
+                    return true;
+                }
+            }
+        }
+        break;
+    case upper_bound:
+        if (! this->x_is_at_upper_bound(j)) { 
+            this->m_x[j] = this->m_upper_bound_values[j];
+            return true;
+        }
+        break;
+    default:
+        break;
+    }
+    return false;
+}
 
-template <typename T, typename X> bool lp_dual_core_solver<T, X>::problem_is_dual_feasible() {
+
+template <typename T, typename X> bool lp_dual_core_solver<T, X>::problem_is_dual_feasible() const {
     for (unsigned j : non_basis()){
         if (!this->column_is_dual_feasible(j)) {
-            std::cout << "column " << j << " is not dual feasible" << std::endl;
-            std::cout << "m_d[" << j << "] = " << this->m_d[j] << std::endl;
-            std::cout << "x[" << j << "] = " << this->m_x[j] << std::endl;
-            std::cout << "type = " << column_type_to_string(this->m_column_type[j]) << std::endl;
-            std::cout << "bounds = " << this->m_low_bound_values[j] << "," << this->m_upper_bound_values[j] << std::endl;
-            std::cout << "m_total_iterations = " << this->m_total_iterations << std::endl;
+            // std::cout << "column " << j << " is not dual feasible" << std::endl;
+            // std::cout << "m_d[" << j << "] = " << this->m_d[j] << std::endl;
+            // std::cout << "x[" << j << "] = " << this->m_x[j] << std::endl;
+            // std::cout << "type = " << column_type_to_string(this->m_column_type[j]) << std::endl;
+            // std::cout << "bounds = " << this->m_low_bound_values[j] << "," << this->m_upper_bound_values[j] << std::endl;
+            // std::cout << "m_total_iterations = " << this->m_total_iterations << std::endl;
             return false;
         }
     }
@@ -500,7 +577,7 @@ template <typename T, typename X> bool lp_dual_core_solver<T, X>::problem_is_dua
 template <typename T, typename X> unsigned lp_dual_core_solver<T, X>::get_number_of_rows_to_try_for_leaving() {
     unsigned s = this->m_m;
     if (this->m_m > 300) {
-        s = (unsigned)(s / this->m_settings.percent_of_entering_to_check * 100);
+        s = (unsigned)((s / 100.0) * this->m_settings.percent_of_entering_to_check);
     }
     return my_random() % s + 1;
 }

@@ -317,10 +317,15 @@ section linear_ordered_field
   symm (iff.mpr (!eq_div_iff_mul_eq (ne_of_gt (add_pos zero_lt_one zero_lt_one)))
        (by krewrite [left_distrib, *mul_one]))
 
-  theorem two_ge_one : (2:A) ≥ 1 :=
+  theorem two_gt_one : (2:A) > 1 :=
   calc (2:A) = 1+1 : one_add_one_eq_two
-       ...   ≥ 1+0 : add_le_add_left (le_of_lt zero_lt_one)
+       ...   > 1+0 : add_lt_add_left zero_lt_one
        ...   = 1   : add_zero
+
+  theorem two_ge_one : (2:A) ≥ 1 :=
+  le_of_lt two_gt_one
+
+  theorem four_pos : (4 : A) > 0 := add_pos two_pos two_pos
 
   theorem mul_le_mul_of_mul_div_le (H : a * (b / c) ≤ d) (Hc : c > 0) : b * a ≤ d * c :=
   begin
@@ -533,5 +538,15 @@ section discrete_linear_ordered_field
     (suppose a ≠ 0,
       have abs a ≠ 0, from assume H, this (eq_zero_of_abs_eq_zero H),
       !eq_div_of_mul_eq this !eq_sign_mul_abs⁻¹)
+
+  theorem add_quarters (a : A) : a / 4 + a / 4 = a / 2 :=
+    have H4 [visible] : (4 : A) = 2 * 2, by norm_num,
+    calc
+      a / 4 + a / 4 = (a + a) / (2 * 2)         : by rewrite [-H4, div_add_div_same]
+                ... = (a * 1 + a * 1) / (2 * 2) : by rewrite mul_one
+                ... = (a * (1 + 1)) / (2 * 2)   : by rewrite left_distrib
+                ... = (a * 2) / (2 * 2)         : rfl
+                ... = ((a * 2) / 2) / 2         : by rewrite -div_div_eq_div_mul
+                ... = a / 2                     : by rewrite (mul_div_cancel a two_ne_zero)
 
 end discrete_linear_ordered_field

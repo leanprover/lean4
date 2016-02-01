@@ -462,6 +462,15 @@ theorem length_upto : ∀ n, length (upto n) = n
 | 0        := rfl
 | (succ n) := by rewrite [upto_succ, length_cons, length_upto]
 
+theorem upto_ne_nil_of_ne_zero {n : ℕ} (H : n ≠ 0) : upto n ≠ nil :=
+suppose upto n = nil,
+have upto n = upto 0, from upto_nil ▸ this,
+have n = 0, from calc
+     n = length (upto n) : length_upto
+   ... = length (upto 0) : this
+   ... = 0 : length_upto,
+H this
+
 theorem upto_less : ∀ n, all (upto n) (λ i, i < n)
 | 0        := trivial
 | (succ n) :=

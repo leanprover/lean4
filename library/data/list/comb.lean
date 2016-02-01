@@ -68,6 +68,16 @@ theorem length_map [simp] (f : A → B) : ∀ l : list A, length (map f l) = len
   show length (map f l) + 1 = length l + 1,
   by rewrite (length_map l)
 
+theorem map_ne_nil_of_ne_nil (f : A → B) {l : list A} (H : l ≠ nil) : map f l ≠ nil :=
+suppose map f l = nil,
+have length (map f l) = length l, from !length_map,
+have 0 = length l, from calc
+     0 = length nil  : length_nil
+   ... = length (map f l) : {eq.symm `map f l = nil`}
+   ... = length l : this,
+have l = nil, from eq_nil_of_length_eq_zero (eq.symm this),
+H this
+
 theorem mem_map {A B : Type} (f : A → B) : ∀ {a l}, a ∈ l → f a ∈ map f l
 | a []      i := absurd i !not_mem_nil
 | a (x::xs) i := or.elim (eq_or_mem_of_mem_cons i)

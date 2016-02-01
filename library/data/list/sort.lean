@@ -10,7 +10,7 @@ import data.list.comb data.list.set data.list.perm data.list.sorted logic.connec
 namespace list
 open decidable nat
 
-variable  {A : Type}
+variables  {B A : Type}
 variable  (R : A → A → Prop)
 variable  [decR : decidable_rel R]
 include decR
@@ -111,6 +111,22 @@ lemma min_mem : ∀ (l : list A) (h : l ≠ nil), min R l h ∈ l
     suppose min_core R l a ∈ l, mem_cons_of_mem _ this,
     suppose min_core R l a = a, by rewrite this; apply mem_cons
   end
+
+
+lemma min_map (f : B → A) {l : list B} (h : l ≠ nil) :
+      all l (λ b, (R (min R (map f l) (map_ne_nil_of_ne_nil _ h))) (f b)):=
+  using to tr rf,
+  begin
+    apply all_of_forall,
+    intro b Hb,
+    have Hfa : all (map f l) (R (min R (map f l) (map_ne_nil_of_ne_nil _ h))), from min_lemma to tr rf _,
+    have Hfb : f b ∈ map f l, from mem_map _ Hb,
+    exact of_mem_of_all Hfb Hfa
+  end
+
+lemma min_map_all (f : B → A) {l : list B} (h : l ≠ nil) {b : B} (Hb : b ∈ l) :
+      R (min R (map f l) ((map_ne_nil_of_ne_nil _ h))) (f b) :=
+  of_mem_of_all Hb (min_map _ to tr rf f h)
 
 omit decR
 private lemma ne_nil {l : list A} {n : nat} : length l = succ n → l ≠ nil :=

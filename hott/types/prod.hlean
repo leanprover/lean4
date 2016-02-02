@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2014 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Author: Floris van Doorn
+Authors: Floris van Doorn, Jakob von Raumer
 
 Ported from Coq HoTT
 Theorems about products
@@ -181,6 +181,15 @@ namespace prod
 
   definition prod_unit_equiv [constructor] (A : Type) : A × unit ≃ A :=
   !prod_contr_equiv
+
+  definition prod_empty_equiv (A : Type) : A × empty ≃ empty :=
+  begin
+    fapply equiv.MK,
+    { intro x, cases x with a e, cases e },
+    { intro e, cases e },
+    { intro e, cases e },
+    { intro x, cases x with a e, cases e }
+  end
 
   /- Universal mapping properties -/
   definition is_equiv_prod_rec [instance] [constructor] (P : A × B → Type)

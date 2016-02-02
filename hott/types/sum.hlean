@@ -168,6 +168,33 @@ namespace sum
   definition empty_sum_equiv (A : Type) : empty + A ≃ A :=
   !sum_comm_equiv ⬝e !sum_empty_equiv
 
+  definition bool_equiv_unit_sum_unit : bool ≃ unit + unit :=
+  begin
+    fapply equiv.MK,
+    { intro b, cases b, exact inl unit.star, exact inr unit.star },
+    { intro s, cases s, exact bool.ff, exact bool.tt },
+    { intro s, cases s, do 2 (cases a; reflexivity) },
+    { intro b, cases b, do 2 reflexivity },
+  end
+
+  definition sum_prod_right_distrib [constructor] (A B C : Type) :
+    (A + B) × C ≃ (A × C) + (B × C) :=
+  begin
+    fapply equiv.MK,
+    { intro x, cases x with ab c, cases ab with a b, exact inl (a, c), exact inr (b, c) },
+    { intro x, cases x with ac bc, cases ac with a c, exact (inl a, c),  
+      cases bc with b c, exact (inr b, c) },
+    { intro x, cases x with ac bc, cases ac with a c, reflexivity, cases bc, reflexivity },
+    { intro x, cases x with ab c, cases ab with a b, do 2 reflexivity }
+  end
+
+  definition sum_prod_left_distrib [constructor] (A B C : Type) :
+    A × (B + C) ≃ (A × B) + (A × C) :=
+  calc A × (B + C) ≃ (B + C) × A : prod_comm_equiv
+               ... ≃ (B × A) + (C × A) : sum_prod_right_distrib
+               ... ≃ (A × B) + (C × A) : prod_comm_equiv
+               ... ≃ (A × B) + (A × C) : prod_comm_equiv
+
   /- universal property -/
 
   definition sum_rec_unc [unfold 5] {P : A + B → Type} (fg : (Πa, P (inl a)) × (Πb, P (inr b)))

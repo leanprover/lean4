@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "util/name.h"
 #include "util/sstream.h"
 #include "util/debug.h"
-#include "util/rc.h"
 #include "util/buffer.h"
 #include "util/memory_pool.h"
 #include "util/hash.h"
@@ -24,49 +23,34 @@ Author: Leonardo de Moura
 
 namespace lean {
 constexpr char const * anonymous_str = "[anonymous]";
-/** \brief Actual implementation of hierarchical names. */
-struct name::imp {
-    MK_LEAN_RC()
-    bool     m_is_string;
-    unsigned m_hash;
-    imp *    m_prefix;
-    union {
-        char * m_str;
-        unsigned m_k;
-    };
 
-    void dealloc();
-
-    imp(bool s, imp * p):m_rc(1), m_is_string(s), m_hash(0), m_prefix(p) { if (p) p->inc_ref(); }
-
-    static void display_core(std::ostream & out, imp * p, char const * sep) {
-        lean_assert(p != nullptr);
-        if (p->m_prefix) {
-            display_core(out, p->m_prefix, sep);
-            out << sep;
-        }
-        if (p->m_is_string)
-            out << p->m_str;
-        else
-            out << p->m_k;
+void name::imp::display_core(std::ostream & out, imp * p, char const * sep) {
+    lean_assert(p != nullptr);
+    if (p->m_prefix) {
+        display_core(out, p->m_prefix, sep);
+        out << sep;
     }
+    if (p->m_is_string)
+        out << p->m_str;
+    else
+        out << p->m_k;
+}
 
-    static void display(std::ostream & out, imp * p, char const * sep = lean_name_separator) {
-        if (p == nullptr)
-            out << anonymous_str;
-        else
-            display_core(out, p, sep);
-    }
+void name::imp::display(std::ostream & out, imp * p, char const * sep) {
+    if (p == nullptr)
+        out << anonymous_str;
+    else
+        display_core(out, p, sep);
+}
 
-    friend void copy_limbs(imp * p, buffer<name::imp *> & limbs) {
-        limbs.clear();
-        while (p != nullptr) {
-            limbs.push_back(p);
-            p = p->m_prefix;
-        }
-        std::reverse(limbs.begin(), limbs.end());
+void copy_limbs(name::imp * p, buffer<name::imp *> & limbs) {
+    limbs.clear();
+    while (p != nullptr) {
+        limbs.push_back(p);
+        p = p->m_prefix;
     }
-};
+    std::reverse(limbs.begin(), limbs.end());
+}
 
 DEF_THREAD_MEMORY_POOL(get_numeric_name_allocator, sizeof(name::imp));
 
@@ -188,18 +172,13 @@ char const * name::get_string() const {
     return m_ptr->m_str;
 }
 
-bool operator==(name const & a, name const & b) {
-    name::imp * i1 = a.m_ptr;
-    name::imp * i2 = b.m_ptr;
+/* Equality test core procedure, it is invoked by operator== */
+bool eq_core(name::imp * i1, name::imp * i2) {
     while (true) {
-        if (i1 == i2)
-            return true;
-        if ((i1 == nullptr) != (i2 == nullptr))
-            return false;
-        if (i1->m_hash != i2->m_hash)
-            return false;
         lean_assert(i1 != nullptr);
         lean_assert(i2 != nullptr);
+        lean_assert(i1 && i2);
+        lean_assert(i1->m_hash == i2->m_hash);
         if (i1->m_is_string != i2->m_is_string)
             return false;
         if (i1->m_is_string) {
@@ -211,6 +190,12 @@ bool operator==(name const & a, name const & b) {
         }
         i1 = i1->m_prefix;
         i2 = i2->m_prefix;
+        if (i1 == i2)
+            return true;
+        if ((i1 == nullptr) != (i2 == nullptr))
+            return false;
+        if (i1->m_hash != i2->m_hash)
+            return false;
     }
 }
 
@@ -324,10 +309,6 @@ size_t name::size() const {
 
 size_t name::utf8_size() const {
     return size_core(true);
-}
-
-unsigned name::hash() const {
-    return m_ptr ? m_ptr->m_hash : 11;
 }
 
 bool name::is_safe_ascii() const {

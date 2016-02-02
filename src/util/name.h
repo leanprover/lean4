@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <functional>
 #include <algorithm>
 #include <utility>
+#include "util/rc.h"
 #include "util/pair.h"
 #include "util/lua.h"
 #include "util/serializer.h"
@@ -24,7 +25,22 @@ enum class name_kind { ANONYMOUS, STRING, NUMERAL };
 */
 class name {
 public:
-    struct imp;
+    /** \brief Actual implementation of hierarchical names. */
+    struct imp {
+        MK_LEAN_RC()
+        bool     m_is_string;
+        unsigned m_hash;
+        imp *    m_prefix;
+        union {
+            char * m_str;
+            unsigned m_k;
+        };
+        void dealloc();
+        imp(bool s, imp * p):m_rc(1), m_is_string(s), m_hash(0), m_prefix(p) { if (p) p->inc_ref(); }
+        static void display_core(std::ostream & out, imp * p, char const * sep);
+        static void display(std::ostream & out, imp * p, char const * sep = lean_name_separator);
+        friend void copy_limbs(imp * p, buffer<name::imp *> & limbs);
+    };
 private:
     friend int cmp(imp * i1, imp * i2);
     friend class name_deserializer;
@@ -69,7 +85,16 @@ public:
     name & operator=(name && other);
     /** \brief Return true iff \c n1 is a prefix of \c n2. */
     friend bool is_prefix_of(name const & n1, name const & n2);
-    friend bool operator==(name const & a, name const & b);
+    friend bool eq_core(name::imp * i1, name::imp * i2);
+    friend bool operator==(name const & a, name const & b) {
+        if (a.m_ptr == b.m_ptr)
+            return true;
+        if ((a.m_ptr == nullptr) != (b.m_ptr == nullptr))
+            return false;
+        if (a.m_ptr->m_hash != b.m_ptr->m_hash)
+            return false;
+        return eq_core(a.m_ptr, b.m_ptr);
+    }
     friend bool operator!=(name const & a, name const & b) { return !(a == b); }
     friend bool operator==(name const & a, char const * b);
     friend bool operator!=(name const & a, char const * b) { return !(a == b); }
@@ -104,7 +129,7 @@ public:
     size_t size() const;
     /** \brief Size of the this name in unicode. */
     size_t utf8_size() const;
-    unsigned hash() const;
+    unsigned hash() const { return m_ptr ? m_ptr->m_hash : 11; }
     /** \brief Return true iff the name contains only safe ASCII chars */
     bool is_safe_ascii() const;
     friend std::ostream & operator<<(std::ostream & out, name const & n);

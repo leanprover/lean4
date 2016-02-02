@@ -264,11 +264,11 @@ class blastenv {
             return m_benv.m_curr_state.mk_metavar(type);
         }
 
-        virtual void push() override {
+        virtual void push_core() override {
             m_stack.push_back(m_benv.m_curr_state.save_assignment());
         }
 
-        virtual void pop() override {
+        virtual void pop_core() override {
             m_benv.m_curr_state.restore_assignment(m_stack.back());
             m_stack.pop_back();
         }

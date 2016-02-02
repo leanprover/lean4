@@ -5,8 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <functional>
 #include <memory>
 #include <vector>
+#include "util/scoped_map.h"
 #include "kernel/environment.h"
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
@@ -183,6 +185,9 @@ class type_context {
     /** Temporary flag to override/ignore the is_extra_opaque predicate.
         We use it when inferring types and we want to be sure a type is Pi-type. */
     bool                            m_relax_is_opaque;
+
+    typedef scoped_map<expr, expr, expr_hash, std::equal_to<expr>> infer_cache;
+    infer_cache m_infer_cache;
 
     bool is_opaque(declaration const & d) const;
     optional<expr> reduce_projection(expr const & e);
@@ -430,9 +435,9 @@ public:
     virtual expr mk_mvar(expr const &) = 0;
 
     /** \brief Save the current assignment and metavariable declarations */
-    virtual void push() = 0;
+    virtual void push_core() = 0;
     /** \brief Retore assignment (inverse for push) */
-    virtual void pop() = 0;
+    virtual void pop_core() = 0;
     /** \brief Return the number of checkpoints created using \c push and not popped yet. */
     virtual unsigned get_num_check_points() const = 0;
     /** \brief Keep the changes since last push */
@@ -452,6 +457,9 @@ public:
     bool has_assigned_uvar(level const & l) const;
     bool has_assigned_uvar(levels const & ls) const;
     bool has_assigned_uvar_mvar(expr const & e) const;
+
+    void push();
+    void pop();
 
     /** \brief Expand macro using extension context */
     optional<expr> expand_macro(expr const & m);
@@ -524,8 +532,10 @@ public:
     /** \brief Similar to \c force_assign but sets m_relax_is_opaque */
     bool relaxed_force_assign(expr const & ma, expr const & v);
 
-    /** \brief Clear internal caches used to speedup computation */
+    /** \brief Clear all internal caches used to speedup computation */
     void clear_cache();
+    /** \brief Clear internal type inference cache used to speedup computation */
+    void clear_infer_cache();
 
     /** \brief Update configuration options.
         Return true iff the new options do not change the behavior of the object.
@@ -604,8 +614,8 @@ public:
     virtual expr mk_mvar(expr const &);
     virtual expr infer_local(expr const & e) const { return mlocal_type(e); }
     virtual expr infer_metavar(expr const & e) const { return mlocal_type(e); }
-    virtual void push() { m_trail.push_back(m_assignment); }
-    virtual void pop() { lean_assert(!m_trail.empty()); m_assignment = m_trail.back(); m_trail.pop_back(); }
+    virtual void push_core() { m_trail.push_back(m_assignment); }
+    virtual void pop_core() { lean_assert(!m_trail.empty()); m_assignment = m_trail.back(); m_trail.pop_back(); }
     virtual unsigned get_num_check_points() const { return m_trail.size(); }
     virtual void commit() { lean_assert(!m_trail.empty()); m_trail.pop_back(); }
     virtual optional<expr> mk_subsingleton_instance(expr const & type);

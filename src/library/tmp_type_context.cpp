@@ -35,6 +35,7 @@ void tmp_type_context::clear() {
     m_eassignment.clear();
     m_trail.clear();
     m_scopes.clear();
+    clear_infer_cache();
 }
 
 void tmp_type_context::set_next_uvar_idx(unsigned next_idx) {
@@ -111,7 +112,7 @@ expr tmp_type_context::mk_mvar(expr const & type) {
     return mk_idx_metavar(idx, type);
 }
 
-void tmp_type_context::push() {
+void tmp_type_context::push_core() {
     m_scopes.push_back(scope());
     scope & s = m_scopes.back();
     s.m_uassignment_sz     = m_uassignment.size();
@@ -119,7 +120,7 @@ void tmp_type_context::push() {
     s.m_trail_sz           = m_trail.size();
 }
 
-void tmp_type_context::pop() {
+void tmp_type_context::pop_core() {
     lean_assert(!m_scopes.empty());
     scope const & s  = m_scopes.back();
     unsigned old_sz  = s.m_trail_sz;

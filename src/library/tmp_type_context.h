@@ -77,8 +77,8 @@ public:
     virtual level mk_uvar();
     virtual expr mk_mvar(expr const &);
 
-    virtual void push();
-    virtual void pop();
+    virtual void push_core();
+    virtual void pop_core();
     virtual unsigned get_num_check_points() const;
     virtual void commit();
 

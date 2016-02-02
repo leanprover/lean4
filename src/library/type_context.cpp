@@ -124,6 +124,16 @@ type_context::~type_context() {
         delete m_local_gen;
 }
 
+void type_context::push() {
+    m_infer_cache.push();
+    push_core();
+}
+
+void type_context::pop() {
+    pop_core();
+    m_infer_cache.pop();
+}
+
 expr type_context::mk_internal_local(name const & n, expr const & type, binder_info const & bi) {
     return mk_local(m_ngen.next(), n, type, bi);
 }
@@ -1187,7 +1197,9 @@ expr type_context::infer(expr const & e) {
     lean_assert(!is_var(e));
     lean_assert(closed(e));
     check_system("infer_type");
-
+    auto it = m_infer_cache.find(e);
+    if (it != m_infer_cache.end())
+        return it->second;
     expr r;
     switch (e.kind()) {
     case expr_kind::Local:
@@ -1217,13 +1229,18 @@ expr type_context::infer(expr const & e) {
         r = infer_app(e);
         break;
     }
-    // TODO(Leo): cache results if we have performance problems
+    m_infer_cache.insert(mk_pair(e, r));
     return r;
 }
 
 void type_context::clear_cache() {
     m_ci_cache.clear();
     m_ss_cache.clear();
+    clear_infer_cache();
+}
+
+void type_context::clear_infer_cache() {
+    m_infer_cache.clear();
 }
 
 /** \brief If the constant \c e is a class, return its name */

@@ -743,8 +743,8 @@ bool type_context::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
     if (!m_env.prop_proof_irrel())
         return false;
     expr e1_type = infer(e1);
-    expr e2_type = infer(e2);
     if (is_prop(e1_type)) {
+        expr e2_type = infer(e2);
         scope s(*this);
         if (is_def_eq_core(e1_type, e2_type)) {
             s.commit();

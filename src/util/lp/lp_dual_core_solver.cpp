@@ -214,7 +214,7 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::pricing_loop(u
         if (++i == this->m_m) {
             i = 0;
         }
-    } while (i != initial_offset_in_rows && (rows_left || steepest_edge_max < T(1e-5)));
+    } while (i != initial_offset_in_rows && rows_left);
     if (m_r == -1) {
         if (this->m_status != UNSTABLE) {
             this->m_status = OPTIMAL;

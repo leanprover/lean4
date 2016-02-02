@@ -175,10 +175,13 @@ public:
             return 0;
         unsigned h1 = a.hash();
         unsigned h2 = b.hash();
-        if (h1 != h2)
+        if (h1 != h2) {
             return h1 < h2 ? -1 : 1;
-        else
+        } else if (a == b) {
+            return 0;
+        } else {
             return cmp(a, b);
+        }
     }
 
     struct ptr_hash { unsigned operator()(name const & n) const { return std::hash<imp*>()(n.m_ptr); } };

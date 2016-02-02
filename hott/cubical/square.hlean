@@ -232,6 +232,9 @@ namespace eq
     : p₁₂ = p₀₁⁻¹ ⬝ p₁₀ ⬝ p₂₁ :=
   by induction s₁₁; apply idp
 
+  definition square_of_eq_bot (r : p₀₁⁻¹ ⬝ p₁₀ ⬝ p₂₁ = p₁₂) : square p₁₀ p₁₂ p₀₁ p₂₁ :=
+  by induction p₂₁; induction p₁₀; esimp at r; induction r; induction p₀₁; exact ids
+
   definition square_equiv_eq [constructor] (t : a₀₀ = a₀₂) (b : a₂₀ = a₂₂)
     (l : a₀₀ = a₂₀) (r : a₀₂ = a₂₂) : square t b l r ≃ t ⬝ r = l ⬝ b :=
   begin

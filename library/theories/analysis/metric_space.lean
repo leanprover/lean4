@@ -5,7 +5,7 @@ Author: Jeremy Avigad
 
 Metric spaces.
 -/
-import data.real.complete data.pnat data.list.sort data.fin
+import data.real.complete data.pnat data.list.sort
 open nat real eq.ops classical
 
 structure metric_space [class] (M : Type) : Type :=
@@ -314,7 +314,8 @@ open pnat rat
 section
 omit strucM
 
-theorem of_rat_rat_of_pnat_eq_of_nat_nat_of_pnat {p : pnat} : of_rat (rat_of_pnat p) = of_nat (nat_of_pnat p) :=
+private lemma of_rat_rat_of_pnat_eq_of_nat_nat_of_pnat (p : pnat) :
+        of_rat (rat_of_pnat p) = of_nat (nat_of_pnat p) :=
   rfl
 
 end
@@ -459,9 +460,6 @@ theorem converges_seq_comp_of_converges_seq_of_cts [instance] (X : ℕ → M) [H
     cases Hxlim (and.left Hδ) with B HB,
     existsi B,
     intro n Hn,
-    cases em (xlim = X n),
-    rewrite [a, dist_self],
-    assumption,
     apply and.right Hδ,
     apply HB Hn
   end
@@ -495,7 +493,7 @@ complete_metric_space.complete X H
 
 end analysis
 
-/- the reals form a metris space -/
+/- the reals form a metric space -/
 
 noncomputable definition metric_space_real [instance] : metric_space ℝ :=
 ⦃ metric_space,

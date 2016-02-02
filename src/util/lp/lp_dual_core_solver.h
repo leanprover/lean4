@@ -49,8 +49,6 @@ public:
 
     void fill_non_basis_with_only_able_to_enter_columns();
 
-    void print_nb(std::ostream & out);
-
     void restore_non_basis();
 
     bool update_basis(int entering, int leaving);

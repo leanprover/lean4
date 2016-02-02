@@ -48,7 +48,9 @@ public:
     std::vector<T> m_costs_backup;
     bool m_current_x_is_feasible;
     T m_converted_harris_eps = convert_struct<T, double>::convert(this->m_settings.harris_feasibility_tolerance);
-
+    unsigned m_sort_columns_counter = 0;
+    std::vector<T> m_steepest_edge_coefficients;
+    void sort_non_basis();
     int choose_entering_column(unsigned number_of_benefitial_columns_to_go_over);
 
     int find_leaving_and_t_precisely(unsigned entering, X & t);

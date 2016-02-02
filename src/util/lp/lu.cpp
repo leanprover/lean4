@@ -646,7 +646,7 @@ row_eta_matrix<T, X> *lu<T, X>::get_row_eta_matrix_and_set_row_vector(unsigned r
 #endif
         !m_settings.abs_val_is_smaller_than_pivot_tolerance((m_row_eta_work_vector[lowest_row_of_the_bump] - pivot_elem_for_checking) / denom)) {
         set_status(LU_status::Degenerated);
-        std::cout << "diagonal element is off" << std::endl;
+        //        std::cout << "diagonal element is off" << std::endl;
         return nullptr;
     }
 #ifdef LEAN_DEBUG

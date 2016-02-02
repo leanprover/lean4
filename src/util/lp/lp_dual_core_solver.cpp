@@ -56,14 +56,6 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::fill_non_basis
     }
 }
 
-template <typename T, typename X> void lp_dual_core_solver<T, X>::print_nb(std::ostream & out) {
-    out << "this is nb " << std::endl;
-    for (auto l : this->m_factorization->m_non_basic_columns) {
-        out << l << " ";
-    }
-    out << std::endl;
-}
-
 template <typename T, typename X> void lp_dual_core_solver<T, X>::restore_non_basis() {
     auto & nb = this->m_factorization->m_non_basic_columns;
     nb.clear();

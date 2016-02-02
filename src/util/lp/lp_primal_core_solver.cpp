@@ -8,17 +8,41 @@
 #include "util/lp/lp_primal_core_solver.h"
 namespace lean {
 
+
 // This core solver solves (Ax=b, low_bound_values \leq x \leq upper_bound_values, maximize costs*x )
 // The right side b is given implicitly by x and the basis
 template <typename T, typename X>
+void lp_primal_core_solver<T, X>::sort_non_basis() {
+    for (unsigned j : this->m_non_basic_columns) {
+        T const & da = this->m_d[j];
+        m_steepest_edge_coefficients[j] = da * da / this->m_column_norms[j];
+    }
+    
+    std::sort(this->m_non_basic_columns.begin(), this->m_non_basic_columns.end(), [this](unsigned a, unsigned b) {
+            return m_steepest_edge_coefficients[a] > m_steepest_edge_coefficients[b];
+    });
+    // reinit m_basis_heading
+    for (int j = 0; j < this->m_non_basic_columns.size(); j++)
+        this->m_basis_heading[this->m_non_basic_columns[j]] = - j - 1;
+}
+
+
+template <typename T, typename X>
 int lp_primal_core_solver<T, X>::choose_entering_column(unsigned number_of_benefitial_columns_to_go_over) { // at this moment m_y = cB * B(-1)
     lean_assert(number_of_benefitial_columns_to_go_over);
-    unsigned offset_in_nb = my_random() % this->m_non_basic_columns.size();
+    if (m_sort_columns_counter == 0) {
+        sort_non_basis();
+        m_sort_columns_counter = 20;
+    } else {
+        m_sort_columns_counter--;
+    }
+    lean_assert(m_sort_columns_counter>=0);
+    unsigned offset_in_nb = 0;
     unsigned initial_offset_in_non_basis = offset_in_nb;
     T steepest_edge = zero_of_type<T>();
     int entering = -1;
     do {
-        unsigned j = this->m_factorization->m_non_basic_columns[offset_in_nb];
+        unsigned j = this->m_non_basic_columns[offset_in_nb];
         push_forward_offset_in_non_basis(offset_in_nb);
         if (m_forbidden_enterings.find(j) != m_forbidden_enterings.end()) {
             continue;
@@ -225,7 +249,8 @@ template <typename T, typename X> lp_primal_core_solver<T, X>::   lp_primal_core
                               column_type_array,
                               low_bound_values,
                               upper_bound_values),
-    m_beta(A.row_count()) {
+    m_beta(A.row_count()),
+    m_steepest_edge_coefficients(A.column_count()) {
     this->m_status = UNKNOWN;
     this->m_column_norm_update_counter = settings.column_norms_update_frequency;
 }
@@ -250,7 +275,8 @@ lp_primal_core_solver(static_matrix<T, X> & A,
                               column_type_array,
                               m_low_bound_values_dummy,
                               upper_bound_values),
-    m_beta(A.row_count()) {
+    m_beta(A.row_count()),
+    m_steepest_edge_coefficients(A.column_count()) {
     m_converted_harris_eps = convert_struct<T, double>::convert(this->m_settings.harris_feasibility_tolerance);
     lean_assert(initial_x_is_correct());
     m_low_bound_values_dummy.resize(A.column_count(), zero_of_type<T>());
@@ -504,8 +530,8 @@ template <typename T, typename X>    void lp_primal_core_solver<T, X>::push_forw
         offset_in_nb = 0;
 }
 
-template <typename T, typename X>    unsigned lp_primal_core_solver<T, X>::get_number_of_non_basic_column_to_try_for_enter() {
-    unsigned ret = this->m_factorization->m_non_basic_columns.size();
+template <typename T, typename X>  unsigned lp_primal_core_solver<T, X>::get_number_of_non_basic_column_to_try_for_enter() {
+    unsigned ret = this->m_non_basic_columns.size();
     if (this->m_status == TENTATIVE_UNBOUNDED)
         return ret; // we really need to find entering with a large reduced cost
     if (ret > 300) {
@@ -594,7 +620,7 @@ template <typename T, typename X>    void lp_primal_core_solver<T, X>::delete_fa
 }
 
 // according to Swietanowski, " A new steepest edge approximation for the simplex method for linear programming"
-template <typename T, typename X>    void lp_primal_core_solver<T, X>::init_column_norms() {
+template <typename T, typename X> void lp_primal_core_solver<T, X>::init_column_norms() {
     m_column_norm_update_counter = 0;
     for (unsigned j : this->m_non_basic_columns)
         this->m_column_norms[j] = 1;

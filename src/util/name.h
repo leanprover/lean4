@@ -212,9 +212,9 @@ inline bool independent(name const & a, name const & b) {
 typedef pair<name, name> name_pair;
 struct name_pair_quick_cmp {
     int operator()(name_pair const & p1, name_pair const & p2) const {
-        int r = cmp(p1.first, p2.first);
+        int r = quick_cmp(p1.first, p2.first);
         if (r != 0) return r;
-        return cmp(p1.second, p2.second);
+        return quick_cmp(p1.second, p2.second);
     }
 };
 

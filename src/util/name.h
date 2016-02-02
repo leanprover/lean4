@@ -57,15 +57,15 @@ public:
     name(std::string const & s):name(s.c_str()) {}
     name(name const & prefix, char const * name);
     name(name const & prefix, unsigned k);
-    name(name const & other);
-    name(name && other);
+    name(name const & other):m_ptr(other.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
+    name(name && other):m_ptr(other.m_ptr) { other.m_ptr = nullptr; }
     /**
        \brief Create a hierarchical name using the given strings.
        Example: <code>name{"foo", "bla", "tst"}</code> creates the hierarchical
        name <tt>foo::bla::tst</tt>.
     */
     name(std::initializer_list<char const *> const & l);
-    ~name();
+    ~name() { if (m_ptr) m_ptr->dec_ref(); }
     static name const & anonymous();
     /**
         \brief Create a unique internal name that is not meant to exposed
@@ -107,22 +107,22 @@ public:
     friend bool operator<=(name const & a, name const & b) { return cmp(a, b) <= 0; }
     friend bool operator>=(name const & a, name const & b) { return cmp(a, b) >= 0; }
     name_kind kind() const;
-    bool is_anonymous() const { return kind() == name_kind::ANONYMOUS; }
-    bool is_string() const    { return kind() == name_kind::STRING; }
-    bool is_numeral() const   { return kind() == name_kind::NUMERAL; }
-    explicit operator bool() const     { return !is_anonymous(); }
-    unsigned get_numeral() const;
+    bool is_anonymous() const { return m_ptr == nullptr; }
+    bool is_string() const    { return m_ptr != nullptr && m_ptr->m_is_string; }
+    bool is_numeral() const   { return m_ptr != nullptr && !m_ptr->m_is_string; }
+    explicit operator bool() const { return m_ptr != nullptr; }
+    unsigned get_numeral() const { lean_assert(is_numeral()); return m_ptr->m_k; }
     /**
        \brief If the tail of the given hierarchical name is a string, then it returns this string.
        \pre is_string()
     */
-    char const * get_string() const;
-    bool is_atomic() const;
+    char const * get_string() const { lean_assert(is_string()); return m_ptr->m_str; }
+    bool is_atomic() const { return m_ptr == nullptr || m_ptr->m_prefix == nullptr; }
     /**
         \brief Return the prefix of a hierarchical name
         \pre !is_atomic()
     */
-    name get_prefix() const;
+    name get_prefix() const { return is_atomic() ? name() : name(m_ptr->m_prefix); }
     /** \brief Convert this hierarchical name into a string. */
     std::string to_string(char const * sep = lean_name_separator) const;
     /** \brief Size of the this name (in characters). */

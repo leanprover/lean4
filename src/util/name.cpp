@@ -111,15 +111,6 @@ name::name(char const * n):name(name(), n) {
 name::name(unsigned k):name(name(), k, true) {
 }
 
-name::name(name const & other):m_ptr(other.m_ptr) {
-    if (m_ptr)
-        m_ptr->inc_ref();
-}
-
-name::name(name && other):m_ptr(other.m_ptr) {
-    other.m_ptr = nullptr;
-}
-
 name::name(std::initializer_list<char const *> const & l):name() {
     if (l.size() == 0) {
         return;
@@ -130,11 +121,6 @@ name::name(std::initializer_list<char const *> const & l):name() {
         for (; it != l.end(); ++it)
             *this = name(*this, *it);
     }
-}
-
-name::~name() {
-    if (m_ptr)
-        m_ptr->dec_ref();
 }
 
 static name * g_anonymous = nullptr;
@@ -160,16 +146,6 @@ name_kind name::kind() const {
         return name_kind::ANONYMOUS;
     else
         return m_ptr->m_is_string ? name_kind::STRING : name_kind::NUMERAL;
-}
-
-unsigned name::get_numeral() const {
-    lean_assert(is_numeral());
-    return m_ptr->m_k;
-}
-
-char const * name::get_string() const {
-    lean_assert(is_string());
-    return m_ptr->m_str;
 }
 
 /* Equality test core procedure, it is invoked by operator== */
@@ -258,14 +234,6 @@ int cmp(name::imp * i1, name::imp * i2) {
     if (it1 == limbs1.end() && it2 == limbs2.end())
         return 0;
     else return it1 == limbs1.end() ? -1 : 1;
-}
-
-bool name::is_atomic() const {
-    return m_ptr == nullptr || m_ptr->m_prefix == nullptr;
-}
-
-name name::get_prefix() const {
-    return is_atomic() ? name() : name(m_ptr->m_prefix);
 }
 
 static unsigned num_digits(unsigned k) {

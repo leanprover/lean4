@@ -59,6 +59,8 @@ template<bool CompareBinderInfo>
 class expr_eq_fn {
     eq_cache & m_cache;
 
+    static void check_system() { ::lean::check_system("expression equality test"); }
+
     bool apply(expr const & a, expr const & b) {
         if (is_eqp(a, b))          return true;
         if (a.hash() != b.hash())  return false;
@@ -66,7 +68,6 @@ class expr_eq_fn {
         if (is_var(a))             return var_idx(a) == var_idx(b);
         if (m_cache.check(a, b))
             return true;
-        check_system("expression equality test");
         switch (a.kind()) {
         case expr_kind::Var:
             lean_unreachable(); // LCOV_EXCL_LINE
@@ -85,10 +86,12 @@ class expr_eq_fn {
                 (!CompareBinderInfo || local_pp_name(a) == local_pp_name(b)) &&
                 (!CompareBinderInfo || local_info(a) == local_info(b));
         case expr_kind::App:
+            check_system();
             return
                 apply(app_fn(a), app_fn(b)) &&
                 apply(app_arg(a), app_arg(b));
         case expr_kind::Lambda: case expr_kind::Pi:
+            check_system();
             return
                 apply(binding_domain(a), binding_domain(b)) &&
                 apply(binding_body(a), binding_body(b)) &&
@@ -97,6 +100,7 @@ class expr_eq_fn {
         case expr_kind::Sort:
             return sort_level(a) == sort_level(b);
         case expr_kind::Macro:
+            check_system();
             if (macro_def(a) != macro_def(b) || macro_num_args(a) != macro_num_args(b))
                 return false;
             for (unsigned i = 0; i < macro_num_args(a); i++) {

@@ -1106,6 +1106,7 @@ expr type_context::infer_lambda(expr e) {
         ls.push_back(l);
         e = binding_body(e);
     }
+    check_system("infer_type");
     expr t = infer(instantiate_rev(e, ls.size(), ls.data()));
     expr r = abstract_locals(t, ls.size(), ls.data());
     unsigned i = es.size();
@@ -1175,6 +1176,7 @@ void type_context::ensure_pi(expr const & e, expr const & /* ref */) {
 }
 
 expr type_context::infer_app(expr const & e) {
+    check_system("infer_type");
     buffer<expr> args;
     expr const & f = get_app_args(e, args);
     expr f_type    = infer(f);
@@ -1196,7 +1198,6 @@ expr type_context::infer_app(expr const & e) {
 expr type_context::infer(expr const & e) {
     lean_assert(!is_var(e));
     lean_assert(closed(e));
-    check_system("infer_type");
     auto it = m_infer_cache.find(e);
     if (it != m_infer_cache.end())
         return it->second;

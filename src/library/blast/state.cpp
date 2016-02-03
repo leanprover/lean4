@@ -816,6 +816,16 @@ static expr get_key_for(expr type) {
     return type;
 }
 
+static bool use_discr_tree(expr const & type) {
+    /*
+      Discrimination tree does not have support for Pi-expressions. They are treated as a black-box in the
+      discrimination tree module.
+      TODO(Leo): it is feasible to handle arrows in the discr_tree module. We should
+      add support for that in the future.
+    */
+    return !is_pi(type);
+}
+
 void state::update_indices(hypothesis_idx hidx) {
     hypothesis const & h = get_hypothesis_decl(hidx);
     unsigned n = get_extension_manager().get_num_extensions();
@@ -823,7 +833,19 @@ void state::update_indices(hypothesis_idx hidx) {
         branch_extension * ext = get_extension_core(i);
         if (ext) ext->hypothesis_activated(h, hidx);
     }
-    m_branch.m_hyp_index.insert(get_key_for(h.get_type()), h.get_self());
+    expr k = get_key_for(h.get_type());
+    if (use_discr_tree(k)) {
+        m_branch.m_hyp_index.insert(k, h.get_self());
+    } else {
+        /*
+          TODO(Leo): add some support for indexing Pi-expressions.
+          We currently miss basic inconsistencies such as `forall x, P x` and `not forall x, P x`.
+          When classical support is enabled, we can workaround it, but converting
+          `not forall x : A, P x` into `exists x : A, not P x`, eliminating the exists and get new hypotheses
+                     a : A, h : not P a
+          Then, instantiate `forall x, P x` with `a` and get the contradiction.
+        */
+    }
 }
 
 void state::remove_from_indices(hypothesis const & h, hypothesis_idx hidx) {
@@ -832,11 +854,21 @@ void state::remove_from_indices(hypothesis const & h, hypothesis_idx hidx) {
         branch_extension * ext = get_extension_core(i);
         if (ext) ext->hypothesis_deleted(h, hidx);
     }
-    m_branch.m_hyp_index.erase(get_key_for(h.get_type()), h.get_self());
+    expr k = get_key_for(h.get_type());
+    if (use_discr_tree(k)) {
+        m_branch.m_hyp_index.erase(get_key_for(h.get_type()), h.get_self());
+    } else {
+        // TODO(Leo): add some support for indexing Pi-expressions
+    }
 }
 
 void state::find_hypotheses(expr const & e, std::function<bool(hypothesis_idx)> const & fn) const { // NOLINT
-    m_branch.m_hyp_index.find(get_key_for(e), [&](expr const & h) { return fn(href_index(h)); });
+    expr k = get_key_for(e);
+    if (use_discr_tree(k)) {
+        m_branch.m_hyp_index.find(k, [&](expr const & h) { return fn(href_index(h)); });
+    } else {
+        // TODO(Leo): add some support for indexing Pi-expressions
+    }
 }
 
 optional<unsigned> state::select_hypothesis_to_activate() {

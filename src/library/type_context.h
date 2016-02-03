@@ -189,13 +189,17 @@ class type_context {
     typedef scoped_map<expr, expr, expr_hash, std::equal_to<expr>> infer_cache;
     infer_cache m_infer_cache;
 
+    typedef std::unordered_map<name, optional<declaration>, name_hash> is_transparent_cache;
+    is_transparent_cache m_is_transparent_cache[2];
+
     bool is_opaque(declaration const & d) const;
+    optional<declaration> is_transparent(name const & n);
     optional<expr> reduce_projection(expr const & e);
     optional<expr> norm_ext(expr const & e);
     expr whnf_core(expr const & e);
     expr unfold_name_core(expr e, unsigned h);
     expr unfold_names(expr const & e, unsigned h);
-    optional<declaration> is_delta(expr const & e) const;
+    optional<declaration> is_delta(expr const & e);
     expr whnf_core(expr e, unsigned h);
 
     lbool quick_is_def_eq(level const & l1, level const & l2);

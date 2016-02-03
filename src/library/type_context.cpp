@@ -171,6 +171,20 @@ bool type_context::is_opaque(declaration const & d) const {
     return is_extra_opaque(n);
 }
 
+optional<declaration> type_context::is_transparent(name const & n) {
+    auto it = m_is_transparent_cache[m_relax_is_opaque].find(n);
+    if (it != m_is_transparent_cache[m_relax_is_opaque].end()) {
+        return it->second;
+    }
+    optional<declaration> r;
+    if (auto d = m_env.find(n)) {
+        if (d->is_definition() && !is_opaque(*d))
+            r = d;
+    }
+    m_is_transparent_cache[m_relax_is_opaque].insert(mk_pair(n, r));
+    return r;
+}
+
 optional<expr> type_context::expand_macro(expr const & m) {
     lean_assert(is_macro(m));
     if (should_unfold_macro(m))
@@ -252,9 +266,8 @@ expr type_context::whnf_core(expr const & e) {
 /** \brief Expand \c e if it is non-opaque constant with height >= h */
 expr type_context::unfold_name_core(expr e, unsigned h) {
     if (is_constant(e)) {
-        if (auto d = m_env.find(const_name(e))) {
-            if (d->is_definition() && !is_opaque(*d) && d->get_height() >= h &&
-                length(const_levels(e)) == d->get_num_univ_params())
+        if (auto d = is_transparent(const_name(e))) {
+            if (d->get_height() >= h && length(const_levels(e)) == d->get_num_univ_params())
                 return unfold_name_core(instantiate_value_univ_params(*d, const_levels(e)), h);
         }
     }
@@ -282,14 +295,13 @@ expr type_context::unfold_names(expr const & e, unsigned h) {
 
 /** \brief Return some definition \c d iff \c e is a target for delta-reduction,
     and the given definition is the one to be expanded. */
-optional<declaration> type_context::is_delta(expr const & e) const {
+optional<declaration> type_context::is_delta(expr const & e) {
     expr const & f = get_app_fn(e);
     if (is_constant(f)) {
-        if (auto d = m_env.find(const_name(f)))
-            if (d->is_definition() && !is_opaque(*d))
-                return d;
+        return is_transparent(const_name(f));
+    } else {
+        return none_declaration();
     }
-    return none_declaration();
 }
 
 /** \brief Weak head normal form core procedure that performs delta reduction
@@ -1237,6 +1249,8 @@ expr type_context::infer(expr const & e) {
 void type_context::clear_cache() {
     m_ci_cache.clear();
     m_ss_cache.clear();
+    m_is_transparent_cache[0].clear();
+    m_is_transparent_cache[1].clear();
     clear_infer_cache();
 }
 

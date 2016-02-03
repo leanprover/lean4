@@ -192,7 +192,8 @@ namespace blast {
 typedef rb_tree<unsigned, unsigned_cmp> idx_metavar_set;
 
 static bool is_higher_order(tmp_type_context & ctx, expr const & e) {
-    return is_pi(ctx.relaxed_whnf(ctx.infer(e)));
+    /* Remark: it is too expensive to use ctx.relaxed_whnf here. */
+    return is_pi(ctx.whnf(ctx.infer(e)));
 }
 
 /** \brief Given type of the form (Pi (a_1 : A_1) ... (a_n : A_n), B) (or reducible to something of this form),

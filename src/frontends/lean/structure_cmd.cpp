@@ -605,6 +605,7 @@ struct structure_cmd_fn {
         expr tmp   = Pi(m_params, Pi(m_fields, dummy));
         collected_locals local_set;
         ::lean::collect_locals(tmp, local_set);
+        collect_annonymous_inst_implicit(m_p, local_set);
         sort_locals(local_set.get_collected(), m_p, locals);
     }
 

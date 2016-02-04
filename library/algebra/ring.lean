@@ -51,12 +51,12 @@ section semiring
 
   theorem ne_zero_of_mul_ne_zero_right {a b : A} (H : a * b ≠ 0) : a ≠ 0 :=
   suppose a = 0,
-  have a * b = 0, from this⁻¹ ▸ zero_mul b,
+  have a * b = 0, by rewrite [this, zero_mul],
   H this
 
   theorem ne_zero_of_mul_ne_zero_left {a b : A} (H : a * b ≠ 0) : b ≠ 0 :=
   suppose b = 0,
-  have a * b = 0, from this⁻¹ ▸ mul_zero a,
+  have a * b = 0, by rewrite [this, mul_zero],
   H this
 
   local attribute right_distrib [simp]
@@ -86,7 +86,7 @@ section comm_semiring
   theorem dvd_of_mul_right_eq {a b c : A} (H : a * c = b) : a ∣ b := dvd.intro H
 
   theorem dvd.intro_left {a b c : A} (H : c * a = b) : a ∣ b :=
-  dvd.intro (!mul.comm ▸ H)
+  dvd.intro (by rewrite mul.comm at H; exact H)
 
   theorem dvd_of_mul_left_eq {a b c : A} (H : c * a = b) : a ∣ b := dvd.intro_left H
 

@@ -380,7 +380,8 @@ calc
     ... = nat_abs a : abstr_repr
 
 theorem padd_pneg (p : ℕ × ℕ) : padd p (pneg p) ≡ (0, 0) :=
-show pr1 p + pr2 p + 0 = pr2 p + pr1 p + 0, from !nat.add_comm ▸ rfl
+show pr1 p + pr2 p + 0 = pr2 p + pr1 p + 0,
+by rewrite [nat.add_comm (pr1 p)]
 
 theorem padd_padd_pneg (p q : ℕ × ℕ) : padd (padd p q) (pneg q) ≡ p :=
 calc      pr1 p + pr1 q + pr2 q + pr2 p

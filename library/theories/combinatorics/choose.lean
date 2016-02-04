@@ -58,7 +58,7 @@ begin
   induction n with [n, ih],
     {apply rfl},
   change choose (succ n) (succ 0) = succ n,
-  rewrite [choose_succ_succ, ih, choose_zero_right]
+  krewrite [choose_succ_succ, ih, choose_zero_right]
 end
 
 theorem choose_pos {n : ℕ} : ∀ {k : ℕ}, k ≤ n → choose n k > 0 :=
@@ -87,7 +87,7 @@ begin
          krewrite [one_mul, choose_zero_succ, choose_eq_zero_of_lt H, zero_mul]}},
   intro k,
   cases k with k',
-    {rewrite [choose_zero_right, choose_one_right]},
+    {krewrite [choose_zero_right, choose_one_right]},
   rewrite [choose_succ_succ (succ n), right_distrib, -ih (succ k')],
   rewrite [choose_succ_succ at {1}, left_distrib, *succ_mul (succ n), mul_succ, -ih k'],
   rewrite [*add.assoc, add.left_comm (choose n _)]

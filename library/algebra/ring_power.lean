@@ -21,7 +21,7 @@ theorem zero_pow {m : ℕ} (mpos : m > 0) : 0^m = (0 : A) :=
 have h₁ : ∀ m : nat, (0 : A)^(succ m) = (0 : A),
   begin
     intro m, induction m,
-      rewrite pow_one,
+      krewrite pow_one,
       apply zero_mul
   end,
 obtain m' (h₂ : m = succ m'), from exists_eq_succ_of_pos mpos,
@@ -45,7 +45,7 @@ or.elim (eq_zero_or_pos m)
       begin
         intro m,
         induction m with m ih,
-          {rewrite pow_one; intros; assumption},
+          {krewrite pow_one; intros; assumption},
         rewrite pow_succ,
         intro H,
         cases eq_zero_or_eq_zero_of_mul_eq_zero H with h₃ h₄,
@@ -73,7 +73,7 @@ or.elim (eq_zero_or_pos m)
       begin
         intro m,
         induction m with m ih,
-          {rewrite pow_one; assumption},
+          { krewrite pow_one; assumption },
         rewrite pow_succ,
         apply division_ring.mul_ne_zero H ih
       end,
@@ -136,7 +136,7 @@ monoid_has_pow_nat
 theorem abs_pow (a : A) (n : ℕ) : abs (a^n) = abs a^n :=
 begin
   induction n with n ih,
-    rewrite [*pow_zero, (abs_of_nonneg zero_le_one : abs (1 : A) = 1)],
+    krewrite [*pow_zero, (abs_of_nonneg zero_le_one : abs (1 : A) = 1)],
   rewrite [*pow_succ, abs_mul, ih]
 end
 
@@ -149,7 +149,7 @@ include s
 theorem field.div_pow (a : A) {b : A} {n : ℕ} (bnz : b ≠ 0) : (a / b)^n = a^n / b^n :=
 begin
   induction n with n ih,
-    rewrite [*pow_zero, div_one],
+    krewrite [*pow_zero, div_one],
   have bnnz : b^n ≠ 0, from division_ring.pow_ne_zero_of_ne_zero bnz,
   rewrite [*pow_succ, ih, !field.div_mul_div bnz bnnz]
 end
@@ -163,7 +163,7 @@ include s
 theorem div_pow (a : A) {b : A} {n : ℕ} : (a / b)^n = a^n / b^n :=
 begin
   induction n with n ih,
-    rewrite [*pow_zero, div_one],
+    krewrite [*pow_zero, div_one],
   rewrite [*pow_succ, ih, div_mul_div]
 end
 

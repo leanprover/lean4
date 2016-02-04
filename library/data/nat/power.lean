@@ -24,7 +24,7 @@ or.elim (eq_zero_or_pos m)
       begin
         intro m,
         induction m with m ih,
-          {rewrite pow_one; intros; assumption},
+          {krewrite pow_one; intros; assumption},
         rewrite pow_succ,
         intro H,
         cases eq_zero_or_eq_zero_of_mul_eq_zero H with h₃ h₄,
@@ -53,7 +53,7 @@ theorem le_pow_self {x : ℕ} (H : x > 1) : ∀ i, i ≤ x^i
 
 theorem mul_self_eq_pow_2 (a : nat) : a * a = a ^ 2 :=
 show a * a = a ^ (succ (succ zero)), from
-by rewrite [*pow_succ, *pow_zero, mul_one]
+by krewrite [*pow_succ, *pow_zero, mul_one]
 
 theorem pow_cancel_left : ∀ {a b c : nat}, a > 1 → a ^ b = a ^ c → b = c
 | a 0        0        h₁ h₂ := rfl

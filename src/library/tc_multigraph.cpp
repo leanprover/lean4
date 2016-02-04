@@ -59,30 +59,8 @@ struct add_edge_fn {
         m_graph.m_edges.insert(edge, src);
     }
 
-
-    static name compose_name_core(name const & src, name const & tgt) {
-        return src + name("to") + tgt;
-    }
-
-    static name compose_name(name const & p, name const & src, name const & tgt) {
-        if (is_prefix_of(p, tgt))
-            return compose_name_core(src, tgt.replace_prefix(p, name()));
-        else if (p.is_atomic())
-            return compose_name_core(src, tgt);
-        else
-            return compose_name(p.get_prefix(), src, tgt);
-    }
-
-    static name compose_name(name const & src, name const & tgt) {
-        if (src.is_atomic())
-            return compose_name_core(src, tgt);
-        else
-            return compose_name(src.get_prefix(), src, tgt);
-    }
-
-    name compose(name const & src, name const & e1, name const & e2, name const & tgt) {
-        name n = compose_name(src, tgt);
-        pair<environment, name> env_e = ::lean::compose(m_env, *m_tc, e2, e1, optional<name>(n));
+    name compose(name const & base_name, name const & e1, name const & e2) {
+        pair<environment, name> env_e = ::lean::compose(m_env, *m_tc, e2, e1, optional<name>(base_name));
         m_env = env_e.first;
         return env_e.second;
     }
@@ -90,6 +68,7 @@ struct add_edge_fn {
     pair<environment, list<tc_edge>> operator()(name const & src, name const & edge, name const & tgt) {
         buffer<tc_edge> new_edges;
         if (auto preds = m_graph.m_predecessors.find(src)) {
+            name base_name = edge.append_before("_trans_to_");
             for (name const & pred : *preds) {
                 if (pred == tgt)
                     continue; // avoid loops
@@ -97,7 +76,7 @@ struct add_edge_fn {
                     for (pair<name, name> const & p : *pred_succ) {
                         if (p.second != src)
                             continue;
-                        name new_e = compose(pred, p.first, edge, tgt);
+                        name new_e = compose(base_name, p.first, edge);
                         new_edges.emplace_back(pred, new_e, tgt);
                     }
                 }
@@ -107,15 +86,16 @@ struct add_edge_fn {
         buffer<tc_edge> new_back_edges;
         new_back_edges.append(new_edges);
         if (auto succs = m_graph.m_successors.find(tgt)) {
+            name base_name = edge.append_before("_trans_of_");
             for (pair<name, name> const & p : *succs) {
                 if (src == p.second)
                     continue; // avoid loops
-                name new_e = compose(src, edge, p.first, p.second);
+                name new_e = compose(base_name, edge, p.first);
                 new_edges.emplace_back(src, new_e, p.second);
                 for (auto const & back_edge : new_back_edges) {
                     if (back_edge.m_from != p.second)
                         continue;
-                    name new_e = compose(back_edge.m_from, back_edge.m_cnst, p.first, p.second);
+                    name new_e = compose(base_name, back_edge.m_cnst, p.first);
                     new_edges.emplace_back(back_edge.m_from, new_e, p.second);
                 }
             }

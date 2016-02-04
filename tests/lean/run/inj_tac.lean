@@ -38,6 +38,6 @@ example (a₁ a₂ a₃ b₁ b₂ b₃ : nat) : (a₁+2, a₂+3, a₃+1) = (b₁
 begin
   intro H, injection H with a₁b₁ sa₂b₂ a₃sb₃,
   esimp at *,
-  rewrite [a₁b₁, a₃sb₃, sa₂b₂],
+  krewrite [a₁b₁, a₃sb₃, -sa₂b₂],
   repeat (split | esimp)
 end

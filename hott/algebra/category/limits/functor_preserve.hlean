@@ -50,7 +50,7 @@ namespace category
 
   /- yoneda preserves existing limits -/
 
-  local attribute Category.to.precategory category.to_precategory [constructor]
+  local attribute category.to_precategory [constructor]
 
   definition preserves_existing_limits_yoneda_embedding_lemma [constructor] (y : cone_obj F)
     [H : is_terminal y] {G : Cᵒᵖ ⇒ cset} (η : constant_functor I G ⟹ ɏ ∘f F) :

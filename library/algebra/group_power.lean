@@ -71,7 +71,7 @@ theorem one_pow : ∀ n : ℕ, 1^n = (1:A)
 theorem pow_add (a : A) (m n : ℕ) : a^(m + n) = a^m * a^n :=
 begin
   induction n with n ih,
-    {rewrite [nat.add_zero, pow_zero, mul_one]},
+    {krewrite [nat.add_zero, pow_zero, mul_one]},
   rewrite [add_succ, *pow_succ', ih, mul.assoc]
 end
 
@@ -171,7 +171,7 @@ include s
 theorem pow_pos {a : A} (H : a > 0) (n : ℕ) : a ^ n > 0 :=
   begin
     induction n,
-    rewrite pow_zero,
+    krewrite pow_zero,
     apply zero_lt_one,
     rewrite pow_succ',
     apply mul_pos,
@@ -181,7 +181,7 @@ theorem pow_pos {a : A} (H : a > 0) (n : ℕ) : a ^ n > 0 :=
 theorem pow_ge_one_of_ge_one {a : A} (H : a ≥ 1) (n : ℕ) : a ^ n ≥ 1 :=
   begin
     induction n,
-    rewrite pow_zero,
+    krewrite pow_zero,
     apply le.refl,
     rewrite [pow_succ', -mul_one 1],
     apply mul_le_mul v_0 H zero_le_one,

@@ -1092,8 +1092,8 @@ has_sub.mk real.sub
 open rat -- no coercions before
 
 definition of_rat [coercion] (a : ℚ) : ℝ := quot.mk (r_const a)
-definition of_int [coercion] (i : ℤ) : ℝ := int.to.real i
-definition of_nat [coercion] (n : ℕ) : ℝ := nat.to.real n
+definition of_int [coercion] (i : ℤ) : ℝ := i
+definition of_nat [coercion] (n : ℕ) : ℝ := n
 definition of_num [coercion] [reducible] (n : num) : ℝ := of_rat (rat.of_num n)
 
 definition real_has_zero [reducible] [instance] [priority real.prio] : has_zero real :=

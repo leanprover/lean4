@@ -35,7 +35,7 @@ proposition sum_range_def (m n : ℕ) (f : ℕ → A) :
 
 proposition sum_range_self (m : ℕ) (f : ℕ → A) :
             (∑ i = m...m, f i) = f m :=
-  by rewrite [↑sum_range, succ_sub !le.refl, nat.sub_self, sum_up_to_one, zero_add]
+  by krewrite [↑sum_range, succ_sub !le.refl, nat.sub_self, sum_up_to_one, zero_add]
 
 proposition sum_range_succ {m n : ℕ} (f : ℕ → A) (H : m ≤ succ n) :
             (∑ i = m...succ n, f i) = (∑ i = m...n, f i) + f (succ n) :=
@@ -126,7 +126,7 @@ proposition prod_range_def (m n : ℕ) (f : ℕ → A) :
 
 proposition prod_range_self (m : ℕ) (f : ℕ → A) :
             (∏ i = m...m, f i) = f m :=
-by rewrite [↑prod_range, succ_sub !le.refl, nat.sub_self, prod_up_to_one, zero_add]
+by krewrite [↑prod_range, succ_sub !le.refl, nat.sub_self, prod_up_to_one, zero_add]
 
 proposition prod_range_succ {m n : ℕ} (f : ℕ → A) (H : m ≤ succ n) :
             (∏ i = m...succ n, f i) = (∏ i = m...n, f i) * f (succ n) :=

@@ -99,7 +99,7 @@ calc
       ... < 0                 : neg_neg_of_pos this
 
 protected theorem zero_div (b : ℤ) : 0 / b = 0 :=
-by rewrite [of_nat_div_eq, nat.zero_div, of_nat_zero, mul_zero]
+by krewrite [of_nat_div_eq, nat.zero_div, of_nat_zero, mul_zero]
 
 protected theorem div_zero (a : ℤ) : a / 0 = 0 :=
 by rewrite [div_def, sign_zero, zero_mul]

@@ -23,7 +23,7 @@ theorem of_nat_pow (a n : ℕ) : of_nat (a^n) = (of_nat a)^n :=
 begin
   induction n with n ih,
     apply eq.refl,
-  rewrite [pow_succ, pow_succ, of_nat_mul, ih]
+  krewrite [pow_succ, pow_succ, of_nat_mul, ih]
 end
 
 end int

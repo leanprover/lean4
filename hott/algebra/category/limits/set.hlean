@@ -11,7 +11,6 @@ import .colimits ..constructions.set hit.set_quotient
 open eq functor is_trunc sigma pi sigma.ops trunc set_quotient
 
 namespace category
-  local attribute Category.to.precategory [unfold 1]
   local attribute category.to_precategory [unfold 2]
 
   definition is_complete_set_cone.{u v w} [constructor]

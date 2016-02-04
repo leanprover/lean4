@@ -1,8 +1,9 @@
 a + of_num b = 10 : Prop
 @eq.{1} nat
-  (@add.{1} nat _source.to.has_add ((λ (x : nat), x) a)
+  (@add.{1} nat nat._trans_of_decidable_linear_ordered_semiring_2 ((λ (x : nat), x) a)
      (nat.of_num (@bit0.{1} num num_has_add (@one.{1} num num_has_one))))
-  (@bit0.{1} nat _source.to.has_add
-     (@bit1.{1} nat _source.to.has_one _source.to.has_add
-        (@bit0.{1} nat _source.to.has_add (@one.{1} nat _source.to.has_one)))) :
+  (@bit0.{1} nat nat._trans_of_decidable_linear_ordered_semiring_2
+     (@bit1.{1} nat nat._trans_of_decidable_linear_ordered_semiring_22 nat._trans_of_decidable_linear_ordered_semiring_2
+        (@bit0.{1} nat nat._trans_of_decidable_linear_ordered_semiring_2
+           (@one.{1} nat nat._trans_of_decidable_linear_ordered_semiring_22)))) :
   Prop

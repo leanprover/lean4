@@ -246,7 +246,7 @@ theorem mult_pow_eq_zero_of_prime_of_ne {p q : ℕ} (primep : prime p) (primeq :
   (pneq : p ≠ q) (i : ℕ) : mult p (q^i) = 0 :=
 begin
   induction i with i ih,
-    {rewrite [pow_zero, mult_one_right]},
+    {krewrite [pow_zero, mult_one_right]},
   have qpos : q > 0, from pos_of_prime primeq,
   have qipos : q^i > 0, from !pow_pos_of_pos qpos,
   rewrite [pow_succ', mult_mul primep qipos qpos, ih, mult_eq_zero_of_prime_of_ne primep

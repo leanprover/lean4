@@ -13,7 +13,7 @@ begin
     have ceq : c = 0, begin
       rewrite aeq0 at h₃,
       rewrite add_zero at h₃,
-      rewrite add_succ at h₃,
+      krewrite add_succ at h₃,
       krewrite add_zero at h₃,
       injection h₃, exact a_1
     end,

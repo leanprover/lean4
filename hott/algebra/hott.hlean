@@ -27,7 +27,7 @@ namespace algebra
   -- coercions between them anymore.
   -- So, an application such as (@mul A G g h) in the following definition
   -- is type incorrect if the coercion is not added (explicitly or implicitly).
-  local attribute group.to.has_mul [coercion]
+  definition group.to_has_mul [coercion] {A : Type} (H : group A) : has_mul A := _
   local attribute group.to_has_inv [coercion]
 
   universe variable l

@@ -367,11 +367,11 @@ proposition mul_converges_to_seq (HX : X ⟶ x in ℕ) (HY : Y ⟶ y in ℕ) :
       apply converges_to_seq_constant,
       rewrite -{0}zero_add,
       apply add_converges_to_seq,
-      rewrite -(mul_zero K),
+      krewrite -(mul_zero K),
       apply mul_left_converges_to_seq,
       apply abs_sub_converges_to_seq_of_converges_to_seq,
       exact HY,
-      rewrite -(mul_zero (abs y)),
+      krewrite -(mul_zero (abs y)),
       apply mul_left_converges_to_seq,
       apply abs_sub_converges_to_seq_of_converges_to_seq,
       exact HX

@@ -1,8 +1,15 @@
 {x : ℕ ∈ S | x > 0} : set ℕ
 {x : ℕ ∈ s | x > 0} : finset ℕ
-@set.sep.{1} nat (λ (x : nat), @gt.{1} nat _source.to.has_lt x (@zero.{1} nat _source.to.has_zero)) S : set.{1} nat
+@set.sep.{1} nat
+  (λ (x : nat),
+     @gt.{1} nat nat._trans_of_decidable_linear_ordered_semiring_13 x
+       (@zero.{1} nat nat._trans_of_decidable_linear_ordered_semiring_6))
+  S :
+  set.{1} nat
 @finset.sep.{1} nat (λ (a b : nat), nat.has_decidable_eq a b)
-  (λ (x : nat), @gt.{1} nat _source.to.has_lt x (@zero.{1} nat _source.to.has_zero))
-  (λ (a : nat), nat.decidable_lt (@zero.{1} nat _source.to.has_zero) a)
+  (λ (x : nat),
+     @gt.{1} nat nat._trans_of_decidable_linear_ordered_semiring_13 x
+       (@zero.{1} nat nat._trans_of_decidable_linear_ordered_semiring_6))
+  (λ (a : nat), nat.decidable_lt (@zero.{1} nat nat._trans_of_decidable_linear_ordered_semiring_6) a)
   s :
   finset.{1} nat

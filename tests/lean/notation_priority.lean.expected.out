@@ -1,4 +1,4 @@
-@add.{1} nat _source.to.has_add a b : nat
-@add.{1} int _source.to.has_add_1 i j : int
-@add.{1} nat _source.to.has_add a b : nat
-@add.{1} int _source.to.has_add_1 i j : int
+@add.{1} nat nat._trans_of_decidable_linear_ordered_semiring_2 a b : nat
+@add.{1} int int._trans_of_linear_ordered_comm_ring_16 i j : int
+@add.{1} nat nat._trans_of_decidable_linear_ordered_semiring_2 a b : nat
+@add.{1} int int._trans_of_linear_ordered_comm_ring_16 i j : int

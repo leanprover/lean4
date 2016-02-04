@@ -17,7 +17,7 @@ namespace yoneda
     However, we don't want to have them globally, because that will unfold the composition g ∘ f
     in a Category to category.category.comp g f
   -/
-  local attribute Category.to.precategory category.to_precategory [constructor]
+  local attribute category.to_precategory [constructor]
 
   -- should this be defined as "yoneda_embedding Cᵒᵖ"?
   definition contravariant_yoneda_embedding [constructor] [reducible]

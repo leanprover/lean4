@@ -4,6 +4,11 @@
 
   Author: Lev Nachmanson
 */
+#include <utility>
+#include <memory>
+#include <string>
+#include <vector>
+#include <functional>
 #include "util/lp/lp_core_solver_base.cpp"
 template bool lean::lp_core_solver_base<double, double>::A_mult_x_is_off();
 template bool lean::lp_core_solver_base<double, double>::basis_heading_is_correct();

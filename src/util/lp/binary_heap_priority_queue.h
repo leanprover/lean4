@@ -40,7 +40,7 @@ public:
     void put_to_heap(unsigned i, unsigned o);
 
     void enqueue_new(unsigned o, const T& priority);
-    
+
     // This method can work with an element that is already in the queue.
     // In this case the priority will be changed and the queue adjusted.
     void enqueue(unsigned o, const T & priority);

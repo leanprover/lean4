@@ -4,6 +4,11 @@
 
   Author: Lev Nachmanson
 */
+#include <utility>
+#include <memory>
+#include <string>
+#include <vector>
+#include <functional>
 #include "util/lp/lp_primal_simplex.cpp"
 template bool lean::lp_primal_simplex<double, double>::bounds_hold(std::unordered_map<std::string, double, std::hash<std::string>, std::equal_to<std::string>, std::allocator<std::pair<std::string const, double> > > const&);
 template bool lean::lp_primal_simplex<double, double>::row_constraints_hold(std::unordered_map<std::string, double, std::hash<std::string>, std::equal_to<std::string>, std::allocator<std::pair<std::string const, double> > > const&);

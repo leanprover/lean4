@@ -170,7 +170,7 @@ public:
     bool the_righ_sides_do_not_sum_to_zero(const buffer<pair<mpq, unsigned>> & evidence);
 
     bool the_evidence_is_correct();
-    
+
     void update_column_info_of_normalized_constraints();
 
     template <typename V>

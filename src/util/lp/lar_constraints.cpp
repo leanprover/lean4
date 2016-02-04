@@ -4,7 +4,7 @@
 
   Author: Lev Nachmanson
 */
-
+#include <utility>
 #include "util/lp/lar_constraints.h"
 namespace lean {
 
@@ -18,7 +18,7 @@ lar_constraint::lar_constraint(const buffer<std::pair<mpq, var_index>> & left_si
         }
     }
 }
-    
+
 lar_constraint::lar_constraint(const lar_base_constraint & c): lar_base_constraint(c.m_kind, c.m_right_side, c.m_index) {
     for (auto t : c.get_left_side_coefficients())
         m_left_side.insert(std::make_pair(t.second, t.first));
@@ -44,4 +44,4 @@ buffer<std::pair<mpq, var_index>> lar_normalized_constraint::get_left_side_coeff
 
 
 
-    
+

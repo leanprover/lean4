@@ -5,6 +5,8 @@
   Author: Lev Nachmanson
 */
 #ifdef LEAN_DEBUG
+#include <vector>
+#include <string>
 #include "util/lp/matrix.h"
 namespace lean {
 template <typename T, typename X>

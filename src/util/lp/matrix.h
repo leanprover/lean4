@@ -39,7 +39,6 @@ void apply_to_vector(matrix<T, X> & m, T * w);
 unsigned get_width_of_column(unsigned j, std::vector<std::vector<std::string>> & A);
 void print_matrix_with_widths(std::vector<std::vector<std::string>> & A, std::vector<unsigned> & ws, std::ostream & out);
 void print_string_matrix(std::vector<std::vector<std::string>> & A);
-    
 
 template <typename T, typename X>
 void print_matrix(matrix<T, X> const & m, std::ostream & out);

@@ -46,7 +46,7 @@ public:
     void init_costs();
 
     void init_cost_for_column(unsigned j);
-    
+
     void init_local();
 
     // returns m_sign_of_alpha_r
@@ -120,7 +120,7 @@ public:
     void prefix();
 
     bool is_tiny() const { return this->m_m < 10 && this->m_n < 20; }
-    
+
     bool is_empty() const { return this->m_m == 0 || this->m_n == 0; }
 
     void feasibility_loop();

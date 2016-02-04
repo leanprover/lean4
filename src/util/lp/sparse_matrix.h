@@ -109,7 +109,7 @@ public:
     void set_with_no_adjusting(unsigned row, unsigned col, T val);
 
     void set(unsigned row, unsigned col, T val);
-    
+
     T const & get_not_adjusted(unsigned row, unsigned col) const;
     T const & get(unsigned row, unsigned col) const;
 

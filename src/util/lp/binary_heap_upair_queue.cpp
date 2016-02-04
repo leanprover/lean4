@@ -5,7 +5,7 @@
   Author: Lev Nachmanson
 */
 
-
+#include <set>
 #include "util/lp/binary_heap_upair_queue.h"
 namespace lean {
 template <typename T> binary_heap_upair_queue<T>::binary_heap_upair_queue(unsigned size) : m_q(size), m_pairs(size) {

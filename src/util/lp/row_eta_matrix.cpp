@@ -4,7 +4,7 @@
 
   Author: Lev Nachmanson
 */
-
+#include <vector>
 #include "util/lp/row_eta_matrix.h"
 namespace lean {
 template <typename T, typename X>
@@ -15,7 +15,7 @@ void row_eta_matrix<T, X>::apply_from_left(std::vector<X> & w, lp_settings &) {
     //         deb.apply_from_left(clone_w, settings);
     // #endif
     auto w_at_row = w[m_row];
-    for (auto & it :m_row_vector.m_data) {
+    for (auto & it : m_row_vector.m_data) {
         w_at_row += w[it.first] * it.second;
     }
     w[m_row] = w_at_row;

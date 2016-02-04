@@ -4,7 +4,7 @@
 
   Author: Lev Nachmanson
 */
-
+#include <vector>
 #include "util/lp/square_dense_submatrix.h"
 namespace lean {
 template <typename T, typename X>
@@ -157,7 +157,7 @@ template <typename T, typename X>    void square_dense_submatrix<T, X>::push_new
         }
     }
 }
-template <typename T, typename X> 
+template <typename T, typename X>
 template <typename L>
 L square_dense_submatrix<T, X>::row_by_vector_product(unsigned i, const std::vector<L> & v) {
     lean_assert(i >= m_index_start);
@@ -170,7 +170,7 @@ L square_dense_submatrix<T, X>::row_by_vector_product(unsigned i, const std::vec
     return r;
 }
 
-template <typename T, typename X> 
+template <typename T, typename X>
 template <typename L>
 L square_dense_submatrix<T, X>::column_by_vector_product(unsigned j, const std::vector<L> & v) {
     lean_assert(j >= m_index_start);
@@ -181,7 +181,7 @@ L square_dense_submatrix<T, X>::column_by_vector_product(unsigned j, const std::
         r += m_v[offset] * v[adjust_row_inverse(m_index_start + i)];
     return r;
 }
-template <typename T, typename X> 
+template <typename T, typename X>
 template <typename L>
 L square_dense_submatrix<T, X>::row_by_indexed_vector_product(unsigned i, const indexed_vector<L> & v) {
     lean_assert(i >= m_index_start);
@@ -193,7 +193,7 @@ L square_dense_submatrix<T, X>::row_by_indexed_vector_product(unsigned i, const 
         r += m_v[row_offset + j] * v[adjust_column_inverse(m_index_start + j)];
     return r;
 }
-template <typename T, typename X> 
+template <typename T, typename X>
 template <typename L>
 void square_dense_submatrix<T, X>::apply_from_left_local(indexed_vector<L> & w, lp_settings & settings) {
 #ifdef LEAN_DEBUG

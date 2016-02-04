@@ -59,6 +59,9 @@ public:
     std::vector<T> m_column_norms; // the approximate squares of column norms that help choosing a profitable column
     std::vector<X> m_copy_of_xB;
     unsigned m_refactor_counter = 200;
+    unsigned m_sort_counter = 0;
+    std::vector<T> m_steepest_edge_coefficients;
+
     lp_core_solver_base(static_matrix<T, X> & A,
                         std::vector<X> & b, // the right side vector
                         std::vector<unsigned> & basis,
@@ -69,7 +72,7 @@ public:
                         std::vector<column_type> & column_types,
                         std::vector<X> & low_bound_values,
                         std::vector<X> & upper_bound_values);
-    
+
     void allocate_basis_heading();
     void init();
 
@@ -144,7 +147,7 @@ public:
     bool print_statistics_and_check_that_the_time_is_over(unsigned total_iterations);
 
     void set_non_basic_x_to_correct_bounds();
-    
+
     bool at_bound(const X &x, const X & bound) const {
         return !below_bound(x, bound) && !above_bound(x, bound);
     }
@@ -171,7 +174,7 @@ public:
         return below_bound(m_x[p], m_upper_bound_values[p]);
     }
 
-    
+
     bool x_above_upper_bound(unsigned p) {
         return above_bound(m_x[p], m_upper_bound_values[p]);
     }

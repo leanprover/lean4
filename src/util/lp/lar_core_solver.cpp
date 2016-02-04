@@ -10,6 +10,8 @@
 
   Author: Lev Nachmanson
 */
+#include <string>
+#include <vector>
 #include "util/lp/lar_core_solver.h"
 namespace lean {
 template <typename T, typename X>
@@ -322,7 +324,7 @@ template <typename T, typename X>    void lar_core_solver<T, X>::try_add_breakpo
     }
 }
 
-template <typename T, typename X>  std::string  lar_core_solver<T, X>::break_type_to_string(breakpoint_type type) {
+template <typename T, typename X> std::string lar_core_solver<T, X>::break_type_to_string(breakpoint_type type) {
     switch (type){
     case low_break: return "low_break";
     case upper_break: return "upper_break";

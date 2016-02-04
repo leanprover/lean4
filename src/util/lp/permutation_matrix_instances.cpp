@@ -4,6 +4,8 @@
 
   Author: Lev Nachmanson
 */
+#include <memory>
+#include <vector>
 #include "util/lp/permutation_matrix.cpp"
 #include "util/lp/numeric_pair.h"
 template void lean::permutation_matrix<double, double>::apply_from_right(std::vector<double, std::allocator<double> >&);

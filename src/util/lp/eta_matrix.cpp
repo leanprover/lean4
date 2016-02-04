@@ -15,7 +15,7 @@ template <typename T, typename X>
 void eta_matrix<T, X>::apply_from_left(std::vector<X> & w, lp_settings & ) {
     auto w_at_column_index = w[m_column_index];
     w[m_column_index] /= m_diagonal_element;
-    for (auto & it: m_column_vector.m_data) {
+    for (auto & it : m_column_vector.m_data) {
         w[it.first] += w_at_column_index * it.second;
     }
 }
@@ -57,7 +57,7 @@ void eta_matrix<T, X>::apply_from_right(std::vector<T> & w) {
     // deb.apply_from_right(clone_w);
 #endif
     T t = w[m_column_index] / m_diagonal_element;
-    for (auto & it :m_column_vector.m_data) {
+    for (auto & it : m_column_vector.m_data) {
         t += w[it.first] * it.second;
     }
     w[m_column_index] = t;

@@ -4,7 +4,12 @@
 
   Author: Lev Nachmanson
 */
+#include <list>
+#include <vector>
 #include <fstream>
+#include <algorithm>
+#include <set>
+#include <string>
 #include "util/lp/lp_primal_core_solver.h"
 namespace lean {
 
@@ -15,35 +20,37 @@ template <typename T, typename X>
 void lp_primal_core_solver<T, X>::sort_non_basis() {
     for (unsigned j : this->m_non_basic_columns) {
         T const & da = this->m_d[j];
-        m_steepest_edge_coefficients[j] = da * da / this->m_column_norms[j];
+        this->m_steepest_edge_coefficients[j] = da * da / this->m_column_norms[j];
     }
-    
+
     std::sort(this->m_non_basic_columns.begin(), this->m_non_basic_columns.end(), [this](unsigned a, unsigned b) {
-            return m_steepest_edge_coefficients[a] > m_steepest_edge_coefficients[b];
+            return this->m_steepest_edge_coefficients[a] > this->m_steepest_edge_coefficients[b];
     });
+
+    m_non_basis_list.clear();
     // reinit m_basis_heading
-    for (int j = 0; j < this->m_non_basic_columns.size(); j++)
-        this->m_basis_heading[this->m_non_basic_columns[j]] = - j - 1;
+    for (int j = 0; j < this->m_non_basic_columns.size(); j++) {
+        unsigned col = this->m_non_basic_columns[j];
+        this->m_basis_heading[col] = - j - 1;
+        m_non_basis_list.push_back(col);
+    }
 }
 
 
 template <typename T, typename X>
 int lp_primal_core_solver<T, X>::choose_entering_column(unsigned number_of_benefitial_columns_to_go_over) { // at this moment m_y = cB * B(-1)
     lean_assert(number_of_benefitial_columns_to_go_over);
-    if (m_sort_columns_counter == 0) {
+    if (this->m_sort_counter == 0) {
         sort_non_basis();
-        m_sort_columns_counter = 20;
+        this->m_sort_counter = 20;
     } else {
-        m_sort_columns_counter--;
+        this->m_sort_counter--;
     }
-    lean_assert(m_sort_columns_counter>=0);
-    unsigned offset_in_nb = 0;
-    unsigned initial_offset_in_non_basis = offset_in_nb;
+    lean_assert(this->m_sort_counter >=0);
     T steepest_edge = zero_of_type<T>();
-    int entering = -1;
-    do {
-        unsigned j = this->m_non_basic_columns[offset_in_nb];
-        push_forward_offset_in_non_basis(offset_in_nb);
+    std::list<unsigned>::iterator entering_iter = m_non_basis_list.end();
+    for (auto non_basis_iter= m_non_basis_list.begin(); number_of_benefitial_columns_to_go_over && non_basis_iter != m_non_basis_list.end(); ++non_basis_iter) {
+        unsigned j = *non_basis_iter;
         if (m_forbidden_enterings.find(j) != m_forbidden_enterings.end()) {
             continue;
         }
@@ -76,14 +83,19 @@ int lp_primal_core_solver<T, X>::choose_entering_column(unsigned number_of_benef
         T t = dj * dj / this->m_column_norms[j];
         if (t > steepest_edge) {
             steepest_edge = t;
-            entering = j;
+            entering_iter = non_basis_iter;
             if (number_of_benefitial_columns_to_go_over)
                 number_of_benefitial_columns_to_go_over--;
         }
-    } while (number_of_benefitial_columns_to_go_over && initial_offset_in_non_basis != offset_in_nb);
-    if (entering != -1)
+    }// while (number_of_benefitial_columns_to_go_over && initial_offset_in_non_basis != offset_in_nb);
+    if (entering_iter != m_non_basis_list.end()) {
+        unsigned entering = *entering_iter;
         m_sign_of_entering_delta = this->m_d[entering] > 0? 1 : -1;
-    return entering;
+        m_non_basis_list.erase(entering_iter);
+        m_non_basis_list.push_back(entering);
+        return entering;
+    }
+    return -1;
 }
 
 
@@ -249,8 +261,7 @@ template <typename T, typename X> lp_primal_core_solver<T, X>::   lp_primal_core
                               column_type_array,
                               low_bound_values,
                               upper_bound_values),
-    m_beta(A.row_count()),
-    m_steepest_edge_coefficients(A.column_count()) {
+    m_beta(A.row_count()) {
     this->m_status = UNKNOWN;
     this->m_column_norm_update_counter = settings.column_norms_update_frequency;
 }
@@ -275,8 +286,7 @@ lp_primal_core_solver(static_matrix<T, X> & A,
                               column_type_array,
                               m_low_bound_values_dummy,
                               upper_bound_values),
-    m_beta(A.row_count()),
-    m_steepest_edge_coefficients(A.column_count()) {
+    m_beta(A.row_count()) {
     m_converted_harris_eps = convert_struct<T, double>::convert(this->m_settings.harris_feasibility_tolerance);
     lean_assert(initial_x_is_correct());
     m_low_bound_values_dummy.resize(A.column_count(), zero_of_type<T>());
@@ -426,6 +436,7 @@ template <typename T, typename X>    void lp_primal_core_solver<T, X>::calc_work
 }
 
 template <typename T, typename X>void lp_primal_core_solver<T, X>::advance_on_entering_and_leaving(int entering, int leaving, X & t) {
+    lean_assert(m_non_basis_list.back() == entering);
     lean_assert(t >= zero_of_type<X>());
     lean_assert(leaving >= 0 && entering >= 0);
     lean_assert(entering != leaving || !is_zero(t)); // otherwise nothing changes
@@ -482,6 +493,9 @@ template <typename T, typename X>void lp_primal_core_solver<T, X>::advance_on_en
         update_reduced_costs_from_pivot_row(entering, leaving);
     lean_assert(!need_to_switch_costs());
     m_forbidden_enterings.clear();
+    std::list<unsigned>::iterator it = m_non_basis_list.end();
+    it--;
+    * it = static_cast<unsigned>(leaving);
 }
 
 // void recalc_reduced_costs() {

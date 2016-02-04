@@ -4,7 +4,10 @@
 
   Author: Lev Nachmanson
 */
-
+#include <utility>
+#include <memory>
+#include <string>
+#include <vector>
 #include "util/lp/lu.cpp"
 template double lean::dot_product<double, double>(std::vector<double, std::allocator<double> > const&, std::vector<double, std::allocator<double> > const&, unsigned int);
 template void lean::lu<double, double>::change_basis(unsigned int, unsigned int);
@@ -45,4 +48,4 @@ template void lean::lu<lean::mpq, lean::numeric_pair<lean::mpq> >::solve_yB(std:
 template void lean::lu<lean::mpq, lean::numeric_pair<lean::mpq> >::solve_By(std::vector<lean::numeric_pair<lean::mpq>, std::allocator<lean::numeric_pair<lean::mpq> > >&);
 template void lean::lu<double, double>::init_vector_w(unsigned int, lean::indexed_vector<double>&);
 template lean::numeric_pair<lean::mpq> lean::dot_product<lean::mpq, lean::numeric_pair<lean::mpq> >(std::vector<lean::mpq, std::allocator<lean::mpq> > const&, std::vector<lean::numeric_pair<lean::mpq>, std::allocator<lean::numeric_pair<lean::mpq> > > const&, unsigned int);
-template bool lean::lu<double, double>::pivot_the_row(int);
+template bool lean::lu<double, double>::pivot_the_row(int); // NOLINT

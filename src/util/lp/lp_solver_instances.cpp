@@ -4,7 +4,7 @@
 
   Author: Lev Nachmanson
 */
-
+#include <string>
 #include "util/lp/lp_solver.cpp"
 template void lean::lp_solver<double, double>::add_constraint(lean::lp_relation, double, unsigned int);
 template void lean::lp_solver<double, double>::cleanup();

@@ -4,7 +4,7 @@
 
   Author: Lev Nachmanson
 */
-
+#include <algorithm>
 #include "util/lp/scaler.h"
 #include "util/lp/numeric_pair.h"
 namespace lean {

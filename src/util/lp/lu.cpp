@@ -4,7 +4,10 @@
 
   Author: Lev Nachmanson
 */
-
+#include <string>
+#include <algorithm>
+#include <set>
+#include <vector>
 #include "util/lp/lu.h"
 namespace lean {
 #ifdef LEAN_DEBUG
@@ -75,7 +78,7 @@ X dot_product(const std::vector<T> & a, const std::vector<X> & b, unsigned l) {
 
 
 template <typename T, typename X>
-one_elem_on_diag<T,X>::one_elem_on_diag(const one_elem_on_diag & o) {
+one_elem_on_diag<T, X>::one_elem_on_diag(const one_elem_on_diag & o) {
     m_i = o.m_i;
     m_val = o.m_val;
 #ifdef LEAN_DEBUG
@@ -710,7 +713,7 @@ void lu<T, X>::calculate_Lwave_Pwave_for_bump(unsigned replaced_column, unsigned
     calculate_Lwave_Pwave_for_last_row(lowest_row_of_the_bump, diagonal_elem);
     //         lean_assert(m_U.is_upper_triangular_and_maximums_are_set_correctly_in_rows(m_settings));
 }
-    
+
 template <typename T, typename X>
 void lu<T, X>::calculate_Lwave_Pwave_for_last_row(unsigned lowest_row_of_the_bump, T diagonal_element) {
     auto l = new one_elem_on_diag<T, X>(lowest_row_of_the_bump, diagonal_element);

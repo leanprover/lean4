@@ -4,7 +4,7 @@
 
   Author: Lev Nachmanson
 */
-
+#include <vector>
 #include "util/lp/indexed_vector.h"
 namespace lean {
 
@@ -37,38 +37,38 @@ void print_vector(const std::vector<mpq> & t, std::ostream & out) {
     out << std::endl;
 }
 
-template <typename T> 
+template <typename T>
 void indexed_vector<T>::resize(unsigned data_size) {
     m_index.clear();
     m_data.resize(data_size, numeric_traits<T>::zero());
 }
 
-template <typename T> 
+template <typename T>
 void indexed_vector<T>::set_value(T value, unsigned index) {
     m_data[index] = value;
     m_index.push_back(index);
 }
 
-template <typename T> 
+template <typename T>
 void indexed_vector<T>::clear() {
     for (unsigned i : m_index)
         m_data[i] = numeric_traits<T>::zero();
     m_index.clear();
 }
-template <typename T> 
+template <typename T>
 void indexed_vector<T>::clear_all() {
     unsigned i = m_data.size();
     while (i--)  m_data[i] = numeric_traits<T>::zero();
     m_index.clear();
 }
-template <typename T> 
+template <typename T>
 void indexed_vector<T>::erase_from_index(unsigned j) {
     auto it = std::find(m_index.begin(), m_index.end(), j);
     if (it != m_index.end()) m_index.erase(it);
 }
 
 #ifdef LEAN_DEBUG
-template <typename T> 
+template <typename T>
 bool indexed_vector<T>::is_OK() const {
     int size = 0;
     for (unsigned i = 0; i < m_data.size(); i++) {
@@ -80,7 +80,7 @@ bool indexed_vector<T>::is_OK() const {
     }
     return size == m_index.size();
 }
-template <typename T> 
+template <typename T>
 void indexed_vector<T>::print(std::ostream & out) {
     out << "m_index " << std::endl;
     for (unsigned i = 0; i < m_index.size(); i++) {

@@ -4,6 +4,8 @@
 
   Author: Lev Nachmanson
 */
+#include <memory>
+#include <vector>
 #include "util/lp/numeric_pair.h"
 #include "util/lp/eta_matrix.cpp"
 #ifdef LEAN_DEBUG
@@ -18,7 +20,7 @@ template void lean::eta_matrix<lean::mpq, lean::mpq>::apply_from_left(std::vecto
 template void lean::eta_matrix<lean::mpq, lean::mpq>::apply_from_right(std::vector<lean::mpq, std::allocator<lean::mpq> >&);
 template void lean::eta_matrix<lean::mpq, lean::mpq>::conjugate_by_permutation(lean::permutation_matrix<lean::mpq, lean::mpq>&);
 template void lean::eta_matrix<lean::mpq, lean::numeric_pair<lean::mpq> >::apply_from_left(std::vector<lean::numeric_pair<lean::mpq>, std::allocator<lean::numeric_pair<lean::mpq> > >&, lean::lp_settings&);
-template void lean::eta_matrix<lean::mpq, lean::numeric_pair<lean::mpq> >::apply_from_right(std::vector<lean::mpq, std::allocator<lean::mpq> >&);
+template void lean::eta_matrix<lean::mpq, lean::numeric_pair<lean::mpq> >::apply_from_right(std::vector<lean::mpq>&);
 template void lean::eta_matrix<lean::mpq, lean::numeric_pair<lean::mpq> >::conjugate_by_permutation(lean::permutation_matrix<lean::mpq, lean::numeric_pair<lean::mpq> >&);
 template void lean::eta_matrix<double, double>::apply_from_left_local<double>(lean::indexed_vector<double>&, lean::lp_settings&);
 template void lean::eta_matrix<lean::mpq, lean::mpq>::apply_from_left_local<lean::mpq>(lean::indexed_vector<lean::mpq>&, lean::lp_settings&);

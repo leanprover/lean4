@@ -96,7 +96,7 @@ public:
     void update_existing_or_delete_in_parent_matrix_for_row(unsigned i, lp_settings & settings);
 
     void push_new_elements_to_parent_matrix(lp_settings & settings);
-    
+
     template <typename L>
     L row_by_vector_product(unsigned i, const std::vector<L> & v);
 

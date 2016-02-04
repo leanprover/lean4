@@ -4,7 +4,9 @@
 
   Author: Lev Nachmanson
 */
-
+#include <vector>
+#include <memory>
+#include <set>
 #include "util/lp/static_matrix.cpp"
 #include "util/lp/lp_core_solver_base.h"
 #include "util/lp/lp_dual_core_solver.h"
@@ -63,10 +65,10 @@ template void static_matrix<mpq, mpq>::set(unsigned int, unsigned int, mpq const
 template static_matrix<mpq, mpq>::static_matrix(unsigned int, unsigned int);
 #ifdef LEAN_DEBUG
 template bool static_matrix<mpq, numeric_pair<mpq> >::col_val_equal_to_row_val() const;
-#endif    
+#endif
 template void static_matrix<mpq, numeric_pair<mpq> >::copy_column_to_vector(unsigned int, indexed_vector<mpq>&) const;
 template mpq static_matrix<mpq, numeric_pair<mpq> >::dot_product_with_column(std::vector<mpq, std::allocator<mpq> > const&, unsigned int) const;
 template mpq static_matrix<mpq, numeric_pair<mpq> >::get_elem(unsigned int, unsigned int) const;
 template void static_matrix<mpq, numeric_pair<mpq> >::init_empty_matrix(unsigned int, unsigned int);
 template void static_matrix<mpq, numeric_pair<mpq> >::set(unsigned int, unsigned int, mpq const&);
- }
+}

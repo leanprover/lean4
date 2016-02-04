@@ -118,7 +118,7 @@ public:
     bool snap_runaway_nonbasic_column(unsigned);
 
     bool snap_runaway_nonbasic_columns();
-    
+
     unsigned get_number_of_rows_to_try_for_leaving();
 
     void update_a_wave(const T & del, unsigned j) {

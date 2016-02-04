@@ -4,6 +4,8 @@
 
   Author: Lev Nachmanson
 */
+#include <string>
+#include <algorithm>
 #include "util/lp/lp_core_solver_base.h"
 #include "util/lp/core_solver_pretty_printer.h"
 namespace lean {

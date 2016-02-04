@@ -4,7 +4,8 @@
 
   Author: Lev Nachmanson
 */
-
+#include <vector>
+#include <memory>
 #include "util/lp/row_eta_matrix.cpp"
 #include "util/lp/lu.h"
 namespace lean {

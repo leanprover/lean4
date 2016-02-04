@@ -5,7 +5,7 @@
   Author: Lev Nachmanson
 */
 
-
+#include <vector>
 #include "util/lp/sparse_matrix.h"
 namespace lean {
 template <typename T, typename X>
@@ -798,7 +798,7 @@ bool sparse_matrix<T, X>::shorten_active_matrix(unsigned row, eta_matrix<T, X> *
     if (eta_matrix == nullptr) return true;
     // it looks like double work, but the pivot scores have changed for all rows
     // touched by eta_matrix
-    for (auto & it: eta_matrix->m_column_vector.m_data) {
+    for (auto & it : eta_matrix->m_column_vector.m_data) {
         unsigned row = adjust_row(it.first);
         auto & row_values = m_rows[row];
         unsigned rnz = row_values.size();

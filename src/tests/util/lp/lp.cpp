@@ -221,7 +221,7 @@ void test_small_lu(lp_settings & settings) {
     l.change_basis(3, 2);
     cout << "we were factoring " << std::endl;
 #ifdef LEAN_DEBUG
-    print_matrix(get_B(l),std::cout);
+    print_matrix(get_B(l), std::cout);
 #endif
     lean_assert(l.is_correct());
 }
@@ -2082,7 +2082,7 @@ int my_readdir(DIR *dirp, struct dirent *
 #endif
                , struct dirent **result) {
 #ifdef LEAN_WINDOWS
-    *result = readdir(dirp);
+    *result = readdir(dirp); // NOLINT
     return *result != nullptr? 0 : 1;
 #else
     return readdir_r(dirp, entry, result);

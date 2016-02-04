@@ -6,6 +6,7 @@
 */
 
 #pragma once
+#include <vector>
 #include "util/lp/indexed_vector.h"
 #include "util/lp/matrix.h"
 // These matrices appear at the end of the list

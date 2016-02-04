@@ -4,6 +4,7 @@
 
   Author: Lev Nachmanson
 */
+#include <vector>
 #include "util/lp/binary_heap_priority_queue.h"
 namespace lean {
 // is is the child place in heap
@@ -190,5 +191,5 @@ template <typename T> void binary_heap_priority_queue<T>::print(std::ostream & o
     for (int i = 0; i < index.size(); i++)
         enqueue(index[i], prs[i]);
 }
-#endif 
+#endif
 }

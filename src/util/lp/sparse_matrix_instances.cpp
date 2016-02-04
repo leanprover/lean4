@@ -4,6 +4,8 @@
 
   Author: Lev Nachmanson
 */
+#include <vector>
+#include <memory>
 #include "util/lp/lu.h"
 #include "util/lp/sparse_matrix.cpp"
 namespace lean {

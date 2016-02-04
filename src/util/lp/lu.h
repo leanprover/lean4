@@ -132,7 +132,7 @@ public:
     template <typename L>
     void solve_By_when_y_is_ready(std::vector<L> & y);
     void print_indexed_vector(indexed_vector<T> & w, std::ofstream & f);
-    
+
     void print_basis(std::ostream & f);
     void print_matrix_compact(std::ostream & f);
 
@@ -275,7 +275,7 @@ public:
         init_vector_w(entering, w);
     }
 }; // end of lu
-    
+
 template <typename T, typename X>
 void init_factorization(lu<T, X>* & factorization, static_matrix<T, X> & m_A, std::vector<unsigned> & m_basis, std::vector<int> & m_basis_heading, lp_settings &m_settings, std::vector<unsigned> & non_basic_columns);
 

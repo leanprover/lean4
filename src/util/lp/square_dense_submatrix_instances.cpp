@@ -4,6 +4,8 @@
 
   Author: Lev Nachmanson
 */
+#include <memory>
+#include <vector>
 #include "util/lp/square_dense_submatrix.cpp"
 template void lean::square_dense_submatrix<double, double>::init(lean::sparse_matrix<double, double>*, unsigned int);
 template lean::square_dense_submatrix<double, double>::square_dense_submatrix(lean::sparse_matrix<double, double>*, unsigned int);

@@ -4,7 +4,9 @@
 
   Author: Lev Nachmanson
 */
-
+#include <string>
+#include <algorithm>
+#include <vector>
 #include "util/lp/lar_solver.h"
 namespace lean {
 double conversion_helper <double>::get_low_bound(const column_info<mpq> & ci) {

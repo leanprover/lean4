@@ -4,7 +4,9 @@
 
   Author: Lev Nachmanson
 */
-
+#include <vector>
+#include <utility>
+#include <set>
 #include "util/lp/static_matrix.h"
 
 namespace lean {
@@ -19,7 +21,7 @@ void  static_matrix<T, X>::init_row_columns(unsigned m, unsigned n) {
         m_columns.push_back(column_strip());
     }
 }
-    
+
 // constructor that copies columns of the basis from A
 template <typename T, typename X>
 static_matrix<T, X>::static_matrix(static_matrix const &A, unsigned * basis) :
@@ -32,7 +34,7 @@ static_matrix<T, X>::static_matrix(static_matrix const &A, unsigned * basis) :
         }
     }
 }
-    
+
 template <typename T, typename X>    void static_matrix<T, X>::clear() {
     m_work_pivot_vector.clear();
     m_rows.clear();
@@ -45,12 +47,12 @@ template <typename T, typename X>    void static_matrix<T, X>::clear() {
 template <typename T, typename X>    void static_matrix<T, X>::init_work_pivot_vector(unsigned m) {
     while (m--) m_work_pivot_vector.push_back(numeric_traits<T>::zero());
 }
-    
+
 template <typename T, typename X>    void static_matrix<T, X>::init_empty_matrix(unsigned m, unsigned n) {
     init_work_pivot_vector(m);
     init_row_columns(m, n);
 }
-template <typename T, typename X>  
+template <typename T, typename X>
 template <typename L>
 L static_matrix<T, X>::dot_product_with_row(unsigned row, const std::vector<L> & w) {
     L ret = zero_of_type<L>();
@@ -127,7 +129,7 @@ void static_matrix<T, X>::divide_row_by_constant(unsigned row, T const & alpha) 
         m_columns[t.m_j][t.m_offset].m_value /= alpha;
     }
 }
-    
+
 template <typename T, typename X>
 void static_matrix<T, X>::scale_column(unsigned column, T const & alpha) {
     for (auto & t : m_columns[column]) {
@@ -181,7 +183,7 @@ template <typename T, typename X>    void static_matrix<T, X>::copy_column_to_ve
             v.set_value(it.m_value, it.m_i);
     }
 }
-    
+
 template <typename T, typename X>    void static_matrix<T, X>::copy_column_to_vector (unsigned j, std::vector<T> & v) const {
     v.resize(row_count(), numeric_traits<T>::zero());
     for (auto & it : m_columns[j]) {
@@ -195,7 +197,7 @@ template <typename T, typename X>    void static_matrix<T, X>::add_column_to_vec
         v[it.m_i] += a * it.m_value;
     }
 }
-    
+
 template <typename T, typename X>    T static_matrix<T, X>::get_max_abs_in_row(unsigned row) const {
     T ret = numeric_traits<T>::zero();
     for (auto & t : m_rows[row]) {
@@ -206,7 +208,7 @@ template <typename T, typename X>    T static_matrix<T, X>::get_max_abs_in_row(u
     }
     return ret;
 }
-    
+
 template <typename T, typename X>    T static_matrix<T, X>::get_min_abs_in_row(unsigned row) const {
     bool first_time = true;
     T ret = numeric_traits<T>::zero();
@@ -248,7 +250,7 @@ template <typename T, typename X>     T static_matrix<T, X>::get_min_abs_in_colu
     }
     return ret;
 }
-    
+
 #ifdef LEAN_DEBUG
 template <typename T, typename X>    void static_matrix<T, X>::check_consistency() {
     std::unordered_map<std::pair<unsigned, unsigned>, T> by_rows;
@@ -312,7 +314,7 @@ template <typename T, typename X>    void static_matrix<T, X>::cross_out_row_fro
         cross_out_row_from_column(t.m_j, k);
     }
 }
-    
+
 template <typename T, typename X>    void static_matrix<T, X>::cross_out_row_from_column(unsigned col, unsigned k) {
     auto & s = m_columns[col];
     for (unsigned i = 0; i < s.size(); i++) {
@@ -338,13 +340,13 @@ template <typename T, typename X>    void static_matrix<T, X>::scan_row_to_work_
         m_work_pivot_vector[rc.m_j] = rc.get_val();
     }
 }
-    
+
 template <typename T, typename X>    void static_matrix<T, X>::clean_row_work_vector(unsigned i) {
     for (auto & rc : m_rows[i]) {
         m_work_pivot_vector[rc.m_j] = numeric_traits<T>::zero();
     }
 }
-    
+
 
 template <typename T, typename X>    T static_matrix<T, X>::get_balance() const {
     T ret = zero_of_type<T>();

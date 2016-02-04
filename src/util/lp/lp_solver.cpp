@@ -4,7 +4,9 @@
 
   Author: Lev Nachmanson
 */
-
+#include <string>
+#include <algorithm>
+#include <vector>
 #include "util/lp/lp_solver.h"
 namespace lean {
 template <typename T, typename X> column_info<T> * lp_solver<T, X>::get_or_create_column_info(unsigned column) {
@@ -373,10 +375,10 @@ template <typename T, typename X> void lp_solver<T, X>::cleanup() {
     while ((d = try_to_remove_some_rows()))
         n += d;
 
-    if (n == 1)
-        std::cout << "deleted one row" << std::endl;
-    else if (n)
-        std::cout << "deleted " << n << " rows" << std::endl;
+    // if (n == 1)
+    //     std::cout << "deleted one row" << std::endl;
+    // else if (n)
+    //     std::cout << "deleted " << n << " rows" << std::endl;
 }
 
 template <typename T, typename X> void lp_solver<T, X>::map_external_rows_to_core_solver_rows() {
@@ -532,7 +534,7 @@ template <typename T, typename X>    T lp_solver<T, X>::get_column_value_with_co
 
     return numeric_traits<T>::zero(); // returns zero for out of boundary columns
 }
-    
+
 template <typename T, typename X> void lp_solver<T, X>::set_scaled_cost(unsigned j) {
     // grab original costs but modify it with the column scales
     lean_assert(j < this->m_column_scale.size());

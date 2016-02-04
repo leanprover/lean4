@@ -147,9 +147,9 @@ public:
     std::set<pair<unsigned, unsigned>>  get_domain();
 
     void copy_column_to_vector (unsigned j, indexed_vector<T> & v) const;
-    
+
     void copy_column_to_vector (unsigned j, std::vector<T> & v) const;
-    
+
     void add_column_to_vector (const T & a, unsigned j, T * v) const;
     T get_max_abs_in_row(unsigned row) const;
 
@@ -172,7 +172,7 @@ public:
 
     void cross_out_row_from_column(unsigned col, unsigned k);
 
-    T get_elem(unsigned i, unsigned j) const; 
+    T get_elem(unsigned i, unsigned j) const;
 
 
     unsigned number_of_non_zeroes_in_column(unsigned j) const { return m_columns[j].size(); }

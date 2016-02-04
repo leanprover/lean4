@@ -5,6 +5,8 @@
   Author: Lev Nachmanson
 */
 #include <cmath>
+#include <string>
+#include <vector>
 #include "util/numerics/double.h"
 #include "util/lp/lp_settings.h"
 namespace lean {
@@ -77,7 +79,7 @@ void my_random_init(unsigned * seed) {
 }
 unsigned my_random() {
 #ifdef LEAN_WINDOWS
-    return rand();
+    return rand(); // NOLINT
 #else
     return lrand48();
 #endif

@@ -4,6 +4,9 @@
 
   Author: Lev Nachmanson
 */
+#include <set>
+#include <string>
+#include <vector>
 #include "util/lp/lp_core_solver_base.h"
 namespace lean {
 void init_basic_part_of_basis_heading(std::vector<unsigned> & basis, unsigned m, std::vector<int> & basis_heading) {
@@ -63,7 +66,8 @@ lp_core_solver_base(static_matrix<T, X> & A,
     m_low_bound_values(low_bound_values),
     m_upper_bound_values(upper_bound_values),
     m_column_norms(m_n, T(1)),
-    m_copy_of_xB(m_m) {
+    m_copy_of_xB(m_m),
+    m_steepest_edge_coefficients(A.column_count()) {
     if (m_m) {
         lean_assert(m_A.col_val_equal_to_row_val());
         init();

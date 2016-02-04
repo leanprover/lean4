@@ -6,7 +6,7 @@
 */
 
 #pragma once
-
+#include <list>
 #include "util/numerics/double.h"
 #include "util/lp/lu.h"
 #include "util/lp/lp_solver.h"
@@ -30,7 +30,7 @@ namespace lean {
 // The right side b is given implicitly by x and the basis
 template <typename T, typename X>
 class lp_primal_core_solver:public lp_core_solver_base<T, X> {
-public: 
+public:
     // m_sign_of_entering is set to 1 if the entering variable needs
     // to grow and is set to -1  otherwise
     unsigned m_column_norm_update_counter;
@@ -48,8 +48,7 @@ public:
     std::vector<T> m_costs_backup;
     bool m_current_x_is_feasible;
     T m_converted_harris_eps = convert_struct<T, double>::convert(this->m_settings.harris_feasibility_tolerance);
-    unsigned m_sort_columns_counter = 0;
-    std::vector<T> m_steepest_edge_coefficients;
+    std::list<unsigned> m_non_basis_list;
     void sort_non_basis();
     int choose_entering_column(unsigned number_of_benefitial_columns_to_go_over);
 
@@ -72,7 +71,7 @@ public:
     void limit_theta_on_basis_column_for_inf_case_m_neg_upper_bound(unsigned j, const T & m, X & theta) {
         lean_assert(m < 0 && this->m_column_type[j] == upper_bound);
         limit_inf_on_upper_bound_m_neg(m, this->m_x[j], this->m_upper_bound_values[j], theta);
-    }   
+    }
 
 
     void limit_theta_on_basis_column_for_inf_case_m_neg_low_bound(unsigned j, const T & m, X & theta) {

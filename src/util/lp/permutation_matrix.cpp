@@ -4,6 +4,7 @@
 
   Author: Lev Nachmanson
 */
+#include <vector>
 #include "util/lp/permutation_matrix.h"
 namespace lean {
 template <typename T, typename X> permutation_matrix<T, X>::permutation_matrix(unsigned length): m_length(length), m_permutation(length), m_rev(length) {

@@ -4,6 +4,9 @@
 
   Author: Lev Nachmanson
 */
+#include <algorithm>
+#include <string>
+#include <vector>
 #include "util/lp/lp_dual_core_solver.h"
 
 namespace lean {
@@ -243,7 +246,7 @@ template <typename T, typename X> bool lp_dual_core_solver<T, X>::advance_on_kno
         return true;
     }
     calculate_beta_r_precisely();
-    this->solve_Bd(m_q); //FTRAN
+    this->solve_Bd(m_q); // FTRAN
     int pivot_compare_result = this->pivots_in_column_and_row_are_different(m_q, m_p);
     if (!pivot_compare_result){;}
     else if (pivot_compare_result == 2) { // the sign is changed, cannot continue
@@ -461,20 +464,20 @@ template <typename T, typename X> bool lp_dual_core_solver<T, X>::basis_change_a
     }
 
     if (snap_runaway_nonbasic_column(m_p)) {
-        if(!this->find_x_by_solving()) {
+        if (!this->find_x_by_solving()) {
             revert_to_previous_basis();
             this->m_iters_with_no_cost_growing++;
             return false;
         }
     }
 
-    if (!problem_is_dual_feasible() ) {
+    if (!problem_is_dual_feasible()) {
         // todo : shift the costs!!!!
         revert_to_previous_basis();
         this->m_iters_with_no_cost_growing++;
         return false;
     }
-    
+
     lean_assert(d_is_correct());
     return true;
 }
@@ -517,7 +520,7 @@ template <typename T, typename X> bool lp_dual_core_solver<T, X>::snap_runaway_n
     switch (this->m_column_type[j]) {
     case fixed:
     case low_bound:
-        if (! this->x_is_at_low_bound(j)) { 
+        if (!this->x_is_at_low_bound(j)) {
             this->m_x[j] = this->m_low_bound_values[j];
             return true;
         }
@@ -526,12 +529,12 @@ template <typename T, typename X> bool lp_dual_core_solver<T, X>::snap_runaway_n
         {
             bool closer_to_low_bound = abs(this->m_low_bound_values[j] - this->m_x[j]) < abs(this->m_upper_bound_values[j] - this->m_x[j]);
             if (closer_to_low_bound) {
-                if (! this->x_is_at_low_bound(j)) { 
+                if (!this->x_is_at_low_bound(j)) {
                     this->m_x[j] = this->m_low_bound_values[j];
                     return true;
                 }
             } else {
-                if (! this->x_is_at_upper_bound(j)) { 
+                if (!this->x_is_at_upper_bound(j)) {
                     this->m_x[j] = this->m_low_bound_values[j];
                     return true;
                 }
@@ -539,7 +542,7 @@ template <typename T, typename X> bool lp_dual_core_solver<T, X>::snap_runaway_n
         }
         break;
     case upper_bound:
-        if (! this->x_is_at_upper_bound(j)) { 
+        if (!this->x_is_at_upper_bound(j)) {
             this->m_x[j] = this->m_upper_bound_values[j];
             return true;
         }

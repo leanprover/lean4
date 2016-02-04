@@ -4,6 +4,8 @@
 
   Author: Lev Nachmanson
 */
+#include <string>
+#include <vector>
 #include "util/lp/lp_primal_simplex.h"
 
 namespace lean {

@@ -301,8 +301,8 @@ namespace pi
   theorem is_hprop_pi_eq [instance] [priority 490] (a : A) : is_hprop (Π(a' : A), a = a') :=
   is_hprop_of_imp_is_contr
   ( assume (f : Πa', a = a'),
-    assert H : is_contr A, from is_contr.mk a f,
-    _)
+    assert is_contr A, from is_contr.mk a f,
+    by exact _) /- force type clas resolution -/
 
   theorem is_hprop_neg (A : Type) : is_hprop (¬A) := _
   local attribute ne [reducible]

@@ -181,15 +181,14 @@ section
   theorem nondep_funext_from_ua {A : Type} {B : Type}
       : Π {f g : A → B}, f ~ g → f = g :=
     (λ (f g : A → B) (p : f ~ g),
-        let d := λ (x : A), sigma.mk (f x , f x) idp in
-        let e := λ (x : A), sigma.mk (f x , g x) (p x) in
-        let precomp1 :=  compose (pr₁ ∘ pr1) in
-        have equiv1 [visible] : is_equiv precomp1,
+        let d := λ (x : A), @sigma.mk (B × B) (λ (xy : B × B), xy.1 = xy.2) (f x , f x) (eq.refl (f x, f x).1) in
+        let e := λ (x : A), @sigma.mk (B × B) (λ (xy : B × B), xy.1 = xy.2) (f x , g x) (p x) in
+        let precomp1 :=  compose (pr₁ ∘ sigma.pr1) in
+        assert equiv1 : is_equiv precomp1,
           from @isequiv_src_compose A B,
-        have equiv2 [visible] : Π x y, is_equiv (ap precomp1),
+        assert equiv2 : Π (x y : A → diagonal B), is_equiv (ap precomp1),
           from is_equiv.is_equiv_ap precomp1,
-        have H' : Π (x y : A → diagonal B),
-            pr₁ ∘ pr1 ∘ x = pr₁ ∘ pr1 ∘ y → x = y,
+        have H' : Π (x y : A → diagonal B), pr₁ ∘ pr1 ∘ x = pr₁ ∘ pr1 ∘ y → x = y,
           from (λ x y, is_equiv.inv (ap precomp1)),
         have eq2 : pr₁ ∘ pr1 ∘ d = pr₁ ∘ pr1 ∘ e,
           from idp,

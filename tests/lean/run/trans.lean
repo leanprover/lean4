@@ -23,10 +23,3 @@ theorem dcongr {A : Type} {B : A → Type} {a b : A} (f : Π x, B x) (p : a = b)
 := have H1 : ∀ p1 : a = a, transport p1 (f a) = f a, from
      assume p1 : a = a, transport_eq p1 (f a),
    eq.rec H1 p p
-
-theorem transport_trans {A : Type} {a b c : A} {P : A → Type} (p1 : a = b) (p2 : b = c) (H : P a) :
-                       transport p1 (transport p2 H) = transport (trans p1 p2) H
-:= have H1 : ∀ p, transport p1 (transport p H) = transport (trans p1 p) H, from
-     take p, calc transport p1 (transport p H) = transport p1 H           : {transport_eq p H}
-                                          ...  = transport (trans p1 p) H : refl (transport p1 H),
-   eq.rec H1 p2 p2

@@ -291,7 +291,7 @@ private lemma max_count_eq (l₁ l₂ : list A) : ∀ {a : A} {l : list A}, a �
 | a (b::l) h₁ h₂ :=
   assert nodup l, from nodup_of_nodup_cons h₂,
   assert b ∉ l,   from not_mem_of_nodup_cons h₂,
-  or.elim h₁
+  or.elim (eq_or_mem_of_mem_cons h₁)
   (suppose a = b,
     have a ∉ l, by rewrite this; assumption,
     assert a ∉ max_count l₁ l₂ l, from not_mem_max_count_of_not_mem l₁ l₂ this,
@@ -337,7 +337,7 @@ private lemma min_count_eq (l₁ l₂ : list A) : ∀ {a : A} {l : list A}, a �
 | a (b::l) h₁ h₂ :=
   assert nodup l, from nodup_of_nodup_cons h₂,
   assert b ∉ l,   from not_mem_of_nodup_cons h₂,
-  or.elim h₁
+  or.elim (eq_or_mem_of_mem_cons h₁)
   (suppose a = b,
     have a ∉ l, by rewrite this; assumption,
     assert a ∉ min_count l₁ l₂ l, from not_mem_min_count_of_not_mem l₁ l₂ this,

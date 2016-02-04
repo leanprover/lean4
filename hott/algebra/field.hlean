@@ -115,7 +115,7 @@ section division_ring
     symm (eq_one_div_of_mul_eq_one this)
 
   theorem division_ring.one_div_neg_eq_neg_one_div (H : a ≠ 0) : 1 / (- a) = - (1 / a) :=
-    have -1 ≠ 0, from
+    have -1 ≠ (0:A), from
       (suppose -1 = 0, absurd (symm (calc
           1 = -(-1) : neg_neg
         ... = -0    : this

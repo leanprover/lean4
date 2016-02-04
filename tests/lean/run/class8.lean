@@ -30,7 +30,7 @@ set_option trace.class_instances true
 theorem T1 {A B C D : Type} {P : C → Prop} (a : A) (H1 : inh B) (H2 : ∃x, P x) : inh ((A → A) × B × (D → C) × Prop) :=
 have h1 [visible] : inh A, from inh.intro a,
 have h2 [visible] : inh C, from inh_exists H2,
-_
+by exact _
 
 reveal T1
 (*

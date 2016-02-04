@@ -29,7 +29,7 @@ void lp_primal_core_solver<T, X>::sort_non_basis() {
 
     m_non_basis_list.clear();
     // reinit m_basis_heading
-    for (int j = 0; j < this->m_non_basic_columns.size(); j++) {
+    for (unsigned j = 0; j < this->m_non_basic_columns.size(); j++) {
         unsigned col = this->m_non_basic_columns[j];
         this->m_basis_heading[col] = - j - 1;
         m_non_basis_list.push_back(col);

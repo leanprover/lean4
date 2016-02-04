@@ -969,7 +969,7 @@ expr elaborator::visit_lambda(expr const & e, constraint_seq & cs) {
 
 expr elaborator::visit_typed_expr(expr const & e, constraint_seq & cs) {
     constraint_seq t_cs;
-    expr t      = visit(get_typed_expr_type(e), t_cs);
+    expr t      = ensure_type(visit_expecting_type(get_typed_expr_type(e), t_cs), t_cs);
     constraint_seq v_cs;
     expr v      = visit_expecting_type_of(get_typed_expr_expr(e), t, v_cs);
     expr v_type = infer_type(v, v_cs);

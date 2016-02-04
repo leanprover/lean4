@@ -65,6 +65,7 @@ public:
     ~sexpr();
 
     sexpr_kind kind() const;
+    sexpr_cell const * raw() const { return m_ptr; }
 
     explicit operator bool() const { return m_ptr != nullptr; }
 

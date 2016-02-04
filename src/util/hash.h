@@ -28,6 +28,11 @@ inline uint64 hash(uint64 h1, uint64 h2) {
     return h2;
 }
 
+inline unsigned hash_ptr(void const * ptr) {
+    size_t r = reinterpret_cast<size_t>(ptr);
+    return hash(static_cast<unsigned>(r >> 32), static_cast<unsigned>(r));
+}
+
 template<typename H>
 unsigned hash(unsigned n, H h, unsigned init_value = 31) {
     unsigned a, b, c;

@@ -9,7 +9,9 @@
 #include <cstring>
 #include <utility>
 #include <vector>
+#include <unordered_map>
 #include "util/sstream.h"
+#include "util/hash.h"
 #include "util/escaped.h"
 #include "util/interrupt.h"
 #include "util/numerics/mpz.h"
@@ -177,63 +179,106 @@ format wrap(format const & f1, format const & f2) {
     return f1 + choice(format(" "), line()) + f2;
 }
 
-std::tuple<sexpr, sexpr const *> format::separate_tokens(sexpr const & s, sexpr const * last,
-                                                         std::function<bool(sexpr const &, sexpr const &)> sep // NOLINT
-) const {
-    switch (sexpr_kind(s)) {
+struct format::separate_tokens_fn {
+    typedef std::pair<sexpr, sexpr const *> input;
+    typedef std::tuple<sexpr, sexpr const *> output;
+
+    struct input_hash_fn {
+        unsigned operator()(input const & in) const {
+            return ::lean::hash(hash_ptr(in.first.raw()), hash_ptr(in.second));
+        }
+    };
+
+    struct input_eq_fn {
+        bool operator()(input const & in1, input const & in2) const {
+            return is_eqp(in1.first, in2.first) && in1.second == in2.second;
+        };
+    };
+
+    typedef std::unordered_map<input, output, input_hash_fn, input_eq_fn> cache;
+    cache m_cache;
+    std::function<bool(sexpr const &, sexpr const &)> m_sep; // NOLINT
+
+    separate_tokens_fn(std::function<bool(sexpr const &, sexpr const &)> const & sep):m_sep(sep) {} // NOLINT
+
+    std::tuple<sexpr, sexpr const *> separate(sexpr const & s, sexpr const * last) {
+        try {
+            check_system("separate_tokens");
+        } catch (stack_space_exception &) {
+            return std::make_tuple(s, last);
+        }
+
+        input in(s, last);
+
+        auto it = m_cache.find(in);
+        if (it != m_cache.end()) {
+            return it->second;
+        }
+
+        std::tuple<sexpr, sexpr const *> result;
+        switch (sexpr_kind(s)) {
         case format_kind::NIL:
         case format_kind::COLOR_BEGIN:
         case format_kind::COLOR_END:
-            return std::make_tuple(s, last);
+            result = std::make_tuple(s, last);
+            break;
         case format_kind::LINE:
-            return std::make_tuple(s, nullptr);
+            result = std::make_tuple(s, nullptr);
+            break;
         case format_kind::COMPOSE:
         case format_kind::FLAT_COMPOSE:
         {
             sexpr list = sexpr_compose_list(s);
             list = map(list, [&](sexpr const & s) {
                 sexpr t;
-                std::tie(t, last) = separate_tokens(s, last, sep);
+                std::tie(t, last) = separate(s, last);
                 return t;
             });
-            sexpr t = sexpr_kind(m_value) == format_kind::COMPOSE ? sexpr_compose(list) : sexpr_flat_compose(list);
-            return std::make_tuple(t, last);
+            sexpr t = sexpr_kind(s) == format_kind::COMPOSE ? sexpr_compose(list) : sexpr_flat_compose(list);
+            result = std::make_tuple(t, last);
+            break;
         }
         case format_kind::NEST:
         {
             sexpr t;
-            std::tie(t, last) = separate_tokens(sexpr_nest_s(s), last, sep);
-            return std::make_tuple(sexpr_nest(sexpr_nest_i(s), t), last);
+            std::tie(t, last) = separate(sexpr_nest_s(s), last);
+            result = std::make_tuple(sexpr_nest(sexpr_nest_i(s), t), last);
+            break;
         }
         case format_kind::TEXT:
         {
             sexpr const & text = sexpr_text_t(s);
-            if (last && sep(*last, text))
-                return std::make_tuple(sexpr_compose({*g_sexpr_space, s}), &text);
+            if (last && m_sep(*last, text))
+                result = std::make_tuple(sexpr_compose({*g_sexpr_space, s}), &text);
             else
-                return std::make_tuple(s, &text);
+                result = std::make_tuple(s, &text);
+            break;
         }
         case format_kind::CHOICE:
         {
             // we assume that choices only differ in spacing and thus share their last token
             sexpr s1, s2; sexpr const * last1, * last2;
-            std::tie(s1, last1) = separate_tokens(sexpr_choice_1(s), last, sep);
-            std::tie(s2, last2) = separate_tokens(sexpr_choice_2(s), last, sep);
+            std::tie(s1, last1) = separate(sexpr_choice_1(s), last);
+            std::tie(s2, last2) = separate(sexpr_choice_2(s), last);
             lean_assert(last1 == last2 || (last1 && last2 && *last1 == *last2));
-            return std::make_tuple(sexpr_choice(s1, s2), last1);
-        }
+            result = std::make_tuple(sexpr_choice(s1, s2), last1);
+            break;
+        }}
+        m_cache.insert(mk_pair(in, result));
+        return result;
     }
-    lean_unreachable(); // LCOV_EXCL_LINE
-}
+
+    std::tuple<sexpr, sexpr const *> operator()(sexpr const & s, sexpr const * last) {
+        return separate(s, last);
+    }
+};
 
 /**
    \brief Replaces every text sepxr \c t with <tt>compose(" ", t)</tt> if there is a preceding
    text sexpr \c s and <tt>sep(s, t)</tt> is true
 */
-format format::separate_tokens(
-            std::function<bool(sexpr const &, sexpr const &)> sep // NOLINT
-) const {
-    return format(std::get<0>(separate_tokens(m_value, nullptr, sep)));
+format format::separate_tokens(std::function<bool(sexpr const &, sexpr const &)> sep) const { // NOLINT
+    return format(std::get<0>(separate_tokens_fn(sep)(m_value, nullptr)));
 }
 
 /**

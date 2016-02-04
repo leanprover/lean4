@@ -2395,7 +2395,7 @@ static expr translate_local_name(environment const & env,
 */
 static expr translate(environment const & env, list<expr> const & ctx, expr const & e) {
     auto fn = [&](expr const & e) {
-        if (is_placeholder(e) || is_by(e)) {
+        if (is_placeholder(e) || is_by(e) || is_by_plus(e)) {
             return some_expr(e); // ignore placeholders
         } else if (is_constant(e)) {
             expr new_e = copy_tag(e, translate_local_name(env, ctx, const_name(e), e));

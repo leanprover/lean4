@@ -101,7 +101,10 @@ assume Pds, inter_eq_empty (take a, assume Pa nPa,
   obtain t Ptin Paint, from iff.elim_left !mem_Union_iff nPa,
   assert s ≠ t,
     from assume Peq, absurd (Peq ▸ of_mem_sep Psin) (of_mem_sep Ptin),
-  Pds s t (mem_of_mem_sep Psin) (mem_of_mem_sep Ptin) `s ≠ t` ▸ mem_inter Pains Paint)
+  have e₁ : s ∩ t = empty, from Pds s t (mem_of_mem_sep Psin) (mem_of_mem_sep Ptin) `s ≠ t`,
+  have a ∈ s ∩ t,     from mem_inter Pains Paint,
+  have a ∈ empty,     from e₁ ▸ this,
+  absurd this !not_mem_empty)
 
 section
 variables {B: Type} [deceqB : decidable_eq B]

@@ -237,11 +237,11 @@ quot.induction_on s
       (assume nodup_l, H1)
       (take a l',
         assume IH nodup_al',
-        have a ∉ l', from not_mem_of_nodup_cons nodup_al',
-        assert e : list.insert a l' = a :: l', from insert_eq_of_not_mem this,
+        assert aux₁: a ∉ l', from not_mem_of_nodup_cons nodup_al',
+        assert e : list.insert a l' = a :: l', from insert_eq_of_not_mem aux₁,
         assert nodup l', from nodup_of_nodup_cons nodup_al',
         assert P (quot.mk (subtype.tag l' this)), from IH this,
-        assert P (insert a (quot.mk (subtype.tag l' _))), from H2 `a ∉ l'` this,
+        assert P (insert a (quot.mk (subtype.tag l' _))), from H2 aux₁ this,
         begin
           revert nodup_al',
           rewrite [-e],

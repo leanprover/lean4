@@ -35,7 +35,7 @@ lemma eq_of_to_fun_eq {A B : Type} : ∀ {e₁ e₂ : equiv A B}, fn e₁ = fn e
   assert f₁ = f₂, from h,
   assert g₁ = g₂, from funext (λ x,
     assert f₁ (g₁ x) = f₂ (g₂ x), from eq.trans (r₁ x) (eq.symm (r₂ x)),
-    have f₁ (g₁ x) = f₁ (g₂ x),   by rewrite [-h at this]; exact this,
+    have f₁ (g₁ x) = f₁ (g₂ x),   begin subst f₂, exact this end,
     show g₁ x = g₂ x,             from injective_of_left_inverse l₁ this),
   by congruence; repeat assumption
 

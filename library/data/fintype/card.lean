@@ -26,8 +26,8 @@ lemma card_le_of_inj (A : Type) [finA : fintype A] [deceqA : decidable_eq A]
    (∃ f : A → B, injective f) → card A ≤ card B :=
 assume Pex, obtain f Pinj, from Pex,
 assert Pinj_on_univ : _, from iff.mp !set.injective_iff_inj_on_univ Pinj,
-assert Pinj_ts : _, from to_set_univ⁻¹ ▸ Pinj_on_univ,
-assert Psub : (image f univ) ⊆ univ, from !subset_univ,
+assert Pinj_ts : set.inj_on f (ts univ), from to_set_univ⁻¹ ▸ Pinj_on_univ,
+assert Psub : (image f univ) ⊆ univ,     from !subset_univ,
 finset.card_le_of_inj_on univ univ (exists.intro f (and.intro Pinj_ts Psub))
 
 -- used to prove that inj ∧ eq card => surj

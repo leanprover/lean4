@@ -256,10 +256,10 @@ have le₂ : (⨆s₁) ⊔ (⨆s₂) ≤ ⨆ (s₁ ∪ s₂), from
 le.antisymm le₁ le₂
 
 lemma Inf_empty_eq_Sup_univ : ⨅ (∅ : set A) = ⨆ univ :=
-have le₁ : ⨅ ∅ ≤ ⨆ univ, from
+have le₁ : ⨅ (∅ : set A) ≤ ⨆ univ, from
   le_Sup !mem_univ,
 have le₂ : ⨆ univ ≤ ⨅ ∅, from
-  le_Inf (take a, suppose a ∈ ∅, absurd this !not_mem_empty),
+  le_Inf (take a : A, suppose a ∈ ∅, absurd this !not_mem_empty),
 le.antisymm le₁ le₂
 
 lemma Sup_empty_eq_Inf_univ : ⨆ (∅ : set A) = ⨅ univ :=

@@ -31,7 +31,7 @@ section
     from even_of_even_pow this,
   assert 2 ∣ gcd a b,
     from dvd_gcd (dvd_of_even `even a`) (dvd_of_even `even b`),
-  have 2 ∣ 1,
+  have (2:nat) ∣ 1,
     begin rewrite [gcd_eq_one_of_coprime co at this], exact this end,
   show false, from absurd `2 ∣ 1` dec_trivial
 end
@@ -97,12 +97,12 @@ section
     from ne_of_gt (denom_pos q),
   have bnz : b ≠ (0 : ℚ),
     from assume H, `b ≠ 0` (of_int.inj H),
-  have bnnz : ((b : rat)^n ≠ 0),
-    from assume bneqz, bnz (eq_zero_of_pow_eq_zero bneqz),
-  have a^n /[rat] b^n = c,
+  have bnnz : (b : rat)^n ≠ 0,
+    from assume bneqz, bnz (_root_.eq_zero_of_pow_eq_zero bneqz),
+  have a^n /[rat] (b:rat)^n = c,
     using bnz, begin rewrite [*of_int_pow, -div_pow, -eq_num_div_denom, -H] end,
-  have (a^n : rat) = c *[rat] b^n,
-    from eq.symm (!mul_eq_of_eq_div bnnz this⁻¹),
+  have (a^n : rat) = c * (b:rat)^n,
+    from eq.symm (!mul_eq_of_eq_div bnnz (eq.symm this)),
   have a^n = c * b^n,  -- int version
     using this, by rewrite [-of_int_pow at this, -of_int_mul at this]; exact of_int.inj this,
   have (abs a)^n = abs c * (abs b)^n,

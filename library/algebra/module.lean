@@ -45,7 +45,7 @@ section left_module
   !add.left_cancel this
 
   proposition smul_zero (a : R) : a • (0 : M) = 0 :=
-  have a • 0 + a • 0 = a • 0 + 0, by rewrite [-smul_left_distrib, *add_zero],
+  have a • (0:M) + a • 0 = a • 0 + 0, by rewrite [-smul_left_distrib, *add_zero],
   !add.left_cancel this
 
   proposition neg_smul (a : R) (u : M) : (-a) • u = - (a • u) :=

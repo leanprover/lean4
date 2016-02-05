@@ -190,6 +190,8 @@ class elaborator : public coercion_info_manager {
 
     expr visit_prenum(expr const & e, constraint_seq & cs);
 
+    expr visit_checkpoint_expr(expr const & e, constraint_seq & cs);
+
     void check_used_local_tactic_hints();
 
     void show_goal(proof_state const & ps, expr const & start, expr const & end, expr const & curr);

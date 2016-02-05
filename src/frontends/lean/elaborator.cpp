@@ -40,6 +40,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/choice_iterator.h"
 #include "library/projection.h"
+#include "library/trace.h"
 #include "library/pp_options.h"
 #include "library/class_instance_resolution.h"
 #include "library/tactic/expr_to_tactic.h"
@@ -1239,8 +1240,9 @@ constraint elaborator::mk_equations_cnstr(expr const & m, expr const & eqns) {
         expr new_eqns       = new_s.instantiate_all(eqns);
         bool reject_type_is_meta = false;
         new_eqns            = solve_unassigned_mvars(new_s, new_eqns, reject_type_is_meta);
-        if (display_unassigned_mvars(new_eqns, new_s))
+        if (display_unassigned_mvars(new_eqns, new_s)) {
             return lazy_list<constraints>();
+        }
         type_checker_ptr tc = mk_type_checker(_env, std::move(ngen));
         new_eqns            = assign_equation_lhs_metas(*tc, new_eqns);
         expr val            = compile_equations(*tc, _ios, new_eqns, meta, meta_type);
@@ -1331,7 +1333,8 @@ expr elaborator::visit_equations(expr const & eqns, constraint_seq & cs) {
     expr m = m_full_context.mk_meta(m_ngen, some_expr(type), eqns.get_tag());
     register_meta(m);
     constraint c = mk_equations_cnstr(m, new_eqns);
-    cs += c;
+    /* We use stack policy for processing MaxDelayed constraints */
+    cs = c + cs;
     return m;
 }
 
@@ -1695,6 +1698,33 @@ expr elaborator::visit_prenum(expr const & e, constraint_seq & cs) {
     }
 }
 
+expr elaborator::visit_checkpoint_expr(expr const & e, constraint_seq & cs) {
+    expr arg = get_annotation_arg(e);
+    expr m;
+    if (is_by(arg))
+        m = m_context.mk_meta(m_ngen, none_expr(), e.get_tag());
+    else
+        m = m_full_context.mk_meta(m_ngen, none_expr(), e.get_tag());
+    register_meta(m);
+    local_context ctx      = m_context;
+    local_context full_ctx = m_full_context;
+    bool in_equation_lhs   = m_in_equation_lhs;
+    auto fn = [=](expr const & meta, expr const & /* type */, substitution const & /* s */,
+                  name_generator && /* ngen */) {
+        flet<local_context> set1(m_context,         ctx);
+        flet<local_context> set2(m_full_context,    full_ctx);
+        flet<bool>          set3(m_in_equation_lhs, in_equation_lhs);
+        pair<expr, constraint_seq> rcs = visit(arg);
+        expr r                         = rcs.first;
+        constraint_seq cs              = rcs.second;
+        cs = mk_eq_cnstr(meta, r, justification()) + cs;
+        return lazy_list<constraints>(cs.to_list());
+    };
+    justification j;
+    cs += mk_choice_cnstr(m, fn, to_delay_factor(cnstr_group::Checkpoint), true, j);
+    return m;
+}
+
 expr elaborator::visit_core(expr const & e, constraint_seq & cs) {
     if (is_prenum(e)) {
         return visit_prenum(e, cs);
@@ -1738,6 +1768,8 @@ expr elaborator::visit_core(expr const & e, constraint_seq & cs) {
         return visit_structure_instance(e, cs);
     } else if (is_obtain_expr(e)) {
         return visit_obtain_expr(e, cs);
+    } else if (is_checkpoint_annotation(e)) {
+        return visit_checkpoint_expr(e, cs);
     } else {
         switch (e.kind()) {
         case expr_kind::Local:      return e;

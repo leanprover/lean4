@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/sexpr/option_declarations.h"
 #include "util/sstream.h"
 #include "kernel/abstract.h"
 #include "library/annotation.h"
@@ -36,7 +37,17 @@ Author: Leonardo de Moura
 #include "frontends/lean/obtain_expr.h"
 #include "frontends/lean/nested_declaration.h"
 
+#ifndef LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE
+#define LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE true
+#endif
+
 namespace lean {
+static name * g_parser_checkpoint_have = nullptr;
+
+bool get_parser_checkpoint_have(options const & opts) {
+    return opts.get_bool(*g_parser_checkpoint_have, LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE);
+}
+
 namespace notation {
 static expr parse_Type(parser & p, unsigned, expr const *, pos_info const & pos) {
     if (p.curr_is_token(get_llevel_curly_tk())) {
@@ -475,6 +486,8 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
     }
     // remark: mk_contextual_info(false) informs the elaborator that prop should not occur inside metavariables.
     body = abstract(body, l);
+    if (get_parser_checkpoint_have(p.get_options()))
+        body = mk_checkpoint_annotation(body);
     expr r = p.save_pos(mk_have_annotation(p.save_pos(mk_lambda(id, prop, body, bi), pos)), pos);
     return p.mk_app(r, proof, pos);
 }
@@ -814,6 +827,10 @@ void initialize_builtin_exprs() {
     *g_nud_table            = notation::init_nud_table();
     g_led_table             = new parse_table();
     *g_led_table            = notation::init_led_table();
+
+    g_parser_checkpoint_have = new name{"parser", "checkpoint_have"};
+    register_bool_option(*g_parser_checkpoint_have, LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE,
+                         "(parser) introduces a checkpoint on have-expressions, checkpoints are like Prolog-cuts");
 }
 
 void finalize_builtin_exprs() {
@@ -821,5 +838,6 @@ void finalize_builtin_exprs() {
     delete g_nud_table;
     delete notation::H_obtain_from;
     delete notation::g_not;
+    delete g_parser_checkpoint_have;
 }
 }

@@ -133,23 +133,28 @@ expr copy_annotations(expr const & from, expr const & to) {
     return r;
 }
 
-static name * g_have = nullptr;
-static name * g_show = nullptr;
+static name * g_have       = nullptr;
+static name * g_show       = nullptr;
+static name * g_checkpoint = nullptr;
 
 expr mk_have_annotation(expr const & e) { return mk_annotation(*g_have, e); }
 expr mk_show_annotation(expr const & e) { return mk_annotation(*g_show, e); }
+expr mk_checkpoint_annotation(expr const & e) { return mk_annotation(*g_checkpoint, e); }
 bool is_have_annotation(expr const & e) { return is_annotation(e, *g_have); }
 bool is_show_annotation(expr const & e) { return is_annotation(e, *g_show); }
+bool is_checkpoint_annotation(expr const & e) { return is_annotation(e, *g_checkpoint); }
 
 void initialize_annotation() {
     g_annotation = new name("annotation");
     g_annotation_opcode = new std::string("Annot");
     g_annotation_macros = new annotation_macros();
-    g_have = new name("have");
-    g_show = new name("show");
+    g_have       = new name("have");
+    g_show       = new name("show");
+    g_checkpoint = new name("checkpoint");
 
     register_annotation(*g_have);
     register_annotation(*g_show);
+    register_annotation(*g_checkpoint);
 
     register_macro_deserializer(get_annotation_opcode(),
                                 [](deserializer & d, unsigned num, expr const * args) {

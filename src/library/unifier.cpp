@@ -289,15 +289,30 @@ unify_status unify_simple(substitution & s, constraint const & c) {
 
 static constraint * g_dont_care_cnstr = nullptr;
 static unsigned g_group_size = 1u << 28;
-constexpr unsigned g_num_groups = 8;
-static unsigned g_cnstr_group_first_index[g_num_groups] = { 0, g_group_size, 2*g_group_size, 3*g_group_size, 4*g_group_size, 5*g_group_size, 6*g_group_size, 7*g_group_size};
+constexpr unsigned g_num_groups = 9;
+static unsigned g_cnstr_group_first_index[g_num_groups] = { 0, g_group_size, 2*g_group_size, 3*g_group_size, 4*g_group_size, 5*g_group_size, 6*g_group_size, 7*g_group_size, 8*g_group_size};
 static unsigned get_group_first_index(cnstr_group g) {
     return g_cnstr_group_first_index[static_cast<unsigned>(g)];
 }
-static cnstr_group to_cnstr_group(unsigned d) {
-    if (d >= g_num_groups)
-        d = g_num_groups-1;
-    return static_cast<cnstr_group>(d);
+
+static unsigned get_group_last_index(cnstr_group g) {
+    unsigned idx = static_cast<unsigned>(g);
+    lean_assert(idx < g_num_groups);
+    if (idx == g_num_groups - 1) {
+        lean_assert(g == cnstr_group::MaxDelayed);
+        return std::numeric_limits<unsigned>::max() - g_group_size;
+    } else {
+        lean_assert(idx < g_num_groups - 1);
+        return g_cnstr_group_first_index[idx+1] - 1;
+    }
+}
+
+static cnstr_group to_cnstr_group(unsigned cidx) {
+    for (unsigned i = 1; i < g_num_groups; i++) {
+        if (cidx < g_cnstr_group_first_index[i])
+            return static_cast<cnstr_group>(i);
+    }
+    return cnstr_group::MaxDelayed;
 }
 
 /** \brief Convert choice constraint delay factor to cnstr_group */
@@ -329,7 +344,7 @@ struct unifier_fn {
     name_generator   m_ngen;
     substitution     m_subst;
     constraints      m_postponed; // constraints that will not be solved
-    owned_map        m_owned_map; // mapping from metavariable name m to delay factor of the choice constraint that owns m
+    owned_map        m_owned_map; // mapping from metavariable name m to constraint idx
     expr_map         m_type_map;  // auxiliary map for storing the type of the expr in choice constraints
     unifier_plugin   m_plugin;
     type_checker_ptr m_tc;
@@ -542,12 +557,44 @@ struct unifier_fn {
         return added;
     }
 
-    /** \brief Add constraint to the constraint queue */
+    /** \brief Add constraint to the constraint queue.
+
+        \remark We use FIFO policy for all but MaxDelayed group.
+     */
     unsigned add_cnstr(constraint const & c, cnstr_group g) {
-        unsigned cidx = m_next_cidx + get_group_first_index(g);
+        unsigned cidx;
+        if (g == cnstr_group::MaxDelayed) {
+            // MaxDelayed is a stack
+            cidx = get_group_last_index(g) - m_next_cidx;
+            /* Make sure there is at least one free space between any two MAX_DELAYED constraints.
+               We want to put constraints containing the variable owned by a MAX_DELAYED constraint c
+               after it and before the next MAX_DELAYED constraint c. */
+            m_next_cidx += 2;
+        } else {
+            cidx = m_next_cidx + get_group_first_index(g);
+            m_next_cidx++;
+        }
         m_cnstrs.insert(cnstr(c, cidx));
-        m_next_cidx++;
         return cidx;
+    }
+
+    /** \brief Add constraint \c to the constraint queue, but
+        make sure it occurs AFTER the the constraint with index \c cidx.
+
+        \remark We used this method to make sure \c c is going to be
+        processed after the constraint \c cidx. */
+    unsigned add_cnstr_after(constraint const & c, unsigned cidx) {
+        cnstr_group g = to_cnstr_group(cidx);
+        unsigned new_cidx;
+        if (g == cnstr_group::MaxDelayed) {
+            // See add_cnstr
+            new_cidx = cidx + 1;
+        } else {
+            new_cidx = m_next_cidx + get_group_first_index(g);
+            m_next_cidx++;
+        }
+        m_cnstrs.insert(cnstr(c, new_cidx));
+        return new_cidx;
     }
 
     /** \brief Check if \c t1 and \c t2 are definitionally equal, if they are not, set a conflict with justification \c j
@@ -993,7 +1040,7 @@ struct unifier_fn {
         if (auto d = is_owned(c)) {
             // Metavariable in the constraint is owned by choice constraint.
             // So, we postpone this constraint.
-            add_cnstr(c, to_cnstr_group(*d+1));
+            add_cnstr_after(c, *d);
             return true;
         }
 
@@ -1126,12 +1173,12 @@ struct unifier_fn {
 
     bool preprocess_choice_constraint(constraint c) {
         if (!cnstr_on_demand(c)) {
+            unsigned cidx = add_cnstr(c, get_choice_cnstr_group(c));
             if (cnstr_is_owner(c)) {
                 expr m = get_app_fn(cnstr_expr(c));
                 lean_assert(is_metavar(m));
-                m_owned_map.insert(mlocal_name(m), cnstr_delay_factor(c));
+                m_owned_map.insert(mlocal_name(m), cidx);
             }
-            add_cnstr(c, get_choice_cnstr_group(c));
             return true;
         } else {
             expr m = cnstr_expr(c);
@@ -2621,6 +2668,10 @@ struct unifier_fn {
         return Continue;
     }
 
+    void cut_search() {
+        m_case_splits.clear();
+    }
+
     /** \brief Process the next constraint in the constraint queue m_cnstrs */
     bool process_next() {
         lean_assert(!m_cnstrs.empty());
@@ -2634,7 +2685,11 @@ struct unifier_fn {
             postpone(c);
             return true;
         }
-        lean_trace("unifier", tout() << "process_next: " << c << "\n";);
+        if (cidx >= get_group_first_index(cnstr_group::Checkpoint) &&
+            cidx < get_group_first_index(cnstr_group::FlexFlex)) {
+            cut_search();
+        }
+        lean_trace("unifier", tout() << "process_next: " << cidx << " " << static_cast<unsigned>(to_cnstr_group(cidx)) << " " << c << "\n";);
         m_cnstrs.erase_min();
         if (is_choice_cnstr(c)) {
             return process_choice_constraint(c);
@@ -2684,7 +2739,7 @@ struct unifier_fn {
                     // Metavariable in the constraint is owned by choice constraint.
                     // choice constraint was postponed... since c was not modifed
                     // So, we should postpone this one too.
-                    add_cnstr(c, to_cnstr_group(*d+1));
+                    add_cnstr_after(c, *d);
                     return true;
                 } else if (is_flex_rigid(c)) {
                     return process_flex_rigid(c);

@@ -100,13 +100,16 @@ unify_result_seq unify(environment const & env, expr const & lhs, expr const & r
 
     7) Epilogue: constraints that must be solved before FlexFlex are discarded/postponed.
 
-    8) FlexFlex:  (?m1 ...) =?= (?m2 ...) we don't try to solve this constraint, we delay them and hope the other
+    8) Checkpoint: unifier performs a prolog-like cut for any constraint in this group.
+
+    9) FlexFlex:  (?m1 ...) =?= (?m2 ...) we don't try to solve this constraint, we delay them and hope the other
        ones instantiate ?m1 or ?m2. If this kind of constraint is the next to be processed in the queue, then
        we simply discard it (or save it and return to the caller as residue).
 
-    9) MaxDelayed: maximally delayed constraint group
+    10) MaxDelayed: maximally delayed constraint group
 */
-enum class cnstr_group { Basic = 0, FlexRigid, PluginDelayed, DelayedChoice, ClassInstance, Epilogue, FlexFlex, MaxDelayed };
+enum class cnstr_group { Basic = 0, FlexRigid, PluginDelayed, DelayedChoice, ClassInstance,
+                         Epilogue, Checkpoint, FlexFlex, MaxDelayed };
 inline unsigned to_delay_factor(cnstr_group g) { return static_cast<unsigned>(g); }
 
 class unifier_exception : public exception {

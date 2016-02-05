@@ -95,6 +95,7 @@ definition trace      (s : string)          : tactic := builtin
 definition rewrite_tac  (e : expr_list) : tactic := builtin
 definition xrewrite_tac (e : expr_list) : tactic := builtin
 definition krewrite_tac (e : expr_list) : tactic := builtin
+definition replace (old : expr) (new : with_expr) (loc : location) : tactic := builtin
 
 -- Arguments:
 --  - ls : lemmas to be used (if not provided, then blast will choose them)

@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/error_msgs.h"
 #include "kernel/inductive/inductive.h"
+#include "library/trace.h"
 #include "library/scoped_ext.h"
 #include "library/normalize.h"
 #include "library/placeholder.h"
@@ -307,8 +308,15 @@ struct structure_cmd_fn {
         for (expr const & p : m_params)
             ::lean::collect_locals(mlocal_type(p), dep_set);
         collect_annonymous_inst_implicit(m_p, dep_set);
+        /* Copy the locals from dep_set that are NOT in m_params to dep_set_minus_params */
+        buffer<expr> dep_set_minus_params;
+        for (auto d : dep_set.get_collected()) {
+            if (std::all_of(m_params.begin(), m_params.end(), [&](expr const & p) { return mlocal_name(d) != mlocal_name(p); }))
+                dep_set_minus_params.push_back(d);
+        }
+        /* Sort dep_set_minus_params and store result in ctx */
         buffer<expr> ctx;
-        sort_locals(dep_set.get_collected(), m_p, ctx);
+        sort_locals(dep_set_minus_params, m_p, ctx);
 
         expr tmp       = Pi_as_is(ctx, Pi(tmp_locals, m_type, m_p), m_p);
         level_param_names new_ls;

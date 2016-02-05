@@ -207,9 +207,9 @@ static bool is_permutation(expr const & lhs, expr const & rhs, unsigned offset, 
             return lhs == rhs; // locally bound variable
         } else if (var_idx(lhs) - offset < p.size()) {
             if (p[var_idx(lhs) - offset]) {
-                return *(p[var_idx(lhs) - offset]) == var_idx(rhs);
+                return *(p[var_idx(lhs) - offset]) == var_idx(rhs) - offset;
             } else {
-                p[var_idx(lhs) - offset] = var_idx(rhs);
+                p[var_idx(lhs) - offset] = var_idx(rhs) - offset;
                 return true;
             }
         } else {

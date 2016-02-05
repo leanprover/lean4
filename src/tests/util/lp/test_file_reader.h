@@ -56,7 +56,7 @@ public:
     raw_blob scan_to_row_blob() {
     }
 
-    test_file_blob scan_row_blob_to_test_file_blob(raw_blob rblob) {
+    test_file_blob scan_row_blob_to_test_file_blob(raw_blob /* rblob */) {
     }
 
     test_result<T> * get_test_result() {

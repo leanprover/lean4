@@ -265,7 +265,7 @@ void lu<T, X>::change_basis(unsigned entering, unsigned leaving) {
     lean_assert(entering < m_A.column_count() && leaving < m_A.column_count());
     int place_in_basis =  m_basis_heading[leaving];
     int place_in_non_basis = - m_basis_heading[entering] - 1;
-    lean_assert(0 <= place_in_basis && place_in_basis < m_A.column_count());
+    lean_assert(0 <= place_in_basis && static_cast<unsigned>(place_in_basis) < m_A.column_count());
     m_basis_heading[entering] = place_in_basis;
     m_basis_heading[leaving] = -place_in_non_basis - 1;
     m_basis[place_in_basis] = entering;

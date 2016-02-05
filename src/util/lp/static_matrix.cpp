@@ -24,7 +24,7 @@ void  static_matrix<T, X>::init_row_columns(unsigned m, unsigned n) {
 
 // constructor that copies columns of the basis from A
 template <typename T, typename X>
-static_matrix<T, X>::static_matrix(static_matrix const &A, unsigned * basis) :
+static_matrix<T, X>::static_matrix(static_matrix const &A, unsigned * /* basis */) :
     m_work_pivot_vector(A.row_count(), numeric_traits<T>::zero()) {
     unsigned m = A.row_count();
     init_row_columns(m, m);

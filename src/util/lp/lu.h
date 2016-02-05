@@ -257,7 +257,7 @@ public:
 
     void scan_last_row_to_work_vector(unsigned lowest_row_of_the_bump);
 
-    bool diagonal_element_is_off(T diag_element) { return false; }
+    bool diagonal_element_is_off(T /* diag_element */) { return false; }
 
     void pivot_and_solve_the_system(unsigned replaced_column, unsigned lowest_row_of_the_bump);
     // see Achim Koberstein's thesis page 58, but here we solve the system and pivot to the last

@@ -117,15 +117,15 @@ apply_from_left_with_different_dims(std::vector<T> &  w) {
 
 template <typename T, typename X> void dense_matrix<T, X>::apply_from_left(std::vector<T> & w) {
     T * t = new T[m_m];
-    for (int i = 0; i < m_m; i ++) {
+    for (unsigned i = 0; i < m_m; i ++) {
         T v = numeric_traits<T>::zero();
-        for (int j = 0; j < m_m; j++) {
+        for (unsigned j = 0; j < m_m; j++) {
             v += w[j]* get_elem(i, j);
         }
         t[i] = v;
     }
 
-    for (int i = 0; i < m_m; i ++) {
+    for (unsigned i = 0; i < m_m; i ++) {
         w[i] = t[i];
     }
     delete [] t;
@@ -166,7 +166,7 @@ template <typename T, typename X> void dense_matrix<T, X>::apply_from_left_to_X(
 //   alpha and adding it to row i0.
 template <typename T, typename X> void dense_matrix<T, X>::pivot_row_to_row(unsigned i, T alpha, unsigned i0,
                                                                             double & pivot_epsilon) {
-    thread_local T _0 = numeric_traits<T>::zero();
+    T _0 = numeric_traits<T>::zero();
     for (unsigned j = 0; j < m_n; j++) {
         m_values[i0 * m_n + j] += m_values[i * m_n + j] * alpha;
         if (fabs(m_values[i0 + m_n + j]) < pivot_epsilon) {

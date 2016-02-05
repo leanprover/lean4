@@ -182,7 +182,7 @@ class mps_reader {
     void read_name() {
         do {
             read_line();
-            if (!m_line.find("NAME") == 0) {
+            if (m_line.find("NAME") != 0) {
                 continue;
             }
             m_line = m_line.substr(4);
@@ -347,7 +347,7 @@ class mps_reader {
     }
 
     void read_bounds() {
-        if (!m_line.find("BOUNDS") == 0) {
+        if (m_line.find("BOUNDS") != 0) {
             return;
         }
 
@@ -361,7 +361,7 @@ class mps_reader {
     }
 
     void read_ranges() {
-        if (!m_line.find("RANGES") == 0) {
+        if (m_line.find("RANGES") != 0) {
             return;
         }
         do {

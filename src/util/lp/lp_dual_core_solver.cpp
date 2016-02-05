@@ -136,14 +136,14 @@ template <typename T, typename X> bool lp_dual_core_solver<T, X>::done() {
 }
 
 template <typename T, typename X> T lp_dual_core_solver<T, X>::get_edge_steepness_for_low_bound(unsigned p) {
-    lean_assert(this->m_basis_heading[p] >= 0 && this->m_basis_heading[p] < this->m_m);
+    lean_assert(this->m_basis_heading[p] >= 0 && static_cast<unsigned>(this->m_basis_heading[p]) < this->m_m);
     T del = this->m_x[p] - this->m_low_bound_values[p];
     del *= del;
     return del / this->m_betas[this->m_basis_heading[p]];
 }
 
 template <typename T, typename X> T lp_dual_core_solver<T, X>::get_edge_steepness_for_upper_bound(unsigned p) {
-    lean_assert(this->m_basis_heading[p] >= 0 && this->m_basis_heading[p] < this->m_m);
+    lean_assert(this->m_basis_heading[p] >= 0 && static_cast<unsigned>(this->m_basis_heading[p]) < this->m_m);
     T del = this->m_x[p] - this->m_upper_bound_values[p];
     del *= del;
     return del / this->m_betas[this->m_basis_heading[p]];

@@ -191,7 +191,7 @@ public:
     virtual void set_number_of_columns(unsigned /*n*/) { }
 #endif
 
-    T get_max_val_in_row(unsigned i) const { lean_unreachable();   }
+    T get_max_val_in_row(unsigned /* i */) const { lean_unreachable();   }
 
     T get_balance() const;
 

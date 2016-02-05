@@ -70,7 +70,7 @@ void indexed_vector<T>::erase_from_index(unsigned j) {
 #ifdef LEAN_DEBUG
 template <typename T>
 bool indexed_vector<T>::is_OK() const {
-    int size = 0;
+    unsigned size = 0;
     for (unsigned i = 0; i < m_data.size(); i++) {
         if (!is_zero(m_data[i])) {
             if (std::find(m_index.begin(), m_index.end(), i) == m_index.end())

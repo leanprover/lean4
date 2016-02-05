@@ -118,8 +118,8 @@ public:
         apply_from_left_local(w, settings);
     }
 
-    void apply_from_right(indexed_vector<T> & w) {
-        lean_assert(false); // not implemented
+    void apply_from_right(indexed_vector<T> & /* w */) {
+        lean_unreachable(); // not implemented
     }
     void apply_from_left(std::vector<X> & w, lp_settings & /*settings*/) {
         apply_from_left_to_vector(w);// , settings);

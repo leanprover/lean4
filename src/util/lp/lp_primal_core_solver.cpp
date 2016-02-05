@@ -299,10 +299,10 @@ lp_primal_core_solver(static_matrix<T, X> & A,
 
 template <typename T, typename X> bool lp_primal_core_solver<T, X>::initial_x_is_correct() {
     std::set<unsigned> basis_set;
-    for (int i = 0; i < this->m_A.row_count(); i++) {
+    for (unsigned i = 0; i < this->m_A.row_count(); i++) {
         basis_set.insert(this->m_basis[i]);
     }
-    for (int j = 0; j < this->m_n; j++) {
+    for (unsigned j = 0; j < this->m_n; j++) {
         if (column_has_low_bound(j) && this->m_x[j] < numeric_traits<T>::zero()) {
             std::cout << "low bound for variable " << j << " does not hold: this->m_x[" << j << "] = " << this->m_x[j] << " is negative " << std::endl;
             return false;
@@ -359,7 +359,7 @@ template <typename T, typename X>    void lp_primal_core_solver<T, X>::update_re
     // the basis heading has changed already
 #ifdef LEAN_DEBUG
     auto & basis_heading = this->m_factorization->m_basis_heading;
-    lean_assert(basis_heading[entering] >= 0 && basis_heading[entering] < this->m_ed.size());
+    lean_assert(basis_heading[entering] >= 0 && static_cast<unsigned>(basis_heading[entering]) < this->m_ed.size());
     lean_assert(basis_heading[leaving] < 0);
 #endif
     T pivot = this->m_pivot_row[entering];
@@ -436,7 +436,7 @@ template <typename T, typename X>    void lp_primal_core_solver<T, X>::calc_work
 }
 
 template <typename T, typename X>void lp_primal_core_solver<T, X>::advance_on_entering_and_leaving(int entering, int leaving, X & t) {
-    lean_assert(m_non_basis_list.back() == entering);
+    lean_assert(entering >= 0 && m_non_basis_list.back() == static_cast<unsigned>(entering));
     lean_assert(t >= zero_of_type<X>());
     lean_assert(leaving >= 0 && entering >= 0);
     lean_assert(entering != leaving || !is_zero(t)); // otherwise nothing changes

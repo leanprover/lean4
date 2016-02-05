@@ -135,7 +135,7 @@ template <typename T, typename X> unsigned core_solver_pretty_printer<T, X>:: ge
     return w;
 }
 
-template <typename T, typename X> std::string core_solver_pretty_printer<T, X>::regular_cell_string(unsigned row, unsigned column, std::string name) {
+template <typename T, typename X> std::string core_solver_pretty_printer<T, X>::regular_cell_string(unsigned row, unsigned /* column */, std::string name) {
     T t = fabs(m_core_solver.m_ed[row]);
     if ( t == 1) return name;
     return T_to_string(t) + name;

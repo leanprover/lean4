@@ -491,7 +491,7 @@ non_basis_is_correctly_represented_in_heading() {
     }
     for (unsigned j = 0; j < m_A.column_count(); j++) {
         if (m_basis_heading[j] >= 0) {
-            lean_assert(m_basis_heading[j] < m_A.row_count() && m_basis[m_basis_heading[j]] == j);
+            lean_assert(static_cast<unsigned>(m_basis_heading[j]) < m_A.row_count() && m_basis[m_basis_heading[j]] == j);
         }
     }
     return true;
@@ -715,4 +715,3 @@ template <typename T, typename X> int lp_core_solver_base<T, X>::pivots_in_colum
 }
 
 }
-

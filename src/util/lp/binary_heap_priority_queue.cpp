@@ -57,7 +57,7 @@ template <typename T> void binary_heap_priority_queue<T>::remove(unsigned o) {
     if (o_in_heap == -1)  {
         return;  // nothing to do
     }
-    lean_assert(o_in_heap <= m_heap_size);
+    lean_assert(static_cast<unsigned>(o_in_heap) <= m_heap_size);
     if (static_cast<unsigned>(o_in_heap) < m_heap_size) {
         put_at(o_in_heap, m_heap[m_heap_size--]);
         if (m_priorities[m_heap[o_in_heap]] > priority_of_o) {
@@ -74,11 +74,11 @@ template <typename T> void binary_heap_priority_queue<T>::remove(unsigned o) {
             }
         }
     } else {
-        lean_assert(o_in_heap == m_heap_size);
+        lean_assert(static_cast<unsigned>(o_in_heap) == m_heap_size);
         m_heap_size--;
     }
     m_heap_inverse[o] = -1;
-    //        lean_assert(is_consistent());
+    // lean_assert(is_consistent());
 }
 // n is the initial queue capacity.
 // The capacity will be enlarged two times automatically if needed

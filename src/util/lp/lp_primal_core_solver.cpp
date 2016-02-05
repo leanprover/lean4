@@ -130,7 +130,7 @@ template <typename T, typename X>    X lp_primal_core_solver<T, X>::get_harris_t
 
 template <typename T, typename X>    int lp_primal_core_solver<T, X>::find_leaving_on_harris_theta(X const & harris_theta, X & t) {
     int leaving = -1;
-    T pivot_abs_max;
+    T pivot_abs_max = zero_of_type<T>();
     // we know already that there is no bound flip on entering
     // we also know that harris_theta is limited, so we will find a leaving
     zero_harris_eps();

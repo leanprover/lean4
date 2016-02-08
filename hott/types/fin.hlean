@@ -336,12 +336,11 @@ begin
   induction (nat.decidable_lt 0 vk) with [HT, HF],
   { show C (mk vk pk), from
     let vj := nat.pred vk in
-    have vk = vj+1, from
+    have vk = nat.succ vj, from
       inverse (succ_pred_of_pos HT),
     assert vj < n, from
-      lt_of_succ_lt_succ (eq.subst `vk = vj+1` pk),
-    have succ (mk vj `vj < n`) = mk vk pk, from
-      val_inj (inverse `vk = vj+1`),
+      lt_of_succ_lt_succ (eq.subst `vk = nat.succ vj` pk),
+    have succ (mk vj `vj < n`) = mk vk pk, by apply val_inj; apply (succ_pred_of_pos HT),
     eq.rec_on this (CS (mk vj `vj < n`)) },
   { show C (mk vk pk), from
     have vk = 0, from
@@ -406,7 +405,7 @@ definition foldr {A B : Type} (m : A → B → B) (b : B) : Π {n : nat}, (fin n
 definition foldl {A B : Type} (m : B → A → B) (b : B) : Π {n : nat}, (fin n → A) → B :=
   nat.rec (λ f, b) (λ n IH f, m (IH (λ i : fin n, f (lift_succ i))) (f maxi))
 
-theorem choice {C : fin n → Type} :
+/-theorem choice {C : fin n → Type} :
   (Π i : fin n, nonempty (C i)) → nonempty (Π i : fin n, C i) :=
 begin
   revert C,
@@ -421,7 +420,7 @@ begin
     intro CS,
     apply nonempty.intro,
     exact zero_succ_cases CO CS }
-end
+end-/
 
 /-section
 open list
@@ -532,11 +531,33 @@ calc
    ...  ≃ unit + unit   : H
    ...  ≃ bool          : bool_equiv_unit_sum_unit
 
-definition fin_sum_unit_equiv (n : nat) : fin n + unit ≃ fin (n+1) :=
+definition fin_sum_unit_equiv (n : nat) : fin n + unit ≃ fin (nat.succ n) :=
 let H := equiv_unit_of_is_contr (fin 1) in
 calc
   fin n + unit ≃ fin n + fin 1 : H
-          ...  ≃ fin (n+1)     : fin_sum_equiv
+          ...  ≃ fin (nat.succ n)     : fin_sum_equiv
+
+definition fin_sum_equiv_cancel {n : nat} {A B : Type} (H : (fin n) + A ≃ (fin n) + B) :
+  A ≃ B :=
+begin
+  induction n with n IH,
+  { calc A ≃ A + empty : sum_empty_equiv
+       ... ≃ empty + A : sum_comm_equiv
+       ... ≃ fin 0 + A : fin_zero_equiv_empty 
+       ... ≃ fin 0 + B : H
+       ... ≃ empty + B : fin_zero_equiv_empty
+       ... ≃ B + empty : sum_comm_equiv
+       ... ≃ B : sum_empty_equiv },
+  { apply IH, apply unit_sum_equiv_cancel, 
+    calc unit + (fin n + A) ≃ (unit + fin n) + A : sum_assoc_equiv 
+                        ... ≃ (fin n + unit) + A : sum_comm_equiv
+                        ... ≃ fin (nat.succ n) + A : fin_sum_unit_equiv
+                        ... ≃ fin (nat.succ n) + B : H
+                        ... ≃ (fin n + unit) + B : fin_sum_unit_equiv
+                        ... ≃ (unit + fin n) + B : sum_comm_equiv
+                        ... ≃ unit + (fin n + B) : sum_assoc_equiv },
+end
+
 
 definition eq_of_fin_equiv {m n : nat} (H :fin m ≃ fin n) : m = n :=
 begin
@@ -545,10 +566,13 @@ begin
     apply to_fun fin_zero_equiv_empty, apply to_inv H, apply fin.zero },
   { intro n H, cases n with n, exfalso, 
     apply to_fun fin_zero_equiv_empty, apply to_fun H, apply fin.zero, 
-    have fin n + unit ≃ fin m + unit, from 
-    calc fin n + unit ≃ fin (nat.succ n) : fin_succ_equiv
-                  ... ≃ fin (nat.succ m) : H
-                  ... ≃ fin m + unit : fin_succ_equiv, exact sorry },
+    have unit + fin m ≃ unit + fin n, from 
+    calc unit + fin m ≃ fin m + unit : sum_comm_equiv
+                  ... ≃ fin (nat.succ m) : fin_succ_equiv
+                  ... ≃ fin (nat.succ n) : H
+                  ... ≃ fin n + unit : fin_succ_equiv
+                  ... ≃ unit + fin n : sum_comm_equiv, 
+    have fin m ≃ fin n, from unit_sum_equiv_cancel this,
+    apply ap nat.succ, apply IH _ this },
 end
-
 end fin

@@ -538,4 +538,17 @@ calc
   fin n + unit ≃ fin n + fin 1 : H
           ...  ≃ fin (n+1)     : fin_sum_equiv
 
+definition eq_of_fin_equiv {m n : nat} (H :fin m ≃ fin n) : m = n :=
+begin
+  revert n H, induction m with m IH IH,
+  { intro n H, cases n, reflexivity, exfalso,
+    apply to_fun fin_zero_equiv_empty, apply to_inv H, apply fin.zero },
+  { intro n H, cases n with n, exfalso, 
+    apply to_fun fin_zero_equiv_empty, apply to_fun H, apply fin.zero, 
+    have fin n + unit ≃ fin m + unit, from 
+    calc fin n + unit ≃ fin (nat.succ n) : fin_succ_equiv
+                  ... ≃ fin (nat.succ m) : H
+                  ... ≃ fin m + unit : fin_succ_equiv, exact sorry },
+end
+
 end fin

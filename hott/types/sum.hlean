@@ -6,7 +6,7 @@ Author: Floris van Doorn
 Theorems about sums/coproducts/disjoint unions
 -/
 
-import .pi
+import .pi logic
 
 open lift eq is_equiv equiv equiv.ops prod prod.ops is_trunc sigma bool
 
@@ -194,6 +194,55 @@ namespace sum
                ... ≃ (B × A) + (C × A) : sum_prod_right_distrib
                ... ≃ (A × B) + (C × A) : prod_comm_equiv
                ... ≃ (A × B) + (A × C) : prod_comm_equiv
+
+  -- TODO generalizing, this is acutally true for all finite sets
+  open unit decidable sigma.ops
+
+
+  definition foo_sum {A B : Type} (x : A + B) : (Σ a, x = inl a) + (Σ b, x = inr b) :=
+  by cases x with a b; exact inl ⟨a, idp⟩; exact inr ⟨b, idp⟩
+
+  definition sum_unit_cancel_left_map {A B : Type} (H : unit + A ≃ unit + B) : A → B :=
+  begin
+    intro a, cases foo_sum (H (inr a)) with u b, rotate 1, exact b.1,
+    cases u with u Hu, cases foo_sum (H (inl ⋆)) with u' b, rotate 1, exact b.1,
+    cases u' with u' Hu', exfalso, apply empty_of_inl_eq_inr,
+    calc inl ⋆ = H⁻¹ (H (inl ⋆)) : to_left_inv H
+           ... = H⁻¹ (inl u') : Hu'
+           ... = H⁻¹ (inl u) : is_hprop.elim
+           ... = H⁻¹ (H (inr a)) : Hu
+           ... = inr a : to_left_inv H
+  end
+
+  definition sum_unit_cancel_left_inv {A B : Type} (H : unit + A ≃ unit + B) (b : B) :
+    sum_unit_cancel_left_map H (sum_unit_cancel_left_map H⁻¹ b) = b :=
+  begin
+    assert HH : to_fun H⁻¹ = (to_fun H)⁻¹, cases H, reflexivity,
+    esimp[sum_unit_cancel_left_map], apply sum.rec, intro x, cases x with u Hu, esimp,
+    apply sum.rec, intro x, cases x with u' Hu', esimp, exfalso, apply empty_of_inl_eq_inr,
+    calc inl ⋆ = H⁻¹ (H (inl ⋆)) : to_left_inv H
+           ... = H⁻¹ (inl u') : Hu'
+           ... = H⁻¹ (inl u) : is_hprop.elim
+           ... = H⁻¹ (H (inr _)) : Hu
+           ... = inr _ : to_left_inv H,
+    intro x, cases x with b' Hb', esimp, cases foo_sum (H⁻¹ (inr b)) with x x,
+    cases x with u' Hu', cases u', apply eq_of_inr_eq_inr, rewrite -HH at Hu',
+    calc inr b' = H (inl ⋆) : Hb'
+            ... = H (H⁻¹ (inr b)) : ap (to_fun H) Hu'
+            ... = inr b : to_right_inv H,
+    cases x with a Ha, exfalso,
+    assert GG : inr b = H (inr a), apply concat, apply inverse, apply to_right_inv H,
+      apply ap H, exact Ha,
+    rewrite -HH at Ha, rewrite Ha at Hu,
+  end
+  check @empty.rec,
+
+  definition sum_unit_cancel_left {A B : Type} (H : unit + A ≃ unit + B) : A ≃ B :=
+  begin
+    fapply equiv.MK, apply sum_unit_cancel_left_map H,
+    apply sum_unit_cancel_left_map H⁻¹,
+    intro b, esimp,
+  end
 
   /- universal property -/
 

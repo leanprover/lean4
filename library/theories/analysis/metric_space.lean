@@ -5,7 +5,7 @@ Author: Jeremy Avigad
 
 Metric spaces.
 -/
-import data.real.complete data.pnat data.list.sort
+import data.real.complete data.pnat data.list.sort ..topology.basic data.set
 open nat real eq.ops classical
 
 structure metric_space [class] (M : Type) : Type :=
@@ -477,6 +477,108 @@ theorem id_continuous : continuous (λ x : M, x) :=
   end
 
 end metric_space_M_N
+
+section topology
+open set prod topology
+
+variables {V : Type} [Vmet : metric_space V]
+include Vmet
+
+definition open_ball (x : V) (ε : ℝ) := {y ∈ univ | dist x y < ε}
+
+
+theorem mem_open_ball (x : V) {ε : ℝ} (H : ε > 0) : x ∈ open_ball x ε :=
+  suffices x ∈ univ ∧ dist x x < ε, from this,
+  and.intro !mem_univ (by rewrite dist_self; assumption)
+
+definition closed_ball (x : V) (ε : ℝ) := {y ∈ univ | dist x y ≤ ε}
+
+theorem closed_ball_eq_comp (x : V) (ε : ℝ) : closed_ball x ε = -{y ∈ univ | dist x y > ε} :=
+  begin
+    apply ext,
+    intro y,
+    apply iff.intro,
+    intro Hx,
+    apply mem_comp,
+    intro Hxmem,
+    cases Hxmem with _ Hgt,
+    cases Hx with _ Hle,
+    apply not_le_of_gt Hgt Hle,
+    intro Hx,
+    note Hx' := not_mem_of_mem_comp Hx,
+    split,
+    apply mem_univ,
+    apply le_of_not_gt,
+    intro Hgt,
+    apply Hx',
+    split,
+    apply mem_univ,
+    assumption
+  end
+
+omit Vmet
+definition open_sets_basis (V : Type) [metric_space V] :=
+  image (λ pair : V × ℝ, open_ball (pr1 pair) (pr2 pair)) univ
+
+definition open_sets (V : Type) [metric_space V] := opens_generated_by (open_sets_basis V)
+
+theorem univ_in_opens (V : Type) [metric_space V] : univ ∈ open_sets V :=
+  !opens_generated_by.univ_mem
+
+include Vmet
+
+theorem open_ball_mem_open_sets_basis (x : V) (ε : ℝ) : (open_ball x ε) ∈ (open_sets_basis V) :=
+  mem_image !mem_univ rfl
+
+theorem sUnion_in_opens {S : set (set V)} (HS : S ⊆ open_sets V) : ⋃₀ S ∈ open_sets V :=
+  opens_generated_by.sUnion_mem HS
+
+theorem inter_in_opens : ∀₀ S ∈ open_sets V, ∀₀ T ∈ open_sets V, S ∩ T ∈ open_sets V :=
+  begin intros, apply opens_generated_by.inter_mem, repeat eassumption end
+
+omit Vmet
+definition norm_topology [instance] (V : Type) [metric_space V] : topology V :=
+⦃ topology,
+   opens := open_sets V,
+   univ_mem_opens := univ_in_opens V,
+   sUnion_mem_opens := by intros; apply sUnion_in_opens; assumption, -- weird
+   inter_mem_opens := inter_in_opens
+⦄
+include Vmet
+
+theorem open_ball_open (x : V) (ε : ℝ) : Open (open_ball x ε) :=
+  by apply generators_mem_topology_generated_by; apply open_ball_mem_open_sets_basis
+
+theorem closed_ball_closed (x : V) {ε : ℝ} (H : ε > 0) : closed (closed_ball x ε) :=
+  begin
+    apply iff.mpr !closed_iff_Open_comp,
+    rewrite closed_ball_eq_comp,
+    rewrite comp_comp,
+    apply Open_of_forall_exists_Open_nbhd,
+    intro y Hy,
+    cases Hy with _ Hxy,
+    existsi open_ball y (dist x y - ε),
+    split,
+    apply open_ball_open,
+    split,
+    apply mem_open_ball,
+    apply sub_pos_of_lt Hxy,
+    intros y' Hy',
+    cases Hy' with _ Hxy'd,
+    rewrite dist_comm at Hxy'd,
+    split,
+    apply mem_univ,
+    apply lt_of_not_ge,
+    intro Hxy',
+    apply not_lt_self (dist x y),
+    exact calc
+      dist x y ≤ dist x y' + dist y' y : dist_triangle
+           ... ≤ ε         + dist y' y : add_le_add_right Hxy'
+           ... < ε    + (dist x y - ε) : add_lt_add_left Hxy'd
+           ... = dist x y              : by rewrite [add.comm, sub_add_cancel]
+  end
+
+end topology
 
 end analysis
 

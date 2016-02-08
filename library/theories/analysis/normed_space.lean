@@ -45,6 +45,10 @@ namespace analysis
   proposition norm_neg (v : V) : ∥ -v ∥ = ∥ v ∥ :=
   have abs (1 : ℝ) = 1, from abs_of_nonneg zero_le_one,
   by+ rewrite [-@neg_one_smul ℝ V, norm_smul, abs_neg, this, one_mul]
+
+  proposition norm_sub (u v : V) : ∥u - v∥ = ∥v - u∥ :=
+    by rewrite [-norm_neg, neg_sub]
+
 end analysis
 
 section

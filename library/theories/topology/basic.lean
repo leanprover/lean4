@@ -112,6 +112,36 @@ Open_inter Hs Ht
 theorem closed_diff {s t : set X} (Hs : closed s) (Ht : Open t) : closed (s \ t) :=
 closed_inter Hs (closed_comp Ht)
 
+section
+open classical
+
+theorem Open_of_forall_exists_Open_nbhd {s : set X} (H : ∀₀ x ∈ s, ∃ tx : set X, Open tx ∧ x ∈ tx ∧ tx ⊆ s) :
+        Open s :=
+  let Hset : X → set X := λ x, if Hxs : x ∈ s then some (H Hxs) else univ in
+  let sFam := image (λ x, Hset x) s in
+  have H_union_open : Open (⋃₀ sFam), from Open_sUnion
+    (take t : set X, suppose t ∈ sFam,
+     have H_preim : ∃ t', t' ∈ s ∧ Hset t' = t, from this,
+     obtain t' (Ht' : t' ∈ s)  (Ht't : Hset t' = t), from H_preim,
+     have HHsett : t = some (H Ht'), from Ht't ▸ dif_pos Ht',
+     show Open t, from and.left (HHsett⁻¹ ▸ some_spec (H Ht'))),
+  have H_subset_union : s ⊆ ⋃₀ sFam, from
+    (take x : X, suppose x ∈ s,
+     have HxHset : x ∈ Hset x, from (dif_pos this)⁻¹ ▸ (and.left (and.right (some_spec (H this)))),
+     show x ∈ ⋃₀ sFam, from mem_sUnion HxHset (mem_image this rfl)),
+  have H_union_subset : ⋃₀ sFam ⊆ s, from
+    (take x : X, suppose x ∈ ⋃₀ sFam,
+     obtain (t : set X) (Ht : t ∈ sFam) (Hxt : x ∈ t), from this,
+     have H_preim : ∃ t', t' ∈ s ∧ Hset t' = t, from Ht,
+     obtain t' (Ht' : t' ∈ s)  (Ht't : Hset t' = t), from H_preim,
+     have HHsett : t = some (H Ht'), from Ht't ▸ dif_pos Ht',
+     have t ⊆ s, from and.right (and.right (HHsett⁻¹ ▸ some_spec (H Ht'))),
+     show x ∈ s, from this Hxt),
+  have H_union_eq : ⋃₀ sFam = s, from eq_of_subset_of_subset H_union_subset H_subset_union,
+  show Open s, from  H_union_eq ▸ H_union_open
+
+end
+
 end topology
 
 /- separation -/

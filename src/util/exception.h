@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/lua.h"
 #include <exception>
 #include <string>
 #include <memory>
@@ -87,9 +86,4 @@ public:
     virtual throwable * clone() const { return new memory_exception(m_component_name.c_str()); }
     virtual void rethrow() const { throw *this; }
 };
-
-int push_exception(lua_State * L, throwable const & e);
-throwable const & to_exception(lua_State * L, int i);
-bool is_exception(lua_State * L, int i);
-void open_exception(lua_State * L);
 }

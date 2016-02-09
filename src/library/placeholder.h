@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/lua.h"
 #include "kernel/expr.h"
 
 // Placeholders are used to mark locations where additional
@@ -42,7 +41,6 @@ optional<expr> placeholder_type(expr const & e);
 /** \brief Return true iff the given expression contains placeholders. */
 bool has_placeholder(expr const & e);
 
-void open_placeholder(lua_State * L);
 void initialize_placeholder();
 void finalize_placeholder();
 }

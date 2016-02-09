@@ -1,8 +1,8 @@
-add_library(lean_frontend OBJECT tokens.cpp register_module.cpp
+add_library(lean_frontend OBJECT tokens.cpp
 token_table.cpp scanner.cpp parse_table.cpp parser_config.cpp
 parser.cpp parser_pos_provider.cpp builtin_cmds.cpp builtin_exprs.cpp
 server.cpp notation_cmd.cpp calc.cpp decl_cmds.cpp util.cpp
-inductive_cmd.cpp elaborator.cpp dependencies.cpp parser_bindings.cpp
+inductive_cmd.cpp elaborator.cpp dependencies.cpp
 begin_end_ext.cpp tactic_hint.cpp pp.cpp theorem_queue.cpp
 structure_cmd.cpp info_manager.cpp info_annotation.cpp find_cmd.cpp
 coercion_elaborator.cpp info_tactic.cpp

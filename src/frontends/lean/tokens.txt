@@ -136,7 +136,6 @@ tactic_infixr tactic_infixr
 tactic_postfix tactic_postfix
 tactic_prefix tactic_prefix
 tactic_notation tactic_notation
-call         call
 calc         calc
 obtain       obtain
 root         _root_

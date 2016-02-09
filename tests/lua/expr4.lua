@@ -1,8 +1,0 @@
-local vec = Const("vec")
-local a = Local("a", Type)
-local b = Local("b", vec(a), binder_info(true))
-local f = Const("f")
-print(Pi(a, b, vec(b)))
-local a = Local("a", Type, binder_info(true, true))
-local b = Local("b", vec(a), binder_info(true))
-print(Pi(a, b, vec(b)))

@@ -49,5 +49,4 @@ type_checker_ptr mk_opaque_type_checker(environment const & env, name_generator 
 
 void initialize_reducible();
 void finalize_reducible();
-void open_reducible(lua_State * L);
 }

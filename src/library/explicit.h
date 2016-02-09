@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/lua.h"
 #include "kernel/expr.h"
 
 namespace lean {
@@ -70,7 +69,6 @@ expr mk_consume_args(expr const & e);
 bool is_consume_args(expr const & e);
 expr const & get_consume_args_arg(expr const & e);
 
-void open_explicit(lua_State * L);
 void initialize_explicit();
 void finalize_explicit();
 }

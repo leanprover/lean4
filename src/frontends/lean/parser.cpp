@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include <vector>
 #include <util/utf8.h>
 #include "util/interrupt.h"
-#include "util/script_exception.h"
 #include "util/sstream.h"
 #include "util/flet.h"
 #include "util/lean_path.h"
@@ -47,7 +46,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
-#include "frontends/lean/parser_bindings.h"
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/info_annotation.h"
@@ -351,11 +349,6 @@ void parser::display_error(throwable const & ex) {
     ::lean::display_error(regular_stream(), &pos_provider, ex);
 }
 
-void parser::display_error(script_exception const & ex) {
-    parser_pos_provider pos_provider(m_pos_table, get_stream_name(), m_last_script_pos);
-    ::lean::display_error(regular_stream(), &pos_provider, ex);
-}
-
 void parser::throw_parser_exception(char const * msg, pos_info p) {
     throw parser_exception(msg, get_stream_name().c_str(), p.first, p.second);
 }
@@ -394,9 +387,6 @@ void parser::protected_call(std::function<void()> && f, std::function<void()> &&
         sync();
         if (m_use_exceptions || m_info_manager)
             throw;
-    } catch (script_exception & ex) {
-        reset_interrupt();
-        CATCH(display_error(ex), throw_nested_exception(ex, m_last_script_pos));
     } catch (throwable & ex) {
         reset_interrupt();
         CATCH(display_error(ex), throw_nested_exception(ex, m_last_cmd_pos));
@@ -1406,28 +1396,6 @@ expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
             scoped_info.push_back(mk_pair(ps.size(), binder_pos));
             break;
         }
-        case notation::action_kind::LuaExt:
-            m_last_script_pos = p;
-            using_script([&](lua_State * L) {
-                    scoped_set_parser scope(L, *this);
-                    lua_getglobal(L, a.get_lua_fn().c_str());
-                    if (!lua_isfunction(L, -1))
-                        throw parser_error(sstream() << "failed to use notation implemented in Lua, "
-                                           << "Lua state does not contain function '"
-                                           << a.get_lua_fn() << "'", p);
-                    lua_pushinteger(L, p.first);
-                    lua_pushinteger(L, p.second);
-                    for (unsigned i = 0; i < args.size(); i++)
-                        push_expr(L, args[i]);
-                    pcall(L, args.size() + 2, 1, 0);
-                    if (!is_expr(L, -1))
-                        throw parser_error(sstream() << "failed to use notation implemented in Lua, value returned by function '"
-                                           << a.get_lua_fn() << "' is not an expression", p);
-                    args.push_back(rec_save_pos(to_expr(L, -1), p));
-                    kinds.push_back(a.kind());
-                    lua_pop(L, 1);
-                });
-            break;
         case notation::action_kind::Ext:
             args.push_back(a.get_parse_fn()(*this, args.size(), args.data(), p));
             kinds.push_back(a.kind());
@@ -2091,25 +2059,6 @@ void parser::parse_command() {
     }
 }
 
-void parser::parse_script(bool as_expr) {
-    m_last_script_pos = pos();
-    std::string script_code = m_scanner.get_str_val();
-    if (as_expr)
-        script_code = "return " + script_code;
-    next();
-    using_script([&](lua_State * L) {
-            dostring(L, script_code.c_str());
-        });
-}
-
-static optional<std::string> try_file(name const & f, char const * ext) {
-    try {
-        return optional<std::string>(find_file(f, {ext}));
-    } catch (...) {
-        return optional<std::string>();
-    }
-}
-
 static optional<std::string> try_file(std::string const & base, optional<unsigned> const & k, name const & f, char const * ext) {
     try {
         return optional<std::string>(find_file(base, k, f, ext));
@@ -2118,22 +2067,8 @@ static optional<std::string> try_file(std::string const & base, optional<unsigne
     }
 }
 
-static std::string * g_lua_module_key = nullptr;
-static void lua_module_reader(deserializer & d, shared_environment &,
-                              std::function<void(asynch_update_fn const &)> &,
-                              std::function<void(delayed_update_fn const &)> & add_delayed_update) {
-    name fname;
-    d >> fname;
-    add_delayed_update([=](environment const & env, io_state const &) -> environment {
-            std::string rname = find_file(fname, {".lua"});
-            system_import(rname.c_str());
-            return env;
-        });
-}
-
 void parser::parse_imports() {
     buffer<module_name> olean_files;
-    buffer<name>        lua_files;
     bool prelude     = false;
     std::string base = m_base_dir ? *m_base_dir : dirname(get_stream_name().c_str());
     bool imported    = false;
@@ -2188,14 +2123,7 @@ void parser::parse_imports() {
             fingerprint       = hash(fingerprint, f.hash());
             if (k)
                 fingerprint = hash(fingerprint, *k);
-            if (auto it = try_file(f, ".lua")) {
-                if (k)
-                    throw parser_error(sstream() << "invalid import, failed to import '" << f
-                                       << "', relative paths are not supported for .lua files", pos());
-                lua_files.push_back(f);
-            } else {
-                import_olean(k, f);
-            }
+            import_olean(k, f);
             next();
         }
     }
@@ -2206,13 +2134,6 @@ void parser::parse_imports() {
     m_env = import_modules(m_env, base, olean_files.size(), olean_files.data(), num_threads,
                            keep_imported_thms, m_ios);
     m_env = update_fingerprint(m_env, fingerprint);
-    for (auto const & f : lua_files) {
-        std::string rname = find_file(f, {".lua"});
-        system_import(rname.c_str());
-        m_env = module::add(m_env, *g_lua_module_key, [=](environment const &, serializer & s) {
-                s << f;
-            });
-    }
     if (imported)
         commit_info(1, 0);
 }
@@ -2257,10 +2178,6 @@ bool parser::parse_commands() {
                             commit_info();
                         parse_command();
                         commit_info();
-                        break;
-                    case scanner::token_kind::ScriptBlock:
-                        parse_script();
-                        save_snapshot();
                         break;
                     case scanner::token_kind::Eof:
                         done = true;
@@ -2463,14 +2380,11 @@ void initialize_parser() {
     register_bool_option(*g_parser_parallel_import, LEAN_DEFAULT_PARSER_PARALLEL_IMPORT,
                          "(lean parser) import modules in parallel");
     g_tmp_prefix = new name(name::mk_internal_unique_name());
-    g_lua_module_key = new std::string("lua_module");
-    register_module_object_reader(*g_lua_module_key, lua_module_reader);
     g_anonymous_inst_name_prefix = new name("_inst");
 }
 
 void finalize_parser() {
     delete g_anonymous_inst_name_prefix;
-    delete g_lua_module_key;
     delete g_tmp_prefix;
     delete g_parser_show_errors;
     delete g_parser_parallel_import;

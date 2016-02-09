@@ -5,11 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
-#include "util/script_state.h"
-#include "util/thread_script_state.h"
 #include "library/module.h"
 #include "library/standard_kernel.h"
-#include "library/kernel_bindings.h"
 #include "library/error_handling.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/parser.h"
@@ -24,14 +21,10 @@ private:
     options opts;
     environment env;
     io_state ios;
-    script_state S;
-    set_environment set1;
-    set_io_state    set2;
 
 public:
     emscripten_shell() : trust_lvl(LEAN_BELIEVER_TRUST_LEVEL+1), num_threads(1), opts("flycheck", true),
-        env(mk_environment(trust_lvl)), ios(opts, lean::mk_pretty_formatter_factory()),
-        S(lean::get_thread_script_state()), set1(S, env), set2(S, ios) {
+        env(mk_environment(trust_lvl)), ios(opts, lean::mk_pretty_formatter_factory()) {
     }
 
     int import_module(std::string mname) {

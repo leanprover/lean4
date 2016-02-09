@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <string>
 #include <utility>
 #include "util/buffer.h"
-#include "util/lua.h"
 #include "kernel/expr.h"
 #include "library/head_map.h"
 #include "frontends/lean/token_table.h"
@@ -24,7 +23,7 @@ class io_state_stream;
 namespace notation {
 typedef std::function<expr(parser &, unsigned, expr const *, pos_info const &)> parse_fn;
 
-enum class action_kind { Skip, Expr, Exprs, Binder, Binders, ScopedExpr, Ext, LuaExt };
+enum class action_kind { Skip, Expr, Exprs, Binder, Binders, ScopedExpr, Ext };
 struct action_cell;
 
 /**
@@ -72,7 +71,6 @@ public:
     friend action mk_scoped_expr_action(expr const & rec, unsigned rbp, bool lambda);
     friend action mk_ext_action_core(parse_fn const & fn);
     friend action mk_ext_action(parse_fn const & fn);
-    friend action mk_ext_lua_action(char const * lua_fn);
 
     action_kind kind() const;
     unsigned rbp() const;
@@ -83,7 +81,6 @@ public:
     bool is_fold_right() const;
     bool use_lambda_abstraction() const;
     parse_fn const & get_parse_fn() const;
-    std::string const & get_lua_fn() const;
 
     bool is_equal(action const & a) const;
     bool is_equivalent(action const & a) const;
@@ -92,7 +89,7 @@ public:
 
     void display(io_state_stream & out) const;
 
-    /** \brief Return true iff the action is not Ext or LuaExt */
+    /** \brief Return true iff the action is not Ext */
     bool is_simple() const;
 };
 inline bool operator==(action const & a1, action const & a2) { return a1.is_equal(a2); }
@@ -107,7 +104,6 @@ action mk_binders_action(unsigned rbp = 0);
 action mk_scoped_expr_action(expr const & rec, unsigned rbp = 0, bool lambda = true);
 action mk_ext_action_core(parse_fn const & fn);
 action mk_ext_action(parse_fn const & fn);
-action mk_ext_lua_action(char const * lua_fn);
 
 /** \brief Apply \c f to expressions embedded in the given action */
 action replace(action const & a, std::function<expr(expr const &)> const & f);
@@ -185,7 +181,7 @@ public:
 /** \brief Given a notation definition, return the "head symbol" of
     every instance of the given notation.
 
-    \remark The result is none if the notation uses actions implemented in C++ or Lua.
+    \remark The result is none if the notation uses actions implemented in C++.
     The result is none if the denotation is a variable.
 */
 optional<head_index> get_head_index(unsigned num, transition const * ts, expr const & a);
@@ -194,7 +190,6 @@ void initialize_parse_table();
 void finalize_parse_table();
 }
 typedef notation::parse_table parse_table;
-void open_parse_table(lua_State * L);
 inline void initialize_parse_table() { notation::initialize_parse_table(); }
 inline void finalize_parse_table() { notation::finalize_parse_table(); }
 }

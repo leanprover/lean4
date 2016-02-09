@@ -20,7 +20,6 @@ Author: Leonardo de Moura
 #include "library/print.h"
 #include "compiler/init_module.h"
 #include "frontends/lean/init_module.h"
-#include "frontends/lua/register_modules.h"
 #include "init/init.h"
 
 namespace lean {
@@ -40,7 +39,6 @@ void initialize() {
     initialize_definitional_module();
     initialize_compiler_module();
     initialize_frontend_lean_module();
-    register_modules();
 }
 void finalize() {
     run_thread_finalizers();

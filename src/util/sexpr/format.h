@@ -14,7 +14,6 @@ Author: Soonho Kong
 #include <vector>
 #include "util/pair.h"
 #include "util/debug.h"
-#include "util/lua.h"
 #include "util/numerics/mpz.h"
 #include "util/sexpr/sexpr.h"
 
@@ -307,9 +306,6 @@ format pp(sexpr const & s);
 
 /** \brief Return true iff \c f1 and \c f2 are equal when formatted with options \c o */
 bool format_pp_eq(format const & f1, format const & f2, options const & o);
-
-UDATA_DEFS(format)
-void open_format(lua_State * L);
 
 void initialize_format();
 void finalize_format();

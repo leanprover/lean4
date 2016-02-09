@@ -1,7 +1,0 @@
-local Or = Const("or")
-local A  = Local("A", Type)
-local a  = Local("a", A, binder_info(true))
-local b  = Local("b", A)
-local H  = Local("H", Or(a, b), binder_info(false, true))
-print(Pi(A, a, b, H, Or(b, a)))
-print(Fun(A, a, b, H, Or(b, a)))

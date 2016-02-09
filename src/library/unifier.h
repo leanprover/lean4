@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include <utility>
 #include <functional>
-#include "util/lua.h"
 #include "util/lazy_list.h"
 #include "util/name_generator.h"
 #include "util/sexpr/options.h"
@@ -122,8 +121,6 @@ public:
     justification const & get_justification() const { return m_jst; }
     substitution const & get_substitution() const { return m_subst; }
 };
-
-void open_unifier(lua_State * L);
 
 void initialize_unifier();
 void finalize_unifier();

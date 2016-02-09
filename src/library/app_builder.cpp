@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/match.h"
 #include "library/constants.h"
 #include "library/app_builder.h"
-#include "library/kernel_bindings.h"
 #include "library/tmp_type_context.h"
 #include "library/relation_manager.h"
 

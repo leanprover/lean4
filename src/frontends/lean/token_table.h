@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/trie.h"
 #include "util/name.h"
-#include "util/lua.h"
 
 #ifndef LEAN_DEFAULT_PRECEDENCE
 #define LEAN_DEFAULT_PRECEDENCE 1
@@ -67,7 +66,6 @@ optional<unsigned> get_expr_precedence(token_table const & s, char const * token
 optional<unsigned> get_tactic_precedence(token_table const & s, char const * token);
 bool is_token(token_table const & s, char const * token);
 token_info const * value_of(token_table const & s);
-void open_token_table(lua_State * L);
 void initialize_token_table();
 void finalize_token_table();
 }

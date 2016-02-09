@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "util/hash.h"
 #include "library/private.h"
 #include "library/module.h"
-#include "library/kernel_bindings.h"
 #include "library/fingerprint.h"
 
 namespace lean {
@@ -78,26 +77,6 @@ optional<name> hidden_to_user_name(environment const & env, name const & n) {
 
 bool is_private(environment const & env, name const & n) {
     return static_cast<bool>(hidden_to_user_name(env, n));
-}
-
-static int add_private_name(lua_State * L) {
-    int nargs = lua_gettop(L);
-    optional<unsigned> h;
-    if (nargs > 2)
-        h = lua_tonumber(L, 3);
-    auto p = add_private_name(to_environment(L, 1), to_name_ext(L, 2), h);
-    push_environment(L, p.first);
-    push_name(L, p.second);
-    return 2;
-}
-
-static int hidden_to_user_name(lua_State * L) {
-    return push_optional_name(L, hidden_to_user_name(to_environment(L, 1), to_name_ext(L, 2)));
-}
-
-void open_private(lua_State * L) {
-    SET_GLOBAL_FUN(add_private_name,    "add_private_name");
-    SET_GLOBAL_FUN(hidden_to_user_name, "hidden_to_user_name");
 }
 
 void initialize_private() {

@@ -40,8 +40,6 @@ std::string find_file(std::string const & base, optional<unsigned> const & k, na
 bool is_lean_file(std::string const & fname);
 /** \brief Return true iff fname ends with ".olean" */
 bool is_olean_file(std::string const & fname);
-/** \brief Return true iff fname ends with ".lua" */
-bool is_lua_file(std::string const & fname);
 
 /** \brief Return a string that replaces hierachical name separator '::' with a path separator. */
 std::string name_to_file(name const & fname);

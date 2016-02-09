@@ -16,9 +16,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/interrupt.h"
 #include "util/memory.h"
-#include "util/script_state.h"
 #include "util/thread.h"
-#include "util/thread_script_state.h"
 #include "util/lean_path.h"
 #include "util/file_lock.h"
 #include "util/sexpr/options.h"
@@ -46,7 +44,6 @@ Author: Leonardo de Moura
 #include "version.h"
 #include "githash.h" // NOLINT
 
-using lean::script_state;
 using lean::unreachable_reached;
 using lean::environment;
 using lean::io_state;
@@ -54,8 +51,6 @@ using lean::io_state_stream;
 using lean::regular;
 using lean::mk_environment;
 using lean::mk_hott_environment;
-using lean::set_environment;
-using lean::set_io_state;
 using lean::definition_cache;
 using lean::pos_info;
 using lean::pos_info_provider;
@@ -69,7 +64,7 @@ using lean::simple_pos_info_provider;
 using lean::shared_file_lock;
 using lean::exclusive_file_lock;
 
-enum class input_kind { Unspecified, Lean, HLean, Lua, Trace };
+enum class input_kind { Unspecified, Lean, HLean, Trace };
 
 static void on_ctrl_c(int ) {
     lean::request_interrupt();
@@ -95,7 +90,6 @@ static void display_help(std::ostream & out) {
     std::cout << "                    with unknown extension (default)\n";
     std::cout << "  --hlean           use parser for Lean default input format \n";
     std::cout << "                    and use HoTT compatible kernel for files, with unknown extension\n";
-    std::cout << "  --lua             use Lua parser for files with unknown extension\n";
     std::cout << "  --server-trace    use lean server trace parser for files with unknown extension\n";
     std::cout << "Miscellaneous:\n";
     std::cout << "  --help -h         display this message\n";
@@ -103,9 +97,6 @@ static void display_help(std::ostream & out) {
     std::cout << "  --githash         display the git commit hash number used to build this binary\n";
     std::cout << "  --path            display the path used for finding Lean libraries and extensions\n";
     std::cout << "  --output=file -o  save the final environment in binary format in the given file\n";
-    std::cout << "  --luahook=num -k  how often the Lua interpreter checks the interrupted flag,\n";
-    std::cout << "                    it is useful for interrupting non-terminating user scripts,\n";
-    std::cout << "                    0 means 'do not check'.\n";
     std::cout << "  --trust=num -t    trust level (default: max) 0 means do not trust any macro,\n"
               << "                    and type check all imported modules\n";
     std::cout << "  --discard -r      discard the proof of imported theorems after checking\n";
@@ -163,10 +154,8 @@ static struct option g_long_options[] = {
     {"help",         no_argument,       0, 'h'},
     {"lean",         no_argument,       0, 'l'},
     {"hlean",        no_argument,       0, 'H'},
-    {"lua",          no_argument,       0, 'u'},
     {"server-trace", no_argument,       0, 'R'},
     {"path",         no_argument,       0, 'p'},
-    {"luahook",      required_argument, 0, 'k'},
     {"githash",      no_argument,       0, 'g'},
     {"output",       required_argument, 0, 'o'},
     {"export",       required_argument, 0, 'E'},
@@ -310,14 +299,8 @@ int main(int argc, char ** argv) {
         case 'H':
             default_k = input_kind::HLean;
             break;
-        case 'u':
-            default_k = input_kind::Lua;
-            break;
         case 'R':
             default_k = input_kind::Trace;
-            break;
-        case 'k':
-            script_state::set_check_interrupt_freq(atoi(optarg));
             break;
         case 'p':
             if (default_k == input_kind::HLean)
@@ -458,9 +441,6 @@ int main(int argc, char ** argv) {
 
     environment env = has_hlean ? mk_hott_environment(trust_lvl) : mk_environment(trust_lvl);
     io_state ios(opts, lean::mk_pretty_formatter_factory());
-    script_state S = lean::get_thread_script_state();
-    set_environment set1(S, env);
-    set_io_state    set2(S, ios);
     definition_cache   cache;
     definition_cache * cache_ptr = nullptr;
     if (read_cache) {
@@ -500,8 +480,6 @@ int main(int argc, char ** argv) {
                         k = input_kind::Lean;
                     } else if (strcmp(ext, "hlean") == 0) {
                         k = input_kind::HLean;
-                    } else if (strcmp(ext, "lua") == 0) {
-                        k = input_kind::Lua;
                     }
                 }
                 switch (k) {
@@ -514,9 +492,6 @@ int main(int argc, char ** argv) {
                                                cache_ptr, index_ptr, tmode)) {
                         ok = false;
                     }
-                    break;
-                case input_kind::Lua:
-                    lean::system_import(argv[i]);
                     break;
                 case input_kind::Trace:
                     ok = lean::parse_server_trace(env, ios, argv[i], base_dir);

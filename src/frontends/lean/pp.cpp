@@ -879,7 +879,6 @@ static unsigned get_num_parameters(notation_entry const & entry) {
         case notation::action_kind::Exprs:
         case notation::action_kind::ScopedExpr:
         case notation::action_kind::Ext:
-        case notation::action_kind::LuaExt:
             r++;
         }
     }
@@ -1166,7 +1165,6 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                     break;
                 }
             case notation::action_kind::Ext:
-            case notation::action_kind::LuaExt:
                 return optional<result>();
             }
             token_lbp = get_some_precedence(m_token_table, tk);

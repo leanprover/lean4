@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "kernel/justification.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/free_vars.h"
-#include "library/kernel_bindings.h"
 #include "library/kernel_serializer.h"
 #include "library/bin_app.h"
 #include "library/constants.h"
@@ -348,7 +347,4 @@ void finalize_resolve_macro() {
     delete g_resolve_opcode;
     delete g_resolve_macro_name;
 }
-
-static int mk_resolve_macro(lua_State * L) { return push_expr(L, mk_resolve_macro(to_expr(L, 1), to_expr(L, 2), to_expr(L, 3))); }
-void open_resolve_macro(lua_State * L) {  SET_GLOBAL_FUN(mk_resolve_macro, "resolve_macro"); }
 }

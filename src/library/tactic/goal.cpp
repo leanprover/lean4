@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/metavar.h"
 #include "library/util.h"
-#include "library/kernel_bindings.h"
 #include "library/tactic/goal.h"
 
 namespace lean {
@@ -178,61 +177,5 @@ io_state_stream const & operator<<(io_state_stream const & out, goal const & g) 
     options const & opts = out.get_options();
     out.get_stream() << mk_pair(g.pp(out.get_formatter()), opts);
     return out;
-}
-
-DECL_UDATA(goal)
-
-static int mk_goal(lua_State * L) { return push_goal(L, goal(to_expr(L, 1), to_expr(L, 2))); }
-static int goal_meta(lua_State * L) { return push_expr(L, to_goal(L, 1).get_meta()); }
-static int goal_type(lua_State * L) { return push_expr(L, to_goal(L, 1).get_type()); }
-static int goal_tostring(lua_State * L) {
-    std::ostringstream out;
-    goal & g = to_goal(L, 1);
-    formatter fmt   = mk_formatter(L);
-    options opts    = get_global_options(L);
-    out << mk_pair(g.pp(fmt), opts);
-    lua_pushstring(L, out.str().c_str());
-    return 1;
-}
-static int goal_mk_meta(lua_State * L) {
-    return push_expr(L, to_goal(L, 1).mk_meta(to_name_ext(L, 2), to_expr(L, 3)));
-}
-
-static int goal_pp(lua_State * L) {
-    int nargs = lua_gettop(L);
-    goal & g = to_goal(L, 1);
-    if (nargs == 1) {
-        return push_format(L, g.pp(mk_formatter(L)));
-    } else {
-        return push_format(L, g.pp(to_formatter(L, 2)));
-    }
-}
-static int goal_validate_locals(lua_State * L) { return push_boolean(L, to_goal(L, 1).validate_locals()); }
-static int goal_validate(lua_State * L) { return push_boolean(L, to_goal(L, 1).validate(to_environment(L, 2))); }
-static int goal_abstract(lua_State * L) { return push_expr(L, to_goal(L, 1).abstract(to_expr(L, 2))); }
-static int goal_name(lua_State * L) { return push_name(L, to_goal(L, 1).get_name()); }
-
-static const struct luaL_Reg goal_m[] = {
-    {"__gc",            goal_gc}, // never throws
-    {"__tostring",      safe_function<goal_tostring>},
-    {"abstract",        safe_function<goal_abstract>},
-    {"mk_meta",         safe_function<goal_mk_meta>},
-    {"pp",              safe_function<goal_pp>},
-    {"validate",        safe_function<goal_validate>},
-    {"validate_locals", safe_function<goal_validate_locals>},
-    {"meta",            safe_function<goal_meta>},
-    {"type",            safe_function<goal_type>},
-    {"name",            safe_function<goal_name>},
-    {0, 0}
-};
-
-void open_goal(lua_State * L) {
-    luaL_newmetatable(L, goal_mt);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    setfuncs(L, goal_m, 0);
-
-    SET_GLOBAL_FUN(goal_pred, "is_goal");
-    SET_GLOBAL_FUN(mk_goal, "goal");
 }
 }

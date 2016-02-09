@@ -150,8 +150,4 @@ inline tactic focus(tactic const & t) { return focus(t, 0); }
 tactic beta_tactic();
 /** \brief Apply \c t to all goals in the proof state */
 tactic all_goals(tactic const & t);
-
-UDATA_DEFS_CORE(proof_state_seq)
-UDATA_DEFS_CORE(tactic);
-void open_tactic(lua_State * L);
 }

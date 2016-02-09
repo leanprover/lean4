@@ -196,12 +196,8 @@ bool is_olean_file(std::string const & fname) {
     return has_file_ext(fname, ".olean");
 }
 
-bool is_lua_file(std::string const & fname) {
-    return has_file_ext(fname, ".lua");
-}
-
 bool is_known_file_ext(std::string const & fname) {
-    return is_lean_file(fname) || is_hlean_file(fname) || is_olean_file(fname) || is_lua_file(fname);
+    return is_lean_file(fname) || is_hlean_file(fname) || is_olean_file(fname);
 }
 
 optional<std::string> check_file_core(std::string file, char const * ext) {
@@ -271,7 +267,7 @@ std::string find_file(std::string const & base, optional<unsigned> const & k, na
 }
 
 std::string find_file(std::string fname) {
-    return find_file(fname, {".olean", ".lean", ".lua"});
+    return find_file(fname, {".olean", ".lean"});
 }
 
 std::string find_file(name const & fname) {

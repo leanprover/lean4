@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/rb_tree.h"
 #include "util/name.h"
-#include "util/lua.h"
 namespace lean {
 typedef rb_tree<name, name_quick_cmp> name_set;
 /** \brief Make a name that does not occur in \c s, based on the given suggestion. */
@@ -20,7 +19,4 @@ name_set to_name_set(C const & ns) {
         r.insert(n);
     return r;
 }
-
-UDATA_DEFS_CORE(name_set)
-void open_name_set(lua_State * L);
 }

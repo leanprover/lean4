@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "util/list.h"
 #include "util/rb_map.h"
 #include "util/name.h"
-#include "util/lua.h"
 #include "kernel/environment.h"
 #include "library/io_state.h"
 #include "library/module.h"
@@ -80,8 +79,6 @@ optional<name> to_valid_namespace_name(environment const & env, name const & n);
 environment mark_namespace_as_open(environment const & env, name const & n);
 /** \brief Return the set of namespaces marked as "open" using \c mark_namespace_as_open. */
 name_set get_opened_namespaces(environment const & env);
-
-void open_scoped_ext(lua_State * L);
 
 /** \brief Auxilary template used to simplify the creation of environment extensions that support
     the scope */

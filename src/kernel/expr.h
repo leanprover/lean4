@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include <tuple>
 #include <string>
 #include "util/thread.h"
-#include "util/lua.h"
 #include "util/rc.h"
 #include "util/name.h"
 #include "util/hash.h"

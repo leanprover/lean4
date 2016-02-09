@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #include "kernel/error_msgs.h"
 #include "kernel/type_checker.h"
 #include "library/reducible.h"
-#include "library/kernel_bindings.h"
 #include "library/unifier.h"
 #include "library/occurs.h"
 #include "library/constants.h"

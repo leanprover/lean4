@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <utility>
-#include "util/lua.h"
 #include "util/list.h"
 #include "util/name.h"
 #include "kernel/formatter.h"
@@ -111,7 +110,4 @@ name get_unused_name(name const & prefix, unsigned & idx, expr const & meta);
 name get_unused_name(name const & prefix, expr const & meta);
 
 io_state_stream const & operator<<(io_state_stream const & out, goal const & g);
-
-UDATA_DEFS(goal)
-void open_goal(lua_State * L);
 }

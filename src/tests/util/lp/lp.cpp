@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Lev Nachmanson
 */
+#include <limits>
 #include <dirent.h>
 #include <algorithm>
 #include <string>
@@ -1365,7 +1366,7 @@ void random_test_on_i(unsigned i) {
 }
 
 void random_test() {
-    for (unsigned i = 0; i < UINT_MAX; i++) {
+    for (unsigned i = 0; i < std::numeric_limits<unsigned>::max(); i++) {
         try {
             random_test_on_i(i);
         }

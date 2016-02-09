@@ -27,13 +27,8 @@ add_test(lean_ghash2   "${CMAKE_CURRENT_BINARY_DIR}/lean" --githash)
 add_test(lean_path1    "${CMAKE_CURRENT_BINARY_DIR}/lean" -p)
 add_test(lean_path2    "${CMAKE_CURRENT_BINARY_DIR}/lean" --path)
 add_test(export_all    "${LEAN_SOURCE_DIR}/../bin/lean" --export-all=all.out "${LEAN_SOURCE_DIR}/../library/standard.lean")
-add_test(lean_luahook1 "${CMAKE_CURRENT_BINARY_DIR}/lean" --luahook=100 "${LEAN_SOURCE_DIR}/../tests/lua/big.lua")
-add_test(lean_luahook2 "${CMAKE_CURRENT_BINARY_DIR}/lean" -k 100 "${LEAN_SOURCE_DIR}/../tests/lua/big.lua")
-# add_test(lean_lua1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "--lua" "${LEAN_SOURCE_DIR}/../tests/lua/single.lua")
-# add_test(lean_lua2 ${LEAN_SOURCE_DIR}/cmake/redirect.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "-u" "${LEAN_SOURCE_DIR}/../tests/lua/single.lua")
 add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "-z")
 add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lean")
-add_test(lean_unknown_file2 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lua")
 add_test(lean_server_trace "${CMAKE_CURRENT_BINARY_DIR}/lean" --server-trace "${LEAN_SOURCE_DIR}/../tests/lean/interactive/consume_args.input")
 add_test(lean_server_trace "${CMAKE_CURRENT_BINARY_DIR}/lean" --server-trace "${LEAN_SOURCE_DIR}/../tests/lean/interactive/options_cmd.trace")
 add_test(lean_server_trace "${CMAKE_CURRENT_BINARY_DIR}/lean" --server-trace "${LEAN_SOURCE_DIR}/../tests/lean/interactive/commands.trace")
@@ -138,40 +133,12 @@ FOREACH(T ${LEANSLOWTESTS})
   set_tests_properties("leanslowtest_${T_NAME}" PROPERTIES LABELS "expensive")
 ENDFOREACH(T)
 
-# LEAN LUA TESTS
-file(GLOB LEANLUATESTS "${LEAN_SOURCE_DIR}/../tests/lua/*.lua")
-FOREACH(T ${LEANLUATESTS})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leanluatest_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lua"
-           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-ENDFOREACH(T)
-
-# LEAN LUA SLOW TESTS
-file(GLOB LEANLUASLOWTESTS "${LEAN_SOURCE_DIR}/../tests/lua/slow/*.lua")
-FOREACH(T ${LEANLUASLOWTESTS})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leanluaslowtest_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lua/slow"
-           COMMAND bash "../test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-  set_tests_properties("leanluaslowtest_${T_NAME}" PROPERTIES LABELS "expensive")
-ENDFOREACH(T)
-
 # LEAN DOCS
 file(GLOB LEANDOCS "${LEAN_SOURCE_DIR}/../doc/lean/*.org")
 FOREACH(T ${LEANDOCS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leandoc_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/lean"
-           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
-ENDFOREACH(T)
-
-# LEAN LUA DOCS
-file(GLOB LEANLUADOCS "${LEAN_SOURCE_DIR}/../doc/lua/*.md")
-FOREACH(T ${LEANLUADOCS})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leanluadoc_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/lua"
            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
 ENDFOREACH(T)
 

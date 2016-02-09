@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include "util/thread.h"
 #include "kernel/find_fn.h"
 #include "library/placeholder.h"
-#include "library/kernel_bindings.h"
 
 namespace lean {
 static name * g_implicit_placeholder_name = nullptr;
@@ -100,35 +99,5 @@ bool has_placeholder(expr const & e) {
             else
                 return false;
         });
-}
-
-static int mk_level_placeholder(lua_State * L) { return push_level(L, mk_level_placeholder()); }
-static int mk_expr_placeholder(lua_State * L) {
-    int nargs = lua_gettop(L);
-    if (nargs == 0)
-        return push_expr(L, mk_expr_placeholder());
-    else
-        return push_expr(L, mk_expr_placeholder(some_expr(to_expr(L, 1))));
-}
-static int is_placeholder(lua_State * L) {
-    if (is_expr(L, 1))
-        return push_boolean(L, is_placeholder(to_expr(L, 1)));
-    else
-        return push_boolean(L, is_placeholder(to_level(L, 1)));
-}
-static int has_placeholder(lua_State * L) {
-    if (is_expr(L, 1))
-        return push_boolean(L, has_placeholder(to_expr(L, 1)));
-    else
-        return push_boolean(L, has_placeholder(to_level(L, 1)));
-}
-static int placeholder_type(lua_State * L) { return push_optional_expr(L, placeholder_type(to_expr(L, 1))); }
-
-void open_placeholder(lua_State * L) {
-    SET_GLOBAL_FUN(mk_level_placeholder, "mk_level_placeholder");
-    SET_GLOBAL_FUN(mk_expr_placeholder,  "mk_expr_placeholder");
-    SET_GLOBAL_FUN(is_placeholder,       "is_placeholder");
-    SET_GLOBAL_FUN(placeholder_type,     "placeholder_type");
-    SET_GLOBAL_FUN(has_placeholder,      "has_placeholder");
 }
 }

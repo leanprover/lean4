@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/lua.h"
 #include "util/numerics/mpz.h"
 
 namespace lean {
@@ -285,10 +284,6 @@ public:
 serializer & operator<<(serializer & s, mpq const & n);
 mpq read_mpq(deserializer & d);
 inline deserializer & operator>>(deserializer & d, mpq & n) { n = read_mpq(d); return d; }
-
-UDATA_DEFS(mpq)
-mpq to_mpq_ext(lua_State * L, int idx);
-void open_mpq(lua_State * L);
 
 void initialize_mpq();
 void finalize_mpq();

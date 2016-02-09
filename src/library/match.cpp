@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/type_checker.h"
-#include "library/kernel_bindings.h"
 #include "library/locals.h"
 #include "library/match.h"
 #include "library/idx_metavar.h"
@@ -435,90 +434,5 @@ static pair<unsigned, unsigned> get_idx_meta_univ_ranges(expr const & e) {
             return true;
         });
     return mk_pair(rlvl, rexp);
-}
-
-typedef std::shared_ptr<match_plugin> match_plugin_ref;
-DECL_UDATA(match_plugin_ref)
-
-static const struct luaL_Reg match_plugin_ref_m[] = {
-    {"__gc", match_plugin_ref_gc},
-    {0, 0}
-};
-
-// version of whnf_match_plugin for Lua
-class whnf_match_plugin2 : public whnf_match_plugin {
-    std::shared_ptr<type_checker> m_tc_ref;
-public:
-    whnf_match_plugin2(std::shared_ptr<type_checker> & tc):
-        whnf_match_plugin(*tc), m_tc_ref(tc) {}
-};
-
-static int mk_whnf_match_plugin(lua_State * L) {
-    return push_match_plugin_ref(L, match_plugin_ref(new whnf_match_plugin2(to_type_checker_ref(L, 1))));
-}
-
-static int match(lua_State * L) {
-    int nargs  = lua_gettop(L);
-    expr p     = to_expr(L, 1);
-    expr t     = to_expr(L, 2);
-    match_plugin * plugin = nullptr;
-    if (nargs >= 3)
-        plugin = to_match_plugin_ref(L, 3).get();
-    if (!closed(t))
-        throw exception("higher-order pattern matching failure, input term must not contain free variables");
-    unsigned r1, r2;
-    auto r1_r2 = get_idx_meta_univ_ranges(p);
-    r1 = r1_r2.first;
-    r2 = r1_r2.second;
-    buffer<optional<level>> lsubst;
-    buffer<optional<expr>>  esubst;
-    lsubst.resize(r1); esubst.resize(r2);
-    if (match(p, t, lsubst, esubst, nullptr, nullptr, plugin)) {
-        lua_newtable(L);
-        int i = 1;
-        for (auto s : esubst) {
-            if (s)
-                push_expr(L, *s);
-            else
-                lua_pushboolean(L, false);
-            lua_rawseti(L, -2, i);
-            i = i + 1;
-        }
-        lua_newtable(L);
-        i = 1;
-        for (auto s : lsubst) {
-            if (s)
-                push_level(L, *s);
-            else
-                lua_pushboolean(L, false);
-            lua_rawseti(L, -2, i);
-            i = i + 1;
-        }
-    } else {
-        lua_pushnil(L);
-        lua_pushnil(L);
-    }
-    return 2;
-}
-
-static int mk_idx_metauniv(lua_State * L) {
-    return push_level(L, mk_idx_metauniv(luaL_checkinteger(L, 1)));
-}
-
-static int mk_idx_metavar(lua_State * L) {
-    return push_expr(L, mk_idx_metavar(luaL_checkinteger(L, 1), to_expr(L, 2)));
-}
-
-void open_match(lua_State * L) {
-    luaL_newmetatable(L, match_plugin_ref_mt);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    setfuncs(L, match_plugin_ref_m, 0);
-
-    SET_GLOBAL_FUN(mk_whnf_match_plugin,  "whnf_match_plugin");
-    SET_GLOBAL_FUN(match_plugin_ref_pred, "is_match_plugin");
-    SET_GLOBAL_FUN(mk_idx_metauniv,       "mk_idx_metauniv");
-    SET_GLOBAL_FUN(mk_idx_metavar,        "mk_idx_metavar");
-    SET_GLOBAL_FUN(match,                 "match");
 }
 }

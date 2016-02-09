@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/sstream.h"
 #include "library/scoped_ext.h"
-#include "library/kernel_bindings.h"
 
 namespace lean {
 typedef std::tuple<name, using_namespace_fn, export_namespace_fn, push_scope_fn, pop_scope_fn> entry;
@@ -214,50 +213,6 @@ environment pop_scope(environment const & env, io_state const & ios, name const 
 bool has_open_scopes(environment const & env) {
     scope_mng_ext ext = get_extension(env);
     return !is_nil(ext.m_namespaces);
-}
-
-static int using_namespace_objects(lua_State * L) {
-    int nargs = lua_gettop(L);
-    environment const & env = to_environment(L, 1);
-    name n = to_name_ext(L, 2);
-    if (nargs == 2)
-        return push_environment(L, using_namespace(env, get_io_state(L), n));
-    else if (nargs == 3)
-        return push_environment(L, using_namespace(env, get_io_state(L), n, to_name_ext(L, 3)));
-    else
-        return push_environment(L, using_namespace(env, to_io_state(L, 4), n, to_name_ext(L, 3)));
-}
-
-static int push_scope(lua_State * L) {
-    int nargs = lua_gettop(L);
-    if (nargs == 1)
-        return push_environment(L, push_scope(to_environment(L, 1), get_io_state(L), scope_kind::Section));
-    else if (nargs == 2)
-        return push_environment(L, push_scope(to_environment(L, 1), get_io_state(L), scope_kind::Namespace, to_name_ext(L, 2)));
-    scope_kind k = static_cast<scope_kind>(lua_tonumber(L, 3));
-    if (nargs == 3)
-        return push_environment(L, push_scope(to_environment(L, 1), get_io_state(L), k, to_name_ext(L, 2)));
-    else
-        return push_environment(L, push_scope(to_environment(L, 1), to_io_state(L, 4), k, to_name_ext(L, 2)));
-}
-
-static int pop_scope(lua_State * L) {
-    int nargs = lua_gettop(L);
-    if (nargs == 1)
-        return push_environment(L, pop_scope(to_environment(L, 1), get_io_state(L)));
-    else
-        return push_environment(L, pop_scope(to_environment(L, 1), get_io_state(L), to_name_ext(L, 2)));
-}
-
-void open_scoped_ext(lua_State * L) {
-    SET_GLOBAL_FUN(using_namespace_objects, "using_namespace_objects");
-    SET_GLOBAL_FUN(push_scope, "push_scope");
-    SET_GLOBAL_FUN(pop_scope, "pop_scope");
-
-    lua_newtable(L);
-    SET_ENUM("Namespace",   scope_kind::Namespace);
-    SET_ENUM("Section",     scope_kind::Section);
-    lua_setglobal(L, "scope_kind");
 }
 
 void initialize_scoped_ext() {

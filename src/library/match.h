@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <functional>
-#include "util/lua.h"
 #include "util/optional.h"
 #include "util/lbool.h"
 #include "util/buffer.h"
@@ -110,7 +109,6 @@ bool match(expr const & p, expr const & t,
            name const * prefix = nullptr, name_map<name> * name_subst = nullptr,
            match_plugin const * plugin = nullptr, bool * assigned = nullptr);
 
-void open_match(lua_State * L);
 void initialize_match();
 void finalize_match();
 }

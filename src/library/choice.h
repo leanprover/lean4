@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/lua.h"
 #include "kernel/expr.h"
 
 namespace lean {
@@ -45,7 +44,6 @@ list<list<name>> collect_choice_symbols(expr const & e);
 /** \brief Format the result produced by collect_choice_symbols. */
 format pp_choice_symbols(expr const & e);
 
-void open_choice(lua_State * L);
 void initialize_choice();
 void finalize_choice();
 }

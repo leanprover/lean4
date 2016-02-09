@@ -8,6 +8,4 @@ theorem tst2 {A : Type} {a b c d : A} {p : A → A → Prop} (Ha : p a c) (H1 : 
 := by apply exists.intro; apply and.intro; eassumption; eassumption
 
 reveal tst2
-(*
-print(get_env():find("tst2"):value())
-*)
+print tst2

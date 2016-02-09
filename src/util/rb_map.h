@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <utility>
-#include "util/lua.h"
 #include "util/pair.h"
 #include "util/rb_tree.h"
 
@@ -100,5 +99,4 @@ template<typename K, typename T, typename CMP, typename F>
 void for_each(rb_map<K, T, CMP> const & m, F && f) {
     return m.for_each(f);
 }
-void open_rb_map(lua_State * L);
 }

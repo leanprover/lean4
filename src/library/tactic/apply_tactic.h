@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/lua.h"
 #include "library/tactic/elaborate.h"
 namespace lean {
 proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s, expr const & e, constraint_seq const & cs);

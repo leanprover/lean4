@@ -87,7 +87,6 @@ using notation::mk_binders_action;
 using notation::mk_exprs_action;
 using notation::mk_scoped_expr_action;
 using notation::mk_skip_action;
-using notation::mk_ext_lua_action;
 using notation::transition;
 using notation::action;
 
@@ -354,10 +353,6 @@ static action parse_action(parser & p, name const & prev_token, unsigned default
         } else if (p.curr_is_token_or_id(get_prev_tk())) {
             p.next();
             return mk_expr_action(get_precedence(p.env(), new_tokens, prev_token));
-        } else if (p.curr_is_string()) {
-            std::string fn = p.get_str_val();
-            p.next();
-            return mk_ext_lua_action(fn.c_str());
         } else if (p.curr_is_token_or_id(get_scoped_tk())) {
             p.next();
             return mk_scoped_expr_action(mk_var(0));
@@ -401,11 +396,6 @@ static action parse_action(parser & p, name const & prev_token, unsigned default
                 }
                 p.check_token_next(get_rparen_tk(), "invalid scoped notation argument, ')' expected");
                 return mk_scoped_expr_action(rec, prec ? *prec : 0);
-            } else if (p.curr_is_token_or_id(get_call_tk())) {
-                p.next();
-                name fn = p.check_id_next("invalid call notation argument, identifier expected");
-                p.check_token_next(get_rparen_tk(), "invalid call notation argument, ')' expected");
-                return mk_ext_lua_action(fn.to_string().c_str());
             } else {
                 throw parser_error("invalid notation declaration, 'foldl', 'foldr' or 'scoped' expected", p.pos());
             }
@@ -568,7 +558,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
                 ts.push_back(transition(tk, a, pp_tk));
                 break;
             case notation::action_kind::Expr: case notation::action_kind::Exprs: case notation::action_kind::ScopedExpr:
-            case notation::action_kind::Ext:  case notation::action_kind::LuaExt: {
+            case notation::action_kind::Ext:  {
                 if (g_allow_local && !p.curr_is_identifier()) {
                     ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp, pp_tk));
                     break;

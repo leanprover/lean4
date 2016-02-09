@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/for_each_fn.h"
 #include "library/choice.h"
-#include "library/kernel_bindings.h"
 #include "library/kernel_serializer.h"
 
 namespace lean {
@@ -111,41 +110,5 @@ unsigned get_num_choices(expr const & e) {
 expr const & get_choice(expr const & e, unsigned i) {
     lean_assert(is_choice(e));
     return macro_arg(e, i);
-}
-
-static int mk_choice(lua_State * L) {
-    check_atleast_num_args(L, 1);
-    int nargs = lua_gettop(L);
-    buffer<expr> args;
-    for (int i = 1; i <= nargs; i++)
-        args.push_back(to_expr(L, i));
-    return push_expr(L, mk_choice(args.size(), args.data()));
-}
-
-static int is_choice(lua_State * L) {
-    return push_boolean(L, is_choice(to_expr(L, 1)));
-}
-static void check_choice(lua_State * L, int idx) {
-    if (!is_choice(to_expr(L, idx)))
-        throw exception(sstream() << "arg #" << idx << " is not a choice-expression");
-}
-static int get_num_choices(lua_State * L) {
-    check_choice(L, 1);
-    return push_integer(L, get_num_choices(to_expr(L, 1)));
-}
-static int get_choice(lua_State * L) {
-    check_choice(L, 1);
-    expr const & c = to_expr(L, 1);
-    int i = lua_tointeger(L, 2);
-    if (i < 0 || static_cast<unsigned>(i) >= get_num_choices(c))
-        throw exception("arg #2 is an invalid choice index");
-    return push_expr(L, get_choice(c, i));
-}
-
-void open_choice(lua_State * L) {
-    SET_GLOBAL_FUN(mk_choice,       "mk_choice");
-    SET_GLOBAL_FUN(is_choice,       "is_choice");
-    SET_GLOBAL_FUN(get_num_choices, "get_num_choices");
-    SET_GLOBAL_FUN(get_choice,      "get_choice");
 }
 }

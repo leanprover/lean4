@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include <limits>
 #include <algorithm>
 #include "util/interrupt.h"
-#include "util/luaref.h"
 #include "util/lazy_list_fn.h"
 #include "util/sstream.h"
 #include "util/lbool.h"
@@ -30,7 +29,6 @@ Author: Leonardo de Moura
 #include "library/unifier.h"
 #include "library/reducible.h"
 #include "library/unifier_plugin.h"
-#include "library/kernel_bindings.h"
 #include "library/print.h"
 #include "library/expr_lt.h"
 #include "library/projection.h"
@@ -2845,163 +2843,6 @@ unify_result_seq unify(environment const & env, expr const & lhs, expr const & r
     }
 }
 
-static int unify_simple(lua_State * L) {
-    int nargs = lua_gettop(L);
-    unify_status r;
-    if (nargs == 2)
-        r = unify_simple(to_substitution(L, 1), to_constraint(L, 2));
-    else if (nargs == 3 && is_expr(L, 2))
-        r = unify_simple(to_substitution(L, 1), to_expr(L, 2), to_expr(L, 3), justification());
-    else if (nargs == 3 && is_level(L, 2))
-        r = unify_simple(to_substitution(L, 1), to_level(L, 2), to_level(L, 3), justification());
-    else if (is_expr(L, 2))
-        r = unify_simple(to_substitution(L, 1), to_expr(L, 2), to_expr(L, 3), to_justification(L, 4));
-    else
-        r = unify_simple(to_substitution(L, 1), to_level(L, 2), to_level(L, 3), to_justification(L, 4));
-    return push_integer(L, static_cast<unsigned>(r));
-}
-
-DECL_UDATA(unify_result_seq)
-
-static const struct luaL_Reg unify_result_seq_m[] = {
-    {"__gc", unify_result_seq_gc},
-    {0, 0}
-};
-
-static int unify_result_seq_next(lua_State * L) {
-    unify_result_seq seq = to_unify_result_seq(L, lua_upvalueindex(1));
-    unify_result_seq::maybe_pair p;
-    p = seq.pull();
-    if (p) {
-        push_unify_result_seq(L, p->second);
-        lua_replace(L, lua_upvalueindex(1));
-        push_substitution(L, p->first.first);
-        // TODO(Leo): return postponed constraints
-    } else {
-        lua_pushnil(L);
-    }
-    return 1;
-}
-
-static int push_unify_result_seq_it(lua_State * L, unify_result_seq const & seq) {
-    push_unify_result_seq(L, seq);
-    lua_pushcclosure(L, &safe_function<unify_result_seq_next>, 1); // create closure with 1 upvalue
-    return 1;
-}
-
-static void to_constraint_buffer(lua_State * L, int idx, buffer<constraint> & cs) {
-    luaL_checktype(L, idx, LUA_TTABLE);
-    lua_pushvalue(L, idx); // put table on top of the stack
-    int n = objlen(L, idx);
-    for (int i = 1; i <= n; i++) {
-        lua_rawgeti(L, -1, i);
-        cs.push_back(to_constraint(L, -1));
-        lua_pop(L, 1);
-    }
-    lua_pop(L, 1);
-}
-
-#if 0
-static constraints to_constraints(lua_State * L, int idx) {
-    buffer<constraint> cs;
-    to_constraint_buffer(L, idx, cs);
-    return to_list(cs.begin(), cs.end());
-}
-
-static unifier_plugin to_unifier_plugin(lua_State * L, int idx) {
-    luaL_checktype(L, idx, LUA_TFUNCTION); // user-fun
-    luaref f(L, idx);
-    return unifier_plugin([=](constraint const & c, name_generator && ngen) {
-            lua_State * L = f.get_state();
-            f.push();
-            push_constraint(L, c);
-            push_name_generator(L, ngen);
-            pcall(L, 2, 1, 0);
-            lazy_list<constraints> r;
-            if (is_constraint(L, -1)) {
-                // single constraint
-                r = lazy_list<constraints>(constraints(to_constraint(L, -1)));
-            } else if (lua_istable(L, -1)) {
-                int num = objlen(L, -1);
-                if (num == 0) {
-                    // empty table
-                    r = lazy_list<constraints>();
-                } else {
-                    lua_rawgeti(L, -1, 1);
-                    if (is_constraint(L, -1)) {
-                        // array of constraints case
-                        lua_pop(L, 1);
-                        r = lazy_list<constraints>(to_constraints(L, -1));
-                    } else {
-                        lua_pop(L, 1);
-                        buffer<constraints> css;
-                        // array of array of constraints
-                        for (int i = 1; i <= num; i++) {
-                            lua_rawgeti(L, -1, i);
-                            css.push_back(to_constraints(L, -1));
-                            lua_pop(L, 1);
-                        }
-                        r = to_lazy(to_list(css.begin(), css.end()));
-                    }
-                }
-            } else if (lua_isnil(L, -1)) {
-                // nil case
-                r = lazy_list<constraints>();
-            } else {
-                throw exception("invalid unifier plugin, the result value must be a constrant, "
-                                "nil, an array of constraints, or an array of arrays of constraints");
-            }
-            lua_pop(L, 1);
-            return r;
-        });
-}
-#endif
-
-static name * g_tmp_prefix = nullptr;
-
-static int unify(lua_State * L) {
-    int nargs = lua_gettop(L);
-    unify_result_seq r;
-    environment const & env = to_environment(L, 1);
-    if (is_expr(L, 2)) {
-        if (nargs == 6)
-            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4).mk_child(), to_substitution(L, 5),
-                      unifier_config(to_options(L, 6)));
-        else if (nargs == 5)
-            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4).mk_child(), to_substitution(L, 5));
-        else
-            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4).mk_child());
-    } else {
-        buffer<constraint> cs;
-        to_constraint_buffer(L, 2, cs);
-        if (nargs == 5)
-            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3).mk_child(), to_substitution(L, 4),
-                      unifier_config(to_options(L, 5)));
-        else if (nargs == 4)
-            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3).mk_child(), to_substitution(L, 4));
-        else
-            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3).mk_child());
-    }
-    return push_unify_result_seq_it(L, r);
-}
-
-void open_unifier(lua_State * L) {
-    luaL_newmetatable(L, unify_result_seq_mt);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    setfuncs(L, unify_result_seq_m, 0);
-    SET_GLOBAL_FUN(unify_result_seq_pred, "is_unify_result_seq");
-
-    SET_GLOBAL_FUN(unify_simple,  "unify_simple");
-    SET_GLOBAL_FUN(unify,         "unify");
-
-    lua_newtable(L);
-    SET_ENUM("Solved",       unify_status::Solved);
-    SET_ENUM("Failed",       unify_status::Failed);
-    SET_ENUM("Unsupported",  unify_status::Unsupported);
-    lua_setglobal(L, "unify_status");
-}
-
 void initialize_unifier() {
     register_trace_class(name{"unifier"});
     g_unifier_max_steps            = new name{"unifier", "max_steps"};
@@ -3020,11 +2861,9 @@ void initialize_unifier() {
                          "(unifier) enable/disable nonchronological backtracking in the unifier (this option is only available for debugging and benchmarking purposes, and running experiments)");
 
     g_dont_care_cnstr = new constraint(mk_eq_cnstr(expr(), expr(), justification()));
-    g_tmp_prefix      = new name(name::mk_internal_unique_name());
 }
 
 void finalize_unifier() {
-    delete g_tmp_prefix;
     delete g_dont_care_cnstr;
     delete g_unifier_max_steps;
     delete g_unifier_normalizer_max_steps;

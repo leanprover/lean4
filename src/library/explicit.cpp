@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "library/annotation.h"
 #include "library/explicit.h"
-#include "library/kernel_bindings.h"
 
 namespace lean {
 static name * g_explicit_name = nullptr;
@@ -61,37 +60,5 @@ void finalize_explicit() {
     delete g_partial_explicit_name;
     delete g_explicit_name;
     delete g_consume_args_name;
-}
-
-static int mk_explicit(lua_State * L) { return push_expr(L, mk_explicit(to_expr(L, 1))); }
-static int is_explicit(lua_State * L) { return push_boolean(L, is_explicit(to_expr(L, 1))); }
-static void check_explicit(lua_State * L, int idx) {
-    if (!is_explicit(to_expr(L, idx)))
-        throw exception(sstream() << "arg #" << idx << " is not a '@'-expression");
-}
-static int get_explicit_arg(lua_State * L) {
-    check_explicit(L, 1);
-    return push_expr(L, get_explicit_arg(to_expr(L, 1)));
-}
-
-static int mk_partial_explicit(lua_State * L) { return push_expr(L, mk_partial_explicit(to_expr(L, 1))); }
-static int is_partial_explicit(lua_State * L) { return push_boolean(L, is_partial_explicit(to_expr(L, 1))); }
-static void check_partial_explicit(lua_State * L, int idx) {
-    if (!is_partial_explicit(to_expr(L, idx)))
-        throw exception(sstream() << "arg #" << idx << " is not a '@'-expression");
-}
-static int get_partial_explicit_arg(lua_State * L) {
-    check_partial_explicit(L, 1);
-    return push_expr(L, get_partial_explicit_arg(to_expr(L, 1)));
-}
-
-void open_explicit(lua_State * L) {
-    SET_GLOBAL_FUN(mk_explicit,      "mk_explicit");
-    SET_GLOBAL_FUN(is_explicit,      "is_explicit");
-    SET_GLOBAL_FUN(get_explicit_arg, "get_explicit_arg");
-
-    SET_GLOBAL_FUN(mk_partial_explicit,      "mk_partial_explicit");
-    SET_GLOBAL_FUN(is_partial_explicit,      "is_partial_explicit");
-    SET_GLOBAL_FUN(get_partial_explicit_arg, "get_partial_explicit_arg");
 }
 }

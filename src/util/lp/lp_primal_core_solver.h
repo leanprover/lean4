@@ -7,21 +7,21 @@
 
 #pragma once
 #include <list>
-#include "util/numerics/double.h"
-#include "util/lp/lu.h"
-#include "util/lp/lp_solver.h"
-#include <sstream>
-
+#include <limits>
 #include <unordered_map>
-#include "util/lp/static_matrix.h"
-#include "util/lp/core_solver_pretty_printer.h"
+#include <sstream>
 #include <string>
 #include <vector>
 #include <set>
+#include <math.h>
 #include <cstdlib>
 #include <algorithm>
+#include "util/numerics/double.h"
+#include "util/lp/lu.h"
+#include "util/lp/lp_solver.h"
+#include "util/lp/static_matrix.h"
+#include "util/lp/core_solver_pretty_printer.h"
 #include "util/lp/lp_core_solver_base.h"
-#include <math.h>
 #include "util/lp/breakpoint.h"
 #include "util/lp/binary_heap_priority_queue.h"
 namespace lean {
@@ -55,7 +55,7 @@ public:
     int find_leaving_and_t_precisely(unsigned entering, X & t);
 
     static X positive_infinity() {
-        return convert_struct<X, double>::convert(UINT_MAX);
+        return convert_struct<X, double>::convert(std::numeric_limits<unsigned>::max());
     }
 
     X get_harris_theta();

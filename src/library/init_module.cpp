@@ -25,7 +25,6 @@ Author: Leonardo de Moura
 #include "library/coercion.h"
 #include "library/unifier_plugin.h"
 #include "library/io_state.h"
-#include "library/kernel_bindings.h"
 #include "library/idx_metavar.h"
 #include "library/sorry.h"
 #include "library/placeholder.h"
@@ -58,7 +57,6 @@ void initialize_library_module() {
     initialize_print();
     initialize_placeholder();
     initialize_idx_metavar();
-    initialize_kernel_bindings();
     initialize_io_state();
     initialize_unifier();
     initialize_kernel_serializer();
@@ -134,7 +132,6 @@ void finalize_library_module() {
     finalize_kernel_serializer();
     finalize_unifier();
     finalize_io_state();
-    finalize_kernel_bindings();
     finalize_idx_metavar();
     finalize_placeholder();
     finalize_print();

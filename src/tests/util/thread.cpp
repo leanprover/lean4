@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/shared_mutex.h"
 #include "util/interrupt.h"
-#include "util/thread_script_state.h"
 #include "util/init_module.h"
 using namespace lean;
 
@@ -184,52 +183,6 @@ static void tst6() {
     t1.join();
 }
 
-static __thread script_state * g_state = nullptr;
-
-static void tst7() {
-    std::cout << "start\n";
-    system_import("import_test.lua");
-    system_dostring("print('hello'); x = 10;");
-    interruptible_thread t1([]() {
-            g_state = new script_state();
-            g_state->dostring("x = 1");
-            script_state S = get_thread_script_state();
-            S.dostring("print(x)\n"
-                       "for i = 1, 100000 do\n"
-                       "  x = x + 1\n"
-                       "end\n"
-                       "print(x)\n");
-            delete g_state;
-        });
-    interruptible_thread t2([]() {
-            g_state = new script_state();
-            g_state->dostring("x = 0");
-            script_state S = get_thread_script_state();
-            S.dostring("print(x)\n"
-                       "for i = 1, 20000 do\n"
-                       "  x = x + 1\n"
-                       "end\n"
-                       "print(x)\n");
-            delete g_state;
-        });
-    t1.join(); t2.join();
-    std::cout << "done\n";
-}
-
-static void tst8() {
-    std::cout << "starting tst8\n";
-    interruptible_thread t1([]() {
-            script_state S = get_thread_script_state();
-            S.dostring("print(x)\n"
-                       "for i = 1, 10000 do\n"
-                       "  x = x + 1\n"
-                       "end\n"
-                       "print(x)\n"
-                       "print(fact(10))\n");
-        });
-    t1.join();
-}
-
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -239,8 +192,6 @@ int main() {
     tst4();
     tst5();
     tst6();
-    tst7();
-    tst8();
     run_thread_finalizers();
     finalize_util_module();
     run_post_thread_finalizers();

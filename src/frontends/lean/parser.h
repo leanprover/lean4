@@ -9,17 +9,13 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include "util/flet.h"
-#include "util/script_state.h"
 #include "util/name_map.h"
 #include "util/exception.h"
-#include "util/thread_script_state.h"
-#include "util/script_exception.h"
 #include "util/name_generator.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
-#include "library/kernel_bindings.h"
 #include "library/definition_cache.h"
 #include "library/declaration_index.h"
 #include "frontends/lean/scanner.h"
@@ -110,7 +106,6 @@ class parser {
     name_set                m_include_vars; // subset of m_local_decls that is marked as include
     parser_scope_stack      m_parser_scope_stack;
     pos_info                m_last_cmd_pos;
-    pos_info                m_last_script_pos;
     unsigned                m_next_tag_idx;
     unsigned                m_next_inst_idx;
     bool                    m_found_errors;
@@ -166,23 +161,11 @@ class parser {
     void display_error_pos(pos_info p);
     void display_error(char const * msg, unsigned line, unsigned pos);
     void display_error(char const * msg, pos_info p);
-    void display_error(script_exception const & ex);
     void throw_parser_exception(char const * msg, pos_info p);
     void throw_nested_exception(throwable const & ex, pos_info p);
 
     void sync_command();
     void protected_call(std::function<void()> && f, std::function<void()> && sync);
-    template<typename F>
-    typename std::result_of<F(lua_State * L)>::type using_script(F && f) {
-        try {
-            script_state S = get_thread_script_state();
-            set_io_state    set1(S, m_ios);
-            set_environment set2(S, m_env);
-            return f(S.get_state());
-        } catch (script_nested_exception & ex) {
-            ex.get_exception().rethrow();
-        }
-    }
 
     tag get_tag(expr e);
     expr copy_with_new_pos(expr const & e, pos_info p);
@@ -200,7 +183,6 @@ class parser {
 
     void parse_imports();
     void parse_command();
-    void parse_script(bool as_expr = false);
     bool parse_commands();
     unsigned curr_lbp_core(bool as_tactic) const;
     void process_postponed(buffer<expr> const & args, bool is_left, buffer<notation::action_kind> const & kinds,
@@ -364,8 +346,6 @@ public:
     bool curr_is_keyword() const { return curr() == scanner::token_kind::Keyword; }
     /** \brief Return true iff the current token is a keyword */
     bool curr_is_command() const { return curr() == scanner::token_kind::CommandKeyword; }
-    /** \brief Return true iff the current token is a Lua script block */
-    bool curr_is_script_block() const { return curr() == scanner::token_kind::ScriptBlock; }
     /** \brief Return true iff the current token is EOF */
     bool curr_is_eof() const { return curr() == scanner::token_kind::Eof; }
     /** \brief Return true iff the current token is a keyword */

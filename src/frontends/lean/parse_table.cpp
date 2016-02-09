@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/free_vars.h"
 #include "kernel/replace_fn.h"
-#include "library/kernel_bindings.h"
 #include "library/io_state_stream.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/parse_table.h"
@@ -119,12 +118,6 @@ struct ext_action_cell : public action_cell {
         action_cell(action_kind::Ext), m_parse_fn(fn) {}
 };
 
-struct ext_lua_action_cell : public action_cell {
-    std::string m_lua_fn;
-    ext_lua_action_cell(char const * fn):
-        action_cell(action_kind::LuaExt), m_lua_fn(fn) {}
-};
-
 action::action(action_cell * ptr):m_ptr(ptr) { lean_assert(ptr); }
 action::action():action(mk_skip_action()) {}
 action::action(action const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
@@ -150,10 +143,6 @@ ext_action_cell * to_ext_action(action_cell * c) {
     lean_assert(c->m_kind == action_kind::Ext);
     return static_cast<ext_action_cell*>(c);
 }
-ext_lua_action_cell * to_ext_lua_action(action_cell * c) {
-    lean_assert(c->m_kind == action_kind::LuaExt);
-    return static_cast<ext_lua_action_cell*>(c);
-}
 unsigned action::rbp() const { return to_expr_action(m_ptr)->m_rbp; }
 name const & action::get_sep() const { return to_exprs_action(m_ptr)->m_token_sep; }
 optional<name> const & action::get_terminator() const { return to_exprs_action(m_ptr)->m_terminator; }
@@ -167,7 +156,6 @@ bool action::use_lambda_abstraction() const { return to_scoped_expr_action(m_ptr
 optional<expr> const & action::get_initial() const { return to_exprs_action(m_ptr)->m_ini; }
 bool action::is_fold_right() const { return to_exprs_action(m_ptr)->m_fold_right; }
 parse_fn const & action::get_parse_fn() const { return to_ext_action(m_ptr)->m_parse_fn; }
-std::string const & action::get_lua_fn() const { return to_ext_lua_action(m_ptr)->m_lua_fn; }
 bool action::is_equal(action const & a) const {
     if (kind() != a.kind())
         return false;
@@ -178,8 +166,6 @@ bool action::is_equal(action const & a) const {
         return rbp() == a.rbp();
     case action_kind::Ext:
         return m_ptr == a.m_ptr;
-    case action_kind::LuaExt:
-        return get_lua_fn() == a.get_lua_fn();
     case action_kind::Exprs:
         return
             rbp() == a.rbp() &&
@@ -241,7 +227,6 @@ void action::display(io_state_stream & out) const {
             out << "binders";
         break;
     case action_kind::Ext:     out << "builtin"; break;
-    case action_kind::LuaExt:  out << "luaext"; break;
     case action_kind::Expr:    out << rbp(); break;
     case action_kind::Exprs:
         out << "(fold" << (is_fold_right() ? "r" : "l");
@@ -257,8 +242,9 @@ void action::display(io_state_stream & out) const {
         break;
     }
 }
+
 bool action::is_simple() const {
-    return kind() != action_kind::Ext && kind() != action_kind::LuaExt;
+    return kind() != action_kind::Ext;
 }
 
 void action_cell::dealloc() {
@@ -269,7 +255,6 @@ void action_cell::dealloc() {
     case action_kind::Exprs:      delete(to_exprs_action(this)); break;
     case action_kind::ScopedExpr: delete(to_scoped_expr_action(this)); break;
     case action_kind::Ext:        delete(to_ext_action(this)); break;
-    case action_kind::LuaExt:     delete(to_ext_lua_action(this)); break;
     default:                      delete this; break;
     }
 }
@@ -310,12 +295,10 @@ action mk_ext_action(parse_fn const & fn) {
     return action(new ext_action_cell(new_fn));
 }
 
-action mk_ext_lua_action(char const * fn) { return action(new ext_lua_action_cell(fn)); }
-
 action replace(action const & a, std::function<expr(expr const &)> const & f) {
     switch (a.kind()) {
     case action_kind::Skip: case action_kind::Binder: case action_kind::Binders:
-    case action_kind::Ext:  case action_kind::LuaExt: case action_kind::Expr:
+    case action_kind::Ext:  case action_kind::Expr:
         return a;
     case action_kind::Exprs:
         return mk_exprs_action(a.get_sep(), f(a.get_rec()), a.get_initial() ? some_expr(f(*a.get_initial())) : none_expr(), a.get_terminator(),
@@ -371,7 +354,7 @@ static void validate_transitions(bool nud, unsigned num, transition const * ts, 
         case action_kind::Binder: case action_kind::Binders:
             found_binder = true;
             break;
-        case action_kind::Expr: case action_kind::Exprs: case action_kind::Ext: case action_kind::LuaExt:
+        case action_kind::Expr: case action_kind::Exprs: case action_kind::Ext:
             nargs++;
             break;
         case action_kind::ScopedExpr:
@@ -478,7 +461,7 @@ static expr expand_pp_pattern(unsigned num, transition const * ts, expr const & 
                     switch (act.kind()) {
                     case action_kind::Binder: case action_kind::Binders: case action_kind::Skip:
                         break;
-                    case action_kind::Ext: case action_kind::LuaExt:
+                    case action_kind::Ext:
                         lean_unreachable();
                     case action_kind::Expr:
                         if (vidx == 0) return none_expr();
@@ -602,214 +585,4 @@ void parse_table::display(io_state_stream & out, optional<token_table> const & t
             ::lean::notation::display(out, num, ts, es, is_nud(), tt);
         });
 }
-
-typedef action notation_action;
-DECL_UDATA(notation_action)
-
-static int mk_skip_action(lua_State * L) { return push_notation_action(L, mk_skip_action()); }
-static int mk_binder_action(lua_State * L) { return push_notation_action(L, mk_binder_action()); }
-static int mk_binders_action(lua_State * L) { return push_notation_action(L, mk_binders_action()); }
-static int mk_expr_action(lua_State * L) {
-    int nargs = lua_gettop(L);
-    unsigned rbp = nargs == 0 ? 0 : lua_tonumber(L, 1);
-    return push_notation_action(L, mk_expr_action(rbp));
-}
-static int mk_exprs_action(lua_State * L) {
-    int nargs = lua_gettop(L);
-    unsigned rbp = nargs <= 5 ? 0 : lua_tonumber(L, 6);
-    optional<name> terminator;
-    if (nargs >= 4) terminator = to_optional_name(L, 4);
-    return push_notation_action(L, mk_exprs_action(to_name_ext(L, 1),
-                                                   to_expr(L, 2),
-                                                   lua_isnil(L, 3) ? none_expr() : some_expr(to_expr(L, 3)),
-                                                   terminator,
-                                                   lua_toboolean(L, 5),
-                                                   rbp));
-}
-static int mk_scoped_expr_action(lua_State * L) {
-    int nargs = lua_gettop(L);
-    unsigned rbp = nargs <= 1 ? 0 : lua_tonumber(L, 2);
-    bool lambda = (nargs <= 2) || lua_toboolean(L, 3);
-    return push_notation_action(L, mk_scoped_expr_action(to_expr(L, 1), rbp, lambda));
-}
-static int mk_ext_lua_action(lua_State * L) {
-    char const * fn = lua_tostring(L, 1);
-    lua_getglobal(L, fn);
-    if (lua_isnil(L, -1))
-        throw exception("arg #1 is a unknown function name");
-    lua_pop(L, 1);
-    return push_notation_action(L, mk_ext_lua_action(fn));
-}
-static int is_equal(lua_State * L) {
-    return push_boolean(L, to_notation_action(L, 1).is_equal(to_notation_action(L, 2)));
-}
-static void check_action(lua_State * L, int idx, std::initializer_list<action_kind> const & ks) {
-    action_kind k = to_notation_action(L, idx).kind();
-    if (std::find(ks.begin(), ks.end(), k) == ks.end())
-        throw exception(sstream() << "arg #" << idx << " is a notation action, but it has an unexpected kind");
-}
-static int kind(lua_State * L) { return push_integer(L, static_cast<unsigned>(to_notation_action(L, 1).kind())); }
-static int rbp(lua_State * L) {
-    check_action(L, 1, { action_kind::Expr, action_kind::Exprs, action_kind::ScopedExpr });
-    return push_integer(L, to_notation_action(L, 1).rbp());
-}
-static int sep(lua_State * L) {
-    check_action(L, 1, { action_kind::Exprs });
-    return push_name(L, to_notation_action(L, 1).get_sep());
-}
-static int rec(lua_State * L) {
-    check_action(L, 1, { action_kind::Exprs, action_kind::ScopedExpr });
-    return push_expr(L, to_notation_action(L, 1).get_rec());
-}
-static int initial(lua_State * L) {
-    check_action(L, 1, { action_kind::Exprs });
-    return push_optional_expr(L, to_notation_action(L, 1).get_initial());
-}
-static int is_fold_right(lua_State * L) {
-    check_action(L, 1, { action_kind::Exprs });
-    return push_boolean(L, to_notation_action(L, 1).is_fold_right());
-}
-static int use_lambda_abstraction(lua_State * L) {
-    check_action(L, 1, { action_kind::ScopedExpr });
-    return push_boolean(L, to_notation_action(L, 1).use_lambda_abstraction());
-}
-static int fn(lua_State * L) {
-    check_action(L, 1, { action_kind::LuaExt });
-    return push_string(L, to_notation_action(L, 1).get_lua_fn().c_str());
-}
-
-static const struct luaL_Reg notation_action_m[] = {
-    {"__gc",                   notation_action_gc},
-    {"is_equal",               safe_function<is_equal>},
-    {"kind",                   safe_function<kind>},
-    {"rbp",                    safe_function<rbp>},
-    {"sep",                    safe_function<sep>},
-    {"separator",              safe_function<sep>},
-    {"rec",                    safe_function<rec>},
-    {"initial",                safe_function<initial>},
-    {"is_fold_right",          safe_function<is_fold_right>},
-    {"use_lambda_abstraction", safe_function<use_lambda_abstraction>},
-    {"fn",                     safe_function<fn>},
-    {0, 0}
-};
-
-static void open_notation_action(lua_State * L) {
-    luaL_newmetatable(L, notation_action_mt);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    setfuncs(L, notation_action_m, 0);
-
-    SET_GLOBAL_FUN(notation_action_pred,   "is_notation_action");
-    SET_GLOBAL_FUN(mk_skip_action,         "skip_notation_action");
-    SET_GLOBAL_FUN(mk_binder_action,       "binder_notation_action");
-    SET_GLOBAL_FUN(mk_binders_action,      "binders_notation_action");
-    SET_GLOBAL_FUN(mk_expr_action,         "expr_notation_action");
-    SET_GLOBAL_FUN(mk_exprs_action,        "exprs_notation_action");
-    SET_GLOBAL_FUN(mk_scoped_expr_action,  "scoped_expr_notation_action");
-    SET_GLOBAL_FUN(mk_ext_lua_action,      "ext_action");
-
-    push_notation_action(L, mk_skip_action());
-    lua_setglobal(L, "Skip");
-    push_notation_action(L, mk_binder_action());
-    lua_setglobal(L, "Binder");
-    push_notation_action(L, mk_binders_action());
-    lua_setglobal(L, "Binders");
-
-    lua_newtable(L);
-    SET_ENUM("Skip",        action_kind::Skip);
-    SET_ENUM("Expr",        action_kind::Expr);
-    SET_ENUM("Exprs",       action_kind::Exprs);
-    SET_ENUM("Binder",      action_kind::Binder);
-    SET_ENUM("Binders",     action_kind::Binders);
-    SET_ENUM("ScopedExpr",  action_kind::ScopedExpr);
-    SET_ENUM("Ext",         action_kind::Ext);
-    SET_ENUM("LuaExt",      action_kind::LuaExt);
-    lua_setglobal(L, "notation_action_kind");
-}
-
-static notation_action to_notation_action_ext(lua_State * L, int idx) {
-    if (is_notation_action(L, idx)) {
-        return to_notation_action(L, idx);
-    } else if (lua_isnumber(L, idx)) {
-        return mk_expr_action(lua_tonumber(L, idx));
-    } else {
-        throw exception("notation_action expected");
-    }
-}
-
-DECL_UDATA(parse_table)
-static int mk_parse_table(lua_State * L) {
-    int nargs = lua_gettop(L);
-    bool nud  = nargs == 0 || lua_toboolean(L, 1);
-    return push_parse_table(L, parse_table(nud));
-}
-static int add(lua_State * L) {
-    int nargs = lua_gettop(L);
-    buffer<transition> ts;
-    luaL_checktype(L, 2, LUA_TTABLE);
-    int sz = objlen(L, 2);
-    for (int i = 1; i <= sz; i++) {
-        lua_rawgeti(L, 2, i);
-        if (lua_isstring(L, -1) || is_name(L, -1)) {
-            ts.push_back(transition(to_name_ext(L, -1), mk_expr_action()));
-            lua_pop(L, 1);
-        } else {
-            luaL_checktype(L, -1, LUA_TTABLE);
-            lua_rawgeti(L, -1, 1);
-            lua_rawgeti(L, -2, 2);
-            ts.push_back(transition(to_name_ext(L, -2), to_notation_action_ext(L, -1)));
-            lua_pop(L, 3);
-        }
-    }
-    bool overload = (nargs <= 3) || lua_toboolean(L, 4);
-    return push_parse_table(L, to_parse_table(L, 1).add(ts.size(), ts.data(), to_expr(L, 3), LEAN_DEFAULT_NOTATION_PRIORITY,
-                                                        overload));
-}
-
-static int merge(lua_State * L) {
-    int nargs = lua_gettop(L);
-    bool overload = (nargs >= 2) && lua_toboolean(L, 2);
-    return push_parse_table(L, to_parse_table(L, 1).merge(to_parse_table(L, 2), overload));
-}
-
-static int find(lua_State * L) {
-    list<pair<transition, parse_table>> it = to_parse_table(L, 1).find(to_name_ext(L, 2));
-    if (it) {
-        // TODO(Leo): support multiple actions
-        auto p = head(it);
-        push_notation_action(L, p.first.get_action());
-        push_parse_table(L, p.second);
-        return 2;
-    } else {
-        return push_nil(L);
-    }
-}
-
-static int is_nud(lua_State * L) {
-    return push_boolean(L, to_parse_table(L, 1).is_nud());
-}
-
-static const struct luaL_Reg parse_table_m[] = {
-    {"__gc",             parse_table_gc},
-    {"add",              safe_function<add>},
-    {"merge",            safe_function<merge>},
-    {"find",             safe_function<find>},
-    {"is_nud",           safe_function<is_nud>},
-    {0, 0}
-};
-
-static void open_parse_table(lua_State * L) {
-    luaL_newmetatable(L, parse_table_mt);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    setfuncs(L, parse_table_m, 0);
-
-    SET_GLOBAL_FUN(parse_table_pred,   "is_parse_table");
-    SET_GLOBAL_FUN(mk_parse_table,     "parse_table");
-}
-}
-void open_parse_table(lua_State * L) {
-    notation::open_notation_action(L);
-    notation::open_parse_table(L);
-}
-}
+}}

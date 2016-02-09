@@ -33,6 +33,4 @@ have h2 [visible] : inh C, from inh_exists H2,
 by exact _
 
 reveal T1
-(*
-print(get_env():find("T1"):value())
-*)
+print T1

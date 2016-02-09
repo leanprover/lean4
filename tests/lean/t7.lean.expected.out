@@ -1,6 +1,0 @@
-id : ?A → ?A
-trans : (?A → ?A → Prop) → Prop
-symm : (?A → ?A → Prop) → Prop
-equivalence : (?A → ?A → Prop) → Prop
-λ (A : Type) (R : A → A → Prop),
-  and (and (refl R) (symm R)) (trans R)

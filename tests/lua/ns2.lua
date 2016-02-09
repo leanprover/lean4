@@ -1,5 +1,0 @@
-local s = name_set("a", "b", "c", {"a", 1})
-assert(s:contains("a"))
-assert(s:contains({"a", 1}))
-assert(s:contains("b"))
-assert(s:contains("c"))

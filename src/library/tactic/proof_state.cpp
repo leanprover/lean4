@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "library/io_state_stream.h"
-#include "library/kernel_bindings.h"
 #include "library/tactic/proof_state.h"
 
 #ifndef LEAN_PROOF_STATE_GOAL_NAMES
@@ -99,163 +98,13 @@ proof_state apply_substitution(proof_state const & s) {
     return proof_state(s, goals(new_g, gs), subst);
 }
 
-DECL_UDATA(goals)
-
-static int mk_goals(lua_State * L) {
-    int i = lua_gettop(L);
-    goals r;
-    if (i > 0 && is_goals(L, i)) {
-        r = to_goals(L, i);
-        i--;
-    }
-    while (i > 0) {
-        r = goals(to_goal(L, i), r);
-        i--;
-    }
-    return push_goals(L, r);
-}
-
-static int goals_is_nil(lua_State * L) {
-    lua_pushboolean(L, !to_goals(L, 1));
-    return 1;
-}
-
-static int goals_head(lua_State * L) {
-    goals const & hs = to_goals(L, 1);
-    if (!hs)
-        throw exception("head method expects a non-empty goal list");
-    return push_goal(L, head(hs));
-}
-
-static int goals_tail(lua_State * L) {
-    goals const & hs = to_goals(L, 1);
-    if (!hs)
-        throw exception("tail method expects a non-empty goal list");
-    push_goals(L, tail(hs));
-    return 1;
-}
-
-static int goals_next(lua_State * L) {
-    goals & hs   = to_goals(L, lua_upvalueindex(1));
-    if (hs) {
-        push_goals(L, tail(hs));
-        lua_replace(L, lua_upvalueindex(1));
-        return push_goal(L, head(hs));
-    } else {
-        lua_pushnil(L);
-        return 1;
-    }
-}
-
-static int goals_items(lua_State * L) {
-    goals & hs = to_goals(L, 1);
-    push_goals(L, hs);  // upvalue(1): goals
-    lua_pushcclosure(L, &safe_function<goals_next>, 1); // create closure with 1 upvalue
-    return 1;
-}
-
-static int goals_len(lua_State * L) {
-    return push_integer(L, length(to_goals(L, 1)));
-}
-
-static const struct luaL_Reg goals_m[] = {
-    {"__gc",            goals_gc}, // never throws
-    {"__len",           safe_function<goals_len>},
-    {"size",            safe_function<goals_len>},
-    {"pairs",           safe_function<goals_items>},
-    {"is_nil",          safe_function<goals_is_nil>},
-    {"empty",           safe_function<goals_is_nil>},
-    {"head",            safe_function<goals_head>},
-    {"tail",            safe_function<goals_tail>},
-    {0, 0}
-};
-
-DECL_UDATA(proof_state)
-
-static int mk_proof_state(lua_State * L) {
-    int nargs = lua_gettop(L);
-    if (nargs == 2) {
-        return push_proof_state(L, proof_state(to_proof_state(L, 1), to_goals(L, 2)));
-    } else if (nargs == 3 && is_proof_state(L, 1)) {
-        return push_proof_state(L, proof_state(to_proof_state(L, 1), to_goals(L, 2), to_substitution(L, 3)));
-    } else if (nargs == 3) {
-        return push_proof_state(L, proof_state(to_goals(L, 1), to_substitution(L, 2), to_name_generator(L, 3),
-                                               constraints()));
-    } else {
-        throw exception("proof_state invalid number of arguments");
-    }
-}
-
-static name * g_tmp_prefix = nullptr;
-static int to_proof_state(lua_State * L) {
-    int nargs = lua_gettop(L);
-    if (nargs == 2)
-        return push_proof_state(L, to_proof_state(to_expr(L, 1), to_expr(L, 2), name_generator(*g_tmp_prefix)));
-    else
-        return push_proof_state(L, to_proof_state(to_expr(L, 1), to_expr(L, 2), to_name_generator(L, 3)));
-}
-
-static int proof_state_tostring(lua_State * L) {
-    std::ostringstream out;
-    proof_state & s = to_proof_state(L, 1);
-    options opts    = get_global_options(L);
-    out << mk_pair(s.pp(get_global_environment(L), get_io_state(L)), opts);
-    lua_pushstring(L, out.str().c_str());
-    return 1;
-}
-
-static int proof_state_get_goals(lua_State * L) { return push_goals(L, to_proof_state(L, 1).get_goals()); }
-static int proof_state_get_ngen(lua_State * L) { return push_name_generator(L, to_proof_state(L, 1).get_ngen()); }
-static int proof_state_get_subst(lua_State * L) { return push_substitution(L, to_proof_state(L, 1).get_subst()); }
-static int proof_state_is_final_state(lua_State * L) { return push_boolean(L, to_proof_state(L, 1).is_final_state()); }
-static int proof_state_pp(lua_State * L) {
-    int nargs = lua_gettop(L);
-    proof_state & s = to_proof_state(L, 1);
-    if (nargs == 1)
-        return push_format(L, s.pp(get_global_environment(L), get_io_state(L)));
-    else
-        return push_format(L, s.pp(to_environment(L, 1), to_io_state(L, 2)));
-}
-
-static const struct luaL_Reg proof_state_m[] = {
-    {"__gc",                 proof_state_gc}, // never throws
-    {"__tostring",           safe_function<proof_state_tostring>},
-    {"pp",                   safe_function<proof_state_pp>},
-    {"goals",                safe_function<proof_state_get_goals>},
-    {"subst",                safe_function<proof_state_get_subst>},
-    {"ngen",                 safe_function<proof_state_get_ngen>},
-    {"is_final_state",       safe_function<proof_state_is_final_state>},
-    {0, 0}
-};
-
-void open_proof_state(lua_State * L) {
-    luaL_newmetatable(L, goals_mt);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    setfuncs(L, goals_m, 0);
-
-    SET_GLOBAL_FUN(goals_pred, "is_goals");
-    SET_GLOBAL_FUN(mk_goals, "goals");
-
-    luaL_newmetatable(L, proof_state_mt);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    setfuncs(L, proof_state_m, 0);
-
-    SET_GLOBAL_FUN(proof_state_pred, "is_proof_state");
-    SET_GLOBAL_FUN(mk_proof_state,   "proof_state");
-    SET_GLOBAL_FUN(to_proof_state,   "to_proof_state");
-}
-
 void initialize_proof_state() {
-    g_tmp_prefix = new name(name::mk_internal_unique_name());
     g_proof_state_goal_names = new name{"tactic", "goal_names"};
     register_bool_option(*g_proof_state_goal_names, LEAN_PROOF_STATE_GOAL_NAMES,
                          "(tactic) display goal names when pretty printing proof state");
 }
 
 void finalize_proof_state() {
-    delete g_tmp_prefix;
     delete g_proof_state_goal_names;
 }
 }

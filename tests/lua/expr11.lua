@@ -1,6 +1,0 @@
-local a = Const("a")
-local f = Const("f")
-local x = Var(0)
-assert(not f(a):has_free_var(0))
-assert(f(a, x):has_free_var(0))
-assert(f(a, Var(2)):lower_free_vars(2) == f(a, Var(0)))

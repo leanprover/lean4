@@ -269,27 +269,6 @@ if(NOT "${EMSCRIPTEN}" AND NOT "${TCMALLOC_FOUND}" AND NOT "${JEMALLOC_FOUND}" A
   endif()
 endif()
 
-# Lua
-find_package(Lua REQUIRED)
-set(EXTRA_LIBS ${EXTRA_LIBS} ${LUA_LIBRARIES})
-if(NOT "${EMSCRIPTEN}" AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  # Lua static library for linux depends on dl.so
-  set(EXTRA_LIBS ${EXTRA_LIBS} -ldl)
-endif()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I ${LUA_INCLUDE_DIR}")
-if (HAS_LUA_NEWSTATE)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D LEAN_USE_LUA_NEWSTATE")
-endif()
-
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ${LUA_FOUND} AND
-    "${LUA_INCLUDE_DIR}" MATCHES "jit")
-  # http://luajit.org/install.html
-  # If you're building a 64 bit application on OSX which links
-  # directly or indirectly against LuaJIT, you need to link your main
-  # executable with these flags:
-  set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -pagezero_size 10000 -image_base 100000000")
-ENDIF()
-
 # Python
 find_package(PythonInterp REQUIRED)
 
@@ -375,8 +354,6 @@ add_subdirectory(compiler)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:compiler>)
 add_subdirectory(frontends/lean)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:lean_frontend>)
-add_subdirectory(frontends/lua)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:leanlua>)
 add_subdirectory(init)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:init>)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS}")
@@ -556,7 +533,7 @@ endif()
 if(STATIC)
   SET(CPACK_DEBIAN_PACKAGE_DEPENDS "python")
 else()
-  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++-4.8-dev,libgmp-dev,libmpfr-dev,liblua5.2-dev,python")
+  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++-4.8-dev,libgmp-dev,libmpfr-dev,python")
 endif()
 SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Lean Theorem Prover")
 SET(CPACK_DEBIAN_PACKAGE_SECTION "devel")

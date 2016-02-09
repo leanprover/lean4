@@ -4,6 +4,7 @@
 
   Author: Lev Nachmanson
 */
+#include <limits>
 #include <string>
 #include <algorithm>
 #include "util/lp/lp_core_solver_base.h"

@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <utility>
 #include <algorithm>
 #include <functional>
-#include "util/lua.h"
 #include "util/optional.h"
 #include "util/name_set.h"
 #include "kernel/metavar.h"
@@ -83,10 +82,6 @@ proof_state to_proof_state(expr const & meta, expr const & type, substitution co
 proof_state to_proof_state(expr const & meta, expr const & type, name_generator ngen);
 
 goals map_goals(proof_state const & s, std::function<optional<goal>(goal const & g)> f);
-
-UDATA_DEFS_CORE(goals)
-UDATA_DEFS(proof_state)
-void open_proof_state(lua_State * L);
 
 void initialize_proof_state();
 void finalize_proof_state();

@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "util/name.h"
 #include "util/sexpr/sexpr.h"
 #include "util/sexpr/format.h"
-#include "util/lua.h"
 #include "util/serializer.h"
 
 namespace lean {
@@ -104,25 +103,6 @@ inline options operator+(options const & opts1, options const & opts2) {
 struct mk_option_declaration {
     mk_option_declaration(name const & n, option_kind k, char const * default_value, char const * description);
 };
-
-int mk_options(name const & prefix, lua_State * L);
-
-UDATA_DEFS(options)
-int options_update(lua_State * L);
-/**
-   \brief Return the set of options associated with the given Lua State.
-   This procedure checks for options at:
-   1- Lean state object associated with \c L
-   2- Lua Registry associated with \c L
-*/
-options get_global_options(lua_State * L);
-/**
-   \brief Update the set of options associated with the given Lua State.
-   If \c L is associated with a Lean state object \c S, then we update the options of \c S.
-   Otherwise, we update the registry of \c L.
-*/
-void set_global_options(lua_State * L, options const & o);
-void open_options(lua_State * L);
 
 void initialize_options();
 void finalize_options();

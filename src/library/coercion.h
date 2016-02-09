@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <utility>
-#include "util/lua.h"
 #include "kernel/environment.h"
 #include "library/expr_pair.h"
 #include "library/io_state.h"

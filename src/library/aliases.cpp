@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "library/expr_lt.h"
-#include "library/kernel_bindings.h"
 #include "library/aliases.h"
 #include "library/placeholder.h"
 #include "library/scoped_ext.h"
@@ -210,57 +209,6 @@ environment add_aliases(environment const & env, name const & prefix, name const
 void for_each_expr_alias(environment const & env, std::function<void(name const &, list<name> const &)> const & fn) {
     aliases_ext ext = get_extension(env);
     ext.for_each_expr_alias(fn);
-}
-
-static int add_expr_alias(lua_State * L) {
-    return push_environment(L, add_expr_alias(to_environment(L, 1), to_name_ext(L, 2), to_name_ext(L, 3)));
-}
-static int add_level_alias(lua_State * L) {
-    return push_environment(L, add_level_alias(to_environment(L, 1), to_name_ext(L, 2), to_name_ext(L, 3)));
-}
-
-static int is_expr_aliased(lua_State * L) {
-    return push_optional_name(L, is_expr_aliased(to_environment(L, 1), to_name_ext(L, 2)));
-}
-static int is_level_aliased(lua_State * L) {
-    return push_optional_name(L, is_level_aliased(to_environment(L, 1), to_name_ext(L, 2)));
-}
-
-static int get_expr_aliases(lua_State * L) {
-    return push_list_name(L, get_expr_aliases(to_environment(L, 1), to_name_ext(L, 2)));
-}
-static int get_level_alias(lua_State * L) {
-    return push_optional_name(L, get_level_alias(to_environment(L, 1), to_name_ext(L, 2)));
-}
-
-static int add_aliases(lua_State * L) {
-    int nargs = lua_gettop(L);
-    if (nargs == 2) {
-        return push_environment(L, add_aliases(to_environment(L, 1), to_name_ext(L, 2), name()));
-    } else if (nargs == 3) {
-        return push_environment(L, add_aliases(to_environment(L, 1), to_name_ext(L, 2), to_name_ext(L, 3)));
-    } else {
-        buffer<name> exs;
-        luaL_checktype(L, 4, LUA_TTABLE);
-        int n = objlen(L, 4);
-        for (int i = 1; i <= n; i++) {
-            lua_rawgeti(L, 4, i);
-            exs.push_back(to_name_ext(L, -1));
-            lua_pop(L, 1);
-        }
-        return push_environment(L, add_aliases(to_environment(L, 1), to_name_ext(L, 2), to_name_ext(L, 3),
-                                               exs.size(), exs.data()));
-    }
-}
-
-void open_aliases(lua_State * L) {
-    SET_GLOBAL_FUN(add_expr_alias,   "add_expr_alias");
-    SET_GLOBAL_FUN(add_level_alias,  "add_level_alias");
-    SET_GLOBAL_FUN(is_expr_aliased,  "is_expr_aliased");
-    SET_GLOBAL_FUN(is_level_aliased, "is_level_aliased");
-    SET_GLOBAL_FUN(get_expr_aliases, "get_expr_aliases");
-    SET_GLOBAL_FUN(get_level_alias,  "get_level_alias");
-    SET_GLOBAL_FUN(add_aliases,      "add_aliases");
 }
 
 void initialize_aliases() {

@@ -1,6 +1,0 @@
-local a = Local("a", Prop)
-local b = Local("b", Prop)
-local c = mk_choice(a, b)
-print(c)
-local env = environment()
-check_error(function() env:infer_type(c) end)

@@ -40,17 +40,15 @@ void consume_until_end(parser & p) {
 }
 
 void check_command_period_or_eof(parser const & p) {
-    if (!p.curr_is_command() && !p.curr_is_eof() && !p.curr_is_token(get_period_tk()) &&
-        !p.curr_is_script_block())
-        throw parser_error("unexpected token, '.', command, Lua script, or end-of-file expected", p.pos());
+    if (!p.curr_is_command() && !p.curr_is_eof() && !p.curr_is_token(get_period_tk()))
+        throw parser_error("unexpected token, '.', command, or end-of-file expected", p.pos());
 }
 
 void check_command_period_open_binder_or_eof(parser const & p) {
     if (!p.curr_is_command() && !p.curr_is_eof() && !p.curr_is_token(get_period_tk()) &&
-        !p.curr_is_script_block() &&
         !p.curr_is_token(get_lparen_tk()) && !p.curr_is_token(get_lbracket_tk()) &&
         !p.curr_is_token(get_lcurly_tk()) && !p.curr_is_token(get_ldcurly_tk()))
-        throw parser_error("unexpected token, '(', '{', '[', '⦃', '.', command, Lua script, or end-of-file expected", p.pos());
+        throw parser_error("unexpected token, '(', '{', '[', '⦃', '.', command, or end-of-file expected", p.pos());
 }
 
 void check_atomic(name const & n) {

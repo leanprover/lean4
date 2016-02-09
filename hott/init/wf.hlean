@@ -33,12 +33,7 @@ namespace acc
       (h₁ : Π (x : A) (acx : Π (y : A), R y x → acc R y),
               (Π (y : A) (ryx : R y x), C y (acx y ryx)) → C x (acc.intro x acx))
       {a : A} (h₂ : acc R a) : C a h₂ :=
-  begin
-    refine acc.rec _ h₂ h₂,
-    intro x acx ih h₂,
-    exact transport (C x) !acc_eq (h₁ x acx (λ y ryx, ih y ryx (acx y ryx)))
-  end
-
+  acc.rec h₁ h₂
 end acc
 
 inductive well_founded [class] {A : Type} (R : A → A → Type) : Type :=

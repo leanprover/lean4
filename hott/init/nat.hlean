@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Floris van Doorn, Leonardo de Moura
 -/
 prelude
-import init.wf init.tactic init.num init.types init.path
+import init.tactic init.num init.types init.path
 open eq eq.ops decidable
 open algebra sum
 set_option class.force_new true
@@ -184,25 +184,6 @@ namespace nat
 
   protected theorem le_of_eq_sum_lt {a b : ℕ} (H : a = b ⊎ a < b) : a ≤ b :=
   sum.rec_on H !nat.le_of_eq !nat.le_of_lt
-
-  -- less-than is well-founded
-  definition lt.wf [instance] : well_founded (lt : ℕ → ℕ → Type₀) :=
-  begin
-    constructor, intro n, induction n with n IH,
-    { constructor, intros n H, exfalso, exact !not_lt_zero H},
-    { constructor, intros m H,
-      assert aux : ∀ {n₁} (hlt : m < n₁), succ n = n₁ → acc lt m,
-        { intros n₁ hlt, induction hlt,
-          { intro p, injection p with q, exact q ▸ IH},
-          { intro p, injection p with q, exact (acc.inv (q ▸ IH) a)}},
-      apply aux H rfl},
-  end
-
-  definition measure {A : Type} : (A → ℕ) → A → A → Type₀ :=
-  inv_image lt
-
-  definition measure.wf {A : Type} (f : A → ℕ) : well_founded (measure f) :=
-  inv_image.wf f lt.wf
 
   theorem succ_lt_succ {a b : ℕ} : a < b → succ a < succ b :=
   succ_le_succ

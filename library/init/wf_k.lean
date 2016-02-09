@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 prelude
-import init.nat
+import init.wf
 
 namespace well_founded
   -- This is an auxiliary definition that useful for generating a new "proof" for (well_founded R)

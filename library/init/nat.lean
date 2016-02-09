@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Floris van Doorn, Leonardo de Moura
 -/
 prelude
-import init.wf init.tactic init.num
+import init.relation init.tactic init.num
 open eq.ops decidable or
 
 notation `ℕ` := nat
@@ -188,20 +188,6 @@ namespace nat
 
   protected theorem le_of_eq_or_lt {a b : ℕ} (H : a = b ∨ a < b) : a ≤ b :=
   or.elim H !nat.le_of_eq !nat.le_of_lt
-
-  -- less-than is well-founded
-  definition lt.wf [instance] : well_founded lt :=
-  well_founded.intro (nat.rec
-    (!acc.intro (λn H, absurd H (not_lt_zero n)))
-    (λn IH, !acc.intro (λm H,
-      or.elim (nat.eq_or_lt_of_le (le_of_succ_le_succ H))
-        (λe, eq.substr e IH) (acc.inv IH))))
-
-  definition measure {A : Type} : (A → ℕ) → A → A → Prop :=
-  inv_image lt
-
-  definition measure.wf {A : Type} (f : A → ℕ) : well_founded (measure f) :=
-  inv_image.wf f lt.wf
 
   theorem succ_lt_succ {a b : ℕ} : a < b → succ a < succ b :=
   succ_le_succ

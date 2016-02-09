@@ -127,6 +127,9 @@ ext (take x, iff.intro
   (assume xs, absurd xs (H x))
   (assume xe, absurd xe !not_mem_empty))
 
+theorem ne_empty_of_mem {s : set X} {x : X} (H : x ∈ s) : s ≠ ∅ :=
+  begin intro Hs, rewrite Hs at H, apply not_mem_empty _ H end
+
 section
   open classical
 
@@ -251,6 +254,16 @@ ext (take x, !and_false)
 theorem empty_inter (a : set X) : ∅ ∩ a = ∅ :=
 ext (take x, !false_and)
 
+theorem nonempty_of_inter_nonempty_right {T : Type} {s t : set T} (H : s ∩ t ≠ ∅) : t ≠ ∅ :=
+suppose t = ∅,
+have s ∩ t = ∅, by rewrite this; apply inter_empty,
+H this
+
+theorem nonempty_of_inter_nonempty_left {T : Type} {s t : set T} (H : s ∩ t ≠ ∅) : s ≠ ∅ :=
+suppose s = ∅,
+have s ∩ t = ∅, by rewrite this; apply empty_inter,
+H this
+
 theorem inter_comm (a b : set X) : a ∩ b = b ∩ a :=
 ext (take x, !and.comm)
 
@@ -275,6 +288,16 @@ theorem inter_subset_right (s t : set X) : s ∩ t ⊆ t := λ x H, and.right H
 
 theorem subset_inter {s t r : set X} (rs : r ⊆ s) (rt : r ⊆ t) : r ⊆ s ∩ t :=
 λ x xr, and.intro (rs xr) (rt xr)
+
+theorem not_mem_of_mem_of_not_mem_inter_left {s t : set X} {x : X} (Hxs : x ∈ s) (Hnm : x ∉ s ∩ t) : x ∉ t :=
+  suppose x ∈ t,
+  have x ∈ s ∩ t, from and.intro Hxs this,
+  show false, from Hnm this
+
+theorem not_mem_of_mem_of_not_mem_inter_right {s t : set X} {x : X} (Hxs : x ∈ t) (Hnm : x ∉ s ∩ t) : x ∉ s :=
+  suppose x ∈ s,
+  have x ∈ s ∩ t, from and.intro this Hxs,
+  show false, from Hnm this
 
 /- distributivity laws -/
 
@@ -403,6 +426,11 @@ theorem mem_sep_iff {s : set X} {P : X → Prop} {x : X} : x ∈ {x ∈ s | P x}
 
 theorem sep_subset (s : set X) (P : X → Prop) : {x ∈ s | P x} ⊆ s :=
 take x, assume H, and.left H
+
+theorem forall_not_of_sep_empty {s : set X} {P : X → Prop} (H : {x ∈ s | P x} = ∅) : ∀₀ x ∈ s, ¬ P x :=
+  take x, suppose x ∈ s, suppose P x,
+  have x ∈ {x ∈ s | P x}, from and.intro `x ∈ s` this,
+  show false, from ne_empty_of_mem this H
 
 /- complement -/
 
@@ -691,6 +719,12 @@ end large_unions
 theorem mem_sUnion {x : X} {t : set X} {S : set (set X)} (Hx : x ∈ t) (Ht : t ∈ S) :
   x ∈ ⋃₀ S :=
 exists.intro t (and.intro Ht Hx)
+
+theorem not_mem_of_not_mem_sUnion {x : X} {t : set X} {S : set (set X)} (Hx : x ∉ ⋃₀ S) (Ht : t ∈ S) :
+        x ∉ t :=
+  suppose x ∈ t,
+  have x ∈ ⋃₀ S, from mem_sUnion this Ht,
+  show false, from Hx this
 
 theorem mem_sInter {x : X} {t : set X} {S : set (set X)} (H : ∀₀ t ∈ S, x ∈ t) :
   x ∈ ⋂₀ S :=

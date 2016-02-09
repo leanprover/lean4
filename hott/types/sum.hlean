@@ -267,7 +267,7 @@ namespace sum
       rewrite -HH, apply Ha'⁻¹ } }
   end
 
-  definition unit_sum_equiv_cancel {A B : Type} (H : unit + A ≃ unit + B) : A ≃ B :=
+  definition unit_sum_equiv_cancel : A ≃ B :=
   begin
     fapply equiv.MK, apply unit_sum_equiv_cancel_map H,
     apply unit_sum_equiv_cancel_map H⁻¹,

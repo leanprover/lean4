@@ -241,4 +241,20 @@ theorem topology_generated_by_initial {X : Type} {B : set (set X)} {T : topology
   @Open _ T s :=
 opens_generated_by_initial H H1
 
+section continuity
+
+/- continuous mappings -/
+/- continuity at a point -/
+
+variables {M N : Type} [Tm : topology M] [Tn : topology N]
+include Tm Tn
+
+definition continuous_at (f : M → N) (x : M) :=
+  ∀ U : set N, f x ∈ U → Open U → ∃ V : set M, x ∈ V ∧ Open V ∧ f 'V ⊆ U
+
+definition continuous (f : M → N) :=
+  ∀ x : M, continuous_at f x
+
+end continuity
+
 end topology

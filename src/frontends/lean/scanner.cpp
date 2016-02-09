@@ -282,11 +282,6 @@ void scanner::read_until(char const * end_str, char const * error_msg) {
     }
 }
 
-auto scanner::read_script_block() -> token_kind {
-    read_until("*)", "unexpected end of script");
-    return token_kind::ScriptBlock;
-}
-
 void scanner::move_back(unsigned offset, unsigned u_offset) {
     lean_assert(m_uskip == 0);
     if (offset != 0) {
@@ -419,18 +414,15 @@ auto scanner::read_key_cmd_id() -> token_kind {
     }
 }
 
-static name * g_begin_script_tk         = nullptr;
 static name * g_begin_comment_tk        = nullptr;
 static name * g_begin_comment_block_tk  = nullptr;
 
 void initialize_scanner() {
-    g_begin_script_tk        = new name("(*");
     g_begin_comment_tk       = new name("--");
     g_begin_comment_block_tk = new name("/-");
 }
 
 void finalize_scanner() {
-    delete g_begin_script_tk;
     delete g_begin_comment_tk;
     delete g_begin_comment_block_tk;
 }
@@ -468,8 +460,6 @@ auto scanner::scan(environment const & env) -> token_kind {
                         read_single_line_comment();
                     else if (n == *g_begin_comment_block_tk)
                         read_comment_block();
-                    else if (n == *g_begin_script_tk)
-                        return read_script_block();
                     else
                         return k;
                 } else {

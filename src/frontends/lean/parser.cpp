@@ -1724,7 +1724,7 @@ unsigned parser::curr_lbp_core(bool as_tactic) const {
         else
             return get_token_info().expr_precedence();
     case scanner::token_kind::CommandKeyword: case scanner::token_kind::Eof:
-    case scanner::token_kind::ScriptBlock:    case scanner::token_kind::QuotedSymbol:
+    case scanner::token_kind::QuotedSymbol:
         return 0;
     case scanner::token_kind::Backtick:
         return m_in_backtick ? 0 : get_max_prec();
@@ -2224,8 +2224,6 @@ bool parser::parse_commands() {
 bool parser::curr_is_command_like() const {
     switch (curr()) {
     case scanner::token_kind::CommandKeyword:
-        return true;
-    case scanner::token_kind::ScriptBlock:
         return true;
     case scanner::token_kind::Eof:
         return true;

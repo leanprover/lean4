@@ -158,7 +158,6 @@ static void tst2() {
     check("{x}", {tk::Keyword, tk::Identifier, tk::Keyword});
     check("\u03BB \u2200 \u2192", {tk::Keyword, tk::Keyword, tk::Keyword});
     check_keyword("\u03BB", "fun");
-    scan("x10 ... (* print('hello') *) have by");
     scan("0..1");
     check("0..1", {tk::Numeral, tk::Keyword, tk::Keyword, tk::Numeral});
     scan("theorem a : Prop axiom b : Int");

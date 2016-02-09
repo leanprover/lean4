@@ -17,13 +17,13 @@ namespace lean {
 /**
     \brief Scanner. The behavior of the scanner is controlled using a token set.
 
-    The scanner has builtin support for comments, script blocks,
+    The scanner has builtin support for comments,
     identifiers, numerals, decimals, strings. Everything else is only
     accepted if they are in the token set.
 */
 class scanner {
 public:
-    enum class token_kind {Keyword, CommandKeyword, ScriptBlock, Identifier, Numeral, Decimal, String, QuotedSymbol, Backtick, Eof};
+    enum class token_kind {Keyword, CommandKeyword, Identifier, Numeral, Decimal, String, QuotedSymbol, Backtick, Eof};
 protected:
     token_table const * m_tokens;
     std::istream &      m_stream;
@@ -66,7 +66,6 @@ protected:
 
     token_kind read_string();
     token_kind read_number();
-    token_kind read_script_block();
     token_kind read_key_cmd_id();
     token_kind read_quoted_symbol();
 

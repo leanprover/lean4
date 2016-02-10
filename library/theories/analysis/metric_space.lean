@@ -631,7 +631,7 @@ open topology set
 --topology.continuous_at f x
 
 -- the ε - δ definition of continuity is equivalent to the topological definition
-theorem continuous_at_intro (f : M → N) (x : M)
+theorem continuous_at_intro {f : M → N} {x : M}
         (H : ∀ ⦃ε⦄, ε > 0 → ∃ δ, δ > 0 ∧ ∀ ⦃x'⦄, dist x' x < δ → dist (f x') (f x) < ε) :
         continuous_at f x :=
   begin
@@ -687,7 +687,7 @@ theorem continuous_at_elim {f : M → N} {x : M} (Hfx : continuous_at f x) :
 
 theorem continuous_at_of_converges_to_at {f : M → N} {x : M} (Hf : f ⟶ f x at x) :
   continuous_at f x :=
-continuous_at_intro _ _
+continuous_at_intro
 (take ε, suppose ε > 0,
 obtain δ Hδ, from Hf this,
 exists.intro δ (and.intro

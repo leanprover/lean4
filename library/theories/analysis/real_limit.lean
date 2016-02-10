@@ -332,7 +332,6 @@ proposition abs_sub_converges_to_seq_of_converges_to_seq (HX : X ⟶ x in ℕ) :
 
 proposition mul_converges_to_seq (HX : X ⟶ x in ℕ) (HY : Y ⟶ y in ℕ) :
             (λ n, X n * Y n) ⟶ x * y in ℕ :=
-  begin
     have Hbd : ∃ K : ℝ, ∀ n : ℕ, abs (X n) ≤ K, begin
       cases bounded_of_converges_seq HX with K HK,
       existsi K + abs x,
@@ -343,8 +342,8 @@ proposition mul_converges_to_seq (HX : X ⟶ x in ℕ) (HY : Y ⟶ y in ℕ) :
       apply le_abs_self,
       assumption
     end,
-    cases Hbd with K HK,
-    have Habsle : ∀ n, abs (X n * Y n - x * y) ≤ K * abs (Y n - y) + abs y * abs (X n - x), begin
+    obtain K HK, from Hbd,
+    have Habsle [visible] : ∀ n, abs (X n * Y n - x * y) ≤ K * abs (Y n - y) + abs y * abs (X n - x), begin
       intro,
       have Heq : X n * Y n - x * y = (X n * Y n - X n * y) + (X n * y - x * y), by
         rewrite [-sub_add_cancel (X n * Y n) (X n * y) at {1}, sub_eq_add_neg, *add.assoc],
@@ -359,7 +358,7 @@ proposition mul_converges_to_seq (HX : X ⟶ x in ℕ) (HY : Y ⟶ y in ℕ) :
       rewrite [-mul_sub_right_distrib, abs_mul, mul.comm],
       apply le.refl
     end,
-    have Hdifflim : (λ n, abs (X n * Y n - x * y)) ⟶ 0 in ℕ, begin
+    have Hdifflim [visible] : (λ n, abs (X n * Y n - x * y)) ⟶ 0 in ℕ, begin
       apply converges_to_seq_squeeze,
       rotate 2,
       intro, apply abs_nonneg,
@@ -376,9 +375,8 @@ proposition mul_converges_to_seq (HX : X ⟶ x in ℕ) (HY : Y ⟶ y in ℕ) :
       apply abs_sub_converges_to_seq_of_converges_to_seq,
       exact HX
     end,
-    apply converges_to_seq_of_abs_sub_converges_to_seq,
-    apply Hdifflim
-  end
+    converges_to_seq_of_abs_sub_converges_to_seq Hdifflim
+
 
 -- TODO: converges_to_seq_div, converges_to_seq_mul_left_iff, etc.
 
@@ -553,13 +551,13 @@ section continuous
 theorem continuous_real_elim {f : ℝ → ℝ} (H : continuous f) :
   ∀ x : ℝ, ∀ ⦃ε : ℝ⦄, ε > 0 → ∃ δ : ℝ, δ > 0 ∧ ∀ x' : ℝ,
     abs (x' - x) < δ → abs (f x' - f x) < ε :=
-H
+take x, continuous_at_elim (H x)
 
 theorem continuous_real_intro {f : ℝ → ℝ}
   (H : ∀ x : ℝ, ∀ ⦃ε : ℝ⦄, ε > 0 → ∃ δ : ℝ, δ > 0 ∧ ∀ x' : ℝ,
     abs (x' - x) < δ → abs (f x' - f x) < ε) :
   continuous f :=
-H
+take x, continuous_at_intro (H x)
 
 theorem pos_on_nbhd_of_cts_of_pos {f : ℝ → ℝ} (Hf : continuous f) {b : ℝ} (Hb : f b > 0) :
                 ∃ δ : ℝ, δ > 0 ∧ ∀ y, abs (y - b) < δ → f y > 0 :=
@@ -635,17 +633,3 @@ theorem continuous_mul_of_continuous {f g : ℝ → ℝ} (Hconf : continuous f) 
   end
 
 end continuous
-
-/-
-proposition converges_to_at_unique {f : M → N} {y₁ y₂ : N} {x : M}
-  (H₁ : f ⟶ y₁ '[at x]) (H₂ : f ⟶ y₂ '[at x]) : y₁ = y₂ :=
-eq_of_forall_dist_le
-  (take ε, suppose ε > 0,
-    have e2pos : ε / 2 > 0, from  div_pos_of_pos_of_pos `ε > 0` two_pos,
-    obtain δ₁ [(δ₁pos : δ₁ > 0) (Hδ₁ : ∀ x', x ≠ x' ∧ dist x x' < δ₁ → dist (f x') y₁ < ε / 2)],
-      from H₁ e2pos,
-    obtain δ₂ [(δ₂pos : δ₂ > 0) (Hδ₂ : ∀ x', x ≠ x' ∧ dist x x' < δ₂ → dist (f x') y₂ < ε / 2)],
-      from H₂ e2pos,
-    let δ := min δ₁ δ₂ in
-    have δ > 0, from lt_min δ₁pos δ₂pos,
--/

@@ -257,4 +257,20 @@ definition continuous (f : M → N) :=
 
 end continuity
 
+section boundary
+variables {X : Type} [TX : topology X]
+include TX
+
+definition on_boundary (x : X) (u : set X) := ∀ v : set X, Open v → x ∈ v → u ∩ v ≠ ∅ ∧ ¬ v ⊆ u
+
+theorem not_open_of_on_boundary {x : X} {u : set X} (Hxu : x ∈ u) (Hob : on_boundary x u) : ¬ Open u :=
+  begin
+    intro Hop,
+    note Hbxu := Hob _ Hop Hxu,
+    apply and.right Hbxu,
+    apply subset.refl
+  end
+
+end boundary
+
 end topology

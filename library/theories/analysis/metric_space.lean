@@ -522,12 +522,11 @@ theorem closed_ball_closed (x : V) {ε : ℝ} (H : ε > 0) : closed (closed_ball
            ... = dist x y              : by rewrite [add.comm, sub_add_cancel]
   end
 
-theorem not_open_of_ex_boundary_pt {U : set V} {x : V} (HxU : x ∈ U)
-        (Hbd : ∀ ε : ℝ, ε > 0 → ∃ v : V, v ∉ U ∧ dist x v < ε) : ¬ Open U :=
+private theorem not_mem_open_basis_of_boundary_pt {s : set V} (a : s ∈ open_sets_basis V) {x : V}
+          (Hbd : ∀ ε : ℝ, ε > 0 → ∃ v : V, v ∉ s ∧ dist x v < ε) : ¬ x ∈ s :=
   begin
-    intro HUopen,
-    induction HUopen,
-    {cases a with pr Hpr,
+    intro HxU,
+    cases a with pr Hpr,
     cases pr with y r,
     cases Hpr with _ Hs,
     rewrite -Hs at HxU,
@@ -544,11 +543,16 @@ theorem not_open_of_ex_boundary_pt {U : set V} {x : V} (HxU : x ∈ U)
     esimp,
     exact calc
       dist y x + dist x v < dist y x + (r - dist y x) : add_lt_add_left Hvdist
-                      ... = r                         : by rewrite [add.comm, sub_add_cancel]},
-    {cases Hbd 1 zero_lt_one with v Hv,
-    cases Hv with Hv _,
-    exact Hv !mem_univ},
-    {have Hxs : x ∈ s, from mem_of_mem_inter_left HxU,
+                      ... = r                         : by rewrite [add.comm, sub_add_cancel]
+  end
+
+private theorem not_mem_intersect_of_boundary_pt {s t : set V} (a : Open s) (a_1 : Open t) {x : V}
+        (v_0 : (x ∈ s → ¬ (∀ (ε : ℝ), ε > 0 → (∃ (v : V), v ∉ s ∧ dist x v < ε))))
+        (v_1 : (x ∈ t → ¬ (∀ (ε : ℝ), ε > 0 → (∃ (v : V), v ∉ t ∧ dist x v < ε))))
+        (Hbd : ∀ (ε : ℝ), ε > 0 → (∃ (v : V), v ∉ s ∩ t ∧ dist x v < ε)) : ¬ (x ∈ s ∩ t) :=
+  begin
+    intro HxU,
+    have Hxs : x ∈ s, from mem_of_mem_inter_left HxU,
     have Hxt : x ∈ t, from mem_of_mem_inter_right HxU,
     note Hsih := exists_not_of_not_forall (v_0 Hxs),
     note Htih := exists_not_of_not_forall (v_1 Hxt),
@@ -577,8 +581,16 @@ theorem not_open_of_ex_boundary_pt {U : set V} {x : V} (HxU : x ∈ U)
     split,
     exact Hnm,
     apply lt_of_lt_of_le Hvdist,
-    apply min_le_right},
-    {have Hex : ∃₀ s ∈ S, x ∈ s, from HxU,
+    apply min_le_right
+  end
+
+private theorem not_mem_sUnion_of_boundary_pt {S : set (set V)} (a : ∀₀ s ∈ S, Open s) {x : V}
+        (v_0 : ∀ ⦃x_1 : set V⦄,
+           x_1 ∈ S → x ∈ x_1 → ¬ (∀ (ε : ℝ), ε > 0 → (∃ (v : V), v ∉ x_1 ∧ dist x v < ε)))
+        (Hbd : ∀ (ε : ℝ), ε > 0 → (∃ (v : V), v ∉ ⋃₀ S ∧ dist x v < ε)) : ¬ x ∈ ⋃₀ S :=
+  begin
+    intro HxU,
+    have Hex : ∃₀ s ∈ S, x ∈ s, from HxU,
     cases Hex with s Hs,
     cases Hs with Hs Hxs,
     cases exists_not_of_not_forall (v_0 Hs Hxs) with ε Hε,
@@ -589,7 +601,27 @@ theorem not_open_of_ex_boundary_pt {U : set V} {x : V} (HxU : x ∈ U)
     existsi v,
     split,
     apply not_mem_of_not_mem_sUnion Hvnm Hs,
-    exact Hdist}
+    exact Hdist
+  end
+
+
+/-
+   this should be doable by showing that the open-ball boundary definition
+   is equivalent to topology.on_boundary, and applying topology.not_open_of_on_boundary.
+   But the induction hypotheses don't work out nicely.
+-/
+
+theorem not_open_of_ex_boundary_pt {U : set V} {x : V} (HxU : x ∈ U)
+        (Hbd : ∀ ε : ℝ, ε > 0 → ∃ v : V, v ∉ U ∧ dist x v < ε) : ¬ Open U :=
+  begin
+    intro HUopen,
+    induction HUopen,
+    {apply not_mem_open_basis_of_boundary_pt a Hbd HxU},
+    {cases Hbd 1 zero_lt_one with v Hv,
+    cases Hv with Hv _,
+    exact Hv !mem_univ},
+    {apply not_mem_intersect_of_boundary_pt a a_1 v_0 v_1 Hbd HxU},
+    {apply not_mem_sUnion_of_boundary_pt a v_0 Hbd HxU}
   end
 
 theorem ex_Open_ball_subset_of_Open_of_nonempty {U : set V} (HU : Open U) {x : V} (Hx : x ∈ U) :
@@ -626,9 +658,6 @@ variables {M N : Type} [Hm : metric_space M] [Hn : metric_space N]
 include Hm Hn
 open topology set
 /- continuity at a point -/
-
---definition continuous_at (f : M → N) (x : M) :=
---topology.continuous_at f x
 
 -- the ε - δ definition of continuity is equivalent to the topological definition
 theorem continuous_at_intro {f : M → N} {x : M}

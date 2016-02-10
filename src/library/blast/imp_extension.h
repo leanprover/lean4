@@ -30,7 +30,7 @@ class imp_extension_state {
 public:
     virtual void push() =0;
     virtual void pop()  =0;
-    virtual void assert(hypothesis const & h) =0;
+    virtual void assert_hyp(hypothesis const & h) =0;
 
     virtual ~imp_extension_state() {}
 

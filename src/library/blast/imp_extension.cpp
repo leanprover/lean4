@@ -24,14 +24,14 @@ void imp_extension::hypothesis_activated(hypothesis const & h, hypothesis_idx) {
     imp_extension_state & state = get_imp_extension_state(m_state_id);
     if (is_nil(m_asserts)) state.push();
     m_asserts = cons(h, m_asserts);
-    state.assert(h);
+    state.assert_hyp(h);
 }
 
 void imp_extension_state::replay_actions(imp_extension * imp_ext) {
     list<hypothesis> const & asserts = reverse(imp_ext->get_asserts());
     if (is_nil(asserts)) return;
     push();
-    for_each(asserts, [&](hypothesis const & h) { assert(h); });
+    for_each(asserts, [&](hypothesis const & h) { assert_hyp(h); });
 }
 
 void imp_extension_state::undo_actions(imp_extension * imp_ext) {

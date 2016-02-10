@@ -820,6 +820,18 @@ theorem sInter_eq_comp_sUnion_comp (S : set (set X)) :
    ⋂₀ S = -(⋃₀ (complement ' S)) :=
 by rewrite [-comp_comp, comp_sInter]
 
+theorem inter_sUnion_nonempty_of_inter_nonempty {s t : set X} {S : set (set X)} (Hs : t ∈ S) (Hne : s ∩ t ≠ ∅) :
+        s ∩ ⋃₀ S ≠ ∅ :=
+  obtain x Hsx Htx, from exists_mem_of_ne_empty Hne,
+  have x ∈ ⋃₀ S, from mem_sUnion Htx Hs,
+  ne_empty_of_mem (mem_inter Hsx this)
+
+theorem sUnion_inter_nonempty_of_inter_nonempty {s t : set X} {S : set (set X)} (Hs : t ∈ S) (Hne : t ∩ s ≠ ∅) :
+        (⋃₀ S) ∩ s ≠ ∅ :=
+  obtain x Htx Hsx, from exists_mem_of_ne_empty Hne,
+  have x ∈ ⋃₀ S, from mem_sUnion Htx Hs,
+  ne_empty_of_mem (mem_inter this Hsx)
+
 -- Union and Inter: a family of sets indexed by a type
 
 theorem Union_subset {I : Type} {b : I → set X} {c : set X} (H : ∀ i, b i ⊆ c) : (⋃ i, b i) ⊆ c :=

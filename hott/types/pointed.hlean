@@ -358,7 +358,7 @@ namespace pointed
   attribute pequiv.to_pmap [coercion]
   attribute pequiv.is_equiv_to_pmap [instance]
 
-  definition pequiv.mk' (to_pmap : A →* B) [is_equiv_to_pmap : is_equiv to_pmap] :
+  definition pequiv.mk' [constructor] (to_pmap : A →* B) [is_equiv_to_pmap : is_equiv to_pmap] :
     pequiv A B :=
   pequiv.mk to_pmap is_equiv_to_pmap
 

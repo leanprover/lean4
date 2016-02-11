@@ -41,7 +41,7 @@ namespace is_equiv
   protected abbreviation mk [constructor] := @is_equiv.mk' A B f
 
   -- The identity function is an equivalence.
-  definition is_equiv_id [instance] (A : Type) : (is_equiv (id : A → A)) :=
+  definition is_equiv_id [instance] [constructor] (A : Type) : (is_equiv (id : A → A)) :=
   is_equiv.mk id id (λa, idp) (λa, idp) (λa, idp)
 
   -- The composition of two equivalences is, again, an equivalence.

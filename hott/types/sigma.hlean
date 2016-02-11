@@ -20,7 +20,7 @@ namespace sigma
 
   /- Paths in a sigma-type -/
 
-  protected definition eta : Π (u : Σa, B a), ⟨u.1 , u.2⟩ = u
+  protected definition eta [unfold 3] : Π (u : Σa, B a), ⟨u.1 , u.2⟩ = u
   | eta ⟨u₁, u₂⟩ := idp
 
   definition eta2 : Π (u : Σa b, C a b), ⟨u.1, u.2.1, u.2.2⟩ = u
@@ -214,7 +214,7 @@ namespace sigma
   sigma_functor id g u
 
   /- Equivalences -/
-  definition is_equiv_sigma_functor [H1 : is_equiv f] [H2 : Π a, is_equiv (g a)]
+  definition is_equiv_sigma_functor [constructor] [H1 : is_equiv f] [H2 : Π a, is_equiv (g a)]
       : is_equiv (sigma_functor f g) :=
   adjointify (sigma_functor f g)
              (sigma_functor f⁻¹ (λ(a' : A') (b' : B' a'),

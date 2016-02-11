@@ -414,7 +414,7 @@ def get_lean_options(args):
     if args.to_axiom:
         args.lean_options.append("--to_axiom")
     if args.cache:
-        args.lean_options += ["-c", args.cache]
+        args.lean_options += ["-c", '"%s"' % args.cache]
     if args.lean_config_option:
         for item in args.lean_config_option:
             args.lean_options.append("-D" + item)

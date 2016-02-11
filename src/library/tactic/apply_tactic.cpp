@@ -20,7 +20,6 @@ Author: Leonardo de Moura
 #include "library/occurs.h"
 #include "library/constants.h"
 #include "library/type_util.h"
-#include "library/local_context.h"
 #include "library/class_instance_resolution.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/apply_tactic.h"
@@ -86,7 +85,7 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
     e_t_cs.second.linearize(cs);
     expr  e_t         = e_t_cs.first;
     buffer<expr> metas;
-    local_context ctx;
+    old_local_context ctx;
     bool initialized_ctx = false;
     unifier_config cfg(ios.get_options());
     if (uk)

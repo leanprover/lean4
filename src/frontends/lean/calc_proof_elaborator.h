@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <functional>
 #include "library/unifier.h"
-#include "library/local_context.h"
+#include "library/old_local_context.h"
 #include "frontends/lean/info_manager.h"
 
 namespace lean {
@@ -21,7 +21,7 @@ typedef std::function<void(expr const &)> update_type_info_fn;
       - adding subst
 */
 constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
-                               local_context const & ctx, expr const & m, expr const & e,
+                               old_local_context const & ctx, expr const & m, expr const & e,
                                constraint_seq const & cs, unifier_config const & cfg,
                                info_manager * im, update_type_info_fn const & fn);
 

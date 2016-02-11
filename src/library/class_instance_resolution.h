@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/pos_info_provider.h"
 #include "library/io_state.h"
-#include "library/local_context.h"
+#include "library/old_local_context.h"
 
 namespace lean {
 optional<expr> mk_class_instance(environment const & env, options const & o,
@@ -33,12 +33,12 @@ optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx
     \param tag  To be associated with new metavariables and expressions (for error localization).
 */
 pair<expr, constraint> mk_class_instance_elaborator(
-    environment const & env, io_state const & ios, local_context const & ctx,
+    environment const & env, io_state const & ios, old_local_context const & ctx,
     optional<name> const & suffix, bool use_local_instances,
     bool is_strict, optional<expr> const & type, tag g, pos_info_provider const * pip);
 
-optional<expr> mk_class_instance(environment const & env, io_state const & ios, local_context const & ctx, expr const & type, bool use_local_instances);
-optional<expr> mk_class_instance(environment const & env, local_context const & ctx, expr const & type);
+optional<expr> mk_class_instance(environment const & env, io_state const & ios, old_local_context const & ctx, expr const & type, bool use_local_instances);
+optional<expr> mk_class_instance(environment const & env, old_local_context const & ctx, expr const & type);
 optional<expr> mk_hset_instance(type_checker & tc, options const & o, list<expr> const & ctx, expr const & type);
 optional<expr> mk_subsingleton_instance(environment const & env, options const & o,
                                         list<expr> const & ctx, expr const & type);

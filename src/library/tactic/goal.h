@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/formatter.h"
 #include "kernel/environment.h"
 #include "library/io_state_stream.h"
-#include "library/local_context.h"
+#include "library/old_local_context.h"
 
 namespace lean {
 /**
@@ -71,7 +71,7 @@ public:
     */
     list<expr> to_context() const;
 
-    local_context to_local_context() const;
+    old_local_context to_local_context() const;
 
     /** \brief Apply given substitution to goal */
     goal instantiate(substitution const & s) const;

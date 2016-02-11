@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/expr_lt.h"
 #include "library/unifier.h"
-#include "library/local_context.h"
+#include "library/old_local_context.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/elaborate.h"
 #include "frontends/lean/elaborator_context.h"
@@ -36,8 +36,8 @@ class elaborator : public coercion_info_manager {
     type_checker_ptr     m_coercion_to_tc;
     // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
     // representing the context where ?m was created.
-    local_context        m_context; // current local context: a list of local constants
-    local_context        m_full_context; // superset of m_context, it also contains non-contextual locals.
+    old_local_context        m_context; // current local context: a list of local constants
+    old_local_context        m_full_context; // superset of m_context, it also contains non-contextual locals.
     mvar2meta            m_mvar2meta;
     cache                m_cache;
     // The following vector contains sorts that we should check

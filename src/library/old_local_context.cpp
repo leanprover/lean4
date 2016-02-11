@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "kernel/metavar.h"
-#include "library/local_context.h"
+#include "library/old_local_context.h"
 
 namespace lean {
 /** \brief Given a list of local constants \c locals
@@ -18,7 +18,7 @@ namespace lean {
     return
               t[#n, ..., #0]
 */
-expr local_context::abstract_locals(expr const & e, list<expr> const & locals) {
+expr old_local_context::abstract_locals(expr const & e, list<expr> const & locals) {
     lean_assert(std::all_of(locals.begin(), locals.end(), [](expr const & e) { return closed(e) && is_local(e); }));
     if (!has_local(e))
         return e;
@@ -38,16 +38,16 @@ expr local_context::abstract_locals(expr const & e, list<expr> const & locals) {
         });
 }
 
-auto local_context::to_local_decl(expr const & l, list<expr> const & ctx) -> local_decl {
+auto old_local_context::to_local_decl(expr const & l, list<expr> const & ctx) -> local_decl {
     return local_decl(local_pp_name(l), abstract_locals(mlocal_type(l), ctx), local_info(l));
 }
 
-local_context::local_context() {}
-local_context::local_context(list<expr> const & ctx) {
+old_local_context::old_local_context() {}
+old_local_context::old_local_context(list<expr> const & ctx) {
     set_ctx(ctx);
 }
 
-void local_context::set_ctx(list<expr> const & ctx) {
+void old_local_context::set_ctx(list<expr> const & ctx) {
     m_ctx = ctx;
     buffer<local_decl> tmp;
     list<expr> it = ctx;
@@ -58,7 +58,7 @@ void local_context::set_ctx(list<expr> const & ctx) {
     m_ctx_abstracted = to_list(tmp.begin(), tmp.end());
 }
 
-expr local_context::pi_abstract_context(expr e, tag g) const {
+expr old_local_context::pi_abstract_context(expr e, tag g) const {
     e = abstract_locals(e, m_ctx);
     for (local_decl const & l : m_ctx_abstracted)
         e = mk_pi(std::get<0>(l), std::get<1>(l), e, std::get<2>(l), g);
@@ -72,22 +72,22 @@ static expr apply_context_core(expr const & f, list<expr> const & ctx, tag g) {
         return f;
 }
 
-expr local_context::apply_context(expr const & f, tag g) const {
+expr old_local_context::apply_context(expr const & f, tag g) const {
     return apply_context_core(f, m_ctx, g);
 }
 
-expr local_context::mk_type_metavar(tag g) const {
+expr old_local_context::mk_type_metavar(tag g) const {
     name n = mk_fresh_name();
     expr s = mk_sort(mk_meta_univ(mk_fresh_name()), g);
     expr t = pi_abstract_context(s, g);
     return ::lean::mk_metavar(n, t, g);
 }
 
-expr local_context::mk_type_meta(tag g) const {
+expr old_local_context::mk_type_meta(tag g) const {
     return apply_context(mk_type_metavar(g), g);
 }
 
-expr local_context::mk_metavar(optional<name> const & suffix, optional<expr> const & type, tag g) const {
+expr old_local_context::mk_metavar(optional<name> const & suffix, optional<expr> const & type, tag g) const {
     name n      = mk_fresh_name();
     if (suffix)
         n = n + *suffix;
@@ -96,20 +96,20 @@ expr local_context::mk_metavar(optional<name> const & suffix, optional<expr> con
     return ::lean::mk_metavar(n, t, g);
 }
 
-expr local_context::mk_meta(optional<name> const & suffix, optional<expr> const & type, tag g) const {
+expr old_local_context::mk_meta(optional<name> const & suffix, optional<expr> const & type, tag g) const {
     expr mvar = mk_metavar(suffix, type, g);
     expr meta = apply_context(mvar, g);
     return meta;
 }
 
-void local_context::add_local(expr const & l) {
+void old_local_context::add_local(expr const & l) {
     lean_assert(is_local(l));
     m_ctx_abstracted = cons(to_local_decl(l, m_ctx), m_ctx_abstracted);
     m_ctx            = cons(l, m_ctx);
     lean_assert(length(m_ctx) == length(m_ctx_abstracted));
 }
 
-list<expr> const & local_context::get_data() const {
+list<expr> const & old_local_context::get_data() const {
     return m_ctx;
 }
 
@@ -117,7 +117,7 @@ static list<expr> instantiate_locals(list<expr> const & ls, substitution & s) {
     return map(ls, [&](expr const & l) { return update_mlocal(l, s.instantiate(mlocal_type(l))); });
 }
 
-local_context local_context::instantiate(substitution s) const {
-    return local_context(instantiate_locals(m_ctx, s));
+old_local_context old_local_context::instantiate(substitution s) const {
+    return old_local_context(instantiate_locals(m_ctx, s));
 }
 }

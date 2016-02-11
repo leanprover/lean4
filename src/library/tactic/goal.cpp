@@ -18,11 +18,11 @@ Author: Leonardo de Moura
 #include "library/tactic/goal.h"
 
 namespace lean {
-local_context goal::to_local_context() const {
+old_local_context goal::to_local_context() const {
     buffer<expr> hyps;
     get_hyps(hyps);
     std::reverse(hyps.begin(), hyps.end());
-    return local_context(to_list(hyps));
+    return old_local_context(to_list(hyps));
 }
 
 format goal::pp(formatter const & fmt) const {

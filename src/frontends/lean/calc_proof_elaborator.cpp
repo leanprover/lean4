@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/unifier.h"
 #include "library/reducible.h"
 #include "library/metavar_closure.h"
-#include "library/local_context.h"
+#include "library/old_local_context.h"
 #include "library/relation_manager.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/info_manager.h"
@@ -41,7 +41,7 @@ bool get_elaborator_calc_assistant(options const & o) {
     return o.get_bool(*g_elaborator_calc_assistant, LEAN_DEFAULT_CALC_ASSISTANT);
 }
 
-static optional<pair<expr, expr>> mk_op(environment const & env, local_context & ctx, type_checker_ptr & tc,
+static optional<pair<expr, expr>> mk_op(environment const & env, old_local_context & ctx, type_checker_ptr & tc,
                                         name const & op, unsigned nunivs, unsigned nargs, std::initializer_list<expr> const & explicit_args,
                                         constraint_seq & cs, tag g) {
     levels lvls;
@@ -71,7 +71,7 @@ static optional<pair<expr, expr>> mk_op(environment const & env, local_context &
     return some(mk_pair(r, op_type));
 }
 
-static optional<pair<expr, expr>> apply_symmetry(environment const & env, local_context & ctx, type_checker_ptr & tc,
+static optional<pair<expr, expr>> apply_symmetry(environment const & env, old_local_context & ctx, type_checker_ptr & tc,
                                                  expr const & e, expr const & e_type, constraint_seq & cs, tag g) {
     buffer<expr> args;
     expr const & op = get_app_args(e_type, args);
@@ -84,7 +84,7 @@ static optional<pair<expr, expr>> apply_symmetry(environment const & env, local_
     return optional<pair<expr, expr>>();
 }
 
-static optional<pair<expr, expr>> apply_subst(environment const & env, local_context & ctx,
+static optional<pair<expr, expr>> apply_subst(environment const & env, old_local_context & ctx,
                                               type_checker_ptr & tc, expr const & e, expr const & e_type,
                                               expr const & pred, constraint_seq & cs, tag g) {
     buffer<expr> pred_args;
@@ -132,12 +132,12 @@ bool try_normalize_to_head(environment const & env, name const & h, expr & e, co
       - adding subst
 */
 constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
-                               local_context const & _ctx, expr const & m, expr const & _e,
+                               old_local_context const & _ctx, expr const & m, expr const & _e,
                                constraint_seq const & cs, unifier_config const & cfg,
                                info_manager * im, update_type_info_fn const & fn) {
     justification j         = mk_failed_to_synthesize_jst(env, m);
     auto choice_fn = [=](expr const & meta, expr const & _meta_type, substitution const & _s) {
-        local_context ctx = _ctx;
+        old_local_context ctx = _ctx;
         expr e            = _e;
         substitution s    = _s;
         expr meta_type    = _meta_type;

@@ -11,7 +11,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   typed_expr.cpp let.cpp type_util.cpp protected.cpp
   metavar_closure.cpp reducible.cpp init_module.cpp
   generic_exception.cpp fingerprint.cpp flycheck.cpp hott_kernel.cpp
-  local_context.cpp choice_iterator.cpp pp_options.cpp
+  old_local_context.cpp choice_iterator.cpp pp_options.cpp
   unfold_macros.cpp app_builder.cpp projection.cpp abbreviation.cpp
   relation_manager.cpp export.cpp user_recursors.cpp idx_metavar.cpp
   composition_manager.cpp tc_multigraph.cpp noncomputable.cpp

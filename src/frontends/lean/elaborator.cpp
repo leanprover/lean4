@@ -35,7 +35,7 @@ Author: Leonardo de Moura
 #include "library/deep_copy.h"
 #include "library/typed_expr.h"
 #include "library/metavar_closure.h"
-#include "library/local_context.h"
+#include "library/old_local_context.h"
 #include "library/constants.h"
 #include "library/util.h"
 #include "library/choice_iterator.h"
@@ -130,15 +130,15 @@ type_checker_ptr mk_coercion_to_type_checker(environment const & env) {
 */
 struct elaborator::choice_expr_elaborator : public choice_iterator {
     elaborator &  m_elab;
-    local_context m_context;
-    local_context m_full_context;
+    old_local_context m_context;
+    old_local_context m_full_context;
     bool          m_in_equation_lhs;
     expr          m_meta;
     expr          m_type;
     expr          m_choice;
     unsigned      m_idx;
 
-    choice_expr_elaborator(elaborator & elab, local_context const & ctx, local_context const & full_ctx, bool in_equation_lhs,
+    choice_expr_elaborator(elaborator & elab, old_local_context const & ctx, old_local_context const & full_ctx, bool in_equation_lhs,
                            expr const & meta, expr const & type, expr const & c):
         m_elab(elab), m_context(ctx), m_full_context(full_ctx), m_in_equation_lhs(in_equation_lhs), m_meta(meta),
         m_type(type), m_choice(c), m_idx(get_num_choices(m_choice)) {
@@ -151,8 +151,8 @@ struct elaborator::choice_expr_elaborator : public choice_iterator {
             expr const & f = get_app_fn(c);
             m_elab.save_identifier_info(f);
             try {
-                flet<local_context> set1(m_elab.m_context,         m_context);
-                flet<local_context> set2(m_elab.m_full_context,    m_full_context);
+                flet<old_local_context> set1(m_elab.m_context,         m_context);
+                flet<old_local_context> set2(m_elab.m_full_context,    m_full_context);
                 flet<bool>          set3(m_elab.m_in_equation_lhs, m_in_equation_lhs);
                 pair<expr, constraint_seq> rcs = m_elab.visit(c);
                 expr r                         = rcs.first;
@@ -391,8 +391,8 @@ expr elaborator::visit_choice(expr const & e, optional<expr> const & t, constrai
     // Possible optimization: try to lookahead and discard some of the alternatives.
     expr m                 = m_full_context.mk_meta(t, e.get_tag());
     register_meta(m);
-    local_context ctx      = m_context;
-    local_context full_ctx = m_full_context;
+    old_local_context ctx      = m_context;
+    old_local_context full_ctx = m_full_context;
     bool in_equation_lhs   = m_in_equation_lhs;
     auto fn = [=](expr const & meta, expr const & type, substitution const & /* s */) {
         return choose(std::make_shared<choice_expr_elaborator>(*this, ctx, full_ctx, in_equation_lhs, meta, type, e));
@@ -529,14 +529,14 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
                 save_coercion_info(old_f, f);
                 lean_assert(is_pi(f_type));
             } else {
-                local_context ctx      = m_context;
-                local_context full_ctx = m_full_context;
+                old_local_context ctx      = m_context;
+                old_local_context full_ctx = m_full_context;
                 justification j        = mk_justification(f, [=](formatter const & fmt, substitution const & subst, bool) {
                         return pp_function_expected(fmt, substitution(subst).instantiate(f));
                     });
                 auto choice_fn = [=](expr const & meta, expr const &, substitution const &) {
-                    flet<local_context> save1(m_context,      ctx);
-                    flet<local_context> save2(m_full_context, full_ctx);
+                    flet<old_local_context> save1(m_context,      ctx);
+                    flet<old_local_context> save2(m_full_context, full_ctx);
                     list<constraints> choices = map2<constraints>(coes, [&](expr const & coe) {
                             expr new_f      = mk_coercion_app(coe, f);
                             constraint_seq cs;
@@ -925,8 +925,8 @@ expr elaborator::instantiate_rev_locals(expr const & a, unsigned n, expr const *
 }
 
 expr elaborator::visit_binding(expr e, expr_kind k, constraint_seq & cs) {
-    flet<local_context> save1(m_context, m_context);
-    flet<local_context> save2(m_full_context, m_full_context);
+    flet<old_local_context> save1(m_context, m_context);
+    flet<old_local_context> save2(m_full_context, m_full_context);
     buffer<expr> ds, ls, es;
     while (e.kind() == k) {
         es.push_back(e);
@@ -1546,8 +1546,8 @@ expr elaborator::process_obtain_expr(list<obtain_struct> const & s_list, list<ex
         justification j = mk_type_mismatch_jst(new_from, goal_domain, from_type, src);
         if (!is_def_eq(from_type, goal_domain, j, cs))
             throw unifier_exception(j, substitution());
-        flet<local_context> save1(m_context, m_context);
-        flet<local_context> save2(m_full_context, m_full_context);
+        flet<old_local_context> save1(m_context, m_context);
+        flet<old_local_context> save2(m_full_context, m_full_context);
         m_context.add_local(new_from);
         m_full_context.add_local(new_from);
         expr new_goal   = instantiate(binding_body(goal), new_from);
@@ -1702,12 +1702,12 @@ expr elaborator::visit_checkpoint_expr(expr const & e, constraint_seq & cs) {
     else
         m = m_full_context.mk_meta(none_expr(), e.get_tag());
     register_meta(m);
-    local_context ctx      = m_context;
-    local_context full_ctx = m_full_context;
+    old_local_context ctx      = m_context;
+    old_local_context full_ctx = m_full_context;
     bool in_equation_lhs   = m_in_equation_lhs;
     auto fn = [=](expr const & meta, expr const & /* type */, substitution const & /* s */) {
-        flet<local_context> set1(m_context,         ctx);
-        flet<local_context> set2(m_full_context,    full_ctx);
+        flet<old_local_context> set1(m_context,         ctx);
+        flet<old_local_context> set2(m_full_context,    full_ctx);
         flet<bool>          set3(m_in_equation_lhs, in_equation_lhs);
         pair<expr, constraint_seq> rcs = visit(arg);
         expr r                         = rcs.first;

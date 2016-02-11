@@ -62,9 +62,9 @@ class induction_tac {
     }
 
     expr mk_type_class_param(goal const & g, expr const & type) {
-        bool use_local_insts = true;
-        bool is_strict       = false;
-        local_context ctx    = g.to_local_context();
+        bool use_local_insts  = true;
+        bool is_strict        = false;
+        old_local_context ctx = g.to_local_context();
         auto mc = mk_class_instance_elaborator(
             m_env, m_ios, ctx, optional<name>(),
             use_local_insts, is_strict,

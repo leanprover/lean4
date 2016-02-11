@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/reducible.h"
 #include "library/class.h"
-#include "library/local_context.h"
+#include "library/old_local_context.h"
 #include "library/generic_exception.h"
 #include "library/io_state_stream.h"
 #include "library/replace_visitor.h"
@@ -127,11 +127,11 @@ public:
     }
 };
 
-static constraint mk_class_instance_root_cnstr(environment const & env, io_state const & ios, local_context const & _ctx, expr const & m, bool is_strict,
+static constraint mk_class_instance_root_cnstr(environment const & env, io_state const & ios, old_local_context const & _ctx, expr const & m, bool is_strict,
                                                bool use_local_instances, pos_info_provider const * pip) {
     justification j         = mk_failed_to_synthesize_jst(env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s) {
-        local_context ctx;
+        old_local_context ctx;
         if (use_local_instances)
             ctx = _ctx.instantiate(substitution(s));
         cienv & cenv = get_cienv();
@@ -169,7 +169,7 @@ static constraint mk_class_instance_root_cnstr(environment const & env, io_state
     solutions using class-instances
 */
 pair<expr, constraint> mk_new_class_instance_elaborator(
-    environment const & env, io_state const & ios, local_context const & ctx,
+    environment const & env, io_state const & ios, old_local_context const & ctx,
     optional<name> const & suffix, bool use_local_instances,
     bool is_strict, optional<expr> const & type, tag g, pos_info_provider const * pip) {
     expr m       = ctx.mk_meta(suffix, type, g);
@@ -178,14 +178,14 @@ pair<expr, constraint> mk_new_class_instance_elaborator(
     return mk_pair(m, c);
 }
 
-optional<expr> mk_class_instance(environment const & env, io_state const & ios, local_context const & ctx, expr const & type, bool use_local_instances) {
+optional<expr> mk_class_instance(environment const & env, io_state const & ios, old_local_context const & ctx, expr const & type, bool use_local_instances) {
     if (use_local_instances)
         return mk_class_instance(env, ios.get_options(), ctx.get_data(), type, nullptr);
     else
         return mk_class_instance(env, ios.get_options(), list<expr>(), type, nullptr);
 }
 
-optional<expr> mk_class_instance(environment const & env, local_context const & ctx, expr const & type) {
+optional<expr> mk_class_instance(environment const & env, old_local_context const & ctx, expr const & type) {
     return mk_class_instance(env, ctx.get_data(), type, nullptr);
 }
 
@@ -273,7 +273,7 @@ struct class_instance_context {
 };
 
 static pair<expr, constraint>
-mk_class_instance_elaborator(std::shared_ptr<class_instance_context> const & C, local_context const & ctx,
+mk_class_instance_elaborator(std::shared_ptr<class_instance_context> const & C, old_local_context const & ctx,
                              optional<expr> const & type, tag g, unsigned depth, bool use_globals);
 
 /** \brief Choice function \c fn for synthesizing class instances.
@@ -285,7 +285,7 @@ mk_class_instance_elaborator(std::shared_ptr<class_instance_context> const & C, 
 */
 struct class_instance_elaborator : public choice_iterator {
     std::shared_ptr<class_instance_context> m_C;
-    local_context           m_ctx;
+    old_local_context           m_ctx;
     expr                    m_meta;
     // elaborated type of the metavariable
     expr                    m_meta_type;
@@ -301,7 +301,7 @@ struct class_instance_elaborator : public choice_iterator {
     unsigned                m_depth;
     bool                    m_displayed_trace_header;
 
-    class_instance_elaborator(std::shared_ptr<class_instance_context> const & C, local_context const & ctx,
+    class_instance_elaborator(std::shared_ptr<class_instance_context> const & C, old_local_context const & ctx,
                               expr const & meta, expr const & meta_type,
                               list<expr> const & local_insts, list<name> const & trans_insts, list<name> const & instances,
                               justification const & j, unsigned depth):
@@ -346,7 +346,7 @@ struct class_instance_elaborator : public choice_iterator {
         type_checker & tc     = m_C->tc();
         tag g                 = inst.get_tag();
         try {
-            flet<local_context> scope(m_ctx, m_ctx);
+            flet<old_local_context> scope(m_ctx, m_ctx);
             buffer<expr> locals;
             expr meta_type = m_meta_type;
             while (true) {
@@ -434,7 +434,7 @@ struct class_instance_elaborator : public choice_iterator {
 // Remarks:
 //  - we only use get_class_instances and get_class_derived_trans_instances when use_globals is true
 static constraint mk_class_instance_cnstr(std::shared_ptr<class_instance_context> const & C,
-                                          local_context const & ctx, expr const & m, unsigned depth, bool use_globals) {
+                                          old_local_context const & ctx, expr const & m, unsigned depth, bool use_globals) {
     environment const & env = C->env();
     justification j         = mk_failed_to_synthesize_jst(env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const &) {
@@ -463,14 +463,14 @@ static constraint mk_class_instance_cnstr(std::shared_ptr<class_instance_context
     return mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::Basic), owner, j);
 }
 
-static pair<expr, constraint> mk_class_instance_elaborator(std::shared_ptr<class_instance_context> const & C, local_context const & ctx,
+static pair<expr, constraint> mk_class_instance_elaborator(std::shared_ptr<class_instance_context> const & C, old_local_context const & ctx,
                                                            optional<expr> const & type, tag g, unsigned depth, bool use_globals) {
     expr m       = ctx.mk_meta(type, g);
     constraint c = mk_class_instance_cnstr(C, ctx, m, depth, use_globals);
     return mk_pair(m, c);
 }
 
-static constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_context> const & C, local_context const & _ctx,
+static constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_context> const & C, old_local_context const & _ctx,
                                                expr const & m, bool is_strict, unifier_config const & cfg, delay_factor const & factor) {
     environment const & env = C->env();
     justification j         = mk_failed_to_synthesize_jst(env, m);
@@ -482,7 +482,7 @@ static constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_co
             // do nothing, since type is not a class.
             return lazy_list<constraints>(constraints());
         }
-        local_context ctx        = _ctx.instantiate(substitution(s));
+        old_local_context ctx        = _ctx.instantiate(substitution(s));
         pair<expr, justification> mj = update_meta(meta, s);
         expr new_meta            = mj.first;
         justification new_j      = mj.second;
@@ -550,7 +550,7 @@ static constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_co
     solutions using class-instances
 */
 pair<expr, constraint> mk_old_class_instance_elaborator(
-    environment const & env, io_state const & ios, local_context const & ctx,
+    environment const & env, io_state const & ios, old_local_context const & ctx,
     optional<name> const & suffix, bool use_local_instances,
     bool is_strict, optional<expr> const & type, tag g, unifier_config const & cfg,
     pos_info_provider const * pip) {
@@ -564,7 +564,7 @@ pair<expr, constraint> mk_old_class_instance_elaborator(
 }
 
 pair<expr, constraint> mk_class_instance_elaborator(
-    environment const & env, io_state const & ios, local_context const & ctx,
+    environment const & env, io_state const & ios, old_local_context const & ctx,
     optional<name> const & suffix, bool use_local_instances,
     bool is_strict, optional<expr> const & type, tag g,
     pos_info_provider const * pip) {

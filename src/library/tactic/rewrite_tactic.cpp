@@ -26,7 +26,7 @@ Author: Leonardo de Moura
 #include "library/match.h"
 #include "library/choice.h"
 #include "library/projection.h"
-#include "library/local_context.h"
+#include "library/old_local_context.h"
 #include "library/unifier.h"
 #include "library/locals.h"
 #include "library/constants.h"
@@ -574,7 +574,7 @@ class rewrite_fn {
     type_checker_ptr     m_relaxed_tc; // reduce_to and check_trivial
     rewrite_match_plugin m_mplugin;
     goal                 m_g;
-    local_context        m_ctx;
+    old_local_context    m_ctx;
     substitution         m_subst;
     expr                 m_expr_loc; // auxiliary expression used for error localization
 

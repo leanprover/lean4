@@ -12,7 +12,7 @@ namespace lean {
 /** \brief Auxiliary data-structure for storing the local context,
     and creating metavariables in the scope of the local context efficiently
 */
-class local_context {
+class old_local_context {
     list<expr>       m_ctx; // current local context: a list of local constants
     typedef std::tuple<name, expr, binder_info> local_decl;
     list<local_decl> m_ctx_abstracted; // m_ctx where elements have been abstracted
@@ -20,8 +20,8 @@ class local_context {
     // convert a local constant into a local_decl
     static local_decl to_local_decl(expr const & l, list<expr> const & ctx);
 public:
-    local_context();
-    local_context(list<expr> const & ctx);
+    old_local_context();
+    old_local_context(list<expr> const & ctx);
 
     void set_ctx(list<expr> const & ctx);
 
@@ -89,7 +89,7 @@ public:
 
     void add_local(expr const & l);
 
-    /** \brief Instantiate metavariables occurring this local context using \c s, and return updated local_context */
-    local_context instantiate(substitution s) const;
+    /** \brief Instantiate metavariables occurring this local context using \c s, and return updated old_local_context */
+    old_local_context instantiate(substitution s) const;
 };
 }

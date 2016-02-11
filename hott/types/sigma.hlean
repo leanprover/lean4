@@ -219,20 +219,20 @@ namespace sigma
   adjointify (sigma_functor f g)
              (sigma_functor f⁻¹ (λ(a' : A') (b' : B' a'),
                ((g (f⁻¹ a'))⁻¹ (transport B' (right_inv f a')⁻¹ b'))))
-  begin
+  abstract begin
     intro u', induction u' with a' b',
     apply sigma_eq (right_inv f a'),
     rewrite [▸*,right_inv (g (f⁻¹ a')),▸*],
     apply tr_pathover
-  end
-  begin
+  end end
+  abstract begin
     intro u,
     induction u with a b,
     apply (sigma_eq (left_inv f a)),
     apply pathover_of_tr_eq,
     rewrite [▸*,adj f,-(fn_tr_eq_tr_fn (left_inv f a) (λ a, (g a)⁻¹)),
              ▸*,tr_compose B' f,tr_inv_tr,left_inv]
-  end
+  end end
 
   definition sigma_equiv_sigma_of_is_equiv [constructor]
     [H1 : is_equiv f] [H2 : Π a, is_equiv (g a)] : (Σa, B a) ≃ (Σa', B' a') :=
@@ -280,8 +280,8 @@ namespace sigma
   equiv.MK
     (λu, (center_eq u.1)⁻¹ ▸ u.2)
     (λb, ⟨!center, b⟩)
-    (λb, ap (λx, x ▸ b) !hprop_eq_of_is_contr)
-    (λu, sigma_eq !center_eq !tr_pathover)
+    abstract (λb, ap (λx, x ▸ b) !hprop_eq_of_is_contr) end
+    abstract (λu, sigma_eq !center_eq !tr_pathover) end
 
   /- Associativity -/
 
@@ -291,16 +291,16 @@ namespace sigma
   equiv.mk _ (adjointify
     (λav, ⟨⟨av.1, av.2.1⟩, av.2.2⟩)
     (λuc, ⟨uc.1.1, uc.1.2, !sigma.eta⁻¹ ▸ uc.2⟩)
-    begin intro uc, induction uc with u c, induction u, reflexivity end
-    begin intro av, induction av with a v, induction v, reflexivity end)
+    abstract begin intro uc, induction uc with u c, induction u, reflexivity end end
+    abstract begin intro av, induction av with a v, induction v, reflexivity end end)
 
   open prod prod.ops
   definition assoc_equiv_prod [constructor] (C : (A × A') → Type) : (Σa a', C (a,a')) ≃ (Σu, C u) :=
   equiv.mk _ (adjointify
     (λav, ⟨(av.1, av.2.1), av.2.2⟩)
     (λuc, ⟨pr₁ (uc.1), pr₂ (uc.1), !prod.eta⁻¹ ▸ uc.2⟩)
-    proof (λuc, destruct uc (λu, prod.destruct u (λa b c, idp))) qed
-    proof (λav, destruct av (λa v, destruct v (λb c, idp))) qed)
+    abstract proof (λuc, destruct uc (λu, prod.destruct u (λa b c, idp))) qed end
+    abstract proof (λav, destruct av (λa v, destruct v (λb c, idp))) qed end)
 
   /- Symmetry -/
 

@@ -48,16 +48,15 @@ namespace is_equiv
   definition is_equiv_compose [constructor] [Hf : is_equiv f] [Hg : is_equiv g]
     : is_equiv (g ∘ f) :=
   is_equiv.mk (g ∘ f) (f⁻¹ ∘ g⁻¹)
-             (λc, ap g (right_inv f (g⁻¹ c)) ⬝ right_inv g c)
-             (λa, ap (inv f) (left_inv g (f a)) ⬝ left_inv f a)
-             (λa, (whisker_left _ (adj g (f a))) ⬝
+             abstract (λc, ap g (right_inv f (g⁻¹ c)) ⬝ right_inv g c) end
+             abstract (λa, ap (inv f) (left_inv g (f a)) ⬝ left_inv f a) end
+             abstract (λa, (whisker_left _ (adj g (f a))) ⬝
                   (ap_con g _ _)⁻¹ ⬝
                   ap02 g ((ap_con_eq_con (right_inv f) (left_inv g (f a)))⁻¹ ⬝
                           (ap_compose f (inv f) _ ◾  adj f a) ⬝
                           (ap_con f _ _)⁻¹
                          ) ⬝
-                  (ap_compose g f _)⁻¹
-             )
+                  (ap_compose g f _)⁻¹) end
 
   -- Any function equal to an equivalence is an equivlance as well.
   variable {f}
@@ -103,7 +102,7 @@ namespace is_equiv
   eq4
 
   definition adjointify [constructor] : is_equiv f :=
-  is_equiv.mk f g ret adjointify_left_inv' adjointify_adj'
+  is_equiv.mk f g ret abstract adjointify_left_inv' end adjointify_adj'
   end
 
   -- Any function pointwise equal to an equivalence is an equivalence as well.

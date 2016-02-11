@@ -233,7 +233,7 @@ namespace eq
   is_equiv.mk (concat p) (concat p⁻¹)
               (con_inv_cancel_left p)
               (inv_con_cancel_left p)
-              (λq, by induction p;induction q;reflexivity)
+              abstract (λq, by induction p;induction q;reflexivity) end
   local attribute is_equiv_concat_left [instance]
 
   definition equiv_eq_closed_left [constructor] (a₃ : A) (p : a₁ = a₂) : (a₁ = a₃) ≃ (a₂ = a₃) :=

@@ -24,8 +24,8 @@ namespace fiber
   fapply equiv.MK,
     {intro x, exact ⟨point x, point_eq x⟩},
     {intro x, exact (fiber.mk x.1 x.2)},
-    {intro x, cases x, apply idp},
-    {intro x, cases x, apply idp},
+    {intro x, exact abstract begin cases x, apply idp end end},
+    {intro x, exact abstract begin cases x, apply idp end end},
   end
 
   definition fiber_eq_equiv (x y : fiber f b)

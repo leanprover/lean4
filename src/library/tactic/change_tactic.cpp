@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/lazy_list_fn.h"
+#include "util/fresh_name.h"
 #include "kernel/type_checker.h"
 #include "kernel/error_msgs.h"
 #include "library/constants.h"
@@ -28,9 +29,8 @@ tactic change_goal_tactic(elaborate_fn const & elab, expr const & e) {
             if (auto new_e = elaborate_with_respect_to(env, ios, elab, new_s, e, none_expr(), report_unassigned)) {
                 goals const & gs    = new_s.get_goals();
                 goal const & g      = head(gs);
-                name_generator ngen = new_s.get_ngen();
                 substitution subst  = new_s.get_subst();
-                auto tc             = mk_type_checker(env, ngen.mk_child());
+                auto tc             = mk_type_checker(env);
                 constraint_seq cs;
                 if (tc->is_def_eq(t, *new_e, justification(), cs)) {
                     if (cs) {
@@ -38,23 +38,22 @@ tactic change_goal_tactic(elaborate_fn const & elab, expr const & e) {
                         buffer<constraint> cs_buf;
                         cs.linearize(cs_buf);
                         to_buffer(new_s.get_postponed(), cs_buf);
-                        unify_result_seq rseq = unify(env, cs_buf.size(), cs_buf.data(), ngen.mk_child(), subst, cfg);
+                        unify_result_seq rseq = unify(env, cs_buf.size(), cs_buf.data(), subst, cfg);
                         return map2<proof_state>(rseq, [=](pair<substitution, constraints> const & p) -> proof_state {
                                 substitution const & subst    = p.first;
                                 constraints const & postponed = p.second;
-                                name_generator new_ngen(ngen);
                                 substitution new_subst = subst;
                                 expr final_e = new_subst.instantiate_all(*new_e);
-                                expr M       = g.mk_meta(new_ngen.next(), final_e);
+                                expr M       = g.mk_meta(mk_fresh_name(), final_e);
                                 goal new_g(M, final_e);
                                 assign(new_subst, g, M);
-                                return proof_state(new_s, cons(new_g, tail(gs)), new_subst, new_ngen, postponed);
+                                return proof_state(new_s, cons(new_g, tail(gs)), new_subst, postponed);
                             });
                     }
-                    expr M   = g.mk_meta(ngen.next(), *new_e);
+                    expr M   = g.mk_meta(mk_fresh_name(), *new_e);
                     goal new_g(M, *new_e);
                     assign(subst, g, M);
-                    return proof_state_seq(proof_state(new_s, cons(new_g, tail(gs)), subst, ngen));
+                    return proof_state_seq(proof_state(new_s, cons(new_g, tail(gs)), subst));
                 } else {
                     throw_tactic_exception_if_enabled(new_s, [=](formatter const & fmt) {
                             format r = format("invalid 'change' tactic, the given type");

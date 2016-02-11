@@ -12,7 +12,7 @@ using namespace lean; // NOLINT
 lean_bool lean_type_checker_mk(lean_env e, lean_type_checker * r, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(e);
-    *r = of_type_checker(new type_checker(to_env_ref(e), name_generator()));
+    *r = of_type_checker(new type_checker(to_env_ref(e)));
     LEAN_CATCH;
 }
 

@@ -163,7 +163,6 @@ bool is_recursive_datatype(environment const & env, name const & n) {
 
 bool is_reflexive_datatype(type_checker & tc, name const & n) {
     environment const & env = tc.env();
-    name_generator ngen     = tc.mk_ngen();
     optional<inductive::inductive_decls> decls = inductive::is_inductive_decl(env, n);
     if (!decls)
         return false;
@@ -175,7 +174,7 @@ bool is_reflexive_datatype(type_checker & tc, name const & n) {
                 if (is_pi(arg) && find(arg, [&](expr const & e, unsigned) { return is_constant(e) && const_name(e) == n; })) {
                     return true;
                 }
-                expr local = mk_local(ngen.next(), binding_domain(type));
+                expr local = mk_local(mk_fresh_name(), binding_domain(type));
                 type = instantiate(binding_body(type), local);
             }
         }
@@ -236,27 +235,27 @@ expr instantiate_univ_param (expr const & e, name const & p, level const & l) {
     return instantiate_univ_params(e, to_list(p), to_list(l));
 }
 
-expr to_telescope(bool pi, name_generator & ngen, expr e, buffer<expr> & telescope,
+expr to_telescope(bool pi, expr e, buffer<expr> & telescope,
                   optional<binder_info> const & binfo) {
     while ((pi && is_pi(e)) || (!pi && is_lambda(e))) {
         expr local;
         if (binfo)
-            local = mk_local(ngen.next(), binding_name(e), binding_domain(e), *binfo);
+            local = mk_local(mk_fresh_name(), binding_name(e), binding_domain(e), *binfo);
         else
-            local = mk_local(ngen.next(), binding_name(e), binding_domain(e), binding_info(e));
+            local = mk_local(mk_fresh_name(), binding_name(e), binding_domain(e), binding_info(e));
         telescope.push_back(local);
         e = instantiate(binding_body(e), local);
     }
     return e;
 }
 
-expr to_telescope(name_generator & ngen, expr const & type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
-    return to_telescope(true, ngen, type, telescope, binfo);
+expr to_telescope(expr const & type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
+    return to_telescope(true, type, telescope, binfo);
 }
 
-expr fun_to_telescope(name_generator & ngen, expr const & e, buffer<expr> & telescope,
+expr fun_to_telescope(expr const & e, buffer<expr> & telescope,
                       optional<binder_info> const & binfo) {
-    return to_telescope(false, ngen, e, telescope, binfo);
+    return to_telescope(false, e, telescope, binfo);
 }
 
 expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo,
@@ -266,9 +265,9 @@ expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, option
         type = new_type;
         expr local;
         if (binfo)
-            local = mk_local(tc.mk_fresh_name(), binding_name(type), binding_domain(type), *binfo);
+            local = mk_local(mk_fresh_name(), binding_name(type), binding_domain(type), *binfo);
         else
-            local = mk_local(tc.mk_fresh_name(), binding_name(type), binding_domain(type), binding_info(type));
+            local = mk_local(mk_fresh_name(), binding_name(type), binding_domain(type), binding_info(type));
         telescope.push_back(local);
         type     = instantiate(binding_body(type), local);
         new_type = tc.whnf(type, cs);
@@ -759,7 +758,7 @@ void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> co
             }
             t_aux.back().push_back(t_i);
         }
-        expr eq = mk_local(tc.mk_fresh_name(), e_name.append_after(i+1), mk_eq(tc, t_i, s_i), binder_info());
+        expr eq = mk_local(mk_fresh_name(), e_name.append_after(i+1), mk_eq(tc, t_i, s_i), binder_info());
         eqs.push_back(eq);
     }
 }
@@ -772,7 +771,7 @@ void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> & 
         expr ty = mlocal_type(t[i]);
         ty = abstract_locals(ty, i, t.data());
         ty = instantiate_rev(ty, i, s.data());
-        expr local = mk_local(tc.mk_fresh_name(), local_pp_name(t[i]).append_after("'"), ty, local_info(t[i]));
+        expr local = mk_local(mk_fresh_name(), local_pp_name(t[i]).append_after("'"), ty, local_info(t[i]));
         s.push_back(local);
     }
     return mk_telescopic_eq(tc, t, s, eqs);
@@ -1014,14 +1013,14 @@ justification mk_failed_to_synthesize_jst(environment const & env, expr const & 
         });
 }
 
-type_checker_ptr mk_type_checker(environment const & env, name_generator && ngen, name_predicate const & pred) {
-    return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
-                                         std::unique_ptr<converter>(new hint_converter<projection_converter>(env, pred))));
+type_checker_ptr mk_type_checker(environment const & env, name_predicate const & pred) {
+    return std::unique_ptr<type_checker>(new type_checker(env,
+                                                          std::unique_ptr<converter>(new hint_converter<projection_converter>(env, pred))));
 }
 
-type_checker_ptr mk_simple_type_checker(environment const & env, name_generator && ngen, name_predicate const & pred) {
-    return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
-                                         std::unique_ptr<converter>(new hint_converter<default_converter>(env, pred))));
+type_checker_ptr mk_simple_type_checker(environment const & env, name_predicate const & pred) {
+    return std::unique_ptr<type_checker>(new type_checker(env,
+                                                          std::unique_ptr<converter>(new hint_converter<default_converter>(env, pred))));
 }
 
 bool is_internal_name(name const & n) {

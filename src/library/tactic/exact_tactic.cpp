@@ -63,8 +63,7 @@ tactic exact_tactic(elaborate_fn const & elab, expr const & e, bool enforce_type
                     assign(subst, g, *new_e);
                     if (allow_metavars) {
                         buffer<goal> new_goals;
-                        name_generator ngen = new_s.get_ngen();
-                        auto tc             = mk_type_checker(env, ngen.mk_child());
+                        auto tc             = mk_type_checker(env);
                         for_each(*new_e, [&](expr const & m, unsigned) {
                                 if (!has_expr_metavar(m))
                                     return false;
@@ -75,7 +74,7 @@ tactic exact_tactic(elaborate_fn const & elab, expr const & e, bool enforce_type
                                 return !is_metavar(m) && !is_local(m);
                             });
                         goals new_gs = to_list(new_goals.begin(), new_goals.end(), tail(gs));
-                        return some(proof_state(new_s, new_gs, subst, ngen));
+                        return some(proof_state(new_s, new_gs, subst));
                     } else {
                         return some(proof_state(new_s, tail(gs), subst));
                     }
@@ -99,7 +98,7 @@ static tactic assumption_tactic_core(bool conservative) {
             goal g = head(gs);
             buffer<expr> hs;
             g.get_hyps(hs);
-            auto elab = [](goal const &, options const &, name_generator const &, expr const & H,
+            auto elab = [](goal const &, options const &, expr const & H,
                            optional<expr> const &, substitution const & s, bool) -> elaborate_result {
                 return elaborate_result(H, s, constraints());
             };

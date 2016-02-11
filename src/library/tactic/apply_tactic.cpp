@@ -77,8 +77,7 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
         return proof_state_seq();
     }
     bool class_inst   = get_apply_class_instance(ios.get_options());
-    name_generator ngen = s.get_ngen();
-    std::shared_ptr<type_checker> tc(mk_type_checker(env, ngen.mk_child()));
+    std::shared_ptr<type_checker> tc(mk_type_checker(env));
     goal  g           = head(gs);
     goals tail_gs     = tail(gs);
     expr  t           = g.get_type();
@@ -116,13 +115,13 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
                 bool use_local_insts = true;
                 bool is_strict       = false;
                 auto mc = mk_class_instance_elaborator(
-                    env, ios, ctx, ngen.next(), optional<name>(),
+                    env, ios, ctx, optional<name>(),
                     use_local_insts, is_strict,
                     some_expr(head_beta_reduce(binding_domain(e_t))), e.get_tag(), nullptr);
                 meta    = mc.first;
                 cs.push_back(mc.second);
             } else {
-                meta  = g.mk_meta(ngen.next(), head_beta_reduce(binding_domain(e_t)));
+                meta  = g.mk_meta(mk_fresh_name(), head_beta_reduce(binding_domain(e_t)));
             }
             e          = mk_app(e, meta);
             e_t        = instantiate(binding_body(e_t), meta);
@@ -141,12 +140,11 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
         return proof_state_seq();
     }
     dcs.second.linearize(cs);
-    unify_result_seq rseq = unify(env, cs.size(), cs.data(), ngen.mk_child(), s.get_subst(), cfg);
+    unify_result_seq rseq = unify(env, cs.size(), cs.data(), s.get_subst(), cfg);
     list<expr> meta_lst   = to_list(metas.begin(), metas.end());
     return map2<proof_state>(rseq, [=](pair<substitution, constraints> const & p) -> proof_state {
             substitution const & subst    = p.first;
             constraints const & postponed = p.second;
-            name_generator new_ngen(ngen);
             substitution new_subst = subst;
             expr new_e = new_subst.instantiate_all(e);
             assign(new_subst, g, new_e);
@@ -171,7 +169,7 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
                     }
                 }
             }
-            return proof_state(s, new_gs, new_subst, new_ngen, postponed);
+            return proof_state(s, new_gs, new_subst, postponed);
         });
 }
 
@@ -201,15 +199,14 @@ tactic apply_tactic_core(elaborate_fn const & elab, expr const & e, add_meta_kin
                 return proof_state_seq();
             }
             goal const & g      = head(gs);
-            name_generator ngen = s.get_ngen();
             expr       new_e; substitution new_subst; constraints cs_;
             try {
-                auto ecs = elab(g, ios.get_options(), ngen.mk_child(), e, none_expr(), s.get_subst(), false);
+                auto ecs = elab(g, ios.get_options(), e, none_expr(), s.get_subst(), false);
                 std::tie(new_e, new_subst, cs_) = ecs;
                 buffer<constraint> cs;
                 to_buffer(cs_, cs);
                 to_buffer(s.get_postponed(), cs);
-                proof_state new_s(s, new_subst, ngen, constraints());
+                proof_state new_s(s, new_subst, constraints());
                 return apply_tactic_core(env, ios, new_s, new_e, cs, add_meta, k);
             } catch (exception &) {
                 if (s.report_failure())

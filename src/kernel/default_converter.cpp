@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/interrupt.h"
 #include "util/flet.h"
+#include "util/fresh_name.h"
 #include "kernel/default_converter.h"
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
@@ -248,7 +249,7 @@ bool default_converter::is_def_eq_binding(expr t, expr s, constraint_seq & cs) {
             // local is used inside t or s
             if (!var_s_type)
                 var_s_type = instantiate_rev(binding_domain(s), subst.size(), subst.data());
-            subst.push_back(mk_local(mk_fresh_name(*m_tc), binding_name(s), *var_s_type, binding_info(s)));
+            subst.push_back(mk_local(mk_fresh_name(), binding_name(s), *var_s_type, binding_info(s)));
         } else {
             subst.push_back(*g_dont_care); // don't care
         }
@@ -332,8 +333,7 @@ bool default_converter::try_eta_expansion_core(expr const & t, expr const & s, c
         if (is_pi(s_type)) {
             // do nothing ... s_type is already a Pi
         } else if (auto m = m_tc->is_stuck(s_type)) {
-            name_generator ngen = m_tc->mk_ngen();
-            expr r              = mk_pi_for(ngen, *m);
+            expr r              = mk_pi_for(*m);
             justification j     = mk_justification(s, [=](formatter const & fmt, substitution const & subst, bool) {
                     return pp_function_expected(fmt, substitution(subst).instantiate(s));
                 });

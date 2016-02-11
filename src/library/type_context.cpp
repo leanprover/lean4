@@ -46,32 +46,6 @@ bool get_class_trans_instances(options const & o) {
     return o.get_bool(*g_class_trans_instances, LEAN_DEFAULT_CLASS_TRANS_INSTANCES);
 }
 
-tmp_local_generator::tmp_local_generator():
-    m_next_local_idx(0) {}
-
-name tmp_local_generator::mk_fresh_name() {
-    unsigned idx = m_next_local_idx;
-    m_next_local_idx++;
-    return name(*g_tmp_prefix, idx);
-}
-
-expr tmp_local_generator::mk_tmp_local(expr const & type, binder_info const & bi) {
-    name n = mk_fresh_name();
-    return lean::mk_local(n, n, type, bi);
-}
-
-expr tmp_local_generator::mk_tmp_local(name const & pp_n, expr const & type, binder_info const & bi) {
-    name n = mk_fresh_name();
-    return lean::mk_local(n, pp_n, type, bi);
-}
-
-bool tmp_local_generator::is_tmp_local(expr const & e) const {
-    if (!is_local(e))
-        return false;
-    name const & n = mlocal_name(e);
-    return !n.is_atomic() && n.get_prefix() == *g_tmp_prefix;
-}
-
 struct type_context::ext_ctx : public extension_context {
     type_context & m_owner;
 
@@ -91,22 +65,14 @@ struct type_context::ext_ctx : public extension_context {
         return mk_pair(m_owner.infer(e), constraint_seq());
     }
 
-    virtual name mk_fresh_name() {
-        return m_owner.m_ngen.next();
-    }
-
     virtual optional<expr> is_stuck(expr const &) {
         return none_expr();
     }
 };
 
-type_context::type_context(environment const & env, options const & o, tmp_local_generator * gen,
-                           bool gen_owner, bool multiple_instances):
+type_context::type_context(environment const & env, options const & o, bool multiple_instances):
     m_env(env),
-    m_ngen(*g_internal_prefix),
     m_ext_ctx(new ext_ctx(*this)),
-    m_local_gen(gen),
-    m_local_gen_owner(gen_owner),
     m_proj_info(get_projection_info_map(env)) {
     m_pip                   = nullptr;
     m_ci_multiple_instances = multiple_instances;
@@ -120,8 +86,6 @@ type_context::type_context(environment const & env, options const & o, tmp_local
 }
 
 type_context::~type_context() {
-    if (m_local_gen_owner)
-        delete m_local_gen;
 }
 
 void type_context::push() {
@@ -134,12 +98,29 @@ void type_context::pop() {
     m_infer_cache.pop();
 }
 
+expr type_context::mk_tmp_local(expr const & type, binder_info const & bi) {
+    name n = mk_tagged_fresh_name(*g_tmp_prefix);
+    return lean::mk_local(n, n, type, bi);
+}
+
+expr type_context::mk_tmp_local(name const & pp_name, expr const & type, binder_info const & bi) {
+    name n = mk_tagged_fresh_name(*g_tmp_prefix);
+    return lean::mk_local(n, pp_name, type, bi);
+}
+
+bool type_context::is_tmp_local(expr const & e) const {
+    if (!is_local(e))
+        return false;
+    name const & n = mlocal_name(e);
+    return is_tagged_by(n, *g_tmp_prefix);
+}
+
 expr type_context::mk_internal_local(name const & n, expr const & type, binder_info const & bi) {
-    return mk_local(m_ngen.next(), n, type, bi);
+    return mk_local(mk_tagged_fresh_name(*g_internal_prefix), n, type, bi);
 }
 
 expr type_context::mk_internal_local(expr const & type, binder_info const & bi) {
-    name n = m_ngen.next();
+    name n = mk_tagged_fresh_name(*g_internal_prefix);
     return mk_local(n, n, type, bi);
 }
 
@@ -147,7 +128,7 @@ bool type_context::is_internal_local(expr const & e) const {
     if (!is_local(e))
         return false;
     name const & n = mlocal_name(e);
-    return !n.is_atomic() && n.get_prefix() == m_ngen.prefix();
+    return is_tagged_by(n, *g_internal_prefix);
 }
 
 void type_context::set_local_instances(list<expr> const & insts) {

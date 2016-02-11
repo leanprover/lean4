@@ -34,7 +34,7 @@ optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx
 */
 pair<expr, constraint> mk_class_instance_elaborator(
     environment const & env, io_state const & ios, local_context const & ctx,
-    name const & prefix, optional<name> const & suffix, bool use_local_instances,
+    optional<name> const & suffix, bool use_local_instances,
     bool is_strict, optional<expr> const & type, tag g, pos_info_provider const * pip);
 
 optional<expr> mk_class_instance(environment const & env, io_state const & ios, local_context const & ctx, expr const & type, bool use_local_instances);

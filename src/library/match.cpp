@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <utility>
+#include "util/fresh_name.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
@@ -20,7 +21,6 @@ class match_fn : public match_context {
     optional<expr> *                  m_esubst;
     unsigned                          m_lsubst_sz;
     optional<level> *                 m_lsubst;
-    name_generator                    m_ngen;
     name_map<name> *                  m_name_subst;
     match_plugin const *              m_plugin;
     buffer<pair<bool, unsigned>>      m_stack;
@@ -96,7 +96,7 @@ class match_fn : public match_context {
     virtual void assign(level const & p, level const & t) { return _assign(p, t); }
     virtual optional<expr> get_subst(expr const & x) const { return _get_subst(x); }
     virtual optional<level> get_subst(level const & x) const { return _get_subst(x); }
-    virtual name mk_name() { return m_ngen.next(); }
+    virtual name mk_name() { return mk_fresh_name(); }
 
     bool args_are_distinct_locals(buffer<expr> const & args) {
         for (auto it = args.begin(); it != args.end(); it++) {
@@ -131,7 +131,7 @@ class match_fn : public match_context {
             expr t_d  = instantiate_rev(binding_domain(t), ls.size(), ls.data());
             if (!_match(p_d, t_d))
                 return false;
-            expr l  = mk_local(m_ngen.next(), binding_name(t), t_d, binding_info(t));
+            expr l  = mk_local(mk_fresh_name(), binding_name(t), t_d, binding_info(t));
             ls.push_back(l);
             p = binding_body(p);
             t = binding_body(t);
@@ -363,11 +363,10 @@ class match_fn : public match_context {
 public:
     match_fn(unsigned lsubst_sz, optional<level> * lsubst,
              unsigned esubst_sz, optional<expr> * esubst,
-             name_generator const & ngen,
              name_map<name> * name_subst, match_plugin const * plugin, bool * assigned):
         m_esubst_sz(esubst_sz), m_esubst(esubst),
         m_lsubst_sz(lsubst_sz), m_lsubst(lsubst),
-        m_ngen(ngen), m_name_subst(name_subst), m_plugin(plugin),
+        m_name_subst(name_subst), m_plugin(plugin),
         m_assigned(assigned) {}
 
     virtual bool match(expr const & p, expr const & t) { return _match(p, t); }
@@ -376,21 +375,17 @@ public:
 bool match(expr const & p, expr const & t,
            unsigned lsubst_sz, optional<level> * lsubst,
            unsigned esubst_sz, optional<expr> * esubst,
-           name const * prefix, name_map<name> * name_subst, match_plugin const * plugin, bool * assigned) {
+           name_map<name> * name_subst, match_plugin const * plugin, bool * assigned) {
     lean_assert(closed(t));
     lean_assert(closed(p));
-    if (prefix)
-        return match_fn(lsubst_sz, lsubst, esubst_sz, esubst, name_generator(*prefix),
-                        name_subst, plugin, assigned).match(p, t);
-    else
-        return match_fn(lsubst_sz, lsubst, esubst_sz, esubst,
-                        name_generator(), name_subst, plugin, assigned).match(p, t);
+    return match_fn(lsubst_sz, lsubst, esubst_sz, esubst,
+                    name_subst, plugin, assigned).match(p, t);
 }
 
 bool match(expr const & p, expr const & t, buffer<optional<level>> & lsubst, buffer<optional<expr>> & esubst,
-           name const * prefix, name_map<name> * name_subst, match_plugin const * plugin, bool * assigned) {
+           name_map<name> * name_subst, match_plugin const * plugin, bool * assigned) {
     return match(p, t, lsubst.size(), lsubst.data(), esubst.size(), esubst.data(),
-                 prefix, name_subst, plugin, assigned);
+                 name_subst, plugin, assigned);
 }
 
 bool whnf_match_plugin::on_failure(expr const & p, expr const & t, match_context & ctx) const {

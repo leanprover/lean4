@@ -62,12 +62,9 @@ struct reducible_config {
 template class scoped_ext<reducible_config>;
 typedef scoped_ext<reducible_config> reducible_ext;
 
-static name * g_tmp_prefix = nullptr;
-
 void initialize_reducible() {
     g_class_name = new name("reducible");
     g_key        = new std::string("REDU");
-    g_tmp_prefix = new name(name::mk_internal_unique_name());
     reducible_ext::initialize();
 
     register_attribute("reducible", "reducible",
@@ -104,7 +101,6 @@ void initialize_reducible() {
 
 void finalize_reducible() {
     reducible_ext::finalize();
-    delete g_tmp_prefix;
     delete g_key;
     delete g_class_name;
 }
@@ -157,23 +153,19 @@ name_predicate mk_irreducible_pred(environment const & env) {
     };
 }
 
-type_checker_ptr mk_type_checker(environment const & env, name_generator && ngen, reducible_behavior rb) {
+type_checker_ptr mk_type_checker(environment const & env, reducible_behavior rb) {
     switch (rb) {
     case UnfoldReducible:
-        return mk_type_checker(env, std::move(ngen), mk_not_reducible_pred(env));
+        return mk_type_checker(env, mk_not_reducible_pred(env));
     case UnfoldQuasireducible:
-        return mk_type_checker(env, std::move(ngen), mk_not_quasireducible_pred(env));
+        return mk_type_checker(env, mk_not_quasireducible_pred(env));
     case UnfoldSemireducible:
-        return mk_type_checker(env, std::move(ngen), mk_irreducible_pred(env));
+        return mk_type_checker(env, mk_irreducible_pred(env));
     }
     lean_unreachable();
 }
 
-type_checker_ptr mk_type_checker(environment const & env, reducible_behavior rb) {
-    return mk_type_checker(env, name_generator(*g_tmp_prefix), rb);
-}
-
-type_checker_ptr mk_opaque_type_checker(environment const & env, name_generator && ngen) {
-    return mk_type_checker(env, std::move(ngen), [](name const &) { return true; });
+type_checker_ptr mk_opaque_type_checker(environment const & env) {
+    return mk_type_checker(env, [](name const &) { return true; });
 }
 }

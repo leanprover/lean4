@@ -23,9 +23,8 @@ tactic contradiction_tactic() {
         goal const & g      = head(gs);
         expr const & t      = g.get_type();
         substitution subst  = s.get_subst();
-        name_generator ngen = s.get_ngen();
-        auto tc             = mk_type_checker(env, ngen.mk_child());
-        auto conserv_tc     = mk_type_checker(env, ngen.mk_child(), UnfoldReducible);
+        auto tc             = mk_type_checker(env);
+        auto conserv_tc     = mk_type_checker(env, UnfoldReducible);
         buffer<expr> hyps;
         g.get_hyps(hyps);
         for (expr const & h : hyps) {
@@ -34,7 +33,7 @@ tactic contradiction_tactic() {
             expr lhs, rhs, arg;
             if (is_false(env, h_type)) {
                 assign(subst, g, mk_false_rec(*tc, h, t));
-                return some_proof_state(proof_state(s, tail(gs), subst, ngen));
+                return some_proof_state(proof_state(s, tail(gs), subst));
             } else if (is_not(env, h_type, arg)) {
                 optional<expr> h_pos;
                 for (expr const & h_prime : hyps) {
@@ -46,7 +45,7 @@ tactic contradiction_tactic() {
                 }
                 if (h_pos) {
                     assign(subst, g, mk_absurd(*tc, t, *h_pos, h));
-                    return some_proof_state(proof_state(s, tail(gs), subst, ngen));
+                    return some_proof_state(proof_state(s, tail(gs), subst));
                 }
             } else if (is_eq(h_type, lhs, rhs)) {
                 lhs = tc->whnf(lhs).first;
@@ -67,7 +66,7 @@ tactic contradiction_tactic() {
                                 if (auto r = lift_down_if_hott(*tc, V)) {
                                     check_term(*tc, *r);
                                     assign(subst, g, *r);
-                                    return some_proof_state(proof_state(s, tail(gs), subst, ngen));
+                                    return some_proof_state(proof_state(s, tail(gs), subst));
                                 }
                             }
                         } catch (kernel_exception & ex) {

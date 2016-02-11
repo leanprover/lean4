@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/fresh_name.h"
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
@@ -21,8 +22,6 @@ namespace lean {
 // Auxiliary visitor the implements the common parts for unfold_rec_fn and fold_rec_fn
 class replace_visitor_aux : public replace_visitor {
 protected:
-    virtual name mk_fresh_name() = 0;
-
     expr visit_app_default(expr const & e, expr const & fn, buffer<expr> & args) {
         bool modified = false;
         for (expr & arg : args) {
@@ -47,15 +46,12 @@ protected:
 
 class unfold_rec_fn : public replace_visitor_aux {
     environment const & m_env;
-    name_generator      m_ngen;
     bool                m_force_unfold;
     type_checker_ptr    m_tc;
     type_checker_ptr    m_norm_decl_tc;
     list<name>          m_to_unfold;
     occurrence          m_occs;
     unsigned            m_occ_idx;
-
-    virtual name mk_fresh_name() { return m_ngen.next(); }
 
     static void throw_ill_formed() {
         throw exception("ill-formed expression");
@@ -185,7 +181,7 @@ class unfold_rec_fn : public replace_visitor_aux {
             throw_ill_formed();
         expr fn_body     = instantiate_value_univ_params(decl, const_levels(fn));
         while (is_lambda(fn_body)) {
-            expr local = mk_local(m_ngen.next(), binding_domain(fn_body));
+            expr local = mk_local(mk_fresh_name(), binding_domain(fn_body));
             locals.push_back(local);
             fn_body    = instantiate(binding_body(fn_body), local);
         }
@@ -216,8 +212,6 @@ class unfold_rec_fn : public replace_visitor_aux {
             lean_assert(m_main_pos < args.size());
             lean_assert(std::all_of(rec_arg_pos.begin(), rec_arg_pos.end(), [&](unsigned pos) { return pos < args.size(); }));
         }
-
-        virtual name mk_fresh_name() { return m_tc->mk_fresh_name(); }
 
         expr fold_rec(expr const & e, buffer<expr> const & args) {
             if (args.size() != m_major_idx + 1 + m_rec_arg_pos.size())
@@ -382,13 +376,12 @@ class unfold_rec_fn : public replace_visitor_aux {
     }
 
 public:
-    unfold_rec_fn(environment const & env, name_generator && ngen, bool force_unfold, list<name> const & to_unfold,
+    unfold_rec_fn(environment const & env, bool force_unfold, list<name> const & to_unfold,
                   occurrence const & occs):
         m_env(env),
-        m_ngen(ngen),
         m_force_unfold(force_unfold),
-        m_tc(mk_type_checker(m_env, m_ngen.mk_child(), [](name const &) { return false; })),
-        m_norm_decl_tc(mk_type_checker(m_env, m_ngen.mk_child(), [&](name const & n) { return !is_rec_building_part(n); })),
+        m_tc(mk_type_checker(m_env, [](name const &) { return false; })),
+        m_norm_decl_tc(mk_type_checker(m_env, [&](name const & n) { return !is_rec_building_part(n); })),
         m_to_unfold(to_unfold),
         m_occs(occs),
         m_occ_idx(0)
@@ -400,11 +393,11 @@ public:
     }
 };
 
-optional<expr> unfold_rec(environment const & env, name_generator && ngen, bool force_unfold, expr const & e, list<name> const & to_unfold,
+optional<expr> unfold_rec(environment const & env, bool force_unfold, expr const & e, list<name> const & to_unfold,
                           occurrence const & occs) {
     lean_assert(std::all_of(to_unfold.begin(), to_unfold.end(), [&](name const & n) { return env.get(n).is_definition(); }));
     try {
-        expr r = unfold_rec_fn(env, std::move(ngen), force_unfold, to_unfold, occs)(e);
+        expr r = unfold_rec_fn(env, force_unfold, to_unfold, occs)(e);
         if (r == e)
             return none_expr();
         return some_expr(r);

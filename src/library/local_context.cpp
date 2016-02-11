@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/fresh_name.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "kernel/metavar.h"
@@ -75,28 +76,28 @@ expr local_context::apply_context(expr const & f, tag g) const {
     return apply_context_core(f, m_ctx, g);
 }
 
-expr local_context::mk_type_metavar(name_generator & ngen, tag g) const {
-    name n = ngen.next();
-    expr s = mk_sort(mk_meta_univ(ngen.next()), g);
+expr local_context::mk_type_metavar(tag g) const {
+    name n = mk_fresh_name();
+    expr s = mk_sort(mk_meta_univ(mk_fresh_name()), g);
     expr t = pi_abstract_context(s, g);
     return ::lean::mk_metavar(n, t, g);
 }
 
-expr local_context::mk_type_meta(name_generator & ngen, tag g) const {
-    return apply_context(mk_type_metavar(ngen, g), g);
+expr local_context::mk_type_meta(tag g) const {
+    return apply_context(mk_type_metavar(g), g);
 }
 
-expr local_context::mk_metavar(name_generator & ngen, optional<name> const & suffix, optional<expr> const & type, tag g) const {
-    name n      = ngen.next();
+expr local_context::mk_metavar(optional<name> const & suffix, optional<expr> const & type, tag g) const {
+    name n      = mk_fresh_name();
     if (suffix)
         n = n + *suffix;
-    expr r_type = type ? *type : mk_type_meta(ngen, g);
+    expr r_type = type ? *type : mk_type_meta(g);
     expr t      = pi_abstract_context(r_type, g);
     return ::lean::mk_metavar(n, t, g);
 }
 
-expr local_context::mk_meta(name_generator & ngen, optional<name> const & suffix, optional<expr> const & type, tag g) const {
-    expr mvar = mk_metavar(ngen, suffix, type, g);
+expr local_context::mk_meta(optional<name> const & suffix, optional<expr> const & type, tag g) const {
+    expr mvar = mk_metavar(suffix, type, g);
     expr meta = apply_context(mvar, g);
     return meta;
 }

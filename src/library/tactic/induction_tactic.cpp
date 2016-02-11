@@ -26,7 +26,6 @@ class induction_tac {
     name                  m_h_name;
     optional<name>        m_rec_name;
     list<name>            m_ids;
-    name_generator        m_ngen;
     substitution          m_subst;
     bool                  m_throw_ex;
     bool                  m_standard;
@@ -67,7 +66,7 @@ class induction_tac {
         bool is_strict       = false;
         local_context ctx    = g.to_local_context();
         auto mc = mk_class_instance_elaborator(
-            m_env, m_ios, ctx, m_ngen.next(), optional<name>(),
+            m_env, m_ios, ctx, optional<name>(),
             use_local_insts, is_strict,
             some_expr(type), m_ref.get_tag(), nullptr);
         m_cs += mc.second;
@@ -171,7 +170,7 @@ class induction_tac {
                         } else {
                             arg_name = binding_name(new_type);
                         }
-                        expr new_h = mk_local(m_ngen.next(), get_unused_name(arg_name, new_goal_hyps),
+                        expr new_h = mk_local(mk_fresh_name(), get_unused_name(arg_name, new_goal_hyps),
                                               arg_type, binder_info());
                         minor_args.push_back(new_h);
                         new_goal_hyps.push_back(new_h);
@@ -186,14 +185,15 @@ class induction_tac {
                                 throw_ill_formed_recursor(rec_info);
                             }
                             expr dep_type = binding_domain(new_type);
-                            expr new_dep  = mk_local(m_ngen.next(), get_unused_name(binding_name(new_type), new_goal_hyps),
+                            expr new_dep  = mk_local(mk_fresh_name(),
+                                                     get_unused_name(binding_name(new_type), new_goal_hyps),
                                                      dep_type, binder_info());
                             new_deps.push_back(new_dep);
                             new_goal_hyps.push_back(new_dep);
                             new_type = instantiate(binding_body(new_type), new_dep);
                         }
                     }
-                    expr new_meta  = mk_app(mk_metavar(m_ngen.next(), Pi(new_goal_hyps, new_type)), new_goal_hyps);
+                    expr new_meta  = mk_app(mk_metavar(mk_fresh_name(), Pi(new_goal_hyps, new_type)), new_goal_hyps);
                     goal new_g(new_meta, new_type);
                     new_goals.push_back(new_g);
                     rec_arg   = Fun(minor_args, Fun(new_deps, new_meta));
@@ -270,7 +270,7 @@ class induction_tac {
             buffer<expr> & new_hyps = non_deps;
             new_hyps.push_back(h);
             expr new_type = Pi(deps, g.get_type());
-            expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(new_hyps, new_type)), new_hyps);
+            expr new_meta = mk_app(mk_metavar(mk_fresh_name(), Pi(new_hyps, new_type)), new_hyps);
             goal new_g(new_meta, new_type);
             expr val      = mk_app(new_meta, deps);
             assign(g, val);
@@ -281,16 +281,14 @@ class induction_tac {
     }
 
 public:
-    induction_tac(environment const & env, io_state const & ios, name_generator const & ngen,
+    induction_tac(environment const & env, io_state const & ios,
                   type_checker & tc, substitution const & subst, name const & h_name,
                   optional<name> const & rec_name, list<name> const & ids,
                   bool throw_ex, expr const & ref):
         m_env(env), m_ios(ios), m_tc(tc), m_h_name(h_name), m_rec_name(rec_name), m_ids(ids),
-        m_ngen(ngen), m_subst(subst), m_throw_ex(throw_ex), m_ref(ref) {
+        m_subst(subst), m_throw_ex(throw_ex), m_ref(ref) {
         m_standard = is_standard(env);
     }
-
-    name_generator const & get_ngen() const { return m_ngen; }
 
     substitution const & get_subst() const { return m_subst; }
 
@@ -302,11 +300,11 @@ public:
         if (m_rec_name) {
             recursor_info info      = get_recursor_info(m_env, *m_rec_name);
             name tname              = info.get_type_name();
-            type_checker_ptr aux_tc = mk_type_checker(m_env, m_ngen.mk_child(), [=](name const & n) { return n == tname; });
+            type_checker_ptr aux_tc = mk_type_checker(m_env, [=](name const & n) { return n == tname; });
             return aux_tc->whnf(H_type).first;
         } else {
             has_recursors_pred pred(m_env);
-            type_checker_ptr aux_tc = mk_type_checker(m_env, m_ngen.mk_child(), pred);
+            type_checker_ptr aux_tc = mk_type_checker(m_env, pred);
             return aux_tc->whnf(H_type).first;
         }
     }
@@ -369,11 +367,10 @@ tactic induction_tactic(name const & H, optional<name> rec, list<name> const & i
         }
         goal  g                          = head(gs);
         goals tail_gs                    = tail(gs);
-        name_generator ngen              = ps.get_ngen();
-        std::unique_ptr<type_checker> tc = mk_type_checker(env, ngen.mk_child());
-        induction_tac tac(env, ios, ngen, *tc, ps.get_subst(), H, rec, ids, ps.report_failure(), ref);
+        std::unique_ptr<type_checker> tc = mk_type_checker(env);
+        induction_tac tac(env, ios, *tc, ps.get_subst(), H, rec, ids, ps.report_failure(), ref);
         if (auto res = tac.execute(g)) {
-            proof_state new_s(ps, append(*res, tail_gs), tac.get_subst(), tac.get_ngen());
+            proof_state new_s(ps, append(*res, tail_gs), tac.get_subst());
             if (solve_constraints(env, ios, new_s, tac.get_new_constraints()))
                 return some_proof_state(new_s);
             else

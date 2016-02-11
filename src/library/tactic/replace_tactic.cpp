@@ -4,15 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Robert Y. Lewis
 */
-
-#include "library/tactic/replace_tactic.h"
+#include "util/fresh_name.h"
 #include "util/lazy_list_fn.h"
 #include "kernel/error_msgs.h"
+#include "kernel/instantiate.h"
 #include "library/constants.h"
 #include "library/reducible.h"
 #include "library/unifier.h"
+#include "library/tactic/replace_tactic.h"
 #include "library/tactic/expr_to_tactic.h"
-#include "kernel/instantiate.h"
 
 namespace lean {
 
@@ -61,9 +61,8 @@ tactic mk_replace_tactic(elaborate_fn const & elab, expr const & e) {
             if (new_t1 && new_t2) {
                 goals const & gs    = new_s.get_goals();
                 goal const & g      = head(gs);
-                name_generator ngen = new_s.get_ngen();
                 substitution subst  = new_s.get_subst();
-                auto tc             = mk_type_checker(env, ngen.mk_child());
+                auto tc             = mk_type_checker(env);
                 constraint_seq cs;
                 if (tc->is_def_eq(*new_t1, *new_t2, justification(), cs)) {
                     auto nocc = loc.includes_goal();
@@ -79,22 +78,21 @@ tactic mk_replace_tactic(elaborate_fn const & elab, expr const & e) {
                         buffer<constraint> cs_buf;
                         cs.linearize(cs_buf);
                         to_buffer(new_s.get_postponed(), cs_buf);
-                        unify_result_seq rseq = unify(env, cs_buf.size(), cs_buf.data(), ngen.mk_child(), subst, cfg);
+                        unify_result_seq rseq = unify(env, cs_buf.size(), cs_buf.data(), subst, cfg);
                         return map2<proof_state>(rseq, [=](pair<substitution, constraints> const & p) -> proof_state {
                                 substitution const & subst    = p.first;
                                 constraints const & postponed = p.second;
-                                name_generator new_ngen(ngen);
                                 substitution new_subst = subst;
-                                expr M = g.mk_meta(new_ngen.next(), new_goal);
+                                expr M = g.mk_meta(mk_fresh_name(), new_goal);
                                 goal new_g(M, new_goal);
                                 assign(new_subst, g, M);
-                                return proof_state(new_s, cons(new_g, tail(gs)), new_subst, new_ngen, postponed);
+                                return proof_state(new_s, cons(new_g, tail(gs)), new_subst, postponed);
                             });
                     }
-                    expr M   = g.mk_meta(ngen.next(), new_goal);
+                    expr M   = g.mk_meta(mk_fresh_name(), new_goal);
                     goal new_g(M, new_goal);
                     assign(subst, g, M);
-                    return proof_state_seq(proof_state(new_s, cons(new_g, tail(gs)), subst, ngen));
+                    return proof_state_seq(proof_state(new_s, cons(new_g, tail(gs)), subst));
                 } else {
                     throw_tactic_exception_if_enabled(new_s, [=](formatter const & fmt) {
                             format r = format("invalid 'replace' tactic, the new type");

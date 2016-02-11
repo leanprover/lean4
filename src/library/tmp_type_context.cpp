@@ -21,12 +21,6 @@ tmp_type_context::tmp_type_context(environment const & env, options const & o, r
     init(env, b);
 }
 
-tmp_type_context::tmp_type_context(environment const & env, options const & o, tmp_local_generator & gen,
-                                   reducible_behavior b):
-    type_context(env, o, gen) {
-    init(env, b);
-}
-
 tmp_type_context::~tmp_type_context() {
 }
 

@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include "util/lazy_list.h"
 #include "util/list.h"
-#include "util/name_generator.h"
 #include "util/sequence.h"
 #include "kernel/level.h"
 
@@ -57,7 +56,7 @@ typedef list<constraint> constraints;
 
    One application of choice constraints is overloaded notation.
 */
-typedef std::function<lazy_list<constraints>(expr const &, expr const &, substitution const &, name_generator &&)> choice_fn;
+typedef std::function<lazy_list<constraints>(expr const &, expr const &, substitution const &)> choice_fn;
 
 struct constraint_cell;
 class constraint {

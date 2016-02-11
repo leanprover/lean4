@@ -31,7 +31,6 @@ class elaborator : public coercion_info_manager {
     typedef rb_map<expr, pair<expr, constraint_seq>, expr_quick_cmp> cache;
     typedef std::vector<pair<expr, expr>> to_check_sorts;
     elaborator_context & m_ctx;
-    name_generator       m_ngen;
     type_checker_ptr     m_tc;
     type_checker_ptr     m_coercion_from_tc;
     type_checker_ptr     m_coercion_to_tc;
@@ -196,7 +195,7 @@ class elaborator : public coercion_info_manager {
 
     void show_goal(proof_state const & ps, expr const & start, expr const & end, expr const & curr);
 public:
-    elaborator(elaborator_context & ctx, name_generator && ngen, bool nice_mvar_names = false);
+    elaborator(elaborator_context & ctx, bool nice_mvar_names = false);
     std::tuple<expr, level_param_names> operator()(list<expr> const & ctx, expr const & e, bool _ensure_type);
     std::tuple<expr, expr, level_param_names> operator()(expr const & t, expr const & v, name const & n);
 };

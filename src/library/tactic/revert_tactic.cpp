@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/fresh_name.h"
 #include "kernel/abstract.h"
 #include "library/constants.h"
 #include "library/locals.h"
@@ -31,13 +32,12 @@ tactic revert_tactic(name const & n) {
                                                   << "' depends on '" << local_pp_name(h) << "'");
                 return none_proof_state(); // other hypotheses depend on h
             }
-            name_generator ngen = s.get_ngen();
             expr new_type = Pi(h, g.get_type());
-            expr new_meta = mk_app(mk_metavar(ngen.next(), Pi(hyps, new_type)), hyps);
+            expr new_meta = mk_app(mk_metavar(mk_fresh_name(), Pi(hyps, new_type)), hyps);
             goal new_g(new_meta, new_type);
             substitution new_subst = s.get_subst();
             assign(new_subst, g, mk_app(new_meta, h));
-            proof_state new_s(s, goals(new_g, tail_gs), new_subst, ngen);
+            proof_state new_s(s, goals(new_g, tail_gs), new_subst);
             return some_proof_state(new_s);
         } else {
             throw_tactic_exception_if_enabled(s, sstream() << "invalid 'revert' tactic, unknown hypothesis '" << n << "'");

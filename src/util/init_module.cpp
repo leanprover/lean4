@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/serializer.h"
 #include "util/name.h"
-#include "util/name_generator.h"
 #include "util/lean_path.h"
 #include "util/thread.h"
 #include "util/memory_pool.h"
@@ -20,12 +19,10 @@ void initialize_util_module() {
     initialize_thread();
     initialize_ascii();
     initialize_name();
-    initialize_name_generator();
     initialize_lean_path();
 }
 void finalize_util_module() {
     finalize_lean_path();
-    finalize_name_generator();
     finalize_name();
     finalize_ascii();
     finalize_thread();

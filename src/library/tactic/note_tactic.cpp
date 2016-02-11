@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/fresh_name.h"
 #include "kernel/abstract.h"
 #include "library/constants.h"
 #include "library/reducible.h"
@@ -27,26 +28,25 @@ tactic note_tactic(elaborate_fn const & elab, name const & id, expr const & e) {
                 return none_proof_state();
             }
             goal const & g         = head(gs);
-            name_generator ngen    = s.get_ngen();
             bool report_unassigned = true;
-            elaborate_result esc = elab(g, ios.get_options(), ngen.mk_child(), e, none_expr(), new_s.get_subst(), report_unassigned);
+            elaborate_result esc = elab(g, ios.get_options(), e, none_expr(), new_s.get_subst(), report_unassigned);
             expr new_e; substitution new_subst; constraints cs;
             std::tie(new_e, new_subst, cs) = esc;
             if (cs)
                 throw_tactic_exception_if_enabled(s, "invalid 'note' tactic, fail to resolve generated constraints");
-            auto tc         = mk_type_checker(env, ngen.mk_child());
+            auto tc         = mk_type_checker(env);
             expr new_e_type = tc->infer(new_e).first;
-            expr new_local  = mk_local(ngen.next(), id, new_e_type, binder_info());
+            expr new_local  = mk_local(mk_fresh_name(), id, new_e_type, binder_info());
             buffer<expr> hyps;
             g.get_hyps(hyps);
             hyps.push_back(new_local);
-            expr new_mvar  = mk_metavar(ngen.next(), Pi(hyps, g.get_type()));
+            expr new_mvar  = mk_metavar(mk_fresh_name(), Pi(hyps, g.get_type()));
             hyps.pop_back();
             expr new_meta_core = mk_app(new_mvar, hyps);
             expr new_meta      = mk_app(new_meta_core, new_local);
             goal new_goal(new_meta, g.get_type());
             assign(new_subst, g, mk_app(new_meta_core, new_e));
-            return some_proof_state(proof_state(s, cons(new_goal, tail(gs)), new_subst, ngen));
+            return some_proof_state(proof_state(s, cons(new_goal, tail(gs)), new_subst));
         });
 }
 

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/lbool.h"
 #include "util/interrupt.h"
+#include "util/fresh_name.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "kernel/metavar.h"
@@ -34,7 +35,6 @@ namespace lean {
 [[ noreturn ]] void throw_class_exception(expr const & m, pp_fn const & fn) { throw_generic_exception(m, fn); }
 
 static name * g_class_force_new              = nullptr;
-static name * g_prefix                       = nullptr;
 
 bool get_class_force_new(options const & o) {
     return o.get_bool(*g_class_force_new, false);
@@ -130,7 +130,7 @@ public:
 static constraint mk_class_instance_root_cnstr(environment const & env, io_state const & ios, local_context const & _ctx, expr const & m, bool is_strict,
                                                bool use_local_instances, pos_info_provider const * pip) {
     justification j         = mk_failed_to_synthesize_jst(env, m);
-    auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s, name_generator &&) {
+    auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s) {
         local_context ctx;
         if (use_local_instances)
             ctx = _ctx.instantiate(substitution(s));
@@ -170,10 +170,9 @@ static constraint mk_class_instance_root_cnstr(environment const & env, io_state
 */
 pair<expr, constraint> mk_new_class_instance_elaborator(
     environment const & env, io_state const & ios, local_context const & ctx,
-    name const & prefix, optional<name> const & suffix, bool use_local_instances,
+    optional<name> const & suffix, bool use_local_instances,
     bool is_strict, optional<expr> const & type, tag g, pos_info_provider const * pip) {
-    name_generator ngen(prefix);
-    expr m       = ctx.mk_meta(ngen, suffix, type, g);
+    expr m       = ctx.mk_meta(suffix, type, g);
     constraint c = mk_class_instance_root_cnstr(env, ios, ctx, m, is_strict,
                                                 use_local_instances, pip);
     return mk_pair(m, c);
@@ -203,7 +202,6 @@ optional<expr> mk_subsingleton_instance(environment const & env, options const &
 }
 
 void initialize_class_instance_resolution() {
-    g_prefix                       = new name(name::mk_internal_unique_name());
     g_class_force_new              = new name{"class", "force_new"};
 
     register_bool_option(*g_class_force_new,  false,
@@ -211,7 +209,6 @@ void initialize_class_instance_resolution() {
 }
 
 void finalize_class_instance_resolution() {
-    delete g_prefix;
     delete g_class_force_new;
 }
 
@@ -233,7 +230,6 @@ static bool get_class_trace_instances(options const & o) {
 /** \brief Context for handling class-instance metavariable choice constraint */
 struct class_instance_context {
     io_state                  m_ios;
-    name_generator            m_ngen;
     type_checker_ptr          m_tc;
     expr                      m_main_meta;
     bool                      m_use_local_instances;
@@ -244,16 +240,15 @@ struct class_instance_context {
     char const *              m_fname;
     optional<pos_info>        m_pos;
     class_instance_context(environment const & env, io_state const & ios,
-                           name const & prefix, bool use_local_instances):
+                           bool use_local_instances):
         m_ios(ios),
-        m_ngen(prefix),
         m_use_local_instances(use_local_instances) {
         m_fname           = nullptr;
         m_trace_instances = get_class_trace_instances(ios.get_options());
         m_max_depth       = get_class_instance_max_depth(ios.get_options());
         m_conservative    = true; // We removed the option class.conservative
         m_trans_instances = get_class_trans_instances(ios.get_options());
-        m_tc              = mk_class_type_checker(env, m_ngen.mk_child(), m_conservative);
+        m_tc              = mk_class_type_checker(env, m_conservative);
         options opts      = m_ios.get_options();
         opts              = opts.update_if_undef(get_pp_purify_metavars_name(), false);
         opts              = opts.update_if_undef(get_pp_implicit_name(), true);
@@ -349,7 +344,6 @@ struct class_instance_elaborator : public choice_iterator {
 
     optional<constraints> try_instance(expr const & inst, expr const & inst_type, bool use_globals) {
         type_checker & tc     = m_C->tc();
-        name_generator & ngen = m_C->m_ngen;
         tag g                 = inst.get_tag();
         try {
             flet<local_context> scope(m_ctx, m_ctx);
@@ -359,7 +353,7 @@ struct class_instance_elaborator : public choice_iterator {
                 meta_type = tc.whnf(meta_type).first;
                 if (!is_pi(meta_type))
                     break;
-                expr local  = mk_local(ngen.next(), binding_name(meta_type),
+                expr local  = mk_local(mk_fresh_name(), binding_name(meta_type),
                                        binding_domain(meta_type), binding_info(meta_type));
                 m_ctx.add_local(local);
                 locals.push_back(local);
@@ -379,7 +373,7 @@ struct class_instance_elaborator : public choice_iterator {
                     arg = ac.first;
                     cs.push_back(ac.second);
                 } else {
-                    arg = m_ctx.mk_meta(m_C->m_ngen, some_expr(binding_domain(type)), g);
+                    arg = m_ctx.mk_meta(some_expr(binding_domain(type)), g);
                 }
                 r    = mk_app(r, arg, g);
                 type = instantiate(binding_body(type), arg);
@@ -396,11 +390,10 @@ struct class_instance_elaborator : public choice_iterator {
     optional<constraints> try_instance(name const & inst, bool use_globals) {
         environment const & env = m_C->env();
         if (auto decl = env.find(inst)) {
-            name_generator & ngen = m_C->m_ngen;
             buffer<level> ls_buffer;
             unsigned num_univ_ps = decl->get_num_univ_params();
             for (unsigned i = 0; i < num_univ_ps; i++)
-                ls_buffer.push_back(mk_meta_univ(ngen.next()));
+                ls_buffer.push_back(mk_meta_univ(mk_fresh_name()));
             levels ls = to_list(ls_buffer.begin(), ls_buffer.end());
             expr inst_cnst = copy_tag(m_meta, mk_constant(inst, ls));
             expr inst_type = instantiate_type_univ_params(*decl, ls);
@@ -444,7 +437,7 @@ static constraint mk_class_instance_cnstr(std::shared_ptr<class_instance_context
                                           local_context const & ctx, expr const & m, unsigned depth, bool use_globals) {
     environment const & env = C->env();
     justification j         = mk_failed_to_synthesize_jst(env, m);
-    auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const &, name_generator const &) {
+    auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const &) {
         if (auto cls_name_it = is_ext_class(C->tc(), meta_type)) {
             name cls_name = *cls_name_it;
             list<expr> const & ctx_lst = ctx.get_data();
@@ -472,7 +465,7 @@ static constraint mk_class_instance_cnstr(std::shared_ptr<class_instance_context
 
 static pair<expr, constraint> mk_class_instance_elaborator(std::shared_ptr<class_instance_context> const & C, local_context const & ctx,
                                                            optional<expr> const & type, tag g, unsigned depth, bool use_globals) {
-    expr m       = ctx.mk_meta(C->m_ngen, type, g);
+    expr m       = ctx.mk_meta(type, g);
     constraint c = mk_class_instance_cnstr(C, ctx, m, depth, use_globals);
     return mk_pair(m, c);
 }
@@ -482,8 +475,7 @@ static constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_co
     environment const & env = C->env();
     justification j         = mk_failed_to_synthesize_jst(env, m);
 
-    auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
-                         name_generator && ngen) {
+    auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s) {
         environment const & env  = C->env();
         auto cls_name_it = is_ext_class(C->tc(), meta_type);
         if (!cls_name_it) {
@@ -524,7 +516,7 @@ static constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_co
                 return lazy_list<constraints>(constraints());
         };
 
-        unify_result_seq seq1    = unify(env, 1, &c, std::move(ngen), substitution(), new_cfg);
+        unify_result_seq seq1    = unify(env, 1, &c, substitution(), new_cfg);
         unify_result_seq seq2    = filter(seq1, [=](pair<substitution, constraints> const & p) {
                 substitution new_s = p.first;
                 expr result = new_s.instantiate(new_meta);
@@ -559,11 +551,11 @@ static constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_co
 */
 pair<expr, constraint> mk_old_class_instance_elaborator(
     environment const & env, io_state const & ios, local_context const & ctx,
-    name const & prefix, optional<name> const & suffix, bool use_local_instances,
+    optional<name> const & suffix, bool use_local_instances,
     bool is_strict, optional<expr> const & type, tag g, unifier_config const & cfg,
     pos_info_provider const * pip) {
-    auto C       = std::make_shared<class_instance_context>(env, ios, prefix, use_local_instances);
-    expr m       = ctx.mk_meta(C->m_ngen, suffix, type, g);
+    auto C       = std::make_shared<class_instance_context>(env, ios, use_local_instances);
+    expr m       = ctx.mk_meta(suffix, type, g);
     C->set_main_meta(m);
     if (pip)
         C->set_pos(pip->get_file_name(), pip->get_pos_info(m));
@@ -573,15 +565,15 @@ pair<expr, constraint> mk_old_class_instance_elaborator(
 
 pair<expr, constraint> mk_class_instance_elaborator(
     environment const & env, io_state const & ios, local_context const & ctx,
-    name const & prefix, optional<name> const & suffix, bool use_local_instances,
+    optional<name> const & suffix, bool use_local_instances,
     bool is_strict, optional<expr> const & type, tag g,
     pos_info_provider const * pip) {
     if (is_standard(env) || get_class_force_new(ios.get_options())) {
-        return mk_new_class_instance_elaborator(env, ios, ctx, prefix, suffix, use_local_instances,
+        return mk_new_class_instance_elaborator(env, ios, ctx, suffix, use_local_instances,
                                                 is_strict, type, g, pip);
     } else {
         unifier_config cfg(ios.get_options(), true /* use exceptions */, true /* discard */);
-        return mk_old_class_instance_elaborator(env, ios, ctx, prefix, suffix, use_local_instances,
+        return mk_old_class_instance_elaborator(env, ios, ctx, suffix, use_local_instances,
                                                 is_strict, type, g, cfg, pip);
     }
 }

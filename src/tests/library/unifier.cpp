@@ -22,7 +22,7 @@ static void tst1() {
     expr m  = mk_metavar("m", A);
     expr t1 = mk_app(f, m, m);
     expr t2 = mk_app(f, a, b);
-    auto r = unify(env, t1, t2, name_generator("foo"));
+    auto r = unify(env, t1, t2);
     lean_assert(!r.pull());
 }
 

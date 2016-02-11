@@ -430,7 +430,7 @@ expr mk_xrewrite_tactic_expr(buffer<expr> const & elems) {
 
    \remark It stores the solution for goal \c g into \c s.
 */
-optional<goal> move_after(name_generator & ngen, goal const & g, name const & h, buffer<name> const & hs, substitution & s) {
+optional<goal> move_after(goal const & g, name const & h, buffer<name> const & hs, substitution & s) {
     if (hs.empty())
         return optional<goal>(g); // nothing to be done
     buffer<expr> hyps;
@@ -452,7 +452,7 @@ optional<goal> move_after(name_generator & ngen, goal const & g, name const & h,
                 new_hyps.append(to_move);
                 new_hyps.append(hyps.size() - i - 1, hyps.begin() + i + 1);
                 expr new_type = g.get_type();
-                expr new_mvar = mk_metavar(ngen.next(), Pi(new_hyps, new_type));
+                expr new_mvar = mk_metavar(mk_fresh_name(), Pi(new_hyps, new_type));
                 expr new_meta = mk_app(new_mvar, new_hyps);
                 goal new_g(new_meta, new_type);
                 assign(s, g, new_meta);
@@ -569,7 +569,6 @@ class rewrite_fn {
     io_state             m_ios;
     elaborate_fn         m_elab;
     proof_state          m_ps;
-    name_generator       m_ngen;
     type_checker_ptr     m_tc;
     type_checker_ptr     m_matcher_tc;
     type_checker_ptr     m_relaxed_tc; // reduce_to and check_trivial
@@ -609,7 +608,7 @@ class rewrite_fn {
     }
 
     expr mk_meta(expr const & type) {
-        return m_g.mk_meta(m_ngen.next(), type);
+        return m_g.mk_meta(mk_fresh_name(), type);
     }
 
     class rewriter_converter : public projection_converter {
@@ -645,17 +644,17 @@ class rewrite_fn {
         // TODO(Leo): should we add add an option that will not try to fold recursive applications
         if (to_unfold) {
             lean_assert(occs);
-            auto new_e = unfold_rec(m_env, m_ngen.mk_child(), force_unfold, e, to_unfold, *occs);
+            auto new_e = unfold_rec(m_env, force_unfold, e, to_unfold, *occs);
             if (!new_e)
                 return none_expr();
-            type_checker_ptr tc(new type_checker(m_env, m_ngen.mk_child(),
+            type_checker_ptr tc(new type_checker(m_env,
                                                  std::unique_ptr<converter>(new rewriter_converter(m_env, list<name>(), unfolded))));
             expr r = normalize(*tc, *new_e, cs, use_eta);
             if (cs) // FAIL if generated constraints
                 return none_expr();
             return some_expr(r);
         } else {
-            type_checker_ptr tc(new type_checker(m_env, m_ngen.mk_child(),
+            type_checker_ptr tc(new type_checker(m_env,
                                                  std::unique_ptr<converter>(new rewriter_converter(m_env, to_unfold, unfolded))));
 
             expr r = normalize(*tc, e, cs, use_eta);
@@ -667,7 +666,7 @@ class rewrite_fn {
 
     // Replace goal with definitionally equal one
     void replace_goal(expr const & new_type) {
-        expr M = m_g.mk_meta(m_ngen.next(), new_type);
+        expr M = m_g.mk_meta(mk_fresh_name(), new_type);
         goal new_g(M, new_type);
         assign(m_subst, m_g, M);
         update_goal(new_g);
@@ -703,7 +702,7 @@ class rewrite_fn {
             }
         }
         expr new_type = m_g.get_type();
-        expr new_mvar = mk_metavar(m_ngen.next(), Pi(new_hyps, new_type));
+        expr new_mvar = mk_metavar(mk_fresh_name(), Pi(new_hyps, new_type));
         expr new_meta = mk_app(new_mvar, new_hyps);
         goal new_g(new_meta, new_type);
         assign(m_subst, m_g, new_meta);
@@ -748,7 +747,7 @@ class rewrite_fn {
 
     optional<pair<expr, constraints>> elaborate_core(expr const & e, bool fail_if_cnstrs) {
         expr new_expr; substitution new_subst; constraints cs;
-        std::tie(new_expr, new_subst, cs) = m_elab(m_g, m_ios.get_options(), m_ngen.mk_child(), e, none_expr(), m_ps.get_subst(), false);
+        std::tie(new_expr, new_subst, cs) = m_elab(m_g, m_ios.get_options(), e, none_expr(), m_ps.get_subst(), false);
         if (fail_if_cnstrs && cs)
             return optional<pair<expr, constraints>>();
         m_ps = proof_state(m_ps, new_subst);
@@ -849,7 +848,7 @@ class rewrite_fn {
         cs_seq.linearize(cs);
         unifier_config cfg;
         cfg.m_discard = true;
-        unify_result_seq rseq = unify(m_env, cs.size(), cs.data(), m_ngen.mk_child(), m_subst, cfg);
+        unify_result_seq rseq = unify(m_env, cs.size(), cs.data(), m_subst, cfg);
         if (auto p = rseq.pull()) {
             substitution new_subst     = p->first.first;
             new_e   = new_subst.instantiate_all(new_e);
@@ -1042,7 +1041,7 @@ class rewrite_fn {
     pair<expr, constraint> mk_class_instance_elaborator(expr const & type) {
         bool use_local_instances = true;
         bool is_strict           = false;
-        return ::lean::mk_class_instance_elaborator(m_env, m_ios, m_ctx, m_ngen.next(), optional<name>(),
+        return ::lean::mk_class_instance_elaborator(m_env, m_ios, m_ctx, optional<name>(),
                                                     use_local_instances, is_strict,
                                                     some_expr(type), m_expr_loc.get_tag(), nullptr);
     }
@@ -1251,7 +1250,7 @@ class rewrite_fn {
             unifier_config cfg;
             cfg.m_kind         = unifier_kind::Liberal;
             cfg.m_discard      = true;
-            unify_result_seq rseq = unify(m_env, cs.size(), cs.data(), m_ngen.mk_child(), m_subst, cfg);
+            unify_result_seq rseq = unify(m_env, cs.size(), cs.data(), m_subst, cfg);
             if (auto p = rseq.pull()) {
                 substitution new_subst     = p->first.first;
                 rule      = new_subst.instantiate_all(rule);
@@ -1320,7 +1319,7 @@ class rewrite_fn {
                         r = compare_head(pattern, t);
                     } else {
                         bool assigned = false;
-                        r = match(pattern, t, m_lsubst, m_esubst, nullptr, nullptr, &m_mplugin, &assigned);
+                        r = match(pattern, t, m_lsubst, m_esubst, nullptr, &m_mplugin, &assigned);
                         if (assigned)
                             reset_subst();
                     }
@@ -1341,7 +1340,7 @@ class rewrite_fn {
         for (auto const & p : hyps) {
             used_hyp_names.push_back(mlocal_name(p));
         }
-        if (auto new_g = ::lean::move_after(m_ngen, m_g, mlocal_name(hyp), used_hyp_names, m_subst)) {
+        if (auto new_g = ::lean::move_after(m_g, mlocal_name(hyp), used_hyp_names, m_subst)) {
             m_g = *new_g;
             return true;
         } else {
@@ -1413,7 +1412,7 @@ class rewrite_fn {
                 }
             }
             expr new_type = m_g.get_type();
-            expr new_mvar = mk_metavar(m_ngen.next(), Pi(new_hyps, new_type));
+            expr new_mvar = mk_metavar(mk_fresh_name(), Pi(new_hyps, new_type));
             expr new_meta = mk_app(new_mvar, new_hyps);
             goal new_g(new_meta, new_type);
             expr V = mk_app(new_mvar, args);
@@ -1446,7 +1445,7 @@ class rewrite_fn {
             expr A   = m_relaxed_tc->infer(a).first;
             level l1 = sort_level(m_relaxed_tc->ensure_type(Pa).first);
             level l2 = sort_level(m_relaxed_tc->ensure_type(A).first);
-            expr M   = m_g.mk_meta(m_ngen.next(), Pb);
+            expr M   = m_g.mk_meta(mk_fresh_name(), Pb);
             expr H;
             if (has_dep_elim) {
                 expr Haeqx = mk_app(mk_constant(get_eq_name(), {l2}), A, b, mk_var(0));
@@ -1555,7 +1554,7 @@ class rewrite_fn {
     }
 
     // Process the given rewrite element/step. This method destructively update
-    // m_g, m_subst, m_ngen. It returns true if it succeeded and false otherwise.
+    // m_g, m_subst, It returns true if it succeeded and false otherwise.
     bool process_step(expr const & elem) {
         clear_trace();
         if (is_rewrite_unfold_step(elem)) {
@@ -1582,10 +1581,10 @@ class rewrite_fn {
     type_checker_ptr mk_matcher_tc(bool full) {
         if (get_rewriter_syntactic(m_ios.get_options())) {
             // use an everything opaque converter
-            return mk_opaque_type_checker(m_env, m_ngen.mk_child());
+            return mk_opaque_type_checker(m_env);
         } else {
             auto aux_pred = full ? mk_irreducible_pred(m_env) : mk_not_reducible_pred(m_env);
-            return mk_simple_type_checker(m_env, m_ngen.mk_child(), [=](name const & n) {
+            return mk_simple_type_checker(m_env, [=](name const & n) {
                     // Remark: the condition !is_num_leaf_constant(n) is a little bit hackish.
                     // It is here to allow us to match terms such as (@zero nat nat_has_zero) with nat.zero.
                     // The idea is to treat zero and has_zero.zero as reducible terms and unfold them here.
@@ -1596,7 +1595,7 @@ class rewrite_fn {
 
     type_checker_ptr mk_tc(bool full) {
         auto aux_pred = full ? mk_irreducible_pred(m_env) : mk_not_quasireducible_pred(m_env);
-        return mk_type_checker(m_env, m_ngen.mk_child(), [=](name const & n) {
+        return mk_type_checker(m_env, [=](name const & n) {
                 return aux_pred(n) && !is_numeral_const_name(n);
             });
     }
@@ -1606,7 +1605,7 @@ class rewrite_fn {
         if (ex)
             saved_ex.reset(static_cast<kernel_exception*>(ex->clone()));
         if (m_ps.report_failure()) {
-            proof_state curr_ps(m_ps, cons(m_g, tail(m_ps.get_goals())), m_subst, m_ngen);
+            proof_state curr_ps(m_ps, cons(m_g, tail(m_ps.get_goals())), m_subst);
             if (!m_use_trace || !m_trace_initialized) {
                 throw tactic_exception("rewrite step failed", some_expr(elem), curr_ps,
                                        [=](formatter const & fmt) {
@@ -1649,10 +1648,10 @@ class rewrite_fn {
 public:
     rewrite_fn(environment const & env, io_state const & ios, elaborate_fn const & elab, proof_state const & ps,
                bool full, bool keyed):
-        m_env(env), m_ios(ios), m_elab(elab), m_ps(ps), m_ngen(ps.get_ngen()),
+        m_env(env), m_ios(ios), m_elab(elab), m_ps(ps),
         m_tc(mk_tc(full)),
         m_matcher_tc(mk_matcher_tc(full)),
-        m_relaxed_tc(mk_type_checker(m_env, m_ngen.mk_child())),
+        m_relaxed_tc(mk_type_checker(m_env)),
         m_mplugin(m_ios, *m_matcher_tc) {
         m_keyed = keyed;
         m_ps    = apply_substitution(m_ps);
@@ -1681,7 +1680,7 @@ public:
         }
 
         goals new_gs = cons(m_g, tail(m_ps.get_goals()));
-        proof_state new_ps(m_ps, new_gs, m_subst, m_ngen);
+        proof_state new_ps(m_ps, new_gs, m_subst);
         return proof_state_seq(new_ps);
     }
 };

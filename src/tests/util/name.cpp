@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <sstream>
 #include "util/test.h"
 #include "util/name.h"
-#include "util/name_generator.h"
 #include "util/name_set.h"
 #include "util/init_module.h"
 using namespace lean;
@@ -120,31 +119,6 @@ static void tst8() {
     std::cout << u1 << " " << u2 << "\n";
 }
 
-static void tst9() {
-    name_generator g("a");
-    lean_assert(g.prefix() == "a");
-    name n0 = g.next();
-    name n1 = g.next();
-    name a0(name("a"), 0u);
-    name a1(name("a"), 1u);
-    lean_assert(n0 == a0);
-    lean_assert(n1 == a1);
-}
-
-static void tst10() {
-    name_generator g1("a");
-    name_generator g2("b");
-    name a0 = g1.next();
-    name b0 = g2.next();
-    lean_assert_eq(a0, name(name("a"), 0u));
-    lean_assert_eq(b0, name(name("b"), 0u));
-    swap(g1, g2);
-    name a1 = g2.next();
-    name b1 = g1.next();
-    lean_assert_eq(a1, name(name("a"), 1u));
-    lean_assert_eq(b1, name(name("b"), 1u));
-}
-
 static void tst11() {
     name n1("a");
     name n2("b");
@@ -163,15 +137,6 @@ static void tst12() {
     lean_assert(mk_unique(s, name("foo")) == name(name("foo"), 2));
 }
 
-static void tst13() {
-    name_generator g1("a");
-    name_generator c1 = g1.mk_child();
-    name_generator c2 = g1.mk_child();
-    lean_assert(c1.next() != c2.next());
-    std::cout << c1.next() << "\n";
-    std::cout << c2.next() << "\n";
-}
-
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -183,11 +148,8 @@ int main() {
     tst6();
     tst7();
     tst8();
-    tst9();
-    tst10();
     tst11();
     tst12();
-    tst13();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

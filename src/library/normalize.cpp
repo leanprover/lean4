@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "util/interrupt.h"
-#include "util/name_generator.h"
+#include "util/fresh_name.h"
 #include "kernel/replace_fn.h"
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
@@ -265,7 +265,6 @@ class normalize_fn {
     // So, we use m_full_tc for this kind of operation. It is an unconstrained type checker.
     // See issue #801
     type_checker                      m_full_tc;
-    name_generator                    m_ngen;
     std::function<bool(expr const &)> m_pred;  // NOLINT
     bool                              m_save_cnstrs;
     constraint_seq                    m_cnstrs;
@@ -276,7 +275,7 @@ class normalize_fn {
 
     expr normalize_binding(expr const & e) {
         expr d = normalize(binding_domain(e));
-        expr l = mk_local(m_ngen.next(), binding_name(e), d, binding_info(e));
+        expr l = mk_local(mk_fresh_name(), binding_name(e), d, binding_info(e));
         expr b = abstract(normalize(instantiate(binding_body(e), l)), l);
         return update_binding(e, d, b);
     }
@@ -408,7 +407,7 @@ class normalize_fn {
 
 public:
     normalize_fn(type_checker & tc, bool save, bool eta, bool nested_prop = true):
-        m_tc(tc), m_full_tc(tc.env()), m_ngen(m_tc.mk_ngen()),
+        m_tc(tc), m_full_tc(tc.env()),
         m_pred([](expr const &) { return true; }),
         m_save_cnstrs(save), m_use_eta(eta), m_eval_nested_prop(nested_prop) {
         if (!is_standard(env()))
@@ -416,7 +415,7 @@ public:
     }
 
     normalize_fn(type_checker & tc, std::function<bool(expr const &)> const & fn, bool eta, bool nested_prop = true): // NOLINT
-        m_tc(tc), m_full_tc(tc.env()), m_ngen(m_tc.mk_ngen()),
+        m_tc(tc), m_full_tc(tc.env()),
         m_pred(fn), m_save_cnstrs(true), m_use_eta(eta), m_eval_nested_prop(nested_prop) {
         if (!is_standard(env()))
             m_eval_nested_prop = true;

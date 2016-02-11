@@ -23,13 +23,12 @@ tactic exfalso_tactic() {
         goal const & g      = head(gs);
         expr const & t      = g.get_type();
         substitution subst  = s.get_subst();
-        name_generator ngen = s.get_ngen();
-        auto tc             = mk_type_checker(env, ngen.mk_child());
+        auto tc             = mk_type_checker(env);
         expr false_expr     = mk_false(env);
-        expr new_meta       = g.mk_meta(ngen.next(), false_expr);
+        expr new_meta       = g.mk_meta(mk_fresh_name(), false_expr);
         goal new_goal(new_meta, false_expr);
         assign(subst, g, mk_false_rec(*tc, new_meta, t));
-        return some(proof_state(s, goals(new_goal, tail(gs)), subst, ngen));
+        return some(proof_state(s, goals(new_goal, tail(gs)), subst));
     };
     return tactic01(fn);
 }

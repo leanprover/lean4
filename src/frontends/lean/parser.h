@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "util/flet.h"
 #include "util/name_map.h"
 #include "util/exception.h"
-#include "util/name_generator.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
 #include "library/io_state.h"
@@ -63,7 +62,6 @@ typedef list<parser_scope_stack_elem> parser_scope_stack;
 /** \brief Snapshot of the state of the Lean parser */
 struct snapshot {
     environment        m_env;
-    name_generator     m_ngen;
     local_level_decls  m_lds;
     local_expr_decls   m_eds;
     name_set           m_lvars; // subset of m_lds that is tagged as level variable
@@ -74,10 +72,10 @@ struct snapshot {
     unsigned           m_line;
     snapshot():m_line(0) {}
     snapshot(environment const & env, options const & o):m_env(env), m_options(o), m_line(1) {}
-    snapshot(environment const & env, name_generator const & ngen, local_level_decls const & lds,
+    snapshot(environment const & env, local_level_decls const & lds,
              local_expr_decls const & eds, name_set const & lvars, name_set const & vars,
              name_set const & includes, options const & opts, parser_scope_stack const & pss, unsigned line):
-        m_env(env), m_ngen(ngen), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
+        m_env(env), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
         m_options(opts), m_parser_scope_stack(pss), m_line(line) {}
 };
 
@@ -90,7 +88,6 @@ enum class undef_id_behavior { Error, AssumeConstant, AssumeLocal };
 class parser {
     environment             m_env;
     io_state                m_ios;
-    name_generator          m_ngen;
     bool                    m_verbose;
     bool                    m_use_exceptions;
     bool                    m_show_errors;
@@ -306,9 +303,6 @@ public:
     void updt_options();
     options get_options() const { return m_ios.get_options(); }
     template<typename T> void set_option(name const & n, T const & v) { m_ios.set_option(n, v); }
-
-    name mk_fresh_name() { return m_ngen.next(); }
-    name_generator mk_ngen() { return m_ngen.mk_child(); }
 
     /** \brief Return the current position information */
     pos_info pos() const { return pos_info(m_scanner.get_line(), m_scanner.get_pos()); }

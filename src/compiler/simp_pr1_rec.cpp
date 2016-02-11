@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/fresh_name.h"
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
@@ -16,7 +17,6 @@ Author: Leonardo de Moura
 namespace lean {
 class simp_pr1_rec_fn : public replace_visitor {
     environment    m_env;
-    name_generator m_ngen;
     type_checker   m_tc;
 
     struct failed {};
@@ -92,7 +92,7 @@ class simp_pr1_rec_fn : public replace_visitor {
             //  (lambda ctx, prod c1 c2), and replace it with (lambda ctx, c1)
             expr typeformer = rec_args[i];
             buffer<expr> typeformer_ctx;
-            expr typeformer_body = fun_to_telescope(m_ngen, typeformer, typeformer_ctx, optional<binder_info>());
+            expr typeformer_body = fun_to_telescope(typeformer, typeformer_ctx, optional<binder_info>());
 
             buffer<expr> typeformer_body_args;
             expr typeformer_body_fn = get_app_args(typeformer_body, typeformer_body_args);
@@ -107,7 +107,7 @@ class simp_pr1_rec_fn : public replace_visitor {
             buffer<bool> const & minor_is_rec_arg = is_rec_arg[j];
             expr minor = rec_args[i];
             buffer<expr> minor_ctx;
-            expr minor_body = fun_to_telescope(m_ngen, minor, minor_ctx, optional<binder_info>());
+            expr minor_body = fun_to_telescope(minor, minor_ctx, optional<binder_info>());
             if (minor_is_rec_arg.size() != minor_ctx.size()) {
                 return none_expr();
             }
@@ -159,13 +159,13 @@ class simp_pr1_rec_fn : public replace_visitor {
 
     virtual expr visit_binding(expr const & b) {
         expr new_domain = visit(binding_domain(b));
-        expr l          = mk_local(m_ngen.next(), new_domain);
+        expr l          = mk_local(mk_fresh_name(), new_domain);
         expr new_body   = abstract_local(visit(instantiate(binding_body(b), l)), l);
         return update_binding(b, new_domain, new_body);
     }
 
 public:
-    simp_pr1_rec_fn(environment const & env):m_env(env), m_tc(env, m_ngen.mk_child()) {}
+    simp_pr1_rec_fn(environment const & env):m_env(env), m_tc(env) {}
 };
 
 expr simp_pr1_rec(environment const & env, expr const & e) {

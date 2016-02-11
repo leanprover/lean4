@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/lbool.h"
 #include "util/flet.h"
+#include "util/fresh_name.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/abstract.h"
@@ -339,7 +340,6 @@ struct unifier_fn {
     typedef rb_map<expr, pair<expr, justification>, expr_quick_cmp> expr_map;
     typedef std::shared_ptr<type_checker> type_checker_ptr;
     environment      m_env;
-    name_generator   m_ngen;
     substitution     m_subst;
     constraints      m_postponed; // constraints that will not be solved
     owned_map        m_owned_map; // mapping from metavariable name m to constraint idx
@@ -448,26 +448,26 @@ struct unifier_fn {
     optional<justification> m_conflict; //!< if different from none, then there is a conflict.
 
     unifier_fn(environment const & env, unsigned num_cs, constraint const * cs,
-               name_generator && ngen, substitution const & s,
+               substitution const & s,
                unifier_config const & cfg):
-        m_env(env), m_ngen(ngen), m_subst(s), m_plugin(get_unifier_plugin(env)),
+        m_env(env), m_subst(s), m_plugin(get_unifier_plugin(env)),
         m_config(cfg), m_num_steps(0) {
         switch (m_config.m_kind) {
         case unifier_kind::Cheap:
-            m_tc = mk_opaque_type_checker(env, m_ngen.mk_child());
+            m_tc = mk_opaque_type_checker(env);
             m_flex_rigid_tc = m_tc;
             break;
         case unifier_kind::VeryConservative:
-            m_tc = mk_type_checker(env, m_ngen.mk_child(), UnfoldReducible);
+            m_tc = mk_type_checker(env, UnfoldReducible);
             m_flex_rigid_tc = m_tc;
             break;
         case unifier_kind::Conservative:
-            m_tc = mk_type_checker(env, m_ngen.mk_child(), UnfoldQuasireducible);
+            m_tc = mk_type_checker(env, UnfoldQuasireducible);
             m_flex_rigid_tc = m_tc;
             break;
         case unifier_kind::Liberal:
-            m_tc = mk_type_checker(env, m_ngen.mk_child());
-            m_flex_rigid_tc = mk_type_checker(env, m_ngen.mk_child(), UnfoldQuasireducible);
+            m_tc = mk_type_checker(env);
+            m_flex_rigid_tc = mk_type_checker(env, UnfoldQuasireducible);
             break;
         default:
             lean_unreachable();
@@ -512,7 +512,7 @@ struct unifier_fn {
     void reset_conflict() { m_conflict = optional<justification>(); lean_assert(!in_conflict()); }
 
     expr mk_local_for(expr const & b) {
-        return mk_local(m_ngen.next(), binding_name(b), binding_domain(b), binding_info(b));
+        return mk_local(mk_fresh_name(), binding_name(b), binding_domain(b), binding_info(b));
     }
 
     /**
@@ -1560,7 +1560,7 @@ struct unifier_fn {
         optional<expr> mk_i;
         unsigned i = 0;
         while (is_pi(mk_type)) {
-            expr new_mvar = mk_app(mk_aux_metavar_for(m_ngen, mvar_type), meta_args);
+            expr new_mvar = mk_app(mk_aux_metavar_for(mvar_type), meta_args);
             mk = mk_app(mk, new_mvar);
             if (info->m_i == i)
                 mk_i = new_mvar;
@@ -1579,7 +1579,7 @@ struct unifier_fn {
 
     bool process_plugin_constraint(constraint const & c) {
         lean_assert(!is_choice_cnstr(c));
-        lazy_list<constraints> alts = m_plugin->solve(*m_tc, c, m_ngen.mk_child());
+        lazy_list<constraints> alts = m_plugin->solve(*m_tc, c);
         alts = append(alts, process_const_const_cnstr(c));
         return process_lazy_constraints(alts, c.get_justification());
     }
@@ -1605,7 +1605,7 @@ struct unifier_fn {
             return false;
         }
         auto m_type_jst             = m_subst.instantiate_metavars(m_type);
-        lazy_list<constraints> alts = fn(m, m_type_jst.first, m_subst, m_ngen.mk_child());
+        lazy_list<constraints> alts = fn(m, m_type_jst.first, m_subst);
         return process_lazy_constraints(alts, mk_composite1(c.get_justification(), m_type_jst.second));
     }
 
@@ -1991,7 +1991,7 @@ struct unifier_fn {
                 if (is_local(margs[i]) && local_occurs_once(margs[i], margs)) {
                     n = mlocal_name(margs[i]);
                 } else {
-                    n = u.m_ngen.next();
+                    n = mk_fresh_name();
                 }
                 expr local = mk_local(n, binding_name(it), d, binding_info(it));
                 locals.push_back(local);
@@ -2030,13 +2030,13 @@ struct unifier_fn {
 
             // std::cout << "type: " << type << "\n";
             if (context_check(type, locals)) {
-                expr maux    = mk_metavar(u.m_ngen.next(), Pi(locals, type));
+                expr maux    = mk_metavar(mk_fresh_name(), Pi(locals, type));
                 // std::cout << "  >> " << maux << " : " << mlocal_type(maux) << "\n";
                 cs = mk_eq_cnstr(mk_app(maux, margs), arg, j) + cs;
                 return mk_app(maux, locals);
             } else {
-                expr maux_type   = mk_metavar(u.m_ngen.next(), Pi(locals, mk_sort(mk_meta_univ(u.m_ngen.next()))));
-                expr maux        = mk_metavar(u.m_ngen.next(), Pi(locals, mk_app(maux_type, locals)));
+                expr maux_type   = mk_metavar(mk_fresh_name(), Pi(locals, mk_sort(mk_meta_univ(mk_fresh_name()))));
+                expr maux        = mk_metavar(mk_fresh_name(), Pi(locals, mk_app(maux_type, locals)));
                 cs = mk_eq_cnstr(mk_app(maux, margs), arg, j) + cs;
                 return mk_app(maux, locals);
             }
@@ -2127,7 +2127,7 @@ struct unifier_fn {
                 expr rhs_A     = binding_domain(rhs);
                 expr A_type    = tc().infer(rhs_A, cs);
                 expr A         = mk_imitation_arg(rhs_A, A_type, locals, cs);
-                expr local     = mk_local(u.m_ngen.next(), binding_name(rhs), A, binding_info(rhs));
+                expr local     = mk_local(mk_fresh_name(), binding_name(rhs), A, binding_info(rhs));
                 locals.push_back(local);
                 margs.push_back(local);
                 expr rhs_B     = instantiate(binding_body(rhs), local);
@@ -2371,7 +2371,7 @@ struct unifier_fn {
         if (optional<expr> lhs_type = infer(lhs, cs)) {
             expr new_type = Pi(shared_locals, *lhs_type);
             if (!has_local(new_type)) {
-                expr new_mvar = mk_metavar(m_ngen.next(), new_type);
+                expr new_mvar = mk_metavar(mk_fresh_name(), new_type);
                 expr new_val  = mk_app(new_mvar, shared_locals);
                 justification const & j = c.get_justification();
                 return
@@ -2460,7 +2460,7 @@ struct unifier_fn {
             if (found_lhs) {
                 // rhs is of the form max(rest, lhs)
                 // Solution is lhs := max(rest, ?u) where ?u is fresh metavariable
-                r = mk_meta_univ(m_ngen.next());
+                r = mk_meta_univ(mk_fresh_name());
                 rest.push_back(r);
                 unsigned i = rest.size();
                 while (i > 0) {
@@ -2824,17 +2824,17 @@ unify_result_seq unify(std::shared_ptr<unifier_fn> u) {
     }
 }
 
-unify_result_seq unify(environment const & env,  unsigned num_cs, constraint const * cs, name_generator && ngen,
+unify_result_seq unify(environment const & env,  unsigned num_cs, constraint const * cs,
                        substitution const & s, unifier_config const & cfg) {
-    return unify(std::make_shared<unifier_fn>(env, num_cs, cs, std::move(ngen), s, cfg));
+    return unify(std::make_shared<unifier_fn>(env, num_cs, cs, s, cfg));
 }
 
-unify_result_seq unify(environment const & env, expr const & lhs, expr const & rhs, name_generator && ngen,
+unify_result_seq unify(environment const & env, expr const & lhs, expr const & rhs,
                        substitution const & s, unifier_config const & cfg) {
     substitution new_s = s;
     expr _lhs = new_s.instantiate(lhs);
     expr _rhs = new_s.instantiate(rhs);
-    auto u = std::make_shared<unifier_fn>(env, 0, nullptr, std::move(ngen), new_s, cfg);
+    auto u = std::make_shared<unifier_fn>(env, 0, nullptr, new_s, cfg);
     constraint_seq cs;
     if (!u->m_tc->is_def_eq(_lhs, _rhs, justification(), cs) || !u->process_constraints(cs)) {
         return unify_result_seq();

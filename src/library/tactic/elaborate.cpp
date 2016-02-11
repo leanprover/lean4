@@ -17,13 +17,12 @@ bool solve_constraints(environment const & env, io_state const & ios, proof_stat
     buffer<constraint> cs_buffer;
     cs.linearize(cs_buffer);
     to_buffer(ps.get_postponed(), cs_buffer);
-    name_generator ngen   = ps.get_ngen();
     substitution subst    = ps.get_subst();
-    unify_result_seq rseq = unify(env, cs_buffer.size(), cs_buffer.data(), ngen.mk_child(), subst, cfg);
+    unify_result_seq rseq = unify(env, cs_buffer.size(), cs_buffer.data(), subst, cfg);
     if (auto p = rseq.pull()) {
         substitution new_subst     = p->first.first;
         constraints  new_postponed = p->first.second;
-        ps = proof_state(ps, ps.get_goals(), new_subst, ngen, new_postponed);
+        ps = proof_state(ps, ps.get_goals(), new_subst, new_postponed);
         return true;
     } else {
         return false;
@@ -34,7 +33,6 @@ optional<expr> elaborate_with_respect_to(environment const & env, io_state const
                                          proof_state & s, expr const & e, optional<expr> const & _expected_type,
                                          bool report_unassigned, bool enforce_type_during_elaboration,
                                          bool conservative) {
-    name_generator ngen = s.get_ngen();
     substitution subst  = s.get_subst();
     goals const & gs    = s.get_goals();
     optional<expr> expected_type = _expected_type;
@@ -45,19 +43,19 @@ optional<expr> elaborate_with_respect_to(environment const & env, io_state const
     optional<expr> elab_expected_type;
     if (enforce_type_during_elaboration)
         elab_expected_type = expected_type;
-    auto esc   = elab(head(gs), ios.get_options(), ngen.mk_child(), e, elab_expected_type, subst, report_unassigned);
+    auto esc   = elab(head(gs), ios.get_options(), e, elab_expected_type, subst, report_unassigned);
     expr new_e; substitution new_subst; constraints cs_;
     std::tie(new_e, new_subst, cs_) = esc;
     buffer<constraint> cs;
     to_buffer(cs_, cs);
     if (cs.empty() && (!expected_type || enforce_type_during_elaboration)) {
         // easy case: no constraints to be solved
-        s = proof_state(s, new_subst, ngen);
+        s = proof_state(s, new_subst);
         return some_expr(new_e);
     } else {
         to_buffer(s.get_postponed(), cs);
         if (expected_type) {
-            auto tc      = mk_type_checker(env, ngen.mk_child(), conservative ? UnfoldReducible : UnfoldSemireducible);
+            auto tc      = mk_type_checker(env, conservative ? UnfoldReducible : UnfoldSemireducible);
             auto e_t_cs  = tc->infer(new_e);
             expr t       = *expected_type;
             e_t_cs.second.linearize(cs);
@@ -77,12 +75,12 @@ optional<expr> elaborate_with_respect_to(environment const & env, io_state const
             d_cs.second.linearize(cs);
         }
         unifier_config cfg(ios.get_options());
-        unify_result_seq rseq = unify(env, cs.size(), cs.data(), ngen.mk_child(), new_subst, cfg);
+        unify_result_seq rseq = unify(env, cs.size(), cs.data(), new_subst, cfg);
         if (auto p = rseq.pull()) {
             substitution new_subst     = p->first.first;
             constraints  new_postponed = p->first.second;
             new_e = new_subst.instantiate(new_e);
-            s = proof_state(s, gs, new_subst, ngen, new_postponed);
+            s = proof_state(s, gs, new_subst, new_postponed);
             return some_expr(new_e);
         } else {
             return none_expr();

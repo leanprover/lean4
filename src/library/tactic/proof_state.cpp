@@ -29,9 +29,9 @@ bool get_proof_state_goal_names(options const & opts) {
     return opts.get_bool(*g_proof_state_goal_names, LEAN_PROOF_STATE_GOAL_NAMES);
 }
 
-proof_state::proof_state(goals const & gs, substitution const & s, name_generator const & ngen,
+proof_state::proof_state(goals const & gs, substitution const & s,
                          constraints const & postponed, bool report_failure):
-    m_goals(gs), m_subst(s), m_ngen(ngen), m_postponed(postponed),
+    m_goals(gs), m_subst(s), m_postponed(postponed),
     m_report_failure(report_failure) {
     if (std::any_of(gs.begin(), gs.end(),
                     [&](goal const & g) { return s.is_assigned(g.get_mvar()); })) {
@@ -80,12 +80,12 @@ goals map_goals(proof_state const & s, std::function<optional<goal>(goal const &
         });
 }
 
-proof_state to_proof_state(expr const & meta, expr const & type, substitution const & subst, name_generator ngen) {
-    return proof_state(goals(goal(meta, type)), subst, ngen, constraints());
+proof_state to_proof_state(expr const & meta, expr const & type, substitution const & subst) {
+    return proof_state(goals(goal(meta, type)), subst, constraints());
 }
 
-proof_state to_proof_state(expr const & meta, expr const & type, name_generator ngen) {
-    return to_proof_state(meta, type, substitution(), ngen);
+proof_state to_proof_state(expr const & meta, expr const & type) {
+    return to_proof_state(meta, type, substitution());
 }
 
 proof_state apply_substitution(proof_state const & s) {

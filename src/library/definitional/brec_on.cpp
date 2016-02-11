@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/sstream.h"
+#include "util/fresh_name.h"
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
@@ -44,7 +45,6 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
         return env;
     inductive::inductive_decls decls = *inductive::is_inductive_decl(env, n);
     type_checker tc(env);
-    name_generator ngen;
     unsigned nparams       = std::get<1>(decls);
     declaration ind_decl   = env.get(n);
     declaration rec_decl   = env.get(inductive::get_elim_name(n));
@@ -82,7 +82,7 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
     }
     Type_result        = mk_sort(rlvl);
     buffer<expr> ref_args;
-    to_telescope(ngen, ref_type, ref_args);
+    to_telescope(ref_type, ref_args);
     if (ref_args.size() != nparams + ntypeformers + nminors + nindices + 1)
         throw_corrupted(n);
 
@@ -108,7 +108,7 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
     // add type formers
     for (unsigned i = nparams; i < nparams + ntypeformers; i++) {
         buffer<expr> targs;
-        to_telescope(ngen, mlocal_type(args[i]), targs);
+        to_telescope(mlocal_type(args[i]), targs);
         rec = mk_app(rec, Fun(targs, Type_result));
     }
     // add minor premises
@@ -116,7 +116,7 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
         expr minor = ref_args[i];
         expr minor_type = mlocal_type(minor);
         buffer<expr> minor_args;
-        minor_type = to_telescope(ngen, minor_type, minor_args);
+        minor_type = to_telescope(minor_type, minor_args);
         buffer<expr> prod_pairs;
         for (expr & minor_arg : minor_args) {
             buffer<expr> minor_arg_args;
@@ -168,7 +168,6 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
         return env;
     inductive::inductive_decls decls = *inductive::is_inductive_decl(env, n);
     type_checker tc(env);
-    name_generator ngen;
     unsigned nparams       = std::get<1>(decls);
     declaration ind_decl   = env.get(n);
     declaration rec_decl   = env.get(inductive::get_elim_name(n));
@@ -211,7 +210,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
         ref_type    = rec_decl.get_type();
     }
     buffer<expr> ref_args;
-    to_telescope(ngen, ref_type, ref_args);
+    to_telescope(ref_type, ref_args);
     if (ref_args.size() != nparams + ntypeformers + nminors + nindices + 1)
         throw_corrupted(n);
 
@@ -257,12 +256,12 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     for (unsigned i = nparams, j = 0; i < nparams + ntypeformers; i++, j++) {
         expr const & C = ref_args[i];
         buffer<expr> F_args;
-        to_telescope(ngen, mlocal_type(C), F_args);
+        to_telescope(mlocal_type(C), F_args);
         expr F_result = mk_app(C, F_args);
         expr F_below  = mk_app(belows[j], F_args);
-        F_args.push_back(mk_local(ngen.next(), "f", F_below, binder_info()));
+        F_args.push_back(mk_local(mk_fresh_name(), "f", F_below, binder_info()));
         expr F_type   = Pi(F_args, F_result);
-        expr F        = mk_local(ngen.next(), F_name.append_after(j+1), F_type, binder_info());
+        expr F        = mk_local(mk_fresh_name(), F_name.append_after(j+1), F_type, binder_info());
         Fs.push_back(F);
         args.push_back(F);
     }
@@ -278,7 +277,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     for (unsigned i = nparams, j = 0; i < nparams + ntypeformers; i++, j++) {
         expr const & C = ref_args[i];
         buffer<expr> C_args;
-        to_telescope(ngen, mlocal_type(C), C_args);
+        to_telescope(mlocal_type(C), C_args);
         expr C_t     = mk_app(C, C_args);
         expr below_t = mk_app(belows[j], C_args);
         expr prod    = mk_prod(tc, C_t, below_t, ind);
@@ -289,7 +288,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
         expr minor = ref_args[i];
         expr minor_type = mlocal_type(minor);
         buffer<expr> minor_args;
-        minor_type = to_telescope(ngen, minor_type, minor_args);
+        minor_type = to_telescope(minor_type, minor_args);
         buffer<expr> pairs;
         for (expr & minor_arg : minor_args) {
             buffer<expr> minor_arg_args;

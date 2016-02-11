@@ -745,12 +745,11 @@ void consume_pos_neg_strs(std::string const & filters, buffer<std::string> & pos
 }
 
 bool match_type(type_checker & tc, expr const & meta, expr const & expected_type, declaration const & d) {
-    name_generator ngen = tc.mk_ngen();
     goal g(meta, expected_type);
     buffer<level> ls;
     unsigned num_ls = d.get_num_univ_params();
     for (unsigned i = 0; i < num_ls; i++)
-        ls.push_back(mk_meta_univ(ngen.next()));
+        ls.push_back(mk_meta_univ(mk_fresh_name()));
     expr dt        = instantiate_type_univ_params(d, to_list(ls.begin(), ls.end()));
     unsigned num_e = get_expect_num_args(tc, expected_type);
     unsigned num_d = get_expect_num_args(tc, dt);
@@ -758,7 +757,7 @@ bool match_type(type_checker & tc, expr const & meta, expr const & expected_type
         return false;
     for (unsigned i = 0; i < num_d - num_e; i++) {
         dt        = tc.whnf(dt).first;
-        expr meta = g.mk_meta(ngen.next(), binding_domain(dt));
+        expr meta = g.mk_meta(mk_fresh_name(), binding_domain(dt));
         dt        = instantiate(binding_body(dt), meta);
     }
     // Remark: we ignore declarations where the resultant type is of the form
@@ -771,15 +770,15 @@ bool match_type(type_checker & tc, expr const & meta, expr const & expected_type
         unifier_config cfg;
         cfg.m_max_steps = LEAN_FINDG_MAX_STEPS;
         cfg.m_kind      = unifier_kind::Cheap;
-        auto r = unify(tc.env(), dt, expected_type, tc.mk_ngen(), substitution(), cfg);
+        auto r = unify(tc.env(), dt, expected_type, substitution(), cfg);
         return static_cast<bool>(r.pull());
     } catch (exception&) {
         return false;
     }
 }
 
-static std::unique_ptr<type_checker> mk_find_goal_type_checker(environment const & env, name_generator && ngen) {
-    return mk_opaque_type_checker(env, std::move(ngen));
+static std::unique_ptr<type_checker> mk_find_goal_type_checker(environment const & env) {
+    return mk_opaque_type_checker(env);
 }
 
 static name * g_tmp_prefix = nullptr;
@@ -798,7 +797,7 @@ void server::find_goal_matches(unsigned line_num, unsigned col_num, std::string 
     m_out << std::endl;
     environment const & env = env_opts->first;
     options const & opts    = env_opts->second;
-    std::unique_ptr<type_checker> tc = mk_find_goal_type_checker(env, name_generator(*g_tmp_prefix));
+    std::unique_ptr<type_checker> tc = mk_find_goal_type_checker(env);
     if (auto meta = m_file->infom().get_meta_at(line_num, col_num)) {
     if (is_meta(*meta)) {
     if (auto type = m_file->infom().get_type_at(line_num, col_num)) {

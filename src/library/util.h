@@ -87,7 +87,7 @@ optional<name> is_constructor_app_ext(environment const & env, expr const & e);
     binder_info, otherwise the procedure uses the one attached in the domain.
     The procedure returns the "body" of type.
 */
-expr to_telescope(name_generator & ngen, expr const & type, buffer<expr> & telescope,
+expr to_telescope(expr const & type, buffer<expr> & telescope,
                   optional<binder_info> const & binfo = optional<binder_info>());
 /** \brief Similar to previous procedure, but puts \c type in whnf */
 expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope,
@@ -105,7 +105,7 @@ expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, option
     binder_info, otherwise the procedure uses the one attached to the arguments.
     The procedure returns the "body" of function.
 */
-expr fun_to_telescope(name_generator & ngen, expr const & e, buffer<expr> & telescope, optional<binder_info> const & binfo);
+expr fun_to_telescope(expr const & e, buffer<expr> & telescope, optional<binder_info> const & binfo);
 
 /** \brief Return the universe where inductive datatype resides
     \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt>
@@ -266,10 +266,10 @@ inline justification mk_type_mismatch_jst(expr const & v, expr const & v_type, e
 
 /** \brief Create a type checker and normalizer that treats any constant named \c n as opaque when pred(n) is true.
     Projections are reduced using the projection converter */
-type_checker_ptr mk_type_checker(environment const & env, name_generator && ngen, name_predicate const & pred);
+type_checker_ptr mk_type_checker(environment const & env, name_predicate const & pred);
 /** \brief Create a type checker and normalizer that treats any constant named \c n as opaque when pred(n) is true.
     No special support for projections is used */
-type_checker_ptr mk_simple_type_checker(environment const & env, name_generator && ngen, name_predicate const & pred);
+type_checker_ptr mk_simple_type_checker(environment const & env, name_predicate const & pred);
 /**
    \brief Generate the format object for <tt>hyps |- conclusion</tt>.
    The given substitution is applied to all elements.

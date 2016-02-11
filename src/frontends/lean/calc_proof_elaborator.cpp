@@ -41,19 +41,19 @@ bool get_elaborator_calc_assistant(options const & o) {
     return o.get_bool(*g_elaborator_calc_assistant, LEAN_DEFAULT_CALC_ASSISTANT);
 }
 
-static optional<pair<expr, expr>> mk_op(environment const & env, local_context & ctx, name_generator & ngen, type_checker_ptr & tc,
+static optional<pair<expr, expr>> mk_op(environment const & env, local_context & ctx, type_checker_ptr & tc,
                                         name const & op, unsigned nunivs, unsigned nargs, std::initializer_list<expr> const & explicit_args,
                                         constraint_seq & cs, tag g) {
     levels lvls;
     for (unsigned i = 0; i < nunivs; i++)
-        lvls = levels(mk_meta_univ(ngen.next()), lvls);
+        lvls = levels(mk_meta_univ(mk_fresh_name()), lvls);
     expr c = mk_constant(op, lvls);
     expr op_type = instantiate_type_univ_params(env.get(op), lvls);
     buffer<expr> args;
     for (unsigned i = 0; i < nargs; i++) {
         if (!is_pi(op_type))
             return optional<pair<expr, expr>>();
-        expr arg = ctx.mk_meta(ngen, some_expr(binding_domain(op_type)), g);
+        expr arg = ctx.mk_meta(some_expr(binding_domain(op_type)), g);
         args.push_back(arg);
         op_type  = instantiate(binding_body(op_type), arg);
     }
@@ -71,20 +71,20 @@ static optional<pair<expr, expr>> mk_op(environment const & env, local_context &
     return some(mk_pair(r, op_type));
 }
 
-static optional<pair<expr, expr>> apply_symmetry(environment const & env, local_context & ctx, name_generator & ngen, type_checker_ptr & tc,
+static optional<pair<expr, expr>> apply_symmetry(environment const & env, local_context & ctx, type_checker_ptr & tc,
                                                  expr const & e, expr const & e_type, constraint_seq & cs, tag g) {
     buffer<expr> args;
     expr const & op = get_app_args(e_type, args);
     if (is_constant(op)) {
         if (auto info = get_symm_extra_info(env, const_name(op))) {
-            return mk_op(env, ctx, ngen, tc, info->m_name,
+            return mk_op(env, ctx, tc, info->m_name,
                          info->m_num_univs, info->m_num_args-1, {e}, cs, g);
         }
     }
     return optional<pair<expr, expr>>();
 }
 
-static optional<pair<expr, expr>> apply_subst(environment const & env, local_context & ctx, name_generator & ngen,
+static optional<pair<expr, expr>> apply_subst(environment const & env, local_context & ctx,
                                               type_checker_ptr & tc, expr const & e, expr const & e_type,
                                               expr const & pred, constraint_seq & cs, tag g) {
     buffer<expr> pred_args;
@@ -97,9 +97,9 @@ static optional<pair<expr, expr>> apply_subst(environment const & env, local_con
     if (is_constant(op) && args.size() >= 2) {
         if (auto sinfo = get_subst_extra_info(env, const_name(op))) {
             if (auto rinfo = get_refl_extra_info(env, const_name(op))) {
-                if (auto refl_pair = mk_op(env, ctx, ngen, tc, rinfo->m_name, rinfo->m_num_univs,
+                if (auto refl_pair = mk_op(env, ctx, tc, rinfo->m_name, rinfo->m_num_univs,
                                            rinfo->m_num_args-1, { pred_args[npargs-2] }, cs, g)) {
-                    return mk_op(env, ctx, ngen, tc, sinfo->m_name, sinfo->m_num_univs,
+                    return mk_op(env, ctx, tc, sinfo->m_name, sinfo->m_num_univs,
                                  sinfo->m_num_args-2, {e, refl_pair->first}, cs, g);
                 }
             }
@@ -110,8 +110,8 @@ static optional<pair<expr, expr>> apply_subst(environment const & env, local_con
 
 // Return true if \c e is convertible to a term of the form (h ...).
 // If the result is true, update \c e and \c cs.
-bool try_normalize_to_head(environment const & env, name_generator && ngen, name const & h, expr & e, constraint_seq & cs) {
-    type_checker_ptr tc = mk_type_checker(env, std::move(ngen), [=](name const & n) { return n == h; });
+bool try_normalize_to_head(environment const & env, name const & h, expr & e, constraint_seq & cs) {
+    type_checker_ptr tc = mk_type_checker(env, [=](name const & n) { return n == h; });
     constraint_seq new_cs;
     expr new_e = tc->whnf(e, new_cs);
     expr const & fn = get_app_fn(new_e);
@@ -136,13 +136,12 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
                                constraint_seq const & cs, unifier_config const & cfg,
                                info_manager * im, update_type_info_fn const & fn) {
     justification j         = mk_failed_to_synthesize_jst(env, m);
-    auto choice_fn = [=](expr const & meta, expr const & _meta_type, substitution const & _s,
-                         name_generator && ngen) {
+    auto choice_fn = [=](expr const & meta, expr const & _meta_type, substitution const & _s) {
         local_context ctx = _ctx;
         expr e            = _e;
         substitution s    = _s;
         expr meta_type    = _meta_type;
-        type_checker_ptr tc = mk_type_checker(env, ngen.mk_child());
+        type_checker_ptr tc = mk_type_checker(env);
         constraint_seq new_cs = cs;
         expr e_type = tc->infer(e, new_cs);
         e_type      = s.instantiate(e_type);
@@ -160,7 +159,7 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
                         break;
                     }
                 }
-                expr imp_arg = ctx.mk_meta(ngen, some_expr(binding_domain(e_type)), g);
+                expr imp_arg = ctx.mk_meta(some_expr(binding_domain(e_type)), g);
                 e            = mk_app(e, imp_arg, g);
                 e_type       = instantiate(binding_body(e_type), imp_arg);
             }
@@ -173,9 +172,9 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
         expr const & e_type_fn    = get_app_fn(e_type);
         if (is_constant(meta_type_fn) && (!is_constant(e_type_fn) || const_name(e_type_fn) != const_name(meta_type_fn))) {
             // try to make sure meta_type and e_type have the same head symbol
-            if (!try_normalize_to_head(env, ngen.mk_child(), const_name(meta_type_fn), e_type, new_cs) &&
+            if (!try_normalize_to_head(env, const_name(meta_type_fn), e_type, new_cs) &&
                 is_constant(e_type_fn)) {
-                try_normalize_to_head(env, ngen.mk_child(), const_name(e_type_fn), meta_type, new_cs);
+                try_normalize_to_head(env, const_name(e_type_fn), meta_type, new_cs);
             }
         }
 
@@ -192,7 +191,7 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
             unifier_config new_cfg(cfg);
             new_cfg.m_discard      = false;
             new_cfg.m_kind         = conservative ? unifier_kind::Conservative : unifier_kind::Liberal;
-            unify_result_seq seq   = unify(env, cs_buffer.size(), cs_buffer.data(), ngen.mk_child(), substitution(), new_cfg);
+            unify_result_seq seq   = unify(env, cs_buffer.size(), cs_buffer.data(), substitution(), new_cfg);
             auto p = seq.pull();
             lean_assert(p);
             substitution new_s     = p->first.first;
@@ -232,21 +231,21 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
 
                 // 2. eq.symm pr
                 constraint_seq symm_cs = new_cs;
-                auto symm  = apply_symmetry(env, ctx, ngen, tc, e, e_type, symm_cs, g);
+                auto symm  = apply_symmetry(env, ctx, tc, e, e_type, symm_cs, g);
                 if (symm) {
                     try { return try_alternative(symm->first, symm->second, symm_cs, conservative); } catch (exception &) {}
                 }
 
                 // 3. subst pr (eq.refl lhs)
                 constraint_seq subst_cs = new_cs;
-                if (auto subst = apply_subst(env, ctx, ngen, tc, e, e_type, meta_type, subst_cs, g)) {
+                if (auto subst = apply_subst(env, ctx, tc, e, e_type, meta_type, subst_cs, g)) {
                     try { return try_alternative(subst->first, subst->second, subst_cs, conservative); } catch (exception&) {}
                 }
 
                 // 4. subst (eq.symm pr) (eq.refl lhs)
                 if (symm) {
                     constraint_seq subst_cs = symm_cs;
-                    if (auto subst = apply_subst(env, ctx, ngen, tc, symm->first, symm->second,
+                    if (auto subst = apply_subst(env, ctx, tc, symm->first, symm->second,
                                                  meta_type, subst_cs, g)) {
                         try { return try_alternative(subst->first, subst->second, subst_cs, conservative); }
                         catch (exception&) {}
@@ -268,7 +267,7 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
 
                 // 2. eq.symm pr
                 constraint_seq symm_cs = new_cs;
-                auto symm  = apply_symmetry(env, ctx, ngen, tc, e, e_type, symm_cs, g);
+                auto symm  = apply_symmetry(env, ctx, tc, e, e_type, symm_cs, g);
                 if (symm) {
                     try { return try_alternative(symm->first, symm->second, symm_cs, conservative); }
                     catch (exception &) {}

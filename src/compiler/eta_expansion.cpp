@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/fresh_name.h"
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
@@ -69,13 +70,13 @@ class eta_expand_fn : public replace_visitor {
 
     virtual expr visit_binding(expr const & b) {
         expr new_domain = visit(binding_domain(b));
-        expr l          = mk_local(m_tc.mk_fresh_name(), new_domain);
+        expr l          = mk_local(mk_fresh_name(), new_domain);
         expr new_body   = abstract_local(visit(instantiate(binding_body(b), l)), l);
         return update_binding(b, new_domain, new_body);
     }
 
 public:
-    eta_expand_fn(environment const & env):m_env(env), m_tc(env, name_generator()) {}
+    eta_expand_fn(environment const & env):m_env(env), m_tc(env) {}
 };
 
 expr eta_expand(environment const & env, expr const & e) {

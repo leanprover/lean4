@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/fresh_name.h"
 #include "library/constants.h"
 #include "kernel/abstract.h"
 #include "library/locals.h"
@@ -37,13 +38,12 @@ tactic clear_tactic(name const & n) {
                                                   << "' depends on '" << n << "'");
                 return none_proof_state();
             }
-            name_generator ngen = s.get_ngen();
             expr new_type = g.get_type();
-            expr new_meta = mk_app(mk_metavar(ngen.next(), Pi(hyps, new_type)), hyps);
+            expr new_meta = mk_app(mk_metavar(mk_fresh_name(), Pi(hyps, new_type)), hyps);
             goal new_g(new_meta, new_type);
             substitution new_subst = s.get_subst();
             assign(new_subst, g, new_meta);
-            proof_state new_s(s, goals(new_g, tail_gs), new_subst, ngen);
+            proof_state new_s(s, goals(new_g, tail_gs), new_subst);
             return some_proof_state(new_s);
         } else {
             throw_tactic_exception_if_enabled(s, sstream() << "invalid 'clear' tactic, goal does not have a hypothesis "

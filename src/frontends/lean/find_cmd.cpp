@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "util/fresh_name.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "library/unifier.h"
@@ -52,11 +53,10 @@ bool get_find_expensive(options const & opts) {
 
 
 bool match_pattern(type_checker & tc, expr const & pattern, declaration const & d, unsigned max_steps, bool cheap) {
-    name_generator ngen = tc.mk_ngen();
-     buffer<level> ls;
+    buffer<level> ls;
     unsigned num_ls = d.get_num_univ_params();
     for (unsigned i = 0; i < num_ls; i++)
-        ls.push_back(mk_meta_univ(ngen.next()));
+        ls.push_back(mk_meta_univ(mk_fresh_name()));
     expr dt        = instantiate_type_univ_params(d, to_list(ls.begin(), ls.end()));
 
     unsigned num_e = get_expect_num_args(tc, pattern);
@@ -65,7 +65,7 @@ bool match_pattern(type_checker & tc, expr const & pattern, declaration const & 
         return false;
     for (unsigned i = 0; i < num_d - num_e; i++) {
         dt         = tc.whnf(dt).first;
-        expr local = mk_local(ngen.next(), binding_domain(dt));
+        expr local = mk_local(mk_fresh_name(), binding_domain(dt));
         dt         = instantiate(binding_body(dt), local);
     }
     try {
@@ -73,7 +73,7 @@ bool match_pattern(type_checker & tc, expr const & pattern, declaration const & 
         cfg.m_max_steps            = max_steps;
         cfg.m_kind                 = cheap ? unifier_kind::Cheap : unifier_kind::Liberal;
         cfg.m_ignore_context_check = true;
-        auto r = unify(tc.env(), pattern, dt, tc.mk_ngen(), substitution(), cfg);
+        auto r = unify(tc.env(), pattern, dt, substitution(), cfg);
         return static_cast<bool>(r.pull());
     } catch (exception&) {
         return false;
@@ -107,7 +107,7 @@ environment find_cmd(parser & p) {
     buffer<std::string> pos_names, neg_names;
     parse_filters(p, pos_names, neg_names);
     environment env = p.env();
-    auto tc = mk_opaque_type_checker(env, p.mk_ngen());
+    auto tc = mk_opaque_type_checker(env);
     flycheck_information info(p.regular_stream());
     if (info.enabled()) {
         p.display_information_pos(p.cmd_pos());

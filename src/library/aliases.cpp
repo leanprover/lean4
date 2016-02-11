@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include <utility>
 #include <algorithm>
 #include "util/rb_map.h"
-#include "util/name_generator.h"
 #include "util/sstream.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"

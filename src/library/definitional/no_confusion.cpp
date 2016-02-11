@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/sstream.h"
+#include "util/fresh_name.h"
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
@@ -29,7 +30,6 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
         throw exception(sstream() << "error in 'no_confusion' generation, '" << n << "' is not an inductive datatype");
     if (is_inductive_predicate(env, n))
         return optional<environment>(); // type is a proposition
-    name_generator ngen;
     bool impredicative     = env.impredicative();
     unsigned nparams       = std::get<1>(*decls);
     declaration ind_decl   = env.get(n);
@@ -48,7 +48,7 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
         return optional<environment>(); // type does not have only a restricted eliminator
     // All inductive datatype parameters and indices are arguments
     buffer<expr> args;
-    ind_type = to_telescope(ngen, ind_type, args, some(mk_implicit_binder_info()));
+    ind_type = to_telescope(ind_type, args, some(mk_implicit_binder_info()));
     if (!is_sort(ind_type) || args.size() < nparams)
         throw_corrupted(n);
     lean_assert(!(env.impredicative() && is_zero(sort_level(ind_type))));
@@ -56,11 +56,11 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     // Create inductive datatype
     expr I = mk_app(mk_constant(n, ilvls), args);
     // Add (P : Type)
-    expr P = mk_local(ngen.next(), "P", mk_sort(plvl), binder_info());
+    expr P = mk_local(mk_fresh_name(), "P", mk_sort(plvl), binder_info());
     args.push_back(P);
     // add v1 and v2 elements of the inductive type
-    expr v1 = mk_local(ngen.next(), "v1", I, binder_info());
-    expr v2 = mk_local(ngen.next(), "v2", I, binder_info());
+    expr v1 = mk_local(mk_fresh_name(), "v1", I, binder_info());
+    expr v2 = mk_local(mk_fresh_name(), "v2", I, binder_info());
     args.push_back(v1);
     args.push_back(v2);
     expr R = mk_sort(rlvl);
@@ -119,7 +119,7 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
                         } else {
                             h_type = mk_app(mk_constant(get_heq_name(), to_list(l)), lhs_type, lhs, rhs_type, rhs);
                         }
-                        rtype_hyp.push_back(mk_local(ngen.next(), local_pp_name(lhs).append_after("_eq"), h_type, binder_info()));
+                        rtype_hyp.push_back(mk_local(mk_fresh_name(), local_pp_name(lhs).append_after("_eq"), h_type, binder_info()));
                     }
                 } else {
                     // we use telescope equality (with casts) when proof irrelevance is not available
@@ -153,7 +153,6 @@ environment mk_no_confusion(environment const & env, name const & n) {
     bool impredicative                 = env.impredicative();
     inductive::inductive_decls decls   = *inductive::is_inductive_decl(new_env, n);
     unsigned nparams                   = std::get<1>(decls);
-    name_generator ngen;
     declaration ind_decl               = env.get(n);
     declaration no_confusion_type_decl = new_env.get(name{n, "no_confusion_type"});
     declaration cases_decl             = new_env.get(name(n, "cases_on"));
@@ -164,7 +163,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     expr no_confusion_type_type        = instantiate_type_univ_params(no_confusion_type_decl, ls);
     buffer<expr> args;
     expr type = no_confusion_type_type;
-    type = to_telescope(ngen, type, args, some(mk_implicit_binder_info()));
+    type = to_telescope(type, args, some(mk_implicit_binder_info()));
     lean_assert(args.size() >= nparams + 3);
     unsigned nindices = args.size() - nparams - 3; // 3 is for P v1 v2
     expr range        = mk_app(mk_constant(no_confusion_type_decl.get_name(), ls), args);
@@ -178,7 +177,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     }
     level v_lvl       = sort_level(tc.ensure_type(v_type).first);
     expr eq_v         = mk_app(mk_constant(get_eq_name(), to_list(v_lvl)), v_type);
-    expr H12          = mk_local(ngen.next(), "H12", mk_app(eq_v, v1, v2), binder_info());
+    expr H12          = mk_local(mk_fresh_name(), "H12", mk_app(eq_v, v1, v2), binder_info());
     lean_assert(impredicative != inductive::has_dep_elim(env, get_eq_name()));
     args.push_back(H12);
     name no_confusion_name{n, "no_confusion"};
@@ -191,7 +190,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     //   )
 
     // H11 is for creating the generalization
-    expr H11          = mk_local(ngen.next(), "H11", mk_app(eq_v, v1, v1), binder_info());
+    expr H11          = mk_local(mk_fresh_name(), "H11", mk_app(eq_v, v1, v1), binder_info());
     // Create the type former (fun Indices v1, no_confusion_type Params Indices P v1 v1)
     buffer<expr> type_former_args;
     for (unsigned i = nparams; i < nparams + nindices; i++)
@@ -254,8 +253,8 @@ environment mk_no_confusion(environment const & env, name const & n) {
     expr eq_rec = mk_app(mk_constant(get_eq_rec_name(), {eq_rec_l1, v_lvl}), v_type, v1);
     // create eq_rec type_former
     //    (fun (a : InductiveType), v1 = a -> no_confusion_type Params Indices v1 a)
-    expr a   = mk_local(ngen.next(), "a",   v_type, binder_info());
-    expr H1a = mk_local(ngen.next(), "H1a", mk_app(eq_v, v1, a), binder_info());
+    expr a   = mk_local(mk_fresh_name(), "a",   v_type, binder_info());
+    expr H1a = mk_local(mk_fresh_name(), "H1a", mk_app(eq_v, v1, a), binder_info());
     // reusing no_confusion_type_args... we just replace the last argument with a
     no_confusion_type_args.pop_back();
     no_confusion_type_args.push_back(a);

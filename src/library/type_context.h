@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <functional>
 #include <memory>
 #include <vector>
+#include "util/fresh_name.h"
 #include "util/scoped_map.h"
 #include "kernel/environment.h"
 #include "library/io_state.h"
@@ -18,35 +19,9 @@ namespace lean {
 unsigned get_class_instance_max_depth(options const & o);
 bool get_class_trans_instances(options const & o);
 
-/** \brief Many procedures need to create temporary local constants.
-    So, in the type_context class we provide this capability.
-    It is just a convenience, and allows many procedures to have a simpler
-    interface. Example: no need to take a type_context AND a name_generator.
-    However, in some procedures (e.g., simplifier) use multiple type_context
-    objects, and they want to make sure the local constants created by them
-    are distinct. So, we can accomplish that by providing the same
-    tmp_local_generator to different type_context objects. */
-class tmp_local_generator {
-    unsigned m_next_local_idx;
-    name mk_fresh_name();
-public:
-    tmp_local_generator();
-    virtual ~tmp_local_generator() {}
+/** \brief Type inference, normalization and definitional equality.
+    It is similar to the kernel type checker but it also supports unification variables.
 
-    /** \brief Create a temporary local constant */
-    virtual expr mk_tmp_local(expr const & type, binder_info const & bi);
-
-    /** \brief Create a temporary local constant using the given pretty print name.
-        The pretty printing name has not semantic significance. */
-    virtual expr mk_tmp_local(name const & pp_name, expr const & type, binder_info const & bi);
-
-    /** \brief Return true if \c e was created using \c mk_tmp_local */
-    virtual bool is_tmp_local(expr const & e) const;
-};
-
-/** \brief Light-weight type inference, normalization and definitional equality.
-    It is simpler and more efficient version of the kernel type checker.
-    It does not generate unification constraints.
     Unification problems are eagerly solved. However, only higher-order patterns
     are supported.
 
@@ -82,7 +57,7 @@ public:
 
        These simultaneous unification problem cannot be solved.
 
-    In the elaborator, we address the issues above by making sure that
+    In the Lean 0.2 elaborator, we addressed the issues above by making sure that
     only *closed terms* (terms not containing local constants)
     can be assigned to metavariables. So a metavariable that occurs in a
     context records the parameters it depends on. For example, we
@@ -103,7 +78,7 @@ public:
 
     Which has the solution ?m := fun x, x
 
-    The solution used in the elaborator is correct, but it may produce performance problems
+    The solution used in the Lean 0.2 elaborator is correct, but it may produce performance problems
     for procedures that have to create many meta-variables and the context is not small.
     For example, if the context contains N declarations, then the type of each meta-variable
     created will have N-nested Pi's.
@@ -136,10 +111,7 @@ class type_context {
     struct ext_ctx;
     friend struct ext_ctx;
     environment                     m_env;
-    name_generator                  m_ngen;
     std::unique_ptr<ext_ctx>        m_ext_ctx;
-    tmp_local_generator *           m_local_gen;
-    bool                            m_local_gen_owner;
     // postponed universe constraints
     std::vector<pair<level, level>> m_postponed;
     name_map<projection_info>       m_proj_info;
@@ -330,14 +302,8 @@ class type_context {
     bool mk_nested_instance(expr const & m, expr const & m_type);
     optional<expr> mk_class_instance_core(expr const & type);
     void cache_ci_result(expr const & type, optional<expr> const & inst);
-    type_context(environment const & env, options const & o, tmp_local_generator * gen,
-                 bool gen_owner, bool multiple_instances);
 public:
-    type_context(environment const & env, options const & o, bool multiple_instances = false):
-        type_context(env, o, new tmp_local_generator(), true, multiple_instances) {}
-    type_context(environment const & env, options const & o, tmp_local_generator & gen,
-                 bool multiple_instances = false):
-        type_context(env, o, &gen, false, multiple_instances) {}
+    type_context(environment const & env, options const & o, bool multiple_instances = false);
     virtual ~type_context();
 
     void set_local_instances(list<expr> const & insts);
@@ -358,15 +324,11 @@ public:
     bool is_internal_local(expr const & e) const;
 
     /** \brief Create a temporary local constant */
-    expr mk_tmp_local(expr const & type, binder_info const & bi = binder_info()) {
-        return m_local_gen->mk_tmp_local(type, bi);
-    }
+    expr mk_tmp_local(expr const & type, binder_info const & bi = binder_info());
 
     /** \brief Create a temporary local constant using the given pretty print name.
         The pretty printing name has not semantic significance. */
-    expr mk_tmp_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) {
-        return m_local_gen->mk_tmp_local(pp_name, type, bi);
-    }
+    expr mk_tmp_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info());
 
     /** \brief Create a temporary local constant based on the domain of the given binding (lambda/Pi) expression */
     expr mk_tmp_local_from_binding(expr const & b) {
@@ -374,9 +336,7 @@ public:
     }
 
     /** \brief Return true if \c e was created using \c mk_tmp_local */
-    bool is_tmp_local(expr const & e) const {
-        return m_local_gen->is_tmp_local(e);
-    }
+    bool is_tmp_local(expr const & e) const;
 
     /** \brief Return true if \c l represents a universe unification variable.
         \remark This is supposed to be a subset of is_meta(l).

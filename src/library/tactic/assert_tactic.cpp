@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/fresh_name.h"
 #include "kernel/abstract.h"
 #include "library/constants.h"
 #include "library/tactic/tactic.h"
@@ -28,21 +29,20 @@ tactic assert_tactic(elaborate_fn const & elab, name const & id, expr const & e)
             if (auto new_e = elaborate_with_respect_to(env, ios, elab, new_s, e, none_expr(), report_unassigned)) {
                 goals const & gs   = new_s.get_goals();
                 goal const & g     = head(gs);
-                name_generator ngen = new_s.get_ngen();
-                expr new_meta1      = g.mk_meta(ngen.next(), *new_e);
+                expr new_meta1      = g.mk_meta(mk_fresh_name(), *new_e);
                 goal new_goal1(new_meta1, *new_e);
-                expr new_local      = mk_local(ngen.next(), id, *new_e, binder_info());
+                expr new_local      = mk_local(mk_fresh_name(), id, *new_e, binder_info());
                 buffer<expr> hyps;
                 g.get_hyps(hyps);
                 hyps.push_back(new_local);
-                expr new_mvar2      = mk_metavar(ngen.next(), Pi(hyps, g.get_type()));
+                expr new_mvar2      = mk_metavar(mk_fresh_name(), Pi(hyps, g.get_type()));
                 hyps.pop_back();
                 expr new_meta2_core = mk_app(new_mvar2, hyps);
                 expr new_meta2      = mk_app(new_meta2_core, new_local);
                 goal new_goal2(new_meta2, g.get_type());
                 substitution new_subst = new_s.get_subst();
                 assign(new_subst, g, mk_app(new_meta2_core, new_meta1));
-                return some_proof_state(proof_state(new_s, cons(new_goal1, cons(new_goal2, tail(gs))), new_subst, ngen));
+                return some_proof_state(proof_state(new_s, cons(new_goal1, cons(new_goal2, tail(gs))), new_subst));
             }
             return none_proof_state();
         });

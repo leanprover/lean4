@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <util/utf8.h>
 #include "util/flet.h"
+#include "util/fresh_name.h"
 #include "kernel/replace_fn.h"
 #include "kernel/free_vars.h"
 #include "kernel/abstract.h"
@@ -623,14 +624,13 @@ bool pretty_fn::has_implicit_args(expr const & f) {
         // there are no implicit arguments.
         return false;
     }
-    name_generator ngen(*g_tmp_prefix);
     try {
         expr type = m_tc.whnf(m_tc.infer(f).first).first;
         while (is_pi(type)) {
             binder_info bi = binding_info(type);
             if (bi.is_implicit() || bi.is_strict_implicit() || bi.is_inst_implicit())
                 return true;
-            expr local = mk_local(ngen.next(), binding_name(type), binding_domain(type), binding_info(type));
+            expr local = mk_local(mk_fresh_name(), binding_name(type), binding_domain(type), binding_info(type));
             type = m_tc.whnf(instantiate(binding_body(type), local)).first;
         }
         return false;

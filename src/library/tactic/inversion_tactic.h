@@ -50,10 +50,9 @@ struct result {
     // invariant: length(m_goals) == length(m_args);
     // invariant: length(m_goals) == length(m_implementation_lists);
     // invariant: length(m_goals) == length(m_renames);
-    name_generator             m_ngen;
     substitution               m_subst;
     result(list<goal> const & gs, list<list<expr>> const & args, list<implementation_list> const & imps,
-           list<rename_map> const & rs, name_generator const & ngen, substitution const & subst);
+           list<rename_map> const & rs, substitution const & subst);
 };
 
 optional<result> apply(environment const & env, io_state const & ios, type_checker & tc,

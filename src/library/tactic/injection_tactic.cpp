@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/fresh_name.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/inductive/inductive.h"
@@ -49,8 +50,7 @@ tactic intros_num_tactic(unsigned num, list<name> _ns) {
         if (empty(gs))
             return proof_state_seq();
         goal const & g      = head(gs);
-        name_generator ngen = s.get_ngen();
-        auto tc             = mk_type_checker(env, ngen.mk_child());
+        auto tc             = mk_type_checker(env);
         expr t              = g.get_type();
         expr m              = g.get_meta();
 
@@ -68,16 +68,16 @@ tactic intros_num_tactic(unsigned num, list<name> _ns) {
             expr H = mk_local(mk_name(binding_name(t)), binding_domain(t));
             t      = instantiate(binding_body(t), H);
             m      = mk_app(m, H);
-            proof_state new_s(s, cons(goal(m, t), tail(gs)), ngen);
+            proof_state new_s(s, cons(goal(m, t), tail(gs)));
             return intros_num_tactic(num-1, ns)(env, ios, new_s);
         };
 
         auto discard_hyp = [&]() {
-            expr new_meta = g.mk_meta(ngen.next(), binding_body(t));
+            expr new_meta = g.mk_meta(mk_fresh_name(), binding_body(t));
             goal new_goal(new_meta, binding_body(t));
             substitution new_subst = s.get_subst();
             assign(new_subst, g, mk_lambda(binding_name(t), binding_domain(t), new_meta));
-            proof_state new_s(s, cons(new_goal, tail(gs)), new_subst, ngen);
+            proof_state new_s(s, cons(new_goal, tail(gs)), new_subst);
             return intros_num_tactic(num-1, ns)(env, ios, new_s);
         };
 
@@ -101,11 +101,11 @@ tactic intros_num_tactic(unsigned num, list<name> _ns) {
                 return discard_hyp();
             } else if (is_injection_target(*tc, lhs, rhs)) {
                 // apply injection recursively
-                name Hname = ngen.next();
+                name Hname = mk_fresh_name();
                 expr H     = mk_local(Hname, binding_domain(t));
                 t          = binding_body(t);
                 m          = mk_app(m, H);
-                proof_state new_s(s, cons(goal(m, t), tail(gs)), ngen);
+                proof_state new_s(s, cons(goal(m, t), tail(gs)));
                 return then(injection_tactic_core(H, num-1, ns, false),
                             clear_tactic(Hname))(env, ios, new_s);
             } else {
@@ -119,15 +119,15 @@ tactic intros_num_tactic(unsigned num, list<name> _ns) {
                 // since types A and B are definitionally equal, we convert to homogeneous
                 expr new_eq    = mk_eq(*tc, lhs, rhs);
                 expr new_type  = mk_pi(binding_name(t), new_eq, binding_body(t));
-                expr new_meta  = g.mk_meta(ngen.next(), new_type);
+                expr new_meta  = g.mk_meta(mk_fresh_name(), new_type);
                 goal new_goal(new_meta, new_type);
-                expr H         = mk_local(ngen.next(), binding_domain(t));
+                expr H         = mk_local(mk_fresh_name(), binding_domain(t));
                 levels heq_lvl = const_levels(get_app_fn(Htype));
                 expr arg       = mk_app(mk_constant(get_eq_of_heq_name(), heq_lvl), A, lhs, rhs, H);
                 expr V         = Fun(H, mk_app(new_meta, arg));
                 substitution new_subst = s.get_subst();
                 assign(new_subst, g, V);
-                proof_state new_s(s, cons(new_goal, tail(gs)), new_subst, ngen);
+                proof_state new_s(s, cons(new_goal, tail(gs)), new_subst);
                 return intros_num_tactic(num, ns)(env, ios, new_s);
             } else {
                 return keep_hyp();
@@ -149,8 +149,7 @@ tactic injection_tactic_core(expr const & e, unsigned num, list<name> const & id
         }
         expr t                 = head(gs).get_type();
         constraint_seq cs;
-        name_generator ngen = s.get_ngen();
-        auto tc             = mk_type_checker(env, ngen.mk_child());
+        auto tc             = mk_type_checker(env);
         expr e_type         = tc->whnf(tc->infer(e, cs), cs);
         expr lhs, rhs;
         if (!is_eq(e_type, lhs, rhs)) {
@@ -193,13 +192,13 @@ tactic injection_tactic_core(expr const & e, unsigned num, list<name> const & id
         level t_lvl = sort_level(tc->ensure_type(t, cs));
         expr N      = mk_constant(name(const_name(I), "no_confusion"), cons(t_lvl, const_levels(I)));
         N           = mk_app(mk_app(N, I_args), t, lhs, rhs, e);
-        proof_state new_s(s, ngen);
+        proof_state new_s(s);
         if (is_standard(env)) {
             tactic tac = then(take(apply_tactic_core(N, cs), 1),
                               intros_num_tactic(num + num_new_eqs, ids));
             return tac(env, ios, new_s);
         } else {
-            level n_lvl    = mk_meta_univ(tc->mk_fresh_name());
+            level n_lvl    = mk_meta_univ(mk_fresh_name());
             expr lift_down = mk_app(mk_constant(get_lift_down_name(), {t_lvl, n_lvl}), t);
             tactic tac     = then(take(apply_tactic_core(lift_down), 1),
                                   then(take(apply_tactic_core(N, cs), 1),

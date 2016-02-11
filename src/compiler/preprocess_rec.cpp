@@ -18,7 +18,7 @@ void pp(lean::environment const & env, lean::expr const & e);
 
 namespace lean {
 static expr expand_aux_recursors(environment const & env, expr const & e) {
-    auto tc = mk_type_checker(env, name_generator(), [=](name const & n) {
+    auto tc = mk_type_checker(env, [=](name const & n) {
             return !is_aux_recursor(env, n) && !is_user_defined_recursor(env, n);
         });
     constraint_seq cs;

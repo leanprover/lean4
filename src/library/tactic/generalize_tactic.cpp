@@ -24,11 +24,10 @@ optional<proof_state> generalize_core(environment const & env, io_state const & 
                                       bool intro) {
     proof_state new_s = s;
     if (auto new_e = elaborate_with_respect_to(env, ios, elab, new_s, e)) {
-        name_generator ngen = new_s.get_ngen();
         substitution subst  = new_s.get_subst();
         goals const & gs    = new_s.get_goals();
         goal const & g      = head(gs);
-        auto tc     = mk_type_checker(env, ngen.mk_child());
+        auto tc     = mk_type_checker(env);
         auto e_t_cs = tc->infer(*new_e);
         if (e_t_cs.second) {
             throw_tactic_exception_if_enabled(s, sstream() << "invalid '" << tac_name << "' tactic, unification constraints "
@@ -49,17 +48,17 @@ optional<proof_state> generalize_core(environment const & env, io_state const & 
         if (intro) {
             buffer<expr> hyps;
             g.get_hyps(hyps);
-            expr new_h = mk_local(ngen.next(), get_unused_name(x, hyps), e_t, binder_info());
+            expr new_h = mk_local(mk_fresh_name(), get_unused_name(x, hyps), e_t, binder_info());
             new_t      = instantiate(abstract(t, *new_e), new_h);
             to_check   = Pi(new_h, new_t);
-            new_m      = mk_metavar(ngen.next(), Pi(hyps, Pi(new_h, new_t)));
+            new_m      = mk_metavar(mk_fresh_name(), Pi(hyps, Pi(new_h, new_t)));
             new_m      = mk_app(new_m, hyps);
             new_val    = mk_app(new_m, *new_e);
             new_m      = mk_app(new_m, new_h);
         } else {
             new_t    = mk_pi(n, e_t, abstract(t, *new_e));
             to_check = new_t;
-            new_m    = g.mk_meta(ngen.next(), new_t);
+            new_m    = g.mk_meta(mk_fresh_name(), new_t);
             new_val  = mk_app(new_m, *new_e);
         }
         try {
@@ -76,7 +75,7 @@ optional<proof_state> generalize_core(environment const & env, io_state const & 
         }
         assign(subst, g, new_val);
         goal new_g(new_m, new_t);
-        return some(proof_state(new_s, goals(new_g, tail(gs)), subst, ngen));
+        return some(proof_state(new_s, goals(new_g, tail(gs)), subst));
     }
     return none_proof_state();
 }

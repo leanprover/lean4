@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
+#include "util/fresh_name.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "library/util.h"
@@ -118,9 +119,9 @@ optional<expr> mk_congr_subsingleton_thm(type_checker & tc, io_state const & ios
     }
     expr conclusion = mk_eq(tc, mk_app(fn, conclusion_lhs), mk_app(fn, conclusion_rhs));
     expr mvar_type  = Pi(hyps, conclusion);
-    expr mvar       = mk_metavar(tc.mk_fresh_name(), mvar_type);
+    expr mvar       = mk_metavar(mk_fresh_name(), mvar_type);
     expr meta       = mk_app(mvar, hyps);
-    proof_state ps  = to_proof_state(meta, conclusion, tc.mk_ngen()).update_report_failure(false);
+    proof_state ps  = to_proof_state(meta, conclusion).update_report_failure(false);
     for (unsigned i = 0; i < eqs.size(); i++) {
         goal const & g = head(ps.get_goals());
         optional<expr> const & eq = eqs[i];
@@ -151,7 +152,7 @@ optional<expr> mk_congr_subsingleton_thm(type_checker & tc, io_state const & ios
             expr new_eq    = mk_local(get_unused_name(name(h, eqidx), hyps), mk_eq(tc, new_rhs, new_lhs));
             eqidx++;
             expr new_eq_pr      = mk_subsingleton_elim(tc, *spr, new_rhs, new_lhs);
-            expr aux_mvar       = mk_metavar(tc.mk_fresh_name(), Pi(hyps, g.get_type()));
+            expr aux_mvar       = mk_metavar(mk_fresh_name(), Pi(hyps, g.get_type()));
             expr aux_meta_core  = mk_app(aux_mvar, hyps);
             goal aux_g(mk_app(aux_meta_core, new_eq), g.get_type());
             substitution new_subst = ps.get_subst();
@@ -194,8 +195,7 @@ tactic congruence_tactic() {
         goal const & g      = head(gs);
         expr t              = g.get_type();
         substitution subst  = s.get_subst();
-        name_generator ngen = s.get_ngen();
-        auto tc             = mk_type_checker(env, ngen.mk_child());
+        auto tc             = mk_type_checker(env);
         constraint_seq cs;
         t = tc->whnf(t, cs);
         expr lhs, rhs;
@@ -229,7 +229,7 @@ tactic congruence_tactic() {
         optional<expr> fn_pr;
         if (!tc->is_def_eq(lhs_fn, rhs_fn, justification(), cs)) {
             expr new_type = mk_eq(*tc, lhs_fn, rhs_fn);
-            expr new_meta = g.mk_meta(ngen.next(), new_type);
+            expr new_meta = g.mk_meta(mk_fresh_name(), new_type);
             new_goals.push_back(goal(new_meta, new_type));
             fn_pr = new_meta;
         }
@@ -260,7 +260,7 @@ tactic congruence_tactic() {
                     pr = mk_app(pr, mk_refl(*tc, lhs_args[i]));
                 } else {
                     expr new_type = mk_eq(*tc, lhs_args[i], rhs_args[i]);
-                    expr new_meta = g.mk_meta(ngen.next(), new_type);
+                    expr new_meta = g.mk_meta(mk_fresh_name(), new_type);
                     new_goals.push_back(goal(new_meta, new_type));
                     pr = mk_app(pr, mk_symm(*tc, new_meta));
                 }
@@ -274,7 +274,7 @@ tactic congruence_tactic() {
         }
 
         assign(subst, g, pr);
-        proof_state new_ps(s, to_list(new_goals.begin(), new_goals.end(), tail(gs)), subst, ngen);
+        proof_state new_ps(s, to_list(new_goals.begin(), new_goals.end(), tail(gs)), subst);
         if (solve_constraints(env, ios, new_ps, cs))
             return some_proof_state(new_ps);
         return none_proof_state();

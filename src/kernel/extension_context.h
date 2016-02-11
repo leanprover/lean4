@@ -18,8 +18,7 @@ class delayed_justification;
    1) the environment being used.
    2) the weak head normal form of an expression.
    3) the type of an expression.
-   4) a new fresh name.
-   5) registration of a new constraint.
+   4) registration of a new constraint.
 */
 class extension_context {
 public:
@@ -29,7 +28,6 @@ public:
     virtual pair<bool, constraint_seq> is_def_eq(expr const & e1, expr const & e2, delayed_justification & j) = 0;
     virtual pair<expr, constraint_seq> check_type(expr const & e, bool infer_only) = 0;
     virtual optional<expr> is_stuck(expr const & e) = 0;
-    virtual name mk_fresh_name() = 0;
     expr check_type(expr const & e, constraint_seq & cs, bool infer_only);
     expr whnf(expr const & e, constraint_seq & cs);
     pair<expr, constraint_seq> infer(expr const & e);

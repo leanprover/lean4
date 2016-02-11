@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "util/fresh_name.h"
 #include "library/constants.h"
 #include "library/reducible.h"
 #include "library/flycheck.h"
@@ -20,9 +21,8 @@ tactic check_expr_tactic(elaborate_fn const & elab, expr const & e,
                 return none_proof_state();
             }
             goal const & g      = head(gs);
-            name_generator ngen = s.get_ngen();
-            expr new_e = std::get<0>(elab(g, ios.get_options(), ngen.mk_child(), e, none_expr(), s.get_subst(), false));
-            auto tc = mk_type_checker(env, ngen.mk_child());
+            expr new_e = std::get<0>(elab(g, ios.get_options(), e, none_expr(), s.get_subst(), false));
+            auto tc = mk_type_checker(env);
             expr new_t = tc->infer(new_e).first;
             auto out = regular(env, ios);
             flycheck_information info(out);

@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "util/name_generator.h"
 #include "util/sstream.h"
 #include "util/list_fn.h"
 #include "util/rb_map.h"
+#include "util/fresh_name.h"
 #include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/instantiate.h"
@@ -266,7 +266,6 @@ struct add_inductive_fn {
     bool                 m_is_not_zero;
     unsigned             m_decls_sz;     // length(m_decls)
     list<level>          m_levels;       // m_level_names ==> m_levels
-    name_generator       m_ngen;
     type_checker_ptr     m_tc;
 
     level                m_elim_level;   // extra universe level for eliminator.
@@ -292,7 +291,7 @@ struct add_inductive_fn {
                      unsigned                     num_params,
                      list<inductive_decl> const & decls):
         m_env(env), m_level_names(level_params), m_num_params(num_params), m_decls(decls),
-        m_ngen(*g_tmp_prefix), m_tc(new type_checker(m_env)) {
+        m_tc(new type_checker(m_env)) {
         m_is_not_zero = false;
         m_decls_sz    = length(m_decls);
         m_levels      = param_names_to_levels(level_params);
@@ -310,9 +309,6 @@ struct add_inductive_fn {
     bool is_def_eq(expr const & t, expr const & s) { return tc().is_def_eq(t, s).first; }
     expr whnf(expr const & e) { return tc().whnf(e).first; }
     expr ensure_type(expr const & e) { return tc().ensure_type(e).first; }
-
-    /** \brief Return a fresh name. */
-    name mk_fresh_name() { return m_ngen.next(); }
 
     /** \brief Create a local constant for the given binding. */
     expr mk_local_for(expr const & b) { return mk_local(mk_fresh_name(), binding_name(b), binding_domain(b), binding_info(b)); }

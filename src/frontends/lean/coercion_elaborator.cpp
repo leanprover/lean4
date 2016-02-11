@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/fresh_name.h"
 #include "kernel/type_checker.h"
 #include "kernel/metavar.h"
 #include "kernel/constraint.h"
@@ -36,7 +37,7 @@ list<expr> get_coercions_from_to(type_checker & from_tc, type_checker & to_tc,
             return list<expr>(); // failed
         if (!from_tc.is_def_eq(binding_domain(whnf_from_type), binding_domain(whnf_to_type), justification(), new_cs))
             return list<expr>(); // failed, the domains must be definitionally equal
-        expr x = mk_local(from_tc.mk_fresh_name(), "x", binding_domain(whnf_from_type), binder_info());
+        expr x = mk_local(mk_fresh_name(), "x", binding_domain(whnf_from_type), binder_info());
         expr A = instantiate(binding_body(whnf_from_type), x);
         expr B = instantiate(binding_body(whnf_to_type), x);
         list<expr> coe = get_coercions_from_to(from_tc, to_tc, A, B, new_cs, lift_coe);
@@ -44,7 +45,7 @@ list<expr> get_coercions_from_to(type_checker & from_tc, type_checker & to_tc,
             cs += new_cs;
             // Remark: each coercion c in coe is a function from A to B
             // We create a new list: (fun (f : D -> A) (x : D), c (f x))
-            expr f = mk_local(from_tc.mk_fresh_name(), "f", whnf_from_type, binder_info());
+            expr f = mk_local(mk_fresh_name(), "f", whnf_from_type, binder_info());
             expr fx = mk_app(f, x);
             return map(coe, [&](expr const & c) { return Fun(f, Fun(x, mk_app(c, fx))); });
         } else {
@@ -95,8 +96,7 @@ bool is_pi_meta(expr const & e) {
 constraint mk_coercion_cnstr(type_checker & from_tc, type_checker & to_tc, coercion_info_manager & infom,
                              expr const & m, expr const & a, expr const & a_type,
                              justification const & j, unsigned delay_factor, bool lift_coe) {
-    auto choice_fn = [=, &from_tc, &to_tc, &infom](expr const & meta, expr const & d_type, substitution const & s,
-                                                   name_generator && /* ngen */) {
+    auto choice_fn = [=, &from_tc, &to_tc, &infom](expr const & meta, expr const & d_type, substitution const & s) {
         expr          new_a_type;
         justification new_a_type_jst;
         if (is_meta(a_type)) {
@@ -128,7 +128,7 @@ constraint mk_coercion_cnstr(type_checker & from_tc, type_checker & to_tc, coerc
                 expr dom_to   = binding_domain(it_to);
                 if (!from_tc.is_def_eq(dom_from, dom_to, justification(), cs))
                     return lazy_list<constraints>();
-                expr local = mk_local(from_tc.mk_fresh_name(), binding_name(it_from), dom_from, binder_info());
+                expr local = mk_local(mk_fresh_name(), binding_name(it_from), dom_from, binder_info());
                 locals.push_back(local);
                 it_from  = instantiate(binding_body(it_from), local);
                 it_to    = instantiate(binding_body(it_to), local);
@@ -137,7 +137,7 @@ constraint mk_coercion_cnstr(type_checker & from_tc, type_checker & to_tc, coerc
             get_coercions_from(from_tc.env(), it_from, alts);
             expr fn_a;
             if (!locals.empty())
-                fn_a = mk_local(from_tc.mk_fresh_name(), "f", new_a_type, binder_info());
+                fn_a = mk_local(mk_fresh_name(), "f", new_a_type, binder_info());
             buffer<constraints> choices;
             buffer<expr> coes;
             // first alternative: no coercion

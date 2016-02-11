@@ -20,8 +20,6 @@ pair<bool, constraint_seq> converter::is_def_eq(expr const & t, expr const & s, 
     return is_def_eq(t, s, c, *g_no_delayed_jst);
 }
 
-name converter::mk_fresh_name(type_checker & tc) { return tc.mk_fresh_name(); }
-
 pair<expr, constraint_seq> converter::infer_type(type_checker & tc, expr const & e) { return tc.infer_type(e); }
 
 extension_context & converter::get_extension(type_checker & tc) { return tc.get_extension(); }

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include "util/sstream.h"
+#include "util/fresh_name.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
@@ -25,9 +26,9 @@ Author: Leonardo de Moura
 namespace lean {
 namespace inversion {
 result::result(list<goal> const & gs, list<list<expr>> const & args, list<implementation_list> const & imps,
-               list<rename_map> const & rs, name_generator const & ngen, substitution const & subst):
+               list<rename_map> const & rs, substitution const & subst):
     m_goals(gs), m_args(args), m_implementation_lists(imps),
-    m_renames(rs), m_ngen(ngen), m_subst(subst) {
+    m_renames(rs), m_subst(subst) {
     lean_assert_eq(length(m_goals), length(m_args));
     lean_assert_eq(length(m_goals), length(m_implementation_lists));
     lean_assert_eq(length(m_goals), length(m_renames));
@@ -64,7 +65,7 @@ optional<expr> apply_eq_rec_eq(type_checker & tc, io_state const & ios, list<exp
     expr C    = tc.whnf(args[2]).first;
     if (!is_lambda(C))
         return none_expr();
-    expr a1   = mk_local(tc.mk_fresh_name(), binding_domain(C));
+    expr a1   = mk_local(mk_fresh_name(), binding_domain(C));
     C         = tc.whnf(instantiate(binding_body(C), a1)).first;
     if (!is_lambda(C))
         return none_expr();
@@ -104,7 +105,6 @@ class inversion_tac {
     io_state const &              m_ios;
     type_checker &                m_tc;
     list<name>                    m_ids;
-    name_generator                m_ngen;
     substitution                  m_subst;
 
     bool                          m_dep_elim;
@@ -269,12 +269,12 @@ class inversion_tac {
                 pair<expr, expr> p = mk_eq(lhs, rhs);
                 expr new_eq   = p.first;
                 expr new_refl = p.second;
-                eqs.push_back(mk_local(m_ngen.next(), g.get_unused_name(eq_prefix, eq_idx), new_eq, binder_info()));
+                eqs.push_back(mk_local(mk_fresh_name(), g.get_unused_name(eq_prefix, eq_idx), new_eq, binder_info()));
                 refls.push_back(new_refl);
             };
             for (unsigned i = I_args.size() - m_nindices; i < I_args.size(); i++) {
                 expr t_type = binding_domain(d);
-                expr t      = mk_local(m_ngen.next(), g.get_unused_name(t_prefix, nidx), t_type, binder_info());
+                expr t      = mk_local(mk_fresh_name(), g.get_unused_name(t_prefix, nidx), t_type, binder_info());
                 expr const & index = I_args[i];
                 add_eq(index, t);
                 h_new_type  = mk_app(h_new_type, t);
@@ -282,12 +282,12 @@ class inversion_tac {
                 ts.push_back(t);
                 d           = instantiate(binding_body(d), t);
             }
-            expr h_new    = mk_local(m_ngen.next(), h_new_name, h_new_type, local_info(h));
+            expr h_new    = mk_local(mk_fresh_name(), h_new_name, h_new_type, local_info(h));
             if (m_dep_elim)
                 add_eq(h, h_new);
             hyps.push_back(h_new);
             expr new_type = Pi(eqs, g.get_type());
-            expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
+            expr new_meta = mk_app(mk_metavar(mk_fresh_name(), Pi(hyps, new_type)), hyps);
             goal new_g(new_meta, new_type);
             expr val      = mk_app(mk_app(mk_app(Fun(ts, Fun(h_new, new_meta)), m_nindices, I_args.end() - m_nindices), h),
                                    refls);
@@ -300,7 +300,7 @@ class inversion_tac {
             buffer<expr> refls;
             for (unsigned i = I_args.size() - m_nindices; i < I_args.size(); i++) {
                 expr t_type = binding_domain(d);
-                expr t      = mk_local(m_ngen.next(), g.get_unused_name(t_prefix, nidx), t_type, binder_info());
+                expr t      = mk_local(mk_fresh_name(), g.get_unused_name(t_prefix, nidx), t_type, binder_info());
                 h_new_type  = mk_app(h_new_type, t);
                 ss.push_back(I_args[i]);
                 refls.push_back(mk_refl(m_tc, I_args[i]));
@@ -308,7 +308,7 @@ class inversion_tac {
                 ts.push_back(t);
                 d           = instantiate(binding_body(d), t);
             }
-            expr h_new    = mk_local(m_ngen.next(), h_new_name, h_new_type, local_info(h));
+            expr h_new    = mk_local(mk_fresh_name(), h_new_name, h_new_type, local_info(h));
             ts.push_back(h_new);
             ss.push_back(h);
             refls.push_back(mk_refl(m_tc, h));
@@ -317,7 +317,7 @@ class inversion_tac {
             mk_telescopic_eq(m_tc, ss, ts, eqs);
             ts.pop_back();
             expr new_type = Pi(eqs, g.get_type());
-            expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
+            expr new_meta = mk_app(mk_metavar(mk_fresh_name(), Pi(hyps, new_type)), hyps);
             goal new_g(new_meta, new_type);
             expr val      = mk_app(mk_app(mk_app(Fun(ts, Fun(h_new, new_meta)), m_nindices, I_args.end() - m_nindices), h),
                                    refls);
@@ -341,7 +341,7 @@ class inversion_tac {
         buffer<expr> & new_hyps = non_deps;
         new_hyps.push_back(h);
         expr new_type = Pi(deps, g.get_type());
-        expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(new_hyps, new_type)), new_hyps);
+        expr new_meta = mk_app(mk_metavar(mk_fresh_name(), Pi(new_hyps, new_type)), new_hyps);
         goal new_g(new_meta, new_type);
         expr val      = mk_app(new_meta, deps);
         assign(g, val);
@@ -421,7 +421,7 @@ class inversion_tac {
         buffer<implementation_list> new_imps;
         for (unsigned i = 0; i < m_nminors; i++) {
             expr new_type = binding_domain(cases_on_type);
-            expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(new_hyps, new_type)), new_hyps);
+            expr new_meta = mk_app(mk_metavar(mk_fresh_name(), Pi(new_hyps, new_type)), new_hyps);
             goal new_g(new_meta, new_type);
             new_goals.push_back(new_g);
             cases_on      = mk_app(cases_on, new_meta);
@@ -482,14 +482,14 @@ class inversion_tac {
                 } else {
                     new_h_name = binding_name(g_type);
                 }
-                expr new_h = mk_local(m_ngen.next(), get_unused_name(new_h_name, new_hyps), type, binder_info());
+                expr new_h = mk_local(mk_fresh_name(), get_unused_name(new_h_name, new_hyps), type, binder_info());
                 curr_new_args.push_back(new_h);
                 new_hyps.push_back(new_h);
                 g_type     = instantiate(binding_body(g_type), new_h);
             }
             new_args.push_back(to_list(curr_new_args));
             g_type = head_beta_reduce(g_type);
-            expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(new_hyps, g_type)), new_hyps);
+            expr new_meta = mk_app(mk_metavar(mk_fresh_name(), Pi(new_hyps, g_type)), new_hyps);
             goal new_g(new_meta, g_type);
             new_gs.push_back(new_g);
             expr val      = Fun(nargs, new_hyps.end() - nargs, new_meta);
@@ -564,13 +564,13 @@ class inversion_tac {
         expr const & reduced_lhs = lhs_args[3];
         expr new_eq      = ::lean::mk_eq(m_tc, reduced_lhs, rhs);
         expr new_type    = update_binding(type, new_eq, binding_body(type));
-        expr new_meta    = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
+        expr new_meta    = mk_app(mk_metavar(mk_fresh_name(), Pi(hyps, new_type)), hyps);
         goal new_g(new_meta, new_type);
         // create assignment for g
         expr A           = infer_type(lhs);
         level lvl        = sort_level(m_tc.ensure_type(A).first);
         // old_eq : eq.rec A s C a s p = b
-        expr old_eq      = mk_local(m_ngen.next(), binding_name(type), eq, binder_info());
+        expr old_eq      = mk_local(mk_fresh_name(), binding_name(type), eq, binder_info());
         // aux_eq : a = eq.rec A s C a s p
         expr trans_eq    = mk_app({mk_constant(get_eq_trans_name(), {lvl}), A, reduced_lhs, lhs, rhs, *aux_eq, old_eq});
         // trans_eq : a = b
@@ -597,14 +597,14 @@ class inversion_tac {
             buffer<expr> hyps;
             g.get_hyps(hyps);
             expr new_eq   = mk_app(mk_constant(get_eq_name(), const_levels(heq_fn)), args[0], args[1], args[3]);
-            expr new_hyp  = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), new_eq, binder_info());
+            expr new_hyp  = mk_local(mk_fresh_name(), g.get_unused_name(binding_name(type)), new_eq, binder_info());
             expr new_type = instantiate(binding_body(type), new_hyp);
             hyps.push_back(new_hyp);
-            expr new_mvar = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
+            expr new_mvar = mk_metavar(mk_fresh_name(), Pi(hyps, new_type));
             expr new_meta = mk_app(new_mvar, hyps);
             goal new_g(new_meta, new_type);
             hyps.pop_back();
-            expr H        = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), binding_domain(type), binder_info());
+            expr H        = mk_local(mk_fresh_name(), g.get_unused_name(binding_name(type)), binding_domain(type), binder_info());
             expr to_eq    = mk_app(mk_constant(get_eq_of_heq_name(), const_levels(heq_fn)), args[0], args[1], args[3], H);
             expr val      = Fun(H, mk_app(mk_app(new_mvar, hyps), to_eq));
             assign(g, val);
@@ -629,10 +629,10 @@ class inversion_tac {
         lean_assert(const_name(get_app_fn(eq)) == get_eq_name());
         buffer<expr> hyps;
         g.get_hyps(hyps);
-        expr new_hyp  = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), binding_domain(type), binder_info());
+        expr new_hyp  = mk_local(mk_fresh_name(), g.get_unused_name(binding_name(type)), binding_domain(type), binder_info());
         expr new_type = instantiate(binding_body(type), new_hyp);
         hyps.push_back(new_hyp);
-        expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
+        expr new_meta = mk_app(mk_metavar(mk_fresh_name(), Pi(hyps, new_type)), hyps);
         goal new_g(new_meta, new_type);
         expr val      = Fun(new_hyp, new_meta);
         assign(g, val);
@@ -732,7 +732,7 @@ class inversion_tac {
             // deletion transition: t == t
             hyps.pop_back(); // remove t == t equality
             expr new_type = g.get_type();
-            expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
+            expr new_meta = mk_app(mk_metavar(mk_fresh_name(), Pi(hyps, new_type)), hyps);
             goal new_g(new_meta, new_type);
             assign(g, new_meta);
             return unify_eqs(new_g, neqs-1);
@@ -763,7 +763,7 @@ class inversion_tac {
                 expr new_type = binding_domain(whnf(infer_type(no_confusion)));
                 if (m_proof_irrel || !depends_on(g_type, hyps.back()))
                     hyps.pop_back(); // remove processed equality
-                expr new_mvar = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
+                expr new_mvar = mk_metavar(mk_fresh_name(), Pi(hyps, new_type));
                 expr new_meta = mk_app(new_mvar, hyps);
                 goal new_g(new_meta, new_type);
                 expr val      = lift_down(mk_app(no_confusion, new_meta));
@@ -807,7 +807,7 @@ class inversion_tac {
                 // eq.rec is not necessary
                 buffer<expr> & new_hyps = non_deps;
                 expr new_type           = g_type;
-                expr new_mvar           = mk_metavar(m_ngen.next(), Pi(new_hyps, new_type));
+                expr new_mvar           = mk_metavar(mk_fresh_name(), Pi(new_hyps, new_type));
                 expr new_meta           = mk_app(new_mvar, new_hyps);
                 goal new_g(new_meta, new_type);
                 assign(g, new_meta);
@@ -843,7 +843,7 @@ class inversion_tac {
                 }
                 buffer<expr> new_deps;
                 for (unsigned i = 0; i < deps.size(); i++) {
-                    expr new_hyp = mk_local(m_ngen.next(), binding_name(new_type), binding_domain(new_type),
+                    expr new_hyp = mk_local(mk_fresh_name(), binding_name(new_type), binding_domain(new_type),
                                             binding_info(new_type));
                     new_hyps.push_back(new_hyp);
                     new_deps.push_back(new_hyp);
@@ -852,7 +852,7 @@ class inversion_tac {
                 replace(m_imps, deps, new_deps);
                 lean_assert(deps.size() == new_deps.size());
                 store_renames(deps, new_deps);
-                expr new_mvar       = mk_metavar(m_ngen.next(), Pi(new_hyps, new_type));
+                expr new_mvar       = mk_metavar(mk_fresh_name(), Pi(new_hyps, new_type));
                 expr new_meta       = mk_app(new_mvar, new_hyps);
                 goal new_g(new_meta, new_type);
                 expr eq_rec_minor   = mk_app(new_mvar, non_deps);
@@ -867,7 +867,7 @@ class inversion_tac {
             hyps.pop_back(); // remove processed equality
             if (!depends_on(g_type, Heq)) {
                 expr new_type  = mk_arrow(symm_eq, g_type);
-                expr new_mvar  = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
+                expr new_mvar  = mk_metavar(mk_fresh_name(), Pi(hyps, new_type));
                 expr new_meta  = mk_app(new_mvar, hyps);
                 goal new_g(new_meta, new_type);
                 expr Heq_inv   = mk_symm(m_tc, Heq);
@@ -879,7 +879,7 @@ class inversion_tac {
                 expr new_Heq     = update_mlocal(Heq, symm_eq);
                 expr new_Heq_inv = mk_symm(m_tc, new_Heq);
                 expr new_type    = Pi(new_Heq, instantiate(abstract_local(g_type, Heq), new_Heq_inv));
-                expr new_mvar    = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
+                expr new_mvar    = mk_metavar(mk_fresh_name(), Pi(hyps, new_type));
                 expr new_meta    = mk_app(new_mvar, hyps);
                 goal new_g(new_meta, new_type);
                 // Then, we have
@@ -938,12 +938,12 @@ class inversion_tac {
         expr g_type    = g.get_type();
         for (expr const & d : deps) {
             expr type  = binding_domain(g_type);
-            expr new_d = mk_local(m_ngen.next(), get_unused_name(local_pp_name(d), new_hyps), type, local_info(d));
+            expr new_d = mk_local(mk_fresh_name(), get_unused_name(local_pp_name(d), new_hyps), type, local_info(d));
             rs.insert(mlocal_name(d), mlocal_name(new_d));
             new_hyps.push_back(new_d);
             g_type     = instantiate(binding_body(g_type), new_d);
         }
-        expr new_meta  = mk_app(mk_metavar(m_ngen.next(), Pi(new_hyps, g_type)), new_hyps);
+        expr new_meta  = mk_app(mk_metavar(mk_fresh_name(), Pi(new_hyps, g_type)), new_hyps);
         goal new_g(new_meta, g_type);
         unsigned ndeps = deps.size();
         expr val       = Fun(ndeps, new_hyps.end() - ndeps, new_meta);
@@ -973,7 +973,7 @@ class inversion_tac {
                 return g; // other hypotheses or result type depend on h
             }
             expr new_type = g.get_type();
-            expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
+            expr new_meta = mk_app(mk_metavar(mk_fresh_name(), Pi(hyps, new_type)), hyps);
             goal new_g(new_meta, new_type);
             assign(g, new_meta);
             return new_g;
@@ -1022,17 +1022,17 @@ class inversion_tac {
     }
 
 public:
-    inversion_tac(environment const & env, io_state const & ios, name_generator const & ngen,
+    inversion_tac(environment const & env, io_state const & ios,
                   type_checker & tc, substitution const & subst, list<name> const & ids,
                   bool throw_tactic_ex, bool clear_elim):
         m_env(env), m_ios(ios), m_tc(tc), m_ids(ids),
-        m_ngen(ngen), m_subst(subst), m_throw_tactic_exception(throw_tactic_ex),
+        m_subst(subst), m_throw_tactic_exception(throw_tactic_ex),
         m_clear_elim(clear_elim) {
         m_proof_irrel = m_env.prop_proof_irrel();
     }
 
     inversion_tac(environment const & env, io_state const & ios, type_checker & tc, bool clear_elim):
-        inversion_tac(env, ios, tc.mk_ngen(), tc, substitution(), list<name>(), false, clear_elim) {}
+        inversion_tac(env, ios, tc, substitution(), list<name>(), false, clear_elim) {}
 
     typedef inversion::result result;
 
@@ -1053,7 +1053,7 @@ public:
                 auto gs_rs_pair                     = intro_deps(gs3, deps);
                 list<goal> gs4                      = gs_rs_pair.first;
                 list<rename_map> rs                 = gs_rs_pair.second;
-                return optional<result>(result(gs4, args, new_imps, rs, m_ngen, m_subst));
+                return optional<result>(result(gs4, args, new_imps, rs, m_subst));
             } else {
                 goal g1                             = generalize_indices(g, h, h_type);
                 auto gs_imps_pair                   = apply_cases_on(g1, imps, false);
@@ -1066,7 +1066,7 @@ public:
                 list<rename_map> rs;
                 std::tie(gs4, args, new_imps, rs)   = unify_eqs(gs3, args, new_imps);
                 gs4 = clear_hypothesis(gs4, rs, mlocal_name(h), h_type);
-                return optional<result>(result(gs4, args, new_imps, rs, m_ngen, m_subst));
+                return optional<result>(result(gs4, args, new_imps, rs, m_subst));
             }
         } catch (inversion_exception & ex) {
             return optional<result>();
@@ -1099,12 +1099,11 @@ tactic inversion_tactic(name const & n, list<name> const & ids) {
             return none_proof_state();
         goal  g           = head(gs);
         goals tail_gs     = tail(gs);
-        name_generator ngen              = ps.get_ngen();
-        std::unique_ptr<type_checker> tc = mk_type_checker(env, ngen.mk_child());
+        std::unique_ptr<type_checker> tc = mk_type_checker(env);
         bool  clear_elim = true;
-        inversion_tac tac(env, ios, ngen, *tc, ps.get_subst(), ids, ps.report_failure(), clear_elim);
+        inversion_tac tac(env, ios, *tc, ps.get_subst(), ids, ps.report_failure(), clear_elim);
         if (auto res = tac.execute(g, n, implementation_list())) {
-            proof_state new_s(ps, append(res->m_goals, tail_gs), res->m_subst, res->m_ngen);
+            proof_state new_s(ps, append(res->m_goals, tail_gs), res->m_subst);
             return some_proof_state(new_s);
         } else {
             return none_proof_state();

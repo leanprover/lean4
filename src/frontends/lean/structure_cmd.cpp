@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <string>
 #include "util/sstream.h"
+#include "util/fresh_name.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
@@ -87,7 +88,6 @@ struct structure_cmd_fn {
 
     parser &                    m_p;
     environment                 m_env;
-    name_generator              m_ngen;
     type_checker_ptr            m_tc;
     name                        m_namespace;
     name                        m_name;
@@ -113,8 +113,8 @@ struct structure_cmd_fn {
     bool                        m_gen_eta;
     bool                        m_gen_proj_mk;
 
-    structure_cmd_fn(parser & p):m_p(p), m_env(p.env()), m_ngen(p.mk_ngen()), m_namespace(get_namespace(m_env)) {
-        m_tc = mk_type_checker(m_env, m_p.mk_ngen());
+    structure_cmd_fn(parser & p):m_p(p), m_env(p.env()), m_namespace(get_namespace(m_env)) {
+        m_tc = mk_type_checker(m_env);
         m_infer_result_universe = false;
         m_gen_eta     = get_structure_eta_thm(p.get_options());
         m_gen_proj_mk = get_structure_proj_mk_thm(p.get_options());
@@ -298,7 +298,7 @@ struct structure_cmd_fn {
         buffer<expr> tmp_locals;
         tmp_locals.append(m_params);
         for (expr const & parent : m_parents)
-            tmp_locals.push_back(mk_local(m_ngen.next(), parent));
+            tmp_locals.push_back(mk_local(mk_fresh_name(), parent));
 
         collected_locals dep_set;
         for (expr const & v : include_vars) {
@@ -440,7 +440,7 @@ struct structure_cmd_fn {
         bool use_exceptions = true;
         bool discard        = true;
         unifier_config cfg(use_exceptions, discard);
-        unify_result_seq rseq = unify(m_env, cs.size(), cs.data(), m_ngen.mk_child(), substitution(), cfg);
+        unify_result_seq rseq = unify(m_env, cs.size(), cs.data(), substitution(), cfg);
         auto p = rseq.pull();
         lean_assert(p);
         substitution subst = p->first.first;
@@ -810,7 +810,7 @@ struct structure_cmd_fn {
             binder_info bi;
             if (m_modifiers.is_class())
                 bi = mk_inst_implicit_binder_info();
-            expr st                        = mk_local(m_ngen.next(), "s", st_type, bi);
+            expr st                        = mk_local(mk_fresh_name(), "s", st_type, bi);
             expr coercion_type             = infer_implicit(Pi(m_params, Pi(st, parent)), m_params.size(), true);;
             expr coercion_value            = parent_intro;
             for (unsigned idx : fmap) {
@@ -846,7 +846,7 @@ struct structure_cmd_fn {
         level_param_names lnames = to_list(m_level_names.begin(), m_level_names.end());
         levels st_ls             = param_names_to_levels(lnames);
         expr st_type             = mk_app(mk_constant(m_name, st_ls), m_params);
-        expr st                  = mk_local(m_ngen.next(), "s", st_type, binder_info());
+        expr st                  = mk_local(mk_fresh_name(), "s", st_type, binder_info());
         expr lhs                 = mk_app(mk_constant(m_mk, st_ls), m_params);
         for (expr const & field : m_fields) {
             expr proj = mk_app(mk_app(mk_constant(m_name + mlocal_name(field), st_ls), m_params), st);

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
+#include "util/fresh_name.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
@@ -46,8 +47,7 @@ optional<proof_state> subst(environment const & env, name const & h_name, bool s
     expr lhs, rhs;
     if (!is_eq(mlocal_type(h), lhs, rhs))
         return none_proof_state();
-    name_generator ngen = s.get_ngen();
-    auto tc = mk_type_checker(env, ngen.mk_child());
+    auto tc = mk_type_checker(env);
     if (symm)
         std::swap(lhs, rhs);
     if (!is_local(lhs))
@@ -75,7 +75,7 @@ optional<proof_state> subst(environment const & env, name const & h_name, bool s
         if (symm) {
             motive = Fun(lhs, Fun(h, type));
         } else {
-            expr Heq = mk_local(ngen.next(), local_pp_name(h), mk_eq(*tc, rhs, lhs), binder_info());
+            expr Heq = mk_local(mk_fresh_name(), local_pp_name(h), mk_eq(*tc, rhs, lhs), binder_info());
             motive = Fun(lhs, Fun(Heq, type));
         }
     } else {
@@ -90,14 +90,14 @@ optional<proof_state> subst(environment const & env, name const & h_name, bool s
     for (expr const & d : deps) {
         if (!is_pi(new_goal_type))
             return none_proof_state();
-        expr new_h = mk_local(ngen.next(), local_pp_name(d), binding_domain(new_goal_type), binder_info());
+        expr new_h = mk_local(mk_fresh_name(), local_pp_name(d), binding_domain(new_goal_type), binder_info());
         new_hyps.push_back(new_h);
         intros_hyps.push_back(new_h);
         new_goal_type = instantiate(binding_body(new_goal_type), new_h);
     }
 
     // create new goal
-    expr new_metavar   = mk_metavar(ngen.next(), Pi(new_hyps, new_goal_type));
+    expr new_metavar   = mk_metavar(mk_fresh_name(), Pi(new_hyps, new_goal_type));
     expr new_meta_core = mk_app(new_metavar, non_deps);
     expr new_meta      = mk_app(new_meta_core, intros_hyps);
     goal new_g(new_meta, new_goal_type);
@@ -135,7 +135,7 @@ optional<proof_state> subst(environment const & env, name const & h_name, bool s
     expr new_val = mk_app(eqrec, deps);
     assign(new_subst, g, new_val);
     lean_assert(new_subst.is_assigned(g.get_mvar()));
-    proof_state new_s(s, goals(new_g, tail(gs)), new_subst, ngen);
+    proof_state new_s(s, goals(new_g, tail(gs)), new_subst);
     return some_proof_state(new_s);
 }
 

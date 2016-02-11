@@ -4,8 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/constants.h"
+#include "util/fresh_name.h"
 #include "kernel/instantiate.h"
+#include "library/constants.h"
 #include "library/reducible.h"
 #include "library/tactic/intros_tactic.h"
 #include "library/tactic/expr_to_tactic.h"
@@ -20,8 +21,7 @@ static tactic intro_intros_tactic(list<name> _ns, bool is_intros) {
             return optional<proof_state>();
         }
         goal const & g      = head(gs);
-        name_generator ngen = s.get_ngen();
-        auto tc             = mk_type_checker(env, ngen.mk_child());
+        auto tc             = mk_type_checker(env);
         expr t              = g.get_type();
         expr m              = g.get_meta();
         bool gen_names      = is_intros && empty(ns);
@@ -50,13 +50,13 @@ static tactic intro_intros_tactic(list<name> _ns, bool is_intros) {
                 } else {
                     new_name = get_unused_name(binding_name(t), m);
                 }
-                expr new_local = mk_local(ngen.next(), new_name, binding_domain(t), binding_info(t));
+                expr new_local = mk_local(mk_fresh_name(), new_name, binding_domain(t), binding_info(t));
                 t              = instantiate(binding_body(t), new_local);
                 m              = mk_app(m, new_local);
                 first          = false;
             }
             goal new_g(m, t);
-            return some(proof_state(s, goals(new_g, tail(gs)), ngen));
+            return some(proof_state(s, goals(new_g, tail(gs))));
         } catch (exception &) {
             return optional<proof_state>();
         }

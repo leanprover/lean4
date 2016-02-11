@@ -45,7 +45,7 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
        and the major premise is of the form (?m ...), we create a case split where we try to assign (?m ...)
        to the different constructors of decl.
     */
-    lazy_list<constraints> add_elim_meta_cnstrs(type_checker & tc, name_generator & ngen, inductive::inductive_decl const & decl,
+    lazy_list<constraints> add_elim_meta_cnstrs(type_checker & tc, inductive::inductive_decl const & decl,
                                                 expr const & elim, buffer<expr> & args, expr const & t, justification const & j,
                                                 constraint_seq cs) const {
         lean_assert(is_constant(elim));
@@ -74,7 +74,7 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
             expr hint       = intro_fn;
             expr intro_type = tc.whnf(inductive::intro_rule_type(intro), cs_intro);
             while (is_pi(intro_type)) {
-                expr new_arg = mk_app(mk_aux_metavar_for(ngen, mtype), margs);
+                expr new_arg = mk_app(mk_aux_metavar_for(mtype), margs);
                 hint = mk_app(hint, new_arg);
                 intro_type = tc.whnf(instantiate(binding_body(intro_type), new_arg), cs_intro);
             }
@@ -90,8 +90,7 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
         return to_lazy(to_list(alts.begin(), alts.end()));
     }
 
-    lazy_list<constraints> process_elim_meta_core(type_checker & tc, name_generator & ngen,
-                                                  expr const & lhs, expr const & rhs, justification const & j) const {
+    lazy_list<constraints> process_elim_meta_core(type_checker & tc, expr const & lhs, expr const & rhs, justification const & j) const {
         lean_assert(inductive::is_elim_meta_app(tc, lhs));
         auto dcs = tc.is_def_eq_types(lhs, rhs, j);
         if (!dcs.first)
@@ -106,7 +105,7 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
         auto decls   = *inductive::is_inductive_decl(env, it_name);
         for (auto const & d : std::get<2>(decls)) {
             if (inductive::inductive_decl_name(d) == it_name)
-                return add_elim_meta_cnstrs(tc, ngen, d, elim, args, rhs, j, cs);
+                return add_elim_meta_cnstrs(tc, d, elim, args, rhs, j, cs);
         }
         lean_unreachable(); // LCOV_EXCL_LINE
     }
@@ -116,16 +115,16 @@ public:
        \brief Try to solve constraint of the form (elim ... (?m ...)) =?= t, by assigning (?m ...) to the introduction rules
        associated with the eliminator \c elim.
     */
-    virtual lazy_list<constraints> solve(type_checker & tc, constraint const & c, name_generator && ngen) const {
+    virtual lazy_list<constraints> solve(type_checker & tc, constraint const & c) const {
         if (!is_eq_cnstr(c))
             return lazy_list<constraints>();
         expr const & lhs        = cnstr_lhs_expr(c);
         expr const & rhs        = cnstr_rhs_expr(c);
         justification const & j = c.get_justification();
         if (inductive::is_elim_meta_app(tc, lhs))
-            return process_elim_meta_core(tc, ngen, lhs, rhs, j);
+            return process_elim_meta_core(tc, lhs, rhs, j);
         else if (inductive::is_elim_meta_app(tc, rhs))
-            return process_elim_meta_core(tc, ngen, rhs, lhs, j);
+            return process_elim_meta_core(tc, rhs, lhs, j);
         else
             return lazy_list<constraints>();
     }

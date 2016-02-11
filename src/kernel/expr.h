@@ -20,7 +20,6 @@ Author: Leonardo de Moura
 #include "util/optional.h"
 #include "util/serializer.h"
 #include "util/sexpr/format.h"
-#include "util/name_generator.h"
 #include "kernel/level.h"
 #include "kernel/formatter.h"
 #include "kernel/extension_context.h"

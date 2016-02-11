@@ -117,7 +117,7 @@ environment check_cmd(parser & p) {
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
     e = expand_abbreviations(p.env(), e);
-    auto tc = mk_type_checker(p.env(), p.mk_ngen());
+    auto tc = mk_type_checker(p.env());
     expr type = tc->check(e, ls).first;
     auto reg              = p.regular_stream();
     formatter fmt         = reg.get_formatter();
@@ -145,7 +145,7 @@ environment eval_cmd(parser & p) {
     std::tie(e, ls) = parse_local_expr(p);
     expr r;
     if (whnf) {
-        auto tc = mk_type_checker(p.env(), p.mk_ngen());
+        auto tc = mk_type_checker(p.env());
         r = tc->whnf(e).first;
     } else {
         type_checker tc(p.env());
@@ -446,11 +446,11 @@ static environment telescope_eq_cmd(parser & p) {
     std::tie(e, ls) = parse_local_expr(p);
     buffer<expr> t;
     while (is_pi(e)) {
-        expr local = mk_local(p.mk_fresh_name(), binding_name(e), binding_domain(e), binder_info());
+        expr local = mk_local(mk_fresh_name(), binding_name(e), binding_domain(e), binder_info());
         t.push_back(local);
         e = instantiate(binding_body(e), local);
     }
-    auto tc = mk_type_checker(p.env(), p.mk_ngen());
+    auto tc = mk_type_checker(p.env());
     buffer<expr> eqs;
     mk_telescopic_eq(*tc, t, eqs);
     for (expr const & eq : eqs) {
@@ -757,7 +757,7 @@ static environment simplify_cmd(parser & p) {
     if (!r.has_proof()) {
         p.regular_stream() << "(refl): " << r.get_new() << endl;
     } else {
-        auto tc = mk_type_checker(p.env(), p.mk_ngen());
+        auto tc = mk_type_checker(p.env());
 
         expr pf_type = tc->check(r.get_proof(), ls).first;
 

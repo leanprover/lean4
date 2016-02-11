@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/sstream.h"
 #include "util/list_fn.h"
+#include "util/fresh_name.h"
 #include "kernel/expr.h"
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
@@ -324,7 +325,6 @@ class equation_compiler_fn {
     environment const & env() const { return m_tc.env(); }
     io_state const & ios() const { return m_ios; }
     io_state_stream out() const { return regular(env(), ios()); }
-    name mk_fresh_name() { return m_tc.mk_fresh_name(); }
     expr whnf(expr const & e) { return m_tc.whnf(e).first; }
     expr infer_type(expr const & e) { return m_tc.infer(e).first; }
     bool is_def_eq(expr const & e1, expr const & e2) { return m_tc.is_def_eq(e1, e2).first; }
@@ -337,13 +337,11 @@ class equation_compiler_fn {
     }
 
     expr to_telescope(expr const & e, buffer<expr> & tele) {
-        name_generator ngen = m_tc.mk_ngen();
-        return ::lean::to_telescope(ngen, e, tele, optional<binder_info>());
+        return ::lean::to_telescope(e, tele, optional<binder_info>());
     }
 
     expr fun_to_telescope(expr const & e, buffer<expr> & tele) {
-        name_generator ngen = m_tc.mk_ngen();
-        return ::lean::fun_to_telescope(ngen, e, tele, optional<binder_info>());
+        return ::lean::fun_to_telescope(e, tele, optional<binder_info>());
     }
 
     // Similar to to_telescope, but uses normalization
@@ -1213,7 +1211,7 @@ class equation_compiler_fn {
                 if (!check_rhs(binding_domain(e), arg)) {
                     return false;
                 } else {
-                    expr l = mk_local(m_main.mk_fresh_name(), binding_name(e), binding_domain(e), binding_info(e));
+                    expr l = mk_local(mk_fresh_name(), binding_name(e), binding_domain(e), binding_info(e));
                     return check_rhs(instantiate(binding_body(e), l), arg);
                 }
             }
@@ -1401,7 +1399,7 @@ class equation_compiler_fn {
                 return mk_app(new_fn, new_args, e.get_tag());
             }
             case expr_kind::Lambda: {
-                expr local    = mk_local(m_main.mk_fresh_name(), binding_name(e), binding_domain(e), binding_info(e));
+                expr local    = mk_local(mk_fresh_name(), binding_name(e), binding_domain(e), binding_info(e));
                 expr body     = instantiate(binding_body(e), local);
                 expr new_body;
                 if (is_below_type(binding_domain(e)))
@@ -1412,7 +1410,7 @@ class equation_compiler_fn {
             }
             case expr_kind::Pi: {
                 expr new_domain = elim(binding_domain(e), b);
-                expr local      = mk_local(m_main.mk_fresh_name(), binding_name(e), new_domain, binding_info(e));
+                expr local      = mk_local(mk_fresh_name(), binding_name(e), new_domain, binding_info(e));
                 expr new_body   = elim(instantiate(binding_body(e), local), b);
                 return copy_tag(e, Pi(local, new_body));
             }}

@@ -40,12 +40,10 @@ name_predicate mk_irreducible_pred(environment const & env);
 enum reducible_behavior { UnfoldReducible, UnfoldQuasireducible, UnfoldSemireducible };
 
 /** \brief Create a type checker that takes the "reducibility" hints into account. */
-type_checker_ptr mk_type_checker(environment const & env, name_generator && ngen,
-                                 reducible_behavior r = UnfoldSemireducible);
 type_checker_ptr mk_type_checker(environment const & env, reducible_behavior r = UnfoldSemireducible);
 
 /** \brief Create a type checker that treats all definitions as opaque. */
-type_checker_ptr mk_opaque_type_checker(environment const & env, name_generator && ngen);
+type_checker_ptr mk_opaque_type_checker(environment const & env);
 
 void initialize_reducible();
 void finalize_reducible();

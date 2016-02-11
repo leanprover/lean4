@@ -38,9 +38,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
-static name * g_prefix     = nullptr;
 static name * g_ref_prefix = nullptr;
-static name * g_tmp_prefix = nullptr;
 static expr * g_dummy_type = nullptr; // dummy type for href/mref
 
 class imp_extension_manager {
@@ -83,13 +81,11 @@ class blastenv {
        These messages are reported to the user only if none of the strategies have worked.
        We dump the content of the diagnostic channel into an blast_exception. */
     io_state                   m_buffer_ios;
-    name_generator             m_ngen;
     unsigned                   m_next_uref_idx{0};
     unsigned                   m_next_mref_idx{0};
     unsigned                   m_next_href_idx{0};
     unsigned                   m_next_choice_idx{0};
     unsigned                   m_next_split_idx{0};
-    tmp_local_generator        m_tmp_local_generator;
     list<expr>                 m_initial_context; // for setting type_context local instances
     name_set                   m_lemma_hints;
     name_set                   m_unfold_hints;
@@ -132,7 +128,7 @@ class blastenv {
         std::vector<state::assignment_snapshot> m_stack;
     public:
         tctx(blastenv & benv):
-            type_context(benv.m_env, benv.m_ios.get_options(), benv.m_tmp_local_generator),
+            type_context(benv.m_env, benv.m_ios.get_options()),
             m_benv(benv) {}
 
         virtual bool is_extra_opaque(name const & n) const override {
@@ -611,7 +607,7 @@ class blastenv {
 public:
     blastenv(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds):
         m_env(env), m_ios(ios), m_buffer_ios(ios),
-        m_ngen(*g_prefix), m_lemma_hints(to_name_set(ls)), m_unfold_hints(to_name_set(ds)),
+        m_lemma_hints(to_name_set(ls)), m_unfold_hints(to_name_set(ds)),
         m_not_reducible_pred(mk_not_reducible_pred(env)),
         m_class_pred(mk_class_pred(env)),
         m_instance_pred(mk_instance_pred(env)),
@@ -695,10 +691,10 @@ public:
     }
 
     expr mk_fresh_local(expr const & type, binder_info const & bi) {
-        return m_tmp_local_generator.mk_tmp_local(type, bi);
+        return m_tctx.mk_tmp_local(type, bi);
     }
     bool is_fresh_local(expr const & e) const {
-        return m_tmp_local_generator.is_tmp_local(e);
+        return m_tctx.is_tmp_local(e);
     }
     expr whnf(expr const & e) { return m_tctx.whnf(e); }
     expr relaxed_whnf(expr const & e) { return m_tctx.relaxed_whnf(e); }
@@ -1295,8 +1291,8 @@ scope_debug::~scope_debug() {}
     and blast meta-variables are stored in the blast state */
 class tmp_tctx : public tmp_type_context {
 public:
-    tmp_tctx(environment const & env, options const & o, tmp_local_generator & gen):
-        tmp_type_context(env, o, gen) {}
+    tmp_tctx(environment const & env, options const & o):
+        tmp_type_context(env, o) {}
 
     /** \brief Return the type of a local constant (local or not).
         \remark This method allows the customer to store the type of local constants
@@ -1329,7 +1325,7 @@ public:
 tmp_type_context * blastenv::mk_tmp_type_context() {
     tmp_type_context * r;
     if (m_tmp_ctx_pool.empty()) {
-        r = new tmp_tctx(m_env, m_ios.get_options(), m_tmp_local_generator);
+        r = new tmp_tctx(m_env, m_ios.get_options());
         // Design decision: in the blast tactic, we only consider the instances that were
         // available in initial goal provided to the blast tactic.
         // So, we only need to setup the local instances when we create a new (temporary) type context.
@@ -1398,16 +1394,12 @@ void initialize_blast() {
     register_trace_class_alias(name({"simplifier", "failure"}), "blast_detailed");
     register_trace_class_alias(name({"cc", "merge"}), "blast_detailed");
 
-    blast::g_prefix                  = new name(name::mk_internal_unique_name());
-    blast::g_tmp_prefix              = new name(name::mk_internal_unique_name());
     blast::g_ref_prefix              = new name(name::mk_internal_unique_name());
     blast::g_imp_extension_manager   = new blast::imp_extension_manager();
     blast::g_dummy_type              = new expr(mk_constant(*blast::g_ref_prefix));
 }
 void finalize_blast() {
     delete blast::g_imp_extension_manager;
-    delete blast::g_prefix;
-    delete blast::g_tmp_prefix;
     delete blast::g_ref_prefix;
     delete blast::g_dummy_type;
 }

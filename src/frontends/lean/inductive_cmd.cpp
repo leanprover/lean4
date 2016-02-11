@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include "util/sstream.h"
 #include "util/name_map.h"
+#include "util/fresh_name.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/replace_fn.h"
 #include "kernel/type_checker.h"
@@ -175,7 +176,7 @@ struct inductive_cmd_fn {
         m_u = mk_global_univ(u_name);
         m_infer_result_universe = false;
         m_namespace = get_namespace(m_env);
-        m_tc = mk_type_checker(m_env, m_p.mk_ngen());
+        m_tc = mk_type_checker(m_env);
     }
 
     [[ noreturn ]] void throw_error(char const * error_msg) { throw parser_error(error_msg, m_pos); }
@@ -276,7 +277,7 @@ struct inductive_cmd_fn {
 
     /** \brief Create a local constant based on the given binding */
     expr mk_local_for(expr const & b) {
-        return mk_local(m_p.mk_fresh_name(), binding_name(b), binding_domain(b), binding_info(b), b.get_tag());
+        return mk_local(mk_fresh_name(), binding_name(b), binding_domain(b), binding_info(b), b.get_tag());
     }
 
     /** \brief Set explicit datatype parameters as local constants in m_params */
@@ -492,7 +493,7 @@ struct inductive_cmd_fn {
                     throw_error("invalid universe polymorphic inductive declaration, the resultant universe is not Prop (i.e., 0), but it may "
                                 "be Prop for some parameter values (solution: use 'l+1' or 'max 1 l')");
             }
-            expr local = mk_local(m_p.mk_fresh_name(), n, type, binder_info(), type.get_tag());
+            expr local = mk_local(mk_fresh_name(), n, type, binder_info(), type.get_tag());
             r.push_back(local);
             map.insert(n, local);
         }
@@ -538,7 +539,7 @@ struct inductive_cmd_fn {
         for (inductive_decl const & decl : decls) {
             for (intro_rule const & rule : inductive_decl_intros(decl)) {
                 expr type  = fix_intro_rule_type(intro_rule_type(rule), ind_to_local);
-                expr local = mk_local(m_p.mk_fresh_name(), intro_rule_name(rule), type, binder_info());
+                expr local = mk_local(mk_fresh_name(), intro_rule_name(rule), type, binder_info());
                 r.push_back(local);
             }
         }

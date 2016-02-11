@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <utility>
 #include <functional>
 #include "util/lazy_list.h"
-#include "util/name_generator.h"
 #include "util/sexpr/options.h"
 #include "kernel/constraint.h"
 #include "kernel/environment.h"
@@ -18,7 +17,7 @@ namespace lean {
 unsigned get_unifier_max_steps(options const & opts);
 
 bool is_simple_meta(expr const & e);
-expr mk_aux_metavar_for(name_generator & ngen, expr const & t);
+expr mk_aux_metavar_for(expr const & t);
 
 enum class unify_status { Solved, Failed, Unsupported };
 /**
@@ -72,9 +71,9 @@ struct unifier_config {
 /** \brief The unification procedures produce a lazy list of pair substitution + constraints that could not be solved. */
 typedef lazy_list<pair<substitution, constraints>> unify_result_seq;
 
-unify_result_seq unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator && ngen,
+unify_result_seq unify(environment const & env, unsigned num_cs, constraint const * cs,
                        substitution const & s = substitution(), unifier_config const & c = unifier_config());
-unify_result_seq unify(environment const & env, expr const & lhs, expr const & rhs, name_generator && ngen,
+unify_result_seq unify(environment const & env, expr const & lhs, expr const & rhs,
                        substitution const & s = substitution(), unifier_config const & c = unifier_config());
 
 /**

@@ -18,45 +18,37 @@ typedef list<goal> goals;
 class proof_state {
     goals            m_goals;
     substitution     m_subst;
-    name_generator   m_ngen;
     constraints      m_postponed;
     bool             m_report_failure;
 
     format pp_core(std::function<formatter()> const & mk_fmt, options const & opts) const;
 
 public:
-    proof_state(goals const & gs, substitution const & s, name_generator const & ngen, constraints const & postponed,
+    proof_state(goals const & gs, substitution const & s, constraints const & postponed,
                 bool report_failure = true);
-    proof_state(proof_state const & s, goals const & gs, substitution const & subst, name_generator const & ngen,
+    proof_state(proof_state const & s, goals const & gs, substitution const & subst,
                 constraints const & postponed):
-        proof_state(gs, subst, ngen, postponed, s.report_failure()) {}
-    proof_state(proof_state const & s, goals const & gs, substitution const & subst, name_generator const & ngen):
-        proof_state(gs, subst, ngen, s.m_postponed, s.report_failure()) {}
+        proof_state(gs, subst, postponed, s.report_failure()) {}
     proof_state(proof_state const & s, goals const & gs, substitution const & subst):
-        proof_state(s, gs, subst, s.m_ngen) {}
-    proof_state(proof_state const & s, goals const & gs, name_generator const & ngen):
-        proof_state(s, gs, s.m_subst, ngen) {}
+        proof_state(gs, subst, s.m_postponed, s.report_failure()) {}
     proof_state(proof_state const & s, goals const & gs):
         proof_state(s, gs, s.m_subst) {}
-    proof_state(proof_state const & s, substitution const & subst, name_generator const & ngen,
+    proof_state(proof_state const & s, substitution const & subst,
                 constraints const & postponed):
-        proof_state(s.m_goals, subst, ngen, postponed, s.report_failure()) {}
-    proof_state(proof_state const & s, name_generator const & ngen, constraints const & postponed):
-        proof_state(s, s.m_goals, s.m_subst, ngen, postponed) {}
-    proof_state(proof_state const & s, substitution const & subst, name_generator const & ngen):
-        proof_state(s, s.m_goals, subst, ngen, s.m_postponed) {}
-    proof_state(proof_state const & s, name_generator const & ngen):
-        proof_state(s, ngen, s.m_postponed) {}
+        proof_state(s.m_goals, subst, postponed, s.report_failure()) {}
+    proof_state(proof_state const & s, constraints const & postponed):
+        proof_state(s, s.m_goals, s.m_subst, postponed) {}
     proof_state(proof_state const & s, substitution const & subst):
-        proof_state(s, subst, s.m_ngen) {}
+        proof_state(s, s.m_goals, subst, s.m_postponed) {}
+    proof_state(proof_state const & s):
+        proof_state(s, s.m_postponed) {}
 
     proof_state update_report_failure(bool f) const {
-        return m_report_failure == f ? *this : proof_state(m_goals, m_subst, m_ngen, m_postponed, f);
+        return m_report_failure == f ? *this : proof_state(m_goals, m_subst, m_postponed, f);
     }
 
     goals const & get_goals() const { return m_goals; }
     substitution const & get_subst() const { return m_subst; }
-    name_generator const & get_ngen() const { return m_ngen; }
     constraints const & get_postponed() const { return m_postponed; }
     bool report_failure() const { return m_report_failure; }
 
@@ -78,8 +70,8 @@ proof_state apply_substitution(proof_state const & s);
 inline optional<proof_state> some_proof_state(proof_state const & s) { return some(s); }
 inline optional<proof_state> none_proof_state() { return optional<proof_state> (); }
 
-proof_state to_proof_state(expr const & meta, expr const & type, substitution const & subst, name_generator ngen);
-proof_state to_proof_state(expr const & meta, expr const & type, name_generator ngen);
+proof_state to_proof_state(expr const & meta, expr const & type, substitution const & subst);
+proof_state to_proof_state(expr const & meta, expr const & type);
 
 goals map_goals(proof_state const & s, std::function<optional<goal>(goal const & g)> f);
 

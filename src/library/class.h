@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 namespace lean {
 /** \brief Create type checker that treats classes as opaque constants */
-type_checker_ptr mk_class_type_checker(environment const & env, name_generator && ngen, bool conservative);
+type_checker_ptr mk_class_type_checker(environment const & env, bool conservative);
 /** \brief Add a new 'class' to the environment (if it is not already declared) */
 environment add_class(environment const & env, name const & n, name const & ns, bool persistent);
 /** \brief Add a new 'class instance' to the environment with default priority. */

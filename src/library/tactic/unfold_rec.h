@@ -9,6 +9,6 @@ Author: Leonardo de Moura
 #include "library/tactic/location.h"
 
 namespace lean {
-optional<expr> unfold_rec(environment const & env, name_generator && ngen, bool force_unfold, expr const & e,
+optional<expr> unfold_rec(environment const & env, bool force_unfold, expr const & e,
                           list<name> const & to_unfold, occurrence const & occs);
 }

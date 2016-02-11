@@ -31,8 +31,7 @@ tactic constructor_tactic(elaborate_fn const & elab, optional<unsigned> _i, opti
             return proof_state_seq();
         }
         constraint_seq cs;
-        name_generator ngen = s.get_ngen();
-        auto tc             = mk_type_checker(env, ngen.mk_child());
+        auto tc             = mk_type_checker(env);
         goal const & g      = head(gs);
         expr t              = tc->whnf(g.get_type(), cs);
         buffer<expr> I_args;
@@ -59,7 +58,7 @@ tactic constructor_tactic(elaborate_fn const & elab, optional<unsigned> _i, opti
             unsigned num_params = *inductive::get_num_params(env, const_name(I));
             if (I_args.size() < num_params)
                 return proof_state_seq();
-            proof_state new_s(s, ngen);
+            proof_state new_s(s);
             C = mk_app(C, num_params, I_args.data());
             expr C_type = tc->whnf(tc->infer(C, cs), cs);
             bool report_unassigned = true;

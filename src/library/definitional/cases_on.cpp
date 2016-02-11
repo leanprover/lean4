@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/sstream.h"
+#include "util/fresh_name.h"
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
@@ -60,7 +61,6 @@ environment mk_cases_on(environment const & env, name const & n) {
     if (!decls)
         throw exception(sstream() << "error in 'cases_on' generation, '" << n << "' is not an inductive datatype");
     name cases_on_name(n, "cases_on");
-    name_generator ngen;
     name rec_name          = inductive::get_elim_name(n);
     declaration rec_decl   = env.get(rec_name);
     declaration ind_decl   = env.get(n);
@@ -72,7 +72,7 @@ environment mk_cases_on(environment const & env, name const & n) {
     buffer<expr> rec_params;
     expr rec_type = rec_decl.get_type();
     while (is_pi(rec_type)) {
-        expr local = mk_local(ngen.next(), binding_name(rec_type), binding_domain(rec_type), binding_info(rec_type));
+        expr local = mk_local(mk_fresh_name(), binding_name(rec_type), binding_domain(rec_type), binding_info(rec_type));
         rec_type   = instantiate(binding_body(rec_type), local);
         rec_params.push_back(local);
     }
@@ -143,7 +143,7 @@ environment mk_cases_on(environment const & env, name const & n) {
                 buffer<expr> minor_params;
                 expr minor_type = mlocal_type(minor);
                 while (is_pi(minor_type)) {
-                    expr local = mk_local(ngen.next(), binding_name(minor_type), binding_domain(minor_type),
+                    expr local = mk_local(mk_fresh_name(), binding_name(minor_type), binding_domain(minor_type),
                                           binding_info(minor_type));
                     expr curr_type = mlocal_type(local);
                     while (is_pi(curr_type))

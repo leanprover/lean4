@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include <algorithm>
+#include "util/fresh_name.h"
 #include "util/sstream.h"
 #include "util/timeit.h"
 #include "kernel/type_checker.h"
@@ -139,7 +140,7 @@ static environment declare_var(parser & p, environment env,
         if (p.get_local(n))
             throw parser_error(sstream() << "invalid parameter/variable declaration, '"
                                << n << "' has already been declared", pos);
-        name u = p.mk_fresh_name();
+        name u = mk_fresh_name();
         expr l = p.save_pos(mk_local(u, n, type, bi), pos);
         if (k == variable_kind::Parameter)
             p.add_parameter(n, l);
@@ -661,7 +662,7 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
     try {
         t  = p.parse_expr();
         p.check_token_next(get_with_tk(), "invalid 'match' expression, 'with' expected");
-        expr fn = mk_local(p.mk_fresh_name(), *g_match_name, mk_expr_placeholder(), binder_info());
+        expr fn = mk_local(mk_fresh_name(), *g_match_name, mk_expr_placeholder(), binder_info());
         if (p.curr_is_token(get_end_tk())) {
             p.next();
             // empty match-with

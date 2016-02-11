@@ -44,7 +44,7 @@ public:
            <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{?u})</tt>,
         where \c ?u is a fresh universe metavariable.
     */
-    expr mk_type_metavar(name_generator & ngen, tag g) const;
+    expr mk_type_metavar(tag g) const;
 
     /** \brief Assuming \c m_ctx is
            <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
@@ -54,7 +54,7 @@ public:
 
         \remark The type of the resulting expression is <tt>Type.{?u}</tt>
     */
-    expr mk_type_meta(name_generator & ngen, tag g) const;
+    expr mk_type_meta(tag g) const;
 
     /** \brief Given <tt>type[l_1, ..., l_n]</tt> and assuming \c m_ctx is
            <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
@@ -68,7 +68,7 @@ public:
 
         \remark If \c suffix is not none, then it is appended to the (fresh) metavariable name.
     */
-    expr mk_metavar(name_generator & ngen, optional<name> const & suffix, optional<expr> const & type, tag g) const;
+    expr mk_metavar(optional<name> const & suffix, optional<expr> const & type, tag g) const;
 
     /** \brief Given <tt>type[l_1, ..., l_n]</tt> and assuming \c m_ctx is
            <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
@@ -79,9 +79,9 @@ public:
 
         \remark If \c suffix is not none, then it is appended to the (fresh) metavariable name.
     */
-    expr mk_meta(name_generator & ngen, optional<name> const & suffix, optional<expr> const & type, tag g) const;
-    expr mk_meta(name_generator & ngen, optional<expr> const & type, tag g) const {
-        return mk_meta(ngen, optional<name>(), type, g);
+    expr mk_meta(optional<name> const & suffix, optional<expr> const & type, tag g) const;
+    expr mk_meta(optional<expr> const & type, tag g) const {
+        return mk_meta(optional<name>(), type, g);
     }
 
     /** \brief Return context as a list */

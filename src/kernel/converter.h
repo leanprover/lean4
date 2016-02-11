@@ -13,7 +13,6 @@ class type_checker;
 
 class converter {
 protected:
-    name mk_fresh_name(type_checker & tc);
     pair<expr, constraint_seq> infer_type(type_checker & tc, expr const & e);
     extension_context & get_extension(type_checker & tc);
 public:

@@ -91,13 +91,6 @@ environment using_namespace(environment const & env, io_state const & ios, name 
     return r;
 }
 
-static environment using_namespace(environment const & env, io_state const & ios, name const & n, name const & metaclass) {
-    buffer<name> tmp;
-    if (!metaclass.is_anonymous())
-        tmp.push_back(metaclass);
-    return using_namespace(env, ios, n, tmp);
-}
-
 environment using_namespace(environment const & env, io_state const & ios, name const & n) {
     buffer<name> metaclasses;
     return using_namespace(env, ios, n, metaclasses);

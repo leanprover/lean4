@@ -398,36 +398,4 @@ bool whnf_match_plugin::on_failure(expr const & p, expr const & t, match_context
         return false;
     }
 }
-
-static unsigned updt_idx_meta_univ_range(level const & l, unsigned r) {
-    for_each(l, [&](level const & l) {
-            if (!has_meta(l)) return false;
-            if (is_idx_metauniv(l)) {
-                unsigned new_r = to_meta_idx(l) + 1;
-                if (new_r > r)
-                    r = new_r;
-            }
-            return true;
-        });
-    return r;
-}
-
-static pair<unsigned, unsigned> get_idx_meta_univ_ranges(expr const & e) {
-    if (!has_metavar(e))
-        return mk_pair(0, 0);
-    unsigned rlvl = 0;
-    unsigned rexp = 0;
-    for_each(e, [&](expr const & e, unsigned) {
-            if (!has_metavar(e)) return false;
-            if (is_constant(e))
-                for (level const & l : const_levels(e))
-                    rlvl = updt_idx_meta_univ_range(l, rlvl);
-            if (is_sort(e))
-                rlvl = updt_idx_meta_univ_range(sort_level(e), rlvl);
-            if (is_idx_metavar(e))
-                rexp = std::max(to_meta_idx(e) + 1, rexp);
-            return true;
-        });
-    return mk_pair(rlvl, rexp);
-}
 }

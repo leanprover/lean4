@@ -18,4 +18,4 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   aux_recursors.cpp norm_num.cpp norm_num.cpp class_instance_resolution.cpp type_context.cpp
   tmp_type_context.cpp fun_info_manager.cpp congr_lemma_manager.cpp
   abstract_expr_manager.cpp light_lt_manager.cpp trace.cpp
-  attribute_manager.cpp error_handling.cpp)
+  attribute_manager.cpp error_handling.cpp unification_hint.cpp)

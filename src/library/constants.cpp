@@ -95,6 +95,8 @@ name const * g_lift_down = nullptr;
 name const * g_lift_up = nullptr;
 name const * g_linear_ordered_ring = nullptr;
 name const * g_linear_ordered_semiring = nullptr;
+name const * g_list_nil = nullptr;
+name const * g_list_cons = nullptr;
 name const * g_monoid = nullptr;
 name const * g_mul = nullptr;
 name const * g_mul_one = nullptr;
@@ -264,6 +266,10 @@ name const * g_trans_rel_left = nullptr;
 name const * g_trans_rel_right = nullptr;
 name const * g_true = nullptr;
 name const * g_true_intro = nullptr;
+name const * g_unification_hint = nullptr;
+name const * g_unification_hint_mk = nullptr;
+name const * g_unification_constraint = nullptr;
+name const * g_unification_constraint_mk = nullptr;
 name const * g_weak_order = nullptr;
 name const * g_well_founded = nullptr;
 name const * g_zero = nullptr;
@@ -363,6 +369,8 @@ void initialize_constants() {
     g_lift_up = new name{"lift", "up"};
     g_linear_ordered_ring = new name{"linear_ordered_ring"};
     g_linear_ordered_semiring = new name{"linear_ordered_semiring"};
+    g_list_nil = new name{"list", "nil"};
+    g_list_cons = new name{"list", "cons"};
     g_monoid = new name{"monoid"};
     g_mul = new name{"mul"};
     g_mul_one = new name{"mul_one"};
@@ -532,6 +540,10 @@ void initialize_constants() {
     g_trans_rel_right = new name{"trans_rel_right"};
     g_true = new name{"true"};
     g_true_intro = new name{"true", "intro"};
+    g_unification_hint = new name{"unification_hint"};
+    g_unification_hint_mk = new name{"unification_hint", "mk"};
+    g_unification_constraint = new name{"unification_constraint"};
+    g_unification_constraint_mk = new name{"unification_constraint", "mk"};
     g_weak_order = new name{"weak_order"};
     g_well_founded = new name{"well_founded"};
     g_zero = new name{"zero"};
@@ -632,6 +644,8 @@ void finalize_constants() {
     delete g_lift_up;
     delete g_linear_ordered_ring;
     delete g_linear_ordered_semiring;
+    delete g_list_nil;
+    delete g_list_cons;
     delete g_monoid;
     delete g_mul;
     delete g_mul_one;
@@ -801,6 +815,10 @@ void finalize_constants() {
     delete g_trans_rel_right;
     delete g_true;
     delete g_true_intro;
+    delete g_unification_hint;
+    delete g_unification_hint_mk;
+    delete g_unification_constraint;
+    delete g_unification_constraint_mk;
     delete g_weak_order;
     delete g_well_founded;
     delete g_zero;
@@ -900,6 +918,8 @@ name const & get_lift_down_name() { return *g_lift_down; }
 name const & get_lift_up_name() { return *g_lift_up; }
 name const & get_linear_ordered_ring_name() { return *g_linear_ordered_ring; }
 name const & get_linear_ordered_semiring_name() { return *g_linear_ordered_semiring; }
+name const & get_list_nil_name() { return *g_list_nil; }
+name const & get_list_cons_name() { return *g_list_cons; }
 name const & get_monoid_name() { return *g_monoid; }
 name const & get_mul_name() { return *g_mul; }
 name const & get_mul_one_name() { return *g_mul_one; }
@@ -1069,6 +1089,10 @@ name const & get_trans_rel_left_name() { return *g_trans_rel_left; }
 name const & get_trans_rel_right_name() { return *g_trans_rel_right; }
 name const & get_true_name() { return *g_true; }
 name const & get_true_intro_name() { return *g_true_intro; }
+name const & get_unification_hint_name() { return *g_unification_hint; }
+name const & get_unification_hint_mk_name() { return *g_unification_hint_mk; }
+name const & get_unification_constraint_name() { return *g_unification_constraint; }
+name const & get_unification_constraint_mk_name() { return *g_unification_constraint_mk; }
 name const & get_weak_order_name() { return *g_weak_order; }
 name const & get_well_founded_name() { return *g_well_founded; }
 name const & get_zero_name() { return *g_zero; }

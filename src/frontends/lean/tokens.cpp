@@ -119,6 +119,7 @@ static name const * g_intro_attr_tk = nullptr;
 static name const * g_intro_bang_attr_tk = nullptr;
 static name const * g_elim_attr_tk = nullptr;
 static name const * g_recursor_tk = nullptr;
+static name const * g_unify_attr_tk = nullptr;
 static name const * g_attribute_tk = nullptr;
 static name const * g_with_tk = nullptr;
 static name const * g_class_tk = nullptr;
@@ -269,6 +270,7 @@ void initialize_tokens() {
     g_intro_bang_attr_tk = new name{"[intro!]"};
     g_elim_attr_tk = new name{"[elim]"};
     g_recursor_tk = new name{"[recursor"};
+    g_unify_attr_tk = new name{"[unify]"};
     g_attribute_tk = new name{"attribute"};
     g_with_tk = new name{"with"};
     g_class_tk = new name{"[class]"};
@@ -420,6 +422,7 @@ void finalize_tokens() {
     delete g_intro_bang_attr_tk;
     delete g_elim_attr_tk;
     delete g_recursor_tk;
+    delete g_unify_attr_tk;
     delete g_attribute_tk;
     delete g_with_tk;
     delete g_class_tk;
@@ -570,6 +573,7 @@ name const & get_intro_attr_tk() { return *g_intro_attr_tk; }
 name const & get_intro_bang_attr_tk() { return *g_intro_bang_attr_tk; }
 name const & get_elim_attr_tk() { return *g_elim_attr_tk; }
 name const & get_recursor_tk() { return *g_recursor_tk; }
+name const & get_unify_attr_tk() { return *g_unify_attr_tk; }
 name const & get_attribute_tk() { return *g_attribute_tk; }
 name const & get_with_tk() { return *g_with_tk; }
 name const & get_class_tk() { return *g_class_tk; }

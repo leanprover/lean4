@@ -90,6 +90,8 @@ lift.down
 lift.up
 linear_ordered_ring
 linear_ordered_semiring
+list.nil
+list.cons
 monoid
 mul
 mul_one
@@ -259,6 +261,10 @@ trans_rel_left
 trans_rel_right
 true
 true.intro
+unification_hint
+unification_hint.mk
+unification_constraint
+unification_constraint.mk
 weak_order
 well_founded
 zero

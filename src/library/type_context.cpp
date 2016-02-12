@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/replace_fn.h"
 #include "kernel/inductive/inductive.h"
 #include "library/trace.h"
 #include "library/util.h"
@@ -23,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/generic_exception.h"
 #include "library/class.h"
 #include "library/constants.h"
+#include "library/unification_hint.h"
 
 #ifndef LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH
 #define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 32
@@ -1013,10 +1015,7 @@ bool type_context::is_def_eq_core(expr const & t, expr const & s) {
     if (is_def_eq_proof_irrel(t_n, s_n))
         return true;
 
-    if (on_is_def_eq_failure(t_n, s_n))
-        return is_def_eq_core(t_n, s_n);
-    else
-        return false;
+    return on_is_def_eq_failure(t_n, s_n);
 }
 
 bool type_context::process_postponed(unsigned old_sz) {
@@ -1405,19 +1404,112 @@ optional<pair<expr, expr>> type_context::find_unsynth_metavar(expr const & e) {
     }
 }
 
-bool type_context::on_is_def_eq_failure(expr & e1, expr & e2) {
+bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
     if (is_app(e1)) {
         if (auto p1 = find_unsynth_metavar(e1)) {
             if (mk_nested_instance(p1->first, p1->second)) {
-                e1 = instantiate_uvars_mvars(e1);
-                return true;
+                return is_def_eq_core(instantiate_uvars_mvars(e1), e2);
             }
         }
     }
     if (is_app(e2)) {
         if (auto p2 = find_unsynth_metavar(e2)) {
             if (mk_nested_instance(p2->first, p2->second)) {
-                e2 = instantiate_uvars_mvars(e2);
+                return is_def_eq_core(e1, instantiate_uvars_mvars(e2));
+            }
+        }
+    }
+    if (try_unification_hints(e1, e2)) {
+        return true;
+    }
+    return false;
+}
+
+struct type_context::unification_hint_fn {
+    type_context & m_owner;
+    unification_hint m_hint;
+    buffer<optional<expr> > m_assignment;
+
+    unification_hint_fn(type_context & o, unification_hint const & hint):
+        m_owner(o), m_hint(hint) { m_assignment.resize(m_hint.get_num_vars()); }
+
+    bool syntactic_match(expr const & pattern, expr const & e) {
+        unsigned idx;
+        switch (pattern.kind()) {
+        case expr_kind::Var:
+            idx = var_idx(pattern);
+            if (!m_assignment[idx]) {
+                m_assignment[idx] = some_expr(e);
+                return true;
+            } else {
+                return m_owner.is_def_eq(*m_assignment[idx], e);
+            }
+        case expr_kind::Constant:
+            return is_constant(e) && const_name(pattern) == const_name(e)
+                && m_owner.is_def_eq(const_levels(pattern), const_levels(e));
+        case expr_kind::Sort:
+            return is_sort(e) && m_owner.is_def_eq(sort_level(pattern), sort_level(e));
+        case expr_kind::Pi: case expr_kind::Lambda: case expr_kind::Macro:
+            // Remark: we do not traverse inside of binders.
+            return pattern == e;
+        case expr_kind::App:
+            return is_app(e) && syntactic_match(app_fn(pattern), app_fn(e)) && syntactic_match(app_arg(pattern), app_arg(e));
+        case expr_kind::Local: case expr_kind::Meta:
+            break;
+        }
+        lean_unreachable();
+    }
+
+    bool operator()(expr const & lhs, expr const & rhs) {
+        if (!syntactic_match(m_hint.get_lhs(), lhs)) {
+            lean_trace(name({"type_context", "unification_hint"}), tout() << "LHS does not match\n";);
+            return false;
+        } else if (!syntactic_match(m_hint.get_rhs(), rhs)) {
+            lean_trace(name({"type_context", "unification_hint"}), tout() << "RHS does not match\n";);
+            return false;
+        } else {
+            auto instantiate_assignment_fn = [&](expr const & e, unsigned offset) {
+                if (is_var(e)) {
+                    unsigned idx = var_idx(e) + offset;
+                    if (idx < m_assignment.size()) {
+                        lean_assert(m_assignment[idx]);
+                        return m_assignment[idx];
+                    }
+                }
+                return none_expr();
+            };
+            buffer<expr_pair> constraints;
+            to_buffer(m_hint.get_constraints(), constraints);
+            for (expr_pair const & p : constraints) {
+                expr new_lhs = replace(p.first, instantiate_assignment_fn);
+                expr new_rhs = replace(p.second, instantiate_assignment_fn);
+                expr new_lhs_inst = m_owner.instantiate_uvars_mvars(new_lhs);
+                expr new_rhs_inst = m_owner.instantiate_uvars_mvars(new_rhs);
+                bool success = m_owner.is_def_eq(new_lhs, new_rhs);
+                lean_trace(name({"type_context", "unification_hint"}),
+                           tout() << new_lhs_inst << " =?= " << new_rhs_inst << "..."
+                           << (success ? "success" : "failed") << "\n";);
+                if (!success) return false;
+            }
+            lean_trace(name({"type_context", "unification_hint"}), tout() << "hint successfully applied\n";);
+            return true;
+        }
+    }
+};
+
+bool type_context::try_unification_hints(expr const & e1, expr const & e2) {
+    expr e1_fn = get_app_fn(e1);
+    expr e2_fn = get_app_fn(e2);
+    if (is_constant(e1_fn) && is_constant(e2_fn)) {
+        buffer<unification_hint> hints;
+        get_unification_hints(m_env, const_name(e1_fn), const_name(e2_fn), hints);
+        for (unification_hint const & hint : hints) {
+            scope s(*this);
+            lean_trace(name({"type_context", "unification_hint"}),
+                       tout() << e1 << " =?= " << e2
+                       << ", pattern: " << hint.get_lhs() << " =?= " << hint.get_rhs() << "\n";);
+            if (unification_hint_fn(*this, hint)(e1, e2)) {
+                s.commit();
                 return true;
             }
         }
@@ -2042,6 +2134,7 @@ void initialize_type_context() {
     g_tmp_prefix      = new name(name::mk_internal_unique_name());
     g_internal_prefix = new name(name::mk_internal_unique_name());
     register_trace_class("class_instances");
+    register_trace_class(name({"type_context", "unification_hint"}));
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
     g_class_trans_instances        = new name{"class", "trans_instances"};
     register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,

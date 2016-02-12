@@ -121,6 +121,7 @@ name const & get_intro_attr_tk();
 name const & get_intro_bang_attr_tk();
 name const & get_elim_attr_tk();
 name const & get_recursor_tk();
+name const & get_unify_attr_tk();
 name const & get_attribute_tk();
 name const & get_with_tk();
 name const & get_class_tk();

@@ -57,7 +57,7 @@
            "whnf" "multiple_instances" "none" "decl" "declaration"
            "relation" "symm" "subst" "refl" "trans" "simp" "congr"
            "backward" "forward" "no_pattern" "begin_end" "tactic" "abbreviation"
-           "reducible" "unfold" "alias" "eqv" "intro" "intro!" "elim" "grinder"
+           "reducible" "unfold" "alias" "eqv" "intro" "intro!" "elim" "grinder" "unify"
            "localrefinfo" "recursor"))
   "lean modifiers")
 (defconst lean-modifiers-regexp

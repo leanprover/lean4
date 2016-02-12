@@ -1,0 +1,15 @@
+fail
+success
+unification hints:
+(toy.g, toy.f) g #1 #0 =?= f z {}
+fail
+success
+unification hints:
+(add, nat.succ) #4 + 1 =?= succ #3 {#4 =?= #3, }
+fail
+success
+unification hints:
+(canonical.Canonical.carrier, canonical.A) Canonical.carrier #0 =?= A {#0 =?= A_canonical, }
+unification hints at namespace 'canonical':
+(canonical.Canonical.carrier, canonical.A) canonical.Canonical.carrier #0 =?=
+  canonical.A {#0 =?= canonical.A_canonical, }

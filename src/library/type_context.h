@@ -413,7 +413,11 @@ public:
 
         The default implementation tries to invoke type class resolution to
         assign unassigned metavariables in the given terms. */
-    virtual bool on_is_def_eq_failure(expr &, expr &);
+    virtual bool on_is_def_eq_failure(expr const &, expr const &);
+
+    bool try_unification_hints(expr const &, expr const &);
+    struct unification_hint_fn;
+    friend struct unification_hint_fn;
 
     bool is_assigned(level const & u) const { return static_cast<bool>(get_assignment(u)); }
     bool is_assigned(expr const & m) const { return static_cast<bool>(get_assignment(m)); }

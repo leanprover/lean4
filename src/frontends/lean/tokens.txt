@@ -114,6 +114,7 @@ intro_attr      [intro]
 intro_bang_attr [intro!]
 elim_attr    [elim]
 recursor     [recursor
+unify_attr   [unify]
 attribute    attribute
 with         with
 class        [class]

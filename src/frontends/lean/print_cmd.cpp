@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/user_recursors.h"
 #include "library/relation_manager.h"
 #include "library/noncomputable.h"
+#include "library/unification_hint.h"
 #include "library/definitional/projection.h"
 #include "library/blast/blast.h"
 #include "library/blast/simplifier/simplifier.h"
@@ -506,6 +507,23 @@ static void print_reducible_info(parser & p, reducible_status s1) {
         out << n << "\n";
 }
 
+static void print_unification_hints(parser & p) {
+    io_state_stream out = p.regular_stream();
+    unification_hints hints;
+    name ns;
+    if (p.curr_is_identifier()) {
+        ns = p.get_name_val();
+        p.next();
+        hints = get_unification_hints(p.env(), ns);
+    } else {
+        hints = get_unification_hints(p.env());
+    }
+    format header;
+    if (!ns.is_anonymous())
+        header = format(" at namespace '") + format(ns) + format("'");
+    out << pp_unification_hints(hints, out.get_formatter(), header);
+}
+
 static void print_simp_rules(parser & p) {
     io_state_stream out = p.regular_stream();
     blast::scope_debug scope(p.env(), p.ios());
@@ -699,6 +717,9 @@ environment print_cmd(parser & p) {
         p.next();
         p.check_token_next(get_rbracket_tk(), "invalid 'print [recursor]', ']' expected");
         print_recursor_info(p);
+    } else if (p.curr_is_token(get_unify_attr_tk())) {
+        p.next();
+        print_unification_hints(p);
     } else if (p.curr_is_token(get_simp_attr_tk())) {
         p.next();
         print_simp_rules(p);

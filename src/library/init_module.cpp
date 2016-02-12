@@ -47,6 +47,7 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/attribute_manager.h"
 #include "library/fun_info_manager.h"
+#include "library/unification_hint.h"
 
 namespace lean {
 void initialize_library_module() {
@@ -93,9 +94,11 @@ void initialize_library_module() {
     initialize_congr_lemma_manager();
     initialize_app_builder();
     initialize_fun_info_manager();
+    initialize_unification_hint();
 }
 
 void finalize_library_module() {
+    finalize_unification_hint();
     finalize_fun_info_manager();
     finalize_app_builder();
     finalize_congr_lemma_manager();

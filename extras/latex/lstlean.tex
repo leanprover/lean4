@@ -5,7 +5,7 @@
 \lstdefinelanguage{lean} {
 
 % Anything betweeen $ becomes LaTeX math mode
-mathescape=true,						
+mathescape=true,
 % Comments may or not include Latex commands
 texcl=false,
 
@@ -24,7 +24,7 @@ using, namespace, section, fields, find_decl,
 attribute, local, set_option, extends, include, omit, classes,
 instances, coercions, metaclasses, raw, migrate, replacing,
 calc, have, obtains, show, suffices, by, by+, in, at, let, forall, Pi, fun,
-exists, if, dif, then, else, assume, assert, take, 
+exists, if, dif, then, else, assume, assert, take,
 obtain, from, aliases
 },
 
@@ -36,22 +36,22 @@ morekeywords=[3]{
 Cond, or_else, then, try, when, assumption, eassumption, rapply,
 apply, fapply, eapply, rename, intro, intros, all_goals, fold, focus, focus_at,
 generalize, generalizes, clear, clears, revert, reverts, back, beta, done, exact, rexact,
-refine, repeat, whnf, rotate, rotate_left, rotate_right, inversion, cases, rewrite, 
-xrewrite, krewrite, blast, simp, esimp, unfold, change, check_expr, contradiction, 
-exfalso, split, existsi, constructor, fconstructor, left, right, injection, congruence, reflexivity, 
-symmetry, transitivity, state, induction, induction_using, fail, append, 
+refine, repeat, whnf, rotate, rotate_left, rotate_right, inversion, cases, rewrite,
+xrewrite, krewrite, blast, simp, esimp, unfold, change, check_expr, contradiction,
+exfalso, split, existsi, constructor, fconstructor, left, right, injection, congruence, reflexivity,
+symmetry, transitivity, state, induction, induction_using, fail, append,
 substvars, now, with_options, with_attributes, with_attrs, note
 },
 
-% modifiers, taken from lean-syntax.el 
+% modifiers, taken from lean-syntax.el
 % note: 'otherkeywords' is needed because these use a different symbol.
 % this command doesn't allow us to specify a number -- they are put with [1]
 otherkeywords={
 [persistent], [notation], [visible], [instance], [trans_instance],
-[class], [parsing-only], [coercion], [unfold_full], [constructor], 
+[class], [parsing-only], [coercion], [unfold_full], [constructor],
 [reducible], [irreducible], [semireducible], [quasireducible], [wf],
-[whnf], [multiple_instances], [none], [decl], [declaration], 
-[relation], [symm], [subst], [refl], [trans], [simp], [congr], 
+[whnf], [multiple_instances], [none], [decl], [declaration],
+[relation], [symm], [subst], [refl], [trans], [simp], [congr], [unify],
 [backward], [forward], [no_pattern], [begin_end], [tactic], [abbreviation],
 [reducible], [unfold], [alias], [eqv], [intro], [intro!], [elim], [grinder],
 [localrefinfo], [recursor]
@@ -228,13 +228,13 @@ morestring=[b]",
 morestring=[d],
 
 % Size of tabulations
-tabsize=3,							
+tabsize=3,
 
 % Enables ASCII chars 128 to 255
 extendedchars=false,
 
 % Case sensitivity
-sensitive=true, 
+sensitive=true,
 
 % Automatic breaking of long lines
 breaklines=true,
@@ -243,9 +243,9 @@ breaklines=true,
 basicstyle=\ttfamily,
 
 % Position of captions is bottom
-captionpos=b,							
+captionpos=b,
 
-% Full flexible columns 
+% Full flexible columns
 columns=[l]fullflexible,
 
 
@@ -258,7 +258,7 @@ identifierstyle={\ttfamily\color{black}},
 % Style for declaration keywords
 keywordstyle=[1]{\ttfamily\color{keywordcolor}},
 
-% Style for sorts 
+% Style for sorts
 keywordstyle=[2]{\ttfamily\color{sortcolor}},
 
 % Style for tactics keywords
@@ -274,4 +274,3 @@ stringstyle=\ttfamily,
 % commentstyle={\ttfamily\footnotesize },
 
 }
-

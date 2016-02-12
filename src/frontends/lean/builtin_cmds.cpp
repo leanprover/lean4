@@ -779,6 +779,23 @@ static environment normalizer_cmd(parser & p) {
     return env;
 }
 
+static environment unify_cmd(parser & p) {
+    environment const & env = p.env();
+    expr e1; level_param_names ls1;
+    std::tie(e1, ls1) = parse_local_expr(p);
+    p.check_token_next(get_comma_tk(), "invalid #unify command, proper usage \"#unify e1, e2\"");
+    expr e2; level_param_names ls2;
+    std::tie(e2, ls2) = parse_local_expr(p);
+    default_type_context ctx(env, p.get_options());
+    bool success = ctx.is_def_eq(e1, e2);
+    flycheck_information info(p.regular_stream());
+    if (info.enabled()) {
+        p.display_information_pos(p.cmd_pos());
+    }
+    p.regular_stream() << (success ? "success" : "fail") << endl;
+    return env;
+}
+
 static environment abstract_expr_cmd(parser & p) {
     unsigned o = p.parse_small_nat();
     default_type_context ctx(p.env(), p.get_options());
@@ -841,6 +858,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#congr_simp",       "(for debugging purposes)", congr_simp_cmd));
     add_cmd(r, cmd_info("#congr_rel",        "(for debugging purposes)", congr_rel_cmd));
     add_cmd(r, cmd_info("#normalizer",       "(for debugging purposes)", normalizer_cmd));
+    add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
     add_cmd(r, cmd_info("#accessible",       "(for debugging purposes) display number of accessible declarations for blast tactic", accessible_cmd));
     add_cmd(r, cmd_info("#simplify",         "(for debugging purposes) simplify given expression", simplify_cmd));
     add_cmd(r, cmd_info("#abstract_expr",    "(for debugging purposes) call abstract expr methods", abstract_expr_cmd));

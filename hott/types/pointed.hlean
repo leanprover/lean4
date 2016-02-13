@@ -331,7 +331,7 @@ namespace pointed
     { exact !to_homotopy_pt⁻¹}
   end
 
-  definition pwhisker_left (h : B →* C) (p : f ~* g) : h ∘* f ~* h ∘* g :=
+  definition pwhisker_left [constructor] (h : B →* C) (p : f ~* g) : h ∘* f ~* h ∘* g :=
   begin
     fconstructor,
     { intro a, exact ap h (p a)},
@@ -340,7 +340,7 @@ namespace pointed
       induction p with p p', esimp at *, induction ph, induction pg, induction p', reflexivity}
   end
 
-  definition pwhisker_right (h : C →* A) (p : f ~* g) : f ∘* h ~* g ∘* h :=
+  definition pwhisker_right [constructor] (h : C →* A) (p : f ~* g) : f ∘* h ~* g ∘* h :=
   begin
     fconstructor,
     { intro a, exact p (h a)},
@@ -362,7 +362,7 @@ namespace pointed
     pequiv A B :=
   pequiv.mk to_pmap is_equiv_to_pmap
 
-  definition pequiv_of_equiv [constructor] 
+  definition pequiv_of_equiv [constructor]
     (eqv : A ≃ B) (resp : equiv.to_fun eqv (point A) = point B) : A ≃* B :=
   pequiv.mk' (pmap.mk (equiv.to_fun eqv) resp)
 

@@ -40,7 +40,7 @@ empty.rec _ H
 /- eq -/
 
 infix = := eq
-definition rfl {A : Type} {a : A} := eq.refl a
+definition rfl [constructor] {A : Type} {a : A} := eq.refl a
 
 /-
   These notions are here only to make porting from the standard library easier.

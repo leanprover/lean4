@@ -567,7 +567,7 @@ namespace eq
 
   -- 2-dimensional path inversion
   definition inverse2 [unfold 6] {p q : x = y} (h : p = q) : p⁻¹ = q⁻¹ :=
-  eq.rec_on h idp
+  ap inverse h
 
   infixl ` ◾ `:75 := concat2
   postfix [parsing_only] `⁻²`:(max+10) := inverse2 --this notation is abusive, should we use it?

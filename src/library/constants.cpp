@@ -189,6 +189,7 @@ name const * g_prod_pr2 = nullptr;
 name const * g_propext = nullptr;
 name const * g_rat_divide = nullptr;
 name const * g_rat_of_num = nullptr;
+name const * g_rfl = nullptr;
 name const * g_right_distrib = nullptr;
 name const * g_ring = nullptr;
 name const * g_semiring = nullptr;
@@ -463,6 +464,7 @@ void initialize_constants() {
     g_propext = new name{"propext"};
     g_rat_divide = new name{"rat", "divide"};
     g_rat_of_num = new name{"rat", "of_num"};
+    g_rfl = new name{"rfl"};
     g_right_distrib = new name{"right_distrib"};
     g_ring = new name{"ring"};
     g_semiring = new name{"semiring"};
@@ -738,6 +740,7 @@ void finalize_constants() {
     delete g_propext;
     delete g_rat_divide;
     delete g_rat_of_num;
+    delete g_rfl;
     delete g_right_distrib;
     delete g_ring;
     delete g_semiring;
@@ -1012,6 +1015,7 @@ name const & get_prod_pr2_name() { return *g_prod_pr2; }
 name const & get_propext_name() { return *g_propext; }
 name const & get_rat_divide_name() { return *g_rat_divide; }
 name const & get_rat_of_num_name() { return *g_rat_of_num; }
+name const & get_rfl_name() { return *g_rfl; }
 name const & get_right_distrib_name() { return *g_right_distrib; }
 name const & get_ring_name() { return *g_ring; }
 name const & get_semiring_name() { return *g_semiring; }

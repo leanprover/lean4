@@ -48,6 +48,8 @@ Author: Leonardo de Moura
 #include "library/attribute_manager.h"
 #include "library/fun_info_manager.h"
 #include "library/unification_hint.h"
+#include "library/defeq_simp_lemmas.h"
+#include "library/defeq_simplifier.h"
 
 namespace lean {
 void initialize_library_module() {
@@ -95,9 +97,13 @@ void initialize_library_module() {
     initialize_app_builder();
     initialize_fun_info_manager();
     initialize_unification_hint();
+    initialize_defeq_simp_lemmas();
+    initialize_defeq_simplifier();
 }
 
 void finalize_library_module() {
+    finalize_defeq_simplifier();
+    finalize_defeq_simp_lemmas();
     finalize_unification_hint();
     finalize_fun_info_manager();
     finalize_app_builder();

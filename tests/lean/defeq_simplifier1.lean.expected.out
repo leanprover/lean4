@@ -1,0 +1,8 @@
+λ (x y z w : A), q (q (q w))
+A → A → A → (∀ (w : A), q (q (q w)) = w)
+λ (x y z w : A), q (f (q (q x)) (q (q z)) (q w))
+∀ (x : A), A → (∀ (z w : A), q (f (q (q x)) (q (q z)) (q w)) = w)
+λ (x y z w : A), q (q (q w))
+A → A → A → (∀ (w : A), q (q (q w)) = w)
+λ (x y z w : A), w
+A → A → A → (∀ (w : A), w = w)

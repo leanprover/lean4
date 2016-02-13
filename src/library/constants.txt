@@ -184,6 +184,7 @@ prod.pr2
 propext
 rat.divide
 rat.of_num
+rfl
 right_distrib
 ring
 semiring

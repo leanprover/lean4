@@ -191,6 +191,7 @@ name const & get_prod_pr2_name();
 name const & get_propext_name();
 name const & get_rat_divide_name();
 name const & get_rat_of_num_name();
+name const & get_rfl_name();
 name const & get_right_distrib_name();
 name const & get_ring_name();
 name const & get_semiring_name();

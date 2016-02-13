@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "library/relation_manager.h"
 #include "library/noncomputable.h"
 #include "library/unification_hint.h"
+#include "library/defeq_simp_lemmas.h"
 #include "library/definitional/projection.h"
 #include "library/blast/blast.h"
 #include "library/blast/simplifier/simplifier.h"
@@ -524,6 +525,23 @@ static void print_unification_hints(parser & p) {
     out << pp_unification_hints(hints, out.get_formatter(), header);
 }
 
+static void print_defeq_lemmas(parser & p) {
+    io_state_stream out = p.regular_stream();
+    defeq_simp_lemmas lemmas;
+    name ns;
+    if (p.curr_is_identifier()) {
+        ns = p.get_name_val();
+        p.next();
+        lemmas = get_defeq_simp_lemmas(p.env(), ns);
+    } else {
+        lemmas = get_defeq_simp_lemmas(p.env());
+    }
+    format header;
+    if (!ns.is_anonymous())
+        header = format(" at namespace '") + format(ns) + format("'");
+    out << pp_defeq_simp_lemmas(lemmas, out.get_formatter(), header);
+}
+
 static void print_simp_rules(parser & p) {
     io_state_stream out = p.regular_stream();
     blast::scope_debug scope(p.env(), p.ios());
@@ -720,6 +738,9 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token(get_unify_attr_tk())) {
         p.next();
         print_unification_hints(p);
+    } else if (p.curr_is_token(get_defeq_attr_tk())) {
+        p.next();
+        print_defeq_lemmas(p);
     } else if (p.curr_is_token(get_simp_attr_tk())) {
         p.next();
         print_simp_rules(p);

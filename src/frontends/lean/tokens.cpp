@@ -120,6 +120,7 @@ static name const * g_intro_bang_attr_tk = nullptr;
 static name const * g_elim_attr_tk = nullptr;
 static name const * g_recursor_tk = nullptr;
 static name const * g_unify_attr_tk = nullptr;
+static name const * g_defeq_attr_tk = nullptr;
 static name const * g_attribute_tk = nullptr;
 static name const * g_with_tk = nullptr;
 static name const * g_class_tk = nullptr;
@@ -142,7 +143,6 @@ static name const * g_tactic_infixr_tk = nullptr;
 static name const * g_tactic_postfix_tk = nullptr;
 static name const * g_tactic_prefix_tk = nullptr;
 static name const * g_tactic_notation_tk = nullptr;
-static name const * g_call_tk = nullptr;
 static name const * g_calc_tk = nullptr;
 static name const * g_obtain_tk = nullptr;
 static name const * g_root_tk = nullptr;
@@ -271,6 +271,7 @@ void initialize_tokens() {
     g_elim_attr_tk = new name{"[elim]"};
     g_recursor_tk = new name{"[recursor"};
     g_unify_attr_tk = new name{"[unify]"};
+    g_defeq_attr_tk = new name{"[defeq]"};
     g_attribute_tk = new name{"attribute"};
     g_with_tk = new name{"with"};
     g_class_tk = new name{"[class]"};
@@ -293,7 +294,6 @@ void initialize_tokens() {
     g_tactic_postfix_tk = new name{"tactic_postfix"};
     g_tactic_prefix_tk = new name{"tactic_prefix"};
     g_tactic_notation_tk = new name{"tactic_notation"};
-    g_call_tk = new name{"call"};
     g_calc_tk = new name{"calc"};
     g_obtain_tk = new name{"obtain"};
     g_root_tk = new name{"_root_"};
@@ -423,6 +423,7 @@ void finalize_tokens() {
     delete g_elim_attr_tk;
     delete g_recursor_tk;
     delete g_unify_attr_tk;
+    delete g_defeq_attr_tk;
     delete g_attribute_tk;
     delete g_with_tk;
     delete g_class_tk;
@@ -445,7 +446,6 @@ void finalize_tokens() {
     delete g_tactic_postfix_tk;
     delete g_tactic_prefix_tk;
     delete g_tactic_notation_tk;
-    delete g_call_tk;
     delete g_calc_tk;
     delete g_obtain_tk;
     delete g_root_tk;
@@ -574,6 +574,7 @@ name const & get_intro_bang_attr_tk() { return *g_intro_bang_attr_tk; }
 name const & get_elim_attr_tk() { return *g_elim_attr_tk; }
 name const & get_recursor_tk() { return *g_recursor_tk; }
 name const & get_unify_attr_tk() { return *g_unify_attr_tk; }
+name const & get_defeq_attr_tk() { return *g_defeq_attr_tk; }
 name const & get_attribute_tk() { return *g_attribute_tk; }
 name const & get_with_tk() { return *g_with_tk; }
 name const & get_class_tk() { return *g_class_tk; }
@@ -596,7 +597,6 @@ name const & get_tactic_infixr_tk() { return *g_tactic_infixr_tk; }
 name const & get_tactic_postfix_tk() { return *g_tactic_postfix_tk; }
 name const & get_tactic_prefix_tk() { return *g_tactic_prefix_tk; }
 name const & get_tactic_notation_tk() { return *g_tactic_notation_tk; }
-name const & get_call_tk() { return *g_call_tk; }
 name const & get_calc_tk() { return *g_calc_tk; }
 name const & get_obtain_tk() { return *g_obtain_tk; }
 name const & get_root_tk() { return *g_root_tk; }

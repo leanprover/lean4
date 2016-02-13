@@ -157,10 +157,10 @@ class defeq_simplify_fn {
     }
 
     expr defeq_simplify_app(expr const & e) {
-        buffer<expr> args;
-        expr f = defeq_simplify(get_app_args(e, args));
-        for (unsigned i = 0; i < args.size(); ++i) args[i] = defeq_simplify(args[i]);
-        return mk_app(f, args);
+        buffer<expr> rev_args;
+        expr f = defeq_simplify(get_app_rev_args(e, rev_args));
+        for (unsigned i = 0; i < rev_args.size(); ++i) rev_args[i] = defeq_simplify(rev_args[i]);
+        return mk_rev_app(f, rev_args);
     }
 
     /* Rewriting */

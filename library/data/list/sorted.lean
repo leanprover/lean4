@@ -55,7 +55,7 @@ lemma locally_sorted_of_sorted : ∀ {l}, sorted R l → locally_sorted R l
   have locally_sorted R (b::l), from locally_sorted_of_sorted h₂,
   locally_sorted.step h₁ this
 
-lemma strongly_sorted_eq_sorted : @locally_sorted = @sorted :=
+lemma locally_sorted_eq_sorted : @locally_sorted = @sorted :=
 funext (λ A, funext (λ R, funext (λ l, propext (iff.intro sorted_of_locally_sorted locally_sorted_of_sorted))))
 
 variable (R)

@@ -204,6 +204,7 @@ proposition bounded_of_converges_seq {X : ℕ → M} {x : M} (H : X ⟶ x in ℕ
       note Hallm' := of_mem_of_all Hmem Hall,
       apply le_neg_of_le_neg,
       esimp, esimp at Hallm',
+/-
       have Heqs : (λ (a b : real), classical.prop_decidable (@le.{1} real real.real_has_le a b))
                    =
                    (@decidable_le.{1} real
@@ -216,6 +217,7 @@ proposition bounded_of_converges_seq {X : ℕ → M} {x : M} (H : X ⟶ x in ℕ
         apply dec_prf_eq
       end,
       rewrite -Heqs,
+-/
       exact Hallm'
     end,
     cases em (n < N) with Elt Ege,

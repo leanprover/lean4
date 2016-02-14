@@ -13,6 +13,9 @@ open rat nat eq pnat
 
 local postfix `⁻¹` := pnat.inv
 
+local attribute real.real_has_zero [instance] [priority real.prio]
+local attribute real.real_has_one [instance] [priority real.prio]
+
 namespace rat_seq
 definition pos (s : seq) := ∃ n : ℕ+, n⁻¹ < (s n)
 
@@ -1089,7 +1092,7 @@ protected theorem le_of_lt_or_eq (x y : ℝ) : x < y ∨ x = y → x ≤ y :=
         apply (or.inr (quot.exact H'))
       end)))
 
-definition ordered_ring [reducible] [instance] : ordered_ring ℝ :=
+definition ordered_ring [reducible] [trans_instance] : ordered_ring ℝ :=
 ⦃ ordered_ring, real.comm_ring,
   le_refl := real.le_refl,
   le_trans := @real.le_trans,

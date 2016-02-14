@@ -1096,11 +1096,11 @@ definition of_int [coercion] (i : ℤ) : ℝ := i
 definition of_nat [coercion] (n : ℕ) : ℝ := n
 definition of_num [coercion] [reducible] (n : num) : ℝ := of_rat (rat.of_num n)
 
-definition real_has_zero [reducible] [instance] [priority real.prio] : has_zero real :=
-has_zero.mk (of_rat 0)
+definition real_has_zero [reducible] : has_zero real := has_zero.mk (of_rat 0)
+local attribute real_has_zero [instance] [priority real.prio]
 
-definition real_has_one [reducible] [instance] [priority real.prio] : has_one real :=
-has_one.mk (of_rat 1)
+definition real_has_one [reducible] : has_one real := has_one.mk (of_rat 1)
+local attribute real_has_one [instance] [priority real.prio]
 
 theorem real_zero_eq_rat_zero : (0:real) = of_rat (0:rat) :=
 rfl
@@ -1150,7 +1150,7 @@ protected definition comm_ring [reducible] : comm_ring ℝ :=
     fapply comm_ring.mk,
     exact real.add,
     exact real.add_assoc,
-    exact of_num 0,
+    exact 0,
     exact real.zero_add,
     exact real.add_zero,
     exact real.neg,
@@ -1158,7 +1158,7 @@ protected definition comm_ring [reducible] : comm_ring ℝ :=
     exact real.add_comm,
     exact real.mul,
     exact real.mul_assoc,
-    apply of_num 1,
+    apply 1,
     apply real.one_mul,
     apply real.mul_one,
     apply real.left_distrib,

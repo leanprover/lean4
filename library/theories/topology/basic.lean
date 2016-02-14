@@ -152,8 +152,15 @@ structure T0_space [class] (X : Type) extends topology X :=
 namespace topology
   variables {X : Type} [T0_space X]
 
-  theorem T0 {x y : X} (H : x ≠ y) : ∃ U, Open U ∧ ¬(x ∈ U ↔ y ∈ U) :=
-  T0_space.T0 H
+  theorem separation_T0 {x y : X} : x ≠ y ↔ ∃ U, Open U ∧ ¬(x ∈ U ↔ y ∈ U) :=
+  iff.intro
+    (T0_space.T0)
+    (assume H, obtain U [OpU xyU], from H,
+     suppose x = y,
+     have x ∈ U ↔ y ∈ U, from iff.intro 
+       (assume xU, this ▸ xU) 
+       (assume yU, this⁻¹ ▸ yU),
+     absurd this xyU)
 end topology
 
 structure T1_space [class] (X : Type) extends topology X :=
@@ -172,8 +179,30 @@ protected definition T0_space.of_T1 [reducible] [trans_instance] {X : Type} [T :
 namespace topology
   variables {X : Type} [T1_space X]
 
-  theorem T1 {x y : X} (H : x ≠ y) : ∃ U, Open U ∧ x ∈ U ∧ y ∉ U :=
-  T1_space.T1 H
+  theorem separation_T1 {x y : X} : x ≠ y ↔ (∃ U, Open U ∧ x ∈ U ∧ y ∉ U) := 
+  iff.intro
+    (T1_space.T1)
+    (suppose ∃ U, Open U ∧ x ∈ U ∧ y ∉ U, 
+     obtain U [OpU xU nyU], from this,
+     suppose x = y, 
+     absurd xU (this⁻¹ ▸ nyU))
+     
+  theorem closed_singleton {a : X} : closed '{a} := 
+  let T := ⋃₀ {S| Open S ∧ a ∉ S} in 
+  have Open T, from Open_sUnion (λS HS, and.elim_left HS),
+  have T = -'{a}, from ext(take x, iff.intro
+    (assume xT, assume xa,
+     obtain S [[OpS aS] xS], from xT,
+     have ∃ U, Open U ∧ x ∈ U ∧ a ∉ U, from
+       exists.intro S (and.intro OpS (and.intro xS aS)),
+     have x ≠ a, from (iff.elim_right separation_T1) this,
+     absurd ((iff.elim_left !mem_singleton_iff) xa) this)
+    (assume xa, 
+     have x ≠ a, from not.intro(
+       assume H, absurd ((iff.elim_right !mem_singleton_iff) H) xa),
+     obtain U [OpU xU aU], from (iff.elim_left separation_T1) this,
+     show _, from exists.intro U (and.intro (and.intro OpU aU) xU))),
+  show _, from this ▸ `Open T`
 end topology
 
 structure T2_space [class] (X : Type) extends topology X :=
@@ -194,8 +223,14 @@ protected definition T1_space.of_T2 [reducible] [trans_instance] {X : Type} [T :
 namespace topology
   variables {X : Type} [T2_space X]
 
-  theorem T2 {x y : X} (H : x ≠ y) : ∃ U V, Open U ∧ Open V ∧ x ∈ U ∧ y ∈ V ∧ U ∩ V = ∅ :=
-  T2_space.T2 H
+  theorem seperation_T2 {x y : X} : x ≠ y ↔ ∃ U V, Open U ∧ Open V ∧ x ∈ U ∧ y ∈ V ∧ U ∩ V = ∅ := 
+  iff.intro
+    (T2_space.T2)
+    (assume H, obtain U V [OpU OpV xU yV UV], from H, 
+     suppose x = y,
+     have ¬(x ∈ U ∩ V), from not.intro(
+       assume xUV, absurd (UV ▸ xUV) !not_mem_empty),
+     absurd (and.intro xU (`x = y`⁻¹ ▸ yV)) this)
 end topology
 
 structure perfect_space [class] (X : Type) extends topology X :=

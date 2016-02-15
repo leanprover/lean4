@@ -16,17 +16,17 @@ namespace wedge
   -- TODO maybe find a cleaner proof
   protected definition unit (A : Type*) : A ≃* Wedge Unit A :=
   begin
-    fconstructor,
+    fapply pequiv_of_pmap,
     { fapply pmap.mk, intro a, apply pinr a, apply respect_pt },
-    { fapply is_equiv.adjointify, intro x, fapply pushout.elim_on x, 
-      exact λ x, Point A, exact id, intro u, reflexivity, 
-      intro x, fapply pushout.rec_on x, intro u, cases u, esimp, apply (glue unit.star)⁻¹, 
+    { fapply is_equiv.adjointify, intro x, fapply pushout.elim_on x,
+      exact λ x, Point A, exact id, intro u, reflexivity,
+      intro x, fapply pushout.rec_on x, intro u, cases u, esimp, apply (glue unit.star)⁻¹,
       intro a, reflexivity,
       intro u, cases u, esimp, apply eq_pathover,
-      refine _ ⬝hp !ap_id⁻¹, fapply eq_hconcat, apply ap_compose inr, 
-      krewrite elim_glue, fapply eq_hconcat, apply ap_idp, apply square_of_eq, 
-      apply con.left_inv, 
-      intro a, reflexivity },
+      refine _ ⬝hp !ap_id⁻¹, fapply eq_hconcat, apply ap_compose inr,
+      krewrite elim_glue, fapply eq_hconcat, apply ap_idp, apply square_of_eq,
+      apply con.left_inv,
+      intro a, reflexivity},
   end
 end wedge
 

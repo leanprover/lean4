@@ -328,6 +328,15 @@ namespace sigma
               ... ≃ B × A       : prod_comm_equiv
               ... ≃ Σ(b : B), A : equiv_prod
 
+  definition sigma_assoc_comm_equiv {A : Type} (B C : A → Type)
+    : (Σ(v : Σa, B a), C v.1) ≃ (Σ(u : Σa, C a), B u.1) :=
+  calc    (Σ(v : Σa, B a), C v.1)
+        ≃ (Σa (b : B a), C a)     : !sigma_assoc_equiv⁻¹ᵉ
+    ... ≃ (Σa, B a × C a)         : sigma_equiv_sigma_id (λa, !equiv_prod)
+    ... ≃ (Σa, C a × B a)         : sigma_equiv_sigma_id (λa, !prod_comm_equiv)
+    ... ≃ (Σa (c : C a), B a)     : sigma_equiv_sigma_id (λa, !equiv_prod)
+    ... ≃ (Σ(u : Σa, C a), B u.1) : sigma_assoc_equiv
+
   /- Interaction with other type constructors -/
 
   definition sigma_empty_left [constructor] (B : empty → Type) : (Σx, B x) ≃ empty :=

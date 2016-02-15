@@ -8,12 +8,11 @@ Theorems about fibers
 -/
 
 import .sigma .eq .pi .pointed
+open equiv sigma sigma.ops eq pi
 
 structure fiber {A B : Type} (f : A → B) (b : B) :=
   (point : A)
   (point_eq : f point = b)
-
-open equiv sigma sigma.ops eq pi
 
 namespace fiber
   variables {A B : Type} {f : A → B} {b : B}
@@ -64,7 +63,7 @@ namespace fiber
   pointed.mk (fiber.mk a idp)
 
   definition pointed_fiber [constructor] (f : A → B) (a : A) : Type* :=
-  Pointed.mk (fiber.mk a (idpath (f a)))
+  pointed.Mk (fiber.mk a (idpath (f a)))
 
   definition is_trunc_fun [reducible] (n : trunc_index) (f : A → B) :=
   Π(b : B), is_trunc n (fiber f b)
@@ -95,7 +94,7 @@ namespace fiber
 
 end fiber
 
-open unit is_trunc
+open unit is_trunc pointed
 
 namespace fiber
 
@@ -115,6 +114,13 @@ namespace fiber
     fiber (λz : unit, a₀) a
       ≃ Σz : unit, a₀ = a : fiber.sigma_char
   ... ≃ a₀ = a : sigma_unit_left
+
+  -- the pointed fiber of a pointed map, which is the fiber over the basepoint
+  definition pfiber [constructor] {X Y : Type*} (f : X →* Y) : Type* :=
+  pointed.MK (fiber f pt) (fiber.mk pt !respect_pt)
+
+  definition ppoint [constructor] {X Y : Type*} (f : X →* Y) : pfiber f →* X :=
+  pmap.mk point idp
 
 end fiber
 

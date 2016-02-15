@@ -32,7 +32,7 @@ namespace eq
   local attribute comm_group_homotopy_group [instance]
 
   definition Pointed_homotopy_group [constructor] (n : ℕ) (A : Type*) : Type* :=
-  Pointed.mk (π[n] A)
+  pointed.Mk (π[n] A)
 
   definition Group_homotopy_group [constructor] (n : ℕ) (A : Type*) : Group :=
   Group.mk (π[succ n] A) _

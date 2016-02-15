@@ -25,7 +25,7 @@ namespace cofiber
     intro a, induction a with [u, b],
     { cases u, reflexivity },
     { exact !glue ⬝ ap inr (right_inv f b) },
-    { apply eq_pathover, refine _ ⬝hp !ap_id⁻¹, refine !ap_constant ⬝ph _, 
+    { apply eq_pathover, refine _ ⬝hp !ap_id⁻¹, refine !ap_constant ⬝ph _,
       apply move_bot_of_left, refine !idp_con ⬝ph _, apply transpose, esimp,
       refine _ ⬝hp (ap (ap inr) !adj⁻¹), refine _ ⬝hp !ap_compose, apply square_Flr_idp_ap },
   end
@@ -69,7 +69,7 @@ namespace cofiber
     induction y, induction x, exact Pinl, exact Pinr x, esimp, exact Pglue x
   end
 
-  protected definition pelim_on {A B C : Type*} {f : A →* B} (y : Cofiber f) 
+  protected definition pelim_on {A B C : Type*} {f : A →* B} (y : Cofiber f)
     (c : C) (g : B → C) (p : Π x, c = g (f x)) : C :=
   begin
     fapply pushout.elim_on y, exact (λ x, c), exact g, exact p
@@ -81,18 +81,18 @@ namespace cofiber
 
   definition cofiber_unit : Cofiber (pconst A Unit) ≃* Susp A :=
   begin
-    fconstructor,
+    fapply pequiv_of_pmap,
     { fconstructor, intro x, induction x, exact north, exact south, exact merid x,
       reflexivity },
     { esimp, fapply adjointify,
       intro s, induction s, exact inl ⋆, exact inr ⋆, apply glue a,
       intro s, induction s, do 2 reflexivity, esimp,
-      apply eq_pathover, refine _ ⬝hp !ap_id⁻¹, apply hdeg_square, 
-      refine !(ap_compose (pushout.elim _ _ _)) ⬝ _, 
+      apply eq_pathover, refine _ ⬝hp !ap_id⁻¹, apply hdeg_square,
+      refine !(ap_compose (pushout.elim _ _ _)) ⬝ _,
       refine ap _ !elim_merid ⬝ _, apply elim_glue,
-      intro c, induction c with [n, s], induction n, reflexivity, 
-      induction s, reflexivity, esimp, apply eq_pathover, apply hdeg_square, 
-      refine _ ⬝ !ap_id⁻¹, refine !(ap_compose (pushout.elim _ _ _)) ⬝ _, 
+      intro c, induction c with [n, s], induction n, reflexivity,
+      induction s, reflexivity, esimp, apply eq_pathover, apply hdeg_square,
+      refine _ ⬝ !ap_id⁻¹, refine !(ap_compose (pushout.elim _ _ _)) ⬝ _,
       refine ap _ !elim_glue ⬝ _, apply elim_merid },
   end
 

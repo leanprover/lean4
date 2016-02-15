@@ -10,7 +10,7 @@ Properties of is_trunc and trunctype
 
 import types.pi types.eq types.equiv ..function
 
-open eq sigma sigma.ops pi function equiv is_trunc.trunctype
+open eq sigma sigma.ops pi function equiv trunctype
      is_equiv prod is_trunc.trunc_index pointed nat
 
 namespace is_trunc
@@ -147,7 +147,7 @@ namespace is_trunc
   iff.intro _ (is_trunc_succ_of_is_trunc_loop Hn)
 
   theorem is_trunc_iff_is_contr_loop_succ (n : ℕ) (A : Type)
-    : is_trunc n A ↔ Π(a : A), is_contr (Ω[succ n](Pointed.mk a)) :=
+    : is_trunc n A ↔ Π(a : A), is_contr (Ω[succ n](pointed.Mk a)) :=
   begin
     revert A, induction n with n IH,
     { intro A, esimp [Iterated_loop_space], transitivity _,
@@ -242,7 +242,16 @@ namespace trunc
     : transport (λa, trunc n (P a)) p (tr x) = tr (p ▸ x) :=
   by induction p; reflexivity
 
-  definition image {A B : Type} (f : A → B) (b : B) : hprop := ∃(a : A), f a = b
+  definition image {A B : Type} (f : A → B) (b : B) : hprop := ∥ fiber f b ∥
+
+  -- truncation of pointed types
+  definition ptrunc [constructor] (n : trunc_index) (X : Type*) : Type* :=
+  pointed.MK (trunc n X) (tr pt)
+
+  definition ptrunc_functor [constructor] {X Y : Type*} (n : ℕ₋₂) (f : X →* Y)
+    : ptrunc n X →* ptrunc n Y :=
+  pmap.mk (trunc_functor n f) (ap tr (respect_pt f))
+
 
 end trunc open trunc
 

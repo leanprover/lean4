@@ -27,7 +27,7 @@
 (defconst lean-keywords1-regexp
   (eval `(rx word-start (or ,@lean-keywords1) word-end)))
 (defconst lean-keywords2
-  '("by+" "begin+")
+  '("by+" "begin+" "example.")
   "lean keywords ending with 'symbol'")
 (defconst lean-keywords2-regexp
   (eval `(rx word-start (or ,@lean-keywords2) symbol-end)))
@@ -174,7 +174,7 @@
      (,lean-keywords1-regexp . 'font-lock-keyword-face)
      (,(rx (or "∎")) . 'font-lock-keyword-face)
      ;; Types
-     (,(rx word-start (or "Prop" "Type" "Type'" "Type₊" "Type₀" "Type₁" "Type₂" "Type₃" "Type*") symbol-end) . 'font-lock-type-face)
+     (,(rx word-start (or "Prop" "Type" "Type'" "Type₊" "Type₀" "Type₁" "Type₂" "Type₃" "Type*" "Set") symbol-end) . 'font-lock-type-face)
      (,(rx word-start (group "Type") ".") (1 'font-lock-type-face))
      ;; String
      ("\"[^\"]*\"" . 'font-lock-string-face)

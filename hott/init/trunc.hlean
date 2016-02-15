@@ -12,7 +12,7 @@ Ported from Coq HoTT.
 
 prelude
 import .nat .logic .equiv .pathover
-open eq nat sigma unit
+open eq nat sigma unit sigma.ops
 --set_option class.force_new true
 
 namespace is_trunc
@@ -99,9 +99,12 @@ namespace is_trunc
       (λn trunc_n A, (Π(x y : A), trunc_n (x = y)))
 
 end is_trunc open is_trunc
+
 structure is_trunc [class] (n : trunc_index) (A : Type) :=
   (to_internal : is_trunc_internal n A)
+
 open nat num is_trunc.trunc_index
+
 namespace is_trunc
 
   abbreviation is_contr := is_trunc -2
@@ -227,6 +230,14 @@ namespace is_trunc
     : is_contr (Σ(x : A), x = a) :=
   is_contr.mk (sigma.mk a idp) (λp, sigma.rec_on p (λ b q, eq.rec_on q idp))
 
+  definition ap_pr1_center_eq_sigma_eq {A : Type} {a x : A} (p : a = x)
+    : ap pr₁ (center_eq ⟨x, p⟩) = p :=
+  by induction p; reflexivity
+
+  definition ap_pr1_center_eq_sigma_eq' {A : Type} {a x : A} (p : x = a)
+    : ap pr₁ (center_eq ⟨x, p⟩) = p⁻¹ :=
+  by induction p; reflexivity
+
   definition is_contr_unit : is_contr unit :=
   is_contr.mk star (λp, unit.rec_on p idp)
 
@@ -246,8 +257,6 @@ namespace is_trunc
   section
   open is_equiv equiv
 
-  --should we remove the following two theorems as they are special cases of
-  --"is_trunc_is_equiv_closed"
   definition is_contr_is_equiv_closed (f : A → B) [Hf : is_equiv f] [HA: is_contr A]
     : (is_contr B) :=
   is_contr.mk (f (center A)) (λp, eq_of_eq_inv !center_eq)
@@ -301,7 +310,7 @@ namespace is_trunc
   /- interaction with the Unit type -/
 
   open equiv
-  -- A contractible type is equivalent to [Unit]. *)
+  /- A contractible type is equivalent to unit. -/
   variable (A)
   definition equiv_unit_of_is_contr [H : is_contr A] : A ≃ unit :=
   equiv.MK (λ (x : A), ⋆)
@@ -330,9 +339,14 @@ namespace is_trunc
 
   /- truncated universe -/
 
-  -- TODO: move to root namespace?
-  structure trunctype (n : trunc_index) :=
-  (carrier : Type) (struct : is_trunc n carrier)
+end is_trunc
+
+structure trunctype (n : trunc_index) :=
+  (carrier : Type)
+  (struct : is_trunc n carrier)
+
+namespace is_trunc
+
   attribute trunctype.carrier [coercion]
   attribute trunctype.struct [instance] [priority 1400]
 
@@ -349,6 +363,6 @@ namespace is_trunc
 
   definition tlift.{u v} [constructor] {n : trunc_index} (A : trunctype.{u} n)
     : trunctype.{max u v} n :=
-  trunctype.mk (lift A) (is_trunc_lift _ _)
+  trunctype.mk (lift A) !is_trunc_lift
 
 end is_trunc

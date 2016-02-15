@@ -223,19 +223,20 @@ namespace is_equiv
 
   section
   variables {A : Type} {B C : A → Type} (f : Π{a}, B a → C a) [H : Πa, is_equiv (@f a)]
-    {g : A → A} (h : Π{a}, B a → B (g a)) (h' : Π{a}, C a → C (g a))
+            {g : A → A} {g' : A → A} (h : Π{a}, B (g' a) → B (g a)) (h' : Π{a}, C (g' a) → C (g a))
+
   include H
-  definition inv_commute' (p : Π⦃a : A⦄ (b : B a), f (h b) = h' (f b)) {a : A} (c : C a) :
-    f⁻¹ (h' c) = h (f⁻¹ c) :=
+  definition inv_commute' (p : Π⦃a : A⦄ (b : B (g' a)), f (h b) = h' (f b)) {a : A}
+    (c : C (g' a)) : f⁻¹ (h' c) = h (f⁻¹ c) :=
   eq_of_fn_eq_fn' f (right_inv f (h' c) ⬝ ap h' (right_inv f c)⁻¹ ⬝ (p (f⁻¹ c))⁻¹)
 
-  definition fun_commute_of_inv_commute' (p : Π⦃a : A⦄ (c : C a), f⁻¹ (h' c) = h (f⁻¹ c))
-    {a : A} (b : B a) : f (h b) = h' (f b) :=
+  definition fun_commute_of_inv_commute' (p : Π⦃a : A⦄ (c : C (g' a)), f⁻¹ (h' c) = h (f⁻¹ c))
+    {a : A} (b : B (g' a)) : f (h b) = h' (f b) :=
   eq_of_fn_eq_fn' f⁻¹ (left_inv f (h b) ⬝ ap h (left_inv f b)⁻¹ ⬝ (p (f b))⁻¹)
 
-  definition ap_inv_commute' (p : Π⦃a : A⦄ (b : B a), f (h b) = h' (f b)) {a : A} (c : C a) :
-    ap f (inv_commute' @f @h @h' p c)
-      = right_inv f (h' c) ⬝ ap h' (right_inv f c)⁻¹ ⬝ (p (f⁻¹ c))⁻¹ :=
+  definition ap_inv_commute' (p : Π⦃a : A⦄ (b : B (g' a)), f (h b) = h' (f b)) {a : A}
+    (c : C (g' a)) : ap f (inv_commute' @f @h @h' p c)
+                       = right_inv f (h' c) ⬝ ap h' (right_inv f c)⁻¹ ⬝ (p (f⁻¹ c))⁻¹ :=
   !ap_eq_of_fn_eq_fn'
 
   end
@@ -287,7 +288,7 @@ namespace equiv
   equiv.mk (g ∘ f) !is_equiv_compose
 
   infixl ` ⬝e `:75 := equiv.trans
-  postfix [parsing_only] `⁻¹ᵉ`:(max + 1) := equiv.symm
+  postfix `⁻¹ᵉ`:(max + 1) := equiv.symm
     -- notation for inverse which is not overloaded
   abbreviation erfl [constructor] := @equiv.refl
 
@@ -310,8 +311,11 @@ namespace equiv
   definition eq_equiv_fn_eq_of_equiv [constructor] (f : A ≃ B) (a b : A) : (a = b) ≃ (f a = f b) :=
   equiv.mk (ap f) !is_equiv_ap
 
-  definition equiv_ap [constructor] (P : A → Type) {a b : A} (p : a = b) : (P a) ≃ (P b) :=
+  definition equiv_ap [constructor] (P : A → Type) {a b : A} (p : a = b) : P a ≃ P b :=
   equiv.mk (transport P p) !is_equiv_tr
+
+  definition equiv_of_eq [constructor] {A B : Type} (p : A = B) : A ≃ B :=
+  equiv_ap (λX, X) p
 
   definition eq_of_fn_eq_fn (f : A ≃ B) {x y : A} (q : f x = f y) : x = y :=
   (left_inv f x)⁻¹ ⬝ ap f⁻¹ q ⬝ left_inv f y
@@ -323,8 +327,10 @@ namespace equiv
   theorem inv_eq {A B : Type} (eqf eqg : A ≃ B) (p : eqf = eqg) : (to_fun eqf)⁻¹ = (to_fun eqg)⁻¹ :=
   eq.rec_on p idp
 
-  definition equiv_of_equiv_of_eq [trans] {A B C : Type} (p : A = B) (q : B ≃ C) : A ≃ C := p⁻¹ ▸ q
-  definition equiv_of_eq_of_equiv [trans] {A B C : Type} (p : A ≃ B) (q : B = C) : A ≃ C := q   ▸ p
+  definition equiv_of_equiv_of_eq [trans] {A B C : Type} (p : A = B) (q : B ≃ C) : A ≃ C :=
+  equiv_of_eq p ⬝e q
+  definition equiv_of_eq_of_equiv [trans] {A B C : Type} (p : A ≃ B) (q : B = C) : A ≃ C :=
+  p ⬝e equiv_of_eq q
 
   definition equiv_lift [constructor] (A : Type) : A ≃ lift A := equiv.mk up _
 
@@ -345,22 +351,28 @@ namespace equiv
   end
 
   section
-  variables {A : Type} {B C : A → Type} (f : Π{a}, B a ≃ C a)
-            {g : A → A} (h : Π{a}, B a → B (g a)) (h' : Π{a}, C a → C (g a))
 
-  definition inv_commute (p : Π⦃a : A⦄ (b : B a), f (h b) = h' (f b)) {a : A} (c : C a) :
-    f⁻¹ (h' c) = h (f⁻¹ c) :=
+  variables {A : Type} {B C : A → Type} (f : Π{a}, B a ≃ C a)
+            {g : A → A} {g' : A → A} (h : Π{a}, B (g' a) → B (g a)) (h' : Π{a}, C (g' a) → C (g a))
+
+  definition inv_commute (p : Π⦃a : A⦄ (b : B (g' a)), f (h b) = h' (f b)) {a : A}
+    (c : C (g' a)) : f⁻¹ (h' c) = h (f⁻¹ c) :=
   inv_commute' @f @h @h' p c
 
-  definition fun_commute_of_inv_commute (p : Π⦃a : A⦄ (c : C a), f⁻¹ (h' c) = h (f⁻¹ c))
-    {a : A} (b : B a) : f (h b) = h' (f b) :=
+  definition fun_commute_of_inv_commute (p : Π⦃a : A⦄ (c : C (g' a)), f⁻¹ (h' c) = h (f⁻¹ c))
+    {a : A} (b : B (g' a)) : f (h b) = h' (f b) :=
   fun_commute_of_inv_commute' @f @h @h' p b
+
   end
 
 
   namespace ops
     postfix ⁻¹ := equiv.symm -- overloaded notation for inverse
   end ops
+
+  infixl ` ⬝pe `:75 := equiv_of_equiv_of_eq
+  infixl ` ⬝ep `:75 := equiv_of_eq_of_equiv
+
 end equiv
 
 open equiv equiv.ops

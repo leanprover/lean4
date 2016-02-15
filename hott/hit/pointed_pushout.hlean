@@ -1,16 +1,16 @@
 /-
 Copyright (c) 2016 Jakob von Raumer. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Jakob von Raumer
+Authors: Jakob von Raumer, Floris van Doorn
 
 Pointed Pushouts
 -/
-import .pushout types.pointed
+import .pushout types.pointed2
 
 open eq pushout
 
 namespace pointed
-  
+
   definition pointed_pushout [instance] [constructor] {TL BL TR : Type} [HTL : pointed TL]
     [HBL : pointed BL] [HTR : pointed TR] (f : TL → BL) (g : TL → TR) : pointed (pushout f g) :=
   pointed.mk (inl (point _))
@@ -25,7 +25,7 @@ namespace pushout
 
   definition Pushout [constructor] : Type* :=
   pointed.mk' (pushout f g)
-  
+
   parameters {f g}
   definition pinl [constructor] : BL →* Pushout :=
   pmap.mk inl idp
@@ -44,12 +44,11 @@ namespace pushout
   section
   variables {TL BL TR : Type*} (f : TL →* BL) (g : TL →* TR)
 
-  protected definition psymm : Pushout f g ≃* Pushout g f :=
+  protected definition psymm [constructor] : Pushout f g ≃* Pushout g f :=
   begin
-    fapply pequiv.mk,
-    { fapply pmap.mk, exact !pushout.transpose,
-      exact ap inr (respect_pt f)⁻¹ ⬝ !glue⁻¹ ⬝ ap inl (respect_pt g) },
-    { esimp, apply equiv.to_is_equiv !pushout.symm },
+    fapply pequiv_of_equiv,
+    { apply pushout.symm},
+    { exact ap inr (respect_pt f)⁻¹ ⬝ !glue⁻¹ ⬝ ap inl (respect_pt g)}
   end
 
   end

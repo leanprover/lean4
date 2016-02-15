@@ -220,7 +220,7 @@ end
 lemma lift_fun_of_inj {f : fin n → fin n} : is_embedding f → is_embedding (lift_fun f) :=
 begin
   intro Pemb, apply is_embedding_of_is_injective, intro i j,
-  assert Pdi : decidable (i = maxi), apply _, 
+  assert Pdi : decidable (i = maxi), apply _,
   assert Pdj : decidable (j = maxi), apply _,
   cases Pdi with Pimax Pinmax,
     cases Pdj with Pjmax Pjnmax,
@@ -231,7 +231,7 @@ begin
       substvars, rewrite [lift_fun_max, lift_fun_of_ne_max Pinmax],
         intro Plmax, apply absurd Plmax lift_succ_ne_max,
       rewrite [lift_fun_of_ne_max Pinmax, lift_fun_of_ne_max Pjnmax],
-        intro Peq, apply eq_of_veq, 
+        intro Peq, apply eq_of_veq,
         cases i with i ilt, cases j with j jlt, esimp at *,
         fapply veq_of_eq, apply is_injective_of_is_embedding,
         apply @is_injective_of_is_embedding _ _ lift_succ _ _ _ Peq,
@@ -474,18 +474,18 @@ begin
     exact if h : v < n
           then sum.inl (mk v h)
           else sum.inr (mk (v-n) (nat.sub_lt_of_lt_add vlt (le_of_not_gt h))) },
-  { intro f, cases f with v vlt, esimp, apply @by_cases (v < n), 
+  { intro f, cases f with v vlt, esimp, apply @by_cases (v < n),
     intro vltn, rewrite [dif_pos vltn], apply eq_of_veq, reflexivity,
-    intro nvltn, rewrite [dif_neg nvltn], apply eq_of_veq, esimp, 
+    intro nvltn, rewrite [dif_neg nvltn], apply eq_of_veq, esimp,
     apply nat.sub_add_cancel, apply le_of_not_gt, apply nvltn },
   { intro s, cases s with f g,
-    cases f with v vlt, rewrite [dif_pos vlt], 
+    cases f with v vlt, rewrite [dif_pos vlt],
     cases g with v vlt, esimp, have ¬ v + n < n, from
       suppose v + n < n,
       assert v < n - n, from nat.lt_sub_of_add_lt this !le.refl,
       have v < 0, by rewrite [nat.sub_self at this]; exact this,
       absurd this !not_lt_zero,
-    apply concat, apply dif_neg this, apply ap inr, apply eq_of_veq, esimp, 
+    apply concat, apply dif_neg this, apply ap inr, apply eq_of_veq, esimp,
     apply nat.add_sub_cancel },
 end
 
@@ -494,7 +494,7 @@ begin
   fapply equiv.MK,
   { apply succ_maxi_cases, esimp, apply inl, apply inr unit.star },
   { intro d, cases d, apply lift_succ a, apply maxi },
-  { intro d, cases d, 
+  { intro d, cases d,
     cases a with a alt, esimp, apply elim_succ_maxi_cases_lift_succ,
     cases a, apply elim_succ_maxi_cases_maxi },
   { intro a, apply succ_maxi_cases, esimp,
@@ -513,14 +513,14 @@ begin
                    ... ≃ empty : prod_empty_equiv
                    ... ≃ fin 0 : fin_zero_equiv_empty },
   { assert H : (a + 1) * m = a * m + m, rewrite [nat.right_distrib, one_mul],
-    calc fin (a + 1) × fin m 
+    calc fin (a + 1) × fin m
          ≃ (fin a + unit) × fin m : prod.prod_equiv_prod_right !fin_succ_equiv
      ... ≃ (fin a × fin m) + (unit × fin m) : sum_prod_right_distrib
      ... ≃ (fin a × fin m) + (fin m × unit) : prod_comm_equiv
      ... ≃ fin (a * m) + (fin m × unit) : v_0
      ... ≃ fin (a * m) + fin m : prod_unit_equiv
      ... ≃ fin (a * m + m) : fin_sum_equiv
-     ... ≃ fin ((a + 1) * m) : equiv_of_eq (ap fin H) },
+     ... ≃ fin ((a + 1) * m) : equiv_of_eq (ap fin H⁻¹) },
 end
 
 definition fin_two_equiv_bool : fin 2 ≃ bool :=
@@ -543,13 +543,13 @@ begin
   induction n with n IH,
   { calc A ≃ A + empty : sum_empty_equiv
        ... ≃ empty + A : sum_comm_equiv
-       ... ≃ fin 0 + A : fin_zero_equiv_empty 
+       ... ≃ fin 0 + A : fin_zero_equiv_empty
        ... ≃ fin 0 + B : H
        ... ≃ empty + B : fin_zero_equiv_empty
        ... ≃ B + empty : sum_comm_equiv
        ... ≃ B : sum_empty_equiv },
-  { apply IH, apply unit_sum_equiv_cancel, 
-    calc unit + (fin n + A) ≃ (unit + fin n) + A : sum_assoc_equiv 
+  { apply IH, apply unit_sum_equiv_cancel,
+    calc unit + (fin n + A) ≃ (unit + fin n) + A : sum_assoc_equiv
                         ... ≃ (fin n + unit) + A : sum_comm_equiv
                         ... ≃ fin (nat.succ n) + A : fin_sum_unit_equiv
                         ... ≃ fin (nat.succ n) + B : H
@@ -564,14 +564,14 @@ begin
   revert n H, induction m with m IH IH,
   { intro n H, cases n, reflexivity, exfalso,
     apply to_fun fin_zero_equiv_empty, apply to_inv H, apply fin.zero },
-  { intro n H, cases n with n, exfalso, 
-    apply to_fun fin_zero_equiv_empty, apply to_fun H, apply fin.zero, 
-    have unit + fin m ≃ unit + fin n, from 
+  { intro n H, cases n with n, exfalso,
+    apply to_fun fin_zero_equiv_empty, apply to_fun H, apply fin.zero,
+    have unit + fin m ≃ unit + fin n, from
     calc unit + fin m ≃ fin m + unit : sum_comm_equiv
                   ... ≃ fin (nat.succ m) : fin_succ_equiv
                   ... ≃ fin (nat.succ n) : H
                   ... ≃ fin n + unit : fin_succ_equiv
-                  ... ≃ unit + fin n : sum_comm_equiv, 
+                  ... ≃ unit + fin n : sum_comm_equiv,
     have fin m ≃ fin n, from unit_sum_equiv_cancel this,
     apply ap nat.succ, apply IH _ this },
 end

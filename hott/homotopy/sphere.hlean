@@ -191,7 +191,7 @@ namespace is_trunc
     note H'' := @is_trunc_equiv_closed_rev _ _ _ !pmap_sphere H',
     assert p : (f = pmap.mk (λx, f base) (respect_pt f)),
       apply is_hprop.elim,
-    exact ap10 (ap pmap.map p) x
+    exact ap10 (ap pmap.to_fun p) x
   end
 
   definition pmap_sphere_constant_of_is_trunc [H : is_trunc (n.-2.+1) A]

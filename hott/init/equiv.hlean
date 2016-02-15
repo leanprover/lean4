@@ -150,21 +150,21 @@ namespace is_equiv
   end
 
   definition is_equiv_ap [instance] (x y : A) : is_equiv (ap f : x = y → f x = f y) :=
-    adjointify
-      (ap f)
-      (eq_of_fn_eq_fn' f)
-      (λq, !ap_con
-        ⬝ whisker_right !ap_con _
-        ⬝ ((!ap_inv ⬝ inverse2 (adj f _)⁻¹)
-          ◾ (inverse (ap_compose f f⁻¹ _))
-          ◾ (adj f _)⁻¹)
-        ⬝ con_ap_con_eq_con_con (right_inv f) _ _
-        ⬝ whisker_right !con.left_inv _
-        ⬝ !idp_con)
-      (λp, whisker_right (whisker_left _ (ap_compose f⁻¹ f _)⁻¹) _
-        ⬝ con_ap_con_eq_con_con (left_inv f) _ _
-        ⬝ whisker_right !con.left_inv _
-        ⬝ !idp_con)
+  adjointify
+    (ap f)
+    (eq_of_fn_eq_fn' f)
+    (λq, !ap_con
+      ⬝ whisker_right !ap_con _
+      ⬝ ((!ap_inv ⬝ inverse2 (adj f _)⁻¹)
+        ◾ (inverse (ap_compose f f⁻¹ _))
+        ◾ (adj f _)⁻¹)
+      ⬝ con_ap_con_eq_con_con (right_inv f) _ _
+      ⬝ whisker_right !con.left_inv _
+      ⬝ !idp_con)
+    (λp, whisker_right (whisker_left _ (ap_compose f⁻¹ f _)⁻¹) _
+      ⬝ con_ap_con_eq_con_con (left_inv f) _ _
+      ⬝ whisker_right !con.left_inv _
+      ⬝ !idp_con)
 
   -- The function equiv_rect says that given an equivalence f : A → B,
   -- and a hypothesis from B, one may always assume that the hypothesis
@@ -182,17 +182,17 @@ namespace is_equiv
 
   definition is_equiv_rect_comp (P : B → Type)
       (df : Π (x : A), P (f x)) (x : A) : is_equiv_rect f P df (f x) = df x :=
-    calc
-      is_equiv_rect f P df (f x)
-            = right_inv f (f x) ▸ df (f⁻¹ (f x))   : by esimp
-        ... = ap f (left_inv f x) ▸ df (f⁻¹ (f x)) : by rewrite -adj
-        ... = left_inv f x ▸ df (f⁻¹ (f x))        : by rewrite -tr_compose
-        ... = df x                                 : by rewrite (apd df (left_inv f x))
+  calc
+    is_equiv_rect f P df (f x)
+          = right_inv f (f x) ▸ df (f⁻¹ (f x))   : by esimp
+      ... = ap f (left_inv f x) ▸ df (f⁻¹ (f x)) : by rewrite -adj
+      ... = left_inv f x ▸ df (f⁻¹ (f x))        : by rewrite -tr_compose
+      ... = df x                                 : by rewrite (apd df (left_inv f x))
 
   theorem adj_inv (b : B) : left_inv f (f⁻¹ b) = ap f⁻¹ (right_inv f b) :=
   is_equiv_rect f _
-    (λa,
-      eq.cancel_right (whisker_left _ !ap_id⁻¹ ⬝ (ap_con_eq_con_ap (left_inv f) (left_inv f a))⁻¹) ⬝
+    (λa, eq.cancel_right (left_inv f (id a))
+           (whisker_left _ !ap_id⁻¹ ⬝ (ap_con_eq_con_ap (left_inv f) (left_inv f a))⁻¹) ⬝
       !ap_compose ⬝ ap02 f⁻¹ (adj f a)⁻¹)
     b
 

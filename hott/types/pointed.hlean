@@ -171,7 +171,7 @@ namespace pointed
   begin
     fconstructor,
     { intro a, reflexivity},
-    { esimp, exact !idp_con ⬝ !ap_id⁻¹}
+    { reflexivity}
   end
 
   definition comp_pid (f : A →* B) : f ∘* pid A ~* f :=

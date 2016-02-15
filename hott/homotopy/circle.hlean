@@ -265,7 +265,7 @@ namespace circle
     { apply equiv_pathover, intro p p' q, apply pathover_of_eq,
       note H := eq_of_square (square_of_pathover q),
       rewrite con_comm_base at H,
-      let H' := cancel_left H,
+      note H' := cancel_left _ H,
       induction H', reflexivity}
   end
 

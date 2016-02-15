@@ -51,9 +51,6 @@ namespace eq
   infix ` ~2 `:50 := homotopy2
   infix ` ~3 `:50 := homotopy3
 
-  definition ap011 (f : U → V → W) (Hu : u = u') (Hv : v = v') : f u v = f u' v' :=
-  by cases Hu; congruence; repeat assumption
-
   definition ap0111 (f : U → V → W → X) (Hu : u = u') (Hv : v = v') (Hw : w = w')
       : f u v w = f u' v' w' :=
   by cases Hu; congruence; repeat assumption

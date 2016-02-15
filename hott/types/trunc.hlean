@@ -104,7 +104,7 @@ namespace is_trunc
           imp (refl a) ⬝ p = transport (λx, a = x) p (imp (refl a)) : transport_eq_r
             ... = imp (transport (λx, R a x) p (refl a)) : H3
             ... = imp (refl a) : is_hprop.elim,
-      cancel_left H4)
+      cancel_left (imp (refl a)) H4)
 
   definition relation_equiv_eq {A : Type} (R : A → A → Type)
     (mere : Π(a b : A), is_hprop (R a b)) (refl : Π(a : A), R a a)

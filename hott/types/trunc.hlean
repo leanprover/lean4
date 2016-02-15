@@ -150,10 +150,10 @@ namespace is_trunc
     : is_trunc n A ↔ Π(a : A), is_contr (Ω[succ n](pointed.Mk a)) :=
   begin
     revert A, induction n with n IH,
-    { intro A, esimp [Iterated_loop_space], transitivity _,
+    { intro A, esimp [iterated_ploop_space], transitivity _,
       { apply is_trunc_succ_iff_is_trunc_loop, apply le.refl},
       { apply pi_iff_pi, intro a, esimp, apply is_prop_iff_is_contr, reflexivity}},
-    { intro A, esimp [Iterated_loop_space],
+    { intro A, esimp [iterated_ploop_space],
       transitivity _, apply @is_trunc_succ_iff_is_trunc_loop @n, esimp, constructor,
       apply pi_iff_pi, intro a, transitivity _, apply IH,
       transitivity _, apply pi_iff_pi, intro p,
@@ -165,7 +165,7 @@ namespace is_trunc
     : is_trunc (n.-2.+1) A ↔ (Π(a : A), is_contr (Ω[n](pointed.Mk a))) :=
   begin
     induction n with n,
-    { esimp [sub_two,Iterated_loop_space], apply iff.intro,
+    { esimp [sub_two,iterated_ploop_space], apply iff.intro,
         intro H a, exact is_contr_of_inhabited_prop a,
         intro H, apply is_prop_of_imp_is_contr, exact H},
     { apply is_trunc_iff_is_contr_loop_succ},

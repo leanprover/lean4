@@ -16,8 +16,6 @@ structure pType :=
   (carrier : Type)
   (Point   : carrier)
 
-open pType
-
 notation `Type*` := pType
 
 namespace pointed
@@ -25,6 +23,8 @@ namespace pointed
   variables {A B : Type}
 
   definition pt [unfold 2] [H : pointed A] := point A
+  definition Point [unfold 1] (A : Type*) := pType.Point A
+  definition carrier [unfold 1] (A : Type*) := pType.carrier A
   protected definition Mk [constructor] {A : Type} (a : A) := pType.mk A a
   protected definition MK [constructor] (A : Type) (a : A) := pType.mk A a
   protected definition mk' [constructor] (A : Type) [H : pointed A] : Type* :=
@@ -57,29 +57,29 @@ namespace pointed
   definition pointed_bool [instance] [constructor] : pointed bool :=
   pointed.mk ff
 
-  definition Prod [constructor] (A B : Type*) : Type* :=
+  definition pprod [constructor] (A B : Type*) : Type* :=
   pointed.mk' (A × B)
 
-  infixr ` ×* `:35 := Prod
+  infixr ` ×* `:35 := pprod
 
-  definition Bool [constructor] : Type* :=
+  definition pbool [constructor] : Type* :=
   pointed.mk' bool
 
-  definition Unit [constructor] : Type* :=
+  definition punit [constructor] : Type* :=
   pointed.Mk unit.star
 
   definition pointed_fun_closed [constructor] (f : A → B) [H : pointed A] : pointed B :=
   pointed.mk (f pt)
 
-  definition Loop_space [reducible] [constructor] (A : Type*) : Type* :=
+  definition ploop_space [reducible] [constructor] (A : Type*) : Type* :=
   pointed.mk' (point A = point A)
 
-  definition Iterated_loop_space [unfold 1] [reducible] : ℕ → Type* → Type*
-  | Iterated_loop_space  0    X := X
-  | Iterated_loop_space (n+1) X := Loop_space (Iterated_loop_space n X)
+  definition iterated_ploop_space [unfold 1] [reducible] : ℕ → Type* → Type*
+  | iterated_ploop_space  0    X := X
+  | iterated_ploop_space (n+1) X := ploop_space (iterated_ploop_space n X)
 
-  prefix `Ω`:(max+5) := Loop_space
-  notation `Ω[`:95 n:0 `] `:0 A:95 := Iterated_loop_space n A
+  prefix `Ω`:(max+5) := ploop_space
+  notation `Ω[`:95 n:0 `] `:0 A:95 := iterated_ploop_space n A
 
   definition rfln  [constructor] [reducible] {A : Type*} {n : ℕ} : Ω[n] A := pt
   definition refln [constructor] [reducible] (A : Type*) (n : ℕ) : Ω[n] A := pt
@@ -106,7 +106,6 @@ namespace pointed
     { intro x, induction x with X x, reflexivity},
   end
 
-
   definition add_point [constructor] (A : Type) : Type* :=
   pointed.Mk (none : option A)
   postfix `₊`:(max+1) := add_point
@@ -121,14 +120,14 @@ namespace pointed
   begin
     induction n with n IH,
     { reflexivity},
-    { exact ap Loop_space IH}
+    { exact ap ploop_space IH}
   end
 
   definition loop_space_add (n m : ℕ) : Ω[n] (Ω[m] A) = Ω[m+n] (A) :=
   begin
     induction n with n IH,
     { reflexivity},
-    { exact ap Loop_space IH}
+    { exact ap ploop_space IH}
   end
 
   definition loop_space_succ_eq_out (n : ℕ) : Ω[succ n] A = Ω(Ω[n] A)  :=
@@ -138,9 +137,9 @@ namespace pointed
 
   /- the equality [loop_space_succ_eq_in] preserves concatenation -/
   theorem loop_space_succ_eq_in_concat {n : ℕ} (p q : Ω[succ (succ n)] A) :
-           transport carrier (ap Loop_space (loop_space_succ_eq_in A n)) (p ⬝ q)
-         = transport carrier (ap Loop_space (loop_space_succ_eq_in A n)) p
-         ⬝ transport carrier (ap Loop_space (loop_space_succ_eq_in A n)) q :=
+           transport carrier (ap ploop_space (loop_space_succ_eq_in A n)) (p ⬝ q)
+         = transport carrier (ap ploop_space (loop_space_succ_eq_in A n)) p
+         ⬝ transport carrier (ap ploop_space (loop_space_succ_eq_in A n)) q :=
   begin
     rewrite [-+tr_compose, ↑function.compose],
     rewrite [+@transport_eq_FlFr_D _ _ _ _ Point Point, +con.assoc], apply whisker_left,
@@ -263,7 +262,7 @@ namespace pointed
   --     }
   -- end
 
-  definition pmap_bool_equiv (B : Type*) : map₊ Bool B ≃ B :=
+  definition pmap_bool_equiv (B : Type*) : map₊ pbool B ≃ B :=
   begin
     fapply equiv.MK,
     { intro f, cases f with f p, exact f tt},
@@ -293,7 +292,7 @@ namespace pointed
   begin
   induction n with n IH,
   { exact f},
-  { esimp [Iterated_loop_space], exact ap1 IH}
+  { esimp [iterated_ploop_space], exact ap1 IH}
   end
 
   definition pcast [constructor] {A B : Type*} (p : A = B) : A →* B :=

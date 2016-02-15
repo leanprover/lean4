@@ -9,12 +9,12 @@ import hit.pointed_pushout .connectedness
 
 open eq pushout pointed pType unit
 
-definition Wedge (A B : Type*) : Type* := Pushout (pconst Unit A) (pconst Unit B)
+definition pwedge (A B : Type*) : Type* := ppushout (pconst punit A) (pconst punit B)
 
 namespace wedge
 
   -- TODO maybe find a cleaner proof
-  protected definition unit (A : Type*) : A ≃* Wedge Unit A :=
+  protected definition unit (A : Type*) : A ≃* pwedge punit A :=
   begin
     fapply pequiv_of_pmap,
     { fapply pmap.mk, intro a, apply pinr a, apply respect_pt },

@@ -6,9 +6,9 @@ Author: Floris van Doorn
 Theorems about the natural numbers specific to HoTT
 -/
 
-import .order
+import .order types.pointed
 
-open is_trunc unit empty eq equiv algebra
+open is_trunc unit empty eq equiv algebra pointed
 
 namespace nat
   definition is_prop_le [instance] (n m : ℕ) : is_prop (n ≤ m) :=
@@ -113,5 +113,8 @@ namespace nat
                reflexivity,
                rewrite [↑nat.decode,↑nat.refl,v_0]
            end
+
+  definition pointed_nat [instance] [constructor] : pointed ℕ :=
+  pointed.mk 0
 
 end nat

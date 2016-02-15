@@ -73,7 +73,7 @@ namespace eq
   begin
     revert A, induction m with m IH: intro A,
     { reflexivity},
-    { esimp [Iterated_loop_space, nat.add], refine !homotopy_group_succ_in ⬝ _, refine !IH ⬝ _,
+    { esimp [iterated_ploop_space, nat.add], refine !homotopy_group_succ_in ⬝ _, refine !IH ⬝ _,
       exact ap (Group_homotopy_group n) !loop_space_succ_eq_in⁻¹}
   end
 

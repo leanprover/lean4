@@ -10,20 +10,20 @@ import hit.pushout .wedge .cofiber .susp .sphere
 
 open eq pushout prod pointed pType is_trunc
 
-definition product_of_wedge [constructor] (A B : Type*) : Wedge A B →* A ×* B :=
+definition product_of_wedge [constructor] (A B : Type*) : pwedge A B →* A ×* B :=
 begin
   fconstructor,
   intro x, induction x with [a, b], exact (a, point B), exact (point A, b),
   do 2 reflexivity
 end
 
-definition Smash (A B : Type*) := Cofiber (product_of_wedge A B)
+definition psmash (A B : Type*) := pcofiber (product_of_wedge A B)
 
 open sphere susp unit
 
 namespace smash
 
-  protected definition prec {X Y : Type*} {P : Smash X Y → Type}
+  protected definition prec {X Y : Type*} {P : psmash X Y → Type}
     (pxy : Π x y, P (inr (x, y))) (ps : P (inl ⋆))
     (px : Π x, pathover P ps (glue (inl x)) (pxy x (point Y)))
     (py : Π y, pathover P ps (glue (inr y)) (pxy (point X) y))
@@ -37,7 +37,7 @@ namespace smash
     induction u, exact pg,
   end
 
-  protected definition prec_on {X Y : Type*} {P : Smash X Y → Type} (s : Smash X Y)
+  protected definition prec_on {X Y : Type*} {P : psmash X Y → Type} (s : psmash X Y)
     (pxy : Π x y, P (inr (x, y))) (ps : P (inl ⋆))
     (px : Π x, pathover P ps (glue (inl x)) (pxy x (point Y)))
     (py : Π y, pathover P ps (glue (inr y)) (pxy (point X) y))
@@ -46,7 +46,7 @@ namespace smash
           (px (Point X)) (glue ⋆) (py (Point Y))) : P s :=
   smash.prec pxy ps px py pg s
 
-/-  definition smash_bool (X : Type*) : Smash X Bool ≃* X :=
+/-  definition smash_bool (X : Type*) : psmash X pbool ≃* X :=
   begin
     fconstructor,
     { fconstructor,
@@ -74,7 +74,7 @@ namespace smash
           apply inverse, apply concat, apply ap (ap _),
            } } }
 
-  definition susp_equiv_circle_smash (X : Type*) : Susp X ≃* Smash (Sphere 1) X :=
+  definition susp_equiv_circle_smash (X : Type*) : psusp X ≃* psmash (psphere 1) X :=
   begin
     fconstructor,
     { fconstructor, intro x, induction x, },

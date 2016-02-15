@@ -92,11 +92,11 @@ namespace sphere
   definition base {n : ℕ} : sphere n := north
   definition pointed_sphere [instance] [constructor] (n : ℕ) : pointed (sphere n) :=
   pointed.mk base
-  definition Sphere [constructor] (n : ℕ) : pType := pointed.mk' (sphere n)
+  definition psphere [constructor] (n : ℕ) : Type* := pointed.mk' (sphere n)
 
   namespace ops
     abbreviation S := sphere
-    notation `S.`:max := Sphere
+    notation `S.` := psphere
   end ops
   open sphere.ops
 
@@ -106,7 +106,7 @@ namespace sphere
   definition surf {n : ℕ} : Ω[n] S. n :=
   nat.rec_on n (proof base qed)
                (begin intro m s, refine cast _ (apn m (equator m) s),
-                      exact ap pType.carrier !loop_space_succ_eq_in⁻¹ end)
+                      exact ap carrier !loop_space_succ_eq_in⁻¹ end)
 
 
   definition bool_of_sphere : S 0 → bool :=
@@ -125,11 +125,11 @@ namespace sphere
   definition sphere_eq_bool : S 0 = bool :=
   ua sphere_equiv_bool
 
-  definition sphere_eq_bool_pointed : S. 0 = Bool :=
+  definition sphere_eq_bool_pointed : S. 0 = pbool :=
   pType_eq sphere_equiv_bool idp
 
   -- TODO: the commented-out part makes the forward function below "apn _ surf"
-  definition pmap_sphere (A : pType) (n : ℕ) : map₊ (S. n) A ≃ Ω[n] A :=
+  definition pmap_sphere (A : Type*) (n : ℕ) : map₊ (S. n) A ≃ Ω[n] A :=
   begin
     -- fapply equiv_change_fun,
     -- {
@@ -143,10 +143,10 @@ namespace sphere
     --   { exact sorry}}
   end
 
-  protected definition elim {n : ℕ} {P : pType} (p : Ω[n] P) : map₊ (S. n) P :=
+  protected definition elim {n : ℕ} {P : Type*} (p : Ω[n] P) : map₊ (S. n) P :=
   to_inv !pmap_sphere p
 
-  -- definition elim_surf {n : ℕ} {P : pType} (p : Ω[n] P) : apn n (sphere.elim p) surf = p :=
+  -- definition elim_surf {n : ℕ} {P : Type*} (p : Ω[n] P) : apn n (sphere.elim p) surf = p :=
   -- begin
   --   induction n with n IH,
   --   { esimp [apn,surf,sphere.elim,pmap_sphere], apply sorry},
@@ -156,10 +156,6 @@ namespace sphere
 end sphere
 
 open sphere sphere.ops
-
-structure weakly_constant [class] {A B : Type} (f : A → B) := --move
-  (is_weakly_constant : Πa a', f a = f a')
-abbreviation wconst := @weakly_constant.is_weakly_constant
 
 namespace is_trunc
   open trunc_index

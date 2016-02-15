@@ -3,7 +3,7 @@ Copyright (c) 2016 Jakob von Raumer. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jakob von Raumer, Floris van Doorn
 
-pType Pushouts
+Pointed Pushouts
 -/
 import .pushout types.pointed2
 
@@ -23,20 +23,20 @@ namespace pushout
   section
   parameters {TL BL TR : Type*} (f : TL →* BL) (g : TL →* TR)
 
-  definition Pushout [constructor] : Type* :=
+  definition ppushout [constructor] : Type* :=
   pointed.mk' (pushout f g)
 
   parameters {f g}
-  definition pinl [constructor] : BL →* Pushout :=
+  definition pinl [constructor] : BL →* ppushout :=
   pmap.mk inl idp
 
-  definition pinr [constructor] : TR →* Pushout :=
+  definition pinr [constructor] : TR →* ppushout :=
   pmap.mk inr ((ap inr (respect_pt g))⁻¹ ⬝ !glue⁻¹ ⬝ (ap inl (respect_pt f)))
 
   definition pglue (x : TL) : pinl (f x) = pinr (g x) := -- TODO do we need this?
   !glue
 
-  definition prec {P : Pushout → Type} (Pinl : Π x, P (pinl x)) (Pinr : Π x, P (pinr x))
+  definition prec {P : ppushout → Type} (Pinl : Π x, P (pinl x)) (Pinr : Π x, P (pinr x))
     (H : Π x, Pinl (f x) =[pglue x] Pinr (g x)) : (Π y, P y) :=
   pushout.rec Pinl Pinr H
   end
@@ -44,7 +44,7 @@ namespace pushout
   section
   variables {TL BL TR : Type*} (f : TL →* BL) (g : TL →* TR)
 
-  protected definition psymm [constructor] : Pushout f g ≃* Pushout g f :=
+  protected definition psymm [constructor] : ppushout f g ≃* ppushout g f :=
   begin
     fapply pequiv_of_equiv,
     { apply pushout.symm},

@@ -85,10 +85,10 @@ namespace susp
   definition pointed_susp [instance] [constructor] (X : Type) : pointed (susp X) :=
   pointed.mk north
 
-  definition Susp [constructor] (X : Type) : pType :=
+  definition psusp [constructor] (X : Type) : pType :=
   pointed.mk' (susp X)
 
-  definition Susp_functor (f : X →* Y) : Susp X →* Susp Y :=
+  definition psusp_functor (f : X →* Y) : psusp X →* psusp Y :=
   begin
     fconstructor,
     { intro x, induction x,
@@ -98,21 +98,21 @@ namespace susp
     { reflexivity}
   end
 
-  definition Susp_functor_compose (g : Y →* Z) (f : X →* Y)
-    : Susp_functor (g ∘* f) ~* Susp_functor g ∘* Susp_functor f :=
+  definition psusp_functor_compose (g : Y →* Z) (f : X →* Y)
+    : psusp_functor (g ∘* f) ~* psusp_functor g ∘* psusp_functor f :=
   begin
     fconstructor,
     { intro a, induction a,
       { reflexivity},
       { reflexivity},
       { apply eq_pathover, apply hdeg_square,
-        rewrite [▸*,ap_compose' _ (Susp_functor f),↑Susp_functor,+elim_merid]}},
+        rewrite [▸*,ap_compose' _ (psusp_functor f),↑psusp_functor,+elim_merid]}},
     { reflexivity}
   end
 
   -- adjunction from Coq-HoTT
 
-  definition loop_susp_unit [constructor] (X : pType) : X →* Ω(Susp X) :=
+  definition loop_susp_unit [constructor] (X : pType) : X →* Ω(psusp X) :=
   begin
     fconstructor,
     { intro x, exact merid x ⬝ (merid pt)⁻¹},
@@ -120,11 +120,11 @@ namespace susp
   end
 
   definition loop_susp_unit_natural (f : X →* Y)
-    : loop_susp_unit Y ∘* f ~* ap1 (Susp_functor f) ∘* loop_susp_unit X :=
+    : loop_susp_unit Y ∘* f ~* ap1 (psusp_functor f) ∘* loop_susp_unit X :=
   begin
     induction X with X x, induction Y with Y y, induction f with f pf, esimp at *, induction pf,
     fconstructor,
-    { intro x', esimp [Susp_functor], symmetry,
+    { intro x', esimp [psusp_functor], symmetry,
       exact
         !idp_con ⬝
         (!ap_con ⬝
@@ -137,11 +137,11 @@ namespace susp
       rewrite inverse2_right_inv,
       refine _ ⬝ !con.assoc',
       rewrite [ap_con_right_inv],
-      unfold Susp_functor,
+      unfold psusp_functor,
       xrewrite [idp_con_idp, -ap_compose (concat idp)]},
   end
 
-  definition loop_susp_counit [constructor] (X : pType) : Susp (Ω X) →* X :=
+  definition loop_susp_counit [constructor] (X : pType) : psusp (Ω X) →* X :=
   begin
     fconstructor,
     { intro x, induction x, exact pt, exact pt, exact a},
@@ -149,7 +149,7 @@ namespace susp
   end
 
   definition loop_susp_counit_natural (f : X →* Y)
-    : f ∘* loop_susp_counit X ~* loop_susp_counit Y ∘* (Susp_functor (ap1 f)) :=
+    : f ∘* loop_susp_counit X ~* loop_susp_counit Y ∘* (psusp_functor (ap1 f)) :=
   begin
     induction X with X x, induction Y with Y y, induction f with f pf, esimp at *, induction pf,
     fconstructor,
@@ -177,7 +177,7 @@ namespace susp
   end
 
   definition loop_susp_unit_counit (X : pType)
-    : loop_susp_counit (Susp X) ∘* Susp_functor (loop_susp_unit X) ~* pid (Susp X) :=
+    : loop_susp_counit (psusp X) ∘* psusp_functor (loop_susp_unit X) ~* pid (psusp X) :=
   begin
     induction X with X x, fconstructor,
     { intro x', induction x',
@@ -193,7 +193,7 @@ namespace susp
   begin
     fapply equiv.MK,
     { intro f, exact ap1 f ∘* loop_susp_unit X},
-    { intro g, exact loop_susp_counit Y ∘* Susp_functor g},
+    { intro g, exact loop_susp_counit Y ∘* psusp_functor g},
     { intro g, apply eq_of_phomotopy, esimp,
       refine !pwhisker_right !ap1_compose ⬝* _,
       refine !passoc ⬝* _,
@@ -202,7 +202,7 @@ namespace susp
       refine !pwhisker_right !loop_susp_counit_unit ⬝* _,
       apply pid_comp},
     { intro f, apply eq_of_phomotopy, esimp,
-      refine !pwhisker_left !Susp_functor_compose ⬝* _,
+      refine !pwhisker_left !psusp_functor_compose ⬝* _,
       refine !passoc⁻¹* ⬝* _,
       refine !pwhisker_right !loop_susp_counit_natural⁻¹* ⬝* _,
       refine !passoc ⬝* _,
@@ -210,7 +210,7 @@ namespace susp
       apply comp_pid},
   end
 
-  definition susp_adjoint_loop_nat_right (f : Susp X →* Y) (g : Y →* Z)
+  definition susp_adjoint_loop_nat_right (f : psusp X →* Y) (g : Y →* Z)
     : susp_adjoint_loop X Z (g ∘* f) ~* ap1 g ∘* susp_adjoint_loop X Y f :=
   begin
     esimp [susp_adjoint_loop],
@@ -220,12 +220,12 @@ namespace susp
   end
 
   definition susp_adjoint_loop_nat_left (f : Y →* Ω Z) (g : X →* Y)
-    : (susp_adjoint_loop X Z)⁻¹ (f ∘* g) ~* (susp_adjoint_loop Y Z)⁻¹ f ∘* Susp_functor g :=
+    : (susp_adjoint_loop X Z)⁻¹ (f ∘* g) ~* (susp_adjoint_loop Y Z)⁻¹ f ∘* psusp_functor g :=
   begin
     esimp [susp_adjoint_loop],
     refine _ ⬝* !passoc⁻¹*,
     apply pwhisker_left,
-    apply Susp_functor_compose
+    apply psusp_functor_compose
   end
 
 end susp

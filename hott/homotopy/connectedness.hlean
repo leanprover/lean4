@@ -155,10 +155,10 @@ namespace homotopy
 
   -- as special case we get elimination principles for pointed connected types
   namespace is_conn
-    open pointed pType unit
+    open pointed unit
     section
       parameters {n : trunc_index} {A : Type*}
-                 [H : is_conn n .+1 A] (P : A → n -Type)
+                 [H : is_conn n .+1 A] (P : A → n-Type)
 
       include H
       protected definition rec : is_equiv (λs : Πa : A, P a, s (Point A)) :=

@@ -48,28 +48,28 @@ namespace cofiber
   end
 end cofiber
 
--- pType version
+-- pointed version
 
-definition Cofiber {A B : Type*} (f : A →* B) : Type* := Pushout (pconst A Unit) f
+definition pcofiber {A B : Type*} (f : A →* B) : Type* := ppushout (pconst A punit) f
 
 namespace cofiber
 
-  protected definition prec {A B : Type*} {f : A →* B} {P : Cofiber f → Type}
+  protected definition prec {A B : Type*} {f : A →* B} {P : pcofiber f → Type}
     (Pinl : P (inl ⋆)) (Pinr : Π (x : B), P (inr x))
     (Pglue : Π (x : A), pathover P Pinl (pglue x) (Pinr (f x))) :
-    (Π (y : Cofiber f), P y) :=
+    (Π (y : pcofiber f), P y) :=
   begin
     intro y, induction y, induction x, exact Pinl, exact Pinr x, esimp, exact Pglue x
   end
 
-  protected definition prec_on {A B : Type*} {f : A →* B} {P : Cofiber f → Type}
-    (y : Cofiber f) (Pinl : P (inl ⋆)) (Pinr : Π (x : B), P (inr x))
+  protected definition prec_on {A B : Type*} {f : A →* B} {P : pcofiber f → Type}
+    (y : pcofiber f) (Pinl : P (inl ⋆)) (Pinr : Π (x : B), P (inr x))
     (Pglue : Π (x : A), pathover P Pinl (pglue x) (Pinr (f x))) : P y :=
   begin
     induction y, induction x, exact Pinl, exact Pinr x, esimp, exact Pglue x
   end
 
-  protected definition pelim_on {A B C : Type*} {f : A →* B} (y : Cofiber f)
+  protected definition pelim_on {A B C : Type*} {f : A →* B} (y : pcofiber f)
     (c : C) (g : B → C) (p : Π x, c = g (f x)) : C :=
   begin
     fapply pushout.elim_on y, exact (λ x, c), exact g, exact p
@@ -79,7 +79,7 @@ namespace cofiber
 
   variables (A : Type*)
 
-  definition cofiber_unit : Cofiber (pconst A Unit) ≃* Susp A :=
+  definition cofiber_unit : pcofiber (pconst A punit) ≃* psusp A :=
   begin
     fapply pequiv_of_pmap,
     { fconstructor, intro x, induction x, exact north, exact south, exact merid x,

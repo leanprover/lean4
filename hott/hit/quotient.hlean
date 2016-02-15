@@ -14,9 +14,9 @@ See also .set_quotient
   * eq_of_rel : Π{a a' : A}, R a a' → class_of a = class_of a' (R explicit)
 -/
 
-import arity cubical.squareover types.arrow cubical.pathover2
+import arity cubical.squareover types.arrow cubical.pathover2 types.pointed
 
-open eq equiv sigma sigma.ops equiv.ops pi is_trunc
+open eq equiv sigma sigma.ops equiv.ops pi is_trunc pointed
 
 namespace quotient
 
@@ -99,6 +99,9 @@ namespace quotient
         apply eq_pathover_dep, esimp, rewrite rec_eq_of_rel, exact hrflo},
     end
   end
+
+  definition pquotient [constructor] {A : Type*} (R : A → A → Type) : Type* :=
+  pType.mk (quotient R) (class_of R pt)
 
   /- the flattening lemma -/
 

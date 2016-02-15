@@ -158,11 +158,11 @@ attribute circle.rec_on circle.elim_on [unfold 2]
 attribute circle.elim_type_on [unfold 1]
 
 namespace circle
-  definition pointed_circle [instance] [constructor] : pointed circle :=
+  definition pointed_circle [instance] [constructor] : pointed S¹ :=
   pointed.mk base
 
-  definition Circle [constructor] : Type* := pointed.mk' circle
-  notation `S¹.` := Circle
+  definition pcircle [constructor] : Type* := pointed.mk' S¹
+  notation `S¹.` := pcircle
 
   definition loop_neq_idp : loop ≠ idp :=
   assume H : loop = idp,

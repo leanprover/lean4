@@ -7,7 +7,7 @@ Theorems about lift
 -/
 
 import ..function
-open eq equiv equiv.ops is_equiv is_trunc
+open eq equiv equiv.ops is_equiv is_trunc pointed
 
 namespace lift
 
@@ -137,6 +137,12 @@ namespace lift
       rewrite [equiv_of_eq_refl,lift_equiv_lift_refl],
       apply ua_refl}
   end
+
+  definition plift [constructor] (A : pType.{u}) : pType.{max u v} :=
+  pType.mk (lift A) (up pt)
+
+  definition plift_functor [constructor] {A B : Type*} (f : A →* B) : plift A →* plift B :=
+  pmap.mk (lift_functor f) (ap up (respect_pt f))
 
   -- is_trunc_lift is defined in init.trunc
 

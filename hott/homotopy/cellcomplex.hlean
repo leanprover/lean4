@@ -36,14 +36,14 @@ namespace cellcomplex
 
   definition fdcc_family [reducible] : ℕ → family :=
   nat.rec
-    -- a zero-dimensional cell complex is just an hset
+    -- a zero-dimensional cell complex is just an set
     -- with realization the identity map
-    ⟨hset , λA, trunctype.carrier A⟩
+    ⟨Set , λA, trunctype.carrier A⟩
     (λn fdcc_family_n, -- sigma.rec (λ fdcc_n realize_n,
       /- a (succ n)-dimensional cell complex is a triple of
-         an n-dimensional cell complex X, an hset of (succ n)-cells A,
+         an n-dimensional cell complex X, an set of (succ n)-cells A,
          and an attaching map f : A × sphere n → |X| -/
-      ⟨Σ X : pr1 fdcc_family_n , Σ A : hset, A × sphere n → pr2 fdcc_family_n X ,
+      ⟨Σ X : pr1 fdcc_family_n , Σ A : Set, A × sphere n → pr2 fdcc_family_n X ,
       /- the realization of such is the pushout of f with
          canonical map A × sphere n → unit -/
        sigma.rec (λX , sigma.rec (λA f, pushout (λx , star) f))
@@ -51,7 +51,7 @@ namespace cellcomplex
 
   definition fdcc (n : ℕ) : Type := pr1 (fdcc_family n)
 
-  definition cell : Πn, fdcc n → hset :=
+  definition cell : Πn, fdcc n → Set :=
   nat.cases (λA, A) (λn T, pr1 (pr2 T))
 
 end cellcomplex

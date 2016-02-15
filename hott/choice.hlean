@@ -37,7 +37,7 @@ namespace choice
   by intro H X A P HX HA HP HI;
   apply H X (λ x, Σ a, P x a) HX (λ x, !is_trunc_sigma) HI
 
-  -- Which is enough to show AC' ≃ AC_cart, since both are hprops.
+  -- Which is enough to show AC' ≃ AC_cart, since both are props.
   definition AC'_equiv_AC_cart : AC'.{u} ≃ AC_cart.{u} :=
   equiv_of_is_prop AC_cart_of_AC'.{u} AC'_of_AC_cart.{u}
 
@@ -80,7 +80,7 @@ namespace choice
 
   -- 3.8.5. There exists a type X and a family Y : X → U such that each Y(x) is a set,
   -- but such that (3.8.3) is false.
-  definition X_must_be_hset : Σ (X : Type.{1}) (Y : X -> Type.{1})
+  definition X_must_be_set : Σ (X : Type.{1}) (Y : X -> Type.{1})
   (HA : Π x : X, is_set (Y x)), ¬ ((Π x : X, ∥ Y x ∥) -> ∥ Π x : X, Y x ∥) :=
   ⟨X, Y, is_set_Yx, λ H, trunc.rec_on (H trunc_Yx)
     (λ H0, not_is_set_X (@is_trunc_of_is_contr _ _ (is_contr.mk x0 H0)))⟩

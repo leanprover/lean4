@@ -23,5 +23,5 @@ namespace core
   export [declaration] function
   export equiv (to_inv to_right_inv to_left_inv)
   export is_equiv (inv right_inv left_inv adjointify)
-  export [abbreviation] [declaration] is_trunc (hprop.mk hset.mk)
+  export [abbreviation] [declaration] is_trunc (Prop.mk Set.mk)
 end core

@@ -58,7 +58,7 @@ namespace category
 
   definition is_cocomplete_set_cone_rel.{u v w} [unfold 3 4]
     (I : Precategory.{v w}) (F : I ⇒ set.{max u v w}ᵒᵖ) : (Σ(i : I), trunctype.carrier (F i)) →
-    (Σ(i : I), trunctype.carrier (F i)) → hprop.{max u v w} :=
+    (Σ(i : I), trunctype.carrier (F i)) → Prop.{max u v w} :=
   begin
     intro v w, induction v with i x, induction w with j y,
       fapply trunctype.mk,

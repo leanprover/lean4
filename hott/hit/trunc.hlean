@@ -98,14 +98,14 @@ namespace trunc
 
   /- Propositional truncation -/
 
-  -- should this live in hprop?
-  definition merely [reducible] [constructor] (A : Type) : hprop := trunctype.mk (trunc -1 A) _
+  -- should this live in Prop?
+  definition merely [reducible] [constructor] (A : Type) : Prop := trunctype.mk (trunc -1 A) _
 
   notation `||`:max A `||`:0 := merely A
   notation `∥`:max A `∥`:0   := merely A
 
-  definition Exists [reducible] [constructor] (P : X → Type) : hprop := ∥ sigma P ∥
-  definition or [reducible] [constructor] (A B : Type) : hprop := ∥ A ⊎ B ∥
+  definition Exists [reducible] [constructor] (P : X → Type) : Prop := ∥ sigma P ∥
+  definition or [reducible] [constructor] (A B : Type) : Prop := ∥ A ⊎ B ∥
 
   notation `exists` binders `,` r:(scoped P, Exists P) := r
   notation `∃` binders `,` r:(scoped P, Exists P) := r
@@ -117,8 +117,8 @@ namespace trunc
   definition or.intro_left  [reducible] [constructor] (x : X) : X ∨ Y             := tr (inl x)
   definition or.intro_right [reducible] [constructor] (y : Y) : X ∨ Y             := tr (inr y)
 
-  definition is_contr_of_merely_hprop [H : is_prop A] (aa : merely A) : is_contr A :=
-  is_contr_of_inhabited_hprop (trunc.rec_on aa id)
+  definition is_contr_of_merely_prop [H : is_prop A] (aa : merely A) : is_contr A :=
+  is_contr_of_inhabited_prop (trunc.rec_on aa id)
 
   section
   open sigma.ops

@@ -73,7 +73,7 @@ Chapter 3: Sets and logic
 
 - 3.1 (Sets and n-types): [init.trunc](init/trunc.hlean). Example 3.1.9 in [types.univ](types/univ.hlean)
 - 3.2 (Propositions as types?): [types.univ](types/univ.hlean)
-- 3.3 (Mere propositions): [init.trunc](init/trunc.hlean) and [hprop_trunc](hprop_trunc.hlean) (Lemma 3.3.5).
+- 3.3 (Mere propositions): [init.trunc](init/trunc.hlean) and [prop_trunc](prop_trunc.hlean) (Lemma 3.3.5).
 - 3.4 (Classical vs. intuitionistic logic): decidable is defined in [init.logic](init/logic.hlean)
 - 3.5 (Subsets and propositional resizing): Lemma 3.5.1 is subtype_eq in [types.sigma](types/sigma.hlean), we don't have propositional resizing as axiom yet.
 - 3.6 (The logic of mere propositions): in the corresponding file in the [types](types/types.md) folder. (is_trunc_prod is defined in [types.sigma](types/sigma.hlean))
@@ -128,7 +128,7 @@ Chapter 6: Higher inductive types
 Chapter 7: Homotopy n-types
 ---------
 
-- 7.1 (Definition of n-types): [init.trunc](init/trunc.hlean), [types.trunc](types/trunc.hlean), [types.sigma](types/sigma.hlean) (Theorem 7.1.8), [types.pi](types/pi.hlean) (Theorem 7.1.9), [hprop_trunc](hprop_trunc.hlean) (Theorem 7.1.10)
+- 7.1 (Definition of n-types): [init.trunc](init/trunc.hlean), [types.trunc](types/trunc.hlean), [types.sigma](types/sigma.hlean) (Theorem 7.1.8), [types.pi](types/pi.hlean) (Theorem 7.1.9), [prop_trunc](prop_trunc.hlean) (Theorem 7.1.10)
 - 7.2 (Uniqueness of identity proofs and Hedberg’s theorem): [init.hedberg](init/hedberg.hlean) and [types.trunc](types/trunc.hlean)
 - 7.3 (Truncations): [init.hit](init/hit.hlean), [hit.trunc](hit/trunc.hlean) and [types.trunc](types/trunc.hlean)
 - 7.4 (Colimits of n-types): not formalized

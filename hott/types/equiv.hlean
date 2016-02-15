@@ -7,7 +7,7 @@ Ported from Coq HoTT
 Theorems about the types equiv and is_equiv
 -/
 
-import .fiber .arrow arity ..hprop_trunc
+import .fiber .arrow arity ..prop_trunc
 
 open eq is_trunc sigma sigma.ops pi fiber function equiv equiv.ops
 
@@ -184,7 +184,7 @@ namespace equiv
 
   definition is_contr_equiv (A B : Type) [HA : is_contr A] [HB : is_contr B] : is_contr (A ≃ B) :=
   begin
-    apply @is_contr_of_inhabited_hprop, apply is_prop.mk,
+    apply @is_contr_of_inhabited_prop, apply is_prop.mk,
     intro x y, cases x with fx Hx, cases y with fy Hy, generalize Hy,
     apply (eq_of_homotopy (λ a, !eq_of_is_contr)) ▸ (λ Hy, !is_prop.elim ▸ rfl),
     apply equiv_of_is_contr_of_is_contr

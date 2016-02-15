@@ -83,11 +83,11 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
     : transport (elim_type Pinl Pinr Pglue) (glue x) = Pglue x :=
   by rewrite [tr_eq_cast_ap_fn,↑elim_type,elim_glue];apply cast_ua_fn
 
-  protected definition rec_hprop {P : pushout → Type} [H : Πx, is_prop (P x)]
+  protected definition rec_prop {P : pushout → Type} [H : Πx, is_prop (P x)]
     (Pinl : Π(x : BL), P (inl x)) (Pinr : Π(x : TR), P (inr x)) (y : pushout) :=
   rec Pinl Pinr (λx, !is_prop.elimo) y
 
-  protected definition elim_hprop {P : Type} [H : is_prop P] (Pinl : BL → P) (Pinr : TR → P)
+  protected definition elim_prop {P : Type} [H : is_prop P] (Pinl : BL → P) (Pinr : TR → P)
     (y : pushout) : P :=
   elim Pinl Pinr (λa, !is_prop.elim) y
 

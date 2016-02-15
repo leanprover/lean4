@@ -196,7 +196,7 @@ namespace homotopy
     : is_surjective f → is_conn_map -1 f :=
   begin
     intro H, intro b,
-    exact @is_contr_of_inhabited_hprop (∥fiber f b∥) (is_trunc_trunc -1 (fiber f b)) (H b),
+    exact @is_contr_of_inhabited_prop (∥fiber f b∥) (is_trunc_trunc -1 (fiber f b)) (H b),
   end
 
   definition is_surjection_of_minus_one_conn {A B : Type} (f : A → B)
@@ -210,7 +210,7 @@ namespace homotopy
   λH, @center (∥A∥) H
 
   definition minus_one_conn_of_merely {A : Type} : ∥A∥ → is_conn -1 A :=
-  @is_contr_of_inhabited_hprop (∥A∥) (is_trunc_trunc -1 A)
+  @is_contr_of_inhabited_prop (∥A∥) (is_trunc_trunc -1 A)
 
   section
     open arrow

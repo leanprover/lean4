@@ -168,6 +168,6 @@ namespace bool
     { intro b, cases b, reflexivity, reflexivity},
   end
 
-  definition tbool [constructor] : hset := trunctype.mk bool _
+  definition tbool [constructor] : Set := trunctype.mk bool _
 
 end bool

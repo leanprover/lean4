@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 Properties of is_trunc and trunctype
 -/
 
--- NOTE: the fact that (is_trunc n A) is a mere proposition is proved in .hprop_trunc
+-- NOTE: the fact that (is_trunc n A) is a mere proposition is proved in .prop_trunc
 
 import types.pi types.eq types.equiv ..function
 
@@ -75,7 +75,7 @@ namespace is_trunc
     fapply is_trunc_equiv_closed,
       {apply equiv.symm, apply eq_equiv_equiv},
     induction n,
-      {apply @is_contr_of_inhabited_hprop,
+      {apply @is_contr_of_inhabited_prop,
         {apply is_trunc_is_embedding_closed,
           {apply is_embedding_to_fun} ,
           {exact unit.star}},
@@ -166,7 +166,7 @@ namespace is_trunc
   begin
     induction n with n,
     { esimp [sub_two,Iterated_loop_space], apply iff.intro,
-        intro H a, exact is_contr_of_inhabited_hprop a,
+        intro H a, exact is_contr_of_inhabited_prop a,
         intro H, apply is_prop_of_imp_is_contr, exact H},
     { apply is_trunc_iff_is_contr_loop_succ},
   end
@@ -242,7 +242,7 @@ namespace trunc
     : transport (λa, trunc n (P a)) p (tr x) = tr (p ▸ x) :=
   by induction p; reflexivity
 
-  definition image {A B : Type} (f : A → B) (b : B) : hprop := ∥ fiber f b ∥
+  definition image {A B : Type} (f : A → B) (b : B) : Prop := ∥ fiber f b ∥
 
   -- truncation of pointed types
   definition ptrunc [constructor] (n : trunc_index) (X : Type*) : Type* :=

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 
-Hedberg's Theorem: every type with decidable equality is a hset
+Hedberg's Theorem: every type with decidable equality is a set
 -/
 
 prelude

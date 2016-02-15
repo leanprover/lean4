@@ -38,11 +38,11 @@ namespace quotient
     rewrite [▸*,-apdo_eq_pathover_of_eq_ap,↑quotient.elim,rec_eq_of_rel],
   end
 
-  protected definition rec_hprop {A : Type} {R : A → A → Type} {P : quotient R → Type}
+  protected definition rec_prop {A : Type} {R : A → A → Type} {P : quotient R → Type}
     [H : Πx, is_prop (P x)] (Pc : Π(a : A), P (class_of R a)) (x : quotient R) : P x :=
   quotient.rec Pc (λa a' H, !is_prop.elimo) x
 
-  protected definition elim_hprop {P : Type} [H : is_prop P] (Pc : A → P) (x : quotient R) : P :=
+  protected definition elim_prop {P : Type} [H : is_prop P] (Pc : A → P) (x : quotient R) : P :=
   quotient.elim Pc (λa a' H, !is_prop.elim) x
 
   protected definition elim_type (Pc : A → Type)

@@ -226,9 +226,9 @@ namespace pi
     fapply equiv.MK,
     { intro f, exact f (center A)},
     { intro b a, exact (center_eq a) ▸ b},
-    { intro b, rewrite [hprop_eq_of_is_contr (center_eq (center A)) idp]},
+    { intro b, rewrite [prop_eq_of_is_contr (center_eq (center A)) idp]},
     { intro f, apply eq_of_homotopy, intro a, induction (center_eq a),
-      rewrite [hprop_eq_of_is_contr (center_eq (center A)) idp]}
+      rewrite [prop_eq_of_is_contr (center_eq (center A)) idp]}
   end
 
   definition pi_equiv_of_is_contr_right [constructor] [H : Πa, is_contr (B a)]

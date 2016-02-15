@@ -10,7 +10,7 @@ The Lean Homotopy Type Theory library consists of the following directories:
 * [cubical](cubical/cubical.md): cubical types
 
 The following files don't fit in any of the subfolders:
-* [hprop_trunc](hprop_trunc.hlean): in this file we prove that `is_trunc n A` is a mere proposition. We separate this from [types.trunc](types/trunc.hlean) to avoid circularity in imports.
+* [prop_trunc](prop_trunc.hlean): in this file we prove that `is_trunc n A` is a mere proposition. We separate this from [types.trunc](types/trunc.hlean) to avoid circularity in imports.
 * [eq2](eq2.hlean): coherence rules for the higher dimensional structure of equality
 * [function](function.hlean): embeddings, (split) surjections, retractions
 * [arity](arity.hlean) : equality theorems about functions with arity 2 or higher

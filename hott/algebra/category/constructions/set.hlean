@@ -12,18 +12,18 @@ open eq category equiv iso is_equiv is_trunc function sigma
 
 namespace category
 
-  definition precategory_hset.{u} [reducible] [constructor] : precategory hset.{u} :=
-  precategory.mk (λx y : hset, x → y)
+  definition precategory_Set.{u} [reducible] [constructor] : precategory Set.{u} :=
+  precategory.mk (λx y : Set, x → y)
                  (λx y z g f a, g (f a))
                  (λx a, a)
                  (λx y z w h g f, eq_of_homotopy (λa, idp))
                  (λx y f, eq_of_homotopy (λa, idp))
                  (λx y f, eq_of_homotopy (λa, idp))
 
-  definition Precategory_hset [reducible] [constructor] : Precategory :=
-  Precategory.mk hset precategory_hset
+  definition Precategory_Set [reducible] [constructor] : Precategory :=
+  Precategory.mk Set precategory_Set
 
-  abbreviation set [constructor] := Precategory_hset
+  abbreviation set [constructor] := Precategory_Set
 
   namespace set
     local attribute is_equiv_subtype_eq [instance]
@@ -48,7 +48,7 @@ namespace category
 
     local attribute is_equiv_iso_of_equiv [instance]
 
-    definition iso_of_eq_eq_compose (A B : hset) : @iso_of_eq _ _ A B =
+    definition iso_of_eq_eq_compose (A B : Set) : @iso_of_eq _ _ A B =
       @iso_of_equiv A B ∘ @equiv_of_eq A B ∘ subtype_eq_inv _ _ ∘
       @ap _ _ (to_fun (trunctype.sigma_char 0)) A B :=
     eq_of_homotopy (λp, eq.rec_on p idp)
@@ -65,7 +65,7 @@ namespace category
     definition equiv_eq_iso (A B : set) : (A ≃ B) = (A ≅ B) :=
     ua !equiv_equiv_iso
 
-    definition is_univalent_hset (A B : set) : is_equiv (iso_of_eq : A = B → A ≅ B) :=
+    definition is_univalent_Set (A B : set) : is_equiv (iso_of_eq : A = B → A ≅ B) :=
     assert H₁ : is_equiv (@iso_of_equiv A B ∘ @equiv_of_eq A B ∘ subtype_eq_inv _ _ ∘
                   @ap _ _ (to_fun (trunctype.sigma_char 0)) A B), from
       @is_equiv_compose _ _ _ _ _
@@ -82,13 +82,13 @@ namespace category
     end
   end set
 
-  definition category_hset [instance] [constructor] [reducible] : category hset :=
-  category.mk precategory_hset set.is_univalent_hset
+  definition category_Set [instance] [constructor] [reducible] : category Set :=
+  category.mk precategory_Set set.is_univalent_Set
 
-  definition Category_hset [reducible] [constructor] : Category :=
-  Category.mk hset category_hset
+  definition Category_Set [reducible] [constructor] : Category :=
+  Category.mk Set category_Set
 
-  abbreviation cset [constructor] := Category_hset
+  abbreviation cset [constructor] := Category_Set
 
   open functor lift
   definition functor_lift.{u v} [constructor] : set.{u} ⇒ set.{max u v} :=

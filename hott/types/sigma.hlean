@@ -280,7 +280,7 @@ namespace sigma
   equiv.MK
     (λu, (center_eq u.1)⁻¹ ▸ u.2)
     (λb, ⟨!center, b⟩)
-    abstract (λb, ap (λx, x ▸ b) !hprop_eq_of_is_contr) end
+    abstract (λb, ap (λx, x ▸ b) !prop_eq_of_is_contr) end
     abstract (λu, sigma_eq !center_eq !tr_pathover) end
 
   /- Associativity -/
@@ -421,7 +421,7 @@ namespace sigma
   equiv.mk sigma.coind_unc _
   end
 
-  /- Subtypes (sigma types whose second components are hprops) -/
+  /- Subtypes (sigma types whose second components are props) -/
 
   definition subtype [reducible] {A : Type} (P : A → Type) [H : Πa, is_prop (P a)] :=
   Σ(a : A), P a
@@ -461,7 +461,7 @@ namespace sigma
       exact IH _ _ _ _}
   end
 
-  theorem is_trunc_subtype (B : A → hprop) (n : trunc_index)
+  theorem is_trunc_subtype (B : A → Prop) (n : trunc_index)
       [HA : is_trunc (n.+1) A] : is_trunc (n.+1) (Σa, B a) :=
   @(is_trunc_sigma B (n.+1)) _ (λa, !is_trunc_succ_of_is_prop)
 

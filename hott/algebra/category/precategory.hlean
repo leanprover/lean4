@@ -56,13 +56,13 @@ namespace category
 
   -- the constructor you want to use in practice
   protected definition precategory.mk [constructor] {ob : Type} (hom : ob → ob → Type)
-    [hset : Π (a b : ob), is_set (hom a b)]
+    [set : Π (a b : ob), is_set (hom a b)]
     (comp : Π ⦃a b c : ob⦄, hom b c → hom a b → hom a c) (ID : Π (a : ob), hom a a)
     (ass : Π ⦃a b c d : ob⦄ (h : hom c d) (g : hom b c) (f : hom a b),
        comp h (comp g f) = comp (comp h g) f)
     (idl : Π ⦃a b : ob⦄ (f : hom a b), comp (ID b) f = f)
     (idr : Π ⦃a b : ob⦄ (f : hom a b), comp f (ID a) = f) : precategory ob :=
-  precategory.mk' hom comp ID ass (λa b c d h g f, !ass⁻¹) idl idr (λa, !idl) hset
+  precategory.mk' hom comp ID ass (λa b c d h g f, !ass⁻¹) idl idr (λa, !idl) set
 
   section basic_lemmas
     variables {ob : Type} [C : precategory ob]
@@ -83,8 +83,8 @@ namespace category
     calc i = id ∘ i : by rewrite id_left
        ... = id     : by rewrite H
 
-    definition homset [reducible] [constructor] (x y : ob) : hset :=
-    hset.mk (hom x y) _
+    definition homset [reducible] [constructor] (x y : ob) : Set :=
+    Set.mk (hom x y) _
 
   end basic_lemmas
   section squares

@@ -86,7 +86,7 @@ namespace yoneda
 
   -- TODO: Investigate what is the bottleneck to type check the next theorem
 
-  -- attribute yoneda_lemma functor_lift Precategory_hset precategory_hset homset
+  -- attribute yoneda_lemma functor_lift Precategory_Set precategory_Set homset
   --   yoneda_embedding nat_trans.compose functor_nat_trans_compose [reducible]
   -- attribute tlift functor.compose [reducible]
   theorem yoneda_lemma_natural_functor.{u v} {C : Precategory.{u v}} (c : C) (F F' : Cᵒᵖ ⇒ cset)

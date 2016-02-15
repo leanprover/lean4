@@ -84,7 +84,7 @@ section
   local attribute weak_funext [reducible]
   local attribute homotopy_ind [reducible]
   definition homotopy_ind_comp : homotopy_ind f (homotopy.refl f) = d :=
-    (@hprop_eq_of_is_contr _ _ _ _ !eq_of_is_contr idp)⁻¹ ▸ idp
+    (@prop_eq_of_is_contr _ _ _ _ !eq_of_is_contr idp)⁻¹ ▸ idp
 end
 
 /- Now the proof is fairly easy; we can just use the same induction principle on both sides. -/

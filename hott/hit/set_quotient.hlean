@@ -12,7 +12,7 @@ open eq is_trunc trunc quotient equiv
 
 namespace set_quotient
 section
-  parameters {A : Type} (R : A → A → hprop)
+  parameters {A : Type} (R : A → A → Prop)
   -- set-quotients are just set-truncations of (type) quotients
   definition set_quotient : Type := trunc 0 (quotient R)
 
@@ -63,11 +63,11 @@ section
     rewrite [▸*,-apdo_eq_pathover_of_eq_ap,↑elim,rec_eq_of_rel],
   end
 
-  protected definition rec_hprop {P : set_quotient → Type} [Pt : Πaa, is_prop (P aa)]
+  protected definition rec_prop {P : set_quotient → Type} [Pt : Πaa, is_prop (P aa)]
     (Pc : Π(a : A), P (class_of a)) (x : set_quotient) : P x :=
   rec Pc (λa a' H, !is_prop.elimo) x
 
-  protected definition elim_hprop {P : Type} [Pt : is_prop P] (Pc : A → P) (x : set_quotient)
+  protected definition elim_prop {P : Type} [Pt : is_prop P] (Pc : A → P) (x : set_quotient)
     : P :=
   elim Pc (λa a' H, !is_prop.elim) x
 
@@ -81,7 +81,7 @@ attribute set_quotient.rec_on set_quotient.elim_on [unfold 4]
 open sigma relation function
 
 namespace set_quotient
-  variables {A B C : Type} (R : A → A → hprop) (S : B → B → hprop) (T : C → C → hprop)
+  variables {A B C : Type} (R : A → A → Prop) (S : B → B → Prop) (T : C → C → Prop)
 
   definition is_surjective_class_of : is_surjective (class_of : A → set_quotient R) :=
   λx, set_quotient.rec_on x (λa, tr (fiber.mk a idp)) (λa a' r, !is_prop.elimo)
@@ -102,7 +102,7 @@ namespace set_quotient
   end
 
   protected definition code [unfold 4] (a : A) (x : set_quotient R) [H : is_equivalence R]
-    : hprop :=
+    : Prop :=
   set_quotient.elim_on x (R a)
     begin
       intros a' a'' H1,

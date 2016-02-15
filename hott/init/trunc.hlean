@@ -8,8 +8,6 @@ Definition of is_trunc (n-truncatedness)
 Ported from Coq HoTT.
 -/
 
---TODO: can we replace some definitions with a hprop as codomain by theorems?
-
 prelude
 import .nat .logic .equiv .pathover
 open eq nat sigma unit sigma.ops
@@ -135,12 +133,12 @@ namespace is_trunc
   definition eq_of_is_contr [H : is_contr A] (x y : A) : x = y :=
   (center_eq x)⁻¹ ⬝ (center_eq y)
 
-  definition hprop_eq_of_is_contr {A : Type} [H : is_contr A] {x y : A} (p q : x = y) : p = q :=
+  definition prop_eq_of_is_contr {A : Type} [H : is_contr A] {x y : A} (p q : x = y) : p = q :=
   have K : ∀ (r : x = y), eq_of_is_contr x y = r, from (λ r, eq.rec_on r !con.left_inv),
   (K p)⁻¹ ⬝ K q
 
   theorem is_contr_eq {A : Type} [H : is_contr A] (x y : A) : is_contr (x = y) :=
-  is_contr.mk !eq_of_is_contr (λ p, !hprop_eq_of_is_contr)
+  is_contr.mk !eq_of_is_contr (λ p, !prop_eq_of_is_contr)
   local attribute is_contr_eq [instance]
 
   /- truncation is upward close -/
@@ -192,12 +190,12 @@ namespace is_trunc
       : is_trunc (n.+2) A :=
   @(is_trunc_of_leq A (show 0 ≤ n.+2, from proof star qed)) H
 
-  /- hprops -/
+  /- props -/
 
   definition is_prop.elim [H : is_prop A] (x y : A) : x = y :=
   !center
 
-  definition is_contr_of_inhabited_hprop {A : Type} [H : is_prop A] (x : A) : is_contr A :=
+  definition is_contr_of_inhabited_prop {A : Type} [H : is_prop A] (x : A) : is_contr A :=
   is_contr.mk x (λy, !is_prop.elim)
 
   theorem is_prop_of_imp_is_contr {A : Type} (H : A → is_contr A) : is_prop A :=
@@ -212,7 +210,7 @@ namespace is_trunc
   theorem is_prop_elim_self {A : Type} {H : is_prop A} (x : A) : is_prop.elim x x = idp :=
   !is_prop.elim
 
-  /- hsets -/
+  /- sets -/
 
   theorem is_set.mk (A : Type) (H : ∀(x y : A) (p q : x = y), p = q) : is_set A :=
   @is_trunc_succ_intro _ _ (λ x y, is_prop.mk (H x y))
@@ -351,11 +349,11 @@ namespace is_trunc
   attribute trunctype.struct [instance] [priority 1400]
 
   notation n `-Type` := trunctype n
-  abbreviation hprop := -1-Type
-  abbreviation hset := 0-Type
+  abbreviation Prop := -1-Type
+  abbreviation Set  := 0-Type
 
-  protected abbreviation hprop.mk := @trunctype.mk -1
-  protected abbreviation hset.mk := @trunctype.mk (-1.+1)
+  protected abbreviation Prop.mk := @trunctype.mk -1
+  protected abbreviation Set.mk := @trunctype.mk (-1.+1)
 
   protected abbreviation trunctype.mk' [parsing_only] (n : trunc_index) (A : Type)
     [H : is_trunc n A] : n-Type :=

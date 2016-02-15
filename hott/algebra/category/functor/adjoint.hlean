@@ -43,15 +43,15 @@ namespace category
   abbreviation counit_unit_eq [unfold 4] := @is_left_adjoint.H
   abbreviation unit_counit_eq [unfold 4] := @is_left_adjoint.K
 
-  theorem is_hprop_is_left_adjoint [instance] {C : Category} {D : Precategory} (F : C ⇒ D)
-    : is_hprop (is_left_adjoint F) :=
+  theorem is_prop_is_left_adjoint [instance] {C : Category} {D : Precategory} (F : C ⇒ D)
+    : is_prop (is_left_adjoint F) :=
   begin
-    apply is_hprop.mk,
+    apply is_prop.mk,
     intro G G', cases G with G η ε H K, cases G' with G' η' ε' H' K',
     assert lem₁ : Π(p : G = G'), p ▸ η = η' → p ▸ ε = ε'
       → is_left_adjoint.mk G η ε H K = is_left_adjoint.mk G' η' ε' H' K',
     { intros p q r, induction p, induction q, induction r, esimp,
-      apply apd011 (is_left_adjoint.mk G η ε) !is_hprop.elim !is_hprop.elim},
+      apply apd011 (is_left_adjoint.mk G η ε) !is_prop.elim !is_prop.elim},
     assert lem₂ : Π (d : carrier D),
                     (to_fun_hom G (natural_map ε' d) ∘
                     natural_map η (to_fun_ob G' d)) ∘

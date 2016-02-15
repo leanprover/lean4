@@ -43,7 +43,7 @@ result::result(list<goal> const & gs, list<list<expr>> const & args, list<implem
 
     The eq_rec_eq definition is of the form
 
-    definition eq_rec_eq.{l₁ l₂} {A : Type.{l₁}} {B : A → Type.{l₂}} [h : is_hset A] {a : A} (b : B a) (p : a = a) :
+    definition eq_rec_eq.{l₁ l₂} {A : Type.{l₁}} {B : A → Type.{l₂}} [h : is_set A] {a : A} (b : B a) (p : a = a) :
        b = @eq.rec.{l₂ l₁} A a (λ (a' : A) (h : a = a'), B a') b a p :=
     ...
 */
@@ -56,8 +56,8 @@ optional<expr> apply_eq_rec_eq(type_checker & tc, io_state const & ios, list<exp
     if (!is_local(p) || !is_eq_a_a(tc, mlocal_type(p)))
         return none_expr();
     expr const & A = args[0];
-    auto is_hset_A = mk_hset_instance(tc, ios.get_options(), ctx, A);
-    if (!is_hset_A)
+    auto is_set_A = mk_set_instance(tc, ios.get_options(), ctx, A);
+    if (!is_set_A)
         return none_expr();
     levels ls = const_levels(eq_rec_fn);
     level l2  = head(ls);
@@ -76,7 +76,7 @@ optional<expr> apply_eq_rec_eq(type_checker & tc, io_state const & ios, list<exp
     expr a    = args[1];
     expr b    = args[3];
     expr r    = mk_constant(get_eq_rec_eq_name(), {l1, l2});
-    return some_expr(mk_app({r, A, B, *is_hset_A, a, b, p}));
+    return some_expr(mk_app({r, A, B, *is_set_A, a, b, p}));
 }
 
 typedef inversion::implementation_ptr  implementation_ptr;
@@ -540,7 +540,7 @@ class inversion_tac {
     /** \brief Process goal of the form:  Pi (H : eq.rec A s C a s p = b), R
         The idea is to reduce it to
             Pi (H : a = b), R
-        when A is a hset
+        when A is a set
         and then invoke intro_next_eq recursively.
 
         \remark \c type is the type of \c g after some normalization

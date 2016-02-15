@@ -52,7 +52,7 @@ namespace nat_trans
     (nat₂ : Π (a b : C) (f : hom a b), G f ∘ η₂ a = η₂ b ∘ F f)
     (p : η₁ ~ η₂)
       : nat_trans.mk η₁ nat₁ = nat_trans.mk η₂ nat₂ :=
-  apd011 nat_trans.mk (eq_of_homotopy p) !is_hprop.elim
+  apd011 nat_trans.mk (eq_of_homotopy p) !is_prop.elim
 
   definition nat_trans_eq {η₁ η₂ : F ⟹ G} : natural_map η₁ ~ natural_map η₂ → η₁ = η₂ :=
   by induction η₁; induction η₂; apply nat_trans_mk_eq
@@ -82,10 +82,10 @@ namespace nat_trans
     intro S,
     fapply sigma_eq,
     { apply eq_of_homotopy, intro a, apply idp},
-    { apply is_hprop.elimo}
+    { apply is_prop.elimo}
   end
 
-  definition is_hset_nat_trans [instance] : is_hset (F ⟹ G) :=
+  definition is_set_nat_trans [instance] : is_set (F ⟹ G) :=
   by apply is_trunc_is_equiv_closed; apply (equiv.to_is_equiv !nat_trans.sigma_char)
 
   definition change_natural_map [constructor] (η : F ⟹ G) (f : Π (a : C), F a ⟶ G a)

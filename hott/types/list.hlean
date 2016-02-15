@@ -137,7 +137,7 @@ rfl
 
 theorem last_congr {l₁ l₂ : list T} (h₁ : l₁ ≠ []) (h₂ : l₂ ≠ []) (h₃ : l₁ = l₂)
   : last l₁ h₁ = last l₂ h₂ :=
-apd011 last h₃ !is_hprop.elim
+apd011 last h₃ !is_prop.elim
 
 theorem last_concat {x : T} : ∀ {l : list T} (h : concat x l ≠ []), last (concat x l) h = x
 | []          h := rfl

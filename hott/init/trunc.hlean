@@ -108,8 +108,8 @@ open nat num is_trunc.trunc_index
 namespace is_trunc
 
   abbreviation is_contr := is_trunc -2
-  abbreviation is_hprop := is_trunc -1
-  abbreviation is_hset  := is_trunc 0
+  abbreviation is_prop := is_trunc -1
+  abbreviation is_set  := is_trunc 0
 
   variables {A B : Type}
 
@@ -184,41 +184,41 @@ namespace is_trunc
   definition is_trunc_of_is_contr (A : Type) (n : trunc_index) [H : is_contr A] : is_trunc n A :=
   trunc_index.rec_on n H (λn H, _)
 
-  definition is_trunc_succ_of_is_hprop (A : Type) (n : trunc_index) [H : is_hprop A]
+  definition is_trunc_succ_of_is_prop (A : Type) (n : trunc_index) [H : is_prop A]
       : is_trunc (n.+1) A :=
   is_trunc_of_leq A (show -1 ≤ n.+1, from star)
 
-  definition is_trunc_succ_succ_of_is_hset (A : Type) (n : trunc_index) [H : is_hset A]
+  definition is_trunc_succ_succ_of_is_set (A : Type) (n : trunc_index) [H : is_set A]
       : is_trunc (n.+2) A :=
   @(is_trunc_of_leq A (show 0 ≤ n.+2, from proof star qed)) H
 
   /- hprops -/
 
-  definition is_hprop.elim [H : is_hprop A] (x y : A) : x = y :=
+  definition is_prop.elim [H : is_prop A] (x y : A) : x = y :=
   !center
 
-  definition is_contr_of_inhabited_hprop {A : Type} [H : is_hprop A] (x : A) : is_contr A :=
-  is_contr.mk x (λy, !is_hprop.elim)
+  definition is_contr_of_inhabited_hprop {A : Type} [H : is_prop A] (x : A) : is_contr A :=
+  is_contr.mk x (λy, !is_prop.elim)
 
-  theorem is_hprop_of_imp_is_contr {A : Type} (H : A → is_contr A) : is_hprop A :=
+  theorem is_prop_of_imp_is_contr {A : Type} (H : A → is_contr A) : is_prop A :=
   @is_trunc_succ_intro A -2
     (λx y,
       have H2 [visible] : is_contr A, from H x,
       !is_contr_eq)
 
-  theorem is_hprop.mk {A : Type} (H : ∀x y : A, x = y) : is_hprop A :=
-  is_hprop_of_imp_is_contr (λ x, is_contr.mk x (H x))
+  theorem is_prop.mk {A : Type} (H : ∀x y : A, x = y) : is_prop A :=
+  is_prop_of_imp_is_contr (λ x, is_contr.mk x (H x))
 
-  theorem is_hprop_elim_self {A : Type} {H : is_hprop A} (x : A) : is_hprop.elim x x = idp :=
-  !is_hprop.elim
+  theorem is_prop_elim_self {A : Type} {H : is_prop A} (x : A) : is_prop.elim x x = idp :=
+  !is_prop.elim
 
   /- hsets -/
 
-  theorem is_hset.mk (A : Type) (H : ∀(x y : A) (p q : x = y), p = q) : is_hset A :=
-  @is_trunc_succ_intro _ _ (λ x y, is_hprop.mk (H x y))
+  theorem is_set.mk (A : Type) (H : ∀(x y : A) (p q : x = y), p = q) : is_set A :=
+  @is_trunc_succ_intro _ _ (λ x y, is_prop.mk (H x y))
 
-  definition is_hset.elim [H : is_hset A] ⦃x y : A⦄ (p q : x = y) : p = q :=
-  !is_hprop.elim
+  definition is_set.elim [H : is_set A] ⦃x y : A⦄ (p q : x = y) : p = q :=
+  !is_prop.elim
 
   /- instances -/
 
@@ -241,16 +241,16 @@ namespace is_trunc
   definition is_contr_unit : is_contr unit :=
   is_contr.mk star (λp, unit.rec_on p idp)
 
-  definition is_hprop_empty : is_hprop empty :=
-  is_hprop.mk (λx, !empty.elim x)
+  definition is_prop_empty : is_prop empty :=
+  is_prop.mk (λx, !empty.elim x)
 
-  local attribute is_contr_unit is_hprop_empty [instance]
+  local attribute is_contr_unit is_prop_empty [instance]
 
   definition is_trunc_unit [instance] (n : trunc_index) : is_trunc n unit :=
   !is_trunc_of_is_contr
 
   definition is_trunc_empty [instance] (n : trunc_index) : is_trunc (n.+1) empty :=
-  !is_trunc_succ_of_is_hprop
+  !is_trunc_succ_of_is_prop
 
   /- interaction with equivalences -/
 
@@ -289,16 +289,16 @@ namespace is_trunc
     : is_trunc n A :=
   is_trunc_is_equiv_closed n (to_inv f)
 
-  definition is_equiv_of_is_hprop [constructor] [HA : is_hprop A] [HB : is_hprop B]
+  definition is_equiv_of_is_prop [constructor] [HA : is_prop A] [HB : is_prop B]
     (f : A → B) (g : B → A) : is_equiv f :=
-  is_equiv.mk f g (λb, !is_hprop.elim) (λa, !is_hprop.elim) (λa, !is_hset.elim)
+  is_equiv.mk f g (λb, !is_prop.elim) (λa, !is_prop.elim) (λa, !is_set.elim)
 
-  definition equiv_of_is_hprop [constructor] [HA : is_hprop A] [HB : is_hprop B]
+  definition equiv_of_is_prop [constructor] [HA : is_prop A] [HB : is_prop B]
     (f : A → B) (g : B → A) : A ≃ B :=
-  equiv.mk f (is_equiv_of_is_hprop f g)
+  equiv.mk f (is_equiv_of_is_prop f g)
 
-  definition equiv_of_iff_of_is_hprop [unfold 5] [HA : is_hprop A] [HB : is_hprop B] (H : A ↔ B) : A ≃ B :=
-  equiv_of_is_hprop (iff.elim_left H) (iff.elim_right H)
+  definition equiv_of_iff_of_is_prop [unfold 5] [HA : is_prop A] [HB : is_prop B] (H : A ↔ B) : A ≃ B :=
+  equiv_of_is_prop (iff.elim_left H) (iff.elim_right H)
 
   /- truncatedness of lift -/
   definition is_trunc_lift [instance] [priority 1450] (A : Type) (n : trunc_index)
@@ -324,16 +324,16 @@ namespace is_trunc
             {a a₂ : A} (p : a = a₂)
             (c : C a) (c₂ : C a₂)
 
-  definition is_hprop.elimo [H : is_hprop (C a)] : c =[p] c₂ :=
-  pathover_of_eq_tr !is_hprop.elim
+  definition is_prop.elimo [H : is_prop (C a)] : c =[p] c₂ :=
+  pathover_of_eq_tr !is_prop.elim
 
   definition is_trunc_pathover [instance]
     (n : trunc_index) [H : is_trunc (n.+1) (C a)] : is_trunc n (c =[p] c₂) :=
   is_trunc_equiv_closed_rev n !pathover_equiv_eq_tr
 
   variables {p c c₂}
-  theorem is_hset.elimo (q q' : c =[p] c₂) [H : is_hset (C a)] : q = q' :=
-  !is_hprop.elim
+  theorem is_set.elimo (q q' : c =[p] c₂) [H : is_set (C a)] : q = q' :=
+  !is_prop.elim
 
   -- TODO: port "Truncated morphisms"
 

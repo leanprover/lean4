@@ -228,8 +228,8 @@ namespace category
   definition equivalence_of_isomorphism [constructor] (F : C ≅c D) : C ≃c D :=
   equivalence.mk F _
 
-  theorem is_hprop_is_equivalence [instance] {C : Category} {D : Precategory} (F : C ⇒ D)
-    : is_hprop (is_equivalence F) :=
+  theorem is_prop_is_equivalence [instance] {C : Category} {D : Precategory} (F : C ⇒ D)
+    : is_prop (is_equivalence F) :=
   begin
     assert f : is_equivalence F ≃ Σ(H : is_left_adjoint F), is_iso (unit F) × is_iso (counit F),
     { fapply equiv.MK,
@@ -241,7 +241,7 @@ namespace category
     apply is_trunc_equiv_closed_rev, exact f,
   end
 
-  theorem is_hprop_is_isomorphism [instance] (F : C ⇒ D) : is_hprop (is_isomorphism F) :=
+  theorem is_prop_is_isomorphism [instance] (F : C ⇒ D) : is_prop (is_isomorphism F) :=
   by unfold is_isomorphism; exact _
 
   /- closure properties -/
@@ -332,13 +332,13 @@ namespace category
   definition equivalence_eq {C : Category} {D : Precategory} {F F' : C ≃c D}
     (p : equivalence.to_functor F = equivalence.to_functor F') : F = F' :=
   begin
-    induction F, induction F', exact apd011 equivalence.mk p !is_hprop.elim
+    induction F, induction F', exact apd011 equivalence.mk p !is_prop.elim
   end
 
   definition isomorphism_eq {F F' : C ≅c D}
     (p : isomorphism.to_functor F = isomorphism.to_functor F') : F = F' :=
   begin
-    induction F, induction F', exact apd011 isomorphism.mk p !is_hprop.elim
+    induction F, induction F', exact apd011 isomorphism.mk p !is_prop.elim
   end
 
   definition is_equiv_isomorphism_of_equivalence [constructor] (C D : Category)

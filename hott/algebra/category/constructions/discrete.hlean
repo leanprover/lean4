@@ -31,16 +31,16 @@ namespace category
   definition Groupoid_of_1_type [constructor] (A : Type) [H : is_trunc 1 A] : Groupoid :=
   groupoid.Mk _ (groupoid_of_1_type A)
 
-  definition discrete_precategory [constructor] (A : Type) [H : is_hset A] : precategory A :=
+  definition discrete_precategory [constructor] (A : Type) [H : is_set A] : precategory A :=
   precategory_of_1_type A
 
-  definition discrete_groupoid [constructor] (A : Type) [H : is_hset A] : groupoid A :=
+  definition discrete_groupoid [constructor] (A : Type) [H : is_set A] : groupoid A :=
   groupoid_of_1_type A
 
-  definition Discrete_precategory [constructor] (A : Type) [H : is_hset A] : Precategory :=
+  definition Discrete_precategory [constructor] (A : Type) [H : is_set A] : Precategory :=
   precategory.Mk (discrete_precategory A)
 
-  definition Discrete_groupoid [constructor] (A : Type) [H : is_hset A] : Groupoid :=
+  definition Discrete_groupoid [constructor] (A : Type) [H : is_set A] : Groupoid :=
   groupoid.Mk _ (discrete_groupoid A)
 
   definition c2 [constructor] : Precategory := Discrete_precategory bool

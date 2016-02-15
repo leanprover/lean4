@@ -75,19 +75,19 @@ namespace is_equiv
   local attribute is_contr_right_inverse [instance] [priority 1600]
   local attribute is_contr_right_coherence [instance] [priority 1600]
 
-  theorem is_hprop_is_equiv [instance] : is_hprop (is_equiv f) :=
-  is_hprop_of_imp_is_contr
+  theorem is_prop_is_equiv [instance] : is_prop (is_equiv f) :=
+  is_prop_of_imp_is_contr
     (λ(H : is_equiv f), is_trunc_equiv_closed -2 (equiv.symm !is_equiv.sigma_char'))
 
   definition inv_eq_inv {A B : Type} {f f' : A → B} {Hf : is_equiv f} {Hf' : is_equiv f'}
     (p : f = f') : f⁻¹ = f'⁻¹ :=
-  apd011 inv p !is_hprop.elim
+  apd011 inv p !is_prop.elim
 
   /- contractible fibers -/
   definition is_contr_fun_of_is_equiv [H : is_equiv f] : is_contr_fun f :=
   is_contr_fiber_of_is_equiv f
 
-  definition is_hprop_is_contr_fun (f : A → B) : is_hprop (is_contr_fun f) := _
+  definition is_prop_is_contr_fun (f : A → B) : is_prop (is_contr_fun f) := _
 
   definition is_equiv_of_is_contr_fun [H : is_contr_fun f] : is_equiv f :=
   adjointify _ (λb, point (center (fiber f b)))
@@ -98,7 +98,7 @@ namespace is_equiv
   @is_equiv_of_is_contr_fun _ _ f (λb, @is_contr_fiber_of_is_equiv _ _ _ (H b) _)
 
   definition is_equiv_equiv_is_contr_fun : is_equiv f ≃ is_contr_fun f :=
-  equiv_of_is_hprop _ (λH, !is_equiv_of_is_contr_fun)
+  equiv_of_is_prop _ (λH, !is_equiv_of_is_contr_fun)
 
 end is_equiv
 
@@ -129,7 +129,7 @@ namespace equiv
 
   definition equiv_mk_eq {f f' : A → B} [H : is_equiv f] [H' : is_equiv f'] (p : f = f')
       : equiv.mk f H = equiv.mk f' H' :=
-  apd011 equiv.mk p !is_hprop.elim
+  apd011 equiv.mk p !is_prop.elim
 
   definition equiv_eq {f f' : A ≃ B} (p : to_fun f = to_fun f') : f = f' :=
   by (cases f; cases f'; apply (equiv_mk_eq p))
@@ -164,11 +164,11 @@ namespace equiv
     : is_equiv (ap to_fun : f = f' → to_fun f = to_fun f') :=
   begin
     fapply adjointify,
-      {intro p, cases f with f H, cases f' with f' H', cases p, apply ap (mk f'), apply is_hprop.elim},
+      {intro p, cases f with f H, cases f' with f' H', cases p, apply ap (mk f'), apply is_prop.elim},
       {intro p, cases f with f H, cases f' with f' H', cases p,
-        apply @concat _ _ (ap to_fun (ap (equiv.mk f') (is_hprop.elim H H'))), {apply idp},
-        generalize is_hprop.elim H H', intro q, cases q, apply idp},
-      {intro p, cases p, cases f with f H, apply ap (ap (equiv.mk f)), apply is_hset.elim}
+        apply @concat _ _ (ap to_fun (ap (equiv.mk f') (is_prop.elim H H'))), {apply idp},
+        generalize is_prop.elim H H', intro q, cases q, apply idp},
+      {intro p, cases p, cases f with f H, apply ap (ap (equiv.mk f)), apply is_set.elim}
   end
 
   definition equiv_pathover {A : Type} {a a' : A} (p : a = a')
@@ -179,24 +179,24 @@ namespace equiv
     { intro a, apply equiv.sigma_char},
     { fapply sigma_pathover,
         esimp, apply arrow_pathover, exact r,
-        apply is_hprop.elimo}
+        apply is_prop.elimo}
   end
 
   definition is_contr_equiv (A B : Type) [HA : is_contr A] [HB : is_contr B] : is_contr (A ≃ B) :=
-  begin 
-    apply @is_contr_of_inhabited_hprop, apply is_hprop.mk, 
-    intro x y, cases x with fx Hx, cases y with fy Hy, generalize Hy, 
-    apply (eq_of_homotopy (λ a, !eq_of_is_contr)) ▸ (λ Hy, !is_hprop.elim ▸ rfl), 
-    apply equiv_of_is_contr_of_is_contr 
+  begin
+    apply @is_contr_of_inhabited_hprop, apply is_prop.mk,
+    intro x y, cases x with fx Hx, cases y with fy Hy, generalize Hy,
+    apply (eq_of_homotopy (λ a, !eq_of_is_contr)) ▸ (λ Hy, !is_prop.elim ▸ rfl),
+    apply equiv_of_is_contr_of_is_contr
   end
-  
+
   definition is_trunc_succ_equiv (n : trunc_index) (A B : Type)
   [HA : is_trunc n.+1 A] [HB : is_trunc n.+1 B] : is_trunc n.+1 (A ≃ B) :=
   @is_trunc_equiv_closed _ _ n.+1 (equiv.symm !equiv.sigma_char)
-  (@is_trunc_sigma _ _ _ _ (λ f, !is_trunc_succ_of_is_hprop))
-  
-  definition is_trunc_equiv (n : trunc_index) (A B : Type) 
+  (@is_trunc_sigma _ _ _ _ (λ f, !is_trunc_succ_of_is_prop))
+
+  definition is_trunc_equiv (n : trunc_index) (A B : Type)
   [HA : is_trunc n A] [HB : is_trunc n B] : is_trunc n (A ≃ B) :=
-  by cases n; apply !is_contr_equiv; apply !is_trunc_succ_equiv 
+  by cases n; apply !is_contr_equiv; apply !is_trunc_succ_equiv
 
 end equiv

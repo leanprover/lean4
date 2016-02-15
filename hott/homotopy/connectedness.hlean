@@ -231,7 +231,7 @@ namespace homotopy
   -- Corollary 7.5.5
   definition is_conn_homotopy (n : trunc_index) {A B : Type} {f g : A → B}
     (p : f ~ g) (H : is_conn_map n f) : is_conn_map n g :=
-  @retract_of_conn_is_conn _ _ (arrow.arrow_hom_of_homotopy p) (arrow.is_retraction_arrow_hom_of_homotopy p) n H 
+  @retract_of_conn_is_conn _ _ (arrow.arrow_hom_of_homotopy p) (arrow.is_retraction_arrow_hom_of_homotopy p) n H
 
   -- all types are -2-connected
   definition minus_two_conn [instance] (A : Type) : is_conn -2 A :=
@@ -255,7 +255,7 @@ namespace homotopy
       apply pathover_of_tr_eq,
       rewrite [transport_eq_Fr,idp_con],
       revert H, induction n with [n, IH],
-      { intro H, apply is_hprop.elim },
+      { intro H, apply is_prop.elim },
       { intros H,
         change ap (@tr n .+2 (susp A)) (merid a) = ap tr (merid a'),
         generalize a',

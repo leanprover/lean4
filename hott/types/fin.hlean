@@ -28,7 +28,7 @@ begin
     intro i, cases i with i ilt, reflexivity
 end
 
-definition is_hset_fin [instance] : is_hset (fin n) :=
+definition is_set_fin [instance] : is_set (fin n) :=
 begin
   apply is_trunc_equiv_closed, apply equiv.symm, apply sigma_char,
 end
@@ -36,11 +36,11 @@ end
 definition eq_of_veq : Π {i j : fin n}, (val i) = j → i = j :=
 begin
   intro i j, cases i with i ilt, cases j with j jlt, esimp,
-  intro p, induction p, apply ap (mk i), apply !is_hprop.elim
+  intro p, induction p, apply ap (mk i), apply !is_prop.elim
 end
 
 definition eq_of_veq_refl (i : fin n) : eq_of_veq (refl (val i)) = idp :=
-!is_hprop.elim
+!is_prop.elim
 
 definition veq_of_eq : Π {i j : fin n}, i = j → (val i) = j :=
 by intro i j P; apply ap val; exact P
@@ -379,9 +379,9 @@ begin
   apply decidable.rec,
   { intro ilt', esimp[val_inj], apply concat,
     apply ap (λ x, eq.rec_on x _), esimp[eq_of_veq, rfl], reflexivity,
-    assert H : ilt = ilt', apply is_hprop.elim, cases H,
-    assert H' : is_hprop.elim (lt_add_of_lt_right ilt 1) (lt_add_of_lt_right ilt 1) = idp,
-      apply is_hprop.elim,
+    assert H : ilt = ilt', apply is_prop.elim, cases H,
+    assert H' : is_prop.elim (lt_add_of_lt_right ilt 1) (lt_add_of_lt_right ilt 1) = idp,
+      apply is_prop.elim,
     krewrite H' },
   { intro a, contradiction },
 end
@@ -395,7 +395,7 @@ begin
   { intro a, apply absurd a !nat.lt_irrefl },
   { intro a, esimp[val_inj], apply concat,
     assert H : (le.antisymm (le_of_lt_succ (lt_succ_self n)) (le_of_not_gt a))⁻¹ = idp,
-      apply is_hprop.elim,
+      apply is_prop.elim,
     apply ap _ H, krewrite eq_of_veq_refl },
 end
 

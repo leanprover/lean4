@@ -632,7 +632,7 @@ expr mk_subsingleton_elim(type_checker & tc, expr const & h, expr const & x, exp
     if (is_standard(tc.env())) {
         r = mk_constant(get_subsingleton_elim_name(), {l});
     } else {
-        r = mk_constant(get_is_trunc_is_hprop_elim_name(), {l});
+        r = mk_constant(get_is_trunc_is_prop_elim_name(), {l});
     }
     return mk_app({r, A, h, x, y});
 }

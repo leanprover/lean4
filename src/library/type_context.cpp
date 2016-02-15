@@ -1874,7 +1874,7 @@ optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
     if (is_standard(m_env))
         subsingleton = mk_app(mk_constant(get_subsingleton_name(), {lvl}), type);
     else
-        subsingleton = whnf(mk_app(mk_constant(get_is_trunc_is_hprop_name(), {lvl}), type));
+        subsingleton = whnf(mk_app(mk_constant(get_is_trunc_is_prop_name(), {lvl}), type));
     auto r = mk_class_instance(subsingleton);
     m_ss_cache.insert(mk_pair(type, r));
     return r;

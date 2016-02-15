@@ -117,24 +117,24 @@ namespace category
     apply is_equiv_of_is_surjective_of_is_embedding,
   end
 
-  theorem is_hprop_fully_faithful [instance] (F : C ⇒ D) : is_hprop (fully_faithful F) :=
+  theorem is_prop_fully_faithful [instance] (F : C ⇒ D) : is_prop (fully_faithful F) :=
   by unfold fully_faithful; exact _
 
-  theorem is_hprop_full [instance] (F : C ⇒ D) : is_hprop (full F) :=
+  theorem is_prop_full [instance] (F : C ⇒ D) : is_prop (full F) :=
   by unfold full; exact _
 
-  theorem is_hprop_faithful [instance] (F : C ⇒ D) : is_hprop (faithful F) :=
+  theorem is_prop_faithful [instance] (F : C ⇒ D) : is_prop (faithful F) :=
   by unfold faithful; exact _
 
-  theorem is_hprop_essentially_surjective [instance] (F : C ⇒ D)
-    : is_hprop (essentially_surjective F) :=
+  theorem is_prop_essentially_surjective [instance] (F : C ⇒ D)
+    : is_prop (essentially_surjective F) :=
   by unfold essentially_surjective; exact _
 
-  theorem is_hprop_is_weak_equivalence [instance] (F : C ⇒ D) : is_hprop (is_weak_equivalence F) :=
+  theorem is_prop_is_weak_equivalence [instance] (F : C ⇒ D) : is_prop (is_weak_equivalence F) :=
   by unfold is_weak_equivalence; exact _
 
   definition fully_faithful_equiv (F : C ⇒ D) : fully_faithful F ≃ (faithful F × full F) :=
-  equiv_of_is_hprop (λH, (faithful_of_fully_faithful F, full_of_fully_faithful F))
+  equiv_of_is_prop (λH, (faithful_of_fully_faithful F, full_of_fully_faithful F))
                     (λH, fully_faithful_of_full_of_faithful (pr1 H) (pr2 H))
 
 /- alternative proof using direct calculation with equivalences

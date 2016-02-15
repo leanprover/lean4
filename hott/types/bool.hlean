@@ -155,9 +155,9 @@ namespace bool
   assert H2 : bnot = id, from !cast_ua_fn⁻¹ ⬝ ap cast H,
   absurd (ap10 H2 tt) ff_ne_tt
 
-  theorem is_hset_bool : is_hset bool := _
-  theorem not_is_hprop_bool_eq_bool : ¬ is_hprop (bool = bool) :=
-  λ H, eq_bnot_ne_idp !is_hprop.elim
+  theorem is_set_bool : is_set bool := _
+  theorem not_is_prop_bool_eq_bool : ¬ is_prop (bool = bool) :=
+  λ H, eq_bnot_ne_idp !is_prop.elim
 
   definition bool_equiv_option_unit [constructor] : bool ≃ option unit :=
   begin

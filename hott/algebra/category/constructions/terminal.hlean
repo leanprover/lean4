@@ -32,8 +32,8 @@ namespace category
   is_contr.mk (terminal_functor C)
               begin
                 intro F, fapply functor_eq,
-                { intro x, apply @is_hprop.elim unit},
-                { intro x y f, apply @is_hprop.elim unit}
+                { intro x, apply @is_prop.elim unit},
+                { intro x y f, apply @is_prop.elim unit}
               end
 
   definition terminal_functor_op (C : Precategory)

@@ -29,15 +29,15 @@ namespace category
   !center
 
   definition hom_initial_eq [H : is_initial c'] (f f' : c' ⟶ c) : f = f' :=
-  !is_hprop.elim
+  !is_prop.elim
 
   definition eq_initial_morphism [H : is_initial c'] (f : c' ⟶ c) : f = initial_morphism c c' :=
-  !is_hprop.elim
+  !is_prop.elim
 
   definition initial_iso_initial {c c' : ob} (H : is_initial c) (K : is_initial c') : c ≅ c' :=
   iso_of_opposite_iso (@terminal_iso_terminal _ (opposite C) _ _ H K)
 
-  theorem is_hprop_is_initial [instance] : is_hprop (is_initial c) := _
+  theorem is_prop_is_initial [instance] : is_prop (is_initial c) := _
 
   omit C
 
@@ -56,9 +56,9 @@ namespace category
   initial_iso_initial (@has_initial_object.is_initial D H₁) (@has_initial_object.is_initial D H₂)
 
   set_option pp.coercions true
-  theorem is_hprop_has_initial_object [instance] (D : Category)
-    : is_hprop (has_initial_object D) :=
-  is_hprop_has_terminal_object (Category_opposite D)
+  theorem is_prop_has_initial_object [instance] (D : Category)
+    : is_prop (has_initial_object D) :=
+  is_prop_has_terminal_object (Category_opposite D)
 
   variable (D)
   abbreviation has_colimits_of_shape := has_limits_of_shape Dᵒᵖ Iᵒᵖ
@@ -76,12 +76,12 @@ namespace category
 
   section
     open pi
-    theorem is_hprop_has_colimits_of_shape [instance] (D : Category) (I : Precategory)
-      : is_hprop (has_colimits_of_shape D I) :=
-    is_hprop_has_limits_of_shape (Category_opposite D) _
+    theorem is_prop_has_colimits_of_shape [instance] (D : Category) (I : Precategory)
+      : is_prop (has_colimits_of_shape D I) :=
+    is_prop_has_limits_of_shape (Category_opposite D) _
 
-    theorem is_hprop_is_cocomplete [instance] (D : Category) : is_hprop (is_cocomplete D) :=
-    is_hprop_is_complete (Category_opposite D)
+    theorem is_prop_is_cocomplete [instance] (D : Category) : is_prop (is_cocomplete D) :=
+    is_prop_is_complete (Category_opposite D)
   end
 
   variables {D I} (F : I ⇒ D) [H : has_colimits_of_shape D I] {i j : I}

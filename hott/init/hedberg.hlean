@@ -37,11 +37,11 @@ section
     eq.rec_on (f (refl x)) rfl,
   eq.rec_on p aux
 
-  definition is_hset_of_decidable_eq : is_hset A :=
-  is_hset.mk A (λ x y p q, calc
+  definition is_set_of_decidable_eq : is_set A :=
+  is_set.mk A (λ x y p q, calc
    p   = (f (refl x))⁻¹ ⬝ (f p) : aux
    ... = (f (refl x))⁻¹ ⬝ (f q) : f_const
    ... = q                      : aux)
 end
 
-attribute is_hset_of_decidable_eq [instance] [priority 600]
+attribute is_set_of_decidable_eq [instance] [priority 600]

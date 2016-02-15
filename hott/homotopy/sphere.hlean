@@ -190,7 +190,7 @@ namespace is_trunc
     let H' := iff.elim_left (is_trunc_iff_is_contr_loop n A) H a,
     note H'' := @is_trunc_equiv_closed_rev _ _ _ !pmap_sphere H',
     assert p : (f = pmap.mk (λx, f base) (respect_pt f)),
-      apply is_hprop.elim,
+      apply is_prop.elim,
     exact ap10 (ap pmap.to_fun p) x
   end
 

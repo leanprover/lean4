@@ -573,7 +573,7 @@ protected definition integral_domain [reducible] [trans_instance] : integral_dom
   mul_comm       := int.mul_comm,
   zero_ne_one    := int.zero_ne_one,
   eq_zero_sum_eq_zero_of_mul_eq_zero := @int.eq_zero_sum_eq_zero_of_mul_eq_zero,
-  is_hset_carrier := is_hset_of_decidable_eq⦄
+  is_set_carrier := is_set_of_decidable_eq⦄
 
 definition int_has_sub [reducible] [instance] [priority int.prio] : has_sub int :=
 has_sub.mk has_sub.sub

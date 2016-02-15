@@ -117,7 +117,7 @@ namespace trunc
   definition or.intro_left  [reducible] [constructor] (x : X) : X ∨ Y             := tr (inl x)
   definition or.intro_right [reducible] [constructor] (y : Y) : X ∨ Y             := tr (inr y)
 
-  definition is_contr_of_merely_hprop [H : is_hprop A] (aa : merely A) : is_contr A :=
+  definition is_contr_of_merely_hprop [H : is_prop A] (aa : merely A) : is_contr A :=
   is_contr_of_inhabited_hprop (trunc.rec_on aa id)
 
   section

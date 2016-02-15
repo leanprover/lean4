@@ -219,7 +219,7 @@ namespace circle
           exact ap succ p},
         { intros n p, rewrite [↑circle.encode, nat_succ_eq_int_succ, neg_succ, -power_con_inv,
             @con_tr _ circle.code, transport_code_loop_inv, ↑[circle.encode] at p, p, -neg_succ] }},
-      { apply pathover_of_tr_eq, apply eq_of_homotopy, intro a, apply @is_hset.elim,
+      { apply pathover_of_tr_eq, apply eq_of_homotopy, intro a, apply @is_set.elim,
         esimp, exact _} end end},
     { intro p, cases p, exact idp},
   end
@@ -254,7 +254,7 @@ namespace circle
   open nat
   definition homotopy_group_of_circle (n : ℕ) : πG[n+1 +1] S¹. = G0 :=
   begin
-    refine @trivial_homotopy_of_is_hset_loop_space S¹. 1 n _,
+    refine @trivial_homotopy_of_is_set_loop_space S¹. 1 n _,
     apply is_trunc_equiv_closed_rev, apply base_eq_base_equiv
   end
 

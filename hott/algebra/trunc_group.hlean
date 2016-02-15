@@ -86,7 +86,7 @@ namespace algebra
     mul_one      := trunc_mul_one,
     inv          := trunc_inv,
     mul_left_inv := trunc_mul_left_inv,
-   is_hset_carrier := _⦄
+   is_set_carrier := _⦄
 
 
   definition trunc_comm_group [constructor] (mul_comm : ∀a b, mul a b = mul b a) : comm_group G :=

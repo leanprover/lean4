@@ -39,7 +39,7 @@ pair<expr, constraint> mk_class_instance_elaborator(
 
 optional<expr> mk_class_instance(environment const & env, io_state const & ios, old_local_context const & ctx, expr const & type, bool use_local_instances);
 optional<expr> mk_class_instance(environment const & env, old_local_context const & ctx, expr const & type);
-optional<expr> mk_hset_instance(type_checker & tc, options const & o, list<expr> const & ctx, expr const & type);
+optional<expr> mk_set_instance(type_checker & tc, options const & o, list<expr> const & ctx, expr const & type);
 optional<expr> mk_subsingleton_instance(environment const & env, options const & o,
                                         list<expr> const & ctx, expr const & type);
 

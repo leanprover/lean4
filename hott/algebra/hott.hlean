@@ -50,11 +50,11 @@ namespace algebra
        ... = Hm G1 (Hi g) : by rewrite Gh4
        ... = Hi g : Gh2),
     cases same_one, cases same_inv,
-    have ps  : Gs  = Hs,  from !is_hprop.elim,
-    have ph1 : Gh1 = Hh1, from !is_hprop.elim,
-    have ph2 : Gh2 = Hh2, from !is_hprop.elim,
-    have ph3 : Gh3 = Hh3, from !is_hprop.elim,
-    have ph4 : Gh4 = Hh4, from !is_hprop.elim,
+    have ps  : Gs  = Hs,  from !is_prop.elim,
+    have ph1 : Gh1 = Hh1, from !is_prop.elim,
+    have ph2 : Gh2 = Hh2, from !is_prop.elim,
+    have ph3 : Gh3 = Hh3, from !is_prop.elim,
+    have ph4 : Gh4 = Hh4, from !is_prop.elim,
     cases ps, cases ph1, cases ph2, cases ph3, cases ph4, reflexivity
   end
 

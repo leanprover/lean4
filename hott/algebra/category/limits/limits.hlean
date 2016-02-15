@@ -26,17 +26,17 @@ namespace category
   !center
 
   definition hom_terminal_eq [H : is_terminal c'] (f f' : c ⟶ c') : f = f' :=
-  !is_hprop.elim
+  !is_prop.elim
 
   definition eq_terminal_morphism [H : is_terminal c'] (f : c ⟶ c') : f = terminal_morphism c c' :=
-  !is_hprop.elim
+  !is_prop.elim
 
   definition terminal_iso_terminal (c c' : ob) [H : is_terminal c] [K : is_terminal c']
     : c ≅ c' :=
   iso.MK !terminal_morphism !terminal_morphism !hom_terminal_eq !hom_terminal_eq
 
   local attribute is_terminal [reducible]
-  theorem is_hprop_is_terminal [instance] : is_hprop (is_terminal c) :=
+  theorem is_prop_is_terminal [instance] : is_prop (is_terminal c) :=
   _
 
   omit C
@@ -53,13 +53,13 @@ namespace category
     : @terminal_object D H₁ ≅ @terminal_object D H₂ :=
   !terminal_iso_terminal
 
-  theorem is_hprop_has_terminal_object [instance] (D : Category)
-    : is_hprop (has_terminal_object D) :=
+  theorem is_prop_has_terminal_object [instance] (D : Category)
+    : is_prop (has_terminal_object D) :=
   begin
-    apply is_hprop.mk, intro t₁ t₂, induction t₁ with d₁ H₁, induction t₂ with d₂ H₂,
+    apply is_prop.mk, intro t₁ t₂, induction t₁ with d₁ H₁, induction t₂ with d₂ H₂,
     assert p : d₁ = d₂,
     { apply eq_of_iso, apply terminal_iso_terminal},
-    induction p, exact ap _ !is_hprop.elim
+    induction p, exact ap _ !is_prop.elim
   end
 
   variable (D)
@@ -79,12 +79,12 @@ namespace category
 
   section
     open pi
-    theorem is_hprop_has_limits_of_shape [instance] (D : Category) (I : Precategory)
-      : is_hprop (has_limits_of_shape D I) :=
-    by apply is_trunc_pi; intro F; exact is_hprop_has_terminal_object (Category_cone F)
+    theorem is_prop_has_limits_of_shape [instance] (D : Category) (I : Precategory)
+      : is_prop (has_limits_of_shape D I) :=
+    by apply is_trunc_pi; intro F; exact is_prop_has_terminal_object (Category_cone F)
 
     local attribute is_complete [reducible]
-    theorem is_hprop_is_complete [instance] (D : Category) : is_hprop (is_complete D) := _
+    theorem is_prop_is_complete [instance] (D : Category) : is_prop (is_complete D) := _
   end
 
   variables {D I}

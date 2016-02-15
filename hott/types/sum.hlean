@@ -189,7 +189,7 @@ namespace sum
   begin
     fapply equiv.MK,
     { intro x, cases x with ab c, cases ab with a b, exact inl (a, c), exact inr (b, c) },
-    { intro x, cases x with ac bc, cases ac with a c, exact (inl a, c),  
+    { intro x, cases x with ac bc, cases ac with a c, exact (inl a, c),
       cases bc with b c, exact (inr b, c) },
     { intro x, cases x with ac bc, cases ac with a c, reflexivity, cases bc, reflexivity },
     { intro x, cases x with ab c, cases ab with a b, do 2 reflexivity }
@@ -204,7 +204,7 @@ namespace sum
 
   section
   variables (H : unit + A ≃ unit + B)
-  include H  
+  include H
 
   open unit decidable sigma.ops
 
@@ -215,7 +215,7 @@ namespace sum
     cases u' with u' Hu', exfalso, apply empty_of_inl_eq_inr,
     calc inl ⋆ = H⁻¹ (H (inl ⋆)) : (to_left_inv H (inl ⋆))⁻¹
            ... = H⁻¹ (inl u') : {Hu'}
-           ... = H⁻¹ (inl u) : is_hprop.elim
+           ... = H⁻¹ (inl u) : is_prop.elim
            ... = H⁻¹ (H (inr a)) : {Hu⁻¹}
            ... = inr a : to_left_inv H (inr a)
   end
@@ -229,7 +229,7 @@ namespace sum
       { intro x, exfalso, cases x with u' Hu', apply empty_of_inl_eq_inr,
         calc inl ⋆ = H⁻¹ (H (inl ⋆)) : (to_left_inv H (inl ⋆))⁻¹
                ... = H⁻¹ (inl u') : ap H⁻¹ Hu'
-               ... = H⁻¹ (inl u) : {!is_hprop.elim}
+               ... = H⁻¹ (inl u) : {!is_prop.elim}
                ... = H⁻¹ (H (inr _)) : {Hu⁻¹}
                ... = inr _ : to_left_inv H },
       { intro x, cases x with b' Hb', esimp, cases sum.mem_cases (H⁻¹ (inr b)) with x x,
@@ -244,26 +244,26 @@ namespace sum
           apply sum.rec, intro x, exfalso, apply empty_of_inl_eq_inr,
           apply concat, exact x.2⁻¹, apply Ha,
           intro x, cases x with a' Ha', esimp, apply eq_of_inr_eq_inr, apply Ha'⁻¹ ⬝ Ha } } },
-    { intro x, cases x with b' Hb', esimp, apply eq_of_inr_eq_inr, refine Hb'⁻¹ ⬝ _, 
+    { intro x, cases x with b' Hb', esimp, apply eq_of_inr_eq_inr, refine Hb'⁻¹ ⬝ _,
       cases sum.mem_cases (to_fun H⁻¹ (inr b)) with x x,
-      { cases x with u Hu, esimp, cases sum.mem_cases (to_fun H⁻¹ (inl ⋆)) with x x, 
-        { cases x with u' Hu', exfalso, apply empty_of_inl_eq_inr, 
+      { cases x with u Hu, esimp, cases sum.mem_cases (to_fun H⁻¹ (inl ⋆)) with x x,
+        { cases x with u' Hu', exfalso, apply empty_of_inl_eq_inr,
           calc inl ⋆ = H (H⁻¹ (inl ⋆)) : (to_right_inv H (inl ⋆))⁻¹
                  ... = H (inl u') : {ap H Hu'}
-                 ... = H (inl u) : {!is_hprop.elim}
+                 ... = H (inl u) : {!is_prop.elim}
                  ... = H (H⁻¹ (inr b)) : {ap H Hu⁻¹}
                  ... = inr b : to_right_inv H (inr b) },
-      { cases x with a Ha, exfalso, apply empty_of_inl_eq_inr, 
+      { cases x with a Ha, exfalso, apply empty_of_inl_eq_inr,
         apply concat, rotate 1, exact Hb', krewrite HH at Ha,
-        assert Ha' : inl ⋆ = H (inr a), apply !(to_right_inv H)⁻¹ ⬝ ap H Ha, 
+        assert Ha' : inl ⋆ = H (inr a), apply !(to_right_inv H)⁻¹ ⬝ ap H Ha,
         apply concat Ha', apply ap H, apply ap inr, apply sum.rec,
           intro x, cases x with u' Hu', esimp, apply sum.rec,
             intro x, cases x with u'' Hu'', esimp, apply empty.rec,
             intro x, cases x with a'' Ha'', esimp, krewrite Ha' at Ha'', apply eq_of_inr_eq_inr,
-            apply !(to_left_inv H)⁻¹ ⬝ Ha'', 
+            apply !(to_left_inv H)⁻¹ ⬝ Ha'',
           intro x, exfalso, cases x with a'' Ha'', apply empty_of_inl_eq_inr,
           apply Hu⁻¹ ⬝ Ha'', } },
-    { cases x with a' Ha', esimp, refine _ ⬝ !(to_right_inv H), apply ap H, 
+    { cases x with a' Ha', esimp, refine _ ⬝ !(to_right_inv H), apply ap H,
       rewrite -HH, apply Ha'⁻¹ } }
   end
 
@@ -272,7 +272,7 @@ namespace sum
     fapply equiv.MK, apply unit_sum_equiv_cancel_map H,
     apply unit_sum_equiv_cancel_map H⁻¹,
     intro b, apply unit_sum_equiv_cancel_inv,
-    { intro a, have H = (H⁻¹)⁻¹, from !equiv.symm_symm⁻¹, rewrite this at {2}, 
+    { intro a, have H = (H⁻¹)⁻¹, from !equiv.symm_symm⁻¹, rewrite this at {2},
       apply unit_sum_equiv_cancel_inv }
   end
 
@@ -318,9 +318,9 @@ namespace sum
     induction n with n IH,
     { exfalso, exact H !center !center},
     { clear IH, induction n with n IH,
-      { apply is_hprop.mk, intros x y,
+      { apply is_prop.mk, intros x y,
         induction x, all_goals induction y, all_goals esimp,
-        all_goals try (exfalso;apply H;assumption;assumption), all_goals apply ap _ !is_hprop.elim},
+        all_goals try (exfalso;apply H;assumption;assumption), all_goals apply ap _ !is_prop.elim},
       { apply is_trunc_sum}}
   end
 

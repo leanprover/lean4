@@ -98,7 +98,7 @@ namespace category
     { intro u, exact (comma_morphism.mk u.1 u.2.1 u.2.2)},
     { intro f, cases f with g h p p', exact ⟨g, h, p⟩},
     { intro f, cases f with g h p p', esimp,
-      apply ap (comma_morphism.mk' g h p), apply is_hprop.elim},
+      apply ap (comma_morphism.mk' g h p), apply is_prop.elim},
     { intro u, cases u with u1 u2, cases u2 with u2 u3, reflexivity},
   end
 
@@ -113,8 +113,8 @@ namespace category
   begin
     cases f with g h p₁ p₁', cases f' with g' h' p₂ p₂', cases p, cases q,
     apply ap011 (comma_morphism.mk' g' h'),
-      apply is_hprop.elim,
-      apply is_hprop.elim
+      apply is_prop.elim,
+      apply is_prop.elim
   end
 
   definition comma_compose (g : comma_morphism y z) (f : comma_morphism x y) : comma_morphism x z :=

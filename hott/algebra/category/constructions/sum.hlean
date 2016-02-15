@@ -19,12 +19,12 @@ namespace category
   sum.rec (λc, sum.rec (λc', lift (c ⟶ c')) (λd, lift empty))
           (λd, sum.rec (λc, lift empty) (λd', lift (d ⟶ d')))
 
-  theorem is_hset_sum_hom {obC : Type} {obD : Type}
+  theorem is_set_sum_hom {obC : Type} {obD : Type}
     (C : precategory obC) (D : precategory obD) (x y : obC + obD)
-    : is_hset (sum_hom C D x y) :=
+    : is_set (sum_hom C D x y) :=
   by induction x: induction y: esimp at *: exact _
 
-  local attribute is_hset_sum_hom [instance]
+  local attribute is_set_sum_hom [instance]
 
   definition precategory_sum [constructor] [instance] (obC obD : Type)
     [C : precategory obC] [D : precategory obD] : precategory (obC + obD) :=

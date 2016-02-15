@@ -47,7 +47,7 @@ namespace functor
     fapply (apd011 nat_trans.mk),
       apply eq_of_homotopy, intro c, apply left_inverse,
     apply eq_of_homotopy, intros, apply eq_of_homotopy, intros, apply eq_of_homotopy, intros,
-    apply is_hset.elim
+    apply is_set.elim
   end
 
   definition nat_trans_right_inverse : η ∘n nat_trans_inverse η = 1 :=
@@ -55,7 +55,7 @@ namespace functor
     fapply (apd011 nat_trans.mk),
       apply eq_of_homotopy, intro c, apply right_inverse,
     apply eq_of_homotopy, intros, apply eq_of_homotopy, intros, apply eq_of_homotopy, intros,
-    apply is_hset.elim
+    apply is_set.elim
   end
 
   definition is_natural_iso [constructor] : is_iso η :=

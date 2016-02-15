@@ -21,7 +21,7 @@ namespace category
                   (λ a b f, !id_right)
                   (λ a b f, !id_left)
                   (λ a, !id_id)
-                  (λ a b, !is_hset_hom)
+                  (λ a b, !is_set_hom)
 
   definition Opposite [reducible] [constructor] (C : Precategory) : Precategory :=
   precategory.Mk (opposite C)

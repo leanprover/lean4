@@ -57,54 +57,54 @@ namespace function
     : f a = f a' → a = a' :=
   (ap f)⁻¹
 
-  definition is_embedding_of_is_injective [HA : is_hset A] [HB : is_hset B]
+  definition is_embedding_of_is_injective [HA : is_set A] [HB : is_set B]
     (H : Π(a a' : A), f a = f a' → a = a') : is_embedding f :=
   begin
   intro a a',
   fapply adjointify,
     {exact (H a a')},
-    {intro p, apply is_hset.elim},
-    {intro p, apply is_hset.elim}
+    {intro p, apply is_set.elim},
+    {intro p, apply is_set.elim}
   end
 
   variable (f)
 
-  definition is_hprop_is_embedding [instance] : is_hprop (is_embedding f) :=
+  definition is_prop_is_embedding [instance] : is_prop (is_embedding f) :=
   by unfold is_embedding; exact _
 
-  definition is_embedding_equiv_is_injective [HA : is_hset A] [HB : is_hset B]
+  definition is_embedding_equiv_is_injective [HA : is_set A] [HB : is_set B]
     : is_embedding f ≃ (Π(a a' : A), f a = f a' → a = a') :=
   begin
   fapply equiv.MK,
     { apply @is_injective_of_is_embedding},
     { apply is_embedding_of_is_injective},
-    { intro H, apply is_hprop.elim},
-    { intro H, apply is_hprop.elim, }
+    { intro H, apply is_prop.elim},
+    { intro H, apply is_prop.elim, }
   end
 
-  definition is_hprop_fiber_of_is_embedding [H : is_embedding f] (b : B) :
-    is_hprop (fiber f b) :=
+  definition is_prop_fiber_of_is_embedding [H : is_embedding f] (b : B) :
+    is_prop (fiber f b) :=
   begin
-    apply is_hprop.mk, intro v w,
+    apply is_prop.mk, intro v w,
     induction v with a p, induction w with a' q, induction q,
     fapply fiber_eq,
     { esimp, apply is_injective_of_is_embedding p},
     { esimp [is_injective_of_is_embedding], symmetry, apply right_inv}
   end
 
-  definition is_hprop_fun_of_is_embedding [H : is_embedding f] : is_trunc_fun -1 f :=
-  is_hprop_fiber_of_is_embedding f
+  definition is_prop_fun_of_is_embedding [H : is_embedding f] : is_trunc_fun -1 f :=
+  is_prop_fiber_of_is_embedding f
 
-  definition is_embedding_of_is_hprop_fun [constructor] [H : is_trunc_fun -1 f] : is_embedding f :=
+  definition is_embedding_of_is_prop_fun [constructor] [H : is_trunc_fun -1 f] : is_embedding f :=
   begin
     intro a a', fapply adjointify,
-    { intro p, exact ap point (@is_hprop.elim (fiber f (f a')) _ (fiber.mk a p) (fiber.mk a' idp))},
+    { intro p, exact ap point (@is_prop.elim (fiber f (f a')) _ (fiber.mk a p) (fiber.mk a' idp))},
     { intro p, rewrite [-ap_compose], esimp, apply ap_con_eq (@point_eq _ _ f (f a'))},
-    { intro p, induction p, apply ap (ap point), apply is_hprop_elim_self}
+    { intro p, induction p, apply ap (ap point), apply is_prop_elim_self}
   end
 
   variable {f}
-  definition is_surjective_rec_on {P : Type} (H : is_surjective f) (b : B) [Pt : is_hprop P]
+  definition is_surjective_rec_on {P : Type} (H : is_surjective f) (b : B) [Pt : is_prop P]
     (IH : fiber f b → P) : P :=
   trunc.rec_on (H b) IH
   variable (f)
@@ -113,7 +113,7 @@ namespace function
     : is_surjective f :=
   λb, tr (H b)
 
-  definition is_hprop_is_surjective [instance] : is_hprop (is_surjective f) :=
+  definition is_prop_is_surjective [instance] : is_prop (is_surjective f) :=
   by unfold is_surjective; exact _
 
   definition is_weakly_constant_ap [instance] [H : is_weakly_constant f] (a a' : A) :
@@ -184,8 +184,8 @@ namespace function
     : is_constant (f ∘ point : fiber f b → B) :=
   is_constant.mk b (λv, by induction v with a p;exact p)
 
-  definition is_embedding_of_is_hprop_fiber [H : Π(b : B), is_hprop (fiber f b)] : is_embedding f :=
-  is_embedding_of_is_hprop_fun _
+  definition is_embedding_of_is_prop_fiber [H : Π(b : B), is_prop (fiber f b)] : is_embedding f :=
+  is_embedding_of_is_prop_fun _
 
   definition is_retraction_of_is_equiv [instance] [H : is_equiv f] : is_retraction f :=
   is_retraction.mk f⁻¹ (right_inv f)
@@ -208,9 +208,9 @@ namespace function
     local attribute is_equiv_of_is_section_of_is_retraction [instance] [priority 10000]
     local attribute trunctype.struct [instance] [priority 1] -- remove after #842 is closed
     variable (f)
-    definition is_hprop_is_retraction_prod_is_section : is_hprop (is_retraction f × is_section f) :=
+    definition is_prop_is_retraction_prod_is_section : is_prop (is_retraction f × is_section f) :=
     begin
-      apply is_hprop_of_imp_is_contr, intro H, induction H with H1 H2,
+      apply is_prop_of_imp_is_contr, intro H, induction H with H1 H2,
       exact _,
     end
   end
@@ -233,11 +233,11 @@ namespace function
     exact ap r (center_eq (is_retraction.sect r b)) ⬝ (is_retraction.right_inverse r b)
   end
 
-  local attribute is_hprop_is_retraction_prod_is_section [instance]
+  local attribute is_prop_is_retraction_prod_is_section [instance]
   definition is_retraction_prod_is_section_equiv_is_equiv [constructor]
     : (is_retraction f × is_section f) ≃ is_equiv f :=
   begin
-    apply equiv_of_is_hprop,
+    apply equiv_of_is_prop,
     intro H, induction H, apply is_equiv_of_is_section_of_is_retraction,
     intro H, split, repeat exact _
   end

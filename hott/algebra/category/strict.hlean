@@ -10,12 +10,12 @@ open is_trunc eq
 
 namespace category
   structure strict_precategory [class] (ob : Type) extends precategory ob :=
-  mk' :: (is_hset_ob : is_hset ob)
+  mk' :: (is_set_ob : is_set ob)
 
-  attribute strict_precategory.is_hset_ob [instance]
+  attribute strict_precategory.is_set_ob [instance]
 
   definition strict_precategory.mk [reducible] {ob : Type} (C : precategory ob)
-    (H : is_hset ob) : strict_precategory ob :=
+    (H : is_set ob) : strict_precategory ob :=
   precategory.rec_on C strict_precategory.mk' H
 
   structure Strict_precategory : Type :=

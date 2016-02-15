@@ -50,12 +50,12 @@ namespace eq
   prefix `π₁`:95 := fundamental_group
 
   open equiv unit
-  theorem trivial_homotopy_of_is_hset (A : Type*) [H : is_hset A] (n : ℕ) : πG[n+1] A = G0 :=
+  theorem trivial_homotopy_of_is_set (A : Type*) [H : is_set A] (n : ℕ) : πG[n+1] A = G0 :=
   begin
     apply trivial_group_of_is_contr,
     apply is_trunc_trunc_of_is_trunc,
     apply is_contr_loop_of_is_trunc,
-    apply is_trunc_succ_succ_of_is_hset
+    apply is_trunc_succ_succ_of_is_set
   end
 
   definition homotopy_group_succ_out (A : Type*) (n : ℕ) : πG[ n +1] A = π₁ Ω[n] A := idp
@@ -77,8 +77,8 @@ namespace eq
       exact ap (Group_homotopy_group n) !loop_space_succ_eq_in⁻¹}
   end
 
-  theorem trivial_homotopy_of_is_hset_loop_space {A : Type*} {n : ℕ} (m : ℕ) (H : is_hset (Ω[n] A))
+  theorem trivial_homotopy_of_is_set_loop_space {A : Type*} {n : ℕ} (m : ℕ) (H : is_set (Ω[n] A))
     : πG[m+n+1] A = G0 :=
-  !homotopy_group_add ⬝ !trivial_homotopy_of_is_hset
+  !homotopy_group_add ⬝ !trivial_homotopy_of_is_set
 
 end eq

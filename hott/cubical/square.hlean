@@ -48,7 +48,7 @@ namespace eq
 
   definition hdeg_square_idp (p : a = a') : hdeg_square (refl p) = hrfl :=
   by cases p; reflexivity
-  
+
   definition vdeg_square_idp (p : a = a') : vdeg_square (refl p) = vrfl :=
   by cases p; reflexivity
 
@@ -483,8 +483,8 @@ namespace eq
   by induction s₂;induction s₁;constructor
 
   open is_trunc
-  definition is_hset.elims [H : is_hset A] : square p₁₀ p₁₂ p₀₁ p₂₁ :=
-  square_of_eq !is_hset.elim
+  definition is_set.elims [H : is_set A] : square p₁₀ p₁₂ p₀₁ p₂₁ :=
+  square_of_eq !is_set.elim
 
   -- definition square_of_con_inv_hsquare {p₁ p₂ p₃ p₄ : a₁ = a₂}
   --   {t : p₁ = p₂} {b : p₃ = p₄} {l : p₁ = p₃} {r : p₂ = p₄}
@@ -525,11 +525,11 @@ namespace eq
   /- Matching eq_hconcat with hconcat etc. -/
   -- TODO maybe rename hconcat_eq and the like?
   variable (s₁₁)
-  definition ph_eq_pv_h_vp {p : a₀₀ = a₀₂} (r : p = p₀₁) : 
+  definition ph_eq_pv_h_vp {p : a₀₀ = a₀₂} (r : p = p₀₁) :
     r ⬝ph s₁₁ =  !idp_con⁻¹ ⬝pv ((hdeg_square r) ⬝h s₁₁) ⬝vp !idp_con :=
   by cases r; cases s₁₁; esimp
 
-  definition hdeg_h_eq_pv_ph_vp {p : a₀₀ = a₀₂} (r : p = p₀₁) : 
+  definition hdeg_h_eq_pv_ph_vp {p : a₀₀ = a₀₂} (r : p = p₀₁) :
     hdeg_square r ⬝h s₁₁ = !idp_con ⬝pv (r ⬝ph s₁₁) ⬝vp !idp_con⁻¹ :=
   by cases r; cases s₁₁; esimp
 

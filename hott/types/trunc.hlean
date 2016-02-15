@@ -87,13 +87,13 @@ namespace is_trunc
 
 
   /- theorems about decidable equality and axiom K -/
-  theorem is_hset_of_axiom_K {A : Type} (K : Π{a : A} (p : a = a), p = idp) : is_hset A :=
-  is_hset.mk _ (λa b p q, eq.rec_on q K p)
+  theorem is_set_of_axiom_K {A : Type} (K : Π{a : A} (p : a = a), p = idp) : is_set A :=
+  is_set.mk _ (λa b p q, eq.rec_on q K p)
 
-  theorem is_hset_of_relation.{u} {A : Type.{u}} (R : A → A → Type.{u})
-    (mere : Π(a b : A), is_hprop (R a b)) (refl : Π(a : A), R a a)
-    (imp : Π{a b : A}, R a b → a = b) : is_hset A :=
-  is_hset_of_axiom_K
+  theorem is_set_of_relation.{u} {A : Type.{u}} (R : A → A → Type.{u})
+    (mere : Π(a b : A), is_prop (R a b)) (refl : Π(a : A), R a a)
+    (imp : Π{a b : A}, R a b → a = b) : is_set A :=
+  is_set_of_axiom_K
     (λa p,
       have H2 : transport (λx, R a x → a = x) p (@imp a a) = @imp a a, from !apd,
       have H3 : Π(r : R a a), transport (λx, a = x) p (imp r)
@@ -103,27 +103,27 @@ namespace is_trunc
         calc
           imp (refl a) ⬝ p = transport (λx, a = x) p (imp (refl a)) : transport_eq_r
             ... = imp (transport (λx, R a x) p (refl a)) : H3
-            ... = imp (refl a) : is_hprop.elim,
+            ... = imp (refl a) : is_prop.elim,
       cancel_left (imp (refl a)) H4)
 
   definition relation_equiv_eq {A : Type} (R : A → A → Type)
-    (mere : Π(a b : A), is_hprop (R a b)) (refl : Π(a : A), R a a)
+    (mere : Π(a b : A), is_prop (R a b)) (refl : Π(a : A), R a a)
     (imp : Π{a b : A}, R a b → a = b) (a b : A) : R a b ≃ a = b :=
-  @equiv_of_is_hprop _ _ _
-    (@is_trunc_eq _ _ (is_hset_of_relation R mere refl @imp) a b)
+  @equiv_of_is_prop _ _ _
+    (@is_trunc_eq _ _ (is_set_of_relation R mere refl @imp) a b)
     imp
     (λp, p ▸ refl a)
 
   local attribute not [reducible]
-  theorem is_hset_of_double_neg_elim {A : Type} (H : Π(a b : A), ¬¬a = b → a = b)
-    : is_hset A :=
-  is_hset_of_relation (λa b, ¬¬a = b) _ (λa n, n idp) H
+  theorem is_set_of_double_neg_elim {A : Type} (H : Π(a b : A), ¬¬a = b → a = b)
+    : is_set A :=
+  is_set_of_relation (λa b, ¬¬a = b) _ (λa n, n idp) H
 
   section
   open decidable
   --this is proven differently in init.hedberg
-  theorem is_hset_of_decidable_eq (A : Type) [H : decidable_eq A] : is_hset A :=
-  is_hset_of_double_neg_elim (λa b, by_contradiction)
+  theorem is_set_of_decidable_eq (A : Type) [H : decidable_eq A] : is_set A :=
+  is_set_of_double_neg_elim (λa b, by_contradiction)
   end
 
   theorem is_trunc_of_axiom_K_of_leq {A : Type} (n : trunc_index) (H : -1 ≤ n)
@@ -138,9 +138,9 @@ namespace is_trunc
     induction p, apply Hp
   end
 
-  theorem is_hprop_iff_is_contr {A : Type} (a : A) :
-    is_hprop A ↔ is_contr A :=
-  iff.intro (λH, is_contr.mk a (is_hprop.elim a)) _
+  theorem is_prop_iff_is_contr {A : Type} (a : A) :
+    is_prop A ↔ is_contr A :=
+  iff.intro (λH, is_contr.mk a (is_prop.elim a)) _
 
   theorem is_trunc_succ_iff_is_trunc_loop (A : Type) (Hn : -1 ≤ n) :
     is_trunc (n.+1) A ↔ Π(a : A), is_trunc n (a = a) :=
@@ -152,7 +152,7 @@ namespace is_trunc
     revert A, induction n with n IH,
     { intro A, esimp [Iterated_loop_space], transitivity _,
       { apply is_trunc_succ_iff_is_trunc_loop, apply le.refl},
-      { apply pi_iff_pi, intro a, esimp, apply is_hprop_iff_is_contr, reflexivity}},
+      { apply pi_iff_pi, intro a, esimp, apply is_prop_iff_is_contr, reflexivity}},
     { intro A, esimp [Iterated_loop_space],
       transitivity _, apply @is_trunc_succ_iff_is_trunc_loop @n, esimp, constructor,
       apply pi_iff_pi, intro a, transitivity _, apply IH,
@@ -167,7 +167,7 @@ namespace is_trunc
     induction n with n,
     { esimp [sub_two,Iterated_loop_space], apply iff.intro,
         intro H a, exact is_contr_of_inhabited_hprop a,
-        intro H, apply is_hprop_of_imp_is_contr, exact H},
+        intro H, apply is_prop_of_imp_is_contr, exact H},
     { apply is_trunc_iff_is_contr_loop_succ},
   end
 
@@ -225,15 +225,15 @@ namespace trunc
     { clear n, intro n IH A m H, induction m with m,
       { apply (@is_trunc_of_leq _ -2), exact unit.star},
       { apply is_trunc_succ_intro, intro aa aa',
-        apply (@trunc.rec_on _ _ _ aa  (λy, !is_trunc_succ_of_is_hprop)),
-        eapply (@trunc.rec_on _ _ _ aa' (λy, !is_trunc_succ_of_is_hprop)),
+        apply (@trunc.rec_on _ _ _ aa  (λy, !is_trunc_succ_of_is_prop)),
+        eapply (@trunc.rec_on _ _ _ aa' (λy, !is_trunc_succ_of_is_prop)),
         intro a a', apply (is_trunc_equiv_closed_rev),
         { apply tr_eq_tr_equiv},
         { exact (IH _ _ _)}}}
   end
 
   open equiv.ops
-  definition unique_choice {P : A → Type} [H : Πa, is_hprop (P a)] (f : Πa, ∥ P a ∥) (a : A)
+  definition unique_choice {P : A → Type} [H : Πa, is_prop (P a)] (f : Πa, ∥ P a ∥) (a : A)
     : P a :=
   !trunc_equiv (f a)
 
@@ -262,7 +262,7 @@ namespace function
 
   definition is_equiv_equiv_is_embedding_times_is_surjective [constructor] (f : A → B)
     : is_equiv f ≃ (is_embedding f × is_surjective f) :=
-  equiv_of_is_hprop (λH, (_, _))
+  equiv_of_is_prop (λH, (_, _))
                     (λP, prod.rec_on P (λH₁ H₂, !is_equiv_of_is_surjective_of_is_embedding))
 
 end function

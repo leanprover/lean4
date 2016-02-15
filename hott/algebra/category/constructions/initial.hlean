@@ -38,10 +38,10 @@ namespace category
 
   definition initial_functor_op (C : Precategory)
     : (initial_functor C)ᵒᵖᶠ = initial_functor Cᵒᵖ :=
-  by apply @is_hprop.elim (0 ⇒ Cᵒᵖ)
+  by apply @is_prop.elim (0 ⇒ Cᵒᵖ)
 
   definition initial_functor_comp {C D : Precategory} (F : C ⇒ D)
     : F ∘f initial_functor C = initial_functor D :=
-  by apply @is_hprop.elim (0 ⇒ D)
+  by apply @is_prop.elim (0 ⇒ D)
 
 end category

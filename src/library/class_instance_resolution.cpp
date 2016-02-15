@@ -189,10 +189,10 @@ optional<expr> mk_class_instance(environment const & env, old_local_context cons
     return mk_class_instance(env, ctx.get_data(), type, nullptr);
 }
 
-optional<expr> mk_hset_instance(type_checker & tc, options const & o, list<expr> const & ctx, expr const & type) {
+optional<expr> mk_set_instance(type_checker & tc, options const & o, list<expr> const & ctx, expr const & type) {
     level lvl        = sort_level(tc.ensure_type(type).first);
-    expr is_hset     = tc.whnf(mk_app(mk_constant(get_is_trunc_is_hset_name(), {lvl}), type)).first;
-    return mk_class_instance(tc.env(), o, ctx, is_hset);
+    expr is_set     = tc.whnf(mk_app(mk_constant(get_is_trunc_is_set_name(), {lvl}), type)).first;
+    return mk_class_instance(tc.env(), o, ctx, is_set);
 }
 
 optional<expr> mk_subsingleton_instance(environment const & env, options const & o, list<expr> const & ctx, expr const & type) {

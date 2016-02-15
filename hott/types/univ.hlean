@@ -39,13 +39,13 @@ namespace univ
 
   /- Properties which can be disproven for the universe -/
 
-  definition not_is_hset_type0 : ¬is_hset Type₀ :=
-  assume H : is_hset Type₀,
-  absurd !is_hset.elim eq_bnot_ne_idp
+  definition not_is_set_type0 : ¬is_set Type₀ :=
+  assume H : is_set Type₀,
+  absurd !is_set.elim eq_bnot_ne_idp
 
-  definition not_is_hset_type : ¬is_hset Type.{u} :=
-  assume H : is_hset Type,
-  absurd (is_trunc_is_embedding_closed lift star) not_is_hset_type0
+  definition not_is_set_type : ¬is_set Type.{u} :=
+  assume H : is_set Type,
+  absurd (is_trunc_is_embedding_closed lift star) not_is_set_type0
 
   definition not_double_negation_elimination0 : ¬Π(A : Type₀), ¬¬A → A :=
   begin
@@ -53,7 +53,7 @@ namespace univ
     have u : ¬¬bool, by exact (λg, g tt),
     let H1 := apdo f eq_bnot,
     note H2 := apo10 H1 u,
-    have p : eq_bnot ▸ u = u, from !is_hprop.elim,
+    have p : eq_bnot ▸ u = u, from !is_prop.elim,
     rewrite p at H2,
     note H3 := eq_of_pathover_ua H2, esimp at H3, --TODO: use apply ... at after #700
     exact absurd H3 (bnot_ne (f bool u)),

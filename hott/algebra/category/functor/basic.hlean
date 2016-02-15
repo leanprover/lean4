@@ -56,7 +56,7 @@ namespace functor
     {H₂ : Π(a b : C), hom a b → hom (F₂ a) (F₂ b)} (id₁ id₂ comp₁ comp₂)
     (pF : F₁ = F₂) (pH : pF ▸ H₁ = H₂)
       : functor.mk F₁ H₁ id₁ comp₁ = functor.mk F₂ H₂ id₂ comp₂ :=
-  apd01111 functor.mk pF pH !is_hprop.elim !is_hprop.elim
+  apd01111 functor.mk pF pH !is_prop.elim !is_prop.elim
 
   definition functor_eq' {F₁ F₂ : C ⇒ D} : Π(p : to_fun_ob F₁ = to_fun_ob F₂),
     (transport (λx, Πa b f, hom (x a) (x b)) p @(to_fun_hom F₁) = @(to_fun_hom F₂)) → F₁ = F₂ :=
@@ -181,10 +181,10 @@ namespace functor
       q (respect_comp F g f) end qed
 
   section
-    local attribute precategory.is_hset_hom [instance] [priority 1001]
+    local attribute precategory.is_set_hom [instance] [priority 1001]
     local attribute trunctype.struct [instance] [priority 1] -- remove after #842 is closed
-    protected theorem is_hset_functor [instance]
-      [HD : is_hset D] : is_hset (functor C D) :=
+    protected theorem is_set_functor [instance]
+      [HD : is_set D] : is_set (functor C D) :=
     by apply is_trunc_equiv_closed; apply functor.sigma_char
   end
 
@@ -193,8 +193,8 @@ namespace functor
     (id comp) : functor_mk_eq' id id comp comp (idpath F) (idpath H) = idp :=
   begin
     fapply apd011 (apd01111 functor.mk idp idp),
-    apply is_hset.elim,
-    apply is_hset.elim
+    apply is_set.elim,
+    apply is_set.elim
   end
 
   definition functor_eq'_idp (F : C ⇒ D) : functor_eq' idp idp = (idpath F) :=
@@ -210,7 +210,7 @@ namespace functor
 
   theorem functor_eq2' {F₁ F₂ : C ⇒ D} {p₁ p₂ : to_fun_ob F₁ = to_fun_ob F₂} (q₁ q₂)
     (r : p₁ = p₂) : functor_eq' p₁ q₁ = functor_eq' p₂ q₂ :=
-  by cases r; apply (ap (functor_eq' p₂)); apply is_hprop.elim
+  by cases r; apply (ap (functor_eq' p₂)); apply is_prop.elim
 
   theorem functor_eq2 {F₁ F₂ : C ⇒ D} (p q : F₁ = F₂) (r : ap010 to_fun_ob p ~ ap010 to_fun_ob q)
     : p = q :=

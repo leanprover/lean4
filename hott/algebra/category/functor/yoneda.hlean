@@ -138,12 +138,12 @@ namespace yoneda
 
   section
     set_option apply.class_instance false
-    definition is_hprop_representable {C : Category} (F : Cᵒᵖ ⇒ cset)
-      : is_hprop (is_representable F) :=
+    definition is_prop_representable {C : Category} (F : Cᵒᵖ ⇒ cset)
+      : is_prop (is_representable F) :=
     begin
       fapply is_trunc_equiv_closed,
       { exact proof fiber.sigma_char ɏ F qed ⬝e sigma.sigma_equiv_sigma_id (λc, !eq_equiv_iso)},
-      { apply function.is_hprop_fiber_of_is_embedding, apply is_embedding_yoneda_embedding}
+      { apply function.is_prop_fiber_of_is_embedding, apply is_embedding_yoneda_embedding}
     end
   end
 

@@ -116,7 +116,7 @@ namespace category
     apply eq_of_fn_eq_fn !category.sigma_char,
     fapply sigma_eq,
     { induction C, induction D, esimp, exact precategory_eq @p q},
-    { unfold is_univalent, apply is_hprop.elimo},
+    { unfold is_univalent, apply is_prop.elimo},
   end
 
   definition category_eq_of_equiv {ob : Type}

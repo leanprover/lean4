@@ -79,9 +79,9 @@ implies
 implies_of_if_neg
 implies_of_if_pos
 implies.resolve
-is_trunc.is_hprop
-is_trunc.is_hprop.elim
-is_trunc.is_hset
+is_trunc.is_prop
+is_trunc.is_prop.elim
+is_trunc.is_set
 ite
 left_distrib
 le.refl

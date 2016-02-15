@@ -21,7 +21,7 @@ constants H₁ : a ≠ b
 constants H₂ : a = c
 namespace tst attribute H₂ [simp] end tst
 
-definition ne_is_hprop [instance] (a b : nat) : is_hprop (a ≠ b) :=
+definition ne_is_prop [instance] (a b : nat) : is_prop (a ≠ b) :=
 sorry
 -- TODO(Daniel): simplifier seems to have applied unnecessary step (see: (eq.nrec ... (eq.refl ..)))
 #simplify eq tst 0 (g a b H₁)

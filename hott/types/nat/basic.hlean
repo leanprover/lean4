@@ -305,7 +305,7 @@ protected definition comm_semiring [reducible] [trans_instance] : comm_semiring 
  zero_mul       := nat.zero_mul,
  mul_zero       := nat.mul_zero,
  mul_comm       := nat.mul_comm,
- is_hset_carrier:= _⦄
+ is_set_carrier:= _⦄
 end nat
 
 section

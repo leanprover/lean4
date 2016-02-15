@@ -19,10 +19,10 @@ variable {A : Type}
 namespace algebra
 
 structure semigroup [class] (A : Type) extends has_mul A :=
-(is_hset_carrier : is_hset A)
+(is_set_carrier : is_set A)
 (mul_assoc : Πa b c, mul (mul a b) c = mul a (mul b c))
 
-attribute semigroup.is_hset_carrier [instance]
+attribute semigroup.is_set_carrier [instance]
 
 definition mul.assoc [s : semigroup A] (a b c : A) : a * b * c = a * (b * c) :=
 !semigroup.mul_assoc
@@ -60,10 +60,10 @@ abbreviation eq_of_mul_eq_mul_right' := @mul.right_cancel
 /- additive semigroup -/
 
 structure add_semigroup [class] (A : Type) extends has_add A :=
-(is_hset_carrier : is_hset A)
+(is_set_carrier : is_set A)
 (add_assoc : Πa b c, add (add a b) c = add a (add b c))
 
-attribute add_semigroup.is_hset_carrier [instance]
+attribute add_semigroup.is_set_carrier [instance]
 
 definition add.assoc [s : add_semigroup A] (a b c : A) : a + b + c = a + (b + c) :=
 !add_semigroup.add_assoc
@@ -128,7 +128,7 @@ definition add_monoid.to_monoid {A : Type} [s : add_monoid A] : monoid A :=
   one         := add_monoid.zero A,
   mul_one     := add_monoid.add_zero,
   one_mul     := add_monoid.zero_add,
-  is_hset_carrier := _
+  is_set_carrier := _
 ⦄
 
 definition add_comm_monoid.to_comm_monoid {A : Type} [s : add_comm_monoid A] : comm_monoid A :=
@@ -585,7 +585,7 @@ definition group_of_add_group (A : Type) [G : add_group A] : group A :=
   mul_one         := add_zero,
   inv             := has_neg.neg,
   mul_left_inv    := add.left_inv,
-  is_hset_carrier := _⦄
+  is_set_carrier := _⦄
 
 namespace norm_num
 reveal add.assoc

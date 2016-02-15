@@ -9,10 +9,10 @@ import types.pi
 
 open eq is_trunc decidable
 
-theorem dif_pos {c : Type} [H : decidable c] [P : is_hprop c] (Hc : c) 
+theorem dif_pos {c : Type} [H : decidable c] [P : is_prop c] (Hc : c)
   {A : Type} {t : c → A} {e : ¬ c → A} : dite c t e = t Hc :=
-by induction H with Hc Hnc; apply ap t; apply is_hprop.elim; apply absurd Hc Hnc
+by induction H with Hc Hnc; apply ap t; apply is_prop.elim; apply absurd Hc Hnc
 
 theorem dif_neg {c : Type} [H : decidable c] (Hnc : ¬c)
   {A : Type} {t : c → A} {e : ¬ c → A} : dite c t e = e Hnc :=
-by induction H with Hc Hnc; apply absurd Hc Hnc; apply ap e; apply is_hprop.elim
+by induction H with Hc Hnc; apply absurd Hc Hnc; apply ap e; apply is_prop.elim

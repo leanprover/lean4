@@ -238,7 +238,7 @@ namespace pi
     { intro f, exact star},
     { intro u a, exact !center},
     { intro u, induction u, reflexivity},
-    { intro f, apply eq_of_homotopy, intro a, apply is_hprop.elim}
+    { intro f, apply eq_of_homotopy, intro a, apply is_prop.elim}
   end
 
   /- Interaction with other type constructors -/
@@ -298,15 +298,15 @@ namespace pi
   theorem is_trunc_not [instance] (n : trunc_index) (A : Type) : is_trunc (n.+1) ¬A :=
   by unfold not;exact _
 
-  theorem is_hprop_pi_eq [instance] [priority 490] (a : A) : is_hprop (Π(a' : A), a = a') :=
-  is_hprop_of_imp_is_contr
+  theorem is_prop_pi_eq [instance] [priority 490] (a : A) : is_prop (Π(a' : A), a = a') :=
+  is_prop_of_imp_is_contr
   ( assume (f : Πa', a = a'),
     assert is_contr A, from is_contr.mk a f,
     by exact _) /- force type clas resolution -/
 
-  theorem is_hprop_neg (A : Type) : is_hprop (¬A) := _
+  theorem is_prop_neg (A : Type) : is_prop (¬A) := _
   local attribute ne [reducible]
-  theorem is_hprop_ne [instance] {A : Type} (a b : A) : is_hprop (a ≠ b) := _
+  theorem is_prop_ne [instance] {A : Type} (a b : A) : is_prop (a ≠ b) := _
 
   /- Symmetry of Π -/
   definition is_equiv_flip [instance] {P : A → A' → Type}

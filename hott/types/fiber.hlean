@@ -105,7 +105,7 @@ namespace fiber
     { intro a, apply fiber.mk a, reflexivity },
     { intro a, reflexivity },
     { intro f, cases f with a H, change fiber.mk a (refl star) = fiber.mk a H,
-      rewrite [is_hset.elim H (refl star)] }
+      rewrite [is_set.elim H (refl star)] }
   end
 
   definition fiber_const_equiv (A : Type) (a₀ : A) (a : A)

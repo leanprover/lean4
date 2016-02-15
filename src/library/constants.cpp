@@ -84,9 +84,9 @@ name const * g_implies = nullptr;
 name const * g_implies_of_if_neg = nullptr;
 name const * g_implies_of_if_pos = nullptr;
 name const * g_implies_resolve = nullptr;
-name const * g_is_trunc_is_hprop = nullptr;
-name const * g_is_trunc_is_hprop_elim = nullptr;
-name const * g_is_trunc_is_hset = nullptr;
+name const * g_is_trunc_is_prop = nullptr;
+name const * g_is_trunc_is_prop_elim = nullptr;
+name const * g_is_trunc_is_set = nullptr;
 name const * g_ite = nullptr;
 name const * g_left_distrib = nullptr;
 name const * g_le_refl = nullptr;
@@ -359,9 +359,9 @@ void initialize_constants() {
     g_implies_of_if_neg = new name{"implies_of_if_neg"};
     g_implies_of_if_pos = new name{"implies_of_if_pos"};
     g_implies_resolve = new name{"implies", "resolve"};
-    g_is_trunc_is_hprop = new name{"is_trunc", "is_hprop"};
-    g_is_trunc_is_hprop_elim = new name{"is_trunc", "is_hprop", "elim"};
-    g_is_trunc_is_hset = new name{"is_trunc", "is_hset"};
+    g_is_trunc_is_prop = new name{"is_trunc", "is_prop"};
+    g_is_trunc_is_prop_elim = new name{"is_trunc", "is_prop", "elim"};
+    g_is_trunc_is_set = new name{"is_trunc", "is_set"};
     g_ite = new name{"ite"};
     g_left_distrib = new name{"left_distrib"};
     g_le_refl = new name{"le", "refl"};
@@ -635,9 +635,9 @@ void finalize_constants() {
     delete g_implies_of_if_neg;
     delete g_implies_of_if_pos;
     delete g_implies_resolve;
-    delete g_is_trunc_is_hprop;
-    delete g_is_trunc_is_hprop_elim;
-    delete g_is_trunc_is_hset;
+    delete g_is_trunc_is_prop;
+    delete g_is_trunc_is_prop_elim;
+    delete g_is_trunc_is_set;
     delete g_ite;
     delete g_left_distrib;
     delete g_le_refl;
@@ -910,9 +910,9 @@ name const & get_implies_name() { return *g_implies; }
 name const & get_implies_of_if_neg_name() { return *g_implies_of_if_neg; }
 name const & get_implies_of_if_pos_name() { return *g_implies_of_if_pos; }
 name const & get_implies_resolve_name() { return *g_implies_resolve; }
-name const & get_is_trunc_is_hprop_name() { return *g_is_trunc_is_hprop; }
-name const & get_is_trunc_is_hprop_elim_name() { return *g_is_trunc_is_hprop_elim; }
-name const & get_is_trunc_is_hset_name() { return *g_is_trunc_is_hset; }
+name const & get_is_trunc_is_prop_name() { return *g_is_trunc_is_prop; }
+name const & get_is_trunc_is_prop_elim_name() { return *g_is_trunc_is_prop_elim; }
+name const & get_is_trunc_is_set_name() { return *g_is_trunc_is_set; }
 name const & get_ite_name() { return *g_ite; }
 name const & get_left_distrib_name() { return *g_left_distrib; }
 name const & get_le_refl_name() { return *g_le_refl; }

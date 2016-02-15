@@ -27,7 +27,7 @@ namespace category
   begin
     fapply groupoid.mk, fapply precategory.mk,
       intros, exact A,
-      intros, apply (@group.is_hset_carrier A G),
+      intros, apply (@group.is_set_carrier A G),
       intros [a, b, c, g, h], exact (@group.mul A G g h),
       intro a, exact (@group.one A G),
       intros, exact (@group.mul_assoc A G h g f)⁻¹,
@@ -43,7 +43,7 @@ namespace category
   begin
     fapply group.mk,
       intro f g, apply (comp f g),
-      apply is_hset_hom,
+      apply is_set_hom,
       intros f g h, apply (assoc f g h)⁻¹,
       apply (ID a),
       intro f, apply id_left,

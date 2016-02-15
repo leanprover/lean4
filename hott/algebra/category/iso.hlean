@@ -114,16 +114,16 @@ namespace iso
     [Hf : is_iso f] [Hg : is_iso g] : is_iso (g ∘ f) :=
   !is_iso_of_split_epi_of_split_mono
 
-  theorem is_hprop_is_iso [instance] (f : hom a b) : is_hprop (is_iso f) :=
+  theorem is_prop_is_iso [instance] (f : hom a b) : is_prop (is_iso f) :=
   begin
-    apply is_hprop.mk, intro H H',
+    apply is_prop.mk, intro H H',
     cases H with g li ri, cases H' with g' li' ri',
     fapply (apd0111 (@is_iso.mk ob C a b f)),
       apply left_inverse_eq_right_inverse,
         apply li,
         apply ri',
-      apply is_hprop.elim,
-      apply is_hprop.elim,
+      apply is_prop.elim,
+      apply is_prop.elim,
   end
 end iso open iso
 
@@ -175,7 +175,7 @@ namespace iso
 
   definition iso_mk_eq {f f' : a ⟶ b} [H : is_iso f] [H' : is_iso f'] (p : f = f')
       : iso.mk f _ = iso.mk f' _ :=
-  apd011 iso.mk p !is_hprop.elim
+  apd011 iso.mk p !is_prop.elim
 
   variable {C}
   definition iso_eq {f f' : a ≅ b} (p : to_hom f = to_hom f') : f = f' :=
@@ -194,7 +194,7 @@ namespace iso
   end
 
   -- The type of isomorphisms between two objects is a set
-  definition is_hset_iso [instance] : is_hset (a ≅ b) :=
+  definition is_set_iso [instance] : is_set (a ≅ b) :=
   begin
     apply is_trunc_is_equiv_closed,
       apply equiv.to_is_equiv (!iso.sigma_char),

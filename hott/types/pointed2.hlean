@@ -87,7 +87,7 @@ namespace pointed
   definition pequiv_eq {p q : A ≃* B} (H : p = q :> (A →* B)) : p = q :=
   begin
     cases p with f Hf, cases q with g Hg, esimp at *,
-    exact apd011 pequiv_of_pmap H !is_hprop.elim
+    exact apd011 pequiv_of_pmap H !is_prop.elim
   end
 
   definition loop_space_pequiv_rfl

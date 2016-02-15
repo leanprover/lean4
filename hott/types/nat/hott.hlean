@@ -11,32 +11,32 @@ import .order
 open is_trunc unit empty eq equiv algebra
 
 namespace nat
-  definition is_hprop_le [instance] (n m : ℕ) : is_hprop (n ≤ m) :=
+  definition is_prop_le [instance] (n m : ℕ) : is_prop (n ≤ m) :=
   begin
     assert lem : Π{n m : ℕ} (p : n ≤ m) (q : n = m), p = q ▸ le.refl n,
     { intros, cases p,
-      { assert H' : q = idp, apply is_hset.elim,
+      { assert H' : q = idp, apply is_set.elim,
         cases H', reflexivity},
       { cases q, exfalso, apply not_succ_le_self a}},
-    apply is_hprop.mk, intro H1 H2, induction H2,
+    apply is_prop.mk, intro H1 H2, induction H2,
     { apply lem},
     { cases H1,
       { exfalso, apply not_succ_le_self a},
       { exact ap le.step !v_0}},
   end
 
-  definition is_hprop_lt [instance] (n m : ℕ) : is_hprop (n < m) := !is_hprop_le
+  definition is_prop_lt [instance] (n m : ℕ) : is_prop (n < m) := !is_prop_le
 
   definition le_equiv_succ_le_succ (n m : ℕ) : (n ≤ m) ≃ (succ n ≤ succ m) :=
-  equiv_of_is_hprop succ_le_succ le_of_succ_le_succ
+  equiv_of_is_prop succ_le_succ le_of_succ_le_succ
   definition le_succ_equiv_pred_le (n m : ℕ) : (n ≤ succ m) ≃ (pred n ≤ m) :=
-  equiv_of_is_hprop pred_le_pred le_succ_of_pred_le
+  equiv_of_is_prop pred_le_pred le_succ_of_pred_le
 
   theorem lt_by_cases_lt {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a = b → P)
     (H3 : a > b → P) (H : a < b) : lt.by_cases H1 H2 H3 = H1 H :=
   begin
     unfold lt.by_cases, induction (lt.trichotomy a b) with H' H',
-     { esimp, exact ap H1 !is_hprop.elim},
+     { esimp, exact ap H1 !is_prop.elim},
      { exfalso, cases H' with H' H', apply lt.irrefl, exact H' ▸ H, exact lt.asymm H H'}
   end
 
@@ -45,7 +45,7 @@ namespace nat
   begin
     unfold lt.by_cases, induction (lt.trichotomy a b) with H' H',
     { exfalso, apply lt.irrefl, exact H ▸ H'},
-    { cases H' with H' H', esimp, exact ap H2 !is_hprop.elim, exfalso, apply lt.irrefl, exact H ▸ H'}
+    { cases H' with H' H', esimp, exact ap H2 !is_prop.elim, exfalso, apply lt.irrefl, exact H ▸ H'}
   end
 
   theorem lt_by_cases_ge {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a = b → P)
@@ -53,7 +53,7 @@ namespace nat
   begin
     unfold lt.by_cases, induction (lt.trichotomy a b) with H' H',
     { exfalso, exact lt.asymm H H'},
-    { cases H' with H' H', exfalso, apply lt.irrefl, exact H' ▸ H, esimp, exact ap H3 !is_hprop.elim}
+    { cases H' with H' H', exfalso, apply lt.irrefl, exact H' ▸ H, esimp, exact ap H3 !is_prop.elim}
   end
 
   theorem lt_ge_by_cases_lt {n m : ℕ} {P : Type} (H1 : n < m → P) (H2 : n ≥ m → P)
@@ -65,7 +65,7 @@ namespace nat
   begin
     unfold [lt_ge_by_cases,lt.by_cases], induction (lt.trichotomy n m) with H' H',
     { exfalso, apply lt.irrefl, exact lt_of_le_of_lt H H'},
-    { cases H' with H' H'; all_goals (esimp; apply ap H2 !is_hprop.elim)}
+    { cases H' with H' H'; all_goals (esimp; apply ap H2 !is_prop.elim)}
   end
 
   theorem lt_ge_by_cases_le {n m : ℕ} {P : Type} {H1 : n ≤ m → P} {H2 : n ≥ m → P}
@@ -73,10 +73,10 @@ namespace nat
     : lt_ge_by_cases (λH', H1 (le_of_lt H')) H2 = H1 H :=
   begin
     unfold [lt_ge_by_cases,lt.by_cases], induction (lt.trichotomy n m) with H' H',
-    { esimp, apply ap H1 !is_hprop.elim},
+    { esimp, apply ap H1 !is_prop.elim},
     { cases H' with H' H',
       { esimp, induction H', esimp, symmetry,
-        exact ap H1 !is_hprop.elim ⬝ Heq idp ⬝ ap H2 !is_hprop.elim},
+        exact ap H1 !is_prop.elim ⬝ Heq idp ⬝ ap H2 !is_prop.elim},
       { exfalso, apply lt.irrefl, apply lt_of_le_of_lt H H'}}
   end
 

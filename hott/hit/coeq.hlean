@@ -74,12 +74,12 @@ parameters {A B : Type.{u}} (f g : A → B)
     (x : A) : transport (elim_type P_i Pcp) (cp x) = Pcp x :=
   by rewrite [tr_eq_cast_ap_fn,↑elim_type,elim_cp];apply cast_ua_fn
 
-  protected definition rec_hprop {P : coeq → Type} [H : Πx, is_hprop (P x)]
+  protected definition rec_hprop {P : coeq → Type} [H : Πx, is_prop (P x)]
     (P_i : Π(x : B), P (coeq_i x)) (y : coeq) : P y :=
-  rec P_i (λa, !is_hprop.elimo) y
+  rec P_i (λa, !is_prop.elimo) y
 
-  protected definition elim_hprop {P : Type} [H : is_hprop P] (P_i : B → P) (y : coeq) : P :=
-  elim P_i (λa, !is_hprop.elim) y
+  protected definition elim_hprop {P : Type} [H : is_prop P] (P_i : B → P) (y : coeq) : P :=
+  elim P_i (λa, !is_prop.elim) y
 
 end
 

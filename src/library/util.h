@@ -170,7 +170,7 @@ expr mk_symm(type_checker & tc, expr const & H);
 expr mk_trans(type_checker & tc, expr const & H1, expr const & H2);
 expr mk_subst(type_checker & tc, expr const & motive, expr const & x, expr const & y, expr const & xeqy, expr const & h);
 expr mk_subst(type_checker & tc, expr const & motive, expr const & xeqy, expr const & h);
-/** \brief Create an proof for x = y using subsingleton.elim (in standard mode) and is_trunc.is_hprop.elim (in HoTT mode) */
+/** \brief Create an proof for x = y using subsingleton.elim (in standard mode) and is_trunc.is_prop.elim (in HoTT mode) */
 expr mk_subsingleton_elim(type_checker & tc, expr const & h, expr const & x, expr const & y);
 
 /** \brief Return true iff \c e is a term of the form (eq.rec ....) */

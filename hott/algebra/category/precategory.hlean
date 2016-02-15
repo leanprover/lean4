@@ -28,10 +28,10 @@ namespace category
     (id_left : Π ⦃a b : ob⦄ (f : hom a b), comp !ID f = f)
     (id_right : Π ⦃a b : ob⦄ (f : hom a b), comp f !ID = f)
     (id_id : Π (a : ob), comp !ID !ID = ID a)
-    (is_hset_hom : Π(a b : ob), is_hset (hom a b))
+    (is_set_hom : Π(a b : ob), is_set (hom a b))
 
   -- attribute precategory [multiple-instances] --this is not used anywhere
-  attribute precategory.is_hset_hom [instance]
+  attribute precategory.is_set_hom [instance]
 
   infixr ∘ := precategory.comp
   -- input ⟶ using \--> (this is a different arrow than \-> (→))
@@ -48,15 +48,15 @@ namespace category
   abbreviation id_left     [unfold 2] := @precategory.id_left
   abbreviation id_right    [unfold 2] := @precategory.id_right
   abbreviation id_id       [unfold 2] := @precategory.id_id
-  abbreviation is_hset_hom [unfold 2] := @precategory.is_hset_hom
+  abbreviation is_set_hom [unfold 2] := @precategory.is_set_hom
 
-  definition is_hprop_hom_eq {ob : Type} [C : precategory ob] {x y : ob} (f g : x ⟶ y)
-    : is_hprop (f = g) :=
+  definition is_prop_hom_eq {ob : Type} [C : precategory ob] {x y : ob} (f g : x ⟶ y)
+    : is_prop (f = g) :=
   _
 
   -- the constructor you want to use in practice
   protected definition precategory.mk [constructor] {ob : Type} (hom : ob → ob → Type)
-    [hset : Π (a b : ob), is_hset (hom a b)]
+    [hset : Π (a b : ob), is_set (hom a b)]
     (comp : Π ⦃a b c : ob⦄, hom b c → hom a b → hom a c) (ID : Π (a : ob), hom a a)
     (ass : Π ⦃a b c d : ob⦄ (h : hom c d) (g : hom b c) (f : hom a b),
        comp h (comp g f) = comp (comp h g) f)
@@ -179,7 +179,7 @@ namespace category
     assert K : ID1 = ID2,
     { apply eq_of_homotopy, intro a, exact !ir'⁻¹ ⬝ !il},
     induction K,
-    apply ap0111111 (precategory.mk' hom1 comp1 ID1): apply is_hprop.elim
+    apply ap0111111 (precategory.mk' hom1 comp1 ID1): apply is_prop.elim
   end
 
 
@@ -211,7 +211,7 @@ namespace category
     assert K : ID1 = ID2,
     { apply eq_of_homotopy, intros, apply r},
     induction H, induction K,
-    apply ap0111111 (precategory.mk' hom1 comp1 ID1): apply is_hprop.elim
+    apply ap0111111 (precategory.mk' hom1 comp1 ID1): apply is_prop.elim
   end
 -/
 

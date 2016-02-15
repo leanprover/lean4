@@ -3,11 +3,11 @@ Copyright (c) 2016 Jakob von Raumer. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jakob von Raumer, Ulrik Buchholtz
 
-The Wedge Sum of Two Pointed Types
+The Wedge Sum of Two pType Types
 -/
 import hit.pointed_pushout .connectedness
 
-open eq pushout pointed Pointed unit
+open eq pushout pointed pType unit
 
 definition Wedge (A B : Type*) : Type* := Pushout (pconst Unit A) (pconst Unit B)
 

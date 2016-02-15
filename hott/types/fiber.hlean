@@ -34,7 +34,7 @@ namespace fiber
       apply eq_equiv_fn_eq_of_equiv, apply fiber.sigma_char,
     apply equiv.trans,
       apply sigma_eq_equiv,
-    apply sigma_equiv_sigma_id,
+    apply sigma_equiv_sigma_right,
     intro p,
     apply pathover_eq_equiv_Fl,
   end
@@ -48,13 +48,13 @@ namespace fiber
   calc
     fiber pr1 a ≃ Σu, u.1 = a            : fiber.sigma_char
             ... ≃ Σa' (b : B a'), a' = a : sigma_assoc_equiv
-            ... ≃ Σa' (p : a' = a), B a' : sigma_equiv_sigma_id (λa', !comm_equiv_nondep)
+            ... ≃ Σa' (p : a' = a), B a' : sigma_equiv_sigma_right (λa', !comm_equiv_nondep)
             ... ≃ Σu, B u.1              : sigma_assoc_equiv
             ... ≃ B a                    : !sigma_equiv_of_is_contr_left
 
   definition sigma_fiber_equiv (f : A → B) : (Σb, fiber f b) ≃ A :=
   calc
-    (Σb, fiber f b) ≃ Σb a, f a = b : sigma_equiv_sigma_id (λb, !fiber.sigma_char)
+    (Σb, fiber f b) ≃ Σb a, f a = b : sigma_equiv_sigma_right (λb, !fiber.sigma_char)
                 ... ≃ Σa b, f a = b : sigma_comm_equiv
                 ... ≃ A             : sigma_equiv_of_is_contr_right
 
@@ -77,7 +77,7 @@ namespace fiber
   calc
     fiber (g ∘ f) (g b) ≃ Σa : A, g (f a) = g b : fiber.sigma_char
                     ... ≃ Σa : A, f a = b       : begin
-                                                    apply sigma_equiv_sigma_id, intro a,
+                                                    apply sigma_equiv_sigma_right, intro a,
                                                     apply equiv.symm, apply eq_equiv_fn_eq
                                                   end
                     ... ≃ fiber f b             : fiber.sigma_char
@@ -142,14 +142,14 @@ namespace fiber
       ... ≃ Σ(x : A), Σ(p : P x), Σ(H : x = a), f x p =[H] q
             :
             begin
-              apply sigma_equiv_sigma_id, intro x,
-              apply sigma_equiv_sigma_id, intro p,
+              apply sigma_equiv_sigma_right, intro x,
+              apply sigma_equiv_sigma_right, intro p,
               apply sigma_eq_equiv
             end
       ... ≃ Σ(x : A), Σ(H : x = a), Σ(p : P x), f x p =[H] q
             :
             begin
-              apply sigma_equiv_sigma_id, intro x,
+              apply sigma_equiv_sigma_right, intro x,
               apply sigma_comm_equiv
             end
       ... ≃ Σ(w : Σx, x = a), Σ(p : P w.1), f w.1 p =[w.2] q
@@ -161,7 +161,7 @@ namespace fiber
       ... ≃ Σ(p : P a), f a p = q
             :
             begin
-              apply sigma_equiv_sigma_id, intro p,
+              apply sigma_equiv_sigma_right, intro p,
               apply pathover_idp
             end
       ... ≃ fiber (f a) q

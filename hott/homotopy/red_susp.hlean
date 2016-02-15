@@ -13,7 +13,7 @@ open simple_two_quotient eq unit pointed e_closure
 namespace red_susp
 section
 
-  parameter {A : Pointed}
+  parameter {A : pType}
 
   inductive red_susp_R : unit → unit → Type :=
   | Rmk : Π(a : A), red_susp_R star star

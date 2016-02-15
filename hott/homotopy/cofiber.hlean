@@ -48,7 +48,7 @@ namespace cofiber
   end
 end cofiber
 
--- Pointed version
+-- pType version
 
 definition Cofiber {A B : Type*} (f : A →* B) : Type* := Pushout (pconst A Unit) f
 

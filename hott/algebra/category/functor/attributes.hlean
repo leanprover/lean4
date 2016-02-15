@@ -143,15 +143,15 @@ namespace category
   calc
         fully_faithful F
       ≃ (Π(c c' : C), is_embedding (to_fun_hom F) × is_surjective (to_fun_hom F))
-        : pi_equiv_pi_id (λc, pi_equiv_pi_id
+        : pi_equiv_pi_right (λc, pi_equiv_pi_right
             (λc', !is_equiv_equiv_is_embedding_times_is_surjective))
   ... ≃ (Π(c : C), (Π(c' : C), is_embedding  (to_fun_hom F)) ×
                    (Π(c' : C), is_surjective (to_fun_hom F)))
-        : pi_equiv_pi_id (λc, !equiv_prod_corec)
+        : pi_equiv_pi_right (λc, !equiv_prod_corec)
   ... ≃ (Π(c c' : C), is_embedding (to_fun_hom F)) × full F
         : equiv_prod_corec
   ... ≃ faithful F × full F
-        : prod_equiv_prod_right (pi_equiv_pi_id (λc, pi_equiv_pi_id
+        : prod_equiv_prod_right (pi_equiv_pi_right (λc, pi_equiv_pi_right
             (λc', !is_embedding_equiv_is_injective)))
 -/
 

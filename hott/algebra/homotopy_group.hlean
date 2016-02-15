@@ -31,7 +31,7 @@ namespace eq
 
   local attribute comm_group_homotopy_group [instance]
 
-  definition Pointed_homotopy_group [constructor] (n : ℕ) (A : Type*) : Type* :=
+  definition pType_homotopy_group [constructor] (n : ℕ) (A : Type*) : Type* :=
   pointed.Mk (π[n] A)
 
   definition Group_homotopy_group [constructor] (n : ℕ) (A : Type*) : Group :=
@@ -43,7 +43,7 @@ namespace eq
   definition fundamental_group [constructor] (A : Type*) : Group :=
   Group_homotopy_group zero A
 
-  notation `πP[`:95  n:0    `] `:0 A:95 := Pointed_homotopy_group n A
+  notation `πP[`:95  n:0    `] `:0 A:95 := pType_homotopy_group n A
   notation `πG[`:95  n:0 ` +1] `:0 A:95 := Group_homotopy_group n A
   notation `πaG[`:95 n:0 ` +2] `:0 A:95 := CommGroup_homotopy_group n A
 

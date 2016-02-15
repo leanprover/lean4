@@ -83,11 +83,11 @@ namespace homotopy
             rewrite [-(apd10_ap_precompose_dependent f (eq_of_homotopy r))],
             apply equiv.symm,
             apply eq_equiv_fn_eq (@apd10 A (λa, P (f a)) (λa, g (f a)) (λa, h (f a))) },
-          apply equiv.trans (sigma.sigma_equiv_sigma_id e'), clear e',
+          apply equiv.trans (sigma.sigma_equiv_sigma_right e'), clear e',
           apply equiv.trans (equiv.symm (sigma.sigma_equiv_sigma_left
                                            eq_equiv_homotopy)),
           apply equiv.symm, apply equiv.trans !fiber_eq_equiv,
-          apply sigma.sigma_equiv_sigma_id, intro r,
+          apply sigma.sigma_equiv_sigma_right, intro r,
           apply eq_equiv_eq_symm },
         apply @is_trunc_equiv_closed _ _ k e, clear e,
         apply IH (λb : B, trunctype.mk (g b = h b)
@@ -155,7 +155,7 @@ namespace homotopy
 
   -- as special case we get elimination principles for pointed connected types
   namespace is_conn
-    open pointed Pointed unit
+    open pointed pType unit
     section
       parameters {n : trunc_index} {A : Type*}
                  [H : is_conn n .+1 A] (P : A → n -Type)

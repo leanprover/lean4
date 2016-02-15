@@ -142,7 +142,7 @@ namespace yoneda
       : is_prop (is_representable F) :=
     begin
       fapply is_trunc_equiv_closed,
-      { exact proof fiber.sigma_char ɏ F qed ⬝e sigma.sigma_equiv_sigma_id (λc, !eq_equiv_iso)},
+      { exact proof fiber.sigma_char ɏ F qed ⬝e sigma.sigma_equiv_sigma_right (λc, !eq_equiv_iso)},
       { apply function.is_prop_fiber_of_is_embedding, apply is_embedding_yoneda_embedding}
     end
   end

@@ -242,7 +242,7 @@ namespace sigma
       (Σa, B a) ≃ (Σa', B' a') :=
   sigma_equiv_sigma_of_is_equiv (to_fun Hf) (λ a, to_fun (Hg a))
 
-  definition sigma_equiv_sigma_id [constructor] {B' : A → Type} (Hg : Π a, B a ≃ B' a)
+  definition sigma_equiv_sigma_right [constructor] {B' : A → Type} (Hg : Π a, B a ≃ B' a)
     : (Σa, B a) ≃ Σa, B' a :=
   sigma_equiv_sigma equiv.refl Hg
 
@@ -332,9 +332,9 @@ namespace sigma
     : (Σ(v : Σa, B a), C v.1) ≃ (Σ(u : Σa, C a), B u.1) :=
   calc    (Σ(v : Σa, B a), C v.1)
         ≃ (Σa (b : B a), C a)     : !sigma_assoc_equiv⁻¹ᵉ
-    ... ≃ (Σa, B a × C a)         : sigma_equiv_sigma_id (λa, !equiv_prod)
-    ... ≃ (Σa, C a × B a)         : sigma_equiv_sigma_id (λa, !prod_comm_equiv)
-    ... ≃ (Σa (c : C a), B a)     : sigma_equiv_sigma_id (λa, !equiv_prod)
+    ... ≃ (Σa, B a × C a)         : sigma_equiv_sigma_right (λa, !equiv_prod)
+    ... ≃ (Σa, C a × B a)         : sigma_equiv_sigma_right (λa, !prod_comm_equiv)
+    ... ≃ (Σa (c : C a), B a)     : sigma_equiv_sigma_right (λa, !equiv_prod)
     ... ≃ (Σ(u : Σa, C a), B u.1) : sigma_assoc_equiv
 
   /- Interaction with other type constructors -/

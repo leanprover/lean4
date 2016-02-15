@@ -80,12 +80,12 @@ attribute susp.elim_type_on [unfold 2]
 namespace susp
   open pointed
 
-  variables {X Y Z : Pointed}
+  variables {X Y Z : pType}
 
   definition pointed_susp [instance] [constructor] (X : Type) : pointed (susp X) :=
   pointed.mk north
 
-  definition Susp [constructor] (X : Type) : Pointed :=
+  definition Susp [constructor] (X : Type) : pType :=
   pointed.mk' (susp X)
 
   definition Susp_functor (f : X →* Y) : Susp X →* Susp Y :=
@@ -112,7 +112,7 @@ namespace susp
 
   -- adjunction from Coq-HoTT
 
-  definition loop_susp_unit [constructor] (X : Pointed) : X →* Ω(Susp X) :=
+  definition loop_susp_unit [constructor] (X : pType) : X →* Ω(Susp X) :=
   begin
     fconstructor,
     { intro x, exact merid x ⬝ (merid pt)⁻¹},
@@ -141,7 +141,7 @@ namespace susp
       xrewrite [idp_con_idp, -ap_compose (concat idp)]},
   end
 
-  definition loop_susp_counit [constructor] (X : Pointed) : Susp (Ω X) →* X :=
+  definition loop_susp_counit [constructor] (X : pType) : Susp (Ω X) →* X :=
   begin
     fconstructor,
     { intro x, induction x, exact pt, exact pt, exact a},
@@ -162,7 +162,7 @@ namespace susp
     { reflexivity}
   end
 
-  definition loop_susp_counit_unit (X : Pointed)
+  definition loop_susp_counit_unit (X : pType)
     : ap1 (loop_susp_counit X) ∘* loop_susp_unit (Ω X) ~* pid (Ω X) :=
   begin
     induction X with X x, fconstructor,
@@ -176,7 +176,7 @@ namespace susp
       xrewrite [ap_con_right_inv (susp.elim x x (λa, a)) (merid idp),idp_con_idp,-ap_compose]}
   end
 
-  definition loop_susp_unit_counit (X : Pointed)
+  definition loop_susp_unit_counit (X : pType)
     : loop_susp_counit (Susp X) ∘* Susp_functor (loop_susp_unit X) ~* pid (Susp X) :=
   begin
     induction X with X x, fconstructor,
@@ -189,7 +189,7 @@ namespace susp
     { reflexivity}
   end
 
-  definition susp_adjoint_loop (X Y : Pointed) : map₊ (pointed.mk' (susp X)) Y ≃ map₊ X (Ω Y) :=
+  definition susp_adjoint_loop (X Y : pType) : map₊ (pointed.mk' (susp X)) Y ≃ map₊ X (Ω Y) :=
   begin
     fapply equiv.MK,
     { intro f, exact ap1 f ∘* loop_susp_unit X},

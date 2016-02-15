@@ -158,7 +158,7 @@ namespace function
     end,
     apply is_trunc_equiv_closed, exact H2,
     fapply is_trunc_equiv_closed,
-      {apply sigma_equiv_sigma_id, intro g, apply eq_equiv_homotopy},
+      {apply sigma_equiv_sigma_right, intro g, apply eq_equiv_homotopy},
     fapply is_trunc_equiv_closed,
       {apply fiber.sigma_char},
     fapply is_contr_fiber_of_is_equiv,

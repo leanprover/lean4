@@ -92,7 +92,7 @@ namespace sphere
   definition base {n : ℕ} : sphere n := north
   definition pointed_sphere [instance] [constructor] (n : ℕ) : pointed (sphere n) :=
   pointed.mk base
-  definition Sphere [constructor] (n : ℕ) : Pointed := pointed.mk' (sphere n)
+  definition Sphere [constructor] (n : ℕ) : pType := pointed.mk' (sphere n)
 
   namespace ops
     abbreviation S := sphere
@@ -106,7 +106,7 @@ namespace sphere
   definition surf {n : ℕ} : Ω[n] S. n :=
   nat.rec_on n (proof base qed)
                (begin intro m s, refine cast _ (apn m (equator m) s),
-                      exact ap Pointed.carrier !loop_space_succ_eq_in⁻¹ end)
+                      exact ap pType.carrier !loop_space_succ_eq_in⁻¹ end)
 
 
   definition bool_of_sphere : S 0 → bool :=
@@ -126,10 +126,10 @@ namespace sphere
   ua sphere_equiv_bool
 
   definition sphere_eq_bool_pointed : S. 0 = Bool :=
-  Pointed_eq sphere_equiv_bool idp
+  pType_eq sphere_equiv_bool idp
 
   -- TODO: the commented-out part makes the forward function below "apn _ surf"
-  definition pmap_sphere (A : Pointed) (n : ℕ) : map₊ (S. n) A ≃ Ω[n] A :=
+  definition pmap_sphere (A : pType) (n : ℕ) : map₊ (S. n) A ≃ Ω[n] A :=
   begin
     -- fapply equiv_change_fun,
     -- {
@@ -143,10 +143,10 @@ namespace sphere
     --   { exact sorry}}
   end
 
-  protected definition elim {n : ℕ} {P : Pointed} (p : Ω[n] P) : map₊ (S. n) P :=
+  protected definition elim {n : ℕ} {P : pType} (p : Ω[n] P) : map₊ (S. n) P :=
   to_inv !pmap_sphere p
 
-  -- definition elim_surf {n : ℕ} {P : Pointed} (p : Ω[n] P) : apn n (sphere.elim p) surf = p :=
+  -- definition elim_surf {n : ℕ} {P : pType} (p : Ω[n] P) : apn n (sphere.elim p) surf = p :=
   -- begin
   --   induction n with n IH,
   --   { esimp [apn,surf,sphere.elim,pmap_sphere], apply sorry},

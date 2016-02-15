@@ -12,23 +12,23 @@ open is_trunc eq prod sigma nat equiv option is_equiv bool unit algebra equiv.op
 structure pointed [class] (A : Type) :=
   (point : A)
 
-structure Pointed :=
+structure pType :=
   (carrier : Type)
   (Point   : carrier)
 
-open Pointed
+open pType
 
-notation `Type*` := Pointed
+notation `Type*` := pType
 
 namespace pointed
-  attribute Pointed.carrier [coercion]
+  attribute pType.carrier [coercion]
   variables {A B : Type}
 
   definition pt [unfold 2] [H : pointed A] := point A
-  protected definition Mk [constructor] {A : Type} (a : A) := Pointed.mk A a
-  protected definition MK [constructor] (A : Type) (a : A) := Pointed.mk A a
+  protected definition Mk [constructor] {A : Type} (a : A) := pType.mk A a
+  protected definition MK [constructor] (A : Type) (a : A) := pType.mk A a
   protected definition mk' [constructor] (A : Type) [H : pointed A] : Type* :=
-  Pointed.mk A (point A)
+  pType.mk A (point A)
   definition pointed_carrier [instance] [constructor] (A : Type*) : pointed A :=
   pointed.mk (Point A)
 
@@ -89,15 +89,15 @@ namespace pointed
   Ω[n] (pointed.mk' A)
 
   open equiv.ops
-  definition Pointed_eq {A B : Type*} (f : A ≃ B) (p : f pt = pt) : A = B :=
+  definition pType_eq {A B : Type*} (f : A ≃ B) (p : f pt = pt) : A = B :=
   begin
     cases A with A a, cases B with B b, esimp at *,
-    fapply apd011 @Pointed.mk,
+    fapply apd011 @pType.mk,
     { apply ua f},
     { rewrite [cast_ua,p]},
   end
 
-  protected definition Pointed.sigma_char.{u} : Pointed.{u} ≃ Σ(X : Type.{u}), X :=
+  protected definition pType.sigma_char.{u} : pType.{u} ≃ Σ(X : Type.{u}), X :=
   begin
     fapply equiv.MK,
     { intro x, induction x with X x, exact ⟨X, x⟩},
@@ -149,7 +149,7 @@ namespace pointed
 
   definition loop_space_loop_irrel (p : point A = point A) : Ω(pointed.Mk p) = Ω[2] A :=
   begin
-    intros, fapply Pointed_eq,
+    intros, fapply pType_eq,
     { esimp, transitivity _,
       apply eq_equiv_fn_eq_of_equiv (equiv_eq_closed_right _ p⁻¹),
       esimp, apply eq_equiv_eq_closed, apply con.right_inv, apply con.right_inv},
@@ -157,7 +157,7 @@ namespace pointed
   end
 
   definition iterated_loop_space_loop_irrel (n : ℕ) (p : point A = point A)
-    : Ω[succ n](pointed.Mk p) = Ω[succ (succ n)] A :> Pointed :=
+    : Ω[succ n](pointed.Mk p) = Ω[succ (succ n)] A :> pType :=
   calc
     Ω[succ n](pointed.Mk p) = Ω[n](Ω (pointed.Mk p)) : loop_space_succ_eq_in
       ... = Ω[n] (Ω[2] A)                            : loop_space_loop_irrel
@@ -297,7 +297,7 @@ namespace pointed
   end
 
   definition pcast [constructor] {A B : Type*} (p : A = B) : A →* B :=
-  proof pmap.mk (cast (ap Pointed.carrier p)) (by induction p; reflexivity) qed
+  proof pmap.mk (cast (ap pType.carrier p)) (by induction p; reflexivity) qed
 
   definition pinverse [constructor] {X : Type*} : Ω X →* Ω X :=
   pmap.mk eq.inverse idp

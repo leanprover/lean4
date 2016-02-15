@@ -32,7 +32,7 @@ namespace is_equiv
   definition is_contr_right_inverse : is_contr (Σ(g : B → A), f ∘ g ~ id) :=
   begin
     fapply is_trunc_equiv_closed,
-      {apply sigma_equiv_sigma_id, intro g, apply eq_equiv_homotopy},
+      {apply sigma_equiv_sigma_right, intro g, apply eq_equiv_homotopy},
     fapply is_trunc_equiv_closed,
       {apply fiber.sigma_char},
     fapply is_contr_fiber_of_is_equiv,
@@ -45,7 +45,7 @@ namespace is_equiv
     fapply is_trunc_equiv_closed,
       {apply equiv.symm, apply sigma_pi_equiv_pi_sigma},
     fapply is_trunc_equiv_closed,
-      {apply pi_equiv_pi_id, intro a,
+      {apply pi_equiv_pi_right, intro a,
         apply (fiber_eq_equiv (fiber.mk (u.1 (f a)) (u.2 (f a))) (fiber.mk a idp))},
   end
 

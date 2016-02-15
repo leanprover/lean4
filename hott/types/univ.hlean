@@ -103,26 +103,26 @@ namespace univ
   end
 
   definition is_object_classifier (f : A → B)
-    : pullback_square (pointed_fiber f) (fiber f) f Pointed.carrier :=
+    : pullback_square (pointed_fiber f) (fiber f) f pType.carrier :=
   pullback_square.mk
     (λa, idp)
     (is_equiv_of_equiv_of_homotopy
       (calc
         A ≃ Σb, fiber f b                      : sigma_fiber_equiv
-      ... ≃ Σb (v : ΣX, X = fiber f b), v.1    : sigma_equiv_sigma_id
+      ... ≃ Σb (v : ΣX, X = fiber f b), v.1    : sigma_equiv_sigma_right
                                                    (λb, !sigma_equiv_of_is_contr_left)
-      ... ≃ Σb X (p : X = fiber f b), X        : sigma_equiv_sigma_id
+      ... ≃ Σb X (p : X = fiber f b), X        : sigma_equiv_sigma_right
                                                    (λb, !sigma_assoc_equiv)
-      ... ≃ Σb X (x : X), X = fiber f b        : sigma_equiv_sigma_id
-                                                   (λb, sigma_equiv_sigma_id
+      ... ≃ Σb X (x : X), X = fiber f b        : sigma_equiv_sigma_right
+                                                   (λb, sigma_equiv_sigma_right
                                                    (λX, !comm_equiv_nondep))
-      ... ≃ Σb (v : ΣX, X), v.1 = fiber f b    : sigma_equiv_sigma_id
+      ... ≃ Σb (v : ΣX, X), v.1 = fiber f b    : sigma_equiv_sigma_right
                                                    (λb, !sigma_assoc_equiv⁻¹)
-      ... ≃ Σb (Y : Type*), Y = fiber f b      : sigma_equiv_sigma_id
-                                     (λb, sigma_equiv_sigma (Pointed.sigma_char)⁻¹
+      ... ≃ Σb (Y : Type*), Y = fiber f b      : sigma_equiv_sigma_right
+                                     (λb, sigma_equiv_sigma (pType.sigma_char)⁻¹
                                                             (λv, sigma.rec_on v (λx y, equiv.refl)))
       ... ≃ Σ(Y : Type*) b, Y = fiber f b      : sigma_comm_equiv
-      ... ≃ pullback Pointed.carrier (fiber f) : !pullback.sigma_char⁻¹ᵉ
+      ... ≃ pullback pType.carrier (fiber f) : !pullback.sigma_char⁻¹ᵉ
         )
       proof λb, idp qed)
 

@@ -214,7 +214,7 @@ namespace pi
     : (Πa, B a) ≃ (Πa', B' a') :=
   pi_equiv_pi_of_is_equiv (to_fun f0) (λa', to_fun (f1 a'))
 
-  definition pi_equiv_pi_id [constructor] {P Q : A → Type} (g : Πa, P a ≃ Q a)
+  definition pi_equiv_pi_right [constructor] {P Q : A → Type} (g : Πa, P a ≃ Q a)
     : (Πa, P a) ≃ (Πa, Q a) :=
   pi_equiv_pi equiv.refl g
 

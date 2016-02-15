@@ -170,7 +170,7 @@ namespace pushout
           { intros a a' r, cases r, reflexivity },
           rewrite (eq_of_homotopy3 H2) },
         apply ap10 H1 },
-      apply equiv.trans (sigma_equiv_sigma_id H),
+      apply equiv.trans (sigma_equiv_sigma_right H),
       apply equiv.trans (quotient.flattening.flattening_lemma R (sum.rec Pinl Pinr) Pglue'),
       fapply equiv.MK,
       { intro q, induction q with z z z' fr,

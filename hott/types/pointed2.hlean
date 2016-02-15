@@ -19,7 +19,7 @@ structure pequiv (A B : Type*) extends equiv A B, pmap A B
 
 section
   universe variable u
-  structure ptrunctype (n : trunc_index) extends trunctype.{u} n, Pointed.{u}
+  structure ptrunctype (n : trunc_index) extends trunctype.{u} n, pType.{u}
 end
 
 namespace pointed
@@ -45,7 +45,7 @@ namespace pointed
   pmap.mk f⁻¹ (ap f⁻¹ (respect_pt f)⁻¹ ⬝ !left_inv)
 
   definition pua {A B : Type*} (f : A ≃* B) : A = B :=
-  Pointed_eq (equiv_of_pequiv f) !respect_pt
+  pType_eq (equiv_of_pequiv f) !respect_pt
 
   protected definition pequiv.refl [refl] [constructor] (A : Type*) : A ≃* A :=
   pequiv_of_pmap !pid !is_equiv_id
@@ -76,7 +76,7 @@ namespace pointed
   pequiv_of_eq p ⬝e* q
 
   definition eq_of_pequiv {A B : Type*} (p : A ≃* B) : A = B :=
-  Pointed_eq (equiv_of_pequiv p) !respect_pt
+  pType_eq (equiv_of_pequiv p) !respect_pt
 
   definition peap {A B : Type*} (F : Type* → Type*) (p : A ≃* B) : F A ≃* F B :=
   pequiv_of_pmap (pcast (ap F (eq_of_pequiv p))) begin cases eq_of_pequiv p, apply is_equiv_id end

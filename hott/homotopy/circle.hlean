@@ -8,9 +8,9 @@ Declaration of the circle
 
 import .sphere
 import types.bool types.int.hott types.equiv
-import algebra.homotopy_group algebra.hott
+import algebra.homotopy_group algebra.hott .connectedness
 
-open eq susp bool sphere_index is_equiv equiv equiv.ops is_trunc pi algebra
+open eq susp bool sphere_index is_equiv equiv equiv.ops is_trunc pi algebra homotopy
 
 definition circle : Type₀ := sphere 1
 
@@ -267,6 +267,23 @@ namespace circle
       rewrite con_comm_base at H,
       note H' := cancel_left _ H,
       induction H', reflexivity}
+  end
+
+  definition is_trunc_circle [instance] : is_trunc 1 S¹ :=
+  begin
+    apply is_trunc_succ_of_is_trunc_loop,
+    { exact unit.star},
+    { intro x, apply is_trunc_equiv_closed_rev, apply eq_equiv_Z}
+  end
+
+  definition is_conn_circle [instance] : is_conn 0 S¹ :=
+  begin
+    fapply is_contr.mk,
+    { exact tr base},
+    { intro x, induction x with x,
+      induction x,
+      { reflexivity},
+      { apply is_prop.elimo}}
   end
 
   definition circle_mul [reducible] (x y : S¹) : S¹ :=

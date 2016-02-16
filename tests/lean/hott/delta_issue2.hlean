@@ -1,4 +1,5 @@
 open nat eq
+infixr + := sum
 
 theorem add_assoc₁ : Π (a b c : ℕ), (a + b) + c = a + (b + c)
 | a b 0 := eq.refl (nat.rec a (λ x, succ) b)

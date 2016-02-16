@@ -20,6 +20,26 @@ structure complete_lattice [class] (A : Type) extends lattice A :=
 (le_Sup : ∀ {a : A} {s : set A}, a ∈ s → le a (Sup s))
 (Sup_le : ∀ {b : A} {s : set A} (h : ∀ (a : A), a ∈ s → le a b), le (Sup s) b)
 
+section
+  variable [complete_lattice A]
+
+  definition Inf (S : set A) : A := complete_lattice.Inf S
+  prefix `⨅ `:70 := Inf
+
+  definition Sup (S : set A) : A := complete_lattice.Sup S
+  prefix `⨆ `:65 := Sup
+
+  theorem Inf_le {a : A} {s : set A} (H : a ∈ s) : (Inf s) ≤ a := complete_lattice.Inf_le H
+
+  theorem le_Inf {b : A} {s : set A} (H : ∀ (a : A), a ∈ s → b ≤ a) : b ≤ Inf s :=
+    complete_lattice.le_Inf H
+
+  theorem le_Sup {a : A} {s : set A} (H : a ∈ s) : a ≤ Sup s := complete_lattice.le_Sup H
+
+  theorem Sup_le {b : A} {s : set A} (H : ∀ (a : A), a ∈ s → a ≤ b) : Sup s ≤ b :=
+    complete_lattice.Sup_le H
+end
+
 -- Minimal complete_lattice definition based just on Inf.
 -- We later show that complete_lattice_Inf is a complete_lattice.
 structure complete_lattice_Inf [class] (A : Type) extends weak_order A :=
@@ -93,7 +113,8 @@ definition complete_lattice_Inf_to_complete_lattice_Sup [C : complete_lattice_In
 ⦃ complete_lattice_Sup, C ⦄
 
 -- Every complete_lattice_Inf is a complete_lattice
-definition complete_lattice_Inf_to_complete_lattice [instance] [C : complete_lattice_Inf A] : complete_lattice A :=
+definition complete_lattice_Inf_to_complete_lattice [trans_instance] [reducible] [C : complete_lattice_Inf A] :
+  complete_lattice A :=
 ⦃ complete_lattice, C ⦄
 
 namespace complete_lattice_Sup
@@ -109,7 +130,48 @@ suppose a ∈ s, Sup_le
 
 lemma le_Inf {b : A} {s : set A} (h : ∀ (a : A), a ∈ s → b ≤ a) : b ≤ Inf s :=
 le_Sup h
+
+local prefix `⨅`:70 := Inf
+local prefix `⨆`:65 := Sup
+
+definition inf (a b : A) := ⨅ '{a, b}
+definition sup (a b : A) := ⨆ '{a, b}
+
+local infix `⊓` := inf
+local infix `⊔` := sup
+
+lemma inf_le_left (a b : A) : a ⊓ b ≤ a :=
+Inf_le !mem_insert
+
+lemma inf_le_right (a b : A) : a ⊓ b ≤ b :=
+Inf_le (!mem_insert_of_mem !mem_insert)
+
+lemma le_inf {a b c : A} : c ≤ a → c ≤ b → c ≤ a ⊓ b :=
+assume h₁ h₂,
+le_Inf (take x, suppose x ∈ '{a, b},
+  or.elim (eq_or_mem_of_mem_insert this)
+    (suppose x = a, begin subst x, exact h₁ end)
+    (suppose x ∈ '{b},
+      assert x = b, from !eq_of_mem_singleton this,
+      begin subst x, exact h₂ end))
+
+lemma le_sup_left (a b : A) : a ≤ a ⊔ b :=
+le_Sup !mem_insert
+
+lemma le_sup_right (a b : A) : b ≤ a ⊔ b :=
+le_Sup (!mem_insert_of_mem !mem_insert)
+
+lemma sup_le {a b c : A} : a ≤ c → b ≤ c → a ⊔ b ≤ c :=
+assume h₁ h₂,
+Sup_le (take x, suppose x ∈ '{a, b},
+  or.elim (eq_or_mem_of_mem_insert this)
+    (assume H : x = a, by subst x; exact h₁)
+    (suppose x ∈ '{b},
+      assert x = b, from !eq_of_mem_singleton this,
+      by subst x; exact h₂))
+
 end complete_lattice_Sup
+
 
 -- Every complete_lattice_Sup is a complete_lattice_Inf
 definition complete_lattice_Sup_to_complete_lattice_Inf [C : complete_lattice_Sup A] : complete_lattice_Inf A :=
@@ -117,18 +179,14 @@ definition complete_lattice_Sup_to_complete_lattice_Inf [C : complete_lattice_Su
 
 -- Every complete_lattice_Sup is a complete_lattice
 section
-local attribute complete_lattice_Sup_to_complete_lattice_Inf [instance]
-definition complete_lattice_Sup_to_complete_lattice [instance] [C : complete_lattice_Sup A] : complete_lattice A :=
-_
+definition complete_lattice_Sup_to_complete_lattice [trans_instance] [reducible] [C : complete_lattice_Sup A] :
+  complete_lattice A :=
+⦃ complete_lattice, C ⦄
 end
 
-namespace complete_lattice
+section complete_lattice
 variable [C : complete_lattice A]
 include C
-prefix `⨅`:70 := Inf
-prefix `⨆`:65 := Sup
-infix ` ⊓ ` := inf
-infix ` ⊔ ` := sup
 
 variable {f : A → A}
 premise  (mono : ∀ x y : A, x ≤ y → f x ≤ f y)
@@ -178,6 +236,8 @@ have h₂ : ∀ b, f b = b → b ≤ a, from
   le_Sup this,
 exists.intro a (and.intro h₁ h₂)
 
+/- top and bot -/
+
 definition bot : A := ⨅ univ
 definition top : A := ⨆ univ
 notation `⊥` := bot
@@ -198,6 +258,8 @@ lemma eq_top {a : A} : (∀ b, b ≤ a) → a = ⊤ :=
 assume h,
 have ⊤ ≤ a, from Sup_le (take b bin, h b),
 le.antisymm !le_top this
+
+/- general facts about complete lattices -/
 
 lemma Inf_singleton {a : A} : ⨅'{a} = a :=
 have ⨅'{a} ≤ a, from
@@ -268,6 +330,12 @@ have le₁ : ⨆ (∅ : set A) ≤ ⨅ univ, from
 have le₂ : ⨅ univ ≤ ⨆ (∅ : set A), from
   Inf_le !mem_univ,
 le.antisymm le₁ le₂
+
+lemma Sup_pair (a b : A) : Sup '{a, b} = sup a b :=
+by rewrite [insert_eq, Sup_union, *Sup_singleton]
+
+lemma Inf_pair (a b : A) : Inf '{a, b} = inf a b :=
+by rewrite [insert_eq, Inf_union, *Inf_singleton]
 
 end complete_lattice
 

@@ -349,7 +349,7 @@ theorem converges_to_at_of_all_conv_seqs {f : M → N} (c : M) (l : N)
   by_contradiction
     (assume Hnot : ¬ (f ⟶ l at c),
     obtain ε Hε, from exists_not_of_not_forall Hnot,
-    let Hε' := iff.mp not_implies_iff_and_not Hε in
+    let Hε' := and_not_of_not_implies Hε in
     obtain (H1 : ε > 0) H2, from Hε',
     have H3 [visible] : ∀ δ : ℝ, (δ > 0 → ∃ x' : M, x' ≠ c ∧ dist x' c < δ ∧ dist (f x') l ≥ ε), begin -- tedious!!
       intros δ Hδ,
@@ -359,7 +359,7 @@ theorem converges_to_at_of_all_conv_seqs {f : M → N} (c : M) (l : N)
       note H5 := exists_not_of_not_forall this,
       cases H5 with x' Hx',
       existsi x',
-      note H6 := iff.mp not_implies_iff_and_not Hx',
+      note H6 := and_not_of_not_implies Hx',
       rewrite and.assoc at H6,
       cases H6,
       split,
@@ -560,8 +560,8 @@ private theorem not_mem_intersect_of_boundary_pt {s t : set V} (a : Open s) (a_1
     note Htih := exists_not_of_not_forall (v_1 Hxt),
     cases Hsih with ε1 Hε1,
     cases Htih with ε2 Hε2,
-    note Hε1' := iff.mp not_implies_iff_and_not Hε1,
-    note Hε2' := iff.mp not_implies_iff_and_not Hε2,
+    note Hε1' := and_not_of_not_implies Hε1,
+    note Hε2' := and_not_of_not_implies Hε2,
     cases Hε1' with Hε1p Hε1',
     cases Hε2' with Hε2p Hε2',
     note Hε1'' := forall_not_of_not_exists Hε1',
@@ -596,7 +596,7 @@ private theorem not_mem_sUnion_of_boundary_pt {S : set (set V)} (a : ∀₀ s �
     cases Hex with s Hs,
     cases Hs with Hs Hxs,
     cases exists_not_of_not_forall (v_0 Hs Hxs) with ε Hε,
-    cases iff.mp not_implies_iff_and_not Hε with Hεp Hv,
+    cases and_not_of_not_implies Hε with Hεp Hv,
     cases Hbd _ Hεp with v Hv',
     cases Hv' with Hvnm Hdist,
     apply Hv,
@@ -633,13 +633,13 @@ theorem ex_Open_ball_subset_of_Open_of_nonempty {U : set V} (HU : Open U) {x : V
     cases em (balloon = ∅),
     have H : ∀ r : ℝ, r > 0 → ∃ v : V, v ∉ U ∧ dist x v < r, begin
       intro r Hr,
-      note Hor := iff.mp not_and_iff_not_or_not (forall_not_of_sep_empty a (mem_univ r)),
+      note Hor := not_or_not_of_not_and (forall_not_of_sep_empty a (mem_univ r)),
       note Hor' := or.neg_resolve_left Hor Hr,
       apply exists_of_not_forall_not,
       intro Hall,
       apply Hor',
       intro y Hy,
-      cases iff.mp not_and_iff_not_or_not (Hall y) with Hmem Hge,
+      cases not_or_not_of_not_and (Hall y) with Hmem Hge,
       apply not_not_elim Hmem,
       apply absurd (and.right Hy) Hge
     end,

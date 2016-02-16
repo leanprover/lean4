@@ -401,7 +401,7 @@ list.rec_on l
       assume iH : ¬x ∈ l → find x l = length l,
       suppose ¬x ∈ y::l,
       have ¬(x = y ∨ x ∈ l), from iff.elim_right (not_iff_not_of_iff !mem_cons_iff) this,
-      have ¬x = y ∧ ¬x ∈ l, from (iff.elim_left not_or_iff_not_and_not this),
+      have ¬x = y ∧ ¬x ∈ l, from (iff.elim_left !not_or_iff_not_and_not this),
       calc
         find x (y::l) = if x = y then 0 else succ (find x l) : !find_cons
                   ... = succ (find x l)                      : if_neg (and.elim_left this)

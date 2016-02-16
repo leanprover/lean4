@@ -69,7 +69,7 @@ assert Pninj : ¬(injective f), from assume Pinj,
     (begin rewrite [card_fin], apply not_succ_le_self end),
 obtain i₁ P₁, from exists_not_of_not_forall Pninj,
 obtain i₂ P₂, from exists_not_of_not_forall P₁,
-obtain Pfe Pne, from iff.elim_left not_implies_iff_and_not P₂,
+obtain Pfe Pne, from and_not_of_not_implies P₂,
 assert Pvne : val i₁ ≠ val i₂, from assume Pveq, absurd (eq_of_veq Pveq) Pne,
 exists.intro (pred (dist i₁ i₂)) (begin
   rewrite [succ_pred_of_pos (dist_pos_of_ne Pvne)], apply and.intro,

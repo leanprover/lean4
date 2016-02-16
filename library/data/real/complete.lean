@@ -621,7 +621,7 @@ private theorem under_spec : ¬ ub under :=
     rewrite ↑ub,
     apply not_forall_of_exists_not,
     existsi elt,
-    apply iff.mpr not_implies_iff_and_not,
+    apply iff.mpr !not_implies_iff_and_not,
     apply and.intro,
     apply inh,
     apply not_le_of_gt under_spec1
@@ -780,7 +780,7 @@ private theorem PB (n : ℕ) : ub (over_seq n) :=
 private theorem under_lt_over : under < over :=
   begin
     cases exists_not_of_not_forall under_spec with [x, Hx],
-    cases iff.mp not_implies_iff_and_not Hx with [HXx, Hxu],
+    cases and_not_of_not_implies Hx with [HXx, Hxu],
     apply lt_of_of_rat_lt_of_rat,
     apply lt_of_lt_of_le,
     apply lt_of_not_ge Hxu,
@@ -791,7 +791,7 @@ private theorem under_seq_lt_over_seq : ∀ m n : ℕ, under_seq m < over_seq n 
   begin
     intros,
     cases exists_not_of_not_forall (PA m) with [x, Hx],
-    cases iff.mp not_implies_iff_and_not Hx with [HXx, Hxu],
+    cases iff.mp !not_implies_iff_and_not Hx with [HXx, Hxu],
     apply lt_of_of_rat_lt_of_rat,
     apply lt_of_lt_of_le,
     apply lt_of_not_ge Hxu,
@@ -947,7 +947,7 @@ private theorem under_lowest_bound : ∀ y : ℝ, ub y → sup_under ≤ y :=
     apply le_of_reprs_le,
     intro n,
     cases exists_not_of_not_forall (PA _) with [x, Hx],
-    cases iff.mp not_implies_iff_and_not Hx with [HXx, Hxn],
+    cases and_not_of_not_implies Hx with [HXx, Hxn],
     apply le.trans,
     apply le_of_lt,
     apply lt_of_not_ge Hxn,

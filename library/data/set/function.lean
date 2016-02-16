@@ -12,6 +12,100 @@ namespace set
 
 variables {X Y Z : Type}
 
+/- preimages -/
+
+definition preimage {A B:Type} (f : A → B) (Y : set B) : set A := { x | f x ∈ Y }
+
+notation f ` '- ` s := preimage f s
+
+theorem mem_preimage_iff (f : X → Y) (a : set Y) (x : X) :
+  f x ∈ a ↔ x ∈ f '- a :=
+!iff.refl
+
+theorem mem_preimage {f : X → Y} {a : set Y} {x : X} (H : f x ∈ a) :
+  x ∈ f '- a := H
+
+theorem mem_of_mem_preimage {f : X → Y} {a : set Y} {x : X} (H : x ∈ f '- a) :
+  f x ∈ a :=
+proof H qed
+
+theorem preimage_comp (f : Y → Z) (g : X → Y) (a : set Z) :
+  (f ∘ g) '- a = g '- (f '- a) :=
+ext (take x, !iff.refl)
+
+lemma image_subset_iff {A B : Type} {f : A → B} {X : set A} {Y : set B} :
+  f ' X ⊆ Y ↔ X ⊆ f '- Y :=
+@bounded_forall_image_iff A B f X Y
+
+theorem preimage_subset {a b : set Y} (f : X → Y) (H : a ⊆ b) :
+  f '- a ⊆ f '- b :=
+λ x H', proof @H (f x) H' qed
+
+theorem preimage_id (s : set Y) : (λx, x) '- s = s :=
+ext (take x, !iff.refl)
+
+theorem preimage_union (f : X → Y) (s t : set Y) :
+  f '- (s ∪ t) = f '- s ∪ f '- t :=
+ext (take x, !iff.refl)
+
+theorem preimage_inter (f : X → Y) (s t : set Y) :
+  f '- (s ∩ t) = f '- s ∩ f '- t :=
+ext (take x, !iff.refl)
+
+theorem preimage_compl (f : X → Y) (s : set Y) :
+  f '- (-s) = -(f '- s) :=
+ext (take x, !iff.refl)
+
+theorem preimage_diff (f : X → Y) (s t : set Y) :
+  f '- (s \ t) = f '- s \ f '- t :=
+ext (take x, !iff.refl)
+
+theorem image_preimage_subset (f : X → Y) (s : set Y) :
+  f ' (f '- s) ⊆ s :=
+take y, suppose y ∈ f ' (f '- s),
+  obtain x [xfis fxeqy], from this,
+  show y ∈ s, by rewrite -fxeqy; exact xfis
+
+theorem subset_preimage_image (s : set X) (f : X → Y) :
+  s ⊆ f '- (f ' s) :=
+take x, suppose x ∈ s,
+show f x ∈ f ' s, from mem_image_of_mem f this
+
+theorem inter_preimage_subset (s : set X) (t : set Y) (f : X → Y) :
+  s ∩ f '- t ⊆ f '- (f ' s ∩ t) :=
+take x, assume H : x ∈ s ∩ f '- t,
+mem_preimage (show f x ∈ f ' s ∩ t,
+  from and.intro (mem_image_of_mem f (and.left H)) (mem_of_mem_preimage (and.right H)))
+
+theorem union_preimage_subset (s : set X) (t : set Y) (f : X → Y) :
+  s ∪ f '- t ⊆ f '- (f ' s ∪ t) :=
+take x, assume H : x ∈ s ∪ f '- t,
+mem_preimage (show f x ∈ f ' s ∪ t,
+  from or.elim H
+    (suppose x ∈ s, or.inl (mem_image_of_mem f this))
+    (suppose x ∈ f '- t, or.inr (mem_of_mem_preimage this)))
+
+theorem image_inter (f : X → Y) (s : set X) (t : set Y) :
+  f ' s ∩ t = f ' (s ∩ f '- t) :=
+ext (take y, iff.intro
+  (suppose y ∈ f ' s ∩ t,
+    obtain [x [xs fxeqy]] yt, from this,
+    have x ∈ s ∩ f '- t,
+      from and.intro xs (mem_preimage (show f x ∈ t, by rewrite fxeqy; exact yt)),
+    mem_image this fxeqy)
+  (suppose y ∈ f ' (s ∩ f '- t),
+    obtain x [[xs xfit] fxeqy], from this,
+    and.intro (mem_image xs fxeqy)
+      (show y ∈ t, by rewrite -fxeqy; exact mem_of_mem_preimage xfit)))
+
+theorem image_union_supset (f : X → Y) (s : set X) (t : set Y) :
+  f ' s ∪ t ⊇ f ' (s ∪ f '- t) :=
+take y, assume H,
+obtain x [xmem fxeqy], from H,
+or.elim xmem
+  (suppose x ∈ s, or.inl (mem_image this fxeqy))
+  (suppose x ∈ f '- t, or.inr (show y ∈ t, by+ rewrite -fxeqy; exact mem_of_mem_preimage this))
+
 /- maps to -/
 
 definition maps_to [reducible] (f : X → Y) (a : set X) (b : set Y) : Prop := ∀⦃x⦄, x ∈ a → f x ∈ b

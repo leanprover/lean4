@@ -546,7 +546,7 @@ abbreviation eq_on (f1 f2 : X → Y) (a : set X) : Prop :=
 ∀₀ x ∈ a, f1 x = f2 x
 
 definition image (f : X → Y) (a : set X) : set Y := {y : Y | ∃x, x ∈ a ∧ f x = y}
-infix `'` := image
+infix ` ' ` := image
 
 theorem image_eq_image_of_eq_on {f1 f2 : X → Y} {a : set X} (H1 : eq_on f1 f2 a) :
   f1 ' a = f2 ' a :=
@@ -660,14 +660,6 @@ begin
 end
 
 end image
-
-/- function pre image  -/
-
-definition preimage {A B:Type} (f : A → B) (Y : set B) : set A := { x | f x ∈ Y }
-
-lemma image_subset_iff {A B : Type} {f : A → B} {X : set A} {Y : set B} :
-  f ' X ⊆ Y ↔ X ⊆ preimage f Y :=
-@bounded_forall_image_iff A B f X Y
 
 /- collections of disjoint sets -/
 

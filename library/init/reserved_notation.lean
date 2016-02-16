@@ -191,7 +191,8 @@ reserve infixl ` ∩ `:70
 reserve infixl ` ∪ `:65
 reserve infix ` ⊆ `:50
 reserve infix ` ⊇ `:50
-reserve infix ` ' `:75  -- for the image of a set under a function
+reserve infix ` ' `:75   -- for the image of a set under a function
+reserve infix ` '- `:75  -- for the preimage of a set under a function
 
 /- other symbols -/
 

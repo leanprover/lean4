@@ -77,7 +77,7 @@ ext (take y, iff.intro
       (suppose y ∈ image f s,
         show y ∈ image f (insert a s), from mem_image_of_mem_image_of_subset this !subset_insert)))
 
-lemma image_compose {C : Type} [deceqC : decidable_eq C] {f : B → C} {g : A → B} {s : finset A} :
+lemma image_comp {C : Type} [deceqC : decidable_eq C] {f : B → C} {g : A → B} {s : finset A} :
   image (f∘g) s = image f (image g s) :=
 ext (take z, iff.intro
   (suppose z ∈ image (f∘g) s,
@@ -216,27 +216,27 @@ section complement
 variables {A : Type} [deceqA : decidable_eq A] [h : fintype A]
 include deceqA h
 
-definition complement (s : finset A) : finset A := univ \ s
-prefix [priority finset.prio] - := complement
+definition compl (s : finset A) : finset A := univ \ s
+prefix [priority finset.prio] - := compl
 
-theorem mem_complement {s : finset A} {x : A} (H : x ∉ s) : x ∈ -s :=
+theorem mem_compl {s : finset A} {x : A} (H : x ∉ s) : x ∈ -s :=
 mem_diff !mem_univ H
 
-theorem not_mem_of_mem_complement {s : finset A} {x : A} (H : x ∈ -s) : x ∉ s :=
+theorem not_mem_of_mem_compl {s : finset A} {x : A} (H : x ∈ -s) : x ∉ s :=
 not_mem_of_mem_diff H
 
-theorem mem_complement_iff (s : finset A) (x : A) : x ∈ -s ↔ x ∉ s :=
-iff.intro not_mem_of_mem_complement mem_complement
+theorem mem_compl_iff (s : finset A) (x : A) : x ∈ -s ↔ x ∉ s :=
+iff.intro not_mem_of_mem_compl mem_compl
 
 section
   open classical
 
-  theorem union_eq_comp_comp_inter_comp (s t : finset A) : s ∪ t = -(-s ∩ -t) :=
-  ext (take x, by rewrite [mem_union_iff, mem_complement_iff, mem_inter_iff, *mem_complement_iff,
+  theorem union_eq_compl_compl_inter_compl (s t : finset A) : s ∪ t = -(-s ∩ -t) :=
+  ext (take x, by rewrite [mem_union_iff, mem_compl_iff, mem_inter_iff, *mem_compl_iff,
                            or_iff_not_and_not])
 
-  theorem inter_eq_comp_comp_union_comp (s t : finset A) : s ∩ t = -(-s ∪ -t) :=
-  ext (take x, by rewrite [mem_inter_iff, mem_complement_iff, mem_union_iff, *mem_complement_iff,
+  theorem inter_eq_compl_compl_union_compl (s t : finset A) : s ∩ t = -(-s ∪ -t) :=
+  ext (take x, by rewrite [mem_inter_iff, mem_compl_iff, mem_union_iff, *mem_compl_iff,
                            and_iff_not_or_not])
 end
 

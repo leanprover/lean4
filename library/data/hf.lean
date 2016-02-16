@@ -433,8 +433,8 @@ theorem image_insert (f : hf → hf) (s : hf) (a : hf) : image f (insert a s) = 
 begin unfold [image, insert], rewrite [*to_finset_of_finset, finset.image_insert] end
 
 open function
-lemma image_compose {f : hf → hf} {g : hf → hf} {s : hf} : image (f∘g) s = image f (image g s) :=
-begin unfold image, rewrite [*to_finset_of_finset, finset.image_compose] end
+lemma image_comp {f : hf → hf} {g : hf → hf} {s : hf} : image (f∘g) s = image f (image g s) :=
+begin unfold image, rewrite [*to_finset_of_finset, finset.image_comp] end
 
 lemma image_subset {a b : hf} (f : hf → hf) : a ⊆ b → image f a ⊆ image f b :=
 begin unfold [subset, image], intro h, rewrite *to_finset_of_finset, apply finset.image_subset f h end
@@ -455,7 +455,7 @@ theorem powerset_insert {a : hf} {s : hf} : a ∉ s → 𝒫 (insert a s) = 𝒫
 begin unfold [mem, powerset, insert, union, image], rewrite [*to_finset_of_finset], intro h,
       have (λ (x : finset hf), of_finset (finset.insert a x)) = (λ (x : finset hf), of_finset (finset.insert a (to_finset (of_finset x)))), from
         funext (λ x, by rewrite to_finset_of_finset),
-      rewrite [finset.powerset_insert h, finset.image_union, -*finset.image_compose,↑compose,this]
+      rewrite [finset.powerset_insert h, finset.image_union, -*finset.image_comp, ↑compose, this]
 end
 
 theorem mem_powerset_iff_subset (s : hf) : ∀ x : hf, x ∈ 𝒫 s ↔ x ⊆ s :=

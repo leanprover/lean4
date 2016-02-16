@@ -28,10 +28,10 @@ lemma rmul_compose : ∀ (a b : A), (rmul a) ∘ (rmul b) = rmul (b*a) :=
       funext (assume x, by
         rewrite [↑function.compose, ↑rmul, mul.assoc])
 lemma lcompose a b (S : set A) : l a (l b S) = l (a*b) S :=
-      calc (lmul a) ' ((lmul b) ' S) = ((lmul a) ∘ (lmul b)) ' S : image_compose
+      calc (lmul a) ' ((lmul b) ' S) = ((lmul a) ∘ (lmul b)) ' S : image_comp
       ... = lmul (a*b) ' S : lmul_compose
 lemma rcompose a b (S : set A) : r a (r b S) = r (b*a) S :=
-      calc (rmul a) ' ((rmul b) ' S) = ((rmul a) ∘ (rmul b)) ' S : image_compose
+      calc (rmul a) ' ((rmul b) ' S) = ((rmul a) ∘ (rmul b)) ' S : image_comp
       ... = rmul (b*a) ' S : rmul_compose
 lemma l_sub a (S H : set A) : S ⊆ H → (l a S) ⊆ (l a H) := image_subset (lmul a)
 definition l_same S (a b : A) := l a S = l b S

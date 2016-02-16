@@ -456,19 +456,19 @@ theorem mem_open_ball (x : V) {ε : ℝ} (H : ε > 0) : x ∈ open_ball x ε :=
 
 definition closed_ball (x : V) (ε : ℝ) := {y ∈ univ | dist x y ≤ ε}
 
-theorem closed_ball_eq_comp (x : V) (ε : ℝ) : closed_ball x ε = -{y ∈ univ | dist x y > ε} :=
+theorem closed_ball_eq_compl (x : V) (ε : ℝ) : closed_ball x ε = -{y ∈ univ | dist x y > ε} :=
   begin
     apply ext,
     intro y,
     apply iff.intro,
     intro Hx,
-    apply mem_comp,
+    apply mem_compl,
     intro Hxmem,
     cases Hxmem with _ Hgt,
     cases Hx with _ Hle,
     apply not_le_of_gt Hgt Hle,
     intro Hx,
-    note Hx' := not_mem_of_mem_comp Hx,
+    note Hx' := not_mem_of_mem_compl Hx,
     split,
     apply mem_univ,
     apply le_of_not_gt,
@@ -497,9 +497,9 @@ theorem open_ball_open (x : V) (ε : ℝ) : Open (open_ball x ε) :=
 
 theorem closed_ball_closed (x : V) {ε : ℝ} (H : ε > 0) : closed (closed_ball x ε) :=
   begin
-    apply iff.mpr !closed_iff_Open_comp,
-    rewrite closed_ball_eq_comp,
-    rewrite comp_comp,
+    apply iff.mpr !closed_iff_Open_compl,
+    rewrite closed_ball_eq_compl,
+    rewrite compl_compl,
     apply Open_of_forall_exists_Open_nbhd,
     intro y Hy,
     cases Hy with _ Hxy,

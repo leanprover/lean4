@@ -26,14 +26,14 @@ definition measurable (t : set X) : Prop := t ∈ sets X
 theorem measurable_univ : measurable (@univ X) :=
 univ_mem_sets X
 
-theorem measurable_comp {s : set X} (H : measurable s) : measurable (-s) :=
+theorem measurable_compl {s : set X} (H : measurable s) : measurable (-s) :=
 comp_mem_sets H
 
-theorem measurable_of_measurable_comp {s : set X} (H : measurable (-s)) : measurable s :=
-!comp_comp ▸ measurable_comp H
+theorem measurable_of_measurable_compl {s : set X} (H : measurable (-s)) : measurable s :=
+!compl_compl ▸ measurable_compl H
 
 theorem measurable_empty : measurable (∅ : set X) :=
-comp_univ ▸ measurable_comp measurable_univ
+compl_univ ▸ measurable_compl measurable_univ
 
 theorem measurable_cUnion {s : ℕ → set X} (H : ∀ i, measurable (s i)) :
   measurable (⋃ i, s i) :=
@@ -41,8 +41,8 @@ cUnion_mem_sets H
 
 theorem measurable_cInter {s : ℕ → set X} (H : ∀ i, measurable (s i)) :
   measurable (⋂ i, s i) :=
-have ∀ i, measurable (-(s i)), from take i, measurable_comp (H i),
-have measurable (-(⋃ i, -(s i))), from measurable_comp (measurable_cUnion this),
+have ∀ i, measurable (-(s i)), from take i, measurable_compl (H i),
+have measurable (-(⋃ i, -(s i))), from measurable_compl (measurable_cUnion this),
 show measurable (⋂ i, s i), using this, by rewrite Inter_eq_comp_Union_comp; apply this
 
 theorem measurable_union {s t : set X} (Hs : measurable s) (Ht : measurable t) :
@@ -57,7 +57,7 @@ show measurable (s ∩ t), using this, by rewrite -Inter_bin_ext; exact measurab
 
 theorem measurable_diff {s t : set X} (Hs : measurable s) (Ht : measurable t) :
   measurable (s \ t) :=
-measurable_inter Hs (measurable_comp Ht)
+measurable_inter Hs (measurable_compl Ht)
 
 theorem measurable_insert {x : X} {s : set X} (Hx : measurable '{x}) (Hs : measurable s) :
   measurable (insert x s) :=
@@ -100,7 +100,7 @@ begin
   induction Hs with s sG s Hs ssX s Hs sisX,
     {exact H sG},
     {exact measurable_univ},
-    {exact measurable_comp ssX},
+    {exact measurable_compl ssX},
   exact measurable_cUnion sisX
 end
 
@@ -135,8 +135,8 @@ protected definition inf (M N : sigma_algebra X) : sigma_algebra X :=
   sets            := @sets X M ∩ @sets X N,
   univ_mem_sets   := abstract and.intro (@measurable_univ X M) (@measurable_univ X N) end,
   comp_mem_sets   := abstract take s, assume Hs, and.intro
-                       (@measurable_comp X M s (and.elim_left Hs))
-                       (@measurable_comp X N s (and.elim_right Hs)) end,
+                       (@measurable_compl X M s (and.elim_left Hs))
+                       (@measurable_compl X N s (and.elim_right Hs)) end,
   cUnion_mem_sets := abstract take s, assume Hs, and.intro
                        (@measurable_cUnion X M s (λ i, and.elim_left (Hs i)))
                        (@measurable_cUnion X N s (λ i, and.elim_right (Hs i))) end⦄
@@ -156,7 +156,7 @@ protected definition Inf (MS : set (sigma_algebra X)) : sigma_algebra X :=
   sets            := ⋂ M ∈ MS, @sets _ M,
   univ_mem_sets   := abstract take M, assume HM, @measurable_univ X M end,
   comp_mem_sets   := abstract take s, assume Hs, take M, assume HM,
-                       measurable_comp (Hs M HM) end,
+                       measurable_compl (Hs M HM) end,
   cUnion_mem_sets := abstract take s, assume Hs, take M, assume HM,
                        measurable_cUnion (λ i, Hs i M HM) end
 ⦄
@@ -242,7 +242,7 @@ section
 
   theorem borel_of_closed {s : set X} (H : closed s) : borel s :=
   have borel (-s), from borel_of_open H,
-  @measurable_of_measurable_comp _ (borel_algebra X) _ this
+  @measurable_of_measurable_compl _ (borel_algebra X) _ this
 end
 
 end measure_theory

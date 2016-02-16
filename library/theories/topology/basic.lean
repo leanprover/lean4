@@ -63,46 +63,46 @@ end
 
 definition closed [reducible] (s : set X) : Prop := Open (-s)
 
-theorem closed_iff_Open_comp (s : set X) : closed s ↔ Open (-s) := !iff.refl
+theorem closed_iff_Open_compl (s : set X) : closed s ↔ Open (-s) := !iff.refl
 
-theorem Open_iff_closed_comp (s : set X) : Open s ↔ closed (-s) :=
-by rewrite [closed_iff_Open_comp, comp_comp]
+theorem Open_iff_closed_compl (s : set X) : Open s ↔ closed (-s) :=
+by rewrite [closed_iff_Open_compl, compl_compl]
 
-theorem closed_comp {s : set X} (H : Open s) : closed (-s) :=
-by rewrite [-Open_iff_closed_comp]; apply H
+theorem closed_compl {s : set X} (H : Open s) : closed (-s) :=
+by rewrite [-Open_iff_closed_compl]; apply H
 
 theorem closed_empty : closed (∅ : set X) :=
-by rewrite [↑closed, comp_empty]; exact Open_univ
+by rewrite [↑closed, compl_empty]; exact Open_univ
 
 theorem closed_univ : closed (univ : set X) :=
-by rewrite [↑closed, comp_univ]; exact Open_empty
+by rewrite [↑closed, compl_univ]; exact Open_empty
 
 theorem closed_sInter {S : set (set X)} (H : ∀₀ t ∈ S, closed t) : closed (⋂₀ S) :=
 begin
-  rewrite [↑closed, comp_sInter],
+  rewrite [↑closed, compl_sInter],
   apply Open_sUnion,
   intro t,
-  rewrite [mem_image_complement, Open_iff_closed_comp],
+  rewrite [mem_image_compl, Open_iff_closed_compl],
   apply H
 end
 
 theorem closed_Inter {I : Type} {s : I → set X} (H : ∀ i, closed (s i : set X)) :
   closed (⋂ i, s i) :=
-by rewrite [↑closed, comp_Inter]; apply Open_Union; apply H
+by rewrite [↑closed, compl_Inter]; apply Open_Union; apply H
 
 theorem closed_inter {s t : set X} (Hs : closed s) (Ht : closed t) : closed (s ∩ t) :=
-by rewrite [↑closed, comp_inter]; apply Open_union; apply Hs; apply Ht
+by rewrite [↑closed, compl_inter]; apply Open_union; apply Hs; apply Ht
 
 theorem closed_union {s t : set X} (Hs : closed s) (Ht : closed t) : closed (s ∪ t) :=
-by rewrite [↑closed, comp_union]; apply Open_inter; apply Hs; apply Ht
+by rewrite [↑closed, compl_union]; apply Open_inter; apply Hs; apply Ht
 
 theorem closed_sUnion_of_finite {s : set (set X)} [fins : finite s] (H : ∀₀ t ∈ s, closed t) :
   closed (⋂₀ s) :=
 begin
-  rewrite [↑closed, comp_sInter],
+  rewrite [↑closed, compl_sInter],
   apply Open_sUnion,
   intro t,
-  rewrite [mem_image_complement, Open_iff_closed_comp],
+  rewrite [mem_image_compl, Open_iff_closed_compl],
   apply H
 end
 
@@ -110,7 +110,7 @@ theorem open_diff {s t : set X} (Hs : Open s) (Ht : closed t) : Open (s \ t) :=
 Open_inter Hs Ht
 
 theorem closed_diff {s t : set X} (Hs : closed s) (Ht : Open t) : closed (s \ t) :=
-closed_inter Hs (closed_comp Ht)
+closed_inter Hs (closed_compl Ht)
 
 section
 open classical

@@ -85,7 +85,7 @@ funext take c, calc a*(c*b) = (a*c)*b : mul.assoc
 
 lemma fin_lrcoset_comm {a b : A} :
   fin_lcoset (fin_rcoset H b) a = fin_rcoset (fin_lcoset H a) b :=
-by esimp [fin_lcoset, fin_rcoset]; rewrite [-*image_compose, lmul_rmul]
+by esimp [fin_lcoset, fin_rcoset]; rewrite [-*image_comp, lmul_rmul]
 
 lemma inv_mem_fin_inv {a : A} : a ∈ H → a⁻¹ ∈ fin_inv H :=
 assume Pin, mem_image Pin rfl
@@ -135,7 +135,7 @@ lemma finsubg_inv_lcoset_eq_rcoset {a : A} :
   fin_inv (fin_lcoset H a) = fin_rcoset H a⁻¹ :=
 begin
   esimp [fin_inv, fin_lcoset, fin_rcoset],
-  rewrite [-image_compose],
+  rewrite [-image_comp],
   apply ext, intro b,
   rewrite [*mem_image_iff, ↑compose, ↑lmul_by, ↑rmul_by],
   apply iff.intro,

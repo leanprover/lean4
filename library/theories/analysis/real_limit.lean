@@ -503,7 +503,7 @@ have H₂ : ∀ x, x ∈ X ' univ → b ≤ x, from
     show b ≤ x, by rewrite -Hi₂; apply Hb i),
 have H₃ : {x : ℝ | -x ∈ X ' univ} = {x : ℝ | x ∈ (λ n, -X n) ' univ}, from calc
   {x : ℝ | -x ∈ X ' univ} = (λ y, -y) ' (X ' univ) : by rewrite image_neg_eq
-                       ... = {x : ℝ | x ∈ (λ n, -X n) ' univ} : image_compose,
+                       ... = {x : ℝ | x ∈ (λ n, -X n) ' univ} : image_comp,
 have H₄ : ∀ i, - X i ≤ - b, from take i, neg_le_neg (Hb i),
 begin+
   -- need krewrite here

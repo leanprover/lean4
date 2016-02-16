@@ -951,4 +951,57 @@ theorem bInter_subset_of_mem {s : set X} {f : X → set Y} {x : X} (xs : x ∈ s
   (⋂ x ∈ s, f x) ⊆ f x :=
 take y, assume Hy, Hy x xs
 
+theorem bInter_empty (f : X → set Y) : (⋂ x ∈ (∅ : set X), f x) = univ :=
+eq_univ_of_forall (take y x xine, absurd xine !not_mem_empty)
+
+theorem bInter_singleton (a : X) (f : X → set Y) : (⋂ x ∈ '{a}, f x) = f a :=
+ext (take y, iff.intro
+  (assume H, H a !mem_singleton)
+  (assume H, λ x xa, by rewrite [eq_of_mem_singleton xa]; apply H))
+
+theorem bInter_union (s t : set X) (f : X → set Y) :
+  (⋂ x ∈ s ∪ t, f x) = (⋂ x ∈ s, f x) ∩ (⋂ x ∈ t, f x) :=
+ext (take y, iff.intro
+  (assume H, and.intro (λ x xs, H x (or.inl xs)) (λ x xt, H x (or.inr xt)))
+  (assume H, λ x xst, or.elim (xst) (λ xs, and.left H x xs) (λ xt, and.right H x xt)))
+
+theorem bInter_insert (a : X) (s : set X) (f : X → set Y) :
+  (⋂ x ∈ insert a s, f x) = f a ∩ (⋂ x ∈ s, f x) :=
+by rewrite [insert_eq, bInter_union, bInter_singleton]
+
+theorem bInter_pair (a b : X) (f : X → set Y) :
+  (⋂ x ∈ '{a, b}, f x) = f a ∩ f b :=
+by rewrite [*bInter_insert, bInter_empty, inter_univ]
+
+theorem bUnion_empty (f : X → set Y) : (⋃ x ∈ (∅ : set X), f x) = ∅ :=
+eq_empty_of_forall_not_mem (λ y H, obtain x [xine yfx], from H,
+  !not_mem_empty xine)
+
+theorem bUnion_singleton (a : X) (f : X → set Y) : (⋃ x ∈ '{a}, f x) = f a :=
+ext (take y, iff.intro
+  (assume H, obtain x [xina yfx], from H,
+    show y ∈ f a, by rewrite [-eq_of_mem_singleton xina]; exact yfx)
+  (assume H, exists.intro a (and.intro !mem_singleton H)))
+
+theorem bUnion_union (s t : set X) (f : X → set Y) :
+  (⋃ x ∈ s ∪ t, f x) = (⋃ x ∈ s, f x) ∪ (⋃ x ∈ t, f x) :=
+ext (take y, iff.intro
+  (assume H, obtain x [xst yfx], from H,
+    or.elim xst
+      (λ xs, or.inl (exists.intro x (and.intro xs yfx)))
+      (λ xt, or.inr (exists.intro x (and.intro xt yfx))))
+  (assume H, or.elim H
+    (assume H1, obtain x [xs yfx], from H1,
+      exists.intro x (and.intro (or.inl xs) yfx))
+    (assume H1, obtain x [xt yfx], from H1,
+      exists.intro x (and.intro (or.inr xt) yfx))))
+
+theorem bUnion_insert (a : X) (s : set X) (f : X → set Y) :
+  (⋃ x ∈ insert a s, f x) = f a ∪ (⋃ x ∈ s, f x) :=
+by rewrite [insert_eq, bUnion_union, bUnion_singleton]
+
+theorem bUnion_pair (a b : X) (f : X → set Y) :
+  (⋃ x ∈ '{a, b}, f x) = f a ∪ f b :=
+by rewrite [*bUnion_insert, bUnion_empty, union_empty]
+
 end set

@@ -883,6 +883,30 @@ by rewrite [-comp_comp, comp_Union]
 theorem Inter_eq_comp_Union_comp {X I : Type} (s : I → set X) : (⋂ i, s i) = - (⋃ i, -s i) :=
 by rewrite [-comp_comp, comp_Inter]
 
+lemma inter_distrib_Union_left {X I : Type} (s : I → set X) (a : set X) :
+  a ∩ (⋃ i, s i) = ⋃ i, a ∩ s i :=
+ext (take x, iff.intro
+  (assume H, obtain i Hi, from and.elim_right H,
+    have x ∈ a ∩ s i, from and.intro (and.elim_left H) Hi,
+    show _, from exists.intro i this)
+  (assume H, obtain i [xa xsi], from H,
+   show _, from and.intro xa (exists.intro i xsi)))
+
+section
+  open classical
+
+  lemma union_distrib_Inter_left {X I : Type} (s : I → set X) (a : set X) :
+    a ∪ (⋂ i, s i) = ⋂ i, a ∪ s i :=
+  ext (take x, iff.intro
+    (assume H, or.elim H
+      (assume H1, take i, or.inl H1)
+      (assume H1, take i, or.inr (H1 i)))
+    (assume H,
+      by_cases
+        (suppose x ∈ a, or.inl this)
+        (suppose x ∉ a, or.inr (take i, or.resolve_left (H i) this))))
+end
+
 -- these are useful for turning binary union / intersection into countable ones
 
 definition bin_ext (s t : set X) (n : ℕ) : set X :=

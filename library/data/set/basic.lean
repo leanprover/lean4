@@ -286,6 +286,12 @@ theorem inter_subset_left (s t : set X) : s ∩ t ⊆ s := λ x H, and.left H
 
 theorem inter_subset_right (s t : set X) : s ∩ t ⊆ t := λ x H, and.right H
 
+theorem inter_subset_inter_right {s t : set X} (u : set X) (H : s ⊆ t) : s ∩ u ⊆ t ∩ u :=
+take x, assume xsu, and.intro (H (and.left xsu)) (and.right xsu)
+
+theorem inter_subset_inter_left {s t : set X} (u : set X) (H : s ⊆ t) : u ∩ s ⊆ u ∩ t :=
+take x, assume xus, and.intro (and.left xus) (H (and.right xus))
+
 theorem subset_inter {s t r : set X} (rs : r ⊆ s) (rt : r ⊆ t) : r ⊆ s ∩ t :=
 λ x xr, and.intro (rs xr) (rt xr)
 

@@ -17,11 +17,6 @@ open eq is_equiv equiv equiv.ops pointed is_trunc
 
 structure pequiv (A B : Type*) extends equiv A B, pmap A B
 
-section
-  universe variable u
-  structure ptrunctype (n : trunc_index) extends trunctype.{u} n, pType.{u}
-end
-
 namespace pointed
 
   variables {A B C : Type*}

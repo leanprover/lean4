@@ -6,7 +6,7 @@ Authors: Jakob von Raumer, Floris van Doorn
 Ported from Coq HoTT
 -/
 
-import arity .eq .bool .unit .sigma .nat.basic
+import arity .eq .bool .unit .sigma .nat.basic prop_trunc
 open is_trunc eq prod sigma nat equiv option is_equiv bool unit algebra equiv.ops
 
 structure pointed [class] (A : Type) :=
@@ -18,13 +18,22 @@ structure pType :=
 
 notation `Type*` := pType
 
+section
+  universe variable u
+  structure ptrunctype (n : trunc_index) extends trunctype.{u} n, pType.{u}
+end
+
+notation n `-Type*` := ptrunctype n
+abbreviation pSet  [parsing_only] := 0-Type*
+notation `Set*` := pSet
+
 namespace pointed
   attribute pType.carrier [coercion]
   variables {A B : Type}
 
   definition pt [unfold 2] [H : pointed A] := point A
   definition Point [unfold 1] (A : Type*) := pType.Point A
-  definition carrier [unfold 1] (A : Type*) := pType.carrier A
+  abbreviation carrier [unfold 1] (A : Type*) := pType.carrier A
   protected definition Mk [constructor] {A : Type} (a : A) := pType.mk A a
   protected definition MK [constructor] (A : Type) (a : A) := pType.mk A a
   protected definition mk' [constructor] (A : Type) [H : pointed A] : Type* :=
@@ -62,12 +71,6 @@ namespace pointed
 
   infixr ` ×* `:35 := pprod
 
-  definition pbool [constructor] : Type* :=
-  pointed.mk' bool
-
-  definition punit [constructor] : Type* :=
-  pointed.Mk unit.star
-
   definition pointed_fun_closed [constructor] (f : A → B) [H : pointed A] : pointed B :=
   pointed.mk (f pt)
 
@@ -97,6 +100,10 @@ namespace pointed
     { rewrite [cast_ua,p]},
   end
 
+  definition pType_eq_elim {A B : Type*} (p : A = B :> Type*)
+    : Σ(p : carrier A = carrier B :> Type), cast p pt = pt :=
+  by induction p; exact ⟨idp, idp⟩
+
   protected definition pType.sigma_char.{u} : pType.{u} ≃ Σ(X : Type.{u}), X :=
   begin
     fapply equiv.MK,
@@ -111,9 +118,56 @@ namespace pointed
   postfix `₊`:(max+1) := add_point
   -- the inclusion A → A₊ is called "some", the extra point "pt" or "none" ("@none A")
 
-end pointed
+end pointed open pointed
+
+protected definition ptrunctype.mk' [constructor] (n : trunc_index)
+  (A : Type) [pointed A] [is_trunc n A] : n-Type* :=
+ptrunctype.mk A _ pt
+
+protected definition pSet.mk [constructor] := @ptrunctype.mk (-1.+1)
+protected definition pSet.mk' [constructor] := ptrunctype.mk' (-1.+1)
+
+definition ptrunctype_of_trunctype [constructor] {n : trunc_index} (A : n-Type) (a : A) : n-Type* :=
+ptrunctype.mk A _ a
+
+definition ptrunctype_of_pType [constructor] {n : trunc_index} (A : Type*) (H : is_trunc n A)
+  : n-Type* :=
+ptrunctype.mk A _ pt
+
+definition pSet_of_Set [constructor] (A : Set) (a : A) : Set* :=
+ptrunctype.mk A _ a
+
+definition pSet_of_pType [constructor] (A : Type*) (H : is_set A) : Set* :=
+ptrunctype.mk A _ pt
+
+attribute pType._trans_to_carrier ptrunctype.to_pType ptrunctype.to_trunctype [unfold 2]
+
+definition ptrunctype_eq {n : trunc_index} {A B : n-Type*} (p : A = B :> Type) (q : cast p pt = pt)
+  : A = B :=
+begin
+  induction A with A HA a, induction B with B HB b, esimp at *,
+  induction p, induction q,
+  esimp,
+  refine ap010 (ptrunctype.mk A) _ a,
+  exact !is_prop.elim
+end
+
+definition ptrunctype_eq_of_pType_eq {n : trunc_index} {A B : n-Type*} (p : A = B :> Type*)
+  : A = B :=
+begin
+  cases pType_eq_elim p with q r,
+  exact ptrunctype_eq q r
+end
+
 
 namespace pointed
+
+  definition pbool [constructor] : Set* :=
+  pSet.mk' bool
+
+  definition punit [constructor] : Set* :=
+  pSet.mk' unit
+
   /- properties of iterated loop space -/
   variable (A : Type*)
   definition loop_space_succ_eq_in (n : ℕ) : Ω[succ n] A = Ω[n] (Ω A) :=
@@ -249,7 +303,7 @@ namespace pointed
 
   -- set_option pp.notation false
   -- definition pmap_equiv_right (A : Type*) (B : Type)
-  --   : (Σ(b : B), map₊ A (pointed.Mk b)) ≃ (A → B) :=
+  --   : (Σ(b : B), A →* (pointed.Mk b)) ≃ (A → B) :=
   -- begin
   --   fapply equiv.MK,
   --   { intro u a, cases u with b f, cases f with f p, esimp at f, exact f a},
@@ -262,7 +316,7 @@ namespace pointed
   --     }
   -- end
 
-  definition pmap_bool_equiv (B : Type*) : map₊ pbool B ≃ B :=
+  definition pmap_bool_equiv (B : Type*) : (pbool →* B) ≃ B :=
   begin
     fapply equiv.MK,
     { intro f, cases f with f p, exact f tt},

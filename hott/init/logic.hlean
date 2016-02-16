@@ -167,7 +167,6 @@ prod.rec (λHa Hb, prod.mk Hb Ha)
 /- sum -/
 
 infixr ⊎ := sum
-infixr + := sum
 
 attribute sum.rec [elim]
 

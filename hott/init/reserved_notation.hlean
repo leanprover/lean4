@@ -41,7 +41,7 @@ definition bit0 [reducible] {A : Type} [s  : has_add A] (a  : A)                
 definition bit1 [reducible] {A : Type} [s₁ : has_one A] [s₂ : has_add A] (a : A) : A :=
 add (bit0 a) one
 
-definition num_has_zero [reducible] [instance] : has_zero num :=
+definition num_has_zero [reducible] [instance]  : has_zero num :=
 has_zero.mk num.zero
 
 definition num_has_one [reducible] [instance] : has_one num :=
@@ -101,6 +101,9 @@ namespace nat
   num.rec zero
     (λ n, pos_num.rec (succ zero) (λ n r, nat.add (nat.add r r) (succ zero)) (λ n r, nat.add r r) n) n
 end nat
+
+attribute pos_num_has_add pos_num_has_one num_has_zero num_has_one num_has_add
+          [instance] [priority nat.prio]
 
 definition nat_has_zero [reducible] [instance] [priority nat.prio] : has_zero nat :=
 has_zero.mk nat.zero

@@ -23,10 +23,10 @@ namespace is_trunc
 
   open trunc_index
 
-  definition has_zero_trunc_index [instance] [reducible] : has_zero trunc_index :=
+  definition has_zero_trunc_index [instance] [priority 2000] [reducible] : has_zero trunc_index :=
   has_zero.mk (succ (succ minus_two))
 
-  definition has_one_trunc_index [instance] [reducible] : has_one trunc_index :=
+  definition has_one_trunc_index [instance] [priority 2000] [reducible] : has_one trunc_index :=
   has_one.mk (succ (succ (succ minus_two)))
 
   /-
@@ -55,14 +55,14 @@ namespace is_trunc
   definition leq [reducible] (n m : trunc_index) : Type₀ :=
   trunc_index.rec_on n (λm, unit) (λ n p m, trunc_index.rec_on m (λ p, empty) (λ m q p, p m) p) m
 
-  definition has_le_trunc_index [instance] [reducible] : has_le trunc_index :=
+  definition has_le_trunc_index [instance] [priority 2000] [reducible] : has_le trunc_index :=
   has_le.mk leq
 
   end trunc_index
 
   attribute trunc_index.tr_add [reducible]
   infix `+2+`:65 := trunc_index.add_plus_two
-  definition has_add_trunc_index [instance] [reducible] : has_add ℕ₋₂ :=
+  definition has_add_trunc_index [instance] [priority 2000] [reducible] : has_add ℕ₋₂ :=
   has_add.mk trunc_index.tr_add
 
   namespace trunc_index
@@ -343,21 +343,21 @@ structure trunctype (n : trunc_index) :=
   (carrier : Type)
   (struct : is_trunc n carrier)
 
+notation n `-Type` := trunctype n
+abbreviation Prop := -1-Type
+abbreviation Set  := 0-Type
+
+attribute trunctype.carrier [coercion]
+attribute trunctype.struct [instance] [priority 1400]
+
+protected abbreviation Prop.mk := @trunctype.mk -1
+protected abbreviation Set.mk := @trunctype.mk (-1.+1)
+
+protected definition trunctype.mk' [constructor] (n : trunc_index) (A : Type) [H : is_trunc n A]
+  : n-Type :=
+trunctype.mk A H
+
 namespace is_trunc
-
-  attribute trunctype.carrier [coercion]
-  attribute trunctype.struct [instance] [priority 1400]
-
-  notation n `-Type` := trunctype n
-  abbreviation Prop := -1-Type
-  abbreviation Set  := 0-Type
-
-  protected abbreviation Prop.mk := @trunctype.mk -1
-  protected abbreviation Set.mk := @trunctype.mk (-1.+1)
-
-  protected abbreviation trunctype.mk' [parsing_only] (n : trunc_index) (A : Type)
-    [H : is_trunc n A] : n-Type :=
-  trunctype.mk A H
 
   definition tlift.{u v} [constructor] {n : trunc_index} (A : trunctype.{u} n)
     : trunctype.{max u v} n :=

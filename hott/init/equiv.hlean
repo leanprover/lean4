@@ -68,7 +68,7 @@ namespace is_equiv
   parameters {A B : Type} (f : A → B) (g : B → A)
             (ret : Πb, f (g b) = b) (sec : Πa, g (f a) = a)
 
-  private abbreviation adjointify_left_inv' (a : A) : g (f a) = a :=
+  private definition adjointify_left_inv' (a : A) : g (f a) = a :=
   ap g (ap f (inverse (sec a))) ⬝ ap g (ret (f a)) ⬝ sec a
 
   private theorem adjointify_adj' (a : A) : ret (f a) = ap f (adjointify_left_inv' a) :=
@@ -97,12 +97,11 @@ namespace is_equiv
       ... = retrfa⁻¹ ⬝ ap f (ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ ap f (sec a)   : by rewrite ap_con
       ... = retrfa⁻¹ ⬝ (ap f (ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ ap f (sec a)) : by rewrite con.assoc'
       ... = retrfa⁻¹ ⬝ ap f ((ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ sec a)        : by rewrite -ap_con,
-  have eq4 : ret (f a) = ap f ((ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ sec a),
-    from eq_of_idp_eq_inv_con eq3,
-  eq4
+  show ret (f a) = ap f ((ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ sec a),
+    from eq_of_idp_eq_inv_con eq3
 
   definition adjointify [constructor] : is_equiv f :=
-  is_equiv.mk f g ret abstract adjointify_left_inv' end adjointify_adj'
+  is_equiv.mk f g ret adjointify_left_inv' adjointify_adj'
   end
 
   -- Any function pointwise equal to an equivalence is an equivalence as well.

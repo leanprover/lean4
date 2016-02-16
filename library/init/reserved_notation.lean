@@ -101,6 +101,9 @@ namespace nat
     (λ n, pos_num.rec (succ zero) (λ n r, nat.add (nat.add r r) (succ zero)) (λ n r, nat.add r r) n) n
 end nat
 
+attribute pos_num_has_add pos_num_has_one num_has_zero num_has_one num_has_add
+          [instance] [priority nat.prio]
+
 definition nat_has_zero [reducible] [instance] [priority nat.prio] : has_zero nat :=
 has_zero.mk nat.zero
 

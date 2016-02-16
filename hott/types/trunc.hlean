@@ -242,11 +242,15 @@ namespace trunc
     : transport (λa, trunc n (P a)) p (tr x) = tr (p ▸ x) :=
   by induction p; reflexivity
 
-  definition image {A B : Type} (f : A → B) (b : B) : Prop := ∥ fiber f b ∥
+  definition image [constructor] {A B : Type} (f : A → B) (b : B) : Prop := ∥ fiber f b ∥
+
+  definition image.mk [constructor] {A B : Type} {f : A → B} {b : B} (a : A) (p : f a = b)
+    : image f b :=
+  tr (fiber.mk a p)
 
   -- truncation of pointed types
-  definition ptrunc [constructor] (n : trunc_index) (X : Type*) : Type* :=
-  pointed.MK (trunc n X) (tr pt)
+  definition ptrunc [constructor] (n : trunc_index) (X : Type*) : n-Type* :=
+  ptrunctype.mk (trunc n X) _ (tr pt)
 
   definition ptrunc_functor [constructor] {X Y : Type*} (n : ℕ₋₂) (f : X →* Y)
     : ptrunc n X →* ptrunc n Y :=

@@ -12,14 +12,14 @@ open nat eq pointed trunc is_trunc algebra
 
 namespace eq
 
+  definition phomotopy_group [constructor] (n : ℕ) (A : Type*) : Set* :=
+  ptrunc 0 (Ω[n] A)
+
   definition homotopy_group [reducible] (n : ℕ) (A : Type*) : Type :=
-  trunc 0 (Ω[n] A)
+  phomotopy_group n A
 
+  notation `π*[`:95  n:0    `] `:0 A:95 := phomotopy_group n A
   notation `π[`:95 n:0 `] `:0 A:95 := homotopy_group n A
-
-  definition pointed_homotopy_group [instance] [constructor] (n : ℕ) (A : Type*)
-    : pointed (π[n] A) :=
-  pointed.mk (tr rfln)
 
   definition group_homotopy_group [instance] [constructor] (n : ℕ) (A : Type*)
     : group (π[succ n] A) :=
@@ -31,21 +31,17 @@ namespace eq
 
   local attribute comm_group_homotopy_group [instance]
 
-  definition pType_homotopy_group [constructor] (n : ℕ) (A : Type*) : Type* :=
-  pointed.Mk (π[n] A)
-
-  definition Group_homotopy_group [constructor] (n : ℕ) (A : Type*) : Group :=
+  definition ghomotopy_group [constructor] (n : ℕ) (A : Type*) : Group :=
   Group.mk (π[succ n] A) _
 
-  definition CommGroup_homotopy_group [constructor] (n : ℕ) (A : Type*) : CommGroup :=
+  definition cghomotopy_group [constructor] (n : ℕ) (A : Type*) : CommGroup :=
   CommGroup.mk (π[succ (succ n)] A) _
 
   definition fundamental_group [constructor] (A : Type*) : Group :=
-  Group_homotopy_group zero A
+  ghomotopy_group zero A
 
-  notation `πP[`:95  n:0    `] `:0 A:95 := pType_homotopy_group n A
-  notation `πG[`:95  n:0 ` +1] `:0 A:95 := Group_homotopy_group n A
-  notation `πaG[`:95 n:0 ` +2] `:0 A:95 := CommGroup_homotopy_group n A
+  notation `πG[`:95  n:0 ` +1] `:0 A:95 := ghomotopy_group n A
+  notation `πaG[`:95 n:0 ` +2] `:0 A:95 := cghomotopy_group n A
 
   prefix `π₁`:95 := fundamental_group
 
@@ -74,11 +70,17 @@ namespace eq
     revert A, induction m with m IH: intro A,
     { reflexivity},
     { esimp [iterated_ploop_space, nat.add], refine !homotopy_group_succ_in ⬝ _, refine !IH ⬝ _,
-      exact ap (Group_homotopy_group n) !loop_space_succ_eq_in⁻¹}
+      exact ap (ghomotopy_group n) !loop_space_succ_eq_in⁻¹}
   end
 
   theorem trivial_homotopy_of_is_set_loop_space {A : Type*} {n : ℕ} (m : ℕ) (H : is_set (Ω[n] A))
     : πG[m+n+1] A = G0 :=
   !homotopy_group_add ⬝ !trivial_homotopy_of_is_set
+
+  definition phomotopy_group_functor [constructor] (n : ℕ) {A B : Type*} (f : A →* B)
+    : π*[n] A →* π*[n] B :=
+  ptrunc_functor 0 (apn n f)
+
+  notation `π→*[`:95  n:0    `] `:0 f:95 := phomotopy_group_functor n f
 
 end eq

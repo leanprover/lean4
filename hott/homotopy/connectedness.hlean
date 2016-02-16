@@ -111,7 +111,7 @@ namespace homotopy
     begin
       intro b,
       apply is_contr.mk (@is_retraction.sect _ _ _ s (λa, tr (fiber.mk a idp)) b),
-      apply trunc.rec, apply fiber.rec, intros a p,
+      esimp, apply trunc.rec, apply fiber.rec, intros a p,
       apply transport
                (λz : (Σy, h a = y), @sect _ _ _ s (λa, tr (mk a idp)) (sigma.pr1 z) =
                                     tr (fiber.mk a (sigma.pr2 z)))

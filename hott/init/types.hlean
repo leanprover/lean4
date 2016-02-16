@@ -43,6 +43,7 @@ end sigma
 -- --------
 
 namespace sum
+  infixr + := sum
   namespace low_precedence_plus
     reserve infixr ` + `:25  -- conflicts with notation for addition
     infixr ` + ` := sum

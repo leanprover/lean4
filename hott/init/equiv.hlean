@@ -152,18 +152,18 @@ namespace is_equiv
   adjointify
     (ap f)
     (eq_of_fn_eq_fn' f)
-    (λq, !ap_con
+    abstract (λq, !ap_con
       ⬝ whisker_right !ap_con _
       ⬝ ((!ap_inv ⬝ inverse2 (adj f _)⁻¹)
         ◾ (inverse (ap_compose f f⁻¹ _))
         ◾ (adj f _)⁻¹)
       ⬝ con_ap_con_eq_con_con (right_inv f) _ _
       ⬝ whisker_right !con.left_inv _
-      ⬝ !idp_con)
-    (λp, whisker_right (whisker_left _ (ap_compose f⁻¹ f _)⁻¹) _
+      ⬝ !idp_con) end
+    abstract (λp, whisker_right (whisker_left _ (ap_compose f⁻¹ f _)⁻¹) _
       ⬝ con_ap_con_eq_con_con (left_inv f) _ _
       ⬝ whisker_right !con.left_inv _
-      ⬝ !idp_con)
+      ⬝ !idp_con) end
 
   -- The function equiv_rect says that given an equivalence f : A → B,
   -- and a hypothesis from B, one may always assume that the hypothesis

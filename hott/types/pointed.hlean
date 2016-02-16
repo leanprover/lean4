@@ -379,7 +379,7 @@ namespace pointed
 
   /- categorical properties of pointed homotopies -/
 
-  protected definition phomotopy.refl [refl] (f : A →* B) : f ~* f :=
+  protected definition phomotopy.refl [constructor] [refl] (f : A →* B) : f ~* f :=
   begin
     fconstructor,
     { intro a, exact idp},
@@ -389,22 +389,20 @@ namespace pointed
   protected definition phomotopy.rfl [constructor] {A B : Type*} {f : A →* B} : f ~* f :=
   phomotopy.refl f
 
-  protected definition phomotopy.trans [trans] (p : f ~* g) (q : g ~* h)
+  protected definition phomotopy.trans [constructor] [trans] (p : f ~* g) (q : g ~* h)
     : f ~* h :=
-  begin
-    fconstructor,
-    { intro a, exact p a ⬝ q a},
-    { induction f, induction g, induction p with p p', induction q with q q', esimp at *,
-      induction p', induction q', esimp, apply con.assoc}
-  end
+  phomotopy.mk (λa, p a ⬝ q a)
+    abstract begin
+      induction f, induction g, induction p with p p', induction q with q q', esimp at *,
+      induction p', induction q', esimp, apply con.assoc
+    end end
 
-  protected definition phomotopy.symm [symm] (p : f ~* g) : g ~* f :=
-  begin
-    fconstructor,
-    { intro a, exact (p a)⁻¹},
-    { induction f, induction p with p p', esimp at *,
-      induction p', esimp, apply inv_con_cancel_left}
-  end
+  protected definition phomotopy.symm [constructor] [symm] (p : f ~* g) : g ~* f :=
+  phomotopy.mk (λa, (p a)⁻¹)
+    abstract begin
+      induction f, induction p with p p', esimp at *,
+      induction p', esimp, apply inv_con_cancel_left
+    end end
 
   infix ` ⬝* `:75 := phomotopy.trans
   postfix `⁻¹*`:(max+1) := phomotopy.symm
@@ -421,23 +419,21 @@ namespace pointed
   phomotopy_of_eq p ⬝* q
 
   definition pwhisker_left [constructor] (h : B →* C) (p : f ~* g) : h ∘* f ~* h ∘* g :=
-  begin
-    fconstructor,
-    { intro a, exact ap h (p a)},
-    { induction A, induction B, induction C,
+  phomotopy.mk (λa, ap h (p a))
+    abstract begin
+      induction A, induction B, induction C,
       induction f with f pf, induction g with g pg, induction h with h ph,
-      induction p with p p', esimp at *, induction ph, induction pg, induction p', reflexivity}
-  end
+      induction p with p p', esimp at *, induction ph, induction pg, induction p', reflexivity
+    end end
 
   definition pwhisker_right [constructor] (h : C →* A) (p : f ~* g) : f ∘* h ~* g ∘* h :=
-  begin
-    fconstructor,
-    { intro a, exact p (h a)},
-    { induction A, induction B, induction C,
+  phomotopy.mk (λa, p (h a))
+    abstract begin
+      induction A, induction B, induction C,
       induction f with f pf, induction g with g pg, induction h with h ph,
       induction p with p p', esimp at *, induction ph, induction pg, induction p', esimp,
-      exact !idp_con⁻¹}
-  end
+      exact !idp_con⁻¹
+    end end
 
   definition pconcat2 [constructor] {A B C : Type*} {h i : B →* C} {f g : A →* B}
     (q : h ~* i) (p : f ~* g) : h ∘* f ~* i ∘* g :=
@@ -457,18 +453,6 @@ namespace pointed
     { reflexivity}
   end
 
-  -- TODO: finish this proof
-  /- definition ap1_phomotopy {A B : Type*} {f g : A →* B} (p : f ~* g)
-    : ap1 f ~* ap1 g :=
-  begin
-    induction p with p q, induction f with f pf, induction g with g pg, induction B with B b,
-    esimp at *, induction q, induction pg,
-    fapply phomotopy.mk,
-    { intro l, esimp, refine _ ⬝ !idp_con⁻¹, refine !con.assoc ⬝ _, apply inv_con_eq_of_eq_con,
-      apply ap_con_eq_con_ap},
-    { esimp, }
-  end -/
-
   definition eq_of_phomotopy (p : f ~* g) : f = g :=
   begin
     fapply pmap_eq,
@@ -479,6 +463,19 @@ namespace pointed
   definition pap {A B C D : Type*} (F : (A →* B) → (C →* D))
     {f g : A →* B} (p : f ~* g) : F f ~* F g :=
   phomotopy.mk (ap010 F (eq_of_phomotopy p)) begin cases eq_of_phomotopy p, apply idp_con end
+
+  -- TODO: give proof without using function extensionality (commented out part is a start)
+  definition ap1_phomotopy {A B : Type*} {f g : A →* B} (p : f ~* g)
+    : ap1 f ~* ap1 g :=
+  pap ap1 p
+  /- begin
+    induction p with p q, induction f with f pf, induction g with g pg, induction B with B b,
+    esimp at *, induction q, induction pg,
+    fapply phomotopy.mk,
+    { intro l, esimp, refine _ ⬝ !idp_con⁻¹, refine !con.assoc ⬝ _, apply inv_con_eq_of_eq_con,
+      apply ap_con_eq_con_ap},
+    { esimp, }
+  end -/
 
   infix ` ⬝*p `:75 := pconcat_eq
   infix ` ⬝p* `:75 := eq_pconcat

@@ -198,7 +198,7 @@ namespace is_equiv
   end
 
   section
-  variables {A B : Type} {f : A → B} [Hf : is_equiv f] {a : A} {b : B}
+  variables {A B C : Type} {f : A → B} [Hf : is_equiv f] {a : A} {b : B} {g : B → C} {h : A → C}
   include Hf
 
   --Rewrite rules
@@ -213,6 +213,20 @@ namespace is_equiv
 
   definition eq_inv_of_eq (p : f a = b) : a = f⁻¹ b :=
   (inv_eq_of_eq p⁻¹)⁻¹
+
+  variable (f)
+  definition homotopy_of_homotopy_inv' (p : g ~ h ∘ f⁻¹) : g ∘ f ~ h :=
+  λa, p (f a) ⬝ ap h (left_inv f a)
+
+  definition homotopy_of_inv_homotopy' (p : h ∘ f⁻¹ ~ g) : h ~ g ∘ f :=
+  λa, ap h (left_inv f a)⁻¹ ⬝ p (f a)
+
+  definition inv_homotopy_of_homotopy' (p : h ~ g ∘ f) : h ∘ f⁻¹ ~ g :=
+  λb, p (f⁻¹ b) ⬝ ap g (right_inv f b)
+
+  definition homotopy_inv_of_homotopy' (p : g ∘ f ~ h) : g ~ h ∘ f⁻¹  :=
+  λb, ap g (right_inv f b)⁻¹ ⬝ p (f⁻¹ b)
+
   end
 
   --Transporting is an equivalence
@@ -361,6 +375,23 @@ namespace equiv
   definition fun_commute_of_inv_commute (p : Π⦃a : A⦄ (c : C (g' a)), f⁻¹ (h' c) = h (f⁻¹ c))
     {a : A} (b : B (g' a)) : f (h b) = h' (f b) :=
   fun_commute_of_inv_commute' @f @h @h' p b
+
+  end
+
+  section
+  variables {A B C : Type} (f : A ≃ B) {a : A} {b : B} {g : B → C} {h : A → C}
+
+  definition homotopy_of_homotopy_inv (p : g ~ h ∘ f⁻¹) : g ∘ f ~ h :=
+  homotopy_of_homotopy_inv' f p
+
+  definition homotopy_of_inv_homotopy (p : h ∘ f⁻¹ ~ g) : h ~ g ∘ f :=
+  homotopy_of_inv_homotopy' f p
+
+  definition inv_homotopy_of_homotopy (p : h ~ g ∘ f) : h ∘ f⁻¹ ~ g :=
+  inv_homotopy_of_homotopy' f p
+
+  definition homotopy_inv_of_homotopy (p : g ∘ f ~ h) : g ~ h ∘ f⁻¹  :=
+  homotopy_inv_of_homotopy' f p
 
   end
 

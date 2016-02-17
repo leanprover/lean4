@@ -7,7 +7,7 @@ Ported from Coq HoTT
 -/
 
 
-import .equiv
+import .equiv cubical.square
 
 open eq is_equiv equiv equiv.ops pointed is_trunc
 
@@ -18,6 +18,9 @@ open eq is_equiv equiv equiv.ops pointed is_trunc
 structure pequiv (A B : Type*) extends equiv A B, pmap A B
 
 namespace pointed
+
+  attribute pequiv._trans_of_to_pmap pequiv._trans_of_to_equiv pequiv.to_pmap pequiv.to_equiv
+            [unfold 3]
 
   variables {A B C : Type*}
 
@@ -95,5 +98,93 @@ namespace pointed
 
   infix ` ⬝e*p `:75 := peconcat_eq
   infix ` ⬝pe* `:75 := eq_peconcat
+
+  local attribute pequiv.symm [constructor]
+  definition pleft_inv (f : A ≃* B) : f⁻¹ᵉ* ∘* f ~* pid A :=
+  phomotopy.mk (left_inv f)
+    abstract begin
+      esimp, rewrite ap_inv, symmetry, apply con_inv_cancel_left
+    end end
+
+  definition pright_inv (f : A ≃* B) : f ∘* f⁻¹ᵉ* ~* pid B :=
+  phomotopy.mk (right_inv f)
+    abstract begin
+      induction f with f H p, esimp,
+      rewrite [ap_con, +ap_inv, -adj f, -ap_compose],
+      note q := natural_square (right_inv f) p,
+      rewrite [ap_id at q],
+      apply eq_bot_of_square,
+      exact transpose q
+    end end
+
+  definition pcancel_left (f : B ≃* C) {g h : A →* B} (p : f ∘* g ~* f ∘* h) : g ~* h :=
+  begin
+    refine _⁻¹* ⬝* pwhisker_left f⁻¹ᵉ* p ⬝* _:
+    refine !passoc⁻¹* ⬝* _:
+    refine pwhisker_right _ (pleft_inv f) ⬝* _:
+    apply pid_comp
+  end
+
+
+  definition pcancel_right (f : A ≃* B) {g h : B →* C} (p : g ∘* f ~* h ∘* f) : g ~* h :=
+  begin
+    refine _⁻¹* ⬝* pwhisker_right f⁻¹ᵉ* p ⬝* _:
+    refine !passoc ⬝* _:
+    refine pwhisker_left _ (pright_inv f) ⬝* _:
+    apply comp_pid
+  end
+
+  definition phomotopy_pinv_right_of_phomotopy {f : A ≃* B} {g : B →* C} {h : A →* C}
+    (p : g ∘* f ~* h) : g ~* h ∘* f⁻¹ᵉ* :=
+  begin
+    refine _ ⬝* pwhisker_right _ p, symmetry,
+    refine !passoc ⬝* _,
+    refine pwhisker_left _ (pright_inv f) ⬝* _,
+    apply comp_pid
+  end
+
+  definition phomotopy_of_pinv_right_phomotopy {f : B ≃* A} {g : B →* C} {h : A →* C}
+    (p : g ∘* f⁻¹ᵉ* ~* h) : g ~* h ∘* f :=
+  begin
+    refine _ ⬝* pwhisker_right _ p, symmetry,
+    refine !passoc ⬝* _,
+    refine pwhisker_left _ (pleft_inv f) ⬝* _,
+    apply comp_pid
+  end
+
+  definition pinv_right_phomotopy_of_phomotopy {f : A ≃* B} {g : B →* C} {h : A →* C}
+    (p : h ~* g ∘* f) : h ∘* f⁻¹ᵉ* ~* g :=
+  (phomotopy_pinv_right_of_phomotopy p⁻¹*)⁻¹*
+
+  definition phomotopy_of_phomotopy_pinv_right {f : B ≃* A} {g : B →* C} {h : A →* C}
+    (p : h ~* g ∘* f⁻¹ᵉ*) : h ∘* f ~* g :=
+  (phomotopy_of_pinv_right_phomotopy p⁻¹*)⁻¹*
+
+  definition phomotopy_pinv_left_of_phomotopy {f : B ≃* C} {g : A →* B} {h : A →* C}
+    (p : f ∘* g ~* h) : g ~* f⁻¹ᵉ* ∘* h :=
+  begin
+    refine _ ⬝* pwhisker_left _ p, symmetry,
+    refine !passoc⁻¹* ⬝* _,
+    refine pwhisker_right _ (pleft_inv f) ⬝* _,
+    apply pid_comp
+  end
+
+  definition phomotopy_of_pinv_left_phomotopy {f : C ≃* B} {g : A →* B} {h : A →* C}
+    (p : f⁻¹ᵉ* ∘* g ~* h) : g ~* f ∘* h :=
+  begin
+    refine _ ⬝* pwhisker_left _ p, symmetry,
+    refine !passoc⁻¹* ⬝* _,
+    refine pwhisker_right _ (pright_inv f) ⬝* _,
+    apply pid_comp
+  end
+
+  definition pinv_left_phomotopy_of_phomotopy {f : B ≃* C} {g : A →* B} {h : A →* C}
+    (p : h ~* f ∘* g) : f⁻¹ᵉ* ∘* h ~* g :=
+  (phomotopy_pinv_left_of_phomotopy p⁻¹*)⁻¹*
+
+
+  definition phomotopy_of_phomotopy_pinv_left {f : C ≃* B} {g : A →* B} {h : A →* C}
+    (p : h ~* f⁻¹ᵉ* ∘* g) : f ∘* h ~* g :=
+  (phomotopy_of_pinv_left_phomotopy p⁻¹*)⁻¹*
 
 end pointed

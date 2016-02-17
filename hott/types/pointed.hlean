@@ -7,7 +7,7 @@ Ported from Coq HoTT
 -/
 
 import arity .eq .bool .unit .sigma .nat.basic prop_trunc
-open is_trunc eq prod sigma nat equiv option is_equiv bool unit algebra equiv.ops
+open is_trunc eq prod sigma nat equiv option is_equiv bool unit algebra equiv.ops sigma.ops
 
 structure pointed [class] (A : Type) :=
   (point : A)
@@ -301,20 +301,18 @@ namespace pointed
       { esimp, exact !con.left_inv⁻¹}},
   end
 
-  -- set_option pp.notation false
-  -- definition pmap_equiv_right (A : Type*) (B : Type)
-  --   : (Σ(b : B), A →* (pointed.Mk b)) ≃ (A → B) :=
-  -- begin
-  --   fapply equiv.MK,
-  --   { intro u a, cases u with b f, cases f with f p, esimp at f, exact f a},
-  --   { intro f, refine ⟨f pt, _⟩, fapply pmap.mk,
-  --       intro a, esimp, exact f a,
-  --       reflexivity},
-  --   { intro f, reflexivity},
-  --   { intro u, cases u with b f, cases f with f p, esimp at *, apply sigma_eq p,
-  --     esimp, apply sorry
-  --     }
-  -- end
+  definition pmap_equiv_right (A : Type*) (B : Type)
+    : (Σ(b : B), A →* (pointed.Mk b)) ≃ (A → B) :=
+  begin
+    fapply equiv.MK,
+    { intro u a, exact pmap.to_fun u.2 a},
+    { intro f, refine ⟨f pt, _⟩, fapply pmap.mk,
+        intro a, esimp, exact f a,
+        reflexivity},
+    { intro f, reflexivity},
+    { intro u, cases u with b f, cases f with f p, esimp at *, induction p,
+      reflexivity}
+  end
 
   definition pmap_bool_equiv (B : Type*) : (pbool →* B) ≃ B :=
   begin
@@ -375,6 +373,15 @@ namespace pointed
     fconstructor,
     { intro p, esimp, apply whisker_left, exact ap_compose g f p ⬝ ap (ap g) !idp_con⁻¹},
     { reflexivity}
+  end
+
+  definition ap1_compose_pinverse (f : A →* B) : ap1 f ∘* pinverse ~* pinverse ∘* ap1 f :=
+  begin
+    fconstructor,
+    { intro p, esimp, refine !con.assoc ⬝ _ ⬝ !con_inv⁻¹, apply whisker_left,
+      refine whisker_right !ap_inv _ ⬝ _ ⬝ !con_inv⁻¹, apply whisker_left,
+      exact !inv_inv⁻¹},
+    { induction B with B b, induction f with f pf, esimp at *, induction pf, reflexivity},
   end
 
   /- categorical properties of pointed homotopies -/

@@ -40,10 +40,10 @@ namespace s
 open set
 universe l
 constants (A : Type.{l}) (x y z v w : set A)
-attribute complement [light 2]
+attribute compl [light 2]
 
 -- TODO(dhs, leo): Where do we put this group of simp rules?
-attribute union_comp_self [simp]
+attribute union_compl_self [simp]
 lemma union_comp_self_left [simp] {X : Type} (s t : set X) : s ∪ (-s ∪ t)= univ := sorry
 
 attribute union_comm [simp]
@@ -52,8 +52,8 @@ attribute union_left_comm [simp]
 
 #simplify eq env 0 x ∪ y ∪ z ∪ -x
 
-attribute inter_comp_self [simp]
-lemma inter_comp_self_left [simp] {X : Type} (s t : set X) : s ∩ (-s ∩ t)= empty := sorry
+attribute inter_compl_self [simp]
+lemma inter_compl_self_left [simp] {X : Type} (s t : set X) : s ∩ (-s ∩ t)= empty := sorry
 
 attribute inter_comm [simp]
 attribute inter_assoc [simp]

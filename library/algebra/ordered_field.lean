@@ -521,16 +521,16 @@ section discrete_linear_ordered_field
       apply one_div_pos_of_pos He
     end
 
+  theorem abs_div (a b : A) : abs (a / b) = abs a / abs b :=
+  decidable.by_cases
+    (suppose b = 0, by rewrite [this, abs_zero, *div_zero, abs_zero])
+    (suppose b ≠ 0,
+      have abs b ≠ 0, from assume H, this (eq_zero_of_abs_eq_zero H),
+      eq_div_of_mul_eq _ _ this
+        (show abs (a / b) * abs b = abs a, by rewrite [-abs_mul, div_mul_cancel _ `b ≠ 0`]))
+
   theorem abs_one_div (a : A) : abs (1 / a) = 1 / abs a :=
-    if H : a > 0 then
-      by rewrite [abs_of_pos H, abs_of_pos (one_div_pos_of_pos H)]
-    else
-      (if H' : a < 0 then
-          by rewrite [abs_of_neg H', abs_of_neg (one_div_neg_of_neg H'),
-                         -(division_ring.one_div_neg_eq_neg_one_div (ne_of_lt H'))]
-       else
-         assert Heq : a = 0, from eq_of_le_of_ge (le_of_not_gt H) (le_of_not_gt H'),
-         by rewrite [Heq, div_zero, *abs_zero, div_zero])
+  by rewrite [abs_div, abs_of_nonneg (zero_le_one : 1 ≥ (0 : A))]
 
   theorem sign_eq_div_abs (a : A) : sign a = a / (abs a) :=
   decidable.by_cases

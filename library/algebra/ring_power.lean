@@ -124,6 +124,27 @@ begin
   apply le_of_lt xpos
 end
 
+theorem squared_lt_squared {x y : A} (H1 : 0 ≤ x) (H2 : x < y) : x^2 < y^2 :=
+by rewrite [*pow_two]; apply mul_self_lt_mul_self H1 H2
+
+theorem squared_le_squared {x y : A} (H1 : 0 ≤ x) (H2 : x ≤ y) : x^2 ≤ y^2 :=
+or.elim (lt_or_eq_of_le H2)
+  (assume xlty, le_of_lt (squared_lt_squared H1 xlty))
+  (assume xeqy, by rewrite xeqy; apply le.refl)
+
+theorem lt_of_squared_lt_squared {x y : A} (H1 : y ≥ 0) (H2 : x^2 < y^2) : x < y :=
+lt_of_not_ge (assume H : x ≥ y, not_le_of_gt H2 (squared_le_squared H1 H))
+
+theorem le_of_squared_le_squared {x y : A} (H1 : y ≥ 0) (H2 : x^2 ≤ y^2) : x ≤ y :=
+le_of_not_gt (assume H : x > y, not_lt_of_ge H2 (squared_lt_squared H1 H))
+
+theorem eq_of_squared_eq_squared_of_nonneg {x y : A} (H1 : x ≥ 0) (H2 : y ≥ 0) (H3 : x^2 = y^2) :
+  x = y :=
+lt.by_cases
+  (suppose x < y, absurd (eq.subst H3 (squared_lt_squared H1 this)) !lt.irrefl)
+  (suppose x = y, this)
+  (suppose x > y, absurd (eq.subst H3 (squared_lt_squared H2 this)) !lt.irrefl)
+
 end linear_ordered_semiring
 
 section decidable_linear_ordered_comm_ring
@@ -139,6 +160,15 @@ begin
     krewrite [*pow_zero, (abs_of_nonneg zero_le_one : abs (1 : A) = 1)],
   rewrite [*pow_succ, abs_mul, ih]
 end
+
+theorem squared_nonneg (x : A) : x^2 ≥ 0 := by rewrite [pow_two]; apply mul_self_nonneg
+
+theorem eq_zero_of_squared_eq_zero {x : A} (H : x^2 = 0) : x = 0 :=
+by rewrite [pow_two at H]; exact eq_zero_of_mul_self_eq_zero H
+
+theorem abs_eq_abs_of_squared_eq_squared {x y : A} (H : x^2 = y^2) : abs x = abs y :=
+have (abs x)^2 = (abs y)^2, by rewrite [-+abs_pow, H],
+eq_of_squared_eq_squared_of_nonneg (abs_nonneg x) (abs_nonneg y) this
 
 end decidable_linear_ordered_comm_ring
 

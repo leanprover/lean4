@@ -327,7 +327,12 @@ structure no_zero_divisors [class] (A : Type) extends has_mul A, has_zero A :=
 
 theorem eq_zero_or_eq_zero_of_mul_eq_zero {A : Type} [no_zero_divisors A] {a b : A}
     (H : a * b = 0) :
-  a = 0 ∨ b = 0 := !no_zero_divisors.eq_zero_or_eq_zero_of_mul_eq_zero H
+  a = 0 ∨ b = 0 :=
+!no_zero_divisors.eq_zero_or_eq_zero_of_mul_eq_zero H
+
+theorem eq_zero_of_mul_self_eq_zero {A : Type} [no_zero_divisors A] {a : A} (H : a * a = 0) :
+  a = 0 :=
+or.elim (eq_zero_or_eq_zero_of_mul_eq_zero H) (assume H', H') (assume H', H')
 
 structure integral_domain [class] (A : Type) extends comm_ring A, no_zero_divisors A,
     zero_ne_one_class A

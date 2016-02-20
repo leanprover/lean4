@@ -77,7 +77,7 @@ section
     a * b < c * b : mul_lt_mul_of_pos_right Hac pos_b
       ... ≤ c * d : mul_le_mul_of_nonneg_left Hbd nn_c
 
-theorem mul_lt_mul' (a b c d : A) (H1 : a < c) (H2 : b < d) (H3 : b ≥ 0) (H4 : c > 0) :
+  theorem mul_lt_mul' {a b c d : A} (H1 : a < c) (H2 : b < d) (H3 : b ≥ 0) (H4 : c > 0) :
         a * b < c * d :=
   calc
     a * b ≤ c * b : mul_le_mul_of_nonneg_right (le_of_lt H1) H3
@@ -103,6 +103,9 @@ theorem mul_lt_mul' (a b c d : A) (H1 : a < c) (H2 : b < d) (H3 : b ≥ 0) (H4 :
     rewrite zero_mul at  H,
     exact H
   end
+
+  theorem mul_self_lt_mul_self {a b : A} (H1 : 0 ≤ a) (H2 : a < b) : a * a < b * b :=
+  mul_lt_mul' H2 H2 H1 (lt_of_le_of_lt H1 H2)
 end
 
 structure linear_ordered_semiring [class] (A : Type)

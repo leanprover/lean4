@@ -18,8 +18,38 @@ namespace analysis
   notation `∥`v`∥` := norm v
 end analysis
 
+/- real vector spaces -/
 -- where is the right place to put this?
 structure real_vector_space [class] (V : Type) extends vector_space ℝ V
+
+section
+  variables {V : Type} [real_vector_space V]
+
+  -- these specializations help the elaborator when it is hard to infer the ring, e.g. with numerals
+
+  proposition smul_left_distrib_real (a : ℝ) (u v : V) : a • (u + v) = a • u + a • v :=
+  smul_left_distrib a u v
+
+  proposition smul_right_distrib_real (a b : ℝ) (u : V) : (a + b) • u = a • u + b • u :=
+  smul_right_distrib a b u
+
+  proposition mul_smul_real (a : ℝ) (b : ℝ) (u : V) : (a * b) • u = a • (b • u) :=
+  mul_smul a b u
+
+  proposition one_smul_real (u : V) : (1 : ℝ) • u = u := one_smul u
+
+  proposition zero_smul_real (u : V) : (0 : ℝ) • u = 0 := zero_smul u
+
+  proposition smul_zero_real (a : ℝ) : a • (0 : V) = 0 := smul_zero a
+
+  proposition neg_smul_real (a : ℝ) (u : V) : (-a) • u = - (a • u) := neg_smul a u
+
+  proposition neg_one_smul_real (u : V) : -(1 : ℝ) • u = -u := neg_one_smul u
+
+  proposition smul_neg_real (a : ℝ) (u : V) : a • (-u) = -(a • u) := smul_neg a u
+end
+
+/- real normed vector spaces -/
 
 structure normed_vector_space [class] (V : Type) extends real_vector_space V, has_norm V :=
 (norm_zero : norm zero = 0)

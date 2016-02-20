@@ -722,6 +722,11 @@ section
     apply zero_lt_one
   end
 
+  lemma eq_zero_of_mul_self_add_mul_self_eq_zero {x y : A} (H : x * x + y * y = 0) : x = 0 :=
+  have x * x ≤ (0 : A), from calc
+    x * x ≤ x * x + y * y : le_add_of_nonneg_right (mul_self_nonneg y)
+      ... = 0             : H,
+  eq_zero_of_mul_self_eq_zero (le.antisymm this (mul_self_nonneg x))
 end
 
 /- TODO: Multiplication and one, starting with mult_right_le_one_le. -/

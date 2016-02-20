@@ -185,16 +185,6 @@ has_sub.mk has_sub.sub
 theorem of_real_sub (x y : ℝ) : of_real (x - y) = of_real x - of_real y :=
 rfl
 
--- TODO: move these
-private lemma eq_zero_of_mul_self_eq_zero {x : ℝ} (H : x * x = 0) : x = 0 :=
- iff.mp !or_self (!eq_zero_or_eq_zero_of_mul_eq_zero H)
-
-private lemma eq_zero_of_sum_square_eq_zero {x y : ℝ} (H : x * x + y * y = 0) : x = 0 :=
-have x * x ≤ (0 : ℝ), from calc
-  x * x ≤ x * x + y * y : le_add_of_nonneg_right (mul_self_nonneg y)
-    ... = 0             : H,
-eq_zero_of_mul_self_eq_zero (le.antisymm this (mul_self_nonneg x))
-
 /- complex modulus and conjugate-/
 
 definition cmod (z : ℂ) : ℝ :=
@@ -208,8 +198,8 @@ by rewrite [↑cmod, re_of_real, im_of_real, mul_zero, add_zero]
 theorem eq_zero_of_cmod_eq_zero {z : ℂ} (H : cmod z = 0) : z = 0 :=
 have H1 : (complex.re z) * (complex.re z) + (complex.im z) * (complex.im z) = 0,
   from H,
-have H2 : complex.re z = 0, from eq_zero_of_sum_square_eq_zero H1,
-have H3 : complex.im z = 0, from eq_zero_of_sum_square_eq_zero (!add.comm ▸ H1),
+have H2 : complex.re z = 0, from eq_zero_of_mul_self_add_mul_self_eq_zero H1,
+have H3 : complex.im z = 0, from eq_zero_of_mul_self_add_mul_self_eq_zero (!add.comm ▸ H1),
 show z = 0, from complex.eq H2 H3
 
 definition conj (z : ℂ) : ℂ := complex.mk (complex.re z) (-(complex.im z))

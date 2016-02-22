@@ -31,6 +31,7 @@ template void lean::lp_solver<lean::mpq, lean::mpq>::fill_m_b();
 template void lean::lp_solver<lean::mpq, lean::mpq>::fill_matrix_A_and_init_right_side();
 template void lean::lp_solver<lean::mpq, lean::mpq>::flip_costs();
 template lean::mpq lean::lp_solver<lean::mpq, lean::mpq>::get_column_cost_value(unsigned int, lean::column_info<lean::mpq>*) const;
+template int lean::lp_solver<lean::mpq, lean::mpq>::get_column_index_by_name(std::string) const;
 template lean::mpq lean::lp_solver<lean::mpq, lean::mpq>::get_column_value_by_name(std::string) const;
 template lean::mpq lean::lp_solver<lean::mpq, lean::mpq>::get_column_value_with_core_solver(unsigned int, lean::lp_core_solver_base<lean::mpq, lean::mpq>*) const;
 template lean::column_info<lean::mpq>* lean::lp_solver<lean::mpq, lean::mpq>::get_or_create_column_info(unsigned int);

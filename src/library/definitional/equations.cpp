@@ -734,17 +734,14 @@ class equation_compiler_fn {
         return true;
     }
 
-    // Return true if there are no equations, and the next variable is an indexed inductive datatype.
-    // In this case, it is worth trying the cases tactic, since this may be a conflicting state.
+    /** Return true if there are no equations, and the next variable is an inductive datatype.
+        In this case, it is worth trying the cases tactic, since this may be a conflicting state. */
     bool is_no_equation_constructor_transition(program const & p) {
         lean_assert(p.m_var_stack);
         if (!p.m_eqns && head(p.m_var_stack)) {
             expr const & x = p.get_var(*head(p.m_var_stack));
             expr const & I = get_app_fn(mlocal_type(x));
-            return
-                is_constant(I) &&
-                inductive::is_inductive_decl(env(), const_name(I)) &&
-                *inductive::get_num_indices(env(), const_name(I)) > 0;
+            return is_constant(I) && inductive::is_inductive_decl(env(), const_name(I));
         } else {
             return false;
         }
@@ -943,7 +940,13 @@ class equation_compiler_fn {
     }
 
     expr compile_no_equations(program const & p) {
-        bool fail_if_subgoals = true;
+        lean_assert(head(p.m_var_stack));
+        expr const & x = p.get_var(*head(p.m_var_stack));
+        expr const & I = get_app_fn(mlocal_type(x));
+        lean_assert(is_constant(I) && inductive::is_inductive_decl(env(), const_name(I)));
+        /* If the head variable is a recursive datatype, then we want to fail if subgoals are generated.
+           Reason: avoid non-termination. */
+        bool fail_if_subgoals = is_recursive_datatype(env(), const_name(I));
         if (auto r = compile_constructor_core(p, fail_if_subgoals))
             return *r;
         else

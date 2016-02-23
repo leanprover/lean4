@@ -8,6 +8,7 @@ Port instructions:
 - fix all remaining errors. Typical errors include
   - Replacing "and" by "prod" in comments
   - and.intro is replaced by prod.intro, which should be prod.mk.
+  - the usage of the simp tactic
 
 Currently, the following differences exist between the two libraries, relevant to porting:
 - All of the algebraic hierarchy is in the algebra namespace in the HoTT library (on top-level in the standard library).

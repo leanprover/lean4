@@ -13,7 +13,7 @@ with libraries that do not. However, it did not work in our experiments.
 To be able to compile Lean with split-stacks, we also have to compile
 GMP, MPFR and Lua using split-stacks.
 
-We also had to use the [gold linker](http://en.wikipedia.org/wiki/Gold_(linker).
+We also had to use the [gold linker](<http://en.wikipedia.org/wiki/Gold_(linker)>).
 
 Gold linker
 -----------

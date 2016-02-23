@@ -33,7 +33,7 @@ automatically the first time you use ``lean-mode``, if you follow the
 installation instructions below.
 
 [company]: http://company-mode.github.io/
-[flycheck]: http://flycheck.readthedocs.org/en/latest
+[flycheck]: http://www.flycheck.org/manual/latest/index.html
 [fci]: https://github.com/alpaker/Fill-Column-Indicator
 [lua-mode]: http://immerrr.github.io/lua-mode/
 [mmm-mode]: https://github.com/purcell/mmm-mode

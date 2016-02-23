@@ -19,11 +19,12 @@ Datatypes and logic:
 * [nat](nat.hlean)
 * [function](function.hlean)
 * [types](types.hlean) (notation and some theorems for the remaining basic types)
+* [connectives](connectives.hlean)
 
 HoTT basics:
 
 * [path](path.hlean)
-* [pathover](pathover.hlean) 
+* [pathover](pathover.hlean)
 * [hedberg](hedberg.hlean)
 * [trunc](trunc.hlean)
 * [equiv](equiv.hlean)

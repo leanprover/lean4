@@ -15,6 +15,9 @@ The following files don't fit in any of the subfolders:
 * [function](function.hlean): embeddings, (split) surjections, retractions
 * [arity](arity.hlean) : equality theorems about functions with arity 2 or higher
 * [choice](choice.hlean) : theorems about the axiom of choice.
+* [logic](logic.hlean)
+
+You can import the core part of the library by writing [`import core`](core.hlean)
 
 See [book.md](book.md) for an overview of the sections of the [HoTT book](http://homotopytypetheory.org/book/) which have been covered.
 

@@ -14,4 +14,5 @@ folder (sorted such that files only import previous files).
 * [interval](interval.hlean) (defined as the suspension of unit)
 * [cellcomplex](cellcomplex.hlean) (general cell complexes)
 * [connectedness](connectedness.hlean)
-
+* [cofiber](cofiber.hlean)
+* [smash](smash.hlean)

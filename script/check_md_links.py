@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2016 Ulrik Buchholtz. All rights reserved.
+# Released under Apache 2.0 license as described in the file LICENSE.
+#
+# Author: Ulrik Buchholtz
+#
 # Python 2/3 compatibility
 from __future__ import print_function
 

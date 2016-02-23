@@ -5,7 +5,7 @@ Authors: Haitao Zhang, Leonardo de Moura, Jakob von Raumer
 
 Finite ordinal types.
 -/
-import types.list algebra.group function logic types.prod types.sum
+import types.list algebra.group function logic types.prod types.sum types.nat.div
 open eq nat function list equiv is_trunc algebra sigma sum
 
 structure fin (n : nat) := (val : nat) (is_lt : val < n)
@@ -118,11 +118,11 @@ has_zero.mk (fin.zero n)
 
 definition val_zero (n : nat) : val (0 : fin (succ n)) = 0 := rfl
 
-/-definition mk_mod [reducible] (n i : nat) : fin (succ n) :=
-mk (i % (succ n)) (mod_lt _ !zero_lt_succ)-/
+definition mk_mod [reducible] (n i : nat) : fin (succ n) :=
+mk (i % (succ n)) (mod_lt _ !zero_lt_succ)
 
-/-theorem mk_mod_zero_eq (n : nat) : mk_mod n 0 = 0 :=
-rfl-/
+theorem mk_mod_zero_eq (n : nat) : mk_mod n 0 = 0 :=
+apd011 fin.mk rfl !is_prop.elim
 
 variable {n : nat}
 
@@ -148,12 +148,12 @@ definition val_lift : Π (i : fin n) (m : nat), val i = val (lift i m)
 lemma mk_succ_ne_zero {i : nat} : Π {P}, mk (succ i) P ≠ (0 : fin (succ n)) :=
 assume P Pe, absurd (veq_of_eq Pe) !succ_ne_zero
 
-/-lemma mk_mod_eq {i : fin (succ n)} : i = mk_mod n i :=
+lemma mk_mod_eq {i : fin (succ n)} : i = mk_mod n i :=
 eq_of_veq begin rewrite [↑mk_mod, mod_eq_of_lt !is_lt] end
 
 lemma mk_mod_of_lt {i : nat} (Plt : i < succ n) : mk_mod n i = mk i Plt :=
 begin esimp [mk_mod], congruence, exact mod_eq_of_lt Plt end
--/
+
 section lift_lower
 
 lemma lift_zero : lift_succ (0 : fin (succ n)) = (0 : fin (succ (succ n))) :=
@@ -251,7 +251,7 @@ lemma lower_inj_apply {f Pinj Pmax} (i : fin n) :
 by rewrite [↑lower_inj]
 
 end lift_lower
-/-
+
 section madd
 
 definition madd (i j : fin (succ n)) : fin (succ n) :=
@@ -263,14 +263,14 @@ definition minv : Π i : fin (succ n), fin (succ n)
 lemma val_madd : Π i j : fin (succ n), val (madd i j) = (i + j) % (succ n)
 | (mk iv ilt) (mk jv jlt) := by esimp
 
-lemma madd_inj : Π {i : fin (succ n)}, injective (madd i)
-| (mk iv ilt) :=
-take j₁ j₂, fin.destruct j₁ (fin.destruct j₂ (λ jv₁ jlt₁ jv₂ jlt₂, begin
-  rewrite [↑madd, -eq_iff_veq],
-  intro Peq, congruence,
+lemma madd_inj : Π {i : fin (succ n)}, is_embedding (madd i)
+| (mk iv ilt) := is_embedding_of_is_injective
+(take j₁ j₂, fin.destruct j₁ (fin.destruct j₂ (λ jv₁ jlt₁ jv₂ jlt₂, begin
+  rewrite [↑madd],
+  intro Peq', note Peq := ap val Peq', congruence,
   rewrite [-(mod_eq_of_lt jlt₁), -(mod_eq_of_lt jlt₂)],
   apply mod_eq_mod_of_add_mod_eq_add_mod_left Peq
-end))
+end)))
 
 lemma madd_mk_mod {i j : nat} : madd (mk_mod n i) (mk_mod n j) = mk_mod n (i+j) :=
 eq_of_veq begin esimp [madd, mk_mod], rewrite [ mod_add_mod, add_mod_mod ] end
@@ -294,12 +294,12 @@ by apply eq_of_veq; rewrite [*val_madd, mod_add_mod, add_mod_mod, add.assoc (val
 
 lemma madd_left_inv : Π i : fin (succ n), madd (minv i) i = fin.zero n
 | (mk iv ilt) := eq_of_veq (by
-  rewrite [val_madd, ↑minv, ↑fin.zero, mod_add_mod, nat.sub_add_cancel (le_of_lt ilt), mod_self])
+  rewrite [val_madd, ↑minv, mod_add_mod, nat.sub_add_cancel (le_of_lt ilt), mod_self])
 
 definition madd_is_comm_group [instance] : add_comm_group (fin (succ n)) :=
-add_comm_group.mk madd madd_assoc (fin.zero n) zero_madd madd_zero minv madd_left_inv madd_comm
+add_comm_group.mk madd _ madd_assoc (fin.zero n) zero_madd madd_zero minv madd_left_inv madd_comm
 
-end madd-/
+end madd
 
 definition pred [constructor] : fin n → fin n
 | (mk v h) := mk (nat.pred v) (pre_lt_of_lt h)
@@ -407,7 +407,7 @@ definition foldr {A B : Type} (m : A → B → B) (b : B) : Π {n : nat}, (fin n
 definition foldl {A B : Type} (m : B → A → B) (b : B) : Π {n : nat}, (fin n → A) → B :=
   nat.rec (λ f, b) (λ n IH f, m (IH (λ i : fin n, f (lift_succ i))) (f maxi))
 
-/-theorem choice {C : fin n → Type} :
+theorem choice {C : fin n → Type} :
   (Π i : fin n, nonempty (C i)) → nonempty (Π i : fin n, C i) :=
 begin
   revert C,
@@ -422,7 +422,7 @@ begin
     intro CS,
     apply nonempty.intro,
     exact zero_succ_cases CO CS }
-end-/
+end
 
 /-section
 open list

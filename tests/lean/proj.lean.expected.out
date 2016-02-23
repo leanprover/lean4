@@ -1,5 +1,4 @@
 proj.lean:7:0: error: projection generation, 'or' does not have a single constructor
-proj.lean:8:0: error: projection generation, 'and' is a proposition
 proj.lean:9:0: error: projection generation, 'eq.refl' is not an inductive datatype
 proj.lean:10:0: error: projection generation, 'eq' is an indexed inductive datatype family
 proj.lean:11:0: error: projection generation, 'vector' is an indexed inductive datatype family

@@ -8,4 +8,5 @@ bad_structures2.lean:18:2: error: invalid field, identifier expected
 bad_structures2.lean:23:36: error: invalid 'structure' renaming, parent structure 'foo' does not contain field 'y'
 bad_structures2.lean:25:23: error: invalid 'structure' extends, 'nat' is not a structure
 bad_structures2.lean:27:23: error: invalid 'structure', expression must be a 'parent' structure
-bad_structures2.lean:30:15: error: invalid 'structure', 'Type' expected
+bad_structures2.lean:30:0: error: failed to generate projection 'bla2.x' for 'bla2', type is an inductive predicate, but field is not a proposition
+bad_structures2.lean:33:0: error: failed to generate projection 'bla3.x' for 'bla3', type is an inductive predicate, but field is not a proposition

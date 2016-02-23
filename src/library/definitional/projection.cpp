@@ -192,9 +192,10 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
     expr intro_type              = inductive::intro_rule_type(intro);
     name rec_name                = inductive::get_elim_name(n);
     declaration ind_decl         = env.get(n);
-    if (env.impredicative() && is_prop(ind_decl.get_type()))
-        throw exception(sstream() << "projection generation, '" << n << "' is a proposition");
     declaration rec_decl         = env.get(rec_name);
+    bool is_predicate            = env.impredicative() && is_prop(ind_decl.get_type());
+    bool elim_to_prop            = rec_decl.get_num_univ_params() == ind_decl.get_num_univ_params();
+    bool dep_elim                = inductive::has_dep_elim(env, n);
     level_param_names lvl_params = ind_decl.get_univ_params();
     levels lvls                  = param_names_to_levels(lvl_params);
     buffer<expr> params; // datatype parameters
@@ -222,16 +223,20 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         if (!is_pi(intro_type))
             throw exception(sstream() << "generating projection '" << proj_name << "', '"
                             << n << "' does not have sufficient data");
+        type_checker tc(new_env);
         expr result_type   = binding_domain(intro_type);
+        if (is_predicate && !tc.is_prop(result_type).first) {
+            throw exception(sstream() << "failed to generate projection '" << proj_name << "' for '" << n << "', "
+                            << "type is an inductive predicate, but field is not a proposition");
+        }
         buffer<expr> proj_args;
         proj_args.append(params);
         proj_args.push_back(c);
-        expr type_former   = Fun(c, result_type);
+        expr type_former   = dep_elim ? Fun(c, result_type) : result_type;
         expr minor_premise = Fun(intro_type_args, mk_var(intro_type_args.size() - i - 1));
         expr major_premise = c;
-        type_checker tc(new_env);
         level l            = sort_level(tc.ensure_sort(tc.infer(result_type).first).first);
-        levels rec_lvls    = append(to_list(l), lvls);
+        levels rec_lvls    = elim_to_prop ? lvls : append(to_list(l), lvls);
         expr rec           = mk_constant(rec_name, rec_lvls);
         buffer<expr> rec_args;
         rec_args.append(params);

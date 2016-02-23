@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "library/unifier.h"
 #include "library/module.h"
 #include "library/aliases.h"
+#include "library/annotation.h"
 #include "library/coercion.h"
 #include "library/explicit.h"
 #include "library/protected.h"
@@ -106,7 +107,9 @@ struct structure_cmd_fn {
     buffer<expr>                m_fields;
     std::vector<rename_vector>  m_renames;
     std::vector<field_map>      m_field_maps;
+    bool                        m_explicit_universe_params;
     bool                        m_infer_result_universe;
+    bool                        m_inductive_predicate;
     levels                      m_ctx_levels; // context levels for creating aliases
     buffer<expr>                m_ctx_locals; // context local constants for creating aliases
 
@@ -115,7 +118,9 @@ struct structure_cmd_fn {
 
     structure_cmd_fn(parser & p):m_p(p), m_env(p.env()), m_namespace(get_namespace(m_env)) {
         m_tc = mk_type_checker(m_env);
-        m_infer_result_universe = false;
+        m_explicit_universe_params = false;
+        m_infer_result_universe    = false;
+        m_inductive_predicate      = false;
         m_gen_eta     = get_structure_eta_thm(p.get_options());
         m_gen_proj_mk = get_structure_proj_mk_thm(p.get_options());
     }
@@ -127,10 +132,12 @@ struct structure_cmd_fn {
         m_name = m_namespace + m_name;
         buffer<name> ls_buffer;
         if (parse_univ_params(m_p, ls_buffer)) {
-            m_infer_result_universe = false;
+            m_explicit_universe_params = true;
+            m_infer_result_universe    = false;
             m_level_names.append(ls_buffer);
         } else {
-            m_infer_result_universe = true;
+            m_explicit_universe_params = false;
+            m_infer_result_universe    = true;
         }
         m_modifiers.parse(m_p);
     }
@@ -239,8 +246,15 @@ struct structure_cmd_fn {
         if (m_p.curr_is_token(get_colon_tk())) {
             m_p.next();
             m_type = m_p.parse_expr();
+            while (is_annotation(m_type))
+                m_type = get_annotation_arg(m_type);
+            m_inductive_predicate = m_env.impredicative() && is_zero(sort_level(m_type));
             if (!is_sort(m_type))
                 throw parser_error("invalid 'structure', 'Type' expected", pos);
+
+            if (m_inductive_predicate)
+                m_infer_result_universe = false;
+
             if (m_infer_result_universe) {
                 if (!is_placeholder(sort_level(m_type)))
                     throw parser_error("invalid 'structure', resultant universe level is computed "
@@ -248,10 +262,6 @@ struct structure_cmd_fn {
             } else {
                 if (has_placeholder(m_type))
                     throw_explicit_universe(pos);
-                level l = sort_level(m_type);
-                if (m_env.impredicative() && !is_not_zero(l))
-                    throw parser_error("invalid 'structure', the resultant universe level should not be zero "
-                                       "for any universe parameter assignment", pos);
             }
         } else {
             if (!m_infer_result_universe)
@@ -462,7 +472,7 @@ struct structure_cmd_fn {
 
     /** \brief Add params, fields and references to parent structures into parser local scope */
     void add_locals() {
-        if (!m_infer_result_universe) {
+        if (m_explicit_universe_params) {
             for (name const & l : m_level_names)
                 m_p.add_local_level(l, mk_param_univ(l));
         }
@@ -948,9 +958,11 @@ struct structure_cmd_fn {
         declare_projections();
         declare_auxiliary();
         declare_coercions();
-        declare_eta();
-        declare_proj_over_mk();
-        declare_no_confustion();
+        if (!m_inductive_predicate) {
+            declare_eta();
+            declare_proj_over_mk();
+            declare_no_confustion();
+        }
         return m_env;
     }
 };

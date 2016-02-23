@@ -29,3 +29,6 @@ structure bla2 extends Type
 
 structure bla2 : Prop :=
 (x : Prop)
+
+structure bla3 : Prop :=
+(x : nat)

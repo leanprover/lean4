@@ -115,13 +115,13 @@ Chapter 6: Higher inductive types
 - 6.2 (Induction principles and dependent paths): dependent paths in [init.pathover](init/pathover.hlean), circle in [homotopy.circle](homotopy/circle.hlean)
 - 6.3 (The interval): [homotopy.interval](homotopy/interval.hlean)
 - 6.4 (Circles and spheres): [homotopy.sphere](homotopy/sphere.hlean) and [homotopy.circle](homotopy/circle.hlean)
-- 6.5 (Suspensions): [homotopy.suspension](homotopy/suspension.hlean) (we define the circle to be the suspension of bool, but Lemma 6.5.1 is similar to proving the ordinary induction principle for the circle in [homotopy.circle](homotopy/circle.hlean)) and a bit in [homotopy.sphere](homotopy/sphere.hlean) and [types.pointed](types/pointed.hlean)
+- 6.5 (Suspensions): [homotopy.suspension](homotopy/susp.hlean) (we define the circle to be the suspension of bool, but Lemma 6.5.1 is similar to proving the ordinary induction principle for the circle in [homotopy.circle](homotopy/circle.hlean)) and a bit in [homotopy.sphere](homotopy/sphere.hlean) and [types.pointed](types/pointed.hlean)
 - 6.6 (Cell complexes): we define the torus using the quotient, see [hit.two_quotient](hit/two_quotient.hlean) and [homotopy.torus](homotopy/torus.hlean) (no dependent eliminator defined yet)
 - 6.7 (Hubs and spokes): [hit.two_quotient](hit/two_quotient.hlean) and [homotopy.torus](homotopy/torus.hlean) (no dependent eliminator defined yet)
 - 6.8 (Pushouts): [hit.pushout](hit/pushout.hlean). Some of the "standard homotopy-theoretic constructions" have separate files, although not all of them have been defined explicitly yet
 - 6.9 (Truncations): [hit.trunc](hit/trunc.hlean) (except Lemma 6.9.3)
 - 6.10 (Quotients): [hit.set_quotient](hit/set_quotient.hlean) (up to 6.10.3). We define integers differently, to make them compute, in the folder [types.int](types/int/int.md). 6.10.13 is in [types.int.hott](types/int/hott.hlean)
-- 6.11 (Algebra): [algebra.group](algebra/group.hlean), [algebra.fundamental_group](algebra/fundamental_group.hlean) (no homotopy groups yet)
+- 6.11 (Algebra): [algebra.group](algebra/group.hlean), [algebra.homotopy_group](algebra/homotopy_group.hlean)
 - 6.12 (The flattening lemma): [hit.quotient](hit/quotient.hlean) (for quotients instead of homotopy coequalizers, but these are practically the same)
 - 6.13 (The general syntax of higher inductive definitions): no formalizable content
 

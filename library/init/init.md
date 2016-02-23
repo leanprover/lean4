@@ -9,12 +9,12 @@ Syntax declarations:
 
 * [reserved_notation](reserved_notation.lean)
 * [tactic](tactic.lean)
-* [priority](priority.lean)
 
 Datatypes and logic:
 
 * [datatypes](datatypes.lean)
 * [logic](logic.lean)
+* [classical](classical.lean)
 * [bool](bool.lean)
 * [num](num.lean)
 * [nat](nat.lean)
@@ -42,3 +42,8 @@ logic.axioms.hilbert) the two are equivalent. Type class inferences
 are set up to use "inhabited" however, so users should use that to
 declare that types have an element. Use "nonempty" in the hypothesis
 of a theorem when the theorem does not depend on the witness chosen.
+
+Module init.classical declares a choice axiom, and uses it to
+prove the excluded middle, propositional completeness, axiom of
+choice, and prove that the decidable class is trivial when the
+choice axiom is assumed.

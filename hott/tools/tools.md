@@ -3,4 +3,4 @@ tools
 
 Various additional tools.
 
-* [helper_tactics](helper_tactics.lean) : useful tactics
+* [helper_tactics](helper_tactics.hlean) : useful tactics

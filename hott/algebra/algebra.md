@@ -3,18 +3,18 @@ algebra
 
 The following files are [ported](../port.md) from the standard library. If anything needs to be changed, it is probably a good idea to change it in the standard library and then port the file again (see also [script/port.pl](../../script/port.pl)).
 
-* [priority](priority.lean) : priority for algebraic operations
-* [relation](relation.lean)
-* [binary](binary.lean) : binary operations
-* [order](order.lean)
-* [lattice](lattice.lean)
-* [group](group.lean)
-* [ring](ring.lean)
-* [ordered_group](ordered_group.lean)
-* [ordered_ring](ordered_ring.lean)
-* [field](field.lean)
-* [ordered_field](ordered_field.lean)
-* [bundled](bundled.lean) : bundled versions of the algebraic structures
+* [priority](priority.hlean) : priority for algebraic operations
+* [relation](relation.hlean)
+* [binary](binary.hlean) : binary operations
+* [order](order.hlean)
+* [lattice](lattice.hlean)
+* [group](group.hlean)
+* [ring](ring.hlean)
+* [ordered_group](ordered_group.hlean)
+* [ordered_ring](ordered_ring.hlean)
+* [field](field.hlean)
+* [ordered_field](ordered_field.hlean)
+* [bundled](bundled.hlean) : bundled versions of the algebraic structures
 
 Files which are HoTT specific:
 

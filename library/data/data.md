@@ -25,13 +25,11 @@ Constructors:
 * [sigma](sigma.lean) : the dependent product
 * [uprod](uprod.lean) : unordered pairs
 * [option](option.lean)
-* [subtype](subtype.lean)
 * [squash](squash.lean) : propositional truncation
 * [list](list/list.md)
 * [finset](finset/finset.md) : finite sets
 * [stream](stream.lean)
 * [set](set/set.md)
-* [vector](vector.lean)
 
 Types with extra information:
 

@@ -7,7 +7,7 @@ The Lean standard library is contained in the following files and directories:
 * [logic](logic/logic.md) : logical constructs and axioms
 * [data](data/data.md) : concrete datatypes and type constructors
 * [algebra](algebra/algebra.md) : algebraic structures
-* [theories](theories.md) : more domain-specific theories
+* [theories](theories/theories.md) : more domain-specific theories
 * [tools](tools/tools.md) : additional tools
 
 The files in `init` are loaded by default, and hence do not need to be

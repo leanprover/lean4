@@ -9,7 +9,6 @@ Syntax declarations:
 
 * [reserved_notation](reserved_notation.hlean)
 * [tactic](tactic.hlean)
-* [priority](priority.hlean)
 
 Datatypes and logic:
 

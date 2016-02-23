@@ -4,8 +4,12 @@ import argparse
 import collections
 import os
 import sys
-import urllib.error
-import urllib.request
+try:
+    from urllib.request import urlopen
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
+    from urllib import urlopen
 try:
     import mistune
 except ImportError:

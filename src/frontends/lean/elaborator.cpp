@@ -1537,7 +1537,7 @@ expr elaborator::process_obtain_expr(list<obtain_struct> const & s_list, list<ex
         expr const & from_type = mlocal_type(from);
         // fix user visible name
         expr d0          = binding_domain(goal);
-        expr goal_domain = visit(d0, cs);
+        expr goal_domain = ensure_type(visit(d0, cs), cs);
         if (is_placeholder(d0) && !is_explicit_placeholder(d0))
             save_binder_type(d0, goal_domain);
         expr new_from    = ::lean::mk_local(mlocal_name(from), binding_name(goal), goal_domain, binder_info());

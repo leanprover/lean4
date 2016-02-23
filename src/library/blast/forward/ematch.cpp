@@ -638,7 +638,7 @@ struct ematch_fn {
         expr const & p0 = ps[0];
         buffer<expr> p0_args;
         expr const & f  = get_app_args(p0, p0_args);
-        name const & R  = is_prop(p0) ? get_iff_name() : get_eq_name();
+        name const & R  = m_ctx->is_prop(p0) ? get_iff_name() : get_eq_name();
         unsigned gmt    = m_cc.get_gmt();
         if (auto s = m_inst_ext.get_apps().find(head_index(f))) {
             s->for_each([&](expr const & t) {

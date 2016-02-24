@@ -2449,7 +2449,6 @@ void test_square_dense_submatrix() {
 #endif
 }
 
-
 int main(int argn, char * const * argv) {
     initialize_util_module();
     initialize_numerics_module();

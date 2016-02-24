@@ -195,7 +195,7 @@ class mps_reader {
         // look for start of the rows
         read_line();
         do {
-            if (m_line.find("ROWS") >= 0) {
+            if (static_cast<int>(m_line.find("ROWS")) >= 0) {
                 break;
             }
         } while (m_is_OK);

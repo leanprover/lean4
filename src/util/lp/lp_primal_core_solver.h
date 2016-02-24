@@ -47,7 +47,8 @@ public:
     bool m_exit_on_feasible_solution = false;
     std::vector<T> m_costs_backup;
     bool m_current_x_is_feasible;
-    T m_converted_harris_eps = convert_struct<T, double>::convert(this->m_settings.harris_feasibility_tolerance);
+    T m_converted_harris_eps;
+    //    T m_converted_harris_eps = convert_struct<T, double>::convert(this->m_settings.harris_feasibility_tolerance);
     std::list<unsigned> m_non_basis_list;
     void sort_non_basis();
     int choose_entering_column(unsigned number_of_benefitial_columns_to_go_over);

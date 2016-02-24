@@ -13,7 +13,6 @@
 #include "util/lp/lp_primal_core_solver.h"
 namespace lean {
 
-
 // This core solver solves (Ax=b, low_bound_values \leq x \leq upper_bound_values, maximize costs*x )
 // The right side b is given implicitly by x and the basis
 template <typename T, typename X>
@@ -242,16 +241,16 @@ template <typename T, typename X>    X lp_primal_core_solver<T, X>::get_max_boun
 }
 
 // stage1 constructor
-template <typename T, typename X> lp_primal_core_solver<T, X>::   lp_primal_core_solver(static_matrix<T, X> & A,
-                                                                                        std::vector<X> & b, // the right side vector
-                                                                                        std::vector<X> & x, // the number of elements in x needs to be at least as large as the number of columns in A
-                                                                                        std::vector<unsigned> & basis,
-                                                                                        std::vector<T> & costs,
-                                                                                        std::vector<column_type> & column_type_array,
-                                                                                        std::vector<X> & low_bound_values,
-                                                                                        std::vector<X> & upper_bound_values,
-                                                                                        lp_settings & settings,
-                                                                                        std::unordered_map<unsigned, std::string> const & column_names):
+template <typename T, typename X> lp_primal_core_solver<T, X>::lp_primal_core_solver(static_matrix<T, X> & A,
+                                                                                     std::vector<X> & b, // the right side vector
+                                                                                     std::vector<X> & x, // the number of elements in x needs to be at least as large as the number of columns in A
+                                                                                     std::vector<unsigned> & basis,
+                                                                                     std::vector<T> & costs,
+                                                                                     std::vector<column_type> & column_type_array,
+                                                                                     std::vector<X> & low_bound_values,
+                                                                                     std::vector<X> & upper_bound_values,
+                                                                                     lp_settings & settings,
+                                                                                     std::unordered_map<unsigned, std::string> const & column_names):
     lp_core_solver_base<T, X>(A, b,
                               basis,
                               x,
@@ -261,7 +260,8 @@ template <typename T, typename X> lp_primal_core_solver<T, X>::   lp_primal_core
                               column_type_array,
                               low_bound_values,
                               upper_bound_values),
-    m_beta(A.row_count()) {
+    m_beta(A.row_count()),
+    m_converted_harris_eps(convert_struct<T, double>::convert(this->m_settings.harris_feasibility_tolerance)) {
     this->m_status = UNKNOWN;
     this->m_column_norm_update_counter = settings.column_norms_update_frequency;
 }
@@ -286,8 +286,8 @@ lp_primal_core_solver(static_matrix<T, X> & A,
                               column_type_array,
                               m_low_bound_values_dummy,
                               upper_bound_values),
-    m_beta(A.row_count()) {
-    m_converted_harris_eps = convert_struct<T, double>::convert(this->m_settings.harris_feasibility_tolerance);
+    m_beta(A.row_count()),
+    m_converted_harris_eps(convert_struct<T, double>::convert(this->m_settings.harris_feasibility_tolerance)) {
     lean_assert(initial_x_is_correct());
     m_low_bound_values_dummy.resize(A.column_count(), zero_of_type<T>());
     m_enter_price_eps = numeric_traits<T>::precise() ? numeric_traits<T>::zero() : T(1e-5);

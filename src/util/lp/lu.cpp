@@ -332,6 +332,7 @@ void lu<T, X>::swap_rows(int j, int k) {
         m_U.swap_rows(j, k);
     }
 }
+
 template <typename T, typename X>
 void lu<T, X>::swap_columns(int j, int pivot_column) {
     if (j == pivot_column)

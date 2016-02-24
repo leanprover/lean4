@@ -8,7 +8,6 @@
 #include <utility>
 #include <set>
 #include "util/lp/static_matrix.h"
-
 namespace lean {
 // each assignment for this matrix should be issued only once!!!
 template <typename T, typename X>

@@ -102,8 +102,9 @@ fill_cb(T * y){
 
 template <typename T, typename X> void lp_core_solver_base<T, X>::
 fill_cb(std::vector<T> & y){
-    for (unsigned i = 0; i < m_m; i++)
+    for (unsigned i = 0; i < m_m; i++) {
         y[i] = m_costs[m_basis[i]];
+    }
 }
 
 template <typename T, typename X> void lp_core_solver_base<T, X>::
@@ -542,10 +543,11 @@ fill_reduced_costs_from_m_y_by_rows() {
     while (i--) {
         const T & y = m_y[i];
         if (is_zero(y)) continue;
-        for (auto & it : m_A.m_rows[i]) {
+        for (row_cell<T> & it : m_A.m_rows[i]) {
             j = it.m_j;
-            if  (m_factorization->m_basis_heading[j] < 0)
+            if (m_factorization->m_basis_heading[j] < 0) {
                 m_d[j] -= y * it.get_val();
+            }
         }
     }
 }

@@ -30,7 +30,6 @@ namespace lean {
     template <typename T, typename X>
     class permutation_matrix
         : public tail_matrix<T, X> {
-        unsigned m_length;
         std::vector<unsigned> m_permutation;
         std::vector<unsigned> m_rev;
 
@@ -50,7 +49,7 @@ namespace lean {
         };
 
     public:
-        permutation_matrix() : m_length(0) {}
+        permutation_matrix() {}
         permutation_matrix(unsigned length);
 
         permutation_matrix(unsigned length, std::vector<unsigned> const & values);
@@ -61,7 +60,7 @@ namespace lean {
 
 #ifdef LEAN_DEBUG
         permutation_matrix get_inverse() const {
-            return permutation_matrix(m_length, m_rev);
+            return permutation_matrix(size(), m_rev);
         }
         void print(std::ostream & out) const;
 #endif
@@ -99,7 +98,7 @@ namespace lean {
         void apply_reverse_from_right(std::vector<L> & w);
 
         void set_val(unsigned i, unsigned pi) {
-            lean_assert(i < m_length && pi < m_length);  m_permutation[i] = pi;  m_rev[pi] = i;  }
+            lean_assert(i < size() && pi < size());  m_permutation[i] = pi;  m_rev[pi] = i;  }
 
         void transpose_from_left(unsigned i, unsigned j);
 
@@ -110,8 +109,8 @@ namespace lean {
         T get_elem(unsigned i, unsigned j) const{
             return m_permutation[i] == j? numeric_traits<T>::one() : numeric_traits<T>::zero();
         }
-        unsigned row_count() const{ return m_length; }
-        unsigned column_count() const { return m_length; }
+        unsigned row_count() const{ return size(); }
+        unsigned column_count() const { return size(); }
         virtual void set_number_of_rows(unsigned /*m*/) { }
         virtual void set_number_of_columns(unsigned /*n*/) { }
 #endif
@@ -130,7 +129,7 @@ namespace lean {
 
         bool is_identity() const;
 
-        unsigned size() const { return m_length; }
+        unsigned size() const { return m_rev.size(); }
 
         unsigned * values() const { return m_permutation; }
     }; // end of the permutation class

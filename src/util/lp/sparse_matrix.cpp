@@ -207,8 +207,9 @@ template <typename T, typename X>
 bool sparse_matrix<T, X>::pivot_with_eta(unsigned i, eta_matrix<T, X> *eta_matrix, lp_settings & settings) {
     T pivot = eta_matrix->get_diagonal_element();
     for (auto & it : eta_matrix->m_column_vector.m_data) {
-        if (!pivot_row_to_row(i, it.second, it.first, settings))
+        if (!pivot_row_to_row(i, it.second, it.first, settings)){
             return false;
+        }
     }
     divide_row_by_constant(i, pivot, settings);
     if (!shorten_active_matrix(i, eta_matrix)) {
@@ -901,7 +902,6 @@ bool sparse_matrix<T, X>::pivot_queue_is_correct_after_pivoting(int k) {
 }
 #endif
 
-
 template <typename T, typename X>
 bool sparse_matrix<T, X>::get_pivot_for_column(unsigned &i, unsigned &j, T const & c_partial_pivoting, unsigned k) {
     std::vector<upair> pivots_candidates_that_are_too_small;
@@ -919,14 +919,14 @@ bool sparse_matrix<T, X>::get_pivot_for_column(unsigned &i, unsigned &j, T const
             //     lean_assert(false);
             //  }
 #endif
-
             recover_pivot_queue(pivots_candidates_that_are_too_small);
             i = i_inv;
             j = j_inv;
             return true;
         }
-        if (small != 2) // 2 means that the pair is not in the matrix
+        if (small != 2) { // 2 means that the pair is not in the matrix
             pivots_candidates_that_are_too_small.emplace_back(i, j);
+        }
     }
     recover_pivot_queue(pivots_candidates_that_are_too_small);
     return false;

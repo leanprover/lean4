@@ -8,6 +8,10 @@
 #include <utility>
 #include <functional>
 #include "util/numerics/mpq.h"
+#ifdef __CLANG__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmismatched-tags"
+#endif
 namespace std {
 template<>
 struct hash<lean::mpq> {
@@ -19,8 +23,7 @@ struct hash<lean::mpq> {
 
 template <class T>
 inline void hash_combine(std::size_t & seed, const T & v) {
-  std::hash<T> hasher;
-  seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= std::hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 }
 
 namespace std {
@@ -33,3 +36,6 @@ template<typename S, typename T> struct hash<pair<S, T>> {
     }
 };
 }
+#ifdef __CLANG__
+#pragma clang diagnostic pop
+#endif

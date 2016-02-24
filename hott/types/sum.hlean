@@ -159,7 +159,12 @@ namespace sum
     fapply equiv.MK,
       all_goals try (intro z; induction z with u v;
                      all_goals try induction u; all_goals try induction v),
-      all_goals try (repeat append (append (apply inl) (apply inr)) assumption; now),
+      exact inl (inl u),
+      exact inl (inr a),
+      exact inr a,
+      exact inl a,
+      exact inr (inl a),
+      exact inr (inr v),
       all_goals reflexivity
   end
 

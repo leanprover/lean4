@@ -76,25 +76,12 @@ tactic using_params(tactic const & t, options const & opts);
    thread finished.
 */
 tactic try_for(tactic const & t, unsigned ms, unsigned check_ms = 1);
-/**
-   \brief Execute both tactics and and combines their results.
-   The results produced by tactic \c t1 are listed before the ones
-   from tactic \c t2.
-*/
-tactic append(tactic const & t1, tactic const & t2);
 
 /** \brief Return a tactic that rotate goals to the left n steps */
 tactic rotate_left(unsigned n);
 /** \brief Return a tactic that rotate goals to the right n steps */
 tactic rotate_right(unsigned n);
 
-inline tactic operator+(tactic const & t1, tactic const & t2) { return append(t1, t2); }
-/**
-   \brief Execute both tactics and and combines their results.
-   The results produced by tactics \c t1 and \c t2 are interleaved
-   to guarantee fairness.
-*/
-tactic interleave(tactic const & t1, tactic const & t2);
 /**
    \brief Return a tactic that executes \c t1 and \c t2 in parallel.
    This is similar to \c append and \c interleave. The order of

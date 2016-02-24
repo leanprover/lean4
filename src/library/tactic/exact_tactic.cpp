@@ -108,10 +108,7 @@ static tactic assumption_tactic_core(bool conservative) {
                 expr const & h = hs[i];
                 tactic curr = exact_tactic(elab, h, false, false, conservative);
                 if (tac) {
-                    if (conservative)
-                        tac = orelse(*tac, curr);
-                    else
-                        tac = append(*tac, curr);
+                    tac = orelse(*tac, curr);
                 } else {
                     tac = curr;
                 }

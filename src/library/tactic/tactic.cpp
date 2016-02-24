@@ -179,20 +179,6 @@ tactic try_for(tactic const & t, unsigned ms, unsigned check_ms) {
         });
 }
 
-tactic append(tactic const & t1, tactic const & t2) {
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & _s) -> proof_state_seq {
-            proof_state s = _s.update_report_failure(false);
-            return append(t1(env, ios, s), t2(env, ios, s), "APPEND tactical");
-        });
-}
-
-tactic interleave(tactic const & t1, tactic const & t2) {
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & _s) -> proof_state_seq {
-            proof_state s = _s.update_report_failure(false);
-            return interleave(t1(env, ios, s), t2(env, ios, s), "INTERLEAVE tactical");
-        });
-}
-
 tactic par(tactic const & t1, tactic const & t2, unsigned check_ms) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & _s) -> proof_state_seq {
             proof_state s = _s.update_report_failure(false);

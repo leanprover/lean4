@@ -201,7 +201,6 @@ subsingleton.helim
 tactic
 tactic.all_goals
 tactic.and_then
-tactic.append
 tactic.apply
 tactic.assert_hypothesis
 tactic.assumption
@@ -232,7 +231,6 @@ tactic.generalize_tac
 tactic.id
 tactic.identifier
 tactic.identifier_list
-tactic.interleave
 tactic.intro
 tactic.intros
 tactic.location

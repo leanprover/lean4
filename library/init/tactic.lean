@@ -22,8 +22,6 @@ namespace tactic
 definition and_then    (t1 t2 : tactic) : tactic := builtin
 definition or_else     (t1 t2 : tactic) : tactic := builtin
 definition append      (t1 t2 : tactic) : tactic := builtin
-definition interleave  (t1 t2 : tactic) : tactic := builtin
-definition par         (t1 t2 : tactic) : tactic := builtin
 definition fixpoint    (f : tactic → tactic) : tactic := builtin
 definition repeat      (t : tactic) : tactic := builtin
 definition at_most     (t : tactic) (k : num)  : tactic := builtin

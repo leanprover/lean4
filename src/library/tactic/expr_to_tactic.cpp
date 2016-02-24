@@ -406,10 +406,6 @@ void initialize_expr_to_tactic() {
                         []() { return beta_tactic(); });
     register_bin_tac(get_tactic_and_then_name(),
                      [](tactic const & t1, tactic const & t2) { return then(t1, t2); });
-    register_bin_tac(get_tactic_append_name(),
-                     [](tactic const & t1, tactic const & t2) { return append(t1, t2); });
-    register_bin_tac(get_tactic_interleave_name(),
-                     [](tactic const & t1, tactic const & t2) { return interleave(t1, t2); });
     register_bin_tac(get_tactic_par_name(),
                      [](tactic const & t1, tactic const & t2) { return par(t1, t2); });
     register_bin_tac(get_tactic_or_else_name(),

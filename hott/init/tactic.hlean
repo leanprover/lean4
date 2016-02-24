@@ -21,8 +21,6 @@ namespace tactic
 -- a term of type 'tactic' into a tactic that sythesizes a term
 definition and_then    (t1 t2 : tactic) : tactic := builtin
 definition or_else     (t1 t2 : tactic) : tactic := builtin
-definition append      (t1 t2 : tactic) : tactic := builtin
-definition interleave  (t1 t2 : tactic) : tactic := builtin
 definition par         (t1 t2 : tactic) : tactic := builtin
 definition fixpoint    (f : tactic → tactic) : tactic := builtin
 definition repeat      (t : tactic) : tactic := builtin

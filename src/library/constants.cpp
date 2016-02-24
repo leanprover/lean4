@@ -206,7 +206,6 @@ name const * g_subsingleton_helim = nullptr;
 name const * g_tactic = nullptr;
 name const * g_tactic_all_goals = nullptr;
 name const * g_tactic_and_then = nullptr;
-name const * g_tactic_append = nullptr;
 name const * g_tactic_apply = nullptr;
 name const * g_tactic_assert_hypothesis = nullptr;
 name const * g_tactic_assumption = nullptr;
@@ -237,7 +236,6 @@ name const * g_tactic_generalize_tac = nullptr;
 name const * g_tactic_id = nullptr;
 name const * g_tactic_identifier = nullptr;
 name const * g_tactic_identifier_list = nullptr;
-name const * g_tactic_interleave = nullptr;
 name const * g_tactic_intro = nullptr;
 name const * g_tactic_intros = nullptr;
 name const * g_tactic_location = nullptr;
@@ -481,7 +479,6 @@ void initialize_constants() {
     g_tactic = new name{"tactic"};
     g_tactic_all_goals = new name{"tactic", "all_goals"};
     g_tactic_and_then = new name{"tactic", "and_then"};
-    g_tactic_append = new name{"tactic", "append"};
     g_tactic_apply = new name{"tactic", "apply"};
     g_tactic_assert_hypothesis = new name{"tactic", "assert_hypothesis"};
     g_tactic_assumption = new name{"tactic", "assumption"};
@@ -512,7 +509,6 @@ void initialize_constants() {
     g_tactic_id = new name{"tactic", "id"};
     g_tactic_identifier = new name{"tactic", "identifier"};
     g_tactic_identifier_list = new name{"tactic", "identifier_list"};
-    g_tactic_interleave = new name{"tactic", "interleave"};
     g_tactic_intro = new name{"tactic", "intro"};
     g_tactic_intros = new name{"tactic", "intros"};
     g_tactic_location = new name{"tactic", "location"};
@@ -757,7 +753,6 @@ void finalize_constants() {
     delete g_tactic;
     delete g_tactic_all_goals;
     delete g_tactic_and_then;
-    delete g_tactic_append;
     delete g_tactic_apply;
     delete g_tactic_assert_hypothesis;
     delete g_tactic_assumption;
@@ -788,7 +783,6 @@ void finalize_constants() {
     delete g_tactic_id;
     delete g_tactic_identifier;
     delete g_tactic_identifier_list;
-    delete g_tactic_interleave;
     delete g_tactic_intro;
     delete g_tactic_intros;
     delete g_tactic_location;
@@ -1032,7 +1026,6 @@ name const & get_subsingleton_helim_name() { return *g_subsingleton_helim; }
 name const & get_tactic_name() { return *g_tactic; }
 name const & get_tactic_all_goals_name() { return *g_tactic_all_goals; }
 name const & get_tactic_and_then_name() { return *g_tactic_and_then; }
-name const & get_tactic_append_name() { return *g_tactic_append; }
 name const & get_tactic_apply_name() { return *g_tactic_apply; }
 name const & get_tactic_assert_hypothesis_name() { return *g_tactic_assert_hypothesis; }
 name const & get_tactic_assumption_name() { return *g_tactic_assumption; }
@@ -1063,7 +1056,6 @@ name const & get_tactic_generalize_tac_name() { return *g_tactic_generalize_tac;
 name const & get_tactic_id_name() { return *g_tactic_id; }
 name const & get_tactic_identifier_name() { return *g_tactic_identifier; }
 name const & get_tactic_identifier_list_name() { return *g_tactic_identifier_list; }
-name const & get_tactic_interleave_name() { return *g_tactic_interleave; }
 name const & get_tactic_intro_name() { return *g_tactic_intro; }
 name const & get_tactic_intros_name() { return *g_tactic_intros; }
 name const & get_tactic_location_name() { return *g_tactic_location; }

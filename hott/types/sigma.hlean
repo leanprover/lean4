@@ -368,7 +368,10 @@ namespace sigma
   begin
     fapply equiv.MK,
     { intro v,
-      induction v with p b, induction p: append (apply inl) (apply inr); constructor; assumption },
+      induction v with p b,
+      induction p,
+      { apply inl, constructor, assumption },
+      { apply inr, constructor, assumption }},
     { intro p, induction p with v v: induction v; constructor; assumption},
     { intro p, induction p with v v: induction v; reflexivity},
     { intro v, induction v with p b, induction p: reflexivity},
@@ -379,9 +382,14 @@ namespace sigma
   begin
     fapply equiv.MK,
     { intro v,
-      induction v with a p, induction p: append (apply inl) (apply inr); constructor; assumption},
+      induction v with a p,
+      induction p,
+      { apply inl, constructor, assumption},
+      { apply inr, constructor, assumption}},
     { intro p,
-      induction p with v v: induction v; constructor; append (apply inl) (apply inr); assumption},
+      induction p with v v,
+      { induction v, constructor, apply inl, assumption },
+      { induction v, constructor, apply inr, assumption }},
     { intro p, induction p with v v: induction v; reflexivity},
     { intro v, induction v with a p, induction p: reflexivity},
   end

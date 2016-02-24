@@ -73,6 +73,12 @@ public:
         return m_map.for_each(f_prime);
     }
 
+    template<typename F>
+    optional<T> find_if(F && f) const {
+        auto f_prime = [&](entry const & e) { return f(e.first, e.second); };
+        return m_map.find_if(f_prime);
+    }
+
     /** \brief (For debugging) Display the content of this splay map. */
     friend std::ostream & operator<<(std::ostream & out, rb_map const & m) {
         out << "{";

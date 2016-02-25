@@ -249,8 +249,7 @@ theorem ordered_comm_group.lt_of_add_lt_add_left [ordered_comm_group A] {a b c :
 assert H' : -a + (a + b) < -a + (a + c), from ordered_comm_group.add_lt_add_left _ _ H _,
 by rewrite *neg_add_cancel_left at H'; exact H'
 
-definition ordered_comm_group.to_ordered_cancel_comm_monoid [trans_instance] [reducible]
-    [s : ordered_comm_group A] : ordered_cancel_comm_monoid A :=
+definition ordered_comm_group.to_ordered_cancel_comm_monoid [trans_instance] [s : ordered_comm_group A] : ordered_cancel_comm_monoid A :=
 ⦃ ordered_cancel_comm_monoid, s,
   add_left_cancel       := @add.left_cancel A _,
   add_right_cancel      := @add.right_cancel A _,
@@ -621,7 +620,7 @@ structure decidable_linear_ordered_comm_group [class] (A : Type)
     (add_lt_add_left : ∀ a b, lt a b → ∀ c, lt (add c a) (add c b))
 
 definition decidable_linear_ordered_comm_group.to_ordered_comm_group
-      [trans_instance] [reducible]
+      [trans_instance]
    (A : Type) [s : decidable_linear_ordered_comm_group A] : ordered_comm_group A :=
 ⦃ ordered_comm_group, s,
   le_of_lt := @le_of_lt A _,
@@ -629,7 +628,7 @@ definition decidable_linear_ordered_comm_group.to_ordered_comm_group
   lt_of_lt_of_le := @lt_of_lt_of_le A _ ⦄
 
 definition decidable_linear_ordered_comm_group.to_decidable_linear_ordered_cancel_comm_monoid
-    [trans_instance] [reducible] (A : Type) [s : decidable_linear_ordered_comm_group A] :
+    [trans_instance] (A : Type) [s : decidable_linear_ordered_comm_group A] :
   decidable_linear_ordered_cancel_comm_monoid A :=
 ⦃ decidable_linear_ordered_cancel_comm_monoid, s,
     @ordered_comm_group.to_ordered_cancel_comm_monoid A _ ⦄

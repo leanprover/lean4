@@ -237,7 +237,7 @@ nat.cases_on n (by simp)
           (show succ (succ n' * m' + n') = 0, by simp)
           !succ_ne_zero))
 
-protected definition comm_semiring [reducible] [trans_instance] : comm_semiring nat :=
+protected definition comm_semiring [trans_instance] : comm_semiring nat :=
 ⦃comm_semiring,
  add            := nat.add,
  add_assoc      := nat.add_assoc,

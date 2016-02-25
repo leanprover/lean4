@@ -103,7 +103,7 @@ section
   private lemma nvs_dist_comm  (u v : V) : nvs_dist u v = nvs_dist v u :=
   by rewrite [↑nvs_dist, -norm_neg, neg_sub]
 
-  definition normed_vector_space_to_metric_space [reducible] [trans_instance]
+  definition normed_vector_space_to_metric_space [trans_instance]
       (V : Type) [nvsV : normed_vector_space V] :
     metric_space V :=
   ⦃ metric_space,
@@ -132,8 +132,7 @@ structure banach_space [class] (V : Type) extends nvsV : normed_vector_space V :
 (complete : ∀ X, @analysis.cauchy V (@normed_vector_space_to_metric_space V nvsV) X →
     @analysis.converges_seq V (@normed_vector_space_to_metric_space V nvsV) X)
 
-definition banach_space_to_metric_space [reducible] [trans_instance]
-    (V : Type) [bsV : banach_space V] :
+definition banach_space_to_metric_space [trans_instance] (V : Type) [bsV : banach_space V] :
   complete_metric_space V :=
 ⦃ complete_metric_space, normed_vector_space_to_metric_space V,
   complete := banach_space.complete

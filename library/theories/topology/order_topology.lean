@@ -57,7 +57,7 @@ section
     exists.intro y (exists.intro x (and.intro (and.intro `x < y` `x < y`) this))
 end
 
-protected definition T2_space.of_linorder_topology [reducible] [trans_instance] :
+protected definition T2_space.of_linorder_topology [trans_instance] :
   T2_space X :=
 ⦃ T2_space, linorder_topology,
   T2 := abstract

@@ -287,7 +287,7 @@ namespace complete_lattice
   Sup_le (λ G GS, GS F FS)
 end complete_lattice
 
-protected definition complete_lattice [reducible] [trans_instance] : complete_lattice (filter A) :=
+protected definition complete_lattice [trans_instance] : complete_lattice (filter A) :=
 ⦃ complete_lattice,
   le           := complete_lattice.le,
   le_refl      := complete_lattice.le_refl,

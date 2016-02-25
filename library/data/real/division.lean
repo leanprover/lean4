@@ -639,7 +639,7 @@ noncomputable definition dec_lt : decidable_rel real.lt :=
     apply prop_decidable
   end
 
-protected noncomputable definition discrete_linear_ordered_field [reducible] [trans_instance]:
+protected noncomputable definition discrete_linear_ordered_field [trans_instance]:
   discrete_linear_ordered_field ℝ :=
   ⦃ discrete_linear_ordered_field, real.comm_ring, real.ordered_ring,
     le_total        := real.le_total,

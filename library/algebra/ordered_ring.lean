@@ -242,7 +242,7 @@ begin
   exact (iff.mp !sub_pos_iff_lt H2)
 end
 
-definition ordered_ring.to_ordered_semiring [trans_instance] [reducible]
+definition ordered_ring.to_ordered_semiring [trans_instance]
     [s : ordered_ring A] :
   ordered_semiring A :=
 ⦃ ordered_semiring, s,
@@ -324,7 +324,7 @@ structure linear_ordered_ring [class] (A : Type)
     extends ordered_ring A, linear_strong_order_pair A :=
   (zero_lt_one : lt zero one)
 
-definition linear_ordered_ring.to_linear_ordered_semiring [trans_instance] [reducible]
+definition linear_ordered_ring.to_linear_ordered_semiring [trans_instance]
     [s : linear_ordered_ring A] :
   linear_ordered_semiring A :=
 ⦃ linear_ordered_semiring, s,
@@ -378,7 +378,7 @@ lt.by_cases
         end))
 
 -- Linearity implies no zero divisors. Doesn't need commutativity.
-definition linear_ordered_comm_ring.to_integral_domain [trans_instance] [reducible]
+definition linear_ordered_comm_ring.to_integral_domain [trans_instance]
     [s: linear_ordered_comm_ring A] : integral_domain A :=
 ⦃ integral_domain, s,
   eq_zero_or_eq_zero_of_mul_eq_zero :=
@@ -464,7 +464,7 @@ structure decidable_linear_ordered_comm_ring [class] (A : Type) extends linear_o
     decidable_linear_ordered_comm_group A
 
 definition decidable_linear_ordered_comm_ring.to_decidable_linear_ordered_semiring
-    [trans_instance] [reducible] [s : decidable_linear_ordered_comm_ring A] :
+    [trans_instance] [s : decidable_linear_ordered_comm_ring A] :
   decidable_linear_ordered_semiring A :=
 ⦃decidable_linear_ordered_semiring, s, @linear_ordered_ring.to_linear_ordered_semiring A _⦄
 

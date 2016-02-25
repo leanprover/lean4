@@ -301,7 +301,7 @@ let H' := rat.le_of_lt H in
                                   (take Heq, let Heq' := add_left_cancel Heq in
                                    !rat.lt_irrefl (Heq' ▸ H)))
 
-protected definition discrete_linear_ordered_field [reducible] [trans_instance] :
+protected definition discrete_linear_ordered_field [trans_instance] :
     discrete_linear_ordered_field rat :=
 ⦃discrete_linear_ordered_field,
  rat.discrete_field,

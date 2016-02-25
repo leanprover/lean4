@@ -90,7 +90,7 @@ protected theorem mul_lt_mul_of_pos_right {n m k : ℕ} (H : n < m) (Hk : k > 0)
 
 /- nat is an instance of a linearly ordered semiring and a lattice -/
 
-protected definition decidable_linear_ordered_semiring [reducible] [trans_instance] :
+protected definition decidable_linear_ordered_semiring [trans_instance] :
 decidable_linear_ordered_semiring nat :=
 ⦃ decidable_linear_ordered_semiring, nat.comm_semiring,
   add_left_cancel            := @nat.add_left_cancel,

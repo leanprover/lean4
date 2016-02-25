@@ -316,13 +316,11 @@ section group
       ... = x ∘c b : Py
       ... = a : Px)
 
-  definition group.to_left_cancel_semigroup [trans_instance] [reducible] :
-    left_cancel_semigroup A :=
+  definition group.to_left_cancel_semigroup [trans_instance] : left_cancel_semigroup A :=
   ⦃ left_cancel_semigroup, s,
     mul_left_cancel := @mul_left_cancel A s ⦄
 
-  definition group.to_right_cancel_semigroup [trans_instance] [reducible] :
-    right_cancel_semigroup A :=
+  definition group.to_right_cancel_semigroup [trans_instance] : right_cancel_semigroup A :=
   ⦃ right_cancel_semigroup, s,
     mul_right_cancel := @mul_right_cancel A s ⦄
 
@@ -444,13 +442,11 @@ section add_group
      ... = (c + b) + -b : H
      ... = c : add_neg_cancel_right
 
-  definition add_group.to_left_cancel_semigroup [trans_instance] [reducible] :
-    add_left_cancel_semigroup A :=
+  definition add_group.to_left_cancel_semigroup [trans_instance] : add_left_cancel_semigroup A :=
   ⦃ add_left_cancel_semigroup, s,
     add_left_cancel := @add_left_cancel A s ⦄
 
-  definition add_group.to_add_right_cancel_semigroup [trans_instance] [reducible] :
-    add_right_cancel_semigroup A :=
+  definition add_group.to_add_right_cancel_semigroup [trans_instance] : add_right_cancel_semigroup A :=
   ⦃ add_right_cancel_semigroup, s,
     add_right_cancel := @add_right_cancel A s ⦄
 

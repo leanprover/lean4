@@ -550,7 +550,7 @@ decidable.by_cases
       end))
 
 
-protected definition discrete_field [reducible] [trans_instance] : discrete_field rat :=
+protected definition discrete_field [trans_instance] : discrete_field rat :=
 ⦃discrete_field,
  add              := rat.add,
  add_assoc        := rat.add_assoc,

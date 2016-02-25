@@ -113,7 +113,7 @@ definition complete_lattice_Inf_to_complete_lattice_Sup [C : complete_lattice_In
 ⦃ complete_lattice_Sup, C ⦄
 
 -- Every complete_lattice_Inf is a complete_lattice
-definition complete_lattice_Inf_to_complete_lattice [trans_instance] [reducible] [C : complete_lattice_Inf A] :
+definition complete_lattice_Inf_to_complete_lattice [trans_instance] [C : complete_lattice_Inf A] :
   complete_lattice A :=
 ⦃ complete_lattice, C ⦄
 
@@ -179,7 +179,7 @@ definition complete_lattice_Sup_to_complete_lattice_Inf [C : complete_lattice_Su
 
 -- Every complete_lattice_Sup is a complete_lattice
 section
-definition complete_lattice_Sup_to_complete_lattice [trans_instance] [reducible] [C : complete_lattice_Sup A] :
+definition complete_lattice_Sup_to_complete_lattice [trans_instance] [C : complete_lattice_Sup A] :
   complete_lattice A :=
 ⦃ complete_lattice, C ⦄
 end

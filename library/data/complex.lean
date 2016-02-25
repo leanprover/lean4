@@ -278,7 +278,7 @@ take z w, classical.prop_decidable (z = w)
 protected theorem zero_ne_one : (0 : ℂ) ≠ 1 :=
 assume H, zero_ne_one (eq_of_of_real_eq_of_real H)
 
-protected noncomputable definition discrete_field [reducible][trans_instance] :
+protected noncomputable definition discrete_field [trans_instance] :
   discrete_field ℂ :=
 ⦃ discrete_field, complex.comm_ring,
   mul_inv_cancel   := @complex.mul_inv_cancel,

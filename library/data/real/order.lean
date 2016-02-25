@@ -1092,7 +1092,7 @@ protected theorem le_of_lt_or_eq (x y : ℝ) : x < y ∨ x = y → x ≤ y :=
         apply (or.inr (quot.exact H'))
       end)))
 
-definition ordered_ring [reducible] [trans_instance] : ordered_ring ℝ :=
+definition ordered_ring [trans_instance] : ordered_ring ℝ :=
 ⦃ ordered_ring, real.comm_ring,
   le_refl := real.le_refl,
   le_trans := @real.le_trans,

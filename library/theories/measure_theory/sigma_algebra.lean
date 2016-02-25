@@ -200,7 +200,7 @@ protected theorem Sup_le {N : sigma_algebra X} {MS : set (sigma_algebra X)} (H :
 have (⋃ M ∈ MS, @sets _ M) ⊆ @sets _ N, from bUnion_subset H,
 sets_generated_by_initial this
 
-protected definition complete_lattice [reducible] [trans_instance] :
+protected definition complete_lattice [trans_instance] :
   complete_lattice (sigma_algebra X) :=
 ⦃complete_lattice,
   le           := sigma_algebra.le,

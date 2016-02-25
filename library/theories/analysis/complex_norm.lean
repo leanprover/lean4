@@ -63,7 +63,7 @@ namespace complex
 
   local attribute complex.real_inner_product_space [trans_instance]
 
-  protected definition normed_vector_space [trans_instance] [reducible] : normed_vector_space ℂ :=
+  protected definition normed_vector_space [trans_instance] : normed_vector_space ℂ :=
   _
 
   theorem norm_squared_eq_cmod (z : ℂ) : ∥ z ∥^2 = cmod z := by rewrite norm_squared

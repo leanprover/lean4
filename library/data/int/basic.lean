@@ -515,7 +515,7 @@ protected theorem eq_zero_or_eq_zero_of_mul_eq_zero {a b : ℤ} (H : a * b = 0) 
 or.imp eq_zero_of_nat_abs_eq_zero eq_zero_of_nat_abs_eq_zero
   (eq_zero_or_eq_zero_of_mul_eq_zero (by rewrite [-nat_abs_mul, H]))
 
-protected definition integral_domain [reducible] [trans_instance] : integral_domain int :=
+protected definition integral_domain [trans_instance] : integral_domain int :=
 ⦃integral_domain,
   add            := int.add,
   add_assoc      := int.add_assoc,

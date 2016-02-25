@@ -281,8 +281,7 @@ by krewrite [ereal.mul_comm, ereal.one_mul]
 
 -- Note that distributivity fails, e.g. ∞ ⬝ (-1 + 1) ≠ ∞ * -1 + ∞ * 1
 
-protected definition comm_monoid [reducible] [trans_instance] :
-    comm_monoid ereal :=
+protected definition comm_monoid [trans_instance] : comm_monoid ereal :=
 ⦃comm_monoid,
   mul       := ereal.mul,
   mul_assoc := ereal.mul_assoc,
@@ -292,8 +291,7 @@ protected definition comm_monoid [reducible] [trans_instance] :
   mul_comm  := ereal.mul_comm
 ⦄
 
-protected definition add_comm_monoid [reducible] [trans_instance] :
-    add_comm_monoid ereal :=
+protected definition add_comm_monoid [trans_instance] : add_comm_monoid ereal :=
 ⦃add_comm_monoid,
   add       := ereal.add,
   add_assoc := ereal.add_assoc,
@@ -313,8 +311,7 @@ protected definition le : ereal → ereal → Prop
 | ∞ (of_real y)           := false
 | ∞ -∞                    := false
 
-definition ereal_has_le [instance] [priority ereal.prio] :
-  has_le ereal :=
+definition ereal_has_le [instance] [priority ereal.prio] : has_le ereal :=
 has_le.mk ereal.le
 
 theorem of_real_le_of_real (x y : real) : of_real x ≤ of_real y ↔ x ≤ y :=
@@ -393,8 +390,7 @@ theorem neg_infty_lt_of_real (x : real) : -∞ < of_real x :=  and.intro trivial
 
 theorem of_real_lt_infty (x : real) : of_real x < ∞ := and.intro trivial (ne.symm !infty_ne_of_real)
 
-protected definition decidable_linear_order [reducible] [trans_instance] :
-    decidable_linear_order ereal :=
+protected definition decidable_linear_order [trans_instance] : decidable_linear_order ereal :=
 ⦃decidable_linear_order,
   le              := ereal.le,
   le_refl         := ereal.le_refl,

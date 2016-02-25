@@ -211,7 +211,7 @@ have h₂ : ∀ b, f b = b → a ≤ b, from
   take b,
   suppose f b = b,
   have b ∈ {u | f u ≤ u}, from
-    show f b ≤ b, by rewrite this; apply le.refl,
+    show f b ≤ b, by rewrite this,
   Inf_le this,
 exists.intro a (and.intro h₁ h₂)
 
@@ -233,7 +233,7 @@ have h₁ : f a = a, from
 have h₂ : ∀ b, f b = b → b ≤ a, from
   take b,
   suppose f b = b,
-  have b ≤ f b, by rewrite this; apply le.refl,
+  have b ≤ f b, by rewrite this,
   le_Sup this,
 exists.intro a (and.intro h₁ h₂)
 
@@ -266,12 +266,12 @@ lemma Inf_singleton {a : A} : ⨅'{a} = a :=
 have ⨅'{a} ≤ a, from
   Inf_le !mem_insert,
 have a ≤ ⨅'{a}, from
-  le_Inf (take b, suppose b ∈ '{a}, have b = a, from eq_of_mem_singleton this, by rewrite this; apply le.refl),
+  le_Inf (take b, suppose b ∈ '{a}, have b = a, from eq_of_mem_singleton this, by rewrite this),
 le.antisymm `⨅'{a} ≤ a` `a ≤ ⨅'{a}`
 
 lemma Sup_singleton {a : A} : ⨆'{a} = a :=
 have ⨆'{a} ≤ a, from
-  Sup_le (take b, suppose b ∈ '{a}, have b = a, from eq_of_mem_singleton this, by rewrite this; apply le.refl),
+  Sup_le (take b, suppose b ∈ '{a}, have b = a, from eq_of_mem_singleton this, by rewrite this),
 have a ≤ ⨆'{a}, from
   le_Sup !mem_insert,
 le.antisymm `⨆'{a} ≤ a` `a ≤ ⨆'{a}`

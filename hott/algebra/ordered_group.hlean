@@ -16,7 +16,7 @@ variable {A : Type}
 
 namespace algebra
 structure ordered_cancel_comm_monoid [class] (A : Type) extends add_comm_monoid A,
-  add_left_cancel_semigroup A, add_right_cancel_semigroup A, order_pair A :=
+ add_left_cancel_semigroup A, add_right_cancel_semigroup A, order_pair A :=
 (add_le_add_left : Πa b, le a b → Πc, le (add c a) (add c b))
 (le_of_add_le_add_left : Πa b c, le (add a b) (add a c) → le b c)
 (add_lt_add_left : Πa b, lt a b → Πc, lt (add c a) (add c b))

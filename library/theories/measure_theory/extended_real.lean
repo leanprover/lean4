@@ -330,7 +330,7 @@ theorem neg_infty_le : ∀ v, -∞ ≤ v
 protected theorem le_refl : ∀ u : ereal, u ≤ u
 | ∞           := trivial
 | -∞          := trivial
-| (of_real x) := by rewrite [of_real_le_of_real]; apply le.refl
+| (of_real x) := by rewrite [of_real_le_of_real]
 
 protected theorem le_trans : ∀ u v w : ereal, u ≤ v → v ≤ w → u ≤ w
 | u v ∞            H1 H2 := !le_infty

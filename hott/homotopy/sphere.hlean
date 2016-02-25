@@ -48,16 +48,25 @@ namespace sphere_index
   notation `-1` := minus_one
   notation `ℕ₋₁` := sphere_index
 
-  definition add (n m : sphere_index) : sphere_index :=
+  definition add_plus_one (n m : sphere_index) : sphere_index :=
   sphere_index.rec_on m n (λ k l, l .+1)
 
-  definition leq (n m : sphere_index) : Type₀ :=
+  -- addition of sphere_indices, where (-1 + -1) is defined to be -1.
+  protected definition add (n m : sphere_index) : sphere_index :=
+  sphere_index.cases_on m
+    (sphere_index.cases_on n -1 id)
+    (sphere_index.rec n (λn' r, succ r))
+
+  protected definition le (n m : sphere_index) : Type₀ :=
   sphere_index.rec_on n (λm, unit) (λ n p m, sphere_index.rec_on m (λ p, empty) (λ m q p, p m) p) m
 
-  infix `+1+`:65 := sphere_index.add
+  infix `+1+`:65 := sphere_index.add_plus_one
+
+  definition has_add_sphere_index [instance] [priority 2000] [reducible] : has_add ℕ₋₁ :=
+  has_add.mk sphere_index.add
 
   definition has_le_sphere_index [instance] : has_le sphere_index :=
-  has_le.mk leq
+  has_le.mk sphere_index.le
 
   definition succ_le_succ {n m : sphere_index} (H : n ≤ m) : n.+1 ≤ m.+1 := proof H qed
   definition le_of_succ_le_succ {n m : sphere_index} (H : n.+1 ≤ m.+1) : n ≤ m := proof H qed
@@ -125,16 +134,17 @@ namespace sphere
   definition sphere_eq_bool : S 0 = bool :=
   ua sphere_equiv_bool
 
-  definition sphere_eq_bool_pointed : S. 0 = pbool :=
+  definition sphere_eq_pbool : S. 0 = pbool :=
   pType_eq sphere_equiv_bool idp
 
-  -- TODO: the commented-out part makes the forward function below "apn _ surf"
+  -- TODO1: the commented-out part makes the forward function below "apn _ surf"
+  -- TODO2: we could make this a pointed equivalence
   definition pmap_sphere (A : Type*) (n : ℕ) : map₊ (S. n) A ≃ Ω[n] A :=
   begin
     -- fapply equiv_change_fun,
     -- {
       revert A, induction n with n IH: intro A,
-      { krewrite [sphere_eq_bool_pointed], apply pmap_bool_equiv},
+      { apply tr_rev (λx, x →* _ ≃ _) sphere_eq_pbool, apply pmap_bool_equiv},
       { refine susp_adjoint_loop (S. n) A ⬝e !IH ⬝e _, rewrite [loop_space_succ_eq_in]}
     -- },
     -- { intro f, exact apn n f surf},

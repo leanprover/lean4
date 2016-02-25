@@ -45,7 +45,7 @@ namespace univ
 
   definition not_is_set_type : ¬is_set Type.{u} :=
   assume H : is_set Type,
-  absurd (is_trunc_is_embedding_closed lift star) not_is_set_type0
+  absurd (is_trunc_is_embedding_closed lift !trunc_index.minus_one_le_succ) not_is_set_type0
 
   definition not_double_negation_elimination0 : ¬Π(A : Type₀), ¬¬A → A :=
   begin

@@ -36,11 +36,15 @@ namespace pointed
   definition pequiv_of_equiv [constructor] (f : A ≃ B) (H : f pt = pt) : A ≃* B :=
   pequiv.mk f _ H
 
+  protected definition pequiv.MK [constructor] (f : A →* B) (g : B →* A)
+    (gf : Πa, g (f a) = a) (fg : Πb, f (g b) = b) : A ≃* B :=
+  pequiv.mk f (adjointify f g fg gf) (respect_pt f)
+
   definition equiv_of_pequiv [constructor] (f : A ≃* B) : A ≃ B :=
   equiv.mk f _
 
   definition to_pinv [constructor] (f : A ≃* B) : B →* A :=
-  pmap.mk f⁻¹ (ap f⁻¹ (respect_pt f)⁻¹ ⬝ !left_inv)
+  pmap.mk f⁻¹ ((ap f⁻¹ (respect_pt f))⁻¹ ⬝ !left_inv)
 
   definition pua {A B : Type*} (f : A ≃* B) : A = B :=
   pType_eq (equiv_of_pequiv f) !respect_pt
@@ -103,7 +107,7 @@ namespace pointed
   definition pleft_inv (f : A ≃* B) : f⁻¹ᵉ* ∘* f ~* pid A :=
   phomotopy.mk (left_inv f)
     abstract begin
-      esimp, rewrite ap_inv, symmetry, apply con_inv_cancel_left
+      esimp, symmetry, apply con_inv_cancel_left
     end end
 
   definition pright_inv (f : A ≃* B) : f ∘* f⁻¹ᵉ* ~* pid B :=
@@ -182,9 +186,55 @@ namespace pointed
     (p : h ~* f ∘* g) : f⁻¹ᵉ* ∘* h ~* g :=
   (phomotopy_pinv_left_of_phomotopy p⁻¹*)⁻¹*
 
-
   definition phomotopy_of_phomotopy_pinv_left {f : C ≃* B} {g : A →* B} {h : A →* C}
     (p : h ~* f⁻¹ᵉ* ∘* g) : f ∘* h ~* g :=
   (phomotopy_of_pinv_left_phomotopy p⁻¹*)⁻¹*
+
+  /- pointed equivalences between particular pointed types -/
+
+  definition loop_pequiv_loop [constructor] (f : A ≃* B) : Ω A ≃* Ω B :=
+  pequiv.MK (ap1 f) (ap1 f⁻¹ᵉ*)
+  abstract begin
+    intro p,
+    refine ((ap1_compose f⁻¹ᵉ* f) p)⁻¹ ⬝ _,
+    refine ap1_phomotopy (pleft_inv f) p ⬝ _,
+    exact ap1_id p
+  end end
+  abstract begin
+    intro p,
+    refine ((ap1_compose f f⁻¹ᵉ*) p)⁻¹ ⬝ _,
+    refine ap1_phomotopy (pright_inv f) p ⬝ _,
+    exact ap1_id p
+  end end
+
+  definition loopn_pequiv_loopn (n : ℕ) (f : A ≃* B) : Ω[n] A ≃* Ω[n] B :=
+  begin
+    induction n with n IH,
+    { exact f},
+    { exact loop_pequiv_loop IH}
+  end
+
+  definition pmap_functor [constructor] {A A' B B' : Type*} (f : A' →* A) (g : B →* B') :
+    ppmap A B →* ppmap A' B' :=
+  pmap.mk (λh, g ∘* h ∘* f)
+    abstract begin
+      fapply pmap_eq,
+      { esimp, intro a, exact respect_pt g},
+      { rewrite [▸*, ap_constant], apply idp_con}
+    end end
+
+/-
+  definition pmap_pequiv_pmap {A A' B B' : Type*} (f : A ≃* A') (g : B ≃* B') :
+    ppmap A B ≃* ppmap A' B' :=
+  pequiv.MK (pmap_functor f⁻¹ᵉ* g) (pmap_functor f g⁻¹ᵉ*)
+    abstract begin
+      intro a, esimp, apply pmap_eq,
+      { esimp, },
+      { }
+    end end
+    abstract begin
+
+    end end
+-/
 
 end pointed

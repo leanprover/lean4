@@ -40,13 +40,13 @@ namespace eq
   definition fundamental_group [constructor] (A : Type*) : Group :=
   ghomotopy_group zero A
 
-  notation `πG[`:95  n:0 ` +1] `:0 A:95 := ghomotopy_group n A
-  notation `πaG[`:95 n:0 ` +2] `:0 A:95 := cghomotopy_group n A
+  notation `πg[`:95  n:0 ` +1] `:0 A:95 := ghomotopy_group n A
+  notation `πag[`:95 n:0 ` +2] `:0 A:95 := cghomotopy_group n A
 
   prefix `π₁`:95 := fundamental_group
 
   open equiv unit
-  theorem trivial_homotopy_of_is_set (A : Type*) [H : is_set A] (n : ℕ) : πG[n+1] A = G0 :=
+  theorem trivial_homotopy_of_is_set (A : Type*) [H : is_set A] (n : ℕ) : πg[n+1] A = G0 :=
   begin
     apply trivial_group_of_is_contr,
     apply is_trunc_trunc_of_is_trunc,
@@ -54,9 +54,9 @@ namespace eq
     apply is_trunc_succ_succ_of_is_set
   end
 
-  definition homotopy_group_succ_out (A : Type*) (n : ℕ) : πG[ n +1] A = π₁ Ω[n] A := idp
+  definition homotopy_group_succ_out (A : Type*) (n : ℕ) : πg[ n +1] A = π₁ Ω[n] A := idp
 
-  definition homotopy_group_succ_in (A : Type*) (n : ℕ) : πG[succ n +1] A = πG[n +1] Ω A :=
+  definition homotopy_group_succ_in (A : Type*) (n : ℕ) : πg[succ n +1] A = πg[n +1] Ω A :=
   begin
     fapply Group_eq,
     { apply equiv_of_eq, exact ap (λ(X : Type*), trunc 0 X) (loop_space_succ_eq_in A (succ n))},
@@ -65,7 +65,7 @@ namespace eq
       apply loop_space_succ_eq_in_concat end end},
   end
 
-  definition homotopy_group_add (A : Type*) (n m : ℕ) : πG[n+m +1] A = πG[n +1] Ω[m] A :=
+  definition homotopy_group_add (A : Type*) (n m : ℕ) : πg[n+m +1] A = πg[n +1] Ω[m] A :=
   begin
     revert A, induction m with m IH: intro A,
     { reflexivity},
@@ -74,7 +74,7 @@ namespace eq
   end
 
   theorem trivial_homotopy_of_is_set_loop_space {A : Type*} {n : ℕ} (m : ℕ) (H : is_set (Ω[n] A))
-    : πG[m+n+1] A = G0 :=
+    : πg[m+n+1] A = G0 :=
   !homotopy_group_add ⬝ !trivial_homotopy_of_is_set
 
   definition phomotopy_group_functor [constructor] (n : ℕ) {A B : Type*} (f : A →* B)

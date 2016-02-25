@@ -82,7 +82,7 @@ section decidable_linear_ordered_comm_group
   proposition abs_Sum_le (f : A → B) (s : finset A) : abs (∑ x ∈ s, f x) ≤ (∑ x ∈ s, abs (f x)) :=
   begin
     induction s with a s ans ih,
-      {rewrite [+Sum_empty, abs_zero], apply le.refl},
+      {rewrite [+Sum_empty, abs_zero]},
     rewrite [Sum_insert_of_not_mem f ans, Sum_insert_of_not_mem _ ans],
     apply le.trans,
       apply abs_add_le_abs_add_abs,
@@ -141,13 +141,12 @@ section ordered_comm_group
   begin
     cases (em (finite s)) with fins nfins,
      {induction fins with a s fins ans ih,
-       {rewrite +Sum_empty; apply le.refl},
+       {rewrite +Sum_empty},
        {rewrite [Sum_insert_of_not_mem f ans, Sum_insert_of_not_mem g ans],
          have H1 : f a ≤ g a, from H !mem_insert,
          have H2 : (∑ x ∈ s, f x) ≤ (∑ x ∈ s, g x), from ih (forall_of_forall_insert H),
          apply add_le_add H1 H2}},
-    rewrite [+Sum_of_not_finite nfins],
-    apply le.refl
+    rewrite [+Sum_of_not_finite nfins]
   end
 
   proposition Sum_nonneg (f : A → B) {s : set A} (H : ∀₀ x ∈ s, f x ≥ 0) :
@@ -171,9 +170,9 @@ section decidable_linear_ordered_comm_group
   begin
     cases (em (finite s)) with fins nfins,
     rotate 1,
-      {rewrite [+Sum_of_not_finite nfins, abs_zero], apply le.refl},
+      {rewrite [+Sum_of_not_finite nfins, abs_zero]},
     induction fins with a s fins ans ih,
-      {rewrite [+Sum_empty, abs_zero], apply le.refl},
+      {rewrite [+Sum_empty, abs_zero]},
     rewrite [Sum_insert_of_not_mem f ans, Sum_insert_of_not_mem _ ans],
     apply le.trans,
       apply abs_add_le_abs_add_abs,

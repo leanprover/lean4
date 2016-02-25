@@ -84,6 +84,12 @@ namespace pointed
   prefix `Ω`:(max+5) := ploop_space
   notation `Ω[`:95 n:0 `] `:0 A:95 := iterated_ploop_space n A
 
+  definition iterated_ploop_space_zero [unfold_full] (A : Type*)
+    : Ω[0] A = A := rfl
+
+  definition iterated_ploop_space_succ [unfold_full] (k : ℕ) (A : Type*)
+    : Ω[succ k] A = Ω Ω[k] A := rfl
+
   definition rfln  [constructor] [reducible] {A : Type*} {n : ℕ} : Ω[n] A := pt
   definition refln [constructor] [reducible] (A : Type*) (n : ℕ) : Ω[n] A := pt
   definition refln_eq_refl (A : Type*) (n : ℕ) : rfln = rfl :> Ω[succ n] A := rfl
@@ -246,10 +252,10 @@ namespace pointed
 
   /- categorical properties of pointed maps -/
 
-  definition pid [constructor] (A : Type*) : A →* A :=
+  definition pid [constructor] [refl] (A : Type*) : A →* A :=
   pmap.mk id idp
 
-  definition pcompose [constructor] (g : B →* C) (f : A →* B) : A →* C :=
+  definition pcompose [constructor] [trans] (g : B →* C) (f : A →* B) : A →* C :=
   pmap.mk (λa, g (f a)) (ap g (respect_pt f) ⬝ respect_pt g)
 
   infixr ` ∘* `:60 := pcompose
@@ -327,11 +333,15 @@ namespace pointed
       { esimp, exact !con.left_inv⁻¹}},
   end
 
-  /- instances of pointed maps -/
-
   -- The constant pointed map between any two types
   definition pconst [constructor] (A B : Type*) : A →* B :=
   pmap.mk (λ a, Point B) idp
+
+  -- the pointed type of pointed maps
+  definition ppmap [constructor] (A B : Type*) : Type* :=
+  pType.mk (A →* B) (pconst A B)
+
+  /- instances of pointed maps -/
 
   definition ap1 [constructor] (f : A →* B) : Ω A →* Ω B :=
   begin
@@ -340,7 +350,7 @@ namespace pointed
     { esimp, apply con.left_inv}
   end
 
-  definition apn [unfold 3] (n : ℕ) (f : map₊ A B) : Ω[n] A →* Ω[n] B :=
+  definition apn (n : ℕ) (f : map₊ A B) : Ω[n] A →* Ω[n] B :=
   begin
   induction n with n IH,
   { exact f},
@@ -361,10 +371,6 @@ namespace pointed
     apply is_equiv.homotopy_closed (ap f),
     intro p, exact !idp_con⁻¹
   end
-
-  -- TODO:
-  -- definition apn_compose (n : ℕ) (g : B →* C) (f : A →* B) : apn n (g ∘* f) ~* apn n g ∘* apn n f :=
-  -- _
 
   definition ap1_compose (g : B →* C) (f : A →* B) : ap1 (g ∘* f) ~* ap1 g ∘* ap1 f :=
   begin
@@ -483,6 +489,13 @@ namespace pointed
       apply ap_con_eq_con_ap},
     { esimp, }
   end -/
+
+  definition apn_compose (n : ℕ) (g : B →* C) (f : A →* B) : apn n (g ∘* f) ~* apn n g ∘* apn n f :=
+  begin
+    induction n with n IH,
+    { reflexivity},
+    { refine ap1_phomotopy IH ⬝* _, apply ap1_compose}
+  end
 
   infix ` ⬝*p `:75 := pconcat_eq
   infix ` ⬝p* `:75 := eq_pconcat

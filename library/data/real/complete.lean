@@ -115,7 +115,6 @@ theorem equiv_abs_of_ge_zero {s : seq} (Hs : regular s) (Hz : s_le zero s) : s_a
     apply add_le_add,
     repeat (apply inv_ge_of_le; apply Hn),
     krewrite pnat.add_halves,
-    apply le.refl
   end
 
 theorem equiv_neg_abs_of_le_zero {s : seq} (Hs : regular s) (Hz : s_le s zero) : s_abs s ≡ sneg s :=
@@ -146,7 +145,6 @@ theorem equiv_neg_abs_of_le_zero {s : seq} (Hs : regular s) (Hz : s_le s zero) :
     apply add_le_add,
     repeat (apply inv_ge_of_le; apply Hn),
     krewrite pnat.add_halves,
-    apply le.refl,
     let Hneg' := lt_of_not_ge Hneg,
     rewrite [abs_of_neg Hneg', ↑sneg, sub_neg_eq_add, neg_add_eq_sub, sub_self,
                 abs_zero],
@@ -289,7 +287,6 @@ theorem cauchy_with_rate_of_converges_to_with_rate {X : r_seq} {a : ℝ} {N : �
     xrewrite -of_rat_add,
     apply of_rat_le_of_rat_of_le,
     krewrite pnat.add_halves,
-    apply rat.le_refl
   end
 
 private definition Nb (M : ℕ+ → ℕ+) := λ k, pnat.max (3 * k) (M (2 * k))
@@ -425,7 +422,6 @@ theorem converges_to_with_rate_of_cauchy_with_rate : converges_to_with_rate X li
     apply Nb_spec_left,
     rewrite -*pnat.mul_assoc,
     krewrite pnat.p_add_fractions,
-    apply rat.le_refl
   end
 
 end lim_seq

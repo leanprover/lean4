@@ -23,15 +23,9 @@ namespace is_trunc
 
   open trunc_index
 
-  definition has_zero_trunc_index [instance] [priority 2000] : has_zero trunc_index :=
-  has_zero.mk (succ (succ minus_two))
-
-  definition has_one_trunc_index [instance] [priority 2000] : has_one trunc_index :=
-  has_one.mk (succ (succ (succ minus_two)))
-
   /-
      notation for trunc_index is -2, -1, 0, 1, ...
-     from 0 and up this comes from a coercion from num to trunc_index (via nat)
+     from 0 and up this comes from a coercion from num to trunc_index (via ℕ)
   -/
   notation `-1` := trunc_index.succ trunc_index.minus_two -- ISSUE: -1 gets printed as -2.+1?
   notation `-2` := trunc_index.minus_two
@@ -39,46 +33,62 @@ namespace is_trunc
   postfix ` .+2`:(max+1) := λn, (n .+1 .+1)
   notation `ℕ₋₂` := trunc_index -- input using \N-2
 
+  definition has_zero_trunc_index [instance] [priority 2000] : has_zero ℕ₋₂ :=
+  has_zero.mk (succ (succ minus_two))
+
+  definition has_one_trunc_index [instance] [priority 2000] : has_one ℕ₋₂ :=
+  has_one.mk (succ (succ (succ minus_two)))
+
   namespace trunc_index
   --addition, where we add two to the result
-  definition add_plus_two [reducible] (n m : trunc_index) : trunc_index :=
+  definition add_plus_two [reducible] (n m : ℕ₋₂) : ℕ₋₂ :=
   trunc_index.rec_on m n (λ k l, l .+1)
 
   -- addition of trunc_indices, where results smaller than -2 are changed to -2
-  definition tr_add (n m : trunc_index) : trunc_index :=
+  protected definition add (n m : ℕ₋₂) : ℕ₋₂ :=
   trunc_index.cases_on m
     (trunc_index.cases_on n -2 (λn', (trunc_index.cases_on n' -2 id)))
     (λm', trunc_index.cases_on m'
       (trunc_index.cases_on n -2 id)
       (trunc_index.rec n (λn' r, succ r)))
 
-  definition leq [reducible] (n m : trunc_index) : Type₀ :=
-  trunc_index.rec_on n (λm, unit) (λ n p m, trunc_index.rec_on m (λ p, empty) (λ m q p, p m) p) m
-
-  definition has_le_trunc_index [instance] [priority 2000] : has_le trunc_index :=
-  has_le.mk leq
+  /- we give a weird name to the reflexivity step to avoid overloading le.refl
+     (which can be used if types.trunc is imported) -/
+  inductive le (a : ℕ₋₂) : ℕ₋₂ → Type :=
+  | tr_refl : le a a
+  | step : Π {b}, le a b → le a (b.+1)
 
   end trunc_index
 
-  attribute trunc_index.tr_add [reducible]
+  definition has_le_trunc_index [instance] [priority 2000] : has_le ℕ₋₂ :=
+  has_le.mk trunc_index.le
+
+  attribute trunc_index.add [reducible]
   infix `+2+`:65 := trunc_index.add_plus_two
   definition has_add_trunc_index [instance] [priority 2000] : has_add ℕ₋₂ :=
-  has_add.mk trunc_index.tr_add
+  has_add.mk trunc_index.add
 
-  namespace trunc_index
-  definition succ_le_succ {n m : trunc_index} (H : n ≤ m) : n.+1 ≤ m.+1 := proof H qed
-  definition le_of_succ_le_succ {n m : trunc_index} (H : n.+1 ≤ m.+1) : n ≤ m := proof H qed
-  definition minus_two_le (n : trunc_index) : -2 ≤ n := star
-  definition le.refl (n : trunc_index) : n ≤ n := by induction n with n IH; exact star; exact IH
-  definition empty_of_succ_le_minus_two {n : trunc_index} (H : n .+1 ≤ -2) : empty := H
-  end trunc_index
-  definition trunc_index.of_nat [coercion] [reducible] (n : nat) : trunc_index :=
-  (nat.rec_on n -2 (λ n k, k.+1)).+2
-
-  definition sub_two [reducible] (n : nat) : trunc_index :=
+  definition sub_two [reducible] (n : ℕ) : ℕ₋₂ :=
   nat.rec_on n -2 (λ n k, k.+1)
 
+  definition add_two [reducible] (n : ℕ₋₂) : ℕ :=
+  trunc_index.rec_on n nat.zero (λ n k, nat.succ k)
+
   postfix ` .-2`:(max+1) := sub_two
+
+  definition trunc_index.of_nat [coercion] [reducible] (n : ℕ) : ℕ₋₂ :=
+  n.-2.+2
+
+  namespace trunc_index
+  definition succ_le_succ {n m : ℕ₋₂} (H : n ≤ m) : n.+1 ≤ m.+1 :=
+  by induction H with m H IH; apply le.tr_refl; exact le.step IH
+
+  definition minus_two_le (n : ℕ₋₂) : -2 ≤ n :=
+  by induction n with n IH; apply le.tr_refl; exact le.step IH
+  protected definition le_refl (n : ℕ₋₂) : n ≤ n :=
+  le.tr_refl n
+
+  end trunc_index
 
   /- truncated types -/
 
@@ -91,14 +101,14 @@ namespace is_trunc
     (center : A)
     (center_eq : Π(a : A), center = a)
 
-  definition is_trunc_internal (n : trunc_index) : Type → Type :=
+  definition is_trunc_internal (n : ℕ₋₂) : Type → Type :=
     trunc_index.rec_on n
       (λA, contr_internal A)
       (λn trunc_n A, (Π(x y : A), trunc_n (x = y)))
 
 end is_trunc open is_trunc
 
-structure is_trunc [class] (n : trunc_index) (A : Type) :=
+structure is_trunc [class] (n : ℕ₋₂) (A : Type) :=
   (to_internal : is_trunc_internal n A)
 
 open nat num is_trunc.trunc_index
@@ -111,12 +121,12 @@ namespace is_trunc
 
   variables {A B : Type}
 
-  definition is_trunc_succ_intro (A : Type) (n : trunc_index) [H : ∀x y : A, is_trunc n (x = y)]
+  definition is_trunc_succ_intro (A : Type) (n : ℕ₋₂) [H : ∀x y : A, is_trunc n (x = y)]
     : is_trunc n.+1 A :=
   is_trunc.mk (λ x y, !is_trunc.to_internal)
 
   definition is_trunc_eq [instance] [priority 1200]
-    (n : trunc_index) [H : is_trunc (n.+1) A] (x y : A) : is_trunc n (x = y) :=
+    (n : ℕ₋₂) [H : is_trunc (n.+1) A] (x y : A) : is_trunc n (x = y) :=
   is_trunc.mk (is_trunc.to_internal (n.+1) A x y)
 
   /- contractibility -/
@@ -144,7 +154,7 @@ namespace is_trunc
   /- truncation is upward close -/
 
   -- n-types are also (n+1)-types
-  theorem is_trunc_succ [instance] [priority 900] (A : Type) (n : trunc_index)
+  theorem is_trunc_succ [instance] [priority 900] (A : Type) (n : ℕ₋₂)
     [H : is_trunc n A] : is_trunc (n.+1) A :=
   trunc_index.rec_on n
     (λ A (H : is_contr A), !is_trunc_succ_intro)
@@ -152,43 +162,35 @@ namespace is_trunc
     A H
   --in the proof the type of H is given explicitly to make it available for class inference
 
-  theorem is_trunc_of_leq.{l} (A : Type.{l}) {n m : trunc_index} (Hnm : n ≤ m)
+  theorem is_trunc_of_le.{l} (A : Type.{l}) {n m : ℕ₋₂} (Hnm : n ≤ m)
     [Hn : is_trunc n A] : is_trunc m A :=
-  have base : ∀k A, k ≤ -2 → is_trunc k A → (is_trunc -2 A), from
-    λ k A, trunc_index.cases_on k
-           (λh1 h2, h2)
-           (λk h1 h2, empty.elim (trunc_index.empty_of_succ_le_minus_two h1)),
-  have step : Π (m : trunc_index)
-                (IHm : Π (n : trunc_index) (A : Type), n ≤ m → is_trunc n A → is_trunc m A)
-                (n : trunc_index) (A : Type)
-                (Hnm : n ≤ m .+1) (Hn : is_trunc n A), is_trunc m .+1 A, from
-    λm IHm n, trunc_index.rec_on n
-           (λA Hnm Hn, @is_trunc_succ A m (IHm -2 A star Hn))
-           (λn IHn A Hnm (Hn : is_trunc n.+1 A),
-           @is_trunc_succ_intro A m (λx y, IHm n (x = y) (trunc_index.le_of_succ_le_succ Hnm) _)),
-  trunc_index.rec_on m base step n A Hnm Hn
+  begin
+    induction Hnm with m Hnm IH,
+    { exact Hn},
+    { exact _}
+  end
 
-  definition is_trunc_of_imp_is_trunc {n : trunc_index} (H : A → is_trunc (n.+1) A)
+  definition is_trunc_of_imp_is_trunc {n : ℕ₋₂} (H : A → is_trunc (n.+1) A)
     : is_trunc (n.+1) A :=
   @is_trunc_succ_intro _ _ (λx y, @is_trunc_eq _ _ (H x) x y)
 
-  definition is_trunc_of_imp_is_trunc_of_leq {n : trunc_index} (Hn : -1 ≤ n) (H : A → is_trunc n A)
+  definition is_trunc_of_imp_is_trunc_of_le {n : ℕ₋₂} (Hn : -1 ≤ n) (H : A → is_trunc n A)
     : is_trunc n A :=
-  trunc_index.rec_on n (λHn H, empty.rec _ Hn)
-                       (λn IH Hn, is_trunc_of_imp_is_trunc)
-                       Hn H
+  begin
+    cases Hn with n' Hn': apply is_trunc_of_imp_is_trunc H
+  end
 
   -- these must be definitions, because we need them to compute sometimes
-  definition is_trunc_of_is_contr (A : Type) (n : trunc_index) [H : is_contr A] : is_trunc n A :=
+  definition is_trunc_of_is_contr (A : Type) (n : ℕ₋₂) [H : is_contr A] : is_trunc n A :=
   trunc_index.rec_on n H (λn H, _)
 
-  definition is_trunc_succ_of_is_prop (A : Type) (n : trunc_index) [H : is_prop A]
+  definition is_trunc_succ_of_is_prop (A : Type) (n : ℕ₋₂) [H : is_prop A]
       : is_trunc (n.+1) A :=
-  is_trunc_of_leq A (show -1 ≤ n.+1, from star)
+  is_trunc_of_le A (show -1 ≤ n.+1, from succ_le_succ (minus_two_le n))
 
-  definition is_trunc_succ_succ_of_is_set (A : Type) (n : trunc_index) [H : is_set A]
+  definition is_trunc_succ_succ_of_is_set (A : Type) (n : ℕ₋₂) [H : is_set A]
       : is_trunc (n.+2) A :=
-  @(is_trunc_of_leq A (show 0 ≤ n.+2, from proof star qed)) H
+  is_trunc_of_le A (show 0 ≤ n.+2, from succ_le_succ (succ_le_succ (minus_two_le n)))
 
   /- props -/
 
@@ -244,10 +246,10 @@ namespace is_trunc
 
   local attribute is_contr_unit is_prop_empty [instance]
 
-  definition is_trunc_unit [instance] (n : trunc_index) : is_trunc n unit :=
+  definition is_trunc_unit [instance] (n : ℕ₋₂) : is_trunc n unit :=
   !is_trunc_of_is_contr
 
-  definition is_trunc_empty [instance] (n : trunc_index) : is_trunc (n.+1) empty :=
+  definition is_trunc_empty [instance] (n : ℕ₋₂) : is_trunc (n.+1) empty :=
   !is_trunc_succ_of_is_prop
 
   /- interaction with equivalences -/
@@ -267,7 +269,7 @@ namespace is_trunc
     (λa, center B)
     (is_equiv.adjointify (λa, center B) (λb, center A) center_eq center_eq)
 
-  theorem is_trunc_is_equiv_closed (n : trunc_index) (f : A → B) [H : is_equiv f]
+  theorem is_trunc_is_equiv_closed (n : ℕ₋₂) (f : A → B) [H : is_equiv f]
     [HA : is_trunc n A] : is_trunc n B :=
   trunc_index.rec_on n
     (λA (HA : is_contr A) B f (H : is_equiv f), is_contr_is_equiv_closed f)
@@ -275,15 +277,15 @@ namespace is_trunc
       IH (f⁻¹ x = f⁻¹ y) _ (x = y) (ap f⁻¹)⁻¹ !is_equiv_inv))
     A HA B f H
 
-  definition is_trunc_is_equiv_closed_rev (n : trunc_index) (f : A → B) [H : is_equiv f]
+  definition is_trunc_is_equiv_closed_rev (n : ℕ₋₂) (f : A → B) [H : is_equiv f]
     [HA : is_trunc n B] : is_trunc n A :=
   is_trunc_is_equiv_closed n f⁻¹
 
-  definition is_trunc_equiv_closed (n : trunc_index) (f : A ≃ B) [HA : is_trunc n A]
+  definition is_trunc_equiv_closed (n : ℕ₋₂) (f : A ≃ B) [HA : is_trunc n A]
     : is_trunc n B :=
   is_trunc_is_equiv_closed n (to_fun f)
 
-  definition is_trunc_equiv_closed_rev (n : trunc_index) (f : A ≃ B) [HA : is_trunc n B]
+  definition is_trunc_equiv_closed_rev (n : ℕ₋₂) (f : A ≃ B) [HA : is_trunc n B]
     : is_trunc n A :=
   is_trunc_is_equiv_closed n (to_inv f)
 
@@ -299,7 +301,7 @@ namespace is_trunc
   equiv_of_is_prop (iff.elim_left H) (iff.elim_right H)
 
   /- truncatedness of lift -/
-  definition is_trunc_lift [instance] [priority 1450] (A : Type) (n : trunc_index)
+  definition is_trunc_lift [instance] [priority 1450] (A : Type) (n : ℕ₋₂)
     [H : is_trunc n A] : is_trunc n (lift A) :=
   is_trunc_equiv_closed _ !equiv_lift
 
@@ -326,7 +328,7 @@ namespace is_trunc
   pathover_of_eq_tr !is_prop.elim
 
   definition is_trunc_pathover [instance]
-    (n : trunc_index) [H : is_trunc (n.+1) (C a)] : is_trunc n (c =[p] c₂) :=
+    (n : ℕ₋₂) [H : is_trunc (n.+1) (C a)] : is_trunc n (c =[p] c₂) :=
   is_trunc_equiv_closed_rev n !pathover_equiv_eq_tr
 
   variables {p c c₂}
@@ -339,7 +341,7 @@ namespace is_trunc
 
 end is_trunc
 
-structure trunctype (n : trunc_index) :=
+structure trunctype (n : ℕ₋₂) :=
   (carrier : Type)
   (struct : is_trunc n carrier)
 
@@ -353,13 +355,13 @@ attribute trunctype.struct [instance] [priority 1400]
 protected abbreviation Prop.mk := @trunctype.mk -1
 protected abbreviation Set.mk := @trunctype.mk (-1.+1)
 
-protected definition trunctype.mk' [constructor] (n : trunc_index) (A : Type) [H : is_trunc n A]
+protected definition trunctype.mk' [constructor] (n : ℕ₋₂) (A : Type) [H : is_trunc n A]
   : n-Type :=
 trunctype.mk A H
 
 namespace is_trunc
 
-  definition tlift.{u v} [constructor] {n : trunc_index} (A : trunctype.{u} n)
+  definition tlift.{u v} [constructor] {n : ℕ₋₂} (A : trunctype.{u} n)
     : trunctype.{max u v} n :=
   trunctype.mk (lift A) !is_trunc_lift
 

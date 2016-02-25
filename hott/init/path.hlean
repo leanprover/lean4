@@ -56,11 +56,11 @@ namespace eq
   -- Concatenation is associative.
   definition con.assoc' (p : x = y) (q : y = z) (r : z = t) :
     p ⬝ (q ⬝ r) = (p ⬝ q) ⬝ r :=
-  by induction r; induction q; reflexivity
+  by induction r; reflexivity
 
   definition con.assoc (p : x = y) (q : y = z) (r : z = t) :
     (p ⬝ q) ⬝ r = p ⬝ (q ⬝ r) :=
-  by induction r; induction q; reflexivity
+  by induction r; reflexivity
 
   -- The left inverse law.
   definition con.right_inv [unfold 4] (p : x = y) : p ⬝ p⁻¹ = idp :=
@@ -80,10 +80,10 @@ namespace eq
   by induction q; induction p; reflexivity
 
   definition con_inv_cancel_right (p : x = y) (q : y = z) : (p ⬝ q) ⬝ q⁻¹ = p :=
-  by induction q; induction p; reflexivity
+  by induction q; reflexivity
 
   definition inv_con_cancel_right (p : x = z) (q : y = z) : (p ⬝ q⁻¹) ⬝ q = p :=
-  by induction q; induction p; reflexivity
+  by induction q; reflexivity
 
   -- Inverse distributes over concatenation
   definition con_inv (p : x = y) (q : y = z) : (p ⬝ q)⁻¹ = q⁻¹ ⬝ p⁻¹ :=
@@ -168,22 +168,22 @@ namespace eq
   by induction p; intro h; exact h ⬝ !idp_con
 
   definition con_inv_eq_idp [unfold 6] {p q : x = y} (r : p = q) : p ⬝ q⁻¹ = idp :=
-  by cases r;apply con.right_inv
+  by cases r; apply con.right_inv
 
   definition inv_con_eq_idp [unfold 6] {p q : x = y} (r : p = q) : q⁻¹ ⬝ p = idp :=
-  by cases r;apply con.left_inv
+  by cases r; apply con.left_inv
 
   definition con_eq_idp {p : x = y} {q : y = x} (r : p = q⁻¹) : p ⬝ q = idp :=
-  by cases q;exact r
+  by cases q; exact r
 
   definition idp_eq_inv_con {p q : x = y} (r : p = q) : idp = p⁻¹ ⬝ q :=
-  by cases r;exact !con.left_inv⁻¹
+  by cases r; exact !con.left_inv⁻¹
 
   definition idp_eq_con_inv {p q : x = y} (r : p = q) : idp = q ⬝ p⁻¹ :=
-  by cases r;exact !con.right_inv⁻¹
+  by cases r; exact !con.right_inv⁻¹
 
   definition idp_eq_con {p : x = y} {q : y = x} (r : p⁻¹ = q) : idp = q ⬝ p :=
-  by cases p;exact r
+  by cases p; exact r
 
   /- Transport -/
 
@@ -248,7 +248,7 @@ namespace eq
   definition apd [unfold 6] (f : Πa, P a) {x y : A} (p : x = y) : p ▸ f x = f y :=
   by induction p; reflexivity
 
-  definition ap011 (f : A → B → C) (Ha : a = a') (Hb : b = b') : f a b = f a' b' :=
+  definition ap011 [unfold 9] (f : A → B → C) (Ha : a = a') (Hb : b = b') : f a b = f a' b' :=
   by cases Ha; exact ap (f a) Hb
 
   /- More theorems for moving things around in equations -/

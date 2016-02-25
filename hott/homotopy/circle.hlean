@@ -252,7 +252,7 @@ namespace circle
   end
 
   open nat
-  definition homotopy_group_of_circle (n : ℕ) : πG[n+1 +1] S¹. = G0 :=
+  definition homotopy_group_of_circle (n : ℕ) : πg[n+1 +1] S¹. = G0 :=
   begin
     refine @trivial_homotopy_of_is_set_loop_space S¹. 1 n _,
     apply is_trunc_equiv_closed_rev, apply base_eq_base_equiv
@@ -272,7 +272,7 @@ namespace circle
   definition is_trunc_circle [instance] : is_trunc 1 S¹ :=
   begin
     apply is_trunc_succ_of_is_trunc_loop,
-    { exact unit.star},
+    { apply trunc_index.minus_one_le_succ},
     { intro x, apply is_trunc_equiv_closed_rev, apply eq_equiv_Z}
   end
 

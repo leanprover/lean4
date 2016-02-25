@@ -8,16 +8,152 @@ Properties of is_trunc and trunctype
 
 -- NOTE: the fact that (is_trunc n A) is a mere proposition is proved in .prop_trunc
 
-import types.pi types.eq types.equiv ..function
+import .pointed2 ..function algebra.order types.nat.order
 
 open eq sigma sigma.ops pi function equiv trunctype
-     is_equiv prod is_trunc.trunc_index pointed nat
+     is_equiv prod is_trunc.trunc_index pointed nat is_trunc algebra
 
 namespace is_trunc
-  variables {A B : Type} {n : trunc_index}
+
+  namespace trunc_index
+
+    definition minus_one_le_succ (n : trunc_index) : -1 ≤ n.+1 :=
+    succ_le_succ (minus_two_le n)
+
+    definition zero_le_of_nat (n : ℕ) : 0 ≤ of_nat n :=
+    succ_le_succ !minus_one_le_succ
+
+    open decidable
+    protected definition has_decidable_eq [instance] : Π(n m : ℕ₋₂), decidable (n = m)
+    | has_decidable_eq -2     -2     := inl rfl
+    | has_decidable_eq (n.+1) -2     := inr (by contradiction)
+    | has_decidable_eq -2     (m.+1) := inr (by contradiction)
+    | has_decidable_eq (n.+1) (m.+1) :=
+        match has_decidable_eq n m with
+        | inl xeqy := inl (by rewrite xeqy)
+        | inr xney := inr (λ h : succ n = succ m, by injection h with xeqy; exact absurd xeqy xney)
+        end
+
+    definition not_succ_le_minus_two {n : trunc_index} (H : n .+1 ≤ -2) : empty :=
+    by cases H
+
+    protected definition le_trans {n m k : ℕ₋₂} (H1 : n ≤ m) (H2 : m ≤ k) : n ≤ k :=
+    begin
+      induction H2 with k H2 IH,
+      { exact H1},
+      { exact le.step IH}
+    end
+
+    definition le_of_succ_le_succ {n m : trunc_index} (H : n.+1 ≤ m.+1) : n ≤ m :=
+    begin
+      cases H with m H',
+      { apply le.tr_refl},
+      { exact trunc_index.le_trans (le.step !le.tr_refl) H'}
+    end
+
+    theorem not_succ_le_self {n : ℕ₋₂} : ¬n.+1 ≤ n :=
+    begin
+      induction n with n IH: intro H,
+      { exact not_succ_le_minus_two H},
+      { exact IH (le_of_succ_le_succ H)}
+    end
+
+    protected definition le_antisymm {n m : ℕ₋₂} (H1 : n ≤ m) (H2 : m ≤ n) : n = m :=
+    begin
+      induction H2 with n H2 IH,
+      { reflexivity},
+      { exfalso, apply @not_succ_le_self n, exact trunc_index.le_trans H1 H2}
+    end
+
+    protected definition le_succ {n m : ℕ₋₂} (H1 : n ≤ m): n ≤ m.+1 :=
+    le.step H1
+
+  end trunc_index open trunc_index
+
+  definition weak_order_trunc_index [trans_instance] [reducible] : weak_order trunc_index :=
+  weak_order.mk le trunc_index.le_refl @trunc_index.le_trans @trunc_index.le_antisymm
+
+  namespace trunc_index
+
+    /- more theorems about truncation indices -/
+
+    definition succ_add_nat (n : ℕ₋₂) (m : ℕ) : n.+1 + m = (n + m).+1 :=
+    by induction m with m IH; reflexivity; exact ap succ IH
+
+    definition nat_add_succ (n : ℕ) (m : ℕ₋₂) : n + m.+1 = (n + m).+1 :=
+    begin
+      cases m with m, reflexivity,
+      cases m with m, reflexivity,
+      induction m with m IH, reflexivity, exact ap succ IH
+    end
+
+    definition add_nat_succ (n : ℕ₋₂) (m : ℕ) : n + (nat.succ m) = (n + m).+1 :=
+    by reflexivity
+
+    definition nat_succ_add (n : ℕ) (m : ℕ₋₂) : (nat.succ n) + m = (n + m).+1 :=
+    begin
+      cases m with m, reflexivity,
+      cases m with m, reflexivity,
+      induction m with m IH, reflexivity, exact ap succ IH
+    end
+
+    definition sub_two_add_two (n : ℕ₋₂) : sub_two (add_two n) = n :=
+    begin
+      induction n with n IH,
+      { reflexivity},
+      { apply ap succ IH}
+    end
+
+    definition add_two_sub_two (n : ℕ) : add_two (sub_two n) = n :=
+    begin
+      induction n with n IH,
+      { reflexivity},
+      { apply ap nat.succ IH}
+    end
+
+    definition succ_sub_two (n : ℕ) : (nat.succ n).-2 = n.-2 .+1 := rfl
+    definition sub_two_succ_succ (n : ℕ) : n.-2.+1.+1 = n := rfl
+    definition succ_sub_two_succ (n : ℕ) : (nat.succ n).-2.+1 = n := rfl
+
+    definition of_nat_le_of_nat {n m : ℕ} (H : n ≤ m) : (of_nat n ≤ of_nat m) :=
+    begin
+      induction H with m H IH,
+      { apply le.refl},
+      { exact trunc_index.le_succ IH}
+    end
+
+    definition sub_two_le_sub_two {n m : ℕ} (H : n ≤ m) : n.-2 ≤ m.-2 :=
+    begin
+      induction H with m H IH,
+      { apply le.refl},
+      { exact trunc_index.le_succ IH}
+    end
+
+    definition add_two_le_add_two {n m : ℕ₋₂} (H : n ≤ m) : add_two n ≤ add_two m :=
+    begin
+      induction H with m H IH,
+      { reflexivity},
+      { constructor, exact IH},
+    end
+
+    definition le_of_sub_two_le_sub_two {n m : ℕ} (H : n.-2 ≤ m.-2) : n ≤ m :=
+    begin
+      rewrite [-add_two_sub_two n, -add_two_sub_two m],
+      exact add_two_le_add_two H,
+    end
+
+    definition le_of_of_nat_le_of_nat {n m : ℕ} (H : of_nat n ≤ of_nat m) : n ≤ m :=
+    begin
+      apply le_of_sub_two_le_sub_two,
+      exact le_of_succ_le_succ (le_of_succ_le_succ H)
+    end
+
+  end trunc_index open trunc_index
+
+  variables {A B : Type} {n : ℕ₋₂}
 
   /- theorems about trunctype -/
-  protected definition trunctype.sigma_char.{l} (n : trunc_index) :
+  protected definition trunctype.sigma_char.{l} [constructor] (n : ℕ₋₂) :
     (trunctype.{l} n) ≃ (Σ (A : Type.{l}), is_trunc n A) :=
   begin
     fapply equiv.MK,
@@ -27,7 +163,7 @@ namespace is_trunc
     { intro A, induction A with A1 A2, reflexivity},
   end
 
-  definition trunctype_eq_equiv (n : trunc_index) (A B : n-Type) :
+  definition trunctype_eq_equiv [constructor] (n : ℕ₋₂) (A B : n-Type) :
     (A = B) ≃ (carrier A = carrier B) :=
   calc
     (A = B) ≃ (to_fun (trunctype.sigma_char n) A = to_fun (trunctype.sigma_char n) B)
@@ -40,13 +176,13 @@ namespace is_trunc
     (Hn : -1 ≤ n) : is_trunc n A :=
   begin
     induction n with n,
-      {exact !empty.elim Hn},
+      {exfalso, exact not_succ_le_minus_two Hn},
       {apply is_trunc_succ_intro, intro a a',
          fapply @is_trunc_is_equiv_closed_rev _ _ n (ap f)}
   end
 
   theorem is_trunc_is_retraction_closed (f : A → B) [Hf : is_retraction f]
-    (n : trunc_index) [HA : is_trunc n A] : is_trunc n B :=
+    (n : ℕ₋₂) [HA : is_trunc n A] : is_trunc n B :=
   begin
     revert A B f Hf HA,
     induction n with n IH,
@@ -67,22 +203,22 @@ namespace is_trunc
   definition is_embedding_to_fun (A B : Type) : is_embedding (@to_fun A B)  :=
   λf f', !is_equiv_ap_to_fun
 
-  theorem is_trunc_trunctype [instance] (n : trunc_index) : is_trunc n.+1 (n-Type) :=
+  theorem is_trunc_trunctype [instance] (n : ℕ₋₂) : is_trunc n.+1 (n-Type) :=
   begin
     apply is_trunc_succ_intro, intro X Y,
     fapply is_trunc_equiv_closed,
-      {apply equiv.symm, apply trunctype_eq_equiv},
+    { apply equiv.symm, apply trunctype_eq_equiv},
     fapply is_trunc_equiv_closed,
-      {apply equiv.symm, apply eq_equiv_equiv},
+    { apply equiv.symm, apply eq_equiv_equiv},
     induction n,
-      {apply @is_contr_of_inhabited_prop,
-        {apply is_trunc_is_embedding_closed,
-          {apply is_embedding_to_fun} ,
-          {exact unit.star}},
-        {apply equiv_of_is_contr_of_is_contr}},
-      {apply is_trunc_is_embedding_closed,
-        {apply is_embedding_to_fun},
-        {exact unit.star}}
+    { apply @is_contr_of_inhabited_prop,
+      { apply is_trunc_is_embedding_closed,
+        { apply is_embedding_to_fun} ,
+        { reflexivity}},
+      { apply equiv_of_is_contr_of_is_contr}},
+    { apply is_trunc_is_embedding_closed,
+      { apply is_embedding_to_fun},
+      { apply minus_one_le_succ}}
   end
 
 
@@ -126,15 +262,15 @@ namespace is_trunc
   is_set_of_double_neg_elim (λa b, by_contradiction)
   end
 
-  theorem is_trunc_of_axiom_K_of_leq {A : Type} (n : trunc_index) (H : -1 ≤ n)
+  theorem is_trunc_of_axiom_K_of_le {A : Type} (n : ℕ₋₂) (H : -1 ≤ n)
     (K : Π(a : A), is_trunc n (a = a)) : is_trunc (n.+1) A :=
-  @is_trunc_succ_intro _ _ (λa b, is_trunc_of_imp_is_trunc_of_leq H (λp, eq.rec_on p !K))
+  @is_trunc_succ_intro _ _ (λa b, is_trunc_of_imp_is_trunc_of_le H (λp, eq.rec_on p !K))
 
   theorem is_trunc_succ_of_is_trunc_loop (Hn : -1 ≤ n) (Hp : Π(a : A), is_trunc n (a = a))
     : is_trunc (n.+1) A :=
   begin
     apply is_trunc_succ_intro, intros a a',
-    apply is_trunc_of_imp_is_trunc_of_leq Hn, intro p,
+    apply is_trunc_of_imp_is_trunc_of_le Hn, intro p,
     induction p, apply Hp
   end
 
@@ -154,7 +290,8 @@ namespace is_trunc
       { apply is_trunc_succ_iff_is_trunc_loop, apply le.refl},
       { apply pi_iff_pi, intro a, esimp, apply is_prop_iff_is_contr, reflexivity}},
     { intro A, esimp [iterated_ploop_space],
-      transitivity _, apply @is_trunc_succ_iff_is_trunc_loop @n, esimp, constructor,
+      transitivity _,
+      { apply @is_trunc_succ_iff_is_trunc_loop @n, esimp, apply minus_one_le_succ},
       apply pi_iff_pi, intro a, transitivity _, apply IH,
       transitivity _, apply pi_iff_pi, intro p,
       rewrite [iterated_loop_space_loop_irrel n p], apply iff.refl, esimp,
@@ -178,27 +315,27 @@ namespace is_trunc
     apply iff.mp !is_trunc_iff_is_contr_loop H
   end
 
-end is_trunc open is_trunc
+end is_trunc open is_trunc is_trunc.trunc_index
 
 namespace trunc
   variable {A : Type}
 
-  protected definition code (n : trunc_index) (aa aa' : trunc n.+1 A) : n-Type :=
+  protected definition code (n : ℕ₋₂) (aa aa' : trunc n.+1 A) : n-Type :=
   trunc.rec_on aa (λa, trunc.rec_on aa' (λa', trunctype.mk' n (trunc n (a = a'))))
 
-  protected definition encode (n : trunc_index) (aa aa' : trunc n.+1 A) : aa = aa' → trunc.code n aa aa' :=
+  protected definition encode (n : ℕ₋₂) (aa aa' : trunc n.+1 A) : aa = aa' → trunc.code n aa aa' :=
   begin
     intro p, induction p, induction aa with a, esimp [trunc.code,trunc.rec_on], exact (tr idp)
   end
 
-  protected definition decode (n : trunc_index) (aa aa' : trunc n.+1 A) : trunc.code n aa aa' → aa = aa' :=
+  protected definition decode (n : ℕ₋₂) (aa aa' : trunc n.+1 A) : trunc.code n aa aa' → aa = aa' :=
   begin
     induction aa' with a', induction aa with a,
     esimp [trunc.code, trunc.rec_on], intro x,
     induction x with p, exact ap tr p,
   end
 
-  definition trunc_eq_equiv [constructor] (n : trunc_index) (aa aa' : trunc n.+1 A)
+  definition trunc_eq_equiv [constructor] (n : ℕ₋₂) (aa aa' : trunc n.+1 A)
     : aa = aa' ≃ trunc.code n aa aa' :=
   begin
     fapply equiv.MK,
@@ -212,18 +349,18 @@ namespace trunc
     { intro p, induction p, apply (trunc.rec_on aa), intro a, exact idp},
   end
 
-  definition tr_eq_tr_equiv [constructor] (n : trunc_index) (a a' : A)
+  definition tr_eq_tr_equiv [constructor] (n : ℕ₋₂) (a a' : A)
     : (tr a = tr a' :> trunc n.+1 A) ≃ trunc n (a = a') :=
   !trunc_eq_equiv
 
   definition is_trunc_trunc_of_is_trunc [instance] [priority 500] (A : Type)
-    (n m : trunc_index) [H : is_trunc n A] : is_trunc n (trunc m A) :=
+    (n m : ℕ₋₂) [H : is_trunc n A] : is_trunc n (trunc m A) :=
   begin
     revert A m H, eapply (trunc_index.rec_on n),
     { clear n, intro A m H, apply is_contr_equiv_closed,
-      { apply equiv.symm, apply trunc_equiv, apply (@is_trunc_of_leq _ -2), exact unit.star} },
+      { apply equiv.symm, apply trunc_equiv, apply (@is_trunc_of_le _ -2), apply minus_two_le} },
     { clear n, intro n IH A m H, induction m with m,
-      { apply (@is_trunc_of_leq _ -2), exact unit.star},
+      { apply (@is_trunc_of_le _ -2), apply minus_two_le},
       { apply is_trunc_succ_intro, intro aa aa',
         apply (@trunc.rec_on _ _ _ aa  (λy, !is_trunc_succ_of_is_prop)),
         eapply (@trunc.rec_on _ _ _ aa' (λy, !is_trunc_succ_of_is_prop)),
@@ -238,9 +375,27 @@ namespace trunc
   !trunc_equiv (f a)
 
   /- transport over a truncated family -/
-  definition trunc_transport {a a' : A} {P : A → Type} (p : a = a') (n : trunc_index) (x : P a)
+  definition trunc_transport {a a' : A} {P : A → Type} (p : a = a') (n : ℕ₋₂) (x : P a)
     : transport (λa, trunc n (P a)) p (tr x) = tr (p ▸ x) :=
   by induction p; reflexivity
+
+  definition trunc_trunc_equiv_left [constructor] (A : Type) (n m : ℕ₋₂) (H : n ≤ m)
+    : trunc n (trunc m A) ≃ trunc n A :=
+  begin
+    note H2 := is_trunc_of_le (trunc n A) H,
+    fapply equiv.MK,
+    { intro x, induction x with x, induction x with x, exact tr x},
+    { intro x, induction x with x, exact tr (tr x)},
+    { intro x, induction x with x, reflexivity},
+    { intro x, induction x with x, induction x with x, reflexivity}
+  end
+
+  definition trunc_trunc_equiv_right [constructor] (A : Type) (n m : ℕ₋₂) (H : n ≤ m)
+    : trunc m (trunc n A) ≃ trunc n A :=
+  begin
+    apply trunc_equiv,
+    exact is_trunc_of_le _ H,
+  end
 
   definition image [constructor] {A B : Type} (f : A → B) (b : B) : Prop := ∥ fiber f b ∥
 
@@ -249,13 +404,27 @@ namespace trunc
   tr (fiber.mk a p)
 
   -- truncation of pointed types
-  definition ptrunc [constructor] (n : trunc_index) (X : Type*) : n-Type* :=
+  definition ptrunc [constructor] (n : ℕ₋₂) (X : Type*) : n-Type* :=
   ptrunctype.mk (trunc n X) _ (tr pt)
 
   definition ptrunc_functor [constructor] {X Y : Type*} (n : ℕ₋₂) (f : X →* Y)
     : ptrunc n X →* ptrunc n Y :=
   pmap.mk (trunc_functor n f) (ap tr (respect_pt f))
 
+  definition loop_ptrunc_pequiv [constructor] (n : ℕ₋₂) (A : Type*) :
+    Ω (ptrunc (n+1) A) ≃* ptrunc n (Ω A) :=
+  pequiv_of_equiv !tr_eq_tr_equiv idp
+
+  definition iterated_loop_ptrunc_pequiv [constructor] (n : ℕ₋₂) (k : ℕ) (A : Type*) :
+    Ω[k] (ptrunc (n+k) A) ≃* ptrunc n (Ω[k] A) :=
+  begin
+    revert n, induction k with k IH: intro n,
+    { reflexivity},
+    { refine _ ⬝e* loop_ptrunc_pequiv n (Ω[k] A),
+      rewrite [iterated_ploop_space_succ], apply loop_pequiv_loop,
+      refine _ ⬝e* IH (n.+1),
+      rewrite succ_add_nat}
+  end
 
 end trunc open trunc
 

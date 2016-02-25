@@ -20,7 +20,7 @@ structure weak_order [class] (A : Type) extends has_le A :=
 section
   variables [weak_order A]
 
-  theorem le.refl (a : A) : a ≤ a := !weak_order.le_refl
+  theorem le.refl [refl] (a : A) : a ≤ a := !weak_order.le_refl
 
   theorem le_of_eq {a b : A} (H : a = b) : a ≤ b := H ▸ le.refl a
 
@@ -315,13 +315,13 @@ section
 
   theorem min_le_left (a b : A) : min a b ≤ a :=
   by_cases
-    (assume H : a ≤ b, by rewrite [↑min, if_pos H]; apply le.refl)
+    (assume H : a ≤ b, by rewrite [↑min, if_pos H])
     (assume H : ¬ a ≤ b, by rewrite [↑min, if_neg H]; apply le_of_lt (lt_of_not_ge H))
 
   theorem min_le_right (a b : A) : min a b ≤ b :=
   by_cases
     (assume H : a ≤ b, by rewrite [↑min, if_pos H]; apply H)
-    (assume H : ¬ a ≤ b, by rewrite [↑min, if_neg H]; apply le.refl)
+    (assume H : ¬ a ≤ b, by rewrite [↑min, if_neg H])
 
   theorem le_min {a b c : A} (H₁ : c ≤ a) (H₂ : c ≤ b) : c ≤ min a b :=
   by_cases
@@ -331,11 +331,11 @@ section
   theorem le_max_left (a b : A) : a ≤ max a b :=
   by_cases
     (assume H : a ≤ b, by rewrite [↑max, if_pos H]; apply H)
-    (assume H : ¬ a ≤ b, by rewrite [↑max, if_neg H]; apply le.refl)
+    (assume H : ¬ a ≤ b, by rewrite [↑max, if_neg H])
 
   theorem le_max_right (a b : A) : b ≤ max a b :=
   by_cases
-    (assume H : a ≤ b, by rewrite [↑max, if_pos H]; apply le.refl)
+    (assume H : a ≤ b, by rewrite [↑max, if_pos H])
     (assume H : ¬ a ≤ b, by rewrite [↑max, if_neg H]; apply le_of_lt (lt_of_not_ge H))
 
   theorem max_le {a b c : A} (H₁ : a ≤ c) (H₂ : b ≤ c) : max a b ≤ c :=

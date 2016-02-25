@@ -34,7 +34,7 @@ namespace pos_num
   pos_num.lt a (succ b)
 end pos_num
 
-definition pos_num_has_mul [instance] [reducible] : has_mul pos_num :=
+definition pos_num_has_mul [instance] : has_mul pos_num :=
 has_mul.mk pos_num.mul
 
 namespace num
@@ -50,7 +50,7 @@ namespace num
   num.rec_on a zero (λpa, num.rec_on b zero (λpb, pos (pos_num.mul pa pb)))
 end num
 
-definition num_has_mul [instance] [reducible] : has_mul num :=
+definition num_has_mul [instance] : has_mul num :=
 has_mul.mk num.mul
 
 namespace num
@@ -80,5 +80,5 @@ namespace num
   num.rec_on a zero (λpa, num.rec_on b a (λpb, psub pa pb))
 end num
 
-definition num_has_sub [instance] [reducible] : has_sub num :=
+definition num_has_sub [instance] : has_sub num :=
 has_sub.mk num.sub

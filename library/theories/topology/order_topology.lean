@@ -14,7 +14,7 @@ variables {X : Type} [linear_strong_order_pair X]
 
 definition linorder_generators : set (set X) := {y | ∃ a, y = '(a, ∞) } ∪ {y | ∃ a, y = '(-∞, a)}
 
-definition linorder_topology [instance] [reducible] : topology X :=
+definition linorder_topology [instance] : topology X :=
   topology.generated_by linorder_generators
 
 theorem Open_Ioi {a : X} : Open '(a, ∞) :=

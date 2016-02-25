@@ -75,7 +75,7 @@ section comm_semiring
 
   protected definition algebra.dvd (a b : A) : Type := Σc, b = a * c
 
-  definition comm_semiring_has_dvd [reducible] [instance] [priority algebra.prio] : has_dvd A :=
+  definition comm_semiring_has_dvd [instance] [priority algebra.prio] : has_dvd A :=
   has_dvd.mk algebra.dvd
 
   theorem dvd.intro {a b c : A} (H : a * c = b) : a ∣ b :=

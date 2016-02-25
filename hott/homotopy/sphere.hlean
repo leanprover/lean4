@@ -37,10 +37,10 @@ namespace sphere_index
      from 0 and up this comes from a coercion from num to sphere_index (via nat)
   -/
 
-  definition has_zero_sphere_index [instance] [reducible] : has_zero sphere_index :=
+  definition has_zero_sphere_index [instance] : has_zero sphere_index :=
   has_zero.mk (succ minus_one)
 
-  definition has_one_sphere_index [instance] [reducible] : has_one sphere_index :=
+  definition has_one_sphere_index [instance] : has_one sphere_index :=
   has_one.mk (succ (succ minus_one))
 
   postfix `.+1`:(max+1) := sphere_index.succ
@@ -56,7 +56,7 @@ namespace sphere_index
 
   infix `+1+`:65 := sphere_index.add
 
-  definition has_le_sphere_index [instance] [reducible] : has_le sphere_index :=
+  definition has_le_sphere_index [instance] : has_le sphere_index :=
   has_le.mk leq
 
   definition succ_le_succ {n m : sphere_index} (H : n ≤ m) : n.+1 ≤ m.+1 := proof H qed

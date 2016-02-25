@@ -23,10 +23,10 @@ namespace is_trunc
 
   open trunc_index
 
-  definition has_zero_trunc_index [instance] [priority 2000] [reducible] : has_zero trunc_index :=
+  definition has_zero_trunc_index [instance] [priority 2000] : has_zero trunc_index :=
   has_zero.mk (succ (succ minus_two))
 
-  definition has_one_trunc_index [instance] [priority 2000] [reducible] : has_one trunc_index :=
+  definition has_one_trunc_index [instance] [priority 2000] : has_one trunc_index :=
   has_one.mk (succ (succ (succ minus_two)))
 
   /-
@@ -55,14 +55,14 @@ namespace is_trunc
   definition leq [reducible] (n m : trunc_index) : Type₀ :=
   trunc_index.rec_on n (λm, unit) (λ n p m, trunc_index.rec_on m (λ p, empty) (λ m q p, p m) p) m
 
-  definition has_le_trunc_index [instance] [priority 2000] [reducible] : has_le trunc_index :=
+  definition has_le_trunc_index [instance] [priority 2000] : has_le trunc_index :=
   has_le.mk leq
 
   end trunc_index
 
   attribute trunc_index.tr_add [reducible]
   infix `+2+`:65 := trunc_index.add_plus_two
-  definition has_add_trunc_index [instance] [priority 2000] [reducible] : has_add ℕ₋₂ :=
+  definition has_add_trunc_index [instance] [priority 2000] : has_add ℕ₋₂ :=
   has_add.mk trunc_index.tr_add
 
   namespace trunc_index

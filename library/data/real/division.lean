@@ -587,7 +587,7 @@ noncomputable protected definition inv (x : ℝ) : ℝ :=
   quot.lift_on x (λ a, quot.mk (rat_seq.r_inv a))
            (λ a b H, quot.sound (rat_seq.r_inv_well_defined H))
 
-noncomputable definition real_has_inv [instance] [reducible] [priority real.prio] : has_inv real :=
+noncomputable definition real_has_inv [instance] [priority real.prio] : has_inv real :=
   has_inv.mk real.inv
 
 noncomputable protected definition div (x y : ℝ) : ℝ :=
@@ -596,7 +596,7 @@ noncomputable protected definition div (x y : ℝ) : ℝ :=
 noncomputable definition real_has_div : has_div real :=
   has_div.mk real.div
 
-local attribute real_has_div [instance] [reducible] [priority real.prio]
+local attribute real_has_div [instance] [priority real.prio]
 
 protected theorem le_total (x y : ℝ) : x ≤ y ∨ y ≤ x :=
   quot.induction_on₂ x y (λ s t, rat_seq.r_le_total s t)

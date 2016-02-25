@@ -142,10 +142,10 @@ quot.rec_on_subsingleton a (take u, int.decidable_lt 0 (prerat.num u))
 protected definition lt (a b : ℚ) : Prop := pos (b - a)
 protected definition le (a b : ℚ) : Prop := nonneg (b - a)
 
-definition rat_has_lt [reducible] [instance] [priority rat.prio] : has_lt rat :=
+definition rat_has_lt [instance] [priority rat.prio] : has_lt rat :=
 has_lt.mk rat.lt
 
-definition rat_has_le [reducible] [instance] [priority rat.prio] : has_le rat :=
+definition rat_has_le [instance] [priority rat.prio] : has_le rat :=
 has_le.mk rat.le
 
 protected lemma lt_def (a b : ℚ) : (a < b) = pos (b - a) :=

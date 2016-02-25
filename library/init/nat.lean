@@ -39,13 +39,13 @@ namespace nat
   | nat_refl : le a a    -- use nat_refl to avoid overloading le.refl
   | step : Π {b}, le a b → le a (succ b)
 
-  definition nat_has_le [instance] [reducible] [priority nat.prio]: has_le nat := has_le.mk nat.le
+  definition nat_has_le [instance] [priority nat.prio]: has_le nat := has_le.mk nat.le
 
   protected lemma le_refl [refl] : ∀ a : nat, a ≤ a :=
   le.nat_refl
 
   protected definition lt [reducible] (n m : ℕ) := succ n ≤ m
-  definition nat_has_lt [instance] [reducible] [priority nat.prio] : has_lt nat := has_lt.mk nat.lt
+  definition nat_has_lt [instance] [priority nat.prio] : has_lt nat := has_lt.mk nat.lt
 
   definition pred [unfold 1] (a : nat) : nat :=
   nat.cases_on a zero (λ a₁, a₁)
@@ -58,10 +58,10 @@ namespace nat
   protected definition mul (a b : nat) : nat :=
   nat.rec_on b zero (λ b₁ r, r + a)
 
-  definition nat_has_sub [instance] [reducible] [priority nat.prio] : has_sub nat :=
+  definition nat_has_sub [instance] [priority nat.prio] : has_sub nat :=
   has_sub.mk nat.sub
 
-  definition nat_has_mul [instance] [reducible] [priority nat.prio] : has_mul nat :=
+  definition nat_has_mul [instance] [priority nat.prio] : has_mul nat :=
   has_mul.mk nat.mul
 
   /- properties of ℕ -/

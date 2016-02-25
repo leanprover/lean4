@@ -88,7 +88,7 @@ end pigeonhole
 protected definition zero (n : nat) : fin (succ n) :=
 mk 0 !zero_lt_succ
 
-definition fin_has_zero [instance] [reducible] (n : nat) : has_zero (fin (succ n)) :=
+definition fin_has_zero [instance] (n : nat) : has_zero (fin (succ n)) :=
 has_zero.mk (fin.zero n)
 
 theorem val_zero (n : nat) : val (0 : fin (succ n)) = 0 := rfl

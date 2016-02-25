@@ -9,7 +9,7 @@ import data.int.basic data.int.order data.int.div algebra.group_power data.nat.p
 
 namespace int
 
-definition int_has_pow_nat [reducible] [instance] [priority int.prio] : has_pow_nat int :=
+definition int_has_pow_nat [instance] [priority int.prio] : has_pow_nat int :=
 has_pow_nat.mk has_pow_nat.pow_nat
 
 /-

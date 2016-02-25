@@ -1075,18 +1075,18 @@ protected definition neg (x : ℝ) : ℝ :=
                                    quot.sound (rneg_well_defined Hab)))
 --prefix [priority real.prio] `-` := neg
 
-definition real_has_add [reducible] [instance] [priority real.prio] : has_add real :=
+definition real_has_add [instance] [priority real.prio] : has_add real :=
 has_add.mk real.add
 
-definition real_has_mul [reducible] [instance] [priority real.prio] : has_mul real :=
+definition real_has_mul [instance] [priority real.prio] : has_mul real :=
 has_mul.mk real.mul
 
-definition real_has_neg [reducible] [instance] [priority real.prio] : has_neg real :=
+definition real_has_neg [instance] [priority real.prio] : has_neg real :=
 has_neg.mk real.neg
 
 protected definition sub [reducible] (a b : ℝ) : real := a + (-b)
 
-definition real_has_sub [reducible] [instance] [priority real.prio] : has_sub real :=
+definition real_has_sub [instance] [priority real.prio] : has_sub real :=
 has_sub.mk real.sub
 
 open rat -- no coercions before

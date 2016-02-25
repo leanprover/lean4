@@ -112,7 +112,7 @@ theorem measurable_generated_by {G : set (set X)} :
 
 protected definition le (M N : sigma_algebra X) : Prop := @sets _ M ⊆ @sets _ N
 
-definition sigma_algebra_has_le [reducible] [instance] :
+definition sigma_algebra_has_le [instance] :
   has_le (sigma_algebra X) :=
 has_le.mk sigma_algebra.le
 

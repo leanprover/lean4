@@ -358,10 +358,10 @@ definition of_num [coercion] [reducible] (n : num) : ℚ := n
 
 protected definition prio := num.pred int.prio
 
-definition rat_has_zero [reducible] [instance] [priority rat.prio] : has_zero rat :=
+definition rat_has_zero [instance] [priority rat.prio] : has_zero rat :=
 has_zero.mk (of_int 0)
 
-definition rat_has_one [reducible] [instance] [priority rat.prio] : has_one rat :=
+definition rat_has_one [instance] [priority rat.prio] : has_one rat :=
 has_one.mk (of_int 1)
 
 theorem of_int_zero : of_int (0:int) = (0:rat) :=
@@ -401,21 +401,21 @@ definition denom (a : ℚ) : ℤ := prerat.denom (reduce a)
 theorem denom_pos (a : ℚ): denom a > 0 :=
 prerat.denom_pos (reduce a)
 
-definition rat_has_add [reducible] [instance] [priority rat.prio] : has_add rat :=
+definition rat_has_add [instance] [priority rat.prio] : has_add rat :=
 has_add.mk rat.add
 
-definition rat_has_mul [reducible] [instance] [priority rat.prio] : has_mul rat :=
+definition rat_has_mul [instance] [priority rat.prio] : has_mul rat :=
 has_mul.mk rat.mul
 
-definition rat_has_neg [reducible] [instance] [priority rat.prio] : has_neg rat :=
+definition rat_has_neg [instance] [priority rat.prio] : has_neg rat :=
 has_neg.mk rat.neg
 
-definition rat_has_inv [reducible] [instance] [priority rat.prio] : has_inv rat :=
+definition rat_has_inv [instance] [priority rat.prio] : has_inv rat :=
 has_inv.mk rat.inv
 
 protected definition sub [reducible] (a b : ℚ) : rat := a + (-b)
 
-definition rat_has_sub [reducible] [instance] [priority rat.prio] : has_sub rat :=
+definition rat_has_sub [instance] [priority rat.prio] : has_sub rat :=
 has_sub.mk rat.sub
 
 lemma sub.def (a b : ℚ) : a - b = a + (-b) :=
@@ -574,10 +574,10 @@ protected definition discrete_field [reducible] [trans_instance] : discrete_fiel
  inv_zero         := rat.inv_zero,
  has_decidable_eq := has_decidable_eq⦄
 
-definition rat_has_div [instance] [reducible] [priority rat.prio] : has_div rat :=
+definition rat_has_div [instance] [priority rat.prio] : has_div rat :=
 has_div.mk has_div.div
 
-definition rat_has_pow_nat [instance] [reducible] [priority rat.prio] : has_pow_nat rat :=
+definition rat_has_pow_nat [instance] [priority rat.prio] : has_pow_nat rat :=
 has_pow_nat.mk has_pow_nat.pow_nat
 
 theorem eq_num_div_denom (a : ℚ) : a = num a / denom a :=

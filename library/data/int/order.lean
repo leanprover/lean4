@@ -16,12 +16,12 @@ namespace int
 private definition nonneg (a : ℤ) : Prop := int.cases_on a (take n, true) (take n, false)
 protected definition le (a b : ℤ) : Prop := nonneg (b - a)
 
-definition int_has_le [instance] [reducible] [priority int.prio]: has_le int :=
+definition int_has_le [instance] [priority int.prio]: has_le int :=
 has_le.mk int.le
 
 protected definition lt (a b : ℤ) : Prop := (a + 1) ≤ b
 
-definition int_has_lt [instance] [reducible] [priority int.prio]: has_lt int :=
+definition int_has_lt [instance] [priority int.prio]: has_lt int :=
 has_lt.mk int.lt
 
 local attribute nonneg [reducible]
@@ -253,7 +253,7 @@ protected definition linear_ordered_comm_ring [reducible] [trans_instance] :
   zero_lt_one      := int.zero_lt_one,
   add_lt_add_left  := @int.add_lt_add_left⦄
 
-protected definition decidable_linear_ordered_comm_ring [reducible] [instance] :
+protected definition decidable_linear_ordered_comm_ring [instance] :
     decidable_linear_ordered_comm_ring int :=
 ⦃decidable_linear_ordered_comm_ring,
  int.linear_ordered_comm_ring,

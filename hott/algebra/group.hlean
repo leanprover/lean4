@@ -462,7 +462,7 @@ section add_group
   -- TODO: derive corresponding facts for div in a field
   protected definition algebra.sub [reducible] (a b : A) : A := a + -b
 
-  definition add_group_has_sub [reducible] [instance] : has_sub A :=
+  definition add_group_has_sub [instance] : has_sub A :=
   has_sub.mk algebra.sub
 
   theorem sub_eq_add_neg (a b : A) : a - b = a + -b := rfl

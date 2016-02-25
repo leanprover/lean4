@@ -40,13 +40,13 @@ definition gt [reducible] {A : Type} [s : has_lt A] (a b : A) : Prop := lt b a
 definition bit0 {A : Type} [s  : has_add A] (a  : A)                 : A := add a a
 definition bit1 {A : Type} [s₁ : has_one A] [s₂ : has_add A] (a : A) : A := add (bit0 a) one
 
-definition num_has_zero [reducible] [instance] : has_zero num :=
+definition num_has_zero [instance] : has_zero num :=
 has_zero.mk num.zero
 
-definition num_has_one [reducible] [instance] : has_one num :=
+definition num_has_one [instance] : has_one num :=
 has_one.mk (num.pos pos_num.one)
 
-definition pos_num_has_one [reducible] [instance] : has_one pos_num :=
+definition pos_num_has_one [instance] : has_one pos_num :=
 has_one.mk (pos_num.one)
 
 namespace pos_num
@@ -74,7 +74,7 @@ namespace pos_num
     b
 end pos_num
 
-definition pos_num_has_add [reducible] [instance] : has_add pos_num :=
+definition pos_num_has_add [instance] : has_add pos_num :=
 has_add.mk pos_num.add
 
 namespace num
@@ -84,7 +84,7 @@ namespace num
   num.rec_on a b (λpa, num.rec_on b (pos pa) (λpb, pos (pos_num.add pa pb)))
 end num
 
-definition num_has_add [reducible] [instance] : has_add num :=
+definition num_has_add [instance] : has_add num :=
 has_add.mk num.add
 
 definition std.priority.default : num := 1000
@@ -104,13 +104,13 @@ end nat
 attribute pos_num_has_add pos_num_has_one num_has_zero num_has_one num_has_add
           [instance] [priority nat.prio]
 
-definition nat_has_zero [reducible] [instance] [priority nat.prio] : has_zero nat :=
+definition nat_has_zero [instance] [priority nat.prio] : has_zero nat :=
 has_zero.mk nat.zero
 
-definition nat_has_one [reducible] [instance] [priority nat.prio] : has_one nat :=
+definition nat_has_one [instance] [priority nat.prio] : has_one nat :=
 has_one.mk (nat.succ (nat.zero))
 
-definition nat_has_add [reducible] [instance] [priority nat.prio] : has_add nat :=
+definition nat_has_add [instance] [priority nat.prio] : has_add nat :=
 has_add.mk nat.add
 
 /-

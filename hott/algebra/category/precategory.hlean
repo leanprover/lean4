@@ -152,7 +152,7 @@ namespace category
   attribute Precategory.carrier [coercion]
   attribute Precategory.struct [instance] [priority 10000] [coercion]
   -- definition precategory.carrier [coercion] [reducible] := Precategory.carrier
-  -- definition precategory.struct [instance] [coercion] [reducible] := Precategory.struct
+  -- definition precategory.struct [instance] [coercion] := Precategory.struct
   notation g ` ∘[`:60 C:0 `] `:0 f:60 :=
   @comp (Precategory.carrier C) (Precategory.struct C) _ _ _ g f
   -- TODO: make this left associative

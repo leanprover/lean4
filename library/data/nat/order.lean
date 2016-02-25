@@ -117,7 +117,7 @@ decidable_linear_ordered_semiring nat :=
   mul_lt_mul_of_pos_right    := @nat.mul_lt_mul_of_pos_right,
   decidable_lt               := nat.decidable_lt ⦄
 
-definition nat_has_dvd [reducible] [instance] [priority nat.prio] : has_dvd nat :=
+definition nat_has_dvd [instance] [priority nat.prio] : has_dvd nat :=
 has_dvd.mk has_dvd.dvd
 
 theorem add_pos_left {a : ℕ} (H : 0 < a) (b : ℕ) : 0 < a + b :=

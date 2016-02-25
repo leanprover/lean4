@@ -23,7 +23,7 @@ protected definition prio : num := num.succ std.priority.default
 protected definition is_inhabited [instance] : inhabited hf :=
 nat.is_inhabited
 
-protected definition has_decidable_eq [reducible] [instance] : decidable_eq hf :=
+protected definition has_decidable_eq [instance] : decidable_eq hf :=
 nat.has_decidable_eq
 
 definition of_finset (s : finset hf) : hf :=

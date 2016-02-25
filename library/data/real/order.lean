@@ -1026,10 +1026,10 @@ protected definition lt (x y : ℝ) :=
 protected definition le (x y : ℝ) :=
   quot.lift_on₂ x y (λ a b, rat_seq.r_le a b) rat_seq.r_le_well_defined
 
-definition real_has_lt [reducible] [instance] [priority real.prio] : has_lt ℝ :=
+definition real_has_lt [instance] [priority real.prio] : has_lt ℝ :=
 has_lt.mk real.lt
 
-definition real_has_le [reducible] [instance] [priority real.prio] : has_le ℝ :=
+definition real_has_le [instance] [priority real.prio] : has_le ℝ :=
 has_le.mk real.le
 
 definition sep (x y : ℝ) := quot.lift_on₂ x y (λ a b, rat_seq.r_sep a b) rat_seq.r_sep_well_defined

@@ -21,7 +21,7 @@ if H : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma H) y + 1 else zero
 
 protected definition div := fix div.F
 
-definition nat_has_divide [reducible] [instance] [priority nat.prio] : has_div nat :=
+definition nat_has_divide [instance] [priority nat.prio] : has_div nat :=
 has_div.mk nat.div
 
 theorem div_def (x y : nat) : div x y = if 0 < y ∧ y ≤ x then div (x - y) y + 1 else 0 :=
@@ -78,7 +78,7 @@ if H : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma H) y else x
 
 protected definition mod := fix mod.F
 
-definition nat_has_mod [reducible] [instance] [priority nat.prio] : has_mod nat :=
+definition nat_has_mod [instance] [priority nat.prio] : has_mod nat :=
 has_mod.mk nat.mod
 
 notation [priority nat.prio] a ≡ b `[mod `:0 c:0 `]` := a % c = b % c

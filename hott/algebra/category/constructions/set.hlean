@@ -82,7 +82,7 @@ namespace category
     end
   end set
 
-  definition category_Set [instance] [constructor] [reducible] : category Set :=
+  definition category_Set [instance] [constructor] : category Set :=
   category.mk precategory_Set set.is_univalent_Set
 
   definition Category_Set [reducible] [constructor] : Category :=

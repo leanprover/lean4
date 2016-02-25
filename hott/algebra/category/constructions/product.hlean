@@ -11,7 +11,7 @@ import ..category ..nat_trans hit.trunc
 open eq prod is_trunc functor sigma trunc iso prod.ops nat_trans
 
 namespace category
-  definition precategory_prod [constructor] [reducible] [instance] (obC obD : Type)
+  definition precategory_prod [constructor] [instance] (obC obD : Type)
     [C : precategory obC] [D : precategory obD] : precategory (obC × obD) :=
   precategory.mk' (λ a b, hom a.1 b.1 × hom a.2 b.2)
                   (λ a b c g f, (g.1 ∘ f.1, g.2 ∘ f.2))

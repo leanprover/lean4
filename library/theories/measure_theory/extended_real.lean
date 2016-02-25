@@ -31,10 +31,10 @@ protected definition prio := num.pred real.prio
 
 /- arithmetic operations on the ereals -/
 
-definition ereal_has_zero [reducible] [instance] [priority ereal.prio] : has_zero ereal :=
+definition ereal_has_zero [instance] [priority ereal.prio] : has_zero ereal :=
 has_zero.mk (of_real 0)
 
-definition ereal_has_one [reducible] [instance] [priority ereal.prio] : has_one ereal :=
+definition ereal_has_one [instance] [priority ereal.prio] : has_one ereal :=
 has_one.mk (of_real 1)
 
 protected definition add : ereal → ereal → ereal
@@ -61,18 +61,18 @@ protected definition mul : ereal → ereal → ereal
 | -∞ a                    := ereal.neg (blow_up a)
 | a -∞                    := ereal.neg (blow_up a)
 
-definition ereal_has_add [reducible] [instance] [priority ereal.prio] : has_add ereal :=
+definition ereal_has_add [instance] [priority ereal.prio] : has_add ereal :=
 has_add.mk ereal.add
 
-definition ereal_has_neg [reducible] [instance] [priority ereal.prio] : has_neg ereal :=
+definition ereal_has_neg [instance] [priority ereal.prio] : has_neg ereal :=
 has_neg.mk ereal.neg
 
 protected definition sub (u v : ereal) : ereal := u + -v
 
-definition ereal_has_sub [reducible] [instance] [priority ereal.prio] : has_sub ereal :=
+definition ereal_has_sub [instance] [priority ereal.prio] : has_sub ereal :=
 has_sub.mk ereal.sub
 
-definition ereal_has_mul [reducible] [instance] [priority ereal.prio] : has_mul ereal :=
+definition ereal_has_mul [instance] [priority ereal.prio] : has_mul ereal :=
 has_mul.mk ereal.mul
 
 protected theorem zero_def : (0 : ereal) = of_real 0 := rfl
@@ -313,7 +313,7 @@ protected definition le : ereal → ereal → Prop
 | ∞ (of_real y)           := false
 | ∞ -∞                    := false
 
-definition ereal_has_le [reducible] [instance] [priority ereal.prio] :
+definition ereal_has_le [instance] [priority ereal.prio] :
   has_le ereal :=
 has_le.mk ereal.le
 
@@ -362,7 +362,7 @@ protected theorem le_antisymm : ∀ u v : ereal, u ≤ v → v ≤ u → u = v
 
 protected definition lt (x y : ereal) : Prop := x ≤ y ∧ x ≠ y
 
-definition ereal_has_lt [reducible] [instance] [priority ereal.prio] :
+definition ereal_has_lt [instance] [priority ereal.prio] :
   has_lt ereal :=
 has_lt.mk ereal.lt
 

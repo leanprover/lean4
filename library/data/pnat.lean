@@ -35,19 +35,19 @@ protected definition le (p q : ℕ+) := p~ ≤ q~
 
 protected definition lt (p q : ℕ+) := p~ < q~
 
-definition pnat_has_add [instance] [reducible] : has_add pnat :=
+definition pnat_has_add [instance] : has_add pnat :=
 has_add.mk pnat.add
 
-definition pnat_has_mul [instance] [reducible] : has_mul pnat :=
+definition pnat_has_mul [instance] : has_mul pnat :=
 has_mul.mk pnat.mul
 
-definition pnat_has_le [instance] [reducible] : has_le pnat :=
+definition pnat_has_le [instance] : has_le pnat :=
 has_le.mk pnat.le
 
-definition pnat_has_lt [instance] [reducible] : has_lt pnat :=
+definition pnat_has_lt [instance] : has_lt pnat :=
 has_lt.mk pnat.lt
 
-definition pnat_has_one [instance] [reducible] : has_one pnat :=
+definition pnat_has_one [instance] : has_one pnat :=
 has_one.mk (pos (1:nat) dec_trivial)
 
 protected lemma mul_def (p q : ℕ+) : p * q = tag (p~ * q~) (mul_pos (pnat_pos p) (pnat_pos q)) :=

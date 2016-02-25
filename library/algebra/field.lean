@@ -22,7 +22,7 @@ section division_ring
 
   protected definition algebra.div (a b : A) : A := a * b⁻¹
 
-  definition division_ring_has_div [reducible] [instance] : has_div A :=
+  definition division_ring_has_div [instance] : has_div A :=
   has_div.mk algebra.div
 
   lemma division.def [simp] (a b : A) : a / b = a * b⁻¹ :=

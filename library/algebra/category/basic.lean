@@ -51,7 +51,7 @@ namespace category
   definition objects [coercion] [reducible] (C : Category) : Type
   := Category.rec (fun c s, c) C
 
-  definition category_instance [instance] [coercion] [reducible] (C : Category) : category (objects C)
+  definition category_instance [instance] [coercion] (C : Category) : category (objects C)
   := Category.rec (fun c s, s) C
 
 end category

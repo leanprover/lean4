@@ -39,11 +39,11 @@ namespace iso
   variables {a b c : ob} {g : b ⟶ c} {f : a ⟶ b} {h : b ⟶ a}
   include C
 
-  definition split_mono_of_is_iso [constructor] [instance] [priority 300] [reducible]
+  definition split_mono_of_is_iso [constructor] [instance] [priority 300]
     (f : a ⟶ b) [H : is_iso f] : split_mono f :=
   split_mono.mk !left_inverse
 
-  definition split_epi_of_is_iso [constructor] [instance] [priority 300] [reducible]
+  definition split_epi_of_is_iso [constructor] [instance] [priority 300]
     (f : a ⟶ b) [H : is_iso f] : split_epi f :=
   split_epi.mk !right_inverse
 

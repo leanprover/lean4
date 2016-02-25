@@ -68,16 +68,16 @@ protected definition mul (M : matrix A m n) (N : matrix A n p) : matrix A m p :=
 definition smul (a : A) (M : matrix A m n) : matrix A m n :=
 λ i j, a * M[i, j]
 
-definition matrix_has_zero [reducible] [instance] (m n : nat) : has_zero (matrix A m n) :=
+definition matrix_has_zero [instance] (m n : nat) : has_zero (matrix A m n) :=
 has_zero.mk (matrix.zero m n)
 
-definition matrix_has_one [reducible] [instance] (n : nat) : has_one (matrix A n n) :=
+definition matrix_has_one [instance] (n : nat) : has_one (matrix A n n) :=
 has_one.mk (identity n)
 
-definition matrix_has_add [reducible] [instance] (m n : nat) : has_add (matrix A m n) :=
+definition matrix_has_add [instance] (m n : nat) : has_add (matrix A m n) :=
 has_add.mk matrix.add
 
-definition matrix_has_mul [reducible] [instance] (n : nat) : has_mul (matrix A n n) :=
+definition matrix_has_mul [instance] (n : nat) : has_mul (matrix A n n) :=
 has_mul.mk matrix.mul
 
 infix ` × ` := mul

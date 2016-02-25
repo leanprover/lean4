@@ -23,7 +23,7 @@ sign b *
     | -[1+m]   := -[1+ ((m:nat) / (nat_abs b))]
   end)
 
-definition int_has_div [reducible] [instance] [priority int.prio] : has_div int :=
+definition int_has_div [instance] [priority int.prio] : has_div int :=
 has_div.mk int.div
 
 lemma of_nat_div_eq (m : nat) (b : ℤ) : (of_nat m) / b = sign b * of_nat (m / (nat_abs b)) :=
@@ -42,7 +42,7 @@ rfl
 
 protected definition mod (a b : ℤ) : ℤ := a - a / b * b
 
-definition int_has_mod [reducible] [instance] [priority int.prio] : has_mod int :=
+definition int_has_mod [instance] [priority int.prio] : has_mod int :=
 has_mod.mk int.mod
 
 

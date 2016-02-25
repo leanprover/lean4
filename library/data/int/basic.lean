@@ -48,10 +48,10 @@ notation `-[1+ ` n `]` := int.neg_succ_of_nat n    -- for pretty-printing output
 
 protected definition prio : num := num.pred nat.prio
 
-definition int_has_zero [reducible] [instance] [priority int.prio] : has_zero int :=
+definition int_has_zero [instance] [priority int.prio] : has_zero int :=
 has_zero.mk (of_nat 0)
 
-definition int_has_one [reducible] [instance] [priority int.prio] : has_one int :=
+definition int_has_one [instance] [priority int.prio] : has_one int :=
 has_one.mk (of_nat 1)
 
 theorem of_nat_zero : of_nat (0:nat) = (0:int) :=
@@ -89,9 +89,9 @@ protected definition mul : ℤ → ℤ → ℤ
 
 /- notation -/
 
-definition int_has_add [reducible] [instance] [priority int.prio] : has_add int := has_add.mk int.add
-definition int_has_neg [reducible] [instance] [priority int.prio] : has_neg int := has_neg.mk int.neg
-definition int_has_mul [reducible] [instance] [priority int.prio] : has_mul int := has_mul.mk int.mul
+definition int_has_add [instance] [priority int.prio] : has_add int := has_add.mk int.add
+definition int_has_neg [instance] [priority int.prio] : has_neg int := has_neg.mk int.neg
+definition int_has_mul [instance] [priority int.prio] : has_mul int := has_mul.mk int.mul
 
 lemma mul_of_nat_of_nat   (m n : nat) : of_nat m * of_nat n = of_nat (m * n) :=
 rfl
@@ -536,10 +536,10 @@ protected definition integral_domain [reducible] [trans_instance] : integral_dom
   zero_ne_one    := int.zero_ne_one,
   eq_zero_or_eq_zero_of_mul_eq_zero := @int.eq_zero_or_eq_zero_of_mul_eq_zero⦄
 
-definition int_has_sub [reducible] [instance] [priority int.prio] : has_sub int :=
+definition int_has_sub [instance] [priority int.prio] : has_sub int :=
 has_sub.mk has_sub.sub
 
-definition int_has_dvd [reducible] [instance] [priority int.prio] : has_dvd int :=
+definition int_has_dvd [instance] [priority int.prio] : has_dvd int :=
 has_dvd.mk has_dvd.dvd
 
 /- additional properties -/

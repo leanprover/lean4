@@ -82,7 +82,7 @@ begin
   induction n with [n, ih],
     {intro k,
       cases k with k',
-        {rewrite [*choose_self, one_mul, mul_one]},
+        {krewrite [*choose_self, one_mul, mul_one]},
         {have H : 1 < succ (succ k'), from succ_lt_succ !zero_lt_succ,
          krewrite [one_mul, choose_zero_succ, choose_eq_zero_of_lt H, zero_mul]}},
   intro k,

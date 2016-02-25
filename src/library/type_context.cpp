@@ -1932,7 +1932,7 @@ type_context::scope_pos_info::~scope_pos_info() {
 default_type_context::default_type_context(environment const & env, options const & o,
                                            list<expr> const & insts, bool multiple_instances):
     type_context(env, o, multiple_instances),
-    m_not_reducible_pred(mk_not_reducible_pred(env)) {
+    m_not_quasireducible_pred(mk_not_quasireducible_pred(env)) {
     m_ignore_if_zero = false;
     m_next_uvar_idx  = 0;
     m_next_mvar_idx  = 0;

@@ -11,12 +11,8 @@ namespace lean {
 type_checker_ptr mk_class_type_checker(environment const & env, bool conservative);
 /** \brief Add a new 'class' to the environment (if it is not already declared) */
 environment add_class(environment const & env, name const & n, name const & ns, bool persistent);
-/** \brief Add a new 'class instance' to the environment with default priority. */
-environment add_instance(environment const & env, name const & n, name const & ns, bool persistent);
 /** \brief Add a new 'class instance' to the environment. */
 environment add_instance(environment const & env, name const & n, unsigned priority, name const & ns, bool persistent);
-/** \brief Add a new 'class transitive instance' to the environment with default priority. */
-environment add_trans_instance(environment const & env, name const & n, name const & ns, bool persistent);
 /** \brief Add a new 'class transitive instance' to the environment. */
 environment add_trans_instance(environment const & env, name const & n, unsigned priority, name const & ns, bool persistent);
 /** \brief Return true iff \c c was declared with \c add_class. */

@@ -197,7 +197,7 @@ private theorem aux2 : ∀ u : ereal, -u * ∞ = -(u * ∞)
                       by rewrite [ereal.neg_of_real, pos_mul_infty (neg_pos_of_neg H),
                                   neg_mul_infty H])
                    (assume H : x = 0,
-                      by rewrite [H, ereal.neg_zero, *zero_mul_infty, ereal.neg_zero])
+                      by krewrite [H, ereal.neg_zero, *zero_mul_infty, ereal.neg_zero])
                    (assume H : x > 0,
                       by rewrite [ereal.neg_of_real, neg_mul_infty (neg_neg_of_pos H),
                                    pos_mul_infty H])
@@ -238,16 +238,16 @@ lt.by_cases
     lt.by_cases
       (assume H1 : y < 0, by rewrite [infty_mul_neg H, neg_infty, ereal_neg_mul, -of_real_mul,
                                      infty_mul_neg H1, infty_mul_pos (mul_pos_of_neg_of_neg H H1)])
-      (assume H1 : y = 0, by rewrite [H1, *ereal.mul_zero])
+      (assume H1 : y = 0, by krewrite [H1, *ereal.mul_zero])
       (assume H1 : y > 0, by rewrite [infty_mul_neg H, neg_infty, *ereal_neg_mul, -of_real_mul,
                                      infty_mul_pos H1, infty_mul_neg (mul_neg_of_neg_of_pos H H1)]))
   (assume H : x = 0,
-    by rewrite [H, ereal.mul_zero, *ereal.zero_mul, ereal.mul_zero])
+    by krewrite [H, ereal.mul_zero, *ereal.zero_mul, ereal.mul_zero])
   (assume H : x > 0,
     lt.by_cases
       (assume H1 : y < 0, by rewrite [infty_mul_pos H, infty_mul_neg H1, -of_real_mul,
                                      infty_mul_neg (mul_neg_of_pos_of_neg H H1)])
-      (assume H1 : y = 0, by rewrite [H1, *ereal.mul_zero])
+      (assume H1 : y = 0, by krewrite [H1, *ereal.mul_zero])
       (assume H1 : y > 0, by rewrite [infty_mul_pos H, infty_mul_pos H1, -of_real_mul,
                                      infty_mul_pos (mul_pos H H1)]))
 
@@ -275,7 +275,7 @@ protected theorem one_mul : ∀ u : ereal, of_real 1 * u = u
 | -∞          := by rewrite [neg_infty, ereal_mul_neg, pos_mul_infty zero_lt_one]
 
 protected theorem mul_one (u : ereal) : u * 1 = u :=
-by rewrite [ereal.mul_comm, ereal.one_mul]
+by krewrite [ereal.mul_comm, ereal.one_mul]
 
 /- instantiating arithmetic structures -/
 

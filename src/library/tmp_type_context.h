@@ -43,7 +43,7 @@ class tmp_type_context : public type_context {
     std::vector<scope>                m_scopes;
     void init(environment const & env, reducible_behavior b);
 public:
-    tmp_type_context(environment const & env, options const & o, reducible_behavior b = UnfoldReducible);
+    tmp_type_context(environment const & env, options const & o, reducible_behavior b = UnfoldQuasireducible);
     virtual ~tmp_type_context();
 
     /** \brief Reset the state: backtracking stack, indices and assignment. */

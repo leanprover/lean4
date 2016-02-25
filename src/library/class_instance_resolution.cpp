@@ -493,7 +493,7 @@ static constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_co
         new_cfg.m_discard        = false;
         new_cfg.m_use_exceptions = false;
         new_cfg.m_pattern        = true;
-        new_cfg.m_kind           = C->m_conservative ? unifier_kind::VeryConservative : unifier_kind::Liberal;
+        new_cfg.m_kind           = C->m_conservative ? unifier_kind::Conservative : unifier_kind::Liberal;
 
         auto to_cnstrs_fn = [=](substitution const & subst, constraints const & cnstrs) -> constraints {
             substitution new_s = subst;

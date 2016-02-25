@@ -77,7 +77,7 @@ proposition sum_range_eq_sum_interval_aux (m n : ℕ) (f : ℕ → A) :
             (∑ i = m...m+n, f i) = (∑ i ∈ '[m, m + n], f i) :=
 begin
   induction n with n ih,
-    {rewrite [nat.add_zero, sum_range_self, Icc_self, Sum_singleton]},
+    {krewrite [nat.add_zero, sum_range_self, Icc_self, Sum_singleton]},
   have H : m ≤ succ (m + n), from le_of_lt (lt_of_le_of_lt !le_add_right !lt_succ_self),
   have H' : '[m, m + n] ∩ '{succ (m + n)} = ∅, from
     eq_empty_of_forall_not_mem (take x, assume H1,
@@ -168,7 +168,7 @@ proposition prod_range_eq_prod_interval_aux (m n : ℕ) (f : ℕ → A) :
             (∏ i = m...m+n, f i) = (∏ i ∈ '[m, m + n], f i) :=
 begin
   induction n with n ih,
-    {rewrite [nat.add_zero, prod_range_self, Icc_self, Prod_singleton]},
+    {krewrite [nat.add_zero, prod_range_self, Icc_self, Prod_singleton]},
   have H : m ≤ succ (m + n), from le_of_lt (lt_of_le_of_lt !le_add_right !lt_succ_self),
   have H' : '[m, m + n] ∩ '{succ (m + n)} = ∅, from
     eq_empty_of_forall_not_mem (take x, assume H1,

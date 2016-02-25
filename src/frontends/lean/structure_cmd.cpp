@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "kernel/error_msgs.h"
 #include "kernel/inductive/inductive.h"
 #include "library/trace.h"
+#include "library/attribute_manager.h"
 #include "library/scoped_ext.h"
 #include "library/normalize.h"
 #include "library/placeholder.h"
@@ -842,7 +843,7 @@ struct structure_cmd_fn {
                     m_env = add_coercion(m_env, m_p.ios(), coercion_name, get_namespace(m_env), true);
                 if (m_modifiers.is_class() && is_class(m_env, parent_name)) {
                     // if both are classes, then we also mark coercion_name as an instance
-                    m_env = add_trans_instance(m_env, coercion_name, get_namespace(m_env), true);
+                    m_env = add_trans_instance(m_env, coercion_name, LEAN_DEFAULT_PRIORITY, get_namespace(m_env), true);
                 }
             }
         }

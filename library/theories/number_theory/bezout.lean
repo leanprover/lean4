@@ -98,7 +98,7 @@ decidable.by_cases
     have cpx : coprime p x, from coprime_of_prime_of_not_dvd pp this,
     obtain (a b : ℤ) (Hab : a * p + b * x = gcd p x), from Bezout_aux p x,
     assert a * p * y + b * x * y = y,
-      by rewrite [-right_distrib, Hab, ↑coprime at cpx, cpx, int.one_mul],
+      by krewrite [-right_distrib, Hab, ↑coprime at cpx, cpx, int.one_mul],
     have p ∣ y,
       begin
         apply dvd_of_of_nat_dvd_of_nat,

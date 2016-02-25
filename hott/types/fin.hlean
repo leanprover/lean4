@@ -383,7 +383,7 @@ begin
     assert H' : is_prop.elim (lt_add_of_lt_right ilt 1) (lt_add_of_lt_right ilt 1) = idp,
       apply is_prop.elim,
     krewrite H' },
-  { intro a, contradiction },
+  { intro a, exact absurd ilt a },
 end
 
 definition elim_succ_maxi_cases_maxi {C : fin (nat.succ n) → Type}
@@ -507,7 +507,7 @@ open prod
 definition fin_prod_equiv (n m : nat) : (fin n × fin m) ≃ fin (n*m) :=
 begin
   induction n,
-  { rewrite nat.zero_mul,
+  { krewrite nat.zero_mul,
     calc fin 0 × fin m ≃ empty × fin m : fin_zero_equiv_empty
                    ... ≃ fin m × empty : prod_comm_equiv
                    ... ≃ empty : prod_empty_equiv

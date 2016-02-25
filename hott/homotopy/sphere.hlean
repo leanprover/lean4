@@ -134,7 +134,7 @@ namespace sphere
     -- fapply equiv_change_fun,
     -- {
       revert A, induction n with n IH: intro A,
-      { rewrite [sphere_eq_bool_pointed], apply pmap_bool_equiv},
+      { krewrite [sphere_eq_bool_pointed], apply pmap_bool_equiv},
       { refine susp_adjoint_loop (S. n) A ⬝e !IH ⬝e _, rewrite [loop_space_succ_eq_in]}
     -- },
     -- { intro f, exact apn n f surf},

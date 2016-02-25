@@ -15,29 +15,29 @@ namespace binary
     local notation a * b := op₁ a b
     local notation a ⁻¹  := inv a
 
-    definition commutative [reducible]       := Πa b, a * b = b * a
-    definition associative [reducible]       := Πa b c, (a * b) * c = a * (b * c)
-    definition left_identity [reducible]     := Πa, one * a = a
-    definition right_identity [reducible]    := Πa, a * one = a
-    definition left_inverse [reducible]      := Πa, a⁻¹ * a = one
-    definition right_inverse [reducible]     := Πa, a * a⁻¹ = one
-    definition left_cancelative [reducible]  := Πa b c, a * b = a * c → b = c
-    definition right_cancelative [reducible] := Πa b c, a * b = c * b → a = c
+    definition commutative        := Πa b, a * b = b * a
+    definition associative        := Πa b c, (a * b) * c = a * (b * c)
+    definition left_identity      := Πa, one * a = a
+    definition right_identity     := Πa, a * one = a
+    definition left_inverse       := Πa, a⁻¹ * a = one
+    definition right_inverse      := Πa, a * a⁻¹ = one
+    definition left_cancelative   := Πa b c, a * b = a * c → b = c
+    definition right_cancelative  := Πa b c, a * b = c * b → a = c
 
-    definition inv_op_cancel_left [reducible] := Πa b, a⁻¹ * (a * b) = b
-    definition op_inv_cancel_left [reducible] := Πa b, a * (a⁻¹ * b) = b
-    definition inv_op_cancel_right [reducible] := Πa b, a * b⁻¹ * b =  a
-    definition op_inv_cancel_right [reducible] := Πa b, a * b * b⁻¹ = a
+    definition inv_op_cancel_left  := Πa b, a⁻¹ * (a * b) = b
+    definition op_inv_cancel_left  := Πa b, a * (a⁻¹ * b) = b
+    definition inv_op_cancel_right  := Πa b, a * b⁻¹ * b =  a
+    definition op_inv_cancel_right  := Πa b, a * b * b⁻¹ = a
 
     variable (op₂ : A → A → A)
 
     local notation a + b := op₂ a b
 
-    definition left_distributive [reducible] := Πa b c, a * (b + c) = a * b + a * c
-    definition right_distributive [reducible] := Πa b c, (a + b) * c = a * c + b * c
+    definition left_distributive  := Πa b c, a * (b + c) = a * b + a * c
+    definition right_distributive  := Πa b c, (a + b) * c = a * c + b * c
 
-    definition right_commutative [reducible] {B : Type} (f : B → A → B) := Π b a₁ a₂, f (f b a₁) a₂ = f (f b a₂) a₁
-    definition left_commutative [reducible] {B : Type}  (f : A → B → B) := Π a₁ a₂ b, f a₁ (f a₂ b) = f a₂ (f a₁ b)
+    definition right_commutative  {B : Type} (f : B → A → B) := Π b a₁ a₂, f (f b a₁) a₂ = f (f b a₂) a₁
+    definition left_commutative  {B : Type}  (f : A → B → B) := Π a₁ a₂ b, f a₁ (f a₂ b) = f a₂ (f a₁ b)
   end
 
   section
@@ -76,11 +76,11 @@ namespace binary
               ... = a*((b*c)*d) : H_assoc
   end
 
-  definition right_commutative_compose_right [reducible]
+  definition right_commutative_compose_right
     {A B : Type} (f : A → A → A) (g : B → A) (rcomm : right_commutative f) : right_commutative (compose_right f g) :=
   λ a b₁ b₂, !rcomm
 
-  definition left_commutative_compose_left [reducible]
+  definition left_commutative_compose_left
     {A B : Type} (f : A → A → A) (g : B → A) (lcomm : left_commutative f) : left_commutative (compose_left f g) :=
   λ a b₁ b₂, !lcomm
 end binary

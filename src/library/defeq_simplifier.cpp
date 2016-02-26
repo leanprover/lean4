@@ -9,6 +9,7 @@ Author: Daniel Selsam
 #include "kernel/expr_maps.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "kernel/inductive/inductive.h"
 #include "library/trace.h"
 #include "library/tmp_type_context.h"
 #include "library/normalize.h"
@@ -71,6 +72,7 @@ static bool get_simplify_expand_macros(options const & o) {
 
 class defeq_simplify_fn {
     tmp_type_context                  m_tmp_tctx;
+    normalizer                        m_normalizer;
     defeq_simp_lemmas                 m_simp_lemmas;
 
     unsigned                          m_num_simp_rounds{0};
@@ -134,6 +136,8 @@ class defeq_simplify_fn {
                 }
                 break;
             case expr_kind::Lambda:
+                e = try_eta(defeq_simplify_binding(e));
+                break;
             case expr_kind::Pi:
                 e = defeq_simplify_binding(e);
                 break;
@@ -144,7 +148,6 @@ class defeq_simplify_fn {
                 lean_unreachable();
                 // whnf expands let-expressions
             }
-
             if (!m_top_down) e = rewrite(whnf_eta(e));
             if (!m_exhaustive || e == e_start) break;
         }
@@ -160,10 +163,32 @@ class defeq_simplify_fn {
     }
 
     expr defeq_simplify_app(expr const & e) {
-        buffer<expr> rev_args;
-        expr f = defeq_simplify(get_app_rev_args(e, rev_args));
-        for (unsigned i = 0; i < rev_args.size(); ++i) rev_args[i] = defeq_simplify(rev_args[i]);
-        return mk_rev_app(f, rev_args);
+        buffer<expr> args;
+        bool modified = false;
+        expr f = get_app_rev_args(e, args);
+        for (expr & a : args) {
+            expr new_a = a;
+            if (!m_tmp_tctx.is_prop(m_tmp_tctx.infer(a)))
+                new_a = defeq_simplify(a);
+            if (new_a != a)
+                modified = true;
+            a = new_a;
+        }
+
+        if (is_constant(f)) {
+            if (auto idx = inductive::get_elim_major_idx(m_tmp_tctx.env(), const_name(f))) {
+                if (auto r = m_normalizer.unfold_recursor_major(f, *idx, args))
+                    return *r;
+            }
+        }
+        if (!modified)
+            return e;
+        expr r = mk_rev_app(f, args);
+        if (is_constant(f) && m_tmp_tctx.env().is_recursor(const_name(f))) {
+            return defeq_simplify(r);
+        } else {
+            return r;
+        }
     }
 
     /* Rewriting */
@@ -257,6 +282,7 @@ class defeq_simplify_fn {
 public:
     defeq_simplify_fn(environment const & env, options const & o, defeq_simp_lemmas const & simp_lemmas):
         m_tmp_tctx(env, o),
+        m_normalizer(m_tmp_tctx),
         m_simp_lemmas(simp_lemmas),
         m_options(o),
         m_max_simp_rounds(get_simplify_max_simp_rounds(o)),

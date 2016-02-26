@@ -886,7 +886,7 @@ optional<unsigned> state::select_hypothesis_to_activate() {
 void state::activate_hypothesis(hypothesis_idx hidx) {
     lean_trace_search(
         hypothesis const & h = get_hypothesis_decl(hidx);
-        tout() << "activate " << h.get_name() << " : " << ppb(h.get_type()) << "\n";);
+        tout() << "activate " << h.get_name() << " : " << h.get_type() << "\n";);
     lean_assert(!get_hypothesis_decl(hidx).is_dead());
     m_branch.m_active.insert(hidx);
     update_indices(hidx);

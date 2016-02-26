@@ -1136,7 +1136,7 @@ void congruence_closure::propagate_no_confusion_eq(expr const & e1, expr const &
     expr pr         = *get_eqv_proof(get_eq_name(), e1, e2);
     expr H          = s.mk_hypothesis(type, pr);
     lean_trace(name({"cc", "propagation"}),
-               tout() << "no confusion eq: " << ppb(H) << " : " << ppb(infer_type(H)) << "\n";);
+               tout() << "no confusion eq: " << H << " : " << infer_type(H) << "\n";);
 }
 
 /* Remark: If added_prop is not none, then it contains the proposition provided to ::add.
@@ -1284,7 +1284,7 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
                 }
                 expr H = s.mk_hypothesis(type, pr);
                 lean_trace(name({"cc", "propagation"}),
-                           tout() << ppb(H) << " : " << ppb(infer_type(H)) << "\n";);
+                           tout() << H << " : " << infer_type(H) << "\n";);
             }
         }
     }
@@ -1297,7 +1297,7 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
     if (R == get_eq_name()) {
         check_new_subsingleton_eq(e1_root, e2_root);
     }
-    lean_trace(name({"cc", "merge"}), tout() << ppb(e1_root) << " [" << R << "] " << ppb(e2_root) << "\n";);
+    lean_trace(name({"cc", "merge"}), tout() << e1_root << " [" << R << "] " << e2_root << "\n";);
     lean_trace(name({"cc", "state"}), trace(););
 }
 
@@ -1913,7 +1913,7 @@ void congruence_closure::trace_eqc(name const & R, expr const & e) const {
     do {
         auto it_n = m_entries.find(eqc_key(R, it));
         if (first) first = false; else out << ", ";
-        out << ppb(it);
+        out << it;
         it = it_n->m_next;
     } while (it != e);
     out << "}";
@@ -1938,13 +1938,13 @@ void congruence_closure::trace_parents() const {
     auto out = tout();
     m_parents.for_each([&](child_key const & k, parent_occ_set const & ps) {
             trace_rel(out, k.m_R);
-            out << ppb(k.m_expr);
+            out << k.m_expr;
             out << ", parents: {";
             bool first = true;
             ps.for_each([&](parent_occ const & o) {
                     if (first) first = false; else out << ", ";
                     trace_rel(out, o.m_R);
-                    out << ppb(o.m_expr);
+                    out << o.m_expr;
                 });
             out << "}\n";
         });

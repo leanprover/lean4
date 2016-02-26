@@ -95,7 +95,7 @@ public:
             action_result r     = try_hypothesis(hidx);
             if (!failed(r)) {
                 lean_trace_search(tout() << "next of choice #" << m_choice_idx
-                                  << ", recurse " << ppb(mk_href(hidx)) << "\n";);
+                                  << ", recurse " << mk_href(hidx) << "\n";);
                 return r;
             }
         }
@@ -121,9 +121,9 @@ action_result rec_action(rec_candidate_selector const & selector) {
                 // create choice point
                 unsigned cidx = mk_choice_point_idx();
                 push_choice_point(choice_point(new rec_choice_point_cell(s, hidx_list, cidx)));
-                lean_trace_search(tout() << "recurse " << ppb(mk_href(hidx)) << " (choice #" << cidx << ")\n";);
+                lean_trace_search(tout() << "recurse " << mk_href(hidx) << " (choice #" << cidx << ")\n";);
             } else {
-                lean_trace_search(tout() << "recurse " << ppb(mk_href(hidx)) << "\n";);
+                lean_trace_search(tout() << "recurse " << mk_href(hidx) << "\n";);
             }
             return r;
         }

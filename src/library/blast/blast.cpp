@@ -279,6 +279,16 @@ class blastenv {
         virtual void commit() override {
             m_stack.pop_back();
         }
+
+        virtual name get_local_pp_name(expr const & e) const override {
+            if (is_href(e)) {
+                state const & s = m_benv.m_curr_state;
+                hypothesis const & h = s.get_hypothesis_decl(e);
+                return h.get_name();
+            } else {
+                return local_pp_name(e);
+            }
+        }
     };
 
     class to_blast_expr_fn : public replace_visitor {

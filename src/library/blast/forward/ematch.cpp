@@ -425,8 +425,8 @@ struct ematch_fn {
             expr new_p = m_ctx->instantiate_uvars_mvars(p);
             expr new_p_type = m_ctx->instantiate_uvars_mvars(m_ctx->infer(p));
             expr t_type = m_ctx->infer(t);
-            tout() << "try process_match: " << ppb(p) << " ::= " << ppb(new_p) << " : " << ppb(new_p_type) << " <=?=> "
-            << ppb(t) << " : " << ppb(t_type) << "\n";);
+            tout() << "try process_match: " << p << " ::= " << new_p << " : " << new_p_type << " <=?=> "
+            << t << " : " << t_type << "\n";);
         if (!is_app(p)) {
             bool success = match_leaf(R, p, t);
             return success;
@@ -448,7 +448,7 @@ struct ematch_fn {
                 ok = true;
                 candidates.push_back(it);
             }
-            lean_trace_debug_ematch(tout() << "candidate: " << ppb(it) << "..." << (ok ? "ok" : "skip") << "\n";);
+            lean_trace_debug_ematch(tout() << "candidate: " << it << "..." << (ok ? "ok" : "skip") << "\n";);
             it = m_cc.get_next(R, it);
         } while (it != t);
         if (candidates.empty()) {
@@ -459,7 +459,7 @@ struct ematch_fn {
         for (expr const & c : candidates) {
             state new_state = m_state;
             if (match_args(new_state, R, p_args, c)) {
-                lean_trace_debug_ematch(tout() << "match: " << ppb(c) << "\n";);
+                lean_trace_debug_ematch(tout() << "match: " << c << "\n";);
                 new_states.push_back(new_state);
             }
         }
@@ -468,7 +468,7 @@ struct ematch_fn {
     }
 
     bool process_continue(name const & R, expr const & p) {
-        lean_trace_debug_ematch(tout() << "process_continue: " << ppb(p) << "\n";);
+        lean_trace_debug_ematch(tout() << "process_continue: " << p << "\n";);
         buffer<expr> p_args;
         expr const & f = get_app_args(p, p_args);
         buffer<state> new_states;
@@ -506,8 +506,8 @@ struct ematch_fn {
             expr new_p = m_ctx->instantiate_uvars_mvars(p);
             expr new_p_type = m_ctx->instantiate_uvars_mvars(m_ctx->infer(p));
             expr t_type = m_ctx->infer(t);
-            tout() << "process_matchss: " << ppb(p) << " ::= " << ppb(new_p) << " : " << ppb(new_p_type) << " <=?=> "
-            << ppb(t) << " : " << ppb(t_type) << "\n";);
+            tout() << "process_matchss: " << p << " ::= " << new_p << " : " << new_p_type << " <=?=> "
+            << t << " : " << t_type << "\n";);
         if (!is_metavar(p)) {
             /* If p is not a metavariable we simply ignore it.
                We should improve this case in the future. */
@@ -539,7 +539,7 @@ struct ematch_fn {
         name R; frame_kind kind; expr p, t;
         std::tie(R, kind, p, t) = head(m_state);
         m_state = tail(m_state);
-        // diagnostic(env(), ios()) << ">> " << R << ", " << ppb(p) << " =?= " << ppb(t) << "\n";
+        // diagnostic(env(), ios()) << ">> " << R << ", " << p << " =?= " << t << "\n";
         bool success;
         switch (kind) {
         case DefEqOnly:
@@ -548,8 +548,8 @@ struct ematch_fn {
                 expr new_p = m_ctx->instantiate_uvars_mvars(p);
                 expr new_p_type = m_ctx->instantiate_uvars_mvars(m_ctx->infer(p));
                 expr t_type = m_ctx->infer(t);
-                tout() << "must be def-eq: " << ppb(new_p) << " : " << ppb(new_p_type)
-                << "  =?= " << ppb(t) << " : " << ppb(t_type)
+                tout() << "must be def-eq: " << new_p << " : " << new_p_type
+                << "  =?= " << t << " : " << t_type
                 << " ... " << (success ? "succeeded" : "failed") << "\n";);
             return success;
         case Match:
@@ -560,8 +560,8 @@ struct ematch_fn {
                 expr new_p = m_ctx->instantiate_uvars_mvars(p);
                 expr new_p_type = m_ctx->instantiate_uvars_mvars(m_ctx->infer(p));
                 expr t_type = m_ctx->infer(t);
-                tout() << "must be eqv: " << ppb(new_p) << " : " << ppb(new_p_type) << " =?= "
-                << ppb(t) << " : " << ppb(t_type) << " ... " << (success ? "succeeded" : "failed") << "\n";);
+                tout() << "must be eqv: " << new_p << " : " << new_p_type << " =?= "
+                << t << " : " << t_type << " ... " << (success ? "succeeded" : "failed") << "\n";);
             return success;
         case MatchSS:
             return process_matchss(p, t);
@@ -590,16 +590,16 @@ struct ematch_fn {
         for (expr const & mvar : lemma.m_mvars) {
             if (!m_ctx->get_assignment(mvar)) {
                 if (!head(*it)) {
-                    lean_trace_debug_ematch(tout() << "unassigned argument not inst-implicit: " << ppb(m_ctx->infer(mvar)) << "\n";);
+                    lean_trace_debug_ematch(tout() << "unassigned argument not inst-implicit: " << m_ctx->infer(mvar) << "\n";);
                     return; // fail, argument is not instance implicit
                 }
                 auto new_val = m_ctx->mk_class_instance(m_ctx->infer(mvar));
                 if (!new_val) {
-                    lean_trace_debug_ematch(tout() << "cannot synthesize unassigned inst-implicit argument: " << ppb(m_ctx->infer(mvar)) << "\n";);
+                    lean_trace_debug_ematch(tout() << "cannot synthesize unassigned inst-implicit argument: " << m_ctx->infer(mvar) << "\n";);
                     return; // fail, instance could not be generated
                 }
                 if (!m_ctx->assign(mvar, *new_val)) {
-                    lean_trace_debug_ematch(tout() << "unable to assign inst-implicit argument: " << ppb(*new_val) << " : " << ppb(m_ctx->infer(mvar)) << "\n";);
+                    lean_trace_debug_ematch(tout() << "unable to assign inst-implicit argument: " << *new_val << " : " << m_ctx->infer(mvar) << "\n";);
                     return; // fail, type error
                 }
             }
@@ -613,7 +613,7 @@ struct ematch_fn {
         if (!m_new_instances) {
             trace_action("ematch");
         }
-        lean_trace_ematch(tout() << "instance [" << ppb(lemma.m_expr) << "]: " << ppb(new_inst) << "\n";);
+        lean_trace_ematch(tout() << "instance [" << lemma.m_expr << "]: " << new_inst << "\n";);
         m_new_instances = true;
         expr new_proof = m_ctx->instantiate_uvars_mvars(lemma.m_proof);
         curr_state().mk_hypothesis(new_inst, new_proof);
@@ -643,7 +643,7 @@ struct ematch_fn {
         if (auto s = m_inst_ext.get_apps().find(head_index(f))) {
             s->for_each([&](expr const & t) {
                     if ((m_cc.is_congr_root(R, t) || m_cc.eq_class_heterogeneous(t)) && (!filter || m_cc.get_mt(R, t) == gmt)) {
-                        lean_trace_debug_ematch(tout() << "ematch " << ppb(get_app_fn(lemma.m_proof)) << " [using] " << ppb(t) << "\n";);
+                        lean_trace_debug_ematch(tout() << "ematch " << get_app_fn(lemma.m_proof) << " [using] " << t << "\n";);
                         m_ctx->clear();
                         m_ctx->set_next_uvar_idx(lemma.m_num_uvars);
                         m_ctx->set_next_mvar_idx(lemma.m_num_mvars);

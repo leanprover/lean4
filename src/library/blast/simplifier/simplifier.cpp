@@ -384,7 +384,7 @@ result simplifier::simplify(expr const & e, bool is_root) {
     check_system("simplifier");
     m_num_steps++;
     lean_trace_inc_depth("simplifier");
-    lean_trace_d("simplifier", tout() << m_rel << ": " << ppb(e) << "\n";);
+    lean_trace_d("simplifier", tout() << m_rel << ": " << e << "\n";);
 
     if (m_num_steps > m_max_steps)
         throw blast_exception("simplifier failed, maximum number of steps exceeded", e);
@@ -627,7 +627,7 @@ result simplifier::rewrite(expr const & e, simp_lemma const & sr) {
                expr new_lhs = tmp_tctx->instantiate_uvars_mvars(sr.get_lhs());
                expr new_rhs = tmp_tctx->instantiate_uvars_mvars(sr.get_rhs());
                tout() << "(" << sr.get_id() << ") "
-               << "[" << ppb(new_lhs) << " --> " << ppb(new_rhs) << "]\n";);
+               << "[" << new_lhs << " --> " << new_rhs << "]\n";);
 
     if (!instantiate_emetas(tmp_tctx, sr.get_num_emeta(), sr.get_emetas(), sr.get_instances())) return result(e);
 
@@ -720,7 +720,7 @@ result simplifier::try_congr(expr const & e, user_congr_lemma const & cr) {
                expr new_rhs = tmp_tctx->instantiate_uvars_mvars(cr.get_rhs());
                diagnostic(env(), ios(), get_type_context())
                << "(" << cr.get_id() << ") "
-               << "[" << ppb(new_lhs) << " =?= " << ppb(new_rhs) << "]\n";);
+               << "[" << new_lhs << " =?= " << new_rhs << "]\n";);
 
     /* First, iterate over the congruence hypotheses */
     bool failed = false;
@@ -787,13 +787,13 @@ bool simplifier::instantiate_emetas(blast_tmp_type_context & tmp_tctx, unsigned 
                 if (auto v = tmp_tctx->mk_class_instance(m_type)) {
                     if (!tmp_tctx->assign(m, *v)) {
                         lean_trace(name({"simplifier", "failure"}),
-                                   tout() << "unable to assign instance for: " << ppb(m_type) << "\n";);
+                                   tout() << "unable to assign instance for: " << m_type << "\n";);
                         failed = true;
                         return;
                     }
                 } else {
                     lean_trace(name({"simplifier", "failure"}),
-                               tout() << "unable to synthesize instance for: " << ppb(m_type) << "\n";);
+                               tout() << "unable to synthesize instance for: " << m_type << "\n";);
                     failed = true;
                     return;
                 }
@@ -809,7 +809,7 @@ bool simplifier::instantiate_emetas(blast_tmp_type_context & tmp_tctx, unsigned 
             }
 
             lean_trace(name({"simplifier", "failure"}),
-                       tout() << "failed to assign: " << m << " : " << ppb(m_type) << "\n";);
+                       tout() << "failed to assign: " << m << " : " << m_type << "\n";);
 
             failed = true;
             return;
@@ -1081,7 +1081,7 @@ result simplifier::fuse(expr const & e) {
                         get_simp_lemmas(g_ac_key));
 
     if (!pf_1_3) {
-        diagnostic(env(), ios(), get_type_context()) << ppb(e) << "\n\n =?=\n\n" << ppb(e_grp) << "\n";
+        diagnostic(env(), ios(), get_type_context()) << e << "\n\n =?=\n\n" << e_grp << "\n";
         throw blast_exception("Failed to prove (1) == (3) during fusion", e);
     }
 
@@ -1090,7 +1090,7 @@ result simplifier::fuse(expr const & e) {
                         get_simp_lemmas(g_som_key));
 
     if (!pf_4_5) {
-        diagnostic(env(), ios(), get_type_context()) << ppb(e_grp_ls) << "\n\n =?=\n\n" << ppb(e_fused_ls) << "\n";
+        diagnostic(env(), ios(), get_type_context()) << e_grp_ls << "\n\n =?=\n\n" << e_fused_ls << "\n";
         throw blast_exception("Failed to prove (4) == (5) during fusion", e);
     }
 

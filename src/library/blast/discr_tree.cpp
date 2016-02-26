@@ -399,7 +399,7 @@ void discr_tree::node::trace(optional<edge> const & e, unsigned depth, bool disj
         first = true;
         m_ptr->m_values.for_each([&](expr const & v) {
                 if (first) first = false; else tout() << ", ";
-                tout() << ppb(v);
+                tout() << v;
             });
         tout() << "}";
     }

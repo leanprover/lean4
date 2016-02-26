@@ -29,7 +29,7 @@ public:
         \remark Default implementation just invokes \c infer. */
     virtual expr check(expr const & e) { return infer(e); }
     virtual optional<expr> is_stuck(expr const &) { return none_expr(); }
-    virtual name get_local_pp_name(expr const & e) { return local_pp_name(e); }
+    virtual name get_local_pp_name(expr const & e) const { return local_pp_name(e); }
     virtual expr mk_tmp_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) {
         return mk_local(mk_fresh_name(), pp_name, type, bi);
     }

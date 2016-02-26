@@ -24,14 +24,5 @@ void trace_curr_state_if(action_result r);
 #define lean_trace_search(Code) lean_trace(name({"blast", "search"}), Code)
 #define lean_trace_deadend(Code) lean_trace(name({"blast", "deadend"}), Code)
 
-/** \brief Helper class for pretty printing blast expressions.
-    It uses state::to_kernel_expr to export a blast expression
-    into an expression that can be processed by the pretty printer */
-struct ppb {
-    expr m_expr;
-    explicit ppb(expr const & e):m_expr(e) {}
-};
-
-io_state_stream const & operator<<(io_state_stream const & out, ppb const & e);
 io_state_stream const & operator<<(io_state_stream const & out, hypothesis const & h);
 }}

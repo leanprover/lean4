@@ -1380,7 +1380,7 @@ format pretty_fn::operator()(expr const & e) {
 }
 
 formatter_factory mk_pretty_formatter_factory() {
-    return [](environment const & env, options const & o) { // NOLINT
+    return [](environment const & env, options const & o, abstract_type_context &) { // NOLINT
         auto fn_ptr = std::make_shared<pretty_fn>(env, o);
         return formatter(o, [=](expr const & e, options const & new_o) {
                 fn_ptr->set_options(new_o);
@@ -1399,18 +1399,22 @@ static options mk_options(bool detail) {
 }
 
 static void pp_core(environment const & env, expr const & e, bool detail) {
+    type_checker tc(env);
     io_state ios(mk_pretty_formatter_factory(), mk_options(detail));
-    regular(env, ios) << e << "\n";
+    regular(env, ios, tc.get_type_context()) << e << "\n";
 }
 
 static void pp_core(environment const & env, goal const & g, bool detail) {
+    type_checker tc(env);
     io_state ios(mk_pretty_formatter_factory(), mk_options(detail));
-    regular(env, ios) << g << "\n";
+    regular(env, ios, tc.get_type_context()) << g << "\n";
 }
 
 static void pp_core(environment const & env, proof_state const & s, bool detail) {
+    type_checker tc(env);
     io_state ios(mk_pretty_formatter_factory(), mk_options(detail));
-    regular(env, ios) << s.pp(env, ios) << "\n";
+    auto out = regular(env, ios, tc.get_type_context());
+    out << s.pp(out.get_formatter()) << "\n";
 }
 }
 // for debugging purposes

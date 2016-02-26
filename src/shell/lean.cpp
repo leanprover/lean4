@@ -23,11 +23,13 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
+#include "kernel/type_checker.h"
 #include "kernel/formatter.h"
 #include "library/standard_kernel.h"
 #include "library/hott_kernel.h"
 #include "library/module.h"
 #include "library/flycheck.h"
+#include "library/type_context.h"
 #include "library/io_state_stream.h"
 #include "library/definition_cache.h"
 #include "library/declaration_index.h"
@@ -63,6 +65,8 @@ using lean::module_name;
 using lean::simple_pos_info_provider;
 using lean::shared_file_lock;
 using lean::exclusive_file_lock;
+using lean::default_type_context;
+using lean::type_checker;
 
 enum class input_kind { Unspecified, Lean, HLean, Trace };
 
@@ -452,15 +456,15 @@ int main(int argc, char ** argv) {
                 cache.load(in);
         } catch (lean::throwable & ex) {
             cache_ptr = nullptr;
-            auto out = regular(env, ios);
             // I'm using flycheck_error instead off flycheck_warning because
             // the :error-patterns at lean-flycheck.el do not work after
             // I add a rule for FLYCHECK_WARNING.
             // Same for display_error_pos vs display_warning_pos.
-            lean::flycheck_error warn(out);
+            lean::flycheck_error warn(ios);
             if (optind < argc)
-                display_error_pos(out, argv[optind], 1, 0);
-            out << "failed to load cache file '" << cache_name << "', "
+                display_error_pos(ios.get_regular_stream(), ios.get_options(), argv[optind], 1, 0);
+            ios.get_regular_stream()
+                << "failed to load cache file '" << cache_name << "', "
                 << ex.what() << ". cache is going to be ignored\n";
         }
     }
@@ -503,7 +507,9 @@ int main(int argc, char ** argv) {
             } catch (lean::exception & ex) {
                 simple_pos_info_provider pp(argv[i]);
                 ok = false;
-                lean::display_error(diagnostic(env, ios), &pp, ex);
+                default_type_context tc(env, ios.get_options());
+                auto out = diagnostic(env, ios, tc);
+                lean::display_error(out, &pp, ex);
             }
         }
         if (ok && server && (default_k == input_kind::Lean || default_k == input_kind::HLean)) {
@@ -522,7 +528,9 @@ int main(int argc, char ** argv) {
             exclusive_file_lock index_lock(index_name);
             std::shared_ptr<lean::file_output_channel> out(new lean::file_output_channel(index_name.c_str()));
             ios.set_regular_channel(out);
-            index.save(regular(env, ios));
+            type_checker tc(env);
+            auto strm = regular(env, ios, tc.get_type_context());
+            index.save(strm);
         }
         if (export_objects && ok) {
             exclusive_file_lock output_lock(output);
@@ -541,7 +549,9 @@ int main(int argc, char ** argv) {
         }
         return ok ? 0 : 1;
     } catch (lean::throwable & ex) {
-        lean::display_error(diagnostic(env, ios), nullptr, ex);
+        default_type_context tc(env, ios.get_options());
+        auto out = diagnostic(env, ios, tc);
+        lean::display_error(out, nullptr, ex);
     } catch (std::bad_alloc & ex) {
         std::cerr << "out of memory" << std::endl;
         return 1;

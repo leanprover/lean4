@@ -377,9 +377,6 @@ public:
     token_info const & get_token_info() const { return m_scanner.get_token_info(); }
     std::string const & get_stream_name() const { return m_scanner.get_stream_name(); }
 
-    io_state_stream regular_stream() const { return regular(env(), ios()); }
-    io_state_stream diagnostic_stream() const { return diagnostic(env(), ios()); }
-
     unsigned get_small_nat();
     unsigned parse_small_nat();
     double parse_double();

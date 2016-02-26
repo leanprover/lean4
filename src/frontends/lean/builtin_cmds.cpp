@@ -27,7 +27,6 @@ Author: Leonardo de Moura
 #include "library/abstract_expr_manager.h"
 #include "library/defeq_simp_lemmas.h"
 #include "library/defeq_simplifier.h"
-#include "library/definitional/projection.h"
 #include "library/blast/blast.h"
 #include "library/blast/simplifier/simplifier.h"
 #include "compiler/preprocess_rec.h"
@@ -121,19 +120,19 @@ environment check_cmd(parser & p) {
     e = expand_abbreviations(p.env(), e);
     auto tc = mk_type_checker(p.env());
     expr type = tc->check(e, ls).first;
-    auto reg              = p.regular_stream();
-    formatter fmt         = reg.get_formatter();
     options opts          = p.ios().get_options();
     opts                  = opts.update_if_undef(get_pp_metavar_args_name(), true);
-    fmt                   = fmt.update_options(opts);
+    io_state new_ios(p.ios(), opts);
+    auto out              = regular(p.env(), new_ios, tc->get_type_context());
+    formatter fmt         = out.get_formatter();
     unsigned indent       = get_pp_indent(opts);
     format r = group(fmt(e) + space() + colon() + nest(indent, line() + fmt(type)));
-    flycheck_information info(p.regular_stream());
+    flycheck_information info(p.ios());
     if (info.enabled()) {
         p.display_information_pos(p.cmd_pos());
-        p.regular_stream() << "check result:\n";
+        out << "check result:\n";
     }
-    reg << mk_pair(r, opts) << endl;
+    out << mk_pair(r, opts) << endl;
     return p.env();
 }
 
@@ -155,19 +154,21 @@ environment eval_cmd(parser & p) {
         bool eval_nested_prop = false;
         r = normalize(tc, ls, e, eta, eval_nested_prop);
     }
-    flycheck_information info(p.regular_stream());
+    flycheck_information info(p.ios());
     if (info.enabled()) {
         p.display_information_pos(p.cmd_pos());
-        p.regular_stream() << "eval result:\n";
+        p.ios().get_regular_stream() << "eval result:\n";
     }
-    p.regular_stream() << r << endl;
+    default_type_context tc(p.env(), p.get_options());
+    auto out = regular(p.env(), p.ios(), tc);
+    out << r << endl;
     return p.env();
 }
 
 environment exit_cmd(parser & p) {
-    flycheck_warning wrn(p.regular_stream());
+    flycheck_warning wrn(p.ios());
     p.display_warning_pos(p.cmd_pos());
-    p.regular_stream() << " using 'exit' to interrupt Lean" << endl;
+    p.ios().get_regular_stream() << " using 'exit' to interrupt Lean" << std::endl;
     throw interrupt_parser();
 }
 
@@ -428,40 +429,6 @@ static environment erase_cache_cmd(parser & p) {
     return p.env();
 }
 
-static environment projections_cmd(parser & p) {
-    name n = p.check_id_next("invalid #projections command, identifier expected");
-    if (p.curr_is_token(get_dcolon_tk())) {
-        p.next();
-        buffer<name> proj_names;
-        while (p.curr_is_identifier()) {
-            proj_names.push_back(n + p.get_name_val());
-            p.next();
-        }
-        return mk_projections(p.env(), n, proj_names);
-    } else {
-        return mk_projections(p.env(), n);
-    }
-}
-
-static environment telescope_eq_cmd(parser & p) {
-    expr e; level_param_names ls;
-    std::tie(e, ls) = parse_local_expr(p);
-    buffer<expr> t;
-    while (is_pi(e)) {
-        expr local = mk_local(mk_fresh_name(), binding_name(e), binding_domain(e), binder_info());
-        t.push_back(local);
-        e = instantiate(binding_body(e), local);
-    }
-    auto tc = mk_type_checker(p.env());
-    buffer<expr> eqs;
-    mk_telescopic_eq(*tc, t, eqs);
-    for (expr const & eq : eqs) {
-        regular(p.env(), p.ios()) << local_pp_name(eq) << " : " << mlocal_type(eq) << "\n";
-        tc->check(mlocal_type(eq), ls);
-    }
-    return p.env();
-}
-
 static environment local_cmd(parser & p) {
     if (p.curr_is_token_or_id(get_attribute_tk())) {
         p.next();
@@ -475,18 +442,18 @@ static environment local_cmd(parser & p) {
 }
 
 static environment help_cmd(parser & p) {
-    flycheck_information info(p.regular_stream());
+    flycheck_information info(p.ios());
     if (info.enabled()) {
         p.display_information_pos(p.cmd_pos());
-        p.regular_stream() << "help result:\n";
+        p.ios().get_regular_stream() << "help result:\n";
     }
     if (p.curr_is_token_or_id(get_options_tk())) {
         p.next();
         for (auto odecl : get_option_declarations()) {
             auto opt = odecl.second;
-            regular(p.env(), p.ios())
+            p.ios().get_regular_stream()
                 << "  " << opt.get_name() << " (" << opt.kind() << ") "
-                << opt.get_description() << " (default: " << opt.get_default_value() << ")" << endl;
+                << opt.get_description() << " (default: " << opt.get_default_value() << ")" << std::endl;
         }
     } else if (p.curr_is_token_or_id(get_commands_tk())) {
         p.next();
@@ -497,11 +464,11 @@ static environment help_cmd(parser & p) {
             });
         std::sort(ns.begin(), ns.end());
         for (name const & n : ns) {
-            regular(p.env(), p.ios())
-                << "  " << n << ": " << cmds.find(n)->get_descr() << endl;
+            p.ios().get_regular_stream()
+                << "  " << n << ": " << cmds.find(n)->get_descr() << std::endl;
         };
     } else {
-        p.regular_stream()
+        p.ios().get_regular_stream()
             << "help options  : describe available options\n"
             << "help commands : describe available commands\n";
     }
@@ -528,35 +495,11 @@ static environment compile_cmd(parser & p) {
     return p.env();
 }
 
-static environment accessible_cmd(parser & p) {
-    environment const & env = p.env();
-    unsigned total               = 0;
-    unsigned accessible          = 0;
-    unsigned accessible_theorems = 0;
-    env.for_each_declaration([&](declaration const & d) {
-            name const & n = d.get_name();
-            total++;
-            if ((d.is_theorem() || d.is_definition()) &&
-                !is_instance(env, n) && !is_simp_lemma(env, n) && !is_congr_lemma(env, n) &&
-                !is_user_defined_recursor(env, n) && !is_aux_recursor(env, n) &&
-                !is_projection(env, n) && !is_private(env, n) &&
-                !is_user_defined_recursor(env, n) && !is_aux_recursor(env, n) &&
-                !is_subst_relation(env, n) && !is_trans_relation(env, n) &&
-                !is_symm_relation(env, n) && !is_refl_relation(env, n)) {
-                accessible++;
-                if (d.is_theorem())
-                    accessible_theorems++;
-            }
-        });
-    p.regular_stream() << "total: " << total << ", accessible: " << accessible << ", accessible theorems: " << accessible_theorems << "\n";
-    return env;
-}
-
 static void check_expr_and_print(parser & p, expr const & e) {
     environment const & env = p.env();
     type_checker tc(env);
     expr t = tc.check_ignore_undefined_universes(e).first;
-    p.regular_stream() << e << " : " << t << "\n";
+    regular(env, p.ios(), tc.get_type_context()) << e << " : " << t << "\n";
 }
 
 static environment app_builder_cmd(parser & p) {
@@ -607,130 +550,6 @@ static environment app_builder_cmd(parser & p) {
     return env;
 }
 
-static environment refl_cmd(parser & p) {
-    environment const & env = p.env();
-    auto pos = p.pos();
-    app_builder b(env);
-    name relname = p.check_constant_next("invalid #refl command, constant expected");
-    expr e; level_param_names ls;
-    std::tie(e, ls) = parse_local_expr(p);
-    try {
-        expr r = b.mk_refl(relname, e);
-        check_expr_and_print(p, r);
-    } catch (app_builder_exception &) {
-        throw parser_error(sstream() << "failed to build refl proof", pos);
-    }
-    return env;
-}
-
-static environment symm_cmd(parser & p) {
-    environment const & env = p.env();
-    auto pos = p.pos();
-    app_builder b(env);
-    name relname = p.check_constant_next("invalid #symm command, constant expected");
-    expr e; level_param_names ls;
-    std::tie(e, ls) = parse_local_expr(p);
-    try {
-        expr r = b.mk_symm(relname, e);
-        check_expr_and_print(p, r);
-    } catch (app_builder_exception &) {
-        throw parser_error(sstream() << "failed to build symm proof", pos);
-    }
-    return env;
-}
-
-static environment trans_cmd(parser & p) {
-    environment const & env = p.env();
-    auto pos = p.pos();
-    app_builder b(env);
-    name relname = p.check_constant_next("invalid #trans command, constant expected");
-    expr H1, H2; level_param_names ls;
-    std::tie(H1, ls) = parse_local_expr(p);
-    p.check_token_next(get_comma_tk(), "invalid #trans command, ',' expected");
-    std::tie(H2, ls) = parse_local_expr(p);
-    try {
-        expr r = b.mk_trans(relname, H1, H2);
-        check_expr_and_print(p, r);
-    } catch (app_builder_exception &) {
-        throw parser_error(sstream() << "failed to build trans proof", pos);
-    }
-    return env;
-}
-
-enum class congr_kind { Simp, Default, Rel };
-
-static environment congr_cmd_core(parser & p, congr_kind kind) {
-    environment const & env = p.env();
-    auto pos = p.pos();
-    expr e; level_param_names ls;
-    std::tie(e, ls) = parse_local_expr(p);
-    tmp_type_context    ctx(env, p.get_options());
-    app_builder         b(ctx);
-    fun_info_manager    infom(ctx);
-    congr_lemma_manager cm(b, infom);
-    optional<congr_lemma> r;
-    switch (kind) {
-    case congr_kind::Simp:    r = cm.mk_congr_simp(e); break;
-    case congr_kind::Default: r = cm.mk_congr(e); break;
-    case congr_kind::Rel:     r = cm.mk_rel_iff_congr(e); break;
-    }
-    if (!r)
-        throw parser_error("failed to generated congruence lemma", pos);
-    auto out = p.regular_stream();
-    out << "[";
-    bool first = true;
-    for (auto k : r->get_arg_kinds()) {
-        if (!first) out << ", "; else first = false;
-        switch (k) {
-        case congr_arg_kind::Fixed:        out << "fixed"; break;
-        case congr_arg_kind::FixedNoParam: out << "fixed-noparm"; break;
-        case congr_arg_kind::Eq:           out << "eq";    break;
-        case congr_arg_kind::HEq:          out << "heq";    break;
-        case congr_arg_kind::Cast:         out << "cast";  break;
-        }
-    }
-    out << "]\n";
-    out << r->get_proof() << "\n:\n" << r->get_type() << "\n";;
-    type_checker tc(env);
-    expr type = tc.check(r->get_proof(), ls).first;
-    if (!tc.is_def_eq(type, r->get_type()).first)
-        throw parser_error("congruence lemma reported type does not match given type", pos);
-    return env;
-}
-
-static environment congr_simp_cmd(parser & p) {
-    return congr_cmd_core(p, congr_kind::Simp);
-}
-
-static environment congr_cmd(parser & p) {
-    return congr_cmd_core(p, congr_kind::Default);
-}
-
-static environment congr_rel_cmd(parser & p) {
-    return congr_cmd_core(p, congr_kind::Rel);
-}
-
-static environment hcongr_cmd(parser & p) {
-    environment const & env = p.env();
-    auto pos = p.pos();
-    expr e; level_param_names ls;
-    std::tie(e, ls) = parse_local_expr(p);
-    tmp_type_context    ctx(env, p.get_options());
-    app_builder         b(ctx);
-    fun_info_manager    infom(ctx);
-    congr_lemma_manager cm(b, infom);
-    optional<congr_lemma> r = cm.mk_hcongr(e);
-    if (!r)
-        throw parser_error("failed to generated heterogeneous congruence lemma", pos);
-    auto out = p.regular_stream();
-    out << r->get_proof() << "\n:\n" << r->get_type() << "\n";;
-    type_checker tc(env);
-    expr type = tc.check(r->get_proof(), ls).first;
-    if (!tc.is_def_eq(type, r->get_type()).first)
-        throw parser_error("heterogeneous congruence lemma reported type does not match given type", pos);
-    return env;
-}
-
 static environment simplify_cmd(parser & p) {
     name rel = p.check_constant_next("invalid #simplify command, constant expected");
     name ns = p.check_id_next("invalid #simplify command, id expected");
@@ -749,23 +568,25 @@ static environment simplify_cmd(parser & p) {
     }
 
     blast::simp::result r = blast::simplify(rel, e, srss);
+    type_checker tc(p.env());
+    auto out = regular(p.env(), p.ios(), tc.get_type_context());
 
-    flycheck_information info(p.regular_stream());
+    flycheck_information info(p.ios());
     if (info.enabled()) {
         p.display_information_pos(p.cmd_pos());
-        p.regular_stream() << "simplify result:\n";
+        out << "simplify result:\n";
     }
 
     if (!r.has_proof()) {
-        p.regular_stream() << "(refl): " << r.get_new() << endl;
+        out << "(refl): " << r.get_new() << endl;
     } else {
         auto tc = mk_type_checker(p.env());
 
         expr pf_type = tc->check(r.get_proof(), ls).first;
 
-        if (o == 0) p.regular_stream() << r.get_new() << endl;
-        else if (o == 1) p.regular_stream() << r.get_proof() << endl;
-        else p.regular_stream() << pf_type << endl;
+        if (o == 0) out << r.get_new() << endl;
+        else if (o == 1) out << r.get_proof() << endl;
+        else out << pf_type << endl;
     }
 
     return p.env();
@@ -777,7 +598,8 @@ static environment normalizer_cmd(parser & p) {
     std::tie(e, ls) = parse_local_expr(p);
     blast::scope_debug scope(p.env(), p.ios());
     expr r = blast::normalize(e);
-    p.regular_stream() << r << endl;
+    type_checker tc(env);
+    regular(env, p.ios(), tc.get_type_context()) << r << endl;
     return env;
 }
 
@@ -790,11 +612,11 @@ static environment unify_cmd(parser & p) {
     std::tie(e2, ls2) = parse_local_expr(p);
     default_type_context ctx(env, p.get_options());
     bool success = ctx.is_def_eq(e1, e2);
-    flycheck_information info(p.regular_stream());
+    flycheck_information info(p.ios());
     if (info.enabled()) {
         p.display_information_pos(p.cmd_pos());
     }
-    p.regular_stream() << (success ? "success" : "fail") << endl;
+    p.ios().get_regular_stream() << (success ? "success" : "fail") << std::endl;
     return env;
 }
 
@@ -820,13 +642,14 @@ static environment defeq_simplify_cmd(parser & p) {
     if (!tc->is_def_eq(e, e_simp).first) {
         throw parser_error("defeq_simplify result not definitionally equal to input expression", pos);
     }
-    flycheck_information info(p.regular_stream());
+    flycheck_information info(p.ios());
+    auto out = regular(p.env(), p.ios(), tc->get_type_context());
     if (info.enabled()) {
         p.display_information_pos(p.cmd_pos());
-        p.regular_stream() << "defeq_simplify result:\n";
+        out << "defeq_simplify result:\n";
     }
 
-    p.regular_stream() << e_simp << endl;
+    out << e_simp << endl;
     return env;
 }
 
@@ -838,23 +661,23 @@ static environment abstract_expr_cmd(parser & p) {
     congr_lemma_manager congr_lemma(builder, fun_info);
     abstract_expr_manager ae_manager(congr_lemma);
 
-    flycheck_information info(p.regular_stream());
+    std::ostream & out = p.ios().get_regular_stream();
+    flycheck_information info(p.ios());
     if (info.enabled()) p.display_information_pos(p.cmd_pos());
-
     expr e, a, b;
     level_param_names ls, ls1, ls2;
     if (o == 0) {
         // hash
-        if (info.enabled()) p.regular_stream() << "abstract hash: " << endl;
+        if (info.enabled()) out << "abstract hash: " << std::endl;
         std::tie(e, ls) = parse_local_expr(p);
-        p.regular_stream() << ae_manager.hash(e) << endl;
+        out << ae_manager.hash(e) << std::endl;
     } else {
         // is_equal
-        if (info.enabled()) p.regular_stream() << "abstract is_equal: " << endl;
+        if (info.enabled()) out << "abstract is_equal: " << std::endl;
         std::tie(a, ls1) = parse_local_expr(p);
         p.check_token_next(get_comma_tk(), "invalid #abstract_expr command, ',' expected");
         std::tie(b, ls2) = parse_local_expr(p);
-        p.regular_stream() << ae_manager.is_equal(a, b) << endl;
+        out << ae_manager.is_equal(a, b) << std::endl;
     }
     return p.env();
 }
@@ -880,20 +703,8 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("init_quotient",     "initialize quotient type computational rules", init_quotient_cmd));
     add_cmd(r, cmd_info("init_hits",         "initialize builtin HITs", init_hits_cmd));
     add_cmd(r, cmd_info("#erase_cache",      "erase cached definition (for debugging purposes)", erase_cache_cmd));
-    add_cmd(r, cmd_info("#projections",      "generate projections for inductive datatype (for debugging purposes)", projections_cmd));
-    add_cmd(r, cmd_info("#telescope_eq",     "(for debugging purposes)", telescope_eq_cmd));
-    add_cmd(r, cmd_info("#app_builder",      "(for debugging purposes)", app_builder_cmd));
-    add_cmd(r, cmd_info("#refl",             "(for debugging purposes)", refl_cmd));
-    add_cmd(r, cmd_info("#trans",            "(for debugging purposes)", trans_cmd));
-    add_cmd(r, cmd_info("#symm",             "(for debugging purposes)", symm_cmd));
-    add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
-    add_cmd(r, cmd_info("#congr",            "(for debugging purposes)", congr_cmd));
-    add_cmd(r, cmd_info("#hcongr",           "(for debugging purposes)", hcongr_cmd));
-    add_cmd(r, cmd_info("#congr_simp",       "(for debugging purposes)", congr_simp_cmd));
-    add_cmd(r, cmd_info("#congr_rel",        "(for debugging purposes)", congr_rel_cmd));
     add_cmd(r, cmd_info("#normalizer",       "(for debugging purposes)", normalizer_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
-    add_cmd(r, cmd_info("#accessible",       "(for debugging purposes) display number of accessible declarations for blast tactic", accessible_cmd));
     add_cmd(r, cmd_info("#simplify",         "(for debugging purposes) simplify given expression", simplify_cmd));
     add_cmd(r, cmd_info("#defeq_simplify",   "(for debugging purposes) defeq-simplify given expression", defeq_simplify_cmd));
     add_cmd(r, cmd_info("#abstract_expr",    "(for debugging purposes) call abstract expr methods", abstract_expr_cmd));

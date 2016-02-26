@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/justification.h"
 #include "kernel/converter.h"
 #include "kernel/expr_maps.h"
+#include "kernel/abstract_type_context.h"
 
 namespace lean {
 /** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
@@ -69,11 +70,12 @@ expr mk_pi_for(expr const & meta);
 class type_checker {
     typedef expr_bi_struct_map<pair<expr, constraint_seq>> cache;
 
-    /** \brief Interface type_checker <-> macro & normalizer_extension */
-    class type_checker_context : public extension_context {
+    /** \brief Interface type_checker <-> macro & normalizer_extension
+        TODO(Leo): delete this class. It will be subsumed by type_checker_context. */
+    class old_type_checker_context : public extension_context {
         type_checker & m_tc;
     public:
-        type_checker_context(type_checker & tc):m_tc(tc) {}
+        old_type_checker_context(type_checker & tc):m_tc(tc) {}
         virtual environment const & env() const { return m_tc.m_env; }
         virtual pair<expr, constraint_seq> whnf(expr const & e) { return m_tc.whnf(e); }
         virtual pair<bool, constraint_seq> is_def_eq(expr const & e1, expr const & e2, delayed_justification & j) {
@@ -85,6 +87,21 @@ class type_checker {
         virtual optional<expr> is_stuck(expr const & e) { return m_tc.is_stuck(e); }
     };
 
+    class type_checker_context : public abstract_type_context {
+        type_checker & m_tc;
+    public:
+        type_checker_context(type_checker & tc):m_tc(tc) {}
+        virtual environment const & env() const { return m_tc.m_env; }
+        virtual expr whnf(expr const & e) { return m_tc.whnf(e).first; }
+        virtual bool is_def_eq(expr const & e1, expr const & e2) {
+            no_delayed_justification j;
+            return m_tc.is_def_eq(e1, e2, j).first;
+        }
+        virtual expr infer(expr const & e) { return m_tc.infer_type_core(e, true).first; }
+        virtual expr check(expr const & e) { return m_tc.infer_type_core(e, false).first; }
+        virtual optional<expr> is_stuck(expr const & e) { return m_tc.is_stuck(e); }
+    };
+
     environment                m_env;
     std::unique_ptr<converter> m_conv;
     // In the type checker cache, we must take into account binder information.
@@ -92,6 +109,7 @@ class type_checker {
     // The type of (lambda x : A, t)   is (Pi x : A, typeof(t))
     // The type of (lambda {x : A}, t) is (Pi {x : A}, typeof(t))
     cache                      m_infer_type_cache[2];
+    old_type_checker_context   m_old_tc_ctx;
     type_checker_context       m_tc_ctx;
     bool                       m_memoize;
     // temp flag
@@ -112,7 +130,7 @@ class type_checker {
     pair<expr, constraint_seq> infer_type(expr const & e);
     expr infer_type_core(expr const & e, bool infer_only, constraint_seq & cs);
 
-    extension_context & get_extension() { return m_tc_ctx; }
+    extension_context & get_extension() { return m_old_tc_ctx; }
     constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j);
 public:
     /**
@@ -126,6 +144,9 @@ public:
     ~type_checker();
 
     environment const & env() const { return m_env; }
+
+    abstract_type_context & get_type_context() { return m_tc_ctx; }
+
     /**
        \brief Return the type of \c t.
 

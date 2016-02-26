@@ -107,12 +107,14 @@ environment find_cmd(parser & p) {
     buffer<std::string> pos_names, neg_names;
     parse_filters(p, pos_names, neg_names);
     environment env = p.env();
-    auto tc = mk_opaque_type_checker(env);
-    flycheck_information info(p.regular_stream());
+    // TODO(Leo): replace with type_context
+    auto tc  = mk_opaque_type_checker(env);
+    auto out = regular(env, p.ios(), tc->get_type_context());
+    flycheck_information info(p.ios());
     if (info.enabled()) {
         p.display_information_pos(p.cmd_pos());
     }
-    p.regular_stream() << "find_decl result:\n";
+    out << "find_decl result:\n";
 
     unsigned max_steps = get_find_max_steps(p.get_options());
     bool cheap         = !get_find_expensive(p.get_options());
@@ -124,11 +126,11 @@ environment find_cmd(parser & p) {
                             [&](std::string const & neg) { return !is_part_of(neg, d.get_name()); }) &&
                 match_pattern(*tc.get(), e, d, max_steps, cheap)) {
                 found = true;
-                p.regular_stream() << " " << get_decl_short_name(d.get_name(), env) << " : " << d.get_type() << endl;
+                out << " " << get_decl_short_name(d.get_name(), env) << " : " << d.get_type() << endl;
             }
         });
     if (!found)
-        p.regular_stream() << "no matches\n";
+        out << "no matches\n";
     return env;
 }
 

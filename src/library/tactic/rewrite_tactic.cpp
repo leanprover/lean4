@@ -1283,7 +1283,7 @@ class rewrite_fn {
                 return unify_result();
             }
         } catch (kernel_exception & ex) {
-            regular(m_env, m_ios) << ">> " << ex << "\n";
+            regular(m_env, m_ios, m_tc->get_type_context()) << ">> " << ex << "\n";
             add_target_failure(orig_elem, t, ex.what());
             return unify_result();
         } catch (exception & ex) {

@@ -24,8 +24,8 @@ tactic check_expr_tactic(elaborate_fn const & elab, expr const & e,
             expr new_e = std::get<0>(elab(g, ios.get_options(), e, none_expr(), s.get_subst(), false));
             auto tc = mk_type_checker(env);
             expr new_t = tc->infer(new_e).first;
-            auto out = regular(env, ios);
-            flycheck_information info(out);
+            auto out = regular(env, ios, tc->get_type_context());
+            flycheck_information info(out.get_stream(), out.get_options());
             if (info.enabled()) {
                 out << fname << ":" << pos.first << ":" << pos.second << ": information: ";
                 out << "check result:\n";

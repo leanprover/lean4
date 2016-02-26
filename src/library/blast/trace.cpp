@@ -30,7 +30,7 @@ void trace_curr_state() {
     if (lean_is_trace_enabled(name({"blast", "state"}))) {
         std::shared_ptr<output_channel> out(new string_output_channel());
         io_state tmp(ios(), out, out);
-        io_state_stream strm(env(), tmp);
+        io_state_stream strm(env(), tmp, get_type_context());
         curr_state().display(strm);
         std::string new_str = static_cast<string_output_channel*>(out.get())->str();
         if (get_state_str() == new_str)

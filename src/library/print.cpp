@@ -246,7 +246,7 @@ struct print_expr_fn {
 };
 
 formatter_factory mk_print_formatter_factory() {
-    return [](environment const & env, options const & o) { // NOLINT
+    return [](environment const & env, options const & o, abstract_type_context &) { // NOLINT
         return formatter(o, [=](expr const & e, options const &) {
                 std::ostringstream s;
                 print_expr_fn pr(s, env.prop_proof_irrel());

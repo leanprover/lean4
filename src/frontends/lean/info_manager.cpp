@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/choice.h"
 #include "library/scoped_ext.h"
 #include "library/pp_options.h"
+#include "library/type_context.h"
 #include "library/tactic/proof_state.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/info_manager.h"
@@ -628,7 +629,8 @@ struct info_manager::imp {
     void display_core(environment const & env, options const & o, io_state const & ios, unsigned line,
                       optional<unsigned> const & col) {
         m_line_data[line].for_each([&](info_data const & d) {
-                io_state_stream out = regular(env, ios).update_options(o);
+                default_type_context tc(env, o);
+                io_state_stream out = regular(env, ios, tc).update_options(o);
                 if ((!col && d.is_cheap()) || (col && d.get_column() == *col))
                     d.display(out, line);
             });

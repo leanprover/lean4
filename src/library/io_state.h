@@ -34,6 +34,8 @@ public:
     formatter_factory const & get_formatter_factory() const { return m_formatter_factory; }
     output_channel & get_regular_channel() const { return *m_regular_channel; }
     output_channel & get_diagnostic_channel() const { return *m_diagnostic_channel; }
+    std::ostream & get_regular_stream() const { return m_regular_channel->get_stream(); }
+    std::ostream & get_diagnostic_stream() const { return m_diagnostic_channel->get_stream(); }
 
     void set_regular_channel(std::shared_ptr<output_channel> const & out);
     void set_diagnostic_channel(std::shared_ptr<output_channel> const & out);

@@ -55,12 +55,6 @@ public:
     /** \brief Return true iff this state does not have any goals left */
     bool is_final_state() const { return empty(m_goals); }
 
-    /** \remark This pretty printing method creates a fresh formatter object for each goal.
-        Some format objects "purify" local constant names by renaming.
-        The local constants in different goals are independent of each other.
-        So, this trick/hack avoids "unwanted purification".
-    */
-    format pp(environment const & env, io_state const & ios) const;
     format pp(formatter const & fmt) const;
 };
 

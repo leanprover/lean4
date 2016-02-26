@@ -17,12 +17,13 @@ bool is_trace_class_enabled(name const & n);
 #define lean_is_trace_enabled(CName) (::lean::is_trace_enabled() && ::lean::is_trace_class_enabled(CName))
 
 class scope_trace_env {
-    unsigned            m_enable_sz;
-    unsigned            m_disable_sz;
-    environment const * m_old_env;
-    io_state    const * m_old_ios;
+    unsigned                m_enable_sz;
+    unsigned                m_disable_sz;
+    environment const *     m_old_env;
+    io_state    const *     m_old_ios;
+    abstract_type_context * m_old_ctx;
 public:
-    scope_trace_env(environment const & env, io_state const & ios);
+    scope_trace_env(environment const & env, io_state const & ios, abstract_type_context & ctx);
     ~scope_trace_env();
 };
 

@@ -880,7 +880,7 @@ class definition_cmd_fn {
             std::ostringstream msg;
             display_pos(msg);
             msg << " type checking time for " << m_name;
-            timeit timer(m_p.diagnostic_stream().get_stream(), msg.str().c_str(), LEAN_PROFILE_THRESHOLD);
+            timeit timer(m_p.ios().get_diagnostic_stream(), msg.str().c_str(), LEAN_PROFILE_THRESHOLD);
             return ::lean::check(m_env, d);
         } else {
             return ::lean::check(m_env, d);
@@ -1036,7 +1036,7 @@ class definition_cmd_fn {
             std::ostringstream msg;
             display_pos(msg);
             msg << " type elaboration time for " << m_name;
-            timeit timer(m_p.diagnostic_stream().get_stream(), msg.str().c_str(), LEAN_PROFILE_THRESHOLD);
+            timeit timer(m_p.ios().get_diagnostic_stream(), msg.str().c_str(), LEAN_PROFILE_THRESHOLD);
             return m_p.elaborate_type(e, list<expr>(), clear_pre_info);
         } else {
             return m_p.elaborate_type(e, list<expr>(), clear_pre_info);
@@ -1049,7 +1049,7 @@ class definition_cmd_fn {
             std::ostringstream msg;
             display_pos(msg);
             msg << " elaboration time for " << m_name;
-            timeit timer(m_p.diagnostic_stream().get_stream(), msg.str().c_str(), LEAN_PROFILE_THRESHOLD);
+            timeit timer(m_p.ios().get_diagnostic_stream(), msg.str().c_str(), LEAN_PROFILE_THRESHOLD);
             return m_p.elaborate_definition(def_name, type, value);
         } else {
             return m_p.elaborate_definition(def_name, type, value);

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include "kernel/ext_exception.h"
+#include "kernel/abstract_type_context.h"
 #include "library/generic_exception.h"
 #include "library/io_state.h"
 
@@ -19,8 +20,8 @@ protected:
     output_channel &     m_stream;
     io_state_stream(environment const & env, formatter const & fmt, output_channel & s):m_env(env), m_formatter(fmt), m_stream(s) {}
 public:
-    io_state_stream(environment const & env, io_state const & ios, bool regular = true):
-        m_env(env), m_formatter(ios.get_formatter_factory()(env, ios.get_options())),
+    io_state_stream(environment const & env, io_state const & ios, abstract_type_context & ctx, bool regular = true):
+        m_env(env), m_formatter(ios.get_formatter_factory()(env, ios.get_options(), ctx)),
         m_stream(regular ? ios.get_regular_channel() : ios.get_diagnostic_channel()) {}
     std::ostream & get_stream() const { return m_stream.get_stream(); }
     void flush() { get_stream().flush(); }
@@ -30,8 +31,12 @@ public:
     io_state_stream update_options(options const & o) const { return io_state_stream(m_env, m_formatter.update_options(o), m_stream); }
 };
 
-inline io_state_stream regular(environment const & env, io_state const & ios) { return io_state_stream(env, ios, true); }
-inline io_state_stream diagnostic(environment const & env, io_state const & ios) { return io_state_stream(env, ios, false); }
+inline io_state_stream regular(environment const & env, io_state const & ios, abstract_type_context & ctx) {
+    return io_state_stream(env, ios, ctx, true);
+}
+inline io_state_stream diagnostic(environment const & env, io_state const & ios, abstract_type_context & ctx) {
+    return io_state_stream(env, ios, ctx, false);
+}
 
 // hack for using std::endl with channels
 struct endl_class { endl_class() {} };

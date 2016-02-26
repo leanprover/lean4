@@ -324,7 +324,7 @@ class equation_compiler_fn {
 
     environment const & env() const { return m_tc.env(); }
     io_state const & ios() const { return m_ios; }
-    io_state_stream out() const { return regular(env(), ios()); }
+    io_state_stream out() const { return regular(env(), ios(), m_tc.get_type_context()); }
     expr whnf(expr const & e) { return m_tc.whnf(e).first; }
     expr infer_type(expr const & e) { return m_tc.infer(e).first; }
     bool is_def_eq(expr const & e1, expr const & e2) { return m_tc.is_def_eq(e1, e2).first; }

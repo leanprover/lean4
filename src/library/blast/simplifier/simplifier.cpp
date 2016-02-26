@@ -718,7 +718,7 @@ result simplifier::try_congr(expr const & e, user_congr_lemma const & cr) {
     lean_trace(name({"simplifier", "congruence"}),
                expr new_lhs = tmp_tctx->instantiate_uvars_mvars(cr.get_lhs());
                expr new_rhs = tmp_tctx->instantiate_uvars_mvars(cr.get_rhs());
-               diagnostic(env(), ios())
+               diagnostic(env(), ios(), get_type_context())
                << "(" << cr.get_id() << ") "
                << "[" << ppb(new_lhs) << " =?= " << ppb(new_rhs) << "]\n";);
 
@@ -1081,7 +1081,7 @@ result simplifier::fuse(expr const & e) {
                         get_simp_lemmas(g_ac_key));
 
     if (!pf_1_3) {
-        diagnostic(env(), ios()) << ppb(e) << "\n\n =?=\n\n" << ppb(e_grp) << "\n";
+        diagnostic(env(), ios(), get_type_context()) << ppb(e) << "\n\n =?=\n\n" << ppb(e_grp) << "\n";
         throw blast_exception("Failed to prove (1) == (3) during fusion", e);
     }
 
@@ -1090,7 +1090,7 @@ result simplifier::fuse(expr const & e) {
                         get_simp_lemmas(g_som_key));
 
     if (!pf_4_5) {
-        diagnostic(env(), ios()) << ppb(e_grp_ls) << "\n\n =?=\n\n" << ppb(e_fused_ls) << "\n";
+        diagnostic(env(), ios(), get_type_context()) << ppb(e_grp_ls) << "\n\n =?=\n\n" << ppb(e_fused_ls) << "\n";
         throw blast_exception("Failed to prove (4) == (5) during fusion", e);
     }
 

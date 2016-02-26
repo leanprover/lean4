@@ -43,21 +43,20 @@ Author: Leonardo de Moura
 namespace lean {
 static void print_coercions(parser & p, optional<name> const & C) {
     environment const & env = p.env();
-    options opts = p.regular_stream().get_options();
-    opts = opts.update(get_pp_coercions_name(), true);
-    io_state_stream out = p.regular_stream().update_options(opts);
+    options opts       = p.get_options();
+    std::ostream & out = p.ios().get_regular_stream();
     char const * arrow = get_pp_unicode(opts) ? "↣" : ">->";
     for_each_coercion_user(env, [&](name const & C1, name const & c, name const & D) {
             if (!C || *C == C1)
-                out << C1 << " " << arrow << " " << D << " : " << c << endl;
+                out << C1 << " " << arrow << " " << D << " : " << c << std::endl;
         });
     for_each_coercion_sort(env, [&](name const & C1, name const & c) {
             if (!C || *C == C1)
-                out << C1 << " " << arrow << " [sort-class] : " << c << endl;
+                out << C1 << " " << arrow << " [sort-class] : " << c << std::endl;
         });
     for_each_coercion_fun(env, [&](name const & C1, name const & c) {
             if (!C || *C == C1)
-                out << C1 << " " << arrow << " [fun-class] : " << c << endl;
+                out << C1 << " " << arrow << " [fun-class] : " << c << std::endl;
         });
 }
 
@@ -102,20 +101,24 @@ static environment print_axioms(parser & p) {
     if (p.curr_is_identifier()) {
         name c = p.check_constant_next("invalid 'print axioms', constant expected");
         environment new_env = p.reveal_all_theorems();
-        print_axioms_deps(p.env(), p.regular_stream())(c);
+        default_type_context tc(new_env, p.get_options());
+        auto out = regular(new_env, p.ios(), tc);
+        print_axioms_deps(p.env(), out)(c);
         return new_env;
     } else {
         bool has_axioms = false;
         environment const & env = p.env();
+        default_type_context tc(env, p.get_options());
+        auto out = regular(env, p.ios(), tc);
         env.for_each_declaration([&](declaration const & d) {
                 name const & n = d.get_name();
                 if (!d.is_definition() && !env.is_builtin(n) && !p.in_theorem_queue(n)) {
-                    p.regular_stream() << n << " : " << d.get_type() << endl;
+                    out << n << " : " << d.get_type() << endl;
                     has_axioms = true;
                 }
             });
         if (!has_axioms)
-            p.regular_stream() << "no axioms" << endl;
+            out << "no axioms" << endl;
         return p.env();
     }
 }
@@ -124,6 +127,8 @@ static void print_prefix(parser & p) {
     name prefix = p.check_id_next("invalid 'print prefix' command, identifier expected");
     environment const & env = p.env();
     buffer<declaration> to_print;
+    default_type_context tc(env, p.get_options());
+    auto out = regular(env, p.ios(), tc);
     env.for_each_declaration([&](declaration const & d) {
             if (is_prefix_of(prefix, d.get_name())) {
                 to_print.push_back(d);
@@ -131,10 +136,10 @@ static void print_prefix(parser & p) {
         });
     std::sort(to_print.begin(), to_print.end(), [](declaration const & d1, declaration const & d2) { return d1.get_name() < d2.get_name(); });
     for (declaration const & d : to_print) {
-        p.regular_stream() << d.get_name() << " : " << d.get_type() << endl;
+        out << d.get_name() << " : " << d.get_type() << endl;
     }
     if (to_print.empty())
-        p.regular_stream() << "no declaration starting with prefix '" << prefix << "'" << endl;
+        out << "no declaration starting with prefix '" << prefix << "'" << endl;
 }
 
 static void print_fields(parser const & p, name const & S, pos_info const & pos) {
@@ -143,9 +148,11 @@ static void print_fields(parser const & p, name const & S, pos_info const & pos)
         throw parser_error(sstream() << "invalid 'print fields' command, '" << S << "' is not a structure", pos);
     buffer<name> field_names;
     get_structure_fields(env, S, field_names);
+    default_type_context tc(env, p.get_options());
+    auto out = regular(env, p.ios(), tc);
     for (name const & field_name : field_names) {
         declaration d = env.get(field_name);
-        p.regular_stream() << d.get_name() << " : " << d.get_type() << endl;
+        out << d.get_name() << " : " << d.get_type() << endl;
     }
 }
 
@@ -171,10 +178,11 @@ static bool print_parse_table(parser const & p, parse_table const & t, bool nud,
     os = os.update(get_pp_notation_name(), false);
     os = os.update(get_pp_preterm_name(), true);
     ios.set_options(os);
+    default_type_context tc(p.env(), p.get_options());
+    io_state_stream out = regular(p.env(), ios, tc);
     optional<token_table> tt(get_token_table(p.env()));
     t.for_each([&](unsigned num, notation::transition const * ts, list<notation::accepting> const & overloads) {
             if (uses_some_token(num, ts, tokens)) {
-                io_state_stream out = regular(p.env(), ios);
                 if (tactic_table)
                     out << "tactic notation ";
                 found = true;
@@ -196,14 +204,14 @@ static void print_notation(parser & p) {
     if (print_parse_table(p, get_led_table(p.env()), false, tokens))
         found = true;
     if (!found)
-        p.regular_stream() << "no notation" << endl;
+        p.ios().get_regular_stream() << "no notation" << std::endl;
 }
 
 static void print_metaclasses(parser const & p) {
     buffer<name> c;
     get_metaclasses(c);
     for (name const & n : c)
-        p.regular_stream() << "[" << n << "]" << endl;
+        p.ios().get_regular_stream() << "[" << n << "]" << std::endl;
 }
 
 static void print_patterns(parser & p, name const & n) {
@@ -213,10 +221,11 @@ static void print_patterns(parser & p, name const & n) {
             blast::scope_debug scope(p.env(), p.ios());
             auto hi = blast::mk_hi_lemma(n, LEAN_DEFAULT_PRIORITY);
             if (hi.m_multi_patterns) {
-                io_state_stream _out = p.regular_stream();
-                options opts         = _out.get_options();
+                options opts         = p.get_options();
                 opts                 = opts.update_if_undef(get_pp_metavar_args_name(), true);
-                io_state_stream out  = _out.update_options(opts);
+                io_state new_ios(p.ios(), opts);
+                default_type_context tc(p.env(), opts);
+                io_state_stream out = regular(p.env(), new_ios, tc);
                 out << "(multi-)patterns:\n";
                 if (!is_nil(hi.m_mvars)) {
                     expr m = head(hi.m_mvars);
@@ -252,21 +261,22 @@ static name to_user_name(environment const & env, name const & n) {
 static void print_definition(parser const & p, name const & n, pos_info const & pos) {
     environment const & env = p.env();
     declaration d = env.get(n);
-    io_state_stream out = p.regular_stream();
-    options opts        = out.get_options();
+    options opts        = p.get_options();
     opts                = opts.update_if_undef(get_pp_beta_name(), false);
-    io_state_stream new_out = out.update_options(opts);
+    io_state ios(p.ios(), opts);
+    default_type_context tc(env, opts);
+    io_state_stream out = regular(env, ios, tc);
     if (d.is_axiom())
         throw parser_error(sstream() << "invalid 'print definition', theorem '" << to_user_name(env, n)
                            << "' is not available (suggestion: use command 'reveal " << to_user_name(env, n) << "')", pos);
     if (!d.is_definition())
         throw parser_error(sstream() << "invalid 'print definition', '" << to_user_name(env, n) << "' is not a definition", pos);
-    new_out << d.get_value() << endl;
+    out << d.get_value() << endl;
 }
 
 static void print_attributes(parser const & p, name const & n) {
     environment const & env = p.env();
-    io_state_stream out = p.regular_stream();
+    std::ostream & out = p.ios().get_regular_stream();
     buffer<char const *> attrs;
     get_attributes(attrs);
     for (char const * attr : attrs) {
@@ -301,7 +311,8 @@ static void print_attributes(parser const & p, name const & n) {
 
 static void print_inductive(parser const & p, name const & n, pos_info const & pos) {
     environment const & env = p.env();
-    io_state_stream out = p.regular_stream();
+    type_checker tc(env);
+    io_state_stream out = regular(env, p.ios(), tc.get_type_context());
     if (auto idecls = inductive::is_inductive_decl(env, n)) {
         level_param_names ls; unsigned nparams; list<inductive::inductive_decl> dlist;
         std::tie(ls, nparams, dlist) = *idecls;
@@ -330,7 +341,7 @@ static void print_inductive(parser const & p, name const & n, pos_info const & p
 
 static void print_recursor_info(parser & p) {
     name c = p.check_constant_next("invalid 'print [recursor]', constant expected");
-    auto out = p.regular_stream();
+    std::ostream & out = p.ios().get_regular_stream();
     recursor_info info = get_recursor_info(p.env(), c);
     out << "recursor information\n"
         << "  num. parameters:          " << info.get_num_params() << "\n"
@@ -368,7 +379,8 @@ static void print_recursor_info(parser & p) {
 }
 
 static bool print_constant(parser const & p, char const * kind, declaration const & d, bool is_def = false) {
-    io_state_stream out = p.regular_stream();
+    type_checker tc(p.env());
+    auto out = regular(p.env(), p.ios(), tc.get_type_context());
     if (d.is_definition() && is_marked_noncomputable(p.env(), d.get_name()))
         out << "noncomputable ";
     if (is_protected(p.env(), d.get_name()))
@@ -386,7 +398,8 @@ bool print_id_info(parser & p, name const & id, bool show_value, pos_info const 
     // declarations
     try {
         environment const & env = p.env();
-        io_state_stream out = p.regular_stream();
+        type_checker tc(env);
+        auto out = regular(env, p.ios(), tc.get_type_context());
         try {
             list<name> cs = p.to_constants(id, "", pos);
             bool first = true;
@@ -502,14 +515,15 @@ static void print_reducible_info(parser & p, reducible_status s1) {
             if (s1 == s2)
                 r.push_back(n);
         });
-    io_state_stream out = p.regular_stream();
+    std::ostream & out = p.ios().get_regular_stream();
     std::sort(r.begin(), r.end());
     for (name const & n : r)
         out << n << "\n";
 }
 
 static void print_unification_hints(parser & p) {
-    io_state_stream out = p.regular_stream();
+    type_checker tc(p.env());
+    auto out = regular(p.env(), p.ios(), tc.get_type_context());
     unification_hints hints;
     name ns;
     if (p.curr_is_identifier()) {
@@ -526,7 +540,8 @@ static void print_unification_hints(parser & p) {
 }
 
 static void print_defeq_lemmas(parser & p) {
-    io_state_stream out = p.regular_stream();
+    type_checker tc(p.env());
+    auto out = regular(p.env(), p.ios(), tc.get_type_context());
     defeq_simp_lemmas lemmas;
     name ns;
     if (p.curr_is_identifier()) {
@@ -543,7 +558,8 @@ static void print_defeq_lemmas(parser & p) {
 }
 
 static void print_simp_rules(parser & p) {
-    io_state_stream out = p.regular_stream();
+    type_checker tc(p.env());
+    auto out = regular(p.env(), p.ios(), tc.get_type_context());
     blast::scope_debug scope(p.env(), p.ios());
     blast::simp_lemmas s;
     name ns;
@@ -561,14 +577,16 @@ static void print_simp_rules(parser & p) {
 }
 
 static void print_congr_rules(parser & p) {
-    io_state_stream out = p.regular_stream();
+    type_checker tc(p.env());
+    auto out = regular(p.env(), p.ios(), tc.get_type_context());
     blast::scope_debug scope(p.env(), p.ios());
     blast::simp_lemmas s = blast::get_simp_lemmas();
     out << s.pp_congr(out.get_formatter());
 }
 
 static void print_light_rules(parser & p) {
-    io_state_stream out = p.regular_stream();
+    type_checker tc(p.env());
+    auto out = regular(p.env(), p.ios(), tc.get_type_context());
     light_rule_set lrs = get_light_rule_set(p.env());
     out << lrs;
 }
@@ -577,31 +595,29 @@ static void print_elim_lemmas(parser & p) {
     buffer<name> lemmas;
     get_elim_lemmas(p.env(), lemmas);
     for (auto n : lemmas)
-        p.regular_stream() << n << "\n";
+        p.ios().get_regular_stream() << n << "\n";
 }
 
 static void print_intro_lemmas(parser & p) {
-    io_state_stream out = p.regular_stream();
     buffer<name> lemmas;
     get_intro_lemmas(p.env(), lemmas);
     for (auto n : lemmas)
-        out << n << "\n";
+        p.ios().get_regular_stream() << n << "\n";
 }
 
 static void print_backward_lemmas(parser & p) {
-    io_state_stream out = p.regular_stream();
     buffer<name> lemmas;
     get_backward_lemmas(p.env(), lemmas);
     for (auto n : lemmas)
-        out << n << "\n";
+        p.ios().get_regular_stream() << n << "\n";
 }
 
 static void print_no_patterns(parser & p) {
-    io_state_stream out = p.regular_stream();
     auto s = get_no_patterns(p.env());
     buffer<name> ns;
     s.to_buffer(ns);
     std::sort(ns.begin(), ns.end());
+    std::ostream & out = p.ios().get_regular_stream();
     for (unsigned i = 0; i < ns.size(); i++) {
         if (i > 0) out << ", ";
         out << ns[i];
@@ -610,7 +626,7 @@ static void print_no_patterns(parser & p) {
 }
 
 static void print_aliases(parser const & p) {
-    io_state_stream out = p.regular_stream();
+    std::ostream & out = p.ios().get_regular_stream();
     for_each_expr_alias(p.env(), [&](name const & n, list<name> const & as) {
             out << n << " -> {";
             bool first = true;
@@ -623,18 +639,20 @@ static void print_aliases(parser const & p) {
 }
 
 environment print_cmd(parser & p) {
-    flycheck_information info(p.regular_stream());
+    flycheck_information info(p.ios());
+    environment const & env = p.env();
+    type_checker tc(env);
+    auto out = regular(env, p.ios(), tc.get_type_context());
     if (info.enabled()) {
         p.display_information_pos(p.cmd_pos());
-        p.regular_stream() << "print result:\n";
+        out << "print result:\n";
     }
     if (p.curr() == scanner::token_kind::String) {
-        p.regular_stream() << p.get_str_val() << endl;
+        out << p.get_str_val() << endl;
         p.next();
     } else if (p.curr_is_token_or_id(get_raw_tk())) {
         p.next();
         expr e = p.parse_expr();
-        io_state_stream out = p.regular_stream();
         options opts = out.get_options();
         opts = opts.update(get_pp_notation_name(), false);
         out.update_options(opts) << e << endl;
@@ -649,10 +667,10 @@ environment print_cmd(parser & p) {
         print_reducible_info(p, reducible_status::Irreducible);
     } else if (p.curr_is_token_or_id(get_options_tk())) {
         p.next();
-        p.regular_stream() << p.ios().get_options() << endl;
+        out << p.ios().get_options() << endl;
     } else if (p.curr_is_token_or_id(get_trust_tk())) {
         p.next();
-        p.regular_stream() << "trust level: " << p.env().trust_lvl() << endl;
+        out << "trust level: " << p.env().trust_lvl() << endl;
     } else if (p.curr_is_token_or_id(get_definition_tk())) {
         p.next();
         auto pos = p.pos();
@@ -663,7 +681,7 @@ environment print_cmd(parser & p) {
             if (first)
                 first = false;
             else
-                p.regular_stream() << "\n";
+                out << "\n";
             declaration const & d = p.env().get(c);
             if (d.is_theorem()) {
                 print_constant(p, "theorem", d);
@@ -678,14 +696,13 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_instances_tk())) {
         p.next();
         name c = p.check_constant_next("invalid 'print instances', constant expected");
-        environment const & env = p.env();
         for (name const & i : get_class_instances(env, c)) {
-            p.regular_stream() << i << " : " << env.get(i).get_type() << endl;
+            out << i << " : " << env.get(i).get_type() << endl;
         }
         if (list<name> derived_insts = get_class_derived_trans_instances(env, c)) {
-            p.regular_stream() << "Derived transitive instances:\n";
+            out << "Derived transitive instances:\n";
             for (name const & i : derived_insts) {
-                p.regular_stream() << i << " : " << env.get(i).get_type() << endl;
+                out << i << " : " << env.get(i).get_type() << endl;
             }
         }
     } else if (p.curr_is_token_or_id(get_classes_tk())) {
@@ -695,7 +712,7 @@ environment print_cmd(parser & p) {
         get_classes(env, classes);
         std::sort(classes.begin(), classes.end());
         for (name const & c : classes) {
-            p.regular_stream() << c << " : " << env.get(c).get_type() << endl;
+            out << c << " : " << env.get(c).get_type() << endl;
         }
     } else if (p.curr_is_token_or_id(get_prefix_tk())) {
         p.next();

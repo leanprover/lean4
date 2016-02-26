@@ -40,28 +40,44 @@ void display_pos(io_state_stream const & ios, char const * strm_name, unsigned l
     display_pos(ios.get_stream(), ios.get_options(), strm_name, line, pos);
 }
 
+void display_error_pos(std::ostream & out, options const & o, char const * strm_name, unsigned line, unsigned pos) {
+    display_pos(out, o, strm_name, line, pos);
+    out << " error:";
+}
+
 void display_error_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos) {
-    display_pos(ios, strm_name, line, pos);
-    ios << " error:";
+    display_error_pos(ios.get_stream(), ios.get_options(), strm_name, line, pos);
+}
+
+void display_warning_pos(std::ostream & out, options const & o, char const * strm_name, unsigned line, unsigned pos) {
+    display_pos(out, o, strm_name, line, pos);
+    out << " warning:";
 }
 
 void display_warning_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos) {
-    display_pos(ios, strm_name, line, pos);
-    ios << " warning:";
+    display_warning_pos(ios.get_stream(), ios.get_options(), strm_name, line, pos);
+}
+
+void display_information_pos(std::ostream & out, options const & o, char const * strm_name, unsigned line, unsigned pos) {
+    display_pos(out, o, strm_name, line, pos);
+    out << " information:";
 }
 
 void display_information_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos) {
-    display_pos(ios, strm_name, line, pos);
-    ios << " information:";
+    display_information_pos(ios.get_stream(), ios.get_options(), strm_name, line, pos);
+}
+
+void display_error_pos(std::ostream & out, options const & o, pos_info_provider const * p, expr const & e) {
+    if (p) {
+        auto pos = p->get_pos_info_or_some(e);
+        display_error_pos(out, o, p->get_file_name(), pos.first, pos.second);
+    } else {
+        out << "error:";
+    }
 }
 
 void display_error_pos(io_state_stream const & ios, pos_info_provider const * p, expr const & e) {
-    if (p) {
-        auto pos = p->get_pos_info_or_some(e);
-        display_error_pos(ios, p->get_file_name(), pos.first, pos.second);
-    } else {
-        ios << "error:";
-    }
+    display_error_pos(ios.get_stream(), ios.get_options(), p, e);
 }
 
 void display_error_pos(io_state_stream const & ios, pos_info_provider const * p, optional<expr> const & e) {
@@ -91,7 +107,7 @@ static void display_error(io_state_stream const & ios, pos_info_provider const *
 }
 
 void display_error(io_state_stream const & ios, pos_info_provider const * p, throwable const & ex) {
-    flycheck_error err(ios);
+    flycheck_error err(ios.get_stream(), ios.get_options());
     if (auto k_ex = dynamic_cast<ext_exception const *>(&ex)) {
         display_error(ios, p, *k_ex);
     } else if (auto e_ex = dynamic_cast<unifier_exception const *>(&ex)) {

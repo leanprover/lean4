@@ -1368,7 +1368,7 @@ pair<expr, constraint_seq> blast_goal(environment const & env, io_state const & 
     blast::scope_blastenv           scope2(b);
     blast::scope_congruence_closure scope3;
     blast::scope_config             scope4(ios.get_options());
-    scope_trace_env                 scope5(env, ios);
+    scope_trace_env                 scope5(env, ios, blast::get_type_context());
     blast::scope_simp               scope6;
     return b(g);
 }

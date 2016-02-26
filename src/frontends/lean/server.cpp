@@ -560,7 +560,8 @@ void server::show(bool valid) {
 
 void server::display_decl(name const & short_name, name const & long_name, environment const & env, options const & o) {
     declaration const & d = env.get(long_name);
-    io_state_stream out   = regular(env, m_ios).update_options(o);
+    type_checker tc(env);
+    io_state_stream out   = regular(env, m_ios, tc.get_type_context()).update_options(o);
     expr type = d.get_type();
     if (LEAN_FIND_CONSUME_IMPLICIT) {
         while (true) {

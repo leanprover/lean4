@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 namespace lean {
 class expr;
 class environment;
+class abstract_type_context;
 
 name const & get_formatter_hide_full_terms_name();
 bool get_formatter_hide_full_terms(options const & opts);
@@ -26,7 +27,7 @@ public:
     formatter update_options(options const & o) const { return formatter(o, m_fn); }
 };
 
-typedef std::function<formatter(environment const &, options const &)> formatter_factory;
+typedef std::function<formatter(environment const &, options const &, abstract_type_context &)> formatter_factory;
 
 std::ostream & operator<<(std::ostream & out, expr const & e);
 

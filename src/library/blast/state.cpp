@@ -311,7 +311,7 @@ void state::display(io_state_stream const & ios, bool include_inactive) const {
 }
 
 void state::display(environment const & env, io_state const & ios, bool include_inactive) const {
-    formatter fmt = ios.get_formatter_factory()(env, ios.get_options());
+    formatter fmt = ios.get_formatter_factory()(env, ios.get_options(), get_type_context());
     auto & out = ios.get_diagnostic_channel();
     out << mk_pair(to_goal(include_inactive).pp(fmt), ios.get_options()) << "\n";
 }

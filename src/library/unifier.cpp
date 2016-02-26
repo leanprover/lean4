@@ -1269,7 +1269,7 @@ struct unifier_fn {
     void display(std::ostream & out, justification const & j, unsigned indent = 0) {
         for (unsigned i = 0; i < indent; i++)
             out << " ";
-        out << j.pp(mk_print_formatter_factory()(m_env, options()), nullptr, m_subst) << "\n";
+        out << j.pp(mk_print_formatter_factory()(m_env, options(), m_tc->get_type_context()), nullptr, m_subst) << "\n";
         if (j.is_composite()) {
             display(out, composite_child1(j), indent+2);
             display(out, composite_child2(j), indent+2);

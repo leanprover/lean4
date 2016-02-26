@@ -1,7 +1,0 @@
-proj.lean:7:0: error: projection generation, 'or' does not have a single constructor
-proj.lean:9:0: error: projection generation, 'eq.refl' is not an inductive datatype
-proj.lean:10:0: error: projection generation, 'eq' is an indexed inductive datatype family
-proj.lean:11:0: error: projection generation, 'vector' is an indexed inductive datatype family
-proj.lean:16:0: error: generating projection 'point.z', 'point' does not have sufficient data
-proj.lean:20:0: error: invalid object declaration, environment already has an object named 'point.x'
-proj.lean:25:0: error: projection generation, 'funny' is an indexed inductive datatype family

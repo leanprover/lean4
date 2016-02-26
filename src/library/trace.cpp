@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/sexpr/option_declarations.h"
 #include "kernel/environment.h"
+#include "kernel/type_checker.h"
 #include "library/io_state.h"
 #include "library/trace.h"
 
@@ -16,8 +17,9 @@ static name_map<name_set>  * g_trace_aliases = nullptr;
 MK_THREAD_LOCAL_GET_DEF(std::vector<name>, get_enabled_trace_classes);
 MK_THREAD_LOCAL_GET_DEF(std::vector<name>, get_disabled_trace_classes);
 MK_THREAD_LOCAL_GET_DEF(environment, get_dummy_env);
-LEAN_THREAD_PTR(environment, g_env);
-LEAN_THREAD_PTR(io_state,    g_ios);
+LEAN_THREAD_PTR(environment,           g_env);
+LEAN_THREAD_PTR(io_state,              g_ios);
+LEAN_THREAD_PTR(abstract_type_context, g_ctx);
 LEAN_THREAD_VALUE(unsigned,  g_depth, 0);
 
 void register_trace_class(name const & n) {
@@ -43,7 +45,6 @@ static void update_class(std::vector<name> & cs, name const & c) {
         cs.push_back(c);
     }
 }
-
 
 static void enable_trace_class(name const & c) {
     update_class(get_enabled_trace_classes(), c);
@@ -90,13 +91,15 @@ bool is_trace_class_enabled(name const & n) {
     return is_trace_class_set(get_enabled_trace_classes(), n);
 }
 
-scope_trace_env::scope_trace_env(environment const & env, io_state const & ios) {
+scope_trace_env::scope_trace_env(environment const & env, io_state const & ios, abstract_type_context & ctx) {
     m_enable_sz  = get_enabled_trace_classes().size();
     m_disable_sz = get_disabled_trace_classes().size();
     m_old_env    = g_env;
     m_old_ios    = g_ios;
+    m_old_ctx    = g_ctx;
     g_env        = const_cast<environment*>(&env);
     g_ios        = const_cast<io_state*>(&ios);
+    g_ctx        = &ctx;
     options const & opts = ios.get_options();
     name trace("trace");
     opts.for_each([&](name const & n) {
@@ -113,6 +116,7 @@ scope_trace_env::scope_trace_env(environment const & env, io_state const & ios) 
 scope_trace_env::~scope_trace_env() {
     g_env = const_cast<environment*>(m_old_env);
     g_ios = const_cast<io_state*>(m_old_ios);
+    g_ctx = m_old_ctx;
     get_enabled_trace_classes().resize(m_enable_sz);
     get_disabled_trace_classes().resize(m_disable_sz);
 }
@@ -154,6 +158,7 @@ struct silent_ios_helper {
 };
 
 MK_THREAD_LOCAL_GET_DEF(silent_ios_helper, get_silent_ios_helper);
+MK_THREAD_LOCAL_GET(type_checker, get_dummy_tc, get_dummy_env());
 
 scope_trace_silent::scope_trace_silent(bool flag) {
     m_old_ios = g_ios;
@@ -167,9 +172,9 @@ scope_trace_silent::~scope_trace_silent() {
 
 io_state_stream tout() {
     if (g_env) {
-        return diagnostic(*g_env, *g_ios);
+        return diagnostic(*g_env, *g_ios, *g_ctx);
     } else {
-        return diagnostic(get_dummy_env(), get_silent_ios_helper().m_ios);
+        return diagnostic(get_dummy_env(), get_silent_ios_helper().m_ios, get_dummy_tc().get_type_context());
     }
 }
 

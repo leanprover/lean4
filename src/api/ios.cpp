@@ -96,7 +96,8 @@ lean_bool lean_expr_to_pp_string(lean_env env, lean_ios ios, lean_expr e, char c
     check_nonnull(ios);
     check_nonnull(e);
     options const & o = to_io_state_ref(ios).get_options();
-    formatter fmt = to_io_state_ref(ios).get_formatter_factory()(to_env_ref(env), o);
+    type_checker tc(to_env_ref(env));
+    formatter fmt = to_io_state_ref(ios).get_formatter_factory()(to_env_ref(env), o, tc.get_type_context());
     std::ostringstream out;
     out << mk_pair(fmt(to_expr_ref(e)), o);
     *r = mk_string(out.str());
@@ -112,7 +113,8 @@ lean_bool lean_exception_to_pp_string(lean_env env, lean_ios ios, lean_exception
     std::shared_ptr<output_channel> aux(new string_output_channel());
     new_ios.set_regular_channel(aux);
     new_ios.set_diagnostic_channel(aux);
-    io_state_stream ioss(to_env_ref(env), new_ios);
+    type_checker tc(to_env_ref(env));
+    io_state_stream ioss(to_env_ref(env), new_ios, tc.get_type_context());
     throwable * _e = to_exception(e);
     display_error(ioss, nullptr, *_e);
     *r = mk_string(static_cast<string_output_channel const *>(aux.get())->str());

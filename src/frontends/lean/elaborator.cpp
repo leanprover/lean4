@@ -312,9 +312,9 @@ void elaborator::instantiate_info(substitution s) {
         expr meta_type = s.instantiate(type_checker(env()).infer(meta).first);
         goal g(meta, meta_type);
         proof_state ps(goals(g), s, constraints());
-        auto out = regular(env(), ios());
+        auto out = regular(env(), ios(), m_tc->get_type_context());
         print_lean_info_header(out.get_stream());
-        out << ps.pp(env(), ios()) << endl;
+        out << ps.pp(out.get_formatter()) << endl;
         print_lean_info_footer(out.get_stream());
     }
     if (infom()) {
@@ -1886,11 +1886,11 @@ void elaborator::display_unsolved_proof_state(expr const & mvar, proof_state con
     lean_assert(is_metavar(mvar));
     if (!m_displayed_errors.contains(mlocal_name(mvar))) {
         m_displayed_errors.insert(mlocal_name(mvar));
-        auto out = regular(env(), ios());
-        flycheck_error err(out);
+        auto out = regular(env(), ios(), m_tc->get_type_context());
+        flycheck_error err(ios());
         if (!err.enabled() || save_error(pip(), pos)) {
-            display_error_pos(out, pip(), pos);
-            out << " " << msg << "\n" << ps.pp(env(), ios()) << endl;
+            display_error_pos(out.get_stream(), out.get_options(), pip(), pos);
+            out << " " << msg << "\n" << ps.pp(out.get_formatter()) << endl;
         }
     }
 }
@@ -1928,8 +1928,8 @@ optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
         };
         return optional<tactic>(expr_to_tactic(env(), fn, pre_tac, pip()));
     } catch (expr_to_tactic_exception & ex) {
-        auto out = regular(env(), ios());
-        flycheck_error err(out);
+        auto out = regular(env(), ios(), m_tc->get_type_context());
+        flycheck_error err(ios());
         if (!err.enabled() || save_error(pip(), ex.get_expr())) {
             display_error_pos(out, pip(), ex.get_expr());
             out << " " << ex.what();
@@ -1941,8 +1941,8 @@ optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
 }
 
 void elaborator::display_tactic_exception(tactic_exception const & ex, proof_state const & ps, expr const & pre_tac) {
-    auto out = regular(env(), ios());
-    flycheck_error err(out);
+    auto out = regular(env(), ios(), m_tc->get_type_context());
+    flycheck_error err(ios());
     if (optional<expr> const & e = ex.get_main_expr()) {
         if (err.enabled() && !save_error(pip(), *e))
             return;
@@ -1954,9 +1954,9 @@ void elaborator::display_tactic_exception(tactic_exception const & ex, proof_sta
     }
     out << ex.pp(out.get_formatter()) << "\nproof state:\n";
     if (auto curr_ps = ex.get_proof_state())
-        out << curr_ps->pp(env(), ios()) << "\n";
+        out << curr_ps->pp(out.get_formatter()) << "\n";
     else
-        out << ps.pp(env(), ios()) << "\n";
+        out << ps.pp(out.get_formatter()) << "\n";
 }
 
 void elaborator::display_unsolved_subgoals(expr const & mvar, proof_state const & ps, expr const & pos) {
@@ -2049,10 +2049,10 @@ void elaborator::show_goal(proof_state const & ps, expr const & start, expr cons
     if (curr_pos->first < line || (curr_pos->first == line && curr_pos->second < col))
         return;
     m_ctx.reset_show_goal_at();
-    auto out = regular(env(), ios());
+    auto out = regular(env(), ios(), m_tc->get_type_context());
     print_lean_info_header(out.get_stream());
     out << "position " << curr_pos->first << ":" << curr_pos->second << "\n";
-    out << ps.pp(env(), ios()) << "\n";
+    out << ps.pp(out.get_formatter()) << "\n";
     print_lean_info_footer(out.get_stream());
 }
 
@@ -2088,11 +2088,11 @@ bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
                     }
                     if (m_ctx.m_flycheck_goals) {
                         if (auto p = pip()->get_pos_info(ptac)) {
-                            auto out = regular(env(), ios());
-                            flycheck_information info(out);
+                            auto out = regular(env(), ios(), m_tc->get_type_context());
+                            flycheck_information info(ios());
                             if (info.enabled()) {
                                 display_information_pos(out, pip()->get_file_name(), p->first, p->second);
-                                out << " proof state:\n" << ps.pp(env(), ios()) << "\n";
+                                out << " proof state:\n" << ps.pp(out.get_formatter()) << "\n";
                             }
                         }
                     }
@@ -2103,12 +2103,12 @@ bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
                 } catch (exception &) {
                     throw;
                 } catch (throwable & ex) {
-                    auto out = regular(env(), ios());
-                    flycheck_error err(out);
+                    auto out = regular(env(), ios(), m_tc->get_type_context());
+                    flycheck_error err(ios());
                     if (!err.enabled() || save_error(pip(), ptac)) {
                         display_error_pos(out, pip(), ptac);
                         out << ex.what() << "\nproof state:\n";
-                        out << ps.pp(env(), ios()) << "\n";
+                        out << ps.pp(out.get_formatter()) << "\n";
                     }
                     return false;
                 }

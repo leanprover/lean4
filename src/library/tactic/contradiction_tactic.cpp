@@ -70,7 +70,8 @@ tactic contradiction_tactic() {
                                 }
                             }
                         } catch (kernel_exception & ex) {
-                            regular(env, ios) << ex << "\n";
+                            // TODO(Leo)
+                            // regular(env, ios) << ex << "\n";
                         }
                     }
                 }

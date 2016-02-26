@@ -62,11 +62,6 @@ format proof_state::pp(formatter const & fmt) const {
     return pp_core([&]() { return fmt; }, fmt.get_options());
 }
 
-format proof_state::pp(environment const & env, io_state const & ios) const {
-    return pp_core([&]() { return ios.get_formatter_factory()(env, ios.get_options()); },
-                   ios.get_options());
-}
-
 goals map_goals(proof_state const & s, std::function<optional<goal>(goal const & g)> f) {
     return map_filter<goal>(s.get_goals(), [=](goal const & in, goal & out) -> bool {
             check_interrupted();

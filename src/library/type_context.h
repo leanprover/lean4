@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/fresh_name.h"
 #include "util/scoped_map.h"
 #include "kernel/environment.h"
+#include "kernel/abstract_type_context.h"
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
 #include "library/projection.h"
@@ -107,7 +108,7 @@ bool get_class_trans_instances(options const & o);
         2- (all temporary local constants created by auxiliary procedure)    Example: simplifier goes inside of a lambda.
         3- (all internal local constants created by type_context)            Example: when processing is_def_eq.
 */
-class type_context {
+class type_context : public abstract_type_context {
     struct ext_ctx;
     friend struct ext_ctx;
     environment                     m_env;

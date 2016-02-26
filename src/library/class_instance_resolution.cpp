@@ -324,7 +324,7 @@ struct class_instance_elaborator : public choice_iterator {
     void trace(expr const & t, expr const & r) {
         if (!m_C->trace_instances())
             return;
-        auto out = diagnostic(m_C->env(), m_C->ios());
+        auto out = diagnostic(m_C->env(), m_C->ios(), m_C->m_tc->get_type_context());
         if (!m_displayed_trace_header && m_depth == 0) {
             if (auto fname = m_C->get_file_name()) {
                 out << fname << ":";

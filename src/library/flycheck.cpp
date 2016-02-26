@@ -7,12 +7,12 @@ Author: Leonardo de Moura
 #include "library/flycheck.h"
 
 namespace lean {
-flycheck_scope::flycheck_scope(io_state_stream const & ios, char const * kind):
-    m_ios(ios),
-    m_flycheck(m_ios.get_options().get_bool("flycheck", false)) {
-    if (m_flycheck) m_ios << "FLYCHECK_BEGIN " << kind << endl;
+flycheck_scope::flycheck_scope(std::ostream & out, options const & o, char const * kind):
+    m_out(out),
+    m_flycheck(o.get_bool("flycheck", false)) {
+    if (m_flycheck) m_out << "FLYCHECK_BEGIN " << kind << std::endl;
 }
 flycheck_scope::~flycheck_scope() {
-    if (m_flycheck) m_ios << "FLYCHECK_END" << endl;
+    if (m_flycheck) m_out << "FLYCHECK_END" << std::endl;
 }
 }

@@ -329,7 +329,7 @@ public:
 
     /** \brief Create a temporary local constant using the given pretty print name.
         The pretty printing name has not semantic significance. */
-    expr mk_tmp_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info());
+    virtual expr mk_tmp_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) override;
 
     /** \brief Create a temporary local constant based on the domain of the given binding (lambda/Pi) expression */
     expr mk_tmp_local_from_binding(expr const & b) {
@@ -440,10 +440,10 @@ public:
     expr instantiate_uvars_mvars(expr const & e);
 
     /** \brief Put the given term in weak-head-normal-form (modulo is_opaque predicate) */
-    expr whnf(expr const & e);
+    virtual expr whnf(expr const & e) override;
 
     /** \brief Similar to previous method but ignores the is_extra_opaque predicate. */
-    expr relaxed_whnf(expr const & e);
+    virtual expr relaxed_whnf(expr const & e) override;
 
     /** \brief Return true if \c e is a proposition */
     bool is_prop(expr const & e);
@@ -462,9 +462,9 @@ public:
 
         It is precise if \c e1 and \c e2 do not contain metavariables.
      */
-    bool is_def_eq(expr const & e1, expr const & e2);
+    virtual bool is_def_eq(expr const & e1, expr const & e2) override;
     /** \brief Similar to \c is_def_eq, but sets m_relax_is_opaque */
-    bool relaxed_is_def_eq(expr const & e1, expr const & e2);
+    virtual bool relaxed_is_def_eq(expr const & e1, expr const & e2) override;
 
     /** \brief Return the universe level for type A. If A is not a type return none. */
     optional<level> get_level_core(expr const & A);

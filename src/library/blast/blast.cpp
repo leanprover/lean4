@@ -245,11 +245,14 @@ class blastenv {
 
         virtual expr infer_metavar(expr const & m) const override {
             // Remark: we do not tolerate external meta-variables here.
-            lean_assert(is_mref(m));
-            state const & s = m_benv.m_curr_state;
-            metavar_decl const * d = s.get_metavar_decl(m);
-            lean_assert(d);
-            return d->get_type();
+            if (is_mref(m)) {
+                state const & s = m_benv.m_curr_state;
+                metavar_decl const * d = s.get_metavar_decl(m);
+                lean_assert(d);
+                return d->get_type();
+            } else {
+                return mlocal_type(m);
+            }
         }
 
         virtual level mk_uvar() override {

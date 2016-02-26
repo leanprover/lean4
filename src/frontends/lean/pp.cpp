@@ -252,9 +252,9 @@ expr pretty_fn::purify(expr const & e) {
             if (!has_expr_metavar(e) && !has_local(e) && (!m_universes || !has_univ_metavar(e)))
                 return some_expr(e);
             else if (is_metavar(e) && m_purify_metavars)
-                return some_expr(mk_metavar(mk_metavar_name(mlocal_name(e)), mlocal_type(e)));
+                return some_expr(mk_metavar(mk_metavar_name(mlocal_name(e)), m_ctx.infer(e)));
             else if (is_local(e))
-                return some_expr(mk_local(mlocal_name(e), mk_local_name(mlocal_name(e), local_pp_name(e)), mlocal_type(e), local_info(e)));
+                return some_expr(mk_local(mlocal_name(e), mk_local_name(mlocal_name(e), m_ctx.get_local_pp_name(e)), m_ctx.infer(e), local_info(e)));
             else if (is_constant(e))
                 return some_expr(update_constant(e, map(const_levels(e), [&](level const & l) { return purify(l); })));
             else if (is_sort(e))
@@ -321,8 +321,13 @@ bool pretty_fn::is_implicit(expr const & f) {
         return false;
     }
     try {
-        binder_info bi = binding_info(m_tc.ensure_pi(m_tc.infer(f).first).first);
-        return bi.is_implicit() || bi.is_strict_implicit() || bi.is_inst_implicit();
+        expr t = m_ctx.relaxed_whnf(m_ctx.infer(f));
+        if (is_pi(t)) {
+            binder_info bi = binding_info(t);
+            return bi.is_implicit() || bi.is_strict_implicit() || bi.is_inst_implicit();
+        } else {
+            return false;
+        }
     } catch (exception &) {
         return false;
     }
@@ -330,7 +335,10 @@ bool pretty_fn::is_implicit(expr const & f) {
 
 bool pretty_fn::is_prop(expr const & e) {
     try {
-        return m_env.impredicative() && m_tc.is_prop(e).first;
+        if (!m_env.impredicative())
+            return false;
+        expr t = m_ctx.relaxed_whnf(m_ctx.infer(e));
+        return t == mk_Prop();
     } catch (exception &) {
         return false;
     }
@@ -625,13 +633,13 @@ bool pretty_fn::has_implicit_args(expr const & f) {
         return false;
     }
     try {
-        expr type = m_tc.whnf(m_tc.infer(f).first).first;
+        expr type = m_ctx.relaxed_whnf(m_ctx.infer(f));
         while (is_pi(type)) {
             binder_info bi = binding_info(type);
             if (bi.is_implicit() || bi.is_strict_implicit() || bi.is_inst_implicit())
                 return true;
-            expr local = mk_local(mk_fresh_name(), binding_name(type), binding_domain(type), binding_info(type));
-            type = m_tc.whnf(instantiate(binding_body(type), local)).first;
+            expr local = m_ctx.mk_tmp_local(binding_name(type), binding_domain(type), binding_info(type));
+            type = m_ctx.relaxed_whnf(instantiate(binding_body(type), local));
         }
         return false;
     } catch (exception &) {
@@ -950,10 +958,12 @@ bool pretty_fn::match(expr const & p, expr const & e, buffer<optional<expr>> & a
             return true;
         } else {
             try {
-                expr fn_type = m_tc.infer(e_fn).first;
+                expr fn_type = m_ctx.infer(e_fn);
                 unsigned j = 0;
                 for (unsigned i = 0; i < e_args.size(); i++) {
-                    fn_type                  = m_tc.ensure_pi(fn_type).first;
+                    fn_type = m_ctx.relaxed_whnf(fn_type);
+                    if (!is_pi(fn_type))
+                        return false;
                     expr const & body        = binding_body(fn_type);
                     binder_info const & info = binding_info(fn_type);
                     if ((!consume || closed(body)) && is_explicit(info)) {
@@ -966,7 +976,7 @@ bool pretty_fn::match(expr const & p, expr const & e, buffer<optional<expr>> & a
                     fn_type = instantiate(body, e_args[i]);
                 }
                 return j == p_args.size();
-            } catch (exception&) {
+            } catch (exception &) {
                 return false;
             }
         }
@@ -1279,8 +1289,8 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-pretty_fn::pretty_fn(environment const & env, options const & o):
-    m_env(env), m_tc(env), m_token_table(get_token_table(env)) {
+pretty_fn::pretty_fn(environment const & env, options const & o, abstract_type_context & ctx):
+    m_env(env), m_ctx(ctx), m_token_table(get_token_table(env)) {
     set_options_core(o);
     m_meta_prefix   = "M";
     m_next_meta_idx = 1;
@@ -1380,8 +1390,8 @@ format pretty_fn::operator()(expr const & e) {
 }
 
 formatter_factory mk_pretty_formatter_factory() {
-    return [](environment const & env, options const & o, abstract_type_context &) { // NOLINT
-        auto fn_ptr = std::make_shared<pretty_fn>(env, o);
+    return [](environment const & env, options const & o, abstract_type_context & ctx) { // NOLINT
+        auto fn_ptr = std::make_shared<pretty_fn>(env, o, ctx);
         return formatter(o, [=](expr const & e, options const & new_o) {
                 fn_ptr->set_options(new_o);
                 return (*fn_ptr)(e);

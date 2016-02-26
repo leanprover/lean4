@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/options.h"
 #include "util/sexpr/format.h"
 #include "kernel/environment.h"
-#include "kernel/type_checker.h"
+#include "kernel/abstract_type_context.h"
 #include "frontends/lean/token_table.h"
 
 namespace lean {
@@ -38,38 +38,38 @@ public:
         format const & fmt() const { return m_fmt; }
     };
 private:
-    environment         m_env;
-    type_checker        m_tc;
-    token_table const & m_token_table;
-    unsigned            m_num_steps;
-    unsigned            m_depth;
-    name                m_meta_prefix;
-    unsigned            m_next_meta_idx;
-    name_map<name>      m_purify_meta_table;
-    name_set            m_purify_used_metas;
-    name_map<name>      m_purify_local_table;
-    name_set            m_purify_used_locals;
+    environment             m_env;
+    abstract_type_context & m_ctx;
+    token_table const &     m_token_table;
+    unsigned                m_num_steps;
+    unsigned                m_depth;
+    name                    m_meta_prefix;
+    unsigned                m_next_meta_idx;
+    name_map<name>          m_purify_meta_table;
+    name_set                m_purify_used_metas;
+    name_map<name>          m_purify_local_table;
+    name_set                m_purify_used_locals;
     // cached configuration
-    options             m_options;
-    unsigned            m_indent;
-    unsigned            m_max_depth;
-    unsigned            m_max_steps;
-    bool                m_implict;          //!< if true show implicit arguments
-    bool                m_unicode;          //!< if true use unicode chars
-    bool                m_coercion;         //!< if true show coercions
-    bool                m_num_nat_coe;      //!< truen when !m_coercion && env has coercion from num -> nat
-    bool                m_notation;
-    bool                m_universes;
-    bool                m_full_names;
-    bool                m_private_names;
-    bool                m_metavar_args;
-    bool                m_purify_metavars;
-    bool                m_purify_locals;
-    bool                m_beta;
-    bool                m_numerals;
-    bool                m_abbreviations;
-    bool                m_hide_full_terms;
-    bool                m_preterm;
+    options                 m_options;
+    unsigned                m_indent;
+    unsigned                m_max_depth;
+    unsigned                m_max_steps;
+    bool                    m_implict;          //!< if true show implicit arguments
+    bool                    m_unicode;          //!< if true use unicode chars
+    bool                    m_coercion;         //!< if true show coercions
+    bool                    m_num_nat_coe;      //!< truen when !m_coercion && env has coercion from num -> nat
+    bool                    m_notation;
+    bool                    m_universes;
+    bool                    m_full_names;
+    bool                    m_private_names;
+    bool                    m_metavar_args;
+    bool                    m_purify_metavars;
+    bool                    m_purify_locals;
+    bool                    m_beta;
+    bool                    m_numerals;
+    bool                    m_abbreviations;
+    bool                    m_hide_full_terms;
+    bool                    m_preterm;
 
     name mk_metavar_name(name const & m);
     name mk_local_name(name const & n, name const & suggested);
@@ -122,7 +122,7 @@ private:
     void set_options_core(options const & o);
 
 public:
-    pretty_fn(environment const & env, options const & o);
+    pretty_fn(environment const & env, options const & o, abstract_type_context & ctx);
     result pp(expr const & e, bool ignore_hide = false);
     void set_options(options const & o);
     options const & get_options() const { return m_options; }

@@ -487,69 +487,6 @@ static environment init_hits_cmd(parser & p) {
     return module::declare_hits(p.env());
 }
 
-static environment compile_cmd(parser & p) {
-    name n = p.check_constant_next("invalid #compile command, constant expected");
-    declaration d = p.env().get(n);
-    buffer<name> aux_decls;
-    preprocess_rec(p.env(), d, aux_decls);
-    return p.env();
-}
-
-static void check_expr_and_print(parser & p, expr const & e) {
-    environment const & env = p.env();
-    type_checker tc(env);
-    expr t = tc.check_ignore_undefined_universes(e).first;
-    regular(env, p.ios(), tc.get_type_context()) << e << " : " << t << "\n";
-}
-
-static environment app_builder_cmd(parser & p) {
-    environment const & env = p.env();
-    auto pos = p.pos();
-    app_builder b(env);
-    name c = p.check_constant_next("invalid #app_builder command, constant expected");
-    bool has_mask = false;
-    buffer<bool> mask;
-    if (p.curr_is_token(get_lbracket_tk())) {
-        p.next();
-        has_mask = true;
-        while (true) {
-            name flag = p.check_constant_next("invalid #app_builder command, constant (true, false) expected");
-            mask.push_back(flag == get_true_name());
-            if (!p.curr_is_token(get_comma_tk()))
-                break;
-            p.next();
-        }
-        p.check_token_next(get_rbracket_tk(), "invalid #app_builder command, ']' expected");
-    }
-
-    buffer<expr> args;
-    while (true) {
-        expr e; level_param_names ls;
-        std::tie(e, ls) = parse_local_expr(p);
-        args.push_back(e);
-        if (!p.curr_is_token(get_comma_tk()))
-            break;
-        p.next();
-    }
-
-    if (has_mask && args.size() > mask.size())
-        throw parser_error(sstream() << "invalid #app_builder command, too many arguments", pos);
-
-    optional<expr> r;
-    if (has_mask)
-        r = b.mk_app(c, mask.size(), mask.data(), args.data());
-    else
-        r = b.mk_app(c, args.size(), args.data());
-
-    if (r) {
-        check_expr_and_print(p, *r);
-    } else {
-        throw parser_error(sstream() << "failed to build application for '" << c << "'", pos);
-    }
-
-    return env;
-}
-
 static environment simplify_cmd(parser & p) {
     name rel = p.check_constant_next("invalid #simplify command, constant expected");
     name ns = p.check_id_next("invalid #simplify command, id expected");

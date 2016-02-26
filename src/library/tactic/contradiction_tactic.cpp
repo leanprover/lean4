@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 tactic contradiction_tactic() {
-    auto fn = [=](environment const & env, io_state const & ios, proof_state const & s) {
+    auto fn = [=](environment const & env, io_state const &, proof_state const & s) {
         goals const & gs = s.get_goals();
         if (empty(gs)) {
             throw_no_goal_if_enabled(s);

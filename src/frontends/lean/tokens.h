@@ -108,7 +108,6 @@ name const & get_unfold_hints_bracket_tk();
 name const & get_unfold_hints_tk();
 name const & get_coercion_tk();
 name const & get_reducible_tk();
-name const & get_quasireducible_tk();
 name const & get_semireducible_tk();
 name const & get_irreducible_tk();
 name const & get_parsing_only_tk();

@@ -11,7 +11,6 @@ namespace lean {
 void tmp_type_context::init(environment const & env, reducible_behavior b) {
     switch (b) {
     case UnfoldReducible:      m_opaque_pred = mk_not_reducible_pred(env);      break;
-    case UnfoldQuasireducible: m_opaque_pred = mk_not_quasireducible_pred(env); break;
     case UnfoldSemireducible:  m_opaque_pred = mk_irreducible_pred(env);        break;
     }
 }

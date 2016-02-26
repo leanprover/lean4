@@ -20,7 +20,7 @@ namespace iso
     (left_inverse  : inverse ∘ f = id)
     (right_inverse : f ∘ inverse = id)
 
-  attribute is_iso.inverse [quasireducible]
+  attribute is_iso.inverse [reducible]
 
   attribute is_iso [multiple_instances]
   open split_mono split_epi is_iso

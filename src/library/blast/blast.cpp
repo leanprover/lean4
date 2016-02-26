@@ -608,8 +608,7 @@ public:
     blastenv(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds):
         m_env(env), m_ios(ios), m_buffer_ios(ios),
         m_lemma_hints(to_name_set(ls)), m_unfold_hints(to_name_set(ds)),
-        // TODO(Leo): quasireducible in the following line is a temporary hack.
-        m_not_reducible_pred(mk_not_quasireducible_pred(env)),
+        m_not_reducible_pred(mk_not_reducible_pred(env)),
         m_class_pred(mk_class_pred(env)),
         m_instance_pred(mk_instance_pred(env)),
         m_is_relation_pred(mk_is_relation_pred(env)),

@@ -46,7 +46,7 @@ syn keyword leanConstant → ∃ ∀
 " modifiers (pragmas)
 syn keyword leanModifier contained containedin=leanBracketEncl persistent notation visible instance trans_instance class parsing_only
 syn keyword leanModifier contained containedin=leanBracketEncl coercion unfold_full constructor reducible irreducible semireducible
-syn keyword leanModifier contained containedin=leanBracketEncl quasireducible wf whnf multiple_instances none decls declarations coercions
+syn keyword leanModifier contained containedin=leanBracketEncl wf whnf multiple_instances none decls declarations coercions
 syn keyword leanModifier contained containedin=leanBracketEncl classes symm subst refl trans simp congr notations abbreviations
 syn keyword leanModifier contained containedin=leanBracketEncl begin_end_hints tactic_hints reduce_hints unfold_hints aliases eqv
 syn keyword leanModifier contained containedin=leanBracketEncl localrefinfo

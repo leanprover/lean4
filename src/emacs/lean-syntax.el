@@ -53,7 +53,7 @@
   (--map (s-concat "[" it "]")
          '("persistent" "notation" "visible" "instance" "trans_instance"
            "class" "parsing_only" "coercion" "unfold_full" "constructor"
-           "reducible" "irreducible" "semireducible" "quasireducible" "wf"
+           "reducible" "irreducible" "semireducible" "wf"
            "whnf" "multiple_instances" "none" "decl" "declaration"
            "relation" "symm" "subst" "refl" "trans" "simp" "congr"
            "backward" "forward" "no_pattern" "begin_end" "tactic" "abbreviation"

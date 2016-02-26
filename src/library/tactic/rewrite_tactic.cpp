@@ -1594,7 +1594,7 @@ class rewrite_fn {
     }
 
     type_checker_ptr mk_tc(bool full) {
-        auto aux_pred = full ? mk_irreducible_pred(m_env) : mk_not_quasireducible_pred(m_env);
+        auto aux_pred = full ? mk_irreducible_pred(m_env) : mk_not_reducible_pred(m_env);
         return mk_type_checker(m_env, [=](name const & n) {
                 return aux_pred(n) && !is_numeral_const_name(n);
             });

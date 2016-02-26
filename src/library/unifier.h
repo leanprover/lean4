@@ -29,7 +29,7 @@ unify_status unify_simple(substitution & s, expr const & lhs, expr const & rhs, 
 unify_status unify_simple(substitution & s, level const & lhs, level const & rhs, justification const & j);
 unify_status unify_simple(substitution & s, constraint const & c);
 
-enum class unifier_kind { Cheap, VeryConservative, Conservative, Liberal };
+enum class unifier_kind { Cheap, Conservative, Liberal };
 
 struct unifier_config {
     bool     m_use_exceptions;
@@ -40,15 +40,10 @@ struct unifier_config {
     // If m_discard is false, unify returns the set of constraints that could not be handled.
     bool     m_discard;
     // If m_mind == Conservative, then the following restrictions are imposed:
-    //     - All constants that are not at least marked as Quasireducible as treated as
+    //     - All constants that are not at least marked as Semireducible are treated as
     //       opaque.
     //     - Disables case-split on delta-delta constraints.
     //     - Disables reduction case-split on flex-rigid constraints.
-    //
-    // If m_kind == VeryConservative, then
-    //     - More restrictive than Conservative,
-    //     - All constants that are not at least marked as Reducible as treated as
-    //       opaque.
     //
     // If m_kind == Cheap is true, then expensive case-analysis is not performed (e.g., delta).
     // It is more restrictive than VeryConservative

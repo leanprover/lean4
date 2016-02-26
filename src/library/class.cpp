@@ -250,17 +250,17 @@ bool is_class(environment const & env, name const & c) {
 }
 
 type_checker_ptr mk_class_type_checker(environment const & env, bool conservative) {
-    auto pred = conservative ? mk_not_quasireducible_pred(env) : mk_irreducible_pred(env);
+    auto pred = conservative ? mk_not_reducible_pred(env) : mk_irreducible_pred(env);
     class_state s = class_ext::get_state(env);
     return mk_type_checker(env, [=](name const & n) {
             return s.m_instances.contains(n) || pred(n);
         });
 }
 
-static environment set_quasireducible_if_def(environment const & env, name const & n, name const & ns, bool persistent) {
+static environment set_reducible_if_def(environment const & env, name const & n, name const & ns, bool persistent) {
     declaration const & d = env.get(n);
     if (d.is_definition() && !d.is_theorem())
-        return set_reducible(env, n, reducible_status::Quasireducible, ns, persistent);
+        return set_reducible(env, n, reducible_status::Reducible, ns, persistent);
     else
         return env;
 }
@@ -279,7 +279,7 @@ environment add_instance(environment const & env, name const & n, unsigned prior
     check_is_class(env, c);
     environment new_env = class_ext::add_entry(env, get_dummy_ios(), class_entry(class_entry_kind::Instance, c, n, priority),
                                                ns, persistent);
-    return set_quasireducible_if_def(new_env, n, ns, persistent);
+    return set_reducible_if_def(new_env, n, ns, persistent);
 }
 
 static name * g_source = nullptr;
@@ -315,11 +315,11 @@ environment add_trans_instance(environment const & env, name const & n, unsigned
     environment new_env = new_env_insts.first;
     new_env = class_ext::add_entry(new_env, get_dummy_ios(),
                                    class_entry::mk_trans_inst(src_tgt.first, src_tgt.second, n, priority), ns, persistent);
-    new_env = set_quasireducible_if_def(new_env, n, ns, persistent);
+    new_env = set_reducible_if_def(new_env, n, ns, persistent);
     for (tc_edge const & edge : new_env_insts.second) {
         new_env = class_ext::add_entry(new_env, get_dummy_ios(),
                                        class_entry::mk_derived_trans_inst(edge.m_from, edge.m_to, edge.m_cnst), ns, persistent);
-        new_env = set_reducible(new_env, edge.m_cnst, reducible_status::Quasireducible, ns, persistent);
+        new_env = set_reducible(new_env, edge.m_cnst, reducible_status::Reducible, ns, persistent);
         new_env = add_protected(new_env, edge.m_cnst);
     }
     return new_env;

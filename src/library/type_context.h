@@ -533,7 +533,7 @@ public:
 class default_type_context : public type_context {
     typedef rb_map<unsigned, level, unsigned_cmp> uassignment;
     typedef rb_map<unsigned, expr,  unsigned_cmp> eassignment;
-    name_predicate            m_not_quasireducible_pred;
+    name_predicate            m_not_reducible_pred;
 
     struct assignment {
         uassignment m_uassignment;
@@ -570,7 +570,7 @@ public:
     default_type_context(environment const & env, options const & o,
                            list<expr> const & insts = list<expr>(), bool multiple_instances = false);
     virtual ~default_type_context();
-    virtual bool is_extra_opaque(name const & n) const { return m_not_quasireducible_pred(n); }
+    virtual bool is_extra_opaque(name const & n) const { return m_not_reducible_pred(n); }
     virtual bool ignore_universe_def_eq(level const & l1, level const & l2) const;
     virtual bool is_uvar(level const & l) const;
     virtual bool is_mvar(expr const & e) const;

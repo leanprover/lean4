@@ -256,7 +256,7 @@ namespace functor
     definition eq_of_iso_ob (η : F ≅ G) (c : C) : F c = G c :=
     by apply eq_of_iso; apply componentwise_iso; exact η
 
-    local attribute functor.to_fun_hom [quasireducible]
+    local attribute functor.to_fun_hom [reducible]
     definition eq_of_iso (η : F ≅ G) : F = G :=
     begin
     fapply functor_eq,

@@ -91,7 +91,7 @@ exists.intro x
      and.intro (and.left this) (lt_of_not_ge (and.right this)))
 
 section
-local attribute mem [quasireducible]
+local attribute mem [reducible]
 -- TODO: is there a better place to put this?
 proposition image_neg_eq (X : set ℝ) : (λ x, -x) ' X = {x | -x ∈ X} :=
 set.ext (take x, iff.intro

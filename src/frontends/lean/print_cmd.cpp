@@ -644,9 +644,6 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_reducible_tk())) {
         p.next();
         print_reducible_info(p, reducible_status::Reducible);
-    } else if (p.curr_is_token_or_id(get_quasireducible_tk())) {
-        p.next();
-        print_reducible_info(p, reducible_status::Quasireducible);
     } else if (p.curr_is_token_or_id(get_irreducible_tk())) {
         p.next();
         print_reducible_info(p, reducible_status::Irreducible);

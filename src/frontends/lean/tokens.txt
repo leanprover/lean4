@@ -101,7 +101,6 @@ unfold_hints_bracket [unfold_hints]
 unfold_hints unfold_hints
 coercion     [coercion]
 reducible    [reducible]
-quasireducible [quasireducible]
 semireducible [semireducible]
 irreducible  [irreducible]
 parsing_only [parsing_only]

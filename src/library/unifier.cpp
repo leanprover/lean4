@@ -457,17 +457,13 @@ struct unifier_fn {
             m_tc = mk_opaque_type_checker(env);
             m_flex_rigid_tc = m_tc;
             break;
-        case unifier_kind::VeryConservative:
-            m_tc = mk_type_checker(env, UnfoldReducible);
-            m_flex_rigid_tc = m_tc;
-            break;
         case unifier_kind::Conservative:
-            m_tc = mk_type_checker(env, UnfoldQuasireducible);
+            m_tc = mk_type_checker(env, UnfoldReducible);
             m_flex_rigid_tc = m_tc;
             break;
         case unifier_kind::Liberal:
             m_tc = mk_type_checker(env);
-            m_flex_rigid_tc = mk_type_checker(env, UnfoldQuasireducible);
+            m_flex_rigid_tc = mk_type_checker(env, UnfoldReducible);
             break;
         default:
             lean_unreachable();
@@ -1694,7 +1690,7 @@ struct unifier_fn {
         expr lhs_fn     = get_app_fn(lhs);
         lean_assert(is_constant(lhs_fn));
         declaration d   = *m_env.find(const_name(lhs_fn));
-        return (m_config.m_kind == unifier_kind::Liberal && (module::is_definition(m_env, d.get_name()) || is_at_least_quasireducible(m_env, d.get_name())));
+        return (m_config.m_kind == unifier_kind::Liberal && (module::is_definition(m_env, d.get_name()) || is_reducible(m_env, d.get_name())));
     }
 
     /**

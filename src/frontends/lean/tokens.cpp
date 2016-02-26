@@ -106,7 +106,6 @@ static name const * g_unfold_hints_bracket_tk = nullptr;
 static name const * g_unfold_hints_tk = nullptr;
 static name const * g_coercion_tk = nullptr;
 static name const * g_reducible_tk = nullptr;
-static name const * g_quasireducible_tk = nullptr;
 static name const * g_semireducible_tk = nullptr;
 static name const * g_irreducible_tk = nullptr;
 static name const * g_parsing_only_tk = nullptr;
@@ -257,7 +256,6 @@ void initialize_tokens() {
     g_unfold_hints_tk = new name{"unfold_hints"};
     g_coercion_tk = new name{"[coercion]"};
     g_reducible_tk = new name{"[reducible]"};
-    g_quasireducible_tk = new name{"[quasireducible]"};
     g_semireducible_tk = new name{"[semireducible]"};
     g_irreducible_tk = new name{"[irreducible]"};
     g_parsing_only_tk = new name{"[parsing_only]"};
@@ -409,7 +407,6 @@ void finalize_tokens() {
     delete g_unfold_hints_tk;
     delete g_coercion_tk;
     delete g_reducible_tk;
-    delete g_quasireducible_tk;
     delete g_semireducible_tk;
     delete g_irreducible_tk;
     delete g_parsing_only_tk;
@@ -560,7 +557,6 @@ name const & get_unfold_hints_bracket_tk() { return *g_unfold_hints_bracket_tk; 
 name const & get_unfold_hints_tk() { return *g_unfold_hints_tk; }
 name const & get_coercion_tk() { return *g_coercion_tk; }
 name const & get_reducible_tk() { return *g_reducible_tk; }
-name const & get_quasireducible_tk() { return *g_quasireducible_tk; }
 name const & get_semireducible_tk() { return *g_semireducible_tk; }
 name const & get_irreducible_tk() { return *g_irreducible_tk; }
 name const & get_parsing_only_tk() { return *g_parsing_only_tk; }

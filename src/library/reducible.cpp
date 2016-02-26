@@ -73,12 +73,6 @@ void initialize_reducible() {
                        },
                        [](environment const & env, name const & d) { return get_reducible_status(env, d) == reducible_status::Reducible; });
 
-    register_attribute("quasireducible", "quasireducible",
-                       [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
-                           return set_reducible(env, d, reducible_status::Quasireducible, ns, persistent);
-                       },
-                       [](environment const & env, name const & d) { return get_reducible_status(env, d) == reducible_status::Quasireducible; });
-
     register_attribute("semireducible", "semireducible",
                        [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
                            return set_reducible(env, d, reducible_status::Semireducible, ns, persistent);
@@ -91,11 +85,8 @@ void initialize_reducible() {
                        },
                        [](environment const & env, name const & d) { return get_reducible_status(env, d) == reducible_status::Irreducible; });
 
-    register_incompatible("reducible", "quasireducible");
     register_incompatible("reducible", "semireducible");
     register_incompatible("reducible", "irreducible");
-    register_incompatible("quasireducible", "semireducible");
-    register_incompatible("quasireducible", "irreducible");
     register_incompatible("semireducible", "irreducible");
 }
 
@@ -126,23 +117,10 @@ reducible_status get_reducible_status(environment const & env, name const & n) {
     return get_status(s, n);
 }
 
-bool is_at_least_quasireducible(environment const & env, name const & n) {
-    reducible_status r = get_reducible_status(env, n);
-    return r == reducible_status::Reducible || r == reducible_status::Quasireducible;
-}
-
 name_predicate mk_not_reducible_pred(environment const & env) {
     reducible_state m_state = reducible_ext::get_state(env);
     return [=](name const & n) { // NOLINT
         return get_status(m_state, n) != reducible_status::Reducible;
-    };
-}
-
-name_predicate mk_not_quasireducible_pred(environment const & env) {
-    reducible_state m_state = reducible_ext::get_state(env);
-    return [=](name const & n) { // NOLINT
-        auto r = get_status(m_state, n);
-        return r != reducible_status::Reducible && r != reducible_status::Quasireducible;
     };
 }
 
@@ -157,8 +135,6 @@ type_checker_ptr mk_type_checker(environment const & env, reducible_behavior rb)
     switch (rb) {
     case UnfoldReducible:
         return mk_type_checker(env, mk_not_reducible_pred(env));
-    case UnfoldQuasireducible:
-        return mk_type_checker(env, mk_not_quasireducible_pred(env));
     case UnfoldSemireducible:
         return mk_type_checker(env, mk_irreducible_pred(env));
     }

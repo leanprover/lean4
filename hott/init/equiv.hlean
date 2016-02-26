@@ -21,7 +21,7 @@ mk' ::
   (left_inv : Πa, inv (f a) = a)
   (adj : Πx, right_inv (f x) = ap f (left_inv x))
 
-attribute is_equiv.inv [quasireducible]
+attribute is_equiv.inv [reducible]
 
 -- A more bundled version of equivalence
 structure equiv (A B : Type) :=

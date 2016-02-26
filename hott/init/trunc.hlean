@@ -29,8 +29,8 @@ namespace is_trunc
   -/
   notation `-1` := trunc_index.succ trunc_index.minus_two -- ISSUE: -1 gets printed as -2.+1?
   notation `-2` := trunc_index.minus_two
-  postfix ` .+1`:(max+1) := trunc_index.succ
-  postfix ` .+2`:(max+1) := λn, (n .+1 .+1)
+  postfix `.+1`:(max+1) := trunc_index.succ
+  postfix `.+2`:(max+1) := λn, (n .+1 .+1)
   notation `ℕ₋₂` := trunc_index -- input using \N-2
 
   definition has_zero_trunc_index [instance] [priority 2000] : has_zero ℕ₋₂ :=
@@ -50,7 +50,7 @@ namespace is_trunc
     (trunc_index.cases_on n -2 (λn', (trunc_index.cases_on n' -2 id)))
     (λm', trunc_index.cases_on m'
       (trunc_index.cases_on n -2 id)
-      (trunc_index.rec n (λn' r, succ r)))
+      (add_plus_two n))
 
   /- we give a weird name to the reflexivity step to avoid overloading le.refl
      (which can be used if types.trunc is imported) -/
@@ -64,7 +64,7 @@ namespace is_trunc
   has_le.mk trunc_index.le
 
   attribute trunc_index.add [reducible]
-  infix `+2+`:65 := trunc_index.add_plus_two
+  infix ` +2+ `:65 := trunc_index.add_plus_two
   definition has_add_trunc_index [instance] [priority 2000] : has_add ℕ₋₂ :=
   has_add.mk trunc_index.add
 
@@ -74,7 +74,8 @@ namespace is_trunc
   definition add_two [reducible] (n : ℕ₋₂) : ℕ :=
   trunc_index.rec_on n nat.zero (λ n k, nat.succ k)
 
-  postfix ` .-2`:(max+1) := sub_two
+  postfix `.-2`:(max+1) := sub_two
+  postfix `.-1`:(max+1) := λn, (n .-2 .+1)
 
   definition trunc_index.of_nat [coercion] [reducible] (n : ℕ) : ℕ₋₂ :=
   n.-2.+2

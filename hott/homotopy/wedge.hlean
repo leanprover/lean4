@@ -7,7 +7,7 @@ The Wedge Sum of Two pType Types
 -/
 import hit.pointed_pushout .connectedness
 
-open eq pushout pointed pType unit
+open eq pushout pointed unit is_trunc.trunc_index pType
 
 definition pwedge (A B : Type*) : Type* := ppushout (pconst punit A) (pconst punit B)
 
@@ -34,18 +34,21 @@ open trunc is_trunc function homotopy
 namespace wedge_extension
 section
   -- The wedge connectivity lemma (Lemma 8.6.2)
-  parameters {A B : Type*} (n m : trunc_index)
-             [cA : is_conn n .+2 A] [cB : is_conn m .+2 B]
-             (P : A → B → (m .+1 +2+ n .+1)-Type)
-             (f : Πa : A, P a (Point B))
-             (g : Πb : B, P (Point A) b)
-             (p : f (Point A) = g (Point B))
+  parameters {A B : Type*} (n m : ℕ)
+             [cA : is_conn n A] [cB : is_conn m B]
+             (P : A → B → (m + n)-Type)
+             (f : Πa : A, P a pt)
+             (g : Πb : B, P pt b)
+             (p : f pt = g pt)
 
   include cA cB
-  private definition Q (a : A) : (n .+1)-Type :=
+  private definition Q (a : A) : (n.-1)-Type :=
   trunctype.mk
     (fiber (λs : (Πb : B, P a b), s (Point B)) (f a))
-    (is_conn.elim_general (P a) (f a))
+    abstract begin
+      refine @is_conn.elim_general (m.-1) _ _ _ (λb, trunctype.mk (P a b) _) (f a),
+      rewrite [-succ_add_succ, of_nat_add_of_nat], intro b, apply trunctype.struct
+    end end
 
   private definition Q_sec : Πa : A, Q a :=
   is_conn.elim Q (fiber.mk g p⁻¹)

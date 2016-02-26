@@ -101,14 +101,55 @@ namespace is_trunc
     begin
       induction n with n IH,
       { reflexivity},
-      { apply ap succ IH}
+      { exact ap succ IH}
     end
 
     definition add_two_sub_two (n : ℕ) : add_two (sub_two n) = n :=
     begin
       induction n with n IH,
       { reflexivity},
-      { apply ap nat.succ IH}
+      { exact ap nat.succ IH}
+    end
+
+    definition of_nat_add_plus_two_of_nat (n m : ℕ) : n +2+ m = of_nat (n + m + 2) :=
+    begin
+      induction m with m IH,
+      { reflexivity},
+      { exact ap succ IH}
+    end
+
+    definition of_nat_add_of_nat (n m : ℕ) : of_nat n + of_nat m = of_nat (n + m) :=
+    begin
+      induction m with m IH,
+      { reflexivity},
+      { exact ap succ IH}
+    end
+
+    definition succ_add_plus_two (n m : ℕ₋₂) : n.+1 +2+ m = (n +2+ m).+1 :=
+    begin
+      induction m with m IH,
+      { reflexivity},
+      { exact ap succ IH}
+    end
+
+    definition add_plus_two_succ (n m : ℕ₋₂) : n +2+ m.+1 = (n +2+ m).+1 :=
+    idp
+
+    definition add_succ_succ (n m : ℕ₋₂) : n + m.+2 = n +2+ m :=
+    idp
+
+    definition succ_add_succ (n m : ℕ₋₂) : n.+1 + m.+1 = n +2+ m :=
+    begin
+      cases m with m IH,
+      { reflexivity},
+      { apply succ_add_plus_two}
+    end
+
+    definition succ_succ_add (n m : ℕ₋₂) : n.+2 + m = n +2+ m :=
+    begin
+      cases m with m IH,
+      { reflexivity},
+      { exact !succ_add_succ ⬝ !succ_add_plus_two}
     end
 
     definition succ_sub_two (n : ℕ) : (nat.succ n).-2 = n.-2 .+1 := rfl

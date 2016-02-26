@@ -1,18 +1,18 @@
 /-
 Copyright (c) 2015 Ulrik Buchholtz. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Ulrik Buchholtz
+Authors: Ulrik Buchholtz, Floris van Doorn
 -/
 import types.trunc types.eq types.arrow_2 types.fiber .susp
 
-open eq is_trunc is_equiv nat equiv trunc function fiber funext
+open eq is_trunc is_equiv nat equiv trunc function fiber funext pi
 
 namespace homotopy
 
-  definition is_conn [reducible] (n : trunc_index) (A : Type) : Type :=
+  definition is_conn [reducible] (n : ℕ₋₂) (A : Type) : Type :=
   is_contr (trunc n A)
 
-  definition is_conn_equiv_closed (n : trunc_index) {A B : Type}
+  definition is_conn_equiv_closed (n : ℕ₋₂) {A B : Type}
     : A ≃ B → is_conn n A → is_conn n B :=
   begin
     intros H C,
@@ -21,12 +21,12 @@ namespace homotopy
     assumption
   end
 
-  definition is_conn_map (n : trunc_index) {A B : Type} (f : A → B) : Type :=
+  definition is_conn_map (n : ℕ₋₂) {A B : Type} (f : A → B) : Type :=
   Πb : B, is_conn n (fiber f b)
 
   namespace is_conn_map
   section
-    parameters {n : trunc_index} {A B : Type} {h : A → B}
+    parameters {n : ℕ₋₂} {A B : Type} {h : A → B}
                (H : is_conn_map n h) (P : B → n -Type)
 
     private definition rec.helper : (Πa : A, P (h a)) → Πb : B, trunc n (fiber h b) → P b :=
@@ -57,14 +57,14 @@ namespace homotopy
   end
 
   section
-    parameters {n k : trunc_index} {A B : Type} {f : A → B}
+    parameters {n k : ℕ₋₂} {A B : Type} {f : A → B}
                (H : is_conn_map n f) (P : B → (n +2+ k)-Type)
 
     include H
     -- Lemma 8.6.1
-    proposition elim_general (t : Πa : A, P (f a))
-      : is_trunc k (fiber (λs : (Πb : B, P b), (λa, s (f a))) t) :=
+    proposition elim_general : is_trunc_fun k (pi_functor_left f P) :=
     begin
+      intro t,
       induction k with k IH,
       { apply is_contr_fiber_of_is_equiv, apply is_conn_map.rec, exact H },
       { apply is_trunc_succ_intro,
@@ -98,11 +98,12 @@ namespace homotopy
                            (@is_trunc_eq (P b) (n +2+ k) (trunctype.struct (P b))
                            (g b) (h b))) }
     end
+
   end
 
   section
     universe variables u v
-    parameters {n : trunc_index} {A : Type.{u}} {B : Type.{v}} {h : A → B}
+    parameters {n : ℕ₋₂} {A : Type.{u}} {B : Type.{v}} {h : A → B}
     parameter sec : ΠP : B → trunctype.{max u v} n,
                     is_retraction (λs : (Πb : B, P b), λ a, s (h a))
 
@@ -127,7 +128,7 @@ namespace homotopy
 
   -- Connectedness is related to maps to and from the unit type, first to
   section
-    parameters (n : trunc_index) (A : Type)
+    parameters (n : ℕ₋₂) (A : Type)
 
     definition is_conn_of_map_to_unit
       : is_conn_map n (λx : A, unit.star) → is_conn n A :=
@@ -161,7 +162,7 @@ namespace homotopy
   namespace is_conn
     open pointed unit
     section
-      parameters {n : trunc_index} {A : Type*}
+      parameters {n : ℕ₋₂} {A : Type*}
                  [H : is_conn n .+1 A] (P : A → n-Type)
 
       include H
@@ -180,7 +181,7 @@ namespace homotopy
     end
 
     section
-      parameters {n k : trunc_index} {A : Type*}
+      parameters {n k : ℕ₋₂} {A : Type*}
                  [H : is_conn n .+1 A] (P : A → (n +2+ k)-Type)
 
       include H
@@ -223,7 +224,7 @@ namespace homotopy
 
     -- Lemma 7.5.4
     definition retract_of_conn_is_conn [instance] (r : arrow_hom f g) [H : is_retraction r]
-      (n : trunc_index) [K : is_conn_map n f] : is_conn_map n g :=
+      (n : ℕ₋₂) [K : is_conn_map n f] : is_conn_map n g :=
     begin
       intro b, unfold is_conn,
       apply is_contr_retract (trunc_functor n (retraction_on_fiber r b)),
@@ -233,7 +234,7 @@ namespace homotopy
   end
 
   -- Corollary 7.5.5
-  definition is_conn_homotopy (n : trunc_index) {A B : Type} {f g : A → B}
+  definition is_conn_homotopy (n : ℕ₋₂) {A B : Type} {f g : A → B}
     (p : f ~ g) (H : is_conn_map n f) : is_conn_map n g :=
   @retract_of_conn_is_conn _ _ (arrow.arrow_hom_of_homotopy p) (arrow.is_retraction_arrow_hom_of_homotopy p) n H
 
@@ -244,7 +245,7 @@ namespace homotopy
   -- Theorem 8.2.1
   open susp
 
-  definition is_conn_susp [instance] (n : trunc_index) (A : Type)
+  definition is_conn_susp [instance] (n : ℕ₋₂) (A : Type)
     [H : is_conn n A] : is_conn (n .+1) (susp A) :=
   is_contr.mk (tr north)
   begin

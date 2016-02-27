@@ -574,8 +574,8 @@ static environment defeq_simplify_cmd(parser & p) {
     std::tie(e, ls) = parse_local_expr(p);
 
     auto tc = mk_type_checker(p.env());
-
-    expr e_simp = defeq_simplify(env, p.get_options(), sls, e);
+    default_tmp_type_context_pool pool(p.env(), p.get_options());
+    expr e_simp = defeq_simplify(pool, p.get_options(), sls, e);
     if (!tc->is_def_eq(e, e_simp).first) {
         throw parser_error("defeq_simplify result not definitionally equal to input expression", pos);
     }

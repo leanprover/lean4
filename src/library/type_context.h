@@ -116,6 +116,7 @@ class type_context : public abstract_type_context {
     // postponed universe constraints
     std::vector<pair<level, level>> m_postponed;
     name_map<projection_info>       m_proj_info;
+    bool                            m_in_is_def_eq{false};
 
     // Internal (configuration) options for customers
 

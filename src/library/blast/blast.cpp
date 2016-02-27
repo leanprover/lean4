@@ -10,9 +10,13 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
 #include "kernel/replace_fn.h"
+#include "kernel/instantiate.h"
+#include "kernel/abstract.h"
 #include "kernel/type_checker.h"
 #include "library/replace_visitor.h"
 #include "library/util.h"
+#include "library/defeq_simp_lemmas.h"
+#include "library/defeq_simplifier.h"
 #include "library/trace.h"
 #include "library/reducible.h"
 #include "library/class.h"
@@ -21,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/relation_manager.h"
 #include "library/congr_lemma_manager.h"
 #include "library/abstract_expr_manager.h"
+#include "library/proof_irrel_expr_manager.h"
 #include "library/light_lt_manager.h"
 #include "library/projection.h"
 #include "library/scoped_ext.h"
@@ -67,6 +72,15 @@ struct imp_extension_entry {
         m_ext_state(ext_state), m_ext_id(ext_id), m_ext_of_ext_state(ext_of_ext_state) {}
 };
 
+unsigned proof_irrel_hash(expr const & e);
+bool proof_irrel_is_equal(expr const & e1, expr const & e2);
+
+class tmp_tctx_pool : public tmp_type_context_pool {
+public:
+    virtual tmp_type_context * mk_tmp_type_context() override;
+    virtual void recycle_tmp_type_context(tmp_type_context * tmp_tctx) override;
+};
+
 class blastenv {
     friend class scope_assignment;
     friend class scope_unfold_macro_pred;
@@ -103,6 +117,7 @@ class blastenv {
     fun_info_manager           m_fun_info_manager;
     congr_lemma_manager        m_congr_lemma_manager;
     abstract_expr_manager      m_abstract_expr_manager;
+    proof_irrel_expr_manager   m_proof_irrel_expr_manager;
     light_lt_manager           m_light_lt_manager;
     imp_extension_entries      m_imp_extension_entries;
     relation_info_getter       m_rel_getter;
@@ -517,8 +532,34 @@ class blastenv {
     }
 
     tctx                       m_tctx;
+
+    /* Normalizing instances */
     normalizer                 m_normalizer;
-    expr_map<expr>             m_norm_cache; // normalization cache
+
+    struct inst_key {
+        expr              m_e;
+        unsigned          m_hash;
+
+        inst_key(expr const & e):
+            m_e(e), m_hash(blast::proof_irrel_hash(e)) { }
+    };
+
+    struct inst_key_hash_fn {
+        unsigned operator()(inst_key const & k) const { return k.m_hash; }
+    };
+
+    struct inst_key_eq_fn {
+        bool operator()(inst_key const & k1, inst_key const & k2) const {
+            return blast::proof_irrel_is_equal(k1.m_e, k2.m_e);
+        }
+    };
+
+    typedef std::unordered_map<inst_key, expr, inst_key_hash_fn, inst_key_eq_fn> inst_cache;
+    inst_cache      m_inst_nf_to_cf;
+    expr_map<expr>  m_inst_to_nf;
+
+    expr_map<expr>  m_norm_cache; // normalization cache
+
 
     void save_initial_context() {
         hypothesis_idx_buffer hidxs;
@@ -528,6 +569,8 @@ class blastenv {
             ctx.push_back(mk_href(hidx));
         }
         m_initial_context = to_list(ctx);
+        for (auto ctx : m_tmp_ctx_pool) delete ctx;
+        m_tmp_ctx_pool.clear();
     }
 
     name_map<level> mk_uref2uvar() const {
@@ -636,6 +679,7 @@ public:
         m_fun_info_manager(*m_tmp_ctx),
         m_congr_lemma_manager(m_app_builder, m_fun_info_manager),
         m_abstract_expr_manager(m_congr_lemma_manager),
+        m_proof_irrel_expr_manager(m_fun_info_manager),
         m_light_lt_manager(env),
         m_rel_getter(mk_relation_info_getter(env)),
         m_refl_getter(mk_refl_info_getter(env)),
@@ -707,6 +751,10 @@ public:
 
     projection_info const * get_projection_info(name const & n) const {
         return m_projection_info.find(n);
+    }
+
+    unfold_macro_pred get_unfold_macro_pred() const {
+        return m_unfold_macro_pred;
     }
 
     expr mk_fresh_local(expr const & type, binder_info const & bi) {
@@ -793,6 +841,10 @@ public:
         return m_abstract_expr_manager.hash(e);
     }
 
+    unsigned proof_irrel_hash(expr const & e) {
+        return m_proof_irrel_expr_manager.hash(e);
+    }
+
     void init_imp_extension_entries() {
         for (auto & p : get_imp_extension_manager().get_entries()) {
             branch_extension & b_ext = curr_state().get_extension(p.second);
@@ -849,6 +901,10 @@ public:
         return m_abstract_expr_manager.is_equal(e1, e2);
     }
 
+    bool proof_irrel_is_equal(expr const & e1, expr const & e2) {
+        return m_proof_irrel_expr_manager.is_equal(e1, e2);
+    }
+
     bool is_light_lt(expr const & e1, expr const & e2) {
         return m_light_lt_manager.is_lt(e1, e2);
     }
@@ -870,11 +926,74 @@ public:
         return m_tctx;
     }
 
+    expr normalize_instance(expr const & inst) {
+        auto it1 = m_inst_to_nf.find(inst);
+        expr inst_nf;
+        if (it1 != m_inst_to_nf.end()) {
+            inst_nf = it1->second;
+        } else {
+            inst_nf = m_normalizer(inst);
+            m_inst_to_nf.insert(mk_pair(inst, inst_nf));
+        }
+
+        auto it2 = m_inst_nf_to_cf.find(inst_nf);
+        expr inst_cf;
+        if (it2 != m_inst_nf_to_cf.end()) {
+            inst_cf = it2->second;
+        } else {
+            inst_cf = inst;
+            m_inst_nf_to_cf.insert(mk_pair(inst_nf, inst_cf));
+        }
+        lean_trace(name({"debug", "blast", "inst_cache"}),
+                   tout() << "\n" << inst << "\n==>\n" << inst_nf << "\n==>\n" << inst_cf << "\n";);
+        return inst_cf;
+    }
+
+    expr normalize_instances(expr const & e) {
+        expr b, l, d;
+        switch (e.kind()) {
+        case expr_kind::Constant:
+        case expr_kind::Local:
+        case expr_kind::Meta:
+        case expr_kind::Sort:
+        case expr_kind::Var:
+        case expr_kind::Macro:
+            return e;
+        case expr_kind::Lambda:
+        case expr_kind::Pi:
+            d = normalize_instances(binding_domain(e));
+            l = mk_fresh_local(d, binding_info(e));
+            b = abstract(normalize_instances(instantiate(binding_body(e), l)), l);
+            return update_binding(e, d, b);
+        case expr_kind::App:
+            buffer<expr> args;
+            expr const & f     = get_app_args(e, args);
+            unsigned prefix_sz = get_specialization_prefix_size(f, args.size());
+            expr new_f = e;
+            unsigned rest_sz   = args.size() - prefix_sz;
+            for (unsigned i = 0; i < rest_sz; i++)
+                new_f = app_fn(new_f);
+            fun_info info = get_fun_info(new_f, rest_sz);
+            lean_assert(length(info.get_params_info()) == rest_sz);
+            unsigned i = prefix_sz;
+            for_each(info.get_params_info(), [&](param_info const & p_info) {
+                    if (p_info.is_inst_implicit()) {
+                        args[i] = normalize_instance(args[i]);
+                    } else {
+                        args[i] = normalize_instances(args[i]);
+                    }
+                    i++;
+                });
+            return mk_app(f, args);
+        }
+        lean_unreachable();
+    }
+
     expr normalize(expr const & e) {
         auto it = m_norm_cache.find(e);
-        if (it != m_norm_cache.end())
-            return it->second;
-        expr r = m_normalizer(e);
+        if (it != m_norm_cache.end()) return it->second;
+        tmp_tctx_pool pool;
+        expr r = normalize_instances(defeq_simplify(pool, m_ios.get_options(), get_defeq_simp_lemmas(m_env), e));
         m_norm_cache.insert(mk_pair(e, r));
         return r;
     }
@@ -1114,6 +1233,11 @@ optional<expr> mk_subsingleton_instance(expr const & type) {
     return g_blastenv->mk_subsingleton_instance(type);
 }
 
+unfold_macro_pred get_unfold_macro_pred() {
+    lean_assert(g_blastenv);
+    return g_blastenv->get_unfold_macro_pred();
+}
+
 expr mk_fresh_local(expr const & type, binder_info const & bi) {
     lean_assert(g_blastenv);
     return g_blastenv->mk_fresh_local(type, bi);
@@ -1194,6 +1318,11 @@ unsigned abstract_hash(expr const & e) {
     return g_blastenv->abstract_hash(e);
 }
 
+unsigned proof_irrel_hash(expr const & e) {
+    lean_assert(g_blastenv);
+    return g_blastenv->proof_irrel_hash(e);
+}
+
 unsigned register_imp_extension(std::function<imp_extension_state*()> & ext_state_maker) {
     return get_imp_extension_manager().register_imp_extension(ext_state_maker);
 }
@@ -1206,6 +1335,11 @@ imp_extension_state & get_imp_extension_state(unsigned state_id) {
 bool abstract_is_equal(expr const & e1, expr const & e2) {
     lean_assert(g_blastenv);
     return g_blastenv->abstract_is_equal(e1, e2);
+}
+
+bool proof_irrel_is_equal(expr const & e1, expr const & e2) {
+    lean_assert(g_blastenv);
+    return g_blastenv->proof_irrel_is_equal(e1, e2);
 }
 
 bool is_light_lt(expr const & e1, expr const & e2) {
@@ -1313,6 +1447,10 @@ public:
     tmp_tctx(environment const & env, options const & o):
         tmp_type_context(env, o) {}
 
+    virtual bool should_unfold_macro(expr const & e) const override {
+        return get_unfold_macro_pred()(e);
+    }
+
     /** \brief Return the type of a local constant (local or not).
         \remark This method allows the customer to store the type of local constants
         in a different place. */
@@ -1358,6 +1496,16 @@ tmp_type_context * blastenv::mk_tmp_type_context() {
     return r;
 }
 
+tmp_type_context * tmp_tctx_pool::mk_tmp_type_context() {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_tmp_type_context();
+}
+
+void tmp_tctx_pool::recycle_tmp_type_context(tmp_type_context * tmp_tctx) {
+    lean_assert(g_blastenv);
+    g_blastenv->recycle_tmp_type_context(tmp_tctx);
+}
+
 blast_tmp_type_context::blast_tmp_type_context(unsigned num_umeta, unsigned num_emeta) {
     lean_assert(g_blastenv);
     m_ctx = g_blastenv->mk_tmp_type_context();
@@ -1400,6 +1548,7 @@ void initialize_blast() {
     register_trace_class(name{"blast", "search"});
     register_trace_class(name{"blast", "deadend"});
     register_trace_class(name{"debug", "blast"});
+    register_trace_class(name{"debug", "blast", "inst_cache"});
 
     register_trace_class_alias("app_builder", name({"blast", "event"}));
     register_trace_class_alias(name({"simplifier", "failure"}), name({"blast", "event"}));

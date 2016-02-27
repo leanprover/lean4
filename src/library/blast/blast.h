@@ -168,9 +168,13 @@ fun_info get_specialized_fun_info(expr const & a);
 /** \brief Return the given function specialization prefix size. */
 unsigned get_specialization_prefix_size(expr const & fn, unsigned nargs);
 
-/** \brief Hash and equality test for abstract expressions */
+/** \brief Hash and equality test that ignore subsingleton arguments */
 unsigned abstract_hash(expr const & e);
 bool abstract_is_equal(expr const & e1, expr const & e2);
+
+/** \brief Hash and equality test that ignore arguments that are proofs */
+unsigned proof_irrel_hash(expr const & e);
+bool proof_irrel_is_equal(expr const & e1, expr const & e2);
 
 /** \brief Order on expressions that supports the "light" annotation */
 bool is_light_lt(expr const & e1, expr const & e2);

@@ -170,7 +170,7 @@ optional<declaration> type_context::is_transparent(name const & n) {
 
 optional<expr> type_context::expand_macro(expr const & m) {
     lean_assert(is_macro(m));
-    if (should_unfold_macro(m))
+    if (m_in_is_def_eq || should_unfold_macro(m))
         return macro_def(m).expand(m, *m_ext_ctx);
     else
         return none_expr();
@@ -1064,6 +1064,7 @@ bool type_context::process_postponed(unsigned old_sz) {
 
 bool type_context::is_def_eq(expr const & e1, expr const & e2) {
     scope s(*this);
+    flet<bool> in_is_def_eq(m_in_is_def_eq, true);
     unsigned psz = m_postponed.size();
     if (!is_def_eq_core(e1, e2)) {
         return false;

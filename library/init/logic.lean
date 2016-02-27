@@ -53,6 +53,8 @@ false.rec c H
 notation a = b := eq a b
 definition rfl {A : Type} {a : A} : a = a := eq.refl a
 
+definition id.def [defeq] {A : Type} (a : A) : id a = a := rfl
+
 -- proof irrelevance is built in
 theorem proof_irrel {a : Prop} (H₁ H₂ : a) : H₁ = H₂ :=
 rfl
@@ -142,6 +144,7 @@ rfl
 /- ne -/
 
 definition ne [reducible] {A : Type} (a b : A) := ¬(a = b)
+definition ne.def [defeq] {A : Type} (a b : A) : ne a b = ¬ (a = b) := rfl
 notation a ≠ b := ne a b
 
 namespace ne

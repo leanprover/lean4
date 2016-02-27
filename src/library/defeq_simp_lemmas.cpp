@@ -129,10 +129,11 @@ defeq_simp_lemmas get_defeq_simp_lemmas(environment const & env) {
 }
 
 defeq_simp_lemmas get_defeq_simp_lemmas(environment const & env, name const & ns) {
-    list<defeq_simp_lemmas_entry> const * entries = defeq_simp_lemmas_ext::get_entries(env, ns);
+    list<defeq_simp_lemmas_entry> const * _entries = defeq_simp_lemmas_ext::get_entries(env, ns);
     defeq_simp_lemmas_state s;
-    if (entries) {
-        for (auto const & e : *entries) {
+    if (_entries) {
+        list<defeq_simp_lemmas_entry> entries = reverse(*_entries);
+        for (auto const & e : entries) {
             tmp_type_context tctx(env, get_dummy_ios().get_options());
             s.register_defeq_simp_lemma(tctx, e.m_decl_name, e.m_priority);
         }

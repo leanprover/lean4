@@ -15,10 +15,10 @@ Author: Daniel Selsam
 #include "library/normalize.h"
 
 #ifndef LEAN_DEFAULT_DEFEQ_SIMPLIFY_MAX_SIMP_ROUNDS
-#define LEAN_DEFAULT_DEFEQ_SIMPLIFY_MAX_SIMP_ROUNDS 1000
+#define LEAN_DEFAULT_DEFEQ_SIMPLIFY_MAX_SIMP_ROUNDS 5000
 #endif
 #ifndef LEAN_DEFAULT_DEFEQ_SIMPLIFY_MAX_REWRITE_ROUNDS
-#define LEAN_DEFAULT_DEFEQ_SIMPLIFY_MAX_REWRITE_ROUNDS 1000
+#define LEAN_DEFAULT_DEFEQ_SIMPLIFY_MAX_REWRITE_ROUNDS 5000
 #endif
 #ifndef LEAN_DEFAULT_DEFEQ_SIMPLIFY_TOP_DOWN
 #define LEAN_DEFAULT_DEFEQ_SIMPLIFY_TOP_DOWN false
@@ -28,9 +28,6 @@ Author: Daniel Selsam
 #endif
 #ifndef LEAN_DEFAULT_DEFEQ_SIMPLIFY_MEMOIZE
 #define LEAN_DEFAULT_DEFEQ_SIMPLIFY_MEMOIZE true
-#endif
-#ifndef LEAN_DEFAULT_DEFEQ_SIMPLIFY_EXPAND_MACROS
-#define LEAN_DEFAULT_DEFEQ_SIMPLIFY_EXPAND_MACROS false
 #endif
 
 namespace lean {
@@ -42,7 +39,6 @@ static name * g_simplify_max_rewrite_rounds  = nullptr;
 static name * g_simplify_top_down            = nullptr;
 static name * g_simplify_exhaustive          = nullptr;
 static name * g_simplify_memoize             = nullptr;
-static name * g_simplify_expand_macros       = nullptr;
 
 static unsigned get_simplify_max_simp_rounds(options const & o) {
     return o.get_unsigned(*g_simplify_max_simp_rounds, LEAN_DEFAULT_DEFEQ_SIMPLIFY_MAX_SIMP_ROUNDS);
@@ -64,21 +60,16 @@ static bool get_simplify_memoize(options const & o) {
     return o.get_bool(*g_simplify_memoize, LEAN_DEFAULT_DEFEQ_SIMPLIFY_MEMOIZE);
 }
 
-static bool get_simplify_expand_macros(options const & o) {
-    return o.get_bool(*g_simplify_expand_macros, LEAN_DEFAULT_DEFEQ_SIMPLIFY_EXPAND_MACROS);
-}
-
 /* Main simplifier class */
 
 class defeq_simplify_fn {
-    tmp_type_context                  m_tmp_tctx;
-    normalizer                        m_normalizer;
+    tmp_type_context_pool           & m_tmp_tctx_pool;
+    tmp_type_context                * m_tmp_tctx;
+
     defeq_simp_lemmas                 m_simp_lemmas;
 
     unsigned                          m_num_simp_rounds{0};
     unsigned                          m_num_rewrite_rounds{0};
-
-    options const &                   m_options;
 
     /* Options */
     unsigned                          m_max_simp_rounds;
@@ -86,7 +77,6 @@ class defeq_simplify_fn {
     bool                              m_top_down;
     bool                              m_exhaustive;
     bool                              m_memoize;
-    bool                              m_expand_macros;
 
     /* Cache */
     expr_struct_map<expr>             m_cache;
@@ -131,9 +121,7 @@ class defeq_simplify_fn {
             case expr_kind::Var:
                 lean_unreachable();
             case expr_kind::Macro:
-                if (m_expand_macros) {
-                    if (auto m = m_tmp_tctx.expand_macro(e)) e = defeq_simplify(whnf_eta(*m));
-                }
+                e = defeq_simplify_macro(e);
                 break;
             case expr_kind::Lambda:
                 e = try_eta(defeq_simplify_binding(e));
@@ -152,12 +140,20 @@ class defeq_simplify_fn {
             if (!m_exhaustive || e == e_start) break;
         }
         if (m_memoize) cache_save(_e, e);
+        lean_assert(m_tmp_tctx->is_def_eq(_e, e));
         return e;
+    }
+
+    expr defeq_simplify_macro(expr const & e) {
+        buffer<expr> new_args;
+        for (unsigned i = 0; i < macro_num_args(e); i++)
+            new_args.push_back(defeq_simplify(macro_arg(e, i)));
+        return update_macro(e, new_args.size(), new_args.data());
     }
 
     expr defeq_simplify_binding(expr const & e) {
         expr d = defeq_simplify(binding_domain(e));
-        expr l = m_tmp_tctx.mk_tmp_local(binding_name(e), d, binding_info(e));
+        expr l = m_tmp_tctx->mk_tmp_local(binding_name(e), d, binding_info(e));
         expr b = abstract(defeq_simplify(instantiate(binding_body(e), l)), l);
         return update_binding(e, d, b);
     }
@@ -168,7 +164,7 @@ class defeq_simplify_fn {
         expr f = get_app_rev_args(e, args);
         for (expr & a : args) {
             expr new_a = a;
-            if (!m_tmp_tctx.is_prop(m_tmp_tctx.infer(a)))
+            if (!m_tmp_tctx->is_prop(m_tmp_tctx->infer(a)))
                 new_a = defeq_simplify(a);
             if (new_a != a)
                 modified = true;
@@ -176,15 +172,18 @@ class defeq_simplify_fn {
         }
 
         if (is_constant(f)) {
-            if (auto idx = inductive::get_elim_major_idx(m_tmp_tctx.env(), const_name(f))) {
-                if (auto r = m_normalizer.unfold_recursor_major(f, *idx, args))
+            if (auto idx = inductive::get_elim_major_idx(m_tmp_tctx->env(), const_name(f))) {
+                if (auto r = normalizer(*m_tmp_tctx).unfold_recursor_major(f, *idx, args))
                     return *r;
             }
         }
+
         if (!modified)
             return e;
+
         expr r = mk_rev_app(f, args);
-        if (is_constant(f) && m_tmp_tctx.env().is_recursor(const_name(f))) {
+
+        if (is_constant(f) && m_tmp_tctx->env().is_recursor(const_name(f))) {
             return defeq_simplify(r);
         } else {
             return r;
@@ -214,31 +213,32 @@ class defeq_simplify_fn {
     }
 
     expr rewrite(expr const & e, defeq_simp_lemma const & sl) {
-        tmp_type_context tmp_tctx(m_tmp_tctx.env(), m_options);
-        tmp_tctx.clear();
-        tmp_tctx.set_next_uvar_idx(sl.get_num_umeta());
-        tmp_tctx.set_next_mvar_idx(sl.get_num_emeta());
+        tmp_type_context * tmp_tctx = m_tmp_tctx_pool.mk_tmp_type_context();
+        tmp_tctx->clear();
+        tmp_tctx->set_next_uvar_idx(sl.get_num_umeta());
+        tmp_tctx->set_next_mvar_idx(sl.get_num_emeta());
 
-        if (!tmp_tctx.is_def_eq(e, sl.get_lhs())) return e;
+        if (!tmp_tctx->is_def_eq(e, sl.get_lhs())) return e;
 
         lean_trace(name({"defeq_simplifier", "rewrite"}),
-                   expr new_lhs = tmp_tctx.instantiate_uvars_mvars(sl.get_lhs());
-                   expr new_rhs = tmp_tctx.instantiate_uvars_mvars(sl.get_rhs());
+                   expr new_lhs = tmp_tctx->instantiate_uvars_mvars(sl.get_lhs());
+                   expr new_rhs = tmp_tctx->instantiate_uvars_mvars(sl.get_rhs());
                    tout() << "(" << sl.get_id() << ") "
                    << "[" << new_lhs << " --> " << new_rhs << "]\n";);
 
         if (!instantiate_emetas(tmp_tctx, sl.get_emetas(), sl.get_instances())) return e;
 
         for (unsigned i = 0; i < sl.get_num_umeta(); i++) {
-            if (!tmp_tctx.is_uvar_assigned(i)) return e;
+            if (!tmp_tctx->is_uvar_assigned(i)) return e;
         }
 
-        expr new_rhs = tmp_tctx.instantiate_uvars_mvars(sl.get_rhs());
+        expr new_rhs = tmp_tctx->instantiate_uvars_mvars(sl.get_rhs());
+        m_tmp_tctx_pool.recycle_tmp_type_context(tmp_tctx);
         return new_rhs;
     }
 
 
-    bool instantiate_emetas(tmp_type_context & tmp_tctx, list<expr> const & _emetas, list<bool> const & _instances) {
+    bool instantiate_emetas(tmp_type_context * tmp_tctx, list<expr> const & _emetas, list<bool> const & _instances) {
         buffer<expr> emetas;
         buffer<bool> instances;
         to_buffer(_emetas, emetas);
@@ -248,17 +248,17 @@ class defeq_simplify_fn {
         for (unsigned i = 0; i < emetas.size(); ++i) {
             expr m = emetas[i];
             unsigned mvar_idx = emetas.size() - 1 - i;
-            expr m_type = tmp_tctx.instantiate_uvars_mvars(tmp_tctx.infer(m));
+            expr m_type = tmp_tctx->instantiate_uvars_mvars(tmp_tctx->infer(m));
             lean_assert(!has_metavar(m_type));
-            if (tmp_tctx.is_mvar_assigned(mvar_idx)) continue;
+            if (tmp_tctx->is_mvar_assigned(mvar_idx)) continue;
             if (instances[i]) {
-                if (auto v = tmp_tctx.mk_class_instance(m_type)) {
-                    if (!tmp_tctx.assign(m, *v)) {
+                if (auto v = tmp_tctx->mk_class_instance(m_type)) {
+                    if (!tmp_tctx->assign(m, *v)) {
                         lean_trace(name({"defeq_simplifier", "failure"}),
                                    tout() << "unable to assign instance for: " << m_type << "\n";);
                         return false;
                     } else {
-                        lean_assert(tmp_tctx.is_mvar_assigned(mvar_idx));
+                        lean_assert(tmp_tctx->is_mvar_assigned(mvar_idx));
                         continue;
                     }
                 } else {
@@ -276,22 +276,24 @@ class defeq_simplify_fn {
     }
 
     expr whnf_eta(expr const & e) {
-        return try_eta(m_tmp_tctx.whnf(e));
+        return try_eta(m_tmp_tctx->whnf(e));
     }
 
 public:
-    defeq_simplify_fn(environment const & env, options const & o, defeq_simp_lemmas const & simp_lemmas):
-        m_tmp_tctx(env, o),
-        m_normalizer(m_tmp_tctx),
+    defeq_simplify_fn(tmp_type_context_pool & tmp_tctx_pool, options const & o, defeq_simp_lemmas const & simp_lemmas):
+        m_tmp_tctx_pool(tmp_tctx_pool),
+        m_tmp_tctx(m_tmp_tctx_pool.mk_tmp_type_context()),
         m_simp_lemmas(simp_lemmas),
-        m_options(o),
         m_max_simp_rounds(get_simplify_max_simp_rounds(o)),
         m_max_rewrite_rounds(get_simplify_max_rewrite_rounds(o)),
         m_top_down(get_simplify_top_down(o)),
         m_exhaustive(get_simplify_exhaustive(o)),
-        m_memoize(get_simplify_memoize(o)),
-        m_expand_macros(get_simplify_expand_macros(o)) {}
+        m_memoize(get_simplify_memoize(o))
+        { }
 
+    ~defeq_simplify_fn() {
+        m_tmp_tctx_pool.recycle_tmp_type_context(m_tmp_tctx);
+    }
     expr operator()(expr const & e)  { return defeq_simplify(e); }
 };
 
@@ -307,7 +309,6 @@ void initialize_defeq_simplifier() {
     g_simplify_top_down           = new name{"defeq_simplify", "top_down"};
     g_simplify_exhaustive         = new name{"defeq_simplify", "exhaustive"};
     g_simplify_memoize            = new name{"defeq_simplify", "memoize"};
-    g_simplify_expand_macros      = new name{"defeq_simplify", "expand_macros"};
 
     register_unsigned_option(*g_simplify_max_simp_rounds, LEAN_DEFAULT_DEFEQ_SIMPLIFY_MAX_SIMP_ROUNDS,
                              "(defeq_simplify) max allowed simplification rounds");
@@ -319,12 +320,9 @@ void initialize_defeq_simplifier() {
                          "(defeq_simplify) simplify exhaustively");
     register_bool_option(*g_simplify_memoize, LEAN_DEFAULT_DEFEQ_SIMPLIFY_MEMOIZE,
                          "(defeq_simplify) memoize simplifications");
-    register_bool_option(*g_simplify_expand_macros, LEAN_DEFAULT_DEFEQ_SIMPLIFY_EXPAND_MACROS,
-                         "(defeq_simplify) expand macros");
 }
 
 void finalize_defeq_simplifier() {
-    delete g_simplify_expand_macros;
     delete g_simplify_memoize;
     delete g_simplify_exhaustive;
     delete g_simplify_top_down;
@@ -333,9 +331,8 @@ void finalize_defeq_simplifier() {
 }
 
 /* Entry point */
-expr defeq_simplify(environment const & env, options const & o, defeq_simp_lemmas const & simp_lemmas, expr const & e) {
-    return defeq_simplify_fn(env, o, simp_lemmas)(e);
+expr defeq_simplify(tmp_type_context_pool & tmp_tctx_pool, options const & o, defeq_simp_lemmas const & simp_lemmas, expr const & e) {
+    return defeq_simplify_fn(tmp_tctx_pool, o, simp_lemmas)(e);
 }
-
 
 }

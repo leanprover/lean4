@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Nathaniel Thomas, Jeremy Avigad
 
 Modules and vector spaces over a ring.
+
+(We use "left_module," which is more precise, because "module" is a keyword.)
 -/
 import algebra.field
 
@@ -64,73 +66,7 @@ section left_module
   by rewrite [sub_eq_add_neg, smul_right_distrib, neg_smul]
 end left_module
 
-/- linear maps -/
-
-structure is_linear_map [class] (R : Type) {M₁ M₂ : Type}
-  [smul₁ : has_scalar R M₁] [smul₂ : has_scalar R M₂]
-  [add₁ : has_add M₁] [add₂ : has_add M₂]
-  (T : M₁ → M₂) :=
-(additive : ∀ u v : M₁, T (u + v) = T u + T v)
-(homogeneous : ∀ a : R, ∀ u : M₁, T (a • u) = a • T u)
-
-proposition linear_map_additive (R : Type) {M₁ M₂ : Type}
-    [smul₁ : has_scalar R M₁] [smul₂ : has_scalar R M₂]
-    [add₁ : has_add M₁] [add₂ : has_add M₂]
-    (T : M₁ → M₂) [linT : is_linear_map R T] (u v : M₁) :
-  T (u + v) = T u + T v :=
-is_linear_map.additive smul₁ smul₂ _ _ T u v
-
-proposition linear_map_homogeneous {R M₁ M₂ : Type}
-    [smul₁ : has_scalar R M₁] [smul₂ : has_scalar R M₂]
-    [add₁ : has_add M₁] [add₂ : has_add M₂]
-    (T : M₁ → M₂) [linT : is_linear_map R T] (a : R) (u : M₁) :
-  T (a • u) = a • T u :=
-is_linear_map.homogeneous smul₁ smul₂ _ _ T a u
-
-proposition is_linear_map_id [instance] (R : Type) {M : Type}
-    [smulRM : has_scalar R M] [has_addM : has_add M] :
-  is_linear_map R (id : M → M) :=
-is_linear_map.mk (take u v, rfl) (take a u, rfl)
-
-section is_linear_map
-  variables {R M₁ M₂ : Type}
-  variable  [ringR : ring R]
-  variable  [moduleRM₁ : left_module R M₁]
-  variable  [moduleRM₂ : left_module R M₂]
-  include   ringR moduleRM₁ moduleRM₂
-
-  variable  T : M₁ → M₂
-  variable  [is_linear_mapT : is_linear_map R T]
-  include   is_linear_mapT
-
-  proposition linear_map_zero : T 0 = 0 :=
-  calc
-    T 0 = T ((0 : R) • 0) : zero_smul
-    ... = (0 : R) • T 0   : linear_map_homogeneous T
-    ... = 0               : zero_smul
-
-  proposition linear_map_neg (u : M₁) : T (-u) = -(T u) :=
-  by rewrite [-neg_one_smul, linear_map_homogeneous T, neg_one_smul]
-
-  proposition linear_map_smul_add_smul (a b : R) (u v : M₁) :
-    T (a • u + b • v) = a • T u + b • T v :=
-  by rewrite [linear_map_additive R T, *linear_map_homogeneous T]
-end is_linear_map
-
 /- vector spaces -/
 
 structure vector_space [class] (F V : Type) [fieldF : field F]
   extends left_module F V
-
-/- an example -/
-
-section
-  variables (F V : Type)
-  variables [field F] [vector_spaceFV : vector_space F V]
-  variable  T : V → V
-  variable  [is_linear_map F T]
-  include   vector_spaceFV
-
-  example (a b : F) (u v : V) : T (a • u + b • v) = a • T u + b • T v :=
-  !linear_map_smul_add_smul
-end

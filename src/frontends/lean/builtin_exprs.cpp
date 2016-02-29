@@ -568,7 +568,7 @@ static expr parse_obtain(parser & p, unsigned, expr const *, pos_info const & po
     // When from_term is not just a constant or local constant, we compile obtain as:
     //
     //   have H : _, from from_term,
-    //   (by+ exact (obtain ps, from H, goal_term)) H
+    //   (by exact (obtain ps, from H, goal_term)) H
     //
     // Motivation, we want "from_term" (and its type) to be elaborated before processing the
     // obtain-expression

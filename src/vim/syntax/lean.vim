@@ -24,7 +24,7 @@ syn case match
 " keywords
 syn keyword leanKeyword import prelude tactic_hint protected private noncomputable
 syn keyword leanKeyword definition renaming hiding exposing parameter parameters
-syn keyword leanKeyword begin "begin+" proof qed conjecture constant constants hypothesis lemma
+syn keyword leanKeyword begin proof qed conjecture constant constants hypothesis lemma
 syn keyword leanKeyword corollary variable variables premise premises theory print theorem proposition
 syn keyword leanKeyword example abbreviation abstract open as export override axiom axioms inductive
 syn keyword leanKeyword with structure record universe universes alias help environment options

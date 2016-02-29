@@ -90,7 +90,7 @@ static char const * g_decreasing_unicode = "↓";
 void init_token_table(token_table & t) {
     pair<char const *, unsigned> builtin[] =
         {{"fun", 0}, {"Pi", 0}, {"let", 0}, {"in", 0}, {"at", 0}, {"have", 0}, {"assert", 0}, {"suppose", 0}, {"show", 0}, {"suffices", 0}, {"obtain", 0},
-         {"if", 0}, {"then", 0}, {"else", 0}, {"by", 0}, {"by+", 0}, {"hiding", 0}, {"replacing", 0}, {"renaming", 0},
+         {"if", 0}, {"then", 0}, {"else", 0}, {"by", 0}, {"hiding", 0}, {"replacing", 0}, {"renaming", 0},
          {"from", 0}, {"(", g_max_prec}, {")", 0}, {"{", g_max_prec}, {"}", 0}, {"_", g_max_prec},
          {"[", g_max_prec}, {"]", 0}, {"⦃", g_max_prec}, {"⦄", 0}, {".{", 0}, {"Type", g_max_prec},
          {"{|", g_max_prec}, {"|}", 0}, {"(:", g_max_prec}, {":)", 0},
@@ -99,7 +99,7 @@ void init_token_table(token_table & t) {
          {".", 0}, {":", 0}, {"::", 0}, {"calc", 0}, {"rewrite", 0}, {"xrewrite", 0}, {"krewrite", 0},
          {"esimp", 0}, {"fold", 0}, {"unfold", 0}, {"note", 0}, {"with_options", 0}, {"with_attributes", 0}, {"with_attrs", 0},
          {"generalize", 0}, {"as", 0}, {":=", 0}, {"--", 0}, {"#", 0}, {"#tactic", 0},
-         {"(*", 0}, {"/-", 0}, {"begin", g_max_prec}, {"begin+", g_max_prec}, {"abstract", g_max_prec},
+         {"(*", 0}, {"/-", 0}, {"begin", g_max_prec}, {"abstract", g_max_prec},
          {"proof", g_max_prec}, {"qed", 0}, {"@@", g_max_prec}, {"@", g_max_prec},
          {"sorry", g_max_prec}, {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec},
          {"?(", g_max_prec}, {"⌞", g_max_prec}, {"⌟", 0}, {"match", 0},

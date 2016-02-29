@@ -9,7 +9,7 @@
 
 (defconst lean-keywords1
   '("import" "prelude" "tactic_hint" "protected" "private" "noncomputable" "definition" "renaming"
-    "hiding" "exposing" "parameter" "parameters" "begin" "begin+" "proof" "qed" "conjecture" "constant" "constants"
+    "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture" "constant" "constants"
     "hypothesis" "lemma" "corollary" "variable" "variables" "premise" "premises" "theory"
     "print" "theorem" "proposition" "example" "abbreviation" "abstract"
     "open" "as" "export" "override" "axiom" "axioms" "inductive" "with" "structure" "record" "universe" "universes"
@@ -26,11 +26,6 @@
   "lean keywords ending with 'word' (not symbol)")
 (defconst lean-keywords1-regexp
   (eval `(rx word-start (or ,@lean-keywords1) word-end)))
-(defconst lean-keywords2
-  '("by+" "begin+")
-  "lean keywords ending with 'symbol'")
-(defconst lean-keywords2-regexp
-  (eval `(rx word-start (or ,@lean-keywords2) symbol-end)))
 (defconst lean-constants
   '("#" "@" "!" "->" "∼" "↔" "/" "==" "=" ":=" "<->" "/\\" "\\/" "∧" "∨"
     "≠" "<" ">" "≤" "≥" "¬" "<=" ">=" "⁻¹" "⬝" "▸" "+" "*" "-" "/" "λ"
@@ -170,7 +165,6 @@
      (,(rx (or "∘if")) . 'font-lock-constant-face)
      ;; Keywords
      ("\\(set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))
-     (,lean-keywords2-regexp . 'font-lock-keyword-face)
      (,lean-keywords1-regexp . 'font-lock-keyword-face)
      (,(rx word-start (group "example") ".") (1 'font-lock-keyword-face))
      (,(rx (or "∎")) . 'font-lock-keyword-face)

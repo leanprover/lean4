@@ -113,8 +113,8 @@ begin unfold [mem, insert], rewrite to_finset_of_finset, intros, apply mem_of_me
 
 protected theorem ext {s₁ s₂ : hf} : (∀ a, a ∈ s₁ ↔ a ∈ s₂) → s₁ = s₂ :=
 assume h,
-assert to_finset s₁ = to_finset s₂, from finset.ext h,
-assert of_finset (to_finset s₁) = of_finset (to_finset s₂), by rewrite this,
+have to_finset s₁ = to_finset s₂, from finset.ext h,
+have of_finset (to_finset s₁) = of_finset (to_finset s₂), by rewrite this,
 by rewrite [*of_finset_to_finset at this]; exact this
 
 theorem insert_eq_of_mem {a : hf} {s : hf} : a ∈ s → insert a s = s :=
@@ -122,7 +122,7 @@ begin unfold mem, intro h, unfold [mem, insert], rewrite (finset.insert_eq_of_me
 
 protected theorem induction [recursor 4] {P : hf → Prop}
     (h₁ : P empty) (h₂ : ∀ (a s : hf), a ∉ s → P s → P (insert a s)) (s : hf) : P s :=
-assert P (of_finset (to_finset s)), from
+have P (of_finset (to_finset s)), from
   @finset.induction _ _ _ h₁
     (λ a s nain ih,
        begin
@@ -388,16 +388,16 @@ begin
   revert s₂, induction s₁ with a s₁ nain ih,
    take s₂, suppose ∅ ⊆ s₂, !zero_le,
    take s₂, suppose insert a s₁ ⊆ s₂,
-     assert a ∈ s₂,          from mem_of_subset_of_mem this !mem_insert,
-     have   a ∉ erase a s₂,  from !not_mem_erase,
-     have   s₁ ⊆ erase a s₂, from subset_of_forall
+     have a ∈ s₂,          from mem_of_subset_of_mem this !mem_insert,
+     have a ∉ erase a s₂,  from !not_mem_erase,
+     have s₁ ⊆ erase a s₂, from subset_of_forall
        (take x xin, by_cases
          (suppose x = a, by subst x; contradiction)
          (suppose x ≠ a,
            have x ∈ s₂, from mem_of_subset_of_mem `insert a s₁ ⊆ s₂` (mem_insert_of_mem _ `x ∈ s₁`),
            mem_erase_of_ne_of_mem `x ≠ a` `x ∈ s₂`)),
-     have   s₁ ≤ erase a s₂, from ih _ this,
-     assert insert a s₁ ≤ insert a (erase a s₂), from
+     have s₁ ≤ erase a s₂, from ih _ this,
+     have insert a s₁ ≤ insert a (erase a s₂), from
        insert_le_insert_of_le (or.inr `a ∉ erase a s₂`) this,
      by rewrite [insert_erase `a ∈ s₂` at this]; exact this
 end
@@ -465,7 +465,7 @@ begin
     obtain w h₁ h₂, from this,
     begin subst x, rewrite to_finset_of_finset, exact iff.mp !finset.mem_powerset_iff_subset h₁ end,
   suppose finset.subset (to_finset x) (to_finset s),
-    assert finset.mem (to_finset x) (finset.powerset (to_finset s)), from iff.mpr !finset.mem_powerset_iff_subset this,
+    have finset.mem (to_finset x) (finset.powerset (to_finset s)), from iff.mpr !finset.mem_powerset_iff_subset this,
     exists.intro (to_finset x) (and.intro this (of_finset_to_finset x))
 end
 

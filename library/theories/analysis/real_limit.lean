@@ -529,16 +529,16 @@ let  aX := (λ n, (abs x)^n),
 have noninc_aX : nonincreasing aX, from
   nonincreasing_of_forall_succ_le
     (take i,
-      assert (abs x) * (abs x)^i ≤ 1 * (abs x)^i,
+      have (abs x) * (abs x)^i ≤ 1 * (abs x)^i,
         from mul_le_mul_of_nonneg_right (le_of_lt H) (!pow_nonneg_of_nonneg !abs_nonneg),
-      assert (abs x) * (abs x)^i ≤ (abs x)^i, by krewrite one_mul at this; exact this,
+      have (abs x) * (abs x)^i ≤ (abs x)^i, by krewrite one_mul at this; exact this,
       show (abs x) ^ (succ i) ≤ (abs x)^i, by rewrite pow_succ; apply this),
 have bdd_aX : ∀ i, 0 ≤ aX i, from take i, !pow_nonneg_of_nonneg !abs_nonneg,
-assert aXconv : aX ⟶ iaX in ℕ, proof converges_to_seq_inf_of_nonincreasing noninc_aX bdd_aX qed,
+have aXconv : aX ⟶ iaX in ℕ, proof converges_to_seq_inf_of_nonincreasing noninc_aX bdd_aX qed,
 have asXconv : asX ⟶ iaX in ℕ, from converges_to_seq_offset_succ aXconv,
 have asXconv' : asX ⟶ (abs x) * iaX in ℕ, from mul_left_converges_to_seq (abs x) aXconv,
 have iaX = (abs x) * iaX, from converges_to_seq_unique asXconv asXconv',
-assert iaX = 0, from eq_zero_of_mul_eq_self_left (ne_of_lt H) (eq.symm this),
+have iaX = 0, from eq_zero_of_mul_eq_self_left (ne_of_lt H) (eq.symm this),
 show aX ⟶ 0 in ℕ, begin rewrite -this, exact aXconv end --from this ▸ aXconv
 
 end xn

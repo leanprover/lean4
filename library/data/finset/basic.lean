@@ -52,7 +52,7 @@ definition to_finset [decidable_eq A] (l : list A) : finset A :=
 
 lemma to_finset_eq_of_nodup [decidable_eq A] {l : list A} (n : nodup l) :
   to_finset_of_nodup l n = to_finset l :=
-assert P : to_nodup_list_of_nodup n = to_nodup_list l, from
+have P : to_nodup_list_of_nodup n = to_nodup_list l, from
   begin
     rewrite [↑to_nodup_list, ↑to_nodup_list_of_nodup],
     congruence,
@@ -237,11 +237,11 @@ quot.induction_on s
       (assume nodup_l, H1)
       (take a l',
         assume IH nodup_al',
-        assert aux₁: a ∉ l', from not_mem_of_nodup_cons nodup_al',
-        assert e : list.insert a l' = a :: l', from insert_eq_of_not_mem aux₁,
-        assert nodup l', from nodup_of_nodup_cons nodup_al',
-        assert P (quot.mk (subtype.tag l' this)), from IH this,
-        assert P (insert a (quot.mk (subtype.tag l' _))), from H2 aux₁ this,
+        have aux₁: a ∉ l', from not_mem_of_nodup_cons nodup_al',
+        have e : list.insert a l' = a :: l', from insert_eq_of_not_mem aux₁,
+        have nodup l', from nodup_of_nodup_cons nodup_al',
+        have P (quot.mk (subtype.tag l' this)), from IH this,
+        have P (insert a (quot.mk (subtype.tag l' _))), from H2 aux₁ this,
         begin
           revert nodup_al',
           rewrite [-e],
@@ -319,7 +319,7 @@ theorem erase_insert {a : A} {s : finset A} : a ∉ s → erase a (insert a s) =
     (λ bin, by subst b; contradiction))
   (λ bnea : b ≠ a, iff.intro
     (λ bin,
-       assert b ∈ insert a s, from mem_of_mem_erase bin,
+       have b ∈ insert a s, from mem_of_mem_erase bin,
        mem_of_mem_insert_of_ne this bnea)
     (λ bin,
       have b ∈ insert a s, from mem_insert_of_mem _ bin,

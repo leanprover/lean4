@@ -239,22 +239,22 @@ include Ha
 
 definition decidable_perm_aux : ∀ (n : nat) (l₁ l₂ : list A), length l₁ = n → length l₂ = n → decidable (l₁ ~ l₂)
 | 0     l₁      l₂ H₁ H₂ :=
-  assert l₁n : l₁ = [], from eq_nil_of_length_eq_zero H₁,
-  assert l₂n : l₂ = [], from eq_nil_of_length_eq_zero H₂,
+  have l₁n : l₁ = [], from eq_nil_of_length_eq_zero H₁,
+  have l₂n : l₂ = [], from eq_nil_of_length_eq_zero H₂,
   by rewrite [l₁n, l₂n]; exact (inl perm.nil)
 | (n+1) (x::t₁) l₂ H₁ H₂ :=
   by_cases
     (assume xinl₂ : x ∈ l₂,
       let t₂ : list A := erase x l₂ in
       have len_t₁ : length t₁ = n,         begin injection H₁ with e, exact e end,
-      assert length t₂ = pred (length l₂), from length_erase_of_mem xinl₂,
-      assert length t₂ = n,                by rewrite [this, H₂],
+      have length t₂ = pred (length l₂), from length_erase_of_mem xinl₂,
+      have length t₂ = n,                by rewrite [this, H₂],
       match decidable_perm_aux n t₁ t₂ len_t₁ this with
       | inl p  := inl (calc
           x::t₁ ~ x::(erase x l₂) : skip x p
            ...  ~ l₂              : perm_erase xinl₂)
       | inr np := inr (λ p : x::t₁ ~ l₂,
-        assert erase x (x::t₁) ~ erase x l₂, from erase_perm_erase_of_perm x p,
+        have erase x (x::t₁) ~ erase x l₂, from erase_perm_erase_of_perm x p,
         have t₁ ~ erase x l₂, by rewrite [erase_cons_head at this]; exact this,
         absurd this np)
       end)
@@ -325,7 +325,7 @@ perm_induction_on p'
     obtain (s₂₁ s₂₂ : list A) (C₂₁ : s₂ = s₂₁ ++ s₂₂) (C₂₂ : x::t₂ = s₂₁++(a::s₂₂)), from qeq_split e₂,
     discr C₁₂
       (λ (s₁₁_eq : s₁₁ = []) (x_eq_a : x = a) (t₁_eq : t₁ = s₁₂),
-        assert s₁_p : s₁ ~ t₂, from calc
+        have s₁_p : s₁ ~ t₂, from calc
             s₁  = s₁₁ ++ s₁₂ : C₁₁
             ... = t₁         : by rewrite [-t₁_eq, s₁₁_eq, append_nil_left]
             ... ~ t₂         : p,
@@ -345,8 +345,8 @@ perm_induction_on p'
               ... = s₂             : by rewrite C₂₁
             qed))
       (λ (ts₁₁ : list A) (s₁₁_eq : s₁₁ = x::ts₁₁) (t₁_eq : t₁ = ts₁₁++(a::s₁₂)),
-        assert t₁_qeq : t₁ ≈ a|(ts₁₁++s₁₂), by rewrite t₁_eq; exact !qeq_app,
-        assert s₁_eq : s₁ = x::(ts₁₁++s₁₂), from calc
+        have t₁_qeq : t₁ ≈ a|(ts₁₁++s₁₂), by rewrite t₁_eq; exact !qeq_app,
+        have s₁_eq : s₁ = x::(ts₁₁++s₁₂), from calc
           s₁  = s₁₁ ++ s₁₂       : C₁₁
           ... = x::(ts₁₁++ s₁₂)  : by rewrite s₁₁_eq,
         discr C₂₂
@@ -359,7 +359,7 @@ perm_induction_on p'
               ... = s₂             : by rewrite [t₂_eq, C₂₁, s₂₁_eq, append_nil_left]
             qed)
           (λ (ts₂₁ : list A) (s₂₁_eq : s₂₁ = x::ts₂₁) (t₂_eq : t₂ = ts₂₁++(a::s₂₂)),
-            assert t₂_qeq : t₂ ≈ a|(ts₂₁++s₂₂), by rewrite t₂_eq; exact !qeq_app,
+            have t₂_qeq : t₂ ≈ a|(ts₂₁++s₂₂), by rewrite t₂_eq; exact !qeq_app,
             proof calc
               s₁  = x::(ts₁₁++s₁₂) : s₁_eq
               ... ~ x::(ts₂₁++s₂₂) : skip x (r t₁_qeq t₂_qeq)
@@ -370,7 +370,7 @@ perm_induction_on p'
     obtain (s₂₁ s₂₂ : list A) (C₂₁ : s₂ = s₂₁ ++ s₂₂) (C₂₂ : x::y::t₂ = s₂₁++(a::s₂₂)), from qeq_split e₂,
     discr₂ C₁₂
       (λ (s₁₁_eq : s₁₁ = [])  (s₁₂_eq : s₁₂ = x::t₁) (y_eq_a : y = a),
-        assert s₁_p : s₁ ~ x::t₂, from calc
+        have s₁_p : s₁ ~ x::t₂, from calc
             s₁  = s₁₁ ++ s₁₂ : C₁₁
             ... = x::t₁      : by rewrite [s₁₂_eq, s₁₁_eq, append_nil_left]
             ... ~ x::t₂      : skip x p,
@@ -396,7 +396,7 @@ perm_induction_on p'
               ... = s₂                  : by rewrite C₂₁
             qed))
       (λ (s₁₁_eq : s₁₁ = [y]) (x_eq_a : x = a) (t₁_eq : t₁ = s₁₂),
-        assert s₁_p : s₁ ~ y::t₂, from calc
+        have s₁_p : s₁ ~ y::t₂, from calc
              s₁  = y::t₁ : by rewrite [C₁₁, s₁₁_eq, t₁_eq]
              ... ~ y::t₂ : skip y p,
         discr₂ C₂₂
@@ -422,7 +422,7 @@ perm_induction_on p'
               ... = s₂                  : by rewrite C₂₁
             qed))
       (λ (ts₁₁ : list A) (s₁₁_eq : s₁₁ = y::x::ts₁₁) (t₁_eq : t₁ = ts₁₁++(a::s₁₂)),
-        assert s₁_eq  : s₁ = y::x::(ts₁₁++s₁₂), by rewrite [C₁₁, s₁₁_eq],
+        have s₁_eq  : s₁ = y::x::(ts₁₁++s₁₂), by rewrite [C₁₁, s₁₁_eq],
         discr₂ C₂₂
           (λ (s₂₁_eq : s₂₁ = [])  (s₂₂_eq : s₂₂ = y::t₂) (x_eq_a : x = a),
             proof calc
@@ -445,9 +445,9 @@ perm_induction_on p'
               ... = s₂                  : by rewrite C₂₁
             qed)
           (λ (ts₂₁ : list A) (s₂₁_eq : s₂₁ = x::y::ts₂₁) (t₂_eq : t₂ = ts₂₁++(a::s₂₂)),
-            assert t₁_qeq : t₁ ≈ a|(ts₁₁++s₁₂),    by rewrite t₁_eq; exact !qeq_app,
-            assert t₂_qeq : t₂ ≈ a|(ts₂₁++s₂₂),    by rewrite t₂_eq; exact !qeq_app,
-            assert p_aux  : ts₁₁++s₁₂ ~ ts₂₁++s₂₂, from r t₁_qeq t₂_qeq,
+            have t₁_qeq : t₁ ≈ a|(ts₁₁++s₁₂),    by rewrite t₁_eq; exact !qeq_app,
+            have t₂_qeq : t₂ ≈ a|(ts₂₁++s₂₂),    by rewrite t₂_eq; exact !qeq_app,
+            have p_aux  : ts₁₁++s₁₂ ~ ts₂₁++s₂₂, from r t₁_qeq t₂_qeq,
             proof calc
               s₁  = y::x::(ts₁₁++s₁₂)   : by rewrite s₁_eq
               ... ~ y::x::(ts₂₁++s₂₂)   : skip y (skip x p_aux)
@@ -521,39 +521,39 @@ assume p, perm_induction_on p
   nil
   (λ x t₁ t₂ p r, by_cases
     (λ xint₁  : x ∈ t₁,
-      assert xint₂ : x ∈ t₂, from mem_of_mem_erase_dup (mem_perm r (mem_erase_dup xint₁)),
+      have xint₂ : x ∈ t₂, from mem_of_mem_erase_dup (mem_perm r (mem_erase_dup xint₁)),
       by rewrite [erase_dup_cons_of_mem xint₁, erase_dup_cons_of_mem xint₂]; exact r)
     (λ nxint₁ : x ∉ t₁,
-      assert nxint₂ : x ∉ t₂, from
+      have nxint₂ : x ∉ t₂, from
          assume xint₂ : x ∈ t₂, absurd (mem_of_mem_erase_dup (mem_perm (perm.symm r) (mem_erase_dup xint₂))) nxint₁,
       by rewrite [erase_dup_cons_of_not_mem nxint₂, erase_dup_cons_of_not_mem nxint₁]; exact (skip x r)))
   (λ y x t₁ t₂ p r, by_cases
     (λ xinyt₁  : x ∈ y::t₁, by_cases
       (λ yint₁  : y ∈ t₁,
-        assert yint₂  : y ∈ t₂,    from mem_of_mem_erase_dup (mem_perm r (mem_erase_dup yint₁)),
-        assert yinxt₂ : y ∈ x::t₂, from or.inr (yint₂),
+        have yint₂  : y ∈ t₂,    from mem_of_mem_erase_dup (mem_perm r (mem_erase_dup yint₁)),
+        have yinxt₂ : y ∈ x::t₂, from or.inr (yint₂),
         or.elim (eq_or_mem_of_mem_cons xinyt₁)
           (λ xeqy  : x = y,
-            assert xint₂ : x ∈ t₂, by rewrite [-xeqy at yint₂]; exact yint₂,
+            have xint₂ : x ∈ t₂, by rewrite [-xeqy at yint₂]; exact yint₂,
             begin
               rewrite [erase_dup_cons_of_mem xinyt₁, erase_dup_cons_of_mem yinxt₂,
                        erase_dup_cons_of_mem yint₁, erase_dup_cons_of_mem xint₂],
               exact r
             end)
           (λ xint₁ : x ∈ t₁,
-            assert xint₂ : x ∈ t₂, from mem_of_mem_erase_dup (mem_perm r (mem_erase_dup xint₁)),
+            have xint₂ : x ∈ t₂, from mem_of_mem_erase_dup (mem_perm r (mem_erase_dup xint₁)),
             begin
               rewrite [erase_dup_cons_of_mem xinyt₁, erase_dup_cons_of_mem yinxt₂,
                        erase_dup_cons_of_mem yint₁, erase_dup_cons_of_mem xint₂],
               exact r
             end))
       (λ nyint₁ : y ∉ t₁,
-        assert nyint₂ : y ∉ t₂, from
+        have nyint₂ : y ∉ t₂, from
           assume yint₂ : y ∈ t₂, absurd (mem_of_mem_erase_dup (mem_perm (perm.symm r) (mem_erase_dup yint₂))) nyint₁,
         by_cases
           (λ xeqy  : x = y,
-            assert nxint₂ : x ∉ t₂, by rewrite [-xeqy at nyint₂]; exact nyint₂,
-            assert yinxt₂ : y ∈ x::t₂, by rewrite [xeqy]; exact !mem_cons,
+            have nxint₂ : x ∉ t₂, by rewrite [-xeqy at nyint₂]; exact nyint₂,
+            have yinxt₂ : y ∈ x::t₂, by rewrite [xeqy]; exact !mem_cons,
             begin
               rewrite [erase_dup_cons_of_mem xinyt₁, erase_dup_cons_of_mem yinxt₂,
                        erase_dup_cons_of_not_mem nyint₁, erase_dup_cons_of_not_mem nxint₂, xeqy],
@@ -561,8 +561,8 @@ assume p, perm_induction_on p
             end)
           (λ xney : x ≠ y,
             have x ∈ t₁, from or_resolve_right xinyt₁ xney,
-            assert x ∈ t₂, from mem_of_mem_erase_dup (mem_perm r (mem_erase_dup this)),
-            assert y ∉ x::t₂, from
+            have x ∈ t₂, from mem_of_mem_erase_dup (mem_perm r (mem_erase_dup this)),
+            have y ∉ x::t₂, from
               suppose y ∈ x::t₂, or.elim (eq_or_mem_of_mem_cons this)
                 (λ h, absurd h (ne.symm xney))
                 (λ h, absurd h nyint₂),
@@ -572,20 +572,20 @@ assume p, perm_induction_on p
               exact skip y r
             end)))
     (λ nxinyt₁ : x ∉ y::t₁,
-      have   xney    : x ≠ y,  from ne_of_not_mem_cons nxinyt₁,
-      have   nxint₁  : x ∉ t₁, from not_mem_of_not_mem_cons nxinyt₁,
-      assert nxint₂  : x ∉ t₂, from
+      have xney    : x ≠ y,  from ne_of_not_mem_cons nxinyt₁,
+      have nxint₁  : x ∉ t₁, from not_mem_of_not_mem_cons nxinyt₁,
+      have nxint₂  : x ∉ t₂, from
         assume xint₂ : x ∈ t₂, absurd (mem_of_mem_erase_dup (mem_perm (perm.symm r) (mem_erase_dup xint₂))) nxint₁,
       by_cases
         (λ yint₁  : y ∈ t₁,
-          assert yinxt₂ : y ∈ x::t₂, from or.inr (mem_of_mem_erase_dup (mem_perm r (mem_erase_dup yint₁))),
+          have yinxt₂ : y ∈ x::t₂, from or.inr (mem_of_mem_erase_dup (mem_perm r (mem_erase_dup yint₁))),
           begin
             rewrite [erase_dup_cons_of_not_mem nxinyt₁, erase_dup_cons_of_mem yinxt₂,
                      erase_dup_cons_of_mem yint₁, erase_dup_cons_of_not_mem nxint₂],
             exact skip x r
           end)
         (λ nyint₁ : y ∉ t₁,
-          assert nyinxt₂ : y ∉ x::t₂, from
+          have nyinxt₂ : y ∉ x::t₂, from
             assume yinxt₂ : y ∈ x::t₂, or.elim (eq_or_mem_of_mem_cons yinxt₂)
               (λ h, absurd h (ne.symm xney))
               (λ h, absurd (mem_of_mem_erase_dup (mem_perm (perm.symm r) (mem_erase_dup h))) nyint₁),
@@ -624,10 +624,10 @@ list.induction_on l
   (λ p, by rewrite [*union_nil]; exact p)
   (λ x xs r p, by_cases
     (λ xint₁  : x ∈ t₁,
-      assert xint₂ : x ∈ t₂, from mem_perm p xint₁,
+      have xint₂ : x ∈ t₂, from mem_perm p xint₁,
       by rewrite [union_cons_of_mem _ xint₁, union_cons_of_mem _ xint₂]; exact (r p))
     (λ nxint₁ : x ∉ t₁,
-      assert nxint₂ : x ∉ t₂, from not_mem_perm p nxint₁,
+      have nxint₂ : x ∉ t₂, from not_mem_perm p nxint₁,
       by rewrite [union_cons_of_not_mem _ nxint₁, union_cons_of_not_mem _ nxint₂]; exact (skip _ (r p))))
 
 theorem perm_union [congr] {l₁ l₂ t₁ t₂ : list A} : l₁ ~ l₂ → t₁ ~ t₂ → (union l₁ t₁) ~ (union l₂ t₂) :=
@@ -641,10 +641,10 @@ include H
 theorem perm_insert [congr] (a : A) {l₁ l₂ : list A} : l₁ ~ l₂ → (insert a l₁) ~ (insert a l₂) :=
 assume p, by_cases
  (λ ainl₁  : a ∈ l₁,
-   assert ainl₂ : a ∈ l₂, from mem_perm p ainl₁,
+   have ainl₂ : a ∈ l₂, from mem_perm p ainl₁,
    by rewrite [insert_eq_of_mem ainl₁, insert_eq_of_mem ainl₂]; exact p)
  (λ nainl₁ : a ∉ l₁,
-   assert nainl₂ : a ∉ l₂, from not_mem_perm p nainl₁,
+   have nainl₂ : a ∉ l₂, from not_mem_perm p nainl₁,
    by rewrite [insert_eq_of_not_mem nainl₁, insert_eq_of_not_mem nainl₂]; exact (skip _ p))
 end perm_insert
 
@@ -678,10 +678,10 @@ list.induction_on l
   (λ p, by rewrite [*inter_nil])
   (λ x xs r p, by_cases
     (λ xint₁  : x ∈ t₁,
-      assert xint₂ : x ∈ t₂, from mem_perm p xint₁,
+      have xint₂ : x ∈ t₂, from mem_perm p xint₁,
       by rewrite [inter_cons_of_mem _ xint₁, inter_cons_of_mem _ xint₂]; exact (skip _ (r p)))
     (λ nxint₁ : x ∉ t₁,
-      assert nxint₂ : x ∉ t₂, from not_mem_perm p nxint₁,
+      have nxint₂ : x ∉ t₂, from not_mem_perm p nxint₁,
       by rewrite [inter_cons_of_not_mem _ nxint₁, inter_cons_of_not_mem _ nxint₂]; exact (r p)))
 
 theorem perm_inter [congr] {l₁ l₂ t₁ t₂ : list A} : l₁ ~ l₂ → t₁ ~ t₂ → (inter l₁ t₁) ~ (inter l₂ t₂) :=
@@ -704,13 +704,13 @@ theorem perm_ext : ∀ {l₁ l₂ : list A}, nodup l₁ → nodup l₂ → (∀a
   have eqv      : ∀a, a ∈ t₁ ↔ a ∈ s₁++s₂, from
     take a, iff.intro
       (suppose  a ∈ t₁,
-         assert a ∈ a₂::t₂,       from iff.mp (e a) (mem_cons_of_mem _ this),
-         have   a ∈ s₁++(a₁::s₂), by rewrite [t₂_eq at this]; exact this,
+         have a ∈ a₂::t₂,       from iff.mp (e a) (mem_cons_of_mem _ this),
+         have a ∈ s₁++(a₁::s₂), by rewrite [t₂_eq at this]; exact this,
          or.elim (mem_or_mem_of_mem_append this)
            (suppose a ∈ s₁, mem_append_left s₂ this)
            (suppose a ∈ a₁::s₂, or.elim (eq_or_mem_of_mem_cons this)
              (suppose a = a₁,
-               assert a₁ ∉ t₁, from not_mem_of_nodup_cons d₁,
+               have a₁ ∉ t₁, from not_mem_of_nodup_cons d₁,
                by subst a; contradiction)
              (suppose a ∈ s₂, mem_append_right s₁ this)))
       (suppose a ∈ s₁ ++ s₂, or.elim (mem_or_mem_of_mem_append this)
@@ -719,8 +719,8 @@ theorem perm_ext : ∀ {l₁ l₂ : list A}, nodup l₁ → nodup l₂ → (∀a
            have a ∈ a₁::t₁, from iff.mpr (e a) this,
            or.elim (eq_or_mem_of_mem_cons this)
              (suppose a = a₁,
-                have   a₁ ∉ s₁++s₂, from not_mem_of_nodup_cons dt₂',
-                assert a₁ ∉ s₁,     from not_mem_of_not_mem_append_left this,
+                have a₁ ∉ s₁++s₂, from not_mem_of_nodup_cons dt₂',
+                have a₁ ∉ s₁,     from not_mem_of_not_mem_append_left this,
                 by subst a; contradiction)
              (suppose a ∈ t₁, this))
         (suppose a ∈ s₂,
@@ -728,8 +728,8 @@ theorem perm_ext : ∀ {l₁ l₂ : list A}, nodup l₁ → nodup l₂ → (∀a
            have a ∈ a₁::t₁, from iff.mpr (e a) this,
            or.elim (eq_or_mem_of_mem_cons this)
              (suppose a = a₁,
-               have   a₁ ∉ s₁++s₂, from not_mem_of_nodup_cons dt₂',
-               assert a₁ ∉ s₂, from not_mem_of_not_mem_append_right this,
+               have a₁ ∉ s₁++s₂, from not_mem_of_nodup_cons dt₂',
+               have a₁ ∉ s₂, from not_mem_of_not_mem_append_right this,
                by subst a; contradiction)
              (suppose a ∈ t₁, this))),
   have ds₁s₂ : nodup (s₁++s₂), from nodup_of_nodup_cons dt₂',

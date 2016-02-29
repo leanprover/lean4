@@ -53,7 +53,7 @@ private lemma Y_unique : ∀ {P l₁ l₂}, length l₁ = length l₂ → Y P l�
   have n₁ : length l₁ = length l₂, by rewrite [*length_cons at h₁]; apply nat.add_right_cancel h₁,
   have n₂ : Y P l₁,  from and.elim_left h₂,
   have n₃ : Y P l₂,  from and.elim_left h₃,
-  assert ih : l₁ = l₂, from Y_unique n₁ n₂ n₃,
+  have ih : l₁ = l₂, from Y_unique n₁ n₂ n₃,
   begin
     clear Y_unique, subst l₂, congruence,
     show a₁ = a₂,
@@ -94,7 +94,7 @@ private lemma Y_approx : ∀ {P l}, approx (X P) l → Y P l
 theorem weak_fan : ∀ {P}, barred P → inductively_barred P [] :=
 λ P Hbar,
 obtain l Hd HP, from Hbar (X P),
-assert ib : inductively_barred P l, from inductively_barred.base l HP,
+have ib : inductively_barred P l, from inductively_barred.base l HP,
 begin
   clear Hbar HP,
   induction l with a l ih,

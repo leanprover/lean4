@@ -39,8 +39,8 @@ have num b * denom a > 0, from H ▸ this,
 show num b > 0, from pos_of_mul_pos_right this (le_of_lt (denom_pos a))
 
 theorem num_neg_of_equiv {a b : prerat} (H : a ≡ b) (na_neg : num a < 0) : num b < 0 :=
-assert H₁ : num a * denom b = num b * denom a, from H,
-assert num a * denom b < 0,     from mul_neg_of_neg_of_pos na_neg (denom_pos b),
+have H₁ : num a * denom b = num b * denom a, from H,
+have num a * denom b < 0,     from mul_neg_of_neg_of_pos na_neg (denom_pos b),
 have -(-num b * denom a) < 0,   begin rewrite [neg_mul_eq_neg_mul, neg_neg, -H₁], exact this end,
 have -num b > 0, from pos_of_mul_pos_right (pos_of_neg_neg this) (le_of_lt (denom_pos a)),
 neg_of_neg_pos this
@@ -314,11 +314,11 @@ theorem reduce_eq_reduce : ∀ {a b : prerat}, a ≡ b → reduce a = reduce b
   decidable.by_cases
     (assume anz : an = 0,
       have H' : bn * ad = 0, by rewrite [-H, anz, zero_mul],
-      assert bnz : bn = 0,
+      have bnz : bn = 0,
         from or_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero H') (ne_of_gt adpos),
       by rewrite [↑reduce, if_pos anz, if_pos bnz])
     (assume annz : an ≠ 0,
-      assert bnnz : bn ≠ 0, from
+      have bnnz : bn ≠ 0, from
         assume bnz,
         have H' : an * bd = 0, by rewrite [H, bnz, zero_mul],
         have anz : an = 0,
@@ -541,7 +541,7 @@ decidable.by_cases
   (suppose a = 0, by substvars)
   (quot.induction_on a
     (take u H,
-      assert H' : prerat.num u ≠ 0, from take H'', H (quot.sound (prerat.equiv_zero_of_num_eq_zero H'')),
+      have H' : prerat.num u ≠ 0, from take H'', H (quot.sound (prerat.equiv_zero_of_num_eq_zero H'')),
       begin
         cases u with un ud udpos,
         rewrite [▸*, ↑num, ↑denom, ↑reduce, ↑prerat.reduce, if_neg H', ▸*],

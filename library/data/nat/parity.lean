@@ -68,7 +68,7 @@ have h : n+1 ≡ 1 [mod 2], from this,
 by_contradiction (suppose ¬ odd (succ n),
   have n+1 ≡ 0 [mod 2], from even_of_not_odd this,
   have 1 ≡ 0 [mod 2],   from eq.trans (eq.symm h) this,
-  assert 1 = 0,         from this,
+  have 1 = 0,         from this,
   by contradiction)
 
 lemma eq_1_of_ne_0_lt_2 : ∀ {n : nat}, n ≠ 0 → n < 2 → n = 1
@@ -85,13 +85,13 @@ suppose odd n,
 lemma odd_of_mod_eq {n} : n % 2 = 1 → odd n :=
 suppose n % 2 = 1,
 by_contradiction (suppose ¬ odd n,
-  assert n % 2 = 0, from even_of_not_odd this,
+  have n % 2 = 0, from even_of_not_odd this,
   by rewrite this at *; contradiction)
 
 lemma even_succ_of_odd {n} : odd n → even (succ n) :=
 suppose odd n,
-  assert n % 2 = 1 % 2,     from mod_eq_of_odd this,
-  assert (n+1) % 2 = 2 % 2, from add_mod_eq_add_mod_right 1 this,
+  have n % 2 = 1 % 2,     from mod_eq_of_odd this,
+  have (n+1) % 2 = 2 % 2, from add_mod_eq_add_mod_right 1 this,
   by rewrite mod_self at this; exact this
 
 lemma odd_succ_succ_of_odd {n} : odd n → odd (succ (succ n)) :=
@@ -174,7 +174,7 @@ assume h, by_contradiction (λ hn,
   have ∃ k, n = 2 * k, from exists_of_even this,
   obtain k₁ (hk₁ : n = 2 * k₁ + 1), from h,
   obtain k₂ (hk₂ : n = 2 * k₂), from this,
-  assert (2 * k₁ + 1) % 2 = (2 * k₂) % 2, by rewrite [-hk₁, -hk₂],
+  have (2 * k₁ + 1) % 2 = (2 * k₂) % 2, by rewrite [-hk₁, -hk₂],
   begin
     rewrite [mul_mod_right at this, add.comm at this, add_mul_mod_self_left at this],
     contradiction
@@ -188,19 +188,19 @@ even_of_exists (exists.intro (k₁+k₂) (by rewrite [hk₁, hk₂, left_distrib
 
 lemma even_add_of_odd_of_odd {n m} : odd n → odd m → even (n+m) :=
 suppose odd n, suppose odd m,
-assert even (succ n + succ m),
+have even (succ n + succ m),
   from even_add_of_even_of_even (even_succ_of_odd `odd n`) (even_succ_of_odd `odd m`),
 have   even(succ (succ (n + m))), by rewrite [add_succ at this, succ_add at this]; exact this,
 even_of_even_succ_succ this
 
 lemma odd_add_of_even_of_odd {n m} : even n → odd m → odd (n+m) :=
 suppose even n, suppose odd m,
-assert even (n + succ m), from even_add_of_even_of_even `even n` (even_succ_of_odd `odd m`),
+have even (n + succ m), from even_add_of_even_of_even `even n` (even_succ_of_odd `odd m`),
 odd_of_even_succ this
 
 lemma odd_add_of_odd_of_even {n m} : odd n → even m → odd (n+m) :=
 suppose odd n, suppose even m,
-assert odd (m+n), from odd_add_of_even_of_odd `even m` `odd n`,
+have odd (m+n), from odd_add_of_even_of_odd `even m` `odd n`,
 by rewrite add.comm at this; exact this
 
 lemma even_mul_of_even_left {n} (m) : even n → even (n*m) :=
@@ -210,15 +210,15 @@ even_of_exists (exists.intro (k*m) (by rewrite [hk, mul.assoc]))
 
 lemma even_mul_of_even_right {n} (m) : even n → even (m*n) :=
 suppose even n,
-assert even (n*m), from even_mul_of_even_left _ this,
+have even (n*m), from even_mul_of_even_left _ this,
 by rewrite mul.comm at this; exact this
 
 lemma odd_mul_of_odd_of_odd {n m} : odd n → odd m → odd (n*m) :=
 suppose odd n, suppose odd m,
-assert even (n * succ m), from even_mul_of_even_right _ (even_succ_of_odd `odd m`),
-assert even (n * m + n),  by rewrite mul_succ at this; exact this,
+have even (n * succ m), from even_mul_of_even_right _ (even_succ_of_odd `odd m`),
+have even (n * m + n),  by rewrite mul_succ at this; exact this,
 by_contradiction (suppose ¬ odd (n*m),
-  assert even (n*m), from even_of_not_odd this,
+  have even (n*m), from even_of_not_odd this,
   absurd `even (n * m + n)` (not_even_of_odd (odd_add_of_even_of_odd this `odd n`)))
 
 lemma even_of_even_mul_self {n} : even (n * n) → even n :=
@@ -274,7 +274,7 @@ assume h₁ h₂,
    (suppose odd n,  or.elim (em (even m))
      (suppose even m, absurd `odd n` (not_odd_of_even (iff.mpr h₂ `even m`)))
      (suppose odd m,
-      assert d : 1 / 2 = (0:nat),   from dec_trivial,
+      have d : 1 / 2 = (0:nat),   from dec_trivial,
       obtain w₁ (hw₁ : n = 2*w₁ + 1), from exists_of_odd `odd n`,
       obtain w₂ (hw₂ : m = 2*w₂ + 1), from exists_of_odd `odd m`,
       begin

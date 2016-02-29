@@ -112,7 +112,7 @@ lemma grcoset_eq_rcoset a (H : set A) : H <∘ a = coset.r a H :=
       end
 lemma glcoset_sub a (S H : set A) : S ⊆ H → (a ∘> S) ⊆ (a ∘> H) :=
       assume Psub,
-      assert P : _, from coset.l_sub a S H Psub,
+      have P : _, from coset.l_sub a S H Psub,
       eq.symm (glcoset_eq_lcoset a S) ▸ eq.symm (glcoset_eq_lcoset a H) ▸ P
 lemma glcoset_compose (a b : A) (H : set A) : a ∘> b ∘> H = a*b ∘> H :=
       begin
@@ -174,8 +174,8 @@ lemma closed_rcontract a (H : set A) : mul_closed_on H → a ∈ H → H <∘ a 
       end
 lemma closed_lcontract_set a (H G : set A) : mul_closed_on G → H ⊆ G → a∈G → a∘>H ⊆ G :=
       assume Pclosed, assume PHsubG, assume PainG,
-      assert PaGsubG : a ∘> G ⊆ G, from closed_lcontract a G Pclosed PainG,
-      assert PaHsubaG : a ∘> H ⊆ a ∘> G, from
+      have PaGsubG : a ∘> G ⊆ G, from closed_lcontract a G Pclosed PainG,
+      have PaHsubaG : a ∘> H ⊆ a ∘> G, from
         eq.symm (glcoset_eq_lcoset a H) ▸ eq.symm (glcoset_eq_lcoset a G) ▸ (coset.l_sub a H G PHsubG),
       subset.trans PaHsubaG PaGsubG
 definition subgroup.has_inv H := ∀ (a : A), a ∈ H → a⁻¹ ∈ H
@@ -207,9 +207,9 @@ lemma subg_mul_closed : mul_closed_on H := @is_subgroup.mul_closed A s H is_subg
 lemma subg_has_inv : subgroup.has_inv H := @is_subgroup.has_inv A s H is_subg
 lemma subgroup_coset_id : ∀ a, a ∈ H → (a ∘> H = H ∧ H <∘ a = H) :=
       take a, assume PHa : H a,
-      assert Pl : a ∘> H ⊆ H, from closed_lcontract a H subg_mul_closed PHa,
-      assert Pr : H <∘ a ⊆ H, from closed_rcontract a H subg_mul_closed PHa,
-      assert PHainv : H a⁻¹, from subg_has_inv a PHa,
+      have Pl : a ∘> H ⊆ H, from closed_lcontract a H subg_mul_closed PHa,
+      have Pr : H <∘ a ⊆ H, from closed_rcontract a H subg_mul_closed PHa,
+      have PHainv : H a⁻¹, from subg_has_inv a PHa,
       and.intro
       (ext (assume x,
         begin
@@ -232,9 +232,9 @@ lemma subgroup_rcoset_id : ∀ a, a ∈ H → H <∘ a = H :=
       take a, assume PHa : H a,
       and.right (subgroup_coset_id a PHa)
 lemma subg_in_coset_refl (a : A) : a ∈ a ∘> H ∧ a ∈ H <∘ a :=
-      assert PH1 : H 1, from subg_has_one,
-      assert PHinvaa : H (a⁻¹*a), from (eq.symm (mul.left_inv a)) ▸ PH1,
-      assert PHainva : H (a*a⁻¹), from (eq.symm (mul.right_inv a)) ▸ PH1,
+      have PH1 : H 1, from subg_has_one,
+      have PHinvaa : H (a⁻¹*a), from (eq.symm (mul.left_inv a)) ▸ PH1,
+      have PHainva : H (a*a⁻¹), from (eq.symm (mul.right_inv a)) ▸ PH1,
       and.intro PHinvaa PHainva
 end set_reducible
 lemma subg_in_lcoset_same_lcoset (a b : A) : in_lcoset H a b → same_lcoset H a b :=
@@ -245,7 +245,7 @@ lemma subg_in_lcoset_same_lcoset (a b : A) : in_lcoset H a b → same_lcoset H a
       mul_inv_cancel_left b a ▸ Pbbinva
 lemma subg_same_lcoset_in_lcoset (a b : A) : same_lcoset H a b → in_lcoset H a b :=
       assume Psame : a∘>H = b∘>H,
-      assert Pa : a ∈ a∘>H, from and.left (subg_in_coset_refl a),
+      have Pa : a ∈ a∘>H, from and.left (subg_in_coset_refl a),
       by exact (Psame ▸ Pa)
 lemma subg_lcoset_same (a b : A) : in_lcoset H a b = (a∘>H = b∘>H) :=
       propext(iff.intro (subg_in_lcoset_same_lcoset a b) (subg_same_lcoset_in_lcoset a b))
@@ -257,7 +257,7 @@ lemma subg_rcoset_same (a b : A) : in_rcoset H a b = (H<∘a = H<∘b) :=
       have Pabinvb : H <∘ a*b⁻¹*b = H <∘ b, from grcoset_compose (a*b⁻¹) b H ▸ Pabinv_b,
       inv_mul_cancel_right a b ▸ Pabinvb)
       (assume Psame,
-      assert Pa : a ∈ H<∘a, from and.right (subg_in_coset_refl a),
+      have Pa : a ∈ H<∘a, from and.right (subg_in_coset_refl a),
       by exact (Psame ▸ Pa)))
 lemma subg_same_lcoset.refl (a : A) : same_lcoset H a a := rfl
 lemma subg_same_rcoset.refl (a : A) : same_rcoset H a a := rfl

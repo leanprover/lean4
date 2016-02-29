@@ -25,25 +25,25 @@ lemma card_le_of_inj (A : Type) [finA : fintype A] [deceqA : decidable_eq A]
                      (B : Type) [finB : fintype B] [deceqB : decidable_eq B] :
    (∃ f : A → B, injective f) → card A ≤ card B :=
 assume Pex, obtain f Pinj, from Pex,
-assert Pinj_on_univ : _, from iff.mp !set.injective_iff_inj_on_univ Pinj,
-assert Pinj_ts : set.inj_on f (ts univ), from to_set_univ⁻¹ ▸ Pinj_on_univ,
-assert Psub : (image f univ) ⊆ univ,     from !subset_univ,
+have Pinj_on_univ : _, from iff.mp !set.injective_iff_inj_on_univ Pinj,
+have Pinj_ts : set.inj_on f (ts univ), from to_set_univ⁻¹ ▸ Pinj_on_univ,
+have Psub : (image f univ) ⊆ univ,     from !subset_univ,
 finset.card_le_of_inj_on univ univ (exists.intro f (and.intro Pinj_ts Psub))
 
 -- used to prove that inj ∧ eq card => surj
 lemma univ_of_card_eq_univ {A : Type} [finA : fintype A] [deceqA : decidable_eq A] {s : finset A} :
   finset.card s = card A → s = univ :=
 assume Pcardeq, ext (take a,
-assert D : decidable (a ∈ s), from decidable_mem a s, begin
+have D : decidable (a ∈ s), from decidable_mem a s, begin
 apply iff.intro,
   intro ain, apply mem_univ,
   intro ain, cases D with Pin Pnin,
     exact Pin,
-    assert Pplus1 : finset.card (insert a s) = finset.card s + 1,
-      exact card_insert_of_not_mem Pnin,
+    have Pplus1 : finset.card (insert a s) = finset.card s + 1,
+      from card_insert_of_not_mem Pnin,
     rewrite Pcardeq at Pplus1,
-    assert Ple : finset.card (insert a s) ≤ card A,
-      apply card_le_card_of_subset, apply subset_univ,
+    have Ple : finset.card (insert a s) ≤ card A,
+      begin apply card_le_card_of_subset, apply subset_univ end,
     rewrite Pplus1 at Ple,
     exact false.elim (not_succ_le_self Ple)
 end)

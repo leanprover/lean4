@@ -104,10 +104,10 @@ lemma eq_of_sorted_of_perm (tr : transitive R) (anti : anti_symmetric R) : ∀ {
 | (a::l₁)  l₂       h₁ h₂ h₃ :=
   have aux : ∀ {t}, l₂ = a::t → a::l₁ = l₂, from
     take t, suppose l₂ = a::t,
-    have   l₁ ~ t,      by rewrite [this at h₁]; apply perm_cons_inv h₁,
-    have   sorted R l₁, from and.right (sorted_inv h₂),
-    have   sorted R t,  by rewrite [`l₂ = a::t` at h₃]; exact and.right (sorted_inv h₃),
-    assert l₁ = t,      from eq_of_sorted_of_perm `l₁ ~ t` `sorted R l₁` `sorted R t`,
+    have l₁ ~ t,      by rewrite [this at h₁]; apply perm_cons_inv h₁,
+    have sorted R l₁, from and.right (sorted_inv h₂),
+    have sorted R t,  by rewrite [`l₂ = a::t` at h₃]; exact and.right (sorted_inv h₃),
+    have l₁ = t,      from eq_of_sorted_of_perm `l₁ ~ t` `sorted R l₁` `sorted R t`,
     show a :: l₁ = l₂,  by rewrite [`l₂ = a::t`, this],
   have   a ∈ l₂,                       from mem_perm h₁ !mem_cons,
   obtain s t (e₁ : l₂ = s ++ (a::t)),  from mem_split this,
@@ -125,8 +125,8 @@ lemma eq_of_sorted_of_perm (tr : transitive R) (anti : anti_symmetric R) : ∀ {
       apply or.elim (eq_or_mem_of_mem_cons `b ∈ a::l₁`),
         suppose b = a,  by rewrite this at e₁; exact aux e₁,
         suppose b ∈ l₁,
-          have   R a b, from of_mem_of_all this hall₁,
-          assert b = a, from anti `R b a` `R a b`,
+          have R a b, from of_mem_of_all this hall₁,
+          have b = a, from anti `R b a` `R a b`,
           by rewrite this at e₁; exact aux e₁ }
   end
 end list

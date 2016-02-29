@@ -422,10 +422,10 @@ theorem inv_well_defined {s t : seq} (Hs : regular s) (Ht : regular t) (Heq : s 
        apply one_is_reg
      end)
   else
-    (assert H : s_inv Hs = zero, from funext (λ n, dif_neg Hsep),
+    (have H : s_inv Hs = zero, from funext (λ n, dif_neg Hsep),
      have Hsept : ¬ sep t zero, from
        assume H', Hsep (sep_of_equiv_sep Ht Hs (equiv.symm _ _ Heq) H'),
-     assert H' : s_inv Ht = zero, from funext (λ n, dif_neg Hsept),
+     have H' : s_inv Ht = zero, from funext (λ n, dif_neg Hsept),
      by rewrite [H', H]; apply equiv.refl)
 
 theorem s_neg_neg {s : seq} : sneg (sneg s) ≡ s :=
@@ -545,7 +545,7 @@ theorem s_le_of_equiv_le_right {s t u : seq} (Hs : regular s) (Ht : regular t) (
 
 noncomputable definition r_inv (s : reg_seq) : reg_seq := reg_seq.mk (s_inv (reg_seq.is_reg s))
   (if H : sep (reg_seq.sq s) zero then reg_inv_reg (reg_seq.is_reg s) H else
-    assert Hz : s_inv (reg_seq.is_reg s) = zero, from funext (λ n, dif_neg H),
+    have Hz : s_inv (reg_seq.is_reg s) = zero, from funext (λ n, dif_neg H),
     by rewrite Hz; apply zero_is_reg)
 
 theorem r_inv_zero : requiv (r_inv r_zero) r_zero :=
@@ -680,8 +680,8 @@ theorem eq_zero_of_nonneg_of_forall_le {x : ℝ} (xnonneg : x ≥ 0) (H : ∀ ε
   x = 0 :=
 have ∀ ε : ℝ, ε > 0 → x < ε, from
   take ε, suppose ε > 0,
-  assert e2pos : ε / 2 > 0, from div_pos_of_pos_of_pos `ε > 0` two_pos,
-  assert ε / 2 < ε, from div_two_lt_of_pos `ε > 0`,
+  have e2pos : ε / 2 > 0, from div_pos_of_pos_of_pos `ε > 0` two_pos,
+  have ε / 2 < ε, from div_two_lt_of_pos `ε > 0`,
   begin apply lt_of_le_of_lt, apply H _ e2pos, apply this end,
 eq_zero_of_nonneg_of_forall_lt xnonneg this
 

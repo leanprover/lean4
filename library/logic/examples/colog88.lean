@@ -42,7 +42,7 @@ lemma betaA (p : Phi A) : matchA (introA p) = p :=
 -- As in all inductive datatypes, we would be able to prove that constructors are injective.
 lemma introA_injective : ∀ {p p' : Phi A}, introA p = introA p' → p = p' :=
 λ p p' h,
-  assert aux : matchA (introA p) = matchA (introA p'), by rewrite h,
+  have aux : matchA (introA p) = matchA (introA p'), by rewrite h,
   by rewrite [*betaA at aux]; exact aux
 
 -- For any type T, there is an injection from T to (T → Prop)
@@ -80,9 +80,9 @@ rfl
 lemma not_P0_x0 : ¬ P0 x0 :=
 λ h : P0 x0,
   obtain (P : A → Prop) (hp : f P = x0 ∧ ¬ P x0), from h,
-  have   fp_eq : f P = f P0,  from and.elim_left hp,
-  assert p_eq  : P = P0,      from f_injective fp_eq,
-  have   nh    : ¬ P0 x0,     by rewrite [p_eq at hp]; exact (and.elim_right hp),
+  have fp_eq : f P = f P0,  from and.elim_left hp,
+  have p_eq  : P = P0,      from f_injective fp_eq,
+  have nh    : ¬ P0 x0,     by rewrite [p_eq at hp]; exact (and.elim_right hp),
   absurd h nh
 
 lemma P0_x0 : P0 x0 :=

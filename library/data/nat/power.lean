@@ -58,16 +58,16 @@ by krewrite [*pow_succ, *pow_zero, mul_one]
 theorem pow_cancel_left : ∀ {a b c : nat}, a > 1 → a ^ b = a ^ c → b = c
 | a 0        0        h₁ h₂ := rfl
 | a (succ b) 0        h₁ h₂ :=
-  assert a = 1, by rewrite [pow_succ at h₂, pow_zero at h₂]; exact (eq_one_of_mul_eq_one_right h₂),
-  assert (1:nat) < 1, by rewrite [this at h₁]; exact h₁,
+  have a = 1, by rewrite [pow_succ at h₂, pow_zero at h₂]; exact (eq_one_of_mul_eq_one_right h₂),
+  have (1:nat) < 1, by rewrite [this at h₁]; exact h₁,
   absurd `1 <[nat] 1` !lt.irrefl
 | a 0        (succ c) h₁ h₂ :=
-  assert a = 1, by rewrite [pow_succ at h₂, pow_zero at h₂]; exact (eq_one_of_mul_eq_one_right (eq.symm h₂)),
-  assert (1:nat) < 1, by rewrite [this at h₁]; exact h₁,
+  have a = 1, by rewrite [pow_succ at h₂, pow_zero at h₂]; exact (eq_one_of_mul_eq_one_right (eq.symm h₂)),
+  have (1:nat) < 1, by rewrite [this at h₁]; exact h₁,
   absurd `1 <[nat] 1` !lt.irrefl
 | a (succ b) (succ c) h₁ h₂ :=
-  assert a ≠ 0, from assume aeq0, by rewrite [aeq0 at h₁]; exact (absurd h₁ dec_trivial),
-  assert a^b = a^c, by rewrite [*pow_succ at h₂]; exact (eq_of_mul_eq_mul_left (pos_of_ne_zero this) h₂),
+  have a ≠ 0, from assume aeq0, by rewrite [aeq0 at h₁]; exact (absurd h₁ dec_trivial),
+  have a^b = a^c, by rewrite [*pow_succ at h₂]; exact (eq_of_mul_eq_mul_left (pos_of_ne_zero this) h₂),
   by rewrite [pow_cancel_left h₁ this]
 
 theorem pow_div_cancel : ∀ {a b : nat}, a ≠ 0 → (a ^ succ b) / a = a ^ b
@@ -87,7 +87,7 @@ iff.mp !dvd_iff_mod_eq_zero (dvd_pow i h)
 
 lemma pow_dvd_of_pow_succ_dvd {p i n : nat} : p^(succ i) ∣ n → p^i ∣ n :=
 suppose p^(succ i) ∣ n,
-assert p^i ∣ p^(succ i),
+have p^i ∣ p^(succ i),
   by rewrite [pow_succ']; apply nat.dvd_of_eq_mul; apply rfl,
 dvd.trans `p^i ∣ p^(succ i)` `p^(succ i) ∣ n`
 

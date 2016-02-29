@@ -27,19 +27,19 @@ by_cases
       rewrite [if_pos this, add_sub_of_le (sqrt_lower n)]
     end)
   (suppose h₁ : ¬ n - s*s < s,
-    have   s ≤ n - s*s,                  from le_of_not_gt h₁,
-    assert s + s*s ≤ n - s*s + s*s,      from add_le_add_right this (s*s),
-    assert s*s + s ≤ n,                  by rewrite [nat.sub_add_cancel (sqrt_lower n) at this,
+    have s ≤ n - s*s,                  from le_of_not_gt h₁,
+    have s + s*s ≤ n - s*s + s*s,      from add_le_add_right this (s*s),
+    have s*s + s ≤ n,                  by rewrite [nat.sub_add_cancel (sqrt_lower n) at this,
                                               add.comm at this]; assumption,
-    have   n ≤ s*s + s + s,              from sqrt_upper n,
-    have   n - s*s ≤ s + s,              from calc
+    have n ≤ s*s + s + s,              from sqrt_upper n,
+    have n - s*s ≤ s + s,              from calc
         n - s*s ≤ (s*s + s + s) - s*s    : nat.sub_le_sub_right this (s*s)
             ... = (s*s + (s+s)) - s*s    : by rewrite add.assoc
             ... = s + s                  : by rewrite nat.add_sub_cancel_left,
     have   n - s*s - s ≤ s,              from calc
         n - s*s - s ≤ (s + s) - s        : nat.sub_le_sub_right this s
                 ... = s                  : by rewrite nat.add_sub_cancel_left,
-    assert h₂ : ¬ s < n - s*s - s,       from not_lt_of_ge this,
+    have h₂ : ¬ s < n - s*s - s,       from not_lt_of_ge this,
     begin
       esimp [unpair],
       rewrite [if_neg h₁], esimp,
@@ -50,7 +50,7 @@ by_cases
 theorem unpair_mkpair (a b : nat) : unpair (mkpair a b) = (a, b) :=
 by_cases
  (suppose a < b,
-  assert a ≤ b + b, from calc
+  have a ≤ b + b, from calc
     a   ≤ b   : le_of_lt this
     ... ≤ b+b : !le_add_right,
   begin
@@ -61,9 +61,9 @@ by_cases
   end)
  (suppose ¬ a < b,
   have   b ≤ a,           from le_of_not_gt this,
-  assert a + b ≤ a + a,   from add_le_add_left this a,
+  have a + b ≤ a + a,   from add_le_add_left this a,
   have   a + b ≥ a,       from !le_add_right,
-  assert ¬ a + b < a,     from not_lt_of_ge this,
+  have ¬ a + b < a,     from not_lt_of_ge this,
   begin
     esimp [mkpair],
     rewrite [if_neg `¬ a < b`],
@@ -82,9 +82,9 @@ or.elim (eq_or_lt_of_le this)
    let s := sqrt n in
    by_cases
     (suppose h : n - s*s < s,
-      assert n > 0, from lt_of_succ_lt `n > 1`,
-      assert sqrt n > 0, from sqrt_pos_of_pos this,
-      assert sqrt n * sqrt n > 0, from mul_pos this this,
+      have n > 0, from lt_of_succ_lt `n > 1`,
+      have sqrt n > 0, from sqrt_pos_of_pos this,
+      have sqrt n * sqrt n > 0, from mul_pos this this,
       begin unfold unpair, rewrite [if_pos h], esimp, exact sub_lt `n > 0` `sqrt n * sqrt n > 0` end)
     (suppose ¬ n - s*s < s, begin unfold unpair, rewrite [if_neg this], esimp, apply sqrt_lt `n > 1` end))
 

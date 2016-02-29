@@ -35,8 +35,8 @@ private lemma mem_of_nat_of_odd {n : nat} {s : nat} : odd (s / 2^n) → n ∈ of
 assume h,
 have 2^n < succ s, from by_contradiction
   (suppose ¬(2^n < succ s),
-   assert 2^n > s, from lt_of_succ_le (le_of_not_gt this),
-   assert s / 2^n = 0, from div_eq_zero_of_lt this,
+   have 2^n > s, from lt_of_succ_le (le_of_not_gt this),
+   have s / 2^n = 0, from div_eq_zero_of_lt this,
    by rewrite this at h; exact absurd h dec_trivial),
 have n < succ s,        from calc
    n   ≤ 2^n    : le_pow_self dec_trivial n
@@ -47,12 +47,12 @@ mem_sep_of_mem this h
 private lemma succ_mem_of_nat (n : nat) (s : nat) : succ n ∈ of_nat s ↔ n ∈ of_nat (s / 2) :=
 iff.intro
   (suppose succ n ∈ of_nat s,
-   assert odd (s / 2^(succ n)),    from odd_of_mem_of_nat this,
+   have odd (s / 2^(succ n)),    from odd_of_mem_of_nat this,
    have odd ((s / 2) / (2 ^ n)), by rewrite [pow_succ' at this, nat.div_div_eq_div_mul, mul.comm]; assumption,
    show n ∈ of_nat (s / 2),        from mem_of_nat_of_odd this)
   (suppose n ∈ of_nat (s / 2),
-   assert odd ((s / 2) / (2 ^ n)), from odd_of_mem_of_nat this,
-   assert odd (s / 2^(succ n)),      by rewrite [pow_succ', mul.comm, -nat.div_div_eq_div_mul]; assumption,
+   have odd ((s / 2) / (2 ^ n)), from odd_of_mem_of_nat this,
+   have odd (s / 2^(succ n)),      by rewrite [pow_succ', mul.comm, -nat.div_div_eq_div_mul]; assumption,
    show succ n ∈ of_nat s,             from mem_of_nat_of_odd this)
 
 private lemma odd_of_zero_mem (s : nat) : 0 ∈ of_nat s ↔ odd s :=
@@ -78,7 +78,7 @@ finset.induction_on s dec_trivial
         suppose even (2^a + to_nat s), by_cases
           (suppose e : even (2^a), by_cases
             (suppose even (to_nat s),
-              assert 0 ∉ s, from iff.mp ih this,
+              have 0 ∉ s, from iff.mp ih this,
               suppose 0 ∈ insert a s, or.elim (eq_or_mem_of_mem_insert this)
                 (suppose 0 = a, begin rewrite [-this at e], exact absurd e not_even_one end)
                 (by contradiction))
@@ -90,7 +90,7 @@ finset.induction_on s dec_trivial
                 have even (to_nat s), from iff.mpr ih (by rewrite -this at nains; exact nains),
                 absurd this `odd (to_nat s)`)
               (suppose 0 ∈ s,
-                assert a ≠ 0, from suppose a = 0, by subst a; contradiction,
+                have a ≠ 0, from suppose a = 0, by subst a; contradiction,
                 begin
                   cases a with a, exact absurd rfl `0 ≠ 0`,
                   have odd (2*2^a),  by rewrite [pow_succ' at o, mul.comm]; exact o,
@@ -111,9 +111,9 @@ finset.induction_on s dec_trivial
 
 private lemma of_nat_eq_insert_zero {s : nat} : 0 ∉ of_nat s → of_nat (2^0 + s) = insert 0 (of_nat s) :=
 assume h : 0 ∉ of_nat s,
-assert even s,                  from iff.mp (even_of_not_zero_mem s) h,
+have even s,                  from iff.mp (even_of_not_zero_mem s) h,
 have   odd (s+1),               from odd_succ_of_even this,
-assert zmem : 0 ∈ of_nat (s+1), from iff.mpr (odd_of_zero_mem (s+1)) this,
+have zmem : 0 ∈ of_nat (s+1), from iff.mpr (odd_of_zero_mem (s+1)) this,
 obtain w (hw : s = 2*w),        from exists_of_even `even s`,
 begin
   rewrite [pow_zero, add.comm, hw],
@@ -122,8 +122,8 @@ begin
     match n with
     | 0      := iff.intro (λ h, !mem_insert) (λ h, by rewrite [hw at zmem]; exact zmem)
     | succ m :=
-       assert d₁  : 1 / 2 = (0:nat),  from dec_trivial,
-       assert aux : _, from calc
+       have d₁  : 1 / 2 = (0:nat),  from dec_trivial,
+       have aux : _, from calc
          succ m ∈ of_nat (2 * w + 1) ↔ m ∈ of_nat ((2*w+1) / 2) : succ_mem_of_nat
                   ...                ↔ m ∈ of_nat w             : by rewrite [add.comm, add_mul_div_self_left _ _ (dec_trivial : 2 > 0), d₁, zero_add]
                   ...                ↔ m ∈ of_nat (2*w / 2)     : by rewrite [mul.comm, nat.mul_div_cancel _ (dec_trivial : 2 > 0)]
@@ -141,7 +141,7 @@ private lemma of_nat_eq_insert : ∀ {n s : nat}, n ∉ of_nat s → of_nat (2^n
 | (succ n) s h :=
   have n ∉ of_nat (s / 2),
     from iff.mp (not_iff_not_of_iff !succ_mem_of_nat) h,
-  assert ih : of_nat (2^n + s / 2) = insert n (of_nat (s / 2)), from of_nat_eq_insert this,
+  have ih : of_nat (2^n + s / 2) = insert n (of_nat (s / 2)), from of_nat_eq_insert this,
   finset.ext (λ x,
   have gen : ∀ m, m ∈ of_nat (2^(succ n) + s) ↔ m ∈ insert (succ n) (of_nat s)
   | zero     :=
@@ -163,13 +163,13 @@ private lemma of_nat_eq_insert : ∀ {n s : nat}, n ∉ of_nat s → of_nat (2^n
                              ...  ↔ odd s                          : aux₁
                              ...  ↔ 0 ∈ insert (succ n) (of_nat s) : aux₂
   | (succ m) :=
-    assert aux : m ∈ insert n (of_nat (s / 2)) ↔ succ m ∈ insert (succ n) (of_nat s), from iff.intro
+    have aux : m ∈ insert n (of_nat (s / 2)) ↔ succ m ∈ insert (succ n) (of_nat s), from iff.intro
       (assume hl, or.elim (eq_or_mem_of_mem_insert hl)
         (suppose m = n,                by subst m; apply mem_insert)
         (suppose m ∈ of_nat (s / 2), finset.mem_insert_of_mem _ (iff.mpr !succ_mem_of_nat this)))
       (assume hr, or.elim (eq_or_mem_of_mem_insert hr)
         (suppose succ m = succ n,
-         assert m = n, by injection this; assumption,
+         have m = n, by injection this; assumption,
          by subst m; apply mem_insert)
         (suppose succ m ∈ of_nat s, finset.mem_insert_of_mem _ (iff.mp !succ_mem_of_nat this))),
     calc
@@ -189,7 +189,7 @@ private definition predimage (s : finset nat) : finset nat :=
 
 private lemma mem_image_pred_of_succ_mem {n : nat} {s : finset nat} : succ n ∈ s → n ∈ image pred s :=
 assume h,
-  assert pred (succ n) ∈ image pred s, from mem_image_of_mem _ h,
+  have pred (succ n) ∈ image pred s, from mem_image_of_mem _ h,
   begin rewrite [pred_succ at this], assumption end
 
 private lemma mem_predimage_of_succ_mem {n : nat} {s : finset nat} : succ n ∈ s → n ∈ predimage s :=

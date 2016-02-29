@@ -460,7 +460,7 @@ begin
                   apply yps
                 end))
         (assume H : x ⊆ insert a s,
-          assert H' : erase a x ⊆ s, from erase_subset_of_subset_insert H,
+          have H' : erase a x ⊆ s, from erase_subset_of_subset_insert H,
           decidable.by_cases
             (suppose a ∈ x,
               or.inr (exists.intro (erase a x)

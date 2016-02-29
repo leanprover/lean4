@@ -43,10 +43,12 @@ lemma card_mod_eq_of_action_by_psubg {p : nat} :
   cases Pa with Pain Porb,
   substvars,
   cases Ppsubg with Pprime PcardH,
-  assert Pdvd : card (orbit hom H a) ∣ p ^ (succ m),
-    rewrite -PcardH,
-    apply dvd_of_eq_mul (finset.card (stab hom H a)),
-    apply orbit_stabilizer_theorem,
+  have Pdvd : card (orbit hom H a) ∣ p ^ (succ m),
+    begin
+      rewrite -PcardH,
+      apply dvd_of_eq_mul (finset.card (stab hom H a)),
+      apply orbit_stabilizer_theorem
+    end,
   apply or.elim (eq_one_or_dvd_of_dvd_prime_pow Pprime Pdvd),
     intro Pcardeq, contradiction,
     intro Ppdvd, exact Ppdvd
@@ -131,7 +133,7 @@ Prodl_map
 
 lemma prodseq_eq_pow_of_constseq {n : nat} (s : seq A (succ n)) :
   constseq s → prodseq s = (s !zero) ^ succ n :=
-assume Pc, assert Pcl : ∀ i, i ∈ upto (succ n) → s i = s !zero,
+assume Pc, have Pcl : ∀ i, i ∈ upto (succ n) → s i = s !zero,
   from take i, assume Pin, Pc i,
 by rewrite [↑prodseq, Prodl_eq_pow_of_const _ Pcl, fin.length_upto]
 
@@ -142,7 +144,7 @@ assume Pc₁ Pc₂ Peq, funext take i, by rewrite [Pc₁ i,  Pc₂ i, Peq]
 lemma peo_const_one : ∀ {n : nat}, peo (λ i : fin n, (1 : A))
 | 0 := rfl
 | (succ n) := let s := λ i : fin (succ n), (1 : A) in
-  assert Pconst : constseq s, from take i, rfl,
+  have Pconst : constseq s, from take i, rfl,
   calc prodseq s = (s !zero) ^ succ n : prodseq_eq_pow_of_constseq s Pconst
              ... = (1 : A) ^ succ n : rfl
              ... = 1 : one_pow
@@ -174,13 +176,13 @@ by rewrite [prodseq_eq, Peq, list_to_fun_to_list, prodl_eq_one_of_mem_all_prodl_
 lemma all_prodseq_eq_one_complete {n : nat} {s : seq A (succ n)} :
   prodseq s = 1 → s ∈ all_prodseq_eq_one A n :=
 assume Peq,
-assert Plin : map s (elems (fin (succ n))) ∈ all_prodl_eq_one A n,
+have Plin : map s (elems (fin (succ n))) ∈ all_prodl_eq_one A n,
   from begin
   apply all_prodl_eq_one_complete,
     rewrite [length_map], exact length_upto (succ n),
     rewrite prodseq_eq at Peq, exact Peq
   end,
-assert Psin : list_to_fun (map s (elems (fin (succ n)))) (length_map_of_fintype s) ∈ all_prodseq_eq_one A n,
+have Psin : list_to_fun (map s (elems (fin (succ n)))) (length_map_of_fintype s) ∈ all_prodseq_eq_one A n,
   from mem_dmap _ Plin,
 by rewrite [fun_eq_list_to_fun_map s (length_map_of_fintype s)]; apply Psin
 
@@ -196,7 +198,7 @@ local attribute perm.f [coercion]
 lemma rotl_perm_peo_of_peo {n : nat} : ∀ {m} {s : seq A n}, peo s → peo (rotl_perm A n m s)
 | 0        := begin rewrite [↑rotl_perm, rotl_seq_zero], intros, assumption end
 | (succ m) := take s,
-  assert Pmul : rotl_perm A n (m + 1) s = rotl_fun 1 (rotl_perm A n m s), from
+  have Pmul : rotl_perm A n (m + 1) s = rotl_fun 1 (rotl_perm A n m s), from
     calc s ∘ (rotl (m + 1)) = s ∘ ((rotl m) ∘ (rotl 1)) : rotl_compose
                         ... = s ∘ (rotl m) ∘ (rotl 1) : compose.assoc,
   begin
@@ -211,18 +213,18 @@ dmap_nodup_of_dinj (dinj_tag peo) nodup_all_prodseq_eq_one
 
 lemma all_peo_seqs_complete {n : nat} : ∀ s : peo_seq A n, s ∈ all_peo_seqs A n :=
 take ps, subtype.destruct ps (take s, assume Ps,
-  assert Pin : s ∈ all_prodseq_eq_one A n, from all_prodseq_eq_one_complete Ps,
+  have Pin : s ∈ all_prodseq_eq_one A n, from all_prodseq_eq_one_complete Ps,
   mem_dmap Ps Pin)
 
 lemma length_all_peo_seqs {n : nat} : length (all_peo_seqs A n) = (card A)^n :=
 eq.trans (eq.trans
   (show length (all_peo_seqs A n) = length (all_prodseq_eq_one A n), from
-    assert Pmap : map elt_of (all_peo_seqs A n) = all_prodseq_eq_one A n,
+    have Pmap : map elt_of (all_peo_seqs A n) = all_prodseq_eq_one A n,
       from map_dmap_of_inv_of_pos (λ s P, rfl)
         (λ s, prodseq_eq_one_of_mem_all_prodseq_eq_one),
     by rewrite [-Pmap, length_map])
   (show length (all_prodseq_eq_one A n) = length (all_prodl_eq_one A n), from
-    assert Pmap : map fun_to_list (all_prodseq_eq_one A n) = all_prodl_eq_one A n,
+    have Pmap : map fun_to_list (all_prodseq_eq_one A n) = all_prodl_eq_one A n,
       from map_dmap_of_inv_of_pos list_to_fun_to_list
         (λ l Pin, by rewrite [length_of_mem_all_prodl_eq_one Pin, card_fin]),
     by rewrite [-Pmap, length_map]))
@@ -319,8 +321,8 @@ lemma generator_of_prime_of_dvd_order {p : nat}
   : prime p → p ∣ card A → ∃ g : A, g ≠ 1 ∧ g^p = 1 :=
 assume Pprime Pdvd,
 let pp := nat.pred p, spp := nat.succ pp in
-assert Peq : spp = p, from succ_pred_prime Pprime,
-assert Ppsubg : psubg (@univ (fin spp) _) spp 1,
+have Peq : spp = p, from succ_pred_prime Pprime,
+have Ppsubg : psubg (@univ (fin spp) _) spp 1,
   from and.intro (eq.symm Peq ▸ Pprime) (by rewrite [Peq, card_fin, pow_one]),
 have (pow_nat (card A) pp) % spp = (card (fixed_points (rotl_perm_ps A pp) univ)) % spp,
   by rewrite -card_peo_seq; apply card_mod_eq_of_action_by_psubg Ppsubg,
@@ -335,7 +337,7 @@ have Pfpcardgt1 : card (fixed_points (rotl_perm_ps A pp) univ) > 1,
 obtain s₁ s₂ Pin₁ Pin₂ Psnes, from exists_two_of_card_gt_one Pfpcardgt1,
 decidable.by_cases
   (λ Pe₁ : elt_of s₁ !zero = 1,
-    assert Pne₂ : elt_of s₂ !zero ≠ 1,
+    have Pne₂ : elt_of s₂ !zero ≠ 1,
     from assume Pe₂,
       absurd
         (subtype.eq (seq_eq_of_constseq_of_eq
@@ -352,7 +354,7 @@ end
 theorem cauchy_theorem {p : nat} : prime p → p ∣ card A → ∃ g : A, order g = p :=
 assume Pprime Pdvd,
 obtain g Pne Pgpow, from generator_of_prime_of_dvd_order Pprime Pdvd,
-assert Porder : order g ∣ p, from order_dvd_of_pow_eq_one Pgpow,
+have Porder : order g ∣ p, from order_dvd_of_pow_eq_one Pgpow,
 or.elim (eq_one_or_eq_self_of_prime_of_dvd Pprime Porder)
   (λ Pe, absurd (eq_one_of_order_eq_one Pe) Pne)
   (λ Porderp, exists.intro g Porderp)
@@ -375,10 +377,10 @@ theorem first_sylow_theorem {p : nat} (Pp : prime p) :
     (by rewrite [pow_zero]))
 | (succ n) := assume Pdvd,
   obtain H PfinsubgH PcardH, from first_sylow_theorem n (pow_dvd_of_pow_succ_dvd Pdvd),
-  assert Ppsubg : psubg H p n, from and.intro Pp PcardH,
-  assert Ppowsucc : p^(succ n) ∣ (card (lcoset_type univ H) * p^n),
+  have Ppsubg : psubg H p n, from and.intro Pp PcardH,
+  have Ppowsucc : p^(succ n) ∣ (card (lcoset_type univ H) * p^n),
     by rewrite [-PcardH, -(lagrange_theorem' !subset_univ)]; exact Pdvd,
-  assert Ppdvd : p ∣ card (lcoset_type (normalizer H) H), from
+  have Ppdvd : p ∣ card (lcoset_type (normalizer H) H), from
     dvd_of_mod_eq_zero
       (by rewrite [-(card_psubg_cosets_mod_eq Ppsubg), -dvd_iff_mod_eq_zero];
       exact dvd_of_pow_succ_dvd_mul_pow (pos_of_prime Pp) Ppowsucc),

@@ -75,12 +75,12 @@ iff.intro (assume H, and.intro (assume a, implies_of_if_pos H a)
           (assume H, and.rec_on H
             (assume Hab Hnac, decidable.rec_on A_dec
               (assume a,
-                assert rw : @decidable.inl A a = A_dec, from
+                have rw : @decidable.inl A a = A_dec, from
                   subsingleton.rec_on (subsingleton_decidable A)
                     (assume H, H (@decidable.inl A a) A_dec),
                 by rewrite [rw, if_pos a] ; exact Hab a)
               (assume na,
-                assert rw : @decidable.inr A na = A_dec, from
+                have rw : @decidable.inr A na = A_dec, from
                   subsingleton.rec_on (subsingleton_decidable A)
                     (assume H, H (@decidable.inr A na) A_dec),
                 by rewrite [rw, if_neg na] ; exact Hnac na)))

@@ -23,7 +23,7 @@ definition fintype_of_equiv {A B : Type} [h : fintype A] : A ≃ B → fintype B
     (nodup_map (injective_of_left_inverse l) !fintype.unique)
     (λ b,
       have g b ∈ elements_of A, from fintype.complete (g b),
-      assert f (g b) ∈ map f (elements_of A), from mem_map f this,
+      have f (g b) ∈ map f (elements_of A), from mem_map f this,
       by rewrite r at this; exact this)
 end
 
@@ -70,7 +70,7 @@ theorem ne_of_find_discr_eq_some {f g : A → B} {a : A} : ∀ {l}, find_discr f
      have find_discr f g l = some a, by rewrite [find_discr_cons_of_eq l this at e]; exact e,
      ne_of_find_discr_eq_some this)
   (assume h : f x ≠ g x,
-     assert some x = some a, by rewrite [find_discr_cons_of_ne l h at e]; exact e,
+     have some x = some a, by rewrite [find_discr_cons_of_ne l h at e]; exact e,
      by clear ne_of_find_discr_eq_some; injection this; subst a; exact h)
 
 theorem all_eq_of_find_discr_eq_none {f g : A → B} : ∀ {l}, find_discr f g l = none → ∀ a, a ∈ l → f a = g a
@@ -151,7 +151,7 @@ match h₁ with
           obtain x px, from ex,
           absurd px (all_of_check_pred_eq_tt h (c x)))
   | ff := λ h : check_pred (λ a, ¬ p a) e = ff, inl (
-          assert ∃ x, ¬¬p x, from ex_of_check_pred_eq_ff h,
+          have ∃ x, ¬¬p x, from ex_of_check_pred_eq_ff h,
           obtain x nnpx, from this, exists.intro x (not_not_elim nnpx))
   end rfl
 end

@@ -31,7 +31,7 @@ theorem sqrt_aux_le : ∀ (s n), sqrt_aux s n ≤ s
 | (succ s) n := or.elim (em ((succ s)*(succ s) ≤ n))
   (λ h, begin unfold sqrt_aux, rewrite [if_pos h] end)
   (λ h,
-    assert sqrt_aux s n ≤ succ s, from le.step (sqrt_aux_le s n),
+    have sqrt_aux s n ≤ succ s, from le.step (sqrt_aux_le s n),
     begin unfold sqrt_aux, rewrite [if_neg h], assumption end)
 
 definition sqrt (n : nat) : nat :=
@@ -42,7 +42,7 @@ theorem sqrt_aux_lower : ∀ {s n : nat}, s ≤ n → sqrt_aux s n * sqrt_aux s 
 | (succ s) n h := by_cases
   (λ h₁ : (succ s)*(succ s) ≤ n,   by rewrite [sqrt_aux_succ_of_pos h₁]; exact h₁)
   (λ h₂ : ¬ (succ s)*(succ s) ≤ n,
-     assert aux : s ≤ n, from le_of_succ_le h,
+     have aux : s ≤ n, from le_of_succ_le h,
      by rewrite [sqrt_aux_succ_of_neg h₂]; exact (sqrt_aux_lower aux))
 
 theorem sqrt_lower (n : nat) : sqrt n * sqrt n ≤ n :=
@@ -54,8 +54,8 @@ theorem sqrt_aux_upper : ∀ {s n : nat}, n ≤ s*s + s + s → n ≤ sqrt_aux s
   (λ h₁ : (succ s)*(succ s) ≤ n,
     by rewrite [sqrt_aux_succ_of_pos h₁]; exact h)
   (λ h₂ : ¬ (succ s)*(succ s) ≤ n,
-    assert h₃ : n < (succ s) * (succ s), from lt_of_not_ge h₂,
-    assert h₄ : n ≤ s * s + s + s, by rewrite [succ_mul_succ_eq at h₃]; exact le_of_lt_succ h₃,
+    have h₃ : n < (succ s) * (succ s), from lt_of_not_ge h₂,
+    have h₄ : n ≤ s * s + s + s, by rewrite [succ_mul_succ_eq at h₃]; exact le_of_lt_succ h₃,
     by rewrite [sqrt_aux_succ_of_neg h₂]; exact (sqrt_aux_upper h₄))
 
 theorem sqrt_upper (n : nat) : n ≤ sqrt n * sqrt n + sqrt n + sqrt n :=
@@ -65,8 +65,8 @@ sqrt_aux_upper aux
 private theorem le_squared : ∀ (n : nat), n ≤ n*n
 | 0        := !le.refl
 | (succ n) :=
-  have   aux₁ : 1 ≤ succ n, from succ_le_succ !zero_le,
-  assert aux₂ : 1 * succ n ≤ succ n * succ n, from nat.mul_le_mul aux₁ !le.refl,
+  have aux₁ : 1 ≤ succ n, from succ_le_succ !zero_le,
+  have aux₂ : 1 * succ n ≤ succ n * succ n, from nat.mul_le_mul aux₁ !le.refl,
   by rewrite [one_mul at aux₂]; exact aux₂
 
 private theorem lt_squared : ∀ {n : nat}, n > 1 → n < n * n
@@ -74,7 +74,7 @@ private theorem lt_squared : ∀ {n : nat}, n > 1 → n < n * n
 | 1               h := absurd h dec_trivial
 | (succ (succ n)) h :=
   have 1 < succ (succ n),                                   from dec_trivial,
-  assert succ (succ n) * 1 < succ (succ n) * succ (succ n), from mul_lt_mul_of_pos_left this dec_trivial,
+  have succ (succ n) * 1 < succ (succ n) * succ (succ n), from mul_lt_mul_of_pos_left this dec_trivial,
   by rewrite [mul_one at this]; exact this
 
 theorem sqrt_le (n : nat) : sqrt n ≤ n :=
@@ -83,13 +83,13 @@ calc sqrt n ≤ sqrt n * sqrt n : le_squared
 
 theorem eq_zero_of_sqrt_eq_zero {n : nat} : sqrt n = 0 → n = 0 :=
 suppose sqrt n = 0,
-assert n ≤ sqrt n * sqrt n + sqrt n + sqrt n, from !sqrt_upper,
-have   n ≤ 0, by rewrite [*`sqrt n = 0` at this]; exact this,
+have n ≤ sqrt n * sqrt n + sqrt n + sqrt n, from !sqrt_upper,
+have n ≤ 0, by rewrite [*`sqrt n = 0` at this]; exact this,
 eq_zero_of_le_zero this
 
 theorem le_three_of_sqrt_eq_one {n : nat} : sqrt n = 1 → n ≤ 3 :=
 suppose sqrt n = 1,
-assert n ≤ sqrt n * sqrt n + sqrt n + sqrt n, from !sqrt_upper,
+have n ≤ sqrt n * sqrt n + sqrt n + sqrt n, from !sqrt_upper,
 show   n ≤ 3, by rewrite [*`sqrt n = 1` at this]; exact this
 
 theorem sqrt_lt : ∀ {n : nat}, n > 1 → sqrt n < n
@@ -116,21 +116,21 @@ theorem sqrt_pos_of_pos {n : nat} : n > 0 → sqrt n > 0 :=
 suppose n > 0,
 have sqrt n ≠ 0, from
   suppose sqrt n = 0,
-  assert n = 0, from eq_zero_of_sqrt_eq_zero this,
+  have n = 0, from eq_zero_of_sqrt_eq_zero this,
   by subst n; exact absurd `0 > 0` !lt.irrefl,
 pos_of_ne_zero this
 
 theorem sqrt_aux_offset_eq {n k : nat} (h₁ : k ≤ n + n) : ∀ {s}, s ≥ n → sqrt_aux s (n*n + k) = n
 | 0        h₂ :=
-  assert neqz : n = 0, from eq_zero_of_le_zero h₂,
+  have neqz : n = 0, from eq_zero_of_le_zero h₂,
   by rewrite neqz
 | (succ s) h₂ := by_cases
   (λ hl : (succ s)*(succ s) ≤ n*n + k,
-     have   l₁ : n*n + k ≤ n*n + n + n,       from by rewrite [add.assoc]; exact (add_le_add_left h₁ (n*n)),
-     assert l₂ : n*n + k < n*n + n + n + 1,   from lt_succ_of_le l₁,
-     have   l₃ : n*n + k < (succ n)*(succ n), by rewrite [-succ_mul_succ_eq at l₂]; exact l₂,
-     assert l₄ : (succ s)*(succ s) < (succ n)*(succ n), from lt_of_le_of_lt hl l₃,
-     have   ng : ¬ succ s > (succ n), from
+     have l₁ : n*n + k ≤ n*n + n + n,       from by rewrite [add.assoc]; exact (add_le_add_left h₁ (n*n)),
+     have l₂ : n*n + k < n*n + n + n + 1,   from lt_succ_of_le l₁,
+     have l₃ : n*n + k < (succ n)*(succ n), by rewrite [-succ_mul_succ_eq at l₂]; exact l₂,
+     have l₄ : (succ s)*(succ s) < (succ n)*(succ n), from lt_of_le_of_lt hl l₃,
+     have ng : ¬ succ s > (succ n), from
        assume g : succ s > succ n,
          have g₁ : (succ s)*(succ s) > (succ n)*(succ n), from mul_lt_mul_of_le_of_le g g,
          absurd (lt.trans g₁ l₄) !lt.irrefl,
@@ -139,7 +139,7 @@ theorem sqrt_aux_offset_eq {n k : nat} (h₁ : k ≤ n + n) : ∀ {s}, s ≥ n �
        assume sseqsn : succ s = succ n,
          by rewrite [sseqsn at l₄]; exact (absurd l₄ !lt.irrefl),
      have   sslen : s < n, from lt_of_succ_lt_succ (lt_of_le_of_ne sslesn ssnesn),
-     assert sseqn : succ s = n, from le.antisymm sslen h₂,
+     have sseqn : succ s = n, from le.antisymm sslen h₂,
      by rewrite [sqrt_aux_succ_of_pos hl]; exact sseqn)
   (λ hg : ¬ (succ s)*(succ s) ≤ n*n + k,
     or.elim (eq_or_lt_of_le h₂)
@@ -160,6 +160,6 @@ sqrt_offset_eq !zero_le
 
 theorem mul_square_cancel {a b : nat} : a*a = b*b → a = b :=
 assume h,
-assert aux : sqrt (a*a) = sqrt (b*b), by rewrite h,
+have aux : sqrt (a*a) = sqrt (b*b), by rewrite h,
 by rewrite [*sqrt_eq at aux]; exact aux
 end nat

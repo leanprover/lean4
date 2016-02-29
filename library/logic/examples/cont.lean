@@ -58,12 +58,12 @@ lemma β0_eq (β : nat → nat) : ∀ α, zω =[f β] α → β 0 = β (α m) :=
 lemma not_all_continuous : false :=
 let β := znkω (M f + 1) 1 in
 let α := znkω m (M f + 1) in
-assert βeq₁ : zω =[M f + 1] β, from
+have βeq₁ : zω =[M f + 1] β, from
   λ (a : nat) (h : a < M f + 1), begin unfold zω, unfold znkω, rewrite [if_pos h] end,
-assert βeq₂    : zω =[M f] β,                    from pred_beq βeq₁,
-assert m_eq_fβ : m = f β,                        from M_spec f β βeq₂,
-assert aux     : ∀ α, zω =[m] α → β 0 = β (α m), by rewrite m_eq_fβ at {1}; exact (β0_eq β),
-assert zero_eq_one : 0 = 1, from calc
+have βeq₂    : zω =[M f] β,                    from pred_beq βeq₁,
+have m_eq_fβ : m = f β,                        from M_spec f β βeq₂,
+have aux     : ∀ α, zω =[m] α → β 0 = β (α m), by rewrite m_eq_fβ at {1}; exact (β0_eq β),
+have zero_eq_one : 0 = 1, from calc
   0   = β 0         : by rewrite znkω_succ
   ... = β (α m)     : aux α (zω_eq_znkω m (M f + 1))
   ... = β (M f + 1) : by rewrite znkω_bound

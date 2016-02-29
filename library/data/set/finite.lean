@@ -168,14 +168,14 @@ theorem finite_iff_finite_of_bij_on {B : Type} {f : A → B} {s : set A} {t : se
 iff.intro (assume fs, finite_of_bij_on bijf) (assume ft, finite_of_bij_on' bijf)
 
 theorem finite_powerset (s : set A) [finite s] : finite 𝒫 s :=
-assert H : 𝒫 s = finset.to_set ' (finset.to_set (#finset 𝒫 (to_finset s))),
+have H : 𝒫 s = finset.to_set ' (finset.to_set (#finset 𝒫 (to_finset s))),
   from ext (take t, iff.intro
     (suppose t ∈ 𝒫 s,
-      assert t ⊆ s, from this,
-      assert finite t, from finite_subset this,
-      assert (#finset to_finset t ∈ 𝒫 (to_finset s)),
+      have t ⊆ s, from this,
+      have finite t, from finite_subset this,
+      have (#finset to_finset t ∈ 𝒫 (to_finset s)),
         by rewrite [finset.mem_powerset_iff_subset, to_finset_subset_to_finset_eq]; apply `t ⊆ s`,
-      assert to_finset t ∈ (finset.to_set (finset.powerset (to_finset s))), from this,
+      have to_finset t ∈ (finset.to_set (finset.powerset (to_finset s))), from this,
       mem_image this (by rewrite to_set_to_finset))
     (assume H',
       obtain t' [(tmem : (#finset t' ∈ 𝒫 (to_finset s))) (teq : finset.to_set t' = t)],

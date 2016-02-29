@@ -46,7 +46,7 @@ open nat
 theorem gcd_of_ne_zero (a : ℤ) {b : ℤ} (H : b ≠ 0) : gcd a b = gcd b (abs a % abs b) :=
 have nat_abs b ≠ 0,  from assume H', H (eq_zero_of_nat_abs_eq_zero H'),
 have nat_abs b > 0,  from pos_of_ne_zero this,
-assert nat.gcd (nat_abs a) (nat_abs b) = (nat.gcd (nat_abs b) (nat_abs a % nat_abs b)),
+have nat.gcd (nat_abs a) (nat_abs b) = (nat.gcd (nat_abs b) (nat_abs a % nat_abs b)),
   from @nat.gcd_of_pos (nat_abs a) (nat_abs b) this,
 calc
  gcd a b = nat.gcd (nat_abs b) (nat_abs a % nat_abs b) : by rewrite [↑gcd, this]
@@ -156,8 +156,8 @@ or.elim (le_or_gt 0 a₁)
     div_gcd_eq_div_gcd_of_nonneg H (ne_of_gt H1) (ne_of_gt H2) H3 H5)
   (assume H3 : a₁ < 0,
     have H4 : a₂ * b₁ < 0, by rewrite -H; apply mul_neg_of_neg_of_pos H3 H2,
-    assert H5 : a₂ < 0, from neg_of_mul_neg_right H4 (le_of_lt H1),
-    assert H6 : abs a₁ / (gcd (abs a₁) (abs b₁)) = abs a₂ / (gcd (abs a₂) (abs b₂)),
+    have H5 : a₂ < 0, from neg_of_mul_neg_right H4 (le_of_lt H1),
+    have H6 : abs a₁ / (gcd (abs a₁) (abs b₁)) = abs a₂ / (gcd (abs a₂) (abs b₂)),
       begin
         apply div_gcd_eq_div_gcd_of_nonneg,
         rewrite [abs_of_pos H1, abs_of_pos H2, abs_of_neg H3, abs_of_neg H5],
@@ -249,12 +249,12 @@ theorem coprime_swap {a b : ℤ} (H : coprime b a) : coprime a b :=
 !gcd.comm ▸ H
 
 theorem dvd_of_coprime_of_dvd_mul_right {a b c : ℤ} (H1 : coprime c b) (H2 : c ∣ a * b) : c ∣ a :=
-assert H3 : gcd (a * c) (a * b) = abs a, from
+have H3 : gcd (a * c) (a * b) = abs a, from
   calc
     gcd (a * c) (a * b) = abs a * gcd c b : gcd_mul_left
                     ... = abs a * 1       : H1
                     ... = abs a           : mul_one,
-assert H4 : (c ∣ gcd (a * c) (a * b)), from dvd_gcd !dvd_mul_left H2,
+have H4 : (c ∣ gcd (a * c) (a * b)), from dvd_gcd !dvd_mul_left H2,
 by rewrite [-dvd_abs_iff, -H3]; apply H4
 
 theorem dvd_of_coprime_of_dvd_mul_left {a b c : ℤ} (H1 : coprime c a) (H2 : c ∣ a * b) : c ∣ b :=
@@ -291,7 +291,7 @@ calc
 theorem not_coprime_of_dvd_of_dvd {m n d : ℤ} (dgt1 : d > 1) (Hm : d ∣ m) (Hn : d ∣ n) :
   ¬ coprime m n :=
 assume co : coprime m n,
-assert d ∣ gcd m n, from dvd_gcd Hm Hn,
+have d ∣ gcd m n, from dvd_gcd Hm Hn,
 have d ∣ 1, by rewrite [↑coprime at co, co at this]; apply this,
 have d ≤ 1, from le_of_dvd dec_trivial this,
 show false, from not_lt_of_ge `d ≤ 1` `d > 1`

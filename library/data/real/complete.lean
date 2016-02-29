@@ -558,7 +558,7 @@ open nat
 
 theorem archimedean_small {ε : ℝ} (H : ε > 0) : ∃ (n : ℕ), 1 / succ n < ε :=
 let n := int.nat_abs (ceil (2 / ε)) in
-assert int.of_nat n ≥ ceil (2 / ε),
+have int.of_nat n ≥ ceil (2 / ε),
   by rewrite of_nat_nat_abs; apply le_abs_self,
 have int.of_nat (succ n) ≥ ceil (2 / ε),
   begin apply le.trans, exact this, apply int.of_nat_le_of_nat_of_le, apply le_succ end,

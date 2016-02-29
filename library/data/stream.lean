@@ -634,7 +634,7 @@ obtain (i₁ : nat) hlt₁ he₁, from h₁,
 obtain (i₂ : nat) hlt₂ he₂, from h₂,
 lt.by_cases
   (λ i₁lti₂ : i₁ < i₂,
-    assert aux : nth i₁ s₂ = nth i₁ s₃, from he₂ _ i₁lti₂,
+    have aux : nth i₁ s₂ = nth i₁ s₃, from he₂ _ i₁lti₂,
     begin
       existsi i₁, split,
        {rewrite -aux, exact hlt₁},
@@ -650,7 +650,7 @@ lt.by_cases
           exact !he₂ jlti₁
     end)
   (λ i₂lti₁ : i₂ < i₁,
-    assert nth i₂ s₁ = nth i₂ s₂, from he₁ _ i₂lti₁,
+    have nth i₂ s₁ = nth i₂ s₂, from he₁ _ i₂lti₁,
     begin
       existsi i₂, split,
        {rewrite this, exact hlt₂},

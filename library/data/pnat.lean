@@ -308,7 +308,7 @@ begin
 end
 
 theorem pnat_cancel' (n m : ℕ+) : (n * n * m)⁻¹ * (rat_of_pnat n * rat_of_pnat n) = m⁻¹ :=
-assert hsimp : ∀ a b c : ℚ, (a * a * (b * b * c)) = (a * b) * (a * b) * c,
+have hsimp : ∀ a b c : ℚ, (a * a * (b * b * c)) = (a * b) * (a * b) * c,
   begin
     intro a b c,
     rewrite[-*rat.mul_assoc],
@@ -322,7 +322,7 @@ theorem pceil_helper {a : ℚ} {n : ℕ+} (H : pceil a ≤ n) (Ha : a > 0) : n�
 le.trans (inv_ge_of_le H) (one_div_le_one_div_of_le Ha (ubound_ge a))
 
 theorem inv_pceil_div (a b : ℚ) (Ha : a > 0) (Hb : b > 0) : (pceil (a / b))⁻¹ ≤ b / a :=
-assert (pceil (a / b))⁻¹ ≤ 1 / (1 / (b / a)),
+have (pceil (a / b))⁻¹ ≤ 1 / (1 / (b / a)),
   begin
     apply one_div_le_one_div_of_le,
     show 0 < 1 / (b / a), from
@@ -387,7 +387,7 @@ begin
 end
 
 theorem p_add_fractions (n : ℕ+) : (2 * n)⁻¹ + (2 * 3 * n)⁻¹ + (3 * n)⁻¹ = n⁻¹ :=
-assert T : 2⁻¹ + 2⁻¹ * 3⁻¹ + 3⁻¹ = 1, from dec_trivial,
+have T : 2⁻¹ + 2⁻¹ * 3⁻¹ + 3⁻¹ = 1, from dec_trivial,
 by rewrite[*pnat.inv_mul_eq_mul_inv,-*right_distrib,T,rat.one_mul]
 
 theorem rat_power_two_le (k : ℕ+) : rat_of_pnat k ≤ 2^k~ :=

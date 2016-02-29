@@ -93,8 +93,8 @@ begin
     (take n',
       suppose n = p * n',
       have p > 0, from lt.trans zero_lt_one pgt1,
-      assert n / p = n', from !nat.div_eq_of_eq_mul_right this `n = p * n'`,
-      assert n' < n,
+      have n / p = n', from !nat.div_eq_of_eq_mul_right this `n = p * n'`,
+      have n' < n,
         by rewrite -this; apply mult_rec_decreasing pgt1 npos,
       begin
         rewrite [mult_rec pgt1 npos pdvdn, `n / p = n'`, pow_succ], subst n,
@@ -104,14 +104,14 @@ begin
 end
 
 theorem mult_one_right (p : ℕ) : mult p 1 = 0:=
-assert H : p^(mult p 1) = 1, from eq_one_of_dvd_one !pow_mult_dvd,
+have H : p^(mult p 1) = 1, from eq_one_of_dvd_one !pow_mult_dvd,
 or.elim (le_or_gt p 1)
   (suppose p ≤ 1, by rewrite [!mult_eq_zero_of_le_one this])
   (suppose p > 1,
     by_contradiction
       (suppose mult p 1 ≠ 0,
        have mult p 1 > 0,       from pos_of_ne_zero this,
-       assert p^(mult p 1) > 1, from pow_gt_one `p > 1` this,
+       have p^(mult p 1) > 1, from pow_gt_one `p > 1` this,
        show false,              by rewrite H at this; apply !lt.irrefl this))
 
 private theorem mult_pow_mul {p n : ℕ} (i : ℕ) (pgt1 : p > 1) (npos : n > 0) :
@@ -136,13 +136,13 @@ theorem le_mult {p i n : ℕ} (pgt1 : p > 1) (npos : n > 0) (pidvd : p^i ∣ n) 
 dvd.elim pidvd
   (take m,
     suppose n = p^i * m,
-    assert m > 0, from pos_of_mul_pos_left (this ▸ npos),
+    have m > 0, from pos_of_mul_pos_left (this ▸ npos),
     by subst n; rewrite [mult_pow_mul i pgt1 this]; apply le_add_right)
 
 theorem not_dvd_div_pow_mult {p n : ℕ} (pgt1 : p > 1) (npos : n > 0) : ¬ p ∣ n / p^(mult p n) :=
 assume pdvd : p ∣ n / p^(mult p n),
 obtain m (H : n / p^(mult p n) = p * m), from exists_eq_mul_right_of_dvd pdvd,
-assert n = p^(succ (mult p n)) * m, from
+have n = p^(succ (mult p n)) * m, from
   calc
     n     = p^mult p n * (n / p^mult p n) : by rewrite (nat.mul_div_cancel' !pow_mult_dvd)
       ... = p^(succ (mult p n)) * m         : by rewrite [H, pow_succ', mul.assoc],
@@ -153,16 +153,16 @@ show false,                      from !not_succ_le_self this
 theorem mult_mul {p m n : ℕ} (primep : prime p) (mpos : m > 0) (npos : n > 0) :
   mult p (m * n) = mult p m + mult p n :=
 let m' := m / p^mult p m, n' := n / p^mult p n in
-assert p > 1, from gt_one_of_prime primep,
-assert meq : m = p^mult p m * m', by rewrite (nat.mul_div_cancel' !pow_mult_dvd),
-assert neq : n = p^mult p n * n', by rewrite (nat.mul_div_cancel' !pow_mult_dvd),
+have p > 1, from gt_one_of_prime primep,
+have meq : m = p^mult p m * m', by rewrite (nat.mul_div_cancel' !pow_mult_dvd),
+have neq : n = p^mult p n * n', by rewrite (nat.mul_div_cancel' !pow_mult_dvd),
 have m'pos : m' > 0, from pos_of_mul_pos_left (meq ▸ mpos),
 have n'pos : n' > 0, from pos_of_mul_pos_left (neq ▸ npos),
 have npdvdm' : ¬ p ∣ m', from !not_dvd_div_pow_mult `p > 1` mpos,
 have npdvdn' : ¬ p ∣ n', from !not_dvd_div_pow_mult `p > 1` npos,
-assert npdvdm'n' : ¬ p ∣ m' * n', from not_dvd_mul_of_prime primep npdvdm' npdvdn',
-assert m'n'pos : m' * n' > 0, from mul_pos m'pos n'pos,
-assert multm'n' : mult p (m' * n') = 0, from mult_eq_zero_of_not_dvd npdvdm'n',
+have npdvdm'n' : ¬ p ∣ m' * n', from not_dvd_mul_of_prime primep npdvdm' npdvdn',
+have m'n'pos : m' * n' > 0, from mul_pos m'pos n'pos,
+have multm'n' : mult p (m' * n') = 0, from mult_eq_zero_of_not_dvd npdvdm'n',
 calc
   mult p (m * n) = mult p (p^(mult p m + mult p n) * (m' * n')) :
                      by rewrite [pow_add, mul.right_comm, -mul.assoc, -meq, mul.assoc,
@@ -196,8 +196,8 @@ begin
     {intros; rewrite nz; apply dvd_zero},
   assume H : ∀ {p : ℕ}, prime p → mult p m ≤ mult p n,
   obtain m' (meq : m = p * m'), from exists_eq_mul_right_of_dvd pdvdm,
-  assert pgt1 : p > 1, from gt_one_of_prime primep,
-  assert m'pos : m' > 0, from pos_of_ne_zero
+  have pgt1 : p > 1, from gt_one_of_prime primep,
+  have m'pos : m' > 0, from pos_of_ne_zero
       (assume m'z, by revert mpos; rewrite [meq, m'z, mul_zero]; apply not_lt_zero),
   have m'ltm : m' < m,
     by rewrite [meq, -one_mul m' at {1}]; apply mul_lt_mul_of_lt_of_le m'pos pgt1 !le.refl,
@@ -205,7 +205,7 @@ begin
   have multpn : mult p n ≥ 1, from le.trans multpm (H primep),
   obtain n' (neq : n = p * n'),
     from exists_eq_mul_right_of_dvd (dvd_of_mult_pos (lt_of_succ_le multpn)),
-  assert n'pos : n' > 0, from pos_of_ne_zero
+  have n'pos : n' > 0, from pos_of_ne_zero
       (assume n'z, by revert npos; rewrite [neq, n'z, mul_zero]; apply not_lt_zero),
   have ∀q, prime q → mult q m' ≤ mult q n', from
     (take q,
@@ -215,7 +215,7 @@ begin
       have multqn : mult q n = mult q p + mult q n',
         by rewrite [neq, mult_mul primeq (pos_of_prime primep) n'pos],
       show mult q m' ≤ mult q n', from le_of_add_le_add_left (multqm ▸ multqn ▸ H primeq)),
-  assert m'dvdn' : m' ∣ n', from ih m' m'ltm m'pos n' this,
+  have m'dvdn' : m' ∣ n', from ih m' m'ltm m'pos n' this,
   show m ∣ n, by rewrite [meq, neq]; apply mul_dvd_mul !dvd.refl m'dvdn'
 end
 
@@ -293,7 +293,7 @@ end
 theorem eq_prime_factorization {n : ℕ} (npos : n > 0) :
   n = (∏ p ∈ prime_factors n, p^(mult p n)) :=
 let nprod := ∏ p ∈ prime_factors n, p^(mult p n) in
-assert primefactors : ∀ p, p ∈ prime_factors n → prime p,
+have primefactors : ∀ p, p ∈ prime_factors n → prime p,
   from take p, @prime_of_mem_prime_factors p n,
 have prodpos : (∏ q ∈ prime_factors n, q^(mult q n)) > 0,
   from Prod_pos (take q, assume qpf,
@@ -306,6 +306,6 @@ eq_of_forall_prime_mult_eq npos prodpos
         eq.symm (mult_prod_pow_of_mem primep primefactors (λ p, mult p n) pprimefactors))
       (assume pnprimefactors : p ∉ prime_factors n,
         have ¬ p ∣ n, from assume H, pnprimefactors (mem_prime_factors npos primep H),
-        assert mult p n = 0, from mult_eq_zero_of_not_dvd this,
+        have mult p n = 0, from mult_eq_zero_of_not_dvd this,
         by rewrite [this, mult_prod_pow_of_not_mem primep primefactors _ pnprimefactors]))
 end nat

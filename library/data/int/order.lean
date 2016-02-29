@@ -122,7 +122,7 @@ have a + of_nat (n + m) = a + 0, from
       ... = a + 0                           : by rewrite add_zero,
 have of_nat (n + m) = of_nat 0, from add.left_cancel this,
 have n + m = 0,                 from of_nat.inj this,
-assert n = 0,                     from nat.eq_zero_of_add_eq_zero_right this,
+have n = 0,                     from nat.eq_zero_of_add_eq_zero_right this,
 show a = b, from
   calc
     a = a + 0    : add_zero
@@ -341,7 +341,7 @@ or.elim (le_or_gt a 1)
   (suppose a ≤ 1,
     show a = 1, from le.antisymm this (add_one_le_of_lt `a > 0`))
   (suppose a > 1,
-    assert a * b ≥ 2 * 1,
+    have a * b ≥ 2 * 1,
       from mul_le_mul (add_one_le_of_lt `a > 1`) (add_one_le_of_lt `b > 0`) trivial H,
     have false, by rewrite [H' at this]; exact this,
     false.elim this)

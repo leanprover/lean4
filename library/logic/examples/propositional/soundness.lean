@@ -123,13 +123,13 @@ namespace PropF
            have aux : bnot (TrueQ v A) = tt, by rewrite (eq_ff_of_ne_tt f),
            bor_inl aux))
     (λ Γ A B H₁ H₂ r₁ r₂ v s,
-       assert aux₁ : bnot (TrueQ v A) || TrueQ v B = tt, from r₁ v s,
-       assert aux₂ : TrueQ v A = tt, from r₂ v s,
+       have aux₁ : bnot (TrueQ v A) || TrueQ v B = tt, from r₁ v s,
+       have aux₂ : TrueQ v A = tt, from r₂ v s,
        by rewrite [aux₂ at aux₁, bnot_true at aux₁, ff_bor at aux₁]; exact aux₁)
     (λ Γ A H r v s, by_contradiction
        (λ n : TrueQ v A ≠ tt,
-         assert aux₁ : TrueQ v A    = ff, from eq_ff_of_ne_tt n,
-         assert aux₂ : TrueQ v (~A) = tt, begin change (bnot (TrueQ v A) || ff = tt), rewrite aux₁ end,
+         have aux₁ : TrueQ v A    = ff, from eq_ff_of_ne_tt n,
+         have aux₂ : TrueQ v (~A) = tt, begin change (bnot (TrueQ v A) || ff = tt), rewrite aux₁ end,
          have aux₃ : Satisfies v ((~A)::Γ), from Satisfies_cons s aux₂,
          have aux₄ : TrueQ v ⊥ = tt, from r v aux₃,
          absurd aux₄ ff_ne_tt))

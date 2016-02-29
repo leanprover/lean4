@@ -89,7 +89,7 @@ le_Inf (take x, suppose x ∈ '{a, b},
   or.elim (eq_or_mem_of_mem_insert this)
     (suppose x = a, begin subst x, exact h₁ end)
     (suppose x ∈ '{b},
-      assert x = b, from !eq_of_mem_singleton this,
+      have x = b, from !eq_of_mem_singleton this,
       begin subst x, exact h₂ end))
 
 lemma le_sup_left (a b : A) : a ≤ a ⊔ b :=
@@ -104,7 +104,7 @@ Sup_le (take x, suppose x ∈ '{a, b},
   or.elim (eq_or_mem_of_mem_insert this)
     (suppose x = a, by subst x; assumption)
     (suppose x ∈ '{b},
-      assert x = b, from !eq_of_mem_singleton this,
+      have x = b, from !eq_of_mem_singleton this,
       by subst x; assumption))
 end complete_lattice_Inf
 
@@ -152,7 +152,7 @@ le_Inf (take x, suppose x ∈ '{a, b},
   or.elim (eq_or_mem_of_mem_insert this)
     (suppose x = a, begin subst x, exact h₁ end)
     (suppose x ∈ '{b},
-      assert x = b, from !eq_of_mem_singleton this,
+      have x = b, from !eq_of_mem_singleton this,
       begin subst x, exact h₂ end))
 
 lemma le_sup_left (a b : A) : a ≤ a ⊔ b :=
@@ -167,7 +167,7 @@ Sup_le (take x, suppose x ∈ '{a, b},
   or.elim (eq_or_mem_of_mem_insert this)
     (assume H : x = a, by subst x; exact h₁)
     (suppose x ∈ '{b},
-      assert x = b, from !eq_of_mem_singleton this,
+      have x = b, from !eq_of_mem_singleton this,
       by subst x; exact h₂))
 
 end complete_lattice_Sup
@@ -265,12 +265,12 @@ lemma Inf_singleton {a : A} : ⨅'{a} = a :=
 have ⨅'{a} ≤ a, from
   Inf_le !mem_insert,
 have a ≤ ⨅'{a}, from
-  le_Inf (take b, suppose b ∈ '{a}, assert b = a, from eq_of_mem_singleton this, by rewrite this; apply le.refl),
+  le_Inf (take b, suppose b ∈ '{a}, have b = a, from eq_of_mem_singleton this, by rewrite this; apply le.refl),
 le.antisymm `⨅'{a} ≤ a` `a ≤ ⨅'{a}`
 
 lemma Sup_singleton {a : A} : ⨆'{a} = a :=
 have ⨆'{a} ≤ a, from
-  Sup_le (take b, suppose b ∈ '{a}, assert b = a, from eq_of_mem_singleton this, by rewrite this; apply le.refl),
+  Sup_le (take b, suppose b ∈ '{a}, have b = a, from eq_of_mem_singleton this, by rewrite this; apply le.refl),
 have a ≤ ⨆'{a}, from
   le_Sup !mem_insert,
 le.antisymm `⨆'{a} ≤ a` `a ≤ ⨆'{a}`

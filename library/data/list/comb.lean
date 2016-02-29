@@ -424,14 +424,14 @@ theorem product_nil : ∀ (l : list A), product l (@nil B) = []
 
 theorem eq_of_mem_map_pair₁  {a₁ a : A} {b₁ : B} {l : list B} : (a₁, b₁) ∈ map (λ b, (a, b)) l → a₁ = a :=
 assume ain,
-assert pr1 (a₁, b₁) ∈ map pr1 (map (λ b, (a, b)) l), from mem_map pr1 ain,
-assert a₁ ∈ map (λb, a) l, by revert this; rewrite [map_map, ↑pr1]; intro this; assumption,
+have pr1 (a₁, b₁) ∈ map pr1 (map (λ b, (a, b)) l), from mem_map pr1 ain,
+have a₁ ∈ map (λb, a) l, by revert this; rewrite [map_map, ↑pr1]; intro this; assumption,
 eq_of_map_const this
 
 theorem mem_of_mem_map_pair₁ {a₁ a : A} {b₁ : B} {l : list B} : (a₁, b₁) ∈ map (λ b, (a, b)) l → b₁ ∈ l :=
 assume ain,
-assert pr2 (a₁, b₁) ∈ map pr2 (map (λ b, (a, b)) l), from mem_map pr2 ain,
-assert b₁ ∈ map (λx, x) l, by rewrite [map_map at this, ↑pr2 at this]; exact this,
+have pr2 (a₁, b₁) ∈ map pr2 (map (λ b, (a, b)) l), from mem_map pr2 ain,
+have b₁ ∈ map (λx, x) l, by rewrite [map_map at this, ↑pr2 at this]; exact this,
 by rewrite [map_id at this]; exact this
 
 theorem mem_product {a : A} {b : B} : ∀ {l₁ l₂}, a ∈ l₁ → b ∈ l₂ → (a, b) ∈ product l₁ l₂
@@ -439,10 +439,10 @@ theorem mem_product {a : A} {b : B} : ∀ {l₁ l₂}, a ∈ l₁ → b ∈ l₂
 | (x::l₁) l₂ h₁ h₂ :=
   or.elim (eq_or_mem_of_mem_cons h₁)
     (assume aeqx  : a = x,
-      assert (a, b) ∈ map (λ b, (a, b)) l₂, from mem_map _ h₂,
+      have (a, b) ∈ map (λ b, (a, b)) l₂, from mem_map _ h₂,
       begin rewrite [-aeqx, product_cons], exact mem_append_left _ this end)
     (assume ainl₁ : a ∈ l₁,
-      assert (a, b) ∈ product l₁ l₂, from mem_product ainl₁ h₂,
+      have (a, b) ∈ product l₁ l₂, from mem_product ainl₁ h₂,
       begin rewrite [product_cons], exact mem_append_right _ this end)
 
 theorem mem_of_mem_product_left {a : A} {b : B} : ∀ {l₁ l₂}, (a, b) ∈ product l₁ l₂ → a ∈ l₁
@@ -450,7 +450,7 @@ theorem mem_of_mem_product_left {a : A} {b : B} : ∀ {l₁ l₂}, (a, b) ∈ pr
 | (x::l₁) l₂ h :=
   or.elim (mem_or_mem_of_mem_append h)
     (suppose (a, b) ∈ map (λ b, (x, b)) l₂,
-       assert a = x, from eq_of_mem_map_pair₁ this,
+       have a = x, from eq_of_mem_map_pair₁ this,
        by rewrite this; exact !mem_cons)
     (suppose (a, b) ∈ product l₁ l₂,
       have a ∈ l₁, from mem_of_mem_product_left this,
@@ -468,7 +468,7 @@ theorem mem_of_mem_product_right {a : A} {b : B} : ∀ {l₁ l₂}, (a, b) ∈ p
 theorem length_product : ∀ (l₁ : list A) (l₂ : list B), length (product l₁ l₂) = length l₁ * length l₂
 | []      l₂ := by rewrite [length_nil, zero_mul]
 | (x::l₁) l₂ :=
-  assert length (product l₁ l₂) = length l₁ * length l₂, from length_product l₁ l₂,
+  have length (product l₁ l₂) = length l₁ * length l₂, from length_product l₁ l₂,
   by rewrite [product_cons, length_append, length_cons,
               length_map, this, right_distrib, one_mul, add.comm]
 end product
@@ -521,14 +521,14 @@ lemma exists_of_mem_dmap : ∀ {l : list A} {b : B}, b ∈ dmap p f l → ∃ a 
   rewrite [dmap_cons_of_pos Pa, mem_cons_iff],
   intro Pb, cases Pb with Peq Pin,
     exact exists.intro a (exists.intro Pa (and.intro !mem_cons Peq)),
-    assert Pex : ∃ (a : A) (P : p a), a ∈ l ∧ b = f a P, exact exists_of_mem_dmap Pin,
+    have Pex : ∃ (a : A) (P : p a), a ∈ l ∧ b = f a P, from exists_of_mem_dmap Pin,
     cases Pex with a' Pex', cases Pex' with Pa' P',
     exact exists.intro a' (exists.intro Pa' (and.intro (mem_cons_of_mem a (and.left P')) (and.right P')))
   end)
   (assume nPa,  begin
   rewrite [dmap_cons_of_neg nPa],
   intro Pin,
-  assert Pex : ∃ (a : A) (P : p a), a ∈ l ∧ b = f a P, exact exists_of_mem_dmap Pin,
+  have Pex : ∃ (a : A) (P : p a), a ∈ l ∧ b = f a P, from exists_of_mem_dmap Pin,
   cases Pex with a' Pex', cases Pex' with Pa' P',
   exact exists.intro a' (exists.intro Pa' (and.intro (mem_cons_of_mem a (and.left P')) (and.right P')))
   end)
@@ -537,8 +537,8 @@ lemma map_dmap_of_inv_of_pos {g : B → A} (Pinv : ∀ a (Pa : p a), g (f a Pa) 
                           ∀ {l : list A}, (∀ ⦃a⦄, a ∈ l → p a) → map g (dmap p f l) = l
 | []     := assume Pl, by rewrite [dmap_nil, map_nil]
 | (a::l) := assume Pal,
-            assert Pa : p a, from Pal a !mem_cons,
-            assert Pl : ∀ a, a ∈ l → p a,
+            have Pa : p a, from Pal a !mem_cons,
+            have Pl : ∀ a, a ∈ l → p a,
               from take x Pxin, Pal x (mem_cons_of_mem a Pxin),
             by rewrite [dmap_cons_of_pos Pa, map_cons, Pinv, map_dmap_of_inv_of_pos Pl]
 

@@ -110,11 +110,11 @@ begin
 end
 
 theorem pow_ge_one {x : A} (i : ℕ) (xge1 : x ≥ 1) : x^i ≥ 1 :=
-assert H : x^i ≥ 1^i, from pow_le_pow_of_le i (le_of_lt zero_lt_one) xge1,
+have H : x^i ≥ 1^i, from pow_le_pow_of_le i (le_of_lt zero_lt_one) xge1,
 by rewrite one_pow at H; exact H
 
 theorem pow_gt_one {x : A} {i : ℕ} (xgt1 : x > 1) (ipos : i > 0) : x^i > 1 :=
-assert xpos : x > 0, from lt.trans zero_lt_one xgt1,
+have xpos : x > 0, from lt.trans zero_lt_one xgt1,
 begin
   induction i with [i, ih],
     {exfalso, exact !lt.irrefl ipos},

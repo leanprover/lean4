@@ -22,7 +22,7 @@ begin
     show card s₁ + card (insert a s₂) = card (s₁ ∪ (insert a s₂)) + card (s₁ ∩ (insert a s₂)),
       from decidable.by_cases
         (assume as1 : a ∈ s₁,
-          assert H : a ∉ s₁ ∩ s₂, from assume H', ans2 (mem_of_mem_inter_right H'),
+          have H : a ∉ s₁ ∩ s₂, from assume H', ans2 (mem_of_mem_inter_right H'),
           begin
             rewrite [card_insert_of_not_mem ans2, union_comm, -insert_union, union_comm],
             rewrite [insert_union, insert_eq_of_mem as1, insert_eq, inter_distrib_left, inter_comm],
@@ -30,7 +30,7 @@ begin
             rewrite IH
           end)
         (assume ans1 : a ∉ s₁,
-          assert H : a ∉ s₁ ∪ s₂, from assume H',
+          have H : a ∉ s₁ ∪ s₂, from assume H',
             or.elim (mem_or_mem_of_mem_union H') (assume as1, ans1 as1) (assume as2, ans2 as2),
           begin
             rewrite [card_insert_of_not_mem ans2, union_comm, -insert_union, union_comm],
@@ -92,8 +92,8 @@ lemma card_le_of_inj_on (a : finset A) (b : finset B)
     (Pex : ∃ f : A → B, set.inj_on f (ts a) ∧ (image f a ⊆ b)):
   card a ≤ card b :=
 obtain f Pinj, from Pex,
-assert Psub : _, from and.right Pinj,
-assert Ple : card (image f a) ≤ card b, from card_le_card_of_subset Psub,
+have Psub : _, from and.right Pinj,
+have Ple : card (image f a) ≤ card b, from card_le_card_of_subset Psub,
 by rewrite [(card_image_eq_of_inj_on (and.left Pinj))⁻¹]; exact Ple
 
 theorem card_image_le (f : A → B) (s : finset A) : card (image f s) ≤ card s :=
@@ -167,7 +167,7 @@ theorem eq_of_card_eq_of_subset {s₁ s₂ : finset A} (Hcard : card s₁ = card
   s₁ = s₂ :=
 have H : card s₁ + 0 = card s₁ + card (s₂ \ s₁),
   by rewrite [Hcard at {1}, card_eq_card_add_card_diff Hsub],
-assert H1 : s₂ \ s₁ = ∅, from eq_empty_of_card_eq_zero (add.left_cancel H)⁻¹,
+have H1 : s₂ \ s₁ = ∅, from eq_empty_of_card_eq_zero (add.left_cancel H)⁻¹,
 by rewrite [-union_diff_cancel Hsub, H1, union_empty]
 
 lemma exists_two_of_card_gt_one {s : finset A} : 1 < card s → ∃ a b, a ∈ s ∧ b ∈ s ∧ a ≠ b :=
@@ -210,12 +210,12 @@ finset.induction_on s
     have H2  : ∀ a₁ a₂ : A, a₁ ∈ s' → a₂ ∈ s' → a₁ ≠ a₂ → f a₁ ∩ f a₂ = ∅, from
       take a₁ a₂, assume H3 H4 H5,
       H1 (!mem_insert_of_mem H3) (!mem_insert_of_mem H4) H5,
-    assert H6 : card (⋃ (x : A) ∈ s', f x) = ∑ (x : A) ∈ s', card (f x), from IH H2,
-    assert H7 : ∀ x, x ∈ s' → f a ∩ f x = ∅, from
+    have H6 : card (⋃ (x : A) ∈ s', f x) = ∑ (x : A) ∈ s', card (f x), from IH H2,
+    have H7 : ∀ x, x ∈ s' → f a ∩ f x = ∅, from
       take x, assume xs',
       have anex : a ≠ x, from assume aex, (eq.subst aex H) xs',
       H1 !mem_insert (!mem_insert_of_mem xs') anex,
-    assert H8 : f a ∩ (⋃ (x : A) ∈ s', f x) = ∅, from
+    have H8 : f a ∩ (⋃ (x : A) ∈ s', f x) = ∅, from
       calc
         f a ∩ (⋃ (x : A) ∈ s', f x) = (⋃ (x : A) ∈ s', f a ∩ f x)  : by rewrite inter_Union
                                 ... = (⋃ (x : A) ∈ s', ∅)          : by rewrite [Union_ext H7]

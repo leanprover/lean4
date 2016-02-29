@@ -69,10 +69,10 @@ theorem hom_map_one : f 1 = 1 :=
         eq.symm (mul.right_inv (f 1) ▸ (mul_inv_eq_of_eq_mul P))
 
 theorem hom_map_inv (a : A) : f a⁻¹ = (f a)⁻¹ :=
-        assert P : f 1 = 1, from hom_map_one f,
-        assert P1 : f (a⁻¹ * a) = 1, from (eq.symm (mul.left_inv a)) ▸ P,
-        assert P2 : (f a⁻¹) * (f a) = 1, from (is_hom f a⁻¹ a) ▸ P1,
-        assert P3 : (f a⁻¹) * (f a) = (f a)⁻¹ * (f a), from eq.symm (mul.left_inv (f a)) ▸ P2,
+        have P : f 1 = 1, from hom_map_one f,
+        have P1 : f (a⁻¹ * a) = 1, from (eq.symm (mul.left_inv a)) ▸ P,
+        have P2 : (f a⁻¹) * (f a) = 1, from (is_hom f a⁻¹ a) ▸ P1,
+        have P3 : (f a⁻¹) * (f a) = (f a)⁻¹ * (f a), from eq.symm (mul.left_inv (f a)) ▸ P2,
         mul_right_cancel P3
 
 theorem hom_map_mul_closed (H : set A) : mul_closed_on H → mul_closed_on (f ' H) :=
@@ -80,8 +80,8 @@ theorem hom_map_mul_closed (H : set A) : mul_closed_on H → mul_closed_on (f ' 
         assume Pb1 : b1 ∈ f ' H, assume Pb2 : b2 ∈ f ' H,
         obtain a1 (Pa1 : a1 ∈ H ∧ f a1 = b1), from Pb1,
         obtain a2 (Pa2 : a2 ∈ H ∧ f a2 = b2), from Pb2,
-        assert Pa1a2 : a1 * a2 ∈ H, from Pclosed a1 a2 (and.left Pa1) (and.left Pa2),
-        assert Pb1b2 : f (a1 * a2) = b1 * b2, from calc
+        have Pa1a2 : a1 * a2 ∈ H, from Pclosed a1 a2 (and.left Pa1) (and.left Pa2),
+        have Pb1b2 : f (a1 * a2) = b1 * b2, from calc
         f (a1 * a2) = f a1 * f a2 : is_hom f a1 a2
         ... = b1 * f a2 : {and.right Pa1}
         ... = b1 * b2 : {and.right Pa2},
@@ -118,11 +118,11 @@ include is_subgH
 theorem hom_map_subgroup : is_subgroup (f ' H) :=
   have Pone : 1 ∈ f ' H, from mem_image (@subg_has_one _ _ H _) (hom_map_one f),
   have Pclosed : mul_closed_on (f ' H), from hom_map_mul_closed f H subg_mul_closed,
-  assert Pinv : ∀ b, b ∈ f ' H → b⁻¹ ∈ f ' H, from
+  have Pinv : ∀ b, b ∈ f ' H → b⁻¹ ∈ f ' H, from
   assume b, assume Pimg,
   obtain a (Pa : a ∈ H ∧ f a = b), from Pimg,
-  assert Painv : a⁻¹ ∈ H, from subg_has_inv a (and.left Pa),
-  assert Pfainv : (f a)⁻¹ ∈ f ' H, from mem_image Painv (hom_map_inv f a),
+  have Painv : a⁻¹ ∈ H, from subg_has_inv a (and.left Pa),
+  have Pfainv : (f a)⁻¹ ∈ f ' H, from mem_image Painv (hom_map_inv f a),
     and.right Pa ▸ Pfainv,
   is_subgroup.mk Pone Pclosed Pinv
 end
@@ -149,8 +149,8 @@ definition quot_over_ker [instance] : group (coset_of (ker f)) := mk_quotient_gr
 example (a x : A) : (x ∈ a ∘> ker f) = (f (a⁻¹*x) = 1) := rfl
 lemma ker_coset_same_val (a b : A): same_lcoset (ker f) a b → f a = f b :=
       assume Psame,
-      assert Pin : f (b⁻¹*a) = 1, from subg_same_lcoset_in_lcoset a b Psame,
-      assert P : (f b)⁻¹ * (f a) = 1, from calc
+      have Pin : f (b⁻¹*a) = 1, from subg_same_lcoset_in_lcoset a b Psame,
+      have P : (f b)⁻¹ * (f a) = 1, from calc
       (f b)⁻¹ * (f a) = (f b⁻¹) * (f a) :  (hom_map_inv f)
       ... = f (b⁻¹*a) : by rewrite [is_hom f]
       ... = 1 : by rewrite Pin,
@@ -173,7 +173,7 @@ lemma ker_map_is_hom : homomorphic (ker_natural_map : coset_of (ker f) → B) :=
 
 lemma ker_coset_inj (a b : A) : (ker_natural_map ⟦a⟧ = ker_natural_map ⟦b⟧) → ⟦a⟧ = ⟦b⟧ :=
       assume Pfeq : f a = f b,
-      assert Painb : a ∈ b ∘> ker f, from calc
+      have Painb : a ∈ b ∘> ker f, from calc
       f (b⁻¹*a) = (f b⁻¹) * (f a) : by rewrite [is_hom f]
       ... = (f b)⁻¹ * (f a)       : by rewrite (hom_map_inv f)
       ... = (f a)⁻¹ * (f a)       : by rewrite Pfeq

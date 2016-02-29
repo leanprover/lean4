@@ -19,7 +19,7 @@ definition countable_of_encodable {A : Type} : encodable A → countable A :=
 assume e : encodable A,
 have injective encode, from
   λ (a₁ a₂ : A) (h : encode a₁ = encode a₂),
-    assert decode A (encode a₁) = decode A (encode a₂), by rewrite h,
+    have decode A (encode a₁) = decode A (encode a₂), by rewrite h,
     by rewrite [*encodek at this]; injection this; assumption,
 exists.intro encode this
 
@@ -71,16 +71,16 @@ else
 open decidable
 private theorem decode_encode_sum : ∀ s : sum A B, decode_sum (encode_sum s) = some s
 | (sum.inl a) :=
-  assert aux : 2 > (0:nat), from dec_trivial,
+  have aux : 2 > (0:nat), from dec_trivial,
   begin
     esimp [encode_sum, decode_sum],
     rewrite [mul_mod_right, if_pos (eq.refl (0 : nat)), nat.mul_div_cancel_left _ aux,
              encodable.encodek]
   end
 | (sum.inr b) :=
-  assert aux₁ : 2 > (0:nat),       from dec_trivial,
-  assert aux₂ : 1 % 2 = (1:nat), by rewrite [nat.mod_def],
-  assert aux₃ : 1 ≠ (0:nat),       from dec_trivial,
+  have aux₁ : 2 > (0:nat),       from dec_trivial,
+  have aux₂ : 1 % 2 = (1:nat), by rewrite [nat.mod_def],
+  have aux₃ : 1 ≠ (0:nat),       from dec_trivial,
   begin
     esimp [encode_sum, decode_sum],
     rewrite [add.comm, add_mul_mod_self_left, aux₂, if_neg aux₃, nat.add_sub_cancel_left,
@@ -225,9 +225,9 @@ private lemma enle.total (a b : A) : enle a b ∨ enle b a :=
 
 private lemma enle.antisymm (a b : A) : enle a b → enle b a → a = b :=
 assume h₁ h₂,
-assert encode a = encode b, from le.antisymm h₁ h₂,
-assert decode A (encode a) = decode A (encode b), by rewrite this,
-assert some a = some b, by rewrite [*encodek at this]; exact this,
+have encode a = encode b, from le.antisymm h₁ h₂,
+have decode A (encode a) = decode A (encode b), by rewrite this,
+have some a = some b, by rewrite [*encodek at this]; exact this,
 option.no_confusion this (λ e, e)
 
 private definition decidable_enle [instance] (a b : A) : decidable (enle a b) :=
@@ -248,7 +248,7 @@ quot.lift_on s
   (λ l, encode (ensort (elt_of l)))
   (λ l₁ l₂ p,
     have elt_of l₁ ~ elt_of l₂,                     from p,
-    assert ensort (elt_of l₁) = ensort (elt_of l₂), from sorted_eq_of_perm this,
+    have ensort (elt_of l₁) = ensort (elt_of l₂), from sorted_eq_of_perm this,
     by rewrite this)
 
 private definition decode_finset (n : nat) : option (finset A) :=

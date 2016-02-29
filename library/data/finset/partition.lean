@@ -32,8 +32,8 @@ lemma equiv_class_disjoint (f : partition) (a1 a2 : finset A) (Pa1 : a1 ∈ equi
     (Pa2 : a2 ∈ equiv_classes f) :
   a1 ≠ a2 → a1 ∩ a2 = ∅ :=
 assume Pne,
-assert Pe1 : _, from exists_of_mem_image Pa1, obtain g1 Pg1, from Pe1,
-assert Pe2 : _, from exists_of_mem_image Pa2, obtain g2 Pg2, from Pe2,
+have Pe1 : _, from exists_of_mem_image Pa1, obtain g1 Pg1, from Pe1,
+have Pe2 : _, from exists_of_mem_image Pa2, obtain g2 Pg2, from Pe2,
 begin
   apply inter_eq_empty_of_disjoint,
   apply disjoint.intro,
@@ -99,7 +99,7 @@ lemma binary_inter_empty_Union_disjoint_sets {P : finset A → Prop} [decP : dec
 assume Pds, inter_eq_empty (take a, assume Pa nPa,
   obtain s Psin Pains, from iff.elim_left !mem_Union_iff Pa,
   obtain t Ptin Paint, from iff.elim_left !mem_Union_iff nPa,
-  assert s ≠ t,
+  have s ≠ t,
     from assume Peq, absurd (Peq ▸ of_mem_sep Psin) (of_mem_sep Ptin),
   have e₁ : s ∩ t = empty, from Pds s t (mem_of_mem_sep Psin) (mem_of_mem_sep Ptin) `s ≠ t`,
   have a ∈ s ∩ t,     from mem_inter Pains Paint,

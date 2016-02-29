@@ -90,7 +90,7 @@ definition sub_dvd_of_not_prime2 {n : nat} : n ≥ 2 → ¬ prime n → {m | m �
 assume h₁ h₂,
 have n ≠ 0, from assume h, begin subst n, exact absurd h₁ dec_trivial end,
 obtain m m_dvd_n m_ne_1 m_ne_n, from sub_dvd_of_not_prime h₁ h₂,
-assert m_ne_0 : m ≠ 0, from assume h, begin subst m, exact absurd (eq_zero_of_zero_dvd m_dvd_n) `n ≠ 0` end,
+have m_ne_0 : m ≠ 0, from assume h, begin subst m, exact absurd (eq_zero_of_zero_dvd m_dvd_n) `n ≠ 0` end,
 begin
   existsi m, split, assumption,
   split,
@@ -145,7 +145,7 @@ lemma odd_of_prime {p : nat} : prime p → p > 2 → odd p :=
 λ pp p_gt_2, by_contradiction (λ hn,
   have even p, from even_of_not_odd hn,
   obtain k `p = 2*k`, from exists_of_even this,
-  assert 2 ∣ p, by rewrite [`p = 2*k`]; apply dvd_mul_right,
+  have 2 ∣ p, by rewrite [`p = 2*k`]; apply dvd_mul_right,
   or.elim (eq_one_or_eq_self_of_prime_of_dvd pp this)
     (suppose 2 = 1, absurd this dec_trivial)
     (suppose 2 = p, by subst this; exact absurd p_gt_2 !lt.irrefl))
@@ -190,8 +190,8 @@ lemma dvd_or_dvd_of_prime_of_dvd_mul {p m n : nat} : prime p → p ∣ m * n →
 
 lemma dvd_of_prime_of_dvd_pow {p m : nat} : ∀ {n}, prime p → p ∣ m^n → p ∣ m
 | 0 hp hd :=
-  assert p = 1,       from eq_one_of_dvd_one hd,
-  have   (1:nat) ≥ 2, begin rewrite -this at {1}, apply ge_two_of_prime hp end,
+  have p = 1,       from eq_one_of_dvd_one hd,
+  have (1:nat) ≥ 2, begin rewrite -this at {1}, apply ge_two_of_prime hp end,
   absurd this dec_trivial
 | (succ n) hp hd :=
   have p ∣ (m^n)*m, by rewrite [pow_succ' at hd]; exact hd,
@@ -204,12 +204,12 @@ lemma coprime_pow_of_prime_of_not_dvd {p m a : nat} : prime p → ¬ p ∣ a →
 
 lemma coprime_primes {p q : nat} : prime p → prime q → p ≠ q → coprime p q :=
 λ hp hq hn,
-  assert gcd p q ∣ p, from !gcd_dvd_left,
+  have gcd p q ∣ p, from !gcd_dvd_left,
   or.elim (eq_one_or_eq_self_of_prime_of_dvd hp this)
     (suppose gcd p q = 1, this)
     (assume h : gcd p q = p,
-      assert gcd p q ∣ q, from !gcd_dvd_right,
-      have   p ∣ q, by rewrite -h; exact this,
+      have gcd p q ∣ q, from !gcd_dvd_right,
+      have p ∣ q, by rewrite -h; exact this,
       or.elim (eq_one_or_eq_self_of_prime_of_dvd hq this)
         (suppose p = 1, by subst p; exact absurd hp not_prime_one)
         (suppose p = q, by contradiction))

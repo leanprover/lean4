@@ -148,7 +148,7 @@ nat.induction_on n
   (by simp)
   (take a iH,
     -- TODO(Leo): replace with forward reasoning after we add strategies for it.
-    assert succ (a + m) = succ (a + k) → a + m = a + k, from !succ.inj,
+    have succ (a + m) = succ (a + k) → a + m = a + k, from !succ.inj,
     by inst_simp)
 
 protected theorem add_right_cancel {n m k : ℕ} (H : n + m = k + m) : n = k :=

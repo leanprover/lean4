@@ -102,7 +102,7 @@ end
 private theorem ineq_helper (a b : ℚ) (k m n : ℕ+) (H : a ≤ (k * 2 * m)⁻¹ + (k * 2 * n)⁻¹)
                     (H2 : b ≤ (k * 2 * m)⁻¹ + (k * 2 * n)⁻¹) :
         (rat_of_pnat k) * a + b * (rat_of_pnat k) ≤ m⁻¹ + n⁻¹ :=
-assert H3 : (k * 2 * m)⁻¹ + (k * 2 * n)⁻¹ = (2 * k)⁻¹ * (m⁻¹ + n⁻¹),
+have H3 : (k * 2 * m)⁻¹ + (k * 2 * n)⁻¹ = (2 * k)⁻¹ * (m⁻¹ + n⁻¹),
   begin
     rewrite [left_distrib, *pnat.inv_mul_eq_mul_inv],
     rewrite (mul.comm k⁻¹)
@@ -304,15 +304,15 @@ definition K₂ (s t : seq) := max (K s) (K t)
 
 private theorem K₂_symm (s t : seq) : K₂ s t = K₂ t s :=
   if H : K s < K t then
-    (assert H1 : K₂ s t = K t, from pnat.max_eq_right H,
-     assert H2 : K₂ t s = K t, from pnat.max_eq_left (pnat.not_lt_of_ge (pnat.le_of_lt H)),
+    (have H1 : K₂ s t = K t, from pnat.max_eq_right H,
+     have H2 : K₂ t s = K t, from pnat.max_eq_left (pnat.not_lt_of_ge (pnat.le_of_lt H)),
      by rewrite [H1, -H2])
   else
-    (assert H1 : K₂ s t = K s, from pnat.max_eq_left H,
+    (have H1 : K₂ s t = K s, from pnat.max_eq_left H,
       if J : K t < K s then
-        (assert H2 : K₂ t s = K s, from pnat.max_eq_right J, by rewrite [H1, -H2])
+        (have H2 : K₂ t s = K s, from pnat.max_eq_right J, by rewrite [H1, -H2])
       else
-        (assert Heq : K t = K s, from
+        (have Heq : K t = K s, from
           pnat.eq_of_le_of_ge (pnat.le_of_not_gt H) (pnat.le_of_not_gt J),
         by rewrite [↑K₂, Heq]))
 

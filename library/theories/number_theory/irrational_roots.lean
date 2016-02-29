@@ -29,7 +29,7 @@ section
     from even_of_exists (exists.intro _ (eq.symm this)),
   have even b,
     from even_of_even_pow this,
-  assert 2 ∣ gcd a b,
+  have 2 ∣ gcd a b,
     from dvd_gcd (dvd_of_even `even a`) (dvd_of_even `even b`),
   have (2:nat) ∣ 1,
     begin rewrite [gcd_eq_one_of_coprime co at this], exact this end,
@@ -51,7 +51,7 @@ section
     (suppose b = 0,
       have a^n = 0,
         by rewrite [H, this, zero_pow npos],
-      assert a = 0,
+      have a = 0,
         from eq_zero_of_pow_eq_zero this,
       show false,
         from ne_of_lt `0 < a` this⁻¹),
@@ -59,7 +59,7 @@ section
     take p,
     suppose prime p,
     suppose p ∣ b,
-    assert p ∣ b^n,
+    have p ∣ b^n,
       from dvd_pow_of_dvd_of_pos `p ∣ b` `n > 0`,
     have p ∣ a^n,
       by rewrite H; apply dvd_mul_of_dvd_right this,
@@ -156,7 +156,7 @@ section
     (suppose p = 0,
       show false,
         by note H := (pos_of_prime primep); rewrite this at H; exfalso; exact !lt.irrefl H),
-  assert agtz : a > 0, from pos_of_ne_zero
+  have agtz : a > 0, from pos_of_ne_zero
     (suppose a = 0,
       show false, by revert peq; rewrite [this, zero_pow npos]; exact pnez),
   have n * mult p a = 1, from calc
@@ -197,7 +197,7 @@ section
   example {a b c : ℤ} (co : coprime a b) (apos : a > 0) (bpos : b > 0)
       (H : a * a = c * (b * b)) :
     b = 1 :=
-  assert H₁ : gcd (c * b) a = gcd c a,
+  have H₁ : gcd (c * b) a = gcd c a,
     from gcd_mul_right_cancel_of_coprime _ (coprime_swap co),
   have a * a = c * b * b,
     by rewrite -mul.assoc at H; apply H,

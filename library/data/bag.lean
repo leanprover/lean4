@@ -107,17 +107,17 @@ protected lemma ext {b₁ b₂ : bag A} : (∀ a, count a b₁ = count a b₂) �
 quot.induction_on₂ b₁ b₂ (λ l₁ l₂ (h : ∀ a, count a ⟦l₁⟧ = count a ⟦l₂⟧),
  have gen : ∀ (l₁ l₂ : list A), (∀ a, list.count a l₁ = list.count a l₂) → l₁ ~ l₂
  | []       []       h₁ := !perm.refl
- | []       (a₂::s₂) h₁ := assert list.count a₂ [] = list.count a₂ (a₂::s₂), from h₁ a₂, by rewrite [count_nil at this, count_cons_eq at this]; contradiction
+ | []       (a₂::s₂) h₁ := have list.count a₂ [] = list.count a₂ (a₂::s₂), from h₁ a₂, by rewrite [count_nil at this, count_cons_eq at this]; contradiction
  | (a::s₁) s₂       h₁ :=
-   assert g₁ : list.count a (a::s₁) > 0, from count_gt_zero_of_mem !mem_cons,
-   assert list.count a (a::s₁) = list.count a s₂, from h₁ a,
-   assert list.count a s₂ > 0, by rewrite [-this]; exact g₁,
+   have g₁ : list.count a (a::s₁) > 0, from count_gt_zero_of_mem !mem_cons,
+   have list.count a (a::s₁) = list.count a s₂, from h₁ a,
+   have list.count a s₂ > 0, by rewrite [-this]; exact g₁,
    have a ∈ s₂,                from mem_of_count_gt_zero this,
    have ∃ l r, s₂ = l++(a::r), from mem_split this,
    obtain l r (e₁ : s₂ = l++(a::r)), from this,
    have ∀ a, list.count a s₁ = list.count a (l++r), from
      take a₁,
-     assert e₂ : list.count a₁ (a::s₁) = list.count a₁ (l++(a::r)), by rewrite -e₁; exact h₁ a₁,
+     have e₂ : list.count a₁ (a::s₁) = list.count a₁ (l++(a::r)), by rewrite -e₁; exact h₁ a₁,
      by_cases
        (suppose a₁ = a, begin
           rewrite [-this at e₂, list.count_append at e₂, *count_cons_eq at e₂, add_succ at e₂],
@@ -134,7 +134,7 @@ quot.induction_on₂ b₁ b₂ (λ l₁ l₂ (h : ∀ a, count a ⟦l₁⟧ = co
 
 definition insert.inj {a : A} {b₁ b₂ : bag A} : insert a b₁ = insert a b₂ → b₁ = b₂ :=
 assume h, bag.ext (take x,
-  assert e : count x (insert a b₁) = count x (insert a b₂), by rewrite h,
+  have e : count x (insert a b₁) = count x (insert a b₂), by rewrite h,
   by_cases
     (suppose x = a, begin subst x, rewrite [*count_insert at e], injection e, assumption end)
     (suppose x ≠ a, begin rewrite [*count_insert_of_ne this at e], assumption end))
@@ -274,8 +274,8 @@ private definition min_count (l₁ l₂ : list A) : list A → list A
 private lemma not_mem_max_count_of_not_mem (l₁ l₂ : list A) : ∀ {a l}, a ∉ l → a ∉ max_count l₁ l₂ l
 | a []     h := !not_mem_nil
 | a (b::l) h :=
-  assert ih : a ∉ max_count l₁ l₂ l, from not_mem_max_count_of_not_mem (not_mem_of_not_mem_cons h),
-  assert a ≠ b, from ne_of_not_mem_cons h,
+  have ih : a ∉ max_count l₁ l₂ l, from not_mem_max_count_of_not_mem (not_mem_of_not_mem_cons h),
+  have a ≠ b, from ne_of_not_mem_cons h,
   by_cases
     (suppose list.count b l₁ ≥ list.count b l₂, begin
       unfold max_count, rewrite [if_pos this],
@@ -289,12 +289,12 @@ private lemma not_mem_max_count_of_not_mem (l₁ l₂ : list A) : ∀ {a l}, a �
 private lemma max_count_eq (l₁ l₂ : list A) : ∀ {a : A} {l : list A}, a ∈ l → nodup l → list.count a (max_count l₁ l₂ l) = max (list.count a l₁) (list.count a l₂)
 | a []     h₁ h₂ := absurd h₁ !not_mem_nil
 | a (b::l) h₁ h₂ :=
-  assert nodup l, from nodup_of_nodup_cons h₂,
-  assert b ∉ l,   from not_mem_of_nodup_cons h₂,
+  have nodup l, from nodup_of_nodup_cons h₂,
+  have b ∉ l,   from not_mem_of_nodup_cons h₂,
   or.elim (eq_or_mem_of_mem_cons h₁)
   (suppose a = b,
     have a ∉ l, by rewrite this; assumption,
-    assert a ∉ max_count l₁ l₂ l, from not_mem_max_count_of_not_mem l₁ l₂ this,
+    have a ∉ max_count l₁ l₂ l, from not_mem_max_count_of_not_mem l₁ l₂ this,
     by_cases
     (suppose i : list.count a l₁ ≥ list.count a l₂, begin
        unfold max_count, subst b,
@@ -305,8 +305,8 @@ private lemma max_count_eq (l₁ l₂ : list A) : ∀ {a : A} {l : list A}, a �
        rewrite [if_neg i, list.count_append, count_gen, max_eq_right_of_lt (lt_of_not_ge i), count_eq_zero_of_not_mem `a ∉ max_count l₁ l₂ l`]
      end))
   (suppose a ∈ l,
-    assert a ≠ b, from suppose a = b, begin subst b, contradiction end,
-    assert ih : list.count a (max_count l₁ l₂ l) = max (list.count a l₁) (list.count a l₂), from
+    have a ≠ b, from suppose a = b, begin subst b, contradiction end,
+    have ih : list.count a (max_count l₁ l₂ l) = max (list.count a l₁) (list.count a l₂), from
        max_count_eq `a ∈ l` `nodup l`,
     by_cases
     (suppose i : list.count b l₁ ≥ list.count b l₂, begin
@@ -321,8 +321,8 @@ private lemma max_count_eq (l₁ l₂ : list A) : ∀ {a : A} {l : list A}, a �
 private lemma not_mem_min_count_of_not_mem (l₁ l₂ : list A) : ∀ {a l}, a ∉ l → a ∉ min_count l₁ l₂ l
 | a []     h := !not_mem_nil
 | a (b::l) h :=
-  assert ih : a ∉ min_count l₁ l₂ l, from not_mem_min_count_of_not_mem (not_mem_of_not_mem_cons h),
-  assert a ≠ b, from ne_of_not_mem_cons h,
+  have ih : a ∉ min_count l₁ l₂ l, from not_mem_min_count_of_not_mem (not_mem_of_not_mem_cons h),
+  have a ≠ b, from ne_of_not_mem_cons h,
   by_cases
     (suppose list.count b l₁ ≤ list.count b l₂, begin
       unfold min_count, rewrite [if_pos this],
@@ -336,12 +336,12 @@ private lemma not_mem_min_count_of_not_mem (l₁ l₂ : list A) : ∀ {a l}, a �
 private lemma min_count_eq (l₁ l₂ : list A) : ∀ {a : A} {l : list A}, a ∈ l → nodup l → list.count a (min_count l₁ l₂ l) = min (list.count a l₁) (list.count a l₂)
 | a []     h₁ h₂ := absurd h₁ !not_mem_nil
 | a (b::l) h₁ h₂ :=
-  assert nodup l, from nodup_of_nodup_cons h₂,
-  assert b ∉ l,   from not_mem_of_nodup_cons h₂,
+  have nodup l, from nodup_of_nodup_cons h₂,
+  have b ∉ l,   from not_mem_of_nodup_cons h₂,
   or.elim (eq_or_mem_of_mem_cons h₁)
   (suppose a = b,
     have a ∉ l, by rewrite this; assumption,
-    assert a ∉ min_count l₁ l₂ l, from not_mem_min_count_of_not_mem l₁ l₂ this,
+    have a ∉ min_count l₁ l₂ l, from not_mem_min_count_of_not_mem l₁ l₂ this,
     by_cases
     (suppose i : list.count a l₁ ≤ list.count a l₂, begin
        unfold min_count, subst b,
@@ -352,8 +352,8 @@ private lemma min_count_eq (l₁ l₂ : list A) : ∀ {a : A} {l : list A}, a �
        rewrite [if_neg i, list.count_append, count_gen, min_eq_right (le_of_lt (lt_of_not_ge i)), count_eq_zero_of_not_mem `a ∉ min_count l₁ l₂ l`]
      end))
   (suppose a ∈ l,
-    assert a ≠ b, from suppose a = b, by subst b; contradiction,
-    assert ih : list.count a (min_count l₁ l₂ l) = min (list.count a l₁) (list.count a l₂), from min_count_eq `a ∈ l` `nodup l`,
+    have a ≠ b, from suppose a = b, by subst b; contradiction,
+    have ih : list.count a (min_count l₁ l₂ l) = min (list.count a l₁) (list.count a l₂), from min_count_eq `a ∈ l` `nodup l`,
     by_cases
     (suppose i : list.count b l₁ ≤ list.count b l₂, begin
        unfold min_count,
@@ -367,8 +367,8 @@ private lemma min_count_eq (l₁ l₂ : list A) : ∀ {a : A} {l : list A}, a �
 private lemma perm_max_count_left {l₁ l₂ l₃ l₄ : list A} (h₁ : l₁ ~ l₃) (h₂ : l₂ ~ l₄) : ∀ l, max_count l₁ l₂ l ~ max_count l₃ l₄ l
 | []     := by esimp
 | (a::l) :=
-  assert e₁ : list.count a l₁ = list.count a l₃, from count_eq_of_perm h₁ a,
-  assert e₂ : list.count a l₂ = list.count a l₄, from count_eq_of_perm h₂ a,
+  have e₁ : list.count a l₁ = list.count a l₃, from count_eq_of_perm h₁ a,
+  have e₂ : list.count a l₂ = list.count a l₄, from count_eq_of_perm h₂ a,
   by_cases
     (suppose list.count a l₁ ≥ list.count a l₂,
      begin unfold max_count, rewrite [-e₁, -e₂, *if_pos this], exact perm_app !perm.refl !perm_max_count_left end)
@@ -408,8 +408,8 @@ calc max_count l₁ l₂ l₃ ~ max_count r₁ r₂ l₃ : perm_max_count_left p
 private lemma perm_min_count_left {l₁ l₂ l₃ l₄ : list A} (h₁ : l₁ ~ l₃) (h₂ : l₂ ~ l₄) : ∀ l, min_count l₁ l₂ l ~ min_count l₃ l₄ l
 | []     := by esimp
 | (a::l) :=
-  assert e₁ : list.count a l₁ = list.count a l₃, from count_eq_of_perm h₁ a,
-  assert e₂ : list.count a l₂ = list.count a l₄, from count_eq_of_perm h₂ a,
+  have e₁ : list.count a l₁ = list.count a l₃, from count_eq_of_perm h₁ a,
+  have e₂ : list.count a l₂ = list.count a l₄, from count_eq_of_perm h₂ a,
   by_cases
     (suppose list.count a l₁ ≤ list.count a l₂,
      begin unfold min_count, rewrite [-e₁, -e₂, *if_pos this], exact perm_app !perm.refl !perm_min_count_left end)
@@ -455,9 +455,9 @@ lemma count_union (a : A) (b₁ b₂ : bag A) : count a (b₁ ∪ b₂) = max (c
 quot.induction_on₂ b₁ b₂ (λ l₁ l₂, by_cases
   (suppose a ∈ union_list l₁ l₂, !max_count_eq this !nodup_union_list)
   (suppose ¬ a ∈ union_list l₁ l₂,
-    assert ¬ a ∈ l₁, from not_mem_of_not_mem_union_list_left `¬ a ∈ union_list l₁ l₂`,
-    assert ¬ a ∈ l₂, from not_mem_of_not_mem_union_list_right `¬ a ∈ union_list l₁ l₂`,
-    assert n : ¬ a ∈ max_count l₁ l₂ (union_list l₁ l₂), from not_mem_max_count_of_not_mem l₁ l₂ `¬ a ∈ union_list l₁ l₂`,
+    have ¬ a ∈ l₁, from not_mem_of_not_mem_union_list_left `¬ a ∈ union_list l₁ l₂`,
+    have ¬ a ∈ l₂, from not_mem_of_not_mem_union_list_right `¬ a ∈ union_list l₁ l₂`,
+    have n : ¬ a ∈ max_count l₁ l₂ (union_list l₁ l₂), from not_mem_max_count_of_not_mem l₁ l₂ `¬ a ∈ union_list l₁ l₂`,
     begin
       unfold [union, count],
       rewrite [count_eq_zero_of_not_mem `¬ a ∈ l₁`, count_eq_zero_of_not_mem `¬ a ∈ l₂`, max_self],
@@ -468,9 +468,9 @@ lemma count_inter (a : A) (b₁ b₂ : bag A) : count a (b₁ ∩ b₂) = min (c
 quot.induction_on₂ b₁ b₂ (λ l₁ l₂, by_cases
   (suppose a ∈ union_list l₁ l₂, !min_count_eq this !nodup_union_list)
   (suppose ¬ a ∈ union_list l₁ l₂,
-    assert ¬ a ∈ l₁, from not_mem_of_not_mem_union_list_left `¬ a ∈ union_list l₁ l₂`,
-    assert ¬ a ∈ l₂, from not_mem_of_not_mem_union_list_right `¬ a ∈ union_list l₁ l₂`,
-    assert n : ¬ a ∈ min_count l₁ l₂ (union_list l₁ l₂), from not_mem_min_count_of_not_mem l₁ l₂ `¬ a ∈ union_list l₁ l₂`,
+    have ¬ a ∈ l₁, from not_mem_of_not_mem_union_list_left `¬ a ∈ union_list l₁ l₂`,
+    have ¬ a ∈ l₂, from not_mem_of_not_mem_union_list_right `¬ a ∈ union_list l₁ l₂`,
+    have n : ¬ a ∈ min_count l₁ l₂ (union_list l₁ l₂), from not_mem_min_count_of_not_mem l₁ l₂ `¬ a ∈ union_list l₁ l₂`,
     begin
       unfold [inter, count],
       rewrite [count_eq_zero_of_not_mem `¬ a ∈ l₁`, count_eq_zero_of_not_mem `¬ a ∈ l₂`, min_self],
@@ -653,10 +653,10 @@ private lemma all_of_subcount_eq_tt : ∀ {l₁ l₂ : list A}, subcount l₁ l�
 | []      l₂ h := take x, !zero_le
 | (a::l₁) l₂ h := take x,
   have subcount l₁ l₂ = tt, from by_contradiction (suppose subcount l₁ l₂ ≠ tt,
-    assert subcount l₁ l₂ = ff, from eq_ff_of_ne_tt this,
+    have subcount l₁ l₂ = ff, from eq_ff_of_ne_tt this,
     begin unfold subcount at h, rewrite [this at h, if_t_t at h], contradiction end),
-  assert ih : ∀ a, list.count a l₁ ≤ list.count a l₂, from all_of_subcount_eq_tt this,
-  assert i  : list.count a (a::l₁) ≤ list.count a l₂, from by_contradiction (suppose ¬ list.count a (a::l₁) ≤ list.count a l₂,
+  have ih : ∀ a, list.count a l₁ ≤ list.count a l₂, from all_of_subcount_eq_tt this,
+  have i  : list.count a (a::l₁) ≤ list.count a l₂, from by_contradiction (suppose ¬ list.count a (a::l₁) ≤ list.count a l₂,
     begin unfold subcount at h, rewrite [if_neg this at h], contradiction end),
   by_cases
     (suppose x = a, by rewrite this; apply i)
@@ -667,7 +667,7 @@ private lemma ex_of_subcount_eq_ff : ∀ {l₁ l₂ : list A}, subcount l₁ l�
 | (a::l₁) l₂ h := by_cases
   (suppose i : list.count a (a::l₁) ≤ list.count a l₂,
     have subcount l₁ l₂ = ff, from by_contradiction (suppose subcount l₁ l₂ ≠ ff,
-      assert subcount l₁ l₂ = tt, from eq_tt_of_ne_ff this,
+      have subcount l₁ l₂ = tt, from eq_tt_of_ne_ff this,
       begin
         unfold subcount at h,
         rewrite [if_pos i at h, this at h],

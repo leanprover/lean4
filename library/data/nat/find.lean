@@ -58,7 +58,7 @@ acc.intro y (λ (z : nat) (l : z ≺ y),
 private lemma acc_of_acc_of_lt : ∀ {x y : nat}, acc gtb x → y < x → acc gtb y
 | 0        y a0  ylt0  := absurd ylt0 !not_lt_zero
 | (succ x) y asx yltsx :=
-  assert acc gtb x, from acc_of_acc_succ asx,
+  have acc gtb x, from acc_of_acc_succ asx,
   by_cases
      (suppose y = x, by substvars; assumption)
      (suppose y ≠ x, acc_of_acc_of_lt `acc gtb x` (lt_of_le_of_ne (le_of_lt_succ yltsx) this))

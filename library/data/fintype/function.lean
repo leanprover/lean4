@@ -75,12 +75,12 @@ lemma nodup_mem_all_nodups [deceqA : decidable_eq A] {n : nat} ⦃l : list A⦄ 
 lemma length_mem_all_lists : ∀ {n : nat} ⦃l : list A⦄,
                            l ∈ all_lists_of_len n → length l = n
 | 0 []             := assume P, rfl
-| 0 (a::l)         := assume Pin, assert Peq : (a::l) = [], from mem_singleton Pin,
+| 0 (a::l)         := assume Pin, have Peq : (a::l) = [], from mem_singleton Pin,
                    by contradiction
 | (succ n) []      := assume Pin, obtain pr Pprin Ppr, from exists_of_mem_map Pin,
                    by contradiction
 | (succ n) (a::l)  := assume Pin, obtain pr Pprin Ppr, from exists_of_mem_map Pin,
-                   assert Pl : l ∈ all_lists_of_len n,
+                   have Pl : l ∈ all_lists_of_len n,
                      from mem_of_mem_product_right ((pair_of_cons Ppr) ▸ Pprin),
                    by rewrite [length_cons, length_mem_all_lists Pl]
 
@@ -138,8 +138,8 @@ lemma eq_of_kth_eq [deceqA : decidable_eq A]
       rewrite *kth_succ_of_cons at keq,
       exact keq
     end,
-  assert ih  : l₁ = l₂, from eq_of_kth_eq ih₁ ih₂,
-  assert k₁  : a₁ = a₂,
+  have ih  : l₁ = l₂, from eq_of_kth_eq ih₁ ih₂,
+  have k₁  : a₁ = a₂,
     begin
       have lt₁ : 0 < length (a₁::l₁), from !zero_lt_succ,
       have lt₂ : 0 < length (a₂::l₂), from !zero_lt_succ,
@@ -163,7 +163,7 @@ lemma kth_find [deceqA : decidable_eq A] :
       ∀ {l : list A} {a} P, kth (find a l) l P = a
 | []            := take a, assume P, absurd P !not_lt_zero
 | (x::l)        := take a, begin
-                assert Pd : decidable (a = x), {apply deceqA},
+                have Pd : decidable (a = x), begin apply deceqA end,
                 cases Pd with Pe Pne,
                   rewrite [find_cons_of_eq l Pe], intro P, rewrite [kth_zero_of_cons, Pe],
                   rewrite [find_cons_of_ne l Pne], intro P, rewrite [kth_succ_of_cons],
@@ -179,8 +179,8 @@ lemma find_kth [deceqA : decidable_eq A] :
                   end
 | (succ k) (a::l) := assume P, begin
                   rewrite [kth_succ_of_cons],
-                  assert Pd : decidable ((kth k l (lt_of_succ_lt_succ P)) = a),
-                    {apply deceqA},
+                  have Pd : decidable ((kth k l (lt_of_succ_lt_succ P)) = a),
+                    begin apply deceqA end,
                   cases Pd with Pe Pne,
                     rewrite [find_cons_of_eq l Pe], apply zero_lt_succ,
                     rewrite [find_cons_of_ne l Pne], apply succ_lt_succ, apply find_kth
@@ -193,10 +193,10 @@ lemma find_kth_of_nodup [deceqA : decidable_eq A] :
                   by rewrite [kth_zero_of_cons, find_cons_of_eq l rfl]
 | (succ k) (a::l) := assume Plt Pnodup, begin
                   rewrite [kth_succ_of_cons],
-                  assert Pd : decidable ((kth k l (lt_of_succ_lt_succ Plt)) = a),
-                    {apply deceqA},
+                  have Pd : decidable ((kth k l (lt_of_succ_lt_succ Plt)) = a),
+                    begin apply deceqA end,
                   cases Pd with Pe Pne,
-                    assert Pin : a ∈ l, {rewrite -Pe, apply kth_mem},
+                    have Pin : a ∈ l, begin rewrite -Pe, apply kth_mem end,
                     exact absurd Pin (not_mem_of_nodup_cons Pnodup),
                     rewrite [find_cons_of_ne l Pne], apply congr (eq.refl succ),
                     apply find_kth_of_nodup (lt_of_succ_lt_succ Plt) (nodup_of_nodup_cons Pnodup)
@@ -265,10 +265,10 @@ include deceqB
 
 lemma fun_eq_list_to_fun_map (f : A → B) : ∀ P, f = list_to_fun (map f (elems A)) P :=
       assume Pleq, funext (take a,
-      assert Plt : _, from Pleq⁻¹ ▸ find_lt_length (complete a), begin
+      have Plt : _, from Pleq⁻¹ ▸ find_lt_length (complete a), begin
       rewrite [list_to_fun_apply _ Pleq a (Pleq⁻¹ ▸ find_lt_length (complete a))],
-      assert Pmlt : find a (elems A) < length (map f (elems A)),
-        {rewrite length_map, exact Plt},
+      have Pmlt : find a (elems A) < length (map f (elems A)),
+        begin rewrite length_map, exact Plt end,
       rewrite [@kth_of_map A B f (find a (elems A)) (elems A) Plt _, kth_find]
       end)
 
@@ -277,9 +277,9 @@ lemma list_eq_map_list_to_fun  (l : list B) (leq : length l = card A)
       begin
       apply eq_of_kth_eq, rewrite length_map, apply leq,
         intro k Plt Plt2,
-        assert Plt1 : k < length (elems A), {apply leq ▸ Plt},
-        assert Plt3 : find (kth k (elems A) Plt1) (elems A) < length l,
-          {rewrite leq, apply find_kth},
+        have Plt1 : k < length (elems A), begin apply leq ▸ Plt end,
+        have Plt3 : find (kth k (elems A) Plt1) (elems A) < length l,
+           begin rewrite leq, apply find_kth end,
         rewrite [kth_of_map Plt1 Plt2, list_to_fun_apply l leq _ Plt3],
         congruence,
         rewrite [find_kth_of_nodup Plt1 (unique A)]
@@ -303,9 +303,9 @@ lemma nodup_all_funs : nodup (@all_funs A B _ _ _) :=
       dmap_nodup_of_dinj dinj_list_to_fun nodup_all_lists
 
 lemma all_funs_complete (f : A → B) : f ∈ all_funs :=
-      assert Plin : map f (elems A) ∈ all_lists_of_len (card A),
+      have Plin : map f (elems A) ∈ all_lists_of_len (card A),
         from mem_all_lists (by rewrite length_map),
-      assert Plfin : list_to_fun (map f (elems A)) (length_map_of_fintype f) ∈ all_funs,
+      have Plfin : list_to_fun (map f (elems A)) (length_map_of_fintype f) ∈ all_funs,
         from mem_dmap _ Plin,
       begin rewrite [fun_eq_list_to_fun_map f (length_map_of_fintype f)], apply Plfin end
 
@@ -342,7 +342,7 @@ lemma found_of_surj {f : A → B} (surj : surjective f) :
       ∀ b, let elts := elems A, k := find b (map f elts) in k < length elts :=
       λ b, let elts := elems A, img := map f elts, k := find b img in
            have Pin : b ∈ img, from mem_map_of_surj surj b,
-           assert Pfound : k < length img, from find_lt_length (mem_map_of_surj surj b),
+           have Pfound : k < length img, from find_lt_length (mem_map_of_surj surj b),
            length_map f elts ▸ Pfound
 
 definition right_inv {f : A → B} (surj : surjective f) : B → A :=
@@ -395,12 +395,12 @@ decidable.rec_on decidable_forall_finite
   (assume P : surjective f, P)
   (assume Pnsurj : ¬surjective f,
    obtain b Pne, from exists_not_of_not_forall Pnsurj,
-   assert Pall : ∀ a, f a ≠ b, from forall_not_of_not_exists Pne,
-   assert Pbnin : b ∉ image f univ, from λ Pin,
+   have Pall : ∀ a, f a ≠ b, from forall_not_of_not_exists Pne,
+   have Pbnin : b ∉ image f univ, from λ Pin,
    obtain a Pa, from exists_of_mem_image Pin, absurd (and.right Pa) (Pall a),
-   assert Puniv : finset.card (image f univ) = card A, from card_eq_card_image_of_inj Pinj,
-   assert Punivb : finset.card (image f univ) = card B, from eq.trans Puniv Peqcard,
-   assert P : image f univ = univ, from univ_of_card_eq_univ Punivb,
+   have Puniv : finset.card (image f univ) = card A, from card_eq_card_image_of_inj Pinj,
+   have Punivb : finset.card (image f univ) = card B, from eq.trans Puniv Peqcard,
+   have P : image f univ = univ, from univ_of_card_eq_univ Punivb,
    absurd (P⁻¹▸ mem_univ b) Pbnin)
 
 end inj
@@ -422,9 +422,9 @@ lemma nodup_all_injs : nodup (all_injs A) :=
 
 lemma all_injs_complete {f : A → A} : injective f → f ∈ (all_injs A) :=
       assume Pinj,
-      assert Plin : map f (elems A) ∈ all_nodups_of_len (card A),
+      have Plin : map f (elems A) ∈ all_nodups_of_len (card A),
         from begin apply mem_all_nodups, apply length_map, apply nodup_of_inj Pinj end,
-      assert Plfin : list_to_fun (map f (elems A)) (length_map_of_fintype f) ∈ !all_injs,
+      have Plfin : list_to_fun (map f (elems A)) (length_map_of_fintype f) ∈ !all_injs,
         from mem_dmap _ Plin,
       begin rewrite [fun_eq_list_to_fun_map f (length_map_of_fintype f)], apply Plfin end
 
@@ -439,13 +439,13 @@ lemma univ_of_leq_univ_of_nodup {l : list A} (n : nodup l) (leq : length l = car
 lemma inj_of_mem_all_injs {f : A → A} : f ∈ (all_injs A) → injective f :=
       assume Pfin, obtain l Pex, from exists_of_mem_dmap Pfin,
       obtain leq Pin Peq, from Pex,
-      assert Pmap : map f (elems A) = l, from Peq⁻¹ ▸ list_to_fun_to_list l leq,
+      have Pmap : map f (elems A) = l, from Peq⁻¹ ▸ list_to_fun_to_list l leq,
       begin apply inj_of_nodup, rewrite Pmap, apply nodup_mem_all_nodups Pin end
 
 lemma perm_of_inj {f : A → A} : injective f → perm (map f (elems A)) (elems A) :=
       assume Pinj,
-      assert P1 : univ = to_finset_of_nodup (elems A) (unique A), from rfl,
-      assert P2 : to_finset_of_nodup (map f (elems A)) (nodup_of_inj Pinj) = univ,
+      have P1 : univ = to_finset_of_nodup (elems A) (unique A), from rfl,
+      have P2 : to_finset_of_nodup (map f (elems A)) (nodup_of_inj Pinj) = univ,
         from univ_of_leq_univ_of_nodup _ !length_map,
       quot.exact (P1 ▸ P2)
 

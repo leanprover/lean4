@@ -306,7 +306,7 @@ calc
 theorem not_coprime_of_dvd_of_dvd {m n d : ℕ} (dgt1 : d > 1) (Hm : d ∣ m) (Hn : d ∣ n) :
   ¬ coprime m n :=
 assume co : coprime m n,
-assert d ∣ gcd m n, from dvd_gcd Hm Hn,
+have d ∣ gcd m n, from dvd_gcd Hm Hn,
 have d ∣ 1, by rewrite [↑coprime at co, co at this]; apply this,
 have d ≤ 1, from le_of_dvd dec_trivial this,
 show false, from not_lt_of_ge `d ≤ 1` `d > 1`

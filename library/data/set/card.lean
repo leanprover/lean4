@@ -27,7 +27,7 @@ theorem card_insert_of_mem {a : A} {s : set A} (H : a ∈ s) : card (insert a s)
 if fins : finite s then
   (by rewrite [↑card, to_finset_insert, -mem_to_finset_eq at H, finset.card_insert_of_mem H])
 else
-  (assert ¬ finite (insert a s), from suppose _, absurd (!finite_of_finite_insert this) fins,
+  (have ¬ finite (insert a s), from suppose _, absurd (!finite_of_finite_insert this) fins,
     by rewrite [card_of_not_finite fins, card_of_not_finite this])
 
 theorem card_insert_of_not_mem {a : A} {s : set A} [finite s] (H : a ∉ s) :
@@ -142,7 +142,7 @@ begin
 end
 
 theorem exists_two_of_card_gt_one {s : set A} (H : 1 < card s) : ∃ a b, a ∈ s ∧ b ∈ s ∧ a ≠ b :=
-assert fins : finite s, from
+have fins : finite s, from
   by_contradiction
     (assume nfins, by rewrite [card_of_not_finite nfins at H]; apply !not_succ_le_zero H),
 by rewrite [-to_set_to_finset s]; apply finset.exists_two_of_card_gt_one H

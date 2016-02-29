@@ -108,7 +108,7 @@ theorem inv_pow (a : A) : ∀n, (a⁻¹)^n = (a^n)⁻¹
 | (succ n) := by rewrite [pow_succ, pow_succ', inv_pow, mul_inv]
 
 theorem pow_sub (a : A) {m n : ℕ} (H : m ≥ n) : a^(m - n) = a^m * (a^n)⁻¹ :=
-assert H1 : m - n + n = m, from nat.sub_add_cancel H,
+have H1 : m - n + n = m, from nat.sub_add_cancel H,
 have H2 : a^(m - n) * a^n = a^m, by rewrite [-pow_add, H1],
 eq_mul_inv_of_mul_eq H2
 
@@ -132,7 +132,7 @@ private lemma gpow_add_aux (a : A) (m n : nat) :
   gpow a ((of_nat m) + -[1+n]) = gpow a (of_nat m) * gpow a (-[1+n]) :=
 or.elim (nat.lt_or_ge m (nat.succ n))
   (assume H : (m < nat.succ n),
-    assert H1 : (#nat nat.succ n - m > nat.zero), from nat.sub_pos_of_lt H,
+    have H1 : (#nat nat.succ n - m > nat.zero), from nat.sub_pos_of_lt H,
     calc
       gpow a ((of_nat m) + -[1+n]) = gpow a (sub_nat_nat m (nat.succ n))  : rfl
         ... = gpow a (-[1+ nat.pred (nat.sub (nat.succ n) m)])            : {sub_nat_nat_of_lt H}

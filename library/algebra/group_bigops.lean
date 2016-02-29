@@ -136,7 +136,7 @@ section monoid
     ∀ {l : list A} b, (∀ a, a ∈ l → f a = b) → Prodl l f = b ^ length l
   | nil    := take b, assume Pconst, by rewrite [length_nil, {b^0}pow_zero]
   | (a::l) := take b, assume Pconst,
-    assert Pconstl : ∀ a', a' ∈ l → f a' = b,
+    have Pconstl : ∀ a', a' ∈ l → f a' = b,
       from take a' Pa'in, Pconst a' (mem_cons_of_mem a Pa'in),
     by rewrite [Prodl_cons f, Pconst a !mem_cons, Prodl_eq_pow_of_const b Pconstl, length_cons,
                 add_one, pow_succ b]
@@ -304,9 +304,9 @@ namespace finset
       (take x s', assume H1 : x ∉ s',
         assume IH : (∀ {x : A}, x ∈ s' → f x = g x) → Prod s' f = Prod s' g,
         assume H2 : ∀{y}, y ∈ insert x s' → f y = g y,
-        assert H3 : ∀y, y ∈ s' → f y = g y, from
+        have H3 : ∀y, y ∈ s' → f y = g y, from
           take y, assume H', H2 (mem_insert_of_mem _ H'),
-        assert H4 : f x = g x, from H2 !mem_insert,
+        have H4 : f x = g x, from H2 !mem_insert,
         by rewrite [Prod_insert_of_not_mem f H1, Prod_insert_of_not_mem g H1, IH H3, H4])
 
     theorem Prod_singleton (a : A) (f : A → B) : Prod '{a} f = f a :=
@@ -412,15 +412,15 @@ section Prod
     Prod (insert a s) f = Prod s f :=
   by_cases
     (suppose finite s,
-      assert (#finset a ∈ set.to_finset s), by rewrite mem_to_finset_eq; apply H,
+      have (#finset a ∈ set.to_finset s), by rewrite mem_to_finset_eq; apply H,
       by rewrite [↑Prod, to_finset_insert, finset.Prod_insert_of_mem f this])
     (assume nfs : ¬ finite s,
-      assert ¬ finite (insert a s), from assume H, nfs (finite_of_finite_insert H),
+      have ¬ finite (insert a s), from assume H, nfs (finite_of_finite_insert H),
       by rewrite [Prod_of_not_finite nfs, Prod_of_not_finite this])
 
   theorem Prod_insert_of_not_mem (f : A → B) {a : A} {s : set A} [finite s] (H : a ∉ s) :
     Prod (insert a s) f = f a * Prod s f :=
-  assert (#finset a ∉ set.to_finset s), by rewrite mem_to_finset_eq; apply H,
+  have (#finset a ∉ set.to_finset s), by rewrite mem_to_finset_eq; apply H,
   by rewrite [↑Prod, to_finset_insert, finset.Prod_insert_of_not_mem f this]
 
   theorem Prod_union (f : A → B) {s₁ s₂ : set A} [finite s₁] [finite s₂]

@@ -544,7 +544,7 @@ has_dvd.mk has_dvd.dvd
 
 /- additional properties -/
 theorem of_nat_sub {m n : ℕ} (H : m ≥ n) : of_nat (m - n) = of_nat m - of_nat n :=
-assert m - n + n = m,     from nat.sub_add_cancel H,
+have m - n + n = m,     from nat.sub_add_cancel H,
 begin
   symmetry,
   apply sub_eq_of_eq_add,

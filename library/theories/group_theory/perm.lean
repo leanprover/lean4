@@ -76,7 +76,7 @@ lemma nodup_all_perms : nodup (@all_perms A _ _) :=
 
 lemma all_perms_complete : ∀ p : perm A, p ∈ all_perms :=
       take p, perm.destruct p (take f Pinj,
-        assert Pin : f ∈ all_injs A, from all_injs_complete Pinj,
+        have Pin : f ∈ all_injs A, from all_injs_complete Pinj,
         mem_dmap Pinj Pin)
 
 definition perm_is_fintype [instance] : fintype (perm A) :=

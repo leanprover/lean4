@@ -36,7 +36,7 @@ nat.induction_on n
     take k,
     suppose succ n' < k,
     obtain k' (keq : k = succ k'), from exists_eq_succ_of_lt this,
-    assert n' < k', by rewrite keq at this; apply lt_of_succ_lt_succ this,
+    have n' < k', by rewrite keq at this; apply lt_of_succ_lt_succ this,
     by rewrite [keq, choose_succ_succ, IH _ this, IH _ (lt.trans this !lt_succ_self)])
 
 theorem choose_self (n : ℕ) : choose n n = 1 :=
@@ -71,7 +71,7 @@ begin
   cases k with k,
     {intros, rewrite [choose_zero_right], apply zero_lt_one},
   suppose succ k ≤ succ n,
-  assert k ≤ n, from le_of_succ_le_succ this,
+  have k ≤ n, from le_of_succ_le_succ this,
   by rewrite [choose_succ_succ]; apply add_pos_right (ih this)
 end
 
@@ -129,16 +129,16 @@ include deceqA
 private theorem aux₀ (s : finset A) : {t ∈ powerset s | card t = 0} = '{∅} :=
 ext (take t, iff.intro
   (assume H,
-    assert t = ∅, from eq_empty_of_card_eq_zero (of_mem_sep H),
+    have t = ∅, from eq_empty_of_card_eq_zero (of_mem_sep H),
     show t ∈ '{ ∅ }, by rewrite [this, mem_singleton_iff])
   (assume H,
-    assert t = ∅, by rewrite mem_singleton_iff at H; assumption,
+    have t = ∅, by rewrite mem_singleton_iff at H; assumption,
     by substvars; exact mem_sep_of_mem !empty_mem_powerset rfl))
 
 private theorem aux₁ (k : ℕ) : {t ∈ powerset (∅ : finset A) | card t = succ k} = ∅ :=
 eq_empty_of_forall_not_mem (take t, assume H,
-  assert t ∈ powerset ∅, from mem_of_mem_sep H,
-  assert t = ∅, by rewrite [powerset_empty at this, mem_singleton_iff at this]; assumption,
+  have t ∈ powerset ∅, from mem_of_mem_sep H,
+  have t = ∅, by rewrite [powerset_empty at this, mem_singleton_iff at this]; assumption,
   have card (∅ : finset A) = succ k, by rewrite -this; apply of_mem_sep H,
   nat.no_confusion this)
 
@@ -154,18 +154,18 @@ iff.intro
   (assume H,
     obtain H' cardt, from H,
     obtain t' [(t'pows : t' ∈ powerset s) (teq : insert a t' = t)], from exists_of_mem_image H',
-    assert aint : a ∈ t, by rewrite -teq; apply mem_insert,
-    assert anint' : a ∉ t', from
+    have aint : a ∈ t, by rewrite -teq; apply mem_insert,
+    have anint' : a ∉ t', from
       (assume aint',
         have a ∈ s, from mem_of_subset_of_mem (subset_of_mem_powerset t'pows) aint',
         anins this),
-    assert t' = erase a t, by rewrite [-teq, erase_insert (aux₂ anins t'pows)],
+    have t' = erase a t, by rewrite [-teq, erase_insert (aux₂ anins t'pows)],
     have card t' = k, by rewrite [this, card_erase_of_mem aint, cardt],
     mem_image (mem_sep_of_mem t'pows this) teq)
   (assume H,
     obtain t' [Ht' (teq : insert a t' = t)], from exists_of_mem_image H,
-    assert t'pows : t' ∈ powerset s, from mem_of_mem_sep Ht',
-    assert cardt' : card t' = k, from of_mem_sep Ht',
+    have t'pows : t' ∈ powerset s, from mem_of_mem_sep Ht',
+    have cardt' : card t' = k, from of_mem_sep Ht',
     and.intro
       (show t ∈ (insert a) ' (powerset s), from mem_image t'pows teq)
       (show card t = succ k,
@@ -196,9 +196,9 @@ have set.inj_on (insert a) (ts {t ∈ powerset s| card t = k}), from
   take t₁ t₂, assume Ht₁ Ht₂,
   assume Heq : insert a t₁ = insert a t₂,
   have t₁ ∈ powerset s, from mem_of_mem_sep Ht₁,
-  assert anint₁ : a ∉ t₁, from aux₂ anins this,
+  have anint₁ : a ∉ t₁, from aux₂ anins this,
   have t₂ ∈ powerset s, from mem_of_mem_sep Ht₂,
-  assert anint₂ : a ∉ t₂, from aux₂ anins this,
+  have anint₂ : a ∉ t₂, from aux₂ anins this,
   calc
     t₁    = erase a (insert a t₁) : by rewrite (erase_insert anint₁)
       ... = erase a (insert a t₂) : Heq

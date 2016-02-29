@@ -105,7 +105,7 @@ protected theorem div_zero (a : ℤ) : a / 0 = 0 :=
 by rewrite [div_def, sign_zero, zero_mul]
 
 protected theorem div_one (a : ℤ) : a / 1 = a :=
-assert (1 : int) > 0, from dec_trivial,
+have (1 : int) > 0, from dec_trivial,
 int.cases_on a
   (take m : nat, by rewrite [-of_nat_one, -of_nat_div, nat.div_one])
   (take m : nat, by rewrite [!neg_succ_of_nat_div this, -of_nat_one, -of_nat_div, nat.div_one])
@@ -133,7 +133,7 @@ int.cases_on a
 theorem div_eq_zero_of_lt_abs {a b : ℤ} (H1 : 0 ≤ a) (H2 : a < abs b) : a / b = 0 :=
 lt.by_cases
   (suppose b < 0,
-    assert a < -b, from abs_of_neg this ▸ H2,
+    have a < -b, from abs_of_neg this ▸ H2,
     calc
       a / b = - (a / -b) : by rewrite [int.div_neg, neg_neg]
           ... = 0         : by rewrite [div_eq_zero_of_lt H1 this, neg_zero])
@@ -155,8 +155,8 @@ private theorem add_mul_div_self_aux2 {a : ℤ} {k : ℕ} (n : ℕ) (H1 : a < 0)
 obtain m (Hm : a = -[1+m]), from exists_eq_neg_succ_of_nat H1,
 or.elim (nat.lt_or_ge m (n * k))
   (assume m_lt_nk : m < n * k,
-    assert H3 : m + 1 ≤ n * k, from nat.succ_le_of_lt m_lt_nk,
-    assert H4 : m / k + 1 ≤ n,
+    have H3 : m + 1 ≤ n * k, from nat.succ_le_of_lt m_lt_nk,
+    have H4 : m / k + 1 ≤ n,
       from nat.succ_le_of_lt (nat.div_lt_of_lt_mul m_lt_nk),
     have (-[1+m] + n * k) / k = -[1+m] / k + n, from calc
       (-[1+m] + n * k) / k
@@ -371,7 +371,7 @@ by rewrite [add.comm, add_mod_eq_add_mod_right _ H, add.comm]
 theorem mod_eq_mod_of_add_mod_eq_add_mod_right {m n k i : ℤ}
     (H : (m + i) % n = (k + i) % n) :
   m % n = k % n :=
-assert H1 : (m + i + (-i)) % n = (k + i + (-i)) % n, from add_mod_eq_add_mod_right _ H,
+have H1 : (m + i + (-i)) % n = (k + i + (-i)) % n, from add_mod_eq_add_mod_right _ H,
 by rewrite [*add_neg_cancel_right at H1]; apply H1
 
 theorem mod_eq_mod_of_add_mod_eq_add_mod_left {m n k i : ℤ} :
@@ -666,7 +666,7 @@ lt_of_mul_lt_mul_right
  (le_of_lt H)
 
 protected theorem lt_mul_of_div_lt {a b c : ℤ} (H1 : c > 0) (H2 : a / c < b) : a < b * c :=
-assert H3 : (a / c + 1) * c ≤ b * c,
+have H3 : (a / c + 1) * c ≤ b * c,
   from !mul_le_mul_of_nonneg_right (add_one_le_of_lt H2) (le_of_lt H1),
 have H4 : a / c * c + c ≤ b * c, by rewrite [right_distrib at H3, one_mul at H3]; apply H3,
 calc

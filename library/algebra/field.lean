@@ -80,15 +80,15 @@ section division_ring
   division_ring.mul_ne_zero (and.right H2) (and.left H2)
 
   theorem eq_one_div_of_mul_eq_one (H : a * b = 1) : b = 1 / a :=
-  assert a ≠ 0, from
+  have a ≠ 0, from
     suppose a = 0,
     have 0 = (1:A), by inst_simp,
       absurd this zero_ne_one,
-  assert b = (1 / a) * a * b, by inst_simp,
+  have b = (1 / a) * a * b, by inst_simp,
   show b = 1 / a, by inst_simp
 
   theorem eq_one_div_of_mul_eq_one_left (H : b * a = 1) : b = 1 / a :=
-  assert a ≠ 0, from
+  have a ≠ 0, from
     suppose a = 0,
     have 0 = (1:A), by inst_simp,
       absurd this zero_ne_one,
@@ -205,7 +205,7 @@ section field
      by rewrite [(division_ring.one_div_mul_one_div Ha Hb), mul.comm b]
 
   theorem field.div_mul_right (Hb : b ≠ 0) (H : a * b ≠ 0) : a / (a * b) = 1 / b :=
-  assert a ≠ 0, from and.left (ne_zero_and_ne_zero_of_mul_ne_zero H),
+  have a ≠ 0, from and.left (ne_zero_and_ne_zero_of_mul_ne_zero H),
     symm (calc
       1 / b = a * ((1 / a) * (1 / b)) : by inst_simp
         ... = a * (1 / (b * a))       : division_ring.one_div_mul_one_div this Hb
@@ -222,7 +222,7 @@ section field
     by rewrite [mul.comm, (!div_mul_cancel Hb)]
 
   theorem one_div_add_one_div (Ha : a ≠ 0) (Hb : b ≠ 0) : 1 / a + 1 / b = (a + b) / (a * b) :=
-    assert a * b ≠ 0, from (division_ring.mul_ne_zero Ha Hb),
+    have a * b ≠ 0, from (division_ring.mul_ne_zero Ha Hb),
     by rewrite [add.comm, -(field.div_mul_left Ha this), -(field.div_mul_right Hb this), *division.def,
                 -right_distrib]
 

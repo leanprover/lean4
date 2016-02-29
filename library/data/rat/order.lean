@@ -205,7 +205,7 @@ protected theorem le_refl (a : ℚ) : a ≤ a :=
 by rewrite [rat.le_def, sub_self]; apply nonneg_zero
 
 protected theorem le_trans (H1 : a ≤ b) (H2 : b ≤ c) : a ≤ c :=
-assert H3 : nonneg (c - b + (b - a)), from nonneg_add H2 H1,
+have H3 : nonneg (c - b + (b - a)), from nonneg_add H2 H1,
 begin
   revert H3,
   rewrite [rat.sub.def, add.assoc, sub_eq_add_neg, neg_add_cancel_left],
@@ -256,14 +256,14 @@ have c + b - (c + a) = b - a,
 show nonneg (c + b - (c + a)), from this⁻¹ ▸ H
 
 protected theorem mul_nonneg (H1 : a ≥ (0 : ℚ)) (H2 : b ≥ (0 : ℚ)) : a * b ≥ (0 : ℚ) :=
-assert nonneg (a * b), from nonneg_mul (to_nonneg H1) (to_nonneg H2),
+have nonneg (a * b), from nonneg_mul (to_nonneg H1) (to_nonneg H2),
 begin rewrite -sub_zero at this, exact this end
 
 private theorem to_pos : a > 0 → pos a :=
 by intros; rewrite -sub_zero; eassumption
 
 protected theorem mul_pos (H1 : a > (0 : ℚ)) (H2 : b > (0 : ℚ)) : a * b > (0 : ℚ) :=
-assert pos (a * b), from pos_mul (to_pos H1) (to_pos H2),
+have pos (a * b), from pos_mul (to_pos H1) (to_pos H2),
 begin rewrite -sub_zero at this, exact this end
 
 definition decidable_lt [instance] : decidable_rel rat.lt :=
@@ -322,7 +322,7 @@ protected definition discrete_linear_ordered_field [trans_instance] :
  add_lt_add_left  := @rat.add_lt_add_left⦄
 
 theorem of_nat_abs (a : ℤ) : abs (of_int a) = of_nat (int.nat_abs a) :=
-assert ∀ n : ℕ, of_int (int.neg_succ_of_nat n) = - of_nat (nat.succ n), from λ n, rfl,
+have ∀ n : ℕ, of_int (int.neg_succ_of_nat n) = - of_nat (nat.succ n), from λ n, rfl,
 int.induction_on a
   (take b, abs_of_nonneg !of_nat_nonneg)
   (take b, by rewrite [this, abs_neg, abs_of_nonneg !of_nat_nonneg])
@@ -407,7 +407,7 @@ definition ubound : ℚ → ℕ := λ a : ℚ, nat.succ (int.nat_abs (num a))
 theorem ubound_ge (a : ℚ) : of_nat (ubound a) ≥ a :=
 have h : abs a * abs (of_int (denom a)) = abs (of_int (num a)), from
   !abs_mul ▸ !mul_denom ▸ rfl,
-assert of_int (denom a) > 0, from of_int_lt_of_int_of_lt !denom_pos,
+have of_int (denom a) > 0, from of_int_lt_of_int_of_lt !denom_pos,
 have 1 ≤ abs (of_int (denom a)), begin
     rewrite (abs_of_pos this),
     apply of_int_le_of_int_of_le,

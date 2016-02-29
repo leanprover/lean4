@@ -212,8 +212,8 @@ theorem cauchy_schwartz' (u v : V) : ⟨u, v⟩ ≤ ∥ u ∥ * ∥ v ∥ := ip_
 
 theorem eq_proj_on_cauchy_schwartz {u v : V} (H : v ≠ 0) (H₁ : abs ⟨u, v⟩ = ∥ u ∥ * ∥ v ∥) :
   u = proj_on u H :=
-assert ∥ v ∥ ≠ 0, from assume H', H (eq_zero_of_norm_eq_zero H'),
-assert ∥ u ∥ = ∥ proj_on u H ∥, by rewrite [norm_proj_on_eq, H₁, mul_div_cancel _ this],
+have ∥ v ∥ ≠ 0, from assume H', H (eq_zero_of_norm_eq_zero H'),
+have ∥ u ∥ = ∥ proj_on u H ∥, by rewrite [norm_proj_on_eq, H₁, mul_div_cancel _ this],
 have ∥ u - proj_on u H ∥^2 + ∥ u ∥^2 = 0 + ∥ u ∥^2,
   by rewrite [zero_add, norm_squared_pythagorean u H at {2}, this],
 have ∥ u - proj_on u H ∥^2 = 0, from eq_of_add_eq_add_right this,

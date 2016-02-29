@@ -194,9 +194,11 @@ lemma order_of_min_pow {a : A} {n : nat}
 or.elim (eq_or_lt_of_le (order_le Pone)) (λ P, P)
   (λ P : order a < succ n, begin
   have Pn : a^(order a) ≠ 1,
+  begin
     rewrite [-(succ_pred_of_pos (order_pos a))],
     apply Pmin, apply nat.lt_of_succ_lt_succ,
-    rewrite [succ_pred_of_pos !order_pos], assumption,
+    rewrite [succ_pred_of_pos !order_pos], assumption
+  end,
   exact absurd (pow_order a) Pn end)
 
 lemma order_dvd_of_pow_eq_one {a : A} {n : nat} (Pone : a^n = 1) : order a ∣ n :=
@@ -243,7 +245,7 @@ local attribute group_of_add_group [instance]
 lemma pow_eq_mul {n : nat} {i : fin (succ n)} : ∀ {k : nat}, i^k = mk_mod n (i*k)
 | 0        := by rewrite [pow_zero]
 | (succ k) := begin
-  have Psucc : i^(succ k) = madd (i^k) i, apply pow_succ',
+  have Psucc : i^(succ k) = madd (i^k) i, by apply pow_succ',
   rewrite [Psucc, pow_eq_mul],
   apply eq_of_veq,
   rewrite [mul_succ, val_madd, ↑mk_mod, mod_add_mod]

@@ -374,8 +374,6 @@ expr elaborator::visit_expecting_type_of(expr const & e, expr const & t, constra
         return visit_choice(e, some_expr(t), cs);
     } else if (is_by(e)) {
         return visit_by(e, some_expr(t), cs);
-    } else if (is_by_plus(e)) {
-        return visit_by_plus(e, some_expr(t), cs);
     } else if (is_calc_annotation(e)) {
         return visit_calc_proof(e, some_expr(t), cs);
     } else {
@@ -421,15 +419,6 @@ expr elaborator::visit_choice(expr const & e, optional<expr> const & t, constrai
 expr elaborator::visit_by(expr const & e, optional<expr> const & t, constraint_seq & cs) {
     lean_assert(is_by(e));
     expr tac = visit(get_by_arg(e), cs);
-    expr m   = m_context.mk_meta(t, e.get_tag());
-    register_meta(m);
-    m_local_tactic_hints.insert(mlocal_name(get_app_fn(m)), tac);
-    return m;
-}
-
-expr elaborator::visit_by_plus(expr const & e, optional<expr> const & t, constraint_seq & cs) {
-    lean_assert(is_by_plus(e));
-    expr tac = visit(get_by_plus_arg(e), cs);
     expr m   = m_context.mk_meta(t, e.get_tag());
     register_meta(m);
     m_local_tactic_hints.insert(mlocal_name(get_app_fn(m)), tac);
@@ -1715,8 +1704,6 @@ expr elaborator::visit_core(expr const & e, constraint_seq & cs) {
         return visit_let_value(e, cs);
     } else if (is_by(e)) {
         return visit_by(e, none_expr(), cs);
-    } else if (is_by_plus(e)) {
-        return visit_by_plus(e, none_expr(), cs);
     } else if (is_calc_annotation(e)) {
         return visit_calc_proof(e, none_expr(), cs);
     } else if (is_no_info(e)) {
@@ -2404,7 +2391,7 @@ static expr translate_local_name(environment const & env,
 */
 static expr translate(environment const & env, list<expr> const & ctx, expr const & e) {
     auto fn = [&](expr const & e) {
-        if (is_placeholder(e) || is_by(e) || is_by_plus(e)) {
+        if (is_placeholder(e) || is_by(e)) {
             return some_expr(e); // ignore placeholders
         } else if (is_constant(e)) {
             expr new_e = copy_tag(e, translate_local_name(env, ctx, const_name(e), e));

@@ -67,11 +67,6 @@ bool is_by(expr const & t);
 /** \see mk_by */
 expr const & get_by_arg(expr const & t);
 
-// Similar to mk_by, but instructs the elaborator to include the whole context
-expr mk_by_plus(expr const & t);
-bool is_by_plus(expr const & t);
-expr const & get_by_plus_arg(expr const & t);
-
 expr const & get_tactic_type();
 expr const & get_and_then_tac_fn();
 expr const & get_or_else_tac_fn();

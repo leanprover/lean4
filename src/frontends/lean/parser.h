@@ -296,7 +296,6 @@ public:
 
     bool has_tactic_decls();
     expr mk_by(expr const & t, pos_info const & pos);
-    expr mk_by_plus(expr const & t, pos_info const & pos);
 
     bool keep_new_thms() const { return m_keep_theorem_mode != keep_theorem_mode::DiscardAll; }
 

@@ -300,12 +300,6 @@ expr parser::mk_by(expr const & t, pos_info const & pos) {
     return save_pos(::lean::mk_by(t), pos);
 }
 
-expr parser::mk_by_plus(expr const & t, pos_info const & pos) {
-    if (!has_tactic_decls())
-        throw parser_error("invalid 'by+' expression, tactic module has not been imported", pos);
-    return save_pos(::lean::mk_by_plus(t), pos);
-}
-
 void parser::updt_options() {
     m_verbose     = get_verbose(m_ios.get_options());
     m_show_errors = get_parser_show_errors(m_ios.get_options());
@@ -1683,7 +1677,7 @@ expr parser::parse_backtick_expr_core() {
 expr parser::parse_backtick_expr() {
     auto p = pos();
     expr type   = parse_backtick_expr_core();
-    expr assump = mk_by_plus(save_pos(mk_constant(get_tactic_assumption_name()), p), p);
+    expr assump = mk_by(save_pos(mk_constant(get_tactic_assumption_name()), p), p);
     return save_pos(mk_typed_expr(type, assump), p);
 }
 

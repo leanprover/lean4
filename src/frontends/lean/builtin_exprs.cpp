@@ -341,7 +341,7 @@ static expr parse_using_expr(parser & p, pos_info const & using_pos) {
         if (!is_local(l))
             throw parser_error("invalid 'using' declaration for 'have', local expected", id_pos);
         expr new_l;
-        binder_info bi = local_info(l).update_contextual(true);
+        binder_info bi = local_info(l);
         if (p.is_local_variable_parameter(local_pp_name(l))) {
             expr new_type = p.save_pos(mk_as_is(mlocal_type(l)), id_pos);
             new_l = p.save_pos(mk_local(mlocal_name(l), local_pp_name(l), new_type, bi), id_pos);

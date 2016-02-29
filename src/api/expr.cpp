@@ -56,7 +56,6 @@ static binder_info to_binder_info(lean_binder_kind k) {
     case LEAN_BINDER_IMPLICIT:        return mk_implicit_binder_info();
     case LEAN_BINDER_STRICT_IMPLICIT: return mk_strict_implicit_binder_info();
     case LEAN_BINDER_INST_IMPLICIT:   return mk_inst_implicit_binder_info();
-    case LEAN_BINDER_HIDDEN:          return mk_contextual_info(false);
     }
     lean_unreachable();
 }
@@ -68,8 +67,6 @@ static lean_binder_kind of_binder_info(binder_info k) {
         return LEAN_BINDER_INST_IMPLICIT;
     else if (k.is_strict_implicit())
         return LEAN_BINDER_STRICT_IMPLICIT;
-    else if (!k.is_contextual())
-        return LEAN_BINDER_HIDDEN;
     else
         return LEAN_BINDER_DEFAULT;
 }

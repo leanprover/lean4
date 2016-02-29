@@ -158,8 +158,6 @@ struct print_expr_fn {
                 out() << "{";
             else if (binding_info(e).is_inst_implicit())
                 out() << "[";
-            else if (!binding_info(e).is_contextual())
-                out() << "[[";
             else if (binding_info(e).is_strict_implicit())
                 out() << "{{";
             else
@@ -170,8 +168,6 @@ struct print_expr_fn {
                 out() << "}";
             else if (binding_info(e).is_inst_implicit())
                 out() << "]";
-            else if (!binding_info(e).is_contextual())
-                out() << "]]";
             else if (binding_info(e).is_strict_implicit())
                 out() << "}}";
             else

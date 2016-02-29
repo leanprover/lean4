@@ -139,7 +139,7 @@ void expr_const::dealloc() {
 }
 
 unsigned binder_info::hash() const {
-    return (m_implicit << 3) | (m_contextual << 2) | (m_strict_implicit << 1) | m_inst_implicit;
+    return (m_rec << 3) |  (m_implicit << 2) | (m_strict_implicit << 1) | m_inst_implicit;
 }
 
 // Expr metavariables and local variables
@@ -200,9 +200,9 @@ static unsigned dec(unsigned k) { return k == 0 ? 0 : k - 1; }
 bool operator==(binder_info const & i1, binder_info const & i2) {
     return
         i1.is_implicit() == i2.is_implicit() &&
-        i1.is_contextual() == i2.is_contextual() &&
         i1.is_strict_implicit() == i2.is_strict_implicit() &&
-        i1.is_inst_implicit() == i2.is_inst_implicit();
+        i1.is_inst_implicit() == i2.is_inst_implicit() &&
+        i1.is_rec() == i2.is_rec();
 }
 
 // Expr binders (Lambda, Pi)

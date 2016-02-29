@@ -208,9 +208,6 @@ public:
 */
 class binder_info {
     unsigned m_implicit:1;        //! if true, binder argument is an implicit argument
-    /** if m_contextual is true, binder argument is assumed to be part of the context,
-        and may be argument for metavariables. */
-    unsigned m_contextual:1;
     unsigned m_strict_implicit:1; //! if true, binder argument is assumed to be a strict implicit argument
     /** \brief if m_inst_implicit is true, binder argument is an implicit argument, and should be
         inferred by class-instance resolution. */
@@ -219,23 +216,19 @@ class binder_info {
         in recursive equations */
     unsigned m_rec:1;
 public:
-    binder_info(bool implicit = false, bool contextual = true, bool strict_implicit = false, bool inst_implicit = false, bool rec = false):
-        m_implicit(implicit), m_contextual(contextual), m_strict_implicit(strict_implicit),
-        m_inst_implicit(inst_implicit), m_rec(rec) {}
+    binder_info(bool implicit = false, bool strict_implicit = false, bool inst_implicit = false, bool rec = false):
+        m_implicit(implicit), m_strict_implicit(strict_implicit), m_inst_implicit(inst_implicit), m_rec(rec) {}
     bool is_implicit() const { return m_implicit; }
-    bool is_contextual() const { return m_contextual; }
     bool is_strict_implicit() const { return m_strict_implicit; }
     bool is_inst_implicit() const { return m_inst_implicit; }
     bool is_rec() const { return m_rec; }
     unsigned hash() const;
-    binder_info update_contextual(bool f) const { return binder_info(m_implicit, f, m_strict_implicit, m_inst_implicit, m_rec); }
 };
 
 inline binder_info mk_implicit_binder_info()        { return binder_info(true); }
-inline binder_info mk_strict_implicit_binder_info() { return binder_info(false, true, true); }
-inline binder_info mk_inst_implicit_binder_info()   { return binder_info(false, true, false, true); }
-inline binder_info mk_contextual_info(bool f)       { return binder_info(false, f); }
-inline binder_info mk_rec_info(bool f)              { return binder_info(false, true, false, false, f); }
+inline binder_info mk_strict_implicit_binder_info() { return binder_info(false, true); }
+inline binder_info mk_inst_implicit_binder_info()   { return binder_info(false, false, true); }
+inline binder_info mk_rec_info(bool f)              { return binder_info(false, false, false, f); }
 
 inline bool is_explicit(binder_info const & bi) {
     return !bi.is_implicit() && !bi.is_strict_implicit() && !bi.is_inst_implicit();

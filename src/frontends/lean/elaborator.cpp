@@ -941,8 +941,7 @@ expr elaborator::visit_binding(expr e, expr_kind k, constraint_seq & cs) {
         ds.push_back(d);
         expr l   = mk_local(binding_name(e), d, binding_info(e));
         if (!is_match_binder_name(binding_name(e))) {
-            if (binding_info(e).is_contextual())
-                m_context.add_local(l);
+            m_context.add_local(l);
             m_full_context.add_local(l);
         }
         ls.push_back(l);

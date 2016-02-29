@@ -146,7 +146,7 @@ static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
 }
 
 static expr parse_begin_end_core(parser & p, pos_info const & start_pos,
-                                 name const & end_token, bool plus, bool nested = false) {
+                                 name const & end_token, bool nested = false) {
     if (!p.has_tactic_decls())
         throw parser_error("invalid 'begin-end' expression, tactic module has not been imported", start_pos);
     p.next();
@@ -175,10 +175,10 @@ static expr parse_begin_end_core(parser & p, pos_info const & start_pos,
             }
             if (p.curr_is_token(get_begin_tk())) {
                 auto pos = p.pos();
-                tacs.push_back(parse_begin_end_core(p, pos, get_end_tk(), plus, true));
+                tacs.push_back(parse_begin_end_core(p, pos, get_end_tk(), true));
             } else if (p.curr_is_token(get_lcurly_tk())) {
                 auto pos = p.pos();
-                tacs.push_back(parse_begin_end_core(p, pos, get_rcurly_tk(), plus, true));
+                tacs.push_back(parse_begin_end_core(p, pos, get_rcurly_tk(), true));
             } else if (p.curr_is_token(end_token)) {
                 break;
             } else if (p.curr_is_token(get_assert_tk())) {
@@ -246,7 +246,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & start_pos,
                         add_tac(t, pos);
                     } else if (p.curr_is_token(get_begin_tk())) {
                         auto pos = p.pos();
-                        tacs.push_back(parse_begin_end_core(p, pos, get_end_tk(), plus, true));
+                        tacs.push_back(parse_begin_end_core(p, pos, get_end_tk(), true));
                     } else if (p.curr_is_token(get_by_tk())) {
                         // parse: 'by' tactic
                         auto pos = p.pos();
@@ -302,7 +302,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & start_pos,
 }
 
 static expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const & pos) {
-    return parse_begin_end_core(p, pos, get_end_tk(), false);
+    return parse_begin_end_core(p, pos, get_end_tk());
 }
 
 static expr parse_tactic_expr(parser & p, unsigned, expr const *, pos_info const &) {
@@ -367,7 +367,7 @@ static expr parse_proof(parser & p) {
         return parse_proof_qed_core(p, pos);
     } else if (p.curr_is_token(get_begin_tk())) {
         auto pos = p.pos();
-        return parse_begin_end_core(p, pos, get_end_tk(), false);
+        return parse_begin_end_core(p, pos, get_end_tk());
     } else if (p.curr_is_token(get_by_tk())) {
         auto pos = p.pos();
         return parse_by(p, 0, nullptr, pos);
@@ -433,7 +433,6 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
     } else {
         body  = p.parse_expr();
     }
-    // remark: mk_contextual_info(false) informs the elaborator that prop should not occur inside metavariables.
     body = abstract(body, l);
     if (get_parser_checkpoint_have(p.get_options()))
         body = mk_checkpoint_annotation(body);

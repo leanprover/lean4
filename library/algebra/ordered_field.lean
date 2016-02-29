@@ -539,7 +539,7 @@ section discrete_linear_ordered_field
       !eq_div_of_mul_eq this !eq_sign_mul_abs⁻¹)
 
   theorem add_quarters (a : A) : a / 4 + a / 4 = a / 2 :=
-    have H4 [visible] : (4 : A) = 2 * 2, by norm_num,
+    have H4 : (4 : A) = 2 * 2, by norm_num,
     calc
       a / 4 + a / 4 = (a + a) / (2 * 2)         : by rewrite [-H4, div_add_div_same]
                 ... = (a * 1 + a * 1) / (2 * 2) : by rewrite mul_one

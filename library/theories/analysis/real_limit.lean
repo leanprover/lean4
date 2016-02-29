@@ -343,7 +343,7 @@ proposition mul_converges_to_seq (HX : X ⟶ x in ℕ) (HY : Y ⟶ y in ℕ) :
       assumption
     end,
     obtain K HK, from Hbd,
-    have Habsle [visible] : ∀ n, abs (X n * Y n - x * y) ≤ K * abs (Y n - y) + abs y * abs (X n - x), begin
+    have Habsle : ∀ n, abs (X n * Y n - x * y) ≤ K * abs (Y n - y) + abs y * abs (X n - x), begin
       intro,
       have Heq : X n * Y n - x * y = (X n * Y n - X n * y) + (X n * y - x * y), by
         rewrite [-sub_add_cancel (X n * Y n) (X n * y) at {1}, sub_eq_add_neg, *add.assoc],
@@ -358,7 +358,7 @@ proposition mul_converges_to_seq (HX : X ⟶ x in ℕ) (HY : Y ⟶ y in ℕ) :
       rewrite [-mul_sub_right_distrib, abs_mul, mul.comm],
       apply le.refl
     end,
-    have Hdifflim [visible] : (λ n, abs (X n * Y n - x * y)) ⟶ 0 in ℕ, begin
+    have Hdifflim : (λ n, abs (X n * Y n - x * y)) ⟶ 0 in ℕ, begin
       apply converges_to_seq_squeeze,
       rotate 2,
       intro, apply abs_nonneg,

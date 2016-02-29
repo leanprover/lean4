@@ -46,7 +46,7 @@ lt_of_le_of_ne !dist_nonneg (suppose 0 = dist x y, H (iff.mp !dist_eq_zero_iff t
 
 proposition ne_of_dist_pos {x y : M} (H : dist x y > 0) : x ≠ y :=
 suppose x = y,
-have H1 [visible] : dist x x > 0, by rewrite this at {2}; exact H,
+have H1 : dist x x > 0, by rewrite this at {2}; exact H,
 by rewrite dist_self at H1; apply not_lt_self _ H1
 
 proposition eq_of_forall_dist_le {x y : M} (H : ∀ ε, ε > 0 → dist x y ≤ ε) : x = y :=
@@ -351,7 +351,7 @@ theorem converges_to_at_of_all_conv_seqs {f : M → N} (c : M) (l : N)
     obtain ε Hε, from exists_not_of_not_forall Hnot,
     let Hε' := and_not_of_not_implies Hε in
     obtain (H1 : ε > 0) H2, from Hε',
-    have H3 [visible] : ∀ δ : ℝ, (δ > 0 → ∃ x' : M, x' ≠ c ∧ dist x' c < δ ∧ dist (f x') l ≥ ε), begin -- tedious!!
+    have H3 : ∀ δ : ℝ, (δ > 0 → ∃ x' : M, x' ≠ c ∧ dist x' c < δ ∧ dist (f x') l ≥ ε), begin -- tedious!!
       intros δ Hδ,
       note Hε'' := forall_not_of_not_exists H2,
       note H4 := forall_not_of_not_exists H2 δ,
@@ -371,7 +371,7 @@ theorem converges_to_at_of_all_conv_seqs {f : M → N} (c : M) (l : N)
       assumption
     end,
     let S : ℕ → M → Prop := λ n x, 0 < dist x c ∧ dist x c < 1 / (of_nat n + 1) ∧ dist (f x) l ≥ ε in
-    have HS [visible] : ∀ n : ℕ, ∃ m : M, S n m, begin
+    have HS : ∀ n : ℕ, ∃ m : M, S n m, begin
       intro k,
       have Hpos : 0 < of_nat k + 1, from of_nat_succ_pos k,
       cases H3 (1 / (k + 1)) (one_div_pos_of_pos Hpos) with x' Hx',
@@ -386,7 +386,7 @@ theorem converges_to_at_of_all_conv_seqs {f : M → N} (c : M) (l : N)
       repeat assumption
     end,
     let X : ℕ → M := λ n, some (HS n) in
-    have H4 [visible] : ∀ n : ℕ, ((X n) ≠ c) ∧ (X ⟶ c in ℕ), from
+    have H4 : ∀ n : ℕ, ((X n) ≠ c) ∧ (X ⟶ c in ℕ), from
       (take n, and.intro
         (begin
           note Hspec := some_spec (HS n),
@@ -404,7 +404,7 @@ theorem converges_to_at_of_all_conv_seqs {f : M → N} (c : M) (l : N)
           cases Hspec2,
           assumption
         end)),
-    have H5 [visible] : (λ n : ℕ, f (X n)) ⟶ l in ℕ, from Hseq X H4,
+    have H5 : (λ n : ℕ, f (X n)) ⟶ l in ℕ, from Hseq X H4,
     begin
       note H6 := H5 H1,
       cases H6 with Q HQ,

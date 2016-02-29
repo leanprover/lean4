@@ -132,11 +132,11 @@ namespace is_equiv
   adjointify f⁻¹ f (left_inv f) (right_inv f)
 
   definition cancel_right (g : B → C) [Hgf : is_equiv (g ∘ f)] : (is_equiv g) :=
-  have Hfinv [visible] : is_equiv f⁻¹, from is_equiv_inv f,
+  have Hfinv : is_equiv f⁻¹, from is_equiv_inv f,
   @homotopy_closed _ _ _ _ (is_equiv_compose f⁻¹ (g ∘ f)) (λb, ap g (@right_inv _ _ f _ b))
 
   definition cancel_left (g : C → A) [Hgf : is_equiv (f ∘ g)] : (is_equiv g) :=
-  have Hfinv [visible] : is_equiv f⁻¹, from is_equiv_inv f,
+  have Hfinv : is_equiv f⁻¹, from is_equiv_inv f,
   @homotopy_closed _ _ _ _ (is_equiv_compose (f ∘ g) f⁻¹) (λa, left_inv f (g a))
 
   definition eq_of_fn_eq_fn' {x y : A} (q : f x = f y) : x = y :=

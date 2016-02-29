@@ -201,7 +201,7 @@ namespace is_trunc
   theorem is_prop_of_imp_is_contr {A : Type} (H : A → is_contr A) : is_prop A :=
   @is_trunc_succ_intro A -2
     (λx y,
-      have H2 [visible] : is_contr A, from H x,
+      have H2 : is_contr A, from H x,
       !is_contr_eq)
 
   theorem is_prop.mk {A : Type} (H : ∀x y : A, x = y) : is_prop A :=

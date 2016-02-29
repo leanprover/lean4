@@ -79,7 +79,6 @@ name const & get_wf_tk();
 name const & get_in_tk();
 name const & get_at_tk();
 name const & get_assign_tk();
-name const & get_visible_tk();
 name const & get_from_tk();
 name const & get_using_tk();
 name const & get_then_tk();

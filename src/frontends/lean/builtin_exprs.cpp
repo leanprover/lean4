@@ -73,17 +73,6 @@ static expr parse_let_body(parser & p, pos_info const & pos) {
     }
 }
 
-static void parse_let_modifiers(parser & p, bool & is_visible) {
-    while (true) {
-        if (p.curr_is_token(get_visible_tk())) {
-            is_visible = true;
-            p.next();
-        } else {
-            break;
-        }
-    }
-}
-
 // Distribute mk_typed_expr over choice expression.
 // see issue #768
 static expr mk_typed_expr_distrib_choice(parser & p, expr const & type, expr const & value, pos_info const & pos) {
@@ -105,10 +94,8 @@ static expr parse_let(parser & p, pos_info const & pos) {
     } else {
         auto id_pos     = p.pos();
         name id         = p.check_atomic_id_next("invalid let declaration, identifier expected");
-        bool is_visible = false;
         optional<expr> type;
         expr value;
-        parse_let_modifiers(p, is_visible);
         if (p.curr_is_token(get_assign_tk())) {
             p.next();
             value = p.parse_expr();
@@ -342,9 +329,9 @@ static expr parse_proof_qed_core(parser & p, pos_info const & pos) {
     return r;
 }
 
-static expr parse_proof(parser & p, expr const & prop);
+static expr parse_proof(parser & p);
 
-static expr parse_using_expr(parser & p, expr const & prop, pos_info const & using_pos) {
+static expr parse_using_expr(parser & p, pos_info const & using_pos) {
     parser::local_scope scope(p);
     buffer<expr> locals;
     buffer<expr> new_locals;
@@ -366,7 +353,7 @@ static expr parse_using_expr(parser & p, expr const & prop, pos_info const & usi
         new_locals.push_back(new_l);
     }
     p.next(); // consume ','
-    expr pr = parse_proof(p, prop);
+    expr pr = parse_proof(p);
     unsigned i = locals.size();
     while (i > 0) {
         --i;
@@ -379,11 +366,10 @@ static expr parse_using_expr(parser & p, expr const & prop, pos_info const & usi
 }
 
 static expr parse_using(parser & p, unsigned, expr const *, pos_info const & pos) {
-    expr prop = p.save_pos(mk_expr_placeholder(), pos);
-    return parse_using_expr(p, prop, pos);
+    return parse_using_expr(p, pos);
 }
 
-static expr parse_proof(parser & p, expr const & prop) {
+static expr parse_proof(parser & p) {
     if (p.curr_is_token(get_from_tk())) {
         // parse: 'from' expr
         p.next();
@@ -409,24 +395,14 @@ static expr parse_proof(parser & p, expr const & prop) {
     }
 }
 
-static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> const & prev_local, bool is_visible) {
+static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> const & prev_local) {
     auto id_pos       = p.pos();
     name id;
     expr prop;
-    if (p.curr_is_token(get_visible_tk())) {
-        p.next();
-        is_visible    = true;
-        id            = get_this_tk();
-        prop          = p.parse_expr();
-    } else if (p.curr_is_identifier()) {
+    if (p.curr_is_identifier()) {
         id = p.get_name_val();
         p.next();
-        if (p.curr_is_token(get_visible_tk())) {
-            p.next();
-            p.check_token_next(get_colon_tk(), "invalid 'have/assert' declaration, ':' expected");
-            is_visible = true;
-            prop       = p.parse_expr();
-        } else if (p.curr_is_token(get_colon_tk())) {
+        if (p.curr_is_token(get_colon_tk())) {
             p.next();
             prop      = p.parse_expr();
         } else {
@@ -452,18 +428,16 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
             parser::local_scope scope(p);
             p.add_local(*prev_local);
             auto proof_pos = p.pos();
-            proof = parse_proof(p, prop);
+            proof = parse_proof(p);
             proof = p.save_pos(Fun(*prev_local, proof), proof_pos);
             proof = p.save_pos(mk_app(proof, *prev_local), proof_pos);
         } else {
-            proof = parse_proof(p, prop);
+            proof = parse_proof(p);
         }
     }
     p.check_token_next(get_comma_tk(), "invalid 'have/assert' declaration, ',' expected");
     parser::local_scope scope(p);
-    is_visible = true;
-    binder_info bi = mk_contextual_info(is_visible);
-    expr l = p.save_pos(mk_local(id, prop, bi), pos);
+    expr l = p.save_pos(mk_local(id, prop), pos);
     p.add_local(l);
     expr body;
     if (p.curr_is_token(get_then_tk())) {
@@ -471,12 +445,10 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
         p.next();
         if (p.curr_is_token(get_assert_tk())) {
             p.next();
-            is_visible = true;
         } else {
             p.check_token_next(get_have_tk(), "invalid 'then' declaration, 'have' or 'assert' expected");
-            is_visible = true;
         }
-        body  = parse_have_core(p, then_pos, some_expr(l), is_visible);
+        body  = parse_have_core(p, then_pos, some_expr(l));
     } else {
         body  = p.parse_expr();
     }
@@ -484,16 +456,12 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
     body = abstract(body, l);
     if (get_parser_checkpoint_have(p.get_options()))
         body = mk_checkpoint_annotation(body);
-    expr r = p.save_pos(mk_have_annotation(p.save_pos(mk_lambda(id, prop, body, bi), pos)), pos);
+    expr r = p.save_pos(mk_have_annotation(p.save_pos(mk_lambda(id, prop, body), pos)), pos);
     return p.mk_app(r, proof, pos);
 }
 
 static expr parse_have(parser & p, unsigned, expr const *, pos_info const & pos) {
-    return parse_have_core(p, pos, none_expr(), false);
-}
-
-static expr parse_assert(parser & p, unsigned, expr const *, pos_info const & pos) {
-    return parse_have_core(p, pos, none_expr(), true);
+    return parse_have_core(p, pos, none_expr());
 }
 
 static expr parse_suppose(parser & p, unsigned, expr const *, pos_info const & pos) {
@@ -534,7 +502,7 @@ static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos)
         return parse_local_equations(p, fn);
     } else {
         p.check_token_next(get_comma_tk(), "invalid 'show' declaration, ',' expected");
-        expr proof = parse_proof(p, prop);
+        expr proof = parse_proof(p);
         expr b = p.save_pos(mk_lambda(get_this_tk(), prop, Var(0)), pos);
         expr r = p.mk_app(b, proof, pos);
         return p.save_pos(mk_show_annotation(r), pos);
@@ -572,7 +540,7 @@ static expr parse_suffices_to_show(parser & p, unsigned, expr const *, pos_info 
     {
         parser::local_scope scope(p);
         p.add_local(local);
-        body = parse_proof(p, prop);
+        body = parse_proof(p);
     }
     expr proof = p.save_pos(Fun(local, body), pos);
     p.check_token_next(get_comma_tk(), "invalid 'suffices' declaration, ',' expected");
@@ -765,7 +733,7 @@ parse_table init_nud_table() {
     r = r.add({transition("by", mk_ext_action_core(parse_by))}, x0);
     r = r.add({transition("by+", mk_ext_action_core(parse_by_plus))}, x0);
     r = r.add({transition("have", mk_ext_action(parse_have))}, x0);
-    r = r.add({transition("assert", mk_ext_action(parse_assert))}, x0);
+    r = r.add({transition("assert", mk_ext_action(parse_have))}, x0);
     r = r.add({transition("suppose", mk_ext_action(parse_suppose))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
     r = r.add({transition("suffices", mk_ext_action(parse_suffices_to_show))}, x0);

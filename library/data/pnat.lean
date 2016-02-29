@@ -228,7 +228,7 @@ end
 
 theorem add_halves_double (m n : ℕ+) :
         m⁻¹ + n⁻¹ = ((2 * m)⁻¹ + (2 * n)⁻¹) + ((2 * m)⁻¹ + (2 * n)⁻¹) :=
-have hsimp [visible] : ∀ a b : ℚ, (a + a) + (b + b) = (a + b) + (a + b),
+have hsimp : ∀ a b : ℚ, (a + a) + (b + b) = (a + b) + (a + b),
   by intros; rewrite [rat.add_assoc, -(rat.add_assoc a b b), {_+b}rat.add_comm, -*rat.add_assoc],
 by rewrite [-pnat.add_halves m, -pnat.add_halves n, hsimp]
 

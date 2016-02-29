@@ -77,7 +77,6 @@ static name const * g_wf_tk = nullptr;
 static name const * g_in_tk = nullptr;
 static name const * g_at_tk = nullptr;
 static name const * g_assign_tk = nullptr;
-static name const * g_visible_tk = nullptr;
 static name const * g_from_tk = nullptr;
 static name const * g_using_tk = nullptr;
 static name const * g_then_tk = nullptr;
@@ -227,7 +226,6 @@ void initialize_tokens() {
     g_in_tk = new name{"in"};
     g_at_tk = new name{"at"};
     g_assign_tk = new name{":="};
-    g_visible_tk = new name{"[visible]"};
     g_from_tk = new name{"from"};
     g_using_tk = new name{"using"};
     g_then_tk = new name{"then"};
@@ -378,7 +376,6 @@ void finalize_tokens() {
     delete g_in_tk;
     delete g_at_tk;
     delete g_assign_tk;
-    delete g_visible_tk;
     delete g_from_tk;
     delete g_using_tk;
     delete g_then_tk;
@@ -528,7 +525,6 @@ name const & get_wf_tk() { return *g_wf_tk; }
 name const & get_in_tk() { return *g_in_tk; }
 name const & get_at_tk() { return *g_at_tk; }
 name const & get_assign_tk() { return *g_assign_tk; }
-name const & get_visible_tk() { return *g_visible_tk; }
 name const & get_from_tk() { return *g_from_tk; }
 name const & get_using_tk() { return *g_using_tk; }
 name const & get_then_tk() { return *g_then_tk; }

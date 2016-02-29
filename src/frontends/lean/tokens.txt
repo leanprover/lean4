@@ -72,7 +72,6 @@ wf           [wf]
 in           in
 at           at
 assign       :=
-visible      [visible]
 from         from
 using        using
 then         then

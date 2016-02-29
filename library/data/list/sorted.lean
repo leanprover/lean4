@@ -82,7 +82,7 @@ lemma sorted_extends (trans : transitive R) : ∀ {a l}, sorted R (a::l) → all
   have all l (R b),       from sorted_extends (and.right (sorted_inv h)),
   all_of_forall (take x, suppose x ∈ b::l,
     or.elim (eq_or_mem_of_mem_cons this)
-      (suppose x = b, by+ subst x; assumption)
+      (suppose x = b, by subst x; assumption)
       (suppose x ∈ l,
         have R b x, from of_mem_of_all this `all l (R b)`,
         trans `R a b` `R b x`))

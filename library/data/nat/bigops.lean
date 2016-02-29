@@ -96,7 +96,7 @@ proposition sum_range_eq_sum_interval {m n : ℕ} (f : ℕ → A) (H : m ≤ n) 
 proposition sum_range_offset (m n : ℕ) (f : ℕ → A) :
             (∑ i = m...m+n, f i) = (∑ i = 0...n, f (m + i)) :=
   have bij_on (add m) ('[0, n]) ('[m, m+n]), from !nat.bij_on_add_Icc_zero,
-  by+ rewrite [-zero_add n at {2}, *sum_range_eq_sum_interval_aux, Sum_eq_of_bij_on f this, zero_add]
+  by rewrite [-zero_add n at {2}, *sum_range_eq_sum_interval_aux, Sum_eq_of_bij_on f this, zero_add]
 
 end set
 
@@ -187,8 +187,8 @@ proposition prod_range_eq_prod_interval {m n : ℕ} (f : ℕ → A) (H : m ≤ n
 proposition prod_range_offset (m n : ℕ) (f : ℕ → A) :
             (∏ i = m...m+n, f i) = (∏ i = 0...n, f (m + i)) :=
   have bij_on (add m) ('[0, n]) ('[m, m+n]), from !nat.bij_on_add_Icc_zero,
-  by+ rewrite [-zero_add n at {2}, *prod_range_eq_prod_interval_aux, Prod_eq_of_bij_on f this,
-               zero_add]
+  by rewrite [-zero_add n at {2}, *prod_range_eq_prod_interval_aux, Prod_eq_of_bij_on f this,
+              zero_add]
 
 end set
 

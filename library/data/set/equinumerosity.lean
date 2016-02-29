@@ -116,9 +116,9 @@ open set
   show h a ∈ B, from
     by_cases
       (suppose a ∈ Union U,
-        by+ rewrite [↑h, if_pos this]; exact f_maps_to `a ∈ A`)
+        by rewrite [↑h, if_pos this]; exact f_maps_to `a ∈ A`)
       (suppose a ∉ Union U,
-        by+ rewrite [↑h, if_neg this]; exact ginv_maps_to `a ∈ A`)
+        by rewrite [↑h, if_neg this]; exact ginv_maps_to `a ∈ A`)
 
   /- h is injective -/
 

@@ -74,7 +74,7 @@ namespace analysis
 
   proposition norm_neg (v : V) : ∥ -v ∥ = ∥ v ∥ :=
   have abs (1 : ℝ) = 1, from abs_of_nonneg zero_le_one,
-  by+ rewrite [-@neg_one_smul ℝ V, norm_smul, abs_neg, this, one_mul]
+  by rewrite [-@neg_one_smul ℝ V, norm_smul, abs_neg, this, one_mul]
 
   proposition norm_sub (u v : V) : ∥u - v∥ = ∥v - u∥ :=
     by rewrite [-norm_neg, neg_sub]
@@ -188,7 +188,7 @@ proposition smul_converges_to_seq (c : ℝ) (HX : X ⟶ x in ℕ) :
 by_cases
   (assume cz : c = 0,
     have (λ n, c • X n) = (λ n, 0), from funext (take x, by rewrite [cz, zero_smul]),
-    begin+ rewrite [this, cz, zero_smul], apply converges_to_seq_constant end)
+    begin rewrite [this, cz, zero_smul], apply converges_to_seq_constant end)
   (suppose c ≠ 0, smul_converges_to_seq_aux this HX)
 
 proposition neg_converges_to_seq (HX : X ⟶ x in ℕ) :
@@ -205,7 +205,7 @@ proposition neg_converges_to_seq_iff : ((λ n, - X n) ⟶ - x in ℕ) ↔ (X ⟶
 have aux : X = λ n, (- (- X n)), from funext (take n, by rewrite neg_neg),
 iff.intro
   (assume H : (λ n, -X n)⟶ -x in ℕ,
-    show X ⟶ x in ℕ, by+ rewrite [aux, -neg_neg x]; exact neg_converges_to_seq H)
+    show X ⟶ x in ℕ, by rewrite [aux, -neg_neg x]; exact neg_converges_to_seq H)
   neg_converges_to_seq
 
 proposition norm_converges_to_seq_zero (HX : X ⟶ 0 in ℕ) : (λ n, norm (X n)) ⟶ 0 in ℕ :=
@@ -226,7 +226,7 @@ exists.intro (N : ℕ)
   (take n : ℕ, assume Hn : n ≥ N,
     have HN' : abs (norm (X n) - 0) < ε, from HN n Hn,
     have norm (X n) < ε,
-      by+ rewrite [sub_zero at HN', abs_of_nonneg !norm_nonneg at HN']; apply HN',
+      by rewrite [sub_zero at HN', abs_of_nonneg !norm_nonneg at HN']; apply HN',
     show norm (X n - 0) < ε,
       by rewrite sub_zero; apply this)
 

@@ -161,7 +161,7 @@ protected theorem neg_zero : -(0 : ereal) = 0 := rfl
 
 theorem infty_mul_pos {x : real} (H : x > 0) : ∞ * x = ∞ :=
 have H1 : x ≠ 0, from ne_of_gt H,
-by+ rewrite [*ereal.mul_def, ↑ereal.mul, if_neg H1, if_pos H]
+by rewrite [*ereal.mul_def, ↑ereal.mul, if_neg H1, if_pos H]
 
 theorem pos_mul_infty {x : real} (H : x > 0) : x * ∞ = ∞ :=
 by rewrite [ereal.mul_comm, infty_mul_pos H]
@@ -169,7 +169,7 @@ by rewrite [ereal.mul_comm, infty_mul_pos H]
 theorem infty_mul_neg {x : real} (H : x < 0) : ∞ * x = -∞ :=
 have H1 : x ≠ 0, from ne_of_lt H,
 have H2 : ¬ x > 0, from not_lt_of_gt H,
-by+ rewrite [*ereal.mul_def, ↑ereal.mul, if_neg H1, if_neg H2]
+by rewrite [*ereal.mul_def, ↑ereal.mul, if_neg H1, if_neg H2]
 
 theorem neg_mul_infty {x : real} (H : x < 0) : x * ∞ = -∞ :=
 by rewrite [ereal.mul_comm, infty_mul_neg H]

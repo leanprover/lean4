@@ -409,7 +409,7 @@ le.antisymm
   (le_of_forall_eventually
     (λ P H,
       have P = univ, from eq_of_mem_singleton H,
-      by+ rewrite this; apply eventually_true ⊤))
+      by rewrite this; apply eventually_true ⊤))
   !le_top
 
 theorem sets_bot_eq : sets ⊥ = (univ : set (set A)) :=

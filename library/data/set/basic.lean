@@ -758,7 +758,7 @@ theorem sInter_singleton (s : set X) : ⋂₀ '{s} = s :=
 ext (take x, iff.intro
   (suppose x ∈ ⋂₀ '{s}, show x ∈ s, from this (mem_singleton s))
   (suppose x ∈ s, take u, suppose u ∈ '{s},
-    show x ∈ u, by+ rewrite [eq_of_mem_singleton this]; assumption))
+    show x ∈ u, by rewrite [eq_of_mem_singleton this]; assumption))
 
 theorem sUnion_union (S T : set (set X)) : ⋃₀ (S ∪ T) = ⋃₀ S ∪ ⋃₀ T :=
 ext (take x, iff.intro

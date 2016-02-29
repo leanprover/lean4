@@ -39,13 +39,13 @@ proposition le_sup {x : ℝ} {X : set ℝ} (Hx : x ∈ X) {b : ℝ} (Hb : ∀ x,
   x ≤ sup X :=
 have H : (∃ x, x ∈ X) ∧ (∃ b, ∀ x, x ∈ X → x ≤ b),
   from and.intro (exists.intro x Hx) (exists.intro b Hb),
-by+ rewrite [↑sup, dif_pos H]; exact and.left (sup_aux_spec H) x Hx
+by rewrite [↑sup, dif_pos H]; exact and.left (sup_aux_spec H) x Hx
 
 proposition sup_le {X : set ℝ} (HX : ∃ x, x ∈ X) {b : ℝ} (Hb : ∀ x, x ∈ X → x ≤ b) :
   sup X ≤ b :=
 have H : (∃ x, x ∈ X) ∧ (∃ b, ∀ x, x ∈ X → x ≤ b),
   from and.intro HX (exists.intro b Hb),
-by+ rewrite [↑sup, dif_pos H]; exact and.right (sup_aux_spec H) b Hb
+by rewrite [↑sup, dif_pos H]; exact and.right (sup_aux_spec H) b Hb
 
 proposition exists_mem_and_lt_of_lt_sup {X : set ℝ} (HX : ∃ x, x ∈ X) {b : ℝ} (Hb : b < sup X) :
 ∃ x, x ∈ X ∧ b < x :=
@@ -74,13 +74,13 @@ proposition inf_le {x : ℝ} {X : set ℝ} (Hx : x ∈ X) {b : ℝ} (Hb : ∀ x,
   inf X ≤ x :=
 have H : (∃ x, x ∈ X) ∧ (∃ b, ∀ x, x ∈ X → b ≤ x),
   from and.intro (exists.intro x Hx) (exists.intro b Hb),
-by+ rewrite [↑inf, dif_pos H]; exact and.left (inf_aux_spec H) x Hx
+by rewrite [↑inf, dif_pos H]; exact and.left (inf_aux_spec H) x Hx
 
 proposition le_inf {X : set ℝ} (HX : ∃ x, x ∈ X) {b : ℝ} (Hb : ∀ x, x ∈ X → b ≤ x) :
   b ≤ inf X :=
 have H : (∃ x, x ∈ X) ∧ (∃ b, ∀ x, x ∈ X → b ≤ x),
   from and.intro HX (exists.intro b Hb),
-by+ rewrite [↑inf, dif_pos H]; exact and.right (inf_aux_spec H) b Hb
+by rewrite [↑inf, dif_pos H]; exact and.right (inf_aux_spec H) b Hb
 
 proposition exists_mem_and_lt_of_inf_lt {X : set ℝ} (HX : ∃ x, x ∈ X) {b : ℝ} (Hb : inf X < b) :
 ∃ x, x ∈ X ∧ x < b :=
@@ -261,7 +261,7 @@ smul_converges_to_seq c HX
 proposition mul_right_converges_to_seq (c : ℝ) (HX : X ⟶ x in ℕ) :
   (λ n, X n * c) ⟶ x * c in ℕ :=
 have (λ n, X n * c) = (λ n, c * X n), from funext (take x, !mul.comm),
-by+ rewrite [this, mul.comm]; apply mul_left_converges_to_seq c HX
+by rewrite [this, mul.comm]; apply mul_left_converges_to_seq c HX
 
 theorem converges_to_seq_squeeze (HX : X ⟶ x in ℕ) (HY : Y ⟶ x in ℕ) {Z : ℕ → ℝ} (HZX : ∀ n, X n ≤ Z n)
         (HZY : ∀ n, Z n ≤ Y n) : Z ⟶ x in ℕ :=
@@ -429,7 +429,7 @@ have ∀ n, X i ≤ X (i + n), from
     (by rewrite nat.add_zero; apply le.refl)
     (take n, assume ih, le.trans ih (H (i + n))),
 have X i ≤ X (i + (j - i)), from !this,
-by+ rewrite [add_sub_of_le `i ≤ j` at this]; exact this
+by rewrite [add_sub_of_le `i ≤ j` at this]; exact this
 
 proposition converges_to_seq_sup_of_nondecreasing (nondecX : nondecreasing X) {b : ℝ}
     (Hb : ∀ i, X i ≤ b) : X ⟶ sup (X ' univ) in ℕ :=
@@ -505,7 +505,7 @@ have H₃ : {x : ℝ | -x ∈ X ' univ} = {x : ℝ | x ∈ (λ n, -X n) ' univ},
   {x : ℝ | -x ∈ X ' univ} = (λ y, -y) ' (X ' univ) : by rewrite image_neg_eq
                        ... = {x : ℝ | x ∈ (λ n, -X n) ' univ} : image_comp,
 have H₄ : ∀ i, - X i ≤ - b, from take i, neg_le_neg (Hb i),
-begin+
+begin
   -- need krewrite here
   krewrite [-neg_converges_to_seq_iff, -sup_neg H₁ H₂, H₃, -nondecreasing_neg_iff at nonincX],
   apply converges_to_seq_sup_of_nondecreasing nonincX H₄

@@ -127,7 +127,7 @@ open nat eq.ops
 
   proposition Icc_zero (n : ℕ) : '[0, n] = '(-∞, n] :=
   have '[0, n] = '[0, ∞) ∩ '(-∞, n], from rfl,
-  by+ rewrite [this, Ici_zero, univ_inter]
+  by rewrite [this, Ici_zero, univ_inter]
 
   proposition bij_on_add_Icc_zero (m n : ℕ) : bij_on (add m) ('[0, n]) ('[m, m+n]) :=
   have mapsto : ∀₀ i ∈ '[0, n], m + i ∈ '[m, m+n], from

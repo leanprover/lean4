@@ -232,7 +232,7 @@ end
 definition pow_fin_is_iso (a : A) : is_iso_class (pow_fin' a) :=
 is_iso_class.mk (pow_fin_hom a)
   (have H : injective (λ (i : fin (order a)), a ^ (val i + 0)), from pow_fin_inj a 0,
-    begin+ rewrite [↑pow_fin', succ_pred_of_pos !order_pos]; exact H end)
+    begin rewrite [↑pow_fin', succ_pred_of_pos !order_pos]; exact H end)
 
 end cyclic
 

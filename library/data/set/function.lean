@@ -104,7 +104,7 @@ take y, assume H,
 obtain x [xmem fxeqy], from H,
 or.elim xmem
   (suppose x ∈ s, or.inl (mem_image this fxeqy))
-  (suppose x ∈ f '- t, or.inr (show y ∈ t, by+ rewrite -fxeqy; exact mem_of_mem_preimage this))
+  (suppose x ∈ f '- t, or.inr (show y ∈ t, by rewrite -fxeqy; exact mem_of_mem_preimage this))
 
 /- maps to -/
 

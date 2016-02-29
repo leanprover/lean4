@@ -244,7 +244,7 @@ namespace finset
       Prod_semigroup dflt (insert a s) f = f a * Prod_semigroup dflt s f :=
     obtain a' (a's : a' ∈ s), from exists_mem_of_ne_empty sne,
     have H : s = insert a' (erase a' s), from eq.symm (insert_erase a's),
-    begin+
+    begin
       rewrite [H, Prod_semigroup_insert_insert dflt f !not_mem_erase (eq.subst H anins)]
     end
   end deceqA
@@ -311,7 +311,7 @@ namespace finset
 
     theorem Prod_singleton (a : A) (f : A → B) : Prod '{a} f = f a :=
     have a ∉ ∅, from not_mem_empty a,
-    by+ rewrite [Prod_insert_of_not_mem f this, Prod_empty, mul_one]
+    by rewrite [Prod_insert_of_not_mem f this, Prod_empty, mul_one]
 
     theorem Prod_image {C : Type} [deceqC : decidable_eq C] {s : finset A} (f : C → B) {g : A → C}
                        (H : set.inj_on g (to_set s)) :
@@ -463,7 +463,7 @@ section Prod
         suppose finite t,
         have finite s, from finite_of_bij_on' H,
         show false, from nfins this,
-      by+ rewrite [Prod_of_not_finite nfins, Prod_of_not_finite nfint])
+      by rewrite [Prod_of_not_finite nfins, Prod_of_not_finite nfint])
 end Prod
 
 /- Sum: sum indexed by a set -/

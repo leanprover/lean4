@@ -114,7 +114,7 @@ end
 private proposition ip_norm_proj_on_eq (u : V) {v : V} (H : v ≠ 0) :
   ip_norm (ip_proj_on u H) = abs ⟨u, v⟩ / ip_norm v :=
 have H1 : ip_norm v ≠ 0, from assume H', H (eq_zero_of_ip_norm_eq_zero H'),
-begin+
+begin
   rewrite [↑ip_proj_on, ip_norm_smul, abs_div, abs_of_nonneg (squared_nonneg (ip_norm v)), pow_two],
   rewrite [div_mul_eq_mul_div, -div_mul_div, div_self H1, mul_one]
 end

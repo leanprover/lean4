@@ -598,7 +598,7 @@ decidable.by_cases
 
 theorem of_nat_div {a b : ℕ} (H : b ∣ a) : of_nat (a / b) = of_nat a / of_nat b :=
 have H' : (int.of_nat b ∣ int.of_nat a), by rewrite [int.of_nat_dvd_of_nat_iff]; exact H,
-by+ rewrite [of_nat_eq, int.of_nat_div, of_int_div H']
+by rewrite [of_nat_eq, int.of_nat_div, of_int_div H']
 
 theorem of_int_pow (a : ℤ) (n : ℕ) : of_int (a^n) = (of_int a)^n :=
 begin

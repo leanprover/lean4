@@ -43,7 +43,7 @@ namespace complex
     have re x = 0, from eq_zero_of_mul_self_add_mul_self_eq_zero H,
     have im x = 0, from eq_zero_of_mul_self_add_mul_self_eq_zero
                          (by rewrite [↑ip at H, add.comm at H]; exact H),
-    by+ rewrite [-complex.eta, `re x = 0`, `im x = 0`]
+    by rewrite [-complex.eta, `re x = 0`, `im x = 0`]
   end real_inner_product_space
 
   protected definition real_inner_product_space [reducible] : inner_product_space ℂ :=

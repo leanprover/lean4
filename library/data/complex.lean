@@ -260,7 +260,7 @@ protected theorem div_def (z w : ℂ) : z / w = z * w⁻¹ := rfl
 
 theorem of_real_div (x y : ℝ) : of_real (x / y) = of_real x / of_real y :=
 have H : x / y = x * y⁻¹, from rfl,
-by+ rewrite [H, complex.div_def, of_real_mul, of_real_inv]
+by rewrite [H, complex.div_def, of_real_mul, of_real_inv]
 
 theorem conj_inv (z : ℂ) : (conj z)⁻¹ = conj (z⁻¹) :=
 by rewrite [*complex.inv_def, conj_mul, *conj_conj, conj_of_real, cmod_conj]

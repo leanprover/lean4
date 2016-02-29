@@ -120,7 +120,7 @@ exists.intro N
 proposition converges_to_seq_offset_left {X : ℕ → M} {y : M} (k : ℕ) (H : X ⟶ y in ℕ) :
   (λ n, X (k + n)) ⟶ y in ℕ :=
 have aux : (λ n, X (k + n)) = (λ n, X (n + k)), from funext (take n, by rewrite add.comm),
-by+ rewrite aux; exact converges_to_seq_offset k H
+by rewrite aux; exact converges_to_seq_offset k H
 
 proposition converges_to_seq_offset_succ {X : ℕ → M} {y : M} (H : X ⟶ y in ℕ) :
   (λ n, X (succ n)) ⟶ y in ℕ :=
@@ -142,7 +142,7 @@ proposition converges_to_seq_of_converges_to_seq_offset_left
     {X : ℕ → M} {y : M} {k : ℕ} (H : (λ n, X (k + n)) ⟶ y in ℕ) :
   X ⟶ y in ℕ :=
 have aux : (λ n, X (k + n)) = (λ n, X (n + k)), from funext (take n, by rewrite add.comm),
-by+ rewrite aux at H; exact converges_to_seq_of_converges_to_seq_offset H
+by rewrite aux at H; exact converges_to_seq_of_converges_to_seq_offset H
 
 proposition converges_to_seq_of_converges_to_seq_offset_succ
     {X : ℕ → M} {y : M} (H : (λ n, X (succ n)) ⟶ y in ℕ) :

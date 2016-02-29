@@ -361,7 +361,7 @@ section
   have b - 1 ≠ 0, from
     suppose b - 1 = 0, H₁ (!zero_add ▸ eq_add_of_sub_eq this),
   have a * b - a = 0, by rewrite H₂; apply sub_self,
-  have a * (b - 1) = 0, by+ rewrite [mul_sub_left_distrib, mul_one]; apply this,
+  have a * (b - 1) = 0, by rewrite [mul_sub_left_distrib, mul_one]; apply this,
     show a = 0, from sum_resolve_left (eq_zero_sum_eq_zero_of_mul_eq_zero this) `b - 1 ≠ 0`
 
   theorem eq_zero_of_mul_eq_self_left {a b : A} (H₁ : b ≠ 1) (H₂ : b * a = a) : a = 0 :=

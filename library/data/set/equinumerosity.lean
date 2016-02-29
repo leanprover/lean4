@@ -111,14 +111,15 @@ open set
   noncomputable definition h x := if x ∈ Union U then f x else ginv x
 
   lemma h_maps_to : maps_to h A B :=
+  using f_maps_to dfltB,
   take a,
   suppose a ∈ A,
   show h a ∈ B, from
     by_cases
       (suppose a ∈ Union U,
-        by rewrite [↑h, if_pos this]; exact f_maps_to `a ∈ A`)
+        begin rewrite [↑h, if_pos this], exact f_maps_to `a ∈ A` end)
       (suppose a ∉ Union U,
-        by rewrite [↑h, if_neg this]; exact ginv_maps_to `a ∈ A`)
+        begin rewrite [↑h, if_neg this], exact ginv_maps_to `a ∈ A` end)
 
   /- h is injective -/
 

@@ -291,7 +291,7 @@ sub.cases
     le.intro (add.right_cancel H4))
 
 protected theorem sub_pos_of_lt {m n : ℕ} (H : m < n) : n - m > 0 :=
-assert H1 : n = n - m + m, from (nat.sub_add_cancel (le_of_lt H))⁻¹,
+have H1 : n = n - m + m, from (nat.sub_add_cancel (le_of_lt H))⁻¹,
 have   H2 : 0 + m < n - m + m, begin rewrite [zero_add, -H1], exact H end,
 !lt_of_add_lt_add_right H2
 
@@ -321,7 +321,7 @@ sub.cases
     sub.cases
       (assume H : m ≤ k,
         have   H2 : n - k ≤ n - m, from nat.sub_le_sub_left H n,
-        assert H3 : n - k ≤ mn, from nat.sub_eq_of_add_eq Hmn ▸ H2,
+        have H3 : n - k ≤ mn, from nat.sub_eq_of_add_eq Hmn ▸ H2,
         show   n - k ≤ mn + 0,  begin rewrite add_zero, assumption end)
       (take km : ℕ,
         assume Hkm : k + km = m,
@@ -451,12 +451,12 @@ begin rewrite [add.comm (k - m) (m - n),
 this ▸ add_le_add !nat.sub_lt_sub_add_sub !nat.sub_lt_sub_add_sub
 
 theorem dist_add_add_le_add_dist_dist (n m k l : ℕ) : dist (n + m) (k + l) ≤ dist n k + dist m l :=
-assert H : dist (n + m) (k + m) + dist (k + m) (k + l) = dist n k + dist m l,
+have H : dist (n + m) (k + m) + dist (k + m) (k + l) = dist n k + dist m l,
   by rewrite [dist_add_add_left, dist_add_add_right],
 by rewrite -H; apply dist.triangle_inequality
 
 theorem dist_mul_right (n k m : ℕ) : dist (n * k) (m * k) = dist n m * k :=
-assert Π n m, dist n m = n - m + (m - n), from take n m, rfl,
+have Π n m, dist n m = n - m + (m - n), from take n m, rfl,
 by rewrite [this, this n m, right_distrib, *nat.mul_sub_right_distrib]
 
 theorem dist_mul_left (k n m : ℕ) : dist (k * n) (k * m) = k * dist n m :=

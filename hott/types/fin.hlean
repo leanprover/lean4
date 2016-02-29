@@ -79,7 +79,7 @@ dmap_nodup_of_dinj (dinj_lt n) (list.nodup_upto n)
 lemma mem_upto (n : nat) : Π (i : fin n), i ∈ upto n :=
 take i, fin.destruct i
   (take ival Piltn,
-    assert ival ∈ list.upto n, from mem_upto_of_lt Piltn,
+    have ival ∈ list.upto n, from mem_upto_of_lt Piltn,
     mem_dmap Piltn this)
 
 lemma upto_zero : upto 0 = [] :=
@@ -161,12 +161,14 @@ by apply eq_of_veq; reflexivity
 
 lemma ne_max_of_lt_max {i : fin (succ n)} : i < n → i ≠ maxi :=
 begin
-  intro hlt he, assert he' : maxi = i, apply he⁻¹, induction he', apply nat.lt_irrefl n hlt,
+  intro hlt he,
+  have he' : maxi = i, by apply he⁻¹,
+  induction he', apply nat.lt_irrefl n hlt,
 end
 
 lemma lt_max_of_ne_max {i : fin (succ n)} : i ≠ maxi → i < n :=
 assume hne  : i ≠ maxi,
-assert vne  : val i ≠ n, from
+have vne  : val i ≠ n, from
   assume he,
     have val (@maxi n) = n,   from rfl,
     have val i = val (@maxi n), from he ⬝ this⁻¹,
@@ -191,7 +193,7 @@ end
 definition lt_of_inj_of_max (f : fin (succ n) → fin (succ n)) :
   is_embedding f → (f maxi = maxi) → Π i : fin (succ n), i < n → f i < n :=
 assume Pinj Peq, take i, assume Pilt,
-assert P1 : f i = f maxi → i = maxi, from assume Peq, is_injective_of_is_embedding Peq,
+have P1 : f i = f maxi → i = maxi, from assume Peq, is_injective_of_is_embedding Peq,
 have f i ≠ maxi, from
      begin rewrite -Peq, intro P2, apply absurd (P1 P2) (ne_max_of_lt_max Pilt) end,
 lt_max_of_ne_max this
@@ -220,8 +222,8 @@ end
 lemma lift_fun_of_inj {f : fin n → fin n} : is_embedding f → is_embedding (lift_fun f) :=
 begin
   intro Pemb, apply is_embedding_of_is_injective, intro i j,
-  assert Pdi : decidable (i = maxi), apply _,
-  assert Pdj : decidable (j = maxi), apply _,
+  have Pdi : decidable (i = maxi), by apply _,
+  have Pdj : decidable (j = maxi), by apply _,
   cases Pdi with Pimax Pinmax,
     cases Pdj with Pjmax Pjnmax,
       substvars, intros, reflexivity,
@@ -240,7 +242,7 @@ end
 lemma lift_fun_inj : is_embedding (@lift_fun n) :=
 begin
   apply is_embedding_of_is_injective, intro f f' Peq, apply eq_of_homotopy, intro i,
-  assert H : lift_fun f (lift_succ i) = lift_fun f' (lift_succ i), apply congr_fun Peq _,
+  have H : lift_fun f (lift_succ i) = lift_fun f' (lift_succ i), by apply congr_fun Peq _,
   revert H, rewrite [*lift_fun_eq], apply is_injective_of_is_embedding,
 end
 
@@ -338,7 +340,7 @@ begin
     let vj := nat.pred vk in
     have vk = nat.succ vj, from
       inverse (succ_pred_of_pos HT),
-    assert vj < n, from
+    have vj < n, from
       lt_of_succ_lt_succ (eq.subst `vk = nat.succ vj` pk),
     have succ (mk vj `vj < n`) = mk vk pk, by apply val_inj; apply (succ_pred_of_pos HT),
     eq.rec_on this (CS (mk vj `vj < n`)) },
@@ -379,9 +381,9 @@ begin
   apply decidable.rec,
   { intro ilt', esimp[val_inj], apply concat,
     apply ap (λ x, eq.rec_on x _), esimp[eq_of_veq, rfl], reflexivity,
-    assert H : ilt = ilt', apply is_prop.elim, cases H,
-    assert H' : is_prop.elim (lt_add_of_lt_right ilt 1) (lt_add_of_lt_right ilt 1) = idp,
-      apply is_prop.elim,
+    have H : ilt = ilt', by apply is_prop.elim, cases H,
+    have H' : is_prop.elim (lt_add_of_lt_right ilt 1) (lt_add_of_lt_right ilt 1) = idp,
+      by apply is_prop.elim,
     krewrite H' },
   { intro a, exact absurd ilt a },
 end
@@ -394,8 +396,8 @@ begin
   apply decidable.rec,
   { intro a, apply absurd a !nat.lt_irrefl },
   { intro a, esimp[val_inj], apply concat,
-    assert H : (le.antisymm (le_of_lt_succ (lt_succ_self n)) (le_of_not_gt a))⁻¹ = idp,
-      apply is_prop.elim,
+    have H : (le.antisymm (le_of_lt_succ (lt_succ_self n)) (le_of_not_gt a))⁻¹ = idp,
+      by apply is_prop.elim,
     apply ap _ H, krewrite eq_of_veq_refl },
 end
 
@@ -482,7 +484,7 @@ begin
     cases f with v vlt, rewrite [dif_pos vlt],
     cases g with v vlt, esimp, have ¬ v + n < n, from
       suppose v + n < n,
-      assert v < n - n, from nat.lt_sub_of_add_lt this !le.refl,
+      have v < n - n, from nat.lt_sub_of_add_lt this !le.refl,
       have v < 0, by rewrite [nat.sub_self at this]; exact this,
       absurd this !not_lt_zero,
     apply concat, apply dif_neg this, apply ap inr, apply eq_of_veq, esimp,
@@ -512,7 +514,7 @@ begin
                    ... ≃ fin m × empty : prod_comm_equiv
                    ... ≃ empty : prod_empty_equiv
                    ... ≃ fin 0 : fin_zero_equiv_empty },
-  { assert H : (a + 1) * m = a * m + m, rewrite [nat.right_distrib, one_mul],
+  { have H : (a + 1) * m = a * m + m, by rewrite [nat.right_distrib, one_mul],
     calc fin (a + 1) × fin m
          ≃ (fin a + unit) × fin m : prod.prod_equiv_prod_right !fin_succ_equiv
      ... ≃ (fin a × fin m) + (unit × fin m) : sum_prod_right_distrib

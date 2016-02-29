@@ -166,16 +166,16 @@ section linear_ordered_field
 
   theorem div_lt_div_of_mul_sub_mul_div_neg (Hc : c ≠ 0) (Hd : d ≠ 0)
       (H : (a * d - b * c) / (c * d) < 0) : a / c < b / d :=
-    assert H1 : (a * d - c * b) / (c * d) < 0,     by rewrite [mul.comm c b]; exact H,
-    assert H2 : a / c - b / d < 0,                 by rewrite [!div_sub_div Hc Hd]; exact H1,
-    assert H3 : a / c - b / d + b / d < 0 + b / d, from add_lt_add_right H2 _,
+    have H1 : (a * d - c * b) / (c * d) < 0,     by rewrite [mul.comm c b]; exact H,
+    have H2 : a / c - b / d < 0,                 by rewrite [!div_sub_div Hc Hd]; exact H1,
+    have H3 : a / c - b / d + b / d < 0 + b / d, from add_lt_add_right H2 _,
     begin rewrite [zero_add at H3, sub_eq_add_neg at H3, neg_add_cancel_right at H3], exact H3 end
 
   theorem div_le_div_of_mul_sub_mul_div_nonpos (Hc : c ≠ 0) (Hd : d ≠ 0)
       (H : (a * d - b * c) / (c * d) ≤ 0) : a / c ≤ b / d :=
-    assert H1 : (a * d - c * b) / (c * d) ≤ 0,     by rewrite [mul.comm c b]; exact H,
-    assert H2 : a / c - b / d ≤ 0,                 by rewrite [!div_sub_div Hc Hd]; exact H1,
-    assert H3 : a / c - b / d + b / d ≤ 0 + b / d, from add_le_add_right H2 _,
+    have H1 : (a * d - c * b) / (c * d) ≤ 0,     by rewrite [mul.comm c b]; exact H,
+    have H2 : a / c - b / d ≤ 0,                 by rewrite [!div_sub_div Hc Hd]; exact H1,
+    have H3 : a / c - b / d + b / d ≤ 0 + b / d, from add_le_add_right H2 _,
     begin rewrite [zero_add at H3, sub_eq_add_neg at H3, neg_add_cancel_right at H3], exact H3 end
 
   theorem div_pos_of_pos_of_pos (Ha : 0 < a) (Hb : 0 < b) : 0 < a / b :=
@@ -342,12 +342,12 @@ section linear_ordered_field
 
   theorem exists_add_lt_prod_pos_of_lt (H : b < a) : Σ c : A, b + c < a × c > 0 :=
   sigma.mk ((a - b) / (1 + 1))
-      (pair (assert H2 : a + a > (b + b) + (a - b), from calc
+      (pair (have H2 : a + a > (b + b) + (a - b), from calc
         a + a > b + a : add_lt_add_right H
         ... = b + a + b - b : add_sub_cancel
         ... = b + b + a - b : add.right_comm
         ... = (b + b) + (a - b) : add_sub,
-      assert H3 : (a + a) / 2 > ((b + b) + (a - b)) / 2,
+      have H3 : (a + a) / 2 > ((b + b) + (a - b)) / 2,
         from div_lt_div_of_lt_of_pos H2 two_pos,
       by rewrite [one_add_one_eq_two, sub_eq_add_neg, add_self_div_two at H3, -div_add_div_same at H3, add_self_div_two at H3];
            exact H3)
@@ -414,7 +414,7 @@ section discrete_linear_ordered_field
       ), le_of_one_le_div Hb H'
 
   theorem le_of_one_div_le_one_div_of_neg (H : b < 0) (Hl : 1 / a ≤ 1 / b) : b ≤ a :=
-    assert Ha : a ≠ 0, from ne_of_lt (neg_of_one_div_neg (calc
+    have Ha : a ≠ 0, from ne_of_lt (neg_of_one_div_neg (calc
       1 / a ≤ 1 / b : Hl
         ... < 0     : one_div_neg_of_neg H)),
     have H'   : -b > 0,                from neg_pos_of_neg H,
@@ -504,7 +504,7 @@ section discrete_linear_ordered_field
           by rewrite [abs_of_neg H', abs_of_neg (one_div_neg_of_neg H'),
                          -(division_ring.one_div_neg_eq_neg_one_div (ne_of_lt H'))]
        else
-         assert Heq : a = 0, from eq_of_le_of_ge (le_of_not_gt H) (le_of_not_gt H'),
+         have Heq : a = 0, from eq_of_le_of_ge (le_of_not_gt H) (le_of_not_gt H'),
          by rewrite [Heq, div_zero, *abs_zero, div_zero])
 
   theorem sign_eq_div_abs (a : A) : sign a = a / (abs a) :=

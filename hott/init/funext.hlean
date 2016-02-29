@@ -96,9 +96,9 @@ theorem funext_of_weak_funext (wf : weak_funext.{l k}) : funext.{l k} :=
   λ A B f g,
     let eq_to_f := (λ g' x, f = g') in
     let sim2path := homotopy_ind f eq_to_f idp in
-    assert t1 : sim2path f (homotopy.refl f) = idp,
+    have t1 : sim2path f (homotopy.refl f) = idp,
       proof homotopy_ind_comp f eq_to_f idp qed,
-    assert t2 : apd10 (sim2path f (homotopy.refl f)) = (homotopy.refl f),
+    have t2 : apd10 (sim2path f (homotopy.refl f)) = (homotopy.refl f),
       proof ap apd10 t1 qed,
     have left_inv : apd10 ∘ (sim2path g) ~ id,
       proof (homotopy_ind f (λ g' x, apd10 (sim2path g' x) = x) t2) g qed,
@@ -184,9 +184,9 @@ section
         let d := λ (x : A), @sigma.mk (B × B) (λ (xy : B × B), xy.1 = xy.2) (f x , f x) (eq.refl (f x, f x).1) in
         let e := λ (x : A), @sigma.mk (B × B) (λ (xy : B × B), xy.1 = xy.2) (f x , g x) (p x) in
         let precomp1 :=  compose (pr₁ ∘ sigma.pr1) in
-        assert equiv1 : is_equiv precomp1,
+        have equiv1 : is_equiv precomp1,
           from @isequiv_src_compose A B,
-        assert equiv2 : Π (x y : A → diagonal B), is_equiv (ap precomp1),
+        have equiv2 : Π (x y : A → diagonal B), is_equiv (ap precomp1),
           from is_equiv.is_equiv_ap precomp1,
         have H' : Π (x y : A → diagonal B), pr₁ ∘ pr1 ∘ x = pr₁ ∘ pr1 ∘ y → x = y,
           from (λ x y, is_equiv.inv (ap precomp1)),

@@ -598,7 +598,7 @@ list.rec_on l
   (λ h : a ∈ nil, absurd h (not_mem_nil a))
   (λ x xs r ainxxs, sum.rec_on (eq_or_mem_of_mem_cons ainxxs)
     (λ aeqx  : a = x,
-       assert aux : Σ l, x::xs≈x|l, from
+       have aux : Σ l, x::xs≈x|l, from
          sigma.mk xs (qhead x xs),
        by rewrite aeqx; exact aux)
     (λ ainxs : a ∈ xs,

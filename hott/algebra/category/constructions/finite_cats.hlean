@@ -65,12 +65,14 @@ namespace category
   open equalizer_category_hom
   theorem is_set_equalizer_category_hom (b₁ b₂ : bool) : is_set (equalizer_category_hom b₁ b₂) :=
   begin
-    assert H : Πb b', equalizer_category_hom b b' ≃ bool.rec (bool.rec empty bool) (λb, empty) b b',
-    { intro b b', fapply equiv.MK,
+    have H : Πb b', equalizer_category_hom b b' ≃ bool.rec (bool.rec empty bool) (λb, empty) b b',
+    begin
+      intro b b', fapply equiv.MK,
       { intro x, induction x, exact ff, exact tt},
       { intro v, induction b: induction b': induction v, exact f1, exact f2},
       { intro v, induction b: induction b': induction v: reflexivity},
-      { intro x, induction x: reflexivity}},
+      { intro x, induction x: reflexivity}
+    end,
     apply is_trunc_equiv_closed_rev, apply H,
     induction b₁: induction b₂: exact _
   end
@@ -110,14 +112,16 @@ namespace category
   theorem is_set_pullback_category_hom (b₁ b₂ : pullback_category_ob)
     : is_set (pullback_category_hom b₁ b₂) :=
   begin
-    assert H : Πb b', pullback_category_hom b b' ≃
+    have H : Πb b', pullback_category_hom b b' ≃
       pullback_category_ob.rec (λb, empty) (λb, empty)
                               (pullback_category_ob.rec unit unit empty) b' b,
-    { intro b b', fapply equiv.MK,
+    begin
+      intro b b', fapply equiv.MK,
       { intro x, induction x: exact star},
       { intro v, induction b: induction b': induction v, exact f1, exact f2},
       { intro v, induction b: induction b': induction v: reflexivity},
-      { intro x, induction x: reflexivity}},
+      { intro x, induction x: reflexivity}
+    end,
     apply is_trunc_equiv_closed_rev, apply H,
     induction b₁: induction b₂: exact _
   end

@@ -231,13 +231,15 @@ namespace category
   theorem is_prop_is_equivalence [instance] {C : Category} {D : Precategory} (F : C ⇒ D)
     : is_prop (is_equivalence F) :=
   begin
-    assert f : is_equivalence F ≃ Σ(H : is_left_adjoint F), is_iso (unit F) × is_iso (counit F),
-    { fapply equiv.MK,
+    have f : is_equivalence F ≃ Σ(H : is_left_adjoint F), is_iso (unit F) × is_iso (counit F),
+    begin
+      fapply equiv.MK,
       { intro H, induction H, fconstructor: constructor, repeat (esimp;assumption) },
       { intro H, induction H with H1 H2, induction H1, induction H2, constructor,
         repeat (esimp at *;assumption)},
       { intro H, induction H with H1 H2, induction H1, induction H2, reflexivity},
-      { intro H, induction H, reflexivity}},
+      { intro H, induction H, reflexivity}
+    end,
     apply is_trunc_equiv_closed_rev, exact f,
   end
 

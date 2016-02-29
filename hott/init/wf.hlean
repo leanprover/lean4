@@ -166,10 +166,12 @@ namespace nat
     constructor, intro n, induction n with n IH,
     { constructor, intros n H, exfalso, exact !not_lt_zero H},
     { constructor, intros m H,
-      assert aux : ∀ {n₁} (hlt : m < n₁), succ n = n₁ → acc lt m,
-        { intros n₁ hlt, induction hlt,
+      have aux : ∀ {n₁} (hlt : m < n₁), succ n = n₁ → acc lt m,
+        begin
+          intros n₁ hlt, induction hlt,
           { intro p, injection p with q, exact q ▸ IH},
-          { intro p, injection p with q, exact (acc.inv (q ▸ IH) a)}},
+          { intro p, injection p with q, exact (acc.inv (q ▸ IH) a)}
+        end,
       apply aux H rfl},
   end
 

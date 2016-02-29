@@ -173,11 +173,11 @@ namespace category
     esimp at *,
     revert q, eapply homotopy2.rec_on @p, esimp, clear p, intro p q, induction p,
     esimp at *,
-    assert H : comp1 = comp2,
-    { apply eq_of_homotopy3, intros, apply eq_of_homotopy2, intros, apply q},
+    have H : comp1 = comp2,
+    begin apply eq_of_homotopy3, intros, apply eq_of_homotopy2, intros, apply q end,
     induction H,
-    assert K : ID1 = ID2,
-    { apply eq_of_homotopy, intro a, exact !ir'⁻¹ ⬝ !il},
+    have K : ID1 = ID2,
+    begin apply eq_of_homotopy, intro a, exact !ir'⁻¹ ⬝ !il end,
     induction K,
     apply ap0111111 (precategory.mk' hom1 comp1 ID1): apply is_prop.elim
   end
@@ -197,19 +197,21 @@ namespace category
 /- if we need to prove properties about precategory_eq, it might be easier with the following proof:
   begin
     induction C with hom1 comp1 ID1, induction D with hom2 comp2 ID2, esimp at *,
-    assert H : Σ(s : hom1 = hom2), (λa b, equiv_of_eq (apd100 s a b)) = p,
-    { fconstructor,
+    have H : Σ(s : hom1 = hom2), (λa b, equiv_of_eq (apd100 s a b)) = p,
+    begin
+      fconstructor,
       { apply eq_of_homotopy2, intros, apply ua, apply p},
-      { apply eq_of_homotopy2, intros, rewrite [to_right_inv !eq_equiv_homotopy2, equiv_of_eq_ua]}},
+      { apply eq_of_homotopy2, intros, rewrite [to_right_inv !eq_equiv_homotopy2, equiv_of_eq_ua]}
+    end,
     induction H with H1 H2, induction H1, esimp at H2,
-    assert K : (λa b, equiv.refl) = p,
-    { refine _ ⬝ H2, apply eq_of_homotopy2, intros, exact !equiv_of_eq_refl⁻¹},
+    have K : (λa b, equiv.refl) = p,
+    begin refine _ ⬝ H2, apply eq_of_homotopy2, intros, exact !equiv_of_eq_refl⁻¹ end,
     induction K, clear H2,
     esimp at *,
-    assert H : comp1 = comp2,
-    { apply eq_of_homotopy3, intros, apply eq_of_homotopy2, intros, apply q},
-    assert K : ID1 = ID2,
-    { apply eq_of_homotopy, intros, apply r},
+    have H : comp1 = comp2,
+    begin apply eq_of_homotopy3, intros, apply eq_of_homotopy2, intros, apply q end,
+    have K : ID1 = ID2,
+    begin apply eq_of_homotopy, intros, apply r end,
     induction H, induction K,
     apply ap0111111 (precategory.mk' hom1 comp1 ID1): apply is_prop.elim
   end

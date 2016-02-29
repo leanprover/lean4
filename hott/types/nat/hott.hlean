@@ -13,11 +13,13 @@ open is_trunc unit empty eq equiv algebra pointed
 namespace nat
   definition is_prop_le [instance] (n m : ℕ) : is_prop (n ≤ m) :=
   begin
-    assert lem : Π{n m : ℕ} (p : n ≤ m) (q : n = m), p = q ▸ le.refl n,
-    { intros, cases p,
-      { assert H' : q = idp, apply is_set.elim,
+    have lem : Π{n m : ℕ} (p : n ≤ m) (q : n = m), p = q ▸ le.refl n,
+    begin
+      intros, cases p,
+      { have H' : q = idp, by apply is_set.elim,
         cases H', reflexivity},
-      { cases q, exfalso, apply not_succ_le_self a}},
+      { cases q, exfalso, apply not_succ_le_self a}
+    end,
     apply is_prop.mk, intro H1 H2, induction H2,
     { apply lem},
     { cases H1,

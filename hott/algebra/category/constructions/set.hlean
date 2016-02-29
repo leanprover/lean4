@@ -66,8 +66,8 @@ namespace category
     ua !equiv_equiv_iso
 
     definition is_univalent_Set (A B : set) : is_equiv (iso_of_eq : A = B → A ≅ B) :=
-    assert H₁ : is_equiv (@iso_of_equiv A B ∘ @equiv_of_eq A B ∘ subtype_eq_inv _ _ ∘
-                  @ap _ _ (to_fun (trunctype.sigma_char 0)) A B), from
+    have H₁ : is_equiv (@iso_of_equiv A B ∘ @equiv_of_eq A B ∘ subtype_eq_inv _ _ ∘
+              @ap _ _ (to_fun (trunctype.sigma_char 0)) A B), from
       @is_equiv_compose _ _ _ _ _
       (@is_equiv_compose _ _ _ _ _
          (@is_equiv_compose _ _ _ _ _

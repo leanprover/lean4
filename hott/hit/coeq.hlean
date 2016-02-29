@@ -116,21 +116,25 @@ section
 
   protected definition flattening : sigma P ≃ coeq F G :=
   begin
-    assert H : Πz, P z ≃ P' z,
-    { intro z, apply equiv_of_eq,
-      assert H1 : coeq.elim_type f g P_i Pcp = quotient.elim_type P_i Pr,
-      { change
-    quotient.rec P_i
-      (λb b' r, coeq_rel.cases_on r (λx, pathover_of_eq (ua (Pcp x))))
-  = quotient.rec P_i
-      (λb b' r, pathover_of_eq (ua (coeq_rel.cases_on r Pcp))),
-        assert H2 : Π⦃b b' : B⦄ (r : coeq_rel f g b b'),
-    coeq_rel.cases_on r (λx, pathover_of_eq (ua (Pcp x)))
-  = pathover_of_eq (ua (coeq_rel.cases_on r Pcp))
-    :> P_i b =[eq_of_rel (coeq_rel f g) r] P_i b',
-        { intros b b' r, cases r, reflexivity },
-       rewrite (eq_of_homotopy3 H2) },
-      apply ap10 H1 },
+    have H : Πz, P z ≃ P' z,
+    begin
+      intro z, apply equiv_of_eq,
+      have H1 : coeq.elim_type f g P_i Pcp = quotient.elim_type P_i Pr,
+      begin
+        change
+           quotient.rec P_i
+           (λb b' r, coeq_rel.cases_on r (λx, pathover_of_eq (ua (Pcp x))))
+           = quotient.rec P_i
+           (λb b' r, pathover_of_eq (ua (coeq_rel.cases_on r Pcp))),
+        have H2 : Π⦃b b' : B⦄ (r : coeq_rel f g b b'),
+          coeq_rel.cases_on r (λx, pathover_of_eq (ua (Pcp x)))
+          = pathover_of_eq (ua (coeq_rel.cases_on r Pcp))
+            :> P_i b =[eq_of_rel (coeq_rel f g) r] P_i b',
+        begin intros b b' r, cases r, reflexivity end,
+        rewrite (eq_of_homotopy3 H2)
+      end,
+      apply ap10 H1
+    end,
     apply equiv.trans (sigma_equiv_sigma_right H),
     apply equiv.trans !quotient.flattening.flattening_lemma,
     fapply quotient.equiv,

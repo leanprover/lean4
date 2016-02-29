@@ -301,7 +301,7 @@ namespace pi
   theorem is_prop_pi_eq [instance] [priority 490] (a : A) : is_prop (Π(a' : A), a = a') :=
   is_prop_of_imp_is_contr
   ( assume (f : Πa', a = a'),
-    assert is_contr A, from is_contr.mk a f,
+    have is_contr A, from is_contr.mk a f,
     by exact _) /- force type clas resolution -/
 
   theorem is_prop_neg (A : Type) : is_prop (¬A) := _

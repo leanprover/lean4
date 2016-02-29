@@ -434,11 +434,11 @@ namespace eq
     {a₀₂ a₂₂ : A} {b : a₀₂ = a₂₂} {l : a₁₀ = a₀₂} {r : a₁₀ = a₂₂}
       (s : square idp b l r) (H : P ids) : P s :=
   let p : l ⬝ b = r := (eq_of_square s)⁻¹ ⬝ !idp_con in
-  assert H2 : P (square_of_eq ((p ⬝ !idp_con⁻¹)⁻¹)),
+  have H2 : P (square_of_eq ((p ⬝ !idp_con⁻¹)⁻¹)),
     from eq.rec_on p (by induction b; induction l; exact H),
-  assert H3 : P (square_of_eq ((eq_of_square s)⁻¹⁻¹)),
+  have H3 : P (square_of_eq ((eq_of_square s)⁻¹⁻¹)),
     from eq.rec_on !con_inv_cancel_right H2,
-  assert H4 : P (square_of_eq (eq_of_square s)),
+  have H4 : P (square_of_eq (eq_of_square s)),
     from eq.rec_on !inv_inv H3,
   proof
     left_inv (to_fun !square_equiv_eq) s ▸ H4
@@ -457,7 +457,7 @@ namespace eq
     {a' : A} {t : a = a'} {b : a = a'}
       (s : square t b idp idp) (H : P ids) : P s :=
   let p : idp ⬝ b = t := (eq_of_square s)⁻¹ in
-  assert H2 : P (square_of_eq (eq_of_square s)⁻¹⁻¹),
+  have H2 : P (square_of_eq (eq_of_square s)⁻¹⁻¹),
     from @eq.rec_on _ _ (λx q, P (square_of_eq q⁻¹)) _ p (by induction b; exact H),
   to_left_inv (!square_equiv_eq) s ▸ !inv_inv ▸ H2
 

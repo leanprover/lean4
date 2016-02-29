@@ -76,11 +76,13 @@ namespace category
     : preserves_existing_limits (yoneda_embedding C) :=
   begin
     intro I F H Gη, induction H with y H, induction Gη with G η, esimp at *,
-    assert lem : Π (i : carrier I),
+    have lem : Π (i : carrier I),
     nat_trans_hom_functor_left (natural_map (cone_to_nat y) i)
       ∘n preserves_existing_limits_yoneda_embedding_lemma y η = natural_map η i,
-    { intro i, apply nat_trans_eq, intro c, apply eq_of_homotopy, intro x,
-        esimp, refine !assoc ⬝ !id_right ⬝ !to_hom_limit_commute},
+    begin
+        intro i, apply nat_trans_eq, intro c, apply eq_of_homotopy, intro x,
+        esimp, refine !assoc ⬝ !id_right ⬝ !to_hom_limit_commute
+    end,
     fapply is_contr.mk,
     { fapply cone_hom.mk,
       { exact preserves_existing_limits_yoneda_embedding_lemma y η},
@@ -104,7 +106,7 @@ namespace category
     [H : is_left_adjoint F] : preserves_existing_limits F :=
   begin
     intro I G K dη, induction K with y K, induction dη with d η, esimp at *,
-    -- assert lem : Π (i : carrier I),
+    -- have lem : Π (i : carrier I),
     -- nat_trans_hom_functor_left (natural_map (cone_to_nat y) i)
     --   ∘n preserves_existing_limits_yoneda_embedding_lemma y η = natural_map η i,
     -- { intro i, apply nat_trans_eq, intro c, apply eq_of_homotopy, intro x,

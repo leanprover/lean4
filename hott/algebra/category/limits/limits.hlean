@@ -57,8 +57,8 @@ namespace category
     : is_prop (has_terminal_object D) :=
   begin
     apply is_prop.mk, intro t₁ t₂, induction t₁ with d₁ H₁, induction t₂ with d₂ H₂,
-    assert p : d₁ = d₂,
-    { apply eq_of_iso, apply terminal_iso_terminal},
+    have p : d₁ = d₂,
+    begin apply eq_of_iso, apply terminal_iso_terminal end,
     induction p, exact ap _ !is_prop.elim
   end
 

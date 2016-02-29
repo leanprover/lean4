@@ -271,7 +271,7 @@ exists_eq_succ_of_lt H
 theorem pos_of_dvd_of_pos {m n : ℕ} (H1 : m ∣ n) (H2 : n > 0) : m > 0 :=
 pos_of_ne_zero
   (suppose m = 0,
-   assert  n = 0, from eq_zero_of_zero_dvd (this ▸ H1),
+   have  n = 0, from eq_zero_of_zero_dvd (this ▸ H1),
    ne_of_lt H2 (by subst n))
 
 /- multiplication -/
@@ -363,11 +363,11 @@ sum.elim !lt_sum_ge
 protected theorem min_add_add_left (a b c : ℕ) : min (a + b) (a + c) = a + min b c :=
 decidable.by_cases
   (suppose b ≤ c,
-   assert a + b ≤ a + c, from add_le_add_left this _,
+   have a + b ≤ a + c, from add_le_add_left this _,
    by rewrite [min_eq_left `b ≤ c`, min_eq_left this])
   (suppose ¬ b ≤ c,
-   assert c ≤ b,         from le_of_lt (lt_of_not_ge this),
-   assert a + c ≤ a + b, from add_le_add_left this _,
+   have c ≤ b,         from le_of_lt (lt_of_not_ge this),
+   have a + c ≤ a + b, from add_le_add_left this _,
    by rewrite [min_eq_right `c ≤ b`, min_eq_right this])
 
 protected theorem min_add_add_right (a b c : ℕ) : min (a + c) (b + c) = min a b + c :=
@@ -376,11 +376,11 @@ by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply nat.min_add_add_lef
 protected theorem max_add_add_left (a b c : ℕ) : max (a + b) (a + c) = a + max b c :=
 decidable.by_cases
   (suppose b ≤ c,
-   assert a + b ≤ a + c, from add_le_add_left this _,
+   have a + b ≤ a + c, from add_le_add_left this _,
    by rewrite [max_eq_right `b ≤ c`, max_eq_right this])
   (suppose ¬ b ≤ c,
-   assert c ≤ b,         from le_of_lt (lt_of_not_ge this),
-   assert a + c ≤ a + b, from add_le_add_left this _,
+   have c ≤ b,         from le_of_lt (lt_of_not_ge this),
+   have a + c ≤ a + b, from add_le_add_left this _,
    by rewrite [max_eq_left `c ≤ b`, max_eq_left this])
 
 protected theorem max_add_add_right (a b c : ℕ) : max (a + c) (b + c) = max a b + c :=

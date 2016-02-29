@@ -18,10 +18,10 @@ namespace category
   definition functor_limit_object [constructor]
     [H : has_limits_of_shape D I] (F : I ⇒ D ^c C) : C ⇒ D :=
   begin
-  assert lem : Π(c d : carrier C) (f : hom c d) ⦃i j : carrier I⦄ (k : i ⟶ j),
+  have lem : Π(c d : carrier C) (f : hom c d) ⦃i j : carrier I⦄ (k : i ⟶ j),
     (constant2_functor F d) k ∘ to_fun_hom (F i) f ∘ limit_morphism (constant2_functor F c) i =
       to_fun_hom (F j) f ∘ limit_morphism (constant2_functor F c) j,
-  { intro c d f i j k, rewrite [-limit_commute _ k,▸*,+assoc,▸*,-naturality (F k) f]},
+  begin intro c d f i j k, rewrite [-limit_commute _ k,▸*,+assoc,▸*,-naturality (F k) f] end,
 
   fapply functor.mk,
    { intro c, exact limit_object (constant2_functor F c)},

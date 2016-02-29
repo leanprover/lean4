@@ -69,26 +69,30 @@ namespace homotopy
       { apply is_contr_fiber_of_is_equiv, apply is_conn_map.rec, exact H },
       { apply is_trunc_succ_intro,
         intros x y, cases x with g p, cases y with h q,
-        assert e : fiber (λr : g ~ h, (λa, r (f a))) (apd10 (p ⬝ q⁻¹))
+        have e : fiber (λr : g ~ h, (λa, r (f a))) (apd10 (p ⬝ q⁻¹))
                  ≃ (fiber.mk g p = fiber.mk h q
                      :> fiber (λs : (Πb, P b), (λa, s (f a))) t),
-        { apply equiv.trans !fiber.sigma_char,
-          assert e' : Πr : g ~ h,
+        begin
+          apply equiv.trans !fiber.sigma_char,
+          have e' : Πr : g ~ h,
                  ((λa, r (f a)) = apd10 (p ⬝ q⁻¹))
                ≃ (ap (λv, (λa, v (f a))) (eq_of_homotopy r) ⬝ q = p),
-          { intro r,
+          begin
+            intro r,
             refine equiv.trans _ (eq_con_inv_equiv_con_eq q p
                                    (ap (λv a, v (f a)) (eq_of_homotopy r))),
             rewrite [-(ap (λv a, v (f a)) (apd10_eq_of_homotopy r))],
             rewrite [-(apd10_ap_precompose_dependent f (eq_of_homotopy r))],
             apply equiv.symm,
-            apply eq_equiv_fn_eq (@apd10 A (λa, P (f a)) (λa, g (f a)) (λa, h (f a))) },
+            apply eq_equiv_fn_eq (@apd10 A (λa, P (f a)) (λa, g (f a)) (λa, h (f a)))
+          end,
           apply equiv.trans (sigma.sigma_equiv_sigma_right e'), clear e',
           apply equiv.trans (equiv.symm (sigma.sigma_equiv_sigma_left
                                            eq_equiv_homotopy)),
           apply equiv.symm, apply equiv.trans !fiber_eq_equiv,
           apply sigma.sigma_equiv_sigma_right, intro r,
-          apply eq_equiv_eq_symm },
+          apply eq_equiv_eq_symm
+        end,
         apply @is_trunc_equiv_closed _ _ k e, clear e,
         apply IH (λb : B, trunctype.mk (g b = h b)
                            (@is_trunc_eq (P b) (n +2+ k) (trunctype.struct (P b))

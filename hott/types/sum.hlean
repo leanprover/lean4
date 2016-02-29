@@ -228,7 +228,7 @@ namespace sum
   definition unit_sum_equiv_cancel_inv (b : B) :
     unit_sum_equiv_cancel_map H (unit_sum_equiv_cancel_map H⁻¹ b) = b :=
   begin
-    assert HH : to_fun H⁻¹ = (to_fun H)⁻¹, cases H, reflexivity,
+    have HH : to_fun H⁻¹ = (to_fun H)⁻¹, begin cases H, reflexivity end,
     esimp[unit_sum_equiv_cancel_map], apply sum.rec,
     { intro x, cases x with u Hu, esimp, apply sum.rec,
       { intro x, exfalso, cases x with u' Hu', apply empty_of_inl_eq_inr,
@@ -260,7 +260,7 @@ namespace sum
                  ... = inr b : to_right_inv H (inr b) },
       { cases x with a Ha, exfalso, apply empty_of_inl_eq_inr,
         apply concat, rotate 1, exact Hb', krewrite HH at Ha,
-        assert Ha' : inl ⋆ = H (inr a), apply !(to_right_inv H)⁻¹ ⬝ ap H Ha,
+        have Ha' : inl ⋆ = H (inr a), by apply !(to_right_inv H)⁻¹ ⬝ ap H Ha,
         apply concat Ha', apply ap H, apply ap inr, apply sum.rec,
           intro x, cases x with u' Hu', esimp, apply sum.rec,
             intro x, cases x with u'' Hu'', esimp, apply empty.rec,

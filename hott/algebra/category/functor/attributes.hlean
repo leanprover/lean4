@@ -47,8 +47,9 @@ namespace category
   begin
     fconstructor,
     { exact (to_fun_hom F)⁻¹ᶠ f},
-    { assert H : is_iso (F ((to_fun_hom F)⁻¹ᶠ f)),
-      { have H' : is_iso (to_hom f), from _, exact (right_inv (to_fun_hom F) (to_hom f))⁻¹ ▸ H'},
+    { have H : is_iso (F ((to_fun_hom F)⁻¹ᶠ f)), from
+        have H' : is_iso (to_hom f), from _,
+        (right_inv (to_fun_hom F) (to_hom f))⁻¹ ▸ H',
       exact reflect_is_iso F _},
   end
 

@@ -69,12 +69,14 @@ namespace category
   @precategory.mk _ cone_hom
                  abstract begin
                    intro x y,
-                   assert H : cone_hom x y ≃ Σ(f : x ⟶ y), Πi, cone_to_nat y i ∘ f = cone_to_nat x i,
-                   { fapply equiv.MK,
+                   have H : cone_hom x y ≃ Σ(f : x ⟶ y), Πi, cone_to_nat y i ∘ f = cone_to_nat x i,
+                   begin
+                     fapply equiv.MK,
                      { intro f, induction f, constructor, assumption},
                      { intro v, induction v, constructor, assumption},
                      { intro v, induction v, reflexivity},
-                     { intro f, induction f, reflexivity}},
+                     { intro f, induction f, reflexivity}
+                   end,
                    apply is_trunc.is_trunc_equiv_closed_rev, exact H,
                    fapply sigma.is_trunc_sigma, intros,
                    apply is_trunc_succ, apply pi.is_trunc_pi, intros, esimp,

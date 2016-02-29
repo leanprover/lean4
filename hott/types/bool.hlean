@@ -152,7 +152,7 @@ namespace bool
 
   definition eq_bnot_ne_idp : eq_bnot ≠ idp :=
   assume H : eq_bnot = idp,
-  assert H2 : bnot = id, from !cast_ua_fn⁻¹ ⬝ ap cast H,
+  have H2 : bnot = id, from !cast_ua_fn⁻¹ ⬝ ap cast H,
   absurd (ap10 H2 tt) ff_ne_tt
 
   theorem is_set_bool : is_set bool := _

@@ -153,23 +153,27 @@ namespace pushout
 
     protected definition flattening : sigma P ≃ pushout F G :=
     begin
-      assert H : Πz, P z ≃ quotient.elim_type (sum.rec Pinl Pinr) Pglue' z,
-      { intro z, apply equiv_of_eq,
-        assert H1 : pushout.elim_type Pinl Pinr Pglue
+      have H : Πz, P z ≃ quotient.elim_type (sum.rec Pinl Pinr) Pglue' z,
+      begin
+        intro z, apply equiv_of_eq,
+        have H1 : pushout.elim_type Pinl Pinr Pglue
                   = quotient.elim_type (sum.rec Pinl Pinr) Pglue',
-        { change
+        begin
+        change
       quotient.rec (sum.rec Pinl Pinr)
         (λa a' r, pushout_rel.cases_on r (λx, pathover_of_eq (ua (Pglue x))))
     = quotient.rec (sum.rec Pinl Pinr)
         (λa a' r, pathover_of_eq (ua (pushout_rel.cases_on r Pglue))),
-          assert H2 : Π⦃a a'⦄ r : pushout_rel f g a a',
+          have H2 : Π⦃a a'⦄ r : pushout_rel f g a a',
       pushout_rel.cases_on r (λx, pathover_of_eq (ua (Pglue x)))
     = pathover_of_eq (ua (pushout_rel.cases_on r Pglue))
       :> sum.rec Pinl Pinr a =[eq_of_rel (pushout_rel f g) r]
          sum.rec Pinl Pinr a',
-          { intros a a' r, cases r, reflexivity },
-          rewrite (eq_of_homotopy3 H2) },
-        apply ap10 H1 },
+          begin intros a a' r, cases r, reflexivity end,
+          rewrite (eq_of_homotopy3 H2)
+        end,
+        apply ap10 H1
+      end,
       apply equiv.trans (sigma_equiv_sigma_right H),
       apply equiv.trans (quotient.flattening.flattening_lemma R (sum.rec Pinl Pinr) Pglue'),
       fapply equiv.MK,

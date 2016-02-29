@@ -304,7 +304,7 @@ section group
 
   lemma is_conj.symm (a b : A) : a ~ b → b ~ a :=
       assume Pab, obtain x (Pconj : x ∘c b = a), from Pab,
-      assert Pxinv : x⁻¹ ∘c x ∘c b = x⁻¹ ∘c a,   begin congruence, assumption end,
+      have Pxinv : x⁻¹ ∘c x ∘c b = x⁻¹ ∘c a,   begin congruence, assumption end,
       sigma.mk x⁻¹ (inverse (conj_inv_cancel x b ▸ Pxinv))
 
   lemma is_conj.trans (a b c : A) : a ~ b → b ~ c → a ~ c :=

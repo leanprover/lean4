@@ -243,7 +243,7 @@ section field
     by rewrite [mul.comm, (!div_mul_cancel Hb)]
 
   theorem one_div_add_one_div (Ha : a ≠ 0) (Hb : b ≠ 0) : 1 / a + 1 / b = (a + b) / (a * b) :=
-    assert a * b ≠ 0, from (division_ring.mul_ne_zero Ha Hb),
+    have a * b ≠ 0, from (division_ring.mul_ne_zero Ha Hb),
     by rewrite [add.comm, -(field.div_mul_left Ha this), -(field.div_mul_right Hb this), *division.def,
                 -right_distrib]
 

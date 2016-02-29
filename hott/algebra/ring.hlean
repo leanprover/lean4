@@ -372,7 +372,7 @@ section
     (suppose a * a = b * b,
       have (a - b) * (a + b) = 0,
         by rewrite [mul.comm, -mul_self_sub_mul_self_eq, this, sub_self],
-      assert a - b = 0 ⊎ a + b = 0, from !eq_zero_sum_eq_zero_of_mul_eq_zero this,
+      have a - b = 0 ⊎ a + b = 0, from !eq_zero_sum_eq_zero_of_mul_eq_zero this,
       sum.elim this
         (suppose a - b = 0, sum.inl (eq_of_sub_eq_zero this))
         (suppose a + b = 0, sum.inr (eq_neg_of_add_eq_zero this)))
@@ -381,7 +381,7 @@ section
       (suppose a = -b, by rewrite [this, neg_mul_neg]))
 
   theorem mul_self_eq_one_iff (a : A) : a * a = 1 ↔ a = 1 ⊎ a = -1 :=
-  assert a * a = 1 * 1 ↔ a = 1 ⊎ a = -1, from mul_self_eq_mul_self_iff a 1,
+  have a * a = 1 * 1 ↔ a = 1 ⊎ a = -1, from mul_self_eq_mul_self_iff a 1,
   by rewrite mul_one at this; exact this
 
   -- TODO: c - b * c → c = 0 ⊎ b = 1 and variants

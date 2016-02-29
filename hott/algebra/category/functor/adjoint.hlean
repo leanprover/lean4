@@ -48,16 +48,19 @@ namespace category
   begin
     apply is_prop.mk,
     intro G G', cases G with G η ε H K, cases G' with G' η' ε' H' K',
-    assert lem₁ : Π(p : G = G'), p ▸ η = η' → p ▸ ε = ε'
+    have lem₁ : Π(p : G = G'), p ▸ η = η' → p ▸ ε = ε'
       → is_left_adjoint.mk G η ε H K = is_left_adjoint.mk G' η' ε' H' K',
-    { intros p q r, induction p, induction q, induction r, esimp,
-      apply apd011 (is_left_adjoint.mk G η ε) !is_prop.elim !is_prop.elim},
-    assert lem₂ : Π (d : carrier D),
+    begin
+      intros p q r, induction p, induction q, induction r, esimp,
+      apply apd011 (is_left_adjoint.mk G η ε) !is_prop.elim !is_prop.elim
+    end,
+    have lem₂ : Π (d : carrier D),
                     (to_fun_hom G (natural_map ε' d) ∘
                     natural_map η (to_fun_ob G' d)) ∘
                     to_fun_hom G' (natural_map ε d) ∘
                     natural_map η' (to_fun_ob G d) = id,
-    { intro d, esimp,
+    begin
+      intro d, esimp,
       rewrite [assoc],
       rewrite [-assoc (G (ε' d))],
       esimp, rewrite [nf_fn_eq_fn_nf_pt' G' ε η d],
@@ -70,13 +73,15 @@ namespace category
       rewrite [↑functor.compose, -respect_comp G],
       rewrite [H' (G d)],
       rewrite [respect_id,▸*,id_right],
-      apply K},
-    assert lem₃ : Π (d : carrier D),
+      apply K
+    end,
+    have lem₃ : Π (d : carrier D),
                     (to_fun_hom G' (natural_map ε d) ∘
                     natural_map η' (to_fun_ob G d)) ∘
                     to_fun_hom G (natural_map ε' d) ∘
                     natural_map η (to_fun_ob G' d) = id,
-    { intro d, esimp,
+    begin
+      intro d, esimp,
       rewrite [assoc, -assoc (G' (ε d))],
       esimp, rewrite [nf_fn_eq_fn_nf_pt' G ε' η' d],
       esimp, rewrite [assoc], esimp, rewrite [-assoc],
@@ -88,7 +93,8 @@ namespace category
       rewrite [↑functor.compose, -respect_comp G'],
       rewrite [H (G' d)],
       rewrite [respect_id,▸*,id_right],
-      apply K'},
+      apply K'
+    end,
     fapply lem₁,
     { fapply functor.eq_of_pointwise_iso,
       { fapply change_natural_map,

@@ -420,17 +420,6 @@ section monotone_sequences
 open real set
 variable {X : ℕ → ℝ}
 
-definition nondecreasing (X : ℕ → ℝ) : Prop := ∀ ⦃i j⦄, i ≤ j → X i ≤ X j
-
-proposition nondecreasing_of_forall_le_succ (H : ∀ i, X i ≤ X (succ i)) : nondecreasing X :=
-take i j, suppose i ≤ j,
-have ∀ n, X i ≤ X (i + n), from
-  take n, nat.induction_on n
-    (by rewrite nat.add_zero; apply le.refl)
-    (take n, assume ih, le.trans ih (H (i + n))),
-have X i ≤ X (i + (j - i)), from !this,
-by rewrite [add_sub_of_le `i ≤ j` at this]; exact this
-
 proposition converges_to_seq_sup_of_nondecreasing (nondecX : nondecreasing X) {b : ℝ}
     (Hb : ∀ i, X i ≤ b) : X ⟶ sup (X ' univ) in ℕ :=
 let sX := sup (X ' univ) in
@@ -458,41 +447,6 @@ exists.intro i
     have sX < X j + ε, from lt_add_of_sub_lt_right this,
     have sX - X j < ε, from sub_lt_left_of_lt_add this,
     show (abs (X j - sX)) < ε, by rewrite eq₁; exact this)
-
-definition nonincreasing (X : ℕ → ℝ) : Prop := ∀ ⦃i j⦄, i ≤ j → X i ≥ X j
-
-proposition nodecreasing_of_nonincreasing_neg (nonincX : nonincreasing (λ n, - X n)) :
-  nondecreasing (λ n, X n) :=
-take i j, suppose i ≤ j,
-show X i ≤ X j, from le_of_neg_le_neg (nonincX this)
-
-proposition noincreasing_neg_of_nondecreasing (nondecX : nondecreasing X) :
-  nonincreasing (λ n, - X n) :=
-take i j, suppose i ≤ j,
-show - X i ≥ - X j, from neg_le_neg (nondecX this)
-
-proposition nonincreasing_neg_iff (X : ℕ → ℝ) : nonincreasing (λ n, - X n) ↔ nondecreasing X :=
-iff.intro nodecreasing_of_nonincreasing_neg noincreasing_neg_of_nondecreasing
-
-proposition nonincreasing_of_nondecreasing_neg (nondecX : nondecreasing (λ n, - X n)) :
-  nonincreasing (λ n, X n) :=
-take i j, suppose i ≤ j,
-show X i ≥ X j, from le_of_neg_le_neg (nondecX this)
-
-proposition nodecreasing_neg_of_nonincreasing (nonincX : nonincreasing X) :
-  nondecreasing (λ n, - X n) :=
-take i j, suppose i ≤ j,
-show - X i ≤ - X j, from neg_le_neg (nonincX this)
-
-proposition nondecreasing_neg_iff (X : ℕ → ℝ) : nondecreasing (λ n, - X n) ↔ nonincreasing X :=
-iff.intro nonincreasing_of_nondecreasing_neg nodecreasing_neg_of_nonincreasing
-
-proposition nonincreasing_of_forall_succ_le (H : ∀ i, X (succ i) ≤ X i) : nonincreasing X :=
-begin
-  rewrite -nondecreasing_neg_iff,
-  show nondecreasing (λ n : ℕ, - X n), from
-    nondecreasing_of_forall_le_succ (take i, neg_le_neg (H i))
-end
 
 proposition converges_to_seq_inf_of_nonincreasing (nonincX : nonincreasing X) {b : ℝ}
     (Hb : ∀ i, b ≤ X i) : X ⟶ inf (X ' univ) in ℕ :=
@@ -527,7 +481,7 @@ let  aX := (λ n, (abs x)^n),
     iaX := real.inf (aX ' univ),
     asX := (λ n, (abs x)^(succ n)) in
 have noninc_aX : nonincreasing aX, from
-  nonincreasing_of_forall_succ_le
+  nonincreasing_of_forall_ge_succ
     (take i,
       have (abs x) * (abs x)^i ≤ 1 * (abs x)^i,
         from mul_le_mul_of_nonneg_right (le_of_lt H) (!pow_nonneg_of_nonneg !abs_nonneg),

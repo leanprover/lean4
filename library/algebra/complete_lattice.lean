@@ -7,7 +7,7 @@ Complete lattices
 
 TODO: define dual complete lattice and simplify proof of dual theorems.
 -/
-import algebra.lattice data.set.basic
+import algebra.lattice data.set.basic algebra.monotone
 open set
 
 variable {A : Type}
@@ -109,7 +109,8 @@ Sup_le (take x, suppose x ∈ '{a, b},
 end complete_lattice_Inf
 
 -- Every complete_lattice_Inf is a complete_lattice_Sup
-definition complete_lattice_Inf_to_complete_lattice_Sup [C : complete_lattice_Inf A] : complete_lattice_Sup A :=
+definition complete_lattice_Inf_to_complete_lattice_Sup [C : complete_lattice_Inf A] :
+  complete_lattice_Sup A :=
 ⦃ complete_lattice_Sup, C ⦄
 
 -- Every complete_lattice_Inf is a complete_lattice
@@ -172,9 +173,9 @@ Sup_le (take x, suppose x ∈ '{a, b},
 
 end complete_lattice_Sup
 
-
 -- Every complete_lattice_Sup is a complete_lattice_Inf
-definition complete_lattice_Sup_to_complete_lattice_Inf [C : complete_lattice_Sup A] : complete_lattice_Inf A :=
+definition complete_lattice_Sup_to_complete_lattice_Inf [C : complete_lattice_Sup A] :
+  complete_lattice_Inf A :=
 ⦃ complete_lattice_Inf, C ⦄
 
 -- Every complete_lattice_Sup is a complete_lattice
@@ -189,7 +190,7 @@ variable [C : complete_lattice A]
 include C
 
 variable {f : A → A}
-premise  (mono : ∀ x y : A, x ≤ y → f x ≤ f y)
+premise  (mono : nondecreasing f)
 
 theorem knaster_tarski : ∃ a, f a = a ∧ ∀ b, f b = b → a ≤ b :=
 let a := ⨅ {u | f u ≤ u} in
@@ -198,7 +199,7 @@ have h₁ : f a = a, from
     have ∀ b, b ∈ {u | f u ≤ u} → f a ≤ b, from
       take b, suppose f b ≤ b,
       have a ≤ b,     from Inf_le this,
-      have f a ≤ f b, from !mono this,
+      have f a ≤ f b, from mono this,
       le.trans `f a ≤ f b` `f b ≤ b`,
     le_Inf this,
   have le : a ≤ f a, from
@@ -221,7 +222,7 @@ have h₁ : f a = a, from
     have ∀ b, b ∈ {u | u ≤ f u} → b ≤ f a, from
       take b, suppose b ≤ f b,
       have b ≤ a,     from le_Sup this,
-      have f b ≤ f a, from !mono this,
+      have f b ≤ f a, from mono this,
       le.trans `b ≤ f b` `f b ≤ f a`,
     Sup_le this,
   have ge : f a ≤ a, from

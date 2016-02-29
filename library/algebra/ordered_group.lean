@@ -7,10 +7,10 @@ Partially ordered additive groups, modeled on Isabelle's library. These classes 
 if necessary.
 -/
 import logic.eq data.unit data.sigma data.prod
-import algebra.binary algebra.group algebra.order
+import algebra.binary algebra.group algebra.order algebra.monotone
 open eq eq.ops   -- note: ⁻¹ will be overloaded
 
-variable {A : Type}
+variables {A B : Type}
 
 /- partially ordered monoids, such as the natural numbers -/
 
@@ -22,9 +22,8 @@ structure ordered_cancel_comm_monoid [class] (A : Type) extends add_comm_monoid 
 (lt_of_add_lt_add_left : ∀a b c, lt (add a b) (add a c) → lt b c)
 
 section
-  variables [s : ordered_cancel_comm_monoid A]
+  variables [ordered_cancel_comm_monoid A]
   variables {a b c d e : A}
-  include s
 
   theorem add_lt_add_left (H : a < b) (c : A) : c + a < c + b :=
     !ordered_cancel_comm_monoid.add_lt_add_left H c
@@ -190,6 +189,18 @@ section
 
   theorem add_lt_of_lt_of_neg (Hbc : b < c) (Ha : a < 0) : b + a < c :=
   !add_zero ▸ add_lt_add Hbc Ha
+
+  theorem strictly_increasing_add_left (c : A) : strictly_increasing (λ x, x + c) :=
+  take x₁ x₂, assume H, add_lt_add_right H c
+
+  theorem strictly_increasing_add_right (c : A) : strictly_increasing (λ x, c + x) :=
+  take x₁ x₂, assume H, add_lt_add_left H c
+
+  theorem nondecreasing_add_left (c : A) : nondecreasing (λ x, x + c) :=
+  take x₁ x₂, assume H, add_le_add_right H c
+
+  theorem nondecreasing_add_right (c : A) : nondecreasing (λ x, c + x) :=
+  take x₁ x₂, assume H, add_le_add_left H c
 end
 
 /- ordered cancelative commutative monoids with a decidable linear order -/
@@ -198,9 +209,8 @@ structure decidable_linear_ordered_cancel_comm_monoid [class] (A : Type)
   extends ordered_cancel_comm_monoid A, decidable_linear_order A
 
 section
-  variables [s : decidable_linear_ordered_cancel_comm_monoid A]
+  variables [decidable_linear_ordered_cancel_comm_monoid A]
   variables {a b c d e : A}
-  include s
 
   theorem min_add_add_left : min (a + b) (a + c) = a + min b c :=
   eq.symm (eq_min
@@ -257,8 +267,7 @@ definition ordered_comm_group.to_ordered_cancel_comm_monoid [trans_instance] [s 
   lt_of_add_lt_add_left := @ordered_comm_group.lt_of_add_lt_add_left A _⦄
 
 section
-  variables [s : ordered_comm_group A] (a b c d e : A)
-  include s
+  variables [ordered_comm_group A] (a b c d e : A)
 
   theorem neg_le_neg {a b : A} (H : a ≤ b) : -b ≤ -a :=
   have H1 : 0 ≤ -a + b, from !add.left_inv ▸ !(add_le_add_left H),
@@ -603,13 +612,127 @@ section
   end
 
   theorem sub_le_of_nonneg {b : A} (H : b ≥ 0) : a - b ≤ a :=
-   add_le_of_le_of_nonpos (le.refl a) (neg_nonpos_of_nonneg H)
+  add_le_of_le_of_nonpos (le.refl a) (neg_nonpos_of_nonneg H)
 
   theorem sub_lt_of_pos {b : A} (H : b > 0) : a - b < a :=
-   add_lt_of_le_of_neg (le.refl a) (neg_neg_of_pos H)
+  add_lt_of_le_of_neg (le.refl a) (neg_neg_of_pos H)
 
   theorem neg_add_neg_le_neg_of_pos {a : A} (H : a > 0) : -a + -a ≤ -a :=
-    !neg_add ▸ neg_le_neg (le_add_of_nonneg_left (le_of_lt H))
+  !neg_add ▸ neg_le_neg (le_add_of_nonneg_left (le_of_lt H))
+
+  variable (A)
+  theorem strictly_decreasing_neg : strictly_decreasing (λ x : A, -x) :=
+  @neg_lt_neg A _
+
+  variable {A}
+
+  section
+    variable [strict_order B]
+
+    theorem strictly_decreasing_neg_of_strictly_increasing {f : B → A}
+      (H : strictly_increasing f) : strictly_decreasing (λ x, - f x) :=
+    strictly_decreasing_comp_dec_inc (strictly_decreasing_neg A) H
+
+    theorem strictly_increasing_neg_of_strictly_decreasing {f : B → A}
+      (H : strictly_decreasing f) : strictly_increasing (λ x, - f x) :=
+    strictly_increasing_comp_dec_dec (strictly_decreasing_neg A) H
+
+    theorem strictly_decreasing_of_strictly_increasing_neg {f : B → A}
+      (H : strictly_increasing (λ x, - f x)) : strictly_decreasing f :=
+    strictly_decreasing_of_strictly_increasing_comp_right (left_inverse_neg A)
+        (strictly_decreasing_neg A) H
+
+    theorem strictly_increasing_of_strictly_decreasing_neg {f : B → A}
+      (H : strictly_decreasing (λ x, - f x)) : strictly_increasing f :=
+    strictly_increasing_of_strictly_decreasing_comp_right (left_inverse_neg A)
+        (strictly_decreasing_neg A) H
+
+    theorem strictly_decreasing_neg_iff {f : B → A} :
+      strictly_decreasing (λ x, - f x) ↔ strictly_increasing f :=
+    iff.intro strictly_increasing_of_strictly_decreasing_neg
+       strictly_decreasing_neg_of_strictly_increasing
+
+    theorem strictly_increasing_neg_iff {f : B → A} :
+      strictly_increasing (λ x, - f x) ↔ strictly_decreasing f :=
+    iff.intro strictly_decreasing_of_strictly_increasing_neg
+       strictly_increasing_neg_of_strictly_decreasing
+
+    theorem strictly_decreasing_neg_of_strictly_increasing' {f : A → B}
+      (H : strictly_increasing f) : strictly_decreasing (λ x, f (-x)) :=
+    strictly_decreasing_comp_inc_dec H (strictly_decreasing_neg A)
+
+    theorem strictly_increasing_neg_of_strictly_decreasing' {f : A → B}
+      (H : strictly_decreasing f) : strictly_increasing (λ x, f (-x)) :=
+    strictly_increasing_comp_dec_dec H (strictly_decreasing_neg A)
+
+    theorem strictly_decreasing_of_strictly_increasing_neg' {f : A → B}
+      (H : strictly_increasing (λ x, f (-x))) : strictly_decreasing f :=
+    strictly_decreasing_of_strictly_increasing_comp_left (left_inverse_neg A)
+        (strictly_decreasing_neg A) H
+
+    theorem strictly_increasing_of_strictly_decreasing_neg' {f : A → B}
+      (H : strictly_decreasing (λ x, f (-x))) : strictly_increasing f :=
+    strictly_increasing_of_strictly_decreasing_comp_left (left_inverse_neg A)
+        (strictly_decreasing_neg A) H
+
+    theorem strictly_decreasing_neg_iff' {f : A → B} :
+      strictly_decreasing (λ x, f (-x)) ↔ strictly_increasing f :=
+    iff.intro strictly_increasing_of_strictly_decreasing_neg'
+       strictly_decreasing_neg_of_strictly_increasing'
+
+    theorem strictly_increasing_neg_iff' {f : A → B} :
+      strictly_increasing (λ x, f (-x)) ↔ strictly_decreasing f :=
+    iff.intro strictly_decreasing_of_strictly_increasing_neg'
+       strictly_increasing_neg_of_strictly_decreasing'
+  end
+
+  section
+    variable [weak_order B]
+
+    theorem nondecreasing_of_neg_nonincreasing {f : B → A} (H : nonincreasing (λ x, -f x)) :
+      nondecreasing f :=
+    take a₁ a₂, suppose a₁ ≤ a₂, le_of_neg_le_neg (H this)
+
+    theorem nonincreasing_neg {f : B → A} (H : nondecreasing f) : nonincreasing (λ x, -f x) :=
+    take a₁ a₂, suppose a₁ ≤ a₂, neg_le_neg (H this)
+
+    theorem nonincreasing_neg_iff (f : B → A) : nonincreasing (λ x, - f x) ↔ nondecreasing f :=
+    iff.intro nondecreasing_of_neg_nonincreasing nonincreasing_neg
+
+    theorem nonincreasing_of_neg_nondecreasing {f : B → A} (H : nondecreasing (λ x, -f x)) :
+      nonincreasing f :=
+    take a₁ a₂, suppose a₁ ≤ a₂, le_of_neg_le_neg (H this)
+
+    theorem nondecreasing_neg {f : B → A} (H : nonincreasing f) : nondecreasing (λ x, -f x) :=
+    take a₁ a₂, suppose a₁ ≤ a₂, neg_le_neg (H this)
+
+    theorem nondecreasing_neg_iff (f : B → A) : nondecreasing (λ x, - f x) ↔ nonincreasing f :=
+    iff.intro nonincreasing_of_neg_nondecreasing nondecreasing_neg
+
+    theorem nondecreasing_of_neg_nonincreasing' {f : A → B} (H : nonincreasing (λ x, f (-x))) :
+      nondecreasing f :=
+    take a₁ a₂, suppose a₁ ≤ a₂,
+    have f(-(-a₁)) ≤ f(-(-a₂)), from H (neg_le_neg this),
+    by rewrite *neg_neg at this; exact this
+
+    theorem nonincreasing_neg' {f : A → B} (H : nondecreasing f) : nonincreasing (λ x, f (-x)) :=
+    take a₁ a₂, suppose a₁ ≤ a₂, H (neg_le_neg this)
+
+    theorem nonincreasing_neg_iff' (f : A → B) : nonincreasing (λ x, f (- x)) ↔ nondecreasing f :=
+    iff.intro nondecreasing_of_neg_nonincreasing' nonincreasing_neg'
+
+    theorem nonincreasing_of_neg_nondecreasing' {f : A → B} (H : nondecreasing (λ x, f (-x))) :
+      nonincreasing f :=
+    take a₁ a₂, suppose a₁ ≤ a₂,
+    have f(-(-a₁)) ≥ f(-(-a₂)), from H (neg_le_neg this),
+    by rewrite *neg_neg at this; exact this
+
+    theorem nondecreasing_neg' {f : A → B} (H : nonincreasing f) : nondecreasing (λ x, f (-x)) :=
+    take a₁ a₂, suppose a₁ ≤ a₂, H (neg_le_neg this)
+
+    theorem nondecreasing_neg_iff' (f : A → B) : nondecreasing (λ x, f (- x)) ↔ nonincreasing f :=
+    iff.intro nonincreasing_of_neg_nondecreasing' nondecreasing_neg'
+  end
 end
 
 /- linear ordered group with decidable order -/

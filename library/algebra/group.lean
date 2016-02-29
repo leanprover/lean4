@@ -165,6 +165,11 @@ section group
   theorem inv_inv [simp] (a : A) : (a⁻¹)⁻¹ = a :=
   inv_eq_of_mul_eq_one (mul.left_inv a)
 
+  variable (A)
+  theorem left_inverse_inv : function.left_inverse (λ a : A, a⁻¹) (λ a, a⁻¹) :=
+  take a, inv_inv a
+  variable {A}
+
   theorem inv.inj {a b : A} (H : a⁻¹ = b⁻¹) : a = b :=
   have a = a⁻¹⁻¹, by simp_nohyps,
   by inst_simp
@@ -331,6 +336,11 @@ section add_group
 
   theorem neg_neg [simp] (a : A) : -(-a) = a := neg_eq_of_add_eq_zero (add.left_inv a)
 
+  variable (A)
+  theorem left_inverse_neg : function.left_inverse (λ a : A, - a) (λ a, - a) :=
+  take a, neg_neg a
+  variable {A}
+
   theorem eq_neg_of_add_eq_zero {a b : A} (H : a + b = 0) : a = -b :=
   have -a = b, from neg_eq_of_add_eq_zero H,
   by inst_simp
@@ -414,7 +424,8 @@ section add_group
   ⦃ add_left_cancel_semigroup, s,
     add_left_cancel := @add_left_cancel A s ⦄
 
-  definition add_group.to_add_right_cancel_semigroup [trans_instance] : add_right_cancel_semigroup A :=
+  definition add_group.to_add_right_cancel_semigroup [trans_instance] :
+    add_right_cancel_semigroup A :=
   ⦃ add_right_cancel_semigroup, s,
     add_right_cancel := @add_right_cancel A s ⦄
 
@@ -513,6 +524,19 @@ section add_group
   theorem add_eq_of_eq_sub {a b c : A} (H : a = c - b) : a + b = c :=
   by simp
 
+  theorem left_inverse_sub_add_left (c : A) : function.left_inverse (λ x, x - c) (λ x, x + c) :=
+  take x, add_sub_cancel x c
+
+  theorem left_inverse_add_left_sub (c : A) : function.left_inverse (λ x, x + c) (λ x, x - c) :=
+  take x, sub_add_cancel x c
+
+  theorem left_inverse_add_right_neg_add (c : A) :
+      function.left_inverse (λ x, c + x) (λ x, - c + x) :=
+  take x, add_neg_cancel_left c x
+
+  theorem left_inverse_neg_add_add_right (c : A) :
+      function.left_inverse (λ x, - c + x) (λ x, c + x) :=
+  take x, neg_add_cancel_left c x
 end add_group
 
 structure add_comm_group [class] (A : Type) extends add_group A, add_comm_monoid A

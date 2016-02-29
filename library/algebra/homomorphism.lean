@@ -73,7 +73,7 @@ section add_group_A_B
     injective f :=
   take x₁ x₂,
   suppose f x₁ = f x₂,
-  have f (x₁ - x₂) = 0, using this, by rewrite [hom_sub, this, sub_self],
+  have f (x₁ - x₂) = 0, by rewrite [hom_sub, this, sub_self],
   have x₁ - x₂ = 0, from H _ this,
   eq_of_sub_eq_zero this
 
@@ -124,7 +124,7 @@ section group_A_B
     injective f :=
   take x₁ x₂,
   suppose f x₁ = f x₂,
-  have f (x₁ * x₂⁻¹) = 1, using this, by rewrite [hom_mul, hom_inv, this, mul.right_inv],
+  have f (x₁ * x₂⁻¹) = 1, by rewrite [hom_mul, hom_inv, this, mul.right_inv],
   have x₁ * x₂⁻¹ = 1, from H _ this,
   eq_of_mul_inv_eq_one this
 

@@ -36,8 +36,7 @@ class elaborator : public coercion_info_manager {
     type_checker_ptr     m_coercion_to_tc;
     // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
     // representing the context where ?m was created.
-    old_local_context        m_context; // current local context: a list of local constants
-    old_local_context        m_full_context; // superset of m_context, it also contains non-contextual locals.
+    old_local_context    m_context; // current local context: a list of local constants
     mvar2meta            m_mvar2meta;
     cache                m_cache;
     // The following vector contains sorts that we should check

@@ -131,16 +131,15 @@ type_checker_ptr mk_coercion_to_type_checker(environment const & env) {
 struct elaborator::choice_expr_elaborator : public choice_iterator {
     elaborator &  m_elab;
     old_local_context m_context;
-    old_local_context m_full_context;
     bool          m_in_equation_lhs;
     expr          m_meta;
     expr          m_type;
     expr          m_choice;
     unsigned      m_idx;
 
-    choice_expr_elaborator(elaborator & elab, old_local_context const & ctx, old_local_context const & full_ctx, bool in_equation_lhs,
+    choice_expr_elaborator(elaborator & elab, old_local_context const & ctx, bool in_equation_lhs,
                            expr const & meta, expr const & type, expr const & c):
-        m_elab(elab), m_context(ctx), m_full_context(full_ctx), m_in_equation_lhs(in_equation_lhs), m_meta(meta),
+        m_elab(elab), m_context(ctx), m_in_equation_lhs(in_equation_lhs), m_meta(meta),
         m_type(type), m_choice(c), m_idx(get_num_choices(m_choice)) {
     }
 
@@ -152,8 +151,7 @@ struct elaborator::choice_expr_elaborator : public choice_iterator {
             m_elab.save_identifier_info(f);
             try {
                 flet<old_local_context> set1(m_elab.m_context,         m_context);
-                flet<old_local_context> set2(m_elab.m_full_context,    m_full_context);
-                flet<bool>          set3(m_elab.m_in_equation_lhs, m_in_equation_lhs);
+                flet<bool>              set2(m_elab.m_in_equation_lhs, m_in_equation_lhs);
                 pair<expr, constraint_seq> rcs = m_elab.visit(c);
                 expr r                         = rcs.first;
                 constraint_seq cs              = rcs.second;
@@ -179,7 +177,6 @@ struct elaborator::choice_expr_elaborator : public choice_iterator {
 elaborator::elaborator(elaborator_context & ctx, bool nice_mvar_names):
     m_ctx(ctx),
     m_context(),
-    m_full_context(),
     m_unifier_config(ctx.m_ios.get_options(), true /* use exceptions */, true /* discard */) {
     m_has_sorry = has_sorry(m_ctx.m_env);
     m_use_tactic_hints  = true;
@@ -389,13 +386,12 @@ expr elaborator::visit_expecting_type_of(expr const & e, expr const & t, constra
 expr elaborator::visit_choice(expr const & e, optional<expr> const & t, constraint_seq & cs) {
     lean_assert(is_choice(e));
     // Possible optimization: try to lookahead and discard some of the alternatives.
-    expr m                 = m_full_context.mk_meta(t, e.get_tag());
+    expr m = m_context.mk_meta(t, e.get_tag());
     register_meta(m);
     old_local_context ctx      = m_context;
-    old_local_context full_ctx = m_full_context;
     bool in_equation_lhs   = m_in_equation_lhs;
     auto fn = [=](expr const & meta, expr const & type, substitution const & /* s */) {
-        return choose(std::make_shared<choice_expr_elaborator>(*this, ctx, full_ctx, in_equation_lhs, meta, type, e));
+        return choose(std::make_shared<choice_expr_elaborator>(*this, ctx, in_equation_lhs, meta, type, e));
     };
     auto pp_fn = [=](formatter const & fmt, pos_info_provider const * pos_prov, substitution const &, bool is_main, bool) {
         format r = pp_previous_error_header(fmt, pos_prov, some_expr(e), is_main);
@@ -434,7 +430,7 @@ expr elaborator::visit_by(expr const & e, optional<expr> const & t, constraint_s
 expr elaborator::visit_by_plus(expr const & e, optional<expr> const & t, constraint_seq & cs) {
     lean_assert(is_by_plus(e));
     expr tac = visit(get_by_plus_arg(e), cs);
-    expr m   = m_full_context.mk_meta(t, e.get_tag());
+    expr m   = m_context.mk_meta(t, e.get_tag());
     register_meta(m);
     m_local_tactic_hints.insert(mlocal_name(get_app_fn(m)), tac);
     return m;
@@ -446,7 +442,7 @@ expr elaborator::visit_calc_proof(expr const & e, optional<expr> const & t, cons
     if (infom())
         im = &m_pre_info_data;
     pair<expr, constraint_seq> ecs = visit(get_annotation_arg(e));
-    expr m                         = m_full_context.mk_meta(t, e.get_tag());
+    expr m                         = m_context.mk_meta(t, e.get_tag());
     register_meta(m);
     auto fn = [=](expr const & t) { save_type_data(get_annotation_arg(e), t); };
     constraint c                   = mk_calc_proof_cnstr(env(), ios().get_options(),
@@ -530,13 +526,11 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
                 lean_assert(is_pi(f_type));
             } else {
                 old_local_context ctx      = m_context;
-                old_local_context full_ctx = m_full_context;
                 justification j        = mk_justification(f, [=](formatter const & fmt, substitution const & subst, bool) {
                         return pp_function_expected(fmt, substitution(subst).instantiate(f));
                     });
                 auto choice_fn = [=](expr const & meta, expr const &, substitution const &) {
                     flet<old_local_context> save1(m_context,      ctx);
-                    flet<old_local_context> save2(m_full_context, full_ctx);
                     list<constraints> choices = map2<constraints>(coes, [&](expr const & coe) {
                             expr new_f      = mk_coercion_app(coe, f);
                             constraint_seq cs;
@@ -546,7 +540,7 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
                         });
                     return choose(std::make_shared<coercion_elaborator>(*this, f, choices, coes, false));
                 };
-                f   = m_full_context.mk_meta(none_expr(), f.get_tag());
+                f   = m_context.mk_meta(none_expr(), f.get_tag());
                 register_meta(f);
                 cs += mk_choice_cnstr(f, choice_fn, to_delay_factor(cnstr_group::Basic), true, j);
                 lean_assert(is_meta(f));
@@ -651,7 +645,7 @@ pair<expr, constraint_seq> elaborator::apply_coercion(expr const & a, expr a_typ
 pair<expr, constraint_seq> elaborator::mk_delayed_coercion(
     expr const & a, expr const & a_type, expr const & expected_type,
     justification const & j) {
-    expr m       = m_full_context.mk_meta(some_expr(expected_type), a.get_tag());
+    expr m       = m_context.mk_meta(some_expr(expected_type), a.get_tag());
     register_meta(m);
     constraint c = mk_coercion_cnstr(*m_coercion_from_tc, *m_coercion_to_tc, *this, m, a, a_type, j,
                                      to_delay_factor(cnstr_group::Basic), m_ctx.m_lift_coercions);
@@ -926,7 +920,6 @@ expr elaborator::instantiate_rev_locals(expr const & a, unsigned n, expr const *
 
 expr elaborator::visit_binding(expr e, expr_kind k, constraint_seq & cs) {
     flet<old_local_context> save1(m_context, m_context);
-    flet<old_local_context> save2(m_full_context, m_full_context);
     buffer<expr> ds, ls, es;
     while (e.kind() == k) {
         es.push_back(e);
@@ -942,7 +935,6 @@ expr elaborator::visit_binding(expr e, expr_kind k, constraint_seq & cs) {
         expr l   = mk_local(binding_name(e), d, binding_info(e));
         if (!is_match_binder_name(binding_name(e))) {
             m_context.add_local(l);
-            m_full_context.add_local(l);
         }
         ls.push_back(l);
         e = binding_body(e);
@@ -998,7 +990,7 @@ bool elaborator::is_sorry(expr const & e) const {
 expr elaborator::visit_sorry(expr const & e) {
     level u = mk_meta_univ(mk_fresh_name());
     expr t  = mk_sort(u);
-    expr m  = m_full_context.mk_meta(some_expr(t), e.get_tag());
+    expr m  = m_context.mk_meta(some_expr(t), e.get_tag());
     return mk_app(update_constant(e, to_list(u)), m, e.get_tag());
 }
 
@@ -1325,7 +1317,7 @@ expr elaborator::visit_equations(expr const & eqns, constraint_seq & cs) {
 
     lean_assert(first_eq && is_lambda(*first_eq));
     expr type = binding_domain(*first_eq);
-    expr m = m_full_context.mk_meta(some_expr(type), eqns.get_tag());
+    expr m = m_context.mk_meta(some_expr(type), eqns.get_tag());
     register_meta(m);
     constraint c = mk_equations_cnstr(m, new_eqns);
     /* We use stack policy for processing MaxDelayed constraints */
@@ -1427,7 +1419,7 @@ expr elaborator::visit_structure_instance(expr const & e, constraint_seq & cs) {
     expr new_S_type = whnf(infer_type(new_S, cs), cs);
     tag S_tag = S.get_tag();
     while (is_pi(new_S_type)) {
-        expr m     = m_full_context.mk_meta(some_expr(binding_domain(new_S_type)), S_tag);
+        expr m     = m_context.mk_meta(some_expr(binding_domain(new_S_type)), S_tag);
         register_meta(m);
         new_S_args.push_back(m);
         new_S      = mk_app(new_S, m, S_tag);
@@ -1497,7 +1489,7 @@ expr elaborator::visit_structure_instance(expr const & e, constraint_seq & cs) {
                     throw_elaborator_exception(sstream() << "invalid structure instance, field '"
                                                << n << "' is missing", e);
                 }
-                v = m_full_context.mk_meta(some_expr(d_type), result_tag);
+                v = m_context.mk_meta(some_expr(d_type), result_tag);
                 register_meta(v);
             }
         }
@@ -1546,9 +1538,7 @@ expr elaborator::process_obtain_expr(list<obtain_struct> const & s_list, list<ex
         if (!is_def_eq(from_type, goal_domain, j, cs))
             throw unifier_exception(j, substitution());
         flet<old_local_context> save1(m_context, m_context);
-        flet<old_local_context> save2(m_full_context, m_full_context);
         m_context.add_local(new_from);
-        m_full_context.add_local(new_from);
         expr new_goal   = instantiate(binding_body(goal), new_from);
         expr r = process_obtain_expr(tail(s_list), tail(from_list), new_goal, false, cs, src);
         return Fun(new_from, r);
@@ -1591,13 +1581,13 @@ expr elaborator::process_obtain_expr(list<obtain_struct> const & s_list, list<ex
         };
         check_R_type();
         expr motive_type = binding_domain(R_type);
-        expr motive      = m_full_context.mk_meta(some_expr(motive_type), g);
+        expr motive      = m_context.mk_meta(some_expr(motive_type), g);
         R                = mk_app(R, motive, g);
         R_type           = whnf(instantiate(binding_body(R_type), motive), cs);
         for (unsigned i = 0; i < nindices; i++) {
             check_R_type();
             expr index_type = binding_domain(R_type);
-            expr index      = m_full_context.mk_meta(some_expr(index_type), g);
+            expr index      = m_context.mk_meta(some_expr(index_type), g);
             R               = mk_app(R, index, g);
             R_type          = whnf(instantiate(binding_body(R_type), index), cs);
         }
@@ -1653,7 +1643,7 @@ expr elaborator::visit_prenum(expr const & e, constraint_seq & cs) {
     lean_assert(is_prenum(e));
     mpz const & v  = prenum_value(e);
     tag e_tag      = e.get_tag();
-    expr A = m_full_context.mk_meta(none_expr(), e_tag);
+    expr A = m_context.mk_meta(none_expr(), e_tag);
     level A_lvl = sort_level(m_tc->ensure_type(A, cs));
     levels ls(A_lvl);
     bool is_strict = true;
@@ -1696,18 +1686,13 @@ expr elaborator::visit_prenum(expr const & e, constraint_seq & cs) {
 expr elaborator::visit_checkpoint_expr(expr const & e, constraint_seq & cs) {
     expr arg = get_annotation_arg(e);
     expr m;
-    if (is_by(arg))
-        m = m_context.mk_meta(none_expr(), e.get_tag());
-    else
-        m = m_full_context.mk_meta(none_expr(), e.get_tag());
+    m = m_context.mk_meta(none_expr(), e.get_tag());
     register_meta(m);
     old_local_context ctx      = m_context;
-    old_local_context full_ctx = m_full_context;
     bool in_equation_lhs   = m_in_equation_lhs;
     auto fn = [=](expr const & meta, expr const & /* type */, substitution const & /* s */) {
-        flet<old_local_context> set1(m_context,         ctx);
-        flet<old_local_context> set2(m_full_context,    full_ctx);
-        flet<bool>          set3(m_in_equation_lhs, in_equation_lhs);
+        flet<old_local_context> set1(m_context, ctx);
+        flet<bool>              set2(m_in_equation_lhs, in_equation_lhs);
         pair<expr, constraint_seq> rcs = visit(arg);
         expr r                         = rcs.first;
         constraint_seq cs              = rcs.second;
@@ -2352,7 +2337,6 @@ void elaborator::check_used_local_tactic_hints() {
 auto elaborator::operator()(list<expr> const & ctx, expr const & e, bool _ensure_type)
 -> std::tuple<expr, level_param_names> {
     m_context.set_ctx(ctx);
-    m_full_context.set_ctx(ctx);
     constraint_seq cs;
     expr r = visit(e, cs);
     if (_ensure_type)
@@ -2451,8 +2435,6 @@ elaborate_result elaborator::elaborate_nested(list<expr> const & ctx, optional<e
         cls.add(*expected_type);
     }
     m_context.set_ctx(ctx);
-    m_context.set_ctx(ctx);
-    m_full_context.set_ctx(ctx);
     flet<bool> set_discard(m_unifier_config.m_discard, false);
     flet<bool> set_use_hints(m_use_tactic_hints, use_tactic_hints);
     constraint_seq cs;

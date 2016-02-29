@@ -111,6 +111,7 @@ section
   end
 
   definition wf : well_founded Q :=
+  using H₂,
   well_founded.intro (λ a, accessible proof (@apply A R H₂ a) qed)
 end
 end subrelation

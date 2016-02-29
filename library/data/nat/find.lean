@@ -68,6 +68,7 @@ parameter [dp : decidable_pred p]
 include dp
 
 private lemma acc_of_ex (x : nat) : acc gtb x :=
+using ex,
 obtain (w : nat) (pw : p w), from ex,
 lt.by_cases
   (suppose x < w, acc_of_acc_of_lt (acc_of_px pw) this)

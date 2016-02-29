@@ -95,6 +95,7 @@ open set
                  from image_subset_of_maps_to_of_subset g_maps_to this
 
   lemma g_ginv_eq {a : X} (aA : a ∈ A) (anU  : a ∉ Union U) : g (ginv a) = a :=
+  using ginj,
   have a ∈ g ' B, from by_contradiction
     (suppose a ∉ g ' B,
       have a ∈ U 0, from and.intro aA this,
@@ -124,6 +125,7 @@ open set
   /- h is injective -/
 
   lemma aux {a₁ a₂ : X} (H₁ : a₁ ∈ Union U) (a₂A : a₂ ∈ A) (heq : h a₁ = h a₂) : a₂ ∈ Union U :=
+  using ginj,
   obtain n (a₁Un : a₁ ∈ U n), from H₁,
   have ha₁eq : h a₁ = f a₁,
     from dif_pos H₁,
@@ -179,17 +181,16 @@ open set
   lemma h_surj : surj_on h A B :=
   take b,
   suppose b ∈ B,
-  have g b ∈ A, from g_maps_to this,
+  using f_maps_to,
   by_cases
     (suppose g b ∈ Union U,
        obtain n (gbUn : g b ∈ U n), from this,
-      using ginj f_maps_to,
       begin
         cases n with n,
           {have g b ∈ U 0, from gbUn,
             have g b ∉ g ' B, from and.right this,
             have g b ∈ g ' B, from mem_image_of_mem g `b ∈ B`,
-            show b ∈ h ' A, from absurd `g b ∈ g ' B` `g b ∉ g ' B`},
+            show b ∈ h ' A,   from absurd `g b ∈ g ' B` `g b ∉ g ' B`},
         {have g b ∈ U (succ n), from gbUn,
            have g b ∈ g ' (f ' (U n)), from this,
            obtain b' [(b'fUn : b' ∈ f ' (U n)) (geq : g b' = g b)], from this,
@@ -205,6 +206,7 @@ open set
     (suppose g b ∉ Union U,
       have eq₁ : h (g b) = ginv (g b), from dif_neg this,
       have eq₂ : ginv (g b) = b, from ginv_g_eq `b ∈ B`,
+      have g b ∈ A, from g_maps_to `b ∈ B`,
       show b ∈ h ' A, from mem_image `g b ∈ A` (eq₁ ⬝ eq₂))
 end
 end schroeder_bernstein
@@ -221,6 +223,7 @@ section
   parameter  (g_maps_to : maps_to g B A)
   parameter  (ginj : inj_on g B)
 
+  include g g_maps_to ginj
   theorem schroeder_bernstein : ∃ h, bij_on h A B :=
   by_cases
     (assume H : ∀ b, b ∉ B,

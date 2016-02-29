@@ -11,15 +11,15 @@ show P, from H
 
 example : P :=
 have H : P, from HP,
-by+ exact H
+by exact H
 
 example : P :=
 have H : P, from HP,
-show P, by+ exact H
+show P, by exact H
 
 example : P :=
 have H : P, from HP,
-show P, begin+ exact H end
+show P, begin exact H end
 
 example : P :=
 have H : P, from HP,

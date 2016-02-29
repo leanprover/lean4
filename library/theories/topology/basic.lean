@@ -25,7 +25,7 @@ definition Open (s : set X) : Prop := s ∈ opens X
 theorem Open_empty : Open (∅ : set X) :=
 have ∅ ⊆ opens X, from empty_subset _,
 have ⋃₀ ∅ ∈ opens X, from sUnion_mem_opens this,
-show ∅ ∈ opens X, using this, by rewrite -sUnion_empty; apply this
+show ∅ ∈ opens X, by rewrite -sUnion_empty; apply this
 
 theorem Open_univ : Open (univ : set X) :=
 univ_mem_opens X
@@ -42,7 +42,7 @@ using this, by rewrite Union_eq_sUnion_image; apply Open_sUnion this
 
 theorem Open_union {s t : set X} (Hs : Open s) (Ht : Open t) : Open (s ∪ t) :=
 have ∀ i, Open (bin_ext s t i), by intro i; cases i; exact Hs; exact Ht,
-show Open (s ∪ t), using this, by rewrite -Union_bin_ext; exact Open_Union this
+show Open (s ∪ t), by rewrite -Union_bin_ext; exact Open_Union this
 
 theorem Open_inter {s t : set X} (Hs : Open s) (Ht : Open t) : Open (s ∩ t) :=
 inter_mem_opens X Hs Ht

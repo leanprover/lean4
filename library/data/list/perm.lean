@@ -753,7 +753,7 @@ assume h, perm.induction_on h
     have nodup l₁,         from nodup_of_nodup_cons this,
     have x ∉ l₁,           from not_mem_of_nodup_cons `nodup (x::l₁)`,
     have y ∉ x::l₁,        from not_mem_of_nodup_cons nd,
-    have x ≠ y,            using this, from suppose x = y, begin subst x, exact absurd !mem_cons `y ∉ y::l₁` end,
+    have x ≠ y,            from suppose x = y, begin subst x, exact absurd !mem_cons `y ∉ y::l₁` end,
     have y ∉ l₁,           from not_mem_of_not_mem_cons `y ∉ x::l₁`,
     have x ∉ y::l₁,        from not_mem_cons_of_ne_of_not_mem `x ≠ y` `x ∉ l₁`,
     have nodup (y::l₁),    from nodup_cons `y ∉ l₁` `nodup l₁`,

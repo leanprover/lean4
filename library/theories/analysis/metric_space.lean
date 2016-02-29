@@ -37,7 +37,7 @@ metric_space.dist_triangle x y z
 
 proposition dist_nonneg (x y : M) : 0 ≤ dist x y :=
 have dist x y + dist y x ≥ 0, by rewrite -(dist_self x); apply dist_triangle,
-have 2 * dist x y ≥ 0, using this,
+have 2 * dist x y ≥ 0,
   by krewrite [-real.one_add_one, right_distrib, +one_mul, dist_comm at {2}]; apply this,
 nonneg_of_mul_nonneg_left this two_pos
 
@@ -135,7 +135,7 @@ exists.intro (N + k)
   (take n : ℕ, assume nge : n ≥ N + k,
     have n - k ≥ N, from nat.le_sub_of_add_le nge,
     have dist (X (n - k + k)) y < ε, from HN (n - k) this,
-    show dist (X n) y < ε, using this,
+    show dist (X n) y < ε,
       by rewrite [(nat.sub_add_cancel (le.trans !le_add_left nge)) at this]; exact this)
 
 proposition converges_to_seq_of_converges_to_seq_offset_left

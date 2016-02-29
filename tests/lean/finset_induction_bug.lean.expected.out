@@ -65,9 +65,9 @@ remark: set 'formatter.hide_full_terms' to false to see the complete term
            (λ (l : …),
               @list.induction_on A … l …
                 (λ (a : A) (l' : …) (IH : …) (nodup_al' : …),
-                   assert anl' : …, from …,
-                   assert H3 : …, from …,
-                   assert nodup_l' : …, from …,
-                   assert P_l' : …, from …,
+                   have anl' : …, from …,
+                   have H3 : …, from …,
+                   have nodup_l' : …, from …,
+                   have P_l' : …, from …,
                    ?M_1 …)))
 finset_induction_bug.lean:30:49: error: invalid end of module, expecting 'end'

@@ -9,6 +9,7 @@ a : A,
 l₁ l₂ : list A,
 h : subcount (a :: l₁) l₂ = tt,
 x : A,
+this : subcount l₁ l₂ = tt,
 ih : ∀ (a : A), list.count a l₁ ≤ list.count a l₂,
 i : list.count a (a :: l₁) ≤ list.count a l₂,
 this : x = a

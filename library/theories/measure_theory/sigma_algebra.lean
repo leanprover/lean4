@@ -43,17 +43,17 @@ theorem measurable_cInter {s : ℕ → set X} (H : ∀ i, measurable (s i)) :
   measurable (⋂ i, s i) :=
 have ∀ i, measurable (-(s i)), from take i, measurable_compl (H i),
 have measurable (-(⋃ i, -(s i))), from measurable_compl (measurable_cUnion this),
-show measurable (⋂ i, s i), using this, by rewrite Inter_eq_comp_Union_comp; apply this
+show measurable (⋂ i, s i), by rewrite Inter_eq_comp_Union_comp; apply this
 
 theorem measurable_union {s t : set X} (Hs : measurable s) (Ht : measurable t) :
   measurable (s ∪ t) :=
 have ∀ i, measurable (bin_ext s t i), by intro i; cases i; exact Hs; exact Ht,
-show measurable (s ∪ t), using this, by rewrite -Union_bin_ext; exact measurable_cUnion this
+show measurable (s ∪ t), by rewrite -Union_bin_ext; exact measurable_cUnion this
 
 theorem measurable_inter {s t : set X} (Hs : measurable s) (Ht : measurable t) :
   measurable (s ∩ t) :=
 have ∀ i, measurable (bin_ext s t i), by intro i; cases i; exact Hs; exact Ht,
-show measurable (s ∩ t), using this, by rewrite -Inter_bin_ext; exact measurable_cInter this
+show measurable (s ∩ t), by rewrite -Inter_bin_ext; exact measurable_cInter this
 
 theorem measurable_diff {s t : set X} (Hs : measurable s) (Ht : measurable t) :
   measurable (s \ t) :=

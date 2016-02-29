@@ -259,9 +259,9 @@ namespace vector
   | (n+1) (m+1) (x::xs) (y::ys) h₁ h₂ :=
     assert e₁ : n = m, from succ.inj h₂,
     assert e₂ : x = y, begin unfold to_list at h₁, injection h₁, assumption end,
-    have   to_list xs = to_list ys, begin unfold to_list at h₁, injection h₁, assumption end,
-    assert xs == ys, from heq_of_list_eq this e₁,
-    assert y :: xs == y :: ys, begin clear heq_of_list_eq h₁ h₂, revert xs ys this, induction e₁, intro xs ys h, rewrite [eq_of_heq h] end,
+    have   e₃ : to_list xs = to_list ys, begin unfold to_list at h₁, injection h₁, assumption end,
+    assert xs == ys, from heq_of_list_eq e₃ e₁,
+    assert y :: xs == y :: ys, begin clear heq_of_list_eq h₁ h₂ e₃, revert xs ys this, induction e₁, intro xs ys h, rewrite [eq_of_heq h] end,
     show x :: xs == y :: ys, by rewrite e₂; exact this
 
   theorem list_eq_of_heq {n m} {v₁ : vector A n} {v₂ : vector A m} : v₁ == v₂ → n = m → to_list v₁ = to_list v₂ :=

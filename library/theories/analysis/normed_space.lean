@@ -214,7 +214,7 @@ obtain N (HN : ∀ n, n ≥ N → norm (X n - 0) < ε), from HX `ε > 0`,
 exists.intro N
   (take n, assume Hn : n ≥ N,
     have norm (X n) < ε, begin rewrite -(sub_zero (X n)), apply HN n Hn end,
-    show abs (norm (X n) - 0) < ε, using this,
+    show abs (norm (X n) - 0) < ε,
       by rewrite [sub_zero, abs_of_nonneg !norm_nonneg]; apply this)
 
 proposition converges_to_seq_zero_of_norm_converges_to_seq_zero
@@ -227,7 +227,7 @@ exists.intro (N : ℕ)
     have HN' : abs (norm (X n) - 0) < ε, from HN n Hn,
     have norm (X n) < ε,
       by+ rewrite [sub_zero at HN', abs_of_nonneg !norm_nonneg at HN']; apply HN',
-    show norm (X n - 0) < ε, using this,
+    show norm (X n - 0) < ε,
       by rewrite sub_zero; apply this)
 
 proposition norm_converges_to_seq_zero_iff (X : ℕ → V) :

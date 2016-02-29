@@ -404,11 +404,6 @@ static expr parse_proof(parser & p, expr const & prop) {
     } else if (p.curr_is_token(get_by_plus_tk())) {
         auto pos = p.pos();
         return parse_by_plus(p, 0, nullptr, pos);
-    } else if (p.curr_is_token(get_using_tk())) {
-        // parse: 'using' locals* ',' proof
-        auto using_pos = p.pos();
-        p.next();
-        return parse_using_expr(p, prop, using_pos);
     } else {
         throw parser_error("invalid expression, 'by', 'begin', 'proof', 'using' or 'from' expected", p.pos());
     }
@@ -466,6 +461,7 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
     }
     p.check_token_next(get_comma_tk(), "invalid 'have/assert' declaration, ',' expected");
     parser::local_scope scope(p);
+    is_visible = true;
     binder_info bi = mk_contextual_info(is_visible);
     expr l = p.save_pos(mk_local(id, prop, bi), pos);
     p.add_local(l);
@@ -478,7 +474,7 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
             is_visible = true;
         } else {
             p.check_token_next(get_have_tk(), "invalid 'then' declaration, 'have' or 'assert' expected");
-            is_visible = false;
+            is_visible = true;
         }
         body  = parse_have_core(p, then_pos, some_expr(l), is_visible);
     } else {

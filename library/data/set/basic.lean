@@ -750,7 +750,7 @@ ext (take x, iff.intro
   (suppose x ∈ sUnion '{s},
     obtain u [(Hu : u ∈ '{s}) (xu : x ∈ u)], from this,
     have u = s, from eq_of_mem_singleton Hu,
-    show x ∈ s, using this, by rewrite -this; apply xu)
+    show x ∈ s, by rewrite -this; apply xu)
   (suppose x ∈ s,
     mem_sUnion this (mem_singleton s)))
 
@@ -798,7 +798,7 @@ ext (take x, iff.intro
     take t, suppose t ∈ compl ' S,
     obtain t' [(Ht' : t' ∈ S) (Ht : -t' = t)], from this,
     have x ∈ -t', from suppose x ∈ t', H (mem_sUnion this Ht'),
-    show x ∈ t, using this, by rewrite -Ht; apply this)
+    show x ∈ t, by rewrite -Ht; apply this)
   (assume H : x ∈ ⋂₀ (compl ' S),
     suppose x ∈ ⋃₀ S,
     obtain t [(tS : t ∈ S) (xt : x ∈ t)], from this,

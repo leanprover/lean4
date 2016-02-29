@@ -140,7 +140,7 @@ have Hb' : ∀ x, x ∈ negX → -b ≤ x,
 have HX : X = {x | -x ∈ negX},
   from set.ext (take x, by rewrite [↑set_of, ↑mem, +neg_neg]),
 show inf {x | -x ∈ X} = - sup X,
-  using HX Hb' nonempty_negX, by rewrite [HX at {2}, sup_neg nonempty_negX Hb', neg_neg]
+  by rewrite [HX at {2}, sup_neg nonempty_negX Hb', neg_neg]
 end
 end real
 
@@ -453,11 +453,11 @@ have Hi' : ∀ j, j ≥ i → sX - ε < X j, from
 exists.intro i
   (take j, assume Hj : j ≥ i,
     have X j - sX ≤ 0, from sub_nonpos_of_le (Xle j),
-    have eq₁ : abs (X j - sX) = sX - X j, using this, by rewrite [abs_of_nonpos this, neg_sub],
+    have eq₁ : abs (X j - sX) = sX - X j, by rewrite [abs_of_nonpos this, neg_sub],
     have sX - ε < X j, from lt_of_lt_of_le (by rewrite Hi; apply H₂x') (nondecX Hj),
     have sX < X j + ε, from lt_add_of_sub_lt_right this,
     have sX - X j < ε, from sub_lt_left_of_lt_add this,
-    show (abs (X j - sX)) < ε, using eq₁ this, by rewrite eq₁; exact this)
+    show (abs (X j - sX)) < ε, by rewrite eq₁; exact this)
 
 definition nonincreasing (X : ℕ → ℝ) : Prop := ∀ ⦃i j⦄, i ≤ j → X i ≥ X j
 
@@ -522,7 +522,6 @@ theorem pow_converges_to_seq_zero {x : ℝ} (H : abs x < 1) :
   (λ n, x^n) ⟶ 0 in ℕ :=
 suffices H' : (λ n, (abs x)^n) ⟶ 0 in ℕ, from
   have (λ n, (abs x)^n) = (λ n, abs (x^n)), from funext (take n, eq.symm !abs_pow),
-  using this,
     by rewrite this at H'; exact converges_to_seq_zero_of_abs_converges_to_seq_zero H',
 let  aX := (λ n, (abs x)^n),
     iaX := real.inf (aX ' univ),

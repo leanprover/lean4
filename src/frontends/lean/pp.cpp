@@ -59,7 +59,6 @@ static format * g_let_fmt         = nullptr;
 static format * g_in_fmt          = nullptr;
 static format * g_assign_fmt      = nullptr;
 static format * g_have_fmt        = nullptr;
-static format * g_assert_fmt      = nullptr;
 static format * g_from_fmt        = nullptr;
 static format * g_visible_fmt     = nullptr;
 static format * g_show_fmt        = nullptr;
@@ -124,7 +123,6 @@ void initialize_pp() {
     g_in_fmt          = new format(highlight_keyword(format("in")));
     g_assign_fmt      = new format(highlight_keyword(format(":=")));
     g_have_fmt        = new format(highlight_keyword(format("have")));
-    g_assert_fmt      = new format(highlight_keyword(format("assert")));
     g_from_fmt        = new format(highlight_keyword(format("from")));
     g_visible_fmt     = new format(highlight_keyword(format("[visible]")));
     g_show_fmt        = new format(highlight_keyword(format("show")));
@@ -151,7 +149,6 @@ void finalize_pp() {
     delete g_in_fmt;
     delete g_assign_fmt;
     delete g_have_fmt;
-    delete g_assert_fmt;
     delete g_from_fmt;
     delete g_visible_fmt;
     delete g_show_fmt;
@@ -779,7 +776,7 @@ auto pretty_fn::pp_have(expr const & e) -> result {
     format type_fmt  = pp_child(mlocal_type(local), 0).fmt();
     format proof_fmt = pp_child(proof, 0).fmt();
     format body_fmt  = pp_child(body, 0).fmt();
-    format head_fmt  = (binding_info(binding).is_contextual()) ? *g_assert_fmt : *g_have_fmt;
+    format head_fmt  = *g_have_fmt;
     format r = head_fmt + space() + format(n) + space();
     r += colon() + nest(m_indent, line() + type_fmt + comma() + space() + *g_from_fmt);
     r = group(r);

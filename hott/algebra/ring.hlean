@@ -345,13 +345,13 @@ section
 
   theorem eq_of_mul_eq_mul_right {a b c : A} (Ha : a ≠ 0) (H : b * a = c * a) : b = c :=
   have b * a - c * a = 0, from iff.mp !eq_iff_sub_eq_zero H,
-  have (b - c) * a = 0, using this, by rewrite [mul_sub_right_distrib, this],
+  have (b - c) * a = 0, by rewrite [mul_sub_right_distrib, this],
   have b - c = 0, from sum_resolve_left (eq_zero_sum_eq_zero_of_mul_eq_zero this) Ha,
   iff.elim_right !eq_iff_sub_eq_zero this
 
   theorem eq_of_mul_eq_mul_left {a b c : A} (Ha : a ≠ 0) (H : a * b = a * c) : b = c :=
   have a * b - a * c = 0, from iff.mp !eq_iff_sub_eq_zero H,
-  have a * (b - c) = 0, using this, by rewrite [mul_sub_left_distrib, this],
+  have a * (b - c) = 0, by rewrite [mul_sub_left_distrib, this],
   have b - c = 0, from sum_resolve_right (eq_zero_sum_eq_zero_of_mul_eq_zero this) Ha,
   iff.elim_right !eq_iff_sub_eq_zero this
 

@@ -135,8 +135,7 @@ section
   assume H' : eventually (λx, ¬ (P x ∨ Q x)) F,
   have (λx, ¬ (P x ∨ Q x)) = λ x, ¬ P x ∧ ¬ Q x,
     by apply funext; intro x; rewrite not_or_iff_not_and_not,
-  show false, using this,
-    by rewrite this at H'; exact H (eventually_of_eventually_and_left H')
+  show false, by rewrite this at H'; exact H (eventually_of_eventually_and_left H')
 
   theorem frequently_inr (H : frequently Q F) : frequently (λx, P x ∨ Q x) F :=
   begin

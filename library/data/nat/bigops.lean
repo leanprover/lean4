@@ -61,7 +61,7 @@ begin
         suppose x ∈ upto n,
         have x < n, from lt_of_mem_upto this,
         suppose x ∈ '{n},
-        have x = n, using this, by rewrite -mem_singleton_iff; apply this,
+        have x = n, by rewrite -mem_singleton_iff; apply this,
         have n < n, from eq.subst this `x < n`,
         show false, from !lt.irrefl this),
   rewrite [sum_up_to_succ, ih, upto_succ, Sum_union _ H, Sum_singleton]
@@ -152,7 +152,7 @@ begin
         suppose x ∈ upto n,
         have x < n, from lt_of_mem_upto this,
         suppose x ∈ '{n},
-        have x = n, using this, by rewrite -mem_singleton_iff; apply this,
+        have x = n, by rewrite -mem_singleton_iff; apply this,
         have n < n, from eq.subst this `x < n`,
         show false, from !lt.irrefl this),
   rewrite [prod_up_to_succ, ih, upto_succ, Prod_union _ H, Prod_singleton]

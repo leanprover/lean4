@@ -339,7 +339,7 @@ static expr parse_using_expr(parser & p, pos_info const & using_pos) {
         auto id_pos = p.pos();
         expr l      = p.parse_id();
         if (!is_local(l))
-            throw parser_error("invalid 'using' declaration for 'have', local expected", id_pos);
+            throw parser_error("invalid 'using' declaration, local expected", id_pos);
         expr new_l;
         binder_info bi = local_info(l);
         if (p.is_local_variable_parameter(local_pp_name(l))) {
@@ -353,7 +353,7 @@ static expr parse_using_expr(parser & p, pos_info const & using_pos) {
         new_locals.push_back(new_l);
     }
     p.next(); // consume ','
-    expr pr = parse_proof(p);
+    expr pr = p.parse_expr();
     unsigned i = locals.size();
     while (i > 0) {
         --i;

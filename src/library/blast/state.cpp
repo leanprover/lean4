@@ -401,15 +401,15 @@ struct instantiate_urefs_mrefs_fn : public replace_visitor {
                          [](level const & l1, level const & l2) { return is_eqp(l1, l2); });
     }
 
-    virtual expr visit_sort(expr const & s) {
+    virtual expr visit_sort(expr const & s) override {
         return update_sort(s, visit_level(sort_level(s)));
     }
 
-    virtual expr visit_constant(expr const & c) {
+    virtual expr visit_constant(expr const & c) override {
         return update_constant(c, visit_levels(const_levels(c)));
     }
 
-    virtual expr visit_local(expr const & e) {
+    virtual expr visit_local(expr const & e) override {
         if (is_href(e)) {
             return e;
         } else {
@@ -417,7 +417,7 @@ struct instantiate_urefs_mrefs_fn : public replace_visitor {
         }
     }
 
-    virtual expr visit_meta(expr const & m) {
+    virtual expr visit_meta(expr const & m) override {
         lean_assert(is_mref(m));
         if (auto v1 = m_state.get_mref_assignment(m)) {
             if (!has_mref(*v1)) {
@@ -433,7 +433,7 @@ struct instantiate_urefs_mrefs_fn : public replace_visitor {
         }
     }
 
-    virtual expr visit_app(expr const & e) {
+    virtual expr visit_app(expr const & e) override {
         buffer<expr> args;
         expr const & f = get_app_rev_args(e, args);
         if (is_mref(f)) {
@@ -460,7 +460,7 @@ struct instantiate_urefs_mrefs_fn : public replace_visitor {
             return mk_rev_app(new_f, new_args, e.get_tag());
     }
 
-    virtual expr visit_macro(expr const & e) {
+    virtual expr visit_macro(expr const & e) override {
         lean_assert(is_macro(e));
         buffer<expr> new_args;
         for (unsigned i = 0; i < macro_num_args(e); i++)
@@ -468,7 +468,7 @@ struct instantiate_urefs_mrefs_fn : public replace_visitor {
         return update_macro(e, new_args.size(), new_args.data());
     }
 
-    virtual expr visit(expr const & e) {
+    virtual expr visit(expr const & e) override {
         if (!has_mref(e) && !has_univ_metavar(e))
             return e;
         else
@@ -933,7 +933,7 @@ struct expand_hrefs_fn : public replace_visitor {
     expand_hrefs_fn(state const & s, list<expr> const & hrefs):
         m_state(s), m_hrefs(hrefs) {}
 
-    virtual expr visit_local(expr const & e) {
+    virtual expr visit_local(expr const & e) override {
         if (is_href(e) && std::find(m_hrefs.begin(), m_hrefs.end(), e) != m_hrefs.end()) {
             hypothesis const & h = m_state.get_hypothesis_decl(e);
             if (h.get_value()) {

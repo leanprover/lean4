@@ -219,7 +219,7 @@ expr try_eta(expr const & e) {
 template<bool Eta, bool Beta>
 class eta_beta_reduce_fn : public replace_visitor {
 public:
-    virtual expr visit_app(expr const & e) {
+    virtual expr visit_app(expr const & e) override {
         expr e1 = replace_visitor::visit_app(e);
         if (Beta && is_head_beta(e1)) {
             return visit(head_beta_reduce(e1));
@@ -228,7 +228,7 @@ public:
         }
     }
 
-    virtual expr visit_lambda(expr const & e) {
+    virtual expr visit_lambda(expr const & e) override {
         expr e1 = replace_visitor::visit_lambda(e);
         if (Eta) {
             while (true) {

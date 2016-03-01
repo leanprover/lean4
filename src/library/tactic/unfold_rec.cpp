@@ -35,7 +35,7 @@ protected:
         return mk_app(fn, args);
     }
 
-    virtual expr visit_binding(expr const & b) {
+    virtual expr visit_binding(expr const & b) override {
         expr new_domain = visit(binding_domain(b));
         expr l          = mk_local(mk_fresh_name(), new_domain);
         expr new_body   = abstract(visit(instantiate(binding_body(b), l)), l);

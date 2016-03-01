@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "library/trace.h"
-#include "library/replace_visitor.h"
 #include "library/fun_info_manager.h"
 
 namespace lean {

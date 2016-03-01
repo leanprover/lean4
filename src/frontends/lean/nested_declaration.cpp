@@ -174,7 +174,7 @@ public:
         return mk_app(mk_constant(new_real_name, ls), locals.get_collected());
     }
 
-    expr visit_macro(expr const & e) {
+    expr visit_macro(expr const & e) override {
         if (is_nested_declaration(e)) {
             return extract(e);
         } else {
@@ -182,11 +182,16 @@ public:
         }
     }
 
-    expr visit_binding(expr const & b) {
+    expr visit_binding(expr const & b) override {
         expr new_domain = visit(binding_domain(b));
         expr l          = mk_local(mk_fresh_name(), new_domain);
         expr new_body   = abstract(visit(instantiate(binding_body(b), l)), l);
         return update_binding(b, new_domain, new_body);
+    }
+
+    expr visit_let(expr const & e) override {
+        // TODO(Leo): improve
+        return visit(instantiate(let_body(e), let_value(e)));
     }
 
     environment const & get_env() const { return m_env; }

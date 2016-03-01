@@ -575,19 +575,19 @@ struct instantiate_uvars_mvars_fn : public replace_visitor {
                          [](level const & l1, level const & l2) { return is_eqp(l1, l2); });
     }
 
-    virtual expr visit_sort(expr const & s) {
+    virtual expr visit_sort(expr const & s) override {
         return update_sort(s, visit_level(sort_level(s)));
     }
 
-    virtual expr visit_constant(expr const & c) {
+    virtual expr visit_constant(expr const & c) override {
         return update_constant(c, visit_levels(const_levels(c)));
     }
 
-    virtual expr visit_local(expr const & e) {
+    virtual expr visit_local(expr const & e) override {
         return update_mlocal(e, visit(mlocal_type(e)));
     }
 
-    virtual expr visit_meta(expr const & m) {
+    virtual expr visit_meta(expr const & m) override {
         if (m_owner.is_mvar(m)) {
             if (auto v1 = m_owner.get_assignment(m)) {
                 if (!has_expr_metavar(*v1)) {
@@ -606,7 +606,7 @@ struct instantiate_uvars_mvars_fn : public replace_visitor {
         }
     }
 
-    virtual expr visit_app(expr const & e) {
+    virtual expr visit_app(expr const & e) override {
         buffer<expr> args;
         expr const & f = get_app_rev_args(e, args);
         if (m_owner.is_mvar(f)) {
@@ -633,7 +633,7 @@ struct instantiate_uvars_mvars_fn : public replace_visitor {
             return mk_rev_app(new_f, new_args, e.get_tag());
     }
 
-    virtual expr visit_macro(expr const & e) {
+    virtual expr visit_macro(expr const & e) override {
         lean_assert(is_macro(e));
         buffer<expr> new_args;
         for (unsigned i = 0; i < macro_num_args(e); i++)
@@ -641,7 +641,7 @@ struct instantiate_uvars_mvars_fn : public replace_visitor {
         return update_macro(e, new_args.size(), new_args.data());
     }
 
-    virtual expr visit(expr const & e) {
+    virtual expr visit(expr const & e) override {
         if (!has_expr_metavar(e) && !has_univ_metavar(e))
             return e;
         else

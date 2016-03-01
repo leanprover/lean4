@@ -21,7 +21,7 @@ struct unfold_hypotheses_ge_fn : public replace_visitor {
     unfold_hypotheses_ge_fn(state const & s, unsigned d):
         m_state(s), m_depth(d) {}
 
-    virtual expr visit_local(expr const & e) {
+    virtual expr visit_local(expr const & e) override {
         if (is_href(e)) {
             hypothesis const & h = m_state.get_hypothesis_decl(e);
             if (h.get_proof_depth() >= m_depth && h.get_value()) {

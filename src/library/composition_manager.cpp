@@ -42,11 +42,17 @@ struct elim_proj_mk : public replace_visitor {
     environment const & m_env;
     type_checker_ptr    m_tc;
 
-    virtual expr visit_binding(expr const & e) {
+    virtual expr visit_binding(expr const & e) override {
         // stop at binders
         return e;
     }
-    virtual expr visit_app(expr const & e) {
+
+    virtual expr visit_let(expr const & e) override {
+        // stop at binders
+        return e;
+    }
+
+    virtual expr visit_app(expr const & e) override {
         expr const & fn = get_app_fn(e);
         if (is_constant(fn) && is_projection(m_env, const_name(fn))) {
             expr new_e = m_tc->whnf(e).first;

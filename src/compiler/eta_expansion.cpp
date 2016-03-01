@@ -32,22 +32,22 @@ class eta_expand_fn : public replace_visitor {
             return e;
     }
 
-    virtual expr visit_var(expr const &) { lean_unreachable(); }
+    virtual expr visit_var(expr const &) override { lean_unreachable(); }
 
-    virtual expr visit_meta(expr const &) { lean_unreachable(); }
+    virtual expr visit_meta(expr const &) override { lean_unreachable(); }
 
-    virtual expr visit_macro(expr const & e) {
+    virtual expr visit_macro(expr const & e) override {
         if (auto r = expand_core(e))
             return *r;
         else
             return replace_visitor::visit_macro(e);
     }
 
-    virtual expr visit_constant(expr const & e) { return expand(e); }
+    virtual expr visit_constant(expr const & e) override { return expand(e); }
 
-    virtual expr visit_local(expr const & e) { return expand(e); }
+    virtual expr visit_local(expr const & e) override { return expand(e); }
 
-    virtual expr visit_app(expr const & e) {
+    virtual expr visit_app(expr const & e) override {
         if (auto r = expand_core(e)) {
             return *r;
         } else {
@@ -68,11 +68,15 @@ class eta_expand_fn : public replace_visitor {
         }
     }
 
-    virtual expr visit_binding(expr const & b) {
+    virtual expr visit_binding(expr const & b) override {
         expr new_domain = visit(binding_domain(b));
         expr l          = mk_local(mk_fresh_name(), new_domain);
         expr new_body   = abstract_local(visit(instantiate(binding_body(b), l)), l);
         return update_binding(b, new_domain, new_body);
+    }
+
+    virtual expr visit_let(expr const & e) override {
+        return visit(instantiate(let_body(e), let_value(e)));
     }
 
 public:

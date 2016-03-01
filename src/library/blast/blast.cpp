@@ -324,11 +324,11 @@ class blastenv {
             lean_unreachable();
         }
 
-        virtual expr visit_sort(expr const & e) {
+        virtual expr visit_sort(expr const & e) override {
             return mk_sort(to_blast_level(sort_level(e)));
         }
 
-        virtual expr visit_macro(expr const & e) {
+        virtual expr visit_macro(expr const & e) override {
             buffer<expr> new_args;
             for (unsigned i = 0; i < macro_num_args(e); i++) {
                 new_args.push_back(visit(macro_arg(e, i)));
@@ -336,12 +336,12 @@ class blastenv {
             return mk_macro(macro_def(e), new_args.size(), new_args.data());
         }
 
-        virtual expr visit_constant(expr const & e) {
+        virtual expr visit_constant(expr const & e) override {
             levels new_ls = map(const_levels(e), [&](level const & l) { return to_blast_level(l); });
             return mk_constant(const_name(e), new_ls);
         }
 
-        virtual expr visit_var(expr const & e) {
+        virtual expr visit_var(expr const & e) override {
             return mk_var(var_idx(e));
         }
 
@@ -419,18 +419,18 @@ class blastenv {
             }
         }
 
-        virtual expr visit_meta(expr const & e) {
+        virtual expr visit_meta(expr const & e) override {
             return visit_meta_app(e);
         }
 
-        virtual expr visit_local(expr const & e) {
+        virtual expr visit_local(expr const & e) override {
             if (auto r = m_local2href.find(mlocal_name(e)))
                 return * r;
             else
                 throw blast_exception("blast tactic failed, ill-formed input goal", e);
         }
 
-        virtual expr visit_app(expr const & e) {
+        virtual expr visit_app(expr const & e) override {
             if (is_meta(e)) {
                 return visit_meta_app(e);
             } else {
@@ -439,14 +439,20 @@ class blastenv {
             }
         }
 
-        virtual expr visit_lambda(expr const & e) {
+        virtual expr visit_lambda(expr const & e) override {
             expr d = visit(binding_domain(e));
             return mk_lambda(binding_name(e), d, visit(binding_body(e)), binding_info(e));
         }
 
-        virtual expr visit_pi(expr const & e) {
+        virtual expr visit_pi(expr const & e) override {
             expr d = visit(binding_domain(e));
             return mk_pi(binding_name(e), d, visit(binding_body(e)), binding_info(e));
+        }
+
+        virtual expr visit_let(expr const & e) override {
+            expr t = visit(let_type(e));
+            expr v = visit(let_value(e));
+            return mk_let(let_name(e), t, v, visit(let_body(e)));
         }
 
     public:

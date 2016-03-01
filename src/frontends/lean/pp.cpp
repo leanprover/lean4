@@ -1299,10 +1299,10 @@ pretty_fn::pretty_fn(environment const & env, options const & o, abstract_type_c
 // Custom beta reduction procedure for the pretty printer.
 // We don't want to reduce application in show annotations.
 class pp_beta_reduce_fn : public replace_visitor {
-    virtual expr visit_meta(expr const & e) { return e; }
-    virtual expr visit_local(expr const & e) { return e; }
+    virtual expr visit_meta(expr const & e) override { return e; }
+    virtual expr visit_local(expr const & e) override { return e; }
 
-    virtual expr visit_macro(expr const & e) {
+    virtual expr visit_macro(expr const & e) override {
         if (is_show_annotation(e) && is_app(get_annotation_arg(e))) {
             expr const & n = get_annotation_arg(e);
             expr new_fn  = visit(app_fn(n));
@@ -1313,7 +1313,7 @@ class pp_beta_reduce_fn : public replace_visitor {
         }
     }
 
-    virtual expr visit_app(expr const & e) {
+    virtual expr visit_app(expr const & e) override {
         expr new_e = replace_visitor::visit_app(e);
         if (is_head_beta(new_e))
             return visit(head_beta_reduce(new_e));

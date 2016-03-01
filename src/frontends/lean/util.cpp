@@ -369,11 +369,11 @@ public:
             });
     }
 
-    virtual expr visit_sort(expr const & e) {
+    virtual expr visit_sort(expr const & e) override {
         return update_sort(e, apply(sort_level(e)));
     }
 
-    virtual expr visit_constant(expr const & e) {
+    virtual expr visit_constant(expr const & e) override {
         levels ls = map(const_levels(e), [&](level const & l) { return apply(l); });
         return update_constant(e, ls);
     }
@@ -458,7 +458,7 @@ expr postprocess(environment const & env, expr const & e) {
 // That is, it replaces every (choice a_0 ... a_n), where a_0 is a numeral, with
 // a_0.
 class elim_choice_num_fn : public replace_visitor {
-    virtual expr visit_macro(expr const & m) {
+    virtual expr visit_macro(expr const & m) override {
         if (is_choice(m)) {
             expr const & e = macro_arg(m, 0);
             if (to_num(e)) {

@@ -950,6 +950,8 @@ public:
     }
 
     expr normalize_instances(expr const & e) {
+        // TODO(Leo, Dan): This procedure is traversing the expression \c e ignoring sharing.
+        // That is, it traverses a DAG as a Tree. This may generate serious performance prooblems.
         expr b, l, d;
         switch (e.kind()) {
         case expr_kind::Constant:
@@ -965,6 +967,8 @@ public:
             l = mk_fresh_local(d, binding_info(e));
             b = abstract(normalize_instances(instantiate(binding_body(e), l)), l);
             return update_binding(e, d, b);
+        case expr_kind::Let:
+            return normalize_instances(instantiate(let_body(e), let_value(e)));
         case expr_kind::App:
             buffer<expr> args;
             expr const & f     = get_app_args(e, args);

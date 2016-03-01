@@ -20,6 +20,9 @@ unsigned proof_irrel_expr_manager::hash(expr const & e) {
     case expr_kind::Var:
     case expr_kind::Macro:
         return e.hash();
+    case expr_kind::Let:
+        // Let-expressions must be unfolded before invoking this method
+        lean_unreachable();
     case expr_kind::Lambda:
     case expr_kind::Pi:
         h = hash(binding_domain(e));
@@ -67,6 +70,9 @@ bool proof_irrel_expr_manager::is_equal(expr const & a, expr const & b) {
         return a == b;
     case expr_kind::Meta: case expr_kind::Local:
         return mlocal_name(a) == mlocal_name(b) && is_equal(mlocal_type(a), mlocal_type(b));
+    case expr_kind::Let:
+        // Let-expressions must be unfolded before invoking this method
+        lean_unreachable();
     case expr_kind::Lambda: case expr_kind::Pi:
         if (!is_equal(binding_domain(a), binding_domain(b))) return false;
         // see comment at proof_irrel_expr_manager::hash

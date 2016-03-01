@@ -68,7 +68,7 @@ expr default_converter::whnf_core(expr const & e) {
     case expr_kind::Var:  case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local:
     case expr_kind::Pi:   case expr_kind::Constant: case expr_kind::Lambda:
         return e;
-    case expr_kind::Macro: case expr_kind::App:
+    case expr_kind::Macro: case expr_kind::App: case expr_kind::Let:
         break;
     }
 
@@ -82,7 +82,7 @@ expr default_converter::whnf_core(expr const & e) {
     // do the actual work
     expr r;
     switch (e.kind()) {
-    case expr_kind::Var:    case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local:
+    case expr_kind::Var:  case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local:
     case expr_kind::Pi:   case expr_kind::Constant: case expr_kind::Lambda:
         lean_unreachable(); // LCOV_EXCL_LINE
     case expr_kind::Macro:
@@ -108,7 +108,11 @@ expr default_converter::whnf_core(expr const & e) {
             r = f == f0 ? e : whnf_core(mk_rev_app(f, args.size(), args.data()));
         }
         break;
-    }}
+    }
+    case expr_kind::Let:
+        r = whnf_core(instantiate(let_body(e), let_value(e)));
+        break;
+    }
 
     if (m_memoize)
         m_whnf_core_cache.insert(mk_pair(e, r));
@@ -190,7 +194,8 @@ pair<expr, constraint_seq> default_converter::whnf(expr const & e_prime) {
     switch (e_prime.kind()) {
     case expr_kind::Var: case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local: case expr_kind::Pi:
         return to_ecs(e_prime);
-    case expr_kind::Lambda: case expr_kind::Macro: case expr_kind::App: case expr_kind::Constant:
+    case expr_kind::Lambda:   case expr_kind::Macro: case expr_kind::App:
+    case expr_kind::Constant: case expr_kind::Let:
         break;
     }
 
@@ -300,8 +305,8 @@ lbool default_converter::quick_is_def_eq(expr const & t, expr const & s, constra
             return to_lbool(is_def_eq(sort_level(t), sort_level(s), cs));
         case expr_kind::Meta:
             lean_unreachable(); // LCOV_EXCL_LINE
-        case expr_kind::Var: case expr_kind::Local: case expr_kind::App:
-        case expr_kind::Constant: case expr_kind::Macro:
+        case expr_kind::Var:      case expr_kind::Local: case expr_kind::App:
+        case expr_kind::Constant: case expr_kind::Macro: case expr_kind::Let:
             // We do not handle these cases in this method.
             break;
         }

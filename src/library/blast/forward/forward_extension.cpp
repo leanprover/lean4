@@ -52,6 +52,9 @@ void forward_branch_extension::index_expr(expr const & e) {
     case expr_kind::Pi:
         // TODO(dhs): confirm that I only index quantified-free hypotheses
         break;
+    case expr_kind::Let:
+        // Let-expressions must be unfolded before invoking this method
+        lean_unreachable();
     case expr_kind::App:
         index_expr(app_fn(e));
         index_expr(app_arg(e));

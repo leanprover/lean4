@@ -323,6 +323,9 @@ class match_fn : public match_context {
             return match_macro(p, t);
         case expr_kind::App:
             return match_app(p, t);
+        case expr_kind::Let:
+            // TODO(Leo): this module will be deleted in the future.
+            lean_unreachable();
         }
         lean_unreachable(); // LCOV_EXCL_LINE
     }

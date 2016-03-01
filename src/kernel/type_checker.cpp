@@ -300,6 +300,25 @@ pair<expr, constraint_seq> type_checker::infer_app(expr const & e, bool infer_on
     }
 }
 
+pair<expr, constraint_seq> type_checker::infer_let(expr const & e, bool infer_only) {
+    if (!infer_only) {
+        pair<expr, constraint_seq> dtcs = infer_type_core(let_type(e), infer_only);
+        pair<expr, constraint_seq> scs  = ensure_sort_core(dtcs.first, e);
+        pair<expr, constraint_seq> vcs  = infer_type_core(let_value(e), infer_only);
+        expr v_type = vcs.first;
+        // TODO(Leo): we will remove justifications in the future.
+        as_delayed_justification jst(mk_justification("let mismatch"));
+        pair<bool, constraint_seq> dcs  = is_def_eq(v_type, let_type(e), jst);
+        if (!dcs.first) {
+            throw_kernel_exception(m_env, e,
+                                   [=](formatter const & fmt) {
+                                       return pp_def_type_mismatch(fmt, let_name(e), let_type(e), v_type, true);
+                                   });
+        }
+    }
+    return infer_type_core(instantiate(let_body(e), let_value(e)), infer_only);
+}
+
 expr type_checker::infer_type_core(expr const & e, bool infer_only, constraint_seq & cs) {
     auto r = infer_type_core(e, infer_only);
     cs = cs + r.second;
@@ -338,6 +357,7 @@ pair<expr, constraint_seq> type_checker::infer_type_core(expr const & e, bool in
     case expr_kind::Lambda:    r = infer_lambda(e, infer_only);         break;
     case expr_kind::Pi:        r = infer_pi(e, infer_only);             break;
     case expr_kind::App:       r = infer_app(e, infer_only);            break;
+    case expr_kind::Let:       r = infer_let(e, infer_only);            break;
     }
 
     if (m_memoize)

@@ -30,6 +30,13 @@ expr replace_visitor::visit_binding(expr const & e) {
 }
 expr replace_visitor::visit_lambda(expr const & e) { return visit_binding(e); }
 expr replace_visitor::visit_pi(expr const & e) { return visit_binding(e); }
+expr replace_visitor::visit_let(expr const & e) {
+    lean_assert(is_let(e));
+    expr new_t = visit(let_type(e));
+    expr new_v = visit(let_value(e));
+    expr new_b = visit(let_body(e));
+    return update_let(e, new_t, new_v, new_b);
+}
 expr replace_visitor::visit_macro(expr const & e) {
     lean_assert(is_macro(e));
     buffer<expr> new_args;
@@ -62,6 +69,7 @@ expr replace_visitor::visit(expr const & e) {
     case expr_kind::App:       return save_result(e, visit_app(e), shared);
     case expr_kind::Lambda:    return save_result(e, visit_lambda(e), shared);
     case expr_kind::Pi:        return save_result(e, visit_pi(e), shared);
+    case expr_kind::Let:       return save_result(e, visit_let(e), shared);
     }
 
     lean_unreachable(); // LCOV_EXCL_LINE

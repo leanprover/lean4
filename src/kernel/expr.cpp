@@ -240,6 +240,29 @@ void expr_sort::dealloc() {
     get_sort_allocator().recycle(this);
 }
 
+// Let expressions
+DEF_THREAD_MEMORY_POOL(get_let_allocator, sizeof(expr_let));
+expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & b, tag g):
+    expr_composite(expr_kind::Let,
+                   ::lean::hash(::lean::hash(t.hash(), v.hash()), b.hash()),
+                   t.has_expr_metavar()   || v.has_expr_metavar() || b.has_expr_metavar(),
+                   t.has_univ_metavar()   || v.has_univ_metavar() || b.has_univ_metavar(),
+                   t.has_local()          || v.has_local() || b.has_local(),
+                   t.has_param_univ()     || v.has_param_univ() || b.has_param_univ(),
+                   inc_weight(add_weight(add_weight(get_weight(t), get_weight(v)), get_weight(b))),
+                   std::max(std::max(get_free_var_range(t), get_free_var_range(v)), dec(get_free_var_range(b))),
+                   g),
+    m_name(n), m_type(t), m_value(v), m_body(b) {
+    m_hash = ::lean::hash(m_hash, m_weight);
+}
+void expr_let::dealloc(buffer<expr_cell*> & todelete) {
+    dec_ref(m_body,  todelete);
+    dec_ref(m_value, todelete);
+    dec_ref(m_type,  todelete);
+    this->~expr_let();
+    get_let_allocator().recycle(this);
+}
+
 // Macro definition
 bool macro_definition_cell::lt(macro_definition_cell const &) const { return false; }
 bool macro_definition_cell::operator==(macro_definition_cell const & other) const { return typeid(*this) == typeid(other); }
@@ -361,6 +384,9 @@ expr mk_app(expr const & f, expr const & a, tag g) {
 expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i, tag g) {
     return cache(expr(new (get_binding_allocator().allocate()) expr_binding(k, n, t, e, i, g)));
 }
+expr mk_let(name const & n, expr const & t, expr const & v, expr const & b, tag g) {
+    return cache(expr(new (get_let_allocator().allocate()) expr_let(n, t, v, b, g)));
+}
 expr mk_sort(level const & l, tag g) {
     return cache(expr(new (get_sort_allocator().allocate()) expr_sort(l, g)));
 }
@@ -385,7 +411,8 @@ void expr_cell::dealloc() {
             case expr_kind::App:        static_cast<expr_app*>(it)->dealloc(todo); break;
             case expr_kind::Lambda:
             case expr_kind::Pi:         static_cast<expr_binding*>(it)->dealloc(todo); break;
-            }
+            case expr_kind::Let:        static_cast<expr_let*>(it)->dealloc(todo); break;
+           }
         }
     } catch (std::bad_alloc&) {
         // We need this catch, because push_back may fail when expanding the buffer.
@@ -510,7 +537,7 @@ unsigned get_weight(expr const & e) {
     case expr_kind::Meta: case expr_kind::Local:
         return 1;
     case expr_kind::Lambda: case expr_kind::Pi:  case expr_kind::Macro:
-    case expr_kind::App:
+    case expr_kind::App:    case expr_kind::Let:
         return static_cast<expr_composite*>(e.raw())->m_weight;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
@@ -591,6 +618,13 @@ expr update_macro(expr const & e, unsigned num, expr const * args) {
     return mk_macro(to_macro(e)->m_definition, num, args, e.get_tag());
 }
 
+expr update_let(expr const & e, expr const & new_type, expr const & new_value, expr const & new_body) {
+    if (!is_eqp(let_type(e), new_type) || !is_eqp(let_value(e), new_value) || !is_eqp(let_body(e), new_body))
+        return mk_let(let_name(e), new_type, new_value, new_body);
+    else
+        return e;
+}
+
 bool is_atomic(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Constant: case expr_kind::Sort:
@@ -600,7 +634,7 @@ bool is_atomic(expr const & e) {
         return to_macro(e)->get_num_args() == 0;
     case expr_kind::App:      case expr_kind::Meta:
     case expr_kind::Local:    case expr_kind::Lambda:
-    case expr_kind::Pi:
+    case expr_kind::Pi:       case expr_kind::Let:
         return false;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
@@ -691,6 +725,7 @@ std::ostream & operator<<(std::ostream & out, expr_kind const & k) {
     case expr_kind::Lambda:   out << "Lambda"; break;
     case expr_kind::Pi:       out << "Pi"; break;
     case expr_kind::Macro:    out << "Macro"; break;
+    case expr_kind::Let:      out << "Let"; break;
     }
     return out;
 }

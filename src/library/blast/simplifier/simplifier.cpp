@@ -430,6 +430,9 @@ result simplifier::simplify(expr const & e, bool is_root) {
     case expr_kind::App:
         r = join(r, simplify_app(r.get_new()));
         break;
+    case expr_kind::Let:
+        // whnf unfolds let-expressions
+        lean_unreachable();
     }
 
     if (!m_top_down) r = join(r, rewrite(whnf_eta(r.get_new())));

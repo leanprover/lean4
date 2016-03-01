@@ -95,6 +95,11 @@ void collect_locals(expr const & e, collected_locals & ls, bool restricted) {
             visit(binding_domain(e));
             visit(binding_body(e));
             break;
+        case expr_kind::Let:
+            visit(let_type(e));
+            visit(let_value(e));
+            visit(let_body(e));
+            break;
         }
     };
     visit(e);

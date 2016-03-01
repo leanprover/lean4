@@ -216,6 +216,14 @@ protected:
         return update_binding(e, new_d, new_b);
     }
 
+    expr visit_let(expr const & e) {
+        lean_assert(is_let(e));
+        expr new_t = visit(let_type(e));
+        expr new_v = visit(let_value(e));
+        expr new_b = visit(let_body(e));
+        return update_let(e, new_t, new_v, new_b);
+    }
+
     expr visit(expr const & e) {
         if (!has_metavar(e))
             return e;
@@ -238,6 +246,7 @@ protected:
         case expr_kind::App:       return save_result(e, visit_app(e));
         case expr_kind::Lambda:
         case expr_kind::Pi:        return save_result(e, visit_binding(e));
+        case expr_kind::Let:       return save_result(e, visit_let(e));
         }
         lean_unreachable();
     }

@@ -219,6 +219,8 @@ expr type_context::whnf_core(expr const & e) {
     case expr_kind::Var: case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local:
     case expr_kind::Pi:  case expr_kind::Constant: case expr_kind::Lambda:
         return e;
+    case expr_kind::Let:
+        return whnf_core(instantiate(let_body(e), let_value(e)));
     case expr_kind::Macro:
         if (auto m = expand_macro(e))
             return whnf_core(*m);
@@ -309,6 +311,7 @@ expr type_context::whnf(expr const & e) {
     case expr_kind::Var: case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local: case expr_kind::Pi:
         return e;
     case expr_kind::Lambda: case expr_kind::Macro: case expr_kind::App: case expr_kind::Constant:
+    case expr_kind::Let:
         break;
     }
 
@@ -884,6 +887,7 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
         case expr_kind::Meta:  case expr_kind::Var:
         case expr_kind::Local: case expr_kind::App:
         case expr_kind::Constant: case expr_kind::Macro:
+        case expr_kind::Let:
             // We do not handle these cases in this method.
             break;
         }
@@ -1221,6 +1225,9 @@ expr type_context::infer(expr const & e) {
     case expr_kind::App:
         r = infer_app(e);
         break;
+    case expr_kind::Let:
+        r = infer(instantiate(let_body(e), let_value(e)));
+        break;
     }
     m_infer_cache.insert(mk_pair(e, r));
     return r;
@@ -1270,7 +1277,7 @@ lbool type_context::is_quick_class(expr const & type, name & result) {
     while (true) {
         switch (it->kind()) {
         case expr_kind::Var:  case expr_kind::Sort:   case expr_kind::Local:
-        case expr_kind::Meta: case expr_kind::Lambda:
+        case expr_kind::Meta: case expr_kind::Lambda: case expr_kind::Let:
             return l_false;
         case expr_kind::Macro:
             return l_undef;
@@ -1449,7 +1456,7 @@ struct type_context::unification_hint_fn {
                 && m_owner.is_def_eq(const_levels(pattern), const_levels(e));
         case expr_kind::Sort:
             return is_sort(e) && m_owner.is_def_eq(sort_level(pattern), sort_level(e));
-        case expr_kind::Pi: case expr_kind::Lambda: case expr_kind::Macro:
+        case expr_kind::Pi: case expr_kind::Lambda: case expr_kind::Macro: case expr_kind::Let:
             // Remark: we do not traverse inside of binders.
             return pattern == e;
         case expr_kind::App:
@@ -2120,6 +2127,9 @@ expr normalizer::normalize(expr e) {
         return normalize_binding(e);
     case expr_kind::App:
         return normalize_app(e);
+    case expr_kind::Let:
+        // whnf unfolds let-expressions
+        lean_unreachable();
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

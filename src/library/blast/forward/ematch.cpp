@@ -76,6 +76,9 @@ public:
             for (unsigned i = 0; i < macro_num_args(e); i++)
                 collect_apps(macro_arg(e, i));
             break;
+        case expr_kind::Let:
+            // let-expressions must be unfolded
+            lean_unreachable();
         case expr_kind::App: {
             buffer<expr> args;
             expr const & f = get_app_args(e, args);

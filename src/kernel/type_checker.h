@@ -126,6 +126,7 @@ class type_checker {
     pair<expr, constraint_seq> infer_lambda(expr const & e, bool infer_only);
     pair<expr, constraint_seq> infer_pi(expr const & e, bool infer_only);
     pair<expr, constraint_seq> infer_app(expr const & e, bool infer_only);
+    pair<expr, constraint_seq> infer_let(expr const & e, bool infer_only);
     pair<expr, constraint_seq> infer_type_core(expr const & e, bool infer_only);
     pair<expr, constraint_seq> infer_type(expr const & e);
     expr infer_type_core(expr const & e, bool infer_only, constraint_seq & cs);

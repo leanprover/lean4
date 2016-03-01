@@ -367,6 +367,9 @@ struct mk_hi_lemma_fn {
         case expr_kind::Meta:   case expr_kind::Local:
         case expr_kind::Pi:
             return candidate_set();
+        case expr_kind::Let:
+            // let-expressions must be unfolded
+            lean_unreachable();
         case expr_kind::Lambda:
             if (has_idx_metavar(a))
                 return candidate_set(candidate(a));

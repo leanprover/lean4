@@ -469,6 +469,12 @@ expr parser::copy_with_new_pos(expr const & e, pos_info p) {
                                        copy_with_new_pos(binding_domain(e), p),
                                        copy_with_new_pos(binding_body(e), p)),
                         p);
+    case expr_kind::Let:
+        return save_pos(update_let(e,
+                                   copy_with_new_pos(let_type(e), p),
+                                   copy_with_new_pos(let_value(e), p),
+                                   copy_with_new_pos(let_body(e), p)),
+                        p);
     case expr_kind::Macro: {
         buffer<expr> args;
         for (unsigned i = 0; i < macro_num_args(e); i++)

@@ -41,10 +41,10 @@ class expr;
           |   App           expr expr
           |   Lambda        name expr expr
           |   Pi            name expr expr
-
+          |   Let           name expr expr expr
           |   Macro         macro
 */
-enum class expr_kind { Var, Sort, Constant, Meta, Local, App, Lambda, Pi, Macro };
+enum class expr_kind { Var, Sort, Constant, Meta, Local, App, Lambda, Pi, Let, Macro };
 class expr_cell {
 protected:
     // The bits of the following field mean:
@@ -138,8 +138,8 @@ public:
     friend expr mk_app(expr const & f, expr const & a, tag g);
     friend expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i,
                            tag g);
+    friend expr mk_let(name const & n, expr const & t, expr const & v, expr const & b, tag g);
     friend expr mk_macro(macro_definition const & m, unsigned num, expr const * args, tag g);
-
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
 };
 
@@ -298,6 +298,22 @@ public:
     binder const & get_binder() const { return m_binder; }
 };
 
+/** \brief Let-expressions */
+class expr_let : public expr_composite {
+    name m_name;
+    expr m_type;
+    expr m_value;
+    expr m_body;
+    friend class expr_cell;
+    void dealloc(buffer<expr_cell*> & todelete);
+public:
+    expr_let(name const & n, expr const & t, expr const & v, expr const & b, tag g);
+    name const & get_name() const { return m_name; }
+    expr const & get_type() const { return m_type; }
+    expr const & get_value() const { return m_value; }
+    expr const & get_body() const   { return m_body; }
+};
+
 /** \brief Sort */
 class expr_sort : public expr_cell {
     level    m_level;
@@ -397,6 +413,7 @@ inline bool is_macro(expr_ptr e)       { return e->kind() == expr_kind::Macro; }
 inline bool is_app(expr_ptr e)         { return e->kind() == expr_kind::App; }
 inline bool is_lambda(expr_ptr e)      { return e->kind() == expr_kind::Lambda; }
 inline bool is_pi(expr_ptr e)          { return e->kind() == expr_kind::Pi; }
+inline bool is_let(expr_ptr e)         { return e->kind() == expr_kind::Let; }
 inline bool is_sort(expr_ptr e)        { return e->kind() == expr_kind::Sort; }
 inline bool is_binding(expr_ptr e)     { return is_lambda(e) || is_pi(e); }
 inline bool is_mlocal(expr_ptr e)      { return is_metavar(e) || is_local(e); }
@@ -450,6 +467,7 @@ inline expr mk_lambda(name const & n, expr const & t, expr const & e,
 inline expr mk_pi(name const & n, expr const & t, expr const & e, binder_info const & i = binder_info(), tag g = nulltag) {
     return mk_binding(expr_kind::Pi, n, t, e, i, g);
 }
+expr mk_let(name const & n, expr const & t, expr const & v, expr const & b, tag g = nulltag);
 expr mk_sort(level const & l, tag g = nulltag);
 
 expr mk_Prop();
@@ -496,6 +514,7 @@ inline expr_sort *        to_sort(expr_ptr e)       { lean_assert(is_sort(e));  
 inline expr_mlocal *      to_mlocal(expr_ptr e)     { lean_assert(is_mlocal(e));      return static_cast<expr_mlocal*>(e); }
 inline expr_local *       to_local(expr_ptr e)      { lean_assert(is_local(e));       return static_cast<expr_local*>(e); }
 inline expr_mlocal *      to_metavar(expr_ptr e)    { lean_assert(is_metavar(e));     return static_cast<expr_mlocal*>(e); }
+inline expr_let *         to_let(expr_ptr e)        { lean_assert(is_let(e));         return static_cast<expr_let*>(e); }
 inline expr_macro *       to_macro(expr_ptr e)      { lean_assert(is_macro(e));       return static_cast<expr_macro*>(e); }
 // =======================================
 
@@ -524,6 +543,11 @@ inline name const &   mlocal_name(expr_ptr e)           { return to_mlocal(e)->g
 inline expr const &   mlocal_type(expr_ptr e)           { return to_mlocal(e)->get_type(); }
 inline name const &   local_pp_name(expr_ptr e)         { return to_local(e)->get_pp_name(); }
 inline binder_info const & local_info(expr_ptr e)       { return to_local(e)->get_info(); }
+inline name const &   let_name(expr_ptr e)              { return to_let(e)->get_name(); }
+inline expr const &   let_type(expr_ptr e)              { return to_let(e)->get_type(); }
+inline expr const &   let_value(expr_ptr e)             { return to_let(e)->get_value(); }
+inline expr const &   let_body(expr_ptr e)              { return to_let(e)->get_body(); }
+
 
 inline bool is_constant(expr const & e, name const & n) { return is_constant(e) && const_name(e) == n; }
 inline bool has_metavar(expr const & e) { return e.has_metavar(); }
@@ -609,6 +633,8 @@ expr update_local(expr const & e, binder_info const & bi);
 expr update_sort(expr const & e, level const & new_level);
 expr update_constant(expr const & e, levels const & new_levels);
 expr update_macro(expr const & e, unsigned num, expr const * args);
+expr update_let(expr const & e, expr const & new_type, expr const & new_value, expr const & new_body);
+
 // =======================================
 
 // =======================================

@@ -74,6 +74,11 @@ class unfold_untrusted_macros_fn {
         return r;
     }
 
+    expr visit_let(expr const & e) {
+        // TODO(Leo): improve
+        return visit(instantiate(let_body(e), let_value(e)));
+    }
+
     expr visit(expr const & e) {
         switch (e.kind()) {
         case expr_kind::Sort:  case expr_kind::Constant:
@@ -100,6 +105,8 @@ class unfold_untrusted_macros_fn {
             return save_result(e, visit_app(e));
         case expr_kind::Lambda: case expr_kind::Pi:
             return save_result(e, visit_binding(e));
+        case expr_kind::Let:
+            return save_result(e, visit_let(e));
         }
         lean_unreachable();
     }

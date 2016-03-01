@@ -182,6 +182,10 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
                     write_binder_name(s, binding_name(a));
                     s << binding_info(a); write_core(binding_domain(a)); write_core(binding_body(a));
                     break;
+                case expr_kind::Let:
+                    s << let_name(a);
+                    write_core(let_type(a)); write_core(let_value(a)); write_core(let_body(a));
+                    break;
                 case expr_kind::Meta:
                     lean_assert(!mlocal_name(a).is_anonymous());
                     s << mlocal_name(a); write_core(mlocal_type(a));
@@ -239,6 +243,12 @@ public:
                 }
                 case expr_kind::Lambda: case expr_kind::Pi:
                     return read_binding(k);
+                case expr_kind::Let: {
+                    name n = read_name(d);
+                    expr t = read();
+                    expr v = read();
+                    return mk_let(n, t, v, read());
+                }
                 case expr_kind::Meta: {
                     name n = read_name(d);
                     return mk_metavar(n, read());

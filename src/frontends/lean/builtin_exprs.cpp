@@ -126,7 +126,8 @@ static expr parse_let(parser & p, pos_info const & pos) {
         v = p.save_pos(mk_let_value(v), id_pos);
         p.add_local_expr(id, v);
         expr b = parse_let_body(p, pos);
-        return p.save_pos(mk_let(id, v, b), pos);
+        // TODO(Leo): use let-expression after we reimplement elaborator
+        return p.save_pos(mk_let_macro(id, v, b), pos);
     }
 }
 

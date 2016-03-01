@@ -106,6 +106,11 @@ class for_each_fn {
                 todo.emplace_back(binding_body(e), offset + 1);
                 todo.emplace_back(binding_domain(e), offset);
                 goto begin_loop;
+            case expr_kind::Let:
+                todo.emplace_back(let_body(e), offset + 1);
+                todo.emplace_back(let_value(e), offset);
+                todo.emplace_back(let_type(e), offset);
+                goto begin_loop;
             }
         }
     }

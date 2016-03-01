@@ -34,6 +34,7 @@ typedef enum {
     LEAN_EXPR_APP,
     LEAN_EXPR_LAMBDA,
     LEAN_EXPR_PI,
+    LEAN_EXPR_LET,
     LEAN_EXPR_MACRO,
 } lean_expr_kind;
 

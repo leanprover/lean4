@@ -97,6 +97,13 @@ class expr_eq_fn {
                 apply(binding_body(a), binding_body(b)) &&
                 (!CompareBinderInfo || binding_name(a) == binding_name(b)) &&
                 (!CompareBinderInfo || binding_info(a) == binding_info(b));
+        case expr_kind::Let:
+            check_system();
+            return
+                apply(let_type(a), let_type(b)) &&
+                apply(let_value(a), let_value(b)) &&
+                apply(let_body(a), let_body(b)) &&
+                (!CompareBinderInfo || let_name(a) == let_name(b));
         case expr_kind::Sort:
             return sort_level(a) == sort_level(b);
         case expr_kind::Macro:

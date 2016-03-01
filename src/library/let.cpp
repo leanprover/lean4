@@ -89,28 +89,28 @@ public:
     }
 };
 
-expr mk_let(name const & n, expr const & v, expr const & b) {
+expr mk_let_macro(name const & n, expr const & v, expr const & b) {
     auto d = macro_definition(new let_macro_definition_cell(n));
     expr args[2] = {v, b};
     return mk_macro(d, 2, args);
 }
 
-bool is_let(expr const & e) {
+bool is_let_macro(expr const & e) {
     return is_macro(e) && dynamic_cast<let_macro_definition_cell const *>(macro_def(e).raw()) != nullptr;
 }
 
 name const & get_let_var_name(expr const & e) {
-    lean_assert(is_let(e));
+    lean_assert(is_let_macro(e));
     return static_cast<let_macro_definition_cell const *>(macro_def(e).raw())->get_var_name();
 }
 
 expr const & get_let_value(expr const & e) {
-    lean_assert(is_let(e));
+    lean_assert(is_let_macro(e));
     return macro_arg(e, 0);
 }
 
 expr const & get_let_body(expr const & e) {
-    lean_assert(is_let(e));
+    lean_assert(is_let_macro(e));
     return macro_arg(e, 1);
 }
 
@@ -130,7 +130,7 @@ void initialize_let() {
                                     if (num != 2) throw corrupted_stream_exception();
                                     name n;
                                     d >> n;
-                                    return mk_let(n, args[0], args[1]);
+                                    return mk_let_macro(n, args[0], args[1]);
                                 });
 }
 

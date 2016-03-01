@@ -92,6 +92,12 @@ bool equiv_manager::is_equiv_core(expr const & a, expr const & b) {
     case expr_kind::Sort:
         result = sort_level(a) == sort_level(b);
         break;
+    case expr_kind::Let:
+        result =
+            is_equiv_core(let_type(a), let_type(b)) &&
+            is_equiv_core(let_value(a), let_value(b)) &&
+            is_equiv_core(let_body(a), let_body(b));
+        break;
     case expr_kind::Macro:
         if (macro_def(a) != macro_def(b) || macro_num_args(a) != macro_num_args(b))
             return false;

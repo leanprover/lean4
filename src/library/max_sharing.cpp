@@ -62,12 +62,25 @@ struct max_sharing_fn::imp {
         case expr_kind::Sort:
             res = update_sort(a, apply(sort_level(a)));
             break;
-        case expr_kind::App:
-            res = update_app(a, apply(app_fn(a)), apply(app_arg(a)));
+        case expr_kind::App: {
+            expr new_f = apply(app_fn(a));
+            expr new_a = apply(app_arg(a));
+                res = update_app(a, new_f, new_a);
             break;
-        case expr_kind::Lambda: case expr_kind::Pi:
-            res = update_binding(a, apply(binding_domain(a)), apply(binding_body(a)));
+        }
+        case expr_kind::Lambda: case expr_kind::Pi: {
+            expr new_d = apply(binding_domain(a));
+            expr new_b = apply(binding_body(a));
+            res = update_binding(a, new_d, new_b);
             break;
+        }
+        case expr_kind::Let: {
+            expr new_t = apply(let_type(a));
+            expr new_v = apply(let_value(a));
+            expr new_b = apply(let_body(a));
+            res = update_let(a, new_t, new_v, new_b);
+            break;
+        }
         case expr_kind::Meta:  case expr_kind::Local:
             res = update_mlocal(a, apply(mlocal_type(a)));
             break;

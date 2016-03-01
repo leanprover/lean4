@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <unordered_map>
 #include "kernel/expr_maps.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
 #include "library/module.h"
 #include "library/unfold_macros.h"
@@ -159,6 +160,9 @@ class exporter {
             e2 = export_expr(app_arg(e));
             i  = m_expr2idx.size();
             m_out << i << " #EA " << e1 << " " << e2 << "\n";
+            break;
+        case expr_kind::Let:
+            i = export_expr(instantiate(let_body(e), let_value(e)));
             break;
         case expr_kind::Lambda:
             i  = export_binding(e, "#EL");

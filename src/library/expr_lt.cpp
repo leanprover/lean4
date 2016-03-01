@@ -38,6 +38,13 @@ bool is_lt(expr const & a, expr const & b, bool use_hash) {
             return is_lt(binding_domain(a), binding_domain(b), use_hash);
         else
             return is_lt(binding_body(a), binding_body(b), use_hash);
+    case expr_kind::Let:
+        if (let_type(a) != let_type(b))
+            return is_lt(let_type(a), let_type(b), use_hash);
+        else if (let_value(a) != let_value(b))
+            return is_lt(let_value(a), let_value(b), use_hash);
+        else
+            return is_lt(let_body(a), let_body(b), use_hash);
     case expr_kind::Sort:
         return is_lt(sort_level(a), sort_level(b), use_hash);
     case expr_kind::Local: case expr_kind::Meta:
@@ -137,6 +144,17 @@ bool is_lt_no_level_params(expr const & a, expr const & b) {
             return false;
         else
             return is_lt_no_level_params(binding_body(a), binding_body(b));
+    case expr_kind::Let:
+        if (is_lt_no_level_params(let_type(a), let_type(b)))
+            return true;
+        else if (is_lt_no_level_params(let_type(b), let_type(a)))
+            return false;
+        else if (is_lt_no_level_params(let_value(a), let_value(b)))
+            return true;
+        else if (is_lt_no_level_params(let_value(b), let_value(a)))
+            return false;
+        else
+            return is_lt_no_level_params(let_body(a), let_body(b));
     case expr_kind::Sort:
         return is_lt_no_level_params(sort_level(a), sort_level(b));
     case expr_kind::Local: case expr_kind::Meta:

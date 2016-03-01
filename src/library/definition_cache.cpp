@@ -101,6 +101,11 @@ class expr_eq_modulo_placeholders_fn {
                 compare(binding_domain(a), binding_domain(b)) &&
                 compare(binding_body(a), binding_body(b)) &&
                 binding_info(a) == binding_info(b);
+        case expr_kind::Let:
+            return
+                compare(let_type(a), let_type(b)) &&
+                compare(let_value(a), let_value(b)) &&
+                compare(let_body(a), let_body(b));
         case expr_kind::Sort:
             return compare(sort_level(a), sort_level(b));
         case expr_kind::Macro:

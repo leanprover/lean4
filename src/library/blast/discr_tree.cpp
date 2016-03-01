@@ -235,6 +235,7 @@ auto discr_tree::insert_erase(node && n, bool is_root, buffer<pair<expr, bool>> 
         lean_unreachable();
     case expr_kind::Sort: case expr_kind::Lambda:
     case expr_kind::Pi:   case expr_kind::Macro:
+    case expr_kind::Let:
         // unsupported
         return insert_erase_atom(std::move(n), edge(edge_kind::Unsupported), todo, v, skip, ins);
     }
@@ -331,6 +332,7 @@ bool discr_tree::find(node const & n, list<pair<expr, bool>> todo, std::function
         lean_unreachable();
     case expr_kind::Sort: case expr_kind::Lambda:
     case expr_kind::Pi:   case expr_kind::Macro:
+    case expr_kind::Let:
         // unsupported
         return find_atom(n, edge(edge_kind::Unsupported), tail(todo), fn);
     }

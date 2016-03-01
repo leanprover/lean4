@@ -140,6 +140,9 @@ class defeq_simplify_fn {
             case expr_kind::App:
                 e = defeq_simplify_app(e);
                 break;
+            case expr_kind::Let:
+                lean_unreachable();
+                // whnf expands let-expressions
             }
 
             if (!m_top_down) e = rewrite(whnf_eta(e));

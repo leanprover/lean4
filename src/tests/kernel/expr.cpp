@@ -124,6 +124,8 @@ static unsigned count_core(expr const & a, expr_set & s) {
         return count_core(app_fn(a), s) + count_core(app_arg(a), s) + 1;
     case expr_kind::Lambda: case expr_kind::Pi:
         return count_core(binding_domain(a), s) + count_core(binding_body(a), s) + 1;
+    case expr_kind::Let:
+        lean_unreachable();
     }
     return 0;
 }

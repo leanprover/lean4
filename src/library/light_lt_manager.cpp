@@ -27,6 +27,9 @@ unsigned light_lt_manager::get_weight_core(expr const & e) {
     case expr_kind::Var:  case expr_kind::Constant: case expr_kind::Sort:
     case expr_kind::Meta: case expr_kind::Local:
         return 1;
+    case expr_kind::Let:
+        // Let-expressions must be unfolded before invoking this method
+        lean_unreachable();
     case expr_kind::Lambda: case expr_kind::Pi:
         return safe_add(1, safe_add(get_weight(binding_domain(e)), get_weight(binding_body(e))));
     case expr_kind::Macro:
@@ -76,6 +79,9 @@ bool light_lt_manager::is_lt(expr const & a, expr const & b) {
     if (a.kind() != b.kind())            return a.kind() < b.kind();
     if (a == b)                          return false;
     switch (a.kind()) {
+    case expr_kind::Let:
+        // Let-expressions must be unfolded before invoking this method
+        lean_unreachable();
     case expr_kind::Var:
         return var_idx(a) < var_idx(b);
     case expr_kind::Constant:

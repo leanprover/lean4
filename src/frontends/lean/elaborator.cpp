@@ -1747,6 +1747,9 @@ expr elaborator::visit_core(expr const & e, constraint_seq & cs) {
         case expr_kind::Lambda:     return visit_lambda(e, cs);
         case expr_kind::Pi:         return visit_pi(e, cs);
         case expr_kind::App:        return visit_app(e, cs);
+        case expr_kind::Let:
+            // NOT IMPLEMENTED YET
+            lean_unreachable();
         }
         lean_unreachable(); // LCOV_EXCL_LINE
     }
@@ -2197,6 +2200,13 @@ static void visit_unassigned_mvars(expr const & e, std::function<void(expr const
             if (should_visit(e)) {
                 visit(binding_domain(e));
                 visit(binding_body(e));
+            }
+            break;
+        case expr_kind::Let:
+            if (should_visit(e)) {
+                visit(let_type(e));
+                visit(let_value(e));
+                visit(let_body(e));
             }
             break;
         }

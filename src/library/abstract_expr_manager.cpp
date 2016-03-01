@@ -31,6 +31,9 @@ unsigned abstract_expr_manager::hash(expr const & e) {
         h = ::lean::hash(h, hash(binding_body(e)));
         m_locals.pop_back();
         return h;
+    case expr_kind::Let:
+        // Let-expressions must be unfolded before invoking this method
+        lean_unreachable();
     case expr_kind::App:
         buffer<expr> args;
         expr const & f     = get_app_args(e, args);
@@ -80,6 +83,9 @@ bool abstract_expr_manager::is_equal(expr const & a, expr const & b) {
         is_eq = is_equal(binding_body(a), binding_body(b));
         m_locals.pop_back();
         return is_eq;
+    case expr_kind::Let:
+        // Let-expressions must be unfolded before invoking this method
+        lean_unreachable();
     case expr_kind::Macro:
         if (macro_def(a) != macro_def(b) || macro_num_args(a) != macro_num_args(b))
             return false;

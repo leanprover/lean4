@@ -401,6 +401,9 @@ class normalize_fn {
             return normalize_binding(e);
         case expr_kind::App:
             return normalize_app(e);
+        case expr_kind::Let:
+            // whnf unfolds let-exprs
+            lean_unreachable();
         }
         lean_unreachable(); // LCOV_EXCL_LINE
     }

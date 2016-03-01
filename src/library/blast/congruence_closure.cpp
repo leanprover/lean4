@@ -957,6 +957,9 @@ void congruence_closure::internalize_core(name R, expr const & e, bool toplevel,
     switch (e.kind()) {
     case expr_kind::Var:
         lean_unreachable();
+    case expr_kind::Let:
+        // Let-expressions must be unfolded before invoking this method
+        lean_unreachable();
     case expr_kind::Sort:
         return;
     case expr_kind::Constant: case expr_kind::Local:

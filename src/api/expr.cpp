@@ -170,6 +170,7 @@ lean_expr_kind lean_expr_get_kind(lean_expr e) {
     case expr_kind::App:       return LEAN_EXPR_APP;
     case expr_kind::Lambda:    return LEAN_EXPR_LAMBDA;
     case expr_kind::Pi:        return LEAN_EXPR_PI;
+    case expr_kind::Let:       return LEAN_EXPR_LET;
     case expr_kind::Macro:     return LEAN_EXPR_MACRO;
     }
     lean_unreachable();

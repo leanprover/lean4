@@ -397,7 +397,7 @@ static lbool is_quick_ext_class(type_checker const & tc, expr const & type, name
     while (true) {
         switch (it->kind()) {
         case expr_kind::Var:  case expr_kind::Sort:   case expr_kind::Local:
-        case expr_kind::Meta: case expr_kind::Lambda:
+        case expr_kind::Meta: case expr_kind::Lambda: case expr_kind::Let:
             return l_false;
         case expr_kind::Macro:
             return l_undef;

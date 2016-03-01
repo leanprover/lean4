@@ -1209,6 +1209,9 @@ class equation_compiler_fn {
                 }
                 return true;
             }
+            case expr_kind::Let:
+                // TODO(Leo): improve
+                return check_rhs(instantiate(let_body(e), let_value(e)), arg);
             case expr_kind::Lambda:
             case expr_kind::Pi:
                 if (!check_rhs(binding_domain(e), arg)) {
@@ -1416,6 +1419,10 @@ class equation_compiler_fn {
                 expr local      = mk_local(mk_fresh_name(), binding_name(e), new_domain, binding_info(e));
                 expr new_body   = elim(instantiate(binding_body(e), local), b);
                 return copy_tag(e, Pi(local, new_body));
+            }
+            case expr_kind::Let: {
+                // TODO(Leo): improve
+                return elim(instantiate(let_body(e), let_value(e)), b);
             }}
             lean_unreachable();
         }

@@ -2162,6 +2162,7 @@ struct unifier_fn {
                     mk_simple_projections();
                 mk_bindings_imitation();
                 break;
+            case expr_kind::Let:
             case expr_kind::Macro:
                 lean_unreachable(); // LCOV_EXCL_LINE
             case expr_kind::App:

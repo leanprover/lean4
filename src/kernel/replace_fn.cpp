@@ -58,6 +58,12 @@ class replace_rec_fn {
                 expr new_b = apply(binding_body(e), offset+1);
                 return save_result(e, offset, update_binding(e, new_d, new_b), shared);
             }
+            case expr_kind::Let: {
+                expr new_t = apply(let_type(e), offset);
+                expr new_v = apply(let_value(e), offset);
+                expr new_b = apply(let_body(e), offset+1);
+                return save_result(e, offset, update_let(e, new_t, new_v, new_b), shared);
+            }
             case expr_kind::Macro: {
                 buffer<expr> new_args;
                 unsigned nargs = macro_num_args(e);

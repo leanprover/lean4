@@ -829,7 +829,7 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
 auto pretty_fn::pp_let(expr e) -> result {
     buffer<pair<name, expr>> decls;
     while (true) {
-        if (!is_let(e))
+        if (!is_let_macro(e))
             break;
         name n   = get_let_var_name(e);
         expr v   = get_let_value(e);
@@ -1263,7 +1263,7 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     if (is_placeholder(e))  return result(*g_placeholder_fmt);
     if (is_show(e))         return pp_show(e);
     if (is_have(e))         return pp_have(e);
-    if (is_let(e))          return pp_let(e);
+    if (is_let_macro(e))    return pp_let(e);
     if (is_typed_expr(e))   return pp(get_typed_expr_expr(e));
     if (is_let_value(e))    return pp(get_let_value_expr(e));
     if (m_num_nat_coe)
@@ -1282,6 +1282,9 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     case expr_kind::Lambda:    return pp_lambda(e);
     case expr_kind::Pi:        return pp_pi(e);
     case expr_kind::Macro:     return pp_macro(e);
+    case expr_kind::Let:
+        // NOT IMPLEMENTED YET
+        lean_unreachable();
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

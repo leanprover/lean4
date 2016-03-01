@@ -9,7 +9,7 @@ More or less ported from Evan Cavallo's HoTT-Agda homotopy library.
 
 import types.pointed
 
-open equiv function pointed Pointed
+open equiv function pointed
 
 structure type_functor : Type :=
   (fun_ty : Type → Type)

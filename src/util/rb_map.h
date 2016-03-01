@@ -76,7 +76,10 @@ public:
     template<typename F>
     optional<T> find_if(F && f) const {
         auto f_prime = [&](entry const & e) { return f(e.first, e.second); };
-        return m_map.find_if(f_prime);
+        if (auto r = m_map.find_if(f_prime))
+            return optional<T>(r->second);
+        else
+            return optional<T>();
     }
 
     /** \brief (For debugging) Display the content of this splay map. */

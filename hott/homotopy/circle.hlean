@@ -254,7 +254,7 @@ namespace circle
   open nat
   definition homotopy_group_of_circle (n : ℕ) : πg[n+1 +1] S¹. = G0 :=
   begin
-    refine @trivial_homotopy_of_is_set_loop_space S¹. 1 n _,
+    refine @trivial_homotopy_add_of_is_set_loop_space S¹. 1 n _,
     apply is_trunc_equiv_closed_rev, apply base_eq_base_equiv
   end
 

@@ -77,7 +77,7 @@ namespace pointed
   definition ploop_space [reducible] [constructor] (A : Type*) : Type* :=
   pointed.mk' (point A = point A)
 
-  definition iterated_ploop_space [unfold 1] [reducible] : ℕ → Type* → Type*
+  definition iterated_ploop_space [reducible] : ℕ → Type* → Type*
   | iterated_ploop_space  0    X := X
   | iterated_ploop_space (n+1) X := ploop_space (iterated_ploop_space n X)
 
@@ -357,38 +357,17 @@ namespace pointed
   { esimp [iterated_ploop_space], exact ap1 IH}
   end
 
+  prefix `Ω→`:(max+5) := ap1
+  notation `Ω→[`:95 n:0 `] `:0 f:95 := apn n f
+
+  definition apn_zero (f : map₊ A B) : Ω→[0] f = f := idp
+  definition apn_succ (n : ℕ) (f : map₊ A B) : Ω→[n + 1] f = ap1 (Ω→[n] f) := idp
+
   definition pcast [constructor] {A B : Type*} (p : A = B) : A →* B :=
   proof pmap.mk (cast (ap pType.carrier p)) (by induction p; reflexivity) qed
 
   definition pinverse [constructor] {X : Type*} : Ω X →* Ω X :=
   pmap.mk eq.inverse idp
-
-  /- properties about these instances -/
-
-  definition is_equiv_ap1 {A B : Type*} (f : A →* B) [is_equiv f] : is_equiv (ap1 f) :=
-  begin
-    induction B with B b, induction f with f pf, esimp at *, cases pf, esimp,
-    apply is_equiv.homotopy_closed (ap f),
-    intro p, exact !idp_con⁻¹
-  end
-
-  definition ap1_compose (g : B →* C) (f : A →* B) : ap1 (g ∘* f) ~* ap1 g ∘* ap1 f :=
-  begin
-    induction B, induction C, induction g with g pg, induction f with f pf, esimp at *,
-    induction pg, induction pf,
-    fconstructor,
-    { intro p, esimp, apply whisker_left, exact ap_compose g f p ⬝ ap (ap g) !idp_con⁻¹},
-    { reflexivity}
-  end
-
-  definition ap1_compose_pinverse (f : A →* B) : ap1 f ∘* pinverse ~* pinverse ∘* ap1 f :=
-  begin
-    fconstructor,
-    { intro p, esimp, refine !con.assoc ⬝ _ ⬝ !con_inv⁻¹, apply whisker_left,
-      refine whisker_right !ap_inv _ ⬝ _ ⬝ !con_inv⁻¹, apply whisker_left,
-      exact !inv_inv⁻¹},
-    { induction B with B b, induction f with f pf, esimp at *, induction pf, reflexivity},
-  end
 
   /- categorical properties of pointed homotopies -/
 
@@ -419,6 +398,81 @@ namespace pointed
 
   infix ` ⬝* `:75 := phomotopy.trans
   postfix `⁻¹*`:(max+1) := phomotopy.symm
+
+  /- properties about the given pointed maps -/
+
+  definition is_equiv_ap1 {A B : Type*} (f : A →* B) [is_equiv f] : is_equiv (ap1 f) :=
+  begin
+    induction B with B b, induction f with f pf, esimp at *, cases pf, esimp,
+    apply is_equiv.homotopy_closed (ap f),
+    intro p, exact !idp_con⁻¹
+  end
+
+  definition is_equiv_apn {A B : Type*} (n : ℕ) (f : A →* B) [H : is_equiv f]
+    : is_equiv (apn n f) :=
+  begin
+    induction n with n IH,
+    { exact H},
+    { exact is_equiv_ap1 (apn n f)}
+  end
+
+  definition ap1_id [constructor] {A : Type*} : ap1 (pid A) ~* pid (Ω A) :=
+  begin
+    fapply phomotopy.mk,
+    { intro p, esimp, refine !idp_con ⬝ !ap_id},
+    { reflexivity}
+  end
+
+  definition ap1_pinverse {A : Type*} : ap1 (@pinverse A) ~* @pinverse (Ω A) :=
+  begin
+    fapply phomotopy.mk,
+    { intro p, esimp, refine !idp_con ⬝ _, exact !inverse_eq_inverse2⁻¹ },
+    { reflexivity}
+  end
+
+  definition ap1_compose (g : B →* C) (f : A →* B) : ap1 (g ∘* f) ~* ap1 g ∘* ap1 f :=
+  begin
+    induction B, induction C, induction g with g pg, induction f with f pf, esimp at *,
+    induction pg, induction pf,
+    fconstructor,
+    { intro p, esimp, apply whisker_left, exact ap_compose g f p ⬝ ap (ap g) !idp_con⁻¹},
+    { reflexivity}
+  end
+
+  definition ap1_compose_pinverse (f : A →* B) : ap1 f ∘* pinverse ~* pinverse ∘* ap1 f :=
+  begin
+    fconstructor,
+    { intro p, esimp, refine !con.assoc ⬝ _ ⬝ !con_inv⁻¹, apply whisker_left,
+      refine whisker_right !ap_inv _ ⬝ _ ⬝ !con_inv⁻¹, apply whisker_left,
+      exact !inv_inv⁻¹},
+    { induction B with B b, induction f with f pf, esimp at *, induction pf, reflexivity},
+  end
+
+  theorem ap1_con (f : A →* B) (p q : Ω A) : ap1 f (p ⬝ q) = ap1 f p ⬝ ap1 f q :=
+  begin
+    rewrite [▸*,ap_con, +con.assoc, con_inv_cancel_left], repeat apply whisker_left
+  end
+
+  theorem ap1_inv (f : A →* B) (p : Ω A) : ap1 f p⁻¹ = (ap1 f p)⁻¹ :=
+  begin
+    rewrite [▸*,ap_inv, +con_inv, inv_inv, +con.assoc], repeat apply whisker_left
+  end
+
+  definition pcast_ap_loop_space {A B : Type*} (p : A = B)
+    : pcast (ap ploop_space p) ~* Ω→ (pcast p) :=
+  begin
+    induction p, exact !ap1_id⁻¹*
+  end
+
+  definition pinverse_con [constructor] {X : Type*} (p q : Ω X)
+    : pinverse (p ⬝ q) = pinverse q ⬝ pinverse p :=
+  !con_inv
+
+  definition pinverse_inv [constructor] {X : Type*} (p : Ω X)
+    : pinverse p⁻¹ = (pinverse p)⁻¹ :=
+  idp
+
+  /- more on pointed homotopies -/
 
   definition phomotopy_of_eq [constructor] {A B : Type*} {f g : A →* B} (p : f = g) : f ~* g :=
   phomotopy.mk (ap010 pmap.to_fun p) begin induction p, apply idp_con end
@@ -452,20 +506,6 @@ namespace pointed
     (q : h ~* i) (p : f ~* g) : h ∘* f ~* i ∘* g :=
   pwhisker_left _ p ⬝* pwhisker_right _ q
 
-  definition ap1_pinverse {A : Type*} : ap1 (@pinverse A) ~* @pinverse (Ω A) :=
-  begin
-    fapply phomotopy.mk,
-    { intro p, esimp, refine !idp_con ⬝ _, exact !inverse_eq_inverse2⁻¹ },
-    { reflexivity}
-  end
-
-  definition ap1_id [constructor] {A : Type*} : ap1 (pid A) ~* pid (Ω A) :=
-  begin
-    fapply phomotopy.mk,
-    { intro p, esimp, refine !idp_con ⬝ !ap_id},
-    { reflexivity}
-  end
-
   definition eq_of_phomotopy (p : f ~* g) : f = g :=
   begin
     fapply pmap_eq,
@@ -496,6 +536,13 @@ namespace pointed
     { reflexivity},
     { refine ap1_phomotopy IH ⬝* _, apply ap1_compose}
   end
+
+  theorem apn_con (n : ℕ) (f : A →* B) (p q : Ω[n+1] A)
+    : apn (n+1) f (p ⬝ q) = apn (n+1) f p ⬝ apn (n+1) f q :=
+  by rewrite [+apn_succ, ap1_con]
+
+  theorem apn_inv (n : ℕ)  (f : A →* B) (p : Ω[n+1] A) : apn (n+1) f p⁻¹ = (apn (n+1) f p)⁻¹ :=
+  by rewrite [+apn_succ, ap1_inv]
 
   infix ` ⬝*p `:75 := pconcat_eq
   infix ` ⬝p* `:75 := eq_pconcat

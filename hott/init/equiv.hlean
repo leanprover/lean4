@@ -328,7 +328,7 @@ namespace equiv
   equiv.mk (transport P p) !is_equiv_tr
 
   definition equiv_of_eq [constructor] {A B : Type} (p : A = B) : A ≃ B :=
-  equiv_ap (λX, X) p
+  equiv.mk (cast p) !is_equiv_tr
 
   definition eq_of_fn_eq_fn (f : A ≃ B) {x y : A} (q : f x = f y) : x = y :=
   (left_inv f x)⁻¹ ⬝ ap f⁻¹ q ⬝ left_inv f y

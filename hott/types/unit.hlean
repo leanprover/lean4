@@ -13,7 +13,7 @@ namespace unit
   protected definition eta : Π(u : unit), ⋆ = u
   | eta ⋆ := idp
 
-  definition unit_equiv_option_empty : unit ≃ option empty :=
+  definition unit_equiv_option_empty [constructor] : unit ≃ option empty :=
   begin
     fapply equiv.MK,
     { intro u, exact none},
@@ -22,14 +22,8 @@ namespace unit
     { intro u, cases u, reflexivity},
   end
 
-  definition unit_imp_equiv (A : Type) : (unit → A) ≃ A :=
-  begin
-    fapply equiv.MK,
-    { intro f, exact f star},
-    { intro a u, exact a},
-    { intro a, reflexivity},
-    { intro f, apply eq_of_homotopy, intro u, cases u, reflexivity},
-  end
+  -- equivalences involving unit and other type constructors are in the file
+  -- of the other constructor
 
 end unit
 

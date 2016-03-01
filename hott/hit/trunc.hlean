@@ -57,12 +57,19 @@ namespace trunc
   definition trunc_functor [unfold 5] (f : X → Y) : trunc n X → trunc n Y :=
   λxx, trunc.rec_on xx (λx, tr (f x))
 
-  definition trunc_functor_compose (f : X → Y) (g : Y → Z)
+  definition trunc_functor_compose [unfold 7] (f : X → Y) (g : Y → Z)
     : trunc_functor n (g ∘ f) ~ trunc_functor n g ∘ trunc_functor n f :=
   λxx, trunc.rec_on xx (λx, idp)
 
   definition trunc_functor_id : trunc_functor n (@id A) ~ id :=
   λxx, trunc.rec_on xx (λx, idp)
+
+  definition trunc_functor_cast {X Y : Type} (n : ℕ₋₂) (p : X = Y) :
+    trunc_functor n (cast p) ~ cast (ap (trunc n) p) :=
+  begin
+    intro x, induction x with x, esimp,
+    exact fn_tr_eq_tr_fn p (λy, tr) x ⬝ !tr_compose
+  end
 
   definition is_equiv_trunc_functor [constructor] (f : X → Y) [H : is_equiv f]
     : is_equiv (trunc_functor n f) :=
@@ -98,8 +105,11 @@ namespace trunc
 
   /- Propositional truncation -/
 
+  definition ttrunc [constructor] (n : ℕ₋₂) (X : Type) : n-Type :=
+  trunctype.mk (trunc n X) _
+
   -- should this live in Prop?
-  definition merely [reducible] [constructor] (A : Type) : Prop := trunctype.mk (trunc -1 A) _
+  definition merely [reducible] [constructor] (A : Type) : Prop := ttrunc -1 A
 
   notation `||`:max A `||`:0 := merely A
   notation `∥`:max A `∥`:0   := merely A

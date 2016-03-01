@@ -204,8 +204,8 @@ namespace sum
     A × (B + C) ≃ (A × B) + (A × C) :=
   calc A × (B + C) ≃ (B + C) × A : prod_comm_equiv
                ... ≃ (B × A) + (C × A) : sum_prod_right_distrib
-               ... ≃ (A × B) + (C × A) : prod_comm_equiv
-               ... ≃ (A × B) + (A × C) : prod_comm_equiv
+               ... ≃ (A × B) + (C × A) : sum_equiv_sum_right !prod_comm_equiv
+               ... ≃ (A × B) + (A × C) : sum_equiv_sum_left  !prod_comm_equiv
 
   section
   variables (H : unit + A ≃ unit + B)

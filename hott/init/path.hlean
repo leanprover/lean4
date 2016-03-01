@@ -499,7 +499,7 @@ namespace eq
   by induction r; exact !idp_con⁻¹
 
   definition fn_tr_eq_tr_fn {P Q : A → Type} {x y : A} (p : x = y) (f : Πx, P x → Q x) (z : P x) :
-    f y (p ▸ z) = (p ▸ (f x z)) :=
+    f y (p ▸ z) = p ▸ f x z :=
   by induction p; reflexivity
 
   /- Transporting in particular fibrations -/

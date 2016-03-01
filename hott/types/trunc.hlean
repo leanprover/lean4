@@ -356,6 +356,14 @@ namespace is_trunc
     apply iff.mp !is_trunc_iff_is_contr_loop H
   end
 
+  theorem is_trunc_loop_of_is_trunc (n : ℕ₋₂) (k : ℕ) (A : Type*) [H : is_trunc n A] :
+    is_trunc n (Ω[k] A) :=
+  begin
+    induction k with k IH,
+    { exact H},
+    { apply is_trunc_eq}
+  end
+
 end is_trunc open is_trunc is_trunc.trunc_index
 
 namespace trunc
@@ -452,6 +460,10 @@ namespace trunc
     : ptrunc n X →* ptrunc n Y :=
   pmap.mk (trunc_functor n f) (ap tr (respect_pt f))
 
+  definition ptrunc_pequiv [constructor] (n : ℕ₋₂) {X Y : Type*} (H : X ≃* Y)
+    : ptrunc n X ≃* ptrunc n Y :=
+  pequiv_of_equiv (trunc_equiv_trunc n H) (ap tr (respect_pt H))
+
   definition loop_ptrunc_pequiv [constructor] (n : ℕ₋₂) (A : Type*) :
     Ω (ptrunc (n+1) A) ≃* ptrunc n (Ω A) :=
   pequiv_of_equiv !tr_eq_tr_equiv idp
@@ -467,12 +479,38 @@ namespace trunc
       rewrite succ_add_nat}
   end
 
+  definition ptrunc_functor_pcompose [constructor] {X Y Z : Type*} (n : ℕ₋₂) (g : Y →* Z)
+    (f : X →* Y) : ptrunc_functor n (g ∘* f) ~* ptrunc_functor n g ∘* ptrunc_functor n f :=
+  begin
+    fapply phomotopy.mk,
+    { apply trunc_functor_compose},
+    { esimp, refine !idp_con ⬝ _, refine whisker_right !ap_compose'⁻¹ᵖ _ ⬝ _,
+      esimp, refine whisker_right (ap_compose' tr g _) _ ⬝ _, exact !ap_con⁻¹},
+  end
+
+  definition ptrunc_functor_pid [constructor] (X : Type*) (n : ℕ₋₂) :
+    ptrunc_functor n (pid X) ~* pid (ptrunc n X) :=
+  begin
+    fapply phomotopy.mk,
+    { apply trunc_functor_id},
+    { reflexivity},
+  end
+
+  definition ptrunc_functor_pcast [constructor] {X Y : Type*} (n : ℕ₋₂) (p : X = Y) :
+    ptrunc_functor n (pcast p) ~* pcast (ap (ptrunc n) p) :=
+  begin
+    fapply phomotopy.mk,
+    { intro x, esimp, refine !trunc_functor_cast ⬝ _, refine ap010 cast _ x,
+      refine !ap_compose'⁻¹ ⬝ !ap_compose'},
+    { induction p, reflexivity},
+  end
+
 end trunc open trunc
 
 namespace function
   variables {A B : Type}
   definition is_surjective_of_is_equiv [instance] (f : A → B) [H : is_equiv f] : is_surjective f :=
-  λb, !center
+  λb, begin esimp, apply center end
 
   definition is_equiv_equiv_is_embedding_times_is_surjective [constructor] (f : A → B)
     : is_equiv f ≃ (is_embedding f × is_surjective f) :=

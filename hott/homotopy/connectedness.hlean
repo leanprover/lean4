@@ -171,7 +171,7 @@ namespace homotopy
         (Πa : A, P a) (unit → P (Point A)) (P (Point A))
         (λs x, s (Point A)) (λf, f unit.star)
         (is_conn_map.rec (is_conn_map_from_unit n A (Point A)) P)
-        (to_is_equiv (unit.unit_imp_equiv (P (Point A))))
+        (to_is_equiv (arrow_unit_left (P (Point A))))
 
       protected definition elim : P (Point A) → (Πa : A, P a) :=
       @is_equiv.inv _ _ (λs, s (Point A)) rec
@@ -191,7 +191,7 @@ namespace homotopy
         (fiber (λs x, s (Point A)) (λx, p))
         (fiber (λs, s (Point A)) p)
         k
-        (equiv.symm (fiber.equiv_postcompose (to_fun (unit.unit_imp_equiv (P (Point A))))))
+        (equiv.symm (fiber.equiv_postcompose (to_fun (arrow_unit_left (P (Point A))))))
         (is_conn_map.elim_general (is_conn_map_from_unit n A (Point A)) P (λx, p))
     end
   end is_conn

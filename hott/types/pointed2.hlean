@@ -86,6 +86,9 @@ namespace pointed
   definition loop_space_pequiv [constructor] (p : A ≃* B) : Ω A ≃* Ω B :=
   pequiv_of_pmap (ap1 p) (is_equiv_ap1 p)
 
+  definition iterated_loop_space_pequiv [constructor] (n : ℕ) (p : A ≃* B) : Ω[n] A ≃* Ω[n] B :=
+  pequiv_of_pmap (apn n p) (is_equiv_apn n p)
+
   definition pequiv_eq {p q : A ≃* B} (H : p = q :> (A →* B)) : p = q :=
   begin
     cases p with f Hf, cases q with g Hg, esimp at *,

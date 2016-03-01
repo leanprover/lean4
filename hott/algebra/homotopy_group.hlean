@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 homotopy groups of a pointed space
 -/
 
-import types.pointed .trunc_group .hott types.trunc
+import .trunc_group .hott types.trunc
 
 open nat eq pointed trunc is_trunc algebra
 
@@ -45,6 +45,10 @@ namespace eq
 
   prefix `π₁`:95 := fundamental_group
 
+  definition phomotopy_group_pequiv [constructor] (n : ℕ) {A B : Type*} (H : A ≃* B)
+    : π*[n] A ≃* π*[n] B :=
+  ptrunc_pequiv 0 (iterated_loop_space_pequiv n H)
+
   open equiv unit
   theorem trivial_homotopy_of_is_set (A : Type*) [H : is_set A] (n : ℕ) : πg[n+1] A = G0 :=
   begin
@@ -54,12 +58,17 @@ namespace eq
     apply is_trunc_succ_succ_of_is_set
   end
 
-  definition homotopy_group_succ_out (A : Type*) (n : ℕ) : πg[ n +1] A = π₁ Ω[n] A := idp
+  definition phomotopy_group_succ_out (A : Type*) (n : ℕ) : π*[n + 1] A = π₁ Ω[n] A := idp
 
-  definition homotopy_group_succ_in (A : Type*) (n : ℕ) : πg[succ n +1] A = πg[n +1] Ω A :=
+  definition phomotopy_group_succ_in (A : Type*) (n : ℕ) : π*[n + 1] A = π*[n] Ω A :=
+  ap (ptrunc 0) (loop_space_succ_eq_in A n)
+
+  definition ghomotopy_group_succ_out (A : Type*) (n : ℕ) : πg[n +1] A = π₁ Ω[n] A := idp
+
+  definition ghomotopy_group_succ_in (A : Type*) (n : ℕ) : πg[succ n +1] A = πg[n +1] Ω A :=
   begin
     fapply Group_eq,
-    { apply equiv_of_eq, exact ap (λ(X : Type*), trunc 0 X) (loop_space_succ_eq_in A (succ n))},
+    { apply equiv_of_eq, exact ap (ptrunc 0) (loop_space_succ_eq_in A (succ n))},
     { exact abstract [irreducible] begin refine trunc.rec _, intro p, refine trunc.rec _, intro q,
       rewrite [▸*,-+tr_eq_cast_ap, +trunc_transport], refine !trunc_transport ⬝ _, apply ap tr,
       apply loop_space_succ_eq_in_concat end end},
@@ -69,18 +78,51 @@ namespace eq
   begin
     revert A, induction m with m IH: intro A,
     { reflexivity},
-    { esimp [iterated_ploop_space, nat.add], refine !homotopy_group_succ_in ⬝ _, refine !IH ⬝ _,
+    { esimp [iterated_ploop_space, nat.add], refine !ghomotopy_group_succ_in ⬝ _, refine !IH ⬝ _,
       exact ap (ghomotopy_group n) !loop_space_succ_eq_in⁻¹}
   end
 
-  theorem trivial_homotopy_of_is_set_loop_space {A : Type*} {n : ℕ} (m : ℕ) (H : is_set (Ω[n] A))
-    : πg[m+n+1] A = G0 :=
+  theorem trivial_homotopy_add_of_is_set_loop_space {A : Type*} {n : ℕ} (m : ℕ)
+    (H : is_set (Ω[n] A)) : πg[m+n+1] A = G0 :=
   !homotopy_group_add ⬝ !trivial_homotopy_of_is_set
+
+  theorem trivial_homotopy_le_of_is_set_loop_space {A : Type*} {n : ℕ} (m : ℕ) (H1 : n ≤ m)
+    (H2 : is_set (Ω[n] A)) : πg[m+1] A = G0 :=
+  obtain (k : ℕ) (p : n + k = m), from le.elim H1,
+  ap (λx, πg[x+1] A) (p⁻¹ ⬝ add.comm n k) ⬝ trivial_homotopy_add_of_is_set_loop_space k H2
 
   definition phomotopy_group_functor [constructor] (n : ℕ) {A B : Type*} (f : A →* B)
     : π*[n] A →* π*[n] B :=
   ptrunc_functor 0 (apn n f)
 
-  notation `π→*[`:95  n:0    `] `:0 f:95 := phomotopy_group_functor n f
+  definition homotopy_group_functor (n : ℕ) {A B : Type*} (f : A →* B) : π[n] A → π[n] B :=
+  phomotopy_group_functor n f
+
+  notation `π→*[`:95 n:0 `] `:0 f:95 := phomotopy_group_functor n f
+  notation `π→[`:95  n:0 `] `:0 f:95 :=  homotopy_group_functor n f
+
+  definition tinverse [constructor] {X : Type*} : π*[1] X →* π*[1] X :=
+  ptrunc_functor 0 pinverse
+
+  definition ptrunc_functor_pinverse [constructor] {X : Type*}
+    : ptrunc_functor 0 (@pinverse X) ~* @tinverse X :=
+  begin
+    fapply phomotopy.mk,
+    { reflexivity},
+    { reflexivity}
+  end
+
+  definition phomotopy_group_functor_mul [constructor] (n : ℕ) {A B : Type*} (g : A →* B)
+    (p q : πg[n+1] A) :
+    (π→[n + 1] g) (p *[πg[n+1] A] q) = (π→[n + 1] g) p *[πg[n+1] B] (π→[n + 1] g) q :=
+  begin
+    unfold [ghomotopy_group, homotopy_group] at *,
+    refine @trunc.rec _ _ _ (λq, !is_trunc_eq) _ p, clear p, intro p,
+    refine @trunc.rec _ _ _ (λq, !is_trunc_eq) _ q, clear q, intro q,
+    apply ap tr, apply apn_con
+  end
+
+
+
 
 end eq

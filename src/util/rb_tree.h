@@ -248,6 +248,25 @@ class rb_tree : public CMP {
         return optional<T>();
     }
 
+    template<typename F>
+    void for_each_greater(T const & v, F && f, node_cell const * n) const {
+        if (n) {
+            int c = cmp(v, n->m_value);
+            if (c == 0) {
+                for_each(f, n->m_right.m_ptr);
+            } else if (c > 0) {
+                // v > n->m_value
+                for_each_greater(v, f, n->m_right.m_ptr);
+            } else {
+                // v < n->m_value
+                lean_assert(c < 0);
+                for_each_greater(v, f, n->m_left.m_ptr);
+                f(n->m_value);
+                for_each(f, n->m_right.m_ptr);
+            }
+        }
+    }
+
     static void display(std::ostream & out, node_cell const * n) {
         if (n) {
             out << "(";
@@ -370,6 +389,11 @@ public:
 
     template<typename F>
     optional<T> find_if(F && f) const { return find_if(f, m_root.m_ptr); }
+
+    template<typename F>
+    void for_each_greater(T const & v, F && f) const {
+        for_each_greater(v, f, m_root.m_ptr);
+    }
 
     // For debugging purposes
     void display(std::ostream & out) const { display(out, m_root.m_ptr); }

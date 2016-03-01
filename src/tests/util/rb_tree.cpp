@@ -235,6 +235,21 @@ static void tst6() {
 #endif
 }
 
+static void tst7() {
+    int_rb_tree t;
+    for (int i = 0; i < 1000; i++) {
+        t.insert(i);
+    }
+    for (int i = 0; i < 1000; i++) {
+        int c = 0;
+        t.for_each_greater(i, [&](int v) {
+                lean_assert(v > i);
+                c++;
+            });
+        lean_assert(c == 1000 - i - 1, c, i);
+    }
+}
+
 int main() {
     tst1();
     tst2();
@@ -242,6 +257,6 @@ int main() {
     tst4();
     tst5();
     tst6();
+    tst7();
     return has_violations() ? 1 : 0;
 }
-

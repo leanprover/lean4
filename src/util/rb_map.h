@@ -82,6 +82,12 @@ public:
             return optional<T>();
     }
 
+    template<typename F>
+    void for_each_greater(K const & k, F && f) const {
+        auto f_prime = [&](entry const & e) { f(e.first, e.second); };
+        m_map.for_each_greater(mk_pair(k, T()), f_prime);
+    }
+
     /** \brief (For debugging) Display the content of this splay map. */
     friend std::ostream & operator<<(std::ostream & out, rb_map const & m) {
         out << "{";

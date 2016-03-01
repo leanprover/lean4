@@ -99,7 +99,6 @@ branch::branch(branch const & b):
     m_todo_queue(b.m_todo_queue),
     m_forward_deps(b.m_forward_deps),
     m_target(b.m_target),
-    m_target_deps(b.m_target_deps),
     m_hyp_index(b.m_hyp_index) {
     unsigned n = get_extension_manager().get_num_extensions();
     m_extensions = new branch_extension*[n];
@@ -117,7 +116,6 @@ branch::branch(branch && b):
     m_todo_queue(std::move(b.m_todo_queue)),
     m_forward_deps(std::move(b.m_forward_deps)),
     m_target(std::move(b.m_target)),
-    m_target_deps(std::move(b.m_target_deps)),
     m_hyp_index(std::move(b.m_hyp_index)) {
     unsigned n = get_extension_manager().get_num_extensions();
     m_extensions = new branch_extension*[n];
@@ -135,7 +133,6 @@ void branch::swap(branch & b) {
     std::swap(m_hyp_index, b.m_hyp_index);
     std::swap(m_forward_deps, b.m_forward_deps);
     std::swap(m_target, b.m_target);
-    std::swap(m_target_deps, b.m_target_deps);
     std::swap(m_extensions, b.m_extensions);
 }
 
@@ -623,6 +620,10 @@ void state::add_deps(hypothesis & h_user, unsigned hidx_user) {
     add_deps(h_user.m_type, h_user, hidx_user);
 }
 
+bool state::has_target_forward_deps(hypothesis_idx hidx) const {
+    return has_forward_deps(hidx) || target_depends_on(hidx);
+}
+
 double state::compute_weight(unsigned hidx, expr const & /* type */) {
     // TODO(Leo): use heuristics and machine learning for computing the weight of a new hypothesis
     // This method should not be here.
@@ -707,25 +708,13 @@ void state::collect_forward_deps(hypothesis_idx hidx, hypothesis_idx_buffer_set 
     }
 }
 
-/* Return true iff the target type does not depend on any of the hypotheses in to_delete */
-bool state::safe_to_delete(buffer<hypothesis_idx> const & to_delete) {
-    for (hypothesis_idx h : to_delete) {
-        if (m_branch.m_target_deps.contains(h)) {
-            // h cannot be deleted since the target type
-            // depends on it.
-            return false;
-        }
-    }
-    return true;
-}
-
 bool state::del_hypotheses(buffer<hypothesis_idx> const & hs) {
     hypothesis_idx_buffer_set to_delete;
     for (hypothesis_idx hidx : hs) {
         to_delete.insert(hidx);
         collect_forward_deps(hidx, to_delete);
     }
-    if (!safe_to_delete(to_delete.as_buffer()))
+    if (target_depends_on(to_delete.as_buffer()))
         return false;
     del_hypotheses(to_delete.as_buffer(), to_delete.as_set());
     return true;
@@ -735,7 +724,7 @@ bool state::del_hypothesis(hypothesis_idx hidx) {
     hypothesis_idx_buffer_set to_delete;
     to_delete.insert(hidx);
     collect_forward_deps(hidx, to_delete);
-    if (!safe_to_delete(to_delete.as_buffer()))
+    if (target_depends_on(to_delete.as_buffer()))
         return false;
     del_hypotheses(to_delete.as_buffer(), to_delete.as_set());
     return true;
@@ -902,24 +891,32 @@ bool state::hidx_depends_on(unsigned hidx_user, unsigned hidx_provider) const {
 
 void state::set_target(expr const & t) {
     m_branch.m_target = t;
-    m_branch.m_target_deps.clear();
-    if (has_href(t) || has_mref(t)) {
-        for_each(t, [&](expr const & e, unsigned) {
-                if (!has_href(e) && !has_mref(e)) {
-                    return false;
-                } else if (is_href(e)) {
-                    m_branch.m_target_deps.insert(href_index(e));
-                    return false;
-                } else {
-                    return true;
-                }
-            });
-    }
     unsigned n = get_extension_manager().get_num_extensions();
     for (unsigned i = 0; i < n; i++) {
         branch_extension * ext = get_extension_core(i);
         if (ext) ext->target_updated();
     }
+}
+
+bool state::target_depends_on(buffer<hypothesis_idx> const & hidxs) const {
+    bool found_href = false;
+    for_each(m_branch.m_target, [&](expr const & e, unsigned) {
+            if (found_href) return false;
+            if (!has_local(e)) return false;
+            if (is_href(e)) {
+                if (std::find(hidxs.begin(), hidxs.end(), href_index(e)) != hidxs.end())
+                    found_href = true;
+                return false;
+            }
+            return true; // continue;
+        });
+    return found_href;
+}
+
+bool state::target_depends_on(hypothesis_idx hidx) const {
+    buffer<hypothesis_idx> hidxs;
+    hidxs.push_back(hidx);
+    return target_depends_on(hidxs);
 }
 
 bool state::target_depends_on(expr const & h) const {

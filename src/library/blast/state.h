@@ -154,7 +154,6 @@ class branch {
     todo_queue               m_todo_queue;
     forward_deps             m_forward_deps; // given an entry (h -> {h_1, ..., h_n}), we have that each h_i uses h.
     expr                     m_target;
-    hypothesis_idx_set       m_target_deps;
     discr_tree               m_hyp_index;
     branch_extension **      m_extensions;
 public:
@@ -205,7 +204,6 @@ class state {
     void remove_from_indices(hypothesis const & h, hypothesis_idx hidx);
 
     void del_hypotheses(buffer<hypothesis_idx> const & to_delete, hypothesis_idx_set const & to_delete_set);
-    bool safe_to_delete(buffer<hypothesis_idx> const & to_delete);
 
     void display_active(std::ostream & out) const;
 
@@ -264,9 +262,7 @@ public:
     hypothesis_idx_set get_direct_forward_deps(hypothesis_idx hidx) const;
     bool has_forward_deps(hypothesis_idx hidx) const { return !get_direct_forward_deps(hidx).empty(); }
     /** \brief Return true iff other hypotheses or the target type depends on hidx. */
-    bool has_target_forward_deps(hypothesis_idx hidx) const {
-        return has_forward_deps(hidx) || m_branch.m_target_deps.contains(hidx);
-    }
+    bool has_target_forward_deps(hypothesis_idx hidx) const;
     /** \brief Collect in \c result the hypotheses that (directly) depend on \c hidx and satisfy \c pred. */
     template<typename P>
     void collect_direct_forward_deps(hypothesis_idx hidx, hypothesis_idx_buffer_set & result, P && pred) {
@@ -354,7 +350,8 @@ public:
     void set_target(expr const & t);
     expr const & get_target() const { return m_branch.m_target; }
     /** \brief Return true iff the target depends on the given hypothesis */
-    bool target_depends_on(hypothesis_idx hidx) const { return m_branch.m_target_deps.contains(hidx); }
+    bool target_depends_on(buffer<hypothesis_idx> const & hidxs) const;
+    bool target_depends_on(hypothesis_idx hidx) const;
     bool target_depends_on(expr const & h) const;
 
     /************************

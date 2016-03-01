@@ -197,7 +197,7 @@ class blastenv {
             //   1. All href in new_v are in the context of m.
             //   2. The context of any (unassigned) mref in new_v must be a subset of the context of m.
             //      If it is not we force it to be.
-            //   3. Any (non tmp) local constant occurring in new_v occurs in locals
+            //   3. Any local constant occurring in new_v occurs in locals
             //   4. m does not occur in new_v
             state & s = m_benv.m_curr_state;
             metavar_decl const * d = s.get_metavar_decl(m);
@@ -211,7 +211,7 @@ class blastenv {
                             ok = false; // failed 1
                             return false;
                         }
-                    } else if (is_local(e) && !is_internal_local(e)) {
+                    } else if (is_local(e)) {
                         if (std::all_of(locals.begin(), locals.end(), [&](expr const & a) {
                                     return mlocal_name(a) != mlocal_name(e); })) {
                             ok = false; // failed 3

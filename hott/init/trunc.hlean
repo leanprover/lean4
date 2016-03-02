@@ -90,8 +90,6 @@ namespace trunc_index
 
   definition minus_two_le (n : ℕ₋₂) : -2 ≤ n :=
   by induction n with n IH; apply le.tr_refl; exact le.step IH
-  protected definition le_refl (n : ℕ₋₂) : n ≤ n :=
-  le.tr_refl n
 
 end trunc_index open trunc_index
 

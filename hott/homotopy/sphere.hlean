@@ -8,7 +8,7 @@ Declaration of the n-spheres
 
 import .susp types.trunc
 
-open eq nat susp bool is_trunc unit pointed
+open eq nat susp bool is_trunc unit pointed algebra
 
 /-
   We can define spheres with the following possible indices:
@@ -26,6 +26,17 @@ inductive sphere_index : Type₀ :=
 | succ : sphere_index → sphere_index
 
 notation `ℕ₋₁` := sphere_index
+
+namespace trunc_index
+  definition sub_one [reducible] (n : ℕ₋₁) : ℕ₋₂ :=
+  sphere_index.rec_on n -2 (λ n k, k.+1)
+  postfix `..-1`:(max+1) := sub_one
+
+  definition of_sphere_index [reducible] (n : ℕ₋₁) : ℕ₋₂ :=
+  n..-1.+1
+
+  -- we use a double dot to distinguish with the notation .-1 in trunc_index (of type ℕ → ℕ₋₂)
+end trunc_index
 
 namespace sphere_index
   /-
@@ -52,8 +63,9 @@ namespace sphere_index
     (sphere_index.cases_on n -1 id)
     (sphere_index.rec n (λn' r, succ r))
 
-  protected definition le (n m : ℕ₋₁) : Type₀ :=
-  sphere_index.rec_on n (λm, unit) (λ n p m, sphere_index.rec_on m (λ p, empty) (λ m q p, p m) p) m
+  inductive le (a : ℕ₋₁) : ℕ₋₁ → Type :=
+  | sp_refl : le a a
+  | step : Π {b}, le a b → le a (b.+1)
 
   infix `+1+`:65 := sphere_index.add_plus_one
 
@@ -62,11 +74,6 @@ namespace sphere_index
 
   definition has_le_sphere_index [instance] : has_le ℕ₋₁ :=
   has_le.mk sphere_index.le
-
-  definition succ_le_succ {n m : ℕ₋₁} (H : n ≤ m) : n.+1 ≤ m.+1 := proof H qed
-  definition le_of_succ_le_succ {n m : ℕ₋₁} (H : n.+1 ≤ m.+1) : n ≤ m := proof H qed
-  definition minus_two_le (n : ℕ₋₁) : -1 ≤ n := star
-  definition empty_of_succ_le_minus_two {n : ℕ₋₁} (H : n .+1 ≤ -1) : empty := H
 
   definition of_nat [coercion] [reducible] (n : nat) : ℕ₋₁ :=
   (nat.rec_on n -1 (λ n k, k.+1)).+1
@@ -80,17 +87,71 @@ namespace sphere_index
   definition succ_sub_one (n : ℕ) : (nat.succ n)..-1 = n :> ℕ₋₁ :=
   idp
 
-end sphere_index
-open sphere_index
+  definition succ_le_succ {n m : ℕ₋₁} (H : n ≤ m) : n.+1 ≤[ℕ₋₁] m.+1 :=
+  by induction H with m H IH; apply le.sp_refl; exact le.step IH
+
+  definition minus_one_le (n : ℕ₋₁) : -1 ≤[ℕ₋₁] n :=
+  by induction n with n IH; apply le.sp_refl; exact le.step IH
+
+  open decidable
+  protected definition has_decidable_eq [instance] : Π(n m : ℕ₋₁), decidable (n = m)
+  | has_decidable_eq -1     -1     := inl rfl
+  | has_decidable_eq (n.+1) -1     := inr (by contradiction)
+  | has_decidable_eq -1     (m.+1) := inr (by contradiction)
+  | has_decidable_eq (n.+1) (m.+1) :=
+      match has_decidable_eq n m with
+      | inl xeqy := inl (by rewrite xeqy)
+      | inr xney := inr (λ h : succ n = succ m, by injection h with xeqy; exact absurd xeqy xney)
+      end
+
+  definition not_succ_le_minus_two {n : sphere_index} (H : n .+1 ≤[ℕ₋₁] -1) : empty :=
+  by cases H
+
+  protected definition le_trans {n m k : ℕ₋₁} (H1 : n ≤[ℕ₋₁] m) (H2 : m ≤[ℕ₋₁] k) : n ≤[ℕ₋₁] k :=
+  begin
+    induction H2 with k H2 IH,
+    { exact H1},
+    { exact le.step IH}
+  end
+
+  definition le_of_succ_le_succ {n m : ℕ₋₁} (H : n.+1 ≤[ℕ₋₁] m.+1) : n ≤[ℕ₋₁] m :=
+  begin
+    cases H with m H',
+    { apply le.sp_refl},
+    { exact sphere_index.le_trans (le.step !le.sp_refl) H'}
+  end
+
+  theorem not_succ_le_self {n : ℕ₋₁} : ¬n.+1 ≤[ℕ₋₁] n :=
+  begin
+    induction n with n IH: intro H,
+    { exact not_succ_le_minus_two H},
+    { exact IH (le_of_succ_le_succ H)}
+  end
+
+  protected definition le_antisymm {n m : ℕ₋₁} (H1 : n ≤[ℕ₋₁] m) (H2 : m ≤[ℕ₋₁] n) : n = m :=
+  begin
+    induction H2 with n H2 IH,
+    { reflexivity},
+    { exfalso, apply @not_succ_le_self n, exact sphere_index.le_trans H1 H2}
+  end
+
+  protected definition le_succ {n m : ℕ₋₁} (H1 : n ≤[ℕ₋₁] m): n ≤[ℕ₋₁] m.+1 :=
+  le.step H1
+
+  /-
+    warning: if this coercion is available, the coercion ℕ → ℕ₋₂ is the composition of the coercions
+    ℕ → ℕ₋₁ → ℕ₋₂. We don't want this composition as coercion, because it has worse computational
+    properties. You can rewrite it with trans_to_of_sphere_index_eq defined below.
+  -/
+  attribute trunc_index.of_sphere_index [coercion]
+
+
+end sphere_index open sphere_index
+
+definition weak_order_sphere_index [trans_instance] [reducible] : weak_order sphere_index :=
+weak_order.mk le sphere_index.le.sp_refl @sphere_index.le_trans @sphere_index.le_antisymm
 
 namespace trunc_index
-  definition sub_one [reducible] (n : ℕ₋₁) : ℕ₋₂ :=
-  sphere_index.rec_on n -2 (λ n k, k.+1)
-  postfix `..-1`:(max+1) := sub_one
-
-  definition of_sphere_index [coercion] [reducible] (n : ℕ₋₁) : ℕ₋₂ :=
-  n..-1.+1
-
   definition sub_two_eq_sub_one_sub_one (n : ℕ) : n.-2 = n..-1..-1 :=
   nat.rec_on n idp (λn p, ap trunc_index.succ p)
 
@@ -98,12 +159,16 @@ namespace trunc_index
   idp
 
   definition of_sphere_index_of_nat (n : ℕ)
-    : of_sphere_index (sphere_index.of_nat n) = trunc_index.of_nat n :> ℕ₋₂ :=
+    : of_sphere_index (sphere_index.of_nat n) = of_nat n :> ℕ₋₂ :=
   begin
     induction n with n IH,
     { reflexivity},
     { exact ap trunc_index.succ IH}
   end
+
+  definition trans_to_of_sphere_index_eq (n : ℕ)
+    : trunc_index._trans_to_of_sphere_index n = of_nat n :> ℕ₋₂ :=
+  of_sphere_index_of_nat n
 
 end trunc_index
 

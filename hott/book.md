@@ -22,7 +22,7 @@ The rows indicate the chapters, the columns the sections.
 | Ch 5  | - | . | ½ | - | - | . | . | ½ |   |    |    |    |    |    |    |
 | Ch 6  | . | + | + | + | + | ½ | ½ | + | ¾ | ¼  | ¾  | +  | .  |    |    |
 | Ch 7  | + | + | + | - | ¾ | - | - |   |   |    |    |    |    |    |    |
-| Ch 8  | + | + | - | - | ¼ | ¼ | - | - | - | -  |    |    |    |    |    |
+| Ch 8  | + | + | + | - | ¼ | ¼ | - | - | - | -  |    |    |    |    |    |
 | Ch 9  | ¾ | + | + | ½ | ¾ | ½ | - | - | - |    |    |    |    |    |    |
 | Ch 10 | - | - | - | - | - |   |   |   |   |    |    |    |    |    |    |
 | Ch 11 | - | - | - | - | - | - |   |   |   |    |    |    |    |    |    |
@@ -143,7 +143,7 @@ Unless otherwise noted, the files are in the folder [homotopy](homotopy/homotopy
 
 - 8.1 (π_1(S^1)): [homotopy.circle](homotopy/circle.hlean) (only the encode-decode proof)
 - 8.2 (Connectedness of suspensions): [homotopy.connectedness](homotopy/connectedness.hlean) (different proof)
-- 8.3 (πk≤n of an n-connected space and π_{k<n}(S^n)): not formalized
+- 8.3 (πk≤n of an n-connected space and π_{k<n}(S^n)): [homotopy.homotopy_group](homotopy/homotopy_group.hlean)
 - 8.4 (Fiber sequences and the long exact sequence): not formalized
 - 8.5 (The Hopf fibration): [homotopy.circle](homotopy/circle.hlean) (H-space structure on the circle, Lemma 8.5.8), [homotopy.join](homotopy/join.hlean) (join is associative, Lemma 8.5.9), the rest is not formalized
 - 8.6 (The Freudenthal suspension theorem): [homotopy.connectedness](homotopy/connectedness.hlean) (Lemma 8.6.1), [homotopy.wedge](homotopy/wedge.hlean) (Wedge connectivity, Lemma 8.6.2), the rest is not formalized

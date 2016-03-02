@@ -15,7 +15,7 @@ open eq sigma sigma.ops pi function equiv trunctype
 
 namespace trunc_index
 
-  definition minus_one_le_succ (n : trunc_index) : -1 ≤ n.+1 :=
+  definition minus_one_le_succ (n : ℕ₋₂) : -1 ≤ n.+1 :=
   succ_le_succ (minus_two_le n)
 
   definition zero_le_of_nat (n : ℕ) : 0 ≤ of_nat n :=
@@ -32,7 +32,7 @@ namespace trunc_index
       | inr xney := inr (λ h : succ n = succ m, by injection h with xeqy; exact absurd xeqy xney)
       end
 
-  definition not_succ_le_minus_two {n : trunc_index} (H : n .+1 ≤ -2) : empty :=
+  definition not_succ_le_minus_two {n : ℕ₋₂} (H : n .+1 ≤ -2) : empty :=
   by cases H
 
   protected definition le_trans {n m k : ℕ₋₂} (H1 : n ≤ m) (H2 : m ≤ k) : n ≤ k :=
@@ -42,7 +42,7 @@ namespace trunc_index
     { exact le.step IH}
   end
 
-  definition le_of_succ_le_succ {n m : trunc_index} (H : n.+1 ≤ m.+1) : n ≤ m :=
+  definition le_of_succ_le_succ {n m : ℕ₋₂} (H : n.+1 ≤ m.+1) : n ≤ m :=
   begin
     cases H with m H',
     { apply le.tr_refl},
@@ -69,7 +69,7 @@ namespace trunc_index
 end trunc_index open trunc_index
 
 definition weak_order_trunc_index [trans_instance] [reducible] : weak_order trunc_index :=
-weak_order.mk le trunc_index.le_refl @trunc_index.le_trans @trunc_index.le_antisymm
+weak_order.mk le trunc_index.le.tr_refl @trunc_index.le_trans @trunc_index.le_antisymm
 
 namespace trunc_index
 

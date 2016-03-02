@@ -16,3 +16,4 @@ folder (sorted such that files only import previous files).
 * [connectedness](connectedness.hlean)
 * [cofiber](cofiber.hlean)
 * [smash](smash.hlean)
+* [homotopy_group](homotopy_group.hlean) (theorems about homotopy groups. The definition and basic facts about homotopy groups is in [algebra/homotopy_group](../algebra/homotopy_group.hlean)).

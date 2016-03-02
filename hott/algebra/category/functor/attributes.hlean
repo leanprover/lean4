@@ -54,8 +54,8 @@ namespace category
   end
 
   theorem reflect_inverse (F : C ⇒ D) [H : fully_faithful F] {c c' : C} (f : c ⟶ c')
-    [H : is_iso f] : (to_fun_hom F)⁻¹ᶠ (F f)⁻¹ = f⁻¹ :=
-  inverse_eq_inverse (idp : to_hom (@(iso.mk f) (reflect_is_iso F f)) = f)
+    [H' : is_iso f] : (to_fun_hom F)⁻¹ᶠ (F f)⁻¹ = f⁻¹ :=
+  @inverse_eq_inverse _ _ _ _ _ _ (reflect_is_iso F f) H' idp
 
   definition hom_equiv_F_hom_F [constructor] (F : C ⇒ D)
     [H : fully_faithful F] (c c' : C) : (c ⟶ c') ≃ (F c ⟶ F c') :=

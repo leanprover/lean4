@@ -22,7 +22,6 @@ namespace iso
 
   attribute is_iso.inverse [reducible]
 
-  attribute is_iso [multiple_instances]
   open split_mono split_epi is_iso
   abbreviation retraction_of [unfold 6] := @split_mono.retraction_of
   abbreviation retraction_comp [unfold 6] := @split_mono.retraction_comp
@@ -79,7 +78,7 @@ namespace iso
   is_iso.mk _ ((retraction_eq_section f) ▸ (retraction_comp f)) (comp_section f)
 
   theorem inverse_unique (H H' : is_iso f) : @inverse _ _ _ _ f H = @inverse _ _ _ _ f H' :=
-  inverse_eq_left !left_inverse
+  @inverse_eq_left _ _ _ _ _ _ H !left_inverse
 
   theorem inverse_involutive (f : a ⟶ b) [H : is_iso f] [H : is_iso (f⁻¹)]
     : (f⁻¹)⁻¹ = f :=

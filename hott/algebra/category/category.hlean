@@ -34,8 +34,6 @@ namespace category
   -- without it, we would have to explicitly use category.to_precategory
   attribute category.to_precategory [coercion]
 
-  attribute category [multiple_instances]
-
   abbreviation iso_of_path_equiv := @category.iso_of_path_equiv
   attribute category.iso_of_path_equiv [instance]
 

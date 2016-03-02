@@ -30,7 +30,6 @@ namespace category
     (id_id : Π (a : ob), comp !ID !ID = ID a)
     (is_set_hom : Π(a b : ob), is_set (hom a b))
 
-  -- attribute precategory [multiple-instances] --this is not used anywhere
   attribute precategory.is_set_hom [instance]
 
   infixr ∘ := precategory.comp

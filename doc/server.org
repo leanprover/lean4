@@ -354,32 +354,3 @@ The entries are of the form
 
 The types are printed without using line breaks.
 The command =FINDP= is mainly used to implement auto-completion.
-
-** Find declarations for "placeholder/goal"
-
-A declaration may contain placeholders/goals =_=. Some of these placeholders are instantiated automatically by Lean.
-Others, must be manually filled by the user. The command =FINDG= generates a sequence of declarations that may be used to
-"fill" a particular placeholder. This command is only available if the declaration containing =_= is type correct, and
-lean "knows" what is the expected type for =_=.
-
-#+BEGIN_SRC
-FINDG [line-number] [column-number]
-[filters]*
-#+END_SRC
-
-The character at the given =[line-number]= and =[column-number]= must be a =_=.
-The command also accepts a sequence of filters of the form =+[id_1]= and =-[id_2]=.
-Lean will only consider declarations whose name contains =id_1= and does not contain =id_2=.
-Here is an example:
-
-#+BEGIN_SRC
-FINDG 48 10
-+intro -and -elim
-#+END_SRC
-
-For the command above, lean will print any declaration whose resultant type matches the type expected by =_=, and
-whose name contains =intro= but does not contain =and= and =elim=.
-Lean does not display "trivial" matches. We say a match is trivial if the resultant type of a declaration
-matches anything.
-
-The output produced by =FINDG= uses the same format used by =FINDP=.

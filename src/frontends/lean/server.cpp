@@ -40,8 +40,7 @@ Author: Leonardo de Moura
 
 #define LEAN_FUZZY_MAX_ERRORS        3
 #define LEAN_FUZZY_MAX_ERRORS_FACTOR 3
-#define LEAN_FIND_CONSUME_IMPLICIT   true // lean will add metavariables for implicit arguments when printing the type of declarations in FINDP and FINDG
-#define LEAN_FINDG_MAX_STEPS         128 // maximum number of steps per unification problem
+#define LEAN_FIND_CONSUME_IMPLICIT   true // lean will add metavariables for implicit arguments when printing the type of declarations in FINDP
 
 namespace lean {
 static name * g_auto_completion_max_results = nullptr;
@@ -320,7 +319,6 @@ static std::string * g_show = nullptr;
 static std::string * g_valid = nullptr;
 static std::string * g_sleep = nullptr;
 static std::string * g_findp = nullptr;
-static std::string * g_findg = nullptr;
 
 static bool is_command(std::string const & cmd, std::string const & line) {
     return line.compare(0, cmd.size(), cmd) == 0;
@@ -745,80 +743,6 @@ void consume_pos_neg_strs(std::string const & filters, buffer<std::string> & pos
     }
 }
 
-bool match_type(type_checker & tc, expr const & meta, expr const & expected_type, declaration const & d) {
-    goal g(meta, expected_type);
-    buffer<level> ls;
-    unsigned num_ls = d.get_num_univ_params();
-    for (unsigned i = 0; i < num_ls; i++)
-        ls.push_back(mk_meta_univ(mk_fresh_name()));
-    expr dt        = instantiate_type_univ_params(d, to_list(ls.begin(), ls.end()));
-    unsigned num_e = get_expect_num_args(tc, expected_type);
-    unsigned num_d = get_expect_num_args(tc, dt);
-    if (num_e > num_d)
-        return false;
-    for (unsigned i = 0; i < num_d - num_e; i++) {
-        dt        = tc.whnf(dt).first;
-        expr meta = g.mk_meta(mk_fresh_name(), binding_domain(dt));
-        dt        = instantiate(binding_body(dt), meta);
-    }
-    // Remark: we ignore declarations where the resultant type is of the form
-    // (?M ...) because they unify with almost everything. They produce a lot of noise in the output.
-    // Perhaps we should have an option to enable/disable this kind of declaration. For now, we
-    // just ingore them.
-    if (is_meta(dt))
-        return false; // matches anything
-    try {
-        unifier_config cfg;
-        cfg.m_max_steps = LEAN_FINDG_MAX_STEPS;
-        cfg.m_kind      = unifier_kind::Cheap;
-        auto r = unify(tc.env(), dt, expected_type, substitution(), cfg);
-        return static_cast<bool>(r.pull());
-    } catch (exception&) {
-        return false;
-    }
-}
-
-static std::unique_ptr<type_checker> mk_find_goal_type_checker(environment const & env) {
-    return mk_opaque_type_checker(env);
-}
-
-static name * g_tmp_prefix = nullptr;
-void server::find_goal_matches(unsigned line_num, unsigned col_num, std::string const & filters) {
-    buffer<std::string> pos_names, neg_names;
-    consume_pos_neg_strs(filters, pos_names, neg_names);
-    m_out << "-- BEGINFINDG";
-    optional<pair<environment, options>> env_opts = m_file->infom().get_closest_env_opts(line_num);
-    if (!env_opts) {
-        m_out << " NAY" << std::endl;
-        m_out << "-- ENDFINDG" << std::endl;
-        return;
-    }
-    if (line_num >= m_file->infom().get_processed_upto())
-        m_out << " NAY";
-    m_out << std::endl;
-    environment const & env = env_opts->first;
-    options const & opts    = env_opts->second;
-    std::unique_ptr<type_checker> tc = mk_find_goal_type_checker(env);
-    if (auto meta = m_file->infom().get_meta_at(line_num, col_num)) {
-    if (is_meta(*meta)) {
-    if (auto type = m_file->infom().get_type_at(line_num, col_num)) {
-        env.for_each_declaration([&](declaration const & d) {
-                if (!is_projection(env, d.get_name()) &&
-                    std::all_of(pos_names.begin(), pos_names.end(),
-                                [&](std::string const & pos) { return is_part_of(pos, d.get_name()); }) &&
-                    std::all_of(neg_names.begin(), neg_names.end(),
-                                [&](std::string const & neg) { return !is_part_of(neg, d.get_name()); }) &&
-                    match_type(*tc.get(), *meta, *type, d)) {
-                    if (optional<name> alias = is_expr_aliased(env, d.get_name()))
-                        display_decl(*alias, d.get_name(), env, opts);
-                    else
-                        display_decl(d.get_name(), d.get_name(), env, opts);
-                }
-            });
-    }}}
-    m_out << "-- ENDFINDG" << std::endl;
-}
-
 void server::wait(optional<unsigned> ms) {
     m_out << "-- BEGINWAIT" << std::endl;
     if (!m_worker.wait(ms))
@@ -910,10 +834,6 @@ bool server::operator()(std::istream & in) {
                 if (line.size() > 63)
                     line.resize(63);
                 find_pattern(line_num, line);
-            } else if (is_command(*g_findg, line)) {
-                pair<unsigned, unsigned> line_col_num = get_line_col_num(line, *g_findg);
-                read_line(in, line);
-                find_goal_matches(line_col_num.first, line_col_num.second, line);
             } else {
                 throw exception(sstream() << "unexpected command line: " << line);
             }
@@ -936,7 +856,6 @@ void initialize_server() {
     g_auto_completion_max_results = new name{"auto_completion", "max_results"};
     register_unsigned_option(*g_auto_completion_max_results,  LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS,
                              "(auto-completion) maximum number of results returned");
-    g_tmp_prefix = new name(name::mk_internal_unique_name());
     g_load = new std::string("LOAD");
     g_save = new std::string("SAVE");
     g_visit = new std::string("VISIT");
@@ -955,11 +874,9 @@ void initialize_server() {
     g_valid = new std::string("VALID");
     g_sleep = new std::string("SLEEP");
     g_findp = new std::string("FINDP");
-    g_findg = new std::string("FINDG");
 }
 void finalize_server() {
     delete g_auto_completion_max_results;
-    delete g_tmp_prefix;
     delete g_load;
     delete g_save;
     delete g_visit;
@@ -978,6 +895,5 @@ void finalize_server() {
     delete g_valid;
     delete g_sleep;
     delete g_findp;
-    delete g_findg;
 }
 }

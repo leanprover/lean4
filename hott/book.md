@@ -22,7 +22,7 @@ The rows indicate the chapters, the columns the sections.
 | Ch 5  | - | . | ½ | - | - | . | . | ½ |   |    |    |    |    |    |    |
 | Ch 6  | . | + | + | + | + | ½ | ½ | + | ¾ | ¼  | ¾  | +  | .  |    |    |
 | Ch 7  | + | + | + | - | ¾ | - | - |   |   |    |    |    |    |    |    |
-| Ch 8  | ¾ | ¾ | - | - | ¼ | ¼ | - | - | - | -  |    |    |    |    |    |
+| Ch 8  | + | + | - | - | ¼ | ¼ | - | - | - | -  |    |    |    |    |    |
 | Ch 9  | ¾ | + | + | ½ | ¾ | ½ | - | - | - |    |    |    |    |    |    |
 | Ch 10 | - | - | - | - | - |   |   |   |   |    |    |    |    |    |    |
 | Ch 11 | - | - | - | - | - | - |   |   |   |    |    |    |    |    |    |
@@ -141,7 +141,7 @@ Chapter 8: Homotopy theory
 
 Unless otherwise noted, the files are in the folder [homotopy](homotopy/homotopy.md)
 
-- 8.1 (π_1(S^1)): [homotopy.circle](homotopy/circle.hlean) (only one of the proofs)
+- 8.1 (π_1(S^1)): [homotopy.circle](homotopy/circle.hlean) (only the encode-decode proof)
 - 8.2 (Connectedness of suspensions): [homotopy.connectedness](homotopy/connectedness.hlean) (different proof)
 - 8.3 (πk≤n of an n-connected space and π_{k<n}(S^n)): not formalized
 - 8.4 (Fiber sequences and the long exact sequence): not formalized

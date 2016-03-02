@@ -8,7 +8,7 @@ The Smash Product of Types
 
 import hit.pushout .wedge .cofiber .susp .sphere
 
-open eq pushout prod pointed pType is_trunc
+open eq pushout prod pointed is_trunc
 
 definition product_of_wedge [constructor] (A B : Type*) : pwedge A B →* A ×* B :=
 begin

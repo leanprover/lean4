@@ -74,9 +74,10 @@ namespace sphere_index
   definition sub_one [reducible] (n : ℕ) : ℕ₋₁ :=
   nat.rec_on n -1 (λ n k, k.+1)
 
-  postfix `.-1`:(max+1) := sub_one
+  postfix `..-1`:(max+1) := sub_one
+  -- we use a double dot to distinguish with the notation .-1 in trunc_index (of type ℕ → ℕ₋₂)
 
-  definition succ_sub_one (n : ℕ) : (nat.succ n).-1 = n :> ℕ₋₁ :=
+  definition succ_sub_one (n : ℕ) : (nat.succ n)..-1 = n :> ℕ₋₁ :=
   idp
 
 end sphere_index
@@ -85,15 +86,15 @@ open sphere_index
 namespace trunc_index
   definition sub_one [reducible] (n : ℕ₋₁) : ℕ₋₂ :=
   sphere_index.rec_on n -2 (λ n k, k.+1)
-  postfix `.-1`:(max+1) := sub_one
+  postfix `..-1`:(max+1) := sub_one
 
   definition of_sphere_index [coercion] [reducible] (n : ℕ₋₁) : ℕ₋₂ :=
-  n.-1.+1
+  n..-1.+1
 
-  definition sub_two_eq_sub_one_sub_one (n : ℕ) : n.-2 = n.-1.-1 :=
+  definition sub_two_eq_sub_one_sub_one (n : ℕ) : n.-2 = n..-1..-1 :=
   nat.rec_on n idp (λn p, ap trunc_index.succ p)
 
-  definition succ_sub_one (n : ℕ₋₁) : n.+1.-1 = n :> ℕ₋₂ :=
+  definition succ_sub_one (n : ℕ₋₁) : n.+1..-1 = n :> ℕ₋₂ :=
   idp
 
   definition of_sphere_index_of_nat (n : ℕ)
@@ -113,6 +114,8 @@ definition sphere : ℕ₋₁ → Type₀
 | n.+1 := susp (sphere n)
 
 namespace sphere
+
+  export [notation] [coercion] sphere_index
 
   definition base {n : ℕ} : sphere n := north
   definition pointed_sphere [instance] [constructor] (n : ℕ) : pointed (sphere n) :=

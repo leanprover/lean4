@@ -7,7 +7,7 @@ The Wedge Sum of Two pType Types
 -/
 import hit.pointed_pushout .connectedness
 
-open eq pushout pointed unit is_trunc.trunc_index pType
+open eq pushout pointed unit trunc_index
 
 definition pwedge (A B : Type*) : Type* := ppushout (pconst punit A) (pconst punit B)
 

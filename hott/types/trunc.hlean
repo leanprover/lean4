@@ -11,195 +11,195 @@ Properties of is_trunc and trunctype
 import .pointed2 ..function algebra.order types.nat.order
 
 open eq sigma sigma.ops pi function equiv trunctype
-     is_equiv prod is_trunc.trunc_index pointed nat is_trunc algebra
+     is_equiv prod pointed nat is_trunc algebra
+
+namespace trunc_index
+
+  definition minus_one_le_succ (n : trunc_index) : -1 ≤ n.+1 :=
+  succ_le_succ (minus_two_le n)
+
+  definition zero_le_of_nat (n : ℕ) : 0 ≤ of_nat n :=
+  succ_le_succ !minus_one_le_succ
+
+  open decidable
+  protected definition has_decidable_eq [instance] : Π(n m : ℕ₋₂), decidable (n = m)
+  | has_decidable_eq -2     -2     := inl rfl
+  | has_decidable_eq (n.+1) -2     := inr (by contradiction)
+  | has_decidable_eq -2     (m.+1) := inr (by contradiction)
+  | has_decidable_eq (n.+1) (m.+1) :=
+      match has_decidable_eq n m with
+      | inl xeqy := inl (by rewrite xeqy)
+      | inr xney := inr (λ h : succ n = succ m, by injection h with xeqy; exact absurd xeqy xney)
+      end
+
+  definition not_succ_le_minus_two {n : trunc_index} (H : n .+1 ≤ -2) : empty :=
+  by cases H
+
+  protected definition le_trans {n m k : ℕ₋₂} (H1 : n ≤ m) (H2 : m ≤ k) : n ≤ k :=
+  begin
+    induction H2 with k H2 IH,
+    { exact H1},
+    { exact le.step IH}
+  end
+
+  definition le_of_succ_le_succ {n m : trunc_index} (H : n.+1 ≤ m.+1) : n ≤ m :=
+  begin
+    cases H with m H',
+    { apply le.tr_refl},
+    { exact trunc_index.le_trans (le.step !le.tr_refl) H'}
+  end
+
+  theorem not_succ_le_self {n : ℕ₋₂} : ¬n.+1 ≤ n :=
+  begin
+    induction n with n IH: intro H,
+    { exact not_succ_le_minus_two H},
+    { exact IH (le_of_succ_le_succ H)}
+  end
+
+  protected definition le_antisymm {n m : ℕ₋₂} (H1 : n ≤ m) (H2 : m ≤ n) : n = m :=
+  begin
+    induction H2 with n H2 IH,
+    { reflexivity},
+    { exfalso, apply @not_succ_le_self n, exact trunc_index.le_trans H1 H2}
+  end
+
+  protected definition le_succ {n m : ℕ₋₂} (H1 : n ≤ m): n ≤ m.+1 :=
+  le.step H1
+
+end trunc_index open trunc_index
+
+definition weak_order_trunc_index [trans_instance] [reducible] : weak_order trunc_index :=
+weak_order.mk le trunc_index.le_refl @trunc_index.le_trans @trunc_index.le_antisymm
+
+namespace trunc_index
+
+  /- more theorems about truncation indices -/
+
+  definition zero_add (n : ℕ₋₂) : (0 : ℕ₋₂) + n = n :=
+  begin
+    cases n with n, reflexivity,
+    cases n with n, reflexivity,
+    induction n with n IH, reflexivity, exact ap succ IH
+  end
+
+  definition add_zero (n : ℕ₋₂) : n + (0 : ℕ₋₂) = n :=
+  by reflexivity
+
+  definition succ_add_nat (n : ℕ₋₂) (m : ℕ) : n.+1 + m = (n + m).+1 :=
+  by induction m with m IH; reflexivity; exact ap succ IH
+
+  definition nat_add_succ (n : ℕ) (m : ℕ₋₂) : n + m.+1 = (n + m).+1 :=
+  begin
+    cases m with m, reflexivity,
+    cases m with m, reflexivity,
+    induction m with m IH, reflexivity, exact ap succ IH
+  end
+
+  definition add_nat_succ (n : ℕ₋₂) (m : ℕ) : n + (nat.succ m) = (n + m).+1 :=
+  by reflexivity
+
+  definition nat_succ_add (n : ℕ) (m : ℕ₋₂) : (nat.succ n) + m = (n + m).+1 :=
+  begin
+    cases m with m, reflexivity,
+    cases m with m, reflexivity,
+    induction m with m IH, reflexivity, exact ap succ IH
+  end
+
+  definition sub_two_add_two (n : ℕ₋₂) : sub_two (add_two n) = n :=
+  begin
+    induction n with n IH,
+    { reflexivity},
+    { exact ap succ IH}
+  end
+
+  definition add_two_sub_two (n : ℕ) : add_two (sub_two n) = n :=
+  begin
+    induction n with n IH,
+    { reflexivity},
+    { exact ap nat.succ IH}
+  end
+
+  definition of_nat_add_plus_two_of_nat (n m : ℕ) : n +2+ m = of_nat (n + m + 2) :=
+  begin
+    induction m with m IH,
+    { reflexivity},
+    { exact ap succ IH}
+  end
+
+  definition of_nat_add_of_nat (n m : ℕ) : of_nat n + of_nat m = of_nat (n + m) :=
+  begin
+    induction m with m IH,
+    { reflexivity},
+    { exact ap succ IH}
+  end
+
+  definition succ_add_plus_two (n m : ℕ₋₂) : n.+1 +2+ m = (n +2+ m).+1 :=
+  begin
+    induction m with m IH,
+    { reflexivity},
+    { exact ap succ IH}
+  end
+
+  definition add_plus_two_succ (n m : ℕ₋₂) : n +2+ m.+1 = (n +2+ m).+1 :=
+  idp
+
+  definition add_succ_succ (n m : ℕ₋₂) : n + m.+2 = n +2+ m :=
+  idp
+
+  definition succ_add_succ (n m : ℕ₋₂) : n.+1 + m.+1 = n +2+ m :=
+  begin
+    cases m with m IH,
+    { reflexivity},
+    { apply succ_add_plus_two}
+  end
+
+  definition succ_succ_add (n m : ℕ₋₂) : n.+2 + m = n +2+ m :=
+  begin
+    cases m with m IH,
+    { reflexivity},
+    { exact !succ_add_succ ⬝ !succ_add_plus_two}
+  end
+
+  definition succ_sub_two (n : ℕ) : (nat.succ n).-2 = n.-2 .+1 := rfl
+  definition sub_two_succ_succ (n : ℕ) : n.-2.+1.+1 = n := rfl
+  definition succ_sub_two_succ (n : ℕ) : (nat.succ n).-2.+1 = n := rfl
+
+  definition of_nat_le_of_nat {n m : ℕ} (H : n ≤ m) : (of_nat n ≤ of_nat m) :=
+  begin
+    induction H with m H IH,
+    { apply le.refl},
+    { exact trunc_index.le_succ IH}
+  end
+
+  definition sub_two_le_sub_two {n m : ℕ} (H : n ≤ m) : n.-2 ≤ m.-2 :=
+  begin
+    induction H with m H IH,
+    { apply le.refl},
+    { exact trunc_index.le_succ IH}
+  end
+
+  definition add_two_le_add_two {n m : ℕ₋₂} (H : n ≤ m) : add_two n ≤ add_two m :=
+  begin
+    induction H with m H IH,
+    { reflexivity},
+    { constructor, exact IH},
+  end
+
+  definition le_of_sub_two_le_sub_two {n m : ℕ} (H : n.-2 ≤ m.-2) : n ≤ m :=
+  begin
+    rewrite [-add_two_sub_two n, -add_two_sub_two m],
+    exact add_two_le_add_two H,
+  end
+
+  definition le_of_of_nat_le_of_nat {n m : ℕ} (H : of_nat n ≤ of_nat m) : n ≤ m :=
+  begin
+    apply le_of_sub_two_le_sub_two,
+    exact le_of_succ_le_succ (le_of_succ_le_succ H)
+  end
+
+end trunc_index open trunc_index
 
 namespace is_trunc
-
-  namespace trunc_index
-
-    definition minus_one_le_succ (n : trunc_index) : -1 ≤ n.+1 :=
-    succ_le_succ (minus_two_le n)
-
-    definition zero_le_of_nat (n : ℕ) : 0 ≤ of_nat n :=
-    succ_le_succ !minus_one_le_succ
-
-    open decidable
-    protected definition has_decidable_eq [instance] : Π(n m : ℕ₋₂), decidable (n = m)
-    | has_decidable_eq -2     -2     := inl rfl
-    | has_decidable_eq (n.+1) -2     := inr (by contradiction)
-    | has_decidable_eq -2     (m.+1) := inr (by contradiction)
-    | has_decidable_eq (n.+1) (m.+1) :=
-        match has_decidable_eq n m with
-        | inl xeqy := inl (by rewrite xeqy)
-        | inr xney := inr (λ h : succ n = succ m, by injection h with xeqy; exact absurd xeqy xney)
-        end
-
-    definition not_succ_le_minus_two {n : trunc_index} (H : n .+1 ≤ -2) : empty :=
-    by cases H
-
-    protected definition le_trans {n m k : ℕ₋₂} (H1 : n ≤ m) (H2 : m ≤ k) : n ≤ k :=
-    begin
-      induction H2 with k H2 IH,
-      { exact H1},
-      { exact le.step IH}
-    end
-
-    definition le_of_succ_le_succ {n m : trunc_index} (H : n.+1 ≤ m.+1) : n ≤ m :=
-    begin
-      cases H with m H',
-      { apply le.tr_refl},
-      { exact trunc_index.le_trans (le.step !le.tr_refl) H'}
-    end
-
-    theorem not_succ_le_self {n : ℕ₋₂} : ¬n.+1 ≤ n :=
-    begin
-      induction n with n IH: intro H,
-      { exact not_succ_le_minus_two H},
-      { exact IH (le_of_succ_le_succ H)}
-    end
-
-    protected definition le_antisymm {n m : ℕ₋₂} (H1 : n ≤ m) (H2 : m ≤ n) : n = m :=
-    begin
-      induction H2 with n H2 IH,
-      { reflexivity},
-      { exfalso, apply @not_succ_le_self n, exact trunc_index.le_trans H1 H2}
-    end
-
-    protected definition le_succ {n m : ℕ₋₂} (H1 : n ≤ m): n ≤ m.+1 :=
-    le.step H1
-
-  end trunc_index open trunc_index
-
-  definition weak_order_trunc_index [trans_instance] [reducible] : weak_order trunc_index :=
-  weak_order.mk le trunc_index.le_refl @trunc_index.le_trans @trunc_index.le_antisymm
-
-  namespace trunc_index
-
-    /- more theorems about truncation indices -/
-
-    definition zero_add (n : ℕ₋₂) : (0 : ℕ₋₂) + n = n :=
-    begin
-      cases n with n, reflexivity,
-      cases n with n, reflexivity,
-      induction n with n IH, reflexivity, exact ap succ IH
-    end
-
-    definition add_zero (n : ℕ₋₂) : n + (0 : ℕ₋₂) = n :=
-    by reflexivity
-
-    definition succ_add_nat (n : ℕ₋₂) (m : ℕ) : n.+1 + m = (n + m).+1 :=
-    by induction m with m IH; reflexivity; exact ap succ IH
-
-    definition nat_add_succ (n : ℕ) (m : ℕ₋₂) : n + m.+1 = (n + m).+1 :=
-    begin
-      cases m with m, reflexivity,
-      cases m with m, reflexivity,
-      induction m with m IH, reflexivity, exact ap succ IH
-    end
-
-    definition add_nat_succ (n : ℕ₋₂) (m : ℕ) : n + (nat.succ m) = (n + m).+1 :=
-    by reflexivity
-
-    definition nat_succ_add (n : ℕ) (m : ℕ₋₂) : (nat.succ n) + m = (n + m).+1 :=
-    begin
-      cases m with m, reflexivity,
-      cases m with m, reflexivity,
-      induction m with m IH, reflexivity, exact ap succ IH
-    end
-
-    definition sub_two_add_two (n : ℕ₋₂) : sub_two (add_two n) = n :=
-    begin
-      induction n with n IH,
-      { reflexivity},
-      { exact ap succ IH}
-    end
-
-    definition add_two_sub_two (n : ℕ) : add_two (sub_two n) = n :=
-    begin
-      induction n with n IH,
-      { reflexivity},
-      { exact ap nat.succ IH}
-    end
-
-    definition of_nat_add_plus_two_of_nat (n m : ℕ) : n +2+ m = of_nat (n + m + 2) :=
-    begin
-      induction m with m IH,
-      { reflexivity},
-      { exact ap succ IH}
-    end
-
-    definition of_nat_add_of_nat (n m : ℕ) : of_nat n + of_nat m = of_nat (n + m) :=
-    begin
-      induction m with m IH,
-      { reflexivity},
-      { exact ap succ IH}
-    end
-
-    definition succ_add_plus_two (n m : ℕ₋₂) : n.+1 +2+ m = (n +2+ m).+1 :=
-    begin
-      induction m with m IH,
-      { reflexivity},
-      { exact ap succ IH}
-    end
-
-    definition add_plus_two_succ (n m : ℕ₋₂) : n +2+ m.+1 = (n +2+ m).+1 :=
-    idp
-
-    definition add_succ_succ (n m : ℕ₋₂) : n + m.+2 = n +2+ m :=
-    idp
-
-    definition succ_add_succ (n m : ℕ₋₂) : n.+1 + m.+1 = n +2+ m :=
-    begin
-      cases m with m IH,
-      { reflexivity},
-      { apply succ_add_plus_two}
-    end
-
-    definition succ_succ_add (n m : ℕ₋₂) : n.+2 + m = n +2+ m :=
-    begin
-      cases m with m IH,
-      { reflexivity},
-      { exact !succ_add_succ ⬝ !succ_add_plus_two}
-    end
-
-    definition succ_sub_two (n : ℕ) : (nat.succ n).-2 = n.-2 .+1 := rfl
-    definition sub_two_succ_succ (n : ℕ) : n.-2.+1.+1 = n := rfl
-    definition succ_sub_two_succ (n : ℕ) : (nat.succ n).-2.+1 = n := rfl
-
-    definition of_nat_le_of_nat {n m : ℕ} (H : n ≤ m) : (of_nat n ≤ of_nat m) :=
-    begin
-      induction H with m H IH,
-      { apply le.refl},
-      { exact trunc_index.le_succ IH}
-    end
-
-    definition sub_two_le_sub_two {n m : ℕ} (H : n ≤ m) : n.-2 ≤ m.-2 :=
-    begin
-      induction H with m H IH,
-      { apply le.refl},
-      { exact trunc_index.le_succ IH}
-    end
-
-    definition add_two_le_add_two {n m : ℕ₋₂} (H : n ≤ m) : add_two n ≤ add_two m :=
-    begin
-      induction H with m H IH,
-      { reflexivity},
-      { constructor, exact IH},
-    end
-
-    definition le_of_sub_two_le_sub_two {n m : ℕ} (H : n.-2 ≤ m.-2) : n ≤ m :=
-    begin
-      rewrite [-add_two_sub_two n, -add_two_sub_two m],
-      exact add_two_le_add_two H,
-    end
-
-    definition le_of_of_nat_le_of_nat {n m : ℕ} (H : of_nat n ≤ of_nat m) : n ≤ m :=
-    begin
-      apply le_of_sub_two_le_sub_two,
-      exact le_of_succ_le_succ (le_of_succ_le_succ H)
-    end
-
-  end trunc_index open trunc_index
 
   variables {A B : Type} {n : ℕ₋₂}
 
@@ -374,7 +374,7 @@ namespace is_trunc
     { apply is_trunc_eq}
   end
 
-end is_trunc open is_trunc is_trunc.trunc_index
+end is_trunc open is_trunc
 
 namespace trunc
   variable {A : Type}

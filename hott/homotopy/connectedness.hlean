@@ -275,7 +275,7 @@ namespace homotopy
   end
 
   open trunc_index
-  theorem is_conn_sphere [instance] (n : ℕ₋₁) : is_conn (n.-1) (sphere n) :=
+  theorem is_conn_sphere [instance] (n : ℕ₋₁) : is_conn (n..-1) (sphere n) :=
   begin
     induction n with n IH,
     { apply is_trunc_trunc},

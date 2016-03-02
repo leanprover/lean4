@@ -13,36 +13,39 @@ import .nat .logic .equiv .pathover
 open eq nat sigma unit sigma.ops
 --set_option class.force_new true
 
-namespace is_trunc
+/- Truncation levels -/
 
- /- Truncation levels -/
+inductive trunc_index : Type₀ :=
+| minus_two : trunc_index
+| succ : trunc_index → trunc_index
 
-  inductive trunc_index : Type₀ :=
-  | minus_two : trunc_index
-  | succ : trunc_index → trunc_index
+open trunc_index
 
-  open trunc_index
+/-
+   notation for trunc_index is -2, -1, 0, 1, ...
+   from 0 and up this comes from a coercion from num to trunc_index (via ℕ)
+-/
 
-  /-
-     notation for trunc_index is -2, -1, 0, 1, ...
-     from 0 and up this comes from a coercion from num to trunc_index (via ℕ)
-  -/
+notation `ℕ₋₂` := trunc_index -- input using \N-2
+
+definition has_zero_trunc_index [instance] [priority 2000] : has_zero ℕ₋₂ :=
+has_zero.mk (succ (succ minus_two))
+
+definition has_one_trunc_index [instance] [priority 2000] : has_one ℕ₋₂ :=
+has_one.mk (succ (succ (succ minus_two)))
+
+namespace trunc_index
+
   notation `-1` := trunc_index.succ trunc_index.minus_two -- ISSUE: -1 gets printed as -2.+1?
   notation `-2` := trunc_index.minus_two
   postfix `.+1`:(max+1) := trunc_index.succ
   postfix `.+2`:(max+1) := λn, (n .+1 .+1)
-  notation `ℕ₋₂` := trunc_index -- input using \N-2
 
-  definition has_zero_trunc_index [instance] [priority 2000] : has_zero ℕ₋₂ :=
-  has_zero.mk (succ (succ minus_two))
-
-  definition has_one_trunc_index [instance] [priority 2000] : has_one ℕ₋₂ :=
-  has_one.mk (succ (succ (succ minus_two)))
-
-  namespace trunc_index
   --addition, where we add two to the result
   definition add_plus_two [reducible] (n m : ℕ₋₂) : ℕ₋₂ :=
   trunc_index.rec_on m n (λ k l, l .+1)
+
+  infix ` +2+ `:65 := trunc_index.add_plus_two
 
   -- addition of trunc_indices, where results smaller than -2 are changed to -2
   protected definition add (n m : ℕ₋₂) : ℕ₋₂ :=
@@ -58,15 +61,17 @@ namespace is_trunc
   | tr_refl : le a a
   | step : Π {b}, le a b → le a (b.+1)
 
-  end trunc_index
+end trunc_index
 
-  definition has_le_trunc_index [instance] [priority 2000] : has_le ℕ₋₂ :=
-  has_le.mk trunc_index.le
+definition has_le_trunc_index [instance] [priority 2000] : has_le ℕ₋₂ :=
+has_le.mk trunc_index.le
 
-  attribute trunc_index.add [reducible]
-  infix ` +2+ `:65 := trunc_index.add_plus_two
-  definition has_add_trunc_index [instance] [priority 2000] : has_add ℕ₋₂ :=
-  has_add.mk trunc_index.add
+attribute trunc_index.add [reducible]
+
+definition has_add_trunc_index [instance] [priority 2000] : has_add ℕ₋₂ :=
+has_add.mk trunc_index.add
+
+namespace trunc_index
 
   definition sub_two [reducible] (n : ℕ) : ℕ₋₂ :=
   nat.rec_on n -2 (λ n k, k.+1)
@@ -77,10 +82,9 @@ namespace is_trunc
   postfix `.-2`:(max+1) := sub_two
   postfix `.-1`:(max+1) := λn, (n .-2 .+1)
 
-  definition trunc_index.of_nat [coercion] [reducible] (n : ℕ) : ℕ₋₂ :=
+  definition of_nat [coercion] [reducible] (n : ℕ) : ℕ₋₂ :=
   n.-2.+2
 
-  namespace trunc_index
   definition succ_le_succ {n m : ℕ₋₂} (H : n ≤ m) : n.+1 ≤ m.+1 :=
   by induction H with m H IH; apply le.tr_refl; exact le.step IH
 
@@ -89,7 +93,11 @@ namespace is_trunc
   protected definition le_refl (n : ℕ₋₂) : n ≤ n :=
   le.tr_refl n
 
-  end trunc_index
+end trunc_index open trunc_index
+
+namespace is_trunc
+
+  export [notation] [coercion] trunc_index
 
   /- truncated types -/
 
@@ -112,7 +120,7 @@ end is_trunc open is_trunc
 structure is_trunc [class] (n : ℕ₋₂) (A : Type) :=
   (to_internal : is_trunc_internal n A)
 
-open nat num is_trunc.trunc_index
+open nat num trunc_index
 
 namespace is_trunc
 

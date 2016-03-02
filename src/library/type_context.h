@@ -310,7 +310,7 @@ public:
 
     void set_local_instances(list<expr> const & insts);
 
-    environment const & env() const { return m_env; }
+    virtual environment const & env() const override { return m_env; }
 
     /** \brief Opaque constants are never unfolded by this procedure.
         The is_def_eq method will lazily unfold non-opaque constants.
@@ -450,7 +450,7 @@ public:
     bool is_prop(expr const & e);
 
     /** \brief Infer the type of \c e. */
-    expr infer(expr const & e);
+    virtual expr infer(expr const & e) override;
 
     /** \brief Put \c e in whnf, it is a Pi, then return whnf, otherwise return e */
     expr try_to_pi(expr const & e);

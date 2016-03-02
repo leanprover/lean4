@@ -1458,7 +1458,7 @@ public:
     /** \brief Return the type of a local constant (local or not).
         \remark This method allows the customer to store the type of local constants
         in a different place. */
-    virtual expr infer_local(expr const & e) const {
+    virtual expr infer_local(expr const & e) const override {
         state const & s = curr_state();
         if (is_href(e)) {
             hypothesis const & h = s.get_hypothesis_decl(e);
@@ -1468,7 +1468,7 @@ public:
         }
     }
 
-    virtual expr infer_metavar(expr const & m) const {
+    virtual expr infer_metavar(expr const & m) const override {
         if (is_mref(m)) {
             state const & s = curr_state();
             metavar_decl const * d = s.get_metavar_decl(m);

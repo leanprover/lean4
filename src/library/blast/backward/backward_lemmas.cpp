@@ -60,9 +60,9 @@ typedef scoped_ext<backward_config> backward_ext;
 static optional<head_index> get_backward_target(tmp_type_context & ctx, expr type) {
     while (is_pi(type)) {
         expr local = ctx.mk_tmp_local(binding_domain(type));
-        type = ctx.try_to_pi(instantiate(binding_body(type), local));
+        type = ctx.whnf(instantiate(binding_body(type), local));
     }
-    expr fn = get_app_fn(ctx.whnf(type));
+    expr fn = get_app_fn(type);
     if (is_constant(fn) || is_local(fn))
         return optional<head_index>(fn);
     else

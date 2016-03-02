@@ -77,6 +77,16 @@ namespace is_trunc
 
     /- more theorems about truncation indices -/
 
+    definition zero_add (n : ℕ₋₂) : (0 : ℕ₋₂) + n = n :=
+    begin
+      cases n with n, reflexivity,
+      cases n with n, reflexivity,
+      induction n with n IH, reflexivity, exact ap succ IH
+    end
+
+    definition add_zero (n : ℕ₋₂) : n + (0 : ℕ₋₂) = n :=
+    by reflexivity
+
     definition succ_add_nat (n : ℕ₋₂) (m : ℕ) : n.+1 + m = (n + m).+1 :=
     by induction m with m IH; reflexivity; exact ap succ IH
 

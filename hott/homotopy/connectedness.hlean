@@ -3,7 +3,7 @@ Copyright (c) 2015 Ulrik Buchholtz. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Ulrik Buchholtz, Floris van Doorn
 -/
-import types.trunc types.eq types.arrow_2 types.fiber .susp
+import types.trunc types.arrow_2 .sphere
 
 open eq is_trunc is_equiv nat equiv trunc function fiber funext pi
 
@@ -245,7 +245,7 @@ namespace homotopy
   -- Theorem 8.2.1
   open susp
 
-  definition is_conn_susp [instance] (n : ℕ₋₂) (A : Type)
+  theorem is_conn_susp [instance] (n : ℕ₋₂) (A : Type)
     [H : is_conn n A] : is_conn (n .+1) (susp A) :=
   is_contr.mk (tr north)
   begin
@@ -272,6 +272,14 @@ namespace homotopy
         reflexivity
       }
     }
+  end
+
+  open trunc_index
+  theorem is_conn_sphere [instance] (n : ℕ₋₁) : is_conn (n.-1) (sphere n) :=
+  begin
+    induction n with n IH,
+    { apply is_trunc_trunc},
+    { rewrite [succ_sub_one, sphere.sphere_succ], apply is_conn_susp}
   end
 
 end homotopy

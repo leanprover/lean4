@@ -25,11 +25,7 @@ inductive sphere_index : Type₀ :=
 | minus_one : sphere_index
 | succ : sphere_index → sphere_index
 
-namespace trunc_index
-  definition sub_one [reducible] (n : sphere_index) : trunc_index :=
-  sphere_index.rec_on n -2 (λ n k, k.+1)
-  postfix `.-1`:(max+1) := sub_one
-end trunc_index
+notation `ℕ₋₁` := sphere_index
 
 namespace sphere_index
   /-
@@ -37,27 +33,26 @@ namespace sphere_index
      from 0 and up this comes from a coercion from num to sphere_index (via nat)
   -/
 
-  definition has_zero_sphere_index [instance] : has_zero sphere_index :=
-  has_zero.mk (succ minus_one)
-
-  definition has_one_sphere_index [instance] : has_one sphere_index :=
-  has_one.mk (succ (succ minus_one))
-
   postfix `.+1`:(max+1) := sphere_index.succ
   postfix `.+2`:(max+1) := λ(n : sphere_index), (n .+1 .+1)
   notation `-1` := minus_one
-  notation `ℕ₋₁` := sphere_index
 
-  definition add_plus_one (n m : sphere_index) : sphere_index :=
+  definition has_zero_sphere_index [instance] : has_zero ℕ₋₁ :=
+  has_zero.mk (succ minus_one)
+
+  definition has_one_sphere_index [instance] : has_one ℕ₋₁ :=
+  has_one.mk (succ (succ minus_one))
+
+  definition add_plus_one (n m : ℕ₋₁) : ℕ₋₁ :=
   sphere_index.rec_on m n (λ k l, l .+1)
 
   -- addition of sphere_indices, where (-1 + -1) is defined to be -1.
-  protected definition add (n m : sphere_index) : sphere_index :=
+  protected definition add (n m : ℕ₋₁) : ℕ₋₁ :=
   sphere_index.cases_on m
     (sphere_index.cases_on n -1 id)
     (sphere_index.rec n (λn' r, succ r))
 
-  protected definition le (n m : sphere_index) : Type₀ :=
+  protected definition le (n m : ℕ₋₁) : Type₀ :=
   sphere_index.rec_on n (λm, unit) (λ n p m, sphere_index.rec_on m (λ p, empty) (λ m q p, p m) p) m
 
   infix `+1+`:65 := sphere_index.add_plus_one
@@ -65,34 +60,55 @@ namespace sphere_index
   definition has_add_sphere_index [instance] [priority 2000] [reducible] : has_add ℕ₋₁ :=
   has_add.mk sphere_index.add
 
-  definition has_le_sphere_index [instance] : has_le sphere_index :=
+  definition has_le_sphere_index [instance] : has_le ℕ₋₁ :=
   has_le.mk sphere_index.le
 
-  definition succ_le_succ {n m : sphere_index} (H : n ≤ m) : n.+1 ≤ m.+1 := proof H qed
-  definition le_of_succ_le_succ {n m : sphere_index} (H : n.+1 ≤ m.+1) : n ≤ m := proof H qed
-  definition minus_two_le (n : sphere_index) : -1 ≤ n := star
-  definition empty_of_succ_le_minus_two {n : sphere_index} (H : n .+1 ≤ -1) : empty := H
+  definition succ_le_succ {n m : ℕ₋₁} (H : n ≤ m) : n.+1 ≤ m.+1 := proof H qed
+  definition le_of_succ_le_succ {n m : ℕ₋₁} (H : n.+1 ≤ m.+1) : n ≤ m := proof H qed
+  definition minus_two_le (n : ℕ₋₁) : -1 ≤ n := star
+  definition empty_of_succ_le_minus_two {n : ℕ₋₁} (H : n .+1 ≤ -1) : empty := H
 
-  definition of_nat [coercion] [reducible] (n : nat) : sphere_index :=
+  definition of_nat [coercion] [reducible] (n : nat) : ℕ₋₁ :=
   (nat.rec_on n -1 (λ n k, k.+1)).+1
 
-  definition trunc_index_of_sphere_index [coercion] [reducible] (n : sphere_index) : trunc_index :=
-  (sphere_index.rec_on n -2 (λ n k, k.+1)).+1
-
-  definition sub_one [reducible] (n : ℕ) : sphere_index :=
+  definition sub_one [reducible] (n : ℕ) : ℕ₋₁ :=
   nat.rec_on n -1 (λ n k, k.+1)
 
   postfix `.-1`:(max+1) := sub_one
 
-  open trunc_index
+  definition succ_sub_one (n : ℕ) : (nat.succ n).-1 = n :> ℕ₋₁ :=
+  idp
+
+end sphere_index
+open sphere_index
+
+namespace trunc_index
+  definition sub_one [reducible] (n : ℕ₋₁) : ℕ₋₂ :=
+  sphere_index.rec_on n -2 (λ n k, k.+1)
+  postfix `.-1`:(max+1) := sub_one
+
+  definition of_sphere_index [coercion] [reducible] (n : ℕ₋₁) : ℕ₋₂ :=
+  n.-1.+1
+
   definition sub_two_eq_sub_one_sub_one (n : ℕ) : n.-2 = n.-1.-1 :=
   nat.rec_on n idp (λn p, ap trunc_index.succ p)
 
-end sphere_index
+  definition succ_sub_one (n : ℕ₋₁) : n.+1.-1 = n :> ℕ₋₂ :=
+  idp
+
+  definition of_sphere_index_of_nat (n : ℕ)
+    : of_sphere_index (sphere_index.of_nat n) = trunc_index.of_nat n :> ℕ₋₂ :=
+  begin
+    induction n with n IH,
+    { reflexivity},
+    { exact ap trunc_index.succ IH}
+  end
+
+end trunc_index
 
 open sphere_index equiv
 
-definition sphere : sphere_index → Type₀
+definition sphere : ℕ₋₁ → Type₀
 | -1   := empty
 | n.+1 := susp (sphere n)
 
@@ -108,6 +124,9 @@ namespace sphere
     notation `S.` := psphere
   end ops
   open sphere.ops
+
+  definition sphere_minus_one : S -1 = empty := idp
+  definition sphere_succ (n : ℕ₋₁) : S n.+1 = susp (S n) := idp
 
   definition equator (n : ℕ) : map₊ (S. n) (Ω (S. (succ n))) :=
   pmap.mk (λa, merid a ⬝ (merid base)⁻¹) !con.right_inv

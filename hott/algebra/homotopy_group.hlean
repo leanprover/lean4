@@ -49,6 +49,15 @@ namespace eq
     : π*[n] A ≃* π*[n] B :=
   ptrunc_pequiv 0 (iterated_loop_space_pequiv n H)
 
+  set_option pp.coercions true
+  set_option pp.numerals false
+  definition phomotopy_group_pequiv_loop_ptrunc [constructor] (k : ℕ) (A : Type*) :
+    π*[k] A ≃* Ω[k] (ptrunc k A) :=
+  begin
+    refine !iterated_loop_ptrunc_pequiv⁻¹ᵉ* ⬝e* _,
+    rewrite [trunc_index.zero_add]
+  end
+
   open equiv unit
   theorem trivial_homotopy_of_is_set (A : Type*) [H : is_set A] (n : ℕ) : πg[n+1] A = G0 :=
   begin

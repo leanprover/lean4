@@ -23,16 +23,19 @@ public:
         expr               m_type;
         optional<expr>     m_value;
         binder_info        m_bi;
+        unsigned           m_idx;
         MK_LEAN_RC(); // Declare m_rc counter
         void dealloc();
-        cell(name const & n, name const & pp_n, expr const & t, optional<expr> const & v, binder_info const & bi);
+        cell(unsigned idx, name const & n, name const & pp_n, expr const & t, optional<expr> const & v, binder_info const & bi);
     };
 private:
     cell * m_ptr;
     friend class local_context;
+    friend void initialize_local_context();
+    local_decl(unsigned idx, name const & n, name const & pp_n, expr const & t, optional<expr> const & v, binder_info const & bi);
+    unsigned get_idx() const { return m_ptr->m_idx; }
 public:
     local_decl();
-    local_decl(name const & n, name const & pp_n, expr const & t, optional<expr> const & v, binder_info const & bi);
     local_decl(local_decl const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     local_decl(local_decl && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~local_decl() { if (m_ptr) m_ptr->dec_ref(); }
@@ -51,17 +54,25 @@ public:
 bool is_local_decl_ref(expr const & e);
 
 class local_context {
-    name_map<local_decl> m_local_decl_map;
-    list<local_decl>     m_local_decls;
+    typedef rb_map<unsigned, local_decl, unsigned_cmp> idx2local_decl;
+    unsigned              m_next_idx;
+    name_map<local_decl>  m_name2local_decl;
+    idx2local_decl        m_idx2local_decl;
     expr mk_local_decl(name const & n, name const & ppn, expr const & type, optional<expr> const & value, binder_info const & bi);
 public:
+    local_context():m_next_idx(0) {}
     expr mk_local_decl(expr const & type, binder_info const & bi = binder_info());
     expr mk_local_decl(expr const & type, expr const & value);
     expr mk_local_decl(name const & ppn, expr const & type, binder_info const & bi = binder_info());
     expr mk_local_decl(name const & ppn, expr const & type, expr const & value);
+    /** \brief Return the local declarations for the given reference.
+        \pre is_local_decl_ref(e) */
     optional<local_decl> get_local_decl(expr const & e);
+    /** \brief Traverse local declarations based on the order they were created */
     void for_each(std::function<void(local_decl const &)> const & fn) const;
     optional<local_decl> find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT
+    /** \brief Execute fn for each local declaration created after \c d. */
+    void for_each_after(local_decl const & d, std::function<void(local_decl const &)> const & fn) const;
 };
 
 void initialize_local_context();

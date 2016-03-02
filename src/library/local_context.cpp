@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <limits>
 #include "util/fresh_name.h"
 #include "library/local_context.h"
 
@@ -18,12 +19,12 @@ void local_decl::cell::dealloc() {
     this->~cell();
     get_local_decl_allocator().recycle(this);
 }
-local_decl::cell::cell(name const & n, name const & pp_n, expr const & t, optional<expr> const & v, binder_info const & bi):
-    m_name(n), m_pp_name(pp_n), m_type(t), m_value(v), m_bi(bi), m_rc(1) {}
+local_decl::cell::cell(unsigned idx, name const & n, name const & pp_n, expr const & t, optional<expr> const & v, binder_info const & bi):
+    m_name(n), m_pp_name(pp_n), m_type(t), m_value(v), m_bi(bi), m_idx(idx), m_rc(1) {}
 
 local_decl::local_decl():local_decl(*g_dummy_decl) {}
-local_decl::local_decl(name const & n, name const & pp_n, expr const & t, optional<expr> const & v, binder_info const & bi) {
-    m_ptr = new (get_local_decl_allocator().allocate()) cell(n, pp_n, t, v, bi);
+local_decl::local_decl(unsigned idx, name const & n, name const & pp_n, expr const & t, optional<expr> const & v, binder_info const & bi) {
+    m_ptr = new (get_local_decl_allocator().allocate()) cell(idx, n, pp_n, t, v, bi);
 }
 
 name mk_local_decl_name() {
@@ -40,9 +41,11 @@ bool is_local_decl_ref(expr const & e) {
 
 expr local_context::mk_local_decl(name const & n, name const & ppn, expr const & type, optional<expr> const & value, binder_info const & bi) {
     lean_assert(!m_local_decl_map.contains(n));
-    local_decl l(n, ppn, type, value, bi);
-    m_local_decls = cons(l, m_local_decls);
-    m_local_decl_map.insert(n, l);
+    unsigned idx = m_next_idx;
+    m_next_idx++;
+    local_decl l(idx, n, ppn, type, value, bi);
+    m_name2local_decl.insert(n, l);
+    m_idx2local_decl.insert(idx, l);
     return mk_local_ref(n);
 }
 
@@ -66,24 +69,29 @@ expr local_context::mk_local_decl(name const & ppn, expr const & type, expr cons
 
 optional<local_decl> local_context::get_local_decl(expr const & e) {
     lean_assert(is_local_decl_ref(e));
-    if (auto r = m_local_decl_map.find(mlocal_name(e)))
+    if (auto r = m_name2local_decl.find(mlocal_name(e)))
         return optional<local_decl>(*r);
     else
         return optional<local_decl>();
 }
 
 void local_context::for_each(std::function<void(local_decl const &)> const & fn) const {
-    m_local_decl_map.for_each([&](name const &, local_decl const & d) { fn(d); });
+    m_idx2local_decl.for_each([&](unsigned, local_decl const & d) { fn(d); });
 }
 
 optional<local_decl> local_context::find_if(std::function<bool(local_decl const &)> const & pred) const { // NOLINT
-    return m_local_decl_map.find_if([&](name const &, local_decl const & d) { return pred(d); });
+    return m_idx2local_decl.find_if([&](unsigned, local_decl const & d) { return pred(d); });
+}
+
+void local_context::for_each_after(local_decl const & d, std::function<void(local_decl const &)> const & fn) const {
+    m_idx2local_decl.for_each_greater(d.get_idx(), [&](unsigned, local_decl const & d) { return fn(d); });
 }
 
 void initialize_local_context() {
     g_local_prefix = new name(name::mk_internal_unique_name());
     g_dummy_type   = new expr(mk_constant(name::mk_internal_unique_name()));
-    g_dummy_decl   = new local_decl(name("__local_decl_for_default_constructor"), name("__local_decl_for_default_constructor"),
+    g_dummy_decl   = new local_decl(std::numeric_limits<unsigned>::max(),
+                                    name("__local_decl_for_default_constructor"), name("__local_decl_for_default_constructor"),
                                     *g_dummy_type, optional<expr>(), binder_info());
 }
 

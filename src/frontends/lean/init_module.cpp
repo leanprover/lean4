@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/calc.h"
-#include "frontends/lean/begin_end_ext.h"
+#include "frontends/lean/begin_end_annotation.h"
 #include "frontends/lean/builtin_cmds.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/builtin_tactics.h"
@@ -51,7 +51,7 @@ void initialize_frontend_lean_module() {
     initialize_tactic_hint();
     initialize_parser_config();
     initialize_calc();
-    initialize_begin_end_ext();
+    initialize_begin_end_annotation();
     initialize_inductive_cmd();
     initialize_structure_cmd();
     initialize_info_manager();
@@ -80,7 +80,7 @@ void finalize_frontend_lean_module() {
     finalize_info_manager();
     finalize_structure_cmd();
     finalize_inductive_cmd();
-    finalize_begin_end_ext();
+    finalize_begin_end_annotation();
     finalize_calc();
     finalize_parser_config();
     finalize_tactic_hint();

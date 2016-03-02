@@ -27,7 +27,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/calc.h"
-#include "frontends/lean/begin_end_ext.h"
+#include "frontends/lean/begin_end_annotation.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
@@ -151,13 +151,10 @@ static expr parse_begin_end_core(parser & p, pos_info const & start_pos,
     if (!p.has_tactic_decls())
         throw parser_error("invalid 'begin-end' expression, tactic module has not been imported", start_pos);
     p.next();
-    optional<expr> pre_tac = get_begin_end_pre_tactic(p.env());
     buffer<expr> tacs;
     bool first = true;
 
-    auto add_tac = [&](expr tac, pos_info const & pos) {
-        if (pre_tac)
-            tac = p.mk_app({get_and_then_tac_fn(), *pre_tac, tac}, pos);
+    auto add_tac = [&](expr tac) {
         tac = mk_begin_end_element_annotation(tac);
         tacs.push_back(tac);
     };
@@ -224,7 +221,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & start_pos,
                     t      = p.mk_app(get_rexact_tac_fn(), t, pos);
                     t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
                     t      = p.save_pos(mk_begin_end_annotation(t), pos);
-                    add_tac(t, pos);
+                    add_tac(t);
                 } else {
                     p.check_token_next(get_comma_tk(), "invalid 'have' tactic, ',' expected");
                     if (p.curr_is_token(get_from_tk())) {
@@ -235,7 +232,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & start_pos,
                         t      = p.mk_app(get_exact_tac_fn(), t, pos);
                         t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
                         t      = p.save_pos(mk_begin_end_annotation(t), pos);
-                        add_tac(t, pos);
+                        add_tac(t);
                     } else if (p.curr_is_token(get_proof_tk())) {
                         auto pos = p.pos();
                         p.next();
@@ -244,16 +241,15 @@ static expr parse_begin_end_core(parser & p, pos_info const & start_pos,
                         t      = p.mk_app(get_rexact_tac_fn(), t, pos);
                         t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
                         t      = p.save_pos(mk_begin_end_annotation(t), pos);
-                        add_tac(t, pos);
+                        add_tac(t);
                     } else if (p.curr_is_token(get_begin_tk())) {
                         auto pos = p.pos();
                         tacs.push_back(parse_begin_end_core(p, pos, get_end_tk(), true));
                     } else if (p.curr_is_token(get_by_tk())) {
                         // parse: 'by' tactic
-                        auto pos = p.pos();
                         p.next();
                         expr t = p.parse_tactic();
-                        add_tac(t, pos);
+                        add_tac(t);
                     } else {
                         throw parser_error("invalid 'have' tactic, 'by', 'begin', 'proof', or 'from' expected", p.pos());
                     }
@@ -265,11 +261,10 @@ static expr parse_begin_end_core(parser & p, pos_info const & start_pos,
                 auto pos = p.pos();
                 expr t = p.parse_tactic_expr_arg();
                 t      = p.mk_app(get_exact_tac_fn(), t, pos);
-                add_tac(t, pos);
+                add_tac(t);
             } else {
-                auto pos = p.pos();
                 expr t   = p.parse_tactic();
-                add_tac(t, pos);
+                add_tac(t);
             }
         }
     } catch (exception & ex) {
@@ -281,8 +276,6 @@ static expr parse_begin_end_core(parser & p, pos_info const & start_pos,
     p.next();
     if (tacs.empty()) {
         expr tac = get_id_tac_fn();
-        if (pre_tac)
-            tac = p.mk_app({get_and_then_tac_fn(), *pre_tac, tac}, end_pos);
         tac = mk_begin_end_element_annotation(tac);
         tacs.push_back(tac);
     }

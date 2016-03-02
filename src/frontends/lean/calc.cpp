@@ -28,7 +28,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
-#include "frontends/lean/begin_end_ext.h"
+#include "frontends/lean/begin_end_annotation.h"
 
 namespace lean {
 static name * g_calc_name  = nullptr;

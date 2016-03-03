@@ -53,9 +53,9 @@ add_test(NAME "show_goal"
 add_test(NAME "show_goal_bag"
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
          COMMAND bash "./show_goal_bag.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
-add_test(NAME "print_info"
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
-         COMMAND bash "./print_info.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
+# add_test(NAME "print_info"
+#          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
+#          COMMAND bash "./print_info.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
 add_test(NAME "dir_option"
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
          COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" "--dir=${LEAN_SOURCE_DIR}/../library/data/nat" "dir_option.lean")
@@ -133,14 +133,14 @@ FOREACH(T ${LEANSLOWTESTS})
   set_tests_properties("leanslowtest_${T_NAME}" PROPERTIES LABELS "expensive")
 ENDFOREACH(T)
 
-# LEAN DOCS
-file(GLOB LEANDOCS "${LEAN_SOURCE_DIR}/../doc/lean/*.org")
-FOREACH(T ${LEANDOCS})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leandoc_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/lean"
-           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
-ENDFOREACH(T)
+# # LEAN DOCS
+# file(GLOB LEANDOCS "${LEAN_SOURCE_DIR}/../doc/lean/*.org")
+# FOREACH(T ${LEANDOCS})
+#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+#   add_test(NAME "leandoc_${T_NAME}"
+#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/lean"
+#            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
+# ENDFOREACH(T)
 
 # # Create the script lean.sh
 # # This is used to create a soft dependency on the Lean executable

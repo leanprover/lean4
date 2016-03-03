@@ -5,7 +5,8 @@ Authors: Leonardo de Moura, Haitao Zhang, Floris van Doorn
 
 List combinators.
 -/
-import data.list.basic data.equiv
+-- TODO(Leo): uncomment data.equiv after refactoring
+import data.list.basic -- data.equiv
 open nat prod decidable function helper_tactics
 
 namespace list
@@ -567,6 +568,7 @@ not.mto (mem_of_dinj_of_mem_dmap Pdi Pa)
 
 end dmap
 
+/-
 section
 open equiv
 definition list_equiv_of_equiv {A B : Type} : A ≃ B → list A ≃ list B
@@ -618,6 +620,8 @@ suppose A ≃ nat, calc
      ... ≃ nat      : list_nat_equiv_nat
      ... ≃ A        : this
 end
+-/
+
 end list
 
 attribute list.decidable_any [instance]

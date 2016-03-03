@@ -5,6 +5,8 @@ Authors: Leonardo de Moura
 
 Parity.
 -/
+-- TODO(Leo): remove after refactoring
+exit
 import data.nat.power logic.identities
 
 namespace nat

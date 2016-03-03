@@ -5,6 +5,8 @@ Author: Jeremy Avigad
 
 Finite sums and products over intervals of natural numbers.
 -/
+-- TODO(Leo): remove after refactoring
+exit
 import data.nat.order algebra.group_bigops algebra.interval
 
 namespace nat

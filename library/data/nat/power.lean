@@ -5,6 +5,10 @@ Authors: Leonardo de Moura, Jeremy Avigad
 
 The power function on the natural numbers.
 -/
+
+-- TODO(Leo): remove after refactoring
+exit
+
 import data.nat.basic data.nat.order data.nat.div data.nat.gcd algebra.ring_power
 
 namespace nat

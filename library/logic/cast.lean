@@ -67,7 +67,7 @@ section
   theorem hproof_irrel {a b : Prop} (H : a = b) (H₁ : a) (H₂ : b) : H₁ == H₂ :=
   eq_rec_to_heq (proof_irrel (cast H H₁) H₂)
 
-  --TODO: generalize to eq.rec. This is a special case of rec_on_compose in eq.lean
+  --TODO: generalize to eq.rec. This is a special case of rec_on_comp in eq.lean
   theorem cast_trans (Hab : A = B) (Hbc : B = C) (a : A) :
     cast Hbc (cast Hab a) = cast (Hab ⬝ Hbc) a :=
   by subst Hab

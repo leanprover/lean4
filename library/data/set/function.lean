@@ -118,7 +118,7 @@ assume xa : x ∈ a,
 have H : f1 x ∈ b, from maps_to_f1 xa,
 show f2 x ∈ b, from eq_on_a xa ▸ H
 
-theorem maps_to_compose {g : Y → Z} {f : X → Y} {a : set X} {b : set Y} {c : set Z}
+theorem maps_to_comp {g : Y → Z} {f : X → Y} {a : set X} {b : set Y} {c : set Z}
    (H1 : maps_to g b c) (H2 : maps_to f a b) : maps_to (g ∘ f) a c :=
 take x, assume H : x ∈ a, H1 (H2 H)
 
@@ -157,7 +157,7 @@ assume H : f2 x1 = f2 x2,
 have H' : f1 x1 = f1 x2, from eq_f1_f2 ax1 ⬝ H ⬝ (eq_f1_f2 ax2)⁻¹,
 show x1 = x2, from inj_f1 ax1 ax2 H'
 
-theorem inj_on_compose {g : Y → Z} {f : X → Y} {a : set X} {b : set Y}
+theorem inj_on_comp {g : Y → Z} {f : X → Y} {a : set X} {b : set Y}
     (fab : maps_to f a b) (Hg : inj_on g b) (Hf: inj_on f a) :
   inj_on (g ∘ f) a :=
 take x1 x2 : X,
@@ -195,7 +195,7 @@ have H2 : x ∈ a, from and.left H1,
 have H3 : f2 x = y, from (eq_f1_f2 H2)⁻¹ ⬝ and.right H1,
 exists.intro x (and.intro H2 H3)
 
-theorem surj_on_compose {g : Y → Z} {f : X → Y} {a : set X} {b : set Y} {c : set Z}
+theorem surj_on_comp {g : Y → Z} {f : X → Y} {a : set X} {b : set Y} {c : set Z}
   (Hg : surj_on g b c) (Hf: surj_on f a b) :
   surj_on (g ∘ f) a c :=
 take z,
@@ -260,16 +260,16 @@ lemma image_eq_of_bij_on {f : X → Y} {a : set X} {b : set Y} (bfab : bij_on f 
   f ' a = b :=
 image_eq_of_maps_to_of_surj_on (and.left bfab) (and.right (and.right bfab))
 
-theorem bij_on_compose {g : Y → Z} {f : X → Y} {a : set X} {b : set Y} {c : set Z}
+theorem bij_on_comp {g : Y → Z} {f : X → Y} {a : set X} {b : set Y} {c : set Z}
   (Hg : bij_on g b c) (Hf: bij_on f a b) :
   bij_on (g ∘ f) a c :=
 match Hg with and.intro Hgmap (and.intro Hginj Hgsurj) :=
   match Hf with and.intro Hfmap (and.intro Hfinj Hfsurj) :=
     and.intro
-      (maps_to_compose Hgmap Hfmap)
+      (maps_to_comp Hgmap Hfmap)
       (and.intro
-        (inj_on_compose Hfmap Hginj Hfinj)
-        (surj_on_compose Hgsurj Hfsurj))
+        (inj_on_comp Hfmap Hginj Hfinj)
+        (surj_on_comp Hgsurj Hfsurj))
   end
 end
 
@@ -320,7 +320,7 @@ calc
      ... = g (f x2) : H1
      ... = x2       : H x2a
 
-theorem left_inv_on_compose {f' : Y → X} {g' : Z → Y} {g : Y → Z} {f : X → Y}
+theorem left_inv_on_comp {f' : Y → X} {g' : Z → Y} {g : Y → Z} {f : X → Y}
    {a : set X} {b : set Y} (fab : maps_to f a b)
     (Hf : left_inv_on f' f a) (Hg : left_inv_on g' g b) : left_inv_on (f' ∘ g') (g ∘ f) a :=
 take x : X,
@@ -353,10 +353,10 @@ have gya : g y ∈ a, from gba yb,
 have H1 : f (g y) = y, from H yb,
 exists.intro (g y) (and.intro gya H1)
 
-theorem right_inv_on_compose {f' : Y → X} {g' : Z → Y} {g : Y → Z} {f : X → Y}
+theorem right_inv_on_comp {f' : Y → X} {g' : Z → Y} {g : Y → Z} {f : X → Y}
    {c : set Z} {b : set Y} (g'cb : maps_to g' c b)
     (Hf : right_inv_on f' f b) (Hg : right_inv_on g' g c) : right_inv_on (f' ∘ g') (g ∘ f) c :=
-left_inv_on_compose g'cb Hg Hf
+left_inv_on_comp g'cb Hg Hf
 
 theorem right_inv_on_of_inj_on_of_left_inv_on {f : X → Y} {g : Y → X} {a : set X} {b : set Y}
     (fab : maps_to f a b) (gba : maps_to g b a) (injf : inj_on f a) (lfg : left_inv_on f g b) :

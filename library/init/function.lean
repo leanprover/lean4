@@ -12,13 +12,13 @@ namespace function
 
 variables {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}
 
-definition compose [reducible] [unfold_full] (f : B → C) (g : A → B) : A → C :=
+definition comp [reducible] [unfold_full] (f : B → C) (g : A → B) : A → C :=
 λx, f (g x)
 
-definition compose_right [reducible] [unfold_full] (f : B → B → B) (g : A → B) : B → A → B :=
+definition comp_right [reducible] [unfold_full] (f : B → B → B) (g : A → B) : B → A → B :=
 λ b a, f b (g a)
 
-definition compose_left [reducible] [unfold_full] (f : B → B → B) (g : A → B) : A → B → B :=
+definition comp_left [reducible] [unfold_full] (f : B → B → B) (g : A → B) : A → B → B :=
 λ a b, f (g a) b
 
 definition on_fun [reducible] [unfold_full] (f : B → B → C) (g : A → B) : A → A → C :=
@@ -31,7 +31,7 @@ definition combine [reducible] [unfold_full] (f : A → B → C) (op : C → D �
 definition const [reducible] [unfold_full] (B : Type) (a : A) : B → A :=
 λx, a
 
-definition dcompose [reducible] [unfold_full] {B : A → Type} {C : Π {x : A}, B x → Type}
+definition dcomp [reducible] [unfold_full] {B : A → Type} {C : Π {x : A}, B x → Type}
   (f : Π {x : A} (y : B x), C y) (g : Πx, B x) : Πx, C (g x) :=
 λx, f (g x)
 
@@ -53,8 +53,8 @@ rfl
 theorem uncurry_curry (f : A × B → C) : uncurry (curry f) = f :=
 funext (λ p, match p with (a, b) := rfl end)
 
-infixr  ` ∘ `            := compose
-infixr  ` ∘' `:60        := dcompose
+infixr  ` ∘ `            := comp
+infixr  ` ∘' `:60        := dcomp
 infixl  ` on `:1         := on_fun
 infixr  ` $ `:1          := app
 notation f ` -[` op `]- ` g  := combine f op g
@@ -63,23 +63,23 @@ lemma left_id (f : A → B) : id ∘ f = f := rfl
 
 lemma right_id (f : A → B) : f ∘ id = f := rfl
 
-theorem compose.assoc (f : C → D) (g : B → C) (h : A → B) : (f ∘ g) ∘ h = f ∘ (g ∘ h) := rfl
+theorem comp.assoc (f : C → D) (g : B → C) (h : A → B) : (f ∘ g) ∘ h = f ∘ (g ∘ h) := rfl
 
-theorem compose.left_id (f : A → B) : id ∘ f = f := rfl
+theorem comp.left_id (f : A → B) : id ∘ f = f := rfl
 
-theorem compose.right_id (f : A → B) : f ∘ id = f := rfl
+theorem comp.right_id (f : A → B) : f ∘ id = f := rfl
 
-theorem compose_const_right (f : B → C) (b : B) : f ∘ (const A b) = const A (f b) := rfl
+theorem comp_const_right (f : B → C) (b : B) : f ∘ (const A b) = const A (f b) := rfl
 
 definition injective [reducible] (f : A → B) : Prop := ∀ ⦃a₁ a₂⦄, f a₁ = f a₂ → a₁ = a₂
 
-theorem injective_compose {g : B → C} {f : A → B} (Hg : injective g) (Hf : injective f) :
+theorem injective_comp {g : B → C} {f : A → B} (Hg : injective g) (Hf : injective f) :
   injective (g ∘ f) :=
 take a₁ a₂, assume Heq, Hf (Hg Heq)
 
 definition surjective [reducible] (f : A → B) : Prop := ∀ b, ∃ a, f a = b
 
-theorem surjective_compose {g : B → C} {f : A → B} (Hg : surjective g) (Hf : surjective f) :
+theorem surjective_comp {g : B → C} {f : A → B} (Hg : surjective g) (Hf : surjective f) :
   surjective (g ∘ f) :=
 take c,
   obtain b (Hb : g b = c), from Hg c,
@@ -88,11 +88,11 @@ take c,
 
 definition bijective (f : A → B) := injective f ∧ surjective f
 
-theorem bijective_compose {g : B → C} {f : A → B} (Hg : bijective g) (Hf : bijective f) :
+theorem bijective_comp {g : B → C} {f : A → B} (Hg : bijective g) (Hf : bijective f) :
   bijective (g ∘ f) :=
 obtain Hginj Hgsurj, from Hg,
 obtain Hfinj Hfsurj, from Hf,
-and.intro (injective_compose Hginj Hfinj) (surjective_compose Hgsurj Hfsurj)
+and.intro (injective_comp Hginj Hfinj) (surjective_comp Hgsurj Hfsurj)
 
 -- g is a left inverse to f
 definition left_inverse (g : B → A) (f : A → B) : Prop := ∀x, g (f x) = x

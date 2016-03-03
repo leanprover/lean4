@@ -22,11 +22,11 @@ definition r a (S : set A) := (rmul a) ' S
 lemma lmul_compose : ∀ (a b : A), (lmul a) ∘ (lmul b) = lmul (a*b) :=
       take a, take b,
       funext (assume x, by
-        rewrite [↑function.compose, ↑lmul, mul.assoc])
+        rewrite [↑function.comp, ↑lmul, mul.assoc])
 lemma rmul_compose : ∀ (a b : A), (rmul a) ∘ (rmul b) = rmul (b*a) :=
       take a, take b,
       funext (assume x, by
-        rewrite [↑function.compose, ↑rmul, mul.assoc])
+        rewrite [↑function.comp, ↑rmul, mul.assoc])
 lemma lcompose a b (S : set A) : l a (l b S) = l (a*b) S :=
       calc (lmul a) ' ((lmul b) ' S) = ((lmul a) ∘ (lmul b)) ' S : image_comp
       ... = lmul (a*b) ' S : lmul_compose

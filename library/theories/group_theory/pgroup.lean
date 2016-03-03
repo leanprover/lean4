@@ -200,7 +200,7 @@ lemma rotl_perm_peo_of_peo {n : nat} : ∀ {m} {s : seq A n}, peo s → peo (rot
 | (succ m) := take s,
   have Pmul : rotl_perm A n (m + 1) s = rotl_fun 1 (rotl_perm A n m s), from
     calc s ∘ (rotl (m + 1)) = s ∘ ((rotl m) ∘ (rotl 1)) : rotl_compose
-                        ... = s ∘ (rotl m) ∘ (rotl 1) : compose.assoc,
+                        ... = s ∘ (rotl m) ∘ (rotl 1) : comp.assoc,
   begin
   rewrite [-add_one, Pmul], intro P,
   exact rotl1_peo_of_peo (rotl_perm_peo_of_peo P)
@@ -257,7 +257,7 @@ funext take s, subtype.eq begin rewrite [↑rotl_peo_seq, -rotl_perm_pow_eq, rot
 
 lemma rotl_peo_seq_compose {n i j : nat} :
   (rotl_peo_seq A n i) ∘ (rotl_peo_seq A n j) = rotl_peo_seq A n (j + i) :=
-funext take s, subtype.eq begin rewrite [↑rotl_peo_seq, ↑rotl_perm, ↑rotl_fun, compose.assoc, rotl_compose] end
+funext take s, subtype.eq begin rewrite [↑rotl_peo_seq, ↑rotl_perm, ↑rotl_fun, comp.assoc, rotl_compose] end
 
 lemma rotl_peo_seq_mod {n i : nat} : rotl_peo_seq A n i = rotl_peo_seq A n (i % succ n) :=
 funext take s, subtype.eq begin rewrite [↑rotl_peo_seq, rotl_perm_mod] end

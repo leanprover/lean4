@@ -595,7 +595,7 @@ infix `⊛`:75 := apply  -- input as \o*
 
 theorem identity (s : stream A) : pure id ⊛ s = s :=
 rfl
-theorem composition (g : stream (B → C)) (f : stream (A → B)) (s : stream A) : pure compose ⊛ g ⊛ f ⊛ s = g ⊛ (f ⊛ s) :=
+theorem composition (g : stream (B → C)) (f : stream (A → B)) (s : stream A) : pure comp ⊛ g ⊛ f ⊛ s = g ⊛ (f ⊛ s) :=
 rfl
 theorem homomorphism (f : A → B) (a : A) : pure f ⊛ pure a = pure (f a) :=
 rfl

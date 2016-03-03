@@ -23,7 +23,7 @@ have linv : left_inverse finv f, from
     have ex : ∃ a₁ : A, f a₁ = f a, from exists.intro a rfl,
     have h₁ : f (some ex) = f a,    from !some_spec,
     begin
-      esimp [mk_left_inv, compose, id],
+      esimp [mk_left_inv, comp, id],
       rewrite [dif_pos ex],
       exact (!inj h₁)
     end,

@@ -44,15 +44,15 @@ example : m = n → xs == ys → nil ++ xs == ys := by inst_simp
 example : (xs ++ ys) ++ zs == xs ++ (ys ++ zs) := by inst_simp
 example : p = m + n → zs == xs ++ ys → zs ++ ws == (xs ++ ys) ++ ws := by inst_simp
 example : m + n = p → xs ++ ys == zs → zs ++ ws == xs ++ (ys ++ ws) := by inst_simp
-        
+
 example : m = n → p = q → m + n = p → xs == ys → zs == ws → xs ++ ys == zs → ws ++ ws == (ys ++ xs) ++ (xs ++ ys) := by inst_simp
 
 example : m = n → n = p → xs == reverse ys → ys == reverse zs → xs == zs := by inst_simp
 
-example : m = n → xs == ys → f = g → a = b → map f (cons a xs) == cons (g b) (map g ys) := by 
+example : m = n → xs == ys → f = g → a = b → map f (cons a xs) == cons (g b) (map g ys) := by
 inst_simp
 
-attribute function.compose [semireducible]
+attribute function.comp [semireducible]
 example : m = n → xs == ys → h1 = h2 → k1 = k2 → map k1 (map h1 xs) == map (k2 ∘ h2) ys := by inst_simp
 
 example : ∀ (xs : tuple A (nat.succ m)) (ys : tuple A (nat.succ n))

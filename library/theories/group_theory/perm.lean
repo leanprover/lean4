@@ -83,7 +83,7 @@ definition perm_is_fintype [instance] : fintype (perm A) :=
            fintype.mk all_perms nodup_all_perms all_perms_complete
 
 definition perm.mul (f g : perm A) :=
-           perm.mk (f∘g) (injective_compose (perm.inj f) (perm.inj g))
+           perm.mk (f∘g) (injective_comp (perm.inj f) (perm.inj g))
 definition perm.one [reducible] : perm A := perm.mk id injective_id
 definition perm.inv (f : perm A) := let inj := perm.inj f in
            perm.mk (perm_inv inj) (perm_inv_inj inj)

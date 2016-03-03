@@ -44,10 +44,10 @@ mk_equivalence (@map.equiv X Y a b) (@equiv.refl X Y a b) (@equiv.symm X Y a b)
 
 /- compose -/
 
-protected definition compose (g : map b c) (f : map a b) : map a c :=
-map.mk (#function g ∘ f) (maps_to_compose (mapsto g) (mapsto f))
+protected definition comp (g : map b c) (f : map a b) : map a c :=
+map.mk (#function g ∘ f) (maps_to_comp (mapsto g) (mapsto f))
 
-notation g ∘ f := map.compose g f
+notation g ∘ f := map.comp g f
 
 /- range -/
 
@@ -64,9 +64,9 @@ theorem injective_of_equiv {f1 f2 : map a b} (H1 : f1 ~ f2) (H2 : map.injective 
   map.injective f2 :=
 inj_on_of_eq_on H1 H2
 
-theorem injective_compose {g : map b c} {f : map a b} (Hg : map.injective g) (Hf: map.injective f) :
+theorem injective_comp {g : map b c} {f : map a b} (Hg : map.injective g) (Hf: map.injective f) :
   map.injective (g ∘ f) :=
-inj_on_compose (mapsto f) Hg Hf
+inj_on_comp (mapsto f) Hg Hf
 
 /- surjective -/
 
@@ -76,10 +76,10 @@ theorem surjective_of_equiv {f1 f2 : map a b} (H1 : f1 ~ f2) (H2 : map.surjectiv
   map.surjective f2 :=
 surj_on_of_eq_on H1 H2
 
-theorem surjective_compose {g : map b c} {f : map a b} (Hg : map.surjective g)
+theorem surjective_comp {g : map b c} {f : map a b} (Hg : map.surjective g)
     (Hf: map.surjective f) :
   map.surjective (g ∘ f) :=
-surj_on_compose Hg Hf
+surj_on_comp Hg Hf
 
 theorem image_eq_of_surjective {f : map a b} (H : map.surjective f) : f ' a = b :=
 image_eq_of_maps_to_of_surj_on (map.mapsto f) H
@@ -92,11 +92,11 @@ theorem bijective_of_equiv {f1 f2 : map a b} (H1 : f1 ~ f2) (H2 : map.bijective 
   map.bijective f2 :=
 and.intro (injective_of_equiv H1 (and.left H2)) (surjective_of_equiv H1 (and.right H2))
 
-theorem bijective_compose {g : map b c} {f : map a b} (Hg : map.bijective g) (Hf: map.bijective f) :
+theorem bijective_comp {g : map b c} {f : map a b} (Hg : map.bijective g) (Hf: map.bijective f) :
   map.bijective (g ∘ f) :=
 obtain Hg₁ Hg₂, from Hg,
 obtain Hf₁ Hf₂, from Hf,
-and.intro (injective_compose Hg₁ Hf₁) (surjective_compose Hg₂ Hf₂)
+and.intro (injective_comp Hg₁ Hf₁) (surjective_comp Hg₂ Hf₂)
 
 theorem image_eq_of_bijective {f : map a b} (H : map.bijective f) : f ' a = b :=
 image_eq_of_surjective (proof and.right H qed)
@@ -118,10 +118,10 @@ theorem injective_of_left_inverse {g : map b a} {f : map a b} (H : map.left_inve
   map.injective f :=
 inj_on_of_left_inv_on H
 
-theorem left_inverse_compose {f' : map b a} {g' : map c b} {g : map b c} {f : map a b}
+theorem left_inverse_comp {f' : map b a} {g' : map c b} {g : map b c} {f : map a b}
     (Hf : map.left_inverse f' f) (Hg : map.left_inverse g' g) :
   map.left_inverse (f' ∘ g') (g ∘ f) :=
-left_inv_on_compose (mapsto f) Hf Hg
+left_inv_on_comp (mapsto f) Hf Hg
 
 /- right inverse -/
 
@@ -150,10 +150,10 @@ theorem left_inverse_of_surjective_of_right_inverse {f : map a b} {g : map b a}
   map.left_inverse f g :=
 left_inv_on_of_surj_on_right_inv_on surjf rfg
 
-theorem right_inverse_compose {f' : map b a} {g' : map c b} {g : map b c} {f : map a b}
+theorem right_inverse_comp {f' : map b a} {g' : map c b} {g : map b c} {f : map a b}
     (Hf : map.right_inverse f' f) (Hg : map.right_inverse g' g) :
   map.right_inverse (f' ∘ g') (g ∘ f) :=
-map.left_inverse_compose Hg Hf
+map.left_inverse_comp Hg Hf
 
 theorem equiv_of_map.left_inverse_of_right_inverse {g1 g2 : map b a} {f : map a b}
   (H1 : map.left_inverse g1 f) (H2 : map.right_inverse g2 f) : g1 ~ g2 :=

@@ -137,7 +137,7 @@ begin
   esimp [fin_inv, fin_lcoset, fin_rcoset],
   rewrite [-image_comp],
   apply ext, intro b,
-  rewrite [*mem_image_iff, ↑compose, ↑lmul_by, ↑rmul_by],
+  rewrite [*mem_image_iff, ↑comp, ↑lmul_by, ↑rmul_by],
   apply iff.intro,
     intro Pl, cases Pl with h Ph, cases Ph with Pin Peq,
     existsi h⁻¹, apply and.intro,

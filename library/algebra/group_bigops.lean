@@ -203,7 +203,7 @@ namespace finset
   variable [comm_semigroup B]
 
   theorem mulf_rcomm (f : A → B) : right_commutative (mulf f) :=
-  right_commutative_compose_right (@has_mul.mul B _) f (@mul.right_comm B _)
+  right_commutative_comp_right (@has_mul.mul B _) f (@mul.right_comm B _)
 
   namespace Prod_semigroup
   open Prodl_semigroup

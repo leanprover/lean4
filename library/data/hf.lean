@@ -455,7 +455,7 @@ theorem powerset_insert {a : hf} {s : hf} : a ∉ s → 𝒫 (insert a s) = 𝒫
 begin unfold [mem, powerset, insert, union, image], rewrite [*to_finset_of_finset], intro h,
       have (λ (x : finset hf), of_finset (finset.insert a x)) = (λ (x : finset hf), of_finset (finset.insert a (to_finset (of_finset x)))), from
         funext (λ x, by rewrite to_finset_of_finset),
-      rewrite [finset.powerset_insert h, finset.image_union, -*finset.image_comp, ↑compose, this]
+      rewrite [finset.powerset_insert h, finset.image_union, -*finset.image_comp, ↑comp, this]
 end
 
 theorem mem_powerset_iff_subset (s : hf) : ∀ x : hf, x ∈ 𝒫 s ↔ x ⊆ s :=

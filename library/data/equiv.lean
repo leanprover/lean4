@@ -63,7 +63,7 @@ open equiv.ops
 lemma id_apply {A : Type} (x : A) : id ∙ x = x :=
 rfl
 
-lemma compose_apply {A B C : Type} (g : B ≃ C) (f : A ≃ B) (x : A) : (g ∘ f) ∙ x = g ∙ f ∙ x :=
+lemma comp_apply {A B C : Type} (g : B ≃ C) (f : A ≃ B) (x : A) : (g ∘ f) ∙ x = g ∙ f ∙ x :=
 begin cases g, cases f, esimp end
 
 lemma inverse_apply_apply {A B : Type} : ∀ (e : A ≃ B) (x : A), e⁻¹ ∙ e ∙ x = x
@@ -379,7 +379,7 @@ assume h₁ h₂, by rewrite [swap_apply_def, if_neg h₁, if_neg h₂]
 lemma swap_swap (a b : A) : swap a b ∘ swap a b = id :=
 eq_of_to_fun_eq (funext (λ x, begin unfold [swap, fn, equiv.trans, equiv.refl], rewrite swap_core_swap_core end))
 
-lemma swap_compose_apply (a b : A) (π : perm A) (x : A) : (swap a b ∘ π) ∙ x = if π ∙ x = a then b else if π ∙ x = b then a else π ∙ x :=
+lemma swap_comp_apply (a b : A) (π : perm A) (x : A) : (swap a b ∘ π) ∙ x = if π ∙ x = a then b else if π ∙ x = b then a else π ∙ x :=
 begin cases π, reflexivity end
 
 end swap

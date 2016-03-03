@@ -34,7 +34,7 @@ namespace eq
       eq.drec_on H b = eq.drec_on H' b :=
   proof_irrel H H' ▸ rfl
 
-  theorem rec_on_compose {a b c : A} {P : A → Type} (H₁ : a = b) (H₂ : b = c)
+  theorem rec_on_comp {a b c : A} {P : A → Type} (H₁ : a = b) (H₂ : b = c)
           (u : P a) : eq.rec_on H₂ (eq.rec_on H₁ u) = eq.rec_on (trans H₁ H₂) u :=
     (show ∀ H₂ : b = c, eq.rec_on H₂ (eq.rec_on H₁ u) = eq.rec_on (trans H₁ H₂) u,
       from eq.drec_on H₂ (take (H₂ : b = b), rec_on_id H₂ _))

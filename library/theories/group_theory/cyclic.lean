@@ -292,7 +292,7 @@ lemma rotl_rotr : ∀ {n : nat} (m : nat), (@rotl n m) ∘ (rotr m) = id
 | (nat.succ n) := take m, funext take i, calc (mk_mod n (n*m)) + (-(mk_mod n (n*m)) + i) = i : add_neg_cancel_left
 
 lemma rotl_succ {n : nat} : (rotl 1) ∘ (@succ n) = lift_succ :=
-funext (take i, eq_of_veq (begin rewrite [↑compose, ↑rotl, ↑madd, mul_one n, ↑mk_mod, mod_add_mod, ↑lift_succ, val_succ, -succ_add_eq_succ_add, add_mod_self_left, mod_eq_of_lt (lt.trans (is_lt i) !lt_succ_self), -val_lift] end))
+funext (take i, eq_of_veq (begin rewrite [↑comp, ↑rotl, ↑madd, mul_one n, ↑mk_mod, mod_add_mod, ↑lift_succ, val_succ, -succ_add_eq_succ_add, add_mod_self_left, mod_eq_of_lt (lt.trans (is_lt i) !lt_succ_self), -val_lift] end))
 
 definition list.rotl {A : Type} : ∀ l : list A, list A
 | []     := []
@@ -336,7 +336,7 @@ lemma rotl_seq_ne_id : ∀ {n : nat}, (∃ a b : A, a ≠ b) → ∀ i, i < n �
   assume Peq, absurd (congr_fun Peq f) P
 
 lemma rotr_rotl_fun {n : nat} (m : nat) (f : seq A n) : rotr_fun m (rotl_fun m f) = f :=
-calc f ∘ (rotl m) ∘ (rotr m) = f ∘ ((rotl m) ∘ (rotr m)) : by rewrite -compose.assoc
+calc f ∘ (rotl m) ∘ (rotr m) = f ∘ ((rotl m) ∘ (rotr m)) : by rewrite -comp.assoc
                          ... = f ∘ id                    : by rewrite (rotl_rotr m)
 
 lemma rotl_fun_inj {n : nat} {m : nat} : @injective (seq A n) (seq A n) (rotl_fun m) :=
@@ -365,7 +365,7 @@ include finA deceqA
 
 lemma rotl_perm_mul {i j : nat} : (rotl_perm A n i) * (rotl_perm A n j) = rotl_perm A n (j+i) :=
 eq_of_feq (funext take f, calc
-  f ∘ (rotl j) ∘ (rotl i) = f ∘ ((rotl j) ∘ (rotl i)) : by rewrite -compose.assoc
+  f ∘ (rotl j) ∘ (rotl i) = f ∘ ((rotl j) ∘ (rotl i)) : by rewrite -comp.assoc
                       ... = f ∘ (rotl (j+i))          : by rewrite rotl_compose)
 
 lemma rotl_perm_pow_eq : ∀ {i : nat}, (rotl_perm A n 1) ^ i = rotl_perm A n i

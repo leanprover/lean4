@@ -114,7 +114,7 @@ assume Pgstab,
 have hom g a = a, from of_mem_sep Pgstab, calc
   hom (f*g) a = perm.f ((hom f) * (hom g)) a : is_hom hom
           ... = ((hom f) ∘ (hom g)) a        : by rewrite perm_f_mul
-          ... = (hom f) a                    : by unfold compose; rewrite this
+          ... = (hom f) a                    : by unfold comp; rewrite this
 
 lemma stab_subset : stab hom H a ⊆ H :=
       begin
@@ -126,7 +126,7 @@ assume Pg,
 have hom g a = hom h a, from of_mem_sep Pg, calc
   hom (h⁻¹*g) a = perm.f ((hom h⁻¹) * (hom g)) a : by rewrite (is_hom hom)
   ... = ((hom h⁻¹) ∘ hom g) a                    : by rewrite perm_f_mul
-  ... = perm.f ((hom h)⁻¹ * hom h) a             : by unfold compose; rewrite [this, perm_f_mul, hom_map_inv hom h]
+  ... = perm.f ((hom h)⁻¹ * hom h) a             : by unfold comp; rewrite [this, perm_f_mul, hom_map_inv hom h]
   ... = perm.f (1 : perm S) a                    : by rewrite (mul.left_inv (hom h))
   ... = a                                        : by esimp
 
@@ -486,7 +486,7 @@ definition lower_perm (p : perm (fin (succ n))) (P : p maxi = maxi) : perm (fin 
 perm.mk (lower_inj p (perm.inj p) P)
   (take i j, begin
   rewrite [-eq_iff_veq, *lower_inj_apply, eq_iff_veq],
-  apply injective_compose (perm.inj p) lift_succ_inj
+  apply injective_comp (perm.inj p) lift_succ_inj
   end)
 
 lemma lift_lower_eq : ∀ {p : perm (fin (succ n))} (P : p maxi = maxi),

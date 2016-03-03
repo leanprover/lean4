@@ -12,19 +12,19 @@ attribute bijection.func [coercion]
 namespace bijection
   variable {A : Type}
 
-  definition compose (f g : bijection A) : bijection A :=
+  definition comp (f g : bijection A) : bijection A :=
   bijection.mk
     (f ∘ g)
     (finv g ∘ finv f)
-    (by rewrite [compose.assoc, -{finv f ∘ _}compose.assoc, linv f, compose.left_id, linv g])
-    (by rewrite [-compose.assoc, {_ ∘ finv g}compose.assoc, rinv g, compose.right_id, rinv f])
+    (by rewrite [comp.assoc, -{finv f ∘ _}comp.assoc, linv f, comp.left_id, linv g])
+    (by rewrite [-comp.assoc, {_ ∘ finv g}comp.assoc, rinv g, comp.right_id, rinv f])
 
-  infixr ` ∘b `:100 := compose
+  infixr ` ∘b `:100 := comp
 
   lemma compose.assoc (f g h : bijection A) : (f ∘b g) ∘b h = f ∘b (g ∘b h) := rfl
 
   definition id : bijection A :=
-  bijection.mk id id (compose.left_id id) (compose.left_id id)
+  bijection.mk id id (comp.left_id id) (comp.left_id id)
 
   lemma id.left_id (f : bijection A) : id ∘b f = f :=
   bijection.rec_on f (λx x x x, rfl)
@@ -40,5 +40,5 @@ namespace bijection
     (linv f)
 
   lemma inv.linv (f : bijection A) : inv f ∘b f = id :=
-  bijection.rec_on f (λfunc finv linv rinv, by rewrite [↑inv, ↑compose, linv])
+  bijection.rec_on f (λfunc finv linv rinv, by rewrite [↑inv, ↑comp, linv])
 end bijection

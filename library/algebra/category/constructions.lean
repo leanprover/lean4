@@ -30,7 +30,7 @@ namespace category
   --    (λ a b f, !id_right)
   --    (λ a b f, !id_left)
 
-  infixr `∘op`:60 := @compose _ (opposite _) _ _ _
+  infixr `∘op`:60 := @comp _ (opposite _) _ _ _
 
   variables {C : Category} {a b c : C}
 
@@ -47,11 +47,11 @@ namespace category
 
   definition type_category [reducible] : category Type :=
   mk (λa b, a → b)
-     (λ a b c, function.compose)
+     (λ a b c, function.comp)
      (λ a, _root_.id)
-     (λ a b c d h g f, symm (function.compose.assoc h g f))
-     (λ a b f, function.compose.left_id f)
-     (λ a b f, function.compose.right_id f)
+     (λ a b c d h g f, symm (function.comp.assoc h g f))
+     (λ a b f, function.comp.left_id f)
+     (λ a b f, function.comp.right_id f)
 
   definition Type_category [reducible] : Category := Mk type_category
 

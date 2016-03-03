@@ -76,11 +76,11 @@ namespace binary
               ... = a*((b*c)*d) : H_assoc
   end
 
-  definition right_commutative_compose_right [reducible]
-    {A B : Type} (f : A → A → A) (g : B → A) (rcomm : right_commutative f) : right_commutative (compose_right f g) :=
+  definition right_commutative_comp_right [reducible]
+    {A B : Type} (f : A → A → A) (g : B → A) (rcomm : right_commutative f) : right_commutative (comp_right f g) :=
   λ a b₁ b₂, !rcomm
 
   definition left_commutative_compose_left [reducible]
-    {A B : Type} (f : A → A → A) (g : B → A) (lcomm : left_commutative f) : left_commutative (compose_left f g) :=
+    {A B : Type} (f : A → A → A) (g : B → A) (lcomm : left_commutative f) : left_commutative (comp_left f g) :=
   λ a b₁ b₂, !lcomm
 end binary

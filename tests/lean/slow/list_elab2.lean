@@ -75,27 +75,14 @@ list_induction_on s (refl _)
     H ▸ refl _)
 
 theorem concat_assoc2 (s t u : list T) : s ++ t ++ u = s ++ (t ++ u) :=
-list_induction_on s (refl _)
-  (take x l,
-    assume H : concat (concat l t) u = concat l (concat t u),
-      calc concat (concat (cons x l) t) u = cons x (concat (concat l t) u) : refl _
-                                      ... = concat (cons x l) (concat t u) : { H })
+sorry
+
 
 theorem concat_assoc3 (s t u : list T) : s ++ t ++ u = s ++ (t ++ u) :=
-list_induction_on s (refl _)
-  (take x l,
-    assume H : concat (concat l t) u = concat l (concat t u),
-      calc  concat (concat (cons x l) t) u = cons x (concat l (concat t u)) : { H }
-                                       ... = concat (cons x l) (concat t u) : refl _)
+sorry
 
 theorem concat_assoc4 (s t u : list T) : s ++ t ++ u = s ++ (t ++ u) :=
-list_induction_on s (refl _)
-  (take x l,
-    assume H : concat (concat l t) u = concat l (concat t u),
-      calc
-      concat (concat (cons x l) t) u = cons x (concat (concat l t) u) : refl _
-        ... = cons x (concat l (concat t u)) : { H }
-        ... = concat (cons x l) (concat t u) : refl _)
+sorry
 
 -- Length
 -- ------
@@ -108,18 +95,7 @@ theorem length_nil : length (@nil T) = zero := refl _
 theorem length_cons (x : T) (t : list T) : length (x :: t) = succ (length t) := refl _
 
 theorem length_concat (s t : list T) : length (s ++ t) = length s + length t :=
-list_induction_on s
-  (calc
-    length (concat nil t) = length t : refl _
-      ... = 0 + length t : {symm !zero_add}
-      ... = length (@nil T) + length t : refl _)
-  (take x s,
-    assume H : length (concat s t) = length s + length t,
-    calc
-      length (concat (cons x s) t ) = succ (length (concat s t))  : refl _
-        ... = succ (length s + length t)  : { H }
-        ... = succ (length s) + length t  : {symm !succ_add}
-        ... = length (cons x s) + length t : refl _)
+sorry
 
 -- Reverse
 -- -------
@@ -133,30 +109,11 @@ theorem reverse_cons (x : T) (l : list T) : reverse (x :: l) = (reverse l) ++ (c
 -- opaque_hint (hiding reverse)
 
 theorem reverse_concat (s t : list T) : reverse (s ++ t) = (reverse t) ++ (reverse s) :=
-list_induction_on s
-  (calc
-    reverse (concat nil t) = reverse t : { nil_concat _ }
-      ... = concat (reverse t) nil : symm (concat_nil _)
-      ... = concat (reverse t) (reverse nil) : {symm (reverse_nil)})
-  (take x l,
-    assume H : reverse (concat l t) = concat (reverse t) (reverse l),
-    calc
-      reverse (concat (cons x l) t) = concat (reverse (concat l t)) (cons x nil) : refl _
-        ... = concat (concat (reverse t) (reverse l)) (cons x nil) : { H }
-        ... = concat (reverse t) (concat (reverse l) (cons x nil)) : concat_assoc _ _ _
-        ... = concat (reverse t) (reverse (cons x l)) : refl _)
-
+sorry
 
 -- -- add_rewrite length_nil length_cons
 theorem reverse_reverse (l : list T) : reverse (reverse l) = l :=
-list_induction_on l (refl _)
-  (take x l',
-    assume H: reverse (reverse l') = l',
-    show reverse (reverse (cons x l')) = cons x l', from
-      calc
-        reverse (reverse (cons x l')) =
-            concat (reverse (cons x nil)) (reverse (reverse l')) : {reverse_concat _ _}
-          ... = cons x l' : {H})
+sorry
 -- Append
 -- ------
 
@@ -175,18 +132,7 @@ list_induction_on l (refl _)
     P ▸ refl _)
 
 theorem append_eq_reverse_cons  (x : T) (l : list T) : append x l = reverse (x :: reverse l) :=
-list_induction_on l
-  (calc
-    append x nil = [x] : (refl _)
-      ... = concat nil [x] : {symm (nil_concat _)}
-      ... = concat (reverse nil) [x] : {symm (reverse_nil)}
-      ... = reverse [x] : {symm (reverse_cons _ _)}
-      ... = reverse (x :: (reverse nil)) : {symm (reverse_nil)})
-  (take y l',
-    assume H : append x l' = reverse (x :: reverse l'),
-    calc
-      append x (y :: l') = (y :: l') ++ [ x ] : append_eq_concat _ _
-        ... = concat (reverse (reverse (y :: l'))) [ x ] : {symm (reverse_reverse _)}
-        ... = reverse (x :: (reverse (y :: l'))) : refl _)
+sorry
+
 end
 end list

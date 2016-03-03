@@ -128,12 +128,12 @@ test1 a b c d
 
 theorem test5 {M : Monoid} (a b c : M) : a * 1 * b * c = a * (b * c) :=
 calc
-  a * 1 * b * c = a * b * c   : {!mul_right_id}
+  a * 1 * b * c = a * b * c   : by rewrite mul_right_id
             ... = a * (b * c) : mul_assoc
 
 theorem test5a {M : Monoid} (a b c : M) : a * 1 * b * c = a * (b * c) :=
 calc
-  a * 1 * b * c = a * b * c   : {!mul_right_id}
+  a * 1 * b * c = a * b * c   : by rewrite mul_right_id
             ... = a * (b * c) : mul_assoc
 
 theorem test5b {A : Type} {M : monoid A} (a b c : A) : a * 1 * b * c = a * (b * c) :=

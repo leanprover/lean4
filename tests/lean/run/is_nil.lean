@@ -17,7 +17,7 @@ theorem cons_ne_nil {A : Type} (a : A) (l : list A) : ¬ cons a l = nil
 := not.intro (assume H : cons a l = nil,
      absurd
        (calc true = is_nil (@nil A)   : refl _
-              ... = is_nil (cons a l) : { symm H }
+              ... = is_nil (cons a l) : by rewrite H
               ... = false             : refl _)
        true_ne_false)
 

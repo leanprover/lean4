@@ -122,8 +122,8 @@ theorem congr_arg2_dep {A : Type} {B : A → Type} {C : Type} {a₁ a₂ : A}
   eq.drec_on H₁
     (λ (b₂ : B a₁) (H₁ : a₁ = a₁) (H₂ : eq.drec_on H₁ b₁ = b₂),
       calc
-        f a₁ b₁ = f a₁ (eq.drec_on H₁ b₁) : {(eq.drec_on_id H₁ b₁)⁻¹}
-            ... = f a₁ b₂                : {H₂})
+        f a₁ b₁ = f a₁ (eq.drec_on H₁ b₁) : sorry -- {(eq.drec_on_id H₁ b₁)⁻¹}
+            ... = f a₁ b₂                 : sorry)
     b₂ H₁ H₂
 
 

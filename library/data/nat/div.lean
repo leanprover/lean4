@@ -43,7 +43,7 @@ theorem add_div_self (x : ℕ) {z : ℕ} (H : z > 0) : (x + z) / z = succ (x / z
 calc
   (x + z) / z = if 0 < z ∧ z ≤ x + z then (x + z - z) / z + 1 else 0 : !div_def
             ... = (x + z - z) / z + 1 : if_pos (and.intro H (le_add_left z x))
-            ... = succ (x / z)        : {!nat.add_sub_cancel}
+            ... = succ (x / z)        : by rewrite nat.add_sub_cancel
 
 theorem add_div_self_left {x : ℕ} (z : ℕ) (H : x > 0) : (x + z) / x = succ (z / x) :=
 !add.comm ▸ !add_div_self H
@@ -551,7 +551,7 @@ calc
                by rewrite [mul.comm m, nat.mul_sub_right_distrib]
      ... = ((n - k / m - 1) * m + m - (k % m + 1)) / m            :
                by rewrite [H3 at {1}, right_distrib, nat.one_mul]
-     ... = ((n - k / m - 1) * m + (m - (k % m + 1))) / m          : {nat.add_sub_assoc H5 _}
+     ... = ((n - k / m - 1) * m + (m - (k % m + 1))) / m          : by rewrite (nat.add_sub_assoc H5 _)
      ... = (m - (k % m + 1)) / m + (n - k / m - 1)                :
                by rewrite [add.comm, (add_mul_div_self H4)]
      ... = n - k / m - 1                                          :

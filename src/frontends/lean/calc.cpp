@@ -88,31 +88,10 @@ static expr mk_op_fn(parser & p, name const & op, unsigned num_placeholders, pos
 
 static void parse_calc_proof(parser & p, buffer<calc_pred> const & preds, std::vector<calc_step> & steps) {
     steps.clear();
-    auto pos = p.pos();
     p.check_token_next(get_colon_tk(), "invalid 'calc' expression, ':' expected");
-    if (p.curr_is_token(get_lcurly_tk())) {
-        p.next();
-        environment const & env = p.env();
-        expr pr = p.parse_expr();
-        p.check_token_next(get_rcurly_tk(), "invalid 'calc' expression, '}' expected");
-        for (auto const & pred : preds) {
-            if (auto refl_it = get_refl_extra_info(env, pred_op(pred))) {
-                if (auto subst_it = get_subst_extra_info(env, pred_op(pred))) {
-                    expr refl     = mk_op_fn(p, refl_it->m_name, refl_it->m_num_args-1, pos);
-                    expr refl_pr  = p.mk_app(refl, pred_lhs(pred), pos);
-                    expr subst    = mk_op_fn(p, subst_it->m_name, subst_it->m_num_args-2, pos);
-                    expr subst_pr = p.mk_app({subst, pr, refl_pr}, pos);
-                    steps.emplace_back(pred, subst_pr);
-                }
-            }
-        }
-        if (steps.empty())
-            throw parser_error("invalid 'calc' expression, reflexivity and/or substitution rule is not defined for operator", pos);
-     } else {
-        expr pr = p.parse_expr();
-        for (auto const & pred : preds)
-            steps.emplace_back(pred, mk_calc_annotation(pr));
-    }
+    expr pr = p.parse_expr();
+    for (auto const & pred : preds)
+        steps.emplace_back(pred, mk_calc_annotation(pr));
 }
 
 /** \brief Collect distinct rhs's */

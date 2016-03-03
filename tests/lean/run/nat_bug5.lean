@@ -26,11 +26,11 @@ theorem mul_add_distr_left (n m k : nat) : (n + m) * k = n * k + m * k
     (take l IH,
         calc
         (n + m) * succ l = (n + m) * l + (n + m) : mul_succ_right _ _
-          ... = n * l + m * l + (n + m) : {IH}
+          ... = n * l + m * l + (n + m) : by rewrite IH
           ... = n * l + m * l + n + m : symm (add_assoc _ _ _)
-          ... = n * l + n + m * l + m : {add_right_comm _ _ _}
-          ... = n * l + n + (m * l + m) : add_assoc _ _ _
-          ... = n * succ l + (m * l + m) : {symm (mul_succ_right _ _)}
-          ... = n * succ l + m * succ l : {symm (mul_succ_right _ _)})
+          ... = n * l + n + m * l + m    : by rewrite (add_right_comm _ (m*l))
+          ... = n * l + n + (m * l + m)  : add_assoc _ _ _
+          ... = n * succ l + (m * l + m) : by rewrite mul_succ_right
+          ... = n * succ l + m * succ l  :  by rewrite mul_succ_right)
 end nat
 end foo

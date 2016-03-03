@@ -405,7 +405,7 @@ list.rec_on l
       calc
         find x (y::l) = if x = y then 0 else succ (find x l) : !find_cons
                   ... = succ (find x l)                      : if_neg (and.elim_left this)
-                  ... = succ (length l)                      : {iH (and.elim_right this)}
+                  ... = succ (length l)                      : by rewrite (iH (and.elim_right this))
                   ... = length (y::l)                        : !length_cons⁻¹)
 
 lemma find_le_length : ∀ {a} {l : list T}, find a l ≤ length l

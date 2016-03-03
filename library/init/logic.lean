@@ -229,8 +229,8 @@ of_eq_true (eq_of_heq H)
 
 theorem eq_rec_compose : ∀ {A B C : Type} (p₁ : B = C) (p₂ : A = B) (a : A), p₁ ▹ (p₂ ▹ a : B) = (p₂ ⬝ p₁) ▹ a
 | A A A (eq.refl A) (eq.refl A) a := calc
-  eq.refl A ▹ eq.refl A ▹ a = eq.refl A ▹ a              : rfl
-            ...             = (eq.refl A ⬝ eq.refl A) ▹ a : {proof_irrel (eq.refl A) (eq.refl A ⬝ eq.refl A)}
+  eq.refl A ▹ eq.refl A ▹ a = eq.refl A ▹ a               : rfl
+            ...             = (eq.refl A ⬝ eq.refl A) ▹ a : by rewrite (proof_irrel (eq.refl A) (eq.refl A ⬝ eq.refl A))
 
 theorem eq_rec_eq_eq_rec {A₁ A₂ : Type} {p : A₁ = A₂} : ∀ {a₁ : A₁} {a₂ : A₂}, p ▹ a₁ = a₂ → a₁ = p⁻¹ ▹ a₂ :=
 eq.drec_on p (λ a₁ a₂ h, eq.drec_on h rfl)

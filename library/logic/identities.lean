@@ -12,13 +12,13 @@ open decidable
 theorem or.right_comm (a b c : Prop) : (a ∨ b) ∨ c ↔ (a ∨ c) ∨ b :=
 calc
   (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) : or.assoc
-    ... ↔ a ∨ (c ∨ b)       : {or.comm}
+    ... ↔ a ∨ (c ∨ b)       : by rewrite (@or.comm b c)
      ... ↔ (a ∨ c) ∨ b      : iff.symm or.assoc
 
 theorem and.right_comm (a b c : Prop) : (a ∧ b) ∧ c ↔ (a ∧ c) ∧ b :=
 calc
   (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) : and.assoc
-    ... ↔ a ∧ (c ∧ b)       : {and.comm}
+    ... ↔ a ∧ (c ∧ b)       : by rewrite (@and.comm b c)
      ... ↔ (a ∧ c) ∧ b      : iff.symm and.assoc
 
 theorem or_not_self_iff (a : Prop) [D : decidable a] : a ∨ ¬ a ↔ true :=
@@ -70,9 +70,9 @@ iff.intro
 theorem not_implies_iff_and_not (a b : Prop) [Da : decidable a] :
   ¬(a → b) ↔ a ∧ ¬b :=
 calc
-  ¬(a → b) ↔ ¬(¬a ∨ b) : {imp_iff_not_or a b}
+  ¬(a → b) ↔ ¬(¬a ∨ b) : by rewrite (imp_iff_not_or a b)
        ... ↔ ¬¬a ∧ ¬b  : not_or_iff_not_and_not
-       ... ↔ a ∧ ¬b    : {not_not_iff a}
+       ... ↔ a ∧ ¬b    : by rewrite (not_not_iff a)
 
 theorem and_not_of_not_implies {a b : Prop} [Da : decidable a] (H : ¬ (a → b)) : a ∧ ¬ b :=
 iff.mp !not_implies_iff_and_not H

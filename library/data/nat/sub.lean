@@ -303,7 +303,7 @@ by substvars; rewrite [↑dist, *nat.sub_self, add_zero]
 
 theorem dist_eq_sub_of_le {n m : ℕ} (H : n ≤ m) : dist n m = m - n :=
 calc
-  dist n m = 0 + (m - n) : {sub_eq_zero_of_le H}
+  dist n m = 0 + (m - n) : by rewrite -(sub_eq_zero_of_le H)
        ... = m - n       : zero_add
 
 theorem dist_eq_sub_of_lt {n m : ℕ} (H : n < m) : dist n m = m - n :=
@@ -337,7 +337,7 @@ begin rewrite [add.comm k n, add.comm k m]; apply dist_add_add_right end
 
 theorem dist_add_eq_of_ge {n m : ℕ} (H : n ≥ m) : dist n m + m = n :=
 calc
-  dist n m + m = n - m + m : {dist_eq_sub_of_ge H}
+  dist n m + m = n - m + m : by rewrite (dist_eq_sub_of_ge H)
            ... = n         : nat.sub_add_cancel H
 
 theorem dist_eq_intro {n m k l : ℕ} (H : n + m = k + l) : dist n k = dist l m :=

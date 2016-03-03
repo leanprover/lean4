@@ -30,16 +30,16 @@ nat.induction_on x
     rfl
     (λ y₁ ih, calc
       0 + succ y₁ = succ (0 + y₁)  : rfl
-           ...    = succ (0 ⊕ y₁) : {ih}
+           ...    = succ (0 ⊕ y₁) : by rewrite ih
            ...    = 0 ⊕ (succ y₁) : rfl))
   (λ x₁ ih₁ y, nat.induction_on y
     (calc
       succ x₁ + 0  = succ (x₁ + 0)  : rfl
-               ... = succ (x₁ ⊕ 0) : {ih₁ 0}
+               ... = succ (x₁ ⊕ 0) : by rewrite (ih₁ 0)
                ... = succ x₁ ⊕ 0   : rfl)
     (λ y₁ ih₂, calc
       succ x₁ + succ y₁ = succ (succ x₁ + y₁) : rfl
-                   ...  = succ (succ x₁ ⊕ y₁) : {ih₂}
+                   ...  = succ (succ x₁ ⊕ y₁) : by rewrite ih₂
                    ...  = succ x₁ ⊕ succ y₁   : addl_succ_right))
 
 /- successor and predecessor -/

@@ -51,7 +51,7 @@ theorem not_zero_add (x y : nat) (H : ¬ is_zero y) : ¬ is_zero (x + y)
 := exists.elim (is_not_zero_to_eq H)
      (λ (w : nat) (Hw : y = succ w),
         have H1 : x + y = succ (x + w), from
-          calc x + y = x + succ w   : {Hw}
+          calc x + y = x + succ w   : by rewrite Hw
                  ... = succ (x + w) : refl _,
         have H2 : ¬ is_zero (succ (x + w)), from
           not_is_zero_succ (x+w),

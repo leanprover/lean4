@@ -437,12 +437,12 @@ else()
     DEPENDS "${CMAKE_BINARY_DIR}/shell/lean"
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
     )
-  add_custom_target(
-    hott_lib ALL
-    COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/../bin/linja" all tags
-    DEPENDS "${CMAKE_BINARY_DIR}/shell/lean"
-    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../hott"
-    )
+  # add_custom_target(
+  #   hott_lib ALL
+  #   COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/../bin/linja" all tags
+  #   DEPENDS "${CMAKE_BINARY_DIR}/shell/lean"
+  #   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../hott"
+  #   )
 endif()
 
 add_custom_target(clean-std-lib
@@ -480,13 +480,13 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/../library" DESTINATION "${LIBRARY_DIR}"
         PATTERN "*.md"
         PATTERN "TAGS")
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/../hott" DESTINATION "${LIBRARY_DIR}"
-        FILES_MATCHING
-        PATTERN "*.hlean"
-        PATTERN "*.olean"
-        PATTERN ".project"
-        PATTERN "*.md"
-        PATTERN "TAGS")
+# install(DIRECTORY "${CMAKE_SOURCE_DIR}/../hott" DESTINATION "${LIBRARY_DIR}"
+#         FILES_MATCHING
+#         PATTERN "*.hlean"
+#         PATTERN "*.olean"
+#         PATTERN ".project"
+#         PATTERN "*.md"
+#         PATTERN "TAGS")
 
 install(FILES "${CMAKE_SOURCE_DIR}/../src/emacs/lean.pgm"
         DESTINATION "${EMACS_LISP_DIR}")

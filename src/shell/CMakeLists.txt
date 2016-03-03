@@ -38,18 +38,18 @@ add_test(NAME "lean_eqn_macro"
 add_test(NAME "lean_print_notation"
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
          COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "print_tests.lean")
-add_test(NAME "issue_597"
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
-         COMMAND bash "./issue_597.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
-add_test(NAME "issue_616"
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
-         COMMAND bash "./issue_616.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
+# add_test(NAME "issue_597"
+#          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
+#          COMMAND bash "./issue_597.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
+# add_test(NAME "issue_616"
+#          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
+#          COMMAND bash "./issue_616.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
 add_test(NAME "show_goal"
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
          COMMAND bash "./show_goal.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
-add_test(NAME "issue_755"
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
-         COMMAND bash "./issue_755.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
+# add_test(NAME "issue_755"
+#          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
+#          COMMAND bash "./issue_755.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
 add_test(NAME "show_goal_bag"
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
          COMMAND bash "./show_goal_bag.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
@@ -76,14 +76,14 @@ FOREACH(T ${LEANTESTS})
            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
 ENDFOREACH(T)
 
-# LEAN HoTT TESTS
-file(GLOB LEANHTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.hlean")
-FOREACH(T ${LEANHTESTS})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leanhtest_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
-           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-ENDFOREACH(T)
+# # LEAN HoTT TESTS
+# file(GLOB LEANHTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.hlean")
+# FOREACH(T ${LEANHTESTS})
+#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+#   add_test(NAME "leanhtest_${T_NAME}"
+#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
+#            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+# ENDFOREACH(T)
 
 # LEAN RUN TESTS
 file(GLOB LEANRUNTESTS "${LEAN_SOURCE_DIR}/../tests/lean/run/*.lean")
@@ -103,14 +103,14 @@ FOREACH(T ${LEANT0TESTS})
            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME} "-t 0")
 ENDFOREACH(T)
 
-# LEAN RUN HoTT TESTS
-file(GLOB LEANRUNHTESTS "${LEAN_SOURCE_DIR}/../tests/lean/hott/*.hlean")
-FOREACH(T ${LEANRUNHTESTS})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leanhotttest_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/hott"
-           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-ENDFOREACH(T)
+# # LEAN RUN HoTT TESTS
+# file(GLOB LEANRUNHTESTS "${LEAN_SOURCE_DIR}/../tests/lean/hott/*.hlean")
+# FOREACH(T ${LEANRUNHTESTS})
+#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+#   add_test(NAME "leanhotttest_${T_NAME}"
+#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/hott"
+#            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+# ENDFOREACH(T)
 
 if("${MULTI_THREAD}" MATCHES "ON")
 # LEAN INTERACTIVE TESTS

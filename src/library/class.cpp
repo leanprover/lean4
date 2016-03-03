@@ -19,7 +19,7 @@ Author: Leonardo de Moura
 #include "library/attribute_manager.h"
 
 namespace lean {
-enum class class_entry_kind { Class, Multi, Instance, TransInstance, DerivedTransInstance };
+enum class class_entry_kind { Class, Instance, TransInstance, DerivedTransInstance };
 struct class_entry {
     class_entry_kind m_kind;
     name             m_class;
@@ -35,8 +35,6 @@ struct class_entry {
     class_entry(name const & src, name const & tgt, name const & i):
         m_kind(class_entry_kind::DerivedTransInstance), m_class(tgt), m_instance(i),
         m_priority(0), m_source(src) {}
-    class_entry(name const & c, bool):
-        m_kind(class_entry_kind::Multi), m_class(c) {}
 
     static class_entry mk_trans_inst(name const & src, name const & tgt, name const & i, unsigned p) {
         return class_entry(src, tgt, i, p);
@@ -53,7 +51,6 @@ struct class_state {
     class_instances       m_derived_trans_instances;
     instance_priorities   m_priorities;
     name_set              m_derived_trans_instance_set;
-    name_set              m_multiple; // set of classes that allow multiple solutions/instances
     tc_multigraph         m_mgraph;
 
     class_state():m_mgraph("transitive instance") {}
@@ -71,10 +68,6 @@ struct class_state {
 
     bool is_derived_trans_instance(name const & i) const {
         return m_derived_trans_instance_set.contains(i);
-    }
-
-    bool try_multiple_instances(name const & c) const {
-        return m_multiple.contains(c);
     }
 
     list<name> insert(name const & inst, unsigned priority, list<name> const & insts) const {
@@ -119,11 +112,6 @@ struct class_state {
         m_derived_trans_instance_set.insert(i);
         m_mgraph.add1(env, src, i, tgt);
     }
-
-    void add_multiple(name const & c) {
-        add_class(c);
-        m_multiple.insert(c);
-    }
 };
 
 static name * g_class_name = nullptr;
@@ -136,9 +124,6 @@ struct class_config {
         switch (e.m_kind) {
         case class_entry_kind::Class:
             s.add_class(e.m_class);
-            break;
-        case class_entry_kind::Multi:
-            s.add_multiple(e.m_class);
             break;
         case class_entry_kind::Instance:
             s.add_instance(e.m_class, e.m_instance, e.m_priority);
@@ -161,7 +146,6 @@ struct class_config {
         s << static_cast<char>(e.m_kind);
         switch (e.m_kind) {
         case class_entry_kind::Class:
-        case class_entry_kind::Multi:
             s << e.m_class;
             break;
         case class_entry_kind::Instance:
@@ -181,7 +165,6 @@ struct class_config {
         e.m_kind = static_cast<class_entry_kind>(k);
         switch (e.m_kind) {
         case class_entry_kind::Class:
-        case class_entry_kind::Multi:
             d >> e.m_class;
             break;
         case class_entry_kind::Instance:
@@ -199,7 +182,6 @@ struct class_config {
     static optional<unsigned> get_fingerprint(entry const & e) {
         switch (e.m_kind) {
         case class_entry_kind::Class:
-        case class_entry_kind::Multi:
             return some(e.m_class.hash());
         case class_entry_kind::Instance:
         case class_entry_kind::TransInstance:
@@ -323,16 +305,6 @@ environment add_trans_instance(environment const & env, name const & n, unsigned
         new_env = add_protected(new_env, edge.m_cnst);
     }
     return new_env;
-}
-
-environment mark_multiple_instances(environment const & env, name const & n, name const & ns, bool persistent) {
-    check_class(env, n);
-    return class_ext::add_entry(env, get_dummy_ios(), class_entry(n, true), ns, persistent);
-}
-
-bool try_multiple_instances(environment const & env, name const & n) {
-    class_state const & s = class_ext::get_state(env);
-    return s.try_multiple_instances(n);
 }
 
 bool is_instance(environment const & env, name const & i) {
@@ -483,12 +455,6 @@ void initialize_class() {
                            return add_class(env, d, ns, persistent);
                        },
                        is_class);
-
-    register_attribute("multiple_instances", "a type class where elaborator should consider multiple solutions",
-                       [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
-                           return mark_multiple_instances(env, d, ns, persistent);
-                       },
-                       try_multiple_instances);
 
     register_prio_attribute("instance", "type class instance",
                             [](environment const & env, io_state const &, name const & d, unsigned prio,

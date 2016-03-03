@@ -51,29 +51,20 @@ inline expr const & pred_rhs(calc_pred const & p) { return std::get<2>(p); }
 inline calc_pred const & step_pred(calc_step const & s) { return s.first; }
 inline expr const & step_proof(calc_step const & s) { return s.second; }
 
-static void decode_expr_core(expr const & e, buffer<calc_pred> & preds) {
-    buffer<expr> args;
-    expr const & fn = get_app_args(e, args);
-    if (!is_constant(fn))
-        return;
-    unsigned nargs = args.size();
-    if (nargs < 2)
-        return;
-    preds.emplace_back(const_name(fn), args[nargs-2], args[nargs-1]);
-}
-
 // Check whether e is of the form (f ...) where f is a constant. If it is return f.
-static void decode_expr(expr const & e, buffer<calc_pred> & preds, pos_info const & pos) {
-    preds.clear();
+static calc_pred decode_expr(expr const & e, pos_info const & pos) {
     if (is_choice(e)) {
-        for (unsigned i = 0; i < get_num_choices(e); i++)
-            decode_expr_core(get_choice(e, i), preds);
+        throw parser_error("invalid 'calc' expression, overloaded expressions are not supported", pos);
     } else {
-        decode_expr_core(e, preds);
+        buffer<expr> args;
+        expr const & fn = get_app_args(e, args);
+        unsigned nargs  = args.size();
+        if (!is_constant(fn) || nargs < 2) {
+            throw parser_error("invalid 'calc' expression, expression must be a function application 'f a_1 ... a_k' "
+                               "where f is a constant, and k >= 2", pos);
+        }
+        return calc_pred(const_name(fn), args[nargs-2], args[nargs-1]);
     }
-    if (preds.empty())
-        throw parser_error("invalid 'calc' expression, expression must be a function application 'f a_1 ... a_k' "
-                           "where f is a constant, and k >= 2", pos);
 }
 
 // Create (op _ _ ... _)
@@ -86,60 +77,39 @@ static expr mk_op_fn(parser & p, name const & op, unsigned num_placeholders, pos
     return r;
 }
 
-static void parse_calc_proof(parser & p, buffer<calc_pred> const & preds, std::vector<calc_step> & steps) {
-    steps.clear();
+static calc_step parse_calc_proof(parser & p, calc_pred const & pred) {
     p.check_token_next(get_colon_tk(), "invalid 'calc' expression, ':' expected");
     expr pr = p.parse_expr();
-    for (auto const & pred : preds)
-        steps.emplace_back(pred, mk_calc_annotation(pr));
-}
-
-/** \brief Collect distinct rhs's */
-static void collect_rhss(std::vector<calc_step> const & steps, buffer<expr> & rhss) {
-    rhss.clear();
-    for (auto const & step : steps) {
-        calc_pred const & pred = step_pred(step);
-        expr const & rhs  = pred_rhs(pred);
-        if (std::find(rhss.begin(), rhss.end(), rhs) == rhss.end())
-            rhss.push_back(rhs);
-    }
-    lean_assert(!rhss.empty());
+    return calc_step(pred, mk_calc_annotation(pr));
 }
 
 static unsigned get_arity_of(parser & p, name const & op) {
     return get_arity(p.env().get(op).get_type());
 }
 
-static void join(parser & p, std::vector<calc_step> const & steps1, std::vector<calc_step> const & steps2,
-                 std::vector<calc_step> & res_steps, pos_info const & pos) {
+static calc_step join(parser & p, calc_step const & s1, calc_step const & s2, pos_info const & pos) {
     environment const & env = p.env();
-    res_steps.clear();
-    for (calc_step const & s1 : steps1) {
-        check_interrupted();
-        calc_pred const & pred1 = step_pred(s1);
-        expr const & pr1        = step_proof(s1);
-        for (calc_step const & s2 : steps2) {
-            calc_pred const & pred2 = step_pred(s2);
-            expr const & pr2        = step_proof(s2);
-            if (!is_eqp(pred_rhs(pred1), pred_lhs(pred2)))
-                continue;
-            auto trans_it = get_trans_extra_info(env, pred_op(pred1), pred_op(pred2));
-            if (trans_it) {
-                expr trans    = mk_op_fn(p, trans_it->m_name, trans_it->m_num_args-5, pos);
-                expr trans_pr = p.mk_app({trans, pred_lhs(pred1), pred_rhs(pred1), pred_rhs(pred2), pr1, pr2}, pos);
-                res_steps.emplace_back(calc_pred(trans_it->m_res_relation, pred_lhs(pred1), pred_rhs(pred2)), trans_pr);
-            } else if (pred_op(pred1) == get_eq_name()) {
-                expr trans_right = mk_op_fn(p, get_trans_rel_right_name(), 1, pos);
-                expr R           = mk_op_fn(p, pred_op(pred2), get_arity_of(p, pred_op(pred2))-2, pos);
-                expr trans_pr    = p.mk_app({trans_right, pred_lhs(pred1), pred_rhs(pred1), pred_rhs(pred2), R, pr1, pr2}, pos);
-                res_steps.emplace_back(calc_pred(pred_op(pred2), pred_lhs(pred1), pred_rhs(pred2)), trans_pr);
-            } else if (pred_op(pred2) == get_eq_name()) {
-                expr trans_left = mk_op_fn(p, get_trans_rel_left_name(), 1, pos);
-                expr R          = mk_op_fn(p, pred_op(pred1), get_arity_of(p, pred_op(pred1))-2, pos);
-                expr trans_pr   = p.mk_app({trans_left, pred_lhs(pred1), pred_rhs(pred1), pred_rhs(pred2), R, pr1, pr2}, pos);
-                res_steps.emplace_back(calc_pred(pred_op(pred1), pred_lhs(pred1), pred_rhs(pred2)), trans_pr);
-            }
-        }
+    calc_pred const & pred1 = step_pred(s1);
+    expr const & pr1        = step_proof(s1);
+    calc_pred const & pred2 = step_pred(s2);
+    expr const & pr2        = step_proof(s2);
+    auto trans_it = get_trans_extra_info(env, pred_op(pred1), pred_op(pred2));
+    if (trans_it) {
+        expr trans    = mk_op_fn(p, trans_it->m_name, trans_it->m_num_args-5, pos);
+        expr trans_pr = p.mk_app({trans, pred_lhs(pred1), pred_rhs(pred1), pred_rhs(pred2), pr1, pr2}, pos);
+        return calc_step(calc_pred(trans_it->m_res_relation, pred_lhs(pred1), pred_rhs(pred2)), trans_pr);
+    } else if (pred_op(pred1) == get_eq_name()) {
+        expr trans_right = mk_op_fn(p, get_trans_rel_right_name(), 1, pos);
+        expr R           = mk_op_fn(p, pred_op(pred2), get_arity_of(p, pred_op(pred2))-2, pos);
+        expr trans_pr    = p.mk_app({trans_right, pred_lhs(pred1), pred_rhs(pred1), pred_rhs(pred2), R, pr1, pr2}, pos);
+        return calc_step(calc_pred(pred_op(pred2), pred_lhs(pred1), pred_rhs(pred2)), trans_pr);
+    } else if (pred_op(pred2) == get_eq_name()) {
+        expr trans_left = mk_op_fn(p, get_trans_rel_left_name(), 1, pos);
+        expr R          = mk_op_fn(p, pred_op(pred1), get_arity_of(p, pred_op(pred1))-2, pos);
+        expr trans_pr   = p.mk_app({trans_left, pred_lhs(pred1), pred_rhs(pred1), pred_rhs(pred2), R, pr1, pr2}, pos);
+        return calc_step(calc_pred(pred_op(pred1), pred_lhs(pred1), pred_rhs(pred2)), trans_pr);
+    } else {
+        throw parser_error("invalid 'calc' expression, transitivity rule is not defined for current step", pos);
     }
 }
 
@@ -147,58 +117,50 @@ static expr mk_implies(parser & p, expr const & lhs, expr const & rhs, pos_info 
     return p.mk_app(p.mk_app(p.save_pos(mk_constant(get_implies_name()), pos), lhs, pos), rhs, pos);
 }
 
+static expr parse_pred(parser & p) {
+    auto pos       = p.pos();
+    expr pred      = p.parse_expr();
+    if (is_standard(p.env()) && is_arrow(pred))
+        return mk_implies(p, binding_domain(pred), binding_body(pred), pos);
+    else
+        return pred;
+}
+
+static expr parse_next_pred(parser & p, expr const & dummy) {
+    auto pos       = p.pos();
+    if (is_standard(p.env()) && p.curr_is_token(get_arrow_tk())) {
+        p.next();
+        expr rhs  = p.parse_expr();
+        return mk_implies(p, dummy, rhs, pos);
+    } else {
+        return p.parse_led(dummy);
+    }
+}
+
 expr parse_calc(parser & p) {
-    buffer<calc_pred> preds, new_preds;
-    buffer<expr>      rhss;
-    std::vector<calc_step> steps, new_steps, next_steps;
-    auto pos             = p.pos();
-    bool is_std          = is_standard(p.env());
-    expr first_pred      = p.parse_expr();
-    if (is_std && is_arrow(first_pred))
-        first_pred = mk_implies(p, binding_domain(first_pred), binding_body(first_pred), pos);
-    decode_expr(first_pred, preds, pos);
-    parse_calc_proof(p, preds, steps);
-    bool single    = true; // true if calc has only one step
-    expr dummy     = mk_expr_placeholder();
+    auto pos = p.pos();
+    expr first_pred_expr = parse_pred(p);
+    calc_pred pred       = decode_expr(first_pred_expr, pos);
+    calc_step step       = parse_calc_proof(p, pred);
+    bool single          = true; // true if calc has only one step
+    expr dummy;
+
     while (p.curr_is_token(get_ellipsis_tk())) {
         single = false;
         pos    = p.pos();
         p.next();
-        expr next_pred;
-        if (is_std && p.curr_is_token(get_arrow_tk())) {
-            p.next();
-            expr rhs  = p.parse_expr();
-            next_pred = mk_implies(p, dummy, rhs, pos);
-        } else {
-            next_pred = p.parse_led(dummy);
-        }
-        decode_expr(next_pred, preds, pos);
-        collect_rhss(steps, rhss);
-        new_steps.clear();
-        for (auto const & pred : preds) {
-            if (is_eqp(pred_lhs(pred), dummy)) {
-                for (expr const & rhs : rhss)
-                    new_preds.emplace_back(pred_op(pred), rhs, pred_rhs(pred));
-            }
-        }
-        if (new_preds.empty())
-            throw parser_error("invalid 'calc' expression, invalid expression", pos);
-        parse_calc_proof(p, new_preds, new_steps);
-        join(p, steps, new_steps, next_steps, pos);
-        if (next_steps.empty())
-            throw parser_error("invalid 'calc' expression, transitivity rule is not defined for current step", pos);
-        steps.swap(next_steps);
+        expr new_pred_expr = parse_next_pred(p, dummy);
+        calc_pred new_pred = decode_expr(new_pred_expr, pos);
+        new_pred           = calc_pred(pred_op(new_pred), pred_rhs(pred), pred_rhs(new_pred));
+        calc_step new_step = parse_calc_proof(p, new_pred);
+        step               = join(p, step, new_step, pos);
     }
-    buffer<expr> choices;
-    for (auto const & s : steps) {
-        if (single) {
-            expr new_s = p.save_pos(mk_typed_expr(first_pred, step_proof(s)), pos);
-            choices.push_back(new_s);
-        } else {
-            choices.push_back(step_proof(s));
-        }
+
+    if (single) {
+        return p.save_pos(mk_typed_expr(first_pred_expr, step_proof(step)), pos);
+    } else {
+        return step_proof(step);
     }
-    return p.save_pos(mk_choice(choices.size(), choices.data()), pos);
 }
 
 void initialize_calc() {

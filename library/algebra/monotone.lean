@@ -372,7 +372,7 @@ section
     (nonincreasing_of_nonincreasing_comp_right H₁ (nondecreasing_of_strictly_increasing H₂))
     (nonincreasing_comp_nondec_noninc H₃)
 
-  theorem nonincreasing_comp_iff' {g : B → C} {f : A → B} {h : C → B}
+  theorem nonincreasing_comp_iff_nondecreasing_right {g : B → C} {f : A → B} {h : C → B}
       (H₁ : left_inverse h g) (H₂ : strictly_decreasing h) :
     nonincreasing (g ∘ f) ↔ nondecreasing f :=
   have H₃ : nonincreasing g, from nonincreasing_of_left_inverse H₁ H₂,
@@ -384,7 +384,7 @@ end
 section
   variables [linear_strong_order_pair A] [linear_strong_order_pair B] [weak_order C]
 
-  theorem nondecreasing_comp_iff'' {g : B → C} {f : A → B} {h : B → A}
+  theorem nondecreasing_comp_iff_nondecreasing_left {g : B → C} {f : A → B} {h : B → A}
       (H₁ : left_inverse f h) (H₂ : strictly_increasing f) :
     nondecreasing (g ∘ f) ↔ nondecreasing g :=
   have H₃ : nondecreasing h, from nondecreasing_of_left_inverse H₁ H₂,
@@ -392,7 +392,7 @@ section
     (nondecreasing_of_nondecreasing_comp_left H₁ H₃)
     (λ H, nondecreasing_comp_nondec_nondec H (nondecreasing_of_strictly_increasing H₂))
 
-  theorem nondecreasing_comp_iff''' {g : B → C} {f : A → B} {h : B → A}
+  theorem nondecreasing_comp_iff_nonincreasing_left {g : B → C} {f : A → B} {h : B → A}
       (H₁ : left_inverse f h) (H₂ : strictly_decreasing f) :
     nondecreasing (g ∘ f) ↔ nonincreasing g :=
   have H₃ : nonincreasing h, from nonincreasing_of_left_inverse H₁ H₂,
@@ -400,7 +400,7 @@ section
     (nonincreasing_of_nondecreasing_comp_left H₁ H₃)
     (λ H, nondecreasing_comp_noninc_noninc H (nonincreasing_of_strictly_decreasing H₂))
 
-  theorem nonincreasing_comp_iff'' {g : B → C} {f : A → B} {h : B → A}
+  theorem nonincreasing_comp_iff_nondecreasing_left {g : B → C} {f : A → B} {h : B → A}
       (H₁ : left_inverse f h) (H₂ : strictly_decreasing f) :
     nonincreasing (g ∘ f) ↔ nondecreasing g :=
   have H₃ : nonincreasing h, from nonincreasing_of_left_inverse H₁ H₂,
@@ -408,7 +408,7 @@ section
     (nondecreasing_of_nonincreasing_comp_left H₁ H₃)
     (λ H, nonincreasing_comp_nondec_noninc H (nonincreasing_of_strictly_decreasing H₂))
 
-  theorem nonincreasing_comp_iff''' {g : B → C} {f : A → B} {h : B → A}
+  theorem nonincreasing_comp_iff_nonincreasing_left {g : B → C} {f : A → B} {h : B → A}
       (H₁ : left_inverse f h) (H₂ : strictly_increasing f) :
     nonincreasing (g ∘ f) ↔ nonincreasing g :=
   have H₃ : nondecreasing h, from nondecreasing_of_left_inverse H₁ H₂,

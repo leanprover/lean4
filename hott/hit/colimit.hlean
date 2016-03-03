@@ -7,7 +7,7 @@ Definition of general colimits and sequential colimits.
 -/
 
 /- definition of a general colimit -/
-open eq nat quotient sigma equiv equiv.ops is_trunc
+open eq nat quotient sigma equiv is_trunc
 
 namespace colimit
 section

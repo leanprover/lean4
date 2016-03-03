@@ -7,7 +7,7 @@ Theorems about lift
 -/
 
 import ..function
-open eq equiv equiv.ops is_equiv is_trunc pointed
+open eq equiv is_equiv is_trunc pointed
 
 namespace lift
 

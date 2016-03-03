@@ -168,15 +168,15 @@ begin
     intro x IH,
     show succ x = succ x / y * y + succ x % y, from
       if H1 : succ x < y then
-         assert H2 : succ x / y = 0, from div_eq_zero_of_lt H1,
-         assert H3 : succ x % y = succ x, from mod_eq_of_lt H1,
+         have H2 : succ x / y = 0, from div_eq_zero_of_lt H1,
+         have H3 : succ x % y = succ x, from mod_eq_of_lt H1,
          begin rewrite [H2, H3, zero_mul, zero_add] end
       else
          have H2 : y ≤ succ x, from le_of_not_gt H1,
-         assert H3 : succ x / y = succ ((succ x - y) / y), from div_eq_succ_sub_div H H2,
-         assert H4 : succ x % y = (succ x - y) % y, from mod_eq_sub_mod H H2,
+         have H3 : succ x / y = succ ((succ x - y) / y), from div_eq_succ_sub_div H H2,
+         have H4 : succ x % y = (succ x - y) % y, from mod_eq_sub_mod H H2,
          have H5 : succ x - y < succ x, from sub_lt !succ_pos H,
-         assert H6 : succ x - y ≤ x, from le_of_lt_succ H5,
+         have H6 : succ x - y ≤ x, from le_of_lt_succ H5,
          (calc
              succ x / y * y + succ x % y =
                   succ ((succ x - y) / y) * y + succ x % y      : by rewrite H3
@@ -213,7 +213,7 @@ by_cases_zero_pos n
     assume npos : n > 0,
     assume H1 : (m + i) % n = (k + i) % n,
     have H2 : (m + i % n) % n = (k + i % n) % n, by rewrite [*add_mod_mod, H1],
-    assert H3 : (m + i % n + (n - i % n)) % n = (k + i % n + (n - i % n)) % n,
+    have H3 : (m + i % n + (n - i % n)) % n = (k + i % n + (n - i % n)) % n,
       from add_mod_eq_add_mod_right _ H2,
     begin
       revert H3,
@@ -301,11 +301,11 @@ theorem mul_mod_eq_mul_mod_mod (m n k : nat) : (m * n) % k = (m * (n % k)) % k :
 !mul.comm ▸ !mul.comm ▸ !mul_mod_eq_mod_mul_mod
 
 protected theorem div_one (n : ℕ) : n / 1 = n :=
-assert n / 1 * 1 + n % 1 = n, from !eq_div_mul_add_mod⁻¹,
+have n / 1 * 1 + n % 1 = n, from !eq_div_mul_add_mod⁻¹,
 begin rewrite [-this at {2}, mul_one, mod_one] end
 
 protected theorem div_self {n : ℕ} (H : n > 0) : n / n = 1 :=
-assert (n * 1) / (n * 1) = 1 / 1, from !nat.mul_div_mul_left H,
+have (n * 1) / (n * 1) = 1 / 1, from !nat.mul_div_mul_left H,
 by rewrite [nat.div_one at this, -this, *mul_one]
 
 theorem div_mul_cancel_of_mod_eq_zero {m n : ℕ} (H : m % n = 0) : m / n * n = m :=
@@ -451,11 +451,11 @@ end
 
 lemma le_of_dvd {m n : nat} : n > 0 → m ∣ n → m ≤ n :=
 assume (h₁ : n > 0) (h₂ : m ∣ n),
-assert h₃ : n % m = 0, from mod_eq_zero_of_dvd h₂,
+have h₃ : n % m = 0, from mod_eq_zero_of_dvd h₂,
 by_contradiction
  (λ nle : ¬ m ≤ n,
    have   h₄ : m > n, from lt_of_not_ge nle,
-   assert h₅ : n % m = n, from mod_eq_of_lt h₄,
+   have h₅ : n % m = n, from mod_eq_of_lt h₄,
    begin
      rewrite h₃ at h₅, subst n,
      exact absurd h₁ (lt.irrefl 0)
@@ -516,7 +516,7 @@ lt_of_mul_lt_mul_right (calc
     ... < n * k                 : H)
 
 protected theorem lt_mul_of_div_lt {m n k : ℕ} (H1 : k > 0) (H2 : m / k < n) : m < n * k :=
-assert H3 : succ (m / k) * k ≤ n * k, from !mul_le_mul_right (succ_le_of_lt H2),
+have H3 : succ (m / k) * k ≤ n * k, from !mul_le_mul_right (succ_le_of_lt H2),
 have H4 : m / k * k + k ≤ n * k, by rewrite [succ_mul at H3]; apply H3,
 calc
   m     = m / k * k + m % k : eq_div_mul_add_mod
@@ -567,28 +567,28 @@ nat.strong_rec_on a
 (λ a ih,
   let k₁ := a / (b*c) in
   let k₂ := a %(b*c) in
-  assert bc_pos : b*c > 0, from mul_pos `b > 0` `c > 0`,
-  assert k₂ < b * c,       from mod_lt _ bc_pos,
-  assert k₂ ≤ a,           from !mod_le,
+  have bc_pos : b*c > 0, from mul_pos `b > 0` `c > 0`,
+  have k₂ < b * c,       from mod_lt _ bc_pos,
+  have k₂ ≤ a,           from !mod_le,
   sum.elim (eq_sum_lt_of_le this)
     (suppose k₂ = a,
-     assert i₁ : a < b * c,   by rewrite -this; assumption,
-     assert k₁ = 0,           from div_eq_zero_of_lt i₁,
-     assert a / b < c,      by rewrite [mul.comm at i₁]; exact nat.div_lt_of_lt_mul i₁,
+     have i₁ : a < b * c,   by rewrite -this; assumption,
+     have k₁ = 0,           from div_eq_zero_of_lt i₁,
+     have a / b < c,      by rewrite [mul.comm at i₁]; exact nat.div_lt_of_lt_mul i₁,
      begin
        rewrite [`k₁ = 0`],
        show (a / b) / c = 0, from div_eq_zero_of_lt `a / b < c`
      end)
     (suppose k₂ < a,
-     assert a = k₁*(b*c) + k₂,         from eq_div_mul_add_mod a (b*c),
-     assert a / b = k₁*c + k₂ / b, by
+     have a = k₁*(b*c) + k₂,         from eq_div_mul_add_mod a (b*c),
+     have a / b = k₁*c + k₂ / b, by
        rewrite [this at {1}, mul.comm b c at {2}, -mul.assoc,
                 add.comm, add_mul_div_self `b > 0`, add.comm],
-     assert e₁ : (a / b) / c = k₁ + (k₂ / b) / c, by
+     have e₁ : (a / b) / c = k₁ + (k₂ / b) / c, by
        rewrite [this, add.comm, add_mul_div_self `c > 0`, add.comm],
-     assert e₂ : (k₂ / b) / c = k₂ / (b * c), from ih k₂ `k₂ < a`,
-     assert e₃ : k₂ / (b * c)   = 0,              from div_eq_zero_of_lt `k₂ < b * c`,
-     assert (k₂ / b) / c      = 0,              by rewrite [e₂, e₃],
+     have e₂ : (k₂ / b) / c = k₂ / (b * c), from ih k₂ `k₂ < a`,
+     have e₃ : k₂ / (b * c)   = 0,              from div_eq_zero_of_lt `k₂ < b * c`,
+     have (k₂ / b) / c      = 0,              by rewrite [e₂, e₃],
      show (a / b) / c = k₁,                     by rewrite [e₁, this]))
 
 protected lemma div_div_eq_div_mul (a b c : nat) : (a / b) / c = a / (b * c) :=

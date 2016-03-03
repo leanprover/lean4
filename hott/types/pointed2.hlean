@@ -9,7 +9,7 @@ Ported from Coq HoTT
 
 import .equiv cubical.square
 
-open eq is_equiv equiv equiv.ops pointed is_trunc
+open eq is_equiv equiv pointed is_trunc
 
 -- structure pequiv (A B : Type*) :=
 --   (to_pmap : A →* B)

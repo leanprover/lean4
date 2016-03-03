@@ -8,7 +8,7 @@ Declaration of the coequalizer
 
 import .quotient_functor types.equiv
 
-open quotient eq equiv equiv.ops is_trunc sigma sigma.ops
+open quotient eq equiv is_trunc sigma sigma.ops
 
 namespace coeq
 section

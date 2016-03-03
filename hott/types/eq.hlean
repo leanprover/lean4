@@ -8,7 +8,7 @@ Theorems about path types (identity types)
 -/
 
 import types.sigma
-open eq sigma sigma.ops equiv is_equiv equiv.ops is_trunc
+open eq sigma sigma.ops equiv is_equiv is_trunc
 
 -- TODO: Rename transport_eq_... and pathover_eq_... to eq_transport_... and eq_pathover_...
 

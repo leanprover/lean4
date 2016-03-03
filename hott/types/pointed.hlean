@@ -7,7 +7,7 @@ Ported from Coq HoTT
 -/
 
 import arity .eq .bool .unit .sigma .nat.basic prop_trunc
-open is_trunc eq prod sigma nat equiv option is_equiv bool unit algebra equiv.ops sigma.ops
+open is_trunc eq prod sigma nat equiv option is_equiv bool unit algebra sigma.ops
 
 structure pointed [class] (A : Type) :=
   (point : A)
@@ -97,7 +97,6 @@ namespace pointed
   definition iterated_loop_space [unfold 3] (A : Type) [H : pointed A] (n : ℕ) : Type :=
   Ω[n] (pointed.mk' A)
 
-  open equiv.ops
   definition pType_eq {A B : Type*} (f : A ≃ B) (p : f pt = pt) : A = B :=
   begin
     cases A with A a, cases B with B b, esimp at *,

@@ -10,7 +10,7 @@ Theorems about the universe
 
 import .bool .trunc .lift .pullback
 
-open is_trunc bool lift unit eq pi equiv equiv.ops sum sigma fiber prod pullback is_equiv sigma.ops
+open is_trunc bool lift unit eq pi equiv sum sigma fiber prod pullback is_equiv sigma.ops
      pointed
 namespace univ
 
@@ -117,9 +117,9 @@ namespace univ
                                                    (λb, sigma_equiv_sigma_right
                                                    (λX, !comm_equiv_nondep))
       ... ≃ Σb (v : ΣX, X), v.1 = fiber f b    : sigma_equiv_sigma_right
-                                                   (λb, !sigma_assoc_equiv⁻¹)
+                                                   (λb, !sigma_assoc_equiv⁻¹ᵉ)
       ... ≃ Σb (Y : Type*), Y = fiber f b      : sigma_equiv_sigma_right
-                                     (λb, sigma_equiv_sigma (pType.sigma_char)⁻¹
+                                     (λb, sigma_equiv_sigma (pType.sigma_char)⁻¹ᵉ
                                                             (λv, sigma.rec_on v (λx y, equiv.refl)))
       ... ≃ Σ(Y : Type*) b, Y = fiber f b      : sigma_comm_equiv
       ... ≃ pullback pType.carrier (fiber f) : !pullback.sigma_char⁻¹ᵉ

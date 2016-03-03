@@ -7,7 +7,7 @@ Theorems about the integers specific to HoTT
 -/
 
 import .basic types.eq arity algebra.bundled
-open core eq is_equiv equiv equiv.ops algebra is_trunc
+open core eq is_equiv equiv algebra is_trunc
 open nat (hiding pred)
 
 namespace int

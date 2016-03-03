@@ -9,7 +9,7 @@ Basic theorems about pathovers
 prelude
 import .path .equiv
 
-open equiv is_equiv equiv.ops function
+open equiv is_equiv function
 
 variables {A A' : Type} {B B' : A → Type} {B'' : A' → Type} {C : Π⦃a⦄, B a → Type}
           {a a₂ a₃ a₄ : A} {p p' : a = a₂} {p₂ : a₂ = a₃} {p₃ : a₃ = a₄} {p₁₃ : a = a₃}

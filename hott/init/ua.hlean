@@ -8,7 +8,7 @@ Ported from Coq HoTT
 
 prelude
 import .equiv
-open eq equiv is_equiv equiv.ops
+open eq equiv is_equiv
 
 --Ensure that the types compared are in the same universe
 section

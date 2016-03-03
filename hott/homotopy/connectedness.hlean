@@ -275,10 +275,11 @@ namespace homotopy
   end
 
   open trunc_index
+  -- Corollary 8.2.2
   theorem is_conn_sphere [instance] (n : ℕ₋₁) : is_conn (n..-1) (sphere n) :=
   begin
     induction n with n IH,
-    { apply is_trunc_trunc},
+    { apply minus_two_conn},
     { rewrite [succ_sub_one, sphere.sphere_succ], apply is_conn_susp}
   end
 

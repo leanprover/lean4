@@ -104,7 +104,7 @@ namespace is_equiv
   end
 end is_equiv
 namespace equiv
-  open is_equiv equiv.ops
+  open is_equiv
   definition inv_preserve_binary {A B : Type} (f : A ≃ B)
     (mA : A → A → A) (mB : B → B → B) (H : Π(a a' : A), mB (f a) (f a') = f (mA a a'))
     (b b' : B) : f⁻¹ (mB b b') = mA (f⁻¹ b) (f⁻¹ b') :=

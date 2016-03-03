@@ -8,10 +8,12 @@ Yoneda embedding and Yoneda lemma
 
 import .examples .attributes
 
-open category eq functor prod.ops is_trunc iso is_equiv equiv category.set nat_trans lift
+open category eq functor prod.ops is_trunc iso is_equiv category.set nat_trans lift
 
 namespace yoneda
 
+  universe variables u v
+  variable {C : Precategory.{u v}}
   /-
     These attributes make sure that the fields of the category "set" reduce to the right things
     However, we don't want to have them globally, because that will unfold the composition g ∘ f
@@ -28,7 +30,7 @@ namespace yoneda
     we use (change_fun) to make sure that (to_fun_ob (yoneda_embedding C) c) will reduce to
     (hom_functor_left c) instead of (functor_curry_rev_ob (hom_functor C) c)
   -/
-  definition yoneda_embedding [constructor] (C : Precategory) : C ⇒ cset ^c Cᵒᵖ :=
+  definition yoneda_embedding [constructor] (C : Precategory.{u v}) : C ⇒ cset ^c Cᵒᵖ :=
 --(functor_curry_rev !hom_functor)
   change_fun
     (functor_curry_rev !hom_functor)
@@ -39,17 +41,30 @@ namespace yoneda
 
   notation `ɏ` := yoneda_embedding _
 
-  definition yoneda_lemma_hom [constructor] {C : Precategory} (c : C) (F : Cᵒᵖ ⇒ cset)
+  definition yoneda_lemma_hom_fun [unfold_full] (c : C) (F : Cᵒᵖ ⇒ cset)
+    (x : trunctype.carrier (F c)) (c' : Cᵒᵖ) : to_fun_ob (ɏ c) c' ⟶ F c' :=
+  begin
+    esimp [yoneda_embedding], intro f, exact F f x
+  end
+
+  definition yoneda_lemma_hom_nat (c : C) (F : Cᵒᵖ ⇒ cset)
+    (x : trunctype.carrier (F c)) {c₁ c₂ : Cᵒᵖ} (f : c₁ ⟶ c₂)
+      : F f ∘ yoneda_lemma_hom_fun c F x c₁ = yoneda_lemma_hom_fun c F x c₂ ∘ to_fun_hom (ɏ c) f :=
+  begin
+    esimp [yoneda_embedding], apply eq_of_homotopy, intro f',
+    refine _ ⬝ ap (λy, to_fun_hom F y x) !(@id_left _ C)⁻¹,
+    exact ap10 !(@respect_comp Cᵒᵖ cset)⁻¹ x
+  end
+
+  definition yoneda_lemma_hom [constructor] (c : C) (F : Cᵒᵖ ⇒ cset)
     (x : trunctype.carrier (F c)) : ɏ c ⟹ F :=
   begin
     fapply nat_trans.mk,
-    { intro c', esimp [yoneda_embedding], intro f, exact F f x},
-    { intro c' c'' f, esimp [yoneda_embedding], apply eq_of_homotopy, intro f',
-      refine _ ⬝ ap (λy, to_fun_hom F y x) !(@id_left _ C)⁻¹,
-      exact ap10 !(@respect_comp Cᵒᵖ cset)⁻¹ x}
+    { exact yoneda_lemma_hom_fun c F x},
+    { intro c₁ c₂ f, exact yoneda_lemma_hom_nat c F x f}
   end
 
-  definition yoneda_lemma_equiv [constructor] {C : Precategory} (c : C)
+  definition yoneda_lemma_equiv [constructor] (c : C)
     (F : Cᵒᵖ ⇒ cset) : hom (ɏ c) F ≃ lift (trunctype.carrier (to_fun_ob F c)) :=
   begin
     fapply equiv.MK,
@@ -64,13 +79,13 @@ namespace yoneda
       rewrite naturality, esimp [yoneda_embedding], rewrite [id_left], apply ap _ !id_left end end},
   end
 
-  definition yoneda_lemma {C : Precategory} (c : C) (F : Cᵒᵖ ⇒ cset) :
+  definition yoneda_lemma (c : C) (F : Cᵒᵖ ⇒ cset) :
     homset (ɏ c) F ≅ functor_lift (F c) :=
   begin
     apply iso_of_equiv, esimp, apply yoneda_lemma_equiv,
   end
 
-  theorem yoneda_lemma_natural_ob {C : Precategory} (F : Cᵒᵖ ⇒ cset) {c c' : C} (f : c' ⟶ c)
+  theorem yoneda_lemma_natural_ob (F : Cᵒᵖ ⇒ cset) {c c' : C} (f : c' ⟶ c)
     (η : ɏ c ⟹ F) :
      to_fun_hom (functor_lift ∘f F) f (to_hom (yoneda_lemma c F) η) =
      to_hom (yoneda_lemma c' F) (η ∘n to_fun_hom ɏ f) :=
@@ -89,7 +104,7 @@ namespace yoneda
   -- attribute yoneda_lemma functor_lift Precategory_Set precategory_Set homset
   --   yoneda_embedding nat_trans.compose functor_nat_trans_compose [reducible]
   -- attribute tlift functor.compose [reducible]
-  theorem yoneda_lemma_natural_functor.{u v} {C : Precategory.{u v}} (c : C) (F F' : Cᵒᵖ ⇒ cset)
+  theorem yoneda_lemma_natural_functor (c : C) (F F' : Cᵒᵖ ⇒ cset)
     (θ : F ⟹ F') (η : to_fun_ob ɏ c ⟹ F) :
      (functor_lift.{v u} ∘fn θ) c (to_hom (yoneda_lemma c F) η) =
      proof to_hom (yoneda_lemma c F') (θ ∘n η) qed :=
@@ -107,20 +122,21 @@ namespace yoneda
   --    proof _ qed :=
   -- by reflexivity
 
-  definition fully_faithful_yoneda_embedding [instance] (C : Precategory) :
+  open equiv
+  definition fully_faithful_yoneda_embedding [instance] (C : Precategory.{u v}) :
     fully_faithful (ɏ : C ⇒ cset ^c Cᵒᵖ) :=
   begin
     intro c c',
     fapply is_equiv_of_equiv_of_homotopy,
     { symmetry, transitivity _, apply @equiv_of_iso (homset _ _),
-      rexact yoneda_lemma c (ɏ c'), esimp [yoneda_embedding], exact !equiv_lift⁻¹ᵉ},
+      exact @yoneda_lemma C c (ɏ c'), esimp [yoneda_embedding], exact !equiv_lift⁻¹ᵉ},
     { intro f, apply nat_trans_eq, intro c, apply eq_of_homotopy, intro f',
       esimp [equiv.symm,equiv.trans],
       esimp [yoneda_lemma,yoneda_embedding,Opposite],
       rewrite [id_left,id_right]}
   end
 
-  definition is_embedding_yoneda_embedding (C : Category) :
+  definition is_embedding_yoneda_embedding (C : Category.{u v}) :
     is_embedding (ɏ : C → Cᵒᵖ ⇒ cset) :=
   begin
     intro c c', fapply is_equiv_of_equiv_of_homotopy,
@@ -134,15 +150,18 @@ namespace yoneda
       rewrite [▸*, category.category.id_left], apply id_right}
   end
 
-  definition is_representable {C : Precategory} (F : Cᵒᵖ ⇒ cset) := Σ(c : C), ɏ c ≅ F
+  definition is_representable (F : Cᵒᵖ ⇒ cset) := Σ(c : C), ɏ c ≅ F
 
   section
     set_option apply.class_instance false
-    definition is_prop_representable {C : Category} (F : Cᵒᵖ ⇒ cset)
+    open functor.ops
+    definition is_prop_representable {C : Category.{u v}} (F : Cᵒᵖ ⇒ cset)
       : is_prop (is_representable F) :=
     begin
       fapply is_trunc_equiv_closed,
-      { exact proof fiber.sigma_char ɏ F qed ⬝e sigma.sigma_equiv_sigma_right (λc, !eq_equiv_iso)},
+      { unfold [is_representable],
+        rexact fiber.sigma_char ɏ F ⬝e sigma.sigma_equiv_sigma_right
+                 (λc, @eq_equiv_iso (cset ^c2 Cᵒᵖ) _ (hom_functor_left c) F)},
       { apply function.is_prop_fiber_of_is_embedding, apply is_embedding_yoneda_embedding}
     end
   end

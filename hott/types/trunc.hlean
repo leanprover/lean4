@@ -428,7 +428,6 @@ namespace trunc
         { exact (IH _ _ _)}}}
   end
 
-  open equiv.ops
   definition unique_choice {P : A → Type} [H : Πa, is_prop (P a)] (f : Πa, ∥ P a ∥) (a : A)
     : P a :=
   !trunc_equiv (f a)

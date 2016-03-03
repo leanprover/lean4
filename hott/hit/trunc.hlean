@@ -82,7 +82,6 @@ namespace trunc
   λxx, trunc.rec_on xx (λx, ap tr (p x))
 
   section
-    open equiv.ops
     definition trunc_equiv_trunc [constructor] (f : X ≃ Y) : trunc n X ≃ trunc n Y :=
     equiv.mk _ (is_equiv_trunc_functor n f)
   end

@@ -104,7 +104,6 @@ section
 end
 
 section
-  open equiv.ops
   variables {A : Type} (R : A → A → Type)
              {B : Type} (Q : B → B → Type)
              (f : A ≃ B) (k : Πa a' : A, R a a' ≃ Q (f a) (f a'))

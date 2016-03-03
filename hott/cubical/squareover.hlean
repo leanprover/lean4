@@ -8,7 +8,7 @@ Squareovers
 
 import .square
 
-open eq equiv is_equiv equiv.ops
+open eq equiv is_equiv
 
 namespace eq
 

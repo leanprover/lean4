@@ -8,7 +8,7 @@ Cubes
 
 import .square
 
-open equiv equiv.ops is_equiv sigma sigma.ops
+open equiv is_equiv sigma sigma.ops
 
 namespace eq
 
@@ -48,7 +48,7 @@ namespace eq
 
   definition refl2 : cube hrfl hrfl s₁₀₁ s₁₀₁ hrfl hrfl :=
   by induction s₁₀₁; exact idc
-  
+
   definition refl3 : cube vrfl vrfl vrfl vrfl s₁₁₀ s₁₁₀ :=
   by induction s₁₁₀; exact idc
 
@@ -169,9 +169,9 @@ namespace eq
   variables {a₀ a₁ : A} {p₀₀ p₀₂ p₂₀ p₂₂ : a₀ = a₁} {s₁₀ : p₀₀ = p₂₀}
     {s₁₂ : p₀₂ = p₂₂} {s₀₁ : p₀₀ = p₀₂} {s₂₁ : p₂₀ = p₂₂}
     (sq : square s₁₀ s₁₂ s₀₁ s₂₁)
-  
+
   include sq
-  
+
   definition ids3_cube_of_square : cube (hdeg_square s₀₁)
     (hdeg_square s₂₁) (hdeg_square s₁₀) (hdeg_square s₁₂) ids ids :=
   by induction p₀₀; induction sq; apply idc
@@ -194,7 +194,7 @@ namespace eq
   definition cube_fill110 : Σ lid, cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ lid s₁₁₂ :=
   begin
     induction s₀₁₁, induction s₂₁₁,
-    let fillsq := square_fill_l (eq_of_vdeg_square s₁₀₁) 
+    let fillsq := square_fill_l (eq_of_vdeg_square s₁₀₁)
         (eq_of_hdeg_square s₁₁₂) (eq_of_vdeg_square s₁₂₁),
     apply sigma.mk,
     apply cube_transport101 (left_inv (vdeg_square_equiv _ _) s₁₀₁),
@@ -206,7 +206,7 @@ namespace eq
   definition cube_fill112 : Σ lid, cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ lid :=
   begin
     induction s₀₁₁, induction s₂₁₁,
-    let fillsq := square_fill_r (eq_of_vdeg_square s₁₀₁) 
+    let fillsq := square_fill_r (eq_of_vdeg_square s₁₀₁)
         (eq_of_hdeg_square s₁₁₀) (eq_of_vdeg_square s₁₂₁),
     apply sigma.mk,
     apply cube_transport101 (left_inv (vdeg_square_equiv _ _) s₁₀₁),

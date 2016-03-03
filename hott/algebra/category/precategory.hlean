@@ -5,7 +5,7 @@ Authors: Floris van Doorn
 -/
 import types.trunc types.pi arity
 
-open eq is_trunc pi equiv equiv.ops
+open eq is_trunc pi equiv
 
 namespace category
 

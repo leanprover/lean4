@@ -52,7 +52,8 @@ namespace category
 
   local attribute category.to_precategory [constructor]
 
-  definition preserves_existing_limits_yoneda_embedding_lemma [constructor] (y : cone_obj F)
+  definition preserves_existing_limits_yoneda_embedding_lemma [constructor]
+    (y : cone_obj F)
     [H : is_terminal y] {G : Cᵒᵖ ⇒ cset} (η : constant_functor I G ⟹ ɏ ∘f F) :
     G ⟹ hom_functor_left (cone_to_obj y) :=
   begin
@@ -70,15 +71,14 @@ namespace category
       refine _ ⬝ ap10 (naturality (η i) f) x, rewrite [▸*, id_left]}
       -- abstracting here fails
   end
---  print preserves_existing_limits_yoneda_embedding_lemma_11
 
   theorem preserves_existing_limits_yoneda_embedding (C : Precategory)
     : preserves_existing_limits (yoneda_embedding C) :=
   begin
     intro I F H Gη, induction H with y H, induction Gη with G η, esimp at *,
-    have lem : Π (i : carrier I),
+    have lem : Π(i : carrier I),
     nat_trans_hom_functor_left (natural_map (cone_to_nat y) i)
-      ∘n preserves_existing_limits_yoneda_embedding_lemma y η = natural_map η i,
+      ∘n @preserves_existing_limits_yoneda_embedding_lemma I C F y H G η = natural_map η i,
     begin
         intro i, apply nat_trans_eq, intro c, apply eq_of_homotopy, intro x,
         esimp, refine !assoc ⬝ !id_right ⬝ !to_hom_limit_commute

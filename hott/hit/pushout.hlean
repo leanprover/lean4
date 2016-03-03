@@ -8,7 +8,7 @@ Declaration of the pushout
 
 import .quotient cubical.square types.sigma
 
-open quotient eq sum equiv equiv.ops is_trunc
+open quotient eq sum equiv is_trunc
 
 namespace pushout
 section

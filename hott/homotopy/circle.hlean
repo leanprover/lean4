@@ -10,7 +10,7 @@ import .sphere
 import types.bool types.int.hott types.equiv
 import algebra.homotopy_group algebra.hott .connectedness
 
-open eq susp bool sphere_index is_equiv equiv equiv.ops is_trunc pi algebra homotopy
+open eq susp bool sphere_index is_equiv equiv is_trunc pi algebra homotopy
 
 definition circle : Type₀ := sphere 1
 
@@ -235,7 +235,7 @@ namespace circle
   preserve_binary_of_inv_preserve base_eq_base_equiv concat (@add ℤ _) decode_add p q
 
   --the carrier of π₁(S¹) is the set-truncation of base = base.
-  open algebra trunc equiv.ops
+  open algebra trunc
 
   definition fg_carrier_equiv_int : π[1](S¹.) ≃ ℤ :=
   trunc_equiv_trunc 0 base_eq_base_equiv ⬝e @(trunc_equiv ℤ _) proof _ qed

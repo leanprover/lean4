@@ -7,7 +7,7 @@ Ported from Coq HoTT
 Theorems about products
 -/
 
-open eq equiv is_equiv is_trunc prod prod.ops unit equiv.ops
+open eq equiv is_equiv is_trunc prod prod.ops unit
 
 variables {A A' B B' C D : Type} {P Q : A → Type}
           {a a' a'' : A} {b b₁ b₂ b' b'' : B} {u v w : A × B}

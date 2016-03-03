@@ -8,7 +8,7 @@ Theorems about sums/coproducts/disjoint unions
 
 import .pi .equiv logic
 
-open lift eq is_equiv equiv equiv.ops prod prod.ops is_trunc sigma bool
+open lift eq is_equiv equiv prod prod.ops is_trunc sigma bool
 
 namespace sum
   universe variables u v u' v'
@@ -226,9 +226,8 @@ namespace sum
   end
 
   definition unit_sum_equiv_cancel_inv (b : B) :
-    unit_sum_equiv_cancel_map H (unit_sum_equiv_cancel_map H⁻¹ b) = b :=
+    unit_sum_equiv_cancel_map H (unit_sum_equiv_cancel_map H⁻¹ᵉ b) = b :=
   begin
-    have HH : to_fun H⁻¹ = (to_fun H)⁻¹, begin cases H, reflexivity end,
     esimp[unit_sum_equiv_cancel_map], apply sum.rec,
     { intro x, cases x with u Hu, esimp, apply sum.rec,
       { intro x, exfalso, cases x with u' Hu', apply empty_of_inl_eq_inr,
@@ -238,28 +237,28 @@ namespace sum
                ... = H⁻¹ (H (inr _)) : {Hu⁻¹}
                ... = inr _ : to_left_inv H },
       { intro x, cases x with b' Hb', esimp, cases sum.mem_cases (H⁻¹ (inr b)) with x x,
-        { cases x with u' Hu', cases u', apply eq_of_inr_eq_inr, rewrite -HH at Hu',
-          calc inr b' = H (inl ⋆) : Hb'⁻¹
-                  ... = H (H⁻¹ (inr b)) : {(ap (to_fun H) Hu')⁻¹}
-                  ... = inr b : to_right_inv H (inr b) },
-        { exfalso, cases x with a Ha, rewrite -HH at Ha, apply empty_of_inl_eq_inr,
+        { cases x with u' Hu', cases u', apply eq_of_inr_eq_inr,
+          calc inr b' = H (inl ⋆)       : Hb'⁻¹
+                  ... = H (H⁻¹ (inr b)) : (ap (to_fun H) Hu')⁻¹
+                  ... = inr b           : to_right_inv H (inr b)},
+        { exfalso, cases x with a Ha, apply empty_of_inl_eq_inr,
           cases u, apply concat, apply Hu⁻¹, apply concat, rotate 1, apply !(to_right_inv H),
-          apply ap (to_fun H), krewrite -HH,
+          apply ap (to_fun H),
           apply concat, rotate 1, apply Ha⁻¹, apply ap inr, esimp,
           apply sum.rec, intro x, exfalso, apply empty_of_inl_eq_inr,
           apply concat, exact x.2⁻¹, apply Ha,
           intro x, cases x with a' Ha', esimp, apply eq_of_inr_eq_inr, apply Ha'⁻¹ ⬝ Ha } } },
     { intro x, cases x with b' Hb', esimp, apply eq_of_inr_eq_inr, refine Hb'⁻¹ ⬝ _,
-      cases sum.mem_cases (to_fun H⁻¹ (inr b)) with x x,
-      { cases x with u Hu, esimp, cases sum.mem_cases (to_fun H⁻¹ (inl ⋆)) with x x,
+      cases sum.mem_cases (to_fun H⁻¹ᵉ (inr b)) with x x,
+      { cases x with u Hu, esimp, cases sum.mem_cases (to_fun H⁻¹ᵉ (inl ⋆)) with x x,
         { cases x with u' Hu', exfalso, apply empty_of_inl_eq_inr,
-          calc inl ⋆ = H (H⁻¹ (inl ⋆)) : (to_right_inv H (inl ⋆))⁻¹
-                 ... = H (inl u') : {ap H Hu'}
-                 ... = H (inl u) : {!is_prop.elim}
-                 ... = H (H⁻¹ (inr b)) : {ap H Hu⁻¹}
-                 ... = inr b : to_right_inv H (inr b) },
+          calc inl ⋆ = H (H⁻¹ (inl ⋆))  : (to_right_inv H (inl ⋆))⁻¹
+                 ... = H (inl u')       : ap H Hu'
+                 ... = H (inl u)        : by rewrite [is_prop.elim u' u]
+                 ... = H (H⁻¹ᵉ (inr b)) : ap H Hu⁻¹
+                 ... = inr b            : to_right_inv H (inr b) },
       { cases x with a Ha, exfalso, apply empty_of_inl_eq_inr,
-        apply concat, rotate 1, exact Hb', krewrite HH at Ha,
+        apply concat, rotate 1, exact Hb',
         have Ha' : inl ⋆ = H (inr a), by apply !(to_right_inv H)⁻¹ ⬝ ap H Ha,
         apply concat Ha', apply ap H, apply ap inr, apply sum.rec,
           intro x, cases x with u' Hu', esimp, apply sum.rec,
@@ -269,15 +268,15 @@ namespace sum
           intro x, exfalso, cases x with a'' Ha'', apply empty_of_inl_eq_inr,
           apply Hu⁻¹ ⬝ Ha'', } },
     { cases x with a' Ha', esimp, refine _ ⬝ !(to_right_inv H), apply ap H,
-      rewrite -HH, apply Ha'⁻¹ } }
+      apply Ha'⁻¹ } }
   end
 
   definition unit_sum_equiv_cancel : A ≃ B :=
   begin
     fapply equiv.MK, apply unit_sum_equiv_cancel_map H,
-    apply unit_sum_equiv_cancel_map H⁻¹,
+    apply unit_sum_equiv_cancel_map H⁻¹ᵉ,
     intro b, apply unit_sum_equiv_cancel_inv,
-    { intro a, have H = (H⁻¹)⁻¹, from !equiv.symm_symm⁻¹, rewrite this at {2},
+    { intro a, have H = (H⁻¹ᵉ)⁻¹ᵉ, from !equiv.symm_symm⁻¹, rewrite this at {2},
       apply unit_sum_equiv_cancel_inv }
   end
 

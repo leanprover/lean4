@@ -269,14 +269,11 @@ namespace eq
   definition cast_inv {A B : Type} (p : A = B) (b : B) : cast p⁻¹ b = (cast p)⁻¹ b := idp
 end eq
 
-namespace equiv
-  namespace ops
-    attribute to_fun [coercion]
-  end ops
-  open equiv.ops
-  attribute to_is_equiv [instance]
+infix ` ≃ `:25 := equiv
+attribute equiv.to_is_equiv [instance]
 
-  infix ` ≃ `:25 := equiv
+namespace equiv
+  attribute to_fun [coercion]
 
   section
   variables {A B C : Type}
@@ -395,17 +392,12 @@ namespace equiv
 
   end
 
-
-  namespace ops
-    postfix ⁻¹ := equiv.symm -- overloaded notation for inverse
-  end ops
-
   infixl ` ⬝pe `:75 := equiv_of_equiv_of_eq
   infixl ` ⬝ep `:75 := equiv_of_eq_of_equiv
 
 end equiv
 
-open equiv equiv.ops
+open equiv
 namespace is_equiv
 
   definition is_equiv_of_equiv_of_homotopy [constructor] {A B : Type} (f : A ≃ B)

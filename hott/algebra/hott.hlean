@@ -8,7 +8,7 @@ Theorems about algebra specific to HoTT
 
 import .group arity types.pi prop_trunc types.unit .bundled
 
-open equiv eq equiv.ops is_trunc unit
+open equiv eq is_trunc unit
 
 namespace algebra
 

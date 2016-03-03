@@ -16,7 +16,7 @@ See also .set_quotient
 
 import arity cubical.squareover types.arrow cubical.pathover2 types.pointed
 
-open eq equiv sigma sigma.ops equiv.ops pi is_trunc pointed
+open eq equiv sigma sigma.ops pi is_trunc pointed
 
 namespace quotient
 

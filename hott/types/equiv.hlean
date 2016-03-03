@@ -9,7 +9,7 @@ Theorems about the types equiv and is_equiv
 
 import .fiber .arrow arity ..prop_trunc
 
-open eq is_trunc sigma sigma.ops pi fiber function equiv equiv.ops
+open eq is_trunc sigma sigma.ops pi fiber function equiv
 
 namespace is_equiv
   variables {A B : Type} (f : A → B) [H : is_equiv f]

@@ -278,11 +278,12 @@ namespace is_trunc
 
   theorem is_trunc_is_equiv_closed (n : ℕ₋₂) (f : A → B) [H : is_equiv f]
     [HA : is_trunc n A] : is_trunc n B :=
-  trunc_index.rec_on n
-    (λA (HA : is_contr A) B f (H : is_equiv f), is_contr_is_equiv_closed f)
-    (λn IH A (HA : is_trunc n.+1 A) B f (H : is_equiv f), @is_trunc_succ_intro _ _ (λ x y : B,
-      IH (f⁻¹ x = f⁻¹ y) _ (x = y) (ap f⁻¹)⁻¹ !is_equiv_inv))
-    A HA B f H
+  begin
+    revert A HA B f H, induction n with n IH: intros,
+    { exact is_contr_is_equiv_closed f},
+    { apply is_trunc_succ_intro, intro x y,
+      exact IH (f⁻¹ x = f⁻¹ y) _ (x = y) (ap f⁻¹)⁻¹ !is_equiv_inv}
+  end
 
   definition is_trunc_is_equiv_closed_rev (n : ℕ₋₂) (f : A → B) [H : is_equiv f]
     [HA : is_trunc n B] : is_trunc n A :=

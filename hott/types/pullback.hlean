@@ -7,7 +7,7 @@ Theorems about pullbacks
 -/
 
 import cubical.square
-open eq equiv is_equiv function equiv.ops prod unit is_trunc sigma
+open eq equiv is_equiv function prod unit is_trunc sigma
 
 variables {A₀₀ A₂₀ A₄₀ A₀₂ A₂₂ A₄₂ : Type}
           (f₁₀ : A₀₀ → A₂₀) (f₃₀ : A₂₀ → A₄₀)

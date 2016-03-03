@@ -9,7 +9,7 @@ Theorems about arrow types (function spaces)
 
 import types.pi
 
-open eq equiv is_equiv funext pi equiv.ops is_trunc unit
+open eq equiv is_equiv funext pi is_trunc unit
 
 namespace pi
 

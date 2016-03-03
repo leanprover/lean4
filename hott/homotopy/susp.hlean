@@ -8,7 +8,7 @@ Declaration of suspension
 
 import hit.pushout types.pointed cubical.square
 
-open pushout unit eq equiv equiv.ops
+open pushout unit eq equiv
 
 definition susp (A : Type) : Type := pushout (λ(a : A), star) (λ(a : A), star)
 
@@ -220,7 +220,7 @@ namespace susp
   end
 
   definition susp_adjoint_loop_nat_left (f : Y →* Ω Z) (g : X →* Y)
-    : (susp_adjoint_loop X Z)⁻¹ (f ∘* g) ~* (susp_adjoint_loop Y Z)⁻¹ f ∘* psusp_functor g :=
+    : (susp_adjoint_loop X Z)⁻¹ᵉ (f ∘* g) ~* (susp_adjoint_loop Y Z)⁻¹ᵉ f ∘* psusp_functor g :=
   begin
     esimp [susp_adjoint_loop],
     refine _ ⬝* !passoc⁻¹*,

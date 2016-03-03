@@ -8,7 +8,7 @@ Declaration of mapping cylinders
 
 import hit.quotient
 
-open quotient eq sum equiv equiv.ops
+open quotient eq sum equiv
 
 namespace cylinder
 section

@@ -6,7 +6,7 @@ Author: Jakob von Raumer
 
 import .iso
 
-open iso is_equiv equiv eq is_trunc sigma equiv.ops
+open iso is_equiv equiv eq is_trunc sigma
 
 /-
   A category is a precategory extended by a witness

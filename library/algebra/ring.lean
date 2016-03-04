@@ -132,7 +132,7 @@ section comm_semiring
         (show a * (d * c) = b * c, by simp))
 
   theorem dvd_mul_of_dvd_right {a b : A} (H : a ∣ b) (c : A) : a ∣ c * b :=
-  !mul.comm ▸ (dvd_mul_of_dvd_left H _)
+  begin rewrite mul.comm, exact dvd_mul_of_dvd_left H _ end
 
   theorem mul_dvd_mul {a b c d : A} (dvd_ab : a ∣ b) (dvd_cd : c ∣ d) : a * c ∣ b * d :=
   dvd.elim dvd_ab
@@ -147,7 +147,7 @@ section comm_semiring
   dvd.elim H (take d, assume Habdc : c = a * b * d, dvd.intro (!mul.assoc⁻¹ ⬝ Habdc⁻¹))
 
   theorem dvd_of_mul_left_dvd {a b c : A} (H : a * b ∣ c) : b ∣ c :=
-  dvd_of_mul_right_dvd (mul.comm a b ▸ H)
+  dvd_of_mul_right_dvd begin rewrite mul.comm at H, apply H end
 
   theorem dvd_add {a b c : A} (Hab : a ∣ b) (Hac : a ∣ c) : a ∣ b + c :=
   dvd.elim Hab
@@ -361,13 +361,16 @@ section
 
   theorem eq_zero_of_mul_eq_self_right {a b : A} (H₁ : b ≠ 1) (H₂ : a * b = a) : a = 0 :=
   have b - 1 ≠ 0, from
-    suppose b - 1 = 0, H₁ (!zero_add ▸ eq_add_of_sub_eq this),
+    suppose b - 1 = 0,
+    have b = 0 + 1, from eq_add_of_sub_eq this,
+    have b = 1, by rewrite zero_add at this; exact this,
+    H₁ this,
   have a * b - a = 0,   by simp,
   have a * (b - 1) = 0, by rewrite [mul_sub_left_distrib, mul_one]; apply this,
     show a = 0, from or_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero this) `b - 1 ≠ 0`
 
   theorem eq_zero_of_mul_eq_self_left {a b : A} (H₁ : b ≠ 1) (H₂ : b * a = a) : a = 0 :=
-    eq_zero_of_mul_eq_self_right H₁ (!mul.comm ▸ H₂)
+    eq_zero_of_mul_eq_self_right H₁ (begin rewrite mul.comm at H₂, exact H₂ end)
 
   theorem mul_self_eq_mul_self_iff (a b : A) : a * a = b * b ↔ a = b ∨ a = -b :=
   iff.intro
@@ -392,7 +395,7 @@ section
   dvd.elim Hdvd
     (take d,
       suppose a * c = a * b * d,
-      have b * d = c, from eq_of_mul_eq_mul_left Ha (mul.assoc a b d ▸ this⁻¹),
+      have b * d = c, from eq_of_mul_eq_mul_left Ha begin rewrite -mul.assoc, symmetry, exact this end,
       dvd.intro this)
 
   theorem dvd_of_mul_dvd_mul_right {a b c : A} (Ha : a ≠ 0) (Hdvd : (b * a ∣ c * a)) : (b ∣ c) :=

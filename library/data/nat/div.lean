@@ -46,7 +46,7 @@ calc
             ... = succ (x / z)        : by rewrite nat.add_sub_cancel
 
 theorem add_div_self_left {x : ℕ} (z : ℕ) (H : x > 0) : (x + z) / x = succ (z / x) :=
-!add.comm ▸ !add_div_self H
+add.comm z x ▸ !add_div_self H
 
 local attribute succ_mul [simp]
 

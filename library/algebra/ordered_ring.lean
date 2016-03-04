@@ -394,7 +394,12 @@ section
     (assume H : a ≥ 0, mul_nonneg H H)
     (assume H : a ≤ 0, mul_nonneg_of_nonpos_of_nonpos H H)
 
-  theorem zero_le_one : 0 ≤ (1:A) := one_mul 1 ▸ mul_self_nonneg 1
+  theorem zero_le_one : 0 ≤ (1:A) :=
+  have H : 1 * 1 ≥ 0, from mul_self_nonneg (1:A),
+  begin
+    rewrite one_mul at H,
+    assumption
+  end
 
   theorem pos_and_pos_or_neg_and_neg_of_mul_pos {a b : A} (Hab : a * b > 0) :
     (a > 0 ∧ b > 0) ∨ (a < 0 ∧ b < 0) :=

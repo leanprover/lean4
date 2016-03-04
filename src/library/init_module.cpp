@@ -43,6 +43,7 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/class_instance_resolution.h"
 #include "library/type_context.h"
+#include "library/legacy_type_context.h"
 #include "library/congr_lemma_manager.h"
 #include "library/app_builder.h"
 #include "library/attribute_manager.h"
@@ -92,6 +93,7 @@ void initialize_library_module() {
     initialize_aux_recursors();
     initialize_class_instance_resolution();
     initialize_type_context();
+    initialize_legacy_type_context();
     initialize_light_rule_set();
     initialize_congr_lemma_manager();
     initialize_app_builder();
@@ -109,6 +111,7 @@ void finalize_library_module() {
     finalize_app_builder();
     finalize_congr_lemma_manager();
     finalize_light_rule_set();
+    finalize_legacy_type_context();
     finalize_type_context();
     finalize_class_instance_resolution();
     finalize_aux_recursors();

@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/aux_recursors.h"
 #include "library/private.h"
+#include "library/legacy_type_context.h"
 #include "library/fun_info_manager.h"
 #include "library/congr_lemma_manager.h"
 #include "library/abstract_expr_manager.h"
@@ -159,7 +160,7 @@ environment eval_cmd(parser & p) {
         p.display_information_pos(p.cmd_pos());
         p.ios().get_regular_stream() << "eval result:\n";
     }
-    default_type_context tc(p.env(), p.get_options());
+    legacy_type_context tc(p.env(), p.get_options());
     auto out = regular(p.env(), p.ios(), tc);
     out << r << endl;
     return p.env();
@@ -547,7 +548,7 @@ static environment unify_cmd(parser & p) {
     p.check_token_next(get_comma_tk(), "invalid #unify command, proper usage \"#unify e1, e2\"");
     expr e2; level_param_names ls2;
     std::tie(e2, ls2) = parse_local_expr(p);
-    default_type_context ctx(env, p.get_options());
+    legacy_type_context ctx(env, p.get_options());
     bool success = ctx.is_def_eq(e1, e2);
     flycheck_information info(p.ios());
     if (info.enabled()) {
@@ -592,7 +593,7 @@ static environment defeq_simplify_cmd(parser & p) {
 
 static environment abstract_expr_cmd(parser & p) {
     unsigned o = p.parse_small_nat();
-    default_type_context ctx(p.env(), p.get_options());
+    legacy_type_context ctx(p.env(), p.get_options());
     app_builder builder(p.env(), p.get_options());
     fun_info_manager fun_info(ctx);
     congr_lemma_manager congr_lemma(builder, fun_info);

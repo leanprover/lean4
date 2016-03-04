@@ -23,7 +23,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/pp_options.h"
 #include "library/choice_iterator.h"
-#include "library/type_context.h"
+#include "library/legacy_type_context.h"
 #include "library/class_instance_resolution.h"
 
 namespace lean {
@@ -37,11 +37,11 @@ bool get_class_force_new(options const & o) {
 }
 
 struct cienv {
-    typedef std::unique_ptr<default_type_context> ti_ptr;
+    typedef std::unique_ptr<legacy_type_context> ti_ptr;
     ti_ptr m_ti_ptr;
 
     void reset(environment const & env, options const & o, list<expr> const & ctx) {
-        m_ti_ptr.reset(new default_type_context(env, o, ctx));
+        m_ti_ptr.reset(new legacy_type_context(env, o, ctx));
     }
 
     bool compatible_env(environment const & env) {

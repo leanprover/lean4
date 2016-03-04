@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/user_recursors.h"
 #include "library/relation_manager.h"
 #include "library/noncomputable.h"
+#include "library/legacy_type_context.h"
 #include "library/unification_hint.h"
 #include "library/defeq_simp_lemmas.h"
 #include "library/definitional/projection.h"
@@ -101,14 +102,14 @@ static environment print_axioms(parser & p) {
     if (p.curr_is_identifier()) {
         name c = p.check_constant_next("invalid 'print axioms', constant expected");
         environment new_env = p.reveal_all_theorems();
-        default_type_context tc(new_env, p.get_options());
+        legacy_type_context tc(new_env, p.get_options());
         auto out = regular(new_env, p.ios(), tc);
         print_axioms_deps(p.env(), out)(c);
         return new_env;
     } else {
         bool has_axioms = false;
         environment const & env = p.env();
-        default_type_context tc(env, p.get_options());
+        legacy_type_context tc(env, p.get_options());
         auto out = regular(env, p.ios(), tc);
         env.for_each_declaration([&](declaration const & d) {
                 name const & n = d.get_name();
@@ -127,7 +128,7 @@ static void print_prefix(parser & p) {
     name prefix = p.check_id_next("invalid 'print prefix' command, identifier expected");
     environment const & env = p.env();
     buffer<declaration> to_print;
-    default_type_context tc(env, p.get_options());
+    legacy_type_context tc(env, p.get_options());
     auto out = regular(env, p.ios(), tc);
     env.for_each_declaration([&](declaration const & d) {
             if (is_prefix_of(prefix, d.get_name())) {
@@ -148,7 +149,7 @@ static void print_fields(parser const & p, name const & S, pos_info const & pos)
         throw parser_error(sstream() << "invalid 'print fields' command, '" << S << "' is not a structure", pos);
     buffer<name> field_names;
     get_structure_fields(env, S, field_names);
-    default_type_context tc(env, p.get_options());
+    legacy_type_context tc(env, p.get_options());
     auto out = regular(env, p.ios(), tc);
     for (name const & field_name : field_names) {
         declaration d = env.get(field_name);
@@ -178,7 +179,7 @@ static bool print_parse_table(parser const & p, parse_table const & t, bool nud,
     os = os.update(get_pp_notation_name(), false);
     os = os.update(get_pp_preterm_name(), true);
     ios.set_options(os);
-    default_type_context tc(p.env(), p.get_options());
+    legacy_type_context tc(p.env(), p.get_options());
     io_state_stream out = regular(p.env(), ios, tc);
     optional<token_table> tt(get_token_table(p.env()));
     t.for_each([&](unsigned num, notation::transition const * ts, list<notation::accepting> const & overloads) {
@@ -224,7 +225,7 @@ static void print_patterns(parser & p, name const & n) {
                 options opts         = p.get_options();
                 opts                 = opts.update_if_undef(get_pp_metavar_args_name(), true);
                 io_state new_ios(p.ios(), opts);
-                default_type_context tc(p.env(), opts);
+                legacy_type_context tc(p.env(), opts);
                 io_state_stream out = regular(p.env(), new_ios, tc);
                 out << "(multi-)patterns:\n";
                 if (!is_nil(hi.m_mvars)) {
@@ -264,7 +265,7 @@ static void print_definition(parser const & p, name const & n, pos_info const & 
     options opts        = p.get_options();
     opts                = opts.update_if_undef(get_pp_beta_name(), false);
     io_state ios(p.ios(), opts);
-    default_type_context tc(env, opts);
+    legacy_type_context tc(env, opts);
     io_state_stream out = regular(env, ios, tc);
     if (d.is_axiom())
         throw parser_error(sstream() << "invalid 'print definition', theorem '" << to_user_name(env, n)

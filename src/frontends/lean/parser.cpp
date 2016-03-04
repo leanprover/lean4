@@ -41,7 +41,7 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/noncomputable.h"
 #include "library/error_handling.h"
-#include "library/type_context.h"
+#include "library/legacy_type_context.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/location.h"
 #include "frontends/lean/tokens.h"
@@ -317,7 +317,7 @@ void parser::updt_options() {
 }
 
 void parser::display_warning_pos(unsigned line, unsigned pos) {
-    default_type_context tc(env(), get_options());
+    legacy_type_context tc(env(), get_options());
     auto out = regular(env(), ios(), tc);
     ::lean::display_warning_pos(out, get_stream_name().c_str(), line, pos);
 }
@@ -343,7 +343,7 @@ void parser::display_error(char const * msg, unsigned line, unsigned pos) {
 void parser::display_error(char const * msg, pos_info p) { display_error(msg, p.first, p.second); }
 
 void parser::display_error(throwable const & ex) {
-    default_type_context tc(env(), get_options());
+    legacy_type_context tc(env(), get_options());
     auto out = regular(env(), ios(), tc);
     parser_pos_provider pos_provider(m_pos_table, get_stream_name(), m_last_cmd_pos);
     ::lean::display_error(out, &pos_provider, ex);
@@ -2045,10 +2045,10 @@ expr parser::parse_tactic(unsigned rbp) {
 class lazy_type_context : public abstract_type_context {
     environment const & m_env;
     options const & m_opts;
-    std::unique_ptr<default_type_context> m_ctx;
-    default_type_context & ctx() {
+    std::unique_ptr<legacy_type_context> m_ctx;
+    legacy_type_context & ctx() {
         if (!m_ctx)
-            m_ctx.reset(new default_type_context(m_env, m_opts));
+            m_ctx.reset(new legacy_type_context(m_env, m_opts));
         return *m_ctx;
     }
 public:

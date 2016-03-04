@@ -29,7 +29,7 @@ Author: Leonardo de Moura
 #include "library/hott_kernel.h"
 #include "library/module.h"
 #include "library/flycheck.h"
-#include "library/type_context.h"
+#include "library/legacy_type_context.h"
 #include "library/io_state_stream.h"
 #include "library/definition_cache.h"
 #include "library/declaration_index.h"
@@ -65,7 +65,7 @@ using lean::module_name;
 using lean::simple_pos_info_provider;
 using lean::shared_file_lock;
 using lean::exclusive_file_lock;
-using lean::default_type_context;
+using lean::legacy_type_context;
 using lean::type_checker;
 
 enum class input_kind { Unspecified, Lean, HLean, Trace };
@@ -507,7 +507,7 @@ int main(int argc, char ** argv) {
             } catch (lean::exception & ex) {
                 simple_pos_info_provider pp(argv[i]);
                 ok = false;
-                default_type_context tc(env, ios.get_options());
+                legacy_type_context tc(env, ios.get_options());
                 auto out = diagnostic(env, ios, tc);
                 lean::display_error(out, &pp, ex);
             }
@@ -549,7 +549,7 @@ int main(int argc, char ** argv) {
         }
         return ok ? 0 : 1;
     } catch (lean::throwable & ex) {
-        default_type_context tc(env, ios.get_options());
+        legacy_type_context tc(env, ios.get_options());
         auto out = diagnostic(env, ios, tc);
         lean::display_error(out, nullptr, ex);
     } catch (std::bad_alloc & ex) {

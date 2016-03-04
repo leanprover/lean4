@@ -19,4 +19,5 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   tmp_type_context.cpp fun_info_manager.cpp congr_lemma_manager.cpp
   abstract_expr_manager.cpp light_lt_manager.cpp trace.cpp
   attribute_manager.cpp error_handling.cpp unification_hint.cpp defeq_simp_lemmas.cpp
-  defeq_simplifier.cpp proof_irrel_expr_manager.cpp local_context.cpp)
+  defeq_simplifier.cpp proof_irrel_expr_manager.cpp local_context.cpp
+  legacy_type_context.cpp)

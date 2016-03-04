@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "util/name_map.h"
+#include "util/name_set.h"
 #include "kernel/expr.h"
 
 namespace lean {
@@ -26,7 +27,8 @@ public:
         unsigned           m_idx;
         MK_LEAN_RC(); // Declare m_rc counter
         void dealloc();
-        cell(unsigned idx, name const & n, name const & pp_n, expr const & t, optional<expr> const & v, binder_info const & bi);
+        cell(unsigned idx, name const & n, name const & pp_n, expr const & t, optional<expr> const & v,
+             binder_info const & bi);
     };
 private:
     cell * m_ptr;
@@ -53,12 +55,32 @@ public:
 
 bool is_local_decl_ref(expr const & e);
 
+/** \brief Set of local declarations that were available when a meta-variable has been defined */
+class local_decls {
+    /** We didn't use a name_set because we want to create local_decls from local_context in constant
+        type */
+    name_map<local_decl>  m_decls;
+    local_decls(name_map<local_decls> const & decls):m_decls(decls) {}
+    friend class local_context;
+public:
+    local_decls() {}
+    bool contains(name const & n) const { return m_decls.contains(n); }
+};
+
 class local_context {
     typedef rb_map<unsigned, local_decl, unsigned_cmp> idx2local_decl;
     unsigned              m_next_idx;
     name_map<local_decl>  m_name2local_decl;
     idx2local_decl        m_idx2local_decl;
-    expr mk_local_decl(name const & n, name const & ppn, expr const & type, optional<expr> const & value, binder_info const & bi);
+    /*
+      A local context can optionally have a set of frozen declarations.
+      Moreover, type class resolution can be restricted to use only frozen local
+      declarations. When this restriction is use, we can cache type class instances
+      more efficiently.
+    */
+    name_set              m_frozen_decls; /* declarations that have been frozen */
+    expr mk_local_decl(name const & n, name const & ppn, expr const & type,
+                       optional<expr> const & value, binder_info const & bi);
 public:
     local_context():m_next_idx(0) {}
     expr mk_local_decl(expr const & type, binder_info const & bi = binder_info());
@@ -73,6 +95,9 @@ public:
     optional<local_decl> find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT
     /** \brief Execute fn for each local declaration created after \c d. */
     void for_each_after(local_decl const & d, std::function<void(local_decl const &)> const & fn) const;
+    local_decls to_local_decls() const { return local_decls(m_name2local_decl); }
+    void freeze(name const & n);
+    bool is_frozen(name const & n) const { return m_frozen_decls.contains(n); }
 };
 
 void initialize_local_context();

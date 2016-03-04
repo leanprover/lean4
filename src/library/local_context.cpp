@@ -87,6 +87,11 @@ void local_context::for_each_after(local_decl const & d, std::function<void(loca
     m_idx2local_decl.for_each_greater(d.get_idx(), [&](unsigned, local_decl const & d) { return fn(d); });
 }
 
+void local_context::freeze(name const & n) {
+    lean_assert(m_name2local_decl.contains(n));
+    m_frozen_decls.insert(n);
+}
+
 void initialize_local_context() {
     g_local_prefix = new name(name::mk_internal_unique_name());
     g_dummy_type   = new expr(mk_constant(name::mk_internal_unique_name()));

@@ -34,8 +34,8 @@ theorem gcd_succ [simp] (x y : nat) : gcd x (succ y) = gcd (succ y) (x % succ y)
 well_founded.fix_eq gcd.F (x, succ y)
 
 theorem gcd_one_right (n : ℕ) : gcd n 1 = 1 :=
-calc gcd n 1 = gcd 1 (n % 1)  : gcd_succ
-         ... = gcd 1 0        : mod_one
+calc gcd n 1 = gcd 1 (n % 1)  : !gcd_succ
+         ... = gcd 1 0        : by rewrite mod_one
 
 theorem gcd_def (x : ℕ) : Π (y : ℕ), gcd x y = if y = 0 then x else gcd y (x % y)
 | 0        := !gcd_zero_right
@@ -45,14 +45,14 @@ theorem gcd_def (x : ℕ) : Π (y : ℕ), gcd x y = if y = 0 then x else gcd y (
 theorem gcd_self : Π (n : ℕ), gcd n n = n
 | 0         := rfl
 | (succ n₁) := calc
-    gcd (succ n₁) (succ n₁) = gcd (succ n₁) (succ n₁ % succ n₁) : gcd_succ
-                      ...   = gcd (succ n₁) 0                     : mod_self
+    gcd (succ n₁) (succ n₁) = gcd (succ n₁) (succ n₁ % succ n₁) : !gcd_succ
+                      ...   = gcd (succ n₁) 0                   : by rewrite mod_self
 
 theorem gcd_zero_left : Π (n : ℕ), gcd 0 n = n
 | 0         := rfl
 | (succ n₁) := calc
-    gcd 0 (succ n₁) = gcd (succ n₁) (0 % succ n₁) : gcd_succ
-                ... = gcd (succ n₁) 0               : zero_mod
+    gcd 0 (succ n₁) = gcd (succ n₁) (0 % succ n₁)   : !gcd_succ
+                ... = gcd (succ n₁) 0               : by rewrite zero_mod
 
 theorem gcd_of_pos (m : ℕ) {n : ℕ} (H : n > 0) : gcd m n = gcd n (m % n) :=
 gcd_def m n ⬝ if_neg (ne_zero_of_pos H)
@@ -60,8 +60,8 @@ gcd_def m n ⬝ if_neg (ne_zero_of_pos H)
 theorem gcd_rec (m n : ℕ) : gcd m n = gcd n (m % n) :=
 by_cases_zero_pos n
   (calc
-          m = gcd 0 m       : gcd_zero_left
-        ... = gcd 0 (m % 0) : mod_zero)
+          m = gcd 0 m       : by rewrite gcd_zero_left
+        ... = gcd 0 (m % 0) : by rewrite mod_zero)
   (take n, assume H : 0 < n, gcd_of_pos m H)
 
 theorem gcd.induction {P : ℕ → ℕ → Prop}
@@ -115,22 +115,22 @@ theorem gcd_one_left (m : ℕ) : gcd 1 m = 1 :=
 
 theorem gcd_mul_left (m n k : ℕ) : gcd (m * n) (m * k) = m * gcd n k :=
 gcd.induction n k
-  (take n, calc gcd (m * n) (m * 0) = gcd (m * n) 0 : mul_zero)
+  (take n, calc gcd (m * n) (m * 0) = gcd (m * n) 0 : by rewrite mul_zero)
   (take n k,
     assume H : 0 < k,
     assume IH : gcd (m * k) (m * (n % k)) = m * gcd k (n % k),
     calc
       gcd (m * n) (m * k) = gcd (m * k) (m * n % (m * k)) : !gcd_rec
-                      ... = gcd (m * k) (m * (n % k))     : mul_mod_mul_left
-                      ... = m * gcd k (n % k)             : IH
-                      ... = m * gcd n k                   : !gcd_rec)
+                      ... = gcd (m * k) (m * (n % k))     : by rewrite mul_mod_mul_left
+                      ... = m * gcd k (n % k)             : by rewrite IH
+                      ... = m * gcd n k                   : by rewrite -gcd_rec)
 
 theorem gcd_mul_right (m n k : ℕ) : gcd (m * n) (k * n) = gcd m k * n :=
 calc
-  gcd (m * n) (k * n) = gcd (n * m) (k * n) : mul.comm
-                  ... = gcd (n * m) (n * k) : mul.comm
-                  ... = n * gcd m k         : gcd_mul_left
-                  ... = gcd m k * n         : mul.comm
+  gcd (m * n) (k * n) = gcd (n * m) (k * n) : by rewrite (mul.comm m n)
+                  ... = gcd (n * m) (n * k) : by rewrite (mul.comm n k)
+                  ... = n * gcd m k         : by rewrite gcd_mul_left
+                  ... = gcd m k * n         : by rewrite mul.comm
 
 theorem gcd_pos_of_pos_left {m : ℕ} (n : ℕ) (mpos : m > 0) : gcd m n > 0 :=
 pos_of_dvd_of_pos !gcd_dvd_left mpos
@@ -151,9 +151,9 @@ theorem gcd_div {m n k : ℕ} (H1 : k ∣ m) (H2 : k ∣ n) :
 or.elim (eq_zero_or_pos k)
   (assume H3 : k = 0, by subst k; rewrite *nat.div_zero)
   (assume H3 : k > 0, (nat.div_eq_of_eq_mul_left H3 (calc
-        gcd m n = gcd m (n / k * k)             : nat.div_mul_cancel H2
-            ... = gcd (m / k * k) (n / k * k) : nat.div_mul_cancel H1
-            ... = gcd (m / k) (n / k) * k     : gcd_mul_right))⁻¹)
+        gcd m n = gcd m (n / k * k)             : by rewrite (nat.div_mul_cancel H2)
+            ... = gcd (m / k * k) (n / k * k) : by rewrite (nat.div_mul_cancel H1)
+            ... = gcd (m / k) (n / k) * k     : by rewrite gcd_mul_right))⁻¹)
 
 theorem gcd_dvd_gcd_mul_left (m n k : ℕ) : gcd m n ∣ gcd (k * m) n :=
 dvd_gcd (dvd.trans !gcd_dvd_left !dvd_mul_left) !gcd_dvd_right
@@ -174,24 +174,24 @@ definition lcm (m n : ℕ) : ℕ := m * n / (gcd m n)
 theorem lcm.comm (m n : ℕ) : lcm m n = lcm n m :=
 calc
   lcm m n = m * n / gcd m n : rfl
-      ... = n * m / gcd m n : mul.comm
-      ... = n * m / gcd n m : gcd.comm
+      ... = n * m / gcd m n : by rewrite mul.comm
+      ... = n * m / gcd n m : by rewrite gcd.comm
       ... = lcm n m           : rfl
 
 theorem lcm_zero_left (m : ℕ) : lcm 0 m = 0 :=
 calc
   lcm 0 m = 0 * m / gcd 0 m : rfl
-      ... = 0 / gcd 0 m     : zero_mul
-      ... = 0                 : nat.zero_div
+      ... = 0 / gcd 0 m     : by rewrite zero_mul
+      ... = 0               : by rewrite nat.zero_div
 
 theorem lcm_zero_right (m : ℕ) : lcm m 0 = 0 := !lcm.comm ▸ !lcm_zero_left
 
 theorem lcm_one_left (m : ℕ) : lcm 1 m = m :=
 calc
   lcm 1 m = 1 * m / gcd 1 m : rfl
-      ... = m / gcd 1 m     : one_mul
-      ... = m / 1           : gcd_one_left
-      ... = m                 : nat.div_one
+      ... = m / gcd 1 m     : by rewrite one_mul
+      ... = m / 1           : by rewrite gcd_one_left
+      ... = m                 : by rewrite nat.div_one
 
 theorem lcm_one_right (m : ℕ) : lcm m 1 = m := !lcm.comm ▸ !lcm_one_left
 
@@ -200,8 +200,8 @@ have H : m * m / m = m, from
   by_cases_zero_pos m !nat.div_zero (take m, assume H1 : m > 0, !nat.mul_div_cancel H1),
 calc
   lcm m m = m * m / gcd m m : rfl
-      ... = m * m / m       : gcd_self
-      ... = m                 : H
+      ... = m * m / m       : by rewrite gcd_self
+      ... = m               : H
 
 theorem dvd_lcm_left (m n : ℕ) : m ∣ lcm m n :=
 have H : lcm m n = m * (n / gcd m n), from nat.mul_div_assoc _ !gcd_dvd_right,
@@ -265,9 +265,9 @@ theorem coprime_swap {m n : ℕ} (H : coprime n m) : coprime m n :=
 theorem dvd_of_coprime_of_dvd_mul_right {m n k : ℕ} (H1 : coprime k n) (H2 : k ∣ m * n) : k ∣ m :=
 have H3 : gcd (m * k) (m * n) = m, from
   calc
-    gcd (m * k) (m * n) = m * gcd k n : gcd_mul_left
-                    ... = m * 1       : H1
-                    ... = m           : mul_one,
+    gcd (m * k) (m * n) = m * gcd k n : by rewrite gcd_mul_left
+                    ... = m * 1       : begin unfold coprime at H1, rewrite H1 end
+                    ... = m           : by rewrite mul_one,
 have H4 : (k ∣ gcd (m * k) (m * n)), from dvd_gcd !dvd_mul_left H2,
 H3 ▸ H4
 
@@ -359,9 +359,9 @@ or.elim (eq_zero_or_pos (gcd k m))
     have H3 : k / gcd k m ∣ (m * n) / gcd k m, from nat.div_dvd_div H2 H,
     have H4 : (m * n) / gcd k m = (m / gcd k m) * n, from
       calc
-        m * n / gcd k m = n * m / gcd k m   : mul.comm
+        m * n / gcd k m = n * m / gcd k m   : by rewrite mul.comm
                       ... = n * (m / gcd k m) : !nat.mul_div_assoc !gcd_dvd_right
-                      ... = m / gcd k m * n   : mul.comm,
+                      ... = m / gcd k m * n   : by rewrite mul.comm,
     have H5 : k / gcd k m ∣ (m / gcd k m) * n, from H4 ▸ H3,
     have H6 : coprime (k / gcd k m) (m / gcd k m), from coprime_div_gcd_div_gcd H1,
     have H7 : k / gcd k m ∣ n, from dvd_of_coprime_of_dvd_mul_left H6 H5,

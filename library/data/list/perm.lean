@@ -108,8 +108,8 @@ list.induction_on l₁
   (by rewrite [append_nil_right, append_nil_left])
   (λ a t r, calc
     a::(t++l₂) ~ a::(l₂++t)   : skip a r
-          ...  ~ l₂++t++[a]   : perm_cons_app
-          ...  = l₂++(t++[a]) : append.assoc
+          ...  ~ l₂++t++[a]   : !perm_cons_app
+          ...  = l₂++(t++[a]) : !append.assoc
           ...  ~ l₂++(a::t)   : perm_app_right l₂ (perm.symm (perm_cons_app a t)))
 
 theorem length_eq_length_of_perm {l₁ l₂ : list A} : l₁ ~ l₂ → length l₁ = length l₂ :=
@@ -154,8 +154,8 @@ take l, perm.symm (perm_rev l)
 theorem perm_middle (a : A) (l₁ l₂ : list A) : (a::l₁)++l₂ ~ l₁++(a::l₂) :=
 calc
   (a::l₁) ++ l₂ = a::(l₁++l₂)   : rfl
-           ...  ~ l₁++l₂++[a]   : perm_cons_app
-           ...  = l₁++(l₂++[a]) : append.assoc
+           ...  ~ l₁++l₂++[a]   : !perm_cons_app
+           ...  = l₁++(l₂++[a]) : !append.assoc
            ...  ~ l₁++(a::l₂)   : perm_app_right l₁ (perm.symm (perm_cons_app a l₂))
 
 theorem perm_middle_simp [simp] (a : A) (l₁ l₂ : list A) : l₁++(a::l₂) ~ (a::l₁)++l₂ :=
@@ -163,9 +163,9 @@ perm.symm !perm_middle
 
 theorem perm_cons_app_cons {l l₁ l₂ : list A} (a : A) : l ~ l₁++l₂ → a::l ~ l₁++(a::l₂) :=
 assume p, calc
-  a::l ~ l++[a]        : perm_cons_app
+  a::l ~ l++[a]        : !perm_cons_app
    ... ~ l₁++l₂++[a]   : perm_app_left [a] p
-   ... = l₁++(l₂++[a]) : append.assoc
+   ... = l₁++(l₂++[a]) : !append.assoc
    ... ~ l₁++(a::l₂)   : perm_app_right l₁ (perm.symm (perm_cons_app a l₂))
 
 open decidable
@@ -178,7 +178,7 @@ theorem perm_erase [decidable_eq A] {a : A} : ∀ {l : list A}, a ∈ l → l ~ 
       have aint : a ∈ t,             from mem_of_ne_of_mem naeqx h,
       have aux : t ~ a :: erase a t, from perm_erase aint,
       calc x::t ~ x::a::(erase a t)   : skip x aux
-            ... ~ a::x::(erase a t)   : swap
+            ... ~ a::x::(erase a t)   : !swap
             ... = a::(erase a (x::t)) : by rewrite [!erase_cons_tail naeqx])
 
 theorem erase_perm_erase_of_perm [congr] [decidable_eq A] (a : A) {l₁ l₂ : list A} : l₁ ~ l₂ → erase a l₁ ~ erase a l₂ :=
@@ -214,7 +214,7 @@ perm.induction_on p h₁ h₂ (λ x y l, h₃ x y l l !perm.refl !P_refl) h₄
 
 theorem xswap {l₁ l₂ : list A} (x y : A) : l₁ ~ l₂ → x::y::l₁ ~ y::x::l₂ :=
 assume p, calc
-  x::y::l₁  ~  y::x::l₁  : swap
+  x::y::l₁  ~  y::x::l₁  : !swap
         ... ~  y::x::l₂  : skip y (skip x p)
 
 theorem perm_map [congr] (f : A → B) {l₁ l₂ : list A} : l₁ ~ l₂ → map f l₁ ~ map f l₂ :=
@@ -229,7 +229,7 @@ assume q, qeq.induction_on q
   (λ h, !perm.refl)
   (λ b t₁ t₂ q₁ r₁, calc
      b::t₂ ~ b::a::t₁ : skip b r₁
-       ... ~ a::b::t₁ : swap)
+       ... ~ a::b::t₁ : !swap)
 
 /- permutation is decidable if A has decidable equality -/
 section dec
@@ -252,7 +252,7 @@ definition decidable_perm_aux : ∀ (n : nat) (l₁ l₂ : list A), length l₁ 
       match decidable_perm_aux n t₁ t₂ len_t₁ this with
       | inl p  := inl (calc
           x::t₁ ~ x::(erase x l₂) : skip x p
-           ...  ~ l₂              : perm_erase xinl₂)
+           ...  ~ l₂              : perm.symm (perm_erase xinl₂))
       | inr np := inr (λ p : x::t₁ ~ l₂,
         have erase x (x::t₁) ~ erase x l₂, from erase_perm_erase_of_perm x p,
         have t₁ ~ erase x l₂, by rewrite [erase_cons_head at this]; exact this,
@@ -340,7 +340,7 @@ perm_induction_on p'
             proof calc
               s₁  ~ t₂             : s₁_p
               ... = ts₂₁++(a::s₂₂) : t₂_eq
-              ... ~ (a::ts₂₁)++s₂₂ : !perm_middle
+              ... ~ (a::ts₂₁)++s₂₂ : perm.symm !perm_middle
               ... = s₂₁ ++ s₂₂     : by rewrite [-x_eq_a, -s₂₁_eq]
               ... = s₂             : by rewrite C₂₁
             qed))
@@ -354,7 +354,7 @@ perm_induction_on p'
             proof calc
               s₁  = a::(ts₁₁++s₁₂) : by rewrite [s₁_eq, x_eq_a]
               ... ~ ts₁₁++(a::s₁₂) : !perm_middle
-              ... = t₁             : t₁_eq
+              ... = t₁             : eq.symm t₁_eq
               ... ~ t₂             : p
               ... = s₂             : by rewrite [t₂_eq, C₂₁, s₂₁_eq, append_nil_left]
             qed)
@@ -391,7 +391,7 @@ perm_induction_on p'
             proof calc
               s₁  ~ x::t₂               : s₁_p
               ... = x::(ts₂₁++(y::s₂₂)) : by rewrite [t₂_eq, -y_eq_a]
-              ... ~ x::y::(ts₂₁++s₂₂)   : skip x !perm_middle
+              ... ~ x::y::(ts₂₁++s₂₂)   : perm.symm (skip x (perm_middle _ _ _)) -- !perm_middle
               ... = s₂₁ ++ s₂₂          : by rewrite [s₂₁_eq, append_cons]
               ... = s₂                  : by rewrite C₂₁
             qed))
@@ -416,8 +416,8 @@ perm_induction_on p'
             proof calc
               s₁  ~ y::t₂               : s₁_p
               ... = y::(ts₂₁++(x::s₂₂)) : by rewrite [t₂_eq, -x_eq_a]
-              ... ~ y::x::(ts₂₁++s₂₂)   : skip y !perm_middle
-              ... ~ x::y::(ts₂₁++s₂₂)   : swap
+              ... ~ y::x::(ts₂₁++s₂₂)   : perm.symm (skip y (perm_middle _ _ _))
+              ... ~ x::y::(ts₂₁++s₂₂)   : !swap
               ... = s₂₁ ++ s₂₂          : by rewrite [s₂₁_eq]
               ... = s₂                  : by rewrite C₂₁
             qed))
@@ -436,9 +436,9 @@ perm_induction_on p'
           (λ (s₂₁_eq : s₂₁ = [x]) (y_eq_a : y = a) (t₂_eq : t₂ = s₂₂),
             proof calc
               s₁  = y::x::(ts₁₁++s₁₂)   : by rewrite s₁_eq
-              ... ~ x::y::(ts₁₁++s₁₂)   : swap
+              ... ~ x::y::(ts₁₁++s₁₂)   : !swap
               ... = x::a::(ts₁₁++s₁₂)   : by rewrite y_eq_a
-              ... ~ x::(ts₁₁++(a::s₁₂)) : skip x !perm_middle
+              ... ~ x::(ts₁₁++(a::s₁₂)) : skip x (perm_middle _ _ _)
               ... = x::t₁               : by rewrite t₁_eq
               ... ~ x::t₂               : skip x p
               ... = s₂₁ ++ s₂₂          : by rewrite [t₂_eq, s₂₁_eq]
@@ -451,7 +451,7 @@ perm_induction_on p'
             proof calc
               s₁  = y::x::(ts₁₁++s₁₂)   : by rewrite s₁_eq
               ... ~ y::x::(ts₂₁++s₂₂)   : skip y (skip x p_aux)
-              ... ~ x::y::(ts₂₁++s₂₂)   : swap
+              ... ~ x::y::(ts₂₁++s₂₂)   : !swap
               ... = s₂₁ ++ s₂₂          : by rewrite s₂₁_eq
               ... = s₂                  : by rewrite C₂₁
             qed)))
@@ -471,7 +471,7 @@ assume p, perm_inv_core p (qeq.qhead a l₁) (qeq.qhead a l₂)
 theorem perm_app_inv {a : A} {l₁ l₂ l₃ l₄ : list A} : l₁++(a::l₂) ~ l₃++(a::l₄) → l₁++l₂ ~ l₃++l₄ :=
 assume p : l₁++(a::l₂) ~ l₃++(a::l₄),
   have p' : a::(l₁++l₂) ~ a::(l₃++l₄), from calc
-    a::(l₁++l₂) ~ l₁++(a::l₂) : perm_middle
+    a::(l₁++l₂) ~ l₁++(a::l₂) : !perm_middle
           ...   ~ l₃++(a::l₄) : p
           ...   ~ a::(l₃++l₄) : perm.symm (!perm_middle),
   perm_cons_inv p'
@@ -485,9 +485,9 @@ section foldl
   assume p, perm_induction_on p
     (λ b, by rewrite *foldl_nil)
     (λ x t₁ t₂ p r b, calc
-       foldl f b (x::t₁) = foldl f (f b x) t₁ : foldl_cons
-               ...       = foldl f (f b x) t₂ : r (f b x)
-               ...       = foldl f b (x::t₂)  : foldl_cons)
+       foldl f b (x::t₁) = foldl f (f b x) t₁ : !foldl_cons
+               ...       = foldl f (f b x) t₂ : by rewrite (r (f b x))
+               ...       = foldl f b (x::t₂)  : eq.symm !foldl_cons)
     (λ x y t₁ t₂ p r b, calc
        foldl f b (y :: x :: t₁) = foldl f (f (f b y) x) t₁ : by rewrite foldl_cons
                      ...        = foldl f (f (f b x) y) t₁ : by rewrite rcomm
@@ -505,9 +505,9 @@ section foldr
   assume p, perm_induction_on p
     (λ b, by rewrite *foldl_nil)
     (λ x t₁ t₂ p r b, calc
-       foldr f b (x::t₁) = f x (foldr f b t₁) : foldr_cons
+       foldr f b (x::t₁) = f x (foldr f b t₁) : !foldr_cons
                ...       = f x (foldr f b t₂) : by rewrite [r b]
-               ...       = foldr f b (x::t₂)  : foldr_cons)
+               ...       = foldr f b (x::t₂)  : eq.symm !foldr_cons)
     (λ x y t₁ t₂ p r b, calc
        foldr f b (y :: x :: t₁) = f y (f x (foldr f b t₁)) : by rewrite foldr_cons
                   ...           = f x (f y (foldr f b t₁)) : by rewrite lcomm

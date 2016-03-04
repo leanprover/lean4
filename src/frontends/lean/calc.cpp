@@ -79,8 +79,9 @@ static expr mk_op_fn(parser & p, name const & op, unsigned num_placeholders, pos
 
 static calc_step parse_calc_proof(parser & p, calc_pred const & pred) {
     p.check_token_next(get_colon_tk(), "invalid 'calc' expression, ':' expected");
-    expr pr = p.parse_expr();
-    return calc_step(pred, mk_calc_annotation(pr));
+    auto pos = p.pos();
+    expr pr  = p.parse_expr();
+    return calc_step(pred, p.save_pos(mk_calc_annotation(pr), pos));
 }
 
 static unsigned get_arity_of(parser & p, name const & op) {

@@ -209,12 +209,12 @@ section
 
   theorem mul_sub_left_distrib : a * (b - c) = a * b - a * c :=
   calc
-    a * (b - c) = a * b + a * -c : left_distrib
+    a * (b - c) = a * b + a * -c : !left_distrib
             ... = a * b - a * c  : by simp
 
   theorem mul_sub_right_distrib : (a - b) * c = a * c - b * c :=
   calc
-    (a - b) * c = a * c  + -b * c : right_distrib
+    (a - b) * c = a * c  + -b * c : !right_distrib
             ... = a * c - b * c   : by simp
 
   -- TODO: can calc mode be improved to make this easier?
@@ -237,7 +237,7 @@ section
   theorem mul_neg_one_eq_neg : a * (-1) = -a :=
     have a + a * -1 = 0, from calc
       a + a * -1 = a * 1 + a * -1 : by simp
-             ... = a * (1 + -1)   : left_distrib
+             ... = a * (1 + -1)   : eq.symm !left_distrib
              ... = 0              : by simp,
     symm (neg_eq_of_add_eq_zero this)
 

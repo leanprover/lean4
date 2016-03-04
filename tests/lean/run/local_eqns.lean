@@ -30,7 +30,7 @@ theorem add_eq_addl : ∀ x y, x + y = x ⊕ y
     | 0        := rfl
     | (succ a) := calc
           (succ a) ⊕ 0 = succ (a ⊕ 0) : rfl
-                   ... = succ a       : addl_z,
+                   ... = succ a       : by rewrite addl_z,
     rewrite addl_z
   end
 | 0     (succ y) :=

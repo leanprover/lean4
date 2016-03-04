@@ -35,6 +35,6 @@ theorem g_all_zero (a : nat) : g a = zero :=
 nat.induction_on a
   g_zero
   (λ a₁ (ih : g a₁ = 0), calc
-     g (succ a₁) = g (g a₁) : g_succ
-          ...    = g 0      : ih
+     g (succ a₁) = g (g a₁) : !g_succ
+          ...    = g 0      : by rewrite ih
           ...    = 0        : g_zero)

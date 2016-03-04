@@ -21,7 +21,7 @@ nat.induction_on n
   rfl
   (λ n₁ ih, calc
     succ n₁ ⊕ succ m = succ (n₁ ⊕ succ m)   : rfl
-             ...     = succ (succ (n₁ ⊕ m)) : ih
+             ...     = succ (succ (n₁ ⊕ m)) : by rewrite ih
              ...     = succ (succ n₁ ⊕ m)   : rfl)
 
 theorem add_eq_addl (x : ℕ) : ∀y, x + y = x ⊕ y :=
@@ -40,7 +40,7 @@ nat.induction_on x
     (λ y₁ ih₂, calc
       succ x₁ + succ y₁ = succ (succ x₁ + y₁) : rfl
                    ...  = succ (succ x₁ ⊕ y₁) : by rewrite ih₂
-                   ...  = succ x₁ ⊕ succ y₁   : addl_succ_right))
+                   ...  = succ x₁ ⊕ succ y₁   : eq.symm !addl_succ_right))
 
 /- successor and predecessor -/
 
@@ -217,7 +217,7 @@ local attribute nat.mul_assoc [simp]
 
 protected theorem mul_one (n : ℕ) : n * 1 = n :=
 calc
-  n * 1 = n * 0 + n : mul_succ
+  n * 1 = n * 0 + n : !mul_succ
     ... = n         : by simp
 
 local attribute nat.mul_one [simp]

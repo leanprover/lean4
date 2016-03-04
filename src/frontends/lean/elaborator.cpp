@@ -52,7 +52,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/elaborator.h"
-#include "frontends/lean/calc_proof_elaborator.h"
 #include "frontends/lean/info_tactic.h"
 #include "frontends/lean/begin_end_annotation.h"
 #include "frontends/lean/elaborator_exception.h"
@@ -427,18 +426,10 @@ expr elaborator::visit_by(expr const & e, optional<expr> const & t, constraint_s
 
 expr elaborator::visit_calc_proof(expr const & e, optional<expr> const & t, constraint_seq & cs) {
     lean_assert(is_calc_annotation(e));
-    info_manager * im = nullptr;
-    if (infom())
-        im = &m_pre_info_data;
-    pair<expr, constraint_seq> ecs = visit(get_annotation_arg(e));
-    expr m                         = m_context.mk_meta(t, e.get_tag());
-    register_meta(m);
-    auto fn = [=](expr const & t) { save_type_data(get_annotation_arg(e), t); };
-    constraint c                   = mk_calc_proof_cnstr(env(), ios().get_options(),
-                                                         m_context, m, ecs.first, ecs.second, m_unifier_config,
-                                                         im, fn);
-    cs += c;
-    return m;
+    if (t)
+        return visit_expecting_type_of(get_annotation_arg(e), *t, cs);
+    else
+        return visit_core(get_annotation_arg(e), cs);
 }
 
 static bool is_implicit_pi(expr const & e) {

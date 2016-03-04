@@ -508,8 +508,8 @@ section add_group
 
   theorem eq_iff_eq_of_sub_eq_sub {a b c d : A} (H : a - b = c - d) : a = b ↔ c = d :=
   calc
-    a = b ↔ a - b = 0   : eq_iff_sub_eq_zero
-      ... = (c - d = 0) : H
+    a = b ↔ a - b = 0   : !eq_iff_sub_eq_zero
+      ... = (c - d = 0) : by rewrite H
       ... ↔ c = d       : iff.symm (eq_iff_sub_eq_zero c d)
 
   theorem eq_sub_of_add_eq {a b c : A} (H : a + c = b) : a = b - c :=

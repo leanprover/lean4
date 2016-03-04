@@ -23,7 +23,7 @@ theorem length_replicate : ∀ (i : ℕ) (a : A), length (replicate i a) = i
 | 0 a := rfl
 | (succ i) a := calc
   length (replicate (succ i) a) = length (replicate i a) + 1 : rfl
-                           ...  = i + 1                      : length_replicate
+                           ...  = i + 1                      : by rewrite length_replicate
 end replicate
 
 /- map -/
@@ -73,7 +73,7 @@ theorem map_ne_nil_of_ne_nil (f : A → B) {l : list A} (H : l ≠ nil) : map f 
 suppose h₁ : map f l = nil,
 have length (map f l) = length l, from !length_map,
 have 0 = length l, from calc
-     0 = length (@nil B)  : length_nil
+     0 = length (@nil B)  : by rewrite length_nil
    ... = length (map f l) : by rewrite h₁
    ... = length l : this,
 have l = nil, from eq_nil_of_length_eq_zero (eq.symm this),
@@ -121,9 +121,10 @@ theorem length_map₂ : ∀(f : A → B → C) x y, length (map₂ f x y) = min 
 | f [] (yh::yr) := rfl
 | f (xh::xr) (yh::yr) := calc
   length (map₂ f (xh::xr) (yh::yr))
-          = length (map₂ f xr yr) + 1               : rfl
-      ... = min (length xr) (length yr) + 1         : length_map₂
-      ... = min (length (xh::xr)) (length (yh::yr)) : min_succ_succ
+          = length (map₂ f xr yr) + 1                 : rfl
+      ... = min (length xr) (length yr) + 1           : by rewrite length_map₂
+      ... = min (succ (length xr)) (succ (length yr)) : by rewrite min_succ_succ
+      ... = min (length (xh::xr)) (length (yh::yr))   : rfl
 
 /- filter -/
 definition filter (p : A → Prop) [h : decidable_pred p] : list A → list A
@@ -371,9 +372,7 @@ theorem length_mapAccumR
   length (pr₂ (mapAccumR f (a::x) s))
                 = length x + 1              : by rewrite -(length_mapAccumR f x s)
             ... = length (a::x)             : rfl
-| f [] s := calc
-  length (pr₂ (mapAccumR f [] s))
-                = 0 : rfl
+| f [] s := calc  length (pr₂ (mapAccumR f [] s)) = 0 : by esimp
 end mapAccumR
 
 section mapAccumR₂
@@ -395,8 +394,9 @@ theorem length_mapAccumR₂
 | f (a::x) (b::y) c := calc
     length (pr₂ (mapAccumR₂ f (a::x) (b::y) c))
               = length (pr₂ (mapAccumR₂ f x y c)) + 1  : rfl
-          ... = min (length x) (length y) + 1             : length_mapAccumR₂ f x y c
-          ... = min (length (a::x)) (length (b::y))       : min_succ_succ
+          ... = min (length x) (length y) + 1             : by rewrite (length_mapAccumR₂ f x y c)
+          ... = min (succ (length x)) (succ (length y))   : by rewrite min_succ_succ
+          ... = min (length (a::x)) (length (b::y))       : rfl
 | f (a::x) [] c := rfl
 | f [] (b::y) c := rfl
 | f [] []     c := rfl

@@ -648,12 +648,12 @@ theorem length_dropn
 : ∀ (i : ℕ) (l : list A), length (dropn i l) = length l - i
 | 0 l := rfl
 | (succ i) [] := calc
-  length (dropn (succ i) []) = 0 - succ i : nat.zero_sub (succ i)
+  length (dropn (succ i) []) = 0 - succ i : by rewrite (nat.zero_sub (succ i))
 | (succ i) (x::l) := calc
   length (dropn (succ i) (x::l))
           = length (dropn i l)       : rfl
       ... = length l - i             : length_dropn i l
-      ... = succ (length l) - succ i : succ_sub_succ (length l) i
+      ... = succ (length l) - succ i : by rewrite (succ_sub_succ (length l) i)
 end dropn
 
 section count
@@ -708,7 +708,7 @@ lemma count_gt_zero_of_mem : ∀ {a : A} {l : list A}, a ∈ l → count a l > 0
 | a (b::l) h := or.elim h
   (suppose a = b, begin subst b, rewrite count_cons_eq, apply zero_lt_succ end)
   (suppose a ∈ l, calc
-   count a (b::l) ≥ count a l : count_cons_ge_count
+   count a (b::l) ≥ count a l : !count_cons_ge_count
            ...    > 0         : count_gt_zero_of_mem this)
 
 lemma count_eq_zero_of_not_mem {a : A} {l : list A} (h : a ∉ l) : count a l = 0 :=

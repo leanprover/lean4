@@ -79,7 +79,7 @@ namespace quot
      (q : quot s) (f : Π a, B ⟦a⟧) (c : ∀ (a b : A) (p : a ≈ b), f a == f b) : B q :=
   quot.rec_on q f
     (λ a b p, eq_of_heq (calc
-      eq.rec (f a) (sound p) == f a : eq_rec_heq
+      eq.rec (f a) (sound p) == f a : !eq_rec_heq
                          ... == f b : c a b p))
   end
 
@@ -161,9 +161,9 @@ namespace quot
       (λ b,
         have aux : f a₁ b == f a₂ b, from c _ _ _ _ p !setoid.refl,
         calc quot.hrec_on ⟦b⟧ (λ (b : B), f a₁ b) _
-                 == f a₁ b                                 : eq_rec_heq
+                 == f a₁ b                                 : !eq_rec_heq
              ... == f a₂ b                                 : aux
-             ... == quot.hrec_on ⟦b⟧ (λ (b : B), f a₂ b) _ : eq_rec_heq))
+             ... == quot.hrec_on ⟦b⟧ (λ (b : B), f a₂ b) _ : heq.symm !eq_rec_heq))
   end
 end quot
 

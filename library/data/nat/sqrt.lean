@@ -78,8 +78,8 @@ private theorem lt_squared : ∀ {n : nat}, n > 1 → n < n * n
   by rewrite [mul_one at this]; exact this
 
 theorem sqrt_le (n : nat) : sqrt n ≤ n :=
-calc sqrt n ≤ sqrt n * sqrt n : le_squared
-        ... ≤ n               : sqrt_lower
+calc sqrt n ≤ sqrt n * sqrt n : !le_squared
+        ... ≤ n               : !sqrt_lower
 
 theorem eq_zero_of_sqrt_eq_zero {n : nat} : sqrt n = 0 → n = 0 :=
 suppose sqrt n = 0,
@@ -110,7 +110,7 @@ theorem sqrt_lt : ∀ {n : nat}, n > 1 → sqrt n < n
           have n + 4 = 0,      from eq_zero_of_sqrt_eq_zero this,
           absurd this dec_trivial)),
   calc sqrt (n+4) < sqrt (n+4) * sqrt (n+4) : lt_squared this
-              ... ≤ n+4                     : sqrt_lower
+              ... ≤ n+4                     : !sqrt_lower
 
 theorem sqrt_pos_of_pos {n : nat} : n > 0 → sqrt n > 0 :=
 suppose n > 0,

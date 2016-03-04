@@ -9,6 +9,6 @@ nat.induction_on n
       refine
         (calc
            0 + succ m = succ (0 + m) : _
-                  ... = succ m       : IH),
+                  ... = succ m       : by rewrite IH),
       esimp
      end)

@@ -6,7 +6,7 @@ inductive_cmd.cpp elaborator.cpp dependencies.cpp
 begin_end_annotation.cpp tactic_hint.cpp pp.cpp theorem_queue.cpp
 structure_cmd.cpp info_manager.cpp info_annotation.cpp find_cmd.cpp
 coercion_elaborator.cpp info_tactic.cpp
-init_module.cpp elaborator_context.cpp calc_proof_elaborator.cpp
+init_module.cpp elaborator_context.cpp
 parse_tactic_location.cpp parse_rewrite_tactic.cpp builtin_tactics.cpp
 type_util.cpp elaborator_exception.cpp local_ref_info.cpp
 obtain_expr.cpp decl_attributes.cpp nested_declaration.cpp

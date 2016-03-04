@@ -157,7 +157,7 @@ lemma sort_aux_perm : ∀ {n : nat} {l : list A} (h : length l = n), sort_aux R 
   have leq : length (erase m l) = n, from sort_aux_lemma R h,
   calc m :: sort_aux R n (erase m l) leq
          ~ m :: erase m l                   : perm.skip m (sort_aux_perm leq)
-     ... ~ l                                : perm_erase (min_mem _ _ _)
+     ... ~ l                                : perm.symm (perm_erase (min_mem _ _ _))
 
 lemma sort_perm (l : list A) : sort R l ~ l :=
 sort_aux_perm R rfl
@@ -186,9 +186,9 @@ lemma sort_eq_of_perm_core {l₁ l₂ : list A} (to : total R) (tr : transitive 
 have s₁ : sorted R (sort R l₁),  from sorted_of_strongly_sorted (strongly_sorted_sort_core to tr rf l₁),
 have s₂ : sorted R (sort R l₂),  from sorted_of_strongly_sorted (strongly_sorted_sort_core to tr rf l₂),
 have p  : sort R l₁ ~ sort R l₂, from calc
-  sort R l₁ ~ l₁        : sort_perm
+  sort R l₁ ~ l₁        : !sort_perm
     ...     ~ l₂        : h
-    ...     ~ sort R l₂ : sort_perm,
+    ...     ~ sort R l₂ : perm.symm !sort_perm,
 eq_of_sorted_of_perm tr asy p s₁ s₂
 
 section

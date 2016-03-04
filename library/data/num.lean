@@ -28,9 +28,9 @@ namespace pos_num
   | (bit1 a) :=
       calc
         pred (succ (bit1 a)) = cond (is_one (succ a)) one (bit1 (pred (succ a))) : rfl
-                       ...   = cond ff one (bit1 (pred (succ a)))                : succ_not_is_one
+                       ...   = cond ff one (bit1 (pred (succ a)))                : by rewrite succ_not_is_one
                        ...   = bit1 (pred (succ a))                              : rfl
-                       ...   = bit1 a                                            : pred_succ a
+                       ...   = bit1 a                                            : by rewrite pred_succ
 
   section
   variables (a b : pos_num)
@@ -51,11 +51,11 @@ namespace pos_num
   | one      := rfl
   | (bit1 n) :=
       calc bit1 n * one = bit0 (n * one) + one : rfl
-                   ...  = bit0 n + one         : mul_one n
-                   ...  = bit1 n               : bit0_add_one
+                   ...  = bit0 n + one         : by rewrite mul_one
+                   ...  = bit1 n               : !bit0_add_one
   | (bit0 n) :=
       calc bit0 n * one = bit0 (n * one)       : rfl
-                    ... = bit0 n               : mul_one n
+                    ... = bit0 n               : by rewrite mul_one
 
   theorem decidable_eq [instance] : ∀ (a b : pos_num), decidable (a = b)
   | one      one      := inl rfl

@@ -128,7 +128,7 @@ section
       have Ha' : a ≤ 0, from
         calc
           a     = a + 0 : by rewrite add_zero
-            ... ≤ a + b : add_le_add_left Hb
+            ... ≤ a + b : add_le_add_left Hb _
             ... = 0     : Hab,
       have Haz : a = 0, from le.antisymm Ha' Ha,
       have Hb' : b ≤ 0, from
@@ -592,13 +592,13 @@ section
   theorem sub_le_self (a : A) {b : A} (H : b ≥ 0) : a - b ≤ a :=
   calc
     a - b = a + -b : rfl
-      ... ≤ a + 0  : add_le_add_left (neg_nonpos_of_nonneg H)
+      ... ≤ a + 0  : add_le_add_left (neg_nonpos_of_nonneg H) _
       ... = a      : by rewrite add_zero
 
   theorem sub_lt_self (a : A) {b : A} (H : b > 0) : a - b < a :=
   calc
     a - b = a + -b : rfl
-      ... < a + 0  : add_lt_add_left (neg_neg_of_pos H)
+      ... < a + 0  : add_lt_add_left (neg_neg_of_pos H) _
       ... = a      : by rewrite add_zero
 
   theorem add_le_add_three {a b c d e f : A} (H1 : a ≤ d) (H2 : b ≤ e) (H3 : c ≤ f) :
@@ -834,7 +834,7 @@ section
     (assume H : a ≤ 0,
       calc
           0 ≤ -a    : neg_nonneg_of_nonpos H
-        ... = abs a : abs_of_nonpos H)
+        ... = abs a : eq.symm (abs_of_nonpos H))
 
   theorem abs_abs (a : A) : abs (abs a) = abs a := abs_of_nonneg !abs_nonneg
 
@@ -878,7 +878,7 @@ section
     decidable.by_cases
       (assume H3 : b ≥ 0,
           calc
-            abs (a + b) ≤ abs (a + b)   : le.refl
+            abs (a + b) ≤ abs (a + b)   : !le.refl
                 ... = a + b             : by rewrite (abs_of_nonneg H1)
                 ... = abs a + b         : by rewrite (abs_of_nonneg H2)
                 ... = abs a + abs b     : by rewrite (abs_of_nonneg H3))
@@ -887,8 +887,8 @@ section
         calc
           abs (a + b) = a + b     : by rewrite (abs_of_nonneg H1)
               ... = abs a + b     : by rewrite (abs_of_nonneg H2)
-              ... ≤ abs a + 0     : add_le_add_left H4
-              ... ≤ abs a + -b    : add_le_add_left (neg_nonneg_of_nonpos H4)
+              ... ≤ abs a + 0     : add_le_add_left H4 _
+              ... ≤ abs a + -b    : add_le_add_left (neg_nonneg_of_nonpos H4) _
               ... = abs a + abs b : by rewrite (abs_of_nonpos H4))
 
     private lemma aux2 {a b : A} (H1 : a + b ≥ 0) : abs (a + b) ≤ abs a + abs b :=
@@ -927,13 +927,13 @@ section
     calc
       abs a - abs b + abs b = abs a : by rewrite sub_add_cancel
         ... = abs (a - b + b)       : by rewrite sub_add_cancel
-        ... ≤ abs (a - b) + abs b   : abs_add_le_abs_add_abs,
+        ... ≤ abs (a - b) + abs b   : !abs_add_le_abs_add_abs,
   le_of_add_le_add_right H1
 
   theorem abs_sub_le (a b c : A) : abs (a - c) ≤ abs (a - b) + abs (b - c) :=
   calc
-    abs (a - c) = abs (a - b + (b - c)) :  by rewrite [*sub_eq_add_neg, add.assoc, neg_add_cancel_left]
-            ... ≤ abs (a - b) + abs (b - c) : abs_add_le_abs_add_abs
+    abs (a - c) = abs (a - b + (b - c))     :  by rewrite [*sub_eq_add_neg, add.assoc, neg_add_cancel_left]
+            ... ≤ abs (a - b) + abs (b - c) : !abs_add_le_abs_add_abs
 
   theorem abs_add_three (a b c : A) : abs (a + b + c) ≤ abs a + abs b + abs c :=
     begin

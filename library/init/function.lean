@@ -113,7 +113,7 @@ definition has_right_inverse (f : A → B) : Prop := ∃ finv : B → A, right_i
 theorem injective_of_left_inverse {g : B → A} {f : A → B} : left_inverse g f → injective f :=
 assume h, take a b, assume faeqfb,
 calc a = g (f a) : by rewrite h
-   ... = g (f b) : faeqfb
+   ... = g (f b) : by rewrite faeqfb
    ... = b       : by rewrite h
 
 theorem injective_of_has_left_inverse {f : A → B} : has_left_inverse f → injective f :=
@@ -143,8 +143,8 @@ theorem left_inverse_of_surjective_of_right_inverse {f : A → B} {g : B → A}
 take y,
 obtain x (Hx : f x = y), from surjf y,
 calc
-  f (g y) = f (g (f x)) : Hx
-      ... = f x         : rfg
+  f (g y) = f (g (f x)) : by rewrite Hx
+      ... = f x         : by rewrite (rfg x)
       ... = y           : Hx
 
 theorem injective_id : injective (@id A) := take a₁ a₂ H, H

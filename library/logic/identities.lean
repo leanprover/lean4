@@ -71,7 +71,7 @@ theorem not_implies_iff_and_not (a b : Prop) [Da : decidable a] :
   ¬(a → b) ↔ a ∧ ¬b :=
 calc
   ¬(a → b) ↔ ¬(¬a ∨ b) : by rewrite (imp_iff_not_or a b)
-       ... ↔ ¬¬a ∧ ¬b  : not_or_iff_not_and_not
+       ... ↔ ¬¬a ∧ ¬b  : !not_or_iff_not_and_not
        ... ↔ a ∧ ¬b    : by rewrite (not_not_iff a)
 
 theorem and_not_of_not_implies {a b : Prop} [Da : decidable a] (H : ¬ (a → b)) : a ∧ ¬ b :=

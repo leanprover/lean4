@@ -19,11 +19,11 @@ rfl
 lemma two_mul_partial_sum_eq : ∀ n, 2 * partial_sum n = (succ n) * n
 | 0        := by reflexivity
 | (succ n) := calc
-   2 * (succ n + partial_sum n) = 2 * succ n + 2 * partial_sum n  : left_distrib
-                   ...   = 2 * succ n + succ n * n  : two_mul_partial_sum_eq
-                   ...   = 2 * succ n + n * succ n  : mul.comm
-                   ...   = (2 + n) * succ n         : right_distrib
-                   ...   = (n + 2) * succ n         : add.comm
+   2 * (succ n + partial_sum n) = 2 * succ n + 2 * partial_sum n  : by rewrite left_distrib
+                   ...   = 2 * succ n + succ n * n  : by rewrite two_mul_partial_sum_eq
+                   ...   = 2 * succ n + n * succ n  : by rewrite (mul.comm n (succ n))
+                   ...   = (2 + n) * succ n         : by rewrite right_distrib
+                   ...   = (n + 2) * succ n         : by rewrite add.comm
                    ...   = (succ (succ n)) * succ n : rfl
 
 theorem partial_sum_eq : ∀ n, partial_sum n = ((n + 1) * n) / 2 :=

@@ -429,9 +429,9 @@ section
     have nhc : -c ≥ 0, from neg_nonneg_of_nonpos Hc,
     have H2 : -(c * b) < -(c * a), from iff.mpr (neg_lt_neg_iff_lt _ _) H,
     have H3 : (-c) * b < (-c) * a, from calc
-      (-c) * b = - (c * b)    : neg_mul_eq_neg_mul
+      (-c) * b = - (c * b)    : by rewrite neg_mul_eq_neg_mul
            ... < -(c * a)     : H2
-           ... = (-c) * a     : neg_mul_eq_neg_mul,
+           ... = (-c) * a     : by rewrite neg_mul_eq_neg_mul,
     lt_of_mul_lt_mul_left H3 nhc
 
   theorem zero_gt_neg_one : -1 < (0:A) :=
@@ -440,7 +440,7 @@ section
   theorem le_of_mul_le_of_ge_one {a b c : A} (H : a * c ≤ b) (Hb : b ≥ 0) (Hc : c ≥ 1) : a ≤ b :=
     have H' : a * c ≤ b * c, from calc
       a * c ≤ b : H
-        ... = b * 1 : mul_one
+        ... = b * 1 : by rewrite mul_one
         ... ≤ b * c : mul_le_mul_of_nonneg_left Hc Hb,
     le_of_mul_le_mul_right H' (lt_of_lt_of_le zero_lt_one Hc)
 
@@ -558,7 +558,7 @@ section
       calc
         sign (-a) = 1         : sign_of_pos (neg_pos_of_neg H1)
               ... = -(-1)     : by rewrite neg_neg
-              ... = -(sign a) : sign_of_neg H1)
+              ... = -(sign a) : by rewrite (sign_of_neg H1))
 
   theorem sign_mul (a b : A) : sign (a * b) = sign a * sign b :=
   lt.by_cases
@@ -607,7 +607,7 @@ section
   lt.by_cases
     (assume H1 : 0 < a,
       calc
-        a = abs a              : abs_of_pos H1
+        a = abs a              : by rewrite (abs_of_pos H1)
           ... = 1 * abs a      : by rewrite one_mul
           ... = sign a * abs a : by rewrite (sign_of_pos H1))
     (assume H1 : 0 = a,

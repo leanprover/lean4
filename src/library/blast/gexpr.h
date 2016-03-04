@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/expr.h"
-#include "library/type_context.h"
+#include "library/old_type_context.h"
 #include "library/io_state_stream.h"
 
 namespace lean {
@@ -36,7 +36,7 @@ public:
     /** \brief Convert generalized expression into a regular expression.
         If it is universe polymorphic, we accomplish that by creating
         meta-variables using \c ctx. */
-    expr to_expr(type_context & ctx) const;
+    expr to_expr(old_type_context & ctx) const;
 
     /** \brief Similar to previous method, but uses \c mk_fresh_uref to
         create fresh universe meta-variables */

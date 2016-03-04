@@ -16,7 +16,7 @@ void tmp_type_context::init(environment const & env, reducible_behavior b) {
 }
 
 tmp_type_context::tmp_type_context(environment const & env, options const & o, reducible_behavior b):
-    type_context(env, o) {
+    old_type_context(env, o) {
     init(env, b);
 }
 

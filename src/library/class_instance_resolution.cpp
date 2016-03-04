@@ -60,7 +60,7 @@ struct cienv {
                               pos_info_provider const * pip, list<expr> const & ctx, expr const & type,
                               expr const & pos_ref) {
         ensure_compatible(env, o, ctx);
-        type_context::scope_pos_info scope(*m_ti_ptr, pip, pos_ref);
+        old_type_context::scope_pos_info scope(*m_ti_ptr, pip, pos_ref);
         return m_ti_ptr->mk_class_instance(type);
     }
 };

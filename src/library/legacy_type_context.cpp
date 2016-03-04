@@ -11,7 +11,7 @@ namespace lean {
 static name * g_tmp_prefix                   = nullptr;
 legacy_type_context::legacy_type_context(environment const & env, options const & o,
                                          list<expr> const & insts, bool multiple_instances):
-    type_context(env, o, multiple_instances),
+    old_type_context(env, o, multiple_instances),
     m_not_reducible_pred(mk_not_reducible_pred(env)) {
     m_ignore_if_zero = false;
     m_next_uvar_idx  = 0;
@@ -81,7 +81,7 @@ expr legacy_type_context::mk_mvar(expr const & type) {
 
 optional<expr> legacy_type_context::mk_subsingleton_instance(expr const & type) {
     flet<bool> set(m_ignore_if_zero, true);
-    return type_context::mk_subsingleton_instance(type);
+    return old_type_context::mk_subsingleton_instance(type);
 }
 
 bool legacy_type_context::ignore_universe_def_eq(level const & l1, level const & l2) const {

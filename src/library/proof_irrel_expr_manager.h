@@ -6,7 +6,7 @@ Author: Daniel Selsam
 #pragma once
 #include <vector>
 #include "kernel/expr.h"
-#include "library/type_context.h"
+#include "library/old_type_context.h"
 #include "library/fun_info_manager.h"
 
 namespace lean {
@@ -19,7 +19,7 @@ class proof_irrel_expr_manager {
        and only instantiate on the expressions we pass to the [fun_info_manager], which we
        expect to be very small in general. */
     std::vector<expr>     m_locals;
-    type_context        & m_tctx;
+    old_type_context    & m_tctx;
     fun_info_manager    & m_fun_info_manager;
 public:
     proof_irrel_expr_manager(fun_info_manager & f_info_manager):

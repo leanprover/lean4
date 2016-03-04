@@ -64,7 +64,7 @@ io_state const & ios();
 /** \brief Return reference to blast thread local app_builder */
 app_builder & get_app_builder();
 /** \brief Return reference to the main type context used by the blast tactic */
-type_context & get_type_context();
+old_type_context & get_type_context();
 /** \brief Return the thread local current state being processed by the blast tactic. */
 state & curr_state();
 /** \brief Return a thread local fresh local constant. */

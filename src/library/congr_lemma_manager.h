@@ -48,7 +48,7 @@ public:
     ~congr_lemma_manager();
     typedef congr_lemma  result;
 
-    type_context & ctx();
+    old_type_context & ctx();
     unsigned get_specialization_prefix_size(expr const & fn, unsigned nargs);
 
     optional<result> mk_congr_simp(expr const & fn);

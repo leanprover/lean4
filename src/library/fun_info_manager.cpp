@@ -29,7 +29,7 @@ static bool is_fun_info_trace_enabled() {
     return is_trace_class_enabled(*g_fun_info);
 }
 
-fun_info_manager::fun_info_manager(type_context & ctx):
+fun_info_manager::fun_info_manager(old_type_context & ctx):
     m_ctx(ctx) {
 }
 

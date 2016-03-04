@@ -108,7 +108,7 @@ bool get_class_trans_instances(options const & o);
         2- (all temporary local constants created by auxiliary procedure)    Example: simplifier goes inside of a lambda.
         3- (all internal local constants created by type_context)            Example: when processing is_def_eq.
 */
-class type_context : public abstract_type_context {
+class old_type_context : public abstract_type_context {
     struct ext_ctx;
     friend struct ext_ctx;
     environment                     m_env;
@@ -208,10 +208,10 @@ class type_context : public abstract_type_context {
     void ensure_pi(expr const & e, expr const & ref);
 
     struct scope {
-        type_context & m_owner;
+        old_type_context & m_owner;
         bool           m_keep;
         unsigned       m_postponed_sz;
-        scope(type_context & o):m_owner(o), m_keep(false), m_postponed_sz(o.m_postponed.size()) { m_owner.push(); }
+        scope(old_type_context & o):m_owner(o), m_keep(false), m_postponed_sz(o.m_postponed.size()) { m_owner.push(); }
         ~scope() { m_owner.m_postponed.resize(m_postponed_sz); if (!m_keep) m_owner.pop(); }
         void commit() { m_postponed_sz = m_owner.m_postponed.size(); m_owner.commit(); m_keep = true; }
     };
@@ -244,10 +244,10 @@ class type_context : public abstract_type_context {
     };
 
     struct ci_choices_scope {
-        type_context & m_owner;
+        old_type_context & m_owner;
         unsigned       m_ci_choices_sz;
         bool           m_keep{false};
-        ci_choices_scope(type_context & o):m_owner(o), m_ci_choices_sz(o.m_ci_choices.size()) {}
+        ci_choices_scope(old_type_context & o):m_owner(o), m_ci_choices_sz(o.m_ci_choices.size()) {}
         ~ci_choices_scope() { if (!m_keep) m_owner.restore_choices(m_ci_choices_sz); }
         void commit() { m_keep = true; }
     };
@@ -305,8 +305,8 @@ class type_context : public abstract_type_context {
     optional<expr> mk_class_instance_core(expr const & type);
     void cache_ci_result(expr const & type, optional<expr> const & inst);
 public:
-    type_context(environment const & env, options const & o, bool multiple_instances = false);
-    virtual ~type_context();
+    old_type_context(environment const & env, options const & o, bool multiple_instances = false);
+    virtual ~old_type_context();
 
     void set_local_instances(list<expr> const & insts);
 
@@ -480,7 +480,7 @@ public:
     optional<expr> next_class_instance();
     /** \brief Try to synthesize an instance of (subsingleton type)
         \remark This method is virtual because we need a refinement
-        at default_type_context to workaround an integration problem with the elaborator. */
+        at legacy_type_context to workaround an integration problem with the elaborator. */
     virtual optional<expr> mk_subsingleton_instance(expr const & type);
 
     /** \brief Given \c ma of the form <tt>?m t_1 ... t_n</tt>, (try to) assign
@@ -519,18 +519,18 @@ public:
 
     /** \brief Auxiliary object used to set position information for the type class resolution trace. */
     class scope_pos_info {
-        type_context &            m_owner;
+        old_type_context &            m_owner;
         pos_info_provider const * m_old_pip;
         optional<pos_info>        m_old_pos;
     public:
-        scope_pos_info(type_context & o, pos_info_provider const * pip, expr const & pos_ref);
+        scope_pos_info(old_type_context & o, pos_info_provider const * pip, expr const & pos_ref);
         ~scope_pos_info();
     };
 };
 
 /** \brief Simple normalizer */
 class normalizer {
-    type_context  &                   m_ctx;
+    old_type_context  &                   m_ctx;
     bool                              m_use_eta;
     bool                              m_eval_nested_prop;
 
@@ -546,7 +546,7 @@ public:
       eta == true         : enable eta reduction
       nested_prop == true : nested propositions are simplified (ignored if HoTT library)
     */
-    normalizer(type_context & ctx, bool eta = true, bool nested_prop = false);
+    normalizer(old_type_context & ctx, bool eta = true, bool nested_prop = false);
     virtual ~normalizer() {}
 
     optional<expr> unfold_recursor_major(expr const & f, unsigned idx, buffer<expr> & args);
@@ -561,6 +561,6 @@ public:
     }
 };
 
-void initialize_type_context();
-void finalize_type_context();
+void initialize_old_type_context();
+void finalize_old_type_context();
 }

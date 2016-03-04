@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <vector>
-#include "library/type_context.h"
+#include "library/old_type_context.h"
 
 namespace lean {
 
@@ -14,7 +14,7 @@ namespace lean {
     It implements a simple meta-variable assignment.
 
     We use this class to implement the interface with the (old) elaborator. */
-class legacy_type_context : public type_context {
+class legacy_type_context : public old_type_context {
     typedef rb_map<unsigned, level, unsigned_cmp> uassignment;
     typedef rb_map<unsigned, expr,  unsigned_cmp> eassignment;
     name_predicate            m_not_reducible_pred;

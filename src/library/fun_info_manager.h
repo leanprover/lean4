@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/expr_maps.h"
 #include "library/expr_unsigned_map.h"
-#include "library/type_context.h"
+#include "library/old_type_context.h"
 
 namespace lean {
 /** \brief Function parameter information. It is used by \c fun_info_manager. */
@@ -73,7 +73,7 @@ public:
     We use the summary for quickly detecting which arguments are subsingletons and propositions,
     dependencies, implicit binder info, etc. */
 class fun_info_manager {
-    type_context &                         m_ctx;
+    old_type_context &                  m_ctx;
     typedef expr_map<fun_info>          cache;
     typedef expr_unsigned_map<fun_info> narg_cache;
     typedef expr_unsigned_map<unsigned> prefix_cache;
@@ -85,8 +85,8 @@ class fun_info_manager {
     list<unsigned> get_core(expr const & e, buffer<param_info> & pinfos, unsigned max_args, bool compute_resulting_deps);
     void trace_if_unsupported(expr const & fn, buffer<expr> const & args, unsigned prefix_sz, fun_info const & result);
 public:
-    fun_info_manager(type_context & ctx);
-    type_context & ctx() { return m_ctx; }
+    fun_info_manager(old_type_context & ctx);
+    old_type_context & ctx() { return m_ctx; }
     fun_info get(expr const & fn);
     /** \brief Return information assuming the function has only nargs.
         \pre nargs <= get(fn).get_arity() */

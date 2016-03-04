@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <vector>
-#include "library/type_context.h"
+#include "library/old_type_context.h"
 #include "library/reducible.h"
 
 namespace lean {
@@ -28,7 +28,7 @@ namespace lean {
 
     \remark The local context is set using the method set_context from type_context.
 */
-class tmp_type_context : public type_context {
+class tmp_type_context : public old_type_context {
     name_predicate                    m_opaque_pred;
     std::vector<optional<level>>      m_uassignment;
     std::vector<optional<expr>>       m_eassignment;

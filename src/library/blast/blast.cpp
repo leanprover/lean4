@@ -21,7 +21,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/class.h"
 #include "library/constants.h"
-#include "library/type_context.h"
+#include "library/old_type_context.h"
 #include "library/relation_manager.h"
 #include "library/congr_lemma_manager.h"
 #include "library/abstract_expr_manager.h"
@@ -138,12 +138,12 @@ class blastenv {
              m_projection_info.contains(n));
     }
 
-    class tctx : public type_context {
+    class tctx : public old_type_context {
         blastenv &                              m_benv;
         std::vector<state::assignment_snapshot> m_stack;
     public:
         tctx(blastenv & benv):
-            type_context(benv.m_env, benv.m_ios.get_options()),
+            old_type_context(benv.m_env, benv.m_ios.get_options()),
             m_benv(benv) {}
 
         virtual bool is_extra_opaque(name const & n) const override {
@@ -922,7 +922,7 @@ public:
         return m_app_builder;
     }
 
-    type_context & get_type_context() {
+    old_type_context & get_type_context() {
         return m_tctx;
     }
 
@@ -1137,7 +1137,7 @@ io_state const & ios() {
     return g_blastenv->get_ios();
 }
 
-type_context & get_type_context() {
+old_type_context & get_type_context() {
     lean_assert(g_blastenv);
     return g_blastenv->get_type_context();
 }

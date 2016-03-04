@@ -6,7 +6,7 @@ Author: Daniel Selsam
 #pragma once
 #include <vector>
 #include "kernel/expr.h"
-#include "library/type_context.h"
+#include "library/old_type_context.h"
 #include "library/congr_lemma_manager.h"
 
 namespace lean {
@@ -19,7 +19,7 @@ class abstract_expr_manager {
        and only instantiate on the expressions we pass to the [congr_lemma_manager], which we
        expect to be very small in general. */
     std::vector<expr>     m_locals;
-    type_context        & m_tctx;
+    old_type_context    & m_tctx;
     congr_lemma_manager & m_congr_lemma_manager;
 public:
     abstract_expr_manager(congr_lemma_manager & c_lemma_manager):

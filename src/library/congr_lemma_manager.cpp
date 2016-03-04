@@ -24,7 +24,7 @@ bool congr_lemma::all_eq_kind() const {
 struct congr_lemma_manager::imp {
     app_builder &      m_builder;
     fun_info_manager & m_fmanager;
-    type_context &     m_ctx;
+    old_type_context & m_ctx;
     typedef expr_unsigned key;
     typedef expr_unsigned_map<result>  cache;
     cache                m_simp_cache;
@@ -522,7 +522,7 @@ public:
         m_builder(b), m_fmanager(fm), m_ctx(fm.ctx()),
         m_relation_info_getter(mk_relation_info_getter(fm.ctx().env())) {}
 
-    type_context & ctx() { return m_ctx; }
+    old_type_context & ctx() { return m_ctx; }
 
     optional<result> mk_congr_simp(expr const & fn, unsigned nargs) {
         fun_info finfo = m_fmanager.get(fn, nargs);
@@ -694,7 +694,7 @@ congr_lemma_manager::congr_lemma_manager(app_builder & b, fun_info_manager & fm)
 congr_lemma_manager::~congr_lemma_manager() {
 }
 
-type_context & congr_lemma_manager::ctx() { return m_ptr->ctx(); }
+old_type_context & congr_lemma_manager::ctx() { return m_ptr->ctx(); }
 
 auto congr_lemma_manager::mk_congr_simp(expr const & fn) -> optional<result> {
     return m_ptr->mk_congr_simp(fn);

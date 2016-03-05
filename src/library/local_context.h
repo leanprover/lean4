@@ -95,9 +95,23 @@ public:
     optional<local_decl> find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT
     /** \brief Execute fn for each local declaration created after \c d. */
     void for_each_after(local_decl const & d, std::function<void(local_decl const &)> const & fn) const;
+
     local_decls to_local_decls() const { return local_decls(m_name2local_decl); }
+
     void freeze(name const & n);
     bool is_frozen(name const & n) const { return m_frozen_decls.contains(n); }
+
+    /** \brief We say a local context is well-formed iff all local declarations only
+        contain local_decl references that were defined before them.
+
+        \remark This method is for debugging purposes. */
+    bool well_formed() const;
+
+    /** \brief Return true iff \c e is well-formed with respect to this local context.
+        That is, all local_decl references in \c e are defined in this context.
+
+        \remark This method is for debugging purposes. */
+    bool well_formed(expr const & e) const;
 };
 
 void initialize_local_context();

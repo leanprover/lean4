@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <limits>
 #include "util/fresh_name.h"
+#include "kernel/for_each_fn.h"
 #include "library/local_context.h"
 
 namespace lean {
@@ -85,6 +86,52 @@ optional<local_decl> local_context::find_if(std::function<bool(local_decl const 
 
 void local_context::for_each_after(local_decl const & d, std::function<void(local_decl const &)> const & fn) const {
     m_idx2local_decl.for_each_greater(d.get_idx(), [&](unsigned, local_decl const & d) { return fn(d); });
+}
+
+/* Return true iff all local_decl references in \c e are in \c s. */
+static bool locals_subset_of(expr const & e, name_set const & s) {
+    bool ok = true;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!ok) return false; // stop search
+            if (is_local_decl_ref(e) && !s.contains(mlocal_name(e))) {
+                ok = false;
+                return false;
+            }
+            return true;
+        });
+    return ok;
+}
+
+bool local_context::well_formed() const {
+    bool ok = true;
+    name_set found_locals;
+    for_each([&](local_decl const & d) {
+            if (!locals_subset_of(d.get_type(), found_locals)) {
+                ok = false;
+                lean_unreachable();
+            }
+            if (auto v = d.get_value()) {
+                if (!locals_subset_of(*v, found_locals)) {
+                    ok = false;
+                    lean_unreachable();
+                }
+            }
+            found_locals.insert(d.get_name());
+        });
+    return ok;
+}
+
+bool local_context::well_formed(expr const & e) const {
+    bool ok = true;
+    ::lean::for_each(e, [&](expr const & e, unsigned) {
+            if (!ok) return false;
+            if (is_local_decl_ref(e) && !get_local_decl(e)) {
+                ok = false;
+                lean_unreachable();
+            }
+            return true;
+        });
+    return ok;
 }
 
 void local_context::freeze(name const & n) {

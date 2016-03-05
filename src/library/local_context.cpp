@@ -41,7 +41,7 @@ bool is_local_decl_ref(expr const & e) {
 }
 
 expr local_context::mk_local_decl(name const & n, name const & ppn, expr const & type, optional<expr> const & value, binder_info const & bi) {
-    lean_assert(!m_local_decl_map.contains(n));
+    lean_assert(!m_name2local_decl.contains(n));
     unsigned idx = m_next_idx;
     m_next_idx++;
     local_decl l(idx, n, ppn, type, value, bi);

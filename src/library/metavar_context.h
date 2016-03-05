@@ -52,7 +52,26 @@ public:
     bool has_assigned(level const & l) const;
     bool has_assigned(levels const & ls) const;
     bool has_assigned(expr const & e) const;
+
+    /** \brief Return true iff \c ctx is well-formed with respect to this metavar context.
+        That is, every metavariable ?M occurring in \c ctx is declared here, and
+        for every metavariable ?M occurring in a declaration \c d, the context of ?M
+        must be a subset of the declarations declared *before* \c d.
+
+        \remark This method is used for debugging purposes. */
+    bool well_formed(local_context const & ctx) const;
+
+    /** \brief Return true iff all metavariables ?M in \c e are declared in this metavar context,
+        and context of ?M is a subset of \c ctx */
+    bool well_formed(local_context const & ctx, expr const & e) const;
 };
+
+/** \brief Check whether the local context lctx is well-formed and well-formed with respect to \c mctx.
+    \remark This procedure is used for debugging purposes. */
+bool well_formed(local_context const & lctx, metavar_context const & mctx);
+
+/** \brief Check whether \c e is well-formed with respect to \c lctx and \c mctx. */
+bool well_formed(local_context const & lctx, metavar_context const & mctx, expr const & e);
 
 void initialize_metavar_context();
 void finalize_metavar_context();

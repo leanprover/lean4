@@ -220,6 +220,76 @@ expr metavar_context::instantiate(expr const & e) {
     return e;
 }
 
+static bool well_formed_metavar_occs(expr const & e, local_decls const & ds, metavar_context const & ctx) {
+    bool ok = true;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!ok) return false;
+            if (!has_expr_metavar(e)) return false;
+            if (is_metavar_decl_ref(e)) {
+                if (auto d = ctx.get_metavar_decl(e)) {
+                    if (!d->get_context().is_subset_of(ds)) {
+                        /* invalid metavariable context */
+                        ok = false;
+                        return false;
+                    }
+                } else {
+                    /* undefined metavariable */
+                    ok = false;
+                    return false;
+                }
+            }
+            return true;
+        });
+    return ok;
+}
+
+bool metavar_context::well_formed(local_context const & ctx) const {
+    bool ok = true;
+    local_decls visited;
+    ctx.for_each([&](local_decl const & d) {
+            if (!well_formed_metavar_occs(d.get_type(), visited, *this)) {
+                ok = false;
+                lean_unreachable();
+            }
+            if (auto v = d.get_value()) {
+                if (!well_formed_metavar_occs(*v, visited, *this)) {
+                    ok = false;
+                    lean_unreachable();
+                }
+            }
+            visited.insert(d.get_name());
+        });
+    return ok;
+}
+
+bool metavar_context::well_formed(local_context const & ctx, expr const & e) const {
+    return well_formed_metavar_occs(e, ctx.to_local_decls(), *this);
+}
+
+bool well_formed(local_context const & lctx, metavar_context const & mctx) {
+    if (!lctx.well_formed()) {
+        lean_unreachable();
+        return false;
+    }
+    if (!mctx.well_formed(lctx)) {
+        lean_unreachable();
+        return false;
+    }
+    return true;
+}
+
+bool well_formed(local_context const & lctx, metavar_context const & mctx, expr const & e) {
+    if (!lctx.well_formed(e)) {
+        lean_unreachable();
+        return false;
+    }
+    if (!mctx.well_formed(lctx, e)) {
+        lean_unreachable();
+        return false;
+    }
+    return true;
+}
+
 void initialize_metavar_context() {
     g_meta_prefix = new name(name::mk_internal_unique_name());
     g_dummy_type  = new expr(mk_constant(name::mk_internal_unique_name()));

@@ -65,6 +65,8 @@ class local_decls {
 public:
     local_decls() {}
     bool contains(name const & n) const { return m_decls.contains(n); }
+    void insert(name const & n);
+    bool is_subset_of(local_decls const & ds) const;
 };
 
 class local_context {

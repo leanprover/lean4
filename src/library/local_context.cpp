@@ -28,6 +28,17 @@ local_decl::local_decl(unsigned idx, name const & n, name const & pp_n, expr con
     m_ptr = new (get_local_decl_allocator().allocate()) cell(idx, n, pp_n, t, v, bi);
 }
 
+void local_decls::insert(name const & n) {
+    m_decls.insert(n, local_decl());
+}
+
+bool local_decls::is_subset_of(local_decls const & ds) const {
+    // TODO(Leo): we can improve performance by implementing the subset operation in the rb_map/rb_tree class
+    return !m_decls.find_if([&](name const & n, local_decl const &) {
+            return !ds.contains(n);
+        });
+}
+
 name mk_local_decl_name() {
     return mk_tagged_fresh_name(*g_local_prefix);
 }

@@ -93,6 +93,12 @@ public:
     /** \brief Traverse local declarations based on the order they were created */
     void for_each(std::function<void(local_decl const &)> const & fn) const;
     optional<local_decl> find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT
+    optional<local_decl> back_find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT
+
+    /** \brief Return the most recently added local_decl \c d s.t. d.get_pp_name() == n
+        \remark This method is used to implement tactics such as 'revert'. */
+    optional<local_decl> get_local_decl_from_user_name(name const & n) const;
+
     /** \brief Execute fn for each local declaration created after \c d. */
     void for_each_after(local_decl const & d, std::function<void(local_decl const &)> const & fn) const;
 

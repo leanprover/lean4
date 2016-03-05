@@ -84,6 +84,14 @@ optional<local_decl> local_context::find_if(std::function<bool(local_decl const 
     return m_idx2local_decl.find_if([&](unsigned, local_decl const & d) { return pred(d); });
 }
 
+optional<local_decl> local_context::back_find_if(std::function<bool(local_decl const &)> const & pred) const { // NOLINT
+    return m_idx2local_decl.find_if([&](unsigned, local_decl const & d) { return pred(d); });
+}
+
+optional<local_decl> local_context::get_local_decl_from_user_name(name const & n) const {
+    return back_find_if([&](local_decl const & d) { return d.get_pp_name() == n; });
+}
+
 void local_context::for_each_after(local_decl const & d, std::function<void(local_decl const &)> const & fn) const {
     m_idx2local_decl.for_each_greater(d.get_idx(), [&](unsigned, local_decl const & d) { return fn(d); });
 }

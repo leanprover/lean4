@@ -249,6 +249,19 @@ class rb_tree : public CMP {
     }
 
     template<typename F>
+    static optional<T> back_find_if(F && f, node_cell const * n) {
+        if (n) {
+            if (auto r = back_find_if(f, n->m_right.m_ptr))
+                return r;
+            if (f(n->m_value))
+                return optional<T>(n->m_value);
+            if (auto r = back_find_if(f, n->m_left.m_ptr))
+                return r;
+        }
+        return optional<T>();
+    }
+
+    template<typename F>
     void for_each_greater(T const & v, F && f, node_cell const * n) const {
         if (n) {
             int c = cmp(v, n->m_value);
@@ -389,6 +402,10 @@ public:
 
     template<typename F>
     optional<T> find_if(F && f) const { return find_if(f, m_root.m_ptr); }
+
+    /* Similar to find_if, but searches keys backwards from greatest to least */
+    template<typename F>
+    optional<T> back_find_if(F && f) const { return back_find_if(f, m_root.m_ptr); }
 
     template<typename F>
     void for_each_greater(T const & v, F && f) const {

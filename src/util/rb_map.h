@@ -82,6 +82,16 @@ public:
             return optional<T>();
     }
 
+    /* Similar to find_if but searches keys backwards (from greatest to least) */
+    template<typename F>
+    optional<T> back_find_if(F && f) const {
+        auto f_prime = [&](entry const & e) { return f(e.first, e.second); };
+        if (auto r = m_map.back_find_if(f_prime))
+            return optional<T>(r->second);
+        else
+            return optional<T>();
+    }
+
     template<typename F>
     void for_each_greater(K const & k, F && f) const {
         auto f_prime = [&](entry const & e) { f(e.first, e.second); };

@@ -39,8 +39,20 @@ static void tst1() {
     lean_assert(m1.size() == 0);
 }
 
+static void tst2() {
+    int2name m1;
+    m1.insert(1, name{"p", "v1"});
+    m1.insert(2, name("v2"));
+    m1.insert(3, name{"p", "v3"});
+    m1.insert(4, name("v4"));
+    auto pred = [](int, name const & v) { return !v.is_atomic() && v.get_prefix() == "p"; };
+    lean_assert(*m1.find_if(pred) == name({"p", "v1"}));
+    lean_assert(*m1.back_find_if(pred) == name({"p", "v3"}));
+}
+
 int main() {
     tst0();
     tst1();
+    tst2();
     return has_violations() ? 1 : 0;
 }

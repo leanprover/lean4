@@ -79,7 +79,7 @@ expr local_context::mk_local_decl(name const & ppn, expr const & type, expr cons
     return mk_local_decl(mk_local_decl_name(), ppn, type, some_expr(value), binder_info());
 }
 
-optional<local_decl> local_context::get_local_decl(expr const & e) {
+optional<local_decl> local_context::get_local_decl(expr const & e) const {
     lean_assert(is_local_decl_ref(e));
     if (auto r = m_name2local_decl.find(mlocal_name(e)))
         return optional<local_decl>(*r);

@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/fresh_name.h"
 #include "kernel/expr.h"
 
 namespace lean {
@@ -30,8 +29,21 @@ public:
     virtual expr check(expr const & e) { return infer(e); }
     virtual optional<expr> is_stuck(expr const &) { return none_expr(); }
     virtual name get_local_pp_name(expr const & e) const { return local_pp_name(e); }
-    virtual expr mk_tmp_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) {
-        return mk_local(mk_fresh_name(), pp_name, type, bi);
+
+    virtual expr push_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info());
+    virtual void pop_local();
+    virtual expr abstract_locals(expr const & e, unsigned num_locals, expr const * locals);
+};
+
+class push_local_fn {
+    abstract_type_context & m_ctx;
+    unsigned                m_counter;
+public:
+    push_local_fn(abstract_type_context & ctx):m_ctx(ctx), m_counter(0) {}
+    ~push_local_fn();
+    expr operator()(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) {
+        m_counter++;
+        return m_ctx.push_local(pp_name, type, bi);
     }
 };
 }

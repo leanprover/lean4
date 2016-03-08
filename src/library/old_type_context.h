@@ -330,7 +330,11 @@ public:
 
     /** \brief Create a temporary local constant using the given pretty print name.
         The pretty printing name has not semantic significance. */
-    virtual expr mk_tmp_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) override;
+    expr mk_tmp_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info());
+
+    virtual expr push_local(name const & pp_name, expr const & type, binder_info const & bi) override {
+        return mk_tmp_local(pp_name, type, bi);
+    }
 
     /** \brief Create a temporary local constant based on the domain of the given binding (lambda/Pi) expression */
     expr mk_tmp_local_from_binding(expr const & b) {

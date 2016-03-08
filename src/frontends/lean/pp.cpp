@@ -631,11 +631,12 @@ bool pretty_fn::has_implicit_args(expr const & f) {
     }
     try {
         expr type = m_ctx.relaxed_whnf(m_ctx.infer(f));
+        push_local_fn push_local(m_ctx);
         while (is_pi(type)) {
             binder_info bi = binding_info(type);
             if (bi.is_implicit() || bi.is_strict_implicit() || bi.is_inst_implicit())
                 return true;
-            expr local = m_ctx.mk_tmp_local(binding_name(type), binding_domain(type), binding_info(type));
+            expr local = push_local(binding_name(type), binding_domain(type), binding_info(type));
             type = m_ctx.relaxed_whnf(instantiate(binding_body(type), local));
         }
         return false;

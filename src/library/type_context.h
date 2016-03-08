@@ -6,14 +6,19 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <vector>
+#include <unordered_map>
+#include "kernel/environment.h"
+#include "kernel/abstract_type_context.h"
+#include "kernel/expr_maps.h"
+#include "library/projection.h"
 #include "library/metavar_context.h"
 
 namespace lean {
-enum class transparent_mode { ALL, SEMIREDUCIBLE, REDUCIBLE, NONE };
+enum class transparency_mode { ALL, SEMIREDUCIBLE, REDUCIBLE, NONE };
 
 /* \brief Cached information for type_context. */
 class type_context_cache {
-    typedef std::unordered_map<name, optional<declaration>, name_hash> transparent_cache;
+    typedef std::unordered_map<name, optional<declaration>, name_hash> transparency_cache;
     typedef expr_struct_map<expr> infer_cache;
     typedef expr_map<expr>        whnf_cache;
     typedef expr_struct_map<optional<expr>> instance_cache;
@@ -52,7 +57,7 @@ class type_context_cache {
        The REDUCIBLE mode (more restrictive) is used during search (e.g., type class resolution,
        blast, etc).
        The NONE mode is used when normalizing expressions without using delta-reduction. */
-    transparent_cache             m_transparent_cache[4];
+    transparency_cache            m_transparency_cache[4];
 
     /* We have two modes for caching type class instances.
 
@@ -80,6 +85,12 @@ class type_context_cache {
     instance_cache                m_instance_cache;
     subsingleton_cache            m_subsingleton_cache;
 
+    /* Options */
+
+    /* Maximum search depth when performing type class resolution. */
+    unsigned                      m_ci_max_depth;
+
+
     friend class type_context;
     void init(local_context const & lctx);
 public:
@@ -88,16 +99,51 @@ public:
 
 class type_context : public abstract_type_context {
     typedef type_context_cache cache;
-    local_context     m_lctx;
-    metavar_context & m_mctx;
-    cache *           m_cache;
-    bool              m_cache_owner;
-    transparent_mode  m_mode;
+    typedef buffer<optional<level>> tmp_uassignment;
+    typedef buffer<optional<expr>>  tmp_eassignment;
+    typedef buffer<metavar_context> mctx_stack;
+    enum class tmp_trail_kind { Level, Expr };
+    typedef buffer<pair<tmp_trail_kind, unsigned>> tmp_trail;
+    struct scope {
+        bool     m_tmp;
+        unsigned m_uassignment_sz;
+        unsigned m_eassignment_sz;
+        unsigned m_tmp_trail_sz;
+    };
+    typedef buffer<scope> scopes;
+
+    local_context      m_lctx;
+    metavar_context &  m_mctx;
+    cache *            m_cache;
+    bool               m_cache_owner;
+    /* We only cache results when m_used_assignment is false */
+    bool               m_used_assignment;
+    transparency_mode  m_transparency_mode;
+    /* We create a backtracking point (aka scope) whenever performing case-analysis in
+       the is_def_eq method. The m_mctx_stack is used to save the content of m_mctx.
+       Recall that m_mctx is implemented using datastructures with O(1) copy methods.
+
+       \remark We only need to save a copy on this stack when type_context is not in
+       tmp/match mode. */
+    mctx_stack         m_mctx_stack;
+    /* When m_match_mode is true, then is_metavar_decl_ref and is_univ_metavar_decl_ref are treated
+       as opaque constants, and temporary metavariables (idx_metavar) are treated as metavariables,
+       and their assignment is stored at m_tmp_eassignment and m_tmp_uassignment. */
+    bool               m_tmp_mode;
+    /* m_tmp_eassignment and m_tmp_uassignment store assignment for temporary/idx metavars
+
+       These assignments are only used during type class resolution and matching operations. */
+    tmp_eassignment    m_tmp_eassignment;
+    tmp_uassignment    m_tmp_uassignment;
+    /* undo/trail stack for m_tmp_uassignment/m_tmp_eassignment */
+    tmp_trail          m_tmp_trail;
+    /* Stack of backtracking point (aka scope) */
+    scopes             m_scopes;
 public:
     type_context(metavar_context & mctx, local_context const & lctx, type_context_cache & cache,
-                 transparent_mode m = transparent_mode::REDUCIBLE);
+                 transparency_mode m = transparency_mode::REDUCIBLE);
     type_context(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
-                 transparent_mode m = transparent_mode::REDUCIBLE);
+                 transparency_mode m = transparency_mode::REDUCIBLE);
     virtual ~type_context();
 
     virtual environment const & env() const;
@@ -118,5 +164,28 @@ public:
 
     optional<expr> mk_class_instance(expr const & type);
     optional<expr> mk_subsingleton_instance(expr const & type);
+
+    void set_tmp_mode(unsigned next_uidx = 0, unsigned next_midx = 0);
+    optional<level> get_tmp_uvar_assignment(unsigned idx) const;
+    optional<expr> get_tmp_mvar_assignment(unsigned idx) const;
+
+    class reset_used_assignment {
+        type_context & m_ctx;
+        bool           m_old_used_assignment;
+    public:
+        reset_used_assignment(type_context & ctx):
+            m_ctx(ctx),
+            m_old_used_assignment(m_ctx.m_used_assignment) {
+            m_ctx.m_used_assignment = false;
+        }
+
+        ~reset_used_assignment() {
+            /* If m_used_assignment was set since construction time, then we keep it set.
+               Otherwise, we restore the previous value. */
+            if (!m_ctx.m_used_assignment) {
+                m_ctx.m_used_assignment = m_old_used_assignment;
+            }
+        }
+    };
 };
 }

@@ -109,6 +109,8 @@ public:
     void freeze(name const & n);
     bool is_frozen(name const & n) const { return m_frozen_decls.contains(n); }
 
+    void pop_local_decl();
+
     /** \brief We say a local context is well-formed iff all local declarations only
         contain local_decl references that were defined before them.
 

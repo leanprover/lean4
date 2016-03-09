@@ -44,6 +44,9 @@ public:
         return r;
     }
 
+    T min() const { lean_assert(!empty()); return m_map.min()->second; }
+    T max() const { lean_assert(!empty()); return m_map.max()->second; }
+
     class ref {
         rb_map & m_map;
         K const &   m_key;

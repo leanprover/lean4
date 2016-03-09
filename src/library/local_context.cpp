@@ -107,6 +107,14 @@ void local_context::for_each_after(local_decl const & d, std::function<void(loca
     m_idx2local_decl.for_each_greater(d.get_idx(), [&](unsigned, local_decl const & d) { return fn(d); });
 }
 
+void local_context::pop_local_decl() {
+    lean_assert(!m_idx2local_decl.empty());
+    local_decl d = m_idx2local_decl.max();
+    lean_assert(!m_frozen_decls.contains(d.get_name()));
+    m_name2local_decl.erase(d.get_name());
+    m_idx2local_decl.erase(d.get_idx());
+}
+
 /* Return true iff all local_decl references in \c e are in \c s. */
 static bool locals_subset_of(expr const & e, name_set const & s) {
     bool ok = true;

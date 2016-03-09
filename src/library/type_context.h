@@ -139,6 +139,9 @@ class type_context : public abstract_type_context {
     tmp_trail          m_tmp_trail;
     /* Stack of backtracking point (aka scope) */
     scopes             m_scopes;
+
+    virtual bool on_is_def_eq_failure(expr const &, expr const &);
+
 public:
     type_context(metavar_context & mctx, local_context const & lctx, type_context_cache & cache,
                  transparency_mode m = transparency_mode::REDUCIBLE);
@@ -146,19 +149,26 @@ public:
                  transparency_mode m = transparency_mode::REDUCIBLE);
     virtual ~type_context();
 
-    virtual environment const & env() const;
-    virtual expr whnf(expr const & e);
-    virtual expr infer(expr const & e);
-    virtual expr check(expr const & e);
-    virtual bool is_def_eq(expr const & e1, expr const & e2);
+    virtual environment const & env() const override { return m_cache->m_env; }
 
-    virtual expr relaxed_whnf(expr const & e);
-    virtual bool relaxed_is_def_eq(expr const & e1, expr const & e2);
+    virtual expr whnf(expr const & e) override;
+    virtual expr infer(expr const & e) override;
+    virtual expr check(expr const & e) override;
+    virtual bool is_def_eq(expr const & e1, expr const & e2) override;
 
-    virtual optional<expr> is_stuck(expr const &);
-    virtual name get_local_pp_name(expr const & e) const;
+    virtual expr relaxed_whnf(expr const & e) override;
+    virtual bool relaxed_is_def_eq(expr const & e1, expr const & e2) override;
 
-    virtual bool on_is_def_eq_failure(expr const &, expr const &);
+    virtual optional<expr> is_stuck(expr const &) override;
+    virtual name get_local_pp_name(expr const & e) const override;
+
+    virtual expr push_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) override;
+    virtual void pop_local() override;
+    virtual expr abstract_locals(expr const & e, unsigned num_locals, expr const * locals) override;
+
+    expr push_let(name const & ppn, expr const & type, expr const & value) {
+        return m_lctx.mk_local_decl(ppn, type, value);
+    }
 
     bool is_prop(expr const & e);
 

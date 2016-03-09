@@ -193,10 +193,15 @@ format unification_hint::pp(unsigned prio, formatter const & fmt) const {
     format r1 = fmt(get_lhs()) + space() + format("=?=") + pp_indent_expr(fmt, get_rhs());
     r1 += space() + lcurly();
     r += group(r1);
-    for_each(m_constraints, [&](expr_pair p) {
-            r += fmt(p.first) + space() + format("=?=");
-            r += space() + fmt(p.second) + comma() + space();
-        });
+    bool first = true;
+    for (expr_pair const & p : m_constraints) {
+        if (first) {
+            first = false;
+        } else {
+            r += comma() + space();
+        }
+        r += fmt(p.first) + space() + format("=?=") + space() + fmt(p.second);
+    }
     r += rcurly();
     return r;
 }

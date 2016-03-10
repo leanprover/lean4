@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "library/metavar_context.h"
 
 namespace lean {
-enum class transparency_mode { ALL, SEMIREDUCIBLE, REDUCIBLE, NONE };
+enum class transparency_mode { All, Semireducible, Reducible, None };
 
 /* \brief Cached information for type_context. */
 class type_context_cache {
@@ -36,10 +36,6 @@ class type_context_cache {
        \remark The inferred type does not depend on reducibility annotations. */
     infer_cache                   m_infer_cache;
 
-    /* Cache for whnf (without delta). As in m_infer_cache, we only cache results if the
-       metavariable assignment was not used. */
-    whnf_cache                    m_whnf_cache;
-
     /* Mapping from name to optional<declaration>, this mapping is faster than the one
        at environment. Moreover, it takes into account constant reducibility annotations.
        We have four different modes.
@@ -49,7 +45,8 @@ class type_context_cache {
        - NONE (everything is opaque).
 
        \remark In SEMIREDUCIBLE and REDUCIBLE modes, projections and theorems are considered
-       opaque independently of annotations. In ALL mode, projections are considered opaque.
+       opaque independently of annotations. In ALL mode, projections are considered opaque,
+       this is not a problem since type_context implements a custom reduction rule for projections.
 
        The ALL mode is used for type inference where it is unacceptable to fail to infer a type.
        The SEMIREDUCIBLE mode is used for scenarios where an is_def_eq is expected to succeed
@@ -93,6 +90,9 @@ class type_context_cache {
 
     friend class type_context;
     void init(local_context const & lctx);
+    bool is_transparent(transparency_mode m, declaration const & d);
+    optional<declaration> is_transparent(transparency_mode m, name const & n);
+    bool should_unfold_macro(expr const & e);
 public:
     type_context_cache(environment const & env, options const & opts);
 };
@@ -112,8 +112,8 @@ class type_context : public abstract_type_context {
     };
     typedef buffer<scope> scopes;
 
-    local_context      m_lctx;
     metavar_context &  m_mctx;
+    local_context      m_lctx;
     cache *            m_cache;
     bool               m_cache_owner;
     /* We only cache results when m_used_assignment is false */
@@ -140,13 +140,11 @@ class type_context : public abstract_type_context {
     /* Stack of backtracking point (aka scope) */
     scopes             m_scopes;
 
-    virtual bool on_is_def_eq_failure(expr const &, expr const &);
-
 public:
     type_context(metavar_context & mctx, local_context const & lctx, type_context_cache & cache,
-                 transparency_mode m = transparency_mode::REDUCIBLE);
+                 transparency_mode m = transparency_mode::Reducible);
     type_context(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
-                 transparency_mode m = transparency_mode::REDUCIBLE);
+                 transparency_mode m = transparency_mode::Reducible);
     virtual ~type_context();
 
     virtual environment const & env() const override { return m_cache->m_env; }
@@ -197,5 +195,11 @@ public:
             }
         }
     };
+
+private:
+    void init_core(transparency_mode m);
+    optional<expr> reduce_projection(expr const & e);
+    optional<expr> expand_macro(expr const & e);
+    expr whnf_core(expr const & e);
 };
 }

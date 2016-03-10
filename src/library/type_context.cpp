@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/idx_metavar.h"
 #include "library/reducible.h"
+#include "library/metavar_util.h"
 #include "library/type_context.h"
 
 namespace lean {
@@ -303,11 +304,11 @@ void type_context::assign_tmp(expr const & m, expr const & v) {
    Uniform interface to tmp/regular metavariables
    ----------------------------------- */
 
-bool type_context::is_uvar(level const & l) const {
+bool type_context::is_mvar(level const & l) const {
     if (m_tmp_mode)
         return is_idx_metauniv(l);
     else
-        return is_univ_metavar_decl_ref(l);
+        return is_metavar_decl_ref(l);
 }
 
 bool type_context::is_mvar(expr const & e) const {
@@ -317,7 +318,24 @@ bool type_context::is_mvar(expr const & e) const {
         return is_metavar_decl_ref(e);
 }
 
+bool type_context::is_assigned(level const & l) const {
+    const_cast<type_context*>(this)->m_used_assignment = true;
+    if (m_tmp_mode)
+        return static_cast<bool>(get_tmp_assignment(l));
+    else
+        return m_mctx.is_assigned(l);
+}
+
+bool type_context::is_assigned(expr const & e) const {
+    const_cast<type_context*>(this)->m_used_assignment = true;
+    if (m_tmp_mode)
+        return static_cast<bool>(get_tmp_assignment(e));
+    else
+        return m_mctx.is_assigned(e);
+}
+
 optional<level> type_context::get_assignment(level const & l) const {
+    const_cast<type_context*>(this)->m_used_assignment = true;
     if (m_tmp_mode)
         return get_tmp_assignment(l);
     else
@@ -325,6 +343,7 @@ optional<level> type_context::get_assignment(level const & l) const {
 }
 
 optional<expr> type_context::get_assignment(expr const & e) const {
+    const_cast<type_context*>(this)->m_used_assignment = true;
     if (m_tmp_mode)
         return get_tmp_assignment(e);
     else
@@ -332,6 +351,7 @@ optional<expr> type_context::get_assignment(expr const & e) const {
 }
 
 void type_context::assign(level const & u, level const & l) {
+    m_used_assignment = true;
     if (m_tmp_mode)
         assign_tmp(u, l);
     else
@@ -339,6 +359,7 @@ void type_context::assign(level const & u, level const & l) {
 }
 
 void type_context::assign(expr const & m, expr const & v) {
+    m_used_assignment = true;
     if (m_tmp_mode)
         assign_tmp(m, v);
     else
@@ -346,30 +367,11 @@ void type_context::assign(expr const & m, expr const & v) {
 }
 
 level type_context::instantiate(level const & l) {
-    if (m_tmp_mode) {
-        return replace(l, [&](level const & l) {
-                if (!has_meta(l)) {
-                    return some_level(l);
-                } else if (is_idx_metauniv(l)) {
-                    if (auto v1 = get_tmp_assignment(l)) {
-                        m_used_assignment = true;
-                        level v2 = instantiate(*v1);
-                        if (*v1 != v2) {
-                            assign_tmp(l, v2);
-                            return some_level(v2);
-                        } else {
-                            return some_level(*v1);
-                        }
-                    }
-                }
-                return none_level();
-            });
-    } else {
-        level r = m_mctx.instantiate(l);
-        if (r != l)
-            m_used_assignment = true;
-        return r;
-    }
+    return ::lean::instantiate(*this, l);
+}
+
+expr type_context::instantiate(expr const & e) {
+    return ::lean::instantiate(*this, e);
 }
 
 /* -----------------------------------
@@ -381,8 +383,7 @@ bool type_context::is_def_eq(level const & l1, level const & l2) {
         return true;
     }
 
-    if (is_uvar(l1)) {
-        m_used_assignment = true;
+    if (is_mvar(l1)) {
         if (auto v = get_assignment(l1)) {
             return is_def_eq(*v, l2);
         } else {
@@ -391,8 +392,7 @@ bool type_context::is_def_eq(level const & l1, level const & l2) {
         }
     }
 
-    if (is_uvar(l2)) {
-        m_used_assignment = true;
+    if (is_mvar(l2)) {
         if (auto v = get_assignment(l2)) {
             return is_def_eq(l1, *v);
         } else {

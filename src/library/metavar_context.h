@@ -19,7 +19,7 @@ public:
     local_decls const & get_context() const { return m_context; }
 };
 
-bool is_univ_metavar_decl_ref(level const & l);
+bool is_metavar_decl_ref(level const & l);
 bool is_metavar_decl_ref(expr const & e);
 
 class metavar_context {

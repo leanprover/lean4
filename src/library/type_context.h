@@ -222,15 +222,19 @@ private:
        That is, in tmp mode they access m_tmp_eassignment and m_tmp_uassignment,
        and in regular mode they access m_mctx.
        ------------ */
-    bool is_uvar(level const & l) const;
+public:
+    bool is_mvar(level const & l) const;
     bool is_mvar(expr const & e) const;
+    bool is_assigned(level const & l) const;
+    bool is_assigned(expr const & e) const;
     optional<level> get_assignment(level const & l) const;
     optional<expr> get_assignment(expr const & e) const;
     void assign(level const & u, level const & l);
     void assign(expr const & m, expr const & v);
+
+private:
     level instantiate(level const & l);
-
-
+    expr instantiate(expr const & l);
     bool is_def_eq(levels const & ls1, levels const & ls2);
     optional<declaration> is_delta(expr const & e);
 };

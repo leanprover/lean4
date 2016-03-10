@@ -26,7 +26,7 @@ class metavar_context {
     name_map<metavar_decl> m_decls;
     name_map<level>        m_uassignment;
     name_map<expr>         m_eassignment;
-    friend struct instantiate_fn;
+    struct interface_impl;
 public:
     level mk_univ_metavar_decl();
     expr mk_metavar_decl(local_context const & ctx, expr const & type);

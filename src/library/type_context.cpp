@@ -132,6 +132,11 @@ expr type_context::abstract_locals(expr const & e, unsigned num_locals, expr con
 /* ---------------------
    Normalization
    -------------------- */
+
+optional<declaration> type_context::is_transparent(name const & n) {
+    return m_cache->is_transparent(m_transparency_mode, n);
+}
+
 optional<expr> type_context::reduce_projection(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
@@ -202,7 +207,7 @@ expr type_context::whnf_core(expr const & e) {
         }
     case expr_kind::Let:
         check_system("whnf");
-        return whnf_core(instantiate(let_body(e), let_value(e)));
+        return whnf_core(::lean::instantiate(let_body(e), let_value(e)));
     case expr_kind::App: {
         check_system("whnf");
         buffer<expr> args;
@@ -216,7 +221,7 @@ expr type_context::whnf_core(expr const & e) {
                 m++;
             }
             lean_assert(m <= num_args);
-            return whnf_core(mk_rev_app(instantiate(binding_body(f), m, args.data() + (num_args - m)),
+            return whnf_core(mk_rev_app(::lean::instantiate(binding_body(f), m, args.data() + (num_args - m)),
                                         num_args - m, args.data()));
         } else {
             return f == f0 ? e : whnf_core(mk_rev_app(f, args.size(), args.data()));
@@ -254,9 +259,204 @@ expr type_context::check(expr const & e) {
     return e;
 }
 
+/* -------------------------------
+   Temporary assignment management
+   ------------------------------- */
+
+optional<level> type_context::get_tmp_uvar_assignment(unsigned idx) const {
+    lean_assert(m_tmp_mode);
+    lean_assert(idx < m_tmp_uassignment.size());
+    return m_tmp_uassignment[idx];
+}
+
+optional<expr> type_context::get_tmp_mvar_assignment(unsigned idx) const {
+    lean_assert(m_tmp_mode);
+    lean_assert(idx < m_tmp_eassignment.size());
+    return m_tmp_eassignment[idx];
+}
+
+optional<level> type_context::get_tmp_assignment(level const & l) const {
+    lean_assert(is_idx_metauniv(l));
+    return get_tmp_uvar_assignment(to_meta_idx(l));
+}
+
+optional<expr> type_context::get_tmp_assignment(expr const & e) const {
+    lean_assert(is_idx_metavar(e));
+    return get_tmp_mvar_assignment(to_meta_idx(e));
+}
+
+void type_context::assign_tmp(level const & u, level const & l) {
+    lean_assert(m_tmp_mode);
+    lean_assert(is_idx_metauniv(u));
+    lean_assert(to_meta_idx(u) < m_tmp_uassignment.size());
+    m_tmp_uassignment[to_meta_idx(u)] = l;
+}
+
+void type_context::assign_tmp(expr const & m, expr const & v) {
+    lean_assert(m_tmp_mode);
+    lean_assert(is_idx_metavar(m));
+    lean_assert(to_meta_idx(m) < m_tmp_eassignment.size());
+    m_tmp_eassignment[to_meta_idx(m)] = v;
+}
+
+/* -----------------------------------
+   Uniform interface to tmp/regular metavariables
+   ----------------------------------- */
+
+bool type_context::is_uvar(level const & l) const {
+    if (m_tmp_mode)
+        return is_idx_metauniv(l);
+    else
+        return is_univ_metavar_decl_ref(l);
+}
+
+bool type_context::is_mvar(expr const & e) const {
+    if (m_tmp_mode)
+        return is_idx_metavar(e);
+    else
+        return is_metavar_decl_ref(e);
+}
+
+optional<level> type_context::get_assignment(level const & l) const {
+    if (m_tmp_mode)
+        return get_tmp_assignment(l);
+    else
+        return m_mctx.get_assignment(l);
+}
+
+optional<expr> type_context::get_assignment(expr const & e) const {
+    if (m_tmp_mode)
+        return get_tmp_assignment(e);
+    else
+        return m_mctx.get_assignment(e);
+}
+
+void type_context::assign(level const & u, level const & l) {
+    if (m_tmp_mode)
+        assign_tmp(u, l);
+    else
+        m_mctx.assign(u, l);
+}
+
+void type_context::assign(expr const & m, expr const & v) {
+    if (m_tmp_mode)
+        assign_tmp(m, v);
+    else
+        m_mctx.assign(m, v);
+}
+
+level type_context::instantiate(level const & l) {
+    if (m_tmp_mode) {
+        return replace(l, [&](level const & l) {
+                if (!has_meta(l)) {
+                    return some_level(l);
+                } else if (is_idx_metauniv(l)) {
+                    if (auto v1 = get_tmp_assignment(l)) {
+                        m_used_assignment = true;
+                        level v2 = instantiate(*v1);
+                        if (*v1 != v2) {
+                            assign_tmp(l, v2);
+                            return some_level(v2);
+                        } else {
+                            return some_level(*v1);
+                        }
+                    }
+                }
+                return none_level();
+            });
+    } else {
+        level r = m_mctx.instantiate(l);
+        if (r != l)
+            m_used_assignment = true;
+        return r;
+    }
+}
+
 /* -----------------------------------
    Unification / definitional equality
    ----------------------------------- */
+
+bool type_context::is_def_eq(level const & l1, level const & l2) {
+    if (is_equivalent(l1, l2)) {
+        return true;
+    }
+
+    if (is_uvar(l1)) {
+        m_used_assignment = true;
+        if (auto v = get_assignment(l1)) {
+            return is_def_eq(*v, l2);
+        } else {
+            assign(l1, l2);
+            return true;
+        }
+    }
+
+    if (is_uvar(l2)) {
+        m_used_assignment = true;
+        if (auto v = get_assignment(l2)) {
+            return is_def_eq(l1, *v);
+        } else {
+            assign(l2, l1);
+            return true;
+        }
+    }
+
+    level new_l1 = normalize(instantiate(l1));
+    level new_l2 = normalize(instantiate(l2));
+
+    if (l1 != new_l1 || l2 != new_l2)
+        return is_def_eq(new_l1, new_l2);
+
+    if (l1.kind() != l2.kind())
+        return false;
+
+    switch (l1.kind()) {
+    case level_kind::Max:
+        return
+            is_def_eq(max_lhs(l1), max_lhs(l2)) &&
+            is_def_eq(max_rhs(l1), max_rhs(l2));
+    case level_kind::IMax:
+        return
+            is_def_eq(imax_lhs(l1), imax_lhs(l2)) &&
+            is_def_eq(imax_rhs(l1), imax_rhs(l2));
+    case level_kind::Succ:
+        return is_def_eq(succ_of(l1), succ_of(l2));
+    case level_kind::Param:
+    case level_kind::Global:
+        return false;
+    case level_kind::Zero:
+    case level_kind::Meta:
+        lean_unreachable();
+    }
+    lean_unreachable();
+}
+
+bool type_context::is_def_eq(levels const & ls1, levels const & ls2) {
+    if (is_nil(ls1) && is_nil(ls2)) {
+        return true;
+    } else if (!is_nil(ls1) && !is_nil(ls2)) {
+        return
+            is_def_eq(head(ls1), head(ls2)) &&
+            is_def_eq(tail(ls1), tail(ls2));
+    } else {
+        return false;
+    }
+}
+
+
+/** \brief Return some definition \c d iff \c e is a target for delta-reduction,
+    and the given definition is the one to be expanded. */
+optional<declaration> type_context::is_delta(expr const & e) {
+    expr const & f = get_app_fn(e);
+    if (is_constant(f)) {
+        return is_transparent(const_name(f));
+    } else {
+        return none_declaration();
+    }
+}
+
+
+
 /*
 struct unification_hint_fn {
     type_context &           m_owner;

@@ -53,6 +53,9 @@ public:
     bool has_assigned(levels const & ls) const;
     bool has_assigned(expr const & e) const;
 
+    optional<level> get_assignment(level const & l) const;
+    optional<expr> get_assignment(expr const & e) const;
+
     /** \brief Return true iff \c ctx is well-formed with respect to this metavar context.
         That is, every metavariable ?M occurring in \c ctx is declared here, and
         for every metavariable ?M occurring in a declaration \c d, the context of ?M

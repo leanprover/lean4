@@ -149,6 +149,7 @@ public:
 
     virtual environment const & env() const override { return m_cache->m_env; }
 
+    bool is_def_eq(level const & l1, level const & l2);
     virtual expr whnf(expr const & e) override;
     virtual expr infer(expr const & e) override;
     virtual expr check(expr const & e) override;
@@ -173,10 +174,17 @@ public:
     optional<expr> mk_class_instance(expr const & type);
     optional<expr> mk_subsingleton_instance(expr const & type);
 
+    /* --------------------------
+       Temporary assignment mode.
+       It is used when performing type class resolution and matching.
+       -------------------------- */
     void set_tmp_mode(unsigned next_uidx = 0, unsigned next_midx = 0);
     optional<level> get_tmp_uvar_assignment(unsigned idx) const;
     optional<expr> get_tmp_mvar_assignment(unsigned idx) const;
+    optional<level> get_tmp_assignment(level const & l) const;
+    optional<expr> get_tmp_assignment(expr const & e) const;
 
+    /* Helper class to reset m_used_assignment flag */
     class reset_used_assignment {
         type_context & m_ctx;
         bool           m_old_used_assignment;
@@ -201,5 +209,29 @@ private:
     optional<expr> reduce_projection(expr const & e);
     optional<expr> expand_macro(expr const & e);
     expr whnf_core(expr const & e);
+    optional<declaration> is_transparent(name const & n);
+
+    /* ------------
+       Temporary metavariable assignment.
+       ------------ */
+    void assign_tmp(level const & u, level const & l);
+    void assign_tmp(expr const & m, expr const & v);
+
+    /* ------------
+       Uniform interface to tmp/regular metavariables
+       That is, in tmp mode they access m_tmp_eassignment and m_tmp_uassignment,
+       and in regular mode they access m_mctx.
+       ------------ */
+    bool is_uvar(level const & l) const;
+    bool is_mvar(expr const & e) const;
+    optional<level> get_assignment(level const & l) const;
+    optional<expr> get_assignment(expr const & e) const;
+    void assign(level const & u, level const & l);
+    void assign(expr const & m, expr const & v);
+    level instantiate(level const & l);
+
+
+    bool is_def_eq(levels const & ls1, levels const & ls2);
+    optional<declaration> is_delta(expr const & e);
 };
 }

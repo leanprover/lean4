@@ -58,6 +58,22 @@ void metavar_context::assign(expr const & e, expr const & v) {
     m_eassignment.insert(mlocal_name(e), v);
 }
 
+optional<level> metavar_context::get_assignment(level const & l) const {
+    lean_assert(is_univ_metavar_decl_ref(l));
+    if (auto v = m_uassignment.find(meta_id(l)))
+        return some_level(*v);
+    else
+        return none_level();
+}
+
+optional<expr> metavar_context::get_assignment(expr const & e) const {
+    lean_assert(is_metavar_decl_ref(l));
+    if (auto v = m_eassignment.find(mlocal_name(e)))
+        return some_expr(*v);
+    else
+        return none_expr();
+}
+
 bool metavar_context::has_assigned(level const & l) const {
     if (!has_meta(l))
         return false;

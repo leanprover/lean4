@@ -207,6 +207,7 @@ public:
 private:
     void init_core(transparency_mode m);
     optional<expr> reduce_projection(expr const & e);
+    bool should_unfold_macro(expr const & e);
     optional<expr> expand_macro(expr const & e);
     expr whnf_core(expr const & e);
     optional<declaration> is_transparent(name const & n);
@@ -216,6 +217,8 @@ private:
        ------------ */
     void assign_tmp(level const & u, level const & l);
     void assign_tmp(expr const & m, expr const & v);
+
+    level mk_tmp_univ_mvar();
 
     /* ------------
        Uniform interface to tmp/regular metavariables
@@ -233,9 +236,57 @@ public:
     void assign(expr const & m, expr const & v);
 
 private:
+    /* ------------
+       Type inference
+       ------------ */
+    expr infer_core(expr const & e);
+    expr infer_local(expr const & e);
+    expr infer_metavar(expr const & e);
+    expr infer_constant(expr const & e);
+    expr infer_macro(expr const & e);
+    expr infer_lambda(expr e);
+    optional<level> get_level_core(expr const & A);
+    level get_level(expr const & A);
+    expr infer_pi(expr e);
+    expr infer_app(expr const & e);
+    expr infer_let(expr e);
+
+private:
     level instantiate(level const & l);
     expr instantiate(expr const & l);
-    bool is_def_eq(levels const & ls1, levels const & ls2);
+
     optional<declaration> is_delta(expr const & e);
+
+    bool is_def_eq(levels const & ls1, levels const & ls2);
+    bool is_def_eq_core(expr const & t, expr const & s);
+    bool is_def_eq_binding(expr e1, expr e2);
+    bool is_def_eq_args(expr const & e1, expr const & e2);
+
+public:
+    /* Helper class for creating pushing local declarations on m_lctx */
+    class tmp_locals {
+        type_context & m_ctx;
+        buffer<expr>   m_locals;
+    public:
+        tmp_locals(type_context & ctx):m_ctx(ctx) {}
+        ~tmp_locals();
+
+        expr push_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) {
+            expr r = m_ctx.push_local(pp_name, type, bi);
+            m_locals.push_back(r);
+            return r;
+        }
+
+        expr push_let(name const & name, expr const & type, expr const & value) {
+            expr r = m_ctx.push_let(name, type, value);
+            m_locals.push_back(r);
+            return r;
+        }
+
+        unsigned size() const { return m_locals.size(); }
+        expr const * data() const { return m_locals.data(); }
+
+        buffer<expr> const & as_buffer() const { return m_locals; }
+    };
 };
 }

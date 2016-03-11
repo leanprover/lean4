@@ -143,6 +143,7 @@ class type_context : public abstract_type_context {
 public:
     type_context(metavar_context & mctx, local_context const & lctx, type_context_cache & cache,
                  transparency_mode m = transparency_mode::Reducible);
+    /* Constructor for creating a type_context with a temporary type_context_cache object. */
     type_context(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
                  transparency_mode m = transparency_mode::Reducible);
     virtual ~type_context();
@@ -165,6 +166,7 @@ public:
     virtual void pop_local() override;
     virtual expr abstract_locals(expr const & e, unsigned num_locals, expr const * locals) override;
 
+    /* Add a let-decl (aka local definition) to the local context */
     expr push_let(name const & ppn, expr const & type, expr const & value) {
         return m_lctx.mk_local_decl(ppn, type, value);
     }
@@ -263,7 +265,7 @@ private:
     bool is_def_eq_args(expr const & e1, expr const & e2);
 
 public:
-    /* Helper class for creating pushing local declarations on m_lctx */
+    /* Helper class for creating pushing local declarations into the local context m_lctx */
     class tmp_locals {
         type_context & m_ctx;
         buffer<expr>   m_locals;

@@ -393,6 +393,7 @@ expr type_context::infer_lambda(expr e) {
 }
 
 optional<level> type_context::get_level_core(expr const & A) {
+    lean_assert(m_transparency_mode == transparency_mode::All);
     expr A_type = whnf(infer_core(A));
     while (true) {
         if (is_sort(A_type)) {
@@ -457,6 +458,7 @@ expr type_context::infer_app(expr const & e) {
         if (is_pi(f_type)) {
             f_type = binding_body(f_type);
         } else {
+            lean_assert(m_transparency_mode == transparency_mode::All);
             f_type = whnf(instantiate_rev(f_type, i-j, args.data()+j));
             if (!is_pi(f_type))
                 throw exception("infer type failed, Pi expected");
@@ -547,7 +549,7 @@ level type_context::mk_tmp_univ_mvar() {
 }
 
 /* -----------------------------------
-   Uniform interface to tmp/regular metavariables
+   Uniform interface to temporary & regular metavariables
    ----------------------------------- */
 
 bool type_context::is_mvar(level const & l) const {

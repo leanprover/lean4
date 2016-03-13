@@ -7,6 +7,8 @@ Author: Leonardo de Moura
 #include "util/flet.h"
 #include "util/interrupt.h"
 #include "kernel/instantiate.h"
+#include "kernel/replace_fn.h"
+#include "kernel/for_each_fn.h"
 #include "library/idx_metavar.h"
 #include "library/reducible.h"
 #include "library/metavar_util.h"
@@ -144,6 +146,11 @@ void type_context::pop_local() {
 expr type_context::abstract_locals(expr const & e, unsigned num_locals, expr const * locals) {
     // TODO(Leo)
     return e;
+}
+
+expr type_context::mk_fun(buffer<expr> const & locals, expr const & e) {
+    // TODO(Leo)
+    lean_unreachable();
 }
 
 /* ---------------------
@@ -508,6 +515,7 @@ bool type_context::is_prop(expr const & e) {
 void type_context::set_tmp_mode(unsigned next_uidx, unsigned next_midx) {
     lean_assert(!m_tmp_mode);
     m_tmp_mode = true;
+    m_tmp_mvar_lctx = m_lctx;
     m_tmp_uassignment.resize(next_uidx, none_level());
     m_tmp_eassignment.resize(next_midx, none_expr());
 }
@@ -761,6 +769,288 @@ bool type_context::is_def_eq_core(expr const & t, expr const & s) {
     check_system("is_definitionally_equal");
     // TODO(Leo)
     return false;
+}
+
+bool type_context::approximate() {
+    // TODO(Leo): add flag at type_context_cache to force approximated mode.
+    return m_tmp_mode;
+}
+
+/* If \c e is a let local-decl, then unfold it, otherwise return e. */
+expr type_context::try_zeta(expr const & e) {
+    if (!is_local_decl_ref(e))
+        return e;
+    if (auto d = m_lctx.get_local_decl(e)) {
+        if (auto v = d->get_value())
+            return *v;
+    }
+    return e;
+}
+
+expr type_context::expand_let_decls(expr const & e) {
+    return replace(e, [&](expr const & e, unsigned) {
+            if (is_local_decl_ref(e)) {
+                if (auto d = m_lctx.get_local_decl(e)) {
+                    if (auto v = d->get_value())
+                        return some_expr(*v);
+                }
+            }
+            return none_expr();
+        });
+}
+
+/*
+We declare metavariables with respect to a local context.
+We use the notation (`?M@C`) to denote a metavariable `?M` that was defined at local context `C`.
+Remark: for temporary metavariables, the variable m_tmp_mvar_lctx stores their context.
+
+The following method process the unification constraint
+
+       ?M@C a_1 ... a_n =?= t
+
+We say the unification constraint is a pattern IFF
+
+    1) `a_1 ... a_n` are pairwise distinct local constants that are ​*not*​ references to let-decls.
+    2) `a_1 ... a_n` have ​*not*​ been defined in `C`
+    3) `t` only contains local constants in `C` and/or `{a_1, ..., a_n}`
+    4) For every metavariable `?M'@C'` occurring in `t`, `C'` is a subset of `C`
+    5) `?M` does not occur in `t`
+
+Claim: we don't have to check local declaration definitions. That is,
+if `t` contains a reference to `x : A := v`, we don't need to check `v`.
+Reason: The reference to `x` is a local constant, and it must be in `C` (by 1 and 3).
+If `x` is in `C`, then any metavariable occurring in `v` must have been defined in a strict subset of `C`.
+So, condition 4 and 5 are satisfied.
+
+If the conditions above have been satisfied, then the
+solution for the unification constrain is
+
+   ?M := fun a_1 ... a_n, t
+
+Now, we consider some workarounds/approximations.
+
+ A1) Suppose `t` contains a reference to `x : A := v` and `x` is not in `C` (failed condition 3)
+     (precise) solution: unfold `x` in `t`.
+
+ A2) Suppose some `a_i` is in `C` (failed condition 2)
+     (approximated) solution (when approximate() predicate returns true) :
+     ignore condition and also use
+
+        ?M := fun a_1 ... a_n, t
+
+   Here is an example where this approximation fails:
+   Given `C` containing `a : nat`, consider the following two constraints
+         ?M@C a =?= a
+         ?M@C b =?= a
+
+   If we use the approximation in the first constraint, we get
+         ?M := fun x, x
+   when we apply this solution to the second one we get a failure.
+
+ A3) `a_1 ... a_n` are not pairwise distinct (failed condition 1).
+   We can approximate again, but the limitations are very similar to the previous one.
+
+ A4) `t` contains a metavariable `?M'@C'` where `C'` is not a subset of `C`.
+   (approximated) solution: restrict the context of `?M'`
+   If `?M'` is assigned, the workaround is precise, and we just unfold `?M'`.
+
+   Remark: we only implement the ?M' assigned case.
+
+ A5) If some `a_i` is not a local constant,
+     then we use first-order unification (if approximate() is true)
+
+       ?M a_1 ... a_i a_{i+1} ... a_{i+k} =?= f b_1 ... b_k
+
+   reduces to
+
+       ?M a_1 ... a_i =?= f
+       a_{i+1}        =?= b_1
+       ...
+       a_{i+k}        =?= b_k
+*/
+bool type_context::process_assignment(expr const & m, expr const & v) {
+    buffer<expr> args;
+    expr const & mvar = get_app_args(m, args);
+    lean_assert(is_mvar(mvar));
+    optional<metavar_decl> mvar_decl;
+    if (!m_tmp_mode) {
+        mvar_decl = m_mctx.get_metavar_decl(mvar);
+        if (!mvar_decl) return false;
+    }
+    buffer<expr> locals;
+    bool use_fo     = false; /* if true, we use first-order unification */
+    bool add_locals = true;  /* while true we copy args to locals */
+    for (unsigned i = 0; i < args.size(); i++) {
+        expr arg = args[i];
+        /* try to instantiate */
+        if (is_meta(arg))
+            arg = instantiate(arg);
+        arg = try_zeta(arg); /* unfold let-constant if needed. */
+        args[i] = arg;
+        if (!is_local_decl_ref(arg)) {
+            /* m is of the form (?M ... t ...) where t is not a local constant. */
+            if (approximate()) {
+                /* workaround A5 */
+                use_fo     = true;
+                add_locals = false;
+            } else {
+                return false;
+            }
+        } else {
+            if (std::any_of(locals.begin(), locals.end(),
+                            [&](expr const & local) { return mlocal_name(local) == mlocal_name(arg); })) {
+                /* m is of the form (?M ... l ... l ...) where l is a local constant. */
+                if (approximate()) {
+                    /* workaround A3 */
+                    add_locals = false;
+                } else {
+                    return false;
+                }
+            }
+            /* Make sure arg is not in the context of the metavariable mvar
+               The code is slightly different for tmp mode because the metavariables
+               do not store their local context. */
+            if (m_tmp_mode) {
+                if (m_tmp_mvar_lctx.get_local_decl(arg)) {
+                    /* m is of the form (?M@C ... l ...) where l is a local constant in C */
+                    if (!approximate())
+                        return false;
+                }
+            } else {
+                if (mvar_decl->get_context().contains(mlocal_name(arg))) {
+                    /* m is of the form (?M@C ... l ...) where l is a local constant in C. */
+                    if (!approximate())
+                        return false;
+                }
+            }
+        }
+        if (add_locals)
+            locals.push_back(arg);
+    }
+
+    expr new_v = instantiate(v); /* enforce A4 */
+
+    if (use_fo) {
+        /* Use first-order unification.
+           Workaround A5. */
+        buffer<expr> new_v_args;
+        expr const & new_v_fn = get_app_args(new_v, new_v_args);
+        if (args.size() < new_v_args.size())
+            return false;
+        expr new_m = mk_app(mvar, args.size() - new_v_args.size(), args.data());
+        if (!is_def_eq_core(new_m, new_v_fn))
+            return false;
+        unsigned i = args.size() - new_v_args.size();
+        unsigned j = 0;
+        for (; j < new_v_args.size(); i++, j++) {
+            if (!is_def_eq_core(args[i], new_v_args[j]))
+                return false;
+        }
+        return true;
+    }
+
+    while (true) {
+        /* We use a loop here to implement workaround A1.
+           If new_v has a "bad" let local decl, we expand it and try again. */
+        bool ok = true;
+        bool bad_let_refs = false;
+        for_each(new_v, [&](expr const & e, unsigned) {
+                if (!ok)
+                    return false; // stop search
+                if (is_mvar(e)) {
+                    if (mvar == e) {
+                        /* mvar occurs in v */
+                        ok = false;
+                        return false;
+                    }
+                    if (!m_tmp_mode) {
+                        /* Recall that in tmp_mode all metavariables have the same local context.
+                           So, we don't need to check anything.
+                           In regular mode, we need to check condition 4
+
+                           For every metavariable `?M'@C'` occurring in `t`, `C'` is a subset of `C`
+                        */
+                        optional<metavar_decl> const & e_decl = m_mctx.get_metavar_decl(e);
+                        if (!e_decl || e_decl->get_context().is_subset_of(mvar_decl->get_context())) {
+                            ok = false;
+                            return false;
+                        }
+                    }
+                    return false;
+                } else if (is_local_decl_ref(e)) {
+                    bool in_ctx;
+                    if (m_tmp_mode) {
+                        in_ctx = static_cast<bool>(m_tmp_mvar_lctx.get_local_decl(e));
+                    } else {
+                        in_ctx = mvar_decl->get_context().contains(mlocal_name(e));
+                    }
+                    if (!in_ctx) {
+                        if (m_lctx.get_local_decl(e)->get_value()) {
+                            /* let-decl that is not in the metavar context
+                               workaround A1 */
+                            ok           = false;
+                            bad_let_refs = true;
+                            return false;
+                        }
+                        if (std::all_of(locals.begin(), locals.end(), [&](expr const & a) {
+                                    return mlocal_name(a) != mlocal_name(e); })) {
+                            ok = false;
+                            return false;
+                        }
+                    }
+                    return false;
+                }
+                return true;
+            });
+        if (ok) {
+            break;
+        } else if (bad_let_refs) {
+            new_v = instantiate(expand_let_decls(new_v));
+        } else {
+            return false;
+        }
+    }
+
+    if (args.empty()) {
+        /* easy case */
+    } else if (args.size() == locals.size()) {
+        new_v = mk_fun(locals, new_v);
+    } else {
+        /*
+          This case is imprecise since it is not a higher order pattern.
+          That the term \c m is of the form (?M t_1 ... t_n) and the t_i's are not pairwise
+          distinct local constants.
+        */
+        tmp_locals new_ls(*this);
+        expr mvar_type = infer(mvar);
+        for (unsigned i = 0; i < args.size(); i++) {
+            mvar_type = relaxed_whnf(mvar_type);
+            if (!is_pi(mvar_type))
+                return false;
+            lean_assert(i <= locals.size());
+            if (i == locals.size()) {
+                expr new_l = new_ls.push_local(binding_name(mvar_type), binding_domain(mvar_type));
+                locals.push_back(new_l);
+            }
+            lean_assert(i < locals.size());
+            mvar_type = ::lean::instantiate(binding_body(mvar_type), locals[i]);
+        }
+        lean_assert(locals.size() == args.size());
+        new_v = mk_fun(locals, new_v);
+    }
+
+    /* check types */
+    try {
+        expr t1 = infer(mvar);
+        expr t2 = infer(new_v);
+        if (!is_def_eq_core(t1, t2))
+            return false;
+    } catch (exception &) {
+        return false;
+    }
+
+    assign(mvar, new_v);
+    return true;
 }
 
 bool type_context::is_def_eq_binding(expr e1, expr e2) {

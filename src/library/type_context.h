@@ -125,6 +125,9 @@ class type_context : public abstract_type_context {
        as opaque constants, and temporary metavariables (idx_metavar) are treated as metavariables,
        and their assignment is stored at m_tmp_eassignment and m_tmp_uassignment. */
     bool               m_tmp_mode;
+    /* m_tmp_mvar_local_context contains m_lctx when tmp mode is activated.
+       This is the context for all temporary meta-variables. */
+    local_context      m_tmp_mvar_lctx;
     /* m_tmp_eassignment and m_tmp_uassignment store assignment for temporary/idx metavars
 
        These assignments are only used during type class resolution and matching operations. */
@@ -160,6 +163,8 @@ public:
     virtual expr push_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) override;
     virtual void pop_local() override;
     virtual expr abstract_locals(expr const & e, unsigned num_locals, expr const * locals) override;
+
+    expr mk_fun(buffer<expr> const & locals, expr const & e);
 
     /* Add a let-decl (aka local definition) to the local context */
     expr push_let(name const & ppn, expr const & type, expr const & value) {
@@ -267,6 +272,11 @@ private:
         ~scope() { if (!m_keep) m_owner.pop_scope(); }
         void commit() { m_owner.commit_scope(); m_keep = true; }
     };
+
+    bool approximate();
+    expr try_zeta(expr const & e);
+    expr expand_let_decls(expr const & e);
+    bool process_assignment(expr const & m, expr const & v);
 
     optional<declaration> is_delta(expr const & e);
 

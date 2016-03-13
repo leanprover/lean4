@@ -503,8 +503,14 @@ bool type_context::is_prop(expr const & e) {
 }
 
 /* -------------------------------
-   Temporary assignment management
+   Temporary assignment mode support
    ------------------------------- */
+void type_context::set_tmp_mode(unsigned next_uidx, unsigned next_midx) {
+    lean_assert(!m_tmp_mode);
+    m_tmp_mode = true;
+    m_tmp_uassignment.resize(next_uidx, none_level());
+    m_tmp_eassignment.resize(next_midx, none_expr());
+}
 
 optional<level> type_context::get_tmp_uvar_assignment(unsigned idx) const {
     lean_assert(m_tmp_mode);
@@ -532,13 +538,21 @@ void type_context::assign_tmp(level const & u, level const & l) {
     lean_assert(m_tmp_mode);
     lean_assert(is_idx_metauniv(u));
     lean_assert(to_meta_idx(u) < m_tmp_uassignment.size());
-    m_tmp_uassignment[to_meta_idx(u)] = l;
+    unsigned idx = to_meta_idx(u);
+    if (!m_scopes.empty() && !m_tmp_uassignment[idx]) {
+        m_tmp_trail.emplace_back(tmp_trail_kind::Level, idx);
+    }
+    m_tmp_uassignment[idx] = l;
 }
 
 void type_context::assign_tmp(expr const & m, expr const & v) {
     lean_assert(m_tmp_mode);
     lean_assert(is_idx_metavar(m));
     lean_assert(to_meta_idx(m) < m_tmp_eassignment.size());
+    unsigned idx = to_meta_idx(m);
+    if (!m_scopes.empty() && !m_tmp_eassignment[idx]) {
+        m_tmp_trail.emplace_back(tmp_trail_kind::Expr, idx);
+    }
     m_tmp_eassignment[to_meta_idx(m)] = v;
 }
 
@@ -546,6 +560,12 @@ level type_context::mk_tmp_univ_mvar() {
     unsigned idx = m_tmp_uassignment.size();
     m_tmp_uassignment.push_back(none_level());
     return mk_idx_metauniv(idx);
+}
+
+expr type_context::mk_tmp_mvar(expr const & type) {
+    unsigned idx = m_tmp_eassignment.size();
+    m_tmp_eassignment.push_back(none_expr());
+    return mk_idx_metavar(idx, type);
 }
 
 /* -----------------------------------
@@ -620,6 +640,39 @@ level type_context::instantiate(level const & l) {
 
 expr type_context::instantiate(expr const & e) {
     return ::lean::instantiate(*this, e);
+}
+
+/* -----------------------------------
+   Backtracking
+   ----------------------------------- */
+
+void type_context::push_scope() {
+    m_scopes.emplace_back(m_mctx, m_tmp_uassignment.size(), m_tmp_eassignment.size(), m_tmp_trail.size());
+}
+
+void type_context::pop_scope() {
+    lean_assert(!m_scopes.empty());
+    scope_data const & s = m_scopes.back();
+    m_mctx = s.m_mctx;
+    unsigned old_sz = s.m_tmp_trail_sz;
+    while (m_tmp_trail.size() > old_sz) {
+        auto const & t = m_tmp_trail.back();
+        if (t.first == tmp_trail_kind::Level) {
+            m_tmp_uassignment[t.second] = none_level();
+        } else {
+            m_tmp_eassignment[t.second] = none_expr();
+        }
+        m_tmp_trail.pop_back();
+    }
+    lean_assert(old_sz == m_tmp_trail.size());
+    m_tmp_uassignment.shrink(s.m_tmp_uassignment_sz);
+    m_tmp_eassignment.shrink(s.m_tmp_eassignment_sz);
+    m_scopes.pop_back();
+}
+
+void type_context::commit_scope() {
+    lean_assert(!m_scopes.empty());
+    m_scopes.pop_back();
 }
 
 /* -----------------------------------
@@ -752,6 +805,46 @@ bool type_context::is_def_eq_args(expr const & e1, expr const & e2) {
     }
     return true;
 }
+
+/** \brief Try to solve e1 := (lambda x : A, t) =?= e2 by eta-expanding e2.
+
+    \remark eta-reduction is not a good alternative (even in a system without cumulativity like Lean).
+    Example:
+         (lambda x : A, f ?M) =?= f
+    The lhs cannot be eta-reduced because ?M is a meta-variable. */
+bool type_context::is_def_eq_eta(expr const & e1, expr const & e2) {
+    if (is_lambda(e1) && !is_lambda(e2)) {
+        expr e2_type = relaxed_whnf(infer(e2));
+        if (is_pi(e2_type)) {
+            // e2_type may not be a Pi because it is a stuck term.
+            // We are ignoring this case and just failing.
+            expr new_e2 = mk_lambda(binding_name(e2_type), binding_domain(e2_type),
+                                    mk_app(e2, Var(0)), binding_info(e2_type));
+            scope s(*this);
+            if (is_def_eq_core(e1, new_e2)) {
+                s.commit();
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool type_context::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
+    if (!env().prop_proof_irrel())
+        return false;
+    expr e1_type = infer(e1);
+    if (is_prop(e1_type)) {
+        expr e2_type = infer(e2);
+        scope s(*this);
+        if (is_def_eq_core(e1_type, e2_type)) {
+            s.commit();
+            return true;
+        }
+    }
+    return false;
+}
+
 
 /*
 struct unification_hint_fn {

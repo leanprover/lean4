@@ -34,7 +34,7 @@ public:
     optional<metavar_decl> get_metavar_decl(expr const & e) const;
 
     bool is_assigned(level const & l) const {
-        lean_assert(is_univ_metavar_decl_ref(l));
+        lean_assert(is_metavar_decl_ref(l));
         return m_uassignment.contains(meta_id(l));
     }
 

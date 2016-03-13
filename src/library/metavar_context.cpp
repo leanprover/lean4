@@ -21,7 +21,7 @@ expr mk_meta_ref(name const & n) {
     return mk_metavar(n, *g_dummy_type);
 }
 
-bool is_univ_metavar_decl_ref(level const & u) {
+bool is_metavar_decl_ref(level const & u) {
     return is_meta(u) && is_tagged_by(meta_id(u), *g_meta_prefix);
 }
 
@@ -58,7 +58,7 @@ void metavar_context::assign(expr const & e, expr const & v) {
 }
 
 optional<level> metavar_context::get_assignment(level const & l) const {
-    lean_assert(is_univ_metavar_decl_ref(l));
+    lean_assert(is_metavar_decl_ref(l));
     if (auto v = m_uassignment.find(meta_id(l)))
         return some_level(*v);
     else
@@ -66,7 +66,7 @@ optional<level> metavar_context::get_assignment(level const & l) const {
 }
 
 optional<expr> metavar_context::get_assignment(expr const & e) const {
-    lean_assert(is_metavar_decl_ref(l));
+    lean_assert(is_metavar_decl_ref(e));
     if (auto v = m_eassignment.find(mlocal_name(e)))
         return some_expr(*v);
     else
@@ -77,7 +77,7 @@ struct metavar_context::interface_impl {
     metavar_context & m_ctx;
     interface_impl(metavar_context const & ctx):m_ctx(const_cast<metavar_context&>(ctx)) {}
 
-    static bool is_mvar(level const & l) { return is_univ_metavar_decl_ref(l); }
+    static bool is_mvar(level const & l) { return is_metavar_decl_ref(l); }
     bool is_assigned(level const & l) const { return m_ctx.is_assigned(l); }
     optional<level> get_assignment(level const & l) const { return m_ctx.get_assignment(l); }
     void assign(level const & u, level const & v) { m_ctx.assign(u, v); }

@@ -104,13 +104,15 @@ class type_context : public abstract_type_context {
     typedef buffer<metavar_context> mctx_stack;
     enum class tmp_trail_kind { Level, Expr };
     typedef buffer<pair<tmp_trail_kind, unsigned>> tmp_trail;
-    struct scope {
-        bool     m_tmp;
-        unsigned m_uassignment_sz;
-        unsigned m_eassignment_sz;
-        unsigned m_tmp_trail_sz;
+    struct scope_data {
+        metavar_context m_mctx;
+        unsigned        m_tmp_uassignment_sz;
+        unsigned        m_tmp_eassignment_sz;
+        unsigned        m_tmp_trail_sz;
+        scope_data(metavar_context const & mctx, unsigned usz, unsigned esz, unsigned tsz):
+            m_mctx(mctx), m_tmp_uassignment_sz(usz), m_tmp_eassignment_sz(esz), m_tmp_trail_sz(tsz) {}
     };
-    typedef buffer<scope> scopes;
+    typedef buffer<scope_data> scopes;
 
     metavar_context &  m_mctx;
     local_context      m_lctx;
@@ -119,13 +121,6 @@ class type_context : public abstract_type_context {
     /* We only cache results when m_used_assignment is false */
     bool               m_used_assignment;
     transparency_mode  m_transparency_mode;
-    /* We create a backtracking point (aka scope) whenever performing case-analysis in
-       the is_def_eq method. The m_mctx_stack is used to save the content of m_mctx.
-       Recall that m_mctx is implemented using datastructures with O(1) copy methods.
-
-       \remark We only need to save a copy on this stack when type_context is not in
-       tmp/match mode. */
-    mctx_stack         m_mctx_stack;
     /* When m_match_mode is true, then is_metavar_decl_ref and is_univ_metavar_decl_ref are treated
        as opaque constants, and temporary metavariables (idx_metavar) are treated as metavariables,
        and their assignment is stored at m_tmp_eassignment and m_tmp_uassignment. */
@@ -221,6 +216,7 @@ private:
     void assign_tmp(expr const & m, expr const & v);
 
     level mk_tmp_univ_mvar();
+    expr mk_tmp_mvar(expr const & type);
 
     /* ------------
        Uniform interface to tmp/regular metavariables
@@ -236,6 +232,10 @@ public:
     optional<expr> get_assignment(expr const & e) const;
     void assign(level const & u, level const & l);
     void assign(expr const & m, expr const & v);
+
+private:
+    level instantiate(level const & l);
+    expr instantiate(expr const & l);
 
 private:
     /* ------------
@@ -254,8 +254,19 @@ private:
     expr infer_let(expr e);
 
 private:
-    level instantiate(level const & l);
-    expr instantiate(expr const & l);
+    /* ------------
+       is_def_eq
+       ------------ */
+    void push_scope();
+    void pop_scope();
+    void commit_scope();
+    struct scope {
+        type_context & m_owner;
+        bool           m_keep;
+        scope(type_context & o):m_owner(o), m_keep(false) { m_owner.push_scope(); }
+        ~scope() { if (!m_keep) m_owner.pop_scope(); }
+        void commit() { m_owner.commit_scope(); m_keep = true; }
+    };
 
     optional<declaration> is_delta(expr const & e);
 
@@ -263,6 +274,8 @@ private:
     bool is_def_eq_core(expr const & t, expr const & s);
     bool is_def_eq_binding(expr e1, expr e2);
     bool is_def_eq_args(expr const & e1, expr const & e2);
+    bool is_def_eq_eta(expr const & e1, expr const & e2);
+    bool is_def_eq_proof_irrel(expr const & e1, expr const & e2);
 
 public:
     /* Helper class for creating pushing local declarations into the local context m_lctx */

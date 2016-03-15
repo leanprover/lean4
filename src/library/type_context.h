@@ -164,7 +164,12 @@ public:
     virtual void pop_local() override;
     virtual expr abstract_locals(expr const & e, unsigned num_locals, expr const * locals) override;
 
-    expr mk_fun(buffer<expr> const & locals, expr const & e);
+    /** Given a metavariable \c mvar, and local constants in \c locals, return (mvar' C) where
+        C is a superset of \c locals and includes all local constants that depend on \c locals.
+        \pre all local constants in \c locals are in metavariable context. */
+    expr revert(unsigned num, expr const * locals, expr const & mvar);
+
+    expr mk_lambda(buffer<expr> const & locals, expr const & e);
     expr mk_pi(buffer<expr> const & locals, expr const & e);
 
     /* Add a let-decl (aka local definition) to the local context */
@@ -218,8 +223,10 @@ private:
 private:
     pair<local_context, expr> revert_core(unsigned num, expr const * locals, local_context const & ctx,
                                           expr const & type, buffer<expr> & reverted);
+    expr revert_core(unsigned num, expr const * locals, expr const & mvar, buffer<expr> & reverted);
     void restrict_metavars_context(expr const & e, unsigned num_locals, expr const * locals);
     void restrict_metavars_context(local_decl const & d, unsigned num_locals, expr const * locals);
+    expr mk_binding(bool is_pi, unsigned num_locals, expr const * locals, expr const & e);
 
     /* ------------
        Temporary metavariable assignment.

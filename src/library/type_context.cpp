@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "util/flet.h"
 #include "util/interrupt.h"
 #include "kernel/instantiate.h"
+#include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
 #include "library/idx_metavar.h"
@@ -180,11 +181,22 @@ pair<local_context, expr> type_context::revert_core(unsigned num, expr const * l
     return mk_pair(new_ctx, mk_pi(reverted, type));
 }
 
-/*
-expr type_context::revert(unsigned num, expr const * locals, metavar_decl const & mdecl, buffer<expr> & reverted) {
-
+expr type_context::revert_core(unsigned num, expr const * locals, expr const & mvar, buffer<expr> & reverted) {
+    lean_assert(is_metavar_decl_ref(mvar));
+    metavar_decl const & d = *m_mctx.get_metavar_decl(mvar);
+    auto p = revert_core(num, locals, d.get_context(), d.get_type(), reverted);
+    return m_mctx.mk_metavar_decl(p.first, p.second);
 }
-*/
+
+expr type_context::revert(unsigned num, expr const * locals, expr const & mvar) {
+    lean_assert(is_metavar_decl_ref(mvar));
+    lean_assert(std::all_of(locals, locals+num, [&](expr const & l) { return mvar.get_context().contains(l); }));
+    buffer<expr> reverted;
+    expr new_mvar = revert_core(num, locals, mvar, reverted);
+    expr r = mk_app(new_mvar, reverted);
+    m_mctx.assign(mvar, r);
+    return r;
+}
 
 /* Make sure that for any (unassigned) metavariable ?M@C occurring in \c e,
    \c C does not contain any local in \c locals. This can be achieved by creating new metavariables
@@ -195,10 +207,11 @@ void type_context::restrict_metavars_context(expr const & e, unsigned num_locals
     for_each(e, [&](expr const & e, unsigned) {
             if (!has_expr_metavar(e)) return false;
             if (is_metavar_decl_ref(e)) {
+                metavar_decl const & decl  = *m_mctx.get_metavar_decl(e);
+                restrict_metavars_context(decl.get_type(), num_locals, locals);
                 if (optional<expr> v = m_mctx.get_assignment(e)) {
                     restrict_metavars_context(*v, num_locals, locals);
                 } else {
-                    metavar_decl const & decl  = *m_mctx.get_metavar_decl(e);
                     local_context const &  ctx = decl.get_context();
                     buffer<expr> to_revert;
                     for (unsigned i = 0; i < num_locals; i++) {
@@ -206,7 +219,8 @@ void type_context::restrict_metavars_context(expr const & e, unsigned num_locals
                             to_revert.push_back(locals[i]);
                     }
                     if (!to_revert.empty()) {
-
+                        revert(to_revert.size(), to_revert.data(), e);
+                        lean_assert(m_mctx.is_assigned(e));
                     }
                 }
             }
@@ -221,24 +235,59 @@ void type_context::restrict_metavars_context(local_decl const & d, unsigned num_
 }
 
 expr type_context::abstract_locals(expr const & e, unsigned num_locals, expr const * locals) {
-    for (unsigned i = 0; i < num_locals; i++) {
-        expr const & local = locals[i];
+    lean_assert(std::all_of(locals, locals+num_locals, is_local_decl_ref));
+    if (num_locals == 0)
+        return e;
+    if (!m_tmp_mode) {
+        /* In regular mode, we have to make sure the context of the metavariables occurring \c e
+           does not include the locals being abstracted.
 
+           Claim: this check is not necessary in tmp_mode because
+           1- Regular metavariables should not depend on temporary local constants that have been created in tmp mode.
+           2- The tmp metavariables all share the same fixed local context.
+        */
+        restrict_metavars_context(e, num_locals, locals);
     }
-
-    // TODO(Leo)
-    return e;
+    return ::lean::abstract_locals(e, num_locals, locals);
 }
 
-expr type_context::mk_fun(buffer<expr> const & locals, expr const & e) {
-    // TODO(Leo)
-    lean_unreachable();
+expr type_context::mk_binding(bool is_pi, unsigned num_locals, expr const * locals, expr const & e) {
+    buffer<local_decl>     decls;
+    buffer<expr>           types;
+    buffer<optional<expr>> values;
+    for (unsigned i = 0; i < num_locals; i++) {
+        local_decl const & decl = *m_lctx.get_local_decl(locals[i]);
+        decls.push_back(decl);
+        types.push_back(abstract_locals(decl.get_type(), i, locals));
+        if (auto v = decl.get_value())
+            values.push_back(some_expr(abstract_locals(*v, i, locals)));
+        else
+            values.push_back(none_expr());
+    }
+    expr new_e = abstract_locals(e, num_locals, locals);
+    lean_assert(types.size() == values.size());
+    unsigned i = types.size();
+    while (i > 0) {
+        --i;
+        if (values[i]) {
+            new_e = mk_let(decls[i].get_pp_name(), types[i], *values[i], new_e);
+        } else if (is_pi) {
+            new_e = ::lean::mk_pi(decls[i].get_pp_name(), types[i], new_e, decls[i].get_info());
+        } else {
+            new_e = ::lean::mk_lambda(decls[i].get_pp_name(), types[i], new_e, decls[i].get_info());
+        }
+    }
+    return new_e;
+}
+
+expr type_context::mk_lambda(buffer<expr> const & locals, expr const & e) {
+    return mk_binding(false, locals.size(), locals.data(), e);
 }
 
 expr type_context::mk_pi(buffer<expr> const & locals, expr const & e) {
-    // TODO(Leo)
-    lean_unreachable();
+    return mk_binding(true, locals.size(), locals.data(), e);
 }
+
 
 /* ---------------------
    Normalization
@@ -1101,7 +1150,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
     if (args.empty()) {
         /* easy case */
     } else if (args.size() == locals.size()) {
-        new_v = mk_fun(locals, new_v);
+        new_v = mk_lambda(locals, new_v);
     } else {
         /*
           This case is imprecise since it is not a higher order pattern.
@@ -1123,7 +1172,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
             mvar_type = ::lean::instantiate(binding_body(mvar_type), locals[i]);
         }
         lean_assert(locals.size() == args.size());
-        new_v = mk_fun(locals, new_v);
+        new_v = mk_lambda(locals, new_v);
     }
 
     /* check types */
@@ -1195,8 +1244,8 @@ bool type_context::is_def_eq_eta(expr const & e1, expr const & e2) {
         if (is_pi(e2_type)) {
             // e2_type may not be a Pi because it is a stuck term.
             // We are ignoring this case and just failing.
-            expr new_e2 = mk_lambda(binding_name(e2_type), binding_domain(e2_type),
-                                    mk_app(e2, Var(0)), binding_info(e2_type));
+            expr new_e2 = ::lean::mk_lambda(binding_name(e2_type), binding_domain(e2_type),
+                                            mk_app(e2, Var(0)), binding_info(e2_type));
             scope s(*this);
             if (is_def_eq_core(e1, new_e2)) {
                 s.commit();
@@ -1221,7 +1270,6 @@ bool type_context::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
     }
     return false;
 }
-
 
 /*
 struct unification_hint_fn {

@@ -28,17 +28,6 @@ local_decl::local_decl(unsigned idx, name const & n, name const & pp_n, expr con
     m_ptr = new (get_local_decl_allocator().allocate()) cell(idx, n, pp_n, t, v, bi);
 }
 
-void local_decls::insert(name const & n) {
-    m_decls.insert(n, local_decl());
-}
-
-bool local_decls::is_subset_of(local_decls const & ds) const {
-    // TODO(Leo): we can improve performance by implementing the subset operation in the rb_map/rb_tree class
-    return !m_decls.find_if([&](name const & n, local_decl const &) {
-            return !ds.contains(n);
-        });
-}
-
 name mk_local_decl_name() {
     return mk_tagged_fresh_name(*g_local_prefix);
 }
@@ -49,6 +38,45 @@ expr mk_local_ref(name const & n) {
 
 bool is_local_decl_ref(expr const & e) {
     return is_local(e) && mlocal_type(e) == *g_dummy_type;
+}
+
+expr local_decl::mk_ref() const {
+    return mk_local_ref(m_ptr->m_name);
+}
+
+bool depends_on(expr const & e, unsigned num, expr const * locals) {
+    lean_assert(std::all_of(locals, locals+num, is_local_decl_ref));
+    if (!has_local(e))
+        return false;
+    bool found = false;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (found) return false;
+            if (!has_local(e)) return false;
+            if (is_local_decl_ref(e) &&
+                std::any_of(locals, locals+num,
+                            [&](expr const & l) { return mlocal_name(e) == mlocal_name(l); })) {
+                found = true;
+                return false;
+            }
+            return true;
+        });
+    return found;
+}
+
+bool depends_on(local_decl const & d, unsigned num, expr const * locals) {
+    if (depends_on(d.get_type(), num, locals))
+        return true;
+    if (auto v = d.get_value())
+        return depends_on(*v, num, locals);
+    return true;
+}
+
+bool depends_on(expr const & e, buffer<expr> const & locals) {
+    return depends_on(e, locals.size(), locals.data());
+}
+
+bool depends_on(local_decl const & d, buffer<expr> const & locals) {
+    return depends_on(d, locals.size(), locals.data());
 }
 
 expr local_context::mk_local_decl(name const & n, name const & ppn, expr const & type, optional<expr> const & value, binder_info const & bi) {
@@ -113,6 +141,36 @@ void local_context::pop_local_decl() {
     lean_assert(!m_frozen_decls.contains(d.get_name()));
     m_name2local_decl.erase(d.get_name());
     m_idx2local_decl.erase(d.get_idx());
+}
+
+bool local_context::is_subset_of(name_set const & ls) const {
+    // TODO(Leo): we can improve performance by implementing the subset operation in the rb_map/rb_tree class
+    return !m_name2local_decl.find_if([&](name const & n, local_decl const &) {
+            return !ls.contains(n);
+        });
+}
+
+bool local_context::is_subset_of(local_context const & ctx) const {
+    // TODO(Leo): we can improve performance by implementing the subset operation in the rb_map/rb_tree class
+    return !m_name2local_decl.find_if([&](name const & n, local_decl const &) {
+            return !ctx.m_name2local_decl.contains(n);
+        });
+}
+
+local_context local_context::remove(buffer<expr> const & locals) const {
+    lean_assert(std::all_of(locals.begin(), locals.end(),
+                            [&](expr const & l) {
+                                return is_local_decl_ref(l) && get_local_decl(l);
+                            }));
+    /* TODO(Leo): check whether the following loop is a performance bottleneck. */
+    local_context r = *this;
+    for (expr const & l : locals) {
+        r.m_name2local_decl.erase(mlocal_name(l));
+        r.m_idx2local_decl.erase(get_local_decl(l)->get_idx());
+        r.m_frozen_decls.erase(mlocal_name(l));
+    }
+    lean_assert(r.well_formed());
+    return r;
 }
 
 /* Return true iff all local_decl references in \c e are in \c s. */

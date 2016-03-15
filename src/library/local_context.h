@@ -51,23 +51,15 @@ public:
     expr const & get_type() const { return m_ptr->m_type; }
     optional<expr> const & get_value() const { return m_ptr->m_value; }
     binder_info const & get_info() const { return m_ptr->m_bi; }
+    expr mk_ref() const;
 };
 
 bool is_local_decl_ref(expr const & e);
 
-/** \brief Set of local declarations that were available when a meta-variable has been defined */
-class local_decls {
-    /** We didn't use a name_set because we want to create local_decls from local_context in constant
-        type */
-    name_map<local_decl>  m_decls;
-    local_decls(name_map<local_decls> const & decls):m_decls(decls) {}
-    friend class local_context;
-public:
-    local_decls() {}
-    bool contains(name const & n) const { return m_decls.contains(n); }
-    void insert(name const & n);
-    bool is_subset_of(local_decls const & ds) const;
-};
+bool depends_on(expr const & e, unsigned num, expr const * locals);
+bool depends_on(local_decl const & d, unsigned num, expr const * locals);
+bool depends_on(expr const & e, buffer<expr> const & locals);
+bool depends_on(local_decl const & d, buffer<expr> const & locals);
 
 class local_context {
     typedef rb_map<unsigned, local_decl, unsigned_cmp> idx2local_decl;
@@ -81,6 +73,9 @@ class local_context {
       more efficiently.
     */
     name_set              m_frozen_decls; /* declarations that have been frozen */
+    friend class type_context;
+
+    local_context remove(buffer<expr> const & locals) const;
     expr mk_local_decl(name const & n, name const & ppn, expr const & type,
                        optional<expr> const & value, binder_info const & bi);
 public:
@@ -104,10 +99,13 @@ public:
     /** \brief Execute fn for each local declaration created after \c d. */
     void for_each_after(local_decl const & d, std::function<void(local_decl const &)> const & fn) const;
 
-    local_decls to_local_decls() const { return local_decls(m_name2local_decl); }
-
     void freeze(name const & n);
     bool is_frozen(name const & n) const { return m_frozen_decls.contains(n); }
+
+    /** \brief Return true iff all locals in this context are in the set \c ls. */
+    bool is_subset_of(name_set const & ls) const;
+    /** \brief Return true iff all locals in this context are also in \c ctx. */
+    bool is_subset_of(local_context const & ctx) const;
 
     void pop_local_decl();
 

@@ -143,12 +143,99 @@ void type_context::pop_local() {
     return m_lctx.pop_local_decl();
 }
 
+pair<local_context, expr> type_context::revert_core(unsigned num, expr const * locals, local_context const & ctx,
+                                                    expr const & type, buffer<expr> & reverted) {
+    DEBUG_CODE({
+            for (unsigned i = 0; i < num; i++) {
+                lean_assert(is_local_decl_ref(locals[i]));
+                optional<local_decl> const & decl = ctx.get_local_decl(locals[i]);
+                lean_assert(decl);
+                if (i > 1) {
+                    optional<local_decl> const & prev_decl = ctx.get_local_decl(locals[i-1]);
+                    lean_assert(prev_decl && prev_decl->get_idx() < decl->get_idx());
+                }
+            }
+        });
+    if (num == 0) {
+        return mk_pair(ctx, type);
+    }
+    local_decl d0  = *ctx.get_local_decl(locals[0]);
+    reverted.push_back(locals[0]);
+    unsigned next_idx = 1;
+    ctx.for_each_after(d0, [&](local_decl const & d) {
+            /* Check if d is in locals */
+            for (unsigned i = next_idx; i < num; i++) {
+                if (mlocal_name(locals[i]) == d.get_name()) {
+                    reverted.push_back(locals[i]);
+                    next_idx++;
+                    return;
+                }
+            }
+            /* We may still need to revert d if it depends on locals already in reverted */
+            if (depends_on(d, reverted)) {
+                reverted.push_back(d.mk_ref());
+            }
+        });
+    local_context new_ctx = ctx.remove(reverted);
+    return mk_pair(new_ctx, mk_pi(reverted, type));
+}
+
+/*
+expr type_context::revert(unsigned num, expr const * locals, metavar_decl const & mdecl, buffer<expr> & reverted) {
+
+}
+*/
+
+/* Make sure that for any (unassigned) metavariable ?M@C occurring in \c e,
+   \c C does not contain any local in \c locals. This can be achieved by creating new metavariables
+   ?M'@C' where C' is C without any locals (and its dependencies) */
+void type_context::restrict_metavars_context(expr const & e, unsigned num_locals, expr const * locals) {
+    if (!has_expr_metavar(e))
+        return;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!has_expr_metavar(e)) return false;
+            if (is_metavar_decl_ref(e)) {
+                if (optional<expr> v = m_mctx.get_assignment(e)) {
+                    restrict_metavars_context(*v, num_locals, locals);
+                } else {
+                    metavar_decl const & decl  = *m_mctx.get_metavar_decl(e);
+                    local_context const &  ctx = decl.get_context();
+                    buffer<expr> to_revert;
+                    for (unsigned i = 0; i < num_locals; i++) {
+                        if (ctx.get_local_decl(locals[i]))
+                            to_revert.push_back(locals[i]);
+                    }
+                    if (!to_revert.empty()) {
+
+                    }
+                }
+            }
+            return true;
+        });
+}
+
+void type_context::restrict_metavars_context(local_decl const & d, unsigned num_locals, expr const * locals) {
+    restrict_metavars_context(d.get_type(), num_locals, locals);
+    if (auto v = d.get_value())
+        restrict_metavars_context(*v, num_locals, locals);
+}
+
 expr type_context::abstract_locals(expr const & e, unsigned num_locals, expr const * locals) {
+    for (unsigned i = 0; i < num_locals; i++) {
+        expr const & local = locals[i];
+
+    }
+
     // TODO(Leo)
     return e;
 }
 
 expr type_context::mk_fun(buffer<expr> const & locals, expr const & e) {
+    // TODO(Leo)
+    lean_unreachable();
+}
+
+expr type_context::mk_pi(buffer<expr> const & locals, expr const & e) {
     // TODO(Leo)
     lean_unreachable();
 }
@@ -394,7 +481,7 @@ expr type_context::infer_lambda(expr e) {
     unsigned i = es.size();
     while (i > 0) {
         --i;
-        r = mk_pi(binding_name(es[i]), ds[i], r, binding_info(es[i]));
+        r = ::lean::mk_pi(binding_name(es[i]), ds[i], r, binding_info(es[i]));
     }
     return r;
 }
@@ -917,7 +1004,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
                         return false;
                 }
             } else {
-                if (mvar_decl->get_context().contains(mlocal_name(arg))) {
+                if (mvar_decl->get_context().get_local_decl(arg)) {
                     /* m is of the form (?M@C ... l ...) where l is a local constant in C. */
                     if (!approximate())
                         return false;
@@ -982,7 +1069,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
                     if (m_tmp_mode) {
                         in_ctx = static_cast<bool>(m_tmp_mvar_lctx.get_local_decl(e));
                     } else {
-                        in_ctx = mvar_decl->get_context().contains(mlocal_name(e));
+                        in_ctx = static_cast<bool>(mvar_decl->get_context().get_local_decl(e));
                     }
                     if (!in_ctx) {
                         if (m_lctx.get_local_decl(e)->get_value()) {

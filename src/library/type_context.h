@@ -165,6 +165,7 @@ public:
     virtual expr abstract_locals(expr const & e, unsigned num_locals, expr const * locals) override;
 
     expr mk_fun(buffer<expr> const & locals, expr const & e);
+    expr mk_pi(buffer<expr> const & locals, expr const & e);
 
     /* Add a let-decl (aka local definition) to the local context */
     expr push_let(name const & ppn, expr const & type, expr const & value) {
@@ -213,6 +214,12 @@ private:
     optional<expr> expand_macro(expr const & e);
     expr whnf_core(expr const & e);
     optional<declaration> is_transparent(name const & n);
+
+private:
+    pair<local_context, expr> revert_core(unsigned num, expr const * locals, local_context const & ctx,
+                                          expr const & type, buffer<expr> & reverted);
+    void restrict_metavars_context(expr const & e, unsigned num_locals, expr const * locals);
+    void restrict_metavars_context(local_decl const & d, unsigned num_locals, expr const * locals);
 
     /* ------------
        Temporary metavariable assignment.

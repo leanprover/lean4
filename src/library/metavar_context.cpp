@@ -35,7 +35,7 @@ level metavar_context::mk_univ_metavar_decl() {
 
 expr metavar_context::mk_metavar_decl(local_context const & ctx, expr const & type) {
     name n = mk_meta_decl_name();
-    m_decls.insert(n, metavar_decl(ctx.to_local_decls(), type));
+    m_decls.insert(n, metavar_decl(ctx, type));
     return mk_meta_ref(n);
 }
 
@@ -107,7 +107,8 @@ expr metavar_context::instantiate(expr const & e) {
     return ::lean::instantiate(impl, e);
 }
 
-static bool well_formed_metavar_occs(expr const & e, local_decls const & ds, metavar_context const & ctx) {
+template<typename C>
+static bool well_formed_metavar_occs(expr const & e, C const & ds, metavar_context const & ctx) {
     bool ok = true;
     for_each(e, [&](expr const & e, unsigned) {
             if (!ok) return false;
@@ -132,7 +133,7 @@ static bool well_formed_metavar_occs(expr const & e, local_decls const & ds, met
 
 bool metavar_context::well_formed(local_context const & ctx) const {
     bool ok = true;
-    local_decls visited;
+    name_set visited;
     ctx.for_each([&](local_decl const & d) {
             if (!well_formed_metavar_occs(d.get_type(), visited, *this)) {
                 ok = false;
@@ -150,7 +151,7 @@ bool metavar_context::well_formed(local_context const & ctx) const {
 }
 
 bool metavar_context::well_formed(local_context const & ctx, expr const & e) const {
-    return well_formed_metavar_occs(e, ctx.to_local_decls(), *this);
+    return well_formed_metavar_occs(e, ctx, *this);
 }
 
 bool well_formed(local_context const & lctx, metavar_context const & mctx) {

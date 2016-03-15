@@ -9,14 +9,14 @@ Author: Leonardo de Moura
 
 namespace lean {
 class metavar_decl {
-    local_decls m_context;
-    expr        m_type;
+    local_context m_context;
+    expr          m_type;
     friend class metavar_context;
-    metavar_decl(local_decls const & ctx, expr const & type):m_context(ctx), m_type(type) {}
+    metavar_decl(local_context const & ctx, expr const & type):m_context(ctx), m_type(type) {}
 public:
     metavar_decl() {}
     expr const & get_type() const { return m_type; }
-    local_decls const & get_context() const { return m_context; }
+    local_context const & get_context() const { return m_context; }
 };
 
 bool is_metavar_decl_ref(level const & l);

@@ -190,7 +190,8 @@ expr type_context::revert_core(unsigned num, expr const * locals, expr const & m
 
 expr type_context::revert(unsigned num, expr const * locals, expr const & mvar) {
     lean_assert(is_metavar_decl_ref(mvar));
-    lean_assert(std::all_of(locals, locals+num, [&](expr const & l) { return mvar.get_context().contains(l); }));
+    lean_assert(std::all_of(locals, locals+num, [&](expr const & l) {
+                return static_cast<bool>(m_mctx.get_metavar_decl(mvar)->get_context().get_local_decl(l)); }));
     buffer<expr> reverted;
     expr new_mvar = revert_core(num, locals, mvar, reverted);
     expr r = mk_app(new_mvar, reverted);

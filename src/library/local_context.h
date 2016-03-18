@@ -35,7 +35,6 @@ private:
     friend class local_context;
     friend void initialize_local_context();
     local_decl(unsigned idx, name const & n, name const & pp_n, expr const & t, optional<expr> const & v, binder_info const & bi);
-    unsigned get_idx() const { return m_ptr->m_idx; }
 public:
     local_decl();
     local_decl(local_decl const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
@@ -52,6 +51,7 @@ public:
     optional<expr> const & get_value() const { return m_ptr->m_value; }
     binder_info const & get_info() const { return m_ptr->m_bi; }
     expr mk_ref() const;
+    unsigned get_idx() const { return m_ptr->m_idx; }
 };
 
 bool is_local_decl_ref(expr const & e);

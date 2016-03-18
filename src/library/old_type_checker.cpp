@@ -193,9 +193,8 @@ expr old_type_checker::infer_constant(expr const & e, bool infer_only) {
 
 pair<expr, constraint_seq> old_type_checker::infer_macro(expr const & e, bool infer_only) {
     auto def = macro_def(e);
-    pair<expr, constraint_seq> tcs = def.check_type(e, m_old_tc_ctx, infer_only);
-    expr t            = tcs.first;
-    constraint_seq cs = tcs.second;
+    expr t   = def.check_type(e, m_old_tc_ctx, infer_only);
+    constraint_seq cs;
     if (!infer_only && def.trust_level() >= m_env.trust_lvl()) {
         throw_kernel_exception(m_env, "declaration contains macro with trust-level higher than the one allowed "
                                "(possible solution: unfold macro, or increase trust-level)", e);

@@ -18,7 +18,7 @@ class eta_expand_fn : public replace_visitor {
 
     optional<expr> expand_core(expr const & e) {
         lean_assert(!is_lambda(e));
-        expr t = m_tc.whnf(m_tc.infer(e).first).first;
+        expr t = m_tc.whnf(m_tc.infer(e));
         if (!is_pi(t))
             return none_expr();
         expr r = mk_lambda(name("x"), binding_domain(t), mk_app(e, mk_var(0)));

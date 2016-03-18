@@ -120,7 +120,7 @@ class simp_pr1_rec_fn : public replace_visitor {
             // Step 1.
             for (unsigned k = 0; k < minor_ctx.size(); k++) {
                 if (minor_is_rec_arg[k]) {
-                    expr type = m_tc.whnf(mlocal_type(minor_ctx[k])).first;
+                    expr type = m_tc.whnf(mlocal_type(minor_ctx[k]));
                     buffer<expr> type_args;
                     expr type_fn = get_app_args(type, type_args);
                     if (!is_constant(type_fn) || const_name(type_fn) != get_prod_name() || type_args.size() != 2)

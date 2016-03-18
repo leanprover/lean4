@@ -306,9 +306,9 @@ struct add_inductive_fn {
     }
 
     type_checker & tc() { return *(m_tc.get()); }
-    bool is_def_eq(expr const & t, expr const & s) { return tc().is_def_eq(t, s).first; }
-    expr whnf(expr const & e) { return tc().whnf(e).first; }
-    expr ensure_type(expr const & e) { return tc().ensure_type(e).first; }
+    bool is_def_eq(expr const & t, expr const & s) { return tc().is_def_eq(t, s); }
+    expr whnf(expr const & e) { return tc().whnf(e); }
+    expr ensure_type(expr const & e) { return tc().ensure_type(e); }
 
     /** \brief Create a local constant for the given binding. */
     expr mk_local_for(expr const & b) { return mk_local(mk_fresh_name(), binding_name(b), binding_domain(b), binding_info(b)); }
@@ -348,7 +348,7 @@ struct add_inductive_fn {
             }
             if (i != m_num_params)
                 throw kernel_exception(m_env, "number of parameters mismatch in inductive datatype declaration");
-            t = tc().ensure_sort(t).first;
+            t = tc().ensure_sort(t);
             if (m_env.impredicative()) {
                 // If the environment is impredicative, we track whether the resultant universe
                 // is never zero (under any parameter assignment).
@@ -926,67 +926,58 @@ static optional<expr> mk_nullary_intro(environment const & env, expr const & typ
 
 // For datatypes that support K-axiom, given e an element of that type, we convert (if possible)
 // to the default constructor. For example, if (e : a = a), then this method returns (eq.refl a)
-static optional<pair<expr, constraint_seq>> to_intro_when_K(inductive_env_ext::elim_info const * it,
-                                                            expr const & e, extension_context & ctx) {
+static optional<expr> to_intro_when_K(inductive_env_ext::elim_info const * it,
+                                      expr const & e, extension_context & ctx) {
     lean_assert(it->m_K_target);
     environment const & env = ctx.env();
     constraint_seq cs;
-    expr app_type    = ctx.whnf(ctx.infer_type(e, cs), cs);
+    expr app_type    = ctx.whnf(ctx.infer_type(e));
     if (has_expr_metavar(app_type))
-        return none_ecs();
+        return none_expr();
     expr const & app_type_I = get_app_fn(app_type);
     if (!is_constant(app_type_I) || const_name(app_type_I) != it->m_inductive_name)
-        return none_ecs(); // type incorrect
+        return none_expr(); // type incorrect
     auto new_intro_app = mk_nullary_intro(env, app_type, it->m_num_params);
     if (!new_intro_app)
-        return none_ecs();
-    expr new_type    = ctx.infer_type(*new_intro_app, cs);
+        return none_expr();
+    expr new_type    = ctx.infer_type(*new_intro_app);
     if (has_expr_metavar(new_type))
-        return none_ecs();
-    simple_delayed_justification jst([=]() {
-            return mk_justification("elim/intro global parameters must match", some_expr(e));
-        });
-    if (!ctx.is_def_eq(app_type, new_type, jst, cs))
-        return none_ecs();
-    cs = constraint_seq();
-    return some_ecs(*new_intro_app, cs);
+        return none_expr();
+    if (!ctx.is_def_eq(app_type, new_type))
+        return none_expr();
+    return new_intro_app;
 }
 
-auto inductive_normalizer_extension::operator()(expr const & e, extension_context & ctx) const
-    -> optional<pair<expr, constraint_seq>> {
+optional<expr> inductive_normalizer_extension::operator()(expr const & e, extension_context & ctx) const {
     // Reduce terms \c e of the form
     //    elim_k A C e p[A,b] (intro_k_i A b u)
     environment const & env = ctx.env();
     inductive_env_ext const & ext = get_extension(env);
     expr const & elim_fn   = get_app_fn(e);
     if (!is_constant(elim_fn))
-        return none_ecs();
+        return none_expr();
     auto it1 = ext.m_elim_info.find(const_name(elim_fn));
     if (!it1)
-        return none_ecs(); // it is not an eliminator
+        return none_expr(); // it is not an eliminator
     buffer<expr> elim_args;
     get_app_args(e, elim_args);
     unsigned major_idx = it1->m_num_ACe + it1->m_num_indices;
     if (elim_args.size() < major_idx + 1)
-        return none_ecs(); // major premise is missing
+        return none_expr(); // major premise is missing
     expr major = elim_args[major_idx];
     optional<expr> intro_app;
-    constraint_seq cs;
     inductive_env_ext::comp_rule const * it2 = nullptr;
     if (it1->m_K_target) {
         if (auto p = to_intro_when_K(it1, major, ctx)) {
-            intro_app = p->first;
-            cs        = p->second;
+            intro_app = p;
             it2       = ext.m_comp_rules.find(const_name(get_app_fn(*intro_app)));
         }
     }
     if (!intro_app) {
-        auto intro_app_cs = ctx.whnf(major);
-        intro_app         = intro_app_cs.first;
-        cs                = intro_app_cs.second;
+        intro_app         = ctx.whnf(major);
         it2               = is_intro_for(ext, const_name(elim_fn), *intro_app);
         if (!it2)
-            return none_ecs();
+            return none_expr();
     }
     lean_assert(intro_app);
     lean_assert(it2);
@@ -994,10 +985,10 @@ auto inductive_normalizer_extension::operator()(expr const & e, extension_contex
     get_app_args(*intro_app, intro_args);
     // Check intro num_args
     if (intro_args.size() != it1->m_num_params + it2->m_num_bu)
-        return none_ecs();
+        return none_expr();
     // Number of universe levels must match.
     if (length(const_levels(elim_fn)) != length(it1->m_level_names))
-        return none_ecs();
+        return none_expr();
     buffer<expr> ACebu;
     for (unsigned i = 0; i < it1->m_num_ACe; i++)
         ACebu.push_back(elim_args[i]);
@@ -1010,8 +1001,7 @@ auto inductive_normalizer_extension::operator()(expr const & e, extension_contex
         unsigned num_args = elim_args.size() - major_idx - 1;
         r = mk_app(r, num_args, elim_args.data() + major_idx + 1);
     }
-    cs = constraint_seq();
-    return some_ecs(r, cs);
+    return some_expr(r);
 }
 
 bool inductive_normalizer_extension::is_recursor(environment const & env, name const & n) const {
@@ -1036,7 +1026,7 @@ optional<expr> is_elim_meta_app_core(Ctx & ctx, expr const & e) {
     unsigned major_idx = it1->m_num_ACe + it1->m_num_indices;
     if (elim_args.size() < major_idx + 1)
         return none_expr();
-    expr intro_app = ctx.whnf(elim_args[major_idx]).first;
+    expr intro_app = ctx.whnf(elim_args[major_idx]);
     if (it1->m_K_target) {
         // TODO(Leo): make it more precise.  Remark: this piece of
         // code does not affect the correctness of the kernel, but the

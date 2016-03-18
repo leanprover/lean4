@@ -144,7 +144,7 @@ public:
     virtual void write(serializer & s) const {
         s << *g_location_opcode << m_info;
     }
-    virtual pair<expr, constraint_seq> check_type(expr const &, extension_context &, bool) const { throw_ex(); }
+    virtual expr check_type(expr const &, extension_context &, bool) const { throw_ex(); }
     virtual optional<expr> expand(expr const &, extension_context &) const { throw_ex(); }
     virtual bool operator==(macro_definition_cell const & other) const {
         if (auto o = dynamic_cast<location_macro_cell const *>(&other))

@@ -42,7 +42,7 @@ public:
     nested_decl_macro_definition_cell(optional<name> const & n, decl_attributes const & attrs):
         m_name(n), m_attributes(attrs) {}
     virtual name get_name() const { return get_nested_decl_name(); }
-    virtual pair<expr, constraint_seq> check_type(expr const & m, extension_context & ctx, bool infer_only) const {
+    virtual expr check_type(expr const & m, extension_context & ctx, bool infer_only) const {
         check_macro(m);
         return ctx.check_type(macro_arg(m, 0), infer_only);
     }
@@ -162,7 +162,7 @@ public:
         buffer<name> uparams;
         collect_univ_params(d).to_buffer(uparams);
         expr new_value           = Fun(locals.get_collected(), d);
-        expr new_type            = m_tc.infer(new_value).first;
+        expr new_type            = m_tc.infer(new_value);
         level_param_names new_ps = to_list(uparams);
         levels ls                = param_names_to_levels(new_ps);
         m_env = module::add(m_env, check(m_env, mk_definition(m_env, new_real_name, new_ps,

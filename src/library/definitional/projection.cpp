@@ -86,12 +86,11 @@ public:
     virtual name get_name() const { return m_proj_name; }
     virtual format pp(formatter const &) const { return format(m_proj_name); }
     virtual void display(std::ostream & out) const { out << m_proj_name; }
-    virtual pair<expr, constraint_seq> check_type(expr const & m, extension_context & ctx, bool infer_only) const {
+    virtual expr check_type(expr const & m, extension_context & ctx, bool infer_only) const {
         check_macro(m);
         environment const & env = ctx.env();
-        constraint_seq cs;
         expr s   = macro_arg(m, 0);
-        expr s_t = ctx.whnf(ctx.check_type(s, cs, infer_only), cs);
+        expr s_t = ctx.whnf(ctx.check_type(s, infer_only));
         buffer<expr> I_args;
         expr const & I = get_app_args(s_t, I_args);
         if (!is_constant(I)) {
@@ -105,25 +104,20 @@ public:
                                    << "', incorrect number of universe parameters", m);
         expr t = instantiate_univ_params(m_type, m_ps, const_levels(I));
         I_args.push_back(s);
-        return mk_pair(instantiate_rev(t, I_args.size(), I_args.data()), cs);
+        return instantiate_rev(t, I_args.size(), I_args.data());
     }
 
     virtual optional<expr> expand(expr const & m, extension_context & ctx) const {
         check_macro(m);
         expr const & s  = macro_arg(m, 0);
-        constraint_seq cs;
-        expr new_s      = ctx.whnf(s, cs);
-        if (cs)
-            return none_expr();
+        expr new_s      = ctx.whnf(s);
         buffer<expr> c_args;
         expr const & c  = get_app_args(new_s, c_args);
         if (is_constant(c) && const_name(c) == m_constructor_name && m_idx < c_args.size()) {
             return some_expr(c_args[m_idx]);
         } else {
             // expand into recursor
-            expr s_type = ctx.whnf(ctx.infer_type(s, cs), cs);
-            if (cs)
-                return none_expr();
+            expr s_type = ctx.whnf(ctx.infer_type(s));
             buffer<expr> args;
             expr const & I = get_app_args(s_type, args);
             if (!is_constant(I) || length(m_ps) != length(const_levels(I)))
@@ -225,7 +219,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
                             << n << "' does not have sufficient data");
         type_checker tc(new_env);
         expr result_type   = binding_domain(intro_type);
-        if (is_predicate && !tc.is_prop(result_type).first) {
+        if (is_predicate && !tc.is_prop(result_type)) {
             throw exception(sstream() << "failed to generate projection '" << proj_name << "' for '" << n << "', "
                             << "type is an inductive predicate, but field is not a proposition");
         }
@@ -235,7 +229,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         expr type_former   = dep_elim ? Fun(c, result_type) : result_type;
         expr minor_premise = Fun(intro_type_args, mk_var(intro_type_args.size() - i - 1));
         expr major_premise = c;
-        level l            = sort_level(tc.ensure_sort(tc.infer(result_type).first).first);
+        level l            = sort_level(tc.ensure_sort(tc.infer(result_type)));
         levels rec_lvls    = elim_to_prop ? lvls : append(to_list(l), lvls);
         expr rec           = mk_constant(rec_name, rec_lvls);
         buffer<expr> rec_args;

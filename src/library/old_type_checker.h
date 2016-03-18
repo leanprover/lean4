@@ -23,14 +23,12 @@ namespace lean {
 /** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
 unsigned get_arity(expr type);
 
-#if 0
 inline pair<expr, constraint_seq> to_ecs(expr const & e) { return mk_pair(e, empty_cs()); }
 inline pair<expr, constraint_seq> to_ecs(expr const & e, constraint const & c, constraint_seq const & cs) {
     return mk_pair(e, constraint_seq(constraint_seq(c), cs));
 }
 inline pair<expr, constraint_seq> to_ecs(expr const & e, constraint const & c) { return mk_pair(e, constraint_seq(c)); }
 inline pair<expr, constraint_seq> to_ecs(expr const & e, constraint_seq const & cs) { return mk_pair(e, cs); }
-#endif
 
 /** \brief Given \c type of the form <tt>(Pi ctx, r)</tt>, return <tt>(Pi ctx, new_range)</tt> */
 expr replace_range(expr const & type, expr const & new_range);
@@ -80,12 +78,12 @@ class old_type_checker {
     public:
         old_type_checker_context(old_type_checker & tc):m_tc(tc) {}
         virtual environment const & env() const { return m_tc.m_env; }
-        virtual pair<expr, constraint_seq> whnf(expr const & e) { return m_tc.whnf(e); }
-        virtual pair<bool, constraint_seq> is_def_eq(expr const & e1, expr const & e2, delayed_justification & j) {
-            return m_tc.is_def_eq(e1, e2, j);
+        virtual expr whnf(expr const & e) { return m_tc.whnf(e).first; }
+        virtual bool is_def_eq(expr const & e1, expr const & e2) {
+            return m_tc.is_def_eq(e1, e2, justification()).first;
         }
-        virtual pair<expr, constraint_seq> check_type(expr const & e, bool infer_only) {
-            return m_tc.infer_type_core(e, infer_only);
+        virtual expr check_type(expr const & e, bool infer_only) {
+            return m_tc.infer_type_core(e, infer_only).first;
         }
         virtual optional<expr> is_stuck(expr const & e) { return m_tc.is_stuck(e); }
     };

@@ -88,8 +88,8 @@ class tactic_expr_macro_definition_cell : public macro_definition_cell {
 public:
     tactic_expr_macro_definition_cell() {}
     virtual name get_name() const { return get_tactic_expr_name(); }
-    virtual pair<expr, constraint_seq> check_type(expr const &, extension_context &, bool) const {
-        return mk_pair(get_tactic_expr_type(), constraint_seq());
+    virtual expr check_type(expr const &, extension_context &, bool) const {
+        return get_tactic_expr_type();
     }
     virtual optional<expr> expand(expr const &, extension_context &) const {
         return some_expr(get_tactic_expr_builtin());

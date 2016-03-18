@@ -49,14 +49,14 @@ environment declare_quotient(environment const & env) {
     return update(env, ext);
 }
 
-optional<pair<expr, constraint_seq>> quotient_normalizer_extension::operator()(expr const & e, extension_context & ctx) const {
+optional<expr> quotient_normalizer_extension::operator()(expr const & e, extension_context & ctx) const {
     environment const & env = ctx.env();
     expr const & fn         = get_app_fn(e);
     if (!is_constant(fn))
-        return none_ecs();
+        return none_expr();
     quotient_env_ext const & ext = get_extension(env);
     if (!ext.m_initialized)
-        return none_ecs();
+        return none_expr();
     unsigned mk_pos;
     unsigned arg_pos;
     if (const_name(fn) == *g_quotient_lift) {
@@ -66,28 +66,27 @@ optional<pair<expr, constraint_seq>> quotient_normalizer_extension::operator()(e
         mk_pos  = 4;
         arg_pos = 3;
     } else {
-        return none_ecs();
+        return none_expr();
     }
 
     buffer<expr> args;
     get_app_args(e, args);
     if (args.size() <= mk_pos)
-        return none_ecs();
+        return none_expr();
 
-    auto mk_cs = ctx.whnf(args[mk_pos]);
-    expr const & mk = mk_cs.first;
+    expr mk = ctx.whnf(args[mk_pos]);
     expr const & mk_fn = get_app_fn(mk);
     if (!is_constant(mk_fn))
-        return none_ecs();
+        return none_expr();
     if (const_name(mk_fn) != *g_quotient_mk)
-        return none_ecs();
+        return none_expr();
 
     expr const & f = args[arg_pos];
     expr r = mk_app(f, app_arg(mk));
     unsigned elim_arity = mk_pos+1;
     if (args.size() > elim_arity)
         r = mk_app(r, args.size() - elim_arity, args.begin() + elim_arity);
-    return some_ecs(r, mk_cs.second);
+    return some_expr(r);
 }
 
 template<typename Ctx>
@@ -109,7 +108,7 @@ optional<expr> is_quot_meta_app_core(Ctx & ctx, expr const & e) {
     if (args.size() <= mk_pos)
         return none_expr();
 
-    expr mk_app = ctx.whnf(args[mk_pos]).first;
+    expr mk_app = ctx.whnf(args[mk_pos]);
     return ctx.is_stuck(mk_app);
 }
 

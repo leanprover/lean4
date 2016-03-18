@@ -14,8 +14,4 @@ namespace lean {
 inline type_checker * to_type_checker(lean_type_checker n) { return reinterpret_cast<type_checker *>(n); }
 inline type_checker & to_type_checker_ref(lean_type_checker n) { return *reinterpret_cast<type_checker *>(n); }
 inline lean_type_checker of_type_checker(type_checker * n) { return reinterpret_cast<lean_type_checker>(n); }
-
-inline constraint_seq * to_cnstr_seq(lean_cnstr_seq n) { return reinterpret_cast<constraint_seq *>(n); }
-inline constraint_seq const & to_cnstr_seq_ref(lean_type_checker n) { return *reinterpret_cast<constraint_seq *>(n); }
-inline lean_cnstr_seq of_cnstr_seq(constraint_seq * n) { return reinterpret_cast<lean_cnstr_seq>(n); }
 }

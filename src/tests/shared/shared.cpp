@@ -42,6 +42,6 @@ int main() {
     expr c1  =  mk_local("c1", Prop);
     expr c2  = mk_local("c2", Prop);
     expr id = Const("id");
-    std::cout << checker.whnf(mk_app(f3, c1, c2)).first << "\n";
+    std::cout << checker.whnf(mk_app(f3, c1, c2)) << "\n";
     return 0;
 }

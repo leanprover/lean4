@@ -84,7 +84,7 @@ bool goal::validate_locals() const {
 
 bool goal::validate(environment const & env) const {
     if (validate_locals()) {
-        type_checker tc(env);
+        old_type_checker tc(env);
         return tc.is_def_eq(tc.check(m_meta).first, m_type).first;
     } else {
         return false;

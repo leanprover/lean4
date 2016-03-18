@@ -34,8 +34,8 @@ public:
         return m_value < static_cast<string_macro const &>(d).m_value;
     }
     virtual name get_name() const { return *g_string_macro; }
-    virtual pair<expr, constraint_seq> check_type(expr const &, extension_context &, bool) const {
-        return mk_pair(*g_string, constraint_seq());
+    virtual expr check_type(expr const &, extension_context &, bool) const {
+        return *g_string;
     }
     virtual optional<expr> expand(expr const &, extension_context &) const {
         return some_expr(from_string_core(0, m_value));
@@ -125,11 +125,11 @@ bool has_string_decls(environment const & env) {
     try {
         type_checker tc(env);
         return
-            tc.infer(*g_ff).first    == *g_bool &&
-            tc.infer(*g_tt).first    == *g_bool &&
-            tc.infer(*g_ascii).first == *g_bool >> (*g_bool >> (*g_bool >> (*g_bool >> (*g_bool >> (*g_bool >> (*g_bool >> (*g_bool >> *g_char))))))) &&
-            tc.infer(*g_empty).first == *g_string &&
-            tc.infer(*g_str).first   == *g_char >> (*g_string >> *g_string);
+            tc.infer(*g_ff)    == *g_bool &&
+            tc.infer(*g_tt)    == *g_bool &&
+            tc.infer(*g_ascii) == *g_bool >> (*g_bool >> (*g_bool >> (*g_bool >> (*g_bool >> (*g_bool >> (*g_bool >> (*g_bool >> *g_char))))))) &&
+            tc.infer(*g_empty) == *g_string &&
+            tc.infer(*g_str)   == *g_char >> (*g_string >> *g_string);
     } catch (exception &) {
         return false;
     }

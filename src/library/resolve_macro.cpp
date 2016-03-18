@@ -85,22 +85,15 @@ public:
     // This section of code is trusted when the environment has trust_level == 1
 
     bool is_def_eq(expr const & l1, expr const & l2, extension_context & ctx) const {
-        auto r = ctx.is_def_eq(l1, l2, jst());
-        return r.first && !r.second;
+        return ctx.is_def_eq(l1, l2);
     }
 
     expr whnf(expr const & e, extension_context & ctx) const {
-        auto r = ctx.whnf(e);
-        if (r.second)
-            throw_kernel_exception(ctx.env(), "invalid resolve macro, constraints were generated while computing whnf", e);
-        return r.first;
+        return ctx.whnf(e);
     }
 
     expr infer_type(expr const & e, extension_context & ctx, bool infer_only) const {
-        auto r = ctx.check_type(e, infer_only);
-        if (r.second)
-            throw_kernel_exception(ctx.env(), "invalid resolve macro, constraints were generated while inferring type", e);
-        return r.first;
+        return ctx.check_type(e, infer_only);
     }
 
     /** \brief Return true if \c ls already contains a literal that is definitionally equal to \c l */
@@ -149,7 +142,7 @@ public:
         return mk_bin_rop(*g_or, *g_false, R.size(), R.data());
     }
 
-    virtual pair<expr, constraint_seq> check_type(expr const & m, extension_context & ctx, bool infer_only) const {
+    virtual expr check_type(expr const & m, extension_context & ctx, bool infer_only) const {
         environment const & env = ctx.env();
         check_num_args(env, m);
         if (!infer_only)
@@ -158,7 +151,7 @@ public:
         expr not_l = whnf(mk_app(*g_not, l), ctx);
         expr C1    = infer_type(macro_arg(m, 1), ctx, infer_only);
         expr C2    = infer_type(macro_arg(m, 2), ctx, infer_only);
-        return mk_pair(mk_resolvent(env, ctx, m, l, not_l, C1, C2), constraint_seq());
+        return mk_resolvent(env, ctx, m, l, not_l, C1, C2);
     }
 
     // End of resolve_macro get_type implementation

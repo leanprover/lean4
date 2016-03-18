@@ -231,25 +231,22 @@ void test_id() {
         lean_expr id1 = mk_const("id", one);
         lean_expr id1T1, id1T1T0;
         lean_expr n1;
-        lean_cnstr_seq s1;
         check(lean_expr_mk_app(id1, T1, &id1T1, &ex));
         check(lean_expr_mk_app(id1T1, T0, &id1T1T0, &ex));
         check(lean_type_checker_mk(new_env, &tc, &ex));
         printf("WHNF test\n");
         print_expr(id1T1T0);
-        check(lean_type_checker_whnf(tc, id1T1T0, &n1, &s1, &ex));
+        check(lean_type_checker_whnf(tc, id1T1T0, &n1, &ex));
         printf("=====>\n");
         print_expr(n1);
         lean_expr_del(n1);
-        lean_cnstr_seq_del(s1);
 
         printf("Infer type test\n");
         print_expr(id1T1);
-        check(lean_type_checker_infer(tc, id1T1, &n1, &s1, &ex));
+        check(lean_type_checker_infer(tc, id1T1, &n1, &ex));
         printf("=====>\n");
         print_expr(n1);
         lean_expr_del(n1);
-        lean_cnstr_seq_del(s1);
 
         lean_type_checker_del(tc);
         lean_expr_del(T0);

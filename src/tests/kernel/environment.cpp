@@ -69,12 +69,12 @@ static void tst1() {
     expr c  = mk_local("c", Prop);
     expr id = Const("id");
     type_checker checker(env3);
-    lean_assert(checker.check(mk_app(id, Prop)).first == Prop >> Prop);
-    lean_assert(checker.whnf(mk_app(id, Prop, c)).first == c);
-    lean_assert(checker.whnf(mk_app(id, Prop, mk_app(id, Prop, mk_app(id, Prop, c)))).first == c);
+    lean_assert(checker.check(mk_app(id, Prop)) == Prop >> Prop);
+    lean_assert(checker.whnf(mk_app(id, Prop, c)) == c);
+    lean_assert(checker.whnf(mk_app(id, Prop, mk_app(id, Prop, mk_app(id, Prop, c)))) == c);
 
     type_checker checker2(env2);
-    lean_assert(checker2.whnf(mk_app(id, Prop, mk_app(id, Prop, mk_app(id, Prop, c)))).first == mk_app(id, Prop, mk_app(id, Prop, mk_app(id, Prop, c))));
+    lean_assert(checker2.whnf(mk_app(id, Prop, mk_app(id, Prop, mk_app(id, Prop, c)))) == mk_app(id, Prop, mk_app(id, Prop, mk_app(id, Prop, c))));
 }
 
 static void tst2() {
@@ -103,31 +103,31 @@ static void tst2() {
     expr c1  =  mk_local("c1", Prop);
     expr c2  = mk_local("c2", Prop);
     expr id = Const("id");
-    std::cout << checker.whnf(mk_app(f3, c1, c2)).first << "\n";
+    std::cout << checker.whnf(mk_app(f3, c1, c2)) << "\n";
     lean_assert_eq(env.find(name(base, 98))->get_height(), 98);
-    lean_assert(checker.is_def_eq(mk_app(f98, c1, c2), mk_app(f97, mk_app(f97, c1, c2), mk_app(f97, c2, c1))).first);
-    lean_assert(checker.is_def_eq(mk_app(f98, c1, mk_app(id, Prop, mk_app(id, Prop, c2))), mk_app(f97, mk_app(f97, c1, mk_app(id, Prop, c2)), mk_app(f97, c2, c1))).first);
+    lean_assert(checker.is_def_eq(mk_app(f98, c1, c2), mk_app(f97, mk_app(f97, c1, c2), mk_app(f97, c2, c1))));
+    lean_assert(checker.is_def_eq(mk_app(f98, c1, mk_app(id, Prop, mk_app(id, Prop, c2))), mk_app(f97, mk_app(f97, c1, mk_app(id, Prop, c2)), mk_app(f97, c2, c1))));
     name_set s;
     s.insert(name(base, 96));
 }
 
 class normalizer_extension_tst : public normalizer_extension {
 public:
-    virtual optional<pair<expr, constraint_seq>> operator()(expr const & e, extension_context & ctx) const {
+    virtual optional<expr> operator()(expr const & e, extension_context & ctx) const {
         if (!is_app(e))
-            return optional<pair<expr, constraint_seq>>();
+            return none_expr();
         expr const & f = app_fn(e);
         expr const & a = app_arg(e);
         if (!is_constant(f) || const_name(f) != name("proj1"))
-            return optional<pair<expr, constraint_seq>>();
-        expr a_n = ctx.whnf(a).first;
+            return none_expr();
+        expr a_n = ctx.whnf(a);
         if (!is_app(a_n) || !is_app(app_fn(a_n)) || !is_constant(app_fn(app_fn(a_n))))
-            return optional<pair<expr, constraint_seq>>();
+            return none_expr();
         expr const & mk = app_fn(app_fn(a_n));
         if (const_name(mk) != name("mk"))
-            return optional<pair<expr, constraint_seq>>();
+            return none_expr();
         // In a real implementation, we must check if proj1 and mk were defined in the environment.
-        return optional<pair<expr, constraint_seq>>(app_arg(app_fn(a_n)), constraint_seq());
+        return some_expr(app_arg(app_fn(a_n)));
     }
     virtual optional<expr> is_stuck(expr const &, extension_context &) const { return none_expr(); }
     virtual bool supports(name const &) const { return false; }
@@ -149,7 +149,7 @@ static void tst3() {
     expr a = Const("a");
     expr b = Const("b");
     type_checker checker(env);
-    lean_assert_eq(checker.whnf(mk_app(proj1, mk_app(proj1, mk_app(mk, mk_app(id, A, mk_app(mk, a, b)), b)))).first, a);
+    lean_assert_eq(checker.whnf(mk_app(proj1, mk_app(proj1, mk_app(mk, mk_app(id, A, mk_app(mk, a, b)), b)))), a);
 }
 
 class dummy_ext : public environment_extension {};

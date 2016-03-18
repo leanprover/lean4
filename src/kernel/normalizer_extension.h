@@ -17,7 +17,7 @@ namespace lean {
 class normalizer_extension {
 public:
     virtual ~normalizer_extension() {}
-    virtual optional<pair<expr, constraint_seq>> operator()(expr const & e, extension_context & ctx) const = 0;
+    virtual optional<expr> operator()(expr const & e, extension_context & ctx) const = 0;
     /** \brief Return a non-none expression if the extension may reduce \c e after metavariables are instantiated.
         The expression returned is a meta-variable that if instantiated my allow the reduction to continue.
     */
@@ -28,11 +28,6 @@ public:
     virtual bool is_recursor(environment const & env, name const & n) const = 0;
     virtual bool is_builtin(environment const & env, name const & n) const = 0;
 };
-
-inline optional<pair<expr, constraint_seq>> none_ecs() { return optional<pair<expr, constraint_seq>>(); }
-inline optional<pair<expr, constraint_seq>> some_ecs(expr const & e, constraint_seq const & cs) {
-    return optional<pair<expr, constraint_seq>>(e, cs);
-}
 
 /** \brief Create the do-nothing normalizer extension */
 std::unique_ptr<normalizer_extension> mk_id_normalizer_extension();

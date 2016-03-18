@@ -307,7 +307,7 @@ class blastenv {
     };
 
     class to_blast_expr_fn : public replace_visitor {
-        type_checker                 m_tc;
+        old_type_checker             m_tc;
         state &                      m_state;
         // We map each metavariable to a metavariable application and the mref associated with it.
         name_map<level> &            m_uvar2uref;

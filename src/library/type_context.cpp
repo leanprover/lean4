@@ -24,16 +24,16 @@ struct type_context_as_extension_context : public extension_context {
 
     virtual environment const & env() const { return m_owner.env(); }
 
-    virtual pair<expr, constraint_seq> whnf(expr const & e) {
-        return mk_pair(m_owner.whnf(e), constraint_seq());
+    virtual expr whnf(expr const & e) {
+        return m_owner.whnf(e);
     }
 
-    virtual pair<bool, constraint_seq> is_def_eq(expr const & e1, expr const & e2, delayed_justification &) {
-        return mk_pair(m_owner.is_def_eq(e1, e2), constraint_seq());
+    virtual bool is_def_eq(expr const & e1, expr const & e2) {
+        return m_owner.is_def_eq(e1, e2);
     }
 
-    virtual pair<expr, constraint_seq> check_type(expr const & e, bool) {
-        return mk_pair(m_owner.infer(e), constraint_seq());
+    virtual expr check_type(expr const & e, bool) {
+        return m_owner.infer(e);
     }
 
     virtual optional<expr> is_stuck(expr const & e) {
@@ -512,7 +512,7 @@ expr type_context::infer_macro(expr const & e) {
     auto def = macro_def(e);
     bool infer_only = true;
     type_context_as_extension_context ext(*this);
-    return def.check_type(e, ext, infer_only).first;
+    return def.check_type(e, ext, infer_only);
 }
 
 expr type_context::infer_lambda(expr e) {

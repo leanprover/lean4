@@ -220,7 +220,7 @@ static std::string * g_rewrite_reduce_opcode    = nullptr;
 
 class rewrite_core_macro_cell : public macro_definition_cell {
 public:
-    virtual pair<expr, constraint_seq> check_type(expr const &, extension_context &, bool) const { throw_re_ex(); }
+    virtual expr check_type(expr const &, extension_context &, bool) const { throw_re_ex(); }
     virtual optional<expr> expand(expr const &, extension_context &) const { throw_re_ex(); }
 };
 

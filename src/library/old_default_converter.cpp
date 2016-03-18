@@ -34,7 +34,10 @@ optional<expr> old_default_converter::expand_macro(expr const & m) {
 
 /** \brief Apply normalizer extensions to \c e. */
 optional<pair<expr, constraint_seq>> old_default_converter::norm_ext(expr const & e) {
-    return m_env.norm_ext()(e, get_extension(*m_tc));
+    if (auto v = m_env.norm_ext()(e, get_extension(*m_tc)))
+        return optional<pair<expr, constraint_seq>>(mk_pair(*v, constraint_seq()));
+    else
+        return optional<pair<expr, constraint_seq>>();
 }
 
 optional<expr> old_default_converter::d_norm_ext(expr const & e, constraint_seq & cs) {

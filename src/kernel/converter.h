@@ -13,7 +13,7 @@ class type_checker;
 
 class converter {
 protected:
-    pair<expr, constraint_seq> infer_type(type_checker & tc, expr const & e);
+    expr infer_type(type_checker & tc, expr const & e);
     extension_context & get_extension(type_checker & tc);
 public:
     virtual ~converter() {}
@@ -21,10 +21,8 @@ public:
     virtual optional<declaration> is_delta(expr const & e) const = 0;
 
     virtual optional<expr> is_stuck(expr const & e, type_checker & c) = 0;
-    virtual pair<expr, constraint_seq> whnf(expr const & e, type_checker & c) = 0;
-    virtual pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & j) = 0;
-
-    pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s, type_checker & c);
+    virtual expr whnf(expr const & e, type_checker & c) = 0;
+    virtual bool is_def_eq(expr const & t, expr const & s, type_checker & c) = 0;
 };
 
 /** \brief Converter that allows us to specify constants that should be considered opaque */

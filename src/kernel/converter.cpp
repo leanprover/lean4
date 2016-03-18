@@ -14,23 +14,16 @@ Author: Leonardo de Moura
 #include "kernel/default_converter.h"
 
 namespace lean {
-static no_delayed_justification * g_no_delayed_jst = nullptr;
-
-pair<bool, constraint_seq> converter::is_def_eq(expr const & t, expr const & s, type_checker & c) {
-    return is_def_eq(t, s, c, *g_no_delayed_jst);
-}
-
-pair<expr, constraint_seq> converter::infer_type(type_checker & tc, expr const & e) { return tc.infer_type(e); }
-
+expr converter::infer_type(type_checker & tc, expr const & e) { return tc.infer_type(e); }
 extension_context & converter::get_extension(type_checker & tc) { return tc.get_extension(); }
 
 /** \brief Do nothing converter */
 struct dummy_converter : public converter {
-    virtual pair<expr, constraint_seq> whnf(expr const & e, type_checker &) {
-        return mk_pair(e, constraint_seq());
+    virtual expr whnf(expr const & e, type_checker &) {
+        return e;
     }
-    virtual pair<bool, constraint_seq> is_def_eq(expr const &, expr const &, type_checker &, delayed_justification &) {
-        return mk_pair(true, constraint_seq());
+    virtual bool is_def_eq(expr const &, expr const &, type_checker &) {
+        return true;
     }
     virtual bool is_opaque(declaration const &) const { return false; }
     virtual optional<declaration> is_delta(expr const &) const { return optional<declaration>(); }
@@ -42,10 +35,8 @@ std::unique_ptr<converter> mk_dummy_converter() {
 }
 
 void initialize_converter() {
-    g_no_delayed_jst      = new no_delayed_justification();
 }
 
 void finalize_converter() {
-    delete g_no_delayed_jst;
 }
 }

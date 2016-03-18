@@ -33,8 +33,8 @@ class preprocess_rec_fn {
 
     bool check(declaration const & d, expr const & v) {
         type_checker tc(m_env);
-        expr t = tc.check(v, d.get_univ_params()).first;
-        if (!tc.is_def_eq(d.get_type(), t).first)
+        expr t = tc.check(v, d.get_univ_params());
+        if (!tc.is_def_eq(d.get_type(), t))
             throw exception("preprocess_rec failed");
         return true;
     }

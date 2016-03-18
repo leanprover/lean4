@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "kernel/type_checker.h"
+#include "library/old_type_checker.h"
 
 namespace lean {
 /** \brief Given an expression \c e, return the number of arguments expected arguments.
@@ -14,5 +14,5 @@ namespace lean {
     Pi's. Weak-head-normal-forms are computed for the type of \c e.
     \remark The type and whnf are computed using \c tc.
 */
-unsigned get_expect_num_args(type_checker & tc, expr e);
+unsigned get_expect_num_args(old_type_checker & tc, expr e);
 }

@@ -37,7 +37,7 @@ tactic check_expr_tactic(elaborate_fn const & elab, expr const & e,
 
 void initialize_check_expr_tactic() {
     register_tac(get_tactic_check_expr_name(),
-                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
                      check_tactic_expr(app_arg(e), "invalid 'check_expr' tactic, invalid argument");
                      expr arg = get_tactic_expr_expr(app_arg(e));
                      if (p) {

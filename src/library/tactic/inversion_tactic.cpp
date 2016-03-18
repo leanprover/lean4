@@ -47,7 +47,7 @@ result::result(list<goal> const & gs, list<list<expr>> const & args, list<implem
        b = @eq.rec.{l₂ l₁} A a (λ (a' : A) (h : a = a'), B a') b a p :=
     ...
 */
-optional<expr> apply_eq_rec_eq(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & eq_rec) {
+optional<expr> apply_eq_rec_eq(old_type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & eq_rec) {
     buffer<expr> args;
     expr const & eq_rec_fn = get_app_args(eq_rec, args);
     if (args.size() != 6)
@@ -103,7 +103,7 @@ static void replace(implementation_list const & imps, expr const & from, expr co
 class inversion_tac {
     environment const &           m_env;
     io_state const &              m_ios;
-    type_checker &                m_tc;
+    old_type_checker &                m_tc;
     list<name>                    m_ids;
     substitution                  m_subst;
 
@@ -1023,7 +1023,7 @@ class inversion_tac {
 
 public:
     inversion_tac(environment const & env, io_state const & ios,
-                  type_checker & tc, substitution const & subst, list<name> const & ids,
+                  old_type_checker & tc, substitution const & subst, list<name> const & ids,
                   bool throw_tactic_ex, bool clear_elim):
         m_env(env), m_ios(ios), m_tc(tc), m_ids(ids),
         m_subst(subst), m_throw_tactic_exception(throw_tactic_ex),
@@ -1031,7 +1031,7 @@ public:
         m_proof_irrel = m_env.prop_proof_irrel();
     }
 
-    inversion_tac(environment const & env, io_state const & ios, type_checker & tc, bool clear_elim):
+    inversion_tac(environment const & env, io_state const & ios, old_type_checker & tc, bool clear_elim):
         inversion_tac(env, ios, tc, substitution(), list<name>(), false, clear_elim) {}
 
     typedef inversion::result result;
@@ -1086,7 +1086,7 @@ public:
 };
 
 namespace inversion {
-optional<result> apply(environment const & env, io_state const & ios, type_checker & tc,
+optional<result> apply(environment const & env, io_state const & ios, old_type_checker & tc,
                        goal const & g, expr const & h, implementation_list const & imps, bool clear_elim) {
     return inversion_tac(env, ios, tc, clear_elim).execute(g, h, imps);
 }
@@ -1099,7 +1099,7 @@ tactic inversion_tactic(name const & n, list<name> const & ids) {
             return none_proof_state();
         goal  g           = head(gs);
         goals tail_gs     = tail(gs);
-        std::unique_ptr<type_checker> tc = mk_type_checker(env);
+        std::unique_ptr<old_type_checker> tc = mk_type_checker(env);
         bool  clear_elim = true;
         inversion_tac tac(env, ios, *tc, ps.get_subst(), ids, ps.report_failure(), clear_elim);
         if (auto res = tac.execute(g, n, implementation_list())) {
@@ -1129,7 +1129,7 @@ tactic inversion_tactic(elaborate_fn const & elab, expr const & H, list<name> co
 
 void initialize_inversion_tactic() {
     register_tac(get_tactic_cases_name(),
-                 [](type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(app_fn(e)), "invalid 'cases' tactic, argument must be an expression");
                      expr H = get_tactic_expr_expr(app_arg(app_fn(e)));
                      buffer<name> ids;

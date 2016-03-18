@@ -131,7 +131,7 @@ name_predicate mk_irreducible_pred(environment const & env) {
     };
 }
 
-type_checker_ptr mk_type_checker(environment const & env, reducible_behavior rb) {
+old_type_checker_ptr mk_type_checker(environment const & env, reducible_behavior rb) {
     switch (rb) {
     case UnfoldReducible:
         return mk_type_checker(env, mk_not_reducible_pred(env));
@@ -141,7 +141,7 @@ type_checker_ptr mk_type_checker(environment const & env, reducible_behavior rb)
     lean_unreachable();
 }
 
-type_checker_ptr mk_opaque_type_checker(environment const & env) {
+old_type_checker_ptr mk_opaque_type_checker(environment const & env) {
     return mk_type_checker(env, [](name const &) { return true; });
 }
 }

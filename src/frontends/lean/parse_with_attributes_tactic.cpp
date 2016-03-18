@@ -96,7 +96,7 @@ void initialize_with_attributes_tactic() {
     name with_attributes_tac_name{"tactic", "with_attributes_tac"};
     g_with_attributes_tac = new expr(Const(with_attributes_tac_name));
     register_tac(with_attributes_tac_name,
-                 [=](type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
+                 [=](old_type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
                      buffer<expr> args;
                      get_app_args(e, args);
                      if (args.size() != 3)

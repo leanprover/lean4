@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/for_each_fn.h"
-#include "kernel/default_converter.h"
 #include "kernel/inductive/inductive.h"
 #include "library/normalize.h"
 #include "library/kernel_serializer.h"
@@ -475,13 +474,13 @@ class rewrite_match_plugin : public match_plugin {
 #ifdef TRACE_MATCH_PLUGIN
     io_state       m_ios;
 #endif
-    type_checker & m_tc;
+    old_type_checker & m_tc;
 public:
 #ifdef TRACE_MATCH_PLUGIN
-    rewrite_match_plugin(io_state const & ios, type_checker & tc):
+    rewrite_match_plugin(io_state const & ios, old_type_checker & tc):
         m_ios(ios), m_tc(tc) {}
 #else
-    rewrite_match_plugin(io_state const &, type_checker & tc):
+    rewrite_match_plugin(io_state const &, old_type_checker & tc):
         m_tc(tc) {}
 #endif
 
@@ -564,14 +563,13 @@ public:
 };
 
 class rewrite_fn {
-    typedef std::shared_ptr<type_checker> type_checker_ptr;
     environment          m_env;
     io_state             m_ios;
     elaborate_fn         m_elab;
     proof_state          m_ps;
-    type_checker_ptr     m_tc;
-    type_checker_ptr     m_matcher_tc;
-    type_checker_ptr     m_relaxed_tc; // reduce_to and check_trivial
+    old_type_checker_ptr     m_tc;
+    old_type_checker_ptr     m_matcher_tc;
+    old_type_checker_ptr     m_relaxed_tc; // reduce_to and check_trivial
     rewrite_match_plugin m_mplugin;
     goal                 m_g;
     old_local_context    m_ctx;
@@ -647,15 +645,15 @@ class rewrite_fn {
             auto new_e = unfold_rec(m_env, force_unfold, e, to_unfold, *occs);
             if (!new_e)
                 return none_expr();
-            type_checker_ptr tc(new type_checker(m_env,
-                                                 std::unique_ptr<converter>(new rewriter_converter(m_env, list<name>(), unfolded))));
+            old_type_checker_ptr tc(new old_type_checker(m_env,
+                                                         std::unique_ptr<old_converter>(new rewriter_converter(m_env, list<name>(), unfolded))));
             expr r = normalize(*tc, *new_e, cs, use_eta);
             if (cs) // FAIL if generated constraints
                 return none_expr();
             return some_expr(r);
         } else {
-            type_checker_ptr tc(new type_checker(m_env,
-                                                 std::unique_ptr<converter>(new rewriter_converter(m_env, to_unfold, unfolded))));
+            old_type_checker_ptr tc(new old_type_checker(m_env,
+                                                         std::unique_ptr<old_converter>(new rewriter_converter(m_env, to_unfold, unfolded))));
 
             expr r = normalize(*tc, e, cs, use_eta);
             if (!unfolded || cs) // FAIL if didn't unfolded or generated constraints
@@ -1578,7 +1576,7 @@ class rewrite_fn {
         }
     }
 
-    type_checker_ptr mk_matcher_tc(bool full) {
+    old_type_checker_ptr mk_matcher_tc(bool full) {
         if (get_rewriter_syntactic(m_ios.get_options())) {
             // use an everything opaque converter
             return mk_opaque_type_checker(m_env);
@@ -1593,7 +1591,7 @@ class rewrite_fn {
         }
     }
 
-    type_checker_ptr mk_tc(bool full) {
+    old_type_checker_ptr mk_tc(bool full) {
         auto aux_pred = full ? mk_irreducible_pred(m_env) : mk_not_reducible_pred(m_env);
         return mk_type_checker(m_env, [=](name const & n) {
                 return aux_pred(n) && !is_numeral_const_name(n);
@@ -1772,15 +1770,15 @@ void initialize_rewrite_tactic() {
                                     return mk_macro(def, num, args);
                                 });
     register_tac(rewrite_tac_name,
-                 [](type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
                      return mk_rewrite_tactic(elab, e, false, false);
                  });
     register_tac(name{"tactic", "xrewrite_tac"},
-                 [](type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
                      return mk_rewrite_tactic(elab, e, true, false);
                  });
     register_tac(name{"tactic", "krewrite_tac"},
-                 [](type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
                      return mk_rewrite_tactic(elab, e, true, true);
                  });
 }

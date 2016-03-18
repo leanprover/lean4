@@ -26,7 +26,7 @@ tactic norm_num_tactic() {
                 throw_tactic_exception_if_enabled(s, "norm_num tactic failed, conclusion is not an equality");
                 return none_proof_state();
             }
-            type_checker_ptr rtc = mk_type_checker(env, UnfoldReducible);
+            old_type_checker_ptr rtc = mk_type_checker(env, UnfoldReducible);
             lhs = normalize(*rtc, lhs);
             rhs = normalize(*rtc, rhs);
             buffer<expr> hyps;
@@ -42,7 +42,7 @@ tactic norm_num_tactic() {
                 expr new_rhs_pr = p2.second;
                 mpq v_lhs = mpq_of_expr(ctx, new_lhs), v_rhs = mpq_of_expr(ctx, new_rhs);
                 if (v_lhs == v_rhs) {
-                    type_checker tc(env);
+                    old_type_checker tc(env);
                     expr g_prf = mk_trans(tc, new_lhs_pr, mk_symm(tc, new_rhs_pr));
                     substitution new_subst = s.get_subst();
                     assign(new_subst, g, g_prf);
@@ -60,7 +60,7 @@ tactic norm_num_tactic() {
 
 void initialize_norm_num_tactic() {
     register_tac(name{"tactic", "norm_num"},
-                 [](type_checker &, elaborate_fn const &, expr const &, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const &, expr const &, pos_info_provider const *) {
                      return norm_num_tactic();
                  });
 }

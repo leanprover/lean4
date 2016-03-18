@@ -82,7 +82,6 @@ static auto get_structure_info(environment const & env, name const & S)
 }
 
 struct structure_cmd_fn {
-    typedef std::unique_ptr<type_checker> type_checker_ptr;
     typedef std::vector<pair<name, name>> rename_vector;
     // field_map[i] contains the position of the \c i-th field of a parent structure into this one.
     typedef std::vector<unsigned>         field_map;
@@ -90,7 +89,7 @@ struct structure_cmd_fn {
 
     parser &                    m_p;
     environment                 m_env;
-    type_checker_ptr            m_tc;
+    old_type_checker_ptr        m_tc;
     name                        m_namespace;
     name                        m_name;
     pos_info                    m_name_pos;

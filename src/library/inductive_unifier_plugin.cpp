@@ -12,15 +12,33 @@ Author: Leonardo de Moura
 #include "library/util.h"
 
 namespace lean {
+static optional<expr> is_elim_meta_app(old_type_checker & ctx, expr const & e) {
+    expr const & elim_fn   = get_app_fn(e);
+    if (!is_constant(elim_fn))
+        return none_expr();
+    unsigned major_idx = 0;
+    if (auto idx = inductive::get_elim_major_idx(ctx.env(), const_name(elim_fn)))
+        major_idx = *idx;
+    else
+        return none_expr();
+    buffer<expr> elim_args;
+    get_app_args(e, elim_args);
+    if (elim_args.size() < major_idx + 1)
+        return none_expr();
+    expr intro_app = ctx.whnf(elim_args[major_idx]).first;
+    return ctx.is_stuck(intro_app);
+}
+
 class inductive_unifier_plugin_cell : public unifier_plugin_cell {
     /** \brief Return true iff the lhs or rhs of the constraint c is of the form (elim ... (?m ...) ...) */
-    bool is_elim_meta_cnstr(type_checker & tc, constraint const & c) const {
-        return is_eq_cnstr(c) && (inductive::is_elim_meta_app(tc, cnstr_lhs_expr(c)) ||
-                                  inductive::is_elim_meta_app(tc, cnstr_rhs_expr(c)));
+    bool is_elim_meta_cnstr(old_type_checker & tc, constraint const & c) const {
+        return false;
+        return is_eq_cnstr(c) && (is_elim_meta_app(tc, cnstr_lhs_expr(c)) ||
+                                  is_elim_meta_app(tc, cnstr_rhs_expr(c)));
     }
 
     /** \brief Return true iff \c e is of the form (?m ... (intro ...) ...) */
-    bool is_meta_intro_app(type_checker & tc, expr const & e) const {
+    bool is_meta_intro_app(old_type_checker & tc, expr const & e) const {
         if (!is_app(e) || !is_meta(e))
             return false;
         buffer<expr> args;
@@ -36,7 +54,7 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
     }
 
     /** \brief Return true iff the lhs or rhs of the constraint c is of the form (?m ... (intro ...)) */
-    bool is_meta_intro_cnstr(type_checker & tc, constraint const & c) const {
+    bool is_meta_intro_cnstr(old_type_checker & tc, constraint const & c) const {
         return is_eq_cnstr(c) && (is_meta_intro_app(tc, cnstr_lhs_expr(c)) || is_meta_intro_app(tc, cnstr_rhs_expr(c)));
     }
 
@@ -45,7 +63,7 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
        and the major premise is of the form (?m ...), we create a case split where we try to assign (?m ...)
        to the different constructors of decl.
     */
-    lazy_list<constraints> add_elim_meta_cnstrs(type_checker & tc, inductive::inductive_decl const & decl,
+    lazy_list<constraints> add_elim_meta_cnstrs(old_type_checker & tc, inductive::inductive_decl const & decl,
                                                 expr const & elim, buffer<expr> & args, expr const & t, justification const & j,
                                                 constraint_seq cs) const {
         lean_assert(is_constant(elim));
@@ -90,8 +108,8 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
         return to_lazy(to_list(alts.begin(), alts.end()));
     }
 
-    lazy_list<constraints> process_elim_meta_core(type_checker & tc, expr const & lhs, expr const & rhs, justification const & j) const {
-        lean_assert(inductive::is_elim_meta_app(tc, lhs));
+    lazy_list<constraints> process_elim_meta_core(old_type_checker & tc, expr const & lhs, expr const & rhs, justification const & j) const {
+        lean_assert(is_elim_meta_app(tc, lhs));
         auto dcs = tc.is_def_eq_types(lhs, rhs, j);
         if (!dcs.first)
             return lazy_list<constraints>();
@@ -115,21 +133,21 @@ public:
        \brief Try to solve constraint of the form (elim ... (?m ...)) =?= t, by assigning (?m ...) to the introduction rules
        associated with the eliminator \c elim.
     */
-    virtual lazy_list<constraints> solve(type_checker & tc, constraint const & c) const {
+    virtual lazy_list<constraints> solve(old_type_checker & tc, constraint const & c) const {
         if (!is_eq_cnstr(c))
             return lazy_list<constraints>();
         expr const & lhs        = cnstr_lhs_expr(c);
         expr const & rhs        = cnstr_rhs_expr(c);
         justification const & j = c.get_justification();
-        if (inductive::is_elim_meta_app(tc, lhs))
+        if (is_elim_meta_app(tc, lhs))
             return process_elim_meta_core(tc, lhs, rhs, j);
-        else if (inductive::is_elim_meta_app(tc, rhs))
+        else if (is_elim_meta_app(tc, rhs))
             return process_elim_meta_core(tc, rhs, lhs, j);
         else
             return lazy_list<constraints>();
     }
 
-    virtual bool delay_constraint(type_checker & tc, constraint const & c) const {
+    virtual bool delay_constraint(old_type_checker & tc, constraint const & c) const {
         return is_elim_meta_cnstr(tc, c) || is_meta_intro_cnstr(tc, c);
     }
 };

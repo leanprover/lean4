@@ -107,14 +107,14 @@ static bool save_error(pos_info_provider const * pip, expr const & e) {
     return g_elaborator_reported_errors->save(pip, e);
 }
 
-type_checker_ptr mk_coercion_from_type_checker(environment const & env) {
+old_type_checker_ptr mk_coercion_from_type_checker(environment const & env) {
     auto irred_pred = mk_irreducible_pred(env);
     return mk_type_checker(env, [=](name const & n) {
             return has_coercions_from(env, n) || irred_pred(n);
         });
 }
 
-type_checker_ptr mk_coercion_to_type_checker(environment const & env) {
+old_type_checker_ptr mk_coercion_to_type_checker(environment const & env) {
     auto irred_pred = mk_irreducible_pred(env);
     return mk_type_checker(env, [=](name const & n) {
             return has_coercions_to(env, n) || irred_pred(n);
@@ -305,7 +305,7 @@ void elaborator::erase_coercion_info(expr const & e) {
 void elaborator::instantiate_info(substitution s) {
     if (m_to_show_hole) {
         expr meta      = s.instantiate(*m_to_show_hole);
-        expr meta_type = s.instantiate(type_checker(env()).infer(meta).first);
+        expr meta_type = s.instantiate(old_type_checker(env()).infer(meta).first);
         goal g(meta, meta_type);
         proof_state ps(goals(g), s, constraints());
         auto out = regular(env(), ios(), m_tc->get_type_context());
@@ -441,7 +441,7 @@ static bool is_implicit_pi(expr const & e) {
 
 /** \brief Auxiliary function for adding implicit arguments to coercions to function-class */
 expr elaborator::add_implict_args(expr e, constraint_seq & cs) {
-    type_checker & tc = *m_tc;
+    old_type_checker & tc = *m_tc;
     constraint_seq new_cs;
     expr type = tc.whnf(tc.infer(e, new_cs), new_cs);
     if (!is_implicit_pi(type))
@@ -1015,7 +1015,7 @@ enum lhs_meta_kind { None, Accessible, Inaccessible };
 
    \remark If the lhs contains accessible and inaccessible metavariables, an accessible is returned.
 */
-static pair<lhs_meta_kind, expr> find_lhs_meta(type_checker & tc, expr const & e) {
+static pair<lhs_meta_kind, expr> find_lhs_meta(old_type_checker & tc, expr const & e) {
     if (!has_metavar(e))
         return mk_pair(None, expr());
     environment const & env = tc.env();
@@ -1116,7 +1116,7 @@ static pair<lhs_meta_kind, expr> find_lhs_meta(type_checker & tc, expr const & e
     (λ (ideq : ∀ {A : Type} {a b : A}, @eq A a b → @eq A a b) (x_1 : Type) (x_2 x_3 : x_1) (H : @eq x_1 x_2 x_3),
        [equation (@ideq x_1 x_2 x_3 H) H])]
 */
-static expr assign_equation_lhs_metas(type_checker & tc, expr const & eqns) {
+static expr assign_equation_lhs_metas(old_type_checker & tc, expr const & eqns) {
     lean_assert(is_equations(eqns));
     if (!has_metavar(eqns))
         return eqns;
@@ -1210,7 +1210,7 @@ constraint elaborator::mk_equations_cnstr(expr const & m, expr const & eqns) {
         if (display_unassigned_mvars(new_eqns, new_s)) {
             return lazy_list<constraints>();
         }
-        type_checker_ptr tc = mk_type_checker(_env);
+        old_type_checker_ptr tc = mk_type_checker(_env);
         new_eqns            = assign_equation_lhs_metas(*tc, new_eqns);
         expr val            = compile_equations(*tc, _ios, new_eqns, meta, meta_type);
         justification j     = mk_justification("equation compilation", some_expr(eqns));
@@ -1361,7 +1361,7 @@ expr elaborator::visit_decreasing(expr const & e, constraint_seq & cs) {
     expr dec_proof      = visit(decreasing_proof(e), cs);
     expr f_type         = mlocal_type(get_app_fn(*m_equation_lhs));
     buffer<expr> ts;
-    type_checker & tc = *m_tc;
+    old_type_checker & tc = *m_tc;
     to_telescope(tc, f_type, ts, optional<binder_info>(), cs);
     buffer<expr> old_args;
     buffer<expr> new_args;
@@ -2226,7 +2226,7 @@ bool elaborator::display_unassigned_mvars(expr const & e, substitution const & s
         visit_unassigned_mvars(e, [&](expr const & mvar) {
                 if (auto it = mvar_to_meta(mvar)) {
                     expr meta      = tmp_s.instantiate(*it);
-                    expr meta_type = tmp_s.instantiate(type_checker(env()).infer(meta).first);
+                    expr meta_type = tmp_s.instantiate(old_type_checker(env()).infer(meta).first);
                     goal g(meta, meta_type);
                     proof_state ps(goals(g), s, constraints());
                     display_unsolved_proof_state(mvar, ps, "don't know how to synthesize placeholder");

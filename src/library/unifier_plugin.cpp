@@ -14,7 +14,7 @@ protected:
     unifier_plugin m_p2;
 public:
     binary_unifier_plugin_cell(unifier_plugin const & p1, unifier_plugin const & p2):m_p1(p1), m_p2(p2) {}
-    virtual bool delay_constraint(type_checker & tc, constraint const & c) const {
+    virtual bool delay_constraint(old_type_checker & tc, constraint const & c) const {
         return m_p1->delay_constraint(tc, c) || m_p2->delay_constraint(tc, c);
     }
 };
@@ -22,7 +22,7 @@ public:
 class append_unifier_plugin_cell : public binary_unifier_plugin_cell {
 public:
     append_unifier_plugin_cell(unifier_plugin const & p1, unifier_plugin const & p2):binary_unifier_plugin_cell(p1, p2) {}
-    virtual lazy_list<constraints> solve(type_checker & tc, constraint const & c) const {
+    virtual lazy_list<constraints> solve(old_type_checker & tc, constraint const & c) const {
         return append(m_p1->solve(tc, c), m_p2->solve(tc, c));
     }
 };
@@ -30,7 +30,7 @@ public:
 class orelse_unifier_plugin_cell : public binary_unifier_plugin_cell {
 public:
     orelse_unifier_plugin_cell(unifier_plugin const & p1, unifier_plugin const & p2):binary_unifier_plugin_cell(p1, p2) {}
-    virtual lazy_list<constraints> solve(type_checker & tc, constraint const & c) const {
+    virtual lazy_list<constraints> solve(old_type_checker & tc, constraint const & c) const {
         return orelse(m_p1->solve(tc, c), m_p2->solve(tc, c));
     }
 };
@@ -46,10 +46,10 @@ unifier_plugin orelse(unifier_plugin const & p1, unifier_plugin const & p2) {
 static unifier_plugin noop_unifier_plugin() {
     class noop_unifier_plugin_cell : public unifier_plugin_cell {
     public:
-        virtual lazy_list<constraints> solve(type_checker &, constraint const &) const {
+        virtual lazy_list<constraints> solve(old_type_checker &, constraint const &) const {
             return lazy_list<constraints>();
         }
-        virtual bool delay_constraint(type_checker &, constraint const &) const { return false; }
+        virtual bool delay_constraint(old_type_checker &, constraint const &) const { return false; }
     };
     return std::make_shared<noop_unifier_plugin_cell>();
 }

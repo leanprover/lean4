@@ -241,13 +241,13 @@ tactic mk_subst_vars_tactic(bool first, unsigned start) {
 
 void initialize_subst_tactic() {
     register_tac(name{"tactic", "subst"},
-                 [](type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
                      buffer<name> ns;
                      get_tactic_id_list_elements(app_arg(e), ns, "invalid 'subst' tactic, list of identifiers expected");
                      return then(mk_subst_tactic(to_list(ns)), try_tactic(refl_tactic(elab)));
                  });
     register_tac(name{"tactic", "substvars"},
-                 [](type_checker &, elaborate_fn const & elab, expr const &, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & elab, expr const &, pos_info_provider const *) {
                      return then(mk_subst_vars_tactic(true, 0), try_tactic(refl_tactic(elab)));
                  });
 }

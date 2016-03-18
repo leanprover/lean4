@@ -10,10 +10,10 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
-#include "kernel/type_checker.h"
 #include "library/locals.h"
 #include "library/match.h"
 #include "library/idx_metavar.h"
+#include "library/old_type_checker.h"
 
 namespace lean {
 class match_fn : public match_context {

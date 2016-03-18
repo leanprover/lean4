@@ -25,7 +25,7 @@ static bool is_typeformer_app(buffer<name> const & typeformer_names, expr const 
 
 void get_rec_args(environment const & env, name const & n, buffer<buffer<bool>> & r) {
     lean_assert(inductive::is_inductive_decl(env, n));
-    type_checker tc(env);
+    old_type_checker tc(env);
     declaration ind_decl   = env.get(n);
     declaration rec_decl   = env.get(inductive::get_elim_name(n));
     unsigned nparams       = *inductive::get_num_params(env, n);

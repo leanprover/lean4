@@ -50,7 +50,7 @@ static name const & get_rename_arg(expr const & e) {
 }
 
 void initialize_rename_tactic() {
-    auto fn = [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+    auto fn = [](old_type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
         return rename_tactic(get_rename_arg(app_arg(app_fn(e))),
                              get_rename_arg(app_arg(e)));
     };

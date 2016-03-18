@@ -147,7 +147,7 @@ struct inductive_cmd_fn {
 
     parser &            m_p;
     environment         m_env;
-    type_checker_ptr    m_tc;
+    old_type_checker_ptr    m_tc;
     name                m_namespace; // current namespace
     pos_info            m_pos; // current position for reporting errors
     bool                m_first; // true if parsing the first inductive type in a mutually recursive inductive decl.

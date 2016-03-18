@@ -8,10 +8,10 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/sstream.h"
 #include "kernel/for_each_fn.h"
-#include "kernel/type_checker.h"
 #include "library/module.h"
 #include "library/util.h"
 #include "library/fingerprint.h"
+#include "library/old_type_checker.h"
 
 namespace lean {
 struct noncomputable_ext : public environment_extension {
@@ -49,7 +49,7 @@ static void noncomputable_reader(deserializer & d, shared_environment & senv,
         });
 }
 
-static bool is_noncomputable(type_checker & tc, noncomputable_ext const & ext, name const & n) {
+static bool is_noncomputable(old_type_checker & tc, noncomputable_ext const & ext, name const & n) {
     if (ext.m_noncomputable.contains(n))
         return true;
     declaration const & d = tc.env().get(n);
@@ -57,7 +57,7 @@ static bool is_noncomputable(type_checker & tc, noncomputable_ext const & ext, n
 }
 
 bool is_noncomputable(environment const & env, name const & n) {
-    type_checker tc(env);
+    old_type_checker tc(env);
     auto ext = get_extension(env);
     return is_noncomputable(tc, ext, n);
 }
@@ -80,7 +80,7 @@ optional<name> get_noncomputable_reason(environment const & env, name const & n)
     declaration const & d = env.get(n);
     if (!d.is_definition())
         return optional<name>();
-    type_checker tc(env);
+    old_type_checker tc(env);
     if (tc.is_prop(d.get_type()).first)
         return optional<name>(); // definition is a proposition, then do nothing
     expr const & v = d.get_value();

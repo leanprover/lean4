@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
-#include "kernel/default_converter.h"
+#include "library/old_default_converter.h"
 
 namespace lean {
 /** \brief Auxiliary information attached to projections. This information
@@ -58,7 +58,7 @@ name_map<projection_info> const & get_projection_info_map(environment const & en
 */
 bool is_structure_like(environment const & env, name const & S);
 
-class projection_converter : public default_converter {
+class projection_converter : public old_default_converter {
     name_map<projection_info> m_proj_info;
     projection_info const * is_projection(expr const & e) const;
     optional<pair<expr, constraint_seq>> reduce_projection(expr const & t);
@@ -68,7 +68,7 @@ class projection_converter : public default_converter {
 public:
     projection_converter(environment const & env);
     virtual bool is_opaque(declaration const & d) const;
-    virtual optional<expr> is_stuck(expr const & e, type_checker & c);
+    virtual optional<expr> is_stuck(expr const & e, old_type_checker & c);
 };
 
 void initialize_projection();

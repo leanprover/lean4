@@ -48,7 +48,7 @@ tactic revert_tactic(name const & n) {
 }
 
 void initialize_revert_tactic() {
-    auto fn = [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+    auto fn = [](old_type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
         buffer<name> ns;
         get_tactic_id_list_elements(app_arg(e), ns, "invalid 'reverts' tactic, list of identifiers expected");
         tactic r = revert_tactic(ns[0]);

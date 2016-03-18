@@ -5,19 +5,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/sstream.h"
-#include "kernel/type_checker.h"
 #include "library/tc_multigraph.h"
+#include "library/old_type_checker.h"
 #include "library/composition_manager.h"
 #include "library/util.h"
 
 namespace lean {
 struct add_edge_fn {
     environment      m_env;
-    type_checker_ptr m_tc;
+    old_type_checker_ptr m_tc;
     tc_multigraph &  m_graph;
 
     add_edge_fn(environment const & env, tc_multigraph & g):
-        m_env(env), m_tc(new type_checker(env)), m_graph(g) {}
+        m_env(env), m_tc(new old_type_checker(env)), m_graph(g) {}
 
     // Return true iff the types of constants c1 and c2 are equal.
     bool is_def_eq(name const & c1, name const & c2) {
@@ -82,7 +82,7 @@ struct add_edge_fn {
                 }
             }
         }
-        m_tc.reset(new type_checker(m_env)); // update to reflect new constants in the environment
+        m_tc.reset(new old_type_checker(m_env)); // update to reflect new constants in the environment
         buffer<tc_edge> new_back_edges;
         new_back_edges.append(new_edges);
         if (auto succs = m_graph.m_successors.find(tgt)) {

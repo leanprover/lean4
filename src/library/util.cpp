@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/error_msgs.h"
 #include "kernel/abstract.h"
-#include "kernel/type_checker.h"
 #include "kernel/default_converter.h"
 #include "kernel/metavar.h"
 #include "kernel/inductive/inductive.h"
@@ -19,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/unfold_macros.h"
 #include "library/pp_options.h"
 #include "library/projection.h"
+#include "library/old_type_checker.h"
 
 namespace lean {
 bool is_app_of(expr const & t, name const & f_name) {
@@ -35,7 +35,7 @@ bool is_standard(environment const & env) {
     return env.prop_proof_irrel() && env.impredicative();
 }
 
-bool is_norm_pi(type_checker & tc, expr & e, constraint_seq & cs) {
+bool is_norm_pi(old_type_checker & tc, expr & e, constraint_seq & cs) {
     constraint_seq new_cs = cs;
     expr new_e = tc.whnf(e, new_cs);
     if (is_pi(new_e)) {
@@ -161,7 +161,7 @@ bool is_recursive_datatype(environment const & env, name const & n) {
     return false;
 }
 
-bool is_reflexive_datatype(type_checker & tc, name const & n) {
+bool is_reflexive_datatype(old_type_checker & tc, name const & n) {
     environment const & env = tc.env();
     optional<inductive::inductive_decls> decls = inductive::is_inductive_decl(env, n);
     if (!decls)
@@ -258,7 +258,7 @@ expr fun_to_telescope(expr const & e, buffer<expr> & telescope,
     return to_telescope(false, e, telescope, binfo);
 }
 
-expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo,
+expr to_telescope(old_type_checker & tc, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo,
                   constraint_seq & cs) {
     expr new_type = tc.whnf(type, cs);
     while (is_pi(new_type)) {
@@ -275,7 +275,7 @@ expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, option
     return type;
 }
 
-expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
+expr to_telescope(old_type_checker & tc, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
     constraint_seq cs;
     return to_telescope(tc, type, telescope, binfo, cs);
 }
@@ -304,7 +304,7 @@ bool is_false(environment const & env, expr const & e) {
     return is_standard(env) ? is_false(e) : is_empty(e);
 }
 
-expr mk_false_rec(type_checker & tc, expr const & f, expr const & t) {
+expr mk_false_rec(old_type_checker & tc, expr const & f, expr const & t) {
     level t_lvl = sort_level(tc.ensure_type(t).first);
     if (is_standard(tc.env())) {
         return mk_app(mk_constant(get_false_rec_name(), {t_lvl}), t, f);
@@ -364,7 +364,7 @@ bool is_not(environment const & env, expr const & e) {
     }
 }
 
-expr mk_not(type_checker & tc, expr const & e) {
+expr mk_not(old_type_checker & tc, expr const & e) {
     if (is_standard(tc.env())) {
         return mk_app(mk_constant(get_not_name()), e);
     } else {
@@ -373,7 +373,7 @@ expr mk_not(type_checker & tc, expr const & e) {
     }
 }
 
-expr mk_absurd(type_checker & tc, expr const & t, expr const & e, expr const & not_e) {
+expr mk_absurd(old_type_checker & tc, expr const & t, expr const & e, expr const & not_e) {
     level t_lvl  = sort_level(tc.ensure_type(t).first);
     expr  e_type = tc.infer(e).first;
     if (is_standard(tc.env())) {
@@ -384,7 +384,7 @@ expr mk_absurd(type_checker & tc, expr const & t, expr const & e, expr const & n
     }
 }
 
-optional<expr> lift_down_if_hott(type_checker & tc, expr const & v) {
+optional<expr> lift_down_if_hott(old_type_checker & tc, expr const & v) {
     if (is_standard(tc.env())) {
         return some_expr(v);
     } else {
@@ -464,16 +464,16 @@ expr mk_and(expr const & a, expr const & b) {
     return mk_app(*g_and, a, b);
 }
 
-expr mk_and_intro(type_checker & tc, expr const & Ha, expr const & Hb) {
+expr mk_and_intro(old_type_checker & tc, expr const & Ha, expr const & Hb) {
     return mk_app(*g_and_intro, tc.infer(Ha).first, tc.infer(Hb).first, Ha, Hb);
 }
 
-expr mk_and_elim_left(type_checker & tc, expr const & H) {
+expr mk_and_elim_left(old_type_checker & tc, expr const & H) {
     expr a_and_b = tc.whnf(tc.infer(H).first).first;
     return mk_app(*g_and_elim_left, app_arg(app_fn(a_and_b)), app_arg(a_and_b), H);
 }
 
-expr mk_and_elim_right(type_checker & tc, expr const & H) {
+expr mk_and_elim_right(old_type_checker & tc, expr const & H) {
     expr a_and_b = tc.whnf(tc.infer(H).first).first;
     return mk_app(*g_and_elim_right, app_arg(app_fn(a_and_b)), app_arg(a_and_b), H);
 }
@@ -486,13 +486,13 @@ expr mk_unit_mk(level const & l) {
     return mk_constant(get_poly_unit_star_name(), {l});
 }
 
-expr mk_prod(type_checker & tc, expr const & A, expr const & B) {
+expr mk_prod(old_type_checker & tc, expr const & A, expr const & B) {
     level l1 = sort_level(tc.ensure_type(A).first);
     level l2 = sort_level(tc.ensure_type(B).first);
     return mk_app(mk_constant(get_prod_name(), {l1, l2}), A, B);
 }
 
-expr mk_pair(type_checker & tc, expr const & a, expr const & b) {
+expr mk_pair(old_type_checker & tc, expr const & a, expr const & b) {
     expr A = tc.infer(a).first;
     expr B = tc.infer(b).first;
     level l1 = sort_level(tc.ensure_type(A).first);
@@ -500,14 +500,14 @@ expr mk_pair(type_checker & tc, expr const & a, expr const & b) {
     return mk_app(mk_constant(get_prod_mk_name(), {l1, l2}), A, B, a, b);
 }
 
-expr mk_pr1(type_checker & tc, expr const & p) {
+expr mk_pr1(old_type_checker & tc, expr const & p) {
     expr AxB = tc.whnf(tc.infer(p).first).first;
     expr const & A = app_arg(app_fn(AxB));
     expr const & B = app_arg(AxB);
     return mk_app(mk_constant(get_prod_pr1_name(), const_levels(get_app_fn(AxB))), A, B, p);
 }
 
-expr mk_pr2(type_checker & tc, expr const & p) {
+expr mk_pr2(old_type_checker & tc, expr const & p) {
     expr AxB = tc.whnf(tc.infer(p).first).first;
     expr const & A = app_arg(app_fn(AxB));
     expr const & B = app_arg(AxB);
@@ -516,12 +516,12 @@ expr mk_pr2(type_checker & tc, expr const & p) {
 
 expr mk_unit(level const & l, bool prop) { return prop ? mk_true() : mk_unit(l); }
 expr mk_unit_mk(level const & l, bool prop) { return prop ? mk_true_intro() : mk_unit_mk(l); }
-expr mk_prod(type_checker & tc, expr const & a, expr const & b, bool prop) { return prop ? mk_and(a, b) : mk_prod(tc, a, b); }
-expr mk_pair(type_checker & tc, expr const & a, expr const & b, bool prop) {
+expr mk_prod(old_type_checker & tc, expr const & a, expr const & b, bool prop) { return prop ? mk_and(a, b) : mk_prod(tc, a, b); }
+expr mk_pair(old_type_checker & tc, expr const & a, expr const & b, bool prop) {
     return prop ? mk_and_intro(tc, a, b) : mk_pair(tc, a, b);
 }
-expr mk_pr1(type_checker & tc, expr const & p, bool prop) { return prop ? mk_and_elim_left(tc, p) : mk_pr1(tc, p); }
-expr mk_pr2(type_checker & tc, expr const & p, bool prop) { return prop ? mk_and_elim_right(tc, p) : mk_pr2(tc, p); }
+expr mk_pr1(old_type_checker & tc, expr const & p, bool prop) { return prop ? mk_and_elim_left(tc, p) : mk_pr1(tc, p); }
+expr mk_pr2(old_type_checker & tc, expr const & p, bool prop) { return prop ? mk_and_elim_right(tc, p) : mk_pr2(tc, p); }
 
 bool is_ite(expr const & e, expr & c, expr & H, expr & A, expr & t, expr & f) {
     expr const & fn = get_app_fn(e);
@@ -573,19 +573,19 @@ expr apply_propext(expr const & iff_pr, expr const & iff_term) {
     return mk_app(mk_constant(get_propext_name()), app_arg(app_fn(iff_term)), app_arg(iff_term), iff_pr);
 }
 
-expr mk_eq(type_checker & tc, expr const & lhs, expr const & rhs) {
+expr mk_eq(old_type_checker & tc, expr const & lhs, expr const & rhs) {
     expr A    = tc.whnf(tc.infer(lhs).first).first;
     level lvl = sort_level(tc.ensure_type(A).first);
     return mk_app(mk_constant(get_eq_name(), {lvl}), A, lhs, rhs);
 }
 
-expr mk_refl(type_checker & tc, expr const & a) {
+expr mk_refl(old_type_checker & tc, expr const & a) {
     expr A    = tc.whnf(tc.infer(a).first).first;
     level lvl = sort_level(tc.ensure_type(A).first);
     return mk_app(mk_constant(get_eq_refl_name(), {lvl}), A, a);
 }
 
-expr mk_symm(type_checker & tc, expr const & H) {
+expr mk_symm(old_type_checker & tc, expr const & H) {
     expr p    = tc.whnf(tc.infer(H).first).first;
     lean_assert(is_eq(p));
     expr lhs  = app_arg(app_fn(p));
@@ -595,7 +595,7 @@ expr mk_symm(type_checker & tc, expr const & H) {
     return mk_app(mk_constant(get_eq_symm_name(), {lvl}), A, lhs, rhs, H);
 }
 
-expr mk_trans(type_checker & tc, expr const & H1, expr const & H2) {
+expr mk_trans(old_type_checker & tc, expr const & H1, expr const & H2) {
     expr p1    = tc.whnf(tc.infer(H1).first).first;
     expr p2    = tc.whnf(tc.infer(H2).first).first;
     lean_assert(is_eq(p1) && is_eq(p2));
@@ -607,7 +607,7 @@ expr mk_trans(type_checker & tc, expr const & H1, expr const & H2) {
     return mk_app({mk_constant(get_eq_trans_name(), {lvl}), A, lhs1, rhs1, rhs2, H1, H2});
 }
 
-expr mk_subst(type_checker & tc, expr const & motive, expr const & x, expr const & y, expr const & xeqy, expr const & h) {
+expr mk_subst(old_type_checker & tc, expr const & motive, expr const & x, expr const & y, expr const & xeqy, expr const & h) {
     expr A    = tc.infer(x).first;
     level l1  = sort_level(tc.ensure_type(A).first);
     expr r;
@@ -620,12 +620,12 @@ expr mk_subst(type_checker & tc, expr const & motive, expr const & x, expr const
     return mk_app({r, A, x, y, motive, xeqy, h});
 }
 
-expr mk_subst(type_checker & tc, expr const & motive, expr const & xeqy, expr const & h) {
+expr mk_subst(old_type_checker & tc, expr const & motive, expr const & xeqy, expr const & h) {
     expr xeqy_type = tc.whnf(tc.infer(xeqy).first).first;
     return mk_subst(tc, motive, app_arg(app_fn(xeqy_type)), app_arg(xeqy_type), xeqy, h);
 }
 
-expr mk_subsingleton_elim(type_checker & tc, expr const & h, expr const & x, expr const & y) {
+expr mk_subsingleton_elim(old_type_checker & tc, expr const & h, expr const & x, expr const & y) {
     expr A  = tc.infer(x).first;
     level l = sort_level(tc.ensure_type(A).first);
     expr r;
@@ -637,7 +637,7 @@ expr mk_subsingleton_elim(type_checker & tc, expr const & h, expr const & x, exp
     return mk_app({r, A, h, x, y});
 }
 
-expr mk_heq(type_checker & tc, expr const & lhs, expr const & rhs) {
+expr mk_heq(old_type_checker & tc, expr const & lhs, expr const & rhs) {
     expr A    = tc.whnf(tc.infer(lhs).first).first;
     expr B    = tc.whnf(tc.infer(rhs).first).first;
     level lvl = sort_level(tc.ensure_type(A).first);
@@ -693,7 +693,7 @@ bool is_eq_a_a(expr const & e) {
     return args.size() == 3 && args[1] == args[2];
 }
 
-bool is_eq_a_a(type_checker & tc, expr const & e) {
+bool is_eq_a_a(old_type_checker & tc, expr const & e) {
     if (!is_eq(e))
         return false;
     buffer<expr> args;
@@ -722,7 +722,7 @@ bool is_heq(expr const & e, expr & A, expr & lhs, expr & B, expr & rhs) {
     }
 }
 
-void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> const & s, buffer<expr> & eqs) {
+void mk_telescopic_eq(old_type_checker & tc, buffer<expr> const & t, buffer<expr> const & s, buffer<expr> & eqs) {
     lean_assert(t.size() == s.size());
     lean_assert(std::all_of(s.begin(), s.end(), is_local));
     lean_assert(inductive::has_dep_elim(tc.env(), get_eq_name()));
@@ -763,7 +763,7 @@ void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> co
     }
 }
 
-void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> & eqs) {
+void mk_telescopic_eq(old_type_checker & tc, buffer<expr> const & t, buffer<expr> & eqs) {
     lean_assert(std::all_of(t.begin(), t.end(), is_local));
     lean_assert(inductive::has_dep_elim(tc.env(), get_eq_name()));
     buffer<expr> s;
@@ -786,7 +786,7 @@ level mk_max(levels const & ls) {
         return mk_max(head(ls), mk_max(tail(ls)));
 }
 
-expr telescope_to_sigma(type_checker & tc, unsigned sz, expr const * ts, constraint_seq & cs) {
+expr telescope_to_sigma(old_type_checker & tc, unsigned sz, expr const * ts, constraint_seq & cs) {
     lean_assert(sz > 0);
     unsigned i = sz - 1;
     expr r = mlocal_type(ts[i]);
@@ -802,7 +802,7 @@ expr telescope_to_sigma(type_checker & tc, unsigned sz, expr const * ts, constra
     return r;
 }
 
-expr mk_sigma_mk(type_checker & tc, unsigned sz, expr const * ts, expr const * as, constraint_seq & cs) {
+expr mk_sigma_mk(old_type_checker & tc, unsigned sz, expr const * ts, expr const * as, constraint_seq & cs) {
     lean_assert(sz > 0);
     if (sz == 1)
         return as[0];
@@ -819,7 +819,7 @@ expr mk_sigma_mk(type_checker & tc, unsigned sz, expr const * ts, expr const * a
     return mk_app(mk_constant(get_sigma_mk_name(), {l1, l2}), arg1, arg2, arg3, arg4);
 }
 
-expr mk_sigma_mk(type_checker & tc, buffer<expr> const & ts, buffer<expr> const & as, constraint_seq & cs) {
+expr mk_sigma_mk(old_type_checker & tc, buffer<expr> const & ts, buffer<expr> const & as, constraint_seq & cs) {
     lean_assert(ts.size() == as.size());
     return mk_sigma_mk(tc, ts.size(), ts.data(), as.data(), cs);
 }
@@ -905,14 +905,14 @@ constraint instantiate_metavars(constraint const & c, substitution & s) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-void check_term(type_checker & tc, expr const & e) {
+void check_term(old_type_checker & tc, expr const & e) {
     expr tmp = unfold_untrusted_macros(tc.env(), e);
     tc.check_ignore_undefined_universes(tmp);
 }
 
 void check_term(environment const & env, expr const & e) {
     expr tmp = unfold_untrusted_macros(env, e);
-    type_checker(env).check_ignore_undefined_universes(tmp);
+    old_type_checker(env).check_ignore_undefined_universes(tmp);
 }
 
 format pp_type_mismatch(formatter const & fmt, expr const & v, expr const & v_type, expr const & t) {
@@ -1006,21 +1006,21 @@ justification mk_failed_to_synthesize_jst(environment const & env, expr const & 
     return mk_justification(m, [=](formatter const & fmt, substitution const & subst, bool) {
             substitution tmp(subst);
             expr new_m    = instantiate_meta(m, tmp);
-            expr new_type = type_checker(env).infer(new_m).first;
+            expr new_type = old_type_checker(env).infer(new_m).first;
             buffer<expr> hyps;
             get_app_args(new_m, hyps);
             return format("failed to synthesize placeholder") + line() + format_goal(fmt, hyps, new_type, subst);
         });
 }
 
-type_checker_ptr mk_type_checker(environment const & env, name_predicate const & pred) {
-    return std::unique_ptr<type_checker>(new type_checker(env,
-                                                          std::unique_ptr<converter>(new hint_converter<projection_converter>(env, pred))));
+old_type_checker_ptr mk_type_checker(environment const & env, name_predicate const & pred) {
+    return std::unique_ptr<old_type_checker>(new old_type_checker(env,
+                                                          std::unique_ptr<old_converter>(new hint_old_converter<projection_converter>(env, pred))));
 }
 
-type_checker_ptr mk_simple_type_checker(environment const & env, name_predicate const & pred) {
-    return std::unique_ptr<type_checker>(new type_checker(env,
-                                                          std::unique_ptr<converter>(new hint_converter<default_converter>(env, pred))));
+old_type_checker_ptr mk_simple_type_checker(environment const & env, name_predicate const & pred) {
+    return std::unique_ptr<old_type_checker>(new old_type_checker(env,
+                                                          std::unique_ptr<old_converter>(new hint_old_converter<old_default_converter>(env, pred))));
 }
 
 bool is_internal_name(name const & n) {

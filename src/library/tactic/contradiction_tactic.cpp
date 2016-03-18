@@ -84,7 +84,7 @@ tactic contradiction_tactic() {
 
 void initialize_contradiction_tactic() {
     register_tac(name{"tactic", "contradiction"},
-                 [](type_checker &, elaborate_fn const &, expr const &, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const &, expr const &, pos_info_provider const *) {
                      list<name> empty;
                      return then(orelse(intros_tactic(empty), id_tactic()), contradiction_tactic());
                  });

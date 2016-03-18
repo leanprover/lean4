@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 namespace lean {
 /** \brief Create type checker that treats classes as opaque constants */
-type_checker_ptr mk_class_type_checker(environment const & env, bool conservative);
+old_type_checker_ptr mk_class_type_checker(environment const & env, bool conservative);
 /** \brief Add a new 'class' to the environment (if it is not already declared) */
 environment add_class(environment const & env, name const & n, name const & ns, bool persistent);
 /** \brief Add a new 'class instance' to the environment. */
@@ -34,7 +34,7 @@ void get_classes(environment const & env, buffer<name> & classes);
 name get_class_name(environment const & env, expr const & e);
 
 /** \brief Return true iff \c type is a class or Pi that produces a class. */
-optional<name> is_ext_class(type_checker & tc, expr const & type);
+optional<name> is_ext_class(old_type_checker & tc, expr const & type);
 
 /** \brief Return a list of instances of the class \c cls_name that occur in \c ctx */
 list<expr> get_local_instances(type_checker & tc, list<expr> const & ctx, name const & cls_name);

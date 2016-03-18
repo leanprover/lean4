@@ -38,7 +38,7 @@ tactic mk_blast_tactic(list<name> const & ls, list<name> const & ds) {
 
 void initialize_blast_tactic() {
     register_tac(name{"tactic", "blast"},
-                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      buffer<expr> args;
                      get_app_args(e, args);
                      if (args.size() != 2)

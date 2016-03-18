@@ -14,13 +14,13 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/error_msgs.h"
-#include "kernel/type_checker.h"
 #include "library/reducible.h"
 #include "library/unifier.h"
 #include "library/occurs.h"
 #include "library/constants.h"
 #include "library/type_util.h"
 #include "library/class_instance_resolution.h"
+#include "library/old_type_checker.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/apply_tactic.h"
 
@@ -76,7 +76,7 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
         return proof_state_seq();
     }
     bool class_inst   = get_apply_class_instance(ios.get_options());
-    std::shared_ptr<type_checker> tc(mk_type_checker(env));
+    std::shared_ptr<old_type_checker> tc(mk_type_checker(env));
     goal  g           = head(gs);
     goals tail_gs     = tail(gs);
     expr  t           = g.get_type();
@@ -235,19 +235,19 @@ void initialize_apply_tactic() {
                          "resolution for instance implicit arguments");
 
     register_tac(get_tactic_apply_name(),
-                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'apply' tactic, invalid argument");
                      return apply_tactic(fn, get_tactic_expr_expr(app_arg(e)));
                  });
 
     register_tac(get_tactic_eapply_name(),
-                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'eapply' tactic, invalid argument");
                      return eapply_tactic(fn, get_tactic_expr_expr(app_arg(e)));
                  });
 
     register_tac(get_tactic_fapply_name(),
-                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'fapply' tactic, invalid argument");
                      return fapply_tactic(fn, get_tactic_expr_expr(app_arg(e)));
                  });

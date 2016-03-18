@@ -112,7 +112,7 @@ void initialize_replace_tactic() {
     name replace_tac_name{"tactic", "replace"};
     g_replace_tac          = new expr(Const(replace_tac_name));
     register_tac(replace_tac_name,
-                 [](type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
                      return mk_replace_tactic(elab, e);
                  });
 }

@@ -150,7 +150,7 @@ environment eval_cmd(parser & p) {
         auto tc = mk_type_checker(p.env());
         r = tc->whnf(e).first;
     } else {
-        type_checker tc(p.env());
+        old_type_checker tc(p.env());
         bool eta = false;
         bool eval_nested_prop = false;
         r = normalize(tc, ls, e, eta, eval_nested_prop);

@@ -62,7 +62,7 @@ tactic suppress_trace(tactic const & t) {
 
 void initialize_trace_tactic() {
     register_tac(get_tactic_state_name(),
-                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const * p) {
+                 [](old_type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const * p) {
                      if (p)
                          if (auto it = p->get_pos_info(e))
                              return trace_state_tactic(std::string(p->get_file_name()), *it);
@@ -70,7 +70,7 @@ void initialize_trace_tactic() {
                  });
 
     register_tac(get_tactic_trace_name(),
-                 [](type_checker & tc, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker & tc, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      buffer<expr> args;
                      get_app_args(e, args);
                      if (args.size() != 1)

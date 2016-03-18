@@ -94,7 +94,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
                              num_args, major_pos, params_pos, indices_pos, produce_motive);
     }
     declaration d = env.get(r);
-    type_checker tc(env);
+    old_type_checker tc(env);
     buffer<expr> tele;
     expr rtype    = to_telescope(tc, d.get_type(), tele);
     buffer<expr> C_args;

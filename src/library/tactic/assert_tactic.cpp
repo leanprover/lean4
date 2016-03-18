@@ -50,7 +50,7 @@ tactic assert_tactic(elaborate_fn const & elab, name const & id, expr const & e)
 
 void initialize_assert_tactic() {
     register_tac(get_tactic_assert_hypothesis_name(),
-                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      name id = tactic_expr_to_id(app_arg(app_fn(e)), "invalid 'assert' tactic, argument must be an identifier");
                      check_tactic_expr(app_arg(e), "invalid 'assert' tactic, argument must be an expression");
                      return assert_tactic(fn, id, get_tactic_expr_expr(app_arg(e)));

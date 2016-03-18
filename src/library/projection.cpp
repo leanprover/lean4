@@ -130,7 +130,7 @@ optional<pair<expr, constraint_seq>> projection_converter::norm_ext(expr const &
     if (auto r = reduce_projection(e)) {
         return r;
     } else {
-        return default_converter::norm_ext(e);
+        return old_default_converter::norm_ext(e);
     }
 }
 
@@ -146,7 +146,7 @@ bool projection_converter::postpone_is_def_eq(expr const & t, expr const & s) {
         if (it2 && is_stuck(s, *m_tc))
             return true;
     }
-    return default_converter::postpone_is_def_eq(t, s);
+    return old_default_converter::postpone_is_def_eq(t, s);
 }
 
 // Apply lazy delta-reduction and then normalizer extensions
@@ -197,10 +197,10 @@ lbool projection_converter::reduce_def_eq(expr & t_n, expr & s_n, constraint_seq
     }
 }
 
-optional<expr> projection_converter::is_stuck(expr const & e, type_checker & c) {
+optional<expr> projection_converter::is_stuck(expr const & e, old_type_checker & c) {
     projection_info const * info = is_projection(e);
     if (!info)
-        return default_converter::is_stuck(e, c);
+        return old_default_converter::is_stuck(e, c);
     buffer<expr> args;
     get_app_args(e, args);
     if (args.size() <= info->m_nparams)
@@ -210,7 +210,7 @@ optional<expr> projection_converter::is_stuck(expr const & e, type_checker & c) 
 }
 
 projection_converter::projection_converter(environment const & env):
-    default_converter(env, true) {
+    old_default_converter(env, true) {
     m_proj_info = ::lean::get_extension(env).m_info;
 }
 

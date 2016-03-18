@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/pos_info_provider.h"
+#include "library/old_type_checker.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/elaborate.h"
 
@@ -27,12 +28,12 @@ bool has_tactic_decls(environment const & env);
 */
 tactic expr_to_tactic(environment const & env, elaborate_fn const & fn, expr const & e, pos_info_provider const * p);
 // auxiliary procedure used to compile nested tactic in tacticals
-tactic expr_to_tactic(type_checker & tc, elaborate_fn const & fn, expr e, pos_info_provider const * p);
+tactic expr_to_tactic(old_type_checker & tc, elaborate_fn const & fn, expr e, pos_info_provider const * p);
 
 name const & get_tactic_name();
 
-unsigned get_unsigned_arg(type_checker & tc, expr const & e, unsigned i);
-optional<unsigned> get_optional_unsigned(type_checker & tc, expr const & e);
+unsigned get_unsigned_arg(old_type_checker & tc, expr const & e, unsigned i);
+optional<unsigned> get_optional_unsigned(old_type_checker & tc, expr const & e);
 
 expr const & get_tactic_expr_type();
 expr const & get_tactic_identifier_type();
@@ -83,7 +84,7 @@ public:
     expr const & get_expr() const { return m_expr; }
 };
 
-typedef std::function<tactic(type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *)>
+typedef std::function<tactic(old_type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *)>
 expr_to_tactic_fn;
 
 /** \brief Register a new "procedural attachment" for expr_to_tactic. */

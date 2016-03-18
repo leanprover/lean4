@@ -74,13 +74,13 @@ tactic intros_tactic(list<name> const & ns) {
 
 void initialize_intros_tactic() {
     register_tac(get_tactic_intro_name(),
-                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      buffer<name> ns;
                      get_tactic_id_list_elements(app_arg(e), ns, "invalid 'intro' tactic, arguments must be identifiers");
                      return intro_tactic(to_list(ns.begin(), ns.end()));
                  });
     register_tac(get_tactic_intros_name(),
-                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      buffer<name> ns;
                      get_tactic_id_list_elements(app_arg(e), ns, "invalid 'intros' tactic, arguments must be identifiers");
                      return intros_tactic(to_list(ns.begin(), ns.end()));

@@ -43,11 +43,11 @@ bool is_pi_meta(expr const & e);
 
     \see coercion_info_manager
 */
-constraint mk_coercion_cnstr(type_checker & from_tc, type_checker & to_tc, coercion_info_manager & infom,
+constraint mk_coercion_cnstr(old_type_checker & from_tc, old_type_checker & to_tc, coercion_info_manager & infom,
                              expr const & m, expr const & a, expr const & a_type,
                              justification const & j, unsigned delay_factor, bool lift_coe);
 
-list<expr> get_coercions_from_to(type_checker & from_tc, type_checker & to_tc,
+list<expr> get_coercions_from_to(old_type_checker & from_tc, old_type_checker & to_tc,
                                  expr const & from_type, expr const & to_type, constraint_seq & cs,
                                  bool lift_coe);
 }

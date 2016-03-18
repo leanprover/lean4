@@ -83,7 +83,7 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     cases_on       = mk_app(cases_on, nindices, args.data() + nparams);
     expr cases_on1 = mk_app(cases_on, v1);
     expr cases_on2 = mk_app(cases_on, v2);
-    type_checker tc(env);
+    old_type_checker tc(env);
     expr t1        = tc.infer(cases_on1).first;
     expr t2        = tc.infer(cases_on2).first;
     buffer<expr> outer_cases_on_args;
@@ -149,7 +149,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     if (!env1)
         return env;
     environment new_env = *env1;
-    type_checker tc(new_env);
+    old_type_checker tc(new_env);
     bool impredicative                 = env.impredicative();
     inductive::inductive_decls decls   = *inductive::is_inductive_decl(new_env, n);
     unsigned nparams                   = std::get<1>(decls);

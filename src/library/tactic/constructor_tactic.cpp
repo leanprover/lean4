@@ -108,29 +108,29 @@ tactic constructor_tactic(elaborate_fn const & elab, optional<unsigned> _i, opti
 
 void initialize_constructor_tactic() {
     register_tac(name{"tactic", "constructor"},
-                 [](type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      auto i = get_optional_unsigned(tc, app_arg(e));
                      return constructor_tactic(fn, i, optional<unsigned>(), list<expr>());
                  });
     register_tac(name{"tactic", "fconstructor"},
-                 [](type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      auto i = get_optional_unsigned(tc, app_arg(e));
                      return constructor_tactic(fn, i, optional<unsigned>(), list<expr>(), true);
                  });
     register_tac(name{"tactic", "split"},
-                 [](type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *) {
                      return constructor_tactic(fn, optional<unsigned>(1), optional<unsigned>(1), list<expr>());
                  });
     register_tac(name{"tactic", "left"},
-                 [](type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *) {
                      return constructor_tactic(fn, optional<unsigned>(1), optional<unsigned>(2), list<expr>());
                  });
     register_tac(name{"tactic", "right"},
-                 [](type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *) {
                      return constructor_tactic(fn, optional<unsigned>(2), optional<unsigned>(2), list<expr>());
                  });
     register_tac(name{"tactic", "existsi"},
-                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'existsi' tactic, invalid argument");
                      expr arg = get_tactic_expr_expr(app_arg(e));
                      return constructor_tactic(fn, optional<unsigned>(1), optional<unsigned>(1), list<expr>(arg));

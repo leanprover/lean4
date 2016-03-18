@@ -34,7 +34,7 @@ tactic exfalso_tactic() {
 }
 void initialize_exfalso_tactic() {
     register_tac(name{"tactic", "exfalso"},
-                 [](type_checker &, elaborate_fn const &, expr const &, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const &, expr const &, pos_info_provider const *) {
                      return exfalso_tactic();
                  });
 }

@@ -81,7 +81,7 @@ void initialize_with_options_tactic() {
     name with_options_tac_name{"tactic", "with_options_tac"};
     g_with_options_tac = new expr(Const(with_options_tac_name));
     register_tac(with_options_tac_name,
-                 [=](type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
+                 [=](old_type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
                      buffer<expr> args;
                      get_app_args(e, args);
                      if (args.size() != 2)

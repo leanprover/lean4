@@ -7,11 +7,11 @@ Author: Leonardo de Moura
 #include <utility>
 #include <string>
 #include "util/sstream.h"
-#include "kernel/type_checker.h"
 #include "kernel/declaration.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/inductive/inductive.h"
+#include "library/old_type_checker.h"
 #include "library/replace_visitor.h"
 #include "library/reducible.h"
 #include "library/projection.h"
@@ -40,7 +40,7 @@ static environment update(environment const & env, composition_manager_ext const
 
 struct elim_proj_mk : public replace_visitor {
     environment const & m_env;
-    type_checker_ptr    m_tc;
+    old_type_checker_ptr    m_tc;
 
     virtual expr visit_binding(expr const & e) override {
         // stop at binders
@@ -96,7 +96,7 @@ static bool is_constructor_of_projections_decl(environment const & env, declarat
     return false;
 }
 
-pair<environment, name> compose(environment const & env, type_checker & tc, name const & g, name const & f, optional<name> const & gf) {
+pair<environment, name> compose(environment const & env, old_type_checker & tc, name const & g, name const & f, optional<name> const & gf) {
     composition_manager_ext ext = get_extension(env);
     if (name const * it = ext.m_cache.find(mk_pair(g, f)))
         return mk_pair(env, *it);
@@ -170,7 +170,7 @@ pair<environment, name> compose(environment const & env, type_checker & tc, name
 }
 
 pair<environment, name> compose(environment const & env, name const & g, name const & f, optional<name> const & gf) {
-    type_checker tc(env);
+    old_type_checker tc(env);
     return compose(env, tc, g, f, gf);
 }
 

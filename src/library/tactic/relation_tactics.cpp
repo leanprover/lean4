@@ -82,15 +82,15 @@ tactic trans_tactic(elaborate_fn const & elab, expr const & e) {
 
 void initialize_relation_tactics() {
     register_tac(name{"tactic", "reflexivity"},
-                 [](type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *) {
                      return refl_tactic(fn);
                  });
     register_tac(name{"tactic", "symmetry"},
-                 [](type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *) {
                      return symm_tactic(fn);
                  });
     register_tac(name{"tactic", "transitivity"},
-                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'transitivity' tactic, invalid argument");
                      return trans_tactic(fn, get_tactic_expr_expr(app_arg(e)));
                  });

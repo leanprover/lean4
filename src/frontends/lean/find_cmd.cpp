@@ -52,7 +52,7 @@ bool get_find_expensive(options const & opts) {
 }
 
 
-bool match_pattern(type_checker & tc, expr const & pattern, declaration const & d, unsigned max_steps, bool cheap) {
+bool match_pattern(old_type_checker & tc, expr const & pattern, declaration const & d, unsigned max_steps, bool cheap) {
     buffer<level> ls;
     unsigned num_ls = d.get_num_univ_params();
     for (unsigned i = 0; i < num_ls; i++)

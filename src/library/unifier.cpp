@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
-#include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/error_msgs.h"
 #include "library/trace.h"
@@ -34,6 +33,7 @@ Author: Leonardo de Moura
 #include "library/expr_lt.h"
 #include "library/projection.h"
 #include "library/coercion.h"
+#include "library/old_type_checker.h"
 
 #ifndef LEAN_DEFAULT_UNIFIER_MAX_STEPS
 #define LEAN_DEFAULT_UNIFIER_MAX_STEPS 20000
@@ -338,7 +338,7 @@ struct unifier_fn {
     typedef name_map<cnstr_idx_set> name_to_cnstrs;
     typedef name_map<unsigned> owned_map;
     typedef rb_map<expr, pair<expr, justification>, expr_quick_cmp> expr_map;
-    typedef std::shared_ptr<type_checker> type_checker_ptr;
+    typedef std::shared_ptr<old_type_checker> type_checker_ptr;
     environment      m_env;
     substitution     m_subst;
     constraints      m_postponed; // constraints that will not be solved
@@ -1795,11 +1795,11 @@ struct unifier_fn {
         bool cheap() const { return u.m_config.m_kind == unifier_kind::Cheap; }
         bool pattern() const { return u.m_config.m_pattern; }
 
-        type_checker & tc() {
+        old_type_checker & tc() {
             return *u.m_tc;
         }
 
-        type_checker & restricted_tc() {
+        old_type_checker & restricted_tc() {
             return *u.m_flex_rigid_tc;
         }
 

@@ -21,7 +21,7 @@ Author: Leonardo de Moura
 namespace lean {
 enum class congr_arg_kind { Fixed, Singleton, Eq };
 
-optional<expr> mk_congr_subsingleton_thm(type_checker & tc, io_state const & ios, expr const & fn, optional<unsigned> const & expected_num_args,
+optional<expr> mk_congr_subsingleton_thm(old_type_checker & tc, io_state const & ios, expr const & fn, optional<unsigned> const & expected_num_args,
                                          buffer<congr_arg_kind> & arg_kinds, constraint_seq & cs) {
     expr fn_type = tc.infer(fn, cs);
     buffer<expr> hyps;

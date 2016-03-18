@@ -5,11 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/fresh_name.h"
-#include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"
+#include "library/old_type_checker.h"
 #include "library/replace_visitor.h"
 #include "library/constants.h"
 #include "library/user_recursors.h"
@@ -47,8 +47,8 @@ protected:
 class unfold_rec_fn : public replace_visitor_aux {
     environment const & m_env;
     bool                m_force_unfold;
-    type_checker_ptr    m_tc;
-    type_checker_ptr    m_norm_decl_tc;
+    old_type_checker_ptr    m_tc;
+    old_type_checker_ptr    m_norm_decl_tc;
     list<name>          m_to_unfold;
     occurrence          m_occs;
     unsigned            m_occ_idx;
@@ -191,7 +191,7 @@ class unfold_rec_fn : public replace_visitor_aux {
     struct fold_failed {};
 
     struct fold_rec_fn : public replace_visitor_aux {
-        type_checker_ptr &       m_tc;
+        old_type_checker_ptr &       m_tc;
         expr                     m_fn;    // function being unfolded
         buffer<expr> const &     m_args;  // arguments of the function being unfolded
         rec_kind                 m_kind;
@@ -202,7 +202,7 @@ class unfold_rec_fn : public replace_visitor_aux {
         buffer<unsigned> const & m_rec_arg_pos; // position of the other arguments that are not fixed in the recursion
         name                     m_prod_rec_name;
 
-        fold_rec_fn(type_checker_ptr & tc, expr const & fn, buffer<expr> const & args, rec_kind k, name const & rec_name,
+        fold_rec_fn(old_type_checker_ptr & tc, expr const & fn, buffer<expr> const & args, rec_kind k, name const & rec_name,
                     buffer<unsigned> const & indices_pos, unsigned main_pos, buffer<unsigned> const & rec_arg_pos):
             m_tc(tc), m_fn(fn), m_args(args), m_kind(k), m_rec_name(rec_name),
             m_major_idx(*inductive::get_elim_major_idx(m_tc->env(), rec_name)),

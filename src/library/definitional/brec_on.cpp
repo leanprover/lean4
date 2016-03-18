@@ -44,7 +44,7 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
     if (is_inductive_predicate(env, n))
         return env;
     inductive::inductive_decls decls = *inductive::is_inductive_decl(env, n);
-    type_checker tc(env);
+    old_type_checker tc(env);
     unsigned nparams       = std::get<1>(decls);
     declaration ind_decl   = env.get(n);
     declaration rec_decl   = env.get(inductive::get_elim_name(n));
@@ -167,7 +167,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     if (is_inductive_predicate(env, n))
         return env;
     inductive::inductive_decls decls = *inductive::is_inductive_decl(env, n);
-    type_checker tc(env);
+    old_type_checker tc(env);
     unsigned nparams       = std::get<1>(decls);
     declaration ind_decl   = env.get(n);
     declaration rec_decl   = env.get(inductive::get_elim_name(n));

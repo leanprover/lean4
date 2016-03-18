@@ -9,12 +9,12 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/optional.h"
 #include "kernel/instantiate.h"
-#include "kernel/type_checker.h"
 #include "kernel/default_converter.h"
 #include "library/annotation.h"
 #include "library/string.h"
 #include "library/explicit.h"
 #include "library/placeholder.h"
+#include "library/old_type_checker.h"
 #include "library/num.h"
 #include "library/constants.h"
 #include "library/projection.h"
@@ -51,7 +51,7 @@ void register_tac(name const & n, expr_to_tactic_fn const & fn) {
 
 bool has_tactic_decls(environment const & env) {
     try {
-        type_checker tc(env);
+        old_type_checker tc(env);
         return
             tc.infer(*g_builtin_tac).first     == *g_tac_type &&
             tc.infer(*g_and_then_tac_fn).first == *g_tac_type >> (*g_tac_type >> *g_tac_type) &&
@@ -197,7 +197,7 @@ static bool is_builtin_tactic(expr const & v) {
         return false;
 }
 
-tactic expr_to_tactic(type_checker & tc, elaborate_fn const & fn, expr e, pos_info_provider const * p) {
+tactic expr_to_tactic(old_type_checker & tc, elaborate_fn const & fn, expr e, pos_info_provider const * p) {
     e = copy_tag(e, tc.whnf(e).first);
     expr f = get_app_fn(e);
     if (!is_constant(f))
@@ -236,7 +236,7 @@ tactic expr_to_tactic(type_checker & tc, elaborate_fn const & fn, expr e, pos_in
     }
 }
 
-unsigned get_unsigned(type_checker & tc, expr const & e, expr const & ref) {
+unsigned get_unsigned(old_type_checker & tc, expr const & e, expr const & ref) {
     optional<mpz> k = to_num(e);
     if (!k)
         k = to_num(tc.whnf(e).first);
@@ -249,7 +249,7 @@ unsigned get_unsigned(type_checker & tc, expr const & e, expr const & ref) {
     return k->get_unsigned_int();
 }
 
-unsigned get_unsigned_arg(type_checker & tc, expr const & e, unsigned i) {
+unsigned get_unsigned_arg(old_type_checker & tc, expr const & e, unsigned i) {
     buffer<expr> args;
     get_app_args(e, args);
     if (i >= args.size())
@@ -257,7 +257,7 @@ unsigned get_unsigned_arg(type_checker & tc, expr const & e, unsigned i) {
     return get_unsigned(tc, args[i], e);
 }
 
-optional<unsigned> get_optional_unsigned(type_checker & tc, expr const & e) {
+optional<unsigned> get_optional_unsigned(old_type_checker & tc, expr const & e) {
     if (is_app(e) && is_constant(get_app_fn(e))) {
         if (const_name(get_app_fn(e)) == get_option_some_name()) {
             return optional<unsigned>(get_unsigned(tc, app_arg(e), e));
@@ -286,7 +286,7 @@ public:
 
 tactic expr_to_tactic(environment const & env, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
     bool memoize             = false;
-    type_checker tc(env, std::unique_ptr<converter>(new tac_builtin_opaque_converter(env)), memoize);
+    old_type_checker tc(env, std::unique_ptr<old_converter>(new tac_builtin_opaque_converter(env)), memoize);
     return expr_to_tactic(tc, fn, e, p);
 }
 
@@ -297,7 +297,7 @@ tactic fixpoint(expr const & b, elaborate_fn const & fn) {
 }
 
 void register_simple_tac(name const & n, std::function<tactic()> f) {
-    register_tac(n, [=](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+    register_tac(n, [=](old_type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
             if (!is_constant(e))
                 throw expr_to_tactic_exception(e, "invalid constant tactic");
             return f();
@@ -305,7 +305,7 @@ void register_simple_tac(name const & n, std::function<tactic()> f) {
 }
 
 void register_bin_tac(name const & n, std::function<tactic(tactic const &, tactic const &)> f) {
-    register_tac(n, [=](type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
+    register_tac(n, [=](old_type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
             buffer<expr> args;
             get_app_args(e, args);
             if (args.size() != 2)
@@ -317,7 +317,7 @@ void register_bin_tac(name const & n, std::function<tactic(tactic const &, tacti
 }
 
 void register_unary_tac(name const & n, std::function<tactic(tactic const &)> f) {
-    register_tac(n, [=](type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
+    register_tac(n, [=](old_type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
             buffer<expr> args;
             get_app_args(e, args);
             if (args.size() != 1)
@@ -327,7 +327,7 @@ void register_unary_tac(name const & n, std::function<tactic(tactic const &)> f)
 }
 
 void register_unary_num_tac(name const & n, std::function<tactic(tactic const &, unsigned k)> f) {
-    register_tac(n, [=](type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
+    register_tac(n, [=](old_type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
             buffer<expr> args;
             get_app_args(e, args);
             if (args.size() != 2)
@@ -338,7 +338,7 @@ void register_unary_num_tac(name const & n, std::function<tactic(tactic const &,
 }
 
 void register_num_tac(name const & n, std::function<tactic(unsigned k)> f) {
-    register_tac(n, [=](type_checker & tc, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+    register_tac(n, [=](old_type_checker & tc, elaborate_fn const &, expr const & e, pos_info_provider const *) {
             buffer<expr> args;
             get_app_args(e, args);
             if (args.size() != 1)
@@ -418,7 +418,7 @@ void initialize_expr_to_tactic() {
     register_num_tac(get_tactic_rotate_right_name(), [](unsigned k) { return rotate_right(k); });
 
     register_tac(get_tactic_fixpoint_name(),
-                 [](type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      if (!is_constant(app_fn(e)))
                          throw expr_to_tactic_exception(e, "invalid fixpoint tactic, it must have one argument");
                      expr r = tc.whnf(mk_app(app_arg(e), e)).first;

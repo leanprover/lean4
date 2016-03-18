@@ -22,7 +22,7 @@ namespace lean {
 class induction_tac {
     environment const &   m_env;
     io_state const &      m_ios;
-    type_checker &        m_tc;
+    old_type_checker &        m_tc;
     name                  m_h_name;
     optional<name>        m_rec_name;
     list<name>            m_ids;
@@ -282,7 +282,7 @@ class induction_tac {
 
 public:
     induction_tac(environment const & env, io_state const & ios,
-                  type_checker & tc, substitution const & subst, name const & h_name,
+                  old_type_checker & tc, substitution const & subst, name const & h_name,
                   optional<name> const & rec_name, list<name> const & ids,
                   bool throw_ex, expr const & ref):
         m_env(env), m_ios(ios), m_tc(tc), m_h_name(h_name), m_rec_name(rec_name), m_ids(ids),
@@ -300,11 +300,11 @@ public:
         if (m_rec_name) {
             recursor_info info      = get_recursor_info(m_env, *m_rec_name);
             name tname              = info.get_type_name();
-            type_checker_ptr aux_tc = mk_type_checker(m_env, [=](name const & n) { return n == tname; });
+            old_type_checker_ptr aux_tc = mk_type_checker(m_env, [=](name const & n) { return n == tname; });
             return aux_tc->whnf(H_type).first;
         } else {
             has_recursors_pred pred(m_env);
-            type_checker_ptr aux_tc = mk_type_checker(m_env, pred);
+            old_type_checker_ptr aux_tc = mk_type_checker(m_env, pred);
             return aux_tc->whnf(H_type).first;
         }
     }
@@ -367,7 +367,7 @@ tactic induction_tactic(name const & H, optional<name> rec, list<name> const & i
         }
         goal  g                          = head(gs);
         goals tail_gs                    = tail(gs);
-        std::unique_ptr<type_checker> tc = mk_type_checker(env);
+        std::unique_ptr<old_type_checker> tc = mk_type_checker(env);
         induction_tac tac(env, ios, *tc, ps.get_subst(), H, rec, ids, ps.report_failure(), ref);
         if (auto res = tac.execute(g)) {
             proof_state new_s(ps, append(*res, tail_gs), tac.get_subst());
@@ -399,7 +399,7 @@ tactic induction_tactic(elaborate_fn const & elab, expr const & H, optional<name
 
 void initialize_induction_tactic() {
     register_tac(name{"tactic", "induction"},
-                 [](type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
                      buffer<expr> args;
                      get_app_args(e, args);
                      if (args.size() != 3)

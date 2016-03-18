@@ -143,17 +143,17 @@ void initialize_exact_tactic() {
     g_rexact_tac_fn = new expr(Const(rexact_tac_name));
     g_refine_tac_fn = new expr(Const(refine_tac_name));
     register_tac(exact_tac_name,
-                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'exact' tactic, invalid argument");
                      return exact_tactic(fn, get_tactic_expr_expr(app_arg(e)), true, false, false);
                  });
     register_tac(rexact_tac_name,
-                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'rexact' tactic, invalid argument");
                      return exact_tactic(fn, get_tactic_expr_expr(app_arg(e)), false, false, false);
                  });
     register_tac(refine_tac_name,
-                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'refine' tactic, invalid argument");
                      return exact_tactic(fn, get_tactic_expr_expr(app_arg(e)), true, true, false);
                  });

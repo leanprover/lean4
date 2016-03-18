@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
-#include "kernel/type_checker.h"
 #include "library/util.h"
 
 namespace lean {
@@ -38,10 +37,10 @@ name_predicate mk_irreducible_pred(environment const & env);
 enum reducible_behavior { UnfoldReducible, UnfoldSemireducible };
 
 /** \brief Create a type checker that takes the "reducibility" hints into account. */
-type_checker_ptr mk_type_checker(environment const & env, reducible_behavior r = UnfoldSemireducible);
+old_type_checker_ptr mk_type_checker(environment const & env, reducible_behavior r = UnfoldSemireducible);
 
 /** \brief Create a type checker that treats all definitions as opaque. */
-type_checker_ptr mk_opaque_type_checker(environment const & env);
+old_type_checker_ptr mk_opaque_type_checker(environment const & env);
 
 void initialize_reducible();
 void finalize_reducible();

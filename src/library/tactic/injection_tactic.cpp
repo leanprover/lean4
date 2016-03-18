@@ -20,7 +20,7 @@ namespace lean {
 tactic injection_tactic_core(expr const & e, unsigned num, list<name> const & ids, bool report_errors);
 
 // Return true iff lhs and rhs are of the form (f ...) f is a constructor
-bool is_injection_target(type_checker & tc, expr lhs, expr rhs) {
+bool is_injection_target(old_type_checker & tc, expr lhs, expr rhs) {
     environment const & env = tc.env();
     lhs = tc.whnf(lhs).first;
     rhs = tc.whnf(rhs).first;
@@ -232,7 +232,7 @@ tactic injection_tactic(elaborate_fn const & elab, expr const & e, list<name> co
 
 void initialize_injection_tactic() {
     register_tac(name{"tactic", "injection"},
-                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(app_fn(e)), "invalid 'injection' tactic, invalid argument");
                      buffer<name> ids;
                      get_tactic_id_list_elements(app_arg(e), ids, "invalid 'injection' tactic, list of identifiers expected");

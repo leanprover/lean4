@@ -52,7 +52,7 @@ tactic note_tactic(elaborate_fn const & elab, name const & id, expr const & e) {
 
 void initialize_note_tactic() {
     register_tac(get_tactic_note_tac_name(),
-                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      name id = tactic_expr_to_id(app_arg(app_fn(e)), "invalid 'note' tactic, argument must be an identifier");
                      check_tactic_expr(app_arg(e), "invalid 'note' tactic, argument must be an expression");
                      return note_tactic(fn, id, get_tactic_expr_expr(app_arg(e)));

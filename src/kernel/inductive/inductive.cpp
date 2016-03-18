@@ -948,6 +948,7 @@ static optional<pair<expr, constraint_seq>> to_intro_when_K(inductive_env_ext::e
         });
     if (!ctx.is_def_eq(app_type, new_type, jst, cs))
         return none_ecs();
+    cs = constraint_seq();
     return some_ecs(*new_intro_app, cs);
 }
 
@@ -1009,6 +1010,7 @@ auto inductive_normalizer_extension::operator()(expr const & e, extension_contex
         unsigned num_args = elim_args.size() - major_idx - 1;
         r = mk_app(r, num_args, elim_args.data() + major_idx + 1);
     }
+    cs = constraint_seq();
     return some_ecs(r, cs);
 }
 

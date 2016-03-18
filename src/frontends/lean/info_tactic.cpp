@@ -49,7 +49,7 @@ expr mk_info_tactic_expr() {
 
 void initialize_info_tactic() {
     register_tac(INFO_TAC_NAME,
-                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      return mk_info_tactic(fn, e);
                  });
 }

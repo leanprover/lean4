@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/fresh_name.h"
-#include "kernel/type_checker.h"
 #include "kernel/metavar.h"
 #include "kernel/constraint.h"
 #include "kernel/instantiate.h"
@@ -13,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/coercion.h"
 #include "library/unifier.h"
 #include "library/choice_iterator.h"
+#include "library/old_type_checker.h"
 #include "frontends/lean/coercion_elaborator.h"
 
 namespace lean {
@@ -24,7 +24,7 @@ coercion_elaborator::coercion_elaborator(coercion_info_manager & info, expr cons
     lean_assert(use_id  || length(m_coercions)     == length(m_choices));
 }
 
-list<expr> get_coercions_from_to(type_checker & from_tc, type_checker & to_tc,
+list<expr> get_coercions_from_to(old_type_checker & from_tc, old_type_checker & to_tc,
                                  expr const & from_type, expr const & to_type, constraint_seq & cs, bool lift_coe) {
     constraint_seq new_cs;
     environment const & env = to_tc.env();
@@ -93,7 +93,7 @@ bool is_pi_meta(expr const & e) {
 
 /** \brief Given a term <tt>a : a_type</tt>, and a metavariable \c m, creates a constraint
     that considers coercions from a_type to the type assigned to \c m. */
-constraint mk_coercion_cnstr(type_checker & from_tc, type_checker & to_tc, coercion_info_manager & infom,
+constraint mk_coercion_cnstr(old_type_checker & from_tc, old_type_checker & to_tc, coercion_info_manager & infom,
                              expr const & m, expr const & a, expr const & a_type,
                              justification const & j, unsigned delay_factor, bool lift_coe) {
     auto choice_fn = [=, &from_tc, &to_tc, &infom](expr const & meta, expr const & d_type, substitution const & s) {

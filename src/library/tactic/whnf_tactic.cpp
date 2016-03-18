@@ -33,7 +33,7 @@ tactic whnf_tactic() {
 
 void initialize_whnf_tactic() {
     register_tac(get_tactic_whnf_name(),
-                 [](type_checker &, elaborate_fn const &, expr const &, pos_info_provider const *) {
+                 [](old_type_checker &, elaborate_fn const &, expr const &, pos_info_provider const *) {
                      return whnf_tactic();
                  });
 }

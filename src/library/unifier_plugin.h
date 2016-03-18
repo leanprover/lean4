@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/lazy_list.h"
 #include "kernel/environment.h"
 #include "kernel/constraint.h"
-#include "kernel/type_checker.h"
+#include "library/old_type_checker.h"
 
 namespace lean {
 /**
@@ -23,8 +23,8 @@ namespace lean {
 class unifier_plugin_cell {
 public:
     virtual ~unifier_plugin_cell() {}
-    virtual lazy_list<constraints> solve(type_checker &, constraint const &) const = 0;
-    virtual bool delay_constraint(type_checker &, constraint const &) const = 0;
+    virtual lazy_list<constraints> solve(old_type_checker &, constraint const &) const = 0;
+    virtual bool delay_constraint(old_type_checker &, constraint const &) const = 0;
 };
 
 typedef std::shared_ptr<unifier_plugin_cell> unifier_plugin;

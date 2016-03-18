@@ -12,8 +12,6 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/scoped_map.h"
 #include "util/fresh_name.h"
-#include "kernel/type_checker.h"
-#include "kernel/default_converter.h"
 #include "kernel/expr_maps.h"
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
@@ -22,8 +20,11 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
+#include "library/old_default_converter.h"
+#include "library/old_type_checker.h"
 
 namespace lean {
+#if 0
 expr replace_range(expr const & type, expr const & new_range) {
     if (is_pi(type))
         return update_binding(type, binding_domain(type), replace_range(binding_body(type), new_range));
@@ -71,7 +72,9 @@ expr mk_pi_for(expr const & meta) {
     return mk_pi(mk_fresh_name(), A, B);
 }
 
-optional<expr> type_checker::expand_macro(expr const & m) {
+#endif
+
+optional<expr> old_type_checker::expand_macro(expr const & m) {
     lean_assert(is_macro(m));
     return macro_def(m).expand(m, m_old_tc_ctx);
 }
@@ -80,12 +83,12 @@ optional<expr> type_checker::expand_macro(expr const & m) {
    \brief Return the body of the given binder, where the free variable #0 is replaced with a fresh local constant.
    It also returns the fresh local constant.
 */
-pair<expr, expr> type_checker::open_binding_body(expr const & e) {
+pair<expr, expr> old_type_checker::open_binding_body(expr const & e) {
     expr local     = mk_local(mk_fresh_name(), binding_name(e), binding_domain(e), binding_info(e));
     return mk_pair(instantiate(binding_body(e), local), local);
 }
 
-constraint type_checker::mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j) {
+constraint old_type_checker::mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j) {
     return ::lean::mk_eq_cnstr(lhs, rhs, j);
 }
 
@@ -98,7 +101,7 @@ constraint type_checker::mk_eq_cnstr(expr const & lhs, expr const & rhs, justifi
    \remark \c s is used to extract position (line number information) when an
    error message is produced
 */
-pair<expr, constraint_seq> type_checker::ensure_sort_core(expr e, expr const & s) {
+pair<expr, constraint_seq> old_type_checker::ensure_sort_core(expr e, expr const & s) {
     if (is_sort(e))
         return to_ecs(e);
     auto ecs = whnf(e);
@@ -117,7 +120,7 @@ pair<expr, constraint_seq> type_checker::ensure_sort_core(expr e, expr const & s
 }
 
 /** \brief Similar to \c ensure_sort, but makes sure \c e "is" a Pi. */
-pair<expr, constraint_seq> type_checker::ensure_pi_core(expr e, expr const & s) {
+pair<expr, constraint_seq> old_type_checker::ensure_pi_core(expr e, expr const & s) {
     if (is_pi(e))
         return to_ecs(e);
     auto ecs = whnf(e);
@@ -136,13 +139,13 @@ pair<expr, constraint_seq> type_checker::ensure_pi_core(expr e, expr const & s) 
 
 static constexpr char const * g_macro_error_msg = "failed to type check macro expansion";
 
-justification type_checker::mk_macro_jst(expr const & e) {
+justification old_type_checker::mk_macro_jst(expr const & e) {
     return mk_justification(e, [=](formatter const &, substitution const &, bool) {
             return format(g_macro_error_msg);
         });
 }
 
-void type_checker::check_level(level const & l, expr const & s) {
+void old_type_checker::check_level(level const & l, expr const & s) {
     if (auto n1 = get_undef_global(l, m_env))
         throw_kernel_exception(m_env, sstream() << "invalid reference to undefined global universe level '" << *n1 << "'", s);
     if (m_params) {
@@ -152,11 +155,10 @@ void type_checker::check_level(level const & l, expr const & s) {
     }
 }
 
-app_delayed_justification::app_delayed_justification(expr const & e, expr const & arg, expr const & f_type,
+old_app_delayed_justification::old_app_delayed_justification(expr const & e, expr const & arg, expr const & f_type,
                                                      expr const & a_type):
     m_e(e), m_arg(arg), m_fn_type(f_type), m_arg_type(a_type) {}
 
-#if 0
 justification mk_app_justification(expr const & e, expr const & fn_type, expr const & arg, expr const & a_type) {
     auto pp_fn = [=](formatter const & fmt, substitution const & subst, bool as_error) {
         substitution s(subst);
@@ -164,9 +166,8 @@ justification mk_app_justification(expr const & e, expr const & fn_type, expr co
     };
     return mk_justification(e, pp_fn);
 }
-#endif
 
-justification app_delayed_justification::get() {
+justification old_app_delayed_justification::get() {
     if (!m_jst) {
         // We should not have a reference to this object inside the closure.
         // So, we create the following locals that will be captured by the closure instead of 'this'.
@@ -175,7 +176,7 @@ justification app_delayed_justification::get() {
     return *m_jst;
 }
 
-expr type_checker::infer_constant(expr const & e, bool infer_only) {
+expr old_type_checker::infer_constant(expr const & e, bool infer_only) {
     declaration d    = m_env.get(const_name(e));
     auto const & ps = d.get_univ_params();
     auto const & ls = const_levels(e);
@@ -190,7 +191,7 @@ expr type_checker::infer_constant(expr const & e, bool infer_only) {
     return instantiate_type_univ_params(d, ls);
 }
 
-pair<expr, constraint_seq> type_checker::infer_macro(expr const & e, bool infer_only) {
+pair<expr, constraint_seq> old_type_checker::infer_macro(expr const & e, bool infer_only) {
     auto def = macro_def(e);
     pair<expr, constraint_seq> tcs = def.check_type(e, m_old_tc_ctx, infer_only);
     expr t            = tcs.first;
@@ -202,7 +203,7 @@ pair<expr, constraint_seq> type_checker::infer_macro(expr const & e, bool infer_
     return mk_pair(t, cs);
 }
 
-pair<expr, constraint_seq> type_checker::infer_lambda(expr const & _e, bool infer_only) {
+pair<expr, constraint_seq> old_type_checker::infer_lambda(expr const & _e, bool infer_only) {
     buffer<expr> es, ds, ls;
     expr e = _e;
     constraint_seq cs;
@@ -230,7 +231,7 @@ pair<expr, constraint_seq> type_checker::infer_lambda(expr const & _e, bool infe
     return mk_pair(r, cs);
 }
 
-pair<expr, constraint_seq> type_checker::infer_pi(expr const & _e, bool infer_only) {
+pair<expr, constraint_seq> old_type_checker::infer_pi(expr const & _e, bool infer_only) {
     buffer<expr>  ls;
     buffer<level> us;
     expr e = _e;
@@ -259,14 +260,14 @@ pair<expr, constraint_seq> type_checker::infer_pi(expr const & _e, bool infer_on
     return mk_pair(mk_sort(r), cs);
 }
 
-pair<expr, constraint_seq> type_checker::infer_app(expr const & e, bool infer_only) {
+pair<expr, constraint_seq> old_type_checker::infer_app(expr const & e, bool infer_only) {
     if (!infer_only) {
         pair<expr, constraint_seq> ftcs = infer_type_core(app_fn(e), infer_only);
         pair<expr, constraint_seq> pics = ensure_pi_core(ftcs.first, e);
         expr f_type = pics.first;
         pair<expr, constraint_seq> acs  = infer_type_core(app_arg(e), infer_only);
         expr a_type = acs.first;
-        app_delayed_justification jst(e, app_arg(e), f_type, a_type);
+        old_app_delayed_justification jst(e, app_arg(e), f_type, a_type);
         expr d_type = binding_domain(f_type);
         pair<bool, constraint_seq> dcs  = is_def_eq(a_type, d_type, jst);
         if (!dcs.first) {
@@ -302,7 +303,7 @@ pair<expr, constraint_seq> type_checker::infer_app(expr const & e, bool infer_on
     }
 }
 
-pair<expr, constraint_seq> type_checker::infer_let(expr const & e, bool infer_only) {
+pair<expr, constraint_seq> old_type_checker::infer_let(expr const & e, bool infer_only) {
     if (!infer_only) {
         pair<expr, constraint_seq> dtcs = infer_type_core(let_type(e), infer_only);
         pair<expr, constraint_seq> scs  = ensure_sort_core(dtcs.first, e);
@@ -321,7 +322,7 @@ pair<expr, constraint_seq> type_checker::infer_let(expr const & e, bool infer_on
     return infer_type_core(instantiate(let_body(e), let_value(e)), infer_only);
 }
 
-expr type_checker::infer_type_core(expr const & e, bool infer_only, constraint_seq & cs) {
+expr old_type_checker::infer_type_core(expr const & e, bool infer_only, constraint_seq & cs) {
     auto r = infer_type_core(e, infer_only);
     cs = cs + r.second;
     return r.first;
@@ -332,7 +333,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only, constraint_s
 
    \pre closed(e)
 */
-pair<expr, constraint_seq> type_checker::infer_type_core(expr const & e, bool infer_only) {
+pair<expr, constraint_seq> old_type_checker::infer_type_core(expr const & e, bool infer_only) {
     if (is_var(e))
         throw_kernel_exception(m_env, "type checker does not support free variables, replace them with local constants before invoking it", e);
 
@@ -368,43 +369,43 @@ pair<expr, constraint_seq> type_checker::infer_type_core(expr const & e, bool in
     return r;
 }
 
-pair<expr, constraint_seq> type_checker::infer_type(expr const & e) {
+pair<expr, constraint_seq> old_type_checker::infer_type(expr const & e) {
     return infer_type_core(e, true);
 }
 
-pair<expr, constraint_seq> type_checker::check(expr const & e, level_param_names const & ps) {
+pair<expr, constraint_seq> old_type_checker::check(expr const & e, level_param_names const & ps) {
     flet<level_param_names const *> updt(m_params, &ps);
     return infer_type_core(e, false);
 }
 
-pair<expr, constraint_seq> type_checker::check_ignore_undefined_universes(expr const & e) {
+pair<expr, constraint_seq> old_type_checker::check_ignore_undefined_universes(expr const & e) {
     flet<level_param_names const *> updt(m_params, nullptr);
     return infer_type_core(e, false);
 }
 
-pair<expr, constraint_seq> type_checker::ensure_sort(expr const & e, expr const & s) {
+pair<expr, constraint_seq> old_type_checker::ensure_sort(expr const & e, expr const & s) {
     return ensure_sort_core(e, s);
 }
 
-pair<expr, constraint_seq> type_checker::ensure_pi(expr const & e, expr const & s) {
+pair<expr, constraint_seq> old_type_checker::ensure_pi(expr const & e, expr const & s) {
     return ensure_pi_core(e, s);
 }
 
 /** \brief Return true iff \c t and \c s are definitionally equal */
-pair<bool, constraint_seq> type_checker::is_def_eq(expr const & t, expr const & s, delayed_justification & jst) {
+pair<bool, constraint_seq> old_type_checker::is_def_eq(expr const & t, expr const & s, delayed_justification & jst) {
     return m_conv->is_def_eq(t, s, *this, jst);
 }
 
-pair<bool, constraint_seq> type_checker::is_def_eq(expr const & t, expr const & s) {
+pair<bool, constraint_seq> old_type_checker::is_def_eq(expr const & t, expr const & s) {
     return m_conv->is_def_eq(t, s, *this);
 }
 
-pair<bool, constraint_seq> type_checker::is_def_eq(expr const & t, expr const & s, justification const & j) {
+pair<bool, constraint_seq> old_type_checker::is_def_eq(expr const & t, expr const & s, justification const & j) {
     as_delayed_justification djst(j);
     return is_def_eq(t, s, djst);
 }
 
-pair<bool, constraint_seq> type_checker::is_def_eq_types(expr const & t, expr const & s, justification const & j) {
+pair<bool, constraint_seq> old_type_checker::is_def_eq_types(expr const & t, expr const & s, justification const & j) {
     auto tcs1 = infer_type_core(t, true);
     auto tcs2 = infer_type_core(s, true);
     as_delayed_justification djst(j);
@@ -413,7 +414,7 @@ pair<bool, constraint_seq> type_checker::is_def_eq_types(expr const & t, expr co
 }
 
 /** \brief Return true iff \c e is a proposition */
-pair<bool, constraint_seq> type_checker::is_prop(expr const & e) {
+pair<bool, constraint_seq> old_type_checker::is_prop(expr const & e) {
     if (m_env.impredicative()) {
         auto tcs  = infer_type(e);
         auto wtcs = whnf(tcs.first);
@@ -427,15 +428,15 @@ pair<bool, constraint_seq> type_checker::is_prop(expr const & e) {
     }
 }
 
-pair<expr, constraint_seq> type_checker::whnf(expr const & t) {
+pair<expr, constraint_seq> old_type_checker::whnf(expr const & t) {
     return m_conv->whnf(t, *this);
 }
 
-bool type_checker::is_opaque(declaration const & d) const {
+bool old_type_checker::is_opaque(declaration const & d) const {
     return m_conv->is_opaque(d);
 }
 
-bool type_checker::is_opaque(expr const & c) const {
+bool old_type_checker::is_opaque(expr const & c) const {
     lean_assert(is_constant(c));
     if (auto d = m_env.find(const_name(c)))
         return d->is_definition() && is_opaque(*d);
@@ -443,80 +444,23 @@ bool type_checker::is_opaque(expr const & c) const {
         return true;
 }
 
-type_checker::type_checker(environment const & env, std::unique_ptr<converter> && conv, bool memoize):
+old_type_checker::old_type_checker(environment const & env, std::unique_ptr<old_converter> && conv, bool memoize):
     m_env(env), m_conv(std::move(conv)), m_old_tc_ctx(*this), m_tc_ctx(*this),
     m_memoize(memoize), m_params(nullptr) {
 }
 
-type_checker::type_checker(environment const & env, bool memoize):
-    type_checker(env, std::unique_ptr<converter>(new default_converter(env, memoize)), memoize) {}
+old_type_checker::old_type_checker(environment const & env, bool memoize):
+    old_type_checker(env, std::unique_ptr<old_converter>(new old_default_converter(env, memoize)), memoize) {}
 
-type_checker::~type_checker() {}
+old_type_checker::~old_type_checker() {}
 
-optional<expr> type_checker::is_stuck(expr const & e) {
+optional<expr> old_type_checker::is_stuck(expr const & e) {
     return m_conv->is_stuck(e, *this);
 }
 
-void check_no_metavar(environment const & env, name const & n, expr const & e, bool is_type) {
-    if (has_metavar(e))
-        throw_kernel_exception(env, e, [=](formatter const & fmt) { return pp_decl_has_metavars(fmt, n, e, is_type); });
+void initialize_old_type_checker() {
 }
 
-static void check_no_local(environment const & env, expr const & e) {
-    if (has_local(e))
-        throw_kernel_exception(env, "failed to add declaration to environment, it contains local constants", e);
-}
-
-void check_no_mlocal(environment const & env, name const & n, expr const & e, bool is_type) {
-    check_no_metavar(env, n, e, is_type);
-    check_no_local(env, e);
-}
-
-static void check_name(environment const & env, name const & n) {
-    if (env.find(n))
-        throw_already_declared(env, n);
-}
-
-static void check_duplicated_params(environment const & env, declaration const & d) {
-    level_param_names ls = d.get_univ_params();
-    while (!is_nil(ls)) {
-        auto const & p = head(ls);
-        ls = tail(ls);
-        if (std::find(ls.begin(), ls.end(), p) != ls.end()) {
-            throw_kernel_exception(env, sstream() << "failed to add declaration to environment, "
-                                   << "duplicate universe level parameter: '"
-                                   << p << "'", d.get_type());
-        }
-    }
-}
-
-certified_declaration check(environment const & env, declaration const & d, name_predicate const & pred) {
-    if (d.is_definition())
-        check_no_mlocal(env, d.get_name(), d.get_value(), false);
-    check_no_mlocal(env, d.get_name(), d.get_type(), true);
-    check_name(env, d.get_name());
-    check_duplicated_params(env, d);
-    type_checker checker(env, std::unique_ptr<converter>(new hint_converter<default_converter>(env, pred)));
-    expr sort = checker.check(d.get_type(), d.get_univ_params()).first;
-    checker.ensure_sort(sort, d.get_type());
-    if (d.is_definition()) {
-        expr val_type = checker.check(d.get_value(), d.get_univ_params()).first;
-        if (!checker.is_def_eq(val_type, d.get_type()).first) {
-            throw_kernel_exception(env, d.get_value(), [=](formatter const & fmt) {
-                    return pp_def_type_mismatch(fmt, d.get_name(), d.get_type(), val_type, true);
-                });
-        }
-    }
-    return certified_declaration(env.get_id(), d);
-}
-
-certified_declaration check(environment const & env, declaration const & d) {
-    return check(env, d, [](name const &) { return false; });
-}
-
-void initialize_type_checker() {
-}
-
-void finalize_type_checker() {
+void finalize_old_type_checker() {
 }
 }

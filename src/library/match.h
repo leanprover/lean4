@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "kernel/environment.h"
 #include "library/idx_metavar.h"
+#include "library/old_type_checker.h"
 
 namespace lean {
 /** \brief Context for match_plugins. */
@@ -65,9 +66,9 @@ public:
 
 /** \brief Simple plugin that just puts terms in whnf and tries again */
 class whnf_match_plugin : public match_plugin {
-    type_checker & m_tc;
+    old_type_checker & m_tc;
 public:
-    whnf_match_plugin(type_checker & tc):m_tc(tc) {}
+    whnf_match_plugin(old_type_checker & tc):m_tc(tc) {}
     virtual bool on_failure(expr const & p, expr const & t, match_context & ctx) const;
 };
 

@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "library/type_util.h"
 
 namespace lean {
-unsigned get_expect_num_args(type_checker & tc, expr e) {
+unsigned get_expect_num_args(old_type_checker & tc, expr e) {
     unsigned r = 0;
     while (true) {
         e = tc.whnf(e).first;

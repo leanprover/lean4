@@ -9,12 +9,12 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/list.h"
 #include "kernel/metavar.h"
-#include "kernel/type_checker.h"
 #include "library/expr_lt.h"
 #include "library/unifier.h"
 #include "library/old_local_context.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/elaborate.h"
+#include "library/old_type_checker.h"
 #include "frontends/lean/elaborator_context.h"
 #include "frontends/lean/coercion_elaborator.h"
 #include "frontends/lean/util.h"
@@ -30,9 +30,9 @@ class elaborator : public coercion_info_manager {
     typedef rb_map<expr, pair<expr, constraint_seq>, expr_quick_cmp> cache;
     typedef std::vector<pair<expr, expr>> to_check_sorts;
     elaborator_context & m_ctx;
-    type_checker_ptr     m_tc;
-    type_checker_ptr     m_coercion_from_tc;
-    type_checker_ptr     m_coercion_to_tc;
+    old_type_checker_ptr     m_tc;
+    old_type_checker_ptr     m_coercion_from_tc;
+    old_type_checker_ptr     m_coercion_to_tc;
     // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
     // representing the context where ?m was created.
     old_local_context    m_context; // current local context: a list of local constants

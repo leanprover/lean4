@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "util/fresh_name.h"
 #include "kernel/replace_fn.h"
-#include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/free_vars.h"
@@ -19,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/kernel_serializer.h"
 #include "library/attribute_manager.h"
+#include "library/old_type_checker.h"
 
 namespace lean {
 /**
@@ -257,14 +257,14 @@ expr beta_eta_reduce(expr t) {
 }
 
 class normalize_fn {
-    type_checker   &                  m_tc;
+    old_type_checker   &                  m_tc;
     // Remark: the normalizer/type-checker m_tc has been provided by the "user".
     // It may be a constrained one (e.g., it may only unfold definitions marked as [reducible].
     // So, we should not use it for inferring types and/or checking whether an expression is
     // a proposition or not. Such checks may fail because of the restrictions on m_tc.
     // So, we use m_full_tc for this kind of operation. It is an unconstrained type checker.
     // See issue #801
-    type_checker                      m_full_tc;
+    old_type_checker                      m_full_tc;
     std::function<bool(expr const &)> m_pred;  // NOLINT
     bool                              m_save_cnstrs;
     constraint_seq                    m_cnstrs;
@@ -409,7 +409,7 @@ class normalize_fn {
     }
 
 public:
-    normalize_fn(type_checker & tc, bool save, bool eta, bool nested_prop = true):
+    normalize_fn(old_type_checker & tc, bool save, bool eta, bool nested_prop = true):
         m_tc(tc), m_full_tc(tc.env()),
         m_pred([](expr const &) { return true; }),
         m_save_cnstrs(save), m_use_eta(eta), m_eval_nested_prop(nested_prop) {
@@ -417,7 +417,7 @@ public:
             m_eval_nested_prop = true;
     }
 
-    normalize_fn(type_checker & tc, std::function<bool(expr const &)> const & fn, bool eta, bool nested_prop = true): // NOLINT
+    normalize_fn(old_type_checker & tc, std::function<bool(expr const &)> const & fn, bool eta, bool nested_prop = true): // NOLINT
         m_tc(tc), m_full_tc(tc.env()),
         m_pred(fn), m_save_cnstrs(true), m_use_eta(eta), m_eval_nested_prop(nested_prop) {
         if (!is_standard(env()))
@@ -451,17 +451,17 @@ expr normalize(environment const & env, level_param_names const & ls, expr const
     return normalize_fn(*tc, save_cnstrs, eta)(ls, e);
 }
 
-expr normalize(type_checker & tc, expr const & e, bool eta) {
+expr normalize(old_type_checker & tc, expr const & e, bool eta) {
     bool save_cnstrs = false;
     return normalize_fn(tc, save_cnstrs, eta)(e);
 }
 
-expr normalize(type_checker & tc, level_param_names const & ls, expr const & e, bool eta, bool eval_nested_prop) {
+expr normalize(old_type_checker & tc, level_param_names const & ls, expr const & e, bool eta, bool eval_nested_prop) {
     bool save_cnstrs = false;
     return normalize_fn(tc, save_cnstrs, eta, eval_nested_prop)(ls, e);
 }
 
-expr normalize(type_checker & tc, expr const & e, constraint_seq & cs, bool eta) {
+expr normalize(old_type_checker & tc, expr const & e, constraint_seq & cs, bool eta) {
     bool save_cnstrs = false;
     normalize_fn fn(tc, save_cnstrs, eta);
     expr r = fn(e);
@@ -469,7 +469,7 @@ expr normalize(type_checker & tc, expr const & e, constraint_seq & cs, bool eta)
     return r;
 }
 
-expr normalize(type_checker & tc, expr const & e, std::function<bool(expr const &)> const & pred, // NOLINT
+expr normalize(old_type_checker & tc, expr const & e, std::function<bool(expr const &)> const & pred, // NOLINT
                constraint_seq & cs, bool eta) {
     normalize_fn fn(tc, pred, eta);
     expr r = fn(e);

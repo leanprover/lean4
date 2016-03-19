@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/thread.h"
 #include "kernel/expr.h"
+#include "kernel/abstract_type_context.h"
 #include "library/kernel_serializer.h"
 
 namespace lean {
@@ -32,11 +33,11 @@ class let_value_definition_cell : public macro_definition_cell {
 public:
     let_value_definition_cell():m_id(next_let_value_id()) {}
     virtual name get_name() const { return *g_let_value; }
-    virtual expr check_type(expr const & m, extension_context & ctx, bool infer_only) const {
+    virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
         check_macro(m);
-        return ctx.check_type(macro_arg(m, 0), infer_only);
+        return ctx.check(macro_arg(m, 0), infer_only);
     }
-    virtual optional<expr> expand(expr const & m, extension_context &) const {
+    virtual optional<expr> expand(expr const & m, abstract_type_context &) const {
         check_macro(m);
         return some_expr(macro_arg(m, 0));
     }
@@ -75,11 +76,11 @@ public:
     let_macro_definition_cell(name const & n):m_var_name(n) {}
     name const & get_var_name() const { return m_var_name; }
     virtual name get_name() const { return *g_let; }
-    virtual expr check_type(expr const & m, extension_context & ctx, bool infer_only) const {
+    virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
         check_macro(m);
-        return ctx.check_type(macro_arg(m, 1), infer_only);
+        return ctx.check(macro_arg(m, 1), infer_only);
     }
-    virtual optional<expr> expand(expr const & m, extension_context &) const {
+    virtual optional<expr> expand(expr const & m, abstract_type_context &) const {
         check_macro(m);
         return some_expr(macro_arg(m, 1));
     }

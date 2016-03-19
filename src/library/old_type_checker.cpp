@@ -76,7 +76,7 @@ expr mk_pi_for(expr const & meta) {
 
 optional<expr> old_type_checker::expand_macro(expr const & m) {
     lean_assert(is_macro(m));
-    return macro_def(m).expand(m, m_old_tc_ctx);
+    return macro_def(m).expand(m, get_type_context());
 }
 
 /**
@@ -193,7 +193,7 @@ expr old_type_checker::infer_constant(expr const & e, bool infer_only) {
 
 pair<expr, constraint_seq> old_type_checker::infer_macro(expr const & e, bool infer_only) {
     auto def = macro_def(e);
-    expr t   = def.check_type(e, m_old_tc_ctx, infer_only);
+    expr t   = def.check_type(e, get_type_context(), infer_only);
     constraint_seq cs;
     if (!infer_only && def.trust_level() >= m_env.trust_lvl()) {
         throw_kernel_exception(m_env, "declaration contains macro with trust-level higher than the one allowed "
@@ -444,7 +444,7 @@ bool old_type_checker::is_opaque(expr const & c) const {
 }
 
 old_type_checker::old_type_checker(environment const & env, std::unique_ptr<old_converter> && conv, bool memoize):
-    m_env(env), m_conv(std::move(conv)), m_old_tc_ctx(*this), m_tc_ctx(*this),
+    m_env(env), m_conv(std::move(conv)), m_tc_ctx(*this),
     m_memoize(memoize), m_params(nullptr) {
 }
 

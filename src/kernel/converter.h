@@ -14,7 +14,6 @@ class type_checker;
 class converter {
 protected:
     expr infer_type(type_checker & tc, expr const & e);
-    extension_context & get_extension(type_checker & tc);
 public:
     virtual ~converter() {}
     virtual bool is_opaque(declaration const & d) const = 0;

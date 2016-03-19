@@ -174,7 +174,7 @@ io_state_stream tout() {
     if (g_env) {
         return diagnostic(*g_env, *g_ios, *g_ctx);
     } else {
-        return diagnostic(get_dummy_env(), get_silent_ios_helper().m_ios, get_dummy_tc().get_type_context());
+        return diagnostic(get_dummy_env(), get_silent_ios_helper().m_ios, get_dummy_tc());
     }
 }
 

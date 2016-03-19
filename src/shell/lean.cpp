@@ -529,7 +529,7 @@ int main(int argc, char ** argv) {
             std::shared_ptr<lean::file_output_channel> out(new lean::file_output_channel(index_name.c_str()));
             ios.set_regular_channel(out);
             type_checker tc(env);
-            auto strm = regular(env, ios, tc.get_type_context());
+            auto strm = regular(env, ios, tc);
             index.save(strm);
         }
         if (export_objects && ok) {

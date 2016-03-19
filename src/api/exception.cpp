@@ -54,7 +54,7 @@ char const * lean_exception_get_detailed_message(lean_exception e) {
         ios.set_diagnostic_channel(out);
         environment env;
         type_checker tc(env);
-        io_state_stream ioss(env, ios, tc.get_type_context());
+        io_state_stream ioss(env, ios, tc);
         display_error(ioss, nullptr, *lean::to_exception(e));
         return mk_string(static_cast<string_output_channel const *>(out.get())->str());
     } catch (...) {

@@ -56,39 +56,8 @@ expr mk_pi_for(expr const & meta);
    \brief Lean Type Checker. It can also be used to infer types, check whether a
    type \c A is convertible to a type \c B, etc.
 */
-class type_checker {
+class type_checker : public abstract_type_context {
     typedef expr_bi_struct_map<expr> cache;
-
-    /** \brief Interface type_checker <-> macro & normalizer_extension
-        TODO(Leo): delete this class. It will be subsumed by type_checker_context. */
-    class old_type_checker_context : public extension_context {
-        type_checker & m_tc;
-    public:
-        old_type_checker_context(type_checker & tc):m_tc(tc) {}
-        virtual environment const & env() const { return m_tc.m_env; }
-        virtual expr whnf(expr const & e) { return m_tc.whnf(e); }
-        virtual bool is_def_eq(expr const & e1, expr const & e2) {
-            return m_tc.is_def_eq(e1, e2);
-        }
-        virtual expr check_type(expr const & e, bool infer_only) {
-            return m_tc.infer_type_core(e, infer_only);
-        }
-        virtual optional<expr> is_stuck(expr const & e) { return m_tc.is_stuck(e); }
-    };
-
-    class type_checker_context : public abstract_type_context {
-        type_checker & m_tc;
-    public:
-        type_checker_context(type_checker & tc):m_tc(tc) {}
-        virtual environment const & env() const { return m_tc.m_env; }
-        virtual expr whnf(expr const & e) { return m_tc.whnf(e); }
-        virtual bool is_def_eq(expr const & e1, expr const & e2) {
-            return m_tc.is_def_eq(e1, e2);
-        }
-        virtual expr infer(expr const & e) { return m_tc.infer_type_core(e, true); }
-        virtual expr check(expr const & e) { return m_tc.infer_type_core(e, false); }
-        virtual optional<expr> is_stuck(expr const & e) { return m_tc.is_stuck(e); }
-    };
 
     environment                m_env;
     std::unique_ptr<converter> m_conv;
@@ -97,8 +66,6 @@ class type_checker {
     // The type of (lambda x : A, t)   is (Pi x : A, typeof(t))
     // The type of (lambda {x : A}, t) is (Pi {x : A}, typeof(t))
     cache                      m_infer_type_cache[2];
-    old_type_checker_context   m_old_tc_ctx;
-    type_checker_context       m_tc_ctx;
     bool                       m_memoize;
     // temp flag
     level_param_names const *  m_params;
@@ -116,8 +83,6 @@ class type_checker {
     expr infer_let(expr const & e, bool infer_only);
     expr infer_type_core(expr const & e, bool infer_only);
     expr infer_type(expr const & e);
-
-    extension_context & get_extension() { return m_old_tc_ctx; }
 public:
     /**
        \brief Create a type checker for the given environment. The auxiliary names created by this
@@ -129,32 +94,30 @@ public:
     type_checker(environment const & env, bool memoize = true);
     ~type_checker();
 
-    environment const & env() const { return m_env; }
-
-    abstract_type_context & get_type_context() { return m_tc_ctx; }
+    virtual environment const & env() const { return m_env; }
 
     /** \brief Return the type of \c t.
        It does not check whether the input expression is type correct or not.
        The contract is: IF the input expression is type correct, then the inferred
        type is correct.
        Throw an exception if a type error is found. */
-    expr infer(expr const & t) { return infer_type(t); }
+    virtual expr infer(expr const & t) { return infer_type(t); }
 
     /**
        \brief Type check the given expression, and return the type of \c t.
        Throw an exception if a type error is found.  */
-    expr check(expr const & t, level_param_names const & ps = level_param_names());
+    virtual expr check(expr const & t, level_param_names const & ps = level_param_names());
     /** \brief Like \c check, but ignores undefined universes */
     expr check_ignore_undefined_universes(expr const & e);
 
     /** \brief Return true iff t is definitionally equal to s. */
-    bool is_def_eq(expr const & t, expr const & s);
+    virtual bool is_def_eq(expr const & t, expr const & s);
     /** \brief Return true iff types of \c t and \c s are (may be) definitionally equal. */
     bool is_def_eq_types(expr const & t, expr const & s);
     /** \brief Return true iff t is a proposition. */
     bool is_prop(expr const & t);
     /** \brief Return the weak head normal form of \c t. */
-    expr whnf(expr const & t);
+    virtual expr whnf(expr const & t);
     /** \brief Return a Pi if \c t is convertible to a Pi type. Throw an exception otherwise.
         The argument \c s is used when reporting errors */
     expr ensure_pi(expr const & t, expr const & s);
@@ -181,7 +144,7 @@ public:
     bool is_opaque(expr const & c) const;
 
     /** \brief Return a metavariable that may be stucking the \c e's reduction. */
-    optional<expr> is_stuck(expr const & e);
+    virtual optional<expr> is_stuck(expr const & e);
 
     optional<declaration> is_delta(expr const & e) const { return m_conv->is_delta(e); }
 

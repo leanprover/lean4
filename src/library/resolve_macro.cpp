@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/free_vars.h"
+#include "kernel/abstract_type_context.h"
 #include "library/kernel_serializer.h"
 #include "library/bin_app.h"
 #include "library/constants.h"
@@ -84,20 +85,20 @@ public:
     // Begin of resolve_macro get_type implementation
     // This section of code is trusted when the environment has trust_level == 1
 
-    bool is_def_eq(expr const & l1, expr const & l2, extension_context & ctx) const {
+    bool is_def_eq(expr const & l1, expr const & l2, abstract_type_context & ctx) const {
         return ctx.is_def_eq(l1, l2);
     }
 
-    expr whnf(expr const & e, extension_context & ctx) const {
+    expr whnf(expr const & e, abstract_type_context & ctx) const {
         return ctx.whnf(e);
     }
 
-    expr infer_type(expr const & e, extension_context & ctx, bool infer_only) const {
-        return ctx.check_type(e, infer_only);
+    expr infer_type(expr const & e, abstract_type_context & ctx, bool infer_only) const {
+        return ctx.check(e, infer_only);
     }
 
     /** \brief Return true if \c ls already contains a literal that is definitionally equal to \c l */
-    bool already_contains(expr const & l, buffer<expr> const & ls, extension_context & ctx) const {
+    bool already_contains(expr const & l, buffer<expr> const & ls, abstract_type_context & ctx) const {
         for (expr const & old_l : ls) {
             if (is_def_eq(l, old_l, ctx))
                 return true;
@@ -107,13 +108,13 @@ public:
 
     bool is_or(expr const & a, expr & lhs, expr & rhs) const { return is_bin_app(a, *g_or, lhs, rhs); }
 
-    bool collect(expr const & lhs, expr const & rhs, expr const & l, buffer<expr> & R, extension_context & ctx) const {
+    bool collect(expr const & lhs, expr const & rhs, expr const & l, buffer<expr> & R, abstract_type_context & ctx) const {
         bool r1 = collect(lhs, l, R, ctx);
         bool r2 = collect(rhs, l, R, ctx);
         return r1 || r2;
     }
 
-    bool collect(expr cls, expr const & l, buffer<expr> & R, extension_context & ctx) const {
+    bool collect(expr cls, expr const & l, buffer<expr> & R, abstract_type_context & ctx) const {
         check_system("resolve macro");
         expr lhs, rhs;
         if (is_or(cls, lhs, rhs)) {
@@ -132,7 +133,7 @@ public:
         }
     }
 
-    expr mk_resolvent(environment const & env, extension_context & ctx, expr const & m,
+    expr mk_resolvent(environment const & env, abstract_type_context & ctx, expr const & m,
                       expr const & l, expr const & not_l, expr const C1, expr const & C2) const {
         buffer<expr> R; // resolvent
         if (!collect(C1, l, R, ctx))
@@ -142,7 +143,7 @@ public:
         return mk_bin_rop(*g_or, *g_false, R.size(), R.data());
     }
 
-    virtual expr check_type(expr const & m, extension_context & ctx, bool infer_only) const {
+    virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
         environment const & env = ctx.env();
         check_num_args(env, m);
         if (!infer_only)
@@ -162,7 +163,7 @@ public:
     // In this case, the type checker invokes expand to double check that get_type
     // and the result returned by expand have the same type.
 
-    virtual optional<expr> expand(expr const & m, extension_context & ctx) const {
+    virtual optional<expr> expand(expr const & m, abstract_type_context & ctx) const {
         environment const & env = ctx.env();
         check_num_args(env, m);
         expr l     = whnf(macro_arg(m, 0), ctx);
@@ -178,7 +179,7 @@ public:
     bool is_or_app(expr const & a) const { return is_bin_app(a, *g_or); }
 
     /** \brief Given l : H, and R == (or ... l ...), create a proof term for R using or_intro_left and or_intro_right */
-    expr mk_or_intro(expr const & l, expr const & H, expr const & R, extension_context & ctx) const {
+    expr mk_or_intro(expr const & l, expr const & H, expr const & R, abstract_type_context & ctx) const {
         check_system("resolve macro");
         if (is_or_app(R)) {
             expr lhs = app_arg(app_fn(R));
@@ -208,7 +209,7 @@ public:
         Return a proof of the resolvent R of C1 and C2
     */
     expr mk_or_elim_tree1(expr const & l, expr const & not_l, expr C1, expr const & H1, expr const & C2, expr const & H2,
-                          expr const & R, extension_context & ctx) const {
+                          expr const & R, abstract_type_context & ctx) const {
         check_system("resolve macro");
         expr lhs, rhs;
         if (is_or(C1, lhs, rhs)) {
@@ -232,7 +233,7 @@ public:
         Return a proof of the resolvent R of C1 and C2
     */
     expr mk_or_elim_tree1(expr const & l, expr const & not_l, expr const & lhs1, expr const & rhs1, expr const & H1,
-                          expr const & C2, expr const & H2, expr const & R, extension_context & ctx) const {
+                          expr const & C2, expr const & H2, expr const & R, abstract_type_context & ctx) const {
         expr l_1     = lift(l);
         expr not_l_1 = lift(not_l);
         expr lhs1_1  = lift(lhs1);
@@ -254,7 +255,7 @@ public:
        produce a proof for R
     */
     expr mk_or_elim_tree2(expr const & l, expr const & H, expr const & not_l, expr C2, expr const & H2,
-                          expr const & R, extension_context & ctx) const {
+                          expr const & R, abstract_type_context & ctx) const {
         check_system("resolve macro");
         expr lhs, rhs;
         if (is_or(C2, lhs, rhs)) {
@@ -280,7 +281,7 @@ public:
     */
     expr mk_or_elim_tree2(expr const & l, expr const & H, expr const & not_l,
                           expr const & lhs2, expr const & rhs2, expr const & H2,
-                          expr const & R, extension_context & ctx) const {
+                          expr const & R, abstract_type_context & ctx) const {
         expr l_1     = lift(l);
         expr H_1     = lift(H);
         expr not_l_1 = lift(not_l);

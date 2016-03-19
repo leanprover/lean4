@@ -86,11 +86,11 @@ public:
     virtual name get_name() const { return m_proj_name; }
     virtual format pp(formatter const &) const { return format(m_proj_name); }
     virtual void display(std::ostream & out) const { out << m_proj_name; }
-    virtual expr check_type(expr const & m, extension_context & ctx, bool infer_only) const {
+    virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
         check_macro(m);
         environment const & env = ctx.env();
         expr s   = macro_arg(m, 0);
-        expr s_t = ctx.whnf(ctx.check_type(s, infer_only));
+        expr s_t = ctx.whnf(ctx.check(s, infer_only));
         buffer<expr> I_args;
         expr const & I = get_app_args(s_t, I_args);
         if (!is_constant(I)) {
@@ -107,7 +107,7 @@ public:
         return instantiate_rev(t, I_args.size(), I_args.data());
     }
 
-    virtual optional<expr> expand(expr const & m, extension_context & ctx) const {
+    virtual optional<expr> expand(expr const & m, abstract_type_context & ctx) const {
         check_macro(m);
         expr const & s  = macro_arg(m, 0);
         expr new_s      = ctx.whnf(s);
@@ -117,7 +117,7 @@ public:
             return some_expr(c_args[m_idx]);
         } else {
             // expand into recursor
-            expr s_type = ctx.whnf(ctx.infer_type(s));
+            expr s_type = ctx.whnf(ctx.infer(s));
             buffer<expr> args;
             expr const & I = get_app_args(s_type, args);
             if (!is_constant(I) || length(m_ps) != length(const_levels(I)))

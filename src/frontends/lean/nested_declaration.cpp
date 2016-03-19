@@ -42,11 +42,11 @@ public:
     nested_decl_macro_definition_cell(optional<name> const & n, decl_attributes const & attrs):
         m_name(n), m_attributes(attrs) {}
     virtual name get_name() const { return get_nested_decl_name(); }
-    virtual expr check_type(expr const & m, extension_context & ctx, bool infer_only) const {
+    virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
         check_macro(m);
-        return ctx.check_type(macro_arg(m, 0), infer_only);
+        return ctx.check(macro_arg(m, 0), infer_only);
     }
-    virtual optional<expr> expand(expr const & m, extension_context &) const {
+    virtual optional<expr> expand(expr const & m, abstract_type_context &) const {
         check_macro(m);
         return some_expr(macro_arg(m, 0));
     }

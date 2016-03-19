@@ -25,8 +25,8 @@ public:
     virtual name get_name() const { return *g_choice_name; }
     // Choice expressions must be replaced with metavariables before invoking the type checker.
     // Choice expressions cannot be exported. They are transient/auxiliary objects.
-    virtual expr check_type(expr const &, extension_context &, bool) const { throw_ex(); }
-    virtual optional<expr> expand(expr const &, extension_context &) const { throw_ex(); }
+    virtual expr check_type(expr const &, abstract_type_context &, bool) const { throw_ex(); }
+    virtual optional<expr> expand(expr const &, abstract_type_context &) const { throw_ex(); }
     virtual void write(serializer & s) const {
         // we should be able to write choice expressions because of notation declarations
         s.write_string(*g_choice_opcode);

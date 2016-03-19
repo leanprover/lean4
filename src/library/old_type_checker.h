@@ -71,23 +71,6 @@ expr mk_pi_for(expr const & meta);
 class old_type_checker {
     typedef expr_bi_struct_map<pair<expr, constraint_seq>> cache;
 
-    /** \brief Interface old_type_checker <-> macro & normalizer_extension
-        TODO(Leo): delete this class. It will be subsumed by old_type_checker_context. */
-    class old_type_checker_context : public extension_context {
-        old_type_checker & m_tc;
-    public:
-        old_type_checker_context(old_type_checker & tc):m_tc(tc) {}
-        virtual environment const & env() const { return m_tc.m_env; }
-        virtual expr whnf(expr const & e) { return m_tc.whnf(e).first; }
-        virtual bool is_def_eq(expr const & e1, expr const & e2) {
-            return m_tc.is_def_eq(e1, e2, justification()).first;
-        }
-        virtual expr check_type(expr const & e, bool infer_only) {
-            return m_tc.infer_type_core(e, infer_only).first;
-        }
-        virtual optional<expr> is_stuck(expr const & e) { return m_tc.is_stuck(e); }
-    };
-
     class type_checker_context : public abstract_type_context {
         old_type_checker & m_tc;
     public:
@@ -110,7 +93,6 @@ class old_type_checker {
     // The type of (lambda x : A, t)   is (Pi x : A, typeof(t))
     // The type of (lambda {x : A}, t) is (Pi {x : A}, typeof(t))
     cache                      m_infer_type_cache[2];
-    old_type_checker_context   m_old_tc_ctx;
     type_checker_context       m_tc_ctx;
     bool                       m_memoize;
     // temp flag
@@ -132,7 +114,6 @@ class old_type_checker {
     pair<expr, constraint_seq> infer_type(expr const & e);
     expr infer_type_core(expr const & e, bool infer_only, constraint_seq & cs);
 
-    extension_context & get_extension() { return m_old_tc_ctx; }
     constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j);
 public:
     /**

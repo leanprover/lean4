@@ -16,7 +16,6 @@ class old_type_checker;
 class old_converter {
 protected:
     pair<expr, constraint_seq> infer_type(old_type_checker & tc, expr const & e);
-    extension_context & get_extension(old_type_checker & tc);
 public:
     virtual ~old_converter() {}
     virtual bool is_opaque(declaration const & d) const = 0;

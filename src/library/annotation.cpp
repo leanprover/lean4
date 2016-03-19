@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <string>
 #include "util/sstream.h"
+#include "kernel/abstract_type_context.h"
 #include "library/kernel_serializer.h"
 #include "library/annotation.h"
 
@@ -33,11 +34,11 @@ public:
     virtual name get_name() const { return get_annotation_name(); }
     virtual format pp(formatter const &) const { return format(m_name); }
     virtual void display(std::ostream & out) const { out << m_name; }
-    virtual expr check_type(expr const & m, extension_context & ctx, bool infer_only) const {
+    virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
         check_macro(m);
-        return ctx.check_type(macro_arg(m, 0), infer_only);
+        return ctx.check(macro_arg(m, 0), infer_only);
     }
-    virtual optional<expr> expand(expr const & m, extension_context &) const {
+    virtual optional<expr> expand(expr const & m, abstract_type_context &) const {
         check_macro(m);
         return some_expr(macro_arg(m, 0));
     }

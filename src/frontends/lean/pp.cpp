@@ -1412,19 +1412,19 @@ static options mk_options(bool detail) {
 static void pp_core(environment const & env, expr const & e, bool detail) {
     type_checker tc(env);
     io_state ios(mk_pretty_formatter_factory(), mk_options(detail));
-    regular(env, ios, tc.get_type_context()) << e << "\n";
+    regular(env, ios, tc) << e << "\n";
 }
 
 static void pp_core(environment const & env, goal const & g, bool detail) {
     type_checker tc(env);
     io_state ios(mk_pretty_formatter_factory(), mk_options(detail));
-    regular(env, ios, tc.get_type_context()) << g << "\n";
+    regular(env, ios, tc) << g << "\n";
 }
 
 static void pp_core(environment const & env, proof_state const & s, bool detail) {
     type_checker tc(env);
     io_state ios(mk_pretty_formatter_factory(), mk_options(detail));
-    auto out = regular(env, ios, tc.get_type_context());
+    auto out = regular(env, ios, tc);
     out << s.pp(out.get_formatter()) << "\n";
 }
 }

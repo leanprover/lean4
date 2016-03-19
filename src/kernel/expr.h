@@ -22,10 +22,11 @@ Author: Leonardo de Moura
 #include "util/sexpr/format.h"
 #include "kernel/level.h"
 #include "kernel/formatter.h"
-#include "kernel/extension_context.h"
 #include "kernel/expr_eq_fn.h"
 
 namespace lean {
+class abstract_type_context;
+
 // Tags are used by frontends to mark expressions. They are automatically propagated by
 // procedures such as update_app, update_binder, etc.
 typedef unsigned tag;
@@ -340,9 +341,9 @@ public:
     macro_definition_cell():m_rc(0) {}
     virtual ~macro_definition_cell() {}
     virtual name get_name() const = 0;
-    virtual expr check_type(expr const & m, extension_context & ctx, bool infer_only) const = 0;
-    virtual optional<expr> expand(expr const & m, extension_context & ctx) const = 0;
-    virtual optional<expr> expand1(expr const & m, extension_context & ctx) const { return expand(m, ctx); }
+    virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const = 0;
+    virtual optional<expr> expand(expr const & m, abstract_type_context & ctx) const = 0;
+    virtual optional<expr> expand1(expr const & m, abstract_type_context & ctx) const { return expand(m, ctx); }
     virtual unsigned trust_level() const;
     virtual bool operator==(macro_definition_cell const & other) const;
     virtual void display(std::ostream & out) const;
@@ -367,11 +368,11 @@ public:
     macro_definition & operator=(macro_definition && s);
 
     name get_name() const { return m_ptr->get_name(); }
-    expr check_type(expr const & m, extension_context & ctx, bool infer_only) const {
+    expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
         return m_ptr->check_type(m, ctx, infer_only);
     }
-    optional<expr> expand(expr const & m, extension_context & ctx) const { return m_ptr->expand(m, ctx); }
-    optional<expr> expand1(expr const & m, extension_context & ctx) const { return m_ptr->expand1(m, ctx); }
+    optional<expr> expand(expr const & m, abstract_type_context & ctx) const { return m_ptr->expand(m, ctx); }
+    optional<expr> expand1(expr const & m, abstract_type_context & ctx) const { return m_ptr->expand1(m, ctx); }
     unsigned trust_level() const { return m_ptr->trust_level(); }
     bool operator==(macro_definition const & other) const { return m_ptr->operator==(*other.m_ptr); }
     bool operator!=(macro_definition const & other) const { return !operator==(other); }

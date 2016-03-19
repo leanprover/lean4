@@ -8,6 +8,8 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
+class abstract_type_context;
+
 /**
    \brief The Lean kernel can be instantiated with different normalization extensions.
    Each extension is part of the trusted code base. The extensions allow us to support
@@ -17,11 +19,11 @@ namespace lean {
 class normalizer_extension {
 public:
     virtual ~normalizer_extension() {}
-    virtual optional<expr> operator()(expr const & e, extension_context & ctx) const = 0;
+    virtual optional<expr> operator()(expr const & e, abstract_type_context & ctx) const = 0;
     /** \brief Return a non-none expression if the extension may reduce \c e after metavariables are instantiated.
         The expression returned is a meta-variable that if instantiated my allow the reduction to continue.
     */
-    virtual optional<expr> is_stuck(expr const & e, extension_context & ctx) const = 0;
+    virtual optional<expr> is_stuck(expr const & e, abstract_type_context & ctx) const = 0;
     /** \brief Return true iff the extension supports a feature with the given name,
         this method is only used for sanity checking. */
     virtual bool supports(name const & feature) const = 0;

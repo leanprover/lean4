@@ -88,10 +88,10 @@ class tactic_expr_macro_definition_cell : public macro_definition_cell {
 public:
     tactic_expr_macro_definition_cell() {}
     virtual name get_name() const { return get_tactic_expr_name(); }
-    virtual expr check_type(expr const &, extension_context &, bool) const {
+    virtual expr check_type(expr const &, abstract_type_context &, bool) const {
         return get_tactic_expr_type();
     }
-    virtual optional<expr> expand(expr const &, extension_context &) const {
+    virtual optional<expr> expand(expr const &, abstract_type_context &) const {
         return some_expr(get_tactic_expr_builtin());
     }
     virtual void write(serializer & s) const {

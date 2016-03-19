@@ -313,7 +313,7 @@ static void print_attributes(parser const & p, name const & n) {
 static void print_inductive(parser const & p, name const & n, pos_info const & pos) {
     environment const & env = p.env();
     type_checker tc(env);
-    io_state_stream out = regular(env, p.ios(), tc.get_type_context());
+    io_state_stream out = regular(env, p.ios(), tc);
     if (auto idecls = inductive::is_inductive_decl(env, n)) {
         level_param_names ls; unsigned nparams; list<inductive::inductive_decl> dlist;
         std::tie(ls, nparams, dlist) = *idecls;
@@ -381,7 +381,7 @@ static void print_recursor_info(parser & p) {
 
 static bool print_constant(parser const & p, char const * kind, declaration const & d, bool is_def = false) {
     type_checker tc(p.env());
-    auto out = regular(p.env(), p.ios(), tc.get_type_context());
+    auto out = regular(p.env(), p.ios(), tc);
     if (d.is_definition() && is_marked_noncomputable(p.env(), d.get_name()))
         out << "noncomputable ";
     if (is_protected(p.env(), d.get_name()))
@@ -400,7 +400,7 @@ bool print_id_info(parser & p, name const & id, bool show_value, pos_info const 
     try {
         environment const & env = p.env();
         type_checker tc(env);
-        auto out = regular(env, p.ios(), tc.get_type_context());
+        auto out = regular(env, p.ios(), tc);
         try {
             list<name> cs = p.to_constants(id, "", pos);
             bool first = true;
@@ -524,7 +524,7 @@ static void print_reducible_info(parser & p, reducible_status s1) {
 
 static void print_unification_hints(parser & p) {
     type_checker tc(p.env());
-    auto out = regular(p.env(), p.ios(), tc.get_type_context());
+    auto out = regular(p.env(), p.ios(), tc);
     unification_hints hints;
     name ns;
     if (p.curr_is_identifier()) {
@@ -542,7 +542,7 @@ static void print_unification_hints(parser & p) {
 
 static void print_defeq_lemmas(parser & p) {
     type_checker tc(p.env());
-    auto out = regular(p.env(), p.ios(), tc.get_type_context());
+    auto out = regular(p.env(), p.ios(), tc);
     defeq_simp_lemmas lemmas;
     name ns;
     if (p.curr_is_identifier()) {
@@ -560,7 +560,7 @@ static void print_defeq_lemmas(parser & p) {
 
 static void print_simp_rules(parser & p) {
     type_checker tc(p.env());
-    auto out = regular(p.env(), p.ios(), tc.get_type_context());
+    auto out = regular(p.env(), p.ios(), tc);
     blast::scope_debug scope(p.env(), p.ios());
     blast::simp_lemmas s;
     name ns;
@@ -579,7 +579,7 @@ static void print_simp_rules(parser & p) {
 
 static void print_congr_rules(parser & p) {
     type_checker tc(p.env());
-    auto out = regular(p.env(), p.ios(), tc.get_type_context());
+    auto out = regular(p.env(), p.ios(), tc);
     blast::scope_debug scope(p.env(), p.ios());
     blast::simp_lemmas s = blast::get_simp_lemmas();
     out << s.pp_congr(out.get_formatter());
@@ -587,7 +587,7 @@ static void print_congr_rules(parser & p) {
 
 static void print_light_rules(parser & p) {
     type_checker tc(p.env());
-    auto out = regular(p.env(), p.ios(), tc.get_type_context());
+    auto out = regular(p.env(), p.ios(), tc);
     light_rule_set lrs = get_light_rule_set(p.env());
     out << lrs;
 }
@@ -643,7 +643,7 @@ environment print_cmd(parser & p) {
     flycheck_information info(p.ios());
     environment const & env = p.env();
     type_checker tc(env);
-    auto out = regular(env, p.ios(), tc.get_type_context());
+    auto out = regular(env, p.ios(), tc);
     if (info.enabled()) {
         p.display_information_pos(p.cmd_pos());
         out << "print result:\n";

@@ -507,7 +507,7 @@ static environment simplify_cmd(parser & p) {
 
     blast::simp::result r = blast::simplify(rel, e, srss);
     type_checker tc(p.env());
-    auto out = regular(p.env(), p.ios(), tc.get_type_context());
+    auto out = regular(p.env(), p.ios(), tc);
 
     flycheck_information info(p.ios());
     if (info.enabled()) {
@@ -537,7 +537,7 @@ static environment normalizer_cmd(parser & p) {
     blast::scope_debug scope(p.env(), p.ios());
     expr r = blast::normalize(e);
     type_checker tc(env);
-    regular(env, p.ios(), tc.get_type_context()) << r << endl;
+    regular(env, p.ios(), tc) << r << endl;
     return env;
 }
 

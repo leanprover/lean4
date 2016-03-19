@@ -12,8 +12,10 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
-#include "kernel/inductive/inductive.h"
 #include "kernel/find_fn.h"
+#include "kernel/abstract_type_context.h"
+#include "kernel/inductive/inductive.h"
+
 
 /*
    The implementation is based on the paper: "Inductive Families", Peter Dybjer, 1997
@@ -927,10 +929,10 @@ static optional<expr> mk_nullary_intro(environment const & env, expr const & typ
 // For datatypes that support K-axiom, given e an element of that type, we convert (if possible)
 // to the default constructor. For example, if (e : a = a), then this method returns (eq.refl a)
 static optional<expr> to_intro_when_K(inductive_env_ext::elim_info const * it,
-                                      expr const & e, extension_context & ctx) {
+                                      expr const & e, abstract_type_context & ctx) {
     lean_assert(it->m_K_target);
     environment const & env = ctx.env();
-    expr app_type    = ctx.whnf(ctx.infer_type(e));
+    expr app_type    = ctx.whnf(ctx.infer(e));
     if (has_expr_metavar(app_type))
         return none_expr();
     expr const & app_type_I = get_app_fn(app_type);
@@ -939,7 +941,7 @@ static optional<expr> to_intro_when_K(inductive_env_ext::elim_info const * it,
     auto new_intro_app = mk_nullary_intro(env, app_type, it->m_num_params);
     if (!new_intro_app)
         return none_expr();
-    expr new_type    = ctx.infer_type(*new_intro_app);
+    expr new_type    = ctx.infer(*new_intro_app);
     if (has_expr_metavar(new_type))
         return none_expr();
     if (!ctx.is_def_eq(app_type, new_type))
@@ -947,7 +949,7 @@ static optional<expr> to_intro_when_K(inductive_env_ext::elim_info const * it,
     return new_intro_app;
 }
 
-optional<expr> inductive_normalizer_extension::operator()(expr const & e, extension_context & ctx) const {
+optional<expr> inductive_normalizer_extension::operator()(expr const & e, abstract_type_context & ctx) const {
     // Reduce terms \c e of the form
     //    elim_k A C e p[A,b] (intro_k_i A b u)
     environment const & env = ctx.env();
@@ -1041,7 +1043,7 @@ bool is_elim_meta_app(type_checker & tc, expr const & e) {
 }
 
 // Return true if \c e is of the form (elim ... (?m ...))
-optional<expr> inductive_normalizer_extension::is_stuck(expr const & e, extension_context & ctx) const {
+optional<expr> inductive_normalizer_extension::is_stuck(expr const & e, abstract_type_context & ctx) const {
     return is_elim_meta_app_core(ctx, e);
 }
 

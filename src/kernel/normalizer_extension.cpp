@@ -9,8 +9,8 @@ Author: Leonardo de Moura
 namespace lean {
 class id_normalizer_extension : public normalizer_extension {
 public:
-    virtual optional<expr> operator()(expr const &, extension_context &) const { return none_expr(); }
-    virtual optional<expr> is_stuck(expr const &, extension_context &) const { return none_expr(); }
+    virtual optional<expr> operator()(expr const &, abstract_type_context &) const { return none_expr(); }
+    virtual optional<expr> is_stuck(expr const &, abstract_type_context &) const { return none_expr(); }
     virtual bool supports(name const &) const { return false; }
     virtual bool is_recursor(environment const &, name const &) const { return false; }
     virtual bool is_builtin(environment const &, name const &) const { return false; }
@@ -27,14 +27,14 @@ public:
     comp_normalizer_extension(std::unique_ptr<normalizer_extension> && ext1, std::unique_ptr<normalizer_extension> && ext2):
         m_ext1(std::move(ext1)), m_ext2(std::move(ext2)) {}
 
-    virtual optional<expr> operator()(expr const & e, extension_context & ctx) const {
+    virtual optional<expr> operator()(expr const & e, abstract_type_context & ctx) const {
         if (auto r = (*m_ext1)(e, ctx))
             return r;
         else
             return (*m_ext2)(e, ctx);
     }
 
-    virtual optional<expr> is_stuck(expr const & e, extension_context & ctx) const {
+    virtual optional<expr> is_stuck(expr const & e, abstract_type_context & ctx) const {
         if (auto r = m_ext1->is_stuck(e, ctx))
             return r;
         else

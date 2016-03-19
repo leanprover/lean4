@@ -36,12 +36,12 @@ class typed_expr_macro_definition_cell : public macro_definition_cell {
     }
 public:
     virtual name get_name() const { return get_typed_expr_name(); }
-    virtual expr check_type(expr const & m, extension_context & ctx, bool infer_only) const {
+    virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
         check_macro(m);
         expr given_type = macro_arg(m, 0);
         if (!infer_only) {
-            ctx.check_type(given_type, infer_only);
-            expr inferred_type = ctx.check_type(macro_arg(m, 1), infer_only);
+            ctx.check(given_type, infer_only);
+            expr inferred_type = ctx.check(macro_arg(m, 1), infer_only);
             if (!ctx.is_def_eq(inferred_type, given_type)) {
                 throw_kernel_exception(ctx.env(), m,
                                        [=](formatter const & fmt) {
@@ -51,7 +51,7 @@ public:
         }
         return given_type;
     }
-    virtual optional<expr> expand(expr const & m, extension_context &) const {
+    virtual optional<expr> expand(expr const & m, abstract_type_context &) const {
         check_macro(m);
         return some_expr(macro_arg(m, 1));
     }

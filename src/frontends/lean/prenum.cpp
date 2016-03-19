@@ -20,8 +20,8 @@ public:
     virtual name get_name() const { return *g_prenum_name; }
     virtual format pp(formatter const &) const { return format(m_value); }
     virtual void display(std::ostream & out) const { out << m_value; }
-    virtual expr check_type(expr const &, extension_context &, bool) const { throw_ex(); }
-    virtual optional<expr> expand(expr const &, extension_context &) const { throw_ex(); }
+    virtual expr check_type(expr const &, abstract_type_context &, bool) const { throw_ex(); }
+    virtual optional<expr> expand(expr const &, abstract_type_context &) const { throw_ex(); }
     virtual void write(serializer & s) const {
         s.write_string(*g_prenum_opcode);
         s << m_value;

@@ -34,10 +34,10 @@ public:
         return m_value < static_cast<string_macro const &>(d).m_value;
     }
     virtual name get_name() const { return *g_string_macro; }
-    virtual expr check_type(expr const &, extension_context &, bool) const {
+    virtual expr check_type(expr const &, abstract_type_context &, bool) const {
         return *g_string;
     }
-    virtual optional<expr> expand(expr const &, extension_context &) const {
+    virtual optional<expr> expand(expr const &, abstract_type_context &) const {
         return some_expr(from_string_core(0, m_value));
     }
     virtual unsigned trust_level() const { return 0; }

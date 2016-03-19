@@ -109,10 +109,8 @@ bool get_class_trans_instances(options const & o);
         3- (all internal local constants created by type_context)            Example: when processing is_def_eq.
 */
 class old_type_context : public abstract_type_context {
-    struct ext_ctx;
     friend struct ext_ctx;
     environment                     m_env;
-    std::unique_ptr<ext_ctx>        m_ext_ctx;
     // postponed universe constraints
     std::vector<pair<level, level>> m_postponed;
     name_map<projection_info>       m_proj_info;

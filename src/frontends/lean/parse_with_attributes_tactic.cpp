@@ -23,10 +23,10 @@ public:
     attributes_macro_cell(decl_attributes const & decl):m_decl(decl) {}
     virtual name get_name() const { return *g_name; }
     virtual void write(serializer & s) const { s << *g_opcode; m_decl.write(s); }
-    virtual expr check_type(expr const &, extension_context &, bool) const {
+    virtual expr check_type(expr const &, abstract_type_context &, bool) const {
         return mk_constant(get_tactic_expr_name());
     }
-    virtual optional<expr> expand(expr const &, extension_context &) const {
+    virtual optional<expr> expand(expr const &, abstract_type_context &) const {
         return some_expr(mk_constant(get_tactic_expr_builtin_name()));
     }
     virtual bool operator==(macro_definition_cell const & other) const {

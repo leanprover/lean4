@@ -48,33 +48,8 @@ bool get_class_trans_instances(options const & o) {
     return o.get_bool(*g_class_trans_instances, LEAN_DEFAULT_CLASS_TRANS_INSTANCES);
 }
 
-struct old_type_context::ext_ctx : public extension_context {
-    old_type_context & m_owner;
-
-    ext_ctx(old_type_context & o):m_owner(o) {}
-
-    virtual environment const & env() const { return m_owner.m_env; }
-
-    virtual expr whnf(expr const & e) {
-        return m_owner.whnf(e);
-    }
-
-    virtual bool is_def_eq(expr const & e1, expr const & e2) {
-        return m_owner.is_def_eq(e1, e2);
-    }
-
-    virtual expr check_type(expr const & e, bool) {
-        return m_owner.infer(e);
-    }
-
-    virtual optional<expr> is_stuck(expr const &) {
-        return none_expr();
-    }
-};
-
 old_type_context::old_type_context(environment const & env, options const & o, bool multiple_instances):
     m_env(env),
-    m_ext_ctx(new ext_ctx(*this)),
     m_proj_info(get_projection_info_map(env)) {
     m_pip                   = nullptr;
     m_ci_multiple_instances = multiple_instances;
@@ -171,7 +146,7 @@ optional<declaration> old_type_context::is_transparent(name const & n) {
 optional<expr> old_type_context::expand_macro(expr const & m) {
     lean_assert(is_macro(m));
     if (m_in_is_def_eq || should_unfold_macro(m))
-        return macro_def(m).expand(m, *m_ext_ctx);
+        return macro_def(m).expand(m, *this);
     else
         return none_expr();
 }
@@ -207,7 +182,7 @@ optional<expr> old_type_context::norm_ext(expr const & e) {
     if (auto r = reduce_projection(e)) {
         return r;
     } else {
-        return m_env.norm_ext()(e, *m_ext_ctx);
+        return m_env.norm_ext()(e, *this);
     }
 }
 
@@ -1087,7 +1062,7 @@ expr old_type_context::infer_constant(expr const & e) {
 expr old_type_context::infer_macro(expr const & e) {
     auto def = macro_def(e);
     bool infer_only = true;
-    return def.check_type(e, *m_ext_ctx, infer_only);
+    return def.check_type(e, *this, infer_only);
 }
 
 expr old_type_context::infer_lambda(expr e) {

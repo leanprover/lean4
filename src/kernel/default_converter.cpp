@@ -26,24 +26,24 @@ default_converter::default_converter(environment const & env, bool memoize):
 
 optional<expr> default_converter::expand_macro(expr const & m) {
     lean_assert(is_macro(m));
-    return macro_def(m).expand(m, get_extension(*m_tc));
+    return macro_def(m).expand(m, *m_tc);
 }
 
 /** \brief Apply normalizer extensions to \c e. */
 optional<expr> default_converter::norm_ext(expr const & e) {
-    return m_env.norm_ext()(e, get_extension(*m_tc));
+    return m_env.norm_ext()(e, *m_tc);
 }
 
 /** \brief Return true if \c e may be reduced later after metavariables are instantiated. */
 bool default_converter::is_stuck(expr const & e) {
-    return static_cast<bool>(m_env.norm_ext().is_stuck(e, get_extension(*m_tc)));
+    return static_cast<bool>(m_env.norm_ext().is_stuck(e, *m_tc));
 }
 
 optional<expr> default_converter::is_stuck(expr const & e, type_checker & c) {
     if (is_meta(e)) {
         return some_expr(e);
     } else {
-        return m_env.norm_ext().is_stuck(e, get_extension(c));
+        return m_env.norm_ext().is_stuck(e, c);
     }
 }
 

@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 expr converter::infer_type(type_checker & tc, expr const & e) { return tc.infer_type(e); }
-extension_context & converter::get_extension(type_checker & tc) { return tc.get_extension(); }
 
 /** \brief Do nothing converter */
 struct dummy_converter : public converter {

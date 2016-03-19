@@ -23,8 +23,6 @@ pair<bool, constraint_seq> old_converter::is_def_eq(expr const & t, expr const &
 
 pair<expr, constraint_seq> old_converter::infer_type(old_type_checker & tc, expr const & e) { return tc.infer_type(e); }
 
-extension_context & old_converter::get_extension(old_type_checker & tc) { return tc.get_extension(); }
-
 /** \brief Do nothing old_converter */
 struct dummy_old_converter : public old_converter {
     virtual pair<expr, constraint_seq> whnf(expr const & e, old_type_checker &) {

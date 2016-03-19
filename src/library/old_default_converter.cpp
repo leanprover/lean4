@@ -29,12 +29,12 @@ constraint old_default_converter::mk_eq_cnstr(expr const & lhs, expr const & rhs
 
 optional<expr> old_default_converter::expand_macro(expr const & m) {
     lean_assert(is_macro(m));
-    return macro_def(m).expand(m, get_extension(*m_tc));
+    return macro_def(m).expand(m, m_tc->get_type_context());
 }
 
 /** \brief Apply normalizer extensions to \c e. */
 optional<pair<expr, constraint_seq>> old_default_converter::norm_ext(expr const & e) {
-    if (auto v = m_env.norm_ext()(e, get_extension(*m_tc)))
+    if (auto v = m_env.norm_ext()(e, m_tc->get_type_context()))
         return optional<pair<expr, constraint_seq>>(mk_pair(*v, constraint_seq()));
     else
         return optional<pair<expr, constraint_seq>>();
@@ -51,14 +51,14 @@ optional<expr> old_default_converter::d_norm_ext(expr const & e, constraint_seq 
 
 /** \brief Return true if \c e may be reduced later after metavariables are instantiated. */
 bool old_default_converter::is_stuck(expr const & e) {
-    return static_cast<bool>(m_env.norm_ext().is_stuck(e, get_extension(*m_tc)));
+    return static_cast<bool>(m_env.norm_ext().is_stuck(e, m_tc->get_type_context()));
 }
 
 optional<expr> old_default_converter::is_stuck(expr const & e, old_type_checker & c) {
     if (is_meta(e)) {
         return some_expr(e);
     } else {
-        return m_env.norm_ext().is_stuck(e, get_extension(c));
+        return m_env.norm_ext().is_stuck(e, c.get_type_context());
     }
 }
 

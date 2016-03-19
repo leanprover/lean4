@@ -16,31 +16,6 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 
 namespace lean {
-/* TODO(Leo): delete this class as soon as we finish porting kernel to abstract type_context */
-struct type_context_as_extension_context : public extension_context {
-    type_context & m_owner;
-
-    type_context_as_extension_context(type_context & o):m_owner(o) {}
-
-    virtual environment const & env() const { return m_owner.env(); }
-
-    virtual expr whnf(expr const & e) {
-        return m_owner.whnf(e);
-    }
-
-    virtual bool is_def_eq(expr const & e1, expr const & e2) {
-        return m_owner.is_def_eq(e1, e2);
-    }
-
-    virtual expr check_type(expr const & e, bool) {
-        return m_owner.infer(e);
-    }
-
-    virtual optional<expr> is_stuck(expr const & e) {
-        return m_owner.is_stuck(e);
-    }
-};
-
 /* =====================
    type_context_cache
    ===================== */
@@ -334,8 +309,7 @@ bool type_context::should_unfold_macro(expr const & e) {
 optional<expr> type_context::expand_macro(expr const & e) {
     lean_assert(is_macro(e));
     if (should_unfold_macro(e)) {
-        type_context_as_extension_context ext(*this);
-        return macro_def(e).expand(e, ext);
+        return macro_def(e).expand(e, *this);
     } else {
         return none_expr();
     }
@@ -511,8 +485,7 @@ expr type_context::infer_constant(expr const & e) {
 expr type_context::infer_macro(expr const & e) {
     auto def = macro_def(e);
     bool infer_only = true;
-    type_context_as_extension_context ext(*this);
-    return def.check_type(e, ext, infer_only);
+    return def.check_type(e, *this, infer_only);
 }
 
 expr type_context::infer_lambda(expr e) {

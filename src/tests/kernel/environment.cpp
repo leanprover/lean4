@@ -111,32 +111,8 @@ static void tst2() {
     s.insert(name(base, 96));
 }
 
-class normalizer_extension_tst : public normalizer_extension {
-public:
-    virtual optional<expr> operator()(expr const & e, extension_context & ctx) const {
-        if (!is_app(e))
-            return none_expr();
-        expr const & f = app_fn(e);
-        expr const & a = app_arg(e);
-        if (!is_constant(f) || const_name(f) != name("proj1"))
-            return none_expr();
-        expr a_n = ctx.whnf(a);
-        if (!is_app(a_n) || !is_app(app_fn(a_n)) || !is_constant(app_fn(app_fn(a_n))))
-            return none_expr();
-        expr const & mk = app_fn(app_fn(a_n));
-        if (const_name(mk) != name("mk"))
-            return none_expr();
-        // In a real implementation, we must check if proj1 and mk were defined in the environment.
-        return some_expr(app_arg(app_fn(a_n)));
-    }
-    virtual optional<expr> is_stuck(expr const &, extension_context &) const { return none_expr(); }
-    virtual bool supports(name const &) const { return false; }
-    virtual bool is_recursor(environment const &, name const &) const { return false; }
-    virtual bool is_builtin(environment const &, name const &) const { return false; }
-};
-
 static void tst3() {
-    environment env(0, true, true, true, std::unique_ptr<normalizer_extension>(new normalizer_extension_tst()));
+    environment env;
     expr Type = mk_Type();
     expr A = Local("A", Type);
     expr x = Local("x", A);
@@ -148,26 +124,6 @@ static void tst3() {
     expr proj1 = Const("proj1");
     expr a = Const("a");
     expr b = Const("b");
-    type_checker checker(env);
-    lean_assert_eq(checker.whnf(mk_app(proj1, mk_app(proj1, mk_app(mk, mk_app(id, A, mk_app(mk, a, b)), b)))), a);
-}
-
-class dummy_ext : public environment_extension {};
-
-static void tst4() {
-    environment env;
-    try {
-        env.get_extension(10000);
-        lean_unreachable();
-    } catch (kernel_exception & ex) {
-        std::cout << "expected error: " << ex.what() << "\n";
-    }
-    try {
-        env.update(10000, std::make_shared<dummy_ext>());
-        lean_unreachable();
-    } catch (kernel_exception & ex) {
-        std::cout << "expected error: " << ex.what() << "\n";
-    }
 }
 
 namespace lean {
@@ -255,7 +211,6 @@ int main() {
     tst1();
     tst2();
     tst3();
-    tst4();
     environment_id_tester::tst1();
     environment_id_tester::tst2();
     finalize_library_module();

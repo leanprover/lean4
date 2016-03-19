@@ -9,6 +9,7 @@ Quotient types for kernels with proof irrelevance.
 #include "util/sstream.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/environment.h"
+#include "kernel/abstract_type_context.h"
 #include "kernel/quotient/quotient.h"
 
 namespace lean {
@@ -49,7 +50,7 @@ environment declare_quotient(environment const & env) {
     return update(env, ext);
 }
 
-optional<expr> quotient_normalizer_extension::operator()(expr const & e, extension_context & ctx) const {
+optional<expr> quotient_normalizer_extension::operator()(expr const & e, abstract_type_context & ctx) const {
     environment const & env = ctx.env();
     expr const & fn         = get_app_fn(e);
     if (!is_constant(fn))
@@ -112,7 +113,7 @@ optional<expr> is_quot_meta_app_core(Ctx & ctx, expr const & e) {
     return ctx.is_stuck(mk_app);
 }
 
-optional<expr> quotient_normalizer_extension::is_stuck(expr const & e, extension_context & ctx) const {
+optional<expr> quotient_normalizer_extension::is_stuck(expr const & e, abstract_type_context & ctx) const {
     return is_quot_meta_app_core(ctx, e);
 }
 

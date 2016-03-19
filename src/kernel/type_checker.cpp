@@ -23,53 +23,6 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 
 namespace lean {
-expr replace_range(expr const & type, expr const & new_range) {
-    if (is_pi(type))
-        return update_binding(type, binding_domain(type), replace_range(binding_body(type), new_range));
-    else
-        return new_range;
-}
-
-/** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
-unsigned get_arity(expr type) {
-    unsigned r = 0;
-    while (is_pi(type)) {
-        type = binding_body(type);
-        r++;
-    }
-    return r;
-}
-
-expr mk_aux_type_metavar_for(expr const & t) {
-    expr new_type = replace_range(t, mk_sort(mk_meta_univ(mk_fresh_name())));
-    name n        = mk_fresh_name();
-    return mk_metavar(n, new_type);
-}
-
-expr mk_aux_metavar_for(expr const & t) {
-    unsigned num  = get_arity(t);
-    expr r        = mk_app_vars(mk_aux_type_metavar_for(t), num);
-    expr new_type = replace_range(t, r);
-    name n        = mk_fresh_name();
-    return mk_metavar(n, new_type);
-}
-
-expr mk_pi_for(expr const & meta) {
-    lean_assert(is_meta(meta));
-    buffer<expr> margs;
-    expr const & m     = get_app_args(meta, margs);
-    expr const & mtype = mlocal_type(m);
-    expr maux1         = mk_aux_type_metavar_for(mtype);
-    expr dontcare;
-    expr tmp_pi        = mk_pi(mk_fresh_name(), mk_app_vars(maux1, margs.size()), dontcare); // trick for "extending" the context
-    expr mtype2        = replace_range(mtype, tmp_pi); // trick for "extending" the context
-    expr maux2         = mk_aux_type_metavar_for(mtype2);
-    expr A             = mk_app(maux1, margs);
-    margs.push_back(Var(0));
-    expr B             = mk_app(maux2, margs);
-    return mk_pi(mk_fresh_name(), A, B);
-}
-
 optional<expr> type_checker::expand_macro(expr const & m) {
     lean_assert(is_macro(m));
     return macro_def(m).expand(m, *this);

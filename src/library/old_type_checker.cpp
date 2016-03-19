@@ -24,7 +24,6 @@ Author: Leonardo de Moura
 #include "library/old_type_checker.h"
 
 namespace lean {
-#if 0
 expr replace_range(expr const & type, expr const & new_range) {
     if (is_pi(type))
         return update_binding(type, binding_domain(type), replace_range(binding_body(type), new_range));
@@ -71,8 +70,6 @@ expr mk_pi_for(expr const & meta) {
     expr B             = mk_app(maux2, margs);
     return mk_pi(mk_fresh_name(), A, B);
 }
-
-#endif
 
 optional<expr> old_type_checker::expand_macro(expr const & m) {
     lean_assert(is_macro(m));

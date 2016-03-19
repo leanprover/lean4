@@ -17,57 +17,18 @@ Author: Leonardo de Moura
 #include "kernel/abstract_type_context.h"
 
 namespace lean {
-/** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
-unsigned get_arity(expr type);
-
-/** \brief Given \c type of the form <tt>(Pi ctx, r)</tt>, return <tt>(Pi ctx, new_range)</tt> */
-expr replace_range(expr const & type, expr const & new_range);
-
-/**
-   \brief Given a type \c t of the form
-      <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
-   return a new metavariable \c m1 with type
-      <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{u}</tt>
-   where \c u is a new universe metavariable.
-*/
-expr mk_aux_type_metavar_for(expr const & t);
-
-/**
-   \brief Given a type \c t of the form
-      <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
-   return a new metavariable \c m1 with type
-      <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), (?m2 x_1 ... x_n)</tt>
-   where \c ?m2 is a new metavariable with type
-      <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{u}</tt>
-   where \c u is a new universe metavariable.
-*/
-expr mk_aux_metavar_for(expr const & t);
-
-/**
-   \brief Given a meta (?m t_1 ... t_n) where ?m has type
-      <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
-   return a Pi term
-      <tt>Pi (x : ?m1 t_1 ... t_n), (?m2 t_1 ... t_n x) </tt>
-   where ?m1 and ?m2 are fresh metavariables
-*/
-expr mk_pi_for(expr const & meta);
-
-/**
-   \brief Lean Type Checker. It can also be used to infer types, check whether a
-   type \c A is convertible to a type \c B, etc.
-*/
+/** \brief Lean Type Checker. It can also be used to infer types, check whether a
+    type \c A is convertible to a type \c B, etc. */
 class type_checker : public abstract_type_context {
+    /* In the type checker cache, we must take into account binder information.
+       Examples:
+       The type of (lambda x : A, t)   is (Pi x : A, typeof(t))
+       The type of (lambda {x : A}, t) is (Pi {x : A}, typeof(t)) */
     typedef expr_bi_struct_map<expr> cache;
-
     environment                m_env;
     std::unique_ptr<converter> m_conv;
-    // In the type checker cache, we must take into account binder information.
-    // Examples:
-    // The type of (lambda x : A, t)   is (Pi x : A, typeof(t))
-    // The type of (lambda {x : A}, t) is (Pi {x : A}, typeof(t))
     cache                      m_infer_type_cache[2];
     bool                       m_memoize;
-    // temp flag
     level_param_names const *  m_params;
 
     friend class converter; // allow converter to access the following methods
@@ -84,12 +45,10 @@ class type_checker : public abstract_type_context {
     expr infer_type_core(expr const & e, bool infer_only);
     expr infer_type(expr const & e);
 public:
-    /**
-       \brief Create a type checker for the given environment. The auxiliary names created by this
+    /** \brief Create a type checker for the given environment. The auxiliary names created by this
        type checker are based on the given name generator.
 
-       memoize: if true, then inferred types are memoized/cached
-    */
+       memoize: if true, then inferred types are memoized/cached */
     type_checker(environment const & env, std::unique_ptr<converter> && conv, bool memoize = true);
     type_checker(environment const & env, bool memoize = true);
     ~type_checker();
@@ -97,15 +56,14 @@ public:
     virtual environment const & env() const { return m_env; }
 
     /** \brief Return the type of \c t.
-       It does not check whether the input expression is type correct or not.
-       The contract is: IF the input expression is type correct, then the inferred
-       type is correct.
-       Throw an exception if a type error is found. */
+        It does not check whether the input expression is type correct or not.
+        The contract is: IF the input expression is type correct, then the inferred
+        type is correct.
+        Throw an exception if a type error is found. */
     virtual expr infer(expr const & t) { return infer_type(t); }
 
-    /**
-       \brief Type check the given expression, and return the type of \c t.
-       Throw an exception if a type error is found.  */
+    /** \brief Type check the given expression, and return the type of \c t.
+        Throw an exception if a type error is found.  */
     virtual expr check(expr const & t, level_param_names const & ps = level_param_names());
     /** \brief Like \c check, but ignores undefined universes */
     expr check_ignore_undefined_universes(expr const & e);
@@ -161,10 +119,8 @@ typedef std::shared_ptr<type_checker> type_checker_ref;
 
 void check_no_metavar(environment const & env, name const & n, expr const & e, bool is_type);
 
-/**
-   \brief Type check the given declaration, and return a certified declaration if it is type correct.
-   Throw an exception if the declaration is type incorrect.
-*/
+/** \brief Type check the given declaration, and return a certified declaration if it is type correct.
+    Throw an exception if the declaration is type incorrect. */
 certified_declaration check(environment const & env, declaration const & d);
 certified_declaration check(environment const & env, declaration const & d, name_predicate const & opaque_hints);
 

@@ -7,12 +7,12 @@ Author: Leonardo de Moura
 #pragma once
 #include <unordered_set>
 #include "util/lbool.h"
-#include "kernel/justification.h"
 #include "kernel/environment.h"
 #include "kernel/converter.h"
 #include "kernel/expr_maps.h"
 #include "kernel/equiv_manager.h"
 #include "kernel/expr_pair.h"
+#include "library/justification.h"
 
 namespace lean {
 /** \brief Converter used in the kernel */

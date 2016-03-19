@@ -15,11 +15,11 @@ Author: Leonardo de Moura
 #include "kernel/expr_maps.h"
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
-#include "kernel/metavar.h"
 #include "kernel/error_msgs.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
+#include "library/metavar.h"
 #include "library/old_default_converter.h"
 #include "library/old_type_checker.h"
 

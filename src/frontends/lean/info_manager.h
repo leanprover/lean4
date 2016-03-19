@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <vector>
 #include "kernel/expr.h"
-#include "kernel/metavar.h"
+#include "library/metavar.h"
 #include "library/io_state_stream.h"
 
 namespace lean {

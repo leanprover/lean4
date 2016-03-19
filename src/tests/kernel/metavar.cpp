@@ -13,10 +13,10 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/init_module.h"
 #include "util/sexpr/init_module.h"
-#include "kernel/metavar.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/init_module.h"
+#include "library/metavar.h"
 #include "library/init_module.h"
 #include "library/print.h"
 using namespace lean;

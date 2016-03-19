@@ -20,4 +20,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   abstract_expr_manager.cpp light_lt_manager.cpp trace.cpp
   attribute_manager.cpp error_handling.cpp unification_hint.cpp defeq_simp_lemmas.cpp
   defeq_simplifier.cpp proof_irrel_expr_manager.cpp local_context.cpp metavar_context.cpp
-  legacy_type_context.cpp type_context.cpp old_type_checker.cpp old_converter.cpp old_default_converter.cpp)
+  type_context.cpp
+  # Legacy
+  justification.cpp constraint.cpp metavar.cpp
+  legacy_type_context.cpp old_type_checker.cpp old_converter.cpp old_default_converter.cpp)

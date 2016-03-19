@@ -12,12 +12,12 @@ Author: Leonardo de Moura
 #include "util/name_set.h"
 #include "util/fresh_name.h"
 #include "kernel/environment.h"
-#include "kernel/constraint.h"
-#include "kernel/justification.h"
 #include "kernel/expr_maps.h"
 #include "kernel/type_checker.h"
 #include "kernel/abstract_type_context.h"
 #include "library/old_converter.h"
+#include "library/constraint.h"
+#include "library/justification.h"
 
 namespace lean {
 /** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */

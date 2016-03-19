@@ -7,12 +7,12 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/interrupt.h"
 #include "kernel/expr.h"
-#include "kernel/justification.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/free_vars.h"
 #include "library/kernel_serializer.h"
 #include "library/bin_app.h"
 #include "library/constants.h"
+#include "library/justification.h"
 
 namespace lean {
 static name * g_resolve_macro_name    = nullptr;

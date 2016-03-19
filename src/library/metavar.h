@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "util/name_set.h"
 #include "util/name_map.h"
 #include "kernel/expr.h"
-#include "kernel/justification.h"
+#include "library/justification.h"
 
 namespace lean {
 class substitution {

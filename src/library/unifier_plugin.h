@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/lazy_list.h"
 #include "kernel/environment.h"
-#include "kernel/constraint.h"
+#include "library/constraint.h"
 #include "library/old_type_checker.h"
 
 namespace lean {

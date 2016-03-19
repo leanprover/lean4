@@ -11,8 +11,9 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
 #include "kernel/type_checker.h"
-#include "kernel/metavar.h"
 #include "kernel/error_msgs.h"
+#include "library/metavar.h"
+#include "library/constraint.h"
 
 namespace lean {
 static expr * g_dont_care = nullptr;

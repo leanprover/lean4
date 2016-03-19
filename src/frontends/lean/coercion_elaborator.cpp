@@ -5,10 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/fresh_name.h"
-#include "kernel/metavar.h"
-#include "kernel/constraint.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "library/metavar.h"
+#include "library/constraint.h"
 #include "library/coercion.h"
 #include "library/unifier.h"
 #include "library/choice_iterator.h"

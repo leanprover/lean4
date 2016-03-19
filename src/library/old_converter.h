@@ -7,6 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include <functional>
 #include "kernel/environment.h"
+#include "library/constraint.h"
+#include "library/justification.h"
 
 namespace lean {
 class old_type_checker;

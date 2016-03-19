@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract_type_context.h"
 #include "library/generic_exception.h"
 #include "library/io_state.h"
+#include "library/constraint.h"
 
 namespace lean {
 /** \brief Base class for \c regular and \c diagnostic wrapper classes. */

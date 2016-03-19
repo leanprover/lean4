@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "util/fresh_name.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
-#include "kernel/metavar.h"
+#include "library/metavar.h"
 #include "library/old_local_context.h"
 
 namespace lean {

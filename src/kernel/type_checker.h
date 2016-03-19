@@ -12,8 +12,6 @@ Author: Leonardo de Moura
 #include "util/name_set.h"
 #include "util/fresh_name.h"
 #include "kernel/environment.h"
-#include "kernel/constraint.h"
-#include "kernel/justification.h"
 #include "kernel/converter.h"
 #include "kernel/expr_maps.h"
 #include "kernel/abstract_type_context.h"
@@ -109,7 +107,6 @@ class type_checker {
     pair<expr, expr> open_binding_body(expr const & e);
     expr ensure_sort_core(expr e, expr const & s);
     expr ensure_pi_core(expr e, expr const & s);
-    justification mk_macro_jst(expr const & e);
     void check_level(level const & l, expr const & s);
     expr infer_constant(expr const & e, bool infer_only);
     expr infer_macro(expr const & e, bool infer_only);

@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "kernel/constraint.h"
 #include "kernel/level.h"
+#include "library/constraint.h"
 #include "library/io_state_stream.h"
 
 namespace lean {

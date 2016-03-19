@@ -6,10 +6,10 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "util/name.h"
-#include "kernel/constraint.h"
 
 namespace lean {
 class environment;
+class expr;
 
 /**
    \brief Extension context (aka API provided to macro_definitions and normalizer_extensions).
@@ -17,7 +17,6 @@ class environment;
    1) the environment being used.
    2) the weak head normal form of an expression.
    3) the type of an expression.
-   4) registration of a new constraint.
 */
 class extension_context {
 public:

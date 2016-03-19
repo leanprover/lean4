@@ -10,8 +10,8 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/int64.h"
 #include "util/memory_pool.h"
-#include "kernel/justification.h"
-#include "kernel/metavar.h"
+#include "library/justification.h"
+#include "library/metavar.h"
 
 #ifndef LEAN_DEFAULT_DEPENDS_ON_CACHE_CAPACITY
 #define LEAN_DEFAULT_DEPENDS_ON_CACHE_CAPACITY 1024*8

@@ -930,7 +930,6 @@ static optional<expr> to_intro_when_K(inductive_env_ext::elim_info const * it,
                                       expr const & e, extension_context & ctx) {
     lean_assert(it->m_K_target);
     environment const & env = ctx.env();
-    constraint_seq cs;
     expr app_type    = ctx.whnf(ctx.infer_type(e));
     if (has_expr_metavar(app_type))
         return none_expr();

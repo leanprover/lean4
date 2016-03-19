@@ -6,7 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "util/rb_tree.h"
-#include "kernel/metavar.h"
+#include "library/metavar.h"
+#include "library/constraint.h"
 #include "library/expr_lt.h"
 
 namespace lean {

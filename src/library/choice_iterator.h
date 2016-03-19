@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "util/lazy_list.h"
-#include "kernel/constraint.h"
+#include "library/constraint.h"
 
 namespace lean {
 /** \brief Abstract (helper) class for creating lazy_list<constraints> */

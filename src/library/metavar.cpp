@@ -7,9 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include "util/interrupt.h"
-#include "kernel/metavar.h"
 #include "kernel/free_vars.h"
-#include "kernel/justification.h"
 #include "kernel/instantiate.h"
 #include "kernel/find_fn.h"
 #include "kernel/expr_maps.h"
@@ -17,6 +15,8 @@ Author: Leonardo de Moura
 #include "kernel/cache_stack.h"
 #include "kernel/expr_cache.h"
 #include "kernel/abstract.h"
+#include "library/justification.h"
+#include "library/metavar.h"
 
 #ifndef LEAN_INSTANTIATE_METAVARS_CACHE_CAPACITY
 #define LEAN_INSTANTIATE_METAVARS_CACHE_CAPACITY 1024*8

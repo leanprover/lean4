@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "util/name_set.h"
 #include "util/name_map.h"
 #include "kernel/expr.h"
-#include "kernel/constraint.h"
 #include "kernel/declaration.h"
 #include "kernel/normalizer_extension.h"
 

@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
-#include "kernel/metavar.h"
+#include "library/metavar.h"
 #include "library/util.h"
 #include "library/tactic/goal.h"
 

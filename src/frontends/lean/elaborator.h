@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include "util/list.h"
-#include "kernel/metavar.h"
+#include "library/metavar.h"
 #include "library/expr_lt.h"
 #include "library/unifier.h"
 #include "library/old_local_context.h"

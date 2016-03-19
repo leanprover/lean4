@@ -9,9 +9,9 @@ Author: Leonardo de Moura
 #include <functional>
 #include "util/lazy_list.h"
 #include "util/sexpr/options.h"
-#include "kernel/constraint.h"
 #include "kernel/environment.h"
-#include "kernel/metavar.h"
+#include "library/metavar.h"
+#include "library/constraint.h"
 
 namespace lean {
 unsigned get_unifier_max_steps(options const & opts);

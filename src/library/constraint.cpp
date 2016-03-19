@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #include "util/rc.h"
 #include "kernel/expr.h"
-#include "kernel/justification.h"
-#include "kernel/metavar.h"
-#include "kernel/constraint.h"
+#include "library/justification.h"
+#include "library/metavar.h"
+#include "library/constraint.h"
 
 namespace lean {
 struct constraint_cell {

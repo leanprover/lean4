@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/error_msgs.h"
 #include "kernel/abstract.h"
-#include "kernel/default_converter.h"
 #include "kernel/inductive/inductive.h"
 #include "library/metavar.h"
 #include "library/locals.h"

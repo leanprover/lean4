@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
-#include "kernel/default_converter.h"
 #include "library/util.h"
 #include "library/user_recursors.h"
 #include "library/constants.h"

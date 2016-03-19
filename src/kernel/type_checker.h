@@ -5,15 +5,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <unordered_set>
 #include <memory>
 #include <utility>
 #include <algorithm>
+#include "util/lbool.h"
 #include "util/flet.h"
 #include "util/name_set.h"
 #include "util/fresh_name.h"
 #include "kernel/environment.h"
-#include "kernel/converter.h"
+#include "kernel/expr_pair.h"
 #include "kernel/expr_maps.h"
+#include "kernel/equiv_manager.h"
 #include "kernel/abstract_type_context.h"
 
 namespace lean {
@@ -25,13 +28,16 @@ class type_checker : public abstract_type_context {
        The type of (lambda x : A, t)   is (Pi x : A, typeof(t))
        The type of (lambda {x : A}, t) is (Pi {x : A}, typeof(t)) */
     typedef expr_bi_struct_map<expr> cache;
-    environment                m_env;
-    std::unique_ptr<converter> m_conv;
-    cache                      m_infer_type_cache[2];
-    bool                       m_memoize;
-    level_param_names const *  m_params;
+    typedef std::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
+    environment               m_env;
+    bool                      m_memoize;
+    cache                     m_infer_type_cache[2];
+    expr_struct_map<expr>     m_whnf_core_cache;
+    expr_struct_map<expr>     m_whnf_cache;
+    equiv_manager             m_eqv_manager;
+    expr_pair_set             m_failure_cache;
+    level_param_names const * m_params;
 
-    friend class converter; // allow converter to access the following methods
     pair<expr, expr> open_binding_body(expr const & e);
     expr ensure_sort_core(expr e, expr const & s);
     expr ensure_pi_core(expr e, expr const & s);
@@ -44,12 +50,36 @@ class type_checker : public abstract_type_context {
     expr infer_let(expr const & e, bool infer_only);
     expr infer_type_core(expr const & e, bool infer_only);
     expr infer_type(expr const & e);
-public:
-    /** \brief Create a type checker for the given environment. The auxiliary names created by this
-       type checker are based on the given name generator.
 
+    enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
+    optional<expr> norm_ext(expr const & e);
+    expr whnf_core(expr const & e);
+    expr unfold_name_core(expr e, unsigned h);
+    expr unfold_names(expr const & e, unsigned h);
+    optional<declaration> is_delta(expr const & e) const;
+    expr whnf_core(expr e, unsigned h);
+    bool is_def_eq_binding(expr t, expr s);
+    bool is_def_eq(level const & l1, level const & l2);
+    bool is_def_eq(levels const & ls1, levels const & ls2);
+    lbool quick_is_def_eq(expr const & t, expr const & s, bool use_hash = false);
+    bool is_def_eq_args(expr t, expr s);
+    bool try_eta_expansion_core(expr const & t, expr const & s);
+    bool try_eta_expansion(expr const & t, expr const & s) {
+        return try_eta_expansion_core(t, s) || try_eta_expansion_core(s, t);
+    }
+    bool is_def_eq_app(expr const & t, expr const & s);
+    bool is_def_eq_proof_irrel(expr const & t, expr const & s);
+    bool failed_before(expr const & t, expr const & s) const;
+    void cache_failure(expr const & t, expr const & s);
+    reduction_status lazy_delta_reduction_step(expr & t_n, expr & s_n);
+    lbool lazy_delta_reduction(expr & t_n, expr & s_n);
+    reduction_status ext_reduction_step(expr & t_n, expr & s_n);
+    lbool reduce_def_eq(expr & t_n, expr & s_n);
+    bool is_def_eq_core(expr const & t, expr const & s);
+
+public:
+    /** \brief Create a type checker for the given environment.
        memoize: if true, then inferred types are memoized/cached */
-    type_checker(environment const & env, std::unique_ptr<converter> && conv, bool memoize = true);
     type_checker(environment const & env, bool memoize = true);
     ~type_checker();
 
@@ -96,17 +126,8 @@ public:
 
     optional<expr> expand_macro(expr const & m);
 
-    /** \brief Return true iff \c d is opaque with respect to this type checker. */
-    bool is_opaque(declaration const & d) const;
-    /** \brief Return true iff the constant \c c is opaque with respect to this type checker. */
-    bool is_opaque(expr const & c) const;
-
     /** \brief Return a metavariable that may be stucking the \c e's reduction. */
     virtual optional<expr> is_stuck(expr const & e);
-
-    optional<declaration> is_delta(expr const & e) const { return m_conv->is_delta(e); }
-
-    bool may_reduce_later(expr const & e) { return !is_meta(e) && static_cast<bool>(m_conv->is_stuck(e, *this)); }
 
     template<typename F>
     typename std::result_of<F()>::type with_params(level_param_names const & ps, F && f) {
@@ -122,7 +143,6 @@ void check_no_metavar(environment const & env, name const & n, expr const & e, b
 /** \brief Type check the given declaration, and return a certified declaration if it is type correct.
     Throw an exception if the declaration is type incorrect. */
 certified_declaration check(environment const & env, declaration const & d);
-certified_declaration check(environment const & env, declaration const & d, name_predicate const & opaque_hints);
 
 void initialize_type_checker();
 void finalize_type_checker();

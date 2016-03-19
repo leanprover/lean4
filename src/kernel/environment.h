@@ -229,8 +229,7 @@ class name_generator;
    Only the type_checker class can create certified declarations.
 */
 class certified_declaration {
-    friend certified_declaration check(environment const & env, declaration const & d,
-                                       name_predicate const & opaque_hints);
+    friend certified_declaration check(environment const & env, declaration const & d);
     environment_id m_id;
     declaration    m_declaration;
     certified_declaration(environment_id const & id, declaration const & d):m_id(id), m_declaration(d) {}

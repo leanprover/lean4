@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/optional.h"
 #include "kernel/instantiate.h"
-#include "kernel/default_converter.h"
 #include "library/annotation.h"
 #include "library/string.h"
 #include "library/explicit.h"

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/user_recursors.h"
 #include "library/normalize.h"
 #include "library/util.h"
+#include "library/old_util.h"
 #include "compiler/eta_expansion.h"
 #include "compiler/simp_pr1_rec.h"
 

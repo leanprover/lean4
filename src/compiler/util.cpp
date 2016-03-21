@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"
+#include "library/old_util.h"
 
 namespace lean {
 static bool is_typeformer_app(buffer<name> const & typeformer_names, expr const & e) {

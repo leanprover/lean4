@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "library/util.h"
+#include "library/old_util.h"
 namespace lean {
 /** \brief Create type checker that treats classes as opaque constants */
 old_type_checker_ptr mk_class_type_checker(environment const & env, bool conservative);

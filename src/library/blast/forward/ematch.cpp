@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "library/constants.h"
 #include "library/idx_metavar.h"
+#include "library/util.h"
 #include "library/head_map.h"
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"

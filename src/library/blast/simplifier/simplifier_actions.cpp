@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "library/attribute_manager.h"
 #include "library/constants.h"
+#include "library/util.h"
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"
 #include "library/blast/options.h"

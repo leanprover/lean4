@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/bin_app.h"
 #include "library/util.h"
+#include "library/old_util.h"
 #include "library/normalize.h"
 #include "library/aux_recursors.h"
 #include "library/scoped_ext.h"
@@ -52,7 +53,7 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
     unsigned nminors       = *inductive::get_num_minor_premises(env, n);
     unsigned ntypeformers  = length(std::get<2>(decls));
     level_param_names lps  = rec_decl.get_univ_params();
-    bool is_reflexive      = is_reflexive_datatype(tc, n);
+    bool is_reflexive      = is_reflexive_datatype(tc.get_type_context(), n);
     level  lvl             = mk_param_univ(head(lps));
     levels lvls            = param_names_to_levels(tail(lps));
     level_param_names blvls; // universe level parameters of ibelow/below
@@ -176,7 +177,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     unsigned nminors       = *inductive::get_num_minor_premises(env, n);
     unsigned ntypeformers  = length(std::get<2>(decls));
     level_param_names lps  = rec_decl.get_univ_params();
-    bool is_reflexive      = is_reflexive_datatype(tc, n);
+    bool is_reflexive      = is_reflexive_datatype(tc.get_type_context(), n);
     level  lvl             = mk_param_univ(head(lps));
     levels lvls            = param_names_to_levels(tail(lps));
     level rlvl;

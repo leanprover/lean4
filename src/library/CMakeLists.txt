@@ -23,4 +23,6 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   type_context.cpp
   # Legacy
   justification.cpp constraint.cpp metavar.cpp
-  legacy_type_context.cpp old_type_checker.cpp old_converter.cpp old_default_converter.cpp)
+  legacy_type_context.cpp old_type_checker.cpp old_converter.cpp old_default_converter.cpp
+  old_util.cpp
+  )

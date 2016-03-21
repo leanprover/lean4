@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/metavar.h"
 #include "library/util.h"
+#include "library/old_util.h"
 #include "library/tactic/goal.h"
 
 namespace lean {

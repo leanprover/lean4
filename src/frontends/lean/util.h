@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/expr_sets.h"
 #include "kernel/type_checker.h"
 #include "library/util.h"
+#include "library/old_util.h"
 #include "library/locals.h"
 #include "library/tactic/util.h"
 #include "frontends/lean/local_decls.h"

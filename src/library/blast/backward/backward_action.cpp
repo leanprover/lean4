@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
+#include "library/util.h"
 #include "library/blast/blast.h"
 #include "library/blast/proof_expr.h"
 #include "library/blast/choice_point.h"

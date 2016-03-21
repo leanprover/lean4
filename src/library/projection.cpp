@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"
+#include "library/old_util.h"
 #include "library/projection.h"
 #include "library/module.h"
 #include "library/kernel_serializer.h"

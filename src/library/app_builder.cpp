@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/name_map.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "library/util.h"
 #include "library/trace.h"
 #include "library/match.h"
 #include "library/constants.h"

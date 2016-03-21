@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "library/tc_multigraph.h"
 #include "library/old_type_checker.h"
 #include "library/composition_manager.h"
-#include "library/util.h"
+#include "library/old_util.h"
 
 namespace lean {
 struct add_edge_fn {

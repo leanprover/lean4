@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
-#include "library/util.h"
+#include "library/old_util.h"
 
 namespace lean {
 enum class reducible_status { Reducible, Semireducible, Irreducible };

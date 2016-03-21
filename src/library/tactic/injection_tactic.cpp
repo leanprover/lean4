@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/constants.h"
 #include "library/util.h"
+#include "library/old_util.h"
 #include "library/reducible.h"
 #include "library/tactic/elaborate.h"
 #include "library/tactic/expr_to_tactic.h"

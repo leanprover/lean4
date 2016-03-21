@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "library/normalize.h"
 #include "library/util.h"
+#include "library/old_util.h"
 #include "library/tactic/tactic.h"
 #include "library/io_state_stream.h"
 

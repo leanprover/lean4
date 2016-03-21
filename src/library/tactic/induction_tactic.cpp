@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"
+#include "library/old_util.h"
 #include "library/user_recursors.h"
 #include "library/constants.h"
 #include "library/reducible.h"

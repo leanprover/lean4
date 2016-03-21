@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "kernel/kernel_exception.h"
+#include "kernel/abstract_type_context.h"
 #include "library/util.h"
 #include "library/kernel_serializer.h"
 

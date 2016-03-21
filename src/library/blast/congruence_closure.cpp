@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "library/trace.h"
 #include "library/constants.h"
+#include "library/util.h"
 #include "library/blast/simplifier/simp_lemmas.h"
 #include "library/blast/congruence_closure.h"
 #include "library/blast/util.h"

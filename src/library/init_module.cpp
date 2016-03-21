@@ -57,19 +57,24 @@ Author: Leonardo de Moura
 #include "library/old_converter.h"
 #include "library/old_default_converter.h"
 #include "library/old_type_checker.h"
+#include "library/old_util.h"
 
 
 namespace lean {
 void initialize_library_module() {
+    initialize_constants();
+
+// TODO(Leo): delete legacy....
+    initialize_library_old_util();
     initialize_old_converter();
     initialize_old_default_converter();
     initialize_old_type_checker();
+// ----------------------------
 
     initialize_local_context();
     initialize_metavar_context();
     initialize_attribute_manager();
     initialize_trace();
-    initialize_constants();
     initialize_fingerprint();
     initialize_print();
     initialize_placeholder();
@@ -167,8 +172,11 @@ void finalize_library_module() {
     finalize_metavar_context();
     finalize_local_context();
 
+// TODO(Leo): delete legacy....
+    finalize_library_old_util();
     finalize_old_converter();
     finalize_old_default_converter();
     finalize_old_type_checker();
+// -------------------
 }
 }

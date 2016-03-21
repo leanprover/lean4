@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/annotation.h"
 #include "library/util.h"
+#include "library/old_util.h"
 #include "library/locals.h"
 #include "library/constants.h"
 #include "library/normalize.h"
@@ -1612,7 +1613,7 @@ class equation_compiler_fn {
         };
 
         level rlvl          = get_brec_on_result_level();
-        bool reflexive      = env().prop_proof_irrel() && is_reflexive_datatype(m_tc, const_name(I0));
+        bool reflexive      = env().prop_proof_irrel() && is_reflexive_datatype(m_tc.get_type_context(), const_name(I0));
         bool use_ibelow     = reflexive && is_zero(rlvl);
         if (reflexive) {
             if (!is_zero(rlvl) && !is_not_zero(rlvl))

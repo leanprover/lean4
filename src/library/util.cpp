@@ -244,15 +244,15 @@ expr fun_to_telescope(expr const & e, buffer<expr> & telescope,
     return to_telescope(false, e, telescope, binfo);
 }
 
-expr to_telescope(abstract_type_context & ctx, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
+expr to_telescope(type_checker & ctx, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
     expr new_type = ctx.whnf(type);
     while (is_pi(new_type)) {
         type = new_type;
         expr local;
         if (binfo)
-            local = ctx.push_local(binding_name(type), binding_domain(type), *binfo);
+            local = mk_local(mk_fresh_name(), binding_name(type), binding_domain(type), *binfo);
         else
-            local = ctx.push_local(binding_name(type), binding_domain(type), binding_info(type));
+            local = mk_local(mk_fresh_name(), binding_name(type), binding_domain(type), binding_info(type));
         telescope.push_back(local);
         type     = instantiate(binding_body(type), local);
         new_type = ctx.whnf(type);

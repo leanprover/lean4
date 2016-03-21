@@ -18,6 +18,7 @@ Author: Daniel Selsam
 #include "library/normalize.h"
 #include "library/expr_lt.h"
 #include "library/num.h"
+#include "library/util.h"
 #include "library/norm_num.h"
 #include "library/attribute_manager.h"
 #include "library/class_instance_resolution.h"

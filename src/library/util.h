@@ -81,7 +81,7 @@ expr to_telescope(expr const & type, buffer<expr> & telescope,
 expr fun_to_telescope(expr const & e, buffer<expr> & telescope, optional<binder_info> const & binfo);
 
 /** \brief Similar to previous procedure, but puts \c type in whnf */
-expr to_telescope(abstract_type_context & ctx, expr type, buffer<expr> & telescope,
+expr to_telescope(type_checker & ctx, expr type, buffer<expr> & telescope,
                   optional<binder_info> const & binfo = optional<binder_info>());
 
 /** \brief Return the universe where inductive datatype resides

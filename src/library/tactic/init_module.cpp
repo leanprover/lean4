@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "library/tactic/trace_tactic.h"
 #include "library/tactic/exact_tactic.h"
 #include "library/tactic/generalize_tactic.h"
-#include "library/tactic/whnf_tactic.h"
 #include "library/tactic/clear_tactic.h"
 #include "library/tactic/revert_tactic.h"
 #include "library/tactic/inversion_tactic.h"
@@ -45,7 +44,6 @@ void initialize_tactic_module() {
     initialize_trace_tactic();
     initialize_exact_tactic();
     initialize_generalize_tactic();
-    initialize_whnf_tactic();
     initialize_clear_tactic();
     initialize_revert_tactic();
     initialize_inversion_tactic();
@@ -88,7 +86,6 @@ void finalize_tactic_module() {
     finalize_inversion_tactic();
     finalize_revert_tactic();
     finalize_clear_tactic();
-    finalize_whnf_tactic();
     finalize_generalize_tactic();
     finalize_exact_tactic();
     finalize_trace_tactic();

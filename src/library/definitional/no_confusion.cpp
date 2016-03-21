@@ -83,9 +83,9 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     cases_on       = mk_app(cases_on, nindices, args.data() + nparams);
     expr cases_on1 = mk_app(cases_on, v1);
     expr cases_on2 = mk_app(cases_on, v2);
-    old_type_checker tc(env);
-    expr t1        = tc.infer(cases_on1).first;
-    expr t2        = tc.infer(cases_on2).first;
+    type_checker tc(env);
+    expr t1        = tc.infer(cases_on1);
+    expr t2        = tc.infer(cases_on2);
     buffer<expr> outer_cases_on_args;
     unsigned idx1 = 0;
     while (is_pi(t1)) {
@@ -112,9 +112,9 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
                         expr rhs      = minor2_args[i];
                         expr lhs_type = mlocal_type(lhs);
                         expr rhs_type = mlocal_type(rhs);
-                        level l       = sort_level(tc.ensure_type(lhs_type).first);
+                        level l       = sort_level(tc.ensure_type(lhs_type));
                         expr h_type;
-                        if (tc.is_def_eq(lhs_type, rhs_type).first) {
+                        if (tc.is_def_eq(lhs_type, rhs_type)) {
                             h_type = mk_app(mk_constant(get_eq_name(), to_list(l)), lhs_type, lhs, rhs);
                         } else {
                             h_type = mk_app(mk_constant(get_heq_name(), to_list(l)), lhs_type, lhs, rhs_type, rhs);
@@ -149,7 +149,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     if (!env1)
         return env;
     environment new_env = *env1;
-    old_type_checker tc(new_env);
+    type_checker tc(new_env);
     bool impredicative                 = env.impredicative();
     inductive::inductive_decls decls   = *inductive::is_inductive_decl(new_env, n);
     unsigned nparams                   = std::get<1>(decls);
@@ -175,7 +175,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     if (!impredicative) {
         lift_up = mk_app(mk_constant(get_lift_up_name(), {head(ls), ind_lvl}), P);
     }
-    level v_lvl       = sort_level(tc.ensure_type(v_type).first);
+    level v_lvl       = sort_level(tc.ensure_type(v_type));
     expr eq_v         = mk_app(mk_constant(get_eq_name(), to_list(v_lvl)), v_type);
     expr H12          = mk_local(mk_fresh_name(), "H12", mk_app(eq_v, v1, v2), binder_info());
     lean_assert(impredicative != inductive::has_dep_elim(env, get_eq_name()));
@@ -213,7 +213,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
         clvls = cons(mk_max(head(ls), ind_lvl), tail(ls));
     expr cases_on  = mk_app(mk_app(mk_constant(cases_decl.get_name(), clvls), nparams, args.data()), type_former);
     cases_on       = mk_app(mk_app(cases_on, nindices, args.data() + nparams), v1);
-    expr cot       = tc.infer(cases_on).first;
+    expr cot       = tc.infer(cases_on);
 
     while (is_pi(cot)) {
         buffer<expr> minor_args;

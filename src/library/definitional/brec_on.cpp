@@ -44,7 +44,7 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
     if (is_inductive_predicate(env, n))
         return env;
     inductive::inductive_decls decls = *inductive::is_inductive_decl(env, n);
-    old_type_checker tc(env);
+    type_checker tc(env);
     unsigned nparams       = std::get<1>(decls);
     declaration ind_decl   = env.get(n);
     declaration rec_decl   = env.get(inductive::get_elim_name(n));
@@ -52,7 +52,7 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
     unsigned nminors       = *inductive::get_num_minor_premises(env, n);
     unsigned ntypeformers  = length(std::get<2>(decls));
     level_param_names lps  = rec_decl.get_univ_params();
-    bool is_reflexive      = is_reflexive_datatype(tc.get_type_context(), n);
+    bool is_reflexive      = is_reflexive_datatype(tc, n);
     level  lvl             = mk_param_univ(head(lps));
     levels lvls            = param_names_to_levels(tail(lps));
     level_param_names blvls; // universe level parameters of ibelow/below
@@ -167,7 +167,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     if (is_inductive_predicate(env, n))
         return env;
     inductive::inductive_decls decls = *inductive::is_inductive_decl(env, n);
-    old_type_checker tc(env);
+    type_checker tc(env);
     unsigned nparams       = std::get<1>(decls);
     declaration ind_decl   = env.get(n);
     declaration rec_decl   = env.get(inductive::get_elim_name(n));
@@ -176,7 +176,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     unsigned nminors       = *inductive::get_num_minor_premises(env, n);
     unsigned ntypeformers  = length(std::get<2>(decls));
     level_param_names lps  = rec_decl.get_univ_params();
-    bool is_reflexive      = is_reflexive_datatype(tc.get_type_context(), n);
+    bool is_reflexive      = is_reflexive_datatype(tc, n);
     level  lvl             = mk_param_univ(head(lps));
     levels lvls            = param_names_to_levels(tail(lps));
     level rlvl;

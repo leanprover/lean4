@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "library/occurs.h"
+#include "library/util.h"
 #include "library/blast/revert.h"
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"

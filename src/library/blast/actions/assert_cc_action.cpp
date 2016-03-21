@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/util.h"
 #include "library/blast/congruence_closure.h"
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"

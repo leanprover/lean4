@@ -244,6 +244,464 @@ expr fun_to_telescope(expr const & e, buffer<expr> & telescope,
     return to_telescope(false, e, telescope, binfo);
 }
 
+expr to_telescope(abstract_type_context & ctx, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
+    expr new_type = ctx.whnf(type);
+    while (is_pi(new_type)) {
+        type = new_type;
+        expr local;
+        if (binfo)
+            local = ctx.push_local(binding_name(type), binding_domain(type), *binfo);
+        else
+            local = ctx.push_local(binding_name(type), binding_domain(type), binding_info(type));
+        telescope.push_back(local);
+        type     = instantiate(binding_body(type), local);
+        new_type = ctx.whnf(type);
+    }
+    return type;
+}
+
+/* ----------------------------------------------
+
+   Helper functions for creating basic operations
+
+   ---------------------------------------------- */
+static expr * g_true = nullptr;
+static expr * g_true_intro = nullptr;
+static expr * g_and = nullptr;
+static expr * g_and_intro = nullptr;
+static expr * g_and_elim_left = nullptr;
+static expr * g_and_elim_right = nullptr;
+
+expr mk_true() {
+    return *g_true;
+}
+
+bool is_true(expr const & e) {
+    return e == *g_true;
+}
+
+expr mk_true_intro() {
+    return *g_true_intro;
+}
+
+bool is_and(expr const & e, expr & arg1, expr & arg2) {
+    if (get_app_fn(e) == *g_and) {
+        buffer<expr> args; get_app_args(e, args);
+        if (args.size() == 2) {
+            arg1 = args[0];
+            arg2 = args[1];
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+
+bool is_and(expr const & e) {
+    if (get_app_fn(e) == *g_and) {
+        buffer<expr> args; get_app_args(e, args);
+        if (args.size() == 2) return true;
+        else return false;
+    } else {
+        return false;
+    }
+}
+
+expr mk_and(expr const & a, expr const & b) {
+    return mk_app(*g_and, a, b);
+}
+
+expr mk_and_intro(abstract_type_context & ctx, expr const & Ha, expr const & Hb) {
+    return mk_app(*g_and_intro, ctx.infer(Ha), ctx.infer(Hb), Ha, Hb);
+}
+
+expr mk_and_elim_left(abstract_type_context & ctx, expr const & H) {
+    expr a_and_b = ctx.whnf(ctx.infer(H));
+    return mk_app(*g_and_elim_left, app_arg(app_fn(a_and_b)), app_arg(a_and_b), H);
+}
+
+expr mk_and_elim_right(abstract_type_context & ctx, expr const & H) {
+    expr a_and_b = ctx.whnf(ctx.infer(H));
+    return mk_app(*g_and_elim_right, app_arg(app_fn(a_and_b)), app_arg(a_and_b), H);
+}
+
+expr mk_unit(level const & l) {
+    return mk_constant(get_poly_unit_name(), {l});
+}
+
+expr mk_unit_mk(level const & l) {
+    return mk_constant(get_poly_unit_star_name(), {l});
+}
+
+static level get_level(abstract_type_context & ctx, expr const & A) {
+    expr S = ctx.whnf(ctx.infer(A));
+    if (!is_sort(S))
+        throw exception("invalid expression, sort expected");
+    return sort_level(S);
+}
+
+expr mk_prod(abstract_type_context & ctx, expr const & A, expr const & B) {
+    level l1 = get_level(ctx, A);
+    level l2 = get_level(ctx, B);
+    return mk_app(mk_constant(get_prod_name(), {l1, l2}), A, B);
+}
+
+expr mk_pair(abstract_type_context & ctx, expr const & a, expr const & b) {
+    expr A = ctx.infer(a);
+    expr B = ctx.infer(b);
+    level l1 = get_level(ctx, A);
+    level l2 = get_level(ctx, B);
+    return mk_app(mk_constant(get_prod_mk_name(), {l1, l2}), A, B, a, b);
+}
+
+expr mk_pr1(abstract_type_context & ctx, expr const & p) {
+    expr AxB = ctx.whnf(ctx.infer(p));
+    expr const & A = app_arg(app_fn(AxB));
+    expr const & B = app_arg(AxB);
+    return mk_app(mk_constant(get_prod_pr1_name(), const_levels(get_app_fn(AxB))), A, B, p);
+}
+
+expr mk_pr2(abstract_type_context & ctx, expr const & p) {
+    expr AxB = ctx.whnf(ctx.infer(p));
+    expr const & A = app_arg(app_fn(AxB));
+    expr const & B = app_arg(AxB);
+    return mk_app(mk_constant(get_prod_pr2_name(), const_levels(get_app_fn(AxB))), A, B, p);
+}
+
+expr mk_unit(level const & l, bool prop) { return prop ? mk_true() : mk_unit(l); }
+expr mk_unit_mk(level const & l, bool prop) { return prop ? mk_true_intro() : mk_unit_mk(l); }
+expr mk_prod(abstract_type_context & ctx, expr const & a, expr const & b, bool prop) {
+    return prop ? mk_and(a, b) : mk_prod(ctx, a, b);
+}
+expr mk_pair(abstract_type_context & ctx, expr const & a, expr const & b, bool prop) {
+    return prop ? mk_and_intro(ctx, a, b) : mk_pair(ctx, a, b);
+}
+expr mk_pr1(abstract_type_context & ctx, expr const & p, bool prop) {
+    return prop ? mk_and_elim_left(ctx, p) : mk_pr1(ctx, p);
+}
+expr mk_pr2(abstract_type_context & ctx, expr const & p, bool prop) {
+    return prop ? mk_and_elim_right(ctx, p) : mk_pr2(ctx, p);
+}
+
+bool is_ite(expr const & e, expr & c, expr & H, expr & A, expr & t, expr & f) {
+    expr const & fn = get_app_fn(e);
+    if (is_constant(fn) && const_name(fn) == get_ite_name()) {
+        buffer<expr> args;
+        get_app_args(e, args);
+        if (args.size() == 5) {
+            c = args[0]; H = args[1]; A = args[2]; t = args[3]; f = args[4];
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+
+bool is_ite(expr const & e) {
+    expr const & fn = get_app_fn(e);
+    if (is_constant(fn) && const_name(fn) == get_ite_name()) {
+        buffer<expr> args;
+        get_app_args(e, args);
+        if (args.size() == 5) return true;
+        else return false;
+    } else {
+        return false;
+    }
+}
+
+bool is_iff(expr const & e) {
+    expr const & fn = get_app_fn(e);
+    return is_constant(fn) && const_name(fn) == get_iff_name();
+}
+bool is_iff(expr const & e, expr & lhs, expr & rhs) {
+    if (!is_iff(e) || !is_app(app_fn(e)))
+        return false;
+    lhs = app_arg(app_fn(e));
+    rhs = app_arg(e);
+    return true;
+}
+expr mk_iff(expr const & lhs, expr const & rhs) {
+    return mk_app(mk_constant(get_iff_name()), lhs, rhs);
+}
+expr mk_iff_refl(expr const & a) {
+    return mk_app(mk_constant(get_iff_refl_name()), a);
+}
+expr apply_propext(expr const & iff_pr, expr const & iff_term) {
+    lean_assert(is_iff(iff_term));
+    return mk_app(mk_constant(get_propext_name()), app_arg(app_fn(iff_term)), app_arg(iff_term), iff_pr);
+}
+
+expr mk_eq(abstract_type_context & ctx, expr const & lhs, expr const & rhs) {
+    expr A    = ctx.whnf(ctx.infer(lhs));
+    level lvl = get_level(ctx, A);
+    return mk_app(mk_constant(get_eq_name(), {lvl}), A, lhs, rhs);
+}
+
+expr mk_refl(abstract_type_context & ctx, expr const & a) {
+    expr A    = ctx.whnf(ctx.infer(a));
+    level lvl = get_level(ctx, A);
+    return mk_app(mk_constant(get_eq_refl_name(), {lvl}), A, a);
+}
+
+expr mk_symm(abstract_type_context & ctx, expr const & H) {
+    expr p    = ctx.whnf(ctx.infer(H));
+    lean_assert(is_eq(p));
+    expr lhs  = app_arg(app_fn(p));
+    expr rhs  = app_arg(p);
+    expr A    = ctx.infer(lhs);
+    level lvl = get_level(ctx, A);
+    return mk_app(mk_constant(get_eq_symm_name(), {lvl}), A, lhs, rhs, H);
+}
+
+expr mk_trans(abstract_type_context & ctx, expr const & H1, expr const & H2) {
+    expr p1    = ctx.whnf(ctx.infer(H1));
+    expr p2    = ctx.whnf(ctx.infer(H2));
+    lean_assert(is_eq(p1) && is_eq(p2));
+    expr lhs1  = app_arg(app_fn(p1));
+    expr rhs1  = app_arg(p1);
+    expr rhs2  = app_arg(p2);
+    expr A     = ctx.infer(lhs1);
+    level lvl  = get_level(ctx, A);
+    return mk_app({mk_constant(get_eq_trans_name(), {lvl}), A, lhs1, rhs1, rhs2, H1, H2});
+}
+
+expr mk_subst(abstract_type_context & ctx, expr const & motive,
+              expr const & x, expr const & y, expr const & xeqy, expr const & h) {
+    expr A    = ctx.infer(x);
+    level l1  = get_level(ctx, A);
+    expr r;
+    if (is_standard(ctx.env())) {
+        r = mk_constant(get_eq_subst_name(), {l1});
+    } else {
+        level l2 = get_level(ctx, ctx.infer(h));
+        r = mk_constant(get_eq_subst_name(), {l1, l2});
+    }
+    return mk_app({r, A, x, y, motive, xeqy, h});
+}
+
+expr mk_subst(abstract_type_context & ctx, expr const & motive, expr const & xeqy, expr const & h) {
+    expr xeqy_type = ctx.whnf(ctx.infer(xeqy));
+    return mk_subst(ctx, motive, app_arg(app_fn(xeqy_type)), app_arg(xeqy_type), xeqy, h);
+}
+
+expr mk_subsingleton_elim(abstract_type_context & ctx, expr const & h, expr const & x, expr const & y) {
+    expr A  = ctx.infer(x);
+    level l = get_level(ctx, A);
+    expr r;
+    if (is_standard(ctx.env())) {
+        r = mk_constant(get_subsingleton_elim_name(), {l});
+    } else {
+        r = mk_constant(get_is_trunc_is_prop_elim_name(), {l});
+    }
+    return mk_app({r, A, h, x, y});
+}
+
+expr mk_heq(abstract_type_context & ctx, expr const & lhs, expr const & rhs) {
+    expr A    = ctx.whnf(ctx.infer(lhs));
+    expr B    = ctx.whnf(ctx.infer(rhs));
+    level lvl = get_level(ctx, A);
+    return mk_app(mk_constant(get_heq_name(), {lvl}), A, lhs, B, rhs);
+}
+
+bool is_eq_rec_core(expr const & e) {
+    expr const & fn = get_app_fn(e);
+    return is_constant(fn) && const_name(fn) == get_eq_rec_name();
+}
+
+bool is_eq_rec(environment const & env, expr const & e) {
+    expr const & fn = get_app_fn(e);
+    if (!is_constant(fn))
+        return false;
+    return is_standard(env) ? const_name(fn) == get_eq_rec_name() : const_name(fn) == get_eq_nrec_name();
+}
+
+bool is_eq_drec(environment const & env, expr const & e) {
+    expr const & fn = get_app_fn(e);
+    if (!is_constant(fn))
+        return false;
+    return is_standard(env) ? const_name(fn) == get_eq_drec_name() : const_name(fn) == get_eq_rec_name();
+}
+
+bool is_eq(expr const & e) {
+    expr const & fn = get_app_fn(e);
+    return is_constant(fn) && const_name(fn) == get_eq_name();
+}
+
+bool is_eq(expr const & e, expr & lhs, expr & rhs) {
+    if (!is_eq(e) || get_app_num_args(e) != 3)
+        return false;
+    lhs = app_arg(app_fn(e));
+    rhs = app_arg(e);
+    return true;
+}
+
+bool is_eq(expr const & e, expr & A, expr & lhs, expr & rhs) {
+    if (!is_eq(e) || get_app_num_args(e) != 3)
+        return false;
+    A   = app_arg(app_fn(app_fn(e)));
+    lhs = app_arg(app_fn(e));
+    rhs = app_arg(e);
+    return true;
+}
+
+bool is_eq_a_a(expr const & e) {
+    if (!is_eq(e))
+        return false;
+    buffer<expr> args;
+    get_app_args(e, args);
+    return args.size() == 3 && args[1] == args[2];
+}
+
+bool is_eq_a_a(abstract_type_context & ctx, expr const & e) {
+    if (!is_eq(e))
+        return false;
+    buffer<expr> args;
+    get_app_args(e, args);
+    if (args.size() != 3)
+        return false;
+    return ctx.is_def_eq(args[1], args[2]);
+}
+
+bool is_heq(expr const & e) {
+    expr const & fn = get_app_fn(e);
+    return is_constant(fn) && const_name(fn) == get_heq_name();
+}
+
+bool is_heq(expr const & e, expr & A, expr & lhs, expr & B, expr & rhs) {
+    if (is_heq(e)) {
+        buffer<expr> args;
+        get_app_args(e, args);
+        if (args.size() != 4)
+            return false;
+        A = args[0]; lhs = args[1]; B = args[2]; rhs = args[3];
+        return true;
+    } else {
+        return false;
+    }
+}
+
+expr mk_false() {
+    return mk_constant(get_false_name());
+}
+
+expr mk_empty() {
+    return mk_constant(get_empty_name());
+}
+
+expr mk_false(environment const & env) {
+    return is_standard(env) ? mk_false() : mk_empty();
+}
+
+bool is_false(expr const & e) {
+    return is_constant(e) && const_name(e) == get_false_name();
+}
+
+bool is_empty(expr const & e) {
+    return is_constant(e) && const_name(e) == get_empty_name();
+}
+
+bool is_false(environment const & env, expr const & e) {
+    return is_standard(env) ? is_false(e) : is_empty(e);
+}
+
+expr mk_false_rec(abstract_type_context & ctx, expr const & f, expr const & t) {
+    level t_lvl = get_level(ctx, t);
+    if (is_standard(ctx.env())) {
+        return mk_app(mk_constant(get_false_rec_name(), {t_lvl}), t, f);
+    } else {
+        expr f_type = ctx.infer(f);
+        return mk_app(mk_constant(get_empty_rec_name(), {t_lvl}), mk_lambda("e", f_type, t), f);
+    }
+}
+
+bool is_or(expr const & e) {
+    buffer<expr> args;
+    expr const & fn = get_app_args(e, args);
+    if (is_constant(fn) && const_name(fn) == get_or_name() && args.size() == 2) return true;
+    else return false;
+}
+
+bool is_or(expr const & e, expr & A, expr & B) {
+    buffer<expr> args;
+    expr const & fn = get_app_args(e, args);
+    if (is_constant(fn) && const_name(fn) == get_or_name() && args.size() == 2) {
+        A = args[0];
+        B = args[1];
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool is_not(environment const & env, expr const & e, expr & a) {
+    if (is_app(e)) {
+        expr const & f = app_fn(e);
+        if (!is_constant(f) || const_name(f) != get_not_name())
+            return false;
+        a = app_arg(e);
+        return true;
+    } else if (is_pi(e)) {
+        if (!is_false(env, binding_body(e)))
+            return false;
+        a = binding_domain(e);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool is_not(environment const & env, expr const & e) {
+    if (is_app(e)) {
+        expr const & f = app_fn(e);
+        if (!is_constant(f) || const_name(f) != get_not_name())
+            return false;
+        return true;
+    } else if (is_pi(e)) {
+        if (!is_false(env, binding_body(e))) return false;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+expr mk_not(abstract_type_context & ctx, expr const & e) {
+    if (is_standard(ctx.env())) {
+        return mk_app(mk_constant(get_not_name()), e);
+    } else {
+        level l = get_level(ctx, e);
+        return mk_app(mk_constant(get_not_name(), {l}), e);
+    }
+}
+
+expr mk_absurd(abstract_type_context & ctx, expr const & t, expr const & e, expr const & not_e) {
+    level t_lvl  = get_level(ctx, t);
+    expr  e_type = ctx.infer(e);
+    if (is_standard(ctx.env())) {
+        return mk_app(mk_constant(get_absurd_name(), {t_lvl}), e_type, t, e, not_e);
+    } else {
+        level e_lvl = get_level(ctx, e_type);
+        return mk_app(mk_constant(get_absurd_name(), {e_lvl, t_lvl}), e_type, t, e, not_e);
+    }
+}
+
+optional<expr> lift_down_if_hott(abstract_type_context & ctx, expr const & v) {
+    if (is_standard(ctx.env())) {
+        return some_expr(v);
+    } else {
+        expr v_type = ctx.whnf(ctx.infer(v));
+        if (!is_app(v_type))
+            return none_expr();
+        expr const & lift = app_fn(v_type);
+        if (!is_constant(lift) || const_name(lift) != get_lift_name())
+            return none_expr();
+        return some_expr(mk_app(mk_constant(get_lift_down_name(), const_levels(lift)), app_arg(v_type), v));
+    }
+}
+
 format pp_type_mismatch(formatter const & fmt, expr const & v, expr const & v_type, expr const & t) {
     format expected_fmt, given_fmt;
     std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, t, v_type);
@@ -257,8 +715,20 @@ format pp_type_mismatch(formatter const & fmt, expr const & v, expr const & v_ty
 }
 
 void initialize_library_util() {
+    g_true           = new expr(mk_constant(get_true_name()));
+    g_true_intro     = new expr(mk_constant(get_true_intro_name()));
+    g_and            = new expr(mk_constant(get_and_name()));
+    g_and_intro      = new expr(mk_constant(get_and_intro_name()));
+    g_and_elim_left  = new expr(mk_constant(get_and_elim_left_name()));
+    g_and_elim_right = new expr(mk_constant(get_and_elim_right_name()));
 }
 
 void finalize_library_util() {
+    delete g_true;
+    delete g_true_intro;
+    delete g_and;
+    delete g_and_intro;
+    delete g_and_elim_left;
+    delete g_and_elim_right;
 }
 }

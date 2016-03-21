@@ -51,44 +51,41 @@ bool is_reflexive_datatype(abstract_type_context & tc, name const & n);
 
 /** \brief Return true iff \c n is an inductive predicate, i.e., an inductive datatype that is in Prop.
 
-    \remark If \c env does not have Prop (i.e., Type.{0} is not impredicative), then this method always return false.
-*/
+    \remark If \c env does not have Prop (i.e., Type.{0} is not impredicative), then this method always return false. */
 bool is_inductive_predicate(environment const & env, name const & n);
 
 /** \brief Store in \c result the introduction rules of the given inductive datatype.
-    \remark this procedure does nothing if \c n is not an inductive datatype.
-*/
+    \remark this procedure does nothing if \c n is not an inductive datatype. */
 void get_intro_rule_names(environment const & env, name const & n, buffer<name> & result);
 
 /** \brief If \c e is a constructor application, then return the name of the constructor.
-    Otherwise, return none.
-*/
+    Otherwise, return none. */
 optional<name> is_constructor_app(environment const & env, expr const & e);
 
 /** \brief If \c e is a constructor application, or a definition that wraps a
     constructor application, then return the name of the constructor.
-    Otherwise, return none.
-*/
+    Otherwise, return none. */
 optional<name> is_constructor_app_ext(environment const & env, expr const & e);
 
 /** \brief "Consume" Pi-type \c type. This procedure creates local constants based on the domain of \c type
     and store them in telescope. If \c binfo is provided, then the local constants are annoted with the given
     binder_info, otherwise the procedure uses the one attached in the domain.
-    The procedure returns the "body" of type.
-*/
+    The procedure returns the "body" of type. */
 expr to_telescope(expr const & type, buffer<expr> & telescope,
                   optional<binder_info> const & binfo = optional<binder_info>());
 
 /** \brief "Consume" fun/lambda. This procedure creates local constants based on the arguments of \c e
     and store them in telescope. If \c binfo is provided, then the local constants are annoted with the given
     binder_info, otherwise the procedure uses the one attached to the arguments.
-    The procedure returns the "body" of function.
-*/
+    The procedure returns the "body" of function. */
 expr fun_to_telescope(expr const & e, buffer<expr> & telescope, optional<binder_info> const & binfo);
 
+/** \brief Similar to previous procedure, but puts \c type in whnf */
+expr to_telescope(abstract_type_context & ctx, expr type, buffer<expr> & telescope,
+                  optional<binder_info> const & binfo = optional<binder_info>());
+
 /** \brief Return the universe where inductive datatype resides
-    \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt>
-*/
+    \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt> */
 level get_datatype_level(expr ind_type);
 
 expr instantiate_univ_param (expr const & e, name const & p, level const & l);
@@ -96,6 +93,104 @@ expr instantiate_univ_param (expr const & e, name const & p, level const & l);
 /** \brief Create a format object for a type mismatch where typeof(v) (i.e., v_type) does not match
     expected type \c t. */
 format pp_type_mismatch(formatter const & fmt, expr const & v, expr const & v_type, expr const & t);
+
+
+expr mk_true();
+bool is_true(expr const & e);
+expr mk_true_intro();
+
+bool is_and(expr const & e, expr & arg1, expr & arg2);
+bool is_and(expr const & e);
+expr mk_and(expr const & a, expr const & b);
+expr mk_and_intro(abstract_type_context & ctx, expr const & Ha, expr const & Hb);
+expr mk_and_elim_left(abstract_type_context & ctx, expr const & H);
+expr mk_and_elim_right(abstract_type_context & ctx, expr const & H);
+
+expr mk_unit(level const & l);
+expr mk_unit_mk(level const & l);
+
+expr mk_prod(abstract_type_context & ctx, expr const & A, expr const & B);
+expr mk_pair(abstract_type_context & ctx, expr const & a, expr const & b);
+expr mk_pr1(abstract_type_context & ctx, expr const & p);
+expr mk_pr2(abstract_type_context & ctx, expr const & p);
+
+expr mk_unit(level const & l, bool prop);
+expr mk_unit_mk(level const & l, bool prop);
+
+expr mk_prod(abstract_type_context & ctx, expr const & a, expr const & b, bool prop);
+expr mk_pair(abstract_type_context & ctx, expr const & a, expr const & b, bool prop);
+expr mk_pr1(abstract_type_context & ctx, expr const & p, bool prop);
+expr mk_pr2(abstract_type_context & ctx, expr const & p, bool prop);
+
+bool is_ite(expr const & e, expr & c, expr & H, expr & A, expr & t, expr & f);
+bool is_ite(expr const & e);
+
+bool is_iff(expr const & e);
+bool is_iff(expr const & e, expr & lhs, expr & rhs);
+expr mk_iff(expr const & lhs, expr const & rhs);
+expr mk_iff_refl(expr const & a);
+
+expr apply_propext(expr const & iff_pr, expr const & iff_term);
+
+expr mk_eq(abstract_type_context & ctx, expr const & lhs, expr const & rhs);
+expr mk_refl(abstract_type_context & ctx, expr const & a);
+expr mk_symm(abstract_type_context & ctx, expr const & H);
+expr mk_trans(abstract_type_context & ctx, expr const & H1, expr const & H2);
+expr mk_subst(abstract_type_context & ctx, expr const & motive,
+              expr const & x, expr const & y, expr const & xeqy, expr const & h);
+expr mk_subst(abstract_type_context & ctx, expr const & motive, expr const & xeqy, expr const & h);
+/** \brief Create an proof for x = y using subsingleton.elim (in standard mode) and is_trunc.is_prop.elim (in HoTT mode) */
+expr mk_subsingleton_elim(abstract_type_context & ctx, expr const & h, expr const & x, expr const & y);
+
+/** \brief Return true iff \c e is a term of the form (eq.rec ....) */
+bool is_eq_rec_core(expr const & e);
+/** \brief Return true iff \c e is a term of the form (eq.rec ....) in the standard library,
+    and (eq.nrec ...) in the HoTT library. */
+bool is_eq_rec(environment const & env, expr const & e);
+/** \brief Return true iff \c e is a term of the form (eq.drec ....) in the standard library,
+    and (eq.rec ...) in the HoTT library. */
+bool is_eq_drec(environment const & env, expr const & e);
+
+bool is_eq(expr const & e);
+bool is_eq(expr const & e, expr & lhs, expr & rhs);
+bool is_eq(expr const & e, expr & A, expr & lhs, expr & rhs);
+/** \brief Return true iff \c e is of the form (eq A a a) */
+bool is_eq_a_a(expr const & e);
+/** \brief Return true iff \c e is of the form (eq A a a') where \c a and \c a' are definitionally equal */
+bool is_eq_a_a(abstract_type_context & ctx, expr const & e);
+
+expr mk_heq(abstract_type_context & ctx, expr const & lhs, expr const & rhs);
+bool is_heq(expr const & e);
+bool is_heq(expr const & e, expr & A, expr & lhs, expr & B, expr & rhs);
+
+/** \brief If in HoTT mode, apply lift.down.
+    The no_confusion constructions uses lifts in the proof relevant version (aka HoTT mode).
+    We must apply lift.down to eliminate the auxiliary lift. */
+optional<expr> lift_down_if_hott(abstract_type_context & ctx, expr const & v);
+
+expr mk_false();
+expr mk_empty();
+/** \brief Return false (in standard mode) and empty (in HoTT) mode */
+expr mk_false(environment const & env);
+
+bool is_false(expr const & e);
+bool is_empty(expr const & e);
+/** \brief Return true iff \c e is false (in standard mode) or empty (in HoTT) mode */
+bool is_false(environment const & env, expr const & e);
+/** \brief Return an element of type t given an element \c f : false (in standard mode) and empty (in HoTT) mode */
+expr mk_false_rec(abstract_type_context & ctx, expr const & f, expr const & t);
+
+bool is_or(expr const & e);
+bool is_or(expr const & e, expr & A, expr & B);
+
+/** \brief Return true if \c e is of the form <tt>(not arg)</tt>, and store \c arg in \c a.
+     Return false otherwise */
+bool is_not(environment const & env, expr const & e, expr & a);
+bool is_not(environment const & env, expr const & e);
+expr mk_not(abstract_type_context & ctx, expr const & e);
+
+/** \brief Create the term <tt>absurd e not_e : t</tt>. */
+expr mk_absurd(abstract_type_context & ctx, expr const & t, expr const & e, expr const & not_e);
 
 void initialize_library_util();
 void finalize_library_util();

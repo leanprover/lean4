@@ -16,9 +16,9 @@ Author: Leonardo de Moura
 #include "kernel/error_msgs.h"
 #include "library/reducible.h"
 #include "library/unifier.h"
+#include "library/util.h"
 #include "library/occurs.h"
 #include "library/constants.h"
-#include "library/type_util.h"
 #include "library/class_instance_resolution.h"
 #include "library/old_type_checker.h"
 #include "library/tactic/expr_to_tactic.h"
@@ -91,9 +91,9 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
     if (uk)
         cfg.m_kind = *uk;
     if (add_meta != DoNotAdd) {
-        unsigned num_e_t = get_expect_num_args(*tc, e_t);
+        unsigned num_e_t = get_expect_num_args(tc->get_type_context(), e_t);
         if (add_meta == AddDiff) {
-            unsigned num_t   = get_expect_num_args(*tc, t);
+            unsigned num_t   = get_expect_num_args(tc->get_type_context(), t);
             if (num_t <= num_e_t)
                 num_e_t -= num_t;
             else

@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "library/unifier.h"
-#include "library/type_util.h"
 #include "library/reducible.h"
 #include "library/flycheck.h"
 #include "frontends/lean/parser.h"
@@ -59,8 +58,8 @@ bool match_pattern(old_type_checker & tc, expr const & pattern, declaration cons
         ls.push_back(mk_meta_univ(mk_fresh_name()));
     expr dt        = instantiate_type_univ_params(d, to_list(ls.begin(), ls.end()));
 
-    unsigned num_e = get_expect_num_args(tc, pattern);
-    unsigned num_d = get_expect_num_args(tc, dt);
+    unsigned num_e = get_expect_num_args(tc.get_type_context(), pattern);
+    unsigned num_d = get_expect_num_args(tc.get_type_context(), dt);
     if (num_e > num_d)
         return false;
     for (unsigned i = 0; i < num_d - num_e; i++) {

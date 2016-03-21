@@ -67,6 +67,13 @@ optional<name> is_constructor_app(environment const & env, expr const & e);
     Otherwise, return none. */
 optional<name> is_constructor_app_ext(environment const & env, expr const & e);
 
+/** \brief Given an expression \c e, return the number of arguments expected arguments.
+
+    \remark This function computes the type of \c e, and then counts the number of nested
+    Pi's. Weak-head-normal-forms are computed for the type of \c e.
+    \remark The type and whnf are computed using \c tc. */
+unsigned get_expect_num_args(abstract_type_context & ctx, expr e);
+
 /** \brief "Consume" Pi-type \c type. This procedure creates local constants based on the domain of \c type
     and store them in telescope. If \c binfo is provided, then the local constants are annoted with the given
     binder_info, otherwise the procedure uses the one attached in the domain.

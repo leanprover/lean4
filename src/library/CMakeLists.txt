@@ -8,7 +8,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   unifier_plugin.cpp inductive_unifier_plugin.cpp explicit.cpp num.cpp
   string.cpp head_map.cpp match.cpp definition_cache.cpp
   declaration_index.cpp class.cpp util.cpp print.cpp annotation.cpp
-  typed_expr.cpp let.cpp type_util.cpp protected.cpp
+  typed_expr.cpp let.cpp protected.cpp
   metavar_closure.cpp reducible.cpp init_module.cpp
   generic_exception.cpp fingerprint.cpp flycheck.cpp hott_kernel.cpp
   old_local_context.cpp choice_iterator.cpp pp_options.cpp

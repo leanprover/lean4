@@ -221,6 +221,20 @@ expr instantiate_univ_param (expr const & e, name const & p, level const & l) {
     return instantiate_univ_params(e, to_list(p), to_list(l));
 }
 
+unsigned get_expect_num_args(abstract_type_context & ctx, expr e) {
+    push_local_fn push_local(ctx);
+    unsigned r = 0;
+    while (true) {
+        e = ctx.whnf(e);
+        if (!is_pi(e))
+            return r;
+        // TODO(Leo): try to avoid the following instantiate.
+        expr local = push_local(binding_name(e), binding_domain(e), binding_info(e));
+        e = instantiate(binding_body(e), local);
+        r++;
+    }
+}
+
 expr to_telescope(bool pi, expr e, buffer<expr> & telescope,
                   optional<binder_info> const & binfo) {
     while ((pi && is_pi(e)) || (!pi && is_lambda(e))) {

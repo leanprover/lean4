@@ -5,7 +5,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   coercion.cpp private.cpp placeholder.cpp aliases.cpp level_names.cpp
   update_declaration.cpp choice.cpp scoped_ext.cpp locals.cpp
   standard_kernel.cpp sorry.cpp replace_visitor.cpp unifier.cpp
-  unifier_plugin.cpp inductive_unifier_plugin.cpp explicit.cpp num.cpp
+  explicit.cpp num.cpp
   string.cpp head_map.cpp match.cpp definition_cache.cpp
   declaration_index.cpp class.cpp util.cpp print.cpp annotation.cpp
   typed_expr.cpp let.cpp protected.cpp

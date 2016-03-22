@@ -124,17 +124,4 @@ section
       (Hc : cast (eq_of_heq (hcongr_arg2 C Ha Hb)) c = c')
         : f a b c = f a' b' c' :=
   eq_of_heq (hcongr_arg3 f Ha Hb (eq_rec_to_heq Hc))
-
-  theorem hhdcongr_arg4 (f : Πa b c, D a b c → F) (Ha : a = a') (Hb : b == b')
-      (Hc : c == c')
-      (Hd : cast (dcongr_arg3 D Ha (!eq.rec_on_irrel_arg ⬝ heq.to_cast_eq Hb)
-                                   (!eq.rec_on_irrel_arg ⬝ heq.to_cast_eq Hc)) d = d')
-        : f a b c d = f a' b' c' d' :=
-  eq_of_heq (hcongr_arg4 f Ha Hb Hc (eq_rec_to_heq Hd))
-
-  theorem hddcongr_arg4 (f : Πa b c, D a b c → F) (Ha : a = a') (Hb : b == b')
-      (Hc : cast (eq_of_heq (hcongr_arg2 C Ha Hb)) c = c')
-      (Hd : cast (hdcongr_arg3 D Ha Hb Hc) d = d')
-        : f a b c d = f a' b' c' d' :=
-  eq_of_heq (hcongr_arg4 f Ha Hb (eq_rec_to_heq Hc) (eq_rec_to_heq Hd))
 end

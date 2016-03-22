@@ -32,7 +32,11 @@ namespace nat
 
   protected definition no_confusion [reducible] [unfold 4]
                        {P : Type} {v₁ v₂ : ℕ} (H : v₁ = v₂) : nat.no_confusion_type P v₁ v₂ :=
-  eq.rec (λ H₁ : v₁ = v₁, nat.rec (λ h, h) (λ a ih h, h (eq.refl a)) v₁) H H
+  have v₁ = v₁ → nat.no_confusion_type P v₁ v₁, from
+    λ H₁ : v₁ = v₁, nat.rec (λ h, h) (λ a ih h, h (eq.refl a)) v₁,
+  have v₁ = v₂ → nat.no_confusion_type P v₁ v₂, from
+    eq.rec this H,
+  this H
 
   /- basic definitions on natural numbers -/
   inductive le (a : ℕ) : ℕ → Prop :=

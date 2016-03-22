@@ -74,8 +74,6 @@ namespace semigroup
   definition carrier  [coercion] (g : semigroup)
   := semigroup.rec (fun c s, c) g
 
-  definition is_semigroup  [instance] [g : semigroup] : semigroup_struct (carrier g)
-  := semigroup.rec (fun c s, s) g
 end semigroup
 
 namespace monoid
@@ -101,7 +99,7 @@ namespace monoid
   := monoid.rec (fun c s, c) m
 
   definition is_monoid  [instance] (m : monoid) : monoid_struct (carrier m)
-  := monoid.rec (fun c s, s) m
+  := sorry
 end monoid
 end algebra
 

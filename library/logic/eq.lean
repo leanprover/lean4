@@ -26,10 +26,6 @@ namespace eq
   theorem rec_on_constant2 (H₁ : a₁ = a₂) (H₂ : a₃ = a₄) (b : B) : eq.rec_on H₁ b = eq.rec_on H₂ b :=
   rec_on_constant H₁ b ⬝ (rec_on_constant H₂ b)⁻¹
 
-  theorem rec_on_irrel_arg {f : A → B} {D : B → Type} (H : a = a') (H' : f a = f a') (b : D (f a)) :
-                       eq.rec_on H b = eq.rec_on H' b :=
-  eq.drec_on H (λ(H' : f a = f a), !rec_on_id⁻¹) H'
-
   theorem rec_on_irrel {a a' : A} {D : A → Type} (H H' : a = a') (b : D a) :
       eq.drec_on H b = eq.drec_on H' b :=
   proof_irrel H H' ▸ rfl

@@ -68,16 +68,6 @@ namespace vector
   example : addk (1 :: 2 :: vnil) 3 = 4 :: 5 :: vnil :=
   rfl
 
-  definition append.{l} {A : Type.{l+1}} {n m : nat} (w : vector A m) (v : vector A n) : vector A (n + m) :=
-  vector.brec_on w (λ (n : nat) (w : vector A n),
-    vector.cases_on w
-      (λ (B : bw vnil), v)
-      (λ (n₁ : nat) (a₁ : A) (v₁ : vector A n₁) (B : bw (vcons a₁ v₁)),
-         vcons a₁ (pr₁ B)))
-
-  example : append ((1:nat) :: 2 :: vnil) (3 :: vnil) = 1 :: 2 :: 3 :: vnil :=
-  rfl
-
   definition head {A : Type} {n : nat} (v : vector A (succ n)) : A :=
   vector.cases_on v
     (λ H : succ n = 0, nat.no_confusion H)

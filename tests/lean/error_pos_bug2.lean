@@ -1,14 +1,13 @@
 inductive fibrant [class] (T : Type) : Type :=
 mk : fibrant T
 
-inductive Fib : Type :=
-mk : ΠA : Type, fibrant A → Fib
+structure Fib : Type :=
+(type : Type) (is_fibrant : fibrant type)
 
 namespace Fib
 
-definition type [coercion] (F : Fib) : Type := Fib.rec_on F (λA f, A)
-
-definition is_fibrant [instance] (F : Fib) : fibrant (type F) := Fib.rec_on F (λA f, f)
+attribute type [coercion]
+attribute is_fibrant [instance]
 
 end Fib
 -- open Fib

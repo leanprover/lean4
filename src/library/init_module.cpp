@@ -23,7 +23,6 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/aliases.h"
 #include "library/coercion.h"
-#include "library/unifier_plugin.h"
 #include "library/io_state.h"
 #include "library/idx_metavar.h"
 #include "library/sorry.h"
@@ -94,7 +93,6 @@ void initialize_library_module() {
     initialize_reducible();
     initialize_aliases();
     initialize_coercion();
-    initialize_unifier_plugin();
     initialize_sorry();
     initialize_class();
     initialize_library_util();
@@ -142,7 +140,6 @@ void finalize_library_module() {
     finalize_library_util();
     finalize_class();
     finalize_sorry();
-    finalize_unifier_plugin();
     finalize_coercion();
     finalize_aliases();
     finalize_reducible();

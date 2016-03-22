@@ -187,7 +187,9 @@ variables {A B C : Type.{u}} {a a' : A} {b b' : B} {c : C}
 theorem eq_of_heq (H : a == a') : a = a' :=
 have H₁ : ∀ (Ht : A = A), eq.rec a Ht = a, from
   λ Ht, eq.refl a,
-heq.rec H₁ H (eq.refl A)
+have H₂ : ∀ (Ht : A = A), eq.rec a Ht = a', from
+  heq.rec H₁ H,
+H₂ (eq.refl A)
 
 theorem heq.elim {A : Type} {a : A} {P : A → Type} {b : A} (H₁ : a == b)
 : P a → P b := eq.rec_on (eq_of_heq H₁)

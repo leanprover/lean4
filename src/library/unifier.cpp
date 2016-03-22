@@ -28,7 +28,6 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/unifier.h"
 #include "library/reducible.h"
-#include "library/unifier_plugin.h"
 #include "library/print.h"
 #include "library/expr_lt.h"
 #include "library/projection.h"
@@ -344,7 +343,6 @@ struct unifier_fn {
     constraints      m_postponed; // constraints that will not be solved
     owned_map        m_owned_map; // mapping from metavariable name m to constraint idx
     expr_map         m_type_map;  // auxiliary map for storing the type of the expr in choice constraints
-    unifier_plugin   m_plugin;
     type_checker_ptr m_tc;
     type_checker_ptr m_flex_rigid_tc; // type checker used when solving flex rigid constraints. By default,
                                       // only the definitions from the main module are treated as transparent.
@@ -450,7 +448,7 @@ struct unifier_fn {
     unifier_fn(environment const & env, unsigned num_cs, constraint const * cs,
                substitution const & s,
                unifier_config const & cfg):
-        m_env(env), m_subst(s), m_plugin(get_unifier_plugin(env)),
+        m_env(env), m_subst(s),
         m_config(cfg), m_num_steps(0) {
         switch (m_config.m_kind) {
         case unifier_kind::Cheap:
@@ -1074,8 +1072,7 @@ struct unifier_fn {
             add_meta_occ(rhs, cidx);
             return true;
         } else if (m_tc->may_reduce_later(lhs) ||
-                   m_tc->may_reduce_later(rhs) ||
-                   m_plugin->delay_constraint(*m_tc, c)) {
+                   m_tc->may_reduce_later(rhs)) {
             unsigned cidx = add_cnstr(c, cnstr_group::PluginDelayed);
             add_meta_occs(lhs, cidx);
             add_meta_occs(rhs, cidx);
@@ -1575,7 +1572,7 @@ struct unifier_fn {
 
     bool process_plugin_constraint(constraint const & c) {
         lean_assert(!is_choice_cnstr(c));
-        lazy_list<constraints> alts = m_plugin->solve(*m_tc, c);
+        lazy_list<constraints> alts;
         alts = append(alts, process_const_const_cnstr(c));
         return process_lazy_constraints(alts, c.get_justification());
     }

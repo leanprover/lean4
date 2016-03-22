@@ -21,6 +21,7 @@ have aux : is_eq a a = tt, from
     (λ (a₁ : nat) (ih : is_eq a₁ a₁ = tt), ih),
 H ▸ aux
 
+/-
 theorem is_eq.to_eq (a b : nat) : is_eq a b = tt → a = b :=
 nat.induction_on a
   (λb, nat.cases_on b (λh, rfl) (λb₁ H, absurd H !ff_ne_tt))
@@ -31,3 +32,4 @@ nat.induction_on a
          have aux : a₁ = b₁, from ih b₁ H,
          aux ▸ rfl))
   b
+-/

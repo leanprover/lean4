@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "library/generic_exception.h"
 #include "library/tmp_type_context.h"
 #include "library/annotation.h"
-#include "library/occurs.h"
+#include "library/util.h"
 #include "library/scoped_ext.h"
 #include "library/attribute_manager.h"
 #include "library/idx_metavar.h"

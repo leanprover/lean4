@@ -20,6 +20,14 @@ Author: Leonardo de Moura
 #include "library/old_type_checker.h"
 
 namespace lean {
+bool occurs(expr const & n, expr const & m) {
+    return static_cast<bool>(find(m, [&](expr const & e, unsigned) { return n == e; }));
+}
+
+bool occurs(name const & n, expr const & m) {
+    return static_cast<bool>(find(m, [&](expr const & e, unsigned) { return is_constant(e) && const_name(e) == n; }));
+}
+
 bool is_app_of(expr const & t, name const & f_name) {
     expr const & fn = get_app_fn(t);
     return is_constant(fn) && const_name(fn) == f_name;

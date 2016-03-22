@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/unifier.h"
 #include "library/util.h"
-#include "library/occurs.h"
 #include "library/constants.h"
 #include "library/class_instance_resolution.h"
 #include "library/old_type_checker.h"

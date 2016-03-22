@@ -1,5 +1,5 @@
 add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
-  occurs.cpp io_state_stream.cpp bin_app.cpp
+  io_state_stream.cpp bin_app.cpp
   constants.cpp kernel_serializer.cpp
   max_sharing.cpp normalize.cpp shared_environment.cpp module.cpp
   coercion.cpp private.cpp placeholder.cpp aliases.cpp level_names.cpp

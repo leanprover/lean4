@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/util.h"
 #include "library/relation_manager.h"
-#include "library/occurs.h"
 #include "library/blast/simplifier/ceqv.h"
 
 namespace lean {

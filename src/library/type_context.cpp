@@ -10,10 +10,12 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/inductive/inductive.h"
 #include "library/idx_metavar.h"
 #include "library/reducible.h"
 #include "library/metavar_util.h"
 #include "library/type_context.h"
+#include "library/aux_recursors.h"
 
 namespace lean {
 /* =====================
@@ -83,6 +85,7 @@ type_context::tmp_locals::~tmp_locals() {
 void type_context::init_core(transparency_mode m) {
     m_used_assignment        = false;
     m_transparency_mode      = m;
+    m_in_is_def_eq           = false;
     m_tmp_mode               = false;
 }
 
@@ -269,9 +272,41 @@ expr type_context::mk_pi(buffer<expr> const & locals, expr const & e) {
    Normalization
    -------------------- */
 
-optional<declaration> type_context::is_transparent(name const & n) {
-    return m_cache->is_transparent(m_transparency_mode, n);
+optional<declaration> type_context::is_transparent(transparency_mode m, name const & n) {
+    return m_cache->is_transparent(m, n);
 }
+
+optional<declaration> type_context::is_transparent(name const & n) {
+    return is_transparent(m_transparency_mode, n);
+}
+
+/* Unfold \c e if it is a constant */
+optional<expr> type_context::unfold_definition_core(expr const & e) {
+    if (is_constant(e)) {
+        if (auto d = is_transparent(const_name(e))) {
+            if (length(const_levels(e)) == d->get_num_univ_params())
+                return some_expr(instantiate_value_univ_params(*d, const_levels(e)));
+        }
+    }
+    return none_expr();
+}
+
+/* Unfold head(e) if it is a constant */
+optional<expr> type_context::unfold_definition(expr const & e) {
+    if (is_app(e)) {
+        expr f0 = get_app_fn(e);
+        if (auto f  = unfold_definition_core(f0)) {
+            buffer<expr> args;
+            get_app_rev_args(e, args);
+            return some_expr(mk_rev_app(*f, args));
+        } else {
+            return none_expr();
+        }
+    } else {
+        return unfold_definition_core(e);
+    }
+}
+
 
 optional<expr> type_context::reduce_projection(expr const & e) {
     expr const & f = get_app_fn(e);
@@ -300,10 +335,24 @@ optional<expr> type_context::reduce_projection(expr const & e) {
     return some_expr(r);
 }
 
+optional<expr> type_context::reduce_aux_recursor(expr const & e) {
+    expr const & f = get_app_fn(e);
+    if (!is_constant(f))
+        return none_expr();
+    if (is_aux_recursor(env(), const_name(f)))
+        return unfold_definition(e);
+    else
+        return none_expr();
+}
+
 bool type_context::should_unfold_macro(expr const & e) {
     /* If m_transparency_mode is set to ALL, then we unfold all
-       macros. In this way, we make sure type inference does not fail. */
-    return m_transparency_mode == transparency_mode::All || m_cache->should_unfold_macro(e);
+       macros. In this way, we make sure type inference does not fail.
+       We also unfold macros when reducing inside of is_def_eq. */
+    return
+        m_transparency_mode == transparency_mode::All ||
+        m_in_is_def_eq ||
+        m_cache->should_unfold_macro(e);
 }
 
 optional<expr> type_context::expand_macro(expr const & e) {
@@ -315,13 +364,29 @@ optional<expr> type_context::expand_macro(expr const & e) {
     }
 }
 
+/*
+  Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
+  unfold macros, expand let-expressions, expand assigned meta-variables.
+
+  This method does *not* apply delta-reduction at the head.
+  Reason: we want to perform these reductions lazily at is_def_eq.
+
+  Remark: this method delta-reduce (transparent) aux-recursors (e.g., cases_on, rec_on).
+*/
 expr type_context::whnf_core(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Var:      case expr_kind::Sort:
     case expr_kind::Pi:       case expr_kind::Lambda:
-    case expr_kind::Constant: case expr_kind::Local:
-        /* Remark: we do not unfold Constants and
-           Local declarations eagerly in this method */
+    case expr_kind::Constant:
+        /* Remark: we do not unfold Constants eagerly in this method */
+        return e;
+    case expr_kind::Local:
+        if (auto d = m_lctx.get_local_decl(e)) {
+            if (auto v = d->get_value()) {
+                /* zeta-reduction */
+                return whnf_core(*v);
+            }
+        }
         return e;
     case expr_kind::Meta:
         if (is_metavar_decl_ref(e)) {
@@ -355,6 +420,7 @@ expr type_context::whnf_core(expr const & e) {
         expr f0 = get_app_rev_args(e, args);
         expr f  = whnf_core(f0);
         if (is_lambda(f)) {
+            /* beta-reduction */
             unsigned m = 1;
             unsigned num_args = args.size();
             while (is_lambda(binding_body(f)) && m < num_args) {
@@ -364,16 +430,34 @@ expr type_context::whnf_core(expr const & e) {
             lean_assert(m <= num_args);
             return whnf_core(mk_rev_app(::lean::instantiate(binding_body(f), m, args.data() + (num_args - m)),
                                         num_args - m, args.data()));
+        } else if (f == f0) {
+            if (auto r = env().norm_ext()(e, *this)) {
+                /* mainly iota-reduction, it also applies HIT and quotient reduction rules */
+                return whnf_core(*r);
+            } else if (auto r = reduce_projection(e)) {
+                return whnf_core(*r);
+            } else if (auto r = reduce_aux_recursor(e)) {
+                return whnf_core(*r);
+            } else {
+                return e;
+            }
         } else {
-            return f == f0 ? e : whnf_core(mk_rev_app(f, args.size(), args.data()));
+            return whnf_core(mk_rev_app(f, args.size(), args.data()));
         }
     }}
     lean_unreachable();
 }
 
 expr type_context::whnf(expr const & e) {
-    // TODO(Leo)
-    return e;
+    expr t = e;
+    while (true) {
+        expr t1 = whnf_core(t);
+        if (auto next_t = unfold_definition(t1)) {
+            t = *next_t;
+        } else {
+            return t1;
+        }
+    }
 }
 
 expr type_context::relaxed_whnf(expr const & e) {
@@ -874,13 +958,6 @@ optional<declaration> type_context::is_delta(expr const & e) {
     }
 }
 
-
-bool type_context::is_def_eq_core(expr const & t, expr const & s) {
-    check_system("is_definitionally_equal");
-    // TODO(Leo)
-    return false;
-}
-
 bool type_context::approximate() {
     // TODO(Leo): add flag at type_context_cache to force approximated mode.
     return m_tmp_mode;
@@ -1044,18 +1121,57 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
         /* Use first-order unification.
            Workaround A5. */
         buffer<expr> new_v_args;
-        expr const & new_v_fn = get_app_args(new_v, new_v_args);
-        if (args.size() < new_v_args.size())
-            return false;
-        expr new_m = mk_app(mvar, args.size() - new_v_args.size(), args.data());
-        if (!is_def_eq_core(new_m, new_v_fn))
-            return false;
-        unsigned i = args.size() - new_v_args.size();
+        expr new_v_fn = get_app_args(new_v, new_v_args);
+        expr new_mvar = mvar;
+        unsigned i = 0;
         unsigned j = 0;
+        if (args.size() > new_v_args.size()) {
+            /*
+               ?M a_1 ... a_i a_{i+1} ... a_{i+k} =?= f b_1 ... b_k
+
+               reduces to
+
+               ?M a_1 ... a_i =?= f
+               a_{i+1}        =?= b_1
+               ...
+               a_{i+k}        =?= b_k
+            */
+            new_mvar = mk_app(mvar, args.size() - new_v_args.size(), args.data());
+            i        = new_v_args.size();
+        } else if (args.size() < new_v_args.size()) {
+            /*
+               ?M a_1 ... a_k =?= f b_1 ... b_i b_{i+1} ... b_{i+k}
+
+               reduces to
+
+               ?M  =?= f b_1 ... b_i
+               a_1 =?= b_{i+1}
+               ...
+               a_k =?= b_{i+k}
+            */
+            new_v_fn = mk_app(new_v_fn, new_v_args.size() - args.size(), new_v_args.data());
+            j        = args.size();
+        } else {
+            /*
+               ?M a_1 ... a_k =?= f b_1 ... b_k
+
+               reduces to
+               ?M  =?= f
+               a_1 =?= b_1
+               ...
+               a_k =?= b_k
+            */
+            lean_assert(new_v_args.size() == args.size());
+        }
+        if (!is_def_eq_core(new_mvar, new_v_fn))
+            return false;
         for (; j < new_v_args.size(); i++, j++) {
+            lean_assert(i < args.size());
             if (!is_def_eq_core(args[i], new_v_args[j]))
                 return false;
         }
+        lean_assert(i == arg.size());
+        lean_assert(j == new_v_args.size());
         return true;
     }
 
@@ -1245,6 +1361,250 @@ bool type_context::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
     return false;
 }
 
+lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
+    if (e1 == e2)
+        return l_true;
+
+    expr const & f1 = get_app_fn(e1);
+    if (is_mvar(f1)) {
+        if (is_assigned(f1)) {
+            return to_lbool(is_def_eq_core(instantiate(e1), e2));
+        } else {
+            return to_lbool(process_assignment(e1, e2));
+        }
+    }
+
+    expr const & f2 = get_app_fn(e2);
+    if (is_mvar(f2)) {
+        if (is_assigned(f2)) {
+            return to_lbool(is_def_eq_core(e1, instantiate(e2)));
+        } else {
+            return to_lbool(process_assignment(e2, e1));
+        }
+    }
+
+    if (e1.kind() == e2.kind()) {
+        switch (e1.kind()) {
+        case expr_kind::Lambda: case expr_kind::Pi:
+            return to_lbool(is_def_eq_binding(e1, e2));
+        case expr_kind::Sort:
+            return to_lbool(is_def_eq(sort_level(e1), sort_level(e2)));
+        case expr_kind::Meta:     case expr_kind::Var:
+        case expr_kind::Local:    case expr_kind::App:
+        case expr_kind::Constant: case expr_kind::Macro:
+        case expr_kind::Let:
+            // We do not handle these cases in this method.
+            break;
+        }
+    }
+    return l_undef; // This is not an "easy case"
+}
+
+bool type_context::try_unification_hints(expr const & e1, expr const & e2) {
+    // TODO(Leo):
+    return false;
+/*
+    expr e1_fn = get_app_fn(e1);
+    expr e2_fn = get_app_fn(e2);
+    if (is_constant(e1_fn) && is_constant(e2_fn)) {
+        buffer<unification_hint> hints;
+        get_unification_hints(m_env, const_name(e1_fn), const_name(e2_fn), hints);
+        for (unification_hint const & hint : hints) {
+            scope s(*this);
+            lean_trace(name({"old_type_context", "unification_hint"}),
+                       tout() << e1 << " =?= " << e2
+                       << ", pattern: " << hint.get_lhs() << " =?= " << hint.get_rhs() << "\n";);
+            if (unification_hint_fn(*this, hint)(e1, e2)) {
+                s.commit();
+                return true;
+            }
+        }
+    }
+    return false;
+*/
+}
+
+/* We say a reduction is productive iff the result is not a recursor application */
+bool type_context::is_productive(expr const & e) {
+    // TODO(Leo): make this more general.
+    // we will eventually have a module where we define what is an abstract recursor.
+    expr const & f = get_app_fn(e);
+    if (!is_constant(f))
+        return true;
+    name const & n = const_name(f);
+    return !is_aux_recursor(env(), n) && !inductive::is_elim_rule(env(), n);
+}
+
+expr type_context::reduce_if_productive(expr const & t) {
+    if (auto r = unfold_definition(t)) {
+        expr new_t = whnf_core(*r);
+        if (is_productive(new_t)) {
+            return new_t;
+        }
+    }
+    return t;
+}
+
+/* Apply unification hints and lazy delta-reduction */
+lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
+    while (true) {
+        if (try_unification_hints(t, s))
+            return l_true;
+        auto d_t = is_delta(t);
+        auto d_s = is_delta(s);
+        if (!d_t && !d_s) {
+            /* none of them can be delta-reduced */
+            return l_undef;
+        } else if (d_t && !d_s) {
+            /* only t_n can be delta reduced */
+            t = whnf_core(*unfold_definition(t));
+        } else if (!d_t && d_s) {
+            /* only s_n can be delta reduced */
+            s = whnf_core(*unfold_definition(s));
+        } else {
+            /* both t and s can be delta reduced */
+            if (is_eqp(*d_t, *d_s)) {
+                /* Same constant */
+                if (is_app(t) && is_app(s)) {
+                    /* Heuristic: try so solve (f a =?= f b), by solving (a =?= b) */
+                    scope S(*this);
+                    if (is_def_eq_args(t, s) &&
+                        is_def_eq(const_levels(get_app_fn(t)), const_levels(get_app_fn(s)))) {
+                        S.commit();
+                        return l_true;
+                    }
+                }
+                /* Heuristic failed, then unfold both of them */
+                t = whnf_core(*unfold_definition(t));
+                s = whnf_core(*unfold_definition(s));
+            } else {
+                bool progress = false;
+                if (m_transparency_mode == transparency_mode::Semireducible ||
+                    m_transparency_mode == transparency_mode::All) {
+                    /* Consider the following two cases
+
+                       If t is reducible and s is not ==> reduce t
+                       If s is reducible and t is not ==> reduce s
+
+                       Remark: this can only happen if transparency_mode
+                       is Semireducible or All
+                    */
+                    auto rd_t = is_transparent(transparency_mode::Reducible, d_t->get_name());
+                    auto rd_s = is_transparent(transparency_mode::Reducible, d_s->get_name());
+                    if (rd_t && !rd_s) {
+                        progress = true;
+                        t = whnf_core(*unfold_definition(t));
+                    } else if (!rd_t && rd_s) {
+                        progress = true;
+                        s = whnf_core(*unfold_definition(s));
+                    }
+                }
+                /* If we haven't reduced t nor s, then we reduce both IF the reduction is productive.
+                   That is, the result of the reduction is not a recursor application. */
+                if (!progress) {
+                    expr new_t = reduce_if_productive(t);
+                    expr new_s = reduce_if_productive(s);
+                    if (is_eqp(new_t, t) && is_eqp(new_s, s)) {
+                        return l_undef;
+                    } else {
+                        t = new_t;
+                        s = new_s;
+                    }
+                }
+            }
+        }
+        auto r = quick_is_def_eq(t, s);
+        if (r != l_undef) return r;
+    }
+}
+
+bool type_context::on_is_def_eq_failure(expr const & t, expr const & s) {
+    /*
+    if (is_app(e1)) {
+        if (auto p1 = find_unsynth_metavar(e1)) {
+            if (mk_nested_instance(p1->first, p1->second)) {
+                return is_def_eq_core(instantiate_uvars_mvars(e1), e2);
+            }
+        }
+    }
+    if (is_app(e2)) {
+        if (auto p2 = find_unsynth_metavar(e2)) {
+            if (mk_nested_instance(p2->first, p2->second)) {
+                return is_def_eq_core(e1, instantiate_uvars_mvars(e2));
+            }
+        }
+    }
+    if (try_unification_hints(e1, e2)) {
+        return true;
+    }
+    */
+    return false;
+}
+
+bool type_context::is_def_eq_core(expr const & t, expr const & s) {
+    lbool r = quick_is_def_eq(t, s);
+
+    if (r != l_undef) return r == l_true;
+
+    expr t_n = whnf_core(t);
+    expr s_n = whnf_core(s);
+
+    if (!is_eqp(t_n, t) || !is_eqp(s_n, s)) {
+        r = quick_is_def_eq(t_n, s_n);
+        if (r != l_undef) return r == l_true;
+    }
+
+    check_system("is_def_eq");
+
+    r = is_def_eq_lazy_delta(t_n, s_n);
+    if (r != l_undef) return r == l_true;
+
+    if (is_constant(t_n) && is_constant(s_n) && const_name(t_n) == const_name(s_n)) {
+        scope s(*this);
+        if (is_def_eq(const_levels(t_n), const_levels(s_n))) {
+            s.commit();
+            return true;
+        }
+    }
+
+    if (is_local(t_n) && is_local(s_n) && mlocal_name(t_n) == mlocal_name(s_n))
+        return true;
+
+    if (is_app(t_n) && is_app(s_n)) {
+        scope s(*this);
+        if (is_def_eq_args(t_n, s_n) &&
+            is_def_eq_core(get_app_fn(t_n), get_app_fn(s_n))) {
+            s.commit();
+            return true;
+        }
+    }
+
+    if (is_def_eq_eta(t_n, s_n))
+        return true;
+    if (is_def_eq_eta(s_n, t_n))
+        return true;
+    if (is_def_eq_proof_irrel(t_n, s_n))
+        return true;
+    return on_is_def_eq_failure(t_n, s_n);
+}
+
+bool type_context::is_def_eq(expr const & t, expr const & s) {
+    scope S(*this);
+    flet<bool> in_is_def_eq(m_in_is_def_eq, true);
+    if (is_def_eq_core(t, s)) {
+        S.commit();
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool type_context::relaxed_is_def_eq(expr const & e1, expr const & e2) {
+    flet<transparency_mode> set(m_transparency_mode, transparency_mode::All);
+    return is_def_eq(e1, e2);
+}
+
+
 /*
 struct unification_hint_fn {
     type_context &           m_owner;
@@ -1349,13 +1709,4 @@ bool old_type_context::try_unification_hints(expr const & e1, expr const & e2) {
 }
 
 */
-
-bool type_context::is_def_eq(expr const & e1, expr const & e2) {
-    return false;
-}
-
-bool type_context::relaxed_is_def_eq(expr const & e1, expr const & e2) {
-    flet<transparency_mode> set(m_transparency_mode, transparency_mode::All);
-    return is_def_eq(e1, e2);
-}
 }

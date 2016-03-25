@@ -121,6 +121,8 @@ class type_context : public abstract_type_context {
     /* We only cache results when m_used_assignment is false */
     bool               m_used_assignment;
     transparency_mode  m_transparency_mode;
+    /* m_in_is_def_eq is a temporary flag set to true in the beginning of is_def_eq. */
+    bool               m_in_is_def_eq;
     /* When m_match_mode is true, then is_metavar_decl_ref and is_univ_metavar_decl_ref are treated
        as opaque constants, and temporary metavariables (idx_metavar) are treated as metavariables,
        and their assignment is stored at m_tmp_eassignment and m_tmp_uassignment. */
@@ -214,10 +216,14 @@ public:
 
 private:
     void init_core(transparency_mode m);
+    optional<expr> unfold_definition_core(expr const & e);
+    optional<expr> unfold_definition(expr const & e);
     optional<expr> reduce_projection(expr const & e);
+    optional<expr> reduce_aux_recursor(expr const & e);
     bool should_unfold_macro(expr const & e);
     optional<expr> expand_macro(expr const & e);
     expr whnf_core(expr const & e);
+    optional<declaration> is_transparent(transparency_mode m, name const & n);
     optional<declaration> is_transparent(name const & n);
 
 private:
@@ -293,6 +299,7 @@ private:
     bool process_assignment(expr const & m, expr const & v);
 
     optional<declaration> is_delta(expr const & e);
+    enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
 
     bool is_def_eq(levels const & ls1, levels const & ls2);
     bool is_def_eq_core(expr const & t, expr const & s);
@@ -300,6 +307,13 @@ private:
     bool is_def_eq_args(expr const & e1, expr const & e2);
     bool is_def_eq_eta(expr const & e1, expr const & e2);
     bool is_def_eq_proof_irrel(expr const & e1, expr const & e2);
+    lbool quick_is_def_eq(expr const & e1, expr const & e2);
+    bool try_unification_hints(expr const & e1, expr const & e2);
+    bool is_productive(expr const & e);
+    expr reduce_if_productive(expr const & t);
+    lbool is_def_eq_lazy_delta(expr & t, expr & s);
+protected:
+    virtual bool on_is_def_eq_failure(expr const & t, expr const & s);
 
 public:
     /* Helper class for creating pushing local declarations into the local context m_lctx */

@@ -9,8 +9,10 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/type_checker.h"
+#include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
 #include "library/scoped_ext.h"
+#include "library/trace.h"
 #include "library/aliases.h"
 #include "library/protected.h"
 #include "library/constants.h"
@@ -22,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/aux_recursors.h"
 #include "library/private.h"
+#include "library/type_context.h"
 #include "library/legacy_type_context.h"
 #include "library/fun_info_manager.h"
 #include "library/congr_lemma_manager.h"
@@ -541,6 +544,30 @@ static environment normalizer_cmd(parser & p) {
     return env;
 }
 
+/*
+   Temporary procedure that converts metavariables in \c e to metavar_context metavariables.
+   After we convert the frontend to type_context, we will not need to use this procedure.
+*/
+static expr convert_metavars(metavar_context & ctx, expr const & e) {
+    expr_map<expr> cache;
+
+    std::function<expr(expr const & e)> convert = [&](expr const & e) {
+        return replace(e, [&](expr const e, unsigned) {
+                if (is_metavar(e)) {
+                    auto it = cache.find(e);
+                    if (it != cache.end())
+                        return some_expr(it->second);
+                    expr m = ctx.mk_metavar_decl(local_context(), convert(mlocal_type(e)));
+                    cache.insert(mk_pair(e, m));
+                    return some_expr(m);
+                } else {
+                    return none_expr();
+                }
+            });
+    };
+    return convert(e);
+}
+
 static environment unify_cmd(parser & p) {
     environment const & env = p.env();
     expr e1; level_param_names ls1;
@@ -548,8 +575,15 @@ static environment unify_cmd(parser & p) {
     p.check_token_next(get_comma_tk(), "invalid #unify command, proper usage \"#unify e1, e2\"");
     expr e2; level_param_names ls2;
     std::tie(e2, ls2) = parse_local_expr(p);
-    legacy_type_context ctx(env, p.get_options());
+    metavar_context mctx;
+    local_context   lctx;
+    e1 = convert_metavars(mctx, e1);
+    e2 = convert_metavars(mctx, e2);
+    tout() << e1 << " =?= " << e2 << "\n";
+    type_context ctx(env, p.get_options(), mctx, lctx, transparency_mode::Semireducible);
     bool success = ctx.is_def_eq(e1, e2);
+    if (success)
+        tout() << ctx.instantiate(e1) << " =?= " << ctx.instantiate(e2) << "\n";
     flycheck_information info(p.ios());
     if (info.enabled()) {
         p.display_information_pos(p.cmd_pos());

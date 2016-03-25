@@ -123,6 +123,8 @@ class type_context : public abstract_type_context {
     transparency_mode  m_transparency_mode;
     /* m_in_is_def_eq is a temporary flag set to true in the beginning of is_def_eq. */
     bool               m_in_is_def_eq;
+    /* m_is_def_eq_depth is only used for tracing purposes */
+    unsigned           m_is_def_eq_depth;
     /* When m_match_mode is true, then is_metavar_decl_ref and is_univ_metavar_decl_ref are treated
        as opaque constants, and temporary metavariables (idx_metavar) are treated as metavariables,
        and their assignment is stored at m_tmp_eassignment and m_tmp_uassignment. */
@@ -257,10 +259,8 @@ public:
     optional<expr> get_assignment(expr const & e) const;
     void assign(level const & u, level const & l);
     void assign(expr const & m, expr const & v);
-
-private:
     level instantiate(level const & l);
-    expr instantiate(expr const & l);
+    expr instantiate(expr const & e);
 
 private:
     /* ------------
@@ -342,4 +342,7 @@ public:
         buffer<expr> const & as_buffer() const { return m_locals; }
     };
 };
+
+void initialize_type_context();
+void finalize_type_context();
 }

@@ -2019,15 +2019,8 @@ normalizer::normalizer(old_type_context & ctx, bool eta, bool nested_prop):
 void initialize_old_type_context() {
     g_tmp_prefix      = new name(name::mk_internal_unique_name());
     g_internal_prefix = new name(name::mk_internal_unique_name());
-    register_trace_class("class_instances");
-    register_trace_class(name({"type_context", "unification_hint"}));
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
     g_class_trans_instances        = new name{"class", "trans_instances"};
-    register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,
-                             "(class) max allowed depth in class-instance resolution");
-    register_bool_option(*g_class_trans_instances,  LEAN_DEFAULT_CLASS_TRANS_INSTANCES,
-                         "(class) use automatically derived instances from the transitive closure of "
-                         "the structure instance graph");
 }
 
 void finalize_old_type_context() {

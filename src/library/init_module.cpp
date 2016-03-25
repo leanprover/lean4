@@ -40,8 +40,7 @@ Author: Leonardo de Moura
 #include "library/noncomputable.h"
 #include "library/aux_recursors.h"
 #include "library/class_instance_resolution.h"
-#include "library/old_type_context.h"
-#include "library/legacy_type_context.h"
+#include "library/type_context.h"
 #include "library/local_context.h"
 #include "library/metavar_context.h"
 #include "library/congr_lemma_manager.h"
@@ -55,6 +54,8 @@ Author: Leonardo de Moura
 #include "library/old_converter.h"
 #include "library/old_default_converter.h"
 #include "library/old_type_checker.h"
+#include "library/old_type_context.h"
+#include "library/legacy_type_context.h"
 
 
 namespace lean {
@@ -113,9 +114,11 @@ void initialize_library_module() {
     initialize_unification_hint();
     initialize_defeq_simp_lemmas();
     initialize_defeq_simplifier();
+    initialize_type_context();
 }
 
 void finalize_library_module() {
+    finalize_type_context();
     finalize_defeq_simplifier();
     finalize_defeq_simp_lemmas();
     finalize_unification_hint();

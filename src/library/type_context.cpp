@@ -6,18 +6,32 @@ Author: Leonardo de Moura
 */
 #include "util/flet.h"
 #include "util/interrupt.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/inductive/inductive.h"
+#include "library/trace.h"
 #include "library/idx_metavar.h"
 #include "library/reducible.h"
+#include "library/constants.h"
 #include "library/metavar_util.h"
 #include "library/type_context.h"
 #include "library/aux_recursors.h"
 
+#ifndef LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH
+#define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 32
+#endif
+
+#ifndef LEAN_DEFAULT_CLASS_TRANS_INSTANCES
+#define LEAN_DEFAULT_CLASS_TRANS_INSTANCES true
+#endif
+
 namespace lean {
+static name * g_class_instance_max_depth     = nullptr;
+static name * g_class_trans_instances        = nullptr;
+
 /* =====================
    type_context_cache
    ===================== */
@@ -86,6 +100,7 @@ void type_context::init_core(transparency_mode m) {
     m_used_assignment        = false;
     m_transparency_mode      = m;
     m_in_is_def_eq           = false;
+    m_is_def_eq_depth        = 0;
     m_tmp_mode               = false;
 }
 
@@ -1276,6 +1291,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
     }
 
     assign(mvar, new_v);
+    lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "assign: " << mvar << " := " << new_v << "\n";);
     return true;
 }
 
@@ -1426,13 +1442,30 @@ bool type_context::try_unification_hints(expr const & e1, expr const & e2) {
 
 /* We say a reduction is productive iff the result is not a recursor application */
 bool type_context::is_productive(expr const & e) {
-    // TODO(Leo): make this more general.
-    // we will eventually have a module where we define what is an abstract recursor.
+    /* TODO(Leo): make this more general.
+       Right now we consider the following cases to be non-productive
+       1)  (C.rec ...)   where rec is rec/rec_on/cases_on/brec_on
+       2)  (prod.pr1 A B (C.rec ...) ...)  where rec is rec/rec_on/cases_on/brec_on
+
+       Second case is a byproduct of the recursive equation compiler.
+    */
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
         return true;
     name const & n = const_name(f);
-    return !is_aux_recursor(env(), n) && !inductive::is_elim_rule(env(), n);
+    if (n == get_prod_pr1_name()) {
+        /* We use prod.pr1 when compiling recursive equations and brec_on.
+           So, we should check whether the main argument of the projection
+           is productive */
+        buffer<expr> args;
+        get_app_args(e, args);
+        if (args.size() < 3)
+            return false;
+        expr const & major = args[2];
+        return is_productive(major);
+    } else {
+        return !is_aux_recursor(env(), n) && !inductive::is_elim_rule(env(), n);
+    }
 }
 
 expr type_context::reduce_if_productive(expr const & t) {
@@ -1457,9 +1490,11 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
             return l_undef;
         } else if (d_t && !d_s) {
             /* only t_n can be delta reduced */
+            lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold left: " << d_t->get_name() << "\n";);
             t = whnf_core(*unfold_definition(t));
         } else if (!d_t && d_s) {
             /* only s_n can be delta reduced */
+            lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold right: " << d_s->get_name() << "\n";);
             s = whnf_core(*unfold_definition(s));
         } else {
             /* both t and s can be delta reduced */
@@ -1475,6 +1510,7 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
                     }
                 }
                 /* Heuristic failed, then unfold both of them */
+                lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold left&right: " << d_t->get_name() << "\n";);
                 t = whnf_core(*unfold_definition(t));
                 s = whnf_core(*unfold_definition(s));
             } else {
@@ -1493,9 +1529,11 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
                     auto rd_s = is_transparent(transparency_mode::Reducible, d_s->get_name());
                     if (rd_t && !rd_s) {
                         progress = true;
+                        lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold reducible left: " << d_t->get_name() << "\n";);
                         t = whnf_core(*unfold_definition(t));
                     } else if (!rd_t && rd_s) {
                         progress = true;
+                        lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold reducible right: " << d_s->get_name() << "\n";);
                         s = whnf_core(*unfold_definition(s));
                     }
                 }
@@ -1507,6 +1545,12 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
                     if (is_eqp(new_t, t) && is_eqp(new_s, s)) {
                         return l_undef;
                     } else {
+                        if (!is_eqp(new_t, t)) {
+                            lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold productive left: " << d_t->get_name() << "\n";);
+                        }
+                        if (!is_eqp(new_s, s)) {
+                            lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold productive right: " << d_s->get_name() << "\n";);
+                        }
                         t = new_t;
                         s = new_s;
                     }
@@ -1515,6 +1559,7 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
         }
         auto r = quick_is_def_eq(t, s);
         if (r != l_undef) return r;
+        lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "after delta: " << t << " =?= " << s << "\n";);
     }
 }
 
@@ -1543,8 +1588,11 @@ bool type_context::on_is_def_eq_failure(expr const & t, expr const & s) {
 
 bool type_context::is_def_eq_core(expr const & t, expr const & s) {
     lbool r = quick_is_def_eq(t, s);
-
     if (r != l_undef) return r == l_true;
+
+    flet<unsigned> inc_depth(m_is_def_eq_depth, m_is_def_eq_depth+1);
+    lean_trace(name({"type_context", "is_def_eq_detail"}),
+               tout() << "[" << m_is_def_eq_depth << "]: " << t << " =?= " << s << "\n";);
 
     expr t_n = whnf_core(t);
     expr s_n = whnf_core(s);
@@ -1591,7 +1639,11 @@ bool type_context::is_def_eq_core(expr const & t, expr const & s) {
 bool type_context::is_def_eq(expr const & t, expr const & s) {
     scope S(*this);
     flet<bool> in_is_def_eq(m_in_is_def_eq, true);
-    if (is_def_eq_core(t, s)) {
+    bool success = is_def_eq_core(t, s);
+    lean_trace(name({"type_context", "is_def_eq"}),
+               tout() << t << " =?= " << s << " ... "
+               << (success ? "success" : "failed") << "\n";);
+    if (success) {
         S.commit();
         return true;
     } else {
@@ -1709,4 +1761,23 @@ bool old_type_context::try_unification_hints(expr const & e1, expr const & e2) {
 }
 
 */
+
+void initialize_type_context() {
+    register_trace_class("class_instances");
+    register_trace_class(name({"type_context", "unification_hint"}));
+    register_trace_class(name({"type_context", "is_def_eq"}));
+    register_trace_class(name({"type_context", "is_def_eq_detail"}));
+    g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
+    g_class_trans_instances        = new name{"class", "trans_instances"};
+    register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,
+                             "(class) max allowed depth in class-instance resolution");
+    register_bool_option(*g_class_trans_instances,  LEAN_DEFAULT_CLASS_TRANS_INSTANCES,
+                         "(class) use automatically derived instances from the transitive closure of "
+                         "the structure instance graph");
+}
+
+void finalize_type_context() {
+    delete g_class_instance_max_depth;
+    delete g_class_trans_instances;
+}
 }

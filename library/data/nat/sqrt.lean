@@ -32,7 +32,7 @@ theorem sqrt_aux_le : ∀ (s n), sqrt_aux s n ≤ s
   (λ h, begin unfold sqrt_aux, rewrite [if_pos h] end)
   (λ h,
     have sqrt_aux s n ≤ succ s, from le.step (sqrt_aux_le s n),
-    begin unfold sqrt_aux, rewrite [if_neg h], assumption end)
+    begin unfold sqrt_aux, rewrite [if_neg h], eassumption end)
 
 definition sqrt (n : nat) : nat :=
 sqrt_aux n n

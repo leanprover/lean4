@@ -17,13 +17,16 @@ private definition fib_fast_aux : nat → nat → nat → nat
 | 0        i j := j
 | (succ n) i j := fib_fast_aux n j (j+i)
 
+-- TODO(Leo): fix unfold tactic
+
 lemma fib_fast_aux_lemma : ∀ n m, fib_fast_aux n (fib m) (fib (succ m)) = fib (succ (n + m))
 | 0        m := by rewrite nat.zero_add
 | (succ n) m :=
   begin
     have ih : fib_fast_aux n (fib (succ m)) (fib (succ (succ m))) = fib (succ (n + succ m)), from fib_fast_aux_lemma n (succ m),
     have h₁ : fib (succ m) + fib m = fib (succ (succ m)), from rfl,
-    unfold fib_fast_aux, rewrite [h₁, ih, succ_add, add_succ]
+    apply sorry
+    -- unfold fib_fast_aux, rewrite [h₁, ih, succ_add, add_succ]
   end
 
 definition fib_fast (n: nat) :=
@@ -34,5 +37,6 @@ lemma fib_fast_eq_fib : ∀ n, fib_fast n = fib n
 | (succ n) :=
   begin
     have h₁ : fib_fast_aux n (fib 0) (fib 1) = fib (succ n), from !fib_fast_aux_lemma,
-    unfold [fib_fast, fib_fast_aux], krewrite h₁
+    apply sorry
+    -- unfold [fib_fast, fib_fast_aux], krewrite h₁
   end

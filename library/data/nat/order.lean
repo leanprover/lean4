@@ -455,8 +455,10 @@ section least_and_greatest
       apply H,
       rewrite ↑least,
       cases decidable.em (P (least P m)) with [Hlp, Hlp],
+      fold (least P m),
       rewrite [if_pos Hlp],
       apply Hlp,
+      fold (least P m),
       rewrite [if_neg Hlp],
       apply H
     end
@@ -467,8 +469,10 @@ section least_and_greatest
         {rewrite ↑least},
       rewrite ↑least,
       cases decidable.em (P (least P m)) with [Psm, Pnsm],
+      fold (least P m),
       rewrite [if_pos Psm],
       apply le.trans ih !le_succ,
+      fold (least P m),
       rewrite [if_neg Pnsm]
     end
 
@@ -478,8 +482,10 @@ section least_and_greatest
      exact absurd ltin !not_lt_zero,
      rewrite ↑least,
      cases decidable.em (P (least P m)) with [Psm, Pnsm],
+     fold (least P m),
      rewrite [if_pos Psm],
      apply Psm,
+     fold (least P m),
      rewrite [if_neg Pnsm],
      cases (lt_or_eq_of_le (le_of_lt_succ ltin)) with [Hlt, Heq],
      exact absurd (ih Hlt) Pnsm,
@@ -493,11 +499,13 @@ section least_and_greatest
       exact absurd ltin !not_lt_zero,
       rewrite ↑least,
       cases decidable.em (P (least P m)) with [Psm, Pnsm],
+      fold (least P m),
       rewrite [if_pos Psm],
       cases (lt_or_eq_of_le (le_of_lt_succ ltin)) with [Hlt, Heq],
       apply ih Hlt,
       rewrite Heq,
       apply least_le,
+      fold (least P m),
       rewrite [if_neg Pnsm],
       cases (lt_or_eq_of_le (le_of_lt_succ ltin)) with [Hlt, Heq],
       apply absurd (least_of_lt P Hlt Hi) Pnsm,

@@ -41,7 +41,7 @@ lemma min_core_lemma : ∀ {b l} a, b ∈ l ∨ b = a → R (min_core R l a) b
       or.elim (em (R c a))
         (suppose R c a,
           have R (min_core R l b) b, from min_core_lemma _ (or.inr rfl),
-          begin unfold min_core, rewrite [if_pos `R c a`], subst c, assumption end)
+          begin unfold min_core, rewrite [if_pos `R c a`], subst c, eassumption end)
         (suppose ¬ R c a,
           have R a c, from or_resolve_right (to c a) this,
           have R (min_core R l a) a, from min_core_lemma _ (or.inr rfl),
@@ -51,10 +51,10 @@ lemma min_core_lemma : ∀ {b l} a, b ∈ l ∨ b = a → R (min_core R l a) b
       or.elim (em (R c a))
         (suppose R c a,
           have R (min_core R l c) b, from min_core_lemma _ (or.inl `b ∈ l`),
-          begin unfold min_core, rewrite [if_pos `R c a`], assumption end)
+          begin unfold min_core, rewrite [if_pos `R c a`], eassumption end)
         (suppose ¬ R c a,
           have R (min_core R l a) b, from min_core_lemma _ (or.inl `b ∈ l`),
-          begin unfold min_core, rewrite [if_neg `¬ R c a`], assumption end)))
+          begin unfold min_core, rewrite [if_neg `¬ R c a`], eassumption end)))
   (suppose b = a,
     have R (min_core R l a) b, from min_core_lemma _ (or.inr this),
     or.elim (em (R c a))
@@ -62,7 +62,7 @@ lemma min_core_lemma : ∀ {b l} a, b ∈ l ∨ b = a → R (min_core R l a) b
          have R (min_core R l c) c, from min_core_lemma _ (or.inr rfl),
          have R (min_core R l c) a, from tr this `R c a`,
          begin unfold min_core, rewrite [if_pos `R c a`], subst b, exact `R (min_core R l c) a` end)
-       (suppose ¬ R c a, begin unfold min_core, rewrite [if_neg `¬ R c a`], assumption end))
+       (suppose ¬ R c a, begin unfold min_core, rewrite [if_neg `¬ R c a`], eassumption end))
 
 lemma min_core_le_of_mem {b : A} {l : list A} (a : A) : b ∈ l → R (min_core R l a) b :=
 assume h : b ∈ l, min_core_lemma to tr rf a (or.inl h)
@@ -89,7 +89,8 @@ lemma min_core_mem : ∀ l a, min_core R l a ∈ l ∨ min_core R l a = a
 | (b::l) a := or.elim (em (R b a))
   (suppose R b a,
     begin
-      unfold min_core, rewrite [if_pos `R b a`],
+      change (if R b a then min_core R l b else min_core R l a) ∈ b :: l ∨ (if R b a then min_core R l b else min_core R l a) = a,
+      rewrite [if_pos `R b a`],
       apply  or.elim (min_core_mem l b),
       suppose min_core R l b ∈ l, or.inl (mem_cons_of_mem _ this),
       suppose min_core R l b = b, by rewrite this; exact or.inl !mem_cons
@@ -151,7 +152,11 @@ sort_aux R (length l) l rfl
 open perm
 
 lemma sort_aux_perm : ∀ {n : nat} {l : list A} (h : length l = n), sort_aux R n l h ~ l
-| 0        l h := by rewrite [↑sort_aux, eq_nil_of_length_eq_zero h]
+| 0        l h :=
+  begin
+   change [] ~ l,
+   rewrite [eq_nil_of_length_eq_zero h]
+  end
 | (succ n) l h :=
   let m := min R l (ne_nil h) in
   have leq : length (erase m l) = n, from sort_aux_lemma R h,

@@ -47,11 +47,13 @@ begin
   intros, injection e with e₁ e₂, revert e, subst a₂, subst l₂, intro e, esimp
 end
 
+local attribute list.append [reducible]
 lemma append_nil_right : ∀ {l} (h : hlist B l), append h nil = (list.append_nil_right l)⁻¹ ▹ h
 | []     nil        := by esimp
 | (a::l) (cons b h) :=
   begin
-    unfold append, rewrite [append_nil_right h], xrewrite eq_rec_on_cons
+    change (cons b (append h nil)) = (eq.symm (list.append_nil_right (a :: l))) ▹ cons b h,
+    rewrite [append_nil_right h], xrewrite eq_rec_on_cons
   end
 
 lemma append_nil_right_heq {l} (h : hlist B l) : append h nil == h :=

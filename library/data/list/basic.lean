@@ -611,13 +611,17 @@ by intros; reflexivity
 
 lemma firstn_all : ∀ (l : list A), firstn (length l) l = l
 | []     := rfl
-| (a::l) := begin unfold [length, firstn], rewrite firstn_all end
+| (a::l) := begin change a :: (firstn (length l) l) = a :: l, rewrite firstn_all end
 
 lemma firstn_all_of_ge : ∀ {n} {l : list A}, n ≥ length l → firstn n l = l
 | 0     []     h := rfl
 | 0     (a::l) h := absurd h (not_le_of_gt !succ_pos)
 | (n+1) []     h := rfl
-| (n+1) (a::l) h := begin unfold firstn, rewrite [firstn_all_of_ge (le_of_succ_le_succ h)] end
+| (n+1) (a::l) h :=
+  begin
+    change a :: firstn n l = a :: l,
+    rewrite [firstn_all_of_ge (le_of_succ_le_succ h)]
+  end
 
 lemma firstn_firstn : ∀ (n m) (l : list A), firstn n (firstn m l) = firstn (min n m) l
 | n         0        l      := by rewrite [min_zero, firstn_zero, firstn_nil]

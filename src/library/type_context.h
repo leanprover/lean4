@@ -312,6 +312,7 @@ private:
     bool is_productive(expr const & e);
     expr reduce_if_productive(expr const & t);
     lbool is_def_eq_lazy_delta(expr & t, expr & s);
+    friend class unification_hint_fn;
 protected:
     virtual bool on_is_def_eq_failure(expr const & t, expr const & s);
 

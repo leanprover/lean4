@@ -20,6 +20,7 @@ end toy
 
 namespace add
 constants (n : ℕ)
+attribute add [irreducible]
 
 #unify (n + 1), succ n
 
@@ -32,8 +33,11 @@ print [unify]
 end add
 
 namespace canonical
-structure Canonical := (carrier : Type) (op : carrier → carrier)
-attribute Canonical.carrier [irreducible]
+inductive Canonical :=
+mk : Π (carrier : Type) (op : carrier → carrier), Canonical
+
+definition Canonical.carrier [irreducible] (s : Canonical) : Type :=
+Canonical.rec_on s (λ c op, c)
 
 constants (A : Type.{1}) (f : A → A) (x : A)
 definition A_canonical : Canonical := Canonical.mk A f

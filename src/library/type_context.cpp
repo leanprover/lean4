@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/metavar_util.h"
 #include "library/type_context.h"
 #include "library/aux_recursors.h"
+#include "library/unification_hint.h"
 
 #ifndef LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH
 #define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 32
@@ -1416,30 +1417,6 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
     return l_undef; // This is not an "easy case"
 }
 
-bool type_context::try_unification_hints(expr const & e1, expr const & e2) {
-    // TODO(Leo):
-    return false;
-/*
-    expr e1_fn = get_app_fn(e1);
-    expr e2_fn = get_app_fn(e2);
-    if (is_constant(e1_fn) && is_constant(e2_fn)) {
-        buffer<unification_hint> hints;
-        get_unification_hints(m_env, const_name(e1_fn), const_name(e2_fn), hints);
-        for (unification_hint const & hint : hints) {
-            scope s(*this);
-            lean_trace(name({"old_type_context", "unification_hint"}),
-                       tout() << e1 << " =?= " << e2
-                       << ", pattern: " << hint.get_lhs() << " =?= " << hint.get_rhs() << "\n";);
-            if (unification_hint_fn(*this, hint)(e1, e2)) {
-                s.commit();
-                return true;
-            }
-        }
-    }
-    return false;
-*/
-}
-
 /* We say a reduction is productive iff the result is not a recursor application */
 bool type_context::is_productive(expr const & e) {
     /* TODO(Leo): make this more general.
@@ -1476,6 +1453,12 @@ expr type_context::reduce_if_productive(expr const & t) {
         }
     }
     return t;
+}
+
+static bool same_head_symbol(expr const & t, expr const & s) {
+    expr const & f_t = get_app_fn(t);
+    expr const & f_s = get_app_fn(s);
+    return is_constant(f_t) && is_constant(f_s) && const_name(f_t) == const_name(f_s);
 }
 
 /* Apply unification hints and lazy delta-reduction */
@@ -1529,11 +1512,11 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
                     auto rd_s = is_transparent(transparency_mode::Reducible, d_s->get_name());
                     if (rd_t && !rd_s) {
                         progress = true;
-                        lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold reducible left: " << d_t->get_name() << "\n";);
+                        lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold (reducible) left: " << d_t->get_name() << "\n";);
                         t = whnf_core(*unfold_definition(t));
                     } else if (!rd_t && rd_s) {
                         progress = true;
-                        lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold reducible right: " << d_s->get_name() << "\n";);
+                        lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold (reducible) right: " << d_s->get_name() << "\n";);
                         s = whnf_core(*unfold_definition(s));
                     }
                 }
@@ -1541,18 +1524,26 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
                    That is, the result of the reduction is not a recursor application. */
                 if (!progress) {
                     expr new_t = reduce_if_productive(t);
-                    expr new_s = reduce_if_productive(s);
-                    if (is_eqp(new_t, t) && is_eqp(new_s, s)) {
-                        return l_undef;
-                    } else {
-                        if (!is_eqp(new_t, t)) {
-                            lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold productive left: " << d_t->get_name() << "\n";);
-                        }
-                        if (!is_eqp(new_s, s)) {
-                            lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold productive right: " << d_s->get_name() << "\n";);
-                        }
+                    if (!is_eqp(new_t, t) && same_head_symbol(new_t, s)) {
+                        lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold left (match right): " << d_t->get_name() << "\n";);
                         t = new_t;
-                        s = new_s;
+                    } else {
+                        expr new_s = reduce_if_productive(s);
+                        if (!is_eqp(new_s, s) && same_head_symbol(t, new_s)) {
+                            lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold right (match left): " << d_s->get_name() << "\n";);
+                            s = new_s;
+                        } else if (is_eqp(new_t, t) && is_eqp(new_s, s)) {
+                            return l_undef;
+                        } else {
+                            if (!is_eqp(new_t, t)) {
+                                lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold productive left: " << d_t->get_name() << "\n";);
+                            }
+                            if (!is_eqp(new_s, s)) {
+                                lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold productive right: " << d_s->get_name() << "\n";);
+                            }
+                            t = new_t;
+                            s = new_s;
+                        }
                     }
                 }
             }
@@ -1656,19 +1647,12 @@ bool type_context::relaxed_is_def_eq(expr const & e1, expr const & e2) {
     return is_def_eq(e1, e2);
 }
 
-
-/*
-struct unification_hint_fn {
+class unification_hint_fn {
     type_context &           m_owner;
     unification_hint const & m_hint;
     buffer<optional<expr>>   m_assignment;
 
-    unification_hint_fn(type_context & o, unification_hint const & hint):
-        m_owner(o), m_hint(hint) {
-        m_assignment.resize(m_hint.get_num_vars());
-    }
-
-    bool syntactic_match(expr const & pattern, expr const & e) {
+    bool match(expr const & pattern, expr const & e) {
         unsigned idx;
         switch (pattern.kind()) {
         case expr_kind::Var:
@@ -1693,23 +1677,28 @@ struct unification_hint_fn {
         case expr_kind::App:
             return
                 is_app(e) &&
-                syntactic_match(app_fn(pattern), app_fn(e)) &&
-                syntactic_match(app_arg(pattern), app_arg(e));
+                match(app_fn(pattern), app_fn(e)) &&
+                match(app_arg(pattern), app_arg(e));
         case expr_kind::Local: case expr_kind::Meta:
             lean_unreachable();
         }
         lean_unreachable();
     }
 
+public:
+    unification_hint_fn(type_context & o, unification_hint const & hint):
+        m_owner(o), m_hint(hint) {
+        m_assignment.resize(m_hint.get_num_vars());
+    }
+
     bool operator()(expr const & lhs, expr const & rhs) {
-        if (!syntactic_match(m_hint.get_lhs(), lhs)) {
+        if (!match(m_hint.get_lhs(), lhs)) {
             lean_trace(name({"type_context", "unification_hint"}), tout() << "LHS does not match\n";);
             return false;
-        } else if (!syntactic_match(m_hint.get_rhs(), rhs)) {
+        } else if (!match(m_hint.get_rhs(), rhs)) {
             lean_trace(name({"type_context", "unification_hint"}), tout() << "RHS does not match\n";);
             return false;
         } else {
-            buffer<expr>
             auto instantiate_assignment_fn = [&](expr const & e, unsigned offset) {
                 if (is_var(e)) {
                     unsigned idx = var_idx(e) + offset;
@@ -1725,11 +1714,9 @@ struct unification_hint_fn {
             for (expr_pair const & p : constraints) {
                 expr new_lhs = replace(p.first, instantiate_assignment_fn);
                 expr new_rhs = replace(p.second, instantiate_assignment_fn);
-                expr new_lhs_inst = m_owner.instantiate_uvars_mvars(new_lhs);
-                expr new_rhs_inst = m_owner.instantiate_uvars_mvars(new_rhs);
                 bool success = m_owner.is_def_eq(new_lhs, new_rhs);
                 lean_trace(name({"type_context", "unification_hint"}),
-                           tout() << new_lhs_inst << " =?= " << new_rhs_inst << "..."
+                           tout() << new_lhs << " =?= " << new_rhs << "..."
                            << (success ? "success" : "failed") << "\n";);
                 if (!success) return false;
             }
@@ -1740,12 +1727,12 @@ struct unification_hint_fn {
     }
 };
 
-bool old_type_context::try_unification_hints(expr const & e1, expr const & e2) {
+bool type_context::try_unification_hints(expr const & e1, expr const & e2) {
     expr e1_fn = get_app_fn(e1);
     expr e2_fn = get_app_fn(e2);
     if (is_constant(e1_fn) && is_constant(e2_fn)) {
         buffer<unification_hint> hints;
-        get_unification_hints(m_env, const_name(e1_fn), const_name(e2_fn), hints);
+        get_unification_hints(env(), const_name(e1_fn), const_name(e2_fn), hints);
         for (unification_hint const & hint : hints) {
             scope s(*this);
             lean_trace(name({"old_type_context", "unification_hint"}),
@@ -1759,8 +1746,6 @@ bool old_type_context::try_unification_hints(expr const & e1, expr const & e2) {
     }
     return false;
 }
-
-*/
 
 void initialize_type_context() {
     register_trace_class("class_instances");

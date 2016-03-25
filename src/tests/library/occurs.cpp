@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/init_module.h"
 #include "util/sexpr/init_module.h"
 #include "kernel/abstract.h"
-#include "library/occurs.h"
+#include "library/util.h"
 #include "kernel/init_module.h"
 #include "library/init_module.h"
 using namespace lean;

@@ -1285,8 +1285,12 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
     try {
         expr t1 = infer(mvar);
         expr t2 = infer(new_v);
-        if (!is_def_eq_core(t1, t2))
+        if (!is_def_eq_core(t1, t2)) {
+            lean_trace(name({"type_context", "is_def_eq_detail"}),
+                       tout() << "Type mismatch when assigning " << mvar << " := " << new_v << "\n";
+                       tout() << ">> " << t1 << " =?= " << t2 << "\n";);
             return false;
+        }
     } catch (exception &) {
         return false;
     }

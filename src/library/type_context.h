@@ -81,6 +81,9 @@ class type_context_cache {
     instance_cache                m_instance_cache;
     subsingleton_cache            m_subsingleton_cache;
 
+    pos_info_provider const *     m_pip{nullptr};
+    optional<pos_info>            m_ci_pos;
+
     /* Options */
 
     /* Maximum search depth when performing type class resolution. */
@@ -88,6 +91,7 @@ class type_context_cache {
     bool                          m_ci_trans_instances;
 
     friend class type_context;
+    friend class instance_synthesizer;
     void init(local_context const & lctx);
     bool is_transparent(transparency_mode m, declaration const & d);
     optional<declaration> is_transparent(transparency_mode m, name const & n);
@@ -103,6 +107,16 @@ public:
     local_context freeze_local_instances(metavar_context & mctx, local_context const & lctx);
 
     bool frozen_mode() const { return m_frozen_mode; }
+
+    /** \brief Auxiliary object used to set position information for the type class resolution trace. */
+    class scope_pos_info {
+        type_context_cache &      m_owner;
+        pos_info_provider const * m_old_pip;
+        optional<pos_info>        m_old_pos;
+    public:
+        scope_pos_info(type_context_cache & o, pos_info_provider const * pip, expr const & pos_ref);
+        ~scope_pos_info();
+    };
 };
 
 class type_context : public abstract_type_context {
@@ -112,6 +126,7 @@ class type_context : public abstract_type_context {
     typedef buffer<metavar_context> mctx_stack;
     enum class tmp_trail_kind { Level, Expr };
     typedef buffer<pair<tmp_trail_kind, unsigned>> tmp_trail;
+    friend struct instance_synthesizer;
     struct scope_data {
         metavar_context m_mctx;
         unsigned        m_tmp_uassignment_sz;
@@ -366,6 +381,9 @@ public:
         expr const * data() const { return m_locals.data(); }
 
         buffer<expr> const & as_buffer() const { return m_locals; }
+
+        expr mk_lambda(expr const & e) { return m_ctx.mk_lambda(m_locals, e); }
+        expr mk_pi(expr const & e) { return m_ctx.mk_pi(m_locals, e); }
     };
 };
 

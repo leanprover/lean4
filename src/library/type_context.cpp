@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/trace.h"
 #include "library/class.h"
+#include "library/pp_options.h"
 #include "library/idx_metavar.h"
 #include "library/reducible.h"
 #include "library/constants.h"
@@ -112,6 +113,7 @@ local_context type_context_cache::freeze_local_instances(metavar_context & mctx,
     lean_assert(!m_frozen_mode);
     type_context ctx(mctx, lctx, *this);
     m_instance_cache.clear();
+    m_subsingleton_cache.clear();
     m_local_instances.clear();
     buffer<name> to_freeze;
     name_set to_freeze_set;
@@ -134,6 +136,20 @@ local_context type_context_cache::freeze_local_instances(metavar_context & mctx,
     }
     m_frozen_mode = true;
     return new_lctx;
+}
+
+type_context_cache::scope_pos_info::scope_pos_info(type_context_cache & o, pos_info_provider const * pip, expr const & pos_ref):
+    m_owner(o),
+    m_old_pip(m_owner.m_pip),
+    m_old_pos(m_owner.m_ci_pos) {
+    m_owner.m_pip = pip;
+    if (pip)
+        m_owner.m_ci_pos = pip->get_pos_info(pos_ref);
+}
+
+type_context_cache::scope_pos_info::~scope_pos_info() {
+    m_owner.m_pip    = m_old_pip;
+    m_owner.m_ci_pos = m_old_pos;
 }
 
 /* =====================
@@ -1917,6 +1933,7 @@ bool type_context::compatible_local_instances(bool frozen_only) {
 
 void type_context::set_local_instances() {
     m_cache->m_instance_cache.clear();
+    m_cache->m_subsingleton_cache.clear();
     m_cache->m_local_instances.clear();
     m_cache->m_init_local_context.for_each([&](local_decl const & decl) {
             if (auto cls_name = is_class(decl.get_type())) {
@@ -1941,6 +1958,8 @@ void type_context::init_local_instances() {
     }
     lean_assert(m_cache->m_local_instances_initialized);
 }
+
+[[ noreturn ]] static void throw_class_exception(char const * msg, expr const & m) { throw_generic_exception(msg, m); }
 
 struct instance_synthesizer {
     struct stack_entry {
@@ -1971,9 +1990,333 @@ struct instance_synthesizer {
     type_context &        m_ctx;
     expr                  m_main_mvar;
     state                 m_state;    // active state
-    std::vector<choice>   m_choices;
+    buffer<choice>        m_choices;
+    bool                  m_displayed_trace_header;
+    bool                  m_old_tmp_mode;
+    transparency_mode     m_old_transparency_mode;
+
+    instance_synthesizer(type_context & ctx):
+        m_ctx(ctx),
+        m_displayed_trace_header(false),
+        m_old_tmp_mode(m_ctx.m_tmp_mode),
+        m_old_transparency_mode(m_ctx.m_transparency_mode) {
+        m_ctx.set_tmp_mode(0, 0);
+        m_ctx.m_transparency_mode = transparency_mode::Reducible;
+    }
+
+    ~instance_synthesizer() {
+        for (unsigned i = 0; i < m_choices.size(); i++) {
+            m_ctx.pop_scope();
+        }
+        m_ctx.m_tmp_mode          = m_old_tmp_mode;
+        m_ctx.m_transparency_mode = m_old_transparency_mode;
+    }
+
+    environment const & env() const { return m_ctx.env(); }
+
+    bool is_done() const {
+        return empty(m_state.m_stack);
+    }
+
+    void trace(unsigned depth, expr const & mvar, expr const & mvar_type, expr const & r) {
+        auto out = tout();
+        if (!m_displayed_trace_header && m_choices.size() == 1) {
+            out << tclass("class_instances");
+            if (m_ctx.m_cache->m_pip) {
+                if (auto fname = m_ctx.m_cache->m_pip->get_file_name()) {
+                    out << fname << ":";
+                }
+                if (m_ctx.m_cache->m_ci_pos)
+                    out << m_ctx.m_cache->m_ci_pos->first << ":" << m_ctx.m_cache->m_ci_pos->second << ":";
+            }
+            out << " class-instance resolution trace" << endl;
+            m_displayed_trace_header = true;
+        }
+        out << tclass("class_instances") << "(" << depth << ") ";
+        out << mvar << " : " << m_ctx.instantiate(mvar_type) << " := " << r << endl;
+    }
+
+    /* Try to synthesize e.m_mvar using instance inst : inst_type.
+       trans_inst is true if inst is a transitive instance. */
+    bool try_instance(stack_entry const & e, expr const & inst, expr const & inst_type, bool trans_inst) {
+        try {
+            type_context::tmp_locals locals(m_ctx);
+            expr const & mvar = e.m_mvar;
+            expr mvar_type    = m_ctx.infer(mvar);
+            while (true) {
+                mvar_type = m_ctx.relaxed_whnf(mvar_type);
+                if (!is_pi(mvar_type))
+                    break;
+                expr local  = locals.push_local_from_binding(mvar_type);
+                mvar_type   = instantiate(binding_body(mvar_type), local);
+            }
+            expr type  = inst_type;
+            expr r     = inst;
+            buffer<expr> new_inst_mvars;
+            while (true) {
+                type = m_ctx.relaxed_whnf(type);
+                if (!is_pi(type))
+                    break;
+                expr new_mvar = m_ctx.mk_tmp_mvar(locals.mk_pi(binding_domain(type)));
+                if (binding_info(type).is_inst_implicit()) {
+                    new_inst_mvars.push_back(new_mvar);
+                }
+                expr new_arg = mk_app(new_mvar, locals.as_buffer());
+                r    = mk_app(r, new_arg);
+                type = instantiate(binding_body(type), new_arg);
+            }
+            lean_trace_plain("class_instances", trace(e.m_depth, mk_app(mvar, locals.as_buffer()), mvar_type, r););
+            if (!m_ctx.is_def_eq(mvar_type, type)) {
+                return false;
+            }
+            r = locals.mk_lambda(r);
+            m_ctx.assign(mvar, r);
+            // copy new_inst_mvars to stack
+            unsigned i = new_inst_mvars.size();
+            while (i > 0) {
+                --i;
+                m_state.m_stack = cons(stack_entry(new_inst_mvars[i], e.m_depth+1, trans_inst), m_state.m_stack);
+            }
+            return true;
+        } catch (exception &) {
+            return false;
+        }
+    }
+
+    bool try_instance(stack_entry const & e, name const & inst_name, bool trans_inst) {
+        if (auto decl = env().find(inst_name)) {
+            buffer<level> ls_buffer;
+            unsigned num_univ_ps = decl->get_num_univ_params();
+            for (unsigned i = 0; i < num_univ_ps; i++)
+                ls_buffer.push_back(m_ctx.mk_tmp_univ_mvar());
+            levels ls = to_list(ls_buffer.begin(), ls_buffer.end());
+            expr inst_cnst = mk_constant(inst_name, ls);
+            expr inst_type = instantiate_type_univ_params(*decl, ls);
+            return try_instance(e, inst_cnst, inst_type, trans_inst);
+        } else {
+            return false;
+        }
+    }
+
+    list<expr> get_local_instances(name const & cname) {
+        buffer<expr> selected;
+        for (pair<name, expr> const & p : m_ctx.m_cache->m_local_instances) {
+            if (p.first == cname)
+                selected.push_back(p.second);
+        }
+        return to_list(selected);
+    }
+
+    bool mk_choice_point(expr const & mvar) {
+        lean_assert(is_mvar(mvar));
+        if (m_choices.size() > m_ctx.m_cache->m_ci_max_depth) {
+            throw_class_exception("maximum class-instance resolution depth has been reached "
+                                  "(the limit can be increased by setting option 'class.instance_max_depth') "
+                                  "(the class-instance resolution trace can be visualized "
+                                  "by setting option 'trace.class_instances')",
+                                  m_ctx.infer(m_main_mvar));
+        }
+        // Remark: we initially tried to reject branches where mvar_type contained unassigned metavariables.
+        // The idea was to make the procedure easier to understand.
+        // However, it turns out this is too restrictive. The group_theory folder contains the following instance.
+        //     nsubg_setoid : Π {A : Type} [s : group A] (N : set A) [is_nsubg : @is_normal_subgroup A s N], setoid A
+        // When it is used, it creates a subproblem for
+        //    is_nsubg : @is_normal_subgroup A s ?N
+        // where ?N is not known. Actually, we can only find the value for ?N by constructing the instance is_nsubg.
+        expr mvar_type       = m_ctx.instantiate(mlocal_type(mvar));
+        bool toplevel_choice = m_choices.empty();
+        m_choices.push_back(choice());
+        m_ctx.push_scope();
+        choice & r = m_choices.back();
+        auto cname = m_ctx.is_class(mvar_type);
+        if (!cname)
+            return false;
+        r.m_local_instances = get_local_instances(*cname);
+        if (m_ctx.m_cache->m_ci_trans_instances && toplevel_choice) {
+            // we only use transitive instances in the top-level
+            r.m_trans_instances = get_class_derived_trans_instances(env(), *cname);
+        }
+        r.m_instances = get_class_instances(env(), *cname);
+        if (empty(r.m_local_instances) && empty(r.m_trans_instances) && empty(r.m_instances))
+            return false;
+        r.m_state = m_state;
+        return true;
+    }
+
+    bool process_next_alt_core(stack_entry const & e, list<expr> & insts) {
+        while (!empty(insts)) {
+            expr inst       = head(insts);
+            insts           = tail(insts);
+            expr inst_type  = m_ctx.infer(inst);
+            bool trans_inst = false;
+            if (try_instance(e, inst, inst_type, trans_inst))
+                return true;
+        }
+        return false;
+    }
+
+    bool process_next_alt_core(stack_entry const & e, list<name> & inst_names, bool trans_inst) {
+        while (!empty(inst_names)) {
+            name inst_name    = head(inst_names);
+            inst_names        = tail(inst_names);
+            if (try_instance(e, inst_name, trans_inst))
+                return true;
+        }
+        return false;
+    }
+
+    bool process_next_alt(stack_entry const & e) {
+        lean_assert(m_choices.size() > 0);
+        lean_assert(!m_choices.empty());
+        buffer<choice> & cs = m_choices;
+        list<expr> locals = cs.back().m_local_instances;
+        if (process_next_alt_core(e, locals)) {
+            cs.back().m_local_instances = locals;
+            return true;
+        }
+        cs.back().m_local_instances = list<expr>();
+        if (!e.m_trans_inst_subproblem) {
+            list<name> trans_insts = cs.back().m_trans_instances;
+            if (process_next_alt_core(e, trans_insts, true)) {
+                cs.back().m_trans_instances = trans_insts;
+                return true;
+            }
+            cs.back().m_trans_instances = list<name>();
+            list<name> insts = cs.back().m_instances;
+            if (process_next_alt_core(e, insts, false)) {
+                cs.back().m_instances = insts;
+                return true;
+            }
+            cs.back().m_instances = list<name>();
+        }
+        return false;
+    }
+
+    bool process_next_mvar() {
+        lean_assert(!is_done());
+        stack_entry e = head(m_state.m_stack);
+        if (!mk_choice_point(e.m_mvar))
+            return false;
+        m_state.m_stack = tail(m_state.m_stack);
+        return process_next_alt(e);
+    }
+
+    bool backtrack() {
+        if (m_choices.empty())
+            return false;
+        lean_assert(!m_choices.empty());
+        while (true) {
+            m_choices.pop_back();
+            m_ctx.pop_scope();
+            if (m_choices.empty())
+                return false;
+            m_state         = m_choices.back().m_state;
+            stack_entry e   = head(m_state.m_stack);
+            m_state.m_stack = tail(m_state.m_stack);
+            if (process_next_alt(e))
+                return true;
+        }
+    }
+
+    optional<expr> search() {
+        while (!is_done()) {
+            if (!process_next_mvar()) {
+                if (!backtrack())
+                    return none_expr();
+            }
+        }
+        return some_expr(m_ctx.instantiate(m_main_mvar));
+    }
+
+    optional<expr> next_solution() {
+        if (m_choices.empty())
+            return none_expr();
+        m_ctx.pop_scope(); m_ctx.push_scope(); // restore assignment
+        m_state         = m_choices.back().m_state;
+        stack_entry e   = head(m_state.m_stack);
+        m_state.m_stack = tail(m_state.m_stack);
+        if (process_next_alt(e))
+            return search();
+        else if (backtrack())
+            return search();
+        else
+            return none_expr();
+    }
+
+    void cache_result(expr const & type, optional<expr> const & inst) {
+        m_ctx.m_cache->m_instance_cache.insert(mk_pair(type, inst));
+    }
+
+    optional<expr> ensure_no_meta(optional<expr> r) {
+        while (true) {
+            if (!r) {
+                cache_result(m_ctx.infer(m_main_mvar), r);
+                return none_expr();
+            }
+            if (!has_expr_metavar_relaxed(*r)) {
+                cache_result(m_ctx.infer(m_main_mvar), r);
+                return r;
+            }
+            r = next_solution();
+        }
+    }
+
+    optional<expr> mk_class_instance_core(expr const & type) {
+        /* We do not cache results when multiple instances have to be generated. */
+        auto it = m_ctx.m_cache->m_instance_cache.find(type);
+        if (it != m_ctx.m_cache->m_instance_cache.end()) {
+            /* instance/failure is already cached */
+            lean_trace("class_instances",
+                       if (it->second)
+                           tout() << "cached instance for " << type << "\n" << *(it->second) << "\n";
+                       else
+                           tout() << "cached failure for " << type << "\n";);
+            return it->second;
+        }
+        m_state          = state();
+        m_main_mvar      = m_ctx.mk_tmp_mvar(type);
+        m_state.m_stack  = to_list(stack_entry(m_main_mvar, 0));
+        auto r = search();
+        return ensure_no_meta(r);
+    }
+
+    optional<expr> operator()(expr const & type) {
+        lean_trace_init_bool("class_instances", get_pp_purify_metavars_name(), false);
+        lean_trace_init_bool("class_instances", get_pp_implicit_name(), true);
+        auto r = mk_class_instance_core(type);
+        if (r) {
+            for (unsigned i = 0; i < m_choices.size(); i++) {
+                m_ctx.commit_scope();
+            }
+            m_choices.clear();
+        }
+        return r;
+    }
 };
 
+optional<expr> type_context::mk_class_instance(expr const & type) {
+    return instance_synthesizer(*this)(type);
+}
+
+optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
+    auto it = m_cache->m_subsingleton_cache.find(type);
+    if (it != m_cache->m_subsingleton_cache.end())
+        return it->second;
+    expr Type  = whnf(infer(type));
+    if (!is_sort(Type)) {
+        m_cache->m_subsingleton_cache.insert(mk_pair(type, none_expr()));
+        return none_expr();
+    }
+    level lvl    = sort_level(Type);
+    expr subsingleton;
+    if (is_standard(env()))
+        subsingleton = mk_app(mk_constant(get_subsingleton_name(), {lvl}), type);
+    else
+        subsingleton = whnf(mk_app(mk_constant(get_is_trunc_is_prop_name(), {lvl}), type));
+    auto r = mk_class_instance(subsingleton);
+    m_cache->m_subsingleton_cache.insert(mk_pair(type, r));
+    return r;
+}
 
 void initialize_type_context() {
     register_trace_class("class_instances");

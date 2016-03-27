@@ -553,8 +553,8 @@ expr type_context::relaxed_whnf(expr const & e) {
     return whnf(e);
 }
 
-optional<expr> type_context::is_stuck(expr const & e) {
-    // TODO(Leo)
+optional<expr> type_context::is_stuck(expr const &) {
+    // TODO(Leo): check whether we need this method after refactoring
     return none_expr();
 }
 
@@ -1630,26 +1630,110 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
     }
 }
 
-bool type_context::on_is_def_eq_failure(expr const & t, expr const & s) {
-    /*
+// Helper function for find_unsynth_metavar
+static bool has_meta_arg(expr e) {
+    if (!has_expr_metavar(e))
+        return false;
+    while (is_app(e)) {
+        if (is_meta(app_arg(e)))
+            return true;
+        e = app_fn(e);
+    }
+    return false;
+}
+
+/** IF \c e is of the form (f ... (?m t_1 ... t_n) ...) where ?m is an unassigned
+    metavariable whose type is a type class, and (?m t_1 ... t_n) must be synthesized
+    by type class resolution, then we return ?m.
+    Otherwise, we return none */
+optional<pair<expr, expr>> type_context::find_unsynth_metavar_at_args(expr const & e) {
+    if (!has_meta_arg(e))
+        return optional<pair<expr, expr>>();
+    buffer<expr> args;
+    expr const & fn = get_app_args(e, args);
+    expr type       = infer(fn);
+    unsigned i      = 0;
+    while (i < args.size()) {
+        type = relaxed_whnf(type);
+        if (!is_pi(type))
+            return optional<pair<expr, expr>>();
+        expr const & arg = args[i];
+        if (binding_info(type).is_inst_implicit() && is_meta(arg)) {
+            expr const & m = get_app_fn(arg);
+            if (is_mvar(m)) {
+                expr m_type = instantiate(infer(m));
+                if (!has_expr_metavar_relaxed(m_type)) {
+                    return some(mk_pair(m, m_type));
+                }
+            }
+        }
+        type = ::lean::instantiate(binding_body(type), arg);
+        i++;
+    }
+    return optional<pair<expr, expr>>();
+}
+
+/** Search in \c e for an expression of the form (f ... (?m t_1 ... t_n) ...) where ?m is an unassigned
+    metavariable whose type is a type class, and (?m t_1 ... t_n) must be synthesized
+    by type class resolution, then we return ?m.
+    Otherwise, we return none.
+    This procedure goes inside lambdas. */
+optional<pair<expr, expr>> type_context::find_unsynth_metavar(expr const & e) {
+    if (!has_expr_metavar(e))
+        return optional<pair<expr, expr>>();
+    if (is_app(e)) {
+        if (auto r = find_unsynth_metavar_at_args(e))
+            return r;
+        expr it = e;
+        while (is_app(it)) {
+            if (auto r = find_unsynth_metavar(app_arg(it)))
+                return r;
+            it = app_fn(it);
+        }
+        return optional<pair<expr, expr>>();
+    } else if (is_lambda(e)) {
+        tmp_locals locals(*this);
+        expr l = locals.push_local_from_binding(e);
+        return find_unsynth_metavar(::lean::instantiate(binding_body(e), l));
+    } else {
+        return optional<pair<expr, expr>>();
+    }
+}
+
+/** \brief Create a nested type class instance of the given type, and assign it to metavariable \c m.
+    Return true iff the instance was successfully created.
+    \remark This method is used to resolve nested type class resolution problems. */
+bool type_context::mk_nested_instance(expr const & m, expr const & m_type) {
+    lean_assert(is_mvar(m));
+    if (auto r = mk_class_instance(m_type)) {
+        assign(m, *r);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
+    lean_trace(name({"type_context", "is_def_eq_detail"}),
+               tout() << "on failure: " << e1 << " =?= " << e2 << "\n";);
     if (is_app(e1)) {
         if (auto p1 = find_unsynth_metavar(e1)) {
+            lean_trace(name({"type_context", "is_def_eq_detail"}),
+                       tout() << "try to synthesize: " << p1->first << " : " << p1->second << "\n";);
             if (mk_nested_instance(p1->first, p1->second)) {
-                return is_def_eq_core(instantiate_uvars_mvars(e1), e2);
+                return is_def_eq_core(instantiate(e1), e2);
             }
         }
     }
     if (is_app(e2)) {
         if (auto p2 = find_unsynth_metavar(e2)) {
+            lean_trace(name({"type_context", "is_def_eq_detail"}),
+                       tout() << "try to synthesize: " << p2->first << " : " << p2->second << "\n";);
             if (mk_nested_instance(p2->first, p2->second)) {
-                return is_def_eq_core(e1, instantiate_uvars_mvars(e2));
+                return is_def_eq_core(e1, instantiate(e2));
             }
         }
     }
-    if (try_unification_hints(e1, e2)) {
-        return true;
-    }
-    */
     return false;
 }
 

@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/inductive/inductive.h"
 #include "library/trace.h"
+#include "library/class.h"
 #include "library/idx_metavar.h"
 #include "library/reducible.h"
 #include "library/constants.h"
@@ -1750,6 +1751,87 @@ bool type_context::try_unification_hints(expr const & e1, expr const & e2) {
     }
     return false;
 }
+
+/** \brief If the constant \c e is a class, return its name */
+optional<name> type_context::constant_is_class(expr const & e) {
+    name const & cls_name = const_name(e);
+    if (lean::is_class(env(), cls_name)) {
+        return optional<name>(cls_name);
+    } else {
+        return optional<name>();
+    }
+}
+
+optional<name> type_context::is_full_class(expr type) {
+    type = whnf(type);
+    if (is_pi(type)) {
+        tmp_locals locals(*this);
+        return is_full_class(::lean::instantiate(binding_body(type), locals.push_local_from_binding(type)));
+    } else {
+        expr f = get_app_fn(type);
+        if (!is_constant(f))
+            return optional<name>();
+        return constant_is_class(f);
+    }
+}
+
+/** \brief Partial/Quick test for is_class. Result
+    l_true:   \c type is a class, and the name of the class is stored in \c result.
+    l_false:  \c type is not a class.
+    l_undef:  procedure did not establish whether \c type is a class or not. */
+lbool type_context::is_quick_class(expr const & type, name & result) {
+    expr const * it = &type;
+    while (true) {
+        switch (it->kind()) {
+        case expr_kind::Var:  case expr_kind::Sort:   case expr_kind::Local:
+        case expr_kind::Meta: case expr_kind::Lambda: case expr_kind::Let:
+            return l_false;
+        case expr_kind::Macro:
+            return l_undef;
+        case expr_kind::Constant:
+            if (auto r = constant_is_class(*it)) {
+                result = *r;
+                return l_true;
+            } else if (!is_transparent(const_name(*it))) {
+                return l_false;
+            } else {
+                return l_undef;
+            }
+        case expr_kind::App: {
+            expr const & f = get_app_fn(*it);
+            if (is_constant(f)) {
+                if (auto r = constant_is_class(f)) {
+                    result = *r;
+                    return l_true;
+                } else if (!is_transparent(const_name(f))) {
+                    return l_false;
+                } else {
+                    return l_undef;
+                }
+            } else if (is_lambda(f) || is_macro(f)) {
+                return l_undef;
+            } else {
+                return l_false;
+            }
+        }
+        case expr_kind::Pi:
+            it = &binding_body(*it);
+            break;
+        }
+    }
+}
+
+/** \brief Return true iff \c type is a class or Pi that produces a class. */
+optional<name> type_context::is_class(expr const & type) {
+    name result;
+    switch (is_quick_class(type, result)) {
+    case l_true:  return optional<name>(result);
+    case l_false: return optional<name>();
+    case l_undef: break;
+    }
+    return is_full_class(type);
+}
+
 
 void initialize_type_context() {
     register_trace_class("class_instances");

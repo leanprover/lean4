@@ -183,6 +183,7 @@ public:
 
     bool is_prop(expr const & e);
 
+    optional<name> is_class(expr const & type);
     optional<expr> mk_class_instance(expr const & type);
     optional<expr> mk_subsingleton_instance(expr const & type);
 
@@ -316,6 +317,14 @@ private:
 protected:
     virtual bool on_is_def_eq_failure(expr const & t, expr const & s);
 
+private:
+    /* ------------
+       Type classes
+       ------------ */
+    optional<name> constant_is_class(expr const & e);
+    optional<name> is_full_class(expr type);
+    lbool is_quick_class(expr const & type, name & result);
+
 public:
     /* Helper class for creating pushing local declarations into the local context m_lctx */
     class tmp_locals {
@@ -335,6 +344,11 @@ public:
             expr r = m_ctx.push_let(name, type, value);
             m_locals.push_back(r);
             return r;
+        }
+
+        expr push_local_from_binding(expr const & e) {
+            lean_assert(is_binding(e));
+            return push_local(binding_name(e), binding_domain(e), binding_info(e));
         }
 
         unsigned size() const { return m_locals.size(); }

@@ -1749,6 +1749,8 @@ bool type_context::is_def_eq_core(expr const & t, expr const & s) {
     expr s_n = whnf_core(s);
 
     if (!is_eqp(t_n, t) || !is_eqp(s_n, s)) {
+        lean_trace(name({"type_context", "is_def_eq_detail"}),
+                   tout() << "after whnf_core: " << t_n << " =?= " << s_n << "\n";);
         r = quick_is_def_eq(t_n, s_n);
         if (r != l_undef) return r == l_true;
     }
@@ -1771,8 +1773,8 @@ bool type_context::is_def_eq_core(expr const & t, expr const & s) {
 
     if (is_app(t_n) && is_app(s_n)) {
         scope s(*this);
-        if (is_def_eq_args(t_n, s_n) &&
-            is_def_eq_core(get_app_fn(t_n), get_app_fn(s_n))) {
+        if (is_def_eq_core(get_app_fn(t_n), get_app_fn(s_n)) &&
+            is_def_eq_args(t_n, s_n)) {
             s.commit();
             return true;
         }

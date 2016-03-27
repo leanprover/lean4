@@ -34,6 +34,14 @@ namespace lean {
 static name * g_class_instance_max_depth     = nullptr;
 static name * g_class_trans_instances        = nullptr;
 
+unsigned get_class_instance_max_depth(options const & o) {
+    return o.get_unsigned(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH);
+}
+
+bool get_class_trans_instances(options const & o) {
+    return o.get_bool(*g_class_trans_instances, LEAN_DEFAULT_CLASS_TRANS_INSTANCES);
+}
+
 /* =====================
    type_context_cache
    ===================== */
@@ -44,7 +52,8 @@ type_context_cache::type_context_cache(environment const & env, options const & 
     m_proj_info(get_projection_info_map(env)),
     m_frozen_mode(false),
     m_local_instances_initialized(false) {
-    m_ci_max_depth = 12; // TODO(Leo): fix
+    m_ci_max_depth       = get_class_instance_max_depth(opts);
+    m_ci_trans_instances = get_class_trans_instances(opts);
 }
 
 bool type_context_cache::is_transparent(transparency_mode m, declaration const & d) {
@@ -86,6 +95,47 @@ bool type_context_cache::should_unfold_macro(expr const &) {
     return true;
 }
 
+static void collect_local_decls(expr const & e, buffer<name> & r, name_set & s) {
+    for_each(e, [&](expr const & e, unsigned) {
+            if (is_local_decl_ref(e)) {
+                name const & n = mlocal_name(e);
+                if (!s.contains(n)) {
+                    r.push_back(n);
+                    s.insert(n);
+                }
+            }
+            return true;
+        });
+}
+
+local_context type_context_cache::freeze_local_instances(metavar_context & mctx, local_context const & lctx) {
+    lean_assert(!m_frozen_mode);
+    type_context ctx(mctx, lctx, *this);
+    m_instance_cache.clear();
+    m_local_instances.clear();
+    buffer<name> to_freeze;
+    name_set to_freeze_set;
+    lctx.for_each([&](local_decl const & decl) {
+            if (auto cls_name = ctx.is_class(decl.get_type())) {
+                m_local_instances.emplace_back(*cls_name, decl.mk_ref());
+                to_freeze.push_back(decl.get_name());
+                to_freeze_set.insert(decl.get_name());
+            }
+        });
+    local_context new_lctx = lctx;
+    for (unsigned i = 0; i < to_freeze.size(); i++) {
+        new_lctx.freeze(to_freeze[i]);
+        /* freeze dependencies */
+        if (auto decl = lctx.get_local_decl(to_freeze[i])) {
+            collect_local_decls(decl->get_type(), to_freeze, to_freeze_set);
+            if (auto v = decl->get_value())
+                collect_local_decls(*v, to_freeze, to_freeze_set);
+        }
+    }
+    m_frozen_mode = true;
+    return new_lctx;
+}
+
 /* =====================
    type_context::tmp_locals
    ===================== */
@@ -99,11 +149,16 @@ type_context::tmp_locals::~tmp_locals() {
    ===================== */
 
 void type_context::init_core(transparency_mode m) {
-    m_used_assignment        = false;
-    m_transparency_mode      = m;
-    m_in_is_def_eq           = false;
-    m_is_def_eq_depth        = 0;
-    m_tmp_mode               = false;
+    m_used_assignment             = false;
+    m_transparency_mode           = m;
+    m_in_is_def_eq                = false;
+    m_is_def_eq_depth             = 0;
+    m_tmp_mode                    = false;
+    m_cache->m_init_local_context = m_lctx;
+    if (!m_cache->m_frozen_mode) {
+        /* default type class resolution mode */
+        m_cache->m_local_instances_initialized = false;
+    }
 }
 
 type_context::type_context(metavar_context & mctx, local_context const & lctx, type_context_cache & cache,
@@ -1752,6 +1807,10 @@ bool type_context::try_unification_hints(expr const & e1, expr const & e2) {
     return false;
 }
 
+/* -------------
+   Type classes
+   ------------- */
+
 /** \brief If the constant \c e is a class, return its name */
 optional<name> type_context::constant_is_class(expr const & e) {
     name const & cls_name = const_name(e);
@@ -1831,6 +1890,89 @@ optional<name> type_context::is_class(expr const & type) {
     }
     return is_full_class(type);
 }
+
+bool type_context::compatible_local_instances(bool frozen_only) {
+    unsigned i  = 0;
+    bool failed = false;
+    m_cache->m_init_local_context.for_each([&](local_decl const & decl) {
+            if (failed) return;
+            if (frozen_only && !m_cache->m_init_local_context.is_frozen(decl.get_name()))
+                return;
+            if (auto cname = is_class(decl.get_type())) {
+                if (i == m_cache->m_local_instances.size()) {
+                    /* initial local context has more local instances than the ones cached at found m_local_instances */
+                    failed = true;
+                    return;
+                }
+                if (decl.get_name() != mlocal_name(m_cache->m_local_instances[i].second)) {
+                    /* local instance in initial local constext is not compatible with the one cached at m_local_instances */
+                    failed = true;
+                    return;
+                }
+                i++;
+            }
+        });
+    return i == m_cache->m_local_instances.size();
+}
+
+void type_context::set_local_instances() {
+    m_cache->m_instance_cache.clear();
+    m_cache->m_local_instances.clear();
+    m_cache->m_init_local_context.for_each([&](local_decl const & decl) {
+            if (auto cls_name = is_class(decl.get_type())) {
+                m_cache->m_local_instances.emplace_back(*cls_name, decl.mk_ref());
+            }
+        });
+}
+
+void type_context::init_local_instances() {
+    if (m_cache->m_frozen_mode) {
+        lean_assert(m_cache->m_local_instances_initialized);
+        /* Check if the local instances are really compatible.
+           See comment at type_context_cache. */
+        lean_cond_assert("type_context", compatible_local_instances(true));
+    } else if (!m_cache->m_local_instances_initialized) {
+        /* default type class resolution mode */
+        bool frozen_only = false;
+        if (!compatible_local_instances(frozen_only)) {
+            set_local_instances();
+        }
+        m_cache->m_local_instances_initialized = true;
+    }
+    lean_assert(m_cache->m_local_instances_initialized);
+}
+
+struct instance_synthesizer {
+    struct stack_entry {
+        /* We only use transitive instances when we can solve the problem in a single step.
+           That is, the transitive instance does not have any instance argument, OR
+           it uses local instances to fill them.
+           We accomplish that by not considering global instances when solving
+           transitive instance subproblems. */
+        expr     m_mvar;
+        unsigned m_depth;
+        bool     m_trans_inst_subproblem;
+        stack_entry(expr const & m, unsigned d, bool s = false):
+            m_mvar(m), m_depth(d), m_trans_inst_subproblem(s) {}
+    };
+
+    struct state {
+        bool               m_trans_inst_subproblem;
+        list<stack_entry>  m_stack; // stack of meta-variables that need to be synthesized;
+    };
+
+    struct choice {
+        list<expr>         m_local_instances;
+        list<name>         m_trans_instances;
+        list<name>         m_instances;
+        state              m_state;
+    };
+
+    type_context &        m_ctx;
+    expr                  m_main_mvar;
+    state                 m_state;    // active state
+    std::vector<choice>   m_choices;
+};
 
 
 void initialize_type_context() {

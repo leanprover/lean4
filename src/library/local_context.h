@@ -87,6 +87,7 @@ public:
     /** \brief Return the local declarations for the given reference.
         \pre is_local_decl_ref(e) */
     optional<local_decl> get_local_decl(expr const & e) const;
+    optional<local_decl> get_local_decl(name const & n) const;
     /** \brief Traverse local declarations based on the order they were created */
     void for_each(std::function<void(local_decl const &)> const & fn) const;
     optional<local_decl> find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT

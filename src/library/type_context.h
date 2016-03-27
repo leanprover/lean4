@@ -65,13 +65,12 @@ class type_context_cache {
        we do nothing. Otherwise, we reset m_local_instances with the new local_instances, and
        reset the cache m_local_instances.
 
-       When frozen mode is set, we reset m_local_instances_initialized, the instance cache,
-       and the vector local_instances. Then, whenever a type_context object is created
-       (and debugging code is enabled) we store a copy of the initial local context.
+       When frozen mode is set, we reset m_local_instances_initialized.
+       Then, whenever a type_context object is created we store a copy of the initial local context.
        Then, whenever type class resolution is invoked and m_local_instances_initialized is false,
        we copy the set of frozen local_decls instances to m_local_instances.
        If m_local_instances_initialized is true, and we are in debug mode, then
-       we check if the froze local_decls instances in the initial local context are indeed
+       we check if the frozen local_decls instances in the initial local context are indeed
        equal to the ones in m_local_instances. If they are not, it is an assertion violation.
 
        We use the same cache policy for m_subsingleton_cache. */
@@ -86,7 +85,7 @@ class type_context_cache {
 
     /* Maximum search depth when performing type class resolution. */
     unsigned                      m_ci_max_depth;
-
+    bool                          m_ci_trans_instances;
 
     friend class type_context;
     void init(local_context const & lctx);
@@ -95,6 +94,15 @@ class type_context_cache {
     bool should_unfold_macro(expr const & e);
 public:
     type_context_cache(environment const & env, options const & opts);
+
+    /* Enable frozen mode for type class resolution, and free local instances.
+       Local declarations used by the local instances are also frozen.
+       This method returns a new local_context where the local decls have been marked as frozen.
+
+       \pre !frozen_mode() */
+    local_context freeze_local_instances(metavar_context & mctx, local_context const & lctx);
+
+    bool frozen_mode() const { return m_frozen_mode; }
 };
 
 class type_context : public abstract_type_context {
@@ -324,6 +332,9 @@ private:
     optional<name> constant_is_class(expr const & e);
     optional<name> is_full_class(expr type);
     lbool is_quick_class(expr const & type, name & result);
+    bool compatible_local_instances(bool frozen_only);
+    void set_local_instances();
+    void init_local_instances();
 
 public:
     /* Helper class for creating pushing local declarations into the local context m_lctx */

@@ -92,7 +92,7 @@ void sort_locals(buffer<expr> const & locals, parser const & p, buffer<expr> & p
 levels collect_local_nonvar_levels(parser & p, level_param_names const & ls) {
     buffer<level> section_ls_buffer;
     for (name const & l : ls) {
-        if (p.get_local_level_index(l) && !p.is_local_level_variable(l))
+        if (p.is_local_level(l) && !p.is_local_level_variable(l))
             section_ls_buffer.push_back(mk_param_univ(l));
         else
             break;
@@ -324,14 +324,14 @@ level mk_result_level(environment const & env, buffer<level> const & r_lvls) {
 */
 class univ_metavars_to_params_fn : public replace_visitor {
     environment const &        m_env;
-    local_decls<level> const & m_lls;
+    local_level_decls const &  m_lls;
     substitution &             m_subst;
     name_set &                 m_params;
     buffer<name> &             m_new_params;
     unsigned                   m_next_idx;
 
     /** \brief Create a new universe parameter s.t. the new name does not occur in \c m_params, nor it is
-        a global universe in \e m_env or in the local_decls<level> m_lls.
+        a global universe in \e m_env or in the local_level_decls m_lls.
         The new name is added to \c m_params, and the new level parameter is returned.
         The name is of the form "l_i" where \c i >= m_next_idx.
     */
@@ -348,7 +348,7 @@ class univ_metavars_to_params_fn : public replace_visitor {
     }
 
 public:
-    univ_metavars_to_params_fn(environment const & env, local_decls<level> const & lls, substitution & s,
+    univ_metavars_to_params_fn(environment const & env, local_level_decls const & lls, substitution & s,
                                name_set & ps, buffer<name> & new_ps):
         m_env(env), m_lls(lls), m_subst(s), m_params(ps), m_new_params(new_ps), m_next_idx(1) {}
 
@@ -379,7 +379,7 @@ public:
     }
 };
 
-expr univ_metavars_to_params(environment const & env, local_decls<level> const & lls, substitution & s,
+expr univ_metavars_to_params(environment const & env, local_level_decls const & lls, substitution & s,
                              name_set & ps, buffer<name> & new_ps, expr const & e) {
     return univ_metavars_to_params_fn(env, lls, s, ps, new_ps)(e);
 }

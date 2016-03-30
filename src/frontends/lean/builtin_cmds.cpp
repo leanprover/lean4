@@ -67,7 +67,7 @@ environment namespace_cmd(parser & p) {
 }
 
 static environment redeclare_aliases(environment env, parser & p,
-                                     list<pair<name, level>> old_level_entries,
+                                     /* list<pair<name, level>> old_level_entries,*/
                                      list<pair<name, expr>> old_entries) {
     environment const & old_env = p.env();
     if (!in_section(old_env))
@@ -88,6 +88,7 @@ static environment redeclare_aliases(environment env, parser & p,
         old_len--;
     }
     name_set popped_levels;
+/*
     list<pair<name, level>> new_level_entries = p.get_local_level_entries();
     while (!is_eqp(old_level_entries, new_level_entries)) {
         level const & l = head(old_level_entries).second;
@@ -95,7 +96,7 @@ static environment redeclare_aliases(environment env, parser & p,
             popped_levels.insert(param_id(l));
         old_level_entries = tail(old_level_entries);
     }
-
+*/
     for (auto const & entry : to_redeclare) {
         expr new_ref = update_local_ref(entry.second, popped_levels, popped_locals);
         if (!is_constant(new_ref))
@@ -105,16 +106,16 @@ static environment redeclare_aliases(environment env, parser & p,
 }
 
 environment end_scoped_cmd(parser & p) {
-    list<pair<name, level>> level_entries = p.get_local_level_entries();
+    // list<pair<name, level>> level_entries = p.get_local_level_entries();
     list<pair<name, expr>> entries        = p.get_local_entries();
     p.pop_local_scope();
     if (p.curr_is_identifier()) {
         name n = p.check_atomic_id_next("invalid end of scope, atomic identifier expected");
         environment env = pop_scope(p.env(), p.ios(), n);
-        return redeclare_aliases(env, p, level_entries, entries);
+        return redeclare_aliases(env, p, /* level_entries, */ entries);
     } else {
         environment env = pop_scope(p.env(), p.ios());
-        return redeclare_aliases(env, p, level_entries, entries);
+        return redeclare_aliases(env, p, /* level_entries, */ entries);
     }
 }
 

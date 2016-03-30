@@ -709,10 +709,6 @@ bool parser::update_local_binder_info(name const & n, binder_info const & bi) {
     return true;
 }
 
-unsigned parser::get_local_level_index(name const & n) const {
-    return m_local_level_decls.find_idx(n);
-}
-
 unsigned parser::get_local_index(name const & n) const {
     return m_local_decls.find_idx(n);
 }

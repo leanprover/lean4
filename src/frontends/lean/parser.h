@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/old_elaborator_context.h"
 #include "frontends/lean/local_decls.h"
+#include "frontends/lean/local_level_decls.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/parser_pos_provider.h"
 #include "frontends/lean/theorem_queue.h"
@@ -36,8 +37,8 @@ struct parser_error : public exception {
 };
 
 struct interrupt_parser {};
+
 typedef local_decls<expr>       local_expr_decls;
-typedef local_decls<level>      local_level_decls;
 typedef environment             local_environment;
 
 /** \brief Extra data needed to be saved when we execute parser::push_local_scope */
@@ -471,7 +472,8 @@ public:
     bool is_include_variable(name const & n) const { return m_include_vars.contains(n); }
     void get_include_variables(buffer<expr> & vars) const;
     /** \brief Position of the local level declaration named \c n in the sequence of local level decls. */
-    unsigned get_local_level_index(name const & n) const;
+    unsigned get_local_level_index(name const & n) const { return m_local_level_decls.find_idx(n); }
+    bool is_local_level(name const & n) const { return m_local_level_decls.contains(n); }
     /** \brief Position of the local declaration named \c n in the sequence of local decls. */
     unsigned get_local_index(name const & n) const;
     unsigned get_local_index(expr const & e) const { return get_local_index(local_pp_name(e)); }
@@ -481,8 +483,6 @@ public:
     list<expr> locals_to_context() const;
     /** \brief Return all local declarations and aliases */
     list<pair<name, expr>> const & get_local_entries() const { return m_local_decls.get_entries(); }
-    /** \brief Return all local level declarations */
-    list<pair<name, level>> const & get_local_level_entries() const { return m_local_level_decls.get_entries(); }
     /** \brief By default, when the parser finds a unknown identifier, it signs an error.
         These scope objects temporarily change this behavior. In any scope where this object
         is declared, the parse creates a constant/local even when the identifier is unknown.

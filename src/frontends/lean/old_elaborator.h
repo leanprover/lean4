@@ -73,7 +73,7 @@ class old_elaborator : public coercion_info_manager {
 
     environment const & env() const { return m_ctx.m_env; }
     io_state const & ios() const { return m_ctx.m_ios; }
-    local_decls<level> const & lls() const { return m_ctx.m_lls; }
+    local_level_decls const & lls() const { return m_ctx.m_lls; }
     bool use_local_instances() const { return m_ctx.m_use_local_instances; }
     info_manager * infom() const { return m_ctx.m_info_manager; }
     pos_info_provider const * pip() const { return m_ctx.m_pos_provider; }

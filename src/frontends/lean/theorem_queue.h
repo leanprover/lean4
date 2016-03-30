@@ -12,7 +12,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 class parser;
-typedef local_decls<level>  local_level_decls;
+class local_level_decls;
+
 class theorem_queue {
     parser & m_parser;
     unsigned m_num_threads;

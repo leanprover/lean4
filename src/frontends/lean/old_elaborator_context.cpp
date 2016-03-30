@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/sexpr/option_declarations.h"
+#include "frontends/lean/parser.h"
 #include "frontends/lean/old_elaborator_context.h"
 #include "frontends/lean/opt_cmd.h"
 
@@ -73,8 +74,8 @@ bool get_elaborator_coercions(options const & opts) {
 
 // ==========================================
 
-old_elaborator_context::old_elaborator_context(environment const & env, io_state const & ios, local_decls<level> const & lls,
-                                           pos_info_provider const * pp, info_manager * info, bool check_unassigned):
+old_elaborator_context::old_elaborator_context(environment const & env, io_state const & ios, local_level_decls const & lls,
+                                               pos_info_provider const * pp, info_manager * info, bool check_unassigned):
     m_env(env), m_ios(ios), m_lls(lls), m_pos_provider(pp), m_info_manager(info), m_check_unassigned(check_unassigned) {
     set_options(ios.get_options());
 }

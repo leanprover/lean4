@@ -679,7 +679,7 @@ struct inductive_cmd_fn {
         for (expr const & local : locals)
             locals_ctx = cons(local, locals_ctx);
         level_param_names new_ls;
-        std::tie(aux_type, new_ls) = m_p.elaborate_type(aux_type, locals_ctx);
+        std::tie(aux_type, new_ls) = m_p.old_elaborate_type(aux_type, locals_ctx);
         // save new levels
         for (auto l : new_ls)
             m_levels.push_back(l);

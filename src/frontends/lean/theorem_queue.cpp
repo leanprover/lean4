@@ -29,7 +29,7 @@ void theorem_queue::add(environment const & env, name const & n, level_param_nam
     m_queue->add([=]() {
             level_param_names new_ls;
             expr type, value;
-            std::tie(type, value, new_ls) = m_parser.elaborate_definition_at(env, lls, n, t, v);
+            std::tie(type, value, new_ls) = m_parser.old_elaborate_definition_at(env, lls, n, t, v);
             new_ls = append(ls, new_ls);
             value  = postprocess(env, value);
             auto r = check(env, mk_theorem(env, n, new_ls, type, value));

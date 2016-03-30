@@ -331,7 +331,7 @@ struct structure_cmd_fn {
         expr tmp       = Pi_as_is(ctx, Pi(tmp_locals, m_type, m_p), m_p);
         level_param_names new_ls;
         expr new_tmp;
-        std::tie(new_tmp, new_ls) = m_p.elaborate_type(tmp, list<expr>());
+        std::tie(new_tmp, new_ls) = m_p.old_elaborate_type(tmp, list<expr>());
         levels new_meta_ls = map2<level>(new_ls, [](name const & n) { return mk_meta_univ(n); });
         new_tmp = instantiate_univ_params(new_tmp, new_ls, new_meta_ls);
         new_tmp = update_locals(new_tmp, ctx);
@@ -560,7 +560,7 @@ struct structure_cmd_fn {
         expr tmp = Pi_as_is(m_params, Pi_as_is(m_fields, Pi(new_fields, dummy, m_p), m_p), m_p);
         level_param_names new_ls;
         expr new_tmp;
-        std::tie(new_tmp, new_ls) = m_p.elaborate_type(tmp, list<expr>());
+        std::tie(new_tmp, new_ls) = m_p.old_elaborate_type(tmp, list<expr>());
         for (auto new_l : new_ls)
             m_level_names.push_back(new_l);
         new_tmp = update_locals(new_tmp, m_params);

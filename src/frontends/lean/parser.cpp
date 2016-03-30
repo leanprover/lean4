@@ -879,7 +879,7 @@ old_elaborator_context parser::mk_elaborator_context(environment const & env, lo
     return old_elaborator_context(env, m_ios, lls, &pp, m_info_manager, true);
 }
 
-std::tuple<expr, level_param_names> parser::elaborate_relaxed(expr const & e, list<expr> const & ctx) {
+std::tuple<expr, level_param_names> parser::old_elaborate_relaxed(expr const & e, list<expr> const & ctx) {
     bool check_unassigned = false;
     bool ensure_type      = false;
     bool nice_mvar_names  = true;
@@ -890,7 +890,7 @@ std::tuple<expr, level_param_names> parser::elaborate_relaxed(expr const & e, li
     return r;
 }
 
-std::tuple<expr, level_param_names> parser::elaborate(expr const & e, list<expr> const & ctx) {
+std::tuple<expr, level_param_names> parser::old_elaborate(expr const & e, list<expr> const & ctx) {
     bool check_unassigned = true;
     bool ensure_type      = false;
     parser_pos_provider pp = get_pos_provider();
@@ -900,7 +900,7 @@ std::tuple<expr, level_param_names> parser::elaborate(expr const & e, list<expr>
     return r;
 }
 
-std::tuple<expr, level_param_names> parser::elaborate_type(expr const & e, list<expr> const & ctx, bool clear_pre_info) {
+std::tuple<expr, level_param_names> parser::old_elaborate_type(expr const & e, list<expr> const & ctx, bool clear_pre_info) {
     bool check_unassigned = true;
     bool ensure_type      = true;
     parser_pos_provider pp = get_pos_provider();
@@ -911,7 +911,7 @@ std::tuple<expr, level_param_names> parser::elaborate_type(expr const & e, list<
     return r;
 }
 
-std::tuple<expr, level_param_names> parser::elaborate_at(environment const & env, expr const & e) {
+std::tuple<expr, level_param_names> parser::old_elaborate_at(environment const & env, expr const & e) {
     parser_pos_provider pp = get_pos_provider();
     old_elaborator_context eenv = mk_elaborator_context(env, pp);
     auto r = ::lean::elaborate(eenv, list<expr>(), e);
@@ -919,7 +919,7 @@ std::tuple<expr, level_param_names> parser::elaborate_at(environment const & env
     return r;
 }
 
-auto parser::elaborate_definition(name const & n, expr const & t, expr const & v)
+auto parser::old_elaborate_definition(name const & n, expr const & t, expr const & v)
     -> std::tuple<expr, expr, level_param_names> {
     parser_pos_provider pp = get_pos_provider();
     old_elaborator_context eenv = mk_elaborator_context(pp);
@@ -928,7 +928,7 @@ auto parser::elaborate_definition(name const & n, expr const & t, expr const & v
     return r;
 }
 
-auto parser::elaborate_definition_at(environment const & env, local_level_decls const & lls,
+auto parser::old_elaborate_definition_at(environment const & env, local_level_decls const & lls,
                                      name const & n, expr const & t, expr const & v)
 -> std::tuple<expr, expr, level_param_names> {
     parser_pos_provider pp = get_pos_provider();

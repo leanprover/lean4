@@ -389,9 +389,9 @@ std::tuple<expr, level_param_names> parse_local_expr(parser & p, bool relaxed) {
     list<expr> ctx = p.locals_to_context();
     level_param_names new_ls;
     if (relaxed)
-        std::tie(e, new_ls) = p.elaborate_relaxed(e, ctx);
+        std::tie(e, new_ls) = p.old_elaborate_relaxed(e, ctx);
     else
-        std::tie(e, new_ls) = p.elaborate(e, ctx);
+        std::tie(e, new_ls) = p.old_elaborate(e, ctx);
     level_param_names ls = to_level_param_names(collect_univ_params(e));
     return std::make_tuple(e, ls);
 }
@@ -482,7 +482,7 @@ optional<unsigned> parse_priority(parser & p) {
         auto pos = p.pos();
         expr pre_val = p.parse_expr();
         pre_val  = mk_typed_expr(mk_constant(get_num_name()), pre_val);
-        expr val = std::get<0>(p.elaborate(pre_val, list<expr>()));
+        expr val = std::get<0>(p.old_elaborate(pre_val, list<expr>()));
         val = normalize(p.env(), val);
         if (optional<mpz> mpz_val = to_num_core(val)) {
             if (!mpz_val->is_unsigned_int())

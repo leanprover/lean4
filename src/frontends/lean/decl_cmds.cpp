@@ -294,7 +294,7 @@ static environment variable_cmd_core(parser & p, variable_kind k, bool is_protec
     }
     level_param_names new_ls;
     list<expr> ctx = p.locals_to_context();
-    std::tie(type, new_ls) = p.elaborate_type(type, ctx);
+    std::tie(type, new_ls) = p.old_elaborate_type(type, ctx);
     if (k == variable_kind::Variable || k == variable_kind::Parameter)
         update_local_levels(p, new_ls, k == variable_kind::Variable);
     return declare_var(p, p.env(), n, append(ls, new_ls), type, k, bi, pos, is_protected);
@@ -396,7 +396,7 @@ static environment variables_cmd_core(parser & p, variable_kind k, bool is_prote
         level_param_names new_ls;
         expr new_type;
         check_command_period_open_binder_or_eof(p);
-        std::tie(new_type, new_ls) = p.elaborate_type(type, ctx);
+        std::tie(new_type, new_ls) = p.old_elaborate_type(type, ctx);
         if (k == variable_kind::Variable || k == variable_kind::Parameter)
             update_local_levels(p, new_ls, k == variable_kind::Variable);
         new_ls = append(ls, new_ls);
@@ -1037,9 +1037,9 @@ class definition_cmd_fn {
             display_pos(msg);
             msg << " type elaboration time for " << m_name;
             timeit timer(m_p.ios().get_diagnostic_stream(), msg.str().c_str(), LEAN_PROFILE_THRESHOLD);
-            return m_p.elaborate_type(e, list<expr>(), clear_pre_info);
+            return m_p.old_elaborate_type(e, list<expr>(), clear_pre_info);
         } else {
-            return m_p.elaborate_type(e, list<expr>(), clear_pre_info);
+            return m_p.old_elaborate_type(e, list<expr>(), clear_pre_info);
         }
     }
 
@@ -1050,9 +1050,9 @@ class definition_cmd_fn {
             display_pos(msg);
             msg << " elaboration time for " << m_name;
             timeit timer(m_p.ios().get_diagnostic_stream(), msg.str().c_str(), LEAN_PROFILE_THRESHOLD);
-            return m_p.elaborate_definition(def_name, type, value);
+            return m_p.old_elaborate_definition(def_name, type, value);
         } else {
-            return m_p.elaborate_definition(def_name, type, value);
+            return m_p.old_elaborate_definition(def_name, type, value);
         }
     }
 

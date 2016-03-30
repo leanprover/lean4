@@ -498,20 +498,20 @@ public:
     expr const & get_undef_id(unsigned i) const { return m_undef_ids[i]; }
 
     /** \brief Elaborate \c e, and tolerate metavariables in the result. */
-    std::tuple<expr, level_param_names> elaborate_relaxed(expr const & e, list<expr> const & ctx = list<expr>());
-    std::tuple<expr, level_param_names> elaborate(expr const & e, list<expr> const & ctx = list<expr>());
+    std::tuple<expr, level_param_names> old_elaborate_relaxed(expr const & e, list<expr> const & ctx = list<expr>());
+    std::tuple<expr, level_param_names> old_elaborate(expr const & e, list<expr> const & ctx = list<expr>());
     /** \brief Elaborate \c e, and ensure it is a type. */
-    std::tuple<expr, level_param_names> elaborate_type(expr const & e, list<expr> const & ctx = list<expr>(),
-                                                       bool clear_pre_info = true);
+    std::tuple<expr, level_param_names> old_elaborate_type(expr const & e, list<expr> const & ctx = list<expr>(),
+                                                           bool clear_pre_info = true);
     /** \brief Elaborate \c e in the given environment. */
-    std::tuple<expr, level_param_names> elaborate_at(environment const & env, expr const & e);
+    std::tuple<expr, level_param_names> old_elaborate_at(environment const & env, expr const & e);
     /** \brief Elaborate \c e (making sure the result does not have metavariables). */
-    std::tuple<expr, level_param_names> elaborate(expr const & e) { return elaborate_at(m_env, e); }
+    std::tuple<expr, level_param_names> old_elaborate(expr const & e) { return old_elaborate_at(m_env, e); }
     /** \brief Elaborate the definition n : t := v */
-    std::tuple<expr, expr, level_param_names> elaborate_definition(name const & n, expr const & t, expr const & v);
+    std::tuple<expr, expr, level_param_names> old_elaborate_definition(name const & n, expr const & t, expr const & v);
     /** \brief Elaborate the definition n : t := v in the given environment*/
-    std::tuple<expr, expr, level_param_names> elaborate_definition_at(environment const & env, local_level_decls const & lls,
-                                                                      name const & n, expr const & t, expr const & v);
+    std::tuple<expr, expr, level_param_names> old_elaborate_definition_at(environment const & env, local_level_decls const & lls,
+                                                                          name const & n, expr const & t, expr const & v);
 
     expr mk_sorry(pos_info const & p);
     bool used_sorry() const { return m_used_sorry; }

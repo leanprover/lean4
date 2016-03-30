@@ -30,5 +30,8 @@ public:
         else
             return 0;
     }
+    void for_each(std::function<void(name const &, level const & l)> const & fn) {
+        m_decls.for_each(fn);
+    }
 };
 }

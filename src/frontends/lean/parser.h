@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 #include "library/definition_cache.h"
 #include "library/declaration_index.h"
 #include "frontends/lean/scanner.h"
-#include "frontends/lean/elaborator_context.h"
+#include "frontends/lean/old_elaborator_context.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/parser_pos_provider.h"
@@ -227,9 +227,9 @@ class parser {
     void commit_info(unsigned line, unsigned col);
     void commit_info() { commit_info(m_scanner.get_line(), m_scanner.get_pos()); }
 
-    elaborator_context mk_elaborator_context(pos_info_provider const & pp, bool check_unassigned = true);
-    elaborator_context mk_elaborator_context(environment const & env, pos_info_provider const & pp);
-    elaborator_context mk_elaborator_context(environment const & env, local_level_decls const & lls, pos_info_provider const & pp);
+    old_elaborator_context mk_elaborator_context(pos_info_provider const & pp, bool check_unassigned = true);
+    old_elaborator_context mk_elaborator_context(environment const & env, pos_info_provider const & pp);
+    old_elaborator_context mk_elaborator_context(environment const & env, local_level_decls const & lls, pos_info_provider const & pp);
 
     bool m_in_backtick; // true if parser `expr` notation
     expr parse_backtick_expr_core();

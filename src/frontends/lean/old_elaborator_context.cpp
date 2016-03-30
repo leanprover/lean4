@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/sexpr/option_declarations.h"
-#include "frontends/lean/elaborator_context.h"
+#include "frontends/lean/old_elaborator_context.h"
 #include "frontends/lean/opt_cmd.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES
@@ -73,19 +73,19 @@ bool get_elaborator_coercions(options const & opts) {
 
 // ==========================================
 
-elaborator_context::elaborator_context(environment const & env, io_state const & ios, local_decls<level> const & lls,
-                                       pos_info_provider const * pp, info_manager * info, bool check_unassigned):
+old_elaborator_context::old_elaborator_context(environment const & env, io_state const & ios, local_decls<level> const & lls,
+                                           pos_info_provider const * pp, info_manager * info, bool check_unassigned):
     m_env(env), m_ios(ios), m_lls(lls), m_pos_provider(pp), m_info_manager(info), m_check_unassigned(check_unassigned) {
     set_options(ios.get_options());
 }
 
-elaborator_context::elaborator_context(elaborator_context const & ctx, options const & o):
+old_elaborator_context::old_elaborator_context(old_elaborator_context const & ctx, options const & o):
     m_env(ctx.m_env), m_ios(ctx.m_ios), m_lls(ctx.m_lls), m_pos_provider(ctx.m_pos_provider),
     m_info_manager(ctx.m_info_manager), m_check_unassigned(ctx.m_check_unassigned) {
     set_options(o);
 }
 
-void elaborator_context::set_options(options const & opts) {
+void old_elaborator_context::set_options(options const & opts) {
     m_options             = opts;
     m_use_local_instances = get_elaborator_local_instances(opts);
     m_ignore_instances    = get_elaborator_ignore_instances(opts);
@@ -107,7 +107,7 @@ void elaborator_context::set_options(options const & opts) {
     }
 }
 
-bool elaborator_context::has_show_goal_at(unsigned & line, unsigned & col) const {
+bool old_elaborator_context::has_show_goal_at(unsigned & line, unsigned & col) const {
     if (m_show_goal_at) {
         line = m_show_goal_line;
         col  = m_show_goal_col;
@@ -117,11 +117,11 @@ bool elaborator_context::has_show_goal_at(unsigned & line, unsigned & col) const
     }
 }
 
-void elaborator_context::reset_show_goal_at() {
+void old_elaborator_context::reset_show_goal_at() {
     m_show_goal_at = false;
 }
 
-bool elaborator_context::has_show_hole_at(unsigned & line, unsigned & col) const {
+bool old_elaborator_context::has_show_hole_at(unsigned & line, unsigned & col) const {
     if (m_show_hole_at) {
         line = m_show_hole_line;
         col  = m_show_hole_col;
@@ -131,11 +131,11 @@ bool elaborator_context::has_show_hole_at(unsigned & line, unsigned & col) const
     }
 }
 
-void elaborator_context::reset_show_hole_at() {
+void old_elaborator_context::reset_show_hole_at() {
     m_show_hole_at = false;
 }
 
-void initialize_elaborator_context() {
+void initialize_old_elaborator_context() {
     g_elaborator_local_instances    = new name{"elaborator", "local_instances"};
     g_elaborator_ignore_instances   = new name{"elaborator", "ignore_instances"};
     g_elaborator_flycheck_goals     = new name{"elaborator", "flycheck_goals"};
@@ -158,7 +158,7 @@ void initialize_elaborator_context() {
     register_bool_option(*g_elaborator_coercions, LEAN_DEFAULT_ELABORATOR_COERCIONS,
                          "(elaborator) if true, the elaborator will automatically introduce coercions");
 }
-void finalize_elaborator_context() {
+void finalize_old_elaborator_context() {
     delete g_elaborator_local_instances;
     delete g_elaborator_ignore_instances;
     delete g_elaborator_flycheck_goals;

@@ -51,7 +51,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/info_annotation.h"
-#include "frontends/lean/elaborator.h"
+#include "frontends/lean/old_elaborator.h"
 #include "frontends/lean/info_tactic.h"
 #include "frontends/lean/begin_end_annotation.h"
 #include "frontends/lean/elaborator_exception.h"
@@ -127,8 +127,8 @@ old_type_checker_ptr mk_coercion_to_type_checker(environment const & env) {
     size \c n, one alternative for each \c e_i.
     This is a helper class for implementing this choice functions.
 */
-struct elaborator::choice_expr_elaborator : public choice_iterator {
-    elaborator &  m_elab;
+struct old_elaborator::choice_expr_elaborator : public choice_iterator {
+    old_elaborator &  m_elab;
     old_local_context m_context;
     bool          m_in_equation_lhs;
     expr          m_meta;
@@ -136,7 +136,7 @@ struct elaborator::choice_expr_elaborator : public choice_iterator {
     expr          m_choice;
     unsigned      m_idx;
 
-    choice_expr_elaborator(elaborator & elab, old_local_context const & ctx, bool in_equation_lhs,
+    choice_expr_elaborator(old_elaborator & elab, old_local_context const & ctx, bool in_equation_lhs,
                            expr const & meta, expr const & type, expr const & c):
         m_elab(elab), m_context(ctx), m_in_equation_lhs(in_equation_lhs), m_meta(meta),
         m_type(type), m_choice(c), m_idx(get_num_choices(m_choice)) {
@@ -173,7 +173,7 @@ struct elaborator::choice_expr_elaborator : public choice_iterator {
     }
 };
 
-elaborator::elaborator(elaborator_context & ctx, bool nice_mvar_names):
+old_elaborator::old_elaborator(old_elaborator_context & ctx, bool nice_mvar_names):
     m_ctx(ctx),
     m_context(),
     m_unifier_config(ctx.m_ios.get_options(), true /* use exceptions */, true /* discard */) {
@@ -187,11 +187,11 @@ elaborator::elaborator(elaborator_context & ctx, bool nice_mvar_names):
     m_nice_mvar_names   = nice_mvar_names;
 }
 
-expr elaborator::mk_local(name const & n, expr const & t, binder_info const & bi) {
+expr old_elaborator::mk_local(name const & n, expr const & t, binder_info const & bi) {
     return ::lean::mk_local(mk_fresh_name(), n, t, bi);
 }
 
-void elaborator::register_meta(expr const & meta) {
+void old_elaborator::register_meta(expr const & meta) {
     lean_assert(is_meta(meta));
     name const & n = mlocal_name(get_app_fn(meta));
     m_mvar2meta.insert(n, meta);
@@ -200,7 +200,7 @@ void elaborator::register_meta(expr const & meta) {
 /** \brief Convert the metavariable to the metavariable application that captures
     the context where it was defined.
 */
-optional<expr> elaborator::mvar_to_meta(expr const & mvar) {
+optional<expr> old_elaborator::mvar_to_meta(expr const & mvar) {
     lean_assert(is_metavar(mvar));
     name const & m = mlocal_name(mvar);
     if (auto it = m_mvar2meta.find(m))
@@ -210,7 +210,7 @@ optional<expr> elaborator::mvar_to_meta(expr const & mvar) {
 }
 
 /** \brief Store the pair (pos(e), type(r)) in the info_data if m_info_manager is available. */
-void elaborator::save_type_data(expr const & e, expr const & r) {
+void old_elaborator::save_type_data(expr const & e, expr const & r) {
     if (!m_no_info && infom() && pip() &&
         (is_constant(e) || is_local(e) || is_placeholder(e) || is_as_atomic(e) ||
          is_consume_args(e) || is_notation_info(e))) {
@@ -222,7 +222,7 @@ void elaborator::save_type_data(expr const & e, expr const & r) {
 }
 
 /** \brief Store the pair (pos(e), r) in the info_data if m_info_manager is available. */
-void elaborator::save_binder_type(expr const & e, expr const & r) {
+void old_elaborator::save_binder_type(expr const & e, expr const & r) {
     if (!m_no_info && infom() && pip()) {
         if (auto p = pip()->get_pos_info(e)) {
             m_pre_info_data.add_type_info(p->first, p->second, r);
@@ -231,7 +231,7 @@ void elaborator::save_binder_type(expr const & e, expr const & r) {
 }
 
 /** \brief Store type information at pos(e) for r if \c e is marked as "extra" in the info_manager */
-void elaborator::save_extra_type_data(expr const & e, expr const & r) {
+void old_elaborator::save_extra_type_data(expr const & e, expr const & r) {
     if (!m_no_info && infom() && pip()) {
         if (auto p = pip()->get_pos_info(e)) {
             expr t = m_tc->infer(r).first;
@@ -241,7 +241,7 @@ void elaborator::save_extra_type_data(expr const & e, expr const & r) {
 }
 
 /** \brief Store proof_state information at pos(e) in the info_manager */
-void elaborator::save_proof_state_info(proof_state const & ps, expr const & e) {
+void old_elaborator::save_proof_state_info(proof_state const & ps, expr const & e) {
     if (!m_no_info && infom() && pip()) {
         if (auto p = pip()->get_pos_info(e)) {
             m_pre_info_data.add_proof_state_info(p->first, p->second, ps);
@@ -250,7 +250,7 @@ void elaborator::save_proof_state_info(proof_state const & ps, expr const & e) {
 }
 
 /** \brief Auxiliary function for saving information about which overloaded identifier was used by the elaborator. */
-void elaborator::save_identifier_info(expr const & f) {
+void old_elaborator::save_identifier_info(expr const & f) {
     if (!m_no_info && infom() && pip() && is_constant(f)) {
         if (auto p = pip()->get_pos_info(f))
             m_pre_info_data.add_identifier_info(p->first, p->second, const_name(f));
@@ -258,14 +258,14 @@ void elaborator::save_identifier_info(expr const & f) {
 }
 
 /** \brief Store actual term that was synthesized for an explicit placeholders */
-void elaborator::save_synth_data(expr const & e, expr const & r) {
+void old_elaborator::save_synth_data(expr const & e, expr const & r) {
     if (!m_no_info && infom() && pip() && is_placeholder(e)) {
         if (auto p = pip()->get_pos_info(e))
             m_pre_info_data.add_synth_info(p->first, p->second, r);
     }
 }
 
-void elaborator::save_placeholder_info(expr const & e, expr const & r) {
+void old_elaborator::save_placeholder_info(expr const & e, expr const & r) {
     if (is_explicit_placeholder(e)) {
         save_type_data(e, r);
         save_synth_data(e, r);
@@ -285,7 +285,7 @@ void elaborator::save_placeholder_info(expr const & e, expr const & r) {
 /** \brief Auxiliary function for saving information about which coercion was used by the elaborator.
     It marks that coercion c was used on e.
 */
-void elaborator::save_coercion_info(expr const & e, expr const & c) {
+void old_elaborator::save_coercion_info(expr const & e, expr const & c) {
     if (!m_no_info && infom() && pip()) {
         if (auto p = pip()->get_pos_info(e)) {
             expr t = m_tc->infer(c).first;
@@ -295,14 +295,14 @@ void elaborator::save_coercion_info(expr const & e, expr const & c) {
 }
 
 /** \brief Remove coercion information associated with \c e */
-void elaborator::erase_coercion_info(expr const & e) {
+void old_elaborator::erase_coercion_info(expr const & e) {
     if (!m_no_info && infom() && pip()) {
         if (auto p = pip()->get_pos_info(e))
             m_pre_info_data.erase_coercion_info(p->first, p->second);
     }
 }
 
-void elaborator::instantiate_info(substitution s) {
+void old_elaborator::instantiate_info(substitution s) {
     if (m_to_show_hole) {
         expr meta      = s.instantiate(*m_to_show_hole);
         expr meta_type = s.instantiate(old_type_checker(env()).infer(meta).first);
@@ -321,7 +321,7 @@ void elaborator::instantiate_info(substitution s) {
     }
 }
 
-optional<name> elaborator::mk_mvar_suffix(expr const & b) {
+optional<name> old_elaborator::mk_mvar_suffix(expr const & b) {
     if (!infom() && !m_nice_mvar_names)
         return optional<name>();
     else
@@ -331,7 +331,7 @@ optional<name> elaborator::mk_mvar_suffix(expr const & b) {
 /** \brief Create a metavariable, and attach choice constraint for generating
     solutions using class-instances and tactic-hints.
 */
-expr elaborator::mk_placeholder_meta(optional<name> const & suffix, optional<expr> const & type,
+expr old_elaborator::mk_placeholder_meta(optional<name> const & suffix, optional<expr> const & type,
                                      tag g, bool is_strict, bool is_inst_implicit, constraint_seq & cs) {
     if (is_inst_implicit && !m_ctx.m_ignore_instances) {
         auto ec = mk_class_instance_elaborator(
@@ -347,7 +347,7 @@ expr elaborator::mk_placeholder_meta(optional<name> const & suffix, optional<exp
     }
 }
 
-expr elaborator::visit_expecting_type(expr const & e, constraint_seq & cs) {
+expr old_elaborator::visit_expecting_type(expr const & e, constraint_seq & cs) {
     if (is_placeholder(e) && !placeholder_type(e)) {
         expr r = m_context.mk_type_meta(e.get_tag());
         save_placeholder_info(e, r);
@@ -360,7 +360,7 @@ expr elaborator::visit_expecting_type(expr const & e, constraint_seq & cs) {
     }
 }
 
-expr elaborator::visit_expecting_type_of(expr const & e, expr const & t, constraint_seq & cs) {
+expr old_elaborator::visit_expecting_type_of(expr const & e, expr const & t, constraint_seq & cs) {
     if (is_placeholder(e) && !placeholder_type(e)) {
         bool inst_imp = true;
         expr r = mk_placeholder_meta(some_expr(t), e.get_tag(), is_strict_placeholder(e), inst_imp, cs);
@@ -380,7 +380,7 @@ expr elaborator::visit_expecting_type_of(expr const & e, expr const & t, constra
     }
 }
 
-expr elaborator::visit_choice(expr const & e, optional<expr> const & t, constraint_seq & cs) {
+expr old_elaborator::visit_choice(expr const & e, optional<expr> const & t, constraint_seq & cs) {
     lean_assert(is_choice(e));
     // Possible optimization: try to lookahead and discard some of the alternatives.
     expr m = m_context.mk_meta(t, e.get_tag());
@@ -415,7 +415,7 @@ expr elaborator::visit_choice(expr const & e, optional<expr> const & t, constrai
     return m;
 }
 
-expr elaborator::visit_by(expr const & e, optional<expr> const & t, constraint_seq & cs) {
+expr old_elaborator::visit_by(expr const & e, optional<expr> const & t, constraint_seq & cs) {
     lean_assert(is_by(e));
     expr tac = visit(get_by_arg(e), cs);
     expr m   = m_context.mk_meta(t, e.get_tag());
@@ -424,7 +424,7 @@ expr elaborator::visit_by(expr const & e, optional<expr> const & t, constraint_s
     return m;
 }
 
-expr elaborator::visit_calc_proof(expr const & e, optional<expr> const & t, constraint_seq & cs) {
+expr old_elaborator::visit_calc_proof(expr const & e, optional<expr> const & t, constraint_seq & cs) {
     lean_assert(is_calc_annotation(e));
     if (t)
         return visit_expecting_type_of(get_annotation_arg(e), *t, cs);
@@ -440,7 +440,7 @@ static bool is_implicit_pi(expr const & e) {
 }
 
 /** \brief Auxiliary function for adding implicit arguments to coercions to function-class */
-expr elaborator::add_implict_args(expr e, constraint_seq & cs) {
+expr old_elaborator::add_implict_args(expr e, constraint_seq & cs) {
     old_type_checker & tc = *m_tc;
     constraint_seq new_cs;
     expr type = tc.whnf(tc.infer(e, new_cs), new_cs);
@@ -475,7 +475,7 @@ static expr mk_coercion_app(expr const & coe, expr const & a) {
     The result is a pair <tt>new_f, f_type</tt>, where new_f is the new value for \c f,
     and \c f_type is its type (and a Pi-expression)
 */
-pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
+pair<expr, expr> old_elaborator::ensure_fun(expr f, constraint_seq & cs) {
     expr f_type = infer_type(f, cs);
     expr saved_f_type       = f_type;
     constraint_seq saved_cs = cs;
@@ -535,7 +535,7 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
     return mk_pair(f, f_type);
 }
 
-bool elaborator::has_coercions_from(expr const & a_type, bool & lifted_coe) {
+bool old_elaborator::has_coercions_from(expr const & a_type, bool & lifted_coe) {
     if (!m_ctx.m_coercions)
         return false;
     try {
@@ -553,7 +553,7 @@ bool elaborator::has_coercions_from(expr const & a_type, bool & lifted_coe) {
     }
 }
 
-bool elaborator::has_coercions_to(expr d_type) {
+bool old_elaborator::has_coercions_to(expr d_type) {
     if (!m_ctx.m_coercions)
         return false;
     try {
@@ -572,7 +572,7 @@ bool elaborator::has_coercions_to(expr d_type) {
     }
 }
 
-pair<expr, constraint_seq> elaborator::apply_coercion(expr const & a, expr a_type, expr d_type, justification const & j) {
+pair<expr, constraint_seq> old_elaborator::apply_coercion(expr const & a, expr a_type, expr d_type, justification const & j) {
     if (!m_ctx.m_coercions) {
         erase_coercion_info(a);
         return to_ecs(a);
@@ -622,7 +622,7 @@ pair<expr, constraint_seq> elaborator::apply_coercion(expr const & a, expr a_typ
 }
 
 /** \brief Given a term <tt>a : a_type</tt>, and an expected type generate a metavariable with a delayed coercion. */
-pair<expr, constraint_seq> elaborator::mk_delayed_coercion(
+pair<expr, constraint_seq> old_elaborator::mk_delayed_coercion(
     expr const & a, expr const & a_type, expr const & expected_type,
     justification const & j) {
     expr m       = m_context.mk_meta(some_expr(expected_type), a.get_tag());
@@ -633,7 +633,7 @@ pair<expr, constraint_seq> elaborator::mk_delayed_coercion(
 }
 
 /** \brief Given a term <tt>a : a_type</tt>, ensure it has type \c expected_type. Apply coercions if needed */
-pair<expr, constraint_seq> elaborator::ensure_has_type_core(
+pair<expr, constraint_seq> old_elaborator::ensure_has_type_core(
     expr const & a, expr const & a_type, expr const & expected_type, bool use_expensive_coercions, justification const & j) {
     bool lifted_coe = false;
     if (m_ctx.m_coercions && !is_meta(a)) {
@@ -679,7 +679,7 @@ pair<expr, constraint_seq> elaborator::ensure_has_type_core(
     }
 }
 
-bool elaborator::is_choice_app(expr const & e) {
+bool old_elaborator::is_choice_app(expr const & e) {
     expr const & f = get_app_fn(e);
     return is_choice(f) || (is_annotation(f) && is_choice(get_nested_annotation_arg(f)));
 }
@@ -687,7 +687,7 @@ bool elaborator::is_choice_app(expr const & e) {
 /** \brief Process ((choice f_1 ... f_n) a_1 ... a_k) as
     (choice (f_1 a_1 ... a_k) ... (f_n a_1 ... a_k))
 */
-expr elaborator::visit_choice_app(expr const & e, constraint_seq & cs) {
+expr old_elaborator::visit_choice_app(expr const & e, constraint_seq & cs) {
     buffer<expr> args;
     expr r = get_app_rev_args(e, args);
     expr f = get_nested_annotation_arg(r);
@@ -702,7 +702,7 @@ expr elaborator::visit_choice_app(expr const & e, constraint_seq & cs) {
     return visit_choice(copy_tag(e, mk_choice(new_choices.size(), new_choices.data())), none_expr(), cs);
 }
 
-expr elaborator::visit_app(expr const & e, constraint_seq & cs) {
+expr old_elaborator::visit_app(expr const & e, constraint_seq & cs) {
     if (is_choice_app(e))
         return visit_choice_app(e, cs);
     constraint_seq f_cs;
@@ -770,14 +770,14 @@ expr elaborator::visit_app(expr const & e, constraint_seq & cs) {
     }
 }
 
-expr elaborator::visit_placeholder(expr const & e, constraint_seq & cs) {
+expr old_elaborator::visit_placeholder(expr const & e, constraint_seq & cs) {
     bool inst_implicit = true;
     expr r = mk_placeholder_meta(placeholder_type(e), e.get_tag(), is_strict_placeholder(e), inst_implicit, cs);
     save_placeholder_info(e, r);
     return r;
 }
 
-level elaborator::replace_univ_placeholder(level const & l) {
+level old_elaborator::replace_univ_placeholder(level const & l) {
     auto fn = [&](level const & l) {
         if (is_placeholder(l))
             return some_level(mk_meta_univ(mk_fresh_name()));
@@ -799,14 +799,14 @@ static bool contains_placeholder(level const & l) {
     return contains;
 }
 
-expr elaborator::visit_sort(expr const & e) {
+expr old_elaborator::visit_sort(expr const & e) {
     expr r = update_sort(e, replace_univ_placeholder(sort_level(e)));
     if (contains_placeholder(sort_level(e)))
         m_to_check_sorts.emplace_back(e, r);
     return r;
 }
 
-expr elaborator::visit_macro(expr const & e, constraint_seq & cs) {
+expr old_elaborator::visit_macro(expr const & e, constraint_seq & cs) {
     if (is_as_is(e)) {
         return get_as_is_arg(e);
     } else {
@@ -817,7 +817,7 @@ expr elaborator::visit_macro(expr const & e, constraint_seq & cs) {
     }
 }
 
-expr elaborator::visit_constant(expr const & e) {
+expr old_elaborator::visit_constant(expr const & e) {
     declaration d = env().get(const_name(e));
     buffer<level> ls;
     for (level const & l : const_levels(e))
@@ -835,7 +835,7 @@ expr elaborator::visit_constant(expr const & e) {
 }
 
 /** \brief Make sure \c e is a type. If it is not, then try to apply coercions. */
-expr elaborator::ensure_type(expr const & e, constraint_seq & cs) {
+expr old_elaborator::ensure_type(expr const & e, constraint_seq & cs) {
     expr t = infer_type(e, cs);
     erase_coercion_info(e);
     if (is_sort(t))
@@ -874,7 +874,7 @@ expr elaborator::ensure_type(expr const & e, constraint_seq & cs) {
 /** \brief Similar to instantiate_rev, but assumes that subst contains only local constants.
     When replacing a variable with a local, we copy the local constant and inherit the tag
     associated with the variable. This is a trick for getter better error messages */
-expr elaborator::instantiate_rev_locals(expr const & a, unsigned n, expr const * subst) {
+expr old_elaborator::instantiate_rev_locals(expr const & a, unsigned n, expr const * subst) {
     if (closed(a))
         return a;
     auto fn = [=](expr const & m, unsigned offset) -> optional<expr> {
@@ -898,7 +898,7 @@ expr elaborator::instantiate_rev_locals(expr const & a, unsigned n, expr const *
     return replace(a, fn);
 }
 
-expr elaborator::visit_binding(expr e, expr_kind k, constraint_seq & cs) {
+expr old_elaborator::visit_binding(expr e, expr_kind k, constraint_seq & cs) {
     flet<old_local_context> save1(m_context, m_context);
     buffer<expr> ds, ls, es;
     while (e.kind() == k) {
@@ -930,14 +930,14 @@ expr elaborator::visit_binding(expr e, expr_kind k, constraint_seq & cs) {
     }
     return e;
 }
-expr elaborator::visit_pi(expr const & e, constraint_seq & cs) {
+expr old_elaborator::visit_pi(expr const & e, constraint_seq & cs) {
     return visit_binding(e, expr_kind::Pi, cs);
 }
-expr elaborator::visit_lambda(expr const & e, constraint_seq & cs) {
+expr old_elaborator::visit_lambda(expr const & e, constraint_seq & cs) {
     return visit_binding(e, expr_kind::Lambda, cs);
 }
 
-expr elaborator::visit_typed_expr(expr const & e, constraint_seq & cs) {
+expr old_elaborator::visit_typed_expr(expr const & e, constraint_seq & cs) {
     constraint_seq t_cs;
     expr t      = ensure_type(visit_expecting_type(get_typed_expr_type(e), t_cs), t_cs);
     constraint_seq v_cs;
@@ -950,7 +950,7 @@ expr elaborator::visit_typed_expr(expr const & e, constraint_seq & cs) {
     return v;
 }
 
-expr elaborator::visit_let_value(expr const & e, constraint_seq & cs) {
+expr old_elaborator::visit_let_value(expr const & e, constraint_seq & cs) {
     if (auto p = m_cache.find(e)) {
         cs += p->second;
         return p->first;
@@ -963,18 +963,18 @@ expr elaborator::visit_let_value(expr const & e, constraint_seq & cs) {
     }
 }
 
-bool elaborator::is_sorry(expr const & e) const {
+bool old_elaborator::is_sorry(expr const & e) const {
     return m_has_sorry && ::lean::is_sorry(e);
 }
 
-expr elaborator::visit_sorry(expr const & e) {
+expr old_elaborator::visit_sorry(expr const & e) {
     level u = mk_meta_univ(mk_fresh_name());
     expr t  = mk_sort(u);
     expr m  = m_context.mk_meta(some_expr(t), e.get_tag());
     return mk_app(update_constant(e, to_list(u)), m, e.get_tag());
 }
 
-expr const & elaborator::get_equation_fn(expr const & eq) const {
+expr const & old_elaborator::get_equation_fn(expr const & eq) const {
     expr it = eq;
     while (is_lambda(it))
         it = binding_body(it);
@@ -1198,7 +1198,7 @@ static expr assign_equation_lhs_metas(old_type_checker & tc, expr const & eqns) 
 }
 
 // \remark original_eqns is eqns before elaboration
-constraint elaborator::mk_equations_cnstr(expr const & m, expr const & eqns) {
+constraint old_elaborator::mk_equations_cnstr(expr const & m, expr const & eqns) {
     environment const & _env = env();
     io_state const & _ios    = ios();
     justification j          = mk_failed_to_synthesize_jst(_env, m);
@@ -1221,7 +1221,7 @@ constraint elaborator::mk_equations_cnstr(expr const & m, expr const & eqns) {
     return mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::MaxDelayed), owner, j);
 }
 
-expr elaborator::visit_equations(expr const & eqns, constraint_seq & cs) {
+expr old_elaborator::visit_equations(expr const & eqns, constraint_seq & cs) {
     buffer<expr> eqs;
     buffer<expr> new_eqs;
     optional<expr> new_R;
@@ -1305,7 +1305,7 @@ expr elaborator::visit_equations(expr const & eqns, constraint_seq & cs) {
     return m;
 }
 
-expr elaborator::visit_equation(expr const & eq, constraint_seq & cs) {
+expr old_elaborator::visit_equation(expr const & eq, constraint_seq & cs) {
     expr const & lhs = equation_lhs(eq);
     expr const & rhs = equation_rhs(eq);
     expr lhs_fn = get_app_fn(lhs);
@@ -1339,14 +1339,14 @@ expr elaborator::visit_equation(expr const & eq, constraint_seq & cs) {
     return copy_tag(eq, mk_equation(new_lhs, new_rhs));
 }
 
-expr elaborator::visit_inaccessible(expr const & e, constraint_seq & cs) {
+expr old_elaborator::visit_inaccessible(expr const & e, constraint_seq & cs) {
     if (!m_in_equation_lhs)
         throw_elaborator_exception("invalid occurrence of 'inaccessible' annotation, it must only occur in the "
                                    "left-hand-side of recursive equations", e);
     return mk_inaccessible(visit(get_annotation_arg(e), cs));
 }
 
-expr elaborator::visit_decreasing(expr const & e, constraint_seq & cs) {
+expr old_elaborator::visit_decreasing(expr const & e, constraint_seq & cs) {
     if (!m_equation_lhs)
         throw_elaborator_exception("invalid occurrence of 'decreasing' annotation, it must only occur in "
                                    "the right-hand-side of recursive equations", e);
@@ -1380,12 +1380,12 @@ expr elaborator::visit_decreasing(expr const & e, constraint_seq & cs) {
     return mk_decreasing(dec_app, dec_proof);
 }
 
-bool elaborator::is_structure_like(expr const & S) {
+bool old_elaborator::is_structure_like(expr const & S) {
     expr const & I = get_app_fn(S);
     return is_constant(I) && ::lean::is_structure_like(env(), const_name(I));
 }
 
-expr elaborator::visit_structure_instance(expr const & e, constraint_seq & cs) {
+expr old_elaborator::visit_structure_instance(expr const & e, constraint_seq & cs) {
     expr S;
     buffer<name> field_names;
     buffer<expr> field_values, using_exprs;
@@ -1495,7 +1495,7 @@ expr elaborator::visit_structure_instance(expr const & e, constraint_seq & cs) {
     return S_mk;
 }
 
-expr elaborator::process_obtain_expr(list<obtain_struct> const & s_list, list<expr> const & from_list,
+expr old_elaborator::process_obtain_expr(list<obtain_struct> const & s_list, list<expr> const & from_list,
                                      expr const & goal, bool first, constraint_seq & cs, expr const & src) {
     lean_assert(length(s_list) == length(from_list));
     if (!s_list && !from_list)
@@ -1610,7 +1610,7 @@ expr elaborator::process_obtain_expr(list<obtain_struct> const & s_list, list<ex
     }
 }
 
-expr elaborator::visit_obtain_expr(expr const & e, constraint_seq & cs) {
+expr old_elaborator::visit_obtain_expr(expr const & e, constraint_seq & cs) {
     lean_assert(is_obtain_expr(e));
     expr from, decls_goal;
     obtain_struct s;
@@ -1619,7 +1619,7 @@ expr elaborator::visit_obtain_expr(expr const & e, constraint_seq & cs) {
     return process_obtain_expr(to_list(s), to_list(from), decls_goal, true, cs, e);
 }
 
-expr elaborator::visit_prenum(expr const & e, constraint_seq & cs) {
+expr old_elaborator::visit_prenum(expr const & e, constraint_seq & cs) {
     lean_assert(is_prenum(e));
     mpz const & v  = prenum_value(e);
     tag e_tag      = e.get_tag();
@@ -1663,7 +1663,7 @@ expr elaborator::visit_prenum(expr const & e, constraint_seq & cs) {
     }
 }
 
-expr elaborator::visit_checkpoint_expr(expr const & e, constraint_seq & cs) {
+expr old_elaborator::visit_checkpoint_expr(expr const & e, constraint_seq & cs) {
     expr arg = get_annotation_arg(e);
     expr m;
     m = m_context.mk_meta(none_expr(), e.get_tag());
@@ -1684,7 +1684,7 @@ expr elaborator::visit_checkpoint_expr(expr const & e, constraint_seq & cs) {
     return m;
 }
 
-expr elaborator::visit_core(expr const & e, constraint_seq & cs) {
+expr old_elaborator::visit_core(expr const & e, constraint_seq & cs) {
     if (is_prenum(e)) {
         return visit_prenum(e, cs);
     } else if (is_placeholder(e)) {
@@ -1746,7 +1746,7 @@ expr elaborator::visit_core(expr const & e, constraint_seq & cs) {
     }
 }
 
-pair<expr, constraint_seq> elaborator::visit(expr const & e) {
+pair<expr, constraint_seq> old_elaborator::visit(expr const & e) {
     if (is_extra_info(e)) {
         auto ecs = visit(get_annotation_arg(e));
         save_extra_type_data(e, ecs.first);
@@ -1835,19 +1835,19 @@ pair<expr, constraint_seq> elaborator::visit(expr const & e) {
     return mk_pair(r, cs);
 }
 
-expr elaborator::visit(expr const & e, constraint_seq & cs) {
+expr old_elaborator::visit(expr const & e, constraint_seq & cs) {
     auto r = visit(e);
     cs += r.second;
     return r.first;
 }
 
-unify_result_seq elaborator::solve(constraint_seq const & cs) {
+unify_result_seq old_elaborator::solve(constraint_seq const & cs) {
     buffer<constraint> tmp;
     cs.linearize(tmp);
     return unify(env(), tmp.size(), tmp.data(), substitution(), m_unifier_config);
 }
 
-void elaborator::display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg, expr const & pos) {
+void old_elaborator::display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg, expr const & pos) {
     lean_assert(is_metavar(mvar));
     if (!m_displayed_errors.contains(mlocal_name(mvar))) {
         m_displayed_errors.insert(mlocal_name(mvar));
@@ -1860,11 +1860,11 @@ void elaborator::display_unsolved_proof_state(expr const & mvar, proof_state con
     }
 }
 
-void elaborator::display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg) {
+void old_elaborator::display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg) {
     display_unsolved_proof_state(mvar, ps, msg, mvar);
 }
 
-optional<expr> elaborator::get_pre_tactic_for(expr const & mvar) {
+optional<expr> old_elaborator::get_pre_tactic_for(expr const & mvar) {
     if (auto it = m_local_tactic_hints.find(mlocal_name(mvar))) {
         m_used_local_tactic_hints.insert(mlocal_name(mvar));
         return some_expr(*it);
@@ -1873,7 +1873,7 @@ optional<expr> elaborator::get_pre_tactic_for(expr const & mvar) {
     }
 }
 
-optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
+optional<tactic> old_elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
     try {
         auto fn = [=](goal const & g, options const & o, expr const & e, optional<expr> const & expected_type,
                       substitution const & subst, bool report_unassigned) {
@@ -1881,12 +1881,12 @@ optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
             // We must do it otherwise, it is easy to make the system loop.
             bool use_tactic_hints = false;
             if (o == m_ctx.m_options) {
-                elaborator aux_elaborator(m_ctx);
+                old_elaborator aux_elaborator(m_ctx);
                 return aux_elaborator.elaborate_nested(g.to_context(), expected_type, e,
                                                        use_tactic_hints, subst, report_unassigned);
             } else {
-                elaborator_context aux_ctx(m_ctx, o);
-                elaborator aux_elaborator(aux_ctx);
+                old_elaborator_context aux_ctx(m_ctx, o);
+                old_elaborator aux_elaborator(aux_ctx);
                 return aux_elaborator.elaborate_nested(g.to_context(), expected_type, e,
                                                        use_tactic_hints, subst, report_unassigned);
             }
@@ -1905,7 +1905,7 @@ optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
     }
 }
 
-void elaborator::display_tactic_exception(tactic_exception const & ex, proof_state const & ps, expr const & pre_tac) {
+void old_elaborator::display_tactic_exception(tactic_exception const & ex, proof_state const & ps, expr const & pre_tac) {
     auto out = regular(env(), ios(), m_tc->get_type_context());
     flycheck_error err(ios());
     if (optional<expr> const & e = ex.get_main_expr()) {
@@ -1924,7 +1924,7 @@ void elaborator::display_tactic_exception(tactic_exception const & ex, proof_sta
         out << ps.pp(out.get_formatter()) << "\n";
 }
 
-void elaborator::display_unsolved_subgoals(expr const & mvar, proof_state const & ps, expr const & pos) {
+void old_elaborator::display_unsolved_subgoals(expr const & mvar, proof_state const & ps, expr const & pos) {
     unsigned ngoals = length(ps.get_goals());
     sstream s;
     s << ngoals << " unsolved subgoal";
@@ -1932,7 +1932,7 @@ void elaborator::display_unsolved_subgoals(expr const & mvar, proof_state const 
     display_unsolved_proof_state(mvar, ps, s.str().c_str(), pos);
 }
 
-void elaborator::display_unsolved_subgoals(expr const & mvar, proof_state const & ps) {
+void old_elaborator::display_unsolved_subgoals(expr const & mvar, proof_state const & ps) {
     display_unsolved_subgoals(mvar, ps, mvar);
 }
 
@@ -1945,7 +1945,7 @@ void elaborator::display_unsolved_subgoals(expr const & mvar, proof_state const 
 
     \remark the argument \c pre_tac is only used for error localization.
 */
-bool elaborator::try_using(substitution & subst, expr const & mvar, proof_state const & ps,
+bool old_elaborator::try_using(substitution & subst, expr const & mvar, proof_state const & ps,
                            expr const & pre_tac, tactic const & tac, bool show_failure) {
     lean_assert(length(ps.get_goals()) == 1);
     // make sure ps is a really a proof state for mvar.
@@ -1998,7 +1998,7 @@ static void extract_begin_end_tactics(expr pre_tac, buffer<expr> & pre_tac_seq) 
     }
 }
 
-void elaborator::show_goal(proof_state const & ps, expr const & start, expr const & end, expr const & curr) {
+void old_elaborator::show_goal(proof_state const & ps, expr const & start, expr const & end, expr const & curr) {
     unsigned line, col;
     if (!m_ctx.has_show_goal_at(line, col))
         return;
@@ -2021,7 +2021,7 @@ void elaborator::show_goal(proof_state const & ps, expr const & start, expr cons
     print_lean_info_footer(out.get_stream());
 }
 
-bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, proof_state ps, expr const & pre_tac) {
+bool old_elaborator::try_using_begin_end(substitution & subst, expr const & mvar, proof_state ps, expr const & pre_tac) {
     lean_assert(is_begin_end_annotation(pre_tac));
     expr end_expr   = pre_tac;
     expr start_expr = get_annotation_arg(pre_tac);
@@ -2098,7 +2098,7 @@ bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
 
 // The parameters univs_fixed is true if the elaborator has instantiated the universe metavariables with universe parameters.
 // See issue #771
-void elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set & visited, bool reject_type_is_meta) {
+void old_elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set & visited, bool reject_type_is_meta) {
     if (visited.contains(mlocal_name(mvar)))
         return;
     visited.insert(mlocal_name(mvar));
@@ -2206,7 +2206,7 @@ static void visit_unassigned_mvars(expr const & e, std::function<void(expr const
     visit(e);
 }
 
-expr elaborator::solve_unassigned_mvars(substitution & subst, expr e, name_set & visited, bool reject_type_is_meta) {
+expr old_elaborator::solve_unassigned_mvars(substitution & subst, expr e, name_set & visited, bool reject_type_is_meta) {
     e = subst.instantiate(e);
     visit_unassigned_mvars(e, [&](expr const & mvar) {
             solve_unassigned_mvar(subst, mvar, visited, reject_type_is_meta);
@@ -2214,12 +2214,12 @@ expr elaborator::solve_unassigned_mvars(substitution & subst, expr e, name_set &
     return subst.instantiate(e);
 }
 
-expr elaborator::solve_unassigned_mvars(substitution & subst, expr const & e, bool reject_type_is_meta) {
+expr old_elaborator::solve_unassigned_mvars(substitution & subst, expr const & e, bool reject_type_is_meta) {
     name_set visited;
     return solve_unassigned_mvars(subst, e, visited, reject_type_is_meta);
 }
 
-bool elaborator::display_unassigned_mvars(expr const & e, substitution const & s) {
+bool old_elaborator::display_unassigned_mvars(expr const & e, substitution const & s) {
     bool r = false;
     if (check_unassigned() && has_metavar(e)) {
         substitution tmp_s(s);
@@ -2243,7 +2243,7 @@ bool elaborator::display_unassigned_mvars(expr const & e, substitution const & s
     \remark For now, we only check if a term Type.{?u} was solved by assigning ?u to 0.
     In this case, the user should write Prop instead of Type.
 */
-void elaborator::check_sort_assignments(substitution const & s) {
+void old_elaborator::check_sort_assignments(substitution const & s) {
     for (auto const & p : m_to_check_sorts) {
         expr pre  = p.first;
         expr post = p.second;
@@ -2269,7 +2269,7 @@ void elaborator::check_sort_assignments(substitution const & s) {
 }
 
 /** \brief Apply substitution and solve remaining metavariables using tactics. */
-expr elaborator::apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params, bool is_def_value) {
+expr old_elaborator::apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params, bool is_def_value) {
     expr r = s.instantiate(e);
     if (has_univ_metavar(r))
         r = univ_metavars_to_params(env(), lls(), s, univ_params, new_params, r);
@@ -2279,7 +2279,7 @@ expr elaborator::apply(substitution & s, expr const & e, name_set & univ_params,
     return r;
 }
 
-std::tuple<expr, level_param_names> elaborator::apply(substitution & s, expr const & e, bool is_def_value) {
+std::tuple<expr, level_param_names> old_elaborator::apply(substitution & s, expr const & e, bool is_def_value) {
     auto ps = collect_univ_params(e);
     buffer<name> new_ps;
     expr r = apply(s, e, ps, new_ps, is_def_value);
@@ -2290,7 +2290,7 @@ struct pos_info_hash {
     unsigned operator()(pos_info const & p) const { return hash(p.first, p.second); }
 };
 
-void elaborator::check_used_local_tactic_hints() {
+void old_elaborator::check_used_local_tactic_hints() {
     std::unordered_set<pos_info, pos_info_hash, std::equal_to<pos_info>> pos_set;
     // The same pretac may be processed several times because of choice-exprs.
     // The pretactics may be structurally different in each branch (because of unique local constant names).
@@ -2322,7 +2322,7 @@ void elaborator::check_used_local_tactic_hints() {
         });
 }
 
-auto elaborator::operator()(list<expr> const & ctx, expr const & e, bool _ensure_type)
+auto old_elaborator::operator()(list<expr> const & ctx, expr const & e, bool _ensure_type)
 -> std::tuple<expr, level_param_names> {
     m_context.set_ctx(ctx);
     constraint_seq cs;
@@ -2340,7 +2340,7 @@ auto elaborator::operator()(list<expr> const & ctx, expr const & e, bool _ensure
     return result;
 }
 
-std::tuple<expr, expr, level_param_names> elaborator::operator()(expr const & t, expr const & v, name const & n) {
+std::tuple<expr, expr, level_param_names> old_elaborator::operator()(expr const & t, expr const & v, name const & n) {
     constraint_seq t_cs;
     expr r_t      = ensure_type(visit(t, t_cs), t_cs);
     // Opaque definitions in the main module may treat other opaque definitions (in the main module) as transparent.
@@ -2408,7 +2408,7 @@ static expr translate(environment const & env, list<expr> const & ctx, expr cons
 }
 
 /** \brief Elaborate expression \c e in context \c ctx. */
-elaborate_result elaborator::elaborate_nested(list<expr> const & ctx, optional<expr> const & expected_type,
+elaborate_result old_elaborator::elaborate_nested(list<expr> const & ctx, optional<expr> const & expected_type,
                                               expr const & n, bool use_tactic_hints,
                                               substitution const & subst, bool report_unassigned) {
     if (infom()) {
@@ -2450,22 +2450,22 @@ elaborate_result elaborator::elaborate_nested(list<expr> const & ctx, optional<e
 
 static name * g_tmp_prefix = nullptr;
 
-std::tuple<expr, level_param_names> elaborate(elaborator_context & env, list<expr> const & ctx, expr const & e,
+std::tuple<expr, level_param_names> elaborate(old_elaborator_context & env, list<expr> const & ctx, expr const & e,
                                               bool ensure_type, bool nice_mvar_names) {
-    return elaborator(env, nice_mvar_names)(ctx, e, ensure_type);
+    return old_elaborator(env, nice_mvar_names)(ctx, e, ensure_type);
 }
 
-std::tuple<expr, expr, level_param_names> elaborate(elaborator_context & env, name const & n, expr const & t,
+std::tuple<expr, expr, level_param_names> elaborate(old_elaborator_context & env, name const & n, expr const & t,
                                                     expr const & v) {
-    return elaborator(env)(t, v, n);
+    return old_elaborator(env)(t, v, n);
 }
 
-void initialize_elaborator() {
+void initialize_old_elaborator() {
     g_tmp_prefix = new name(name::mk_internal_unique_name());
     g_elaborator_reported_errors = new elaborator_reported_errors();
 }
 
-void finalize_elaborator() {
+void finalize_old_elaborator() {
     delete g_tmp_prefix;
     delete g_elaborator_reported_errors;
 }

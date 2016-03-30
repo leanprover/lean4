@@ -48,7 +48,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/notation_cmd.h"
-#include "frontends/lean/elaborator.h"
+#include "frontends/lean/old_elaborator.h"
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/parse_rewrite_tactic.h"
 #include "frontends/lean/parse_tactic_location.h"
@@ -866,17 +866,17 @@ level parser::parse_level(unsigned rbp) {
     return left;
 }
 
-elaborator_context parser::mk_elaborator_context(pos_info_provider const &  pp, bool check_unassigned) {
-    return elaborator_context(m_env, m_ios, m_local_level_decls, &pp, m_info_manager, check_unassigned);
+old_elaborator_context parser::mk_elaborator_context(pos_info_provider const &  pp, bool check_unassigned) {
+    return old_elaborator_context(m_env, m_ios, m_local_level_decls, &pp, m_info_manager, check_unassigned);
 }
 
-elaborator_context parser::mk_elaborator_context(environment const & env, pos_info_provider const & pp) {
-    return elaborator_context(env, m_ios, m_local_level_decls, &pp, m_info_manager, true);
+old_elaborator_context parser::mk_elaborator_context(environment const & env, pos_info_provider const & pp) {
+    return old_elaborator_context(env, m_ios, m_local_level_decls, &pp, m_info_manager, true);
 }
 
-elaborator_context parser::mk_elaborator_context(environment const & env, local_level_decls const & lls,
+old_elaborator_context parser::mk_elaborator_context(environment const & env, local_level_decls const & lls,
                                                  pos_info_provider const & pp) {
-    return elaborator_context(env, m_ios, lls, &pp, m_info_manager, true);
+    return old_elaborator_context(env, m_ios, lls, &pp, m_info_manager, true);
 }
 
 std::tuple<expr, level_param_names> parser::elaborate_relaxed(expr const & e, list<expr> const & ctx) {
@@ -884,7 +884,7 @@ std::tuple<expr, level_param_names> parser::elaborate_relaxed(expr const & e, li
     bool ensure_type      = false;
     bool nice_mvar_names  = true;
     parser_pos_provider pp = get_pos_provider();
-    elaborator_context env = mk_elaborator_context(pp, check_unassigned);
+    old_elaborator_context env = mk_elaborator_context(pp, check_unassigned);
     auto r = ::lean::elaborate(env, ctx, e, ensure_type, nice_mvar_names);
     m_pre_info_manager.clear();
     return r;
@@ -894,7 +894,7 @@ std::tuple<expr, level_param_names> parser::elaborate(expr const & e, list<expr>
     bool check_unassigned = true;
     bool ensure_type      = false;
     parser_pos_provider pp = get_pos_provider();
-    elaborator_context env = mk_elaborator_context(pp, check_unassigned);
+    old_elaborator_context env = mk_elaborator_context(pp, check_unassigned);
     auto r = ::lean::elaborate(env, ctx, e, ensure_type);
     m_pre_info_manager.clear();
     return r;
@@ -904,7 +904,7 @@ std::tuple<expr, level_param_names> parser::elaborate_type(expr const & e, list<
     bool check_unassigned = true;
     bool ensure_type      = true;
     parser_pos_provider pp = get_pos_provider();
-    elaborator_context env = mk_elaborator_context(pp, check_unassigned);
+    old_elaborator_context env = mk_elaborator_context(pp, check_unassigned);
     auto r = ::lean::elaborate(env, ctx, e, ensure_type);
     if (clear_pre_info)
         m_pre_info_manager.clear();
@@ -913,7 +913,7 @@ std::tuple<expr, level_param_names> parser::elaborate_type(expr const & e, list<
 
 std::tuple<expr, level_param_names> parser::elaborate_at(environment const & env, expr const & e) {
     parser_pos_provider pp = get_pos_provider();
-    elaborator_context eenv = mk_elaborator_context(env, pp);
+    old_elaborator_context eenv = mk_elaborator_context(env, pp);
     auto r = ::lean::elaborate(eenv, list<expr>(), e);
     m_pre_info_manager.clear();
     return r;
@@ -922,7 +922,7 @@ std::tuple<expr, level_param_names> parser::elaborate_at(environment const & env
 auto parser::elaborate_definition(name const & n, expr const & t, expr const & v)
     -> std::tuple<expr, expr, level_param_names> {
     parser_pos_provider pp = get_pos_provider();
-    elaborator_context eenv = mk_elaborator_context(pp);
+    old_elaborator_context eenv = mk_elaborator_context(pp);
     auto r = ::lean::elaborate(eenv, n, t, v);
     m_pre_info_manager.clear();
     return r;
@@ -932,7 +932,7 @@ auto parser::elaborate_definition_at(environment const & env, local_level_decls 
                                      name const & n, expr const & t, expr const & v)
 -> std::tuple<expr, expr, level_param_names> {
     parser_pos_provider pp = get_pos_provider();
-    elaborator_context eenv = mk_elaborator_context(env, lls, pp);
+    old_elaborator_context eenv = mk_elaborator_context(env, lls, pp);
     auto r = ::lean::elaborate(eenv, n, t, v);
     m_pre_info_manager.clear();
     return r;

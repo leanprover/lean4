@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 namespace lean {
 name const & get_elaborator_ignore_instances_name();
 /** \brief Environment for elaboration, it contains all the information that is "scope-indenpendent" */
-class elaborator_context {
+class old_elaborator_context {
     environment               m_env;
     io_state                  m_ios;
     local_decls<level>        m_lls; // local universe levels
@@ -28,7 +28,7 @@ class elaborator_context {
     bool                      m_fail_missing_field;
     bool                      m_lift_coercions;
     bool                      m_coercions;
-    friend class elaborator;
+    friend class old_elaborator;
 
     bool     m_show_goal_at;
     unsigned m_show_goal_line;
@@ -47,10 +47,11 @@ class elaborator_context {
     bool has_show_hole_at(unsigned & line, unsigned & col) const;
     void reset_show_hole_at();
 public:
-    elaborator_context(environment const & env, io_state const & ios, local_decls<level> const & lls,
-                       pos_info_provider const * pp = nullptr, info_manager * info = nullptr, bool check_unassigned = true);
-    elaborator_context(elaborator_context const & ctx, options const & o);
+    old_elaborator_context(environment const & env, io_state const & ios, local_decls<level> const & lls,
+                           pos_info_provider const * pp = nullptr, info_manager * info = nullptr,
+                           bool check_unassigned = true);
+    old_elaborator_context(old_elaborator_context const & ctx, options const & o);
 };
-void initialize_elaborator_context();
-void finalize_elaborator_context();
+void initialize_old_elaborator_context();
+void finalize_old_elaborator_context();
 }

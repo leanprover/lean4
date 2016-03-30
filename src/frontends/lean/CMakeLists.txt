@@ -2,13 +2,17 @@ add_library(lean_frontend OBJECT tokens.cpp
 token_table.cpp scanner.cpp parse_table.cpp parser_config.cpp
 parser.cpp parser_pos_provider.cpp builtin_cmds.cpp builtin_exprs.cpp
 server.cpp notation_cmd.cpp calc.cpp decl_cmds.cpp util.cpp
-inductive_cmd.cpp elaborator.cpp dependencies.cpp
+inductive_cmd.cpp dependencies.cpp
 begin_end_annotation.cpp tactic_hint.cpp pp.cpp theorem_queue.cpp
 structure_cmd.cpp info_manager.cpp info_annotation.cpp find_cmd.cpp
 coercion_elaborator.cpp info_tactic.cpp
-init_module.cpp elaborator_context.cpp
+init_module.cpp
 parse_tactic_location.cpp parse_rewrite_tactic.cpp builtin_tactics.cpp
 type_util.cpp elaborator_exception.cpp local_ref_info.cpp
 obtain_expr.cpp decl_attributes.cpp nested_declaration.cpp
 parse_with_options_tactic.cpp opt_cmd.cpp prenum.cpp
-parse_with_attributes_tactic.cpp print_cmd.cpp)
+parse_with_attributes_tactic.cpp print_cmd.cpp
+# LEGACY
+old_elaborator.cpp
+old_elaborator_context.cpp
+)

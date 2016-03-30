@@ -576,7 +576,7 @@ void parser::push_local_scope(bool save_options) {
         opts = m_ios.get_options();
     m_parser_scope_stack = cons(parser_scope_stack_elem(opts, m_level_variables, m_variables, m_include_vars,
                                                         m_undef_ids.size(), m_next_inst_idx, m_has_params, m_local_level_decls,
-                                                        m_local_decls),
+                                                        m_local_context, m_local_decls),
                                 m_parser_scope_stack);
 }
 
@@ -590,6 +590,7 @@ void parser::pop_local_scope() {
         updt_options();
     }
     m_local_level_decls  = s.m_local_level_decls;
+    m_local_context      = s.m_local_context;
     m_local_decls        = s.m_local_decls;
     m_level_variables    = s.m_level_variables;
     m_variables          = s.m_variables;
@@ -2305,7 +2306,7 @@ void parser::save_snapshot() {
     if (!m_snapshot_vector)
         return;
     if (m_snapshot_vector->empty() || static_cast<int>(m_snapshot_vector->back().m_line) != m_scanner.get_line())
-        m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_decls,
+        m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_context, m_local_decls,
                                               m_level_variables, m_variables, m_include_vars,
                                               m_ios.get_options(), m_parser_scope_stack, m_scanner.get_line()));
 }

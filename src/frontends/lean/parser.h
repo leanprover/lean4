@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/expr_maps.h"
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
+#include "library/local_context.h"
 #include "library/definition_cache.h"
 #include "library/declaration_index.h"
 #include "frontends/lean/scanner.h"
@@ -51,12 +52,14 @@ struct parser_scope_stack_elem {
     unsigned           m_next_inst_idx;
     bool               m_has_params;
     local_level_decls  m_local_level_decls;
-    local_expr_decls   m_local_decls;
+    local_context      m_local_context;
+    local_expr_decls   m_local_decls; // TODO(Leo): delete
     parser_scope_stack_elem(optional<options> const & o, name_set const & lvs, name_set const & vs, name_set const & ivs,
                             unsigned num_undef_ids, unsigned next_inst_idx, bool has_params,
-                            local_level_decls const & lld, local_expr_decls const & led):
+                            local_level_decls const & lld, local_context const & lctx, local_expr_decls const & led):
         m_options(o), m_level_variables(lvs), m_variables(vs), m_include_vars(ivs),
-        m_num_undef_ids(num_undef_ids), m_next_inst_idx(next_inst_idx), m_has_params(has_params), m_local_level_decls(lld), m_local_decls(led) {}
+        m_num_undef_ids(num_undef_ids), m_next_inst_idx(next_inst_idx), m_has_params(has_params),
+        m_local_level_decls(lld), m_local_context(lctx), m_local_decls(led) {}
 };
 typedef list<parser_scope_stack_elem> parser_scope_stack;
 
@@ -64,6 +67,7 @@ typedef list<parser_scope_stack_elem> parser_scope_stack;
 struct snapshot {
     environment        m_env;
     local_level_decls  m_lds;
+    local_context      m_lctx;
     local_expr_decls   m_eds;
     name_set           m_lvars; // subset of m_lds that is tagged as level variable
     name_set           m_vars; // subset of m_eds that is tagged as variable
@@ -73,10 +77,10 @@ struct snapshot {
     unsigned           m_line;
     snapshot():m_line(0) {}
     snapshot(environment const & env, options const & o):m_env(env), m_options(o), m_line(1) {}
-    snapshot(environment const & env, local_level_decls const & lds,
+    snapshot(environment const & env, local_level_decls const & lds, local_context const & lctx,
              local_expr_decls const & eds, name_set const & lvars, name_set const & vars,
              name_set const & includes, options const & opts, parser_scope_stack const & pss, unsigned line):
-        m_env(env), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
+        m_env(env), m_lds(lds), m_lctx(lctx), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
         m_options(opts), m_parser_scope_stack(pss), m_line(line) {}
 };
 
@@ -97,7 +101,8 @@ class parser {
     scanner::token_kind     m_curr;
     optional<std::string>   m_base_dir;
     local_level_decls       m_local_level_decls;
-    local_expr_decls        m_local_decls;
+    local_context           m_local_context;
+    local_expr_decls        m_local_decls; // TODO(Leo): delete
     bool                    m_has_params; // true context context contains parameters
     name_set                m_level_variables;
     name_set                m_variables; // subset of m_local_decls that is marked as variables

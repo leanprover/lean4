@@ -173,7 +173,7 @@ struct old_elaborator::choice_expr_elaborator : public choice_iterator {
     }
 };
 
-old_elaborator::old_elaborator(old_elaborator_context & ctx, bool nice_mvar_names):
+old_elaborator::old_elaborator(elaborator_context & ctx, bool nice_mvar_names):
     m_ctx(ctx),
     m_context(),
     m_unifier_config(ctx.m_ios.get_options(), true /* use exceptions */, true /* discard */) {
@@ -1881,7 +1881,7 @@ optional<tactic> old_elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
                 return aux_elaborator.elaborate_nested(g.to_context(), expected_type, e,
                                                        use_tactic_hints, subst, report_unassigned);
             } else {
-                old_elaborator_context aux_ctx(m_ctx, o);
+                elaborator_context aux_ctx(m_ctx, o);
                 old_elaborator aux_elaborator(aux_ctx);
                 return aux_elaborator.elaborate_nested(g.to_context(), expected_type, e,
                                                        use_tactic_hints, subst, report_unassigned);
@@ -2446,12 +2446,12 @@ elaborate_result old_elaborator::elaborate_nested(list<expr> const & ctx, option
 
 static name * g_tmp_prefix = nullptr;
 
-std::tuple<expr, level_param_names> elaborate(old_elaborator_context & env, list<expr> const & ctx, expr const & e,
+std::tuple<expr, level_param_names> elaborate(elaborator_context & env, list<expr> const & ctx, expr const & e,
                                               bool ensure_type, bool nice_mvar_names) {
     return old_elaborator(env, nice_mvar_names)(ctx, e, ensure_type);
 }
 
-std::tuple<expr, expr, level_param_names> elaborate(old_elaborator_context & env, name const & n, expr const & t,
+std::tuple<expr, expr, level_param_names> elaborate(elaborator_context & env, name const & n, expr const & t,
                                                     expr const & v) {
     return old_elaborator(env)(t, v, n);
 }

@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic.h"
 #include "library/tactic/elaborate.h"
 #include "library/old_type_checker.h"
-#include "frontends/lean/old_elaborator_context.h"
+#include "frontends/lean/elaborator_context.h"
 #include "frontends/lean/coercion_elaborator.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/obtain_expr.h"
@@ -29,7 +29,7 @@ class old_elaborator : public coercion_info_manager {
     typedef name_map<expr> local_tactic_hints;
     typedef rb_map<expr, pair<expr, constraint_seq>, expr_quick_cmp> cache;
     typedef std::vector<pair<expr, expr>> to_check_sorts;
-    old_elaborator_context & m_ctx;
+    elaborator_context &     m_ctx;
     old_type_checker_ptr     m_tc;
     old_type_checker_ptr     m_coercion_from_tc;
     old_type_checker_ptr     m_coercion_to_tc;
@@ -191,15 +191,15 @@ class old_elaborator : public coercion_info_manager {
 
     void show_goal(proof_state const & ps, expr const & start, expr const & end, expr const & curr);
 public:
-    old_elaborator(old_elaborator_context & ctx, bool nice_mvar_names = false);
+    old_elaborator(elaborator_context & ctx, bool nice_mvar_names = false);
     std::tuple<expr, level_param_names> operator()(list<expr> const & ctx, expr const & e, bool _ensure_type);
     std::tuple<expr, expr, level_param_names> operator()(expr const & t, expr const & v, name const & n);
 };
 
-std::tuple<expr, level_param_names> elaborate(old_elaborator_context & env, list<expr> const & ctx, expr const & e,
+std::tuple<expr, level_param_names> elaborate(elaborator_context & env, list<expr> const & ctx, expr const & e,
                                               bool ensure_type = false, bool nice_mvar_names = false);
 
-std::tuple<expr, expr, level_param_names> elaborate(old_elaborator_context & env, name const & n, expr const & t, expr const & v);
+std::tuple<expr, expr, level_param_names> elaborate(elaborator_context & env, name const & n, expr const & t, expr const & v);
 void initialize_old_elaborator();
 void finalize_old_elaborator();
 }

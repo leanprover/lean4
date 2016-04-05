@@ -7,13 +7,18 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/environment.h"
 #include "library/io_state.h"
-#include "frontends/lean/local_decls.h"
 #include "frontends/lean/local_level_decls.h"
 #include "frontends/lean/info_manager.h"
 
 namespace lean {
-/** \brief Environment for elaboration, it contains all the information that is "scope-indenpendent" */
-class old_elaborator_context {
+/** \brief Context for the elaborator.
+
+    \remark It contains all the information that is "scope-indenpendent".
+    So, it does not contain the local context because it is context dependent. */
+class elaborator_context {
+    friend class old_elaborator; // TODO(Leo): remove this line when done
+    friend class elaborator;
+
     environment               m_env;
     io_state                  m_ios;
     local_level_decls         m_lls; // local universe levels
@@ -25,15 +30,14 @@ class old_elaborator_context {
     bool                      m_flycheck_goals;
     bool                      m_lift_coercions;
     bool                      m_coercions;
-    friend class old_elaborator;
 
-    bool     m_show_goal_at;
-    unsigned m_show_goal_line;
-    unsigned m_show_goal_col;
+    bool                      m_show_goal_at;
+    unsigned                  m_show_goal_line;
+    unsigned                  m_show_goal_col;
 
-    bool     m_show_hole_at;
-    unsigned m_show_hole_line;
-    unsigned m_show_hole_col;
+    bool                      m_show_hole_at;
+    unsigned                  m_show_hole_line;
+    unsigned                  m_show_hole_col;
 
     void set_options(options const & opts);
 
@@ -44,11 +48,11 @@ class old_elaborator_context {
     bool has_show_hole_at(unsigned & line, unsigned & col) const;
     void reset_show_hole_at();
 public:
-    old_elaborator_context(environment const & env, io_state const & ios, local_level_decls const & lls,
-                           pos_info_provider const * pp = nullptr, info_manager * info = nullptr,
-                           bool check_unassigned = true);
-    old_elaborator_context(old_elaborator_context const & ctx, options const & o);
+    elaborator_context(environment const & env, io_state const & ios, local_level_decls const & lls,
+                       pos_info_provider const * pp = nullptr, info_manager * info = nullptr,
+                       bool check_unassigned = true);
+    elaborator_context(elaborator_context const & ctx, options const & o);
 };
-void initialize_old_elaborator_context();
-void finalize_old_elaborator_context();
+void initialize_elaborator_context();
+void finalize_elaborator_context();
 }

@@ -9,20 +9,8 @@ Author: Leonardo de Moura
 #include "frontends/lean/old_elaborator_context.h"
 #include "frontends/lean/opt_cmd.h"
 
-#ifndef LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES
-#define LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES true
-#endif
-
-#ifndef LEAN_DEFAULT_ELABORATOR_IGNORE_INSTANCES
-#define LEAN_DEFAULT_ELABORATOR_IGNORE_INSTANCES false
-#endif
-
 #ifndef LEAN_DEFAULT_ELABORATOR_FLYCHECK_GOALS
 #define LEAN_DEFAULT_ELABORATOR_FLYCHECK_GOALS false
-#endif
-
-#ifndef LEAN_DEFAULT_ELABORATOR_FAIL_MISSING_FIELD
-#define LEAN_DEFAULT_ELABORATOR_FAIL_MISSING_FIELD false
 #endif
 
 #ifndef LEAN_DEFAULT_ELABORATOR_LIFT_COERCIONS
@@ -37,31 +25,12 @@ Author: Leonardo de Moura
 namespace lean {
 // ==========================================
 // elaborator configuration options
-static name * g_elaborator_local_instances    = nullptr;
-static name * g_elaborator_ignore_instances   = nullptr;
 static name * g_elaborator_flycheck_goals     = nullptr;
-static name * g_elaborator_fail_missing_field = nullptr;
 static name * g_elaborator_lift_coercions     = nullptr;
 static name * g_elaborator_coercions          = nullptr;
 
-name const & get_elaborator_ignore_instances_name() {
-    return *g_elaborator_ignore_instances;
-}
-
-bool get_elaborator_local_instances(options const & opts) {
-    return opts.get_bool(*g_elaborator_local_instances, LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES);
-}
-
-bool get_elaborator_ignore_instances(options const & opts) {
-    return opts.get_bool(*g_elaborator_ignore_instances, LEAN_DEFAULT_ELABORATOR_IGNORE_INSTANCES);
-}
-
 bool get_elaborator_flycheck_goals(options const & opts) {
     return opts.get_bool(*g_elaborator_flycheck_goals, LEAN_DEFAULT_ELABORATOR_FLYCHECK_GOALS);
-}
-
-bool get_elaborator_fail_missing_field(options const & opts) {
-    return opts.get_bool(*g_elaborator_fail_missing_field, LEAN_DEFAULT_ELABORATOR_FAIL_MISSING_FIELD);
 }
 
 bool get_elaborator_lift_coercions(options const & opts) {
@@ -88,10 +57,7 @@ old_elaborator_context::old_elaborator_context(old_elaborator_context const & ct
 
 void old_elaborator_context::set_options(options const & opts) {
     m_options             = opts;
-    m_use_local_instances = get_elaborator_local_instances(opts);
-    m_ignore_instances    = get_elaborator_ignore_instances(opts);
     m_flycheck_goals      = get_elaborator_flycheck_goals(opts);
-    m_fail_missing_field  = get_elaborator_fail_missing_field(opts);
     m_lift_coercions      = get_elaborator_lift_coercions(opts);
     m_coercions           = get_elaborator_coercions(opts);
 
@@ -137,22 +103,12 @@ void old_elaborator_context::reset_show_hole_at() {
 }
 
 void initialize_old_elaborator_context() {
-    g_elaborator_local_instances    = new name{"elaborator", "local_instances"};
-    g_elaborator_ignore_instances   = new name{"elaborator", "ignore_instances"};
     g_elaborator_flycheck_goals     = new name{"elaborator", "flycheck_goals"};
-    g_elaborator_fail_missing_field = new name{"elaborator", "fail_if_missing_field"};
     g_elaborator_lift_coercions     = new name{"elaborator", "lift_coercions"};
     g_elaborator_coercions          = new name{"elaborator", "coercions"};
-    register_bool_option(*g_elaborator_local_instances, LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES,
-                         "(elaborator) use local declarates as class instances");
-    register_bool_option(*g_elaborator_ignore_instances, LEAN_DEFAULT_ELABORATOR_IGNORE_INSTANCES,
-                         "(elaborator) if true, then elaborator does not perform class-instance resolution");
     register_bool_option(*g_elaborator_flycheck_goals, LEAN_DEFAULT_ELABORATOR_FLYCHECK_GOALS,
                          "(elaborator) if true, then elaborator display current goals for flycheck before each "
                          "tactic is executed in a `begin ... end` block");
-    register_bool_option(*g_elaborator_fail_missing_field, LEAN_DEFAULT_ELABORATOR_FAIL_MISSING_FIELD,
-                         "(elaborator) if true, then elaborator generates an error for missing fields instead "
-                         "of adding placeholders");
     register_bool_option(*g_elaborator_lift_coercions, LEAN_DEFAULT_ELABORATOR_LIFT_COERCIONS,
                          "(elaborator) if true, the elaborator will automatically lift coercions from A to B "
                          "into coercions from (C -> A) to (C -> B)");
@@ -160,10 +116,7 @@ void initialize_old_elaborator_context() {
                          "(elaborator) if true, the elaborator will automatically introduce coercions");
 }
 void finalize_old_elaborator_context() {
-    delete g_elaborator_local_instances;
-    delete g_elaborator_ignore_instances;
     delete g_elaborator_flycheck_goals;
-    delete g_elaborator_fail_missing_field;
     delete g_elaborator_lift_coercions;
     delete g_elaborator_coercions;
 }

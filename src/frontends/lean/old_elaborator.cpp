@@ -333,10 +333,10 @@ optional<name> old_elaborator::mk_mvar_suffix(expr const & b) {
 */
 expr old_elaborator::mk_placeholder_meta(optional<name> const & suffix, optional<expr> const & type,
                                      tag g, bool is_strict, bool is_inst_implicit, constraint_seq & cs) {
-    if (is_inst_implicit && !m_ctx.m_ignore_instances) {
+    if (is_inst_implicit) {
         auto ec = mk_class_instance_elaborator(
             env(), ios(), m_context, suffix,
-            use_local_instances(), is_strict, type, g, m_ctx.m_pos_provider);
+            true, is_strict, type, g, m_ctx.m_pos_provider);
         register_meta(ec.first);
         cs += ec.second;
         return ec.first;
@@ -1465,10 +1465,6 @@ expr old_elaborator::visit_structure_instance(expr const & e, constraint_seq & c
             }
             if (i == using_exprs.size()) {
                 // did not find field in using structure
-                if (m_ctx.m_fail_missing_field) {
-                    throw_elaborator_exception(sstream() << "invalid structure instance, field '"
-                                               << n << "' is missing", e);
-                }
                 v = m_context.mk_meta(some_expr(d_type), result_tag);
                 register_meta(v);
             }

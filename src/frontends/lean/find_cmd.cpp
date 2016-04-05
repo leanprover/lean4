@@ -100,7 +100,6 @@ environment find_cmd(parser & p) {
     {
         bool save_options = true;
         parser::local_scope scope(p, save_options);
-        p.set_option(get_elaborator_ignore_instances_name(), true);
         std::tie(e, ls) = parse_local_expr(p);
     }
     buffer<std::string> pos_names, neg_names;

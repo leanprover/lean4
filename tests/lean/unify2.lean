@@ -18,7 +18,6 @@ set_option pp.all true
 -- set_option trace.type_context.is_def_eq true
 -- set_option trace.type_context.is_def_eq_detail true
 -- set_option trace.class_instances true
-set_option elaborator.ignore_instances true
 
 definition f (A : Type) (s : S2 A) : S1 A :=
 @S2.to_S1 A s

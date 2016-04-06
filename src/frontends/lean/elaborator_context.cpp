@@ -98,10 +98,6 @@ bool elaborator_context::has_show_hole_at(unsigned & line, unsigned & col) const
     }
 }
 
-void elaborator_context::reset_show_hole_at() {
-    m_show_hole_at = false;
-}
-
 void initialize_elaborator_context() {
     g_elaborator_flycheck_goals     = new name{"elaborator", "flycheck_goals"};
     g_elaborator_lift_coercions     = new name{"elaborator", "lift_coercions"};

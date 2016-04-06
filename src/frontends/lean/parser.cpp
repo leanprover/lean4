@@ -48,7 +48,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/notation_cmd.h"
-#include "frontends/lean/old_elaborator.h"
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/parse_rewrite_tactic.h"
 #include "frontends/lean/parse_tactic_location.h"
@@ -57,6 +56,9 @@ Author: Leonardo de Moura
 #include "frontends/lean/opt_cmd.h"
 #include "frontends/lean/builtin_cmds.h"
 #include "frontends/lean/prenum.h"
+#include "frontends/lean/elaborator.h"
+// LEGACY
+#include "frontends/lean/old_elaborator.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
@@ -874,6 +876,14 @@ elaborator_context parser::mk_elaborator_context(environment const & env, pos_in
 elaborator_context parser::mk_elaborator_context(environment const & env, local_level_decls const & lls,
                                                  pos_info_provider const & pp) {
     return elaborator_context(env, m_ios, lls, &pp, m_info_manager, true);
+}
+
+std::tuple<expr, level_param_names> parser::elaborate(expr const & e) {
+    parser_pos_provider pip = get_pos_provider();
+    bool check_unassigned   = true;
+    parser_pos_provider pp  = get_pos_provider();
+    elaborator_context ectx = mk_elaborator_context(pp, check_unassigned);
+    return ::lean::elaborate(ectx, m_local_context, e);
 }
 
 std::tuple<expr, level_param_names> parser::old_elaborate_relaxed(expr const & e, list<expr> const & ctx) {

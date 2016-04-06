@@ -298,7 +298,9 @@ public:
 
     environment const & env() const { return m_env; }
     io_state const & ios() const { return m_ios; }
+
     local_level_decls const & get_local_level_decls() const { return m_local_level_decls; }
+    local_context const & get_local_context() const { return m_local_context; }
     local_expr_decls const & get_local_expr_decls() const { return m_local_decls; }
 
     bool has_tactic_decls();
@@ -518,6 +520,8 @@ public:
     /** \brief Elaborate the definition n : t := v in the given environment*/
     std::tuple<expr, expr, level_param_names> old_elaborate_definition_at(environment const & env, local_level_decls const & lls,
                                                                           name const & n, expr const & t, expr const & v);
+
+    std::tuple<expr, level_param_names> elaborate(expr const & e);
 
     expr mk_sorry(pos_info const & p);
     bool used_sorry() const { return m_used_sorry; }

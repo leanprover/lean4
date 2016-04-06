@@ -46,7 +46,6 @@ class elaborator_context {
     void reset_show_goal_at();
 
     bool has_show_hole_at(unsigned & line, unsigned & col) const;
-    void reset_show_hole_at();
 public:
     elaborator_context(environment const & env, io_state const & ios, local_level_decls const & lls,
                        pos_info_provider const * pp = nullptr, info_manager * info = nullptr,

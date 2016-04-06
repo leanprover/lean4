@@ -153,6 +153,7 @@ will be flushed everytime it's executed."
               `("--cache" ,cache-file-name)
             '()))
          (lean-mode-option "--lean")
+         (default-directory (or (lean-project-find-root) default-directory))
          (process-args (append `(,process-name
                                  ,process-buffer-name
                                  ,(lean-get-executable lean-executable-name)

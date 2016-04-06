@@ -11,7 +11,10 @@
   "Project file name")
 
 (defun lean-project-find-root ()
-  (lean-find-file-upward lean-project-file-name))
+  (let ((p (f--traverse-upwards (f-exists? (f-expand lean-project-file-name it))
+                                (f-dirname (buffer-file-name)))))
+    (if p (file-name-as-directory p)
+          nil)))
 
 (defun lean-project-inside-p ()
   (if (lean-project-find-root) t nil))

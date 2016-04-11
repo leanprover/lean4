@@ -725,10 +725,10 @@ expr old_elaborator::visit_app(expr const & e, constraint_seq & cs) {
         while (binding_info(f_type).is_strict_implicit() ||
                binding_info(f_type).is_implicit() ||
                binding_info(f_type).is_inst_implicit()) {
-            lean_assert(binding_info(f_type).is_strict_implicit() || !first);
             expr const & d_type = binding_domain(f_type);
             if (partial_expl && is_pi(whnf(d_type).first))
                 break;
+            lean_assert(binding_info(f_type).is_strict_implicit() || !first);
             tag g          = f.get_tag();
             bool is_strict = true;
             bool inst_imp  = binding_info(f_type).is_inst_implicit();

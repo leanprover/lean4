@@ -54,10 +54,10 @@ class type_checker : public abstract_type_context {
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
     optional<expr> norm_ext(expr const & e);
     expr whnf_core(expr const & e);
-    expr unfold_name_core(expr e, unsigned h);
-    expr unfold_names(expr const & e, unsigned h);
     optional<declaration> is_delta(expr const & e) const;
-    expr whnf_core(expr e, unsigned h);
+    optional<expr> unfold_definition_core(expr const & e);
+    optional<expr> unfold_definition(expr const & e);
+
     bool is_def_eq_binding(expr t, expr s);
     bool is_def_eq(level const & l1, level const & l2);
     bool is_def_eq(levels const & ls1, levels const & ls2);
@@ -73,8 +73,6 @@ class type_checker : public abstract_type_context {
     void cache_failure(expr const & t, expr const & s);
     reduction_status lazy_delta_reduction_step(expr & t_n, expr & s_n);
     lbool lazy_delta_reduction(expr & t_n, expr & s_n);
-    reduction_status ext_reduction_step(expr & t_n, expr & s_n);
-    lbool reduce_def_eq(expr & t_n, expr & s_n);
     bool is_def_eq_core(expr const & t, expr const & s);
 
 public:

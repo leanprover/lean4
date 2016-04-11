@@ -50,6 +50,7 @@ public:
     expr const & get_type() const;
 
     expr const & get_value() const;
+    // TODO(Leo): delete get_height after we get rid of library/old_type_checker
     unsigned get_height() const;
     bool use_conv_opt() const;
 

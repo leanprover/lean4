@@ -79,40 +79,6 @@ static void tst1() {
 
 static void tst2() {
     environment env;
-    name base("base");
-    expr Prop = mk_Prop();
-    env = add_decl(env, mk_constant_assumption(name(base, 0u), level_param_names(), Prop >> (Prop >> Prop)));
-    expr x = Local("x", Prop);
-    expr y = Local("y", Prop);
-    for (unsigned i = 1; i <= 100; i++) {
-        expr prev = Const(name(base, i-1));
-        env = add_decl(env, mk_definition(env, name(base, i), level_param_names(), Prop >> (Prop >> Prop),
-                                          Fun({x, y}, mk_app(prev, mk_app(prev, x, y), mk_app(prev, y, x)))));
-    }
-    expr Type = mk_Type();
-    expr A = Local("A", Type);
-    expr a = Local("a", A);
-    env = add_decl(env, mk_definition("id", level_param_names(),
-                                      Pi(A, A >> A),
-                                      Fun({A, a}, a)));
-    type_checker checker(env);
-    expr f96 = Const(name(base, 96));
-    expr f97 = Const(name(base, 97));
-    expr f98 = Const(name(base, 98));
-    expr f3  = Const(name(base, 3));
-    expr c1  =  mk_local("c1", Prop);
-    expr c2  = mk_local("c2", Prop);
-    expr id = Const("id");
-    std::cout << checker.whnf(mk_app(f3, c1, c2)) << "\n";
-    lean_assert_eq(env.find(name(base, 98))->get_height(), 98);
-    lean_assert(checker.is_def_eq(mk_app(f98, c1, c2), mk_app(f97, mk_app(f97, c1, c2), mk_app(f97, c2, c1))));
-    lean_assert(checker.is_def_eq(mk_app(f98, c1, mk_app(id, Prop, mk_app(id, Prop, c2))), mk_app(f97, mk_app(f97, c1, mk_app(id, Prop, c2)), mk_app(f97, c2, c1))));
-    name_set s;
-    s.insert(name(base, 96));
-}
-
-static void tst3() {
-    environment env;
     expr Type = mk_Type();
     expr A = Local("A", Type);
     expr x = Local("x", A);
@@ -210,7 +176,6 @@ int main() {
     init_default_print_fn();
     tst1();
     tst2();
-    tst3();
     environment_id_tester::tst1();
     environment_id_tester::tst2();
     finalize_library_module();

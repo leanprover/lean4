@@ -324,8 +324,15 @@ expr type_checker::whnf_core(expr const & e) {
             }
             lean_assert(m <= num_args);
             r = whnf_core(mk_rev_app(instantiate(binding_body(f), m, args.data() + (num_args - m)), num_args - m, args.data()));
+        } else if (f == f0) {
+            if (auto r = norm_ext(e)) {
+                /* mainly iota-reduction, it also applies HIT and quotient reduction rules */
+                return whnf_core(*r);
+            } else {
+                return e;
+            }
         } else {
-            r = f == f0 ? e : whnf_core(mk_rev_app(f, args.size(), args.data()));
+            r = whnf_core(mk_rev_app(f, args.size(), args.data()));
         }
         break;
     }
@@ -337,38 +344,6 @@ expr type_checker::whnf_core(expr const & e) {
     if (m_memoize)
         m_whnf_core_cache.insert(mk_pair(e, r));
     return r;
-}
-
-/** \brief Expand \c e if it is non-opaque constant with height >= h */
-expr type_checker::unfold_name_core(expr e, unsigned h) {
-    if (is_constant(e)) {
-        if (auto d = m_env.find(const_name(e))) {
-            if (d->is_definition() && d->get_height() >= h &&
-                length(const_levels(e)) == d->get_num_univ_params())
-                return unfold_name_core(instantiate_value_univ_params(*d, const_levels(e)), h);
-        }
-    }
-    return e;
-}
-
-/** \brief Expand constants and application where the function is a constant.
-
-    The unfolding is only performend if the constant corresponds to
-    a non-opaque definition with height >= h. */
-expr type_checker::unfold_names(expr const & e, unsigned h) {
-    if (is_app(e)) {
-        expr f0 = get_app_fn(e);
-        expr f  = unfold_name_core(f0, h);
-        if (is_eqp(f, f0)) {
-            return e;
-        } else {
-            buffer<expr> args;
-            get_app_rev_args(e, args);
-            return mk_rev_app(f, args);
-        }
-    } else {
-        return unfold_name_core(e, h);
-    }
 }
 
 /** \brief Return some definition \c d iff \c e is a target for delta-reduction, and the given definition is the one
@@ -383,18 +358,29 @@ optional<declaration> type_checker::is_delta(expr const & e) const {
     return none_declaration();
 }
 
-/** \brief Weak head normal form core procedure that perform delta reduction for non-opaque constants with
-    height greater than or equal to \c h.
+optional<expr> type_checker::unfold_definition_core(expr const & e) {
+    if (is_constant(e)) {
+        if (auto d = is_delta(e)) {
+            if (length(const_levels(e)) == d->get_num_univ_params())
+                return some_expr(instantiate_value_univ_params(*d, const_levels(e)));
+        }
+    }
+    return none_expr();
+}
 
-    This method is based on <tt>whnf_core(expr const &)</tt> and \c unfold_names.
-
-    \remark This method does not use normalization extensions attached in the environment. */
-expr type_checker::whnf_core(expr e, unsigned h) {
-    while (true) {
-        expr new_e = unfold_names(whnf_core(e), h);
-        if (is_eqp(e, new_e))
-            return e;
-        e = new_e;
+/* Unfold head(e) if it is a constant */
+optional<expr> type_checker::unfold_definition(expr const & e) {
+    if (is_app(e)) {
+        expr f0 = get_app_fn(e);
+        if (auto f  = unfold_definition_core(f0)) {
+            buffer<expr> args;
+            get_app_rev_args(e, args);
+            return some_expr(mk_rev_app(*f, args));
+        } else {
+            return none_expr();
+        }
+    } else {
+        return unfold_definition_core(e);
     }
 }
 
@@ -419,9 +405,9 @@ expr type_checker::whnf(expr const & e_prime) {
 
     expr t = e;
     while (true) {
-        expr t1 = whnf_core(t, 0);
-        if (auto new_t = norm_ext(t1)) {
-            t  = *new_t;
+        expr t1 = whnf_core(t);
+        if (auto next_t = unfold_definition(t1)) {
+            t = *next_t;
         } else {
             auto r = t1;
             if (m_memoize)
@@ -600,17 +586,13 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
     if (!d_t && !d_s) {
         return reduction_status::DefUnknown;
     } else if (d_t && !d_s) {
-        t_n = whnf_core(unfold_names(t_n, 0));
+        t_n = whnf_core(*unfold_definition(t_n));
     } else if (!d_t && d_s) {
-        s_n = whnf_core(unfold_names(s_n, 0));
+        s_n = whnf_core(*unfold_definition(s_n));
     } else if (!d_t->is_theorem() && d_s->is_theorem()) {
-        t_n = whnf_core(unfold_names(t_n, d_t->get_height()));
+        t_n = whnf_core(*unfold_definition(t_n));
     } else if (!d_s->is_theorem() && d_t->is_theorem()) {
-        s_n = whnf_core(unfold_names(s_n, d_s->get_height()));
-    } else if (!d_t->is_theorem() && d_t->get_height() > d_s->get_height()) {
-        t_n = whnf_core(unfold_names(t_n, d_s->get_height() + 1));
-    } else if (!d_s->is_theorem() && d_t->get_height() < d_s->get_height()) {
-        s_n = whnf_core(unfold_names(s_n, d_t->get_height() + 1));
+        s_n = whnf_core(*unfold_definition(s_n));
     } else {
         if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
             // If t_n and s_n are both applications of the same (non-opaque) definition,
@@ -635,8 +617,8 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
                 }
             }
         }
-        t_n = whnf_core(unfold_names(t_n, d_t->get_height() - 1));
-        s_n = whnf_core(unfold_names(s_n, d_s->get_height() - 1));
+        t_n = whnf_core(*unfold_definition(t_n));
+        s_n = whnf_core(*unfold_definition(s_n));
     }
     switch (quick_is_def_eq(t_n, s_n)) {
     case l_true:  return reduction_status::DefEqual;
@@ -649,40 +631,6 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
 lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
     while (true) {
         switch (lazy_delta_reduction_step(t_n, s_n)) {
-        case reduction_status::Continue:   break;
-        case reduction_status::DefUnknown: return l_undef;
-        case reduction_status::DefEqual:   return l_true;
-        case reduction_status::DefDiff:    return l_false;
-        }
-    }
-}
-
-auto type_checker::ext_reduction_step(expr & t_n, expr & s_n) -> reduction_status {
-    auto new_t_n = norm_ext(t_n);
-    auto new_s_n = norm_ext(s_n);
-    if (!new_t_n && !new_s_n)
-        return reduction_status::DefUnknown;
-    if (new_t_n)
-        t_n = whnf_core(*new_t_n);
-    if (new_s_n)
-        s_n = whnf_core(*new_s_n);
-    switch (quick_is_def_eq(t_n, s_n)) {
-    case l_true:  return reduction_status::DefEqual;
-    case l_false: return reduction_status::DefDiff;
-    case l_undef: return reduction_status::Continue;
-    }
-    lean_unreachable();
-}
-
-// Apply lazy delta-reduction and then normalizer extensions
-lbool type_checker::reduce_def_eq(expr & t_n, expr & s_n) {
-    while (true) {
-        // first, keep applying lazy delta-reduction while applicable
-        lbool r = lazy_delta_reduction(t_n, s_n);
-        if (r != l_undef) return r;
-
-        // try normalizer extensions
-        switch (ext_reduction_step(t_n, s_n)) {
         case reduction_status::Continue:   break;
         case reduction_status::DefUnknown: return l_undef;
         case reduction_status::DefEqual:   return l_true;
@@ -706,7 +654,7 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
         if (r != l_undef) return r == l_true;
     }
 
-    r = reduce_def_eq(t_n, s_n);
+    r = lazy_delta_reduction(t_n, s_n);
     if (r != l_undef) return r == l_true;
 
     if (is_constant(t_n) && is_constant(s_n) && const_name(t_n) == const_name(s_n) &&

@@ -295,6 +295,8 @@ serializer & operator<<(serializer & s, declaration const & d) {
     }
     if (d.is_theorem() || d.is_axiom())
         k |= 4;
+    if (d.is_trusted())
+        k |= 8;
     s << k << d.get_name() << d.get_univ_params() << d.get_type();
     if (d.is_definition()) {
         s << d.get_value();
@@ -307,17 +309,18 @@ declaration read_declaration(deserializer & d) {
     char k               = d.read_char();
     bool has_value       = (k & 1) != 0;
     bool is_th_ax        = (k & 4) != 0;
+    bool is_trusted      = (k & 8) != 0;
     name n               = read_name(d);
     level_param_names ps = read_level_params(d);
     expr t               = read_expr(d);
     if (has_value) {
         expr v      = read_expr(d);
-        unsigned w        = d.read_unsigned();
+        unsigned w  = d.read_unsigned();
         if (is_th_ax) {
             return mk_theorem(n, ps, t, v, w);
         } else {
             bool use_conv_opt = (k & 2) != 0;
-            return mk_definition(n, ps, t, v, w, use_conv_opt);
+            return mk_definition(n, ps, t, v, w, use_conv_opt, is_trusted);
         }
     } else {
         if (is_th_ax)

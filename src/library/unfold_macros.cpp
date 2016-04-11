@@ -143,7 +143,7 @@ expr unfold_all_macros(environment const & env, expr const & e) {
 }
 
 static bool contains_untrusted_macro(unsigned trust_lvl, declaration const & d) {
-    if (trust_lvl > LEAN_BELIEVER_TRUST_LEVEL)
+    if (trust_lvl > LEAN_BELIEVER_TRUST_LEVEL || !d.is_trusted())
         return false;
     if (contains_untrusted_macro(trust_lvl, d.get_type()))
         return true;
@@ -160,7 +160,7 @@ declaration unfold_untrusted_macros(environment const & env, declaration const &
         } else if (d.is_definition()) {
             expr new_v = unfold_untrusted_macros(env, d.get_value(), trust_lvl);
             return mk_definition(d.get_name(), d.get_univ_params(), new_t, new_v,
-                                 d.get_height(), d.use_conv_opt());
+                                 d.get_height(), d.use_conv_opt(), d.is_trusted());
         } else if (d.is_axiom()) {
             return mk_axiom(d.get_name(), d.get_univ_params(), new_t);
         } else if (d.is_constant_assumption()) {

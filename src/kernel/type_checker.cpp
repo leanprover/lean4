@@ -85,6 +85,10 @@ expr type_checker::infer_constant(expr const & e, bool infer_only) {
                                << const_name(e) << "', #"
                                << length(ps)  << " expected, #" << length(ls) << " provided");
     if (!infer_only) {
+        if (m_trusted_only && !d.is_trusted()) {
+            throw_kernel_exception(m_env, sstream() << "invalid definition, it uses untrusted definition '"
+                                   << const_name(e) << "'");
+        }
         for (level const & l : ls)
             check_level(l, e);
     }
@@ -94,7 +98,7 @@ expr type_checker::infer_constant(expr const & e, bool infer_only) {
 expr type_checker::infer_macro(expr const & e, bool infer_only) {
     auto def = macro_def(e);
     auto t   = def.check_type(e, *this, infer_only);
-    if (!infer_only && def.trust_level() >= m_env.trust_lvl()) {
+    if (!infer_only && m_trusted_only && def.trust_level() >= m_env.trust_lvl()) {
         throw_kernel_exception(m_env, "declaration contains macro with trust-level higher than the one allowed "
                                "(possible solution: unfold macro, or increase trust-level)", e);
     }
@@ -684,8 +688,8 @@ bool type_checker::is_def_eq(expr const & t, expr const & s) {
     return r;
 }
 
-type_checker::type_checker(environment const & env, bool memoize):
-    m_env(env), m_memoize(memoize), m_params(nullptr) {
+type_checker::type_checker(environment const & env, bool memoize, bool trusted_only):
+    m_env(env), m_memoize(memoize), m_trusted_only(trusted_only), m_params(nullptr) {
 }
 
 type_checker::~type_checker() {}
@@ -729,7 +733,8 @@ certified_declaration check(environment const & env, declaration const & d) {
     check_no_mlocal(env, d.get_name(), d.get_type(), true);
     check_name(env, d.get_name());
     check_duplicated_params(env, d);
-    type_checker checker(env);
+    bool memoize = true; bool trusted_only = d.is_trusted();
+    type_checker checker(env, memoize, trusted_only);
     expr sort = checker.check(d.get_type(), d.get_univ_params());
     checker.ensure_sort(sort, d.get_type());
     if (d.is_definition()) {

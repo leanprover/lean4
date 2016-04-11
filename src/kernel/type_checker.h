@@ -31,6 +31,7 @@ class type_checker : public abstract_type_context {
     typedef std::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
     environment               m_env;
     bool                      m_memoize;
+    bool                      m_trusted_only;
     cache                     m_infer_type_cache[2];
     expr_struct_map<expr>     m_whnf_core_cache;
     expr_struct_map<expr>     m_whnf_cache;
@@ -78,7 +79,7 @@ class type_checker : public abstract_type_context {
 public:
     /** \brief Create a type checker for the given environment.
        memoize: if true, then inferred types are memoized/cached */
-    type_checker(environment const & env, bool memoize = true);
+    type_checker(environment const & env, bool memoize = true, bool trusted_only = true);
     ~type_checker();
 
     virtual environment const & env() const { return m_env; }

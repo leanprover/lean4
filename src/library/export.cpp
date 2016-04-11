@@ -278,6 +278,8 @@ class exporter {
             export_inductive(n);
         } else {
             declaration const & d = m_env.get(n);
+            if (!d.is_trusted())
+                return; // ignore untrusted declarations
             if (d.is_definition())
                 export_definition(d);
             else

@@ -31,7 +31,7 @@ static declaration update_declaration(declaration d, optional<level_param_names>
             return mk_theorem(d.get_name(), _ps, _type, _value, d.get_height());
         else
             return mk_definition(d.get_name(), _ps, _type, _value,
-                                 d.get_height(), d.use_conv_opt());
+                                 d.get_height(), d.use_conv_opt(), d.is_trusted());
     }
 }
 

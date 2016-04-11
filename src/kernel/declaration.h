@@ -44,6 +44,8 @@ public:
     bool is_theorem() const;
     bool is_constant_assumption() const;
 
+    bool is_trusted() const;
+
     name const & get_name() const;
     level_param_names const & get_univ_params() const;
     unsigned get_num_univ_params() const;
@@ -55,9 +57,9 @@ public:
     bool use_conv_opt() const;
 
     friend declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t,
-                                    expr const & v, bool use_conv_opt);
+                                     expr const & v, bool use_conv_opt, bool trusted);
     friend declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
-                                    unsigned height, bool use_conv_opt);
+                                     unsigned height, bool use_conv_opt, bool trusted);
     friend declaration mk_theorem(environment const &, name const &, level_param_names const &, expr const &, expr const &);
     friend declaration mk_theorem(name const &, level_param_names const &, expr const &, expr const &, unsigned);
     friend declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
@@ -69,9 +71,9 @@ inline optional<declaration> some_declaration(declaration const & o) { return op
 inline optional<declaration> some_declaration(declaration && o) { return optional<declaration>(std::forward<declaration>(o)); }
 
 declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
-                         unsigned height = 0, bool use_conv_opt = true);
+                          unsigned height = 0, bool use_conv_opt = true, bool trusted = true);
 declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v,
-                         bool use_conv_opt = true);
+                          bool use_conv_opt = true, bool trusted = true);
 declaration mk_theorem(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v);
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v, unsigned w);
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);

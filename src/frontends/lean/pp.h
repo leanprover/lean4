@@ -55,6 +55,7 @@ private:
     unsigned                m_max_depth;
     unsigned                m_max_steps;
     bool                    m_implict;          //!< if true show implicit arguments
+    bool                    m_proofs;           //!< if true show proof terms
     bool                    m_unicode;          //!< if true use unicode chars
     bool                    m_coercion;         //!< if true show coercions
     bool                    m_num_nat_coe;      //!< truen when !m_coercion && env has coercion from num -> nat
@@ -80,6 +81,7 @@ private:
     level purify(level const & l);
     expr purify(expr const & e);
     bool is_implicit(expr const & f);
+    optional<expr> arg_is_proof(expr const & f);
     bool is_prop(expr const & e);
     bool has_implicit_args(expr const & f);
     optional<name> is_aliased(name const & n) const;

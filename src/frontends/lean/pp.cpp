@@ -283,6 +283,7 @@ void pretty_fn::set_options_core(options const & _o) {
     bool all          = get_pp_all(o);
     if (all) {
         o = o.update_if_undef(get_pp_implicit_name(), true);
+        o = o.update_if_undef(get_pp_proofs_name(), true);
         o = o.update_if_undef(get_pp_coercions_name(), true);
         o = o.update_if_undef(get_pp_notation_name(), false);
         o = o.update_if_undef(get_pp_universes_name(), true);
@@ -298,6 +299,7 @@ void pretty_fn::set_options_core(options const & _o) {
     m_max_depth         = get_pp_max_depth(o);
     m_max_steps         = get_pp_max_steps(o);
     m_implict           = get_pp_implicit(o);
+    m_proofs            = get_pp_proofs(o);
     m_unicode           = get_pp_unicode(o);
     m_coercion          = get_pp_coercions(o);
     m_notation          = get_pp_notation(o);
@@ -327,6 +329,25 @@ void pretty_fn::set_options(options const & o) {
 
 format pretty_fn::pp_level(level const & l) {
     return ::lean::pp(l, m_unicode, m_indent);
+}
+
+// Returns the theorem type if `f` has a Pi type with binding domain a Prop,
+// and `m_proofs` is set to false.
+optional<expr> pretty_fn::arg_is_proof(expr const & f) {
+    if (m_proofs)
+        return none_expr(); // showing proof terms
+    if (!closed(f))
+        // the Lean type checker assumes expressions are closed.
+        return none_expr();
+    try {
+        expr t = m_ctx.relaxed_whnf(m_ctx.infer(f));
+        if (is_pi(t) && is_prop(binding_domain(t)))
+            return some_expr(binding_domain(t));
+        else
+            return none_expr();
+    } catch (exception &) {
+        return none_expr();
+    }
 }
 
 bool pretty_fn::is_implicit(expr const & f) {
@@ -533,6 +554,8 @@ auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> resul
             return pp_abbreviation(e, *it, true, bp, ignore_hide);
         } else if (is_implicit(f)) {
             return pp_child(f, bp, ignore_hide);
+        } else if (auto thm = arg_is_proof(f)) {
+            return pp_child_core(mk_app(f, mk_inaccessible(*thm)), bp, ignore_hide);
         } else if (!m_coercion && is_coercion(m_env, f)) {
             return pp_coercion(e, bp, ignore_hide);
         }

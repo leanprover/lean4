@@ -23,6 +23,10 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_IMPLICIT false
 #endif
 
+#ifndef LEAN_DEFAULT_PP_PROOFS
+#define LEAN_DEFAULT_PP_PROOFS true
+#endif
+
 #ifndef LEAN_DEFAULT_PP_COERCIONS
 #define LEAN_DEFAULT_PP_COERCIONS false
 #endif
@@ -101,6 +105,7 @@ static name * g_pp_max_depth         = nullptr;
 static name * g_pp_max_steps         = nullptr;
 static name * g_pp_notation          = nullptr;
 static name * g_pp_implicit          = nullptr;
+static name * g_pp_proofs            = nullptr;
 static name * g_pp_coercions         = nullptr;
 static name * g_pp_universes         = nullptr;
 static name * g_pp_full_names        = nullptr;
@@ -126,6 +131,7 @@ void initialize_pp_options() {
     g_pp_max_steps         = new name{"pp", "max_steps"};
     g_pp_notation          = new name{"pp", "notation"};
     g_pp_implicit          = new name{"pp", "implicit"};
+    g_pp_proofs            = new name{"pp", "proofs"};
     g_pp_coercions         = new name{"pp", "coercions"};
     g_pp_universes         = new name{"pp", "universes"};
     g_pp_full_names        = new name{"pp", "full_names"};
@@ -153,6 +159,8 @@ void initialize_pp_options() {
                          "(pretty printer) disable/enable notation (infix, mixfix, postfix operators and unicode characters)");
     register_bool_option(*g_pp_implicit,  LEAN_DEFAULT_PP_IMPLICIT,
                          "(pretty printer) display implicit parameters");
+    register_bool_option(*g_pp_proofs,  LEAN_DEFAULT_PP_PROOFS,
+                         "(pretty printer) display proof terms");
     register_bool_option(*g_pp_coercions,  LEAN_DEFAULT_PP_COERCIONS,
                          "(pretty printer) display coercionss");
     register_bool_option(*g_pp_universes,  LEAN_DEFAULT_PP_UNIVERSES,
@@ -190,17 +198,18 @@ void initialize_pp_options() {
     register_bool_option(*g_pp_lazy_abstraction, LEAN_DEFAULT_PP_LAZY_ABSTRACTION,
                          "(pretty printer) display lazy-abstraction macros (for debugging purposes)");
     register_bool_option(*g_pp_all, LEAN_DEFAULT_PP_ALL,
-                         "(pretty printer) display coercions, implicit parameters, fully qualified names, universes, "
+                         "(pretty printer) display coercions, implicit parameters, proof terms, fully qualified names, universes, "
                          "and disable abbreviations, beta reduction and notation during pretty printing");
     options universes_true(*g_pp_universes, true);
     options full_names_true(*g_pp_full_names, true);
     options implicit_true(*g_pp_implicit, true);
+    options proofs_true(*g_pp_proofs, true);
     options coercions_true(*g_pp_coercions, true);
     options notation_false(*g_pp_notation, false);
     options binder_types_true(*g_pp_binder_types, true);
     options implicit_coercions = join(coercions_true, implicit_true);
     options implicit_notation  = join(notation_false, implicit_true);
-    options all = universes_true + implicit_true + coercions_true + notation_false + full_names_true + binder_types_true;
+    options all = universes_true + implicit_true + proofs_true + coercions_true + notation_false + full_names_true + binder_types_true;
     g_distinguishing_pp_options = new list<options>({implicit_true, full_names_true, coercions_true, implicit_coercions,
                 implicit_notation, universes_true, all});
 }
@@ -214,6 +223,7 @@ void finalize_pp_options() {
     delete g_pp_max_steps;
     delete g_pp_notation;
     delete g_pp_implicit;
+    delete g_pp_proofs;
     delete g_pp_coercions;
     delete g_pp_universes;
     delete g_pp_full_names;
@@ -232,6 +242,7 @@ void finalize_pp_options() {
 }
 
 name const & get_pp_implicit_name() { return *g_pp_implicit; }
+name const & get_pp_proofs_name() { return *g_pp_proofs; }
 name const & get_pp_coercions_name() { return *g_pp_coercions; }
 name const & get_pp_full_names_name() { return *g_pp_full_names; }
 name const & get_pp_universes_name() { return *g_pp_universes; }
@@ -250,6 +261,7 @@ unsigned get_pp_max_depth(options const & opts)         { return opts.get_unsign
 unsigned get_pp_max_steps(options const & opts)         { return opts.get_unsigned(*g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS); }
 bool     get_pp_notation(options const & opts)          { return opts.get_bool(*g_pp_notation, LEAN_DEFAULT_PP_NOTATION); }
 bool     get_pp_implicit(options const & opts)          { return opts.get_bool(*g_pp_implicit, LEAN_DEFAULT_PP_IMPLICIT); }
+bool     get_pp_proofs(options const & opts)            { return opts.get_bool(*g_pp_proofs, LEAN_DEFAULT_PP_PROOFS); }
 bool     get_pp_coercions(options const & opts)         { return opts.get_bool(*g_pp_coercions, LEAN_DEFAULT_PP_COERCIONS); }
 bool     get_pp_universes(options const & opts)         { return opts.get_bool(*g_pp_universes, LEAN_DEFAULT_PP_UNIVERSES); }
 bool     get_pp_full_names(options const & opts)        { return opts.get_bool(*g_pp_full_names, LEAN_DEFAULT_PP_FULL_NAMES); }

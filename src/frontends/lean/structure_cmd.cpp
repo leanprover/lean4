@@ -262,6 +262,13 @@ struct structure_cmd_fn {
             } else {
                 if (has_placeholder(m_type))
                     throw_explicit_universe(pos);
+                // Note that if we do infer the result universe, `mk_result_level` will ensure that the
+                // result type cannot be zero when the structure might otherwise eliminate only to zero.
+                if (m_env.impredicative() && !is_zero(sort_level(m_type)) && !is_not_zero(sort_level(m_type)))
+                    throw parser_error("invalid universe polymorphic structure declaration, "
+                                       "the resultant universe is not Prop (i.e., 0), "
+                                       "but it may be Prop for some parameter values "
+                                       "(solution: use 'l+1' or 'max 1 l')", m_p.pos());
             }
         } else {
             if (!m_infer_result_universe)

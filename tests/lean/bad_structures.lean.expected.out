@@ -1,2 +1,3 @@
 bad_structures.lean:1:71: error: invalid 'structure', the resultant universe must be provided when explicit universe levels are being used
 bad_structures.lean:4:49: error: invalid 'structure', the resultant universe must be provided when explicit universe levels are being used
+bad_structures.lean:7:60: error: invalid universe polymorphic structure declaration, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'l+1' or 'max 1 l')

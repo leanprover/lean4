@@ -249,10 +249,9 @@ struct structure_cmd_fn {
             m_type = m_p.parse_expr();
             while (is_annotation(m_type))
                 m_type = get_annotation_arg(m_type);
-            m_inductive_predicate = m_env.impredicative() && is_zero(sort_level(m_type));
             if (!is_sort(m_type))
                 throw parser_error("invalid 'structure', 'Type' expected", pos);
-
+            m_inductive_predicate = m_env.impredicative() && is_zero(sort_level(m_type));
             if (m_inductive_predicate)
                 m_infer_result_universe = false;
 

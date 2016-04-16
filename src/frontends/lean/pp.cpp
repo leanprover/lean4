@@ -556,7 +556,7 @@ auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> resul
             return pp_child(f, bp, ignore_hide);
         } else if (auto thm = arg_is_proof(f)) {
             return pp_child_core(mk_app(f, mk_inaccessible(*thm)), bp, ignore_hide);
-        } else if (!m_coercion && is_coercion(m_env, f)) {
+        } else if (!m_coercion && is_coercion(m_env, get_app_fn(e))) {
             return pp_coercion(e, bp, ignore_hide);
         }
     }

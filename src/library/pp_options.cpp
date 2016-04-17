@@ -160,7 +160,7 @@ void initialize_pp_options() {
     register_bool_option(*g_pp_implicit,  LEAN_DEFAULT_PP_IMPLICIT,
                          "(pretty printer) display implicit parameters");
     register_bool_option(*g_pp_proofs,  LEAN_DEFAULT_PP_PROOFS,
-                         "(pretty printer) display proof terms");
+                         "(pretty printer) if set to false, the type will be displayed instead of the value for every proof appearing as an argument to a function");
     register_bool_option(*g_pp_coercions,  LEAN_DEFAULT_PP_COERCIONS,
                          "(pretty printer) display coercionss");
     register_bool_option(*g_pp_universes,  LEAN_DEFAULT_PP_UNIVERSES,

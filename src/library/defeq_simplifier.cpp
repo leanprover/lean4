@@ -140,7 +140,6 @@ class defeq_simplify_fn {
             if (!m_exhaustive || e == e_start) break;
         }
         if (m_memoize) cache_save(_e, e);
-        lean_assert(m_tmp_tctx->is_def_eq(_e, e));
         return e;
     }
 

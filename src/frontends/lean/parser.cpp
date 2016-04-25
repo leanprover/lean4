@@ -42,8 +42,6 @@ Author: Leonardo de Moura
 #include "library/noncomputable.h"
 #include "library/error_handling.h"
 #include "library/legacy_type_context.h"
-#include "library/tactic/expr_to_tactic.h"
-#include "library/tactic/location.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
@@ -266,8 +264,8 @@ bool parser::are_info_lines_valid(unsigned start_line, unsigned end_line) const 
 }
 
 void parser::remove_proof_state_info(pos_info const & start, pos_info const & end) {
-    if (m_info_manager)
-        m_info_manager->remove_proof_state_info(start.first, start.second, end.first, end.second);
+    // if (m_info_manager)
+    // m_info_manager->remove_proof_state_info(start.first, start.second, end.first, end.second);
 }
 
 expr parser::mk_sorry(pos_info const & p) {
@@ -288,18 +286,6 @@ expr parser::mk_sorry(pos_info const & p) {
 void parser::declare_sorry() {
     m_used_sorry = true;
     m_env = ::lean::declare_sorry(m_env);
-}
-
-bool parser::has_tactic_decls() {
-    if (!m_has_tactic_decls)
-        m_has_tactic_decls = ::lean::has_tactic_decls(m_env);
-    return *m_has_tactic_decls;
-}
-
-expr parser::mk_by(expr const & t, pos_info const & pos) {
-    if (!has_tactic_decls())
-        throw parser_error("invalid 'by' expression, tactic module has not been imported", pos);
-    return save_pos(::lean::mk_by(t), pos);
 }
 
 void parser::updt_options() {
@@ -1688,10 +1674,7 @@ expr parser::parse_backtick_expr_core() {
 }
 
 expr parser::parse_backtick_expr() {
-    auto p = pos();
-    expr type   = parse_backtick_expr_core();
-    expr assump = mk_by(save_pos(mk_constant(get_tactic_assumption_name()), p), p);
-    return save_pos(mk_typed_expr(type, assump), p);
+    throw parser_error("backtick support has been disabled", pos());
 }
 
 expr parser::parse_nud() {

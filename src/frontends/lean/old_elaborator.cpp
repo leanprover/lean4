@@ -43,7 +43,6 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/pp_options.h"
 #include "library/class_instance_resolution.h"
-#include "library/tactic/expr_to_tactic.h"
 #include "library/error_handling.h"
 #include "library/definitional/equations.h"
 #include "frontends/lean/local_decls.h"
@@ -240,6 +239,7 @@ void old_elaborator::save_extra_type_data(expr const & e, expr const & r) {
 }
 
 /** \brief Store proof_state information at pos(e) in the info_manager */
+/*
 void old_elaborator::save_proof_state_info(proof_state const & ps, expr const & e) {
     if (!m_no_info && infom() && pip()) {
         if (auto p = pip()->get_pos_info(e)) {
@@ -247,6 +247,7 @@ void old_elaborator::save_proof_state_info(proof_state const & ps, expr const & 
         }
     }
 }
+*/
 
 /** \brief Auxiliary function for saving information about which overloaded identifier was used by the elaborator. */
 void old_elaborator::save_identifier_info(expr const & f) {
@@ -302,6 +303,7 @@ void old_elaborator::erase_coercion_info(expr const & e) {
 }
 
 void old_elaborator::instantiate_info(substitution s) {
+/*
     if (m_to_show_hole) {
         expr meta      = s.instantiate(*m_to_show_hole);
         expr meta_type = s.instantiate(old_type_checker(env()).infer(meta).first);
@@ -312,6 +314,7 @@ void old_elaborator::instantiate_info(substitution s) {
         out << ps.pp(out.get_formatter()) << endl;
         print_lean_info_footer(out.get_stream());
     }
+*/
     if (infom()) {
         m_pre_info_data.instantiate(s);
         bool overwrite = true;
@@ -370,8 +373,8 @@ expr old_elaborator::visit_expecting_type_of(expr const & e, expr const & t, con
         return visit_expecting_type_of(get_annotation_arg(e), t, cs);
     } else if (is_choice(e)) {
         return visit_choice(e, some_expr(t), cs);
-    } else if (is_by(e)) {
-        return visit_by(e, some_expr(t), cs);
+        // } else if (is_by(e)) {
+        // return visit_by(e, some_expr(t), cs);
     } else if (is_calc_annotation(e)) {
         return visit_calc_proof(e, some_expr(t), cs);
     } else {
@@ -411,15 +414,6 @@ expr old_elaborator::visit_choice(expr const & e, optional<expr> const & t, cons
     };
     justification j = mk_justification(some_expr(e), pp_fn);
     cs += mk_choice_cnstr(m, fn, to_delay_factor(cnstr_group::Basic), true, j);
-    return m;
-}
-
-expr old_elaborator::visit_by(expr const & e, optional<expr> const & t, constraint_seq & cs) {
-    lean_assert(is_by(e));
-    expr tac = visit(get_by_arg(e), cs);
-    expr m   = m_context.mk_meta(t, e.get_tag());
-    register_meta(m);
-    m_local_tactic_hints.insert(mlocal_name(get_app_fn(m)), tac);
     return m;
 }
 
@@ -1692,8 +1686,6 @@ expr old_elaborator::visit_core(expr const & e, constraint_seq & cs) {
         return visit_choice(e, none_expr(), cs);
     } else if (is_let_value(e)) {
         return visit_let_value(e, cs);
-    } else if (is_by(e)) {
-        return visit_by(e, none_expr(), cs);
     } else if (is_calc_annotation(e)) {
         return visit_calc_proof(e, none_expr(), cs);
     } else if (is_no_info(e)) {
@@ -1846,162 +1838,6 @@ unify_result_seq old_elaborator::solve(constraint_seq const & cs) {
     return unify(env(), tmp.size(), tmp.data(), substitution(), m_unifier_config);
 }
 
-void old_elaborator::display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg, expr const & pos) {
-    lean_assert(is_metavar(mvar));
-    if (!m_displayed_errors.contains(mlocal_name(mvar))) {
-        m_displayed_errors.insert(mlocal_name(mvar));
-        auto out = regular(env(), ios(), m_tc->get_type_context());
-        flycheck_error err(ios());
-        if (!err.enabled() || save_error(pip(), pos)) {
-            display_error_pos(out.get_stream(), out.get_options(), pip(), pos);
-            out << " " << msg << "\n" << ps.pp(out.get_formatter()) << endl;
-        }
-    }
-}
-
-void old_elaborator::display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg) {
-    display_unsolved_proof_state(mvar, ps, msg, mvar);
-}
-
-optional<expr> old_elaborator::get_pre_tactic_for(expr const & mvar) {
-    if (auto it = m_local_tactic_hints.find(mlocal_name(mvar))) {
-        m_used_local_tactic_hints.insert(mlocal_name(mvar));
-        return some_expr(*it);
-    } else {
-        return none_expr();
-    }
-}
-
-optional<tactic> old_elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
-    try {
-        auto fn = [=](goal const & g, options const & o, expr const & e, optional<expr> const & expected_type,
-                      substitution const & subst, bool report_unassigned) {
-            // Disable tactic hints when processing expressions nested in tactics.
-            // We must do it otherwise, it is easy to make the system loop.
-            bool use_tactic_hints = false;
-            if (o == m_ctx.m_options) {
-                old_elaborator aux_elaborator(m_ctx);
-                return aux_elaborator.elaborate_nested(g.to_context(), expected_type, e,
-                                                       use_tactic_hints, subst, report_unassigned);
-            } else {
-                elaborator_context aux_ctx(m_ctx, o);
-                old_elaborator aux_elaborator(aux_ctx);
-                return aux_elaborator.elaborate_nested(g.to_context(), expected_type, e,
-                                                       use_tactic_hints, subst, report_unassigned);
-            }
-        };
-        return optional<tactic>(expr_to_tactic(env(), fn, pre_tac, pip()));
-    } catch (expr_to_tactic_exception & ex) {
-        auto out = regular(env(), ios(), m_tc->get_type_context());
-        flycheck_error err(ios());
-        if (!err.enabled() || save_error(pip(), ex.get_expr())) {
-            display_error_pos(out, pip(), ex.get_expr());
-            out << " " << ex.what();
-            out << pp_indent_expr(out.get_formatter(), pre_tac) << endl << "failed at:"
-                << pp_indent_expr(out.get_formatter(), ex.get_expr()) << endl;
-        }
-        return optional<tactic>();
-    }
-}
-
-void old_elaborator::display_tactic_exception(tactic_exception const & ex, proof_state const & ps, expr const & pre_tac) {
-    auto out = regular(env(), ios(), m_tc->get_type_context());
-    flycheck_error err(ios());
-    if (optional<expr> const & e = ex.get_main_expr()) {
-        if (err.enabled() && !save_error(pip(), *e))
-            return;
-        display_error_pos(out, pip(), *e);
-    } else {
-        if (err.enabled() && !save_error(pip(), pre_tac))
-            return;
-        display_error_pos(out, pip(), pre_tac);
-    }
-    out << ex.pp(out.get_formatter()) << "\nproof state:\n";
-    if (auto curr_ps = ex.get_proof_state())
-        out << curr_ps->pp(out.get_formatter()) << "\n";
-    else
-        out << ps.pp(out.get_formatter()) << "\n";
-}
-
-void old_elaborator::display_unsolved_subgoals(expr const & mvar, proof_state const & ps, expr const & pos) {
-    unsigned ngoals = length(ps.get_goals());
-    sstream s;
-    s << ngoals << " unsolved subgoal";
-    if (ngoals > 1) s << "s";
-    display_unsolved_proof_state(mvar, ps, s.str().c_str(), pos);
-}
-
-void old_elaborator::display_unsolved_subgoals(expr const & mvar, proof_state const & ps) {
-    display_unsolved_subgoals(mvar, ps, mvar);
-}
-
-
-/** \brief Try to instantiate meta-variable \c mvar (modulo its state ps) using the given tactic.
-    If it succeeds, then update subst with the solution.
-    Return true iff the metavariable \c mvar has been assigned.
-
-    If \c show_failure == true, then display reason for failure.
-
-    \remark the argument \c pre_tac is only used for error localization.
-*/
-bool old_elaborator::try_using(substitution & subst, expr const & mvar, proof_state const & ps,
-                           expr const & pre_tac, tactic const & tac, bool show_failure) {
-    lean_assert(length(ps.get_goals()) == 1);
-    // make sure ps is a really a proof state for mvar.
-    lean_assert(mlocal_name(get_app_fn(head(ps.get_goals()).get_meta())) == mlocal_name(mvar));
-    try {
-        proof_state_seq seq = tac(env(), ios(), ps);
-        auto r = seq.pull();
-        if (!r) {
-            show_goal(ps, pre_tac, pre_tac, pre_tac);
-            // tactic failed to produce any result
-            if (show_failure)
-                display_unsolved_proof_state(mvar, ps, "tactic failed");
-            return false;
-        } else if (!empty(r->first.get_goals())) {
-            // tactic contains unsolved subgoals
-            show_goal(r->first, pre_tac, pre_tac, pre_tac);
-            if (show_failure)
-                display_unsolved_subgoals(mvar, r->first);
-            return false;
-        } else {
-            show_goal(ps, pre_tac, pre_tac, pre_tac);
-            subst = r->first.get_subst();
-            expr v = subst.instantiate(mvar);
-            subst.assign(mlocal_name(mvar), v);
-            return true;
-        }
-    } catch (tactic_exception & ex) {
-        show_goal(ps, pre_tac, pre_tac, pre_tac);
-        if (show_failure)
-            display_tactic_exception(ex, ps, pre_tac);
-        return false;
-    }
-}
-
-void old_elaborator::show_goal(proof_state const & ps, expr const & start, expr const & end, expr const & curr) {
-    unsigned line, col;
-    if (!m_ctx.has_show_goal_at(line, col))
-        return;
-    auto start_pos = pip()->get_pos_info(start);
-    auto end_pos   = pip()->get_pos_info(end);
-    auto curr_pos  = pip()->get_pos_info(curr);
-    if (!start_pos || !end_pos || !curr_pos)
-        return;
-    if (start_pos->first > line || (start_pos->first == line && start_pos->second > col))
-        return;
-    if (end_pos->first < line || (end_pos->first == line && end_pos->second < col))
-        return;
-    if (curr_pos->first < line || (curr_pos->first == line && curr_pos->second < col))
-        return;
-    m_ctx.reset_show_goal_at();
-    auto out = regular(env(), ios(), m_tc->get_type_context());
-    print_lean_info_header(out.get_stream());
-    out << "position " << curr_pos->first << ":" << curr_pos->second << "\n";
-    out << ps.pp(out.get_formatter()) << "\n";
-    print_lean_info_footer(out.get_stream());
-}
-
 // The parameters univs_fixed is true if the elaborator has instantiated the universe metavariables with universe parameters.
 // See issue #771
 void old_elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set & visited, bool reject_type_is_meta) {
@@ -2134,11 +1970,8 @@ bool old_elaborator::display_unassigned_mvars(expr const & e, substitution const
         substitution tmp_s(s);
         visit_unassigned_mvars(e, [&](expr const & mvar) {
                 if (auto it = mvar_to_meta(mvar)) {
-                    expr meta      = tmp_s.instantiate(*it);
-                    expr meta_type = tmp_s.instantiate(old_type_checker(env()).infer(meta).first);
-                    goal g(meta, meta_type);
-                    proof_state ps(goals(g), s, constraints());
-                    display_unsolved_proof_state(mvar, ps, "don't know how to synthesize placeholder");
+                    auto out = regular(env(), ios(), m_tc->get_type_context());
+                    out << "don't know how to synthesize placeholder\n";
                     r = true;
                 }
             });
@@ -2301,7 +2134,7 @@ static expr translate_local_name(environment const & env,
 */
 static expr translate(environment const & env, list<expr> const & ctx, expr const & e) {
     auto fn = [&](expr const & e) {
-        if (is_placeholder(e) || is_by(e)) {
+        if (is_placeholder(e)) { // || is_by(e)) {
             return some_expr(e); // ignore placeholders
         } else if (is_constant(e)) {
             expr new_e = copy_tag(e, translate_local_name(env, ctx, const_name(e), e));
@@ -2314,49 +2147,6 @@ static expr translate(environment const & env, list<expr> const & ctx, expr cons
         }
     };
     return replace(e, fn);
-}
-
-/** \brief Elaborate expression \c e in context \c ctx. */
-elaborate_result old_elaborator::elaborate_nested(list<expr> const & ctx, optional<expr> const & expected_type,
-                                              expr const & n, bool use_tactic_hints,
-                                              substitution const & subst, bool report_unassigned) {
-    if (infom()) {
-        /*
-        if (auto ps = get_info_tactic_proof_state()) {
-            save_proof_state_info(*ps, n);
-        }
-        */
-    }
-    expr e = translate(env(), ctx, n);
-    metavar_closure cls;
-    if (expected_type) {
-        e = copy_tag(e, mk_typed_expr(mk_as_is(*expected_type), e));
-        cls.add(*expected_type);
-    }
-    m_context.set_ctx(ctx);
-    flet<bool> set_discard(m_unifier_config.m_discard, false);
-    flet<bool> set_use_hints(m_use_tactic_hints, use_tactic_hints);
-    constraint_seq cs;
-    expr r  = visit(e, cs);
-
-    buffer<constraint> tmp;
-    cs.linearize(tmp);
-    auto p  = unify(env(), tmp.size(), tmp.data(), subst, m_unifier_config).pull();
-    lean_assert(p);
-    substitution new_subst = p->first.first;
-    constraints rcs        = p->first.second;
-    r = new_subst.instantiate_all(r);
-    bool reject_type_is_meta = false;
-    r = solve_unassigned_mvars(new_subst, r, reject_type_is_meta);
-    rcs = map(rcs, [&](constraint const & c) { return instantiate_metavars(c, new_subst); });
-    instantiate_info(new_subst);
-    if (report_unassigned)
-        display_unassigned_mvars(r, new_subst);
-    if (expected_type) {
-        justification j;
-        rcs = append(rcs, cls.mk_constraints(new_subst, j));
-    }
-    return elaborate_result(r, new_subst, rcs);
 }
 
 static name * g_tmp_prefix = nullptr;

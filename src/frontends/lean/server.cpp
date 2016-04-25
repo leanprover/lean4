@@ -20,7 +20,6 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/projection.h"
 #include "library/scoped_ext.h"
-#include "library/tactic/goal.h"
 #include "frontends/lean/server.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"

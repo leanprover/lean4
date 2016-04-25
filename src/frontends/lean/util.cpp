@@ -25,7 +25,6 @@ Author: Leonardo de Moura
 #include "library/choice.h"
 #include "library/num.h"
 #include "library/replace_visitor.h"
-#include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
 
@@ -108,8 +107,8 @@ static void collect_locals_ignoring_tactics(expr const & e, collected_locals & l
     for_each(e, [&](expr const & e, unsigned) {
             if (!has_local(e))
                 return false;
-            if (is_by(e))
-                return false; // do not visit children
+            // if (is_by(e))
+            // return false; // do not visit children
             if (is_local(e))
                 ls.insert(e);
             return true;
@@ -164,8 +163,8 @@ name_set collect_univ_params_ignoring_tactics(expr const & e, name_set const & l
         for_each(e, [&](expr const & e, unsigned) {
                 if (!has_param_univ(e)) {
                     return false;
-                } else if (is_by(e)) {
-                    return false; // do not visit children
+                    // } else if (is_by(e)) {
+                    // return false; // do not visit children
                 } else if (is_sort(e)) {
                     collect_univ_params_core(sort_level(e), r);
                 } else if (is_constant(e)) {

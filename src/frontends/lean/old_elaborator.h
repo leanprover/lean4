@@ -12,8 +12,6 @@ Author: Leonardo de Moura
 #include "library/expr_lt.h"
 #include "library/unifier.h"
 #include "library/old_local_context.h"
-#include "library/tactic/tactic.h"
-#include "library/tactic/elaborate.h"
 #include "library/old_type_checker.h"
 #include "frontends/lean/elaborator_context.h"
 #include "frontends/lean/coercion_elaborator.h"
@@ -95,7 +93,7 @@ class old_elaborator : public coercion_info_manager {
     void save_type_data(expr const & e, expr const & r);
     void save_binder_type(expr const & e, expr const & r);
     void save_extra_type_data(expr const & e, expr const & r);
-    void save_proof_state_info(proof_state const & ps, expr const & e);
+    // void save_proof_state_info(proof_state const & ps, expr const & e);
     void save_identifier_info(expr const & f);
     void save_synth_data(expr const & e, expr const & r);
     void save_placeholder_info(expr const & e, expr const & r);
@@ -149,16 +147,16 @@ class old_elaborator : public coercion_info_manager {
     pair<expr, constraint_seq> visit(expr const & e);
     expr visit(expr const & e, constraint_seq & cs);
     unify_result_seq solve(constraint_seq const & cs);
-    void display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg, expr const & pos);
-    void display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg);
-    void display_unsolved_subgoals(expr const & mvar, proof_state const & ps, expr const & pos);
-    void display_unsolved_subgoals(expr const & mvar, proof_state const & ps);
-    void display_tactic_exception(tactic_exception const & ex, proof_state const & ps, expr const & pre_tac);
+    // void display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg, expr const & pos);
+    // void display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg);
+    // void display_unsolved_subgoals(expr const & mvar, proof_state const & ps, expr const & pos);
+    // void display_unsolved_subgoals(expr const & mvar, proof_state const & ps);
+    // void display_tactic_exception(tactic_exception const & ex, proof_state const & ps, expr const & pre_tac);
     optional<expr> get_pre_tactic_for(expr const & mvar);
-    optional<tactic> pre_tactic_to_tactic(expr const & pre_tac);
-    bool try_using(substitution & subst, expr const & mvar, proof_state const & ps,
-                   expr const & pre_tac, tactic const & tac, bool show_failure);
-    bool try_using_begin_end(substitution & subst, expr const & mvar, proof_state ps, expr const & pre_tac);
+    // optional<tactic> pre_tactic_to_tactic(expr const & pre_tac);
+    // bool try_using(substitution & subst, expr const & mvar, proof_state const & ps,
+    // expr const & pre_tac, tactic const & tac, bool show_failure);
+    // bool try_using_begin_end(substitution & subst, expr const & mvar, proof_state ps, expr const & pre_tac);
     void solve_unassigned_mvar(substitution & subst, expr mvar, name_set & visited, bool reject_type_is_meta);
     expr solve_unassigned_mvars(substitution & subst, expr e, name_set & visited, bool reject_type_is_meta);
     expr solve_unassigned_mvars(substitution & subst, expr const & e, bool reject_type_is_meta);
@@ -166,8 +164,8 @@ class old_elaborator : public coercion_info_manager {
     void check_sort_assignments(substitution const & s);
     expr apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params, bool is_def_value);
     std::tuple<expr, level_param_names> apply(substitution & s, expr const & e, bool is_def_value);
-    elaborate_result elaborate_nested(list<expr> const & ctx, optional<expr> const & expected_type, expr const & e,
-                                      bool use_tactic_hints, substitution const &, bool report_unassigned);
+    // elaborate_result elaborate_nested(list<expr> const & ctx, optional<expr> const & expected_type, expr const & e,
+    // bool use_tactic_hints, substitution const &, bool report_unassigned);
 
     expr const & get_equation_fn(expr const & eq) const;
     expr visit_equations(expr const & eqns, constraint_seq & cs);
@@ -189,7 +187,7 @@ class old_elaborator : public coercion_info_manager {
 
     void check_used_local_tactic_hints();
 
-    void show_goal(proof_state const & ps, expr const & start, expr const & end, expr const & curr);
+    // void show_goal(proof_state const & ps, expr const & start, expr const & end, expr const & curr);
 public:
     old_elaborator(elaborator_context & ctx, bool nice_mvar_names = false);
     std::tuple<expr, level_param_names> operator()(list<expr> const & ctx, expr const & e, bool _ensure_type);

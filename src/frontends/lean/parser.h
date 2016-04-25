@@ -303,9 +303,6 @@ public:
     local_context const & get_local_context() const { return m_local_context; }
     local_expr_decls const & get_local_expr_decls() const { return m_local_decls; }
 
-    bool has_tactic_decls();
-    expr mk_by(expr const & t, pos_info const & pos);
-
     bool keep_new_thms() const { return m_keep_theorem_mode != keep_theorem_mode::DiscardAll; }
 
     void updt_options();

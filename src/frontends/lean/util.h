@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/old_util.h"
 #include "library/locals.h"
-#include "library/tactic/util.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/local_level_decls.h"
 

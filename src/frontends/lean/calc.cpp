@@ -24,7 +24,6 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/typed_expr.h"
 #include "library/sorry.h"
-#include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
@@ -34,7 +33,7 @@ static name * g_calc_name  = nullptr;
 
 static expr mk_calc_annotation_core(expr const & e) { return mk_annotation(*g_calc_name, e); }
 static expr mk_calc_annotation(expr const & pr) {
-    if (is_by(pr) || /* is_begin_end_annotation(pr) || */ is_sorry(pr)) {
+    if (/* is_by(pr) || is_begin_end_annotation(pr) || */ is_sorry(pr)) {
         return pr;
     } else {
         return mk_calc_annotation_core(pr);

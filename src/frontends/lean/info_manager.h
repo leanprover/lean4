@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 
 namespace lean {
-class proof_state;
+// class proof_state;
 class info_manager {
     struct imp;
     std::unique_ptr<imp> m_ptr;
@@ -28,10 +28,10 @@ public:
     void erase_coercion_info(unsigned l, unsigned c);
     void add_symbol_info(unsigned l, unsigned c, name const & n);
     void add_identifier_info(unsigned l, unsigned c, name const & full_id);
-    void add_proof_state_info(unsigned l, unsigned c, proof_state const & e);
+    // void add_proof_state_info(unsigned l, unsigned c, proof_state const & e);
 
     /** \brief Remove PROO_STATE info from [(start_line, start_line), (end_line, end_col)) */
-    void remove_proof_state_info(unsigned start_line, unsigned start_col, unsigned end_line, unsigned end_col);
+    // void remove_proof_state_info(unsigned start_line, unsigned start_col, unsigned end_line, unsigned end_col);
 
     void instantiate(substitution const & s);
 

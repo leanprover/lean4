@@ -13,8 +13,6 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/pp_options.h"
 #include "library/legacy_type_context.h"
-#include "library/tactic/proof_state.h"
-#include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/info_manager.h"
 
 namespace lean {
@@ -262,6 +260,7 @@ public:
     }
 };
 
+/*
 class proof_state_info_data : public info_data_cell {
     proof_state m_ps;
 public:
@@ -282,6 +281,7 @@ public:
         ios << "-- ACK" << endl;
     }
 };
+*/
 
 info_data mk_type_info(unsigned c, expr const & e) { return info_data(new type_info_data(c, e)); }
 info_data mk_extra_type_info(unsigned c, expr const & e, expr const & t) { return info_data(new extra_type_info_data(c, e, t)); }
@@ -291,7 +291,7 @@ info_data mk_overload_notation_info(unsigned c, list<expr> const & a) { return i
 info_data mk_coercion_info(unsigned c, expr const & e, expr const & t) { return info_data(new coercion_info_data(c, e, t)); }
 info_data mk_symbol_info(unsigned c, name const & s) { return info_data(new symbol_info_data(c, s)); }
 info_data mk_identifier_info(unsigned c, name const & full_id) { return info_data(new identifier_info_data(c, full_id)); }
-info_data mk_proof_state_info(unsigned c, proof_state const & ps) { return info_data(new proof_state_info_data(c, ps)); }
+// info_data mk_proof_state_info(unsigned c, proof_state const & ps) { return info_data(new proof_state_info_data(c, ps)); }
 
 struct info_data_cmp {
     int operator()(info_data const & i1, info_data const & i2) const { return i1.compare(i2); }
@@ -362,6 +362,7 @@ struct info_manager::imp {
         m_env_info.insert(info);
     }
 
+    /*
     static bool is_tactic_type(expr const & e) {
         expr const * it = &e;
         while (is_pi(*it)) {
@@ -369,10 +370,11 @@ struct info_manager::imp {
         }
         return *it == get_tactic_type() || *it == get_tactic_expr_type() || *it == get_tactic_expr_list_type();
     }
+    */
 
     void add_type_info(unsigned l, unsigned c, expr const & e) {
-        if (is_tactic_type(e))
-            return;
+        // if (is_tactic_type(e))
+        //    return;
         lock_guard<mutex> lc(m_mutex);
         if (m_block_new_info)
             return;
@@ -381,8 +383,8 @@ struct info_manager::imp {
     }
 
     void add_extra_type_info(unsigned l, unsigned c, expr const & e, expr const & t) {
-        if (is_tactic_type(t))
-            return;
+        // if (is_tactic_type(t))
+        // return;
         lock_guard<mutex> lc(m_mutex);
         if (m_block_new_info)
             return;
@@ -438,16 +440,18 @@ struct info_manager::imp {
         m_line_data[l].insert(mk_symbol_info(c, s));
     }
 
+    /*
     static bool is_tactic_id(name const & id) {
         if (id.is_atomic())
             return id == get_tactic_name();
         else
             return is_tactic_id(id.get_prefix());
     }
+    */
 
     void add_identifier_info(unsigned l, unsigned c, name const & full_id) {
-        if (is_tactic_id(full_id))
-            return;
+        // if (is_tactic_id(full_id))
+        //    return;
         lock_guard<mutex> lc(m_mutex);
         if (m_block_new_info)
             return;
@@ -455,7 +459,7 @@ struct info_manager::imp {
         m_line_data[l].insert(mk_identifier_info(c, full_id));
     }
 
-    void add_proof_state_info(unsigned l, unsigned c, proof_state const & ps) {
+/*    void add_proof_state_info(unsigned l, unsigned c, proof_state const & ps) {
         lock_guard<mutex> lc(m_mutex);
         if (m_block_new_info)
             return;
@@ -486,6 +490,7 @@ struct info_manager::imp {
             }
         }
     }
+*/
 
     static info_data_set instantiate(info_data_set const & s, substitution & subst) {
         info_data_set r;
@@ -742,9 +747,9 @@ void info_manager::add_symbol_info(unsigned l, unsigned c, name const & s) { m_p
 void info_manager::add_identifier_info(unsigned l, unsigned c, name const & full_id) {
     m_ptr->add_identifier_info(l, c, full_id);
 }
-void info_manager::add_proof_state_info(unsigned l, unsigned c, proof_state const & ps) {
-    m_ptr->add_proof_state_info(l, c, ps);
-}
+// void info_manager::add_proof_state_info(unsigned l, unsigned c, proof_state const & ps) {
+//     m_ptr->add_proof_state_info(l, c, ps);
+// }
 void info_manager::instantiate(substitution const & s) { m_ptr->instantiate(s); }
 void info_manager::merge(info_manager const & m, bool overwrite) { m_ptr->merge(*m.m_ptr, overwrite); }
 void info_manager::insert_line(unsigned l) { m_ptr->insert_line(l); }
@@ -768,7 +773,7 @@ optional<expr> info_manager::get_type_at(unsigned line, unsigned col) const { re
 optional<expr> info_manager::get_meta_at(unsigned line, unsigned col) const { return m_ptr->get_meta_at(line, col); }
 void info_manager::block_new_info() { m_ptr->block_new_info(true); }
 void info_manager::start_from(unsigned l) { m_ptr->start_from(l); }
-void info_manager::remove_proof_state_info(unsigned start_line, unsigned start_col, unsigned end_line, unsigned end_col) {
-    m_ptr->remove_proof_state_info(start_line, start_col, end_line, end_col);
-}
+// void info_manager::remove_proof_state_info(unsigned start_line, unsigned start_col, unsigned end_line, unsigned end_col) {
+//     m_ptr->remove_proof_state_info(start_line, start_col, end_line, end_col);
+// }
 }

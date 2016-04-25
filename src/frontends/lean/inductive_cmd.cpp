@@ -702,11 +702,11 @@ struct inductive_cmd_fn {
         unsigned i       = nparams;
         for (inductive_decl & decl : decls) {
             expr type = mlocal_type(to_elab[i]);
-            if (m_infer_result_universe)
-                type = update_result_sort(type, resultant_level);
             bool use_cache = false;
             type = Pi(nparams, to_elab.data(), type, use_cache);
             type = Pi(locals, type, use_cache);
+            if (m_infer_result_universe)
+                type = replace_u(type, resultant_level);
             decl = update_inductive_decl(decl, type);
             i++;
         }

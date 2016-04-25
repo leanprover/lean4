@@ -75,24 +75,24 @@ namespace nat
 
   protected definition has_decidable_eq [instance] [priority nat.prio] : ∀ x y : nat, decidable (x = y)
   | has_decidable_eq zero     zero     := inl rfl
-  | has_decidable_eq (succ x) zero     := inr (by contradiction)
-  | has_decidable_eq zero     (succ y) := inr (by contradiction)
+  | has_decidable_eq (succ x) zero     := sorry -- inr (by contradiction)
+  | has_decidable_eq zero     (succ y) := sorry -- inr (by contradiction)
   | has_decidable_eq (succ x) (succ y) :=
       match has_decidable_eq x y with
-      | inl xeqy := inl (by rewrite xeqy)
-      | inr xney := inr (λ h : succ x = succ y, by injection h with xeqy; exact absurd xeqy xney)
+      | inl xeqy := inl sorry -- (by rewrite xeqy)
+      | inr xney := inr sorry -- (λ h : succ x = succ y, by injection h with xeqy; exact absurd xeqy xney)
       end
 
   /- properties of inequality -/
 
   protected theorem le_of_eq {n m : ℕ} (p : n = m) : n ≤ m :=
-  by simp
+  sorry -- by simp
 
   theorem le_succ (n : ℕ) : n ≤ succ n :=
   le.step !nat.le_refl
 
   theorem pred_le (n : ℕ) : pred n ≤ n :=
-  by cases n; repeat constructor
+  sorry -- by cases n; repeat constructor
 
   theorem le_succ_iff_true [simp] (n : ℕ) : n ≤ succ n ↔ true :=
   iff_true_intro (le_succ n)
@@ -125,7 +125,7 @@ namespace nat
   nat.cases_on n le.step (λa, succ_le_succ)
 
   theorem not_succ_le_zero (n : ℕ) : ¬succ n ≤ 0 :=
-  by intro H; cases H
+  sorry -- by intro H; cases H
 
   theorem succ_le_zero_iff_false (n : ℕ) : succ n ≤ 0 ↔ false :=
   iff_false_intro !not_succ_le_zero
@@ -214,7 +214,8 @@ namespace nat
   protected theorem lt_or_ge (a b : ℕ) : a < b ∨ a ≥ b :=
   nat.rec (inr !zero_le) (λn, or.rec
     (λh, inl (le_succ_of_le h))
-    (λh, or.elim (nat.eq_or_lt_of_le h) (λe, inl (by simp)) inr)) b
+    (λh, or.elim (nat.eq_or_lt_of_le h)
+         (λe, inl sorry /- (by simp) -/) inr)) b
 
   protected definition lt_ge_by_cases {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a ≥ b → P) : P :=
   by_cases H1 (λh, H2 (or.elim !nat.lt_or_ge (λa, absurd a h) (λa, a)))
@@ -240,7 +241,9 @@ namespace nat
   theorem succ_le_of_lt {a b : ℕ} (h : a < b) : succ a ≤ b := h
 
   theorem succ_sub_succ_eq_sub [simp] (a b : ℕ) : succ a - succ b = a - b :=
-  nat.rec (by esimp) (λ b, congr_arg pred) b
+  nat.rec
+    sorry -- (by esimp)
+    (λ b, congr_arg pred) b
 
   theorem sub_eq_succ_sub_succ (a b : ℕ) : a - b = succ a - succ b :=
   eq.symm !succ_sub_succ_eq_sub
@@ -249,7 +252,7 @@ namespace nat
   nat.rec rfl (λ a, congr_arg pred) a
 
   theorem zero_eq_zero_sub (a : ℕ) : 0 = 0 - a :=
-  by simp
+  sorry -- by simp
 
   theorem sub_le (a b : ℕ) : a - b ≤ a :=
   nat.rec_on b !nat.le_refl (λ b₁, nat.le_trans !pred_le)

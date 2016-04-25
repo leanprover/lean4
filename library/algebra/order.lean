@@ -287,11 +287,14 @@ section
     if Heq : a = b then or.inl Heq else or.inr (lt_of_not_ge (λ Hge, H (lt_of_le_of_ne Hge Heq)))
 
   theorem eq_or_lt_of_le {a b : A} (H : a ≤ b) : a = b ∨ a < b :=
+  sorry
+  /-
     begin
       cases eq_or_lt_of_not_lt (not_lt_of_ge H),
       exact or.inl a_1⁻¹,
       exact or.inr a_1
     end
+  -/
 
   -- testing equality first may result in more definitional equalities
   definition lt.cases {B : Type} (a b : A) (t_lt t_eq t_gt : B) : B :=
@@ -314,34 +317,52 @@ section
   /- these show min and max form a lattice -/
 
   theorem min_le_left (a b : A) : min a b ≤ a :=
+  sorry
+  /-
   by_cases
     (assume H : a ≤ b, by rewrite [↑min, if_pos H])
     (assume H : ¬ a ≤ b, by rewrite [↑min, if_neg H]; apply le_of_lt (lt_of_not_ge H))
+  -/
 
   theorem min_le_right (a b : A) : min a b ≤ b :=
+  sorry
+  /-
   by_cases
     (assume H : a ≤ b, by rewrite [↑min, if_pos H]; apply H)
     (assume H : ¬ a ≤ b, by rewrite [↑min, if_neg H])
+  -/
 
   theorem le_min {a b c : A} (H₁ : c ≤ a) (H₂ : c ≤ b) : c ≤ min a b :=
+  sorry
+  /-
   by_cases
     (assume H : a ≤ b, by rewrite [↑min, if_pos H]; apply H₁)
     (assume H : ¬ a ≤ b, by rewrite [↑min, if_neg H]; apply H₂)
+  -/
 
   theorem le_max_left (a b : A) : a ≤ max a b :=
+  sorry
+  /-
   by_cases
     (assume H : a ≤ b, by rewrite [↑max, if_pos H]; apply H)
     (assume H : ¬ a ≤ b, by rewrite [↑max, if_neg H])
+  -/
 
   theorem le_max_right (a b : A) : b ≤ max a b :=
+  sorry
+  /-
   by_cases
     (assume H : a ≤ b, by rewrite [↑max, if_pos H])
     (assume H : ¬ a ≤ b, by rewrite [↑max, if_neg H]; apply le_of_lt (lt_of_not_ge H))
+  -/
 
   theorem max_le {a b c : A} (H₁ : a ≤ c) (H₂ : b ≤ c) : max a b ≤ c :=
+  sorry
+  /-
   by_cases
     (assume H : a ≤ b, by rewrite [↑max, if_pos H]; apply H₂)
     (assume H : ¬ a ≤ b, by rewrite [↑max, if_neg H]; apply H₁)
+  -/
 
   theorem le_max_left_iff_true (a b : A) : a ≤ max a b ↔ true :=
   iff_true_intro (le_max_left a b)
@@ -359,6 +380,8 @@ section
   eq_min !min_le_right !min_le_left (λ c H₁ H₂, le_min H₂ H₁)
 
   theorem min.assoc (a b c : A) : min (min a b) c = min a (min b c) :=
+  sorry
+  /-
   begin
     apply eq_min,
     { apply le.trans, apply min_le_left, apply min_le_left },
@@ -366,6 +389,7 @@ section
     { intros [d, H₁, H₂], apply le_min, apply le_min H₁, apply le.trans H₂, apply min_le_left,
       apply le.trans H₂, apply min_le_right }
   end
+  -/
 
   theorem min.left_comm (a b c : A) : min a (min b c) = min b (min a c) :=
   binary.left_comm (@min.comm A s) (@min.assoc A s) a b c
@@ -374,10 +398,10 @@ section
   binary.right_comm (@min.comm A s) (@min.assoc A s) a b c
 
   theorem min_self (a : A) : min a a = a :=
-  by apply eq.symm; apply eq_min (le.refl a) !le.refl; intros; assumption
+  sorry -- by apply eq.symm; apply eq_min (le.refl a) !le.refl; intros; assumption
 
   theorem min_eq_left {a b : A} (H : a ≤ b) : min a b = a :=
-  by apply eq.symm; apply eq_min !le.refl H; intros; assumption
+  sorry -- by apply eq.symm; apply eq_min !le.refl H; intros; assumption
 
   theorem min_eq_right {a b : A} (H : b ≤ a) : min a b = b :=
   eq.subst !min.comm (min_eq_left H)
@@ -390,6 +414,8 @@ section
   eq_max !le_max_right !le_max_left (λ c H₁ H₂, max_le H₂ H₁)
 
   theorem max.assoc (a b c : A) : max (max a b) c = max a (max b c) :=
+  sorry
+  /-
   begin
     apply eq_max,
     { apply le.trans, apply le_max_left a b, apply le_max_left },
@@ -397,6 +423,7 @@ section
     { intros [d, H₁, H₂], apply max_le, apply max_le H₁, apply le.trans !le_max_left H₂,
       apply le.trans !le_max_right H₂}
   end
+  -/
 
   theorem max.left_comm (a b c : A) : max a (max b c) = max b (max a c) :=
   binary.left_comm (@max.comm A s) (@max.assoc A s) a b c
@@ -405,10 +432,10 @@ section
   binary.right_comm (@max.comm A s) (@max.assoc A s) a b c
 
   theorem max_self (a : A) : max a a = a :=
-  by apply eq.symm; apply eq_max (le.refl a) !le.refl; intros; assumption
+  sorry -- by apply eq.symm; apply eq_max (le.refl a) !le.refl; intros; assumption
 
   theorem max_eq_left {a b : A} (H : b ≤ a) : max a b = a :=
-  by apply eq.symm; apply eq_max !le.refl H; intros; assumption
+  sorry -- by apply eq.symm; apply eq_max !le.refl H; intros; assumption
 
   theorem max_eq_right {a b : A} (H : a ≤ b) : max a b = b :=
   eq.subst !max.comm (max_eq_left H)
@@ -430,14 +457,20 @@ section
   /- these use the fact that it is a linear ordering -/
 
   theorem lt_min {a b c : A} (H₁ : a < b) (H₂ : a < c) : a < min b c :=
+  sorry
+  /-
   or.elim !le_or_gt
     (assume H : b ≤ c, by rewrite (min_eq_left H); apply H₁)
     (assume H : b > c, by rewrite (min_eq_right_of_lt H); apply H₂)
+  -/
 
   theorem max_lt {a b c : A} (H₁ : a < c) (H₂ : b < c) : max a b < c :=
+  sorry
+  /-
   or.elim !le_or_gt
     (assume H : a ≤ b, by rewrite (max_eq_right H); apply H₂)
     (assume H : a > b, by rewrite (max_eq_left_of_lt H); apply H₁)
+  -/
 end
 
 /- order instances -/

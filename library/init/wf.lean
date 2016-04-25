@@ -21,11 +21,14 @@ namespace acc
       (h₁ : Π (x : A) (acx : Π (y : A), R y x → acc R y),
               (Π (y : A) (ryx : R y x), C y (acx y ryx)) → C x (acc.intro x acx))
       {a : A} (h₂ : acc R a) : C a h₂ :=
+  sorry
+/-
   begin
     refine acc.rec _ h₂ h₂,
     intro x acx ih h₂,
     exact h₁ x acx (λ y ryx, ih y ryx (acx y ryx))
   end
+-/
 end acc
 
 inductive well_founded [class] {A : Type} (R : A → A → Prop) : Prop :=
@@ -55,10 +58,13 @@ namespace well_founded
 
   theorem fix_F_eq (x : A) (r : acc R x) :
     fix_F F x r = F x (λ (y : A) (p : y ≺ x), fix_F F y (acc.inv r p)) :=
+  sorry
+/-
   begin
     induction r using acc.drec,
     reflexivity -- proof is trivial due to proof irrelevance
   end
+-/
   end
 
   variables {A : Type} {C : A → Type} {R : A → A → Prop}
@@ -89,10 +95,13 @@ section
 
   definition accessible {a : A} (ac : acc R a) : acc Q a :=
   using H₁,
+  sorry
+/-
   begin
     induction ac with x ax ih, constructor,
     exact λ (y : A) (lt : Q y x), ih y (H₁ lt)
   end
+-/
 
   definition wf : well_founded Q :=
   well_founded.intro (λ a, accessible (H₂ a))
@@ -107,12 +116,15 @@ section
   parameters (H : well_founded R)
 
   private definition acc_aux {b : B} (ac : acc R b) : ∀ x, f x = b → acc (inv_image R f) x :=
+  sorry
+/-
   begin
     induction ac with x acx ih,
     intro z e, constructor,
     intro y lt, subst x,
     exact ih (f y) lt y rfl
   end
+-/
 
   definition accessible {a : A} (ac : acc R (f a)) : acc (inv_image R f) a :=
   acc_aux ac a rfl
@@ -129,6 +141,8 @@ section
   local notation `R⁺` := tc R
 
   definition accessible {z} (ac: acc R z) : acc R⁺ z :=
+  sorry
+/-
   begin
     induction ac with x acx ih,
     constructor, intro y rel,
@@ -136,6 +150,7 @@ section
       {exact ih a rab},
       {exact acc.inv (ih₂ acx ih) rab}
   end
+-/
 
   definition wf (H : well_founded R) : well_founded R⁺ :=
   well_founded.intro (λ a, accessible (H a))

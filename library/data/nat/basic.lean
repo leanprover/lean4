@@ -21,7 +21,7 @@ nat.induction_on n
   rfl
   (λ n₁ ih, calc
     succ n₁ ⊕ succ m = succ (n₁ ⊕ succ m)   : rfl
-             ...     = succ (succ (n₁ ⊕ m)) : by rewrite ih
+             ...     = succ (succ (n₁ ⊕ m)) : sorry -- by rewrite ih
              ...     = succ (succ n₁ ⊕ m)   : rfl)
 
 theorem add_eq_addl (x : ℕ) : ∀y, x + y = x ⊕ y :=
@@ -30,25 +30,25 @@ nat.induction_on x
     rfl
     (λ y₁ ih, calc
       0 + succ y₁ = succ (0 + y₁)  : rfl
-           ...    = succ (0 ⊕ y₁) : by rewrite ih
+           ...    = succ (0 ⊕ y₁) : sorry -- by rewrite ih
            ...    = 0 ⊕ (succ y₁) : rfl))
   (λ x₁ ih₁ y, nat.induction_on y
     (calc
       succ x₁ + 0  = succ (x₁ + 0)  : rfl
-               ... = succ (x₁ ⊕ 0) : by rewrite (ih₁ 0)
+               ... = succ (x₁ ⊕ 0) : sorry -- by rewrite (ih₁ 0)
                ... = succ x₁ ⊕ 0   : rfl)
     (λ y₁ ih₂, calc
       succ x₁ + succ y₁ = succ (succ x₁ + y₁) : rfl
-                   ...  = succ (succ x₁ ⊕ y₁) : by rewrite ih₂
+                   ...  = succ (succ x₁ ⊕ y₁) : sorry -- by rewrite ih₂
                    ...  = succ x₁ ⊕ succ y₁   : eq.symm !addl_succ_right))
 
 /- successor and predecessor -/
 
 theorem succ_ne_zero [simp] (n : ℕ) : succ n ≠ 0 :=
-by contradiction
+sorry -- by contradiction
 
 theorem add_one_ne_zero [simp] (n : ℕ) : n + 1 ≠ 0 :=
-by contradiction
+sorry -- by contradiction
 
 -- add_rewrite succ_ne_zero
 
@@ -119,21 +119,21 @@ the associated [simp] lemmas from algebra
 local attribute nat.add_zero nat.add_succ [simp]
 
 protected theorem zero_add (n : ℕ) : 0 + n = n :=
-by rec_simp
+sorry -- by rec_simp
 
 theorem succ_add (n m : ℕ) : (succ n) + m = succ (n + m) :=
-by rec_simp
+sorry -- by rec_simp
 
 local attribute nat.zero_add nat.succ_add [simp]
 
 protected theorem add_comm (n m : ℕ) : n + m = m + n :=
-by rec_simp
+sorry -- by rec_simp
 
 theorem succ_add_eq_succ_add (n m : ℕ) : succ n + m = n + succ m :=
-by simp
+sorry -- by simp
 
 protected theorem add_assoc (n m k : ℕ) : (n + m) + k = n + (m + k) :=
-by rec_simp
+sorry -- by rec_simp
 
 protected theorem add_left_comm : Π (n m k : ℕ), n + (m + k) = m + (n + k) :=
 left_comm nat.add_comm nat.add_assoc
@@ -144,24 +144,33 @@ protected theorem add_right_comm : Π (n m k : ℕ), n + m + k = n + k + m :=
 right_comm nat.add_comm nat.add_assoc
 
 protected theorem add_left_cancel {n m k : ℕ} : n + m = n + k → m = k :=
+sorry
+/-
 nat.induction_on n
   (by simp)
   (take a iH,
     -- TODO(Leo): replace with forward reasoning after we add strategies for it.
     have succ (a + m) = succ (a + k) → a + m = a + k, from !succ.inj,
     by inst_simp)
+-/
 
 protected theorem add_right_cancel {n m k : ℕ} (H : n + m = k + m) : n = k :=
+sorry
+/-
 have H2 : m + n = m + k, by simp,
 nat.add_left_cancel H2
+-/
 
 theorem eq_zero_of_add_eq_zero_right {n m : ℕ} : n + m = 0 → n = 0 :=
+sorry
+/-
 nat.induction_on n
   (by simp)
   (take k iH, assume H : succ k + m = 0,
     absurd
       (show succ (k + m) = 0, by simp)
       !succ_ne_zero)
+-/
 
 theorem eq_zero_of_add_eq_zero_left {n m : ℕ} (H : n + m = 0) : m = 0 :=
 eq_zero_of_add_eq_zero_right (!nat.add_comm ⬝ H)
@@ -174,7 +183,7 @@ theorem add_one (n : ℕ) : n + 1 = succ n := rfl
 local attribute add_one [simp]
 
 theorem one_add (n : ℕ) : 1 + n = succ n :=
-by simp
+sorry -- by simp
 
 theorem succ_eq_add_one (n : ℕ) : succ n = n + 1 :=
 rfl
@@ -192,42 +201,47 @@ local attribute nat.mul_zero nat.mul_succ [simp]
 -- commutativity, distributivity, associativity, identity
 
 protected theorem zero_mul (n : ℕ) : 0 * n = 0 :=
-by rec_simp
+sorry -- by rec_simp
 
 theorem succ_mul (n m : ℕ) : (succ n) * m = (n * m) + m :=
-by rec_simp
+sorry -- by rec_simp
 
 local attribute nat.zero_mul nat.succ_mul [simp]
 
 protected theorem mul_comm (n m : ℕ) : n * m = m * n :=
-by rec_simp
+sorry -- by rec_simp
 
 protected theorem right_distrib (n m k : ℕ) : (n + m) * k = n * k + m * k :=
-by rec_simp
+sorry -- by rec_simp
 
 protected theorem left_distrib (n m k : ℕ) : n * (m + k) = n * m + n * k :=
-by rec_simp
+sorry -- by rec_simp
 
 local attribute nat.mul_comm nat.right_distrib nat.left_distrib [simp]
 
 protected theorem mul_assoc (n m k : ℕ) : (n * m) * k = n * (m * k) :=
-by rec_simp
+sorry -- by rec_simp
 
 local attribute nat.mul_assoc [simp]
 
 protected theorem mul_one (n : ℕ) : n * 1 = n :=
+sorry
+/-
 calc
   n * 1 = n * 0 + n : !mul_succ
     ... = n         : by simp
+-/
 
 local attribute nat.mul_one [simp]
 
 protected theorem one_mul (n : ℕ) : 1 * n = n :=
-by simp
+sorry -- by simp
 
 local attribute nat.one_mul [simp]
 
 theorem eq_zero_or_eq_zero_of_mul_eq_zero {n m : ℕ} : n * m = 0 → n = 0 ∨ m = 0 :=
+sorry
+/-
 nat.cases_on n (by simp)
   (take n',
     nat.cases_on m
@@ -236,6 +250,7 @@ nat.cases_on n (by simp)
         absurd
           (show succ (succ n' * m' + n') = 0, by simp)
           !succ_ne_zero))
+-/
 
 protected definition comm_semiring [trans_instance] : comm_semiring nat :=
 ⦃comm_semiring,

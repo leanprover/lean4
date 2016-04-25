@@ -48,13 +48,13 @@ or.imp_left nat.le_of_lt !nat.lt_or_ge
 /- addition -/
 
 protected theorem add_le_add_left {n m : ℕ} (H : n ≤ m) (k : ℕ) : k + n ≤ k + m :=
-obtain l Hl, from le.elim H, le.intro (Hl ▸ !add.assoc)
+sorry -- obtain l Hl, from le.elim H, le.intro (Hl ▸ !add.assoc)
 
 protected theorem add_le_add_right {n m : ℕ} (H : n ≤ m) (k : ℕ) : n + k ≤ m + k :=
 !add.comm ▸ !add.comm ▸ nat.add_le_add_left H k
 
 protected theorem le_of_add_le_add_left {k n m : ℕ} (H : k + n ≤ k + m) : n ≤ m :=
-obtain l Hl, from le.elim H, le.intro (nat.add_left_cancel (!add.assoc⁻¹ ⬝ Hl))
+sorry -- obtain l Hl, from le.elim H, le.intro (nat.add_left_cancel (!add.assoc⁻¹ ⬝ Hl))
 
 protected theorem lt_of_add_lt_add_left {k n m : ℕ} (H : k + n < k + m) : n < m :=
 let H' := nat.le_of_lt H in
@@ -72,9 +72,12 @@ protected theorem lt_add_of_pos_right {n k : ℕ} (H : k > 0) : n < n + k :=
 /- multiplication -/
 
 theorem mul_le_mul_left {n m : ℕ} (k : ℕ) (H : n ≤ m) : k * n ≤ k * m :=
+sorry
+/-
 obtain (l : ℕ) (Hl : n + l = m), from le.elim H,
 have k * n + k * l = k * m, by rewrite [-left_distrib, Hl],
 le.intro this
+-/
 
 theorem mul_le_mul_right {n m : ℕ} (k : ℕ) (H : n ≤ m) : n * k ≤ m * k :=
 !mul.comm ▸ !mul.comm ▸ !mul_le_mul_left H
@@ -124,7 +127,7 @@ theorem add_pos_left {a : ℕ} (H : 0 < a) (b : ℕ) : 0 < a + b :=
 @add_pos_of_pos_of_nonneg _ _ a b H !zero_le
 
 theorem add_pos_right {a : ℕ} (H : 0 < a) (b : ℕ) : 0 < b + a :=
-by rewrite add.comm; apply add_pos_left H b
+sorry -- by rewrite add.comm; apply add_pos_left H b
 
 theorem add_eq_zero_iff_eq_zero_and_eq_zero {a b : ℕ} :
 a + b = 0 ↔ a = 0 ∧ b = 0 :=
@@ -169,8 +172,11 @@ theorem lt_add_succ (n m : ℕ) : n < n + succ m :=
 lt_intro !succ_add_eq_succ_add
 
 theorem eq_zero_of_le_zero {n : ℕ} (H : n ≤ 0) : n = 0 :=
+sorry
+/-
 obtain (k : ℕ) (Hk : n + k = 0), from le.elim H,
 eq_zero_of_add_eq_zero_right Hk
+-/
 
 /- succ and pred -/
 
@@ -234,6 +240,8 @@ section
   variables {A : Type} [strict_order A] {f : ℕ → A}
 
   theorem strictly_increasing_of_forall_lt_succ (H : ∀ i, f i < f (succ i)) : strictly_increasing f :=
+  sorry
+  /-
   take i j,
   nat.induction_on j
     (suppose i < 0, absurd this !not_lt_zero)
@@ -241,8 +249,11 @@ section
        or.elim (lt_or_eq_of_le (le_of_lt_succ this))
          (suppose i < j', lt.trans (ih this) (H j'))
          (suppose i = j', by rewrite this; apply H))
+  -/
 
   theorem strictly_decreasing_of_forall_gt_succ (H : ∀ i, f i > f (succ i)) : strictly_decreasing f :=
+  sorry
+  /-
   take i j,
   nat.induction_on j
     (suppose i < 0, absurd this !not_lt_zero)
@@ -250,12 +261,15 @@ section
        or.elim (lt_or_eq_of_le (le_of_lt_succ this))
          (suppose i < j', lt.trans (H j') (ih this))
          (suppose i = j', by rewrite this; apply H))
+  -/
 end
 
 section
   variables {A : Type} [weak_order A] {f : ℕ → A}
 
   theorem nondecreasing_of_forall_le_succ (H : ∀ i, f i ≤ f (succ i)) : nondecreasing f :=
+  sorry
+  /-
   take i j,
   nat.induction_on j
     (suppose i ≤ 0, have i = 0, from eq_zero_of_le_zero this, by rewrite this; apply le.refl)
@@ -263,8 +277,11 @@ section
        or.elim (le_or_eq_succ_of_le_succ this)
          (suppose i ≤ j', le.trans (ih this) (H j'))
          (suppose i = succ j', by rewrite this; apply le.refl))
+  -/
 
   theorem nonincreasing_of_forall_ge_succ (H : ∀ i, f i ≥ f (succ i)) : nonincreasing f :=
+  sorry
+  /-
   take i j,
   nat.induction_on j
     (suppose i ≤ 0, have i = 0, from eq_zero_of_le_zero this, by rewrite this; apply le.refl)
@@ -272,6 +289,7 @@ section
        or.elim (le_or_eq_succ_of_le_succ this)
          (suppose i ≤ j', le.trans (H j') (ih this))
          (suppose i = succ j', by rewrite this; apply le.refl))
+  -/
 end
 
 /- other forms of induction -/
@@ -305,12 +323,15 @@ theorem by_cases_zero_pos {P : ℕ → Prop} (y : ℕ) (H0 : P 0) (H1 : ∀ {y :
 nat.cases_on y H0 (take y, H1 !succ_pos)
 
 theorem eq_zero_or_pos (n : ℕ) : n = 0 ∨ n > 0 :=
+sorry
+/-
 or_of_or_of_imp_left
   (or.swap (lt_or_eq_of_le !zero_le))
   (suppose 0 = n, by subst n)
+-/
 
 theorem pos_of_ne_zero {n : ℕ} (H : n ≠ 0) : n > 0 :=
-or.elim !eq_zero_or_pos (take H2 : n = 0, by contradiction) (take H2 : n > 0, H2)
+sorry -- or.elim !eq_zero_or_pos (take H2 : n = 0, by contradiction) (take H2 : n > 0, H2)
 
 theorem ne_zero_of_pos {n : ℕ} (H : n > 0) : n ≠ 0 :=
 ne.symm (ne_of_lt H)
@@ -319,10 +340,13 @@ theorem exists_eq_succ_of_pos {n : ℕ} (H : n > 0) : ∃l, n = succ l :=
 exists_eq_succ_of_lt H
 
 theorem pos_of_dvd_of_pos {m n : ℕ} (H1 : m ∣ n) (H2 : n > 0) : m > 0 :=
+sorry
+/-
 pos_of_ne_zero
   (suppose m = 0,
    have  n = 0, from eq_zero_of_zero_dvd (this ▸ H1),
    ne_of_lt H2 (by subst n))
+-/
 
 /- multiplication -/
 
@@ -340,11 +364,14 @@ have H4 : k * m < k * l, from mul_lt_mul_of_pos_left H2 (lt_of_le_of_lt !zero_le
 lt_of_le_of_lt H3 H4
 
 theorem eq_of_mul_eq_mul_left {m k n : ℕ} (Hn : n > 0) (H : n * m = n * k) : m = k :=
+sorry
+/-
 have n * m ≤ n * k, by rewrite H,
 have m ≤ k,         from le_of_mul_le_mul_left this Hn,
 have n * k ≤ n * m, by rewrite H,
 have k ≤ m,         from le_of_mul_le_mul_left this Hn,
 le.antisymm `m ≤ k` this
+-/
 
 theorem eq_of_mul_eq_mul_right {n m k : ℕ} (Hm : m > 0) (H : n * m = k * m) : n = k :=
 eq_of_mul_eq_mul_left Hm (!mul.comm ▸ !mul.comm ▸ H)
@@ -357,6 +384,8 @@ theorem eq_zero_or_eq_of_mul_eq_mul_right  {n m k : ℕ} (H : n * m = k * m) : m
 eq_zero_or_eq_of_mul_eq_mul_left (!mul.comm ▸ !mul.comm ▸ H)
 
 theorem eq_one_of_mul_eq_one_right {n m : ℕ} (H : n * m = 1) : n = 1 :=
+sorry
+/-
 have H2 : n * m > 0, by rewrite H; apply succ_pos,
 or.elim (le_or_gt n 1)
   (suppose n ≤ 1,
@@ -367,6 +396,7 @@ or.elim (le_or_gt n 1)
     have n * m ≥ 2 * 1, from nat.mul_le_mul (succ_le_of_lt `n > 1`) (succ_le_of_lt this),
     have 1 ≥ 2, from !mul_one ▸ H ▸ this,
     absurd !lt_succ_self (not_lt_of_ge this))
+-/
 
 theorem eq_one_of_mul_eq_one_left {n m : ℕ} (H : n * m = 1) : m = 1 :=
 eq_one_of_mul_eq_one_right (!mul.comm ▸ H)
@@ -386,31 +416,39 @@ dvd.elim H
 open decidable
 
 theorem min_zero [simp] (a : ℕ) : min a 0 = 0 :=
-by rewrite [min_eq_right !zero_le]
+sorry -- by rewrite [min_eq_right !zero_le]
 
 theorem zero_min [simp] (a : ℕ) : min 0 a = 0 :=
-by rewrite [min_eq_left !zero_le]
+sorry -- by rewrite [min_eq_left !zero_le]
 
 theorem max_zero [simp] (a : ℕ) : max a 0 = a :=
-by rewrite [max_eq_left !zero_le]
+sorry -- by rewrite [max_eq_left !zero_le]
 
 theorem zero_max [simp] (a : ℕ) : max 0 a = a :=
-by rewrite [max_eq_right !zero_le]
+sorry -- by rewrite [max_eq_right !zero_le]
 
 theorem min_succ_succ [simp] (a b : ℕ) : min (succ a) (succ b) = succ (min a b) :=
+sorry
+/-
 or.elim !lt_or_ge
   (suppose a < b, by rewrite [min_eq_left_of_lt this, min_eq_left_of_lt (succ_lt_succ this)])
   (suppose a ≥ b, by rewrite [min_eq_right this, min_eq_right (succ_le_succ this)])
+-/
 
 theorem max_succ_succ [simp] (a b : ℕ) : max (succ a) (succ b) = succ (max a b) :=
+sorry
+/-
 or.elim !lt_or_ge
   (suppose a < b, by rewrite [max_eq_right_of_lt this, max_eq_right_of_lt (succ_lt_succ this)])
   (suppose a ≥ b, by rewrite [max_eq_left this, max_eq_left (succ_le_succ this)])
+-/
 
 /- In algebra.ordered_group, these next four are only proved for additive groups, not additive
    semigroups. -/
 
 protected theorem min_add_add_left (a b c : ℕ) : min (a + b) (a + c) = a + min b c :=
+sorry
+/-
 decidable.by_cases
   (suppose b ≤ c,
    have a + b ≤ a + c, from add_le_add_left this _,
@@ -419,11 +457,14 @@ decidable.by_cases
    have c ≤ b,         from le_of_lt (lt_of_not_ge this),
    have a + c ≤ a + b, from add_le_add_left this _,
    by rewrite [min_eq_right `c ≤ b`, min_eq_right this])
+-/
 
 protected theorem min_add_add_right (a b c : ℕ) : min (a + c) (b + c) = min a b + c :=
-by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply nat.min_add_add_left
+sorry -- by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply nat.min_add_add_left
 
 protected theorem max_add_add_left (a b c : ℕ) : max (a + b) (a + c) = a + max b c :=
+sorry
+/-
 decidable.by_cases
   (suppose b ≤ c,
    have a + b ≤ a + c, from add_le_add_left this _,
@@ -432,9 +473,10 @@ decidable.by_cases
    have c ≤ b,         from le_of_lt (lt_of_not_ge this),
    have a + c ≤ a + b, from add_le_add_left this _,
    by rewrite [max_eq_left `c ≤ b`, max_eq_left this])
+-/
 
 protected theorem max_add_add_right (a b c : ℕ) : max (a + c) (b + c) = max a b + c :=
-by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply nat.max_add_add_left
+sorry -- by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply nat.max_add_add_left
 
 /- least and greatest -/
 
@@ -449,6 +491,8 @@ section least_and_greatest
     | (succ n) := if P (least n) then least n else succ n
 
   theorem least_of_bound {n : ℕ} (H : P n) : P (least P n) :=
+  sorry
+  /-
     begin
       induction n with [m, ih],
       rewrite ↑least,
@@ -462,8 +506,11 @@ section least_and_greatest
       rewrite [if_neg Hlp],
       apply H
     end
+  -/
 
   theorem least_le (n : ℕ) : least P n ≤ n:=
+  sorry
+  /-
     begin
       induction n with [m, ih],
         {rewrite ↑least},
@@ -475,8 +522,11 @@ section least_and_greatest
       fold (least P m),
       rewrite [if_neg Pnsm]
     end
+  -/
 
  theorem least_of_lt {i n : ℕ} (ltin : i < n) (H : P i) : P (least P n) :=
+ sorry
+ /-
    begin
      induction n with [m, ih],
      exact absurd ltin !not_lt_zero,
@@ -492,8 +542,11 @@ section least_and_greatest
      rewrite Heq at H,
      exact absurd (least_of_bound P H) Pnsm
    end
+ -/
 
   theorem ge_least_of_lt {i n : ℕ} (ltin : i < n) (Hi : P i) : i ≥ least P n :=
+  sorry
+  /-
     begin
       induction n with [m, ih],
       exact absurd ltin !not_lt_zero,
@@ -512,7 +565,9 @@ section least_and_greatest
       rewrite Heq at Hi,
       apply absurd (least_of_bound P Hi) Pnsm
     end
-  theorem least_lt {n i : ℕ} (ltin : i < n) (Hi : P i) : least P n < n :=
+  -/
+
+ theorem least_lt {n i : ℕ} (ltin : i < n) (Hi : P i) : least P n < n :=
     lt_of_le_of_lt (ge_least_of_lt P ltin Hi) ltin
 
   -- returns the largest i < n satisfying P, or n if there is none.
@@ -521,6 +576,8 @@ section least_and_greatest
   | (succ n) := if P n then n else greatest n
 
   theorem greatest_of_lt {i n : ℕ} (ltin : i < n) (Hi : P i) : P (greatest P n) :=
+  sorry
+  /-
   begin
     induction n with [m, ih],
       {exact absurd ltin !not_lt_zero},
@@ -531,8 +588,10 @@ section least_and_greatest
           have ltim : i < m, from lt_of_le_of_ne (le_of_lt_succ ltin) neim,
           apply ih ltim}}
   end
-
+ -/
   theorem le_greatest_of_lt {i n : ℕ} (ltin : i < n) (Hi : P i) : i ≤ greatest P n :=
+  sorry
+  /-
   begin
     induction n with [m, ih],
       {exact absurd ltin !not_lt_zero},
@@ -543,6 +602,7 @@ section least_and_greatest
           have ltim : i < m, from lt_of_le_of_ne (le_of_lt_succ ltin) neim,
           apply ih ltim}}
   end
+  -/
 
 end least_and_greatest
 

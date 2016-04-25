@@ -17,6 +17,8 @@ let s := sqrt n in
 if n - s*s < s then (n - s*s, s) else (s, n - s*s - s)
 
 theorem mkpair_unpair (n : nat) : mkpair (pr1 (unpair n)) (pr2 (unpair n)) = n :=
+sorry
+/-
 let s := sqrt n in
 by_cases
   (suppose n - s*s < s,
@@ -46,8 +48,11 @@ by_cases
       esimp [mkpair],
       rewrite [if_neg h₂, nat.sub_sub, add_sub_of_le `s*s + s ≤ n`],
     end)
+-/
 
 theorem unpair_mkpair (a b : nat) : unpair (mkpair a b) = (a, b) :=
+sorry
+/-
 by_cases
  (suppose a < b,
   have a ≤ b + b, from calc
@@ -71,10 +76,12 @@ by_cases
     rewrite [add.assoc (a * a) a b, sqrt_offset_eq `a + b ≤ a + a`, *nat.add_sub_cancel_left,
              if_neg `¬ a + b < a`]
   end)
-
+-/
 open prod.ops
 
 theorem unpair_lt_aux {n : nat} : n ≥ 1 → (unpair n).1 < n :=
+sorry
+/-
 suppose n ≥ 1,
 or.elim (eq_or_lt_of_le this)
   (suppose 1 = n, by subst n; exact dec_trivial)
@@ -87,6 +94,7 @@ or.elim (eq_or_lt_of_le this)
       have sqrt n * sqrt n > 0, from mul_pos this this,
       begin unfold unpair, rewrite [if_pos h], esimp, exact sub_lt `n > 0` `sqrt n * sqrt n > 0` end)
     (suppose ¬ n - s*s < s, begin unfold unpair, rewrite [if_neg this], esimp, apply sqrt_lt `n > 1` end))
+-/
 
 theorem unpair_lt : ∀ (n : nat), (unpair n).1 < succ n
 | 0        := dec_trivial

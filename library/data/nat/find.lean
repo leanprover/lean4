@@ -23,10 +23,13 @@ private lemma lbp_zero : lbp 0 :=
 λ y h, absurd h (not_lt_zero y)
 
 private lemma lbp_succ {x : nat} : lbp x → ¬ p x → lbp (succ x) :=
+sorry
+/-
 λ lx npx y yltsx,
   or.elim (eq_or_lt_of_le (le_of_succ_le_succ yltsx))
     (suppose y = x, by substvars; assumption)
     (suppose y < x, lx y this)
+-/
 
 private definition gtb (a b : nat) : Prop :=
 a > b ∧ lbp a
@@ -34,12 +37,17 @@ a > b ∧ lbp a
 local infix ` ≺ `:50 := gtb
 
 private lemma acc_of_px {x : nat} : p x → acc gtb x :=
+sorry
+/-
 assume h,
 acc.intro x (λ (y : nat) (l : y ≺ x),
   obtain (h₁ : y > x) (h₂ : ∀ a, a < y → ¬ p a), from l,
   absurd h (h₂ x h₁))
+-/
 
 private lemma acc_of_acc_succ {x : nat} : acc gtb (succ x) → acc gtb x :=
+sorry
+/-
 assume h,
 acc.intro x (λ (y : nat) (l : y ≺ x),
    by_cases
@@ -48,33 +56,42 @@ acc.intro x (λ (y : nat) (l : y ≺ x),
         have x < y,      from and.elim_left l,
         have succ x < y, from lt_of_le_of_ne this (ne.symm `y ≠ succ x`),
         acc.inv h (and.intro this (and.elim_right l))))
+-/
 
 private lemma acc_of_px_of_gt {x y : nat} : p x → y > x → acc gtb y :=
+sorry
+/-
 assume px ygtx,
 acc.intro y (λ (z : nat) (l : z ≺ y),
   obtain (zgty : z > y) (h : ∀ a, a < z → ¬ p a), from l,
   absurd px (h x (lt.trans ygtx zgty)))
+-/
 
 private lemma acc_of_acc_of_lt : ∀ {x y : nat}, acc gtb x → y < x → acc gtb y
+:= sorry
+/-
 | 0        y a0  ylt0  := absurd ylt0 !not_lt_zero
 | (succ x) y asx yltsx :=
   have acc gtb x, from acc_of_acc_succ asx,
   by_cases
      (suppose y = x, by substvars; assumption)
      (suppose y ≠ x, acc_of_acc_of_lt `acc gtb x` (lt_of_le_of_ne (le_of_lt_succ yltsx) this))
+-/
 
 parameter (ex : ∃ a, p a)
 parameter [dp : decidable_pred p]
 include dp
 
 private lemma acc_of_ex (x : nat) : acc gtb x :=
+sorry
+/-
 using ex,
 obtain (w : nat) (pw : p w), from ex,
 lt.by_cases
   (suppose x < w, acc_of_acc_of_lt (acc_of_px pw) this)
   (suppose x = w, by subst x; exact (acc_of_px pw))
   (suppose x > w, acc_of_px_of_gt pw this)
-
+-/
 private lemma wf_gtb : well_founded gtb :=
 well_founded.intro acc_of_ex
 
@@ -93,7 +110,7 @@ match x with
     have succ (succ n) ≺ succ n, from and.intro (lt.base (succ n)) lss,
     f (succ (succ n)) this lss)
 end
-
+include ex -- todo remove
 private definition find_x : {x : nat | p x} :=
 @fix _ _ _ wf_gtb find.F 0 lbp_zero
 end find_x

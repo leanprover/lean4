@@ -19,21 +19,21 @@ namespace option
   not_false
 
   theorem none_ne_some {A : Type} (a : A) : none ≠ some a :=
-  by contradiction
+  sorry -- by contradiction
 
   theorem some.inj {A : Type} {a₁ a₂ : A} (H : some a₁ = some a₂) : a₁ = a₂ :=
-  by injection H; assumption
+  sorry -- by injection H; assumption
 
   protected definition is_inhabited [instance] (A : Type) : inhabited (option A) :=
   inhabited.mk none
 
   protected definition has_decidable_eq [instance] {A : Type} [H : decidable_eq A] : ∀ o₁ o₂ : option A, decidable (o₁ = o₂)
-  | none      none      := by left;  reflexivity
-  | none      (some v₂) := by right; contradiction
-  | (some v₁) none      := by right; contradiction
+  | none      none      := sorry -- by left;  reflexivity
+  | none      (some v₂) := sorry -- by right; contradiction
+  | (some v₁) none      := sorry -- by right; contradiction
   | (some v₁) (some v₂) :=
     match H v₁ v₂ with
-    | inl e := by left; congruence; assumption
-    | inr n := by right; intro h; injection h; contradiction
+    | inl e := sorry -- by left; congruence; assumption
+    | inr n := sorry -- by right; intro h; injection h; contradiction
     end
 end option

@@ -46,6 +46,8 @@ private definition Y : (list bool → Prop) → list bool → Prop
 | P (b::l) := Y P l ∧ (cond b (inductively_barred P (ff::l)) (¬(inductively_barred P (ff::l))))
 
 private lemma Y_unique : ∀ {P l₁ l₂}, length l₁ = length l₂ → Y P l₁ → Y P l₂ → l₁ = l₂
+:= sorry
+/-
 | P []       []       h₁ h₂ h₃ := rfl
 | P []       (a₂::l₂) h₁ h₂ h₃ := by contradiction
 | P (a₁::l₁) []       h₁ h₂ h₃ := by contradiction
@@ -63,6 +65,7 @@ private lemma Y_unique : ∀ {P l₁ l₂}, length l₁ = length l₂ → Y P l�
         {cases a₂, exact absurd (and.elim_right h₂) (and.elim_right h₃), reflexivity}
     end
   end
+-/
 
 -- X is the translation of Y as a predicate
 private definition X P n := ∃ l, length l = n ∧ Y P (tt::l)
@@ -70,6 +73,8 @@ private definition X P n := ∃ l, length l = n ∧ Y P (tt::l)
 private lemma Y_approx : ∀ {P l}, approx (X P) l → Y P l
 | P []     h := trivial
 | P (a::l) h :=
+  sorry
+  /-
   begin
     have ypl : Y P l, from Y_approx (and.elim_left h),
     unfold Y, split,
@@ -90,9 +95,12 @@ private lemma Y_approx : ∀ {P l}, approx (X P) l → Y P l
           subst l, exact ib₁
         end}}
   end
+  -/
 
 theorem weak_fan : ∀ {P}, barred P → inductively_barred P [] :=
 λ P Hbar,
+sorry
+/-
 obtain l Hd HP, from Hbar (X P),
 have ib : inductively_barred P l, from inductively_barred.base l HP,
 begin
@@ -116,4 +124,5 @@ begin
           exact ih Hd ibl,
         end}}
 end
+-/
 end weak_fan

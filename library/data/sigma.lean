@@ -14,7 +14,7 @@ namespace sigma
   variables {A A' : Type.{u}} {B : A → Type.{v}} {B' : A' → Type.{v}}
 
   definition unpack {C : (Σa, B a) → Type} {u : Σa, B a} (H : C ⟨u.1 , u.2⟩) : C u :=
-  begin cases u, exact H end
+  sorry -- begin cases u, exact H end
 
   theorem dpair_heq {a : A} {a' : A'} {b : B a} {b' : B' a'}
       (HB : B == B') (Ha : a == a') (Hb : b == b') : ⟨a, b⟩ == ⟨a', b'⟩ :=

@@ -116,11 +116,16 @@ assume H : (∃x, P x) → C,
   H Hex
 
 theorem thm18b : (∀x, P x → C) → (∃x, P x) → C :=
+sorry
+/-
 assume (H1 : ∀x, P x → C) (H2 : ∃x, P x),
   obtain (w : T) (Hw : P w), from H2,
   H1 w Hw
+-/
 
 theorem thm19a : (C ∨ ¬C) → (∃x : T, true) → (C → (∃x, P x)) → (∃x, C → P x) :=
+sorry
+/-
 assume (Hem : C ∨ ¬C) (Hin : ∃x : T, true) (H1 : C → ∃x, P x),
   or.elim Hem
     (assume Hc : C,
@@ -131,13 +136,19 @@ assume (Hem : C ∨ ¬C) (Hin : ∃x : T, true) (H1 : C → ∃x, P x),
       obtain (w : T) (Hw : true), from Hin,
       have Hr : C → P w, from assume Hc, absurd Hc Hnc,
       exists.intro w Hr)
+-/
 
 theorem thm19b : (∃x, C → P x) → C → (∃x, P x) :=
+sorry
+/-
 assume (H : ∃x, C → P x) (Hc : C),
   obtain (w : T) (Hw : C → P w), from H,
   exists.intro w (Hw Hc)
+-/
 
 theorem thm20a : (C ∨ ¬C) → (∃x : T, true) → ((¬∀x, P x) → ∃x, ¬P x) → ((∀x, P x) → C) → (∃x, P x → C) :=
+sorry
+/-
 assume Hem Hin Hnf H,
   or.elim Hem
     (assume Hc : C,
@@ -148,13 +159,19 @@ assume Hem Hin Hnf H,
       have H2 : ∃x, ¬P x, from Hnf H1,
       obtain (w : T) (Hw : ¬P w), from H2,
       exists.intro w (assume H : P w, absurd H Hw))
+-/
 
 theorem thm20b : (∃x, P x → C) → (∀ x, P x) → C :=
+sorry
+/-
 assume Hex Hall,
   obtain (w : T) (Hw : P w → C), from Hex,
   Hw (Hall w)
+-/
 
 theorem thm21a : (∃x : T, true) → ((∃x, P x) ∨ C) → (∃x, P x ∨ C) :=
+sorry
+/-
 assume Hin H,
   or.elim H
     (assume Hex : ∃x, P x,
@@ -163,13 +180,17 @@ assume Hin H,
     (assume Hc  : C,
       obtain (w : T) (Hw : true), from Hin,
       exists.intro w (or.inr Hc))
+-/
 
 theorem thm21b : (∃x, P x ∨ C) → ((∃x, P x) ∨ C) :=
+sorry
+/-
 assume H,
   obtain (w : T) (Hw : P w ∨ C), from H,
   or.elim Hw
     (assume H : P w, or.inl (exists.intro w H))
     (assume Hc : C, or.inr Hc)
+-/
 
 theorem thm22a : (∀x, P x) ∨ C → ∀x, P x ∨ C :=
 assume H, take x,
@@ -189,27 +210,36 @@ assume Hem H1,
       or.inl Hx)
 
 theorem thm23a : (∃x, P x) ∧ C → (∃x, P x ∧ C) :=
+sorry
+/-
 assume H,
   have Hex : ∃x, P x, from and.elim_left H,
   have Hc : C, from and.elim_right H,
   obtain (w : T) (Hw : P w), from Hex,
   exists.intro w (and.intro Hw Hc)
+-/
 
 theorem thm23b : (∃x, P x ∧ C) → (∃x, P x) ∧ C :=
+sorry
+/-
 assume H,
   obtain (w : T) (Hw : P w ∧ C), from H,
   have Hex : ∃x, P x, from exists.intro w (and.elim_left Hw),
   and.intro Hex (and.elim_right Hw)
+-/
 
 theorem thm24a : (∀x, P x) ∧ C → (∀x, P x ∧ C) :=
 assume H, take x,
   and.intro (and.elim_left H x) (and.elim_right H)
 
 theorem thm24b : (∃x : T, true) → (∀x, P x ∧ C) → (∀x, P x) ∧ C :=
+sorry
+/-
 assume Hin H,
   obtain (w : T) (Hw : true), from Hin,
   have Hc : C, from and.elim_right (H w),
   have Hx : ∀x, P x, from take x, and.elim_left (H x),
   and.intro Hx Hc
+-/
 
 end -- of section

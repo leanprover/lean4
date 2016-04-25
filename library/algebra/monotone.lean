@@ -126,27 +126,39 @@ section
 
   theorem strictly_increasing_of_left_inverse {g : B → A} {f : A → B} (H : left_inverse g f)
       (H' : strictly_increasing g) : strictly_increasing f :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ < a₂,
   have g (f a₁) < g (f a₂), by rewrite *H; apply this,
   lt_of_strictly_increasing H' this
+  -/
 
   theorem strictly_decreasing_of_left_inverse {g : B → A} {f : A → B} (H : left_inverse g f)
       (H' : strictly_decreasing g) : strictly_decreasing f :=
+  sorry
+  /-
   take b₁ b₂, suppose b₁ < b₂,
   have g (f b₁) < g (f b₂), by rewrite *H; apply this,
   lt_of_strictly_decreasing H' this
+  -/
 
   theorem nondecreasing_of_left_inverse {g : B → A} {f : A → B} (H : left_inverse g f)
       (H' : strictly_increasing g) : nondecreasing f :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ ≤ a₂,
   have g (f a₁) ≤ g (f a₂), by rewrite *H; apply this,
   le_of_strictly_increasing H' this
+  -/
 
   theorem nonincreasing_of_left_inverse {g : B → A} {f : A → B} (H : left_inverse g f)
       (H' : strictly_decreasing g) : nonincreasing f :=
+  sorry
+  /-
   take b₁ b₂, suppose b₁ ≤ b₂,
   have g (f b₁) ≤ g (f b₂), by rewrite *H; apply this,
   le_of_strictly_decreasing H' this
+  -/
 end
 
 /- composition rules for strict orders -/
@@ -157,58 +169,82 @@ section
   theorem strictly_increasing_of_strictly_increasing_comp_right {g : B → C} {f : A → B} {h : C → B}
       (H₁ : left_inverse h g) (H₂ : strictly_increasing h) (H₃ : strictly_increasing (g ∘ f)) :
     strictly_increasing f :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ < a₂,
   have h (g (f a₁)) < h (g (f a₂)), from H₂ (H₃ this),
   show f a₁ < f a₂, by rewrite *H₁ at this; apply this
+  -/
 
   theorem strictly_decreasing_of_strictly_increasing_comp_right {g : B → C} {f : A → B} {h : C → B}
       (H₁ : left_inverse h g) (H₂ : strictly_decreasing h) (H₃ : strictly_increasing (g ∘ f)) :
     strictly_decreasing f :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ < a₂,
   have h (g (f a₁)) > h (g (f a₂)), from H₂ (H₃ this),
   show f a₁ > f a₂, by rewrite *H₁ at this; apply this
+  -/
 
   theorem strictly_decreasing_of_strictly_decreasing_comp_right {g : B → C} {f : A → B} {h : C → B}
       (H₁ : left_inverse h g) (H₂ : strictly_increasing h) (H₃ : strictly_decreasing (g ∘ f)) :
     strictly_decreasing f :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ < a₂,
   have h (g (f a₁)) > h (g (f a₂)), from H₂ (H₃ this),
   show f a₁ > f a₂, by rewrite *H₁ at this; apply this
+  -/
 
   theorem strictly_increasing_of_strictly_decreasing_comp_right {g : B → C} {f : A → B} {h : C → B}
       (H₁ : left_inverse h g) (H₂ : strictly_decreasing h) (H₃ : strictly_decreasing (g ∘ f)) :
     strictly_increasing f :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ < a₂,
   have h (g (f a₁)) < h (g (f a₂)), from H₂ (H₃ this),
   show f a₁ < f a₂, by rewrite *H₁ at this; apply this
+  -/
 
   theorem strictly_increasing_of_strictly_decreasing_comp_left {g : B → C} {f : A → B} {h : B → A}
       (H₁ : left_inverse f h) (H₂ : strictly_decreasing h) (H₃ : strictly_decreasing (g ∘ f)) :
     strictly_increasing g :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ < a₂,
   have g (f (h a₁)) < g (f (h a₂)), from H₃ (H₂ this),
   show g a₁ < g a₂, by rewrite *H₁ at this; apply this
+  -/
 
   theorem strictly_decreasing_of_strictly_decreasing_comp_left {g : B → C} {f : A → B} {h : B → A}
       (H₁ : left_inverse f h) (H₂ : strictly_increasing h) (H₃ : strictly_decreasing (g ∘ f)) :
     strictly_decreasing g :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ < a₂,
   have g (f (h a₁)) > g (f (h a₂)), from H₃ (H₂ this),
   show g a₁ > g a₂, by rewrite *H₁ at this; apply this
+  -/
 
   theorem strictly_increasing_of_strictly_increasing_comp_left {g : B → C} {f : A → B} {h : B → A}
       (H₁ : left_inverse f h) (H₂ : strictly_increasing h) (H₃ : strictly_increasing (g ∘ f)) :
     strictly_increasing g :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ < a₂,
   have g (f (h a₁)) < g (f (h a₂)), from H₃ (H₂ this),
   show g a₁ < g a₂, by rewrite *H₁ at this; apply this
+  -/
 
   theorem strictly_decreasing_of_strictly_increasing_comp_left {g : B → C} {f : A → B} {h : B → A}
       (H₁ : left_inverse f h) (H₂ : strictly_decreasing h) (H₃ : strictly_increasing (g ∘ f)) :
     strictly_decreasing g :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ < a₂,
   have g (f (h a₁)) > g (f (h a₂)), from H₃ (H₂ this),
   show g a₁ > g a₂, by rewrite *H₁ at this; apply this
+  -/
 end
 
 section
@@ -291,58 +327,81 @@ section
   theorem nondecreasing_of_nondecreasing_comp_right {g : B → C} {f : A → B} {h : C → B}
       (H₁ : left_inverse h g) (H₂ : nondecreasing h) (H₃ : nondecreasing (g ∘ f)) :
     nondecreasing f :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ ≤ a₂,
   have h (g (f a₁)) ≤ h (g (f a₂)), from H₂ (H₃ this),
   show f a₁ ≤ f a₂, by rewrite *H₁ at this; apply this
+  -/
 
   theorem nonincreasing_of_nondecreasing_comp_right {g : B → C} {f : A → B} {h : C → B}
       (H₁ : left_inverse h g) (H₂ : nonincreasing h) (H₃ : nondecreasing (g ∘ f)) :
     nonincreasing f :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ ≤ a₂,
   have h (g (f a₁)) ≥ h (g (f a₂)), from H₂ (H₃ this),
   show f a₁ ≥ f a₂, by rewrite *H₁ at this; apply this
+  -/
 
   theorem nonincreasing_of_nonincreasing_comp_right {g : B → C} {f : A → B} {h : C → B}
       (H₁ : left_inverse h g) (H₂ : nondecreasing h) (H₃ : nonincreasing (g ∘ f)) :
     nonincreasing f :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ ≤ a₂,
   have h (g (f a₁)) ≥ h (g (f a₂)), from H₂ (H₃ this),
   show f a₁ ≥ f a₂, by rewrite *H₁ at this; apply this
+  -/
 
   theorem nondecreasing_of_nonincreasing_comp_right {g : B → C} {f : A → B} {h : C → B}
       (H₁ : left_inverse h g) (H₂ : nonincreasing h) (H₃ : nonincreasing (g ∘ f)) :
     nondecreasing f :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ ≤ a₂,
   have h (g (f a₁)) ≤ h (g (f a₂)), from H₂ (H₃ this),
   show f a₁ ≤ f a₂, by rewrite *H₁ at this; apply this
+  -/
 
   theorem nondecreasing_of_nondecreasing_comp_left {g : B → C} {f : A → B} {h : B → A}
       (H₁ : left_inverse f h) (H₂ : nondecreasing h) (H₃ : nondecreasing (g ∘ f)) :
     nondecreasing g :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ ≤ a₂,
   have g (f (h a₁)) ≤ g (f (h a₂)), from H₃ (H₂ this),
   show g a₁ ≤ g a₂, by rewrite *H₁ at this; apply this
+  -/
 
   theorem nonincreasing_of_nondecreasing_comp_left {g : B → C} {f : A → B} {h : B → A}
       (H₁ : left_inverse f h) (H₂ : nonincreasing h) (H₃ : nondecreasing (g ∘ f)) :
     nonincreasing g :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ ≤ a₂,
   have g (f (h a₁)) ≥ g (f (h a₂)), from H₃ (H₂ this),
   show g a₁ ≥ g a₂, by rewrite *H₁ at this; apply this
+  -/
 
   theorem nondecreasing_of_nonincreasing_comp_left {g : B → C} {f : A → B} {h : B → A}
       (H₁ : left_inverse f h) (H₂ : nonincreasing h) (H₃ : nonincreasing (g ∘ f)) :
     nondecreasing g :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ ≤ a₂,
   have g (f (h a₁)) ≤ g (f (h a₂)), from H₃ (H₂ this),
   show g a₁ ≤ g a₂, by rewrite *H₁ at this; apply this
-
+  -/
   theorem nonincreasing_of_nonincreasing_comp_left {g : B → C} {f : A → B} {h : B → A}
       (H₁ : left_inverse f h) (H₂ : nondecreasing h) (H₃ : nonincreasing (g ∘ f)) :
     nonincreasing g :=
+  sorry
+  /-
   take a₁ a₂, suppose a₁ ≤ a₂,
   have g (f (h a₁)) ≥ g (f (h a₂)), from H₃ (H₂ this),
   show g a₁ ≥ g a₂, by rewrite *H₁ at this; apply this
+  -/
 end
 
 section

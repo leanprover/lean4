@@ -25,10 +25,10 @@ inductive sorted : list A → Prop :=
 variable {R}
 
 lemma hd_rel_inv : ∀ {a b l}, hd_rel R a (b::l) → R a b :=
-begin intros a b l h, cases h, assumption end
+sorry -- begin intros a b l h, cases h, assumption end
 
 lemma sorted_inv : ∀ {a l}, sorted R (a::l) → hd_rel R a l ∧ sorted R l :=
-begin intros a l h, cases h, split, repeat assumption end
+sorry -- begin intros a l h, cases h, split, repeat assumption end
 
 lemma sorted.rect_on {P : list A → Type} : ∀ {l}, sorted R l → P [] → (∀ a l, sorted R l → P l → hd_rel R a l → P (a::l)) → P l
 | []     s h₁ h₂ := h₁
@@ -75,6 +75,8 @@ lemma sorted_of_strongly_sorted : ∀ {l}, strongly_sorted R l → sorted R l
   sorted.step `hd_rel R a (b::l)` `sorted R (b::l)`
 
 lemma sorted_extends (trans : transitive R) : ∀ {a l}, sorted R (a::l) → all l (R a)
+:= sorry
+/-
 | a []     h := !all_nil
 | a (b::l) h :=
   have hd_rel R a (b::l), from and.left (sorted_inv h),
@@ -86,6 +88,7 @@ lemma sorted_extends (trans : transitive R) : ∀ {a l}, sorted R (a::l) → all
       (suppose x ∈ l,
         have R b x, from of_mem_of_all this `all l (R b)`,
         trans `R a b` `R b x`))
+-/
 
 theorem strongly_sorted_of_sorted_of_transitive (trans : transitive R) : ∀ {l}, sorted R l → strongly_sorted R l
 | []     h := !strongly_sorted.base
@@ -98,6 +101,8 @@ theorem strongly_sorted_of_sorted_of_transitive (trans : transitive R) : ∀ {l}
 open perm
 
 lemma eq_of_sorted_of_perm (tr : transitive R) (anti : anti_symmetric R) : ∀ {l₁ l₂ : list A}, l₁ ~ l₂ → sorted R l₁ → sorted R l₂ → l₁ = l₂
+:= sorry
+/-
 | []       []       h₁ h₂ h₃ := rfl
 | (a₁::l₁) []       h₁ h₂ h₃ := absurd (perm.symm h₁) !not_perm_nil_cons
 | []       (a₂::l₂) h₁ h₂ h₃ := absurd h₁ !not_perm_nil_cons
@@ -129,4 +134,5 @@ lemma eq_of_sorted_of_perm (tr : transitive R) (anti : anti_symmetric R) : ∀ {
           have b = a, from anti `R b a` `R a b`,
           by rewrite this at e₁; exact aux e₁ }
   end
+-/
 end list

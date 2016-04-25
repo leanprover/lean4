@@ -12,13 +12,13 @@ open decidable
 theorem or.right_comm (a b c : Prop) : (a ∨ b) ∨ c ↔ (a ∨ c) ∨ b :=
 calc
   (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) : or.assoc
-    ... ↔ a ∨ (c ∨ b)       : by rewrite (@or.comm b c)
+    ... ↔ a ∨ (c ∨ b)       : sorry -- by rewrite (@or.comm b c)
      ... ↔ (a ∨ c) ∨ b      : iff.symm or.assoc
 
 theorem and.right_comm (a b c : Prop) : (a ∧ b) ∧ c ↔ (a ∧ c) ∧ b :=
 calc
   (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) : and.assoc
-    ... ↔ a ∧ (c ∧ b)       : by rewrite (@and.comm b c)
+    ... ↔ a ∧ (c ∧ b)       : sorry -- by rewrite (@and.comm b c)
      ... ↔ (a ∧ c) ∧ b      : iff.symm and.assoc
 
 theorem or_not_self_iff (a : Prop) [D : decidable a] : a ∨ ¬ a ↔ true :=
@@ -31,7 +31,8 @@ theorem and_not_self_iff (a : Prop) : a ∧ ¬ a ↔ false :=
 iff.intro (assume H, (and.right H) (and.left H)) (assume H, false.elim H)
 
 theorem not_and_self_iff (a : Prop) : ¬ a ∧ a ↔ false :=
-iff.intro (λ H, and.elim H (by contradiction)) (λ H, false.elim H)
+sorry
+-- iff.intro (λ H, and.elim H (by contradiction)) (λ H, false.elim H)
 
 theorem not_not_iff (a : Prop) [D : decidable a] : ¬¬a ↔ a :=
 iff.intro by_contradiction not_not_intro
@@ -56,11 +57,11 @@ iff.intro
 
 theorem or_iff_not_and_not (a b : Prop) [Da : decidable a] [Db : decidable b] :
   a ∨ b ↔ ¬ (¬a ∧ ¬b) :=
-by rewrite [-not_or_iff_not_and_not, not_not_iff]
+sorry -- by rewrite [-not_or_iff_not_and_not, not_not_iff]
 
 theorem and_iff_not_or_not (a b : Prop) [Da : decidable a] [Db : decidable b] :
   a ∧ b ↔ ¬ (¬ a ∨ ¬ b) :=
-by rewrite [-not_and_iff_not_or_not, not_not_iff]
+sorry -- by rewrite [-not_and_iff_not_or_not, not_not_iff]
 
 theorem imp_iff_not_or (a b : Prop) [Da : decidable a] : (a → b) ↔ ¬a ∨ b :=
 iff.intro
@@ -70,9 +71,9 @@ iff.intro
 theorem not_implies_iff_and_not (a b : Prop) [Da : decidable a] :
   ¬(a → b) ↔ a ∧ ¬b :=
 calc
-  ¬(a → b) ↔ ¬(¬a ∨ b) : by rewrite (imp_iff_not_or a b)
+  ¬(a → b) ↔ ¬(¬a ∨ b) : sorry -- by rewrite (imp_iff_not_or a b)
        ... ↔ ¬¬a ∧ ¬b  : !not_or_iff_not_and_not
-       ... ↔ a ∧ ¬b    : by rewrite (not_not_iff a)
+       ... ↔ a ∧ ¬b    : sorry -- by rewrite (not_not_iff a)
 
 theorem and_not_of_not_implies {a b : Prop} [Da : decidable a] (H : ¬ (a → b)) : a ∧ ¬ b :=
 iff.mp !not_implies_iff_and_not H

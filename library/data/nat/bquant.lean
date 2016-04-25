@@ -32,19 +32,28 @@ namespace nat
   assume h, exists_of_subtype h
 
   theorem not_bex_zero (P : nat → Prop) : ¬ bex 0 P :=
+  sorry
+  /-
   λ H, obtain (w : nat) (Hw : w < 0 ∧ P w), from H,
     and.rec_on Hw (λ h₁ h₂, absurd h₁ (not_lt_zero w))
+  -/
 
   theorem not_bsub_zero (P : nat → Prop) : bsub 0 P → false :=
   λ H, absurd (bex_of_bsub H) (not_bex_zero P)
 
   definition bsub_succ {P : nat → Prop} {n : nat} (H : bsub n P) : bsub (succ n) P :=
+  sorry
+  /-
   obtain (w : nat) (Hw : w < n ∧ P w), from H,
     and.rec_on Hw (λ hlt hp, tag w (and.intro (lt.step hlt) hp))
+  -/
 
   theorem bex_succ {P : nat → Prop} {n : nat} (H : bex n P) : bex (succ n) P :=
+  sorry
+  /-
   obtain (w : nat) (Hw : w < n ∧ P w), from H,
     and.rec_on Hw (λ hlt hp, exists.intro w (and.intro (lt.step hlt) hp))
+  -/
 
   definition bsub_succ_of_pred {P : nat → Prop} {a : nat} (H : P a) : bsub (succ a) P :=
   tag a (and.intro (lt.base a) H)
@@ -53,10 +62,13 @@ namespace nat
   bex_of_bsub (bsub_succ_of_pred H)
 
   theorem not_bex_succ {P : nat → Prop} {n : nat} (H₁ : ¬ bex n P) (H₂ : ¬ P n) : ¬ bex (succ n) P :=
+  sorry
+  /-
   λ H, obtain (w : nat) (Hw : w < succ n ∧ P w), from H,
     and.rec_on Hw (λ hltsn hp, or.rec_on (nat.eq_or_lt_of_le (le_of_succ_le_succ hltsn))
       (λ heq : w = n, absurd (eq.rec_on heq hp) H₂)
       (λ hltn : w < n, absurd (exists.intro w (and.intro hltn hp)) H₁))
+  -/
 
   theorem not_bsub_succ {P : nat → Prop} {n : nat} (H₁ : ¬ bex n P) (H₂ : ¬ P n) : bsub (succ n) P → false :=
   λ H, absurd (bex_of_bsub H) (not_bex_succ H₁ H₂)

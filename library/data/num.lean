@@ -24,13 +24,13 @@ namespace pos_num
 
   theorem pred_succ : ∀ (a : pos_num), pred (succ a) = a
   | one      := rfl
-  | (bit0 a) := by rewrite succ_bit0
+  | (bit0 a) := sorry -- by rewrite succ_bit0
   | (bit1 a) :=
       calc
         pred (succ (bit1 a)) = cond (is_one (succ a)) one (bit1 (pred (succ a))) : rfl
-                       ...   = cond ff one (bit1 (pred (succ a)))                : by rewrite succ_not_is_one
+                       ...   = cond ff one (bit1 (pred (succ a)))                : sorry -- by rewrite succ_not_is_one
                        ...   = bit1 (pred (succ a))                              : rfl
-                       ...   = bit1 a                                            : by rewrite pred_succ
+                       ...   = bit1 a                                            : sorry -- by rewrite pred_succ
 
   section
   variables (a b : pos_num)
@@ -51,29 +51,29 @@ namespace pos_num
   | one      := rfl
   | (bit1 n) :=
       calc bit1 n * one = bit0 (n * one) + one : rfl
-                   ...  = bit0 n + one         : by rewrite mul_one
+                   ...  = bit0 n + one         : sorry -- by rewrite mul_one
                    ...  = bit1 n               : !bit0_add_one
   | (bit0 n) :=
       calc bit0 n * one = bit0 (n * one)       : rfl
-                    ... = bit0 n               : by rewrite mul_one
+                    ... = bit0 n               : sorry -- by rewrite mul_one
 
   theorem decidable_eq [instance] : ∀ (a b : pos_num), decidable (a = b)
   | one      one      := inl rfl
-  | one      (bit0 b) := inr (by contradiction)
-  | one      (bit1 b) := inr (by contradiction)
-  | (bit0 a) one      := inr (by contradiction)
+  | one      (bit0 b) := sorry -- inr (by contradiction)
+  | one      (bit1 b) := sorry -- inr (by contradiction)
+  | (bit0 a) one      := sorry -- inr (by contradiction)
   | (bit0 a) (bit0 b) :=
     match decidable_eq a b with
-    | inl H₁  := inl (by rewrite H₁)
-    | inr H₁  := inr (by intro H; injection H; contradiction)
+    | inl H₁  := sorry -- inl (by rewrite H₁)
+    | inr H₁  := sorry -- inr (by intro H; injection H; contradiction)
     end
-  | (bit0 a) (bit1 b) := inr (by contradiction)
-  | (bit1 a) one      := inr (by contradiction)
-  | (bit1 a) (bit0 b) := inr (by contradiction)
+  | (bit0 a) (bit1 b) := sorry -- inr (by contradiction)
+  | (bit1 a) one      := sorry -- inr (by contradiction)
+  | (bit1 a) (bit0 b) := sorry -- inr (by contradiction)
   | (bit1 a) (bit1 b) :=
     match decidable_eq a b with
-    | inl H₁  := inl (by rewrite H₁)
-    | inr H₁  := inr (by intro H; injection H; contradiction)
+    | inl H₁  := sorry -- inl (by rewrite H₁)
+    | inr H₁  := sorry -- inr (by intro H; injection H; contradiction)
     end
 
   local notation a < b         := (lt a b = tt)
@@ -109,41 +109,61 @@ namespace pos_num
   theorem lt_irrefl : ∀ (a : pos_num), a ≮ a
   | one      := rfl
   | (bit0 a) :=
+    sorry
+    /-
     begin
       rewrite lt_bit0_bit0_eq_lt, apply lt_irrefl
     end
+    -/
   | (bit1 a) :=
+    sorry
+    /-
     begin
       rewrite lt_bit1_bit1_eq_lt, apply lt_irrefl
     end
+    -/
 
   theorem ne_of_lt_eq_tt : ∀ {a b : pos_num}, a < b → a = b → false
   | one      ⌞one⌟      H₁ (eq.refl one)      := absurd H₁ ff_ne_tt
   | (bit0 a) ⌞(bit0 a)⌟ H₁ (eq.refl (bit0 a)) :=
-    begin
+     sorry
+     /-
+     begin
       rewrite lt_bit0_bit0_eq_lt at H₁,
       apply ne_of_lt_eq_tt H₁ (eq.refl a)
     end
+    -/
   | (bit1 a) ⌞(bit1 a)⌟ H₁ (eq.refl (bit1 a)) :=
+    sorry
+    /-
     begin
       rewrite lt_bit1_bit1_eq_lt at H₁,
       apply ne_of_lt_eq_tt H₁ (eq.refl a)
     end
+    -/
 
   theorem lt_base : ∀ a : pos_num, a < succ a
   | one      := rfl
   | (bit0 a) :=
+    sorry
+    /-
     begin
       rewrite [succ_bit0, lt_bit0_bit1_eq_lt_succ],
       apply lt_base
     end
+    -/
   | (bit1 a) :=
+    sorry
+    /-
     begin
       rewrite [succ_bit1, lt_bit1_bit0_eq_lt],
       apply lt_base
     end
+    -/
 
   theorem lt_step : ∀ {a b : pos_num}, a < b → a < succ b
+  := sorry
+  /-
   | one      one      H := rfl
   | one      (bit0 b) H := rfl
   | one      (bit1 b) H := rfl
@@ -169,8 +189,11 @@ namespace pos_num
       rewrite [succ_bit1, lt_bit1_bit0_eq_lt, lt_bit1_bit1_eq_lt at H],
       apply lt_step H
     end
+  -/
 
   theorem lt_of_lt_succ_succ : ∀ {a b : pos_num}, succ a < succ b → a < b
+  := sorry
+  /-
   | one      one      H := absurd H ff_ne_tt
   | one      (bit0 b) H := rfl
   | one      (bit1 b) H := rfl
@@ -197,8 +220,11 @@ namespace pos_num
       rewrite [lt_bit1_bit1_eq_lt, *succ_bit1 at H, lt_bit0_bit0_eq_lt at H],
       apply lt_of_lt_succ_succ H
     end
+  -/
 
   theorem lt_succ_succ : ∀ {a b : pos_num}, a < b → succ a < succ b
+  := sorry
+  /-
   | one      one      H := absurd H ff_ne_tt
   | one      (bit0 b) H :=
     begin
@@ -224,8 +250,11 @@ namespace pos_num
       rewrite [lt_bit1_bit1_eq_lt at H, *succ_bit1, lt_bit0_bit0_eq_lt],
       apply lt_succ_succ H
     end
+  -/
 
   theorem lt_of_lt_succ : ∀ {a b : pos_num}, succ a < b → a < b
+  := sorry
+  /-
   | one      one      H := absurd_of_eq_ff_of_eq_tt !lt_one_right_eq_ff H
   | one      (bit0 b) H := rfl
   | one      (bit1 b) H := rfl
@@ -247,8 +276,11 @@ namespace pos_num
       rewrite [succ_bit1 at H, lt_bit0_bit1_eq_lt_succ at H, lt_bit1_bit1_eq_lt],
       apply lt_of_lt_succ_succ H
     end
+  -/
 
   theorem lt_of_lt_succ_of_ne : ∀ {a b : pos_num}, a < succ b → a ≠ b → a < b
+  := sorry
+  /-
   | one      one      H₁ H₂ := absurd rfl H₂
   | one      (bit0 b) H₁ H₂ := rfl
   | one      (bit1 b) H₁ H₂ := rfl
@@ -282,8 +314,11 @@ namespace pos_num
       rewrite [succ_bit1 at H₁, lt_bit1_bit0_eq_lt at H₁, lt_bit1_bit1_eq_lt],
       apply lt_of_lt_succ_of_ne H₁ (ne_of_bit1_ne_bit1 H₂)
     end
+  -/
 
   theorem lt_trans : ∀ {a b c : pos_num}, a < b → b < c → a < c
+  := sorry
+  /-
   | one      b        (bit0 c) H₁ H₂ := rfl
   | one      b        (bit1 c) H₁ H₂ := rfl
   | a        (bit0 b) one      H₁ H₂ := absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff _) H₂
@@ -341,8 +376,11 @@ namespace pos_num
       rewrite lt_bit1_bit1_eq_lt at *,
       apply lt_trans H₁ H₂
     end
+  -/
 
   theorem lt_antisymm : ∀ {a b : pos_num}, a < b → b ≮ a
+  := sorry
+  /-
   | one      one      H := rfl
   | one      (bit0 b) H := rfl
   | one      (bit1 b) H := rfl
@@ -401,6 +439,7 @@ namespace pos_num
       rewrite lt_bit1_bit1_eq_lt at *,
       apply lt_antisymm H
     end
+  -/
 
   local notation a ≤ b := (le a b = tt)
 
@@ -411,6 +450,8 @@ namespace pos_num
   rfl
 
   theorem not_lt_of_le : ∀ {a b : pos_num}, a ≤ b → b < a → false
+  := sorry
+  /-
   | one      one      H₁ H₂ := absurd H₂ ff_ne_tt
   | one      (bit0 b) H₁ H₂ := absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff _) H₂
   | one      (bit1 b) H₁ H₂ := absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff _) H₂
@@ -458,8 +499,11 @@ namespace pos_num
       rewrite [lt_bit1_bit1_eq_lt at H₂],
       apply not_lt_of_le H₁ H₂
     end
+  -/
 
   theorem le_antisymm : ∀ {a b : pos_num}, a ≤ b → b ≤ a → a = b
+  := sorry
+  /-
   | one      one      H₁ H₂ := rfl
   | one      (bit0 b) H₁ H₂ :=
     by apply absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff b) H₂
@@ -493,8 +537,11 @@ namespace pos_num
       have H : a = b, from le_antisymm H₁ H₂,
       rewrite H
     end
+  -/
 
   theorem le_trans {a b c : pos_num} : a ≤ b → b ≤ c → a ≤ c :=
+  sorry
+  /-
   begin
     intro H₁ H₂,
     rewrite [le_eq_lt_succ at *],
@@ -508,7 +555,7 @@ namespace pos_num
       apply lt_trans Haltb H₂
     end,
   end
-
+  -/
 end pos_num
 
 namespace num
@@ -516,8 +563,9 @@ namespace num
 
   theorem decidable_eq [instance] : ∀ (a b : num), decidable (a = b)
   | zero zero       := inl rfl
-  | zero (pos b)    := inr (by contradiction)
-  | (pos a) zero    := inr (by contradiction)
+  | zero (pos b)    := inr sorry -- (by contradiction)
+  | (pos a) zero    := inr sorry -- (by contradiction)
   | (pos a) (pos b) :=
-    if H : a = b then inl (by rewrite H) else inr (suppose pos a = pos b, begin injection this, contradiction end)
+    if H : a = b then inl sorry /- (by rewrite H) -/
+    else inr sorry -- (suppose pos a = pos b, begin injection this, contradiction end)
 end num

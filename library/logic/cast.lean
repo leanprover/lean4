@@ -27,15 +27,21 @@ section
 
   theorem hcongr_fun {f : Π x, P x} {f' : Π x, P' x} (a : A) (H₁ : f == f') (H₂ : P = P') :
     f a == f' a :=
+  sorry
+  /-
   begin
     cases H₂, cases H₁, reflexivity
   end
+  -/
 
   theorem hcongr {P' : A' → Type} {f : Π a, P a} {f' : Π a', P' a'} {a : A} {a' : A'}
       (Hf : f == f') (HP : P == P') (Ha : a == a') : f a == f' a' :=
+  sorry
+  /-
   begin
     cases Ha, cases HP, cases Hf, reflexivity
   end
+  -/
 
   theorem hcongr_arg (f : Πx, P x) {a b : A} (H : a = b) : f a == f b :=
   H ▸ (heq.refl (f a))
@@ -59,7 +65,7 @@ section
 
   -- should H₁ be explicit (useful in e.g. hproof_irrel)
   theorem eq_rec_to_heq {H₁ : a = a'} {p : P a} {p' : P a'} (H₂ : eq.rec_on H₁ p = p') : p == p' :=
-  by subst H₁; subst H₂
+  sorry -- by subst H₁; subst H₂
 
   theorem cast_to_heq {H₁ : A = B} (H₂ : cast H₁ a = b) : a == b :=
   eq_rec_to_heq H₂
@@ -70,13 +76,13 @@ section
   --TODO: generalize to eq.rec. This is a special case of rec_on_comp in eq.lean
   theorem cast_trans (Hab : A = B) (Hbc : B = C) (a : A) :
     cast Hbc (cast Hab a) = cast (Hab ⬝ Hbc) a :=
-  by subst Hab
+  sorry -- by subst Hab
 
   theorem pi_eq (H : P = P') : (Π x, P x) = (Π x, P' x) :=
-  by subst H
+  sorry -- by subst H
 
   theorem rec_on_app (H : P = P') (f : Π x, P x) (a : A) : eq.rec_on H f a == f a :=
-  by subst H
+  sorry -- by subst H
 
   theorem rec_on_pull (H : P = P') (f : Π x, P x) (a : A) :
     eq.rec_on H f a = eq.rec_on (congr_fun H a) (f a) :=
@@ -85,7 +91,7 @@ section
       ... == eq.rec_on (congr_fun H a) (f a) : heq.symm (eq_rec_heq (congr_fun H a) (f a)))
 
   theorem cast_app (H : P = P') (f : Π x, P x) (a : A) : cast (pi_eq H) f a == f a :=
-  by subst H
+  sorry -- by subst H
 end
 
 -- function extensionality wrt heterogeneous equality

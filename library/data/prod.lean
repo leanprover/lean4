@@ -23,10 +23,10 @@ namespace prod
     match h₁ a a' with
     | inl e₁ :=
       match h₂ b b' with
-      | inl e₂ := by left; congruence; repeat assumption
-      | inr n₂ := by right; intro h; injection h; contradiction
+      | inl e₂ := sorry -- by left; congruence; repeat assumption
+      | inr n₂ := sorry -- by right; intro h; injection h; contradiction
       end
-    | inr n₁ := by right; intro h; injection h; contradiction
+    | inr n₁ := sorry -- by right; intro h; injection h; contradiction
     end
 
   definition swap {A : Type} : A × A → A × A
@@ -38,5 +38,5 @@ namespace prod
   theorem eq_of_swap_eq {A : Type} : ∀ p₁ p₂ : A × A, swap p₁ = swap p₂ → p₁ = p₂ :=
   take p₁ p₂, assume seqs,
   have swap (swap p₁) = swap (swap p₂), from congr_arg swap seqs,
-  by rewrite *swap_swap at this; exact this
+  sorry -- by rewrite *swap_swap at this; exact this
 end prod

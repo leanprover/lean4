@@ -43,27 +43,33 @@ section left_module
   proposition one_smul (u : M) : (1 : R) • u = u := !left_module.one_smul
 
   proposition zero_smul (u : M) : (0 : R) • u = 0 :=
+  sorry
+  /-
   have (0 : R) • u + 0 • u = 0 • u + 0, by rewrite [-smul_right_distrib, *add_zero],
   !add.left_cancel this
+  -/
 
   proposition smul_zero (a : R) : a • (0 : M) = 0 :=
+  sorry
+  /-
   have a • (0:M) + a • 0 = a • 0 + 0, by rewrite [-smul_left_distrib, *add_zero],
   !add.left_cancel this
+  -/
 
   proposition neg_smul (a : R) (u : M) : (-a) • u = - (a • u) :=
-  eq_neg_of_add_eq_zero (by rewrite [-smul_right_distrib, add.left_inv, zero_smul])
+  sorry -- eq_neg_of_add_eq_zero (by rewrite [-smul_right_distrib, add.left_inv, zero_smul])
 
   proposition neg_one_smul (u : M) : -(1 : R) • u = -u :=
-  by rewrite [neg_smul, one_smul]
+  sorry -- by rewrite [neg_smul, one_smul]
 
   proposition smul_neg (a : R) (u : M) : a • (-u) = -(a • u) :=
-  by rewrite [-neg_one_smul, -mul_smul, mul_neg_one_eq_neg, neg_smul]
+  sorry -- by rewrite [-neg_one_smul, -mul_smul, mul_neg_one_eq_neg, neg_smul]
 
   proposition smul_sub_left_distrib (a : R) (u v : M) : a • (u - v) = a • u - a • v :=
-  by rewrite [sub_eq_add_neg, smul_left_distrib, smul_neg]
+  sorry -- by rewrite [sub_eq_add_neg, smul_left_distrib, smul_neg]
 
   proposition sub_smul_right_distrib (a b : R) (v : M) : (a - b) • v = a • v - b • v :=
-  by rewrite [sub_eq_add_neg, smul_right_distrib, neg_smul]
+  sorry -- by rewrite [sub_eq_add_neg, smul_right_distrib, neg_smul]
 end left_module
 
 /- vector spaces -/

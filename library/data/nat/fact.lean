@@ -30,6 +30,8 @@ lemma fact_ne_zero (n : ℕ) : fact n ≠ 0 := ne_of_gt !fact_pos
 lemma dvd_fact : ∀ {m n}, m > 0 → m ≤ n → m ∣ fact n
 | m 0        h₁ h₂ := absurd h₁ (not_lt_of_ge h₂)
 | m (succ n) h₁ h₂ :=
+  sorry
+/-
   begin
     rewrite fact_succ,
     cases (eq_or_lt_of_le h₂) with he hl,
@@ -37,8 +39,11 @@ lemma dvd_fact : ∀ {m n}, m > 0 → m ≤ n → m ∣ fact n
       {have aux : m ∣ fact n, from dvd_fact h₁ (le_of_lt_succ hl),
        apply dvd_mul_of_dvd_right aux}
   end
+-/
 
 lemma fact_le {m n} : m ≤ n → fact m ≤ fact n :=
+sorry
+/-
 begin
   induction n with n ih,
    {intro h,
@@ -52,4 +57,5 @@ begin
         rewrite [fact_succ, -one_mul at {1}],
         exact nat.mul_le_mul (succ_le_succ (zero_le n)) !le.refl}}
 end
+-/
 end nat

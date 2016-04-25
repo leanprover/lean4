@@ -23,8 +23,9 @@ noncomputable definition inhabited_of_nonempty {A : Type} (H : nonempty A) : inh
 let u : {x | (∃y : A, true) → true} := strong_indefinite_description (λa, true) H in
 inhabited.mk (elt_of u)
 
-noncomputable definition inhabited_of_exists {A : Type} {P : A → Prop} (H : ∃x, P x) : inhabited A :=
-inhabited_of_nonempty (obtain w Hw, from H, nonempty.intro w)
+/- noncomputable -/ definition inhabited_of_exists {A : Type} {P : A → Prop} (H : ∃x, P x) : inhabited A :=
+sorry
+-- inhabited_of_nonempty (obtain w Hw, from H, nonempty.intro w)
 
 /- the Hilbert epsilon function -/
 
@@ -62,11 +63,14 @@ exists.intro _ H
 
 theorem skolem {A : Type} {B : A → Type} {P : Πx, B x → Prop} :
   (∀x, ∃y, P x y) ↔ ∃f, (∀x, P x (f x)) :=
+sorry
+/-
 iff.intro
   (assume H : (∀x, ∃y, P x y), axiom_of_choice H)
   (assume H : (∃f, (∀x, P x (f x))),
     take x, obtain (fw : ∀x, B x) (Hw : ∀x, P x (fw x)), from H,
       exists.intro (fw x) (Hw x))
+-/
 
 /-
 Prove excluded middle using Hilbert's choice
@@ -160,17 +164,22 @@ propext (iff.intro
   (assume H, iff.of_eq H))
 
 lemma eq_false {a : Prop} : (a = false) = (¬ a) :=
+sorry
+/-
 begin
   rewrite ((@iff_eq_eq a false)⁻¹),
   rewrite iff_false
 end
+-/
 
 lemma eq_true {a : Prop} : (a = true) = a :=
+sorry
+/-
 begin
   rewrite ((@iff_eq_eq a true)⁻¹),
   rewrite iff_true
 end
-
+-/
 end aux
 
 /- All propositions are decidable -/

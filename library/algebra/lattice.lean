@@ -50,6 +50,8 @@ section
   eq_inf !inf_le_right !inf_le_left (λ c H₁ H₂, le_inf H₂ H₁)
 
   theorem inf.assoc (a b c : A) : (a ⊓ b) ⊓ c = a ⊓ (b ⊓ c) :=
+  sorry
+  /-
   begin
     apply eq_inf,
     { apply le.trans, apply inf_le_left, apply inf_le_left },
@@ -57,6 +59,7 @@ section
     { intros [d, H₁, H₂], apply le_inf, apply le_inf H₁, apply le.trans H₂, apply inf_le_left,
       apply le.trans H₂, apply inf_le_right }
   end
+  -/
 
   theorem inf.left_comm (a b c : A) : a ⊓ (b ⊓ c) = b ⊓ (a ⊓ c) :=
   binary.left_comm (@inf.comm A s) (@inf.assoc A s) a b c
@@ -65,10 +68,10 @@ section
   binary.right_comm (@inf.comm A s) (@inf.assoc A s) a b c
 
   theorem inf_self (a : A) : a ⊓ a = a :=
-  by apply eq.symm; apply eq_inf (le.refl a) !le.refl; intros; assumption
+  sorry -- by apply eq.symm; apply eq_inf (le.refl a) !le.refl; intros; assumption
 
   theorem inf_eq_left {a b : A} (H : a ≤ b) : a ⊓ b = a :=
-  by apply eq.symm; apply eq_inf !le.refl H; intros; assumption
+  sorry -- by apply eq.symm; apply eq_inf !le.refl H; intros; assumption
 
   theorem inf_eq_right {a b : A} (H : b ≤ a) : a ⊓ b = b :=
   eq.subst !inf.comm (inf_eq_left H)
@@ -83,6 +86,8 @@ section
   eq_sup !le_sup_right !le_sup_left (λ c H₁ H₂, sup_le H₂ H₁)
 
   theorem sup.assoc (a b c : A) : (a ⊔ b) ⊔ c = a ⊔ (b ⊔ c) :=
+  sorry
+  /-
   begin
     apply eq_sup,
     { apply le.trans, apply le_sup_left a b, apply le_sup_left },
@@ -90,6 +95,7 @@ section
     { intros [d, H₁, H₂], apply sup_le, apply sup_le H₁, apply le.trans !le_sup_left H₂,
       apply le.trans !le_sup_right H₂}
   end
+  -/
 
   theorem sup.left_comm (a b c : A) : a ⊔ (b ⊔ c) = b ⊔ (a ⊔ c) :=
   binary.left_comm (@sup.comm A s) (@sup.assoc A s) a b c
@@ -98,10 +104,10 @@ section
   binary.right_comm (@sup.comm A s) (@sup.assoc A s) a b c
 
   theorem sup_self (a : A) : a ⊔ a = a :=
-  by apply eq.symm; apply eq_sup (le.refl a) !le.refl; intros; assumption
+  sorry -- by apply eq.symm; apply eq_sup (le.refl a) !le.refl; intros; assumption
 
   theorem sup_eq_left {a b : A} (H : b ≤ a) : a ⊔ b = a :=
-  by apply eq.symm; apply eq_sup !le.refl H; intros; assumption
+  sorry -- by apply eq.symm; apply eq_sup !le.refl H; intros; assumption
 
   theorem sup_eq_right {a b : A} (H : a ≤ b) : a ⊔ b = b :=
   eq.subst !sup.comm (sup_eq_left H)

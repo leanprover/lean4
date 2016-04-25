@@ -17,17 +17,24 @@ example : partial_sum 6 = 21 :=
 rfl
 
 lemma two_mul_partial_sum_eq : ∀ n, 2 * partial_sum n = (succ n) * n
-| 0        := by reflexivity
-| (succ n) := calc
+| 0        := sorry -- by reflexivity
+| (succ n) :=
+sorry
+/-
+calc
    2 * (succ n + partial_sum n) = 2 * succ n + 2 * partial_sum n  : by rewrite left_distrib
                    ...   = 2 * succ n + succ n * n  : by rewrite two_mul_partial_sum_eq
                    ...   = 2 * succ n + n * succ n  : by rewrite (mul.comm n (succ n))
                    ...   = (2 + n) * succ n         : by rewrite right_distrib
                    ...   = (n + 2) * succ n         : by rewrite add.comm
                    ...   = (succ (succ n)) * succ n : rfl
+-/
 
 theorem partial_sum_eq : ∀ n, partial_sum n = ((n + 1) * n) / 2 :=
+sorry
+/-
 take n,
 have h₁ : (2 * partial_sum n) / 2 = ((succ n) * n) / 2, by rewrite two_mul_partial_sum_eq,
 have h₂ : (2:nat) > 0, from dec_trivial,
 by rewrite [nat.mul_div_cancel_left _ h₂ at h₁]; exact h₁
+-/

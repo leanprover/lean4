@@ -30,6 +30,8 @@ variable {R}
 variables (to : total R) (tr : transitive R) (rf : reflexive R)
 
 lemma min_core_lemma : ∀ {b l} a, b ∈ l ∨ b = a → R (min_core R l a) b
+:= using to tr rf, sorry
+/-
 | b []     a h := or.elim h
   (suppose b ∈ [], absurd this !not_mem_nil)
   (suppose b = a,
@@ -63,6 +65,7 @@ lemma min_core_lemma : ∀ {b l} a, b ∈ l ∨ b = a → R (min_core R l a) b
          have R (min_core R l c) a, from tr this `R c a`,
          begin unfold min_core, rewrite [if_pos `R c a`], subst b, exact `R (min_core R l c) a` end)
        (suppose ¬ R c a, begin unfold min_core, rewrite [if_neg `¬ R c a`], eassumption end))
+-/
 
 lemma min_core_le_of_mem {b : A} {l : list A} (a : A) : b ∈ l → R (min_core R l a) b :=
 assume h : b ∈ l, min_core_lemma to tr rf a (or.inl h)
@@ -77,16 +80,19 @@ lemma min_lemma : ∀ {l} (h : l ≠ nil), all l (R (min R l h))
    or.elim (eq_or_mem_of_mem_cons this)
      (suppose x = b,
        have R (min_core R l b) b, from min_core_le to tr rf b,
-       begin subst x, unfold min, assumption end)
+       sorry) -- begin subst x, unfold min, assumption end)
      (suppose x ∈ l,
        have R (min_core R l b) x, from min_core_le_of_mem to tr rf _ this,
-       begin unfold min, assumption end))
+       sorry)) -- begin unfold min, assumption end))
 
 variable (R)
 
 lemma min_core_mem : ∀ l a, min_core R l a ∈ l ∨ min_core R l a = a
 | []     a := or.inr rfl
-| (b::l) a := or.elim (em (R b a))
+| (b::l) a :=
+  sorry
+  /-
+  or.elim (em (R b a))
   (suppose R b a,
     begin
       change (if R b a then min_core R l b else min_core R l a) ∈ b :: l ∨ (if R b a then min_core R l b else min_core R l a) = a,
@@ -102,21 +108,26 @@ lemma min_core_mem : ∀ l a, min_core R l a ∈ l ∨ min_core R l a = a
       suppose min_core R l a ∈ l, or.inl (mem_cons_of_mem _ this),
       suppose min_core R l a = a, or.inr this
     end)
+  -/
 
 lemma min_mem : ∀ (l : list A) (h : l ≠ nil), min R l h ∈ l
 | []     h := absurd rfl h
 | (a::l) h :=
+  sorry
+  /-
   begin
     unfold min,
     apply or.elim (min_core_mem R l a),
     suppose min_core R l a ∈ l, mem_cons_of_mem _ this,
     suppose min_core R l a = a, by rewrite this; apply mem_cons
   end
-
+  -/
 
 lemma min_map (f : B → A) {l : list B} (h : l ≠ nil) :
       all l (λ b, (R (min R (map f l) (map_ne_nil_of_ne_nil _ h))) (f b)):=
   using to tr rf,
+  sorry
+  /-
   begin
     apply all_of_forall,
     intro b Hb,
@@ -124,20 +135,20 @@ lemma min_map (f : B → A) {l : list B} (h : l ≠ nil) :
     have Hfb : f b ∈ map f l, from mem_map _ Hb,
     exact of_mem_of_all Hfb Hfa
   end
-
+  -/
 lemma min_map_all (f : B → A) {l : list B} (h : l ≠ nil) {b : B} (Hb : b ∈ l) :
       R (min R (map f l) ((map_ne_nil_of_ne_nil _ h))) (f b) :=
   of_mem_of_all Hb (min_map _ to tr rf f h)
 
 omit decR
 private lemma ne_nil {l : list A} {n : nat} : length l = succ n → l ≠ nil :=
-assume h₁ h₂, by rewrite h₂ at h₁; contradiction
+sorry -- assume h₁ h₂, by rewrite h₂ at h₁; contradiction
 
 include decR
 lemma sort_aux_lemma {l n} (h : length l = succ n) : length (erase (min R l (ne_nil h)) l) = n :=
 have min R l _ ∈ l, from min_mem R l (ne_nil h),
 have length (erase (min R l  _) l) = pred (length l), from length_erase_of_mem this,
-by rewrite h at this; exact this
+sorry -- by rewrite h at this; exact this
 
 definition sort_aux : Π (n : nat) (l : list A), length l = n → list A
 | 0        l h := []
@@ -153,10 +164,13 @@ open perm
 
 lemma sort_aux_perm : ∀ {n : nat} {l : list A} (h : length l = n), sort_aux R n l h ~ l
 | 0        l h :=
+  sorry
+  /-
   begin
    change [] ~ l,
    rewrite [eq_nil_of_length_eq_zero h]
   end
+  -/
 | (succ n) l h :=
   let m := min R l (ne_nil h) in
   have leq : length (erase m l) = n, from sort_aux_lemma R h,

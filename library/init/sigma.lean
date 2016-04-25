@@ -12,7 +12,7 @@ notation `Σ` binders `, ` r:(scoped P, sigma P) := r
 notation `⟨`:max t:(foldr `, ` (e r, sigma.mk e r)) `⟩`:0 := t
 
 lemma ex_of_sig {A : Type} {P : A → Prop} : (Σ x, P x) → ∃ x, P x :=
-assume h, obtain x hx, from h, exists.intro x hx
+sorry -- assume h, obtain x hx, from h, exists.intro x hx
 
 namespace sigma
   notation `pr₁`  := pr1
@@ -59,9 +59,9 @@ namespace sigma
               @sigma.lex.rec_on A B Ra Rb (λp₁ p₂, p₂.1 = xa → p₂.2 == xb → acc (lex Ra Rb) p₁)
                                 p ⟨xa, xb⟩ lt
                 (λ (a₁ : A) (b₁ : B a₁) (a₂ : A) (b₂ : B a₂) (H : Ra a₁ a₂) (eq₂ : a₂ = xa) (eq₃ : b₂ == xb),
-                  begin cases eq₂, exact (iHa a₁ H b₁) end)
+                  sorry) -- begin cases eq₂, exact (iHa a₁ H b₁) end)
                 (λ (a : A) (b₁ b₂ : B a) (H : Rb a b₁ b₂) (eq₂ : a = xa) (eq₃ : b₂ == xb),
-                  begin cases eq₂, cases eq₃, exact (iHb b₁ H) end),
+                  sorry), -- begin cases eq₂, cases eq₃, exact (iHb b₁ H) end),
             aux rfl !heq.refl)))
 
   -- The lexicographical order of well founded relations is well-founded

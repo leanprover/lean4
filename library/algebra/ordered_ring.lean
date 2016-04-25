@@ -44,25 +44,34 @@ section
       ... ≤ c * d : mul_le_mul_of_nonneg_left Hbd nn_c
 
   theorem mul_nonneg {a b : A} (Ha : a ≥ 0) (Hb : b ≥ 0) : a * b ≥ 0 :=
+  sorry
+  /-
   begin
     have H : 0 * b ≤ a * b, from mul_le_mul_of_nonneg_right Ha Hb,
     rewrite zero_mul at H,
     exact H
   end
+  -/
 
   theorem mul_nonpos_of_nonneg_of_nonpos {a b : A} (Ha : a ≥ 0) (Hb : b ≤ 0) : a * b ≤ 0 :=
+  sorry
+  /-
   begin
     have H : a * b ≤ a * 0, from mul_le_mul_of_nonneg_left Hb Ha,
     rewrite mul_zero at H,
     exact H
   end
+  -/
 
   theorem mul_nonpos_of_nonpos_of_nonneg {a b : A} (Ha : a ≤ 0) (Hb : b ≥ 0) : a * b ≤ 0 :=
+  sorry
+  /-
   begin
     have H : a * b ≤ 0 * b, from mul_le_mul_of_nonneg_right Ha Hb,
     rewrite zero_mul at H,
     exact H
   end
+  -/
 
   theorem mul_lt_mul_of_pos_left {a b c : A} (Hab : a < b) (Hc : 0 < c) :
     c * a < c * b := !ordered_semiring.mul_lt_mul_of_pos_left Hab Hc
@@ -84,25 +93,34 @@ section
       ... < c * d : mul_lt_mul_of_pos_left H2 H4
 
   theorem mul_pos {a b : A} (Ha : a > 0) (Hb : b > 0) : a * b > 0 :=
+  sorry
+  /-
   begin
     have H : 0 * b < a * b, from mul_lt_mul_of_pos_right Ha Hb,
     rewrite zero_mul at H,
     exact H
   end
+  -/
 
   theorem mul_neg_of_pos_of_neg {a b : A} (Ha : a > 0) (Hb : b < 0) : a * b < 0 :=
+  sorry
+  /-
   begin
     have H : a * b < a * 0, from mul_lt_mul_of_pos_left Hb Ha,
     rewrite mul_zero at H,
     exact H
   end
+  -/
 
   theorem mul_neg_of_neg_of_pos {a b : A} (Ha : a < 0) (Hb : b > 0) : a * b < 0 :=
+  sorry
+  /-
   begin
     have H : a * b < 0 * b, from mul_lt_mul_of_pos_right Ha Hb,
     rewrite zero_mul at  H,
     exact H
   end
+  -/
 
   theorem mul_self_lt_mul_self {a b : A} (H1 : 0 ≤ a) (H2 : a < b) : a * a < b * b :=
   mul_lt_mul' H2 H2 H1 (lt_of_le_of_lt H1 H2)
@@ -210,37 +228,49 @@ theorem ordered_ring.mul_le_mul_of_nonneg_left [s : ordered_ring A] {a b c : A}
         (Hab : a ≤ b) (Hc : 0 ≤ c) : c * a ≤ c * b :=
 have H1 : 0 ≤ b - a, from iff.elim_right !sub_nonneg_iff_le Hab,
 have H2 : 0 ≤ c * (b - a), from ordered_ring.mul_nonneg _ _ Hc H1,
+sorry
+/-
 begin
   rewrite mul_sub_left_distrib at H2,
   exact (iff.mp !sub_nonneg_iff_le H2)
 end
+-/
 
 theorem ordered_ring.mul_le_mul_of_nonneg_right [s : ordered_ring A] {a b c : A}
         (Hab : a ≤ b) (Hc : 0 ≤ c) : a * c ≤ b * c  :=
 have H1 : 0 ≤ b - a, from iff.elim_right !sub_nonneg_iff_le Hab,
 have H2 : 0 ≤ (b - a) * c, from ordered_ring.mul_nonneg _ _ H1 Hc,
+sorry
+/-
 begin
   rewrite mul_sub_right_distrib at H2,
   exact (iff.mp !sub_nonneg_iff_le H2)
 end
+-/
 
 theorem ordered_ring.mul_lt_mul_of_pos_left [s : ordered_ring A] {a b c : A}
        (Hab : a < b) (Hc : 0 < c) : c * a < c * b :=
 have H1 : 0 < b - a, from iff.elim_right !sub_pos_iff_lt Hab,
 have H2 : 0 < c * (b - a), from ordered_ring.mul_pos _ _ Hc H1,
+sorry
+/-
 begin
   rewrite mul_sub_left_distrib at H2,
   exact (iff.mp !sub_pos_iff_lt H2)
 end
+-/
 
 theorem ordered_ring.mul_lt_mul_of_pos_right [s : ordered_ring A] {a b c : A}
        (Hab : a < b) (Hc : 0 < c) : a * c < b * c :=
 have H1 : 0 < b - a, from iff.elim_right !sub_pos_iff_lt Hab,
 have H2 : 0 < (b - a) * c, from ordered_ring.mul_pos _ _ H1 Hc,
+sorry
+/-
 begin
   rewrite mul_sub_right_distrib at H2,
   exact (iff.mp !sub_pos_iff_lt H2)
 end
+-/
 
 definition ordered_ring.to_ordered_semiring [trans_instance]
     [s : ordered_ring A] :
@@ -263,6 +293,8 @@ section
   include s
 
   theorem mul_le_mul_of_nonpos_left (H : b ≤ a) (Hc : c ≤ 0) : c * a ≤ c * b :=
+  sorry
+  /-
   have Hc' : -c ≥ 0, from iff.mpr !neg_nonneg_iff_nonpos Hc,
   have H1 : -c * b ≤ -c * a, from mul_le_mul_of_nonneg_left H Hc',
   have H2 : -(c * b) ≤ -(c * a),
@@ -271,8 +303,11 @@ section
       exact H1
     end,
   iff.mp !neg_le_neg_iff_le H2
+  -/
 
   theorem mul_le_mul_of_nonpos_right (H : b ≤ a) (Hc : c ≤ 0) : a * c ≤ b * c :=
+  sorry
+  /-
   have Hc' : -c ≥ 0, from iff.mpr !neg_nonneg_iff_nonpos Hc,
   have H1 : b * -c ≤ a * -c, from mul_le_mul_of_nonneg_right H Hc',
   have H2 : -(b * c) ≤ -(a * c),
@@ -281,15 +316,21 @@ section
       exact H1
     end,
   iff.mp !neg_le_neg_iff_le H2
+  -/
 
   theorem mul_nonneg_of_nonpos_of_nonpos (Ha : a ≤ 0) (Hb : b ≤ 0) : 0 ≤ a * b :=
+  sorry
+  /-
   begin
     have H : 0 * b ≤ a * b, from mul_le_mul_of_nonpos_right Ha Hb,
     rewrite zero_mul at H,
     exact H
   end
+  -/
 
   theorem mul_lt_mul_of_neg_left (H : b < a) (Hc : c < 0) : c * a < c * b :=
+  sorry
+  /-
   have Hc' : -c > 0, from iff.mpr !neg_pos_iff_neg Hc,
   have H1 : -c * b < -c * a, from mul_lt_mul_of_pos_left H Hc',
   have H2 : -(c * b) < -(c * a),
@@ -298,8 +339,11 @@ section
       exact H1
     end,
   iff.mp !neg_lt_neg_iff_lt H2
+  -/
 
   theorem mul_lt_mul_of_neg_right (H : b < a) (Hc : c < 0) : a * c < b * c :=
+  sorry
+  /-
   have Hc' : -c > 0, from iff.mpr !neg_pos_iff_neg Hc,
   have H1 : b * -c < a * -c, from mul_lt_mul_of_pos_right H Hc',
   have H2 : -(b * c) < -(a * c),
@@ -308,13 +352,17 @@ section
       exact H1
     end,
   iff.mp !neg_lt_neg_iff_lt H2
+  -/
 
   theorem mul_pos_of_neg_of_neg (Ha : a < 0) (Hb : b < 0) : 0 < a * b :=
+  sorry
+  /-
   begin
     have H : 0 * b < a * b, from mul_lt_mul_of_neg_right Ha Hb,
     rewrite zero_mul at H,
     exact H
   end
+  -/
 
 end
 
@@ -344,6 +392,8 @@ structure linear_ordered_comm_ring [class] (A : Type) extends linear_ordered_rin
 
 theorem linear_ordered_comm_ring.eq_zero_or_eq_zero_of_mul_eq_zero [s : linear_ordered_comm_ring A]
         {a b : A} (H : a * b = 0) : a = 0 ∨ b = 0 :=
+sorry
+/-
 lt.by_cases
   (assume Ha : 0 < a,
     lt.by_cases
@@ -376,6 +426,7 @@ lt.by_cases
           rewrite H at H1,
           apply absurd_a_lt_a H1
         end))
+-/
 
 -- Linearity implies no zero divisors. Doesn't need commutativity.
 definition linear_ordered_comm_ring.to_integral_domain [trans_instance]
@@ -396,13 +447,18 @@ section
 
   theorem zero_le_one : 0 ≤ (1:A) :=
   have H : 1 * 1 ≥ 0, from mul_self_nonneg (1:A),
+  sorry
+  /-
   begin
     rewrite one_mul at H,
     assumption
   end
+  -/
 
   theorem pos_and_pos_or_neg_and_neg_of_mul_pos {a b : A} (Hab : a * b > 0) :
     (a > 0 ∧ b > 0) ∨ (a < 0 ∧ b < 0) :=
+  sorry
+  /-
   lt.by_cases
     (assume Ha : 0 < a,
       lt.by_cases
@@ -429,8 +485,11 @@ section
             apply absurd_a_lt_a Hab
           end)
         (assume Hb : b < 0, or.inr (and.intro Ha Hb)))
+  -/
 
   theorem gt_of_mul_lt_mul_neg_left {a b c : A} (H : c * a < c * b) (Hc : c ≤ 0) : a > b :=
+  sorry
+  /-
     have nhc : -c ≥ 0, from neg_nonneg_of_nonpos Hc,
     have H2 : -(c * b) < -(c * a), from iff.mpr (neg_lt_neg_iff_lt _ _) H,
     have H3 : (-c) * b < (-c) * a, from calc
@@ -438,19 +497,25 @@ section
            ... < -(c * a)     : H2
            ... = (-c) * a     : by rewrite neg_mul_eq_neg_mul,
     lt_of_mul_lt_mul_left H3 nhc
+  -/
 
   theorem zero_gt_neg_one : -1 < (0:A) :=
     neg_zero ▸ (neg_lt_neg zero_lt_one)
 
   theorem le_of_mul_le_of_ge_one {a b c : A} (H : a * c ≤ b) (Hb : b ≥ 0) (Hc : c ≥ 1) : a ≤ b :=
+  sorry
+  /-
     have H' : a * c ≤ b * c, from calc
       a * c ≤ b : H
         ... = b * 1 : by rewrite mul_one
         ... ≤ b * c : mul_le_mul_of_nonneg_left Hc Hb,
     le_of_mul_le_mul_right H' (lt_of_lt_of_le zero_lt_one Hc)
+  -/
 
   theorem nonneg_le_nonneg_of_squares_le {a b : A} (Ha : a ≥ 0) (Hb : b ≥ 0) (H : a * a ≤ b * b) :
       a ≤ b :=
+  sorry
+  /-
     begin
       apply le_of_not_gt,
       intro Hab,
@@ -460,6 +525,8 @@ section
         ... < a * a : mul_lt_mul_of_pos_left Hab Hposa,
       apply (not_le_of_gt H') H
     end
+  -/
+
 end
 
 /- TODO: Isabelle's library has all kinds of cancelation rules for the simplifier.
@@ -491,6 +558,8 @@ section
   theorem sign_neg_one : sign (-1) = -(1:A) := sign_of_neg (neg_neg_of_pos zero_lt_one)
 
   theorem sign_sign (a : A) : sign (sign a) = sign a :=
+  sorry
+  /-
   lt.by_cases
     (assume H : a > 0,
       calc
@@ -507,8 +576,11 @@ section
         sign (sign a) = sign (-1)     : by rewrite (sign_of_neg H)
                   ... = -1            : by rewrite sign_neg_one
                   ... = sign a        : by rewrite (sign_of_neg H))
+  -/
 
   theorem pos_of_sign_eq_one (H : sign a = 1) : a > 0 :=
+  sorry
+  /-
   lt.by_cases
     (assume H1 : 0 < a, H1)
     (assume H1 : 0 = a,
@@ -519,8 +591,11 @@ section
     (assume H1 : 0 > a,
       have H2 : -1 = 1, from (sign_of_neg H1)⁻¹ ⬝ H,
       absurd ((eq_zero_of_neg_eq H2)⁻¹) zero_ne_one)
+  -/
 
   theorem eq_zero_of_sign_eq_zero (H : sign a = 0) : a = 0 :=
+  sorry
+  /-
   lt.by_cases
     (assume H1 : 0 < a,
       absurd (H⁻¹ ⬝ sign_of_pos H1) zero_ne_one)
@@ -529,8 +604,11 @@ section
       have H2 : 0 = -1, from H⁻¹ ⬝ sign_of_neg H1,
       have H3 : 1 = 0, from eq_neg_of_eq_neg H2 ⬝ neg_zero,
       absurd (H3⁻¹) zero_ne_one)
+  -/
 
   theorem neg_of_sign_eq_neg_one (H : sign a = -1) : a < 0 :=
+  sorry
+  /-
   lt.by_cases
     (assume H1 : 0 < a,
       have H2 : -1 = 1, from H⁻¹ ⬝ (sign_of_pos H1),
@@ -544,8 +622,11 @@ section
       have H3 : 1 = 0, from eq_neg_of_eq_neg H2 ⬝ neg_zero,
       absurd (H3⁻¹) zero_ne_one)
     (assume H1 : 0 > a, H1)
+  -/
 
   theorem sign_neg (a : A) : sign (-a) = -(sign a) :=
+  sorry
+  /-
   lt.by_cases
     (assume H1 : 0 < a,
       calc
@@ -564,8 +645,11 @@ section
         sign (-a) = 1         : sign_of_pos (neg_pos_of_neg H1)
               ... = -(-1)     : by rewrite neg_neg
               ... = -(sign a) : by rewrite (sign_of_neg H1))
+  -/
 
   theorem sign_mul (a b : A) : sign (a * b) = sign a * sign b :=
+  sorry
+  /-
   lt.by_cases
     (assume z_lt_a : 0 < a,
       lt.by_cases
@@ -587,8 +671,11 @@ section
          by rewrite [sign_of_neg z_gt_a, sign_of_neg z_gt_b,
                      sign_of_pos (mul_pos_of_neg_of_neg z_gt_a z_gt_b),
                      neg_mul_neg, one_mul]))
+  -/
 
   theorem abs_eq_sign_mul (a : A) : abs a = sign a * a :=
+  sorry
+  /-
   lt.by_cases
     (assume H1 : 0 < a,
       calc
@@ -607,8 +694,11 @@ section
         abs a = -a         : abs_of_neg H1
           ... = -1 * a     : by rewrite neg_eq_neg_one_mul
           ... = sign a * a : by rewrite (sign_of_neg H1))
+  -/
 
   theorem eq_sign_mul_abs (a : A) : a = sign a * abs a :=
+  sorry
+  /-
   lt.by_cases
     (assume H1 : 0 < a,
       calc
@@ -627,6 +717,7 @@ section
           ... = -abs a         : by rewrite (abs_of_neg H1)
           ... = -1 * abs a     : by rewrite neg_eq_neg_one_mul
           ... = sign a * abs a : by rewrite (sign_of_neg H1))
+  -/
 
   theorem abs_dvd_iff (a b : A) : abs a ∣ b ↔ a ∣ b :=
   abs.by_cases !iff.refl !neg_dvd_iff_dvd
@@ -641,6 +732,8 @@ section
     iff.mpr !dvd_abs_iff
 
   theorem abs_mul (a b : A) : abs (a * b) = abs a * abs b :=
+  sorry
+  /-
   or.elim (le.total 0 a)
     (assume H1 : 0 ≤ a,
       or.elim (le.total 0 b)
@@ -669,14 +762,17 @@ section
                     ... = -a * -b       : by rewrite neg_mul_neg
                     ... = abs a * -b    : by rewrite (abs_of_nonpos H1)
                     ... = abs a * abs b : by rewrite (abs_of_nonpos H2)))
+  -/
 
   theorem abs_mul_abs_self (a : A) : abs a * abs a = a * a :=
   abs.by_cases rfl !neg_mul_neg
 
   theorem abs_mul_self (a : A) : abs (a * a) = a * a :=
-  by rewrite [abs_mul, abs_mul_abs_self]
+  sorry -- by rewrite [abs_mul, abs_mul_abs_self]
 
   theorem sub_le_of_abs_sub_le_left (H : abs (a - b) ≤ c) : b - c ≤ a :=
+  sorry
+  /-
     if Hz : 0 ≤ a - b then
       (calc
         a ≥ b : (iff.mp !sub_nonneg_iff_le) Hz
@@ -685,11 +781,14 @@ section
       (have Habs : b - a ≤ c, by rewrite [abs_of_neg (lt_of_not_ge Hz) at H, neg_sub at H]; apply H,
        have Habs' : b ≤ c + a, from (iff.mpr !le_add_iff_sub_right_le) Habs,
        (iff.mp !le_add_iff_sub_left_le) Habs')
+  -/
 
   theorem sub_le_of_abs_sub_le_right (H : abs (a - b) ≤ c) : a - c ≤ b :=
     sub_le_of_abs_sub_le_left (!abs_sub ▸ H)
 
   theorem sub_lt_of_abs_sub_lt_left (H : abs (a - b) < c) : b - c < a :=
+  sorry
+  /-
     if Hz : 0 ≤ a - b then
       (calc
         a ≥ b : (iff.mp !sub_nonneg_iff_le) Hz
@@ -698,11 +797,14 @@ section
       (have Habs : b - a < c, by rewrite [abs_of_neg (lt_of_not_ge Hz) at H, neg_sub at H]; apply H,
        have Habs' : b < c + a, from lt_add_of_sub_lt_right Habs,
        sub_lt_left_of_lt_add Habs')
+  -/
 
   theorem sub_lt_of_abs_sub_lt_right (H : abs (a - b) < c) : a - c < b :=
     sub_lt_of_abs_sub_lt_left (!abs_sub ▸ H)
 
   theorem abs_sub_square (a b : A) : abs (a - b) * abs (a - b) = a * a + b * b - (1 + 1) * a * b :=
+  sorry
+  /-
     begin
       rewrite [abs_mul_abs_self, *mul_sub_left_distrib, *mul_sub_right_distrib,
                sub_eq_add_neg (a*b), sub_add_eq_sub_sub, sub_neg_eq_add, *right_distrib, sub_add_eq_sub_sub, *one_mul,
@@ -710,8 +812,11 @@ section
       rewrite [{a*a + b*b}add.comm],
       rewrite [mul.comm b a, *add.assoc]
     end
+  -/
 
   theorem abs_abs_sub_abs_le_abs_sub (a b : A) : abs (abs a - abs b) ≤ abs (a - b) :=
+  sorry
+  /-
   begin
     apply nonneg_le_nonneg_of_squares_le,
     repeat apply abs_nonneg,
@@ -726,6 +831,7 @@ section
     apply zero_lt_one,
     apply zero_lt_one
   end
+  -/
 
   lemma eq_zero_of_mul_self_add_mul_self_eq_zero {x y : A} (H : x * x + y * y = 0) : x = 0 :=
   have x * x ≤ (0 : A), from calc
@@ -739,26 +845,29 @@ end
 namespace norm_num
 
 theorem pos_bit0_helper [s : linear_ordered_semiring A] (a : A) (H : a > 0) : bit0 a > 0 :=
-  by rewrite ↑bit0; apply add_pos H H
+sorry -- by rewrite ↑bit0; apply add_pos H H
 
 theorem nonneg_bit0_helper [s : linear_ordered_semiring A] (a : A) (H : a ≥ 0) : bit0 a ≥ 0 :=
-  by rewrite ↑bit0; apply add_nonneg H H
+sorry --   by rewrite ↑bit0; apply add_nonneg H H
 
 theorem pos_bit1_helper [s : linear_ordered_semiring A] (a : A) (H : a ≥ 0) : bit1 a > 0 :=
+sorry
+/-
   begin
     rewrite ↑bit1,
     apply add_pos_of_nonneg_of_pos,
     apply nonneg_bit0_helper _ H,
     apply zero_lt_one
   end
+-/
 
 theorem nonneg_bit1_helper [s : linear_ordered_semiring A] (a : A) (H : a ≥ 0) : bit1 a ≥ 0 :=
-  by apply le_of_lt; apply pos_bit1_helper _ H
+sorry --  by apply le_of_lt; apply pos_bit1_helper _ H
 
 theorem nonzero_of_pos_helper [s : linear_ordered_semiring A] (a : A) (H : a > 0) : a ≠ 0 :=
   ne_of_gt H
 
 theorem nonzero_of_neg_helper [s : linear_ordered_ring A] (a : A) (H : a ≠ 0) : -a ≠ 0 :=
-  begin intro Ha, apply H, apply eq_of_neg_eq_neg, rewrite neg_zero, exact Ha end
+sorry --  begin intro Ha, apply H, apply eq_of_neg_eq_neg, rewrite neg_zero, exact Ha end
 
 end norm_num

@@ -33,10 +33,10 @@ sorry -- begin intros a l h, cases h, split, repeat assumption end
 lemma sorted.rect_on {P : list A → Type} : ∀ {l}, sorted R l → P [] → (∀ a l, sorted R l → P l → hd_rel R a l → P (a::l)) → P l
 | []     s h₁ h₂ := h₁
 | (a::l) s h₁ h₂ :=
-  have hd_rel R a l, from and.left (sorted_inv s),
-  have sorted R l,   from and.right (sorted_inv s),
-  have P l,          from sorted.rect_on this h₁ h₂,
-  h₂ a l `sorted R l` `P l` `hd_rel R a l`
+  have aux₁ : hd_rel R a l, from and.left (sorted_inv s),
+  have aux₂ : sorted R l,   from and.right (sorted_inv s),
+  have aux₃ : P l,          from sorted.rect_on aux₂ h₁ h₂,
+  h₂ a l aux₂ aux₃ aux₁
 
 lemma sorted_singleton (a : A) : sorted R [a] :=
 sorted.step !hd_rel.base !sorted.base
@@ -70,9 +70,9 @@ lemma sorted_of_strongly_sorted : ∀ {l}, strongly_sorted R l → sorted R l
 | []        h := !sorted.base
 | [a]       h := !sorted_singleton
 | (a::b::l) (strongly_sorted.step h₁ h₂) :=
-  have hd_rel R a (b::l), from hd_rel.step _ (of_all_cons h₁),
+  have aux : hd_rel R a (b::l), from hd_rel.step _ (of_all_cons h₁),
   have sorted R (b::l),   from sorted_of_strongly_sorted h₂,
-  sorted.step `hd_rel R a (b::l)` `sorted R (b::l)`
+  sorted.step aux this
 
 lemma sorted_extends (trans : transitive R) : ∀ {a l}, sorted R (a::l) → all l (R a)
 := sorry
@@ -94,9 +94,9 @@ theorem strongly_sorted_of_sorted_of_transitive (trans : transitive R) : ∀ {l}
 | []     h := !strongly_sorted.base
 | (a::l) h :=
   have sorted R l,          from and.right (sorted_inv h),
-  have strongly_sorted R l, from strongly_sorted_of_sorted_of_transitive this,
+  have aux : strongly_sorted R l, from strongly_sorted_of_sorted_of_transitive this,
   have all l (R a),         from sorted_extends trans h,
-  strongly_sorted.step `all l (R a)` `strongly_sorted R l`
+  strongly_sorted.step this aux
 
 open perm
 

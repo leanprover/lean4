@@ -49,8 +49,8 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/info_annotation.h"
-#include "frontends/lean/parse_rewrite_tactic.h"
-#include "frontends/lean/parse_tactic_location.h"
+// #include "frontends/lean/parse_rewrite_tactic.h"
+// #include "frontends/lean/parse_tactic_location.h"
 #include "frontends/lean/update_environment_exception.h"
 #include "frontends/lean/local_ref_info.h"
 #include "frontends/lean/opt_cmd.h"
@@ -2004,9 +2004,11 @@ expr parser::parse_tactic_nud() {
                     check_token_next(get_with_tk(), "invalid tactic expression, 'with' expected");
                     expr e = parse_expr();
                     r = mk_app(r, e, id_pos);
+/*
                 } else if (is_tactic_location_type(d)) {
                     location l = parse_tactic_location(*this);
                     r = mk_app(r, mk_location_expr(l), id_pos);
+*/
                 } else {
                     unsigned rbp;
                     if ((arity == 1) ||

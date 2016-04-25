@@ -31,9 +31,9 @@ definition map (f : A → B) : list A → list B
 | []       := []
 | (a :: l) := f a :: map l
 
-theorem map_nil (f : A → B) : map f [] = []
+theorem map_nil (f : A → B) : map f [] = [] := rfl
 
-theorem map_cons (f : A → B) (a : A) (l : list A) : map f (a :: l) = f a :: map f l
+theorem map_cons (f : A → B) (a : A) (l : list A) : map f (a :: l) = f a :: map f l := rfl
 
 lemma map_concat (f : A → B) (a : A) : Πl, map f (concat a l) = concat (f a) (map f l)
 | nil    := rfl
@@ -140,7 +140,7 @@ definition filter (p : A → Prop) [h : decidable_pred p] : list A → list A
 | []     := []
 | (a::l) := if p a then a :: filter l else filter l
 
-theorem filter_nil [simp] (p : A → Prop) [h : decidable_pred p] : filter p [] = []
+theorem filter_nil [simp] (p : A → Prop) [h : decidable_pred p] : filter p [] = [] := rfl
 
 theorem filter_cons_of_pos [simp] {p : A → Prop} [h : decidable_pred p] {a : A} : ∀ l, p a → filter p (a::l) = a :: filter p l :=
 λ l pa, if_pos pa
@@ -206,17 +206,17 @@ definition foldl (f : A → B → A) : A → list B → A
 | a []       := a
 | a (b :: l) := foldl (f a b) l
 
-theorem foldl_nil [simp] (f : A → B → A) (a : A) : foldl f a [] = a
+theorem foldl_nil [simp] (f : A → B → A) (a : A) : foldl f a [] = a := rfl
 
-theorem foldl_cons [simp] (f : A → B → A) (a : A) (b : B) (l : list B) : foldl f a (b::l) = foldl f (f a b) l
+theorem foldl_cons [simp] (f : A → B → A) (a : A) (b : B) (l : list B) : foldl f a (b::l) = foldl f (f a b) l := rfl
 
 definition foldr (f : A → B → B) : B → list A → B
 | b []       := b
 | b (a :: l) := f a (foldr b l)
 
-theorem foldr_nil [simp] (f : A → B → B) (b : B) : foldr f b [] = b
+theorem foldr_nil [simp] (f : A → B → B) (b : B) : foldr f b [] = b := rfl
 
-theorem foldr_cons [simp] (f : A → B → B) (b : B) (a : A) (l : list A) : foldr f b (a::l) = f a (foldr f b l)
+theorem foldr_cons [simp] (f : A → B → B) (b : B) (a : A) (l : list A) : foldr f b (a::l) = f a (foldr f b l) := rfl
 
 section foldl_eq_foldr
   -- foldl and foldr coincide when f is commutative and associative
@@ -269,11 +269,11 @@ foldr (λ a r, p a ∧ r) true l
 definition any (l : list A) (p : A → Prop) : Prop :=
 foldr (λ a r, p a ∨ r) false l
 
-theorem all_nil_eq [simp] (p : A → Prop) : all [] p = true
+theorem all_nil_eq [simp] (p : A → Prop) : all [] p = true := rfl
 
 theorem all_nil (p : A → Prop) : all [] p := trivial
 
-theorem all_cons_eq (p : A → Prop) (a : A) (l : list A) : all (a::l) p = (p a ∧ all l p)
+theorem all_cons_eq (p : A → Prop) (a : A) (l : list A) : all (a::l) p = (p a ∧ all l p) := rfl
 
 theorem all_cons {p : A → Prop} {a : A} {l : list A} (H1 : p a) (H2 : all l p) : all (a::l) p :=
 and.intro H1 H2
@@ -290,9 +290,9 @@ assume pa alllp, and.intro pa alllp
 theorem all_implies {p q : A → Prop} : ∀ {l}, all l p → (∀ x, p x → q x) → all l q
 | []     h₁ h₂ := trivial
 | (a::l) h₁ h₂ :=
-  have all l q, from all_implies (all_of_all_cons h₁) h₂,
+  have h₃ : all l q, from all_implies (all_of_all_cons h₁) h₂,
   have q a, from h₂ a (of_all_cons h₁),
-  all_cons_of_all this `all l q`
+  all_cons_of_all this h₃
 
 theorem of_mem_of_all {p : A → Prop} {a : A} : ∀ {l}, a ∈ l → all l p → p a
 := sorry
@@ -312,9 +312,9 @@ theorem all_of_forall {p : A → Prop} : ∀ {l}, (∀a, a ∈ l → p a) → al
 | (a::l) H := all_cons (H a !mem_cons)
                        (all_of_forall (λ a' H', H a' (mem_cons_of_mem _ H')))
 
-theorem any_nil [simp] (p : A → Prop) : any [] p = false
+theorem any_nil [simp] (p : A → Prop) : any [] p = false := rfl
 
-theorem any_cons [simp] (p : A → Prop) (a : A) (l : list A) : any (a::l) p = (p a ∨ any l p)
+theorem any_cons [simp] (p : A → Prop) (a : A) (l : list A) : any (a::l) p = (p a ∨ any l p) := rfl
 
 theorem any_of_mem {p : A → Prop} {a : A} : ∀ {l}, a ∈ l → p a → any l p
 := sorry
@@ -374,7 +374,7 @@ definition unzip : list (A × B) → list A × list B
   | (la, lb) := (a :: la, b :: lb)
   end
 
-theorem unzip_nil [simp] : unzip (@nil (A × B)) = ([], [])
+theorem unzip_nil [simp] : unzip (@nil (A × B)) = ([], []) := rfl
 
 theorem unzip_cons [simp] (a : A) (b : B) (l : list (A × B)) :
    unzip ((a, b) :: l) = match unzip l with (la, lb) := (a :: la, b :: lb) end :=
@@ -461,10 +461,10 @@ definition product : list A → list B → list (A × B)
 | []      l₂ := []
 | (a::l₁) l₂ := map (λ b, (a, b)) l₂ ++ product l₁ l₂
 
-theorem nil_product (l : list B) : product (@nil A) l = []
+theorem nil_product (l : list B) : product (@nil A) l = [] := rfl
 
 theorem product_cons (a : A) (l₁ : list A) (l₂ : list B)
-        : product (a::l₁) l₂ = map (λ b, (a, b)) l₂ ++ product l₁ l₂
+        : product (a::l₁) l₂ = map (λ b, (a, b)) l₂ ++ product l₁ l₂ := rfl
 
 theorem product_nil : ∀ (l : list A), product l (@nil B) = []
 | []     := rfl

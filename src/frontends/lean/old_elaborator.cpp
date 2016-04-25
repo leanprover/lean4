@@ -48,12 +48,11 @@ Author: Leonardo de Moura
 #include "library/definitional/equations.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/structure_cmd.h"
-#include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/old_elaborator.h"
-#include "frontends/lean/info_tactic.h"
-#include "frontends/lean/begin_end_annotation.h"
+// #include "frontends/lean/info_tactic.h"
+// #include "frontends/lean/begin_end_annotation.h"
 #include "frontends/lean/elaborator_exception.h"
 #include "frontends/lean/nested_declaration.h"
 #include "frontends/lean/calc.h"
@@ -740,7 +739,9 @@ expr old_elaborator::visit_app(expr const & e, constraint_seq & cs) {
     }
     constraint_seq a_cs;
     expr d_type = binding_domain(f_type);
-    if (d_type == get_tactic_expr_type() || d_type == get_tactic_identifier_type() ||
+    if (false) {
+        /*
+        d_type == get_tactic_expr_type() || d_type == get_tactic_identifier_type() ||
         d_type == get_tactic_using_expr_type() || d_type == get_tactic_location_type() ||
         d_type == get_tactic_with_expr_type()) {
         expr const & a = app_arg(e);
@@ -755,6 +756,8 @@ expr old_elaborator::visit_app(expr const & e, constraint_seq & cs) {
         }
         cs += f_cs + a_cs;
         return r;
+        */
+        lean_unreachable();
     } else {
         expr a          = visit_expecting_type_of(app_arg(e), d_type, a_cs);
         expr a_type     = infer_type(a, a_cs);
@@ -1976,24 +1979,6 @@ bool old_elaborator::try_using(substitution & subst, expr const & mvar, proof_st
     }
 }
 
-static void extract_begin_end_tactics(expr pre_tac, buffer<expr> & pre_tac_seq) {
-    if (is_begin_end_element_annotation(pre_tac)) {
-        pre_tac_seq.push_back(get_annotation_arg(pre_tac));
-    } else if (is_begin_end_annotation(pre_tac)) {
-        // nested begin-end block
-        pre_tac_seq.push_back(pre_tac);
-    } else {
-        buffer<expr> args;
-        if (get_app_args(pre_tac, args) == get_and_then_tac_fn()) {
-            for (expr const & arg : args) {
-                extract_begin_end_tactics(arg, pre_tac_seq);
-            }
-        } else {
-            throw exception("internal error, invalid begin-end tactic");
-        }
-    }
-}
-
 void old_elaborator::show_goal(proof_state const & ps, expr const & start, expr const & end, expr const & curr) {
     unsigned line, col;
     if (!m_ctx.has_show_goal_at(line, col))
@@ -2017,81 +2002,6 @@ void old_elaborator::show_goal(proof_state const & ps, expr const & start, expr 
     print_lean_info_footer(out.get_stream());
 }
 
-bool old_elaborator::try_using_begin_end(substitution & subst, expr const & mvar, proof_state ps, expr const & pre_tac) {
-    lean_assert(is_begin_end_annotation(pre_tac));
-    expr end_expr   = pre_tac;
-    expr start_expr = get_annotation_arg(pre_tac);
-    buffer<expr> pre_tac_seq;
-    extract_begin_end_tactics(get_annotation_arg(pre_tac), pre_tac_seq);
-    for (expr ptac : pre_tac_seq) {
-        if (is_begin_end_annotation(ptac)) {
-            goals gs = ps.get_goals();
-            if (!gs)
-                throw_elaborator_exception("invalid nested begin-end block, there are no goals to be solved", ptac);
-            goal  g             = head(gs);
-            expr mvar           = g.get_mvar();
-            proof_state focus_ps(ps, goals(g));
-            if (!try_using_begin_end(subst, mvar, focus_ps, ptac))
-                return false;
-            ps = proof_state(ps, tail(gs), subst);
-        } else {
-            show_goal(ps, start_expr, end_expr, ptac);
-            expr new_ptac = subst.instantiate_all(ptac);
-            if (auto tac = pre_tactic_to_tactic(new_ptac)) {
-                try {
-                    ps = ps.update_report_failure(true);
-                    proof_state_seq seq = (*tac)(env(), ios(), ps);
-                    auto r = seq.pull();
-                    if (!r) {
-                        // tactic failed to produce any result
-                        display_unsolved_proof_state(mvar, ps, "tactic failed", ptac);
-                        return false;
-                    }
-                    if (m_ctx.m_flycheck_goals) {
-                        if (auto p = pip()->get_pos_info(ptac)) {
-                            auto out = regular(env(), ios(), m_tc->get_type_context());
-                            flycheck_information info(ios());
-                            if (info.enabled()) {
-                                display_information_pos(out, pip()->get_file_name(), p->first, p->second);
-                                out << " proof state:\n" << ps.pp(out.get_formatter()) << "\n";
-                            }
-                        }
-                    }
-                    ps = r->first;
-                } catch (tactic_exception & ex) {
-                    display_tactic_exception(ex, ps, ptac);
-                    return false;
-                } catch (exception &) {
-                    throw;
-                } catch (throwable & ex) {
-                    auto out = regular(env(), ios(), m_tc->get_type_context());
-                    flycheck_error err(ios());
-                    if (!err.enabled() || save_error(pip(), ptac)) {
-                        display_error_pos(out, pip(), ptac);
-                        out << ex.what() << "\nproof state:\n";
-                        out << ps.pp(out.get_formatter()) << "\n";
-                    }
-                    return false;
-                }
-            } else {
-                return false;
-            }
-        }
-    }
-    show_goal(ps, start_expr, end_expr, end_expr);
-
-    if (!empty(ps.get_goals())) {
-        display_unsolved_subgoals(mvar, ps, pre_tac);
-        return false;
-    } else {
-        subst = ps.get_subst();
-        lean_assert(subst.is_assigned(mvar));
-        expr v = subst.instantiate(mvar);
-        subst.assign(mlocal_name(mvar), v);
-        return true;
-    }
-}
-
 // The parameters univs_fixed is true if the elaborator has instantiated the universe metavariables with universe parameters.
 // See issue #771
 void old_elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set & visited, bool reject_type_is_meta) {
@@ -2110,6 +2020,7 @@ void old_elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name
         throw_elaborator_exception("failed to synthesize placeholder, type is a unknown (i.e., it is a metavariable) "
                                    "(solution: provide type explicitly)", mvar);
     }
+    /*
     proof_state ps = to_proof_state(*meta, type, subst);
     if (auto pre_tac = get_pre_tactic_for(mvar)) {
         if (is_begin_end_annotation(*pre_tac)) {
@@ -2134,6 +2045,8 @@ void old_elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name
             }
         }
     }
+    */
+    return;
 }
 
 /** \brief Execute \c fn on every metavariable occurring in \c e.
@@ -2408,9 +2321,11 @@ elaborate_result old_elaborator::elaborate_nested(list<expr> const & ctx, option
                                               expr const & n, bool use_tactic_hints,
                                               substitution const & subst, bool report_unassigned) {
     if (infom()) {
+        /*
         if (auto ps = get_info_tactic_proof_state()) {
             save_proof_state_info(*ps, n);
         }
+        */
     }
     expr e = translate(env(), ctx, n);
     metavar_closure cls;

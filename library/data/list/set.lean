@@ -360,7 +360,7 @@ definition erase_dup [decidable_eq A] : list A → list A
 | []        :=  []
 | (x :: xs) :=  if x ∈ xs then erase_dup xs else x :: erase_dup xs
 
-theorem erase_dup_nil [decidable_eq A] : erase_dup [] = ([] : list A)
+theorem erase_dup_nil [decidable_eq A] : erase_dup [] = ([] : list A) := rfl
 
 theorem erase_dup_cons_of_mem [decidable_eq A] {a : A} {l : list A} : a ∈ l → erase_dup (a::l) = erase_dup l :=
 assume ainl, calc
@@ -507,9 +507,9 @@ definition upto : nat → list nat
 | 0     := []
 | (n+1) := n :: upto n
 
-theorem upto_nil  : upto 0 = nil
+theorem upto_nil  : upto 0 = nil := rfl
 
-theorem upto_succ (n : nat) : upto (succ n) = n :: upto n
+theorem upto_succ (n : nat) : upto (succ n) = n :: upto n := rfl
 
 theorem length_upto : ∀ n, length (upto n) = n
 := sorry
@@ -575,7 +575,7 @@ definition union : list A → list A → list A
 | []      l₂ := l₂
 | (a::l₁) l₂ := if a ∈ l₂ then union l₁ l₂ else a :: union l₁ l₂
 
-theorem nil_union (l : list A) : union [] l = l
+theorem nil_union (l : list A) : union [] l = l := rfl
 
 theorem union_cons_of_mem {a : A} {l₂} : ∀ (l₁), a ∈ l₂ → union (a::l₁) l₂ = union l₁ l₂ :=
 take l₁, assume ainl₂, calc
@@ -806,7 +806,7 @@ definition inter : list A → list A → list A
 | []      l₂ := []
 | (a::l₁) l₂ := if a ∈ l₂ then a :: inter l₁ l₂ else inter l₁ l₂
 
-theorem inter_nil (l : list A) : inter [] l = []
+theorem inter_nil (l : list A) : inter [] l = [] := rfl
 
 theorem inter_cons_of_mem {a : A} (l₁ : list A) {l₂} : a ∈ l₂ → inter (a::l₁) l₂ = a :: inter l₁ l₂ :=
 assume i, if_pos i

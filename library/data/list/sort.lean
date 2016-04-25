@@ -193,7 +193,7 @@ lemma strongly_sorted_sort_aux : ∀ {n : nat} {l : list A} (h : length l = n), 
       suppose x ∈ sort_aux R n (erase m l) leq,
       have x ∈ erase m l, from mem_perm (sort_aux_perm R leq) this,
       have x ∈ l,         from mem_of_mem_erase this,
-      show R m x,         from of_mem_of_all this `all l (R m)`),
+      show R m x,         from of_mem_of_all this sorry), -- `all l (R m)`),
   strongly_sorted.step hall ss
 
 variable {R}

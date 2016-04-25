@@ -10,9 +10,9 @@ namespace pos_num
   theorem succ_not_is_one (a : pos_num) : is_one (succ a) = ff :=
   pos_num.induction_on a rfl (take n iH, rfl) (take n iH, rfl)
 
-  theorem succ_one                : succ one = bit0 one
-  theorem succ_bit1 (a : pos_num) : succ (bit1 a) = bit0 (succ a)
-  theorem succ_bit0 (a : pos_num) : succ (bit0 a) = bit1 a
+  theorem succ_one                : succ one = bit0 one := rfl
+  theorem succ_bit1 (a : pos_num) : succ (bit1 a) = bit0 (succ a) := rfl
+  theorem succ_bit0 (a : pos_num) : succ (bit0 a) = bit1 a := rfl
 
   theorem ne_of_bit0_ne_bit0 {a b : pos_num} (H₁ : bit0 a ≠ bit0 b) : a ≠ b :=
   suppose a = b,
@@ -35,16 +35,16 @@ namespace pos_num
   section
   variables (a b : pos_num)
 
-  theorem one_add_one     : one + one = bit0 one
-  theorem one_add_bit0    : one + (bit0 a) = bit1 a
-  theorem one_add_bit1    : one + (bit1 a) = succ (bit1 a)
-  theorem bit0_add_one    : (bit0 a) + one = bit1 a
-  theorem bit1_add_one    : (bit1 a) + one = succ (bit1 a)
-  theorem bit0_add_bit0   : (bit0 a) + (bit0 b) = bit0 (a + b)
-  theorem bit0_add_bit1   : (bit0 a) + (bit1 b) = bit1 (a + b)
-  theorem bit1_add_bit0   : (bit1 a) + (bit0 b) = bit1 (a + b)
-  theorem bit1_add_bit1   : (bit1 a) + (bit1 b) = succ (bit1 (a + b))
-  theorem one_mul         : one * a = a
+  theorem one_add_one     : one + one = bit0 one := rfl
+  theorem one_add_bit0    : one + (bit0 a) = bit1 a := rfl
+  theorem one_add_bit1    : one + (bit1 a) = succ (bit1 a) := rfl
+  theorem bit0_add_one    : (bit0 a) + one = bit1 a := rfl
+  theorem bit1_add_one    : (bit1 a) + one = succ (bit1 a) := rfl
+  theorem bit0_add_bit0   : (bit0 a) + (bit0 b) = bit0 (a + b) := rfl
+  theorem bit0_add_bit1   : (bit0 a) + (bit1 b) = bit1 (a + b) := rfl
+  theorem bit1_add_bit0   : (bit1 a) + (bit0 b) = bit1 (a + b) := rfl
+  theorem bit1_add_bit1   : (bit1 a) + (bit1 b) = succ (bit1 (a + b)) := rfl
+  theorem one_mul         : one * a = a := rfl
   end
 
   theorem mul_one         : ∀ a, a * one = a

@@ -104,6 +104,7 @@ definition with_options_tac (o : expr) (t : tactic) : tactic := builtin
 -- with_options_tac is just a marker for the builtin 'with_attributes' notation
 definition with_attributes_tac (o : expr) (n : identifier_list) (t : tactic) : tactic := builtin
 
+/-
 definition simp          : tactic := #tactic with_options [blast.strategy "simp"] blast
 definition simp_nohyps   : tactic := #tactic with_options [blast.strategy "simp_nohyps"] blast
 definition simp_topdown  : tactic := #tactic with_options [blast.strategy "simp", simplify.top_down true] blast
@@ -112,6 +113,7 @@ definition rec_simp      : tactic := #tactic with_options [blast.strategy "rec_s
 definition rec_inst_simp : tactic := #tactic with_options [blast.strategy "rec_ematch_simp"] blast
 definition grind         : tactic := #tactic with_options [blast.strategy "grind"] blast
 definition grind_simp    : tactic := #tactic with_options [blast.strategy "grind_simp"] blast
+-/
 
 definition cases (h : expr) (ids : opt_identifier_list) : tactic := builtin
 
@@ -151,11 +153,11 @@ definition try         (t : tactic) : tactic := or_else t id
 definition repeat1     (t : tactic) : tactic := and_then t (repeat t)
 definition focus       (t : tactic) : tactic := focus_at t 0
 definition determ      (t : tactic) : tactic := at_most t 1
-definition trivial                  : tactic := or_else (or_else (apply eq.refl) (apply true.intro)) assumption
+-- definition trivial                  : tactic := or_else (or_else (apply eq.refl) (apply true.intro)) assumption
 definition do (n : num) (t : tactic) : tactic :=
 nat.rec id (λn t', and_then t t') (nat.of_num n)
 end tactic
-tactic_infixl `;`:15 := tactic.and_then
-tactic_notation T1 `:`:15 T2 := tactic.focus (tactic.and_then T1 (tactic.all_goals T2))
+-- tactic_infixl `;`:15 := tactic.and_then
+-- tactic_notation T1 `:`:15 T2 := tactic.focus (tactic.and_then T1 (tactic.all_goals T2))
 tactic_notation `(` h `|` r:(foldl `|` (e r, tactic.or_else r e) h) `)` := r
 --tactic_notation `replace` s `with` t := tactic.replace_tac s t

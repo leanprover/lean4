@@ -100,9 +100,9 @@ match x with
 | 0 := λ f l0, by_cases
   (λ p0 : p 0,    tag 0 p0)
   (suppose ¬ p 0,
-    have lbp 1, from lbp_succ l0 this,
-    have 1 ≺ 0, from and.intro (lt.base 0) `lbp 1`,
-    f 1 `1 ≺ 0` `lbp 1`)
+    have h₁ : lbp 1, from lbp_succ l0 this,
+    have 1 ≺ 0, from and.intro (lt.base 0) h₁,
+    f 1 this h₁)
 | (succ n) := λ f lsn, by_cases
   (suppose p (succ n), tag (succ n) this)
   (suppose ¬ p (succ n),

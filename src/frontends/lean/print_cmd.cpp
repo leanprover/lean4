@@ -29,13 +29,8 @@ Author: Leonardo de Moura
 #include "library/legacy_type_context.h"
 #include "library/unification_hint.h"
 #include "library/defeq_simp_lemmas.h"
+#include "library/reducible.h"
 #include "library/definitional/projection.h"
-#include "library/blast/blast.h"
-#include "library/blast/simplifier/simplifier.h"
-#include "library/blast/backward/backward_lemmas.h"
-#include "library/blast/forward/forward_lemmas.h"
-#include "library/blast/forward/pattern.h"
-#include "library/blast/grinder/intro_elim_lemmas.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
@@ -216,6 +211,7 @@ static void print_metaclasses(parser const & p) {
 }
 
 static void print_patterns(parser & p, name const & n) {
+/*
     if (is_forward_lemma(p.env(), n)) {
         // we regenerate the patterns to make sure they reflect the current set of reducible constants
         try {
@@ -250,6 +246,7 @@ static void print_patterns(parser & p, name const & n) {
             p.display_error(ex);
         }
     }
+*/
 }
 
 static name to_user_name(environment const & env, name const & n) {
@@ -559,6 +556,7 @@ static void print_defeq_lemmas(parser & p) {
 }
 
 static void print_simp_rules(parser & p) {
+/*
     type_checker tc(p.env());
     auto out = regular(p.env(), p.ios(), tc);
     blast::scope_debug scope(p.env(), p.ios());
@@ -575,45 +573,57 @@ static void print_simp_rules(parser & p) {
     if (!ns.is_anonymous())
         header = format(" at namespace '") + format(ns) + format("'");
     out << s.pp_simp(out.get_formatter(), header);
+*/
 }
 
 static void print_congr_rules(parser & p) {
+/*
     type_checker tc(p.env());
     auto out = regular(p.env(), p.ios(), tc);
     blast::scope_debug scope(p.env(), p.ios());
     blast::simp_lemmas s = blast::get_simp_lemmas();
     out << s.pp_congr(out.get_formatter());
+*/
 }
 
 static void print_light_rules(parser & p) {
+/*
     type_checker tc(p.env());
     auto out = regular(p.env(), p.ios(), tc);
     light_rule_set lrs = get_light_rule_set(p.env());
     out << lrs;
+*/
 }
 
 static void print_elim_lemmas(parser & p) {
+/*
     buffer<name> lemmas;
     get_elim_lemmas(p.env(), lemmas);
     for (auto n : lemmas)
         p.ios().get_regular_stream() << n << "\n";
+*/
 }
 
 static void print_intro_lemmas(parser & p) {
+/*
     buffer<name> lemmas;
     get_intro_lemmas(p.env(), lemmas);
     for (auto n : lemmas)
         p.ios().get_regular_stream() << n << "\n";
+*/
 }
 
 static void print_backward_lemmas(parser & p) {
+/*
     buffer<name> lemmas;
     get_backward_lemmas(p.env(), lemmas);
     for (auto n : lemmas)
         p.ios().get_regular_stream() << n << "\n";
+*/
 }
 
 static void print_no_patterns(parser & p) {
+/*
     auto s = get_no_patterns(p.env());
     buffer<name> ns;
     s.to_buffer(ns);
@@ -624,6 +634,7 @@ static void print_no_patterns(parser & p) {
         out << ns[i];
     }
     out << "\n";
+*/
 }
 
 static void print_aliases(parser const & p) {

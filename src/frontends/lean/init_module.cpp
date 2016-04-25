@@ -31,10 +31,12 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/nested_declaration.h"
 #include "frontends/lean/prenum.h"
+#include "frontends/lean/old_attributes.h"
 // #include "frontends/lean/parse_with_attributes_tactic.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {
+    initialize_old_attributes();
     initialize_prenum();
     initialize_info_annotation();
     initialize_tokens();
@@ -65,6 +67,7 @@ void initialize_frontend_lean_module() {
     // initialize_with_attributes_tactic();
 }
 void finalize_frontend_lean_module() {
+    finalize_old_attributes();
     // finalize_with_attributes_tactic();
     finalize_nested_declaration();
     finalize_decl_cmds();

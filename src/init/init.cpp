@@ -14,8 +14,8 @@ Author: Leonardo de Moura
 #include "kernel/quotient/quotient.h"
 #include "kernel/hits/hits.h"
 #include "library/init_module.h"
-#include "library/blast/init_module.h"
-#include "library/tactic/init_module.h"
+// #include "library/blast/init_module.h"
+// #include "library/tactic/init_module.h"
 #include "library/definitional/init_module.h"
 #include "library/print.h"
 #include "compiler/init_module.h"
@@ -34,8 +34,8 @@ void initialize() {
     initialize_hits_module();
     init_default_print_fn();
     initialize_library_module();
-    initialize_tactic_module();
-    initialize_blast_module();
+    // initialize_tactic_module();
+    // initialize_blast_module();
     initialize_definitional_module();
     initialize_compiler_module();
     initialize_frontend_lean_module();
@@ -45,8 +45,8 @@ void finalize() {
     finalize_frontend_lean_module();
     finalize_compiler_module();
     finalize_definitional_module();
-    finalize_blast_module();
-    finalize_tactic_module();
+    // finalize_blast_module();
+    // finalize_tactic_module();
     finalize_library_module();
     finalize_hits_module();
     finalize_quotient_module();

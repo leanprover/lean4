@@ -23,7 +23,7 @@ structure semigroup [class] (A : Type) extends has_mul A :=
 
 -- We add pattern hints to the following lemma because we want it to be used in both directions
 -- at inst_simp strategy.
-theorem mul.assoc [simp] [semigroup A] (a b c : A) : (: a * b * c :) = (: a * (b * c) :) :=
+theorem mul.assoc [simp] [semigroup A] (a b c : A) : a * b * c = a * (b * c) :=
 !semigroup.mul_assoc
 
 structure comm_semigroup [class] (A : Type) extends semigroup A :=
@@ -59,7 +59,7 @@ abbreviation eq_of_mul_eq_mul_right' := @mul.right_cancel
 structure add_semigroup [class] (A : Type) extends has_add A :=
 (add_assoc : ∀a b c, add (add a b) c = add a (add b c))
 
-theorem add.assoc [simp] [add_semigroup A] (a b c : A) : (: a + b + c :) = (: a + (b + c) :) :=
+theorem add.assoc [simp] [add_semigroup A] (a b c : A) : a + b + c = a + (b + c) :=
 !add_semigroup.add_assoc
 
 structure add_comm_semigroup [class] (A : Type) extends add_semigroup A :=

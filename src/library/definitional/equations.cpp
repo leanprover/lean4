@@ -27,7 +27,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/normalize.h"
 #include "library/pp_options.h"
-#include "library/tactic/inversion_tactic.h"
+#include "library/definitional/old_inversion.h"
 
 namespace lean {
 static name * g_equations_name                 = nullptr;
@@ -862,17 +862,17 @@ class equation_compiler_fn {
     }
 
     // Convert program into a goal. We need that to be able to invoke the inversion package.
-    goal to_goal(program const & p) {
+    old_goal to_goal(program const & p) {
         buffer<expr> hyps;
         to_buffer(p.m_context, hyps);
         expr new_type = p.m_type;
         expr new_meta = mk_app(mk_metavar(mk_fresh_name(), Pi(hyps, new_type)), hyps);
-        return goal(new_meta, new_type);
+        return old_goal(new_meta, new_type);
     }
 
     // Convert goal and implementation_list back into a program.
     //  - nvars is the number of new variables in the variable stack.
-    program to_program(expr const & fn, goal const & g, unsigned nvars, list<optional<name>> const & new_var_stack,
+    program to_program(expr const & fn, old_goal const & g, unsigned nvars, list<optional<name>> const & new_var_stack,
                        inversion::implementation_list const & imps) {
         buffer<expr> new_context;
         g.get_hyps(new_context);
@@ -894,7 +894,7 @@ class equation_compiler_fn {
     */
     optional<expr> compile_constructor_core(program const & p, bool fail_if_subgoals) {
         expr h                    = p.get_var(*head(p.m_var_stack));
-        goal g                    = to_goal(p);
+        old_goal g                    = to_goal(p);
         auto imps                 = to_implementation_list(p);
         bool clear_elim           = false;
         if (auto r = apply(env(), ios(), m_tc, g, h, imps, clear_elim)) {
@@ -904,7 +904,7 @@ class equation_compiler_fn {
             list<inversion::implementation_list> imps_list = r->m_implementation_lists;
             if (fail_if_subgoals && r->m_goals)
                 return none_expr();
-            for (goal const & new_g : r->m_goals) {
+            for (old_goal const & new_g : r->m_goals) {
                 list<optional<name>> new_vars = map2<optional<name>>(head(args),
                                                                      [](expr const & a) {
                                                                          if (is_local(a))

@@ -41,7 +41,7 @@ sorry -- nat.induction_on m (by simp) (by simp)
 protected theorem add_sub_cancel_left [simp] (n m : ℕ) : n + m - n = m :=
 sorry -- nat.induction_on n (by simp) (by simp)
 
-protected theorem sub_sub [simp] (n m k : ℕ) : (: n - m - k :) = (: n - (m + k) :) :=
+protected theorem sub_sub [simp] (n m k : ℕ) : n - m - k = n - (m + k) :=
 sorry -- nat.induction_on k (by simp) (by simp)
 
 theorem succ_sub_sub_succ [simp] (n m k : ℕ) : succ n - m - succ k = n - m - k :=

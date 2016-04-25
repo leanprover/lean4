@@ -34,7 +34,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/replace_visitor.h"
 #include "library/definitional/equations.h"
-#include "library/blast/forward/pattern.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/token_table.h"
@@ -812,8 +811,8 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
         format li = m_unicode ? format("⌞") : format("?(");
         format ri = m_unicode ? format("⌟") : format(")");
         return result(group(nest(1, li + pp(get_annotation_arg(e)).fmt() + ri)));
-    } else if (is_pattern_hint(e)) {
-        return result(group(nest(2, format("(:") + pp(get_pattern_hint_arg(e)).fmt() + format(":)"))));
+   // } else if (is_pattern_hint(e)) {
+        // return result(group(nest(2, format("(:") + pp(get_pattern_hint_arg(e)).fmt() + format(":)"))));
     } else if (is_annotation(e)) {
         return pp(get_annotation_arg(e));
     } else {

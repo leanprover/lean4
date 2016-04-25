@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "library/let.h"
 #include "library/constants.h"
 #include "library/definitional/equations.h"
-#include "library/blast/forward/pattern.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/token_table.h"
@@ -511,7 +510,8 @@ static expr parse_typed_expr(parser & p, unsigned, expr const * args, pos_info c
 }
 
 static expr parse_pattern(parser & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_pattern_hint(args[0]), pos);
+    // return p.save_pos(mk_pattern_hint(args[0]), pos);
+    throw parser_error("pattern_hints have been disabled", pos);
 }
 
 parse_table init_nud_table() {

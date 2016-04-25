@@ -13,6 +13,7 @@ opt_cmd.cpp prenum.cpp
 print_cmd.cpp elaborator_context.cpp elaborator.cpp
 # LEGACY
 old_elaborator.cpp
+old_attributes.cpp
 # begin_end_annotation.cpp tactic_hint.cpp
 # info_tactic.cpp
 # parse_tactic_location.cpp parse_rewrite_tactic.cpp builtin_tactics.cpp

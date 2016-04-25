@@ -31,8 +31,6 @@ Author: Leonardo de Moura
 #include "library/abstract_expr_manager.h"
 #include "library/defeq_simp_lemmas.h"
 #include "library/defeq_simplifier.h"
-#include "library/blast/blast.h"
-#include "library/blast/simplifier/simplifier.h"
 #include "compiler/preprocess_rec.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
@@ -489,6 +487,7 @@ static environment init_hits_cmd(parser & p) {
 }
 
 static environment simplify_cmd(parser & p) {
+/*
     name rel = p.check_constant_next("invalid #simplify command, constant expected");
     name ns = p.check_id_next("invalid #simplify command, id expected");
     unsigned o = p.parse_small_nat();
@@ -526,11 +525,12 @@ static environment simplify_cmd(parser & p) {
         else if (o == 1) out << r.get_proof() << endl;
         else out << pf_type << endl;
     }
-
+*/
     return p.env();
 }
 
 static environment normalizer_cmd(parser & p) {
+/*
     environment const & env = p.env();
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
@@ -539,6 +539,8 @@ static environment normalizer_cmd(parser & p) {
     type_checker tc(env);
     regular(env, p.ios(), tc) << r << endl;
     return env;
+*/
+    return p.env();
 }
 
 /*

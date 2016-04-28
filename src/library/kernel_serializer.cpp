@@ -326,7 +326,7 @@ declaration read_declaration(deserializer & d) {
         if (is_th_ax)
             return mk_axiom(n, ps, t);
         else
-            return mk_constant_assumption(n, ps, t);
+            return mk_constant_assumption(n, ps, t, is_trusted);
     }
 }
 

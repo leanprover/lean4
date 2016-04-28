@@ -395,7 +395,6 @@ optional<expr> type_context::unfold_definition(expr const & e) {
     }
 }
 
-
 optional<expr> type_context::reduce_projection(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
@@ -536,16 +535,27 @@ expr type_context::whnf_core(expr const & e) {
     lean_unreachable();
 }
 
-expr type_context::whnf(expr const & e) {
+template<typename F>
+expr type_context::whnf_loop(expr const & e, F const & pred) {
     expr t = e;
     while (true) {
         expr t1 = whnf_core(t);
+        if (!pred(t1))
+            return t1;
         if (auto next_t = unfold_definition(t1)) {
             t = *next_t;
         } else {
             return t1;
         }
     }
+}
+
+expr type_context::whnf(expr const & e) {
+    return whnf_loop(e, [](expr const &) { return true; });
+}
+
+expr type_context::whnf_pred(expr const & e, std::function<bool(expr const &)> const & pred) {
+    return whnf_loop(e, pred);
 }
 
 expr type_context::relaxed_whnf(expr const & e) {

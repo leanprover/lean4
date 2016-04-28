@@ -136,6 +136,7 @@ class type_context : public abstract_type_context {
             m_mctx(mctx), m_tmp_uassignment_sz(usz), m_tmp_eassignment_sz(esz), m_tmp_trail_sz(tsz) {}
     };
     typedef buffer<scope_data> scopes;
+    template<typename F> expr whnf_loop(expr const & e, F const & pred);
 
     metavar_context &  m_mctx;
     local_context      m_lctx;
@@ -190,6 +191,11 @@ public:
     virtual expr push_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) override;
     virtual void pop_local() override;
     virtual expr abstract_locals(expr const & e, unsigned num_locals, expr const * locals) override;
+
+    /** Similar to whnf, but invoked the given predicate before unfolding constants in the head.
+        If pred(e') is false, then the method will not unfold definition in the head of e', and will return e'.
+        This method is useful when we want to normalize the expression until we get a particular symbol as the head symbol. */
+    expr whnf_pred(expr const & e, std::function<bool(expr const &)> const & pred);
 
     /** Given a metavariable \c mvar, and local constants in \c locals, return (mvar' C) where
         C is a superset of \c locals and includes all local constants that depend on \c locals.

@@ -63,7 +63,7 @@ public:
     friend declaration mk_theorem(environment const &, name const &, level_param_names const &, expr const &, expr const &);
     friend declaration mk_theorem(name const &, level_param_names const &, expr const &, expr const &, unsigned);
     friend declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
-    friend declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t);
+    friend declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool trusted);
 };
 
 inline optional<declaration> none_declaration() { return optional<declaration>(); }
@@ -77,7 +77,7 @@ declaration mk_definition(environment const & env, name const & n, level_param_n
 declaration mk_theorem(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v);
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v, unsigned w);
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
-declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t);
+declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool trusted = false);
 
 void initialize_declaration();
 void finalize_declaration();

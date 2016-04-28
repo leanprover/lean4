@@ -31,9 +31,9 @@ struct declaration::cell {
     bool              m_trusted;
     void dealloc() { delete this; }
 
-    cell(name const & n, level_param_names const & params, expr const & t, bool is_axiom):
+    cell(name const & n, level_param_names const & params, expr const & t, bool is_axiom, bool trusted):
         m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(is_axiom),
-        m_height(0), m_use_conv_opt(false), m_trusted(true) {}
+        m_height(0), m_use_conv_opt(false), m_trusted(trusted) {}
     cell(name const & n, level_param_names const & params, expr const & t, bool is_thm, expr const & v,
          unsigned h, bool use_conv_opt, bool trusted):
         m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(is_thm),
@@ -96,10 +96,10 @@ declaration mk_theorem(name const & n, level_param_names const & params, expr co
     return declaration(new declaration::cell(n, params, t, true, v, height, true, true));
 }
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t) {
-    return declaration(new declaration::cell(n, params, t, true));
+    return declaration(new declaration::cell(n, params, t, true, true));
 }
-declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t) {
-    return declaration(new declaration::cell(n, params, t, false));
+declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool trusted) {
+    return declaration(new declaration::cell(n, params, t, false, trusted));
 }
 
 void initialize_declaration() {

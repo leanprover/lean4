@@ -10,15 +10,15 @@ open eq.ops decidable or
 notation `ℕ` := nat
 
 namespace nat
-  protected definition rec_on [reducible] [recursor] [unfold 2]
+  protected definition rec_on [reducible]
                        {C : ℕ → Type} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C a → C (succ a)) : C n :=
   nat.rec H₁ H₂ n
 
-  protected definition induction_on [recursor]
+  protected definition induction_on
                        {C : ℕ → Prop} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C a → C (succ a)) : C n :=
   nat.rec H₁ H₂ n
 
-  protected definition cases_on [reducible] [recursor] [unfold 2]
+  protected definition cases_on [reducible]
                        {C : ℕ → Type} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C (succ a)) : C n :=
   nat.rec H₁ (λ a ih, H₂ a) n
 
@@ -271,3 +271,7 @@ namespace nat
   theorem sub_lt_succ_iff_true [simp] (a b : ℕ) : a - b < succ a ↔ true :=
   iff_true_intro !sub_lt_succ
 end nat
+
+attribute [recursor] nat.induction_on
+attribute [recursor] [unfold 2] nat.cases_on
+attribute [recursor] [unfold 2] nat.rec_on

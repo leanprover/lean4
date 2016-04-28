@@ -653,6 +653,14 @@ static environment abstract_expr_cmd(parser & p) {
     return p.env();
 }
 
+static environment compile_cmd(parser & p) {
+    name n = p.check_constant_next("invalid #compile command, constant expected");
+    declaration d = p.env().get(n);
+    buffer<name> aux_decls;
+    preprocess_rec(p.env(), d, aux_decls);
+    return p.env();
+}
+
 static environment elab_cmd(parser & p) {
     expr e = p.parse_expr();
     expr new_e; level_param_names ls;
@@ -688,6 +696,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#erase_cache",      "erase cached definition (for debugging purposes)", erase_cache_cmd));
     add_cmd(r, cmd_info("#normalizer",       "(for debugging purposes)", normalizer_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
+    add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
     add_cmd(r, cmd_info("#elab",             "(for debugging purposes)", elab_cmd));
     add_cmd(r, cmd_info("#simplify",         "(for debugging purposes) simplify given expression", simplify_cmd));
     add_cmd(r, cmd_info("#defeq_simplify",   "(for debugging purposes) defeq-simplify given expression", defeq_simplify_cmd));

@@ -389,17 +389,16 @@ optional<expr> type_checker::unfold_definition(expr const & e) {
 }
 
 /** \brief Put expression \c t in weak head normal form */
-expr type_checker::whnf(expr const & e_prime) {
+expr type_checker::whnf(expr const & e) {
     // Do not cache easy cases
-    switch (e_prime.kind()) {
+    switch (e.kind()) {
     case expr_kind::Var: case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local: case expr_kind::Pi:
-        return e_prime;
+        return e;
     case expr_kind::Lambda:   case expr_kind::Macro: case expr_kind::App:
     case expr_kind::Constant: case expr_kind::Let:
         break;
     }
 
-    expr e = e_prime;
     // check cache
     if (m_memoize) {
         auto it = m_whnf_cache.find(e);
@@ -417,6 +416,20 @@ expr type_checker::whnf(expr const & e_prime) {
             if (m_memoize)
                 m_whnf_cache.insert(mk_pair(e, r));
             return r;
+        }
+    }
+}
+
+expr type_checker::whnf_pred(expr const & e, std::function<bool(expr const &)> const & pred) {
+    expr t = e;
+    while (true) {
+        expr t1 = whnf_core(t);
+        if (!pred(t1))
+            return t1;
+        if (auto next_t = unfold_definition(t1)) {
+            t = *next_t;
+        } else {
+            return t1;
         }
     }
 }

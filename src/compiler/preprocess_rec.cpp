@@ -22,22 +22,27 @@ class expand_aux_recursors_fn : public replace_visitor_closed {
     environment const & m_env;
     type_checker        m_tc;
 
-    bool is_recursor(expr const & e) {
+    bool is_aux_recursor(expr const & e) {
         if (!is_app(e))
             return false;
         expr const & fn = get_app_fn(e);
         if (!is_constant(fn))
             return false;
-        return is_aux_recursor(m_env, const_name(fn)) || is_user_defined_recursor(m_env, const_name(fn));
+        return ::lean::is_aux_recursor(m_env, const_name(fn)) || is_user_defined_recursor(m_env, const_name(fn));
     }
 
     virtual expr visit_app(expr const & e) override {
-        if (is_recursor(e)) {
-            return replace_visitor::visit_app(m_tc.whnf_pred(e, [&](expr const & e) { return is_recursor(e); }));
+        if (is_aux_recursor(e)) {
+            return replace_visitor::visit(m_tc.whnf_pred(e, [&](expr const & e) { return is_aux_recursor(e); }));
         } else {
-            return replace_visitor::visit_app(e);
+            expr new_e = m_tc.whnf_pred(e, [&](expr const &) { return false; });
+            if (is_eqp(new_e, e))
+                return replace_visitor::visit_app(new_e);
+            else
+                return replace_visitor::visit(new_e);
         }
     }
+
 public:
     expand_aux_recursors_fn(environment const & env):m_env(env), m_tc(env) {}
 };

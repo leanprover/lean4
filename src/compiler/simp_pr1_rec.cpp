@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "compiler/util.h"
 
 namespace lean {
-class simp_pr1_rec_fn : public replace_visitor {
+class simp_pr1_rec_fn : public replace_visitor_closed {
     environment    m_env;
     type_checker   m_tc;
 
@@ -155,13 +155,6 @@ class simp_pr1_rec_fn : public replace_visitor {
             return *r;
         else
             return replace_visitor::visit_app(e);
-    }
-
-    virtual expr visit_binding(expr const & b) {
-        expr new_domain = visit(binding_domain(b));
-        expr l          = mk_local(mk_fresh_name(), new_domain);
-        expr new_body   = abstract_local(visit(instantiate(binding_body(b), l)), l);
-        return update_binding(b, new_domain, new_body);
     }
 
 public:

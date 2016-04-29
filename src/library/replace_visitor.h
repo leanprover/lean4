@@ -12,8 +12,7 @@ namespace lean {
    \brief Base class for implementing operations that apply modifications
    on expressions.
    The default behavior is a NOOP, users must create subclasses and
-   redefine the visit_* methods.
-*/
+   redefine the visit_* methods. */
 class replace_visitor {
 protected:
     typedef expr_bi_struct_map<expr> cache;
@@ -35,5 +34,13 @@ protected:
 public:
     expr operator()(expr const & e) { return visit(e); }
     void clear() { m_cache.clear(); }
+};
+
+/** \brief A replace_visitor class that provides a default visit_binding implementation
+    that replaces de-Bruijn variables with local constants.
+    Thus, any visited term is guaranteed to be closed. */
+class replace_visitor_closed : public replace_visitor {
+protected:
+    virtual expr visit_binding(expr const &) override;
 };
 }

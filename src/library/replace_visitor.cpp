@@ -6,6 +6,9 @@ Author: Leonardo de Moura
 */
 #include <tuple>
 #include "util/interrupt.h"
+#include "util/fresh_name.h"
+#include "kernel/instantiate.h"
+#include "kernel/abstract.h"
 #include "library/replace_visitor.h"
 
 namespace lean {
@@ -73,5 +76,14 @@ expr replace_visitor::visit(expr const & e) {
     }
 
     lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+expr replace_visitor_closed::visit_binding(expr const & e) {
+    // TODO(Leo): improve performance by grouping calls to abstract_locals and instantiate.
+    lean_assert(is_binding(e));
+    expr new_d = visit(binding_domain(e));
+    expr new_l = mk_local(mk_fresh_name(), binding_name(e), new_d, binding_info(e));
+    expr new_b = visit(instantiate(binding_body(e), new_l));
+    return update_binding(e, new_d, abstract_local(new_b, new_l));
 }
 }

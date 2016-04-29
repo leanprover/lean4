@@ -18,18 +18,9 @@ void pp_detail(lean::environment const & env, lean::expr const & e);
 void pp(lean::environment const & env, lean::expr const & e);
 
 namespace lean {
-class expand_aux_recursors_fn : public replace_visitor {
+class expand_aux_recursors_fn : public replace_visitor_closed {
     environment const & m_env;
     type_checker        m_tc;
-
-    virtual expr visit_binding(expr const & e) override {
-        lean_assert(is_binding(e));
-        expr new_d = visit(binding_domain(e));
-        push_local_fn push_local(m_tc);
-        expr new_l = push_local(binding_name(e), new_d, binding_info(e));
-        expr new_b = visit(instantiate(binding_body(e), new_l));
-        return update_binding(e, new_d, m_tc.abstract_locals(new_b, 1, &new_l));
-    }
 
     bool is_recursor(expr const & e) {
         if (!is_app(e))

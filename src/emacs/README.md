@@ -151,19 +151,32 @@ you type, an asterisk should briefly appear after ``FlyC``, indicating that
 your file is being checked.
 
 
-Key Bindings
-============
+Key Bindings and Commands
+=========================
 
-|Key                | Function                          |
-|-------------------|-----------------------------------|
-|<kbd>C-c C-x</kbd> | lean-std-exe                      |
-|<kbd>C-c C-l</kbd> | lean-std-exe                      |
-|<kbd>C-c C-t</kbd> | lean-eldoc-documentation-function |
-|<kbd>C-c C-f</kbd> | lean-fill-placeholder             |
-|<kbd>M-.</kbd>     | lean-find-tag                     |
-|<kbd>TAB</kbd>     | lean-tab-indent-or-complete       |
-|<kbd>C-c C-o</kbd> | lean-set-option                   |
-|<kbd>C-c C-e</kbd> | lean-eval-cmd                     |
+|Key                | Function                                                                      |
+|-------------------|-------------------------------------------------------------------------------|
+|<kbd>M-.</kbd>     | jump to definition in source file (lean-find-tag)                             |
+|<kbd>TAB</kbd>     | tab complete identifier, option, filename, etc. (lean-tab-indent-or-complete) |
+|<kbd>C-c C-k</kbd> | shows the keystroke needed to input the symbol under the cursor               |
+|<kbd>C-c C-g</kbd> | show goal in tactic proof (lean-show-goal-at-pos)                             |
+|<kbd>C-c C-p</kbd> | print information about identifier (lean-show-id-keyword-info)                |
+|<kbd>C-c C-t</kbd> | show type (lean-show-type)                                                    |
+|<kbd>C-c C-f</kbd> | replace underscore by inferred value (lean-fill-placeholder)                  |
+|<kbd>C-c C-x</kbd> | execute lean in stand-alone mode (lean-std-exe)                               |
+|<kbd>C-c C-l</kbd> | execute lean in stand-alone mode (lean-std-exe)                               |
+|<kbd>C-c C-o</kbd> | set option (lean-set-option)                                                  |
+|<kbd>C-c C-r</kbd> | restart lean process (lean-server-reset-process)                              |
+|<kbd>C-c C-e</kbd> | lean-eval-cmd                                                                 |
+|<kbd>C-c ! n</kbd> | flycheck: go to next error                                                    |
+|<kbd>C-c ! p</kbd> | flycheck: go to previous error                                                |
+|<kbd>C-c ! l</kbd> | flycheck: show list of errors                                                 |
+
+The Flycheck annotation `FlyC:n/n` indicates the number of errors / responses from Lean. An asterisk
+`*FlyC:n/n` indicates that checking is in progress. Clicking on `FlyC` opens the Flycheck menu.
+
+To profile Lean performace on the file in the buffer, enter <kbd>M-x lean-execute</kbd> or choose 
+`Lean execute` from the Lean menu, and add the option `--profile`.
 
 
 Known Issues and Possible Solutions

@@ -1268,7 +1268,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
             if (!is_def_eq_core(args[i], new_v_args[j]))
                 return false;
         }
-        lean_assert(i == arg.size());
+        lean_assert(i == args.size());
         lean_assert(j == new_v_args.size());
         return true;
     }
@@ -2204,7 +2204,7 @@ struct instance_synthesizer {
     }
 
     bool mk_choice_point(expr const & mvar) {
-        lean_assert(is_mvar(mvar));
+        lean_assert(is_metavar(mvar));
         if (m_choices.size() > m_ctx.m_cache->m_ci_max_depth) {
             throw_class_exception("maximum class-instance resolution depth has been reached "
                                   "(the limit can be increased by setting option 'class.instance_max_depth') "

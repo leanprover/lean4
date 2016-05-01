@@ -35,12 +35,4 @@ public:
     expr operator()(expr const & e) { return visit(e); }
     void clear() { m_cache.clear(); }
 };
-
-/** \brief A replace_visitor class that provides a default visit_binding implementation
-    that replaces de-Bruijn variables with local constants.
-    Thus, any visited term is guaranteed to be closed. */
-class replace_visitor_closed : public replace_visitor {
-protected:
-    virtual expr visit_binding(expr const &) override;
-};
 }

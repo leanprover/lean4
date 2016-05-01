@@ -8,17 +8,14 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
-#include "library/replace_visitor.h"
+#include "compiler/compiler_step_visitor.h"
 #include "compiler/eta_expansion.h"
 
 namespace lean {
-class eta_expand_fn : public replace_visitor {
-    environment  m_env;
-    type_checker m_tc;
-
+class eta_expand_fn : public compiler_step_visitor {
     optional<expr> expand_core(expr const & e) {
         lean_assert(!is_lambda(e));
-        expr t = m_tc.whnf(m_tc.infer(e));
+        expr t = ctx().whnf(ctx().infer(e));
         if (!is_pi(t))
             return none_expr();
         expr r = mk_lambda(name("x"), binding_domain(t), mk_app(e, mk_var(0)));
@@ -32,15 +29,11 @@ class eta_expand_fn : public replace_visitor {
             return e;
     }
 
-    virtual expr visit_var(expr const &) override { lean_unreachable(); }
-
-    virtual expr visit_meta(expr const &) override { lean_unreachable(); }
-
     virtual expr visit_macro(expr const & e) override {
         if (auto r = expand_core(e))
             return *r;
         else
-            return replace_visitor::visit_macro(e);
+            return compiler_step_visitor::visit_macro(e);
     }
 
     virtual expr visit_constant(expr const & e) override { return expand(e); }
@@ -68,19 +61,8 @@ class eta_expand_fn : public replace_visitor {
         }
     }
 
-    virtual expr visit_binding(expr const & b) override {
-        expr new_domain = visit(binding_domain(b));
-        expr l          = mk_local(mk_fresh_name(), new_domain);
-        expr new_body   = abstract_local(visit(instantiate(binding_body(b), l)), l);
-        return update_binding(b, new_domain, new_body);
-    }
-
-    virtual expr visit_let(expr const & e) override {
-        return visit(instantiate(let_body(e), let_value(e)));
-    }
-
 public:
-    eta_expand_fn(environment const & env):m_env(env), m_tc(env) {}
+    eta_expand_fn(environment const & env):compiler_step_visitor(env) {}
 };
 
 expr eta_expand(environment const & env, expr const & e) {

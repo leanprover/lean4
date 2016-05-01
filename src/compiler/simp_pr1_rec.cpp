@@ -9,16 +9,13 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
-#include "library/replace_visitor.h"
 #include "library/constants.h"
 #include "library/util.h"
 #include "compiler/util.h"
+#include "compiler/compiler_step_visitor.h"
 
 namespace lean {
-class simp_pr1_rec_fn : public replace_visitor_closed {
-    environment    m_env;
-    type_checker   m_tc;
-
+class simp_pr1_rec_fn : public compiler_step_visitor {
     struct failed {};
 
     struct elim_nested_pr1_fn : public replace_visitor {
@@ -76,14 +73,14 @@ class simp_pr1_rec_fn : public replace_visitor_closed {
         expr const & rec_fn = get_app_args(rec, rec_args);
         if (!is_constant(rec_fn))
             return none_expr();
-        auto I_name = inductive::is_elim_rule(m_env, const_name(rec_fn));
+        auto I_name = inductive::is_elim_rule(env(), const_name(rec_fn));
         if (!I_name)
             return none_expr();
         buffer<buffer<bool>> is_rec_arg;
-        get_rec_args(m_env, *I_name, is_rec_arg);
-        unsigned nparams       = *inductive::get_num_params(m_env, *I_name);
-        unsigned ntypeformers  = *inductive::get_num_type_formers(m_env, *I_name);
-        unsigned nminors       = *inductive::get_num_minor_premises(m_env, *I_name);
+        get_rec_args(env(), *I_name, is_rec_arg);
+        unsigned nparams       = *inductive::get_num_params(env(), *I_name);
+        unsigned ntypeformers  = *inductive::get_num_type_formers(env(), *I_name);
+        unsigned nminors       = *inductive::get_num_minor_premises(env(), *I_name);
         if (rec_args.size() < nparams + ntypeformers + nminors)
             return none_expr();
         // update type formers
@@ -120,7 +117,7 @@ class simp_pr1_rec_fn : public replace_visitor_closed {
             // Step 1.
             for (unsigned k = 0; k < minor_ctx.size(); k++) {
                 if (minor_is_rec_arg[k]) {
-                    expr type = m_tc.whnf(mlocal_type(minor_ctx[k]));
+                    expr type = ctx().whnf(minor_ctx[k]);
                     buffer<expr> type_args;
                     expr type_fn = get_app_args(type, type_args);
                     if (!is_constant(type_fn) || const_name(type_fn) != get_prod_name() || type_args.size() != 2)
@@ -154,11 +151,13 @@ class simp_pr1_rec_fn : public replace_visitor_closed {
         if (auto r = simplify(e))
             return *r;
         else
-            return replace_visitor::visit_app(e);
+            return compiler_step_visitor::visit_app(e);
     }
 
+    virtual expr visit_pi(expr const & e) { return e; }
+
 public:
-    simp_pr1_rec_fn(environment const & env):m_env(env), m_tc(env) {}
+    simp_pr1_rec_fn(environment const & env):compiler_step_visitor(env) {}
 };
 
 expr simp_pr1_rec(environment const & env, expr const & e) {

@@ -68,7 +68,7 @@ bool depends_on(local_decl const & d, unsigned num, expr const * locals) {
         return true;
     if (auto v = d.get_value())
         return depends_on(*v, num, locals);
-    return true;
+    return false;
 }
 
 bool depends_on(expr const & e, buffer<expr> const & locals) {

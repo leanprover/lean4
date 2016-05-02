@@ -20,7 +20,8 @@ class collected_locals {
     buffer<expr> m_locals;
 public:
     void insert(expr const & l);
-    bool contains(expr const & l) const { return m_local_names.contains(mlocal_name(l)); }
+    bool contains(name const & n) const { return m_local_names.contains(n); }
+    bool contains(expr const & l) const { return contains(mlocal_name(l)); }
     buffer<expr> const & get_collected() const { return m_locals; }
     bool empty() const { return m_locals.empty(); }
 };

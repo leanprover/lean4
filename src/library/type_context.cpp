@@ -160,6 +160,18 @@ type_context::tmp_locals::~tmp_locals() {
         m_ctx.pop_local();
 }
 
+bool type_context::tmp_locals::all_let_decls() const {
+    for (expr const & l : m_locals) {
+        if (optional<local_decl> d = m_ctx.m_lctx.get_local_decl(l)) {
+            if (!d->get_value())
+                return false;
+        } else {
+            lean_unreachable();
+        }
+    }
+    return true;
+}
+
 /* =====================
    type_context
    ===================== */

@@ -176,6 +176,8 @@ public:
 
     virtual environment const & env() const override { return m_cache->m_env; }
 
+    local_context const & lctx() const { return m_lctx; }
+
     bool is_def_eq(level const & l1, level const & l2);
     virtual expr whnf(expr const & e) override;
     virtual expr infer(expr const & e) override;
@@ -366,6 +368,9 @@ public:
     class tmp_locals {
         type_context & m_ctx;
         buffer<expr>   m_locals;
+
+        /* \brief Return true iff all locals in m_locals are let-decls */
+        bool all_let_decls() const;
     public:
         tmp_locals(type_context & ctx):m_ctx(ctx) {}
         ~tmp_locals();
@@ -394,7 +399,9 @@ public:
 
         expr mk_lambda(expr const & e) { return m_ctx.mk_lambda(m_locals, e); }
         expr mk_pi(expr const & e) { return m_ctx.mk_pi(m_locals, e); }
+        expr mk_let(expr const & e) { lean_assert(all_let_decls()); return m_ctx.mk_lambda(m_locals, e); }
     };
+    friend class tmp_locals;
 };
 
 void initialize_type_context();

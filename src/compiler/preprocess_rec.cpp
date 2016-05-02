@@ -10,9 +10,10 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/user_recursors.h"
 #include "library/util.h"
+#include "compiler/compiler_step_visitor.h"
 #include "compiler/eta_expansion.h"
 #include "compiler/simp_pr1_rec.h"
-#include "compiler/compiler_step_visitor.h"
+#include "compiler/lambda_lifting.h"
 
 void pp_detail(lean::environment const & env, lean::expr const & e);
 void pp(lean::environment const & env, lean::expr const & e);
@@ -52,7 +53,7 @@ static name * g_tmp_prefix = nullptr;
 
 class preprocess_rec_fn {
     environment    m_env;
-    // buffer<name> & m_aux_decls; // TODO(Leo):
+    buffer<name> & m_aux_decls;
 
     bool check(declaration const & d, expr const & v) {
         type_checker tc(m_env);
@@ -62,16 +63,27 @@ class preprocess_rec_fn {
         return true;
     }
 
+    void display(expr const & v) {
+        for (name const & n : m_aux_decls) {
+            std::cout << ">> " << n << "\n";
+            declaration d = m_env.get(n);
+            ::pp(m_env, d.get_value());
+        }
+        std::cout << ">> main\n";
+        ::pp(m_env, v);
+    }
+
 public:
-    preprocess_rec_fn(environment const & env, buffer<name> & /* aux_decls */): m_env(env) {} // , m_aux_decls(aux_decls) {}
+    preprocess_rec_fn(environment const & env, buffer<name> & aux_decls):
+        m_env(env), m_aux_decls(aux_decls) {}
 
     environment operator()(declaration const & d) {
         expr v = d.get_value();
         v = expand_aux_recursors(m_env, v);
         v = eta_expand(m_env, v);
         v = simp_pr1_rec(m_env, v);
-        ::pp(m_env, v);
-        ::pp_detail(m_env, v);
+        v = lambda_lifting(m_env, v, m_aux_decls, d.is_trusted());
+        display(v);
         // TODO(Leo)
         check(d, v);
         return m_env;

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "compiler/compiler_step_visitor.h"
+#include "compiler/comp_irrelevant.h"
 #include "compiler/eta_expansion.h"
 
 namespace lean {
@@ -30,7 +31,9 @@ class eta_expand_fn : public compiler_step_visitor {
     }
 
     virtual expr visit_macro(expr const & e) override {
-        if (auto r = expand_core(e))
+        if (is_comp_irrelevant(e))
+            return e;
+        else if (auto r = expand_core(e))
             return *r;
         else
             return compiler_step_visitor::visit_macro(e);

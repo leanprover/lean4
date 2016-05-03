@@ -49,7 +49,7 @@ expr compiler_step_visitor::visit_let(expr const & e) {
 }
 
 expr compiler_step_visitor::visit_macro(expr const & e) {
-    if (is_comp_irrelevant(e))
+    if (is_marked_as_comp_irrelevant(e))
         return e;
     else
         return replace_visitor::visit_macro(e);

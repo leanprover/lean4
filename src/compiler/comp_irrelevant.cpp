@@ -10,19 +10,23 @@ Author: Leonardo de Moura
 namespace lean {
 static name * g_comp_irrel = nullptr;
 
-static expr mark_comp_irrelevant(expr const & e) {
+expr mark_comp_irrelevant(expr const & e) {
     return mk_annotation(*g_comp_irrel, e);
 }
 
-bool is_comp_irrelevant(expr const & e) {
+bool is_marked_as_comp_irrelevant(expr const & e) {
     return is_annotation(e, *g_comp_irrel);
+}
+
+bool is_comp_irrelevant(type_context & ctx, expr const & e) {
+    expr type = ctx.whnf(ctx.infer(e));
+    return is_sort(type) || ctx.is_prop(type);
 }
 
 class mark_comp_irrelevant_fn : public compiler_step_visitor {
 protected:
     optional<expr> mark_if_irrel_core(expr const & e) {
-        expr type = ctx().whnf(ctx().infer(e));
-        if (is_sort(type) || ctx().is_prop(type))
+        if (is_comp_irrelevant(ctx(), e))
             return some_expr(mark_comp_irrelevant(e));
         else
             return none_expr();
@@ -46,7 +50,7 @@ protected:
             else
                 break;
         }
-        if (is_comp_irrelevant(body))
+        if (is_marked_as_comp_irrelevant(body))
             return mark_comp_irrelevant(e);
         else
             return e;
@@ -61,7 +65,7 @@ protected:
     }
 
     virtual expr visit_macro(expr const & e) override {
-        if (is_comp_irrelevant(e))
+        if (is_marked_as_comp_irrelevant(e))
             return e;
         else if (auto v = mark_if_irrel_core(e))
             return *v;
@@ -95,7 +99,7 @@ public:
     mark_comp_irrelevant_fn(environment const & env):compiler_step_visitor(env) {}
 };
 
-expr mark_comp_irrelevant(environment const & env, expr const & e) {
+expr mark_comp_irrelevant_subterms(environment const & env, expr const & e) {
     return mark_comp_irrelevant_fn(env)(e);
 }
 

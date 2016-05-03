@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/util.h"
 #include "compiler/fresh_constant.h"
+#include "compiler/comp_irrelevant.h"
 #include "compiler/compiler_step_visitor.h"
 
 namespace lean {
@@ -77,7 +78,10 @@ protected:
                     new_e = instantiate(abstract_local(new_e, l), *v);
                 } else {
                     collect_locals(d.get_type(), map);
-                    args.push_back(l);
+                    if (is_comp_irrelevant(ctx(), l))
+                        args.push_back(mark_comp_irrelevant(l));
+                    else
+                        args.push_back(l);
                     new_e = abstract_local(new_e, l);
                     new_e = mk_lambda(d.get_name(), d.get_type(), new_e);
                 }

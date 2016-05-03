@@ -8,10 +8,15 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
+class type_context;
 /** \brief Mark sub-expressions of \c e that are computationally irrelevant. */
-expr mark_comp_irrelevant(environment const & env, expr const & e);
+expr mark_comp_irrelevant_subterms(environment const & env, expr const & e);
+/** \brief Mark the given term as computationally irrelevant */
+expr mark_comp_irrelevant(expr const & e);
 /** \brief Return true iff \c e is annotated with the comp-irrelevant annotation */
-bool is_comp_irrelevant(expr const & e);
+bool is_marked_as_comp_irrelevant(expr const & e);
+/** \brief Return true iff the type of \c e is a sort or a proposition */
+bool is_comp_irrelevant(type_context & ctx, expr const & e);
 void initialize_comp_irrelevant();
 void finalize_comp_irrelevant();
 }

@@ -82,7 +82,7 @@ public:
     environment operator()(declaration const & d) {
         expr v = d.get_value();
         v = expand_aux_recursors(m_env, v);
-        v = mark_comp_irrelevant(m_env, v);
+        v = mark_comp_irrelevant_subterms(m_env, v);
         v = eta_expand(m_env, v);
         v = simp_pr1_rec(m_env, v);
         v = inline_simple_definitions(m_env, v);

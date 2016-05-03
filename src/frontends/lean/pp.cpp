@@ -814,7 +814,7 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
         return result(group(nest(1, li + pp(get_annotation_arg(e)).fmt() + ri)));
    // } else if (is_pattern_hint(e)) {
         // return result(group(nest(2, format("(:") + pp(get_pattern_hint_arg(e)).fmt() + format(":)"))));
-    } else if (is_comp_irrelevant(e)) {
+    } else if (is_marked_as_comp_irrelevant(e)) {
         return m_unicode ? format("◾") : format("irrel");
     } else if (is_annotation(e)) {
         return pp(get_annotation_arg(e));

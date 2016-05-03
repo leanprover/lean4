@@ -31,7 +31,7 @@ class eta_expand_fn : public compiler_step_visitor {
     }
 
     virtual expr visit_macro(expr const & e) override {
-        if (is_comp_irrelevant(e))
+        if (is_marked_as_comp_irrelevant(e))
             return e;
         else if (auto r = expand_core(e))
             return *r;

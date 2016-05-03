@@ -101,6 +101,7 @@ nat
 nat.of_num
 nat.succ
 nat.zero
+nat.cases_on
 ne
 neg
 norm_num.add1

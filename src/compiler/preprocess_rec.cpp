@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/user_recursors.h"
 #include "library/util.h"
+#include "compiler/util.h"
 #include "compiler/compiler_step_visitor.h"
 #include "compiler/comp_irrelevant.h"
 #include "compiler/eta_expansion.h"
@@ -20,25 +21,44 @@ Author: Leonardo de Moura
 
 namespace lean {
 class expand_aux_recursors_fn : public compiler_step_visitor {
-    bool is_aux_recursor(expr const & e) {
+    enum class recursor_kind { Aux, CasesOn, NotRecursor };
+    /* We only expand auxiliary recursors and user-defined recursors.
+       However, we don't unfold recursors of the form C.cases_on. */
+    recursor_kind get_recursor_app_kind(expr const & e) const {
         if (!is_app(e))
-            return false;
+            return recursor_kind::NotRecursor;
         expr const & fn = get_app_fn(e);
         if (!is_constant(fn))
-            return false;
-        return ::lean::is_aux_recursor(env(), const_name(fn)) || is_user_defined_recursor(env(), const_name(fn));
+            return recursor_kind::NotRecursor;
+        name const & n = const_name(fn);
+        if (is_cases_on_recursor(env(), n)) {
+            return recursor_kind::CasesOn;
+        } else if (::lean::is_aux_recursor(env(), n) || is_user_defined_recursor(env(), n)) {
+            return recursor_kind::Aux;
+        } else {
+            return recursor_kind::NotRecursor;
+        }
+    }
+
+    bool is_aux_recursor(expr const & e) const {
+        return get_recursor_app_kind(e) == recursor_kind::Aux;
     }
 
     virtual expr visit_app(expr const & e) override {
-        if (is_aux_recursor(e)) {
-            return compiler_step_visitor::visit(ctx().whnf_pred(e, [&](expr const & e) { return is_aux_recursor(e); }));
-        } else {
+        switch (get_recursor_app_kind(e)) {
+        case recursor_kind::NotRecursor: {
             expr new_e = ctx().whnf_pred(e, [&](expr const &) { return false; });
             if (is_eqp(new_e, e))
                 return compiler_step_visitor::visit_app(new_e);
             else
                 return compiler_step_visitor::visit(new_e);
         }
+        case recursor_kind::CasesOn:
+            return compiler_step_visitor::visit_app(e);
+        case recursor_kind::Aux:
+            return compiler_step_visitor::visit(ctx().whnf_pred(e, [&](expr const & e) { return is_aux_recursor(e); }));
+        }
+        lean_unreachable();
     }
 
 public:

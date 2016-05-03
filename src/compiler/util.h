@@ -19,4 +19,7 @@ void get_rec_args(environment const & env, name const & n, buffer<buffer<bool>> 
     and at least one minor premise uses a recursive argument.
 */
 bool is_recursive_rec_app(environment const & env, expr const & e);
+
+/** \brief Return true iff \c n is an auxiliary cases_on recursor */
+bool is_cases_on_recursor(environment const & env, name const & n);
 }

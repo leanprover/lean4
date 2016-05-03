@@ -65,6 +65,7 @@ private:
     bool                    m_metavar_args;
     bool                    m_purify_metavars;
     bool                    m_purify_locals;
+    bool                    m_hide_binder_types;
     bool                    m_beta;
     bool                    m_numerals;
     bool                    m_abbreviations;

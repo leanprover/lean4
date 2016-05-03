@@ -48,6 +48,7 @@ protected:
         lean_unreachable();
     }
 
+    virtual expr visit_app(expr const & e) override;
     virtual expr visit_let(expr const & e) override;
     virtual expr visit_lambda(expr const & e) override;
 };

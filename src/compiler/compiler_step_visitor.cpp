@@ -54,4 +54,21 @@ expr compiler_step_visitor::visit_macro(expr const & e) {
     else
         return replace_visitor::visit_macro(e);
 }
+
+expr compiler_step_visitor::visit_app(expr const & e) {
+    buffer<expr> args;
+    expr const & fn = get_app_args(e, args);
+    expr new_fn   = visit(fn);
+    bool modified = !is_eqp(fn, new_fn);
+    for (expr & arg : args) {
+        expr new_arg = visit(arg);
+        if (!is_eqp(new_arg, arg))
+            modified = true;
+        arg = new_arg;
+    }
+    if (!modified)
+        return e;
+    else
+        return mk_app(new_fn, args);
+}
 }

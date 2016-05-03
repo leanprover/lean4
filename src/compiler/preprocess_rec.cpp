@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "compiler/comp_irrelevant.h"
 #include "compiler/eta_expansion.h"
 #include "compiler/simp_pr1_rec.h"
+#include "compiler/inliner.h"
 #include "compiler/lambda_lifting.h"
 
 void pp_detail(lean::environment const & env, lean::expr const & e);
@@ -84,6 +85,7 @@ public:
         v = mark_comp_irrelevant(m_env, v);
         v = eta_expand(m_env, v);
         v = simp_pr1_rec(m_env, v);
+        v = inline_simple_definitions(m_env, v);
         v = lambda_lifting(m_env, v, m_aux_decls, d.is_trusted());
         display(v);
         // TODO(Leo)

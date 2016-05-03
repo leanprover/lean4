@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/declaration.h"
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
+#include "library/trace.h"
 #include "library/aux_recursors.h"
 #include "library/user_recursors.h"
 #include "library/util.h"
@@ -16,9 +17,6 @@ Author: Leonardo de Moura
 #include "compiler/simp_pr1_rec.h"
 #include "compiler/inliner.h"
 #include "compiler/lambda_lifting.h"
-
-void pp_detail(lean::environment const & env, lean::expr const & e);
-void pp(lean::environment const & env, lean::expr const & e);
 
 namespace lean {
 class expand_aux_recursors_fn : public compiler_step_visitor {
@@ -67,12 +65,11 @@ class preprocess_rec_fn {
 
     void display(expr const & v) {
         for (name const & n : m_aux_decls) {
-            std::cout << ">> " << n << "\n";
+            tout() << ">> " << n << "\n";
             declaration d = m_env.get(n);
-            ::pp_detail(m_env, d.get_value());
+            tout() << d.get_value() << "\n";
         }
-        std::cout << ">> main\n";
-        ::pp_detail(m_env, v);
+        tout() << ">> main\n" << v << "\n";
     }
 
 public:

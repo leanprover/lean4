@@ -187,6 +187,7 @@ void type_context::init_core(transparency_mode m) {
         /* default type class resolution mode */
         m_cache->m_local_instances_initialized = false;
     }
+    m_unfold_pred                 = nullptr;
 }
 
 type_context::type_context(metavar_context & mctx, local_context const & lctx, type_context_cache & cache,
@@ -398,13 +399,19 @@ optional<expr> type_context::unfold_definition(expr const & e) {
         if (auto f  = unfold_definition_core(f0)) {
             buffer<expr> args;
             get_app_rev_args(e, args);
-            return some_expr(mk_rev_app(*f, args));
+            return some_expr(apply_beta(*f, args.size(), args.data()));
         } else {
             return none_expr();
         }
     } else {
         return unfold_definition_core(e);
     }
+}
+
+optional<expr> type_context::try_unfold_definition(expr const & e) {
+    if (m_unfold_pred && !(*m_unfold_pred)(e))
+        return none_expr();
+    return unfold_definition(e);
 }
 
 optional<expr> type_context::reduce_projection(expr const & e) {
@@ -439,7 +446,7 @@ optional<expr> type_context::reduce_aux_recursor(expr const & e) {
     if (!is_constant(f))
         return none_expr();
     if (is_aux_recursor(env(), const_name(f)))
-        return unfold_definition(e);
+        return try_unfold_definition(e);
     else
         return none_expr();
 }
@@ -530,7 +537,7 @@ expr type_context::whnf_core(expr const & e) {
             return whnf_core(mk_rev_app(::lean::instantiate(binding_body(f), m, args.data() + (num_args - m)),
                                         num_args - m, args.data()));
         } else if (f == f0) {
-            if (auto r = env().norm_ext()(e, *this)) {
+            if (auto r = norm_ext(e)) {
                 /* mainly iota-reduction, it also applies HIT and quotient reduction rules */
                 return whnf_core(*r);
             } else if (auto r = reduce_projection(e)) {
@@ -547,13 +554,10 @@ expr type_context::whnf_core(expr const & e) {
     lean_unreachable();
 }
 
-template<typename F>
-expr type_context::whnf_loop(expr const & e, F const & pred) {
+expr type_context::whnf(expr const & e) {
     expr t = e;
     while (true) {
         expr t1 = whnf_core(t);
-        if (!pred(t1))
-            return t1;
         if (auto next_t = unfold_definition(t1)) {
             t = *next_t;
         } else {
@@ -562,12 +566,17 @@ expr type_context::whnf_loop(expr const & e, F const & pred) {
     }
 }
 
-expr type_context::whnf(expr const & e) {
-    return whnf_loop(e, [](expr const &) { return true; });
-}
-
 expr type_context::whnf_pred(expr const & e, std::function<bool(expr const &)> const & pred) {
-    return whnf_loop(e, pred);
+    flet<std::function<bool(expr const &)> const *>set_unfold_pred(m_unfold_pred, &pred);
+    expr t = e;
+    while (true) {
+        expr t1 = whnf_core(t);
+        if (auto next_t = try_unfold_definition(t1)) {
+            t = *next_t;
+        } else {
+            return t1;
+        }
+    }
 }
 
 expr type_context::relaxed_whnf(expr const & e) {

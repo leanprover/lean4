@@ -136,7 +136,6 @@ class type_context : public abstract_type_context {
             m_mctx(mctx), m_tmp_uassignment_sz(usz), m_tmp_eassignment_sz(esz), m_tmp_trail_sz(tsz) {}
     };
     typedef buffer<scope_data> scopes;
-    template<typename F> expr whnf_loop(expr const & e, F const & pred);
 
     metavar_context &  m_mctx;
     local_context      m_lctx;
@@ -165,6 +164,8 @@ class type_context : public abstract_type_context {
     tmp_trail          m_tmp_trail;
     /* Stack of backtracking point (aka scope) */
     scopes             m_scopes;
+
+    std::function<bool(expr const & e)> const * m_unfold_pred;
 
 public:
     type_context(metavar_context & mctx, local_context const & lctx, type_context_cache & cache,
@@ -198,7 +199,9 @@ public:
         If pred(e') is false, then the method will not unfold definition in the head of e', and will return e'.
         This method is useful when we want to normalize the expression until we get a particular symbol as the head symbol. */
     expr whnf_pred(expr const & e, std::function<bool(expr const &)> const & pred);
+    optional<expr> reduce_aux_recursor(expr const & e);
     optional<expr> reduce_projection(expr const & e);
+    optional<expr> norm_ext(expr const & e) { return env().norm_ext()(e, *this); }
 
     /** Given a metavariable \c mvar, and local constants in \c locals, return (mvar' C) where
         C is a superset of \c locals and includes all local constants that depend on \c locals.
@@ -253,7 +256,7 @@ private:
     void init_core(transparency_mode m);
     optional<expr> unfold_definition_core(expr const & e);
     optional<expr> unfold_definition(expr const & e);
-    optional<expr> reduce_aux_recursor(expr const & e);
+    optional<expr> try_unfold_definition(expr const & e);
     bool should_unfold_macro(expr const & e);
     optional<expr> expand_macro(expr const & e);
     expr whnf_core(expr const & e);

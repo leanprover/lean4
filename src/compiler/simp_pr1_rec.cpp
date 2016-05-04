@@ -11,7 +11,9 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/constants.h"
 #include "library/util.h"
+#include "library/annotation.h"
 #include "compiler/util.h"
+#include "compiler/comp_irrelevant.h"
 #include "compiler/compiler_step_visitor.h"
 
 namespace lean {
@@ -89,15 +91,20 @@ class simp_pr1_rec_fn : public compiler_step_visitor {
             //  (lambda ctx, prod c1 c2), and replace it with (lambda ctx, c1)
             expr typeformer = rec_args[i];
             buffer<expr> typeformer_ctx;
+            /* ignore annotations */
+            typeformer = get_nested_annotation_arg(typeformer);
             expr typeformer_body = fun_to_telescope(typeformer, typeformer_ctx, optional<binder_info>());
-
+            /* ignore annotations */
+            typeformer_body = get_nested_annotation_arg(typeformer_body);
             buffer<expr> typeformer_body_args;
             expr typeformer_body_fn = get_app_args(typeformer_body, typeformer_body_args);
-            if (!is_constant(typeformer_body_fn) || const_name(typeformer_body_fn) != get_prod_name() || typeformer_body_args.size() != 2) {
+            if (!is_constant(typeformer_body_fn) ||
+                const_name(typeformer_body_fn) != get_prod_name() ||
+                typeformer_body_args.size() != 2) {
                 return none_expr();
             }
             typeformer_body = typeformer_body_args[0];
-            rec_args[i] = Fun(typeformer_ctx, typeformer_body);
+            rec_args[i] = mark_comp_irrelevant(Fun(typeformer_ctx, typeformer_body));
         }
         // update minor premises
         for (unsigned i = nparams + ntypeformers, j = 0; i < nparams + ntypeformers + nminors; i++, j++) {
@@ -120,8 +127,9 @@ class simp_pr1_rec_fn : public compiler_step_visitor {
                     expr type = ctx().whnf(ctx().infer(minor_ctx[k]));
                     buffer<expr> type_args;
                     expr type_fn = get_app_args(type, type_args);
-                    if (!is_constant(type_fn) || const_name(type_fn) != get_prod_name() || type_args.size() != 2)
+                    if (!is_constant(type_fn) || const_name(type_fn) != get_prod_name() || type_args.size() != 2) {
                         return none_expr();
+                    }
                     minor_ctx[k] = update_mlocal(minor_ctx[k], type_args[0]);
                 }
             }
@@ -129,8 +137,9 @@ class simp_pr1_rec_fn : public compiler_step_visitor {
             // Step 2
             buffer<expr> minor_body_args;
             expr minor_body_fn = get_app_args(minor_body, minor_body_args);
-            if (!is_constant(minor_body_fn) || const_name(minor_body_fn) != get_prod_mk_name() || minor_body_args.size() != 4)
+            if (!is_constant(minor_body_fn) || const_name(minor_body_fn) != get_prod_mk_name() || minor_body_args.size() != 4) {
                 return none_expr();
+            }
             minor_body = minor_body_args[2];
 
             // Step 3

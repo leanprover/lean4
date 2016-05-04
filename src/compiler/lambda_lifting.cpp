@@ -8,9 +8,12 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/inductive/inductive.h"
 #include "library/locals.h"
 #include "library/util.h"
+#include "library/trace.h"
 #include "compiler/fresh_constant.h"
+#include "compiler/util.h"
 #include "compiler/comp_irrelevant.h"
 #include "compiler/compiler_step_visitor.h"
 
@@ -105,8 +108,75 @@ protected:
         return locals.mk_let(t);
     }
 
-    virtual expr visit_app(expr const & e) override {
+    expr visit_recursor_app(expr const & e) {
         // TODO(Leo): process recursor args
+        return compiler_step_visitor::visit_app(e);
+    }
+
+    unsigned get_constructor_arity(name const & n) {
+        declaration d = env().get(n);
+        expr e = d.get_type();
+        unsigned r = 0;
+        while (is_pi(e)) {
+            r++;
+            e = binding_body(e);
+        }
+        return r;
+    }
+
+    expr visit_cases_on_minor(unsigned data_sz, expr e) {
+        type_context::tmp_locals locals(ctx());
+        for (unsigned i = 0; i < data_sz; i++) {
+            e = ctx().whnf(e);
+            lean_assert(is_lambda(e));
+            expr l = locals.push_local(binding_name(e), binding_domain(e), binding_info(e));
+            e = instantiate(binding_body(e), l);
+        }
+        e = visit(e);
+        return locals.mk_lambda(e);
+    }
+
+    expr visit_cases_on_app(expr const & e) {
+        buffer<expr> args;
+        expr const & fn = get_app_args(e, args);
+        lean_assert(is_constant(fn) && is_cases_on_recursor(env(), const_name(fn)));
+        name const & cases_on_name  = const_name(fn);
+        name const & I_name         = cases_on_name.get_prefix();
+        unsigned nparams            = *inductive::get_num_params(env(), I_name);
+        unsigned nminors            = *inductive::get_num_minor_premises(env(), I_name);
+        unsigned nindices           = *inductive::get_num_indices(env(), I_name);
+        unsigned cases_on_arity     = nparams + 1 /* typeformer/motive */ + nindices + 1 /* major premise */ + nminors;
+        unsigned major_idx          = nparams + 1 + nindices;
+        /* This transformation assumes eta-expansion have already been applied.
+           So, we should have a sufficient number of arguments. */
+        lean_assert(args.size() >= cases_on_arity);
+        buffer<name> cnames;
+        get_intro_rule_names(env(), I_name, cnames);
+        /* Process major premise */
+        args[major_idx]        = visit(args[major_idx]);
+        /* Process extra arguments */
+        for (unsigned i = cases_on_arity; i < args.size(); i++)
+            args[i] = visit(args[i]);
+        /* Process minor premise */
+        for (unsigned i = 0, j = major_idx + 1; i < cnames.size(); i++, j++) {
+            unsigned carity   = get_constructor_arity(cnames[i]);
+            lean_assert(carity >= nparams);
+            unsigned cdata_sz = carity - nparams;
+            args[j] = visit_cases_on_minor(cdata_sz, args[j]);
+        }
+        return mk_app(fn, args);
+    }
+
+    virtual expr visit_app(expr const & e) override {
+        expr const & fn = get_app_fn(e);
+        if (is_constant(fn)) {
+            name const & n = const_name(fn);
+            if (is_cases_on_recursor(env(), n)) {
+                return visit_cases_on_app(e);
+            } else if (inductive::is_elim_rule(env(), n)) {
+                return visit_recursor_app(e);
+            }
+        }
         return compiler_step_visitor::visit_app(e);
     }
 

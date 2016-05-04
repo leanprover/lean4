@@ -44,6 +44,16 @@ class expand_aux_recursors_fn : public compiler_step_visitor {
         return get_recursor_app_kind(e) == recursor_kind::Aux;
     }
 
+    expr visit_cases_on(expr const & e) {
+        /* try to reduce cases_on */
+        if (auto r1 = ctx().reduce_aux_recursor(e)) {
+            if (auto r2 = ctx().norm_ext(*r1)) {
+                return compiler_step_visitor::visit(*r2);
+            }
+        }
+        return compiler_step_visitor::visit_app(e);
+    }
+
     virtual expr visit_app(expr const & e) override {
         switch (get_recursor_app_kind(e)) {
         case recursor_kind::NotRecursor: {
@@ -54,7 +64,7 @@ class expand_aux_recursors_fn : public compiler_step_visitor {
                 return compiler_step_visitor::visit(new_e);
         }
         case recursor_kind::CasesOn:
-            return compiler_step_visitor::visit_app(e);
+            return visit_cases_on(e);
         case recursor_kind::Aux:
             return compiler_step_visitor::visit(ctx().whnf_pred(e, [&](expr const & e) { return is_aux_recursor(e); }));
         }

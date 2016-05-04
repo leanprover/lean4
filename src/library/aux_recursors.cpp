@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "library/aux_recursors.h"
+#include "library/constants.h"
 #include "library/scoped_ext.h"
 #include "library/module.h"
 
@@ -37,7 +38,8 @@ environment add_aux_recursor(environment const & env, name const & r) {
 }
 
 bool is_aux_recursor(environment const & env, name const & r) {
-    return get_extension(env).m_set.contains(r);
+    /* nat.cases_on is manually defined in the standard library */
+    return get_extension(env).m_set.contains(r) || r == get_nat_cases_on_name();
 }
 
 static void aux_recursor_reader(deserializer & d, shared_environment & senv,

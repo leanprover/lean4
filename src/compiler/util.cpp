@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/inductive/inductive.h"
 #include "library/aux_recursors.h"
-#include "library/constants.h"
 #include "library/util.h"
 
 namespace lean {
@@ -91,9 +90,6 @@ bool is_recursive_rec_app(environment const & env, expr const & e) {
 }
 
 bool is_cases_on_recursor(environment const & env, name const & n) {
-    return
-        (::lean::is_aux_recursor(env, n) && strcmp(n.get_string(), "cases_on") == 0) ||
-        /* nat.cases_on is manually defined in the standard library */
-        (n == get_nat_cases_on_name());
+    return ::lean::is_aux_recursor(env, n) && strcmp(n.get_string(), "cases_on") == 0;
 }
 }

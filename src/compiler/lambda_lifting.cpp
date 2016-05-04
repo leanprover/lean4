@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/util.h"
 #include "library/trace.h"
+#include "library/normalize.h"
 #include "compiler/fresh_constant.h"
 #include "compiler/util.h"
 #include "compiler/comp_irrelevant.h"
@@ -23,6 +24,9 @@ class lambda_lifting_fn : public compiler_step_visitor {
     bool           m_trusted;
 protected:
     expr declare_aux_def(expr const & value) {
+        expr new_value = try_eta(value);
+        if (!is_lambda(new_value))
+            return new_value;
         pair<environment, name> ep = mk_fresh_constant(m_env);
         m_env  = ep.first;
         name n = ep.second;

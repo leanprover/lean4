@@ -91,6 +91,7 @@ name const & get_begin_tk();
 name const & get_end_tk();
 name const & get_private_tk();
 name const & get_protected_tk();
+name const & get_inline_tk();
 name const & get_definition_tk();
 name const & get_theorem_tk();
 name const & get_abbreviation_tk();

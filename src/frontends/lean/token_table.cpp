@@ -117,7 +117,7 @@ void init_token_table(token_table & t) {
          "tactic_infixl", "tactic_infixr", "tactic_infix", "tactic_postfix", "tactic_prefix", "tactic_notation",
          "exit", "set_option", "open", "export", "override", "tactic_hint",
          "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class",
-         "multiple_instances", "find_decl", "attribute", "persistent",
+         "multiple_instances", "find_decl", "attribute", "persistent", "inline",
          "include", "omit", "migrate", "init_quotient", "init_hits", "#erase_cache", "#projections", "#telescope_eq",
          "#compile", "#decl_stats", "#relevant_thms", "#simplify", "#normalizer", "#abstract_expr", "#unify",
          "#defeq_simplify", "#elab", "#compile", nullptr};

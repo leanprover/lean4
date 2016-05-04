@@ -7,7 +7,12 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/environment.h"
 namespace lean {
-/** \brief Inline functions definitions of the form g x_1 ... x_n := f y_1 ... y_m,
+/** \brief Mark the given declaration as "inline"
+    \pre \c n is the name of a definition in \c env */
+environment add_inline(environment const & env, name const & n);
+
+/** \brief Inline definitions marked with the 'inline' keyword.
+    It also inline functions definitions of the form g x_1 ... x_n := f y_1 ... y_m,
     where y_i's are pairwise distinct variables (or constants).
     g is a variable or constant.
 
@@ -15,4 +20,7 @@ namespace lean {
 
     Example: this procedure reduces (@add nat nat_has_add a b) into (nat.add a b). */
 expr inline_simple_definitions(environment const & env, expr const & e);
+
+void initialize_inliner();
+void finalize_inliner();
 }

@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/abbreviation.h"
 #include "library/definitional/equations.h"
 #include "library/error_handling.h"
+#include "compiler/inliner.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
@@ -720,6 +721,7 @@ class definition_cmd_fn {
     bool              m_is_private;
     bool              m_is_protected;
     bool              m_is_noncomputable;
+    bool              m_is_inline;
     pos_info          m_pos;
 
     name              m_name;
@@ -977,6 +979,8 @@ class definition_cmd_fn {
                 m_p.add_decl_index(real_n, m_pos, m_p.get_cmd_token(), type);
                 m_env = ensure_decl_namespaces(m_env, real_n);
             }
+            if (m_is_inline)
+                m_env = add_inline(m_env, real_n);
             if (m_is_protected)
                 m_env = add_protected(m_env, real_n);
             if (n != real_n) {
@@ -1164,9 +1168,9 @@ class definition_cmd_fn {
     }
 
 public:
-    definition_cmd_fn(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable):
+    definition_cmd_fn(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable, bool is_inline):
         m_p(p), m_env(m_p.env()), m_kind(kind),
-        m_is_private(is_private), m_is_protected(is_protected), m_is_noncomputable(is_noncomputable),
+        m_is_private(is_private), m_is_protected(is_protected), m_is_noncomputable(is_noncomputable), m_is_inline(is_inline),
         m_pos(p.pos()), m_attributes(kind == Abbreviation || kind == LocalAbbreviation) {
         lean_assert(!(m_is_private && m_is_protected));
         if (!is_standard(m_p.env()) && is_noncomputable)
@@ -1197,44 +1201,59 @@ public:
     }
 };
 
-static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable) {
-    return definition_cmd_fn(p, kind, is_private, is_protected, is_noncomputable)();
+static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable, bool is_inline) {
+    return definition_cmd_fn(p, kind, is_private, is_protected, is_noncomputable, is_inline)();
 }
 static environment definition_cmd(parser & p) {
-    return definition_cmd_core(p, Definition, false, false, false);
+    return definition_cmd_core(p, Definition, false, false, false, false);
 }
 static environment abbreviation_cmd(parser & p) {
-    return definition_cmd_core(p, Abbreviation, false, false, false);
+    return definition_cmd_core(p, Abbreviation, false, false, false, false);
 }
 environment local_abbreviation_cmd(parser & p) {
-    return definition_cmd_core(p, LocalAbbreviation, true, false, false);
+    return definition_cmd_core(p, LocalAbbreviation, true, false, false, false);
 }
 static environment theorem_cmd(parser & p) {
-    return definition_cmd_core(p, Theorem, false, false, false);
+    return definition_cmd_core(p, Theorem, false, false, false, false);
 }
 static environment example_cmd(parser & p) {
-    definition_cmd_core(p, Example, false, false, false);
+    definition_cmd_core(p, Example, false, false, false, false);
     return p.env();
 }
-static environment private_definition_cmd(parser & p) {
-    bool is_noncomputable = false;
+static void parse_opt_noncomputable_inline(parser & p, bool & is_noncomputable, bool & is_inline) {
+    // 'noncomputable' and 'inline' tokens are mutually exclusive
+    is_noncomputable = false;
+    is_inline = false;
     if (p.curr_is_token(get_noncomputable_tk())) {
         is_noncomputable = true;
         p.next();
+    } else if (p.curr_is_token(get_inline_tk())) {
+        is_inline = true;
+        p.next();
     }
+}
+static void check_not_inline(parser & p, bool is_inline) {
+    if (is_inline)
+        throw parser_error("invalid 'inline' use, only definitions can be marked as inline", p.pos());
+}
+static environment private_definition_cmd(parser & p) {
+    bool is_noncomputable, is_inline;
+    parse_opt_noncomputable_inline(p, is_noncomputable, is_inline);
     def_cmd_kind kind = Definition;
     if (p.curr_is_token_or_id(get_definition_tk())) {
         p.next();
     } else if (p.curr_is_token_or_id(get_abbreviation_tk())) {
+        check_not_inline(p, is_inline);
         kind = Abbreviation;
         p.next();
     } else if (p.curr_is_token_or_id(get_theorem_tk())) {
+        check_not_inline(p, is_inline);
         p.next();
         kind = Theorem;
     } else {
         throw parser_error("invalid 'private' definition/theorem, 'definition' or 'theorem' expected", p.pos());
     }
-    return definition_cmd_core(p, kind, true, false, is_noncomputable);
+    return definition_cmd_core(p, kind, true, false, is_noncomputable, is_inline);
 }
 static environment protected_definition_cmd(parser & p) {
     if (p.curr_is_token_or_id(get_axiom_tk())) {
@@ -1250,41 +1269,46 @@ static environment protected_definition_cmd(parser & p) {
         p.next();
         return variables_cmd_core(p, variable_kind::Constant, true);
     } else {
-        bool is_noncomputable = false;
-        if (p.curr_is_token(get_noncomputable_tk())) {
-            is_noncomputable = true;
-            p.next();
-        }
+        bool is_noncomputable, is_inline;
+        parse_opt_noncomputable_inline(p, is_noncomputable, is_inline);
         def_cmd_kind kind = Definition;
         if (p.curr_is_token_or_id(get_definition_tk())) {
             p.next();
         } else if (p.curr_is_token_or_id(get_abbreviation_tk())) {
+            check_not_inline(p, is_inline);
             p.next();
             kind = Abbreviation;
         } else if (p.curr_is_token_or_id(get_theorem_tk())) {
+            check_not_inline(p, is_inline);
             p.next();
             kind       = Theorem;
         } else {
             throw parser_error("invalid 'protected' definition/theorem, 'definition' or 'theorem' expected", p.pos());
         }
-        return definition_cmd_core(p, kind, false, true, is_noncomputable);
+        return definition_cmd_core(p, kind, false, true, is_noncomputable, is_inline);
     }
 }
+
+static void parse_opt_private_protected(parser & p, bool & is_private, bool & is_protected) {
+    is_private   = false;
+    is_protected = false;
+    if (p.curr_is_token(get_private_tk())) {
+        is_private = true;
+        p.next();
+    } else if (p.curr_is_token(get_protected_tk())) {
+        is_protected = true;
+        p.next();
+    }
+}
+
 static environment noncomputable_cmd(parser & p) {
     if (p.curr_is_token_or_id(get_theory_tk())) {
         p.next();
         p.set_ignore_noncomputable();
         return p.env();
     } else {
-        bool is_private   = false;
-        bool is_protected = false;
-        if (p.curr_is_token(get_private_tk())) {
-            is_private = true;
-            p.next();
-        } else if (p.curr_is_token(get_protected_tk())) {
-            is_protected = true;
-            p.next();
-        }
+        bool is_private, is_protected;
+        parse_opt_private_protected(p, is_private, is_protected);
         def_cmd_kind kind = Definition;
         if (p.curr_is_token_or_id(get_definition_tk())) {
             p.next();
@@ -1297,8 +1321,16 @@ static environment noncomputable_cmd(parser & p) {
         } else {
             throw parser_error("invalid 'noncomputable' definition/theorem, 'definition' or 'theorem' expected", p.pos());
         }
-        return definition_cmd_core(p, kind, is_private, is_protected, true);
+        return definition_cmd_core(p, kind, is_private, is_protected, true, false);
     }
+}
+
+static environment inline_definition_cmd(parser & p) {
+    bool is_private, is_protected;
+    parse_opt_private_protected(p, is_private, is_protected);
+    def_cmd_kind kind = Definition;
+    p.check_token_next(get_definition_tk(), "invalid 'inline' definition, 'definition' expected");
+    return definition_cmd_core(p, kind, is_private, is_protected, false, true);
 }
 
 static environment include_cmd_core(parser & p, bool include) {
@@ -1396,6 +1428,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("example",      "add new example", example_cmd));
     add_cmd(r, cmd_info("private",      "add new private definition/theorem", private_definition_cmd));
     add_cmd(r, cmd_info("protected",    "add new protected definition/theorem", protected_definition_cmd));
+    add_cmd(r, cmd_info("inline",       "add new inline definition", inline_definition_cmd));
     add_cmd(r, cmd_info("theorem",      "add new theorem", theorem_cmd));
     add_cmd(r, cmd_info("reveal",       "reveal given theorems", reveal_cmd));
     add_cmd(r, cmd_info("include",      "force section parameter/variable to be included", include_cmd));

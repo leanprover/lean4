@@ -7,14 +7,17 @@ Author: Leonardo de Moura
 #include "compiler/preprocess_rec.h"
 #include "compiler/fresh_constant.h"
 #include "compiler/comp_irrelevant.h"
+#include "compiler/inliner.h"
 
-namespace lean{
+namespace lean {
 void initialize_compiler_module() {
     initialize_preprocess_rec();
     initialize_fresh_constant();
     initialize_comp_irrelevant();
+    initialize_inliner();
 }
 void finalize_compiler_module() {
+    finalize_inliner();
     finalize_comp_irrelevant();
     finalize_preprocess_rec();
     finalize_fresh_constant();

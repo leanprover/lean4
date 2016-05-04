@@ -84,6 +84,7 @@ begin        begin
 end          end
 private      private
 protected    protected
+inline       inline
 definition   definition
 theorem      theorem
 abbreviation abbreviation

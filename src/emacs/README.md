@@ -167,7 +167,7 @@ Key Bindings and Commands
 |<kbd>C-c C-l</kbd> | execute lean in stand-alone mode (lean-std-exe)                               |
 |<kbd>C-c C-o</kbd> | set option (lean-set-option)                                                  |
 |<kbd>C-c C-r</kbd> | restart lean process (lean-server-reset-process)                              |
-|<kbd>C-c C-e</kbd> | lean-eval-cmd                                                                 |
+|<kbd>C-c C-e</kbd> | evaluate a lean comman (lean-eval-cmd)                                        |
 |<kbd>C-c ! n</kbd> | flycheck: go to next error                                                    |
 |<kbd>C-c ! p</kbd> | flycheck: go to previous error                                                |
 |<kbd>C-c ! l</kbd> | flycheck: show list of errors                                                 |

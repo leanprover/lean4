@@ -23,8 +23,8 @@ About
 - [Authors](http://leanprover.github.io/people/)
 - [Standard Library](library/library.md)
 - [HoTT Library](hott/hott.md)
+- [Emacs Mode](src/emacs/README.md)
 - [Short Tutorial](doc/lean/tutorial.org)
-- [To Do list](doc/todo.md)
 
 Requirements
 ------------

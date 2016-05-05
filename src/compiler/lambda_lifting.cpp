@@ -176,6 +176,12 @@ protected:
         get_intro_rule_names(env(), I_name, cnames);
         /* Process major premise */
         args[major_idx]        = visit(args[major_idx]);
+        if (is_constructor_app(env(), args[major_idx])) {
+            /* Major premise became a constructor. So, we should reduce. */
+            expr new_e = mk_app(fn, args);
+            if (auto r = ctx().norm_ext(new_e))
+                return compiler_step_visitor::visit(beta_reduce(*r));
+        }
         /* Process extra arguments */
         for (unsigned i = arity; i < args.size(); i++)
             args[i] = visit(args[i]);

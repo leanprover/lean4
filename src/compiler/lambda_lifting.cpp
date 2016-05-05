@@ -117,6 +117,13 @@ protected:
         return compiler_step_visitor::visit_app(e);
     }
 
+    bool is_nonrecursive_recursor(name const & n) {
+        if (auto I_name = inductive::is_elim_rule(env(), n)) {
+            return !is_recursive_datatype(env(), *I_name);
+        }
+        return false;
+    }
+
     unsigned get_constructor_arity(name const & n) {
         declaration d = env().get(n);
         expr e = d.get_type();
@@ -136,33 +143,44 @@ protected:
             expr l = locals.push_local(binding_name(e), binding_domain(e), binding_info(e));
             e = instantiate(binding_body(e), l);
         }
+        e = beta_reduce(e);
         e = visit(e);
         return locals.mk_lambda(e);
     }
 
+    /** Process C.cases_on applications and C.rec application for non-recursive C */
     expr visit_cases_on_app(expr const & e) {
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
-        lean_assert(is_constant(fn) && is_cases_on_recursor(env(), const_name(fn)));
-        name const & cases_on_name  = const_name(fn);
-        name const & I_name         = cases_on_name.get_prefix();
+        lean_assert(is_constant(fn));
+        bool is_cases_on            = is_cases_on_recursor(env(), const_name(fn));
+        name const & rec_name       = const_name(fn);
+        name const & I_name         = rec_name.get_prefix();
         unsigned nparams            = *inductive::get_num_params(env(), I_name);
         unsigned nminors            = *inductive::get_num_minor_premises(env(), I_name);
         unsigned nindices           = *inductive::get_num_indices(env(), I_name);
-        unsigned cases_on_arity     = nparams + 1 /* typeformer/motive */ + nindices + 1 /* major premise */ + nminors;
-        unsigned major_idx          = nparams + 1 + nindices;
+        unsigned arity              = nparams + 1 /* typeformer/motive */ + nindices + 1 /* major premise */ + nminors;
+        unsigned major_idx;
+        unsigned first_minor_idx;
+        if (is_cases_on) {
+            major_idx       = nparams + 1 + nindices;
+            first_minor_idx = major_idx + 1;
+        } else {
+            major_idx       = *inductive::get_elim_major_idx(env(), rec_name);
+            first_minor_idx = nparams + 1;
+        }
         /* This transformation assumes eta-expansion have already been applied.
            So, we should have a sufficient number of arguments. */
-        lean_assert(args.size() >= cases_on_arity);
+        lean_assert(args.size() >= arity);
         buffer<name> cnames;
         get_intro_rule_names(env(), I_name, cnames);
         /* Process major premise */
         args[major_idx]        = visit(args[major_idx]);
         /* Process extra arguments */
-        for (unsigned i = cases_on_arity; i < args.size(); i++)
+        for (unsigned i = arity; i < args.size(); i++)
             args[i] = visit(args[i]);
-        /* Process minor premise */
-        for (unsigned i = 0, j = major_idx + 1; i < cnames.size(); i++, j++) {
+        /* Process minor premises */
+        for (unsigned i = 0, j = first_minor_idx; i < cnames.size(); i++, j++) {
             unsigned carity   = get_constructor_arity(cnames[i]);
             lean_assert(carity >= nparams);
             unsigned cdata_sz = carity - nparams;
@@ -175,13 +193,13 @@ protected:
         expr const & fn = get_app_fn(e);
         if (is_constant(fn)) {
             name const & n = const_name(fn);
-            if (is_cases_on_recursor(env(), n)) {
+            if (is_cases_on_recursor(env(), n) || is_nonrecursive_recursor(n)) {
                 return visit_cases_on_app(e);
             } else if (inductive::is_elim_rule(env(), n)) {
                 return visit_recursor_app(e);
             }
         }
-        return compiler_step_visitor::visit_app(e);
+        return compiler_step_visitor::visit_app(beta_reduce(e));
     }
 
 public:

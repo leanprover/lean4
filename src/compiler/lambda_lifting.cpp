@@ -127,7 +127,7 @@ protected:
             expr new_e = ctx().whnf(e);
             if (is_lambda(new_e)) {
                 e = new_e;
-                expr local = locals.push_local(binding_name(e), binding_domain(e), binding_info(e));
+                expr local = locals.push_local_from_binding(e);
                 e = instantiate(binding_body(e), local);
             } else {
                 return beta_reduce(e);
@@ -183,13 +183,13 @@ protected:
         for (unsigned i = 0; i < nindices; i++) {
             aux_body_type = m_ctx.whnf(aux_body_type);
             lean_assert(is_pi(aux_body_type));
-            expr index = locals.push_local(binding_name(aux_body_type), binding_domain(aux_body_type), binding_info(aux_body_type));
+            expr index = locals.push_local_from_binding(aux_body_type);
             indices.push_back(index);
             aux_body_type = instantiate(binding_body(aux_body_type), index);
         }
         aux_body_type = m_ctx.whnf(aux_body_type);
         lean_assert(is_pi(aux_body_type));
-        expr major = locals.push_local(binding_name(aux_body_type), binding_domain(aux_body_type), binding_info(aux_body_type));
+        expr major = locals.push_local_from_binding(aux_body_type);
         /* Make sure result is eta-expanded */
         buffer<expr> extra_args; /* to make sure result is eta-expanded */
         aux_body_type = instantiate(binding_body(aux_body_type), major);
@@ -197,7 +197,7 @@ protected:
             aux_body_type = m_ctx.whnf(aux_body_type);
             if (!is_pi(aux_body_type))
                 break;
-            expr new_arg = locals.push_local(binding_name(aux_body_type), binding_domain(aux_body_type), binding_info(aux_body_type));
+            expr new_arg = locals.push_local_from_binding(aux_body_type);
             extra_args.push_back(new_arg);
             aux_body_type = instantiate(binding_body(aux_body_type), new_arg);
         }
@@ -224,14 +224,14 @@ protected:
                 for (unsigned j = 0; j < carity - nparams; j++) {
                     minor            = ctx().whnf(minor);
                     lean_assert(is_lambda(minor));
-                    expr minor_local = minor_locals.push_local(binding_name(minor), binding_domain(minor), binding_info(minor));
+                    expr minor_local = minor_locals.push_local_from_binding(minor);
                     minor = instantiate(binding_body(minor), minor_local);
                     /* Check if minor_local is recursive data */
                     type_context::tmp_locals aux_locals(m_ctx);
                     expr minor_local_type = m_ctx.whnf(ctx().infer(minor_local));
                     // tout() << ">>> minor_local_type: " << minor_local_type << "\n";
                     while (is_pi(minor_local_type)) {
-                        expr aux_local = aux_locals.push_local(binding_name(minor_local_type), binding_domain(minor_local_type), binding_info(minor_local_type));
+                        expr aux_local = aux_locals.push_local_from_binding(minor_local_type);
                         minor_local_type = m_ctx.whnf(instantiate(binding_body(minor_local_type), aux_local));
                     }
                     if (is_constant(get_app_fn(minor_local_type), I_name)) {
@@ -298,7 +298,7 @@ protected:
         for (unsigned i = 0; i < data_sz; i++) {
             e = ctx().whnf(e);
             lean_assert(is_lambda(e));
-            expr l = locals.push_local(binding_name(e), binding_domain(e), binding_info(e));
+            expr l = locals.push_local_from_binding(e);
             e = instantiate(binding_body(e), l);
         }
         e = consume_lambdas(locals, beta_reduce(e));

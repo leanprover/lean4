@@ -190,6 +190,17 @@ protected:
         aux_body_type = m_ctx.whnf(aux_body_type);
         lean_assert(is_pi(aux_body_type));
         expr major = locals.push_local(binding_name(aux_body_type), binding_domain(aux_body_type), binding_info(aux_body_type));
+        /* Make sure result is eta-expanded */
+        buffer<expr> extra_args; /* to make sure result is eta-expanded */
+        aux_body_type = instantiate(binding_body(aux_body_type), major);
+        while (true) {
+            aux_body_type = m_ctx.whnf(aux_body_type);
+            if (!is_pi(aux_body_type))
+                break;
+            expr new_arg = locals.push_local(binding_name(aux_body_type), binding_domain(aux_body_type), binding_info(aux_body_type));
+            extra_args.push_back(new_arg);
+            aux_body_type = instantiate(binding_body(aux_body_type), new_arg);
+        }
         /* Create auxiliary recursive function. It is a cases_on expression. */
         buffer<expr> cases_on_args;
         {
@@ -255,7 +266,7 @@ protected:
         }
         name cases_on_name  = name(I_name, "cases_on");
         expr cases_on_fn    = mk_constant(cases_on_name, const_levels(fn));
-        expr cases_on       = mk_app(cases_on_fn, cases_on_args);
+        expr cases_on       = mk_app(mk_app(cases_on_fn, cases_on_args), extra_args);
         expr aux_decl_value = locals.mk_lambda(cases_on);
         expr aux_decl_cnst  = declare_aux_def_core(aux_decl_name, aux_decl_value);
         unsigned num_rest_args = args.size() - nparams - 1 - nminors;

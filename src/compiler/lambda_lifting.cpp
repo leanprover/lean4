@@ -122,6 +122,19 @@ protected:
         return locals.mk_let(t);
     }
 
+    expr consume_lambdas(type_context::tmp_locals & locals, expr e) {
+        while (true) {
+            expr new_e = ctx().whnf(e);
+            if (is_lambda(new_e)) {
+                e = new_e;
+                expr local = locals.push_local(binding_name(e), binding_domain(e), binding_info(e));
+                e = instantiate(binding_body(e), local);
+            } else {
+                return beta_reduce(e);
+            }
+        }
+    }
+
     /* Process recursor application of recursive datatype.
        We create a auxiliary recursive definition using cases_on and rec_fn_macro. */
     expr visit_recursor_app(expr const & e) {
@@ -234,17 +247,8 @@ protected:
                     minor = instantiate(binding_body(minor), minor_rec);
                 }
                 /* Keep consuming lambda */
-                while (true) {
-                    expr new_minor = ctx().whnf(minor);
-                    if (is_lambda(new_minor)) {
-                        minor = new_minor;
-                        expr minor_local = minor_locals.push_local(binding_name(minor), binding_domain(minor), binding_info(minor));
-                        minor = instantiate(binding_body(minor), minor_local);
-                    } else {
-                        break;
-                    }
-                }
-                minor = visit(minor);
+                minor = consume_lambdas(minor_locals, minor);
+                minor = visit(beta_reduce(minor));
                 minor = minor_locals.mk_lambda(minor);
                 cases_on_args.push_back(minor);
             }
@@ -286,7 +290,7 @@ protected:
             expr l = locals.push_local(binding_name(e), binding_domain(e), binding_info(e));
             e = instantiate(binding_body(e), l);
         }
-        e = beta_reduce(e);
+        e = consume_lambdas(locals, beta_reduce(e));
         e = visit(e);
         return locals.mk_lambda(e);
     }

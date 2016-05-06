@@ -35,6 +35,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/definitional/equations.h"
 #include "compiler/comp_irrelevant.h"
+#include "compiler/rec_fn_macro.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/token_table.h"
@@ -832,6 +833,8 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
         return m_unicode ? format("◾") : format("irrel");
     } else if (is_annotation(e)) {
         return pp(get_annotation_arg(e));
+    } else if (is_rec_fn_macro(e)) {
+        return format("[") + format(get_rec_fn_name(e)) + format("]");
     } else {
         // TODO(Leo): have macro annotations
         // fix macro<->pp interface

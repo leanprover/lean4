@@ -17,19 +17,14 @@ Author: Leonardo de Moura
 #include "compiler/util.h"
 #include "compiler/comp_irrelevant.h"
 #include "compiler/compiler_step_visitor.h"
+#include "compiler/rec_fn_macro.h"
 
 namespace lean {
 class lambda_lifting_fn : public compiler_step_visitor {
     buffer<name> & m_new_decls;
     bool           m_trusted;
 protected:
-    expr declare_aux_def(expr const & value) {
-        expr new_value = try_eta(value);
-        if (!is_lambda(new_value))
-            return new_value;
-        pair<environment, name> ep = mk_fresh_constant(m_env);
-        m_env  = ep.first;
-        name n = ep.second;
+    expr declare_aux_def_core(name const & n, expr const & value) {
         m_new_decls.push_back(n);
         level_param_names ps = to_level_param_names(collect_univ_params(value));
         /* We should use a new type checker because m_env is updated by this object.
@@ -40,6 +35,16 @@ protected:
         declaration new_decl = mk_definition(m_env, n, ps, type, value, use_conv_opt, m_trusted);
         m_env = m_env.add(check(m_env, new_decl));
         return mk_constant(n, param_names_to_levels(ps));
+    }
+
+    expr declare_aux_def(expr const & value) {
+        expr new_value = try_eta(value);
+        if (!is_lambda(new_value))
+            return new_value;
+        pair<environment, name> ep = mk_fresh_constant(m_env);
+        m_env  = ep.first;
+        name n = ep.second;
+        return declare_aux_def_core(n, value);
     }
 
     typedef rb_map<unsigned, local_decl, unsigned_rev_cmp> idx2decls;
@@ -68,34 +73,39 @@ protected:
         return locals.mk_lambda(t);
     }
 
-    virtual expr visit_lambda(expr const & e) override {
-        expr new_e = visit_lambda_core(e);
+    expr abstract_locals(expr e, buffer<expr> & locals) {
         idx2decls map;
-        collect_locals(new_e, map);
+        collect_locals(e, map);
         if (map.empty()) {
-            return declare_aux_def(new_e);
+            return e;
         } else {
-            buffer<expr> args;
             while (!map.empty()) {
                 /* remove local_decl with biggest idx */
                 local_decl d = map.erase_min();
                 expr l       = d.mk_ref();
                 if (auto v = d.get_value()) {
                     collect_locals(*v, map);
-                    new_e = instantiate(abstract_local(new_e, l), *v);
+                    e = instantiate(abstract_local(e, l), *v);
                 } else {
                     collect_locals(d.get_type(), map);
                     if (is_comp_irrelevant(ctx(), l))
-                        args.push_back(mark_comp_irrelevant(l));
+                        locals.push_back(mark_comp_irrelevant(l));
                     else
-                        args.push_back(l);
-                    new_e = abstract_local(new_e, l);
-                    new_e = mk_lambda(d.get_name(), d.get_type(), new_e);
+                        locals.push_back(l);
+                    e = abstract_local(e, l);
+                    e = mk_lambda(d.get_name(), d.get_type(), e);
                 }
             }
-            expr c = declare_aux_def(new_e);
-            return mk_rev_app(c, args);
+            return e;
         }
+    }
+
+    virtual expr visit_lambda(expr const & e) override {
+        expr new_e = visit_lambda_core(e);
+        buffer<expr> locals;
+        new_e  = abstract_locals(new_e, locals);
+        expr c = declare_aux_def(new_e);
+        return mk_rev_app(c, locals);
     }
 
     virtual expr visit_let(expr const & e) override {
@@ -112,9 +122,142 @@ protected:
         return locals.mk_let(t);
     }
 
+    /* Process recursor application of recursive datatype.
+       We create a auxiliary recursive definition using cases_on and rec_fn_macro. */
     expr visit_recursor_app(expr const & e) {
-        // TODO(Leo): process recursor args
-        return compiler_step_visitor::visit_app(e);
+        buffer<expr> args;
+        expr const & fn = get_app_args(e, args);
+        name const & rec_name     = const_name(fn);
+        name const & I_name       = rec_name.get_prefix();
+        unsigned nparams          = *inductive::get_num_params(env(), I_name);
+        unsigned nminors          = *inductive::get_num_minor_premises(env(), I_name);
+        unsigned nindices         = *inductive::get_num_indices(env(), I_name);
+        unsigned first_minor_idx  = nparams + 1;
+        /* Create auxiliary application containing params + typeformer + minor premises.
+           This application is going to be the base of the auxiliary recursive definition. */
+        expr aux = mk_app(fn, nparams + 1 + nminors, args.data());
+        /* Abstract locals (and let values) occurring in aux */
+        buffer<expr> abst_locals;
+        aux = abstract_locals(aux, abst_locals);
+        /* Create expr (rec_fn) for representing recursive calls. */
+        expr aux_decl_type = m_ctx.infer(aux);
+        pair<environment, name> ep = mk_fresh_constant(m_env, "_rec");
+        m_env = ep.first;
+        name aux_decl_name = ep.second;
+        expr rec_fn = mk_rec_fn_macro(aux_decl_name, aux_decl_type);
+        /* Create new locals for aux.
+           The operating abstract_locals creates a lambda-abstraction around aux if it uses
+           local constants. */
+        type_context::tmp_locals locals(m_ctx);
+        buffer<expr> aux_decl_params; /* "fixed" parameters of the auxiliary recursive declaration. */
+        expr aux_body = aux;
+        while (is_lambda(aux_body)) {
+            expr d = instantiate_rev(binding_domain(aux_body), locals.size(), locals.data());
+            expr p = locals.push_local(binding_name(aux_body), d, binding_info(aux_body));
+            aux_decl_params.push_back(p);
+            aux_body = binding_body(aux_body);
+        }
+        aux_body = instantiate_rev(aux_body, locals.size(), locals.data());
+        lean_assert(is_app(aux_body) && is_constant(get_app_fn(aux_body), rec_name));
+        buffer<expr> aux_body_args;
+        get_app_args(aux_body, aux_body_args);
+        /* Update rec_fn, create an application using aux_decl_params.
+           These parameters are fixed in recursive calls. */
+        rec_fn = mk_app(rec_fn, aux_decl_params);
+        /* Create locals for indices and major premise */
+        expr aux_body_type = m_ctx.infer(aux_body);
+        buffer<expr> indices;
+        for (unsigned i = 0; i < nindices; i++) {
+            aux_body_type = m_ctx.whnf(aux_body_type);
+            lean_assert(is_pi(aux_body_type));
+            expr index = locals.push_local(binding_name(aux_body_type), binding_domain(aux_body_type), binding_info(aux_body_type));
+            indices.push_back(index);
+            aux_body_type = instantiate(binding_body(aux_body_type), index);
+        }
+        aux_body_type = m_ctx.whnf(aux_body_type);
+        lean_assert(is_pi(aux_body_type));
+        expr major = locals.push_local(binding_name(aux_body_type), binding_domain(aux_body_type), binding_info(aux_body_type));
+        /* Create auxiliary recursive function. It is a cases_on expression. */
+        buffer<expr> cases_on_args;
+        {
+            /* Add parameters and motive from aux_body_args */
+            cases_on_args.append(nparams + 1, aux_body_args.data());
+            /* Add indices */
+            cases_on_args.append(indices);
+            /* Add major */
+            cases_on_args.push_back(major);
+            /* Add minor premises */
+            buffer<name> cnames; /* constructor names */
+            get_intro_rule_names(env(), I_name, cnames);
+            for (unsigned i = 0; i < nminors; i++) {
+                // tout() << ">> cname: " << cnames[i] << "\n";
+                unsigned carity = get_constructor_arity(cnames[i]);
+                expr minor      = aux_body_args[first_minor_idx + i];
+                // tout() << ">> minor: " << minor << "\n";
+                type_context::tmp_locals minor_locals(m_ctx);
+                buffer<expr> minor_recs; /* "recursive calls" */
+                lean_assert(carity >= nparams);
+                for (unsigned j = 0; j < carity - nparams; j++) {
+                    minor            = ctx().whnf(minor);
+                    lean_assert(is_lambda(minor));
+                    expr minor_local = minor_locals.push_local(binding_name(minor), binding_domain(minor), binding_info(minor));
+                    minor = instantiate(binding_body(minor), minor_local);
+                    /* Check if minor_local is recursive data */
+                    type_context::tmp_locals aux_locals(m_ctx);
+                    expr minor_local_type = m_ctx.whnf(ctx().infer(minor_local));
+                    // tout() << ">>> minor_local_type: " << minor_local_type << "\n";
+                    while (is_pi(minor_local_type)) {
+                        expr aux_local = aux_locals.push_local(binding_name(minor_local_type), binding_domain(minor_local_type), binding_info(minor_local_type));
+                        minor_local_type = m_ctx.whnf(instantiate(binding_body(minor_local_type), aux_local));
+                    }
+                    if (is_constant(get_app_fn(minor_local_type), I_name)) {
+                        /* Recursive data, we must update minor_recs */
+                        buffer<expr> I_args;
+                        get_app_args(minor_local_type, I_args);
+                        lean_assert(I_args.size() == nparams + nindices);
+                        /* Construct term to replace the inductive/recursive hypothesis and add it to minor_recs.
+                           The term is of the form
+                              fun aux_locals, rec_fn I_args_indices (minor_local aux_locals)
+                        */
+                        expr rec_fn_indices = mk_app(rec_fn, nindices, I_args.data() + nparams);
+                        expr minor_rec = mk_app(rec_fn_indices, mk_app(minor_local, aux_locals.as_buffer()));
+                        minor_rec = aux_locals.mk_lambda(minor_rec);
+                        // tout() << ">> minor_rec: " << minor_rec << "\n";
+                        minor_recs.push_back(minor_rec);
+                    }
+                }
+                /* Replace recursive/inductive hypothesis with minor_recs */
+                for (expr const & minor_rec : minor_recs) {
+                    minor = ctx().whnf(minor);
+                    // tout() << ">> minor: " << minor << "\n";
+                    lean_assert(is_lambda(minor));
+                    minor = instantiate(binding_body(minor), minor_rec);
+                }
+                /* Keep consuming lambda */
+                while (true) {
+                    expr new_minor = ctx().whnf(minor);
+                    if (is_lambda(new_minor)) {
+                        minor = new_minor;
+                        expr minor_local = minor_locals.push_local(binding_name(minor), binding_domain(minor), binding_info(minor));
+                        minor = instantiate(binding_body(minor), minor_local);
+                    } else {
+                        break;
+                    }
+                }
+                minor = visit(minor);
+                minor = minor_locals.mk_lambda(minor);
+                cases_on_args.push_back(minor);
+            }
+        }
+        name cases_on_name  = name(I_name, "cases_on");
+        expr cases_on_fn    = mk_constant(cases_on_name, const_levels(fn));
+        expr cases_on       = mk_app(cases_on_fn, cases_on_args);
+        expr aux_decl_value = locals.mk_lambda(cases_on);
+        expr aux_decl_cnst  = declare_aux_def_core(aux_decl_name, aux_decl_value);
+        unsigned num_rest_args = args.size() - nparams - 1 - nminors;
+        expr const * rest_args = args.data() + nparams + 1 + nminors;
+        expr r = mk_app(mk_app(aux_decl_cnst, abst_locals), num_rest_args, rest_args);
+        return r;
     }
 
     bool is_nonrecursive_recursor(name const & n) {

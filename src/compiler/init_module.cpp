@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "compiler/fresh_constant.h"
 #include "compiler/comp_irrelevant.h"
 #include "compiler/inliner.h"
+#include "compiler/rec_fn_macro.h"
 
 namespace lean {
 void initialize_compiler_module() {
@@ -15,8 +16,10 @@ void initialize_compiler_module() {
     initialize_fresh_constant();
     initialize_comp_irrelevant();
     initialize_inliner();
+    initialize_rec_fn_macro();
 }
 void finalize_compiler_module() {
+    finalize_rec_fn_macro();
     finalize_inliner();
     finalize_comp_irrelevant();
     finalize_preprocess_rec();

@@ -92,4 +92,15 @@ bool is_recursive_rec_app(environment const & env, expr const & e) {
 bool is_cases_on_recursor(environment const & env, name const & n) {
     return ::lean::is_aux_recursor(env, n) && strcmp(n.get_string(), "cases_on") == 0;
 }
+
+unsigned get_constructor_arity(environment const & env, name const & n) {
+    declaration d = env.get(n);
+    expr e = d.get_type();
+    unsigned r = 0;
+    while (is_pi(e)) {
+        r++;
+        e = binding_body(e);
+    }
+    return r;
+}
 }

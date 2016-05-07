@@ -14,6 +14,8 @@ namespace lean {
 */
 void get_rec_args(environment const & env, name const & n, buffer<buffer<bool>> & r);
 
+unsigned get_constructor_arity(environment const & env, name const & n);
+
 /** \brief Return true iff \c e is of the form <tt>(C.rec ...)</tt> and is recursive.
     That is, \c C is a recursive inductive datatype, \c C is *not* an inductive predicate,
     and at least one minor premise uses a recursive argument.

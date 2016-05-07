@@ -90,17 +90,6 @@ protected:
         }
     }
 
-    unsigned get_constructor_arity(name const & n) {
-        declaration d = env().get(n);
-        expr e = d.get_type();
-        unsigned r = 0;
-        while (is_pi(e)) {
-            r++;
-            e = binding_body(e);
-        }
-        return r;
-    }
-
     /* Process recursor application of recursive datatype.
        We create a auxiliary recursive definition using cases_on and rec_fn_macro. */
     expr visit_recursor_app(expr const & e) {
@@ -181,7 +170,7 @@ protected:
             get_intro_rule_names(env(), I_name, cnames);
             for (unsigned i = 0; i < nminors; i++) {
                 // tout() << ">> cname: " << cnames[i] << "\n";
-                unsigned carity = get_constructor_arity(cnames[i]);
+                unsigned carity = get_constructor_arity(env(), cnames[i]);
                 expr minor      = aux_body_args[first_minor_idx + i];
                 // tout() << ">> minor: " << minor << "\n";
                 type_context::tmp_locals minor_locals(m_ctx);

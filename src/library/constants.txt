@@ -200,6 +200,9 @@ sub
 subsingleton
 subsingleton.elim
 subsingleton.helim
+subtype.tag
+subtype.elt_of
+subtype.rec
 tactic
 tactic.all_goals
 tactic.and_then

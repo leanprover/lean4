@@ -39,13 +39,17 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         return mk_app(fn, args.size() - nparams - 1 - nindices, args.data() + nparams + 1 + nindices);
     }
 
+    expr add_args(expr e, unsigned start_idx, buffer<expr> const & args) {
+        for (unsigned i = start_idx; i < args.size(); i++)
+            e = mk_app(e, args[i]);
+        return beta_reduce(e);
+    }
+
     /* Remove eq.rec applications since they are just "type-casting" operations. */
     expr visit_eq_rec(buffer<expr> & args) {
         lean_assert(args.size() >= 6);
         expr major = visit(args[3]);
-        for (unsigned i = 6; i < args.size(); i++)
-            args[i] = visit(args[i]);
-        return beta_reduce(mk_app(major, args.size() - 6, args.data() + 6));
+        return add_args(major, 6, args);
     }
 
     expr consume_lambdas(type_context::tmp_locals & locals, expr e) {
@@ -88,9 +92,30 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         for (unsigned i = 0; i < c_data_sz; i++)
             r = mk_app(r, *g_neutral_expr); // add dummy proofs
         /* add remaining arguments */
-        for (unsigned i = nparams + nindices + 5; i < args.size(); i++)
-            r = mk_app(r, visit(args[i]));
-        return beta_reduce(r);
+        return add_args(r, nparams + nindices + 5, args);
+    }
+
+    /* Treat subtype.tag as the identity function */
+    virtual expr visit_subtype_tag(buffer<expr> const & args) {
+        lean_assert(args.size() >= 4);
+        expr r = visit(args[2]);
+        return add_args(r, 4, args);
+    }
+
+    /* Eliminate subtype.rec */
+    virtual expr visit_subtype_rec(buffer<expr> const & args) {
+        lean_assert(args.size() >= 5);
+        expr minor = visit(args[3]);
+        expr major = visit(args[4]);
+        expr r     = mk_app(minor, major, *g_neutral_expr);
+        return add_args(r, 5, args);
+    }
+
+    /* subtype.elt_of is also compiled as the identity function */
+    virtual expr visit_subtype_elt_of(buffer<expr> const & args) {
+        lean_assert(args.size() >= 3);
+        expr r = visit(args[2]);
+        return add_args(r, 3, args);
     }
 
     virtual expr visit_app(expr const & e) override {
@@ -106,6 +131,12 @@ class erase_irrelevant_fn : public compiler_step_visitor {
                 return visit_no_confusion(fn, args);
             } else if (n == get_eq_rec_name()) {
                 return visit_eq_rec(args);
+            } else if (n == get_subtype_tag_name()) {
+                return visit_subtype_tag(args);
+            } else if (n == get_subtype_rec_name()) {
+                return visit_subtype_rec(args);
+            } else if (n == get_subtype_elt_of_name()) {
+                return visit_subtype_elt_of(args);
             }
         }
         return compiler_step_visitor::visit_app(e);

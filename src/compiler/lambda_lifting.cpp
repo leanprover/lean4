@@ -271,7 +271,7 @@ protected:
         expr aux_decl_cnst  = declare_aux_def_core(aux_decl_name, aux_decl_value);
         unsigned num_rest_args = args.size() - nparams - 1 - nminors;
         expr const * rest_args = args.data() + nparams + 1 + nminors;
-        expr r = mk_app(mk_app(aux_decl_cnst, abst_locals), num_rest_args, rest_args);
+        expr r = mk_app(mk_rev_app(aux_decl_cnst, abst_locals), num_rest_args, rest_args);
         return r;
     }
 

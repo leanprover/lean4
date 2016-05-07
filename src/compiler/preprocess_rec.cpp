@@ -127,12 +127,12 @@ public:
             procs.emplace_back(d.get_name(), d.get_value());
         }
         procs.emplace_back(d.get_name(), v);
+        check(d, procs.back().second);
 
         erase_irrelevant(procs);
-
         display(procs);
         // TODO(Leo)
-        check(d, procs.back().second);
+
     }
 };
 

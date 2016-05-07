@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "compiler/simp_pr1_rec.h"
 #include "compiler/inliner.h"
 #include "compiler/lambda_lifting.h"
+#include "compiler/erase_irrelevant.h"
 
 namespace lean {
 class expand_aux_recursors_fn : public compiler_step_visitor {
@@ -83,7 +84,6 @@ static name * g_tmp_prefix = nullptr;
 
 class preprocess_rec_fn {
     environment    m_env;
-    buffer<name> & m_aux_decls;
 
     bool check(declaration const & d, expr const & v) {
         type_checker tc(m_env);
@@ -93,20 +93,23 @@ class preprocess_rec_fn {
         return true;
     }
 
-    void display(expr const & v) {
-        for (name const & n : m_aux_decls) {
-            tout() << ">> " << n << "\n";
-            declaration d = m_env.get(n);
-            tout() << d.get_value() << "\n";
+    void display(buffer<pair<name, expr>> const & procs) {
+        for (auto const & p : procs) {
+            tout() << ">> " << p.first << "\n" << p.second << "\n";
         }
-        tout() << ">> main\n" << v << "\n";
+    }
+
+    void erase_irrelevant(buffer<pair<name, expr>> & procs) {
+        for (pair<name, expr> & p : procs) {
+            p.second = ::lean::erase_irrelevant(m_env, p.second);
+        }
     }
 
 public:
-    preprocess_rec_fn(environment const & env, buffer<name> & aux_decls):
-        m_env(env), m_aux_decls(aux_decls) {}
+    preprocess_rec_fn(environment const & env):
+        m_env(env) {}
 
-    environment operator()(declaration const & d) {
+    void operator()(declaration const & d, buffer<pair<name, expr>> & procs) {
         expr v = d.get_value();
         v = expand_aux_recursors(m_env, v);
         v = mark_comp_irrelevant_subterms(m_env, v);
@@ -114,16 +117,25 @@ public:
         v = simp_pr1_rec(m_env, v);
         v = inline_simple_definitions(m_env, v);
         v = mark_comp_irrelevant_subterms(m_env, v);
-        v = lambda_lifting(m_env, v, m_aux_decls, d.is_trusted());
-        display(v);
+        buffer<name> aux_decls;
+        v = lambda_lifting(m_env, v, aux_decls, d.is_trusted());
+
+        procs.emplace_back(d.get_name(), v);
+        for (name const & n : aux_decls) {
+            declaration d = m_env.get(n);
+            procs.emplace_back(d.get_name(), d.get_value());
+        }
+
+        erase_irrelevant(procs);
+
+        display(procs);
         // TODO(Leo)
-        check(d, v);
-        return m_env;
+        check(d, procs[0].second);
     }
 };
 
-environment preprocess_rec(environment const & env, declaration const & d, buffer<name> & aux_decls) {
-    return preprocess_rec_fn(env, aux_decls)(d);
+void preprocess_rec(environment const & env, declaration const & d, buffer<pair<name, expr>> & result) {
+    return preprocess_rec_fn(env)(d, result);
 }
 
 void initialize_preprocess_rec() {

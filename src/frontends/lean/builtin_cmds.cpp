@@ -656,8 +656,8 @@ static environment abstract_expr_cmd(parser & p) {
 static environment compile_cmd(parser & p) {
     name n = p.check_constant_next("invalid #compile command, constant expected");
     declaration d = p.env().get(n);
-    buffer<name> aux_decls;
-    preprocess_rec(p.env(), d, aux_decls);
+    buffer<pair<name, expr>> procs;
+    preprocess_rec(p.env(), d, procs);
     return p.env();
 }
 

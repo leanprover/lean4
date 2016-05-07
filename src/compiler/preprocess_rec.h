@@ -12,11 +12,8 @@ namespace lean {
     put definition in eta-expanded normal form, and
     eliminate nested (recursive) recursor applications.
     Each nested recursive application becomes a new definition.
-
-    All new declarations are added to the resulting environment.
-    \remark The new declaration corresponding to \c d is in the last one in \c new_decls.
 */
-environment preprocess_rec(environment const & env, declaration const & d, buffer<name> & new_decls);
+void preprocess_rec(environment const & env, declaration const & d, buffer<pair<name, expr>> & result);
 
 void initialize_preprocess_rec();
 void finalize_preprocess_rec();

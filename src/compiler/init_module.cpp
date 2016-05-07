@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "compiler/comp_irrelevant.h"
 #include "compiler/inliner.h"
 #include "compiler/rec_fn_macro.h"
+#include "compiler/erase_irrelevant.h"
 
 namespace lean {
 void initialize_compiler_module() {
@@ -17,8 +18,10 @@ void initialize_compiler_module() {
     initialize_comp_irrelevant();
     initialize_inliner();
     initialize_rec_fn_macro();
+    initialize_erase_irrelevant();
 }
 void finalize_compiler_module() {
+    finalize_erase_irrelevant();
     finalize_rec_fn_macro();
     finalize_inliner();
     finalize_comp_irrelevant();

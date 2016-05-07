@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 #include "compiler/eta_expansion.h"
 #include "compiler/simp_pr1_rec.h"
 #include "compiler/inliner.h"
-#include "compiler/lambda_lifting.h"
+#include "compiler/elim_recursors.h"
 #include "compiler/erase_irrelevant.h"
 
 namespace lean {
@@ -86,7 +86,9 @@ class preprocess_rec_fn {
     environment    m_env;
 
     bool check(declaration const & d, expr const & v) {
-        type_checker tc(m_env);
+        bool memoize      = true;
+        bool trusted_only = false;
+        type_checker tc(m_env, memoize, trusted_only);
         expr t = tc.check(v, d.get_univ_params());
         if (!tc.is_def_eq(d.get_type(), t))
             throw exception("preprocess_rec failed");
@@ -118,19 +120,19 @@ public:
         v = inline_simple_definitions(m_env, v);
         v = mark_comp_irrelevant_subterms(m_env, v);
         buffer<name> aux_decls;
-        v = lambda_lifting(m_env, v, aux_decls, d.is_trusted());
+        v = elim_recursors(m_env, v, aux_decls);
 
-        procs.emplace_back(d.get_name(), v);
         for (name const & n : aux_decls) {
             declaration d = m_env.get(n);
             procs.emplace_back(d.get_name(), d.get_value());
         }
+        procs.emplace_back(d.get_name(), v);
 
         erase_irrelevant(procs);
 
         display(procs);
         // TODO(Leo)
-        check(d, procs[0].second);
+        check(d, procs.back().second);
     }
 };
 

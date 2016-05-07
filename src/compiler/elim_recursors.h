@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-/** \brief Lift lambda expressions in \c e. New declarations are added to new_decls,
-    \remark The environment is also updated */
-expr lambda_lifting(environment & env, expr const & e, buffer<name> & new_decls, bool trusted);
+/** \brief Eliminate recursor applications */
+expr elim_recursors(environment & env, expr const & e, buffer<name> & new_decls);
 }

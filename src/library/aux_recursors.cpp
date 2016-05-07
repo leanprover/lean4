@@ -12,7 +12,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 struct aux_recursor_ext : public environment_extension {
-    name_set m_set;
+    name_set m_aux_recursor_set;
+    name_set m_no_confusion_set;
 };
 
 struct aux_recursor_ext_reg {
@@ -28,18 +29,31 @@ static environment update(environment const & env, aux_recursor_ext const & ext)
     return env.update(g_ext->m_ext_id, std::make_shared<aux_recursor_ext>(ext));
 }
 
-static std::string * g_prv_key = nullptr;
+static std::string * g_auxrec_key = nullptr;
+static std::string * g_no_confusion_key = nullptr;
 
 environment add_aux_recursor(environment const & env, name const & r) {
     aux_recursor_ext ext = get_extension(env);
-    ext.m_set.insert(r);
+    ext.m_aux_recursor_set.insert(r);
     environment new_env = update(env, ext);
-    return module::add(new_env, *g_prv_key, [=](environment const &, serializer & s) { s << r; });
+    return module::add(new_env, *g_auxrec_key, [=](environment const &, serializer & s) { s << r; });
+}
+
+environment add_no_confusion(environment const & env, name const & r) {
+    aux_recursor_ext ext = get_extension(env);
+    ext.m_no_confusion_set.insert(r);
+    environment new_env = update(env, ext);
+    return module::add(new_env, *g_no_confusion_key, [=](environment const &, serializer & s) { s << r; });
 }
 
 bool is_aux_recursor(environment const & env, name const & r) {
     /* nat.cases_on is manually defined in the standard library */
-    return get_extension(env).m_set.contains(r) || r == get_nat_cases_on_name();
+    return get_extension(env).m_aux_recursor_set.contains(r) || r == get_nat_cases_on_name();
+}
+
+bool is_no_confusion(environment const & env, name const & r) {
+    /* nat.no_confusion is manually defined in the standard library */
+    return get_extension(env).m_no_confusion_set.contains(r) || r == get_nat_no_confusion_name();
 }
 
 static void aux_recursor_reader(deserializer & d, shared_environment & senv,
@@ -49,19 +63,34 @@ static void aux_recursor_reader(deserializer & d, shared_environment & senv,
     d >> r;
     senv.update([=](environment const & env) -> environment {
             aux_recursor_ext ext = get_extension(env);
-            ext.m_set.insert(r);
+            ext.m_aux_recursor_set.insert(r);
+            return update(env, ext);
+        });
+}
+
+static void no_confusion_reader(deserializer & d, shared_environment & senv,
+                                std::function<void(asynch_update_fn const &)> &,
+                                std::function<void(delayed_update_fn const &)> &) {
+    name r;
+    d >> r;
+    senv.update([=](environment const & env) -> environment {
+            aux_recursor_ext ext = get_extension(env);
+            ext.m_no_confusion_set.insert(r);
             return update(env, ext);
         });
 }
 
 void initialize_aux_recursors() {
-    g_ext     = new aux_recursor_ext_reg();
-    g_prv_key = new std::string("auxrec");
-    register_module_object_reader(*g_prv_key, aux_recursor_reader);
+    g_ext              = new aux_recursor_ext_reg();
+    g_auxrec_key       = new std::string("auxrec");
+    g_no_confusion_key = new std::string("no_conf");
+    register_module_object_reader(*g_auxrec_key, aux_recursor_reader);
+    register_module_object_reader(*g_no_confusion_key, no_confusion_reader);
 }
 
 void finalize_aux_recursors() {
-    delete g_prv_key;
+    delete g_auxrec_key;
+    delete g_no_confusion_key;
     delete g_ext;
 }
 }

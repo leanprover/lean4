@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/normalize.h"
 #include "library/scoped_ext.h"
+#include "library/aux_recursors.h"
 
 namespace lean {
 static void throw_corrupted(name const & n) {
@@ -276,6 +277,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     new_env = module::add(new_env, check(new_env, new_d));
     new_env = set_reducible(new_env, no_confusion_name, reducible_status::Reducible, get_namespace(env), true);
     new_env = add_unfold_hint(new_env, no_confusion_name, unfold_hint_idx, get_namespace(env), true);
+    new_env = add_no_confusion(new_env, no_confusion_name);
     return add_protected(new_env, no_confusion_name);
 }
 }

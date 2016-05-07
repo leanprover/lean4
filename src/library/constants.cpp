@@ -107,6 +107,7 @@ name const * g_nat_of_num = nullptr;
 name const * g_nat_succ = nullptr;
 name const * g_nat_zero = nullptr;
 name const * g_nat_cases_on = nullptr;
+name const * g_nat_no_confusion = nullptr;
 name const * g_ne = nullptr;
 name const * g_neg = nullptr;
 name const * g_norm_num_add1 = nullptr;
@@ -381,6 +382,7 @@ void initialize_constants() {
     g_nat_succ = new name{"nat", "succ"};
     g_nat_zero = new name{"nat", "zero"};
     g_nat_cases_on = new name{"nat", "cases_on"};
+    g_nat_no_confusion = new name{"nat", "no_confusion"};
     g_ne = new name{"ne"};
     g_neg = new name{"neg"};
     g_norm_num_add1 = new name{"norm_num", "add1"};
@@ -656,6 +658,7 @@ void finalize_constants() {
     delete g_nat_succ;
     delete g_nat_zero;
     delete g_nat_cases_on;
+    delete g_nat_no_confusion;
     delete g_ne;
     delete g_neg;
     delete g_norm_num_add1;
@@ -930,6 +933,7 @@ name const & get_nat_of_num_name() { return *g_nat_of_num; }
 name const & get_nat_succ_name() { return *g_nat_succ; }
 name const & get_nat_zero_name() { return *g_nat_zero; }
 name const & get_nat_cases_on_name() { return *g_nat_cases_on; }
+name const & get_nat_no_confusion_name() { return *g_nat_no_confusion; }
 name const & get_ne_name() { return *g_ne; }
 name const & get_neg_name() { return *g_neg; }
 name const & get_norm_num_add1_name() { return *g_norm_num_add1; }

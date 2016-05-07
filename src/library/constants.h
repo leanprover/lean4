@@ -109,6 +109,7 @@ name const & get_nat_of_num_name();
 name const & get_nat_succ_name();
 name const & get_nat_zero_name();
 name const & get_nat_cases_on_name();
+name const & get_nat_no_confusion_name();
 name const & get_ne_name();
 name const & get_neg_name();
 name const & get_norm_num_add1_name();

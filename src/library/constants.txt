@@ -102,6 +102,7 @@ nat.of_num
 nat.succ
 nat.zero
 nat.cases_on
+nat.no_confusion
 ne
 neg
 norm_num.add1

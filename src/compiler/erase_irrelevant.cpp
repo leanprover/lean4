@@ -24,20 +24,54 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         return mk_constant(const_name(e));
     }
 
+    /* Process minor premises and args, and distribute args over minors.
+       The size of cnames is nminors, and it contains the names of the constructors. */
+    void visit_minors(unsigned nparams, unsigned nminors, expr * minors, name const * cnames,
+                      unsigned nargs, expr * args) {
+        if (nargs > 0) {
+            for (unsigned i = 0; i < nargs; i++)
+                args[i] = visit(args[i]);
+            /* distribute args over minors */
+            for (unsigned i = 0; i < nminors; i++) {
+                unsigned carity = get_constructor_arity(env(), cnames[i]);
+                lean_assert(carity >= nparams);
+                unsigned data_sz = carity - nparams;
+                type_context::tmp_locals locals(ctx());
+                expr new_minor   = minors[i];
+                for (unsigned j = 0; j < data_sz; j++) {
+                    if (!is_lambda(new_minor))
+                        throw exception("unexpected occurrence of 'cases_on' expression, the minor premise is expected to be a lambda-expression");
+                    expr local = locals.push_local_from_binding(new_minor);
+                    new_minor  = instantiate(binding_body(new_minor), local);
+                }
+                new_minor = visit(new_minor);
+                new_minor = beta_reduce(mk_app(new_minor, nargs, args));
+                minors[i] = locals.mk_lambda(new_minor);
+            }
+        } else {
+            for (unsigned i = 0; i < nminors; i++)
+                minors[i] = visit(minors[i]);
+        }
+    }
+
     /* We keep only the major and minor premises in cases_on applications. */
     expr visit_cases_on(expr const & fn, buffer<expr> & args) {
         name const & rec_name       = const_name(fn);
         name const & I_name         = rec_name.get_prefix();
         unsigned nparams            = *inductive::get_num_params(env(), I_name);
-        DEBUG_CODE(unsigned nminors = *inductive::get_num_minor_premises(env(), I_name););
+        unsigned nminors            = *inductive::get_num_minor_premises(env(), I_name);
         unsigned nindices           = *inductive::get_num_indices(env(), I_name);
-        DEBUG_CODE(unsigned arity   = nparams + 1 /* typeformer/motive */ + nindices + 1 /* major premise */ + nminors;);
+        unsigned arity              = nparams + 1 /* typeformer/motive */ + nindices + 1 /* major premise */ + nminors;
         lean_assert(args.size() >= arity);
-        for (unsigned i = nparams + 1 + nindices; i < args.size(); i++) {
-            args[i] = visit(args[i]);
-        }
+        buffer<name> cnames;
+        get_intro_rule_names(env(), I_name, cnames);
+        expr * minors        = args.data() + nparams + 1 + nindices + 1;
+        unsigned nextra_args = args.size() - arity;
+        expr * extra_args    = args.data() + arity;
+        visit_minors(nparams, nminors, minors, cnames.data(), nextra_args, extra_args);
+        expr major  = visit(args[nparams + 1 + nindices]);
         expr new_fn = visit(fn);
-        return mk_app(new_fn, args.size() - nparams - 1 - nindices, args.data() + nparams + 1 + nindices);
+        return mk_app(mk_app(new_fn, major), nminors, minors);
     }
 
     /* We keep only the major and minor premises in rec applications.
@@ -52,14 +86,15 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         unsigned nindices           = *inductive::get_num_indices(env(), I_name);
         unsigned arity              = nparams + 1 /* typeformer/motive */ + nminors + nindices + 1 /* major premise */;
         lean_assert(args.size() >= arity);
-        buffer<expr> new_args;
+        buffer<name> cnames;
+        get_intro_rule_names(env(), I_name, cnames);
         expr new_fn = mk_constant(name(I_name, "cases_on"));
-        /* add major */
-        new_args.push_back(visit(args[nparams + 1 + nminors + nindices]));
-        /* add minors */
-        for (unsigned i = 0; i < nminors; i++)
-            new_args.push_back(visit(args[nparams + 1 + i]));
-        return add_args(mk_app(new_fn, new_args), arity, args);
+        expr major  = visit(args[nparams + 1 + nminors + nindices]);
+        expr * minors        = args.data() + nparams + 1;
+        unsigned nextra_args = args.size() - arity;
+        expr * extra_args    = args.data() + arity;
+        visit_minors(nparams, nminors, minors, cnames.data(), nextra_args, extra_args);
+        return mk_app(mk_app(new_fn, major), nminors, minors);
     }
 
     expr add_args(expr e, unsigned start_idx, buffer<expr> const & args) {

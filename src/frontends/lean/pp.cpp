@@ -35,6 +35,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/definitional/equations.h"
 #include "compiler/comp_irrelevant.h"
+#include "compiler/erase_irrelevant.h"
 #include "compiler/rec_fn_macro.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/util.h"
@@ -551,6 +552,10 @@ optional<name> pretty_fn::is_abbreviated(expr const & e) const {
 }
 
 auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ_params) -> result {
+    if (is_neutral_expr(e) && m_unicode)
+        return format("◾");
+    if (is_unreachable_expr(e) && m_unicode)
+        return format("⊥");
     if (auto it = is_abbreviated(e))
         return pp_abbreviation(e, *it, false);
     if (!num_ref_univ_params) {

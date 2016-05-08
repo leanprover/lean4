@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/aux_recursors.h"
 #include "compiler/util.h"
+#include "compiler/comp_irrelevant.h"
 #include "compiler/compiler_step_visitor.h"
 
 namespace lean {
@@ -19,9 +20,37 @@ static expr * g_neutral_expr     = nullptr;
 static expr * g_unreachable_expr = nullptr;
 class erase_irrelevant_fn : public compiler_step_visitor {
 
+    virtual expr visit_sort(expr const &) override {
+        return *g_neutral_expr;
+    }
+
+    virtual expr visit_pi(expr const &) override {
+        return *g_neutral_expr;
+    }
+
+    virtual expr visit_macro(expr const & e) override {
+        if (is_marked_as_comp_irrelevant(e))
+            return *g_neutral_expr;
+        else if (is_comp_irrelevant(ctx(), e))
+            return *g_neutral_expr;
+        else
+            return compiler_step_visitor::visit_macro(e);
+    }
+
+    virtual expr visit_local(expr const & e) override {
+        if (is_comp_irrelevant(ctx(), e))
+            return *g_neutral_expr;
+        else
+            return e;
+    }
+
     virtual expr visit_constant(expr const & e) override {
-        /* Erase universe level information */
-        return mk_constant(const_name(e));
+        if (is_comp_irrelevant(ctx(), e)) {
+            return *g_neutral_expr;
+        } else {
+            /* Erase universe level information */
+            return mk_constant(const_name(e));
+        }
     }
 
     /* Process minor premises and args, and distribute args over minors.
@@ -177,6 +206,8 @@ class erase_irrelevant_fn : public compiler_step_visitor {
     }
 
     virtual expr visit_app(expr const & e) override {
+        if (is_comp_irrelevant(ctx(), e))
+            return *g_neutral_expr;
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
         if (is_lambda(fn)) {

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/annotation.h"
+#include "compiler/util.h"
 #include "compiler/compiler_step_visitor.h"
 
 namespace lean {
@@ -16,11 +17,6 @@ expr mark_comp_irrelevant(expr const & e) {
 
 bool is_marked_as_comp_irrelevant(expr const & e) {
     return is_annotation(e, *g_comp_irrel);
-}
-
-bool is_comp_irrelevant(type_context & ctx, expr const & e) {
-    expr type = ctx.whnf(ctx.infer(e));
-    return is_sort(type) || ctx.is_prop(type);
 }
 
 class mark_comp_irrelevant_fn : public compiler_step_visitor {

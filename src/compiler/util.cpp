@@ -10,8 +10,14 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/aux_recursors.h"
 #include "library/util.h"
+#include "library/type_context.h"
 
 namespace lean {
+bool is_comp_irrelevant(type_context & ctx, expr const & e) {
+    expr type = ctx.whnf(ctx.infer(e));
+    return is_sort(type) || ctx.is_prop(type);
+}
+
 static bool is_typeformer_app(buffer<name> const & typeformer_names, expr const & e) {
     expr const & fn = get_app_fn(e);
     if (!is_local(fn))

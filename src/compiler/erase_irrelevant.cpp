@@ -29,9 +29,9 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         name const & rec_name       = const_name(fn);
         name const & I_name         = rec_name.get_prefix();
         unsigned nparams            = *inductive::get_num_params(env(), I_name);
-        unsigned nminors            = *inductive::get_num_minor_premises(env(), I_name);
+        DEBUG_CODE(unsigned nminors = *inductive::get_num_minor_premises(env(), I_name););
         unsigned nindices           = *inductive::get_num_indices(env(), I_name);
-        unsigned arity              = nparams + 1 /* typeformer/motive */ + nindices + 1 /* major premise */ + nminors;
+        DEBUG_CODE(unsigned arity   = nparams + 1 /* typeformer/motive */ + nindices + 1 /* major premise */ + nminors;);
         lean_assert(args.size() >= arity);
         for (unsigned i = nparams + 1 + nindices; i < args.size(); i++) {
             args[i] = visit(args[i]);
@@ -89,16 +89,16 @@ class erase_irrelevant_fn : public compiler_step_visitor {
     /* We can eliminate no_confusion applications, they do not add any relevant information to the environment */
     expr visit_no_confusion(expr const & fn, buffer<expr> const & args) {
         lean_assert(is_constant(fn));
-        name const & no_confusion_name = const_name(fn);
-        name const & I_name            = no_confusion_name.get_prefix();
-        unsigned nparams               = *inductive::get_num_params(env(), I_name);
-        unsigned nindices              = *inductive::get_num_indices(env(), I_name);
-        unsigned basic_arity           = nparams + nindices + 1 /* motive */ + 2 /* lhs/rhs */ + 1 /* equality */;
+        name const & no_confusion_name  = const_name(fn);
+        name const & I_name             = no_confusion_name.get_prefix();
+        unsigned nparams                = *inductive::get_num_params(env(), I_name);
+        unsigned nindices               = *inductive::get_num_indices(env(), I_name);
+        DEBUG_CODE(unsigned basic_arity = nparams + nindices + 1 /* motive */ + 2 /* lhs/rhs */ + 1 /* equality */;);
         lean_assert(args.size() >= basic_arity);
-        expr lhs                       = ctx().whnf(args[nparams + nindices + 1]);
-        expr rhs                       = ctx().whnf(args[nparams + nindices + 2]);
-        optional<name> lhs_constructor = is_constructor_app(env(), lhs);
-        optional<name> rhs_constructor = is_constructor_app(env(), rhs);
+        expr lhs                        = ctx().whnf(args[nparams + nindices + 1]);
+        expr rhs                        = ctx().whnf(args[nparams + nindices + 2]);
+        optional<name> lhs_constructor  = is_constructor_app(env(), lhs);
+        optional<name> rhs_constructor  = is_constructor_app(env(), rhs);
         if (!lhs_constructor || !rhs_constructor)
             throw exception(sstream() << "code generation failed, unsupported occurrence of '" << no_confusion_name << "', constructors expected");
         if (lhs_constructor != rhs_constructor)

@@ -613,12 +613,12 @@ decidable.inr not_false
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches
-definition dite (c : Prop) [H : decidable c] {A : Type} : (c → A) → (¬ c → A) → A :=
+inline definition dite (c : Prop) [H : decidable c] {A : Type} : (c → A) → (¬ c → A) → A :=
 decidable.rec_on H
 
 /- if-then-else -/
 
-definition ite (c : Prop) [H : decidable c] {A : Type} (t e : A) : A :=
+inline definition ite (c : Prop) [H : decidable c] {A : Type} (t e : A) : A :=
 decidable.rec_on H (λ Hc, t) (λ Hnc, e)
 
 namespace decidable

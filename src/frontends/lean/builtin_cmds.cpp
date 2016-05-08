@@ -654,8 +654,11 @@ static environment abstract_expr_cmd(parser & p) {
 }
 
 static environment compile_cmd(parser & p) {
+    auto pos = p.pos();
     name n = p.check_constant_next("invalid #compile command, constant expected");
     declaration d = p.env().get(n);
+    if (!d.is_definition())
+        throw parser_error("invalid #compile command, declaration is not a definition", pos);
     buffer<pair<name, expr>> procs;
     preprocess_rec(p.env(), d, procs);
     return p.env();

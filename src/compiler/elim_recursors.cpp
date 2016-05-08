@@ -230,9 +230,9 @@ protected:
         return r;
     }
 
-    bool is_nonrecursive_recursor(name const & n) {
+    bool is_recursive_recursor(name const & n) {
         if (auto I_name = inductive::is_elim_rule(env(), n)) {
-            return !is_recursive_datatype(env(), *I_name);
+            return is_recursive_datatype(env(), *I_name);
         }
         return false;
     }
@@ -241,7 +241,7 @@ protected:
         expr const & fn = get_app_fn(e);
         if (is_constant(fn)) {
             name const & n = const_name(fn);
-            if (inductive::is_elim_rule(env(), n) && !is_nonrecursive_recursor(n)) {
+            if (inductive::is_elim_rule(env(), n) && is_recursive_recursor(n)) {
                 return visit_recursor_app(e);
             }
         }

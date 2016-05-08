@@ -36,7 +36,30 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         for (unsigned i = nparams + 1 + nindices; i < args.size(); i++) {
             args[i] = visit(args[i]);
         }
-        return mk_app(fn, args.size() - nparams - 1 - nindices, args.data() + nparams + 1 + nindices);
+        expr new_fn = visit(fn);
+        return mk_app(new_fn, args.size() - nparams - 1 - nindices, args.data() + nparams + 1 + nindices);
+    }
+
+    /* We keep only the major and minor premises in rec applications.
+       This method also converts the rec into cases_on */
+    expr visit_rec(expr const & fn, buffer<expr> & args) {
+        name const & rec_name       = const_name(fn);
+        name const & I_name         = rec_name.get_prefix();
+        /* This preprocessing step assumes that recursive recursors have already been eliminated */
+        lean_assert(!is_recursive_datatype(env(), I_name));
+        unsigned nparams            = *inductive::get_num_params(env(), I_name);
+        unsigned nminors            = *inductive::get_num_minor_premises(env(), I_name);
+        unsigned nindices           = *inductive::get_num_indices(env(), I_name);
+        unsigned arity              = nparams + 1 /* typeformer/motive */ + nminors + nindices + 1 /* major premise */;
+        lean_assert(args.size() >= arity);
+        buffer<expr> new_args;
+        expr new_fn = mk_constant(name(I_name, "cases_on"));
+        /* add major */
+        new_args.push_back(visit(args[nparams + 1 + nminors + nindices]));
+        /* add minors */
+        for (unsigned i = 0; i < nminors; i++)
+            new_args.push_back(visit(args[nparams + 1 + i]));
+        return add_args(mk_app(new_fn, new_args), arity, args);
     }
 
     expr add_args(expr e, unsigned start_idx, buffer<expr> const & args) {
@@ -125,16 +148,18 @@ class erase_irrelevant_fn : public compiler_step_visitor {
             return visit(beta_reduce(e));
         } else if (is_constant(fn)) {
             name const & n = const_name(fn);
-            if (is_cases_on_recursor(env(), n)) {
-                return visit_cases_on(fn, args);
-            } else if (is_no_confusion(env(), n)) {
-                return visit_no_confusion(fn, args);
-            } else if (n == get_eq_rec_name()) {
+            if (n == get_eq_rec_name()) {
                 return visit_eq_rec(args);
-            } else if (n == get_subtype_tag_name()) {
-                return visit_subtype_tag(args);
             } else if (n == get_subtype_rec_name()) {
                 return visit_subtype_rec(args);
+            } else if (is_cases_on_recursor(env(), n)) {
+                return visit_cases_on(fn, args);
+            } else if (inductive::is_elim_rule(env(), n)) {
+                return visit_rec(fn, args);
+            } else if (is_no_confusion(env(), n)) {
+                return visit_no_confusion(fn, args);
+            } else if (n == get_subtype_tag_name()) {
+                return visit_subtype_tag(args);
             } else if (n == get_subtype_elt_of_name()) {
                 return visit_subtype_elt_of(args);
             }

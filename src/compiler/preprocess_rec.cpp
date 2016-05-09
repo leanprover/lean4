@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "compiler/inliner.h"
 #include "compiler/elim_recursors.h"
 #include "compiler/erase_irrelevant.h"
+#include "compiler/reduce_arity.h"
 
 namespace lean {
 class expand_aux_recursors_fn : public compiler_step_visitor {
@@ -130,9 +131,10 @@ public:
         check(d, procs.back().second);
 
         erase_irrelevant(procs);
+        reduce_arity(m_env, procs);
+
         display(procs);
         // TODO(Leo)
-
     }
 };
 

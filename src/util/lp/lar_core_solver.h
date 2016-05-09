@@ -7,6 +7,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <utility>
 #include "util/lp/lp_core_solver_base.h"
 #include <algorithm>
 #include "util/lp/indexed_vector.h"
@@ -23,7 +24,7 @@ class lar_core_solver : public lp_core_solver_base<T, X> {
     std::vector<unsigned> m_tight_basic_columns;
     std::vector<breakpoint<X>> m_breakpoints;
     binary_heap_priority_queue<X> m_breakpoint_indices_queue;
-    std::vector<pair<mpq, unsigned>> m_infeasible_row;
+    std::vector<std::pair<mpq, unsigned>> m_infeasible_row;
     int m_infeasible_row_sign = 0;
     // with a breakpoint at this delta
 public:
@@ -38,7 +39,7 @@ public:
 
     int get_infeasible_row_sign() const { return m_infeasible_row_sign;   }
 
-    const std::vector<pair<mpq, unsigned>> & get_infeasibility_info(int & inf_sign) const {
+    const std::vector<std::pair<mpq, unsigned>> & get_infeasibility_info(int & inf_sign) const {
         inf_sign = m_infeasible_row_sign;
         return m_infeasible_row;
     }
@@ -155,7 +156,7 @@ public:
                                   std::vector<unsigned> & leaving_candidates);
 
     unsigned find_leaving_for_inf_row_strategy(std::vector<unsigned> & leaving_candidates) {
-        lean_assert(leaving_candidates.size());
+        lean_assert(leaving_candidates.size() > 0);
         return leaving_candidates[my_random() % leaving_candidates.size()]; // more randomness
     }
 

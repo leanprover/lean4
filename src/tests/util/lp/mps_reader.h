@@ -8,22 +8,42 @@
 #pragma once
 
 // reads an MPS file reperesenting a Mixed Integer Program
+#include <functional>
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <iostream>
+#include <fstream>
+#include <locale>
 #include "util/lp/lp_primal_simplex.h"
 #include "util/lp/lp_dual_simplex.h"
 #include "util/lp/lar_solver.h"
-#include <iostream>
-#include <fstream>
-#include <util/numerics/mpq.h>
-#include <functional>
-#include <algorithm>
+#include "util/lp/lp_utils.h"
+#include "util/lp/lp_solver.h"
 namespace lean {
 using namespace std;
+inline bool my_white_space(const char & a) {
+    return a == ' ' || a == '\t';
+}
+inline size_t number_of_whites(const string & s)  {
+    size_t i = 0;
+    for (; i < s.size(); i++)
+        if (!my_white_space(s[i])) return i;
+    return i;
+}
+inline size_t number_of_whites_from_end(const string & s)  {
+    size_t ret = 0;
+    for (int i = static_cast<int>(s.size()) - 1; i >= 0; i--)
+        if (my_white_space(s[i])) ret++; else break;
+
+    return ret;
+}
+
+
     // trim from start
-inline string &ltrim(std::string &s) {
-    s.erase(s.begin(), find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+inline std::string &ltrim(std::string &s) {
+    s.erase(0, number_of_whites(s));
     return s;
 }
 
@@ -32,7 +52,8 @@ inline string &ltrim(std::string &s) {
 
     // trim from end
 inline string &rtrim(std::string &s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+    //       s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+    s.erase(s.end() - number_of_whites_from_end(s), s.end());
     return s;
 }
     // trim from both ends
@@ -46,8 +67,8 @@ inline string trim(std::string const &r) {
 }
 
 
-inline vector<string> string_split(const string &source, const char *delimiter, bool keep_empty)  {
-    vector<string> results;
+inline std::vector<string> string_split(const string &source, const char *delimiter, bool keep_empty)  {
+    std::vector<string> results;
     size_t prev = 0;
     size_t next = 0;
     while ((next = source.find_first_of(delimiter, prev)) != std::string::npos) {
@@ -62,9 +83,9 @@ inline vector<string> string_split(const string &source, const char *delimiter, 
     return results;
 }
 
-inline vector<string> split_and_trim(string line) {
+inline std::vector<string> split_and_trim(string line) {
     auto split = string_split(line, " \t", false);
-    vector<string> ret;
+    std::vector<string> ret;
     for (auto s : split) {
         ret.push_back(trim(s));
     }
@@ -220,7 +241,7 @@ class mps_reader {
                 goto fail;
             } else {
                 row * row = t->second;
-                row->m_row_columns[column_name] = atof(column_data.substr(8).c_str());
+                row->m_row_columns[column_name] = from_string<T>(column_data.substr(8));
                 if (column_data.size() > 24) {
                     column_data = column_data.substr(25);
                     if (column_data.size() >= 22) {
@@ -248,7 +269,7 @@ class mps_reader {
                 return;
             }
             row *r = t->second;
-            r->m_row_columns[column_name] = atof(tokens[i + 1].c_str());
+            r->m_row_columns[column_name] = from_string<T>(tokens[i + 1]);
         }
     }
 
@@ -307,7 +328,7 @@ class mps_reader {
                 goto fail;
             } else {
                 row * row = t->second;
-                row->m_right_side = atof(rhsides.substr(8).c_str());
+                row->m_right_side = from_string<T>(rhsides.substr(8));
                 if (rhsides.size() > 24) {
                     rhsides = rhsides.substr(25);
                     if (rhsides.size() >= 22) {
@@ -333,7 +354,7 @@ class mps_reader {
             return;
         }
         string rhsides = m_line.substr(14);
-        vector<string> splitted_line = split_and_trim(rhsides);
+        std::vector<string> splitted_line = split_and_trim(rhsides);
 
         for (unsigned i = 0; i < splitted_line.size() - 1; i += 2) {
             auto t = m_rows.find(splitted_line[i]);
@@ -342,7 +363,7 @@ class mps_reader {
                 return;
             }
             row * row = t->second;
-            row->m_right_side = atof(splitted_line[i + 1].c_str());
+            row->m_right_side = from_string<X>(splitted_line[i + 1]);
         }
     }
 
@@ -393,7 +414,7 @@ class mps_reader {
                 cout << "cannot find " << column_name << endl;
                 goto fail;
             } else {
-                vector<string> bound_string;
+                std::vector<string> bound_string;
                 bound_string.push_back(column_name);
                 if (colstr.size() > 14) {
                     bound_string.push_back(colstr.substr(14));
@@ -414,7 +435,7 @@ class mps_reader {
         }
     }
 
-    void update_bound(bound * b, vector<string> bound_string) {
+    void update_bound(bound * b, std::vector<string> bound_string) {
         /*
           UP means an upper bound is applied to the variable. A bound of type LO means a lower bound is applied. A bound type of FX ("fixed") means that the variable has upper and lower bounds equal to a single value. A bound type of FR ("free") means the variable has neither lower nor upper bounds and so can take on negative values. A variation on that is MI for free negative, giving an upper bound of 0 but no lower bound. Bound type PL is for a free positive for zero to plus infinity, but as this is the normal default, it is seldom used. There are also bound types for use in MIP models - BV for binary, being 0 or 1. UI for upper integer and LI for lower integer. SC stands for semi-continuous and indicates that the variable may be zero, but if not must be equal to at least the value given.
         */
@@ -431,19 +452,16 @@ class mps_reader {
                 set_m_ok_to_false();
                 return;
             }
-            double val = atof(bound_string[1].c_str());
-
             b->m_upper_is_set = true;
-            b->m_upper= val;
+            b->m_upper= from_string<T>(bound_string[1]);
         } else if (bound_type == "LO" || bound_type == "LI") {
             if (bound_string.size() <= 1){
                 set_m_ok_to_false();
                 return;
             }
 
-            double val = atof(bound_string[1].c_str());
             b->m_low_is_set = true;
-            b->m_low = val;
+            b->m_low = from_string<T>(bound_string[1]);
         } else if (bound_type == "FR") {
             b->m_free = true;
         } else if (bound_type == "FX") {
@@ -452,9 +470,8 @@ class mps_reader {
                 return;
             }
 
-            double val = atof(bound_string[1].c_str());
             b->m_value_is_fixed = true;
-            b->m_fixed_value = val;
+            b->m_fixed_value =  from_string<T>(bound_string[1]);
         } else if (bound_type == "PL") {
             b->m_low_is_set = true;
             b->m_low = 0;
@@ -471,7 +488,7 @@ class mps_reader {
     void create_or_update_bound() {
         const unsigned name_offset = 14;
         lean_assert(m_line.size() >= 14);
-        vector<string> bound_string = split_and_trim(m_line.substr(name_offset, m_line.size()));
+        std::vector<string> bound_string = split_and_trim(m_line.substr(name_offset, m_line.size()));
 
         if (bound_string.size() == 0) {
             set_m_ok_to_false();
@@ -514,7 +531,7 @@ class mps_reader {
                 goto fail;
             } else {
                 row * row = t->second;
-                row->m_range = atof(rhsides.substr(8).c_str());
+                row->m_range = from_string<T>(rhsides.substr(8));
                 maybe_modify_current_row_and_add_row_for_range(row);
                 if (rhsides.size() > 24) {
                     rhsides = rhsides.substr(25);
@@ -533,7 +550,7 @@ class mps_reader {
     }
 
 
-    void read_range(vector<string> & splitted_line){
+    void read_range(std::vector<string> & splitted_line){
         for (unsigned i = 1; i < splitted_line.size() - 1; i += 2) {
             auto it = m_rows.find(splitted_line[i]);
             if (it == m_rows.end()) {
@@ -541,7 +558,7 @@ class mps_reader {
                 return;
             }
             row * row = it->second;
-            row->m_range = atof(splitted_line[i + 1].c_str());
+            row->m_range = from_string<X>(splitted_line[i + 1]);
             maybe_modify_current_row_and_add_row_for_range(row);
         }
     }
@@ -632,13 +649,13 @@ class mps_reader {
       where |range| is range's absolute value.
     */
 
-    lp_relation get_relation_from_row(mps_reader::row_type row_type) {
-        switch (row_type) {
-        case mps_reader::row_type::Less_or_equal: return lp_relation::Less_or_equal;
-        case mps_reader::row_type::Greater_or_equal: return lp_relation::Greater_or_equal;
-        case mps_reader::row_type::Equal: return lp_relation::Equal;
+    lp_relation get_relation_from_row(row_type rt) {
+        switch (rt) {
+        case mps_reader::Less_or_equal: return lp_relation::Less_or_equal;
+        case mps_reader::Greater_or_equal: return lp_relation::Greater_or_equal;
+        case mps_reader::Equal: return lp_relation::Equal;
         default:
-            std::cout << "Unexpected row_type " << row_type << endl;
+            std::cout << "Unexpected rt " << rt << endl;
             set_m_ok_to_false();
             throw;
         }
@@ -694,8 +711,8 @@ class mps_reader {
     }
 
 public:
-    vector<string> column_names() {
-        vector<string> v;
+    std::vector<string> column_names() {
+        std::vector<string> v;
         for (auto s : m_columns) {
             v.push_back(s.first);
         }
@@ -748,13 +765,13 @@ public:
         return solver;
     }
 
-    lconstraint_kind get_lar_relation_from_row(mps_reader::row_type row_type) {
-        switch (row_type) {
+    lconstraint_kind get_lar_relation_from_row(row_type rt) {
+        switch (rt) {
         case Less_or_equal: return LE;
         case Greater_or_equal: return GE;
         case Equal: return EQ;
         default:
-            std::cout << "Unexpected row_type " << row_type << endl;
+            std::cout << "Unexpected rt " << rt << endl;
             set_m_ok_to_false();
             throw;
         }

@@ -31,7 +31,7 @@ template <typename T, typename X> void lp_primal_simplex<T, X>::init_buffer(unsi
 template <typename T, typename X> void lp_primal_simplex<T, X>::refactor() {
     m_core_solver->init_lu();
     if (m_core_solver->factorization()->get_status() != LU_status::OK) {
-        throw exception("cannot refactor");
+        throw_exception("cannot refactor");
     }
 }
 
@@ -226,6 +226,10 @@ template <typename T, typename X> void lp_primal_simplex<T, X>::fill_A_x_and_bas
 
 template <typename T, typename X> void lp_primal_simplex<T, X>::solve_with_total_inf() {
     int total_vars = this->m_A->column_count() + this->row_count();
+    if (total_vars == 0) {
+        this->m_status = OPTIMAL;
+        return;
+    }
     m_low_bounds.clear();
     m_low_bounds.resize(total_vars, zero_of_type<X>());  // low bounds are shifted ot zero
     this->m_x.resize(total_vars, numeric_traits<T>::zero());
@@ -237,10 +241,9 @@ template <typename T, typename X> void lp_primal_simplex<T, X>::solve_with_total
     this->fill_column_names_for_core_solver();
     unsigned j = this->m_A->column_count() - 1;
     unsigned core_solver_cols = this->number_of_core_structurals();
-
-    while (j >= core_solver_cols)
+    while (j >= core_solver_cols) {
         this->m_costs[j--] = numeric_traits<T>::zero();
-
+    }
     set_scaled_costs();
     m_core_solver = new lp_primal_core_solver<T, X>(*this->m_A,
                                                     this->m_b,
@@ -267,7 +270,9 @@ template <typename T, typename X> bool lp_primal_simplex<T, X>::bounds_hold(std:
     for (auto it : this->m_columns) {
         auto sol_it = solution.find(it.second->get_name());
         if (sol_it == solution.end()) {
-            throw exception(sstream() << "cannot find column " << it.first << " in solutio");
+            std::stringstream s;
+            s << "cannot find column " << it.first << " in solution";
+            throw_exception(s.str() );
         }
 
         if (!it.second->bounds_hold(sol_it->second)) {
@@ -282,7 +287,9 @@ template <typename T, typename X> bool lp_primal_simplex<T, X>::bounds_hold(std:
 template <typename T, typename X> T lp_primal_simplex<T, X>::get_row_value(unsigned i, std::unordered_map<std::string, T> const & solution, bool print) {
     auto it = this->m_A_values.find(i);
     if (it == this->m_A_values.end()) {
-        throw exception(sstream() << "cannot find row " << i);
+        std::stringstream s;
+        s << "cannot find row " << i;
+        throw_exception(s.str() );
     }
     T ret = numeric_traits<T>::zero();
     for (auto & pair : it->second) {
@@ -340,6 +347,7 @@ template <typename T, typename X> bool lp_primal_simplex<T, X>::row_constraint_h
         return true;;
     }
     lean_unreachable();
+    return false; // it is unreachable
 }
 
 template <typename T, typename X> bool lp_primal_simplex<T, X>::row_constraints_hold(std::unordered_map<std::string, T> const & solution) {

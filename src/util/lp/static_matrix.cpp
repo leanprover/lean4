@@ -153,19 +153,19 @@ template <typename T, typename X>    void static_matrix<T, X>::set(unsigned row,
     if (numeric_traits<T>::is_zero(val)) return;
     lean_assert(row < row_count() && col < column_count());
 #ifdef LEAN_DEBUG
-    pair<unsigned, unsigned> p(row, col);
+    std::pair<unsigned, unsigned> p(row, col);
     lean_assert(m_domain.find(p) == m_domain.end());
     m_domain.insert(p);
 #endif
     auto & r = m_rows[row];
-    unsigned offs_in_cols = m_columns[col].size();
-    m_columns[col].push_back(make_column_cell(row, r.size(), val));
+    unsigned offs_in_cols = static_cast<unsigned>(m_columns[col].size());
+    m_columns[col].push_back(make_column_cell(row, static_cast<unsigned>(r.size()), val));
     r.push_back(make_row_cell(col, offs_in_cols, val));
 }
 
 template <typename T, typename X>
-std::set<pair<unsigned, unsigned>>  static_matrix<T, X>::get_domain() {
-    std::set<pair<unsigned, unsigned>> ret;
+std::set<std::pair<unsigned, unsigned>>  static_matrix<T, X>::get_domain() {
+    std::set<std::pair<unsigned, unsigned>> ret;
     for (unsigned i = 0; i < m_rows.size(); i++) {
         for (auto it : m_rows[i]) {
             ret.insert(std::make_pair(i, it.m_j));
@@ -255,15 +255,15 @@ template <typename T, typename X>    void static_matrix<T, X>::check_consistency
     std::unordered_map<std::pair<unsigned, unsigned>, T> by_rows;
     for (int i = 0; i < m_rows.size(); i++){
         for (auto & t : m_rows[i]) {
-            pair<unsigned, unsigned> p(i, t.m_j);
+            std::pair<unsigned, unsigned> p(i, t.m_j);
             lean_assert(by_rows.find(p) == by_rows.end());
             by_rows[p] = t.get_val();
         }
     }
-    std::unordered_map<pair<unsigned, unsigned>, T> by_cols;
+    std::unordered_map<std::pair<unsigned, unsigned>, T> by_cols;
     for (int i = 0; i < m_columns.size(); i++){
         for (auto & t : m_columns[i]) {
-            pair<unsigned, unsigned> p(t.m_i, i);
+            std::pair<unsigned, unsigned> p(t.m_i, i);
             lean_assert(by_cols.find(p) == by_cols.end());
             by_cols[p] = get_value_of_column_cell(t);
         }

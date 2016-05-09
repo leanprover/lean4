@@ -8,14 +8,6 @@
 #pragma once
 #include <vector>
 #include "util/debug.h"
-#include "util/numerics/numeric_traits.h"
-#include "util/numerics/xnumeral.h"
-#include "util/numerics/mpq.h"
-#include "util/numerics/mpz.h"
-#include "util/numerics/mpbq.h"
-#include "util/numerics/double.h"
-#include "util/numerics/float.h"
-#include "util/numerics/mpfp.h"
 #include <string>
 #include "util/lp/sparse_vector.h"
 #include "util/lp/indexed_vector.h"

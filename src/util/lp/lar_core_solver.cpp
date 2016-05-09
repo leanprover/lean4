@@ -647,6 +647,7 @@ template <typename T, typename X>    bool lar_core_solver<T, X>::improves_pivot_
     default:
         lean_unreachable();
     }
+    return false; // it is unreachable
 }
 
 template <typename T, typename X>    int lar_core_solver<T, X>::choose_entering_column_for_row_inf_strategy(int inf_sign) {
@@ -744,7 +745,7 @@ template <typename T, typename X>    void lar_core_solver<T, X>::advance_on_infe
     int entering_delta_sign;
     std::vector<unsigned> leaving_candidates;
     X delta = find_initial_delta_and_its_sign(inf_row, entering, inf_sign, entering_delta_sign, leaving_candidates);
-    lean_assert(leaving_candidates.size());
+    lean_assert(leaving_candidates.size() > 0);
     lean_assert(delta > zero_of_type<X>());
     unsigned row = my_random() % this->m_m;
     unsigned initial_row = row;

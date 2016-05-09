@@ -16,7 +16,7 @@ template void sparse_matrix<double, double>::fill_eta_matrix(unsigned int, eta_m
 template const double & sparse_matrix<double, double>::get(unsigned int, unsigned int) const;
 template unsigned sparse_matrix<double, double>::get_number_of_nonzeroes() const;
 template unsigned sparse_matrix<double, double>::get_number_of_nonzeroes_below_row(unsigned int) const;
-template bool sparse_matrix<double, double>::get_pivot_for_column(unsigned int&, unsigned int&, double const&, unsigned int);
+template bool sparse_matrix<double, double>::get_pivot_for_column(unsigned int&, unsigned int&, int, unsigned int);
 template unsigned sparse_matrix<double, double>::lowest_row_in_column(unsigned int);
 template bool sparse_matrix<double, double>::pivot_row_to_row(unsigned int, double, unsigned int, lp_settings&);
 template bool sparse_matrix<double, double>::pivot_with_eta(unsigned int, eta_matrix<double, double>*, lp_settings&);
@@ -30,18 +30,13 @@ template bool sparse_matrix<double, double>::shorten_active_matrix(unsigned int,
 template void sparse_matrix<double, double>::solve_y_U(std::vector<double>&) const;
 template sparse_matrix<double, double>::sparse_matrix(static_matrix<double, double> const&, std::vector<unsigned int>&);
 template sparse_matrix<double, double>::sparse_matrix(unsigned int);
-template float const & sparse_matrix<float, float>::get(unsigned int, unsigned int) const;
-template bool sparse_matrix<float, float>::pivot_row_to_row(unsigned int, float, unsigned int, lp_settings&);
-template void  sparse_matrix<float, float>::replace_column(unsigned int, indexed_vector<float>&, lp_settings&);
-template void     sparse_matrix<float, float>::set(unsigned int, unsigned int, float);
-template sparse_matrix<float, float>::sparse_matrix(unsigned int);
 template void     sparse_matrix<mpq, mpq>::add_new_element(unsigned int, unsigned int, mpq);
 template void     sparse_matrix<mpq, mpq>::divide_row_by_constant(unsigned int, mpq&, lp_settings&);
 template void     sparse_matrix<mpq, mpq>::fill_eta_matrix(unsigned int, eta_matrix<mpq, mpq>**);
 template  mpq const & sparse_matrix<mpq, mpq>::get(unsigned int, unsigned int) const;
 template unsigned sparse_matrix<mpq, mpq>::get_number_of_nonzeroes() const;
 template unsigned sparse_matrix<mpq, mpq>::get_number_of_nonzeroes_below_row(unsigned int) const;
-template bool sparse_matrix<mpq, mpq>::get_pivot_for_column(unsigned int&, unsigned int&, mpq const&, unsigned int);
+template bool sparse_matrix<mpq, mpq>::get_pivot_for_column(unsigned int&, unsigned int&, int, unsigned int);
 template unsigned sparse_matrix<mpq, mpq>::lowest_row_in_column(unsigned int);
 template bool sparse_matrix<mpq, mpq>::pivot_with_eta(unsigned int, eta_matrix<mpq, mpq>*, lp_settings&);
 template void  sparse_matrix<mpq, mpq>::prepare_for_factorization();
@@ -58,7 +53,7 @@ template void     sparse_matrix<mpq, numeric_pair<mpq>>::fill_eta_matrix(unsigne
 template const mpq & sparse_matrix<mpq, numeric_pair<mpq>>::get(unsigned int, unsigned int) const;
 template unsigned sparse_matrix<mpq, numeric_pair<mpq>>::get_number_of_nonzeroes() const;
 template unsigned sparse_matrix<mpq, numeric_pair<mpq>>::get_number_of_nonzeroes_below_row(unsigned int) const;
-template bool sparse_matrix<mpq, numeric_pair<mpq>>::get_pivot_for_column(unsigned int&, unsigned int&, mpq const&, unsigned int);
+template bool sparse_matrix<mpq, numeric_pair<mpq>>::get_pivot_for_column(unsigned int&, unsigned int&, int, unsigned int);
 template unsigned sparse_matrix<mpq, numeric_pair<mpq>>::lowest_row_in_column(unsigned int);
 template bool sparse_matrix<mpq, numeric_pair<mpq>>::pivot_with_eta(unsigned int, eta_matrix<mpq, numeric_pair<mpq> >*, lp_settings&);
 template void     sparse_matrix<mpq, numeric_pair<mpq>>::prepare_for_factorization();

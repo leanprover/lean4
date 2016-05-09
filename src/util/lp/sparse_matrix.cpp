@@ -11,13 +11,13 @@ namespace lean {
 template <typename T, typename X>
 void sparse_matrix<T, X>::copy_column_from_static_matrix(unsigned col, static_matrix<T, X> const &A, unsigned col_index_in_the_new_matrix) {
     std::vector<column_cell<T>> const & A_col_vector = A.m_columns[col];
-    unsigned size = A_col_vector.size();
+    unsigned size = static_cast<unsigned>(A_col_vector.size());
     std::vector<indexed_value<T>> & new_column_vector = m_columns[col_index_in_the_new_matrix].m_values;
     for (unsigned l = 0; l < size; l++) {
         column_cell<T> const & col_cell = A_col_vector[l];
-        unsigned col_offset = new_column_vector.size();
+        unsigned col_offset = static_cast<unsigned>(new_column_vector.size());
         std::vector<indexed_value<T>> & row_vector = m_rows[col_cell.m_i];
-        unsigned row_offset = row_vector.size();
+        unsigned row_offset = static_cast<unsigned>(row_vector.size());
         new_column_vector.push_back(indexed_value<T>(col_cell.m_value, col_cell.m_i, row_offset));
         row_vector.push_back(indexed_value<T>(col_cell.m_value, col_index_in_the_new_matrix, col_offset));
     }
@@ -193,7 +193,7 @@ void sparse_matrix<T, X>::set_max_in_row(std::vector<indexed_value<T>> & row_val
         return;
     T max_val = numeric_traits<T>::zero();
     int max_index = 0;
-    for (unsigned i = row_vals.size(); i-- > 0;) {
+    for (unsigned i = static_cast<unsigned>(row_vals.size()); i-- > 0;) {
         T iabs = abs(row_vals[i].m_value);
         if (iabs > max_val) {
             max_val = iabs;
@@ -324,7 +324,7 @@ bool sparse_matrix<T, X>::set_row_from_work_vector_and_clean_work_vector(unsigne
 template <typename T, typename X>
 void sparse_matrix<T, X>::remove_zero_elements_and_set_data_on_existing_elements(unsigned row) {
     auto & row_vals = m_rows[row];
-    for (unsigned k = row_vals.size(); k-- > 0;) { // we cannot simply run the iterator since we are removing
+    for (unsigned k = static_cast<unsigned>(row_vals.size()); k-- > 0;) { // we cannot simply run the iterator since we are removing
         // elements from row_vals
         auto & row_el_iv = row_vals[k];
         unsigned j = row_el_iv.m_index;
@@ -342,7 +342,7 @@ void sparse_matrix<T, X>::remove_zero_elements_and_set_data_on_existing_elements
 template <typename T, typename X>
 void sparse_matrix<T, X>::remove_zero_elements_and_set_data_on_existing_elements_not_adjusted(unsigned row, indexed_vector<T> & work_vec, lp_settings & settings) {
     auto & row_vals = m_rows[row];
-    for (unsigned k = row_vals.size(); k-- > 0;) { // we cannot simply run the iterator since we are removing
+    for (unsigned k = static_cast<unsigned>(row_vals.size()); k-- > 0;) { // we cannot simply run the iterator since we are removing
         // elements from row_vals
         auto & row_el_iv = row_vals[k];
         unsigned j = row_el_iv.m_index;
@@ -619,7 +619,7 @@ void sparse_matrix<T, X>::remove_elements_that_are_not_in_w_and_update_common_el
     // --------------------------------
     // column_vals represents the old column
     auto & column_vals = m_columns[column_to_replace].m_values;
-    for (unsigned k = column_vals.size(); k-- > 0;) {
+    for (unsigned k = static_cast<unsigned>(column_vals.size()); k-- > 0;) {
         indexed_value<T> & col_el_iv = column_vals[k];
         unsigned i = col_el_iv.m_index;
         T w_data_at_i = w[adjust_row_inverse(i)];
@@ -647,8 +647,8 @@ template <typename T, typename X>
 void sparse_matrix<T, X>::add_new_element(unsigned row, unsigned col, T val) {
     auto & row_vals = m_rows[row];
     auto & col_vals = m_columns[col].m_values;
-    unsigned row_el_offs = row_vals.size();
-    unsigned col_el_offs = col_vals.size();
+    unsigned row_el_offs = static_cast<unsigned>(row_vals.size());
+    unsigned col_el_offs = static_cast<unsigned>(col_vals.size());
     row_vals.push_back(indexed_value<T>(val, col, col_el_offs));
     col_vals.push_back(indexed_value<T>(val, row, row_el_offs));
 }
@@ -666,7 +666,7 @@ void sparse_matrix<T, X>::add_new_elements_of_w_and_clear_w(unsigned column_to_r
             auto & row_chunk = m_rows[ai];
             lean_assert(row_chunk.size() > 0);
             if (abs(w_at_i) > abs(row_chunk[0].m_value))
-                put_max_index_to_0(row_chunk, row_chunk.size() - 1);
+                put_max_index_to_0(row_chunk, static_cast<unsigned>(row_chunk.size()) - 1);
         }
         w[i] = numeric_traits<T>::zero();
     }
@@ -690,7 +690,7 @@ unsigned sparse_matrix<T, X>::pivot_score(unsigned i, unsigned j) {
 
     auto col_header = m_columns[j];
 
-    return get_row_values(i).size() * (col_header.m_values.size() - col_header.m_shortened_markovitz - 1);
+    return static_cast<unsigned>(get_row_values(i).size() * (col_header.m_values.size() - col_header.m_shortened_markovitz - 1));
 }
 
 template <typename T, typename X>
@@ -698,10 +698,10 @@ void sparse_matrix<T, X>::enqueue_domain_into_pivot_queue() {
     lean_assert(m_pivot_queue.size() == 0);
     for (unsigned i = 0; i < dimension(); i++) {
         auto & rh = m_rows[i];
-        unsigned rnz = rh.size();
+        unsigned rnz = static_cast<unsigned>(rh.size());
         for (auto iv : rh) {
             unsigned j = iv.m_index;
-            m_pivot_queue.enqueue(i, j, rnz * (m_columns[j].m_values.size() - 1));
+            m_pivot_queue.enqueue(i, j, rnz * (static_cast<unsigned>(m_columns[j].m_values.size()) - 1));
         }
     }
 }
@@ -735,7 +735,7 @@ void sparse_matrix<T, X>::recover_pivot_queue(std::vector<upair> & rejected_pivo
 }
 
 template <typename T, typename X>
-int sparse_matrix<T, X>::elem_is_too_small(unsigned i, unsigned j, const T & c_partial_pivoting)  {
+int sparse_matrix<T, X>::elem_is_too_small(unsigned i, unsigned j, int c_partial_pivoting)  {
     auto & row_chunk = m_rows[i];
 
     if (j == row_chunk[0].m_index) {
@@ -779,12 +779,12 @@ void sparse_matrix<T, X>::update_active_pivots(unsigned row) {
     unsigned arow = adjust_row(row);
     for (auto & iv : m_rows[arow]) {
         col_header & ch = m_columns[iv.m_index];
-        int cols = ch.m_values.size() - ch.m_shortened_markovitz - 1;
+        int cols = static_cast<int>(ch.m_values.size()) - ch.m_shortened_markovitz - 1;
         lean_assert(cols >= 0);
         for (auto &ivc : ch.m_values) {
             unsigned i = ivc.m_index;
             if (adjust_row_inverse(i) <= row) continue; // the i is not an active row
-            m_pivot_queue.enqueue(i, iv.m_index, m_rows[i].size()*cols);
+            m_pivot_queue.enqueue(i, iv.m_index, static_cast<unsigned>(m_rows[i].size())*cols);
         }
     }
 }
@@ -802,10 +802,10 @@ bool sparse_matrix<T, X>::shorten_active_matrix(unsigned row, eta_matrix<T, X> *
     for (auto & it : eta_matrix->m_column_vector.m_data) {
         unsigned row = adjust_row(it.first);
         auto & row_values = m_rows[row];
-        unsigned rnz = row_values.size();
+        unsigned rnz = static_cast<unsigned>(row_values.size());
         for (auto & iv : row_values) {
             col_header& ch = m_columns[iv.m_index];
-            int cnz = ch.m_values.size() - ch.m_shortened_markovitz - 1;
+            int cnz = static_cast<int>(ch.m_values.size()) - ch.m_shortened_markovitz - 1;
             lean_assert(cnz >= 0);
             m_pivot_queue.enqueue(row, iv.m_index, rnz * cnz);
         }
@@ -903,7 +903,7 @@ bool sparse_matrix<T, X>::pivot_queue_is_correct_after_pivoting(int k) {
 #endif
 
 template <typename T, typename X>
-bool sparse_matrix<T, X>::get_pivot_for_column(unsigned &i, unsigned &j, T const & c_partial_pivoting, unsigned k) {
+bool sparse_matrix<T, X>::get_pivot_for_column(unsigned &i, unsigned &j, int c_partial_pivoting, unsigned k) {
     std::vector<upair> pivots_candidates_that_are_too_small;
     while (!m_pivot_queue.is_empty()) {
         m_pivot_queue.dequeue(i, j);
@@ -933,7 +933,7 @@ bool sparse_matrix<T, X>::get_pivot_for_column(unsigned &i, unsigned &j, T const
 }
 
 template <typename T, typename X>
-bool sparse_matrix<T, X>::elem_is_too_small(std::vector<indexed_value<T>> & row_chunk, indexed_value<T> & iv, T const & c_partial_pivoting) {
+bool sparse_matrix<T, X>::elem_is_too_small(std::vector<indexed_value<T>> & row_chunk, indexed_value<T> & iv, int c_partial_pivoting) {
     if (&iv == &row_chunk[0]) {
         return false; // the max element is at the head
     }

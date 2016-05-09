@@ -4,5 +4,5 @@
 
   Author: Lev Nachmanson
 */
-#
+
 #include "util/lp/lar_solver.cpp"

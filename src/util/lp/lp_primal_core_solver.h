@@ -16,7 +16,6 @@
 #include <math.h>
 #include <cstdlib>
 #include <algorithm>
-#include "util/numerics/double.h"
 #include "util/lp/lu.h"
 #include "util/lp/lp_solver.h"
 #include "util/lp/static_matrix.h"
@@ -43,7 +42,7 @@ public:
     bool m_recalc_reduced_costs = false;
     std::set<unsigned> m_forbidden_enterings;
     std::vector<T> m_beta; // see Swietanowski working vector beta for column norms
-    T m_epsilon_of_reduced_cost = T(1e-7);
+    T m_epsilon_of_reduced_cost = T(1)/T(10000000);
     bool m_exit_on_feasible_solution = false;
     std::vector<T> m_costs_backup;
     bool m_current_x_is_feasible;
@@ -56,7 +55,7 @@ public:
     int find_leaving_and_t_precisely(unsigned entering, X & t);
 
     static X positive_infinity() {
-        return convert_struct<X, double>::convert(std::numeric_limits<unsigned>::max());
+        return convert_struct<X, unsigned>::convert(std::numeric_limits<unsigned>::max());
     }
 
     X get_harris_theta();
@@ -91,7 +90,7 @@ public:
         limit_inf_on_bound_m_pos(m, this->m_x[j], this->m_upper_bound_values[j], theta);
     };
 
-    X harris_eps_for_bound(const X & bound) const { return ( convert_struct<X, double>::convert(1) +  abs(bound)/10) * m_converted_harris_eps/3;
+    X harris_eps_for_bound(const X & bound) const { return ( convert_struct<X, int>::convert(1) +  abs(bound)/10) * m_converted_harris_eps/3;
     }
 
 

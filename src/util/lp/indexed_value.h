@@ -5,9 +5,6 @@
   Author: Lev Nachmanson
 */
 #pragma once
-#include "util/numerics/float.h"
-#include "util/numerics/double.h"
-#include "util/numerics/mpq.h"
 
 namespace lean {
 template <typename T>

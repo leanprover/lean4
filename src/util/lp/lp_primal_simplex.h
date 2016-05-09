@@ -9,8 +9,7 @@
 #include <unordered_map>
 #include <string>
 #include <algorithm>
-#include "util/exception.h"
-#include "util/sstream.h"
+#include "util/lp/lp_utils.h"
 #include "util/lp/column_info.h"
 #include "util/lp/lp_primal_core_solver.h"
 #include "util/lp/lp_solver.h"

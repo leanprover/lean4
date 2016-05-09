@@ -8,8 +8,7 @@
 #include <set>
 #include <vector>
 #include <string>
-#include "util/sstream.h"
-#include "util/exception.h"
+#include "util/lp/lp_utils.h"
 #include "util/lp/core_solver_pretty_printer.h"
 #include "util/lp/numeric_pair.h"
 #include "util/lp/static_matrix.h"

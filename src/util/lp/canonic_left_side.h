@@ -10,9 +10,7 @@
 #include <string>
 #include <algorithm>
 #include <utility>
-#include "util/numerics/mpq.h"
 #include "util/lp/column_info.h"
-#include "util/lp/hash_helper.h"
 namespace lean {
 typedef unsigned var_index;
 typedef unsigned constraint_index;
@@ -48,7 +46,7 @@ public:
         m_column_info.set_name(name);
     }
 
-    unsigned size() const { return m_coeffs.size(); }
+    unsigned size() const { return static_cast<unsigned>(m_coeffs.size()); }
 
     void normalize() {
         if (m_coeffs.size() == 0) return;

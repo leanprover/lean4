@@ -6,10 +6,9 @@
 */
 #pragma once
 #include <vector>
+#include <utility>
 #include "util/debug.h"
 #include "util/buffer.h"
-#include "util/numerics/numeric_traits.h"
-#include "util/numerics/xnumeral.h"
 #include <unordered_map>
 #include <unordered_set>
 #include <string>
@@ -61,7 +60,7 @@ class lar_solver {
     std::vector<numeric_pair<mpq>> m_right_side_vector; // this vector will be all zeroes, it might change when the optimization with fixed variables will used
     std::vector<mpq> m_costs;
     canonic_left_side * m_infeasible_canonic_left_side = nullptr; // such can be found at the initialization step
-    canonic_left_side * create_or_fetch_existing_left_side(const buffer<pair<mpq, var_index>>& left_side_par);
+    canonic_left_side * create_or_fetch_existing_left_side(const buffer<std::pair<mpq, var_index>>& left_side_par);
 
 
     bool var_is_fixed(unsigned j);
@@ -148,7 +147,7 @@ public:
 
     var_index add_var(std::string s);
 
-    constraint_index add_constraint(const buffer<pair<mpq, var_index>>& left_side, lconstraint_kind kind_par, mpq right_side_par);
+    constraint_index add_constraint(const buffer<std::pair<mpq, var_index>>& left_side, lconstraint_kind kind_par, mpq right_side_par);
 
     bool is_infeasible(const column_info<mpq> & ci) {
         return ci.low_bound_is_set() && ci.upper_bound_is_set() && ci.get_low_bound() > ci.get_upper_bound();
@@ -162,12 +161,12 @@ public:
 
     void solve_with_core_solver();
 
-    bool the_relations_are_of_same_type(const buffer<pair<mpq, unsigned>> & evidence, lconstraint_kind & the_kind_of_sum);
+    bool the_relations_are_of_same_type(const buffer<std::pair<mpq, unsigned>> & evidence, lconstraint_kind & the_kind_of_sum);
 
     void register_in_map(std::unordered_map<var_index, mpq> & coeffs, lar_constraint & cn, const mpq & a);
-    bool the_left_sides_sum_to_zero(const buffer<pair<mpq, unsigned>> & evidence);
+    bool the_left_sides_sum_to_zero(const buffer<std::pair<mpq, unsigned>> & evidence);
 
-    bool the_righ_sides_do_not_sum_to_zero(const buffer<pair<mpq, unsigned>> & evidence);
+    bool the_righ_sides_do_not_sum_to_zero(const buffer<std::pair<mpq, unsigned>> & evidence);
 
     bool the_evidence_is_correct();
 
@@ -176,7 +175,7 @@ public:
     template <typename V>
     void init_right_sides_with_zeros(std::vector<V> & rs);
 
-    mpq sum_of_right_sides_of_evidence(const buffer<pair<mpq, unsigned>> & evidence);
+    mpq sum_of_right_sides_of_evidence(const buffer<std::pair<mpq, unsigned>> & evidence);
     void prepare_independently_of_numeric_type();
 
     template <typename U, typename V>
@@ -201,10 +200,10 @@ public:
     void solve();
 
     lp_status check();
-    void get_infeasibility_evidence(buffer<pair<mpq, constraint_index>> & evidence);
+    void get_infeasibility_evidence(buffer<std::pair<mpq, constraint_index>> & evidence);
 
-    void get_infeasibility_evidence_for_inf_sign(buffer<pair<mpq, constraint_index>> & evidence,
-                                                 const std::vector<pair<mpq, unsigned>> & inf_row,
+    void get_infeasibility_evidence_for_inf_sign(buffer<std::pair<mpq, constraint_index>> & evidence,
+                                                 const std::vector<std::pair<mpq, unsigned>> & inf_row,
                                                  int inf_sign);
 
 

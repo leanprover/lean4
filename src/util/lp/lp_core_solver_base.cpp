@@ -7,6 +7,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include "util/lp/lp_utils.h"
 #include "util/lp/lp_core_solver_base.h"
 namespace lean {
 void init_basic_part_of_basis_heading(std::vector<unsigned> & basis, unsigned m, std::vector<int> & basis_heading) {
@@ -21,7 +22,7 @@ void init_non_basic_part_of_basis_heading(std::vector<int> & basis_heading, std:
         if (basis_heading[j] < 0) {
             non_basic_columns.push_back(j);
             // the index of column j in m_non_basic_columns is (- basis_heading[j] - 1)
-            basis_heading[j] = - non_basic_columns.size();
+            basis_heading[j] = - static_cast<int>(non_basic_columns.size());
         }
     }
 }
@@ -116,7 +117,7 @@ solve_yB(std::vector<T> & y) {
 template <typename T, typename X> void lp_core_solver_base<T, X>::
 update_index_of_ed() {
     m_index_of_ed.clear();
-    unsigned i = m_ed.size();
+    unsigned i = static_cast<unsigned>(m_ed.size());
     while (i--) {
         if (!is_zero(m_ed[i]))
             m_index_of_ed.push_back(i);
@@ -248,7 +249,7 @@ calculate_pivot_row_when_pivot_row_of_B1_is_ready() {
         }
     }
 
-    unsigned j = m_pivot_row.size();
+    unsigned j = static_cast<unsigned>(m_pivot_row.size());
     while (j--) {
         if (!is_zero(m_pivot_row[j]))
             m_pivot_row_index.push_back(j);
@@ -274,7 +275,7 @@ print_statistics(X cost) {
 }
 template <typename T, typename X> bool lp_core_solver_base<T, X>::
 print_statistics_with_iterations_and_check_that_the_time_is_over(unsigned total_iterations) {
-    if (total_iterations % m_settings.report_frequency == 0) {
+    if (m_settings.print_statistics && total_iterations % m_settings.report_frequency == 0) {
         std::cout << "iterations = " << total_iterations  <<  ", nonzeros = " << m_factorization->get_number_of_nonzeroes() << std::endl;
         if (time_is_over()) {
             return true;
@@ -356,6 +357,8 @@ column_is_dual_feasible(unsigned j) const {
         std::cout << "unexpected column type = " << column_type_to_string(m_column_type[j]) << std::endl;
         lean_unreachable();
     }
+    lean_unreachable();
+    return false;
 }
 template <typename T, typename X> bool lp_core_solver_base<T, X>::
 d_is_not_negative(unsigned j) const {
@@ -419,7 +422,9 @@ update_basis_and_x(int entering, int leaving, X const & tt) {
                 m_refactor_counter = 0;
                 m_iters_with_no_cost_growing++;
                 if (m_factorization->get_status() != LU_status::OK) {
-                    throw exception(sstream() << "failing refactor on off_result for entering = " << entering << ", leaving = " << leaving << " total_iterations = " << m_total_iterations);
+                    std::stringstream s;
+                    s << "failing refactor on off_result for entering = " << entering << ", leaving = " << leaving << " total_iterations = " << m_total_iterations;
+                    throw_exception(s.str());
                 }
                 return false;
             }
@@ -691,6 +696,8 @@ get_non_basic_column_value_position(unsigned j) {
     default:
         lean_unreachable();
     }
+    lean_unreachable();
+    return at_low_bound;
 }
 
 template <typename T, typename X> void lp_core_solver_base<T, X>::init_lu() {

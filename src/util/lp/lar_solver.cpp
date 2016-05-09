@@ -7,6 +7,7 @@
 #include <string>
 #include <algorithm>
 #include <vector>
+#include <utility>
 #include "util/lp/lar_solver.h"
 namespace lean {
 double conversion_helper <double>::get_low_bound(const column_info<mpq> & ci) {
@@ -29,7 +30,7 @@ double conversion_helper <double>::get_upper_bound(const column_info<mpq> & ci) 
     return ci.get_upper_bound().get_double() - eps;
 }
 
-canonic_left_side * lar_solver::create_or_fetch_existing_left_side(const buffer<pair<mpq, var_index>>& left_side_par) {
+canonic_left_side * lar_solver::create_or_fetch_existing_left_side(const buffer<std::pair<mpq, var_index>>& left_side_par) {
     auto left_side = new canonic_left_side(left_side_par);
     lean_assert(left_side->size() > 0);
     auto it = m_canonic_left_sides.find(left_side);
@@ -60,7 +61,7 @@ mpq lar_solver::find_ratio(canonic_left_side * ls, const lar_constraint & constr
 }
 
 void lar_solver::add_canonic_left_side_for_var(var_index i, std::string var_name) {
-    buffer<pair<mpq, var_index>> b;
+    buffer<std::pair<mpq, var_index>> b;
     b.push_back(std::make_pair(numeric_traits<mpq>::one(), i));
     auto can_ls = new canonic_left_side(b);
     can_ls->set_name(var_name);
@@ -74,7 +75,7 @@ void lar_solver::map_left_side_to_column_of_A(canonic_left_side*  left_side, uns
     lean_assert(m_column_indices_to_canonic_left_sides.find(j) == m_column_indices_to_canonic_left_sides.end());
     left_side->m_column_index = j; // assigning this index does not change the hash of canonic_left_side
     if (left_side->size() > 1) { // if size is one we will not create a row for this left side
-        left_side->m_row_index = m_basis.size();
+        left_side->m_row_index = static_cast<int>(m_basis.size());
         m_basis.push_back(j); // j will be a basis column, so we put it into the basis as well
     }
     m_column_indices_to_canonic_left_sides[j++] = left_side; // pointing from the column to the left side
@@ -105,8 +106,8 @@ void lar_solver::add_row_to_A(static_matrix<U, V> & A, unsigned i, canonic_left_
 
 template <typename U, typename V>
 void lar_solver::create_matrix_A(static_matrix<U, V> & A) {
-    unsigned n = m_column_indices_to_canonic_left_sides.size();
-    unsigned m = m_basis.size();
+    unsigned n = static_cast<unsigned>(m_column_indices_to_canonic_left_sides.size());
+    unsigned m = static_cast<unsigned>(m_basis.size());
     A.init_empty_matrix(m, n);
     unsigned i = 0;
     for (auto & t : m_column_indices_to_canonic_left_sides)
@@ -244,7 +245,7 @@ void lar_solver::fill_column_types() {
 
 template <typename V>
 void lar_solver::fill_bounds_for_core_solver(std::vector<V> & lb, std::vector<V> & ub) {
-    unsigned n = m_canonic_left_sides.size(); // this is the number of columns
+    unsigned n = static_cast<unsigned>(m_canonic_left_sides.size()); // this is the number of columns
     lb.resize(n);
     ub.resize(n);
     for (auto t : m_canonic_left_sides) {
@@ -284,6 +285,7 @@ template <typename V> V lar_solver::get_column_val(std::vector<V> & low_bound, s
     default:
         lean_unreachable();
     }
+    return zero_of_type<V>(); // it is unreachable
 }
 
 lar_solver::~lar_solver() {
@@ -307,8 +309,8 @@ var_index lar_solver::add_var(std::string s) {
     return i;
 }
 
-constraint_index lar_solver::add_constraint(const buffer<pair<mpq, var_index>>& left_side, lconstraint_kind kind_par, mpq right_side_par) {
-    lean_assert(left_side.size());
+constraint_index lar_solver::add_constraint(const buffer<std::pair<mpq, var_index>>& left_side, lconstraint_kind kind_par, mpq right_side_par) {
+    lean_assert(left_side.size() > 0);
     constraint_index i = m_available_constr_index++;
     lar_constraint original_constr(left_side, kind_par, right_side_par, i);
     canonic_left_side * ls = create_or_fetch_existing_left_side(left_side);
@@ -341,6 +343,7 @@ bool lar_solver::constraint_holds(const lar_constraint & constr, std::unordered_
     default:
         lean_unreachable();
     }
+    return false; // it is unreachable
 }
 
 void lar_solver::solve_with_core_solver() {
@@ -352,7 +355,7 @@ void lar_solver::solve_with_core_solver() {
 #endif
 }
 
-bool lar_solver::the_relations_are_of_same_type(const buffer<pair<mpq, unsigned>> & evidence, lconstraint_kind & the_kind_of_sum) {
+bool lar_solver::the_relations_are_of_same_type(const buffer<std::pair<mpq, unsigned>> & evidence, lconstraint_kind & the_kind_of_sum) {
     unsigned n_of_G = 0, n_of_L = 0;
     bool strict = false;
     for (auto & it : evidence) {
@@ -381,7 +384,7 @@ void lar_solver::register_in_map(std::unordered_map<var_index, mpq> & coeffs, la
         else p->second += it.second * a;
     }
 }
-bool lar_solver::the_left_sides_sum_to_zero(const buffer<pair<mpq, unsigned>> & evidence) {
+bool lar_solver::the_left_sides_sum_to_zero(const buffer<std::pair<mpq, unsigned>> & evidence) {
     std::unordered_map<var_index, mpq> coeff_map;
     for (auto & it : evidence) {
         mpq coeff = it.first;
@@ -395,7 +398,7 @@ bool lar_solver::the_left_sides_sum_to_zero(const buffer<pair<mpq, unsigned>> & 
     return true;
 }
 
-bool lar_solver::the_righ_sides_do_not_sum_to_zero(const buffer<pair<mpq, unsigned>> & evidence) {
+bool lar_solver::the_righ_sides_do_not_sum_to_zero(const buffer<std::pair<mpq, unsigned>> & evidence) {
     mpq ret = numeric_traits<mpq>::zero();
     for (auto & it : evidence) {
         mpq coeff = it.first;
@@ -407,7 +410,7 @@ bool lar_solver::the_righ_sides_do_not_sum_to_zero(const buffer<pair<mpq, unsign
 }
 #ifdef LEAN_DEBUG
 bool lar_solver::the_evidence_is_correct() {
-    buffer<pair<mpq, unsigned>> evidence;
+    buffer<std::pair<mpq, unsigned>> evidence;
     get_infeasibility_evidence(evidence);
     lconstraint_kind kind;
     lean_assert(the_relations_are_of_same_type(evidence, kind));
@@ -442,7 +445,7 @@ void lar_solver::init_right_sides_with_zeros(std::vector<V> & rs) {
     rs.resize(m_basis.size(), zero_of_type<V>());
 }
 
-mpq lar_solver::sum_of_right_sides_of_evidence(const buffer<pair<mpq, unsigned>> & evidence) {
+mpq lar_solver::sum_of_right_sides_of_evidence(const buffer<std::pair<mpq, unsigned>> & evidence) {
     mpq ret = numeric_traits<mpq>::zero();
     for (auto & it : evidence) {
         mpq coeff = it.first;
@@ -499,7 +502,7 @@ void lar_solver::find_solution_signature_with_doubles(lar_solution_signature & s
         A.clear();
         create_matrix_A(A);
         for (auto & s : column_scale_vector)
-            s = one_of_type<double>();
+            s = 1.0;
     }
     std::vector<double> costs(A.column_count());
     auto core_solver = lp_primal_core_solver<double, double>(A,
@@ -545,7 +548,7 @@ lp_status lar_solver::check() {
     solve();
     return m_status;
 }
-void lar_solver::get_infeasibility_evidence(buffer<pair<mpq, constraint_index>> & evidence){
+void lar_solver::get_infeasibility_evidence(buffer<std::pair<mpq, constraint_index>> & evidence){
     if (!m_mpq_core_solver.get_infeasible_row_sign()) {
         return;
     }
@@ -556,8 +559,8 @@ void lar_solver::get_infeasibility_evidence(buffer<pair<mpq, constraint_index>> 
     get_infeasibility_evidence_for_inf_sign(evidence, inf_row, inf_sign);
 }
 
-void lar_solver::get_infeasibility_evidence_for_inf_sign(buffer<pair<mpq, constraint_index>> & evidence,
-                                                         const std::vector<pair<mpq, unsigned>> & inf_row,
+void lar_solver::get_infeasibility_evidence_for_inf_sign(buffer<std::pair<mpq, constraint_index>> & evidence,
+                                                         const std::vector<std::pair<mpq, unsigned>> & inf_row,
                                                          int inf_sign) {
     for (auto & it : inf_row) {
         mpq coeff = it.first;
@@ -727,6 +730,7 @@ mpq lar_solver::get_infeasibility_of_constraint(const lar_normalized_constraint 
     default:
         lean_unreachable();
     }
+    return mpq(0); // it is unreachable
 }
 
 mpq lar_solver::get_canonic_left_side_val(canonic_left_side * ls, std::unordered_map<std::string, mpq> & solution) {

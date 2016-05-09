@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <stdio.h>      /* printf, fopen */
 #include <stdlib.h>     /* exit, EXIT_FAILURE */
-#include "util/numerics/double.h"
+#include "util/lp/lp_utils.h"
 #include "util/lp/static_matrix.h"
 namespace lean {
 // for scaling an LP

@@ -16,10 +16,7 @@ template void lean::permutation_matrix<double, double>::multiply_by_permutation_
 template void lean::permutation_matrix<double, double>::multiply_by_reverse_from_right(lean::permutation_matrix<double, double>&);
 template lean::permutation_matrix<double, double>::permutation_matrix(unsigned int, std::vector<unsigned int, std::allocator<unsigned int> > const&);
 template void lean::permutation_matrix<double, double>::transpose_from_left(unsigned int, unsigned int);
-template void lean::permutation_matrix<float, float>::apply_from_right(std::vector<float, std::allocator<float> >&);
-template lean::permutation_matrix<float, float>::permutation_matrix(unsigned int);
-template void lean::permutation_matrix<float, float>::transpose_from_left(unsigned int, unsigned int);
-template void lean::permutation_matrix<float, float>::transpose_from_right(unsigned int, unsigned int);
+
 template void lean::permutation_matrix<lean::mpq, lean::mpq>::apply_from_right(std::vector<lean::mpq, std::allocator<lean::mpq> >&);
 template bool lean::permutation_matrix<lean::mpq, lean::mpq>::is_identity() const;
 template void lean::permutation_matrix<lean::mpq, lean::mpq>::multiply_by_permutation_from_left(lean::permutation_matrix<lean::mpq, lean::mpq>&);
@@ -44,8 +41,6 @@ template void lean::permutation_matrix<double, double>::apply_reverse_from_left<
 template void lean::permutation_matrix<double, double>::apply_reverse_from_left<double>(std::vector<double, std::allocator<double> >&);
 template void lean::permutation_matrix<double, double>::apply_reverse_from_right<double>(std::vector<double, std::allocator<double> >&);
 template void lean::permutation_matrix<double, double>::transpose_from_right(unsigned int, unsigned int);
-template void lean::permutation_matrix<float, float>::apply_from_left_perm<float>(lean::indexed_vector<float>&, lean::lp_settings&);
-template void lean::permutation_matrix<float, float>::apply_from_left_perm<float>(std::vector<float, std::allocator<float> >&);
 template void lean::permutation_matrix<lean::mpq, lean::mpq>::apply_from_left_perm<lean::mpq>(lean::indexed_vector<lean::mpq>&, lean::lp_settings&);
 template void lean::permutation_matrix<lean::mpq, lean::mpq>::apply_from_left_perm<lean::mpq>(std::vector<lean::mpq, std::allocator<lean::mpq> >&);
 template void lean::permutation_matrix<lean::mpq, lean::mpq>::apply_reverse_from_left<lean::mpq>(lean::indexed_vector<lean::mpq>&);

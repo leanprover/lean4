@@ -8,17 +8,9 @@
 #pragma once
 #include <vector>
 #include "util/debug.h"
-#include "util/numerics/numeric_traits.h"
-#include "util/numerics/xnumeral.h"
-#include "util/numerics/mpq.h"
-#include "util/numerics/mpz.h"
-#include "util/numerics/mpbq.h"
-#include "util/numerics/double.h"
-#include "util/numerics/float.h"
-#include "util/numerics/mpfp.h"
 #include <string>
-#include "util/lp/sparse_vector.h"
 #include <iomanip>
+#include "util/lp/lp_utils.h"
 namespace lean {
 
 template <typename T> void print_vector(const std::vector<T> & t, std::ostream & out);

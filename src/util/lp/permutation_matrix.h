@@ -8,14 +8,6 @@
 #include <vector>
 #include <algorithm>
 #include "util/debug.h"
-#include "util/numerics/numeric_traits.h"
-#include "util/numerics/xnumeral.h"
-#include "util/numerics/mpq.h"
-#include "util/numerics/mpz.h"
-#include "util/numerics/mpbq.h"
-#include "util/numerics/double.h"
-#include "util/numerics/float.h"
-#include "util/numerics/mpfp.h"
 #include <string>
 #include "util/lp/sparse_vector.h"
 #include "util/lp/indexed_vector.h"
@@ -129,7 +121,7 @@ namespace lean {
 
         bool is_identity() const;
 
-        unsigned size() const { return m_rev.size(); }
+        unsigned size() const { return static_cast<unsigned>(m_rev.size()); }
 
         unsigned * values() const { return m_permutation; }
     }; // end of the permutation class

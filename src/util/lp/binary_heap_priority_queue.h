@@ -1,3 +1,4 @@
+
 /*
   Copyright (c) 2013 Microsoft Corporation. All rights reserved.
   Released under Apache 2.0 license as described in the file LICENSE.
@@ -7,6 +8,7 @@
 #pragma once
 #include <vector>
 #include "util/debug.h"
+#include "util/lp/lp_utils.h"
 namespace lean {
 // the elements with the smallest priority are dequeued first
 template <typename T>

@@ -7,7 +7,7 @@
 #ifdef LEAN_DEBUG
 #pragma once
 #include "util/numerics/numeric_traits.h"
-#include "util/numerics/double.h"
+// #include "util/numerics/double.h"
 #include <vector>
 #include <string>
 #include "util/lp/lp_settings.h"

@@ -43,7 +43,9 @@ template <typename T, typename X> void lp_solver<T, X>::give_symbolic_name_to_co
 template <typename T, typename X>  T lp_solver<T, X>::get_column_value_by_name(std::string name) const {
     auto it = m_names_to_columns.find(name);
     if (it == m_names_to_columns.end()) {
-        throw exception(sstream() << "get_column_value_by_name " << name);
+        std::stringstream s;
+        s << "get_column_value_by_name " << name;
+        throw_exception(s.str());
     }
     return get_column_value(it -> second);
 }
@@ -249,7 +251,7 @@ template <typename T, typename X>    bool lp_solver<T, X>::row_e_is_obsolete(std
     return false;
 }
 
-template <typename T, typename X>    int lp_solver<T, X>::row_ge_is_obsolete(std::unordered_map<unsigned, T> & row, unsigned row_index) {
+template <typename T, typename X>  bool lp_solver<T, X>::row_ge_is_obsolete(std::unordered_map<unsigned, T> & row, unsigned row_index) {
     T rs = m_constraints[row_index].m_rs;
     if (row_is_zero(row)) {
         if (rs > zero_of_type<X>())
@@ -274,7 +276,7 @@ template <typename T, typename X>    int lp_solver<T, X>::row_ge_is_obsolete(std
     return false;
 }
 
-template <typename T, typename X>    bool lp_solver<T, X>::row_le_is_obsolete(std::unordered_map<unsigned, T> & row, unsigned row_index) {
+template <typename T, typename X> bool lp_solver<T, X>::row_le_is_obsolete(std::unordered_map<unsigned, T> & row, unsigned row_index) {
     T low_bound;
     T rs = m_constraints[row_index].m_rs;
     if (row_is_zero(row)) {
@@ -318,6 +320,7 @@ template <typename T, typename X>    bool lp_solver<T, X>::row_is_obsolete(std::
         return row_le_is_obsolete(row, row_index);
     }
     lean_unreachable();
+    return false; // it is unreachable
 }
 
 template <typename T, typename X> void lp_solver<T, X>::remove_fixed_or_zero_columns() {
@@ -349,7 +352,7 @@ template <typename T, typename X> void lp_solver<T, X>::remove_fixed_or_zero_col
     }
 }
 
-template <typename T, typename X>    unsigned lp_solver<T, X>::try_to_remove_some_rows() {
+template <typename T, typename X> unsigned lp_solver<T, X>::try_to_remove_some_rows() {
     std::vector<unsigned> rows_to_delete;
     for (auto & t : m_A_values) {
         if (row_is_obsolete(t.second, t.first)) {
@@ -366,13 +369,13 @@ template <typename T, typename X>    unsigned lp_solver<T, X>::try_to_remove_som
         }
     }
     remove_fixed_or_zero_columns();
-    return rows_to_delete.size();
+    return static_cast<unsigned>(rows_to_delete.size());
 }
 
 template <typename T, typename X> void lp_solver<T, X>::cleanup() {
     int n = 0; // number of deleted rows
     int d;
-    while ((d = try_to_remove_some_rows()))
+    while ((d = try_to_remove_some_rows() > 0))
         n += d;
 
     // if (n == 1)
@@ -395,7 +398,7 @@ template <typename T, typename X> void lp_solver<T, X>::map_external_columns_to_
     for (auto & row : m_A_values) {
         for (auto & col : row.second) {
             if (col.second == numeric_traits<T>::zero() || m_columns[col.first]->is_fixed()) {
-                throw exception("found fixed column");
+                throw_exception("found fixed column");
             }
             unsigned j = col.first;
             auto j_place = m_external_columns_to_core_solver_columns.find(j);
@@ -426,7 +429,7 @@ template <typename T, typename X> void lp_solver<T, X>::unscale() {
 }
 
 template <typename T, typename X> void lp_solver<T, X>::fill_A_from_A_values() {
-    m_A = new static_matrix<T, X>(m_A_values.size(), number_of_core_structurals());
+    m_A = new static_matrix<T, X>(static_cast<unsigned>(m_A_values.size()), number_of_core_structurals());
     for (auto & t : m_A_values) {
         lean_assert(m_external_rows_to_core_solver_rows.find(t.first) != m_external_rows_to_core_solver_rows.end());
         unsigned row =  m_external_rows_to_core_solver_rows[t.first];
@@ -461,22 +464,19 @@ template <typename T, typename X> void lp_solver<T, X>::count_slacks_and_artific
 template <typename T, typename X> void lp_solver<T, X>::count_slacks_and_artificials_for_row(unsigned i) {
     lean_assert(this->m_constraints.find(this->m_core_solver_rows_to_external_rows[i]) != this->m_constraints.end());
     auto & constraint = this->m_constraints[this->m_core_solver_rows_to_external_rows[i]];
-    T rs;
     switch (constraint.m_relation) {
     case Equal:
         m_artificials++;
         break;
     case Greater_or_equal:
         m_slacks++;
-        rs = this->m_b[i];
-        if (rs > 0) {
+        if (this->m_b[i] > 0) {
             m_artificials++;
         }
         break;
     case Less_or_equal:
         m_slacks++;
-        rs = this->m_b[i];
-        if (rs < 0) {
+        if (this->m_b[i] < 0) {
             m_artificials++;
         }
         break;
@@ -488,7 +488,7 @@ template <typename T, typename X>    T lp_solver<T, X>::low_bound_shift_for_row(
 
     auto row = this->m_A_values.find(i);
     if (row == this->m_A_values.end()) {
-        throw exception("cannot find row");
+        throw_exception("cannot find row");
     }
     for (auto col : row->second) {
         ret += col.second * this->m_columns[col.first]->get_shift();

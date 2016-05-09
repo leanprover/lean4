@@ -6,8 +6,7 @@
 */
 #pragma once
 #include <vector>
-#include "util/sstream.h"
-#include "util/exception.h"
+#include "util/lp/lp_utils.h"
 #include "util/lp/lp_solver.h"
 #include "util/lp/lp_dual_core_solver.h"
 namespace lean {

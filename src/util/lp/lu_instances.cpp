@@ -33,7 +33,6 @@ template void lean::init_factorization<lean::mpq, lean::mpq>(lean::lu<lean::mpq,
 template void lean::init_factorization<lean::mpq, lean::numeric_pair<lean::mpq> >(lean::lu<lean::mpq, lean::numeric_pair<lean::mpq> >*&, lean::static_matrix<lean::mpq, lean::numeric_pair<lean::mpq> >&, std::vector<unsigned int, std::allocator<unsigned int> >&, std::vector<int, std::allocator<int> >&, lean::lp_settings&, std::vector<unsigned int, std::allocator<unsigned int> >&);
 #ifdef LEAN_DEBUG
 template void lean::print_matrix<double, double>(lean::sparse_matrix<double, double>&, std::ostream & out);
-template void lean::print_matrix<float, float>(lean::sparse_matrix<float, float>&, std::ostream & out);
 template void lean::print_matrix<double, double>(lean::static_matrix<double, double>&, std::ostream & out);
 template bool lean::lu<double, double>::is_correct();
 template lean::dense_matrix<double, double> lean::get_B<double, double>(lean::lu<double, double>&);

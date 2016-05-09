@@ -11,10 +11,7 @@
 #include <algorithm>
 #include <limits>
 #include <sys/timeb.h>
-#include "util/debug.h"
-#include "util/numerics/numeric_traits.h"
-#include "util/sstream.h"
-#include "util/numerics/mpq.h"
+#include "util/lp/lp_utils.h"
 
 namespace lean {
 
@@ -51,11 +48,6 @@ lp_status lp_status_from_string(std::string status);
 enum non_basic_column_value_position { at_low_bound, at_upper_bound, at_fixed, free_of_bounds };
 
 template <typename X> bool is_epsilon_small(const X & v, const double& eps);    // forward definition
-template <typename X> bool precise() { return numeric_traits<X>::precise();}
-template <typename X> X zero_of_type() { return numeric_traits<X>::zero(); }
-template <typename X> X one_of_type() { return numeric_traits<X>::one(); }
-template <typename X> bool is_zero(const X & v) { return numeric_traits<X>::is_zero(v); }
-template <typename X> double  get_double(const X & v) { return numeric_traits<X>::get_double(v); }
 
 struct lp_settings {
     // when the absolute value of an element is less than pivot_epsilon
@@ -66,7 +58,7 @@ struct lp_settings {
     // a quatation "if some choice of the entering vairable leads to an eta matrix
     // whose diagonal element in the eta column is less than e2 (entering_diag_epsilon) in magnitude, the this choice is rejected ...
     double entering_diag_epsilon = 1e-8;
-    double c_partial_pivoting = 10; // this is the constant c from page 410
+    int c_partial_pivoting = 10; // this is the constant c from page 410
     unsigned depth_of_rook_search = 4;
     bool using_partial_pivoting = true;
     // dissertation of Achim Koberstein
@@ -151,7 +143,8 @@ struct lp_settings {
     // the method of lar solver to use
     bool row_feasibility = true;
     bool use_double_solver_for_lar = true;
-    int report_frequency = 10000000;
+    int report_frequency = 1000;
+    bool print_statistics = false;
     unsigned column_norms_update_frequency = 1000;
     bool scale_with_ratio = true;
     double density_threshold = 0.7; // need to tune it up, todo
@@ -210,4 +203,3 @@ inline void print_blanks(int n, std::ostream & out) {
     while (n--) {out << ' '; }
 }
 }
-

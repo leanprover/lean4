@@ -100,7 +100,7 @@ public:
     }
 
     T get_fixed_value() const {
-        lean_assert(m_is_fixed)
+        lean_assert(m_is_fixed);
         return m_fixed_value;
     }
 

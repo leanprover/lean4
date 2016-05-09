@@ -77,7 +77,7 @@ void permutation_matrix<T, X>::apply_from_left_perm(indexed_vector<L> & w, lp_se
     copy_aside(t, tmp_index, w);
     clear_data(w);
     // set the new values
-    for (unsigned i = t.size(); i > 0;) {
+    for (unsigned i = static_cast<unsigned>(t.size()); i > 0;) {
         i--;
         unsigned j = m_rev[tmp_index[i]];
         w[j] = t[i];
@@ -112,7 +112,7 @@ template <typename T, typename X> void permutation_matrix<T, X>::apply_from_righ
 
 template <typename T, typename X> template <typename L>
 void permutation_matrix<T, X>::copy_aside(std::vector<L> & t, std::vector<unsigned> & tmp_index, indexed_vector<L> & w) {
-    for (unsigned i = t.size(); i > 0;) {
+    for (unsigned i = static_cast<unsigned>(t.size()); i > 0;) {
         i--;
         unsigned j = w.m_index[i];
         t[i] = w[j]; // copy aside all non-zeroes
@@ -123,7 +123,7 @@ void permutation_matrix<T, X>::copy_aside(std::vector<L> & t, std::vector<unsign
 template <typename T, typename X> template <typename L>
 void permutation_matrix<T, X>::clear_data(indexed_vector<L> & w) {
     // clear old non-zeroes
-    for (unsigned i = w.m_index.size(); i > 0;) {
+    for (unsigned i = static_cast<unsigned>(w.m_index.size()); i > 0;) {
         i--;
         unsigned j = w.m_index[i];
         w[j] = zero_of_type<L>();
@@ -145,7 +145,7 @@ void permutation_matrix<T, X>::apply_reverse_from_left(indexed_vector<L> & w) {
     clear_data(w);
 
     // set the new values
-    for (unsigned i = t.size(); i > 0;) {
+    for (unsigned i = static_cast<unsigned>(t.size()); i > 0;) {
         i--;
         unsigned j = m_permutation[tmp_index[i]];
         w[j] = t[i];

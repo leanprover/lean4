@@ -9,8 +9,6 @@
 
 #include <vector>
 #include "util/debug.h"
-#include "util/numerics/numeric_traits.h"
-#include "util/numerics/xnumeral.h"
 #include <algorithm>
 #include <set>
 #include "util/lp/sparse_matrix.h"

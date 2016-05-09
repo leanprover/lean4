@@ -87,7 +87,7 @@ void test_matrix(sparse_matrix<T, X> & a) {
 
 void tst1() {
     std::cout << "testing the minimial matrix with 1 row and 1 column" << std::endl;
-    sparse_matrix<float, float> m0(1);
+    sparse_matrix<double, double> m0(1);
     m0.set(0, 0, 1);
     // print_matrix(m0);
     m0.set(0, 0, 0);
@@ -95,17 +95,17 @@ void tst1() {
     test_matrix(m0);
 
     unsigned rows = 2;
-    sparse_matrix<float, float> m(rows);
+    sparse_matrix<double, double> m(rows);
     std::cout << "setting m(0,1)=" << std::endl;
 
     m.set(0, 1,  11);
     m.set(0, 0,  12);
 
-    // print_matrix<float>(m);
+    // print_matrix<double>(m);
 
     test_matrix(m);
 
-    sparse_matrix<float, float> m1(2);
+    sparse_matrix<double, double> m1(2);
     m1.set(0, 0, 2);
     m1.set(1, 0, 3);
     // print_matrix(m1);
@@ -118,7 +118,7 @@ void tst1() {
 
 
     std::cout << "printing zero matrix 3 by 1" << std::endl;
-    sparse_matrix<float, float> m2(3);
+    sparse_matrix<double, double> m2(3);
     // print_matrix(m2);
 
     m2.set(0, 0, 1);
@@ -128,12 +128,12 @@ void tst1() {
 
     test_matrix(m2);
 
-    sparse_matrix<float, float> m10by9(10);
+    sparse_matrix<double, double> m10by9(10);
     m10by9.set(0, 1, 1);
 
     m10by9(0, 1) = 4;
 
-    float test = m10by9(0, 1);
+    double test = m10by9(0, 1);
 
     std::cout << "got " << test << std::endl;
 
@@ -629,7 +629,7 @@ void fill_matrix(sparse_matrix<T, X>& m){
 }
 
 void test_pivot_like_swaps_and_pivot(){
-    sparse_matrix<float, float> m(10);
+    sparse_matrix<double, double> m(10);
     fill_matrix(m);
     // print_matrix(m);
 // pivot at 2,7
@@ -648,12 +648,12 @@ void test_pivot_like_swaps_and_pivot(){
     m.swap_rows(1, 3);
     // print_matrix(m);
 
-    vector<float> row;
-    float alpha = 2.33;
+    vector<double> row;
+    double alpha = 2.33;
     unsigned pivot_row = 1;
     unsigned target_row = 2;
     unsigned pivot_row_0 = 3;
-    float beta = 3.1;
+    double beta = 3.1;
     m(target_row, 3) = 0;
     m(target_row, 5) = 0;
     m(pivot_row, 6) = 0;
@@ -680,7 +680,7 @@ void test_pivot_like_swaps_and_pivot(){
 
 #ifdef LEAN_DEBUG
 void test_swap_rows() {
-    sparse_matrix<float, float> m(10);
+    sparse_matrix<double, double> m(10);
     fill_matrix(m);
     // print_matrix(m);
     test_swap_rows(m, 3, 5);
@@ -701,7 +701,7 @@ void test_swap_rows() {
     test_swap_rows(m, 0, 7);
 
 // go over some corner cases
-    sparse_matrix<float, float> m0(2);
+    sparse_matrix<double, double> m0(2);
     test_swap_rows(m0, 0, 1);
     m0(0, 0) = 3;
     test_swap_rows(m0, 0, 1);
@@ -709,7 +709,7 @@ void test_swap_rows() {
     test_swap_rows(m0, 0, 1);
 
 
-    sparse_matrix<float, float> m1(10);
+    sparse_matrix<double, double> m1(10);
     test_swap_rows(m1, 0, 1);
     m1(0, 0) = 3;
     test_swap_rows(m1, 0, 1);
@@ -721,7 +721,7 @@ void test_swap_rows() {
 
     test_swap_rows(m1, 0, 1);
 
-    sparse_matrix<float, float> m2(3);
+    sparse_matrix<double, double> m2(3);
     test_swap_rows(m2, 0, 1);
     m2(0, 0) = 3;
     test_swap_rows(m2, 0, 1);
@@ -833,7 +833,7 @@ void sparse_matrix_with_permutaions_test() {
 }
 
 void test_swap_columns() {
-    sparse_matrix<float, float> m(10);
+    sparse_matrix<double, double> m(10);
     fill_matrix(m);
     // print_matrix(m);
 
@@ -853,7 +853,7 @@ void test_swap_columns() {
     test_swap_columns(m, 0, 7);
 
 // go over some corner cases
-    sparse_matrix<float, float> m0(2);
+    sparse_matrix<double, double> m0(2);
     test_swap_columns(m0, 0, 1);
     m0(0, 0) = 3;
     test_swap_columns(m0, 0, 1);
@@ -861,7 +861,7 @@ void test_swap_columns() {
     test_swap_columns(m0, 0, 1);
 
 
-    sparse_matrix<float, float> m1(10);
+    sparse_matrix<double, double> m1(10);
     test_swap_columns(m1, 0, 1);
     m1(0, 0) = 3;
     test_swap_columns(m1, 0, 1);
@@ -873,7 +873,7 @@ void test_swap_columns() {
 
     test_swap_columns(m1, 0, 1);
 
-    sparse_matrix<float, float> m2(3);
+    sparse_matrix<double, double> m2(3);
     test_swap_columns(m2, 0, 1);
     m2(0, 0) = 3;
     test_swap_columns(m2, 0, 1);
@@ -1015,6 +1015,13 @@ void update_settings(argument_parser & args_parser, lp_settings& settings) {
         cout << "setting partial pivot constant to " << n << std::endl;
         settings.c_partial_pivoting = n;
     }
+#if LEAN_DEBUG
+    if (get_int_from_args_parser("--ddd", args_parser, n)) {
+        cout << "setting ddd to " << n << std::endl;
+        settings.ddd = n;
+    }
+#endif
+
     if (get_int_from_args_parser("--density", args_parser, n)) {
         double density = static_cast<double>(n) / 100.0;
         cout << "setting density to " << density << std::endl;
@@ -1029,8 +1036,8 @@ void update_settings(argument_parser & args_parser, lp_settings& settings) {
     }
 }
 
-
-void setup_solver(unsigned max_iterations, unsigned time_limit, bool look_for_min, argument_parser & args_parser, lp_solver<double, double> * solver) {
+template <typename T, typename X>
+void setup_solver(unsigned max_iterations, unsigned time_limit, bool look_for_min, argument_parser & args_parser, lp_solver<T, X> * solver) {
     if (max_iterations > 0)
         solver->set_max_iterations_per_stage(max_iterations);
 
@@ -1120,7 +1127,7 @@ void solve_mps_double(std::string file_name, bool look_for_min, unsigned max_ite
     delete solver;
 }
 
-void solve_mps_rational(std::string file_name, bool look_for_min, unsigned max_iterations, unsigned time_limit, bool dual, argument_parser & /*args_parser*/) {
+void solve_mps_rational(std::string file_name, bool look_for_min, unsigned max_iterations, unsigned time_limit, bool dual, argument_parser & args_parser) {
     mps_reader<mpq, mpq> reader(file_name);
     reader.read();
     if (reader.is_ok()) {
@@ -1128,14 +1135,8 @@ void solve_mps_rational(std::string file_name, bool look_for_min, unsigned max_i
         if (look_for_min) {
             solver->flip_costs();
         }
+        setup_solver(max_iterations, time_limit, look_for_min, args_parser, solver);
         int begin = get_millisecond_count();
-        if (max_iterations > 0) {
-            solver->set_max_iterations_per_stage(max_iterations);
-        }
-
-        if (time_limit > 0) {
-            solver->set_time_limit(time_limit);
-        }
         solver->find_maximal_solution();
         std::cout << "Status: " << lp_status_to_string(solver->get_status()) << std::endl;
 
@@ -1756,7 +1757,7 @@ void test_init_U() {
 }
 
 void test_replace_column() {
-    sparse_matrix<float, float> m(10);
+    sparse_matrix<double, double> m(10);
     fill_matrix(m);
     m.swap_columns(0, 7);
     m.swap_columns(6, 3);
@@ -1765,7 +1766,7 @@ void test_replace_column() {
         m(i, 0) = 0;
     }
 
-    indexed_vector<float> w(m.dimension());
+    indexed_vector<double> w(m.dimension());
     for (unsigned i = 0; i < m.dimension(); i++) {
         w.set_value(i % 3, i);
     }
@@ -1783,6 +1784,7 @@ void test_replace_column() {
 
 void setup_args_parser(argument_parser & parser) {
     parser.add_option_with_after_string_with_help("--density", "the percentage of non-zeroes in the matrix below which it is not dense");
+    parser.add_option_with_after_string_with_help("--ddd", "the debug var");
     parser.add_option_with_after_string_with_help("--harris_toler", "harris tolerance");
     parser.add_option_with_help_string("--test_swaps", "test row swaps with a permutation");
     parser.add_option_with_after_string_with_help("--checklu", "the file name for lu checking");
@@ -1862,8 +1864,8 @@ struct mem_cpy_place_holder {
 };
 
 int finalize(unsigned ret) {
-    finalize_util_module();
-    finalize_numerics_module();
+    lean::finalize_util_module();
+    lean::finalize_numerics_module();
     return ret;
 }
 
@@ -2450,8 +2452,8 @@ void test_square_dense_submatrix() {
 }
 
 int main(int argn, char * const * argv) {
-    initialize_util_module();
-    initialize_numerics_module();
+    lean::initialize_util_module();
+    lean::initialize_numerics_module();
     int ret;
     argument_parser args_parser(argn, argv);
     setup_args_parser(args_parser);
@@ -2560,5 +2562,5 @@ int main(int argn, char * const * argv) {
 #endif
     tst1();
     std::cout<< "done with LP tests\n";
-    return finalize(has_violations() ? 1 : 0);
+    return finalize(lean::has_violations() ? 1 : 0);
 }

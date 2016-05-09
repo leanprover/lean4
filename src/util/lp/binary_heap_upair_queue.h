@@ -13,7 +13,7 @@
 #include <set>
 #include <utility>
 #include "util/lp/binary_heap_priority_queue.h"
-#include "util/lp/hash_helper.h"
+
 
 typedef std::pair<unsigned, unsigned> upair;
 

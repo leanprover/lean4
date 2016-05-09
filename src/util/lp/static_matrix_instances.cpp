@@ -7,6 +7,7 @@
 #include <vector>
 #include <memory>
 #include <set>
+#include <utility>
 #include "util/lp/static_matrix.cpp"
 #include "util/lp/lp_core_solver_base.h"
 #include "util/lp/lp_dual_core_solver.h"
@@ -29,7 +30,7 @@ template void static_matrix<double, double>::copy_column_to_vector(unsigned int,
 template void static_matrix<double, double>::divide_row_by_constant(unsigned int, double const&);
 template double static_matrix<double, double>::dot_product_with_column(std::vector<double, std::allocator<double> > const&, unsigned int) const;
 template double static_matrix<double, double>::get_balance() const;
-template std::set<pair<unsigned, unsigned>> static_matrix<double, double>::get_domain();
+    template std::set<std::pair<unsigned, unsigned>> static_matrix<double, double>::get_domain();
 template double static_matrix<double, double>::get_elem(unsigned int, unsigned int) const;
 template double static_matrix<double, double>::get_max_abs_in_column(unsigned int) const;
 template double static_matrix<double, double>::get_min_abs_in_column(unsigned int) const;

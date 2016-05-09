@@ -10,14 +10,6 @@
 #include <set>
 #include <unordered_map>
 #include <utility>
-#include "util/numerics/numeric_traits.h"
-#include "util/numerics/xnumeral.h"
-#include "util/numerics/mpq.h"
-#include "util/numerics/mpz.h"
-#include "util/numerics/mpbq.h"
-#include "util/numerics/double.h"
-#include "util/numerics/float.h"
-#include "util/numerics/mpfp.h"
 #include "util/lp/sparse_vector.h"
 #include "util/lp/indexed_vector.h"
 #include "util/lp/permutation_matrix.h"
@@ -53,7 +45,7 @@ class static_matrix
 #endif
 {
 #ifdef LEAN_DEBUG
-    std::set<pair<unsigned, unsigned>> m_domain;
+    std::set<std::pair<unsigned, unsigned>> m_domain;
 #endif
 public:
     typedef std::vector<row_cell<T>> row_strip;
@@ -103,9 +95,9 @@ public:
 
     void init_empty_matrix(unsigned m, unsigned n);
 
-    unsigned row_count() const { return m_rows.size(); }
+    unsigned row_count() const { return static_cast<unsigned>(m_rows.size()); }
 
-    unsigned column_count() const { return m_columns.size(); }
+    unsigned column_count() const { return static_cast<unsigned>(m_columns.size()); }
     template <typename L>
     L dot_product_with_row(unsigned row, const std::vector<L> & w);;
 
@@ -144,7 +136,7 @@ public:
 
     ref operator()(unsigned row, unsigned col) { return ref(*this, row, col); }
 
-    std::set<pair<unsigned, unsigned>>  get_domain();
+    std::set<std::pair<unsigned, unsigned>>  get_domain();
 
     void copy_column_to_vector (unsigned j, indexed_vector<T> & v) const;
 

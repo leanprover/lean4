@@ -10,8 +10,6 @@
 #include <unordered_map>
 #include <algorithm>
 #include <vector>
-#include "util/exception.h"
-#include "util/sstream.h"
 #include "util/lp/lp_settings.h"
 #include "util/lp/column_info.h"
 #include "util/lp/static_matrix.h"
@@ -173,7 +171,7 @@ protected:
 
     bool row_e_is_obsolete(std::unordered_map<unsigned, T> & row, unsigned row_index);
 
-    int row_ge_is_obsolete(std::unordered_map<unsigned, T> & row, unsigned row_index);
+    bool row_ge_is_obsolete(std::unordered_map<unsigned, T> & row, unsigned row_index);
 
     bool row_le_is_obsolete(std::unordered_map<unsigned, T> & row, unsigned row_index);
 
@@ -199,7 +197,7 @@ protected:
 
     void fill_column_names_for_core_solver();
 
-    unsigned number_of_core_structurals() { return m_external_columns_to_core_solver_columns.size(); }
+    unsigned number_of_core_structurals() { return static_cast<unsigned>(m_external_columns_to_core_solver_columns.size()); }
 
 
     void restore_column_scales_to_one() {

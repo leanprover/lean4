@@ -16,29 +16,20 @@
 #include "util/lp/lar_solver.h"
 #include <iostream>
 #include <fstream>
-#include <util/numerics/mpq.h>
 #include <functional>
 #include <algorithm>
 #include "tests/util/lp/mps_reader.h"
+#include "util/lp/canonic_left_side.h"
 #include "util/lp/lar_constraints.h"
 #include <sstream>
 #include <cstdlib>
 namespace lean {
-    using namespace std;
-
-    template<typename T>
-    T from_string(const std::string& str) {
-        std::istringstream ss(str);
-        T ret;
-        ss >> ret;
-        return ret;
-    }
 
     class smt_reader {
     public:
         struct lisp_elem {
             string m_head;
-            vector<lisp_elem> m_elems;
+            std::vector<lisp_elem> m_elems;
             void print() {
                 if (m_elems.size()) {
                     cout << '(';
@@ -51,12 +42,12 @@ namespace lean {
                     cout << " " << m_head;
                 }
             }
-            unsigned size() const { return m_elems.size(); }
+            unsigned size() const { return static_cast<unsigned>(m_elems.size()); }
             bool is_simple() const { return size() == 0; }
         };
         struct formula_constraint {
             lconstraint_kind m_kind;
-            vector<pair<mpq, string>> m_coeffs;
+            std::vector<pair<mpq, string>> m_coeffs;
             mpq m_right_side = numeric_traits<mpq>::zero();
             void add_pair(mpq c, string name) {
                 m_coeffs.push_back(make_pair(c, name));
@@ -65,13 +56,12 @@ namespace lean {
 
         lisp_elem m_formula_lisp_elem;
 
-        vector<formula_constraint> m_constraints;
+        std::vector<formula_constraint> m_constraints;
         string m_file_name;
         ifstream m_file_stream;
         string m_line;
         bool m_is_OK = true;
         unsigned m_line_number = 0;
-
         smt_reader(string file_name):
             m_file_name(file_name), m_file_stream(file_name) {
         }
@@ -90,9 +80,9 @@ namespace lean {
         }
 
         int first_separator() {
-            unsigned blank_pos = m_line.find(' ');
-            unsigned br_pos = m_line.find('(');
-            unsigned reverse_br_pos = m_line.find(')');
+            unsigned blank_pos = static_cast<unsigned>(m_line.find(' '));
+            unsigned br_pos = static_cast<unsigned>(m_line.find('('));
+            unsigned reverse_br_pos = static_cast<unsigned>(m_line.find(')'));
             return min(blank_pos, min(br_pos, reverse_br_pos));
         }
 
@@ -150,7 +140,7 @@ namespace lean {
 
         void parse_line() {
             if (m_line.find(":formula") == 0) {
-                int first_br = m_line.find('(');
+                int first_br = static_cast<int>(m_line.find('('));
                 if (first_br == -1) {
                     cout << "empty formula" << endl;
                     return;
@@ -214,7 +204,7 @@ namespace lean {
         }
 
 
-        void add_mult_elem(formula_constraint & c, vector<lisp_elem> & els) {
+        void add_mult_elem(formula_constraint & c, std::vector<lisp_elem> & els) {
             lean_assert(els.size() == 2);
             mpq coeff = get_coeff(els[0]);
             string col_name = get_name(els[1]);
@@ -249,7 +239,7 @@ namespace lean {
             }
         }
 
-        void add_sum(formula_constraint & c, vector<lisp_elem> & sum_els) {
+        void add_sum(formula_constraint & c, std::vector<lisp_elem> & sum_els) {
             for (auto & el : sum_els)
                 add_sum_elem(c, el);
         }

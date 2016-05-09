@@ -7,7 +7,6 @@
 
 #pragma once
 #include <vector>
-#include "util/numerics/float.h"
 #include "util/lp/permutation_matrix.h"
 #include <unordered_map>
 #include "util/lp/static_matrix.h"
@@ -140,7 +139,7 @@ public:
 
 
 
-    unsigned dimension() const {return m_row_permutation.size();}
+    unsigned dimension() const {return static_cast<unsigned>(m_row_permutation.size());}
 
 #ifdef LEAN_DEBUG
     unsigned row_count() const {return dimension();}
@@ -316,7 +315,7 @@ public:
 
     void recover_pivot_queue(std::vector<upair> & rejected_pivots);
 
-    int elem_is_too_small(unsigned i, unsigned j, const T & c_partial_pivoting);
+    int elem_is_too_small(unsigned i, unsigned j, int c_partial_pivoting);
 
     bool remove_row_from_active_pivots_and_shorten_columns(unsigned row);
 
@@ -336,12 +335,12 @@ public:
 
     bool pivot_queue_is_correct_after_pivoting(int k);
 
-    bool get_pivot_for_column(unsigned &i, unsigned &j, T const & c_partial_pivoting, unsigned k);
+    bool get_pivot_for_column(unsigned &i, unsigned &j, int c_partial_pivoting, unsigned k);
 
-    bool elem_is_too_small(std::vector<indexed_value<T>> & row_chunk, indexed_value<T> & iv, T const & c_partial_pivoting);
+    bool elem_is_too_small(std::vector<indexed_value<T>> & row_chunk, indexed_value<T> & iv, int c_partial_pivoting);
 
     unsigned number_of_non_zeroes_in_row(unsigned row) const {
-        return m_rows[row].size();
+        return static_cast<unsigned>(m_rows[row].size());
     }
 
     unsigned number_of_non_zeroes_in_column(unsigned col) const {

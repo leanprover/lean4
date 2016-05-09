@@ -131,7 +131,7 @@ void row_eta_matrix<T, X>::conjugate_by_permutation(permutation_matrix<T, X> & p
     std::vector<unsigned> columns;
     for (auto & it : m_row_vector.m_data)
         columns.push_back(it.first);
-    for (unsigned i = columns.size(); i-- > 0;)
+    for (unsigned i = static_cast<unsigned>(columns.size()); i-- > 0;)
         m_row_vector.m_data[i].first = p.get_rev(columns[i]);
 #ifdef LEAN_DEBUG
     // lean_assert(deb == *this);

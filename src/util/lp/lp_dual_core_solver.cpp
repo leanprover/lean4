@@ -55,7 +55,7 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::fill_non_basis
     while (j--) {
         if (this->m_basis_heading[j] >= 0 || !m_can_enter_basis[j]) continue;
         nb.push_back(j);
-        this->m_basis_heading[j] = - nb.size();
+        this->m_basis_heading[j] = - static_cast<int>(nb.size());
     }
 }
 
@@ -68,7 +68,7 @@ template <typename T, typename X> void lp_dual_core_solver<T, X>::restore_non_ba
         if (m_can_enter_basis[j]) {
             lean_assert(std::find(nb.begin(), nb.end(), j) == nb.end());
             nb.push_back(j);
-            this->m_basis_heading[j] = - nb.size();
+            this->m_basis_heading[j] = - static_cast<int>(nb.size());
         }
     }
 }
@@ -183,6 +183,8 @@ template <typename T, typename X> T lp_dual_core_solver<T, X>::pricing_for_row(u
     default:
         lean_unreachable();
     }
+    lean_unreachable();
+    return numeric_traits<T>::zero();
 }
 
 template <typename T, typename X> void lp_dual_core_solver<T, X>::pricing_loop(unsigned number_of_rows_to_try, unsigned offset_in_rows) {
@@ -283,6 +285,8 @@ template <typename T, typename X> int lp_dual_core_solver<T, X>::define_sign_of_
     default:
         lean_unreachable();
     }
+    lean_unreachable();
+    return 0;
 }
 
 template <typename T, typename X> bool lp_dual_core_solver<T, X>::can_be_breakpoint(unsigned j) {
@@ -329,7 +333,7 @@ template <typename T, typename X> T lp_dual_core_solver<T, X>::get_delta() {
             return this->m_x[m_p] - this->m_low_bound_values[m_p];
         }
         if (this->x_above_upper_bound(m_p)) {
-            return this->m_x[m_p] - this->m_upper_bound_values[m_p];;
+            return this->m_x[m_p] - this->m_upper_bound_values[m_p];
         }
         lean_unreachable();
     case low_bound:
@@ -343,10 +347,12 @@ template <typename T, typename X> T lp_dual_core_solver<T, X>::get_delta() {
         }
         lean_unreachable();
     case fixed:
-        return this->m_x[m_p] - this->m_upper_bound_values[m_p];;
+        return this->m_x[m_p] - this->m_upper_bound_values[m_p];
     default:
         lean_unreachable();
     }
+    lean_unreachable();
+    return zero_of_type<T>();
 }
 
 template <typename T, typename X> void lp_dual_core_solver<T, X>::restore_d() {

@@ -169,7 +169,7 @@ template <typename T> void binary_heap_priority_queue<T>::put_the_last_at_the_to
 }
 /// return the first element of the queue and removes it from the queue
 template <typename T> unsigned binary_heap_priority_queue<T>::dequeue() {
-    lean_assert(m_heap_size);
+    lean_assert(m_heap_size > 0);
     int ret = m_heap[1];
     put_the_last_at_the_top_and_fix_the_heap();
     m_heap_inverse[ret] = -1;

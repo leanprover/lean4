@@ -7,7 +7,6 @@
 #include <cmath>
 #include <string>
 #include <vector>
-#include "util/numerics/double.h"
 #include "util/lp/lp_settings.h"
 namespace lean {
 std::string column_type_to_string(column_type t) {
@@ -25,6 +24,7 @@ std::string column_type_to_string(column_type t) {
     default:
         lean_unreachable();
     }
+    return "unknown"; // it is unreachable
 }
 
 const char* lp_status_to_string(lp_status status) {
@@ -44,6 +44,7 @@ const char* lp_status_to_string(lp_status status) {
     default:
         lean_unreachable();
     }
+    return "UNKNOWN";  // it is unreachable
 }
 
 lp_status lp_status_from_string(std::string status) {
@@ -57,6 +58,7 @@ lp_status lp_status_from_string(std::string status) {
     if (status == "ITERATIONS_EXHAUSTED") return lp_status::ITERATIONS_EXHAUSTED;
     if (status == "EMPTY") return lp_status::EMPTY;
     lean_unreachable();
+    return lp_status::UNKNOWN; // it is unreachable
 }
 int get_millisecond_count() {
     timeb tb;
@@ -71,14 +73,14 @@ int get_millisecond_span(int start_time) {
     return span;
 }
 void my_random_init(unsigned * seed) {
-#ifdef LEAN_WINDOWS
+#if defined(LEAN_WINDOWS) || defined(WIN32)
     srand(*seed);
 #else
     rand_r(seed);
 #endif
 }
 unsigned my_random() {
-#ifdef LEAN_WINDOWS
+#if defined(LEAN_WINDOWS) || defined(WIN32)
     return rand(); // NOLINT
 #else
     return lrand48();
@@ -129,7 +131,7 @@ bool vectors_are_equal(const std::vector<T> & a, const buffer<T>  &b) {
 
 template <typename T>
 bool vectors_are_equal(const std::vector<T> & a, const std::vector<T>  &b) {
-    unsigned n = a.size();
+    unsigned n = static_cast<unsigned>(a.size());
     if (n != b.size()) return false;
     if (numeric_traits<T>::precise()) {
         for (unsigned i = 0; i < n; i ++){

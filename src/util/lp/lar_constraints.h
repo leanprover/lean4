@@ -8,13 +8,10 @@
 #pragma once
 #include <vector>
 #include <utility>
-#include "util/debug.h"
-#include "util/buffer.h"
-#include "util/numerics/numeric_traits.h"
-#include "util/numerics/xnumeral.h"
 #include <unordered_map>
 #include <string>
 #include <algorithm>
+#include "util/lp/lp_utils.h"
 #include "util/lp/canonic_left_side.h"
 namespace lean {
 inline lconstraint_kind flip_kind(lconstraint_kind t) {
@@ -30,6 +27,7 @@ inline std::string lconstraint_kind_string(lconstraint_kind t) {
     case EQ: return std::string("=");
     }
     lean_unreachable();
+    return std::string(); // it is unreachable
 }
 
 class lar_base_constraint {
@@ -54,7 +52,7 @@ public:
     lar_constraint(const lar_base_constraint & c);
 
     unsigned size() const {
-        return m_left_side.size();
+        return static_cast<unsigned>(m_left_side.size());
     }
 
     buffer<std::pair<mpq, var_index>> get_left_side_coefficients() const;

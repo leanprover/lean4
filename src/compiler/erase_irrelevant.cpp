@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "compiler/util.h"
 #include "compiler/comp_irrelevant.h"
+#include "compiler/rec_fn_macro.h"
 #include "compiler/compiler_step_visitor.h"
 
 namespace lean {
@@ -33,6 +34,8 @@ class erase_irrelevant_fn : public compiler_step_visitor {
             return *g_neutral_expr;
         else if (is_comp_irrelevant(ctx(), e))
             return *g_neutral_expr;
+        else if (is_rec_fn_macro(e))
+            return mk_constant(get_rec_fn_name(e));
         else
             return compiler_step_visitor::visit_macro(e);
     }

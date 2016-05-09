@@ -13,11 +13,11 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/trace.h"
 #include "library/normalize.h"
-#include "compiler/fresh_constant.h"
-#include "compiler/util.h"
-#include "compiler/comp_irrelevant.h"
-#include "compiler/compiler_step_visitor.h"
-#include "compiler/rec_fn_macro.h"
+#include "library/compiler/fresh_constant.h"
+#include "library/compiler/util.h"
+#include "library/compiler/comp_irrelevant.h"
+#include "library/compiler/compiler_step_visitor.h"
+#include "library/compiler/rec_fn_macro.h"
 
 namespace lean {
 class elim_recursors_fn : public compiler_step_visitor {

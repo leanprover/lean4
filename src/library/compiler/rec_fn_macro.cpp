@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/sstream.h"
 #include "library/kernel_serializer.h"
-#include "compiler/rec_fn_macro.h"
+#include "library/compiler/rec_fn_macro.h"
 
 namespace lean {
 static name * g_rec_fn_macro_id = nullptr;

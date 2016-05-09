@@ -8,9 +8,9 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
-#include "compiler/compiler_step_visitor.h"
-#include "compiler/comp_irrelevant.h"
-#include "compiler/eta_expansion.h"
+#include "library/compiler/compiler_step_visitor.h"
+#include "library/compiler/comp_irrelevant.h"
+#include "library/compiler/eta_expansion.h"
 
 namespace lean {
 class eta_expand_fn : public compiler_step_visitor {

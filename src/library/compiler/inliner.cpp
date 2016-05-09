@@ -9,8 +9,8 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/trace.h"
 #include "library/normalize.h"
-#include "compiler/util.h"
-#include "compiler/compiler_step_visitor.h"
+#include "library/compiler/util.h"
+#include "library/compiler/compiler_step_visitor.h"
 
 namespace lean {
 struct inline_ext : public environment_extension {

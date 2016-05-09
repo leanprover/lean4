@@ -4,12 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "compiler/preprocess_rec.h"
-#include "compiler/fresh_constant.h"
-#include "compiler/comp_irrelevant.h"
-#include "compiler/inliner.h"
-#include "compiler/rec_fn_macro.h"
-#include "compiler/erase_irrelevant.h"
+#include "library/compiler/preprocess_rec.h"
+#include "library/compiler/fresh_constant.h"
+#include "library/compiler/comp_irrelevant.h"
+#include "library/compiler/inliner.h"
+#include "library/compiler/rec_fn_macro.h"
+#include "library/compiler/erase_irrelevant.h"
 
 namespace lean {
 void initialize_compiler_module() {

@@ -11,10 +11,10 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/normalize.h"
 #include "library/aux_recursors.h"
-#include "compiler/util.h"
-#include "compiler/comp_irrelevant.h"
-#include "compiler/rec_fn_macro.h"
-#include "compiler/compiler_step_visitor.h"
+#include "library/compiler/util.h"
+#include "library/compiler/comp_irrelevant.h"
+#include "library/compiler/rec_fn_macro.h"
+#include "library/compiler/compiler_step_visitor.h"
 
 namespace lean {
 static expr * g_neutral_expr     = nullptr;

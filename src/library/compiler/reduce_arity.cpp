@@ -9,8 +9,8 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/for_each_fn.h"
 #include "library/trace.h"
-#include "compiler/rec_fn_macro.h"
-#include "compiler/compiler_step_visitor.h"
+#include "library/compiler/rec_fn_macro.h"
+#include "library/compiler/compiler_step_visitor.h"
 
 namespace lean {
 static expr reduce_arity_of(expr const & e, unsigned i, std::vector<bool> const & keep_bv) {

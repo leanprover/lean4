@@ -31,7 +31,7 @@ Author: Leonardo de Moura
 #include "library/abstract_expr_manager.h"
 #include "library/defeq_simp_lemmas.h"
 #include "library/defeq_simplifier.h"
-#include "compiler/preprocess_rec.h"
+#include "library/compiler/preprocess_rec.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/calc.h"

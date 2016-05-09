@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 // #include "library/tactic/init_module.h"
 #include "library/definitional/init_module.h"
 #include "library/print.h"
-#include "compiler/init_module.h"
+#include "library/compiler/init_module.h"
 #include "frontends/lean/init_module.h"
 #include "init/init.h"
 

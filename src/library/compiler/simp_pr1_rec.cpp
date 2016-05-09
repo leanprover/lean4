@@ -12,9 +12,9 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/util.h"
 #include "library/annotation.h"
-#include "compiler/util.h"
-#include "compiler/comp_irrelevant.h"
-#include "compiler/compiler_step_visitor.h"
+#include "library/compiler/util.h"
+#include "library/compiler/comp_irrelevant.h"
+#include "library/compiler/compiler_step_visitor.h"
 
 namespace lean {
 class simp_pr1_rec_fn : public compiler_step_visitor {

@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/annotation.h"
-#include "compiler/util.h"
-#include "compiler/compiler_step_visitor.h"
+#include "library/compiler/util.h"
+#include "library/compiler/compiler_step_visitor.h"
 
 namespace lean {
 static name * g_comp_irrel = nullptr;

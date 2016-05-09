@@ -24,7 +24,7 @@ Author: Leonardo de Moura
 #include "library/abbreviation.h"
 #include "library/definitional/equations.h"
 #include "library/error_handling.h"
-#include "compiler/inliner.h"
+#include "library/compiler/inliner.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"

@@ -53,6 +53,24 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         }
     }
 
+    expr erase_lambda_let_types(expr const & e) {
+        if (is_lambda(e)) {
+            return mk_lambda(binding_name(e), *g_neutral_expr, erase_lambda_let_types(binding_body(e)));
+        } else if (is_let(e)) {
+            return mk_let(let_name(e), *g_neutral_expr, let_value(e), erase_lambda_let_types(let_body(e)));
+        } else {
+            return e;
+        }
+    }
+
+    virtual expr visit_lambda(expr const & e) override {
+        return erase_lambda_let_types(compiler_step_visitor::visit_lambda(e));
+    }
+
+    virtual expr visit_let(expr const & e) override {
+        return erase_lambda_let_types(compiler_step_visitor::visit_let(e));
+    }
+
     /* Process minor premises and args, and distribute args over minors.
        The size of cnames is nminors, and it contains the names of the constructors. */
     void visit_minors(unsigned nparams, unsigned nminors, expr * minors, name const * cnames,
@@ -75,7 +93,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
                 }
                 new_minor = visit(new_minor);
                 new_minor = beta_reduce(mk_app(new_minor, nargs, args));
-                minors[i] = locals.mk_lambda(new_minor);
+                minors[i] = erase_lambda_let_types(locals.mk_lambda(new_minor));
             }
         } else {
             for (unsigned i = 0; i < nminors; i++)
@@ -172,7 +190,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         type_context::tmp_locals locals(ctx());
         major = consume_lambdas(locals, major);
         major = visit(major);
-        major = locals.mk_lambda(major);
+        major = erase_lambda_let_types(locals.mk_lambda(major));
         expr r = major;
 
         unsigned c_data_sz = get_constructor_arity(env(), *lhs_constructor) - nparams;

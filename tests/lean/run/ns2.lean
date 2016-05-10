@@ -27,3 +27,8 @@ namespace vvv
 end vvv
 end bla
 check bla.vvv.my.empty
+
+namespace foo.bla
+  structure vvv.xyz := mk
+end foo.bla
+check foo.bla.vvv.xyz.mk

@@ -85,7 +85,7 @@ static expr parse_let(parser & p, pos_info const & pos) {
         return parse_let_body(p, pos);
     } else {
         auto id_pos     = p.pos();
-        name id         = p.check_atomic_id_next("invalid let declaration, identifier expected");
+        name id         = p.check_atomic_id_next("invalid let declaration, atomic identifier expected");
         optional<expr> type;
         expr value;
         if (p.curr_is_token(get_assign_tk())) {

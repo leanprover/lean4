@@ -23,8 +23,6 @@ namespace tst
   end foo
 end tst
 print raw Type.{tst.foo.U}
-namespace tst.foo    -- Error: we cannot use qualified names in declarations
-universe full.name.U -- Error: we cannot use qualified names in declarations
 namespace tst
   namespace foo
     print raw Type.{v}  -- Remark: alias 'v' for 'tst.v' is available again

@@ -9,8 +9,7 @@ t3.lean:16:2: error: invalid namespace declaration, a namespace cannot be declar
 Type
 Type
 Type
-t3.lean:26:10: error: invalid namespace declaration, atomic identifier expected
 Type
 Type
-t3.lean:35:2: error: universe level alias 'u' shadows existing global universe level
-t3.lean:37:16: error: unknown universe 'bla.u'
+t3.lean:33:2: error: universe level alias 'u' shadows existing global universe level
+t3.lean:35:16: error: unknown universe 'bla.u'

@@ -129,7 +129,7 @@ struct structure_cmd_fn {
     /** \brief Parse structure name and (optional) universe parameters */
     void parse_decl_name() {
         m_name_pos = m_p.pos();
-        m_name = m_p.check_atomic_decl_id_next("invalid 'structure', identifier expected");
+        m_name = m_p.check_decl_id_next("invalid 'structure', identifier expected");
         m_name = m_namespace + m_name;
         buffer<name> ls_buffer;
         if (parse_univ_params(m_p, ls_buffer)) {
@@ -941,7 +941,7 @@ struct structure_cmd_fn {
                 m_mk_short = LEAN_DEFAULT_STRUCTURE_INTRO;
                 m_mk_infer = implicit_infer_kind::Implicit;
             } else {
-                m_mk_short = m_p.check_atomic_id_next("invalid 'structure', identifier expected");
+                m_mk_short = m_p.check_atomic_id_next("invalid 'structure', atomic identifier expected");
                 m_mk_infer = parse_implicit_infer_modifier(m_p);
                 if (!m_p.curr_is_command_like())
                     m_p.check_token_next(get_dcolon_tk(), "invalid 'structure', '::' expected");

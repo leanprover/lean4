@@ -14,7 +14,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   abstract_expr_manager.cpp light_lt_manager.cpp trace.cpp
   attribute_manager.cpp error_handling.cpp unification_hint.cpp defeq_simp_lemmas.cpp
   defeq_simplifier.cpp proof_irrel_expr_manager.cpp
-  local_context.cpp metavar_context.cpp type_context.cpp
+  local_context.cpp metavar_context.cpp type_context.cpp vm.cpp
   # Legacy -- The following files will be eventually deleted
   normalize.cpp justification.cpp constraint.cpp metavar.cpp choice.cpp locals.cpp
   unifier.cpp match.cpp class_instance_resolution.cpp old_type_context.cpp

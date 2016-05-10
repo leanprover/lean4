@@ -13,13 +13,13 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/memory_pool.h"
 
-#ifndef LEAN_FUN_ARRAY_MAX_READ_TRAIL_SZ
-#define LEAN_FUN_ARRAY_MAX_READ_TRAIL_SZ 128
+#ifndef LEAN_PARRAY_MAX_READ_TRAIL_SZ
+#define LEAN_PARRAY_MAX_READ_TRAIL_SZ 128
 #endif
 
 namespace lean {
-template<typename T>
-class fun_array {
+/** \brief Persistent arrays */
+template<typename T> class parray {
     enum cell_kind { SET, PUSH_BACK, POP_BACK, ROOT };
     struct cell {
         MK_LEAN_RC();
@@ -28,7 +28,7 @@ class fun_array {
         void dealloc();
     };
 
-    typedef fun_array ref;
+    typedef parray ref;
 
     struct root_cell : public cell {
         std::vector<T> m_data;
@@ -149,20 +149,20 @@ class fun_array {
     }
 
 public:
-    fun_array():m_ptr(nullptr) {}
-    fun_array(cell * ptr):m_ptr(ptr) { if (m_ptr) ptr->inc_ref(); }
-    fun_array(fun_array const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
-    fun_array(fun_array && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
-    ~fun_array() { if (m_ptr) m_ptr->dec_ref(); }
-    fun_array & operator=(fun_array const & n) { LEAN_COPY_REF(n); }
-    fun_array & operator=(fun_array&& n) { LEAN_MOVE_REF(n); }
+    parray():m_ptr(nullptr) {}
+    parray(cell * ptr):m_ptr(ptr) { if (m_ptr) ptr->inc_ref(); }
+    parray(parray const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
+    parray(parray && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
+    ~parray() { if (m_ptr) m_ptr->dec_ref(); }
+    parray & operator=(parray const & n) { LEAN_COPY_REF(n); }
+    parray & operator=(parray&& n) { LEAN_MOVE_REF(n); }
     operator bool() const { return m_ptr != nullptr; }
     bool is_shared() const { return m_ptr && m_ptr->get_rc() > 1; }
     cell_kind kind() const { return m_ptr->m_kind; }
     cell * operator->() const { lean_assert(m_ptr); return m_ptr; }
-    friend bool is_eqp(fun_array const & n1, fun_array const & n2) { return n1.m_ptr == n2.m_ptr; }
-    friend void swap(fun_array & n1, fun_array & n2) { std::swap(n1.m_ptr, n2.m_ptr); }
-    fun_array steal() { fun_array r; swap(r, *this); return r; }
+    friend bool is_eqp(parray const & n1, parray const & n2) { return n1.m_ptr == n2.m_ptr; }
+    friend void swap(parray & n1, parray & n2) { std::swap(n1.m_ptr, n2.m_ptr); }
+    parray steal() { parray r; swap(r, *this); return r; }
 
     unsigned size() const {
         if (m_ptr == nullptr)
@@ -177,12 +177,12 @@ public:
 
     void push_back(T const & t) {
         if (!m_ptr) {
-            *this = fun_array(new root_cell());
+            *this = parray(new root_cell());
             to_root(m_ptr)->m_data.push_back(t);
         } else if (m_ptr->get_rc() == 1 && kind() == ROOT) {
             to_root(m_ptr)->m_data.push_back(t);
         } else {
-            *this = fun_array(new push_back_cell(t, *this));
+            *this = parray(new push_back_cell(t, *this));
         }
     }
 
@@ -191,7 +191,7 @@ public:
         if (m_ptr->get_rc() == 1 && kind() == ROOT) {
             to_root(m_ptr)->m_data[idx] = t;
         } else {
-            *this = fun_array(new set_cell(idx, t, *this));
+            *this = parray(new set_cell(idx, t, *this));
         }
     }
 
@@ -200,7 +200,7 @@ public:
         if (m_ptr->get_rc() == 1 && kind() == ROOT) {
             to_root(m_ptr)->m_data.pop_back();
         } else {
-            *this = fun_array(new pop_back_cell(*this));
+            *this = parray(new pop_back_cell(*this));
         }
     }
 
@@ -213,7 +213,7 @@ public:
         ref r;
         while (true) {
             if (c == nullptr) {
-                r = fun_array(new root_cell());
+                r = parray(new root_cell());
                 break;
             }
             if (c->get_rc() > 1)
@@ -223,7 +223,7 @@ public:
                     lean_assert(!cells.empty());
                     r = to_step(cells.back())->m_next.steal();
                 } else {
-                    r = fun_array(new root_cell(to_root(c)->m_data));
+                    r = parray(new root_cell(to_root(c)->m_data));
                 }
                 break;
             } else {
@@ -255,21 +255,21 @@ public:
 
     std::vector<T> const & as_vector() {
         if (!m_ptr) {
-            *this = fun_array(new root_cell());
+            *this = parray(new root_cell());
         } else {
             compress();
         }
         return to_root(m_ptr)->m_data;
     }
 
-    T const & read(unsigned idx, unsigned max_trail_sz = LEAN_FUN_ARRAY_MAX_READ_TRAIL_SZ) const {
+    T const & read(unsigned idx, unsigned max_trail_sz = LEAN_PARRAY_MAX_READ_TRAIL_SZ) const {
         lean_assert(idx < size());
         cell * c = m_ptr;
         unsigned counter = 0;
         while (true) {
             counter++;
             if (counter > max_trail_sz) {
-                const_cast<fun_array*>(this)->compress();
+                const_cast<parray*>(this)->compress();
                 return to_root(m_ptr)->m_data[idx];
             }
             lean_assert(c);
@@ -303,7 +303,7 @@ public:
     }
 
     void display_internal(std::ostream & out) const {
-        out << "FUN_ARRAY\n";
+        out << "PARRAY\n";
         cell * c = m_ptr;
         while (c != nullptr) {
             switch (c->m_kind) {
@@ -346,7 +346,7 @@ public:
 };
 
 template<typename T>
-void fun_array<T>::cell::dealloc() {
+void parray<T>::cell::dealloc() {
     cell * it = this;
     while (it != nullptr) {
         switch (it->m_kind) {

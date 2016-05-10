@@ -6,14 +6,14 @@ Author: Leonardo de Moura
 */
 #include <random>
 #include "util/test.h"
-#include "util/fun_array.h"
+#include "util/parray.h"
 using namespace lean;
 
 static void tst1() {
-    fun_array<unsigned> a;
+    parray<unsigned> a;
     lean_assert(a.size() == 0);
     a.push_back(10);
-    fun_array<unsigned> a1 = a;
+    parray<unsigned> a1 = a;
     a.push_back(20);
     a.push_back(30);
     lean_assert(a[0] == 10);
@@ -36,12 +36,12 @@ static void driver(unsigned max_sz, unsigned max_val, unsigned num_it,
                    double set_freq,
                    double copy_freq,
                    double compress_freq) {
-    fun_array<unsigned> v1;
+    parray<unsigned> v1;
     std::vector<unsigned> v2;
     std::mt19937   rng;
     rng.seed(static_cast<unsigned int>(time(0)));
     std::uniform_int_distribution<unsigned int> uint_dist;
-    std::vector<fun_array<unsigned>> copies;
+    std::vector<parray<unsigned>> copies;
     size_t acc_sz = 0;
     size_t compressed_counter = 0;
     for (unsigned i = 0; i < num_it; i++) {
@@ -103,9 +103,9 @@ static void tst2() {
 }
 
 static void tst3(unsigned n) {
-    fun_array<unsigned> v1;
+    parray<unsigned> v1;
     v1.push_back(0);
-    fun_array<unsigned> v2 = v1;
+    parray<unsigned> v2 = v1;
     for (unsigned i = 0; i < n; i++)
         v1.push_back(i);
     unsigned r = 0;

@@ -290,6 +290,7 @@ public:
     unsigned get_code_size() const { lean_assert(!is_builtin()); return m_ptr->m_code_size; }
     vm_instr const * get_code() const { lean_assert(!is_builtin()); return m_ptr->m_code; }
     vm_function get_fn() const { lean_assert(is_builtin()); return m_ptr->m_fn; }
+    expr const & get_expr() const { lean_assert(!is_builtin()); return m_ptr->m_expr; }
 };
 
 /** \brief Virtual machine for executing VM bytecode. */
@@ -325,15 +326,27 @@ public:
     void invoke_global(unsigned fn_idx);
 };
 
+/** \brief Make sure VM builtin declarations have been initialized. */
+environment initialize_vm_builtin_decls(environment const & env);
+
 /** \brief Add builtin implementation for the function named \c n. */
 void declare_vm_builtin(name const & n, unsigned arity, vm_function fn);
 
-/** \brief Add bytcode for the function named \c fn in \c env.
-
-    \remark The expression \c e is the value of \c fn after preprocessing.
-    That is, we have applied lambda lifting, erase irrelevant terms, etc.
+/** \brief Reserve an index for the given function in the VM, the expression
+    \c e is the value of \c fn after preprocessing.
     See library/compiler/pre_proprocess_rec.cpp for details. */
+pair<environment, unsigned> reserve_vm_index(environment const & env, name const & fn, expr const & e);
+
+/** \brief Add bytcode for the function named \c fn in \c env.
+    \remark The index for \c fn must have been reserved using reserve_vm_index. */
+environment update_vm_code(environment const & env, name const & fn, unsigned code_sz, vm_instr const * code);
+
+/** \brief Combines reserve_vm_index and update_vm_code */
 environment add_vm_code(environment const & env, name const & fn, expr const & e, unsigned code_sz, vm_instr const * code);
+
+/** \brief Return the internal idx for the given constant. Return none
+    if the constant is not builtin nor it has code associated with it. */
+optional<unsigned> get_vm_constant_idx(environment const & env, name const & n);
 
 /** \brief Make sure vm_decls structure is optimized. */
 environment optimize_vm_decls(environment const & env);

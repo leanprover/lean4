@@ -230,7 +230,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         expr minor_premise = Fun(intro_type_args, mk_var(intro_type_args.size() - i - 1));
         expr major_premise = c;
         level l            = sort_level(tc.ensure_sort(tc.infer(result_type)));
-        levels rec_lvls    = elim_to_prop ? lvls : append(to_list(l), lvls);
+        levels rec_lvls    = elim_to_prop ? lvls : levels(l, lvls);
         expr rec           = mk_constant(rec_name, rec_lvls);
         buffer<expr> rec_args;
         rec_args.append(params);

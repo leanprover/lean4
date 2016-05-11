@@ -341,6 +341,9 @@ environment optimize_vm_decls(environment const & env);
 /** \brief Return true iff \c fn is a VM function in the given environment. */
 bool is_vm_function(environment const & env, name const & fn);
 
+/** \brief Return true iff \c fn is implemented in C++. */
+bool is_vm_builtin_function(name const & fn);
+
 void initialize_vm();
 void finalize_vm();
 }

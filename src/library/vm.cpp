@@ -342,6 +342,10 @@ void declare_vm_builtin(name const & n, unsigned arity, vm_function fn) {
     g_vm_builtins->insert(n, mk_pair(arity, fn));
 }
 
+bool is_vm_builtin_function(name const & fn) {
+    return g_vm_builtins->contains(fn);
+}
+
 /** \brief VM function/constant declarations are stored in an environment extension. */
 struct vm_decls : public environment_extension {
     bool               m_initialized;

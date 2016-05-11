@@ -176,7 +176,7 @@ class simp_inductive_fn : public compiler_step_visitor {
 
     virtual expr visit_constant(expr const & e) override {
         name const & n = const_name(e);
-        if (inductive::is_intro_rule(env(), n)) {
+        if (inductive::is_intro_rule(env(), n) && !ignore(n)) {
             return mk_cnstr(get_constructor_idx(env(), n));
         } else {
             return e;

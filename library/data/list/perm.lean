@@ -300,7 +300,7 @@ by_cases
   (assume eql : length l₁ = length l₂,
     decidable_perm_aux (length l₂) l₁ l₂ eql rfl)
   (assume neql : length l₁ ≠ length l₂,
-    inr (λ p : l₁ ~ l₂, absurd (length_eq_length_of_perm p) neql))
+    ff (λ p : l₁ ~ l₂, absurd (length_eq_length_of_perm p) neql))
 end dec
 
 -- Auxiliary theorem for performing cases-analysis on l₂.

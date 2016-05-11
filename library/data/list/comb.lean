@@ -343,23 +343,23 @@ definition decidable_all (p : A → Prop) [H : decidable_pred p] : ∀ l, decida
 | []       := decidable_true
 | (a :: l) :=
   match H a with
-  | inl Hp₁ :=
+  | tt Hp₁ :=
     match decidable_all l with
-    | inl Hp₂ := inl (and.intro Hp₁ Hp₂)
-    | inr Hn₂ := inr (not_and_of_not_right (p a) Hn₂)
+    | tt Hp₂ := tt (and.intro Hp₁ Hp₂)
+    | ff Hn₂ := ff (not_and_of_not_right (p a) Hn₂)
     end
-  | inr Hn := inr (not_and_of_not_left (all l p) Hn)
+  | ff Hn := ff (not_and_of_not_left (all l p) Hn)
   end
 
 definition decidable_any (p : A → Prop) [H : decidable_pred p] : ∀ l, decidable (any l p)
 | []       := decidable_false
 | (a :: l) :=
   match H a with
-  | inl Hp := inl (or.inl Hp)
-  | inr Hn₁ :=
+  | tt Hp := tt (or.inl Hp)
+  | ff Hn₁ :=
     match decidable_any l with
-    | inl Hp₂ := inl (or.inr Hp₂)
-    | inr Hn₂ := inr (not_or Hn₁ Hn₂)
+    | tt Hp₂ := tt (or.inr Hp₂)
+    | ff Hn₂ := ff (not_or Hn₁ Hn₂)
     end
   end
 

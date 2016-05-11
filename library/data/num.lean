@@ -58,22 +58,22 @@ namespace pos_num
                     ... = bit0 n               : sorry -- by rewrite mul_one
 
   theorem decidable_eq [instance] : ∀ (a b : pos_num), decidable (a = b)
-  | one      one      := inl rfl
-  | one      (bit0 b) := sorry -- inr (by contradiction)
-  | one      (bit1 b) := sorry -- inr (by contradiction)
-  | (bit0 a) one      := sorry -- inr (by contradiction)
+  | one      one      := tt rfl
+  | one      (bit0 b) := ff sorry -- inr (by contradiction)
+  | one      (bit1 b) := ff sorry -- inr (by contradiction)
+  | (bit0 a) one      := ff sorry -- inr (by contradiction)
   | (bit0 a) (bit0 b) :=
     match decidable_eq a b with
-    | inl H₁  := sorry -- inl (by rewrite H₁)
-    | inr H₁  := sorry -- inr (by intro H; injection H; contradiction)
+    | tt H₁  := tt sorry -- inl (by rewrite H₁)
+    | ff H₁  := ff sorry -- inr (by intro H; injection H; contradiction)
     end
-  | (bit0 a) (bit1 b) := sorry -- inr (by contradiction)
-  | (bit1 a) one      := sorry -- inr (by contradiction)
-  | (bit1 a) (bit0 b) := sorry -- inr (by contradiction)
+  | (bit0 a) (bit1 b) := ff sorry -- inr (by contradiction)
+  | (bit1 a) one      := ff sorry -- inr (by contradiction)
+  | (bit1 a) (bit0 b) := ff sorry -- inr (by contradiction)
   | (bit1 a) (bit1 b) :=
     match decidable_eq a b with
-    | inl H₁  := sorry -- inl (by rewrite H₁)
-    | inr H₁  := sorry -- inr (by intro H; injection H; contradiction)
+    | tt H₁  := tt sorry -- inl (by rewrite H₁)
+    | ff H₁  := ff sorry -- inr (by intro H; injection H; contradiction)
     end
 
   local notation a < b         := (lt a b = tt)
@@ -562,10 +562,10 @@ namespace num
   open pos_num
 
   theorem decidable_eq [instance] : ∀ (a b : num), decidable (a = b)
-  | zero zero       := inl rfl
-  | zero (pos b)    := inr sorry -- (by contradiction)
-  | (pos a) zero    := inr sorry -- (by contradiction)
+  | zero zero       := tt rfl
+  | zero (pos b)    := ff sorry -- (by contradiction)
+  | (pos a) zero    := ff sorry -- (by contradiction)
   | (pos a) (pos b) :=
-    if H : a = b then inl sorry /- (by rewrite H) -/
-    else inr sorry -- (suppose pos a = pos b, begin injection this, contradiction end)
+    if H : a = b then tt sorry /- (by rewrite H) -/
+    else ff sorry -- (suppose pos a = pos b, begin injection this, contradiction end)
 end num

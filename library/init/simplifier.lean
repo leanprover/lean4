@@ -74,19 +74,16 @@ iff.intro (assume H, and.intro (assume a, implies_of_if_pos H a)
                                (assume a, implies_of_if_neg H a))
           (assume H, and.rec_on H
             (assume Hab Hnac, decidable.rec_on A_dec
-              (assume a,
-                have rw : @decidable.inl A a = A_dec, from
-                  subsingleton.rec_on (subsingleton_decidable A)
-                    (assume H, H (@decidable.inl A a) A_dec),
-                sorry) -- by rewrite [rw, if_pos a] ; exact Hab a)
               (assume na,
-                have rw : @decidable.inr A na = A_dec, from
+                have rw : @decidable.ff A na = A_dec, from
                   subsingleton.rec_on (subsingleton_decidable A)
-                    (assume H, H (@decidable.inr A na) A_dec),
-                sorry))) -- by rewrite [rw, if_neg na] ; exact Hnac na)))
+                    (assume H, H (@decidable.ff A na) A_dec),
+                sorry) -- by rewrite [rw, if_neg na] ; exact Hnac na)))
+              (assume a,
+                have rw : @decidable.tt A a = A_dec, from
+                  subsingleton.rec_on (subsingleton_decidable A)
+                    (assume H, H (@decidable.tt A a) A_dec),
+                sorry))) -- by rewrite [rw, if_pos a] ; exact Hab a)
 
 end unit_simp
-
-
-
 end simplifier

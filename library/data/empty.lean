@@ -14,7 +14,7 @@ namespace empty
 end empty
 
 protected definition empty.has_decidable_eq [instance] : decidable_eq empty :=
-take (a b : empty), decidable.inl (!empty.elim a)
+take (a b : empty), decidable.tt (!empty.elim a)
 
 definition tneg.tneg (A : Type) := A → empty
 prefix `~` := tneg.tneg

@@ -96,21 +96,21 @@ section
 
   definition decidable_bex [instance] (n : nat) (P : nat → Prop) [H : decidable_pred P] : decidable (bex n P) :=
   nat.rec_on n
-    (inr (not_bex_zero P))
+    (ff (not_bex_zero P))
     (λ a ih, decidable.rec_on ih
-      (λ hpos : bex a P, inl (bex_succ hpos))
       (λ hneg : ¬ bex a P, decidable.rec_on (H a)
-         (λ hpa : P a, inl (bex_succ_of_pred hpa))
-         (λ hna : ¬ P a, inr (not_bex_succ hneg hna))))
+         (λ hna : ¬ P a, ff (not_bex_succ hneg hna))
+         (λ hpa : P a, tt (bex_succ_of_pred hpa)))
+      (λ hpos : bex a P, tt (bex_succ hpos)))
 
   definition decidable_ball [instance] (n : nat) (P : nat → Prop) [H : decidable_pred P] : decidable (ball n P) :=
   nat.rec_on n
-    (inl (ball_zero P))
+    (tt (ball_zero P))
     (λ n₁ ih, decidable.rec_on ih
+      (λ ih_neg, ff (not_ball_succ_of_not_ball ih_neg))
       (λ ih_pos, decidable.rec_on (H n₁)
-        (λ p_pos, inl (ball_succ_of_ball ih_pos p_pos))
-        (λ p_neg, inr (not_ball_of_not p_neg)))
-      (λ ih_neg, inr (not_ball_succ_of_not_ball ih_neg)))
+         (λ p_neg, ff (not_ball_of_not p_neg))
+         (λ p_pos, tt (ball_succ_of_ball ih_pos p_pos))))
 
   definition decidable_bex_le [instance] (n : nat) (P : nat → Prop) [decidable_pred P]
     : decidable (∃ x, x ≤ n ∧ P x) :=

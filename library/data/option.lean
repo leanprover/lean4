@@ -28,12 +28,12 @@ namespace option
   inhabited.mk none
 
   protected definition has_decidable_eq [instance] {A : Type} [H : decidable_eq A] : ∀ o₁ o₂ : option A, decidable (o₁ = o₂)
-  | none      none      := sorry -- by left;  reflexivity
-  | none      (some v₂) := sorry -- by right; contradiction
-  | (some v₁) none      := sorry -- by right; contradiction
+  | none      none      := tt sorry -- by left;  reflexivity
+  | none      (some v₂) := ff sorry -- by right; contradiction
+  | (some v₁) none      := ff sorry -- by right; contradiction
   | (some v₁) (some v₂) :=
     match H v₁ v₂ with
-    | inl e := sorry -- by left; congruence; assumption
-    | inr n := sorry -- by right; intro h; injection h; contradiction
+    | tt e := tt sorry -- by left; congruence; assumption
+    | ff n := ff sorry -- by right; intro h; injection h; contradiction
     end
 end option

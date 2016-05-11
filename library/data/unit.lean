@@ -21,5 +21,5 @@ namespace unit
   inhabited.mk unit.star
 
   protected definition has_decidable_eq [instance] : decidable_eq unit :=
-  take (a b : unit), decidable.inl (unit.eq a b)
+  take (a b : unit), decidable.tt (unit.eq a b)
 end unit

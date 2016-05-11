@@ -21,12 +21,12 @@ namespace prod
   protected definition has_decidable_eq [instance] [h₁ : decidable_eq A] [h₂ : decidable_eq B] : ∀ p₁ p₂ : A × B, decidable (p₁ = p₂)
   | (a, b) (a', b') :=
     match h₁ a a' with
-    | inl e₁ :=
+    | tt e₁ :=
       match h₂ b b' with
-      | inl e₂ := sorry -- by left; congruence; repeat assumption
-      | inr n₂ := sorry -- by right; intro h; injection h; contradiction
+      | tt e₂ := tt sorry -- by left; congruence; repeat assumption
+      | ff n₂ := ff sorry -- by right; intro h; injection h; contradiction
       end
-    | inr n₁ := sorry -- by right; intro h; injection h; contradiction
+    | ff n₁ := ff sorry -- by right; intro h; injection h; contradiction
     end
 
   definition swap {A : Type} : A × A → A × A

@@ -267,21 +267,21 @@ section
 
   definition decidable_le [instance] : decidable (a ≤ b) :=
   by_cases
-    (assume H : a < b, inl (le_of_lt H))
+    (assume H : a < b, tt (le_of_lt H))
     (assume H : ¬ a < b,
       have H1 : b ≤ a, from le_of_not_gt H,
       by_cases
-        (assume H2 : b < a, inr (not_le_of_gt H2))
-        (assume H2 : ¬ b < a, inl (le_of_not_gt H2)))
+        (assume H2 : b < a, ff (not_le_of_gt H2))
+        (assume H2 : ¬ b < a, tt (le_of_not_gt H2)))
 
   definition has_decidable_eq [instance] : decidable (a = b) :=
   by_cases
     (assume H : a ≤ b,
       by_cases
-        (assume H1 : b ≤ a, inl (le.antisymm H H1))
-        (assume H1 : ¬ b ≤ a, inr (assume H2 : a = b, H1 (H2 ▸ le.refl a))))
+        (assume H1 : b ≤ a, tt (le.antisymm H H1))
+        (assume H1 : ¬ b ≤ a, ff (assume H2 : a = b, H1 (H2 ▸ le.refl a))))
     (assume H : ¬ a ≤ b,
-      (inr (assume H1 : a = b, H (H1 ▸ !le.refl))))
+      (ff (assume H1 : a = b, H (H1 ▸ !le.refl))))
 
   theorem eq_or_lt_of_not_lt {a b : A} (H : ¬ a < b) : a = b ∨ b < a :=
     if Heq : a = b then or.inl Heq else or.inr (lt_of_not_ge (λ Hge, H (lt_of_le_of_ne Hge Heq)))

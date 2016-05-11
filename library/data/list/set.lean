@@ -18,8 +18,8 @@ definition erase (a : A) : list A → list A
 | []     := []
 | (b::l) :=
   match H a b with
-  | inl e := l
-  | inr n := b :: erase l
+  | tt e := l
+  | ff n := b :: erase l
   end
 
 lemma erase_nil (a : A) : erase a [] = [] :=
@@ -427,14 +427,14 @@ theorem erase_dup_eq_of_nodup [decidable_eq A] : ∀ {l : list A}, nodup l → e
   sorry -- by rewrite [erase_dup_cons_of_not_mem nainl, erase_dup_eq_of_nodup dl]
 
 definition decidable_nodup [instance] [decidable_eq A] : ∀ (l : list A), decidable (nodup l)
-| []     := inl nodup_nil
+| []     := tt nodup_nil
 | (a::l) :=
   match decidable_mem a l with
-  | inl p := inr (not_nodup_cons_of_mem p)
-  | inr n :=
+  | tt p := ff (not_nodup_cons_of_mem p)
+  | ff n :=
     match decidable_nodup l with
-    | inl nd := inl (nodup_cons n nd)
-    | inr d  := inr (not_nodup_cons_of_not_nodup d)
+    | tt nd := tt (nodup_cons n nd)
+    | ff d  := ff (not_nodup_cons_of_not_nodup d)
     end
   end
 

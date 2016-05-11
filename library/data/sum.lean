@@ -40,14 +40,14 @@ namespace sum
   protected definition has_decidable_eq [instance] [h₁ : decidable_eq A] [h₂ : decidable_eq B] : ∀ s₁ s₂ : A + B, decidable (s₁ = s₂)
   | has_decidable_eq (inl a₁) (inl a₂) :=
     match h₁ a₁ a₂ with
-      | decidable.inl hp := sorry -- by left; congruence; assumption
-      | decidable.inr hn := sorry -- by right; intro h; injection h; contradiction
+      | decidable.tt hp := decidable.tt sorry -- by left; congruence; assumption
+      | decidable.ff hn := decidable.ff sorry -- by right; intro h; injection h; contradiction
     end
-  | has_decidable_eq (inl a₁) (inr b₂) := sorry -- by right; contradiction
-  | has_decidable_eq (inr b₁) (inl a₂) := sorry -- by right; contradiction
+  | has_decidable_eq (inl a₁) (inr b₂) := decidable.ff sorry -- by right; contradiction
+  | has_decidable_eq (inr b₁) (inl a₂) := decidable.ff sorry -- by right; contradiction
   | has_decidable_eq (inr b₁) (inr b₂) :=
     match h₂ b₁ b₂ with
-      | decidable.inl hp := sorry -- by left; congruence; assumption
-      | decidable.inr hn := sorry -- by right; intro h; injection h; contradiction
+      | decidable.tt hp := decidable.tt sorry -- by left; congruence; assumption
+      | decidable.ff hn := decidable.ff sorry -- by right; intro h; injection h; contradiction
     end
 end sum

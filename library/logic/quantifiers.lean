@@ -62,12 +62,12 @@ section
   include H
 
   definition decidable_forall_eq [instance] : decidable (∀ x, x = a → P x) :=
-  if pa : P a then inl (λ x heq, eq.substr heq pa)
-  else inr (not.mto (λH, H a rfl) pa)
+  if pa : P a then tt (λ x heq, eq.substr heq pa)
+  else ff (not.mto (λH, H a rfl) pa)
 
   definition decidable_exists_eq [instance] : decidable (∃ x, x = a ∧ P x) :=
-  if pa : P a then inl (exists.intro a (and.intro rfl pa))
-  else inr (Exists.rec (λh, and.rec (λheq, eq.substr heq pa)))
+  if pa : P a then tt (exists.intro a (and.intro rfl pa))
+  else ff (Exists.rec (λh, and.rec (λheq, eq.substr heq pa)))
 end
 
 /- definite description -/

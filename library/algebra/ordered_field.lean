@@ -462,12 +462,12 @@ section discrete_linear_ordered_field
   definition dec_eq_of_dec_lt : ∀ x y : A, decidable (x = y) :=
     take x y,
     decidable.by_cases
-    (assume H : x < y, decidable.inr (ne_of_lt H))
+    (assume H : x < y, decidable.ff (ne_of_lt H))
     (assume H : ¬ x < y,
       decidable.by_cases
-      (assume H' : y < x, decidable.inr (ne.symm (ne_of_lt H')))
+      (assume H' : y < x, decidable.ff (ne.symm (ne_of_lt H')))
       (assume H' : ¬ y < x,
-        decidable.inl (le.antisymm (le_of_not_gt H') (le_of_not_gt H))))
+        decidable.tt (le.antisymm (le_of_not_gt H') (le_of_not_gt H))))
 
   definition discrete_linear_ordered_field.to_discrete_field [trans_instance] :  discrete_field A :=
      ⦃ discrete_field, s, has_decidable_eq := dec_eq_of_dec_lt⦄

@@ -74,13 +74,13 @@ namespace nat
   inhabited.mk zero
 
   protected definition has_decidable_eq [instance] [priority nat.prio] : ∀ x y : nat, decidable (x = y)
-  | has_decidable_eq zero     zero     := inl rfl
-  | has_decidable_eq (succ x) zero     := sorry -- inr (by contradiction)
-  | has_decidable_eq zero     (succ y) := sorry -- inr (by contradiction)
+  | has_decidable_eq zero     zero     := tt rfl
+  | has_decidable_eq (succ x) zero     := ff sorry -- inr (by contradiction)
+  | has_decidable_eq zero     (succ y) := ff sorry -- inr (by contradiction)
   | has_decidable_eq (succ x) (succ y) :=
       match has_decidable_eq x y with
-      | inl xeqy := inl sorry -- (by rewrite xeqy)
-      | inr xney := inr sorry -- (λ h : succ x = succ y, by injection h with xeqy; exact absurd xeqy xney)
+      | tt xeqy := tt sorry -- (by rewrite xeqy)
+      | ff xney := ff sorry -- (λ h : succ x = succ y, by injection h with xeqy; exact absurd xeqy xney)
       end
 
   /- properties of inequality -/
@@ -203,10 +203,11 @@ namespace nat
   le_of_succ_le_succ
 
   definition decidable_le [instance] [priority nat.prio] : ∀ a b : nat, decidable (a ≤ b)  :=
-  nat.rec (λm, (decidable.inl !zero_le))
-     (λn IH m, !nat.cases_on (decidable.inr (not_succ_le_zero n))
-       (λm, decidable.rec (λH, inl (succ_le_succ H))
-          (λH, inr (λa, H (le_of_succ_le_succ a))) (IH m)))
+  nat.rec (λm, (decidable.tt !zero_le))
+     (λn IH m, !nat.cases_on (decidable.ff (not_succ_le_zero n))
+       (λm, decidable.rec_on (IH m)
+          (λH, decidable.ff (λa, H (le_of_succ_le_succ a)))
+          (λH, decidable.tt (succ_le_succ H))))
 
   definition decidable_lt [instance] [priority nat.prio] : ∀ a b : nat, decidable (a < b) :=
   λ a b, decidable_le (succ a) b

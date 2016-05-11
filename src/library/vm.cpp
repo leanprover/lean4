@@ -141,7 +141,7 @@ vm_instr mk_drop_instr(unsigned n) {
 
 vm_instr mk_proj_instr(unsigned n) {
     vm_instr r(opcode::Proj);
-    r.m_num = n;
+    r.m_idx = n;
     return r;
 }
 

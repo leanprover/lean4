@@ -178,9 +178,9 @@ class vm_instr {
             unsigned m_fn_idx;
             unsigned m_nargs;
         };
-        /* Push */
+        /* Push, Proj */
         unsigned m_idx;
-        /* Invoke, Drop, Proj */
+        /* Invoke, Drop */
         unsigned m_num;
         /* Goto, Cases2 and NatCases */
         unsigned m_pc;
@@ -221,6 +221,68 @@ public:
 
     vm_instr & operator=(vm_instr const & s);
     vm_instr & operator=(vm_instr && s);
+
+    unsigned get_fn_idx() const {
+        lean_assert(m_op == opcode::InvokeGlobal || m_op == opcode::Closure);
+        return m_fn_idx;
+    }
+
+    unsigned get_nargs() const {
+        lean_assert(m_op == opcode::InvokeGlobal || m_op == opcode::Closure);
+        return m_fn_idx;
+    }
+
+    unsigned get_idx() const {
+        lean_assert(m_op == opcode::Push || m_op == opcode::Proj);
+        return m_idx;
+    }
+
+    unsigned get_num() const {
+        lean_assert(m_op == opcode::Invoke || m_op == opcode::Drop);
+        return m_num;
+    }
+
+    unsigned get_pc() const {
+        lean_assert(m_op == opcode::Goto || m_op == opcode::Cases2 || m_op == opcode::NatCases);
+        return m_pc;
+    }
+
+    void set_pc(unsigned pc) {
+        lean_assert(m_op == opcode::Goto || m_op == opcode::Cases2 || m_op == opcode::NatCases);
+        m_pc = pc;
+    }
+
+    unsigned get_num_pcs() const {
+        lean_assert(m_op == opcode::CasesN);
+        return m_npcs[0];
+    }
+
+    unsigned get_pc(unsigned i) const {
+        lean_assert(m_op == opcode::CasesN);
+        lean_assert(i < get_num_pcs());
+        return m_npcs[i+1];
+    }
+
+    void set_pc(unsigned i, unsigned pc) const {
+        lean_assert(m_op == opcode::CasesN);
+        lean_assert(i < get_num_pcs());
+        m_npcs[i+1] = pc;
+    }
+
+    unsigned get_cidx() const {
+        lean_assert(m_op == opcode::Constructor || m_op == opcode::SConstructor);
+        return m_cidx;
+    }
+
+    unsigned get_nfields() const {
+        lean_assert(m_op == opcode::Constructor);
+        return m_nfields;
+    }
+
+    mpz const & get_mpz() const {
+        lean_assert(m_op == opcode::Num);
+        return *m_mpz;
+    }
 };
 
 vm_instr mk_push_instr(unsigned idx);

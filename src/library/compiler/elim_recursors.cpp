@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/trace.h"
 #include "library/normalize.h"
-#include "library/compiler/fresh_constant.h"
 #include "library/compiler/util.h"
 #include "library/compiler/comp_irrelevant.h"
 #include "library/compiler/compiler_step_visitor.h"
@@ -21,6 +20,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 class elim_recursors_fn : public compiler_step_visitor {
+    name           m_prefix;
+    unsigned       m_idx;
     buffer<name> & m_new_decls;
 protected:
     expr declare_aux_def(name const & n, expr const & value) {
@@ -109,9 +110,7 @@ protected:
         aux = abstract_locals(aux, abst_locals);
         /* Create expr (rec_fn) for representing recursive calls. */
         expr aux_decl_type = m_ctx.infer(aux);
-        pair<environment, name> ep = mk_fresh_constant(m_env, "_rec");
-        m_env = ep.first;
-        name aux_decl_name = ep.second;
+        name aux_decl_name = mk_fresh_name(m_env, m_prefix, "_rec", m_idx);
         expr rec_fn = mk_rec_fn_macro(aux_decl_name, aux_decl_type);
         /* Create new locals for aux.
            The operating abstract_locals creates a lambda-abstraction around aux if it uses
@@ -249,14 +248,14 @@ protected:
     }
 
 public:
-    elim_recursors_fn(environment const & env, buffer<name> & new_decls):
-        compiler_step_visitor(env), m_new_decls(new_decls) {}
+    elim_recursors_fn(environment const & env, name const & prefix, buffer<name> & new_decls):
+        compiler_step_visitor(env), m_prefix(prefix), m_idx(1), m_new_decls(new_decls) {}
 
     environment const & env() const { return m_env; }
 };
 
-expr elim_recursors(environment & env, expr const & e, buffer<name> & new_decls) {
-    elim_recursors_fn fn(env, new_decls);
+expr elim_recursors(environment & env, name const & prefix, expr const & e, buffer<name> & new_decls) {
+    elim_recursors_fn fn(env, prefix, new_decls);
     expr new_e = fn(e);
     env = fn.env();
     return new_e;

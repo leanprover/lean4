@@ -10,9 +10,20 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/aux_recursors.h"
 #include "library/util.h"
+#include "library/vm.h"
 #include "library/type_context.h"
 
 namespace lean {
+name mk_fresh_name(environment const & env, name const & prefix, char const * suffix, unsigned & idx) {
+    while (true) {
+        name curr(prefix, suffix);
+        curr = curr.append_after(idx);
+        idx++;
+        if (!env.find(curr) && !is_vm_function(env, curr))
+            return curr;
+    }
+}
+
 bool is_comp_irrelevant(type_context & ctx, expr const & e) {
     expr type = ctx.whnf(ctx.infer(e));
     return is_sort(type) || ctx.is_prop(type);

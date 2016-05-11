@@ -121,7 +121,7 @@ public:
         v = inline_simple_definitions(m_env, v);
         v = mark_comp_irrelevant_subterms(m_env, v);
         buffer<name> aux_decls;
-        v = elim_recursors(m_env, v, aux_decls);
+        v = elim_recursors(m_env, d.get_name(), v, aux_decls);
 
         for (name const & n : aux_decls) {
             declaration d = m_env.get(n);

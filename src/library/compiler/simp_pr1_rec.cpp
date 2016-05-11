@@ -82,12 +82,14 @@ class simp_pr1_rec_fn : public compiler_step_visitor {
         expr const & rec_fn = get_app_args(rec, rec_args);
         if (!is_constant(rec_fn))
             return none_expr();
+        expr new_rec_fn     = rec_fn;
         auto I_name = inductive::is_elim_rule(env(), const_name(rec_fn));
         if (!I_name)
             return none_expr();
         buffer<buffer<bool>> is_rec_arg;
         get_rec_args(env(), *I_name, is_rec_arg);
         unsigned nparams       = *inductive::get_num_params(env(), *I_name);
+        /** TODO(Leo): after the kernel is simplified, ntypeformers is going to be always 1 */
         unsigned ntypeformers  = *inductive::get_num_type_formers(env(), *I_name);
         unsigned nminors       = *inductive::get_num_minor_premises(env(), *I_name);
         if (rec_args.size() < nparams + ntypeformers + nminors)
@@ -111,7 +113,11 @@ class simp_pr1_rec_fn : public compiler_step_visitor {
                 return none_expr();
             }
             typeformer_body = typeformer_body_args[0];
-            rec_args[i] = mark_comp_irrelevant(Fun(typeformer_ctx, typeformer_body));
+            /* Resultant universe level may have changed. We should recompute it. */
+            level new_lvl = sort_level(ctx().whnf(ctx().infer(typeformer_body)));
+            /* Update new_rec_fn */
+            new_rec_fn    = mk_constant(const_name(rec_fn), levels(new_lvl, tail(const_levels(rec_fn))));
+            rec_args[i]   = mark_comp_irrelevant(Fun(typeformer_ctx, typeformer_body));
         }
         // update minor premises
         for (unsigned i = nparams + ntypeformers, j = 0; i < nparams + ntypeformers + nminors; i++, j++) {
@@ -167,7 +173,7 @@ class simp_pr1_rec_fn : public compiler_step_visitor {
             // Update minor premise
             rec_args[i] = Fun(minor_ctx, minor_body);
         }
-        expr new_rec = mk_app(rec_fn, rec_args.size(), rec_args.data());
+        expr new_rec = mk_app(new_rec_fn, rec_args.size(), rec_args.data());
         return some_expr(visit(mk_app(new_rec, args.size() - 3, args.data() + 3)));
     }
 

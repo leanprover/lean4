@@ -106,6 +106,14 @@ name const * g_nat = nullptr;
 name const * g_nat_of_num = nullptr;
 name const * g_nat_succ = nullptr;
 name const * g_nat_zero = nullptr;
+name const * g_nat_add = nullptr;
+name const * g_nat_sub = nullptr;
+name const * g_nat_mul = nullptr;
+name const * g_nat_div = nullptr;
+name const * g_nat_mod = nullptr;
+name const * g_nat_gcd = nullptr;
+name const * g_nat_has_decidable_eq = nullptr;
+name const * g_nat_has_decidable_le = nullptr;
 name const * g_nat_cases_on = nullptr;
 name const * g_nat_no_confusion = nullptr;
 name const * g_ne = nullptr;
@@ -384,6 +392,14 @@ void initialize_constants() {
     g_nat_of_num = new name{"nat", "of_num"};
     g_nat_succ = new name{"nat", "succ"};
     g_nat_zero = new name{"nat", "zero"};
+    g_nat_add = new name{"nat", "add"};
+    g_nat_sub = new name{"nat", "sub"};
+    g_nat_mul = new name{"nat", "mul"};
+    g_nat_div = new name{"nat", "div"};
+    g_nat_mod = new name{"nat", "mod"};
+    g_nat_gcd = new name{"nat", "gcd"};
+    g_nat_has_decidable_eq = new name{"nat", "has_decidable_eq"};
+    g_nat_has_decidable_le = new name{"nat", "has_decidable_le"};
     g_nat_cases_on = new name{"nat", "cases_on"};
     g_nat_no_confusion = new name{"nat", "no_confusion"};
     g_ne = new name{"ne"};
@@ -663,6 +679,14 @@ void finalize_constants() {
     delete g_nat_of_num;
     delete g_nat_succ;
     delete g_nat_zero;
+    delete g_nat_add;
+    delete g_nat_sub;
+    delete g_nat_mul;
+    delete g_nat_div;
+    delete g_nat_mod;
+    delete g_nat_gcd;
+    delete g_nat_has_decidable_eq;
+    delete g_nat_has_decidable_le;
     delete g_nat_cases_on;
     delete g_nat_no_confusion;
     delete g_ne;
@@ -941,6 +965,14 @@ name const & get_nat_name() { return *g_nat; }
 name const & get_nat_of_num_name() { return *g_nat_of_num; }
 name const & get_nat_succ_name() { return *g_nat_succ; }
 name const & get_nat_zero_name() { return *g_nat_zero; }
+name const & get_nat_add_name() { return *g_nat_add; }
+name const & get_nat_sub_name() { return *g_nat_sub; }
+name const & get_nat_mul_name() { return *g_nat_mul; }
+name const & get_nat_div_name() { return *g_nat_div; }
+name const & get_nat_mod_name() { return *g_nat_mod; }
+name const & get_nat_gcd_name() { return *g_nat_gcd; }
+name const & get_nat_has_decidable_eq_name() { return *g_nat_has_decidable_eq; }
+name const & get_nat_has_decidable_le_name() { return *g_nat_has_decidable_le; }
 name const & get_nat_cases_on_name() { return *g_nat_cases_on; }
 name const & get_nat_no_confusion_name() { return *g_nat_no_confusion; }
 name const & get_ne_name() { return *g_ne; }

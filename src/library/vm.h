@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
+#include <vector>
 #include "util/debug.h"
 #include "util/rc.h"
 #include "util/numerics/mpz.h"
@@ -211,6 +212,7 @@ class vm_instr {
 
     void copy_args(vm_instr const & i);
 public:
+    vm_instr():m_op(opcode::Ret) {}
     vm_instr(opcode op):m_op(op) {}
     vm_instr(vm_instr const & i);
     vm_instr(vm_instr && i);
@@ -235,17 +237,68 @@ vm_instr mk_invoke_instr(unsigned n);
 vm_instr mk_invoke_global_instr(unsigned fn_idx, unsigned n);
 vm_instr mk_closure_instr(unsigned fn_idx, unsigned n);
 
-/** \brief Datastructure for storing the compiled bytecode */
-class vm_decls;
+class vm_state;
+class vm_instr;
+
+typedef void (*vm_function)(vm_state & s);
+
+/** \brief VM function/constant declaration cell */
+struct vm_decl_cell {
+    MK_LEAN_RC();
+    bool       m_builtin;
+    name       m_name;
+    expr       m_expr;
+    unsigned   m_arity;
+    union {
+        struct {
+            unsigned   m_code_size;
+            vm_instr * m_code;
+        };
+        vm_function    m_fn;
+    };
+
+    vm_decl_cell(name const & n, unsigned arity, vm_function fn);
+    vm_decl_cell(name const & n, expr const & e, unsigned code_sz, vm_instr const * code);
+    ~vm_decl_cell();
+    void dealloc();
+};
+
+/** \brief VM function/constant declaration smart pointer. */
+class vm_decl {
+    vm_decl_cell * m_ptr;
+    explicit vm_decl(vm_decl_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
+public:
+    vm_decl():m_ptr(nullptr) {}
+    vm_decl(name const & n, unsigned arity, vm_function fn):
+        vm_decl(new vm_decl_cell(n, arity, fn)) {}
+    vm_decl(name const & n, expr const & e, unsigned code_sz, vm_instr const * code):
+        vm_decl(new vm_decl_cell(n, e, code_sz, code)) {}
+    vm_decl(vm_decl const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
+    vm_decl(vm_decl && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
+    ~vm_decl() { if (m_ptr) m_ptr->dec_ref(); }
+
+    friend void swap(vm_decl & a, vm_decl & b) { std::swap(a.m_ptr, b.m_ptr); }
+
+    vm_decl & operator=(vm_decl const & s) { LEAN_COPY_REF(s); }
+    vm_decl & operator=(vm_decl && s) { LEAN_MOVE_REF(s); }
+
+    bool is_builtin() const { lean_assert(m_ptr); return m_ptr->m_builtin; }
+    name get_name() const { lean_assert(m_ptr); return m_ptr->m_name; }
+    unsigned get_arity() const { lean_assert(m_ptr); return m_ptr->m_arity; }
+    unsigned get_code_size() const { lean_assert(!is_builtin()); return m_ptr->m_code_size; }
+    vm_instr const * get_code() const { lean_assert(!is_builtin()); return m_ptr->m_code; }
+    vm_function get_fn() const { lean_assert(is_builtin()); return m_ptr->m_fn; }
+};
 
 /** \brief Virtual machine for executing VM bytecode. */
 class vm_state {
-    environment         m_env;
-    vm_decls const &    m_decls;
-    vm_instr const *    m_code;   /* code of the current function being executed */
-    unsigned            m_fn_idx; /* function idx being executed */
-    unsigned            m_pc;     /* program counter */
-    unsigned            m_bp;     /* base pointer */
+    typedef std::vector<vm_decl> decls;
+    environment          m_env;
+    decls const &        m_decls;
+    vm_instr const *     m_code;   /* code of the current function being executed */
+    unsigned             m_fn_idx; /* function idx being executed */
+    unsigned             m_pc;     /* program counter */
+    unsigned             m_bp;     /* base pointer */
     struct frame {
         vm_instr const * m_code;
         unsigned         m_fn_idx;
@@ -253,10 +306,12 @@ class vm_state {
         unsigned         m_pc;
         unsigned         m_bp;
     };
-    std::vector<vm_obj> m_stack;
-    std::vector<frame>  m_call_stack;
+    std::vector<vm_obj>  m_stack;
+    std::vector<frame>   m_call_stack;
+
 public:
     vm_state(environment const & env);
+
     environment const & env() const { return m_env; }
     /** \brief Push object into the data stack */
     void push(vm_obj const & o) { m_stack.push_back(o); }
@@ -268,12 +323,18 @@ public:
     void invoke_global(unsigned fn_idx);
 };
 
-typedef void (*vm_function)(vm_state & s);
-
 /** \brief Add builtin implementation for the function named \c n. */
-void declare_vm_builtin(name const & n, vm_function fn);
+void declare_vm_builtin(name const & n, unsigned arity, vm_function fn);
 
+/** \brief Add bytcode for the function named \c fn in \c env.
+
+    \remark The expression \c e is the value of \c fn after preprocessing.
+    That is, we have applied lambda lifting, erase irrelevant terms, etc.
+    See library/compiler/pre_proprocess_rec.cpp for details. */
 environment add_vm_code(environment const & env, name const & fn, expr const & e, unsigned code_sz, vm_instr const * code);
+
+/** \brief Make sure vm_decls structure is optimized. */
+environment optimize_vm_decls(environment const & env);
 
 /** \brief Return true iff \c fn is a VM function in the given environment. */
 bool is_vm_function(environment const & env, name const & fn);

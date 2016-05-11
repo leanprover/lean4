@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <vector>
+#include "util/parray.h"
 #include "library/constants.h"
 #include "library/vm.h"
 
@@ -303,10 +304,105 @@ vm_instr & vm_instr::operator=(vm_instr && s) {
     return *this;
 }
 
-static std::vector<pair<name, vm_function>> * g_vm_builtins = nullptr;
 
-void declare_vm_builtin(name const & n, vm_function fn) {
-    g_vm_builtins->emplace_back(n, fn);
+vm_decl_cell::vm_decl_cell(name const & n, unsigned arity, vm_function fn):
+    m_rc(0), m_builtin(true), m_name(n), m_arity(arity), m_fn(fn) {}
+
+vm_decl_cell::vm_decl_cell(name const & n, expr const & e, unsigned code_sz, vm_instr const * code):
+    m_rc(0), m_builtin(false), m_name(n), m_expr(e), m_arity(0),
+    m_code_size(code_sz) {
+    expr it = e;
+    while (is_lambda(it)) {
+        m_arity++;
+        it = binding_body(it);
+    }
+    m_code = new vm_instr[code_sz];
+    std::memcpy(m_code, code, sizeof(vm_instr)*code_sz);
+}
+
+vm_decl_cell::~vm_decl_cell() {
+    if (!m_builtin)
+        delete[] m_code;
+}
+
+void vm_decl_cell::dealloc() {
+    delete this;
+}
+
+/** \brief VM builtin functions */
+static name_map<pair<unsigned, vm_function>> * g_vm_builtins = nullptr;
+
+void declare_vm_builtin(name const & n, unsigned arity, vm_function fn) {
+    g_vm_builtins->insert(n, mk_pair(arity, fn));
+}
+
+/** \brief VM function/constant declarations are stored in an environment extension. */
+struct vm_decls : public environment_extension {
+    bool               m_initialized;
+    name_map<unsigned> m_name2idx;
+    parray<vm_decl>    m_decls;
+    vm_decls():m_initialized(false) {}
+
+    void add(vm_decl const & d) {
+        lean_assert(!m_name2idx.contains(d.get_name()));
+        unsigned idx = m_decls.size();
+        m_name2idx.insert(d.get_name(), idx);
+        m_decls.push_back(d);
+    }
+
+    void initialize() {
+        if (!m_initialized) {
+            m_initialized = true;
+            g_vm_builtins->for_each([&](name const & n, pair<unsigned, vm_function> const & p) {
+                    add(vm_decl(n, p.first, p.second));
+                });
+        }
+    }
+};
+
+struct vm_decls_reg {
+    unsigned m_ext_id;
+    vm_decls_reg() { m_ext_id = environment::register_extension(std::make_shared<vm_decls>()); }
+};
+
+static vm_decls_reg * g_ext = nullptr;
+static vm_decls const & get_extension(environment const & env) {
+    return static_cast<vm_decls const &>(env.get_extension(g_ext->m_ext_id));
+}
+static environment update(environment const & env, vm_decls const & ext) {
+    return env.update(g_ext->m_ext_id, std::make_shared<vm_decls>(ext));
+}
+
+bool is_vm_function(environment const & env, name const & fn) {
+    auto const & ext = get_extension(env);
+    return ext.m_name2idx.contains(fn) || g_vm_builtins->contains(fn);
+}
+
+environment add_vm_code(environment const & env, name const & fn, expr const & e, unsigned code_sz, vm_instr const * code) {
+    vm_decls ext = get_extension(env);
+    ext.initialize();
+    ext.add(vm_decl(fn, e, code_sz, code));
+    // TODO(Leo): store bytecode in .olean file
+    return update(env, ext);
+}
+
+environment optimize_vm_decls(environment const & env) {
+    vm_decls ext = get_extension(env);
+    if (ext.m_decls.is_compressed()) {
+        return env;
+    } else {
+        ext.m_decls.compress();
+        return update(env, ext);
+    }
+}
+
+vm_state::vm_state(environment const & env):
+    m_env(optimize_vm_decls(env)),
+    m_decls(get_extension(m_env).m_decls.as_vector_if_compressed()),
+    m_code(nullptr),
+    m_fn_idx(0),
+    m_pc(0),
+    m_bp(0) {
 }
 
 // =======================================
@@ -471,19 +567,21 @@ static void nat_has_decidable_le(vm_state & s) {
 }
 
 void initialize_vm() {
-    g_vm_builtins = new std::vector<pair<name, vm_function>>();
-    declare_vm_builtin(get_nat_succ_name(),              nat_succ);
-    declare_vm_builtin(get_nat_add_name(),               nat_add);
-    declare_vm_builtin(get_nat_mul_name(),               nat_mul);
-    declare_vm_builtin(get_nat_sub_name(),               nat_sub);
-    declare_vm_builtin(get_nat_div_name(),               nat_div);
-    declare_vm_builtin(get_nat_mod_name(),               nat_mod);
-    declare_vm_builtin(get_nat_gcd_name(),               nat_gcd);
-    declare_vm_builtin(get_nat_has_decidable_eq_name(),  nat_has_decidable_eq);
-    declare_vm_builtin(get_nat_has_decidable_le_name(),  nat_has_decidable_le);
+    g_vm_builtins = new name_map<pair<unsigned, vm_function>>();
+    declare_vm_builtin(get_nat_succ_name(),              1, nat_succ);
+    declare_vm_builtin(get_nat_add_name(),               2, nat_add);
+    declare_vm_builtin(get_nat_mul_name(),               2, nat_mul);
+    declare_vm_builtin(get_nat_sub_name(),               2, nat_sub);
+    declare_vm_builtin(get_nat_div_name(),               2, nat_div);
+    declare_vm_builtin(get_nat_mod_name(),               2, nat_mod);
+    declare_vm_builtin(get_nat_gcd_name(),               2, nat_gcd);
+    declare_vm_builtin(get_nat_has_decidable_eq_name(),  2, nat_has_decidable_eq);
+    declare_vm_builtin(get_nat_has_decidable_le_name(),  2, nat_has_decidable_le);
+    g_ext = new vm_decls_reg();
 }
 
 void finalize_vm() {
+    delete g_ext;
     delete g_vm_builtins;
 }
 }

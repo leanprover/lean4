@@ -205,7 +205,11 @@ public:
     }
 
     void compress() {
-        if (!m_ptr || m_ptr->m_kind == ROOT)
+        if (!m_ptr) {
+            *this = parray(new root_cell());
+            return;
+        }
+        if (m_ptr->m_kind == ROOT)
             return;
         bool shared = false;
         buffer<cell*> cells;
@@ -254,11 +258,12 @@ public:
     }
 
     std::vector<T> const & as_vector() {
-        if (!m_ptr) {
-            *this = parray(new root_cell());
-        } else {
-            compress();
-        }
+        compress();
+        return to_root(m_ptr)->m_data;
+    }
+
+    std::vector<T> const & as_vector_if_compressed() const {
+        lean_assert(is_compressed());
         return to_root(m_ptr)->m_data;
     }
 
@@ -299,7 +304,7 @@ public:
     }
 
     bool is_compressed() const {
-        return !m_ptr || m_ptr->m_kind == ROOT;
+        return m_ptr && m_ptr->m_kind == ROOT;
     }
 
     void display_internal(std::ostream & out) const {

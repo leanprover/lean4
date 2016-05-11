@@ -82,45 +82,42 @@ class simp_pr1_rec_fn : public compiler_step_visitor {
         expr const & rec_fn = get_app_args(rec, rec_args);
         if (!is_constant(rec_fn))
             return none_expr();
-        expr new_rec_fn     = rec_fn;
         auto I_name = inductive::is_elim_rule(env(), const_name(rec_fn));
         if (!I_name)
             return none_expr();
         buffer<buffer<bool>> is_rec_arg;
         get_rec_args(env(), *I_name, is_rec_arg);
         unsigned nparams       = *inductive::get_num_params(env(), *I_name);
-        /** TODO(Leo): after the kernel is simplified, ntypeformers is going to be always 1 */
-        unsigned ntypeformers  = *inductive::get_num_type_formers(env(), *I_name);
         unsigned nminors       = *inductive::get_num_minor_premises(env(), *I_name);
-        if (rec_args.size() < nparams + ntypeformers + nminors)
+        if (rec_args.size() < nparams + 1 /* motive/typeformer */ + nminors)
             return none_expr();
-        // update type formers
-        for (unsigned i = nparams; i < nparams + ntypeformers; i++) {
-            // Check whether each type former is of the form
-            //  (lambda ctx, prod c1 c2), and replace it with (lambda ctx, c1)
-            expr typeformer = rec_args[i];
-            buffer<expr> typeformer_ctx;
-            /* ignore annotations */
-            typeformer = get_nested_annotation_arg(typeformer);
-            expr typeformer_body = fun_to_telescope(typeformer, typeformer_ctx, optional<binder_info>());
-            /* ignore annotations */
-            typeformer_body = get_nested_annotation_arg(typeformer_body);
-            buffer<expr> typeformer_body_args;
-            expr typeformer_body_fn = get_app_args(typeformer_body, typeformer_body_args);
-            if (!is_constant(typeformer_body_fn) ||
-                const_name(typeformer_body_fn) != get_prod_name() ||
-                typeformer_body_args.size() != 2) {
-                return none_expr();
-            }
-            typeformer_body = typeformer_body_args[0];
-            /* Resultant universe level may have changed. We should recompute it. */
-            level new_lvl = sort_level(ctx().whnf(ctx().infer(typeformer_body)));
-            /* Update new_rec_fn */
-            new_rec_fn    = mk_constant(const_name(rec_fn), levels(new_lvl, tail(const_levels(rec_fn))));
-            rec_args[i]   = mark_comp_irrelevant(Fun(typeformer_ctx, typeformer_body));
+        // Update motive/typeformer
+        // Check whether motive is of the form
+        //  (lambda ctx, prod c1 c2), and replace it with (lambda ctx, c1)
+        unsigned motive_idx = nparams;
+        expr typeformer = rec_args[motive_idx];
+        buffer<expr> typeformer_ctx;
+        /* ignore annotations */
+        typeformer = get_nested_annotation_arg(typeformer);
+        expr typeformer_body = fun_to_telescope(typeformer, typeformer_ctx, optional<binder_info>());
+        /* ignore annotations */
+        typeformer_body = get_nested_annotation_arg(typeformer_body);
+        buffer<expr> typeformer_body_args;
+        expr typeformer_body_fn = get_app_args(typeformer_body, typeformer_body_args);
+        if (!is_constant(typeformer_body_fn) ||
+            const_name(typeformer_body_fn) != get_prod_name() ||
+            typeformer_body_args.size() != 2) {
+            return none_expr();
         }
-        // update minor premises
-        for (unsigned i = nparams + ntypeformers, j = 0; i < nparams + ntypeformers + nminors; i++, j++) {
+        typeformer_body = typeformer_body_args[0];
+        /* Resultant universe level may have changed. We should recompute it. */
+        level new_lvl = sort_level(ctx().whnf(ctx().infer(typeformer_body)));
+        /* Update new_rec_fn */
+        expr new_rec_fn      = mk_constant(const_name(rec_fn), levels(new_lvl, tail(const_levels(rec_fn))));
+        rec_args[motive_idx] = mark_comp_irrelevant(Fun(typeformer_ctx, typeformer_body));
+
+        // Update minor premises
+        for (unsigned i = nparams + 1 /* motive */, j = 0; i < nparams + 1 /* motive */ + nminors; i++, j++) {
             buffer<bool> const & minor_is_rec_arg = is_rec_arg[j];
             expr minor = rec_args[i];
             buffer<expr> minor_ctx;

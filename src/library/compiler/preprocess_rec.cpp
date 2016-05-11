@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/compiler/elim_recursors.h"
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/reduce_arity.h"
+#include "library/compiler/lambda_lifting.h"
 
 namespace lean {
 class expand_aux_recursors_fn : public compiler_step_visitor {
@@ -132,6 +133,7 @@ public:
 
         erase_irrelevant(procs);
         reduce_arity(m_env, procs);
+        lambda_lifting(m_env, d.get_name(), procs);
 
         display(procs);
         // TODO(Leo)

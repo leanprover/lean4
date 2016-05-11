@@ -299,7 +299,7 @@ public:
         }
     }
 
-    T const & operator[](unsigned idx) {
+    T const & operator[](unsigned idx) const {
         return read(idx);
     }
 

@@ -283,6 +283,9 @@ public:
         lean_assert(m_op == opcode::Num);
         return *m_mpz;
     }
+
+    void display(std::ostream & out, std::function<optional<name>(unsigned)> const & idx2name) const;
+    void display(std::ostream & out) const;
 };
 
 vm_instr mk_push_instr(unsigned idx);
@@ -418,6 +421,8 @@ bool is_vm_function(environment const & env, name const & fn);
 
 /** \brief Return true iff \c fn is implemented in C++. */
 bool is_vm_builtin_function(name const & fn);
+
+void display_vm_code(std::ostream & out, environment const & env, unsigned code_sz, vm_instr const * code);
 
 void initialize_vm();
 void finalize_vm();

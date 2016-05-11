@@ -127,6 +127,49 @@ void vm_obj_cell::dealloc() {
     }
 }
 
+static void display_fn(std::ostream & out, std::function<optional<name>(unsigned)> const & idx2name, unsigned fn_idx) {
+    if (auto r = idx2name(fn_idx))
+        out << *r;
+    else
+        out << fn_idx;
+}
+
+void vm_instr::display(std::ostream & out, std::function<optional<name>(unsigned)> const & idx2name) const {
+    switch (m_op) {
+    case opcode::Push:          out << "push " << m_idx; break;
+    case opcode::Ret:           out << "ret"; break;
+    case opcode::Drop:          out << "drop " << m_num; break;
+    case opcode::Goto:          out << "goto " << m_pc; break;
+    case opcode::SConstructor:  out << "scnstr " << m_cidx; break;
+    case opcode::Constructor:   out << "cnstr " << m_cidx << " " << m_nfields; break;
+    case opcode::Num:           out << "num " << m_mpz; break;
+    case opcode::Cases1:        out << "cases1"; break;
+    case opcode::Cases2:        out << "cases2 " << m_pc; break;
+    case opcode::CasesN:
+        out << "cases";
+        for (unsigned i = 0; i < get_num_pcs(); i++)
+            out << " " << get_pc(i);
+        break;
+    case opcode::NatCases:      out << "nat_cases " << m_pc; break;
+    case opcode::Proj:          out << "proj " << m_idx; break;
+    case opcode::Invoke:        out << "invoke " << m_num; break;
+    case opcode::InvokeGlobal:
+        out << "invoke_global ";
+        display_fn(out, idx2name, m_fn_idx);
+        out << " " << m_nargs;
+        break;
+    case opcode::Closure:
+        out << "closure ";
+        display_fn(out, idx2name, m_fn_idx);
+        out << " " << m_nargs;
+        break;
+    }
+}
+
+void vm_instr::display(std::ostream & out) const {
+    display(out, [](unsigned) { return optional<name>(); });
+}
+
 vm_instr mk_push_instr(unsigned idx) {
     vm_instr r(opcode::Push);
     r.m_idx = idx;
@@ -456,6 +499,23 @@ vm_state::vm_state(environment const & env):
     m_fn_idx(0),
     m_pc(0),
     m_bp(0) {
+}
+
+void display_vm_code(std::ostream & out, environment const & env, unsigned code_sz, vm_instr const * code) {
+    vm_decls const & ext = get_extension(env);
+    auto idx2name = [&](unsigned idx) {
+        if (idx < ext.m_decls.size()) {
+            return optional<name>(ext.m_decls[idx].get_name());
+        } else {
+            return optional<name>();
+        }
+    };
+
+    for (unsigned i = 0; i < code_sz; i++) {
+        out << i << ": ";
+        code[i].display(out, idx2name);
+        out << "\n";
+    }
 }
 
 // =======================================

@@ -22,6 +22,8 @@ expr erase_irrelevant(environment const & env, expr const & e);
 bool is_neutral_expr(expr const & e);
 bool is_unreachable_expr(expr const & e);
 
+expr mk_neutral_expr();
+
 void initialize_erase_irrelevant();
 void finalize_erase_irrelevant();
 }

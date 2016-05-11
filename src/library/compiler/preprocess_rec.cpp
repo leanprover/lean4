@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/reduce_arity.h"
 #include "library/compiler/lambda_lifting.h"
+#include "library/compiler/simp_inductive.h"
 
 namespace lean {
 class expand_aux_recursors_fn : public compiler_step_visitor {
@@ -147,6 +148,9 @@ public:
         lean_trace(name({"compiler", "reduce_arity"}), tout() << "\n"; display(procs););
         lambda_lifting(m_env, d.get_name(), procs);
         lean_trace(name({"compiler", "lambda_lifting"}), tout() << "\n"; display(procs););
+        simp_inductive(m_env, procs);
+        lean_trace(name({"compiler", "simplify_inductive"}), tout() << "\n"; display(procs););
+
         display(procs);
         // TODO(Leo)
     }
@@ -167,6 +171,7 @@ void initialize_preprocess_rec() {
     register_trace_class({"compiler", "erase_irrelevant"});
     register_trace_class({"compiler", "reduce_arity"});
     register_trace_class({"compiler", "lambda_lifting"});
+    register_trace_class({"compiler", "simplify_inductive"});
     g_tmp_prefix = new name(name::mk_internal_unique_name());
 }
 

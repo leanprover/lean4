@@ -19,6 +19,11 @@ Author: Leonardo de Moura
 namespace lean {
 static expr * g_neutral_expr     = nullptr;
 static expr * g_unreachable_expr = nullptr;
+
+expr mk_neutral_expr() {
+    return *g_neutral_expr;
+}
+
 class erase_irrelevant_fn : public compiler_step_visitor {
 
     virtual expr visit_sort(expr const &) override {

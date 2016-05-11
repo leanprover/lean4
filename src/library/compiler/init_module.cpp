@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/compiler/inliner.h"
 #include "library/compiler/rec_fn_macro.h"
 #include "library/compiler/erase_irrelevant.h"
+#include "library/compiler/simp_inductive.h"
 
 namespace lean {
 void initialize_compiler_module() {
@@ -17,8 +18,10 @@ void initialize_compiler_module() {
     initialize_inliner();
     initialize_rec_fn_macro();
     initialize_erase_irrelevant();
+    initialize_simp_inductive();
 }
 void finalize_compiler_module() {
+    finalize_simp_inductive();
     finalize_erase_irrelevant();
     finalize_rec_fn_macro();
     finalize_inliner();

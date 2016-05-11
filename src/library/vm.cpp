@@ -139,6 +139,12 @@ vm_instr mk_drop_instr(unsigned n) {
     return r;
 }
 
+vm_instr mk_proj_instr(unsigned n) {
+    vm_instr r(opcode::Proj);
+    r.m_num = n;
+    return r;
+}
+
 vm_instr mk_goto_instr(unsigned pc) {
     vm_instr r(opcode::Goto);
     r.m_pc = pc;
@@ -219,7 +225,7 @@ void vm_instr::copy_args(vm_instr const & i) {
     case opcode::Push:
         m_idx  = i.m_idx;
         break;
-    case opcode::Invoke: case opcode::Drop:
+    case opcode::Invoke: case opcode::Drop: case opcode::Proj:
         m_num = i.m_num;
         break;
     case opcode::Goto: case opcode::Cases2: case opcode::NatCases:

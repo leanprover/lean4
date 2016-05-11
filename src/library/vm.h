@@ -165,7 +165,7 @@ inline vm_obj const & cfield(vm_obj const & o, unsigned i) { lean_assert(i < csi
 enum class opcode {
     Push, Ret, Drop, Goto,
     SConstructor, Constructor, Num,
-    Cases1, Cases2, CasesN, NatCases,
+    Cases1, Cases2, CasesN, NatCases, Proj,
     Invoke, InvokeGlobal, Closure
 };
 
@@ -180,7 +180,7 @@ class vm_instr {
         };
         /* Push */
         unsigned m_idx;
-        /* Invoke, Drop */
+        /* Invoke, Drop, Proj */
         unsigned m_num;
         /* Goto, Cases2 and NatCases */
         unsigned m_pc;
@@ -197,6 +197,7 @@ class vm_instr {
     /* Ret and Cases1 do not have arguments */
     friend vm_instr mk_push_instr(unsigned idx);
     friend vm_instr mk_drop_instr(unsigned n);
+    friend vm_instr mk_proj_instr(unsigned n);
     friend vm_instr mk_goto_instr(unsigned pc);
     friend vm_instr mk_sconstructor_instr(unsigned cidx);
     friend vm_instr mk_constructor_instr(unsigned cidx, unsigned nfields);
@@ -224,6 +225,7 @@ public:
 
 vm_instr mk_push_instr(unsigned idx);
 vm_instr mk_drop_instr(unsigned n);
+vm_instr mk_proj_instr(unsigned n);
 vm_instr mk_goto_instr(unsigned pc);
 vm_instr mk_sconstructor_instr(unsigned cidx);
 vm_instr mk_constructor_instr(unsigned cidx, unsigned nfields);

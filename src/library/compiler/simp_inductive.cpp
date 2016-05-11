@@ -18,7 +18,7 @@ static name * g_cases = nullptr;
 static name * g_cnstr = nullptr;
 static name * g_proj  = nullptr;
 
-static expr mk_constructor(unsigned cidx) {
+static expr mk_cnstr(unsigned cidx) {
     return mk_constant(name(*g_cnstr, cidx));
 }
 
@@ -117,7 +117,7 @@ class simp_inductive_fn : public compiler_step_visitor {
                 new_args.push_back(visit(args[nparams + i]));
             }
         }
-        return mk_app(mk_constructor(cidx), new_args);
+        return mk_app(mk_cnstr(cidx), new_args);
     }
 
     expr visit_projection(name const & fn, buffer<expr> const & args) {
@@ -157,6 +157,16 @@ class simp_inductive_fn : public compiler_step_visitor {
         }
         return compiler_step_visitor::visit_app(e);
     }
+
+    virtual expr visit_constant(expr const & e) override {
+        name const & n = const_name(e);
+        if (inductive::is_intro_rule(env(), n)) {
+            return mk_cnstr(get_constructor_idx(env(), n));
+        } else {
+            return e;
+        }
+    }
+
 public:
     simp_inductive_fn(environment const & env):compiler_step_visitor(env) {}
 };

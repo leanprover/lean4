@@ -21,7 +21,7 @@ definition trivial := true.intro
 definition not (a : Prop) := a → false
 prefix `¬` := not
 
-definition absurd {a : Prop} {b : Type} (H1 : a) (H2 : ¬a) : b :=
+inline definition absurd {a : Prop} {b : Type} (H1 : a) (H2 : ¬a) : b :=
 false.rec b (H2 H1)
 
 lemma not.intro [intro!] {a : Prop} (H : a → false) : ¬ a :=
@@ -132,7 +132,7 @@ attribute eq.refl [refl]
 attribute eq.trans [trans]
 attribute eq.symm [symm]
 
-definition cast {A B : Type} (H : A = B) (a : A) : B :=
+inline definition cast {A B : Type} (H : A = B) (a : A) : B :=
 eq.rec a H
 
 theorem cast_proof_irrel {A B : Type} (H₁ H₂ : A = B) (a : A) : cast H₁ a = cast H₂ a :=
@@ -731,16 +731,16 @@ end
 inductive inhabited [class] (A : Type) : Type :=
 mk : A → inhabited A
 
-protected definition inhabited.value {A : Type} : inhabited A → A :=
+inline protected definition inhabited.value {A : Type} : inhabited A → A :=
 inhabited.rec (λa, a)
 
-protected definition inhabited.destruct {A : Type} {B : Type} (H1 : inhabited A) (H2 : A → B) : B :=
+inline protected definition inhabited.destruct {A : Type} {B : Type} (H1 : inhabited A) (H2 : A → B) : B :=
 inhabited.rec H2 H1
 
-definition default (A : Type) [H : inhabited A] : A :=
+inline definition default (A : Type) [H : inhabited A] : A :=
 inhabited.value H
 
-definition arbitrary [irreducible] (A : Type) [H : inhabited A] : A :=
+inline definition arbitrary [irreducible] (A : Type) [H : inhabited A] : A :=
 inhabited.value H
 
 definition Prop.is_inhabited [instance] : inhabited Prop :=
@@ -753,13 +753,13 @@ definition inhabited_Pi [instance] (A : Type) {B : A → Type} [Πx, inhabited (
   inhabited (Πx, B x) :=
 inhabited.mk (λa, !default)
 
-protected definition bool.is_inhabited [instance] : inhabited bool :=
+inline protected definition bool.is_inhabited [instance] : inhabited bool :=
 inhabited.mk ff
 
-protected definition pos_num.is_inhabited [instance] : inhabited pos_num :=
+inline protected definition pos_num.is_inhabited [instance] : inhabited pos_num :=
 inhabited.mk pos_num.one
 
-protected definition num.is_inhabited [instance] : inhabited num :=
+inline protected definition num.is_inhabited [instance] : inhabited num :=
 inhabited.mk num.zero
 
 inductive nonempty [class] (A : Type) : Prop :=

@@ -36,6 +36,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/util.h"
 #include "library/projection.h"
+#include "library/aux_recursors.h"
 #include "library/kernel_serializer.h"
 #include "library/definitional/rec_on.h"
 #include "library/definitional/induction_on.h"
@@ -754,6 +755,7 @@ struct structure_cmd_fn {
         m_env = mk_rec_on(m_env, m_name);
         name rec_on_name(m_name, "rec_on");
         add_rec_alias(rec_on_name);
+        m_env = add_aux_recursor(m_env, rec_on_name);
         save_def_info(rec_on_name);
         if (m_env.impredicative()) {
             m_env = mk_induction_on(m_env, m_name);
@@ -762,7 +764,9 @@ struct structure_cmd_fn {
             save_def_info(induction_on_name);
         }
         add_rec_on_alias(name(m_name, "destruct"));
-        add_rec_on_alias(name(m_name, "cases_on"));
+        name cases_on_name(m_name, "cases_on");
+        add_rec_on_alias(cases_on_name);
+        m_env = add_aux_recursor(m_env, cases_on_name);
     }
 
     // Return the parent names without namespace prefix

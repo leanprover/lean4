@@ -77,6 +77,10 @@ optional<name> is_constructor_app_ext(environment const & env, expr const & e);
     \pre inductive::is_intro_rule(env, n) */
 void get_constructor_relevant_fields(environment const & env, name const & n, buffer<bool> & result);
 
+/** \brief Return the index (position) of the given constructor in the inductive datatype declaration.
+    \pre inductive::is_intro_rule(env, n) */
+unsigned get_constructor_idx(environment const & env, name const & n);
+
 /** \brief Given an expression \c e, return the number of arguments expected arguments.
 
     \remark This function computes the type of \c e, and then counts the number of nested

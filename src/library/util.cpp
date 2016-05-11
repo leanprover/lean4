@@ -240,6 +240,20 @@ void get_constructor_relevant_fields(environment const & env, name const & n, bu
     }
 }
 
+unsigned get_constructor_idx(environment const & env, name const & n) {
+    lean_assert(inductive::is_intro_rule(env, n));
+    name I_name = *inductive::is_intro_rule(env, n);
+    buffer<name> cnames;
+    get_intro_rule_names(env, I_name, cnames);
+    unsigned r  = 0;
+    for (name const & cname : cnames) {
+        if (cname == n)
+            return r;
+        r++;
+    }
+    lean_unreachable();
+}
+
 expr instantiate_univ_param (expr const & e, name const & p, level const & l) {
     return instantiate_univ_params(e, to_list(p), to_list(l));
 }

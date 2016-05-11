@@ -117,15 +117,21 @@ public:
         expr v = d.get_value();
         lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";)
         v = expand_aux_recursors(m_env, v);
+        lean_assert(check(d, v));
         lean_trace(name({"compiler", "expand_aux_recursors"}), tout() << "\n" << v << "\n";)
         v = mark_comp_irrelevant_subterms(m_env, v);
+        lean_assert(check(d, v));
         v = eta_expand(m_env, v);
+        lean_assert(check(d, v));
         lean_trace(name({"compiler", "eta_expansion"}), tout() << "\n" << v << "\n";)
         v = simp_pr1_rec(m_env, v);
+        lean_assert(check(d, v));
         lean_trace(name({"compiler", "simplify_pr1"}), tout() << "\n" << v << "\n";)
         v = inline_simple_definitions(m_env, v);
+        lean_assert(check(d, v));
         lean_trace(name({"compiler", "inline"}), tout() << "\n" << v << "\n";)
         v = mark_comp_irrelevant_subterms(m_env, v);
+        lean_assert(check(d, v));
         buffer<name> aux_decls;
         v = elim_recursors(m_env, d.get_name(), v, aux_decls);
         for (name const & n : aux_decls) {

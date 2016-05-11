@@ -225,6 +225,21 @@ optional<name> is_constructor_app_ext(environment const & env, expr const & e) {
     return is_constructor_app_ext(env, *it);
 }
 
+void get_constructor_relevant_fields(environment const & env, name const & n, buffer<bool> & result) {
+    lean_assert(inductive::is_intro_rule(env, n));
+    expr type        = env.get(n).get_type();
+    name I_name      = *inductive::is_intro_rule(env, n);
+    unsigned nparams = *inductive::get_num_params(env, I_name);
+    buffer<expr> telescope;
+    type_checker tc(env);
+    to_telescope(tc, type, telescope);
+    lean_assert(telescope.size() >= nparams);
+    for (unsigned i = nparams; i < telescope.size(); i++) {
+        expr ftype = tc.whnf(mlocal_type(telescope[i]));
+        result.push_back(!is_sort(ftype) && !tc.is_prop(ftype));
+    }
+}
+
 expr instantiate_univ_param (expr const & e, name const & p, level const & l) {
     return instantiate_univ_params(e, to_list(p), to_list(l));
 }

@@ -20,6 +20,10 @@ namespace lean {
 static expr * g_neutral_expr     = nullptr;
 static expr * g_unreachable_expr = nullptr;
 
+expr mk_unreachable_expr() {
+    return *g_unreachable_expr;
+}
+
 expr mk_neutral_expr() {
     return *g_neutral_expr;
 }

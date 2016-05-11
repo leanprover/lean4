@@ -70,7 +70,8 @@ class simp_inductive_fn : public compiler_step_visitor {
         }
     }
 
-    expr visit_minor_premise(expr e, buffer<bool> const & rel_fields) {
+    /* Return new minor premise and a flag indicating whether the body is unreachable or not */
+    pair<expr, bool> visit_minor_premise(expr e, buffer<bool> const & rel_fields) {
         type_context::tmp_locals locals(ctx());
         for (unsigned i = 0; i < rel_fields.size(); i++) {
             lean_assert(is_lambda(e));
@@ -82,7 +83,8 @@ class simp_inductive_fn : public compiler_step_visitor {
             }
         }
         e = visit(e);
-        return locals.mk_lambda(e);
+        bool unreachable = is_unreachable_expr(e);
+        return mk_pair(locals.mk_lambda(e), unreachable);
     }
 
     expr visit_cases_on(name const & fn, buffer<expr> & args) {
@@ -94,14 +96,28 @@ class simp_inductive_fn : public compiler_step_visitor {
         /* We distribute applications over cases_on minor premises in
            previous preprocessing steps. */
         lean_assert(args.size() == cnames.size() + 1);
+        unsigned num_reachable = 0;
+        optional<expr> reachable_case;
         /* Process minor premises */
         for (unsigned i = 0; i < cnames.size(); i++) {
             buffer<bool> rel_fields;
             get_constructor_info(cnames[i], rel_fields);
-            args[i+1] = visit_minor_premise(args[i+1], rel_fields);
+            auto p = visit_minor_premise(args[i+1], rel_fields);
+            args[i+1] = p.first;
+            if (!p.second) {
+                num_reachable++;
+                reachable_case = p.first;
+            }
         }
 
-        return mk_app(mk_cases(cnames.size()), args);
+        if (num_reachable == 0) {
+            return mk_unreachable_expr();
+        } else if (num_reachable == 1) {
+            /* Use _cases.1 */
+            return mk_app(mk_cases(1), args[0], *reachable_case);
+        } else {
+            return mk_app(mk_cases(cnames.size()), args);
+        }
     }
 
     expr visit_constructor(name const & fn, buffer<expr> const & args) {

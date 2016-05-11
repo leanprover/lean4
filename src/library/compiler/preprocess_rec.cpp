@@ -115,26 +115,32 @@ public:
 
     void operator()(declaration const & d, buffer<pair<name, expr>> & procs) {
         expr v = d.get_value();
+        lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";)
         v = expand_aux_recursors(m_env, v);
+        lean_trace(name({"compiler", "expand_aux_recursors"}), tout() << "\n" << v << "\n";)
         v = mark_comp_irrelevant_subterms(m_env, v);
         v = eta_expand(m_env, v);
+        lean_trace(name({"compiler", "eta_expansion"}), tout() << "\n" << v << "\n";)
         v = simp_pr1_rec(m_env, v);
+        lean_trace(name({"compiler", "simplify_pr1"}), tout() << "\n" << v << "\n";)
         v = inline_simple_definitions(m_env, v);
+        lean_trace(name({"compiler", "inline"}), tout() << "\n" << v << "\n";)
         v = mark_comp_irrelevant_subterms(m_env, v);
         buffer<name> aux_decls;
         v = elim_recursors(m_env, d.get_name(), v, aux_decls);
-
         for (name const & n : aux_decls) {
             declaration d = m_env.get(n);
             procs.emplace_back(d.get_name(), d.get_value());
         }
         procs.emplace_back(d.get_name(), v);
         check(d, procs.back().second);
-
+        lean_trace(name({"compiler", "elim_recursors"}), tout() << "\n"; display(procs););
         erase_irrelevant(procs);
+        lean_trace(name({"compiler", "erase_irrelevant"}), tout() << "\n"; display(procs););
         reduce_arity(m_env, procs);
+        lean_trace(name({"compiler", "reduce_arity"}), tout() << "\n"; display(procs););
         lambda_lifting(m_env, d.get_name(), procs);
-
+        lean_trace(name({"compiler", "lambda_lifting"}), tout() << "\n"; display(procs););
         display(procs);
         // TODO(Leo)
     }
@@ -145,6 +151,16 @@ void preprocess_rec(environment const & env, declaration const & d, buffer<pair<
 }
 
 void initialize_preprocess_rec() {
+    register_trace_class("compiler");
+    register_trace_class({"compiler", "input"});
+    register_trace_class({"compiler", "expand_aux_recursors"});
+    register_trace_class({"compiler", "eta_expansion"});
+    register_trace_class({"compiler", "simplify_pr1"});
+    register_trace_class({"compiler", "inline"});
+    register_trace_class({"compiler", "elim_recursors"});
+    register_trace_class({"compiler", "erase_irrelevant"});
+    register_trace_class({"compiler", "reduce_arity"});
+    register_trace_class({"compiler", "lambda_lifting"});
     g_tmp_prefix = new name(name::mk_internal_unique_name());
 }
 

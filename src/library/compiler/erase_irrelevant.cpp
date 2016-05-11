@@ -108,6 +108,8 @@ class erase_irrelevant_fn : public compiler_step_visitor {
     expr visit_cases_on(expr const & fn, buffer<expr> & args) {
         name const & rec_name       = const_name(fn);
         name const & I_name         = rec_name.get_prefix();
+        if (I_name == get_false_name())
+            return *g_unreachable_expr;
         unsigned nparams            = *inductive::get_num_params(env(), I_name);
         unsigned nminors            = *inductive::get_num_minor_premises(env(), I_name);
         unsigned nindices           = *inductive::get_num_indices(env(), I_name);
@@ -129,6 +131,8 @@ class erase_irrelevant_fn : public compiler_step_visitor {
     expr visit_rec(expr const & fn, buffer<expr> & args) {
         name const & rec_name       = const_name(fn);
         name const & I_name         = rec_name.get_prefix();
+        if (I_name == get_false_name())
+            return *g_unreachable_expr;
         /* This preprocessing step assumes that recursive recursors have already been eliminated */
         lean_assert(!is_recursive_datatype(env(), I_name));
         unsigned nparams            = *inductive::get_num_params(env(), I_name);

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/normalize.h"
 #include "library/util.h"
+#include "library/vm.h"
 #include "library/compiler/util.h"
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/compiler_step_visitor.h"
@@ -21,6 +22,19 @@ class lambda_lifting_fn : public compiler_step_visitor {
     unsigned                 m_idx;
 
     expr declare_aux_def(expr const & value) {
+        /* Try to avoid unnecessary aux decl by
+           1- Apply eta-reduction
+           2- Check if the result is of the form (f ...) where f is
+              a) VM builtin functions OR
+              b) A function without builtin support (i.e., it is not a constructor, cases_on or projection) */
+        expr new_value  = try_eta(value);
+        expr const & fn = get_app_fn(new_value);
+        if (is_constant(fn)) {
+            name const & n = const_name(fn);
+            if (is_vm_builtin_function(n) ||
+                (!inductive::is_intro_rule(env(), n) && !is_cases_on_recursor(env(), n) && !is_projection(env(), n)))
+                return new_value;
+        }
         name aux_name = mk_fresh_name(env(), m_prefix, "_lambda", m_idx);
         m_new_procs.emplace_back(aux_name, value);
         return mk_constant(aux_name);

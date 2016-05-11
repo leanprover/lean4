@@ -70,6 +70,7 @@ private:
     bool                    m_numerals;
     bool                    m_abbreviations;
     bool                    m_hide_full_terms;
+    bool                    m_hide_comp_irrel;
     bool                    m_preterm;
 
     name mk_metavar_name(name const & m);

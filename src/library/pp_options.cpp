@@ -75,6 +75,10 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_GOAL_MAX_HYPS 200
 #endif
 
+#ifndef LEAN_DEFAULT_PP_HIDE_COMP_IRRELEVANT
+#define LEAN_DEFAULT_PP_HIDE_COMP_IRRELEVANT true
+#endif
+
 #ifndef LEAN_DEFAULT_PP_ALL
 #define LEAN_DEFAULT_PP_ALL false
 #endif
@@ -103,6 +107,7 @@ static name * g_pp_preterm           = nullptr;
 static name * g_pp_goal_compact      = nullptr;
 static name * g_pp_goal_max_hyps     = nullptr;
 static name * g_pp_hide_binder_types = nullptr;
+static name * g_pp_hide_comp_irrel   = nullptr;
 static name * g_pp_all               = nullptr;
 static list<options> * g_distinguishing_pp_options = nullptr;
 
@@ -123,6 +128,7 @@ void initialize_pp_options() {
     g_pp_abbreviations     = new name{"pp", "abbreviations"};
     g_pp_preterm           = new name{"pp", "preterm"};
     g_pp_hide_binder_types = new name{"pp", "hide_binder_types"};
+    g_pp_hide_comp_irrel   = new name{"pp", "hide_comp_irrelevant"};
     g_pp_all               = new name{"pp", "all"};
     g_pp_goal_compact      = new name{"pp", "goal", "compact"};
     g_pp_goal_max_hyps     = new name{"pp", "goal", "max_hypotheses"};
@@ -165,6 +171,8 @@ void initialize_pp_options() {
                              "(pretty printer) maximum number of hypotheses to be displayed");
     register_bool_option(*g_pp_hide_binder_types, LEAN_DEFAULT_PP_HIDE_BINDER_TYPES,
                          "(pretty printer) hide types in binders");
+    register_bool_option(*g_pp_hide_comp_irrel, LEAN_DEFAULT_PP_HIDE_COMP_IRRELEVANT,
+                         "(pretty printer) hide terms marked as computationally irrelevant, these marks are introduced by the code generator");
     register_bool_option(*g_pp_all, LEAN_DEFAULT_PP_ALL,
                          "(pretty printer) display coercions, implicit parameters, fully qualified names, universes, "
                          "and disable abbreviations, beta reduction and notation during pretty printing");
@@ -199,6 +207,7 @@ void finalize_pp_options() {
     delete g_pp_goal_compact;
     delete g_pp_goal_max_hyps;
     delete g_pp_hide_binder_types;
+    delete g_pp_hide_comp_irrel;
     delete g_pp_all;
     delete g_distinguishing_pp_options;
 }
@@ -234,6 +243,7 @@ bool     get_pp_preterm(options const & opts)           { return opts.get_bool(*
 bool     get_pp_goal_compact(options const & opts)      { return opts.get_bool(*g_pp_goal_compact, LEAN_DEFAULT_PP_GOAL_COMPACT); }
 unsigned get_pp_goal_max_hyps(options const & opts)     { return opts.get_unsigned(*g_pp_goal_max_hyps, LEAN_DEFAULT_PP_GOAL_MAX_HYPS); }
 bool     get_pp_hide_binder_types(options const & opts) { return opts.get_bool(*g_pp_hide_binder_types, LEAN_DEFAULT_PP_HIDE_BINDER_TYPES); }
+bool     get_pp_hide_comp_irrel(options const & opts)   { return opts.get_bool(*g_pp_hide_comp_irrel, LEAN_DEFAULT_PP_HIDE_COMP_IRRELEVANT); }
 bool     get_pp_all(options const & opts)               { return opts.get_bool(*g_pp_all, LEAN_DEFAULT_PP_ALL); }
 
 list<options> const & get_distinguishing_pp_options() { return *g_distinguishing_pp_options; }

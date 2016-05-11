@@ -38,6 +38,7 @@ bool     get_pp_preterm(options const & opts);
 bool     get_pp_goal_compact(options const & opts);
 unsigned get_pp_goal_max_hyps(options const & opts);
 bool     get_pp_hide_binder_types(options const & opts);
+bool     get_pp_hide_comp_irrel(options const & opts);
 bool     get_pp_all(options const & opts);
 list<options> const & get_distinguishing_pp_options();
 

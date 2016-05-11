@@ -295,6 +295,7 @@ void pretty_fn::set_options_core(options const & _o) {
     m_abbreviations     = get_pp_abbreviations(o);
     m_preterm           = get_pp_preterm(o);
     m_hide_binder_types = get_pp_hide_binder_types(o);
+    m_hide_comp_irrel   = get_pp_hide_comp_irrel(o);
     m_hide_full_terms   = get_formatter_hide_full_terms(o);
     m_num_nat_coe       = m_numerals && !m_coercion;
 }
@@ -835,7 +836,10 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
    // } else if (is_pattern_hint(e)) {
         // return result(group(nest(2, format("(:") + pp(get_pattern_hint_arg(e)).fmt() + format(":)"))));
     } else if (is_marked_as_comp_irrelevant(e)) {
-        return m_unicode ? format("◾") : format("irrel");
+        if (m_hide_comp_irrel)
+            return m_unicode ? format("◾") : format("irrel");
+        else
+            return pp(get_annotation_arg(e));
     } else if (is_annotation(e)) {
         return pp(get_annotation_arg(e));
     } else if (is_rec_fn_macro(e)) {

@@ -366,7 +366,8 @@ vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, expr const & e, unsigne
         it = binding_body(it);
     }
     m_code = new vm_instr[code_sz];
-    std::memcpy(m_code, code, sizeof(vm_instr)*code_sz);
+    for (unsigned i = 0; i < code_sz; i++)
+        m_code[i] = code[i];
 }
 
 vm_decl_cell::~vm_decl_cell() {

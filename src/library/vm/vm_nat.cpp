@@ -169,6 +169,16 @@ static void nat_decidable_le(vm_state & s) {
     }
 }
 
+static void nat_decidable_lt(vm_state & s) {
+    vm_obj const & a1 = s.get(0);
+    vm_obj const & a2 = s.get(1);
+    if (is_simple(a1) && is_simple(a2)) {
+        return s.push(mk_vm_bool(cidx(a1) < cidx(a2)));
+    } else {
+        return s.push(mk_vm_bool(to_mpz1(a1) < to_mpz2(a2)));
+    }
+}
+
 void initialize_vm_nat() {
     declare_vm_builtin(get_nat_succ_name(),              1, nat_succ);
     declare_vm_builtin(get_nat_add_name(),               2, nat_add);
@@ -179,6 +189,7 @@ void initialize_vm_nat() {
     declare_vm_builtin(get_nat_gcd_name(),               2, nat_gcd);
     declare_vm_builtin(get_nat_has_decidable_eq_name(),  2, nat_has_decidable_eq);
     declare_vm_builtin(get_nat_decidable_le_name(),      2, nat_decidable_le);
+    declare_vm_builtin(get_nat_decidable_lt_name(),      2, nat_decidable_lt);
 }
 
 void finalize_vm_nat() {

@@ -85,7 +85,7 @@ static expr expand_aux_recursors(environment const & env, expr const & e) {
 
 static name * g_tmp_prefix = nullptr;
 
-class preprocess_rec_fn {
+class preprocess_fn {
     environment    m_env;
 
     bool check(declaration const & d, expr const & v) {
@@ -94,7 +94,7 @@ class preprocess_rec_fn {
         type_checker tc(m_env, memoize, trusted_only);
         expr t = tc.check(v, d.get_univ_params());
         if (!tc.is_def_eq(d.get_type(), t))
-            throw exception("preprocess_rec failed");
+            throw exception("preprocess failed");
         return true;
     }
 
@@ -111,7 +111,7 @@ class preprocess_rec_fn {
     }
 
 public:
-    preprocess_rec_fn(environment const & env):
+    preprocess_fn(environment const & env):
         m_env(env) {}
 
     void operator()(declaration const & d, buffer<pair<name, expr>> & procs) {
@@ -154,11 +154,11 @@ public:
     }
 };
 
-void preprocess_rec(environment const & env, declaration const & d, buffer<pair<name, expr>> & result) {
-    return preprocess_rec_fn(env)(d, result);
+void preprocess(environment const & env, declaration const & d, buffer<pair<name, expr>> & result) {
+    return preprocess_fn(env)(d, result);
 }
 
-void initialize_preprocess_rec() {
+void initialize_preprocess() {
     register_trace_class("compiler");
     register_trace_class({"compiler", "input"});
     register_trace_class({"compiler", "expand_aux_recursors"});
@@ -174,7 +174,7 @@ void initialize_preprocess_rec() {
     g_tmp_prefix = new name(name::mk_internal_unique_name());
 }
 
-void finalize_preprocess_rec() {
+void finalize_preprocess() {
     delete g_tmp_prefix;
 }
 }

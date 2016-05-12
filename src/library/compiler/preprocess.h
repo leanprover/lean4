@@ -13,8 +13,8 @@ namespace lean {
     eliminate nested (recursive) recursor applications.
     Each nested recursive application becomes a new definition.
 */
-void preprocess_rec(environment const & env, declaration const & d, buffer<pair<name, expr>> & result);
+void preprocess(environment const & env, declaration const & d, buffer<pair<name, expr>> & result);
 
-void initialize_preprocess_rec();
-void finalize_preprocess_rec();
+void initialize_preprocess();
+void finalize_preprocess();
 }

@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/compiler/simp_inductive.h"
 #include "library/compiler/erase_irrelevant.h"
-#include "library/compiler/preprocess_rec.h"
+#include "library/compiler/preprocess.h"
 
 namespace lean {
 class vm_compiler_fn {
@@ -270,7 +270,7 @@ environment vm_compile(environment const & env, buffer<pair<name, expr>> const &
 
 environment vm_compile(environment const & env, declaration const & d) {
     buffer<pair<name, expr>> procs;
-    preprocess_rec(env, d, procs);
+    preprocess(env, d, procs);
     return vm_compile(env, procs);
 }
 

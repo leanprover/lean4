@@ -144,6 +144,7 @@ void vm_instr::display(std::ostream & out, std::function<optional<name>(unsigned
     case opcode::SConstructor:  out << "scnstr " << m_cidx; break;
     case opcode::Constructor:   out << "cnstr " << m_cidx << " " << m_nfields; break;
     case opcode::Num:           out << "num " << *m_mpz; break;
+    case opcode::Unreachable:   out << "unreachable"; break;
     case opcode::Cases1:        out << "cases1"; break;
     case opcode::Cases2:        out << "cases2 " << m_pc; break;
     case opcode::CasesN:
@@ -218,6 +219,8 @@ vm_instr mk_ret_instr() { return vm_instr(opcode::Ret); }
 
 vm_instr mk_cases1_instr() { return vm_instr(opcode::Cases1); }
 
+vm_instr mk_unreachable_instr() { return vm_instr(opcode::Unreachable); }
+
 vm_instr mk_nat_cases_instr(unsigned pc) {
     vm_instr r(opcode::NatCases);
     r.m_pc = pc;
@@ -290,7 +293,7 @@ void vm_instr::copy_args(vm_instr const & i) {
     case opcode::Num:
         m_mpz = new mpz(*i.m_mpz);
         break;
-    case opcode::Ret: case opcode::Cases1:
+    case opcode::Ret: case opcode::Cases1: case opcode::Unreachable:
         break;
     }
 }

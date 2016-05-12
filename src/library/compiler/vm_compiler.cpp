@@ -56,6 +56,8 @@ class vm_compiler_fn {
         name const & n = const_name(e);
         if (is_neutral_expr(e)) {
             emit(mk_sconstructor_instr(0));
+        } else if (is_unreachable_expr(e)) {
+            emit(mk_unreachable_instr());
         } else if (n == get_nat_zero_name()) {
             emit(mk_num_instr(mpz(0)));
         } else if (auto idx = is_internal_cnstr(e)) {

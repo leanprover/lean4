@@ -31,7 +31,7 @@ Author: Leonardo de Moura
 #include "library/abstract_expr_manager.h"
 #include "library/defeq_simp_lemmas.h"
 #include "library/defeq_simplifier.h"
-#include "library/compiler/preprocess_rec.h"
+#include "library/compiler/vm_compiler.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/calc.h"
@@ -659,8 +659,7 @@ static environment compile_cmd(parser & p) {
     declaration d = p.env().get(n);
     if (!d.is_definition())
         throw parser_error("invalid #compile command, declaration is not a definition", pos);
-    buffer<pair<name, expr>> procs;
-    preprocess_rec(p.env(), d, procs);
+    environment new_env = vm_compile(p.env(), d);
     return p.env();
 }
 

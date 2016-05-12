@@ -142,7 +142,7 @@ void vm_instr::display(std::ostream & out, std::function<optional<name>(unsigned
     case opcode::Goto:          out << "goto " << m_pc; break;
     case opcode::SConstructor:  out << "scnstr " << m_cidx; break;
     case opcode::Constructor:   out << "cnstr " << m_cidx << " " << m_nfields; break;
-    case opcode::Num:           out << "num " << m_mpz; break;
+    case opcode::Num:           out << "num " << *m_mpz; break;
     case opcode::Cases1:        out << "cases1"; break;
     case opcode::Cases2:        out << "cases2 " << m_pc; break;
     case opcode::CasesN:
@@ -154,7 +154,7 @@ void vm_instr::display(std::ostream & out, std::function<optional<name>(unsigned
     case opcode::Proj:          out << "proj " << m_idx; break;
     case opcode::Invoke:        out << "invoke " << m_num; break;
     case opcode::InvokeGlobal:
-        out << "invoke_global ";
+        out << "ginvoke ";
         display_fn(out, idx2name, m_fn_idx);
         out << " " << m_nargs;
         break;
@@ -461,11 +461,11 @@ optional<unsigned> get_vm_constant_idx(environment const & env, name const & n) 
         return optional<unsigned>();
 }
 
-pair<environment, unsigned> reserve_vm_index(environment const & env, name const & fn, expr const & e) {
+environment reserve_vm_index(environment const & env, name const & fn, expr const & e) {
     vm_decls ext = get_extension(env);
     ext.initialize();
-    unsigned idx = ext.reserve(fn, e);
-    return mk_pair(update(env, ext), idx);
+    ext.reserve(fn, e);
+    return update(env, ext);
 }
 
 environment update_vm_code(environment const & env, name const & fn, unsigned code_sz, vm_instr const * code) {
@@ -477,7 +477,7 @@ environment update_vm_code(environment const & env, name const & fn, unsigned co
 }
 
 environment add_vm_code(environment const & env, name const & fn, expr const & e, unsigned code_sz, vm_instr const * code) {
-    environment new_env = reserve_vm_index(env, fn, e).first;
+    environment new_env = reserve_vm_index(env, fn, e);
     return update_vm_code(new_env, fn, code_sz, code);
 }
 

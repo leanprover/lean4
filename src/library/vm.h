@@ -402,7 +402,7 @@ void declare_vm_builtin(name const & n, unsigned arity, vm_function fn);
 /** \brief Reserve an index for the given function in the VM, the expression
     \c e is the value of \c fn after preprocessing.
     See library/compiler/pre_proprocess_rec.cpp for details. */
-pair<environment, unsigned> reserve_vm_index(environment const & env, name const & fn, expr const & e);
+environment reserve_vm_index(environment const & env, name const & fn, expr const & e);
 
 /** \brief Add bytcode for the function named \c fn in \c env.
     \remark The index for \c fn must have been reserved using reserve_vm_index. */

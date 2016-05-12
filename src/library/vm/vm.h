@@ -223,6 +223,8 @@ public:
     vm_instr & operator=(vm_instr const & s);
     vm_instr & operator=(vm_instr && s);
 
+    opcode op() const { return m_op; }
+
     unsigned get_fn_idx() const {
         lean_assert(m_op == opcode::InvokeGlobal || m_op == opcode::Closure);
         return m_fn_idx;
@@ -283,6 +285,14 @@ public:
     mpz const & get_mpz() const {
         lean_assert(m_op == opcode::Num);
         return *m_mpz;
+    }
+
+    bool has_pc() const {
+        return m_op == opcode::Goto || m_op == opcode::Cases2 || m_op == opcode::NatCases;
+    }
+
+    bool has_pcs() const {
+        return m_op == opcode::CasesN;
     }
 
     void display(std::ostream & out, std::function<optional<name>(unsigned)> const & idx2name) const;

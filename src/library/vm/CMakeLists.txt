@@ -1,1 +1,1 @@
-add_library(vm OBJECT vm.cpp vm_nat.cpp init_module.cpp)
+add_library(vm OBJECT vm.cpp vm_nat.cpp optimize.cpp init_module.cpp)

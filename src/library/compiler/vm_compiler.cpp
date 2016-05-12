@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/trace.h"
 #include "library/vm/vm.h"
+#include "library/vm/optimize.h"
 #include "library/util.h"
 #include "library/compiler/simp_inductive.h"
 #include "library/compiler/erase_irrelevant.h"
@@ -259,6 +260,7 @@ environment vm_compile(environment const & env, buffer<pair<name, expr>> const &
         buffer<vm_instr> code;
         vm_compiler_fn gen(new_env, code);
         gen(p.second);
+        optimize(new_env, code);
         lean_trace(name({"compiler", "code_gen"}), tout() << " " << p.first << "\n";
                    display_vm_code(tout().get_stream(), new_env, code.size(), code.data()););
         new_env = update_vm_code(new_env, p.first, code.size(), code.data());

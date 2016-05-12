@@ -659,8 +659,7 @@ static environment compile_cmd(parser & p) {
     declaration d = p.env().get(n);
     if (!d.is_definition())
         throw parser_error("invalid #compile command, declaration is not a definition", pos);
-    environment new_env = vm_compile(p.env(), d);
-    return p.env();
+    return vm_compile(p.env(), d);
 }
 
 static environment elab_cmd(parser & p) {

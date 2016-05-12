@@ -115,7 +115,7 @@ name const & get_nat_div_name();
 name const & get_nat_mod_name();
 name const & get_nat_gcd_name();
 name const & get_nat_has_decidable_eq_name();
-name const & get_nat_has_decidable_le_name();
+name const & get_nat_decidable_le_name();
 name const & get_nat_cases_on_name();
 name const & get_nat_no_confusion_name();
 name const & get_ne_name();

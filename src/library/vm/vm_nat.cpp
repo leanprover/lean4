@@ -159,7 +159,7 @@ static void nat_has_decidable_eq(vm_state & s) {
     }
 }
 
-static void nat_has_decidable_le(vm_state & s) {
+static void nat_decidable_le(vm_state & s) {
     vm_obj const & a1 = s.get(0);
     vm_obj const & a2 = s.get(1);
     if (is_simple(a1) && is_simple(a2)) {
@@ -178,7 +178,7 @@ void initialize_vm_nat() {
     declare_vm_builtin(get_nat_mod_name(),               2, nat_mod);
     declare_vm_builtin(get_nat_gcd_name(),               2, nat_gcd);
     declare_vm_builtin(get_nat_has_decidable_eq_name(),  2, nat_has_decidable_eq);
-    declare_vm_builtin(get_nat_has_decidable_le_name(),  2, nat_has_decidable_le);
+    declare_vm_builtin(get_nat_decidable_le_name(),      2, nat_decidable_le);
 }
 
 void finalize_vm_nat() {

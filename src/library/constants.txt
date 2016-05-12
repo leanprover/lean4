@@ -108,7 +108,7 @@ nat.div
 nat.mod
 nat.gcd
 nat.has_decidable_eq
-nat.has_decidable_le
+nat.decidable_le
 nat.cases_on
 nat.no_confusion
 ne

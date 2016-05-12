@@ -113,7 +113,7 @@ name const * g_nat_div = nullptr;
 name const * g_nat_mod = nullptr;
 name const * g_nat_gcd = nullptr;
 name const * g_nat_has_decidable_eq = nullptr;
-name const * g_nat_has_decidable_le = nullptr;
+name const * g_nat_decidable_le = nullptr;
 name const * g_nat_cases_on = nullptr;
 name const * g_nat_no_confusion = nullptr;
 name const * g_ne = nullptr;
@@ -399,7 +399,7 @@ void initialize_constants() {
     g_nat_mod = new name{"nat", "mod"};
     g_nat_gcd = new name{"nat", "gcd"};
     g_nat_has_decidable_eq = new name{"nat", "has_decidable_eq"};
-    g_nat_has_decidable_le = new name{"nat", "has_decidable_le"};
+    g_nat_decidable_le = new name{"nat", "decidable_le"};
     g_nat_cases_on = new name{"nat", "cases_on"};
     g_nat_no_confusion = new name{"nat", "no_confusion"};
     g_ne = new name{"ne"};
@@ -686,7 +686,7 @@ void finalize_constants() {
     delete g_nat_mod;
     delete g_nat_gcd;
     delete g_nat_has_decidable_eq;
-    delete g_nat_has_decidable_le;
+    delete g_nat_decidable_le;
     delete g_nat_cases_on;
     delete g_nat_no_confusion;
     delete g_ne;
@@ -972,7 +972,7 @@ name const & get_nat_div_name() { return *g_nat_div; }
 name const & get_nat_mod_name() { return *g_nat_mod; }
 name const & get_nat_gcd_name() { return *g_nat_gcd; }
 name const & get_nat_has_decidable_eq_name() { return *g_nat_has_decidable_eq; }
-name const & get_nat_has_decidable_le_name() { return *g_nat_has_decidable_le; }
+name const & get_nat_decidable_le_name() { return *g_nat_decidable_le; }
 name const & get_nat_cases_on_name() { return *g_nat_cases_on; }
 name const & get_nat_no_confusion_name() { return *g_nat_no_confusion; }
 name const & get_ne_name() { return *g_ne; }

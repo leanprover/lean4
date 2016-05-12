@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"
 #include "library/projection.h"
+#include "library/normalize.h"
 #include "library/constants.h"
 #include "library/compiler/util.h"
 #include "library/compiler/erase_irrelevant.h"
@@ -87,6 +88,32 @@ class simp_inductive_fn : public compiler_step_visitor {
         return mk_pair(locals.mk_lambda(e), unreachable);
     }
 
+    bool has_only_one_constructor(name const & I_name) const {
+        if (auto r = inductive::get_num_intro_rules(env(), I_name))
+            return *r == 1;
+        else
+            return false;
+    }
+
+    /* Return true iff inductive datatype I_name has only one constructor,
+       and this constructor has only one relevant field.
+       The argument rel_fields is a bit-vector of relevant fields.
+
+       In this case, we use a simple optimization where we represent elements of this inductive
+       datatype as the only relevant element. */
+    bool has_trivial_structure(name const & I_name, buffer<bool> const & rel_fields) const {
+        if (!has_only_one_constructor(I_name))
+            return false;
+        unsigned num_rel = 0;
+        for (bool b : rel_fields) {
+            if (b)
+                num_rel++;
+            if (num_rel > 1)
+                return false;
+        }
+        return num_rel == 1;
+    }
+
     expr visit_cases_on(name const & fn, buffer<expr> & args) {
         name const & I_name = fn.get_prefix();
         buffer<name> cnames;
@@ -103,7 +130,12 @@ class simp_inductive_fn : public compiler_step_visitor {
             buffer<bool> rel_fields;
             get_constructor_info(cnames[i], rel_fields);
             auto p = visit_minor_premise(args[i+1], rel_fields);
-            args[i+1] = p.first;
+            expr new_minor = p.first;
+            if (i == 0 && has_trivial_structure(I_name, rel_fields)) {
+                /* Optimization for an inductive datatype that has a single constructor with only one relevant field */
+                return beta_reduce(mk_app(new_minor, args[0]));
+            }
+            args[i+1] = new_minor;
             if (!p.second) {
                 num_reachable++;
                 reachable_case = p.first;
@@ -133,13 +165,19 @@ class simp_inductive_fn : public compiler_step_visitor {
                 new_args.push_back(visit(args[nparams + i]));
             }
         }
-        return mk_app(mk_cnstr(cidx), new_args);
+        if (has_trivial_structure(I_name, rel_fields)) {
+            lean_assert(new_args.size() == 1);
+            return new_args[0];
+        } else {
+            return mk_app(mk_cnstr(cidx), new_args);
+        }
     }
 
     expr visit_projection(name const & fn, buffer<expr> const & args) {
         projection_info const & info = *get_projection_info(env(), fn);
         expr major = visit(args[info.m_nparams]);
         buffer<bool> rel_fields;
+        name I_name = *inductive::is_intro_rule(env(), info.m_constructor);
         get_constructor_info(info.m_constructor, rel_fields);
         lean_assert(info.m_i < rel_fields.size());
         lean_assert(rel_fields[info.m_i]); /* We already erased irrelevant information */
@@ -149,7 +187,13 @@ class simp_inductive_fn : public compiler_step_visitor {
             if (rel_fields[i])
                 j++;
         }
-        expr r     = mk_app(mk_proj(j), major);
+        expr r;
+        if (has_trivial_structure(I_name, rel_fields)) {
+            lean_assert(j == 0);
+            r = major;
+        } else {
+            r = mk_app(mk_proj(j), major);
+        }
         /* Add additional arguments */
         for (unsigned i = info.m_nparams + 1; i < args.size(); i++)
             r = mk_app(r, visit(args[i]));

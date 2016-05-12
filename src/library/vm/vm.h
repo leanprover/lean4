@@ -430,6 +430,9 @@ optional<vm_decl> get_vm_decl(environment const & env, name const & n);
 
 void display_vm_code(std::ostream & out, environment const & env, unsigned code_sz, vm_instr const * code);
 
+void initialize_vm_core();
+void finalize_vm_core();
+
 void initialize_vm();
 void finalize_vm();
 }

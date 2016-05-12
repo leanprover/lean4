@@ -7,6 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 
 namespace lean {
+void initialize_library_core_module();
+void finalize_library_core_module();
 void initialize_library_module();
 void finalize_library_module();
 }

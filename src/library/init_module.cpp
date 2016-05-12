@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "library/trace.h"
 #include "library/constants.h"
-#include "library/vm.h"
 #include "library/unifier.h"
 #include "library/kernel_serializer.h"
 #include "library/let.h"
@@ -60,11 +59,17 @@ Author: Leonardo de Moura
 
 
 namespace lean {
-void initialize_library_module() {
+void initialize_library_core_module() {
     initialize_constants();
     initialize_trace();
-    initialize_vm();
+}
 
+void finalize_library_core_module() {
+    finalize_trace();
+    finalize_constants();
+}
+
+void initialize_library_module() {
 // TODO(Leo): delete legacy....
     initialize_old_converter();
     initialize_old_default_converter();
@@ -166,9 +171,6 @@ void finalize_library_module() {
     finalize_attribute_manager();
     finalize_metavar_context();
     finalize_local_context();
-    finalize_vm();
-    finalize_constants();
-    finalize_trace();
 
 // TODO(Leo): delete legacy....
     finalize_old_converter();

@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/normalize.h"
 #include "library/util.h"
-#include "library/vm.h"
+#include "library/vm/vm.h"
 #include "library/compiler/util.h"
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/compiler_step_visitor.h"

@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/constants.h"
 #include "library/trace.h"
-#include "library/vm.h"
+#include "library/vm/vm.h"
 #include "library/util.h"
 #include "library/compiler/simp_inductive.h"
 #include "library/compiler/erase_irrelevant.h"

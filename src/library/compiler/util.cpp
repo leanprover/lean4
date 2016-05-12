@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/aux_recursors.h"
 #include "library/util.h"
-#include "library/vm.h"
+#include "library/vm/vm.h"
 #include "library/type_context.h"
 
 namespace lean {

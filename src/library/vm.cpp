@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <vector>
+#include "util/sstream.h"
 #include "util/parray.h"
 #include "library/constants.h"
 #include "library/vm.h"
@@ -398,13 +399,15 @@ struct vm_decls : public environment_extension {
     vm_decls():m_initialized(false) {}
 
     void add(vm_decl const & d) {
-        lean_assert(!m_name2idx.contains(d.get_name()));
+        if (m_name2idx.contains(d.get_name()))
+            throw exception(sstream() << "VM already contains code for '" << d.get_name() << "'");
         m_name2idx.insert(d.get_name(), d.get_idx());
         m_decls.push_back(d);
     }
 
     unsigned reserve(name const & n, expr const & e) {
-        lean_assert(!m_name2idx.contains(n));
+        if (m_name2idx.contains(n))
+            throw exception(sstream() << "VM already contains code for '" << n << "'");
         unsigned idx = m_decls.size();
         m_name2idx.insert(n, idx);
         m_decls.push_back(vm_decl(n, idx, e, 0, nullptr));

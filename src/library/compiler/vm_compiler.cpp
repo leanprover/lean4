@@ -54,7 +54,9 @@ class vm_compiler_fn {
 
     void compile_constant(expr const & e) {
         name const & n = const_name(e);
-        if (n == get_nat_zero_name()) {
+        if (is_neutral_expr(e)) {
+            emit(mk_sconstructor_instr(0));
+        } else if (n == get_nat_zero_name()) {
             emit(mk_num_instr(mpz(0)));
         } else if (auto idx = is_internal_cnstr(e)) {
             emit(mk_sconstructor_instr(*idx));

@@ -314,6 +314,7 @@ struct vm_decl_cell {
     MK_LEAN_RC();
     bool       m_builtin;
     name       m_name;
+    unsigned   m_idx;
     expr       m_expr;
     unsigned   m_arity;
     union {
@@ -324,8 +325,8 @@ struct vm_decl_cell {
         vm_function    m_fn;
     };
 
-    vm_decl_cell(name const & n, unsigned arity, vm_function fn);
-    vm_decl_cell(name const & n, expr const & e, unsigned code_sz, vm_instr const * code);
+    vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_function fn);
+    vm_decl_cell(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code);
     ~vm_decl_cell();
     void dealloc();
 };
@@ -336,10 +337,10 @@ class vm_decl {
     explicit vm_decl(vm_decl_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
 public:
     vm_decl():m_ptr(nullptr) {}
-    vm_decl(name const & n, unsigned arity, vm_function fn):
-        vm_decl(new vm_decl_cell(n, arity, fn)) {}
-    vm_decl(name const & n, expr const & e, unsigned code_sz, vm_instr const * code):
-        vm_decl(new vm_decl_cell(n, e, code_sz, code)) {}
+    vm_decl(name const & n, unsigned idx, unsigned arity, vm_function fn):
+        vm_decl(new vm_decl_cell(n, idx, arity, fn)) {}
+    vm_decl(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code):
+        vm_decl(new vm_decl_cell(n, idx, e, code_sz, code)) {}
     vm_decl(vm_decl const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     vm_decl(vm_decl && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~vm_decl() { if (m_ptr) m_ptr->dec_ref(); }
@@ -350,6 +351,7 @@ public:
     vm_decl & operator=(vm_decl && s) { LEAN_MOVE_REF(s); }
 
     bool is_builtin() const { lean_assert(m_ptr); return m_ptr->m_builtin; }
+    unsigned get_idx() const { lean_assert(m_ptr); return m_ptr->m_idx; }
     name get_name() const { lean_assert(m_ptr); return m_ptr->m_name; }
     unsigned get_arity() const { lean_assert(m_ptr); return m_ptr->m_arity; }
     unsigned get_code_size() const { lean_assert(!is_builtin()); return m_ptr->m_code_size; }

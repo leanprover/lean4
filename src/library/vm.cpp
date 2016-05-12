@@ -354,11 +354,11 @@ vm_instr & vm_instr::operator=(vm_instr && s) {
 }
 
 
-vm_decl_cell::vm_decl_cell(name const & n, unsigned arity, vm_function fn):
-    m_rc(0), m_builtin(true), m_name(n), m_arity(arity), m_fn(fn) {}
+vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_function fn):
+    m_rc(0), m_builtin(true), m_name(n), m_idx(idx), m_arity(arity), m_fn(fn) {}
 
-vm_decl_cell::vm_decl_cell(name const & n, expr const & e, unsigned code_sz, vm_instr const * code):
-    m_rc(0), m_builtin(false), m_name(n), m_expr(e), m_arity(0),
+vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code):
+    m_rc(0), m_builtin(false), m_name(n), m_idx(idx), m_expr(e), m_arity(0),
     m_code_size(code_sz) {
     expr it = e;
     while (is_lambda(it)) {
@@ -398,8 +398,7 @@ struct vm_decls : public environment_extension {
 
     void add(vm_decl const & d) {
         lean_assert(!m_name2idx.contains(d.get_name()));
-        unsigned idx = m_decls.size();
-        m_name2idx.insert(d.get_name(), idx);
+        m_name2idx.insert(d.get_name(), d.get_idx());
         m_decls.push_back(d);
     }
 
@@ -407,7 +406,7 @@ struct vm_decls : public environment_extension {
         lean_assert(!m_name2idx.contains(n));
         unsigned idx = m_decls.size();
         m_name2idx.insert(n, idx);
-        m_decls.push_back(vm_decl(n, e, 0, nullptr));
+        m_decls.push_back(vm_decl(n, idx, e, 0, nullptr));
         return idx;
     }
 
@@ -415,14 +414,14 @@ struct vm_decls : public environment_extension {
         lean_assert(m_name2idx.contains(n));
         unsigned idx = *m_name2idx.find(n);
         vm_decl d    = m_decls[idx];
-        m_decls.set(idx, vm_decl(n, d.get_expr(), code_sz, code));
+        m_decls.set(idx, vm_decl(n, idx, d.get_expr(), code_sz, code));
     }
 
     void initialize() {
         if (!m_initialized) {
             m_initialized = true;
             g_vm_builtins->for_each([&](name const & n, pair<unsigned, vm_function> const & p) {
-                    add(vm_decl(n, p.first, p.second));
+                    add(vm_decl(n, m_decls.size(), p.first, p.second));
                 });
         }
     }

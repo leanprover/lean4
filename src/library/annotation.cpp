@@ -168,6 +168,7 @@ void initialize_annotation() {
 }
 
 void finalize_annotation() {
+    delete g_checkpoint;
     delete g_show;
     delete g_have;
     delete g_annotation_macros;

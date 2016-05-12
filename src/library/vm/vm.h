@@ -161,6 +161,8 @@ inline vm_obj const * cfields(vm_obj const & o) {
 inline vm_obj const & cfield(vm_obj const & o, unsigned i) { lean_assert(i < csize(o)); return cfields(o)[i]; }
 // =======================================
 
+#define LEAN_MAX_SMALL_NAT 1u<<31
+
 /** \brief VM instruction opcode */
 enum class opcode {
     Push, Ret, Drop, Goto,

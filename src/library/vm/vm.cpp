@@ -210,9 +210,15 @@ vm_instr mk_constructor_instr(unsigned cidx, unsigned nfields) {
 }
 
 vm_instr mk_num_instr(mpz const & v) {
-    vm_instr r(opcode::Num);
-    r.m_mpz = new mpz(v);
-    return r;
+    if (v < LEAN_MAX_SMALL_NAT) {
+        vm_instr r(opcode::SConstructor);
+        r.m_num = v.get_unsigned_int();
+        return r;
+    } else {
+        vm_instr r(opcode::Num);
+        r.m_mpz = new mpz(v);
+        return r;
+    }
 }
 
 vm_instr mk_ret_instr() { return vm_instr(opcode::Ret); }
@@ -269,10 +275,10 @@ void vm_instr::copy_args(vm_instr const & i) {
         m_fn_idx = i.m_fn_idx;
         m_nargs  = i.m_nargs;
         break;
-    case opcode::Push:
+    case opcode::Push: case opcode::Proj:
         m_idx  = i.m_idx;
         break;
-    case opcode::Invoke: case opcode::Drop: case opcode::Proj:
+    case opcode::Invoke: case opcode::Drop:
         m_num = i.m_num;
         break;
     case opcode::Goto: case opcode::Cases2: case opcode::NatCases:

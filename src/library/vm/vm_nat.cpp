@@ -10,17 +10,16 @@ Author: Leonardo de Moura
 namespace lean {
 // =======================================
 // Builtin nat operations
-#define MAX_SMALL_NAT 1u<<31
 
 vm_obj mk_vm_nat(unsigned n) {
-    if (n < MAX_SMALL_NAT)
+    if (n < LEAN_MAX_SMALL_NAT)
         return mk_vm_simple(n);
     else
         return mk_vm_mpz(mpz(n));
 }
 
 vm_obj mk_vm_nat(mpz const & n) {
-    if (n < MAX_SMALL_NAT)
+    if (n < LEAN_MAX_SMALL_NAT)
         return mk_vm_simple(n.get_unsigned_int());
     else
         return mk_vm_mpz(n);
@@ -73,7 +72,7 @@ static void nat_mul(vm_state & s) {
     vm_obj const & a2 = s.get(1);
     if (is_simple(a1) && is_simple(a2)) {
         unsigned long long r = static_cast<unsigned long long>(cidx(a1)) + static_cast<unsigned long long>(cidx(a2));
-        if (r < MAX_SMALL_NAT) {
+        if (r < LEAN_MAX_SMALL_NAT) {
             s.push(mk_vm_simple(r));
             return;
         }

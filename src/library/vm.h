@@ -424,6 +424,8 @@ bool is_vm_function(environment const & env, name const & fn);
 /** \brief Return true iff \c fn is implemented in C++. */
 bool is_vm_builtin_function(name const & fn);
 
+optional<vm_decl> get_vm_decl(environment const & env, name const & n);
+
 void display_vm_code(std::ostream & out, environment const & env, unsigned code_sz, vm_instr const * code);
 
 void initialize_vm();

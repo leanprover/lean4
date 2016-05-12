@@ -491,6 +491,14 @@ environment optimize_vm_decls(environment const & env) {
     }
 }
 
+optional<vm_decl> get_vm_decl(environment const & env, name const & n) {
+    vm_decls const & ext = get_extension(env);
+    if (auto idx = ext.m_name2idx.find(n))
+        return optional<vm_decl>(ext.m_decls[*idx]);
+    else
+        return optional<vm_decl>();
+}
+
 vm_state::vm_state(environment const & env):
     m_env(optimize_vm_decls(env)),
     m_decls(get_extension(m_env).m_decls.as_vector_if_compressed()),

@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/compiler/simp_inductive.h"
 #include "library/compiler/erase_irrelevant.h"
+#include "library/compiler/nat_value.h"
 #include "library/compiler/preprocess.h"
 
 namespace lean {
@@ -215,14 +216,22 @@ class vm_compiler_fn {
         emit(mk_drop_instr(counter));
     }
 
+    void compile_macro(expr const & e) {
+        if (is_nat_value(e)) {
+            emit(mk_num_instr(get_nat_value_value(e)));
+        } else {
+            throw exception("code generation failed, unexpected kind of macro has been found");
+        }
+    }
+
     void compile(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
         switch (e.kind()) {
         case expr_kind::Var:      lean_unreachable();
         case expr_kind::Sort:     lean_unreachable();
         case expr_kind::Meta:     lean_unreachable();
         case expr_kind::Pi:       lean_unreachable();
-        case expr_kind::Macro:    lean_unreachable();
         case expr_kind::Lambda:   lean_unreachable();
+        case expr_kind::Macro:    compile_macro(e);          break;
         case expr_kind::Constant: compile_constant(e);       break;
         case expr_kind::Local:    compile_local(e, m);       break;
         case expr_kind::App:      compile_app(e, bpz, m);    break;

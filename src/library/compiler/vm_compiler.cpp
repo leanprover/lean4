@@ -107,7 +107,7 @@ class vm_compiler_fn {
             unsigned new_bpz = bpz;
             while (is_lambda(b)) {
                 name n = mk_fresh_name();
-                new_m.insert(n, bpz);
+                new_m.insert(n, new_bpz);
                 locals.push_back(mk_local(n));
                 new_bpz++;
                 b = binding_body(b);

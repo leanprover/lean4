@@ -395,9 +395,6 @@ public:
     void invoke_global(unsigned fn_idx);
 };
 
-/** \brief Make sure VM builtin declarations have been initialized. */
-environment initialize_vm_builtin_decls(environment const & env);
-
 /** \brief Add builtin implementation for the function named \c n. */
 void declare_vm_builtin(name const & n, unsigned arity, vm_function fn);
 

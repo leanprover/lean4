@@ -396,10 +396,14 @@ bool is_vm_builtin_function(name const & fn) {
 
 /** \brief VM function/constant declarations are stored in an environment extension. */
 struct vm_decls : public environment_extension {
-    bool               m_initialized;
     name_map<unsigned> m_name2idx;
     parray<vm_decl>    m_decls;
-    vm_decls():m_initialized(false) {}
+
+    vm_decls() {
+        g_vm_builtins->for_each([&](name const & n, pair<unsigned, vm_function> const & p) {
+                add(vm_decl(n, m_decls.size(), p.first, p.second));
+            });
+    }
 
     void add(vm_decl const & d) {
         if (m_name2idx.contains(d.get_name()))
@@ -423,15 +427,6 @@ struct vm_decls : public environment_extension {
         vm_decl d    = m_decls[idx];
         m_decls.set(idx, vm_decl(n, idx, d.get_expr(), code_sz, code));
     }
-
-    void initialize() {
-        if (!m_initialized) {
-            m_initialized = true;
-            g_vm_builtins->for_each([&](name const & n, pair<unsigned, vm_function> const & p) {
-                    add(vm_decl(n, m_decls.size(), p.first, p.second));
-                });
-        }
-    }
 };
 
 struct vm_decls_reg {
@@ -445,14 +440,6 @@ static vm_decls const & get_extension(environment const & env) {
 }
 static environment update(environment const & env, vm_decls const & ext) {
     return env.update(g_ext->m_ext_id, std::make_shared<vm_decls>(ext));
-}
-
-environment initialize_vm_builtin_decls(environment const & env) {
-    auto ext = get_extension(env);
-    if (ext.m_initialized)
-        return env;
-    ext.initialize();
-    return update(env, ext);
 }
 
 bool is_vm_function(environment const & env, name const & fn) {
@@ -470,14 +457,12 @@ optional<unsigned> get_vm_constant_idx(environment const & env, name const & n) 
 
 environment reserve_vm_index(environment const & env, name const & fn, expr const & e) {
     vm_decls ext = get_extension(env);
-    ext.initialize();
     ext.reserve(fn, e);
     return update(env, ext);
 }
 
 environment update_vm_code(environment const & env, name const & fn, unsigned code_sz, vm_instr const * code) {
     vm_decls ext = get_extension(env);
-    ext.initialize();
     ext.update(fn, code_sz, code);
     // TODO(Leo): store bytecode in .olean file
     return update(env, ext);

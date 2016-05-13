@@ -128,6 +128,27 @@ void vm_obj_cell::dealloc() {
     }
 }
 
+void display(std::ostream const & out, vm_obj const & o) {
+    if (is_simple(o)) {
+        out << cidx(o);
+    } else if (is_constructor(o)) {
+        out << "(" << cidx(o);
+        for (unsigned i = 0; i < csize(o); i++) {
+            out << " ";
+            display(out, cfield(o, i));
+        }
+        out << ")";
+    } else if (is_mpz(o)) {
+        out << to_mpz(o);
+    } else if (is_external(o)) {
+        out << "[external]";
+    } else if (is_closure(o)) {
+        out << "[closure]";
+    } else {
+        out << "[unknown]";
+    }
+}
+
 static void display_fn(std::ostream & out, std::function<optional<name>(unsigned)> const & idx2name, unsigned fn_idx) {
     if (auto r = idx2name(fn_idx))
         out << *r;

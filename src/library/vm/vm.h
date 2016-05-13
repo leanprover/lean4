@@ -161,6 +161,8 @@ inline vm_obj const * cfields(vm_obj const & o) {
 inline vm_obj const & cfield(vm_obj const & o, unsigned i) { lean_assert(i < csize(o)); return cfields(o)[i]; }
 // =======================================
 
+void display(std::ostream const & out, vm_obj const & o);
+
 #define LEAN_MAX_SMALL_NAT 1u<<31
 
 /** \brief VM instruction opcode */

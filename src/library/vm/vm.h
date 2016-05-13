@@ -43,6 +43,7 @@ public:
 #define LEAN_VM_BOX(num)    (reinterpret_cast<vm_obj_cell*>((num << 1) | 1))
 #define LEAN_VM_UNBOX(obj)  (reinterpret_cast<size_t>(obj) >> 1)
 
+void display(std::ostream & out, vm_obj const & o, std::function<optional<name>(unsigned)> const & idx2name);
 void display(std::ostream & out, vm_obj const & o);
 
 /** \brief VM object */
@@ -440,6 +441,9 @@ public:
 
     void invoke_fn(name const & fn);
     void invoke_fn(unsigned fn_idx);
+
+    void display_stack(std::ostream & out) const;
+    void display(std::ostream & out, vm_obj const & o) const;
 };
 
 /** \brief Add builtin implementation for the function named \c n. */

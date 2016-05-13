@@ -128,14 +128,14 @@ void vm_obj_cell::dealloc() {
     }
 }
 
-void display(std::ostream & out, vm_obj const & o) {
+void display(std::ostream & out, vm_obj const & o, std::function<optional<name>(unsigned)> const & idx2name) {
     if (is_simple(o)) {
         out << cidx(o);
     } else if (is_constructor(o)) {
         out << "(#" << cidx(o);
         for (unsigned i = 0; i < csize(o); i++) {
             out << " ";
-            display(out, cfield(o, i));
+            display(out, cfield(o, i), idx2name);
         }
         out << ")";
     } else if (is_mpz(o)) {
@@ -143,10 +143,23 @@ void display(std::ostream & out, vm_obj const & o) {
     } else if (is_external(o)) {
         out << "[external]";
     } else if (is_closure(o)) {
-        out << "[closure]";
+        if (auto n = idx2name(cfn_idx(o))) {
+            out << "(" << *n;
+        } else {
+            out << "(fn#" << cfn_idx(o);
+        }
+        for (unsigned i = 0; i < csize(o); i++) {
+            out << " ";
+            display(out, cfield(o, i), idx2name);
+        }
+        out << ")";
     } else {
         out << "[unknown]";
     }
+}
+
+void display(std::ostream & out, vm_obj const & o) {
+    display(out, o, [](unsigned) { return optional<name>(); });
 }
 
 static void display_fn(std::ostream & out, std::function<optional<name>(unsigned)> const & idx2name, unsigned fn_idx) {
@@ -619,6 +632,19 @@ void vm_state::invoke_global(vm_decl const & d) {
     m_bp              = m_stack.size() - d.get_arity();
 }
 
+void vm_state::display_stack(std::ostream & out) const {
+    for (unsigned i = 0; i < m_stack.size(); i++) {
+        if (i == m_bp)
+            out << "[bp] ";
+        else
+            out << "     ";
+        display(out, m_stack[i]);
+        out << "\n";
+    }
+    if (m_bp == m_stack.size())
+        out << "[bp]\n";
+}
+
 void vm_state::run() {
     lean_assert(m_code);
     unsigned init_call_stack_sz = m_call_stack.size();
@@ -633,12 +659,8 @@ void vm_state::run() {
                            instr.display(tout().get_stream(), [&](unsigned idx) {
                                    return optional<name>(m_decls[idx].get_name());
                                });
-                           tout() << ", bp: " << m_bp << "\n";
-                           for (unsigned i = 0; i < m_stack.size(); i++) {
-                               tout() << i << " := ";
-                               display(tout().get_stream(), m_stack[i]);
-                               tout() << "\n";
-                           }
+                           tout() << "\n";
+                           display_stack(tout().get_stream());
                            tout() << "\n";)
                     });
         switch (instr.op()) {
@@ -996,6 +1018,10 @@ void vm_state::invoke_fn(unsigned fn_idx) {
     else
         invoke_global(d);
     run();
+}
+
+void vm_state::display(std::ostream & out, vm_obj const & o) const {
+    ::lean::display(out, o, [&](unsigned idx) { return optional<name>(m_decls[idx].get_name()); });
 }
 
 void display_vm_code(std::ostream & out, environment const & env, unsigned code_sz, vm_instr const * code) {

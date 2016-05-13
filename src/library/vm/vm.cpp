@@ -938,7 +938,7 @@ void vm_state::run() {
             unsigned arity    = d.get_arity();
             unsigned new_nargs = nargs + csz;
             lean_assert(new_nargs <= arity);
-            std::copy(cfields(closure), cfields(closure) + csz, m_stack.end());
+            std::copy(cfields(closure), cfields(closure) + csz, std::back_inserter(m_stack));
             /* Now, stack contains closure arguments + original stack arguments */
             if (new_nargs == arity) {
                 if (d.is_builtin())

@@ -110,7 +110,7 @@ void init_token_table(token_table & t) {
          "definition", "example", "coercion", "abbreviation", "noncomputable",
          "variables", "parameter", "parameters", "constant", "constants",
          "[visible]", "[none]", "[parsing_only]",
-         "evaluate", "check", "eval", "[wf]", "[whnf]", "[priority", "[unfold_hints]",
+         "evaluate", "check", "eval", "vm_eval", "[wf]", "[whnf]", "[priority", "[unfold_hints]",
          "print", "end", "namespace", "section", "prelude", "help",
          "import", "inductive", "record", "structure", "module", "universe", "universes", "local",
          "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation",

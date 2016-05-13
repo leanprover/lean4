@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "library/abstract_expr_manager.h"
 #include "library/defeq_simp_lemmas.h"
 #include "library/defeq_simplifier.h"
+#include "library/vm/vm.h"
 #include "library/compiler/vm_compiler.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
@@ -662,6 +663,15 @@ static environment compile_cmd(parser & p) {
     return vm_compile(p.env(), d);
 }
 
+static environment vm_eval_cmd(parser & p) {
+    name n = p.check_constant_next("invalid vm_eval command, constant expected");
+    vm_state s(p.env());
+    s.invoke_global(n);
+    vm_obj r = s.get(0);
+    display(p.ios().get_regular_stream(), r);
+    return p.env();
+}
+
 static environment elab_cmd(parser & p) {
     expr e = p.parse_expr();
     expr new_e; level_param_names ls;
@@ -689,6 +699,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("end",               "close the current namespace/section", end_scoped_cmd));
     add_cmd(r, cmd_info("check",             "type check given expression, and display its type", check_cmd));
     add_cmd(r, cmd_info("eval",              "evaluate given expression", eval_cmd));
+    add_cmd(r, cmd_info("vm_eval",           "VM evaluation", vm_eval_cmd));
     add_cmd(r, cmd_info("find_decl",         "find definitions and/or theorems", find_cmd));
     add_cmd(r, cmd_info("local",             "define local attributes or notation", local_cmd));
     add_cmd(r, cmd_info("help",              "brief description of available commands and options", help_cmd));

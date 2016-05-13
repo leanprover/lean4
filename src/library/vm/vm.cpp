@@ -128,7 +128,7 @@ void vm_obj_cell::dealloc() {
     }
 }
 
-void display(std::ostream const & out, vm_obj const & o) {
+void display(std::ostream & out, vm_obj const & o) {
     if (is_simple(o)) {
         out << cidx(o);
     } else if (is_constructor(o)) {
@@ -536,6 +536,21 @@ if (is_constructor(obj)) {                              \
     }                                                   \
 }
 
+#define InvokeGlobal(d)                                                 \
+if (d.is_builtin()) {                                                   \
+    d.get_fn()(*this);                                                  \
+    unsigned sz = m_stack.size();                                       \
+    std::swap(m_stack[sz - d.get_arity() - 1], m_stack[sz - 1]);        \
+    m_stack.resize(sz - d.get_arity());                                 \
+    pc++;                                                               \
+} else {                                                                \
+    m_call_stack.emplace_back(m_code, m_fn_idx, d.get_arity(), pc+1, m_bp); \
+    m_code            = d.get_code();                                   \
+    m_fn_idx          = d.get_idx();                                    \
+    pc                = 0;                                              \
+    m_bp              = m_stack.size() - d.get_arity();                 \
+}
+
 void vm_state::run() {
     /*
        TODO(Leo): we can improve performance using the following tricks:
@@ -691,12 +706,7 @@ void vm_state::run() {
             }
             /* Now, stack contains closure arguments + original stack arguments */
             if (new_nargs == arity) {
-                /* We have all arguments... invoking function */
-                m_call_stack.emplace_back(m_code, m_fn_idx, arity, pc+1, m_bp);
-                m_code            = d.get_code();
-                m_fn_idx          = d.get_idx();
-                pc                = 0;
-                m_bp              = m_stack.size() - arity;
+                InvokeGlobal(d);
                 goto main_loop;
             } else {
                 /* We don't have sufficient arguments. So, we create a new closure */
@@ -710,12 +720,7 @@ void vm_state::run() {
         }
         case opcode::InvokeGlobal: {
             vm_decl const & d = m_decls[instr.get_fn_idx()];
-            unsigned arity    = d.get_arity();
-            m_call_stack.emplace_back(m_code, m_fn_idx, arity, pc+1, m_bp);
-            m_code            = d.get_code();
-            m_fn_idx          = d.get_idx();
-            pc                = 0;
-            m_bp              = m_stack.size() - arity;
+            InvokeGlobal(d);
             goto main_loop;
         }
         }
@@ -733,13 +738,11 @@ void vm_state::invoke_global(name const & fn) {
 void vm_state::invoke_global(unsigned fn_idx) {
     lean_assert(fn_idx < m_decls.size());
     vm_decl const & d = m_decls[fn_idx];
+    unsigned pc       = 0;
     unsigned arity    = d.get_arity();
     if (arity > m_stack.size())
         throw exception("invalid VM function call, data stack does not have enough values");
-    m_call_stack.emplace_back(m_code, m_fn_idx, arity, 0, m_bp);
-    m_code            = d.get_code();
-    m_fn_idx          = d.get_idx();
-    m_bp              = m_stack.size() - arity;
+    InvokeGlobal(d);
     run();
 }
 

@@ -51,6 +51,8 @@ public:
     vm_obj(vm_obj && o):m_data(o.m_data) { o.m_data = LEAN_VM_BOX(0); }
     ~vm_obj() { if (LEAN_VM_IS_PTR(m_data)) m_data->dec_ref(); }
 
+    friend void swap(vm_obj & a, vm_obj & b) { std::swap(a.m_data, b.m_data); }
+
     vm_obj & operator=(vm_obj const & s) {
         if (LEAN_VM_IS_PTR(s.m_data))
             s.m_data->inc_ref();

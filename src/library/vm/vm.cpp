@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/parray.h"
 #include "library/constants.h"
+#include "library/trace.h"
 #include "library/vm/vm.h"
 
 namespace lean {
@@ -538,8 +539,13 @@ if (is_constructor(obj)) {                              \
 
 #define InvokeGlobal(d)                                                 \
 if (d.is_builtin()) {                                                   \
-    d.get_fn()(*this);                                                  \
+    unsigned saved_bp = m_bp;                                           \
     unsigned sz = m_stack.size();                                       \
+    m_bp = sz - d.get_arity();                                          \
+    d.get_fn()(*this);                                                  \
+    lean_assert(m_stack.size() == sz + 1);                              \
+    m_bp = saved_bp;                                                    \
+    sz = m_stack.size();                                                \
     std::swap(m_stack[sz - d.get_arity() - 1], m_stack[sz - 1]);        \
     m_stack.resize(sz - d.get_arity());                                 \
     pc++;                                                               \
@@ -562,7 +568,6 @@ void vm_state::run() {
     lean_assert(m_code);
     unsigned init_call_stack_sz = m_call_stack.size();
     unsigned pc  = 0;
-
     while (true) {
       main_loop:
         vm_instr const & instr = m_code[pc];

@@ -669,6 +669,7 @@ static environment vm_eval_cmd(parser & p) {
     s.invoke_global(n);
     vm_obj r = s.get(0);
     display(p.ios().get_regular_stream(), r);
+    p.ios().get_regular_stream() << "\n";
     return p.env();
 }
 

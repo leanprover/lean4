@@ -170,17 +170,17 @@ enum class opcode {
     Push, Ret, Drop, Goto,
     SConstructor, Constructor, Num,
     Cases1, Cases2, CasesN, NatCases, Proj,
-    Invoke, InvokeGlobal, Closure, Unreachable
+    Invoke, InvokeGlobal, InvokeBuiltin, Closure, Unreachable
 };
 
 /** \brief VM instructions */
 class vm_instr {
     opcode m_op;
     union {
-        /* InvokeGlobal and Closure */
+        /* InvokeGlobal, InvokeBuiltin and Closure */
         struct {
             unsigned m_fn_idx;
-            unsigned m_nargs;
+            unsigned m_nargs; /* Only for Closure */
         };
         /* Push, Proj */
         unsigned m_idx;
@@ -215,7 +215,8 @@ class vm_instr {
     friend vm_instr mk_cases2_instr(unsigned pc);
     friend vm_instr mk_casesn_instr(unsigned num_pc, unsigned const * pcs);
     friend vm_instr mk_invoke_instr(unsigned n);
-    friend vm_instr mk_invoke_global_instr(unsigned fn_idx, unsigned n);
+    friend vm_instr mk_invoke_global_instr(unsigned fn_idx);
+    friend vm_instr mk_invoke_builtin_instr(unsigned fn_idx);
     friend vm_instr mk_closure_instr(unsigned fn_idx, unsigned n);
 
     void copy_args(vm_instr const & i);
@@ -232,12 +233,12 @@ public:
     opcode op() const { return m_op; }
 
     unsigned get_fn_idx() const {
-        lean_assert(m_op == opcode::InvokeGlobal || m_op == opcode::Closure);
+        lean_assert(m_op == opcode::InvokeGlobal || m_op == opcode::InvokeBuiltin || m_op == opcode::Closure);
         return m_fn_idx;
     }
 
     unsigned get_nargs() const {
-        lean_assert(m_op == opcode::InvokeGlobal || m_op == opcode::Closure);
+        lean_assert(m_op == opcode::Closure);
         return m_nargs;
     }
 
@@ -327,7 +328,8 @@ vm_instr mk_nat_cases_instr(unsigned pc1, unsigned pc2);
 vm_instr mk_cases2_instr(unsigned pc1, unsigned pc2);
 vm_instr mk_casesn_instr(unsigned num_pc, unsigned const * pcs);
 vm_instr mk_invoke_instr(unsigned n);
-vm_instr mk_invoke_global_instr(unsigned fn_idx, unsigned n);
+vm_instr mk_invoke_global_instr(unsigned fn_idx);
+vm_instr mk_invoke_builtin_instr(unsigned fn_idx);
 vm_instr mk_closure_instr(unsigned fn_idx, unsigned n);
 
 class vm_state;

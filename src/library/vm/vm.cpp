@@ -179,7 +179,10 @@ void vm_instr::display(std::ostream & out, std::function<optional<name>(unsigned
     case opcode::InvokeGlobal:
         out << "ginvoke ";
         display_fn(out, idx2name, m_fn_idx);
-        out << " " << m_nargs;
+        break;
+    case opcode::InvokeBuiltin:
+        out << "builtin ";
+        display_fn(out, idx2name, m_fn_idx);
         break;
     case opcode::Closure:
         out << "closure ";
@@ -319,10 +322,15 @@ vm_instr mk_invoke_instr(unsigned n) {
     return r;
 }
 
-vm_instr mk_invoke_global_instr(unsigned fn_idx, unsigned n) {
+vm_instr mk_invoke_global_instr(unsigned fn_idx) {
     vm_instr r(opcode::InvokeGlobal);
     r.m_fn_idx = fn_idx;
-    r.m_nargs  = n;
+    return r;
+}
+
+vm_instr mk_invoke_builtin_instr(unsigned fn_idx) {
+    vm_instr r(opcode::InvokeBuiltin);
+    r.m_fn_idx = fn_idx;
     return r;
 }
 
@@ -335,7 +343,10 @@ vm_instr mk_closure_instr(unsigned fn_idx, unsigned n) {
 
 void vm_instr::copy_args(vm_instr const & i) {
     switch (i.m_op) {
-    case opcode::InvokeGlobal: case opcode::Closure:
+    case opcode::InvokeGlobal: case opcode::InvokeBuiltin:
+        m_fn_idx = i.m_fn_idx;
+        break;
+    case opcode::Closure:
         m_fn_idx = i.m_fn_idx;
         m_nargs  = i.m_nargs;
         break;
@@ -594,6 +605,7 @@ void vm_state::invoke_builtin(vm_decl const & d) {
     sz = m_stack.size();
     std::swap(m_stack[sz - d.get_arity() - 1], m_stack[sz - 1]);
     m_stack.resize(sz - d.get_arity());
+    m_pc++;
 }
 
 void vm_state::invoke_global(vm_decl const & d) {
@@ -607,7 +619,6 @@ void vm_state::invoke_global(vm_decl const & d) {
 void vm_state::invoke_global_builtin(vm_decl const & d) {
     if (d.is_builtin()) {
         invoke_builtin(d);
-        m_pc++;
     } else {
         invoke_global(d);
     }
@@ -618,7 +629,6 @@ void vm_state::run() {
        TODO(Leo): we can improve performance using the following tricks:
        - Function arguments in reverse order.
        - Function pointer after arguments.
-       - We don't need to store nargs at InvokeGlobal
     */
     lean_assert(m_code);
     unsigned init_call_stack_sz = m_call_stack.size();
@@ -789,11 +799,12 @@ void vm_state::run() {
                 goto main_loop;
             }
         }
-        case opcode::InvokeGlobal: {
-            vm_decl const & d = m_decls[instr.get_fn_idx()];
-            invoke_global_builtin(d);
+        case opcode::InvokeGlobal:
+            invoke_global(m_decls[instr.get_fn_idx()]);
             goto main_loop;
-        }
+        case opcode::InvokeBuiltin:
+            invoke_builtin(m_decls[instr.get_fn_idx()]);
+            goto main_loop;
         }
     }
 }

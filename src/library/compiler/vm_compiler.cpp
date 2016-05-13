@@ -44,7 +44,10 @@ class vm_compiler_fn {
         compile_args(nargs, args, bpz, m);
         lean_assert(nargs <= decl.get_arity());
         if (decl.get_arity() == nargs) {
-            emit(mk_invoke_global_instr(decl.get_idx(), nargs));
+            if (decl.is_builtin())
+                emit(mk_invoke_builtin_instr(decl.get_idx()));
+            else
+                emit(mk_invoke_global_instr(decl.get_idx()));
         } else {
             emit(mk_closure_instr(decl.get_idx(), nargs));
         }

@@ -12,14 +12,9 @@ static void del_instr_at(unsigned pc, buffer<vm_instr> & code) {
     // we must adjust pc of other instructions
     for (unsigned i = 0; i < code.size(); i++) {
         vm_instr & c = code[i];
-        if (c.has_pc()) {
-            if (c.get_pc() > pc)
-                c.set_pc(c.get_pc() - 1);
-        } else if (c.has_pcs()) {
-            for (unsigned j = 0; j < c.get_num_pcs(); j++) {
-                if (c.get_pc(j) > pc)
-                    c.set_pc(j, c.get_pc(j) - 1);
-            }
+        for (unsigned j = 0; j < c.get_num_pcs(); j++) {
+            if (c.get_pc(j) > pc)
+                c.set_pc(j, c.get_pc(j) - 1);
         }
     }
 }
@@ -62,7 +57,7 @@ static void compress_goto_ret(buffer<vm_instr> & code) {
     while (i > 0) {
         --i;
         if (code[i].op() == opcode::Goto) {
-            unsigned pc = code[i].get_pc();
+            unsigned pc = code[i].get_goto_pc();
             if (code[pc].op() == opcode::Ret) {
                 code[i] = mk_ret_instr();
             }

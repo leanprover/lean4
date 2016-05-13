@@ -187,7 +187,9 @@ class vm_instr {
         /* Invoke, Drop */
         unsigned m_num;
         /* Goto, Cases2 and NatCases */
-        unsigned m_pc;
+        struct {
+            unsigned m_pc[2];
+        };
         /* CasesN */
         unsigned * m_npcs;
         /* Constructor, SConstructor */
@@ -249,30 +251,42 @@ public:
         return m_num;
     }
 
-    unsigned get_pc() const {
-        lean_assert(m_op == opcode::Goto || m_op == opcode::Cases2 || m_op == opcode::NatCases);
-        return m_pc;
+    unsigned get_goto_pc() const {
+        lean_assert(m_op == opcode::Goto);
+        return m_pc[0];
     }
 
-    void set_pc(unsigned pc) {
-        lean_assert(m_op == opcode::Goto || m_op == opcode::Cases2 || m_op == opcode::NatCases);
-        m_pc = pc;
+    void set_goto_pc(unsigned pc) {
+        lean_assert(m_op == opcode::Goto);
+        m_pc[0] = pc;
     }
 
-    unsigned get_num_pcs() const {
+    unsigned get_cases2_pc(unsigned i) const {
+        lean_assert(m_op == opcode::Cases2 || m_op == opcode::NatCases);
+        lean_assert(i < 2);
+        return m_pc[i];
+    }
+
+    void set_cases2_pc(unsigned i, unsigned pc) {
+        lean_assert(m_op == opcode::Cases2 || m_op == opcode::NatCases);
+        lean_assert(i < 2);
+        m_pc[i] = pc;
+    }
+
+    unsigned get_casesn_size() const {
         lean_assert(m_op == opcode::CasesN);
         return m_npcs[0];
     }
 
-    unsigned get_pc(unsigned i) const {
+    unsigned get_casesn_pc(unsigned i) const {
         lean_assert(m_op == opcode::CasesN);
-        lean_assert(i < get_num_pcs());
+        lean_assert(i < get_casesn_size());
         return m_npcs[i+1];
     }
 
-    void set_pc(unsigned i, unsigned pc) const {
+    void set_casesn_pc(unsigned i, unsigned pc) const {
         lean_assert(m_op == opcode::CasesN);
-        lean_assert(i < get_num_pcs());
+        lean_assert(i < get_casesn_size());
         m_npcs[i+1] = pc;
     }
 
@@ -291,13 +305,9 @@ public:
         return *m_mpz;
     }
 
-    bool has_pc() const {
-        return m_op == opcode::Goto || m_op == opcode::Cases2 || m_op == opcode::NatCases;
-    }
-
-    bool has_pcs() const {
-        return m_op == opcode::CasesN;
-    }
+    unsigned get_num_pcs() const;
+    unsigned get_pc(unsigned i) const;
+    void set_pc(unsigned i, unsigned pc);
 
     void display(std::ostream & out, std::function<optional<name>(unsigned)> const & idx2name) const;
     void display(std::ostream & out) const;
@@ -313,8 +323,8 @@ vm_instr mk_num_instr(mpz const & v);
 vm_instr mk_ret_instr();
 vm_instr mk_cases1_instr();
 vm_instr mk_unreachable_instr();
-vm_instr mk_nat_cases_instr(unsigned pc);
-vm_instr mk_cases2_instr(unsigned pc);
+vm_instr mk_nat_cases_instr(unsigned pc1, unsigned pc2);
+vm_instr mk_cases2_instr(unsigned pc1, unsigned pc2);
 vm_instr mk_casesn_instr(unsigned num_pc, unsigned const * pcs);
 vm_instr mk_invoke_instr(unsigned n);
 vm_instr mk_invoke_global_instr(unsigned fn_idx, unsigned n);

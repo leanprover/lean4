@@ -95,18 +95,17 @@ class vm_compiler_fn {
         unsigned cases_pos = next_pc();
         buffer<unsigned> cases_args;
         buffer<unsigned> goto_pcs;
-        cases_args.resize(num - 1, 0);
+        cases_args.resize(num, 0);
         if (fn_name == get_nat_cases_on_name())
-            emit(mk_nat_cases_instr(0));
+            emit(mk_nat_cases_instr(0, 0));
         else if (num == 1)
             emit(mk_cases1_instr());
         else if (num == 2)
-            emit(mk_cases2_instr(0));
+            emit(mk_cases2_instr(0, 0));
         else
             emit(mk_casesn_instr(cases_args.size(), cases_args.data()));
         for (unsigned i = 1; i < args.size(); i++) {
-            if (i > 1)
-                cases_args[i - 2] = next_pc();
+            cases_args[i - 1] = next_pc();
             expr b = args[i];
             buffer<expr> locals;
             name_map<unsigned> new_m = m;
@@ -129,16 +128,14 @@ class vm_compiler_fn {
             }
         }
         /* Fix cases instruction pc's */
-        if (num == 2) {
-            m_code[cases_pos].set_pc(cases_args[0]);
-        } else {
+        if (num >= 2) {
             for (unsigned i = 0; i < cases_args.size(); i++)
                 m_code[cases_pos].set_pc(i, cases_args[i]);
         }
         unsigned end_pc = next_pc();
         /* Fix goto instruction pc's */
         for (unsigned i = 0; i < goto_pcs.size(); i++) {
-            m_code[goto_pcs[i]].set_pc(end_pc);
+            m_code[goto_pcs[i]].set_goto_pc(end_pc);
         }
     }
 

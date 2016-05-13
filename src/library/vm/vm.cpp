@@ -161,19 +161,19 @@ void vm_instr::display(std::ostream & out, std::function<optional<name>(unsigned
     case opcode::Push:          out << "push " << m_idx; break;
     case opcode::Ret:           out << "ret"; break;
     case opcode::Drop:          out << "drop " << m_num; break;
-    case opcode::Goto:          out << "goto " << m_pc; break;
+    case opcode::Goto:          out << "goto " << m_pc[0]; break;
     case opcode::SConstructor:  out << "scnstr " << m_cidx; break;
     case opcode::Constructor:   out << "cnstr " << m_cidx << " " << m_nfields; break;
     case opcode::Num:           out << "num " << *m_mpz; break;
     case opcode::Unreachable:   out << "unreachable"; break;
     case opcode::Cases1:        out << "cases1"; break;
-    case opcode::Cases2:        out << "cases2 " << m_pc; break;
+    case opcode::Cases2:        out << "cases2 " << m_pc[0] << " " << m_pc[1]; break;
     case opcode::CasesN:
         out << "cases";
-        for (unsigned i = 0; i < get_num_pcs(); i++)
-            out << " " << get_pc(i);
+        for (unsigned i = 0; i < get_casesn_size(); i++)
+            out << " " << get_casesn_pc(i);
         break;
-    case opcode::NatCases:      out << "nat_cases " << m_pc; break;
+    case opcode::NatCases:      out << "nat_cases " << m_pc[0] << " " << m_pc[1]; break;
     case opcode::Proj:          out << "proj " << m_idx; break;
     case opcode::Invoke:        out << "invoke " << m_num; break;
     case opcode::InvokeGlobal:
@@ -191,6 +191,47 @@ void vm_instr::display(std::ostream & out, std::function<optional<name>(unsigned
 
 void vm_instr::display(std::ostream & out) const {
     display(out, [](unsigned) { return optional<name>(); });
+}
+
+unsigned vm_instr::get_num_pcs() const {
+    switch (m_op) {
+    case opcode::Goto:
+        return 1;
+    case opcode::Cases2: case opcode::NatCases:
+        return 2;
+    case opcode::CasesN:
+        return get_casesn_size();
+    default:
+        return 0;
+    }
+}
+
+unsigned vm_instr::get_pc(unsigned i) const {
+    lean_assert(i < get_num_pcs());
+    switch (m_op) {
+    case opcode::Goto:
+    case opcode::Cases2: case opcode::NatCases:
+        return m_pc[i];
+    case opcode::CasesN:
+        return get_casesn_pc(i);
+    default:
+        lean_unreachable();
+    }
+}
+
+void vm_instr::set_pc(unsigned i, unsigned pc) {
+    lean_assert(i < get_num_pcs());
+    switch (m_op) {
+    case opcode::Goto:
+    case opcode::Cases2: case opcode::NatCases:
+        m_pc[i] = pc;
+        break;
+    case opcode::CasesN:
+        set_casesn_pc(i, pc);
+        break;
+    default:
+        lean_unreachable();
+    }
 }
 
 vm_instr mk_push_instr(unsigned idx) {
@@ -213,7 +254,7 @@ vm_instr mk_proj_instr(unsigned n) {
 
 vm_instr mk_goto_instr(unsigned pc) {
     vm_instr r(opcode::Goto);
-    r.m_pc = pc;
+    r.m_pc[0] = pc;
     return r;
 }
 
@@ -248,15 +289,17 @@ vm_instr mk_cases1_instr() { return vm_instr(opcode::Cases1); }
 
 vm_instr mk_unreachable_instr() { return vm_instr(opcode::Unreachable); }
 
-vm_instr mk_nat_cases_instr(unsigned pc) {
+vm_instr mk_nat_cases_instr(unsigned pc1, unsigned pc2) {
     vm_instr r(opcode::NatCases);
-    r.m_pc = pc;
+    r.m_pc[0] = pc1;
+    r.m_pc[1] = pc2;
     return r;
 }
 
-vm_instr mk_cases2_instr(unsigned pc) {
+vm_instr mk_cases2_instr(unsigned pc1, unsigned pc2) {
     vm_instr r(opcode::Cases2);
-    r.m_pc = pc;
+    r.m_pc[0] = pc1;
+    r.m_pc[1] = pc2;
     return r;
 }
 
@@ -302,8 +345,12 @@ void vm_instr::copy_args(vm_instr const & i) {
     case opcode::Invoke: case opcode::Drop:
         m_num = i.m_num;
         break;
-    case opcode::Goto: case opcode::Cases2: case opcode::NatCases:
-        m_pc = i.m_pc;
+    case opcode::Goto:
+        m_pc[0] = i.m_pc[0];
+        break;
+    case opcode::Cases2: case opcode::NatCases:
+        m_pc[0] = i.m_pc[0];
+        m_pc[1] = i.m_pc[1];
         break;
     case opcode::CasesN:
         m_npcs = new unsigned[i.m_npcs[0] + 1];
@@ -571,7 +618,6 @@ void vm_state::run() {
        TODO(Leo): we can improve performance using the following tricks:
        - Function arguments in reverse order.
        - Function pointer after arguments.
-       - For Cases2, NatCases and CasesN store the pc for cidx 0 case.
        - We don't need to store nargs at InvokeGlobal
     */
     lean_assert(m_code);
@@ -605,7 +651,7 @@ void vm_state::run() {
             goto main_loop;
         }
         case opcode::Goto:
-            m_pc = instr.get_pc();
+            m_pc = instr.get_goto_pc();
             goto main_loop;
         case opcode::SConstructor:
             m_stack.push_back(mk_vm_simple(instr.get_cidx()));
@@ -644,10 +690,7 @@ void vm_state::run() {
             vm_obj top = m_stack.back();
             m_stack.pop_back();
             push_fields(top);
-            if (cidx(top) == 0)
-                m_pc++;
-            else
-                m_pc = instr.get_pc();
+            m_pc = instr.get_cases2_pc(cidx(top));
             goto main_loop;
         }
         case opcode::NatCases: {
@@ -660,7 +703,7 @@ void vm_state::run() {
                     goto main_loop;
                 } else {
                     m_stack.push_back(mk_vm_simple(val - 1));
-                    m_pc = instr.get_pc();
+                    m_pc = instr.get_cases2_pc(1);
                     goto main_loop;
                 }
             } else {
@@ -670,7 +713,7 @@ void vm_state::run() {
                     goto main_loop;
                 } else {
                     m_stack.push_back(mk_vm_mpz(val - 1));
-                    m_pc = instr.get_pc();
+                    m_pc = instr.get_cases2_pc(1);
                     goto main_loop;
                 }
             }
@@ -679,10 +722,7 @@ void vm_state::run() {
             vm_obj top = m_stack.back();
             m_stack.pop_back();
             push_fields(top);
-            if (cidx(top) == 0)
-                m_pc++;
-            else
-                m_pc = instr.get_pc(cidx(top) - 1);
+            m_pc = instr.get_casesn_pc(cidx(top));
             goto main_loop;
         }
         case opcode::Proj: {

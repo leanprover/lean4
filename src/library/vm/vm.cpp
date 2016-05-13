@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <vector>
+#include "util/interrupt.h"
 #include "util/sstream.h"
 #include "util/parray.h"
 #include "util/small_object_allocator.h"
@@ -929,6 +930,8 @@ void vm_state::run() {
             }
         }
         case opcode::InvokeGlobal:
+            check_interrupted();
+            check_memory("vm");
             /**
                Instruction: ginvoke fn
 
@@ -951,6 +954,8 @@ void vm_state::run() {
             invoke_global(m_decls[instr.get_fn_idx()]);
             goto main_loop;
         case opcode::InvokeBuiltin:
+            check_interrupted();
+            check_memory("vm");
             /**
                Instruction: builtin fn
 

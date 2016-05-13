@@ -562,8 +562,6 @@ void vm_state::run() {
     lean_assert(m_code);
     unsigned init_call_stack_sz = m_call_stack.size();
     unsigned pc  = 0;
-    unsigned num, sz, nfields, nargs;
-    vm_obj top, new_value;
 
     while (true) {
       main_loop:
@@ -573,14 +571,15 @@ void vm_state::run() {
             m_stack.push_back(m_stack[m_bp + instr.get_idx()]);
             pc++;
             goto main_loop;
-        case opcode::Drop:
-            num = instr.get_num();
-            sz  = m_stack.size();
+        case opcode::Drop: {
+            unsigned num = instr.get_num();
+            unsigned sz  = m_stack.size();
             lean_assert(sz > num);
             std::swap(m_stack[sz - num - 1], m_stack[sz - 1]);
             m_stack.resize(sz - num);
             pc++;
             goto main_loop;
+        }
         case opcode::Goto:
             pc = instr.get_pc();
             goto main_loop;
@@ -588,34 +587,37 @@ void vm_state::run() {
             m_stack.push_back(mk_vm_simple(instr.get_cidx()));
             pc++;
             goto main_loop;
-        case opcode::Constructor:
-            nfields = instr.get_nfields();
-            sz      = m_stack.size();
-            new_value = mk_vm_constructor(instr.get_cidx(), nfields, m_stack.data() + sz - nfields);
+        case opcode::Constructor: {
+            unsigned nfields = instr.get_nfields();
+            unsigned sz      = m_stack.size();
+            vm_obj new_value = mk_vm_constructor(instr.get_cidx(), nfields, m_stack.data() + sz - nfields);
             m_stack.resize(sz - nfields);
             m_stack.push_back(new_value);
             pc++;
             goto main_loop;
-        case opcode::Closure:
-            nargs     = instr.get_nargs();
-            sz        = m_stack.size();
-            new_value = mk_vm_closure(instr.get_fn_idx(), nargs, m_stack.data() + sz - nargs);
+        }
+        case opcode::Closure: {
+            unsigned nargs     = instr.get_nargs();
+            unsigned sz        = m_stack.size();
+            vm_obj new_value   = mk_vm_closure(instr.get_fn_idx(), nargs, m_stack.data() + sz - nargs);
             m_stack.resize(sz - nargs);
             m_stack.push_back(new_value);
             pc++;
             goto main_loop;
+        }
         case opcode::Num:
             m_stack.push_back(mk_vm_mpz(instr.get_mpz()));
             pc++;
             goto main_loop;
-        case opcode::Cases1:
-            top = m_stack.back();
+        case opcode::Cases1: {
+            vm_obj top = m_stack.back();
             m_stack.pop_back();
             PushFields(top);
             pc++;
             goto main_loop;
-        case opcode::Cases2:
-            top = m_stack.back();
+        }
+        case opcode::Cases2: {
+            vm_obj top = m_stack.back();
             m_stack.pop_back();
             PushFields(top);
             if (cidx(top) == 0)
@@ -623,8 +625,9 @@ void vm_state::run() {
             else
                 pc = instr.get_pc();
             goto main_loop;
-        case opcode::NatCases:
-            top = m_stack.back();
+        }
+        case opcode::NatCases: {
+            vm_obj top = m_stack.back();
             m_stack.pop_back();
             if (is_simple(top)) {
                 unsigned val = cidx(top);
@@ -647,8 +650,9 @@ void vm_state::run() {
                     goto main_loop;
                 }
             }
-        case opcode::CasesN:
-            top = m_stack.back();
+        }
+        case opcode::CasesN: {
+            vm_obj top = m_stack.back();
             m_stack.pop_back();
             PushFields(top);
             if (cidx(top) == 0)
@@ -656,17 +660,19 @@ void vm_state::run() {
             else
                 pc = instr.get_pc(cidx(top) - 1);
             goto main_loop;
-        case opcode::Proj:
-            top = m_stack.back();
+        }
+        case opcode::Proj: {
+            vm_obj top = m_stack.back();
             m_stack.pop_back();
             m_stack.push_back(cfield(top, instr.get_idx()));
             pc++;
             goto main_loop;
+        }
         case opcode::Unreachable:
             throw exception("VM unreachable instruction has been reached");
         case opcode::Ret: {
             frame const & fr = m_call_stack.back();
-            sz       = m_stack.size();
+            unsigned sz      = m_stack.size();
             std::swap(m_stack[sz - fr.m_num - 1], m_stack[sz - 1]);
             m_stack.resize(sz - fr.m_num);
             m_code   = fr.m_code;
@@ -712,7 +718,7 @@ void vm_state::run() {
             } else {
                 /* We don't have sufficient arguments. So, we create a new closure */
                 sz = m_stack.size();
-                new_value = mk_vm_closure(fn_idx, new_nargs, m_stack.data() + sz - new_nargs);
+                vm_obj new_value = mk_vm_closure(fn_idx, new_nargs, m_stack.data() + sz - new_nargs);
                 m_stack.resize(sz - new_nargs);
                 m_stack.push_back(new_value);
                 pc++;

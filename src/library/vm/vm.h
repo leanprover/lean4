@@ -421,7 +421,6 @@ class vm_state {
     void push_fields(vm_obj const & obj);
     void invoke_builtin(vm_decl const & d);
     void invoke_global(vm_decl const & d);
-    void invoke_global_builtin(vm_decl const & d);
     void run();
 
 public:
@@ -439,8 +438,8 @@ public:
         return m_stack[m_bp + idx];
     }
 
-    void invoke_global(name const & fn);
-    void invoke_global(unsigned fn_idx);
+    void invoke_fn(name const & fn);
+    void invoke_fn(unsigned fn_idx);
 };
 
 /** \brief Add builtin implementation for the function named \c n. */

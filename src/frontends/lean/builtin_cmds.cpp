@@ -669,7 +669,7 @@ static environment vm_eval_cmd(parser & p) {
     vm_state s(p.env());
     {
         timeit timer(p.ios().get_diagnostic_stream(), "vm_eval time");
-        s.invoke_global(n);
+        s.invoke_fn(n);
     }
     vm_obj r = s.get(0);
     display(p.ios().get_regular_stream(), r);

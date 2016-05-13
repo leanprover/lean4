@@ -619,14 +619,6 @@ void vm_state::invoke_global(vm_decl const & d) {
     m_bp              = m_stack.size() - d.get_arity();
 }
 
-void vm_state::invoke_global_builtin(vm_decl const & d) {
-    if (d.is_builtin()) {
-        invoke_builtin(d);
-    } else {
-        invoke_global(d);
-    }
-}
-
 void vm_state::run() {
     lean_assert(m_code);
     unsigned init_call_stack_sz = m_call_stack.size();
@@ -638,7 +630,9 @@ void vm_state::run() {
                 /* We only trace VM in debug mode */
                 lean_trace(name({"vm", "run"}),
                            tout() << m_pc << ": ";
-                           instr.display(tout().get_stream(), [&](unsigned idx) { return optional<name>(m_decls[idx].get_name()); });
+                           instr.display(tout().get_stream(), [&](unsigned idx) {
+                                   return optional<name>(m_decls[idx].get_name());
+                               });
                            tout() << ", bp: " << m_bp << "\n";
                            for (unsigned i = 0; i < m_stack.size(); i++) {
                                tout() << i << " := ";
@@ -649,10 +643,31 @@ void vm_state::run() {
                     });
         switch (instr.op()) {
         case opcode::Push:
+            /* Instruction: push i
+
+               stack before,      after
+                     ...                ...
+               bp :  a_0          bp :  a_0
+                     ...                ...
+                     a_i  ==>           a_i
+                     ...                ...
+                     v                  v
+                                        a_i
+            */
             m_stack.push_back(m_stack[m_bp + instr.get_idx()]);
             m_pc++;
             goto main_loop;
         case opcode::Drop: {
+            /* Instruction: drop n
+
+               stack before,      after
+               ...                ...
+               w                  w
+               a_1   ==>          v
+               ...
+               a_n
+               v
+            */
             unsigned num = instr.get_num();
             unsigned sz  = m_stack.size();
             lean_assert(sz > num);
@@ -662,13 +677,33 @@ void vm_state::run() {
             goto main_loop;
         }
         case opcode::Goto:
+            /* Instruction: goto pc
+
+               m_pc := pc
+            */
             m_pc = instr.get_goto_pc();
             goto main_loop;
         case opcode::SConstructor:
+            /** Instruction: scnstr i
+
+               stack before,      after
+               ...                ...
+               v    ==>           v
+                                  #i
+            */
             m_stack.push_back(mk_vm_simple(instr.get_cidx()));
             m_pc++;
             goto main_loop;
         case opcode::Constructor: {
+            /** Instruction: cnstr i n
+
+               stack before,      after
+               ...                ...
+               v      ==>         v
+               a_1                (#i a_1 ... a_n)
+               ...
+               a_n
+            */
             unsigned nfields = instr.get_nfields();
             unsigned sz      = m_stack.size();
             vm_obj new_value = mk_vm_constructor(instr.get_cidx(), nfields, m_stack.data() + sz - nfields);
@@ -678,6 +713,15 @@ void vm_state::run() {
             goto main_loop;
         }
         case opcode::Closure: {
+            /** Instruction: closure fn n
+
+               stack before,      after
+               ...                ...
+               v      ==>         v
+               a_n                (fn a_n ... a_1)
+               ...
+               a_1
+            */
             unsigned nargs     = instr.get_nargs();
             unsigned sz        = m_stack.size();
             vm_obj new_value   = mk_vm_closure(instr.get_fn_idx(), nargs, m_stack.data() + sz - nargs);
@@ -687,10 +731,26 @@ void vm_state::run() {
             goto main_loop;
         }
         case opcode::Num:
+            /** Instruction: num n
+
+               stack before,      after
+               ...                ...
+               v    ==>           v
+                                  n
+            */
             m_stack.push_back(mk_vm_mpz(instr.get_mpz()));
             m_pc++;
             goto main_loop;
         case opcode::Cases1: {
+            /** Instruction: cases1
+
+               stack before,              after
+               ...                        ...
+               v                 ==>      v
+               (#i a_1 ... a_n)           a_1
+                                          ...
+                                          a_n
+            */
             vm_obj top = m_stack.back();
             m_stack.pop_back();
             push_fields(top);
@@ -698,6 +758,18 @@ void vm_state::run() {
             goto main_loop;
         }
         case opcode::Cases2: {
+            /** Instruction: cases2 pc1 pc2
+
+               stack before,              after
+               ...                        ...
+               v                 ==>      v
+               (#i a_1 ... a_n)           a_1
+                                          ...
+                                          a_n
+
+              m_pc := pc1  if  i == 0
+                   := pc2  if  i == 1
+            */
             vm_obj top = m_stack.back();
             m_stack.pop_back();
             push_fields(top);
@@ -705,6 +777,16 @@ void vm_state::run() {
             goto main_loop;
         }
         case opcode::NatCases: {
+            /** Instruction: natcases pc1 pc2
+
+               stack before,              after (if n = 0)    after (if n > 0)
+               ...                        ...                 ...
+               v                 ==>      v                   v
+               n                                              n-1
+
+              m_pc := pc1  if  n == 0
+                   := pc2  if  otherwise
+            */
             vm_obj top = m_stack.back();
             m_stack.pop_back();
             if (is_simple(top)) {
@@ -730,6 +812,17 @@ void vm_state::run() {
             }
         }
         case opcode::CasesN: {
+            /** Instruction: casesn pc_0 ... pc_[n-1]
+
+               stack before,              after
+               ...                        ...
+               v                 ==>      v
+               (#i a_1 ... a_n)           a_1
+                                          ...
+                                          a_n
+
+              m_pc := pc_i
+            */
             vm_obj top = m_stack.back();
             m_stack.pop_back();
             push_fields(top);
@@ -737,6 +830,14 @@ void vm_state::run() {
             goto main_loop;
         }
         case opcode::Proj: {
+            /** Instruction: proj i
+
+               stack before,              after
+               ...                        ...
+               v                     ==>  v
+               (#i a_0 ... a_{n-1})       a_i
+
+            */
             vm_obj top = m_stack.back();
             m_stack.pop_back();
             m_stack.push_back(cfield(top, instr.get_idx()));
@@ -746,6 +847,28 @@ void vm_state::run() {
         case opcode::Unreachable:
             throw exception("VM unreachable instruction has been reached");
         case opcode::Ret: {
+            /**
+               Instruction: ret
+
+               call stack before                  after
+
+               ...                                ...
+               (code, fn_idx, num, pc, bp)  ==>
+
+               Restore m_code, m_fn_idx, m_pc, m_bp with top of call stack.
+
+               stack before        after
+               ...                 ...
+               v                   v
+               a_n                 r
+               ...       ==>
+               a_1
+               r
+
+
+               a_1, ... a_n were the arguments for the function call.
+               r is the result.
+            */
             frame const & fr = m_call_stack.back();
             unsigned sz      = m_stack.size();
             std::swap(m_stack[sz - fr.m_num - 1], m_stack[sz - 1]);
@@ -763,6 +886,26 @@ void vm_state::run() {
             }
         }
         case opcode::Invoke: {
+            /**
+               Instruction: invoke n
+
+               Case 1) n + m < fn.arity, where m is the number of arguments in the closure,
+               and fn is the function stored in the closure.
+
+               stack before                    after
+               ...                             ...
+               v                               v
+               a_n                             (closure fn a_n ... a_1 b_m ... b_1)
+               ...                       ==>
+               a_1
+               (closure fn b_m ... b_1)
+
+               Case 2) n + m == fn.arity and fn is not builtin.
+               See InvokeGlobal case.
+
+               Case 3) n + m == fn.arity and fn is builtin.
+               See InvokeBuiltin case.
+            */
             unsigned nargs    = instr.get_nargs();
             unsigned sz       = m_stack.size();
             vm_obj closure    = m_stack.back();
@@ -776,7 +919,10 @@ void vm_state::run() {
             std::copy(cfields(closure), cfields(closure) + csz, m_stack.end());
             /* Now, stack contains closure arguments + original stack arguments */
             if (new_nargs == arity) {
-                invoke_global_builtin(d);
+                if (d.is_builtin())
+                    invoke_builtin(d);
+                else
+                    invoke_global(d);
                 goto main_loop;
             } else {
                 /* We don't have sufficient arguments. So, we create a new closure */
@@ -789,30 +935,66 @@ void vm_state::run() {
             }
         }
         case opcode::InvokeGlobal:
+            /**
+               Instruction: ginvoke fn
+
+               call stack before                  after
+
+               ...              ==>               ...
+                                                  (fn.m_code, fn.idx, fn.arity, m_pc+1, m_bp)
+
+               Update m_code, m_fn_idx, with fn, and update m_pc := 0, m_bp
+
+               stack before            after
+               ...                     ...
+               v                       v
+               a_n              m_bp : a_n
+               ...       ==>           ...
+               a_1                     a_1
+
+               where n is fn.arity
+            */
             invoke_global(m_decls[instr.get_fn_idx()]);
             goto main_loop;
         case opcode::InvokeBuiltin:
+            /**
+               Instruction: builtin fn
+
+               stack before          after
+               ...                   ...
+               v                     v
+               a_n                   r
+               ...       ==>
+               a_1
+
+               where n is fn.arity
+
+               Remark: note that the arguments are in reverse order.
+            */
             invoke_builtin(m_decls[instr.get_fn_idx()]);
             goto main_loop;
         }
     }
 }
 
-void vm_state::invoke_global(name const & fn) {
+void vm_state::invoke_fn(name const & fn) {
     if (auto r = m_fn_name2idx.find(fn)) {
-        invoke_global(*r);
+        invoke_fn(*r);
     } else {
         throw exception(sstream() << "VM does not have code for '" << fn << "'");
     }
 }
 
-void vm_state::invoke_global(unsigned fn_idx) {
+void vm_state::invoke_fn(unsigned fn_idx) {
     lean_assert(fn_idx < m_decls.size());
     vm_decl const & d = m_decls[fn_idx];
     unsigned arity    = d.get_arity();
     if (arity > m_stack.size())
         throw exception("invalid VM function call, data stack does not have enough values");
-    invoke_global_builtin(d);
+    if (d.is_builtin())
+        invoke_builtin(d);
+    else
+        invoke_global(d);
     run();
 }
 

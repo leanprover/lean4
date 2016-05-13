@@ -26,9 +26,29 @@ public:
     virtual expr check_type(expr const &, abstract_type_context &, bool) const {
         return *g_nat;
     }
-    virtual optional<expr> expand(expr const &, abstract_type_context &) const {
-        return none_expr();
+
+    static expr convert(mpz const & n, expr const & one, expr const & add) {
+        if (n == 0) {
+            return mk_constant(get_nat_zero_name());
+        } else if (n == 1) {
+            return one;
+        } else {
+            expr r = convert(n/2, one, add);
+            r = mk_app(add, r, r);
+            if (n % mpz(2) == 1)
+                return mk_app(add, r, one);
+            else
+                return r;
+        }
     }
+
+    virtual optional<expr> expand(expr const &, abstract_type_context &) const {
+        expr one = mk_app(mk_constant(get_nat_succ_name()), mk_constant(get_nat_zero_name()));
+        expr add = mk_constant(get_nat_add_name());
+        expr r = convert(m_value, one, add);
+        return optional<expr>(r);
+    }
+
     virtual unsigned trust_level() const { return 0; }
     virtual bool operator==(macro_definition_cell const & other) const {
         nat_value_macro const * other_ptr = dynamic_cast<nat_value_macro const *>(&other);

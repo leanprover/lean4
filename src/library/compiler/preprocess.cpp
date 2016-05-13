@@ -121,9 +121,9 @@ public:
         v = expand_aux_recursors(m_env, v);
         lean_assert(check(d, v));
         lean_trace(name({"compiler", "expand_aux_recursors"}), tout() << "\n" << v << "\n";)
-        v = find_nat_values(m_env, v);
-        lean_assert(check(d, v));
         v = mark_comp_irrelevant_subterms(m_env, v);
+        lean_assert(check(d, v));
+        v = find_nat_values(m_env, v);
         lean_assert(check(d, v));
         v = eta_expand(m_env, v);
         lean_assert(check(d, v));

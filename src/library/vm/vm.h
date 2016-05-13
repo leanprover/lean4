@@ -420,10 +420,16 @@ public:
     vm_state(environment const & env);
 
     environment const & env() const { return m_env; }
+
     /** \brief Push object into the data stack */
     void push(vm_obj const & o) { m_stack.push_back(o); }
+
     /** \brief Retrieve object from the call stack */
-    vm_obj const & get(unsigned idx) const { lean_assert(m_bp + idx < m_stack.size()); return m_stack[m_bp + idx]; }
+    vm_obj const & get(int idx) const {
+        lean_assert(idx + static_cast<int>(m_bp) >= 0);
+        lean_assert(m_bp + idx < m_stack.size());
+        return m_stack[m_bp + idx];
+    }
 
     void invoke_global(name const & fn);
     void invoke_global(unsigned fn_idx);

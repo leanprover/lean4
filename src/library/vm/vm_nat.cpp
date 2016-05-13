@@ -49,7 +49,7 @@ static mpz const & to_mpz2(vm_obj const & o) {
 }
 
 static void nat_succ(vm_state & s) {
-    vm_obj const & a = s.get(0);
+    vm_obj const & a = s.get(-1);
     if (is_simple(a)) {
         s.push(mk_vm_nat(cidx(a) + 1));
     } else {
@@ -58,8 +58,8 @@ static void nat_succ(vm_state & s) {
 }
 
 static void nat_add(vm_state & s) {
-    vm_obj const & a1 = s.get(0);
-    vm_obj const & a2 = s.get(1);
+    vm_obj const & a1 = s.get(-1);
+    vm_obj const & a2 = s.get(-2);
     if (is_simple(a1) && is_simple(a2)) {
         s.push(mk_vm_nat(cidx(a1) + cidx(a2)));
     } else {
@@ -68,8 +68,8 @@ static void nat_add(vm_state & s) {
 }
 
 static void nat_mul(vm_state & s) {
-    vm_obj const & a1 = s.get(0);
-    vm_obj const & a2 = s.get(1);
+    vm_obj const & a1 = s.get(-1);
+    vm_obj const & a2 = s.get(-2);
     if (is_simple(a1) && is_simple(a2)) {
         unsigned long long r = static_cast<unsigned long long>(cidx(a1)) * static_cast<unsigned long long>(cidx(a2));
         if (r < LEAN_MAX_SMALL_NAT) {
@@ -81,8 +81,8 @@ static void nat_mul(vm_state & s) {
 }
 
 static void nat_sub(vm_state & s) {
-    vm_obj const & a1 = s.get(0);
-    vm_obj const & a2 = s.get(1);
+    vm_obj const & a1 = s.get(-1);
+    vm_obj const & a2 = s.get(-2);
     if (is_simple(a1) && is_simple(a2)) {
         unsigned v1 = cidx(a1);
         unsigned v2 = cidx(a2);
@@ -101,8 +101,8 @@ static void nat_sub(vm_state & s) {
 }
 
 static void nat_div(vm_state & s) {
-    vm_obj const & a1 = s.get(0);
-    vm_obj const & a2 = s.get(1);
+    vm_obj const & a1 = s.get(-1);
+    vm_obj const & a2 = s.get(-2);
     if (is_simple(a1) && is_simple(a2)) {
         unsigned v1 = cidx(a1);
         unsigned v2 = cidx(a2);
@@ -121,8 +121,8 @@ static void nat_div(vm_state & s) {
 }
 
 static void nat_mod(vm_state & s) {
-    vm_obj const & a1 = s.get(0);
-    vm_obj const & a2 = s.get(1);
+    vm_obj const & a1 = s.get(-1);
+    vm_obj const & a2 = s.get(-2);
     if (is_simple(a1) && is_simple(a2)) {
         unsigned v1 = cidx(a1);
         unsigned v2 = cidx(a2);
@@ -141,16 +141,16 @@ static void nat_mod(vm_state & s) {
 }
 
 static void nat_gcd(vm_state & s) {
-    vm_obj const & a1 = s.get(0);
-    vm_obj const & a2 = s.get(1);
+    vm_obj const & a1 = s.get(-1);
+    vm_obj const & a2 = s.get(-2);
     mpz r;
     gcd(r, to_mpz1(a1), to_mpz2(a2));
     s.push(mk_vm_nat(r));
 }
 
 static void nat_has_decidable_eq(vm_state & s) {
-    vm_obj const & a1 = s.get(0);
-    vm_obj const & a2 = s.get(1);
+    vm_obj const & a1 = s.get(-1);
+    vm_obj const & a2 = s.get(-2);
     if (is_simple(a1) && is_simple(a2)) {
         return s.push(mk_vm_bool(cidx(a1) == cidx(a2)));
     } else {
@@ -159,8 +159,8 @@ static void nat_has_decidable_eq(vm_state & s) {
 }
 
 static void nat_decidable_le(vm_state & s) {
-    vm_obj const & a1 = s.get(0);
-    vm_obj const & a2 = s.get(1);
+    vm_obj const & a1 = s.get(-1);
+    vm_obj const & a2 = s.get(-2);
     if (is_simple(a1) && is_simple(a2)) {
         return s.push(mk_vm_bool(cidx(a1) <= cidx(a2)));
     } else {
@@ -169,8 +169,8 @@ static void nat_decidable_le(vm_state & s) {
 }
 
 static void nat_decidable_lt(vm_state & s) {
-    vm_obj const & a1 = s.get(0);
-    vm_obj const & a2 = s.get(1);
+    vm_obj const & a1 = s.get(-1);
+    vm_obj const & a2 = s.get(-2);
     if (is_simple(a1) && is_simple(a2)) {
         return s.push(mk_vm_bool(cidx(a1) < cidx(a2)));
     } else {

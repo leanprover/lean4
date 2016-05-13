@@ -598,7 +598,7 @@ void vm_state::push_fields(vm_obj const & obj) {
 void vm_state::invoke_builtin(vm_decl const & d) {
     unsigned saved_bp = m_bp;
     unsigned sz = m_stack.size();
-    m_bp = sz - d.get_arity();
+    m_bp = sz;
     d.get_fn()(*this);
     lean_assert(m_stack.size() == sz + 1);
     m_bp = saved_bp;
@@ -625,11 +625,6 @@ void vm_state::invoke_global_builtin(vm_decl const & d) {
 }
 
 void vm_state::run() {
-    /*
-       TODO(Leo): we can improve performance using the following tricks:
-       - Function arguments in reverse order.
-       - Function pointer after arguments.
-    */
     lean_assert(m_code);
     unsigned init_call_stack_sz = m_call_stack.size();
     m_pc = 0;
@@ -767,27 +762,15 @@ void vm_state::run() {
         case opcode::Invoke: {
             unsigned nargs    = instr.get_num();
             unsigned sz       = m_stack.size();
-            vm_obj closure    = m_stack[sz - nargs - 1];
+            vm_obj closure    = m_stack.back();
+            m_stack.pop_back();
             unsigned fn_idx   = cfn_idx(closure);
             vm_decl const & d = m_decls[fn_idx];
             unsigned csz      = csize(closure);
             unsigned arity    = d.get_arity();
             unsigned new_nargs = nargs + csz;
             lean_assert(new_nargs <= arity);
-            if (csz == 0) {
-                /* Closure has size 0, then we just move arguments down 1 position */
-                m_stack.erase(m_stack.end() - nargs - 1); /* remove closure object */
-            } else if (csz == 1) {
-                /* Closure has size 1, then we replace the closure object with
-                   the data stored in the closure */
-                *(m_stack.end() - nargs - 1) = cfield(closure, 0);
-            } else {
-                lean_assert(csz > 1);
-                /* Closure has size > 1, then we need to open space on the stack */
-                m_stack.resize(sz + csz - 1);
-                std::move_backward(m_stack.end() - nargs + 1 - csz, m_stack.end() + 1 - csz, m_stack.end());
-                std::copy(cfields(closure), cfields(closure) + csz, m_stack.end() - nargs - csz);
-            }
+            std::copy(cfields(closure), cfields(closure) + csz, m_stack.end());
             /* Now, stack contains closure arguments + original stack arguments */
             if (new_nargs == arity) {
                 invoke_global_builtin(d);

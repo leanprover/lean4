@@ -40,8 +40,17 @@ class vm_compiler_fn {
         }
     }
 
+    void compile_rev_args(unsigned nargs, expr const * args, unsigned bpz, name_map<unsigned> const & m) {
+        unsigned i = nargs;
+        while (i > 0) {
+            --i;
+            compile(args[i], bpz, m);
+            bpz++;
+        }
+    }
+
     void compile_global(vm_decl const & decl, unsigned nargs, expr const * args, unsigned bpz, name_map<unsigned> const & m) {
-        compile_args(nargs, args, bpz, m);
+        compile_rev_args(nargs, args, bpz, m);
         lean_assert(nargs <= decl.get_arity());
         if (decl.get_arity() == nargs) {
             if (decl.is_builtin())
@@ -157,21 +166,20 @@ class vm_compiler_fn {
         lean_assert(is_internal_proj(fn));
         unsigned idx = *is_internal_proj(fn);
         lean_assert(args.size() >= 1);
+        compile_rev_args(args.size() - 1, args.data() + 1, bpz, m);
+        bpz += args.size() - 1;
         compile(args[0], bpz, m);
         emit(mk_proj_instr(idx));
-        if (args.size() > 1) {
-            bpz++; /* function returned by proj is on the stack */
-            compile_args(args.size() - 1, args.data() + 1, bpz, m);
+        if (args.size() > 1)
             emit(mk_invoke_instr(args.size() - 1));
-        }
     }
 
     void compile_fn_call(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
         buffer<expr> args;
         expr fn = get_app_args(e, args);
         if (!is_constant(fn)) {
+            compile_rev_args(args.size(), args.data(), bpz+1, m);
             compile(fn, bpz, m);
-            compile_args(args.size(), args.data(), bpz+1, m);
             emit(mk_invoke_instr(args.size()));
             return;
         } else if (is_constant(fn)) {
@@ -239,17 +247,29 @@ class vm_compiler_fn {
         }
     }
 
+    unsigned get_arity(expr e) {
+        unsigned r = 0;
+        while (is_lambda(e)) {
+            r++;
+            e = binding_body(e);
+        }
+        return r;
+    }
+
 public:
     vm_compiler_fn(environment const & env, buffer<vm_instr> & code):
         m_env(env), m_code(code) {}
 
-    void operator()(expr e) {
+    unsigned operator()(expr e) {
         buffer<expr> locals;
-        unsigned bpz = 0;
+        unsigned bpz   = 0;
+        unsigned arity = get_arity(e);
+        unsigned i     = arity;
         name_map<unsigned> m;
         while (is_lambda(e)) {
             name n = mk_fresh_name();
-            m.insert(n, bpz);
+            i--;
+            m.insert(n, i);
             locals.push_back(mk_local(n));
             bpz++;
             e = binding_body(e);
@@ -257,6 +277,7 @@ public:
         e = instantiate_rev(e, locals.size(), locals.data());
         compile(e, bpz, m);
         emit(mk_ret_instr());
+        return arity;
     }
 };
 
@@ -268,9 +289,9 @@ environment vm_compile(environment const & env, buffer<pair<name, expr>> const &
     for (auto const & p : procs) {
         buffer<vm_instr> code;
         vm_compiler_fn gen(new_env, code);
-        gen(p.second);
+        unsigned arity = gen(p.second);
         optimize(new_env, code);
-        lean_trace(name({"compiler", "code_gen"}), tout() << " " << p.first << "\n";
+        lean_trace(name({"compiler", "code_gen"}), tout() << " " << p.first << " " << arity << "\n";
                    display_vm_code(tout().get_stream(), new_env, code.size(), code.data()););
         new_env = update_vm_code(new_env, p.first, code.size(), code.data());
     }

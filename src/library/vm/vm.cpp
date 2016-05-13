@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/sstream.h"
 #include "util/parray.h"
+#include "util/small_object_allocator.h"
 #include "library/constants.h"
 #include "library/trace.h"
 #include "library/vm/vm.h"
@@ -20,14 +21,7 @@ void vm_obj_cell::dec_ref(vm_obj & o, buffer<vm_obj_cell*> & todelete) {
     }
 }
 
-DEF_THREAD_MEMORY_POOL(get_vm_composite_allocator_1, sizeof(vm_composite) + sizeof(vm_obj));
-DEF_THREAD_MEMORY_POOL(get_vm_composite_allocator_2, sizeof(vm_composite) + 2*sizeof(vm_obj));
-DEF_THREAD_MEMORY_POOL(get_vm_composite_allocator_3, sizeof(vm_composite) + 3*sizeof(vm_obj));
-DEF_THREAD_MEMORY_POOL(get_vm_composite_allocator_4, sizeof(vm_composite) + 4*sizeof(vm_obj));
-DEF_THREAD_MEMORY_POOL(get_vm_composite_allocator_5, sizeof(vm_composite) + 5*sizeof(vm_obj));
-DEF_THREAD_MEMORY_POOL(get_vm_composite_allocator_6, sizeof(vm_composite) + 6*sizeof(vm_obj));
-DEF_THREAD_MEMORY_POOL(get_vm_composite_allocator_7, sizeof(vm_composite) + 7*sizeof(vm_obj));
-DEF_THREAD_MEMORY_POOL(get_vm_composite_allocator_8, sizeof(vm_composite) + 8*sizeof(vm_obj));
+MK_THREAD_LOCAL_GET(small_object_allocator, get_small_allocator, "vm object");
 
 vm_composite::vm_composite(vm_obj_kind k, unsigned idx, unsigned sz, vm_obj const * data):
     vm_obj_cell(k), m_idx(idx),  m_size(sz) {
@@ -37,19 +31,7 @@ vm_composite::vm_composite(vm_obj_kind k, unsigned idx, unsigned sz, vm_obj cons
 
 static vm_obj mk_vm_composite(vm_obj_kind k, unsigned idx, unsigned sz, vm_obj const * data) {
     lean_assert(k == vm_obj_kind::Constructor || k == vm_obj_kind::Closure);
-    switch (sz) {
-    case 1: return vm_obj(new (get_vm_composite_allocator_1().allocate()) vm_composite(k, idx, sz, data));
-    case 2: return vm_obj(new (get_vm_composite_allocator_2().allocate()) vm_composite(k, idx, sz, data));
-    case 3: return vm_obj(new (get_vm_composite_allocator_3().allocate()) vm_composite(k, idx, sz, data));
-    case 4: return vm_obj(new (get_vm_composite_allocator_4().allocate()) vm_composite(k, idx, sz, data));
-    case 5: return vm_obj(new (get_vm_composite_allocator_5().allocate()) vm_composite(k, idx, sz, data));
-    case 6: return vm_obj(new (get_vm_composite_allocator_6().allocate()) vm_composite(k, idx, sz, data));
-    case 7: return vm_obj(new (get_vm_composite_allocator_7().allocate()) vm_composite(k, idx, sz, data));
-    case 8: return vm_obj(new (get_vm_composite_allocator_8().allocate()) vm_composite(k, idx, sz, data));
-    default:
-        char * mem = new char[sizeof(vm_composite) + sz * sizeof(vm_obj)];
-        return vm_obj(new (mem) vm_composite(k, idx, sz, data));
-    }
+    return vm_obj(new (get_small_allocator().allocate(sizeof(vm_composite) + sz * sizeof(vm_obj))) vm_composite(k, idx, sz, data));
 }
 
 void vm_composite::dealloc(buffer<vm_obj_cell*> & todelete) {
@@ -59,17 +41,7 @@ void vm_composite::dealloc(buffer<vm_obj_cell*> & todelete) {
         dec_ref(fields[i], todelete);
     }
     this->~vm_composite();
-    switch (sz) {
-    case 1: get_vm_composite_allocator_1().recycle(this); break;
-    case 2: get_vm_composite_allocator_2().recycle(this); break;
-    case 3: get_vm_composite_allocator_3().recycle(this); break;
-    case 4: get_vm_composite_allocator_4().recycle(this); break;
-    case 5: get_vm_composite_allocator_5().recycle(this); break;
-    case 6: get_vm_composite_allocator_6().recycle(this); break;
-    case 7: get_vm_composite_allocator_7().recycle(this); break;
-    case 8: get_vm_composite_allocator_8().recycle(this); break;
-    default: delete[] reinterpret_cast<char*>(this); break;
-    }
+    get_small_allocator().deallocate(sizeof(vm_composite) + sz * sizeof(vm_obj), this);
 }
 
 vm_obj mk_vm_constructor(unsigned cidx, unsigned sz, vm_obj const * data) {
@@ -79,8 +51,6 @@ vm_obj mk_vm_constructor(unsigned cidx, unsigned sz, vm_obj const * data) {
 vm_obj mk_vm_closure(unsigned fn_idx, unsigned sz, vm_obj const * data) {
     return mk_vm_composite(vm_obj_kind::Closure, fn_idx, sz, data);
 }
-
-DEF_THREAD_MEMORY_POOL(get_vm_mpz_allocator, sizeof(vm_mpz));
 
 vm_mpz::vm_mpz(mpz const & v):
     vm_obj_cell(vm_obj_kind::MPZ),
@@ -92,12 +62,12 @@ vm_obj mk_vm_simple(unsigned v) {
 }
 
 vm_obj mk_vm_mpz(mpz const & v) {
-    return vm_obj(new (get_vm_mpz_allocator().allocate()) vm_mpz(v));
+    return vm_obj(new (get_small_allocator().allocate(sizeof(vm_mpz))) vm_mpz(v));
 }
 
 void vm_mpz::dealloc() {
     this->~vm_mpz();
-    get_vm_mpz_allocator().recycle(this);
+    get_small_allocator().deallocate(sizeof(vm_mpz), this);
 }
 
 vm_obj mk_vm_external(vm_external * cell) {

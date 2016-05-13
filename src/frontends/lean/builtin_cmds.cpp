@@ -665,11 +665,8 @@ static environment compile_cmd(parser & p) {
 }
 
 static environment vm_eval_cmd(parser & p) {
-    auto pos = p.pos();
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
-    if (has_local(e) || has_metavar(e))
-        throw parser_error("invalid vm_eval command, argument must be a closed expression", pos);
     type_checker tc(p.env());
     expr type = tc.infer(e);
     environment new_env = p.env();

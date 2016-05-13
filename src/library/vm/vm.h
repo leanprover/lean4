@@ -74,7 +74,6 @@ public:
     }
 
     vm_obj_cell * raw() const {
-        lean_assert(LEAN_VM_IS_PTR(m_data));
         return m_data;
     }
 };

@@ -379,9 +379,9 @@ class vm_state {
     typedef std::vector<vm_decl> decls;
     environment          m_env;
     decls const &        m_decls;
+    name_map<unsigned>   m_fn_name2idx;
     vm_instr const *     m_code;   /* code of the current function being executed */
     unsigned             m_fn_idx; /* function idx being executed */
-    unsigned             m_pc;     /* program counter */
     unsigned             m_bp;     /* base pointer */
     struct frame {
         vm_instr const * m_code;
@@ -389,9 +389,13 @@ class vm_state {
         unsigned         m_num;
         unsigned         m_pc;
         unsigned         m_bp;
+        frame(vm_instr const * code, unsigned fn_idx, unsigned num, unsigned pc, unsigned bp):
+            m_code(code), m_fn_idx(fn_idx), m_num(num), m_pc(pc), m_bp(bp) {}
     };
     std::vector<vm_obj>  m_stack;
     std::vector<frame>   m_call_stack;
+
+    void run();
 
 public:
     vm_state(environment const & env);
@@ -402,7 +406,6 @@ public:
     /** \brief Retrieve object from the call stack */
     vm_obj const & get(unsigned idx) const { lean_assert(m_bp + idx < m_stack.size()); return m_stack[m_bp + idx]; }
 
-    void invoke(unsigned n);
     void invoke_global(name const & fn);
     void invoke_global(unsigned fn_idx);
 };

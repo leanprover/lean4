@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <string>
+#include "util/timeit.h"
 #include "util/sstream.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/type_checker.h"
@@ -666,7 +667,10 @@ static environment compile_cmd(parser & p) {
 static environment vm_eval_cmd(parser & p) {
     name n = p.check_constant_next("invalid vm_eval command, constant expected");
     vm_state s(p.env());
-    s.invoke_global(n);
+    {
+        timeit timer(p.ios().get_diagnostic_stream(), "vm_eval time");
+        s.invoke_global(n);
+    }
     vm_obj r = s.get(0);
     display(p.ios().get_regular_stream(), r);
     p.ios().get_regular_stream() << "\n";

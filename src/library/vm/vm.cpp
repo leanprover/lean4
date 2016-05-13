@@ -636,16 +636,19 @@ void vm_state::run() {
     while (true) {
       main_loop:
         vm_instr const & instr = m_code[m_pc];
-        lean_trace(name({"vm", "run"}),
-                   tout() << m_pc << ": ";
-                   instr.display(tout().get_stream(), [&](unsigned idx) { return optional<name>(m_decls[idx].get_name()); });
-                   tout() << ", bp: " << m_bp << "\n";
-                   for (unsigned i = 0; i < m_stack.size(); i++) {
-                       tout() << i << " := ";
-                       display(tout().get_stream(), m_stack[i]);
-                       tout() << "\n";
-                   }
-                   tout() << "\n";);
+        DEBUG_CODE({
+                /* We only trace VM in debug mode */
+                lean_trace(name({"vm", "run"}),
+                           tout() << m_pc << ": ";
+                           instr.display(tout().get_stream(), [&](unsigned idx) { return optional<name>(m_decls[idx].get_name()); });
+                           tout() << ", bp: " << m_bp << "\n";
+                           for (unsigned i = 0; i < m_stack.size(); i++) {
+                               tout() << i << " := ";
+                               display(tout().get_stream(), m_stack[i]);
+                               tout() << "\n";
+                           }
+                           tout() << "\n";)
+                    });
         switch (instr.op()) {
         case opcode::Push:
             m_stack.push_back(m_stack[m_bp + instr.get_idx()]);
@@ -846,8 +849,11 @@ void display_vm_code(std::ostream & out, environment const & env, unsigned code_
 
 void initialize_vm_core() {
     g_vm_builtins = new name_map<pair<unsigned, vm_function>>();
-    register_trace_class("vm");
-    register_trace_class({"vm", "run"});
+    DEBUG_CODE({
+            /* We only trace VM in debug mode because it produces a 10% performance penalty */
+            register_trace_class("vm");
+            register_trace_class({"vm", "run"});
+        });
 }
 
 void finalize_vm_core() {

@@ -666,6 +666,7 @@ void vm_state::run() {
             throw exception("VM unreachable instruction has been reached");
         case opcode::Ret: {
             frame const & fr = m_call_stack.back();
+            sz       = m_stack.size();
             std::swap(m_stack[sz - fr.m_num - 1], m_stack[sz - 1]);
             m_stack.resize(sz - fr.m_num);
             m_code   = fr.m_code;

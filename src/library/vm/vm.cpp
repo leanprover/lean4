@@ -32,8 +32,7 @@ DEF_THREAD_MEMORY_POOL(get_vm_composite_allocator_8, sizeof(vm_composite) + 8*si
 vm_composite::vm_composite(vm_obj_kind k, unsigned idx, unsigned sz, vm_obj const * data):
     vm_obj_cell(k), m_idx(idx),  m_size(sz) {
     vm_obj * fields = get_field_ptr();
-    for (unsigned i = 0; i < sz; i++)
-        fields[i] = data[i];
+    std::uninitialized_copy(data, data + sz, fields);
 }
 
 static vm_obj mk_vm_composite(vm_obj_kind k, unsigned idx, unsigned sz, vm_obj const * data) {

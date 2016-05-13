@@ -589,7 +589,7 @@ void vm_state::invoke_builtin(vm_decl const & d) {
     lean_assert(m_stack.size() == sz + 1);
     m_bp = saved_bp;
     sz = m_stack.size();
-    std::swap(m_stack[sz - d.get_arity() - 1], m_stack[sz - 1]);
+    swap(m_stack[sz - d.get_arity() - 1], m_stack[sz - 1]);
     m_stack.resize(sz - d.get_arity());
     m_pc++;
 }
@@ -663,7 +663,7 @@ void vm_state::run() {
             unsigned num = instr.get_num();
             unsigned sz  = m_stack.size();
             lean_assert(sz > num);
-            std::swap(m_stack[sz - num - 1], m_stack[sz - 1]);
+            swap(m_stack[sz - num - 1], m_stack[sz - 1]);
             m_stack.resize(sz - num);
             m_pc++;
             goto main_loop;
@@ -699,8 +699,8 @@ void vm_state::run() {
             unsigned nfields = instr.get_nfields();
             unsigned sz      = m_stack.size();
             vm_obj new_value = mk_vm_constructor(instr.get_cidx(), nfields, m_stack.data() + sz - nfields);
-            m_stack.resize(sz - nfields);
-            m_stack.push_back(new_value);
+            m_stack.resize(sz - nfields + 1);
+            swap(m_stack.back(), new_value);
             m_pc++;
             goto main_loop;
         }
@@ -717,8 +717,8 @@ void vm_state::run() {
             unsigned nargs     = instr.get_nargs();
             unsigned sz        = m_stack.size();
             vm_obj new_value   = mk_vm_closure(instr.get_fn_idx(), nargs, m_stack.data() + sz - nargs);
-            m_stack.resize(sz - nargs);
-            m_stack.push_back(new_value);
+            m_stack.resize(sz - nargs + 1);
+            swap(m_stack.back(), new_value);
             m_pc++;
             goto main_loop;
         }
@@ -779,25 +779,28 @@ void vm_state::run() {
               m_pc := pc1  if  n == 0
                    := pc2  if  otherwise
             */
-            vm_obj top = m_stack.back();
-            m_stack.pop_back();
+            vm_obj & top = m_stack.back();
             if (is_simple(top)) {
                 unsigned val = cidx(top);
                 if (val == 0) {
+                    m_stack.pop_back();
                     m_pc++;
                     goto main_loop;
                 } else {
-                    m_stack.push_back(mk_vm_simple(val - 1));
+                    vm_obj new_value = mk_vm_simple(val - 1);
+                    swap(top, new_value);
                     m_pc = instr.get_cases2_pc(1);
                     goto main_loop;
                 }
             } else {
                 mpz const & val = to_mpz(top);
                 if (val == 0) {
+                    m_stack.pop_back();
                     m_pc++;
                     goto main_loop;
                 } else {
-                    m_stack.push_back(mk_vm_mpz(val - 1));
+                    vm_obj new_value = mk_vm_mpz(val - 1);
+                    swap(top, new_value);
                     m_pc = instr.get_cases2_pc(1);
                     goto main_loop;
                 }
@@ -830,9 +833,8 @@ void vm_state::run() {
                (#i a_0 ... a_{n-1})       a_i
 
             */
-            vm_obj top = m_stack.back();
-            m_stack.pop_back();
-            m_stack.push_back(cfield(top, instr.get_idx()));
+            vm_obj & top = m_stack.back();
+            top = cfield(top, instr.get_idx());
             m_pc++;
             goto main_loop;
         }
@@ -863,7 +865,7 @@ void vm_state::run() {
             */
             frame const & fr = m_call_stack.back();
             unsigned sz      = m_stack.size();
-            std::swap(m_stack[sz - fr.m_num - 1], m_stack[sz - 1]);
+            swap(m_stack[sz - fr.m_num - 1], m_stack[sz - 1]);
             m_stack.resize(sz - fr.m_num);
             m_code   = fr.m_code;
             m_fn_idx = fr.m_fn_idx;
@@ -920,8 +922,8 @@ void vm_state::run() {
                 /* We don't have sufficient arguments. So, we create a new closure */
                 sz = m_stack.size();
                 vm_obj new_value = mk_vm_closure(fn_idx, new_nargs, m_stack.data() + sz - new_nargs);
-                m_stack.resize(sz - new_nargs);
-                m_stack.push_back(new_value);
+                m_stack.resize(sz - new_nargs + 1);
+                swap(m_stack.back(), new_value);
                 m_pc++;
                 goto main_loop;
             }

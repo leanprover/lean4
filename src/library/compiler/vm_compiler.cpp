@@ -111,7 +111,7 @@ class vm_compiler_fn {
         if (fn_name == get_nat_cases_on_name())
             emit(mk_nat_cases_instr(0, 0));
         else if (num == 1)
-            emit(mk_cases1_instr());
+            emit(mk_destruct_instr());
         else if (num == 2)
             emit(mk_cases2_instr(0, 0));
         else

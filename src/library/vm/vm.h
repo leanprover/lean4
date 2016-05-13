@@ -179,7 +179,7 @@ inline vm_obj const & cfield(vm_obj const & o, unsigned i) { lean_assert(i < csi
 enum class opcode {
     Push, Ret, Drop, Goto,
     SConstructor, Constructor, Num,
-    Cases1, Cases2, CasesN, NatCases, Proj,
+    Destruct, Cases2, CasesN, NatCases, Proj,
     Invoke, InvokeGlobal, InvokeBuiltin, Closure, Unreachable
 };
 
@@ -209,7 +209,7 @@ class vm_instr {
         /* Num */
         mpz * m_mpz;
     };
-    /* Ret, Cases1 and Unreachable do not have arguments */
+    /* Ret, Destruct and Unreachable do not have arguments */
     friend vm_instr mk_push_instr(unsigned idx);
     friend vm_instr mk_drop_instr(unsigned n);
     friend vm_instr mk_proj_instr(unsigned n);
@@ -218,7 +218,7 @@ class vm_instr {
     friend vm_instr mk_constructor_instr(unsigned cidx, unsigned nfields);
     friend vm_instr mk_num_instr(mpz const & v);
     friend vm_instr mk_ret_instr();
-    friend vm_instr mk_cases1_instr();
+    friend vm_instr mk_destruct_instr();
     friend vm_instr mk_unreachable_instr();
     friend vm_instr mk_nat_cases_instr(unsigned pc);
     friend vm_instr mk_cases2_instr(unsigned pc);
@@ -331,7 +331,7 @@ vm_instr mk_sconstructor_instr(unsigned cidx);
 vm_instr mk_constructor_instr(unsigned cidx, unsigned nfields);
 vm_instr mk_num_instr(mpz const & v);
 vm_instr mk_ret_instr();
-vm_instr mk_cases1_instr();
+vm_instr mk_destruct_instr();
 vm_instr mk_unreachable_instr();
 vm_instr mk_nat_cases_instr(unsigned pc1, unsigned pc2);
 vm_instr mk_cases2_instr(unsigned pc1, unsigned pc2);

@@ -179,7 +179,7 @@ void vm_instr::display(std::ostream & out, std::function<optional<name>(unsigned
     case opcode::Constructor:   out << "cnstr " << m_cidx << " " << m_nfields; break;
     case opcode::Num:           out << "num " << *m_mpz; break;
     case opcode::Unreachable:   out << "unreachable"; break;
-    case opcode::Cases1:        out << "cases1"; break;
+    case opcode::Destruct:      out << "destruct"; break;
     case opcode::Cases2:        out << "cases2 " << m_pc[0] << " " << m_pc[1]; break;
     case opcode::CasesN:
         out << "cases";
@@ -301,7 +301,7 @@ vm_instr mk_num_instr(mpz const & v) {
 
 vm_instr mk_ret_instr() { return vm_instr(opcode::Ret); }
 
-vm_instr mk_cases1_instr() { return vm_instr(opcode::Cases1); }
+vm_instr mk_destruct_instr() { return vm_instr(opcode::Destruct); }
 
 vm_instr mk_unreachable_instr() { return vm_instr(opcode::Unreachable); }
 
@@ -394,7 +394,7 @@ void vm_instr::copy_args(vm_instr const & i) {
     case opcode::Num:
         m_mpz = new mpz(*i.m_mpz);
         break;
-    case opcode::Ret: case opcode::Cases1: case opcode::Unreachable:
+    case opcode::Ret: case opcode::Destruct: case opcode::Unreachable:
         break;
     }
 }
@@ -763,8 +763,8 @@ void vm_state::run() {
             m_stack.push_back(mk_vm_mpz(instr.get_mpz()));
             m_pc++;
             goto main_loop;
-        case opcode::Cases1: {
-            /** Instruction: cases1
+        case opcode::Destruct: {
+            /** Instruction: destruct
 
                stack before,              after
                ...                        ...

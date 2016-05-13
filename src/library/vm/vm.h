@@ -21,13 +21,22 @@ enum class vm_obj_kind { Simple, Constructor, Closure, MPZ, External };
     \remark Simple objects are encoded as tagged pointers. */
 class vm_obj_cell {
 protected:
-    MK_LEAN_RC(); // Declare m_rc counter
+    friend class vm_obj;
+    unsigned    m_rc;
     vm_obj_kind m_kind;
+    void inc_ref() { m_rc++; }
+    bool dec_ref_core() {
+        lean_assert(m_rc > 0);
+        m_rc--;
+        return m_rc == 0;
+    }
+    void dec_ref() { if (dec_ref_core()) { dealloc(); } }
     void dealloc();
     void dec_ref(vm_obj & o, buffer<vm_obj_cell*> & todelete);
     vm_obj_cell(vm_obj_kind k):m_rc(0), m_kind(k) {}
 public:
     vm_obj_kind kind() const { return m_kind; }
+    unsigned get_rc() const { return m_rc; }
 };
 
 #define LEAN_VM_IS_PTR(obj) ((reinterpret_cast<size_t>(obj) & 1) == 0)

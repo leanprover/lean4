@@ -55,7 +55,7 @@ void small_object_allocator::deallocate(size_t size, void * p) {
     if (size == 0) return;
 #if LEAN_DEBUG
     // Valgrind friendly
-    delete[] p;
+    delete[] static_cast<char*>(p);
     return;
 #endif
     lean_assert(m_alloc_size >= size);

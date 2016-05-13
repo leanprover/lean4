@@ -527,33 +527,43 @@ vm_state::vm_state(environment const & env):
     m_bp(0) {
 }
 
-#define PushFields(obj)                                 \
-if (is_constructor(obj)) {                              \
-    unsigned nflds = csize(obj);                        \
-    vm_obj const * flds = cfields(obj);                 \
-    for (unsigned i = 0; i < nflds; i++, flds++) {      \
-        m_stack.push_back(*flds);                       \
-    }                                                   \
+void vm_state::push_fields(vm_obj const & obj) {
+    if (is_constructor(obj)) {
+        unsigned nflds = csize(obj);
+        vm_obj const * flds = cfields(obj);
+        for (unsigned i = 0; i < nflds; i++, flds++) {
+            m_stack.push_back(*flds);
+        }
+    }
 }
 
-#define InvokeGlobal(d)                                                 \
-if (d.is_builtin()) {                                                   \
-    unsigned saved_bp = m_bp;                                           \
-    unsigned sz = m_stack.size();                                       \
-    m_bp = sz - d.get_arity();                                          \
-    d.get_fn()(*this);                                                  \
-    lean_assert(m_stack.size() == sz + 1);                              \
-    m_bp = saved_bp;                                                    \
-    sz = m_stack.size();                                                \
-    std::swap(m_stack[sz - d.get_arity() - 1], m_stack[sz - 1]);        \
-    m_stack.resize(sz - d.get_arity());                                 \
-    pc++;                                                               \
-} else {                                                                \
-    m_call_stack.emplace_back(m_code, m_fn_idx, d.get_arity(), pc+1, m_bp); \
-    m_code            = d.get_code();                                   \
-    m_fn_idx          = d.get_idx();                                    \
-    pc                = 0;                                              \
-    m_bp              = m_stack.size() - d.get_arity();                 \
+void vm_state::invoke_builtin(vm_decl const & d) {
+    unsigned saved_bp = m_bp;
+    unsigned sz = m_stack.size();
+    m_bp = sz - d.get_arity();
+    d.get_fn()(*this);
+    lean_assert(m_stack.size() == sz + 1);
+    m_bp = saved_bp;
+    sz = m_stack.size();
+    std::swap(m_stack[sz - d.get_arity() - 1], m_stack[sz - 1]);
+    m_stack.resize(sz - d.get_arity());
+}
+
+void vm_state::invoke_global(vm_decl const & d) {
+    m_call_stack.emplace_back(m_code, m_fn_idx, d.get_arity(), m_pc+1, m_bp);
+    m_code            = d.get_code();
+    m_fn_idx          = d.get_idx();
+    m_pc              = 0;
+    m_bp              = m_stack.size() - d.get_arity();
+}
+
+void vm_state::invoke_global_builtin(vm_decl const & d) {
+    if (d.is_builtin()) {
+        invoke_builtin(d);
+        m_pc++;
+    } else {
+        invoke_global(d);
+    }
 }
 
 void vm_state::run() {
@@ -566,12 +576,12 @@ void vm_state::run() {
     */
     lean_assert(m_code);
     unsigned init_call_stack_sz = m_call_stack.size();
-    unsigned pc  = 0;
+    m_pc = 0;
     while (true) {
       main_loop:
-        vm_instr const & instr = m_code[pc];
+        vm_instr const & instr = m_code[m_pc];
         lean_trace(name({"vm", "run"}),
-                   tout() << pc << ": ";
+                   tout() << m_pc << ": ";
                    instr.display(tout().get_stream(), [&](unsigned idx) { return optional<name>(m_decls[idx].get_name()); });
                    tout() << ", bp: " << m_bp << "\n";
                    for (unsigned i = 0; i < m_stack.size(); i++) {
@@ -583,7 +593,7 @@ void vm_state::run() {
         switch (instr.op()) {
         case opcode::Push:
             m_stack.push_back(m_stack[m_bp + instr.get_idx()]);
-            pc++;
+            m_pc++;
             goto main_loop;
         case opcode::Drop: {
             unsigned num = instr.get_num();
@@ -591,15 +601,15 @@ void vm_state::run() {
             lean_assert(sz > num);
             std::swap(m_stack[sz - num - 1], m_stack[sz - 1]);
             m_stack.resize(sz - num);
-            pc++;
+            m_pc++;
             goto main_loop;
         }
         case opcode::Goto:
-            pc = instr.get_pc();
+            m_pc = instr.get_pc();
             goto main_loop;
         case opcode::SConstructor:
             m_stack.push_back(mk_vm_simple(instr.get_cidx()));
-            pc++;
+            m_pc++;
             goto main_loop;
         case opcode::Constructor: {
             unsigned nfields = instr.get_nfields();
@@ -607,7 +617,7 @@ void vm_state::run() {
             vm_obj new_value = mk_vm_constructor(instr.get_cidx(), nfields, m_stack.data() + sz - nfields);
             m_stack.resize(sz - nfields);
             m_stack.push_back(new_value);
-            pc++;
+            m_pc++;
             goto main_loop;
         }
         case opcode::Closure: {
@@ -616,28 +626,28 @@ void vm_state::run() {
             vm_obj new_value   = mk_vm_closure(instr.get_fn_idx(), nargs, m_stack.data() + sz - nargs);
             m_stack.resize(sz - nargs);
             m_stack.push_back(new_value);
-            pc++;
+            m_pc++;
             goto main_loop;
         }
         case opcode::Num:
             m_stack.push_back(mk_vm_mpz(instr.get_mpz()));
-            pc++;
+            m_pc++;
             goto main_loop;
         case opcode::Cases1: {
             vm_obj top = m_stack.back();
             m_stack.pop_back();
-            PushFields(top);
-            pc++;
+            push_fields(top);
+            m_pc++;
             goto main_loop;
         }
         case opcode::Cases2: {
             vm_obj top = m_stack.back();
             m_stack.pop_back();
-            PushFields(top);
+            push_fields(top);
             if (cidx(top) == 0)
-                pc++;
+                m_pc++;
             else
-                pc = instr.get_pc();
+                m_pc = instr.get_pc();
             goto main_loop;
         }
         case opcode::NatCases: {
@@ -646,21 +656,21 @@ void vm_state::run() {
             if (is_simple(top)) {
                 unsigned val = cidx(top);
                 if (val == 0) {
-                    pc++;
+                    m_pc++;
                     goto main_loop;
                 } else {
                     m_stack.push_back(mk_vm_simple(val - 1));
-                    pc = instr.get_pc();
+                    m_pc = instr.get_pc();
                     goto main_loop;
                 }
             } else {
                 mpz const & val = to_mpz(top);
                 if (val == 0) {
-                    pc++;
+                    m_pc++;
                     goto main_loop;
                 } else {
                     m_stack.push_back(mk_vm_mpz(val - 1));
-                    pc = instr.get_pc();
+                    m_pc = instr.get_pc();
                     goto main_loop;
                 }
             }
@@ -668,18 +678,18 @@ void vm_state::run() {
         case opcode::CasesN: {
             vm_obj top = m_stack.back();
             m_stack.pop_back();
-            PushFields(top);
+            push_fields(top);
             if (cidx(top) == 0)
-                pc++;
+                m_pc++;
             else
-                pc = instr.get_pc(cidx(top) - 1);
+                m_pc = instr.get_pc(cidx(top) - 1);
             goto main_loop;
         }
         case opcode::Proj: {
             vm_obj top = m_stack.back();
             m_stack.pop_back();
             m_stack.push_back(cfield(top, instr.get_idx()));
-            pc++;
+            m_pc++;
             goto main_loop;
         }
         case opcode::Unreachable:
@@ -691,7 +701,7 @@ void vm_state::run() {
             m_stack.resize(sz - fr.m_num);
             m_code   = fr.m_code;
             m_fn_idx = fr.m_fn_idx;
-            pc       = fr.m_pc;
+            m_pc     = fr.m_pc;
             m_bp     = fr.m_bp;
             if (m_call_stack.size() == init_call_stack_sz) {
                 m_call_stack.pop_back();
@@ -727,7 +737,7 @@ void vm_state::run() {
             }
             /* Now, stack contains closure arguments + original stack arguments */
             if (new_nargs == arity) {
-                InvokeGlobal(d);
+                invoke_global_builtin(d);
                 goto main_loop;
             } else {
                 /* We don't have sufficient arguments. So, we create a new closure */
@@ -735,13 +745,13 @@ void vm_state::run() {
                 vm_obj new_value = mk_vm_closure(fn_idx, new_nargs, m_stack.data() + sz - new_nargs);
                 m_stack.resize(sz - new_nargs);
                 m_stack.push_back(new_value);
-                pc++;
+                m_pc++;
                 goto main_loop;
             }
         }
         case opcode::InvokeGlobal: {
             vm_decl const & d = m_decls[instr.get_fn_idx()];
-            InvokeGlobal(d);
+            invoke_global_builtin(d);
             goto main_loop;
         }
         }
@@ -759,11 +769,10 @@ void vm_state::invoke_global(name const & fn) {
 void vm_state::invoke_global(unsigned fn_idx) {
     lean_assert(fn_idx < m_decls.size());
     vm_decl const & d = m_decls[fn_idx];
-    unsigned pc       = 0;
     unsigned arity    = d.get_arity();
     if (arity > m_stack.size())
         throw exception("invalid VM function call, data stack does not have enough values");
-    InvokeGlobal(d);
+    invoke_global_builtin(d);
     run();
 }
 

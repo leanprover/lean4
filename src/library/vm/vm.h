@@ -384,6 +384,7 @@ class vm_state {
     name_map<unsigned>   m_fn_name2idx;
     vm_instr const *     m_code;   /* code of the current function being executed */
     unsigned             m_fn_idx; /* function idx being executed */
+    unsigned             m_pc;     /* program counter */
     unsigned             m_bp;     /* base pointer */
     struct frame {
         vm_instr const * m_code;
@@ -397,6 +398,10 @@ class vm_state {
     std::vector<vm_obj>  m_stack;
     std::vector<frame>   m_call_stack;
 
+    void push_fields(vm_obj const & obj);
+    void invoke_builtin(vm_decl const & d);
+    void invoke_global(vm_decl const & d);
+    void invoke_global_builtin(vm_decl const & d);
     void run();
 
 public:

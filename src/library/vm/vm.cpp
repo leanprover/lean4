@@ -133,7 +133,7 @@ void display(std::ostream & out, vm_obj const & o) {
     if (is_simple(o)) {
         out << cidx(o);
     } else if (is_constructor(o)) {
-        out << "(" << cidx(o);
+        out << "(#" << cidx(o);
         for (unsigned i = 0; i < csize(o); i++) {
             out << " ";
             display(out, cfield(o, i));
@@ -571,6 +571,16 @@ void vm_state::run() {
     while (true) {
       main_loop:
         vm_instr const & instr = m_code[pc];
+        lean_trace(name({"vm", "run"}),
+                   tout() << pc << ": ";
+                   instr.display(tout().get_stream(), [&](unsigned idx) { return optional<name>(m_decls[idx].get_name()); });
+                   tout() << ", bp: " << m_bp << "\n";
+                   for (unsigned i = 0; i < m_stack.size(); i++) {
+                       tout() << i << " := ";
+                       display(tout().get_stream(), m_stack[i]);
+                       tout() << "\n";
+                   }
+                   tout() << "\n";);
         switch (instr.op()) {
         case opcode::Push:
             m_stack.push_back(m_stack[m_bp + instr.get_idx()]);
@@ -777,6 +787,8 @@ void display_vm_code(std::ostream & out, environment const & env, unsigned code_
 
 void initialize_vm_core() {
     g_vm_builtins = new name_map<pair<unsigned, vm_function>>();
+    register_trace_class("vm");
+    register_trace_class({"vm", "run"});
 }
 
 void finalize_vm_core() {

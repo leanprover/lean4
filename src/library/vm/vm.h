@@ -186,14 +186,13 @@ enum class opcode {
 class vm_instr {
     opcode m_op;
     union {
-        /* InvokeGlobal, InvokeBuiltin and Closure */
         struct {
-            unsigned m_fn_idx;
-            unsigned m_nargs; /* Only for Closure */
+            unsigned m_fn_idx;  /* InvokeGlobal, InvokeBuiltin and Closure. */
+            unsigned m_nargs;   /* Closure and Invoke */
         };
         /* Push, Proj */
         unsigned m_idx;
-        /* Invoke, Drop */
+        /* Drop */
         unsigned m_num;
         /* Goto, Cases2 and NatCases */
         struct {
@@ -247,7 +246,7 @@ public:
     }
 
     unsigned get_nargs() const {
-        lean_assert(m_op == opcode::Closure);
+        lean_assert(m_op == opcode::Closure || m_op == opcode::Invoke);
         return m_nargs;
     }
 
@@ -257,7 +256,7 @@ public:
     }
 
     unsigned get_num() const {
-        lean_assert(m_op == opcode::Invoke || m_op == opcode::Drop);
+        lean_assert(m_op == opcode::Drop);
         return m_num;
     }
 

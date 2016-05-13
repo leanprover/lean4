@@ -175,7 +175,7 @@ void vm_instr::display(std::ostream & out, std::function<optional<name>(unsigned
         break;
     case opcode::NatCases:      out << "nat_cases " << m_pc[0] << " " << m_pc[1]; break;
     case opcode::Proj:          out << "proj " << m_idx; break;
-    case opcode::Invoke:        out << "invoke " << m_num; break;
+    case opcode::Invoke:        out << "invoke " << m_nargs; break;
     case opcode::InvokeGlobal:
         out << "ginvoke ";
         display_fn(out, idx2name, m_fn_idx);
@@ -318,7 +318,7 @@ vm_instr mk_casesn_instr(unsigned num_pc, unsigned const * pcs) {
 
 vm_instr mk_invoke_instr(unsigned n) {
     vm_instr r(opcode::Invoke);
-    r.m_num = n;
+    r.m_nargs = n;
     return r;
 }
 
@@ -353,7 +353,10 @@ void vm_instr::copy_args(vm_instr const & i) {
     case opcode::Push: case opcode::Proj:
         m_idx  = i.m_idx;
         break;
-    case opcode::Invoke: case opcode::Drop:
+    case opcode::Invoke:
+        m_nargs  = i.m_nargs;
+        break;
+    case opcode::Drop:
         m_num = i.m_num;
         break;
     case opcode::Goto:
@@ -760,7 +763,7 @@ void vm_state::run() {
             }
         }
         case opcode::Invoke: {
-            unsigned nargs    = instr.get_num();
+            unsigned nargs    = instr.get_nargs();
             unsigned sz       = m_stack.size();
             vm_obj closure    = m_stack.back();
             m_stack.pop_back();

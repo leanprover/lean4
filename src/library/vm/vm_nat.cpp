@@ -71,7 +71,7 @@ static void nat_mul(vm_state & s) {
     vm_obj const & a1 = s.get(0);
     vm_obj const & a2 = s.get(1);
     if (is_simple(a1) && is_simple(a2)) {
-        unsigned long long r = static_cast<unsigned long long>(cidx(a1)) + static_cast<unsigned long long>(cidx(a2));
+        unsigned long long r = static_cast<unsigned long long>(cidx(a1)) * static_cast<unsigned long long>(cidx(a2));
         if (r < LEAN_MAX_SMALL_NAT) {
             s.push(mk_vm_simple(r));
             return;

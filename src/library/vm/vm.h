@@ -34,6 +34,8 @@ public:
 #define LEAN_VM_BOX(num)    (reinterpret_cast<vm_obj_cell*>((num << 1) | 1))
 #define LEAN_VM_UNBOX(obj)  (reinterpret_cast<size_t>(obj) >> 1)
 
+void display(std::ostream & out, vm_obj const & o);
+
 /** \brief VM object */
 class vm_obj {
     vm_obj_cell * m_data;
@@ -45,18 +47,20 @@ public:
     vm_obj():m_data(LEAN_VM_BOX(0)) {
         static_assert(sizeof(vm_obj) == sizeof(void *), "unexpected class obj size"); // NOLINT
     }
-    vm_obj(unsigned cidx):m_data(LEAN_VM_BOX(cidx)) {}
-    vm_obj(vm_obj_cell * c):m_data(c) { m_data->inc_ref(); }
+    explicit vm_obj(unsigned cidx):m_data(LEAN_VM_BOX(cidx)) {}
+    explicit vm_obj(vm_obj_cell * c):m_data(c) { m_data->inc_ref(); lean_assert(LEAN_VM_IS_PTR(m_data)); }
     vm_obj(vm_obj const & o):m_data(o.m_data) { if (LEAN_VM_IS_PTR(m_data)) m_data->inc_ref(); }
     vm_obj(vm_obj && o):m_data(o.m_data) { o.m_data = LEAN_VM_BOX(0); }
     ~vm_obj() { if (LEAN_VM_IS_PTR(m_data)) m_data->dec_ref(); }
 
     friend void swap(vm_obj & a, vm_obj & b) { std::swap(a.m_data, b.m_data); }
 
+    operator vm_obj_cell*() const { return m_data; }
+
     vm_obj & operator=(vm_obj const & s) {
         if (LEAN_VM_IS_PTR(s.m_data))
             s.m_data->inc_ref();
-        auto new_data = s.m_data;
+        vm_obj_cell * new_data = s.m_data;
         if (LEAN_VM_IS_PTR(m_data))
             m_data->dec_ref();
         m_data = new_data;
@@ -128,24 +132,21 @@ inline vm_obj mk_vm_bool(bool b) { return mk_vm_simple(b); }
 
 // =======================================
 // Testers
-inline vm_obj_kind kind(vm_obj const & o) { return o.kind(); }
-inline bool is_simple(vm_obj const & o) { return !LEAN_VM_IS_PTR(o.raw()); }
-inline bool is_constructor(vm_obj const & o) { return kind(o) == vm_obj_kind::Constructor; }
-inline bool is_closure(vm_obj const & o) { return kind(o) == vm_obj_kind::Closure; }
-inline bool is_composite(vm_obj const & o) { return is_constructor(o) || is_closure(o); }
-inline bool is_mpz(vm_obj const & o) { return kind(o) == vm_obj_kind::MPZ; }
-inline bool is_external(vm_obj const & o) { return kind(o) == vm_obj_kind::External; }
-bool is_small_nat(vm_obj const & o);
+inline vm_obj_kind kind(vm_obj_cell const * o) { return LEAN_VM_IS_PTR(o) ? o->kind() : vm_obj_kind::Simple; }
+inline bool is_simple(vm_obj_cell const * o) { return !LEAN_VM_IS_PTR(o); }
+inline bool is_constructor(vm_obj_cell const * o) { return kind(o) == vm_obj_kind::Constructor; }
+inline bool is_closure(vm_obj_cell const * o) { return kind(o) == vm_obj_kind::Closure; }
+inline bool is_composite(vm_obj_cell const * o) { return is_constructor(o) || is_closure(o); }
+inline bool is_mpz(vm_obj_cell const * o) { return kind(o) == vm_obj_kind::MPZ; }
+inline bool is_external(vm_obj_cell const * o) { return kind(o) == vm_obj_kind::External; }
 // =======================================
 
 // =======================================
 // Casting
-inline vm_composite * to_composite(vm_obj const & o) {
-    lean_assert(is_composite(o)); return static_cast<vm_composite*>(o.raw());
-}
-inline vm_mpz * to_mpz_core(vm_obj const & o) { lean_assert(is_mpz(o)); return static_cast<vm_mpz*>(o.raw()); }
-inline mpz const & to_mpz(vm_obj const & o) { return to_mpz_core(o)->get_value(); }
-inline vm_external * to_external(vm_obj const & o) { lean_assert(is_external(o)); return static_cast<vm_external*>(o.raw()); }
+inline vm_composite * to_composite(vm_obj_cell * o) { lean_assert(is_composite(o)); return static_cast<vm_composite*>(o); }
+inline vm_mpz * to_mpz_core(vm_obj_cell * o) { lean_assert(is_mpz(o)); return static_cast<vm_mpz*>(o); }
+inline mpz const & to_mpz(vm_obj_cell * o) { return to_mpz_core(o)->get_value(); }
+inline vm_external * to_external(vm_obj_cell * o) { lean_assert(is_external(o)); return static_cast<vm_external*>(o); }
 // =======================================
 
 // =======================================
@@ -161,8 +162,6 @@ inline vm_obj const * cfields(vm_obj const & o) {
 }
 inline vm_obj const & cfield(vm_obj const & o, unsigned i) { lean_assert(i < csize(o)); return cfields(o)[i]; }
 // =======================================
-
-void display(std::ostream & out, vm_obj const & o);
 
 #define LEAN_MAX_SMALL_NAT 1u<<31
 

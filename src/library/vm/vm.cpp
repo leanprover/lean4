@@ -702,7 +702,7 @@ void vm_state::run() {
             }
         }
         case opcode::Invoke: {
-            unsigned nargs    = instr.get_nargs();
+            unsigned nargs    = instr.get_num();
             unsigned sz       = m_stack.size();
             vm_obj closure    = m_stack[sz - nargs - 1];
             unsigned fn_idx   = cfn_idx(closure);

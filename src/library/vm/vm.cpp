@@ -146,18 +146,18 @@ void vm_instr::display(std::ostream & out, std::function<optional<name>(unsigned
     case opcode::Ret:           out << "ret"; break;
     case opcode::Drop:          out << "drop " << m_num; break;
     case opcode::Goto:          out << "goto " << m_pc[0]; break;
-    case opcode::SConstructor:  out << "scnstr " << m_cidx; break;
-    case opcode::Constructor:   out << "cnstr " << m_cidx << " " << m_nfields; break;
+    case opcode::SConstructor:  out << "scnstr #" << m_cidx; break;
+    case opcode::Constructor:   out << "cnstr #" << m_cidx << " " << m_nfields; break;
     case opcode::Num:           out << "num " << *m_mpz; break;
     case opcode::Unreachable:   out << "unreachable"; break;
     case opcode::Destruct:      out << "destruct"; break;
-    case opcode::Cases2:        out << "cases2 " << m_pc[0] << " " << m_pc[1]; break;
+    case opcode::Cases2:        out << "cases2 " << m_pc[1]; break;
     case opcode::CasesN:
         out << "cases";
         for (unsigned i = 0; i < get_casesn_size(); i++)
             out << " " << get_casesn_pc(i);
         break;
-    case opcode::NatCases:      out << "nat_cases " << m_pc[0] << " " << m_pc[1]; break;
+    case opcode::NatCases:      out << "nat_cases " << m_pc[1]; break;
     case opcode::Proj:          out << "proj " << m_idx; break;
     case opcode::Invoke:        out << "invoke " << m_nargs; break;
     case opcode::InvokeGlobal:

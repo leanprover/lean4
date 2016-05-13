@@ -665,11 +665,22 @@ static environment compile_cmd(parser & p) {
 }
 
 static environment vm_eval_cmd(parser & p) {
-    name n = p.check_constant_next("invalid vm_eval command, constant expected");
-    vm_state s(p.env());
+    auto pos = p.pos();
+    expr e; level_param_names ls;
+    std::tie(e, ls) = parse_local_expr(p);
+    if (has_local(e) || has_metavar(e))
+        throw parser_error("invalid vm_eval command, argument must be a closed expression", pos);
+    type_checker tc(p.env());
+    expr type = tc.infer(e);
+    environment new_env = p.env();
+    name main("_main");
+    auto cd = check(new_env, mk_definition(new_env, main, ls, type, e));
+    new_env = new_env.add(cd);
+    new_env = vm_compile(p.env(), new_env.get(main));
+    vm_state s(new_env);
     {
         timeit timer(p.ios().get_diagnostic_stream(), "vm_eval time");
-        s.invoke_fn(n);
+        s.invoke_fn(main);
     }
     vm_obj r = s.get(0);
     display(p.ios().get_regular_stream(), r);

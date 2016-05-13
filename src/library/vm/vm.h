@@ -236,7 +236,7 @@ public:
 
     unsigned get_nargs() const {
         lean_assert(m_op == opcode::InvokeGlobal || m_op == opcode::Closure);
-        return m_fn_idx;
+        return m_nargs;
     }
 
     unsigned get_idx() const {

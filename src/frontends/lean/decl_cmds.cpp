@@ -22,9 +22,11 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/explicit.h"
 #include "library/abbreviation.h"
-#include "library/definitional/equations.h"
+#include "library/flycheck.h"
 #include "library/error_handling.h"
+#include "library/definitional/equations.h"
 #include "library/compiler/inliner.h"
+#include "library/compiler/vm_compiler.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
@@ -1167,6 +1169,21 @@ class definition_cmd_fn {
         register_decl(m_name, m_real_name, m_type);
     }
 
+    void compile_decl() {
+        if (m_is_noncomputable || m_is_inline || !is_definition())
+            return;
+        try {
+            declaration d = m_env.get(m_real_name);
+            m_env         = vm_compile(m_env, d);
+        } catch (exception & ext) {
+            flycheck_warning wrn(m_p.ios());
+            auto & out = m_p.ios().get_regular_stream();
+            display_pos(out);
+            out << "failed to generate bytecode for '" << m_real_name << "'" << std::endl;
+            out << ext.what() << std::endl;
+        }
+    }
+
 public:
     definition_cmd_fn(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable, bool is_inline):
         m_p(p), m_env(m_p.env()), m_kind(kind),
@@ -1185,6 +1202,7 @@ public:
             process_locals();
             elaborate();
             register_decl();
+            compile_decl();
             return m_env;
         } catch (exception & ex) {
             if (m_type_checkpoint) {

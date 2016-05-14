@@ -93,9 +93,10 @@ public:
 
     /** \brief Type check the given expression, and return the type of \c t.
         Throw an exception if a type error is found.  */
-    virtual expr check(expr const & t, level_param_names const & ps = level_param_names());
+    expr check(expr const & t, level_param_names const & ps);
     /** \brief Like \c check, but ignores undefined universes */
     expr check_ignore_undefined_universes(expr const & e);
+    virtual expr check(expr const & t) { return check_ignore_undefined_universes(t); }
 
     /** \brief Return true iff t is definitionally equal to s. */
     virtual bool is_def_eq(expr const & t, expr const & s);

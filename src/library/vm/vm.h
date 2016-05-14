@@ -221,8 +221,8 @@ class vm_instr {
     friend vm_instr mk_ret_instr();
     friend vm_instr mk_destruct_instr();
     friend vm_instr mk_unreachable_instr();
-    friend vm_instr mk_nat_cases_instr(unsigned pc);
-    friend vm_instr mk_cases2_instr(unsigned pc);
+    friend vm_instr mk_nat_cases_instr(unsigned pc1, unsigned pc2);
+    friend vm_instr mk_cases2_instr(unsigned pc1, unsigned pc2);
     friend vm_instr mk_casesn_instr(unsigned num_pc, unsigned const * pcs);
     friend vm_instr mk_invoke_instr(unsigned n);
     friend vm_instr mk_invoke_global_instr(unsigned fn_idx);

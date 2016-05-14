@@ -64,8 +64,6 @@ expr type_checker::ensure_pi_core(expr e, expr const & s) {
     }
 }
 
-static constexpr char const * g_macro_error_msg = "failed to type check macro expansion";
-
 void type_checker::check_level(level const & l, expr const & s) {
     if (auto n1 = get_undef_global(l, m_env))
         throw_kernel_exception(m_env, sstream() << "invalid reference to undefined global universe level '" << *n1 << "'", s);

@@ -91,7 +91,7 @@ class type_context_cache {
     bool                          m_ci_trans_instances;
 
     friend class type_context;
-    friend class instance_synthesizer;
+    friend struct instance_synthesizer;
     void init(local_context const & lctx);
     bool is_transparent(transparency_mode m, declaration const & d);
     optional<declaration> is_transparent(transparency_mode m, name const & n);

@@ -8,11 +8,13 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "library/constants.h"
 #include "library/num.h"
+#include "library/kernel_serializer.h"
 #include "library/compiler/compiler_step_visitor.h"
 
 namespace lean {
-static expr * g_nat        = nullptr;
-static name * g_nat_macro  = nullptr;
+static expr * g_nat               = nullptr;
+static name * g_nat_macro         = nullptr;
+static std::string * g_nat_opcode = nullptr;
 
 /** \brief Auxiliary macro used during compilation */
 class nat_value_macro : public macro_definition_cell {
@@ -23,6 +25,7 @@ public:
         return m_value < static_cast<nat_value_macro const &>(d).m_value;
     }
     virtual name get_name() const { return *g_nat_macro; }
+
     virtual expr check_type(expr const &, abstract_type_context &, bool) const {
         return *g_nat;
     }
@@ -59,7 +62,9 @@ public:
     }
     virtual bool is_atomic_pp(bool, bool) const { return true; }
     virtual unsigned hash() const { return m_value.hash(); }
-    virtual void write(serializer &) const { lean_unreachable(); }
+    virtual void write(serializer & s) const {
+        s << *g_nat_opcode << m_value;
+    }
     mpz const & get_value() const { return m_value; }
 };
 
@@ -97,9 +102,18 @@ expr find_nat_values(environment const & env, expr const & e) {
 void initialize_nat_value() {
     g_nat_macro  = new name("nat_value_macro");
     g_nat        = new expr(Const(get_nat_name()));
+    g_nat_opcode = new std::string("CNatM");
+    register_macro_deserializer(*g_nat_opcode,
+                                [](deserializer & d, unsigned num, expr const *) {
+                                    if (num != 0)
+                                        throw corrupted_stream_exception();
+                                    mpz v = read_mpz(d);
+                                    return mk_nat_value(v);
+                                });
 }
 
 void finalize_nat_value() {
+    delete g_nat_opcode;
     delete g_nat_macro;
     delete g_nat;
 }

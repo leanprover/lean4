@@ -10,7 +10,9 @@ Author: Leonardo de Moura
 #include "util/parray.h"
 #include "util/small_object_allocator.h"
 #include "library/constants.h"
+#include "library/kernel_serializer.h"
 #include "library/trace.h"
+#include "library/module.h"
 #include "library/vm/vm.h"
 
 namespace lean {
@@ -429,6 +431,109 @@ vm_instr & vm_instr::operator=(vm_instr && s) {
     return *this;
 }
 
+void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & idx2name) const {
+    s << static_cast<char>(m_op);
+    switch (m_op) {
+    case opcode::InvokeGlobal: case opcode::InvokeBuiltin:
+        s << idx2name(m_fn_idx);
+        break;
+    case opcode::Closure:
+        s << idx2name(m_fn_idx) << m_nargs;
+        break;
+    case opcode::Push: case opcode::Proj:
+        s << m_idx;
+        break;
+    case opcode::Invoke:
+        s << m_nargs;
+        break;
+    case opcode::Drop:
+        s << m_num;
+        break;
+    case opcode::Goto:
+        s << m_pc[0];
+        break;
+    case opcode::Cases2: case opcode::NatCases:
+        s << m_pc[0];
+        s << m_pc[1];
+        break;
+    case opcode::CasesN:
+        s << m_npcs[0];
+        for (unsigned j = 1; j < m_npcs[0] + 1; j++)
+            s << m_npcs[j];
+        break;
+    case opcode::SConstructor:
+        s << m_cidx;
+        break;
+    case opcode::Constructor:
+        s << m_cidx << m_nfields;
+        break;
+    case opcode::Num:
+        s << *m_mpz;
+        break;
+    case opcode::Ret: case opcode::Destruct: case opcode::Unreachable:
+        break;
+    }
+}
+
+static unsigned read_fn_idx(deserializer & d, name_map<unsigned> const & name2idx) {
+    name n;
+    d >> n;
+    if (auto r = name2idx.find(n))
+        return *r;
+    else
+        throw corrupted_stream_exception();
+}
+
+static vm_instr read_vm_instr(deserializer & d, name_map<unsigned> const & name2idx) {
+    opcode op = static_cast<opcode>(d.read_char());
+    unsigned pc, idx;
+    switch (op) {
+    case opcode::InvokeGlobal:
+        return mk_invoke_global_instr(read_fn_idx(d, name2idx));
+    case opcode::InvokeBuiltin:
+        return mk_invoke_builtin_instr(read_fn_idx(d, name2idx));
+    case opcode::Closure:
+        idx = read_fn_idx(d, name2idx);
+        return mk_closure_instr(idx, d.read_unsigned());
+    case opcode::Push:
+        return mk_push_instr(d.read_unsigned());
+    case opcode::Proj:
+        return mk_proj_instr(d.read_unsigned());
+    case opcode::Invoke:
+        return mk_invoke_instr(d.read_unsigned());
+    case opcode::Drop:
+        return mk_drop_instr(d.read_unsigned());
+    case opcode::Goto:
+        return mk_goto_instr(d.read_unsigned());
+    case opcode::Cases2:
+        pc = d.read_unsigned();
+        return mk_cases2_instr(pc, d.read_unsigned());
+    case opcode::NatCases:
+        pc = d.read_unsigned();
+        return mk_nat_cases_instr(pc, d.read_unsigned());
+    case opcode::CasesN: {
+        unsigned n = d.read_unsigned();
+        buffer<unsigned> pcs;
+        for (unsigned j = 0; j < n; j++)
+            pcs.push_back(d.read_unsigned());
+        return mk_casesn_instr(n, pcs.data());
+    }
+    case opcode::SConstructor:
+        return mk_sconstructor_instr(d.read_unsigned());
+    case opcode::Constructor:
+        idx = d.read_unsigned();
+        return mk_constructor_instr(idx, d.read_unsigned());
+    case opcode::Num:
+        return mk_num_instr(read_mpz(d));
+    case opcode::Ret:
+        return mk_ret_instr();
+    case opcode::Destruct:
+        return mk_destruct_instr();
+    case opcode::Unreachable:
+        return mk_unreachable_instr();
+    }
+    lean_unreachable();
+}
 
 vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_function fn):
     m_rc(0), m_builtin(true), m_name(n), m_idx(idx), m_arity(arity), m_fn(fn) {}
@@ -527,17 +632,65 @@ optional<unsigned> get_vm_constant_idx(environment const & env, name const & n) 
         return optional<unsigned>();
 }
 
+static std::string * g_vm_reserve_key = nullptr;
+static std::string * g_vm_code_key = nullptr;
+
 environment reserve_vm_index(environment const & env, name const & fn, expr const & e) {
     vm_decls ext = get_extension(env);
     ext.reserve(fn, e);
-    return update(env, ext);
+    environment new_env = update(env, ext);
+    return module::add(new_env, *g_vm_reserve_key, [=](environment const &, serializer & s) {
+            s << fn << e;
+        });
+}
+
+static void reserve_reader(deserializer & d, shared_environment & senv,
+                           std::function<void(asynch_update_fn const &)> &,
+                           std::function<void(delayed_update_fn const &)> &) {
+    name fn; expr e;
+    d >> fn >> e;
+    senv.update([&](environment const & env) -> environment {
+            vm_decls ext = get_extension(env);
+            ext.reserve(fn, e);
+            return update(env, ext);
+        });
+}
+
+void serialize_code(serializer & s, unsigned fidx, parray<vm_decl> const & decls) {
+    vm_decl const & d = decls[fidx];
+    s << d.get_name() << d.get_code_size();
+    vm_instr const * code = d.get_code();
+    auto fn = [&](unsigned idx) { return decls[idx].get_name(); };
+    for (unsigned i = 0; i < d.get_code_size(); i++) {
+        code[i].serialize(s, fn);
+    }
+}
+
+static void code_reader(deserializer & d, shared_environment & senv,
+                        std::function<void(asynch_update_fn const &)> &,
+                        std::function<void(delayed_update_fn const &)> &) {
+    senv.update([&](environment const & env) -> environment {
+            name fn; unsigned code_sz;
+            d >> fn;
+            d >> code_sz;
+            vm_decls ext = get_extension(env);
+            buffer<vm_instr> code;
+            for (unsigned i = 0; i < code_sz; i++) {
+                code.push_back(read_vm_instr(d, ext.m_name2idx));
+            }
+            ext.update(fn, code_sz, code.data());
+            return update(env, ext);
+        });
 }
 
 environment update_vm_code(environment const & env, name const & fn, unsigned code_sz, vm_instr const * code) {
     vm_decls ext = get_extension(env);
     ext.update(fn, code_sz, code);
-    // TODO(Leo): store bytecode in .olean file
-    return update(env, ext);
+    environment new_env = update(env, ext);
+    unsigned fidx       = *ext.m_name2idx.find(fn);
+    return module::add(new_env, *g_vm_code_key, [=](environment const & env, serializer & s) {
+            serialize_code(s, fidx, get_extension(env).m_decls);
+        });
 }
 
 environment add_vm_code(environment const & env, name const & fn, expr const & e, unsigned code_sz, vm_instr const * code) {
@@ -1033,9 +1186,15 @@ void finalize_vm_core() {
 
 void initialize_vm() {
     g_ext = new vm_decls_reg();
+    g_vm_reserve_key = new std::string("VMR");
+    g_vm_code_key    = new std::string("VMC");
+    register_module_object_reader(*g_vm_reserve_key, reserve_reader);
+    register_module_object_reader(*g_vm_code_key, code_reader);
 }
 
 void finalize_vm() {
     delete g_ext;
+    delete g_vm_reserve_key;
+    delete g_vm_code_key;
 }
 }

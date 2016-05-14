@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/debug.h"
 #include "util/rc.h"
+#include "util/serializer.h"
 #include "util/numerics/mpz.h"
 #include "kernel/environment.h"
 
@@ -321,6 +322,8 @@ public:
 
     void display(std::ostream & out, std::function<optional<name>(unsigned)> const & idx2name) const;
     void display(std::ostream & out) const;
+
+    void serialize(serializer & s, std::function<name(unsigned)> const & idx2name) const;
 };
 
 vm_instr mk_push_instr(unsigned idx);

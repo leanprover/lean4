@@ -111,7 +111,9 @@ nat.has_decidable_eq
 nat.decidable_le
 nat.decidable_lt
 nat.cases_on
+nat.rec_on
 nat.no_confusion
+nat.no_confusion_type
 ne
 neg
 norm_num.add1

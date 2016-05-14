@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "library/definitional/equations.h"
 #include "library/compiler/inliner.h"
 #include "library/compiler/vm_compiler.h"
+#include "library/vm/vm.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
@@ -1170,7 +1171,7 @@ class definition_cmd_fn {
     }
 
     void compile_decl() {
-        if (m_is_noncomputable || m_is_inline || !is_definition())
+        if (m_is_noncomputable || m_is_inline || !is_definition() || is_vm_builtin_function(m_real_name))
             return;
         try {
             declaration d = m_env.get(m_real_name);

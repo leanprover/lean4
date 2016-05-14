@@ -178,6 +178,16 @@ static void nat_decidable_lt(vm_state & s) {
     }
 }
 
+static void nat_rec(vm_state &) {
+    /* recursors are implemented by the compiler */
+    lean_unreachable();
+}
+
+static void nat_no_confusion(vm_state &) {
+    /* no_confusion is implemented by the compiler */
+    lean_unreachable();
+}
+
 void initialize_vm_nat() {
     declare_vm_builtin(get_nat_succ_name(),              1, nat_succ);
     declare_vm_builtin(get_nat_add_name(),               2, nat_add);
@@ -189,6 +199,10 @@ void initialize_vm_nat() {
     declare_vm_builtin(get_nat_has_decidable_eq_name(),  2, nat_has_decidable_eq);
     declare_vm_builtin(get_nat_decidable_le_name(),      2, nat_decidable_le);
     declare_vm_builtin(get_nat_decidable_lt_name(),      2, nat_decidable_lt);
+    declare_vm_builtin(get_nat_cases_on_name(),          4, nat_rec);
+    declare_vm_builtin(get_nat_rec_on_name(),            4, nat_rec);
+    declare_vm_builtin(get_nat_no_confusion_name(),      5, nat_no_confusion);
+    declare_vm_builtin(get_nat_no_confusion_type_name(), 3, nat_no_confusion);
 }
 
 void finalize_vm_nat() {

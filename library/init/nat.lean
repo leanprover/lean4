@@ -14,7 +14,7 @@ namespace nat
                        {C : ℕ → Type} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C a → C (succ a)) : C n :=
   nat.rec H₁ H₂ n
 
-  protected definition induction_on
+  protected theorem induction_on
                        {C : ℕ → Prop} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C a → C (succ a)) : C n :=
   nat.rec H₁ H₂ n
 

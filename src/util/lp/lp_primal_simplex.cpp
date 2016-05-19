@@ -145,9 +145,9 @@ template <typename T, typename X> void lp_primal_simplex<T, X>::set_core_solver_
     this->m_upper_bounds.resize(total_vars);
     for (auto cit : this->m_columns) {
         column_info<T> * ci = cit.second;
-        auto p = this->m_external_columns_to_core_solver_columns.find(cit.first);
-        if (p == this->m_external_columns_to_core_solver_columns.end()) continue;
-        unsigned j = p->second;
+        unsigned j = ci->get_column_index();
+        if (!is_valid(j))
+            continue; // the variable is not mapped to a column
         switch (this->m_column_types[j] = ci->get_column_type()){
         case fixed:
             this->m_upper_bounds[j] = numeric_traits<T>::zero();

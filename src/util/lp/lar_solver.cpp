@@ -33,9 +33,15 @@ double conversion_helper <double>::get_upper_bound(const column_info<mpq> & ci) 
 canonic_left_side * lar_solver::create_or_fetch_existing_left_side(const buffer<std::pair<mpq, var_index>>& left_side_par) {
     auto left_side = new canonic_left_side(left_side_par);
     lean_assert(left_side->size() > 0);
-    auto it = m_canonic_left_sides.find(left_side);
-    if (it == m_canonic_left_sides.end()) {
-        m_canonic_left_sides.insert(left_side);
+    auto it = m_set_of_canonic_left_sides.find(left_side);
+    if (it == m_set_of_canonic_left_sides.end()) {
+        m_set_of_canonic_left_sides.insert(left_side);
+        lean_assert(m_map_from_var_index_to_column_info_with_cls.find(m_available_var_index) == m_map_from_var_index_to_column_info_with_cls.end());
+        unsigned vj = m_available_var_index;
+        m_map_from_var_index_to_column_info_with_cls[vj] = column_info_with_cls(left_side);
+        m_map_from_var_index_to_column_info_with_cls[vj].m_column_info.set_name("_s" + T_to_string(vj));
+        left_side->m_additional_var_index = vj;
+        m_available_var_index++;
     } else {
         delete left_side;
         left_side = *it;
@@ -43,14 +49,7 @@ canonic_left_side * lar_solver::create_or_fetch_existing_left_side(const buffer<
     return left_side;
 }
 
-
-bool lar_solver::var_is_fixed(unsigned j) {
-    auto it = m_map_from_var_index_to_left_side.find(j);
-    lean_assert(it != m_map_from_var_index_to_left_side.end());
-    return it->second->m_column_info.is_fixed();
-}
-
-mpq lar_solver::find_ratio(canonic_left_side * ls, const lar_constraint & constraint) {
+mpq lar_solver::find_ratio_of_original_constraint_to_normalized(canonic_left_side * ls, const lar_constraint & constraint) {
     lean_assert(ls->m_coeffs.size() > 0);
     auto first_pair = ls->m_coeffs[0];
     lean_assert(first_pair.first == numeric_traits<mpq>::one());
@@ -60,81 +59,68 @@ mpq lar_solver::find_ratio(canonic_left_side * ls, const lar_constraint & constr
     return it->second;
 }
 
-void lar_solver::add_canonic_left_side_for_var(var_index i, std::string var_name) {
-    buffer<std::pair<mpq, var_index>> b;
-    b.push_back(std::make_pair(numeric_traits<mpq>::one(), i));
-    auto can_ls = new canonic_left_side(b);
-    can_ls->set_name(var_name);
-
-    lean_assert(m_canonic_left_sides.find(can_ls) == m_canonic_left_sides.end());
-    m_canonic_left_sides.insert(can_ls);
-    m_map_from_var_index_to_left_side[i] = can_ls;
-}
-
-void lar_solver::map_left_side_to_column_of_A(canonic_left_side*  left_side, unsigned & j) {
-    lean_assert(m_column_indices_to_canonic_left_sides.find(j) == m_column_indices_to_canonic_left_sides.end());
-    left_side->m_column_index = j; // assigning this index does not change the hash of canonic_left_side
-    if (left_side->size() > 1) { // if size is one we will not create a row for this left side
-        left_side->m_row_index = static_cast<int>(m_basis.size());
-        m_basis.push_back(j); // j will be a basis column, so we put it into the basis as well
-    }
-    m_column_indices_to_canonic_left_sides[j++] = left_side; // pointing from the column to the left side
+void lar_solver::map_left_side_to_A_of_core_solver(canonic_left_side*  left_side, unsigned  j) {
+    var_index additional_var = left_side->m_additional_var_index;
+    lean_assert(valid_index(additional_var));
+    auto it = m_map_from_var_index_to_column_info_with_cls.find(additional_var);
+    lean_assert(it != m_map_from_var_index_to_column_info_with_cls.end());
+    column_info<mpq> & ci = it->second.m_column_info;
+    lean_assert(!is_valid(ci.get_column_index()));
+    lean_assert(left_side->size() > 0); // if size is zero we have an empty row
+    left_side->m_row_index = m_basis.size();
+    m_basis.push_back(j); // j will be a basis column, so we put it into the basis as well
+    lean_assert(m_map_from_column_indices_to_var_index.find(j) == m_map_from_column_indices_to_var_index.end());
+    ci.set_column_index(j);
+    m_map_from_column_indices_to_var_index[j] = additional_var;
 }
 
 
-void lar_solver::map_left_sides_to_columns_of_A() {
-    unsigned j = 0;
-    for (auto it : m_canonic_left_sides)
-        map_left_side_to_column_of_A(it, j);
+void lar_solver::map_left_sides_to_A_of_core_solver() {
+    unsigned j = m_map_from_column_indices_to_var_index.size();
+    for (auto it : m_set_of_canonic_left_sides)
+        map_left_side_to_A_of_core_solver(it, j++);
 }
-
-bool valid_index(unsigned j) { return static_cast<int>(j) >= 0;}
-
 
 // this adds a row to A
 template <typename U, typename V>
-void lar_solver::add_row_to_A(static_matrix<U, V> & A, unsigned i, canonic_left_side * ls) {
+void lar_solver::fill_row_of_A(static_matrix<U, V> & A, unsigned i, canonic_left_side * ls) {
     for (auto & t : ls->m_coeffs) {
         var_index vi = t.second;
-        canonic_left_side *var_left_side = m_map_from_var_index_to_left_side[vi];
-        unsigned column = var_left_side->m_column_index;
-        lean_assert(valid_index(column));
+        unsigned column = get_column_index_from_var_index(vi);
+        lean_assert(is_valid(column));
         A.set(i, column, convert_struct<U, mpq>::convert(t.first));
     }
-    A.set(i, ls->m_column_index, - one_of_type<U>());
+    unsigned additional_column = get_column_index_from_var_index(ls->m_additional_var_index);
+    lean_assert(is_valid(additional_column));
+    A.set(i, additional_column, - one_of_type<U>());
+}
+
+void lar_solver::fill_set_of_active_var_indices() {
+    for (auto & t : m_set_of_canonic_left_sides)
+        for (auto & a : t->m_coeffs)
+            m_set_of_active_var_indices.insert(a.second);
 }
 
 template <typename U, typename V>
 void lar_solver::create_matrix_A(static_matrix<U, V> & A) {
-    unsigned n = static_cast<unsigned>(m_column_indices_to_canonic_left_sides.size());
-    unsigned m = static_cast<unsigned>(m_basis.size());
+    unsigned m = m_set_of_canonic_left_sides.size();
+    fill_set_of_active_var_indices();
+    unsigned n = m_set_of_active_var_indices.size() + m;
     A.init_empty_matrix(m, n);
     unsigned i = 0;
-    for (auto & t : m_column_indices_to_canonic_left_sides)
-        if (valid_index(t.second->m_row_index))
-            add_row_to_A(A, i++, t.second);
-#ifdef LEAN_DEBUG
-    // print_matrix(m_A);
-#endif
+    for (auto t : m_set_of_canonic_left_sides) {
+        lean_assert(t->size() > 0);
+        if (is_valid(t->m_row_index))
+            fill_row_of_A(A, i++, t);
+    }
 }
 
-// void lar_solver::fill_column_info_names() {
-//     for (unsigned j = 0; j < m_A.column_count(); j++) {
-//         column_info<mpq> t;
-//         m_column_infos.push_back(t);
-//         if (j < m_map_from_var_index_to_name_left_side_pair.size()) {
-//             m_column_infos.back().set_name(m_map_from_var_index_to_name_left_side_pair[j]);
-//         } else {
-//             string pref("_s_");
-//             m_column_infos.back().set_name(pref + T_to_string(j));
-//         }
-//         m_column_names
-//     }
-// }
 void lar_solver::set_upper_bound_for_column_info(lar_normalized_constraint * norm_constr) {
     const mpq & v = norm_constr->m_right_side;
     canonic_left_side * ls = norm_constr->m_canonic_left_side;
-    column_info<mpq> & ci = ls->m_column_info;
+    var_index additional_var_index = ls->m_additional_var_index;
+    lean_assert(is_valid(additional_var_index));
+    column_info<mpq> & ci = get_column_info_from_var_index(additional_var_index);
     lean_assert(norm_constr->m_kind == LE || norm_constr->m_kind == LT || norm_constr->m_kind == EQ);
     bool strict = norm_constr->m_kind == LT;
     if (!ci.upper_bound_is_set()) {
@@ -165,7 +151,7 @@ bool lar_solver::try_to_set_fixed(column_info<mpq> & ci) {
 void lar_solver::set_low_bound_for_column_info(lar_normalized_constraint * norm_constr) {
     const mpq & v = norm_constr->m_right_side;
     canonic_left_side * ls = norm_constr->m_canonic_left_side;
-    column_info<mpq> & ci = ls->m_column_info;
+    column_info<mpq> & ci = get_column_info_from_var_index(ls->m_additional_var_index);
     lean_assert(norm_constr->m_kind == GE || norm_constr->m_kind == GT || norm_constr->m_kind == EQ);
     bool strict = norm_constr->m_kind == GT;
     if (!ci.low_bound_is_set()) {
@@ -221,10 +207,10 @@ column_type lar_solver::get_column_type(column_info<mpq> & ci) {
 
 void lar_solver::fill_column_names() {
     m_column_names.clear();
-    for (auto t : m_canonic_left_sides) {
-        auto & ci = t->m_column_info;
-        unsigned j = t->m_column_index;
-        lean_assert(valid_index(j));
+    for (auto & t : m_map_from_var_index_to_column_info_with_cls) {
+        column_info<mpq> & ci = t.second.m_column_info;
+        unsigned j = ci.get_column_index();
+        lean_assert(is_valid(j));
         std::string name = ci.get_name();
         if (name.size() == 0)
             name = std::string("_s") + T_to_string(j);
@@ -234,24 +220,25 @@ void lar_solver::fill_column_names() {
 
 void lar_solver::fill_column_types() {
     m_column_types.clear();
-    m_column_types.resize(m_canonic_left_sides.size(), free_column);
-    for (auto t : m_canonic_left_sides) {
-        auto & ci = t->m_column_info;
-        unsigned j = t->m_column_index;
-        lean_assert(valid_index(j));
-        m_column_types[j] = get_column_type(ci);
+    m_column_types.resize(m_map_from_var_index_to_column_info_with_cls.size(), free_column);
+    for (auto t : m_set_of_canonic_left_sides) {
+        var_index additional_vj = t->m_additional_var_index;
+        unsigned j = get_column_index_from_var_index(additional_vj);
+        lean_assert(is_valid(j));
+        m_column_types[j] = get_column_type(get_column_info_from_var_index(additional_vj));
     }
 }
 
 template <typename V>
 void lar_solver::fill_bounds_for_core_solver(std::vector<V> & lb, std::vector<V> & ub) {
-    unsigned n = static_cast<unsigned>(m_canonic_left_sides.size()); // this is the number of columns
+    unsigned n = static_cast<unsigned>(m_map_from_var_index_to_column_info_with_cls.size()); // this is the number of columns
     lb.resize(n);
     ub.resize(n);
-    for (auto t : m_canonic_left_sides) {
-        auto & ci = t->m_column_info;
-        unsigned j = t->m_column_index;
-        lean_assert(valid_index(j));
+    for (auto t : m_set_of_canonic_left_sides) {
+        auto & ci = get_column_info_from_var_index(t->m_additional_var_index);
+        unsigned j = ci.get_column_index();
+        lean_assert(is_valid(j));
+        lean_assert(j < n);
         if (ci.low_bound_is_set())
             lb[j] = conversion_helper<V>::get_low_bound(ci);
         if (ci.upper_bound_is_set())
@@ -290,31 +277,32 @@ template <typename V> V lar_solver::get_column_val(std::vector<V> & low_bound, s
 
 lar_solver::~lar_solver() {
     std::vector<canonic_left_side*> to_delete;
-    for (auto it : m_canonic_left_sides)
+    for (auto it : m_set_of_canonic_left_sides)
         to_delete.push_back(it);
     for (auto t : to_delete)
         delete t;
 }
 
-
-
-
 var_index lar_solver::add_var(std::string s) {
-    auto got = m_var_names_to_var_index.find(s);
-    if (got != m_var_names_to_var_index.end()) return got->second;
-
+    auto it = m_var_names_to_var_index.find(s);
+    if (it != m_var_names_to_var_index.end())
+        return it->second;
     var_index i = m_available_var_index++;
+    lean_assert(m_map_from_var_index_to_column_info_with_cls.find(i) == m_map_from_var_index_to_column_info_with_cls.end());
+    auto ci_with_cls = column_info_with_cls();
+    ci_with_cls.m_column_info.set_name(s);
+    m_map_from_var_index_to_column_info_with_cls[i] = ci_with_cls;
     m_var_names_to_var_index[s] = i;
-    add_canonic_left_side_for_var(i, s);
     return i;
 }
 
 constraint_index lar_solver::add_constraint(const buffer<std::pair<mpq, var_index>>& left_side, lconstraint_kind kind_par, mpq right_side_par) {
     lean_assert(left_side.size() > 0);
     constraint_index i = m_available_constr_index++;
+    lean_assert(m_normalized_constraints.find(i) == m_normalized_constraints.end());
     lar_constraint original_constr(left_side, kind_par, right_side_par, i);
     canonic_left_side * ls = create_or_fetch_existing_left_side(left_side);
-    mpq ratio = find_ratio(ls, original_constr);
+    mpq ratio = find_ratio_of_original_constraint_to_normalized(ls, original_constr);
     auto kind = ratio.is_neg()? flip_kind(kind_par): kind_par;
     mpq right_side = right_side_par / ratio;
     lar_normalized_constraint normalized_constraint(ls, ratio, kind, right_side, original_constr);
@@ -455,9 +443,21 @@ mpq lar_solver::sum_of_right_sides_of_evidence(const buffer<std::pair<mpq, unsig
     }
     return ret;
 }
+// do not touch additional vars here
+void lar_solver::map_var_indices_to_columns_of_A() {
+    int i = 0;
+    for (auto & it : m_map_from_var_index_to_column_info_with_cls) {
+        if (it.second.m_canonic_left_side != nullptr) continue;
+        lean_assert(m_map_from_column_indices_to_var_index.find(i) == m_map_from_column_indices_to_var_index.end());
+        it.second.m_column_info.set_column_index(i);
+        m_map_from_column_indices_to_var_index[i] = it.first;
+        i++;
+    }
+}
 void lar_solver::prepare_independently_of_numeric_type() {
     update_column_info_of_normalized_constraints();
-    map_left_sides_to_columns_of_A();
+    map_var_indices_to_columns_of_A();
+    map_left_sides_to_A_of_core_solver();
     fill_column_names();
     fill_column_types();
 }
@@ -565,7 +565,12 @@ void lar_solver::get_infeasibility_evidence_for_inf_sign(buffer<std::pair<mpq, c
     for (auto & it : inf_row) {
         mpq coeff = it.first;
         unsigned j = it.second;
-        canonic_left_side * ls = m_column_indices_to_canonic_left_sides[j];
+        auto it1 = m_map_from_column_indices_to_var_index.find(j);
+        lean_assert(it1 != m_map_from_column_indices_to_var_index.end());
+        unsigned var_j = it1->second;
+        auto it2 = m_map_from_var_index_to_column_info_with_cls.find(var_j);
+        lean_assert(it2 != m_map_from_var_index_to_column_info_with_cls.end());
+        canonic_left_side * ls = it2->second.m_canonic_left_side;
         int adj_sign = coeff.is_pos() ? inf_sign : -inf_sign;
 
         lar_normalized_constraint * bound_constr = adj_sign < 0? ls->m_upper_bound_witness : ls->m_low_bound_witness;
@@ -577,10 +582,10 @@ void lar_solver::get_infeasibility_evidence_for_inf_sign(buffer<std::pair<mpq, c
 
 mpq lar_solver::find_delta_for_strict_bounds() {
     mpq delta = numeric_traits<mpq>::one();
-    for (auto t : m_canonic_left_sides) {
-        auto & ci = t->m_column_info;
-        unsigned j = t->m_column_index;
-        lean_assert (valid_index(j));
+    for (auto t : m_set_of_canonic_left_sides) {
+        auto & ci = get_column_info_from_var_index(t->m_additional_var_index);
+        unsigned j = ci.get_column_index();
+        lean_assert (is_valid(j));
         if (ci.low_bound_is_set())
             restrict_delta_on_low_bound_column(delta, j);
         if (ci.upper_bound_is_set())
@@ -623,18 +628,21 @@ void lar_solver::restrict_delta_on_upper_bound(mpq& delta, unsigned j) {
 void lar_solver::get_model(std::unordered_map<var_index, mpq> & variable_values){
     lean_assert(m_status == OPTIMAL);
     mpq delta = find_delta_for_strict_bounds();
-    for (auto & it : m_map_from_var_index_to_left_side) {
-        numeric_pair<mpq> & rp = m_x[it.second->m_column_index];
+    for (auto & it : m_map_from_var_index_to_column_info_with_cls) {
+        column_info<mpq> & ci = it.second.m_column_info;
+        unsigned j = ci.get_column_index();
+        numeric_pair<mpq> & rp = m_x[j];
         variable_values[it.first] =  rp.x + delta * rp.y;
     }
 }
 
-std::string lar_solver::get_variable_name(var_index vi) {
-    if (m_map_from_var_index_to_left_side.size() <= vi) {
+std::string lar_solver::get_variable_name(var_index vi) const {
+    auto it = m_map_from_var_index_to_column_info_with_cls.find(vi);
+    if (it == m_map_from_var_index_to_column_info_with_cls.end()) {
         std::string s = "variable " + T_to_string(vi) + " is not found";
         return s;
     }
-    return m_map_from_var_index_to_left_side[vi]->m_column_info.get_name();
+    return it->second.m_column_info.get_name();
 }
 
 // ********** print region start
@@ -650,7 +658,7 @@ void lar_solver::print_constraint(constraint_index ci, std::ostream & out) {
 
 void lar_solver::print_canonic_left_side(const canonic_left_side & c, std::ostream & out) {
     bool first = true;
-    for (auto it : c.m_coeffs) {
+    for (auto & it : c.m_coeffs) {
         auto val = it.first;
         if (first) {
             first = false;
@@ -664,13 +672,13 @@ void lar_solver::print_canonic_left_side(const canonic_left_side & c, std::ostre
         }
         if (val != numeric_traits<mpq>::one())
             out << T_to_string(val);
-        out << m_map_from_var_index_to_left_side[it.second]->m_column_info.get_name();
+        out << get_variable_name(it.second);
     }
 }
 
 void lar_solver::print_left_side_of_constraint(const lar_base_constraint * c, std::ostream & out) {
     bool first = true;
-    for (auto it : c->get_left_side_coefficients()) {
+    for (auto & it : c->get_left_side_coefficients()) {
         auto val = it.first;
         if (numeric_traits<mpq>::is_zero(val)) continue;
         if (first) {
@@ -686,29 +694,29 @@ void lar_solver::print_left_side_of_constraint(const lar_base_constraint * c, st
 
         if (val != numeric_traits<mpq>::one())
             out << val;
-        out << m_map_from_var_index_to_left_side[it.second]->m_column_info.get_name();
+        out << get_variable_name(it.second);
     }
 }
 
-void lar_solver::print_info_on_column(unsigned j, std::ostream & out) {
-    for (auto ls : m_canonic_left_sides) {
-        if (static_cast<unsigned>(ls->m_column_index) == j) {
-            auto & ci = ls->m_column_info;
-            if (ci.low_bound_is_set()) {
-                out << "l = " << ci.get_low_bound();
-            }
-            if (ci.upper_bound_is_set()) {
-                out << "u = " << ci.get_upper_bound();
-            }
-            out << std::endl;
-            m_mpq_core_solver.print_column_info(j, out);
-        }
-    }
-}
+// void lar_solver::print_info_on_column(unsigned j, std::ostream & out) {
+//     for (auto ls : m_set_of_canonic_left_sides) {
+//         if (static_cast<unsigned>(ls->get_ci()) == j) {
+//             auto & ci = ls->m_column_info;
+//             if (ci.low_bound_is_set()) {
+//                 out << "l = " << ci.get_low_bound();
+//             }
+//             if (ci.upper_bound_is_set()) {
+//                 out << "u = " << ci.get_upper_bound();
+//             }
+//             out << std::endl;
+//             m_mpq_core_solver.print_column_info(j, out);
+//         }
+//     }
+// }
 
 mpq lar_solver::get_infeasibility_of_solution(std::unordered_map<std::string, mpq> & solution) {
     mpq ret = numeric_traits<mpq>::zero();
-    for (auto it : m_normalized_constraints) {
+    for (auto & it : m_normalized_constraints) {
         ret += get_infeasibility_of_constraint(it.second, solution);
     }
     return ret;
@@ -735,12 +743,9 @@ mpq lar_solver::get_infeasibility_of_constraint(const lar_normalized_constraint 
 
 mpq lar_solver::get_canonic_left_side_val(canonic_left_side * ls, std::unordered_map<std::string, mpq> & solution) {
     mpq ret = numeric_traits<mpq>::zero();
-    for (auto it : ls->m_coeffs) {
-        var_index j = it.second;
-        auto vi = m_map_from_var_index_to_left_side.find(j);
-        lean_assert(vi != m_map_from_var_index_to_left_side.end());
-        canonic_left_side * var_ls = vi->second;
-        std::string s = var_ls->m_column_info.get_name();
+    for (auto & it : ls->m_coeffs) {
+        var_index vi = it.second;
+        std::string s = get_variable_name(vi);
         auto t = solution.find(s);
         lean_assert(t != solution.end());
         ret += it.first * (t->second);
@@ -750,7 +755,7 @@ mpq lar_solver::get_canonic_left_side_val(canonic_left_side * ls, std::unordered
 
 mpq lar_solver::get_left_side_val(const lar_constraint &  cns, const std::unordered_map<var_index, mpq> & var_map) {
     mpq ret = numeric_traits<mpq>::zero();
-    for (auto it : cns.m_left_side) {
+    for (auto & it : cns.m_left_side) {
         var_index j = it.first;
         auto vi = var_map.find(j);
         lean_assert(vi != var_map.end());
@@ -762,6 +767,22 @@ mpq lar_solver::get_left_side_val(const lar_constraint &  cns, const std::unorde
 void lar_solver::print_constraint(const lar_base_constraint * c, std::ostream & out) {
     print_left_side_of_constraint(c, out);
     out <<" " << lconstraint_kind_string(c->m_kind) << " " << c->m_right_side;
+}
+
+unsigned lar_solver::get_column_index_from_var_index(var_index vi) const{
+    auto it = m_map_from_var_index_to_column_info_with_cls.find(vi);
+    if (it == m_map_from_var_index_to_column_info_with_cls.end())
+        return static_cast<unsigned>(-1);
+    return it->second.m_column_info.get_column_index();
+}
+
+column_info<mpq> & lar_solver::get_column_info_from_var_index(var_index vi) {
+    auto it = m_map_from_var_index_to_column_info_with_cls.find(vi);
+    if (it == m_map_from_var_index_to_column_info_with_cls.end()) {
+        lean_assert(false);
+        throw 0;
+    }
+    return it->second.m_column_info;
 }
 }
 

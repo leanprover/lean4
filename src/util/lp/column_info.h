@@ -12,6 +12,10 @@
 #include <algorithm>
 #include "util/lp/lp_settings.h"
 namespace lean {
+inline bool is_valid(unsigned j) { return static_cast<int>(j) >= 0;}
+typedef unsigned var_index;
+typedef unsigned constraint_index;
+
 template <typename T>
 class column_info {
     std::string m_name;
@@ -24,13 +28,40 @@ class column_info {
     T m_cost = numeric_traits<T>::zero();
     T m_fixed_value;
     bool m_is_fixed = false;
-
+    unsigned m_column_index;
 public:
+    void set_column_index(unsigned j) {
+        m_column_index = j;
+    }
+    // the default constructor
+    column_info() {}
+
+    column_info(unsigned column_index) : m_column_index(column_index) {
+    }
+
+    column_info(const column_info & ci) {
+        m_name = ci.m_name;
+        m_low_bound_is_set = ci.m_low_bound_is_set;
+        m_low_bound_is_strict = ci.m_low_bound_is_strict;
+        m_upper_bound_is_set = ci.m_upper_bound_is_set;
+        m_upper_bound_is_strict = ci.m_upper_bound_is_strict;
+        m_low_bound = ci.m_low_bound;
+        m_upper_bound = ci.m_upper_bound;
+        m_cost = ci.m_cost;
+        m_fixed_value = ci.m_fixed_value;
+        m_is_fixed = ci.m_is_fixed;
+        m_column_index = ci.m_column_index;
+    }
+
+    unsigned get_column_index() const {
+        return m_column_index;
+    }
+
     column_type get_column_type() const {
         return m_is_fixed? fixed : (m_low_bound_is_set? (m_upper_bound_is_set? boxed : low_bound) : (m_upper_bound_is_set? upper_bound: free_column));
     }
 
-     column_type get_column_type_no_flipping() {
+    column_type get_column_type_no_flipping() {
         if (m_is_fixed) {
             return column_type::fixed;
         }

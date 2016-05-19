@@ -401,9 +401,9 @@ template <typename T, typename X> void lp_solver<T, X>::map_external_columns_to_
                 throw_exception("found fixed column");
             }
             unsigned j = col.first;
-            auto j_place = m_external_columns_to_core_solver_columns.find(j);
-            if (j_place == m_external_columns_to_core_solver_columns.end()) { // j is a newcomer
-                m_external_columns_to_core_solver_columns[j] = size;
+            auto j_column = m_columns[j]->get_column_index();
+            if (!is_valid(j_column)) { // j is a newcomer
+                m_columns[j]->set_column_index(size);
                 m_core_solver_columns_to_external_columns[size++] = j;
             }
         }
@@ -412,10 +412,9 @@ template <typename T, typename X> void lp_solver<T, X>::map_external_columns_to_
 
 template <typename T, typename X> void lp_solver<T, X>::fill_column_names_for_core_solver() {
     for (auto it : this->m_columns) {
-        auto p = this->m_external_columns_to_core_solver_columns.find(it.first);
-        if (p != this->m_external_columns_to_core_solver_columns.end()) {
-            this->m_name_map[p->second] = it.second->get_name();
-        }
+        unsigned j = it.second->get_column_index();
+        if (is_valid(j))
+            this->m_name_map[j] = it.second->get_name();
     }
 }
 
@@ -434,10 +433,9 @@ template <typename T, typename X> void lp_solver<T, X>::fill_A_from_A_values() {
         lean_assert(m_external_rows_to_core_solver_rows.find(t.first) != m_external_rows_to_core_solver_rows.end());
         unsigned row =  m_external_rows_to_core_solver_rows[t.first];
         for (auto k : t.second) {
-            lean_assert(m_external_columns_to_core_solver_columns.find(k.first) != m_external_columns_to_core_solver_columns.end());
-            unsigned col = m_external_columns_to_core_solver_columns[k.first];
+            unsigned col = m_columns[k.first]->get_column_index();
+            lean_assert(is_valid(col));
             bool col_is_flipped = m_columns[k.first]->is_flipped();
-
             if (!col_is_flipped) {
                 (*m_A)(row, col) = k.second;
             } else {
@@ -505,7 +503,7 @@ template <typename T, typename X> void lp_solver<T, X>::fill_m_b() {
     }
 }
 
-template <typename T, typename X>    T lp_solver<T, X>::get_column_value_with_core_solver(unsigned column, lp_core_solver_base<T, X> * core_solver) const {
+template <typename T, typename X> T lp_solver<T, X>::get_column_value_with_core_solver(unsigned column, lp_core_solver_base<T, X> * core_solver) const {
     auto cit = this->m_columns.find(column);
     if (cit == this->m_columns.end()) {
         return numeric_traits<T>::zero();
@@ -517,9 +515,8 @@ template <typename T, typename X>    T lp_solver<T, X>::get_column_value_with_co
         return ci->get_fixed_value();
     }
 
-    auto t = this->m_external_columns_to_core_solver_columns.find(column);
-    if (t != this->m_external_columns_to_core_solver_columns.end()){
-        unsigned cj = t->second;
+    unsigned cj = ci->get_column_index();
+    if (cj != static_cast<unsigned>(-1)) {
         T v = core_solver->get_var_value(cj) * this->m_column_scale[cj];
         if (ci->is_free()) {
             return v;

@@ -43,12 +43,11 @@ public:
     unsigned m_first_stage_iterations = 0;
     unsigned m_second_stage_iterations = 0;
     std::unordered_map<unsigned, lp_constraint<T, X>> m_constraints;
-    std::unordered_map<unsigned, column_info<T>*> m_columns;
+    std::unordered_map<var_index, column_info<T>*> m_columns;
     std::unordered_map<unsigned, std::unordered_map<unsigned, T> > m_A_values;
     std::unordered_map<std::string, unsigned> m_names_to_columns; // don't have to use it
     std::unordered_map<unsigned, unsigned> m_external_rows_to_core_solver_rows;
     std::unordered_map<unsigned, unsigned> m_core_solver_rows_to_external_rows;
-    std::unordered_map<unsigned, unsigned> m_external_columns_to_core_solver_columns;
     std::unordered_map<unsigned, unsigned> m_core_solver_columns_to_external_columns;
     std::vector<T> m_column_scale;
     std::unordered_map<unsigned, std::string>  m_name_map;
@@ -197,7 +196,9 @@ protected:
 
     void fill_column_names_for_core_solver();
 
-    unsigned number_of_core_structurals() { return static_cast<unsigned>(m_external_columns_to_core_solver_columns.size()); }
+    unsigned number_of_core_structurals() {
+        return static_cast<unsigned>(m_core_solver_columns_to_external_columns.size());
+    }
 
 
     void restore_column_scales_to_one() {

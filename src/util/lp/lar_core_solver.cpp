@@ -20,14 +20,12 @@ lar_core_solver<T, X>::lar_core_solver(std::vector<X> & x, std::vector<column_ty
                                        std::vector<unsigned> & basis,
                                        static_matrix<T, X> & A,
                                        lp_settings & settings,
-                                       std::unordered_map<unsigned, std::string> & column_names,
-                                       std::vector<X> & right_side,
-                                       std::vector<T> & costs) : // right_side and costs are redundant
+                                       std::unordered_map<unsigned, std::string> & column_names):
     lp_core_solver_base<T, X>(A,
-                              right_side,
+                              m_right_sides_dummy,
                               basis,
                               x,
-                              costs,
+                              m_costs_dummy,
                               settings,
                               column_names,
                               column_types,

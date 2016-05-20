@@ -26,16 +26,17 @@ class lar_core_solver : public lp_core_solver_base<T, X> {
     binary_heap_priority_queue<X> m_breakpoint_indices_queue;
     std::vector<std::pair<mpq, unsigned>> m_infeasible_row;
     int m_infeasible_row_sign = 0;
-    // with a breakpoint at this delta
+    std::vector<X> m_right_sides_dummy;
+    std::vector<T> m_costs_dummy;
 public:
-    lar_core_solver(std::vector<X> & x, std::vector<column_type> & column_types,
-                    std::vector<X> & low_bounds, std::vector<X> & upper_bounds,
+    lar_core_solver(std::vector<X> & x,
+                    std::vector<column_type> & column_types,
+                    std::vector<X> & low_bounds,
+                    std::vector<X> & upper_bounds,
                     std::vector<unsigned> & basis,
                     static_matrix<T, X> & A,
                     lp_settings & settings,
-                    std::unordered_map<unsigned, std::string> & column_names,
-                    std::vector<X> & right_side,
-                    std::vector<T> & costs);
+                    std::unordered_map<unsigned, std::string> & column_names);
 
     int get_infeasible_row_sign() const { return m_infeasible_row_sign;   }
 

@@ -66,8 +66,6 @@ class lar_solver {
     std::vector<unsigned> m_basis;
     std::vector<numeric_pair<mpq>> m_x; // the solution
     std::unordered_map<unsigned, std::string> m_column_names;
-    std::vector<numeric_pair<mpq>> m_right_side_vector; // this vector will be all zeroes, it might change when the optimization with fixed variables will used
-    std::vector<mpq> m_costs;
     canonic_left_side * m_infeasible_canonic_left_side = nullptr; // such can be found at the initialization step
     canonic_left_side * create_or_fetch_existing_left_side(const buffer<std::pair<mpq, var_index>>& left_side_par);
 
@@ -150,9 +148,7 @@ public:
                                      m_basis,
                                      m_A,
                                      m_settings,
-                                     m_column_names,
-                                     m_right_side_vector,
-                                     m_costs) {
+                                     m_column_names) {
     }
 
 
@@ -178,21 +174,16 @@ public:
 
     void update_column_info_of_normalized_constraints();
 
-    template <typename V>
-    void init_right_sides_with_zeros(std::vector<V> & rs);
-
     mpq sum_of_right_sides_of_evidence(const buffer<std::pair<mpq, unsigned>> & evidence);
     void prepare_independently_of_numeric_type();
 
     template <typename U, typename V>
     void prepare_core_solver_fields(static_matrix<U, V> & A, std::vector<V> & x,
-                                    std::vector<V> & right_side_vector,
                                     std::vector<V> & low_bound,
                                     std::vector<V> & upper_bound);
 
     template <typename U, typename V>
     void prepare_core_solver_fields_with_signature(static_matrix<U, V> & A, std::vector<V> & x,
-                                                   std::vector<V> & right_side_vector,
                                                    std::vector<V> & low_bound,
                                                    std::vector<V> & upper_bound, const lar_solution_signature & signature);
 

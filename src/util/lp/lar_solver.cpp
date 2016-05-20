@@ -427,12 +427,6 @@ void lar_solver::update_column_info_of_normalized_constraints() {
         update_column_info_of_normalized_constraint(it.second);
 }
 
-template <typename V>
-void lar_solver::init_right_sides_with_zeros(std::vector<V> & rs) {
-    rs.clear();
-    rs.resize(m_basis.size(), zero_of_type<V>());
-}
-
 mpq lar_solver::sum_of_right_sides_of_evidence(const buffer<std::pair<mpq, unsigned>> & evidence) {
     mpq ret = numeric_traits<mpq>::zero();
     for (auto & it : evidence) {
@@ -464,7 +458,6 @@ void lar_solver::prepare_independently_of_numeric_type() {
 
 template <typename U, typename V>
 void lar_solver::prepare_core_solver_fields(static_matrix<U, V> & A, std::vector<V> & x,
-                                            std::vector<V> & right_side_vector,
                                             std::vector<V> & low_bound,
                                             std::vector<V> & upper_bound) {
     create_matrix_A(A);
@@ -472,14 +465,12 @@ void lar_solver::prepare_core_solver_fields(static_matrix<U, V> & A, std::vector
     if (m_status == INFEASIBLE) {
         lean_assert(false); // not implemented
     }
-    init_right_sides_with_zeros(right_side_vector);
     resize_x_and_init_with_zeros(x, A.column_count());
     lean_assert(m_basis.size() == A.row_count());
 }
 
 template <typename U, typename V>
 void lar_solver::prepare_core_solver_fields_with_signature(static_matrix<U, V> & A, std::vector<V> & x,
-                                                           std::vector<V> & right_side_vector,
                                                            std::vector<V> & low_bound,
                                                            std::vector<V> & upper_bound, const lar_solution_signature & signature) {
     create_matrix_A(A);
@@ -487,15 +478,16 @@ void lar_solver::prepare_core_solver_fields_with_signature(static_matrix<U, V> &
     if (m_status == INFEASIBLE) {
         lean_assert(false); // not implemented
     }
-    init_right_sides_with_zeros(right_side_vector);
     resize_x_and_init_with_signature(x, low_bound, upper_bound, signature);
 }
 
 void lar_solver::find_solution_signature_with_doubles(lar_solution_signature & signature) {
     static_matrix<double, double> A;
-    std::vector<double> x, right_side_vector, low_bounds, upper_bounds;
-    prepare_core_solver_fields<double, double>(A, x, right_side_vector, low_bounds, upper_bounds);
+    std::vector<double> x, low_bounds, upper_bounds;
+    prepare_core_solver_fields<double, double>(A, x, low_bounds, upper_bounds);
     std::vector<double> column_scale_vector;
+    std::vector<double> right_side_vector(A.row_count(), 0);
+
     scaler<double, double > scaler(right_side_vector, A, m_settings.scaling_minimum, m_settings.scaling_maximum, column_scale_vector, this->m_settings);
     if (!scaler.scale()) {
         // the scale did not succeed, unscaling
@@ -526,7 +518,7 @@ void lar_solver::extract_signature_from_lp_core_solver(lp_primal_core_solver<U, 
 }
 
 void lar_solver::solve_on_signature(const lar_solution_signature & signature) {
-    prepare_core_solver_fields_with_signature(m_A, m_x, m_right_side_vector, m_low_bounds, m_upper_bounds, signature);
+    prepare_core_solver_fields_with_signature(m_A, m_x, m_low_bounds, m_upper_bounds, signature);
     solve_with_core_solver();
 }
 
@@ -539,7 +531,7 @@ void lar_solver::solve() {
         solve_on_signature(solution_signature);
         return;
     }
-    prepare_core_solver_fields(m_A, m_x, m_right_side_vector, m_low_bounds, m_upper_bounds);
+    prepare_core_solver_fields(m_A, m_x, m_low_bounds, m_upper_bounds);
     solve_with_core_solver();
 }
 

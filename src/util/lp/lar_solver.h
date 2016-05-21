@@ -20,7 +20,7 @@
 #include "util/lp/lar_solution_signature.h"
 #include "util/lp/scaler.h"
 #include "util/lp/lp_primal_core_solver.h"
-
+#include "util/lp/lar_core_solver_parameter_struct.h"
 namespace lean {
 template <typename V>
 struct conversion_helper {
@@ -57,15 +57,8 @@ class lar_solver {
     std::unordered_map<unsigned, var_index> m_map_from_column_indices_to_var_index;
     std::unordered_map<constraint_index, lar_normalized_constraint> m_normalized_constraints;
     std::unordered_map<var_index, column_info_with_cls> m_map_from_var_index_to_column_info_with_cls;
-    static_matrix<mpq, numeric_pair<mpq>> m_A;
-    lar_core_solver<mpq, numeric_pair<mpq>> m_mpq_core_solver;
-    lp_settings m_settings;
-    std::vector<column_type> m_column_types; // this field is passed to the core solver
-    std::vector<numeric_pair<mpq>> m_low_bounds; // passed to the core solver
-    std::vector<numeric_pair<mpq>> m_upper_bounds; // passed to the core solver
-    std::vector<unsigned> m_basis;
-    std::vector<numeric_pair<mpq>> m_x; // the solution
-    std::unordered_map<unsigned, std::string> m_column_names;
+    lar_core_solver_parameter_struct<mpq, numeric_pair<mpq>> m_lar_core_solver_params;
+    lar_core_solver<mpq, numeric_pair<mpq>> m_mpq_lar_core_solver;
     canonic_left_side * m_infeasible_canonic_left_side = nullptr; // such can be found at the initialization step
     canonic_left_side * create_or_fetch_existing_left_side(const buffer<std::pair<mpq, var_index>>& left_side_par);
 
@@ -119,10 +112,10 @@ class lar_solver {
 
 
     template <typename V>
-    void resize_x_and_init_with_zeros(std::vector<V> & x, unsigned n);
+    void resize_and_init_x_with_zeros(std::vector<V> & x, unsigned n);
 
     template <typename V>
-    void resize_x_and_init_with_signature(std::vector<V> & x, std::vector<V> & low_bound,
+    void resize_and_init_x_with_signature(std::vector<V> & x, std::vector<V> & low_bound,
                                           std::vector<V> & upper_bound, const lar_solution_signature & signature);
 
     template <typename V> V get_column_val(std::vector<V> & low_bound, std::vector<V> & upper_bound, non_basic_column_value_position pos_type, unsigned j);
@@ -136,19 +129,19 @@ class lar_solver {
 public:
     ~lar_solver();
 
-    lp_settings & settings() { return m_settings;}
+    lp_settings & settings() { return m_lar_core_solver_params.m_settings;}
 
     void clear() {lean_assert(false); // not implemented
     }
 
-    lar_solver() : m_mpq_core_solver(m_x,
-                                     m_column_types,
-                                     m_low_bounds,
-                                     m_upper_bounds,
-                                     m_basis,
-                                     m_A,
-                                     m_settings,
-                                     m_column_names) {
+    lar_solver() : m_mpq_lar_core_solver(m_lar_core_solver_params.m_x,
+                                     m_lar_core_solver_params.m_column_types,
+                                     m_lar_core_solver_params.m_low_bounds,
+                                     m_lar_core_solver_params.m_upper_bounds,
+                                     m_lar_core_solver_params.m_basis,
+                                     m_lar_core_solver_params.m_A,
+                                     m_lar_core_solver_params.m_settings,
+                                     m_lar_core_solver_params.m_column_names) {
     }
 
 
@@ -232,6 +225,6 @@ public:
     mpq get_left_side_val(const lar_constraint &  cns, const std::unordered_map<var_index, mpq> & var_map);
 
     void print_constraint(const lar_base_constraint * c, std::ostream & out);
-    unsigned get_total_iterations() const { return m_mpq_core_solver.m_total_iterations; }
+    unsigned get_total_iterations() const { return m_mpq_lar_core_solver.m_total_iterations; }
 };
 }

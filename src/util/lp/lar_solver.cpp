@@ -67,8 +67,8 @@ void lar_solver::map_left_side_to_A_of_core_solver(canonic_left_side*  left_side
     column_info<mpq> & ci = it->second.m_column_info;
     lean_assert(!is_valid(ci.get_column_index()));
     lean_assert(left_side->size() > 0); // if size is zero we have an empty row
-    left_side->m_row_index = m_basis.size();
-    m_basis.push_back(j); // j will be a basis column, so we put it into the basis as well
+    left_side->m_row_index = m_lar_core_solver_params.m_basis.size();
+    m_lar_core_solver_params.m_basis.push_back(j); // j will be a basis column, so we put it into the basis as well
     lean_assert(m_map_from_column_indices_to_var_index.find(j) == m_map_from_column_indices_to_var_index.end());
     ci.set_column_index(j);
     m_map_from_column_indices_to_var_index[j] = additional_var;
@@ -206,7 +206,7 @@ column_type lar_solver::get_column_type(column_info<mpq> & ci) {
 }
 
 void lar_solver::fill_column_names() {
-    m_column_names.clear();
+    m_lar_core_solver_params.m_column_names.clear();
     for (auto & t : m_map_from_var_index_to_column_info_with_cls) {
         column_info<mpq> & ci = t.second.m_column_info;
         unsigned j = ci.get_column_index();
@@ -214,18 +214,18 @@ void lar_solver::fill_column_names() {
         std::string name = ci.get_name();
         if (name.size() == 0)
             name = std::string("_s") + T_to_string(j);
-        m_column_names[j] = name;
+        m_lar_core_solver_params.m_column_names[j] = name;
     }
 }
 
 void lar_solver::fill_column_types() {
-    m_column_types.clear();
-    m_column_types.resize(m_map_from_var_index_to_column_info_with_cls.size(), free_column);
+    m_lar_core_solver_params.m_column_types.clear();
+    m_lar_core_solver_params.m_column_types.resize(m_map_from_var_index_to_column_info_with_cls.size(), free_column);
     for (auto t : m_set_of_canonic_left_sides) {
         var_index additional_vj = t->m_additional_var_index;
         unsigned j = get_column_index_from_var_index(additional_vj);
         lean_assert(is_valid(j));
-        m_column_types[j] = get_column_type(get_column_info_from_var_index(additional_vj));
+        m_lar_core_solver_params.m_column_types[j] = get_column_type(get_column_info_from_var_index(additional_vj));
     }
 }
 
@@ -248,13 +248,13 @@ void lar_solver::fill_bounds_for_core_solver(std::vector<V> & lb, std::vector<V>
 
 
 template <typename V>
-void lar_solver::resize_x_and_init_with_zeros(std::vector<V> & x, unsigned n) {
+void lar_solver::resize_and_init_x_with_zeros(std::vector<V> & x, unsigned n) {
     x.clear();
     x.resize(n, zero_of_type<V>()); // init with zeroes
 }
 
 template <typename V>
-void lar_solver::resize_x_and_init_with_signature(std::vector<V> & x, std::vector<V> & low_bound,
+void lar_solver::resize_and_init_x_with_signature(std::vector<V> & x, std::vector<V> & low_bound,
                                                   std::vector<V> & upper_bound, const lar_solution_signature & signature) {
     x.clear();
     x.resize(low_bound.size());
@@ -335,8 +335,8 @@ bool lar_solver::constraint_holds(const lar_constraint & constr, std::unordered_
 }
 
 void lar_solver::solve_with_core_solver() {
-    m_mpq_core_solver.solve();
-    m_status = m_mpq_core_solver.m_status;
+    m_mpq_lar_core_solver.solve();
+    m_status = m_mpq_lar_core_solver.m_status;
     lean_assert(m_status != OPTIMAL  || all_constraints_hold());
 #ifdef LEAN_DEBUG
     lean_assert(!settings().row_feasibility || m_status != INFEASIBLE || the_evidence_is_correct());
@@ -465,8 +465,8 @@ void lar_solver::prepare_core_solver_fields(static_matrix<U, V> & A, std::vector
     if (m_status == INFEASIBLE) {
         lean_assert(false); // not implemented
     }
-    resize_x_and_init_with_zeros(x, A.column_count());
-    lean_assert(m_basis.size() == A.row_count());
+    resize_and_init_x_with_zeros(x, A.column_count());
+    lean_assert(m_lar_core_solver_params.m_basis.size() == A.row_count());
 }
 
 template <typename U, typename V>
@@ -478,7 +478,7 @@ void lar_solver::prepare_core_solver_fields_with_signature(static_matrix<U, V> &
     if (m_status == INFEASIBLE) {
         lean_assert(false); // not implemented
     }
-    resize_x_and_init_with_signature(x, low_bound, upper_bound, signature);
+    resize_and_init_x_with_signature(x, low_bound, upper_bound, signature);
 }
 
 void lar_solver::find_solution_signature_with_doubles(lar_solution_signature & signature) {
@@ -488,7 +488,12 @@ void lar_solver::find_solution_signature_with_doubles(lar_solution_signature & s
     std::vector<double> column_scale_vector;
     std::vector<double> right_side_vector(A.row_count(), 0);
 
-    scaler<double, double > scaler(right_side_vector, A, m_settings.scaling_minimum, m_settings.scaling_maximum, column_scale_vector, this->m_settings);
+    scaler<double, double > scaler(right_side_vector,
+                                   A,
+                                   m_lar_core_solver_params.m_settings.scaling_minimum,
+                                   m_lar_core_solver_params.m_settings.scaling_maximum,
+                                   column_scale_vector,
+                                   m_lar_core_solver_params.m_settings);
     if (!scaler.scale()) {
         // the scale did not succeed, unscaling
         A.clear();
@@ -500,13 +505,13 @@ void lar_solver::find_solution_signature_with_doubles(lar_solution_signature & s
     auto core_solver = lp_primal_core_solver<double, double>(A,
                                                              right_side_vector,
                                                              x,
-                                                             m_basis,
+                                                             m_lar_core_solver_params.m_basis,
                                                              costs,
-                                                             m_column_types,
+                                                             m_lar_core_solver_params.m_column_types,
                                                              low_bounds,
                                                              upper_bounds,
-                                                             m_settings,
-                                                             m_column_names);
+                                                             m_lar_core_solver_params.m_settings,
+                                                             m_lar_core_solver_params.m_column_names);
     core_solver.find_feasible_solution();
     extract_signature_from_lp_core_solver(core_solver, signature);
 }
@@ -518,20 +523,20 @@ void lar_solver::extract_signature_from_lp_core_solver(lp_primal_core_solver<U, 
 }
 
 void lar_solver::solve_on_signature(const lar_solution_signature & signature) {
-    prepare_core_solver_fields_with_signature(m_A, m_x, m_low_bounds, m_upper_bounds, signature);
+    prepare_core_solver_fields_with_signature(m_lar_core_solver_params.m_A, m_lar_core_solver_params.m_x, m_lar_core_solver_params.m_low_bounds, m_lar_core_solver_params.m_upper_bounds, signature);
     solve_with_core_solver();
 }
 
 void lar_solver::solve() {
     prepare_independently_of_numeric_type();
-    if (m_settings.use_double_solver_for_lar) {
+    if (m_lar_core_solver_params.m_settings.use_double_solver_for_lar) {
         lar_solution_signature solution_signature;
         find_solution_signature_with_doubles(solution_signature);
         // here the basis that is kept in m_basis is the same that was used in the double solver
         solve_on_signature(solution_signature);
         return;
     }
-    prepare_core_solver_fields(m_A, m_x, m_low_bounds, m_upper_bounds);
+    prepare_core_solver_fields(m_lar_core_solver_params.m_A, m_lar_core_solver_params.m_x, m_lar_core_solver_params.m_low_bounds, m_lar_core_solver_params.m_upper_bounds);
     solve_with_core_solver();
 }
 
@@ -541,12 +546,12 @@ lp_status lar_solver::check() {
     return m_status;
 }
 void lar_solver::get_infeasibility_evidence(buffer<std::pair<mpq, constraint_index>> & evidence){
-    if (!m_mpq_core_solver.get_infeasible_row_sign()) {
+    if (!m_mpq_lar_core_solver.get_infeasible_row_sign()) {
         return;
     }
     // the infeasibility sign
     int inf_sign;
-    auto inf_row =  m_mpq_core_solver.get_infeasibility_info(inf_sign);
+    auto inf_row =  m_mpq_lar_core_solver.get_infeasibility_info(inf_sign);
     lean_assert(inf_sign != 0);
     get_infeasibility_evidence_for_inf_sign(evidence, inf_row, inf_sign);
 }
@@ -587,8 +592,8 @@ mpq lar_solver::find_delta_for_strict_bounds() {
 }
 
 void lar_solver::restrict_delta_on_low_bound_column(mpq& delta, unsigned j) {
-    numeric_pair<mpq> & x = m_x[j];
-    numeric_pair<mpq> & l = m_low_bounds[j];
+    numeric_pair<mpq> & x = m_lar_core_solver_params.m_x[j];
+    numeric_pair<mpq> & l = m_lar_core_solver_params.m_low_bounds[j];
     mpq & xx = x.x;
     mpq & xy = x.y;
     mpq & lx = l.x;
@@ -603,8 +608,8 @@ void lar_solver::restrict_delta_on_low_bound_column(mpq& delta, unsigned j) {
     }
 }
 void lar_solver::restrict_delta_on_upper_bound(mpq& delta, unsigned j) {
-    numeric_pair<mpq> & x = m_x[j];
-    numeric_pair<mpq> & u = m_upper_bounds[j];
+    numeric_pair<mpq> & x = m_lar_core_solver_params.m_x[j];
+    numeric_pair<mpq> & u = m_lar_core_solver_params.m_upper_bounds[j];
     mpq & xx = x.x;
     mpq & xy = x.y;
     mpq & ux = u.x;
@@ -623,7 +628,7 @@ void lar_solver::get_model(std::unordered_map<var_index, mpq> & variable_values)
     for (auto & it : m_map_from_var_index_to_column_info_with_cls) {
         column_info<mpq> & ci = it.second.m_column_info;
         unsigned j = ci.get_column_index();
-        numeric_pair<mpq> & rp = m_x[j];
+        numeric_pair<mpq> & rp = m_lar_core_solver_params.m_x[j];
         variable_values[it.first] =  rp.x + delta * rp.y;
     }
 }
@@ -701,7 +706,7 @@ void lar_solver::print_left_side_of_constraint(const lar_base_constraint * c, st
 //                 out << "u = " << ci.get_upper_bound();
 //             }
 //             out << std::endl;
-//             m_mpq_core_solver.print_column_info(j, out);
+//             m_mpq_lar_core_solver.print_column_info(j, out);
 //         }
 //     }
 // }

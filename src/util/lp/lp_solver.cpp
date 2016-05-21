@@ -11,7 +11,7 @@
 namespace lean {
 template <typename T, typename X> column_info<T> * lp_solver<T, X>::get_or_create_column_info(unsigned column) {
     auto it = m_columns.find(column);
-    return (it == m_columns.end())? ( m_columns[column] = new column_info<T>) : it->second;
+    return (it == m_columns.end())? (m_columns[column] = new column_info<T>(static_cast<unsigned>(-1))) : it->second;
 }
 
 

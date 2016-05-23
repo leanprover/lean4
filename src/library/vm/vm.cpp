@@ -161,7 +161,7 @@ void vm_instr::display(std::ostream & out, std::function<optional<name>(unsigned
         break;
     case opcode::NatCases:      out << "nat_cases " << m_pc[1]; break;
     case opcode::Proj:          out << "proj " << m_idx; break;
-    case opcode::Invoke:        out << "invoke " << m_nargs; break;
+    case opcode::Apply:         out << "apply"; break;
     case opcode::InvokeGlobal:
         out << "ginvoke ";
         display_fn(out, idx2name, m_fn_idx);
@@ -278,6 +278,8 @@ vm_instr mk_destruct_instr() { return vm_instr(opcode::Destruct); }
 
 vm_instr mk_unreachable_instr() { return vm_instr(opcode::Unreachable); }
 
+vm_instr mk_apply_instr() { return vm_instr(opcode::Apply); }
+
 vm_instr mk_nat_cases_instr(unsigned pc1, unsigned pc2) {
     vm_instr r(opcode::NatCases);
     r.m_pc[0] = pc1;
@@ -299,12 +301,6 @@ vm_instr mk_casesn_instr(unsigned num_pc, unsigned const * pcs) {
     r.m_npcs[0] = num_pc;
     for (unsigned i = 0; i < num_pc; i++)
         r.m_npcs[i+1] = pcs[i];
-    return r;
-}
-
-vm_instr mk_invoke_instr(unsigned n) {
-    vm_instr r(opcode::Invoke);
-    r.m_nargs = n;
     return r;
 }
 
@@ -339,9 +335,6 @@ void vm_instr::copy_args(vm_instr const & i) {
     case opcode::Push: case opcode::Proj:
         m_idx  = i.m_idx;
         break;
-    case opcode::Invoke:
-        m_nargs  = i.m_nargs;
-        break;
     case opcode::Drop:
         m_num = i.m_num;
         break;
@@ -367,7 +360,8 @@ void vm_instr::copy_args(vm_instr const & i) {
     case opcode::Num:
         m_mpz = new mpz(*i.m_mpz);
         break;
-    case opcode::Ret: case opcode::Destruct: case opcode::Unreachable:
+    case opcode::Ret:         case opcode::Destruct:
+    case opcode::Unreachable: case opcode::Apply:
         break;
     }
 }
@@ -443,9 +437,6 @@ void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & i
     case opcode::Push: case opcode::Proj:
         s << m_idx;
         break;
-    case opcode::Invoke:
-        s << m_nargs;
-        break;
     case opcode::Drop:
         s << m_num;
         break;
@@ -470,7 +461,8 @@ void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & i
     case opcode::Num:
         s << *m_mpz;
         break;
-    case opcode::Ret: case opcode::Destruct: case opcode::Unreachable:
+    case opcode::Ret:         case opcode::Destruct:
+    case opcode::Unreachable: case opcode::Apply:
         break;
     }
 }
@@ -499,8 +491,6 @@ static vm_instr read_vm_instr(deserializer & d, name_map<unsigned> const & name2
         return mk_push_instr(d.read_unsigned());
     case opcode::Proj:
         return mk_proj_instr(d.read_unsigned());
-    case opcode::Invoke:
-        return mk_invoke_instr(d.read_unsigned());
     case opcode::Drop:
         return mk_drop_instr(d.read_unsigned());
     case opcode::Goto:
@@ -531,6 +521,8 @@ static vm_instr read_vm_instr(deserializer & d, name_map<unsigned> const & name2
         return mk_destruct_instr();
     case opcode::Unreachable:
         return mk_unreachable_instr();
+    case opcode::Apply:
+        return mk_apply_instr();
     }
     lean_unreachable();
 }
@@ -1033,28 +1025,35 @@ void vm_state::run() {
                 goto main_loop;
             }
         }
-        case opcode::Invoke: {
+        case opcode::Apply: {
             /**
-               Instruction: invoke n
+               Instruction: apply
 
-               Case 1) n + m < fn.arity, where m is the number of arguments in the closure,
-               and fn is the function stored in the closure.
+               We keep consuming 'apply' instructions until the next instruction is not an 'apply'
+               or we have enough arguments for executing the closure.
 
-               stack before                    after
-               ...                             ...
-               v                               v
-               a_n                             (closure fn a_n ... a_1 b_m ... b_1)
+               stack before
+               ...
+               v
+               a_n
                ...                       ==>
                a_1
                (closure fn b_m ... b_1)
 
-               Case 2) n + m == fn.arity and fn is not builtin.
-               See InvokeGlobal case.
+               Case 1)
+               Suppose we have n consecutive 'apply' instructions and arity of fn < n+m
 
-               Case 3) n + m == fn.arity and fn is builtin.
-               See InvokeBuiltin case.
+
+               Then,
+
+               stack after
+                                       ...
+               =>                      v
+                                       (closure fn a_n ... a_1 b_m ... b_1)
+
+               Case 2) arity of fn = n + m
+               Then, see InvokeGlobal (if fn is global) and InvokeBuiltin (if fn is builtin)
             */
-            unsigned nargs    = instr.get_nargs();
             unsigned sz       = m_stack.size();
             vm_obj closure    = m_stack.back();
             m_stack.pop_back();
@@ -1062,23 +1061,31 @@ void vm_state::run() {
             vm_decl const & d = m_decls[fn_idx];
             unsigned csz      = csize(closure);
             unsigned arity    = d.get_arity();
-            unsigned new_nargs = nargs + csz;
-            lean_assert(new_nargs <= arity);
+            lean_assert(csz < arity);
+            unsigned nargs    = csz + 1;
+            lean_assert(nargs <= arity);
+            /* Keep consuming 'apply' instructions while nargs < arity */
+            while (nargs < arity && m_code[m_pc+1].op() == opcode::Apply) {
+                nargs++;
+                m_pc++;
+            }
+            /* Copy closure data to the top of the stack */
             std::copy(cfields(closure), cfields(closure) + csz, std::back_inserter(m_stack));
-            /* Now, stack contains closure arguments + original stack arguments */
-            if (new_nargs == arity) {
+            if (nargs < arity) {
+                /* Case 1) We don't have sufficient arguments. So, we create a new closure */
+                sz = m_stack.size();
+                vm_obj new_value = mk_vm_closure(fn_idx, nargs, m_stack.data() + sz - nargs);
+                m_stack.resize(sz - nargs + 1);
+                swap(m_stack.back(), new_value);
+                m_pc++;
+                goto main_loop;
+            } else {
+                lean_assert(nargs == arity);
+                /* Case 2 */
                 if (d.is_builtin())
                     invoke_builtin(d);
                 else
                     invoke_global(d);
-                goto main_loop;
-            } else {
-                /* We don't have sufficient arguments. So, we create a new closure */
-                sz = m_stack.size();
-                vm_obj new_value = mk_vm_closure(fn_idx, new_nargs, m_stack.data() + sz - new_nargs);
-                m_stack.resize(sz - new_nargs + 1);
-                swap(m_stack.back(), new_value);
-                m_pc++;
                 goto main_loop;
             }
         }

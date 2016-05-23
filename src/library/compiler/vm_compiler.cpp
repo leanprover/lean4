@@ -56,10 +56,7 @@ class vm_compiler_fn {
                 emit(mk_invoke_builtin_instr(decl.get_idx()));
             else
                 emit(mk_invoke_global_instr(decl.get_idx()));
-
-            if (decl.get_arity() < nargs) {
-                emit(mk_invoke_instr(nargs - decl.get_arity()));
-            }
+            emit_apply_instr(nargs - decl.get_arity());
         } else {
             lean_assert(decl.get_arity() > nargs);
             emit(mk_closure_instr(decl.get_idx(), nargs));
@@ -68,6 +65,11 @@ class vm_compiler_fn {
 
     [[ noreturn ]] void throw_unknown_constant(name const & n) {
         throw exception(sstream() << "code generation failed, VM does not have code for '" << n << "'");
+    }
+
+    void emit_apply_instr(unsigned n) {
+        for (unsigned i = 0; i < n; i++)
+            emit(mk_apply_instr());
     }
 
     void compile_constant(expr const & e) {
@@ -174,8 +176,7 @@ class vm_compiler_fn {
         bpz += args.size() - 1;
         compile(args[0], bpz, m);
         emit(mk_proj_instr(idx));
-        if (args.size() > 1)
-            emit(mk_invoke_instr(args.size() - 1));
+        emit_apply_instr(args.size() - 1);
     }
 
     void compile_fn_call(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
@@ -184,7 +185,7 @@ class vm_compiler_fn {
         if (!is_constant(fn)) {
             compile_rev_args(args.size(), args.data(), bpz+1, m);
             compile(fn, bpz, m);
-            emit(mk_invoke_instr(args.size()));
+            emit_apply_instr(args.size());
             return;
         } else if (is_constant(fn)) {
             if (optional<vm_decl> decl = get_vm_decl(m_env, const_name(fn))) {

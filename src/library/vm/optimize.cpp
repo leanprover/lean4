@@ -19,6 +19,16 @@ static void del_instr_at(unsigned pc, buffer<vm_instr> & code) {
     }
 }
 
+typedef rb_tree<unsigned, unsigned_cmp> addr_set;
+
+/* Collect addresses in addr_set that are goto/branching targets */
+static void collect_targets(buffer<vm_instr> & code, addr_set & r) {
+    for (auto c : code) {
+        for (unsigned j = 0; j < c.get_num_pcs(); j++)
+            r.insert(c.get_pc(j));
+    }
+}
+
 /**
    \brief Applies the following transformation
    ...
@@ -31,11 +41,15 @@ static void del_instr_at(unsigned pc, buffer<vm_instr> & code) {
    ... */
 static void compress_drop_drop(buffer<vm_instr> & code) {
     if (code.empty()) return;
+    addr_set targets;
+    collect_targets(code, targets);
     unsigned i = code.size() - 1;
     while (i > 0) {
         --i;
         if (code[i].op() == opcode::Drop &&
-            code[i+1].op() == opcode::Drop) {
+            code[i+1].op() == opcode::Drop &&
+            /* If i+1 is a goto/branch target, then we should not merge the two Drops */
+            !targets.contains(i+1)) {
             code[i] = mk_drop_instr(code[i].get_num() + code[i+1].get_num());
             del_instr_at(i+1, code);
         }

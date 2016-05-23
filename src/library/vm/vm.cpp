@@ -1198,3 +1198,8 @@ void finalize_vm() {
     delete g_vm_code_key;
 }
 }
+
+void print(lean::vm_obj const & o) {
+    ::lean::display(std::cout, o);
+    std::cout << "\n";
+}

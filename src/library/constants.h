@@ -6,6 +6,7 @@ namespace lean {
 void initialize_constants();
 void finalize_constants();
 name const & get_absurd_name();
+name const & get_acc_cases_on_name();
 name const & get_add_name();
 name const & get_add_comm_group_name();
 name const & get_add_comm_semigroup_name();

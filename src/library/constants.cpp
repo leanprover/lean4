@@ -4,6 +4,7 @@
 #include "util/name.h"
 namespace lean{
 name const * g_absurd = nullptr;
+name const * g_acc_cases_on = nullptr;
 name const * g_add = nullptr;
 name const * g_add_comm_group = nullptr;
 name const * g_add_comm_semigroup = nullptr;
@@ -293,6 +294,7 @@ name const * g_zero_lt_one = nullptr;
 name const * g_zero_mul = nullptr;
 void initialize_constants() {
     g_absurd = new name{"absurd"};
+    g_acc_cases_on = new name{"acc", "cases_on"};
     g_add = new name{"add"};
     g_add_comm_group = new name{"add_comm_group"};
     g_add_comm_semigroup = new name{"add_comm_semigroup"};
@@ -583,6 +585,7 @@ void initialize_constants() {
 }
 void finalize_constants() {
     delete g_absurd;
+    delete g_acc_cases_on;
     delete g_add;
     delete g_add_comm_group;
     delete g_add_comm_semigroup;
@@ -872,6 +875,7 @@ void finalize_constants() {
     delete g_zero_mul;
 }
 name const & get_absurd_name() { return *g_absurd; }
+name const & get_acc_cases_on_name() { return *g_acc_cases_on; }
 name const & get_add_name() { return *g_add; }
 name const & get_add_comm_group_name() { return *g_add_comm_group; }
 name const & get_add_comm_semigroup_name() { return *g_add_comm_semigroup; }

@@ -1,4 +1,5 @@
 absurd
+acc.cases_on
 add
 add_comm_group
 add_comm_semigroup

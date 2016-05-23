@@ -28,6 +28,14 @@ expr mk_neutral_expr() {
     return *g_neutral_expr;
 }
 
+bool is_neutral_expr(expr const & e) {
+    return e == *g_neutral_expr;
+}
+
+bool is_unreachable_expr(expr const & e) {
+    return e == *g_unreachable_expr;
+}
+
 class erase_irrelevant_fn : public compiler_step_visitor {
 
     virtual expr visit_sort(expr const &) override {
@@ -217,14 +225,14 @@ class erase_irrelevant_fn : public compiler_step_visitor {
     }
 
     /* Treat subtype.tag as the identity function */
-    virtual expr visit_subtype_tag(buffer<expr> const & args) {
+    expr visit_subtype_tag(buffer<expr> const & args) {
         lean_assert(args.size() >= 4);
         expr r = visit(args[2]);
         return add_args(r, 4, args);
     }
 
     /* Eliminate subtype.rec */
-    virtual expr visit_subtype_rec(buffer<expr> const & args) {
+    expr visit_subtype_rec(buffer<expr> const & args) {
         lean_assert(args.size() >= 5);
         expr minor = visit(args[3]);
         expr major = visit(args[4]);
@@ -233,10 +241,25 @@ class erase_irrelevant_fn : public compiler_step_visitor {
     }
 
     /* subtype.elt_of is also compiled as the identity function */
-    virtual expr visit_subtype_elt_of(buffer<expr> const & args) {
+    expr visit_subtype_elt_of(buffer<expr> const & args) {
         lean_assert(args.size() >= 3);
         expr r = visit(args[2]);
         return add_args(r, 3, args);
+    }
+
+    expr visit_acc_cases_on(buffer<expr> & args) {
+        lean_assert(args.size() >= 6);
+        expr a     = visit(args[3]);
+        expr minor = visit(args[5]);
+        /* acc.cases_on has type
+           Π {A : Type} {R : A → A → Prop} {C : A → Type} {a : A},
+             acc R a → (Π (x : A), (∀ (y : A), R y x → acc R y) → C x) → C a
+
+           We replace an acc.cases_on application with the minor premise
+           applied to {a : A} and an comp irrelevant term.
+        */
+        expr r = beta_reduce(mk_app(minor, a, mk_neutral_expr()));
+        return add_args(r, 6, args);
     }
 
     virtual expr visit_app(expr const & e) override {
@@ -250,6 +273,8 @@ class erase_irrelevant_fn : public compiler_step_visitor {
             name const & n = const_name(fn);
             if (n == get_eq_rec_name()) {
                 return visit_eq_rec(args);
+            } else if (n == get_acc_cases_on_name()) {
+                return visit_acc_cases_on(args);
             } else if (n == get_subtype_rec_name()) {
                 return visit_subtype_rec(args);
             } else if (is_cases_on_recursor(env(), n)) {
@@ -273,14 +298,6 @@ public:
 
 expr erase_irrelevant(environment const & env, expr const & e) {
     return erase_irrelevant_fn(env)(e);
-}
-
-bool is_neutral_expr(expr const & e) {
-    return e == *g_neutral_expr;
-}
-
-bool is_unreachable_expr(expr const & e) {
-    return e == *g_unreachable_expr;
 }
 
 void initialize_erase_irrelevant() {

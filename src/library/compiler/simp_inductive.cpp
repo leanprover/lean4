@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/sstream.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"
@@ -116,6 +117,8 @@ class simp_inductive_fn : public compiler_step_visitor {
 
     expr visit_cases_on(name const & fn, buffer<expr> & args) {
         name const & I_name = fn.get_prefix();
+        if (is_inductive_predicate(env(), I_name))
+            throw exception(sstream() << "code generation failed, inductive predicate '" << I_name << "' is not supported");
         buffer<name> cnames;
         get_intro_rule_names(env(), I_name, cnames);
         /* Process major premise */

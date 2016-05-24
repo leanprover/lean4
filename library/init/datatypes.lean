@@ -101,16 +101,13 @@ inductive bool : Type :=
 | ff : bool
 | tt : bool
 
-inductive char : Type :=
-mk : bool → bool → bool → bool → bool → bool → bool → bool → char
-
-inductive string : Type :=
-| empty : string
-| str   : char → string → string
-
 inductive option (A : Type) : Type :=
 | none {} : option A
 | some    : A → option A
+
+inductive list (T : Type) : Type :=
+| nil {} : list T
+| cons   : T → list T → list T
 
 -- Remark: we manually generate the nat.rec_on, nat.induction_on, nat.cases_on and nat.no_confusion.
 -- We do that because we want 0 instead of nat.zero in these eliminators.

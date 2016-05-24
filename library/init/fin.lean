@@ -1,0 +1,34 @@
+/-
+Copyright (c) 2016 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Author: Leonardo de Moura
+-/
+prelude
+import init.nat
+open nat
+
+structure fin (n : nat) := (val : nat) (is_lt : val < n)
+
+namespace fin
+
+attribute fin.val [coercion]
+
+variable {n : nat}
+
+lemma eq_of_veq : ∀ {i j : fin n}, (val i) = j → i = j
+| (mk iv ilt) (mk jv jlt) := assume (veq : iv = jv), sorry -- begin congruence, assumption end
+
+lemma veq_of_eq : ∀ {i j : fin n}, i = j → (val i) = j
+| (mk iv ilt) (mk jv jlt) := assume Peq,
+  show iv = jv, from fin.no_confusion Peq (λ Pe Pqe, Pe)
+
+lemma eq_iff_veq {i j : fin n} : (val i) = j ↔ i = j :=
+iff.intro eq_of_veq veq_of_eq
+
+end fin
+
+open decidable fin
+
+protected definition fin.has_decidable_eq [instance] (n : nat) : ∀ (i j : fin n), decidable (i = j)
+| (mk ival ilt) (mk jval jlt) :=
+  decidable_of_decidable_of_iff (nat.has_decidable_eq ival jval) eq_iff_veq

@@ -85,7 +85,7 @@ definition exact      (e : expr)         : tactic := builtin
 -- Relaxed version of exact that does not enforce goal type
 definition rexact     (e : expr)         : tactic := builtin
 definition check_expr (e : expr)         : tactic := builtin
-definition trace      (s : string)       : tactic := builtin
+-- definition trace      (s : string)       : tactic := builtin
 
 -- rewrite_tac is just a marker for the builtin 'rewrite' notation
 -- used to create instances of this tactic.

@@ -8,10 +8,6 @@ Basic properties of lists.
 import logic tools.helper_tactics data.nat.order data.nat.sub
 open eq.ops nat prod function option
 
-inductive list (T : Type) : Type :=
-| nil {} : list T
-| cons   : T → list T → list T
-
 protected definition list.is_inhabited [instance] (A : Type) : inhabited (list A) :=
 inhabited.mk list.nil
 

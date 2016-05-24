@@ -4,24 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Robert Y. Lewis
 */
 #pragma once
-#include "kernel/environment.h"
-#include "library/old_type_context.h"
-#include "library/num.h"
-#include "library/class_instance_resolution.h"
-#include "util/numerics/mpq.h"
 #include <unordered_map>
 #include <string>
+#include "util/name_map.h"
+#include "util/numerics/mpq.h"
+#include "kernel/environment.h"
+#include "library/type_context.h"
+#include "library/num.h"
 
 namespace lean {
 
-struct hash_name {
-    size_t operator() (const name &n) const {
-        return std::hash<std::string>()(n.to_string());
-    }
-};
-
 class norm_num_context {
-    old_type_context & m_type_ctx;
+    type_context & m_type_ctx;
     levels m_lvls;
     pair<expr, expr> mk_norm_add(expr const &, expr const &);
     pair<expr, expr> mk_norm_add1(expr const &);
@@ -68,10 +62,10 @@ class norm_num_context {
     expr mk_norm_mul_div(expr &, expr &, expr &);
     expr mk_nonzero_prf(expr const & e);
     pair<expr, expr> get_type_and_arg_of_neg(expr &);
-    std::unordered_map<name, expr, hash_name> instances;
+    std::unordered_map<name, expr, name_hash> instances;
 
 public:
-    norm_num_context(old_type_context & type_ctx): m_type_ctx(type_ctx) {}
+    norm_num_context(type_context & type_ctx): m_type_ctx(type_ctx) {}
 
     bool is_numeral(expr const & e) const;
     bool is_neg_app(expr const &) const;
@@ -88,19 +82,19 @@ public:
 
 inline bool is_neg(expr const & e);
 
-inline bool is_numeral(old_type_context & type_ctx, expr const & e) {
+inline bool is_numeral(type_context & type_ctx, expr const & e) {
     return norm_num_context(type_ctx).is_numeral(e);
 }
 
-inline pair<expr, expr> mk_norm_num(old_type_context & type_ctx, expr const & e) {
+inline pair<expr, expr> mk_norm_num(type_context & type_ctx, expr const & e) {
     return norm_num_context(type_ctx).mk_norm(e);
 }
 
-inline mpz num_of_expr(old_type_context & type_ctx, expr const & e) {
+inline mpz num_of_expr(type_context & type_ctx, expr const & e) {
     return norm_num_context(type_ctx).num_of_expr(e);
 }
 
-inline mpq mpq_of_expr(old_type_context & type_ctx, expr const & e) {
+inline mpq mpq_of_expr(type_context & type_ctx, expr const & e) {
     return norm_num_context(type_ctx).mpq_of_expr(e);
 }
 }

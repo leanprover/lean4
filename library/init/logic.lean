@@ -232,7 +232,7 @@ of_eq_true (eq_of_heq H)
 theorem eq_rec_compose : ∀ {A B C : Type} (p₁ : B = C) (p₂ : A = B) (a : A), p₁ ▹ (p₂ ▹ a : B) = (p₂ ⬝ p₁) ▹ a
 | A A A (eq.refl A) (eq.refl A) a := calc
   eq.refl A ▹ eq.refl A ▹ a = eq.refl A ▹ a               : rfl
-            ...             = (eq.refl A ⬝ eq.refl A) ▹ a  : sorry -- by rewrite (proof_irrel (eq.refl A) (eq.refl A ⬝ eq.refl A))
+            ...             = (eq.refl A ⬝ eq.refl A) ▹ a  : eq.subst (proof_irrel (eq.refl A) (eq.refl A ⬝ eq.refl A)) rfl
 
 theorem eq_rec_eq_eq_rec {A₁ A₂ : Type} {p : A₁ = A₂} : ∀ {a₁ : A₁} {a₂ : A₂}, p ▹ a₁ = a₂ → a₁ = p⁻¹ ▹ a₂ :=
 eq.drec_on p (λ a₁ a₂ h, eq.drec_on h rfl)
@@ -415,12 +415,9 @@ theorem and_congr [congr] (H1 : a ↔ c) (H2 : b ↔ d) : (a ∧ b) ↔ (c ∧ d
 iff.intro (and.imp (iff.mp H1) (iff.mp H2)) (and.imp (iff.mpr H1) (iff.mpr H2))
 
 theorem and_congr_right (H : a → (b ↔ c)) : (a ∧ b) ↔ (a ∧ c) :=
-sorry
-/-
 iff.intro
-  (take Hab, obtain `a` `b`, from Hab, and.intro `a` (iff.elim_left (H `a`) `b`))
-  (take Hac, obtain `a` `c`, from Hac, and.intro `a` (iff.elim_right (H `a`) `c`))
--/
+  (take Hab, and.intro (and.left Hab) (iff.elim_left (H (and.left Hab)) (and.right Hab)))
+  (take Hac, and.intro (and.left Hac) (iff.elim_right (H (and.left Hac)) (and.right Hac)))
 
 theorem and.comm [simp] : a ∧ b ↔ b ∧ a :=
 iff.intro and.swap and.swap
@@ -782,8 +779,8 @@ intro : (∀ a b : A, a = b) → subsingleton A
 protected definition subsingleton.elim {A : Type} [H : subsingleton A] : ∀(a b : A), a = b :=
 subsingleton.rec (λp, p) H
 
-protected definition subsingleton.helim {A B : Type} [H : subsingleton A] (h : A = B) (a : A) (b : B) : a == b :=
-sorry -- by induction h; apply heq_of_eq; apply subsingleton.elim
+protected definition subsingleton.helim {A B : Type} [H : subsingleton A] (h : A = B) : ∀ (a : A) (b : B), a == b :=
+eq.rec_on h (λ a b : A, heq_of_eq (subsingleton.elim a b))
 
 definition subsingleton_prop [instance] (p : Prop) : subsingleton p :=
 subsingleton.intro (λa b, !proof_irrel)

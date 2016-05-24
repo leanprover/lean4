@@ -388,6 +388,12 @@ add_subdirectory(tests/kernel)
 add_subdirectory(tests/library)
 add_subdirectory(tests/frontends/lean)
 add_subdirectory(tests/shell)
+
+# Compatibility Checks using https://github.com/foonathan/compatibility
+include(CompBase)
+comp_target_features(lean PUBLIC cpp14_lang/sized_deallocation)
+configure_file("${LEAN_SOURCE_DIR}/compatibility.h.in" "${LEAN_BINARY_DIR}/compatibility.h")
+
 # The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).
 # For some strange reason, it contains a copy of pthread_equal.
 if (NOT("${CROSS_COMPILE}" MATCHES "ON"))

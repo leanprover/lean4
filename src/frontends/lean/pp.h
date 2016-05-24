@@ -65,7 +65,6 @@ private:
     bool                    m_metavar_args;
     bool                    m_purify_metavars;
     bool                    m_purify_locals;
-    bool                    m_hide_binder_types;
     bool                    m_beta;
     bool                    m_numerals;
     bool                    m_strings;
@@ -73,6 +72,7 @@ private:
     bool                    m_hide_full_terms;
     bool                    m_hide_comp_irrel;
     bool                    m_preterm;
+    bool                    m_binder_types;
 
     name mk_metavar_name(name const & m);
     name mk_local_name(name const & n, name const & suggested);

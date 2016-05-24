@@ -385,7 +385,7 @@ static bool print_constant(parser const & p, char const * kind, declaration cons
         out << "protected ";
     out << kind << " " << to_user_name(p.env(), d.get_name());
     print_attributes(p, d.get_name());
-    out << " : " << d.get_type();
+    out.update_options(out.get_options().update((name {"pp", "binder_types"}), true)) << " : " << d.get_type();
     if (is_def)
         out << " :=";
     out << "\n";

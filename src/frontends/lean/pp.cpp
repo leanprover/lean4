@@ -297,7 +297,7 @@ void pretty_fn::set_options_core(options const & _o) {
     m_strings           = get_pp_strings(o);
     m_abbreviations     = get_pp_abbreviations(o);
     m_preterm           = get_pp_preterm(o);
-    m_hide_binder_types = get_pp_hide_binder_types(o);
+    m_binder_types      = get_pp_binder_types(o);
     m_hide_comp_irrel   = get_pp_hide_comp_irrel(o);
     m_hide_full_terms   = get_formatter_hide_full_terms(o);
     m_num_nat_coe       = m_numerals && !m_coercion;
@@ -679,65 +679,58 @@ auto pretty_fn::pp_app(expr const & e) -> result {
 }
 
 format pretty_fn::pp_binder(expr const & local) {
-    if (m_hide_binder_types) {
-        return format(local_pp_name(local));
-    } else {
-        format r;
-        auto bi = local_info(local);
-        if (bi != binder_info())
-            r += format(open_binder_string(bi, m_unicode));
-        r += format(local_pp_name(local));
+    format r;
+    auto bi = local_info(local);
+    if (bi != binder_info())
+        r += format(open_binder_string(bi, m_unicode));
+    r += format(local_pp_name(local));
+    if (m_binder_types) {
         r += space();
         r += compose(colon(), nest(m_indent, compose(line(), pp_child(mlocal_type(local), 0).fmt())));
-        if (bi != binder_info())
-            r += format(close_binder_string(bi, m_unicode));
-        return r;
     }
+    if (bi != binder_info())
+        r += format(close_binder_string(bi, m_unicode));
+    return r;
 }
 
 format pretty_fn::pp_binder_block(buffer<name> const & names, expr const & type, binder_info const & bi) {
     format r;
-    r += format(open_binder_string(bi, m_unicode));
+    if (m_binder_types || bi != binder_info())
+        r += format(open_binder_string(bi, m_unicode));
     for (name const & n : names) {
         r += format(n);
-        r += space();
     }
-    r += compose(colon(), nest(m_indent, compose(line(), pp_child(type, 0).fmt())));
-    r += format(close_binder_string(bi, m_unicode));
+    if (m_binder_types) {
+        r += space();
+        r += compose(colon(), nest(m_indent, compose(line(), pp_child(type, 0).fmt())));
+    }
+    if (m_binder_types || bi != binder_info())
+        r += format(close_binder_string(bi, m_unicode));
     return group(r);
 }
 
 format pretty_fn::pp_binders(buffer<expr> const & locals) {
-    if (m_hide_binder_types) {
-        format r;
-        for (auto l : locals) {
-            r += space();
-            r += format(local_pp_name(l));
+    unsigned num     = locals.size();
+    buffer<name> names;
+    expr local       = locals[0];
+    expr   type      = mlocal_type(local);
+    binder_info bi   = local_info(local);
+    names.push_back(local_pp_name(local));
+    format r;
+    for (unsigned i = 1; i < num; i++) {
+        expr local = locals[i];
+        if (!bi.is_inst_implicit() && mlocal_type(local) == type && local_info(local) == bi) {
+            names.push_back(local_pp_name(local));
+        } else {
+            r += group(compose(line(), pp_binder_block(names, type, bi)));
+            names.clear();
+            type = mlocal_type(local);
+            bi   = local_info(local);
+            names.push_back(local_pp_name(local));
         }
-        return r;
-    } else {
-        unsigned num     = locals.size();
-        buffer<name> names;
-        expr local       = locals[0];
-        expr   type      = mlocal_type(local);
-        binder_info bi   = local_info(local);
-        names.push_back(local_pp_name(local));
-        format r;
-        for (unsigned i = 1; i < num; i++) {
-            expr local = locals[i];
-            if (!bi.is_inst_implicit() && mlocal_type(local) == type && local_info(local) == bi) {
-                names.push_back(local_pp_name(local));
-            } else {
-                r += group(compose(line(), pp_binder_block(names, type, bi)));
-                names.clear();
-                type = mlocal_type(local);
-                bi   = local_info(local);
-                names.push_back(local_pp_name(local));
-            }
-        }
-        r += group(compose(line(), pp_binder_block(names, type, bi)));
-        return r;
     }
+    r += group(compose(line(), pp_binder_block(names, type, bi)));
+    return r;
 }
 
 auto pretty_fn::pp_lambda(expr const & e) -> result {

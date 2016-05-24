@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <new>
 #include <cstdlib>
 #include <iostream>
+#include "./compatibility.h"
 #include "util/exception.h"
 #include "util/memory.h"
 
@@ -194,7 +195,11 @@ void  operator delete[](void * ptr) throw() { return lean::free(ptr); }
 void* operator new(std::size_t sz, std::nothrow_t const &) noexcept { return lean::malloc(sz, false); }
 void* operator new[](std::size_t sz, std::nothrow_t const &) noexcept { return lean::malloc(sz, false); }
 
+#ifdef COMP_HAS_SIZED_DEALLOCATION
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wc++14-compat"
-void operator delete(void * ptr, size_t _size) throw() { return lean::free(ptr); }
-void operator delete[](void * ptr, size_t _size) throw() { return lean::free(ptr); }
+void operator delete(void * ptr, size_t) throw() { return lean::free(ptr); }
+void operator delete[](void * ptr, size_t) throw() { return lean::free(ptr); }
+#pragma GCC diagnostic pop
+#endif
 #endif

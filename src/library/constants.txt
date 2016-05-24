@@ -196,6 +196,8 @@ prod.mk
 prod.pr1
 prod.pr2
 propext
+quot.mk
+quot.lift
 rat.divide
 rat.of_num
 rfl

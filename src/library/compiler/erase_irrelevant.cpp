@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/aux_recursors.h"
 #include "library/compiler/util.h"
+#include "library/compiler/nat_value.h"
 #include "library/compiler/comp_irrelevant.h"
 #include "library/compiler/rec_fn_macro.h"
 #include "library/compiler/compiler_step_visitor.h"
@@ -47,14 +48,19 @@ class erase_irrelevant_fn : public compiler_step_visitor {
     }
 
     virtual expr visit_macro(expr const & e) override {
-        if (is_marked_as_comp_irrelevant(e))
+        if (is_marked_as_comp_irrelevant(e)) {
             return *g_neutral_expr;
-        else if (is_comp_irrelevant(ctx(), e))
+        } else if (is_comp_irrelevant(ctx(), e)) {
             return *g_neutral_expr;
-        else if (is_rec_fn_macro(e))
+        } else if (is_rec_fn_macro(e)) {
             return mk_constant(get_rec_fn_name(e));
-        else
+        } else if (is_nat_value(e)) {
+            return e;
+        } else if (auto r = macro_def(e).expand(e, m_ctx)) {
+            return visit(*r);
+        } else {
             return compiler_step_visitor::visit_macro(e);
+        }
     }
 
     virtual expr visit_local(expr const & e) override {
@@ -262,6 +268,20 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         return add_args(r, 6, args);
     }
 
+    expr visit_quot_lift(buffer<expr> const & args) {
+        lean_assert(args.size() >= 6);
+        expr f = visit(args[3]);
+        expr q = visit(args[5]);
+        expr r = beta_reduce(mk_app(f, q));
+        return add_args(r, 6, args);
+    }
+
+    expr visit_quot_mk(buffer<expr> const & args) {
+        lean_assert(args.size() >= 3);
+        expr r = visit(args[2]);
+        return add_args(r, 3, args);
+    }
+
     virtual expr visit_app(expr const & e) override {
         if (is_comp_irrelevant(ctx(), e))
             return *g_neutral_expr;
@@ -275,6 +295,10 @@ class erase_irrelevant_fn : public compiler_step_visitor {
                 return visit_eq_rec(args);
             } else if (n == get_acc_cases_on_name()) {
                 return visit_acc_cases_on(args);
+            } else if (n == get_quot_lift_name()) {
+                return visit_quot_lift(args);
+            } else if (n == get_quot_mk_name()) {
+                return visit_quot_mk(args);
             } else if (n == get_subtype_rec_name()) {
                 return visit_subtype_rec(args);
             } else if (is_cases_on_recursor(env(), n)) {

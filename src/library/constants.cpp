@@ -201,6 +201,8 @@ name const * g_prod_mk = nullptr;
 name const * g_prod_pr1 = nullptr;
 name const * g_prod_pr2 = nullptr;
 name const * g_propext = nullptr;
+name const * g_quot_mk = nullptr;
+name const * g_quot_lift = nullptr;
 name const * g_rat_divide = nullptr;
 name const * g_rat_of_num = nullptr;
 name const * g_rfl = nullptr;
@@ -491,6 +493,8 @@ void initialize_constants() {
     g_prod_pr1 = new name{"prod", "pr1"};
     g_prod_pr2 = new name{"prod", "pr2"};
     g_propext = new name{"propext"};
+    g_quot_mk = new name{"quot", "mk"};
+    g_quot_lift = new name{"quot", "lift"};
     g_rat_divide = new name{"rat", "divide"};
     g_rat_of_num = new name{"rat", "of_num"};
     g_rfl = new name{"rfl"};
@@ -782,6 +786,8 @@ void finalize_constants() {
     delete g_prod_pr1;
     delete g_prod_pr2;
     delete g_propext;
+    delete g_quot_mk;
+    delete g_quot_lift;
     delete g_rat_divide;
     delete g_rat_of_num;
     delete g_rfl;
@@ -1072,6 +1078,8 @@ name const & get_prod_mk_name() { return *g_prod_mk; }
 name const & get_prod_pr1_name() { return *g_prod_pr1; }
 name const & get_prod_pr2_name() { return *g_prod_pr2; }
 name const & get_propext_name() { return *g_propext; }
+name const & get_quot_mk_name() { return *g_quot_mk; }
+name const & get_quot_lift_name() { return *g_quot_lift; }
 name const & get_rat_divide_name() { return *g_rat_divide; }
 name const & get_rat_of_num_name() { return *g_rat_of_num; }
 name const & get_rfl_name() { return *g_rfl; }

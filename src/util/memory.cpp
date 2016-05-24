@@ -193,4 +193,8 @@ void* operator new[](std::size_t sz) throw(std::bad_alloc) { return lean::malloc
 void  operator delete[](void * ptr) throw() { return lean::free(ptr); }
 void* operator new(std::size_t sz, std::nothrow_t const &) noexcept { return lean::malloc(sz, false); }
 void* operator new[](std::size_t sz, std::nothrow_t const &) noexcept { return lean::malloc(sz, false); }
+
+#pragma GCC diagnostic ignored "-Wc++14-compat"
+void operator delete(void * ptr, size_t _size) throw() { return lean::free(ptr); }
+void operator delete[](void * ptr, size_t _size) throw() { return lean::free(ptr); }
 #endif

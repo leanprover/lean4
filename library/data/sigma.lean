@@ -13,8 +13,8 @@ namespace sigma
   universe variables u v
   variables {A A' : Type.{u}} {B : A → Type.{v}} {B' : A' → Type.{v}}
 
-  definition unpack {C : (Σa, B a) → Type} {u : Σa, B a} (H : C ⟨u.1 , u.2⟩) : C u :=
-  sorry -- begin cases u, exact H end
+  definition unpack {C : (Σa, B a) → Type} {u : Σa, B a} : C ⟨u.1 , u.2⟩ → C u :=
+  sigma.rec_on u (λ u1 u2 H, H)
 
   theorem dpair_heq {a : A} {a' : A'} {b : B a} {b' : B' a'}
       (HB : B == B') (Ha : a == a') (Hb : b == b') : ⟨a, b⟩ == ⟨a', b'⟩ :=

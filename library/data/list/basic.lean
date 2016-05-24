@@ -293,31 +293,28 @@ theorem mem_append_right {a : T} (l₁ : list T) {l₂ : list T} : a ∈ l₂ �
 assume ainl₂, mem_append_of_mem_or_mem (or.inr ainl₂)
 
 definition decidable_mem [instance] [H : decidable_eq T] (x : T) (l : list T) : decidable (x ∈ l) :=
-sorry
-/-
 list.rec_on l
-  (decidable.inr (not_of_iff_false !mem_nil_iff))
+  (decidable.ff (not_of_iff_false !mem_nil_iff))
   (take (h : T) (l : list T) (iH : decidable (x ∈ l)),
     show decidable (x ∈ h::l), from
     decidable.rec_on iH
-      (assume Hp : x ∈ l,
+      (suppose nxinl : ¬x ∈ l,
         decidable.rec_on (H x h)
-          (suppose x = h,
-            decidable.inl (or.inl this))
-          (suppose x ≠ h,
-            decidable.inl (or.inr Hp)))
-      (suppose ¬x ∈ l,
-        decidable.rec_on (H x h)
-          (suppose x = h, decidable.inl (or.inl this))
-          (suppose x ≠ h,
+          (suppose xneh : x ≠ h,
             have ¬(x = h ∨ x ∈ l), from
               suppose x = h ∨ x ∈ l, or.elim this
-                (suppose x = h, by contradiction)
-                (suppose x ∈ l, by contradiction),
+                (suppose x = h, absurd this xneh)
+                (suppose x ∈ l, absurd this nxinl),
             have ¬x ∈ h::l, from
               iff.elim_right (not_iff_not_of_iff !mem_cons_iff) this,
-            decidable.inr this)))
--/
+            decidable.ff this)
+          (suppose x = h, decidable.tt (or.inl this)))
+      (assume Hp : x ∈ l,
+        decidable.rec_on (H x h)
+          (suppose x ≠ h,
+            decidable.tt (or.inr Hp))
+          (suppose x = h,
+            decidable.tt (or.inl this))))
 
 theorem mem_of_ne_of_mem {x y : T} {l : list T} (H₁ : x ≠ y) (H₂ : x ∈ y :: l) : x ∈ l :=
 or.elim (eq_or_mem_of_mem_cons H₂) (λe, absurd e H₁) (λr, r)
@@ -533,22 +530,20 @@ rfl
 end ith
 
 open decidable
-definition has_decidable_eq {A : Type} [H : decidable_eq A] : ∀ l₁ l₂ : list A, decidable (l₁ = l₂)
-:= sorry
-/-
-| []      []      := inl rfl
-| []      (b::l₂) := inr (by contradiction)
-| (a::l₁) []      := inr (by contradiction)
-| (a::l₁) (b::l₂) :=
-  match H a b with
-  | inl Hab  :=
-    match has_decidable_eq l₁ l₂ with
-    | inl He := inl (by congruence; repeat assumption)
-    | inr Hn := inr (by intro H; injection H; contradiction)
-    end
-  | inr Hnab := inr (by intro H; injection H; contradiction)
-  end
--/
+definition has_decidable_eq {A : Type} [H : decidable_eq A] (l₁ : list A) :  ∀ l₂ : list A, decidable (l₁ = l₂) :=
+list.rec_on l₁
+  (λ l₂, list.cases_on l₂
+    (tt rfl)
+    (λ b l₂, ff (λ H, list.no_confusion H)))
+  (λ a l₁ ih l₂, list.cases_on l₂
+    (ff (λ H, list.no_confusion H))
+    (λ b l₂,
+       decidable.cases_on (H a b)
+        (λ Hnab : a ≠ b, ff (λ H, list.no_confusion H (λ Hab Hl₁l₂, absurd Hab Hnab)))
+        (λ Hab : a = b,
+           decidable.cases_on (ih l₂)
+             (λ Hne : l₁ ≠ l₂, ff (λ H, list.no_confusion H (λ Hab Hl₁l₂, absurd Hl₁l₂ Hne)))
+             (λ He  : l₁ = l₂, tt (congr (congr_arg cons Hab) He)))))
 
 /- quasiequal a l l' means that l' is exactly l, with a added
    once somewhere -/

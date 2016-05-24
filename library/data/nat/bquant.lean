@@ -42,11 +42,7 @@ namespace nat
   λ H, absurd (bex_of_bsub H) (not_bex_zero P)
 
   definition bsub_succ {P : nat → Prop} {n : nat} (H : bsub n P) : bsub (succ n) P :=
-  sorry
-  /-
-  obtain (w : nat) (Hw : w < n ∧ P w), from H,
-    and.rec_on Hw (λ hlt hp, tag w (and.intro (lt.step hlt) hp))
-  -/
+  subtype.rec_on H (λ w Hw, tag w (and.rec_on Hw (λ hlt hp, and.intro (lt.step hlt) hp)))
 
   theorem bex_succ {P : nat → Prop} {n : nat} (H : bex n P) : bex (succ n) P :=
   sorry

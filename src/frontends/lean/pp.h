@@ -68,6 +68,7 @@ private:
     bool                    m_hide_binder_types;
     bool                    m_beta;
     bool                    m_numerals;
+    bool                    m_strings;
     bool                    m_abbreviations;
     bool                    m_hide_full_terms;
     bool                    m_hide_comp_irrel;

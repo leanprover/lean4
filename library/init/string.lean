@@ -8,5 +8,7 @@ import init.char
 
 definition string := list char
 
-definition string.empty : string := list.nil
-definition string.str : char → string → string := list.cons
+namespace string
+definition empty : string := list.nil
+definition str : char → string → string := list.cons
+end string

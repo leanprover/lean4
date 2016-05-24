@@ -33,6 +33,7 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/constants.h"
 #include "library/replace_visitor.h"
+#include "library/string.h"
 #include "library/definitional/equations.h"
 #include "library/compiler/comp_irrelevant.h"
 #include "library/compiler/erase_irrelevant.h"
@@ -274,6 +275,7 @@ void pretty_fn::set_options_core(options const & _o) {
         o = o.update_if_undef(get_pp_full_names_name(), true);
         o = o.update_if_undef(get_pp_beta_name(), false);
         o = o.update_if_undef(get_pp_numerals_name(), false);
+        o = o.update_if_undef(get_pp_strings_name(), false);
         o = o.update_if_undef(get_pp_abbreviations_name(), false);
     }
     m_options           = o;
@@ -292,6 +294,7 @@ void pretty_fn::set_options_core(options const & _o) {
     m_purify_locals     = get_pp_purify_locals(o);
     m_beta              = get_pp_beta(o);
     m_numerals          = get_pp_numerals(o);
+    m_strings           = get_pp_strings(o);
     m_abbreviations     = get_pp_abbreviations(o);
     m_preterm           = get_pp_preterm(o);
     m_hide_binder_types = get_pp_hide_binder_types(o);
@@ -505,6 +508,9 @@ auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> resul
         if (m_numerals) {
             if (auto n = to_num(e)) return pp_num(*n);
             if (auto n = to_num_core(e)) return pp_num(*n);
+        }
+        if (m_strings) {
+            if (auto r = to_string(e)) return pp_string_literal(*r);
         }
         expr const & f = app_fn(e);
         if (auto it = is_abbreviated(f)) {
@@ -840,6 +846,9 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
             return m_unicode ? format("◾") : format("irrel");
         else
             return pp(get_annotation_arg(e));
+    } else if (!m_strings && to_string(e)) {
+        expr n = *macro_def(e).expand(e, m_ctx);
+        return pp(n);
     } else if (is_annotation(e)) {
         return pp(get_annotation_arg(e));
     } else if (is_rec_fn_macro(e)) {
@@ -1029,6 +1038,9 @@ auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) ->
         if (m_numerals) {
             if (auto n = to_num(e)) return pp_num(*n);
             if (auto n = to_num_core(e)) return pp_num(*n);
+        }
+        if (m_strings) {
+            if (auto r = to_string(e)) return pp_string_literal(*r);
         }
         expr const & f = app_fn(e);
         if (auto it = is_abbreviated(f)) {
@@ -1283,6 +1295,9 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     if (m_numerals) {
         if (auto n = to_num(e)) return pp_num(*n);
         if (auto n = to_num_core(e)) return pp_num(*n);
+    }
+    if (m_strings) {
+        if (auto r = to_string(e)) return pp_string_literal(*r);
     }
     if (auto n = is_abbreviated(e))
         return pp_abbreviation(e, *n, false);

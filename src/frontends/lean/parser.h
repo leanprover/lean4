@@ -118,8 +118,6 @@ class parser {
     // When the following flag is true, it creates a constant.
     // This flag is when we are trying to parse mutually recursive declarations.
     undef_id_behavior       m_undef_id_behavior;
-    optional<bool>          m_has_num;
-    optional<bool>          m_has_string;
     optional<bool>          m_has_tactic_decls;
     // We process theorems in parallel
     theorem_queue           m_theorem_queue;

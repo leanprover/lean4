@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/typed_expr.h"
 #include "library/choice.h"
 #include "library/class.h"
+#include "library/num.h"
 #include "library/string.h"
 #include "library/annotation.h"
 #include "library/explicit.h"
@@ -90,6 +91,7 @@ void initialize_library_module() {
     initialize_typed_expr();
     initialize_choice();
     initialize_string();
+    initialize_num();
     initialize_annotation();
     initialize_explicit();
     initialize_module();
@@ -157,6 +159,7 @@ void finalize_library_module() {
     finalize_module();
     finalize_explicit();
     finalize_annotation();
+    finalize_num();
     finalize_string();
     finalize_choice();
     finalize_typed_expr();

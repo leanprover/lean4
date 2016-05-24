@@ -9,18 +9,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 /**
-   \brief Return true iff the environment \c env contains the following declarations
-   in the namespace 'bit'
-       b0 : bit
-       b1 : bit
-   and the following ones in the namespace 'string'
-       ascii : bit -> bit -> bit -> bit -> bit -> bit -> bit -> bit -> char
-       empty : string
-       str   : char -> string -> string
-*/
-bool has_string_decls(environment const & env);
-
-/**
     \brief Return an expression that encodes the given string using the declarations
     ascii, empty and str.
 
@@ -36,6 +24,8 @@ expr from_string(std::string const & s);
    \see from_string
 */
 optional<std::string> to_string(expr const & e);
+
+format pp_string_literal(std::string const & s);
 
 void initialize_string();
 void finalize_string();

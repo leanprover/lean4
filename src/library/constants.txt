@@ -18,7 +18,7 @@ cast
 cast_eq
 cast_heq
 char
-char.mk
+char.of_nat
 classical
 congr
 congr_arg
@@ -50,6 +50,8 @@ false
 false_of_true_iff_false
 false.rec
 field
+fin
+fin.mk
 funext
 has_add
 has_div
@@ -91,6 +93,7 @@ lift.down
 lift.up
 linear_ordered_ring
 linear_ordered_semiring
+list
 list.nil
 list.cons
 monoid
@@ -115,6 +118,9 @@ nat.cases_on
 nat.rec_on
 nat.no_confusion
 nat.no_confusion_type
+nat_has_zero
+nat_has_one
+nat_has_add
 ne
 neg
 norm_num.add1

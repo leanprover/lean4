@@ -23,7 +23,7 @@ name const * g_cast = nullptr;
 name const * g_cast_eq = nullptr;
 name const * g_cast_heq = nullptr;
 name const * g_char = nullptr;
-name const * g_char_mk = nullptr;
+name const * g_char_of_nat = nullptr;
 name const * g_classical = nullptr;
 name const * g_congr = nullptr;
 name const * g_congr_arg = nullptr;
@@ -55,6 +55,8 @@ name const * g_false = nullptr;
 name const * g_false_of_true_iff_false = nullptr;
 name const * g_false_rec = nullptr;
 name const * g_field = nullptr;
+name const * g_fin = nullptr;
+name const * g_fin_mk = nullptr;
 name const * g_funext = nullptr;
 name const * g_has_add = nullptr;
 name const * g_has_div = nullptr;
@@ -96,6 +98,7 @@ name const * g_lift_down = nullptr;
 name const * g_lift_up = nullptr;
 name const * g_linear_ordered_ring = nullptr;
 name const * g_linear_ordered_semiring = nullptr;
+name const * g_list = nullptr;
 name const * g_list_nil = nullptr;
 name const * g_list_cons = nullptr;
 name const * g_monoid = nullptr;
@@ -120,6 +123,9 @@ name const * g_nat_cases_on = nullptr;
 name const * g_nat_rec_on = nullptr;
 name const * g_nat_no_confusion = nullptr;
 name const * g_nat_no_confusion_type = nullptr;
+name const * g_nat_has_zero = nullptr;
+name const * g_nat_has_one = nullptr;
+name const * g_nat_has_add = nullptr;
 name const * g_ne = nullptr;
 name const * g_neg = nullptr;
 name const * g_norm_num_add1 = nullptr;
@@ -315,7 +321,7 @@ void initialize_constants() {
     g_cast_eq = new name{"cast_eq"};
     g_cast_heq = new name{"cast_heq"};
     g_char = new name{"char"};
-    g_char_mk = new name{"char", "mk"};
+    g_char_of_nat = new name{"char", "of_nat"};
     g_classical = new name{"classical"};
     g_congr = new name{"congr"};
     g_congr_arg = new name{"congr_arg"};
@@ -347,6 +353,8 @@ void initialize_constants() {
     g_false_of_true_iff_false = new name{"false_of_true_iff_false"};
     g_false_rec = new name{"false", "rec"};
     g_field = new name{"field"};
+    g_fin = new name{"fin"};
+    g_fin_mk = new name{"fin", "mk"};
     g_funext = new name{"funext"};
     g_has_add = new name{"has_add"};
     g_has_div = new name{"has_div"};
@@ -388,6 +396,7 @@ void initialize_constants() {
     g_lift_up = new name{"lift", "up"};
     g_linear_ordered_ring = new name{"linear_ordered_ring"};
     g_linear_ordered_semiring = new name{"linear_ordered_semiring"};
+    g_list = new name{"list"};
     g_list_nil = new name{"list", "nil"};
     g_list_cons = new name{"list", "cons"};
     g_monoid = new name{"monoid"};
@@ -412,6 +421,9 @@ void initialize_constants() {
     g_nat_rec_on = new name{"nat", "rec_on"};
     g_nat_no_confusion = new name{"nat", "no_confusion"};
     g_nat_no_confusion_type = new name{"nat", "no_confusion_type"};
+    g_nat_has_zero = new name{"nat_has_zero"};
+    g_nat_has_one = new name{"nat_has_one"};
+    g_nat_has_add = new name{"nat_has_add"};
     g_ne = new name{"ne"};
     g_neg = new name{"neg"};
     g_norm_num_add1 = new name{"norm_num", "add1"};
@@ -608,7 +620,7 @@ void finalize_constants() {
     delete g_cast_eq;
     delete g_cast_heq;
     delete g_char;
-    delete g_char_mk;
+    delete g_char_of_nat;
     delete g_classical;
     delete g_congr;
     delete g_congr_arg;
@@ -640,6 +652,8 @@ void finalize_constants() {
     delete g_false_of_true_iff_false;
     delete g_false_rec;
     delete g_field;
+    delete g_fin;
+    delete g_fin_mk;
     delete g_funext;
     delete g_has_add;
     delete g_has_div;
@@ -681,6 +695,7 @@ void finalize_constants() {
     delete g_lift_up;
     delete g_linear_ordered_ring;
     delete g_linear_ordered_semiring;
+    delete g_list;
     delete g_list_nil;
     delete g_list_cons;
     delete g_monoid;
@@ -705,6 +720,9 @@ void finalize_constants() {
     delete g_nat_rec_on;
     delete g_nat_no_confusion;
     delete g_nat_no_confusion_type;
+    delete g_nat_has_zero;
+    delete g_nat_has_one;
+    delete g_nat_has_add;
     delete g_ne;
     delete g_neg;
     delete g_norm_num_add1;
@@ -900,7 +918,7 @@ name const & get_cast_name() { return *g_cast; }
 name const & get_cast_eq_name() { return *g_cast_eq; }
 name const & get_cast_heq_name() { return *g_cast_heq; }
 name const & get_char_name() { return *g_char; }
-name const & get_char_mk_name() { return *g_char_mk; }
+name const & get_char_of_nat_name() { return *g_char_of_nat; }
 name const & get_classical_name() { return *g_classical; }
 name const & get_congr_name() { return *g_congr; }
 name const & get_congr_arg_name() { return *g_congr_arg; }
@@ -932,6 +950,8 @@ name const & get_false_name() { return *g_false; }
 name const & get_false_of_true_iff_false_name() { return *g_false_of_true_iff_false; }
 name const & get_false_rec_name() { return *g_false_rec; }
 name const & get_field_name() { return *g_field; }
+name const & get_fin_name() { return *g_fin; }
+name const & get_fin_mk_name() { return *g_fin_mk; }
 name const & get_funext_name() { return *g_funext; }
 name const & get_has_add_name() { return *g_has_add; }
 name const & get_has_div_name() { return *g_has_div; }
@@ -973,6 +993,7 @@ name const & get_lift_down_name() { return *g_lift_down; }
 name const & get_lift_up_name() { return *g_lift_up; }
 name const & get_linear_ordered_ring_name() { return *g_linear_ordered_ring; }
 name const & get_linear_ordered_semiring_name() { return *g_linear_ordered_semiring; }
+name const & get_list_name() { return *g_list; }
 name const & get_list_nil_name() { return *g_list_nil; }
 name const & get_list_cons_name() { return *g_list_cons; }
 name const & get_monoid_name() { return *g_monoid; }
@@ -997,6 +1018,9 @@ name const & get_nat_cases_on_name() { return *g_nat_cases_on; }
 name const & get_nat_rec_on_name() { return *g_nat_rec_on; }
 name const & get_nat_no_confusion_name() { return *g_nat_no_confusion; }
 name const & get_nat_no_confusion_type_name() { return *g_nat_no_confusion_type; }
+name const & get_nat_has_zero_name() { return *g_nat_has_zero; }
+name const & get_nat_has_one_name() { return *g_nat_has_one; }
+name const & get_nat_has_add_name() { return *g_nat_has_add; }
 name const & get_ne_name() { return *g_ne; }
 name const & get_neg_name() { return *g_neg; }
 name const & get_norm_num_add1_name() { return *g_norm_num_add1; }

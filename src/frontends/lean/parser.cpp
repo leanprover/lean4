@@ -1611,21 +1611,14 @@ expr parser::parse_numeral_expr(bool user_notation) {
     auto p = pos();
     mpz n = get_num_val().get_numerator();
     next();
-    if (!m_has_num)
-        m_has_num = has_num_decls(m_env);
     list<expr> vals;
     if (user_notation)
         vals = get_mpz_notation(m_env, n);
-    if (!*m_has_num && !vals) {
-        throw parser_error("numeral cannot be encoded as expression, environment does not contain "
-                           "the auxiliary declarations zero, one, bit0 and bit1", p);
-    }
     if (!vals) {
         return save_pos(mk_prenum(n), p);
     } else {
         buffer<expr> cs;
-        if (*m_has_num)
-            cs.push_back(save_pos(mk_prenum(n), p));
+        cs.push_back(save_pos(mk_prenum(n), p));
         for (expr const & c : vals)
             cs.push_back(copy_with_new_pos(c, p));
         if (cs.size() == 1)
@@ -1650,17 +1643,10 @@ expr parser::parse_decimal_expr() {
 }
 
 expr parser::parse_string_expr() {
-    auto p = pos();
     std::string v = get_str_val();
     next();
-    if (!m_has_string)
-        m_has_string = has_string_decls(m_env);
-    if (!*m_has_string)
-        throw parser_error("string cannot be encoded as expression, environment does not contain the type 'string' "
-                           "(solution: use 'import string')", p);
     return from_string(v);
 }
-
 
 expr parser::parse_backtick_expr_core() {
     next();

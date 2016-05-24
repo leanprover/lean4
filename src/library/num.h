@@ -8,10 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-/** \brief Return true iff the given environment contains the declarations needed to encode numerals:
-    zero, one, bit0, bit1 */
-bool has_num_decls(environment const & env);
-
 bool is_const_app(expr const &, name const &, unsigned);
 
 /** \brief Return true iff the given expression encodes a numeral. */
@@ -41,6 +37,9 @@ optional<mpz> to_num_core(expr const & e);
     \remark This kind of hard-coded solution is not ideal. One alternative solution is to have yet another
     annotation to let user mark constants that should be treated in a different way by some tactics. */
 bool is_num_leaf_constant(name const & n);
+
+/** \brief Encode \c n as an expression using bit0/bit1/one/zero constants */
+expr to_nat_expr(mpz const & n);
 
 void initialize_num();
 void finalize_num();

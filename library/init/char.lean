@@ -9,5 +9,9 @@ open nat
 
 definition char := fin 256
 
-definition char.of_nat (n : nat) : char :=
+namespace char
+
+definition of_nat [coercion] (n : nat) : char :=
 if H : n < 256 then fin.mk n H else fin.mk 0 dec_trivial
+
+end char

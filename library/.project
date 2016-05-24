@@ -19,10 +19,10 @@
 - matrix.lean
 - squash.lean
 - stream.lean
-- string.lean
+- old_string.lean
 - uprod.lean
 - tuple.lean
-- fin.lean
+- old_fin.lean
 - pnat.lean
 - hf.lean
 - data/vector/

@@ -407,6 +407,25 @@ public:
     friend class tmp_locals;
 };
 
+/** Auxiliary object for automating the creation of temporary type_context objects */
+class aux_type_context {
+    metavar_context m_mctx;
+    type_context    m_ctx;
+public:
+    aux_type_context(environment const & env, options const & opts, local_context const & lctx,
+                     transparency_mode m = transparency_mode::Reducible):
+        m_ctx(env, opts, m_mctx, lctx, m) {}
+    aux_type_context(environment const & env, options const & opts,
+                     transparency_mode m = transparency_mode::Reducible):
+        m_ctx(env, opts, m_mctx, local_context(), m) {}
+    aux_type_context(environment const & env, transparency_mode m = transparency_mode::Reducible):
+        m_ctx(env, options(), m_mctx, local_context(), m) {}
+
+    operator type_context&() { return m_ctx; }
+    operator type_context() { return m_ctx; }
+    type_context * operator->() { return &m_ctx; }
+};
+
 void initialize_type_context();
 void finalize_type_context();
 }

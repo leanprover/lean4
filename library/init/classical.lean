@@ -23,9 +23,8 @@ noncomputable definition inhabited_of_nonempty {A : Type} (H : nonempty A) : inh
 let u : {x | (∃y : A, true) → true} := strong_indefinite_description (λa, true) H in
 inhabited.mk (elt_of u)
 
-/- noncomputable -/ definition inhabited_of_exists {A : Type} {P : A → Prop} (H : ∃x, P x) : inhabited A :=
-sorry
--- inhabited_of_nonempty (obtain w Hw, from H, nonempty.intro w)
+noncomputable definition inhabited_of_exists {A : Type} {P : A → Prop} (H : ∃x, P x) : inhabited A :=
+inhabited_of_nonempty (exists.elim H (λ w Hw, nonempty.intro w))
 
 /- the Hilbert epsilon function -/
 

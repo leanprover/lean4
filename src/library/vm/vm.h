@@ -136,6 +136,7 @@ vm_obj mk_vm_external(vm_external * cell);
 /* helper functions for creating natural numbers */
 vm_obj mk_vm_nat(unsigned n);
 vm_obj mk_vm_nat(mpz const & n);
+inline vm_obj mk_vm_unit() { return mk_vm_simple(0); }
 inline vm_obj mk_vm_false() { return mk_vm_simple(0); }
 inline vm_obj mk_vm_true() { return mk_vm_simple(1); }
 inline vm_obj mk_vm_bool(bool b) { return mk_vm_simple(b); }

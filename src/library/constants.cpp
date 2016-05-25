@@ -60,6 +60,7 @@ name const * g_field = nullptr;
 name const * g_fin = nullptr;
 name const * g_fin_mk = nullptr;
 name const * g_funext = nullptr;
+name const * g_get_line = nullptr;
 name const * g_has_add = nullptr;
 name const * g_has_div = nullptr;
 name const * g_has_mul = nullptr;
@@ -214,6 +215,8 @@ name const * g_prod_mk = nullptr;
 name const * g_prod_pr1 = nullptr;
 name const * g_prod_pr2 = nullptr;
 name const * g_propext = nullptr;
+name const * g_put_nat = nullptr;
+name const * g_put_str = nullptr;
 name const * g_quot_mk = nullptr;
 name const * g_quot_lift = nullptr;
 name const * g_rat_divide = nullptr;
@@ -365,6 +368,7 @@ void initialize_constants() {
     g_fin = new name{"fin"};
     g_fin_mk = new name{"fin", "mk"};
     g_funext = new name{"funext"};
+    g_get_line = new name{"get_line"};
     g_has_add = new name{"has_add"};
     g_has_div = new name{"has_div"};
     g_has_mul = new name{"has_mul"};
@@ -519,6 +523,8 @@ void initialize_constants() {
     g_prod_pr1 = new name{"prod", "pr1"};
     g_prod_pr2 = new name{"prod", "pr2"};
     g_propext = new name{"propext"};
+    g_put_nat = new name{"put_nat"};
+    g_put_str = new name{"put_str"};
     g_quot_mk = new name{"quot", "mk"};
     g_quot_lift = new name{"quot", "lift"};
     g_rat_divide = new name{"rat", "divide"};
@@ -671,6 +677,7 @@ void finalize_constants() {
     delete g_fin;
     delete g_fin_mk;
     delete g_funext;
+    delete g_get_line;
     delete g_has_add;
     delete g_has_div;
     delete g_has_mul;
@@ -825,6 +832,8 @@ void finalize_constants() {
     delete g_prod_pr1;
     delete g_prod_pr2;
     delete g_propext;
+    delete g_put_nat;
+    delete g_put_str;
     delete g_quot_mk;
     delete g_quot_lift;
     delete g_rat_divide;
@@ -976,6 +985,7 @@ name const & get_field_name() { return *g_field; }
 name const & get_fin_name() { return *g_fin; }
 name const & get_fin_mk_name() { return *g_fin_mk; }
 name const & get_funext_name() { return *g_funext; }
+name const & get_get_line_name() { return *g_get_line; }
 name const & get_has_add_name() { return *g_has_add; }
 name const & get_has_div_name() { return *g_has_div; }
 name const & get_has_mul_name() { return *g_has_mul; }
@@ -1130,6 +1140,8 @@ name const & get_prod_mk_name() { return *g_prod_mk; }
 name const & get_prod_pr1_name() { return *g_prod_pr1; }
 name const & get_prod_pr2_name() { return *g_prod_pr2; }
 name const & get_propext_name() { return *g_propext; }
+name const & get_put_nat_name() { return *g_put_nat; }
+name const & get_put_str_name() { return *g_put_str; }
 name const & get_quot_mk_name() { return *g_quot_mk; }
 name const & get_quot_lift_name() { return *g_quot_lift; }
 name const & get_rat_divide_name() { return *g_rat_divide; }

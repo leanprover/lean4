@@ -55,6 +55,7 @@ field
 fin
 fin.mk
 funext
+get_line
 has_add
 has_div
 has_mul
@@ -209,6 +210,8 @@ prod.mk
 prod.pr1
 prod.pr2
 propext
+put_nat
+put_str
 quot.mk
 quot.lift
 rat.divide

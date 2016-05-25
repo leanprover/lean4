@@ -20,7 +20,7 @@
     "using" "namespace" "section" "fields" "find_decl"
     "attribute" "local" "set_option" "extends" "include" "omit" "classes"
     "instances" "coercions" "metaclasses" "raw" "migrate" "replacing"
-    "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "forall" "Pi" "fun"
+    "calc" "have" "show" "suffices" "by" "in" "at" "do" "return" "let" "forall" "Pi" "fun"
     "exists" "if" "dif" "then" "else" "assume" "assert" "take"
     "obtain" "from" "aliases")
   "lean keywords ending with 'word' (not symbol)")

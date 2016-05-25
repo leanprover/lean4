@@ -15,3 +15,7 @@ definition of_nat [coercion] (n : nat) : char :=
 if H : n < 256 then fin.mk n H else fin.mk 0 dec_trivial
 
 end char
+
+definition char.has_decidable_eq [instance] : decidable_eq char :=
+have decidable_eq (fin 256), from _,
+this

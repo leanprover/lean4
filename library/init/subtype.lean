@@ -28,12 +28,15 @@ namespace subtype
 
   protected theorem eq : ∀ {a1 a2 : {x | P x}} (H : elt_of a1 = elt_of a2), a1 = a2
   | (tag x1 H1) (tag x2 H2) := tag_eq
+end subtype
 
-  protected definition is_inhabited [instance] {a : A} (H : P a) : inhabited {x | P x} :=
-  inhabited.mk (tag a H)
+open subtype
 
-  protected definition has_decidable_eq [instance] [H : decidable_eq A] : ∀ s₁ s₂ : {x | P x}, decidable (s₁ = s₂)
-  | (tag v₁ p₁) (tag v₂ p₂) :=
+variables {A : Type} {P : A → Prop}
+protected definition subtype.is_inhabited [instance] {a : A} (H : P a) : inhabited {x | P x} :=
+inhabited.mk (tag a H)
+
+protected definition subtype.has_decidable_eq [instance] [H : decidable_eq A] : ∀ s₁ s₂ : {x | P x}, decidable (s₁ = s₂)
+| (tag v₁ p₁) (tag v₂ p₂) :=
   decidable_of_decidable_of_iff (H v₁ v₂)
     (iff.intro tag_eq (λh, subtype.no_confusion h (λa b, a)))
-end subtype

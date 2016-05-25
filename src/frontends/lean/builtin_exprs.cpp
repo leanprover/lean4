@@ -518,6 +518,11 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
     parser::local_scope scope(p);
     buffer<expr> es;
     buffer<expr> locals;
+    bool has_braces = false;
+    if (p.curr_is_token(get_lcurly_tk())) {
+        has_braces = true;
+        p.next();
+    }
     while (true) {
         expr curr;
         optional<name> id;
@@ -554,6 +559,9 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
             }
             break;
         }
+    }
+    if (has_braces) {
+        p.check_token_next(get_rcurly_tk(), "invalid 'do' expression, '}' expected");
     }
     lean_assert(!es.empty());
     lean_assert(es.size() == locals.size() + 1);

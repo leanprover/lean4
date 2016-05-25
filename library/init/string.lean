@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 prelude
 import init.char
 
-definition string := list char
+definition string [reducible] := list char
 
 namespace string
 definition empty : string := list.nil

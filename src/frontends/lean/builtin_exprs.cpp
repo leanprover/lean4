@@ -514,6 +514,61 @@ static expr parse_pattern(parser & p, unsigned, expr const * args, pos_info cons
     throw parser_error("pattern_hints have been disabled", pos);
 }
 
+static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
+    parser::local_scope scope(p);
+    buffer<expr> es;
+    buffer<expr> locals;
+    while (true) {
+        expr curr;
+        optional<name> id;
+        auto id_pos = p.pos();
+        if (p.curr_is_identifier()) {
+            id = p.get_name_val();
+            p.next();
+            if (p.curr_is_token(get_larrow_tk())) {
+                p.next();
+                curr = p.parse_expr();
+            } else {
+                expr left = p.id_to_expr(*id, id_pos);
+                id        = optional<name>();
+                unsigned rbp = 0;
+                while (rbp < p.curr_expr_lbp()) {
+                    left = p.parse_led(left);
+                }
+                curr = left;
+            }
+        } else {
+            id   = optional<name>();
+            curr = p.parse_expr();
+        }
+        es.push_back(curr);
+        if (p.curr_is_token(get_comma_tk())) {
+            p.next();
+            name n = id ? *id : mk_fresh_name();
+            expr l = p.save_pos(mk_local(n, mk_expr_placeholder()), id_pos);
+            p.add_local(l);
+            locals.push_back(l);
+        } else {
+            if (id) {
+                throw parser_error("invalid 'do' expression, unnecessary binder", id_pos);
+            }
+            break;
+        }
+    }
+    lean_assert(!es.empty());
+    lean_assert(es.size() == locals.size() + 1);
+    if (es.size() == 1)
+        return es[0];
+    unsigned i = es.size();
+    --i;
+    expr r = es[i];
+    while (i > 0) {
+        --i;
+        r = mk_app(mk_constant(get_monad_bind_name()), es[i], Fun(locals[i], r));
+    }
+    return r;
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -550,6 +605,7 @@ parse_table init_nud_table() {
     r = r.add({transition("using", mk_ext_action(parse_using))}, x0);
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
     r = r.add({transition("match", mk_ext_action(parse_match))}, x0);
+    r = r.add({transition("do", mk_ext_action(parse_do))}, x0);
     init_structure_instance_parsing_rules(r);
     return r;
 }

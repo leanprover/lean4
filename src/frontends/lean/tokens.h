@@ -65,6 +65,7 @@ name const & get_instances_tk();
 name const & get_classes_tk();
 name const & get_coercions_tk();
 name const & get_arrow_tk();
+name const & get_larrow_tk();
 name const & get_declaration_tk();
 name const & get_decl_tk();
 name const & get_hiding_tk();

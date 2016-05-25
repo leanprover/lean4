@@ -101,7 +101,7 @@ void init_token_table(token_table & t) {
          {"generalize", 0}, {"as", 0}, {":=", 0}, {"--", 0}, {"#", 0}, {"#tactic", 0},
          {"(*", 0}, {"/-", 0}, {"begin", g_max_prec}, {"abstract", g_max_prec},
          {"proof", g_max_prec}, {"qed", 0}, {"@@", g_max_prec}, {"@", g_max_prec},
-         {"sorry", g_max_prec}, {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec},
+         {"sorry", g_max_prec}, {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec}, {"<-", 0},
          {"?(", g_max_prec}, {"⌞", g_max_prec}, {"⌟", 0}, {"match", 0},
          {"<d", g_decreasing_prec}, {"renaming", 0}, {"extends", 0}, {nullptr, 0}};
 
@@ -154,6 +154,7 @@ void init_token_table(token_table & t) {
         it3++;
     }
     t = add_token(t, g_arrow_unicode, "->", get_arrow_prec());
+    t = add_token(t, "←", "<-", 0);
     t = add_token(t, g_decreasing_unicode, "<d", get_decreasing_prec());
 
     auto it4 = cmd_aliases;

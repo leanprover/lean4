@@ -58,6 +58,7 @@ instances    instances
 classes      classes
 coercions    coercions
 arrow        ->
+larrow       <-
 declaration  declaration
 decl         decl
 hiding       hiding

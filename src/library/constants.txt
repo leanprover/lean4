@@ -46,6 +46,8 @@ eq.trans
 eq_of_heq
 eq_rec_heq
 exists.elim
+functor
+functorIO
 false
 false_of_true_iff_false
 false.rec
@@ -96,6 +98,11 @@ linear_ordered_semiring
 list
 list.nil
 list.cons
+monad
+monad.map
+monad.bind
+monad.return
+monadIO
 monoid
 mul
 mul_one

@@ -51,6 +51,8 @@ name const * g_eq_trans = nullptr;
 name const * g_eq_of_heq = nullptr;
 name const * g_eq_rec_heq = nullptr;
 name const * g_exists_elim = nullptr;
+name const * g_functor = nullptr;
+name const * g_functorIO = nullptr;
 name const * g_false = nullptr;
 name const * g_false_of_true_iff_false = nullptr;
 name const * g_false_rec = nullptr;
@@ -101,6 +103,11 @@ name const * g_linear_ordered_semiring = nullptr;
 name const * g_list = nullptr;
 name const * g_list_nil = nullptr;
 name const * g_list_cons = nullptr;
+name const * g_monad = nullptr;
+name const * g_monad_map = nullptr;
+name const * g_monad_bind = nullptr;
+name const * g_monad_return = nullptr;
+name const * g_monadIO = nullptr;
 name const * g_monoid = nullptr;
 name const * g_mul = nullptr;
 name const * g_mul_one = nullptr;
@@ -349,6 +356,8 @@ void initialize_constants() {
     g_eq_of_heq = new name{"eq_of_heq"};
     g_eq_rec_heq = new name{"eq_rec_heq"};
     g_exists_elim = new name{"exists", "elim"};
+    g_functor = new name{"functor"};
+    g_functorIO = new name{"functorIO"};
     g_false = new name{"false"};
     g_false_of_true_iff_false = new name{"false_of_true_iff_false"};
     g_false_rec = new name{"false", "rec"};
@@ -399,6 +408,11 @@ void initialize_constants() {
     g_list = new name{"list"};
     g_list_nil = new name{"list", "nil"};
     g_list_cons = new name{"list", "cons"};
+    g_monad = new name{"monad"};
+    g_monad_map = new name{"monad", "map"};
+    g_monad_bind = new name{"monad", "bind"};
+    g_monad_return = new name{"monad", "return"};
+    g_monadIO = new name{"monadIO"};
     g_monoid = new name{"monoid"};
     g_mul = new name{"mul"};
     g_mul_one = new name{"mul_one"};
@@ -648,6 +662,8 @@ void finalize_constants() {
     delete g_eq_of_heq;
     delete g_eq_rec_heq;
     delete g_exists_elim;
+    delete g_functor;
+    delete g_functorIO;
     delete g_false;
     delete g_false_of_true_iff_false;
     delete g_false_rec;
@@ -698,6 +714,11 @@ void finalize_constants() {
     delete g_list;
     delete g_list_nil;
     delete g_list_cons;
+    delete g_monad;
+    delete g_monad_map;
+    delete g_monad_bind;
+    delete g_monad_return;
+    delete g_monadIO;
     delete g_monoid;
     delete g_mul;
     delete g_mul_one;
@@ -946,6 +967,8 @@ name const & get_eq_trans_name() { return *g_eq_trans; }
 name const & get_eq_of_heq_name() { return *g_eq_of_heq; }
 name const & get_eq_rec_heq_name() { return *g_eq_rec_heq; }
 name const & get_exists_elim_name() { return *g_exists_elim; }
+name const & get_functor_name() { return *g_functor; }
+name const & get_functorIO_name() { return *g_functorIO; }
 name const & get_false_name() { return *g_false; }
 name const & get_false_of_true_iff_false_name() { return *g_false_of_true_iff_false; }
 name const & get_false_rec_name() { return *g_false_rec; }
@@ -996,6 +1019,11 @@ name const & get_linear_ordered_semiring_name() { return *g_linear_ordered_semir
 name const & get_list_name() { return *g_list; }
 name const & get_list_nil_name() { return *g_list_nil; }
 name const & get_list_cons_name() { return *g_list_cons; }
+name const & get_monad_name() { return *g_monad; }
+name const & get_monad_map_name() { return *g_monad_map; }
+name const & get_monad_bind_name() { return *g_monad_bind; }
+name const & get_monad_return_name() { return *g_monad_return; }
+name const & get_monadIO_name() { return *g_monadIO; }
 name const & get_monoid_name() { return *g_monoid; }
 name const & get_mul_name() { return *g_mul; }
 name const & get_mul_one_name() { return *g_mul_one; }

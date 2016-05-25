@@ -282,9 +282,28 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         return add_args(r, 3, args);
     }
 
+    expr visit_monad_bind(expr const & e, buffer<expr> const & args) {
+        if (args.size() == 6 && is_constant(args[1], get_monadIO_name())) {
+            /* IO bind */
+            expr v = visit(args[4]);
+            expr b = visit(args[5]);
+            /* We just convert it into a let-expression */
+            if (is_lambda(b)) {
+                return mk_let(binding_name(b), mk_neutral_expr(), v, binding_body(b));
+            } else {
+                lean_assert(closed(b));
+                return mk_let(mk_fresh_name(), mk_neutral_expr(), v, mk_app(b, mk_var(0)));
+            }
+        } else {
+            return compiler_step_visitor::visit_app(e);
+        }
+    }
+
     virtual expr visit_app(expr const & e) override {
         if (is_comp_irrelevant(ctx(), e))
             return *g_neutral_expr;
+        if (auto n = to_nat_value(ctx(), e))
+            return *n;
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
         if (is_lambda(fn)) {
@@ -301,6 +320,8 @@ class erase_irrelevant_fn : public compiler_step_visitor {
                 return visit_quot_mk(args);
             } else if (n == get_subtype_rec_name()) {
                 return visit_subtype_rec(args);
+            } else if (n == get_monad_bind_name()) {
+                return visit_monad_bind(e, args);
             } else if (is_cases_on_recursor(env(), n)) {
                 return visit_cases_on(fn, args);
             } else if (inductive::is_elim_rule(env(), n)) {

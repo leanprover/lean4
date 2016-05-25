@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "kernel/environment.h"
+#include "library/type_context.h"
 
 namespace lean {
 /** \brief Replace nat numerals encoded using bit0, bit1, one with an auxiliary nat_value macro.
@@ -18,6 +18,10 @@ bool is_nat_value(expr const & e);
 /** \brief Return the mpz stored in the nat_value macro.
     \pre is_nat_value(e) */
 mpz const & get_nat_value_value(expr const & e);
+
+/** \brief If \c e encodes a nat numeral, then convert it into a nat_value macro */
+optional<expr> to_nat_value(type_context & ctx, expr const & e);
+
 void initialize_nat_value();
 void finalize_nat_value();
 }

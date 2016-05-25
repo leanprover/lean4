@@ -81,14 +81,20 @@ mpz const & get_nat_value_value(expr const & e) {
     return static_cast<nat_value_macro const *>(macro_def(e).raw())->get_value();
 }
 
+optional<expr> to_nat_value(type_context & ctx, expr const & e) {
+    if (optional<mpz> v = to_num(e)) {
+        expr type = ctx.whnf(ctx.infer(e));
+        if (is_constant(type, get_nat_name())) {
+            return some_expr(mk_nat_value(*v));
+        }
+    }
+    return none_expr();
+}
+
 class find_nat_values_fn : public compiler_step_visitor {
     expr visit_app(expr const & e) override {
-        if (optional<mpz> v = to_num(e)) {
-            expr type = ctx().whnf(ctx().infer(e));
-            if (is_constant(type, get_nat_name())) {
-                return mk_nat_value(*v);
-            }
-        }
+        if (auto v = to_nat_value(ctx(), e))
+            return *v;
         return compiler_step_visitor::visit_app(e);
     }
 public:

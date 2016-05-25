@@ -118,6 +118,7 @@ private:
     result pp_show(expr const & e);
     result pp_macro(expr const & e);
     result pp_explicit(expr const & e);
+    result pp_let_macro(expr e);
     result pp_let(expr e);
     result pp_num(mpz const & n);
     // If fn is true, then \c e is of the form (f a), and the abbreviation is \c f.

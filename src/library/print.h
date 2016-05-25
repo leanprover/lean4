@@ -19,6 +19,7 @@ name pick_unused_name(expr const & t, name const & s);
     \remark If preserve_type is false, then the local constant will not use binding_domain.
 */
 pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type = false);
+pair<expr, expr> let_body_fresh(expr const & b, bool preserve_type = false);
 
 /** \brief Create a simple formatter object based on operator for "print" procedure.
 

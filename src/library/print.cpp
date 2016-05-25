@@ -72,6 +72,16 @@ pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type) {
     return mk_pair(instantiate(binding_body(b), c), c);
 }
 
+pair<expr, expr> let_body_fresh(expr const & b, bool preserve_type) {
+    lean_assert(is_let(b));
+    name n = let_name(b);
+    if (is_internal_name(n))
+        n = *g_x;
+    n = pick_unused_name(let_body(b), n);
+    expr c = mk_local(n, preserve_type ? let_type(b) : expr());
+    return mk_pair(instantiate(let_body(b), c), c);
+}
+
 name fix_internal_name(name const & a) {
     if (a.is_atomic()) {
         if (a.is_numeral())

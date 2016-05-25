@@ -864,7 +864,8 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
     }
 }
 
-auto pretty_fn::pp_let(expr e) -> result {
+/* TODO(Leo): delete after lean3 is done */
+auto pretty_fn::pp_let_macro(expr e) -> result {
     buffer<pair<name, expr>> decls;
     while (true) {
         if (!is_let_macro(e))
@@ -894,6 +895,42 @@ auto pretty_fn::pp_let(expr e) -> result {
         format entry   = format(n);
         format v_fmt   = pp_child(v, 0).fmt();
         entry += space() + *g_assign_fmt + nest(m_indent, line() + v_fmt + sep);
+        r += nest(3 + 1, beg + group(entry));
+    }
+    format b = pp_child(e, 0).fmt();
+    r += line() + *g_in_fmt + space() + nest(2 + 1, b);
+    return result(0, r);
+}
+
+auto pretty_fn::pp_let(expr e) -> result {
+    buffer<std::tuple<expr, expr, expr>> decls;
+    while (true) {
+        expr t   = let_type(e);
+        expr v   = let_value(e);
+        expr b   = let_body(e);
+        auto p   = let_body_fresh(e, true);
+        decls.emplace_back(p.second, t, v);
+        e        = p.first;
+        if (!is_let(e))
+            break;
+    }
+    lean_assert(!decls.empty());
+    format r    = *g_let_fmt;
+    unsigned sz = decls.size();
+    for (unsigned i = 0; i < sz; i++) {
+        expr l, t, v;
+        std::tie(l, t, v) = decls[i];
+        name const & n = local_pp_name(l);
+        format beg     = i == 0 ? space() : line();
+        format sep     = i < sz - 1 ? comma() : format();
+        format entry   = format(n);
+        format v_fmt   = pp_child(v, 0).fmt();
+        if (is_neutral_expr(t)) {
+            entry += space() + *g_assign_fmt + nest(m_indent, line() + v_fmt + sep);
+        } else {
+            format t_fmt   = pp_child(t, 0).fmt();
+            entry += space() + colon() + space() + t_fmt + space() + *g_assign_fmt + nest(m_indent, line() + v_fmt + sep);
+        }
         r += nest(3 + 1, beg + group(entry));
     }
     format b = pp_child(e, 0).fmt();
@@ -1307,7 +1344,7 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     if (is_placeholder(e))  return result(*g_placeholder_fmt);
     if (is_show(e))         return pp_show(e);
     if (is_have(e))         return pp_have(e);
-    if (is_let_macro(e))    return pp_let(e);
+    if (is_let_macro(e))    return pp_let_macro(e);
     if (is_typed_expr(e))   return pp(get_typed_expr_expr(e));
     if (is_let_value(e))    return pp(get_let_value_expr(e));
     if (m_num_nat_coe)
@@ -1326,9 +1363,7 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     case expr_kind::Lambda:    return pp_lambda(e);
     case expr_kind::Pi:        return pp_pi(e);
     case expr_kind::Macro:     return pp_macro(e);
-    case expr_kind::Let:
-        // NOT IMPLEMENTED YET
-        lean_unreachable();
+    case expr_kind::Let:       return pp_let(e);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

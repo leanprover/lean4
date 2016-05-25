@@ -284,7 +284,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
 
     expr visit_monad_bind(expr const & e, buffer<expr> const & args) {
         if (args.size() == 6 && is_constant(args[1], get_monadIO_name())) {
-            /* IO bind */
+            /* IO monad bind */
             expr v = visit(args[4]);
             expr b = visit(args[5]);
             /* We just convert it into a let-expression */
@@ -294,6 +294,15 @@ class erase_irrelevant_fn : public compiler_step_visitor {
                 lean_assert(closed(b));
                 return mk_let(mk_fresh_name(), mk_neutral_expr(), v, mk_app(b, mk_var(0)));
             }
+        } else {
+            return compiler_step_visitor::visit_app(e);
+        }
+    }
+
+    expr visit_monad_return(expr const & e, buffer<expr> const & args) {
+        if (args.size() == 4 && is_constant(args[1], get_monadIO_name())) {
+            /* IO monad return */
+            return visit(args[3]);
         } else {
             return compiler_step_visitor::visit_app(e);
         }
@@ -322,6 +331,8 @@ class erase_irrelevant_fn : public compiler_step_visitor {
                 return visit_subtype_rec(args);
             } else if (n == get_monad_bind_name()) {
                 return visit_monad_bind(e, args);
+            } else if (n == get_monad_return_name()) {
+                return visit_monad_return(e, args);
             } else if (is_cases_on_recursor(env(), n)) {
                 return visit_cases_on(fn, args);
             } else if (inductive::is_elim_rule(env(), n)) {

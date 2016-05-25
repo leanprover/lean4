@@ -1,5 +1,4 @@
 import system.IO
-open string
 
 definition main : IO unit :=
 do { l ← get_line,

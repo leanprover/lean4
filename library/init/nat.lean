@@ -43,13 +43,15 @@ namespace nat
   | nat_refl : le a a    -- use nat_refl to avoid overloading le.refl
   | step : Π {b}, le a b → le a (succ b)
 
-  definition nat_has_le [instance] [priority nat.prio]: has_le nat := has_le.mk nat.le
+  definition nat_has_le : has_le nat := has_le.mk nat.le
+
+  local attribute [instance] [priority nat.prio] nat_has_le
 
   protected lemma le_refl [refl] : ∀ a : nat, a ≤ a :=
   le.nat_refl
 
   protected definition lt [reducible] (n m : ℕ) := succ n ≤ m
-  definition nat_has_lt [instance] [priority nat.prio] : has_lt nat := has_lt.mk nat.lt
+  definition nat_has_lt : has_lt nat := has_lt.mk nat.lt
 
   definition pred [unfold 1] (a : nat) : nat :=
   nat.cases_on a zero (λ a₁, a₁)
@@ -62,18 +64,17 @@ namespace nat
   protected definition mul (a b : nat) : nat :=
   nat.rec_on b zero (λ b₁ r, r + a)
 
-  definition nat_has_sub [instance] [priority nat.prio] : has_sub nat :=
+  definition nat_has_sub : has_sub nat :=
   has_sub.mk nat.sub
 
-  definition nat_has_mul [instance] [priority nat.prio] : has_mul nat :=
+  definition nat_has_mul : has_mul nat :=
   has_mul.mk nat.mul
+
+  local attribute [instance] [priority nat.prio] nat_has_sub nat_has_mul nat_has_lt
 
   /- properties of ℕ -/
 
-  protected definition is_inhabited [instance] : inhabited nat :=
-  inhabited.mk zero
-
-  protected definition has_decidable_eq [instance] [priority nat.prio] : ∀ x y : nat, decidable (x = y)
+  protected definition has_decidable_eq : ∀ x y : nat, decidable (x = y)
   | has_decidable_eq zero     zero     := tt rfl
   | has_decidable_eq (succ x) zero     := ff sorry -- inr (by contradiction)
   | has_decidable_eq zero     (succ y) := ff sorry -- inr (by contradiction)
@@ -82,6 +83,8 @@ namespace nat
       | tt xeqy := tt sorry -- (by rewrite xeqy)
       | ff xney := ff sorry -- (λ h : succ x = succ y, by injection h with xeqy; exact absurd xeqy xney)
       end
+
+  local attribute [instance] [priority nat.prio] nat.has_decidable_eq
 
   /- properties of inequality -/
 
@@ -202,15 +205,17 @@ namespace nat
   theorem lt_of_succ_lt_succ {a b : ℕ} : succ a < succ b → a < b :=
   le_of_succ_le_succ
 
-  definition decidable_le [instance] [priority nat.prio] : ∀ a b : nat, decidable (a ≤ b)  :=
+  protected definition decidable_le : ∀ a b : nat, decidable (a ≤ b)  :=
   nat.rec (λm, (decidable.tt !zero_le))
      (λn IH m, !nat.cases_on (decidable.ff (not_succ_le_zero n))
        (λm, decidable.rec_on (IH m)
           (λH, decidable.ff (λa, H (le_of_succ_le_succ a)))
           (λH, decidable.tt (succ_le_succ H))))
 
-  definition decidable_lt [instance] [priority nat.prio] : ∀ a b : nat, decidable (a < b) :=
-  λ a b, decidable_le (succ a) b
+  protected definition decidable_lt : ∀ a b : nat, decidable (a < b) :=
+  λ a b, nat.decidable_le (succ a) b
+
+  local attribute [instance] [priority nat.prio] nat.has_decidable_eq nat.decidable_le nat.decidable_lt
 
   protected theorem lt_or_ge (a b : ℕ) : a < b ∨ a ≥ b :=
   nat.rec (inr !zero_le) (λn, or.rec
@@ -273,6 +278,12 @@ namespace nat
   iff_true_intro !sub_lt_succ
 end nat
 
+protected definition nat.is_inhabited [instance] : inhabited nat :=
+inhabited.mk nat.zero
+
 attribute [recursor] nat.induction_on
 attribute [recursor] [unfold 2] nat.cases_on
 attribute [recursor] [unfold 2] nat.rec_on
+attribute [instance] [priority nat.prio]
+   nat.nat_has_le nat.nat_has_sub nat.nat_has_mul nat.nat_has_lt
+   nat.has_decidable_eq nat.decidable_le nat.decidable_lt

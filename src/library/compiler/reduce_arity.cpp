@@ -43,9 +43,12 @@ class remove_args_fn : public compiler_step_visitor {
                 buffer<expr> args;
                 get_app_args(e, args);
                 buffer<expr> new_args;
-                lean_assert(args.size() == bv->size());
                 for (unsigned i = 0; i < args.size(); i++) {
-                    if ((*bv)[i])
+                    /* The case i >= bv->size() can happen when the function is returning a closure.
+                       We eta-expand terms, but we may miss cases where the type is opaque (e.g., IO a),
+                       or the type is dependent (e.g., T b) where (T is defined as T b := bool.cases_on b nat (nat -> nat)).
+                    */
+                    if (i >= bv->size() || (*bv)[i])
                         new_args.push_back(visit(args[i]));
                 }
                 return mk_app(fn, new_args);

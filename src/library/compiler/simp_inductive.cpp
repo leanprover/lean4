@@ -115,17 +115,46 @@ class simp_inductive_fn : public compiler_step_visitor {
         return num_rel == 1;
     }
 
+    /* Given a cases_on application, distribute extra arguments over minor premisses.
+
+           cases_on major minor_1 ... minor_n a_1 ... a_n
+
+       We apply a similar transformation at erase_irrelevant, but its effect can be undone
+       in subsequent compilation steps.
+    */
+    void distribute_extra_args_over_minors(name const & I_name, buffer<name> const & cnames, buffer<expr> & args) {
+        lean_assert(args.size() > cnames.size() + 1);
+        unsigned nparams = *inductive::get_num_params(env(), I_name);
+        for (unsigned i = 0; i < cnames.size(); i++) {
+            unsigned carity  = get_constructor_arity(env(), cnames[i]);
+            unsigned data_sz = carity - nparams;
+            type_context::tmp_locals locals(ctx());
+            expr new_minor   = args[i+1];
+            for (unsigned j = 0; j < data_sz; j++) {
+                if (!is_lambda(new_minor))
+                    throw exception("unexpected occurrence of 'cases_on' expression, "
+                                    "the minor premise is expected to be a lambda-expression");
+                expr local = locals.push_local_from_binding(new_minor);
+                new_minor  = instantiate(binding_body(new_minor), local);
+            }
+            new_minor = beta_reduce(mk_app(new_minor, args.size() - cnames.size() - 1, args.data() + cnames.size() + 1));
+            args[i+1] = locals.mk_lambda(new_minor);
+        }
+        args.shrink(cnames.size() + 1);
+    }
+
     expr visit_cases_on(name const & fn, buffer<expr> & args) {
         name const & I_name = fn.get_prefix();
         if (is_inductive_predicate(env(), I_name))
             throw exception(sstream() << "code generation failed, inductive predicate '" << I_name << "' is not supported");
         buffer<name> cnames;
         get_intro_rule_names(env(), I_name, cnames);
+        lean_assert(args.size() >= cnames.size() + 1);
+        if (args.size() > cnames.size() + 1)
+            distribute_extra_args_over_minors(I_name, cnames, args);
+        lean_assert(args.size() == cnames.size() + 1);
         /* Process major premise */
         args[0] = visit(args[0]);
-        /* We distribute applications over cases_on minor premises in
-           previous preprocessing steps. */
-        lean_assert(args.size() == cnames.size() + 1);
         unsigned num_reachable = 0;
         optional<expr> reachable_case;
         /* Process minor premises */

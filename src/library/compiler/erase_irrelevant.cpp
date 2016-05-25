@@ -113,7 +113,8 @@ class erase_irrelevant_fn : public compiler_step_visitor {
                 expr new_minor   = minors[i];
                 for (unsigned j = 0; j < data_sz; j++) {
                     if (!is_lambda(new_minor))
-                        throw exception("unexpected occurrence of 'cases_on' expression, the minor premise is expected to be a lambda-expression");
+                        throw exception("unexpected occurrence of 'cases_on' expression, "
+                                        "the minor premise is expected to be a lambda-expression");
                     expr local = locals.push_local_from_binding(new_minor);
                     new_minor  = instantiate(binding_body(new_minor), local);
                 }

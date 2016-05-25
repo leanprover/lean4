@@ -295,8 +295,10 @@ environment vm_compile(environment const & env, buffer<pair<name, expr>> const &
         buffer<vm_instr> code;
         vm_compiler_fn gen(new_env, code);
         unsigned arity = gen(p.second);
-        optimize(new_env, code);
         lean_trace(name({"compiler", "code_gen"}), tout() << " " << p.first << " " << arity << "\n";
+                   display_vm_code(tout().get_stream(), new_env, code.size(), code.data()););
+        optimize(new_env, code);
+        lean_trace(name({"compiler", "optimize_bytecode"}), tout() << " " << p.first << " " << arity << "\n";
                    display_vm_code(tout().get_stream(), new_env, code.size(), code.data()););
         new_env = update_vm_code(new_env, p.first, code.size(), code.data());
     }
@@ -310,6 +312,7 @@ environment vm_compile(environment const & env, declaration const & d) {
 }
 
 void initialize_vm_compiler() {
+    register_trace_class({"compiler", "optimize_bytecode"});
     register_trace_class({"compiler", "code_gen"});
 }
 

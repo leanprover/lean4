@@ -52,9 +52,9 @@ static void get_line(vm_state & s) {
 }
 
 void initialize_vm_io() {
-    declare_vm_builtin(get_put_str_name(),   1, put_str);
-    declare_vm_builtin(get_put_nat_name(),   1, put_nat);
-    declare_vm_builtin(get_get_line_name(),  0, get_line);
+    declare_vm_builtin(get_put_str_name(),   2, put_str);
+    declare_vm_builtin(get_put_nat_name(),   2, put_nat);
+    declare_vm_builtin(get_get_line_name(),  1, get_line);
 }
 
 void finalize_vm_io() {

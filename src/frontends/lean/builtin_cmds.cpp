@@ -668,7 +668,8 @@ static environment vm_eval_cmd(parser & p) {
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
     type_checker tc(p.env());
-    expr type = tc.infer(e);
+    expr type  = tc.whnf(tc.infer(e));
+    bool is_IO = is_constant(get_app_fn(type), get_IO_name());
     environment new_env = p.env();
     name main("_main");
     auto cd = check(new_env, mk_definition(new_env, main, ls, type, e));
@@ -677,7 +678,16 @@ static environment vm_eval_cmd(parser & p) {
     vm_state s(new_env);
     {
         timeit timer(p.ios().get_diagnostic_stream(), "vm_eval time");
+        if (is_IO) s.push(mk_vm_simple(0)); // push the "RealWorld" state
         s.invoke_fn(main);
+        if (is_IO) {
+            vm_decl d = *s.get_decl(main);
+            if (d.get_arity() == 0) {
+                /* main returned a closure, it did not process RealWorld yet.
+                   So, we force the execution. */
+                s.apply();
+            }
+        }
     }
     vm_obj r = s.get(0);
     display(p.ios().get_regular_stream(), r);

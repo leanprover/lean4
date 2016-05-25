@@ -1157,8 +1157,32 @@ void vm_state::invoke_fn(unsigned fn_idx) {
     run();
 }
 
+void vm_state::execute(vm_instr const * code) {
+    m_call_stack.emplace_back(m_code, m_fn_idx, 0, 0, m_bp);
+    m_code            = code;
+    m_fn_idx          = -1;
+    m_pc              = 0;
+    m_bp              = m_stack.size();
+    run();
+}
+
+void vm_state::apply(unsigned n) {
+    buffer<vm_instr> code;
+    for (unsigned i = 0; i < n; i++)
+        code.push_back(mk_apply_instr());
+    code.push_back(mk_ret_instr());
+    execute(code.data());
+}
+
 void vm_state::display(std::ostream & out, vm_obj const & o) const {
     ::lean::display(out, o, [&](unsigned idx) { return optional<name>(m_decls[idx].get_name()); });
+}
+
+optional<vm_decl> vm_state::get_decl(name const & n) const {
+    if (auto idx = m_fn_name2idx.find(n))
+        return optional<vm_decl>(m_decls[*idx]);
+    else
+        return optional<vm_decl>();
 }
 
 void display_vm_code(std::ostream & out, environment const & env, unsigned code_sz, vm_instr const * code) {

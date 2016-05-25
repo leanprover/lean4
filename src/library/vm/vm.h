@@ -427,6 +427,7 @@ class vm_state {
     void invoke_builtin(vm_decl const & d);
     void invoke_global(vm_decl const & d);
     void run();
+    void execute(vm_instr const * code);
 
 public:
     vm_state(environment const & env);
@@ -443,8 +444,22 @@ public:
         return m_stack[m_bp + idx];
     }
 
+    vm_obj const & top() const { return m_stack.back(); }
+
+    optional<vm_decl> get_decl(name const & n) const;
+
     void invoke_fn(name const & fn);
     void invoke_fn(unsigned fn_idx);
+
+    /** Given a stack of the form
+
+            v_n
+            ...
+            v_1
+            (closure ...)
+
+       execute n function applications. */
+    void apply(unsigned n = 1);
 
     void display_stack(std::ostream & out) const;
     void display(std::ostream & out, vm_obj const & o) const;

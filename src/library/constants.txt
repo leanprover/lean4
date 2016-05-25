@@ -85,6 +85,7 @@ implies
 implies_of_if_neg
 implies_of_if_pos
 implies.resolve
+IO
 is_trunc.is_prop
 is_trunc.is_prop.elim
 is_trunc.is_set

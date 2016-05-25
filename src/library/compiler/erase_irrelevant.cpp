@@ -284,16 +284,35 @@ class erase_irrelevant_fn : public compiler_step_visitor {
 
     expr visit_monad_bind(expr const & e, buffer<expr> const & args) {
         if (args.size() == 6 && is_constant(args[1], get_monadIO_name())) {
-            /* IO monad bind */
-            expr v = visit(args[4]);
-            expr b = visit(args[5]);
-            /* We just convert it into a let-expression */
-            if (is_lambda(b)) {
-                return mk_let(binding_name(b), mk_neutral_expr(), v, binding_body(b));
-            } else {
-                lean_assert(closed(b));
-                return mk_let(mk_fresh_name(), mk_neutral_expr(), v, mk_app(b, mk_var(0)));
-            }
+            /* Remark: morally the IO monad is
+
+                IO a := State -> (a, State)
+
+              and the (monad.bind v b) is
+
+                fun S, let p := v S
+                       in b (pr1 p) (pr2 p)
+
+              However, the State is a fiction. It is a unit at runtime.
+              The IO a is a really just a thunk.
+
+                IO a := unit -> a
+
+              So, in this version, we have a simpler (monad.bind v b)
+
+               bind v b :=
+               fun s, let a := v unit in
+                      b a unit
+
+              We use a let-expression to make sure that `v unit` is not erased.
+            */
+            expr v    = visit(args[4]);
+            expr u    = mk_neutral_expr();
+            expr vu   = mk_app(v, u);
+            expr b    = visit(args[5]);
+            expr bau  = beta_reduce(mk_app(b, mk_var(0), u));
+            expr let  = mk_let("a", u, vu, bau);
+            return mk_lambda("S", u, let);
         } else {
             return compiler_step_visitor::visit_app(e);
         }
@@ -301,8 +320,15 @@ class erase_irrelevant_fn : public compiler_step_visitor {
 
     expr visit_monad_return(expr const & e, buffer<expr> const & args) {
         if (args.size() == 4 && is_constant(args[1], get_monadIO_name())) {
-            /* IO monad return */
-            return visit(args[3]);
+            /* IO monad return
+               return v := fun s, v
+
+               Remark: we do not return the state explicility.
+            */
+            expr u = mk_neutral_expr();
+            expr s = mk_var(0);
+            expr v = visit(args[3]);
+            return mk_lambda("S", u, v);
         } else {
             return compiler_step_visitor::visit_app(e);
         }

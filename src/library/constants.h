@@ -92,6 +92,7 @@ name const & get_implies_name();
 name const & get_implies_of_if_neg_name();
 name const & get_implies_of_if_pos_name();
 name const & get_implies_resolve_name();
+name const & get_IO_name();
 name const & get_is_trunc_is_prop_name();
 name const & get_is_trunc_is_prop_elim_name();
 name const & get_is_trunc_is_set_name();

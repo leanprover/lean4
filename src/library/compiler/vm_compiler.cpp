@@ -189,7 +189,9 @@ class vm_compiler_fn {
             emit_apply_instr(args.size());
             return;
         } else if (is_constant(fn)) {
-            if (optional<vm_decl> decl = get_vm_decl(m_env, const_name(fn))) {
+            if (is_neutral_expr(fn)) {
+                emit(mk_sconstructor_instr(0));
+            } else if (optional<vm_decl> decl = get_vm_decl(m_env, const_name(fn))) {
                 compile_global(*decl, args.size(), args.data(), bpz, m);
             } else {
                 throw_unknown_constant(const_name(fn));

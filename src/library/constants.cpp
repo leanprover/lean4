@@ -299,6 +299,7 @@ name const * g_tactic_trace = nullptr;
 name const * g_tactic_try_for = nullptr;
 name const * g_tactic_using_expr = nullptr;
 name const * g_tactic_whnf = nullptr;
+name const * g_timeit = nullptr;
 name const * g_to_string = nullptr;
 name const * g_trans_rel_left = nullptr;
 name const * g_trans_rel_right = nullptr;
@@ -611,6 +612,7 @@ void initialize_constants() {
     g_tactic_try_for = new name{"tactic", "try_for"};
     g_tactic_using_expr = new name{"tactic", "using_expr"};
     g_tactic_whnf = new name{"tactic", "whnf"};
+    g_timeit = new name{"timeit"};
     g_to_string = new name{"to_string"};
     g_trans_rel_left = new name{"trans_rel_left"};
     g_trans_rel_right = new name{"trans_rel_right"};
@@ -924,6 +926,7 @@ void finalize_constants() {
     delete g_tactic_try_for;
     delete g_tactic_using_expr;
     delete g_tactic_whnf;
+    delete g_timeit;
     delete g_to_string;
     delete g_trans_rel_left;
     delete g_trans_rel_right;
@@ -1236,6 +1239,7 @@ name const & get_tactic_trace_name() { return *g_tactic_trace; }
 name const & get_tactic_try_for_name() { return *g_tactic_try_for; }
 name const & get_tactic_using_expr_name() { return *g_tactic_using_expr; }
 name const & get_tactic_whnf_name() { return *g_tactic_whnf; }
+name const & get_timeit_name() { return *g_timeit; }
 name const & get_to_string_name() { return *g_to_string; }
 name const & get_trans_rel_left_name() { return *g_trans_rel_left; }
 name const & get_trans_rel_right_name() { return *g_trans_rel_right; }

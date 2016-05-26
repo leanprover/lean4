@@ -294,6 +294,7 @@ tactic.trace
 tactic.try_for
 tactic.using_expr
 tactic.whnf
+timeit
 to_string
 trans_rel_left
 trans_rel_right

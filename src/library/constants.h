@@ -301,6 +301,7 @@ name const & get_tactic_trace_name();
 name const & get_tactic_try_for_name();
 name const & get_tactic_using_expr_name();
 name const & get_tactic_whnf_name();
+name const & get_timeit_name();
 name const & get_to_string_name();
 name const & get_trans_rel_left_name();
 name const & get_trans_rel_right_name();

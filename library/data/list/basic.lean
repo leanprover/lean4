@@ -8,9 +8,6 @@ Basic properties of lists.
 import logic tools.helper_tactics data.nat.order data.nat.sub
 open eq.ops nat prod function option
 
-protected definition list.is_inhabited [instance] (A : Type) : inhabited (list A) :=
-inhabited.mk list.nil
-
 namespace list
 notation h :: t  := cons h t
 notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l

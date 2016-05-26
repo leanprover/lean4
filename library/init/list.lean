@@ -7,6 +7,9 @@ prelude
 import init.logic
 open decidable list
 
+protected definition list.is_inhabited [instance] (A : Type) : inhabited (list A) :=
+inhabited.mk list.nil
+
 definition list.has_decidable_eq [instance] {A : Type} [H : decidable_eq A] (l₁ : list A) :  ∀ l₂ : list A, decidable (l₁ = l₂) :=
 list.rec_on l₁
   (λ l₂, list.cases_on l₂

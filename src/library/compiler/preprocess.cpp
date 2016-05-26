@@ -8,9 +8,11 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "library/trace.h"
+#include "library/projection.h"
 #include "library/aux_recursors.h"
 #include "library/user_recursors.h"
 #include "library/util.h"
+#include "library/vm/vm.h"
 #include "library/compiler/util.h"
 #include "library/compiler/compiler_step_visitor.h"
 #include "library/compiler/comp_irrelevant.h"
@@ -25,7 +27,7 @@ Author: Leonardo de Moura
 #include "library/compiler/simp_inductive.h"
 
 namespace lean {
-class expand_aux_recursors_fn : public compiler_step_visitor {
+class expand_aux_fn : public compiler_step_visitor {
     enum class recursor_kind { Aux, CasesOn, NotRecursor };
     /* We only expand auxiliary recursors and user-defined recursors.
        However, we don't unfold recursors of the form C.cases_on. */
@@ -59,9 +61,40 @@ class expand_aux_recursors_fn : public compiler_step_visitor {
         return compiler_step_visitor::visit_app(e);
     }
 
+    virtual expr visit_constant(expr const & e) override {
+        name const & n = const_name(e);
+        declaration d   = env().get(n);
+        if (!d.is_definition() || d.is_theorem())
+            return e;
+        if (::lean::is_aux_recursor(env(), n) || is_user_defined_recursor(env(), n) || is_projection(env(), n))
+            return e;
+        if (!is_vm_function(env(), n)) {
+            if (auto r = unfold_term(env(), e)) {
+                return visit(*r);
+            }
+        }
+        return e;
+    }
+
+    bool is_not_vm_function(expr const & e) {
+        expr const & fn = get_app_fn(e);
+        if (!is_constant(fn))
+            return false;
+        name const & n = const_name(fn);
+        declaration d   = env().get(n);
+        if (!d.is_definition() || d.is_theorem() || is_projection(env(), n))
+            return false;
+        return !is_vm_function(env(), n);
+    }
+
     virtual expr visit_app(expr const & e) override {
         switch (get_recursor_app_kind(e)) {
         case recursor_kind::NotRecursor: {
+            if (is_not_vm_function(e)) {
+                if (auto r = unfold_term(env(), e)) {
+                    return visit(*r);
+                }
+            }
             expr new_e = ctx().whnf_pred(e, [&](expr const &) { return false; });
             if (is_eqp(new_e, e))
                 return compiler_step_visitor::visit_app(new_e);
@@ -77,11 +110,11 @@ class expand_aux_recursors_fn : public compiler_step_visitor {
     }
 
 public:
-    expand_aux_recursors_fn(environment const & env):compiler_step_visitor(env) {}
+    expand_aux_fn(environment const & env):compiler_step_visitor(env) {}
 };
 
-static expr expand_aux_recursors(environment const & env, expr const & e) {
-    return expand_aux_recursors_fn(env)(e);
+static expr expand_aux(environment const & env, expr const & e) {
+    return expand_aux_fn(env)(e);
 }
 
 static name * g_tmp_prefix = nullptr;
@@ -118,9 +151,9 @@ public:
     void operator()(declaration const & d, buffer<pair<name, expr>> & procs) {
         expr v = d.get_value();
         lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";)
-        v = expand_aux_recursors(m_env, v);
+        v = expand_aux(m_env, v);
         lean_assert(check(d, v));
-        lean_trace(name({"compiler", "expand_aux_recursors"}), tout() << "\n" << v << "\n";)
+        lean_trace(name({"compiler", "expand_aux"}), tout() << "\n" << v << "\n";)
         v = mark_comp_irrelevant_subterms(m_env, v);
         lean_assert(check(d, v));
         v = find_nat_values(m_env, v);
@@ -164,7 +197,7 @@ void preprocess(environment const & env, declaration const & d, buffer<pair<name
 void initialize_preprocess() {
     register_trace_class("compiler");
     register_trace_class({"compiler", "input"});
-    register_trace_class({"compiler", "expand_aux_recursors"});
+    register_trace_class({"compiler", "expand_aux"});
     register_trace_class({"compiler", "eta_expansion"});
     register_trace_class({"compiler", "simplify_pr1"});
     register_trace_class({"compiler", "inline"});

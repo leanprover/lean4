@@ -24,3 +24,21 @@ list.rec_on l₁
            decidable.cases_on (ih l₂)
              (λ Hne : l₁ ≠ l₂, ff (λ H, list.no_confusion H (λ Hab Hl₁l₂, absurd Hl₁l₂ Hne)))
              (λ He  : l₁ = l₂, tt (congr (congr_arg cons Hab) He)))))
+
+namespace list
+notation h :: t  := cons h t
+notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
+
+variable {A : Type}
+
+definition append : list A → list A → list A
+| []       l := l
+| (h :: s) t := h :: (append s t)
+
+notation l₁ ++ l₂ := append l₁ l₂
+
+definition length : list A → nat
+| []       := 0
+| (a :: l) := length l + 1
+
+end list

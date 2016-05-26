@@ -9,9 +9,6 @@ import logic tools.helper_tactics data.nat.order data.nat.sub
 open eq.ops nat prod function option
 
 namespace list
-notation h :: t  := cons h t
-notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
-
 variable {T : Type}
 
 lemma cons_ne_nil [simp] (a : T) (l : list T) : a::l ≠ [] :=
@@ -30,12 +27,6 @@ take l₁ l₂, assume Pe, tail_eq_of_cons_eq Pe
 
 /- append -/
 
-definition append : list T → list T → list T
-| []       l := l
-| (h :: s) t := h :: (append s t)
-
-notation l₁ ++ l₂ := append l₁ l₂
-
 theorem append_nil_left [simp] (t : list T) : [] ++ t = t :=
 rfl
 
@@ -49,10 +40,6 @@ theorem append.assoc [simp] : ∀ (s t u : list T), s ++ t ++ u = s ++ (t ++ u) 
 sorry -- by rec_inst_simp
 
 /- length -/
-definition length : list T → nat
-| []       := 0
-| (a :: l) := length l + 1
-
 theorem length_nil [simp] : length (@nil T) = 0 :=
 rfl
 

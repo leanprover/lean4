@@ -177,7 +177,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
 
     expr add_args(expr e, unsigned start_idx, buffer<expr> const & args) {
         for (unsigned i = start_idx; i < args.size(); i++)
-            e = mk_app(e, args[i]);
+            e = mk_app(e, visit(args[i]));
         return beta_reduce(e);
     }
 

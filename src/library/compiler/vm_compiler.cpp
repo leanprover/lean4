@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/constants.h"
 #include "library/trace.h"
+#include "library/annotation.h"
 #include "library/vm/vm.h"
 #include "library/vm/optimize.h"
 #include "library/util.h"
@@ -229,11 +230,14 @@ class vm_compiler_fn {
         emit(mk_drop_instr(counter));
     }
 
-    void compile_macro(expr const & e) {
+    void compile_macro(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
         if (is_nat_value(e)) {
             emit(mk_num_instr(get_nat_value_value(e)));
+        } else if (is_annotation(e)) {
+            compile(get_annotation_arg(e), bpz, m);
         } else {
-            throw exception("code generation failed, unexpected kind of macro has been found");
+            throw exception(sstream() << "code generation failed, unexpected kind of macro has been found: '"
+                            << macro_def(e).get_name() << "'");
         }
     }
 
@@ -244,7 +248,7 @@ class vm_compiler_fn {
         case expr_kind::Meta:     lean_unreachable();
         case expr_kind::Pi:       lean_unreachable();
         case expr_kind::Lambda:   lean_unreachable();
-        case expr_kind::Macro:    compile_macro(e);          break;
+        case expr_kind::Macro:    compile_macro(e, bpz, m);  break;
         case expr_kind::Constant: compile_constant(e);       break;
         case expr_kind::Local:    compile_local(e, m);       break;
         case expr_kind::App:      compile_app(e, bpz, m);    break;

@@ -665,6 +665,19 @@ static environment compile_cmd(parser & p) {
     return vm_compile(p.env(), d);
 }
 
+static void vm_eval_core(bool is_IO, vm_state & s, name const & main) {
+    if (is_IO) s.push(mk_vm_simple(0)); // push the "RealWorld" state
+    s.invoke_fn(main);
+    if (is_IO) {
+        vm_decl d = *s.get_decl(main);
+        if (d.get_arity() == 0) {
+            /* main returned a closure, it did not process RealWorld yet.
+               So, we force the execution. */
+            s.apply();
+        }
+    }
+}
+
 static environment vm_eval_cmd(parser & p) {
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
@@ -693,16 +706,11 @@ static environment vm_eval_cmd(parser & p) {
     new_env = vm_compile(p.env(), new_env.get(main));
     vm_state s(new_env);
     {
-        timeit timer(p.ios().get_diagnostic_stream(), "vm_eval time");
-        if (is_IO) s.push(mk_vm_simple(0)); // push the "RealWorld" state
-        s.invoke_fn(main);
-        if (is_IO) {
-            vm_decl d = *s.get_decl(main);
-            if (d.get_arity() == 0) {
-                /* main returned a closure, it did not process RealWorld yet.
-                   So, we force the execution. */
-                s.apply();
-            }
+        if (p.profiling()) {
+            timeit timer(p.ios().get_diagnostic_stream(), "vm_eval time");
+            vm_eval_core(is_IO, s, main);
+        } else {
+            vm_eval_core(is_IO, s, main);
         }
     }
     if (is_IO) {

@@ -226,11 +226,10 @@ struct notation_state {
         m_nud(get_builtin_nud_table()),
         m_led(get_builtin_led_table()),
         m_reserved_nud(true),
-        m_reserved_led(false)
-        {
-        // m_tactic_nud(get_builtin_tactic_nud_table()),
-        // m_tactic_led(get_builtin_tactic_led_table()) {
-    }
+        m_reserved_led(false) {
+            // m_tactic_nud(get_builtin_tactic_nud_table()),
+            // m_tactic_led(get_builtin_tactic_led_table()) {
+        }
 
     parse_table & nud(notation_entry_group g) {
         switch (g) {

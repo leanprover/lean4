@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <random>
+#include <vector>
 #include "util/test.h"
 #include "util/parray.h"
 using namespace lean;

@@ -9,8 +9,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 class small_object_allocator {
-    static const unsigned PTR_ALIGNMENT  = (sizeof(unsigned) == sizeof(void*) ? 2 /* 32 bit */ : 3 /* 64 bit */);
-    static const unsigned CHUNK_SIZE     = (8192 - sizeof(void*)*2);
+    static const unsigned PTR_ALIGNMENT  = (sizeof(unsigned) == sizeof(void*) ? 2 /* 32 bit */ : 3 /* 64 bit */); // NOLINT
+    static const unsigned CHUNK_SIZE     = (8192 - sizeof(void*)*2); // NOLINT
     static const unsigned SMALL_OBJ_SIZE = 256;
     static const unsigned NUM_SLOTS      = (SMALL_OBJ_SIZE >> PTR_ALIGNMENT);
     static const unsigned MASK           = ((1 << PTR_ALIGNMENT) - 1);

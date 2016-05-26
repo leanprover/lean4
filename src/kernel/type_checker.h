@@ -109,7 +109,7 @@ public:
     /** Similar to whnf, but invokes the given predicate before unfolding constant symbols in the head.
         If pred(e') is false, then the method will not unfold definition in the head of e', and will return e'.
         This method is useful when we want to normalize the expression until we get a particular symbol as the head symbol. */
-    expr whnf_pred(expr const & e, std::function<bool(expr const &)> const & pred);
+    expr whnf_pred(expr const & e, std::function<bool(expr const &)> const & pred); // NOLINT
     /** \brief Return a Pi if \c t is convertible to a Pi type. Throw an exception otherwise.
         The argument \c s is used when reporting errors */
     expr ensure_pi(expr const & t, expr const & s);

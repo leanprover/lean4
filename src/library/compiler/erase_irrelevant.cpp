@@ -38,7 +38,6 @@ bool is_unreachable_expr(expr const & e) {
 }
 
 class erase_irrelevant_fn : public compiler_step_visitor {
-
     virtual expr visit_sort(expr const &) override {
         return *g_neutral_expr;
     }

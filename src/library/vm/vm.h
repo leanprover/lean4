@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
+#include <algorithm>
 #include <vector>
 #include "util/debug.h"
 #include "util/rc.h"
@@ -175,7 +176,7 @@ inline vm_obj const * cfields(vm_obj const & o) {
 inline vm_obj const & cfield(vm_obj const & o, unsigned i) { lean_assert(i < csize(o)); return cfields(o)[i]; }
 // =======================================
 
-#define LEAN_MAX_SMALL_NAT 1u<<31
+#define LEAN_MAX_SMALL_NAT (1u << 31)
 
 /** \brief VM instruction opcode */
 enum class opcode {

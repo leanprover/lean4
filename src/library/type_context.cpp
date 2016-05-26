@@ -566,8 +566,8 @@ expr type_context::whnf(expr const & e) {
     }
 }
 
-expr type_context::whnf_pred(expr const & e, std::function<bool(expr const &)> const & pred) {
-    flet<std::function<bool(expr const &)> const *>set_unfold_pred(m_unfold_pred, &pred);
+expr type_context::whnf_pred(expr const & e, std::function<bool(expr const &)> const & pred) { // NOLINT
+    flet<std::function<bool(expr const &)> const *>set_unfold_pred(m_unfold_pred, &pred); // NOLINT
     expr t = e;
     while (true) {
         expr t1 = whnf_core(t);

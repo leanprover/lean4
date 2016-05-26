@@ -133,7 +133,7 @@ size_t small_object_allocator::get_num_free_objs() const {
     for (unsigned slot_id = 0; slot_id < NUM_SLOTS; slot_id++) {
         void ** ptr = reinterpret_cast<void **>(const_cast<small_object_allocator*>(this)->m_free_list[slot_id]);
         while (ptr != 0) {
-            r ++;
+            r++;
             ptr = reinterpret_cast<void**>(*ptr);
         }
     }
@@ -191,8 +191,7 @@ void small_object_allocator::consolidate() {
             }
             if (num_free_in_chunk == num_objs_per_chunk) {
                 delete curr_chunk;
-            }
-            else {
+            } else {
                 curr_chunk->m_next = last_chunk;
                 last_chunk = curr_chunk;
                 for (unsigned i = saved_obj_idx; i < obj_idx; i++) {

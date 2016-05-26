@@ -165,7 +165,7 @@ class type_context : public abstract_type_context {
     /* Stack of backtracking point (aka scope) */
     scopes             m_scopes;
 
-    std::function<bool(expr const & e)> const * m_unfold_pred;
+    std::function<bool(expr const & e)> const * m_unfold_pred; // NOLINT
 
 public:
     type_context(metavar_context & mctx, local_context const & lctx, type_context_cache & cache,
@@ -198,7 +198,7 @@ public:
     /** Similar to whnf, but invokes the given predicate before unfolding constant symbols in the head.
         If pred(e') is false, then the method will not unfold definition in the head of e', and will return e'.
         This method is useful when we want to normalize the expression until we get a particular symbol as the head symbol. */
-    expr whnf_pred(expr const & e, std::function<bool(expr const &)> const & pred);
+    expr whnf_pred(expr const & e, std::function<bool(expr const &)> const & pred); // NOLINT
     optional<expr> reduce_aux_recursor(expr const & e);
     optional<expr> reduce_projection(expr const & e);
     optional<expr> norm_ext(expr const & e) { return env().norm_ext()(e, *this); }

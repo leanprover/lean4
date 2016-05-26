@@ -418,7 +418,7 @@ expr type_checker::whnf(expr const & e) {
     }
 }
 
-expr type_checker::whnf_pred(expr const & e, std::function<bool(expr const &)> const & pred) {
+expr type_checker::whnf_pred(expr const & e, std::function<bool(expr const &)> const & pred) { // NOLINT
     expr t = e;
     while (true) {
         expr t1 = whnf_core(t);

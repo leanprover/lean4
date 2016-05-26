@@ -66,7 +66,8 @@ class expand_aux_fn : public compiler_step_visitor {
         declaration d   = env().get(n);
         if (!d.is_definition() || d.is_theorem())
             return e;
-        if (::lean::is_aux_recursor(env(), n) || is_user_defined_recursor(env(), n) || is_projection(env(), n))
+        if (::lean::is_aux_recursor(env(), n) || is_user_defined_recursor(env(), n) ||
+            is_projection(env(), n) || is_no_confusion(env(), n))
             return e;
         if (!is_vm_function(env(), n)) {
             if (auto r = unfold_term(env(), e)) {
@@ -82,7 +83,7 @@ class expand_aux_fn : public compiler_step_visitor {
             return false;
         name const & n = const_name(fn);
         declaration d   = env().get(n);
-        if (!d.is_definition() || d.is_theorem() || is_projection(env(), n))
+        if (!d.is_definition() || d.is_theorem() || is_projection(env(), n) || is_no_confusion(env(), n))
             return false;
         return !is_vm_function(env(), n);
     }

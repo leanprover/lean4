@@ -1160,7 +1160,7 @@ void vm_state::invoke_fn(unsigned fn_idx) {
 }
 
 void vm_state::execute(vm_instr const * code) {
-    m_call_stack.emplace_back(m_code, m_fn_idx, 0, 0, m_bp);
+    m_call_stack.emplace_back(m_code, m_fn_idx, 0, m_pc, m_bp);
     m_code            = code;
     m_fn_idx          = -1;
     m_pc              = 0;

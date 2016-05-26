@@ -75,3 +75,6 @@ definition nat.to_string : nat → string
 
 definition nat.has_to_string [instance] : has_to_string nat :=
 has_to_string.mk nat.to_string
+
+definition fin.has_to_string [instance] (n : nat) : has_to_string (fin n) :=
+has_to_string.mk (λ f, to_string (fin.val f))

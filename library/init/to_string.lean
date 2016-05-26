@@ -14,6 +14,9 @@ has_to_string.to_string
 definition bool.has_to_string [instance] : has_to_string bool :=
 has_to_string.mk (λ b, cond b "tt" "ff")
 
+definition decidable.has_to_string [instance] {p : Prop} : has_to_string (decidable p) :=
+has_to_string.mk (λ b, if p then "tt" else "ff")
+
 definition list.to_string_aux {A : Type} [has_to_string A] : bool → list A → string
 | _  []      := ""
 | tt (x::xs) := to_string x + list.to_string_aux ff xs

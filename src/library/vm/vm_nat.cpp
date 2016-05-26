@@ -4,8 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <iostream>
 #include "library/constants.h"
 #include "library/vm/vm.h"
+#include "library/vm/vm_string.h"
 
 namespace lean {
 // =======================================
@@ -188,6 +190,17 @@ static void nat_no_confusion(vm_state &) {
     lean_unreachable();
 }
 
+static void nat_to_string(vm_state & s) {
+    vm_obj const & a = s.get(-1);
+    std::ostringstream out;
+    if (is_simple(a)) {
+        out << cidx(a);
+    } else {
+        out << to_mpz(a);
+    }
+    return s.push(to_obj(out.str()));
+}
+
 void initialize_vm_nat() {
     declare_vm_builtin(get_nat_succ_name(),              1, nat_succ);
     declare_vm_builtin(get_nat_add_name(),               2, nat_add);
@@ -203,6 +216,7 @@ void initialize_vm_nat() {
     declare_vm_builtin(get_nat_rec_on_name(),            4, nat_rec);
     declare_vm_builtin(get_nat_no_confusion_name(),      5, nat_no_confusion);
     declare_vm_builtin(get_nat_no_confusion_type_name(), 3, nat_no_confusion);
+    declare_vm_builtin(get_nat_to_string_name(),         1, nat_to_string);
 }
 
 void finalize_vm_nat() {

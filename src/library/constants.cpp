@@ -135,6 +135,7 @@ name const * g_nat_no_confusion_type = nullptr;
 name const * g_nat_has_zero = nullptr;
 name const * g_nat_has_one = nullptr;
 name const * g_nat_has_add = nullptr;
+name const * g_nat_to_string = nullptr;
 name const * g_ne = nullptr;
 name const * g_neg = nullptr;
 name const * g_norm_num_add1 = nullptr;
@@ -444,6 +445,7 @@ void initialize_constants() {
     g_nat_has_zero = new name{"nat_has_zero"};
     g_nat_has_one = new name{"nat_has_one"};
     g_nat_has_add = new name{"nat_has_add"};
+    g_nat_to_string = new name{"nat", "to_string"};
     g_ne = new name{"ne"};
     g_neg = new name{"neg"};
     g_norm_num_add1 = new name{"norm_num", "add1"};
@@ -754,6 +756,7 @@ void finalize_constants() {
     delete g_nat_has_zero;
     delete g_nat_has_one;
     delete g_nat_has_add;
+    delete g_nat_to_string;
     delete g_ne;
     delete g_neg;
     delete g_norm_num_add1;
@@ -1063,6 +1066,7 @@ name const & get_nat_no_confusion_type_name() { return *g_nat_no_confusion_type;
 name const & get_nat_has_zero_name() { return *g_nat_has_zero; }
 name const & get_nat_has_one_name() { return *g_nat_has_one; }
 name const & get_nat_has_add_name() { return *g_nat_has_add; }
+name const & get_nat_to_string_name() { return *g_nat_to_string; }
 name const & get_ne_name() { return *g_ne; }
 name const & get_neg_name() { return *g_neg; }
 name const & get_norm_num_add1_name() { return *g_norm_num_add1; }

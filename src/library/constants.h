@@ -137,6 +137,7 @@ name const & get_nat_no_confusion_type_name();
 name const & get_nat_has_zero_name();
 name const & get_nat_has_one_name();
 name const & get_nat_has_add_name();
+name const & get_nat_to_string_name();
 name const & get_ne_name();
 name const & get_neg_name();
 name const & get_norm_num_add1_name();

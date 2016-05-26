@@ -130,6 +130,7 @@ nat.no_confusion_type
 nat_has_zero
 nat_has_one
 nat_has_add
+nat.to_string
 ne
 neg
 norm_num.add1

@@ -63,6 +63,7 @@ has_neg
 has_one
 has_one.one
 has_sub
+has_to_string
 has_zero
 has_zero.zero
 heq
@@ -293,6 +294,7 @@ tactic.trace
 tactic.try_for
 tactic.using_expr
 tactic.whnf
+to_string
 trans_rel_left
 trans_rel_right
 true

@@ -68,6 +68,7 @@ name const * g_has_neg = nullptr;
 name const * g_has_one = nullptr;
 name const * g_has_one_one = nullptr;
 name const * g_has_sub = nullptr;
+name const * g_has_to_string = nullptr;
 name const * g_has_zero = nullptr;
 name const * g_has_zero_zero = nullptr;
 name const * g_heq = nullptr;
@@ -298,6 +299,7 @@ name const * g_tactic_trace = nullptr;
 name const * g_tactic_try_for = nullptr;
 name const * g_tactic_using_expr = nullptr;
 name const * g_tactic_whnf = nullptr;
+name const * g_to_string = nullptr;
 name const * g_trans_rel_left = nullptr;
 name const * g_trans_rel_right = nullptr;
 name const * g_true = nullptr;
@@ -378,6 +380,7 @@ void initialize_constants() {
     g_has_one = new name{"has_one"};
     g_has_one_one = new name{"has_one", "one"};
     g_has_sub = new name{"has_sub"};
+    g_has_to_string = new name{"has_to_string"};
     g_has_zero = new name{"has_zero"};
     g_has_zero_zero = new name{"has_zero", "zero"};
     g_heq = new name{"heq"};
@@ -608,6 +611,7 @@ void initialize_constants() {
     g_tactic_try_for = new name{"tactic", "try_for"};
     g_tactic_using_expr = new name{"tactic", "using_expr"};
     g_tactic_whnf = new name{"tactic", "whnf"};
+    g_to_string = new name{"to_string"};
     g_trans_rel_left = new name{"trans_rel_left"};
     g_trans_rel_right = new name{"trans_rel_right"};
     g_true = new name{"true"};
@@ -689,6 +693,7 @@ void finalize_constants() {
     delete g_has_one;
     delete g_has_one_one;
     delete g_has_sub;
+    delete g_has_to_string;
     delete g_has_zero;
     delete g_has_zero_zero;
     delete g_heq;
@@ -919,6 +924,7 @@ void finalize_constants() {
     delete g_tactic_try_for;
     delete g_tactic_using_expr;
     delete g_tactic_whnf;
+    delete g_to_string;
     delete g_trans_rel_left;
     delete g_trans_rel_right;
     delete g_true;
@@ -999,6 +1005,7 @@ name const & get_has_neg_name() { return *g_has_neg; }
 name const & get_has_one_name() { return *g_has_one; }
 name const & get_has_one_one_name() { return *g_has_one_one; }
 name const & get_has_sub_name() { return *g_has_sub; }
+name const & get_has_to_string_name() { return *g_has_to_string; }
 name const & get_has_zero_name() { return *g_has_zero; }
 name const & get_has_zero_zero_name() { return *g_has_zero_zero; }
 name const & get_heq_name() { return *g_heq; }
@@ -1229,6 +1236,7 @@ name const & get_tactic_trace_name() { return *g_tactic_trace; }
 name const & get_tactic_try_for_name() { return *g_tactic_try_for; }
 name const & get_tactic_using_expr_name() { return *g_tactic_using_expr; }
 name const & get_tactic_whnf_name() { return *g_tactic_whnf; }
+name const & get_to_string_name() { return *g_to_string; }
 name const & get_trans_rel_left_name() { return *g_trans_rel_left; }
 name const & get_trans_rel_right_name() { return *g_trans_rel_right; }
 name const & get_true_name() { return *g_true; }

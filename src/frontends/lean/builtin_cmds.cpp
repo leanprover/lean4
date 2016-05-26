@@ -33,6 +33,7 @@ Author: Leonardo de Moura
 #include "library/defeq_simp_lemmas.h"
 #include "library/defeq_simplifier.h"
 #include "library/vm/vm.h"
+#include "library/vm/vm_string.h"
 #include "library/compiler/vm_compiler.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
@@ -667,9 +668,24 @@ static environment compile_cmd(parser & p) {
 static environment vm_eval_cmd(parser & p) {
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
-    type_checker tc(p.env());
-    expr type  = tc.whnf(tc.infer(e));
+    aux_type_context ctx(p.env(), transparency_mode::All);
+    type_context & tc = ctx.get();
+    expr type0 = tc.infer(e);
+    expr type  = tc.whnf(type0);
     bool is_IO = is_constant(get_app_fn(type), get_IO_name());
+    bool is_string = false;
+    if (!is_IO) {
+        /* Check if resultant type has an instance of has_to_string */
+        level lvl  = sort_level(tc.whnf(tc.infer(type)));
+        expr has_to_string_type = mk_app(mk_constant(get_has_to_string_name(), {lvl}), type0);
+        optional<expr> to_string_instance = tc.mk_class_instance(has_to_string_type);
+        if (to_string_instance) {
+            /* Modify the 'program' to (to_string e) */
+            e         = mk_app(mk_constant(get_to_string_name(), {lvl}), type0, *to_string_instance, e);
+            type      = tc.infer(e);
+            is_string = true;
+        }
+    }
     environment new_env = p.env();
     name main("_main");
     auto cd = check(new_env, mk_definition(new_env, main, ls, type, e));
@@ -689,9 +705,17 @@ static environment vm_eval_cmd(parser & p) {
             }
         }
     }
-    vm_obj r = s.get(0);
-    display(p.ios().get_regular_stream(), r);
-    p.ios().get_regular_stream() << "\n";
+    if (is_IO) {
+        // do not print anything
+    } else if (is_string) {
+        vm_obj r = s.get(0);
+        p.ios().get_regular_stream() << to_string(r) << "\n";
+    } else {
+        /* if it is not IO nor a string, then display object on top of the stack using vm_obj display method */
+        vm_obj r = s.get(0);
+        display(p.ios().get_regular_stream(), r);
+        p.ios().get_regular_stream() << "\n";
+    }
     return p.env();
 }
 

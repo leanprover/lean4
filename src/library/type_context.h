@@ -421,6 +421,7 @@ public:
     aux_type_context(environment const & env, transparency_mode m = transparency_mode::Reducible):
         m_ctx(env, options(), m_mctx, local_context(), m) {}
 
+    type_context & get() { return m_ctx; }
     operator type_context&() { return m_ctx; }
     operator type_context() { return m_ctx; }
     type_context * operator->() { return &m_ctx; }

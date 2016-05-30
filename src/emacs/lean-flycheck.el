@@ -108,4 +108,15 @@
      ;; In worst case, just use the same width of current window
      (t body-width))))
 
+(defun lean-flycheck-error-list-message-width ()
+  "Return the width of error messages in the flycheck-error list buffer"
+  (let (;; assume 'Message' is last column and has size 0 (true for default config)
+        (other-columns-width (apply '+ (mapcar (apply-partially 'nth 1) flycheck-error-list-format)))
+        (margin (length flycheck-error-list-format)))
+    (cond
+     ;; If lean-flycheck-msg-width is set, use it
+     (lean-flycheck-msg-width
+      lean-flycheck-msg-width)
+     (t (- (lean-flycheck-error-list-buffer-width) other-columns-width margin)))))
+
 (provide 'lean-flycheck)

@@ -35,7 +35,7 @@
            (setq option-alist
                  (lean-update-option-alist option-alist
                                            "pp.width"
-                                           (lean-flycheck-error-list-buffer-width))))
+                                           (lean-flycheck-error-list-message-width))))
           ((not pp-width-entry)
            (setq option-alist
                  (lean-update-option-alist option-alist

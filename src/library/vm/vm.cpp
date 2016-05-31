@@ -575,8 +575,10 @@ void vm_decl_cell::dealloc() {
 
 /** \brief VM builtin functions */
 static name_map<pair<unsigned, vm_function>> * g_vm_builtins = nullptr;
+static bool g_may_update_vm_builtins = true;
 
 void declare_vm_builtin(name const & n, unsigned arity, vm_function fn) {
+    lean_assert(g_may_update_vm_builtins);
     g_vm_builtins->insert(n, mk_pair(arity, fn));
 }
 
@@ -1808,6 +1810,7 @@ void display_vm_code(std::ostream & out, environment const & env, unsigned code_
 
 void initialize_vm_core() {
     g_vm_builtins = new name_map<pair<unsigned, vm_function>>();
+    g_may_update_vm_builtins = true;
     DEBUG_CODE({
             /* We only trace VM in debug mode because it produces a 10% performance penalty */
             register_trace_class("vm");
@@ -1821,6 +1824,7 @@ void finalize_vm_core() {
 
 void initialize_vm() {
     g_ext = new vm_decls_reg();
+    g_may_update_vm_builtins = false;
     g_vm_reserve_key = new std::string("VMR");
     g_vm_code_key    = new std::string("VMC");
     register_module_object_reader(*g_vm_reserve_key, reserve_reader);

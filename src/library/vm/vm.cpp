@@ -575,6 +575,7 @@ void vm_decl_cell::dealloc() {
 
 /** \brief VM builtin functions */
 static name_map<pair<unsigned, vm_function>> * g_vm_builtins = nullptr;
+static name_map<pair<unsigned, vm_cfunction>> * g_vm_cbuiltins = nullptr;
 static bool g_may_update_vm_builtins = true;
 
 void declare_vm_builtin(name const & n, unsigned arity, vm_function fn) {
@@ -582,8 +583,53 @@ void declare_vm_builtin(name const & n, unsigned arity, vm_function fn) {
     g_vm_builtins->insert(n, mk_pair(arity, fn));
 }
 
+void declare_vm_builtin(name const & n, vm_cfunction_1 fn) {
+    lean_assert(g_may_update_vm_builtins);
+    g_vm_cbuiltins->insert(n, mk_pair(1, fn));
+}
+
+void declare_vm_builtin(name const & n, vm_cfunction_2 fn) {
+    lean_assert(g_may_update_vm_builtins);
+    g_vm_cbuiltins->insert(n, mk_pair(2, reinterpret_cast<vm_cfunction>(fn)));
+}
+
+void declare_vm_builtin(name const & n, vm_cfunction_3 fn) {
+    lean_assert(g_may_update_vm_builtins);
+    g_vm_cbuiltins->insert(n, mk_pair(3, reinterpret_cast<vm_cfunction>(fn)));
+}
+
+void declare_vm_builtin(name const & n, vm_cfunction_4 fn) {
+    lean_assert(g_may_update_vm_builtins);
+    g_vm_cbuiltins->insert(n, mk_pair(4, reinterpret_cast<vm_cfunction>(fn)));
+}
+
+void declare_vm_builtin(name const & n, vm_cfunction_5 fn) {
+    lean_assert(g_may_update_vm_builtins);
+    g_vm_cbuiltins->insert(n, mk_pair(5, reinterpret_cast<vm_cfunction>(fn)));
+}
+
+void declare_vm_builtin(name const & n, vm_cfunction_6 fn) {
+    lean_assert(g_may_update_vm_builtins);
+    g_vm_cbuiltins->insert(n, mk_pair(6, reinterpret_cast<vm_cfunction>(fn)));
+}
+
+void declare_vm_builtin(name const & n, vm_cfunction_7 fn) {
+    lean_assert(g_may_update_vm_builtins);
+    g_vm_cbuiltins->insert(n, mk_pair(7, reinterpret_cast<vm_cfunction>(fn)));
+}
+
+void declare_vm_builtin(name const & n, vm_cfunction_8 fn) {
+    lean_assert(g_may_update_vm_builtins);
+    g_vm_cbuiltins->insert(n, mk_pair(8, reinterpret_cast<vm_cfunction>(fn)));
+}
+
+void declare_vm_builtin(name const & n, unsigned arity, vm_cfunction_N fn) {
+    lean_assert(g_may_update_vm_builtins);
+    g_vm_cbuiltins->insert(n, mk_pair(arity, reinterpret_cast<vm_cfunction>(fn)));
+}
+
 bool is_vm_builtin_function(name const & fn) {
-    return g_vm_builtins->contains(fn);
+    return g_vm_builtins->contains(fn) || g_vm_cbuiltins->contains(fn);
 }
 
 /** \brief VM function/constant declarations are stored in an environment extension. */
@@ -593,6 +639,9 @@ struct vm_decls : public environment_extension {
 
     vm_decls() {
         g_vm_builtins->for_each([&](name const & n, pair<unsigned, vm_function> const & p) {
+                add(vm_decl(n, m_decls.size(), p.first, p.second));
+            });
+        g_vm_cbuiltins->for_each([&](name const & n, pair<unsigned, vm_cfunction> const & p) {
                 add(vm_decl(n, m_decls.size(), p.first, p.second));
             });
     }
@@ -1810,6 +1859,7 @@ void display_vm_code(std::ostream & out, environment const & env, unsigned code_
 
 void initialize_vm_core() {
     g_vm_builtins = new name_map<pair<unsigned, vm_function>>();
+    g_vm_cbuiltins = new name_map<pair<unsigned, vm_cfunction>>();
     g_may_update_vm_builtins = true;
     DEBUG_CODE({
             /* We only trace VM in debug mode because it produces a 10% performance penalty */
@@ -1820,6 +1870,7 @@ void initialize_vm_core() {
 
 void finalize_vm_core() {
     delete g_vm_builtins;
+    delete g_vm_cbuiltins;
 }
 
 void initialize_vm() {

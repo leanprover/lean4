@@ -530,8 +530,18 @@ public:
     vm_obj invoke(vm_obj const & fn, unsigned nargs, vm_obj const * args);
 };
 
-/** \brief Add builtin implementation for the function named \c n. */
+/** \brief Add builtin implementation for the function named \c n.
+    All environment objects will contain this builtin. */
 void declare_vm_builtin(name const & n, unsigned arity, vm_function fn);
+void declare_vm_builtin(name const & n, vm_cfunction_1 fn);
+void declare_vm_builtin(name const & n, vm_cfunction_2 fn);
+void declare_vm_builtin(name const & n, vm_cfunction_3 fn);
+void declare_vm_builtin(name const & n, vm_cfunction_4 fn);
+void declare_vm_builtin(name const & n, vm_cfunction_5 fn);
+void declare_vm_builtin(name const & n, vm_cfunction_6 fn);
+void declare_vm_builtin(name const & n, vm_cfunction_7 fn);
+void declare_vm_builtin(name const & n, vm_cfunction_8 fn);
+void declare_vm_builtin(name const & n, unsigned arity, vm_cfunction_N fn);
 
 /** \brief Reserve an index for the given function in the VM, the expression
     \c e is the value of \c fn after preprocessing.

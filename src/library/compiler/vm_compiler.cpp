@@ -55,6 +55,8 @@ class vm_compiler_fn {
         if (decl.get_arity() <= nargs) {
             if (decl.is_builtin())
                 emit(mk_invoke_builtin_instr(decl.get_idx()));
+            else if (decl.is_cfun())
+                emit(mk_invoke_cfun_instr(decl.get_idx()));
             else
                 emit(mk_invoke_global_instr(decl.get_idx()));
             emit_apply_instr(nargs - decl.get_arity());

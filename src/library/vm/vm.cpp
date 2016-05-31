@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <algorithm>
 #include <vector>
+#include "util/flet.h"
 #include "util/interrupt.h"
 #include "util/sstream.h"
 #include "util/parray.h"
@@ -172,6 +173,10 @@ void vm_instr::display(std::ostream & out, std::function<optional<name>(unsigned
         out << "builtin ";
         display_fn(out, idx2name, m_fn_idx);
         break;
+    case opcode::InvokeCFun:
+        out << "cfun ";
+        display_fn(out, idx2name, m_fn_idx);
+        break;
     case opcode::Closure:
         out << "closure ";
         display_fn(out, idx2name, m_fn_idx);
@@ -318,6 +323,12 @@ vm_instr mk_invoke_builtin_instr(unsigned fn_idx) {
     return r;
 }
 
+vm_instr mk_invoke_cfun_instr(unsigned fn_idx) {
+    vm_instr r(opcode::InvokeCFun);
+    r.m_fn_idx = fn_idx;
+    return r;
+}
+
 vm_instr mk_closure_instr(unsigned fn_idx, unsigned n) {
     vm_instr r(opcode::Closure);
     r.m_fn_idx = fn_idx;
@@ -327,7 +338,7 @@ vm_instr mk_closure_instr(unsigned fn_idx, unsigned n) {
 
 void vm_instr::copy_args(vm_instr const & i) {
     switch (i.m_op) {
-    case opcode::InvokeGlobal: case opcode::InvokeBuiltin:
+    case opcode::InvokeGlobal: case opcode::InvokeBuiltin: case opcode::InvokeCFun:
         m_fn_idx = i.m_fn_idx;
         break;
     case opcode::Closure:
@@ -430,7 +441,7 @@ vm_instr & vm_instr::operator=(vm_instr && s) {
 void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & idx2name) const {
     s << static_cast<char>(m_op);
     switch (m_op) {
-    case opcode::InvokeGlobal: case opcode::InvokeBuiltin:
+    case opcode::InvokeGlobal: case opcode::InvokeBuiltin: case opcode::InvokeCFun:
         s << idx2name(m_fn_idx);
         break;
     case opcode::Closure:
@@ -486,6 +497,8 @@ static vm_instr read_vm_instr(deserializer & d, name_map<unsigned> const & name2
         return mk_invoke_global_instr(read_fn_idx(d, name2idx));
     case opcode::InvokeBuiltin:
         return mk_invoke_builtin_instr(read_fn_idx(d, name2idx));
+    case opcode::InvokeCFun:
+        return mk_invoke_cfun_instr(read_fn_idx(d, name2idx));
     case opcode::Closure:
         idx = read_fn_idx(d, name2idx);
         return mk_closure_instr(idx, d.read_unsigned());
@@ -530,10 +543,16 @@ static vm_instr read_vm_instr(deserializer & d, name_map<unsigned> const & name2
 }
 
 vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_function fn):
-    m_rc(0), m_builtin(true), m_name(n), m_idx(idx), m_arity(arity), m_fn(fn) {}
+    m_rc(0), m_kind(vm_decl_kind::Builtin), m_name(n), m_idx(idx), m_arity(arity), m_fn(fn), m_cfn(nullptr) {}
+
+vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_cfunction fn):
+    m_rc(0), m_kind(vm_decl_kind::CFun), m_name(n), m_idx(idx), m_arity(arity), m_fn(nullptr), m_cfn(fn) {}
+
+vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_function fn1, vm_cfunction fn2):
+    m_rc(0), m_kind(vm_decl_kind::BuiltinCFun), m_name(n), m_idx(idx), m_arity(arity), m_fn(fn1), m_cfn(fn2) {}
 
 vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code):
-    m_rc(0), m_builtin(false), m_name(n), m_idx(idx), m_expr(e), m_arity(0),
+    m_rc(0), m_kind(vm_decl_kind::Bytecode), m_name(n), m_idx(idx), m_expr(e), m_arity(0),
     m_code_size(code_sz) {
     expr it = e;
     while (is_lambda(it)) {
@@ -546,7 +565,7 @@ vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, expr const & e, unsigne
 }
 
 vm_decl_cell::~vm_decl_cell() {
-    if (!m_builtin)
+    if (m_kind == vm_decl_kind::Bytecode)
         delete[] m_code;
 }
 
@@ -742,12 +761,591 @@ void vm_state::invoke_builtin(vm_decl const & d) {
     m_pc++;
 }
 
+LEAN_THREAD_VALUE(vm_state *, g_vm_state, nullptr);
+
+void vm_state::invoke_cfun(vm_decl const & d) {
+    flet<vm_state *> Set(g_vm_state, this);
+    auto & S       = m_stack;
+    unsigned sz    = S.size();
+    unsigned arity = d.get_arity();
+    vm_obj r;
+    switch (arity) {
+    case 1:
+        r = reinterpret_cast<vm_cfunction_1>(d.get_cfn())(S[sz - 1]);
+        break;
+    case 2:
+        r = reinterpret_cast<vm_cfunction_2>(d.get_cfn())(S[sz - 1], S[sz - 2]);
+        break;
+    case 3:
+        r = reinterpret_cast<vm_cfunction_3>(d.get_cfn())(S[sz - 1], S[sz - 2], S[sz - 3]);
+        break;
+    case 4:
+        r = reinterpret_cast<vm_cfunction_4>(d.get_cfn())(S[sz - 1], S[sz - 2], S[sz - 3], S[sz - 4]);
+        break;
+    case 5:
+        r = reinterpret_cast<vm_cfunction_5>(d.get_cfn())(S[sz - 1], S[sz - 2], S[sz - 3], S[sz - 4],
+                                                          S[sz - 5]);
+        break;
+    case 6:
+        r = reinterpret_cast<vm_cfunction_6>(d.get_cfn())(S[sz - 1], S[sz - 1], S[sz - 3], S[sz - 4],
+                                                          S[sz - 5], S[sz - 6]);
+        break;
+    case 7:
+        r = reinterpret_cast<vm_cfunction_7>(d.get_cfn())(S[sz - 1], S[sz - 1], S[sz - 3], S[sz - 4],
+                                                          S[sz - 5], S[sz - 6], S[sz - 7]);
+        break;
+    case 8:
+        r = reinterpret_cast<vm_cfunction_8>(d.get_cfn())(S[sz - 1], S[sz - 1], S[sz - 3], S[sz - 4],
+                                                          S[sz - 5], S[sz - 6], S[sz - 7], S[sz - 8]);
+        break;
+    default:
+        r = reinterpret_cast<vm_cfunction_N>(d.get_cfn())(arity, m_stack.data() + sz - arity);
+        break;
+    }
+    m_stack.resize(sz - arity);
+    m_stack.push_back(r);
+    m_pc++;
+}
+
+inline vm_cfunction_1 to_fn1(vm_decl const & d) { return reinterpret_cast<vm_cfunction_1>(d.get_cfn()); }
+inline vm_cfunction_2 to_fn2(vm_decl const & d) { return reinterpret_cast<vm_cfunction_2>(d.get_cfn()); }
+inline vm_cfunction_3 to_fn3(vm_decl const & d) { return reinterpret_cast<vm_cfunction_3>(d.get_cfn()); }
+inline vm_cfunction_4 to_fn4(vm_decl const & d) { return reinterpret_cast<vm_cfunction_4>(d.get_cfn()); }
+inline vm_cfunction_5 to_fn5(vm_decl const & d) { return reinterpret_cast<vm_cfunction_5>(d.get_cfn()); }
+inline vm_cfunction_6 to_fn6(vm_decl const & d) { return reinterpret_cast<vm_cfunction_6>(d.get_cfn()); }
+inline vm_cfunction_7 to_fn7(vm_decl const & d) { return reinterpret_cast<vm_cfunction_7>(d.get_cfn()); }
+inline vm_cfunction_8 to_fn8(vm_decl const & d) { return reinterpret_cast<vm_cfunction_8>(d.get_cfn()); }
+inline vm_cfunction_N to_fnN(vm_decl const & d) { return reinterpret_cast<vm_cfunction_N>(d.get_cfn()); }
+
+vm_obj vm_state::invoke_closure(vm_obj const & fn, unsigned arity) {
+    std::copy(cfields(fn), cfields(fn) + csize(fn), std::back_inserter(m_stack));
+    m_stack.push_back(fn);
+    apply(arity);
+    vm_obj r = m_stack.back();
+    m_stack.pop_back();
+    return r;
+}
+
+static void to_cbuffer(vm_obj const & fn, buffer<vm_obj> & args) {
+    vm_obj const * begin = cfields(fn);
+    vm_obj const * end   = begin + csize(fn);
+    vm_obj const * it    = end;
+    while (it != begin) {
+        --it;
+        args.push_back(*it);
+    }
+}
+
+vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1) {
+    unsigned fn_idx   = cfn_idx(fn);
+    vm_decl const & d = m_decls[fn_idx];
+    unsigned nargs    = csize(fn) + 1;
+    if (nargs < d.get_arity()) {
+        buffer<vm_obj> args;
+        args.push_back(a1);
+        args.append(csize(fn), cfields(fn));
+        return mk_vm_closure(fn_idx, args.size(), args.data());
+    } else if (nargs == d.get_arity()) {
+        if (d.is_cfun()) {
+            switch (d.get_arity()) {
+            case 0: lean_unreachable();
+            case 1: return to_fn1(d)(a1);
+            case 2: return to_fn2(d)(cfield(fn, 0), a1);
+            case 3: return to_fn3(d)(cfield(fn, 1), cfield(fn, 0), a1);
+            case 4: return to_fn4(d)(cfield(fn, 2), cfield(fn, 1), cfield(fn, 0), a1);
+            case 5: return to_fn5(d)(cfield(fn, 3), cfield(fn, 2), cfield(fn, 1), cfield(fn, 0), a1);
+            case 6: return to_fn6(d)(cfield(fn, 4), cfield(fn, 3), cfield(fn, 2), cfield(fn, 1), cfield(fn, 0), a1);
+            case 7: return to_fn7(d)(cfield(fn, 5), cfield(fn, 4), cfield(fn, 3), cfield(fn, 2), cfield(fn, 1), cfield(fn, 0), a1);
+            case 8: return to_fn8(d)(cfield(fn, 6), cfield(fn, 5), cfield(fn, 4), cfield(fn, 3), cfield(fn, 2), cfield(fn, 1), cfield(fn, 0), a1);
+            default:
+                buffer<vm_obj> args;
+                to_cbuffer(fn, args);
+                args.push_back(a1);
+                return to_fnN(d)(args.size(), args.data());
+            }
+        } else {
+            m_stack.push_back(a1);
+            return invoke_closure(fn, d.get_arity());
+        }
+    } else {
+        lean_unreachable();
+    }
+}
+
+vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2) {
+    unsigned fn_idx   = cfn_idx(fn);
+    vm_decl const & d = m_decls[fn_idx];
+    unsigned nargs    = csize(fn) + 2;
+    if (nargs < d.get_arity()) {
+        buffer<vm_obj> args;
+        args.push_back(a2);
+        args.push_back(a1);
+        args.append(csize(fn), cfields(fn));
+        return mk_vm_closure(fn_idx, args.size(), args.data());
+    } else if (nargs == d.get_arity()) {
+        if (d.is_cfun()) {
+            switch (d.get_arity()) {
+            case 0: case 1: lean_unreachable();
+            case 2: return to_fn2(d)(a1, a2);
+            case 3: return to_fn3(d)(cfield(fn, 0), a1, a2);
+            case 4: return to_fn4(d)(cfield(fn, 1), cfield(fn, 0), a1, a2);
+            case 5: return to_fn5(d)(cfield(fn, 2), cfield(fn, 1), cfield(fn, 0), a1, a2);
+            case 6: return to_fn6(d)(cfield(fn, 3), cfield(fn, 2), cfield(fn, 1), cfield(fn, 0), a1, a2);
+            case 7: return to_fn7(d)(cfield(fn, 4), cfield(fn, 3), cfield(fn, 2), cfield(fn, 1), cfield(fn, 0), a1, a2);
+            case 8: return to_fn8(d)(cfield(fn, 5), cfield(fn, 4), cfield(fn, 3), cfield(fn, 2), cfield(fn, 1), cfield(fn, 0), a1, a2);
+            default:
+                buffer<vm_obj> args;
+                to_cbuffer(fn, args);
+                args.push_back(a1);
+                args.push_back(a2);
+                return to_fnN(d)(args.size(), args.data());
+            }
+        } else {
+            m_stack.push_back(a2);
+            m_stack.push_back(a1);
+            return invoke_closure(fn, d.get_arity());
+        }
+    } else {
+        lean_assert(nargs > d.get_arity());
+        return invoke(invoke(fn, a1), a2);
+    }
+}
+
+vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3) {
+    unsigned fn_idx   = cfn_idx(fn);
+    vm_decl const & d = m_decls[fn_idx];
+    unsigned nargs    = csize(fn) + 3;
+    if (nargs < d.get_arity()) {
+        buffer<vm_obj> args;
+        args.push_back(a3);
+        args.push_back(a2);
+        args.push_back(a1);
+        args.append(csize(fn), cfields(fn));
+        return mk_vm_closure(fn_idx, args.size(), args.data());
+    } else if (nargs == d.get_arity()) {
+        if (d.is_cfun()) {
+            switch (d.get_arity()) {
+            case 0: case 1: case 2: lean_unreachable();
+            case 3: return to_fn3(d)(a1, a2, a3);
+            case 4: return to_fn4(d)(cfield(fn, 0), a1, a2, a3);
+            case 5: return to_fn5(d)(cfield(fn, 1), cfield(fn, 0), a1, a2, a3);
+            case 6: return to_fn6(d)(cfield(fn, 2), cfield(fn, 1), cfield(fn, 0), a1, a2, a3);
+            case 7: return to_fn7(d)(cfield(fn, 3), cfield(fn, 2), cfield(fn, 1), cfield(fn, 0), a1, a2, a3);
+            case 8: return to_fn8(d)(cfield(fn, 4), cfield(fn, 3), cfield(fn, 2), cfield(fn, 1), cfield(fn, 0), a1, a2, a3);
+            default:
+                buffer<vm_obj> args;
+                to_cbuffer(fn, args);
+                args.push_back(a1);
+                args.push_back(a2);
+                args.push_back(a3);
+                return to_fnN(d)(args.size(), args.data());
+            }
+        } else {
+            m_stack.push_back(a3);
+            m_stack.push_back(a2);
+            m_stack.push_back(a1);
+            return invoke_closure(fn, d.get_arity());
+        }
+    } else if (nargs == d.get_arity() + 1) {
+        return invoke(invoke(fn, a1, a2), a3);
+    } else {
+        return invoke(invoke(fn, a1), a2, a3);
+    }
+}
+
+vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4) {
+    unsigned fn_idx   = cfn_idx(fn);
+    vm_decl const & d = m_decls[fn_idx];
+    unsigned nargs    = csize(fn) + 4;
+    if (nargs < d.get_arity()) {
+        buffer<vm_obj> args;
+        args.push_back(a4);
+        args.push_back(a3);
+        args.push_back(a2);
+        args.push_back(a1);
+        args.append(csize(fn), cfields(fn));
+        return mk_vm_closure(fn_idx, args.size(), args.data());
+    } else if (nargs == d.get_arity()) {
+        if (d.is_cfun()) {
+            switch (d.get_arity()) {
+            case 0: case 1: case 2: case 3: lean_unreachable();
+            case 4: return to_fn4(d)(a1, a2, a3, a4);
+            case 5: return to_fn5(d)(cfield(fn, 0), a1, a2, a3, a4);
+            case 6: return to_fn6(d)(cfield(fn, 1), cfield(fn, 0), a1, a2, a3, a4);
+            case 7: return to_fn7(d)(cfield(fn, 2), cfield(fn, 1), cfield(fn, 0), a1, a2, a3, a4);
+            case 8: return to_fn8(d)(cfield(fn, 3), cfield(fn, 2), cfield(fn, 1), cfield(fn, 0), a1, a2, a3, a4);
+            default:
+                buffer<vm_obj> args;
+                to_cbuffer(fn, args);
+                args.push_back(a1);
+                args.push_back(a2);
+                args.push_back(a3);
+                args.push_back(a4);
+                return to_fnN(d)(args.size(), args.data());
+            }
+        } else {
+            m_stack.push_back(a4);
+            m_stack.push_back(a3);
+            m_stack.push_back(a2);
+            m_stack.push_back(a1);
+            return invoke_closure(fn, d.get_arity());
+        }
+    } else if (nargs == d.get_arity() + 1) {
+        return invoke(invoke(fn, a1, a2, a3), a4);
+    } else if (nargs == d.get_arity() + 2) {
+        return invoke(invoke(fn, a1, a2), a3, a4);
+    } else {
+        return invoke(invoke(fn, a1), a2, a3, a4);
+    }
+}
+
+vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
+                        vm_obj const & a5) {
+    unsigned fn_idx   = cfn_idx(fn);
+    vm_decl const & d = m_decls[fn_idx];
+    unsigned nargs    = csize(fn) + 5;
+    if (nargs < d.get_arity()) {
+        buffer<vm_obj> args;
+        args.push_back(a5);
+        args.push_back(a4);
+        args.push_back(a3);
+        args.push_back(a2);
+        args.push_back(a1);
+        args.append(csize(fn), cfields(fn));
+        return mk_vm_closure(fn_idx, args.size(), args.data());
+    } else if (nargs == d.get_arity()) {
+        if (d.is_cfun()) {
+            switch (d.get_arity()) {
+            case 0: case 1: case 2: case 3: case 4: lean_unreachable();
+            case 5: return to_fn5(d)(a1, a2, a3, a4, a5);
+            case 6: return to_fn6(d)(cfield(fn, 0), a1, a2, a3, a4, a5);
+            case 7: return to_fn7(d)(cfield(fn, 1), cfield(fn, 0), a1, a2, a3, a4, a5);
+            case 8: return to_fn8(d)(cfield(fn, 2), cfield(fn, 1), cfield(fn, 0), a1, a2, a3, a4, a5);
+            default:
+                buffer<vm_obj> args;
+                to_cbuffer(fn, args);
+                args.push_back(a1);
+                args.push_back(a2);
+                args.push_back(a3);
+                args.push_back(a4);
+                args.push_back(a5);
+                return to_fnN(d)(args.size(), args.data());
+            }
+        } else {
+            m_stack.push_back(a5);
+            m_stack.push_back(a4);
+            m_stack.push_back(a3);
+            m_stack.push_back(a2);
+            m_stack.push_back(a1);
+            return invoke_closure(fn, d.get_arity());
+        }
+    } else if (nargs == d.get_arity() + 1) {
+        return invoke(invoke(fn, a1, a2, a3, a4), a5);
+    } else if (nargs == d.get_arity() + 2) {
+        return invoke(invoke(fn, a1, a2, a3), a4, a5);
+    } else if (nargs == d.get_arity() + 3) {
+        return invoke(invoke(fn, a1, a2), a3, a4, a5);
+    } else {
+        return invoke(invoke(fn, a1), a2, a3, a4, a5);
+    }
+}
+
+vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
+                        vm_obj const & a5, vm_obj const & a6) {
+    unsigned fn_idx   = cfn_idx(fn);
+    vm_decl const & d = m_decls[fn_idx];
+    unsigned nargs    = csize(fn) + 6;
+    if (nargs < d.get_arity()) {
+        buffer<vm_obj> args;
+        args.push_back(a6);
+        args.push_back(a5);
+        args.push_back(a4);
+        args.push_back(a3);
+        args.push_back(a2);
+        args.push_back(a1);
+        args.append(csize(fn), cfields(fn));
+        return mk_vm_closure(fn_idx, args.size(), args.data());
+    } else if (nargs == d.get_arity()) {
+        if (d.is_cfun()) {
+            switch (d.get_arity()) {
+            case 0: case 1: case 2: case 3: case 4: case 5: lean_unreachable();
+            case 6: return to_fn6(d)(a1, a2, a3, a4, a5, a6);
+            case 7: return to_fn7(d)(cfield(fn, 0), a1, a2, a3, a4, a5, a6);
+            case 8: return to_fn8(d)(cfield(fn, 1), cfield(fn, 0), a1, a2, a3, a4, a5, a6);
+            default:
+                buffer<vm_obj> args;
+                to_cbuffer(fn, args);
+                args.push_back(a1);
+                args.push_back(a2);
+                args.push_back(a3);
+                args.push_back(a4);
+                args.push_back(a5);
+                args.push_back(a6);
+                return to_fnN(d)(args.size(), args.data());
+            }
+        } else {
+            m_stack.push_back(a6);
+            m_stack.push_back(a5);
+            m_stack.push_back(a4);
+            m_stack.push_back(a3);
+            m_stack.push_back(a2);
+            m_stack.push_back(a1);
+            return invoke_closure(fn, d.get_arity());
+        }
+    } else if (nargs == d.get_arity() + 1) {
+        return invoke(invoke(fn, a1, a2, a3, a4, a5), a6);
+    } else if (nargs == d.get_arity() + 2) {
+        return invoke(invoke(fn, a1, a2, a3, a4), a5, a6);
+    } else if (nargs == d.get_arity() + 3) {
+        return invoke(invoke(fn, a1, a2, a3), a4, a5, a6);
+    } else if (nargs == d.get_arity() + 4) {
+        return invoke(invoke(fn, a1, a2), a3, a4, a5, a6);
+    } else {
+        return invoke(invoke(fn, a1), a2, a3, a4, a5, a6);
+    }
+}
+
+vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
+                        vm_obj const & a5, vm_obj const & a6, vm_obj const & a7) {
+    unsigned fn_idx   = cfn_idx(fn);
+    vm_decl const & d = m_decls[fn_idx];
+    unsigned nargs    = csize(fn) + 7;
+    if (nargs < d.get_arity()) {
+        buffer<vm_obj> args;
+        args.push_back(a7);
+        args.push_back(a6);
+        args.push_back(a5);
+        args.push_back(a4);
+        args.push_back(a3);
+        args.push_back(a2);
+        args.push_back(a1);
+        args.append(csize(fn), cfields(fn));
+        return mk_vm_closure(fn_idx, args.size(), args.data());
+    } else if (nargs == d.get_arity()) {
+        if (d.is_cfun()) {
+            switch (d.get_arity()) {
+            case 0: case 1: case 2: case 3: case 4: case 5: case 6: lean_unreachable();
+            case 7: return to_fn7(d)(a1, a2, a3, a4, a5, a6, a7);
+            case 8: return to_fn8(d)(cfield(fn, 0), a1, a2, a3, a4, a5, a6, a7);
+            default:
+                buffer<vm_obj> args;
+                to_cbuffer(fn, args);
+                args.push_back(a1);
+                args.push_back(a2);
+                args.push_back(a3);
+                args.push_back(a4);
+                args.push_back(a5);
+                args.push_back(a6);
+                args.push_back(a7);
+                return to_fnN(d)(args.size(), args.data());
+            }
+        } else {
+            m_stack.push_back(a7);
+            m_stack.push_back(a6);
+            m_stack.push_back(a5);
+            m_stack.push_back(a4);
+            m_stack.push_back(a3);
+            m_stack.push_back(a2);
+            m_stack.push_back(a1);
+            return invoke_closure(fn, d.get_arity());
+        }
+    } else if (nargs == d.get_arity() + 1) {
+        return invoke(invoke(fn, a1, a2, a3, a4, a5, a6), a7);
+    } else if (nargs == d.get_arity() + 2) {
+        return invoke(invoke(fn, a1, a2, a3, a4, a5), a6, a7);
+    } else if (nargs == d.get_arity() + 3) {
+        return invoke(invoke(fn, a1, a2, a3, a4), a5, a6, a7);
+    } else if (nargs == d.get_arity() + 4) {
+        return invoke(invoke(fn, a1, a2, a3), a4, a5, a6, a7);
+    } else if (nargs == d.get_arity() + 5) {
+        return invoke(invoke(fn, a1, a2), a3, a4, a5, a6, a7);
+    } else {
+        return invoke(invoke(fn, a1), a2, a3, a4, a5, a6, a7);
+    }
+}
+
+vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
+                        vm_obj const & a5, vm_obj const & a6, vm_obj const & a7, vm_obj const & a8) {
+    unsigned fn_idx   = cfn_idx(fn);
+    vm_decl const & d = m_decls[fn_idx];
+    unsigned nargs    = csize(fn) + 8;
+    if (nargs < d.get_arity()) {
+        buffer<vm_obj> args;
+        args.push_back(a8);
+        args.push_back(a7);
+        args.push_back(a6);
+        args.push_back(a5);
+        args.push_back(a4);
+        args.push_back(a3);
+        args.push_back(a2);
+        args.push_back(a1);
+        args.append(csize(fn), cfields(fn));
+        return mk_vm_closure(fn_idx, args.size(), args.data());
+    } else if (nargs == d.get_arity()) {
+        if (d.is_cfun()) {
+            switch (d.get_arity()) {
+            case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7: lean_unreachable();
+            case 8: return to_fn8(d)(a1, a2, a3, a4, a5, a6, a7, a8);
+            default:
+                buffer<vm_obj> args;
+                to_cbuffer(fn, args);
+                args.push_back(a1);
+                args.push_back(a2);
+                args.push_back(a3);
+                args.push_back(a4);
+                args.push_back(a5);
+                args.push_back(a6);
+                args.push_back(a7);
+                args.push_back(a8);
+                return to_fnN(d)(args.size(), args.data());
+            }
+        } else {
+            m_stack.push_back(a8);
+            m_stack.push_back(a7);
+            m_stack.push_back(a6);
+            m_stack.push_back(a5);
+            m_stack.push_back(a4);
+            m_stack.push_back(a3);
+            m_stack.push_back(a2);
+            m_stack.push_back(a1);
+            return invoke_closure(fn, d.get_arity());
+        }
+    } else if (nargs == d.get_arity() + 1) {
+        return invoke(invoke(fn, a1, a2, a3, a4, a5, a6, a7), a8);
+    } else if (nargs == d.get_arity() + 2) {
+        return invoke(invoke(fn, a1, a2, a3, a4, a5, a6), a7, a8);
+    } else if (nargs == d.get_arity() + 3) {
+        return invoke(invoke(fn, a1, a2, a3, a4, a5), a6, a7, a8);
+    } else if (nargs == d.get_arity() + 4) {
+        return invoke(invoke(fn, a1, a2, a3, a4), a5, a6, a7, a8);
+    } else if (nargs == d.get_arity() + 5) {
+        return invoke(invoke(fn, a1, a2, a3), a4, a5, a6, a7, a8);
+    } else if (nargs == d.get_arity() + 6) {
+        return invoke(invoke(fn, a1, a2), a3, a4, a5, a6, a7, a8);
+    } else {
+        return invoke(invoke(fn, a1), a2, a3, a4, a5, a6, a7, a8);
+    }
+}
+
+vm_obj vm_state::invoke(vm_obj const & fn, unsigned nargs, vm_obj const * args) {
+    if (nargs <= 8) {
+        switch (nargs) {
+        case 1: return invoke(fn, args[0]);
+        case 2: return invoke(fn, args[0], args[1]);
+        case 3: return invoke(fn, args[0], args[1], args[2]);
+        case 4: return invoke(fn, args[0], args[1], args[2], args[3]);
+        case 5: return invoke(fn, args[0], args[1], args[2], args[3], args[4]);
+        case 6: return invoke(fn, args[0], args[1], args[2], args[3], args[4], args[5]);
+        case 7: return invoke(fn, args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+        case 8: return invoke(fn, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+        default: lean_unreachable();
+        }
+    }
+    unsigned fn_idx    = cfn_idx(fn);
+    vm_decl const & d  = m_decls[fn_idx];
+    unsigned new_nargs = csize(fn) + nargs;
+    if (new_nargs < d.get_arity()) {
+        buffer<vm_obj> new_args;
+        unsigned i = nargs;
+        while (i > 0) { --i; new_args.push_back(args[i]); }
+        new_args.append(csize(fn), cfields(fn));
+        return mk_vm_closure(fn_idx, new_args.size(), new_args.data());
+    } else if (new_nargs == d.get_arity()) {
+        if (d.is_cfun()) {
+            if (csize(fn) == 0) {
+                return to_fnN(d)(nargs, args);
+            } else {
+                buffer<vm_obj> new_args;
+                to_cbuffer(fn, new_args);
+                new_args.append(nargs, args);
+                return to_fnN(d)(nargs, args);
+            }
+        } else {
+            unsigned i = nargs;
+            while (i > 0) { --i; m_stack.push_back(args[i]); }
+            return invoke_closure(fn, d.get_arity());
+        }
+    } else {
+        lean_assert(nargs + csize(fn) > d.get_arity());
+        buffer<vm_obj> new_args;
+        buffer<vm_obj> rest_args;
+        /* copy arity - csize(fn) arguments to new_args, and the rest to rest_args */
+        lean_assert(csize(fn) < d.get_arity());
+        unsigned n = d.get_arity() - csize(fn);
+        lean_assert(n > 1);
+        lean_assert(n < nargs);
+        new_args.append(n, args);
+        rest_args.append(nargs - n, args + n);
+        return invoke(invoke(fn, new_args.size(), new_args.data()), rest_args.size(), rest_args.data());
+    }
+}
+
+vm_obj invoke(vm_obj const & fn, vm_obj const & a1) {
+    lean_assert(g_vm_state);
+    return g_vm_state->invoke(fn, a1);
+}
+
+vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2) {
+    lean_assert(g_vm_state);
+    return g_vm_state->invoke(fn, a1, a2);
+}
+
+vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3) {
+    lean_assert(g_vm_state);
+    return g_vm_state->invoke(fn, a1, a2, a3);
+}
+
+vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4) {
+    lean_assert(g_vm_state);
+    return g_vm_state->invoke(fn, a1, a2, a3, a4);
+}
+
+vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
+              vm_obj const & a5) {
+    lean_assert(g_vm_state);
+    return g_vm_state->invoke(fn, a1, a2, a3, a4, a5);
+}
+
+vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
+              vm_obj const & a5, vm_obj const & a6) {
+    lean_assert(g_vm_state);
+    return g_vm_state->invoke(fn, a1, a2, a3, a4, a5, a6);
+}
+
+vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
+              vm_obj const & a5, vm_obj const & a6, vm_obj const & a7) {
+    lean_assert(g_vm_state);
+    return g_vm_state->invoke(fn, a1, a2, a3, a4, a5, a6, a7);
+}
+
+vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
+              vm_obj const & a5, vm_obj const & a6, vm_obj const & a7, vm_obj const & a8) {
+    lean_assert(g_vm_state);
+    return g_vm_state->invoke(fn, a1, a2, a3, a4, a5, a6, a7, a8);
+}
+
+vm_obj invoke(vm_obj const & fn, unsigned nargs, vm_obj const * args) {
+    lean_assert(g_vm_state);
+    return g_vm_state->invoke(fn, nargs, args);
+}
+
 void vm_state::invoke_global(vm_decl const & d) {
     m_call_stack.emplace_back(m_code, m_fn_idx, d.get_arity(), m_pc+1, m_bp);
     m_code            = d.get_code();
     m_fn_idx          = d.get_idx();
     m_pc              = 0;
     m_bp              = m_stack.size() - d.get_arity();
+}
+
+void vm_state::invoke(vm_decl const & d) {
+    switch (d.kind()) {
+    case vm_decl_kind::Bytecode:
+        invoke_global(d); break;
+    case vm_decl_kind::Builtin: case vm_decl_kind::BuiltinCFun:
+        invoke_builtin(d); break;
+    case vm_decl_kind::CFun:
+        invoke_cfun(d); break;
+    }
 }
 
 void vm_state::display_stack(std::ostream & out) const {
@@ -1084,10 +1682,7 @@ void vm_state::run() {
             } else {
                 lean_assert(nargs == arity);
                 /* Case 2 */
-                if (d.is_builtin())
-                    invoke_builtin(d);
-                else
-                    invoke_global(d);
+                invoke(d);
                 goto main_loop;
             }
         }
@@ -1134,6 +1729,16 @@ void vm_state::run() {
             */
             invoke_builtin(m_decls[instr.get_fn_idx()]);
             goto main_loop;
+        case opcode::InvokeCFun:
+            check_interrupted();
+            check_memory("vm");
+            /**
+               Instruction: cfun fn
+
+               Similar to InvokeBuiltin
+            */
+            invoke_cfun(m_decls[instr.get_fn_idx()]);
+            goto main_loop;
         }
     }
 }
@@ -1152,10 +1757,7 @@ void vm_state::invoke_fn(unsigned fn_idx) {
     unsigned arity    = d.get_arity();
     if (arity > m_stack.size())
         throw exception("invalid VM function call, data stack does not have enough values");
-    if (d.is_builtin())
-        invoke_builtin(d);
-    else
-        invoke_global(d);
+    invoke(d);
     run();
 }
 

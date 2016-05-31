@@ -178,12 +178,36 @@ inline vm_obj const & cfield(vm_obj const & o, unsigned i) { lean_assert(i < csi
 
 #define LEAN_MAX_SMALL_NAT (1u << 31)
 
+class vm_state;
+
+/** Builtin functions that take arguments from the VM stack. */
+typedef void (*vm_function)(vm_state & s);
+
+/** Buitin functions that take arguments from the system stack.
+
+    \remark The C++ code generator produces this kind of function. */
+typedef vm_obj (*vm_cfunction)(vm_obj const &);
+typedef vm_obj (*vm_cfunction_1)(vm_obj const &);
+typedef vm_obj (*vm_cfunction_2)(vm_obj const &, vm_obj const &);
+typedef vm_obj (*vm_cfunction_3)(vm_obj const &, vm_obj const &, vm_obj const &);
+typedef vm_obj (*vm_cfunction_4)(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &);
+typedef vm_obj (*vm_cfunction_5)(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &,
+                                 vm_obj const &);
+typedef vm_obj (*vm_cfunction_6)(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &,
+                                 vm_obj const &, vm_obj const &);
+typedef vm_obj (*vm_cfunction_7)(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &,
+                                 vm_obj const &, vm_obj const &, vm_obj const &);
+typedef vm_obj (*vm_cfunction_8)(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &,
+                                 vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &);
+typedef vm_obj (*vm_cfunction_N)(unsigned n, vm_obj const *);
+
 /** \brief VM instruction opcode */
 enum class opcode {
     Push, Ret, Drop, Goto,
     SConstructor, Constructor, Num,
     Destruct, Cases2, CasesN, NatCases, Proj,
-    Apply, InvokeGlobal, InvokeBuiltin, Closure, Unreachable
+    Apply, InvokeGlobal, InvokeBuiltin, InvokeCFun,
+    Closure, Unreachable
 };
 
 /** \brief VM instructions */
@@ -191,7 +215,7 @@ class vm_instr {
     opcode m_op;
     union {
         struct {
-            unsigned m_fn_idx;  /* InvokeGlobal, InvokeBuiltin and Closure. */
+            unsigned m_fn_idx;  /* InvokeGlobal, InvokeBuiltin, InvokeCFun and Closure. */
             unsigned m_nargs;   /* Closure */
         };
         /* Push, Proj */
@@ -228,6 +252,7 @@ class vm_instr {
     friend vm_instr mk_casesn_instr(unsigned num_pc, unsigned const * pcs);
     friend vm_instr mk_apply_instr();
     friend vm_instr mk_invoke_global_instr(unsigned fn_idx);
+    friend vm_instr mk_invoke_cfun_instr(unsigned fn_idx);
     friend vm_instr mk_invoke_builtin_instr(unsigned fn_idx);
     friend vm_instr mk_closure_instr(unsigned fn_idx, unsigned n);
 
@@ -245,7 +270,8 @@ public:
     opcode op() const { return m_op; }
 
     unsigned get_fn_idx() const {
-        lean_assert(m_op == opcode::InvokeGlobal || m_op == opcode::InvokeBuiltin || m_op == opcode::Closure);
+        lean_assert(m_op == opcode::InvokeGlobal || m_op == opcode::InvokeBuiltin ||
+                    m_op == opcode::InvokeCFun || m_op == opcode::Closure);
         return m_fn_idx;
     }
 
@@ -343,31 +369,36 @@ vm_instr mk_cases2_instr(unsigned pc1, unsigned pc2);
 vm_instr mk_casesn_instr(unsigned num_pc, unsigned const * pcs);
 vm_instr mk_apply_instr();
 vm_instr mk_invoke_global_instr(unsigned fn_idx);
+vm_instr mk_invoke_cfun_instr(unsigned fn_idx);
 vm_instr mk_invoke_builtin_instr(unsigned fn_idx);
 vm_instr mk_closure_instr(unsigned fn_idx, unsigned n);
 
 class vm_state;
 class vm_instr;
 
-typedef void (*vm_function)(vm_state & s);
+enum class vm_decl_kind { Bytecode, Builtin, CFun, BuiltinCFun };
 
 /** \brief VM function/constant declaration cell */
 struct vm_decl_cell {
     MK_LEAN_RC();
-    bool       m_builtin;
-    name       m_name;
-    unsigned   m_idx;
-    expr       m_expr;
-    unsigned   m_arity;
+    vm_decl_kind m_kind;
+    name         m_name;
+    unsigned     m_idx;
+    expr         m_expr;
+    unsigned     m_arity;
     union {
         struct {
             unsigned   m_code_size;
             vm_instr * m_code;
         };
-        vm_function    m_fn;
+        struct {
+            vm_function   m_fn;
+            vm_cfunction  m_cfn;
+        };
     };
-
     vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_function fn);
+    vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_cfunction fn);
+    vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_function fn1, vm_cfunction fn2);
     vm_decl_cell(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code);
     ~vm_decl_cell();
     void dealloc();
@@ -381,6 +412,10 @@ public:
     vm_decl():m_ptr(nullptr) {}
     vm_decl(name const & n, unsigned idx, unsigned arity, vm_function fn):
         vm_decl(new vm_decl_cell(n, idx, arity, fn)) {}
+    vm_decl(name const & n, unsigned idx, unsigned arity, vm_cfunction fn):
+        vm_decl(new vm_decl_cell(n, idx, arity, fn)) {}
+    vm_decl(name const & n, unsigned idx, unsigned arity, vm_function fn1, vm_cfunction fn2):
+        vm_decl(new vm_decl_cell(n, idx, arity, fn1, fn2)) {}
     vm_decl(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code):
         vm_decl(new vm_decl_cell(n, idx, e, code_sz, code)) {}
     vm_decl(vm_decl const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
@@ -392,14 +427,24 @@ public:
     vm_decl & operator=(vm_decl const & s) { LEAN_COPY_REF(s); }
     vm_decl & operator=(vm_decl && s) { LEAN_MOVE_REF(s); }
 
-    bool is_builtin() const { lean_assert(m_ptr); return m_ptr->m_builtin; }
+    vm_decl_kind kind() const { return m_ptr->m_kind; }
+    bool is_bytecode() const { lean_assert(m_ptr); return m_ptr->m_kind == vm_decl_kind::Bytecode; }
+    bool is_builtin() const {
+        lean_assert(m_ptr);
+        return m_ptr->m_kind == vm_decl_kind::Builtin || m_ptr->m_kind == vm_decl_kind::BuiltinCFun;
+    }
+    bool is_cfun() const {
+        lean_assert(m_ptr);
+        return m_ptr->m_kind == vm_decl_kind::CFun || m_ptr->m_kind == vm_decl_kind::BuiltinCFun;
+    }
     unsigned get_idx() const { lean_assert(m_ptr); return m_ptr->m_idx; }
     name get_name() const { lean_assert(m_ptr); return m_ptr->m_name; }
     unsigned get_arity() const { lean_assert(m_ptr); return m_ptr->m_arity; }
-    unsigned get_code_size() const { lean_assert(!is_builtin()); return m_ptr->m_code_size; }
-    vm_instr const * get_code() const { lean_assert(!is_builtin()); return m_ptr->m_code; }
+    unsigned get_code_size() const { lean_assert(is_bytecode()); return m_ptr->m_code_size; }
+    vm_instr const * get_code() const { lean_assert(is_bytecode()); return m_ptr->m_code; }
     vm_function get_fn() const { lean_assert(is_builtin()); return m_ptr->m_fn; }
-    expr const & get_expr() const { lean_assert(!is_builtin()); return m_ptr->m_expr; }
+    vm_cfunction get_cfn() const { lean_assert(is_cfun()); return m_ptr->m_cfn; }
+    expr const & get_expr() const { lean_assert(is_bytecode()); return m_ptr->m_expr; }
 };
 
 /** \brief Virtual machine for executing VM bytecode. */
@@ -426,9 +471,12 @@ class vm_state {
 
     void push_fields(vm_obj const & obj);
     void invoke_builtin(vm_decl const & d);
+    void invoke_cfun(vm_decl const & d);
     void invoke_global(vm_decl const & d);
+    void invoke(vm_decl const & d);
     void run();
     void execute(vm_instr const * code);
+    vm_obj invoke_closure(vm_obj const & fn, unsigned arity);
 
 public:
     vm_state(environment const & env);
@@ -464,6 +512,22 @@ public:
 
     void display_stack(std::ostream & out) const;
     void display(std::ostream & out, vm_obj const & o) const;
+
+    /** \brief Invoke closure \c fn with the given arguments. These procedures are meant to be use by
+        C++ generated/extracted code. */
+    vm_obj invoke(vm_obj const & fn, vm_obj const & a1);
+    vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2);
+    vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3);
+    vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4);
+    vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
+                  vm_obj const & a5);
+    vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
+                  vm_obj const & a5, vm_obj const & a6);
+    vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
+                  vm_obj const & a5, vm_obj const & a6, vm_obj const & a7);
+    vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
+                  vm_obj const & a5, vm_obj const & a6, vm_obj const & a7, vm_obj const & a8);
+    vm_obj invoke(vm_obj const & fn, unsigned nargs, vm_obj const * args);
 };
 
 /** \brief Add builtin implementation for the function named \c n. */
@@ -495,6 +559,22 @@ bool is_vm_function(environment const & env, name const & fn);
 bool is_vm_builtin_function(name const & fn);
 
 optional<vm_decl> get_vm_decl(environment const & env, name const & n);
+
+/** \brief Invoke closure \c fn with the given arguments. These procedures are meant to be use by
+    C++ generated/extracted code. */
+vm_obj invoke(vm_obj const & fn, vm_obj const & a1);
+vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2);
+vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3);
+vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4);
+vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
+              vm_obj const & a5);
+vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
+              vm_obj const & a5, vm_obj const & a6);
+vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
+              vm_obj const & a5, vm_obj const & a6, vm_obj const & a7);
+vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
+              vm_obj const & a5, vm_obj const & a6, vm_obj const & a7, vm_obj const & a8);
+vm_obj invoke(vm_obj const & fn, unsigned nargs, vm_obj const * args);
 
 void display_vm_code(std::ostream & out, environment const & env, unsigned code_sz, vm_instr const * code);
 

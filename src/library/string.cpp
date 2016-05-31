@@ -140,7 +140,7 @@ void finalize_string() {
 expr from_string_core(std::string const & s) {
     expr r = *g_empty;
     for (unsigned i = 0; i < s.size(); i++) {
-        expr n = to_nat_expr(mpz(s[i]));
+        expr n = to_nat_expr(mpz(static_cast<unsigned char>(s[i])));
         expr c = mk_app(*g_char_of_nat, n);
         r = mk_app(*g_str, c, r);
     }

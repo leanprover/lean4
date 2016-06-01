@@ -667,9 +667,11 @@ static environment compile_cmd(parser & p) {
 
 static void vm_eval_core(bool is_IO, vm_state & s, name const & main) {
     if (is_IO) s.push(mk_vm_simple(0)); // push the "RealWorld" state
+    vm_decl d = *s.get_decl(main);
+    if (!is_IO && d.get_arity() > 0)
+        throw exception("vm_eval result is a function");
     s.invoke_fn(main);
     if (is_IO) {
-        vm_decl d = *s.get_decl(main);
         if (d.get_arity() == 0) {
             /* main returned a closure, it did not process RealWorld yet.
                So, we force the execution. */

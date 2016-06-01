@@ -465,7 +465,7 @@ class vm_state {
     void invoke(vm_decl const & d);
     void run();
     void execute(vm_instr const * code);
-    vm_obj invoke_closure(vm_obj const & fn, unsigned arity);
+    vm_obj invoke_closure(vm_obj const & fn, unsigned nargs);
 
 public:
     vm_state(environment const & env);

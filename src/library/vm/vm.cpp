@@ -914,10 +914,9 @@ inline vm_cfunction_7 to_fn7(vm_decl const & d) { return reinterpret_cast<vm_cfu
 inline vm_cfunction_8 to_fn8(vm_decl const & d) { return reinterpret_cast<vm_cfunction_8>(d.get_cfn()); }
 inline vm_cfunction_N to_fnN(vm_decl const & d) { return reinterpret_cast<vm_cfunction_N>(d.get_cfn()); }
 
-vm_obj vm_state::invoke_closure(vm_obj const & fn, unsigned arity) {
-    std::copy(cfields(fn), cfields(fn) + csize(fn), std::back_inserter(m_stack));
+vm_obj vm_state::invoke_closure(vm_obj const & fn, unsigned nargs) {
     m_stack.push_back(fn);
-    apply(arity);
+    apply(nargs);
     vm_obj r = m_stack.back();
     m_stack.pop_back();
     return r;
@@ -962,7 +961,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1) {
             }
         } else {
             m_stack.push_back(a1);
-            return invoke_closure(fn, d.get_arity());
+            return invoke_closure(fn, 1);
         }
     } else {
         lean_unreachable();
@@ -1000,7 +999,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2)
         } else {
             m_stack.push_back(a2);
             m_stack.push_back(a1);
-            return invoke_closure(fn, d.get_arity());
+            return invoke_closure(fn, 2);
         }
     } else {
         lean_assert(nargs > d.get_arity());
@@ -1041,7 +1040,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2,
             m_stack.push_back(a3);
             m_stack.push_back(a2);
             m_stack.push_back(a1);
-            return invoke_closure(fn, d.get_arity());
+            return invoke_closure(fn, 3);
         }
     } else if (nargs == d.get_arity() + 1) {
         return invoke(invoke(fn, a1, a2), a3);
@@ -1085,7 +1084,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2,
             m_stack.push_back(a3);
             m_stack.push_back(a2);
             m_stack.push_back(a1);
-            return invoke_closure(fn, d.get_arity());
+            return invoke_closure(fn, 4);
         }
     } else if (nargs == d.get_arity() + 1) {
         return invoke(invoke(fn, a1, a2, a3), a4);
@@ -1134,7 +1133,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2,
             m_stack.push_back(a3);
             m_stack.push_back(a2);
             m_stack.push_back(a1);
-            return invoke_closure(fn, d.get_arity());
+            return invoke_closure(fn, 5);
         }
     } else if (nargs == d.get_arity() + 1) {
         return invoke(invoke(fn, a1, a2, a3, a4), a5);
@@ -1187,7 +1186,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2,
             m_stack.push_back(a3);
             m_stack.push_back(a2);
             m_stack.push_back(a1);
-            return invoke_closure(fn, d.get_arity());
+            return invoke_closure(fn, 6);
         }
     } else if (nargs == d.get_arity() + 1) {
         return invoke(invoke(fn, a1, a2, a3, a4, a5), a6);
@@ -1244,7 +1243,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2,
             m_stack.push_back(a3);
             m_stack.push_back(a2);
             m_stack.push_back(a1);
-            return invoke_closure(fn, d.get_arity());
+            return invoke_closure(fn, 7);
         }
     } else if (nargs == d.get_arity() + 1) {
         return invoke(invoke(fn, a1, a2, a3, a4, a5, a6), a7);
@@ -1305,7 +1304,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2,
             m_stack.push_back(a3);
             m_stack.push_back(a2);
             m_stack.push_back(a1);
-            return invoke_closure(fn, d.get_arity());
+            return invoke_closure(fn, 8);
         }
     } else if (nargs == d.get_arity() + 1) {
         return invoke(invoke(fn, a1, a2, a3, a4, a5, a6, a7), a8);
@@ -1360,7 +1359,7 @@ vm_obj vm_state::invoke(vm_obj const & fn, unsigned nargs, vm_obj const * args) 
         } else {
             unsigned i = nargs;
             while (i > 0) { --i; m_stack.push_back(args[i]); }
-            return invoke_closure(fn, d.get_arity());
+            return invoke_closure(fn, nargs);
         }
     } else {
         lean_assert(nargs + csize(fn) > d.get_arity());

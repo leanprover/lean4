@@ -108,7 +108,7 @@ static environment print_axioms(parser & p) {
         auto out = regular(env, p.ios(), tc);
         env.for_each_declaration([&](declaration const & d) {
                 name const & n = d.get_name();
-                if (!d.is_definition() && !env.is_builtin(n) && !p.in_theorem_queue(n)) {
+                if (!d.is_definition() && !env.is_builtin(n) && !p.in_theorem_queue(n) && d.is_trusted()) {
                     out << n << " : " << d.get_type() << endl;
                     has_axioms = true;
                 }

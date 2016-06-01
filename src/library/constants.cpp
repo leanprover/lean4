@@ -131,6 +131,7 @@ name const * g_nat_decidable_le = nullptr;
 name const * g_nat_decidable_lt = nullptr;
 name const * g_nat_cases_on = nullptr;
 name const * g_nat_rec_on = nullptr;
+name const * g_nat_repeat = nullptr;
 name const * g_nat_no_confusion = nullptr;
 name const * g_nat_no_confusion_type = nullptr;
 name const * g_nat_has_zero = nullptr;
@@ -444,6 +445,7 @@ void initialize_constants() {
     g_nat_decidable_lt = new name{"nat", "decidable_lt"};
     g_nat_cases_on = new name{"nat", "cases_on"};
     g_nat_rec_on = new name{"nat", "rec_on"};
+    g_nat_repeat = new name{"nat", "repeat"};
     g_nat_no_confusion = new name{"nat", "no_confusion"};
     g_nat_no_confusion_type = new name{"nat", "no_confusion_type"};
     g_nat_has_zero = new name{"nat_has_zero"};
@@ -758,6 +760,7 @@ void finalize_constants() {
     delete g_nat_decidable_lt;
     delete g_nat_cases_on;
     delete g_nat_rec_on;
+    delete g_nat_repeat;
     delete g_nat_no_confusion;
     delete g_nat_no_confusion_type;
     delete g_nat_has_zero;
@@ -1071,6 +1074,7 @@ name const & get_nat_decidable_le_name() { return *g_nat_decidable_le; }
 name const & get_nat_decidable_lt_name() { return *g_nat_decidable_lt; }
 name const & get_nat_cases_on_name() { return *g_nat_cases_on; }
 name const & get_nat_rec_on_name() { return *g_nat_rec_on; }
+name const & get_nat_repeat_name() { return *g_nat_repeat; }
 name const & get_nat_no_confusion_name() { return *g_nat_no_confusion; }
 name const & get_nat_no_confusion_type_name() { return *g_nat_no_confusion_type; }
 name const & get_nat_has_zero_name() { return *g_nat_has_zero; }

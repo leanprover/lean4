@@ -133,6 +133,7 @@ name const & get_nat_decidable_le_name();
 name const & get_nat_decidable_lt_name();
 name const & get_nat_cases_on_name();
 name const & get_nat_rec_on_name();
+name const & get_nat_repeat_name();
 name const & get_nat_no_confusion_name();
 name const & get_nat_no_confusion_type_name();
 name const & get_nat_has_zero_name();

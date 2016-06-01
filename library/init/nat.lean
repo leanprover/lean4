@@ -276,6 +276,11 @@ namespace nat
 
   theorem sub_lt_succ_iff_true [simp] (a b : ℕ) : a - b < succ a ↔ true :=
   iff_true_intro !sub_lt_succ
+
+  definition repeat {A : Type} (f : nat → A → A) : nat → A → A
+  | 0         a := a
+  | (succ n)  a := f n (repeat n a)
+
 end nat
 
 protected definition nat.is_inhabited [instance] : inhabited nat :=

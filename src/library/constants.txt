@@ -126,6 +126,7 @@ nat.decidable_le
 nat.decidable_lt
 nat.cases_on
 nat.rec_on
+nat.repeat
 nat.no_confusion
 nat.no_confusion_type
 nat_has_zero

@@ -180,6 +180,26 @@ static vm_obj nat_to_string(vm_obj const & a) {
     return to_obj(out.str());
 }
 
+static vm_obj nat_repeat(vm_obj const &, vm_obj const & f, vm_obj const & n, vm_obj const & a) {
+    if (is_simple(n)) {
+        unsigned _n = cidx(n);
+        vm_obj   r  = a;
+        for (unsigned i = 0; i < _n ; i++) {
+            r = invoke(f, mk_vm_simple(i), r);
+        }
+        return r;
+    } else {
+        mpz _n = to_mpz(n);
+        mpz i(0);
+        vm_obj r = a;
+        while (i < _n) {
+            r = invoke(f, mk_vm_nat(i), r);
+            i++;
+        }
+        return r;
+    }
+}
+
 void initialize_vm_nat() {
     declare_vm_builtin(get_nat_succ_name(),              nat_succ);
     declare_vm_builtin(get_nat_add_name(),               nat_add);
@@ -196,6 +216,7 @@ void initialize_vm_nat() {
     declare_vm_builtin(get_nat_no_confusion_name(),      5, nat_no_confusion);
     declare_vm_builtin(get_nat_no_confusion_type_name(), 3, nat_no_confusion);
     declare_vm_builtin(get_nat_to_string_name(),         nat_to_string);
+    declare_vm_builtin(get_nat_repeat_name(),            nat_repeat);
 }
 
 void finalize_vm_nat() {

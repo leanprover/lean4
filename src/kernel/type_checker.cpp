@@ -84,7 +84,7 @@ expr type_checker::infer_constant(expr const & e, bool infer_only) {
                                << length(ps)  << " expected, #" << length(ls) << " provided");
     if (!infer_only) {
         if (m_trusted_only && !d.is_trusted()) {
-            throw_kernel_exception(m_env, sstream() << "invalid definition, it uses untrusted definition '"
+            throw_kernel_exception(m_env, sstream() << "invalid definition, it uses untrusted declaration '"
                                    << const_name(e) << "'");
         }
         for (level const & l : ls)

@@ -279,10 +279,10 @@ public:
 
     void set_cache(definition_cache * c) { m_cache = c; }
     void cache_definition(name const & n, expr const & pre_type, expr const & pre_value,
-                          level_param_names const & ls, expr const & type, expr const & value);
+                          level_param_names const & ls, expr const & type, expr const & value, bool is_trusted);
     /** \brief Try to find an elaborated definition for (n, pre_type, pre_value) in the cache */
     optional<std::tuple<level_param_names, expr, expr>>
-    find_cached_definition(name const & n, expr const & pre_type, expr const & pre_value);
+    find_cached_definition(name const & n, expr const & pre_type, expr const & pre_value, bool is_trusted);
     void erase_cached_definition(name const & n) { if (m_cache) m_cache->erase(n); }
 
     bool are_info_lines_valid(unsigned start_line, unsigned end_line) const;

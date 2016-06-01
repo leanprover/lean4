@@ -113,7 +113,7 @@ void update_univ_parameters(buffer<name> & ls_buffer, name_set const & found, pa
         });
 }
 
-enum class variable_kind { Constant, Parameter, Variable, Axiom };
+enum class variable_kind { Constant, Parameter, Variable, Axiom, MetaConstant };
 
 static void check_parameter_type(parser & p, name const & n, expr const & type, pos_info const & pos) {
     for_each(type, [&](expr const & e, unsigned) {
@@ -152,7 +152,7 @@ static environment declare_var(parser & p, environment env,
             p.add_variable(n, l);
         return env;
     } else {
-        lean_assert(k == variable_kind::Constant || k == variable_kind::Axiom);
+        lean_assert(k == variable_kind::Constant || k == variable_kind::Axiom || k == variable_kind::MetaConstant);
         name const & ns = get_namespace(env);
         name full_n  = ns + n;
         expr new_type = postprocess(env, type);
@@ -160,7 +160,8 @@ static environment declare_var(parser & p, environment env,
             env = module::add(env, check(env, mk_axiom(full_n, ls, new_type)));
             p.add_decl_index(full_n, pos, get_axiom_tk(), new_type);
         } else {
-            env = module::add(env, check(env, mk_constant_assumption(full_n, ls, new_type)));
+            bool is_trusted = k == variable_kind::Constant;
+            env = module::add(env, check(env, mk_constant_assumption(full_n, ls, new_type, is_trusted)));
             p.add_decl_index(full_n, pos, get_variable_tk(), new_type);
         }
         if (!ns.is_anonymous()) {
@@ -311,6 +312,9 @@ static environment axiom_cmd(parser & p)    {
 }
 static environment constant_cmd(parser & p)    {
     return variable_cmd_core(p, variable_kind::Constant);
+}
+static environment meta_constant_cmd(parser & p)    {
+    return variable_cmd_core(p, variable_kind::MetaConstant);
 }
 static environment parameter_cmd(parser & p)    {
     return variable_cmd_core(p, variable_kind::Parameter);
@@ -715,7 +719,7 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
 }
 
 // An Lean example is not really a definition, but we use the definition infrastructure to simulate it.
-enum def_cmd_kind { Theorem, Definition, Example, Abbreviation, LocalAbbreviation };
+enum def_cmd_kind { Theorem, Definition, MetaDefinition, Example, Abbreviation, LocalAbbreviation };
 
 class definition_cmd_fn {
     parser &          m_p;
@@ -756,7 +760,8 @@ class definition_cmd_fn {
         }
     }
 
-    bool is_definition() const { return m_kind == Definition || m_kind == Abbreviation || m_kind == LocalAbbreviation; }
+    bool is_trusted() const { return m_kind != MetaDefinition; }
+    bool is_definition() const { return m_kind == Definition || m_kind == MetaDefinition || m_kind == Abbreviation || m_kind == LocalAbbreviation; }
     unsigned start_line() const { return m_pos.first; }
     unsigned end_line() const { return m_end_pos.first; }
 
@@ -928,7 +933,7 @@ class definition_cmd_fn {
             m_p.are_info_lines_valid(start_line(), end_line()) &&
             m_aux_decls.size() == 0) {
             // we only use the cache if the information associated with the line is valid
-            if (auto it = m_p.find_cached_definition(m_real_name, m_type, m_value)) {
+            if (auto it = m_p.find_cached_definition(m_real_name, m_type, m_value, is_trusted())) {
                 optional<certified_declaration> cd;
                 try {
                     level_param_names c_ls; expr c_type, c_value;
@@ -947,7 +952,8 @@ class definition_cmd_fn {
                         m_env = module::add(m_env, *cd);
                     } else {
                         c_value = extract_nested(c_value);
-                        cd = check(mk_definition(m_env, m_real_name, c_ls, c_type, c_value));
+                        bool use_conv_opt = true;
+                        cd = check(mk_definition(m_env, m_real_name, c_ls, c_type, c_value, use_conv_opt, is_trusted()));
                         if (!m_is_private)
                             m_p.add_decl_index(m_real_name, m_pos, m_p.get_cmd_token(), c_type);
                         m_env = module::add(m_env, *cd);
@@ -1084,10 +1090,11 @@ class definition_cmd_fn {
             aux_values[i]  = postprocess(m_env, aux_values[i]);
         }
         if (is_definition()) {
-            m_env = module::add(m_env, check(mk_definition(m_env, m_real_name, new_ls, m_type, m_value)));
+            bool use_conv_opt = true;
+            m_env = module::add(m_env, check(mk_definition(m_env, m_real_name, new_ls, m_type, m_value, use_conv_opt, is_trusted())));
             for (unsigned i = 0; i < aux_values.size(); i++)
                 m_env = module::add(m_env, check(mk_definition(m_env, m_real_aux_names[i], new_ls,
-                                                               m_aux_types[i], aux_values[i])));
+                                                               m_aux_types[i], aux_values[i], use_conv_opt, is_trusted())));
         } else {
             m_env = module::add(m_env, check(mk_theorem(m_env, m_real_name, new_ls, m_type, m_value)));
             for (unsigned i = 0; i < aux_values.size(); i++)
@@ -1131,7 +1138,7 @@ class definition_cmd_fn {
                         }
                         cd = check(mk_axiom(m_real_name, new_ls, m_type));
                         m_env = module::add(m_env, cd);
-                        m_p.cache_definition(m_real_name, pre_type, pre_value, new_ls, m_type, m_value);
+                        m_p.cache_definition(m_real_name, pre_type, pre_value, new_ls, m_type, m_value, is_trusted());
                     }
                 }
             } else {
@@ -1140,9 +1147,10 @@ class definition_cmd_fn {
                 m_type       = postprocess(m_env, m_type);
                 m_value      = postprocess(m_env, m_value);
                 expr new_val = extract_nested(m_value);
-                m_env = module::add(m_env, check(mk_definition(m_env, m_real_name, new_ls, m_type, new_val)));
+                bool use_conv_opt = true;
+                m_env = module::add(m_env, check(mk_definition(m_env, m_real_name, new_ls, m_type, new_val, use_conv_opt, is_trusted())));
                 // Remark: we cache the definition with the nested declarations.
-                m_p.cache_definition(m_real_name, pre_type, pre_value, new_ls, m_type, m_value);
+                m_p.cache_definition(m_real_name, pre_type, pre_value, new_ls, m_type, m_value, is_trusted());
             }
         }
     }
@@ -1226,6 +1234,9 @@ static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_pr
 static environment definition_cmd(parser & p) {
     return definition_cmd_core(p, Definition, false, false, false, false);
 }
+static environment meta_definition_cmd(parser & p) {
+    return definition_cmd_core(p, MetaDefinition, false, false, false, false);
+}
 static environment abbreviation_cmd(parser & p) {
     return definition_cmd_core(p, Abbreviation, false, false, false, false);
 }
@@ -1261,6 +1272,9 @@ static environment private_definition_cmd(parser & p) {
     def_cmd_kind kind = Definition;
     if (p.curr_is_token_or_id(get_definition_tk())) {
         p.next();
+    } else if (p.curr_is_token_or_id(get_meta_definition_tk())) {
+        kind = MetaDefinition;
+        p.next();
     } else if (p.curr_is_token_or_id(get_abbreviation_tk())) {
         check_not_inline(p, is_inline);
         kind = Abbreviation;
@@ -1281,6 +1295,9 @@ static environment protected_definition_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_constant_tk())) {
         p.next();
         return variable_cmd_core(p, variable_kind::Constant, true);
+    } else if (p.curr_is_token_or_id(get_meta_constant_tk())) {
+        p.next();
+        return variable_cmd_core(p, variable_kind::MetaConstant, true);
     } else if (p.curr_is_token_or_id(get_axioms_tk())) {
         p.next();
         return variables_cmd_core(p, variable_kind::Axiom, true);
@@ -1292,6 +1309,9 @@ static environment protected_definition_cmd(parser & p) {
         parse_opt_noncomputable_inline(p, is_noncomputable, is_inline);
         def_cmd_kind kind = Definition;
         if (p.curr_is_token_or_id(get_definition_tk())) {
+            p.next();
+        } else if (p.curr_is_token_or_id(get_meta_definition_tk())) {
+            kind = MetaDefinition;
             p.next();
         } else if (p.curr_is_token_or_id(get_abbreviation_tk())) {
             check_not_inline(p, is_inline);
@@ -1331,6 +1351,9 @@ static environment noncomputable_cmd(parser & p) {
         def_cmd_kind kind = Definition;
         if (p.curr_is_token_or_id(get_definition_tk())) {
             p.next();
+        } else if (p.curr_is_token_or_id(get_meta_definition_tk())) {
+            kind = MetaDefinition;
+            p.next();
         } else if (p.curr_is_token_or_id(get_abbreviation_tk())) {
             p.next();
             kind = Abbreviation;
@@ -1348,7 +1371,14 @@ static environment inline_definition_cmd(parser & p) {
     bool is_private, is_protected;
     parse_opt_private_protected(p, is_private, is_protected);
     def_cmd_kind kind = Definition;
-    p.check_token_next(get_definition_tk(), "invalid 'inline' definition, 'definition' expected");
+    if (p.curr_is_token_or_id(get_definition_tk())) {
+        p.next();
+    } else if (p.curr_is_token_or_id(get_meta_definition_tk())) {
+        kind = MetaDefinition;
+        p.next();
+    } else {
+        throw parser_error("invalid 'inline' definition/meta_definition, 'definition' or 'meta_definition' expected", p.pos());
+    }
     return definition_cmd_core(p, kind, is_private, is_protected, false, true);
 }
 
@@ -1432,28 +1462,30 @@ static environment reveal_cmd(parser & p) {
 }
 
 void register_decl_cmds(cmd_table & r) {
-    add_cmd(r, cmd_info("universe",     "declare a universe level", universe_cmd));
-    add_cmd(r, cmd_info("universes",    "declare universe levels", universes_cmd));
-    add_cmd(r, cmd_info("variable",     "declare a new variable", variable_cmd));
-    add_cmd(r, cmd_info("parameter",    "declare a new parameter", parameter_cmd));
-    add_cmd(r, cmd_info("constant",     "declare a new constant (aka top-level variable)", constant_cmd));
-    add_cmd(r, cmd_info("axiom",        "declare a new axiom", axiom_cmd));
-    add_cmd(r, cmd_info("variables",    "declare new variables", variables_cmd));
-    add_cmd(r, cmd_info("parameters",   "declare new parameters", parameters_cmd));
-    add_cmd(r, cmd_info("constants",    "declare new constants (aka top-level variables)", constants_cmd));
-    add_cmd(r, cmd_info("axioms",       "declare new axioms", axioms_cmd));
-    add_cmd(r, cmd_info("definition",   "add new definition", definition_cmd));
-    add_cmd(r, cmd_info("noncomputable", "add new noncomputable definition", noncomputable_cmd));
-    add_cmd(r, cmd_info("example",      "add new example", example_cmd));
-    add_cmd(r, cmd_info("private",      "add new private definition/theorem", private_definition_cmd));
-    add_cmd(r, cmd_info("protected",    "add new protected definition/theorem", protected_definition_cmd));
-    add_cmd(r, cmd_info("inline",       "add new inline definition", inline_definition_cmd));
-    add_cmd(r, cmd_info("theorem",      "add new theorem", theorem_cmd));
-    add_cmd(r, cmd_info("reveal",       "reveal given theorems", reveal_cmd));
-    add_cmd(r, cmd_info("include",      "force section parameter/variable to be included", include_cmd));
-    add_cmd(r, cmd_info("attribute",    "set declaration attributes", attribute_cmd));
-    add_cmd(r, cmd_info("abbreviation", "declare a new abbreviation", abbreviation_cmd));
-    add_cmd(r, cmd_info("omit",         "undo 'include' command", omit_cmd));
+    add_cmd(r, cmd_info("universe",        "declare a universe level", universe_cmd));
+    add_cmd(r, cmd_info("universes",       "declare universe levels", universes_cmd));
+    add_cmd(r, cmd_info("variable",        "declare a new variable", variable_cmd));
+    add_cmd(r, cmd_info("parameter",       "declare a new parameter", parameter_cmd));
+    add_cmd(r, cmd_info("constant",        "declare a new constant (aka top-level variable)", constant_cmd));
+    add_cmd(r, cmd_info("meta_constant",   "declare a new meta constant", meta_constant_cmd));
+    add_cmd(r, cmd_info("axiom",           "declare a new axiom", axiom_cmd));
+    add_cmd(r, cmd_info("variables",       "declare new variables", variables_cmd));
+    add_cmd(r, cmd_info("parameters",      "declare new parameters", parameters_cmd));
+    add_cmd(r, cmd_info("constants",       "declare new constants (aka top-level variables)", constants_cmd));
+    add_cmd(r, cmd_info("axioms",          "declare new axioms", axioms_cmd));
+    add_cmd(r, cmd_info("definition",      "add new definition", definition_cmd));
+    add_cmd(r, cmd_info("meta_definition", "add new meta definition", meta_definition_cmd));
+    add_cmd(r, cmd_info("noncomputable",   "add new noncomputable definition", noncomputable_cmd));
+    add_cmd(r, cmd_info("example",         "add new example", example_cmd));
+    add_cmd(r, cmd_info("private",         "add new private definition/theorem", private_definition_cmd));
+    add_cmd(r, cmd_info("protected",       "add new protected definition/theorem", protected_definition_cmd));
+    add_cmd(r, cmd_info("inline",          "add new inline definition", inline_definition_cmd));
+    add_cmd(r, cmd_info("theorem",         "add new theorem", theorem_cmd));
+    add_cmd(r, cmd_info("reveal",          "reveal given theorems", reveal_cmd));
+    add_cmd(r, cmd_info("include",         "force section parameter/variable to be included", include_cmd));
+    add_cmd(r, cmd_info("attribute",       "set declaration attributes", attribute_cmd));
+    add_cmd(r, cmd_info("abbreviation",    "declare a new abbreviation", abbreviation_cmd));
+    add_cmd(r, cmd_info("omit",            "undo 'include' command", omit_cmd));
 }
 
 void initialize_decl_cmds() {

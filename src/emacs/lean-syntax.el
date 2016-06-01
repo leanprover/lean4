@@ -8,8 +8,8 @@
 (require 'rx)
 
 (defconst lean-keywords1
-  '("import" "prelude" "tactic_hint" "protected" "private" "inline" "noncomputable" "definition" "renaming"
-    "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture" "constant" "constants"
+  '("import" "prelude" "tactic_hint" "protected" "private" "inline" "noncomputable" "definition" "meta_definition" "renaming"
+    "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture" "constant" "constants" "meta_constant"
     "hypothesis" "lemma" "corollary" "variable" "variables" "premise" "premises" "theory"
     "print" "theorem" "proposition" "example" "abbreviation" "abstract"
     "open" "as" "export" "override" "axiom" "axioms" "inductive" "with" "structure" "record" "universe" "universes"
@@ -178,7 +178,7 @@
      (,lean-numerals-regexp . 'font-lock-constant-face)
      ;; universe/inductive/theorem... "names"
      (,(rx word-start
-           (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary" "hypothesis" "definition" "constant" "abbreviation"))
+           (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary" "hypothesis" "definition" "meta_definition" "constant" "meta_constant" "abbreviation"))
            word-end
            (zero-or-more (or whitespace "(" "{" "["))
            (group (zero-or-more (not (any " \t\n\r{([")))))

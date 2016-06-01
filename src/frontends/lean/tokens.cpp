@@ -92,12 +92,14 @@ static name const * g_private_tk = nullptr;
 static name const * g_protected_tk = nullptr;
 static name const * g_inline_tk = nullptr;
 static name const * g_definition_tk = nullptr;
+static name const * g_meta_definition_tk = nullptr;
 static name const * g_theorem_tk = nullptr;
 static name const * g_abbreviation_tk = nullptr;
 static name const * g_axiom_tk = nullptr;
 static name const * g_axioms_tk = nullptr;
 static name const * g_constant_tk = nullptr;
 static name const * g_constants_tk = nullptr;
+static name const * g_meta_constant_tk = nullptr;
 static name const * g_variable_tk = nullptr;
 static name const * g_variables_tk = nullptr;
 static name const * g_priority_tk = nullptr;
@@ -241,12 +243,14 @@ void initialize_tokens() {
     g_protected_tk = new name{"protected"};
     g_inline_tk = new name{"inline"};
     g_definition_tk = new name{"definition"};
+    g_meta_definition_tk = new name{"meta_definition"};
     g_theorem_tk = new name{"theorem"};
     g_abbreviation_tk = new name{"abbreviation"};
     g_axiom_tk = new name{"axiom"};
     g_axioms_tk = new name{"axioms"};
     g_constant_tk = new name{"constant"};
     g_constants_tk = new name{"constants"};
+    g_meta_constant_tk = new name{"meta_constant"};
     g_variable_tk = new name{"variable"};
     g_variables_tk = new name{"variables"};
     g_priority_tk = new name{"[priority"};
@@ -391,12 +395,14 @@ void finalize_tokens() {
     delete g_protected_tk;
     delete g_inline_tk;
     delete g_definition_tk;
+    delete g_meta_definition_tk;
     delete g_theorem_tk;
     delete g_abbreviation_tk;
     delete g_axiom_tk;
     delete g_axioms_tk;
     delete g_constant_tk;
     delete g_constants_tk;
+    delete g_meta_constant_tk;
     delete g_variable_tk;
     delete g_variables_tk;
     delete g_priority_tk;
@@ -540,12 +546,14 @@ name const & get_private_tk() { return *g_private_tk; }
 name const & get_protected_tk() { return *g_protected_tk; }
 name const & get_inline_tk() { return *g_inline_tk; }
 name const & get_definition_tk() { return *g_definition_tk; }
+name const & get_meta_definition_tk() { return *g_meta_definition_tk; }
 name const & get_theorem_tk() { return *g_theorem_tk; }
 name const & get_abbreviation_tk() { return *g_abbreviation_tk; }
 name const & get_axiom_tk() { return *g_axiom_tk; }
 name const & get_axioms_tk() { return *g_axioms_tk; }
 name const & get_constant_tk() { return *g_constant_tk; }
 name const & get_constants_tk() { return *g_constants_tk; }
+name const & get_meta_constant_tk() { return *g_meta_constant_tk; }
 name const & get_variable_tk() { return *g_variable_tk; }
 name const & get_variables_tk() { return *g_variables_tk; }
 name const & get_priority_tk() { return *g_priority_tk; }

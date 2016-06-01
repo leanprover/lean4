@@ -221,15 +221,15 @@ void parser::scan() {
 }
 
 void parser::cache_definition(name const & n, expr const & pre_type, expr const & pre_value,
-                              level_param_names const & ls, expr const & type, expr const & value) {
+                              level_param_names const & ls, expr const & type, expr const & value, bool is_trusted) {
     if (m_cache)
-        m_cache->add(m_env, n, pre_type, pre_value, ls, type, value);
+        m_cache->add(m_env, n, pre_type, pre_value, ls, type, value, is_trusted);
 }
 
-auto parser::find_cached_definition(name const & n, expr const & pre_type, expr const & pre_value)
+auto parser::find_cached_definition(name const & n, expr const & pre_type, expr const & pre_value, bool is_trusted)
 -> optional<std::tuple<level_param_names, expr, expr>> {
     if (m_cache)
-        return m_cache->find(m_env, n, pre_type, pre_value);
+        return m_cache->find(m_env, n, pre_type, pre_value, is_trusted);
     else
         return optional<std::tuple<level_param_names, expr, expr>>();
 }

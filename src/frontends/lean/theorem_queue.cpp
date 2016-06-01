@@ -33,7 +33,8 @@ void theorem_queue::add(environment const & env, name const & n, level_param_nam
             new_ls = append(ls, new_ls);
             value  = postprocess(env, value);
             auto r = check(env, mk_theorem(env, n, new_ls, type, value));
-            m_parser.cache_definition(n, t, v, new_ls, type, value);
+            bool is_trusted = true;
+            m_parser.cache_definition(n, t, v, new_ls, type, value, is_trusted);
             return r;
         });
 }

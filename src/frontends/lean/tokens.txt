@@ -87,12 +87,14 @@ private      private
 protected    protected
 inline       inline
 definition   definition
+meta_definition meta_definition
 theorem      theorem
 abbreviation abbreviation
 axiom        axiom
 axioms       axioms
 constant     constant
 constants    constants
+meta_constant meta_constant
 variable     variable
 variables    variables
 priority     [priority

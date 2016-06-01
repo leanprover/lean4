@@ -127,9 +127,9 @@ public:
 
 definition_cache::entry::entry(expr const & pre_t, expr const & pre_v,
                                level_param_names const & ps, expr const & t, expr const & v,
-                               dependencies const & deps, uint64 fingerprint):
+                               dependencies const & deps, uint64 fingerprint, bool is_trusted):
     m_pre_type(pre_t), m_pre_value(pre_v), m_params(ps),
-    m_type(t), m_value(v), m_dependencies(deps), m_fingerprint(fingerprint) {}
+    m_type(t), m_value(v), m_dependencies(deps), m_fingerprint(fingerprint), m_is_trusted(is_trusted) {}
 
 definition_cache::definition_cache() {}
 
@@ -152,8 +152,9 @@ void definition_cache::load(std::istream & in) {
             deps.insert(n, h);
         }
         uint64 fingerprint;
-        d >> fingerprint;
-        add_core(n, pre_type, pre_value, ls, type, value, deps, fingerprint);
+        bool is_trusted;
+        d >> fingerprint >> is_trusted;
+        add_core(n, pre_type, pre_value, ls, type, value, deps, fingerprint, is_trusted);
     }
 }
 
@@ -174,18 +175,18 @@ void definition_cache::collect_dependencies(environment const & env, expr const 
 
 void definition_cache::add_core(name const & n, expr const & pre_type, expr const & pre_value,
                                 level_param_names const & ls, expr const & type, expr const & value,
-                                dependencies const & deps, uint64 fingerprint) {
-    m_definitions.insert(n, entry(pre_type, pre_value, ls, type, value, deps, fingerprint));
+                                dependencies const & deps, uint64 fingerprint, bool is_trusted) {
+    m_definitions.insert(n, entry(pre_type, pre_value, ls, type, value, deps, fingerprint, is_trusted));
 }
 
 void definition_cache::add(environment const & env, name const & n, expr const & pre_type, expr const & pre_value,
-                           level_param_names const & ls, expr const & type, expr const & value) {
+                           level_param_names const & ls, expr const & type, expr const & value, bool is_trusted) {
     dependencies deps;
     collect_dependencies(env, type, deps);
     collect_dependencies(env, value, deps);
     uint64 fingerprint = get_fingerprint(env);
     lock_guard<mutex> lc(m_mutex);
-    add_core(n, pre_type, pre_value, ls, type, value, deps, fingerprint);
+    add_core(n, pre_type, pre_value, ls, type, value, deps, fingerprint, is_trusted);
 }
 
 void definition_cache::erase(name const & n) {
@@ -216,7 +217,7 @@ bool definition_cache::check_dependencies(environment const & env, dependencies 
 }
 
 optional<std::tuple<level_param_names, expr, expr>>
-definition_cache::find(environment const & env, name const & n, expr const & pre_type, expr const & pre_value) {
+definition_cache::find(environment const & env, name const & n, expr const & pre_type, expr const & pre_value, bool is_trusted) {
     entry e;
     {
         lock_guard<mutex> lc(m_mutex);
@@ -227,7 +228,8 @@ definition_cache::find(environment const & env, name const & n, expr const & pre
         }
     }
     level_param_names ls;
-    if (expr_eq_modulo_placeholders_fn()(e.m_pre_type, pre_type) &&
+    if (e.m_is_trusted == is_trusted &&
+        expr_eq_modulo_placeholders_fn()(e.m_pre_type, pre_type) &&
         expr_eq_modulo_placeholders_fn()(e.m_pre_value, pre_value) &&
         get_fingerprint(env) == e.m_fingerprint &&
         check_dependencies(env, e.m_dependencies)) {
@@ -248,7 +250,7 @@ void definition_cache::save(std::ostream & out) {
             e.m_dependencies.for_each([&](name const & n, unsigned h) {
                     s << n << h;
                 });
-            s << e.m_fingerprint;
+            s << e.m_fingerprint << e.m_is_trusted;
         });
 }
 }

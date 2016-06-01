@@ -376,7 +376,7 @@ vm_instr mk_closure_instr(unsigned fn_idx, unsigned n);
 class vm_state;
 class vm_instr;
 
-enum class vm_decl_kind { Bytecode, Builtin, CFun, BuiltinCFun };
+enum class vm_decl_kind { Bytecode, Builtin, CFun };
 
 /** \brief VM function/constant declaration cell */
 struct vm_decl_cell {
@@ -391,14 +391,11 @@ struct vm_decl_cell {
             unsigned   m_code_size;
             vm_instr * m_code;
         };
-        struct {
-            vm_function   m_fn;
-            vm_cfunction  m_cfn;
-        };
+        vm_function   m_fn;
+        vm_cfunction  m_cfn;
     };
     vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_function fn);
     vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_cfunction fn);
-    vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_function fn1, vm_cfunction fn2);
     vm_decl_cell(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code);
     ~vm_decl_cell();
     void dealloc();
@@ -414,8 +411,6 @@ public:
         vm_decl(new vm_decl_cell(n, idx, arity, fn)) {}
     vm_decl(name const & n, unsigned idx, unsigned arity, vm_cfunction fn):
         vm_decl(new vm_decl_cell(n, idx, arity, fn)) {}
-    vm_decl(name const & n, unsigned idx, unsigned arity, vm_function fn1, vm_cfunction fn2):
-        vm_decl(new vm_decl_cell(n, idx, arity, fn1, fn2)) {}
     vm_decl(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code):
         vm_decl(new vm_decl_cell(n, idx, e, code_sz, code)) {}
     vm_decl(vm_decl const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
@@ -429,14 +424,8 @@ public:
 
     vm_decl_kind kind() const { return m_ptr->m_kind; }
     bool is_bytecode() const { lean_assert(m_ptr); return m_ptr->m_kind == vm_decl_kind::Bytecode; }
-    bool is_builtin() const {
-        lean_assert(m_ptr);
-        return m_ptr->m_kind == vm_decl_kind::Builtin || m_ptr->m_kind == vm_decl_kind::BuiltinCFun;
-    }
-    bool is_cfun() const {
-        lean_assert(m_ptr);
-        return m_ptr->m_kind == vm_decl_kind::CFun || m_ptr->m_kind == vm_decl_kind::BuiltinCFun;
-    }
+    bool is_builtin() const { lean_assert(m_ptr); return m_ptr->m_kind == vm_decl_kind::Builtin; }
+    bool is_cfun() const { lean_assert(m_ptr); return m_ptr->m_kind == vm_decl_kind::CFun; }
     unsigned get_idx() const { lean_assert(m_ptr); return m_ptr->m_idx; }
     name get_name() const { lean_assert(m_ptr); return m_ptr->m_name; }
     unsigned get_arity() const { lean_assert(m_ptr); return m_ptr->m_arity; }
@@ -531,7 +520,8 @@ public:
 };
 
 /** \brief Add builtin implementation for the function named \c n.
-    All environment objects will contain this builtin. */
+    All environment objects will contain this builtin.
+    \pre These procedures can only be invoked at initialization time. */
 void declare_vm_builtin(name const & n, unsigned arity, vm_function fn);
 void declare_vm_builtin(name const & n, vm_cfunction_1 fn);
 void declare_vm_builtin(name const & n, vm_cfunction_2 fn);
@@ -542,6 +532,17 @@ void declare_vm_builtin(name const & n, vm_cfunction_6 fn);
 void declare_vm_builtin(name const & n, vm_cfunction_7 fn);
 void declare_vm_builtin(name const & n, vm_cfunction_8 fn);
 void declare_vm_builtin(name const & n, unsigned arity, vm_cfunction_N fn);
+
+/** Register in the given environment \c fn as the implementation for function \c n. */
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_1 fn);
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_2 fn);
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_3 fn);
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_4 fn);
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_5 fn);
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_6 fn);
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_7 fn);
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_8 fn);
+environment declare_vm_builtin(environment const & env, name const & n, unsigned arity, vm_cfunction_N fn);
 
 /** \brief Reserve an index for the given function in the VM, the expression
     \c e is the value of \c fn after preprocessing.

@@ -543,13 +543,10 @@ static vm_instr read_vm_instr(deserializer & d, name_map<unsigned> const & name2
 }
 
 vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_function fn):
-    m_rc(0), m_kind(vm_decl_kind::Builtin), m_name(n), m_idx(idx), m_arity(arity), m_fn(fn), m_cfn(nullptr) {}
+    m_rc(0), m_kind(vm_decl_kind::Builtin), m_name(n), m_idx(idx), m_arity(arity), m_fn(fn) {}
 
 vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_cfunction fn):
-    m_rc(0), m_kind(vm_decl_kind::CFun), m_name(n), m_idx(idx), m_arity(arity), m_fn(nullptr), m_cfn(fn) {}
-
-vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, unsigned arity, vm_function fn1, vm_cfunction fn2):
-    m_rc(0), m_kind(vm_decl_kind::BuiltinCFun), m_name(n), m_idx(idx), m_arity(arity), m_fn(fn1), m_cfn(fn2) {}
+    m_rc(0), m_kind(vm_decl_kind::CFun), m_name(n), m_idx(idx), m_arity(arity), m_cfn(fn) {}
 
 vm_decl_cell::vm_decl_cell(name const & n, unsigned idx, expr const & e, unsigned code_sz, vm_instr const * code):
     m_rc(0), m_kind(vm_decl_kind::Bytecode), m_name(n), m_idx(idx), m_expr(e), m_arity(0),
@@ -681,6 +678,54 @@ static vm_decls const & get_extension(environment const & env) {
 }
 static environment update(environment const & env, vm_decls const & ext) {
     return env.update(g_ext->m_ext_id, std::make_shared<vm_decls>(ext));
+}
+
+static environment declare_vm_builtin(environment const & env, name const & n, unsigned arity, vm_cfunction fn) {
+    auto ext = get_extension(env);
+    if (auto idx = ext.m_name2idx.find(n)) {
+        vm_decl d = ext.m_decls[*idx];
+        lean_assert(d.get_arity() == arity);
+        ext.m_decls.set(*idx, vm_decl(n, *idx, arity, fn));
+    } else {
+        ext.add(vm_decl(n, ext.m_decls.size(), arity, fn));
+    }
+    return update(env, ext);
+}
+
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_1 fn) {
+    return declare_vm_builtin(env, n, 1, reinterpret_cast<vm_cfunction>(fn));
+}
+
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_2 fn) {
+    return declare_vm_builtin(env, n, 2, reinterpret_cast<vm_cfunction>(fn));
+}
+
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_3 fn) {
+    return declare_vm_builtin(env, n, 3, reinterpret_cast<vm_cfunction>(fn));
+}
+
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_4 fn) {
+    return declare_vm_builtin(env, n, 4, reinterpret_cast<vm_cfunction>(fn));
+}
+
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_5 fn) {
+    return declare_vm_builtin(env, n, 5, reinterpret_cast<vm_cfunction>(fn));
+}
+
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_6 fn) {
+    return declare_vm_builtin(env, n, 6, reinterpret_cast<vm_cfunction>(fn));
+}
+
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_7 fn) {
+    return declare_vm_builtin(env, n, 7, reinterpret_cast<vm_cfunction>(fn));
+}
+
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_8 fn) {
+    return declare_vm_builtin(env, n, 8, reinterpret_cast<vm_cfunction>(fn));
+}
+
+environment declare_vm_builtin(environment const & env, name const & n, unsigned arity, vm_cfunction_N fn) {
+    return declare_vm_builtin(env, n, arity, reinterpret_cast<vm_cfunction>(fn));
 }
 
 bool is_vm_function(environment const & env, name const & fn) {
@@ -1393,7 +1438,7 @@ void vm_state::invoke(vm_decl const & d) {
     switch (d.kind()) {
     case vm_decl_kind::Bytecode:
         invoke_global(d); break;
-    case vm_decl_kind::Builtin: case vm_decl_kind::BuiltinCFun:
+    case vm_decl_kind::Builtin:
         invoke_builtin(d); break;
     case vm_decl_kind::CFun:
         invoke_cfun(d); break;

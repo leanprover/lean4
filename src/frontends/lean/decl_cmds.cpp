@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/error_handling.h"
 #include "library/definitional/equations.h"
 #include "library/compiler/inliner.h"
+#include "library/compiler/rec_fn_macro.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/vm/vm.h"
 #include "frontends/lean/parser.h"
@@ -605,7 +606,7 @@ static void parse_equations_core(parser & p, buffer<expr> const & fns, buffer<ex
 
 expr parse_equations(parser & p, name const & n, expr const & type, buffer<name> & auxs,
                      optional<local_environment> const & lenv, buffer<expr> const & ps,
-                     pos_info const & def_pos) {
+                     pos_info const & def_pos, bool is_meta) {
     buffer<expr> fns;
     buffer<expr> eqns;
     {
@@ -613,17 +614,19 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
         for (expr const & param : ps)
             p.add_local(param);
         lean_assert(is_curr_with_or_comma_or_bar(p));
-        fns.push_back(mk_local(n, type, mk_rec_info(true)));
-        if (p.curr_is_token(get_with_tk())) {
-            while (p.curr_is_token(get_with_tk())) {
-                p.next();
-                auto pos = p.pos();
-                name g_name = p.check_decl_id_next("invalid declaration, identifier expected");
-                p.check_token_next(get_colon_tk(), "invalid declaration, ':' expected");
-                expr g_type = p.parse_expr();
-                expr g      = p.save_pos(mk_local(g_name, g_type, mk_rec_info(true)), pos);
-                auxs.push_back(g_name);
-                fns.push_back(g);
+        if (!is_meta) {
+            fns.push_back(mk_local(n, type, mk_rec_info(true)));
+            if (p.curr_is_token(get_with_tk())) {
+                while (p.curr_is_token(get_with_tk())) {
+                    p.next();
+                    auto pos = p.pos();
+                    name g_name = p.check_decl_id_next("invalid declaration, identifier expected");
+                    p.check_token_next(get_colon_tk(), "invalid declaration, ':' expected");
+                    expr g_type = p.parse_expr();
+                    expr g      = p.save_pos(mk_local(g_name, g_type, mk_rec_info(true)), pos);
+                    auxs.push_back(g_name);
+                    fns.push_back(g);
+                }
             }
         }
         check_eqn_prefix(p);
@@ -761,6 +764,7 @@ class definition_cmd_fn {
     }
 
     bool is_trusted() const { return m_kind != MetaDefinition; }
+    bool is_meta() const { return m_kind == MetaDefinition; }
     bool is_definition() const { return m_kind == Definition || m_kind == MetaDefinition || m_kind == Abbreviation || m_kind == LocalAbbreviation; }
     unsigned start_line() const { return m_pos.first; }
     unsigned end_line() const { return m_end_pos.first; }
@@ -778,6 +782,12 @@ class definition_cmd_fn {
         return new_v;
     }
 
+    void add_meta_rec_ref() {
+        if (m_kind == MetaDefinition) {
+            m_env = m_p.add_local_ref(m_env, m_name, mk_rec_fn_macro(m_real_name, mk_expr_placeholder()));
+        }
+    }
+
     void parse_type_value() {
         // Parse universe parameters
         parser::local_scope scope1(m_p);
@@ -790,16 +800,18 @@ class definition_cmd_fn {
             auto pos = m_p.pos();
             m_p.next();
             m_type  = m_p.save_pos(mk_expr_placeholder(), pos);
+            add_meta_rec_ref();
             m_value = m_p.parse_expr();
         } else if (m_p.curr_is_token(get_colon_tk())) {
             m_p.next();
             auto pos = m_p.pos();
             m_type = m_p.parse_expr();
             save_checkpoint();
+            add_meta_rec_ref();
             if (is_curr_with_or_comma_or_bar(m_p)) {
                 allow_nested_decls_scope scope2(is_definition());
                 m_value = parse_equations(m_p, m_name, m_type, m_aux_decls,
-                                          optional<local_environment>(), buffer<expr>(), m_pos);
+                                          optional<local_environment>(), buffer<expr>(), m_pos, is_meta());
             } else if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
                 check_end_of_theorem(m_p);
                 m_value = m_p.save_pos(mk_expr_placeholder(), pos);
@@ -819,9 +831,10 @@ class definition_cmd_fn {
                 expr type  = m_p.parse_scoped_expr(ps, *lenv);
                 m_type     = Pi(ps, type, m_p);
                 save_checkpoint();
+                add_meta_rec_ref();
                 if (is_curr_with_or_comma_or_bar(m_p)) {
                     allow_nested_decls_scope scope2(is_definition());
-                    m_value = parse_equations(m_p, m_name, type, m_aux_decls, lenv, ps, m_pos);
+                    m_value = parse_equations(m_p, m_name, type, m_aux_decls, lenv, ps, m_pos, is_meta());
                 } else if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
                     check_end_of_theorem(m_p);
                     m_value = m_p.save_pos(mk_expr_placeholder(), pos);
@@ -840,6 +853,7 @@ class definition_cmd_fn {
                 m_type  = m_p.save_pos(mk_expr_placeholder(), m_p.pos());
                 m_type  = Pi(ps, m_type, m_p);
                 save_checkpoint();
+                add_meta_rec_ref();
                 m_p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
                 allow_nested_decls_scope scope2(is_definition());
                 m_value = m_p.parse_scoped_expr(ps, *lenv);
@@ -856,16 +870,26 @@ class definition_cmd_fn {
             auto env_n  = add_private_name(m_env, m_name, optional<unsigned>(h));
             m_env       = env_n.first;
             m_real_name = env_n.second;
+        } else if (m_kind == Example) {
+            m_real_name = name("example");
+        } else {
+            name const & ns = get_namespace(m_env);
+            m_real_name     = ns + m_name;
+        }
+    }
+
+    void mk_aux_real_names() {
+        if (m_is_private) {
+            unsigned h  = hash(m_pos.first, m_pos.second);
             for (name const & aux : m_aux_decls) {
                 auto env_n = add_private_name(m_env, aux, optional<unsigned>(h));
                 m_env      = env_n.first;
                 m_real_aux_names.push_back(env_n.second);
             }
         } else if (m_kind == Example) {
-            m_real_name = name("example");
+            // do nothing
         } else {
             name const & ns = get_namespace(m_env);
-            m_real_name     = ns + m_name;
             for (name const & aux : m_aux_decls)
                 m_real_aux_names.push_back(ns + aux);
         }
@@ -873,12 +897,13 @@ class definition_cmd_fn {
 
     void parse() {
         parse_name();
+        mk_real_name();
         parse_type_value();
         check_command_period_or_eof(m_p);
         if (m_p.used_sorry())
             m_p.declare_sorry();
+        mk_aux_real_names();
         m_env = m_p.env();
-        mk_real_name();
     }
 
     void display_pos(std::ostream & out) {

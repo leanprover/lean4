@@ -64,6 +64,7 @@ class old_elaborator : public coercion_info_manager {
     // If m_nice_mvar_names is true, we append (when possible) a more informative name for a metavariable.
     // That is, whenever a metavariables comes from a binding, we add the binding name as a suffix
     bool                 m_nice_mvar_names;
+    optional<expr>       m_type;
 
     optional<expr>       m_to_show_hole; // type information for "show hole" command line
     expr                 m_to_show_hole_ref; // provide position information

@@ -703,7 +703,9 @@ static environment vm_eval_cmd(parser & p) {
     }
     environment new_env = p.env();
     name main("_main");
-    auto cd = check(new_env, mk_definition(new_env, main, ls, type, e));
+    bool use_conv_opt = true;
+    bool is_trusted   = false;
+    auto cd = check(new_env, mk_definition(new_env, main, ls, type, e, use_conv_opt, is_trusted));
     new_env = new_env.add(cd);
     new_env = vm_compile(p.env(), new_env.get(main));
     vm_state s(new_env);

@@ -45,6 +45,7 @@ Author: Leonardo de Moura
 #include "library/class_instance_resolution.h"
 #include "library/error_handling.h"
 #include "library/definitional/equations.h"
+#include "library/compiler/rec_fn_macro.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/info_manager.h"
@@ -806,6 +807,10 @@ expr old_elaborator::visit_sort(expr const & e) {
 expr old_elaborator::visit_macro(expr const & e, constraint_seq & cs) {
     if (is_as_is(e)) {
         return get_as_is_arg(e);
+    } else if (is_rec_fn_macro(e)) {
+        if (!m_type)
+            throw_elaborator_exception("unexpected occurrence of recursive call", e);
+        return mk_rec_fn_macro(get_rec_fn_name(e), *m_type);
     } else {
         buffer<expr> args;
         for (unsigned i = 0; i < macro_num_args(e); i++)
@@ -2086,6 +2091,7 @@ std::tuple<expr, expr, level_param_names> old_elaborator::operator()(expr const 
     constraint_seq t_cs;
     expr r_t      = ensure_type(visit(t, t_cs), t_cs);
     // Opaque definitions in the main module may treat other opaque definitions (in the main module) as transparent.
+    m_type        = r_t;
     constraint_seq v_cs;
     expr r_v      = visit(v, v_cs);
     expr r_v_type = infer_type(r_v, v_cs);

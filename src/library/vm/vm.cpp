@@ -850,6 +850,7 @@ void vm_state::invoke_cfun(vm_decl const & d) {
                                                           S[sz - 5], S[sz - 6], S[sz - 7], S[sz - 8]);
         break;
     default:
+        std::reverse(m_stack.data() + sz - arity, m_stack.data() + sz);
         r = reinterpret_cast<vm_cfunction_N>(d.get_cfn())(arity, m_stack.data() + sz - arity);
         break;
     }

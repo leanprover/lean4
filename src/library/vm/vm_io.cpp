@@ -11,31 +11,29 @@ Author: Leonardo de Moura
 #include "library/vm/vm_string.h"
 
 namespace lean {
-static void put_str(vm_state & s) {
-    vm_obj const & str = s.get(-1);
+static vm_obj put_str(vm_obj const & str, vm_obj const &) {
     std::cout << to_string(str);
-    return s.push(mk_vm_unit());
+    return mk_vm_unit();
 }
 
-static void put_nat(vm_state & s) {
-    vm_obj const & n = s.get(-1);
+static vm_obj put_nat(vm_obj const & n, vm_obj const &) {
     if (is_simple(n))
         std::cout << cidx(n);
     else
         std::cout << to_mpz(n);
-    return s.push(mk_vm_unit());
+    return mk_vm_unit();
 }
 
-static void get_line(vm_state & s) {
+static vm_obj get_line(vm_obj const &) {
     std::string str;
     std::getline(std::cin, str);
-    return s.push(to_obj(str));
+    return to_obj(str);
 }
 
 void initialize_vm_io() {
-    declare_vm_builtin(get_put_str_name(),   2, put_str);
-    declare_vm_builtin(get_put_nat_name(),   2, put_nat);
-    declare_vm_builtin(get_get_line_name(),  1, get_line);
+    declare_vm_builtin(get_put_str_name(),   put_str);
+    declare_vm_builtin(get_put_nat_name(),   put_nat);
+    declare_vm_builtin(get_get_line_name(),  get_line);
 }
 
 void finalize_vm_io() {

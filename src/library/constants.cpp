@@ -116,6 +116,11 @@ name const * g_mul = nullptr;
 name const * g_mul_one = nullptr;
 name const * g_mul_zero = nullptr;
 name const * g_mul_zero_class = nullptr;
+name const * g_name = nullptr;
+name const * g_name_anonymous = nullptr;
+name const * g_name_mk_string = nullptr;
+name const * g_name_mk_numeral = nullptr;
+name const * g_name_cases_on = nullptr;
 name const * g_nat = nullptr;
 name const * g_nat_of_num = nullptr;
 name const * g_nat_succ = nullptr;
@@ -430,6 +435,11 @@ void initialize_constants() {
     g_mul_one = new name{"mul_one"};
     g_mul_zero = new name{"mul_zero"};
     g_mul_zero_class = new name{"mul_zero_class"};
+    g_name = new name{"name"};
+    g_name_anonymous = new name{"name", "anonymous"};
+    g_name_mk_string = new name{"name", "mk_string"};
+    g_name_mk_numeral = new name{"name", "mk_numeral"};
+    g_name_cases_on = new name{"name", "cases_on"};
     g_nat = new name{"nat"};
     g_nat_of_num = new name{"nat", "of_num"};
     g_nat_succ = new name{"nat", "succ"};
@@ -745,6 +755,11 @@ void finalize_constants() {
     delete g_mul_one;
     delete g_mul_zero;
     delete g_mul_zero_class;
+    delete g_name;
+    delete g_name_anonymous;
+    delete g_name_mk_string;
+    delete g_name_mk_numeral;
+    delete g_name_cases_on;
     delete g_nat;
     delete g_nat_of_num;
     delete g_nat_succ;
@@ -1059,6 +1074,11 @@ name const & get_mul_name() { return *g_mul; }
 name const & get_mul_one_name() { return *g_mul_one; }
 name const & get_mul_zero_name() { return *g_mul_zero; }
 name const & get_mul_zero_class_name() { return *g_mul_zero_class; }
+name const & get_name_name() { return *g_name; }
+name const & get_name_anonymous_name() { return *g_name_anonymous; }
+name const & get_name_mk_string_name() { return *g_name_mk_string; }
+name const & get_name_mk_numeral_name() { return *g_name_mk_numeral; }
+name const & get_name_cases_on_name() { return *g_name_cases_on; }
 name const & get_nat_name() { return *g_nat; }
 name const & get_nat_of_num_name() { return *g_nat_of_num; }
 name const & get_nat_succ_name() { return *g_nat_succ; }

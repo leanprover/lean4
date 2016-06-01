@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/normalize.h"
 #include "library/constants.h"
+#include "library/vm/vm.h"
 #include "library/compiler/util.h"
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/compiler_step_visitor.h"
@@ -58,10 +59,6 @@ optional<unsigned> is_internal_proj(expr const & e) {
 
 class simp_inductive_fn : public compiler_step_visitor {
     name_map<list<bool>> m_constructor_info;
-
-    static bool ignore(name const & n) {
-        return n == get_nat_zero_name() || n == get_nat_succ_name() || n == get_nat_cases_on_name();
-    }
 
     void get_constructor_info(name const & n, buffer<bool> & rel_fields) {
         if (auto r = m_constructor_info.find(n)) {
@@ -147,6 +144,7 @@ class simp_inductive_fn : public compiler_step_visitor {
         name const & I_name = fn.get_prefix();
         if (is_inductive_predicate(env(), I_name))
             throw exception(sstream() << "code generation failed, inductive predicate '" << I_name << "' is not supported");
+        bool is_builtin = is_vm_builtin_function(fn);
         buffer<name> cnames;
         get_intro_rule_names(env(), I_name, cnames);
         lean_assert(args.size() >= cnames.size() + 1);
@@ -176,15 +174,18 @@ class simp_inductive_fn : public compiler_step_visitor {
 
         if (num_reachable == 0) {
             return mk_unreachable_expr();
-        } else if (num_reachable == 1) {
+        } else if (num_reachable == 1 && !is_builtin) {
             /* Use _cases.1 */
             return mk_app(mk_cases(1), args[0], *reachable_case);
+        } else if (is_builtin) {
+            return mk_app(mk_constant(fn), args);
         } else {
             return mk_app(mk_cases(cnames.size()), args);
         }
     }
 
     expr visit_constructor(name const & fn, buffer<expr> const & args) {
+        bool is_builtin  = is_vm_builtin_function(fn);
         name I_name      = *inductive::is_intro_rule(env(), fn);
         unsigned nparams = *inductive::get_num_params(env(), I_name);
         unsigned cidx    = get_constructor_idx(env(), fn);
@@ -200,6 +201,8 @@ class simp_inductive_fn : public compiler_step_visitor {
         if (has_trivial_structure(I_name, rel_fields)) {
             lean_assert(new_args.size() == 1);
             return new_args[0];
+        } else if (is_builtin) {
+            return mk_app(mk_constant(fn), new_args);
         } else {
             return mk_app(mk_cnstr(cidx), new_args);
         }
@@ -237,14 +240,12 @@ class simp_inductive_fn : public compiler_step_visitor {
         expr const & fn = get_app_args(e, args);
         if (is_constant(fn)) {
             name const & n = const_name(fn);
-            if (!ignore(n)) {
-                if (is_cases_on_recursor(env(), n)) {
-                    return visit_cases_on(n, args);
-                } else if (inductive::is_intro_rule(env(), n)) {
-                    return visit_constructor(n, args);
-                } else if (is_projection(env(), n)) {
-                    return visit_projection(n, args);
-                }
+            if (is_cases_on_recursor(env(), n)) {
+                return visit_cases_on(n, args);
+            } else if (inductive::is_intro_rule(env(), n)) {
+                return visit_constructor(n, args);
+            } else if (is_projection(env(), n)) {
+                return visit_projection(n, args);
             }
         }
         return compiler_step_visitor::visit_app(e);
@@ -252,7 +253,9 @@ class simp_inductive_fn : public compiler_step_visitor {
 
     virtual expr visit_constant(expr const & e) override {
         name const & n = const_name(e);
-        if (inductive::is_intro_rule(env(), n) && !ignore(n)) {
+        if (is_vm_builtin_function(n)) {
+            return e;
+        } else if (inductive::is_intro_rule(env(), n)) {
             return mk_cnstr(get_constructor_idx(env(), n));
         } else {
             return e;

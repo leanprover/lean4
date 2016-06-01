@@ -111,6 +111,11 @@ mul
 mul_one
 mul_zero
 mul_zero_class
+name
+name.anonymous
+name.mk_string
+name.mk_numeral
+name.cases_on
 nat
 nat.of_num
 nat.succ

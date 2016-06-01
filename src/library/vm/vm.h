@@ -124,7 +124,8 @@ public:
 
 class vm_external : public vm_obj_cell {
 public:
-    virtual ~vm_external() = 0;
+    vm_external():vm_obj_cell(vm_obj_kind::External) {}
+    virtual ~vm_external() {}
 };
 
 // =======================================
@@ -187,6 +188,7 @@ typedef void (*vm_function)(vm_state & s);
 
     \remark The C++ code generator produces this kind of function. */
 typedef vm_obj (*vm_cfunction)(vm_obj const &);
+typedef vm_obj (*vm_cfunction_0)();
 typedef vm_obj (*vm_cfunction_1)(vm_obj const &);
 typedef vm_obj (*vm_cfunction_2)(vm_obj const &, vm_obj const &);
 typedef vm_obj (*vm_cfunction_3)(vm_obj const &, vm_obj const &, vm_obj const &);
@@ -523,6 +525,7 @@ public:
     All environment objects will contain this builtin.
     \pre These procedures can only be invoked at initialization time. */
 void declare_vm_builtin(name const & n, unsigned arity, vm_function fn);
+void declare_vm_builtin(name const & n, vm_cfunction_0 fn);
 void declare_vm_builtin(name const & n, vm_cfunction_1 fn);
 void declare_vm_builtin(name const & n, vm_cfunction_2 fn);
 void declare_vm_builtin(name const & n, vm_cfunction_3 fn);
@@ -534,6 +537,7 @@ void declare_vm_builtin(name const & n, vm_cfunction_8 fn);
 void declare_vm_builtin(name const & n, unsigned arity, vm_cfunction_N fn);
 
 /** Register in the given environment \c fn as the implementation for function \c n. */
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_0 fn);
 environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_1 fn);
 environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_2 fn);
 environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_3 fn);

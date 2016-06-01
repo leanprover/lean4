@@ -580,9 +580,14 @@ void declare_vm_builtin(name const & n, unsigned arity, vm_function fn) {
     g_vm_builtins->insert(n, mk_pair(arity, fn));
 }
 
+void declare_vm_builtin(name const & n, vm_cfunction_0 fn) {
+    lean_assert(g_may_update_vm_builtins);
+    g_vm_cbuiltins->insert(n, mk_pair(0, reinterpret_cast<vm_cfunction>(fn)));
+}
+
 void declare_vm_builtin(name const & n, vm_cfunction_1 fn) {
     lean_assert(g_may_update_vm_builtins);
-    g_vm_cbuiltins->insert(n, mk_pair(1, fn));
+    g_vm_cbuiltins->insert(n, mk_pair(1, reinterpret_cast<vm_cfunction>(fn)));
 }
 
 void declare_vm_builtin(name const & n, vm_cfunction_2 fn) {
@@ -690,6 +695,10 @@ static environment declare_vm_builtin(environment const & env, name const & n, u
         ext.add(vm_decl(n, ext.m_decls.size(), arity, fn));
     }
     return update(env, ext);
+}
+
+environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_0 fn) {
+    return declare_vm_builtin(env, n, 0, reinterpret_cast<vm_cfunction>(fn));
 }
 
 environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_1 fn) {
@@ -866,6 +875,9 @@ void vm_state::invoke_cfun(vm_decl const & d) {
     unsigned arity = d.get_arity();
     vm_obj r;
     switch (arity) {
+    case 0:
+        r = reinterpret_cast<vm_cfunction_0>(d.get_cfn())();
+        break;
     case 1:
         r = reinterpret_cast<vm_cfunction_1>(d.get_cfn())(S[sz - 1]);
         break;

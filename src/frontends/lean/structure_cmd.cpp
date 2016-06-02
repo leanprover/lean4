@@ -741,8 +741,8 @@ struct structure_cmd_fn {
     void add_rec_on_alias(name const & n) {
         name rec_on_name(m_name, "rec_on");
         declaration rec_on_decl = m_env.get(rec_on_name);
-        declaration new_decl = mk_definition(m_env, n, rec_on_decl.get_univ_params(),
-                                             rec_on_decl.get_type(), rec_on_decl.get_value());
+        declaration new_decl = mk_definition_inferring_trusted(m_env, n, rec_on_decl.get_univ_params(),
+                                                               rec_on_decl.get_type(), rec_on_decl.get_value());
         m_env = module::add(m_env, check(m_env, new_decl));
         m_env = set_reducible(m_env, n, reducible_status::Reducible, get_namespace(m_env), true);
         if (list<unsigned> idx = has_unfold_hint(m_env, rec_on_name))
@@ -836,7 +836,8 @@ struct structure_cmd_fn {
             coercion_value                 = Fun(m_params, Fun(st, coercion_value));
             name coercion_name             = coercion_names[i];
             bool use_conv_opt              = false;
-            declaration coercion_decl      = mk_definition(m_env, coercion_name, lnames, coercion_type, coercion_value, use_conv_opt);
+            declaration coercion_decl      = mk_definition_inferring_trusted(m_env, coercion_name, lnames,
+                                                                             coercion_type, coercion_value, use_conv_opt);
             m_env = module::add(m_env, check(m_env, coercion_decl));
             m_env = set_reducible(m_env, coercion_name, reducible_status::Reducible, get_namespace(m_env), true);
             save_def_info(coercion_name);

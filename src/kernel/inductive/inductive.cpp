@@ -194,9 +194,9 @@ name get_elim_name(name const & n) {
 
 environment certified_inductive_decl::add_constant(environment const & env, name const & n, level_param_names const & ls, expr const & t) const {
     if (env.trust_lvl() == 0)
-        return env.add(check(env, mk_constant_assumption(n, ls, t)));
+        return env.add(check(env, mk_constant_assumption_inferring_trusted(env, n, ls, t)));
     else
-        return env.add(mk_constant_assumption(n, ls, t));
+        return env.add(mk_constant_assumption_inferring_trusted(env, n, ls, t));
 }
 
 environment certified_inductive_decl::add_core(environment const & env, bool update_ext_only) const {
@@ -293,7 +293,7 @@ struct add_inductive_fn {
                      unsigned                     num_params,
                      list<inductive_decl> const & decls):
         m_env(env), m_level_names(level_params), m_num_params(num_params), m_decls(decls),
-        m_tc(new type_checker(m_env)) {
+        m_tc(new type_checker(m_env, true, false)) {
         m_is_not_zero = false;
         m_decls_sz    = length(m_decls);
         m_levels      = param_names_to_levels(level_params);
@@ -304,7 +304,7 @@ struct add_inductive_fn {
 
     /** \brief Make sure the latest environment is being used by m_tc. */
     void updt_type_checker() {
-        m_tc.reset(new type_checker(m_env));
+        m_tc.reset(new type_checker(m_env, true, false));
     }
 
     type_checker & tc() { return *(m_tc.get()); }
@@ -374,7 +374,8 @@ struct add_inductive_fn {
     /** \brief Add all datatype declarations to environment. */
     void declare_inductive_types() {
         for (auto d : m_decls) {
-            m_env = m_env.add(check(m_env, mk_constant_assumption(inductive_decl_name(d), m_level_names, inductive_decl_type(d))));
+            m_env = m_env.add(check(m_env, mk_constant_assumption_inferring_trusted(m_env, inductive_decl_name(d),
+                                                                                    m_level_names, inductive_decl_type(d))));
         }
         updt_type_checker();
     }
@@ -516,7 +517,8 @@ struct add_inductive_fn {
     void declare_intro_rules() {
         for (auto d : m_decls) {
             for (auto ir : inductive_decl_intros(d)) {
-                m_env = m_env.add(check(m_env, mk_constant_assumption(intro_rule_name(ir), m_level_names, intro_rule_type(ir))));
+                m_env = m_env.add(check(m_env, mk_constant_assumption_inferring_trusted(m_env, intro_rule_name(ir),
+                                                                                        m_level_names, intro_rule_type(ir))));
             }
         }
         updt_type_checker();
@@ -762,7 +764,8 @@ struct add_inductive_fn {
         }
         elim_ty   = Pi(m_param_consts, elim_ty);
         elim_ty   = infer_implicit(elim_ty, true /* strict */);
-        m_env = m_env.add(check(m_env, mk_constant_assumption(get_elim_name(d), get_elim_level_param_names(), elim_ty)));
+        m_env = m_env.add(check(m_env, mk_constant_assumption_inferring_trusted(m_env, get_elim_name(d),
+                                                                                get_elim_level_param_names(), elim_ty)));
         return elim_ty;
     }
 

@@ -30,9 +30,9 @@ environment mk_induction_on(environment const & env, name const & n) {
     if (rec_on_num_univs == ind_num_univs) {
         // easy case, induction_on is just an alias for rec_on
         certified_declaration cdecl = check(new_env,
-                                            mk_definition(new_env, induction_on_name, rec_on_decl.get_univ_params(),
-                                                          rec_on_decl.get_type(), rec_on_decl.get_value(),
-                                                          use_conv_opt));
+                                            mk_definition_inferring_trusted(new_env, induction_on_name, rec_on_decl.get_univ_params(),
+                                                                            rec_on_decl.get_type(), rec_on_decl.get_value(),
+                                                                            use_conv_opt));
         new_env = module::add(new_env, cdecl);
     } else {
         level_param_names induction_on_univs = tail(rec_on_decl.get_univ_params());
@@ -41,9 +41,9 @@ environment mk_induction_on(environment const & env, name const & n) {
         expr induction_on_type  = instantiate_univ_param(rec_on_decl.get_type(), from, to);
         expr induction_on_value = instantiate_univ_param(rec_on_decl.get_value(), from, to);
         certified_declaration cdecl = check(new_env,
-                                            mk_definition(new_env, induction_on_name, induction_on_univs,
-                                                          induction_on_type, induction_on_value,
-                                                          use_conv_opt));
+                                            mk_definition_inferring_trusted(new_env, induction_on_name, induction_on_univs,
+                                                                            induction_on_type, induction_on_value,
+                                                                            use_conv_opt));
         new_env = add_aux_recursor(new_env, induction_on_name);
         new_env = module::add(new_env, cdecl);
     }

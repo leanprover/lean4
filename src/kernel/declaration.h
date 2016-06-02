@@ -79,6 +79,15 @@ declaration mk_theorem(name const & n, level_param_names const & params, expr co
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
 declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t, bool trusted = true);
 
+/** \brief Similar to mk_definition but infer the value of trusted flag.
+    That is, set it to false if \c t or \c v contains a untrusted declaration. */
+declaration mk_definition_inferring_trusted(environment const & env, name const & n, level_param_names const & params,
+                                            expr const & t, expr const & v, bool use_conv_opt = true);
+/** \brief Similar to mk_constant_assumption but infer the value of trusted flag.
+    That is, set it to false if \c t or \c v contains a untrusted declaration. */
+declaration mk_constant_assumption_inferring_trusted(environment const & env, name const & n,
+                                                     level_param_names const & params, expr const & t);
+
 void initialize_declaration();
 void finalize_declaration();
 }

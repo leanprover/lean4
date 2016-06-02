@@ -102,6 +102,31 @@ declaration mk_constant_assumption(name const & n, level_param_names const & par
     return declaration(new declaration::cell(n, params, t, false, trusted));
 }
 
+static bool use_untrusted(environment const & env, expr const & e) {
+    bool found = false;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (found) return false;
+            if (is_constant(e)) {
+                declaration const & d = env.get(const_name(e));
+                if (!d.is_trusted()) {
+                    found = true;
+                    return false;
+                }
+            }
+            return true;
+        });
+    return found;
+}
+
+declaration mk_definition_inferring_trusted(environment const & env, name const & n, level_param_names const & params,
+                                            expr const & t, expr const & v, bool use_conv_opt) {
+    return mk_definition(env, n, params, t, v, use_conv_opt, !use_untrusted(env, t) && !use_untrusted(env, v));
+}
+declaration mk_constant_assumption_inferring_trusted(environment const & env, name const & n,
+                                                     level_param_names const & params, expr const & t) {
+    return mk_constant_assumption(n, params, t, !use_untrusted(env, t));
+}
+
 void initialize_declaration() {
     g_dummy = new declaration(mk_axiom(name(), level_param_names(), expr()));
 }

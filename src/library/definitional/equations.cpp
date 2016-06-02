@@ -1310,23 +1310,31 @@ class equation_compiler_fn {
         /** \brief Return the number of arguments in the left-hand-side of program prg_idx */
         unsigned get_lhs_size(unsigned prg_idx) const { return length(m_prgs[prg_idx].m_context); }
 
+        expr whnf(expr const & e) {
+            return m_main.m_tc.whnf(e).first;
+        }
+
         /** \brief Retrieve \c a from the below dictionary \c d. \c d is a term made of products, and C's from (m_Cs_locals).
             \c b is the below constant that was used to create the below dictionary \c d.
         */
         optional<expr> to_below(expr const & d, expr const & a, expr const & b) {
             expr const & fn = get_app_fn(d);
             if (is_constant(fn) && const_name(fn) == get_prod_name()) {
-                if (auto r = to_below(app_arg(app_fn(d)), a, mk_pr1(m_main.m_tc, b)))
+                expr d_arg1 = whnf(app_arg(app_fn(d)));
+                expr d_arg2 = whnf(app_arg(d));
+                if (auto r = to_below(d_arg1, a, mk_pr1(m_main.m_tc, b)))
                     return r;
-                else if (auto r = to_below(app_arg(d), a, mk_pr2(m_main.m_tc, b)))
+                else if (auto r = to_below(d_arg2, a, mk_pr2(m_main.m_tc, b)))
                     return r;
                 else
                     return none_expr();
             } else if (is_constant(fn) && const_name(fn) == get_and_name()) {
                 // For ibelow, we use "and" instead of products
-                if (auto r = to_below(app_arg(app_fn(d)), a, mk_and_elim_left(m_main.m_tc, b)))
+                expr d_arg1 = whnf(app_arg(app_fn(d)));
+                expr d_arg2 = whnf(app_arg(d));
+                if (auto r = to_below(d_arg1, a, mk_and_elim_left(m_main.m_tc, b)))
                     return r;
-                else if (auto r = to_below(app_arg(d), a, mk_and_elim_right(m_main.m_tc, b)))
+                else if (auto r = to_below(d_arg2, a, mk_and_elim_right(m_main.m_tc, b)))
                     return r;
                 else
                     return none_expr();
@@ -1338,7 +1346,8 @@ class equation_compiler_fn {
                 return none_expr();
             } else if (is_pi(d)) {
                 if (is_app(a)) {
-                    return to_below(instantiate(binding_body(d), app_arg(a)), a, mk_app(b, app_arg(a)));
+                    expr new_d = whnf(instantiate(binding_body(d), app_arg(a)));
+                    return to_below(new_d, a, mk_app(b, app_arg(a)));
                 } else {
                     return none_expr();
                 }
@@ -1357,8 +1366,8 @@ class equation_compiler_fn {
             for (unsigned i = m_nparams + m_Cs_locals.size(); i < below_args.size(); i++)
                 abst_below_args.push_back(below_args[i]);
             expr abst_below   = mk_app(below_cnst, abst_below_args);
-            expr below_dict   = normalize(m_main.m_tc, abst_below);
-            expr rec_arg      = normalize(m_main.m_tc, args[m_rec_arg_pos[prg_idx]]);
+            expr below_dict   = whnf(abst_below);
+            expr rec_arg      = whnf(args[m_rec_arg_pos[prg_idx]]);
             unsigned lhs_size = get_lhs_size(prg_idx);
             if (optional<expr> b = to_below(below_dict, rec_arg, below)) {
                 expr r = *b;

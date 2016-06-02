@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 prelude
-import init.string init.bool init.subtype
+import init.string init.bool init.subtype init.unsigned
 open bool list option sum prod sigma subtype nat
 
 structure has_to_string [class] (A : Type) :=
@@ -78,3 +78,6 @@ has_to_string.mk nat.to_string
 
 definition fin.has_to_string [instance] (n : nat) : has_to_string (fin n) :=
 has_to_string.mk (λ f, to_string (fin.val f))
+
+definition unsigned.has_to_string [instance] : has_to_string unsigned :=
+has_to_string.mk (λ n, to_string (fin.val n))

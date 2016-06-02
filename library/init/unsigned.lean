@@ -14,6 +14,8 @@ namespace unsigned
 definition of_nat [coercion] (n : nat) : unsigned :=
 if H : n < unsigned_sz then fin.mk n H else fin.mk 0 dec_trivial
 
+definition to_nat (c : unsigned) : nat :=
+fin.val c
 end unsigned
 
 definition unsigned.has_decidable_eq [instance] : decidable_eq unsigned :=

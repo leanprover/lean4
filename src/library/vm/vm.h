@@ -161,7 +161,6 @@ inline vm_composite * to_composite(vm_obj_cell * o) { lean_assert(is_composite(o
 inline vm_mpz * to_mpz_core(vm_obj_cell * o) { lean_assert(is_mpz(o)); return static_cast<vm_mpz*>(o); }
 inline mpz const & to_mpz(vm_obj_cell * o) { return to_mpz_core(o)->get_value(); }
 inline vm_external * to_external(vm_obj_cell * o) { lean_assert(is_external(o)); return static_cast<vm_external*>(o); }
-inline bool to_bool(vm_obj const & o) { return cidx(o) != 0; }
 // =======================================
 
 // =======================================
@@ -176,6 +175,7 @@ inline vm_obj const * cfields(vm_obj const & o) {
     lean_assert(is_composite(o)); return to_composite(o)->fields();
 }
 inline vm_obj const & cfield(vm_obj const & o, unsigned i) { lean_assert(i < csize(o)); return cfields(o)[i]; }
+inline bool to_bool(vm_obj const & o) { return cidx(o) != 0; }
 // =======================================
 
 #define LEAN_MAX_SMALL_NAT (1u << 31)

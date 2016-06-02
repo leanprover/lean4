@@ -1314,6 +1314,10 @@ class equation_compiler_fn {
             return m_main.m_tc.whnf(e).first;
         }
 
+        bool is_def_eq(expr const & a, expr const & b) {
+            return m_main.m_tc.is_def_eq(a, b).first;
+        }
+
         /** \brief Retrieve \c a from the below dictionary \c d. \c d is a term made of products, and C's from (m_Cs_locals).
             \c b is the below constant that was used to create the below dictionary \c d.
         */
@@ -1340,7 +1344,7 @@ class equation_compiler_fn {
                     return none_expr();
             } else if (is_local(fn)) {
                 for (expr const & C : m_Cs_locals) {
-                    if (mlocal_name(C) == mlocal_name(fn) && app_arg(d) == a)
+                    if (mlocal_name(C) == mlocal_name(fn) && is_def_eq(app_arg(d), a))
                         return some_expr(b);
                 }
                 return none_expr();

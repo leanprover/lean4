@@ -45,10 +45,26 @@ static vm_obj name_mk_numeral(vm_obj const & num, vm_obj const & n) {
     return to_obj(name(to_name(n), idx));
 }
 
+static unsigned name_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
+    name const & n = to_name(o);
+    if (n.is_anonymous()) {
+        return 0;
+    } else if (n.is_string()) {
+        data.push_back(to_obj(std::string(n.get_string())));
+        data.push_back(to_obj(n.get_prefix()));
+        return 1;
+    } else {
+        data.push_back(mk_vm_nat(n.get_numeral()));
+        data.push_back(to_obj(n.get_prefix()));
+        return 2;
+    }
+}
+
 void initialize_vm_name() {
-    declare_vm_builtin(get_name_anonymous_name(),   name_anonymous);
-    declare_vm_builtin(get_name_mk_string_name(),   name_mk_string);
-    declare_vm_builtin(get_name_mk_numeral_name(),  name_mk_numeral);
+    declare_vm_builtin(get_name_anonymous_name(),      name_anonymous);
+    declare_vm_builtin(get_name_mk_string_name(),      name_mk_string);
+    declare_vm_builtin(get_name_mk_numeral_name(),     name_mk_numeral);
+    declare_vm_cases_builtin(get_name_cases_on_name(), name_cases_on);
 }
 
 void finalize_vm_name() {

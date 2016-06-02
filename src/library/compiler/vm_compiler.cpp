@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "util/fresh_name.h"
 #include "util/sstream.h"
 #include "kernel/instantiate.h"
+#include "kernel/inductive/inductive.h"
 #include "library/constants.h"
 #include "library/trace.h"
 #include "library/annotation.h"
@@ -103,8 +104,12 @@ class vm_compiler_fn {
         lean_assert(is_constant(fn));
         name const & fn_name = const_name(fn);
         unsigned num;
+        optional<unsigned> builtin_cases_idx;
         if (fn_name == get_nat_cases_on_name()) {
             num = 2;
+        } else if (builtin_cases_idx = get_vm_builtin_cases_idx(m_env, fn_name)) {
+            name const & I_name = fn_name.get_prefix();
+            num = *inductive::get_num_intro_rules(m_env, I_name);
         } else {
             lean_assert(is_internal_cases(fn));
             num = *is_internal_cases(fn);
@@ -117,14 +122,20 @@ class vm_compiler_fn {
         buffer<unsigned> cases_args;
         buffer<unsigned> goto_pcs;
         cases_args.resize(num, 0);
-        if (fn_name == get_nat_cases_on_name())
+        if (fn_name == get_nat_cases_on_name()) {
             emit(mk_nat_cases_instr(0, 0));
-        else if (num == 1)
+        } else if (builtin_cases_idx) {
+            #if defined(__GNUC__) && !defined(__CLANG__)
+            #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+            #endif
+            emit(mk_builtin_cases_instr(*builtin_cases_idx, cases_args.size(), cases_args.data()));
+        } else if (num == 1) {
             emit(mk_destruct_instr());
-        else if (num == 2)
+        } else if (num == 2) {
             emit(mk_cases2_instr(0, 0));
-        else
+        } else {
             emit(mk_casesn_instr(cases_args.size(), cases_args.data()));
+        }
         for (unsigned i = 1; i < args.size(); i++) {
             cases_args[i - 1] = next_pc();
             expr b = args[i];
@@ -149,7 +160,7 @@ class vm_compiler_fn {
             }
         }
         /* Fix cases instruction pc's */
-        if (num >= 2) {
+        if (num >= 2 || builtin_cases_idx) {
             for (unsigned i = 0; i < cases_args.size(); i++)
                 m_code[cases_pos].set_pc(i, cases_args[i]);
         }
@@ -203,9 +214,13 @@ class vm_compiler_fn {
         }
     }
 
+    bool is_builtin_cases(expr const & fn) {
+        return is_constant(fn) && get_vm_builtin_cases_idx(m_env, const_name(fn));
+    }
+
     void compile_app(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
         expr const & fn = get_app_fn(e);
-        if (is_internal_cases(fn) || is_constant(fn, get_nat_cases_on_name())) {
+        if (is_internal_cases(fn) || is_constant(fn, get_nat_cases_on_name()) || is_builtin_cases(fn)) {
             compile_cases_on(e, bpz, m);
         } else if (is_internal_cnstr(fn)) {
             compile_cnstr(e, bpz, m);

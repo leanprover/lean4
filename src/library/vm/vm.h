@@ -184,7 +184,7 @@ class vm_state;
 /** Builtin functions that take arguments from the VM stack. */
 typedef void (*vm_function)(vm_state & s);
 
-/** Buitin functions that take arguments from the system stack.
+/** Builtin functions that take arguments from the system stack.
 
     \remark The C++ code generator produces this kind of function. */
 typedef vm_obj (*vm_cfunction)(vm_obj const &);
@@ -203,11 +203,15 @@ typedef vm_obj (*vm_cfunction_8)(vm_obj const &, vm_obj const &, vm_obj const &,
                                  vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &);
 typedef vm_obj (*vm_cfunction_N)(unsigned n, vm_obj const *);
 
+/** Custom 'cases' operators. Given an object \c o, it returns the constructor index and stores
+    the data stored in the object in the buffer \c data. */
+typedef unsigned (*vm_cases_function)(vm_obj const & o, buffer<vm_obj> & data);
+
 /** \brief VM instruction opcode */
 enum class opcode {
     Push, Ret, Drop, Goto,
     SConstructor, Constructor, Num,
-    Destruct, Cases2, CasesN, NatCases, Proj,
+    Destruct, Cases2, CasesN, NatCases, BuiltinCases, Proj,
     Apply, InvokeGlobal, InvokeBuiltin, InvokeCFun,
     Closure, Unreachable
 };
@@ -228,8 +232,11 @@ class vm_instr {
         struct {
             unsigned m_pc[2];
         };
-        /* CasesN */
-        unsigned * m_npcs;
+        /* CasesN and BuiltinCases */
+        struct {
+            unsigned   m_cases_idx; /* only used for BuiltinCases */
+            unsigned * m_npcs;
+        };
         /* Constructor, SConstructor */
         struct {
             unsigned m_cidx;
@@ -252,6 +259,7 @@ class vm_instr {
     friend vm_instr mk_nat_cases_instr(unsigned pc1, unsigned pc2);
     friend vm_instr mk_cases2_instr(unsigned pc1, unsigned pc2);
     friend vm_instr mk_casesn_instr(unsigned num_pc, unsigned const * pcs);
+    friend vm_instr mk_builtin_cases_instr(unsigned cases_idx, unsigned num_pc, unsigned const * pcs);
     friend vm_instr mk_apply_instr();
     friend vm_instr mk_invoke_global_instr(unsigned fn_idx);
     friend vm_instr mk_invoke_cfun_instr(unsigned fn_idx);
@@ -314,19 +322,24 @@ public:
         m_pc[i] = pc;
     }
 
+    unsigned get_cases_idx() const {
+        lean_assert(m_op == opcode::BuiltinCases);
+        return m_cases_idx;
+    }
+
     unsigned get_casesn_size() const {
-        lean_assert(m_op == opcode::CasesN);
+        lean_assert(m_op == opcode::CasesN || m_op == opcode::BuiltinCases);
         return m_npcs[0];
     }
 
     unsigned get_casesn_pc(unsigned i) const {
-        lean_assert(m_op == opcode::CasesN);
+        lean_assert(m_op == opcode::CasesN || m_op == opcode::BuiltinCases);
         lean_assert(i < get_casesn_size());
         return m_npcs[i+1];
     }
 
     void set_casesn_pc(unsigned i, unsigned pc) const {
-        lean_assert(m_op == opcode::CasesN);
+        lean_assert(m_op == opcode::CasesN || m_op == opcode::BuiltinCases);
         lean_assert(i < get_casesn_size());
         m_npcs[i+1] = pc;
     }
@@ -350,7 +363,9 @@ public:
     unsigned get_pc(unsigned i) const;
     void set_pc(unsigned i, unsigned pc);
 
-    void display(std::ostream & out, std::function<optional<name>(unsigned)> const & idx2name) const;
+    void display(std::ostream & out,
+                 std::function<optional<name>(unsigned)> const & idx2name,
+                 std::function<optional<name>(unsigned)> const & cases_idx2name) const;
     void display(std::ostream & out) const;
 
     void serialize(serializer & s, std::function<name(unsigned)> const & idx2name) const;
@@ -369,6 +384,7 @@ vm_instr mk_unreachable_instr();
 vm_instr mk_nat_cases_instr(unsigned pc1, unsigned pc2);
 vm_instr mk_cases2_instr(unsigned pc1, unsigned pc2);
 vm_instr mk_casesn_instr(unsigned num_pc, unsigned const * pcs);
+vm_instr mk_builtin_cases_instr(unsigned cases_idx, unsigned num_pc, unsigned const * pcs);
 vm_instr mk_apply_instr();
 vm_instr mk_invoke_global_instr(unsigned fn_idx);
 vm_instr mk_invoke_cfun_instr(unsigned fn_idx);
@@ -441,24 +457,28 @@ public:
 /** \brief Virtual machine for executing VM bytecode. */
 class vm_state {
     typedef std::vector<vm_decl> decls;
-    environment          m_env;
-    decls const &        m_decls;
-    name_map<unsigned>   m_fn_name2idx;
-    vm_instr const *     m_code;   /* code of the current function being executed */
-    unsigned             m_fn_idx; /* function idx being executed */
-    unsigned             m_pc;     /* program counter */
-    unsigned             m_bp;     /* base pointer */
+    typedef std::vector<vm_cases_function> builtin_cases;
+    typedef std::vector<name> builtin_cases_names;
+    environment                 m_env;
+    decls const &               m_decls;
+    builtin_cases const &       m_builtin_cases;
+    builtin_cases_names const & m_builtin_cases_names;
+    name_map<unsigned>          m_fn_name2idx;
+    vm_instr const *            m_code;   /* code of the current function being executed */
+    unsigned                    m_fn_idx; /* function idx being executed */
+    unsigned                    m_pc;     /* program counter */
+    unsigned                    m_bp;     /* base pointer */
     struct frame {
-        vm_instr const * m_code;
-        unsigned         m_fn_idx;
-        unsigned         m_num;
-        unsigned         m_pc;
-        unsigned         m_bp;
+        vm_instr const *        m_code;
+        unsigned                m_fn_idx;
+        unsigned                m_num;
+        unsigned                m_pc;
+        unsigned                m_bp;
         frame(vm_instr const * code, unsigned fn_idx, unsigned num, unsigned pc, unsigned bp):
             m_code(code), m_fn_idx(fn_idx), m_num(num), m_pc(pc), m_bp(bp) {}
     };
-    std::vector<vm_obj>  m_stack;
-    std::vector<frame>   m_call_stack;
+    std::vector<vm_obj>         m_stack;
+    std::vector<frame>          m_call_stack;
 
     void push_fields(vm_obj const & obj);
     void invoke_builtin(vm_decl const & d);
@@ -535,6 +555,12 @@ void declare_vm_builtin(name const & n, vm_cfunction_6 fn);
 void declare_vm_builtin(name const & n, vm_cfunction_7 fn);
 void declare_vm_builtin(name const & n, vm_cfunction_8 fn);
 void declare_vm_builtin(name const & n, unsigned arity, vm_cfunction_N fn);
+
+/** \brief Add builtin implementation for a cases_on */
+void declare_vm_cases_builtin(name const & n, vm_cases_function fn);
+
+/** \brief Return builtin cases internal index. */
+optional<unsigned> get_vm_builtin_cases_idx(environment const & env, name const & n);
 
 /** Register in the given environment \c fn as the implementation for function \c n. */
 environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_0 fn);

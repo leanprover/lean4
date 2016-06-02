@@ -60,7 +60,6 @@ name const * g_field = nullptr;
 name const * g_fin = nullptr;
 name const * g_fin_mk = nullptr;
 name const * g_funext = nullptr;
-name const * g_get_line = nullptr;
 name const * g_has_add = nullptr;
 name const * g_has_div = nullptr;
 name const * g_has_mul = nullptr;
@@ -120,24 +119,12 @@ name const * g_nat = nullptr;
 name const * g_nat_of_num = nullptr;
 name const * g_nat_succ = nullptr;
 name const * g_nat_zero = nullptr;
-name const * g_nat_add = nullptr;
-name const * g_nat_sub = nullptr;
-name const * g_nat_mul = nullptr;
-name const * g_nat_div = nullptr;
-name const * g_nat_mod = nullptr;
-name const * g_nat_gcd = nullptr;
-name const * g_nat_has_decidable_eq = nullptr;
-name const * g_nat_decidable_le = nullptr;
-name const * g_nat_decidable_lt = nullptr;
-name const * g_nat_cases_on = nullptr;
-name const * g_nat_rec_on = nullptr;
-name const * g_nat_repeat = nullptr;
-name const * g_nat_no_confusion = nullptr;
-name const * g_nat_no_confusion_type = nullptr;
 name const * g_nat_has_zero = nullptr;
 name const * g_nat_has_one = nullptr;
 name const * g_nat_has_add = nullptr;
-name const * g_nat_to_string = nullptr;
+name const * g_nat_add = nullptr;
+name const * g_nat_no_confusion = nullptr;
+name const * g_nat_cases_on = nullptr;
 name const * g_ne = nullptr;
 name const * g_neg = nullptr;
 name const * g_norm_num_add1 = nullptr;
@@ -219,8 +206,6 @@ name const * g_prod_mk = nullptr;
 name const * g_prod_pr1 = nullptr;
 name const * g_prod_pr2 = nullptr;
 name const * g_propext = nullptr;
-name const * g_put_nat = nullptr;
-name const * g_put_str = nullptr;
 name const * g_quot_mk = nullptr;
 name const * g_quot_lift = nullptr;
 name const * g_rat_divide = nullptr;
@@ -300,7 +285,6 @@ name const * g_tactic_trace = nullptr;
 name const * g_tactic_try_for = nullptr;
 name const * g_tactic_using_expr = nullptr;
 name const * g_tactic_whnf = nullptr;
-name const * g_timeit = nullptr;
 name const * g_to_string = nullptr;
 name const * g_trans_rel_left = nullptr;
 name const * g_trans_rel_right = nullptr;
@@ -374,7 +358,6 @@ void initialize_constants() {
     g_fin = new name{"fin"};
     g_fin_mk = new name{"fin", "mk"};
     g_funext = new name{"funext"};
-    g_get_line = new name{"get_line"};
     g_has_add = new name{"has_add"};
     g_has_div = new name{"has_div"};
     g_has_mul = new name{"has_mul"};
@@ -434,24 +417,12 @@ void initialize_constants() {
     g_nat_of_num = new name{"nat", "of_num"};
     g_nat_succ = new name{"nat", "succ"};
     g_nat_zero = new name{"nat", "zero"};
-    g_nat_add = new name{"nat", "add"};
-    g_nat_sub = new name{"nat", "sub"};
-    g_nat_mul = new name{"nat", "mul"};
-    g_nat_div = new name{"nat", "div"};
-    g_nat_mod = new name{"nat", "mod"};
-    g_nat_gcd = new name{"nat", "gcd"};
-    g_nat_has_decidable_eq = new name{"nat", "has_decidable_eq"};
-    g_nat_decidable_le = new name{"nat", "decidable_le"};
-    g_nat_decidable_lt = new name{"nat", "decidable_lt"};
-    g_nat_cases_on = new name{"nat", "cases_on"};
-    g_nat_rec_on = new name{"nat", "rec_on"};
-    g_nat_repeat = new name{"nat", "repeat"};
-    g_nat_no_confusion = new name{"nat", "no_confusion"};
-    g_nat_no_confusion_type = new name{"nat", "no_confusion_type"};
     g_nat_has_zero = new name{"nat_has_zero"};
     g_nat_has_one = new name{"nat_has_one"};
     g_nat_has_add = new name{"nat_has_add"};
-    g_nat_to_string = new name{"nat", "to_string"};
+    g_nat_add = new name{"nat", "add"};
+    g_nat_no_confusion = new name{"nat", "no_confusion"};
+    g_nat_cases_on = new name{"nat", "cases_on"};
     g_ne = new name{"ne"};
     g_neg = new name{"neg"};
     g_norm_num_add1 = new name{"norm_num", "add1"};
@@ -533,8 +504,6 @@ void initialize_constants() {
     g_prod_pr1 = new name{"prod", "pr1"};
     g_prod_pr2 = new name{"prod", "pr2"};
     g_propext = new name{"propext"};
-    g_put_nat = new name{"put_nat"};
-    g_put_str = new name{"put_str"};
     g_quot_mk = new name{"quot", "mk"};
     g_quot_lift = new name{"quot", "lift"};
     g_rat_divide = new name{"rat", "divide"};
@@ -614,7 +583,6 @@ void initialize_constants() {
     g_tactic_try_for = new name{"tactic", "try_for"};
     g_tactic_using_expr = new name{"tactic", "using_expr"};
     g_tactic_whnf = new name{"tactic", "whnf"};
-    g_timeit = new name{"timeit"};
     g_to_string = new name{"to_string"};
     g_trans_rel_left = new name{"trans_rel_left"};
     g_trans_rel_right = new name{"trans_rel_right"};
@@ -689,7 +657,6 @@ void finalize_constants() {
     delete g_fin;
     delete g_fin_mk;
     delete g_funext;
-    delete g_get_line;
     delete g_has_add;
     delete g_has_div;
     delete g_has_mul;
@@ -749,24 +716,12 @@ void finalize_constants() {
     delete g_nat_of_num;
     delete g_nat_succ;
     delete g_nat_zero;
-    delete g_nat_add;
-    delete g_nat_sub;
-    delete g_nat_mul;
-    delete g_nat_div;
-    delete g_nat_mod;
-    delete g_nat_gcd;
-    delete g_nat_has_decidable_eq;
-    delete g_nat_decidable_le;
-    delete g_nat_decidable_lt;
-    delete g_nat_cases_on;
-    delete g_nat_rec_on;
-    delete g_nat_repeat;
-    delete g_nat_no_confusion;
-    delete g_nat_no_confusion_type;
     delete g_nat_has_zero;
     delete g_nat_has_one;
     delete g_nat_has_add;
-    delete g_nat_to_string;
+    delete g_nat_add;
+    delete g_nat_no_confusion;
+    delete g_nat_cases_on;
     delete g_ne;
     delete g_neg;
     delete g_norm_num_add1;
@@ -848,8 +803,6 @@ void finalize_constants() {
     delete g_prod_pr1;
     delete g_prod_pr2;
     delete g_propext;
-    delete g_put_nat;
-    delete g_put_str;
     delete g_quot_mk;
     delete g_quot_lift;
     delete g_rat_divide;
@@ -929,7 +882,6 @@ void finalize_constants() {
     delete g_tactic_try_for;
     delete g_tactic_using_expr;
     delete g_tactic_whnf;
-    delete g_timeit;
     delete g_to_string;
     delete g_trans_rel_left;
     delete g_trans_rel_right;
@@ -1003,7 +955,6 @@ name const & get_field_name() { return *g_field; }
 name const & get_fin_name() { return *g_fin; }
 name const & get_fin_mk_name() { return *g_fin_mk; }
 name const & get_funext_name() { return *g_funext; }
-name const & get_get_line_name() { return *g_get_line; }
 name const & get_has_add_name() { return *g_has_add; }
 name const & get_has_div_name() { return *g_has_div; }
 name const & get_has_mul_name() { return *g_has_mul; }
@@ -1063,24 +1014,12 @@ name const & get_nat_name() { return *g_nat; }
 name const & get_nat_of_num_name() { return *g_nat_of_num; }
 name const & get_nat_succ_name() { return *g_nat_succ; }
 name const & get_nat_zero_name() { return *g_nat_zero; }
-name const & get_nat_add_name() { return *g_nat_add; }
-name const & get_nat_sub_name() { return *g_nat_sub; }
-name const & get_nat_mul_name() { return *g_nat_mul; }
-name const & get_nat_div_name() { return *g_nat_div; }
-name const & get_nat_mod_name() { return *g_nat_mod; }
-name const & get_nat_gcd_name() { return *g_nat_gcd; }
-name const & get_nat_has_decidable_eq_name() { return *g_nat_has_decidable_eq; }
-name const & get_nat_decidable_le_name() { return *g_nat_decidable_le; }
-name const & get_nat_decidable_lt_name() { return *g_nat_decidable_lt; }
-name const & get_nat_cases_on_name() { return *g_nat_cases_on; }
-name const & get_nat_rec_on_name() { return *g_nat_rec_on; }
-name const & get_nat_repeat_name() { return *g_nat_repeat; }
-name const & get_nat_no_confusion_name() { return *g_nat_no_confusion; }
-name const & get_nat_no_confusion_type_name() { return *g_nat_no_confusion_type; }
 name const & get_nat_has_zero_name() { return *g_nat_has_zero; }
 name const & get_nat_has_one_name() { return *g_nat_has_one; }
 name const & get_nat_has_add_name() { return *g_nat_has_add; }
-name const & get_nat_to_string_name() { return *g_nat_to_string; }
+name const & get_nat_add_name() { return *g_nat_add; }
+name const & get_nat_no_confusion_name() { return *g_nat_no_confusion; }
+name const & get_nat_cases_on_name() { return *g_nat_cases_on; }
 name const & get_ne_name() { return *g_ne; }
 name const & get_neg_name() { return *g_neg; }
 name const & get_norm_num_add1_name() { return *g_norm_num_add1; }
@@ -1162,8 +1101,6 @@ name const & get_prod_mk_name() { return *g_prod_mk; }
 name const & get_prod_pr1_name() { return *g_prod_pr1; }
 name const & get_prod_pr2_name() { return *g_prod_pr2; }
 name const & get_propext_name() { return *g_propext; }
-name const & get_put_nat_name() { return *g_put_nat; }
-name const & get_put_str_name() { return *g_put_str; }
 name const & get_quot_mk_name() { return *g_quot_mk; }
 name const & get_quot_lift_name() { return *g_quot_lift; }
 name const & get_rat_divide_name() { return *g_rat_divide; }
@@ -1243,7 +1180,6 @@ name const & get_tactic_trace_name() { return *g_tactic_trace; }
 name const & get_tactic_try_for_name() { return *g_tactic_try_for; }
 name const & get_tactic_using_expr_name() { return *g_tactic_using_expr; }
 name const & get_tactic_whnf_name() { return *g_tactic_whnf; }
-name const & get_timeit_name() { return *g_timeit; }
 name const & get_to_string_name() { return *g_to_string; }
 name const & get_trans_rel_left_name() { return *g_trans_rel_left; }
 name const & get_trans_rel_right_name() { return *g_trans_rel_right; }

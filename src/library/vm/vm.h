@@ -545,35 +545,41 @@ public:
 /** \brief Add builtin implementation for the function named \c n.
     All environment objects will contain this builtin.
     \pre These procedures can only be invoked at initialization time. */
-void declare_vm_builtin(name const & n, unsigned arity, vm_function fn);
-void declare_vm_builtin(name const & n, vm_cfunction_0 fn);
-void declare_vm_builtin(name const & n, vm_cfunction_1 fn);
-void declare_vm_builtin(name const & n, vm_cfunction_2 fn);
-void declare_vm_builtin(name const & n, vm_cfunction_3 fn);
-void declare_vm_builtin(name const & n, vm_cfunction_4 fn);
-void declare_vm_builtin(name const & n, vm_cfunction_5 fn);
-void declare_vm_builtin(name const & n, vm_cfunction_6 fn);
-void declare_vm_builtin(name const & n, vm_cfunction_7 fn);
-void declare_vm_builtin(name const & n, vm_cfunction_8 fn);
-void declare_vm_builtin(name const & n, unsigned arity, vm_cfunction_N fn);
+void declare_vm_builtin(name const & n, char const * internal_name, unsigned arity, vm_function fn);
+void declare_vm_builtin(name const & n, char const * internal_name, vm_cfunction_0 fn);
+void declare_vm_builtin(name const & n, char const * internal_name, vm_cfunction_1 fn);
+void declare_vm_builtin(name const & n, char const * internal_name, vm_cfunction_2 fn);
+void declare_vm_builtin(name const & n, char const * internal_name, vm_cfunction_3 fn);
+void declare_vm_builtin(name const & n, char const * internal_name, vm_cfunction_4 fn);
+void declare_vm_builtin(name const & n, char const * internal_name, vm_cfunction_5 fn);
+void declare_vm_builtin(name const & n, char const * internal_name, vm_cfunction_6 fn);
+void declare_vm_builtin(name const & n, char const * internal_name, vm_cfunction_7 fn);
+void declare_vm_builtin(name const & n, char const * internal_name, vm_cfunction_8 fn);
+void declare_vm_builtin(name const & n, char const * internal_name, unsigned arity, vm_cfunction_N fn);
+
+#define DECLARE_VM_BUILTIN(n, fn) declare_vm_builtin(n, #fn, fn)
 
 /** \brief Add builtin implementation for a cases_on */
-void declare_vm_cases_builtin(name const & n, vm_cases_function fn);
+void declare_vm_cases_builtin(name const & n, char const * internal_name, vm_cases_function fn);
+
+#define DECLARE_VM_CASES_BUILTIN(n, fn) declare_vm_cases_builtin(n, #fn, fn)
 
 /** \brief Return builtin cases internal index. */
 optional<unsigned> get_vm_builtin_cases_idx(environment const & env, name const & n);
 
-/** Register in the given environment \c fn as the implementation for function \c n. */
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_0 fn);
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_1 fn);
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_2 fn);
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_3 fn);
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_4 fn);
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_5 fn);
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_6 fn);
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_7 fn);
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_8 fn);
-environment declare_vm_builtin(environment const & env, name const & n, unsigned arity, vm_cfunction_N fn);
+/** Register in the given environment \c fn as the implementation for function \c n.
+    These APIs should be used when we dynamically load native code stored in a shared object (aka DLL)
+    that implements lean functions. */
+environment add_native(environment const & env, name const & n, vm_cfunction_0 fn);
+environment add_native(environment const & env, name const & n, vm_cfunction_1 fn);
+environment add_native(environment const & env, name const & n, vm_cfunction_2 fn);
+environment add_native(environment const & env, name const & n, vm_cfunction_3 fn);
+environment add_native(environment const & env, name const & n, vm_cfunction_4 fn);
+environment add_native(environment const & env, name const & n, vm_cfunction_5 fn);
+environment add_native(environment const & env, name const & n, vm_cfunction_6 fn);
+environment add_native(environment const & env, name const & n, vm_cfunction_7 fn);
+environment add_native(environment const & env, name const & n, vm_cfunction_8 fn);
+environment add_native(environment const & env, name const & n, unsigned arity, vm_cfunction_N fn);
 
 /** \brief Reserve an index for the given function in the VM, the expression
     \c e is the value of \c fn after preprocessing.
@@ -597,10 +603,23 @@ environment optimize_vm_decls(environment const & env);
 /** \brief Return true iff \c fn is a VM function in the given environment. */
 bool is_vm_function(environment const & env, name const & fn);
 
+optional<vm_decl> get_vm_decl(environment const & env, name const & n);
+
 /** \brief Return true iff \c fn is implemented in C++. */
 bool is_vm_builtin_function(name const & fn);
+/** \brief Return the name of the C++ function that implements the builtin named \c fn.
+    Return nullptr if \c fn is not a builtin. */
+char const * get_vm_builtin_internal_name(name const & fn);
 
-optional<vm_decl> get_vm_decl(environment const & env, name const & n);
+enum class vm_builtin_kind { VMFun, CFun, Cases };
+
+/** \brief Return the kind of a builtin function.
+    \pre is_vm_builtin_function(fn) */
+vm_builtin_kind get_vm_builtin_kind(name const & fn);
+
+/** \brief Return the arity of the C++ function that implements the builtin \c fn.
+    \pre is_vm_builtin_function(fn) && get_vm_builtin_kind(fn) == vm_builtin_kind::CFun */
+unsigned get_vm_builtin_arity(name const & fn);
 
 /** \brief Invoke closure \c fn with the given arguments. These procedures are meant to be use by
     C++ generated/extracted code. */

@@ -27,20 +27,20 @@ vm_obj to_obj(name const & n) {
     return mk_vm_external(new vm_name(n));
 }
 
-static vm_obj name_anonymous() {
+vm_obj name_anonymous() {
     return to_obj(name());
 }
 
-static vm_obj name_mk_string(vm_obj const & s, vm_obj const & n) {
+vm_obj name_mk_string(vm_obj const & s, vm_obj const & n) {
     std::string str = to_string(s);
     return to_obj(name(to_name(n), str.c_str()));
 }
 
-static vm_obj name_mk_numeral(vm_obj const & num, vm_obj const & n) {
+vm_obj name_mk_numeral(vm_obj const & num, vm_obj const & n) {
     return to_obj(name(to_name(n), to_unsigned(num)));
 }
 
-static unsigned name_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
+unsigned name_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     name const & n = to_name(o);
     if (n.is_anonymous()) {
         return 0;
@@ -56,10 +56,10 @@ static unsigned name_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
 }
 
 void initialize_vm_name() {
-    declare_vm_builtin(name{"name", "anonymous"},      name_anonymous);
-    declare_vm_builtin(name{"name", "mk_string"},      name_mk_string);
-    declare_vm_builtin(name{"name", "mk_numeral"},     name_mk_numeral);
-    declare_vm_cases_builtin(name{"name", "cases_on"}, name_cases_on);
+    DECLARE_VM_BUILTIN(name({"name", "anonymous"}),      name_anonymous);
+    DECLARE_VM_BUILTIN(name({"name", "mk_string"}),      name_mk_string);
+    DECLARE_VM_BUILTIN(name({"name", "mk_numeral"}),     name_mk_numeral);
+    DECLARE_VM_CASES_BUILTIN(name({"name", "cases_on"}), name_cases_on);
 }
 
 void finalize_vm_name() {

@@ -611,73 +611,73 @@ void vm_decl_cell::dealloc() {
 }
 
 /** \brief VM builtin functions */
-static name_map<pair<unsigned, vm_function>> * g_vm_builtins = nullptr;
-static name_map<pair<unsigned, vm_cfunction>> * g_vm_cbuiltins = nullptr;
-static name_map<vm_cases_function> * g_vm_cases_builtins = nullptr;
+static name_map<std::tuple<unsigned, char const *, vm_function>> * g_vm_builtins = nullptr;
+static name_map<std::tuple<unsigned, char const *, vm_cfunction>> * g_vm_cbuiltins = nullptr;
+static name_map<std::tuple<char const *, vm_cases_function>> * g_vm_cases_builtins = nullptr;
 static bool g_may_update_vm_builtins = true;
 
-void declare_vm_builtin(name const & n, unsigned arity, vm_function fn) {
+void declare_vm_builtin(name const & n, char const * i, unsigned arity, vm_function fn) {
     lean_assert(g_may_update_vm_builtins);
-    g_vm_builtins->insert(n, mk_pair(arity, fn));
+    g_vm_builtins->insert(n, std::make_tuple(arity, i, fn));
 }
 
-void declare_vm_builtin(name const & n, vm_cfunction_0 fn) {
+void declare_vm_builtin(name const & n, char const * i, vm_cfunction_0 fn) {
     lean_assert(g_may_update_vm_builtins);
-    g_vm_cbuiltins->insert(n, mk_pair(0, reinterpret_cast<vm_cfunction>(fn)));
+    g_vm_cbuiltins->insert(n, std::make_tuple(0, i, reinterpret_cast<vm_cfunction>(fn)));
 }
 
-void declare_vm_builtin(name const & n, vm_cfunction_1 fn) {
+void declare_vm_builtin(name const & n, char const * i, vm_cfunction_1 fn) {
     lean_assert(g_may_update_vm_builtins);
-    g_vm_cbuiltins->insert(n, mk_pair(1, reinterpret_cast<vm_cfunction>(fn)));
+    g_vm_cbuiltins->insert(n, std::make_tuple(1, i, reinterpret_cast<vm_cfunction>(fn)));
 }
 
-void declare_vm_builtin(name const & n, vm_cfunction_2 fn) {
+void declare_vm_builtin(name const & n, char const * i, vm_cfunction_2 fn) {
     lean_assert(g_may_update_vm_builtins);
-    g_vm_cbuiltins->insert(n, mk_pair(2, reinterpret_cast<vm_cfunction>(fn)));
+    g_vm_cbuiltins->insert(n, std::make_tuple(2, i, reinterpret_cast<vm_cfunction>(fn)));
 }
 
-void declare_vm_builtin(name const & n, vm_cfunction_3 fn) {
+void declare_vm_builtin(name const & n, char const * i, vm_cfunction_3 fn) {
     lean_assert(g_may_update_vm_builtins);
-    g_vm_cbuiltins->insert(n, mk_pair(3, reinterpret_cast<vm_cfunction>(fn)));
+    g_vm_cbuiltins->insert(n, std::make_tuple(3, i, reinterpret_cast<vm_cfunction>(fn)));
 }
 
-void declare_vm_builtin(name const & n, vm_cfunction_4 fn) {
+void declare_vm_builtin(name const & n, char const * i, vm_cfunction_4 fn) {
     lean_assert(g_may_update_vm_builtins);
-    g_vm_cbuiltins->insert(n, mk_pair(4, reinterpret_cast<vm_cfunction>(fn)));
+    g_vm_cbuiltins->insert(n, std::make_tuple(4, i, reinterpret_cast<vm_cfunction>(fn)));
 }
 
-void declare_vm_builtin(name const & n, vm_cfunction_5 fn) {
+void declare_vm_builtin(name const & n, char const * i, vm_cfunction_5 fn) {
     lean_assert(g_may_update_vm_builtins);
-    g_vm_cbuiltins->insert(n, mk_pair(5, reinterpret_cast<vm_cfunction>(fn)));
+    g_vm_cbuiltins->insert(n, std::make_tuple(5, i, reinterpret_cast<vm_cfunction>(fn)));
 }
 
-void declare_vm_builtin(name const & n, vm_cfunction_6 fn) {
+void declare_vm_builtin(name const & n, char const * i, vm_cfunction_6 fn) {
     lean_assert(g_may_update_vm_builtins);
-    g_vm_cbuiltins->insert(n, mk_pair(6, reinterpret_cast<vm_cfunction>(fn)));
+    g_vm_cbuiltins->insert(n, std::make_tuple(6, i, reinterpret_cast<vm_cfunction>(fn)));
 }
 
-void declare_vm_builtin(name const & n, vm_cfunction_7 fn) {
+void declare_vm_builtin(name const & n, char const * i, vm_cfunction_7 fn) {
     lean_assert(g_may_update_vm_builtins);
-    g_vm_cbuiltins->insert(n, mk_pair(7, reinterpret_cast<vm_cfunction>(fn)));
+    g_vm_cbuiltins->insert(n, std::make_tuple(7, i, reinterpret_cast<vm_cfunction>(fn)));
 }
 
-void declare_vm_builtin(name const & n, vm_cfunction_8 fn) {
+void declare_vm_builtin(name const & n, char const * i, vm_cfunction_8 fn) {
     lean_assert(g_may_update_vm_builtins);
-    g_vm_cbuiltins->insert(n, mk_pair(8, reinterpret_cast<vm_cfunction>(fn)));
+    g_vm_cbuiltins->insert(n, std::make_tuple(8, i, reinterpret_cast<vm_cfunction>(fn)));
 }
 
-void declare_vm_builtin(name const & n, unsigned arity, vm_cfunction_N fn) {
+void declare_vm_builtin(name const & n, char const * i, unsigned arity, vm_cfunction_N fn) {
     lean_assert(g_may_update_vm_builtins);
-    g_vm_cbuiltins->insert(n, mk_pair(arity, reinterpret_cast<vm_cfunction>(fn)));
+    g_vm_cbuiltins->insert(n, std::make_tuple(arity, i, reinterpret_cast<vm_cfunction>(fn)));
 }
 
 bool is_vm_builtin_function(name const & fn) {
     return g_vm_builtins->contains(fn) || g_vm_cbuiltins->contains(fn) || g_vm_cases_builtins->contains(fn);
 }
 
-void declare_vm_cases_builtin(name const & n, vm_cases_function fn) {
+void declare_vm_cases_builtin(name const & n, char const * i, vm_cases_function fn) {
     lean_assert(g_may_update_vm_builtins);
-    g_vm_cases_builtins->insert(n, fn);
+    g_vm_cases_builtins->insert(n, std::make_tuple(i, fn));
 }
 
 /** \brief VM function/constant declarations are stored in an environment extension. */
@@ -690,16 +690,16 @@ struct vm_decls : public environment_extension {
     parray<name>              m_cases_names;
 
     vm_decls() {
-        g_vm_builtins->for_each([&](name const & n, pair<unsigned, vm_function> const & p) {
-                add(vm_decl(n, m_decls.size(), p.first, p.second));
+        g_vm_builtins->for_each([&](name const & n, std::tuple<unsigned, char const *, vm_function> const & p) {
+                add(vm_decl(n, m_decls.size(), std::get<0>(p), std::get<2>(p)));
             });
-        g_vm_cbuiltins->for_each([&](name const & n, pair<unsigned, vm_cfunction> const & p) {
-                add(vm_decl(n, m_decls.size(), p.first, p.second));
+        g_vm_cbuiltins->for_each([&](name const & n, std::tuple<unsigned, char const *, vm_cfunction> const & p) {
+                add(vm_decl(n, m_decls.size(), std::get<0>(p), std::get<2>(p)));
             });
-        g_vm_cases_builtins->for_each([&](name const & n, vm_cases_function const & fn) {
+        g_vm_cases_builtins->for_each([&](name const & n, std::tuple<char const *, vm_cases_function> const & p) {
                 unsigned idx = m_cases.size();
                 m_cases2idx.insert(n, idx);
-                m_cases.push_back(fn);
+                m_cases.push_back(std::get<1>(p));
                 m_cases_names.push_back(n);
             });
         lean_assert(m_cases_names.size() == m_cases.size());
@@ -745,7 +745,7 @@ static environment update(environment const & env, vm_decls const & ext) {
     return env.update(g_ext->m_ext_id, std::make_shared<vm_decls>(ext));
 }
 
-static environment declare_vm_builtin(environment const & env, name const & n, unsigned arity, vm_cfunction fn) {
+static environment add_native(environment const & env, name const & n, unsigned arity, vm_cfunction fn) {
     auto ext = get_extension(env);
     if (auto idx = ext.m_name2idx.find(n)) {
         vm_decl d = ext.m_decls[*idx];
@@ -757,44 +757,44 @@ static environment declare_vm_builtin(environment const & env, name const & n, u
     return update(env, ext);
 }
 
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_0 fn) {
-    return declare_vm_builtin(env, n, 0, reinterpret_cast<vm_cfunction>(fn));
+environment add_native(environment const & env, name const & n, vm_cfunction_0 fn) {
+    return add_native(env, n, 0, reinterpret_cast<vm_cfunction>(fn));
 }
 
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_1 fn) {
-    return declare_vm_builtin(env, n, 1, reinterpret_cast<vm_cfunction>(fn));
+environment add_native(environment const & env, name const & n, vm_cfunction_1 fn) {
+    return add_native(env, n, 1, reinterpret_cast<vm_cfunction>(fn));
 }
 
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_2 fn) {
-    return declare_vm_builtin(env, n, 2, reinterpret_cast<vm_cfunction>(fn));
+environment add_native(environment const & env, name const & n, vm_cfunction_2 fn) {
+    return add_native(env, n, 2, reinterpret_cast<vm_cfunction>(fn));
 }
 
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_3 fn) {
-    return declare_vm_builtin(env, n, 3, reinterpret_cast<vm_cfunction>(fn));
+environment add_native(environment const & env, name const & n, vm_cfunction_3 fn) {
+    return add_native(env, n, 3, reinterpret_cast<vm_cfunction>(fn));
 }
 
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_4 fn) {
-    return declare_vm_builtin(env, n, 4, reinterpret_cast<vm_cfunction>(fn));
+environment add_native(environment const & env, name const & n, vm_cfunction_4 fn) {
+    return add_native(env, n, 4, reinterpret_cast<vm_cfunction>(fn));
 }
 
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_5 fn) {
-    return declare_vm_builtin(env, n, 5, reinterpret_cast<vm_cfunction>(fn));
+environment add_native(environment const & env, name const & n, vm_cfunction_5 fn) {
+    return add_native(env, n, 5, reinterpret_cast<vm_cfunction>(fn));
 }
 
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_6 fn) {
-    return declare_vm_builtin(env, n, 6, reinterpret_cast<vm_cfunction>(fn));
+environment add_native(environment const & env, name const & n, vm_cfunction_6 fn) {
+    return add_native(env, n, 6, reinterpret_cast<vm_cfunction>(fn));
 }
 
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_7 fn) {
-    return declare_vm_builtin(env, n, 7, reinterpret_cast<vm_cfunction>(fn));
+environment add_native(environment const & env, name const & n, vm_cfunction_7 fn) {
+    return add_native(env, n, 7, reinterpret_cast<vm_cfunction>(fn));
 }
 
-environment declare_vm_builtin(environment const & env, name const & n, vm_cfunction_8 fn) {
-    return declare_vm_builtin(env, n, 8, reinterpret_cast<vm_cfunction>(fn));
+environment add_native(environment const & env, name const & n, vm_cfunction_8 fn) {
+    return add_native(env, n, 8, reinterpret_cast<vm_cfunction>(fn));
 }
 
-environment declare_vm_builtin(environment const & env, name const & n, unsigned arity, vm_cfunction_N fn) {
-    return declare_vm_builtin(env, n, arity, reinterpret_cast<vm_cfunction>(fn));
+environment add_native(environment const & env, name const & n, unsigned arity, vm_cfunction_N fn) {
+    return add_native(env, n, arity, reinterpret_cast<vm_cfunction>(fn));
 }
 
 bool is_vm_function(environment const & env, name const & fn) {
@@ -2009,10 +2009,36 @@ void display_vm_code(std::ostream & out, environment const & env, unsigned code_
     }
 }
 
+char const * get_vm_builtin_internal_name(name const & fn) {
+    if (auto p = g_vm_builtins->find(fn))
+        return std::get<1>(*p);
+    if (auto p = g_vm_cbuiltins->find(fn))
+        return std::get<1>(*p);
+    if (auto p = g_vm_cases_builtins->find(fn))
+        return std::get<0>(*p);
+    return nullptr;
+}
+
+vm_builtin_kind get_vm_builtin_kind(name const & fn) {
+    if (g_vm_builtins->contains(fn))
+        return vm_builtin_kind::VMFun;
+    if (g_vm_cbuiltins->contains(fn))
+        return vm_builtin_kind::CFun;
+    if (g_vm_cases_builtins->contains(fn))
+        return vm_builtin_kind::Cases;
+    lean_unreachable();
+}
+
+unsigned get_vm_builtin_arity(name const & fn) {
+    if (auto p = g_vm_cbuiltins->find(fn))
+        return std::get<0>(*p);
+    lean_unreachable();
+}
+
 void initialize_vm_core() {
-    g_vm_builtins = new name_map<pair<unsigned, vm_function>>();
-    g_vm_cbuiltins = new name_map<pair<unsigned, vm_cfunction>>();
-    g_vm_cases_builtins = new name_map<vm_cases_function>();
+    g_vm_builtins = new name_map<std::tuple<unsigned, char const *, vm_function>>();
+    g_vm_cbuiltins = new name_map<std::tuple<unsigned, char const *, vm_cfunction>>();
+    g_vm_cases_builtins = new name_map<std::tuple<char const *, vm_cases_function>>();
     g_may_update_vm_builtins = true;
     DEBUG_CODE({
             /* We only trace VM in debug mode because it produces a 10% performance penalty */

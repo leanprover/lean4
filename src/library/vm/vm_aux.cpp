@@ -7,23 +7,18 @@ Author: Leonardo de Moura
 #include <string>
 #include <iostream>
 #include "util/timeit.h"
-#include "library/constants.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_string.h"
 
 namespace lean {
-static void vm_timeit(vm_state & s) {
-    vm_obj const & msg  = s.get(-2);
-    vm_obj const & fn   = s.get(-3);
-    std::string msg_str = to_string(msg);
-    timeit timer(std::cout, msg_str.c_str());
-    s.push(mk_vm_unit());
-    s.push(fn);
-    s.apply();
+vm_obj vm_timeit(vm_obj const &, vm_obj const & s, vm_obj const & fn) {
+    std::string msg = to_string(s);
+    timeit timer(std::cout, msg.c_str());
+    return invoke(fn, mk_vm_unit());
 }
 
 void initialize_vm_aux() {
-    declare_vm_builtin(get_timeit_name(), 3, vm_timeit);
+    DECLARE_VM_BUILTIN("timeit", vm_timeit);
 }
 
 void finalize_vm_aux() {

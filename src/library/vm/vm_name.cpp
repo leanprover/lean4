@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include "library/constants.h"
 #include "library/vm/vm.h"
+#include "library/vm/vm_nat.h"
 #include "library/vm/vm_string.h"
 
 namespace lean {
@@ -36,13 +37,7 @@ static vm_obj name_mk_string(vm_obj const & s, vm_obj const & n) {
 }
 
 static vm_obj name_mk_numeral(vm_obj const & num, vm_obj const & n) {
-    unsigned idx;
-    if (is_simple(num)) {
-        idx = cidx(num);
-    } else {
-        idx = to_mpz(num).get_unsigned_int();
-    }
-    return to_obj(name(to_name(n), idx));
+    return to_obj(name(to_name(n), to_unsigned(num)));
 }
 
 static unsigned name_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
@@ -61,10 +56,10 @@ static unsigned name_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
 }
 
 void initialize_vm_name() {
-    declare_vm_builtin(get_name_anonymous_name(),      name_anonymous);
-    declare_vm_builtin(get_name_mk_string_name(),      name_mk_string);
-    declare_vm_builtin(get_name_mk_numeral_name(),     name_mk_numeral);
-    declare_vm_cases_builtin(get_name_cases_on_name(), name_cases_on);
+    declare_vm_builtin(name{"name", "anonymous"},      name_anonymous);
+    declare_vm_builtin(name{"name", "mk_string"},      name_mk_string);
+    declare_vm_builtin(name{"name", "mk_numeral"},     name_mk_numeral);
+    declare_vm_cases_builtin(name{"name", "cases_on"}, name_cases_on);
 }
 
 void finalize_vm_name() {

@@ -27,6 +27,13 @@ vm_obj mk_vm_nat(mpz const & n) {
         return mk_vm_mpz(n);
 }
 
+unsigned to_unsigned(vm_obj const & o) {
+    if (is_simple(o))
+        return cidx(o);
+    else
+        return to_mpz(o).get_unsigned_int();
+}
+
 MK_THREAD_LOCAL_GET_DEF(mpz, get_mpz1);
 MK_THREAD_LOCAL_GET_DEF(mpz, get_mpz2);
 

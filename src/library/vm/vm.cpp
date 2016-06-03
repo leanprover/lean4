@@ -996,9 +996,26 @@ inline vm_cfunction_7 to_fn7(vm_decl const & d) { return reinterpret_cast<vm_cfu
 inline vm_cfunction_8 to_fn8(vm_decl const & d) { return reinterpret_cast<vm_cfunction_8>(d.get_cfn()); }
 inline vm_cfunction_N to_fnN(vm_decl const & d) { return reinterpret_cast<vm_cfunction_N>(d.get_cfn()); }
 
-vm_obj vm_state::invoke_closure(vm_obj const & fn, unsigned nargs) {
-    m_stack.push_back(fn);
-    apply(nargs);
+vm_obj vm_state::invoke_closure(vm_obj const & fn, unsigned DEBUG_CODE(nargs)) {
+    unsigned saved_pc = m_pc;
+    unsigned fn_idx   = cfn_idx(fn);
+    vm_decl const & d = m_decls[fn_idx];
+    unsigned csz      = csize(fn);
+    std::copy(cfields(fn), cfields(fn) + csz, std::back_inserter(m_stack));
+    lean_assert(nargs + csz == d.get_arity());
+    switch (d.kind()) {
+    case vm_decl_kind::Bytecode:
+        invoke_global(d);
+        run();
+        break;
+    case vm_decl_kind::Builtin:
+        invoke_builtin(d);
+        break;
+    case vm_decl_kind::CFun:
+        invoke_cfun(d);
+        break;
+    }
+    m_pc     = saved_pc;
     vm_obj r = m_stack.back();
     m_stack.pop_back();
     return r;

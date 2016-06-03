@@ -317,6 +317,7 @@ vm_instr mk_cases2_instr(unsigned pc1, unsigned pc2) {
 vm_instr mk_casesn_instr(unsigned num_pc, unsigned const * pcs) {
     lean_assert(num_pc >= 2);
     vm_instr r(opcode::CasesN);
+    r.m_cases_idx = 0; /* not really needed, but it avoids a valgrind warning. */
     r.m_npcs = new unsigned[num_pc + 1];
     r.m_npcs[0] = num_pc;
     for (unsigned i = 0; i < num_pc; i++)
@@ -384,7 +385,7 @@ void vm_instr::copy_args(vm_instr const & i) {
     case opcode::CasesN:
     case opcode::BuiltinCases:
         m_npcs = new unsigned[i.m_npcs[0] + 1];
-        for (unsigned j = 0; j < m_npcs[0] + 1; j++)
+        for (unsigned j = 0; j < i.m_npcs[0] + 1; j++)
             m_npcs[j] = i.m_npcs[j];
         m_cases_idx = i.m_cases_idx;
         break;

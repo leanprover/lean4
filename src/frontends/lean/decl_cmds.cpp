@@ -545,9 +545,12 @@ static expr get_equation_fn(buffer<expr> const & fns, name const & fn_name, pos_
     throw_invalid_equation_lhs(fn_name, lhs_pos);
 }
 
-static void parse_equations_core(parser & p, buffer<expr> const & fns, buffer<expr> & eqns, bool bar_only = false) {
-    for (expr const & fn : fns)
-        p.add_local(fn);
+static void parse_equations_core(parser & p, buffer<expr> const & fns, buffer<expr> & eqns, bool bar_only,
+                                 bool is_meta) {
+    if (!is_meta) {
+        for (expr const & fn : fns)
+            p.add_local(fn);
+    }
     while (true) {
         expr lhs;
         unsigned prev_num_undef_ids = p.get_num_undef_ids();
@@ -614,19 +617,17 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
         for (expr const & param : ps)
             p.add_local(param);
         lean_assert(is_curr_with_or_comma_or_bar(p));
-        if (!is_meta) {
-            fns.push_back(mk_local(n, type, mk_rec_info(true)));
-            if (p.curr_is_token(get_with_tk())) {
-                while (p.curr_is_token(get_with_tk())) {
-                    p.next();
-                    auto pos = p.pos();
-                    name g_name = p.check_decl_id_next("invalid declaration, identifier expected");
-                    p.check_token_next(get_colon_tk(), "invalid declaration, ':' expected");
-                    expr g_type = p.parse_expr();
-                    expr g      = p.save_pos(mk_local(g_name, g_type, mk_rec_info(true)), pos);
-                    auxs.push_back(g_name);
-                    fns.push_back(g);
-                }
+        fns.push_back(mk_local(n, type, mk_rec_info(true)));
+        if (p.curr_is_token(get_with_tk())) {
+            while (p.curr_is_token(get_with_tk())) {
+                p.next();
+                auto pos = p.pos();
+                name g_name = p.check_decl_id_next("invalid declaration, identifier expected");
+                p.check_token_next(get_colon_tk(), "invalid declaration, ':' expected");
+                expr g_type = p.parse_expr();
+                expr g      = p.save_pos(mk_local(g_name, g_type, mk_rec_info(true)), pos);
+                auxs.push_back(g_name);
+                fns.push_back(g);
             }
         }
         check_eqn_prefix(p);
@@ -635,7 +636,8 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
             p.next();
             eqns.push_back(Fun(fns, mk_no_equation(), p));
         } else {
-            parse_equations_core(p, fns, eqns);
+            bool bar_only = false;
+            parse_equations_core(p, fns, eqns, bar_only, is_meta);
         }
     }
     if (p.curr_is_token(get_wf_tk())) {
@@ -658,7 +660,8 @@ expr parse_local_equations(parser & p, expr const & fn) {
     buffer<expr> eqns;
     fns.push_back(fn);
     bool bar_only = true;
-    parse_equations_core(p, fns, eqns, bar_only);
+    bool is_meta  = false;
+    parse_equations_core(p, fns, eqns, bar_only, is_meta);
     return p.save_pos(mk_equations(fns.size(), eqns.size(), eqns.data()), pos);
 }
 

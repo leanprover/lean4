@@ -73,7 +73,7 @@ vm_obj format_to_string(vm_obj const & fmt, vm_obj const & opts) {
     return to_obj(out.str());
 }
 
-vm_obj format_pp_using(vm_obj const & fmt, vm_obj const & opts, vm_obj const &) {
+vm_obj format_print_using(vm_obj const & fmt, vm_obj const & opts, vm_obj const &) {
     std::cout << mk_pair(to_format(fmt), to_options(opts));
     return mk_vm_unit();
 }
@@ -93,7 +93,7 @@ void initialize_vm_format() {
     DECLARE_VM_BUILTIN(name({"format", "of_nat"}),           format_of_nat);
     DECLARE_VM_BUILTIN(name({"format", "flatten"}),          format_flatten);
     DECLARE_VM_BUILTIN(name({"format", "to_string"}),        format_to_string);
-    DECLARE_VM_BUILTIN(name({"format", "pp_using"}),         format_pp_using);
+    DECLARE_VM_BUILTIN(name({"format", "print_using"}),      format_print_using);
     DECLARE_VM_BUILTIN(name({"format", "of_options"}),       format_of_options);
 }
 

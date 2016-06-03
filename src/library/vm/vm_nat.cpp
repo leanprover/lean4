@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
-#include "library/constants.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_string.h"
 

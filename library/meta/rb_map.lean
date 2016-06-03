@@ -18,7 +18,7 @@ meta_constant min {key : Type} {data : Type}            : rb_map key data → op
 meta_constant max {key : Type} {data : Type}            : rb_map key data → option data
 meta_constant fold {key : Type} {data : Type} {A :Type} : rb_map key data → A → (key → data → A → A) → A
 
-meta_definition mk (key : Type) [has_cmp key] (data : Type) : rb_map key data :=
+inline meta_definition mk (key : Type) [has_cmp key] (data : Type) : rb_map key data :=
 mk_core data has_cmp.cmp
 
 open list
@@ -32,7 +32,7 @@ meta_definition nat_map (data : Type) := rb_map nat data
 namespace nat_map
   export rb_map (hiding mk)
 
-  meta_definition mk (data : Type) : nat_map data :=
+  inline meta_definition mk (data : Type) : nat_map data :=
   rb_map.mk nat data
 end nat_map
 
@@ -40,6 +40,6 @@ meta_definition name_map (data : Type) := rb_map name data
 namespace name_map
   export rb_map (hiding mk)
 
-  meta_definition mk (data : Type) : name_map data :=
+  inline meta_definition mk (data : Type) : name_map data :=
   rb_map.mk name data
 end name_map

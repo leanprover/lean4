@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/coercion.h"
 #include "library/scoped_ext.h"
+#include "library/export_decl.h"
 #include "library/private.h"
 #include "library/protected.h"
 #include "library/attribute_manager.h"
@@ -206,8 +207,12 @@ static void print_notation(parser & p) {
 static void print_metaclasses(parser const & p) {
     buffer<name> c;
     get_metaclasses(c);
-    for (name const & n : c)
-        p.ios().get_regular_stream() << "[" << n << "]" << std::endl;
+    for (name const & n : c) {
+        // We do not display internal metaclass export_decl.
+        // This metaclass is used internally for "replaying" export declarations.
+        if (n != get_export_decl_class_name())
+            p.ios().get_regular_stream() << "[" << n << "]" << std::endl;
+    }
 }
 
 static void print_patterns(parser & p, name const & n) {

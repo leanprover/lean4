@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/reducible.h"
 #include "library/aliases.h"
+#include "library/export_decl.h"
 #include "library/coercion.h"
 #include "library/io_state.h"
 #include "library/idx_metavar.h"
@@ -100,6 +101,7 @@ void initialize_library_module() {
     initialize_scoped_ext();
     initialize_reducible();
     initialize_aliases();
+    initialize_export_decl();
     initialize_coercion();
     initialize_sorry();
     initialize_class();
@@ -151,6 +153,7 @@ void finalize_library_module() {
     finalize_class();
     finalize_sorry();
     finalize_coercion();
+    finalize_export_decl();
     finalize_aliases();
     finalize_reducible();
     finalize_scoped_ext();

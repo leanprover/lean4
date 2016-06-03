@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/trace.h"
 #include "library/aliases.h"
+#include "library/export_decl.h"
 #include "library/protected.h"
 #include "library/constants.h"
 #include "library/normalize.h"
@@ -58,10 +59,59 @@ environment section_cmd(parser & p) {
     return push_scope(p.env(), p.ios(), scope_kind::Section, n);
 }
 
+// Execute open command
+environment execute_open(environment env, io_state const & ios, export_decl const & edecl);
+
+environment replay_export_decls(environment env, io_state const & ios, unsigned old_sz) {
+    list<export_decl> new_export_decls = get_export_decls(env);
+    unsigned new_sz = length(new_export_decls);
+    lean_assert(new_sz >= old_sz);
+    unsigned i = 0;
+    for (export_decl const & d : new_export_decls) {
+        if (i >= new_sz - old_sz)
+            break;
+        env = execute_open(env, ios, d);
+        i++;
+    }
+    return env;
+}
+
+environment execute_open(environment env, io_state const & ios, export_decl const & edecl) {
+    unsigned fingerprint = 0;
+    for (name const & n : edecl.m_metacls)
+        fingerprint = hash(fingerprint, n.hash());
+    name const & ns = edecl.m_ns;
+    fingerprint = hash(fingerprint, ns.hash());
+    buffer<name> metacls;
+    to_buffer(edecl.m_metacls, metacls);
+    if (!metacls.empty() && std::find(metacls.begin(), metacls.end(), get_export_decl_class_name()) == metacls.end())
+        metacls.push_back(get_export_decl_class_name());
+    unsigned old_export_decls_sz = length(get_export_decls(env));
+    env = using_namespace(env, ios, ns, metacls);
+    if (edecl.m_decls) {
+        for (auto const & p : edecl.m_renames) {
+            fingerprint = hash(hash(fingerprint, p.first.hash()), p.second.hash());
+            env = add_expr_alias(env, p.first, p.second);
+        }
+        for (auto const & n : edecl.m_except_names) {
+            fingerprint = hash(fingerprint, n.hash());
+        }
+        if (!edecl.m_had_explicit) {
+            buffer<name> except_names;
+            to_buffer(edecl.m_except_names, except_names);
+            env = add_aliases(env, ns, edecl.m_as, except_names.size(), except_names.data());
+        }
+    }
+    env = update_fingerprint(env, fingerprint);
+    return replay_export_decls(env, ios, old_export_decls_sz);
+}
+
 environment namespace_cmd(parser & p) {
     name n = p.check_decl_id_next("invalid namespace declaration, identifier expected");
     p.push_local_scope();
-    return push_scope(p.env(), p.ios(), scope_kind::Namespace, n);
+    unsigned old_export_decls_sz = length(get_export_decls(p.env()));
+    environment env = push_scope(p.env(), p.ios(), scope_kind::Namespace, n);
+    return replay_export_decls(env, p.ios(), old_export_decls_sz);
 }
 
 static environment redeclare_aliases(environment env, parser & p,
@@ -221,7 +271,8 @@ static optional<name> parse_metaclass(parser & p) {
             p.next();
         }
         p.check_token_next(get_rbracket_tk(), "invalid 'open' command, ']' expected");
-        if (!is_metaclass(n) && n != get_decl_tk() && n != get_declaration_tk())
+        if ((!is_metaclass(n) && n != get_decl_tk() && n != get_declaration_tk()) ||
+            (n == get_export_decl_class_name()))
             throw parser_error(sstream() << "invalid metaclass name '[" << n << "]'", pos);
         return optional<name>(n);
     } else if (p.curr() == scanner::token_kind::CommandKeyword) {
@@ -278,69 +329,6 @@ static void check_identifier(parser & p, environment const & env, name const & n
     name full_id = ns + id;
     if (!env.find(full_id))
         throw parser_error(sstream() << "invalid 'open' command, unknown declaration '" << full_id << "'", p.pos());
-}
-
-// add id as an abbreviation for d
-static environment add_abbrev(environment const & env, name const & id, name const & d) {
-    declaration decl = env.get(d);
-    buffer<level> ls;
-    for (name const & l : decl.get_univ_params())
-        ls.push_back(mk_param_univ(l));
-    expr value  = mk_constant(d, to_list(ls.begin(), ls.end()));
-    name const & ns = get_namespace(env);
-    name full_id    = ns + id;
-    environment new_env =
-        module::add(env, check(env, mk_definition(env, full_id, decl.get_univ_params(), decl.get_type(), value)));
-    if (full_id != id)
-        new_env = add_expr_alias_rec(new_env, id, full_id);
-    return new_env;
-}
-
-// Execute open/export command
-environment execute_open_export(environment env, io_state const & ios, bool open,
-                                name const & ns, name const & as,
-                                buffer<name> const & metacls,
-                                bool decls, bool had_explicit,
-                                buffer<pair<name, name>> const & renames,
-                                buffer<name> const & exception_names) {
-    unsigned fingerprint = 0;
-    for (name const & n : metacls)
-        fingerprint = hash(fingerprint, n.hash());
-    fingerprint = hash(fingerprint, ns.hash());
-    if (open)
-        env = using_namespace(env, ios, ns, metacls);
-    else
-        env = export_namespace(env, ios, ns, metacls);
-    if (decls) {
-        for (auto const & p : renames) {
-            fingerprint = hash(hash(fingerprint, p.first.hash()), p.second.hash());
-            if (open)
-                env = add_expr_alias(env, p.first, p.second);
-            else
-                env = add_abbrev(env, p.first, p.second);
-        }
-        for (auto const & n : exception_names) {
-            fingerprint = hash(fingerprint, n.hash());
-        }
-        if (!had_explicit) {
-            if (open) {
-                env = add_aliases(env, ns, as, exception_names.size(), exception_names.data());
-            } else {
-                environment new_env = env;
-                env.for_each_declaration([&](declaration const & d) {
-                        if (!is_protected(env, d.get_name()) &&
-                            is_prefix_of(ns, d.get_name()) &&
-                            !is_exception(d.get_name(), ns, exception_names.size(), exception_names.data())) {
-                            name new_id = d.get_name().replace_prefix(ns, as);
-                            if (!new_id.is_anonymous())
-                                new_env = add_abbrev(new_env, new_id, d.get_name());
-                        }
-                    });
-                env = new_env;
-            }
-        }
-    }
-    return update_fingerprint(env, fingerprint);
 }
 
 // open/export [class] id (as id)? (id ...) (renaming id->id id->id) (hiding id ... id)
@@ -410,8 +398,11 @@ environment open_export_cmd(parser & p, bool open) {
                 p.check_token_next(get_rparen_tk(), "invalid 'open/export' command option, ')' expected");
             }
         }
-        env = execute_open_export(env, p.ios(), open, ns, as, metacls, decls,
-                                  found_explicit, renames, exception_names);
+        export_decl edecl(ns, as, metacls, decls, found_explicit, renames, exception_names);
+        env = execute_open(env, p.ios(), edecl);
+        if (!open) {
+            env = add_export_decl(env, edecl);
+        }
         if (!is_next_metaclass_tk(p) && !p.curr_is_identifier())
             break;
     }

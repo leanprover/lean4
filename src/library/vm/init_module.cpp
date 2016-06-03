@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_io.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_options.h"
+#include "library/vm/vm_format.h"
 #include "library/vm/vm_aux.h"
 
 namespace lean {
@@ -18,10 +19,12 @@ void initialize_vm_core_module() {
     initialize_vm_io();
     initialize_vm_name();
     initialize_vm_options();
+    initialize_vm_format();
     initialize_vm_aux();
 }
 void finalize_vm_core_module() {
     finalize_vm_aux();
+    finalize_vm_format();
     finalize_vm_options();
     finalize_vm_name();
     finalize_vm_io();

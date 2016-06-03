@@ -1207,7 +1207,7 @@ class definition_cmd_fn {
     }
 
     void compile_decl() {
-        if (m_is_noncomputable || m_is_inline || !is_definition() || is_vm_builtin_function(m_real_name))
+        if (m_is_noncomputable || !is_definition() || is_vm_builtin_function(m_real_name))
             return;
         try {
             declaration d = m_env.get(m_real_name);

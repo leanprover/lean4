@@ -107,10 +107,11 @@ static bool use_untrusted(environment const & env, expr const & e) {
     for_each(e, [&](expr const & e, unsigned) {
             if (found) return false;
             if (is_constant(e)) {
-                declaration const & d = env.get(const_name(e));
-                if (!d.is_trusted()) {
-                    found = true;
-                    return false;
+                if (auto d = env.find(const_name(e))) {
+                    if (!d->is_trusted()) {
+                        found = true;
+                        return false;
+                    }
                 }
             }
             return true;

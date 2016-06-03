@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_string.h"
+#include "library/vm/cmp_result.h"
 
 namespace lean {
 struct vm_name : public vm_external {
@@ -55,11 +56,26 @@ unsigned name_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     }
 }
 
+vm_obj name_has_decidable_eq(vm_obj const & o1, vm_obj const & o2) {
+    return mk_vm_bool(to_name(o1) == to_name(o2));
+}
+
+vm_obj name_cmp(vm_obj const & o1, vm_obj const & o2) {
+    return int_to_cmp_result(quick_cmp(to_name(o1), to_name(o2)));
+}
+
+vm_obj name_lex_cmp(vm_obj const & o1, vm_obj const & o2) {
+    return int_to_cmp_result(cmp(to_name(o1), to_name(o2)));
+}
+
 void initialize_vm_name() {
-    DECLARE_VM_BUILTIN(name({"name", "anonymous"}),      name_anonymous);
-    DECLARE_VM_BUILTIN(name({"name", "mk_string"}),      name_mk_string);
-    DECLARE_VM_BUILTIN(name({"name", "mk_numeral"}),     name_mk_numeral);
-    DECLARE_VM_CASES_BUILTIN(name({"name", "cases_on"}), name_cases_on);
+    DECLARE_VM_BUILTIN(name({"name", "anonymous"}),        name_anonymous);
+    DECLARE_VM_BUILTIN(name({"name", "mk_string"}),        name_mk_string);
+    DECLARE_VM_BUILTIN(name({"name", "mk_numeral"}),       name_mk_numeral);
+    DECLARE_VM_BUILTIN(name({"name", "has_decidable_eq"}), name_has_decidable_eq);
+    DECLARE_VM_BUILTIN(name({"name", "cmp"}),              name_cmp);
+    DECLARE_VM_BUILTIN(name({"name", "lex_cmp"}),          name_lex_cmp);
+    DECLARE_VM_CASES_BUILTIN(name({"name", "cases_on"}),   name_cases_on);
 }
 
 void finalize_vm_name() {

@@ -3,6 +3,7 @@ Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import meta.cmp_result
 
 /- Reflect a C++ name object. The VM replaces it with the C++ implementation. -/
 inductive name :=
@@ -35,3 +36,11 @@ definition name.to_string : name → string
 
 definition name.has_to_string [instance] : has_to_string name :=
 has_to_string.mk name.to_string
+
+/- TODO(Leo): provide a definition in Lean. -/
+meta_constant name.has_decidable_eq : decidable_eq name
+/- Both cmp and lex_cmp are total orders, but lex_cmp implements a lexicographical order. -/
+meta_constant name.cmp : name → name → cmp_result
+meta_constant name.lex_cmp : name → name → cmp_result
+
+attribute [instance] name.has_decidable_eq

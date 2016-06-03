@@ -1,6 +1,12 @@
-/-
+/*
 Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
--/
-import meta.name meta.options meta.format meta.rb_map
+
+Author: Leonardo de Moura
+*/
+#pragma once
+
+namespace lean {
+void initialize_vm_rb_map();
+void finalize_vm_rb_map();
+}

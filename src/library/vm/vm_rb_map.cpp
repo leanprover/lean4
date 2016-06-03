@@ -39,7 +39,7 @@ vm_obj to_obj(vm_rb_map const & n) {
     return mk_vm_external(new vm_rb_map(n));
 }
 
-vm_obj rb_map_mk(vm_obj const &, vm_obj const &, vm_obj const & cmp) {
+vm_obj rb_map_mk_core(vm_obj const &, vm_obj const &, vm_obj const & cmp) {
     return to_obj(vm_obj_map(vm_obj_cmp(cmp)));
 }
 
@@ -85,7 +85,7 @@ meta_constant fold {key : Type} {data : Type} {A :Type} : rb_map key data → A 
 */
 
 void initialize_vm_rb_map() {
-    DECLARE_VM_BUILTIN(name({"rb_map", "mk"}),             rb_map_mk);
+    DECLARE_VM_BUILTIN(name({"rb_map", "mk_core"}),        rb_map_mk_core);
     DECLARE_VM_BUILTIN(name({"rb_map", "size"}),           rb_map_size);
     DECLARE_VM_BUILTIN(name({"rb_map", "insert"}),         rb_map_insert);
     DECLARE_VM_BUILTIN(name({"rb_map", "erase"}),          rb_map_erase);

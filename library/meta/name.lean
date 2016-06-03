@@ -44,3 +44,6 @@ meta_constant name.cmp : name → name → cmp_result
 meta_constant name.lex_cmp : name → name → cmp_result
 
 attribute [instance] name.has_decidable_eq
+
+meta_definition name_has_cmp [instance] : has_cmp name :=
+has_cmp.mk name.cmp

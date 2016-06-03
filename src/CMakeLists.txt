@@ -382,6 +382,7 @@ add_subdirectory(tests/frontends/lean)
 add_subdirectory(tests/shell)
 
 # Compatibility Checks using https://github.com/foonathan/compatibility
+set(COMP_CMAKE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules" CACHE INTERNAL "")
 include(CompBase)
 comp_target_features(lean PUBLIC cpp14_lang/sized_deallocation)
 configure_file("${LEAN_SOURCE_DIR}/compatibility.h.in" "${LEAN_BINARY_DIR}/compatibility.h")

@@ -17,19 +17,14 @@ Author: Leonardo de Moura
 namespace lean {
 enum class scope_kind { Namespace, Section };
 typedef environment (*using_namespace_fn)(environment const &, io_state const &, name const &);
-typedef environment (*export_namespace_fn)(environment const &, io_state const &, name const &);
 typedef environment (*push_scope_fn)(environment const &, io_state const &, scope_kind);
 typedef environment (*pop_scope_fn)(environment const &, io_state const &, scope_kind);
 
-void register_scoped_ext(name const & n, using_namespace_fn use, export_namespace_fn ex, push_scope_fn push, pop_scope_fn pop);
+void register_scoped_ext(name const & n, using_namespace_fn use, push_scope_fn push, pop_scope_fn pop);
 /** \brief Use objects defined in the namespace \c n.
     If \c metaclasses is not empty, then only objects in the given "metaclasses" \c c are considered. */
 environment using_namespace(environment const & env, io_state const & ios, name const & n, buffer<name> const & metaclasses);
 environment using_namespace(environment const & env, io_state const & ios, name const & n);
-/** \brief Export objects defined in the namespace \c n to current namespace.
-    If \c metaclasses is not empty, then only objects in the given "metaclasses" \c c are considered. */
-environment export_namespace(environment const & env, io_state const & ios, name const & n, buffer<name> const & metaclasses);
-environment export_namespace(environment const & env, io_state const & ios, name const & n);
 
 /** \brief Create a new scope, all scoped extensions are notified. */
 environment push_scope(environment const & env, io_state const & ios, scope_kind k, name const & n = name());
@@ -207,21 +202,6 @@ public:
         return r;
     }
 
-    /** \brief Copy entries from the given namespace to the current namespace. */
-    environment export_namespace(environment env, io_state const & ios, name const & ns) const {
-        if (auto it = m_entries_map.find(ns)) {
-            buffer<entry> entries;
-            to_buffer(*it, entries);
-            unsigned i      = entries.size();
-            name current_ns = get_namespace(env);
-            while (i > 0) {
-                --i;
-                env = add_entry(env, ios, entries[i], current_ns, true);
-            }
-        }
-        return env;
-    }
-
     /** \brief Open a namespace/section. It return the new updated state. */
     scoped_ext push() const {
         scoped_ext r(*this);
@@ -253,7 +233,7 @@ public:
     struct reg {
         unsigned m_ext_id;
         reg() {
-            register_scoped_ext(get_class_name(), using_namespace_fn, export_namespace_fn, push_fn, pop_fn);
+            register_scoped_ext(get_class_name(), using_namespace_fn, push_fn, pop_fn);
             register_module_object_reader(get_serialization_key(), reader);
             m_ext_id = environment::register_extension(std::make_shared<scoped_ext>());
         }
@@ -271,9 +251,6 @@ public:
     }
     static environment using_namespace_fn(environment const & env, io_state const & ios, name const & n) {
         return update(env, get(env).using_namespace(env, ios, n));
-    }
-    static environment export_namespace_fn(environment const & env, io_state const & ios, name const & n) {
-        return get(env).export_namespace(env, ios, n);
     }
     static environment push_fn(environment const & env, io_state const &, scope_kind) {
         return update(env, get(env).push());

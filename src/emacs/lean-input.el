@@ -1135,24 +1135,23 @@ Suitable for use in the :set field of `defcustom'."
 (defun lean-input-export-translations ()
   "Export the current translation, (input, output) pairs for
 input-method, in a javascript format. It can be copy-pasted to
-leanprover.github.io/js/input-method.js"
+leanprover.github.io/tutorial/js/input-method.js"
   (interactive)
   (with-current-buffer
       (get-buffer-create "*lean-translations*")
-    (insert "var corrections = {")
-    (--each
-        (lean-input-get-translations "Lean")
-      (let* ((input (substring (car it) 1))
-             (outputs (cdr it)))
-
-        (insert (format "%s:\"" (prin1-to-string input)))
-
-        (cond ((vectorp outputs)
-               (insert (elt outputs 0)))
-              (t (insert-char outputs)))
-
-        (insert (format "\",\n" input))))
-    (insert "};")))
+    (let ((exclude-list '("\\newline")))
+      (insert "var corrections = {")
+      (--each
+          (--filter (not (member (car it) exclude-list))
+                    (lean-input-get-translations "Lean"))
+        (let* ((input (substring (car it) 1))
+               (outputs (cdr it)))
+          (insert (format "%s:\"" (prin1-to-string input)))
+          (cond ((vectorp outputs)
+                 (insert (elt outputs 0)))
+                (t (insert-char outputs)))
+          (insert (format "\",\n" input))))
+      (insert "};"))))
 
 (defun lean-input-export-translations-to-stdout ()
   (lean-input-export-translations)

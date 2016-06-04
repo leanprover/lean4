@@ -21,6 +21,10 @@ vm_eval size m2
 vm_eval find m2 1
 vm_eval find m2 4
 vm_eval find m2 3
+
+vm_eval do pp m2, put_str "\n"
+vm_eval m2
+
 end
 
 section
@@ -31,4 +35,6 @@ meta_definition m3 := insert (insert (mk (nat × nat) nat) (1, 2) 3) (2, 2) 4
 vm_eval find m3 (1, 2)
 vm_eval find m3 (2, 1)
 vm_eval find m3 (2, 2)
+
+vm_eval pp m3
 end

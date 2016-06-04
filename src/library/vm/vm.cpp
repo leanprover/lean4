@@ -945,43 +945,66 @@ void vm_state::invoke_cfun(vm_decl const & d) {
     unsigned sz    = S.size();
     unsigned arity = d.get_arity();
     vm_obj r;
+    /* Important The stack m_stack may be resized during the execution of the function d.get_cfn().
+       Thus, to make sure the arguments are not garbage collected, we copy them into local variables a1 ... an.
+       The copy operation will bump the reference counter. */
     switch (arity) {
     case 0:
         r = reinterpret_cast<vm_cfunction_0>(d.get_cfn())();
         break;
-    case 1:
-        r = reinterpret_cast<vm_cfunction_1>(d.get_cfn())(S[sz - 1]);
-        break;
-    case 2:
-        r = reinterpret_cast<vm_cfunction_2>(d.get_cfn())(S[sz - 1], S[sz - 2]);
-        break;
-    case 3:
-        r = reinterpret_cast<vm_cfunction_3>(d.get_cfn())(S[sz - 1], S[sz - 2], S[sz - 3]);
-        break;
-    case 4:
-        r = reinterpret_cast<vm_cfunction_4>(d.get_cfn())(S[sz - 1], S[sz - 2], S[sz - 3], S[sz - 4]);
-        break;
-    case 5:
-        r = reinterpret_cast<vm_cfunction_5>(d.get_cfn())(S[sz - 1], S[sz - 2], S[sz - 3], S[sz - 4],
-                                                          S[sz - 5]);
-        break;
-    case 6:
-        r = reinterpret_cast<vm_cfunction_6>(d.get_cfn())(S[sz - 1], S[sz - 1], S[sz - 3], S[sz - 4],
-                                                          S[sz - 5], S[sz - 6]);
-        break;
-    case 7:
-        r = reinterpret_cast<vm_cfunction_7>(d.get_cfn())(S[sz - 1], S[sz - 1], S[sz - 3], S[sz - 4],
-                                                          S[sz - 5], S[sz - 6], S[sz - 7]);
-        break;
-    case 8:
-        r = reinterpret_cast<vm_cfunction_8>(d.get_cfn())(S[sz - 1], S[sz - 1], S[sz - 3], S[sz - 4],
-                                                          S[sz - 5], S[sz - 6], S[sz - 7], S[sz - 8]);
-        break;
-    default:
-        std::reverse(m_stack.data() + sz - arity, m_stack.data() + sz);
-        r = reinterpret_cast<vm_cfunction_N>(d.get_cfn())(arity, m_stack.data() + sz - arity);
+    case 1: {
+        vm_obj a1 = S[sz-1];
+        r = reinterpret_cast<vm_cfunction_1>(d.get_cfn())(a1);
         break;
     }
+    case 2: {
+        vm_obj a1 = S[sz - 1], a2 = S[sz - 2];
+        r = reinterpret_cast<vm_cfunction_2>(d.get_cfn())(a1, a2);
+        break;
+    }
+    case 3: {
+        vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3];
+        r = reinterpret_cast<vm_cfunction_3>(d.get_cfn())(a1, a2, a3);
+        break;
+    }
+    case 4: {
+        vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3], a4 = S[sz - 4];
+        r = reinterpret_cast<vm_cfunction_4>(d.get_cfn())(a1, a2, a3, a4);
+        break;
+    }
+    case 5: {
+        vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3], a4 = S[sz - 4], a5 = S[sz - 5];
+        r = reinterpret_cast<vm_cfunction_5>(d.get_cfn())(a1, a2, a3, a4, a5);
+        break;
+    }
+    case 6: {
+        vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3], a4 = S[sz - 4], a5 = S[sz - 5], a6 = S[sz - 6];
+        r = reinterpret_cast<vm_cfunction_6>(d.get_cfn())(a1, a2, a3, a4, a5, a6);
+        break;
+    }
+    case 7: {
+        vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3], a4 = S[sz - 4], a5 = S[sz - 5], a6 = S[sz - 6];
+        vm_obj a7 = S[sz - 7];
+        r = reinterpret_cast<vm_cfunction_7>(d.get_cfn())(a1, a2, a3, a4, a5, a6, a7);
+        break;
+    }
+    case 8: {
+        vm_obj a1 = S[sz - 1], a2 = S[sz - 2], a3 = S[sz - 3], a4 = S[sz - 4], a5 = S[sz - 5], a6 = S[sz - 6];
+        vm_obj a7 = S[sz - 7], a8 = S[sz - 8];
+        r = reinterpret_cast<vm_cfunction_8>(d.get_cfn())(a1, a2, a3, a4, a5, a6, a7, a8);
+        break;
+    }
+    default: {
+        buffer<vm_obj> args;
+        unsigned i = sz;
+        while (i > sz - arity) {
+            --i;
+            args.push_back(m_stack[i]);
+        }
+        lean_assert(args.size() == arity);
+        r = reinterpret_cast<vm_cfunction_N>(d.get_cfn())(args.size(), args.data());
+        break;
+    }}
     m_stack.resize(sz - arity);
     m_stack.push_back(r);
     m_pc++;

@@ -80,9 +80,13 @@ vm_obj rb_map_max(vm_obj const &, vm_obj const &, vm_obj const & m) {
         return mk_vm_some(to_map(m).max());
 }
 
-/*
-meta_constant fold {key : Type} {data : Type} {A :Type} : rb_map key data → A → (key → data → A → A) → A
-*/
+vm_obj rb_map_fold(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const & m, vm_obj const & a, vm_obj const & fn) {
+    vm_obj r = a;
+    to_map(m).for_each([&](vm_obj const & k, vm_obj const & d) {
+            r = invoke(fn, k, d, r);
+        });
+    return r;
+}
 
 void initialize_vm_rb_map() {
     DECLARE_VM_BUILTIN(name({"rb_map", "mk_core"}),        rb_map_mk_core);
@@ -93,6 +97,7 @@ void initialize_vm_rb_map() {
     DECLARE_VM_BUILTIN(name({"rb_map", "find"}),           rb_map_find);
     DECLARE_VM_BUILTIN(name({"rb_map", "min"}),            rb_map_min);
     DECLARE_VM_BUILTIN(name({"rb_map", "max"}),            rb_map_max);
+    DECLARE_VM_BUILTIN(name({"rb_map", "fold"}),           rb_map_fold);
 }
 
 void finalize_vm_rb_map() {

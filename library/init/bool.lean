@@ -5,19 +5,19 @@ prelude
 import init.datatypes init.reserved_notation
 
 namespace bool
-  definition cond {A : Type} (b : bool) (t e : A) :=
+  inline definition cond {A : Type} (b : bool) (t e : A) :=
   bool.rec_on b e t
 
-  definition bor (a b : bool) :=
+  inline definition bor (a b : bool) :=
   bool.rec_on a (bool.rec_on b ff tt) tt
 
   notation a || b := bor a b
 
-  definition band (a b : bool) :=
+  inline definition band (a b : bool) :=
   bool.rec_on a ff (bool.rec_on b ff tt)
 
   notation a && b := band a b
 
-  definition bnot (a : bool) :=
+  inline definition bnot (a : bool) :=
   bool.rec_on a tt ff
 end bool

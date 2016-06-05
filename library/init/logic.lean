@@ -635,6 +635,9 @@ namespace decidable
 
   theorem by_contradiction [decidable p] (H : ¬p → false) : p :=
   if H1 : p then H1 else false.rec _ (H H1)
+
+  definition to_bool (p : Prop) [H : decidable p] : bool :=
+  decidable.cases_on H (λ H₁, bool.ff) (λ H₂, bool.tt)
 end decidable
 
 section

@@ -29,6 +29,10 @@ void vm_obj_cell::dec_ref(vm_obj & o, buffer<vm_obj_cell*> & todelete) {
 
 MK_THREAD_LOCAL_GET(small_object_allocator, get_small_allocator, "vm object");
 
+small_object_allocator & get_vm_allocator() {
+    return get_small_allocator();
+}
+
 vm_composite::vm_composite(vm_obj_kind k, unsigned idx, unsigned sz, vm_obj const * data):
     vm_obj_cell(k), m_idx(idx),  m_size(sz) {
     vm_obj * fields = get_field_ptr();
@@ -95,12 +99,6 @@ void vm_mpz::dealloc() {
     get_small_allocator().deallocate(sizeof(vm_mpz), this);
 }
 
-vm_obj mk_vm_external(vm_external * cell) {
-    lean_assert(cell);
-    lean_assert(cell->get_rc() == 0);
-    return vm_obj(cell);
-}
-
 void vm_obj_cell::dealloc() {
     try {
         buffer<vm_obj_cell*> todo;
@@ -114,7 +112,7 @@ void vm_obj_cell::dealloc() {
             case vm_obj_kind::Constructor: to_composite(it)->dealloc(todo); break;
             case vm_obj_kind::Closure:     to_composite(it)->dealloc(todo); break;
             case vm_obj_kind::MPZ:         to_mpz_core(it)->dealloc(); break;
-            case vm_obj_kind::External:    delete to_external(it); break;
+            case vm_obj_kind::External:    to_external(it)->dealloc(); break;
             }
         }
     } catch (std::bad_alloc&) {

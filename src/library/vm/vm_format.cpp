@@ -15,7 +15,7 @@ namespace lean {
 struct vm_format : public vm_external {
     format m_val;
     vm_format(format const & v):m_val(v) {}
-    virtual ~vm_format() {}
+    virtual void dealloc() override { this->~vm_format(); get_vm_allocator().deallocate(sizeof(vm_format), this); }
 };
 
 format const & to_format(vm_obj const & o) {
@@ -25,7 +25,7 @@ format const & to_format(vm_obj const & o) {
 }
 
 vm_obj to_obj(format const & n) {
-    return mk_vm_external(new vm_format(n));
+    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_format))) vm_format(n));
 }
 
 vm_obj format_line() {

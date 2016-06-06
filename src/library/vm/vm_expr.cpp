@@ -24,7 +24,9 @@ namespace lean {
 struct vm_macro_definition : public vm_external {
     macro_definition m_val;
     vm_macro_definition(macro_definition const & v):m_val(v) {}
-    virtual ~vm_macro_definition() {}
+    virtual void dealloc() override {
+        this->~vm_macro_definition(); get_vm_allocator().deallocate(sizeof(vm_macro_definition), this);
+    }
 };
 
 macro_definition const & to_macro_definition(vm_obj const & o) {
@@ -34,13 +36,13 @@ macro_definition const & to_macro_definition(vm_obj const & o) {
 }
 
 vm_obj to_obj(macro_definition const & d) {
-    return mk_vm_external(new vm_macro_definition(d));
+    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_macro_definition))) vm_macro_definition(d));
 }
 
 struct vm_expr : public vm_external {
     expr m_val;
     vm_expr(expr const & v):m_val(v) {}
-    virtual ~vm_expr() {}
+    virtual void dealloc() override { this->~vm_expr(); get_vm_allocator().deallocate(sizeof(vm_expr), this); }
 };
 
 expr const & to_expr(vm_obj const & o) {
@@ -50,7 +52,7 @@ expr const & to_expr(vm_obj const & o) {
 }
 
 vm_obj to_obj(expr const & e) {
-    return mk_vm_external(new vm_expr(e));
+    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_expr))) vm_expr(e));
 }
 
 list<expr> to_list_expr(vm_obj const & o) {

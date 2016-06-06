@@ -17,7 +17,7 @@ namespace lean {
 struct vm_level : public vm_external {
     level m_val;
     vm_level(level const & v):m_val(v) {}
-    virtual ~vm_level() {}
+    virtual void dealloc() override { this->~vm_level(); get_vm_allocator().deallocate(sizeof(vm_level), this); }
 };
 
 level const & to_level(vm_obj const & o) {
@@ -27,7 +27,7 @@ level const & to_level(vm_obj const & o) {
 }
 
 vm_obj to_obj(level const & n) {
-    return mk_vm_external(new vm_level(n));
+    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_level))) vm_level(n));
 }
 
 list<level> to_list_level(vm_obj const & o) {

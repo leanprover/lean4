@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/debug.h"
 #include "util/rc.h"
+#include "util/small_object_allocator.h"
 #include "util/serializer.h"
 #include "util/numerics/mpz.h"
 #include "kernel/environment.h"
@@ -123,10 +124,15 @@ public:
 };
 
 class vm_external : public vm_obj_cell {
+protected:
+    friend vm_obj_cell;
+    virtual void dealloc() = 0;
 public:
     vm_external():vm_obj_cell(vm_obj_kind::External) {}
-    virtual ~vm_external() {}
+    ~vm_external() {}
 };
+
+small_object_allocator & get_vm_allocator();
 
 // =======================================
 // Constructors
@@ -138,7 +144,7 @@ vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj c
 vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &);
 vm_obj mk_vm_closure(unsigned fnidx, unsigned sz, vm_obj const * args);
 vm_obj mk_vm_mpz(mpz const & n);
-vm_obj mk_vm_external(vm_external * cell);
+inline vm_obj mk_vm_external(vm_external * obj) { lean_assert(obj && obj->get_rc() == 0); return vm_obj(obj); }
 /* helper functions for creating natural numbers */
 vm_obj mk_vm_nat(unsigned n);
 vm_obj mk_vm_nat(mpz const & n);

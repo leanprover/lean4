@@ -526,14 +526,22 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
     while (true) {
         expr curr;
         optional<name> id;
+        expr type;
         auto id_pos = p.pos();
         if (p.curr_is_identifier()) {
             id = p.get_name_val();
             p.next();
             if (p.curr_is_token(get_larrow_tk())) {
                 p.next();
+                type = mk_expr_placeholder();
+                curr = p.parse_expr();
+            } else if (p.curr_is_token(get_colon_tk())) {
+                p.next();
+                type = p.parse_expr();
+                p.check_token_next(get_larrow_tk(), "invalid 'do' notation, '←' expected");
                 curr = p.parse_expr();
             } else {
+                type      = mk_expr_placeholder();
                 expr left = p.id_to_expr(*id, id_pos);
                 id        = optional<name>();
                 unsigned rbp = 0;
@@ -544,13 +552,14 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
             }
         } else {
             id   = optional<name>();
+            type = mk_expr_placeholder();
             curr = p.parse_expr();
         }
         es.push_back(curr);
         if (p.curr_is_token(get_comma_tk())) {
             p.next();
             name n = id ? *id : mk_fresh_name();
-            expr l = p.save_pos(mk_local(n, mk_expr_placeholder()), id_pos);
+            expr l = p.save_pos(mk_local(n, type), id_pos);
             p.add_local(l);
             locals.push_back(l);
         } else {

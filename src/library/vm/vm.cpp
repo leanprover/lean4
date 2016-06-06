@@ -54,6 +54,25 @@ vm_obj mk_vm_constructor(unsigned cidx, unsigned sz, vm_obj const * data) {
     return mk_vm_composite(vm_obj_kind::Constructor, cidx, sz, data);
 }
 
+vm_obj mk_vm_constructor(unsigned cidx, vm_obj const & o1) {
+    return mk_vm_constructor(cidx, 1, &o1);
+}
+
+vm_obj mk_vm_constructor(unsigned cidx, vm_obj const & o1, vm_obj const & o2) {
+    vm_obj args[2] = {o1, o2};
+    return mk_vm_constructor(cidx, 2, args);
+}
+
+vm_obj mk_vm_constructor(unsigned cidx, vm_obj const & o1, vm_obj const & o2, vm_obj const & o3) {
+    vm_obj args[3] = {o1, o2, o3};
+    return mk_vm_constructor(cidx, 3, args);
+}
+
+vm_obj mk_vm_constructor(unsigned cidx, vm_obj const & o1, vm_obj const & o2, vm_obj const & o3, vm_obj const & o4) {
+    vm_obj args[4] = {o1, o2, o3, o4};
+    return mk_vm_constructor(cidx, 4, args);
+}
+
 vm_obj mk_vm_closure(unsigned fn_idx, unsigned sz, vm_obj const * data) {
     return mk_vm_composite(vm_obj_kind::Closure, fn_idx, sz, data);
 }
@@ -734,8 +753,12 @@ struct vm_decls : public environment_extension {
 };
 
 struct vm_decls_reg {
-    unsigned m_ext_id;
-    vm_decls_reg() { m_ext_id = environment::register_extension(std::make_shared<vm_decls>()); }
+    std::shared_ptr<vm_decls> m_init_decls;
+    unsigned                  m_ext_id;
+    vm_decls_reg() {
+        m_init_decls = std::make_shared<vm_decls>();
+        m_ext_id     = environment::register_extension(m_init_decls);
+    }
 };
 
 static vm_decls_reg * g_ext = nullptr;
@@ -806,6 +829,14 @@ bool is_vm_function(environment const & env, name const & fn) {
 optional<unsigned> get_vm_constant_idx(environment const & env, name const & n) {
     auto const & ext = get_extension(env);
     if (auto r = ext.m_name2idx.find(n))
+        return optional<unsigned>(*r);
+    else
+        return optional<unsigned>();
+}
+
+optional<unsigned> get_vm_builtin_idx(name const & n) {
+    lean_assert(g_ext);
+    if (auto r = g_ext->m_init_decls->m_name2idx.find(n))
         return optional<unsigned>(*r);
     else
         return optional<unsigned>();

@@ -132,6 +132,10 @@ public:
 // Constructors
 vm_obj mk_vm_simple(unsigned cidx);
 vm_obj mk_vm_constructor(unsigned cidx, unsigned sz, vm_obj const * args);
+vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &);
+vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &);
+vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj const &);
+vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &);
 vm_obj mk_vm_closure(unsigned fnidx, unsigned sz, vm_obj const * args);
 vm_obj mk_vm_mpz(mpz const & n);
 vm_obj mk_vm_external(vm_external * cell);
@@ -604,6 +608,10 @@ environment optimize_vm_decls(environment const & env);
 bool is_vm_function(environment const & env, name const & fn);
 
 optional<vm_decl> get_vm_decl(environment const & env, name const & n);
+
+/** \brief Return the function idx of a builtin function.
+    \remark This function must only be invoked after initialize_vm was invoked. */
+optional<unsigned> get_vm_builtin_idx(name const & fn);
 
 /** \brief Return true iff \c fn is implemented in C++. */
 bool is_vm_builtin_function(name const & fn);

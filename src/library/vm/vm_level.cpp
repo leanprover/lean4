@@ -30,6 +30,29 @@ vm_obj to_obj(level const & n) {
     return mk_vm_external(new vm_level(n));
 }
 
+list<level> to_list_level(vm_obj const & o) {
+    if (is_simple(o))
+        return list<level>();
+    else
+        return list<level>(to_level(cfield(o, 0)), to_list_level(cfield(o, 1)));
+}
+
+vm_obj to_obj(buffer<level> const & ls) {
+    vm_obj r = mk_vm_simple(0);
+    unsigned i = ls.size();
+    while (i > 0) {
+        --i;
+        r = mk_vm_constructor(1, to_obj(ls[i]), r);
+    }
+    return r;
+}
+
+vm_obj to_obj(list<level> const & ls) {
+    buffer<level> ls_buff;
+    to_buffer(ls, ls_buff);
+    return to_obj(ls_buff);
+}
+
 vm_obj level_zero() {
     return to_obj(mk_level_zero());
 }

@@ -11,6 +11,10 @@ Author: Leonardo de Moura
 namespace lean {
 level const & to_level(vm_obj const & o);
 vm_obj to_obj(level const & n);
+list<level> to_list_level(vm_obj const & o);
+/* Convert buffer of levels into a lean (list level) object */
+vm_obj to_obj(buffer<level> const & ls);
+vm_obj to_obj(list<level> const & ls);
 void initialize_vm_level();
 void finalize_vm_level();
 }

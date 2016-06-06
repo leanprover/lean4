@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_format.h"
 #include "library/vm/vm_rb_map.h"
 #include "library/vm/vm_level.h"
+#include "library/vm/vm_expr.h"
 
 namespace lean {
 void initialize_vm_core_module() {
@@ -25,8 +26,10 @@ void initialize_vm_core_module() {
     initialize_vm_format();
     initialize_vm_rb_map();
     initialize_vm_level();
+    initialize_vm_expr();
 }
 void finalize_vm_core_module() {
+    finalize_vm_expr();
     finalize_vm_level();
     finalize_vm_rb_map();
     finalize_vm_format();
@@ -40,6 +43,7 @@ void finalize_vm_core_module() {
 
 void initialize_vm_module() {
     initialize_vm();
+    initialize_vm_expr_builtin_idxs();
 }
 void finalize_vm_module() {
     finalize_vm();

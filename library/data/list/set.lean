@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 Set-like operations on lists
 -/
 import data.list.basic data.list.comb
-open nat function decidable helper_tactics eq.ops
+open nat function decidable eq.ops
 
 namespace list
 section erase

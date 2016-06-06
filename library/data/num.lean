@@ -3,8 +3,8 @@ Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
-import data.bool tools.helper_tactics
-open bool eq.ops decidable helper_tactics
+import data.bool
+open bool eq.ops decidable
 
 namespace pos_num
   theorem succ_not_is_one (a : pos_num) : is_one (succ a) = ff :=

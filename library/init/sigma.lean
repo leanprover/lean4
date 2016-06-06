@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 -/
 prelude
-import init.datatypes init.num init.wf init.logic init.tactic
+import init.datatypes init.num init.wf init.logic
 
 definition dpair := @sigma.mk
 notation `Σ` binders `, ` r:(scoped P, sigma P) := r

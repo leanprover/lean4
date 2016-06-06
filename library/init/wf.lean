@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.relation init.tactic init.nat init.prod
+import init.relation init.nat init.prod
 
 inductive acc {A : Type} (R : A → A → Prop) : A → Prop :=
 intro : ∀x, (∀ y, R y x → acc R y) → acc R x

@@ -7,7 +7,7 @@ List combinators.
 -/
 -- TODO(Leo): uncomment data.equiv after refactoring
 import data.list.basic -- data.equiv
-open nat prod decidable function helper_tactics
+open nat prod decidable function
 
 namespace list
 variables {A B C : Type}

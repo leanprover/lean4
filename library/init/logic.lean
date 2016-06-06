@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 -/
 prelude
-import init.datatypes init.reserved_notation init.tactic
+import init.datatypes init.reserved_notation
 
 definition id [reducible] [unfold_full] {A : Type} (a : A) : A :=
 a

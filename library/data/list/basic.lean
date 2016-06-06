@@ -5,7 +5,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn
 
 Basic properties of lists.
 -/
-import logic tools.helper_tactics data.nat.order data.nat.sub
+import logic data.nat.order data.nat.sub
 open eq.ops nat prod function option
 
 namespace list

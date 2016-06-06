@@ -28,6 +28,22 @@ vm_obj to_obj(name const & n) {
     return mk_vm_external(new vm_name(n));
 }
 
+list<name> to_list_name(vm_obj const & o) {
+    if (is_simple(o))
+        return list<name>();
+    else
+        return list<name>(to_name(cfield(o, 0)), to_list_name(cfield(o, 1)));
+}
+
+void to_buffer_name(vm_obj const & o, buffer<name> & r) {
+    if (is_simple(o)) {
+        return;
+    } else {
+        r.push_back(to_name(cfield(o, 0)));
+        to_buffer_name(cfield(o, 1), r);
+    }
+}
+
 vm_obj name_anonymous() {
     return to_obj(name());
 }

@@ -50,3 +50,10 @@ meta_constant expr.abstract_fvs : expr → list name → expr
 
 meta_constant expr.instantiate_var  : expr → expr → expr
 meta_constant expr.instantiate_vars : expr → list expr → expr
+
+meta_constant expr.has_var : expr → bool
+meta_constant expr.has_var_idx : expr → nat → bool
+meta_constant expr.has_free_var : expr → bool
+meta_constant expr.has_meta_var : expr → bool
+meta_constant expr.lift_vars  : expr → nat → nat → expr
+meta_constant expr.lower_vars : expr → nat → nat → expr

@@ -33,6 +33,18 @@ unsigned to_unsigned(vm_obj const & o) {
         return to_mpz(o).get_unsigned_int();
 }
 
+optional<unsigned> try_to_unsigned(vm_obj const & o) {
+    if (is_simple(o)) {
+        return optional<unsigned>(cidx(o));
+    } else {
+        mpz const & v = to_mpz(o);
+        if (v.is_unsigned_int())
+            return optional<unsigned>(v.get_unsigned_int());
+        else
+            return optional<unsigned>();
+    }
+}
+
 MK_THREAD_LOCAL_GET_DEF(mpz, get_mpz1);
 MK_THREAD_LOCAL_GET_DEF(mpz, get_mpz2);
 

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 unsigned to_unsigned(vm_obj const & o);
+optional<unsigned> try_to_unsigned(vm_obj const & o);
 void initialize_vm_nat();
 void finalize_vm_nat();
 }

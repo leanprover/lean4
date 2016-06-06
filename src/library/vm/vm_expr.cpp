@@ -7,6 +7,10 @@ Author: Leonardo de Moura
 #include <string>
 #include <iostream>
 #include "kernel/expr.h"
+#include "kernel/free_vars.h"
+#include "kernel/instantiate.h"
+#include "kernel/abstract.h"
+#include "kernel/for_each_fn.h"
 #include "library/expr_lt.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
@@ -237,6 +241,83 @@ vm_obj expr_lex_lt(vm_obj const & o1, vm_obj const & o2) {
     return mk_vm_bool(is_lt(to_expr(o1), to_expr(o2), false));
 }
 
+vm_obj expr_fold(vm_obj const &, vm_obj const & e, vm_obj const & a, vm_obj const & fn) {
+    vm_obj r = a;
+    for_each(to_expr(e), [&](expr const & o, unsigned d) {
+            r = invoke(fn, to_obj(o), mk_vm_nat(d), r);
+            return true;
+        });
+    return r;
+}
+
+vm_obj expr_instantiate_var(vm_obj const & e, vm_obj const & v) {
+    return to_obj(instantiate(to_expr(e), to_expr(v)));
+}
+
+vm_obj expr_instantiate_vars(vm_obj const & e, vm_obj const & vs) {
+    buffer<expr> vs_buf;
+    to_buffer_expr(vs, vs_buf);
+    return to_obj(instantiate(to_expr(e), vs_buf.size(), vs_buf.data()));
+}
+
+vm_obj expr_abstract_fv(vm_obj const & e, vm_obj const & n) {
+    return to_obj(abstract_local(to_expr(e), to_name(n)));
+}
+
+static void list_name_to_buffer_local(vm_obj const & o, buffer<expr> & r) {
+    if (is_simple(o)) {
+        return;
+    } else {
+        expr dummy = mk_Prop();
+        r.push_back(mk_local(to_name(cfield(o, 0)), dummy));
+        list_name_to_buffer_local(cfield(o, 1), r);
+    }
+}
+
+vm_obj expr_abstract_fvs(vm_obj const & e, vm_obj const & ns) {
+    buffer<expr> locals;
+    list_name_to_buffer_local(ns, locals);
+    return to_obj(abstract_locals(to_expr(e), locals.size(), locals.data()));
+}
+
+vm_obj expr_has_var(vm_obj const & e) {
+    return mk_vm_bool(!closed(to_expr(e)));
+}
+
+vm_obj expr_has_var_idx(vm_obj const & e, vm_obj const & u) {
+    if (auto n = try_to_unsigned(u)) {
+        return mk_vm_bool(has_free_var(to_expr(e), *n));
+    } else {
+        return mk_vm_false();
+    }
+}
+
+vm_obj expr_has_free_var(vm_obj const & e) {
+    return mk_vm_bool(has_local(to_expr(e)));
+}
+
+vm_obj expr_has_meta_var(vm_obj const & e) {
+    return mk_vm_bool(has_metavar(to_expr(e)));
+}
+
+vm_obj expr_lift_vars(vm_obj const & e, vm_obj const & n1, vm_obj const & n2) {
+    auto u1 = try_to_unsigned(n1);
+    auto u2 = try_to_unsigned(n2);
+    if (u1 && u2)
+        return to_obj(lift_free_vars(to_expr(e), *u1, *u2));
+    else
+        return e;
+}
+
+vm_obj expr_lower_vars(vm_obj const & e, vm_obj const & n1, vm_obj const & n2) {
+    auto u1 = try_to_unsigned(n1);
+    auto u2 = try_to_unsigned(n2);
+    if (u1 && u2)
+        return to_obj(lower_free_vars(to_expr(e), *u1, *u2));
+    else
+        return e;
+}
+
 void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_var);
     DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort);
@@ -255,6 +336,17 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "to_string"}),        expr_to_string);
     DECLARE_VM_BUILTIN(name({"expr", "lt"}),               expr_lt);
     DECLARE_VM_BUILTIN(name({"expr", "lex_lt"}),           expr_lex_lt);
+    DECLARE_VM_BUILTIN(name({"expr", "fold"}),             expr_fold);
+    DECLARE_VM_BUILTIN(name({"expr", "instantiate_var"}),  expr_instantiate_var);
+    DECLARE_VM_BUILTIN(name({"expr", "instantiate_vars"}), expr_instantiate_vars);
+    DECLARE_VM_BUILTIN(name({"expr", "abstract_fv"}),      expr_abstract_fv);
+    DECLARE_VM_BUILTIN(name({"expr", "abstract_fvs"}),     expr_abstract_fvs);
+    DECLARE_VM_BUILTIN(name({"expr", "has_var"}),          expr_has_var);
+    DECLARE_VM_BUILTIN(name({"expr", "has_var_idx"}),      expr_has_var_idx);
+    DECLARE_VM_BUILTIN(name({"expr", "has_free_var"}),     expr_has_free_var);
+    DECLARE_VM_BUILTIN(name({"expr", "has_meta_var"}),     expr_has_meta_var);
+    DECLARE_VM_BUILTIN(name({"expr", "lift_vars"}),        expr_lift_vars);
+    DECLARE_VM_BUILTIN(name({"expr", "lower_vars"}),       expr_lower_vars);
     DECLARE_VM_CASES_BUILTIN(name({"expr", "cases_on"}),   expr_cases_on);
 }
 

@@ -668,11 +668,10 @@ expr type_context::infer_metavar(expr const & e) {
         if (!d)
             throw exception("infer type failed, unknown metavariable");
         return d->get_type();
-    } else if (m_tmp_mode && is_idx_metavar(e)) {
-        /* tmp metavariables should only occur in tmp_mode */
-        return mlocal_type(e);
     } else {
-        lean_unreachable();
+        /* tmp metavariables should only occur in tmp_mode */
+        lean_assert(!is_idx_metavar(e) || m_tmp_mode);
+        return mlocal_type(e);
     }
 }
 

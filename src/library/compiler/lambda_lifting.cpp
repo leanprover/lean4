@@ -114,9 +114,13 @@ class lambda_lifting_fn : public compiler_step_visitor {
     expr visit_cases_on_minor(unsigned data_sz, expr e) {
         type_context::tmp_locals locals(ctx());
         for (unsigned i = 0; i < data_sz; i++) {
-            lean_assert(is_lambda(e));
-            expr l = locals.push_local_from_binding(e);
-            e = instantiate(binding_body(e), l);
+            if (is_lambda(e)) {
+                expr l = locals.push_local_from_binding(e);
+                e = instantiate(binding_body(e), l);
+            } else {
+                expr l = locals.push_local("a", mk_neutral_expr());
+                e = mk_app(e, l);
+            }
         }
         e = visit(e);
         return locals.mk_lambda(e);

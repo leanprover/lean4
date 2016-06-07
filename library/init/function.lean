@@ -81,24 +81,16 @@ definition surjective [reducible] (f : A → B) : Prop := ∀ b, ∃ a, f a = b
 
 theorem surjective_comp {g : B → C} {f : A → B} (Hg : surjective g) (Hf : surjective f) :
   surjective (g ∘ f) :=
-sorry
-/-
-take c,
-  obtain b (Hb : g b = c), from Hg c,
-  obtain a (Ha : f a = b), from Hf b,
-  exists.intro a (eq.trans (congr_arg g Ha) Hb)
--/
+take (c : C), exists.elim (Hg c) (λ b Hb, exists.elim (Hf b) (λ a Ha,
+  exists.intro a (eq.trans (congr_arg g Ha) Hb)))
 
 definition bijective (f : A → B) := injective f ∧ surjective f
 
 theorem bijective_comp {g : B → C} {f : A → B} (Hg : bijective g) (Hf : bijective f) :
   bijective (g ∘ f) :=
-sorry
-/-
-obtain Hginj Hgsurj, from Hg,
-obtain Hfinj Hfsurj, from Hf,
-and.intro (injective_comp Hginj Hfinj) (surjective_comp Hgsurj Hfsurj)
--/
+and.elim Hg (λ Hginj Hgsurj, and.elim Hf (λ Hfinj Hfsurj,
+  and.intro (injective_comp Hginj Hfinj) (surjective_comp Hgsurj Hfsurj)))
+
 -- g is a left inverse to f
 definition left_inverse (g : B → A) (f : A → B) : Prop := ∀x, g (f x) = x
 
@@ -116,20 +108,14 @@ assume h, funext h
 definition has_right_inverse (f : A → B) : Prop := ∃ finv : B → A, right_inverse finv f
 
 theorem injective_of_left_inverse {g : B → A} {f : A → B} : left_inverse g f → injective f :=
-sorry
-/-
 assume h, take a b, assume faeqfb,
-calc a = g (f a) : by rewrite h
-   ... = g (f b) : by rewrite faeqfb
-   ... = b       : by rewrite h
--/
+have h₁ : a = g (f a),       from eq.symm (h a),
+have h₂ : g (f b) = b,       from h b,
+have h₃ : g (f a) = g (f b), from congr_arg g faeqfb,
+eq.trans h₁ (eq.trans h₃ h₂)
 
 theorem injective_of_has_left_inverse {f : A → B} : has_left_inverse f → injective f :=
-sorry
-/-
-assume h, obtain (finv : B → A) (inv : left_inverse finv f), from h,
-injective_of_left_inverse inv
--/
+assume h, exists.elim h (λ finv inv, injective_of_left_inverse inv)
 
 theorem right_inverse_of_injective_of_left_inverse {f : A → B} {g : B → A}
     (injf : injective f) (lfg : left_inverse f g) :
@@ -140,29 +126,21 @@ injf H
 
 theorem surjective_of_has_right_inverse {f : A → B} : has_right_inverse f → surjective f :=
 assume h, take b,
-sorry
-/-
-obtain (finv : B → A) (inv : right_inverse finv f), from h,
+exists.elim h (λ finv inv,
 let  a : A := finv b in
 have h : f a = b, from calc
-  f a  = (f ∘ finv) b : rfl
-   ... = id b         : by rewrite inv
-   ... = b            : rfl,
-exists.intro a h
--/
+  f a  = f (finv b)   : rfl
+   ... = b            : eq.subst (inv b) rfl,
+exists.intro a h)
 
 theorem left_inverse_of_surjective_of_right_inverse {f : A → B} {g : B → A}
     (surjf : surjective f) (rfg : right_inverse f g) :
   left_inverse f g :=
-take y,
-sorry
-/-
-obtain x (Hx : f x = y), from surjf y,
+take y, exists.elim (surjf y) (λ x Hx,
 calc
-  f (g y) = f (g (f x)) : by rewrite Hx
-      ... = f x         : by rewrite (rfg x)
-      ... = y           : Hx
--/
+  f (g y) = f (g (f x)) : eq.subst Hx rfl
+      ... = f x         : eq.subst (rfg x) rfl
+      ... = y           : Hx)
 
 theorem injective_id : injective (@id A) := take a₁ a₂ H, H
 

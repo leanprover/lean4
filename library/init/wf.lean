@@ -55,13 +55,8 @@ namespace well_founded
 
   theorem fix_F_eq (x : A) (r : acc R x) :
     fix_F F x r = F x (λ (y : A) (p : y ≺ x), fix_F F y (acc.inv r p)) :=
-  sorry
-/-
-  begin
-    induction r using acc.drec,
-    reflexivity -- proof is trivial due to proof irrelevance
-  end
--/
+  acc.drec (λ x acx ih, rfl) r
+
   end
 
   variables {A : Type} {C : A → Type} {R : A → A → Prop}
@@ -91,14 +86,8 @@ section
   parameters (H₂ : well_founded R)
 
   definition accessible {a : A} (ac : acc R a) : acc Q a :=
-  using H₁,
-  sorry
-/-
-  begin
-    induction ac with x ax ih, constructor,
-    exact λ (y : A) (lt : Q y x), ih y (H₁ lt)
-  end
--/
+  acc.rec_on ac (λ x ax ih,
+    acc.intro x (λ (y : A) (lt : Q y x), ih y (H₁ lt)))
 
   definition wf : well_founded Q :=
   well_founded.intro (λ a, accessible (H₂ a))
@@ -112,16 +101,25 @@ section
   parameters (f : A → B)
   parameters (H : well_founded R)
 
-  private definition acc_aux {b : B} (ac : acc R b) : ∀ x, f x = b → acc (inv_image R f) x :=
-  sorry
-/-
-  begin
-    induction ac with x acx ih,
-    intro z e, constructor,
-    intro y lt, subst x,
-    exact ih (f y) lt y rfl
-  end
--/
+  private definition acc_aux : ∀ {b : B}, @acc B R b → (∀ (x : A), @eq B (f x) b → @acc A (@inv_image A B R f) x) :=
+  @acc.rec B R (λ (b : B), ∀ (x : A), f x = b → acc (inv_image R f) x)
+    (λ (x : B)
+       (acx : ∀ (y : B), R y x → acc R y)
+       (ih : ∀ (y : B), R y x → (λ (b : B), ∀ (x : A), f x = b → acc (inv_image R f) x) y)
+       (z : A) (e : f z = x),
+       acc.intro z
+         (λ (y : A) (lt : inv_image R f y z),
+            @eq.rec B (f z)
+              (λ (x : B),
+                 (∀ (y : B), R y x → acc R y) →
+                 (∀ (y : B), R y x → (λ (b : B), ∀ (x : A), f x = b → acc (inv_image R f) x) y) → acc (inv_image R f) y)
+              (λ (acx : ∀ (y : B), R y (f z) → @acc B R y)
+                 (ih :  ∀ (y : B), R y (f z) → (λ (b : B), ∀ (x : A), f x = b → acc (inv_image R f) x) y),
+                 ih (f y) lt y (@rfl B (f y)))
+              x
+              e
+              acx
+              ih))
 
   definition accessible {a : A} (ac : acc R (f a)) : acc (inv_image R f) a :=
   acc_aux ac a rfl
@@ -137,17 +135,28 @@ section
   parameters {A : Type} {R : A → A → Prop}
   local notation `R⁺` := tc R
 
-  definition accessible {z} (ac: acc R z) : acc R⁺ z :=
-  sorry
-/-
-  begin
-    induction ac with x acx ih,
-    constructor, intro y rel,
-    induction rel with a b rab a b c rab rbc ih₁ ih₂,
-      {exact ih a rab},
-      {exact acc.inv (ih₂ acx ih) rab}
-  end
--/
+  definition accessible : ∀ {z : A}, acc R z → acc (tc R) z :=
+  @acc.rec A R (acc (tc R))
+    (λ (x : A) (acx : ∀ (y : A), R y x → acc R y) (ih : ∀ (y : A), R y x → acc (tc R) y),
+       @acc.intro A (tc R) x
+         (λ (y : A) (rel : tc R y x),
+            @tc.rec A R
+              (λ (y x : A),
+                 (∀ (y : A), R y x → acc R y) →
+                 (∀ (y : A), R y x → acc (tc R) y) → acc (tc R) y)
+              (λ (a b : A) (rab : R a b) (acx : ∀ (y : A), R y b → acc R y)
+                 (ih : ∀ (y : A), R y b → acc (tc R) y),
+                 ih a rab)
+              (λ (a b c : A) (rab : tc R a b) (rbc : tc R b c)
+                 (ih₁ : (∀ (y : A), R y b → acc R y) → (∀ (y : A), R y b → acc (tc R) y) → acc (tc R) a)
+                 (ih₂ : (∀ (y : A), R y c → acc R y) → (∀ (y : A), R y c → acc (tc R) y) → acc (tc R) b)
+                 (acx : ∀ (y : A), R y c → acc R y) (ih : ∀ (y : A), R y c → acc (tc R) y),
+                 @acc.inv A (@tc A R) b a (ih₂ acx ih) rab)
+              y
+              x
+              rel
+              acx
+              ih))
 
   definition wf (H : well_founded R) : well_founded R⁺ :=
   well_founded.intro (λ a, accessible (H a))

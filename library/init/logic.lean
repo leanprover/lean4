@@ -841,11 +841,11 @@ decidable.rec_on dec_b
   (λ hn : ¬b, calc
     ite b x y = y         : if_neg hn
          ...  = v         : h_e (iff.mp (not_iff_not_of_iff h_c) hn)
-         ...  = ite c u v : sorry) -- by rewrite (if_neg (iff.mp (not_iff_not_of_iff h_c) hn)))
+         ...  = ite c u v : eq.subst (if_neg (iff.mp (not_iff_not_of_iff h_c) hn)) (eq.refl (ite c u v)))
   (λ hp : b, calc
     ite b x y = x           : if_pos hp
          ...  = u           : h_t (iff.mp h_c hp)
-         ...  = ite c u v   : sorry) -- by rewrite (if_pos (iff.mp h_c hp)))
+         ...  = ite c u v   : eq.subst (if_pos (iff.mp h_c hp)) (eq.refl (ite c u v)))
 
 theorem if_congr [congr] {A : Type} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
                  {x y u v : A}
@@ -876,11 +876,11 @@ decidable.rec_on dec_b
   (λ hn : ¬b, calc
     ite b x y ↔ y         : iff.of_eq (if_neg hn)
          ...  ↔ v         : h_e (iff.mp (not_iff_not_of_iff h_c) hn)
-         ...  ↔ ite c u v : sorry) -- by rewrite (if_neg (iff.mp (not_iff_not_of_iff h_c) hn)))
+         ...  ↔ ite c u v : eq.subst (if_neg (iff.mp (not_iff_not_of_iff h_c) hn)) (iff.refl (ite c u v)))
   (λ hp : b, calc
     ite b x y ↔ x         : iff.of_eq (if_pos hp)
          ...  ↔ u         : h_t (iff.mp h_c hp)
-         ...  ↔ ite c u v : sorry) -- by rewrite (if_pos (iff.mp h_c hp)))
+         ...  ↔ ite c u v : eq.subst (if_pos (iff.mp h_c hp)) (iff.refl (ite c u v)))
 
 theorem if_congr_prop [congr] {b c x y u v : Prop} [dec_b : decidable b] [dec_c : decidable c]
                       (h_c : b ↔ c) (h_t : x ↔ u) (h_e : y ↔ v) :
@@ -919,13 +919,13 @@ decidable.rec_on dec_b
   (λ hn : ¬b, let h_nc : ¬b ↔ ¬c := not_iff_not_of_iff h_c in calc
     dite b x y = y hn                              : dif_neg hn
           ...  = y (iff.mpr h_nc (iff.mp h_nc hn)) : rfl
-          ...  = v (iff.mp h_nc hn)                : sorry -- by rewrite h_e
-          ...  = dite c u v                        : sorry) -- by rewrite (dif_neg (iff.mp h_nc hn)))
+          ...  = v (iff.mp h_nc hn)                : h_e (iff.mp h_nc hn)
+          ...  = dite c u v                        : eq.subst (dif_neg (iff.mp h_nc hn)) (eq.refl (dite c u v)))
   (λ hp : b, calc
     dite b x y = x hp                            : dif_pos hp
           ...  = x (iff.mpr h_c (iff.mp h_c hp)) : rfl
-          ...  = u (iff.mp h_c hp)               : sorry -- by rewrite h_t
-          ...  = dite c u v                      : sorry) -- by rewrite (dif_pos (iff.mp h_c hp)))
+          ...  = u (iff.mp h_c hp)               : h_t (iff.mp h_c hp)
+          ...  = dite c u v                      : eq.subst (dif_pos (iff.mp h_c hp)) (eq.refl (dite c u v)))
 
 theorem dif_ctx_simp_congr {A : Type} {b c : Prop} [dec_b : decidable b]
                          {x : b → A} {u : c → A} {y : ¬b → A} {v : ¬c → A}

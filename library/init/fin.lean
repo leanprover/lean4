@@ -15,8 +15,13 @@ attribute fin.val [coercion]
 
 variable {n : nat}
 
+set_option pp.all true
+
 lemma eq_of_veq : ∀ {i j : fin n}, (val i) = j → i = j
-| (mk iv ilt) (mk jv jlt) := assume (veq : iv = jv), sorry -- begin congruence, assumption end
+| (mk iv ilt) (mk jv jlt) := assume (veq : iv = jv),
+  have ∀ e : iv = jv, mk iv ilt = mk jv (eq.subst e ilt), from
+    eq.rec_on veq (λ e : iv = iv, (eq.refl (mk iv (eq.subst e ilt)))),
+  this veq
 
 lemma veq_of_eq : ∀ {i j : fin n}, i = j → (val i) = j
 | (mk iv ilt) (mk jv jlt) := assume Peq,

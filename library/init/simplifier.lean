@@ -69,6 +69,7 @@ lemma false_imp [simp] : (false → A) ↔ true :=
 iff.intro (assume H, trivial)
           (assume t f, false.rec A f)
 
+
 lemma ite_and [simp] [A_dec : decidable A] : ite A B C ↔ ((A → B) ∧ (¬ A → C)) :=
 iff.intro (assume H, and.intro (assume a, implies_of_if_pos H a)
                                (assume a, implies_of_if_neg H a))
@@ -78,12 +79,18 @@ iff.intro (assume H, and.intro (assume a, implies_of_if_pos H a)
                 have rw : @decidable.ff A na = A_dec, from
                   subsingleton.rec_on (subsingleton_decidable A)
                     (assume H, H (@decidable.ff A na) A_dec),
-                sorry) -- by rewrite [rw, if_neg na] ; exact Hnac na)))
+                have Hc : C, from Hnac na,
+                have ite A B C = C, from if_neg na,
+                have @ite A (@decidable.ff A na) Prop B C = C, from eq.subst (eq.symm rw) this,
+                eq.mpr this Hc)
               (assume a,
                 have rw : @decidable.tt A a = A_dec, from
                   subsingleton.rec_on (subsingleton_decidable A)
                     (assume H, H (@decidable.tt A a) A_dec),
-                sorry))) -- by rewrite [rw, if_pos a] ; exact Hab a)
+                have Hb : B, from Hab a,
+                have ite A B C = B, from if_pos a,
+                have @ite A (@decidable.tt A a) Prop B C = B, from eq.subst (eq.symm rw) this,
+                eq.mpr this Hb)))
 
 end unit_simp
 end simplifier

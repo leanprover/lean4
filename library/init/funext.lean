@@ -52,7 +52,7 @@ section
   theorem funext {f₁ f₂ : Πx : A, B x} : (∀x, f₁ x = f₂ x) → f₁ = f₂ :=
   assume H, calc
      f₁ = extfun_app ⟦f₁⟧ : rfl
-    ... = extfun_app ⟦f₂⟧ : sorry -- by rewrite (@sound _ _ f₁ f₂ H)
+    ... = extfun_app ⟦f₂⟧ : eq.subst (@sound _ _ f₁ f₂ H) rfl
     ... = f₂              : rfl
 end
 

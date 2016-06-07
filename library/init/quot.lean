@@ -59,7 +59,7 @@ namespace quot
   protected lemma lift_indep_pr1
     (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b)
     (q : quot s) : (lift (quot.indep f) (quot.indep_coherent f H) q).1 = q  :=
-  sorry -- quot.ind (λ a, by esimp) q
+  quot.ind (λ (a : A), eq.refl (quot.indep f a).1) q
 
   protected definition rec [reducible]
      (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b)
@@ -92,8 +92,15 @@ namespace quot
      (f : A → B → C)(c : ∀ a₁ a₂ b₁ b₂, a₁ ≈ b₁ → a₂ ≈ b₂ → f a₁ a₂ = f b₁ b₂)
      (q₁ : quot s₁) (q₂ : quot s₂) : C :=
   quot.lift
-    (λ a₁, lift (λ a₂, f a₁ a₂) (λ a b H, c a₁ a a₁ b (setoid.refl a₁) H) q₂)
-    (λ a b H, ind (λ a', sorry /- proof c a a' b a' H (setoid.refl a') qed -/) q₂)
+    (λ (a₁ : A), quot.lift (f a₁) (λ (a b : B), c a₁ a a₁ b (setoid.refl a₁)) q₂)
+    (λ (a b : A) (H : a ≈ b),
+       @quot.ind B s₂
+         (λ (a_1 : quot s₂),
+            (quot.lift (f a) (λ (a_1 b : B), c a a_1 a b (setoid.refl a)) a_1)
+            =
+            (quot.lift (f b) (λ (a b_1 : B), c b a b b_1 (setoid.refl b)) a_1))
+         (λ (a' : B), c a a' b a' H (setoid.refl a'))
+         q₂)
     q₁
 
   protected definition lift_on₂ [reducible]

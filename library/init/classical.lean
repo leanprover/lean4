@@ -62,14 +62,11 @@ exists.intro _ H
 
 theorem skolem {A : Type} {B : A → Type} {P : Πx, B x → Prop} :
   (∀x, ∃y, P x y) ↔ ∃f, (∀x, P x (f x)) :=
-sorry
-/-
 iff.intro
   (assume H : (∀x, ∃y, P x y), axiom_of_choice H)
   (assume H : (∃f, (∀x, P x (f x))),
-    take x, obtain (fw : ∀x, B x) (Hw : ∀x, P x (fw x)), from H,
-      exists.intro (fw x) (Hw x))
--/
+    take x, exists.elim H (λ (fw : ∀x, B x) (Hw : ∀x, P x (fw x)),
+      exists.intro (fw x) (Hw x)))
 
 /-
 Prove excluded middle using Hilbert's choice
@@ -163,22 +160,12 @@ propext (iff.intro
   (assume H, iff.of_eq H))
 
 lemma eq_false {a : Prop} : (a = false) = (¬ a) :=
-sorry
-/-
-begin
-  rewrite ((@iff_eq_eq a false)⁻¹),
-  rewrite iff_false
-end
--/
+have (a ↔ false) = (¬ a), from propext !iff_false,
+eq.subst (@iff_eq_eq a false) this
 
 lemma eq_true {a : Prop} : (a = true) = a :=
-sorry
-/-
-begin
-  rewrite ((@iff_eq_eq a true)⁻¹),
-  rewrite iff_true
-end
--/
+have (a ↔ true) = a, from propext !iff_true,
+eq.subst (@iff_eq_eq a true) this
 end aux
 
 /- All propositions are decidable -/

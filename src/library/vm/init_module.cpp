@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_rb_map.h"
 #include "library/vm/vm_level.h"
 #include "library/vm/vm_expr.h"
+#include "library/vm/vm_exceptional.h"
 
 namespace lean {
 void initialize_vm_core_module() {
@@ -27,8 +28,10 @@ void initialize_vm_core_module() {
     initialize_vm_rb_map();
     initialize_vm_level();
     initialize_vm_expr();
+    initialize_vm_exceptional();
 }
 void finalize_vm_core_module() {
+    finalize_vm_exceptional();
     finalize_vm_expr();
     finalize_vm_level();
     finalize_vm_rb_map();
@@ -44,6 +47,7 @@ void finalize_vm_core_module() {
 void initialize_vm_module() {
     initialize_vm();
     initialize_vm_expr_builtin_idxs();
+    initialize_vm_exceptional_builtin_idxs();
 }
 void finalize_vm_module() {
     finalize_vm();

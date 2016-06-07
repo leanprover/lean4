@@ -91,16 +91,18 @@ bool is_trace_class_enabled(name const & n) {
     return is_trace_class_set(get_enabled_trace_classes(), n);
 }
 
-scope_trace_env::scope_trace_env(environment const & env, io_state const & ios, abstract_type_context & ctx) {
+
+void scope_trace_env::init(environment * env, io_state * ios, abstract_type_context * ctx, bool ios_owner) {
     m_enable_sz  = get_enabled_trace_classes().size();
     m_disable_sz = get_disabled_trace_classes().size();
     m_old_env    = g_env;
     m_old_ios    = g_ios;
     m_old_ctx    = g_ctx;
-    g_env        = const_cast<environment*>(&env);
-    g_ios        = const_cast<io_state*>(&ios);
-    g_ctx        = &ctx;
-    options const & opts = ios.get_options();
+    g_env        = env;
+    g_ios        = ios;
+    g_ctx        = ctx;
+    m_ios_owner  = ios_owner;
+    options const & opts = ios->get_options();
     name trace("trace");
     opts.for_each([&](name const & n) {
             if (is_prefix_of(trace, n)) {
@@ -113,7 +115,24 @@ scope_trace_env::scope_trace_env(environment const & env, io_state const & ios, 
         });
 }
 
+scope_trace_env::scope_trace_env(environment const & env, io_state const & ios, abstract_type_context & ctx) {
+    init(const_cast<environment*>(&env), const_cast<io_state*>(&ios), &ctx, false);
+}
+
+scope_trace_env::scope_trace_env(options const & o) {
+    if (!g_ios) {
+        m_ios_owner  = false;
+        m_enable_sz  = 0;
+        m_disable_sz = 0;
+    } else {
+        io_state * tmp_ios = new io_state(*g_ios, o);
+        init(g_env, tmp_ios, g_ctx, true);
+    }
+}
+
 scope_trace_env::~scope_trace_env() {
+    if (m_ios_owner)
+        delete g_ios;
     g_env = const_cast<environment*>(m_old_env);
     g_ios = const_cast<io_state*>(m_old_ios);
     g_ctx = m_old_ctx;

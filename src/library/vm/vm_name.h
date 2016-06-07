@@ -12,6 +12,7 @@ name const & to_name(vm_obj const & o);
 vm_obj to_obj(name const & n);
 list<name> to_list_name(vm_obj const & o);
 void to_buffer_name(vm_obj const & o, buffer<name> & r);
+vm_obj to_obj(list<name> const & ls);
 void initialize_vm_name();
 void finalize_vm_name();
 }

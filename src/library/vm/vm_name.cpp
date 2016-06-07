@@ -44,6 +44,13 @@ void to_buffer_name(vm_obj const & o, buffer<name> & r) {
     }
 }
 
+vm_obj to_obj(list<name> const & ls) {
+    if (!ls)
+        return mk_vm_simple(0);
+    else
+        return mk_vm_constructor(1, to_obj(head(ls)), to_obj(tail(ls)));
+}
+
 vm_obj name_anonymous() {
     return to_obj(name());
 }

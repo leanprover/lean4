@@ -4,12 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.cmp_result init.meta.name init.meta.format
+import init.ordering init.meta.name init.meta.format
 
 meta_constant rb_map.{l₁ l₂} : Type.{l₁} → Type.{l₂} → Type.{max l₁ l₂ 1}
 
 namespace rb_map
-meta_constant mk_core {key : Type} (data : Type)        : (key → key → cmp_result) → rb_map key data
+meta_constant mk_core {key : Type} (data : Type)        : (key → key → ordering) → rb_map key data
 meta_constant size {key : Type} {data : Type}           : rb_map key data → nat
 meta_constant insert {key : Type} {data : Type}         : rb_map key data → key → data → rb_map key data
 meta_constant erase  {key : Type} {data : Type}         : rb_map key data → key → rb_map key data
@@ -19,11 +19,11 @@ meta_constant min {key : Type} {data : Type}            : rb_map key data → op
 meta_constant max {key : Type} {data : Type}            : rb_map key data → option data
 meta_constant fold {key : Type} {data : Type} {A :Type} : rb_map key data → A → (key → data → A → A) → A
 
-inline meta_definition mk (key : Type) [has_cmp key] (data : Type) : rb_map key data :=
-mk_core data has_cmp.cmp
+inline meta_definition mk (key : Type) [has_ordering key] (data : Type) : rb_map key data :=
+mk_core data has_ordering.cmp
 
 open list
-meta_definition of_list {key : Type} {data : Type} [has_cmp key] : list (key × data) → rb_map key data
+meta_definition of_list {key : Type} {data : Type} [has_ordering key] : list (key × data) → rb_map key data
 | []           := mk key data
 | ((k, v)::ls) := insert (of_list ls) k v
 

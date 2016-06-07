@@ -9,13 +9,13 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_option.h"
-#include "library/vm/cmp_result.h"
+#include "library/vm/vm_ordering.h"
 
 namespace lean {
 struct vm_obj_cmp {
     vm_obj m_cmp;
     int operator()(vm_obj const & o1, vm_obj const & o2) const {
-        return cmp_result_to_int(invoke(m_cmp, o1, o2));
+        return ordering_to_int(invoke(m_cmp, o1, o2));
     }
     vm_obj_cmp() {}
     explicit vm_obj_cmp(vm_obj const & cmp):m_cmp(cmp) {}

@@ -39,10 +39,10 @@ has_to_string.mk expr.to_string
 
 meta_constant expr.lt : expr → expr → bool
 meta_constant expr.lex_lt : expr → expr → bool
-meta_definition expr.cmp (a b : expr) : cmp_result :=
-if expr.lt a b = bool.tt then cmp_result.lt
-else if a = b then cmp_result.eq
-else cmp_result.gt
+meta_definition expr.cmp (a b : expr) : ordering :=
+if expr.lt a b = bool.tt then ordering.lt
+else if a = b then ordering.eq
+else ordering.gt
 
 meta_constant expr.fold {A :Type} : expr → A → (expr → unsigned → A → A) → A
 

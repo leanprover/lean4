@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_string.h"
-#include "library/vm/cmp_result.h"
+#include "library/vm/vm_ordering.h"
 
 namespace lean {
 struct vm_name : public vm_external {
@@ -77,11 +77,11 @@ vm_obj name_has_decidable_eq(vm_obj const & o1, vm_obj const & o2) {
 }
 
 vm_obj name_cmp(vm_obj const & o1, vm_obj const & o2) {
-    return int_to_cmp_result(quick_cmp(to_name(o1), to_name(o2)));
+    return int_to_ordering(quick_cmp(to_name(o1), to_name(o2)));
 }
 
 vm_obj name_lex_cmp(vm_obj const & o1, vm_obj const & o2) {
-    return int_to_cmp_result(cmp(to_name(o1), to_name(o2)));
+    return int_to_ordering(cmp(to_name(o1), to_name(o2)));
 }
 
 void initialize_vm_name() {

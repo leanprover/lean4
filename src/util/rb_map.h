@@ -14,11 +14,11 @@ namespace lean {
    \brief Wrapper for implementing maps using red black trees.
 */
 template<typename K, typename T, typename CMP>
-class rb_map : public CMP {
+class rb_map {
 public:
     typedef pair<K, T> entry;
 private:
-    struct entry_cmp : public CMP {
+    struct entry_cmp : private CMP {
         entry_cmp(CMP const & c):CMP(c) {}
         int operator()(entry const & e1, entry const & e2) const { return CMP::operator()(e1.first, e2.first); }
     };

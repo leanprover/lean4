@@ -31,7 +31,7 @@ namespace lean {
    - 1  if <tt>v1 > v2</tt>
 */
 template<typename T, typename CMP>
-class rb_tree : public CMP {
+class rb_tree : private CMP {
     struct node_cell;
     struct node {
         node_cell * m_ptr;

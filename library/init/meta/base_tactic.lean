@@ -6,12 +6,14 @@ Authors: Leonardo de Moura
 prelude
 import init.monad init.meta.format
 /-
-Remark: we use a thunk that produces a format object as the exception information.
-Motivation: the formatting object may be big.
+Remark: we use a function that produces a format object as the exception information.
+Motivation: the formatting object may be big, and we may create it on demand.
+Remark: We use base_tactic_result to define base_tactic (a monad that combines the state an exceptional monads).
+We "merge" them for performance reasons.
 -/
 inductive base_tactic_result (S : Type) (A : Type) :=
 | success   : A → S → base_tactic_result S A
-| exception : (unit → format) → base_tactic_result S A
+| exception : (options → format) → base_tactic_result S A
 
 section
 open base_tactic_result
@@ -20,7 +22,7 @@ variables [has_to_string A]
 
 protected meta_definition base_tactic_result.to_string : base_tactic_result S A → string
 | (success a s)   := to_string a
-| (exception S A e) := "Exception: " + to_string (e unit.star)
+| (exception S A e) := "Exception: " + to_string (e options.mk)
 
 protected meta_definition base_tactic_result.has_to_string [instance] : has_to_string (base_tactic_result S A) :=
 has_to_string.mk base_tactic_result.to_string

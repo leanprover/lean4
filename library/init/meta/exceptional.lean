@@ -42,7 +42,7 @@ exceptional.cases_on e₁
 inline protected meta_definition return (a : A) : exceptional A :=
 success a
 
-meta_definition fail (f : format) : exceptional A :=
+inline meta_definition fail (f : format) : exceptional A :=
 !exception (λ u, f)
 end exceptional
 

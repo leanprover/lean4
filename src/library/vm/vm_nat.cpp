@@ -45,6 +45,13 @@ optional<unsigned> try_to_unsigned(vm_obj const & o) {
     }
 }
 
+unsigned force_to_unsigned(vm_obj const & o, unsigned def) {
+    if (auto r = try_to_unsigned(o))
+        return *r;
+    else
+        return def;
+}
+
 MK_THREAD_LOCAL_GET_DEF(mpz, get_mpz1);
 MK_THREAD_LOCAL_GET_DEF(mpz, get_mpz2);
 

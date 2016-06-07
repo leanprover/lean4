@@ -54,7 +54,7 @@ vm_obj mk_vm_exceptional_success(vm_obj const & a) {
 
 vm_obj mk_vm_exceptional_exception(throwable const & ex) {
     vm_obj _ex = to_obj(ex);
-    return mk_vm_closure(g_throwable_to_format_fun_idx, 1, &_ex);
+    return mk_vm_constructor(1, mk_vm_closure(g_throwable_to_format_fun_idx, 1, &_ex));
 }
 
 void initialize_vm_exceptional() {

@@ -5,12 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include "kernel/environment.h"
 #include "library/vm/vm.h"
 
 namespace lean {
-unsigned to_unsigned(vm_obj const & o);
-optional<unsigned> try_to_unsigned(vm_obj const & o);
-unsigned force_to_unsigned(vm_obj const & o, unsigned def);
-void initialize_vm_nat();
-void finalize_vm_nat();
+environment const & to_env(vm_obj const & o);
+vm_obj to_obj(environment const & n);
+void initialize_vm_environment();
+void finalize_vm_environment();
 }

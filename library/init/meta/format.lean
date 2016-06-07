@@ -3,7 +3,8 @@ Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import system.IO meta.options
+prelude
+import init.meta.options
 
 inductive format.color :=
 | red | green | orange | blue | pink | cyan | grey
@@ -19,11 +20,7 @@ meta_constant format.of_string   : string → format
 meta_constant format.of_nat      : nat → format
 meta_constant format.flatten     : format → format
 meta_constant format.to_string   : format → options → string
-meta_constant format.print_using : format → options → IO unit
 meta_constant format.of_options  : options → format
-
-meta_definition format.print (fmt : format) : IO unit :=
-format.print_using fmt options.mk
 
 meta_definition format_has_add [instance] : has_add format :=
 has_add.mk format.compose
@@ -36,12 +33,6 @@ structure has_to_format [class] (A : Type) :=
 
 meta_definition to_fmt {A : Type} [has_to_format A] : A → format :=
 has_to_format.to_format
-
-meta_definition pp_using {A : Type} [has_to_format A] (a : A) (o : options) : IO unit :=
-format.print_using (to_fmt a) o
-
-meta_definition pp {A : Type} [has_to_format A] (a : A) : IO unit :=
-format.print (to_fmt a)
 
 namespace format
 attribute [coercion] of_string of_nat

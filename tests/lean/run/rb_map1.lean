@@ -1,4 +1,4 @@
-import meta
+import system.IO
 
 section
 open nat_map

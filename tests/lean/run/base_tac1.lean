@@ -1,4 +1,3 @@
-import meta.base_tactic
 open tactic
 
 meta_definition tac [reducible] := base_tactic string

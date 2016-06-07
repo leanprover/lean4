@@ -1,5 +1,3 @@
-import meta
-
 vm_eval options.get_string options.mk "opt1" "<empty>"
 vm_eval options.get_string (options.set_string options.mk "opt1" "val1") "opt1" "<empty>"
 vm_eval if (options.mk = options.mk) then bool.tt else bool.ff

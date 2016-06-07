@@ -1,4 +1,4 @@
-import meta
+import system.IO
 
 vm_eval do pp (level.max (level.succ level.zero) (level.param "foo")), put_str "\n"
 

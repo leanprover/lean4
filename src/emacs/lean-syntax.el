@@ -13,7 +13,7 @@
     "hypothesis" "lemma" "corollary" "variable" "variables" "premise" "premises" "theory"
     "print" "theorem" "proposition" "example" "abbreviation" "abstract"
     "open" "as" "export" "override" "axiom" "axioms" "inductive" "with" "structure" "record" "universe" "universes"
-    "alias" "help" "environment" "precedence" "reserve"
+    "alias" "help" "precedence" "reserve"
     "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix"
     "tactic_infix" "tactic_infixl" "tactic_infixr" "tactic_notation" "tactic_postfix" "tactic_prefix"
     "eval" "vm_eval" "check" "end" "reveal" "this" "suppose"

@@ -22,7 +22,11 @@ vm_eval do
                                            (expr.sort (level.succ (level.zero)))
                                            (expr.sort level.zero)
                                            bool.tt),
-   d ← environment.get e₁ "foo",
+   e₂ ← environment.add_inductive e₁ "Two" [] 0 (expr.sort (level.succ level.zero))
+                                  [("Zero", expr.const "Two" []),
+                                   ("One",  expr.const "Two" [])],
+   d₁ ← environment.get e₂ "Zero",
+   d₂ ← environment.get e₂ "foo",
    /- TODO(leo): use
 
         return (declaration.type d)
@@ -35,4 +39,4 @@ vm_eval do
 
       The new elaborator should be able to handle it.
    -/
-   exceptional.success (declaration.type d)
+   exceptional.success (declaration.type d₁, declaration.type d₂)

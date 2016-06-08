@@ -72,7 +72,7 @@ meta_definition or_else (t₁ t₂ : base_tactic S A) : base_tactic S A :=
      success
      (λ e₂, !exception (λ u, e₁ u + format.line + e₂ u)))
 
-notation `(` h `|` r:(foldl `|` (e r, or_else r e) h) `)` := r
+infix `<|>`:1 := or_else
 
 meta_definition skip : base_tactic S unit :=
 success unit.star

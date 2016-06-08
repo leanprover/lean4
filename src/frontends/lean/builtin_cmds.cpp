@@ -36,6 +36,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 #include "library/vm/vm_string.h"
 #include "library/compiler/vm_compiler.h"
+#include "library/tactic/tactic_state.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/calc.h"
@@ -668,15 +669,24 @@ static environment compile_cmd(parser & p) {
     return vm_compile(p.env(), d);
 }
 
-static void vm_eval_core(bool is_IO, vm_state & s, name const & main) {
-    if (is_IO) s.push(mk_vm_simple(0)); // push the "RealWorld" state
+static environment compile_expr(environment const & env, name const & n, level_param_names const & ls, expr const & type, expr const & e) {
+    environment new_env = env;
+    bool use_conv_opt   = true;
+    bool is_trusted     = false;
+    auto cd = check(new_env, mk_definition(new_env, n, ls, type, e, use_conv_opt, is_trusted));
+    new_env = new_env.add(cd);
+    return vm_compile(new_env, new_env.get(n));
+}
+
+static void vm_eval_core(vm_state & s, name const & main, optional<vm_obj> const & initial_state) {
+    if (initial_state) s.push(*initial_state); // push initial_state for IO/tactic monad.
     vm_decl d = *s.get_decl(main);
-    if (!is_IO && d.get_arity() > 0)
+    if (!initial_state && d.get_arity() > 0)
         throw exception("vm_eval result is a function");
     s.invoke_fn(main);
-    if (is_IO) {
+    if (initial_state) {
         if (d.get_arity() == 0) {
-            /* main returned a closure, it did not process RealWorld yet.
+            /* main returned a closure, it did not process initial_state yet.
                So, we force the execution. */
             s.apply();
         }
@@ -704,21 +714,16 @@ static environment vm_eval_cmd(parser & p) {
             is_string = true;
         }
     }
-    environment new_env = p.env();
     name main("_main");
-    bool use_conv_opt = true;
-    bool is_trusted   = false;
-    auto cd = check(new_env, mk_definition(new_env, main, ls, type, e, use_conv_opt, is_trusted));
-    new_env = new_env.add(cd);
-    new_env = vm_compile(p.env(), new_env.get(main));
+    environment new_env = compile_expr(p.env(), main, ls, type, e);
     vm_state s(new_env);
-    {
-        if (p.profiling()) {
-            timeit timer(p.ios().get_diagnostic_stream(), "vm_eval time");
-            vm_eval_core(is_IO, s, main);
-        } else {
-            vm_eval_core(is_IO, s, main);
-        }
+    optional<vm_obj> initial_state;
+    if (is_IO) initial_state = mk_vm_simple(0);
+    if (p.profiling()) {
+        timeit timer(p.ios().get_diagnostic_stream(), "vm_eval time");
+        vm_eval_core(s, main, initial_state);
+    } else {
+        vm_eval_core(s, main, initial_state);
     }
     if (is_IO) {
         // do not print anything
@@ -731,6 +736,26 @@ static environment vm_eval_cmd(parser & p) {
         display(p.ios().get_regular_stream(), r);
         p.ios().get_regular_stream() << "\n";
     }
+    return p.env();
+}
+
+static environment tactic_cmd(parser & p) {
+    expr goal; level_param_names goal_ls;
+    std::tie(goal, goal_ls) = parse_local_expr(p);
+    p.check_token_next(get_comma_tk(), "invalid #tactic command, ',' expected");
+
+    name tactic_name("_tactic");
+    expr tactic_type = mk_app(mk_constant("tactic"), mk_constant("unit"));
+    expr tactic      = p.parse_expr();
+    level_param_names tactic_ls;
+    std::tie(tactic_type, tactic, tactic_ls) = p.old_elaborate_definition(tactic_name, tactic_type, tactic);
+
+    /* compile tactic */
+    environment new_env = compile_expr(p.env(), tactic_name, tactic_ls, tactic_type, tactic);
+    vm_state s(new_env);
+    vm_obj initial_state = to_obj(mk_tactic_state_for(p.env(), options(), local_context(), goal));
+    vm_eval_core(s, tactic_name, optional<vm_obj>(initial_state));
+
     return p.env();
 }
 
@@ -771,6 +796,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#normalizer",       "(for debugging purposes)", normalizer_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
+    add_cmd(r, cmd_info("#tactic",           "(for debugging purposes)", tactic_cmd));
     add_cmd(r, cmd_info("#elab",             "(for debugging purposes)", elab_cmd));
     add_cmd(r, cmd_info("#simplify",         "(for debugging purposes) simplify given expression", simplify_cmd));
     add_cmd(r, cmd_info("#defeq_simplify",   "(for debugging purposes) defeq-simplify given expression", defeq_simplify_cmd));

@@ -120,7 +120,7 @@ void init_token_table(token_table & t) {
          "multiple_instances", "find_decl", "attribute", "persistent", "inline",
          "include", "omit", "migrate", "init_quotient", "init_hits", "#erase_cache", "#projections", "#telescope_eq",
          "#compile", "#decl_stats", "#relevant_thms", "#simplify", "#normalizer", "#abstract_expr", "#unify",
-         "#defeq_simplify", "#elab", "#compile", nullptr};
+         "#tactic", "#defeq_simplify", "#elab", "#compile", nullptr};
 
     pair<char const *, char const *> aliases[] =
         {{g_lambda_unicode, "fun"}, {"forall", "Pi"}, {g_forall_unicode, "Pi"}, {g_pi_unicode, "Pi"},

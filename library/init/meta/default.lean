@@ -6,3 +6,4 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.name init.meta.options init.meta.format init.meta.rb_map
 import init.meta.level init.meta.expr init.meta.base_tactic init.meta.environment
+import init.meta.tactic

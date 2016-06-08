@@ -13,28 +13,35 @@ void tactic_state_cell::dealloc() {
     get_vm_allocator().deallocate(sizeof(tactic_state_cell), this);
 }
 
-tactic_state::tactic_state(environment const & env, options const & o, metavar_context const & ctx, list<expr> const & gs) {
-    m_ptr = new (get_vm_allocator().allocate(sizeof(tactic_state_cell))) tactic_state_cell(env, o, ctx, gs);
+tactic_state::tactic_state(environment const & env, options const & o, metavar_context const & ctx,
+                           list<expr> const & gs, expr const & main) {
+    m_ptr = new (get_vm_allocator().allocate(sizeof(tactic_state_cell))) tactic_state_cell(env, o, ctx, gs, main);
+}
+
+tactic_state mk_tactic_state_for(environment const & env, options const & o, local_context const & lctx, expr const & type) {
+    metavar_context mctx;
+    expr main = mctx.mk_metavar_decl(lctx, type);
+    return tactic_state(env, o, mctx, list<expr>(main), main);
 }
 
 tactic_state set_options(tactic_state const & s, options const & o) {
-    return tactic_state(s.env(), o, s.mctx(), s.goals());
+    return tactic_state(s.env(), o, s.mctx(), s.goals(), s.main());
 }
 
 tactic_state set_env(tactic_state const & s, environment const & env) {
-    return tactic_state(env, s.get_options(), s.mctx(), s.goals());
+    return tactic_state(env, s.get_options(), s.mctx(), s.goals(), s.main());
 }
 
 tactic_state set_mctx(tactic_state const & s, metavar_context const & mctx) {
-    return tactic_state(s.env(), s.get_options(), mctx, s.goals());
+    return tactic_state(s.env(), s.get_options(), mctx, s.goals(), s.main());
 }
 
 tactic_state set_goals(tactic_state const & s, list<expr> const & gs) {
-    return tactic_state(s.env(), s.get_options(), s.mctx(), gs);
+    return tactic_state(s.env(), s.get_options(), s.mctx(), gs, s.main());
 }
 
 tactic_state set_mctx_goals(tactic_state const & s, metavar_context const & mctx, list<expr> const & gs) {
-    return tactic_state(s.env(), s.get_options(), mctx, gs);
+    return tactic_state(s.env(), s.get_options(), mctx, gs, s.main());
 }
 
 struct vm_tactic_state : public vm_external {

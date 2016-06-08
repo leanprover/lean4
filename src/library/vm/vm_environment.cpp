@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/type_checker.h"
+#include "kernel/inductive/inductive.h"
 #include "library/standard_kernel.h"
 #include "library/hott_kernel.h"
 #include "library/module.h"
@@ -92,34 +93,74 @@ vm_obj environment_add_inductive(vm_obj const & env, vm_obj const & n, vm_obj co
     }
 }
 
-/*
-meta_constant is_inductive    : environment → name → bool
-/- Return tt iff the given name is a constructor -/
-meta_constant is_constructor  : environment → name → bool
-/- Return tt iff the given name is a recursor -/
-meta_constant is_recursor     : environment → name → bool
-/- Return the constructors of the inductive datatype with the given name -/
-meta_constant constructors_of : environment → name → list name
-/- Return the recursor of the given inductive datatype -/
-meta_constant recursor_of     : environment → name → option name
-/- Return the number of parameters of the inductive datatype -/
-meta_constant inductive_num_params : environment → name → nat
-/- Return the number of indices of the inductive datatype -/
-meta_constant inductive_num_indices : environment → name → nat
-/- Return tt iff the inductive datatype recursor supports dependent elimination -/
-meta_constant inductive_dep_elim : environment → name → bool
-/- Fold over declarations in the environment -/
-meta_constant fold {A :Type} : environment → A → (declaration → A → A) → A
-*/
+vm_obj environment_is_inductive(vm_obj const & env, vm_obj const & n) {
+    return mk_vm_bool(static_cast<bool>(inductive::is_inductive_decl(to_env(env), to_name(n))));
+}
+
+vm_obj environment_is_constructor(vm_obj const & env, vm_obj const & n) {
+    return mk_vm_bool(static_cast<bool>(inductive::is_intro_rule(to_env(env), to_name(n))));
+}
+
+vm_obj environment_is_recursor(vm_obj const & env, vm_obj const & n) {
+    return mk_vm_bool(static_cast<bool>(inductive::is_elim_rule(to_env(env), to_name(n))));
+}
+
+vm_obj environment_constructors_of(vm_obj const & env, vm_obj const & n) {
+    buffer<name> ns;
+    get_intro_rule_names(to_env(env), to_name(n), ns);
+    return to_obj(to_list(ns));
+}
+
+vm_obj environment_recursor_of(vm_obj const & env, vm_obj const & n) {
+    if (auto I = inductive::is_elim_rule(to_env(env), to_name(n)))
+        return mk_vm_some(to_obj(*I));
+    else
+        return mk_vm_none();
+}
+
+vm_obj environment_inductive_num_params(vm_obj const & env, vm_obj const & n) {
+    if (auto r = inductive::get_num_params(to_env(env), to_name(n)))
+        return mk_vm_nat(*r);
+    else
+        return mk_vm_nat(0);
+}
+
+vm_obj environment_inductive_num_indices(vm_obj const & env, vm_obj const & n) {
+    if (auto r = inductive::get_num_indices(to_env(env), to_name(n)))
+        return mk_vm_nat(*r);
+    else
+        return mk_vm_nat(0);
+}
+
+vm_obj environment_inductive_dep_elim(vm_obj const & env, vm_obj const & n) {
+    return mk_vm_bool(inductive::has_dep_elim(to_env(env), to_name(n)));
+}
+
+vm_obj environment_fold(vm_obj const &, vm_obj const & env, vm_obj const & a, vm_obj const & fn) {
+    vm_obj r = a;
+    to_env(env).for_each_declaration([&](declaration const & d) {
+            r = invoke(fn, to_obj(d), r);
+        });
+    return r;
+}
 
 void initialize_vm_environment() {
-    DECLARE_VM_BUILTIN(name({"environment", "mk_std"}),         environment_mk_std);
-    DECLARE_VM_BUILTIN(name({"environment", "mk_hott"}),        environment_mk_hott);
-    DECLARE_VM_BUILTIN(name({"environment", "trust_lvl"}),      environment_trust_lvl);
-    DECLARE_VM_BUILTIN(name({"environment", "is_std"}),         environment_is_std);
-    DECLARE_VM_BUILTIN(name({"environment", "add"}),            environment_add);
-    DECLARE_VM_BUILTIN(name({"environment", "get"}),            environment_get);
-    DECLARE_VM_BUILTIN(name({"environment", "add_inductive"}),  environment_add_inductive);
+    DECLARE_VM_BUILTIN(name({"environment", "mk_std"}),                environment_mk_std);
+    DECLARE_VM_BUILTIN(name({"environment", "mk_hott"}),               environment_mk_hott);
+    DECLARE_VM_BUILTIN(name({"environment", "trust_lvl"}),             environment_trust_lvl);
+    DECLARE_VM_BUILTIN(name({"environment", "is_std"}),                environment_is_std);
+    DECLARE_VM_BUILTIN(name({"environment", "add"}),                   environment_add);
+    DECLARE_VM_BUILTIN(name({"environment", "get"}),                   environment_get);
+    DECLARE_VM_BUILTIN(name({"environment", "fold"}),                  environment_fold);
+    DECLARE_VM_BUILTIN(name({"environment", "add_inductive"}),         environment_add_inductive);
+    DECLARE_VM_BUILTIN(name({"environment", "is_inductive"}),          environment_is_inductive);
+    DECLARE_VM_BUILTIN(name({"environment", "is_constructor"}),        environment_is_constructor);
+    DECLARE_VM_BUILTIN(name({"environment", "is_recursor"}),           environment_is_recursor);
+    DECLARE_VM_BUILTIN(name({"environment", "constructors_of"}),       environment_constructors_of);
+    DECLARE_VM_BUILTIN(name({"environment", "recursor_of"}),           environment_recursor_of);
+    DECLARE_VM_BUILTIN(name({"environment", "inductive_num_params"}),  environment_inductive_num_params);
+    DECLARE_VM_BUILTIN(name({"environment", "inductive_num_indices"}), environment_inductive_num_indices);
+    DECLARE_VM_BUILTIN(name({"environment", "inductive_dep_elim"}),    environment_inductive_dep_elim);
 }
 
 void finalize_vm_environment() {

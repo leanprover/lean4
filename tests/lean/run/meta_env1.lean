@@ -16,6 +16,7 @@ meta_definition e1 := (environment.add e (declaration.def "foo" []
                                             bool.tt) : exceptional environment)
 
 print "-----------"
+open name
 
 vm_eval do
    e₁ ← environment.add e (declaration.def "foo" []
@@ -39,4 +40,7 @@ vm_eval do
 
       The new elaborator should be able to handle it.
    -/
-   exceptional.success (declaration.type d₁, declaration.type d₂)
+   exceptional.success (declaration.type d₁, declaration.type d₂,
+                        environment.is_recursor e₂ ("Two" <s> "rec"),
+                        environment.constructors_of e₂ "Two",
+                        environment.fold e₂ (to_format "") (λ d r, r + format.line + to_fmt (declaration.to_name d)))

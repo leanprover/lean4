@@ -72,6 +72,9 @@ has_to_format.mk list.to_format
 
 attribute [instance] string.has_to_format
 
+meta_definition name.has_to_format [instance] : has_to_format name :=
+has_to_format.mk (λ n, to_string n)
+
 meta_definition unit.has_to_format [instance] : has_to_format unit :=
 has_to_format.mk (λ u, "star")
 

@@ -357,7 +357,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
                 return visit_subtype_rec(args);
             } else if (n == get_monad_bind_name()) {
                 return visit_monad_bind(e, args);
-            } else if (n == get_monad_return_name()) {
+            } else if (n == get_monad_ret_name()) {
                 return visit_monad_return(e, args);
             } else if (is_cases_on_recursor(env(), n)) {
                 return visit_cases_on(fn, args);

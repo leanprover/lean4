@@ -110,7 +110,7 @@ name const & get_list_cons_name();
 name const & get_monad_name();
 name const & get_monad_map_name();
 name const & get_monad_bind_name();
-name const & get_monad_return_name();
+name const & get_monad_ret_name();
 name const & get_monadIO_name();
 name const & get_monoid_name();
 name const & get_mul_name();

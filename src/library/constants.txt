@@ -103,7 +103,7 @@ list.cons
 monad
 monad.map
 monad.bind
-monad.return
+monad.ret
 monadIO
 monoid
 mul

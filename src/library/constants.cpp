@@ -108,7 +108,7 @@ name const * g_list_cons = nullptr;
 name const * g_monad = nullptr;
 name const * g_monad_map = nullptr;
 name const * g_monad_bind = nullptr;
-name const * g_monad_return = nullptr;
+name const * g_monad_ret = nullptr;
 name const * g_monadIO = nullptr;
 name const * g_monoid = nullptr;
 name const * g_mul = nullptr;
@@ -406,7 +406,7 @@ void initialize_constants() {
     g_monad = new name{"monad"};
     g_monad_map = new name{"monad", "map"};
     g_monad_bind = new name{"monad", "bind"};
-    g_monad_return = new name{"monad", "return"};
+    g_monad_ret = new name{"monad", "ret"};
     g_monadIO = new name{"monadIO"};
     g_monoid = new name{"monoid"};
     g_mul = new name{"mul"};
@@ -705,7 +705,7 @@ void finalize_constants() {
     delete g_monad;
     delete g_monad_map;
     delete g_monad_bind;
-    delete g_monad_return;
+    delete g_monad_ret;
     delete g_monadIO;
     delete g_monoid;
     delete g_mul;
@@ -1003,7 +1003,7 @@ name const & get_list_cons_name() { return *g_list_cons; }
 name const & get_monad_name() { return *g_monad; }
 name const & get_monad_map_name() { return *g_monad_map; }
 name const & get_monad_bind_name() { return *g_monad_bind; }
-name const & get_monad_return_name() { return *g_monad_return; }
+name const & get_monad_ret_name() { return *g_monad_ret; }
 name const & get_monadIO_name() { return *g_monadIO; }
 name const & get_monoid_name() { return *g_monoid; }
 name const & get_mul_name() { return *g_mul; }

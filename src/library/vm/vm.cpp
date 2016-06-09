@@ -81,6 +81,25 @@ vm_obj mk_vm_closure(unsigned fn_idx, unsigned sz, vm_obj const * data) {
     return mk_vm_composite(vm_obj_kind::Closure, fn_idx, sz, data);
 }
 
+vm_obj mk_vm_closure(unsigned cidx, vm_obj const & o1) {
+    return mk_vm_closure(cidx, 1, &o1);
+}
+
+vm_obj mk_vm_closure(unsigned cidx, vm_obj const & o1, vm_obj const & o2) {
+    vm_obj args[2] = {o1, o2};
+    return mk_vm_closure(cidx, 2, args);
+}
+
+vm_obj mk_vm_closure(unsigned cidx, vm_obj const & o1, vm_obj const & o2, vm_obj const & o3) {
+    vm_obj args[3] = {o1, o2, o3};
+    return mk_vm_closure(cidx, 3, args);
+}
+
+vm_obj mk_vm_closure(unsigned cidx, vm_obj const & o1, vm_obj const & o2, vm_obj const & o3, vm_obj const & o4) {
+    vm_obj args[4] = {o1, o2, o3, o4};
+    return mk_vm_closure(cidx, 4, args);
+}
+
 vm_mpz::vm_mpz(mpz const & v):
     vm_obj_cell(vm_obj_kind::MPZ),
     m_value(v) {
@@ -1575,6 +1594,11 @@ vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj co
 vm_obj invoke(vm_obj const & fn, unsigned nargs, vm_obj const * args) {
     lean_assert(g_vm_state);
     return g_vm_state->invoke(fn, nargs, args);
+}
+
+vm_state const & get_vm_state() {
+    lean_assert(g_vm_state);
+    return *g_vm_state;
 }
 
 void vm_state::invoke_global(vm_decl const & d) {

@@ -106,6 +106,10 @@ public:
        \pre !frozen_mode() */
     local_context freeze_local_instances(metavar_context & mctx, local_context const & lctx);
 
+    environment const & env() const { return m_env; }
+
+    options const & get_options() const { return m_options; }
+
     bool frozen_mode() const { return m_frozen_mode; }
 
     /** \brief Auxiliary object used to set position information for the type class resolution trace. */

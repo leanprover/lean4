@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/constants.h"
 #include "library/type_context.h"
 #include "library/pp_options.h"
 #include "library/trace.h"
@@ -21,6 +22,12 @@ void tactic_state_cell::dealloc() {
 tactic_state::tactic_state(environment const & env, options const & o, metavar_context const & ctx,
                            list<expr> const & gs, expr const & main) {
     m_ptr = new (get_vm_allocator().allocate(sizeof(tactic_state_cell))) tactic_state_cell(env, o, ctx, gs, main);
+}
+
+optional<metavar_decl> tactic_state::get_main_goal() const {
+    if (empty(goals()))
+        return optional<metavar_decl>();
+    return mctx().get_metavar_decl(head(goals()));
 }
 
 tactic_state mk_tactic_state_for(environment const & env, options const & o, local_context const & lctx, expr const & type) {
@@ -122,6 +129,62 @@ vm_obj tactic_state_to_format(vm_obj const & s) {
 vm_obj tactic_state_format_expr(vm_obj const & s, vm_obj const & e) {
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     return to_obj(to_tactic_state(s).pp_expr(fmtf, to_expr(e)));
+}
+
+vm_obj mk_tactic_success(vm_obj const & a, tactic_state const & s) {
+    return mk_vm_constructor(0, a, to_obj(s));
+}
+
+vm_obj mk_tactic_success(tactic_state const & s) {
+    return mk_tactic_success(mk_vm_unit(), s);
+}
+
+vm_obj mk_tactic_exception(vm_obj const & fn) {
+    return mk_vm_constructor(1, fn);
+}
+
+vm_obj mk_tactic_exception(format const & fmt) {
+    vm_state const & s = get_vm_state();
+    vm_decl K = *s.get_decl(get_combinator_K_name());
+    return mk_tactic_exception(mk_vm_closure(K.get_idx(), mk_vm_unit(), mk_vm_unit(), to_obj(fmt)));
+}
+
+vm_obj mk_tactic_exception(char const * msg) {
+    return mk_tactic_exception(format(msg));
+}
+
+vm_obj mk_no_goals_exception() {
+    return mk_tactic_exception("tactic failed, there are no goals to be solved");
+}
+
+struct type_context_cache_helper {
+    typedef std::unique_ptr<type_context_cache> cache_ptr;
+    cache_ptr m_cache_ptr;
+
+    void reset(environment const & env, options const & o) {
+        m_cache_ptr.reset(new type_context_cache(env, o));
+    }
+
+    bool compatible_env(environment const & env) {
+        environment const & curr_env = m_cache_ptr->env();
+        return env.is_descendant(curr_env) && curr_env.is_descendant(env);
+    }
+
+    void ensure_compatible(environment const & env, options const & o) {
+        if (!m_cache_ptr || !compatible_env(env) || !is_eqp(o, m_cache_ptr->get_options()))
+            reset(env, o);
+    }
+};
+
+MK_THREAD_LOCAL_GET_DEF(type_context_cache_helper, get_tch);
+
+type_context_cache & get_type_context_cache_for(environment const & env, options const & o) {
+    get_tch().ensure_compatible(env, o);
+    return *get_tch().m_cache_ptr.get();
+}
+
+type_context_cache & get_type_context_cache_for(tactic_state const & s) {
+    return get_type_context_cache_for(s.env(), s.get_options());
 }
 
 void initialize_tactic_state() {

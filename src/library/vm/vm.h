@@ -143,6 +143,10 @@ vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &);
 vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj const &);
 vm_obj mk_vm_constructor(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &);
 vm_obj mk_vm_closure(unsigned fnidx, unsigned sz, vm_obj const * args);
+vm_obj mk_vm_closure(unsigned cidx, vm_obj const &);
+vm_obj mk_vm_closure(unsigned cidx, vm_obj const &, vm_obj const &);
+vm_obj mk_vm_closure(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj const &);
+vm_obj mk_vm_closure(unsigned cidx, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &);
 vm_obj mk_vm_mpz(mpz const & n);
 inline vm_obj mk_vm_external(vm_external * obj) { lean_assert(obj && obj->get_rc() == 0); return vm_obj(obj); }
 /* helper functions for creating natural numbers */
@@ -551,6 +555,9 @@ public:
                   vm_obj const & a5, vm_obj const & a6, vm_obj const & a7, vm_obj const & a8);
     vm_obj invoke(vm_obj const & fn, unsigned nargs, vm_obj const * args);
 };
+
+/** \brief Return reference to thread local VM state object. */
+vm_state const & get_vm_state();
 
 /** \brief Add builtin implementation for the function named \c n.
     All environment objects will contain this builtin.

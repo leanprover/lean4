@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 #include "kernel/environment.h"
 #include "library/metavar_context.h"
+#include "library/type_context.h"
 
 namespace lean {
 class tactic_state_cell {
@@ -38,6 +39,7 @@ public:
     tactic_state(tactic_state && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~tactic_state() { if (m_ptr) m_ptr->dec_ref(); }
 
+    optional<metavar_decl> get_main_goal() const;
     tactic_state_cell * raw() const { return m_ptr; }
     options const & get_options() const { lean_assert(m_ptr); return m_ptr->m_options; }
     environment const & env() const { lean_assert(m_ptr); return m_ptr->m_env; }
@@ -65,6 +67,24 @@ tactic_state set_mctx_goals(tactic_state const & s, metavar_context const & mctx
 
 tactic_state const & to_tactic_state(vm_obj const & o);
 vm_obj to_obj(tactic_state const & s);
+
+vm_obj mk_tactic_success(vm_obj const & a, tactic_state const & s);
+vm_obj mk_tactic_success(tactic_state const & s);
+vm_obj mk_tactic_exception(vm_obj const & fn);
+vm_obj mk_tactic_exception(format const & fmt);
+vm_obj mk_tactic_exception(char const * msg);
+vm_obj mk_no_goals_exception();
+
+type_context_cache & get_type_context_cache_for(environment const & env, options const & o);
+type_context_cache & get_type_context_cache_for(tactic_state const & s);
+
+inline type_context mk_type_context_for(tactic_state const & s, metavar_context & mctx,
+                                        transparency_mode m = transparency_mode::Semireducible) {
+    local_context lctx;
+    if (auto d = s.get_main_goal()) lctx = d->get_context();
+    mctx = s.mctx();
+    return type_context(mctx, lctx, get_type_context_cache_for(s), m);
+}
 
 void initialize_tactic_state();
 void finalize_tactic_state();

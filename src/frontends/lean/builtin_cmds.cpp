@@ -753,7 +753,7 @@ static environment tactic_cmd(parser & p) {
     /* compile tactic */
     environment new_env = compile_expr(p.env(), tactic_name, tactic_ls, tactic_type, tactic);
     vm_state s(new_env);
-    vm_obj initial_state = to_obj(mk_tactic_state_for(p.env(), options(), local_context(), goal));
+    vm_obj initial_state = to_obj(mk_tactic_state_for(p.env(), p.get_options(), local_context(), goal));
     vm_eval_core(s, tactic_name, optional<vm_obj>(initial_state));
 
     return p.env();

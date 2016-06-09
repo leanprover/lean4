@@ -586,6 +586,9 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
         return format("⊥");
     if (auto it = is_abbreviated(e))
         return pp_abbreviation(e, *it, false);
+    name n = const_name(e);
+    if (m_notation && n == get_unit_star_name())
+        return format("()");
     if (!num_ref_univ_params) {
         if (auto r = pp_local_ref(e))
             return *r;
@@ -593,7 +596,6 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
     // Remark: if num_ref_univ_params is "some", then it contains the number of
     // universe levels that are fixed in a section. That is, \c e corresponds to
     // a constant in a section which has fixed levels.
-    name n = const_name(e);
     if (!m_full_names) {
         if (auto it = is_aliased(n)) {
             if (!m_private_names || !hidden_to_user_name(m_env, n))

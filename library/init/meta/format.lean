@@ -23,6 +23,9 @@ meta_constant format.to_string     : format → options → string
 meta_constant format.of_options    : options → format
 meta_constant trace_fmt {A : Type} : format → (unit → A) → A
 
+meta_definition format.is_inhabited [instance] : inhabited format :=
+inhabited.mk format.space
+
 meta_definition format_has_add [instance] : has_add format :=
 has_add.mk format.compose
 

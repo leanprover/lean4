@@ -16,6 +16,9 @@ inductive level :=
 | global : name → level
 | meta   : name → level
 
+definition level.is_inhabited [instance] : inhabited level :=
+inhabited.mk level.zero
+
 /- TODO(Leo): provide a definition in Lean. -/
 meta_constant level.has_decidable_eq : decidable_eq level
 attribute [instance] level.has_decidable_eq

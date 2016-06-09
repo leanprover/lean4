@@ -12,6 +12,9 @@ inductive name :=
 | mk_string  : string → name → name
 | mk_numeral : unsigned → name → name
 
+definition name.is_inhabited [instance] : inhabited name :=
+inhabited.mk name.anonymous
+
 definition mk_str_name (n : name) (s : string) : name :=
 name.mk_string s n
 

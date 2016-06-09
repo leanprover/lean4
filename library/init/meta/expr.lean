@@ -24,6 +24,9 @@ inductive expr :=
 | elet     : name → expr → expr → expr → expr
 | macro    : macro_def → ∀ n : unsigned, (fin (unsigned.to_nat n) → expr) → expr
 
+definition expr.is_inhabited [instance] : inhabited expr :=
+inhabited.mk (expr.sort level.zero)
+
 meta_constant expr.mk_macro (d : macro_def) : list expr → expr
 meta_definition expr.mk_var (n : nat) : expr :=
 expr.var (unsigned.of_nat n)

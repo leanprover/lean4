@@ -25,7 +25,7 @@ vm_eval aux 20
 print "************************"
 
 definition repeat : nat → (nat → IO unit) → IO unit
-| 0     a := return unit.star
+| 0     a := return ()
 | (n+1) a := do a n, repeat n a
 
 vm_eval repeat 10 aux
@@ -33,7 +33,7 @@ vm_eval repeat 10 aux
 print "************************"
 
 definition execute : list (IO unit) → IO unit
-| []      := return unit.star
+| []      := return ()
 | (x::xs) := do x, execute xs
 
 vm_eval repeat 10 (λ i, execute [aux i, put_str "hello\n"])

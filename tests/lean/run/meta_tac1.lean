@@ -5,7 +5,7 @@ open tactic name
 #tactic (∀ (p : Prop), p → p),
  do env ← get_env,
     trace "testing",
-    return unit.star
+    return ()
 
 #tactic (∀ (p : Prop), p → p),
  do d ← get_decl ("nat" <s> "add"),
@@ -13,4 +13,4 @@ open tactic name
     trace "nat.rec type:",
     d ← get_decl ("nat" <s> "rec"),
     trace_expr (declaration.type d),
-    return unit.star
+    return ()

@@ -52,6 +52,7 @@ public:
     friend bool is_eqp(tactic_state const & a, tactic_state const & b) { return a.m_ptr == b.m_ptr; }
 
     format pp(formatter_factory const & fmtf) const;
+    format pp_expr(formatter_factory const & fmtf, expr const & e) const;
 };
 
 tactic_state mk_tactic_state_for(environment const & env, options const & opts, local_context const & lctx, expr const & type);

@@ -36,9 +36,6 @@ Author: Leonardo de Moura
 #include "library/string.h"
 #include "library/type_context.h"
 #include "library/definitional/equations.h"
-#include "library/vm/vm.h"
-#include "library/vm/vm_format.h"
-#include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 #include "library/compiler/comp_irrelevant.h"
 #include "library/compiler/erase_irrelevant.h"
@@ -115,21 +112,6 @@ static optional<unsigned> to_unsigned(expr const & e) {
     return g_nat_numeral_pp->to_unsigned(e);
 }
 
-vm_obj tactic_state_format_expr(vm_obj const & o, vm_obj const & e) {
-    tactic_state const & s = to_tactic_state(o);
-    list<expr> const & gs  = s.goals();
-    local_context lctx;
-    if (gs) {
-        if (auto d = s.mctx().get_metavar_decl(head(gs))) {
-            lctx = d->get_context();
-        }
-    }
-    metavar_context mctx = s.mctx();
-    type_context tc(s.env(), s.get_options(), mctx, lctx, transparency_mode::All);
-    pretty_fn pp(s.env(), s.get_options(), tc);
-    return to_obj(pp(to_expr(e)));
-}
-
 void initialize_pp() {
     g_ellipsis_n_fmt  = new format(highlight(format("\u2026")));
     g_ellipsis_fmt    = new format(highlight(format("...")));
@@ -153,7 +135,6 @@ void initialize_pp() {
     g_partial_explicit_fmt    = new format(highlight_keyword(format("@@")));
     g_tmp_prefix      = new name(name::mk_internal_unique_name());
     g_nat_numeral_pp  = new nat_numeral_pp();
-    DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}), tactic_state_format_expr);
 }
 
 void finalize_pp() {

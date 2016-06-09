@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/vm/vm_environment.h"
 #include "library/vm/vm_format.h"
+#include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
@@ -46,6 +47,20 @@ tactic_state set_goals(tactic_state const & s, list<expr> const & gs) {
 
 tactic_state set_mctx_goals(tactic_state const & s, metavar_context const & mctx, list<expr> const & gs) {
     return tactic_state(s.env(), s.get_options(), mctx, gs, s.main());
+}
+
+format tactic_state::pp_expr(formatter_factory const & fmtf, expr const & e) const {
+    list<expr> const & gs  = goals();
+    local_context lctx;
+    if (gs) {
+        if (auto d = mctx().get_metavar_decl(head(gs))) {
+            lctx = d->get_context();
+        }
+    }
+    metavar_context mctx_tmp   = mctx();
+    type_context ctx(env(), get_options(), mctx_tmp, lctx, transparency_mode::All);
+    formatter fmt = fmtf(env(), get_options(), ctx);
+    return fmt(e);
 }
 
 format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g) const {
@@ -104,9 +119,15 @@ vm_obj tactic_state_to_format(vm_obj const & s) {
     return to_obj(to_tactic_state(s).pp(fmtf));
 }
 
+vm_obj tactic_state_format_expr(vm_obj const & s, vm_obj const & e) {
+    formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
+    return to_obj(to_tactic_state(s).pp_expr(fmtf, to_expr(e)));
+}
+
 void initialize_tactic_state() {
-    DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),       tactic_state_env);
-    DECLARE_VM_BUILTIN(name({"tactic_state", "to_format"}), tactic_state_to_format);
+    DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),         tactic_state_env);
+    DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}), tactic_state_format_expr);
+    DECLARE_VM_BUILTIN(name({"tactic_state", "to_format"}),   tactic_state_to_format);
 }
 
 void finalize_tactic_state() {

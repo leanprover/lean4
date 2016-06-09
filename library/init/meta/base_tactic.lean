@@ -75,7 +75,7 @@ meta_definition or_else (t₁ t₂ : base_tactic S A) : base_tactic S A :=
 infix `<|>`:1 := or_else
 
 meta_definition skip : base_tactic S unit :=
-success unit.star
+success ()
 
 meta_definition returnex (e : exceptional A) : base_tactic S A :=
 λ s, match e with
@@ -90,7 +90,7 @@ meta_definition decorate_ex (msg : format) (t : base_tactic S A) : base_tactic S
   (λ e, !exception (λ u, msg + format.nest 2 (format.line + e u)))
 
 inline meta_definition write (s' : S) : base_tactic S unit :=
-λ s, success unit.star s'
+λ s, success () s'
 
 inline meta_definition read : base_tactic S S :=
 λ s, success s s

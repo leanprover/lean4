@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson and Jared Roesch
 -/
 prelude
-import init.functor
+import init.functor init.string init.trace
 
 structure monad [class] (m : Type → Type) extends functor m : Type :=
 (ret  : Π {a:Type}, a → m a)

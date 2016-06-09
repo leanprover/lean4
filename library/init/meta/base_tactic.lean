@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.monad init.meta.format
+import init.monad init.meta.exceptional init.meta.format
 /-
 Remark: we use a function that produces a format object as the exception information.
 Motivation: the formatting object may be big, and we may create it on demand.
@@ -62,8 +62,8 @@ meta_definition fail (e : format) : base_tactic S unit :=
 
 meta_definition try (t : base_tactic S A) : base_tactic S unit :=
 λ s, base_tactic_result.cases_on (t s)
- (λ a, success unit.star)
- (λ e, success unit.star s)
+ (λ a, success ())
+ (λ e, success () s)
 
 meta_definition or_else (t₁ t₂ : base_tactic S A) : base_tactic S A :=
 λ s, base_tactic_result.cases_on (t₁ s)
@@ -76,6 +76,12 @@ infix `<|>`:1 := or_else
 
 meta_definition skip : base_tactic S unit :=
 success unit.star
+
+meta_definition returnex (e : exceptional A) : base_tactic S A :=
+λ s, match e with
+| exceptional.success a    := base_tactic_result.success a s
+| !exceptional.exception f := !base_tactic_result.exception f
+end
 
 /- Decorate t's exceptions with msg -/
 meta_definition decorate_ex (msg : format) (t : base_tactic S A) : base_tactic S A :=

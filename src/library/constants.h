@@ -27,6 +27,7 @@ name const & get_cast_heq_name();
 name const & get_char_name();
 name const & get_char_of_nat_name();
 name const & get_classical_name();
+name const & get_combinator_K_name();
 name const & get_congr_name();
 name const & get_congr_arg_name();
 name const & get_congr_fun_name();

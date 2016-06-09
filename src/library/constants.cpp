@@ -25,6 +25,7 @@ name const * g_cast_heq = nullptr;
 name const * g_char = nullptr;
 name const * g_char_of_nat = nullptr;
 name const * g_classical = nullptr;
+name const * g_combinator_K = nullptr;
 name const * g_congr = nullptr;
 name const * g_congr_arg = nullptr;
 name const * g_congr_fun = nullptr;
@@ -324,6 +325,7 @@ void initialize_constants() {
     g_char = new name{"char"};
     g_char_of_nat = new name{"char", "of_nat"};
     g_classical = new name{"classical"};
+    g_combinator_K = new name{"combinator", "K"};
     g_congr = new name{"congr"};
     g_congr_arg = new name{"congr_arg"};
     g_congr_fun = new name{"congr_fun"};
@@ -624,6 +626,7 @@ void finalize_constants() {
     delete g_char;
     delete g_char_of_nat;
     delete g_classical;
+    delete g_combinator_K;
     delete g_congr;
     delete g_congr_arg;
     delete g_congr_fun;
@@ -923,6 +926,7 @@ name const & get_cast_heq_name() { return *g_cast_heq; }
 name const & get_char_name() { return *g_char; }
 name const & get_char_of_nat_name() { return *g_char_of_nat; }
 name const & get_classical_name() { return *g_classical; }
+name const & get_combinator_K_name() { return *g_combinator_K; }
 name const & get_congr_name() { return *g_congr; }
 name const & get_congr_arg_name() { return *g_congr_arg; }
 name const & get_congr_fun_name() { return *g_congr_fun; }

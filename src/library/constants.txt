@@ -289,6 +289,7 @@ unification_hint
 unification_hint.mk
 unification_constraint
 unification_constraint.mk
+unit.star
 weak_order
 well_founded
 zero

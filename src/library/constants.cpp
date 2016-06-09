@@ -294,6 +294,7 @@ name const * g_unification_hint = nullptr;
 name const * g_unification_hint_mk = nullptr;
 name const * g_unification_constraint = nullptr;
 name const * g_unification_constraint_mk = nullptr;
+name const * g_unit_star = nullptr;
 name const * g_weak_order = nullptr;
 name const * g_well_founded = nullptr;
 name const * g_zero = nullptr;
@@ -592,6 +593,7 @@ void initialize_constants() {
     g_unification_hint_mk = new name{"unification_hint", "mk"};
     g_unification_constraint = new name{"unification_constraint"};
     g_unification_constraint_mk = new name{"unification_constraint", "mk"};
+    g_unit_star = new name{"unit", "star"};
     g_weak_order = new name{"weak_order"};
     g_well_founded = new name{"well_founded"};
     g_zero = new name{"zero"};
@@ -891,6 +893,7 @@ void finalize_constants() {
     delete g_unification_hint_mk;
     delete g_unification_constraint;
     delete g_unification_constraint_mk;
+    delete g_unit_star;
     delete g_weak_order;
     delete g_well_founded;
     delete g_zero;
@@ -1189,6 +1192,7 @@ name const & get_unification_hint_name() { return *g_unification_hint; }
 name const & get_unification_hint_mk_name() { return *g_unification_hint_mk; }
 name const & get_unification_constraint_name() { return *g_unification_constraint; }
 name const & get_unification_constraint_mk_name() { return *g_unification_constraint_mk; }
+name const & get_unit_star_name() { return *g_unit_star; }
 name const & get_weak_order_name() { return *g_weak_order; }
 name const & get_well_founded_name() { return *g_well_founded; }
 name const & get_zero_name() { return *g_zero; }

@@ -296,6 +296,7 @@ name const & get_unification_hint_name();
 name const & get_unification_hint_mk_name();
 name const & get_unification_constraint_name();
 name const & get_unification_constraint_mk_name();
+name const & get_unit_star_name();
 name const & get_weak_order_name();
 name const & get_well_founded_name();
 name const & get_zero_name();

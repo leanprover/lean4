@@ -131,6 +131,10 @@ static expr parse_placeholder(parser & p, unsigned, expr const *, pos_info const
     return p.save_pos(mk_explicit_expr_placeholder(), pos);
 }
 
+static expr parse_unit(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return p.save_pos(mk_constant(get_unit_star_name()), pos);
+}
+
 static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     throw parser_error("by-exprs have been disabled", pos);
 }
@@ -586,6 +590,7 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
     return r;
 }
 
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -607,6 +612,7 @@ parse_table init_nud_table() {
     r = r.add({transition("?(", Expr), transition(")", mk_ext_action(parse_inaccessible))}, x0);
     r = r.add({transition("⌞", Expr), transition("⌟", mk_ext_action(parse_inaccessible))}, x0);
     r = r.add({transition("(:", Expr), transition(":)", mk_ext_action(parse_pattern))}, x0);
+    r = r.add({transition("()", mk_ext_action(parse_unit))}, x0);
     r = r.add({transition("fun", Binders), transition(",", mk_scoped_expr_action(x0))}, x0);
     r = r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);
     r = r.add({transition("Type", mk_ext_action(parse_Type))}, x0);

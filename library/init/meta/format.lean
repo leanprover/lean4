@@ -10,17 +10,18 @@ inductive format.color :=
 | red | green | orange | blue | pink | cyan | grey
 
 meta_constant format : Type₁
-meta_constant format.line        : format
-meta_constant format.space       : format
-meta_constant format.compose     : format → format → format
-meta_constant format.nest        : nat → format → format
-meta_constant format.highlight   : format → color → format
-meta_constant format.group       : format → format
-meta_constant format.of_string   : string → format
-meta_constant format.of_nat      : nat → format
-meta_constant format.flatten     : format → format
-meta_constant format.to_string   : format → options → string
-meta_constant format.of_options  : options → format
+meta_constant format.line          : format
+meta_constant format.space         : format
+meta_constant format.compose       : format → format → format
+meta_constant format.nest          : nat → format → format
+meta_constant format.highlight     : format → color → format
+meta_constant format.group         : format → format
+meta_constant format.of_string     : string → format
+meta_constant format.of_nat        : nat → format
+meta_constant format.flatten       : format → format
+meta_constant format.to_string     : format → options → string
+meta_constant format.of_options    : options → format
+meta_constant trace_fmt {A : Type} : format → (unit → A) → A
 
 meta_definition format_has_add [instance] : has_add format :=
 has_add.mk format.compose

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include "util/sexpr/format.h"
+#include "library/trace.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_string.h"
@@ -82,6 +83,11 @@ vm_obj format_of_options(vm_obj const & opts) {
     return to_obj(pp(to_options(opts)));
 }
 
+vm_obj trace_fmt(vm_obj const &, vm_obj const & fmt, vm_obj const & fn) {
+    tout() << to_format(fmt) << "\n";
+    return invoke(fn, mk_vm_unit());
+}
+
 void initialize_vm_format() {
     DECLARE_VM_BUILTIN(name({"format", "line"}),             format_line);
     DECLARE_VM_BUILTIN(name({"format", "space"}),            format_space);
@@ -95,6 +101,7 @@ void initialize_vm_format() {
     DECLARE_VM_BUILTIN(name({"format", "to_string"}),        format_to_string);
     DECLARE_VM_BUILTIN(name({"format", "print_using"}),      format_print_using);
     DECLARE_VM_BUILTIN(name({"format", "of_options"}),       format_of_options);
+    DECLARE_VM_BUILTIN(name("trace_fmt"),                    trace_fmt);
 }
 
 void finalize_vm_format() {

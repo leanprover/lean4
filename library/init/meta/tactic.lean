@@ -33,12 +33,15 @@ do s ← read,
 meta_definition trace (s : string) : tactic unit :=
 return (_root_.trace s (λ u, ()))
 
+meta_definition trace_fmt (fmt : format) : tactic unit :=
+return (_root_.trace_fmt fmt (λ u, ()))
+
 meta_definition trace_expr (e : expr) : tactic unit :=
 do s ← read,
-   trace (to_string (format_expr s e))
+   trace_fmt (format_expr s e)
 
 meta_definition trace_state : tactic unit :=
 do s ← read,
-   trace (to_string (to_fmt s))
+   trace_fmt (to_fmt s)
 
 end tactic

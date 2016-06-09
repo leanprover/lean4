@@ -1,3 +1,5 @@
+import data.list
+
 open unsigned list
 
 meta_definition e1 := expr.app (expr.app (expr.const "f" []) (expr.mk_var 1)) (expr.const "a" [])
@@ -39,3 +41,12 @@ vm_eval expr.lift_vars (expr.abstract_fvs fv1 ["b", "a"]) 1 1
 vm_eval expr.has_free_var fv1
 vm_eval expr.has_var fv1
 vm_eval expr.has_var (expr.abstract_fvs fv1 ["b", "a"])
+
+meta_definition foo : nat → expr
+| 0     := expr.const "aa" [level.zero, level.succ level.zero]
+| (n+1) := foo n
+
+vm_eval match foo 10 with
+| expr.const n ls := list.head (list.tail ls)
+| _               := level.zero
+end

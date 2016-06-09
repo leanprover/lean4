@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_ordering.h"
+#include "library/vm/vm_list.h"
 
 namespace lean {
 struct vm_name : public vm_external {
@@ -26,29 +27,6 @@ name const & to_name(vm_obj const & o) {
 
 vm_obj to_obj(name const & n) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_name))) vm_name(n));
-}
-
-list<name> to_list_name(vm_obj const & o) {
-    if (is_simple(o))
-        return list<name>();
-    else
-        return list<name>(to_name(cfield(o, 0)), to_list_name(cfield(o, 1)));
-}
-
-void to_buffer_name(vm_obj const & o, buffer<name> & r) {
-    if (is_simple(o)) {
-        return;
-    } else {
-        r.push_back(to_name(cfield(o, 0)));
-        to_buffer_name(cfield(o, 1), r);
-    }
-}
-
-vm_obj to_obj(list<name> const & ls) {
-    if (!ls)
-        return mk_vm_simple(0);
-    else
-        return mk_vm_constructor(1, to_obj(head(ls)), to_obj(tail(ls)));
 }
 
 vm_obj name_anonymous() {

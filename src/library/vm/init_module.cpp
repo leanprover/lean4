@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_rb_map.h"
 #include "library/vm/vm_level.h"
 #include "library/vm/vm_expr.h"
+#include "library/vm/vm_list.h"
 #include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_declaration.h"
 #include "library/vm/vm_environment.h"
@@ -30,6 +31,7 @@ void initialize_vm_core_module() {
     initialize_vm_rb_map();
     initialize_vm_level();
     initialize_vm_expr();
+    initialize_vm_list();
     initialize_vm_exceptional();
     initialize_vm_declaration();
     initialize_vm_environment();
@@ -38,6 +40,7 @@ void finalize_vm_core_module() {
     finalize_vm_environment();
     finalize_vm_declaration();
     finalize_vm_exceptional();
+    finalize_vm_list();
     finalize_vm_expr();
     finalize_vm_level();
     finalize_vm_rb_map();

@@ -15,11 +15,6 @@ macro_definition const & to_macro_definition(vm_obj const & o);
 vm_obj to_obj(macro_definition const & d);
 expr const & to_expr(vm_obj const & o);
 vm_obj to_obj(expr const & e);
-list<expr> to_list_expr(vm_obj const & o);
-/* Given an object o : list expr, store its contents at \c r */
-void to_buffer_expr(vm_obj const & o, buffer<expr> & r);
-vm_obj to_obj(buffer<expr> const & ls);
-vm_obj to_obj(list<expr> const & ls);
 void initialize_vm_expr();
 void finalize_vm_expr();
 void initialize_vm_expr_builtin_idxs();

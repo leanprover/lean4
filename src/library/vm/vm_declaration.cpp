@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_level.h"
 #include "library/vm/vm_expr.h"
+#include "library/vm/vm_list.h"
 
 namespace lean {
 struct vm_declaration : public vm_external {

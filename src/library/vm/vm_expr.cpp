@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_format.h"
 #include "library/vm/vm_options.h"
 #include "library/vm/vm_level.h"
+#include "library/vm/vm_list.h"
 
 namespace lean {
 struct vm_macro_definition : public vm_external {
@@ -53,38 +54,6 @@ expr const & to_expr(vm_obj const & o) {
 
 vm_obj to_obj(expr const & e) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_expr))) vm_expr(e));
-}
-
-list<expr> to_list_expr(vm_obj const & o) {
-    if (is_simple(o))
-        return list<expr>();
-    else
-        return list<expr>(to_expr(cfield(o, 0)), to_list_expr(cfield(o, 1)));
-}
-
-void to_buffer_expr(vm_obj const & o, buffer<expr> & r) {
-    if (is_simple(o)) {
-        return;
-    } else {
-        r.push_back(to_expr(cfield(o, 0)));
-        to_buffer_expr(cfield(o, 1), r);
-    }
-}
-
-vm_obj to_obj(buffer<expr> const & ls) {
-    vm_obj r = mk_vm_simple(0);
-    unsigned i = ls.size();
-    while (i > 0) {
-        --i;
-        r = mk_vm_constructor(1, to_obj(ls[i]), r);
-    }
-    return r;
-}
-
-vm_obj to_obj(list<expr> const & ls) {
-    buffer<expr> ls_buff;
-    to_buffer(ls, ls_buff);
-    return to_obj(ls_buff);
 }
 
 binder_info to_binder_info(vm_obj const & o) {

@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_declaration.h"
 #include "library/vm/vm_exceptional.h"
-
+#include "library/vm/vm_list.h"
 
 namespace lean {
 struct vm_environment : public vm_external {

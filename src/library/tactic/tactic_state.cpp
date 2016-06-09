@@ -57,8 +57,10 @@ format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g) con
     format r                   = lctx.pp(fmt);
     unsigned indent            = get_pp_indent(get_options());
     bool unicode               = get_pp_unicode(get_options());
+    if (!lctx.empty())
+        r += line();
     format turnstile           = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
-    r += line() + turnstile + space() + nest(indent, fmt(decl.get_type()));
+    r += turnstile + space() + nest(indent, fmt(decl.get_type()));
     if (get_pp_goal_compact(get_options()))
         r = group(r);
     return r;

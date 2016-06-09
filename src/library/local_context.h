@@ -80,6 +80,9 @@ class local_context {
                        optional<expr> const & value, binder_info const & bi);
 public:
     local_context():m_next_idx(0) {}
+
+    bool empty() const { return m_idx2local_decl.empty(); }
+
     expr mk_local_decl(expr const & type, binder_info const & bi = binder_info());
     expr mk_local_decl(expr const & type, expr const & value);
     expr mk_local_decl(name const & ppn, expr const & type, binder_info const & bi = binder_info());

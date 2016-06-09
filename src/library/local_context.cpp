@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/fresh_name.h"
 #include "kernel/for_each_fn.h"
 #include "library/local_context.h"
+#include "library/pp_options.h"
 
 namespace lean {
 static name *       g_local_prefix;
@@ -226,6 +227,53 @@ bool local_context::well_formed(expr const & e) const {
 void local_context::freeze(name const & n) {
     lean_assert(m_name2local_decl.contains(n));
     m_frozen_decls.insert(n);
+}
+
+format local_context::pp(formatter const & fmt) const {
+    options const & opts = fmt.get_options();
+    unsigned indent      = get_pp_indent(opts);
+    unsigned max_hs      = get_pp_goal_max_hyps(opts);
+    bool first           = true;
+    unsigned i           = 0;
+    format ids;
+    optional<expr> type;
+    format r;
+    m_idx2local_decl.for_each([&](unsigned, local_decl const & d) {
+            if (i >= max_hs)
+                return;
+            i++;
+            if (type && (d.get_type() != *type || d.get_value())) {
+                // add (ids : type) IF the d.get_type() != type OR d is a let-decl
+                if (first) first = false;
+                else r += comma() + line();
+
+                r += group(ids + space() + colon() + nest(indent, line() + fmt(*type)));
+                type = optional<expr>();
+                ids  = format();
+            }
+
+            if (d.get_value()) {
+                if (first) first = false;
+                else r += comma() + line();
+                r += group(format(d.get_pp_name()) + space() + colon() + space() + fmt(d.get_type()) +
+                           space() + format(":=") + nest(indent, line() + fmt(*d.get_value())));
+            } else if (!type) {
+                lean_assert(!d.get_value());
+                ids  = format(d.get_pp_name());
+                type = d.get_type();
+            } else {
+                lean_assert(!d.get_value());
+                lean_assert(type && d.get_type() == *type);
+                ids += space() + format(d.get_pp_name());
+            }
+        });
+    if (type) {
+        if (!first) r += comma() + line();
+        r += group(ids + space() + colon() + nest(indent, line() + fmt(*type)));
+    }
+    if (get_pp_goal_compact(opts))
+        r = group(r);
+    return r;
 }
 
 void initialize_local_context() {

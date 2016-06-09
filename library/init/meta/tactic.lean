@@ -9,9 +9,13 @@ import init.meta.base_tactic init.meta.environment init.trace
 meta_constant tactic_state : Type₁
 
 namespace tactic_state
-meta_constant env : tactic_state → environment
+meta_constant env         : tactic_state → environment
+meta_constant to_format   : tactic_state → format
 meta_constant format_expr : tactic_state → expr → format
 end tactic_state
+
+meta_definition tactic_state.has_to_format [instance] : has_to_format tactic_state :=
+has_to_format.mk tactic_state.to_format
 
 meta_definition tactic [reducible] (A : Type) := base_tactic tactic_state A
 
@@ -32,5 +36,9 @@ return (_root_.trace s (λ u, ()))
 meta_definition trace_expr (e : expr) : tactic unit :=
 do s ← read,
    trace (to_string (format_expr s e))
+
+meta_definition trace_state : tactic unit :=
+do s ← read,
+   trace (to_string (to_fmt s))
 
 end tactic

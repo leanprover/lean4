@@ -121,6 +121,8 @@ public:
 
         \remark This method is for debugging purposes. */
     bool well_formed(expr const & e) const;
+
+    format pp(formatter const & fmt) const;
 };
 
 void initialize_local_context();

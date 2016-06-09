@@ -22,6 +22,13 @@ LEAN_THREAD_PTR(io_state,              g_ios);
 LEAN_THREAD_PTR(abstract_type_context, g_ctx);
 LEAN_THREAD_VALUE(unsigned,  g_depth, 0);
 
+io_state const & get_global_ios() {
+    if (g_ios)
+        return *g_ios;
+    else
+        return get_dummy_ios();
+}
+
 void register_trace_class(name const & n) {
     register_option(name("trace") + n, BoolOption, "false",
                     "(trace) enable/disable tracing for the given module and submodules");

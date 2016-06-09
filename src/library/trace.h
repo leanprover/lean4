@@ -76,6 +76,8 @@ io_state_stream tout();
 io_state_stream const & operator<<(io_state_stream const & ios, tdepth const &);
 io_state_stream const & operator<<(io_state_stream const & ios, tclass const &);
 
+io_state const & get_global_ios();
+
 #define lean_trace_plain(CName, CODE) {         \
 if (lean_is_trace_enabled(CName)) {             \
     CODE                                        \

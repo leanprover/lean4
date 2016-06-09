@@ -30,8 +30,10 @@ private:
     tactic_state_cell * m_ptr;
     tactic_state_cell * steal_ptr() { tactic_state_cell * r = m_ptr; m_ptr = nullptr; return r; }
     friend class optional<tactic_state>;
+    format pp_goal(formatter_factory const & fmtf, expr const & g) const;
 public:
-    tactic_state(environment const & env, options const & o, metavar_context const & ctx, list<expr> const & gs, expr const & main);
+    tactic_state(environment const & env, options const & o, metavar_context const & ctx, list<expr> const & gs,
+                 expr const & main);
     tactic_state(tactic_state const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     tactic_state(tactic_state && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~tactic_state() { if (m_ptr) m_ptr->dec_ref(); }
@@ -48,6 +50,8 @@ public:
 
     friend void swap(tactic_state & a, tactic_state & b) { std::swap(a.m_ptr, b.m_ptr); }
     friend bool is_eqp(tactic_state const & a, tactic_state const & b) { return a.m_ptr == b.m_ptr; }
+
+    format pp(formatter_factory const & fmtf) const;
 };
 
 tactic_state mk_tactic_state_for(environment const & env, options const & opts, local_context const & lctx, expr const & type);

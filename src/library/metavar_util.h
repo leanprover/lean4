@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
 #include "library/replace_visitor.h"
+#include "library/lazy_abstraction.h"
 
 namespace lean {
 /*
@@ -172,7 +173,11 @@ class instantiate_fn : public replace_visitor {
         buffer<expr> new_args;
         for (unsigned i = 0; i < macro_num_args(e); i++)
             new_args.push_back(visit(macro_arg(e, i)));
-        return update_macro(e, new_args.size(), new_args.data());
+        expr r = update_macro(e, new_args.size(), new_args.data());
+        if (is_lazy_abstraction(r))
+            return push_lazy_abstraction(r);
+        else
+            return r;
     }
 
     virtual expr visit(expr const & e) override {

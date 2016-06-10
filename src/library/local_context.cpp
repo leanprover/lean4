@@ -129,7 +129,7 @@ optional<local_decl> local_context::find_if(std::function<bool(local_decl const 
 }
 
 optional<local_decl> local_context::back_find_if(std::function<bool(local_decl const &)> const & pred) const { // NOLINT
-    return m_idx2local_decl.find_if([&](unsigned, local_decl const & d) { return pred(d); });
+    return m_idx2local_decl.back_find_if([&](unsigned, local_decl const & d) { return pred(d); });
 }
 
 optional<local_decl> local_context::get_local_decl_from_user_name(name const & n) const {

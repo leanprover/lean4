@@ -210,7 +210,7 @@ type_context::~type_context() {
 name type_context::get_local_pp_name(expr const & e) const {
     lean_assert(is_local(e));
     if (is_local_decl_ref(e))
-        return m_lctx.get_local_decl(e)->get_name();
+        return m_lctx.get_local_decl(e)->get_pp_name();
     else
         return local_pp_name(e);
 }

@@ -62,4 +62,6 @@ meta_definition intro_lst : list name → tactic unit
 | []      := skip
 | (n::ns) := do intro n, intro_lst ns
 
+meta_constant assumption : tactic unit
+
 end tactic

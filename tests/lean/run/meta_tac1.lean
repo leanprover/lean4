@@ -25,4 +25,8 @@ set_option pp.binder_types true
     trace_expr r,
     trace "-----------",
     trace_state,
+    assumption,
+    r ← result,
+    trace "-----------",
+    trace_expr r,
     return ()

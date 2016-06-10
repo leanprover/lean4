@@ -70,10 +70,12 @@ int main() {
     initialize_util_module();
     initialize_sexpr_module();
     initialize_kernel_module();
+    initialize_library_core_module();
     initialize_library_module();
     tst1();
     tst2();
     finalize_library_module();
+    finalize_library_core_module();
     finalize_kernel_module();
     finalize_sexpr_module();
     finalize_util_module();

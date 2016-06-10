@@ -381,6 +381,7 @@ int main() {
     initialize_util_module();
     initialize_sexpr_module();
     initialize_kernel_module();
+    initialize_library_core_module();
     initialize_library_module();
     init_default_print_fn();
     lean_assert(sizeof(expr) == sizeof(optional<expr>));
@@ -412,6 +413,7 @@ int main() {
     std::cout << "sizeof(std::function):   " << sizeof(std::function<expr(expr const &, optional<expr> const &)>) << "\n";
     std::cout << "done" << "\n";
     finalize_library_module();
+    finalize_library_core_module();
     finalize_kernel_module();
     finalize_sexpr_module();
     finalize_util_module();

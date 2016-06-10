@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "library/print.h"
 #include "library/abbreviation.h"
 #include "library/pp_options.h"
+#include "library/lazy_abstraction.h"
 #include "library/constants.h"
 #include "library/replace_visitor.h"
 #include "library/string.h"
@@ -637,7 +638,7 @@ auto pretty_fn::pp_meta(expr const & e) -> result {
 }
 
 auto pretty_fn::pp_local(expr const & e) -> result {
-    return result(format(local_pp_name(e)));
+    return result(format(m_ctx.get_local_pp_name(e)));
 }
 
 bool pretty_fn::has_implicit_args(expr const & f) {
@@ -687,7 +688,7 @@ format pretty_fn::pp_binder(expr const & local) {
     auto bi = local_info(local);
     if (bi != binder_info())
         r += format(open_binder_string(bi, m_unicode));
-    r += format(local_pp_name(local));
+    r += format(m_ctx.get_local_pp_name(local));
     if (m_binder_types) {
         r += space();
         r += compose(colon(), nest(m_indent, compose(line(), pp_child(mlocal_type(local), 0).fmt())));
@@ -719,18 +720,18 @@ format pretty_fn::pp_binders(buffer<expr> const & locals) {
     expr local       = locals[0];
     expr   type      = mlocal_type(local);
     binder_info bi   = local_info(local);
-    names.push_back(local_pp_name(local));
+    names.push_back(m_ctx.get_local_pp_name(local));
     format r;
     for (unsigned i = 1; i < num; i++) {
         expr local = locals[i];
         if (!bi.is_inst_implicit() && mlocal_type(local) == type && local_info(local) == bi) {
-            names.push_back(local_pp_name(local));
+            names.push_back(m_ctx.get_local_pp_name(local));
         } else {
             r += group(compose(line(), pp_binder_block(names, type, bi)));
             names.clear();
             type = mlocal_type(local);
             bi   = local_info(local);
-            names.push_back(local_pp_name(local));
+            names.push_back(m_ctx.get_local_pp_name(local));
         }
     }
     r += group(compose(line(), pp_binder_block(names, type, bi)));
@@ -797,7 +798,7 @@ auto pretty_fn::pp_have(expr const & e) -> result {
     auto p       = binding_body_fresh(binding, true);
     expr local   = p.second;
     expr body    = p.first;
-    name const & n = local_pp_name(local);
+    name const & n = m_ctx.get_local_pp_name(local);
     format type_fmt  = pp_child(mlocal_type(local), 0).fmt();
     format proof_fmt = pp_child(proof, 0).fmt();
     format body_fmt  = pp_child(body, 0).fmt();
@@ -832,6 +833,8 @@ auto pretty_fn::pp_explicit(expr const & e) -> result {
 auto pretty_fn::pp_macro(expr const & e) -> result {
     if (is_explicit(e)) {
         return pp_explicit(e);
+    } else if (is_lazy_abstraction(e)) {
+        return pp(get_lazy_abstraction_expr(e));
     } else if (is_inaccessible(e)) {
         format li = m_unicode ? format("⌞") : format("?(");
         format ri = m_unicode ? format("⌟") : format(")");
@@ -917,7 +920,7 @@ auto pretty_fn::pp_let(expr e) -> result {
     for (unsigned i = 0; i < sz; i++) {
         expr l, t, v;
         std::tie(l, t, v) = decls[i];
-        name const & n = local_pp_name(l);
+        name const & n = m_ctx.get_local_pp_name(l);
         format beg     = i == 0 ? space() : line();
         format sep     = i < sz - 1 ? comma() : format();
         format entry   = format(n);

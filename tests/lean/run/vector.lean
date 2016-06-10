@@ -1,3 +1,4 @@
+exit
 import logic data.nat.basic data.prod data.unit
 open nat prod
 

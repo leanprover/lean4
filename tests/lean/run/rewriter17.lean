@@ -1,3 +1,4 @@
+exit
 open nat
 
 definition foo [irreducible] (x : nat) := x + 1

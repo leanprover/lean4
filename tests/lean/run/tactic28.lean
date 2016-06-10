@@ -1,3 +1,4 @@
+exit
 import logic data.num
 open tactic inhabited
 

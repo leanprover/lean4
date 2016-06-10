@@ -1,9 +1,9 @@
 import logic
 open bool
 
-constant list : Type.{1}
-constant nil  : list
-constant cons : bool → list → list
+constant List : Type.{1}
+constant nil  : List
+constant cons : bool → List → List
 
 infixr `::` := cons
 notation `[` l:(foldr `,` (h t, cons h t) nil `]`) := l

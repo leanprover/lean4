@@ -1,3 +1,4 @@
+exit
 import data.list
 
 open list bool nat

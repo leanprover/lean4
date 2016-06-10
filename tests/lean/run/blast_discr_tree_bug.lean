@@ -1,3 +1,4 @@
+exit
 open subtype nat
 
 constant f : Π (a : nat), {b : nat | b > a} → nat

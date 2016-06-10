@@ -1,3 +1,4 @@
+exit
 import data.prod
 open prod
 

@@ -1,3 +1,4 @@
+exit
 infixl `;`:15 := tactic.and_then
 
 section

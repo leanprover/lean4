@@ -1,3 +1,4 @@
+exit
 -- Testing all possible cases of [unit_action]
 set_option blast.strategy "unit"
 

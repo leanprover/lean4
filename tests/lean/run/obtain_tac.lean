@@ -1,3 +1,4 @@
+exit
 example (a b : Prop) : a ∧ b → b ∧ a :=
 begin
   intro Hab,

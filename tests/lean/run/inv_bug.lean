@@ -1,3 +1,4 @@
+exit
 open nat
 open eq.ops
 

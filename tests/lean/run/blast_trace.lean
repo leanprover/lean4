@@ -1,3 +1,4 @@
+exit
 set_option trace.blast true
 set_option trace.blast.action false
 

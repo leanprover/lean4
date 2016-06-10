@@ -1,3 +1,4 @@
+exit
 import data.list
 
 example (a b c : Prop) : a → b → c → a ∧ b ∧ c :=

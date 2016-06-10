@@ -1,3 +1,4 @@
+exit
 open nat
 
 example (a : nat) : a + 0 = a :=

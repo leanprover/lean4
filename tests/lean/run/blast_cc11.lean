@@ -1,3 +1,4 @@
+exit
 import data.list
 set_option blast.strategy "cc"
 

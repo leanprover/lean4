@@ -1,14 +1,14 @@
 import data.nat.basic
 open nat
 
-inductive fin : nat → Type :=
-| fz : Π {n : nat},         fin (succ n)
-| fs : Π {n : nat}, fin n → fin (succ n)
+inductive Fin : nat → Type :=
+| fz : Π {n : nat},         Fin (succ n)
+| fs : Π {n : nat}, Fin n → Fin (succ n)
 
-namespace fin
+namespace Fin
 
-  inductive le : ∀ {n : nat}, fin n → fin n → Prop :=
-  | lez : ∀ {n : nat} (j : fin (succ n)),     le fz j
-  | les : ∀ {n : nat} {i j : fin n}, le i j → le (fs i) (fs j)
+  inductive le : ∀ {n : nat}, Fin n → Fin n → Prop :=
+  | lez : ∀ {n : nat} (j : Fin (succ n)),     le fz j
+  | les : ∀ {n : nat} {i j : Fin n}, le i j → le (fs i) (fs j)
 
-end fin
+end Fin

@@ -1,3 +1,4 @@
+exit
 example (p q r : Prop) : p ∧ q ∧ r → q ∧ p :=
 assume Hpqr : p ∧ q ∧ r,
 have   Hp   : p,     from and.elim_left Hpqr,

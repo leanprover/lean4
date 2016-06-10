@@ -1,3 +1,4 @@
+exit
 constant P : nat → Prop
 definition h [reducible] (n : nat) := n
 definition foo [forward] : ∀ x, P (h x) := sorry

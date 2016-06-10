@@ -1,3 +1,5 @@
+exit
+
 set_option trace.blast true
 
 example (p q : Prop) : p ∨ q → q ∨ p :=

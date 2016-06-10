@@ -1,3 +1,4 @@
+exit
 constants P Q : Prop
 
 namespace with_classical

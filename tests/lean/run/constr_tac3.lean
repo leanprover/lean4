@@ -1,3 +1,4 @@
+exit
 open nat
 
 example (n m : ℕ) (H : n < m) : n < succ m :=

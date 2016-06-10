@@ -1,3 +1,4 @@
+exit
 open nat
 set_option blast.strategy "preprocess"
 

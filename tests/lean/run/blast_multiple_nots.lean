@@ -1,3 +1,4 @@
+exit
 constants a b c d : Prop
 
 set_option blast.strategy "unit"

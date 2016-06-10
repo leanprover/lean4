@@ -1,3 +1,4 @@
+exit
 definition f : nat → nat := sorry
 definition g (a : nat) := f a
 lemma gax [simp] : ∀ a, g a = 0 := sorry

@@ -1,3 +1,4 @@
+exit
 open subtype
 set_option blast.strategy "cc"
 

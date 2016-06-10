@@ -1,3 +1,4 @@
+exit
 constant p : nat → nat → Prop
 
 constant p_trans : ∀ a b c, p a b → p b c → p a c

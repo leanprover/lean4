@@ -1,3 +1,4 @@
+exit
 import logic
 open tactic
 constants a b c d : Prop

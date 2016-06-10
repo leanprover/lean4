@@ -1,3 +1,4 @@
+exit
 import data.nat
 open nat algebra
 variables (f : nat → nat → nat → nat) (a b c : nat)

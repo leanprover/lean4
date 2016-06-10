@@ -1,3 +1,4 @@
+exit
 import logic
 
 example : ∃ a : num, a = a :=

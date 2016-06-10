@@ -1,3 +1,4 @@
+exit
 import data.list
 
 inductive typ : Type :=

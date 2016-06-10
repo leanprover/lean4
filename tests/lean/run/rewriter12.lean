@@ -1,3 +1,4 @@
+exit
 import data.nat
 open nat algebra
 constant f : nat → nat

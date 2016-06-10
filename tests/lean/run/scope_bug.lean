@@ -1,3 +1,4 @@
+exit
 definition s : Type := sorry
 
 example (A : Type) (s : A) : A := by exact s

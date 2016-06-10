@@ -1,3 +1,4 @@
+exit
 set_option blast.strategy "cc"
 
 example (p : nat → nat → Prop) (f : nat → nat) (a b c d : nat) :

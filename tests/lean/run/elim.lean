@@ -1,3 +1,4 @@
+exit
 import logic
 
 constant p : num → num → num → Prop

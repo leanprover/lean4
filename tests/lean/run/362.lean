@@ -1,3 +1,4 @@
+exit
 variables {a : Type}
 
 definition foo (A : Type) : A → A :=

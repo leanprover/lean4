@@ -1,3 +1,5 @@
+exit
+
 set_option blast.init_depth 10
 set_option blast.inc_depth 1000
 

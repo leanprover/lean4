@@ -1,3 +1,5 @@
+exit
+
 namespace ex
 set_option blast.strategy "backward"
 

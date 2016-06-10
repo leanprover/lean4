@@ -1,3 +1,4 @@
+exit
 universe l
 constants (A : Type.{l}) (P : A → Prop) (h : Π (a : A), P a → A) (f g : A → A)
 constants (p : ∀ a, P a)

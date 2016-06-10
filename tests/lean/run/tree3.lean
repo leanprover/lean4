@@ -37,6 +37,7 @@ namespace tree
        pr₁ general
   end
   end manual
+  exit
   local abbreviation no_confusion := @tree.no_confusion
   check no_confusion
 
@@ -57,6 +58,7 @@ namespace tree
     have trivial : (l₁ = l₂ → r₁ = r₂ → l₁ = l₂) → l₁ = l₂, from no_confusion h,
     trivial (λ e₁ e₂, e₁)
 
+exit
   theorem node.inj2 {A : Type} (l₁ l₂ r₁ r₂ : tree A) : node l₁ r₁ = node l₂ r₂ → l₁ = l₂ :=
   begin
     intro h,

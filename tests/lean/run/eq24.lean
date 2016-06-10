@@ -1,3 +1,4 @@
+exit
 open nat
 
 inductive tree (A : Type) :=

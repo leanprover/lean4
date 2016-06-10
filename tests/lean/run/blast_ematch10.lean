@@ -1,3 +1,4 @@
+exit
 attribute iff [reducible]
 set_option blast.strategy "ematch"
 

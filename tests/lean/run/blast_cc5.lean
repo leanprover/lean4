@@ -1,3 +1,4 @@
+exit
 set_option blast.strategy "cc"
 
 example (a b c : Prop) : (a ↔ b) → ((a ∧ (c ∨ b)) ↔ (b ∧ (c ∨ a))) :=

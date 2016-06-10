@@ -1,3 +1,4 @@
+exit
 set_option blast.strategy "cc"
 
 constant R : nat → nat → Prop

@@ -1,3 +1,4 @@
+exit
 import logic.eq
 variable {a : Type}
 

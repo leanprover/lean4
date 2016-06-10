@@ -1,3 +1,4 @@
+exit
 constant r : nat → Prop
 constant p : nat → Prop
 

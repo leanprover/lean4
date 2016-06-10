@@ -1,3 +1,5 @@
+exit
+
 constant f : nat → nat → nat
 
 definition lemma1 [forward] {a b : nat} : f a b = a :=

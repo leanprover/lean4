@@ -1,3 +1,4 @@
+exit
 tactic_notation `foo` A := tactic.id
 
 example (a : nat) : a = a :=

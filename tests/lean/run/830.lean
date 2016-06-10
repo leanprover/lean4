@@ -1,3 +1,4 @@
+exit
 variable P : Prop
 premise HP : P
 

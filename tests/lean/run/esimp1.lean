@@ -1,3 +1,4 @@
+exit
 open nat
 
 example (x y : nat) (H : (fun (a : nat),  sigma.pr1 ⟨a, y⟩) x = 0) : x = 0 :=

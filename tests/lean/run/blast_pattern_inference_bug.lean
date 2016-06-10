@@ -1,3 +1,4 @@
+exit
 constant p : nat → Prop
 constant q : ∀ a, p a → Prop
 lemma ex [forward] : ∀ (a : nat) (h : p a), (:q a h:) := sorry

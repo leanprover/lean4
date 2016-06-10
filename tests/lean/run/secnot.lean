@@ -8,18 +8,18 @@ variables a b : A
 check a ◀ b
 end
 
-inductive list (T : Type) : Type :=
-| nil {} : list T
-| cons   : T → list T → list T
+inductive List (T : Type) : Type :=
+| nil {} : List T
+| cons   : T → List T → List T
 
-namespace list
+namespace List
 section
 variable {T : Type}
 notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 check [(10:num), 20, 30]
 end
-end list
+end List
 
-open list
+open List
 check [(10:num), 20, 40]
 check (10:num) ◀ 20

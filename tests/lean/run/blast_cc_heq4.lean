@@ -1,3 +1,4 @@
+exit
 universes l1 l2 l3 l4 l5 l6
 constants (A : Type.{l1}) (B : A → Type.{l2}) (C : ∀ (a : A) (ba : B a), Type.{l3})
           (D : ∀ (a : A) (ba : B a) (cba : C a ba), Type.{l4})

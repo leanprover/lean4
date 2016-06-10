@@ -1,12 +1,12 @@
 open nat
 
-inductive fin : nat → Type :=
-| fz : Π n, fin (succ n)
-| fs : Π {n}, fin n → fin (succ n)
+inductive Fin : nat → Type :=
+| fz : Π n, Fin (succ n)
+| fs : Π {n}, Fin n → Fin (succ n)
 
-open fin
+open Fin
 
-definition case0 {C : fin zero → Type} : Π (f : fin zero), C f
+definition case0 {C : Fin zero → Type} : Π (f : Fin zero), C f
 | [none]
 
 

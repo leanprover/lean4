@@ -1,3 +1,4 @@
+exit
 -- Backward chaining with hypotheses
 set_option blast.strategy "backward"
 constants {P Q R S T U : Prop}

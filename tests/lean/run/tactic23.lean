@@ -1,3 +1,4 @@
+exit
 import logic
 namespace experiment
 inductive nat : Type :=

@@ -1,3 +1,4 @@
+exit
 -- TODO(Leo): use better strategy
 set_option blast.strategy "constructor"
 

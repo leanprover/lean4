@@ -12,13 +12,13 @@ example : foo 3 = 2 := rfl
 open decidable
 
 protected theorem dec_eq : ∀ x y : nat, decidable (x = y)
-| dec_eq zero     zero     := inl rfl
-| dec_eq (succ x) zero     := inr (λ h, nat.no_confusion h)
-| dec_eq zero     (succ y) := inr (λ h, nat.no_confusion h)
+| dec_eq zero     zero     := tt rfl
+| dec_eq (succ x) zero     := ff (λ h, nat.no_confusion h)
+| dec_eq zero     (succ y) := ff (λ h, nat.no_confusion h)
 | dec_eq (succ x) (succ y) :=
   match dec_eq x y with
-  | inl H := inl (eq.rec_on H rfl)
-  | inr H := inr (λ h : succ x = succ y, nat.no_confusion h (λ heq : x = y, absurd heq H))
+  | tt H := tt (eq.rec_on H rfl)
+  | ff H := ff (λ h : succ x = succ y, nat.no_confusion h (λ heq : x = y, absurd heq H))
   end
 
 section
@@ -32,8 +32,8 @@ section
   | filter nil      := nil
   | filter (a :: l) :=
     match H a with
-    | inl h := a :: filter l
-    | inr h := filter l
+    | tt h := a :: filter l
+    | ff h := filter l
     end
 
   theorem filter_nil : filter nil = nil :=

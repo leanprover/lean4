@@ -1,3 +1,4 @@
+exit
 import logic
 
 theorem tst (a b : Prop) (H : a ↔ b) : b ↔ a

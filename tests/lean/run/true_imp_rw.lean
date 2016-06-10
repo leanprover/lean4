@@ -1,3 +1,4 @@
+exit
 import logic
 
 example (a b c : Prop) (h : a) : true → true → a :=

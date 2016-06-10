@@ -1,3 +1,4 @@
+exit
 variable p : nat → Prop
 variable q : nat → Prop
 variables a b c : nat

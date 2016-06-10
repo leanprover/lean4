@@ -1,3 +1,4 @@
+exit
 import algebra.group
 
 open algebra

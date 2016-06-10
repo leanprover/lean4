@@ -1,3 +1,4 @@
+exit
 import data.nat logic
 
 open bool nat

@@ -1,3 +1,4 @@
+exit
 import logic data.nat.basic data.sigma
 open nat eq.ops sigma
 

@@ -1,3 +1,4 @@
+exit
 import data.num data.bool
 
 open bool well_founded

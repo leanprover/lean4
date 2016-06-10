@@ -13,7 +13,7 @@ example (a b c : nat) : (a * b) * c = a * (b * c) :=
 semigroup.mul_assoc a b c
 
 structure semigroup2 (A : Type) :=
-mk () :: (mul: A → A → A) (mul_assoc : associative mul)
+mk ( ) :: (mul: A → A → A) (mul_assoc : associative mul)
 
 definition s := semigroup2.mk nat nat.mul nat.mul_assoc
 

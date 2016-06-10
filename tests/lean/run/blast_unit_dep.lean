@@ -1,3 +1,4 @@
+exit
 constant p : nat → Prop
 constant q : Π a, p a → Prop
 

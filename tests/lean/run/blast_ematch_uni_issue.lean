@@ -1,3 +1,4 @@
+exit
 set_option blast.ematch true
 variable {A : Type}
 definition R : A → A → Prop := sorry

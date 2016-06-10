@@ -1,3 +1,4 @@
+exit
 import data.list
 
 example (f : nat → nat → nat) (a b c : nat) : b = c → f a b = f a c :=

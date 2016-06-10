@@ -1,3 +1,4 @@
+exit
 constant subt : nat → nat → Prop
 
 lemma subt_trans [forward] {a b c : nat} : subt a b → subt b c → subt a c :=

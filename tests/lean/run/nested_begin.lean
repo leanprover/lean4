@@ -1,3 +1,4 @@
+exit
 import logic data.nat.basic
 open nat
 

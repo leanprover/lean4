@@ -1,3 +1,4 @@
+exit
 import data.nat data.sum data.sigma data.bool
 open nat sigma algebra
 

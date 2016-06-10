@@ -1,3 +1,4 @@
+exit
 open nat
 
 example (a b : nat) : a = 0 → b = 1 → a = b → a + b * b ≤ 10000 :=

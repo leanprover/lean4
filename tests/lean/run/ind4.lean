@@ -1,3 +1,4 @@
+exit
 section
   variable A : Type
   inductive list : Type :=

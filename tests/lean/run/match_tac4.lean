@@ -1,3 +1,4 @@
+exit
 notation `⟪`:max t:(foldr `,` (e r, and.intro e r)) `⟫`:0 := t
 
 check ⟪ trivial, trivial, trivial ⟫

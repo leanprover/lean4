@@ -1,7 +1,7 @@
-inductive list (A : Type) : Type :=
-| nil  : list A
-| cons : A → list A → list A
-namespace list end list open list
-check list.{1}
+inductive List (A : Type) : Type :=
+| nil  : List A
+| cons : A → List A → List A
+namespace List end List open List
+check List.{1}
 check cons.{1}
-check list.rec.{1 1}
+check List.rec.{1 1}

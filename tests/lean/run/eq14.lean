@@ -1,3 +1,4 @@
+exit
 open nat decidable
 
 definition has_decidable_eq : ∀ a b : nat, decidable (a = b)

@@ -1,3 +1,4 @@
+exit
 constant A₁ : Type
 constant A₂ : A₁ → Type
 constant A₃ : Π (a₁ : A₁), A₂ a₁ → Type

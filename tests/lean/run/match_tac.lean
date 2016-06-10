@@ -1,3 +1,4 @@
+exit
 import data.nat
 
 example (a b c : Prop) : a ∧ b ↔ b ∧ a :=

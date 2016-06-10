@@ -1,3 +1,4 @@
+exit
 definition bar := bool
 example (b : bar) : bool :=
 begin

@@ -1,3 +1,4 @@
+exit
 set_option blast.strategy "preprocess"
 
 example (a b : nat) : a = b → b = a :=

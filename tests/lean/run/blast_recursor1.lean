@@ -1,3 +1,4 @@
+exit
 constants P Q : nat → Prop
 inductive foo : nat → Prop :=
 | intro1 : ∀ n, P n → foo n

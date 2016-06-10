@@ -1,3 +1,4 @@
+exit
 constant q (a : Prop) (h : decidable a) : Prop
 constant r : nat → Prop
 constant rdec : ∀ a, decidable (r a)

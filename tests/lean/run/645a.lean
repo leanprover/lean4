@@ -1,3 +1,4 @@
+exit
 open bool
 
 definition to_pred {A : Type} (p : A → bool) : A → Prop :=

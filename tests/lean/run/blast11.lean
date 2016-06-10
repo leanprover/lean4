@@ -1,3 +1,5 @@
+exit
+
 import data.nat
 open algebra nat
 

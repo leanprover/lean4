@@ -1,3 +1,4 @@
+exit
 definition set (A : Type) := A → Prop
 set_option blast.strategy "preprocess"
 

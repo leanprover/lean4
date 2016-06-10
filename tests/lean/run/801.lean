@@ -1,3 +1,4 @@
+exit
 open nat
 definition seq_diagram (A : ℕ → Type) : Type := (Πn, A n → A (succ n))
 variables (A : ℕ → Type) (f : seq_diagram A)

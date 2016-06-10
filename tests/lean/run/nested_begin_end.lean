@@ -1,3 +1,4 @@
+exit
 example (p q : Prop) : p ∧ q ↔ q ∧ p :=
 begin
 apply iff.intro,

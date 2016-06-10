@@ -1,3 +1,4 @@
+exit
 import data.list
 
 constant f {A : Type} : A → A → A

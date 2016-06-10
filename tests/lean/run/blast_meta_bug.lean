@@ -1,3 +1,4 @@
+exit
 constants {A : Type.{1}} (P : A → Prop) (Q : A → Prop)
 definition H [forward] : ∀ a, (: P a :) → Exists Q := sorry
 

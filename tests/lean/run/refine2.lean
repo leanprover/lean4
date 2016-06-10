@@ -1,3 +1,4 @@
+exit
 import logic
 
 example {A : Type} (f : A → A) (a b : A) : f a = b → f (f a) = f b :=

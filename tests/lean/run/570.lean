@@ -1,3 +1,4 @@
+exit
 open nat
 variables (P : ℕ → Prop)
 

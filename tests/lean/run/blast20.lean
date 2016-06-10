@@ -1,3 +1,5 @@
+exit
+
 open nat
 
 example : ∀ (P Q : nat → Prop), (∀n, Q n → P n) → (∀n, Q n) → P 2 :=

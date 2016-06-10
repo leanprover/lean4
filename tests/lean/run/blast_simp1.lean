@@ -1,3 +1,4 @@
+exit
 example (a b c : Prop) : a ∧ b ∧ c ↔ c ∧ b ∧ a :=
 by simp
 

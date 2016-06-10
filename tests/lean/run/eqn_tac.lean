@@ -1,3 +1,4 @@
+exit
 open nat
 
 definition foo : nat → nat

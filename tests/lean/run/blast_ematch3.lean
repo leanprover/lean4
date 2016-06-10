@@ -1,3 +1,4 @@
+exit
 import algebra.ring data.nat
 
 namespace foo

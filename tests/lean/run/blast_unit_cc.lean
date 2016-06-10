@@ -1,3 +1,4 @@
+exit
 -- Unit propagation with congruence closure
 constants (a b c d e : nat)
 constants (p : nat → Prop)

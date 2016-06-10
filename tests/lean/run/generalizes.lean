@@ -1,3 +1,4 @@
+exit
 import logic
 
 theorem tst (A B : Type) (a : A) (b : B) : a == b → b == a :=

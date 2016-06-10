@@ -1,3 +1,4 @@
+exit
 import data.sum data.nat
 open function
 

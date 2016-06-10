@@ -1,3 +1,4 @@
+exit
 import logic
 open tactic
 constant p : num → num → num → Prop

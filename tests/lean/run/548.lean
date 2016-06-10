@@ -1,3 +1,4 @@
+exit
 open nat
 
 example (a b : nat) (P : nat → Prop) (H₁ : a = b) (H₂ : P a) : P b :=

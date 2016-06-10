@@ -1,3 +1,4 @@
+exit
 import logic data.prod
 open eq.ops prod tactic
 

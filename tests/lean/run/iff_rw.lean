@@ -1,3 +1,4 @@
+exit
 import logic
 
 example (a b : Prop) : a ∧ b → b ∧ a :=

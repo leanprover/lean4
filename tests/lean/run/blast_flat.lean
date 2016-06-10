@@ -1,3 +1,4 @@
+exit
 open nat subtype
 
 definition f (x : nat) (y : {n : nat | n > x}) : nat :=

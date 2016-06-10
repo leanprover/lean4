@@ -1,3 +1,4 @@
+exit
 prelude
 import logic
 namespace experiment

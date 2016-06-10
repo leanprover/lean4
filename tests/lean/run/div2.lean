@@ -1,3 +1,4 @@
+exit
 import logic data.nat.sub algebra.relation data.prod
 
 open nat relation prod

@@ -1,3 +1,4 @@
+exit
 import data.nat.basic data.empty data.prod
 open nat eq.ops prod
 

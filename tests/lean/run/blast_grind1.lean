@@ -1,3 +1,4 @@
+exit
 set_option blast.strategy "core_grind"
 
 example (a b c : nat) : a = b ∨ a = c → b = c → b = a :=

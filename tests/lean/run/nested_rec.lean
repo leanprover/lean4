@@ -1,3 +1,4 @@
+exit
 open nat prod sigma
 
 -- We will define the following example by well-foudned recursion

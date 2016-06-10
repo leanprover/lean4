@@ -1,3 +1,4 @@
+exit
 import logic
 open tactic (renaming id->id_tac)
 

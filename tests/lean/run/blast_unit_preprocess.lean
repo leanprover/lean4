@@ -1,3 +1,4 @@
+exit
 -- Testing the unit pre-processor
 
 open simplifier.unit_simp

@@ -1,3 +1,4 @@
+exit
 -- Testing all possible cases of [unit_action]
 set_option blast.strategy "unit"
 variables {A₁ A₂ A₃ A₄ B₁ B₂ B₃ B₄ : Prop}

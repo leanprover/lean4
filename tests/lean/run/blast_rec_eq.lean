@@ -1,3 +1,4 @@
+exit
 open nat
 
 lemma addz [simp] : ∀ a : nat, a + 0 = a := sorry

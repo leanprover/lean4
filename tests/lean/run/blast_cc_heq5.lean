@@ -1,3 +1,4 @@
+exit
 set_option blast.strategy "cc"
 set_option blast.cc.heq true
 

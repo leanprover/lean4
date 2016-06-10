@@ -1,3 +1,4 @@
+exit
 set_option blast.strategy "simple"
 
 definition foo1 (a b : nat) (p : Prop) : a = b → (b = a → p) → p :=

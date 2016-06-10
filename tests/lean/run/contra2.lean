@@ -1,3 +1,4 @@
+exit
 open nat
 
 example (q p : Prop) (h₁ : p) (h₂ : ¬ p) : q :=

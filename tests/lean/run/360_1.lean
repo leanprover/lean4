@@ -1,3 +1,4 @@
+exit
 structure is_tr [class] (A : Type) : Type :=
 (x : A)
 

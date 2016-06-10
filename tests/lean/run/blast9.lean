@@ -1,3 +1,4 @@
+exit
 import data.list
 open list
 set_option blast.strategy "preprocess"

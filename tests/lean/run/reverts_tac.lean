@@ -1,3 +1,4 @@
+exit
 import logic
 
 theorem tst {a b c : Prop} : a → b → c → a ∧ b :=

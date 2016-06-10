@@ -51,28 +51,12 @@
            "reducible" "irreducible" "semireducible" "wf"
            "whnf" "multiple_instances" "none" "decl" "declaration"
            "relation" "symm" "subst" "refl" "trans" "simp" "congr"
-           "backward" "forward" "no_pattern" "begin_end" "tactic" "abbreviation"
+           "backward" "forward" "no_pattern" "begin_end" "abbreviation"
            "reducible" "unfold" "alias" "eqv" "intro" "intro!" "elim" "grinder" "unify" "defeq"
            "localrefinfo" "recursor"))
   "lean modifiers")
 (defconst lean-modifiers-regexp
   (regexp-opt lean-modifiers))
-
-
-(defconst lean-tactics
-  '("\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "eassumption" "rapply"
-    "apply" "fapply" "eapply" "rename" "intro" "intros" "all_goals" "fold" "focus" "focus_at"
-    "generalize" "generalizes" "clear" "clears" "revert" "reverts" "back" "beta" "done" "exact" "rexact"
-    "refine" "repeat" "whnf" "rotate" "rotate_left" "rotate_right" "inversion" "cases" "rewrite"
-    "xrewrite" "krewrite" "blast" "rec_simp" "rec_inst_simp"
-    "inst_simp" "simp" "simp_nohyps" "simp_topdown" "esimp" "unfold" "change" "check_expr" "contradiction"
-    "exfalso" "split" "existsi" "constructor" "fconstructor" "left" "right" "injection" "congruence" "reflexivity"
-    "symmetry" "transitivity" "state" "induction" "induction_using" "fail" "append"
-    "substvars" "now" "with_options" "with_attributes" "with_attrs" "note" "replace")
-  "lean tactics")
-(defconst lean-tactics-regexp
-  (eval `(rx word-start (or ,@lean-tactics) word-end)))
-
 
 (defconst lean-warnings '("sorry" "exit") "lean warnings")
 (defconst lean-warnings-regexp
@@ -185,9 +169,6 @@
       (2 'font-lock-function-name-face))
      ;; place holder
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
-     ;; tactics
-     ("cases[ \t\n]+[^ \t\n]+[ \t\n]+\\(with\\)" (1 'font-lock-constant-face))
-     (,lean-tactics-regexp . 'font-lock-constant-face)
      ;; warnings
      (,lean-warnings-regexp . 'font-lock-warning-face)
      )))

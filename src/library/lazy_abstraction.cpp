@@ -144,6 +144,14 @@ struct push_lazy_abstraction_fn : public replace_visitor {
         return e;
     }
 
+    expr visit_local(expr const & e) override {
+        for (pair<name, unsigned> const & p : m_s) {
+            if (p.first == mlocal_name(e))
+                return mk_var(p.second);
+        }
+        return e;
+    }
+
     expr visit_macro(expr const & e) override {
         if (is_lazy_abstraction(e)) {
             unsigned sz = m_s.size();

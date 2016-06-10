@@ -24,7 +24,7 @@ tactic_state::tactic_state(environment const & env, options const & o, metavar_c
     m_ptr = new (get_vm_allocator().allocate(sizeof(tactic_state_cell))) tactic_state_cell(env, o, ctx, gs, main);
 }
 
-optional<metavar_decl> tactic_state::get_main_goal() const {
+optional<metavar_decl> tactic_state::get_main_goal_decl() const {
     if (empty(goals()))
         return optional<metavar_decl>();
     return mctx().get_metavar_decl(head(goals()));
@@ -57,15 +57,8 @@ tactic_state set_mctx_goals(tactic_state const & s, metavar_context const & mctx
 }
 
 format tactic_state::pp_expr(formatter_factory const & fmtf, expr const & e) const {
-    list<expr> const & gs  = goals();
-    local_context lctx;
-    if (gs) {
-        if (auto d = mctx().get_metavar_decl(head(gs))) {
-            lctx = d->get_context();
-        }
-    }
     metavar_context mctx_tmp   = mctx();
-    type_context ctx(env(), get_options(), mctx_tmp, lctx, transparency_mode::All);
+    type_context ctx = mk_type_context_for(*this, mctx_tmp, transparency_mode::All);
     formatter fmt = fmtf(env(), get_options(), ctx);
     return fmt(e);
 }
@@ -157,6 +150,20 @@ vm_obj mk_no_goals_exception() {
     return mk_tactic_exception("tactic failed, there are no goals to be solved");
 }
 
+vm_obj tactic_result(vm_obj const & o) {
+    tactic_state const & s = to_tactic_state(o);
+    metavar_context mctx = s.mctx();
+    expr r = mctx.instantiate(s.main());
+    return mk_tactic_success(to_obj(r), set_mctx(s, mctx));
+}
+
+vm_obj tactic_main_type(vm_obj const & o) {
+    tactic_state const & s = to_tactic_state(o);
+    optional<metavar_decl> g = s.get_main_goal_decl();
+    if (!g) return mk_no_goals_exception();
+    return mk_tactic_success(to_obj(g->get_type()), s);
+}
+
 struct type_context_cache_helper {
     typedef std::unique_ptr<type_context_cache> cache_ptr;
     cache_ptr m_cache_ptr;
@@ -191,6 +198,8 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),         tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}), tactic_state_format_expr);
     DECLARE_VM_BUILTIN(name({"tactic_state", "to_format"}),   tactic_state_to_format);
+    DECLARE_VM_BUILTIN(name({"tactic", "main_type"}),         tactic_main_type);
+    DECLARE_VM_BUILTIN(name({"tactic", "result"}),            tactic_result);
 }
 
 void finalize_tactic_state() {

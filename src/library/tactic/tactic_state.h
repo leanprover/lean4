@@ -39,7 +39,7 @@ public:
     tactic_state(tactic_state && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~tactic_state() { if (m_ptr) m_ptr->dec_ref(); }
 
-    optional<metavar_decl> get_main_goal() const;
+    optional<metavar_decl> get_main_goal_decl() const;
     tactic_state_cell * raw() const { return m_ptr; }
     options const & get_options() const { lean_assert(m_ptr); return m_ptr->m_options; }
     environment const & env() const { lean_assert(m_ptr); return m_ptr->m_env; }
@@ -81,7 +81,7 @@ type_context_cache & get_type_context_cache_for(tactic_state const & s);
 inline type_context mk_type_context_for(tactic_state const & s, metavar_context & mctx,
                                         transparency_mode m = transparency_mode::Semireducible) {
     local_context lctx;
-    if (auto d = s.get_main_goal()) lctx = d->get_context();
+    if (auto d = s.get_main_goal_decl()) lctx = d->get_context();
     mctx = s.mctx();
     return type_context(mctx, lctx, get_type_context_cache_for(s), m);
 }

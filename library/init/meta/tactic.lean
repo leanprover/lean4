@@ -44,4 +44,22 @@ meta_definition trace_state : tactic unit :=
 do s ← read,
    trace_fmt (to_fmt s)
 
+meta_constant result    : tactic expr
+meta_constant main_type : tactic expr
+meta_constant intro     : name → tactic unit
+
+meta_definition intros : tactic unit :=
+do t ← main_type,
+   match t with
+   | expr.pi   _ _ _ _ := do intro "_", intros
+   | expr.elet _ _ _ _ := do intro "_", intros
+   | _                 := skip
+   end
+
+open list
+
+meta_definition intro_lst : list name → tactic unit
+| []      := skip
+| (n::ns) := do intro n, intro_lst ns
+
 end tactic

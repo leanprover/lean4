@@ -83,10 +83,7 @@ struct token_config {
     static std::string * g_key;
 
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
-        if (e.m_expr)
-            s.m_table = add_token(s.m_table, e.m_token.c_str(), e.m_prec);
-        else
-            s.m_table = add_tactic_token(s.m_table, e.m_token.c_str(), e.m_prec);
+        s.m_table = add_token(s.m_table, e.m_token.c_str(), e.m_prec);
     }
     static name const & get_class_name() {
         return *g_class_name;
@@ -95,13 +92,12 @@ struct token_config {
         return *g_key;
     }
     static void  write_entry(serializer & s, entry const & e) {
-        s << e.m_expr << e.m_token.c_str() << e.m_prec;
+        s << e.m_token.c_str() << e.m_prec;
     }
     static entry read_entry(deserializer & d) {
-        bool is_expr   = d.read_bool();
         std::string tk = d.read_string();
         unsigned prec  = d.read_unsigned();
-        return entry(is_expr, tk, prec);
+        return entry(tk, prec);
     }
     static optional<unsigned> get_fingerprint(entry const &) {
         return optional<unsigned>();
@@ -117,12 +113,8 @@ environment add_token(environment const & env, token_entry const & e, bool persi
     return token_ext::add_entry(env, get_dummy_ios(), e, get_namespace(env), persistent);
 }
 
-environment add_expr_token(environment const & env, char const * val, unsigned prec) {
-    return add_token(env, token_entry(true, val, prec));
-}
-
-environment add_tactic_token(environment const & env, char const * val, unsigned prec) {
-    return add_token(env, token_entry(false, val, prec));
+environment add_token(environment const & env, char const * val, unsigned prec) {
+    return add_token(env, token_entry(val, prec));
 }
 
 token_table const & get_token_table(environment const & env) {
@@ -219,23 +211,17 @@ struct notation_state {
     // The following two tables are used to implement `reserve notation` commands
     parse_table      m_reserved_nud;
     parse_table      m_reserved_led;
-    // The following two tables are used to implement `notation [tactic]` commands
-    parse_table      m_tactic_nud;
-    parse_table      m_tactic_led;
     notation_state():
         m_nud(get_builtin_nud_table()),
         m_led(get_builtin_led_table()),
         m_reserved_nud(true),
         m_reserved_led(false) {
-            // m_tactic_nud(get_builtin_tactic_nud_table()),
-            // m_tactic_led(get_builtin_tactic_led_table()) {
         }
 
     parse_table & nud(notation_entry_group g) {
         switch (g) {
         case notation_entry_group::Main:    return m_nud;
         case notation_entry_group::Reserve: return m_reserved_nud;
-        case notation_entry_group::Tactic:  return m_tactic_nud;
         }
         lean_unreachable();
     }
@@ -244,7 +230,6 @@ struct notation_state {
         switch (g) {
         case notation_entry_group::Main:    return m_led;
         case notation_entry_group::Reserve: return m_reserved_led;
-        case notation_entry_group::Tactic:  return m_tactic_led;
         }
         lean_unreachable();
     }
@@ -359,14 +344,6 @@ parse_table const & get_reserved_nud_table(environment const & env) {
 
 parse_table const & get_reserved_led_table(environment const & env) {
     return notation_ext::get_state(env).m_reserved_led;
-}
-
-parse_table const & get_tactic_nud_table(environment const & env) {
-    return notation_ext::get_state(env).m_tactic_nud;
-}
-
-parse_table const & get_tactic_led_table(environment const & env) {
-    return notation_ext::get_state(env).m_tactic_led;
 }
 
 environment add_mpz_notation(environment const & env, mpz const & n, expr const & e, bool overload, bool parse_only) {

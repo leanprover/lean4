@@ -13,16 +13,14 @@ Author: Leonardo de Moura
 
 namespace lean {
 struct token_entry {
-    bool        m_expr; // true if it precedence for an expression token
     std::string m_token;
     unsigned    m_prec;
-    token_entry(bool e, std::string const & tk, unsigned prec):m_expr(e), m_token(tk), m_prec(prec) {}
+    token_entry(std::string const & tk, unsigned prec): m_token(tk), m_prec(prec) {}
 };
-inline token_entry mk_expr_token_entry(std::string const & tk, unsigned prec) { return token_entry(true, tk, prec); }
-inline token_entry mk_tactic_token_entry(std::string const & tk, unsigned prec) { return token_entry(false, tk, prec); }
+inline token_entry mk_token_entry(std::string const & tk, unsigned prec) { return token_entry(tk, prec); }
 
 enum class notation_entry_kind { NuD, LeD, Numeral };
-enum class notation_entry_group { Main, Reserve, Tactic };
+enum class notation_entry_group { Main, Reserve };
 class notation_entry {
     typedef notation::transition transition;
     notation_entry_kind  m_kind;
@@ -67,16 +65,12 @@ notation_entry replace(notation_entry const & e, std::function<expr(expr const &
 
 environment add_token(environment const & env, token_entry const & e, bool persistent = true);
 environment add_notation(environment const & env, notation_entry const & e, bool persistent = true);
-
-environment add_expr_token(environment const & env, char const * val, unsigned prec);
-environment add_tactic_token(environment const & env, char const * val, unsigned prec);
+environment add_token(environment const & env, char const * val, unsigned prec);
 token_table const & get_token_table(environment const & env);
 parse_table const & get_nud_table(environment const & env);
 parse_table const & get_led_table(environment const & env);
 parse_table const & get_reserved_nud_table(environment const & env);
 parse_table const & get_reserved_led_table(environment const & env);
-parse_table const & get_tactic_nud_table(environment const & env);
-parse_table const & get_tactic_led_table(environment const & env);
 cmd_table const & get_cmd_table(environment const & env);
 /** \brief Force notation from namespace \c n to shadow any existing notation */
 environment override_notation(environment const & env, name const & n, bool persistent = true);

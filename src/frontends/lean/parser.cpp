@@ -1994,8 +1994,6 @@ expr parser::parse_tactic_nud() {
         } else {
             return parse_expr();
         }
-    } else if (curr_is_keyword()) {
-        return parse_tactic_notation(tactic_nud(), nullptr);
     } else if (curr_is_numeral() || curr_is_decimal()) {
         return parse_expr();
     } else {
@@ -2003,20 +2001,8 @@ expr parser::parse_tactic_nud() {
     }
 }
 
-expr parser::parse_tactic_led(expr left) {
-    if (tactic_led().find(get_token_info().value())) {
-        return parse_tactic_notation(tactic_led(), &left);
-    } else {
-        throw parser_error("invalid tactic expression", pos());
-    }
-}
-
-expr parser::parse_tactic(unsigned rbp) {
-    expr left = parse_tactic_nud();
-    while (rbp < curr_tactic_lbp()) {
-        left = parse_tactic_led(left);
-    }
-    return left;
+expr parser::parse_tactic(unsigned) {
+    lean_unreachable();
 }
 
 /** \brief Helper class for creating type context only if needed */

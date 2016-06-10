@@ -482,13 +482,6 @@ bool print_token_info(parser const & p, name const & tk) {
     if (print_parse_table(p, get_led_table(p.env()), false, tokens)) {
         found = true;
     }
-    bool tactic_table = true;
-    if (print_parse_table(p, get_tactic_nud_table(p.env()), true, tokens, tactic_table)) {
-        found = true;
-    }
-    if (print_parse_table(p, get_tactic_led_table(p.env()), false, tokens, tactic_table)) {
-        found = true;
-    }
     return found;
 }
 

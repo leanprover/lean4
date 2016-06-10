@@ -173,8 +173,6 @@ class parser {
 
     parse_table const & nud() const { return get_nud_table(env()); }
     parse_table const & led() const { return get_led_table(env()); }
-    parse_table const & tactic_nud() const { return get_tactic_nud_table(env()); }
-    parse_table const & tactic_led() const { return get_tactic_led_table(env()); }
 
     unsigned curr_level_lbp() const;
     level parse_max_imax(bool is_max);

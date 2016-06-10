@@ -101,26 +101,8 @@ void check_not_forbidden(char const * tk) {
     }
 }
 
-static optional<unsigned> get_precedence(environment const & env, char const * tk, bool is_expr) {
-    if (is_expr)
-        return get_expr_precedence(get_token_table(env), tk);
-    else
-        return get_tactic_precedence(get_token_table(env), tk);
-}
-
-static optional<unsigned> get_precedence(environment const & env, char const * tk, notation_entry_group grp) {
-    return get_precedence(env, tk, grp != notation_entry_group::Tactic);
-}
-
-static token_entry mk_token_entry(std::string const & tk, unsigned prec, bool is_expr) {
-    if (is_expr)
-        return mk_expr_token_entry(tk, prec);
-    else
-        return mk_tactic_token_entry(tk, prec);
-}
-
-static token_entry mk_token_entry(std::string const & tk, unsigned prec, notation_entry_group grp) {
-    return mk_token_entry(tk, prec, grp != notation_entry_group::Tactic);
+static optional<unsigned> get_precedence(environment const & env, char const * tk) {
+    return get_expr_precedence(get_token_table(env), tk);
 }
 
 static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, notation_entry_group grp, bool parse_only,
@@ -177,14 +159,14 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
             lean_assert(grp == notation_entry_group::Main);
             prec = reserved_action->rbp();
         } else {
-            prec = get_precedence(env, tk.c_str(), grp);
+            prec = get_precedence(env, tk.c_str());
             if (prec && k == mixfix_kind::infixr)
                 prec = *prec - 1;
         }
     } else {
-        auto old_prec = get_precedence(env, tk.c_str(), grp);
+        auto old_prec = get_precedence(env, tk.c_str());
         if (!old_prec || k != mixfix_kind::prefix)
-            new_token = mk_token_entry(tk.c_str(), *prec, grp);
+            new_token = mk_token_entry(tk.c_str(), *prec);
         if (k == mixfix_kind::infixr)
             prec = *prec - 1;
     }
@@ -276,7 +258,7 @@ static notation_entry parse_mixfix_notation(parser & p, mixfix_kind k, bool over
     return nt.first;
 }
 
-static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_tokens, bool & used_default, notation_entry_group grp) {
+static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_tokens, bool & used_default) {
     used_default = false;
     if (p.curr_is_quoted_symbol()) {
         environment const & env = p.env();
@@ -288,9 +270,9 @@ static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_t
         if (p.curr_is_token(get_colon_tk())) {
             p.next();
             unsigned prec = parse_precedence(p);
-            new_tokens.push_back(mk_token_entry(tkcs, prec, grp));
-        } else if (!get_precedence(env, tkcs, grp)) {
-            new_tokens.push_back(mk_token_entry(tkcs, LEAN_DEFAULT_PRECEDENCE, grp));
+            new_tokens.push_back(mk_token_entry(tkcs, prec));
+        } else if (!get_precedence(env, tkcs)) {
+            new_tokens.push_back(mk_token_entry(tkcs, LEAN_DEFAULT_PRECEDENCE));
             used_default = true;
         }
         return pp_tk;
@@ -304,9 +286,9 @@ static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_t
     }
 }
 
-static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_tokens, notation_entry_group grp) {
+static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_tokens) {
     bool dummy;
-    return parse_quoted_symbol_or_token(p, new_tokens, dummy, grp);
+    return parse_quoted_symbol_or_token(p, new_tokens, dummy);
 }
 
 static expr parse_notation_expr(parser & p, buffer<expr> const & locals) {
@@ -344,7 +326,7 @@ static unsigned get_precedence(environment const & env, buffer<token_entry> cons
 }
 
 static action parse_action(parser & p, name const & prev_token, unsigned default_prec,
-                           buffer<expr> & locals, buffer<token_entry> & new_tokens, notation_entry_group grp) {
+                           buffer<expr> & locals, buffer<token_entry> & new_tokens) {
     if (p.curr_is_token(get_colon_tk())) {
         p.next();
         if (p.curr_is_numeral() || p.curr_is_token_or_id(get_max_tk())) {
@@ -362,7 +344,7 @@ static action parse_action(parser & p, name const & prev_token, unsigned default
                 bool is_fold_right = p.curr_is_token_or_id(get_foldr_tk());
                 p.next();
                 auto prec = parse_optional_precedence(p);
-                name sep  = parse_quoted_symbol_or_token(p, new_tokens, grp);
+                name sep  = parse_quoted_symbol_or_token(p, new_tokens);
                 expr rec;
                 {
                     parser::local_scope scope(p);
@@ -380,7 +362,7 @@ static action parse_action(parser & p, name const & prev_token, unsigned default
                     ini = parse_notation_expr(p, locals);
                 optional<name> terminator;
                 if (!p.curr_is_token(get_rparen_tk()))
-                    terminator = parse_quoted_symbol_or_token(p, new_tokens, grp);
+                    terminator = parse_quoted_symbol_or_token(p, new_tokens);
                 p.check_token_next(get_rparen_tk(), "invalid fold notation argument, ')' expected");
                 return mk_exprs_action(sep, rec, ini, terminator, is_fold_right, prec ? *prec : 0);
             } else if (p.curr_is_token_or_id(get_scoped_tk())) {
@@ -455,8 +437,7 @@ static unsigned parse_binders_rbp(parser & p) {
 }
 
 static transition parse_transition(parser & p, optional<parse_table> const & pt, name const & tk,
-                                   buffer<expr> & locals, buffer<token_entry> & new_tokens, notation_entry_group grp,
-                                   name const & pp_tk) {
+                                   buffer<expr> & locals, buffer<token_entry> & new_tokens, name const & pp_tk) {
     if (p.curr_is_token_or_id(get_binder_tk())) {
         p.next();
         unsigned rbp = parse_binders_rbp(p);
@@ -469,7 +450,7 @@ static transition parse_transition(parser & p, optional<parse_table> const & pt,
         unsigned default_prec = get_default_prec(pt, tk);
         name n   = p.get_name_val();
         p.next();
-        action a = parse_action(p, tk, default_prec, locals, new_tokens, grp);
+        action a = parse_action(p, tk, default_prec, locals, new_tokens);
         expr local_type = mk_Prop(); // type used in notation local declarations, it is irrelevant
         expr l = mk_local(n, local_type);
         p.add_local(l);
@@ -515,7 +496,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
     bool used_default = false;
     while ((grp != notation_entry_group::Reserve && !p.curr_is_token(get_assign_tk())) ||
            (grp == notation_entry_group::Reserve && !p.curr_is_command() && !p.curr_is_eof())) {
-        name pp_tk = parse_quoted_symbol_or_token(p, new_tokens, used_default, grp).to_string();
+        name pp_tk = parse_quoted_symbol_or_token(p, new_tokens, used_default).to_string();
         name tk = utf8_trim(pp_tk.to_string());
         if (auto at = find_next(reserved_pt, tk)) {
             // Remark: we are ignoring multiple actions in the reserved notation table
@@ -528,7 +509,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
             case notation::action_kind::Skip:
                 if (!p.curr_is_quoted_symbol() && !p.curr_is_keyword() && !p.curr_is_token(get_assign_tk())) {
                     if (g_allow_local && !p.curr_is_token_or_id(get_binders_tk())) {
-                        ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp, pp_tk));
+                        ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, pp_tk));
                         break;
                     }
                     p.check_token_or_id_next(get_binders_tk(),
@@ -539,7 +520,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
                 break;
             case notation::action_kind::Binder:
                 if (g_allow_local && !p.curr_is_token_or_id(get_binder_tk())) {
-                    ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp, pp_tk));
+                    ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, pp_tk));
                     break;
                 }
                 p.check_token_or_id_next(get_binder_tk(),
@@ -549,7 +530,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
                 break;
             case notation::action_kind::Binders:
                 if (g_allow_local && !p.curr_is_token_or_id(get_binders_tk())) {
-                    ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp, pp_tk));
+                    ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, pp_tk));
                     break;
                 }
                 p.check_token_or_id_next(get_binders_tk(),
@@ -560,7 +541,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
             case notation::action_kind::Expr: case notation::action_kind::Exprs: case notation::action_kind::ScopedExpr:
             case notation::action_kind::Ext:  {
                 if (g_allow_local && !p.curr_is_identifier()) {
-                    ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp, pp_tk));
+                    ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, pp_tk));
                     break;
                 }
                 name n = p.check_id_next("invalid notation declaration, identifier expected "
@@ -568,7 +549,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
                 if (p.curr_is_token(get_colon_tk())) {
                     if (g_allow_local) {
                         unsigned default_prec = get_default_prec(pt, tk);
-                        action a = parse_action(p, tk, default_prec, locals, new_tokens, grp);
+                        action a = parse_action(p, tk, default_prec, locals, new_tokens);
                         expr local_type = mk_Prop(); // type used in notation local declarations, it is irrelevant
                         expr l = mk_local(n, local_type);
                         p.add_local(l);
@@ -590,7 +571,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
             }}
         } else {
             reserved_pt = optional<parse_table>();
-            ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp, pp_tk));
+            ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, pp_tk));
         }
         pt = find_match(pt, ts.back());
     }
@@ -693,7 +674,7 @@ static environment add_user_token(environment const & env, token_entry const & e
 
 static environment add_user_token(environment const & env, char const * val, unsigned prec) {
     check_token(val);
-    return add_expr_token(env, val, prec);
+    return add_token(env, val, prec);
 }
 
 struct notation_modifiers {
@@ -779,46 +760,6 @@ static environment prefix_cmd(parser & p) {
     return mixfix_cmd(p, mixfix_kind::prefix, overload, grp, persistent);
 }
 
-static environment tactic_notation_cmd(parser & p) {
-    allow_nested_decls_scope scope(true);
-    bool overload = false;
-    notation_entry_group grp = notation_entry_group::Tactic;
-    bool persistent = true;
-    return notation_cmd_core(p, overload, grp, persistent);
-}
-
-static environment tactic_infixl_cmd(parser & p) {
-    allow_nested_decls_scope scope(true);
-    bool overload = false;
-    notation_entry_group grp = notation_entry_group::Tactic;
-    bool persistent = true;
-    return mixfix_cmd(p, mixfix_kind::infixl, overload, grp, persistent);
-}
-
-static environment tactic_infixr_cmd(parser & p) {
-    allow_nested_decls_scope scope(true);
-    bool overload = false;
-    notation_entry_group grp = notation_entry_group::Tactic;
-    bool persistent = true;
-    return mixfix_cmd(p, mixfix_kind::infixr, overload, grp, persistent);
-}
-
-static environment tactic_postfix_cmd(parser & p) {
-    allow_nested_decls_scope scope(true);
-    bool overload = false;
-    notation_entry_group grp = notation_entry_group::Tactic;
-    bool persistent = true;
-    return mixfix_cmd(p, mixfix_kind::postfix, overload, grp, persistent);
-}
-
-static environment tactic_prefix_cmd(parser & p) {
-    allow_nested_decls_scope scope(true);
-    bool overload = false;
-    notation_entry_group grp = notation_entry_group::Tactic;
-    bool persistent = true;
-    return mixfix_cmd(p, mixfix_kind::prefix, overload, grp, persistent);
-}
-
 // auxiliary procedure used by local_notation_cmd and reserve_cmd
 static environment dispatch_notation_cmd(parser & p, bool overload, notation_entry_group grp, bool persistent) {
     if (p.curr_is_token(get_notation_tk())) {
@@ -877,20 +818,12 @@ void register_notation_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("postfix",         "declare a new postfix notation", postfix_cmd));
     add_cmd(r, cmd_info("prefix",          "declare a new prefix notation", prefix_cmd));
     add_cmd(r, cmd_info("notation",        "declare a new notation", notation_cmd));
-    add_cmd(r, cmd_info("tactic_infixl",   "declare a new tactic infix (left) notation", tactic_infixl_cmd));
-    add_cmd(r, cmd_info("tactic_infix",    "declare a new tactic infix (left) notation", tactic_infixl_cmd));
-    add_cmd(r, cmd_info("tactic_infixr",   "declare a new tactic infix (right) notation", tactic_infixr_cmd));
-    add_cmd(r, cmd_info("tactic_postfix",  "declare a new tactic postfix notation", tactic_postfix_cmd));
-    add_cmd(r, cmd_info("tactic_prefix",   "declare a new tactic prefix notation", tactic_prefix_cmd));
-    add_cmd(r, cmd_info("tactic_notation", "declare a new tacitc notation", tactic_notation_cmd));
     add_cmd(r, cmd_info("reserve",         "reserve notation", reserve_cmd));
 }
 
 bool is_notation_cmd(name const & n) {
     return
         n == get_infix_tk() || n == get_infixl_tk() || n == get_infixr_tk() || n == get_postfix_tk() ||
-        n == get_prefix_tk() || n == get_notation_tk() || n == get_precedence_tk() ||
-        n == get_tactic_infix_tk() || n == get_tactic_infixl_tk() || n == get_tactic_infixr_tk() || n == get_tactic_postfix_tk() ||
-        n == get_tactic_prefix_tk() || n == get_tactic_notation_tk();
+        n == get_prefix_tk() || n == get_notation_tk() || n == get_precedence_tk();
 }
 }

@@ -9,7 +9,9 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/trace.h"
 #include "library/vm/vm_environment.h"
+#include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_format.h"
+#include "library/vm/vm_name.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 
@@ -141,6 +143,12 @@ vm_obj mk_tactic_exception(vm_obj const & fn) {
     return mk_vm_constructor(1, fn);
 }
 
+vm_obj mk_tactic_exception(throwable const & ex) {
+    vm_obj _ex = to_obj(ex);
+    vm_obj fn  = mk_vm_closure(get_throwable_to_format_fun_idx(), 1, &_ex);
+    return mk_tactic_exception(fn);
+}
+
 vm_obj mk_tactic_exception(format const & fmt) {
     vm_state const & s = get_vm_state();
     vm_decl K = *s.get_decl(get_combinator_K_name());
@@ -203,12 +211,59 @@ type_context_cache & get_type_context_cache_for(tactic_state const & s) {
     return get_type_context_cache_for(s.env(), s.get_options());
 }
 
+vm_obj tactic_infer_type(vm_obj const & e, vm_obj const & s0) {
+    tactic_state const & s = to_tactic_state(s0);
+    metavar_context mctx   = s.mctx();
+    type_context ctx       = mk_type_context_for(s, mctx);
+    try {
+        return mk_tactic_success(to_obj(ctx.infer(to_expr(e))), s);
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex);
+    }
+}
+
+vm_obj tactic_whnf(vm_obj const & e, vm_obj const & s0) {
+    tactic_state const & s = to_tactic_state(s0);
+    metavar_context mctx   = s.mctx();
+    type_context ctx       = mk_type_context_for(s, mctx);
+    try {
+        return mk_tactic_success(to_obj(ctx.whnf(to_expr(e))), s);
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex);
+    }
+}
+
+vm_obj tactic_unify(vm_obj const & e1, vm_obj const & e2, vm_obj const & s0) {
+    tactic_state const & s = to_tactic_state(s0);
+    metavar_context mctx   = s.mctx();
+    type_context ctx       = mk_type_context_for(s, mctx);
+    try {
+        bool r = ctx.is_def_eq(to_expr(e1), to_expr(e2));
+        return mk_tactic_success(mk_vm_bool(r), set_mctx(s, mctx));
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex);
+    }
+}
+
+vm_obj tactic_get_local(vm_obj const & n, vm_obj const & s0) {
+    tactic_state const & s   = to_tactic_state(s0);
+    optional<metavar_decl> g = s.get_main_goal_decl();
+    if (!g) return mk_no_goals_exception();
+    local_context lctx       = g->get_context();
+    optional<local_decl> d   = lctx.get_local_decl_from_user_name(to_name(n));
+    if (!d) mk_tactic_exception(sstream() << "get_local tactic failed, unknown '" << to_name(n) << "' local");
+    return mk_tactic_success(to_obj(d->mk_ref()), s);
+}
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),         tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}), tactic_state_format_expr);
     DECLARE_VM_BUILTIN(name({"tactic_state", "to_format"}),   tactic_state_to_format);
     DECLARE_VM_BUILTIN(name({"tactic", "main_type"}),         tactic_main_type);
     DECLARE_VM_BUILTIN(name({"tactic", "result"}),            tactic_result);
+    DECLARE_VM_BUILTIN(name({"tactic", "infer_type"}),        tactic_infer_type);
+    DECLARE_VM_BUILTIN(name({"tactic", "unify"}),             tactic_unify);
+    DECLARE_VM_BUILTIN(name({"tactic", "get_local"}),         tactic_get_local);
 }
 
 void finalize_tactic_state() {

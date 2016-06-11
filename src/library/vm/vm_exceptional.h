@@ -9,6 +9,10 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 
 namespace lean {
+/* Convert exception into vm_exception */
+vm_obj to_obj(throwable const & ex);
+/* Return fun_idx for vm_exception -> options -> format */
+unsigned get_throwable_to_format_fun_idx();
 vm_obj mk_vm_exceptional_success(vm_obj const & a);
 vm_obj mk_vm_exceptional_exception(throwable const & ex);
 void initialize_vm_exceptional();

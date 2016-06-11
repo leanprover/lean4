@@ -49,7 +49,10 @@ meta_constant main_type  : tactic expr
 meta_constant intro      : name → tactic unit
 meta_constant assumption : tactic unit
 meta_constant revert_lst : list name → tactic unit
-
+meta_constant infer_type : expr → tactic expr
+meta_constant whnf       : expr → tactic expr
+meta_constant unify      : expr → expr → tactic bool
+meta_constant get_local  : name → tactic expr
 open list
 
 meta_definition revert (n : name) : tactic unit :=

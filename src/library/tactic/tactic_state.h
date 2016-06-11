@@ -84,6 +84,7 @@ vm_obj to_obj(tactic_state const & s);
 vm_obj mk_tactic_success(vm_obj const & a, tactic_state const & s);
 vm_obj mk_tactic_success(tactic_state const & s);
 vm_obj mk_tactic_exception(vm_obj const & fn);
+vm_obj mk_tactic_exception(throwable const & ex);
 vm_obj mk_tactic_exception(format const & fmt);
 vm_obj mk_tactic_exception(sstream const & s);
 vm_obj mk_tactic_exception(char const * msg);

@@ -48,6 +48,10 @@ vm_obj throwable_to_format(vm_obj const & _ex, vm_obj const & _opts) {
 
 static unsigned g_throwable_to_format_fun_idx = -1;
 
+unsigned get_throwable_to_format_fun_idx() {
+    return g_throwable_to_format_fun_idx;
+}
+
 vm_obj mk_vm_exceptional_success(vm_obj const & a) {
     return mk_vm_constructor(0, a);
 }

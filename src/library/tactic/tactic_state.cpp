@@ -24,9 +24,13 @@ tactic_state::tactic_state(environment const & env, options const & o, metavar_c
     m_ptr = new (get_vm_allocator().allocate(sizeof(tactic_state_cell))) tactic_state_cell(env, o, ctx, gs, main);
 }
 
+optional<expr> tactic_state::get_main_goal() const {
+    if (empty(goals())) return none_expr();
+    return some_expr(head(goals()));
+}
+
 optional<metavar_decl> tactic_state::get_main_goal_decl() const {
-    if (empty(goals()))
-        return optional<metavar_decl>();
+    if (empty(goals())) return optional<metavar_decl>();
     return mctx().get_metavar_decl(head(goals()));
 }
 
@@ -144,6 +148,10 @@ vm_obj mk_tactic_exception(format const & fmt) {
 
 vm_obj mk_tactic_exception(char const * msg) {
     return mk_tactic_exception(format(msg));
+}
+
+vm_obj mk_tactic_exception(sstream const & s) {
+    return mk_tactic_exception(s.str().c_str());
 }
 
 vm_obj mk_no_goals_exception() {

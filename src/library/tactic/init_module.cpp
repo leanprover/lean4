@@ -7,14 +7,17 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/intro_tactic.h"
 #include "library/tactic/assumption_tactic.h"
+#include "library/tactic/revert_tactic.h"
 
 namespace lean {
 void initialize_tactic_module() {
     initialize_tactic_state();
     initialize_intro_tactic();
     initialize_assumption_tactic();
+    initialize_revert_tactic();
 }
 void finalize_tactic_module() {
+    finalize_revert_tactic();
     finalize_assumption_tactic();
     finalize_intro_tactic();
     finalize_tactic_state();

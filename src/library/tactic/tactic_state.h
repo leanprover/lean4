@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <algorithm>
+#include "util/sstream.h"
 #include "kernel/environment.h"
 #include "library/metavar_context.h"
 #include "library/type_context.h"
@@ -40,6 +41,7 @@ public:
     tactic_state(tactic_state && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~tactic_state() { if (m_ptr) m_ptr->dec_ref(); }
 
+    optional<expr> get_main_goal() const;
     optional<metavar_decl> get_main_goal_decl() const;
     tactic_state_cell * raw() const { return m_ptr; }
     options const & get_options() const { lean_assert(m_ptr); return m_ptr->m_options; }
@@ -73,6 +75,7 @@ vm_obj mk_tactic_success(vm_obj const & a, tactic_state const & s);
 vm_obj mk_tactic_success(tactic_state const & s);
 vm_obj mk_tactic_exception(vm_obj const & fn);
 vm_obj mk_tactic_exception(format const & fmt);
+vm_obj mk_tactic_exception(sstream const & s);
 vm_obj mk_tactic_exception(char const * msg);
 vm_obj mk_no_goals_exception();
 

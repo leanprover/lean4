@@ -44,9 +44,16 @@ meta_definition trace_state : tactic unit :=
 do s ← read,
    trace_fmt (to_fmt s)
 
-meta_constant result    : tactic expr
-meta_constant main_type : tactic expr
-meta_constant intro     : name → tactic unit
+meta_constant result     : tactic expr
+meta_constant main_type  : tactic expr
+meta_constant intro      : name → tactic unit
+meta_constant assumption : tactic unit
+meta_constant revert_lst : list name → tactic unit
+
+open list
+
+meta_definition revert (n : name) : tactic unit :=
+revert_lst [n]
 
 meta_definition intros : tactic unit :=
 do t ← main_type,
@@ -56,12 +63,8 @@ do t ← main_type,
    | _                 := skip
    end
 
-open list
-
 meta_definition intro_lst : list name → tactic unit
 | []      := skip
 | (n::ns) := do intro n, intro_lst ns
-
-meta_constant assumption : tactic unit
 
 end tactic

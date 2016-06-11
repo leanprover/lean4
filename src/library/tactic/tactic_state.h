@@ -25,7 +25,7 @@ class tactic_state_cell {
 public:
     tactic_state_cell(environment const & env, options const & o, metavar_context const & ctx, list<expr> const & gs,
                       expr const & main):
-        m_rc(1), m_env(env), m_options(o), m_mctx(ctx), m_goals(gs), m_main(main) {}
+        m_rc(0), m_env(env), m_options(o), m_mctx(ctx), m_goals(gs), m_main(main) {}
 };
 
 class tactic_state {
@@ -33,6 +33,8 @@ private:
     tactic_state_cell * m_ptr;
     tactic_state_cell * steal_ptr() { tactic_state_cell * r = m_ptr; m_ptr = nullptr; return r; }
     friend class optional<tactic_state>;
+    tactic_state():m_ptr(nullptr) {}
+    explicit tactic_state(tactic_state_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
     format pp_goal(formatter_factory const & fmtf, expr const & g) const;
 public:
     tactic_state(environment const & env, options const & o, metavar_context const & ctx, list<expr> const & gs,
@@ -59,6 +61,14 @@ public:
     format pp(formatter_factory const & fmtf) const;
     format pp_expr(formatter_factory const & fmtf, expr const & e) const;
 };
+
+inline bool operator==(tactic_state const & s1, tactic_state const & s2) { return is_eqp(s1, s2); }
+
+SPECIALIZE_OPTIONAL_FOR_SMART_PTR(tactic_state)
+
+inline optional<tactic_state> none_tactic_state() { return optional<tactic_state>(); }
+inline optional<tactic_state> some_tactic_state(tactic_state const & e) { return optional<tactic_state>(e); }
+inline optional<tactic_state> some_tactic_state(tactic_state && e) { return optional<tactic_state>(std::forward<tactic_state>(e)); }
 
 tactic_state mk_tactic_state_for(environment const & env, options const & opts, local_context const & lctx, expr const & type);
 

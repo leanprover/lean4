@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
-vm_obj tactic_intro_core(name const & n, tactic_state const & s) {
+vm_obj intro(name const & n, tactic_state const & s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception();
     metavar_context mctx = s.mctx();
@@ -45,7 +45,7 @@ vm_obj tactic_intro_core(name const & n, tactic_state const & s) {
 }
 
 vm_obj tactic_intro(vm_obj const & n, vm_obj const & s) {
-    return tactic_intro_core(to_name(n), to_tactic_state(s));
+    return intro(to_name(n), to_tactic_state(s));
 }
 
 void initialize_intro_tactic() {

@@ -20,6 +20,7 @@ name const & get_pp_preterm_name();
 name const & get_pp_numerals_name();
 name const & get_pp_strings_name();
 name const & get_pp_abbreviations_name();
+name const & get_pp_binder_types_name();
 
 unsigned get_pp_max_depth(options const & opts);
 unsigned get_pp_max_steps(options const & opts);

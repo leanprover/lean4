@@ -189,9 +189,10 @@ void initialize_pp_options() {
     options implicit_true(*g_pp_implicit, true);
     options coercions_true(*g_pp_coercions, true);
     options notation_false(*g_pp_notation, false);
+    options binder_types_true(*g_pp_binder_types, true);
     options implicit_coercions = join(coercions_true, implicit_true);
     options implicit_notation  = join(notation_false, implicit_true);
-    options all = universes_true + implicit_true + coercions_true + notation_false + full_names_true;
+    options all = universes_true + implicit_true + coercions_true + notation_false + full_names_true + binder_types_true;
     g_distinguishing_pp_options = new list<options>({implicit_true, full_names_true, coercions_true, implicit_coercions,
                 implicit_notation, universes_true, all});
 }
@@ -234,6 +235,7 @@ name const & get_pp_preterm_name() { return *g_pp_preterm; }
 name const & get_pp_numerals_name() { return *g_pp_numerals; }
 name const & get_pp_strings_name() { return *g_pp_strings; }
 name const & get_pp_abbreviations_name() { return *g_pp_abbreviations; }
+name const & get_pp_binder_types_name() { return *g_pp_binder_types; }
 
 unsigned get_pp_max_depth(options const & opts)         { return opts.get_unsigned(*g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH); }
 unsigned get_pp_max_steps(options const & opts)         { return opts.get_unsigned(*g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS); }

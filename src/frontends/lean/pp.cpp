@@ -280,6 +280,7 @@ void pretty_fn::set_options_core(options const & _o) {
         o = o.update_if_undef(get_pp_numerals_name(), false);
         o = o.update_if_undef(get_pp_strings_name(), false);
         o = o.update_if_undef(get_pp_abbreviations_name(), false);
+        o = o.update_if_undef(get_pp_binder_types_name(), true);
     }
     m_options           = o;
     m_indent            = get_pp_indent(o);

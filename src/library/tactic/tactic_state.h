@@ -81,6 +81,9 @@ tactic_state set_mctx_goals(tactic_state const & s, metavar_context const & mctx
 tactic_state const & to_tactic_state(vm_obj const & o);
 vm_obj to_obj(tactic_state const & s);
 
+transparency_mode to_transparency_mode(vm_obj const & o);
+vm_obj to_obj(transparency_mode m);
+
 vm_obj mk_tactic_success(vm_obj const & a, tactic_state const & s);
 vm_obj mk_tactic_success(tactic_state const & s);
 vm_obj mk_tactic_exception(vm_obj const & fn);

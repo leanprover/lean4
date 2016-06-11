@@ -117,6 +117,15 @@ vm_obj to_obj(tactic_state const & s) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_tactic_state))) vm_tactic_state(s));
 }
 
+transparency_mode to_transparency_mode(vm_obj const & o) {
+    return static_cast<transparency_mode>(cidx(o));
+}
+
+vm_obj to_obj(transparency_mode m) {
+    return mk_vm_simple(static_cast<unsigned>(m));
+}
+
+
 vm_obj tactic_state_env(vm_obj const & s) {
     return to_obj(to_tactic_state(s).env());
 }
@@ -233,10 +242,10 @@ vm_obj tactic_whnf(vm_obj const & e, vm_obj const & s0) {
     }
 }
 
-vm_obj tactic_unify(vm_obj const & e1, vm_obj const & e2, vm_obj const & s0) {
+vm_obj tactic_unify_core(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
     metavar_context mctx   = s.mctx();
-    type_context ctx       = mk_type_context_for(s, mctx);
+    type_context ctx       = mk_type_context_for(s, mctx, to_transparency_mode(t));
     try {
         bool r = ctx.is_def_eq(to_expr(e1), to_expr(e2));
         return mk_tactic_success(mk_vm_bool(r), set_mctx(s, mctx));
@@ -262,7 +271,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "main_type"}),         tactic_main_type);
     DECLARE_VM_BUILTIN(name({"tactic", "result"}),            tactic_result);
     DECLARE_VM_BUILTIN(name({"tactic", "infer_type"}),        tactic_infer_type);
-    DECLARE_VM_BUILTIN(name({"tactic", "unify"}),             tactic_unify);
+    DECLARE_VM_BUILTIN(name({"tactic", "unify_core"}),        tactic_unify_core);
     DECLARE_VM_BUILTIN(name({"tactic", "get_local"}),         tactic_get_local);
 }
 

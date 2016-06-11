@@ -44,6 +44,9 @@ meta_definition trace_state : tactic unit :=
 do s ← read,
    trace_fmt (to_fmt s)
 
+inductive transparency :=
+| all | semireducible | reducible | none
+
 meta_constant result     : tactic expr
 meta_constant main_type  : tactic expr
 meta_constant intro      : name → tactic unit
@@ -51,12 +54,9 @@ meta_constant assumption : tactic unit
 meta_constant revert_lst : list name → tactic unit
 meta_constant infer_type : expr → tactic expr
 meta_constant whnf       : expr → tactic expr
-meta_constant unify      : expr → expr → tactic bool
+meta_constant unify_core : expr → expr → transparency → tactic bool
 meta_constant get_local  : name → tactic expr
 open list
-
-meta_definition revert (n : name) : tactic unit :=
-revert_lst [n]
 
 meta_definition intros : tactic unit :=
 do t ← main_type,
@@ -69,5 +69,15 @@ do t ← main_type,
 meta_definition intro_lst : list name → tactic unit
 | []      := skip
 | (n::ns) := do intro n, intro_lst ns
+
+meta_definition revert (n : name) : tactic unit :=
+revert_lst [n]
+
+meta_definition unify (a b : expr) : tactic bool :=
+unify_core a b transparency.semireducible
+
+meta_definition get_local_type (n : name) : tactic expr :=
+do e ← get_local n,
+   infer_type e
 
 end tactic

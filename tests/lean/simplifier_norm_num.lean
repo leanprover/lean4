@@ -1,3 +1,4 @@
+exit
 import algebra.ring
 
 set_option simplify.max_steps 5000000

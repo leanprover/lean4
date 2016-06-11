@@ -1,15 +1,20 @@
 -- BEGINEVAL
+EVAL_command:1:0: warning: imported file uses 'sorry'
 Type₁ : Type₂
 -- ENDEVAL
 -- BEGINSET
+SET_command:1:0: warning: imported file uses 'sorry'
 -- ENDSET
 -- BEGINEVAL
+EVAL_command:1:0: warning: imported file uses 'sorry'
 Type₁ : Type₂
 -- ENDEVAL
 -- BEGINWAIT
 -- ENDWAIT
 -- BEGINSET
+SET_command:1:0: warning: imported file uses 'sorry'
 -- ENDSET
 -- BEGINEVAL
+EVAL_command:1:0: warning: imported file uses 'sorry'
 tst.foo : ?A → ?B → ?A
 -- ENDEVAL

@@ -1,3 +1,4 @@
+exit
 -- normalizing reducible non-subsingleton instances
 import algebra.ring
 open algebra

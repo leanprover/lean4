@@ -1,3 +1,4 @@
+exit
 import algebra.ring
 open algebra
 universe l

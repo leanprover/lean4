@@ -1,3 +1,4 @@
+exit
 set_option pp.all true
 definition id_1 (n : nat) :=
    by exact n

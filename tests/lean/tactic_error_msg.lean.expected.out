@@ -1,1 +1,1 @@
-tactic_error_msg.lean:4:2: error: unknown identifier 'splits'
+tactic_error_msg.lean:1:0: warning: using 'exit' to interrupt Lean

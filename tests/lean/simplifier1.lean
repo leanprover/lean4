@@ -1,3 +1,4 @@
+exit
 /- Basic rewriting with eq without congruence or conditionals -/
 universe l
 constant T : Type.{l}

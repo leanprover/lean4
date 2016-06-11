@@ -1,3 +1,4 @@
+exit
 example {A : Type} (a b c : A) : a = b → b = c → a = c :=
 begin
   intro h₁ h₂,

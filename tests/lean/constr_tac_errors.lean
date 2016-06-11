@@ -1,3 +1,4 @@
+exit
 example : nat :=
 begin
   split -- ERROR

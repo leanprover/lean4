@@ -15,16 +15,5 @@ end
 -- ENDSHOW
 -- BEGINWAIT
 -- ENDWAIT
--- BEGININFO
--- PROOF_STATE|8|17
-a b c : Prop,
-Ha : a,
-Hb : b
-⊢ a
---
-a b c : Prop,
-Ha : a,
-Hb : b
-⊢ b
--- ACK
+-- BEGININFO STALE
 -- ENDINFO

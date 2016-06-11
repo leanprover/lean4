@@ -1,3 +1,4 @@
+exit
 import data.nat data.list
 open nat
 

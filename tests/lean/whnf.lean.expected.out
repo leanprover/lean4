@@ -1,4 +1,4 @@
-succ (nat.rec 2 (λ (b₁ : ℕ), succ) 0)
+succ (nat.rec 2 (λ b₁, succ) 0)
 3
-succ (nat.rec a (λ (b₁ : ℕ), succ) 0)
+succ (nat.rec a (λ b₁, succ) 0)
 succ a

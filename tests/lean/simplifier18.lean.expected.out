@@ -1,16 +1,1 @@
-(refl): x1 * x2
-x1 * (x2 * 2)
-x1 * (x2 * (2 * 3))
-x2 * 2 + x2 * x1 * 32
-x2 * 2 + -(x2 * x1 * 32)
-x2 * 2 + -(x2 * x1 * 32)
-x2 * 2 + (x1 * 3 + -(x2 * x1 * 30))
-x1 * 2 + (-(x3 * x1 * 2) + x3 * x2 * 3)
-x1 + 4
-x1 + x2 * 4
-x1 + x2 * 4
-x1 + x2 * 4
-x1 + x2 * 40000
-x1 + x2 * x1 * 40000
-x1 + x3 * (x2 * x1) * 40000
-x1 + x4 * (x3 * (x2 * x1)) * 40000
+simplifier18.lean:1:0: warning: using 'exit' to interrupt Lean

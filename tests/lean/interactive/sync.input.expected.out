@@ -1,4 +1,5 @@
 -- BEGINSET
+SET_command:1:0: warning: imported file uses 'sorry'
 -- ENDSET
 -- BEGINWAIT
 -- ENDWAIT

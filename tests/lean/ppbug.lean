@@ -1,1 +1,1 @@
-check char.rec_on
+check list.rec_on

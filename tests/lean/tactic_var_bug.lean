@@ -1,3 +1,4 @@
+exit
 --
 
 variable p : Prop

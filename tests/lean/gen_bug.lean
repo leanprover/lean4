@@ -1,3 +1,4 @@
+exit
 import logic
 
 set_option pp.notation false

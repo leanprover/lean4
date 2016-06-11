@@ -1,4 +1,1 @@
-H1
-imp_congr H1 H2
-imp_congr H1 (imp_congr H2 H3)
-forall_congr (λ (x : T), H x)
+simplifier6.lean:1:0: warning: using 'exit' to interrupt Lean

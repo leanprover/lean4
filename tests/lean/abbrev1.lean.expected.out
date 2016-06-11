@@ -1,6 +1,6 @@
 definition tst : ℕ
-(λ (a : Type₁), 2 + 3) ℕ
+(λ a, 2 + 3) ℕ
 definition tst : ℕ
 foo ℕ
 definition tst1 : ℕ
-(λ (A : Type₁) (a : A), a) ℕ 10
+(λ A a, a) ℕ 10

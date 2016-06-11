@@ -1,3 +1,4 @@
+exit
 example (a b c : nat) (H₁ : a = b) (H₂ : b = c) : a = c :=
 proof eq.trans H₁ _ qed
 

@@ -1,1 +1,1 @@
-rewrite_loop.lean:6:10: error: rewrite tactic failed, maximum number of iterations exceeded (current threshold: 200, increase the threshold by setting option 'rewrite.max_iter')
+rewrite_loop.lean:1:0: warning: using 'exit' to interrupt Lean

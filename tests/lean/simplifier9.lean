@@ -1,3 +1,4 @@
+exit
 -- Rewriting with (tmp)-local hypotheses
 import logic.quantifiers
 

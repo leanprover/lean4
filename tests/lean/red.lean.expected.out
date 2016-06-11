@@ -1,3 +1,5 @@
+red.lean:3:11:failed to generate bytecode for 'f'
+code generation failed, VM does not have code for 'g'
 red.lean:9:19: error: type mismatch at definition 'example', has type
   f = f
 but is expected to have type

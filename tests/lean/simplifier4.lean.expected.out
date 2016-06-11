@@ -1,4 +1,1 @@
-(refl): f x
-(refl): f x
-R (f x) (g y)
-R (f x) (h z)
+simplifier4.lean:1:0: warning: using 'exit' to interrupt Lean

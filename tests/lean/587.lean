@@ -1,3 +1,4 @@
+exit
 open quot setoid
 
 variables A B : Type₁

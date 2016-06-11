@@ -1,27 +1,6 @@
 -- BEGINWAIT
 -- ENDWAIT
--- BEGININFO
--- TYPE|6|8
-?a → ?b → ?a ∧ ?b
--- ACK
--- IDENTIFIER|6|8
-and.intro
--- ACK
+-- BEGININFO STALE
 -- ENDINFO
--- BEGININFO
--- SYMBOL|7|8
-(
--- ACK
--- TYPE|7|9
-a ∧ b → b
--- ACK
--- IDENTIFIER|7|9
-and.elim_right
--- ACK
--- TYPE|7|24
-a ∧ b
--- ACK
--- IDENTIFIER|7|24
-H
--- ACK
+-- BEGININFO STALE
 -- ENDINFO

@@ -1,3 +1,4 @@
+exit
 open nat
 
 definition f (a n : ℕ) : ℕ := nat.rec_on n (λa', a') (λn' f' a', f' (a' * 2)) a

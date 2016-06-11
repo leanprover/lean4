@@ -1,9 +1,1 @@
-goals1.lean:9:0: error: 1 unsolved subgoal
-A : Type,
-a b c : A,
-Hab : eq a b,
-Hbc : eq b c
-⊢ eq b c
-goals1.lean:9:0: error: failed to add declaration 'foo' to environment, value has metavariables
-remark: set 'formatter.hide_full_terms' to false to see the complete term
-  ?M_1
+goals1.lean:1:0: warning: using 'exit' to interrupt Lean

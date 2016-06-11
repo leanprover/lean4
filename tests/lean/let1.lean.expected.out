@@ -1,15 +1,15 @@
 let bool := Prop,
-    and := λ (p q : bool), Π (c : bool), (p → q → c) → c,
-    and_intro := λ (p q : bool) (H1 : p) (H2 : q) (c : bool) (H : p → q → c), H H1 H2
+    and := λ p q, Π c, (p → q → c) → c,
+    and_intro := λ p q H1 H2 c H, H H1 H2
 in and_intro :
-  ∀ (p q : Prop),
-    p → q → (∀ (c : Prop), (p → q → c) → c)
+  ∀ p q,
+    p → q → (∀ c, (p → q → c) → c)
 let1.lean:19:19: error: type mismatch at term
-  λ (p q : Prop) (H1 : p) (H2 : q) (c : Prop) (H : p → q → c),
+  λ p q H1 H2 c H,
     H H1 H2
 has type
-  ∀ (p q : Prop),
-    p → q → (∀ (c : Prop), (p → q → c) → c)
+  ∀ p q,
+    p → q → (∀ c, (p → q → c) → c)
 but is expected to have type
-  ∀ (p q : Prop),
-    p → q → (λ (p q : Prop), ∀ (c : Prop), (p → q → c) → c) q p
+  ∀ p q,
+    p → q → (λ p q, ∀ c, (p → q → c) → c) q p

@@ -1,1 +1,1 @@
-empty_thm.lean:9:28: error: ':=', '.', command, script, or end-of-file expected
+empty_thm.lean:1:0: warning: using 'exit' to interrupt Lean

@@ -1,8 +1,9 @@
 no axioms
 ------
-quot.sound : ∀ {A : Type} [s : setoid A] {a b : A}, setoid.r a b → quot.mk a = quot.mk b
-classical.strong_indefinite_description : Π {A : Type} (P : A → Prop), nonempty A → {x : A | Exists P → P x}
-propext : ∀ {a b : Prop}, (a ↔ b) → a = b
+quot.sound : ∀ {A} [s] {a b}, setoid.r a b → quot.mk a = quot.mk b
+sorry : Π {A}, A
+classical.strong_indefinite_description : Π {A} P, nonempty A → {x | Exists P → P x}
+propext : ∀ {a b}, (a ↔ b) → a = b
 ------
 theorem foo3 : 0 = 0 :=
 foo2

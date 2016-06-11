@@ -1,3 +1,4 @@
+exit
 /-
    1. A ∧ B → C ==> { A → B → C }
    2. A ∨ B → C ==> { A → C, B → C }

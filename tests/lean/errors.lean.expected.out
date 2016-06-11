@@ -1,8 +1,1 @@
-errors.lean:4:0: error: unknown identifier 'a'
-tst1 : ℕ → ℕ → ℕ
-errors.lean:12:16: error: unknown identifier 'wth'
-errors.lean:22:12: error: unknown identifier 'b'
-tst3 : A → A → A
-foo.tst1 : ℕ → ℕ → ℕ
-foo.tst2 : ℕ → ℕ → ℕ
-foo.tst3 : Π (A : Type), A → A → A
+errors.lean:1:0: warning: using 'exit' to interrupt Lean

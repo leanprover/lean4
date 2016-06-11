@@ -1,3 +1,4 @@
+exit
 open subtype example (f : nat → nat) (a b : nat) : f a = a → f (f a) = a :=
 begin
   intro h₁,

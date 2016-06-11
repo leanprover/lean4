@@ -1,3 +1,4 @@
+exit
 /- Basic rewriting with iff with congr_iff -/
 import logic.connectives
 open nat

@@ -1,3 +1,4 @@
+exit
 constants P : nat → Prop
 constants R : nat → nat → Prop
 constants f g : nat → nat

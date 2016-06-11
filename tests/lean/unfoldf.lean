@@ -1,3 +1,4 @@
+exit
 open nat
 
 -- definition id [unfold_full] {A : Type} (a : A) := a

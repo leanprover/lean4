@@ -6,18 +6,6 @@ a + 1 : ℕ
 a + a : ℕ
 a + a : ℕ
 a + 1 : ℕ
-open_tst.lean:20:2: error: don't know how to synthesize placeholder
-
-⊢ inhabited ℕ
-open_tst.lean:20:2: error: failed to add declaration 'foo1' to environment, value has metavariables
-remark: set 'formatter.hide_full_terms' to false to see the complete term
-  ?M_1
 a + a : ℕ
 a + 1 : ℕ
-open_tst.lean:29:2: error: don't know how to synthesize placeholder
-
-⊢ inhabited ℕ
-open_tst.lean:29:2: error: failed to add declaration 'foo2' to environment, value has metavariables
-remark: set 'formatter.hide_full_terms' to false to see the complete term
-  ?M_1
 a + a : ℕ

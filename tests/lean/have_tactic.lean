@@ -1,3 +1,4 @@
+exit
 example (a b c : nat) : a = b → b = c → a = c :=
 begin
   intro h₁ h₂,

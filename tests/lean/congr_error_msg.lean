@@ -1,3 +1,4 @@
+exit
 open nat
 
 definition g : nat → nat → nat :=

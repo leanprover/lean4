@@ -1,2 +1,1 @@
-P1 ∧ P2 ∧ P3 ↔ g Q1 (g Q2 Q3)
-P1 ∧ (P2 ↔ P3) ↔ g Q1 (Q2 ↔ Q3)
+simplifier7.lean:1:0: warning: using 'exit' to interrupt Lean

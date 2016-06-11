@@ -1,1 +1,1 @@
-λ (A : Type) (x y : A) (H₁ : x = y) (H₂ : y = x), eq.rec H₁ H₂
+λ A x y H₁ H₂, eq.rec H₁ H₂

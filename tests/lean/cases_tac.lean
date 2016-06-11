@@ -1,3 +1,4 @@
+exit
 inductive foo {A : Type} : A → Type :=
 mk : Π a : A, foo a
 

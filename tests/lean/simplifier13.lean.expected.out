@@ -1,1 +1,1 @@
-c (g x) (g y) (g z) (eq.rec px (Hfg x)) (eq.rec py (Hfg y)) pz
+simplifier13.lean:1:0: warning: using 'exit' to interrupt Lean

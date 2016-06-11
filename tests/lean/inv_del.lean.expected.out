@@ -1,9 +1,1 @@
-inv_del.lean:15:2: error: 1 unsolved subgoal
-A : Type,
-P : vec A 1 → Type,
-H : Π (a : A), P (vone a),
-a : A
-⊢ P (vone a)
-inv_del.lean:15:2: error: failed to add declaration 'vec.eone' to environment, value has metavariables
-remark: set 'formatter.hide_full_terms' to false to see the complete term
-  ?M_1
+inv_del.lean:1:0: warning: using 'exit' to interrupt Lean

@@ -1,3 +1,4 @@
+exit
 --
 
 open function

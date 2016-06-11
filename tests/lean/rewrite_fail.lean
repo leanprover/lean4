@@ -1,3 +1,4 @@
+exit
 open nat
 
 example (a b : nat) (Ha : a = 0) (Hb : b = 0) : a + b = 0 :=

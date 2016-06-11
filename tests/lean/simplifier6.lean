@@ -1,3 +1,4 @@
+exit
 /- Basic pi congruence -/
 import logic.connectives logic.quantifiers
 

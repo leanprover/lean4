@@ -1,5 +1,4 @@
-definition Sum_weird [forward] : ∀ (f g h : ℕ → ℕ) (n : ℕ), Sum n (λ (x : ℕ), f (g (h x))) = 1 :=
-λ (f g h : ℕ → ℕ) (n : ℕ), sorry
-(multi-)patterns:
-?M_1 : ℕ → ℕ, ?M_2 : ℕ → ℕ, ?M_3 : ℕ → ℕ, ?M_4 : ℕ
-{Sum ?M_4 (λ (x : ℕ), ?M_1 (?M_2 (?M_3 x)))}
+pattern_pp.lean:1:11:failed to generate bytecode for 'Sum'
+code generation failed, VM does not have code for 'sorry'
+definition Sum_weird : ∀ (f g h : ℕ → ℕ) (n : ℕ), Sum n (λ (x : ℕ), f (g (h x))) = 1 :=
+λ f g h n, sorry

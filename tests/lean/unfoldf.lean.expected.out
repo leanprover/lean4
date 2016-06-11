@@ -1,12 +1,1 @@
-unfoldf.lean:10:2: proof state
-a b : ℕ,
-H : a = b
-⊢ a = b
-unfoldf.lean:17:2: proof state
-a b : ℕ,
-H : a = b
-⊢ (id ∘ id) a = b
-unfoldf.lean:26:2: proof state
-a b : ℕ,
-H : a = b
-⊢ a = b
+unfoldf.lean:1:0: warning: using 'exit' to interrupt Lean

@@ -1,4 +1,1 @@
-unfold_rec3.lean:13:2: proof state
-n : ℕ,
-ih : myadd n 0 = n
-⊢ succ (myadd n 0) = succ n
+unfold_rec3.lean:1:0: warning: using 'exit' to interrupt Lean

@@ -1,1 +1,1 @@
-foo : Π (B : Type), B → (Π (A : Type), A → A = B → Prop)
+foo : Π B, B → (Π A, A → A = B → Prop)

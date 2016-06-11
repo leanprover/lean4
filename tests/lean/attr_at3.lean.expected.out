@@ -1,8 +1,8 @@
 definition bla.f : ℕ → ℕ :=
-λ (a : ℕ), a + 1
+λ a, a + 1
 definition bla.f [reducible] : ℕ → ℕ :=
-λ (a : ℕ), a + 1
+λ a, a + 1
 definition bla.f : ℕ → ℕ :=
-λ (a : ℕ), a + 1
+λ a, a + 1
 definition bla.f [reducible] : ℕ → ℕ :=
-λ (a : ℕ), a + 1
+λ a, a + 1

@@ -1,3 +1,4 @@
+exit
 -- Basic fusion
 import algebra.ring
 

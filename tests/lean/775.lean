@@ -1,3 +1,4 @@
+exit
 open nat
 
 tactic_notation T1 `:`:15 T2 := tactic.focus (tactic.and_then T1 (tactic.all_goals T2))

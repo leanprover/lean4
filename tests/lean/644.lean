@@ -1,3 +1,4 @@
+exit
 import data.list
 
 constant A : Type₁

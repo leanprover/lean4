@@ -1,3 +1,4 @@
+exit
 open eq.ops
 
 inductive Nat : Type :=

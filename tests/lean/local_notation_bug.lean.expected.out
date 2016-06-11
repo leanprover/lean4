@@ -1,5 +1,8 @@
 f a b : A
 f a b : A
+string ↣ name : mk_simple_name
 nat ↣ bool : foo
+string ↣ name : mk_simple_name
 10 : ?M_1
 local_notation_bug.lean:22:8: error: invalid expression
+string ↣ name : mk_simple_name

@@ -1,4 +1,4 @@
-inductive list (T : Type) : Type := nil {} : list T | cons   : T → list T → list T
+inductive List (T : Type) : Type := nil {} : List T | cons   : T → List T → List T
 
 namespace explicit
 
@@ -25,7 +25,7 @@ namespace implicit2
 inductive ftree (A : Type) (B : Type) : Type :=
 leafa : A → ftree A B |
 leafb : B → ftree A B |
-node  : (list A → ftree A B) → (B → ftree A B) → ftree A B
+node  : (List A → ftree A B) → (B → ftree A B) → ftree A B
 set_option pp.universes true
 check ftree
 end implicit2

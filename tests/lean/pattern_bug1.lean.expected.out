@@ -1,5 +1,1 @@
-definition H [forward] : ∀ (a : A), (:P a:) → Exists (R a) :=
-sorry
-(multi-)patterns:
-?M_1 : A
-{P ?M_1}
+pattern_bug1.lean:1:0: warning: using 'exit' to interrupt Lean

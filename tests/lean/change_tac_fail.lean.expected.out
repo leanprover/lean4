@@ -1,8 +1,1 @@
-change_tac_fail.lean:10:48: error: type mismatch at application
-  t ++ a
-term
-  a
-has type
-  T
-but is expected to have type
-  list T
+change_tac_fail.lean:1:0: warning: using 'exit' to interrupt Lean

@@ -1,5 +1,1 @@
-true
-true
-true
-R x y
-R x y
+simplifier10.lean:1:0: warning: using 'exit' to interrupt Lean

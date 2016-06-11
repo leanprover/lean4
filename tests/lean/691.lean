@@ -1,3 +1,4 @@
+exit
 theorem foo : Type₁ := unit
 
 example : foo = unit :=

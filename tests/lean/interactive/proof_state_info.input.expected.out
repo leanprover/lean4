@@ -1,10 +1,4 @@
 -- BEGINWAIT
 -- ENDWAIT
--- BEGININFO
--- PROOF_STATE|7|2
-a b c : Prop,
-Ha : a,
-Hb : b
-⊢ a ∧ b
--- ACK
+-- BEGININFO STALE
 -- ENDINFO

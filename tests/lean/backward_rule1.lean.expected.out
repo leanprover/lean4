@@ -1,8 +1,1 @@
-constant H [intro] : A → B
-constant G [intro] : A → B → C
-constant f [intro] : T → A
-f
-G
-H
-exists_unique.intro
-Exists.intro
+backward_rule1.lean:1:0: warning: using 'exit' to interrupt Lean

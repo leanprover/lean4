@@ -1,1 +1,1 @@
-x2 + (g x1 + (x4 * 5 + (f x1 * 5 + (x2 * (x2 * (f x3 * 3)) + x2 * (f x3 * (g x1 * (3 * 7)))))))
+simplifier12.lean:1:0: warning: using 'exit' to interrupt Lean

@@ -1,5 +1,5 @@
 error_pos_bug.lean:9:0: error: type error in placeholder assigned to
-  λ (a : Category) (b : Category) (c : Category),
+  λ a b c,
     a
 placeholder has type
   Category

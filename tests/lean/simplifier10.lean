@@ -1,3 +1,4 @@
+exit
 import logic.connectives logic.quantifiers
 
 universe l

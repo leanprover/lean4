@@ -1,13 +1,1 @@
-669.lean:1:9: error: type error in placeholder assigned to
-  bool
-placeholder has type
-  Type₁
-but is expected to have type
-  Prop
-the assignment was attempted when processing
-    application type constraint
-      (λ {T : Prop} (t : T), t) bool.tt
-    term
-      bool.tt
-    has type
-      bool
+669.lean:1:0: warning: using 'exit' to interrupt Lean

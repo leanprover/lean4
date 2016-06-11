@@ -1,3 +1,4 @@
+exit
 constants f g : nat → Prop
 
 definition foo₁ [forward] : ∀ x, f x ∧ g x            := sorry

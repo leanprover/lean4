@@ -1,3 +1,4 @@
+exit
 open nat
 
 definition foo [unfold 1 3] (a : nat) (b : nat) (c :nat) : nat :=

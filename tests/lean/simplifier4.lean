@@ -1,3 +1,4 @@
+exit
 /- Basic rewriting with a custom relation without congruence or conditionals -/
 import logic.connectives data.nat
 

@@ -1,16 +1,1 @@
-(refl): x1
-x1 * 2
-x1 * 3
-x1 * 4
-x1 * 4
-x1 * 5
-0
-x1
-0
-0
-x1 * 5
-0
-0
-x1 * 2
-x3 * x2 + x1
-x1 * 2
+simplifier14.lean:1:0: warning: using 'exit' to interrupt Lean

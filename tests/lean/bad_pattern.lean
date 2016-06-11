@@ -1,3 +1,5 @@
+exit
+
 constant P : nat → Prop
 
 lemma tst₀ [forward] : ∀ x, P x := -- Fine

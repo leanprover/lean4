@@ -1,4 +1,4 @@
 id2 : (A → B → A) → A
 id2 : (A → B → A) → A
 id2 : ?B a → (A → ?B a → A) → A
-id2 : ?A → (Π {B : Type}, B → (?A → B → ?A) → ?A)
+id2 : ?A → (Π {B}, B → (?A → B → ?A) → ?A)

@@ -1,3 +1,4 @@
+exit
 -- Conditional congruence
 import logic.connectives logic.quantifiers
 

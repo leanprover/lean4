@@ -1,3 +1,4 @@
+exit
 universe l
 constants (T : Type.{l}) (f : T →  T → T) (g : T → T)
 constants (P : T → Prop) (Q : Prop) (Hfg : ∀ (x : T), f x x = g x)

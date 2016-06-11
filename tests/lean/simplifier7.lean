@@ -1,3 +1,4 @@
+exit
 -- Simplifying the operator with a user-defined congruence
 import logic.connectives
 

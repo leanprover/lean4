@@ -1,3 +1,4 @@
+exit
 example (a b : Prop) (H : b ∧ a) : a ∧ b :=
 begin
   assert  H : a

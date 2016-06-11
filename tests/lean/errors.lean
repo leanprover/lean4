@@ -1,3 +1,4 @@
+exit
 namespace foo
 
 definition tst1 : nat → nat → nat :=

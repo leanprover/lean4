@@ -1,3 +1,4 @@
+exit
 -- Canonicalizing subsingletons
 import algebra.ring
 open algebra

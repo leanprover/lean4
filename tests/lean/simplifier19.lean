@@ -1,3 +1,4 @@
+exit
 -- Nested fusion
 import algebra.ring
 open algebra

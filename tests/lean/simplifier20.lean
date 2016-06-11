@@ -1,3 +1,4 @@
+exit
 /- Basic rewriting with eq and generic congruence, with no conditionals -/
 
 namespace test_congr

@@ -1,3 +1,4 @@
+string ↣ name : mk_simple_name
 A ↣ B : f
 g a : B
 sec2.lean:13:6: error: type mismatch at application
@@ -8,6 +9,7 @@ has type
   A
 but is expected to have type
   B
+string ↣ name : mk_simple_name
 A ↣ B : f
 g a : B
 g a : B

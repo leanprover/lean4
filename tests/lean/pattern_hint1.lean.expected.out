@@ -1,16 +1,1 @@
-definition foo₁ [forward] : ∀ (x : ℕ), f x ∧ g x :=
-sorry
-(multi-)patterns:
-?M_1 : ℕ
-{g ?M_1}
-{f ?M_1}
-definition foo₂ [forward] : ∀ (x : ℕ), (:f x:) ∧ g x :=
-sorry
-(multi-)patterns:
-?M_1 : ℕ
-{f ?M_1}
-definition foo₃ [forward] : ∀ (x : ℕ), (:f (id x):) ∧ g x :=
-sorry
-(multi-)patterns:
-?M_1 : ℕ
-{f ?M_1}
+pattern_hint1.lean:1:0: warning: using 'exit' to interrupt Lean

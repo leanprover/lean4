@@ -1,14 +1,1 @@
-cases_tac.lean:7:2: proof state
-A : Type,
-B : A → Type,
-a : A,
-Hb : B a
-⊢ A
-cases_tac.lean:17:2: proof state
-A : Type,
-B : A → Type,
-f : A → A,
-a : A,
-Hc : a = a,
-Hb : foo₂.mk (f a) a = foo₂.mk (f a) a
-⊢ A
+cases_tac.lean:1:0: warning: using 'exit' to interrupt Lean

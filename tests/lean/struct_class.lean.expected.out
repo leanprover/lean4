@@ -1,4 +1,5 @@
 decidable : Prop → Type₁
+functor : (Type → Type) → Type
 has_add : Type → Type
 has_div : Type → Type
 has_dvd : Type → Type
@@ -9,16 +10,21 @@ has_mod : Type → Type
 has_mul : Type → Type
 has_neg : Type → Type
 has_one : Type → Type
+has_ordering : Type → Type
 has_sub : Type → Type
+has_to_format : Type → Type
+has_to_string : Type → Type
 has_zero : Type → Type
 inhabited : Type → Type
 measurable : Type → Type
+monad : (Type → Type) → Type
 nonempty : Type → Prop
 point : Type → Type → Type
 setoid : Type → Type
 subsingleton : Type → Prop
-well_founded : Π {A : Type}, (A → A → Prop) → Prop
+well_founded : Π {A}, (A → A → Prop) → Prop
 decidable : Prop → Type₁
+functor : (Type → Type) → Type
 has_add : Type → Type
 has_div : Type → Type
 has_dvd : Type → Type
@@ -29,12 +35,16 @@ has_mod : Type → Type
 has_mul : Type → Type
 has_neg : Type → Type
 has_one : Type → Type
+has_ordering : Type → Type
 has_sub : Type → Type
+has_to_format : Type → Type
+has_to_string : Type → Type
 has_zero : Type → Type
 inhabited : Type → Type
 measurable : Type → Type
+monad : (Type → Type) → Type
 nonempty : Type → Prop
 point : Type → Type → Type
 setoid : Type → Type
 subsingleton : Type → Prop
-well_founded : Π {A : Type}, (A → A → Prop) → Prop
+well_founded : Π {A}, (A → A → Prop) → Prop

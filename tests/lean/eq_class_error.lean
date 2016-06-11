@@ -1,3 +1,5 @@
+exit
+
 inductive foo :=
 | a | b
 

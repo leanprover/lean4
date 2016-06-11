@@ -5,10 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "library/vm/vm.h"
+#include <algorithm>
 #include "kernel/environment.h"
 #include "library/metavar_context.h"
 #include "library/type_context.h"
+#include "library/vm/vm.h"
 
 namespace lean {
 class tactic_state_cell {

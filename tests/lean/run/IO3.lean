@@ -6,5 +6,3 @@ do { l ← get_line,
        put_str "you have typed hello\n"
      else
        do {put_str "you did not type hello\n", put_str "-----------\n"} }
-
-vm_eval main

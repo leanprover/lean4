@@ -260,7 +260,7 @@ vm_obj tactic_get_local(vm_obj const & n, vm_obj const & s0) {
     if (!g) return mk_no_goals_exception();
     local_context lctx       = g->get_context();
     optional<local_decl> d   = lctx.get_local_decl_from_user_name(to_name(n));
-    if (!d) mk_tactic_exception(sstream() << "get_local tactic failed, unknown '" << to_name(n) << "' local");
+    if (!d) return mk_tactic_exception(sstream() << "get_local tactic failed, unknown '" << to_name(n) << "' local");
     return mk_tactic_success(to_obj(d->mk_ref()), s);
 }
 

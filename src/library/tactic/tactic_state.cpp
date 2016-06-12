@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_format.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_expr.h"
+#include "library/vm/vm_list.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
@@ -183,7 +184,7 @@ vm_obj tactic_result(vm_obj const & o) {
     return mk_tactic_success(to_obj(r), set_mctx(s, mctx));
 }
 
-vm_obj tactic_main_type(vm_obj const & o) {
+vm_obj tactic_target(vm_obj const & o) {
     tactic_state const & s = to_tactic_state(o);
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception();
@@ -264,15 +265,31 @@ vm_obj tactic_get_local(vm_obj const & n, vm_obj const & s0) {
     return mk_tactic_success(to_obj(d->mk_ref()), s);
 }
 
+vm_obj tactic_local_context(vm_obj const & s0) {
+    tactic_state const & s   = to_tactic_state(s0);
+    optional<metavar_decl> g = s.get_main_goal_decl();
+    if (!g) return mk_no_goals_exception();
+    local_context lctx       = g->get_context();
+    buffer<expr> r;
+    lctx.for_each([&](local_decl const & d) { r.push_back(d.mk_ref()); });
+    return mk_tactic_success(to_obj(to_list(r)), s);
+}
+
+vm_obj tactic_num_goals(vm_obj const & s) {
+    return mk_tactic_success(mk_vm_nat(length(to_tactic_state(s).goals())), to_tactic_state(s));
+}
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),         tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}), tactic_state_format_expr);
     DECLARE_VM_BUILTIN(name({"tactic_state", "to_format"}),   tactic_state_to_format);
-    DECLARE_VM_BUILTIN(name({"tactic", "main_type"}),         tactic_main_type);
+    DECLARE_VM_BUILTIN(name({"tactic", "target"}),            tactic_target);
     DECLARE_VM_BUILTIN(name({"tactic", "result"}),            tactic_result);
     DECLARE_VM_BUILTIN(name({"tactic", "infer_type"}),        tactic_infer_type);
     DECLARE_VM_BUILTIN(name({"tactic", "unify_core"}),        tactic_unify_core);
     DECLARE_VM_BUILTIN(name({"tactic", "get_local"}),         tactic_get_local);
+    DECLARE_VM_BUILTIN(name({"tactic", "local_context"}),     tactic_local_context);
+    DECLARE_VM_BUILTIN(name({"tactic", "num_goals"}),         tactic_num_goals);
 }
 
 void finalize_tactic_state() {

@@ -44,24 +44,33 @@ meta_definition trace_state : tactic unit :=
 do s ← read,
    trace_fmt (to_fmt s)
 
+meta_definition format_expr (e : expr) : tactic format :=
+do s ← read, return (tactic_state.format_expr s e)
+
 inductive transparency :=
 | all | semireducible | reducible | none
 
-meta_constant result     : tactic expr
-meta_constant main_type  : tactic expr
-meta_constant intro      : name → tactic unit
-meta_constant assumption : tactic unit
-meta_constant rename     : name → name → tactic unit
-meta_constant clear      : name → tactic unit
-meta_constant revert_lst : list name → tactic unit
-meta_constant infer_type : expr → tactic expr
-meta_constant whnf       : expr → tactic expr
-meta_constant unify_core : expr → expr → transparency → tactic bool
-meta_constant get_local  : name → tactic expr
-open list
+/- Return the partial term/proof constructed so far. -/
+meta_constant result        : tactic expr
+/- Return target type of the main goal. Fail if tactic_state does not have any goal left. -/
+meta_constant target        : tactic expr
+meta_constant intro         : name → tactic unit
+meta_constant assumption    : tactic unit
+meta_constant rename        : name → name → tactic unit
+meta_constant clear         : name → tactic unit
+meta_constant revert_lst    : list name → tactic unit
+meta_constant infer_type    : expr → tactic expr
+meta_constant whnf          : expr → tactic expr
+meta_constant unify_core    : expr → expr → transparency → tactic bool
+meta_constant get_local     : name → tactic expr
+/- Return the hypothesis in the main goal. Fail if tactic_state does not have any goal left. -/
+meta_constant local_context : tactic (list expr)
+/- Return the number of goals that need to be solved -/
+meta_constant num_goals     : tactic nat
+open list nat
 
 meta_definition intros : tactic unit :=
-do t ← main_type,
+do t ← target,
    match t with
    | expr.pi   _ _ _ _ := do intro "_", intros
    | expr.elet _ _ _ _ := do intro "_", intros

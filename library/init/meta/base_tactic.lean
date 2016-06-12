@@ -77,6 +77,22 @@ infix `<|>`:1 := or_else
 meta_definition skip : base_tactic S unit :=
 success ()
 
+open list
+meta_definition repeat : list A → (A → base_tactic S unit) → base_tactic S unit
+| []      fn := skip
+| (e::es) fn := do fn e, repeat es fn
+
+open nat
+/- (repeat n t): repeat the given tactic at most n times or until t fails -/
+meta_definition repeat_at_most : nat → base_tactic S unit → base_tactic S unit
+| 0        t := skip
+| (succ n) t := (do t, repeat_at_most n t) <|> skip
+
+/- (do n t) : execute t n times -/
+meta_definition repeat_exactly : nat → base_tactic S unit → base_tactic S unit
+| 0        t := skip
+| (succ n) t := do t, repeat_exactly n t
+
 meta_definition returnex (e : exceptional A) : base_tactic S A :=
 λ s, match e with
 | exceptional.success a    := base_tactic_result.success a s

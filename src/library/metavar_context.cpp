@@ -47,14 +47,22 @@ optional<metavar_decl> metavar_context::get_metavar_decl(expr const & e) const {
         return optional<metavar_decl>();
 }
 
+void metavar_context::assign_core(level const & u, level const & l) {
+    m_uassignment.insert(meta_id(u), l);
+}
+
 void metavar_context::assign(level const & u, level const & l) {
     lean_assert(!is_assigned(u));
-    m_uassignment.insert(meta_id(u), l);
+    assign_core(u, l);
+}
+
+void metavar_context::assign_core(expr const & e, expr const & v) {
+    m_eassignment.insert(mlocal_name(e), v);
 }
 
 void metavar_context::assign(expr const & e, expr const & v) {
     lean_assert(!is_assigned(e));
-    m_eassignment.insert(mlocal_name(e), v);
+    assign_core(e, v);
 }
 
 optional<level> metavar_context::get_assignment(level const & l) const {
@@ -80,12 +88,12 @@ struct metavar_context::interface_impl {
     static bool is_mvar(level const & l) { return is_metavar_decl_ref(l); }
     bool is_assigned(level const & l) const { return m_ctx.is_assigned(l); }
     optional<level> get_assignment(level const & l) const { return m_ctx.get_assignment(l); }
-    void assign(level const & u, level const & v) { m_ctx.assign(u, v); }
+    void assign(level const & u, level const & v) { m_ctx.assign_core(u, v); }
 
     static bool is_mvar(expr const & e) { return is_metavar_decl_ref(e); }
     bool is_assigned(expr const & e) const { return m_ctx.is_assigned(e); }
     optional<expr> get_assignment(expr const & e) const { return m_ctx.get_assignment(e); }
-    void assign(expr const & m, expr const & v) { m_ctx.assign(m, v); }
+    void assign(expr const & m, expr const & v) { m_ctx.assign_core(m, v); }
 };
 
 

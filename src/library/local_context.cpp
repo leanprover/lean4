@@ -136,6 +136,17 @@ optional<local_decl> local_context::get_local_decl_from_user_name(name const & n
     return back_find_if([&](local_decl const & d) { return d.get_pp_name() == n; });
 }
 
+bool local_context::rename_user_name(name const & from, name const & to) {
+    if (auto d = get_local_decl_from_user_name(from)) {
+        local_decl new_d(d->get_idx(), d->get_name(), to, d->get_type(), d->get_value(), d->get_info());
+        m_idx2local_decl.insert(d->get_idx(), new_d);
+        m_name2local_decl.insert(d->get_name(), new_d);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void local_context::for_each_after(local_decl const & d, std::function<void(local_decl const &)> const & fn) const {
     m_idx2local_decl.for_each_greater(d.get_idx(), [&](unsigned, local_decl const & d) { return fn(d); });
 }

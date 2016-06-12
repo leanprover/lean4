@@ -100,6 +100,8 @@ public:
         \remark This method is used to implement tactics such as 'revert'. */
     optional<local_decl> get_local_decl_from_user_name(name const & n) const;
 
+    bool rename_user_name(name const & from, name const & to);
+
     /** \brief Execute fn for each local declaration created after \c d. */
     void for_each_after(local_decl const & d, std::function<void(local_decl const &)> const & fn) const;
 

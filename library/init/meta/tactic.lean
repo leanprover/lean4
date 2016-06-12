@@ -51,6 +51,7 @@ meta_constant result     : tactic expr
 meta_constant main_type  : tactic expr
 meta_constant intro      : name → tactic unit
 meta_constant assumption : tactic unit
+meta_constant rename     : name → name → tactic unit
 meta_constant revert_lst : list name → tactic unit
 meta_constant infer_type : expr → tactic expr
 meta_constant whnf       : expr → tactic expr

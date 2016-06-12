@@ -102,7 +102,7 @@ struct push_lazy_abstraction_fn : public replace_visitor {
 
     void add_vidxs(int v) {
         for (pair<name, unsigned> & p : m_s) {
-            lean_assert(static_cast<int>(p.second) + v > 0);
+            lean_assert(static_cast<int>(p.second) + v >= 0);
             p.second += v;
         }
         m_cache.clear();

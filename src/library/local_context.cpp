@@ -136,6 +136,18 @@ optional<local_decl> local_context::get_local_decl_from_user_name(name const & n
     return back_find_if([&](local_decl const & d) { return d.get_pp_name() == n; });
 }
 
+void local_context::for_each_after(local_decl const & d, std::function<void(local_decl const &)> const & fn) const {
+    m_idx2local_decl.for_each_greater(d.get_idx(), [&](unsigned, local_decl const & d) { return fn(d); });
+}
+
+void local_context::pop_local_decl() {
+    lean_assert(!m_idx2local_decl.empty());
+    local_decl d = m_idx2local_decl.max();
+    lean_assert(!m_frozen_decls.contains(d.get_name()));
+    m_name2local_decl.erase(d.get_name());
+    m_idx2local_decl.erase(d.get_idx());
+}
+
 bool local_context::rename_user_name(name const & from, name const & to) {
     if (auto d = get_local_decl_from_user_name(from)) {
         local_decl new_d(d->get_idx(), d->get_name(), to, d->get_type(), d->get_value(), d->get_info());
@@ -147,16 +159,24 @@ bool local_context::rename_user_name(name const & from, name const & to) {
     }
 }
 
-void local_context::for_each_after(local_decl const & d, std::function<void(local_decl const &)> const & fn) const {
-    m_idx2local_decl.for_each_greater(d.get_idx(), [&](unsigned, local_decl const & d) { return fn(d); });
+optional<local_decl> local_context::has_dependencies(local_decl const & d) const {
+    lean_assert(get_local_decl(d.get_name()));
+    expr l = d.mk_ref();
+    optional<local_decl> r;
+    for_each_after(d, [&](local_decl const & d2) {
+            if (r) return;
+            if (depends_on(d2, 1, &l))
+                r = d2;
+        });
+    return r;
 }
 
-void local_context::pop_local_decl() {
-    lean_assert(!m_idx2local_decl.empty());
-    local_decl d = m_idx2local_decl.max();
-    lean_assert(!m_frozen_decls.contains(d.get_name()));
-    m_name2local_decl.erase(d.get_name());
+void local_context::clear(local_decl const & d) {
+    lean_assert(get_local_decl(d.get_name()));
+    lean_assert(!is_frozen(d.get_name()));
+    lean_assert(!has_dependencies(d));
     m_idx2local_decl.erase(d.get_idx());
+    m_name2local_decl.erase(d.get_name());
 }
 
 bool local_context::is_subset_of(name_set const & ls) const {

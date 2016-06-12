@@ -52,6 +52,7 @@ meta_constant main_type  : tactic expr
 meta_constant intro      : name → tactic unit
 meta_constant assumption : tactic unit
 meta_constant rename     : name → name → tactic unit
+meta_constant clear      : name → tactic unit
 meta_constant revert_lst : list name → tactic unit
 meta_constant infer_type : expr → tactic expr
 meta_constant whnf       : expr → tactic expr
@@ -73,6 +74,10 @@ meta_definition intro_lst : list name → tactic unit
 
 meta_definition revert (n : name) : tactic unit :=
 revert_lst [n]
+
+meta_definition clear_lst : list name → tactic unit
+| []      := skip
+| (n::ns) := do clear n, clear_lst ns
 
 meta_definition unify (a b : expr) : tactic bool :=
 unify_core a b transparency.semireducible

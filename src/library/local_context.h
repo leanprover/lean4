@@ -105,6 +105,15 @@ public:
     /** \brief Execute fn for each local declaration created after \c d. */
     void for_each_after(local_decl const & d, std::function<void(local_decl const &)> const & fn) const;
 
+    /** \brief Return a non-none iff other local decls depends on \c d. If the result is not none,
+        then it is the name of the local decl that depends on d.
+        \pre \c d is in this local context. */
+    optional<local_decl> has_dependencies(local_decl const & d) const;
+
+    /** \brief Remove the given local decl.
+        \pre \c d is in this local context, is not frozen, and no other local decl depends on it. */
+    void clear(local_decl const & d);
+
     void freeze(name const & n);
     bool is_frozen(name const & n) const { return m_frozen_decls.contains(n); }
 

@@ -242,6 +242,15 @@ level pretty_fn::purify(level const & l) {
         });
 }
 
+expr pretty_fn::infer_type(expr const & e) {
+    try {
+        return m_ctx.infer(e);
+    } catch (exception &) {
+        expr dummy = mk_Prop();
+        return dummy;
+    }
+}
+
 /** \brief Make sure that all metavariables have reasonable names,
     and for all local constants l1 l2, local_pp_name(l1) != local_pp_name(l2).
 
@@ -252,18 +261,20 @@ expr pretty_fn::purify(expr const & e) {
     if (!has_expr_metavar(e) && !has_local(e) && (!m_universes || !has_univ_metavar(e)))
         return e;
     return replace(e, [&](expr const & e, unsigned) {
-            if (!has_expr_metavar(e) && !has_local(e) && (!m_universes || !has_univ_metavar(e)))
+            if (!has_expr_metavar(e) && !has_local(e) && (!m_universes || !has_univ_metavar(e))) {
                 return some_expr(e);
-            else if (is_metavar(e) && m_purify_metavars)
-                return some_expr(mk_metavar(mk_metavar_name(mlocal_name(e)), m_ctx.infer(e)));
-            else if (is_local(e))
-                return some_expr(mk_local(mlocal_name(e), mk_local_name(mlocal_name(e), m_ctx.get_local_pp_name(e)), m_ctx.infer(e), local_info(e)));
-            else if (is_constant(e))
+            } else if (is_metavar(e) && m_purify_metavars) {
+                return some_expr(mk_metavar(mk_metavar_name(mlocal_name(e)), infer_type(e)));
+            } else if (is_local(e)) {
+                return some_expr(mk_local(mlocal_name(e), mk_local_name(mlocal_name(e), m_ctx.get_local_pp_name(e)),
+                                          infer_type(e), local_info(e)));
+            } else if (is_constant(e)) {
                 return some_expr(update_constant(e, map(const_levels(e), [&](level const & l) { return purify(l); })));
-            else if (is_sort(e))
+            } else if (is_sort(e)) {
                 return some_expr(update_sort(e, purify(sort_level(e))));
-            else
+            } else {
                 return none_expr();
+            }
         });
 }
 

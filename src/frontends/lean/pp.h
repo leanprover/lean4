@@ -125,6 +125,7 @@ private:
     result pp_abbreviation(expr const & e, name const & abbrev, bool fn, unsigned bp = 0, bool ignore_hide = false);
     void set_options_core(options const & o);
 
+    expr infer_type(expr const & e);
 public:
     pretty_fn(environment const & env, options const & o, abstract_type_context & ctx);
     result pp(expr const & e, bool ignore_hide = false);

@@ -46,6 +46,10 @@ Author: Leonardo de Moura
 #include "library/error_handling.h"
 #include "library/definitional/equations.h"
 #include "library/compiler/rec_fn_macro.h"
+#include "library/compiler/vm_compiler.h"
+#include "library/vm/vm.h"
+#include "library/tactic/elaborate.h"
+#include "library/tactic/tactic_state.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/info_manager.h"
@@ -363,6 +367,15 @@ expr old_elaborator::visit_expecting_type(expr const & e, constraint_seq & cs) {
     }
 }
 
+expr old_elaborator::visit_by(expr const & e, optional<expr> const & t, constraint_seq & cs) {
+    lean_assert(is_by(e));
+    expr tac = visit(get_by_arg(e), cs);
+    expr m   = m_context.mk_meta(t, e.get_tag());
+    register_meta(m);
+    m_local_tactic_hints.insert(mlocal_name(get_app_fn(m)), tac);
+    return m;
+}
+
 expr old_elaborator::visit_expecting_type_of(expr const & e, expr const & t, constraint_seq & cs) {
     if (is_placeholder(e) && !placeholder_type(e)) {
         bool inst_imp = true;
@@ -374,8 +387,8 @@ expr old_elaborator::visit_expecting_type_of(expr const & e, expr const & t, con
         return visit_expecting_type_of(get_annotation_arg(e), t, cs);
     } else if (is_choice(e)) {
         return visit_choice(e, some_expr(t), cs);
-        // } else if (is_by(e)) {
-        // return visit_by(e, some_expr(t), cs);
+    } else if (is_by(e)) {
+        return visit_by(e, some_expr(t), cs);
     } else if (is_calc_annotation(e)) {
         return visit_calc_proof(e, some_expr(t), cs);
     } else {
@@ -1691,6 +1704,8 @@ expr old_elaborator::visit_core(expr const & e, constraint_seq & cs) {
         return visit_choice(e, none_expr(), cs);
     } else if (is_let_value(e)) {
         return visit_let_value(e, cs);
+    } else if (is_by(e)) {
+        return visit_by(e, none_expr(), cs);
     } else if (is_calc_annotation(e)) {
         return visit_calc_proof(e, none_expr(), cs);
     } else if (is_no_info(e)) {
@@ -1843,6 +1858,80 @@ unify_result_seq old_elaborator::solve(constraint_seq const & cs) {
     return unify(env(), tmp.size(), tmp.data(), substitution(), m_unifier_config);
 }
 
+optional<expr> old_elaborator::get_tactic_for(expr const & mvar) {
+    if (auto it = m_local_tactic_hints.find(mlocal_name(mvar))) {
+        m_used_local_tactic_hints.insert(mlocal_name(mvar));
+        return some_expr(*it);
+    } else {
+        return none_expr();
+    }
+}
+
+void old_elaborator::display_unsolved_tactic_state(expr const & mvar, tactic_state const & ts, char const * msg,
+                                                   expr const & pos) {
+    lean_assert(is_metavar(mvar));
+    if (!m_displayed_errors.contains(mlocal_name(mvar))) {
+        m_displayed_errors.insert(mlocal_name(mvar));
+        auto out = regular(env(), ios(), m_tc->get_type_context());
+        flycheck_error err(ios());
+        if (!err.enabled() || save_error(pip(), pos)) {
+            display_error_pos(out.get_stream(), out.get_options(), pip(), pos);
+            out << " " << msg << "\n" << ts.pp(ios().get_formatter_factory()) << endl;
+        }
+    }
+}
+
+void old_elaborator::display_unsolved_tactic_state(expr const & mvar, tactic_state const & ps, char const * msg) {
+    display_unsolved_tactic_state(mvar, ps, msg, mvar);
+}
+
+static tactic_state to_tactic_state(environment const & env, options const & opts, expr const & meta, expr const & type, buffer<expr> & new_ctx) {
+    buffer<expr> old_ctx;
+    get_app_args(meta, old_ctx);
+    local_context lctx;
+    for (unsigned i = 0; i < old_ctx.size(); i++) {
+        expr old_local_type = mlocal_type(old_ctx[i]);
+        if (i > 0)
+            old_local_type = instantiate_rev(abstract_locals(old_local_type, i, old_ctx.data()), i, new_ctx.data());
+        expr new_local = lctx.mk_local_decl(local_pp_name(old_ctx[i]), old_local_type, local_info(old_ctx[i]));
+        new_ctx.push_back(new_local);
+    }
+    lean_assert(old_ctx.size() == new_ctx.size());
+    expr new_type = instantiate_rev(abstract_locals(type, old_ctx.size(), old_ctx.data()), new_ctx.size(), new_ctx.data());
+    return mk_tactic_state_for(env, opts, lctx, new_type);
+}
+
+static tactic_state execute_tactic(environment const & env, options const & opts, expr const & tactic,
+                                   tactic_state const & s) {
+    name tactic_name("_tactic");
+    expr tactic_type = mk_app(mk_constant("tactic", {mk_level_one()}), mk_constant("unit"));
+    /* compile tactic */
+    bool use_conv_opt   = true;
+    bool is_trusted     = false;
+    environment new_env = env;
+    auto cd = check(new_env, mk_definition(new_env, tactic_name, {}, tactic_type, tactic, use_conv_opt, is_trusted));
+    new_env = new_env.add(cd);
+    new_env = vm_compile(new_env, new_env.get(tactic_name));
+    vm_state S(new_env);
+    vm_obj initial_state = to_obj(s);
+    S.push(initial_state);
+    vm_decl d = *S.get_decl(tactic_name);
+    S.invoke_fn(tactic_name);
+    if (d.get_arity() == 0) {
+        /* main returned a closure, it did not process initial_state yet.
+           So, we force the execution. */
+        S.apply();
+    }
+    vm_obj r = S.top();
+    if (optional<tactic_state> new_s = is_tactic_success(r)) {
+        return *new_s;
+    } else if (optional<format> ex = is_tactic_exception(S, opts, r)) {
+        throw_elaborator_exception(tactic, [=](formatter const &) { return *ex; });
+    } else {
+        lean_unreachable();
+    }
+}
+
 // The parameters univs_fixed is true if the elaborator has instantiated the universe metavariables with universe parameters.
 // See issue #771
 void old_elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set & visited, bool reject_type_is_meta) {
@@ -1861,32 +1950,23 @@ void old_elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name
         throw_elaborator_exception("failed to synthesize placeholder, type is a unknown (i.e., it is a metavariable) "
                                    "(solution: provide type explicitly)", mvar);
     }
-    /*
-    proof_state ps = to_proof_state(*meta, type, subst);
-    if (auto pre_tac = get_pre_tactic_for(mvar)) {
-        if (is_begin_end_annotation(*pre_tac)) {
-            try_using_begin_end(subst, mvar, ps, *pre_tac);
-            return;
+    options const & opts = m_ctx.m_ios.get_options();
+    buffer<expr> new_locals;
+    tactic_state ts      = to_tactic_state(env(), opts, *meta, type, new_locals);
+    if (optional<expr> tac = get_tactic_for(mvar)) {
+        expr tactic = subst.instantiate(*tac);
+        tactic_state new_ts    = execute_tactic(env(), opts, tactic, ts);
+        metavar_context mctx   = new_ts.mctx();
+        expr r                 = mctx.instantiate(new_ts.main());
+        if (has_expr_metavar(r)) {
+            display_unsolved_tactic_state(mvar, new_ts, "tactic failed, result contains meta-variables");
+            throw_elaborator_exception("tactic failed, result contains meta-variables", r);
         }
-
-        if (auto tac = pre_tactic_to_tactic(subst.instantiate_all(*pre_tac))) {
-            bool show_failure = true;
-            try_using(subst, mvar, ps, *pre_tac, *tac, show_failure);
-            return;
-        }
+        metavar_decl main_decl = *mctx.get_metavar_decl(new_ts.main());
+        type_context aux_ctx(env(), opts, mctx, main_decl.get_context());
+        r = aux_ctx.mk_lambda(new_locals, r);
+        subst.assign(mvar, r);
     }
-
-    if (m_use_tactic_hints) {
-        // using tactic_hints
-        for (expr const & pre_tac : get_tactic_hints(env())) {
-            if (auto tac = pre_tactic_to_tactic(pre_tac)) {
-                bool show_failure = false;
-                if (try_using(subst, mvar, ps, pre_tac, *tac, show_failure))
-                    return;
-            }
-        }
-    }
-    */
     return;
 }
 
@@ -1975,8 +2055,11 @@ bool old_elaborator::display_unassigned_mvars(expr const & e, substitution const
         substitution tmp_s(s);
         visit_unassigned_mvars(e, [&](expr const & mvar) {
                 if (auto it = mvar_to_meta(mvar)) {
-                    auto out = regular(env(), ios(), m_tc->get_type_context());
-                    out << "don't know how to synthesize placeholder\n";
+                    expr meta      = tmp_s.instantiate(*it);
+                    expr meta_type = tmp_s.instantiate(type_checker(env()).infer(meta));
+                    buffer<expr> new_ctx;
+                    tactic_state ts = to_tactic_state(env(), ios().get_options(), meta, meta_type, new_ctx);
+                    display_unsolved_tactic_state(mvar, ts, "don't know how to synthesize placeholder");
                     r = true;
                 }
             });

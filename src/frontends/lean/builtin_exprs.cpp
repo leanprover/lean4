@@ -141,8 +141,10 @@ static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     parser::local_scope scope(p);
     p.clear_locals();
     expr tac  = p.parse_expr();
+    expr type = mk_app(mk_constant(get_tactic_name()), mk_constant(get_unit_name()));
     p.update_pos(tac, pos);
-    return p.save_pos(mk_by(tac), pos);
+    expr r    = p.save_pos(mk_typed_expr(type, tac), pos);
+    return p.save_pos(mk_by(r), pos);
 }
 
 static expr parse_begin_end_core(parser & p, pos_info const & start_pos,
@@ -228,7 +230,7 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
             expr left = p.id_to_expr(id, id_pos);
             id        = get_this_tk();
             unsigned rbp = 0;
-            while (rbp < p.curr_expr_lbp()) {
+            while (rbp < p.curr_lbp()) {
                 left = p.parse_led(left);
             }
             prop      = left;
@@ -296,7 +298,7 @@ static expr parse_suppose(parser & p, unsigned, expr const *, pos_info const & p
             expr left = p.id_to_expr(id, id_pos);
             id        = get_this_tk();
             unsigned rbp = 0;
-            while (rbp < p.curr_expr_lbp()) {
+            while (rbp < p.curr_lbp()) {
                 left = p.parse_led(left);
             }
             prop      = left;
@@ -341,7 +343,7 @@ static expr parse_suffices_to_show(parser & p, unsigned, expr const *, pos_info 
             expr left = p.id_to_expr(id, prop_pos);
             id        = get_this_tk();
             unsigned rbp = 0;
-            while (rbp < p.curr_expr_lbp()) {
+            while (rbp < p.curr_lbp()) {
                 left = p.parse_led(left);
             }
             from = left;
@@ -543,7 +545,7 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
                 expr left = p.id_to_expr(*id, id_pos);
                 id        = optional<name>();
                 unsigned rbp = 0;
-                while (rbp < p.curr_expr_lbp()) {
+                while (rbp < p.curr_lbp()) {
                     left = p.parse_led(left);
                 }
                 curr = left;

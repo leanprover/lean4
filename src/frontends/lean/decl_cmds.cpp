@@ -253,7 +253,7 @@ static environment variable_cmd_core(parser & p, variable_kind k, bool is_protec
                 expr left    = p.id_to_expr(n, n_pos);
                 n            = p.mk_anonymous_inst_name();
                 unsigned rbp = 0;
-                while (rbp < p.curr_expr_lbp()) {
+                while (rbp < p.curr_lbp()) {
                     left = p.parse_led(left);
                 }
                 type = left;
@@ -354,7 +354,7 @@ static environment variables_cmd_core(parser & p, variable_kind k, bool is_prote
                 expr left    = p.id_to_expr(id, id_pos);
                 id           = p.mk_anonymous_inst_name();
                 unsigned rbp = 0;
-                while (rbp < p.curr_expr_lbp()) {
+                while (rbp < p.curr_lbp()) {
                     left = p.parse_led(left);
                 }
                 ids.push_back(id);

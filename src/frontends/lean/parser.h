@@ -118,7 +118,6 @@ class parser {
     // When the following flag is true, it creates a constant.
     // This flag is when we are trying to parse mutually recursive declarations.
     undef_id_behavior       m_undef_id_behavior;
-    optional<bool>          m_has_tactic_decls;
     // We process theorems in parallel
     theorem_queue           m_theorem_queue;
     name_set                m_theorem_queue_set; // set of theorem names in m_theorem_queue
@@ -183,16 +182,11 @@ class parser {
     void parse_imports();
     void parse_command();
     bool parse_commands();
-    unsigned curr_lbp_core(bool as_tactic) const;
+    unsigned curr_lbp_core() const;
     void process_postponed(buffer<expr> const & args, bool is_left, buffer<notation::action_kind> const & kinds,
                            buffer<list<expr>> const & nargs, buffer<expr> const & ps, buffer<pair<unsigned, pos_info>> const & scoped_info,
                            list<notation::action> const & postponed, pos_info const & p, buffer<expr> & new_args);
-    expr parse_notation_core(parse_table t, expr * left, bool as_tactic);
-    expr parse_expr_or_tactic(unsigned rbp, bool as_tactic) {
-        return as_tactic ? parse_tactic(rbp) : parse_expr(rbp);
-    }
-    expr parse_notation(parse_table t, expr * left) { return parse_notation_core(t, left, false); }
-    expr parse_tactic_notation(parse_table t, expr * left) { return parse_notation_core(t, left, true); }
+    expr parse_notation(parse_table t, expr * left);
     expr parse_nud_notation();
     expr parse_led_notation(expr left);
     expr parse_nud();
@@ -238,17 +232,6 @@ class parser {
     expr parse_backtick_expr_core();
     expr parse_backtick_expr();
 
-    optional<expr> is_tactic_command(name & id);
-    expr parse_tactic_option_num();
-    expr parse_tactic_led(expr left);
-    expr parse_tactic_nud();
-    expr mk_tactic_expr_list(buffer<expr> const & args, pos_info const & p);
-    expr parse_tactic_expr_list();
-    expr parse_tactic_opt_expr_list();
-    expr parse_tactic_id_list();
-    expr parse_tactic_opt_id_list();
-    expr parse_tactic_using_expr();
-
     void init_stop_at(options const & opts);
 
     void replace_theorem(certified_declaration const & thm);
@@ -270,8 +253,7 @@ public:
     name mk_anonymous_inst_name();
     bool is_anonymous_inst_name(name const & n) const;
 
-    unsigned curr_expr_lbp() const { return curr_lbp_core(false); }
-    unsigned curr_tactic_lbp() const { return curr_lbp_core(true); }
+    unsigned curr_lbp() const;
 
     cmd_table const & cmds() const { return get_cmd_table(env()); }
 
@@ -440,8 +422,6 @@ public:
     expr parse_expr_with_env(local_environment const & lenv, unsigned rbp = 0);
 
     expr parse_tactic(unsigned rbp = 0);
-    expr parse_tactic_expr_arg(unsigned rbp = 0);
-    expr parse_tactic_id_arg();
 
     struct local_scope { parser & m_p; environment m_env;
         local_scope(parser & p, bool save_options = false);

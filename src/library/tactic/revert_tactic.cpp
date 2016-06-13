@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/trace.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_list.h"
 #include "library/tactic/tactic_state.h"
@@ -14,10 +15,7 @@ tactic_state revert(buffer<expr> & locals, tactic_state const & s) {
     metavar_context mctx       = s.mctx();
     type_context ctx           = mk_type_context_for(s, mctx, transparency_mode::All);
     expr val                   = ctx.revert(locals.size(), locals.data(), head(s.goals()));
-    locals.clear();
-    expr new_g                 = get_app_args(val, locals);
-    lean_assert(is_metavar(new_g));
-    mctx.assign(head(s.goals()), val);
+    expr new_g                 = get_app_fn(val);
     return set_mctx_goals(s, mctx, cons(new_g, tail(s.goals())));
 }
 

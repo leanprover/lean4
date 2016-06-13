@@ -589,6 +589,12 @@ void parser::pop_local_scope() {
     m_parser_scope_stack = tail(m_parser_scope_stack);
 }
 
+void parser::clear_locals() {
+    m_local_level_decls = local_level_decls();
+    m_local_context     = local_context();
+    m_local_decls       = local_expr_decls(); // TODO(Leo): delete
+}
+
 void parser::add_local_level(name const & n, level const & l, bool is_variable) {
     if (m_env.is_universe(n))
         throw exception(sstream() << "invalid universe declaration, '" << n << "' shadows a global universe");

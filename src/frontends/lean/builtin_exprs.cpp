@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/choice.h"
 #include "library/let.h"
 #include "library/constants.h"
+#include "library/tactic/elaborate.h"
 #include "library/definitional/equations.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/decl_cmds.h"
@@ -136,7 +137,12 @@ static expr parse_unit(parser & p, unsigned, expr const *, pos_info const & pos)
 }
 
 static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
-    throw parser_error("by-exprs have been disabled", pos);
+    p.next();
+    parser::local_scope scope(p);
+    p.clear_locals();
+    expr tac  = p.parse_expr();
+    p.update_pos(tac, pos);
+    return p.save_pos(mk_by(tac), pos);
 }
 
 static expr parse_begin_end_core(parser & p, pos_info const & start_pos,

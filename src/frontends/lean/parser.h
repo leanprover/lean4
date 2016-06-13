@@ -449,6 +449,7 @@ public:
         local_scope(parser & p, optional<environment> const & env);
         ~local_scope();
     };
+    void clear_locals();
     bool has_locals() const { return !m_local_decls.empty() || !m_local_level_decls.empty(); }
     void add_local_level(name const & n, level const & l, bool is_variable = false);
     void add_local_expr(name const & n, expr const & p, bool is_variable = false);

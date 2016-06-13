@@ -123,6 +123,8 @@ public:
     };
 };
 
+class unification_hint;
+
 class type_context : public abstract_type_context {
     typedef type_context_cache cache;
     typedef buffer<optional<level>> tmp_uassignment;
@@ -347,6 +349,7 @@ private:
     bool is_def_eq_eta(expr const & e1, expr const & e2);
     bool is_def_eq_proof_irrel(expr const & e1, expr const & e2);
     lbool quick_is_def_eq(expr const & e1, expr const & e2);
+    bool try_unification_hint(unification_hint const & h, expr const & e1, expr const & e2);
     bool try_unification_hints(expr const & e1, expr const & e2);
     bool is_productive(expr const & e);
     expr reduce_if_productive(expr const & t);

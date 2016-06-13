@@ -1920,6 +1920,16 @@ public:
     }
 };
 
+bool type_context::try_unification_hint(unification_hint const & hint, expr const & e1, expr const & e2) {
+    scope s(*this);
+    if (unification_hint_fn(*this, hint)(e1, e2)) {
+        s.commit();
+        return true;
+    } else {
+        return false;
+    }
+}
+
 bool type_context::try_unification_hints(expr const & e1, expr const & e2) {
     expr e1_fn = get_app_fn(e1);
     expr e2_fn = get_app_fn(e2);
@@ -1927,12 +1937,11 @@ bool type_context::try_unification_hints(expr const & e1, expr const & e2) {
         buffer<unification_hint> hints;
         get_unification_hints(env(), const_name(e1_fn), const_name(e2_fn), hints);
         for (unification_hint const & hint : hints) {
-            scope s(*this);
             lean_trace(name({"type_context", "unification_hint"}),
                        tout() << e1 << " =?= " << e2
                        << ", pattern: " << hint.get_lhs() << " =?= " << hint.get_rhs() << "\n";);
-            if (unification_hint_fn(*this, hint)(e1, e2)) {
-                s.commit();
+            if (try_unification_hint(hint, e1, e2) ||
+                try_unification_hint(hint, e2, e1)) {
                 return true;
             }
         }

@@ -1928,7 +1928,7 @@ bool type_context::try_unification_hints(expr const & e1, expr const & e2) {
         get_unification_hints(env(), const_name(e1_fn), const_name(e2_fn), hints);
         for (unification_hint const & hint : hints) {
             scope s(*this);
-            lean_trace(name({"old_type_context", "unification_hint"}),
+            lean_trace(name({"type_context", "unification_hint"}),
                        tout() << e1 << " =?= " << e2
                        << ", pattern: " << hint.get_lhs() << " =?= " << hint.get_rhs() << "\n";);
             if (unification_hint_fn(*this, hint)(e1, e2)) {

@@ -180,7 +180,7 @@ vm_obj mk_tactic_exception(throwable const & ex) {
 vm_obj mk_tactic_exception(format const & fmt) {
     vm_state const & s = get_vm_state();
     vm_decl K = *s.get_decl(get_combinator_K_name());
-    return mk_tactic_exception(mk_vm_closure(K.get_idx(), mk_vm_unit(), mk_vm_unit(), to_obj(fmt)));
+    return mk_tactic_exception(mk_vm_closure(K.get_idx(), to_obj(fmt), mk_vm_unit(), mk_vm_unit()));
 }
 
 vm_obj mk_tactic_exception(char const * msg) {

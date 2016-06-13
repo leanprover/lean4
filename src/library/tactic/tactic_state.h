@@ -93,6 +93,13 @@ vm_obj mk_tactic_exception(sstream const & s);
 vm_obj mk_tactic_exception(char const * msg);
 vm_obj mk_no_goals_exception();
 
+/* If r is (base_tactic_result.success a s), then return s */
+optional<tactic_state> is_tactic_success(vm_obj const & r);
+
+/* If ex is (base_tactic_result.exception fn), then return (fn opts).
+   The vm_state S is used to execute (fn opts). */
+optional<format> is_tactic_exception(vm_state & S, options const & opts, vm_obj const & ex);
+
 type_context_cache & get_type_context_cache_for(environment const & env, options const & o);
 type_context_cache & get_type_context_cache_for(tactic_state const & s);
 

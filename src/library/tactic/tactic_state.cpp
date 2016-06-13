@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_format.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_expr.h"
+#include "library/vm/vm_options.h"
 #include "library/vm/vm_list.h"
 #include "library/tactic/tactic_state.h"
 
@@ -139,6 +140,23 @@ vm_obj tactic_state_to_format(vm_obj const & s) {
 vm_obj tactic_state_format_expr(vm_obj const & s, vm_obj const & e) {
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     return to_obj(to_tactic_state(s).pp_expr(fmtf, to_expr(e)));
+}
+
+optional<tactic_state> is_tactic_success(vm_obj const & o) {
+    if (is_constructor(o) && cidx(o) == 0) {
+        return optional<tactic_state>(to_tactic_state(cfield(o, 1)));
+    } else {
+        return optional<tactic_state>();
+    }
+}
+
+optional<format> is_tactic_exception(vm_state & S, options const & opts, vm_obj const & ex) {
+    if (is_constructor(ex) && cidx(ex) == 1) {
+        vm_obj fmt = S.invoke(cfield(ex, 0), to_obj(opts));
+        return optional<format>(to_format(fmt));
+    } else {
+        return optional<format>();
+    }
 }
 
 vm_obj mk_tactic_success(vm_obj const & a, tactic_state const & s) {

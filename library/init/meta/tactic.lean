@@ -11,6 +11,9 @@ meta_constant tactic_state : Type₁
 namespace tactic_state
 meta_constant env         : tactic_state → environment
 meta_constant to_format   : tactic_state → format
+/- Format expression with respect to the main goal in the tactic state.
+   If the tactic state does not contain any goals, then format expression
+   using an empty local context. -/
 meta_constant format_expr : tactic_state → expr → format
 end tactic_state
 
@@ -36,6 +39,7 @@ return (_root_.trace s (λ u, ()))
 meta_definition trace_fmt (fmt : format) : tactic unit :=
 return (_root_.trace_fmt fmt (λ u, ()))
 
+/- Trace expression with respect to the main goal -/
 meta_definition trace_expr (e : expr) : tactic unit :=
 do s ← read,
    trace_fmt (format_expr s e)
@@ -50,8 +54,13 @@ do s ← read, return (tactic_state.format_expr s e)
 inductive transparency :=
 | all | semireducible | reducible | none
 
-/- Return the partial term/proof constructed so far. -/
+/- Return the partial term/proof constructed so far. Note that the resultant expression
+   may contain variables that are not declarate in the current main goal. -/
 meta_constant result        : tactic expr
+/- Display the partial term/proof constructed so far. This tactic is *not* equivalent to
+   do { r ← result, s ← read, return (format_expr s r) } because this one will format the result with respect
+   to the current goal, and trace_result will do it with respect to the initial goal. -/
+meta_constant format_result : tactic format
 /- Return target type of the main goal. Fail if tactic_state does not have any goal left. -/
 meta_constant target        : tactic expr
 meta_constant intro         : name → tactic unit
@@ -94,5 +103,9 @@ unify_core a b transparency.semireducible
 meta_definition get_local_type (n : name) : tactic expr :=
 do e ← get_local n,
    infer_type e
+
+meta_definition trace_result : tactic unit :=
+do f ← format_result,
+   trace_fmt f
 
 end tactic

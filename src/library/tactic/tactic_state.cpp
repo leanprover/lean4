@@ -202,6 +202,17 @@ vm_obj tactic_result(vm_obj const & o) {
     return mk_tactic_success(to_obj(r), set_mctx(s, mctx));
 }
 
+vm_obj tactic_format_result(vm_obj const & o) {
+    tactic_state const & s = to_tactic_state(o);
+    metavar_context mctx = s.mctx();
+    expr r = mctx.instantiate(s.main());
+    metavar_decl main_decl = *mctx.get_metavar_decl(s.main());
+    type_context ctx(s.env(), s.get_options(), mctx, main_decl.get_context(), transparency_mode::All);
+    formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
+    formatter fmt = fmtf(s.env(), s.get_options(), ctx);
+    return mk_tactic_success(to_obj(fmt(r)), s);
+}
+
 vm_obj tactic_target(vm_obj const & o) {
     tactic_state const & s = to_tactic_state(o);
     optional<metavar_decl> g = s.get_main_goal_decl();
@@ -303,6 +314,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "to_format"}),   tactic_state_to_format);
     DECLARE_VM_BUILTIN(name({"tactic", "target"}),            tactic_target);
     DECLARE_VM_BUILTIN(name({"tactic", "result"}),            tactic_result);
+    DECLARE_VM_BUILTIN(name({"tactic", "format_result"}),     tactic_format_result);
     DECLARE_VM_BUILTIN(name({"tactic", "infer_type"}),        tactic_infer_type);
     DECLARE_VM_BUILTIN(name({"tactic", "unify_core"}),        tactic_unify_core);
     DECLARE_VM_BUILTIN(name({"tactic", "get_local"}),         tactic_get_local);

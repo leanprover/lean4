@@ -100,7 +100,7 @@ void init_token_table(token_table & t) {
          {"esimp", 0}, {"note", 0}, {"with_options", 0}, {"with_attributes", 0}, {"with_attrs", 0},
          {"generalize", 0}, {"as", 0}, {":=", 0}, {"--", 0}, {"#", 0}, {"#tactic", 0},
          {"(*", 0}, {"/-", 0}, {"begin", g_max_prec}, {"abstract", g_max_prec},
-         {"proof", g_max_prec}, {"qed", 0}, {"@@", g_max_prec}, {"@", g_max_prec},
+         {"@@", g_max_prec}, {"@", g_max_prec},
          {"sorry", g_max_prec}, {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec}, {"<-", 0},
          {"?(", g_max_prec}, {"⌞", g_max_prec}, {"⌟", 0}, {"match", 0},
          {"<d", g_decreasing_prec}, {"renaming", 0}, {"extends", 0}, {nullptr, 0}};

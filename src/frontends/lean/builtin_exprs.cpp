@@ -152,10 +152,6 @@ static expr parse_tactic_expr(parser & p, unsigned, expr const *, pos_info const
     return p.parse_tactic();
 }
 
-static expr parse_proof_qed_core(parser & p, pos_info const & pos) {
-    throw parser_error("proof-qed-exprs have been disabled", pos);
-}
-
 static expr parse_proof(parser & p);
 
 static expr parse_using_expr(parser & p, pos_info const & using_pos) {
@@ -201,10 +197,6 @@ static expr parse_proof(parser & p) {
         // parse: 'from' expr
         p.next();
         return p.parse_expr();
-    } else if (p.curr_is_token(get_proof_tk())) {
-        auto pos = p.pos();
-        p.next();
-        return parse_proof_qed_core(p, pos);
     } else if (p.curr_is_token(get_begin_tk())) {
         auto pos = p.pos();
         return parse_begin_end_core(p, pos, get_end_tk());
@@ -501,10 +493,6 @@ static expr parse_rparen(parser & p, unsigned, expr const * args, pos_info const
         return args[0];
 }
 
-static expr parse_proof_qed(parser & p, unsigned, expr const *, pos_info const & pos) {
-    return parse_proof_qed_core(p, pos);
-}
-
 static expr parse_inaccessible(parser & p, unsigned, expr const * args, pos_info const & pos) {
     return p.save_pos(mk_inaccessible(args[0]), pos);
 }
@@ -624,7 +612,6 @@ parse_table init_nud_table() {
     r = r.add({transition("@@", mk_ext_action(parse_partial_explicit_expr))}, x0);
     r = r.add({transition("!", mk_ext_action(parse_consume_args_expr))}, x0);
     r = r.add({transition("begin", mk_ext_action_core(parse_begin_end))}, x0);
-    r = r.add({transition("proof", mk_ext_action(parse_proof_qed))}, x0);
     r = r.add({transition("using", mk_ext_action(parse_using))}, x0);
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
     r = r.add({transition("match", mk_ext_action(parse_match))}, x0);

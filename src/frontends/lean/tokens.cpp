@@ -84,8 +84,6 @@ static name const * g_then_tk = nullptr;
 static name const * g_else_tk = nullptr;
 static name const * g_by_tk = nullptr;
 static name const * g_rewrite_tk = nullptr;
-static name const * g_proof_tk = nullptr;
-static name const * g_qed_tk = nullptr;
 static name const * g_begin_tk = nullptr;
 static name const * g_end_tk = nullptr;
 static name const * g_private_tk = nullptr;
@@ -235,8 +233,6 @@ void initialize_tokens() {
     g_else_tk = new name{"else"};
     g_by_tk = new name{"by"};
     g_rewrite_tk = new name{"rewrite"};
-    g_proof_tk = new name{"proof"};
-    g_qed_tk = new name{"qed"};
     g_begin_tk = new name{"begin"};
     g_end_tk = new name{"end"};
     g_private_tk = new name{"private"};
@@ -387,8 +383,6 @@ void finalize_tokens() {
     delete g_else_tk;
     delete g_by_tk;
     delete g_rewrite_tk;
-    delete g_proof_tk;
-    delete g_qed_tk;
     delete g_begin_tk;
     delete g_end_tk;
     delete g_private_tk;
@@ -538,8 +532,6 @@ name const & get_then_tk() { return *g_then_tk; }
 name const & get_else_tk() { return *g_else_tk; }
 name const & get_by_tk() { return *g_by_tk; }
 name const & get_rewrite_tk() { return *g_rewrite_tk; }
-name const & get_proof_tk() { return *g_proof_tk; }
-name const & get_qed_tk() { return *g_qed_tk; }
 name const & get_begin_tk() { return *g_begin_tk; }
 name const & get_end_tk() { return *g_end_tk; }
 name const & get_private_tk() { return *g_private_tk; }

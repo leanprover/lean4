@@ -79,8 +79,6 @@ then         then
 else         else
 by           by
 rewrite      rewrite
-proof        proof
-qed          qed
 begin        begin
 end          end
 private      private

@@ -21,14 +21,14 @@ tactic_state revert(buffer<expr> & locals, tactic_state const & s) {
 
 vm_obj revert(list<name> const & ns, tactic_state const & s) {
     optional<metavar_decl> g   = s.get_main_goal_decl();
-    if (!g) return mk_no_goals_exception();
+    if (!g) return mk_no_goals_exception(s);
     local_context lctx         = g->get_context();
     buffer<expr> locals;
     for (name const & n : ns) {
         if (optional<local_decl> const & d = lctx.get_local_decl_from_user_name(n)) {
             locals.push_back(d->mk_ref());
         } else {
-            return mk_tactic_exception(sstream() << "revert tactic failed, unknown '" << n << "' hypothesis");
+            return mk_tactic_exception(sstream() << "revert tactic failed, unknown '" << n << "' hypothesis", s);
         }
     }
     return mk_tactic_success(revert(locals, s));

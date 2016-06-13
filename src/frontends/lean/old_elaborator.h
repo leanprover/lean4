@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/unifier.h"
 #include "library/old_local_context.h"
 #include "library/old_type_checker.h"
+#include "library/tactic/tactic_state.h"
 #include "frontends/lean/elaborator_context.h"
 #include "frontends/lean/coercion_elaborator.h"
 #include "frontends/lean/util.h"
@@ -21,7 +22,6 @@ Author: Leonardo de Moura
 namespace lean {
 /** \brief Mapping from metavariable names to metavariable applications (?M ...) */
 typedef name_map<expr> mvar2meta;
-class tactic_state;
 /** \brief Helper class for implementing the \c elaborate functions. */
 class old_elaborator : public coercion_info_manager {
     typedef name_map<expr> local_tactic_hints;
@@ -148,6 +148,8 @@ class old_elaborator : public coercion_info_manager {
     pair<expr, constraint_seq> visit(expr const & e);
     expr visit(expr const & e, constraint_seq & cs);
     unify_result_seq solve(constraint_seq const & cs);
+    void display_unsolved_tactic_state(expr const & mvar, tactic_state const & ts, format const & fmt,
+                                       expr const & pos);
     void display_unsolved_tactic_state(expr const & mvar, tactic_state const & ts, char const * msg,
                                        expr const & pos);
     void display_unsolved_tactic_state(expr const & mvar, tactic_state const & ps, char const * msg);
@@ -155,6 +157,7 @@ class old_elaborator : public coercion_info_manager {
     // void display_unsolved_subgoals(expr const & mvar, proof_state const & ps);
     // void display_tactic_exception(tactic_exception const & ex, proof_state const & ps, expr const & pre_tac);
     optional<expr> get_tactic_for(expr const & mvar);
+    optional<tactic_state> execute_tactic(expr const & tactic, tactic_state const & s, expr const & mvar);
     // optional<tactic> pre_tactic_to_tactic(expr const & pre_tac);
     // bool try_using(substitution & subst, expr const & mvar, proof_state const & ps,
     // expr const & pre_tac, tactic const & tac, bool show_failure);

@@ -86,19 +86,19 @@ vm_obj to_obj(transparency_mode m);
 
 vm_obj mk_tactic_success(vm_obj const & a, tactic_state const & s);
 vm_obj mk_tactic_success(tactic_state const & s);
-vm_obj mk_tactic_exception(vm_obj const & fn);
-vm_obj mk_tactic_exception(throwable const & ex);
-vm_obj mk_tactic_exception(format const & fmt);
-vm_obj mk_tactic_exception(sstream const & s);
-vm_obj mk_tactic_exception(char const * msg);
-vm_obj mk_no_goals_exception();
+vm_obj mk_tactic_exception(vm_obj const & fn, tactic_state const & s);
+vm_obj mk_tactic_exception(throwable const & ex, tactic_state const & s);
+vm_obj mk_tactic_exception(format const & fmt, tactic_state const & s);
+vm_obj mk_tactic_exception(sstream const & strm, tactic_state const & s);
+vm_obj mk_tactic_exception(char const * msg, tactic_state const & s);
+vm_obj mk_no_goals_exception(tactic_state const & s);
 
 /* If r is (base_tactic_result.success a s), then return s */
 optional<tactic_state> is_tactic_success(vm_obj const & r);
 
 /* If ex is (base_tactic_result.exception fn), then return (fn opts).
    The vm_state S is used to execute (fn opts). */
-optional<format> is_tactic_exception(vm_state & S, options const & opts, vm_obj const & ex);
+optional<pair<format, tactic_state>> is_tactic_exception(vm_state & S, options const & opts, vm_obj const & ex);
 
 type_context_cache & get_type_context_cache_for(environment const & env, options const & o);
 type_context_cache & get_type_context_cache_for(tactic_state const & s);

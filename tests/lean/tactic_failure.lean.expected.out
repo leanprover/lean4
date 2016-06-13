@@ -1,0 +1,8 @@
+tactic_failure.lean:4:0: error: assumption tactic failed
+A : Type,
+B : Type,
+Hb : B
+⊢ A
+tactic_failure.lean:4:0: error: failed to add declaration 'example' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  ?M_1

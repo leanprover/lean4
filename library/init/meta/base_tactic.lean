@@ -13,7 +13,7 @@ We "merge" them for performance reasons.
 -/
 inductive base_tactic_result (S : Type) (A : Type) :=
 | success   : A → S → base_tactic_result S A
-| exception : (options → format) → base_tactic_result S A
+| exception : (options → format) → S → base_tactic_result S A
 
 section
 open base_tactic_result
@@ -22,7 +22,7 @@ variables [has_to_string A]
 
 protected meta_definition base_tactic_result.to_string : base_tactic_result S A → string
 | (success a s)   := to_string a
-| (exception S A e) := "Exception: " + to_string (e options.mk)
+| (exception A e s) := "Exception: " + to_string (e options.mk)
 
 protected meta_definition base_tactic_result.has_to_string [instance] : has_to_string (base_tactic_result S A) :=
 has_to_string.mk base_tactic_result.to_string
@@ -38,12 +38,12 @@ open base_tactic_result
 inline protected meta_definition fmap (f : A → B) (t : base_tactic S A) : base_tactic S B :=
 λ s, base_tactic_result.cases_on (t s)
   (λ a s', success (f a) s')
-  (λ e, !exception e)
+  (λ e s', exception B e s')
 
 inline protected meta_definition bind (t₁ : base_tactic S A) (t₂ : A → base_tactic S B) : base_tactic S B :=
 λ s : S,  base_tactic_result.cases_on (t₁ s)
   (λ a s', t₂ a s')
-  (λ e, !exception e)
+  (λ e s', exception B e s')
 
 inline protected meta_definition return (a : A) : base_tactic S A :=
 λ s, success a s
@@ -58,19 +58,19 @@ variables {S A : Type}
 open base_tactic_result
 
 meta_definition fail (e : format) : base_tactic S unit :=
-λ s, !exception (λ u, e)
+λ s, exception unit (λ u, e) s
 
 meta_definition try (t : base_tactic S A) : base_tactic S unit :=
 λ s, base_tactic_result.cases_on (t s)
  (λ a, success ())
- (λ e, success () s)
+ (λ e s', success () s)
 
 meta_definition or_else (t₁ t₂ : base_tactic S A) : base_tactic S A :=
 λ s, base_tactic_result.cases_on (t₁ s)
   success
-  (λ e₁, base_tactic_result.cases_on (t₂ s)
+  (λ e₁ s', base_tactic_result.cases_on (t₂ s)
      success
-     (λ e₂, !exception (λ u, e₁ u + format.line + e₂ u)))
+     (exception A))
 
 infix `<|>`:1 := or_else
 
@@ -95,8 +95,8 @@ meta_definition repeat_exactly : nat → base_tactic S unit → base_tactic S un
 
 meta_definition returnex (e : exceptional A) : base_tactic S A :=
 λ s, match e with
-| exceptional.success a    := base_tactic_result.success a s
-| !exceptional.exception f := !base_tactic_result.exception f
+| exceptional.success a     := base_tactic_result.success a s
+| exceptional.exception A f := base_tactic_result.exception A f s
 end
 
 /- Decorate t's exceptions with msg -/

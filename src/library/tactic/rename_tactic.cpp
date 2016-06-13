@@ -10,11 +10,11 @@ Author: Leonardo de Moura
 namespace lean {
 vm_obj rename(name const & from, name const & to, tactic_state const & s) {
     optional<metavar_decl> g   = s.get_main_goal_decl();
-    if (!g) return mk_no_goals_exception();
+    if (!g) return mk_no_goals_exception(s);
     metavar_context mctx       = s.mctx();
     local_context lctx         = g->get_context();
     if (!lctx.rename_user_name(from, to)) {
-        return mk_tactic_exception(sstream() << "rename tactic failed, unknown '" << from << "' hypothesis");
+        return mk_tactic_exception(sstream() << "rename tactic failed, unknown '" << from << "' hypothesis", s);
     }
     expr new_g                 = mctx.mk_metavar_decl(lctx, g->get_type());
     mctx.assign(head(s.goals()), new_g);

@@ -1867,7 +1867,7 @@ optional<expr> old_elaborator::get_tactic_for(expr const & mvar) {
     }
 }
 
-void old_elaborator::display_unsolved_tactic_state(expr const & mvar, tactic_state const & ts, char const * msg,
+void old_elaborator::display_unsolved_tactic_state(expr const & mvar, tactic_state const & ts, format const & fmt,
                                                    expr const & pos) {
     lean_assert(is_metavar(mvar));
     if (!m_displayed_errors.contains(mlocal_name(mvar))) {
@@ -1876,9 +1876,14 @@ void old_elaborator::display_unsolved_tactic_state(expr const & mvar, tactic_sta
         flycheck_error err(ios());
         if (!err.enabled() || save_error(pip(), pos)) {
             display_error_pos(out.get_stream(), out.get_options(), pip(), pos);
-            out << " " << msg << "\n" << ts.pp(ios().get_formatter_factory()) << endl;
+            out << " " << fmt << "\n" << ts.pp(ios().get_formatter_factory()) << endl;
         }
     }
+}
+
+void old_elaborator::display_unsolved_tactic_state(expr const & mvar, tactic_state const & ts, char const * msg,
+                                                   expr const & pos) {
+    return display_unsolved_tactic_state(mvar, ts, format(msg), pos);
 }
 
 void old_elaborator::display_unsolved_tactic_state(expr const & mvar, tactic_state const & ps, char const * msg) {
@@ -1901,14 +1906,14 @@ static tactic_state to_tactic_state(environment const & env, options const & opt
     return mk_tactic_state_for(env, opts, lctx, new_type);
 }
 
-static tactic_state execute_tactic(environment const & env, options const & opts, expr const & tactic,
-                                   tactic_state const & s) {
+optional<tactic_state> old_elaborator::execute_tactic(expr const & tactic, tactic_state const & s, expr const & mvar) {
     name tactic_name("_tactic");
-    expr tactic_type = mk_app(mk_constant("tactic", {mk_level_one()}), mk_constant("unit"));
+    expr tactic_type = ::lean::mk_app(mk_constant("tactic", {mk_level_one()}), mk_constant("unit"));
     /* compile tactic */
-    bool use_conv_opt   = true;
-    bool is_trusted     = false;
-    environment new_env = env;
+    environment new_env  = env();
+    options const & opts = ios().get_options();
+    bool use_conv_opt    = true;
+    bool is_trusted      = false;
     auto cd = check(new_env, mk_definition(new_env, tactic_name, {}, tactic_type, tactic, use_conv_opt, is_trusted));
     new_env = new_env.add(cd);
     new_env = vm_compile(new_env, new_env.get(tactic_name));
@@ -1924,11 +1929,12 @@ static tactic_state execute_tactic(environment const & env, options const & opts
     }
     vm_obj r = S.top();
     if (optional<tactic_state> new_s = is_tactic_success(r)) {
-        return *new_s;
-    } else if (optional<format> ex = is_tactic_exception(S, opts, r)) {
-        throw_elaborator_exception(tactic, [=](formatter const &) { return *ex; });
+        return some_tactic_state(*new_s);
+    } else if (optional<pair<format, tactic_state>> ex = is_tactic_exception(S, opts, r)) {
+        display_unsolved_tactic_state(mvar, ex->second, ex->first, mvar);
+        return none_tactic_state();
     } else {
-        lean_unreachable();
+        return none_tactic_state();
     }
 }
 
@@ -1955,17 +1961,18 @@ void old_elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name
     tactic_state ts      = to_tactic_state(env(), opts, *meta, type, new_locals);
     if (optional<expr> tac = get_tactic_for(mvar)) {
         expr tactic = subst.instantiate(*tac);
-        tactic_state new_ts    = execute_tactic(env(), opts, tactic, ts);
-        metavar_context mctx   = new_ts.mctx();
-        expr r                 = mctx.instantiate(new_ts.main());
-        if (has_expr_metavar(r)) {
-            display_unsolved_tactic_state(mvar, new_ts, "tactic failed, result contains meta-variables");
-            throw_elaborator_exception("tactic failed, result contains meta-variables", r);
+        if (optional<tactic_state> new_ts = execute_tactic(tactic, ts, mvar)) {
+            metavar_context mctx   = new_ts->mctx();
+            expr r                 = mctx.instantiate(new_ts->main());
+            if (has_expr_metavar(r)) {
+                display_unsolved_tactic_state(mvar, *new_ts, "tactic failed, result contains meta-variables");
+                throw_elaborator_exception("tactic failed, result contains meta-variables", r);
+            }
+            metavar_decl main_decl = *mctx.get_metavar_decl(new_ts->main());
+            type_context aux_ctx(env(), opts, mctx, main_decl.get_context());
+            r = aux_ctx.mk_lambda(new_locals, r);
+            subst.assign(mvar, r);
         }
-        metavar_decl main_decl = *mctx.get_metavar_decl(new_ts.main());
-        type_context aux_ctx(env(), opts, mctx, main_decl.get_context());
-        r = aux_ctx.mk_lambda(new_locals, r);
-        subst.assign(mvar, r);
     }
     return;
 }

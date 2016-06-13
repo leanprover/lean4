@@ -24,11 +24,11 @@ optional<tactic_state> assumption(tactic_state const & s) {
 
 vm_obj tactic_assumption(vm_obj const & s) {
     optional<metavar_decl> g = to_tactic_state(s).get_main_goal_decl();
-    if (!g) return mk_no_goals_exception();
+    if (!g) return mk_no_goals_exception(to_tactic_state(s));
     if (auto r = assumption(to_tactic_state(s)))
         return mk_tactic_success(*r);
     else
-        return mk_tactic_exception("assumption tactic failed");
+        return mk_tactic_exception("assumption tactic failed", to_tactic_state(s));
 }
 
 void initialize_assumption_tactic() {

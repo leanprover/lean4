@@ -12,14 +12,14 @@ Author: Leonardo de Moura
 namespace lean {
 vm_obj intro(name const & n, tactic_state const & s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
-    if (!g) return mk_no_goals_exception();
+    if (!g) return mk_no_goals_exception(s);
     metavar_context mctx = s.mctx();
     type_context ctx     = mk_type_context_for(s, mctx);
     expr type            = g->get_type();
     if (!is_pi(type) && !is_let(type)) {
         type             = ctx.whnf(type);
         if (!is_pi(type))
-            return mk_tactic_exception("intro tactic failed, Pi/let expression expected");
+            return mk_tactic_exception("intro tactic failed, Pi/let expression expected", s);
     }
     local_context lctx   = g->get_context();
     if (is_pi(type)) {

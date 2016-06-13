@@ -150,12 +150,12 @@ optional<tactic_state> is_tactic_success(vm_obj const & o) {
     }
 }
 
-optional<format> is_tactic_exception(vm_state & S, options const & opts, vm_obj const & ex) {
+optional<pair<format, tactic_state>> is_tactic_exception(vm_state & S, options const & opts, vm_obj const & ex) {
     if (is_constructor(ex) && cidx(ex) == 1) {
         vm_obj fmt = S.invoke(cfield(ex, 0), to_obj(opts));
-        return optional<format>(to_format(fmt));
+        return optional<pair<format, tactic_state>>(mk_pair(to_format(fmt), to_tactic_state(cfield(ex, 1))));
     } else {
-        return optional<format>();
+        return optional<pair<format, tactic_state>>();
     }
 }
 
@@ -167,32 +167,32 @@ vm_obj mk_tactic_success(tactic_state const & s) {
     return mk_tactic_success(mk_vm_unit(), s);
 }
 
-vm_obj mk_tactic_exception(vm_obj const & fn) {
-    return mk_vm_constructor(1, fn);
+vm_obj mk_tactic_exception(vm_obj const & fn, tactic_state const & s) {
+    return mk_vm_constructor(1, fn, to_obj(s));
 }
 
-vm_obj mk_tactic_exception(throwable const & ex) {
+vm_obj mk_tactic_exception(throwable const & ex, tactic_state const & s) {
     vm_obj _ex = to_obj(ex);
     vm_obj fn  = mk_vm_closure(get_throwable_to_format_fun_idx(), 1, &_ex);
-    return mk_tactic_exception(fn);
+    return mk_tactic_exception(fn, s);
 }
 
-vm_obj mk_tactic_exception(format const & fmt) {
-    vm_state const & s = get_vm_state();
-    vm_decl K = *s.get_decl(get_combinator_K_name());
-    return mk_tactic_exception(mk_vm_closure(K.get_idx(), to_obj(fmt), mk_vm_unit(), mk_vm_unit()));
+vm_obj mk_tactic_exception(format const & fmt, tactic_state const & s) {
+    vm_state const & S = get_vm_state();
+    vm_decl K = *S.get_decl(get_combinator_K_name());
+    return mk_tactic_exception(mk_vm_closure(K.get_idx(), to_obj(fmt), mk_vm_unit(), mk_vm_unit()), s);
 }
 
-vm_obj mk_tactic_exception(char const * msg) {
-    return mk_tactic_exception(format(msg));
+vm_obj mk_tactic_exception(char const * msg, tactic_state const & s) {
+    return mk_tactic_exception(format(msg), s);
 }
 
-vm_obj mk_tactic_exception(sstream const & s) {
-    return mk_tactic_exception(s.str().c_str());
+vm_obj mk_tactic_exception(sstream const & strm, tactic_state const & s) {
+    return mk_tactic_exception(strm.str().c_str(), s);
 }
 
-vm_obj mk_no_goals_exception() {
-    return mk_tactic_exception("tactic failed, there are no goals to be solved");
+vm_obj mk_no_goals_exception(tactic_state const & s) {
+    return mk_tactic_exception("tactic failed, there are no goals to be solved", s);
 }
 
 vm_obj tactic_result(vm_obj const & o) {
@@ -216,7 +216,7 @@ vm_obj tactic_format_result(vm_obj const & o) {
 vm_obj tactic_target(vm_obj const & o) {
     tactic_state const & s = to_tactic_state(o);
     optional<metavar_decl> g = s.get_main_goal_decl();
-    if (!g) return mk_no_goals_exception();
+    if (!g) return mk_no_goals_exception(s);
     return mk_tactic_success(to_obj(g->get_type()), s);
 }
 
@@ -257,7 +257,7 @@ vm_obj tactic_infer_type(vm_obj const & e, vm_obj const & s0) {
     try {
         return mk_tactic_success(to_obj(ctx.infer(to_expr(e))), s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex);
+        return mk_tactic_exception(ex, s);
     }
 }
 
@@ -268,7 +268,7 @@ vm_obj tactic_whnf(vm_obj const & e, vm_obj const & s0) {
     try {
         return mk_tactic_success(to_obj(ctx.whnf(to_expr(e))), s);
     } catch (exception & ex) {
-        return mk_tactic_exception(ex);
+        return mk_tactic_exception(ex, s);
     }
 }
 
@@ -280,24 +280,24 @@ vm_obj tactic_unify_core(vm_obj const & e1, vm_obj const & e2, vm_obj const & t,
         bool r = ctx.is_def_eq(to_expr(e1), to_expr(e2));
         return mk_tactic_success(mk_vm_bool(r), set_mctx(s, mctx));
     } catch (exception & ex) {
-        return mk_tactic_exception(ex);
+        return mk_tactic_exception(ex, s);
     }
 }
 
 vm_obj tactic_get_local(vm_obj const & n, vm_obj const & s0) {
     tactic_state const & s   = to_tactic_state(s0);
     optional<metavar_decl> g = s.get_main_goal_decl();
-    if (!g) return mk_no_goals_exception();
+    if (!g) return mk_no_goals_exception(s);
     local_context lctx       = g->get_context();
     optional<local_decl> d   = lctx.get_local_decl_from_user_name(to_name(n));
-    if (!d) return mk_tactic_exception(sstream() << "get_local tactic failed, unknown '" << to_name(n) << "' local");
+    if (!d) return mk_tactic_exception(sstream() << "get_local tactic failed, unknown '" << to_name(n) << "' local", s);
     return mk_tactic_success(to_obj(d->mk_ref()), s);
 }
 
 vm_obj tactic_local_context(vm_obj const & s0) {
     tactic_state const & s   = to_tactic_state(s0);
     optional<metavar_decl> g = s.get_main_goal_decl();
-    if (!g) return mk_no_goals_exception();
+    if (!g) return mk_no_goals_exception(s);
     local_context lctx       = g->get_context();
     buffer<expr> r;
     lctx.for_each([&](local_decl const & d) { r.push_back(d.mk_ref()); });

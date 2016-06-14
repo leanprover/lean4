@@ -4,8 +4,8 @@ open tactic name list
 set_option pp.goal.compact true
 set_option pp.binder_types true
 
-#tactic (∀ (A B : Prop), A → A ∧ B → A → A),
- do
+example : ∀ (A B : Prop), A → A ∧ B → A → A :=
+by do
     intro_lst ["_", "_", "H1", "H2", "H3"],
     n : nat ← num_goals,
     ctx : list expr ← local_context,

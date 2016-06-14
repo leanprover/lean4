@@ -30,7 +30,6 @@ Author: Leonardo de Moura
 #include "library/legacy_type_context.h"
 #include "library/fun_info_manager.h"
 #include "library/congr_lemma_manager.h"
-#include "library/abstract_expr_manager.h"
 #include "library/defeq_simp_lemmas.h"
 #include "library/defeq_simplifier.h"
 #include "library/vm/vm.h"
@@ -631,35 +630,6 @@ static environment defeq_simplify_cmd(parser & p) {
     return env;
 }
 
-static environment abstract_expr_cmd(parser & p) {
-    unsigned o = p.parse_small_nat();
-    legacy_type_context ctx(p.env(), p.get_options());
-    app_builder builder(p.env(), p.get_options());
-    fun_info_manager fun_info(ctx);
-    congr_lemma_manager congr_lemma(builder, fun_info);
-    abstract_expr_manager ae_manager(congr_lemma);
-
-    std::ostream & out = p.ios().get_regular_stream();
-    flycheck_information info(p.ios());
-    if (info.enabled()) p.display_information_pos(p.cmd_pos());
-    expr e, a, b;
-    level_param_names ls, ls1, ls2;
-    if (o == 0) {
-        // hash
-        if (info.enabled()) out << "abstract hash: " << std::endl;
-        std::tie(e, ls) = parse_local_expr(p);
-        out << ae_manager.hash(e) << std::endl;
-    } else {
-        // is_equal
-        if (info.enabled()) out << "abstract is_equal: " << std::endl;
-        std::tie(a, ls1) = parse_local_expr(p);
-        p.check_token_next(get_comma_tk(), "invalid #abstract_expr command, ',' expected");
-        std::tie(b, ls2) = parse_local_expr(p);
-        out << ae_manager.is_equal(a, b) << std::endl;
-    }
-    return p.env();
-}
-
 static environment compile_cmd(parser & p) {
     auto pos = p.pos();
     name n = p.check_constant_next("invalid #compile command, constant expected");
@@ -800,7 +770,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#elab",             "(for debugging purposes)", elab_cmd));
     add_cmd(r, cmd_info("#simplify",         "(for debugging purposes) simplify given expression", simplify_cmd));
     add_cmd(r, cmd_info("#defeq_simplify",   "(for debugging purposes) defeq-simplify given expression", defeq_simplify_cmd));
-    add_cmd(r, cmd_info("#abstract_expr",    "(for debugging purposes) call abstract expr methods", abstract_expr_cmd));
 
     register_decl_cmds(r);
     register_inductive_cmd(r);

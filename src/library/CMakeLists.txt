@@ -10,10 +10,9 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   unfold_macros.cpp app_builder.cpp projection.cpp abbreviation.cpp
   relation_manager.cpp export.cpp user_recursors.cpp idx_metavar.cpp
   composition_manager.cpp tc_multigraph.cpp noncomputable.cpp
-  aux_recursors.cpp norm_num.cpp fun_info_manager.cpp congr_lemma_manager.cpp
-  abstract_expr_manager.cpp light_lt_manager.cpp trace.cpp
+  aux_recursors.cpp norm_num.cpp trace.cpp
   attribute_manager.cpp error_handling.cpp unification_hint.cpp defeq_simp_lemmas.cpp
-  defeq_simplifier.cpp proof_irrel_expr_manager.cpp
+  defeq_simplifier.cpp
   local_context.cpp metavar_context.cpp type_context.cpp export_decl.cpp lazy_abstraction.cpp
   # Legacy -- The following files will be eventually deleted
   normalize.cpp justification.cpp constraint.cpp metavar.cpp choice.cpp locals.cpp
@@ -21,4 +20,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   legacy_type_context.cpp old_type_checker.cpp old_converter.cpp old_default_converter.cpp
   old_util.cpp let.cpp metavar_closure.cpp old_local_context.cpp choice_iterator.cpp
   tmp_type_context.cpp
+
+  # fun_info_manager.cpp congr_lemma_manager.cpp abstract_expr_manager.cpp light_lt_manager.cpp
+  # proof_irrel_expr_manager.cpp
   )

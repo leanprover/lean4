@@ -3,8 +3,8 @@ open tactic name list
 definition foo (a : nat) := a + 1 > 0
 definition boo [reducible] (a : nat) := a + 1 > 0
 
-#tactic (∀ (a b : nat), foo a → boo a → a + 1 > 0 → foo a),
- do
+example : ∀ (a b : nat), foo a → boo a → a + 1 > 0 → foo a :=
+by do
     intro_lst ["_", "_", "H1", "H2", "H3"],
     trace_state,
     h1 ← get_local_type "H1",
@@ -22,4 +22,5 @@ definition boo [reducible] (a : nat) := a + 1 > 0
     trace ("result typeof(H2) =?= typeof(H3) (reducible only): " + to_string r),
     r : bool ← unify_core h1 h3 transparency.reducible,
     trace ("result typeof(H1) =?= typeof(H3) (reducible only): " + to_string r),
+    assumption,
     return ()

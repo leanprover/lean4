@@ -15,8 +15,9 @@ variable {A : Type}
 
 /- semigroup -/
 
-attribute inv [light 3]
-attribute neg [light 3]
+/- TODO(Leo): decide whether we keep this annotation or not -/
+-- attribute inv [light 3]
+-- attribute neg [light 3]
 
 structure semigroup [class] (A : Type) extends has_mul A :=
 (mul_assoc : ∀a b c, mul (mul a b) c = mul a (mul b c))

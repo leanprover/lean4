@@ -28,7 +28,7 @@ public:
     friend void swap(rb_map & a, rb_map & b) { swap(a.m_map, b.m_map); }
     bool empty() const { return m_map.empty(); }
     void clear() { m_map.clear(); }
-    bool is_eqp(rb_map const & m) const { return m_map.is_eqp(m); }
+    friend bool is_eqp(rb_map const & m1, rb_map const & m2) { return is_eqp(m1.m_map, m2.m_map); }
     unsigned size() const { return m_map.size(); }
     void insert(K const & k, T const & v) { m_map.insert(mk_pair(k, v)); }
     T const * find(K const & k) const { auto e = m_map.find(mk_pair(k, T())); return e ? &(e->second) : nullptr; }

@@ -217,6 +217,14 @@ public:
 
     /** \brief Apply the function \c f to each universe */
     void for_each_universe(std::function<void(name const & u)> const & f) const;
+
+    /** \brief Return true iff declarations and extensions of e1 and e2 are pointer equal */
+    friend bool is_eqp(environment const & e1, environment const & e2) {
+        return
+            is_eqp(e1.m_declarations, e2.m_declarations) &&
+            is_eqp(e1.m_global_levels, e2.m_global_levels) &&
+            e1.m_extensions.get() == e2.m_extensions.get();
+    }
 };
 
 void initialize_environment();

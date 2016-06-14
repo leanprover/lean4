@@ -46,7 +46,7 @@ struct cienv {
 
     bool compatible_env(environment const & env) {
         environment const & curr_env = m_ti_ptr->env();
-        return env.is_descendant(curr_env) && curr_env.is_descendant(env);
+        return is_eqp(env, curr_env);
     }
 
     void ensure_compatible(environment const & env, options const & o, list<expr> const & ctx) {

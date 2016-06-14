@@ -12,3 +12,11 @@ structure monad [class] (m : Type → Type) extends functor m : Type :=
 
 inline definition return {m : Type → Type} [monad m] {A : Type} (a : A) : m A :=
 monad.ret m a
+
+inline definition fapp {A B : Type} {m : Type → Type} [monad m] (f : m (A → B)) (a : m A) : m B :=
+do g ← f,
+   b ← a,
+   return (g b)
+
+infixr ` <*> `:100 := fapp
+infixl ` >>= `:100 := monad.bind

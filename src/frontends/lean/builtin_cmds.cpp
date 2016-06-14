@@ -709,26 +709,6 @@ static environment vm_eval_cmd(parser & p) {
     return p.env();
 }
 
-static environment tactic_cmd(parser & p) {
-    expr goal; level_param_names goal_ls;
-    std::tie(goal, goal_ls) = parse_local_expr(p);
-    p.check_token_next(get_comma_tk(), "invalid #tactic command, ',' expected");
-
-    name tactic_name("_tactic");
-    expr tactic_type = mk_app(mk_constant("tactic"), mk_constant("unit"));
-    expr tactic      = p.parse_expr();
-    level_param_names tactic_ls;
-    std::tie(tactic_type, tactic, tactic_ls) = p.old_elaborate_definition(tactic_name, tactic_type, tactic);
-
-    /* compile tactic */
-    environment new_env = compile_expr(p.env(), tactic_name, tactic_ls, tactic_type, tactic);
-    vm_state s(new_env);
-    vm_obj initial_state = to_obj(mk_tactic_state_for(p.env(), p.get_options(), local_context(), goal));
-    vm_eval_core(s, tactic_name, optional<vm_obj>(initial_state));
-
-    return p.env();
-}
-
 static environment elab_cmd(parser & p) {
     expr e = p.parse_expr();
     expr new_e; level_param_names ls;
@@ -766,7 +746,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#normalizer",       "(for debugging purposes)", normalizer_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
-    add_cmd(r, cmd_info("#tactic",           "(for debugging purposes)", tactic_cmd));
     add_cmd(r, cmd_info("#elab",             "(for debugging purposes)", elab_cmd));
     add_cmd(r, cmd_info("#simplify",         "(for debugging purposes) simplify given expression", simplify_cmd));
     add_cmd(r, cmd_info("#defeq_simplify",   "(for debugging purposes) defeq-simplify given expression", defeq_simplify_cmd));

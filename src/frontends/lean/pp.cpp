@@ -314,6 +314,7 @@ void pretty_fn::set_options_core(options const & _o) {
     m_preterm           = get_pp_preterm(o);
     m_binder_types      = get_pp_binder_types(o);
     m_hide_comp_irrel   = get_pp_hide_comp_irrel(o);
+    m_lazy_abstraction  = get_pp_lazy_abstraction(o);
     m_hide_full_terms   = get_formatter_hide_full_terms(o);
     m_num_nat_coe       = m_numerals && !m_coercion;
 }
@@ -842,11 +843,32 @@ auto pretty_fn::pp_explicit(expr const & e) -> result {
     return result(max_bp(), compose(*g_explicit_fmt, res_arg.fmt()));
 }
 
+auto pretty_fn::pp_lazy_abstraction(expr const & e) -> result {
+    if (m_lazy_abstraction) {
+        format r = pp(get_lazy_abstraction_expr(e)).fmt();
+        r += format("{");
+        format body;
+        list<pair<name, unsigned>> info = get_lazy_abstraction_info(e);
+        bool first = true;
+        for (auto p : info) {
+            if (first) first = false; else body += comma() + line();
+            /* Create temporary local to be able use get_local_pp_name API */
+            expr tmp = mk_local(p.first, mk_Prop());
+            body += format(m_ctx.get_local_pp_name(tmp)) + space() + format(":=") + space() + format(p.second);
+        }
+        r += group(nest(1, body));
+        r += format("}");
+        return result(r);
+    } else {
+        return pp(get_lazy_abstraction_expr(e));
+    }
+}
+
 auto pretty_fn::pp_macro(expr const & e) -> result {
     if (is_explicit(e)) {
         return pp_explicit(e);
     } else if (is_lazy_abstraction(e)) {
-        return pp(get_lazy_abstraction_expr(e));
+        return pp_lazy_abstraction(e);
     } else if (is_inaccessible(e)) {
         format li = m_unicode ? format("⌞") : format("?(");
         format ri = m_unicode ? format("⌟") : format(")");

@@ -1,3 +1,4 @@
+string ↣ name : mk_simple_name
 C ↣ _Fun : f
 C ↣ [fun-class] : f
 c

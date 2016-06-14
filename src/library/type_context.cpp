@@ -499,7 +499,7 @@ expr type_context::whnf_core(expr const & e) {
         if (is_metavar_decl_ref(e)) {
             if (m_mctx.is_assigned(e)) {
                 m_used_assignment = true;
-                return m_mctx.instantiate(e);
+                return m_mctx.instantiate_mvars(e);
             }
         } else if (is_idx_metavar(e)) {
             unsigned idx = to_meta_idx(e);
@@ -955,12 +955,12 @@ void type_context::assign(expr const & m, expr const & v) {
         m_mctx.assign(m, v);
 }
 
-level type_context::instantiate(level const & l) {
-    return ::lean::instantiate(*this, l);
+level type_context::instantiate_mvars(level const & l) {
+    return ::lean::instantiate_mvars(*this, l);
 }
 
-expr type_context::instantiate(expr const & e) {
-    return ::lean::instantiate(*this, e);
+expr type_context::instantiate_mvars(expr const & e) {
+    return ::lean::instantiate_mvars(*this, e);
 }
 
 /* -----------------------------------
@@ -1023,8 +1023,8 @@ bool type_context::is_def_eq(level const & l1, level const & l2) {
         }
     }
 
-    level new_l1 = normalize(instantiate(l1));
-    level new_l2 = normalize(instantiate(l2));
+    level new_l1 = normalize(instantiate_mvars(l1));
+    level new_l2 = normalize(instantiate_mvars(l2));
 
     if (l1 != new_l1 || l2 != new_l2)
         return is_def_eq(new_l1, new_l2);
@@ -1190,7 +1190,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
         expr arg = args[i];
         /* try to instantiate */
         if (is_meta(arg))
-            arg = instantiate(arg);
+            arg = instantiate_mvars(arg);
         arg = try_zeta(arg); /* unfold let-constant if needed. */
         args[i] = arg;
         if (!is_local_decl_ref(arg)) {
@@ -1234,7 +1234,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
             locals.push_back(arg);
     }
 
-    expr new_v = instantiate(v); /* enforce A4 */
+    expr new_v = instantiate_mvars(v); /* enforce A4 */
 
     if (use_fo) {
         /* Use first-order unification.
@@ -1350,7 +1350,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
         if (ok) {
             break;
         } else if (bad_let_refs) {
-            new_v = instantiate(expand_let_decls(new_v));
+            new_v = instantiate_mvars(expand_let_decls(new_v));
         } else {
             return false;
         }
@@ -1492,7 +1492,7 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
     expr const & f1 = get_app_fn(e1);
     if (is_mvar(f1)) {
         if (is_assigned(f1)) {
-            return to_lbool(is_def_eq_core(instantiate(e1), e2));
+            return to_lbool(is_def_eq_core(instantiate_mvars(e1), e2));
         } else {
             return to_lbool(process_assignment(e1, e2));
         }
@@ -1501,7 +1501,7 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
     expr const & f2 = get_app_fn(e2);
     if (is_mvar(f2)) {
         if (is_assigned(f2)) {
-            return to_lbool(is_def_eq_core(e1, instantiate(e2)));
+            return to_lbool(is_def_eq_core(e1, instantiate_mvars(e2)));
         } else {
             return to_lbool(process_assignment(e2, e1));
         }
@@ -1692,7 +1692,7 @@ optional<pair<expr, expr>> type_context::find_unsynth_metavar_at_args(expr const
         if (binding_info(type).is_inst_implicit() && is_meta(arg)) {
             expr const & m = get_app_fn(arg);
             if (is_mvar(m)) {
-                expr m_type = instantiate(infer(m));
+                expr m_type = instantiate_mvars(infer(m));
                 if (!has_expr_metavar_relaxed(m_type)) {
                     return some(mk_pair(m, m_type));
                 }
@@ -1752,7 +1752,7 @@ bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
             lean_trace(name({"type_context", "is_def_eq_detail"}),
                        tout() << "try to synthesize: " << p1->first << " : " << p1->second << "\n";);
             if (mk_nested_instance(p1->first, p1->second)) {
-                return is_def_eq_core(instantiate(e1), e2);
+                return is_def_eq_core(instantiate_mvars(e1), e2);
             }
         }
     }
@@ -1761,7 +1761,7 @@ bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
             lean_trace(name({"type_context", "is_def_eq_detail"}),
                        tout() << "try to synthesize: " << p2->first << " : " << p2->second << "\n";);
             if (mk_nested_instance(p2->first, p2->second)) {
-                return is_def_eq_core(e1, instantiate(e2));
+                return is_def_eq_core(e1, instantiate_mvars(e2));
             }
         }
     }
@@ -2159,7 +2159,7 @@ struct instance_synthesizer {
             m_displayed_trace_header = true;
         }
         out << tclass("class_instances") << "(" << depth << ") ";
-        out << mvar << " : " << m_ctx.instantiate(mvar_type) << " := " << r << endl;
+        out << mvar << " : " << m_ctx.instantiate_mvars(mvar_type) << " := " << r << endl;
     }
 
     /* Try to synthesize e.m_mvar using instance inst : inst_type.
@@ -2249,7 +2249,7 @@ struct instance_synthesizer {
         // When it is used, it creates a subproblem for
         //    is_nsubg : @is_normal_subgroup A s ?N
         // where ?N is not known. Actually, we can only find the value for ?N by constructing the instance is_nsubg.
-        expr mvar_type       = m_ctx.instantiate(mlocal_type(mvar));
+        expr mvar_type       = m_ctx.instantiate_mvars(mlocal_type(mvar));
         bool toplevel_choice = m_choices.empty();
         m_choices.push_back(choice());
         m_ctx.push_scope();
@@ -2351,7 +2351,7 @@ struct instance_synthesizer {
                     return none_expr();
             }
         }
-        return some_expr(m_ctx.instantiate(m_main_mvar));
+        return some_expr(m_ctx.instantiate_mvars(m_main_mvar));
     }
 
     optional<expr> next_solution() {

@@ -105,14 +105,14 @@ bool metavar_context::has_assigned(expr const & e) const {
     return ::lean::has_assigned(interface_impl(*this), e);
 }
 
-level metavar_context::instantiate(level const & l) {
+level metavar_context::instantiate_mvars(level const & l) {
     interface_impl impl(*this);
-    return ::lean::instantiate(impl, l);
+    return ::lean::instantiate_mvars(impl, l);
 }
 
-expr metavar_context::instantiate(expr const & e) {
+expr metavar_context::instantiate_mvars(expr const & e) {
     interface_impl impl(*this);
-    return ::lean::instantiate(impl, e);
+    return ::lean::instantiate_mvars(impl, e);
 }
 
 template<typename C>

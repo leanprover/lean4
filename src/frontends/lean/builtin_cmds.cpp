@@ -588,7 +588,7 @@ static environment unify_cmd(parser & p) {
     type_context ctx(env, p.get_options(), mctx, lctx, transparency_mode::Semireducible);
     bool success = ctx.is_def_eq(e1, e2);
     if (success)
-        tout() << ctx.instantiate(e1) << " =?= " << ctx.instantiate(e2) << "\n";
+        tout() << ctx.instantiate_mvars(e1) << " =?= " << ctx.instantiate_mvars(e2) << "\n";
     flycheck_information info(p.ios());
     if (info.enabled()) {
         p.display_information_pos(p.cmd_pos());

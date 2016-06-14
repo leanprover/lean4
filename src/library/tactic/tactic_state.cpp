@@ -198,14 +198,14 @@ vm_obj mk_no_goals_exception(tactic_state const & s) {
 vm_obj tactic_result(vm_obj const & o) {
     tactic_state const & s = to_tactic_state(o);
     metavar_context mctx = s.mctx();
-    expr r = mctx.instantiate(s.main());
+    expr r = mctx.instantiate_mvars(s.main());
     return mk_tactic_success(to_obj(r), set_mctx(s, mctx));
 }
 
 vm_obj tactic_format_result(vm_obj const & o) {
     tactic_state const & s = to_tactic_state(o);
     metavar_context mctx = s.mctx();
-    expr r = mctx.instantiate(s.main());
+    expr r = mctx.instantiate_mvars(s.main());
     metavar_decl main_decl = *mctx.get_metavar_decl(s.main());
     type_context ctx(s.env(), s.get_options(), mctx, main_decl.get_context(), transparency_mode::All);
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();

@@ -75,7 +75,7 @@ bool has_assigned(CTX const & ctx, expr const & e) {
 }
 
 template<typename CTX>
-level instantiate(CTX & ctx, level const & l) {
+level instantiate_mvars(CTX & ctx, level const & l) {
     if (!has_assigned(ctx, l))
         return l;
     return replace(l, [&](level const & l) {
@@ -83,7 +83,7 @@ level instantiate(CTX & ctx, level const & l) {
                 return some_level(l);
             } else if (ctx.is_mvar(l)) {
                 if (auto v1 = ctx.get_assignment(l)) {
-                    level v2 = instantiate(ctx, *v1);
+                    level v2 = instantiate_mvars(ctx, *v1);
                     if (*v1 != v2) {
                         ctx.assign(l, v2);
                         return some_level(v2);
@@ -97,11 +97,11 @@ level instantiate(CTX & ctx, level const & l) {
 }
 
 template<typename CTX>
-class instantiate_fn : public replace_visitor {
+class instantiate_mvars_fn : public replace_visitor {
     CTX & m_ctx;
 
     level visit_level(level const & l) {
-        return instantiate(m_ctx, l);
+        return instantiate_mvars(m_ctx, l);
     }
 
     levels visit_levels(levels const & ls) {
@@ -128,7 +128,7 @@ class instantiate_fn : public replace_visitor {
                 if (!has_expr_metavar(*v1)) {
                     return *v1;
                 } else {
-                    expr v2 = instantiate(m_ctx, *v1);
+                    expr v2 = instantiate_mvars(m_ctx, *v1);
                     if (v2 != *v1)
                         m_ctx.assign(m, v2);
                     return v2;
@@ -188,12 +188,12 @@ class instantiate_fn : public replace_visitor {
     }
 
 public:
-    instantiate_fn(CTX & ctx):m_ctx(ctx) {}
+    instantiate_mvars_fn(CTX & ctx):m_ctx(ctx) {}
     expr operator()(expr const & e) { return visit(e); }
 };
 
 template<typename CTX>
-expr instantiate(CTX & ctx, expr const & e) {
-    return instantiate_fn<CTX>(ctx)(e);
+expr instantiate_mvars(CTX & ctx, expr const & e) {
+    return instantiate_mvars_fn<CTX>(ctx)(e);
 }
 }

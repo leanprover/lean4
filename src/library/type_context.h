@@ -300,8 +300,8 @@ public:
     optional<expr> get_assignment(expr const & e) const;
     void assign(level const & u, level const & l);
     void assign(expr const & m, expr const & v);
-    level instantiate(level const & l);
-    expr instantiate(expr const & e);
+    level instantiate_mvars(level const & l);
+    expr instantiate_mvars(expr const & e);
 
 private:
     /* ------------

@@ -1963,7 +1963,7 @@ void old_elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name
         expr tactic = subst.instantiate(*tac);
         if (optional<tactic_state> new_ts = execute_tactic(tactic, ts, mvar)) {
             metavar_context mctx   = new_ts->mctx();
-            expr r                 = mctx.instantiate(new_ts->main());
+            expr r                 = mctx.instantiate_mvars(new_ts->main());
             if (has_expr_metavar(r)) {
                 display_unsolved_tactic_state(mvar, *new_ts, "tactic failed, result contains meta-variables");
                 throw_elaborator_exception("tactic failed, result contains meta-variables", r);

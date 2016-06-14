@@ -27,7 +27,7 @@ vm_obj intro(name const & n, tactic_state const & s) {
         expr H               = lctx.mk_local_decl(n1, binding_domain(type), binding_info(type));
         expr new_type        = instantiate(binding_body(type), H);
         expr new_M           = mctx.mk_metavar_decl(lctx, new_type);
-        expr new_val         = mk_lambda(n1, binding_domain(type), mk_lazy_abstraction(mlocal_name(H), new_M));
+        expr new_val         = mk_lambda(n1, binding_domain(type), mk_lazy_abstraction(new_M, mlocal_name(H)));
         mctx.assign(head(s.goals()), new_val);
         list<expr> new_gs(new_M, tail(s.goals()));
         return mk_tactic_success(set_mctx_goals(s, mctx, new_gs));
@@ -37,7 +37,7 @@ vm_obj intro(name const & n, tactic_state const & s) {
         expr H               = lctx.mk_local_decl(n1, let_type(type), let_value(type));
         expr new_type        = instantiate(let_body(type), H);
         expr new_M           = mctx.mk_metavar_decl(lctx, new_type);
-        expr new_val         = mk_let(n1, let_type(type), let_value(type), mk_lazy_abstraction(mlocal_name(H), new_M));
+        expr new_val         = mk_let(n1, let_type(type), let_value(type), mk_lazy_abstraction(new_M, mlocal_name(H)));
         mctx.assign(head(s.goals()), new_val);
         list<expr> new_gs(new_M, tail(s.goals()));
         return mk_tactic_success(set_mctx_goals(s, mctx, new_gs));

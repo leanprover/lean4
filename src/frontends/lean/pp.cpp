@@ -848,13 +848,12 @@ auto pretty_fn::pp_lazy_abstraction(expr const & e) -> result {
         format r = pp(get_lazy_abstraction_expr(e)).fmt();
         r += format("{");
         format body;
-        list<pair<name, unsigned>> info = get_lazy_abstraction_info(e);
-        bool first = true;
-        for (auto p : info) {
-            if (first) first = false; else body += comma() + line();
-            /* Create temporary local to be able use get_local_pp_name API */
-            expr tmp = mk_local(p.first, mk_Prop());
-            body += format(m_ctx.get_local_pp_name(tmp)) + space() + format(":=") + space() + format(p.second);
+        buffer<name> ns;
+        buffer<expr> vs;
+        get_lazy_abstraction_info(e, ns, vs);
+        for (unsigned i = 0; i < ns.size(); i++) {
+            if (i > 0) body += comma() + line();
+            body += format(ns[i]) + space() + format(":=") + space() + nest(m_indent, pp(vs[i]).fmt());
         }
         r += group(nest(1, body));
         r += format("}");

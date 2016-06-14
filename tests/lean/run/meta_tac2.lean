@@ -42,8 +42,6 @@ by do
 
 print "====================="
 
-/- TODO(Leo): fix bug in lazy_abstraction -/
-exit
 example : ∀ (p : Prop), p → p → p :=
 by do
    intros,

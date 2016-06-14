@@ -8,12 +8,13 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-expr mk_lazy_abstraction(list<pair<name, unsigned>> const & s, expr const & e);
-expr mk_lazy_abstraction(name const & n, expr const & e);
+expr mk_lazy_abstraction(expr const & e, buffer<name> const & ns);
+expr mk_lazy_abstraction(expr const & e, name const & n);
 bool is_lazy_abstraction(expr const & e);
-list<pair<name, unsigned>> const & get_lazy_abstraction_info(expr const & e);
 expr const & get_lazy_abstraction_expr(expr const & e);
+void get_lazy_abstraction_info(expr const & e, buffer<name> & ns, buffer<expr> & es);
 expr push_lazy_abstraction(expr const & e);
+
 void initialize_lazy_abstraction();
 void finalize_lazy_abstraction();
 }

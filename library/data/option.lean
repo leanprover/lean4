@@ -36,4 +36,21 @@ namespace option
     | tt e := tt sorry -- by left; congruence; assumption
     | ff n := ff sorry -- by right; intro h; injection h; contradiction
     end
+
+  inline protected definition fmap {A B : Type} (f : A → B) (e : option A) : option B :=
+  option.cases_on e
+    none
+    (λ a, some (f a))
+
+  inline protected definition bind {A B : Type} (a : option A) (b : A → option B) : option B :=
+  option.cases_on a
+    none
+    (λ a, b a)
+
+  inline protected definition return {A : Type} (a : A) : option A :=
+  some a
+
 end option
+
+definition option.is_monad [instance] : monad option :=
+monad.mk @option.fmap @option.return @option.bind

@@ -237,6 +237,8 @@ public:
     optional<expr> get_tmp_mvar_assignment(unsigned idx) const;
     optional<level> get_tmp_assignment(level const & l) const;
     optional<expr> get_tmp_assignment(expr const & e) const;
+    level mk_tmp_univ_mvar();
+    expr mk_tmp_mvar(expr const & type);
 
     /* Helper class to reset m_used_assignment flag */
     class reset_used_assignment {
@@ -282,9 +284,6 @@ private:
        ------------ */
     void assign_tmp(level const & u, level const & l);
     void assign_tmp(expr const & m, expr const & v);
-
-    level mk_tmp_univ_mvar();
-    expr mk_tmp_mvar(expr const & type);
 
     /* ------------
        Uniform interface to tmp/regular metavariables

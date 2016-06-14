@@ -6,12 +6,66 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
+#include <unordered_map>
 #include "kernel/environment.h"
+#include "library/relation_manager.h"
 #include "library/io_state.h"
 #include "library/reducible.h"
-#include "library/tmp_type_context.h"
+#include "library/type_context.h"
 
 namespace lean {
+class app_builder_cache {
+    struct entry {
+        unsigned             m_num_umeta;
+        unsigned             m_num_emeta;
+        expr                 m_app;
+        list<optional<expr>> m_inst_args; // "mask" of implicit instance arguments
+        list<expr>           m_expl_args; // metavars for explicit arguments
+        /*
+          IMPORTANT: for m_inst_args we store the arguments in reverse order.
+          For example, the first element in the list indicates whether the last argument
+          is an instance implicit argument or not. If it is not none, then the element
+          is the associated metavariable
+
+          m_expl_args are also stored in reverse order
+        */
+    };
+
+    struct key {
+        name       m_name;
+        unsigned   m_num_expl;
+        unsigned   m_hash;
+        // If nil, then the mask is composed of the last m_num_expl arguments.
+        // If nonnil, then the mask is NOT of the form [false*, true*]
+        list<bool> m_mask;
+
+        key(name const & c, unsigned n);
+        key(name const & c, list<bool> const & m);
+        bool check_invariant() const;
+        unsigned hash() const { return m_hash; }
+        friend bool operator==(key const & k1, key const & k2) {
+            return k1.m_name == k2.m_name && k1.m_num_expl == k2.m_num_expl && k1.m_mask == k2.m_mask;
+        }
+    };
+
+    struct key_hash_fn {
+        unsigned operator()(key const & k) const { return k.hash(); }
+    };
+
+    typedef std::unordered_map<key, entry, key_hash_fn> map;
+
+    environment          m_env;
+    map                  m_map;
+    relation_info_getter m_rel_getter;
+    refl_info_getter     m_refl_getter;
+    symm_info_getter     m_symm_getter;
+    trans_info_getter    m_trans_getter;
+    friend class app_builder;
+public:
+    app_builder_cache(environment const & env);
+    environment const & env() const { return m_env; }
+};
+
 class app_builder_exception : public exception {
 public:
     // We may provide more information in the future.
@@ -33,12 +87,22 @@ public:
         rel.{1 2} nat (fun n : nat, vec real n) f g
 */
 class app_builder {
-    struct imp;
-    std::unique_ptr<imp> m_ptr;
+    type_context &      m_ctx;
+    app_builder_cache & m_cache;
+    typedef app_builder_cache::key   key;
+    typedef app_builder_cache::entry entry;
+
+    levels mk_metavars(declaration const & d, buffer<expr> & mvars, buffer<optional<expr>> & inst_args);
+    optional<entry> get_entry(name const & c, unsigned nargs);
+    levels mk_metavars(declaration const & d, unsigned arity, buffer<expr> & mvars, buffer<optional<expr>> & inst_args);
+    optional<entry> get_entry(name const & c, unsigned mask_sz, bool const * mask);
+    bool check_all_assigned(entry const & e);
+    void init_ctx_for(entry const & e);
+    void trace_unify_failure(name const & n, unsigned i, expr const & m, expr const & v);
+    level get_level(expr const & A);
+
 public:
-    app_builder(environment const & env, options const & o, reducible_behavior b = UnfoldReducible);
-    app_builder(environment const & env, reducible_behavior b = UnfoldReducible);
-    app_builder(tmp_type_context & ctx);
+    app_builder(type_context & ctx, app_builder_cache & cache);
     ~app_builder();
     /** \brief Create an application (d.{_ ... _} _ ... _ args[0] ... args[nargs-1]).
         The missing arguments and universes levels are inferred using type inference.

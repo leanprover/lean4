@@ -41,6 +41,6 @@ vm_eval do
       The new elaborator should be able to handle it.
    -/
    exceptional.success (declaration.type d₁, declaration.type d₂,
-                        environment.is_recursor e₂ ("Two" <s> "rec"),
+                        environment.is_recursor e₂ ("Two" <.> "rec"),
                         environment.constructors_of e₂ "Two",
                         environment.fold e₂ (to_format "") (λ d r, r + format.line + to_fmt (declaration.to_name d)))

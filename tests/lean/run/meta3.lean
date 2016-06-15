@@ -1,5 +1,3 @@
-open name
+check "foo" <.> "bla"
 
-check "foo" <s> "bla"
-
-vm_eval "foo" <s> "bla" <n> 10 <n> 20
+vm_eval mk_num_name ("foo" <.> "bla") 10

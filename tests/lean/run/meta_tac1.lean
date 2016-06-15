@@ -1,6 +1,6 @@
 set_option pp.all true
 
-open tactic name list
+open tactic list
 
 set_option pp.goal.compact true
 set_option pp.binder_types true
@@ -12,10 +12,10 @@ by do env ← get_env,
       assumption
 
 example : ∀ (p : Prop), p → p → p :=
-by do d ← get_decl ("nat" <s> "add"),
+by do d ← get_decl ("nat" <.> "add"),
     trace_expr (declaration.type d),
     trace "nat.rec type:",
-    d ← get_decl ("nat" <s> "rec"),
+    d ← get_decl ("nat" <.> "rec"),
     trace_expr (declaration.type d),
     trace_state,
     r ← result,

@@ -24,10 +24,7 @@ name.mk_numeral (unsigned.of_nat v) n
 definition mk_simple_name [coercion] (s : string) : name :=
 mk_str_name name.anonymous s
 
-namespace name
-infix ` <s> `:65 := mk_str_name
-infix ` <n> `:65 := mk_num_name
-end name
+infix ` <.> `:65 := mk_str_name
 
 open name
 

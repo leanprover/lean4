@@ -1,4 +1,5 @@
 tactic_failure.lean:4:0: error: assumption tactic failed
+state:
 A : Type,
 B : Type,
 Hb : B

@@ -23,7 +23,7 @@ namespace lean {
 */
 class scanner {
 public:
-    enum class token_kind {Keyword, CommandKeyword, Identifier, Numeral, Decimal, String, QuotedSymbol, Backtick, Eof};
+    enum class token_kind {Keyword, CommandKeyword, Identifier, Numeral, Decimal, String, QuotedSymbol, Eof};
 protected:
     token_table const * m_tokens;
     std::istream &      m_stream;

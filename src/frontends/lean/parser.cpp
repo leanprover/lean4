@@ -137,7 +137,6 @@ parser::parser(environment const & env, io_state const & ios,
     m_theorem_queue(*this, num_threads > 1 ? num_threads - 1 : 0),
     m_snapshot_vector(sv), m_info_manager(im), m_cache(nullptr), m_index(nullptr) {
     m_local_decls_size_at_beg_cmd = 0;
-    m_in_backtick = false;
     m_ignore_noncomputable = false;
     m_profile     = ios.get_options().get_bool("profile", false);
     init_stop_at(ios.get_options());
@@ -1114,13 +1113,6 @@ void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentr
         if (curr_is_identifier()) {
             parse_binder_block(r, binder_info(), rbp);
             last_block_delimited = false;
-        } else if (curr_is_backtick()) {
-            auto p    = pos();
-            name n    = mk_fresh_name();
-            expr type = parse_backtick_expr_core();
-            expr local = save_pos(mk_local(n, type, binder_info()), p);
-            add_local(local);
-            r.push_back(local);
         } else {
             optional<binder_info> bi = parse_optional_binder_info(simple_only);
             if (bi) {
@@ -1654,21 +1646,6 @@ expr parser::parse_string_expr() {
     return from_string(v);
 }
 
-expr parser::parse_backtick_expr_core() {
-    next();
-    flet<bool> set(m_in_backtick, true);
-    expr type = parse_expr();
-    if (curr() != scanner::token_kind::Backtick) {
-        throw parser_error("invalid expression, '`' expected", pos());
-    }
-    next();
-    return type;
-}
-
-expr parser::parse_backtick_expr() {
-    throw parser_error("backtick support has been disabled", pos());
-}
-
 expr parser::parse_nud() {
     switch (curr()) {
     case scanner::token_kind::Keyword:     return parse_nud_notation();
@@ -1676,7 +1653,6 @@ expr parser::parse_nud() {
     case scanner::token_kind::Numeral:     return parse_numeral_expr();
     case scanner::token_kind::Decimal:     return parse_decimal_expr();
     case scanner::token_kind::String:      return parse_string_expr();
-    case scanner::token_kind::Backtick:    return parse_backtick_expr();
     default: throw parser_error("invalid expression, unexpected token", pos());
     }
 }
@@ -1690,8 +1666,6 @@ bool parser::curr_starts_expr() {
     case scanner::token_kind::Numeral:
     case scanner::token_kind::Decimal:
     case scanner::token_kind::String:
-    case scanner::token_kind::Backtick:
-        return true;
     default:
         return false;
     }
@@ -1711,8 +1685,6 @@ unsigned parser::curr_lbp() const {
     case scanner::token_kind::CommandKeyword: case scanner::token_kind::Eof:
     case scanner::token_kind::QuotedSymbol:
         return 0;
-    case scanner::token_kind::Backtick:
-        return m_in_backtick ? 0 : get_max_prec();
     case scanner::token_kind::Identifier:     case scanner::token_kind::Numeral:
     case scanner::token_kind::Decimal:        case scanner::token_kind::String:
         return get_max_prec();

@@ -586,6 +586,14 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
     return r;
 }
 
+static expr parse_quoted_expr(parser & p, unsigned, expr const *, pos_info const &) {
+    p.next();
+    parser::local_scope scope(p);
+    p.clear_locals();
+    expr e = p.parse_expr();
+    p.check_token_next(get_rparen_tk(), "invalid quoted expression, `)` expected");
+    return e;
+}
 
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
@@ -606,6 +614,7 @@ parse_table init_nud_table() {
     r = r.add({transition("(", Expr), transition(")", mk_ext_action(parse_rparen))}, x0);
     r = r.add({transition("(", Expr), transition(":", Expr), transition(")", mk_ext_action(parse_typed_expr))}, x0);
     r = r.add({transition("?(", Expr), transition(")", mk_ext_action(parse_inaccessible))}, x0);
+    r = r.add({transition("`(", mk_ext_action_core(parse_quoted_expr))}, x0);
     r = r.add({transition("⌞", Expr), transition("⌟", mk_ext_action(parse_inaccessible))}, x0);
     r = r.add({transition("(:", Expr), transition(":)", mk_ext_action(parse_pattern))}, x0);
     r = r.add({transition("()", mk_ext_action(parse_unit))}, x0);

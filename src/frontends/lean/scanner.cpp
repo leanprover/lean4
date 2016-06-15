@@ -443,8 +443,7 @@ auto scanner::scan(environment const & env) -> token_kind {
             if (m_in_notation) {
                 return read_quoted_symbol();
             } else {
-                next();
-                return token_kind::Backtick;
+                return read_key_cmd_id();
             }
         case -1:
             return token_kind::Eof;
@@ -454,7 +453,7 @@ auto scanner::scan(environment const & env) -> token_kind {
             } else {
                 token_kind k = read_key_cmd_id();
                 if (k == token_kind::Keyword) {
-                    // We treat '(--', '(*', '--' as "keywords.
+                    // We treat '(--', '(*', '--' as "keyword".
                     name const & n = m_token_info.value();
                     if (n == *g_begin_comment_tk)
                         read_single_line_comment();

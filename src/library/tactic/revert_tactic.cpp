@@ -15,7 +15,8 @@ tactic_state revert(buffer<expr> & locals, tactic_state const & s) {
     metavar_context mctx       = s.mctx();
     type_context ctx           = mk_type_context_for(s, mctx, transparency_mode::All);
     expr val                   = ctx.revert(locals.size(), locals.data(), head(s.goals()));
-    expr new_g                 = get_app_fn(val);
+    locals.clear();
+    expr new_g                 = get_app_args(val, locals);
     return set_mctx_goals(s, mctx, cons(new_g, tail(s.goals())));
 }
 

@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/num.h"
 #include "library/string.h"
 #include "library/annotation.h"
+#include "library/quote.h"
 #include "library/explicit.h"
 #include "library/module.h"
 #include "library/protected.h"
@@ -96,6 +97,7 @@ void initialize_library_module() {
     initialize_string();
     initialize_num();
     initialize_annotation();
+    initialize_quote();
     initialize_explicit();
     initialize_module();
     initialize_protected();
@@ -165,6 +167,7 @@ void finalize_library_module() {
     finalize_protected();
     finalize_module();
     finalize_explicit();
+    finalize_quote();
     finalize_annotation();
     finalize_num();
     finalize_string();

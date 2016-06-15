@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.base_tactic init.meta.environment init.trace
+import init.trace init.meta.base_tactic init.meta.environment init.meta.qexpr
 
 meta_constant tactic_state : Type₁
 
@@ -101,6 +101,8 @@ meta_constant mk_app        : name → list expr → tactic expr
 meta_constant mk_mapp       : name → list (option expr) → tactic expr
 meta_constant subst         : name → tactic unit
 meta_constant exact         : expr → tactic unit
+/- Elaborate the given quoted expression with respect to the current main goal. -/
+meta_constant to_expr       : qexpr → tactic expr
 open list nat
 
 meta_definition intros : tactic unit :=

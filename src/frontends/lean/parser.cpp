@@ -103,6 +103,39 @@ parser::local_scope::~local_scope() {
     m_p.m_env = m_env;
 }
 
+parser::quote_scope::quote_scope(parser & p, bool q):
+    m_p(p), m_undef_id_behavior(m_p.m_undef_id_behavior), m_in_quote(q) {
+    if (q) {
+        lean_assert(!m_p.m_in_quote);
+        m_p.m_undef_id_behavior = undef_id_behavior::AssumeLocal;
+        m_p.m_in_quote = true;
+        m_p.push_local_scope(false);
+        m_p.m_quote_stack = cons(m_p.mk_parser_scope(), m_p.m_quote_stack);
+        m_p.clear_locals();
+    } else {
+        lean_assert(m_p.m_in_quote);
+        lean_assert(m_p.m_quote_stack);
+        m_p.m_undef_id_behavior = undef_id_behavior::Error;
+        m_p.push_local_scope(false);
+        m_p.m_in_quote = false;
+        m_p.restore_parser_scope(head(m_p.m_quote_stack));
+    }
+}
+
+parser::quote_scope::~quote_scope() {
+    if (m_in_quote) {
+        lean_assert(m_p.m_in_quote);
+        m_p.m_in_quote = false;
+        m_p.pop_local_scope();
+        m_p.m_quote_stack = tail(m_p.m_quote_stack);
+    } else {
+        lean_assert(!m_p.m_in_quote);
+        m_p.m_in_quote = true;
+        m_p.pop_local_scope();
+    }
+    m_p.m_undef_id_behavior = m_undef_id_behavior;
+}
+
 parser::undef_id_to_const_scope::undef_id_to_const_scope(parser & p):
     flet<undef_id_behavior>(p.m_undef_id_behavior, undef_id_behavior::AssumeConstant) {}
 parser::undef_id_to_local_scope::undef_id_to_local_scope(parser & p):
@@ -142,6 +175,7 @@ parser::parser(environment const & env, io_state const & ios,
     init_stop_at(ios.get_options());
     if (num_threads > 1 && m_profile)
         throw exception("option --profile cannot be used when theorems are compiled in parallel");
+    m_in_quote = false;
     m_has_params = false;
     m_keep_theorem_mode = tmode;
     if (s) {
@@ -557,21 +591,13 @@ expr parser::mk_app(std::initializer_list<expr> const & args, pos_info const & p
     return r;
 }
 
-void parser::push_local_scope(bool save_options) {
-    optional<options> opts;
-    if (save_options)
-        opts = m_ios.get_options();
-    m_parser_scope_stack = cons(parser_scope_stack_elem(opts, m_level_variables, m_variables, m_include_vars,
-                                                        m_undef_ids.size(), m_next_inst_idx, m_has_params, m_local_level_decls,
-                                                        m_local_context, m_local_decls),
-                                m_parser_scope_stack);
+parser_scope parser::mk_parser_scope(optional<options> const & opts) {
+    return parser_scope(opts, m_level_variables, m_variables, m_include_vars,
+                        m_undef_ids.size(), m_next_inst_idx, m_has_params,
+                        m_local_level_decls, m_local_context, m_local_decls);
 }
 
-void parser::pop_local_scope() {
-    if (!m_parser_scope_stack) {
-        throw parser_error("invalid 'end', there is no open namespace/section", pos());
-    }
-    auto s = head(m_parser_scope_stack);
+void parser::restore_parser_scope(parser_scope const & s) {
     if (s.m_options) {
         m_ios.set_options(*s.m_options);
         updt_options();
@@ -584,6 +610,21 @@ void parser::pop_local_scope() {
     m_include_vars       = s.m_include_vars;
     m_has_params         = s.m_has_params;
     m_next_inst_idx      = s.m_next_inst_idx;
+}
+
+void parser::push_local_scope(bool save_options) {
+    optional<options> opts;
+    if (save_options)
+        opts = m_ios.get_options();
+    m_parser_scope_stack = cons(mk_parser_scope(opts), m_parser_scope_stack);
+}
+
+void parser::pop_local_scope() {
+    if (!m_parser_scope_stack) {
+        throw parser_error("invalid 'end', there is no open namespace/section", pos());
+    }
+    auto s = head(m_parser_scope_stack);
+    restore_parser_scope(s);
     m_undef_ids.shrink(s.m_num_undef_ids);
     m_parser_scope_stack = tail(m_parser_scope_stack);
 }

@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/choice.h"
 #include "library/let.h"
 #include "library/constants.h"
+#include "library/quote.h"
 #include "library/tactic/elaborate.h"
 #include "library/definitional/equations.h"
 #include "frontends/lean/builtin_exprs.h"
@@ -586,13 +587,21 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
     return r;
 }
 
-static expr parse_quoted_expr(parser & p, unsigned, expr const *, pos_info const &) {
-    p.next();
-    parser::local_scope scope(p);
-    p.clear_locals();
+static expr parse_quoted_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
+    if (p.in_quote())
+        throw parser_error("invalid nested quoted expression", pos);
+    parser::quote_scope scope(p, true);
     expr e = p.parse_expr();
     p.check_token_next(get_rparen_tk(), "invalid quoted expression, `)` expected");
-    return e;
+    return p.save_pos(mk_quote(e), pos);
+}
+
+static expr parse_antiquote_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
+    if (!p.in_quote())
+        throw parser_error("invalid antiquotation, occurs outside of quoted expressions", pos);
+    parser::quote_scope scope(p, false);
+    expr e = p.parse_expr(get_max_prec());
+    return p.save_pos(mk_antiquote(e), pos);
 }
 
 parse_table init_nud_table() {
@@ -614,7 +623,8 @@ parse_table init_nud_table() {
     r = r.add({transition("(", Expr), transition(")", mk_ext_action(parse_rparen))}, x0);
     r = r.add({transition("(", Expr), transition(":", Expr), transition(")", mk_ext_action(parse_typed_expr))}, x0);
     r = r.add({transition("?(", Expr), transition(")", mk_ext_action(parse_inaccessible))}, x0);
-    r = r.add({transition("`(", mk_ext_action_core(parse_quoted_expr))}, x0);
+    r = r.add({transition("`(", mk_ext_action(parse_quoted_expr))}, x0);
+    r = r.add({transition("%%", mk_ext_action(parse_antiquote_expr))}, x0);
     r = r.add({transition("⌞", Expr), transition("⌟", mk_ext_action(parse_inaccessible))}, x0);
     r = r.add({transition("(:", Expr), transition(":)", mk_ext_action(parse_pattern))}, x0);
     r = r.add({transition("()", mk_ext_action(parse_unit))}, x0);

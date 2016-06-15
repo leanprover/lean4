@@ -4,7 +4,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   coercion.cpp private.cpp placeholder.cpp aliases.cpp level_names.cpp
   update_declaration.cpp scoped_ext.cpp standard_kernel.cpp sorry.cpp replace_visitor.cpp
   explicit.cpp num.cpp string.cpp head_map.cpp definition_cache.cpp
-  declaration_index.cpp class.cpp util.cpp print.cpp annotation.cpp
+  declaration_index.cpp class.cpp util.cpp print.cpp annotation.cpp quote.cpp
   typed_expr.cpp protected.cpp reducible.cpp init_module.cpp
   generic_exception.cpp fingerprint.cpp flycheck.cpp hott_kernel.cpp pp_options.cpp
   unfold_macros.cpp app_builder.cpp projection.cpp abbreviation.cpp

@@ -43,7 +43,7 @@ typedef local_decls<expr>       local_expr_decls;
 typedef environment             local_environment;
 
 /** \brief Extra data needed to be saved when we execute parser::push_local_scope */
-struct parser_scope_stack_elem {
+struct parser_scope {
     optional<options>  m_options;
     name_set           m_level_variables;
     name_set           m_variables;
@@ -54,14 +54,14 @@ struct parser_scope_stack_elem {
     local_level_decls  m_local_level_decls;
     local_context      m_local_context;
     local_expr_decls   m_local_decls; // TODO(Leo): delete
-    parser_scope_stack_elem(optional<options> const & o, name_set const & lvs, name_set const & vs, name_set const & ivs,
-                            unsigned num_undef_ids, unsigned next_inst_idx, bool has_params,
-                            local_level_decls const & lld, local_context const & lctx, local_expr_decls const & led):
+    parser_scope(optional<options> const & o, name_set const & lvs, name_set const & vs, name_set const & ivs,
+                 unsigned num_undef_ids, unsigned next_inst_idx, bool has_params,
+                 local_level_decls const & lld, local_context const & lctx, local_expr_decls const & led):
         m_options(o), m_level_variables(lvs), m_variables(vs), m_include_vars(ivs),
         m_num_undef_ids(num_undef_ids), m_next_inst_idx(next_inst_idx), m_has_params(has_params),
         m_local_level_decls(lld), m_local_context(lctx), m_local_decls(led) {}
 };
-typedef list<parser_scope_stack_elem> parser_scope_stack;
+typedef list<parser_scope> parser_scope_stack;
 
 /** \brief Snapshot of the state of the Lean parser */
 struct snapshot {
@@ -108,6 +108,8 @@ class parser {
     name_set                m_variables; // subset of m_local_decls that is marked as variables
     name_set                m_include_vars; // subset of m_local_decls that is marked as include
     parser_scope_stack      m_parser_scope_stack;
+    parser_scope_stack      m_quote_stack;
+    bool                    m_in_quote;
     pos_info                m_last_cmd_pos;
     unsigned                m_next_tag_idx;
     unsigned                m_next_inst_idx;
@@ -210,6 +212,9 @@ class parser {
     friend environment namespace_cmd(parser & p);
     friend environment end_scoped_cmd(parser & p);
 
+    parser_scope mk_parser_scope(optional<options> const & opts = optional<options>());
+    void restore_parser_scope(parser_scope const & s);
+
     void push_local_scope(bool save_options = true);
     void pop_local_scope();
 
@@ -232,7 +237,6 @@ class parser {
 
     void replace_theorem(certified_declaration const & thm);
     environment reveal_theorems_core(buffer<name> const & ds, bool all);
-
 public:
     parser(environment const & env, io_state const & ios,
            std::istream & strm, char const * str_name, optional<std::string> const & base_dir,
@@ -298,7 +302,8 @@ public:
     expr mk_app(std::initializer_list<expr> const & args, pos_info const & p);
 
     unsigned num_threads() const { return m_num_threads; }
-    void add_delayed_theorem(environment const & env, name const & n, level_param_names const & ls, expr const & t, expr const & v);
+    void add_delayed_theorem(environment const & env, name const & n, level_param_names const & ls,
+                             expr const & t, expr const & v);
     void add_delayed_theorem(certified_declaration const & cd);
     environment reveal_theorems(buffer<name> const & ds);
     environment reveal_all_theorems();
@@ -417,12 +422,24 @@ public:
 
     expr parse_tactic(unsigned rbp = 0);
 
-    struct local_scope { parser & m_p; environment m_env;
+    struct local_scope {
+        parser & m_p; environment m_env;
         local_scope(parser & p, bool save_options = false);
         local_scope(parser & p, environment const & env);
         local_scope(parser & p, optional<environment> const & env);
         ~local_scope();
     };
+
+    struct quote_scope {
+        parser &          m_p;
+        undef_id_behavior m_undef_id_behavior;
+        bool              m_in_quote;
+        quote_scope(parser & p, bool q);
+        ~quote_scope();
+    };
+
+    bool in_quote() const { return m_in_quote; }
+
     void clear_locals();
     bool has_locals() const { return !m_local_decls.empty() || !m_local_level_decls.empty(); }
     void add_local_level(name const & n, level const & l, bool is_variable = false);
@@ -495,7 +512,9 @@ public:
     bool used_sorry() const { return m_used_sorry; }
     void declare_sorry();
 
-    parser_pos_provider get_pos_provider() const { return parser_pos_provider(m_pos_table, get_stream_name(), m_last_cmd_pos); }
+    parser_pos_provider get_pos_provider() const {
+        return parser_pos_provider(m_pos_table, get_stream_name(), m_last_cmd_pos);
+    }
     void display_information_pos(pos_info p);
     void display_warning_pos(pos_info p);
 
@@ -512,7 +531,8 @@ public:
     };
 };
 
-bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, optional<std::string> const & base_dir,
+bool parse_commands(environment & env, io_state & ios, std::istream & in,
+                    char const * strm_name, optional<std::string> const & base_dir,
                     bool use_exceptions, unsigned num_threads, definition_cache * cache = nullptr,
                     declaration_index * index = nullptr, keep_theorem_mode tmode = keep_theorem_mode::All);
 bool parse_commands(environment & env, io_state & ios, char const * fname, optional<std::string> const & base,

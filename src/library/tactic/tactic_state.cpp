@@ -312,6 +312,11 @@ vm_obj tactic_num_goals(vm_obj const & s) {
     return mk_tactic_success(mk_vm_nat(length(to_tactic_state(s).goals())), to_tactic_state(s));
 }
 
+vm_obj tactic_to_expr(vm_obj const & qe, vm_obj const & s) {
+    /* TODO(Leo): invoke elaborator */
+    return mk_tactic_success(qe, to_tactic_state(s));
+}
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),         tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}), tactic_state_format_expr);
@@ -324,6 +329,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "get_local"}),         tactic_get_local);
     DECLARE_VM_BUILTIN(name({"tactic", "local_context"}),     tactic_local_context);
     DECLARE_VM_BUILTIN(name({"tactic", "num_goals"}),         tactic_num_goals);
+    DECLARE_VM_BUILTIN(name({"tactic", "to_expr"}),           tactic_to_expr);
 }
 
 void finalize_tactic_state() {

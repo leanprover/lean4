@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/private.h"
 #include "library/protected.h"
+#include "library/quote.h"
 #include "library/explicit.h"
 #include "library/typed_expr.h"
 #include "library/num.h"
@@ -895,6 +896,8 @@ auto pretty_fn::pp_lazy_abstraction(expr const & e) -> result {
 auto pretty_fn::pp_macro(expr const & e) -> result {
     if (is_explicit(e)) {
         return pp_explicit(e);
+    } else if (is_quote(e)) {
+        return result(format("`(") + nest(2, pp(get_quote_expr(e)).fmt()) + format(")"));
     } else if (is_lazy_abstraction(e)) {
         return pp_lazy_abstraction(e);
     } else if (is_inaccessible(e)) {

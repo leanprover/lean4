@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/module.h"
 #include "library/vm/vm.h"
+#include "library/vm/vm_expr.h"
 
 namespace lean {
 void vm_obj_cell::dec_ref(vm_obj & o, buffer<vm_obj_cell*> & todelete) {
@@ -231,6 +232,8 @@ void vm_instr::display(std::ostream & out,
         display_fn(out, idx2name, m_fn_idx);
         out << " " << m_nargs;
         break;
+    case opcode::QExpr:
+        out << "qexpr " << *m_expr; break;
     }
 }
 
@@ -326,6 +329,12 @@ vm_instr mk_num_instr(mpz const & v) {
         r.m_mpz = new mpz(v);
         return r;
     }
+}
+
+vm_instr mk_qexpr_instr(expr const & v) {
+    vm_instr r(opcode::QExpr);
+    r.m_expr = new expr(v);
+    return r;
 }
 
 vm_instr mk_ret_instr() { return vm_instr(opcode::Ret); }
@@ -435,6 +444,9 @@ void vm_instr::copy_args(vm_instr const & i) {
     case opcode::Num:
         m_mpz = new mpz(*i.m_mpz);
         break;
+    case opcode::QExpr:
+        m_expr = new expr(*i.m_expr);
+        break;
     case opcode::Ret:         case opcode::Destruct:
     case opcode::Unreachable: case opcode::Apply:
         break;
@@ -541,6 +553,9 @@ void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & i
     case opcode::Num:
         s << *m_mpz;
         break;
+    case opcode::QExpr:
+        s << *m_expr;
+        break;
     case opcode::Ret:         case opcode::Destruct:
     case opcode::Unreachable: case opcode::Apply:
         break;
@@ -607,6 +622,8 @@ static vm_instr read_vm_instr(deserializer & d, name_map<unsigned> const & name2
         return mk_constructor_instr(idx, d.read_unsigned());
     case opcode::Num:
         return mk_num_instr(read_mpz(d));
+    case opcode::QExpr:
+        return mk_qexpr_instr(read_expr(d));
     case opcode::Ret:
         return mk_ret_instr();
     case opcode::Destruct:
@@ -1750,9 +1767,20 @@ void vm_state::run() {
                 stack before,      after
                 ...                ...
                 v    ==>           v
-                n
+                                   n
             */
             m_stack.push_back(mk_vm_mpz(instr.get_mpz()));
+            m_pc++;
+            goto main_loop;
+        case opcode::QExpr:
+            /** Instruction: qexpr e
+
+                stack before,      after
+                ...                ...
+                v    ==>           v
+                                   e
+            */
+            m_stack.push_back(to_obj(instr.get_expr()));
             m_pc++;
             goto main_loop;
         case opcode::Destruct: {

@@ -11,9 +11,10 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/trace.h"
 #include "library/annotation.h"
+#include "library/util.h"
+#include "library/quote.h"
 #include "library/vm/vm.h"
 #include "library/vm/optimize.h"
-#include "library/util.h"
 #include "library/compiler/simp_inductive.h"
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/nat_value.h"
@@ -254,6 +255,8 @@ class vm_compiler_fn {
             emit(mk_num_instr(get_nat_value_value(e)));
         } else if (is_annotation(e)) {
             compile(get_annotation_arg(e), bpz, m);
+        } else if (is_quote(e)) {
+            emit(mk_qexpr_instr(get_quote_expr(e)));
         } else {
             throw exception(sstream() << "code generation failed, unexpected kind of macro has been found: '"
                             << macro_def(e).get_name() << "'");

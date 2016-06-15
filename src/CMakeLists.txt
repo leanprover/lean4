@@ -48,6 +48,7 @@ message(STATUS "Emacs dependecies directory " ${EMACS_DEPENDENCIES})
 set(EMACS_LISP_DIR        "share/emacs/site-lisp/lean" CACHE STRING "emacs site-lisp dir")
 # library dir
 set(LIBRARY_DIR           "lib/lean"                   CACHE STRING "library dir")
+set(LEAN_EXT_INCLUDE_DIR  "include/lean_ext"           CACHE STRING "include dir for building Lean extensions")
 
 message(STATUS "Lean emacs-mode will be installed at "
   "${CMAKE_INSTALL_PREFIX}/${EMACS_LISP_DIR}")
@@ -376,6 +377,7 @@ add_subdirectory(api)
 if (NOT("${CROSS_COMPILE}" MATCHES "ON"))
   add_library(leanshared SHARED shared/init.cpp $<TARGET_OBJECTS:api> ${LEAN_OBJS})
   target_link_libraries(leanshared ${EXTRA_LIBS})
+  install(TARGETS leanshared DESTINATION lib)
 endif()
 
 add_subdirectory(shell)
@@ -487,6 +489,10 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/../library" DESTINATION "${LIBRARY_DIR}"
         PATTERN ".project"
         PATTERN "*.md"
         PATTERN "TAGS")
+
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/" DESTINATION "${LEAN_EXT_INCLUDE_DIR}"
+        FILES_MATCHING
+        PATTERN "*.h")
 
 # install(DIRECTORY "${CMAKE_SOURCE_DIR}/../hott" DESTINATION "${LIBRARY_DIR}"
 #         FILES_MATCHING

@@ -2126,7 +2126,8 @@ struct instance_synthesizer {
         m_displayed_trace_header(false),
         m_old_tmp_mode(m_ctx.m_tmp_mode),
         m_old_transparency_mode(m_ctx.m_transparency_mode) {
-        m_ctx.set_tmp_mode(0, 0);
+        if (!m_ctx.m_tmp_mode)
+            m_ctx.set_tmp_mode(0, 0);
         m_ctx.m_transparency_mode = transparency_mode::Reducible;
     }
 

@@ -90,6 +90,14 @@ meta_constant num_goals     : tactic nat
     returns the application
         rel.{1 2} nat (fun n : nat, vec real n) f g -/
 meta_constant mk_app        : name → list expr → tactic expr
+/- Similar to mk_app, but allows to specify which arguments are explicit/implicit.
+   Example, given
+     a b : nat
+   then
+     mk_mapp "ite" [some (a > b), none, none, some a, some b]
+   returns the application
+     @ite.{1} (a > b) (nat.decidable_gt a b) nat a b -/
+meta_constant mk_mapp       : name → list (option expr) → tactic expr
 open list nat
 
 meta_definition intros : tactic unit :=

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_expr.h"
+#include "library/vm/vm_option.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/app_builder_tactics.h"
 
@@ -45,8 +46,35 @@ vm_obj tactic_mk_app(vm_obj const & c, vm_obj const & as, vm_obj const & _s) {
     }
 }
 
+vm_obj tactic_mk_mapp(vm_obj const & c, vm_obj const & as, vm_obj const & _s) {
+    tactic_state const & s = to_tactic_state(_s);
+    try {
+        metavar_context mctx   = s.mctx();
+        type_context ctx       = mk_type_context_for(s, mctx);
+        app_builder b          = mk_app_builder_for(ctx);
+        buffer<bool> mask;
+        buffer<expr> args;
+        vm_obj it = as;
+        while (!is_nil(it)) {
+            vm_obj opt = head(it);
+            if (is_none(opt)) {
+                mask.push_back(false);
+            } else {
+                mask.push_back(true);
+                args.push_back(to_expr(get_some_value(opt)));
+            }
+            it = tail(it);
+        }
+        expr r = b.mk_app(to_name(c), mask.size(), mask.data(), args.data());
+        return mk_tactic_success(to_obj(r), s);
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex, s);
+    }
+}
+
 void initialize_app_builder_tactics() {
     DECLARE_VM_BUILTIN(name({"tactic", "mk_app"}),   tactic_mk_app);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_mapp"}),  tactic_mk_mapp);
 }
 
 void finalize_app_builder_tactics() {

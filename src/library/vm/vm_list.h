@@ -27,6 +27,13 @@ void to_buffer_expr(vm_obj const & o, buffer<expr> & r);
 vm_obj to_obj(buffer<expr> const & ls);
 vm_obj to_obj(list<expr> const & ls);
 
+/* Helper functions for accessing (list A) when A is not expr, name nor level */
+inline bool is_nil(vm_obj const & o) { return is_simple(o); }
+inline vm_obj head(vm_obj const & o) { lean_assert(!is_nil(o)); return cfield(o, 0); }
+inline vm_obj tail(vm_obj const & o) { lean_assert(!is_nil(o)); return cfield(o, 1); }
+
+
+
 void initialize_vm_list();
 void finalize_vm_list();
 }

@@ -49,12 +49,11 @@ Author: Leonardo de Moura
 #include "library/defeq_simp_lemmas.h"
 #include "library/defeq_simplifier.h"
 #include "library/lazy_abstraction.h"
+#include "library/app_builder.h"
 
 // #include "library/congr_lemma_manager.h"
 // #include "library/light_lt_manager.h"
 // #include "library/fun_info_manager.h"
-// #include "library/app_builder.h"
-
 
 #include "library/old_converter.h"
 #include "library/old_default_converter.h"
@@ -121,9 +120,9 @@ void initialize_library_module() {
     initialize_class_instance_resolution();
     initialize_old_type_context();
     initialize_legacy_type_context();
+    initialize_app_builder();
     // initialize_light_rule_set();
     // initialize_congr_lemma_manager();
-    // initialize_app_builder();
     // initialize_fun_info_manager();
     initialize_unification_hint();
     initialize_defeq_simp_lemmas();
@@ -139,9 +138,9 @@ void finalize_library_module() {
     finalize_defeq_simp_lemmas();
     finalize_unification_hint();
     // finalize_fun_info_manager();
-    // finalize_app_builder();
     // finalize_congr_lemma_manager();
     // finalize_light_rule_set();
+    finalize_app_builder();
     finalize_legacy_type_context();
     finalize_old_type_context();
     finalize_class_instance_resolution();

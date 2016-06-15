@@ -69,7 +69,7 @@ public:
 class app_builder_exception : public exception {
 public:
     // We may provide more information in the future.
-    app_builder_exception():exception("app_builder_exception") {}
+    app_builder_exception():exception("app_builder_exception, more information can be obtained using commad `set_option trace.app_builder true`") {}
 };
 
 /** \brief Helper for creating simple applications where some arguments are inferred using
@@ -102,8 +102,7 @@ class app_builder {
     level get_level(expr const & A);
 
 public:
-    app_builder(type_context & ctx, app_builder_cache & cache);
-    ~app_builder();
+    app_builder(type_context & ctx, app_builder_cache & cache):m_ctx(ctx), m_cache(cache) {}
     /** \brief Create an application (d.{_ ... _} _ ... _ args[0] ... args[nargs-1]).
         The missing arguments and universes levels are inferred using type inference.
 

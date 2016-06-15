@@ -1876,7 +1876,7 @@ void old_elaborator::display_unsolved_tactic_state(expr const & mvar, tactic_sta
         flycheck_error err(ios());
         if (!err.enabled() || save_error(pip(), pos)) {
             display_error_pos(out.get_stream(), out.get_options(), pip(), pos);
-            out << " " << fmt << "\n" << ts.pp(ios().get_formatter_factory()) << endl;
+            out << " " << fmt << "\ntactic state:\n" << ts.pp(ios().get_formatter_factory()) << endl;
         }
     }
 }

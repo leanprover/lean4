@@ -100,6 +100,7 @@ meta_constant mk_app        : name → list expr → tactic expr
      @ite.{1} (a > b) (nat.decidable_gt a b) nat a b -/
 meta_constant mk_mapp       : name → list (option expr) → tactic expr
 meta_constant subst         : name → tactic unit
+meta_constant exact         : expr → tactic unit
 open list nat
 
 meta_definition intros : tactic unit :=

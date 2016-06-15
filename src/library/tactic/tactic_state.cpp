@@ -137,9 +137,13 @@ vm_obj tactic_state_to_format(vm_obj const & s) {
     return to_obj(to_tactic_state(s).pp(fmtf));
 }
 
-vm_obj tactic_state_format_expr(vm_obj const & s, vm_obj const & e) {
+format pp_expr(tactic_state const & s, expr const & e) {
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
-    return to_obj(to_tactic_state(s).pp_expr(fmtf, to_expr(e)));
+    return s.pp_expr(fmtf, e);
+}
+
+vm_obj tactic_state_format_expr(vm_obj const & s, vm_obj const & e) {
+    return to_obj(pp_expr(to_tactic_state(s), to_expr(e)));
 }
 
 optional<tactic_state> is_tactic_success(vm_obj const & o) {

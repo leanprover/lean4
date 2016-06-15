@@ -369,6 +369,21 @@ expr type_context::mk_pi(buffer<expr> const & locals, expr const & e) {
     return mk_binding(true, locals.size(), locals.data(), e);
 }
 
+expr type_context::mk_lambda(expr const & local, expr const & e) {
+    return mk_binding(false, 1, &local, e);
+}
+
+expr type_context::mk_pi(expr const & local, expr const & e) {
+    return mk_binding(true, 1, &local, e);
+}
+
+expr type_context::mk_lambda(std::initializer_list<expr> const & locals, expr const & e) {
+    return mk_binding(false, locals.size(), locals.begin(), e);
+}
+
+expr type_context::mk_pi(std::initializer_list<expr> const & locals, expr const & e) {
+    return mk_binding(true, locals.size(), locals.begin(), e);
+}
 
 /* ---------------------
    Normalization

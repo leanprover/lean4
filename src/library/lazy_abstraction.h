@@ -15,6 +15,11 @@ expr const & get_lazy_abstraction_expr(expr const & e);
 void get_lazy_abstraction_info(expr const & e, buffer<name> & ns, buffer<expr> & es);
 expr push_lazy_abstraction(expr const & e);
 
+/* Create e{ls[0] := ls[0], ..., ls[n-1] := ls[n-1]}
+   \pre is_metavar(e)
+   \pre for all x in ls, is_local(x) */
+expr mk_lazy_abstraction_with_locals(expr const & e, buffer<expr> const & ls);
+
 void initialize_lazy_abstraction();
 void finalize_lazy_abstraction();
 }

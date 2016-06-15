@@ -8,12 +8,12 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
-vm_obj clear(name const & n, tactic_state const & s) {
+vm_obj clear(name const & n, tactic_state const & s, bool internal_name) {
     optional<metavar_decl> g   = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
     metavar_context mctx       = s.mctx();
     local_context lctx         = g->get_context();
-    optional<local_decl> d     = lctx.get_local_decl_from_user_name(n);
+    optional<local_decl> d     = internal_name ? lctx.get_local_decl(n) : lctx.get_local_decl_from_user_name(n);
     if (!d)
         return mk_tactic_exception(sstream() << "clear tactic failed, unknown '" << n << "' hypothesis", s);
     expr l = d->mk_ref();
@@ -29,7 +29,8 @@ vm_obj clear(name const & n, tactic_state const & s) {
 }
 
 vm_obj tactic_clear(vm_obj const & n, vm_obj const & s) {
-    return clear(to_name(n), to_tactic_state(s));
+    bool internal_name = false;
+    return clear(to_name(n), to_tactic_state(s), internal_name);
 }
 
 void initialize_clear_tactic() {

@@ -64,6 +64,7 @@ meta_constant format_result : tactic format
 /- Return target type of the main goal. Fail if tactic_state does not have any goal left. -/
 meta_constant target        : tactic expr
 meta_constant intro         : name → tactic unit
+meta_constant intron        : nat → tactic unit
 meta_constant assumption    : tactic unit
 meta_constant rename        : name → name → tactic unit
 meta_constant clear         : name → tactic unit
@@ -98,6 +99,7 @@ meta_constant mk_app        : name → list expr → tactic expr
    returns the application
      @ite.{1} (a > b) (nat.decidable_gt a b) nat a b -/
 meta_constant mk_mapp       : name → list (option expr) → tactic expr
+meta_constant subst         : name → tactic unit
 open list nat
 
 meta_definition intros : tactic unit :=

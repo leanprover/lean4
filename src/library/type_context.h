@@ -216,6 +216,10 @@ public:
 
     expr mk_lambda(buffer<expr> const & locals, expr const & e);
     expr mk_pi(buffer<expr> const & locals, expr const & e);
+    expr mk_lambda(expr const & local, expr const & e);
+    expr mk_pi(expr const & local, expr const & e);
+    expr mk_lambda(std::initializer_list<expr> const & locals, expr const & e);
+    expr mk_pi(std::initializer_list<expr> const & locals, expr const & e);
 
     /* Add a let-decl (aka local definition) to the local context */
     expr push_let(name const & ppn, expr const & type, expr const & value) {

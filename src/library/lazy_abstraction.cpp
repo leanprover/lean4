@@ -216,6 +216,15 @@ expr mk_lazy_abstraction(expr const & e, name const & n) {
     return mk_lazy_abstraction(e, ns);
 }
 
+expr mk_lazy_abstraction_with_locals(expr const & e, buffer<expr> const & ls) {
+    lean_assert(is_metavar(e));
+    lean_assert(std::all_of(ls.begin(), ls.end(), is_local));
+    buffer<name> ns;
+    for (expr const & l : ls)
+        ns.push_back(mlocal_name(l));
+    return mk_lazy_abstraction_core(e, ns, ls);
+}
+
 void initialize_lazy_abstraction() {
     g_lazy_abstraction_macro = new name("lazy_abstraction");
 }

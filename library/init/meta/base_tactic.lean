@@ -57,8 +57,14 @@ namespace tactic
 variables {S A : Type}
 open base_tactic_result
 
-meta_definition fail (e : format) : base_tactic S unit :=
-λ s, exception unit (λ u, e) s
+meta_definition fail (e : string) : base_tactic S A :=
+λ s, exception A (λ u, to_fmt e) s
+
+meta_definition fail_fmt (e : format) : base_tactic S A :=
+λ s, exception A (λ u, e) s
+
+meta_definition failed : base_tactic S A :=
+fail "failed"
 
 meta_definition try (t : base_tactic S A) : base_tactic S unit :=
 λ s, base_tactic_result.cases_on (t s)

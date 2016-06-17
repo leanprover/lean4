@@ -135,4 +135,14 @@ meta_definition trace_result : tactic unit :=
 do f ← format_result,
    trace_fmt f
 
+open bool
+/- (find_same_type t es) tries to find in es an expression with type definitionally equal to t -/
+meta_definition find_same_type : expr → list expr → tactic expr
+| e []         := failed
+| e (H :: Hs) :=
+  do t ← infer_type H,
+     b ← unify e t,
+     if b = tt then return H
+     else find_same_type e Hs
+
 end tactic

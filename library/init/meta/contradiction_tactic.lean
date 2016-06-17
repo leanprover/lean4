@@ -34,8 +34,10 @@ private meta_definition contra_constructor_eq : list expr → tactic unit
 | (H :: Hs) :=
   do t ← infer_type H,
      match is_eq t with
-     | some (lhs, rhs) :=
+     | some (lhs_0, rhs_0) :=
        do env ← get_env,
+          lhs ← whnf lhs_0,
+          rhs ← whnf rhs_0,
           if is_constructor_app env lhs = tt ∧
              is_constructor_app env rhs = tt ∧
              const_name (get_app_fn lhs) ≠ const_name (get_app_fn rhs)
@@ -53,3 +55,8 @@ do ctx ← local_context,
     contra_A_not_A ctx ctx <|>
     contra_constructor_eq ctx <|>
     fail "contradiction tactic failed")
+
+open tactic
+
+example : ∀ (a b : nat), (0:nat) = 1 → a = b :=
+by do intros, contradiction

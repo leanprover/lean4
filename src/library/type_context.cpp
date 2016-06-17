@@ -1357,12 +1357,14 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
                         in_ctx = static_cast<bool>(mvar_decl->get_context().get_local_decl(e));
                     }
                     if (!in_ctx) {
-                        if (m_lctx.get_local_decl(e)->get_value()) {
-                            /* let-decl that is not in the metavar context
-                               workaround A1 */
-                            ok           = false;
-                            bad_let_refs = true;
-                            return false;
+                        if (auto decl = m_lctx.get_local_decl(e)) {
+                            if (decl->get_value()) {
+                                /* let-decl that is not in the metavar context
+                                   workaround A1 */
+                                ok           = false;
+                                bad_let_refs = true;
+                                return false;
+                            }
                         }
                         if (std::all_of(locals.begin(), locals.end(), [&](expr const & a) {
                                     return mlocal_name(a) != mlocal_name(e); })) {

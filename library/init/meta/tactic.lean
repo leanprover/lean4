@@ -107,6 +107,9 @@ meta_constant mk_instance   : expr → tactic expr
 /- Simplify the given expression using [defeq] lemmas.
    The resulting expression is definitionally equal to the input. -/
 meta_constant defeq_simp    : expr → tactic expr
+/- Change the target of the main goal.
+   The input expression must be definitionally equal to the current target. -/
+meta_constant change        : expr → tactic unit
 open list nat
 
 meta_definition intros : tactic unit :=

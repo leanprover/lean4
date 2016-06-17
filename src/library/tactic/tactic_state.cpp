@@ -143,6 +143,11 @@ format pp_expr(tactic_state const & s, expr const & e) {
     return s.pp_expr(fmtf, e);
 }
 
+format pp_indented_expr(tactic_state const & s, expr const & e) {
+    formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
+    return nest(get_pp_indent(s.get_options()), line() + s.pp_expr(fmtf, e));
+}
+
 vm_obj tactic_state_format_expr(vm_obj const & s, vm_obj const & e) {
     return to_obj(pp_expr(to_tactic_state(s), to_expr(e)));
 }
@@ -286,7 +291,7 @@ vm_obj tactic_mk_instance(vm_obj const & e, vm_obj const & s0) {
             return mk_tactic_success(to_obj(*r), s);
         } else {
             format m("tactic.mk_instance failed to generate instance for");
-            m += nest(get_pp_indent(s.get_options()), line() + pp_expr(s, to_expr(e)));
+            m += pp_indented_expr(s, to_expr(e));
             return mk_tactic_exception(m, s);
         }
     } catch (exception & ex) {

@@ -94,6 +94,7 @@ vm_obj mk_tactic_exception(char const * msg, tactic_state const & s);
 vm_obj mk_no_goals_exception(tactic_state const & s);
 
 format pp_expr(tactic_state const & s, expr const & e);
+format pp_indented_expr(tactic_state const & s, expr const & e);
 
 /* If r is (base_tactic_result.success a s), then return s */
 optional<tactic_state> is_tactic_success(vm_obj const & r);

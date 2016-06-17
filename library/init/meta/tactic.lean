@@ -110,6 +110,8 @@ meta_constant defeq_simp    : expr → tactic expr
 /- Change the target of the main goal.
    The input expression must be definitionally equal to the current target. -/
 meta_constant change        : expr → tactic unit
+/- (assert H T), adds a new goal for T, and the hypothesis (H : T := ?M) in the current goal -/
+meta_constant assert        : name → expr → tactic unit
 open list nat
 
 meta_definition intros : tactic unit :=

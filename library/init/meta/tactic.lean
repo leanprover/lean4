@@ -114,6 +114,8 @@ meta_constant change        : expr → tactic unit
 meta_constant assert        : name → expr → tactic unit
 /- rotate goals to the left -/
 meta_constant rotate_left   : nat → tactic unit
+meta_constant get_goals     : tactic (list expr)
+meta_constant set_goals     : list expr → tactic unit
 open list nat
 
 meta_definition intros : tactic unit :=
@@ -173,5 +175,31 @@ do ng ← num_goals,
 
 meta_definition rotate : nat → tactic unit :=
 rotate_left
+
+meta_definition focus (tac : tactic unit) : tactic unit :=
+do gs ← get_goals,
+   match gs with
+   | []      := fail "focus tactic failed, there isn't any goal left to focus"
+   | (g::rs) :=
+     do set_goals [g],
+        tac,
+        gs' ← get_goals,
+        match gs' with
+        | [] := set_goals gs
+        | _  := fail "focus tactic failed, focused goal has not been solved"
+        end
+   end
+
+private meta_definition all_goals_core : tactic unit → list expr → list expr → tactic unit
+| tac []        acc := set_goals acc
+| tac (g :: gs) acc :=
+  do set_goals [g],
+     tac,
+     new_gs ← get_goals,
+     all_goals_core tac gs (acc ++ new_gs)
+
+meta_definition all_goals (tac : tactic unit) : tactic unit :=
+do gs ← get_goals,
+   all_goals_core tac gs []
 
 end tactic

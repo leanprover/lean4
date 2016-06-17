@@ -378,6 +378,29 @@ vm_obj tactic_rotate_left(vm_obj const & n, vm_obj const & s) {
     return rotate_left(force_to_unsigned(n, 0), to_tactic_state(s));
 }
 
+vm_obj tactic_get_goals(vm_obj const & s0) {
+    tactic_state const & s   = to_tactic_state(s0);
+    return mk_tactic_success(to_obj(s.goals()), s);
+}
+
+vm_obj set_goals(list<expr> const & gs, tactic_state const & s) {
+    buffer<expr> new_gs;
+    metavar_context const & mctx = s.mctx();
+    for (expr const & g : gs) {
+        if (!mctx.get_metavar_decl(g)) {
+            return mk_tactic_exception("invalid set_goals tactic, expressions must be meta-variables "
+                                       "that have been declared in the current tactic_state", s);
+        }
+        if (!mctx.is_assigned(g))
+            new_gs.push_back(g);
+    }
+    return mk_tactic_success(set_goals(s, to_list(new_gs)));
+}
+
+vm_obj tactic_set_goals(vm_obj const & gs, vm_obj const & s) {
+    return set_goals(to_list_expr(gs), to_tactic_state(s));
+}
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),         tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}), tactic_state_format_expr);
@@ -395,6 +418,8 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "to_expr"}),           tactic_to_expr);
     DECLARE_VM_BUILTIN(name({"tactic", "defeq_simp"}),        tactic_defeq_simp);
     DECLARE_VM_BUILTIN(name({"tactic", "rotate_left"}),       tactic_rotate_left);
+    DECLARE_VM_BUILTIN(name({"tactic", "get_goals"}),         tactic_get_goals);
+    DECLARE_VM_BUILTIN(name({"tactic", "set_goals"}),         tactic_set_goals);
 }
 
 void finalize_tactic_state() {

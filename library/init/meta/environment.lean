@@ -42,6 +42,13 @@ meta_constant inductive_num_indices : environment → name → nat
 meta_constant inductive_dep_elim : environment → name → bool
 /- Fold over declarations in the environment -/
 meta_constant fold {A :Type} : environment → A → (declaration → A → A) → A
+
+open expr bool
+
+meta_definition is_constructor_app (env : environment) (e : expr) : bool :=
+let f := get_app_fn e in
+is_constant f && environment.is_constructor env (const_name f)
+
 end environment
 
 meta_definition environment.has_to_string [instance] : has_to_string environment :=

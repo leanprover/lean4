@@ -61,3 +61,54 @@ meta_constant expr.has_free_var : expr → bool
 meta_constant expr.has_meta_var : expr → bool
 meta_constant expr.lift_vars  : expr → nat → nat → expr
 meta_constant expr.lower_vars : expr → nat → nat → expr
+
+namespace expr
+open bool decidable option
+
+meta_definition is_app : expr → bool
+| (app _ _ ) := tt
+| _          := ff
+
+meta_definition app_fn : expr → expr
+| (app f a) := f
+| a         := a
+
+meta_definition app_arg : expr → expr
+| (app f a) := a
+| a         := a
+
+meta_definition get_app_fn : expr → expr
+| (app f a) := get_app_fn f
+| a         := a
+
+meta_definition get_app_num_args : expr → nat
+| (app f a) := get_app_num_args f + 1
+| _         := 0
+
+meta_definition const_name : expr → name
+| (const n ls) := n
+| _            := name.anonymous
+
+meta_definition is_constant : expr → bool
+| (const n ls) := tt
+| _            := ff
+
+meta_definition is_constant_of : expr → name → bool
+| (const n₁ ls) n₂ := to_bool (n₁ = n₂)
+| _             _  := ff
+
+meta_definition is_app_of (e : expr) (n : name) : bool :=
+is_app e && is_constant_of (get_app_fn e) n
+
+meta_definition is_not (e : expr) : bool :=
+is_app_of e "not"
+
+meta_definition is_false (e : expr) : bool :=
+is_constant_of e "false"
+
+meta_definition is_eq (e : expr) : option (expr × expr) :=
+if is_app_of e "eq" = tt ∧ get_app_num_args e = 3
+then some (app_arg (app_fn e), app_arg e)
+else none
+
+end expr

@@ -28,6 +28,11 @@ infix ` <.> `:65 := mk_str_name
 
 open name
 
+definition name.get_prefix : name → name
+| anonymous        := anonymous
+| (mk_string s p)  := p
+| (mk_numeral s p) := p
+
 definition name.to_string : name → string
 | anonymous                := "[anonymous]"
 | (mk_string s anonymous)  := s

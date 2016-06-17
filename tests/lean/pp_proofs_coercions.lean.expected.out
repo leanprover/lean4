@@ -1,5 +1,7 @@
+expr ↣ _Fun : expr.app
 string ↣ name : mk_simple_name
 C ↣ _Fun : f
+expr ↣ [fun-class] : expr.app
 C ↣ [fun-class] : f
 c
 c trivial

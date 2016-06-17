@@ -25,9 +25,10 @@ list.rec_on l₁
              (λ Hne : l₁ ≠ l₂, ff (λ H, list.no_confusion H (λ Hab Hl₁l₂, absurd Hl₁l₂ Hne)))
              (λ He  : l₁ = l₂, tt (congr (congr_arg cons Hab) He)))))
 
-namespace list
 notation h :: t  := cons h t
 notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
+
+namespace list
 
 variable {A : Type}
 

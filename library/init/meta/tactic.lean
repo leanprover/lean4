@@ -135,12 +135,10 @@ meta_definition unify (a b : expr) : tactic bool :=
 unify_core a b transparency.semireducible
 
 meta_definition get_local_type (n : name) : tactic expr :=
-do e ← get_local n,
-   infer_type e
+get_local n >>= infer_type
 
 meta_definition trace_result : tactic unit :=
-do f ← format_result,
-   trace_fmt f
+format_result >>= trace_fmt
 
 open bool
 /- (find_same_type t es) tries to find in es an expression with type definitionally equal to t -/
@@ -158,5 +156,8 @@ do { ctx ← local_context,
      H   ← find_same_type t ctx,
      exact H }
 <|> fail "assumption tactic failed"
+
+meta_definition dsimp : tactic unit :=
+target >>= defeq_simp >>= change
 
 end tactic

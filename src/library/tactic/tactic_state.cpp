@@ -325,6 +325,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "result"}),            tactic_result);
     DECLARE_VM_BUILTIN(name({"tactic", "format_result"}),     tactic_format_result);
     DECLARE_VM_BUILTIN(name({"tactic", "infer_type"}),        tactic_infer_type);
+    DECLARE_VM_BUILTIN(name({"tactic", "whnf"}),              tactic_whnf);
     DECLARE_VM_BUILTIN(name({"tactic", "unify_core"}),        tactic_unify_core);
     DECLARE_VM_BUILTIN(name({"tactic", "get_local"}),         tactic_get_local);
     DECLARE_VM_BUILTIN(name({"tactic", "local_context"}),     tactic_local_context);

@@ -114,3 +114,6 @@ then some (app_arg (app_fn e), app_arg e)
 else none
 
 end expr
+
+/- Given (f a : expr), the following coercion allow us to write (f a) instead of (expr.app f a) -/
+attribute [coercion] expr.app

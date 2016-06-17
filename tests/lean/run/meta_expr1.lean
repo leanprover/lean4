@@ -2,7 +2,11 @@ import data.list
 
 open unsigned list
 
-meta_definition e1 := expr.app (expr.app (expr.const "f" []) (expr.mk_var 1)) (expr.const "a" [])
+meta_definition e1  := expr.app (expr.app (expr.const "f" []) (expr.mk_var 1)) (expr.const "a" [])
+meta_definition e1' := (expr.const "f" []) (expr.mk_var 1) (expr.const "a" [])
+
+meta_definition tst : e1 = e1' :=
+rfl
 
 vm_eval e1
 
@@ -21,16 +25,16 @@ vm_eval decidable.to_bool (l1 =ₐ l2)
 vm_eval expr.lex_lt (expr.const "a" []) (expr.const "b" [])
 vm_eval expr.lt (expr.const "a" []) (expr.const "b" [])
 
-meta_definition v1 := expr.app (expr.app (expr.const "f" []) (expr.mk_var 0)) (expr.mk_var 1)
+meta_definition v1 := (expr.const "f" []) (expr.mk_var 0) (expr.mk_var 1)
 
 vm_eval v1
 vm_eval expr.instantiate_var v1 (expr.const "a" [])
 
 vm_eval expr.instantiate_vars v1 [expr.const "a" [], expr.const "b" []]
 
-meta_definition fv1 := expr.app (expr.app (expr.const "f" [])
-                                          (expr.free_var "a" "a" binder_info.default (expr.sort level.zero)))
-                                (expr.free_var "b" "b" binder_info.default (expr.sort level.zero))
+meta_definition fv1 := (expr.const "f" [])
+                         (expr.free_var "a" "a" binder_info.default (expr.sort level.zero))
+                         (expr.free_var "b" "b" binder_info.default (expr.sort level.zero))
 
 vm_eval fv1
 

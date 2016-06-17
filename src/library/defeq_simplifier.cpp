@@ -11,6 +11,7 @@ Author: Daniel Selsam
 #include "kernel/abstract.h"
 #include "kernel/inductive/inductive.h"
 #include "library/trace.h"
+#include "library/util.h"
 #include "library/tmp_type_context.h"
 #include "library/normalize.h"
 

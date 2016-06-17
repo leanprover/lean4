@@ -194,68 +194,6 @@ void finalize_normalize() {
     delete g_key;
 }
 
-expr try_eta(expr const & e) {
-    if (is_lambda(e)) {
-        expr const & b = binding_body(e);
-        if (is_lambda(b)) {
-            expr new_b = try_eta(b);
-            if (is_eqp(b, new_b)) {
-                return e;
-            } else if (is_app(new_b) && is_var(app_arg(new_b), 0) && !has_free_var(app_fn(new_b), 0)) {
-                return lower_free_vars(app_fn(new_b), 1);
-            } else {
-                return update_binding(e, binding_domain(e), new_b);
-            }
-        } else if (is_app(b) && is_var(app_arg(b), 0) && !has_free_var(app_fn(b), 0)) {
-            return lower_free_vars(app_fn(b), 1);
-        } else {
-            return e;
-        }
-    } else {
-        return e;
-    }
-}
-
-template<bool Eta, bool Beta>
-class eta_beta_reduce_fn : public replace_visitor {
-public:
-    virtual expr visit_app(expr const & e) override {
-        expr e1 = replace_visitor::visit_app(e);
-        if (Beta && is_head_beta(e1)) {
-            return visit(head_beta_reduce(e1));
-        } else {
-            return e1;
-        }
-    }
-
-    virtual expr visit_lambda(expr const & e) override {
-        expr e1 = replace_visitor::visit_lambda(e);
-        if (Eta) {
-            while (true) {
-                expr e2 = try_eta(e1);
-                if (is_eqp(e1, e2))
-                    return e1;
-                else
-                    e1 = e2;
-            }
-        } else {
-            return e1;
-        }
-    }
-};
-
-expr beta_reduce(expr t) {
-    return eta_beta_reduce_fn<false, true>()(t);
-}
-
-expr eta_reduce(expr t) {
-    return eta_beta_reduce_fn<true, false>()(t);
-}
-
-expr beta_eta_reduce(expr t) {
-    return eta_beta_reduce_fn<true, true>()(t);
-}
-
 class normalize_fn {
     old_type_checker   &                  m_tc;
     // Remark: the normalizer/type-checker m_tc has been provided by the "user".

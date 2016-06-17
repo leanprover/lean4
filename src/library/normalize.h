@@ -63,11 +63,6 @@ environment erase_constructor_hint(environment const & env, name const & n, name
 /** \brief Retrieve the hint added with the procedure add_constructor_hint. */
 bool has_constructor_hint(environment const & env, name const & d);
 
-expr try_eta(expr const & e);
-expr beta_reduce(expr t);
-expr eta_reduce(expr t);
-expr beta_eta_reduce(expr t);
-
 void initialize_normalize();
 void finalize_normalize();
 }

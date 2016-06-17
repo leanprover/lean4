@@ -219,6 +219,11 @@ expr mk_not(abstract_type_context & ctx, expr const & e);
 /** \brief Create the term <tt>absurd e not_e : t</tt>. */
 expr mk_absurd(abstract_type_context & ctx, expr const & t, expr const & e, expr const & not_e);
 
+expr try_eta(expr const & e);
+expr beta_reduce(expr t);
+expr eta_reduce(expr t);
+expr beta_eta_reduce(expr t);
+
 void initialize_library_util();
 void finalize_library_util();
 }

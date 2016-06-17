@@ -1,0 +1,16 @@
+a : ℕ,
+x : ℕ := ?M_1
+⊢ a = a
+
+a : ℕ
+⊢ ℕ
+definition tst2 : ∀ (a : ℕ), a = a :=
+λ a, let x : ℕ := a in eq.refl a
+a b : ℕ,
+x : ℕ := ?M_1
+⊢ a = a
+
+a b : ℕ
+⊢ ℕ
+-- second goal was indirectly solved by the previous tactic
+no goals

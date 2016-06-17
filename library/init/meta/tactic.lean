@@ -202,4 +202,9 @@ meta_definition all_goals (tac : tactic unit) : tactic unit :=
 do gs ← get_goals,
    all_goals_core tac gs []
 
+meta_definition now : tactic unit :=
+do n ← num_goals,
+   if n = 0 then skip
+   else fail "now tactic failed, there are unsolved goals"
+
 end tactic

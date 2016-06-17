@@ -255,7 +255,7 @@ class defeq_simplify_fn {
                                    tout() << "unable to assign instance for: " << m_type << "\n";);
                         return false;
                     } else {
-                        lean_assert(m_ctx->get_tmp_mvar_assignment(mvar_idx));
+                        lean_assert(m_ctx.get_tmp_mvar_assignment(mvar_idx));
                         continue;
                     }
                 } else {

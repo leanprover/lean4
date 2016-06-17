@@ -103,6 +103,9 @@ meta_constant subst         : name → tactic unit
 meta_constant exact         : expr → tactic unit
 /- Elaborate the given quoted expression with respect to the current main goal. -/
 meta_constant to_expr       : qexpr → tactic expr
+/- Try to create an instance of the given type class -/
+meta_constant mk_instance   : expr → tactic expr
+
 open list nat
 
 meta_definition intros : tactic unit :=

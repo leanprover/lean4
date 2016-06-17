@@ -276,6 +276,23 @@ vm_obj tactic_whnf(vm_obj const & e, vm_obj const & s0) {
     }
 }
 
+vm_obj tactic_mk_instance(vm_obj const & e, vm_obj const & s0) {
+    tactic_state const & s = to_tactic_state(s0);
+    metavar_context mctx   = s.mctx();
+    type_context ctx       = mk_type_context_for(s, mctx);
+    try {
+        if (auto r = ctx.mk_class_instance(to_expr(e))) {
+            return mk_tactic_success(to_obj(*r), s);
+        } else {
+            format m("tactic.mk_instance failed to generate instance for");
+            m += nest(get_pp_indent(s.get_options()), line() + pp_expr(s, to_expr(e)));
+            return mk_tactic_exception(m, s);
+        }
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex, s);
+    }
+}
+
 vm_obj tactic_unify_core(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
     metavar_context mctx   = s.mctx();
@@ -326,6 +343,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "format_result"}),     tactic_format_result);
     DECLARE_VM_BUILTIN(name({"tactic", "infer_type"}),        tactic_infer_type);
     DECLARE_VM_BUILTIN(name({"tactic", "whnf"}),              tactic_whnf);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_instance"}),       tactic_mk_instance);
     DECLARE_VM_BUILTIN(name({"tactic", "unify_core"}),        tactic_unify_core);
     DECLARE_VM_BUILTIN(name({"tactic", "get_local"}),         tactic_get_local);
     DECLARE_VM_BUILTIN(name({"tactic", "local_context"}),     tactic_local_context);

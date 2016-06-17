@@ -74,8 +74,6 @@ meta_constant unify_core    : expr → expr → transparency → tactic bool
 meta_constant get_local     : name → tactic expr
 /- Return the hypothesis in the main goal. Fail if tactic_state does not have any goal left. -/
 meta_constant local_context : tactic (list expr)
-/- Return the number of goals that need to be solved -/
-meta_constant num_goals     : tactic nat
 /-  Helper tactic for creating simple applications where some arguments are inferred using
     type inference.
 
@@ -165,6 +163,11 @@ do { ctx ← local_context,
 
 meta_definition dsimp : tactic unit :=
 target >>= defeq_simp >>= change
+
+/- Return the number of goals that need to be solved -/
+meta_definition num_goals     : tactic nat :=
+do gs ← get_goals,
+   return (length gs)
 
 /- We have to provide the instance argument `[has_mod nat]` because
    mod for nat was not defined yet -/

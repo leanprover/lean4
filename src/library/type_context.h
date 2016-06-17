@@ -182,7 +182,7 @@ public:
     virtual ~type_context();
 
     virtual environment const & env() const override { return m_cache->m_env; }
-
+    options const & get_options() const { return m_cache->m_options; }
     local_context const & lctx() const { return m_lctx; }
 
     bool is_def_eq(level const & l1, level const & l2);
@@ -329,14 +329,16 @@ private:
     void push_scope();
     void pop_scope();
     void commit_scope();
-    struct scope {
+public:
+    class scope {
         type_context & m_owner;
         bool           m_keep;
+    public:
         scope(type_context & o):m_owner(o), m_keep(false) { m_owner.push_scope(); }
         ~scope() { if (!m_keep) m_owner.pop_scope(); }
         void commit() { m_owner.commit_scope(); m_keep = true; }
     };
-
+private:
     bool approximate();
     expr try_zeta(expr const & e);
     expr expand_let_decls(expr const & e);

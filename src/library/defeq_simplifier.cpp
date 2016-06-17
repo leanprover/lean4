@@ -3,7 +3,6 @@ Copyright (c) 2015 Daniel Selsam. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Daniel Selsam
 */
-#include "library/defeq_simplifier.h"
 #include "util/interrupt.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/expr_maps.h"
@@ -12,8 +11,7 @@ Author: Daniel Selsam
 #include "kernel/inductive/inductive.h"
 #include "library/trace.h"
 #include "library/util.h"
-#include "library/tmp_type_context.h"
-#include "library/normalize.h"
+#include "library/defeq_simplifier.h"
 
 #ifndef LEAN_DEFAULT_DEFEQ_SIMPLIFY_MAX_SIMP_ROUNDS
 #define LEAN_DEFAULT_DEFEQ_SIMPLIFY_MAX_SIMP_ROUNDS 5000
@@ -62,25 +60,23 @@ static bool get_simplify_memoize(options const & o) {
 }
 
 /* Main simplifier class */
-
 class defeq_simplify_fn {
-    tmp_type_context_pool           & m_tmp_tctx_pool;
-    tmp_type_context                * m_tmp_tctx;
+    type_context           & m_ctx;
 
-    defeq_simp_lemmas                 m_simp_lemmas;
+    defeq_simp_lemmas        m_simp_lemmas;
 
-    unsigned                          m_num_simp_rounds{0};
-    unsigned                          m_num_rewrite_rounds{0};
+    unsigned                 m_num_simp_rounds{0};
+    unsigned                 m_num_rewrite_rounds{0};
 
     /* Options */
-    unsigned                          m_max_simp_rounds;
-    unsigned                          m_max_rewrite_rounds;
-    bool                              m_top_down;
-    bool                              m_exhaustive;
-    bool                              m_memoize;
+    unsigned                 m_max_simp_rounds;
+    unsigned                 m_max_rewrite_rounds;
+    bool                     m_top_down;
+    bool                     m_exhaustive;
+    bool                     m_memoize;
 
     /* Cache */
-    expr_struct_map<expr>             m_cache;
+    expr_struct_map<expr>    m_cache;
 
     optional<expr> cache_lookup(expr const & e) {
         auto it = m_cache.find(e);
@@ -91,6 +87,8 @@ class defeq_simplify_fn {
     void cache_save(expr const & e, expr const & e_simp) {
         m_cache.insert(mk_pair(e, e_simp));
     }
+
+    environment const & env() const { return m_ctx.env(); }
 
     /* Simplification */
     expr defeq_simplify(expr const & _e) {
@@ -153,8 +151,10 @@ class defeq_simplify_fn {
 
     expr defeq_simplify_binding(expr const & e) {
         expr d = defeq_simplify(binding_domain(e));
-        expr l = m_tmp_tctx->mk_tmp_local(binding_name(e), d, binding_info(e));
-        expr b = abstract(defeq_simplify(instantiate(binding_body(e), l)), l);
+        expr l = m_ctx.push_local(binding_name(e), d, binding_info(e));
+        expr b = defeq_simplify(instantiate(binding_body(e), l));
+        b = m_ctx.abstract_locals(b, 1, &l);
+        m_ctx.pop_local();
         return update_binding(e, d, b);
     }
 
@@ -164,26 +164,28 @@ class defeq_simplify_fn {
         expr f = get_app_rev_args(e, args);
         for (expr & a : args) {
             expr new_a = a;
-            if (!m_tmp_tctx->is_prop(m_tmp_tctx->infer(a)))
+            if (!m_ctx.is_prop(m_ctx.infer(a)))
                 new_a = defeq_simplify(a);
             if (new_a != a)
                 modified = true;
             a = new_a;
         }
 
+        /*
         if (is_constant(f)) {
             if (auto idx = inductive::get_elim_major_idx(m_tmp_tctx->env(), const_name(f))) {
                 if (auto r = normalizer(*m_tmp_tctx).unfold_recursor_major(f, *idx, args))
                     return *r;
             }
         }
+        */
 
         if (!modified)
             return e;
 
         expr r = mk_rev_app(f, args);
 
-        if (is_constant(f) && m_tmp_tctx->env().is_recursor(const_name(f))) {
+        if (is_constant(f) && env().is_recursor(const_name(f))) {
             return defeq_simplify(r);
         } else {
             return r;
@@ -213,32 +215,26 @@ class defeq_simplify_fn {
     }
 
     expr rewrite(expr const & e, defeq_simp_lemma const & sl) {
-        tmp_type_context * tmp_tctx = m_tmp_tctx_pool.mk_tmp_type_context();
-        tmp_tctx->clear();
-        tmp_tctx->set_next_uvar_idx(sl.get_num_umeta());
-        tmp_tctx->set_next_mvar_idx(sl.get_num_emeta());
-
-        if (!tmp_tctx->is_def_eq(e, sl.get_lhs())) return e;
+        m_ctx.set_tmp_mode(sl.get_num_umeta(), sl.get_num_emeta());
+        if (!m_ctx.is_def_eq(e, sl.get_lhs())) return e;
 
         lean_trace(name({"defeq_simplifier", "rewrite"}),
-                   expr new_lhs = tmp_tctx->instantiate_uvars_mvars(sl.get_lhs());
-                   expr new_rhs = tmp_tctx->instantiate_uvars_mvars(sl.get_rhs());
+                   expr new_lhs = m_ctx.instantiate_mvars(sl.get_lhs());
+                   expr new_rhs = m_ctx.instantiate_mvars(sl.get_rhs());
                    tout() << "(" << sl.get_id() << ") "
                    << "[" << new_lhs << " --> " << new_rhs << "]\n";);
 
-        if (!instantiate_emetas(tmp_tctx, sl.get_emetas(), sl.get_instances())) return e;
+        if (!instantiate_emetas(sl.get_emetas(), sl.get_instances())) return e;
 
         for (unsigned i = 0; i < sl.get_num_umeta(); i++) {
-            if (!tmp_tctx->is_uvar_assigned(i)) return e;
+            if (!m_ctx.get_tmp_uvar_assignment(i)) return e;
         }
 
-        expr new_rhs = tmp_tctx->instantiate_uvars_mvars(sl.get_rhs());
-        m_tmp_tctx_pool.recycle_tmp_type_context(tmp_tctx);
-        return new_rhs;
+        return m_ctx.instantiate_mvars(sl.get_rhs());
     }
 
 
-    bool instantiate_emetas(tmp_type_context * tmp_tctx, list<expr> const & _emetas, list<bool> const & _instances) {
+    bool instantiate_emetas(list<expr> const & _emetas, list<bool> const & _instances) {
         buffer<expr> emetas;
         buffer<bool> instances;
         to_buffer(_emetas, emetas);
@@ -248,17 +244,17 @@ class defeq_simplify_fn {
         for (unsigned i = 0; i < emetas.size(); ++i) {
             expr m = emetas[i];
             unsigned mvar_idx = emetas.size() - 1 - i;
-            expr m_type = tmp_tctx->instantiate_uvars_mvars(tmp_tctx->infer(m));
+            expr m_type = m_ctx.instantiate_mvars(m_ctx.infer(m));
             lean_assert(!has_metavar(m_type));
-            if (tmp_tctx->is_mvar_assigned(mvar_idx)) continue;
+            if (m_ctx.get_tmp_mvar_assignment(mvar_idx)) continue;
             if (instances[i]) {
-                if (auto v = tmp_tctx->mk_class_instance(m_type)) {
-                    if (!tmp_tctx->assign(m, *v)) {
+                if (auto v = m_ctx.mk_class_instance(m_type)) {
+                    if (!m_ctx.is_def_eq(m, *v)) {
                         lean_trace(name({"defeq_simplifier", "failure"}),
                                    tout() << "unable to assign instance for: " << m_type << "\n";);
                         return false;
                     } else {
-                        lean_assert(tmp_tctx->is_mvar_assigned(mvar_idx));
+                        lean_assert(m_ctx->get_tmp_mvar_assignment(mvar_idx));
                         continue;
                     }
                 } else {
@@ -276,24 +272,22 @@ class defeq_simplify_fn {
     }
 
     expr whnf_eta(expr const & e) {
-        return try_eta(m_tmp_tctx->whnf(e));
+        return try_eta(m_ctx.whnf(e));
     }
 
 public:
-    defeq_simplify_fn(tmp_type_context_pool & tmp_tctx_pool, options const & o, defeq_simp_lemmas const & simp_lemmas):
-        m_tmp_tctx_pool(tmp_tctx_pool),
-        m_tmp_tctx(m_tmp_tctx_pool.mk_tmp_type_context()),
+    defeq_simplify_fn(type_context & ctx, defeq_simp_lemmas const & simp_lemmas):
+        m_ctx(ctx),
         m_simp_lemmas(simp_lemmas),
-        m_max_simp_rounds(get_simplify_max_simp_rounds(o)),
-        m_max_rewrite_rounds(get_simplify_max_rewrite_rounds(o)),
-        m_top_down(get_simplify_top_down(o)),
-        m_exhaustive(get_simplify_exhaustive(o)),
-        m_memoize(get_simplify_memoize(o))
-        { }
-
-    ~defeq_simplify_fn() {
-        m_tmp_tctx_pool.recycle_tmp_type_context(m_tmp_tctx);
+        m_max_simp_rounds(get_simplify_max_simp_rounds(ctx.get_options())),
+        m_max_rewrite_rounds(get_simplify_max_rewrite_rounds(ctx.get_options())),
+        m_top_down(get_simplify_top_down(ctx.get_options())),
+        m_exhaustive(get_simplify_exhaustive(ctx.get_options())),
+        m_memoize(get_simplify_memoize(ctx.get_options())) {
     }
+
+    ~defeq_simplify_fn() {}
+
     expr operator()(expr const & e)  { return defeq_simplify(e); }
 };
 
@@ -331,8 +325,7 @@ void finalize_defeq_simplifier() {
 }
 
 /* Entry point */
-expr defeq_simplify(tmp_type_context_pool & tmp_tctx_pool, options const & o, defeq_simp_lemmas const & simp_lemmas, expr const & e) {
-    return defeq_simplify_fn(tmp_tctx_pool, o, simp_lemmas)(e);
+expr defeq_simplify(type_context & ctx, defeq_simp_lemmas const & simp_lemmas, expr const & e) {
+    return defeq_simplify_fn(ctx, simp_lemmas)(e);
 }
-
 }

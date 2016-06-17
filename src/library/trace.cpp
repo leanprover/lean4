@@ -126,6 +126,10 @@ scope_trace_env::scope_trace_env(environment const & env, io_state const & ios, 
     init(const_cast<environment*>(&env), const_cast<io_state*>(&ios), &ctx, false);
 }
 
+scope_trace_env::scope_trace_env(environment const & env, abstract_type_context & ctx) {
+    init(const_cast<environment*>(&env), const_cast<io_state*>(&get_global_ios()), &ctx, false);
+}
+
 scope_trace_env::scope_trace_env(options const & o) {
     if (!g_ios) {
         m_ios_owner  = false;

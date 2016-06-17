@@ -26,6 +26,7 @@ class scope_trace_env {
     void init(environment * env, io_state * ios, abstract_type_context * ctx, bool ios_owner);
 public:
     scope_trace_env(environment const & env, io_state const & ios, abstract_type_context & ctx);
+    scope_trace_env(environment const & env, abstract_type_context & ctx);
     scope_trace_env(options const & opts);
     ~scope_trace_env();
 };

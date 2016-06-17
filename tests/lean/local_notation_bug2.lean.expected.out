@@ -1,1 +1,1 @@
-local_notation_bug2.lean:7:7: error: invalid expression
+local_notation_bug2.lean:7:6: error: invalid antiquotation, occurs outside of quoted expressions

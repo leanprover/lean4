@@ -1,1 +1,1 @@
-list.rec_on : Π n, ?C list.nil → (Π a a_1, ?C a_1 → ?C (list.cons a a_1)) → ?C n
+list.rec_on : Π n, ?C list.nil → (Π a a_1, ?C a_1 → ?C (a :: a_1)) → ?C n

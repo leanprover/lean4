@@ -1,5 +1,3 @@
 bad_quoted_symbol.lean:2:12: error: first character of a quoted symbols cannot be a digit
 bad_quoted_symbol.lean:3:16: error: unexpected space inside of quoted symbol
-bad_quoted_symbol.lean:4:14: error: unexpected end of quoted symbol
-bad_quoted_symbol.lean:5:10: error: invalid quoted symbol, invalid character
-bad_quoted_symbol.lean:5:10: error: invalid notation declaration, symbol expected
+bad_quoted_symbol.lean: error: bad_quoted_symbol.lean:3:18: error: unexpected token

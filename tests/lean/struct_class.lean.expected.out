@@ -13,6 +13,7 @@ has_one : Type → Type
 has_ordering : Type → Type
 has_sub : Type → Type
 has_to_format : Type → Type
+has_to_qexpr : Type → Type
 has_to_string : Type → Type
 has_zero : Type → Type
 inhabited : Type → Type
@@ -38,6 +39,7 @@ has_one : Type → Type
 has_ordering : Type → Type
 has_sub : Type → Type
 has_to_format : Type → Type
+has_to_qexpr : Type → Type
 has_to_string : Type → Type
 has_zero : Type → Type
 inhabited : Type → Type

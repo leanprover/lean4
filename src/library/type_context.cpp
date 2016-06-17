@@ -274,7 +274,13 @@ expr type_context::revert(unsigned num, expr const * locals, expr const & mvar) 
                 return static_cast<bool>(m_mctx.get_metavar_decl(mvar)->get_context().get_local_decl(l)); }));
     buffer<expr> reverted;
     expr new_mvar = revert_core(num, locals, mvar, reverted);
-    expr r = mk_app(new_mvar, reverted);
+    expr r = new_mvar;
+    for (expr const & a : reverted) {
+        if (!m_lctx.get_local_decl(a)->get_value()) {
+            // 'a' is not a let-decl
+            r = mk_app(r, a);
+        }
+    }
     m_mctx.assign(mvar, r);
     return r;
 }

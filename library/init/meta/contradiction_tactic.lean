@@ -11,13 +11,17 @@ open expr tactic option bool decidable environment
 private meta_definition contra_A_not_A : list expr → list expr → tactic unit
 | []         Hs := failed
 | (H1 :: Rs) Hs :=
-  do t ← infer_type H1,
-     if is_not t = tt
-     then ((do H2 ← find_same_type (app_arg t) Hs,
-               tgt ← target,
-               pr ← mk_app "absurd" [tgt, H2, H1],
-               exact pr) <|> contra_A_not_A Rs Hs)
-     else contra_A_not_A Rs Hs
+  do t_0 ← infer_type H1,
+     t   ← whnf t_0,
+     match is_not t with
+     | some a :=
+       (do H2 ← find_same_type a Hs,
+           tgt ← target,
+           pr ← mk_app "absurd" [tgt, H2, H1],
+           exact pr)
+       <|> contra_A_not_A Rs Hs
+     | none := contra_A_not_A Rs Hs
+     end
 
 private meta_definition contra_false : list expr → tactic unit
 | []        := failed

@@ -215,6 +215,7 @@ class defeq_simplify_fn {
     }
 
     expr rewrite(expr const & e, defeq_simp_lemma const & sl) {
+        type_context::scope scope(m_ctx);
         m_ctx.set_tmp_mode(sl.get_num_umeta(), sl.get_num_emeta());
         if (!m_ctx.is_def_eq(e, sl.get_lhs())) return e;
 
@@ -288,7 +289,10 @@ public:
 
     ~defeq_simplify_fn() {}
 
-    expr operator()(expr const & e)  { return defeq_simplify(e); }
+    expr operator()(expr const & e)  {
+        scope_trace_env scope(env(), m_ctx);
+        return defeq_simplify(e);
+    }
 };
 
 /* Setup and teardown */

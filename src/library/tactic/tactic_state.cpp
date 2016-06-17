@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/type_context.h"
 #include "library/pp_options.h"
+#include "library/defeq_simplifier.h"
 #include "library/trace.h"
 #include "library/vm/vm_environment.h"
 #include "library/vm/vm_exceptional.h"
@@ -334,6 +335,19 @@ vm_obj tactic_to_expr(vm_obj const & qe, vm_obj const & s) {
     return mk_tactic_success(qe, to_tactic_state(s));
 }
 
+vm_obj tactic_defeq_simp(vm_obj const & e, vm_obj const & s0) {
+    tactic_state const & s   = to_tactic_state(s0);
+    try {
+        metavar_context mctx_tmp   = s.mctx();
+        type_context ctx           = mk_type_context_for(s, mctx_tmp);
+        defeq_simp_lemmas lemmas   = get_defeq_simp_lemmas(s.env());
+        expr new_e                 = defeq_simplify(ctx, lemmas, to_expr(e));
+        return mk_tactic_success(to_obj(new_e), s);
+    } catch (exception & e) {
+        return mk_tactic_exception(e, s);
+    }
+}
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),         tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}), tactic_state_format_expr);
@@ -349,6 +363,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "local_context"}),     tactic_local_context);
     DECLARE_VM_BUILTIN(name({"tactic", "num_goals"}),         tactic_num_goals);
     DECLARE_VM_BUILTIN(name({"tactic", "to_expr"}),           tactic_to_expr);
+    DECLARE_VM_BUILTIN(name({"tactic", "defeq_simp"}),        tactic_defeq_simp);
 }
 
 void finalize_tactic_state() {

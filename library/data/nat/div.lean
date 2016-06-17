@@ -21,8 +21,10 @@ if H : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma H) y + 1 else zero
 
 protected definition div := fix div.F
 
-definition nat_has_divide [instance] [priority nat.prio] : has_div nat :=
+definition nat_has_divide : has_div nat :=
 has_div.mk nat.div
+
+local attribute [instance] nat_has_divide
 
 theorem div_def (x y : nat) : div x y = if 0 < y ∧ y ≤ x then div (x - y) y + 1 else 0 :=
 congr_fun (fix_eq div.F x) y
@@ -87,8 +89,10 @@ if H : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma H) y else x
 
 protected definition mod := fix mod.F
 
-definition nat_has_mod [instance] [priority nat.prio] : has_mod nat :=
+definition nat_has_mod : has_mod nat :=
 has_mod.mk nat.mod
+
+local attribute [instance] nat_has_mod
 
 notation [priority nat.prio] a ≡ b `[mod `:0 c:0 `]` := a % c = b % c
 
@@ -364,7 +368,7 @@ dvd.elim H (take z, assume H1 : n = m * z, H1⁻¹ ▸ !mul_mod_right)
 theorem dvd_iff_mod_eq_zero (m n : ℕ) : m ∣ n ↔ n % m = 0 :=
 iff.intro mod_eq_zero_of_dvd dvd_of_mod_eq_zero
 
-definition dvd.decidable_rel [instance] : decidable_rel dvd :=
+definition dvd.decidable_rel : decidable_rel dvd :=
 take m n, decidable_of_decidable_of_iff _ (iff.symm !dvd_iff_mod_eq_zero)
 
 protected theorem div_mul_cancel {m n : ℕ} (H : n ∣ m) : m / n * n = m :=
@@ -713,3 +717,4 @@ lemma div_lt_of_ne_zero : ∀ {n : nat}, n ≠ 0 → n / 2 < n
   end
 -/
 end nat
+attribute [instance] [priority nat.prio] nat.nat_has_divide nat.nat_has_mod nat.dvd.decidable_rel

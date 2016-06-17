@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_format.h"
 #include "library/vm/vm_name.h"
+#include "library/vm/vm_nat.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_options.h"
 #include "library/vm/vm_list.h"
@@ -353,6 +354,21 @@ vm_obj tactic_defeq_simp(vm_obj const & e, vm_obj const & s0) {
     }
 }
 
+vm_obj rotate_left(unsigned n, tactic_state const & s) {
+    buffer<expr> gs;
+    to_buffer(s.goals(), gs);
+    unsigned sz = gs.size();
+    if (sz == 0)
+        return mk_tactic_success(s);
+    n = n%sz;
+    std::rotate(gs.begin(), gs.begin() + n, gs.end());
+    return mk_tactic_success(set_goals(s, to_list(gs)));
+}
+
+vm_obj tactic_rotate_left(vm_obj const & n, vm_obj const & s) {
+    return rotate_left(force_to_unsigned(n, 0), to_tactic_state(s));
+}
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),         tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}), tactic_state_format_expr);
@@ -369,6 +385,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "num_goals"}),         tactic_num_goals);
     DECLARE_VM_BUILTIN(name({"tactic", "to_expr"}),           tactic_to_expr);
     DECLARE_VM_BUILTIN(name({"tactic", "defeq_simp"}),        tactic_defeq_simp);
+    DECLARE_VM_BUILTIN(name({"tactic", "rotate_left"}),       tactic_rotate_left);
 }
 
 void finalize_tactic_state() {

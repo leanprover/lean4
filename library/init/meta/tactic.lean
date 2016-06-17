@@ -112,6 +112,8 @@ meta_constant defeq_simp    : expr → tactic expr
 meta_constant change        : expr → tactic unit
 /- (assert H T), adds a new goal for T, and the hypothesis (H : T := ?M) in the current goal -/
 meta_constant assert        : name → expr → tactic unit
+/- rotate goals to the left -/
+meta_constant rotate_left   : nat → tactic unit
 open list nat
 
 meta_definition intros : tactic unit :=
@@ -161,5 +163,15 @@ do { ctx ← local_context,
 
 meta_definition dsimp : tactic unit :=
 target >>= defeq_simp >>= change
+
+/- We have to provide the instance argument `[has_mod nat]` because
+   mod for nat was not defined yet -/
+meta_definition rotate_right (n : nat) [has_mod nat] : tactic unit :=
+do ng ← num_goals,
+   if ng = 0 then skip
+   else rotate_left (ng - n % ng)
+
+meta_definition rotate : nat → tactic unit :=
+rotate_left
 
 end tactic

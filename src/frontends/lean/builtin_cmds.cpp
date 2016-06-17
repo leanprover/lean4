@@ -597,39 +597,6 @@ static environment unify_cmd(parser & p) {
     return env;
 }
 
-static environment defeq_simplify_cmd(parser & p) {
-    auto pos = p.pos();
-    environment const & env = p.env();
-    name ns = p.check_id_next("invalid #defeq_simplify command, namespace or 'env' expected");
-
-    defeq_simp_lemmas sls;
-    if (ns == name("null")) {
-    } else if (ns == name("env")) {
-        sls = get_defeq_simp_lemmas(env);
-    } else {
-        sls = get_defeq_simp_lemmas(env, ns);
-    }
-
-    expr e; level_param_names ls;
-    std::tie(e, ls) = parse_local_expr(p);
-
-    auto tc = mk_type_checker(p.env(), [](name const &) { return false; });
-    default_tmp_type_context_pool pool(p.env(), p.get_options());
-    expr e_simp = defeq_simplify(pool, p.get_options(), sls, e);
-    if (!tc->is_def_eq(e, e_simp).first) {
-        throw parser_error("defeq_simplify result not definitionally equal to input expression", pos);
-    }
-    flycheck_information info(p.ios());
-    auto out = regular(p.env(), p.ios(), tc->get_type_context());
-    if (info.enabled()) {
-        p.display_information_pos(p.cmd_pos());
-        out << "defeq_simplify result:\n";
-    }
-
-    out << e_simp << endl;
-    return env;
-}
-
 static environment compile_cmd(parser & p) {
     auto pos = p.pos();
     name n = p.check_constant_next("invalid #compile command, constant expected");
@@ -748,7 +715,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
     add_cmd(r, cmd_info("#elab",             "(for debugging purposes)", elab_cmd));
     add_cmd(r, cmd_info("#simplify",         "(for debugging purposes) simplify given expression", simplify_cmd));
-    add_cmd(r, cmd_info("#defeq_simplify",   "(for debugging purposes) defeq-simplify given expression", defeq_simplify_cmd));
 
     register_decl_cmds(r);
     register_inductive_cmd(r);

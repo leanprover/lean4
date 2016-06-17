@@ -245,7 +245,7 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
         expr fn = p.save_pos(mk_local(id, prop, mk_rec_info(true)), id_pos);
         proof = parse_local_equations(p, fn);
     } else {
-        p.check_token_next(get_comma_tk(), "invalid 'have/assert' declaration, ',' expected");
+        p.check_token_next(get_comma_tk(), "invalid 'have' declaration, ',' expected");
         if (prev_local) {
             parser::local_scope scope(p);
             p.add_local(*prev_local);
@@ -257,7 +257,7 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
             proof = parse_proof(p);
         }
     }
-    p.check_token_next(get_comma_tk(), "invalid 'have/assert' declaration, ',' expected");
+    p.check_token_next(get_comma_tk(), "invalid 'have' declaration, ',' expected");
     parser::local_scope scope(p);
     expr l = p.save_pos(mk_local(id, prop), pos);
     p.add_local(l);
@@ -265,11 +265,7 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
     if (p.curr_is_token(get_then_tk())) {
         auto then_pos = p.pos();
         p.next();
-        if (p.curr_is_token(get_assert_tk())) {
-            p.next();
-        } else {
-            p.check_token_next(get_have_tk(), "invalid 'then' declaration, 'have' or 'assert' expected");
-        }
+        p.check_token_next(get_have_tk(), "invalid 'then' declaration, 'have' expected");
         body  = parse_have_core(p, then_pos, some_expr(l));
     } else {
         body  = p.parse_expr();
@@ -613,7 +609,6 @@ parse_table init_nud_table() {
     r = r.add({transition("_", mk_ext_action(parse_placeholder))}, x0);
     r = r.add({transition("by", mk_ext_action_core(parse_by))}, x0);
     r = r.add({transition("have", mk_ext_action(parse_have))}, x0);
-    r = r.add({transition("assert", mk_ext_action(parse_have))}, x0);
     r = r.add({transition("suppose", mk_ext_action(parse_suppose))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
     r = r.add({transition("suffices", mk_ext_action(parse_suffices_to_show))}, x0);

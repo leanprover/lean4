@@ -42,7 +42,6 @@ import       import
 prelude      prelude
 show         show
 have         have
-assert       assert
 assume       assume
 suppose      suppose
 take         take

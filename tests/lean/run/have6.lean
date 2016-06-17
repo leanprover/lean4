@@ -9,11 +9,11 @@ axiom Hb : b
 axiom Hc : c
 check
   have a ∧ b, from and_intro a b Ha Hb,
-  assert b ∧ a, from and_intro b a Hb Ha,
+  have b ∧ a, from and_intro b a Hb Ha,
   have H : a ∧ b, from and_intro a b Ha Hb,
-  assert H : a ∧ b, from and_intro a b Ha Hb,
+  have H : a ∧ b, from and_intro a b Ha Hb,
   then have a ∧ b, from and_intro a b Ha Hb,
-  then assert b ∧ a, from and_intro b a Hb Ha,
+  then have b ∧ a, from and_intro b a Hb Ha,
   then have H : a ∧ b, from and_intro a b Ha Hb,
-  then assert H : a ∧ b, from and_intro a b Ha Hb,
+  then have H : a ∧ b, from and_intro a b Ha Hb,
     Ha

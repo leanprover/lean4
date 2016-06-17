@@ -47,7 +47,6 @@ static name const * g_import_tk = nullptr;
 static name const * g_prelude_tk = nullptr;
 static name const * g_show_tk = nullptr;
 static name const * g_have_tk = nullptr;
-static name const * g_assert_tk = nullptr;
 static name const * g_assume_tk = nullptr;
 static name const * g_suppose_tk = nullptr;
 static name const * g_take_tk = nullptr;
@@ -196,7 +195,6 @@ void initialize_tokens() {
     g_prelude_tk = new name{"prelude"};
     g_show_tk = new name{"show"};
     g_have_tk = new name{"have"};
-    g_assert_tk = new name{"assert"};
     g_assume_tk = new name{"assume"};
     g_suppose_tk = new name{"suppose"};
     g_take_tk = new name{"take"};
@@ -346,7 +344,6 @@ void finalize_tokens() {
     delete g_prelude_tk;
     delete g_show_tk;
     delete g_have_tk;
-    delete g_assert_tk;
     delete g_assume_tk;
     delete g_suppose_tk;
     delete g_take_tk;
@@ -495,7 +492,6 @@ name const & get_import_tk() { return *g_import_tk; }
 name const & get_prelude_tk() { return *g_prelude_tk; }
 name const & get_show_tk() { return *g_show_tk; }
 name const & get_have_tk() { return *g_have_tk; }
-name const & get_assert_tk() { return *g_assert_tk; }
 name const & get_assume_tk() { return *g_assume_tk; }
 name const & get_suppose_tk() { return *g_suppose_tk; }
 name const & get_take_tk() { return *g_take_tk; }

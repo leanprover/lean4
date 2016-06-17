@@ -854,9 +854,9 @@ void type_context::reset_tmp_mode() {
 
 void type_context::ensure_num_tmp_mvars(unsigned num_uvars, unsigned num_mvars) {
     lean_assert(m_tmp_mode);
-    if (num_uvars < m_tmp_uassignment.size())
+    if (m_tmp_uassignment.size() < num_uvars)
         m_tmp_uassignment.resize(num_uvars, none_level());
-    if (num_mvars < m_tmp_eassignment.size())
+    if (m_tmp_eassignment.size() < num_mvars)
         m_tmp_eassignment.resize(num_mvars, none_expr());
 }
 

@@ -65,7 +65,6 @@ meta_constant format_result : tactic format
 meta_constant target        : tactic expr
 meta_constant intro         : name → tactic unit
 meta_constant intron        : nat → tactic unit
-meta_constant assumption    : tactic unit
 meta_constant rename        : name → name → tactic unit
 meta_constant clear         : name → tactic unit
 meta_constant revert_lst    : list name → tactic unit
@@ -147,5 +146,12 @@ meta_definition find_same_type : expr → list expr → tactic expr
      b ← unify e t,
      if b = tt then return H
      else find_same_type e Hs
+
+meta_definition assumption : tactic unit :=
+do { ctx ← local_context,
+     t   ← target,
+     H   ← find_same_type t ctx,
+     exact H }
+<|> fail "assumption tactic failed"
 
 end tactic

@@ -48,7 +48,6 @@ app_builder_cache::app_builder_cache(environment const & env):
 }
 
 levels app_builder::mk_metavars(declaration const & d, buffer<expr> & mvars, buffer<optional<expr>> & inst_args) {
-    m_ctx.set_tmp_mode();
     unsigned num_univ = d.get_num_univ_params();
     buffer<level> lvls_buffer;
     for (unsigned i = 0; i < num_univ; i++) {
@@ -110,7 +109,6 @@ static void trace_failure(name const & n, char const * msg) {
 }
 
 levels app_builder::mk_metavars(declaration const & d, unsigned arity, buffer<expr> & mvars, buffer<optional<expr>> & inst_args) {
-    m_ctx.set_tmp_mode();
     unsigned num_univ = d.get_num_univ_params();
     buffer<level> lvls_buffer;
     for (unsigned i = 0; i < num_univ; i++) {
@@ -194,7 +192,7 @@ bool app_builder::check_all_assigned(entry const & e) {
 }
 
 void app_builder::init_ctx_for(entry const & e) {
-    m_ctx.set_tmp_mode(e.m_num_umeta, e.m_num_emeta);
+    m_ctx.ensure_num_tmp_mvars(e.m_num_umeta, e.m_num_emeta);
 }
 
 void app_builder::trace_unify_failure(name const & n, unsigned i, expr const & m, expr const & v) {
@@ -205,6 +203,7 @@ void app_builder::trace_unify_failure(name const & n, unsigned i, expr const & m
 }
 
 expr app_builder::mk_app(name const & c, unsigned nargs, expr const * args) {
+    type_context::tmp_mode_scope scope(m_ctx);
     optional<entry> e = get_entry(c, nargs);
     if (!e) {
         trace_failure(c, "failed to retrieve declaration");
@@ -240,6 +239,7 @@ static unsigned get_nargs(unsigned mask_sz, bool const * mask) {
 }
 
 expr app_builder::mk_app(name const & c, unsigned mask_sz, bool const * mask, expr const * args) {
+    type_context::tmp_mode_scope scope(m_ctx);
     unsigned nargs = get_nargs(mask_sz, mask);
     optional<entry> e = get_entry(c, mask_sz, mask);
     if (!e) {

@@ -36,6 +36,7 @@ vm_obj tactic_subst_core(name const & n, bool symm, tactic_state const & s) {
         buffer<name> lhsH;
         optional<tactic_state> s2 = intron(2, s1, lhsH);
         if (!s2) return mk_tactic_exception("subst tactic failed, unexpected failure during intro", s);
+        lean_assert(!s2->mctx().is_assigned(head(s2->goals())));
         lctx                 = s2->get_main_goal_decl()->get_context();
         expr type            = s2->get_main_goal_decl()->get_type();
         lhs                  = lctx.get_local_decl(lhsH[0])->mk_ref();
@@ -43,6 +44,7 @@ vm_obj tactic_subst_core(name const & n, bool symm, tactic_state const & s) {
         bool depH            = depends_on(type, H);
         expr new_type        = instantiate(abstract_local(type, lhs), rhs);
         metavar_context mctx = s2->mctx();
+        lean_assert(!mctx.is_assigned(head(s2->goals())));
         type_context ctx     = mk_type_context_for(*s2, mctx);
         app_builder builder  = mk_app_builder_for(ctx);
         expr motive;

@@ -215,8 +215,8 @@ class defeq_simplify_fn {
     }
 
     expr rewrite(expr const & e, defeq_simp_lemma const & sl) {
-        type_context::scope scope(m_ctx);
-        m_ctx.set_tmp_mode(sl.get_num_umeta(), sl.get_num_emeta());
+        type_context::scope scope1(m_ctx);
+        type_context::tmp_mode_scope scope2(m_ctx, sl.get_num_umeta(), sl.get_num_emeta());
         if (!m_ctx.is_def_eq(e, sl.get_lhs())) return e;
 
         lean_trace(name({"defeq_simplifier", "rewrite"}),

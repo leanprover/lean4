@@ -237,6 +237,17 @@ public:
        It is used when performing type class resolution and matching.
        -------------------------- */
     void set_tmp_mode(unsigned next_uidx = 0, unsigned next_midx = 0);
+    void reset_tmp_mode();
+    struct tmp_mode_scope {
+        type_context & m_ctx;
+        tmp_mode_scope(type_context & ctx, unsigned next_uidx = 0, unsigned next_midx = 0):m_ctx(ctx) {
+            m_ctx.set_tmp_mode(next_uidx, next_midx);
+        }
+        ~tmp_mode_scope() {
+            m_ctx.reset_tmp_mode();
+        }
+    };
+    void ensure_num_tmp_mvars(unsigned num_uvars, unsigned num_mvars);
     optional<level> get_tmp_uvar_assignment(unsigned idx) const;
     optional<expr> get_tmp_mvar_assignment(unsigned idx) const;
     optional<level> get_tmp_assignment(level const & l) const;

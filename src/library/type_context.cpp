@@ -848,6 +848,18 @@ void type_context::set_tmp_mode(unsigned next_uidx, unsigned next_midx) {
     m_tmp_eassignment.resize(next_midx, none_expr());
 }
 
+void type_context::reset_tmp_mode() {
+    m_tmp_mode = false;
+}
+
+void type_context::ensure_num_tmp_mvars(unsigned num_uvars, unsigned num_mvars) {
+    lean_assert(m_tmp_mode);
+    if (num_uvars < m_tmp_uassignment.size())
+        m_tmp_uassignment.resize(num_uvars, none_level());
+    if (num_mvars < m_tmp_eassignment.size())
+        m_tmp_eassignment.resize(num_mvars, none_expr());
+}
+
 optional<level> type_context::get_tmp_uvar_assignment(unsigned idx) const {
     lean_assert(m_tmp_mode);
     lean_assert(idx < m_tmp_uassignment.size());

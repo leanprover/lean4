@@ -5,13 +5,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
+#include "kernel/abstract.h"
 #include "library/lazy_abstraction.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_nat.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
-optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> & new_Hs) {
+optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> & new_Hns) {
     if (n == 0) return some_tactic_state(s);
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return none_tactic_state();
@@ -19,6 +20,7 @@ optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> &
     type_context ctx     = mk_type_context_for(s, mctx);
     expr type            = g->get_type();
     type_context::tmp_locals new_locals(ctx);
+    buffer<expr> new_Hs;
     for (unsigned i = 0; i < n; i++) {
         if (!is_pi(type) && !is_lambda(type)) {
             type = ctx.whnf(type);
@@ -29,17 +31,29 @@ optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> &
         if (is_pi(type)) {
             expr H  = new_locals.push_local(binding_name(type), binding_domain(type), binding_info(type));
             type    = instantiate(binding_body(type), H);
-            new_Hs.push_back(mlocal_name(H));
+            new_Hs.push_back(H);
+            new_Hns.push_back(mlocal_name(H));
 
         } else {
             expr H  = new_locals.push_let(let_name(type), let_type(type), let_value(type));
             type    = instantiate(let_body(type), H);
-            new_Hs.push_back(mlocal_name(H));
+            new_Hs.push_back(H);
+            new_Hns.push_back(mlocal_name(H));
         }
     }
     local_context lctx = ctx.lctx();
     expr new_M   = mctx.mk_metavar_decl(lctx, type);
-    expr new_val = new_locals.mk_lambda(mk_lazy_abstraction(new_M, new_Hs));
+    lean_assert(!mctx.is_assigned(new_M));
+    expr new_val = abstract_locals(mk_lazy_abstraction_with_locals(new_M, new_Hs), new_Hs.size(), new_Hs.data());
+    unsigned i   = new_Hs.size();
+    while (i > 0) {
+        --i;
+        optional<local_decl> d = lctx.get_local_decl(new_Hs[i]);
+        expr type = d->get_type();
+        type      = abstract_locals(type, i, new_Hs.data());
+        new_val   = mk_lambda(d->get_pp_name(), type, new_val, d->get_info());
+    }
+    lean_assert(!mctx.is_assigned(new_M));
     mctx.assign(head(s.goals()), new_val);
     list<expr> new_gs(new_M, tail(s.goals()));
     return some_tactic_state(set_mctx_goals(s, mctx, new_gs));

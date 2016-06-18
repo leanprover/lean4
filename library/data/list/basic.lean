@@ -144,10 +144,6 @@ rfl
 theorem head_append [simp] [h : inhabited T] (t : list T) : ∀ {s : list T}, s ≠ [] → head (s ++ t) = head s :=
 sorry -- by rec_inst_simp
 
-definition tail : list T → list T
-| []       := []
-| (a :: l) := l
-
 theorem tail_nil [simp] : tail (@nil T) = [] :=
 rfl
 

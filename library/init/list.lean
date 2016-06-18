@@ -49,4 +49,8 @@ definition nth : list A → nat → option A
 | (a :: l) 0     := some a
 | (a :: l) (n+1) := nth l n
 
+definition tail : list A → list A
+| []       := []
+| (a :: l) := l
+
 end list

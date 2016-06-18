@@ -205,9 +205,22 @@ meta_definition all_goals (tac : tactic unit) : tactic unit :=
 do gs ← get_goals,
    all_goals_core tac gs []
 
+meta_definition when (c : Prop) [decidable c] (tac : tactic unit) : tactic unit :=
+if c then tac else skip
+
+meta_definition fail_if_no_goals : tactic unit :=
+do n ← num_goals,
+   when (n = 0) (fail "tactic failed, there are no goals to be solved")
+
 meta_definition now : tactic unit :=
 do n ← num_goals,
-   if n = 0 then skip
-   else fail "now tactic failed, there are unsolved goals"
+   when (n ≠ 0) (fail "now tactic failed, there are unsolved goals")
 
+/- Swap first two goals, do nothing if tactic state does not have at least two goals -/
+meta_definition swap : tactic unit :=
+do gs ← get_goals,
+   match gs with
+   | g₁ :: g₂ :: rs := set_goals (g₂ :: g₁ :: rs)
+   | _              := skip
+   end
 end tactic

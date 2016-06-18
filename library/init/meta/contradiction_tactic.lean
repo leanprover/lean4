@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.tactic
 
+namespace tactic
+
 open expr tactic option bool decidable environment
 
 private meta_definition contra_A_not_A : list expr → list expr → tactic unit
@@ -53,14 +55,16 @@ private meta_definition contra_constructor_eq : list expr → tactic unit
      | none := contra_constructor_eq Hs
      end
 
-meta_definition tactic.contradiction : tactic unit :=
+meta_definition contradiction : tactic unit :=
 do ctx ← local_context,
    (contra_false ctx <|>
     contra_A_not_A ctx ctx <|>
     contra_constructor_eq ctx <|>
     fail "contradiction tactic failed")
 
-open tactic
+meta_definition exfalso : tactic unit :=
+do fail_if_no_goals,
+   assert "Hfalse" (expr.const "false" []),
+   swap, contradiction
 
-example : ∀ (a b : nat), (0:nat) = 1 → a = b :=
-by do intros, contradiction
+end tactic

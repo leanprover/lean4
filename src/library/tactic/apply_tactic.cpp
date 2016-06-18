@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
+#include "library/util.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 
@@ -23,7 +24,30 @@ static unsigned get_expect_num_args(type_context & ctx, expr e) {
     }
 }
 
-vm_obj apply_core(expr e, transparency_mode md, bool /* add_all */, tactic_state const & s) {
+/** \brief Given a sequence metas/goals: <tt>(?m_1 ...) (?m_2 ... ) ... (?m_k ...)</tt>,
+    we say ?m_i is "redundant" if it occurs in the type of some ?m_j.
+    This procedure removes from metas any redundant element. */
+static void remove_redundant_goals(metavar_context & mctx, buffer<expr> & metas) {
+    unsigned k = 0;
+    for (unsigned i = 0; i < metas.size(); i++) {
+        bool found = false;
+        for (unsigned j = 0; j < metas.size(); j++) {
+            if (j != i) {
+                if (occurs(metas[i], mctx.get_metavar_decl(metas[j])->get_type())) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (!found) {
+            metas[k] = metas[i];
+            k++;
+        }
+    }
+    metas.shrink(k);
+}
+
+vm_obj apply_core(expr e, transparency_mode md, bool add_all, tactic_state const & s) {
     try {
         optional<metavar_decl> g = s.get_main_goal_decl();
         if (!g) return mk_no_goals_exception(s);
@@ -84,8 +108,8 @@ vm_obj apply_core(expr e, transparency_mode md, bool /* add_all */, tactic_state
                 new_goals.push_back(m);
             }
         }
-        /* TODO(Leo): remove redundant metas */
-
+        if (!add_all)
+            remove_redundant_goals(mctx, new_goals);
         /* Assign, and create new tactic_state */
         e = mctx.instantiate_mvars(e);
         mctx.assign(head(s.goals()), e);

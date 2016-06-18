@@ -83,7 +83,6 @@ vm_obj apply_core(expr e, transparency_mode md, bool add_all, bool use_instances
             return mk_tactic_exception(msg, s);
         }
         /* Synthesize type class instances */
-        std::cout << "use_instances: " << use_instances << "\n";
         if (use_instances) {
             unsigned i = is_instance.size();
             while (i > 0) {

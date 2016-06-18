@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_format.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_nat.h"
+#include "library/vm/vm_level.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_options.h"
 #include "library/vm/vm_list.h"
@@ -326,7 +327,10 @@ vm_obj tactic_unify_core(vm_obj const & e1, vm_obj const & e2, vm_obj const & t,
     type_context ctx       = mk_type_context_for(s, mctx, to_transparency_mode(t));
     try {
         bool r = ctx.is_def_eq(to_expr(e1), to_expr(e2));
-        return mk_tactic_success(mk_vm_bool(r), set_mctx(s, mctx));
+        if (r)
+            return mk_tactic_success(set_mctx(s, mctx));
+        else
+            return mk_tactic_exception("unify tactic failed", s);
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);
     }
@@ -408,6 +412,23 @@ vm_obj tactic_set_goals(vm_obj const & gs, vm_obj const & s) {
     return set_goals(to_list_expr(gs), to_tactic_state(s));
 }
 
+vm_obj tactic_mk_meta_univ(vm_obj const & s) {
+    metavar_context mctx = to_tactic_state(s).mctx();
+    level u = mctx.mk_univ_metavar_decl();
+    return mk_tactic_success(to_obj(u), set_mctx(to_tactic_state(s), mctx));
+}
+
+vm_obj tactic_mk_meta_var(vm_obj const & t, vm_obj const & s0) {
+    tactic_state const & s   = to_tactic_state(s0);
+    metavar_context mctx     = s.mctx();
+    local_context lctx;
+    if (optional<metavar_decl> g = s.get_main_goal_decl()) {
+        lctx = g->get_context();
+    }
+    expr m = mctx.mk_metavar_decl(lctx, to_expr(t));
+    return mk_tactic_success(to_obj(m), set_mctx(s, mctx));
+}
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),         tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}), tactic_state_format_expr);
@@ -427,6 +448,8 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "rotate_left"}),       tactic_rotate_left);
     DECLARE_VM_BUILTIN(name({"tactic", "get_goals"}),         tactic_get_goals);
     DECLARE_VM_BUILTIN(name({"tactic", "set_goals"}),         tactic_set_goals);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_meta_univ"}),      tactic_mk_meta_univ);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_meta_var"}),       tactic_mk_meta_var);
 }
 
 void finalize_tactic_state() {

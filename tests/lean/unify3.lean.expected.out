@@ -1,0 +1,8 @@
+pattern: 
+@eq.{?M_1} ?M_2 ?M_3 ?M_4
+term to unify: 
+@eq.{1} nat a b
+unification results using whnf: 
+nat
+a
+b

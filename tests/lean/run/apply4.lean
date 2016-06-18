@@ -28,3 +28,15 @@ by do
   trace "--------",
   trace_state,
   assumption
+
+print "----------------"
+set_option pp.all true
+
+example (a b : nat) : a = 0 → a = b :=
+by do
+  intro "H",
+  foo ← mk_const "foo",
+  trace_expr foo,
+  apply foo,
+  trace_state,
+  assumption

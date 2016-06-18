@@ -70,7 +70,7 @@ meta_constant clear         : name → tactic unit
 meta_constant revert_lst    : list name → tactic unit
 meta_constant infer_type    : expr → tactic expr
 meta_constant whnf          : expr → tactic expr
-meta_constant unify_core    : expr → expr → transparency → tactic bool
+meta_constant unify_core    : expr → expr → transparency → tactic unit
 meta_constant get_local     : name → tactic expr
 /- Return the hypothesis in the main goal. Fail if tactic_state does not have any goal left. -/
 meta_constant local_context : tactic (list expr)
@@ -121,6 +121,12 @@ meta_constant set_goals     : list expr → tactic unit
    If all is tt, then all unassigned meta-variables are added as new goals.
    If insts is tt, then use type class resolution to instantiate unassigned meta-variables. -/
 meta_constant apply_core    : expr → transparency → bool → bool → tactic unit
+/- Create a fresh meta universe variable. -/
+meta_constant mk_meta_univ  : tactic level
+/- Create a fresh meta-variable with the given type.
+   The scope of the new meta-variable is the local context of the main goal. -/
+meta_constant mk_meta_var   : expr → tactic expr
+
 open list nat
 
 meta_definition intros : tactic unit :=
@@ -142,7 +148,7 @@ meta_definition clear_lst : list name → tactic unit
 | []      := skip
 | (n::ns) := do clear n, clear_lst ns
 
-meta_definition unify (a b : expr) : tactic bool :=
+meta_definition unify (a b : expr) : tactic unit :=
 unify_core a b transparency.semireducible
 
 meta_definition get_local_type (n : name) : tactic expr :=
@@ -157,9 +163,7 @@ meta_definition find_same_type : expr → list expr → tactic expr
 | e []         := failed
 | e (H :: Hs) :=
   do t ← infer_type H,
-     b ← unify e t,
-     if b = tt then return H
-     else find_same_type e Hs
+     (unify e t >> return H) <|> find_same_type e Hs
 
 meta_definition assumption : tactic unit :=
 do { ctx ← local_context,
@@ -242,5 +246,29 @@ do tgt ← target,
    b   ← is_class tgt,
    if b = tt then mk_instance tgt >>= exact
    else fail "apply_instance tactic fail, target is not a type class"
+
+meta_definition mk_num_meta_univs : nat → tactic (list level)
+| 0        := return []
+| (succ n) := do
+  l  ← mk_meta_univ,
+  ls ← mk_num_meta_univs n,
+  return (l::ls)
+
+/- Return (expr.const c [l_1, ..., l_n]) where l_i's are fresh universe meta-variables -/
+meta_definition mk_const (c : name) : tactic expr :=
+do env  ← get_env,
+   decl ← returnex (environment.get env c),
+   num  ← return (length (declaration.univ_params decl)),
+   ls   ← mk_num_meta_univs num,
+   return (expr.const c ls)
+
+/- Create a fresh universe ?u, a metavariable (?T : Type.{?u}),
+   and return metavariable (?M : ?T).
+   This action can be used to create a meta-variable when
+   we don't know its type at creation time -/
+meta_definition mk_mvar : tactic expr :=
+do u ← mk_meta_univ,
+   t ← mk_meta_var (expr.sort u),
+   mk_meta_var t
 
 end tactic

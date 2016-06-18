@@ -100,6 +100,8 @@ meta_constant subst         : name → tactic unit
 meta_constant exact         : expr → tactic unit
 /- Elaborate the given quoted expression with respect to the current main goal. -/
 meta_constant to_expr       : qexpr → tactic expr
+/- Return true if the given expression is a type class. -/
+meta_constant is_class      : expr → tactic bool
 /- Try to create an instance of the given type class. -/
 meta_constant mk_instance   : expr → tactic expr
 /- Simplify the given expression using [defeq] lemmas.
@@ -231,5 +233,11 @@ apply_core e transparency.semireducible
 
 meta_definition fapply (e : expr) : tactic unit :=
 fapply_core e transparency.semireducible
+
+meta_definition apply_instance : tactic unit :=
+do tgt ← target,
+   b   ← is_class tgt,
+   if b = tt then mk_instance tgt >>= exact
+   else fail "apply_instance tactic fail, target is not a type class"
 
 end tactic

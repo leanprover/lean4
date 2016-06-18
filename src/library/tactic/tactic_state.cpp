@@ -292,6 +292,17 @@ vm_obj tactic_whnf(vm_obj const & e, vm_obj const & s0) {
     }
 }
 
+vm_obj tactic_is_class(vm_obj const & e, vm_obj const & s0) {
+    tactic_state const & s = to_tactic_state(s0);
+    metavar_context mctx   = s.mctx();
+    type_context ctx       = mk_type_context_for(s, mctx);
+    try {
+        return mk_tactic_success(mk_vm_bool(static_cast<bool>(ctx.is_class(to_expr(e)))), s);
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex, s);
+    }
+}
+
 vm_obj tactic_mk_instance(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
     metavar_context mctx   = s.mctx();
@@ -406,6 +417,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "format_result"}),     tactic_format_result);
     DECLARE_VM_BUILTIN(name({"tactic", "infer_type"}),        tactic_infer_type);
     DECLARE_VM_BUILTIN(name({"tactic", "whnf"}),              tactic_whnf);
+    DECLARE_VM_BUILTIN(name({"tactic", "is_class"}),          tactic_is_class);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_instance"}),       tactic_mk_instance);
     DECLARE_VM_BUILTIN(name({"tactic", "unify_core"}),        tactic_unify_core);
     DECLARE_VM_BUILTIN(name({"tactic", "get_local"}),         tactic_get_local);

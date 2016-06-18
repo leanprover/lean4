@@ -21,4 +21,8 @@ by do
   whnf A >>= trace_expr,
   whnf m₁ >>= trace_expr,
   whnf m₂ >>= trace_expr,
+  trace "unification results using get_assignment: ",
+  get_assignment A >>= trace_expr,
+  get_assignment m₁ >>= trace_expr,
+  get_assignment m₂ >>= trace_expr,
   mk_app ("eq" <.> "refl") [m₁] >>= exact

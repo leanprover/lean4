@@ -429,27 +429,53 @@ vm_obj tactic_mk_meta_var(vm_obj const & t, vm_obj const & s0) {
     return mk_tactic_success(to_obj(m), set_mctx(s, mctx));
 }
 
+vm_obj tactic_get_univ_assignment(vm_obj const & u, vm_obj const & s0) {
+    tactic_state const & s   = to_tactic_state(s0);
+    metavar_context mctx     = s.mctx();
+    if (!is_meta(to_level(u))) {
+        return mk_tactic_exception("get_univ_assignment tactic failed, argument is not an universe metavariable", s);
+    } else if (auto r = mctx.get_assignment(to_level(u))) {
+        return mk_tactic_success(to_obj(*r), s);
+    } else {
+        return mk_tactic_exception("get_univ_assignment tactic failed, universe metavariable is not assigned", s);
+    }
+}
+
+vm_obj tactic_get_assignment(vm_obj const & e, vm_obj const & s0) {
+    tactic_state const & s   = to_tactic_state(s0);
+    metavar_context mctx     = s.mctx();
+    if (!is_metavar(to_expr(e))) {
+        return mk_tactic_exception("get_assignment tactic failed, argument is not an universe metavariable", s);
+    } if (auto r = mctx.get_assignment(to_expr(e))) {
+        return mk_tactic_success(to_obj(*r), s);
+    } else {
+        return mk_tactic_exception("get_assignment tactic failed, metavariable is not assigned", s);
+    }
+}
+
 void initialize_tactic_state() {
-    DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),         tactic_state_env);
-    DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}), tactic_state_format_expr);
-    DECLARE_VM_BUILTIN(name({"tactic_state", "to_format"}),   tactic_state_to_format);
-    DECLARE_VM_BUILTIN(name({"tactic", "target"}),            tactic_target);
-    DECLARE_VM_BUILTIN(name({"tactic", "result"}),            tactic_result);
-    DECLARE_VM_BUILTIN(name({"tactic", "format_result"}),     tactic_format_result);
-    DECLARE_VM_BUILTIN(name({"tactic", "infer_type"}),        tactic_infer_type);
-    DECLARE_VM_BUILTIN(name({"tactic", "whnf"}),              tactic_whnf);
-    DECLARE_VM_BUILTIN(name({"tactic", "is_class"}),          tactic_is_class);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_instance"}),       tactic_mk_instance);
-    DECLARE_VM_BUILTIN(name({"tactic", "unify_core"}),        tactic_unify_core);
-    DECLARE_VM_BUILTIN(name({"tactic", "get_local"}),         tactic_get_local);
-    DECLARE_VM_BUILTIN(name({"tactic", "local_context"}),     tactic_local_context);
-    DECLARE_VM_BUILTIN(name({"tactic", "to_expr"}),           tactic_to_expr);
-    DECLARE_VM_BUILTIN(name({"tactic", "defeq_simp"}),        tactic_defeq_simp);
-    DECLARE_VM_BUILTIN(name({"tactic", "rotate_left"}),       tactic_rotate_left);
-    DECLARE_VM_BUILTIN(name({"tactic", "get_goals"}),         tactic_get_goals);
-    DECLARE_VM_BUILTIN(name({"tactic", "set_goals"}),         tactic_set_goals);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_meta_univ"}),      tactic_mk_meta_univ);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_meta_var"}),       tactic_mk_meta_var);
+    DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),           tactic_state_env);
+    DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}),   tactic_state_format_expr);
+    DECLARE_VM_BUILTIN(name({"tactic_state", "to_format"}),     tactic_state_to_format);
+    DECLARE_VM_BUILTIN(name({"tactic", "target"}),              tactic_target);
+    DECLARE_VM_BUILTIN(name({"tactic", "result"}),              tactic_result);
+    DECLARE_VM_BUILTIN(name({"tactic", "format_result"}),       tactic_format_result);
+    DECLARE_VM_BUILTIN(name({"tactic", "infer_type"}),          tactic_infer_type);
+    DECLARE_VM_BUILTIN(name({"tactic", "whnf"}),                tactic_whnf);
+    DECLARE_VM_BUILTIN(name({"tactic", "is_class"}),            tactic_is_class);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_instance"}),         tactic_mk_instance);
+    DECLARE_VM_BUILTIN(name({"tactic", "unify_core"}),          tactic_unify_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "get_local"}),           tactic_get_local);
+    DECLARE_VM_BUILTIN(name({"tactic", "local_context"}),       tactic_local_context);
+    DECLARE_VM_BUILTIN(name({"tactic", "to_expr"}),             tactic_to_expr);
+    DECLARE_VM_BUILTIN(name({"tactic", "defeq_simp"}),          tactic_defeq_simp);
+    DECLARE_VM_BUILTIN(name({"tactic", "rotate_left"}),         tactic_rotate_left);
+    DECLARE_VM_BUILTIN(name({"tactic", "get_goals"}),           tactic_get_goals);
+    DECLARE_VM_BUILTIN(name({"tactic", "set_goals"}),           tactic_set_goals);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_meta_univ"}),        tactic_mk_meta_univ);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_meta_var"}),         tactic_mk_meta_var);
+    DECLARE_VM_BUILTIN(name({"tactic", "get_univ_assignment"}), tactic_get_univ_assignment);
+    DECLARE_VM_BUILTIN(name({"tactic", "get_assignment"}),      tactic_get_assignment);
 }
 
 void finalize_tactic_state() {

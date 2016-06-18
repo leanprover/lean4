@@ -126,6 +126,12 @@ meta_constant mk_meta_univ  : tactic level
 /- Create a fresh meta-variable with the given type.
    The scope of the new meta-variable is the local context of the main goal. -/
 meta_constant mk_meta_var   : expr → tactic expr
+/- Return the value assigned to the given universe meta-variable.
+   Fail if argument is not an universe meta-variable or if it is not assigned. -/
+meta_constant get_univ_assignment : level → tactic level
+/- Return the value assigned to the given meta-variable.
+   Fail if argument is not a meta-variable or if it is not assigned. -/
+meta_constant get_assignment : expr → tactic expr
 
 open list nat
 
@@ -212,6 +218,7 @@ private meta_definition all_goals_core : tactic unit → list expr → list expr
      new_gs ← get_goals,
      all_goals_core tac gs (acc ++ new_gs)
 
+/- Apply the given tactic to all goals. -/
 meta_definition all_goals (tac : tactic unit) : tactic unit :=
 do gs ← get_goals,
    all_goals_core tac gs []
@@ -219,15 +226,17 @@ do gs ← get_goals,
 meta_definition when (c : Prop) [decidable c] (tac : tactic unit) : tactic unit :=
 if c then tac else skip
 
+/- Fail if there are no remaining goals. -/
 meta_definition fail_if_no_goals : tactic unit :=
 do n ← num_goals,
    when (n = 0) (fail "tactic failed, there are no goals to be solved")
 
+/- Fail if there are unsolved goals. -/
 meta_definition now : tactic unit :=
 do n ← num_goals,
    when (n ≠ 0) (fail "now tactic failed, there are unsolved goals")
 
-/- Swap first two goals, do nothing if tactic state does not have at least two goals -/
+/- Swap first two goals, do nothing if tactic state does not have at least two goals. -/
 meta_definition swap : tactic unit :=
 do gs ← get_goals,
    match gs with
@@ -241,12 +250,14 @@ apply_core e transparency.semireducible ff tt
 meta_definition fapply (e : expr) : tactic unit :=
 apply_core e transparency.semireducible tt tt
 
+/- Try to solve the main goal using type class resolution. -/
 meta_definition apply_instance : tactic unit :=
 do tgt ← target,
    b   ← is_class tgt,
    if b = tt then mk_instance tgt >>= exact
    else fail "apply_instance tactic fail, target is not a type class"
 
+/- Create a list of universe meta-variables of the given size. -/
 meta_definition mk_num_meta_univs : nat → tactic (list level)
 | 0        := return []
 | (succ n) := do
@@ -254,7 +265,7 @@ meta_definition mk_num_meta_univs : nat → tactic (list level)
   ls ← mk_num_meta_univs n,
   return (l::ls)
 
-/- Return (expr.const c [l_1, ..., l_n]) where l_i's are fresh universe meta-variables -/
+/- Return (expr.const c [l_1, ..., l_n]) where l_i's are fresh universe meta-variables. -/
 meta_definition mk_const (c : name) : tactic expr :=
 do env  ← get_env,
    decl ← returnex (environment.get env c),

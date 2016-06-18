@@ -6,3 +6,7 @@ unification results using whnf:
 nat
 a
 b
+unification results using get_assignment: 
+nat
+a
+b

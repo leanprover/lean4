@@ -15,6 +15,8 @@ meta_constant to_format   : tactic_state → format
    If the tactic state does not contain any goals, then format expression
    using an empty local context. -/
 meta_constant format_expr : tactic_state → expr → format
+meta_constant get_options : tactic_state → options
+meta_constant set_options : tactic_state → options → tactic_state
 end tactic_state
 
 meta_definition tactic_state.has_to_format [instance] : has_to_format tactic_state :=
@@ -28,6 +30,18 @@ open tactic_state
 meta_definition get_env : tactic environment :=
 do s ← read,
    return (env s)
+
+meta_definition set_bool_option (n : name) (v : bool) : tactic unit :=
+do s ← read,
+   write (tactic_state.set_options s (options.set_bool (tactic_state.get_options s) n v))
+
+meta_definition set_nat_option (n : name) (v : nat) : tactic unit :=
+do s ← read,
+   write (tactic_state.set_options s (options.set_nat (tactic_state.get_options s) n v))
+
+meta_definition set_string_option (n : name) (v : string) : tactic unit :=
+do s ← read,
+   write (tactic_state.set_options s (options.set_string (tactic_state.get_options s) n v))
 
 meta_definition get_decl (n : name) : tactic declaration :=
 do s ← read,

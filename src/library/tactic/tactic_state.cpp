@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_environment.h"
 #include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_format.h"
+#include "library/vm/vm_options.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_level.h"
@@ -453,10 +454,20 @@ vm_obj tactic_get_assignment(vm_obj const & e, vm_obj const & s0) {
     }
 }
 
+vm_obj tactic_state_get_options(vm_obj const & s) {
+    return to_obj(to_tactic_state(s).get_options());
+}
+
+vm_obj tactic_state_set_options(vm_obj const & s, vm_obj const & o) {
+    return to_obj(set_options(to_tactic_state(s), to_options(o)));
+}
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),           tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}),   tactic_state_format_expr);
     DECLARE_VM_BUILTIN(name({"tactic_state", "to_format"}),     tactic_state_to_format);
+    DECLARE_VM_BUILTIN(name({"tactic_state", "get_options"}),   tactic_state_get_options);
+    DECLARE_VM_BUILTIN(name({"tactic_state", "set_options"}),   tactic_state_set_options);
     DECLARE_VM_BUILTIN(name({"tactic", "target"}),              tactic_target);
     DECLARE_VM_BUILTIN(name({"tactic", "result"}),              tactic_result);
     DECLARE_VM_BUILTIN(name({"tactic", "format_result"}),       tactic_format_result);

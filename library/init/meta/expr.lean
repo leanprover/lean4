@@ -113,6 +113,28 @@ if is_app_of e "eq" = tt ∧ get_app_num_args e = 3
 then some (app_arg (app_fn e), app_arg e)
 else none
 
+meta_definition is_heq (e : expr) : option (expr × expr × expr × expr) :=
+if is_app_of e "heq" = tt ∧ get_app_num_args e = 4
+then some (app_arg (app_fn (app_fn (app_fn e))),
+           app_arg (app_fn (app_fn e)),
+           app_arg (app_fn e),
+           app_arg e)
+else none
+
+meta_definition is_pi : expr → bool
+| (pi _ _ _ _) := tt
+| _            := ff
+
+meta_definition binding_domain : expr → expr
+| (pi _ _ d b)  := d
+| (lam _ _ d b) := d
+| e             := e
+
+meta_definition binding_body : expr → expr
+| (pi _ _ d b)  := b
+| (lam _ _ d b) := b
+| e             := e
+
 end expr
 
 /- Given (f a : expr), the following coercion allow us to write (f a) instead of (expr.app f a) -/

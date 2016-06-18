@@ -90,7 +90,7 @@ vm_obj apply_core(expr e, transparency_mode md, bool add_all, bool use_instances
                 if (!is_instance[i]) continue;
                 expr const & meta   = metas[i];
                 if (mctx.is_assigned(meta)) continue;
-                expr meta_type      = ctx.infer(meta);
+                expr meta_type      = mctx.instantiate_mvars(ctx.infer(meta));
                 optional<expr> inst = ctx.mk_class_instance(meta_type);
                 if (!inst) {
                     return mk_tactic_exception(sstream() << "invalid apply tactic, failed to synthesize type class instance for #"

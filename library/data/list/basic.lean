@@ -447,11 +447,6 @@ end
 
 /- nth element -/
 section nth
-definition nth : list T → nat → option T
-| []       n     := none
-| (a :: l) 0     := some a
-| (a :: l) (n+1) := nth l n
-
 theorem nth_zero [simp] (a : T) (l : list T) : nth (a :: l) 0 = some a :=
 rfl
 

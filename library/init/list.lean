@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.logic
+import init.logic init.nat
 open decidable list
 
 protected definition list.is_inhabited [instance] (A : Type) : inhabited (list A) :=
@@ -41,5 +41,12 @@ notation l₁ ++ l₂ := append l₁ l₂
 definition length : list A → nat
 | []       := 0
 | (a :: l) := length l + 1
+
+open option nat
+
+definition nth : list A → nat → option A
+| [] _           := none
+| (a :: l) 0     := some a
+| (a :: l) (n+1) := nth l n
 
 end list

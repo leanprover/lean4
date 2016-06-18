@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/tactic/exact_tactic.h"
 #include "library/tactic/change_tactic.h"
 #include "library/tactic/assert_tactic.h"
+#include "library/tactic/apply_tactic.h"
 #include "library/tactic/elaborate.h"
 
 namespace lean {
@@ -28,10 +29,12 @@ void initialize_tactic_module() {
     initialize_exact_tactic();
     initialize_change_tactic();
     initialize_assert_tactic();
+    initialize_apply_tactic();
     initialize_elaborate();
 }
 void finalize_tactic_module() {
     finalize_elaborate();
+    finalize_apply_tactic();
     finalize_assert_tactic();
     finalize_change_tactic();
     finalize_exact_tactic();

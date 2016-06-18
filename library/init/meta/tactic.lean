@@ -114,6 +114,8 @@ meta_constant assert        : name → expr → tactic unit
 meta_constant rotate_left   : nat → tactic unit
 meta_constant get_goals     : tactic (list expr)
 meta_constant set_goals     : list expr → tactic unit
+meta_constant apply_core    : expr → transparency → tactic unit
+meta_constant fapply_core   : expr → transparency → tactic unit
 open list nat
 
 meta_definition intros : tactic unit :=
@@ -223,4 +225,11 @@ do gs ← get_goals,
    | g₁ :: g₂ :: rs := set_goals (g₂ :: g₁ :: rs)
    | _              := skip
    end
+
+meta_definition apply (e : expr) : tactic unit :=
+apply_core e transparency.semireducible
+
+meta_definition fapply (e : expr) : tactic unit :=
+fapply_core e transparency.semireducible
+
 end tactic

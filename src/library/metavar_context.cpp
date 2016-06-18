@@ -115,6 +115,15 @@ expr metavar_context::instantiate_mvars(expr const & e) {
     return ::lean::instantiate_mvars(impl, e);
 }
 
+void metavar_context::instantiate_mvars_at_type_of(expr const & m) {
+    metavar_decl d = *get_metavar_decl(m);
+    expr type      = d.get_type();
+    expr new_type  = instantiate_mvars(type);
+    if (new_type != type) {
+        m_decls.insert(mlocal_name(m), metavar_decl(d.get_context(), new_type));
+    }
+}
+
 template<typename C>
 static bool well_formed_metavar_occs(expr const & e, C const & ds, metavar_context const & ctx) {
     bool ok = true;

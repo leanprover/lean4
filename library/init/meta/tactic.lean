@@ -126,6 +126,8 @@ meta_constant defeq_simp    : expr → tactic expr
 meta_constant change        : expr → tactic unit
 /- (assert H T), adds a new goal for T, and the hypothesis (H : T := ?M) in the current goal -/
 meta_constant assert        : name → expr → tactic unit
+/- (pose H T P), adds the hypothesis (H : T) in the current goal if P has type T. -/
+meta_constant pose          : name → expr → expr → tactic unit
 /- rotate goals to the left -/
 meta_constant rotate_left   : nat → tactic unit
 meta_constant get_goals     : tactic (list expr)

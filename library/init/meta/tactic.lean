@@ -146,7 +146,7 @@ meta_constant get_univ_assignment : level → tactic level
 /- Return the value assigned to the given meta-variable.
    Fail if argument is not a meta-variable or if it is not assigned. -/
 meta_constant get_assignment : expr → tactic expr
-
+meta_constant mk_fresh_name : tactic name
 open list nat
 
 meta_definition intros : tactic unit :=

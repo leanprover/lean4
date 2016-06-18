@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/fresh_name.h"
 #include "library/constants.h"
 #include "library/type_context.h"
 #include "library/pp_options.h"
@@ -462,6 +463,10 @@ vm_obj tactic_state_set_options(vm_obj const & s, vm_obj const & o) {
     return to_obj(set_options(to_tactic_state(s), to_options(o)));
 }
 
+vm_obj tactic_mk_fresh_name(vm_obj const & s) {
+    return mk_tactic_success(to_obj(mk_fresh_name()), to_tactic_state(s));
+}
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),           tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}),   tactic_state_format_expr);
@@ -487,6 +492,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "mk_meta_var"}),         tactic_mk_meta_var);
     DECLARE_VM_BUILTIN(name({"tactic", "get_univ_assignment"}), tactic_get_univ_assignment);
     DECLARE_VM_BUILTIN(name({"tactic", "get_assignment"}),      tactic_get_assignment);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_fresh_name"}),       tactic_mk_fresh_name);
 }
 
 void finalize_tactic_state() {

@@ -116,8 +116,11 @@ meta_constant assert        : name → expr → tactic unit
 meta_constant rotate_left   : nat → tactic unit
 meta_constant get_goals     : tactic (list expr)
 meta_constant set_goals     : list expr → tactic unit
-meta_constant apply_core    : expr → transparency → tactic unit
-meta_constant fapply_core   : expr → transparency → tactic unit
+/- (apply_core e t all insts), apply the expression e to the main goal,
+   the unification is performed using the given transparency mode.
+   If all is tt, then all unassigned meta-variables are added as new goals.
+   If insts is tt, then use type class resolution to instantiate unassigned meta-variables. -/
+meta_constant apply_core    : expr → transparency → bool → bool → tactic unit
 open list nat
 
 meta_definition intros : tactic unit :=
@@ -229,10 +232,10 @@ do gs ← get_goals,
    end
 
 meta_definition apply (e : expr) : tactic unit :=
-apply_core e transparency.semireducible
+apply_core e transparency.semireducible ff tt
 
 meta_definition fapply (e : expr) : tactic unit :=
-fapply_core e transparency.semireducible
+apply_core e transparency.semireducible tt tt
 
 meta_definition apply_instance : tactic unit :=
 do tgt ← target,

@@ -47,7 +47,7 @@ static void remove_redundant_goals(metavar_context & mctx, buffer<expr> & metas)
     metas.shrink(k);
 }
 
-vm_obj apply_core(expr e, transparency_mode md, bool add_all, tactic_state const & s) {
+vm_obj apply_core(expr e, transparency_mode md, bool add_all, bool use_instances, tactic_state const & s) {
     try {
         optional<metavar_decl> g = s.get_main_goal_decl();
         if (!g) return mk_no_goals_exception(s);
@@ -83,21 +83,24 @@ vm_obj apply_core(expr e, transparency_mode md, bool add_all, tactic_state const
             return mk_tactic_exception(msg, s);
         }
         /* Synthesize type class instances */
-        unsigned i = is_instance.size();
-        while (i > 0) {
-            --i;
-            if (!is_instance[i]) continue;
-            expr const & meta   = metas[i];
-            if (mctx.is_assigned(meta)) continue;
-            expr meta_type      = ctx.infer(meta);
-            optional<expr> inst = ctx.mk_class_instance(meta_type);
-            if (!inst) {
-                return mk_tactic_exception(sstream() << "invalid apply tactic, failed to synthesize type class instance for #"
-                                           << (i+1) << " argument", s);
-            }
-            if (!ctx.is_def_eq(meta, *inst)) {
-                return mk_tactic_exception(sstream() << "invalid apply tactic, failed to assign type class instance for #"
-                                           << (i+1) << " argument", s);
+        std::cout << "use_instances: " << use_instances << "\n";
+        if (use_instances) {
+            unsigned i = is_instance.size();
+            while (i > 0) {
+                --i;
+                if (!is_instance[i]) continue;
+                expr const & meta   = metas[i];
+                if (mctx.is_assigned(meta)) continue;
+                expr meta_type      = ctx.infer(meta);
+                optional<expr> inst = ctx.mk_class_instance(meta_type);
+                if (!inst) {
+                    return mk_tactic_exception(sstream() << "invalid apply tactic, failed to synthesize type class instance for #"
+                                               << (i+1) << " argument", s);
+                }
+                if (!ctx.is_def_eq(meta, *inst)) {
+                    return mk_tactic_exception(sstream() << "invalid apply tactic, failed to assign type class instance for #"
+                                               << (i+1) << " argument", s);
+                }
             }
         }
         /* Collect unassigned meta-variables */
@@ -120,25 +123,12 @@ vm_obj apply_core(expr e, transparency_mode md, bool add_all, tactic_state const
     }
 }
 
-vm_obj apply_core(expr const & e, transparency_mode md, tactic_state const & s) {
-    return apply_core(e, md, false, s);
-}
-
-vm_obj fapply_core(expr const & e, transparency_mode md, tactic_state const & s) {
-    return apply_core(e, md, true, s);
-}
-
-vm_obj tactic_apply_core(vm_obj const & e, vm_obj const & md, vm_obj const & s) {
-    return apply_core(to_expr(e), static_cast<transparency_mode>(cidx(md)), to_tactic_state(s));
-}
-
-vm_obj tactic_fapply_core(vm_obj const & e, vm_obj const & md, vm_obj const & s) {
-    return fapply_core(to_expr(e), static_cast<transparency_mode>(cidx(md)), to_tactic_state(s));
+vm_obj tactic_apply_core(vm_obj const & e, vm_obj const & md, vm_obj const & all, vm_obj const & insts, vm_obj const & s) {
+    return apply_core(to_expr(e), static_cast<transparency_mode>(cidx(md)), to_bool(all), to_bool(insts), to_tactic_state(s));
 }
 
 void initialize_apply_tactic() {
     DECLARE_VM_BUILTIN(name({"tactic", "apply_core"}),   tactic_apply_core);
-    DECLARE_VM_BUILTIN(name({"tactic", "fapply_core"}),  tactic_fapply_core);
 }
 
 void finalize_apply_tactic() {

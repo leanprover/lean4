@@ -21,3 +21,19 @@ namespace prod
   end ops
 
 end prod
+
+protected definition prod.is_inhabited [instance] {A B : Type} [inhabited A] [inhabited B] : inhabited (prod A B) :=
+inhabited.mk (default A, default B)
+
+open decidable
+
+protected definition prod.has_decidable_eq [instance] {A B : Type} [h₁ : decidable_eq A] [h₂ : decidable_eq B] : ∀ p₁ p₂ : A × B, decidable (p₁ = p₂)
+| (a, b) (a', b') :=
+  match h₁ a a' with
+  | tt e₁ :=
+    match h₂ b b' with
+    | tt e₂ := tt (eq.rec_on e₁ (eq.rec_on e₂ rfl))
+    | ff n₂ := ff (assume h, prod.no_confusion h (λ e₁' e₂', absurd e₂' n₂))
+    end
+  | ff n₁ := ff (assume h, prod.no_confusion h (λ e₁' e₂', absurd e₁' n₁))
+  end

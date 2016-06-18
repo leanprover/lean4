@@ -15,20 +15,6 @@ namespace prod
   protected theorem eq {p₁ p₂ : prod A B} : pr₁ p₁ = pr₁ p₂ → pr₂ p₁ = pr₂ p₂ → p₁ = p₂ :=
   destruct p₁ (take a₁ b₁, destruct p₂ (take a₂ b₂ H₁ H₂, pair_eq H₁ H₂))
 
-  protected definition is_inhabited [instance] [h₁ : inhabited A] [h₂ : inhabited B] : inhabited (prod A B) :=
-  inhabited.mk (default A, default B)
-
-  protected definition has_decidable_eq [instance] [h₁ : decidable_eq A] [h₂ : decidable_eq B] : ∀ p₁ p₂ : A × B, decidable (p₁ = p₂)
-  | (a, b) (a', b') :=
-    match h₁ a a' with
-    | tt e₁ :=
-      match h₂ b b' with
-      | tt e₂ := tt sorry -- by left; congruence; repeat assumption
-      | ff n₂ := ff sorry -- by right; intro h; injection h; contradiction
-      end
-    | ff n₁ := ff sorry -- by right; intro h; injection h; contradiction
-    end
-
   definition swap {A : Type} : A × A → A × A
   | (a, b) := (b, a)
 

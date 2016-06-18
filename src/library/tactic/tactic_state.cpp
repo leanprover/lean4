@@ -18,7 +18,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_level.h"
 #include "library/vm/vm_expr.h"
-#include "library/vm/vm_options.h"
 #include "library/vm/vm_list.h"
 #include "library/tactic/tactic_state.h"
 
@@ -448,7 +447,7 @@ vm_obj tactic_get_assignment(vm_obj const & e, vm_obj const & s0) {
     metavar_context mctx     = s.mctx();
     if (!is_metavar(to_expr(e))) {
         return mk_tactic_exception("get_assignment tactic failed, argument is not an universe metavariable", s);
-    } if (auto r = mctx.get_assignment(to_expr(e))) {
+    } else if (auto r = mctx.get_assignment(to_expr(e))) {
         return mk_tactic_success(to_obj(*r), s);
     } else {
         return mk_tactic_exception("get_assignment tactic failed, metavariable is not assigned", s);

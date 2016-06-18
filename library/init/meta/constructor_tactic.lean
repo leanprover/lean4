@@ -57,4 +57,31 @@ do tgt ← target,
    | _   := fail "split tactic failed, target is not an inductive datatype with only one constructor"
    end
 
+private meta_definition apply_num_metavars : expr → expr → nat → tactic expr
+| f ftype 0     := return f
+| f ftype (n+1) := do
+  ftype' ← whnf ftype,
+  match ftype' with
+  | expr.pi _ _ d b := do
+    a         ← mk_meta_var d,
+    new_f     ← return (expr.app f a),
+    new_ftype ← return (expr.instantiate_var b a),
+    apply_num_metavars new_f new_ftype n
+  | _           := failed
+  end
+
+meta_definition existsi (e : expr) : tactic unit :=
+do tgt ← target,
+   cs  ← get_constructors_for tgt,
+   match cs with
+   | [c] := do
+     fn      ← mk_const c,
+     fn_type ← infer_type fn,
+     n       ← get_arity fn,
+     when (n < 2) (fail "existsi tactic failed, constructor must have at least two arguments"),
+     t : expr ← apply_num_metavars fn fn_type (n - 2),
+     apply (t e)
+   | _   := fail "existsi tactic failed, target is not an inductive datatype with only one constructor"
+   end
+
 end tactic

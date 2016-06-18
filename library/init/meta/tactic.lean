@@ -81,6 +81,8 @@ meta_constant intro         : name → tactic unit
 meta_constant intron        : nat → tactic unit
 meta_constant rename        : name → name → tactic unit
 meta_constant clear         : name → tactic unit
+/- Clear the given free-variable. The tactic fails if the given expression is not a free variable. -/
+meta_constant clear_fv      : expr → tactic unit
 meta_constant revert_lst    : list name → tactic unit
 meta_constant infer_type    : expr → tactic expr
 meta_constant whnf          : expr → tactic expr

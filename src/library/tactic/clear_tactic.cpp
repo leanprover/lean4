@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/vm/vm_name.h"
+#include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
@@ -33,8 +34,17 @@ vm_obj tactic_clear(vm_obj const & n, vm_obj const & s) {
     return clear(to_name(n), to_tactic_state(s), internal_name);
 }
 
+vm_obj tactic_clear_fv(vm_obj const & e0, vm_obj const & s) {
+    expr const & e = to_expr(e0);
+    if (!is_local(e))
+        return mk_tactic_exception(sstream() << "clear_fv tactic failed, given expression is not a free-variable",
+                                   to_tactic_state(s));
+    return clear(mlocal_name(e), to_tactic_state(s), true);
+}
+
 void initialize_clear_tactic() {
-    DECLARE_VM_BUILTIN(name({"tactic", "clear"}), tactic_clear);
+    DECLARE_VM_BUILTIN(name({"tactic", "clear"}),    tactic_clear);
+    DECLARE_VM_BUILTIN(name({"tactic", "clear_fv"}), tactic_clear_fv);
 }
 
 void finalize_clear_tactic() {

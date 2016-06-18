@@ -25,7 +25,6 @@
 (require 'lean-tags)
 (require 'lean-option)
 (require 'lean-syntax)
-(require 'lean-mmm-lua)
 (require 'lean-company)
 (require 'lean-changes)
 (require 'lean-server)
@@ -312,7 +311,7 @@ enabled and disabled respectively.")
   ;; Flycheck
   (when lean-flycheck-use
     (lean-flycheck-turn-on)
-    (setq-local flycheck-disabled-checkers '(lua))
+    (setq-local flycheck-disabled-checkers '())
     (add-hook 'flycheck-after-syntax-check-hook 'lean-flycheck-delete-temporaries nil t))
   ;; Draw a vertical line for rule-column
   (when (and lean-rule-column
@@ -330,8 +329,6 @@ enabled and disabled respectively.")
   ;; company-mode
   (when lean-company-use
     (company-lean-hook))
-  ;; mmm-lua-mode
-  (lean-mmm-lua-hook)
   ;; choose minor mode -- Standard / HoTT
   (let ((minor-mode (lean-choose-minor-mode-based-on-extension)))
     (cond

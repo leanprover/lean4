@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/hott_kernel.h"
 #include "library/module.h"
 #include "library/util.h"
+#include "library/relation_manager.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_option.h"
@@ -144,6 +145,39 @@ vm_obj environment_fold(vm_obj const &, vm_obj const & env, vm_obj const & a, vm
     return r;
 }
 
+vm_obj environment_relation_info(vm_obj const & env, vm_obj const & n) {
+    if (relation_info const * info = get_relation_info(to_env(env), to_name(n))) {
+        vm_obj r = mk_vm_pair(mk_vm_pair(mk_vm_nat(info->get_arity()), mk_vm_nat(info->get_lhs_pos())), mk_vm_nat(info->get_rhs_pos()));
+        return mk_vm_some(r);
+    } else {
+        return mk_vm_none();
+    }
+}
+
+vm_obj environment_refl_for(vm_obj const & env, vm_obj const & n) {
+    if (optional<name> const & r = get_refl_info(to_env(env), to_name(n))) {
+        return mk_vm_some(to_obj(*r));
+    } else {
+        return mk_vm_none();
+    }
+}
+
+vm_obj environment_trans_for(vm_obj const & env, vm_obj const & n) {
+    if (optional<name> const & r = get_trans_info(to_env(env), to_name(n))) {
+        return mk_vm_some(to_obj(*r));
+    } else {
+        return mk_vm_none();
+    }
+}
+
+vm_obj environment_symm_for(vm_obj const & env, vm_obj const & n) {
+    if (optional<name> const & r = get_symm_info(to_env(env), to_name(n))) {
+        return mk_vm_some(to_obj(*r));
+    } else {
+        return mk_vm_none();
+    }
+}
+
 void initialize_vm_environment() {
     DECLARE_VM_BUILTIN(name({"environment", "mk_std"}),                environment_mk_std);
     DECLARE_VM_BUILTIN(name({"environment", "mk_hott"}),               environment_mk_hott);
@@ -161,6 +195,10 @@ void initialize_vm_environment() {
     DECLARE_VM_BUILTIN(name({"environment", "inductive_num_params"}),  environment_inductive_num_params);
     DECLARE_VM_BUILTIN(name({"environment", "inductive_num_indices"}), environment_inductive_num_indices);
     DECLARE_VM_BUILTIN(name({"environment", "inductive_dep_elim"}),    environment_inductive_dep_elim);
+    DECLARE_VM_BUILTIN(name({"environment", "relation_info"}),         environment_relation_info);
+    DECLARE_VM_BUILTIN(name({"environment", "refl_for"}),              environment_refl_for);
+    DECLARE_VM_BUILTIN(name({"environment", "symm_for"}),              environment_symm_for);
+    DECLARE_VM_BUILTIN(name({"environment", "trans_for"}),             environment_trans_for);
 }
 
 void finalize_vm_environment() {

@@ -156,6 +156,7 @@ inline vm_obj mk_vm_unit() { return mk_vm_simple(0); }
 inline vm_obj mk_vm_false() { return mk_vm_simple(0); }
 inline vm_obj mk_vm_true() { return mk_vm_simple(1); }
 inline vm_obj mk_vm_bool(bool b) { return mk_vm_simple(b); }
+inline vm_obj mk_vm_pair(vm_obj const & v1, vm_obj const & v2) { return mk_vm_constructor(0, v1, v2); }
 // =======================================
 
 // =======================================

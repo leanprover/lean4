@@ -42,7 +42,15 @@ meta_constant inductive_num_indices : environment → name → nat
 meta_constant inductive_dep_elim : environment → name → bool
 /- Fold over declarations in the environment -/
 meta_constant fold {A :Type} : environment → A → (declaration → A → A) → A
-
+/- (relation_info env n) returns some value if n is marked as a relation in the given environment.
+   the tuple contains: total number of arguments of the relation, lhs position and rhs position. -/
+meta_constant relation_info : environment → name → option (nat × nat × nat)
+/- (refl_for env R) returns the name of the reflexivity theorem for the relation R -/
+meta_constant refl_for : environment → name → option name
+/- (symm_for env R) returns the name of the symmetry theorem for the relation R -/
+meta_constant symm_for : environment → name → option name
+/- (trans_for env R) returns the name of the transitivity theorem for the relation R -/
+meta_constant trans_for : environment → name → option name
 open expr bool
 
 meta_definition is_constructor_app (env : environment) (e : expr) : bool :=

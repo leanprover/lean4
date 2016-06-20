@@ -60,6 +60,8 @@ public:
 
     format pp(formatter_factory const & fmtf) const;
     format pp_expr(formatter_factory const & fmtf, expr const & e) const;
+    format pp() const;
+    format pp_expr(expr const & e) const;
 };
 
 inline bool operator==(tactic_state const & s1, tactic_state const & s2) { return is_eqp(s1, s2); }

@@ -114,6 +114,16 @@ format tactic_state::pp(formatter_factory const & fmtf) const {
     return r;
 }
 
+format tactic_state::pp() const {
+    formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
+    return pp(fmtf);
+}
+
+format tactic_state::pp_expr(expr const & e) const {
+    formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
+    return pp_expr(fmtf, e);
+}
+
 struct vm_tactic_state : public vm_external {
     tactic_state m_val;
     vm_tactic_state(tactic_state const & v):m_val(v) {}
@@ -146,13 +156,11 @@ vm_obj tactic_state_env(vm_obj const & s) {
 }
 
 vm_obj tactic_state_to_format(vm_obj const & s) {
-    formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
-    return to_obj(to_tactic_state(s).pp(fmtf));
+    return to_obj(to_tactic_state(s).pp());
 }
 
 format pp_expr(tactic_state const & s, expr const & e) {
-    formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
-    return s.pp_expr(fmtf, e);
+    return s.pp_expr(e);
 }
 
 format pp_indented_expr(tactic_state const & s, expr const & e) {

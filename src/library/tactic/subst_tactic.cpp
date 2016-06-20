@@ -37,44 +37,48 @@ vm_obj tactic_subst_core(name const & n, bool symm, tactic_state const & s) {
         optional<tactic_state> s2 = intron(2, s1, lhsH);
         if (!s2) return mk_tactic_exception("subst tactic failed, unexpected failure during intro", s);
         lean_assert(!s2->mctx().is_assigned(head(s2->goals())));
-        lctx                 = s2->get_main_goal_decl()->get_context();
-        expr type            = s2->get_main_goal_decl()->get_type();
-        lhs                  = lctx.get_local_decl(lhsH[0])->mk_ref();
-        expr H               = lctx.get_local_decl(lhsH[1])->mk_ref();
-        bool depH            = depends_on(type, H);
-        expr new_type        = instantiate(abstract_local(type, lhs), rhs);
-        metavar_context mctx = s2->mctx();
-        lean_assert(!mctx.is_assigned(head(s2->goals())));
-        type_context ctx     = mk_type_context_for(*s2, mctx);
-        app_builder builder  = mk_app_builder_for(ctx);
-        expr motive;
-        if (depH) {
-            new_type = instantiate(abstract_local(new_type, H), builder.mk_eq_refl(rhs));
-            if (symm) {
-                motive = ctx.mk_lambda({lhs, H}, type);
+        try {
+            lctx                 = s2->get_main_goal_decl()->get_context();
+            expr type            = s2->get_main_goal_decl()->get_type();
+            lhs                  = lctx.get_local_decl(lhsH[0])->mk_ref();
+            expr H               = lctx.get_local_decl(lhsH[1])->mk_ref();
+            bool depH            = depends_on(type, H);
+            expr new_type        = instantiate(abstract_local(type, lhs), rhs);
+            metavar_context mctx = s2->mctx();
+            lean_assert(!mctx.is_assigned(head(s2->goals())));
+            type_context ctx     = mk_type_context_for(*s2, mctx);
+            app_builder builder  = mk_app_builder_for(ctx);
+            expr motive;
+            if (depH) {
+                new_type = instantiate(abstract_local(new_type, H), builder.mk_eq_refl(rhs));
+                if (symm) {
+                    motive = ctx.mk_lambda({lhs, H}, type);
+                } else {
+                    motive = mk_lambda("H", builder.mk_eq(rhs, lhs), type);
+                    motive = ctx.mk_lambda(lhs, motive);
+                }
             } else {
-                motive = mk_lambda("H", builder.mk_eq(rhs, lhs), type);
-                motive = ctx.mk_lambda(lhs, motive);
+                motive   = ctx.mk_lambda(lhs, type);
             }
-        } else {
-            motive   = ctx.mk_lambda(lhs, type);
+            expr major   = symm ? H : builder.mk_eq_symm(H);
+            expr new_M   = mctx.mk_metavar_decl(lctx, new_type);
+            expr minor   = new_M;
+            expr new_val = depH ? builder.mk_eq_drec(motive, minor, major) : builder.mk_eq_rec(motive, minor, major);
+            mctx.assign(head(s2->goals()), new_val);
+            list<expr> new_gs(new_M, tail(s.goals()));
+            tactic_state s3 = set_mctx_goals(*s2, mctx, new_gs);
+            vm_obj o4    = clear_internal(lhsH[1], s3);
+            optional<tactic_state> s4 = is_tactic_success(o4);
+            if (!s4) return o4;
+            vm_obj o5    = clear_internal(lhsH[0], *s4);
+            optional<tactic_state> s5 = is_tactic_success(o5);
+            if (!s5) return o5;
+            optional<tactic_state> s6 = intron(to_revert.size() - 2, *s5);
+            if (!s6) return mk_tactic_exception("subst tactic failed, unexpected failure during intro", s);
+            return mk_tactic_success(*s6);
+        } catch (exception & ex) {
+            return mk_tactic_exception(ex, *s2);
         }
-        expr major   = symm ? H : builder.mk_eq_symm(H);
-        expr new_M   = mctx.mk_metavar_decl(lctx, new_type);
-        expr minor   = new_M;
-        expr new_val = depH ? builder.mk_eq_drec(motive, minor, major) : builder.mk_eq_rec(motive, minor, major);
-        mctx.assign(head(s2->goals()), new_val);
-        list<expr> new_gs(new_M, tail(s.goals()));
-        tactic_state s3 = set_mctx_goals(*s2, mctx, new_gs);
-        vm_obj o4    = clear_internal(lhsH[1], s3);
-        optional<tactic_state> s4 = is_tactic_success(o4);
-        if (!s4) return o4;
-        vm_obj o5    = clear_internal(lhsH[0], *s4);
-        optional<tactic_state> s5 = is_tactic_success(o5);
-        if (!s5) return o5;
-        optional<tactic_state> s6 = intron(to_revert.size() - 2, *s5);
-        if (!s6) return mk_tactic_exception("subst tactic failed, unexpected failure during intro", s);
-        return mk_tactic_success(*s6);
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);
     }

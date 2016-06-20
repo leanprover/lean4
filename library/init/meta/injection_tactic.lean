@@ -18,8 +18,7 @@ private meta_definition mk_intro_name : name → list name → name
 private meta_definition injection_intro : expr → list name → tactic unit
 | (pi n bi b d) ns := do
   Hname ← return (mk_intro_name n ns),
-  intro Hname,
-  H ← get_local Hname,
+  H ← intro Hname,
   Ht ← infer_type H,
   match is_eq Ht with
   | some (lhs, rhs) :=

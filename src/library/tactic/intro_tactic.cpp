@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/lazy_abstraction.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_nat.h"
+#include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
@@ -94,7 +95,7 @@ vm_obj intro(name const & n, tactic_state const & s) {
         expr new_val         = mk_lambda(n1, binding_domain(type), mk_lazy_abstraction(new_M, mlocal_name(H)));
         mctx.assign(head(s.goals()), new_val);
         list<expr> new_gs(new_M, tail(s.goals()));
-        return mk_tactic_success(set_mctx_goals(s, mctx, new_gs));
+        return mk_tactic_success(to_obj(H), set_mctx_goals(s, mctx, new_gs));
     } else {
         lean_assert(is_let(type));
         name n1              = n == "_" ? let_name(type) : n;
@@ -104,7 +105,7 @@ vm_obj intro(name const & n, tactic_state const & s) {
         expr new_val         = mk_let(n1, let_type(type), let_value(type), mk_lazy_abstraction(new_M, mlocal_name(H)));
         mctx.assign(head(s.goals()), new_val);
         list<expr> new_gs(new_M, tail(s.goals()));
-        return mk_tactic_success(set_mctx_goals(s, mctx, new_gs));
+        return mk_tactic_success(to_obj(H), set_mctx_goals(s, mctx, new_gs));
     }
 }
 

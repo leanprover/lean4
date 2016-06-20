@@ -77,7 +77,7 @@ meta_constant result        : tactic expr
 meta_constant format_result : tactic format
 /- Return target type of the main goal. Fail if tactic_state does not have any goal left. -/
 meta_constant target        : tactic expr
-meta_constant intro         : name → tactic unit
+meta_constant intro         : name → tactic expr
 meta_constant intron        : nat → tactic unit
 meta_constant rename        : name → name → tactic unit
 meta_constant clear         : name → tactic unit
@@ -153,17 +153,17 @@ meta_constant get_assignment : expr → tactic expr
 meta_constant mk_fresh_name : tactic name
 open list nat
 
-meta_definition intros : tactic unit :=
+meta_definition intros : tactic (list expr) :=
 do t ← target,
    match t with
-   | expr.pi   _ _ _ _ := do intro "_", intros
-   | expr.elet _ _ _ _ := do intro "_", intros
-   | _                 := skip
+   | expr.pi   _ _ _ _ := do H ← intro "_", Hs ← intros, return (H :: Hs)
+   | expr.elet _ _ _ _ := do H ← intro "_", Hs ← intros, return (H :: Hs)
+   | _                 := return []
    end
 
-meta_definition intro_lst : list name → tactic unit
-| []      := skip
-| (n::ns) := do intro n, intro_lst ns
+meta_definition intro_lst : list name → tactic (list expr)
+| []      := return []
+| (n::ns) := do H ← intro n, Hs ← intro_lst ns, return (H :: Hs)
 
 meta_definition revert (n : name) : tactic unit :=
 revert_lst [n]

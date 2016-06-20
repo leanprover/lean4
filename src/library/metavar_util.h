@@ -194,6 +194,8 @@ public:
 
 template<typename CTX>
 expr instantiate_mvars(CTX & ctx, expr const & e) {
+    if (!has_assigned(ctx, e))
+        return e;
     return instantiate_mvars_fn<CTX>(ctx)(e);
 }
 }

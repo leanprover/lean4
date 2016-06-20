@@ -99,6 +99,7 @@ class app_builder {
     bool check_all_assigned(entry const & e);
     void init_ctx_for(entry const & e);
     void trace_unify_failure(name const & n, unsigned i, expr const & m, expr const & v);
+    void trace_inst_failure(expr const & A, char const * n);
     level get_level(expr const & A);
 
 public:

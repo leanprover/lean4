@@ -108,6 +108,8 @@ static void trace_failure(name const & n, char const * msg) {
                trace_fun(n); tout() << ", " << msg << "\n";);
 }
 
+#define lean_app_builder_trace(code) lean_trace("app_builder", scope_trace_env _scope1(m_ctx.env(), m_ctx); code)
+
 levels app_builder::mk_metavars(declaration const & d, unsigned arity, buffer<expr> & mvars, buffer<optional<expr>> & inst_args) {
     unsigned num_univ = d.get_num_univ_params();
     buffer<level> lvls_buffer;
@@ -196,10 +198,10 @@ void app_builder::init_ctx_for(entry const & e) {
 }
 
 void app_builder::trace_unify_failure(name const & n, unsigned i, expr const & m, expr const & v) {
-    lean_trace("app_builder",
-               trace_fun(n);
-               tout () << ", failed to solve unification constraint for #" << (i+1)
-               << " argument (" << m_ctx.infer(m) << " =?= " << m_ctx.infer(v) << ")\n";);
+    lean_app_builder_trace(
+        trace_fun(n);
+        tout () << ", failed to solve unification constraint for #" << (i+1)
+        << " argument (" << m_ctx.infer(m) << " =?= " << m_ctx.infer(v) << ")\n";);
 }
 
 expr app_builder::mk_app(name const & c, unsigned nargs, expr const * args) {
@@ -281,7 +283,7 @@ expr app_builder::mk_app(name const & c, unsigned total_nargs, unsigned expl_nar
 level app_builder::get_level(expr const & A) {
     expr Type = m_ctx.relaxed_whnf(m_ctx.infer(A));
     if (!is_sort(Type)) {
-        lean_trace("app_builder", tout() << "failed to infer universe level for type " << A << "\n";);
+        lean_app_builder_trace(tout() << "failed to infer universe level for type " << A << "\n";);
         throw app_builder_exception();
     }
     return sort_level(Type);
@@ -324,7 +326,7 @@ expr app_builder::mk_eq_symm(expr const & H) {
     expr p    = m_ctx.relaxed_whnf(m_ctx.infer(H));
     expr A, lhs, rhs;
     if (!is_eq(p, A, lhs, rhs)) {
-        lean_trace("app_builder", tout() << "failed to build eq.symm, equality expected:\n" << p << "\n";);
+        lean_app_builder_trace(tout() << "failed to build eq.symm, equality expected:\n" << p << "\n";);
         throw app_builder_exception();
     }
     level lvl = get_level(A);
@@ -345,7 +347,7 @@ expr app_builder::mk_heq_symm(expr const & H) {
     expr p     = m_ctx.relaxed_whnf(m_ctx.infer(H));
     expr A, a, B, b;
     if (!is_heq(p, A, a, B, b)) {
-        lean_trace("app_builder", tout() << "failed to build heq.symm, heterogeneous equality expected:\n" << p << "\n";);
+        lean_app_builder_trace(tout() << "failed to build heq.symm, heterogeneous equality expected:\n" << p << "\n";);
         throw app_builder_exception();
     }
     level lvl = get_level(A);
@@ -357,8 +359,9 @@ expr app_builder::mk_eq_trans(expr const & H1, expr const & H2) {
     expr p2    = m_ctx.relaxed_whnf(m_ctx.infer(H2));
     expr A, lhs1, rhs1, lhs2, rhs2;
     if (!is_eq(p1, A, lhs1, rhs1) || !is_eq(p2, lhs2, rhs2)) {
-        lean_trace("app_builder", tout() << "failed to build eq.trans, equality expected:\n"
-                   << p1 << "\n" << p2 << "\n";);
+        lean_app_builder_trace(
+            tout() << "failed to build eq.trans, equality expected:\n"
+            << p1 << "\n" << p2 << "\n";);
         throw app_builder_exception();
     }
     level lvl  = get_level(A);
@@ -381,8 +384,9 @@ expr app_builder::mk_heq_trans(expr const & H1, expr const & H2) {
     expr p2    = m_ctx.relaxed_whnf(m_ctx.infer(H2));
     expr A1, a1, B1, b1, A2, a2, B2, b2;
     if (!is_heq(p1, A1, a1, B1, b1) || !is_heq(p2, A2, a2, B2, b2)) {
-        lean_trace("app_builder", tout() << "failed to build heq.trans, heterogeneous equality expected:\n"
-                   << p1 << "\n" << p2 << "\n";);
+        lean_app_builder_trace(
+            tout() << "failed to build heq.trans, heterogeneous equality expected:\n"
+            << p1 << "\n" << p2 << "\n";);
         throw app_builder_exception();
     }
     level lvl  = get_level(A1);
@@ -418,8 +422,9 @@ expr app_builder::mk_refl(name const & relname, expr const & a) {
     } else if (auto info = m_cache.m_refl_getter(relname)) {
         return mk_app(info->m_name, 1, &a);
     } else {
-        lean_trace("app_builder", tout() << "failed to build reflexivity proof, '" << relname
-                   << "' is not registered as a reflexive relation\n";);
+        lean_app_builder_trace(
+            tout() << "failed to build reflexivity proof, '" << relname
+            << "' is not registered as a reflexive relation\n";);
         throw app_builder_exception();
     }
 }
@@ -434,8 +439,9 @@ expr app_builder::mk_symm(name const & relname, expr const & H) {
     } else if (auto info = m_cache.m_symm_getter(relname)) {
         return mk_app(info->m_name, 1, &H);
     } else {
-        lean_trace("app_builder", tout() << "failed to build symmetry proof, '" << relname
-                   << "' is not registered as a symmetric relation\n";);
+        lean_app_builder_trace(
+            tout() << "failed to build symmetry proof, '" << relname
+            << "' is not registered as a symmetric relation\n";);
         throw app_builder_exception();
     }
 }
@@ -451,8 +457,9 @@ expr app_builder::mk_trans(name const & relname, expr const & H1, expr const & H
         expr args[2] = {H1, H2};
         return mk_app(info->m_name, 2, args);
     } else {
-        lean_trace("app_builder", tout() << "failed to build symmetry proof, '" << relname
-                   << "' is not registered as a transitive relation\n";);
+        lean_app_builder_trace(
+            tout() << "failed to build symmetry proof, '" << relname
+            << "' is not registered as a transitive relation\n";);
         throw app_builder_exception();
     }
 }
@@ -479,13 +486,13 @@ expr app_builder::mk_eq_rec(expr const & motive, expr const & H1, expr const & H
     expr p       = m_ctx.relaxed_whnf(m_ctx.infer(H2));
     expr A, lhs, rhs;
     if (!is_eq(p, A, lhs, rhs)) {
-        lean_trace("app_builder", tout() << "failed to build eq.rec, equality proof expected:\n" << H2 << "\n";);
+        lean_app_builder_trace(tout() << "failed to build eq.rec, equality proof expected:\n" << H2 << "\n";);
         throw app_builder_exception();
     }
     level A_lvl = get_level(A);
     expr mtype  = m_ctx.relaxed_whnf(m_ctx.infer(motive));
     if (!is_pi(mtype) || !is_sort(binding_body(mtype))) {
-        lean_trace("app_builder", tout() << "failed to build eq.rec, invalid motive:\n" << motive << "\n";);
+        lean_app_builder_trace(tout() << "failed to build eq.rec, invalid motive:\n" << motive << "\n";);
         throw app_builder_exception();
     }
     level l_1    = sort_level(binding_body(mtype));
@@ -499,13 +506,13 @@ expr app_builder::mk_eq_drec(expr const & motive, expr const & H1, expr const & 
     expr p       = m_ctx.relaxed_whnf(m_ctx.infer(H2));
     expr A, lhs, rhs;
     if (!is_eq(p, A, lhs, rhs)) {
-        lean_trace("app_builder", tout() << "failed to build eq.drec, equality proof expected:\n" << H2 << "\n";);
+        lean_app_builder_trace(tout() << "failed to build eq.drec, equality proof expected:\n" << H2 << "\n";);
         throw app_builder_exception();
     }
     level A_lvl = get_level(A);
     expr mtype  = m_ctx.relaxed_whnf(m_ctx.infer(motive));
     if (!is_pi(mtype) || !is_pi(binding_body(mtype)) || !is_sort(binding_body(binding_body(mtype)))) {
-        lean_trace("app_builder", tout() << "failed to build eq.drec, invalid motive:\n" << motive << "\n";);
+        lean_app_builder_trace(tout() << "failed to build eq.drec, invalid motive:\n" << motive << "\n";);
         throw app_builder_exception();
     }
     level l_1    = sort_level(binding_body(binding_body(mtype)));
@@ -519,7 +526,7 @@ expr app_builder::mk_eq_of_heq(expr const & H) {
     expr p    = m_ctx.relaxed_whnf(m_ctx.infer(H));
     expr A, a, B, b;
     if (!is_heq(p, A, a, B, b)) {
-        lean_trace("app_builder", tout() << "failed to build eq_of_heq, heterogeneous equality proof expected:\n" << H << "\n";);
+        lean_app_builder_trace(tout() << "failed to build eq_of_heq, heterogeneous equality proof expected:\n" << H << "\n";);
         throw app_builder_exception();
     }
     level lvl  = get_level(A);
@@ -532,7 +539,7 @@ expr app_builder::mk_heq_of_eq(expr const & H) {
     expr p    = m_ctx.relaxed_whnf(m_ctx.infer(H));
     expr A, a, b;
     if (!is_eq(p, A, a, b)) {
-        lean_trace("app_builder", tout() << "failed to build heq_of_eq equality proof expected:\n" << H << "\n";);
+        lean_app_builder_trace(tout() << "failed to build heq_of_eq equality proof expected:\n" << H << "\n";);
         throw app_builder_exception();
     }
     level lvl  = get_level(A);
@@ -592,9 +599,8 @@ expr app_builder::mk_not(expr const & H) {
     return mk_app(get_not_name(), {H});
 }
 
-static void trace_inst_failure(expr const & A, char const * n) {
-    lean_trace("app_builder",
-               tout() << "failed to build instance of '" << n << "' for " << A << "\n";);
+void app_builder::trace_inst_failure(expr const & A, char const * n) {
+    lean_app_builder_trace(tout() << "failed to build instance of '" << n << "' for " << A << "\n";);
 }
 
 expr app_builder::mk_partial_add(expr const & A) {

@@ -11,8 +11,8 @@ notation `Σ` binders `, ` r:(scoped P, sigma P) := r
 -- notation for n-ary tuples; input ⟨ ⟩ as \< \>
 notation `⟨`:max t:(foldr `, ` (e r, sigma.mk e r)) `⟩`:0 := t
 
-lemma ex_of_sig {A : Type} {P : A → Prop} : (Σ x, P x) → ∃ x, P x :=
-sorry -- assume h, obtain x hx, from h, exists.intro x hx
+lemma ex_of_sig {A : Type} {P : A → Prop} : (Σ x, P x) → ∃ x, P x
+| ⟨x, hx⟩ := exists.intro x hx
 
 namespace sigma
   notation `pr₁`  := pr1

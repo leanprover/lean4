@@ -241,13 +241,12 @@ pair<local_context, expr> type_context::revert_core(unsigned num, expr const * l
         return mk_pair(ctx, type);
     }
     local_decl d0  = *ctx.get_local_decl(locals[0]);
-    reverted.push_back(locals[0]);
+    reverted.append(num, locals);
     unsigned next_idx = 1;
     ctx.for_each_after(d0, [&](local_decl const & d) {
             /* Check if d is in locals */
             for (unsigned i = next_idx; i < num; i++) {
                 if (mlocal_name(locals[i]) == d.get_name()) {
-                    reverted.push_back(locals[i]);
                     next_idx++;
                     return;
                 }

@@ -1872,7 +1872,9 @@ void old_elaborator::display_unsolved_tactic_state(expr const & mvar, tactic_sta
     lean_assert(is_metavar(mvar));
     if (!m_displayed_errors.contains(mlocal_name(mvar))) {
         m_displayed_errors.insert(mlocal_name(mvar));
-        auto out = regular(env(), ios(), m_tc->get_type_context());
+        metavar_context mctx = ts.mctx();
+        type_context ctx     = mk_type_context_for(ts, mctx);
+        auto out = regular(env(), ios(), ctx);
         flycheck_error err(ios());
         if (!err.enabled() || save_error(pip(), pos)) {
             display_error_pos(out.get_stream(), out.get_options(), pip(), pos);

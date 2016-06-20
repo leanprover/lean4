@@ -161,6 +161,10 @@ do t ← target,
    | _                 := return []
    end
 
+meta_definition note (n : name) (pr : expr) : tactic unit :=
+do t ← infer_type pr,
+   pose n t pr
+
 meta_definition intro_lst : list name → tactic (list expr)
 | []      := return []
 | (n::ns) := do H ← intro n, Hs ← intro_lst ns, return (H :: Hs)

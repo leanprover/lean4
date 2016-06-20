@@ -1,7 +1,6 @@
 -- BEGINWAIT
 -- ENDWAIT
 -- BEGINSET
-SET_command:1:0: warning: imported file uses 'sorry'
 -- ENDSET
 -- BEGINFINDP
 pos_num.size|pos_num → pos_num

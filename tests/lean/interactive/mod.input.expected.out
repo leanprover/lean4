@@ -3,11 +3,9 @@
 -- BEGINWAIT
 -- ENDWAIT
 -- BEGINEVAL
-EVAL_command:1:0: warning: imported file uses 'sorry'
 my_id : Π {A}, A → A
 -- ENDEVAL
 -- BEGINEVAL
-EVAL_command:1:0: warning: imported file uses 'sorry'
 my_id2 : Π {A}, A → A
 -- ENDEVAL
 -- BEGINSAVE
@@ -15,10 +13,8 @@ my_id2 : Π {A}, A → A
 -- BEGINWAIT
 -- ENDWAIT
 -- BEGINEVAL
-EVAL_command:1:0: warning: imported file uses 'sorry'
 my_id : Π {A}, A → A
 -- ENDEVAL
 -- BEGINEVAL
-EVAL_command:1:0: warning: imported file uses 'sorry'
 my_id2 : Π {A}, A → A
 -- ENDEVAL

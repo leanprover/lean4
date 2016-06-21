@@ -33,8 +33,8 @@ name mk_local_decl_name() {
     return mk_tagged_fresh_name(*g_local_prefix);
 }
 
-expr mk_local_ref(name const & n) {
-    return mk_local(n, *g_dummy_type);
+static expr mk_local_ref(name const & n, name const & pp_n) {
+    return mk_local(n, pp_n, *g_dummy_type, binder_info());
 }
 
 bool is_local_decl_ref(expr const & e) {
@@ -42,7 +42,7 @@ bool is_local_decl_ref(expr const & e) {
 }
 
 expr local_decl::mk_ref() const {
-    return mk_local_ref(m_ptr->m_name);
+    return mk_local_ref(m_ptr->m_name, m_ptr->m_pp_name);
 }
 
 bool depends_on(expr const & e, unsigned num, expr const * locals) {
@@ -87,7 +87,7 @@ expr local_context::mk_local_decl(name const & n, name const & ppn, expr const &
     local_decl l(idx, n, ppn, type, value, bi);
     m_name2local_decl.insert(n, l);
     m_idx2local_decl.insert(idx, l);
-    return mk_local_ref(n);
+    return mk_local_ref(n, ppn);
 }
 
 expr local_context::mk_local_decl(expr const & type, binder_info const & bi) {

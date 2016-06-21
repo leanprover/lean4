@@ -209,15 +209,6 @@ type_context::~type_context() {
         delete m_cache;
 }
 
-name type_context::get_local_pp_name(expr const & e) const {
-    lean_assert(is_local(e));
-    if (is_local_decl_ref(e)) {
-        if (auto d = m_lctx.get_local_decl(e))
-            return d->get_pp_name();
-    }
-    return local_pp_name(e);
-}
-
 expr type_context::push_local(name const & pp_name, expr const & type, binder_info const & bi) {
     return m_lctx.mk_local_decl(pp_name, type, bi);
 }

@@ -198,7 +198,6 @@ public:
     virtual bool relaxed_is_def_eq(expr const & e1, expr const & e2) override;
 
     virtual optional<expr> is_stuck(expr const &) override;
-    virtual name get_local_pp_name(expr const & e) const override;
 
     virtual expr push_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) override;
     virtual void pop_local() override;

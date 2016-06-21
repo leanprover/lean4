@@ -28,7 +28,6 @@ public:
         \remark Default implementation just invokes \c infer. */
     virtual expr check(expr const & e) { return infer(e); }
     virtual optional<expr> is_stuck(expr const &) { return none_expr(); }
-    virtual name get_local_pp_name(expr const & e) const { return local_pp_name(e); }
 
     virtual expr push_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info());
     virtual void pop_local();

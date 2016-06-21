@@ -154,18 +154,21 @@ class type_context : public abstract_type_context {
     bool               m_in_is_def_eq;
     /* m_is_def_eq_depth is only used for tracing purposes */
     unsigned           m_is_def_eq_depth;
-    /* When m_match_mode is true, then is_metavar_decl_ref and is_univ_metavar_decl_ref are treated
-       as opaque constants, and temporary metavariables (idx_metavar) are treated as metavariables,
-       and their assignment is stored at m_tmp_eassignment and m_tmp_uassignment. */
-    bool               m_tmp_mode;
+    /* This class supports temporary meta-variables "mode". In this "tmp" mode,
+       is_metavar_decl_ref and is_univ_metavar_decl_ref are treated as opaque constants,
+       and temporary metavariables (idx_metavar) are treated as metavariables,
+       and their assignment is stored at m_tmp_eassignment and m_tmp_uassignment.
+
+       m_tmp_eassignment and m_tmp_uassignment store assignment for temporary/idx metavars
+
+       These assignments are only used during type class resolution and matching operations.
+       They are references to stack allocated buffers provided by customers.
+       They are nullptr if type_context is not in tmp_mode. */
+    tmp_eassignment *  m_tmp_eassignment;
+    tmp_uassignment *  m_tmp_uassignment;
     /* m_tmp_mvar_local_context contains m_lctx when tmp mode is activated.
        This is the context for all temporary meta-variables. */
     local_context      m_tmp_mvar_lctx;
-    /* m_tmp_eassignment and m_tmp_uassignment store assignment for temporary/idx metavars
-
-       These assignments are only used during type class resolution and matching operations. */
-    tmp_eassignment    m_tmp_eassignment;
-    tmp_uassignment    m_tmp_uassignment;
     /* undo/trail stack for m_tmp_uassignment/m_tmp_eassignment */
     tmp_trail          m_tmp_trail;
     /* Stack of backtracking point (aka scope) */
@@ -236,17 +239,36 @@ public:
        Temporary assignment mode.
        It is used when performing type class resolution and matching.
        -------------------------- */
-    void set_tmp_mode(unsigned next_uidx = 0, unsigned next_midx = 0);
+private:
+    void set_tmp_mode(buffer<optional<level>> & tmp_uassignment, buffer<optional<expr>> & tmp_eassignment);
     void reset_tmp_mode();
+public:
     struct tmp_mode_scope {
-        type_context & m_ctx;
+        type_context &          m_ctx;
+        buffer<optional<level>> m_tmp_uassignment;
+        buffer<optional<expr>>  m_tmp_eassignment;
         tmp_mode_scope(type_context & ctx, unsigned next_uidx = 0, unsigned next_midx = 0):m_ctx(ctx) {
-            m_ctx.set_tmp_mode(next_uidx, next_midx);
+            m_tmp_uassignment.resize(next_uidx, none_level());
+            m_tmp_eassignment.resize(next_midx, none_expr());
+            m_ctx.set_tmp_mode(m_tmp_uassignment, m_tmp_eassignment);
         }
         ~tmp_mode_scope() {
             m_ctx.reset_tmp_mode();
         }
     };
+    struct tmp_mode_scope_with_buffers {
+        type_context & m_ctx;
+        tmp_mode_scope_with_buffers(type_context & ctx,
+                                    buffer<optional<level>> & tmp_uassignment,
+                                    buffer<optional<expr>> & tmp_eassignment):
+            m_ctx(ctx) {
+            m_ctx.set_tmp_mode(tmp_uassignment, tmp_eassignment);
+        }
+        ~tmp_mode_scope_with_buffers() {
+            m_ctx.reset_tmp_mode();
+        }
+    };
+    bool in_tmp_mode() const { return m_tmp_uassignment != nullptr; }
     void ensure_num_tmp_mvars(unsigned num_uvars, unsigned num_mvars);
     optional<level> get_tmp_uvar_assignment(unsigned idx) const;
     optional<expr> get_tmp_mvar_assignment(unsigned idx) const;
@@ -340,7 +362,6 @@ private:
     void push_scope();
     void pop_scope();
     void commit_scope();
-public:
     class scope {
         type_context & m_owner;
         bool           m_keep;
@@ -349,7 +370,6 @@ public:
         ~scope() { if (!m_keep) m_owner.pop_scope(); }
         void commit() { m_owner.commit_scope(); m_keep = true; }
     };
-private:
     bool approximate();
     expr try_zeta(expr const & e);
     expr expand_let_decls(expr const & e);

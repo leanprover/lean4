@@ -138,7 +138,8 @@ local_context type_context_cache::freeze_local_instances(metavar_context & mctx,
     return new_lctx;
 }
 
-type_context_cache::scope_pos_info::scope_pos_info(type_context_cache & o, pos_info_provider const * pip, expr const & pos_ref):
+type_context_cache::scope_pos_info::scope_pos_info(type_context_cache & o, pos_info_provider const * pip,
+                                                   expr const & pos_ref):
     m_owner(o),
     m_old_pip(m_owner.m_pip),
     m_old_pos(m_owner.m_ci_pos) {
@@ -181,7 +182,8 @@ void type_context::init_core(transparency_mode m) {
     m_transparency_mode           = m;
     m_in_is_def_eq                = false;
     m_is_def_eq_depth             = 0;
-    m_tmp_mode                    = false;
+    m_tmp_uassignment             = nullptr;
+    m_tmp_eassignment             = nullptr;
     m_cache->m_init_local_context = m_lctx;
     if (!m_cache->m_frozen_mode) {
         /* default type class resolution mode */
@@ -324,7 +326,7 @@ expr type_context::abstract_locals(expr const & e, unsigned num_locals, expr con
     lean_assert(std::all_of(locals, locals+num_locals, is_local_decl_ref));
     if (num_locals == 0)
         return e;
-    if (!m_tmp_mode) {
+    if (!in_tmp_mode()) {
         /* In regular mode, we have to make sure the context of the metavariables occurring \c e
            does not include the locals being abstracted.
 
@@ -523,8 +525,8 @@ expr type_context::whnf_core(expr const & e) {
             }
         } else if (is_idx_metavar(e)) {
             unsigned idx = to_meta_idx(e);
-            if (idx < m_tmp_eassignment.size()) {
-                if (auto v = m_tmp_eassignment[idx]) {
+            if (idx < m_tmp_eassignment->size()) {
+                if (auto v = (*m_tmp_eassignment)[idx]) {
                     m_used_assignment = true;
                     return *v;
                 }
@@ -691,7 +693,7 @@ expr type_context::infer_metavar(expr const & e) {
         return d->get_type();
     } else {
         /* tmp metavariables should only occur in tmp_mode */
-        lean_assert(!is_idx_metavar(e) || m_tmp_mode);
+        lean_assert(!is_idx_metavar(e) || in_tmp_mode());
         return mlocal_type(e);
     }
 }
@@ -741,12 +743,12 @@ optional<level> type_context::get_level_core(expr const & A) {
         } else if (is_mvar(A_type)) {
             if (auto v = get_assignment(A_type)) {
                 A_type = *v;
-            } else if (!m_tmp_mode && is_metavar_decl_ref(A_type)) {
+            } else if (!in_tmp_mode() && is_metavar_decl_ref(A_type)) {
                 /* We should only assign A_type IF we are not in tmp mode. */
                 level r = m_mctx.mk_univ_metavar_decl();
                 assign(A_type, mk_sort(r));
                 return some_level(r);
-            } else if (m_tmp_mode && is_idx_metavar(A_type)) {
+            } else if (in_tmp_mode() && is_idx_metavar(A_type)) {
                 level r = mk_tmp_univ_mvar();
                 assign(A_type, mk_sort(r));
                 return some_level(r);
@@ -845,36 +847,40 @@ bool type_context::is_prop(expr const & e) {
 /* -------------------------------
    Temporary assignment mode support
    ------------------------------- */
-void type_context::set_tmp_mode(unsigned next_uidx, unsigned next_midx) {
-    lean_assert(!m_tmp_mode);
-    m_tmp_mode = true;
+void type_context::set_tmp_mode(buffer<optional<level>> & tmp_uassignment, buffer<optional<expr>> & tmp_eassignment) {
+    lean_assert(!in_tmp_mode());
+    lean_assert(m_scopes.empty());
+    lean_assert(m_tmp_trail.empty());
     m_tmp_mvar_lctx = m_lctx;
-    m_tmp_uassignment.resize(next_uidx, none_level());
-    m_tmp_eassignment.resize(next_midx, none_expr());
+    m_tmp_uassignment = &tmp_uassignment;
+    m_tmp_eassignment = &tmp_eassignment;
 }
 
 void type_context::reset_tmp_mode() {
-    m_tmp_mode = false;
+    lean_assert(m_scopes.empty());
+    m_tmp_trail.clear();
+    m_tmp_uassignment = nullptr;
+    m_tmp_eassignment = nullptr;
 }
 
 void type_context::ensure_num_tmp_mvars(unsigned num_uvars, unsigned num_mvars) {
-    lean_assert(m_tmp_mode);
-    if (m_tmp_uassignment.size() < num_uvars)
-        m_tmp_uassignment.resize(num_uvars, none_level());
-    if (m_tmp_eassignment.size() < num_mvars)
-        m_tmp_eassignment.resize(num_mvars, none_expr());
+    lean_assert(in_tmp_mode());
+    if (m_tmp_uassignment->size() < num_uvars)
+        m_tmp_uassignment->resize(num_uvars, none_level());
+    if (m_tmp_eassignment->size() < num_mvars)
+        m_tmp_eassignment->resize(num_mvars, none_expr());
 }
 
 optional<level> type_context::get_tmp_uvar_assignment(unsigned idx) const {
-    lean_assert(m_tmp_mode);
-    lean_assert(idx < m_tmp_uassignment.size());
-    return m_tmp_uassignment[idx];
+    lean_assert(in_tmp_mode());
+    lean_assert(idx < m_tmp_uassignment->size());
+    return (*m_tmp_uassignment)[idx];
 }
 
 optional<expr> type_context::get_tmp_mvar_assignment(unsigned idx) const {
-    lean_assert(m_tmp_mode);
-    lean_assert(idx < m_tmp_eassignment.size());
-    return m_tmp_eassignment[idx];
+    lean_assert(in_tmp_mode());
+    lean_assert(idx < m_tmp_eassignment->size());
+    return (*m_tmp_eassignment)[idx];
 }
 
 optional<level> type_context::get_tmp_assignment(level const & l) const {
@@ -888,36 +894,38 @@ optional<expr> type_context::get_tmp_assignment(expr const & e) const {
 }
 
 void type_context::assign_tmp(level const & u, level const & l) {
-    lean_assert(m_tmp_mode);
+    lean_assert(in_tmp_mode());
     lean_assert(is_idx_metauniv(u));
-    lean_assert(to_meta_idx(u) < m_tmp_uassignment.size());
+    lean_assert(to_meta_idx(u) < m_tmp_uassignment->size());
     unsigned idx = to_meta_idx(u);
-    if (!m_scopes.empty() && !m_tmp_uassignment[idx]) {
+    if (!m_scopes.empty() && !(*m_tmp_uassignment)[idx]) {
         m_tmp_trail.emplace_back(tmp_trail_kind::Level, idx);
     }
-    m_tmp_uassignment[idx] = l;
+    (*m_tmp_uassignment)[idx] = l;
 }
 
 void type_context::assign_tmp(expr const & m, expr const & v) {
-    lean_assert(m_tmp_mode);
+    lean_assert(in_tmp_mode());
     lean_assert(is_idx_metavar(m));
-    lean_assert(to_meta_idx(m) < m_tmp_eassignment.size());
+    lean_assert(to_meta_idx(m) < m_tmp_eassignment->size());
     unsigned idx = to_meta_idx(m);
-    if (!m_scopes.empty() && !m_tmp_eassignment[idx]) {
+    if (!m_scopes.empty() && !(*m_tmp_eassignment)[idx]) {
         m_tmp_trail.emplace_back(tmp_trail_kind::Expr, idx);
     }
-    m_tmp_eassignment[to_meta_idx(m)] = v;
+    (*m_tmp_eassignment)[to_meta_idx(m)] = v;
 }
 
 level type_context::mk_tmp_univ_mvar() {
-    unsigned idx = m_tmp_uassignment.size();
-    m_tmp_uassignment.push_back(none_level());
+    lean_assert(in_tmp_mode());
+    unsigned idx = m_tmp_uassignment->size();
+    m_tmp_uassignment->push_back(none_level());
     return mk_idx_metauniv(idx);
 }
 
 expr type_context::mk_tmp_mvar(expr const & type) {
-    unsigned idx = m_tmp_eassignment.size();
-    m_tmp_eassignment.push_back(none_expr());
+    lean_assert(in_tmp_mode());
+    unsigned idx = m_tmp_eassignment->size();
+    m_tmp_eassignment->push_back(none_expr());
     return mk_idx_metavar(idx, type);
 }
 
@@ -926,14 +934,14 @@ expr type_context::mk_tmp_mvar(expr const & type) {
    ----------------------------------- */
 
 bool type_context::is_mvar(level const & l) const {
-    if (m_tmp_mode)
+    if (in_tmp_mode())
         return is_idx_metauniv(l);
     else
         return is_metavar_decl_ref(l);
 }
 
 bool type_context::is_mvar(expr const & e) const {
-    if (m_tmp_mode)
+    if (in_tmp_mode())
         return is_idx_metavar(e);
     else
         return is_metavar_decl_ref(e);
@@ -941,7 +949,7 @@ bool type_context::is_mvar(expr const & e) const {
 
 bool type_context::is_assigned(level const & l) const {
     const_cast<type_context*>(this)->m_used_assignment = true;
-    if (m_tmp_mode)
+    if (in_tmp_mode())
         return static_cast<bool>(get_tmp_assignment(l));
     else
         return m_mctx.is_assigned(l);
@@ -949,7 +957,7 @@ bool type_context::is_assigned(level const & l) const {
 
 bool type_context::is_assigned(expr const & e) const {
     const_cast<type_context*>(this)->m_used_assignment = true;
-    if (m_tmp_mode)
+    if (in_tmp_mode())
         return static_cast<bool>(get_tmp_assignment(e));
     else
         return m_mctx.is_assigned(e);
@@ -957,7 +965,7 @@ bool type_context::is_assigned(expr const & e) const {
 
 optional<level> type_context::get_assignment(level const & l) const {
     const_cast<type_context*>(this)->m_used_assignment = true;
-    if (m_tmp_mode)
+    if (in_tmp_mode())
         return get_tmp_assignment(l);
     else
         return m_mctx.get_assignment(l);
@@ -965,7 +973,7 @@ optional<level> type_context::get_assignment(level const & l) const {
 
 optional<expr> type_context::get_assignment(expr const & e) const {
     const_cast<type_context*>(this)->m_used_assignment = true;
-    if (m_tmp_mode)
+    if (in_tmp_mode())
         return get_tmp_assignment(e);
     else
         return m_mctx.get_assignment(e);
@@ -973,7 +981,7 @@ optional<expr> type_context::get_assignment(expr const & e) const {
 
 void type_context::assign(level const & u, level const & l) {
     m_used_assignment = true;
-    if (m_tmp_mode)
+    if (in_tmp_mode())
         assign_tmp(u, l);
     else
         m_mctx.assign(u, l);
@@ -981,7 +989,7 @@ void type_context::assign(level const & u, level const & l) {
 
 void type_context::assign(expr const & m, expr const & v) {
     m_used_assignment = true;
-    if (m_tmp_mode)
+    if (in_tmp_mode())
         assign_tmp(m, v);
     else
         m_mctx.assign(m, v);
@@ -1000,26 +1008,32 @@ expr type_context::instantiate_mvars(expr const & e) {
    ----------------------------------- */
 
 void type_context::push_scope() {
-    m_scopes.emplace_back(m_mctx, m_tmp_uassignment.size(), m_tmp_eassignment.size(), m_tmp_trail.size());
+    if (in_tmp_mode()) {
+        m_scopes.emplace_back(m_mctx, m_tmp_uassignment->size(), m_tmp_eassignment->size(), m_tmp_trail.size());
+    } else {
+        m_scopes.emplace_back(m_mctx, 0, 0, 0);
+    }
 }
 
 void type_context::pop_scope() {
     lean_assert(!m_scopes.empty());
     scope_data const & s = m_scopes.back();
     m_mctx = s.m_mctx;
-    unsigned old_sz = s.m_tmp_trail_sz;
-    while (m_tmp_trail.size() > old_sz) {
-        auto const & t = m_tmp_trail.back();
-        if (t.first == tmp_trail_kind::Level) {
-            m_tmp_uassignment[t.second] = none_level();
-        } else {
-            m_tmp_eassignment[t.second] = none_expr();
+    if (in_tmp_mode()) {
+        unsigned old_sz = s.m_tmp_trail_sz;
+        while (m_tmp_trail.size() > old_sz) {
+            auto const & t = m_tmp_trail.back();
+            if (t.first == tmp_trail_kind::Level) {
+                (*m_tmp_uassignment)[t.second] = none_level();
+            } else {
+                (*m_tmp_eassignment)[t.second] = none_expr();
+            }
+            m_tmp_trail.pop_back();
         }
-        m_tmp_trail.pop_back();
+        lean_assert(old_sz == m_tmp_trail.size());
+        m_tmp_uassignment->shrink(s.m_tmp_uassignment_sz);
+        m_tmp_eassignment->shrink(s.m_tmp_eassignment_sz);
     }
-    lean_assert(old_sz == m_tmp_trail.size());
-    m_tmp_uassignment.shrink(s.m_tmp_uassignment_sz);
-    m_tmp_eassignment.shrink(s.m_tmp_eassignment_sz);
     m_scopes.pop_back();
 }
 
@@ -1111,7 +1125,7 @@ optional<declaration> type_context::is_delta(expr const & e) {
 
 bool type_context::approximate() {
     // TODO(Leo): add flag at type_context_cache to force approximated mode.
-    return m_tmp_mode;
+    return in_tmp_mode();
 }
 
 /* If \c e is a let local-decl, then unfold it, otherwise return e. */
@@ -1211,7 +1225,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
     expr const & mvar = get_app_args(m, args);
     lean_assert(is_mvar(mvar));
     optional<metavar_decl> mvar_decl;
-    if (!m_tmp_mode) {
+    if (!in_tmp_mode()) {
         mvar_decl = m_mctx.get_metavar_decl(mvar);
         if (!mvar_decl) return false;
     }
@@ -1248,7 +1262,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
             /* Make sure arg is not in the context of the metavariable mvar
                The code is slightly different for tmp mode because the metavariables
                do not store their local context. */
-            if (m_tmp_mode) {
+            if (in_tmp_mode()) {
                 if (m_tmp_mvar_lctx.get_local_decl(arg)) {
                     /* m is of the form (?M@C ... l ...) where l is a local constant in C */
                     if (!approximate())
@@ -1340,7 +1354,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
                         ok = false;
                         return false;
                     }
-                    if (!m_tmp_mode) {
+                    if (!in_tmp_mode()) {
                         /* Recall that in tmp_mode all metavariables have the same local context.
                            So, we don't need to check anything.
                            In regular mode, we need to check condition 4
@@ -1356,7 +1370,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
                     return false;
                 } else if (is_local_decl_ref(e)) {
                     bool in_ctx;
-                    if (m_tmp_mode) {
+                    if (in_tmp_mode()) {
                         in_ctx = static_cast<bool>(m_tmp_mvar_lctx.get_local_decl(e));
                     } else {
                         in_ctx = static_cast<bool>(mvar_decl->get_context().get_local_decl(e));
@@ -2152,16 +2166,13 @@ struct instance_synthesizer {
     state                 m_state;    // active state
     buffer<choice>        m_choices;
     bool                  m_displayed_trace_header;
-    bool                  m_old_tmp_mode;
     transparency_mode     m_old_transparency_mode;
 
     instance_synthesizer(type_context & ctx):
         m_ctx(ctx),
         m_displayed_trace_header(false),
-        m_old_tmp_mode(m_ctx.m_tmp_mode),
         m_old_transparency_mode(m_ctx.m_transparency_mode) {
-        if (!m_ctx.m_tmp_mode)
-            m_ctx.set_tmp_mode(0, 0);
+        lean_assert(m_ctx.in_tmp_mode());
         m_ctx.m_transparency_mode = transparency_mode::Reducible;
     }
 
@@ -2169,7 +2180,6 @@ struct instance_synthesizer {
         for (unsigned i = 0; i < m_choices.size(); i++) {
             m_ctx.pop_scope();
         }
-        m_ctx.m_tmp_mode          = m_old_tmp_mode;
         m_ctx.m_transparency_mode = m_old_transparency_mode;
     }
 
@@ -2456,7 +2466,12 @@ struct instance_synthesizer {
 };
 
 optional<expr> type_context::mk_class_instance(expr const & type) {
-    return instance_synthesizer(*this)(type);
+    if (in_tmp_mode()) {
+        return instance_synthesizer(*this)(type);
+    } else {
+        tmp_mode_scope s(*this);
+        return instance_synthesizer(*this)(type);
+    }
 }
 
 optional<expr> type_context::mk_subsingleton_instance(expr const & type) {

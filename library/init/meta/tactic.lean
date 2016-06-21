@@ -227,7 +227,7 @@ do gs ← get_goals,
         tac,
         gs' ← get_goals,
         match gs' with
-        | [] := set_goals gs
+        | [] := set_goals rs
         | _  := fail "focus tactic failed, focused goal has not been solved"
         end
    end

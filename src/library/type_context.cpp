@@ -217,57 +217,56 @@ void type_context::pop_local() {
     return m_lctx.pop_local_decl();
 }
 
-pair<local_context, expr> type_context::revert_core(unsigned num, expr const * locals, local_context const & ctx,
-                                                    expr const & type, buffer<expr> & reverted) {
+pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, local_context const & ctx,
+                                                    expr const & type) {
     DEBUG_CODE({
-            for (unsigned i = 0; i < num; i++) {
-                lean_assert(is_local_decl_ref(locals[i]));
-                optional<local_decl> const & decl = ctx.get_local_decl(locals[i]);
+            for (unsigned i = 0; i < to_revert.size(); i++) {
+                lean_assert(is_local_decl_ref(to_revert[i]));
+                optional<local_decl> const & decl = ctx.get_local_decl(to_revert[i]);
                 lean_assert(decl);
                 if (i > 1) {
-                    optional<local_decl> const & prev_decl = ctx.get_local_decl(locals[i-1]);
+                    optional<local_decl> const & prev_decl = ctx.get_local_decl(to_revert[i-1]);
                     lean_assert(prev_decl && prev_decl->get_idx() < decl->get_idx());
                 }
             }
         });
+    unsigned num   = to_revert.size();
     if (num == 0) {
         return mk_pair(ctx, type);
     }
-    local_decl d0  = *ctx.get_local_decl(locals[0]);
-    reverted.append(num, locals);
+    local_decl d0  = *ctx.get_local_decl(to_revert[0]);
     unsigned next_idx = 1;
     ctx.for_each_after(d0, [&](local_decl const & d) {
-            /* Check if d is in locals */
+            /* Check if d is in initial to_revert */
             for (unsigned i = next_idx; i < num; i++) {
-                if (mlocal_name(locals[i]) == d.get_name()) {
+                if (mlocal_name(to_revert[i]) == d.get_name()) {
                     next_idx++;
                     return;
                 }
             }
             /* We may still need to revert d if it depends on locals already in reverted */
-            if (depends_on(d, reverted)) {
-                reverted.push_back(d.mk_ref());
+            if (depends_on(d, to_revert)) {
+                to_revert.push_back(d.mk_ref());
             }
         });
-    local_context new_ctx = ctx.remove(reverted);
-    return mk_pair(new_ctx, mk_pi(reverted, type));
+    local_context new_ctx = ctx.remove(to_revert);
+    return mk_pair(new_ctx, mk_pi(to_revert, type));
 }
 
-expr type_context::revert_core(unsigned num, expr const * locals, expr const & mvar, buffer<expr> & reverted) {
+expr type_context::revert_core(buffer<expr> & to_revert, expr const & mvar) {
     lean_assert(is_metavar_decl_ref(mvar));
     metavar_decl const & d = *m_mctx.get_metavar_decl(mvar);
-    auto p = revert_core(num, locals, d.get_context(), d.get_type(), reverted);
+    auto p = revert_core(to_revert, d.get_context(), d.get_type());
     return m_mctx.mk_metavar_decl(p.first, p.second);
 }
 
-expr type_context::revert(unsigned num, expr const * locals, expr const & mvar) {
+expr type_context::revert(buffer<expr> & to_revert, expr const & mvar) {
     lean_assert(is_metavar_decl_ref(mvar));
-    lean_assert(std::all_of(locals, locals+num, [&](expr const & l) {
+    lean_assert(std::all_of(to_revert.begin(), to_revert.end(), [&](expr const & l) {
                 return static_cast<bool>(m_mctx.get_metavar_decl(mvar)->get_context().get_local_decl(l)); }));
-    buffer<expr> reverted;
-    expr new_mvar = revert_core(num, locals, mvar, reverted);
+    expr new_mvar = revert_core(to_revert, mvar);
     expr r = new_mvar;
-    for (expr const & a : reverted) {
+    for (expr const & a : to_revert) {
         if (!m_lctx.get_local_decl(a)->get_value()) {
             // 'a' is not a let-decl
             r = mk_app(r, a);
@@ -298,7 +297,7 @@ void type_context::restrict_metavars_context(expr const & e, unsigned num_locals
                             to_revert.push_back(locals[i]);
                     }
                     if (!to_revert.empty()) {
-                        revert(to_revert.size(), to_revert.data(), e);
+                        revert(to_revert, e);
                         lean_assert(m_mctx.is_assigned(e));
                     }
                 }

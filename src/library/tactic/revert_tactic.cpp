@@ -14,9 +14,8 @@ tactic_state revert(buffer<expr> & locals, tactic_state const & s) {
     lean_assert(s.goals());
     metavar_context mctx       = s.mctx();
     type_context ctx           = mk_type_context_for(s, mctx, transparency_mode::All);
-    expr val                   = ctx.revert(locals.size(), locals.data(), head(s.goals()));
-    locals.clear();
-    expr new_g                 = get_app_args(val, locals);
+    expr val                   = ctx.revert(locals, head(s.goals()));
+    expr new_g                 = get_app_fn(val);
     return set_mctx_goals(s, mctx, cons(new_g, tail(s.goals())));
 }
 

@@ -84,9 +84,11 @@ meta_constant clear         : name → tactic unit
 /- Clear the given free-variable. The tactic fails if the given expression is not a free variable. -/
 meta_constant clear_fv      : expr → tactic unit
 meta_constant revert_lst    : list name → tactic unit
-meta_constant infer_type    : expr → tactic expr
 meta_constant whnf          : expr → tactic expr
 meta_constant unify_core    : expr → expr → transparency → tactic unit
+/- Infer the type of the given expression.
+   Remark: transparency does not affect type inference -/
+meta_constant infer_type    : expr → tactic expr
 meta_constant get_local     : name → tactic expr
 /- Return the hypothesis in the main goal. Fail if tactic_state does not have any goal left. -/
 meta_constant local_context : tactic (list expr)

@@ -23,12 +23,12 @@ optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> &
     type_context::tmp_locals new_locals(ctx);
     buffer<expr> new_Hs;
     for (unsigned i = 0; i < n; i++) {
-        if (!is_pi(type) && !is_lambda(type)) {
+        if (!is_pi(type) && !is_let(type)) {
             type = ctx.whnf(type);
             if (!is_pi(type))
                 return none_tactic_state();
         }
-        lean_assert(is_pi(type) || is_lambda(type));
+        lean_assert(is_pi(type) || is_let(type));
         if (is_pi(type)) {
             expr H  = new_locals.push_local(binding_name(type), binding_domain(type), binding_info(type));
             type    = instantiate(binding_body(type), H);
@@ -36,6 +36,7 @@ optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> &
             new_Hns.push_back(mlocal_name(H));
 
         } else {
+            lean_assert(is_let(type));
             expr H  = new_locals.push_let(let_name(type), let_type(type), let_value(type));
             type    = instantiate(let_body(type), H);
             new_Hs.push_back(H);

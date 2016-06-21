@@ -18,7 +18,6 @@ section
   | right : ∀a {b₁ b₂},     Rb a b₁ b₂ → lex ⟨a, b₁⟩  ⟨a, b₂⟩
 end
 
-set_option trace.app_builder  true
 
 section
   open ops well_founded tactic

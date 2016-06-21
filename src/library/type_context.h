@@ -212,6 +212,11 @@ public:
     optional<expr> reduce_projection(expr const & e);
     optional<expr> norm_ext(expr const & e) { return env().norm_ext()(e, *this); }
 
+    /** \brief Put \c e in whnf, it is a Pi, then return whnf, otherwise return e */
+    expr try_to_pi(expr const & e);
+    /** \brief Put \c e in relaxed_whnf, it is a Pi, then return whnf, otherwise return e */
+    expr relaxed_try_to_pi(expr const & e);
+
     /** Given a metavariable \c mvar, and local constants in \c locals, return (mvar' C) where
         C is a superset of \c locals and includes all local constants that depend on \c locals.
         \pre all local constants in \c locals are in metavariable context. */

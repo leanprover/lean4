@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2015 Microsoft Corporation. All rights reserved.
+Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
@@ -9,17 +9,19 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "kernel/expr_maps.h"
 #include "library/trace.h"
-#include "library/fun_info_manager.h"
+#include "library/expr_unsigned_map.h"
+#include "library/fun_info.h"
 
 namespace lean {
 static name * g_fun_info = nullptr;
-void initialize_fun_info_manager() {
+void initialize_fun_info() {
     g_fun_info = new name("fun_info");
     register_trace_class(*g_fun_info);
 }
 
-void finalize_fun_info_manager() {
+void finalize_fun_info() {
     delete g_fun_info;
 }
 
@@ -29,14 +31,44 @@ static bool is_fun_info_trace_enabled() {
     return is_trace_class_enabled(*g_fun_info);
 }
 
-fun_info_manager::fun_info_manager(old_type_context & ctx):
-    m_ctx(ctx) {
+struct fun_info_cache {
+    typedef expr_map<fun_info>          cache;
+    typedef expr_unsigned_map<fun_info> narg_cache;
+    typedef expr_unsigned_map<unsigned> prefix_cache;
+    environment  m_env;
+    cache        m_cache_get;
+    narg_cache   m_cache_get_nargs;
+    narg_cache   m_cache_get_spec;
+    prefix_cache m_cache_prefix;
+    fun_info_cache(environment const & env):m_env(env) {}
+};
+
+struct fun_info_cache_helper {
+    typedef std::unique_ptr<fun_info_cache> cache_ptr;
+    cache_ptr m_cache_ptr;
+
+    void ensure_compatible(environment const & env) {
+        if (!m_cache_ptr || !is_eqp(env, m_cache_ptr->m_env)) {
+            m_cache_ptr.reset(new fun_info_cache(env));
+        }
+    }
+};
+
+MK_THREAD_LOCAL_GET_DEF(fun_info_cache_helper, get_fich);
+
+fun_info_cache & get_fun_info_cache_for(environment const & env) {
+    get_fich().ensure_compatible(env);
+    return *get_fich().m_cache_ptr.get();
 }
 
-list<unsigned> fun_info_manager::collect_deps(expr const & type, buffer<expr> const & locals) {
+void clear_fun_info_cache() {
+    get_fich().m_cache_ptr.reset();
+}
+
+static list<unsigned> collect_deps(expr const & type, buffer<expr> const & locals) {
     buffer<unsigned> deps;
     for_each(type, [&](expr const & e, unsigned) {
-            if (m_ctx.is_tmp_local(e)) {
+            if (is_local(e)) {
                 unsigned idx;
                 for (idx = 0; idx < locals.size(); idx++)
                     if (locals[idx] == e)
@@ -52,59 +84,61 @@ list<unsigned> fun_info_manager::collect_deps(expr const & type, buffer<expr> co
 
 /* Store parameter info for fn in \c pinfos and return the dependencies of the resulting type
    (if compute_resulting_deps == true). */
-list<unsigned> fun_info_manager::get_core(expr const & fn, buffer<param_info> & pinfos,
-                                          unsigned max_args, bool compute_resulting_deps) {
-    expr type = m_ctx.relaxed_try_to_pi(m_ctx.infer(fn));
-    buffer<expr> locals;
+static list<unsigned> get_core(type_context & ctx,
+                               expr const & fn, buffer<param_info> & pinfos,
+                               unsigned max_args, bool compute_resulting_deps) {
+    expr type = ctx.relaxed_try_to_pi(ctx.infer(fn));
+    type_context::tmp_locals locals(ctx);
     unsigned i = 0;
     while (is_pi(type)) {
         if (i == max_args)
             break;
-        expr local      = m_ctx.mk_tmp_local_from_binding(type);
-        expr local_type = m_ctx.infer(local);
-        expr new_type   = m_ctx.relaxed_try_to_pi(instantiate(binding_body(type), local));
+        expr local      = locals.push_local_from_binding(type);
+        expr local_type = ctx.infer(local);
+        expr new_type   = ctx.relaxed_try_to_pi(instantiate(binding_body(type), local));
         bool spec       = false;
-        bool is_prop    = m_ctx.is_prop(local_type);
+        bool is_prop    = ctx.is_prop(local_type);
         bool is_sub     = is_prop;
         bool is_dep     = !closed(binding_body(type));
         if (!is_sub) {
             // TODO(Leo): check if the following line is a performance bottleneck.
-            is_sub = static_cast<bool>(m_ctx.mk_subsingleton_instance(local_type));
+            is_sub = static_cast<bool>(ctx.mk_subsingleton_instance(local_type));
         }
         pinfos.emplace_back(spec,
                             binding_info(type).is_implicit(),
                             binding_info(type).is_inst_implicit(),
-                            is_prop, is_sub, is_dep, collect_deps(local_type, locals));
-        locals.push_back(local);
+                            is_prop, is_sub, is_dep, collect_deps(local_type, locals.as_buffer()));
         type = new_type;
         i++;
     }
     if (compute_resulting_deps)
-        return collect_deps(type, locals);
+        return collect_deps(type, locals.as_buffer());
     else
         return list<unsigned>();
 }
 
-fun_info fun_info_manager::get(expr const & e) {
-    auto it = m_cache_get.find(e);
-    if (it != m_cache_get.end())
+fun_info get_fun_info(type_context & ctx, expr const & e) {
+    fun_info_cache & cache = get_fun_info_cache_for(ctx.env());
+    auto it = cache.m_cache_get.find(e);
+    if (it != cache.m_cache_get.end())
         return it->second;
     buffer<param_info> pinfos;
-    auto result_deps = get_core(e, pinfos, std::numeric_limits<unsigned>::max(), true);
+    auto result_deps = get_core(ctx, e, pinfos, std::numeric_limits<unsigned>::max(), true);
     fun_info r(pinfos.size(), to_list(pinfos), result_deps);
-    m_cache_get.insert(mk_pair(e, r));
+    cache.m_cache_get.insert(mk_pair(e, r));
     return r;
 }
 
-fun_info fun_info_manager::get(expr const & e, unsigned nargs) {
+fun_info get(type_context & ctx, expr const & e, unsigned nargs) {
+    fun_info_cache & cache = get_fun_info_cache_for(ctx.env());
     expr_unsigned key(e, nargs);
-    auto it = m_cache_get_nargs.find(key);
-    if (it != m_cache_get_nargs.end())
+    auto it = cache.m_cache_get_nargs.find(key);
+    if (it != cache.m_cache_get_nargs.end())
         return it->second;
     buffer<param_info> pinfos;
-    auto result_deps = get_core(e, pinfos, nargs, true);
+    auto result_deps = get_core(ctx, e, pinfos, nargs, true);
     fun_info r(pinfos.size(), to_list(pinfos), result_deps);
-    m_cache_get_nargs.insert(mk_pair(key, r));
+    cache.m_cache_get_nargs.insert(mk_pair(key, r));
     return r;
 }
 
@@ -123,10 +157,11 @@ static bool has_nonprop_nonsubsingleton_fwd_dep(unsigned i, buffer<param_info> c
     return false;
 }
 
-void fun_info_manager::trace_if_unsupported(expr const & fn, buffer<expr> const & args, unsigned prefix_sz, fun_info const & result) {
+static void trace_if_unsupported(type_context & ctx,
+                          expr const & fn, buffer<expr> const & args, unsigned prefix_sz, fun_info const & result) {
     if (!is_fun_info_trace_enabled())
         return;
-    fun_info info = get(fn, args.size());
+    fun_info info = get(ctx, fn, args.size());
     buffer<param_info> pinfos;
     to_buffer(info.get_params_info(), pinfos);
     /* Check if all remaining arguments are nondependent or
@@ -151,19 +186,20 @@ void fun_info_manager::trace_if_unsupported(expr const & fn, buffer<expr> const 
     for (param_info const & pinfo : result.get_params_info()) {
         if (pinfo.is_prop() || pinfo.is_subsingleton())
             continue;
-        expr arg_type = m_ctx.infer(args[i]);
-        if (m_ctx.is_prop(arg_type) || m_ctx.mk_subsingleton_instance(arg_type)) {
+        expr arg_type = ctx.infer(args[i]);
+        if (ctx.is_prop(arg_type) || ctx.mk_subsingleton_instance(arg_type)) {
             lean_trace_fun_info(
                 tout() << "approximating function information for '" << fn
                 << "', this may affect the effectiveness of the simplifier and congruence closure modules, "
-                << "more precise information can be efficiently computed if all parameters are moved to the beginning of the function\n";);
+                << "more precise information can be efficiently computed if all parameters are moved to the "
+                << "beginning of the function\n";);
             return;
         }
         i++;
     }
 }
 
-unsigned fun_info_manager::get_specialization_prefix_size(expr const & fn, unsigned nargs) {
+unsigned get_specialization_prefix_size(type_context & ctx, expr const & fn, unsigned nargs) {
     /*
       We say a function is "cheap" if it is of the form:
 
@@ -194,11 +230,12 @@ unsigned fun_info_manager::get_specialization_prefix_size(expr const & fn, unsig
 
       This procecure returns the size of group a)
     */
+    fun_info_cache & cache = get_fun_info_cache_for(ctx.env());
     expr_unsigned key(fn, nargs);
-    auto it = m_cache_prefix.find(key);
-    if (it != m_cache_prefix.end())
+    auto it = cache.m_cache_prefix.find(key);
+    if (it != cache.m_cache_prefix.end())
         return it->second;
-    fun_info info = get(fn, nargs);
+    fun_info info = get(ctx, fn, nargs);
     buffer<param_info> pinfos;
     to_buffer(info.get_params_info(), pinfos);
     /* Compute "prefix": 0 or more parameters s.t.
@@ -213,34 +250,35 @@ unsigned fun_info_manager::get_specialization_prefix_size(expr const & fn, unsig
             break;
     }
     unsigned prefix_sz = i;
-    m_cache_prefix.insert(mk_pair(key, prefix_sz));
+    cache.m_cache_prefix.insert(mk_pair(key, prefix_sz));
     return prefix_sz;
 }
 
-fun_info fun_info_manager::get_specialized(expr const & a) {
+fun_info get_specialized_fun_info(type_context & ctx, expr const & a) {
     lean_assert(is_app(a));
     buffer<expr> args;
     expr const & fn        = get_app_args(a, args);
-    unsigned prefix_sz     = get_specialization_prefix_size(fn, args.size());
+    unsigned prefix_sz     = get_specialization_prefix_size(ctx, fn, args.size());
     unsigned num_rest_args = args.size() - prefix_sz;
     expr g = a;
     for (unsigned i = 0; i < num_rest_args; i++)
         g = app_fn(g);
+    fun_info_cache & cache = get_fun_info_cache_for(ctx.env());
     expr_unsigned key(g, num_rest_args);
-    auto it = m_cache_get_spec.find(key);
-    if (it != m_cache_get_spec.end()) {
+    auto it = cache.m_cache_get_spec.find(key);
+    if (it != cache.m_cache_get_spec.end()) {
         return it->second;
     }
     /* fun_info is not cached */
     buffer<param_info> pinfos;
-    get_core(fn, pinfos, prefix_sz, false);
+    get_core(ctx, fn, pinfos, prefix_sz, false);
     for (unsigned i = 0; i < prefix_sz; i++) {
-        pinfos[i].m_specialized = true;
+        pinfos[i].set_specialized();
     }
-    auto result_deps = get_core(g, pinfos, num_rest_args, true);
+    auto result_deps = get_core(ctx, g, pinfos, num_rest_args, true);
     fun_info r(pinfos.size(), to_list(pinfos), result_deps);
-    m_cache_get_spec.insert(mk_pair(key, r));
-    trace_if_unsupported(fn, args, prefix_sz, r);
+    cache.m_cache_get_spec.insert(mk_pair(key, r));
+    trace_if_unsupported(ctx, fn, args, prefix_sz, r);
     return r;
 }
 }

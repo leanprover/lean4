@@ -612,6 +612,19 @@ optional<expr> type_context::is_stuck(expr const &) {
     return none_expr();
 }
 
+expr type_context::try_to_pi(expr const & e) {
+    expr new_e = whnf(e);
+    if (is_pi(new_e))
+        return new_e;
+    else
+        return e;
+}
+
+expr type_context::relaxed_try_to_pi(expr const & e) {
+    flet<transparency_mode> set(m_transparency_mode, transparency_mode::All);
+    return try_to_pi(e);
+}
+
 /* ---------------
    Type inference
    --------------- */

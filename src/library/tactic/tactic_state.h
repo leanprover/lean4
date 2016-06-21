@@ -116,6 +116,13 @@ inline type_context mk_type_context_for(tactic_state const & s, metavar_context 
     return type_context(mctx, lctx, get_type_context_cache_for(s), m);
 }
 
+#define lean_tactic_trace(N, S, Code) lean_trace(N, {   \
+    metavar_context _mctx = (S).mctx();                 \
+    type_context _ctx = mk_type_context_for(S, _mctx);  \
+    scope_trace_env _scope((S).env(), _ctx);            \
+    Code                                                \
+})
+
 void initialize_tactic_state();
 void finalize_tactic_state();
 }

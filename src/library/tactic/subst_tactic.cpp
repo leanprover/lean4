@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "library/util.h"
+#include "library/trace.h"
 #include "library/locals.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_name.h"
@@ -18,9 +19,13 @@ Author: Leonardo de Moura
 #include "library/tactic/app_builder_tactics.h"
 
 namespace lean {
+#define lean_trace_subst(S, Code) lean_tactic_trace(name({"tactic", "subst"}), S, Code)
+
 /* n is the internal name of a hypothesis that represents an equality */
 vm_obj tactic_subst_core(name const & n, bool symm, tactic_state const & s) {
     try {
+        scope_trace_env scope(s.get_options());
+        lean_trace_subst(s, tout() << "initial\n" << s.pp() << "\n";);
         metavar_decl g             = *s.get_main_goal_decl();
         local_context lctx         = g.get_context();
         local_decl d               = *lctx.get_local_decl(n);
@@ -32,10 +37,14 @@ vm_obj tactic_subst_core(name const & n, bool symm, tactic_state const & s) {
         to_revert.push_back(lhs);
         to_revert.push_back(d.mk_ref());
         tactic_state s1 = revert(to_revert, s);
+        lean_trace_subst(s1, tout() << "to_revert:"; for (auto h : to_revert) tout() << " " << h; tout() << "\n";);
+        lean_trace_subst(s1, tout() << "after revert\n" << s1.pp() << "\n";
+                         tout() << "num reverted: " << to_revert.size() << "\n";);
         lean_assert(to_revert.size() >= 2);
         buffer<name> lhsH;
         optional<tactic_state> s2 = intron(2, s1, lhsH);
         if (!s2) return mk_tactic_exception("subst tactic failed, unexpected failure during intro", s);
+        lean_trace_subst(*s2, tout() << "after intro2\n" << s2->pp() << "\n";);
         lean_assert(!s2->mctx().is_assigned(head(s2->goals())));
         try {
             lctx                 = s2->get_main_goal_decl()->get_context();
@@ -73,8 +82,10 @@ vm_obj tactic_subst_core(name const & n, bool symm, tactic_state const & s) {
             vm_obj o5    = clear_internal(lhsH[0], *s4);
             optional<tactic_state> s5 = is_tactic_success(o5);
             if (!s5) return o5;
+            lean_trace_subst(*s5, tout() << "after clear\n" << s5->pp() << "\n";);
             optional<tactic_state> s6 = intron(to_revert.size() - 2, *s5);
             if (!s6) return mk_tactic_exception("subst tactic failed, unexpected failure during intro", s);
+            lean_trace_subst(*s6, tout() << "after intro remaining reverted hypotheses\n" << s6->pp() << "\n";);
             return mk_tactic_success(*s6);
         } catch (exception & ex) {
             return mk_tactic_exception(ex, *s2);
@@ -133,6 +144,7 @@ vm_obj tactic_subst(vm_obj const & n, vm_obj const & s) {
 
 void initialize_subst_tactic() {
     DECLARE_VM_BUILTIN(name({"tactic", "subst"}), tactic_subst);
+    register_trace_class(name{"tactic", "subst"});
 }
 
 void finalize_subst_tactic() {

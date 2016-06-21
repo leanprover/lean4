@@ -155,9 +155,11 @@ meta_constant get_assignment : expr → tactic expr
 meta_constant mk_fresh_name : tactic name
 open list nat
 
+/- Add (H : T := pr) to the current goal -/
 meta_definition note (n : name) (pr : expr) : tactic unit :=
 do t ← infer_type pr,
-   pose n t pr
+   assert n t,
+   exact pr
 
 meta_definition intros : tactic (list expr) :=
 do t ← target,

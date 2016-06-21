@@ -53,7 +53,12 @@ optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> &
         optional<local_decl> d = lctx.get_local_decl(new_Hs[i]);
         expr type = d->get_type();
         type      = abstract_locals(type, i, new_Hs.data());
-        new_val   = mk_lambda(d->get_pp_name(), type, new_val, d->get_info());
+        if (auto letval = d->get_value()) {
+            letval    = abstract_locals(*letval, i, new_Hs.data());
+            new_val   = mk_let(d->get_pp_name(), type, *letval, new_val);
+        } else {
+            new_val   = mk_lambda(d->get_pp_name(), type, new_val, d->get_info());
+        }
     }
     lean_assert(!mctx.is_assigned(new_M));
     mctx.assign(head(s.goals()), new_val);

@@ -100,18 +100,18 @@ meta_constant local_context : tactic (list expr)
         vec.{l} : Pi (A : Type.{l}) (n : nat), Type.{l1}
         f g     : Pi (n : nat), vec real n
     then
-        mk_app "rel" [f, g]
+        mk_app_core "rel" [f, g] transparency.semireducible
     returns the application
         rel.{1 2} nat (fun n : nat, vec real n) f g -/
-meta_constant mk_app        : name → list expr → tactic expr
+meta_constant mk_app_core   : name → list expr → transparency → tactic expr
 /- Similar to mk_app, but allows to specify which arguments are explicit/implicit.
    Example, given
      a b : nat
    then
-     mk_mapp "ite" [some (a > b), none, none, some a, some b]
+     mk_mapp_core "ite" [some (a > b), none, none, some a, some b] transparency.semireducible
    returns the application
      @ite.{1} (a > b) (nat.decidable_gt a b) nat a b -/
-meta_constant mk_mapp       : name → list (option expr) → tactic expr
+meta_constant mk_mapp_core  : name → list (option expr) → transparency → tactic expr
 meta_constant subst         : name → tactic unit
 meta_constant exact         : expr → tactic unit
 /- Elaborate the given quoted expression with respect to the current main goal. -/
@@ -153,6 +153,10 @@ meta_constant get_assignment : expr → tactic expr
 meta_constant mk_fresh_name : tactic name
 open list nat
 
+meta_definition note (n : name) (pr : expr) : tactic unit :=
+do t ← infer_type pr,
+   pose n t pr
+
 meta_definition intros : tactic (list expr) :=
 do t ← target,
    match t with
@@ -161,13 +165,15 @@ do t ← target,
    | _                 := return []
    end
 
-meta_definition note (n : name) (pr : expr) : tactic unit :=
-do t ← infer_type pr,
-   pose n t pr
-
 meta_definition intro_lst : list name → tactic (list expr)
 | []      := return []
 | (n::ns) := do H ← intro n, Hs ← intro_lst ns, return (H :: Hs)
+
+meta_definition mk_app (n : name) (es : list expr) : tactic expr :=
+mk_app_core n es transparency.semireducible
+
+meta_definition mk_mapp (n : name) (es : list (option expr)) : tactic expr :=
+mk_mapp_core n es transparency.semireducible
 
 meta_definition revert (n : name) : tactic unit :=
 revert_lst [n]

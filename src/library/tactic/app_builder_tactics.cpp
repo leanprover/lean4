@@ -31,11 +31,11 @@ app_builder_cache & get_app_builder_cache_for(environment const & env) {
     return *get_abch().m_cache_ptr.get();
 }
 
-vm_obj tactic_mk_app(vm_obj const & c, vm_obj const & as, vm_obj const & _s) {
+vm_obj tactic_mk_app_core(vm_obj const & c, vm_obj const & as, vm_obj const & tmode, vm_obj const & _s) {
     tactic_state const & s = to_tactic_state(_s);
     try {
         metavar_context mctx   = s.mctx();
-        type_context ctx       = mk_type_context_for(s, mctx);
+        type_context ctx       = mk_type_context_for(s, mctx, to_transparency_mode(tmode));
         app_builder b          = mk_app_builder_for(ctx);
         buffer<expr> args;
         to_buffer_expr(as, args);
@@ -46,11 +46,11 @@ vm_obj tactic_mk_app(vm_obj const & c, vm_obj const & as, vm_obj const & _s) {
     }
 }
 
-vm_obj tactic_mk_mapp(vm_obj const & c, vm_obj const & as, vm_obj const & _s) {
+vm_obj tactic_mk_mapp_core(vm_obj const & c, vm_obj const & as, vm_obj const & tmode, vm_obj const & _s) {
     tactic_state const & s = to_tactic_state(_s);
     try {
         metavar_context mctx   = s.mctx();
-        type_context ctx       = mk_type_context_for(s, mctx);
+        type_context ctx       = mk_type_context_for(s, mctx, to_transparency_mode(tmode));
         app_builder b          = mk_app_builder_for(ctx);
         buffer<bool> mask;
         buffer<expr> args;
@@ -73,8 +73,8 @@ vm_obj tactic_mk_mapp(vm_obj const & c, vm_obj const & as, vm_obj const & _s) {
 }
 
 void initialize_app_builder_tactics() {
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_app"}),   tactic_mk_app);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_mapp"}),  tactic_mk_mapp);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_app_core"}),   tactic_mk_app_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_mapp_core"}),  tactic_mk_mapp_core);
 }
 
 void finalize_app_builder_tactics() {

@@ -51,6 +51,7 @@ _Linux_
 
 - [Ubuntu 12.04](doc/make/ubuntu-12.04.md)
 - [Ubuntu 12.04 (detailed)](doc/make/ubuntu-12.04-detailed.md)
+- [Ubuntu 16.04](doc/make/ubuntu-16.04.md)
 - [Fedora 19](doc/make/fedora-19.md)
 
 _OS X_

@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/trace.h"
-#include "library/vm/vm_name.h"
 #include "library/vm/vm_list.h"
 #include "library/tactic/tactic_state.h"
 
@@ -19,23 +18,23 @@ tactic_state revert(buffer<expr> & locals, tactic_state const & s) {
     return set_mctx_goals(s, mctx, cons(new_g, tail(s.goals())));
 }
 
-vm_obj revert(list<name> const & ns, tactic_state const & s) {
+vm_obj revert(list<expr> const & ls, tactic_state const & s) {
     optional<metavar_decl> g   = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
     local_context lctx         = g->get_context();
     buffer<expr> locals;
-    for (name const & n : ns) {
-        if (optional<local_decl> const & d = lctx.get_local_decl_from_user_name(n)) {
-            locals.push_back(d->mk_ref());
+    for (expr const & l : ls) {
+        if (lctx.get_local_decl(l)) {
+            locals.push_back(l);
         } else {
-            return mk_tactic_exception(sstream() << "revert tactic failed, unknown '" << n << "' hypothesis", s);
+            return mk_tactic_exception(sstream() << "revert tactic failed, unknown '" << local_pp_name(l) << "' hypothesis", s);
         }
     }
     return mk_tactic_success(revert(locals, s));
 }
 
 vm_obj tactic_revert_lst(vm_obj const & ns, vm_obj const & s) {
-    return revert(to_list_name(ns), to_tactic_state(s));
+    return revert(to_list_expr(ns), to_tactic_state(s));
 }
 
 void initialize_revert_tactic() {

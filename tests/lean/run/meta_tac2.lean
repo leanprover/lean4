@@ -12,7 +12,7 @@ by do
     trace_state,
     trace_result,
     trace "---------",
-    revert "H1",
+    get_local "H1" >>= revert,
     trace_state,
     trace_result,
     intro "H3",
@@ -26,7 +26,8 @@ print "====================="
 example : ∀ (p : Prop), p → p → p :=
 by do
     intro_lst ["_", "H1", "H2"],
-    revert_lst ["H1", "H2"],
+    H1 ← get_local "H1", H2 ← get_local "H2",
+    revert_lst [H1, H2],
     trace_state,
     trace_result,
     intro "H3",
@@ -45,7 +46,7 @@ print "====================="
 example : ∀ (p : Prop), p → p → p :=
 by do
    intros,
-   revert "p",
+   get_local "p" >>= revert,
    trace_state,
    trace_result,
    trace "----------",

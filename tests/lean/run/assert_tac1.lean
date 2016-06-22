@@ -18,7 +18,7 @@ by do
    exact a,
    trace "------------",
    trace_state,
-   revert "x",
+   get_local "x" >>= revert,
    intro "y",
    trace_state,
    y ← get_local "y",

@@ -5,7 +5,7 @@ by do
   intro_lst ["a0", "a1", "ab"],
   exfalso,
   trace_state,
-  subst "a",
-  subst "b",
+  get_local "a" >>= subst,
+  get_local "b" >>= subst,
   trace_state,
   contradiction

@@ -38,17 +38,17 @@ section
                 (λ (a₁ : A) (b₁ : B a₁) (a₂ : A) (b₂ : B a₂) (H : Ra a₁ a₂) (eq₂ : a₂ = xa) (eq₃ : b₂ == xb),
                   by do
                      /- TODO(Leo): cleanup using quotations -/
-                     subst "eq₂",
+                     get_local "eq₂" >>= subst,
                      iHa : expr ← get_local "iHa", a₁ ← get_local "a₁", H ← get_local "H", b₁ ← get_local "b₁",
                      exact (iHa a₁ H b₁))
                 (λ (a : A) (b₁ b₂ : B a) (H : Rb a b₁ b₂) (eq₂ : a = xa) (eq₃ : b₂ == xb),
                   by do
                      /- TODO(Leo): cleanup using quotations -/
-                    subst "eq₂",
+                    get_local "eq₂" >>= subst,
                     eq₃ ← get_local "eq₃",
                     new_eq₃ ← mk_app "eq_of_heq" [eq₃],
                     note "new_eq₃" new_eq₃,
-                    subst "new_eq₃",
+                    get_local "new_eq₃" >>= subst,
                     iHb : expr ← get_local "iHb", b₁ ← get_local "b₁", H ← get_local "H",
                     exact (iHb b₁ H)),
                    -- begin cases eq₂, cases eq₃, exact (iHb b₁ H) end),

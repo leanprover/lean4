@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/locals.h"
 #include "library/vm/vm.h"
-#include "library/vm/vm_name.h"
+#include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/revert_tactic.h"
 #include "library/tactic/intro_tactic.h"
@@ -95,13 +95,15 @@ vm_obj tactic_subst_core(name const & n, bool symm, tactic_state const & s) {
     }
 }
 
-vm_obj tactic_subst(name const & n, tactic_state const & s) {
+vm_obj tactic_subst(expr const & l, tactic_state const & s) {
     optional<metavar_decl> g   = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
     local_context lctx         = g->get_context();
-    optional<local_decl> d     = lctx.get_local_decl_from_user_name(n);
+    if (!is_local(l))
+        return mk_tactic_exception(sstream() << "subst tactic failed, given expression is not a local constant", s);
+    optional<local_decl> d     = lctx.get_local_decl(l);
     if (!d)
-        return mk_tactic_exception(sstream() << "subst tactic failed, unknown '" << n << "' hypothesis", s);
+        return mk_tactic_exception(sstream() << "subst tactic failed, unknown '" << local_pp_name(l) << "' hypothesis", s);
     expr const & type = d->get_type();
     expr lhs, rhs;
     if (is_eq(type, lhs, rhs)) {
@@ -111,7 +113,7 @@ vm_obj tactic_subst(name const & n, tactic_state const & s) {
             return tactic_subst_core(d->get_name(), false, s);
         } else {
             return mk_tactic_exception(sstream() << "subst tactic failed, hypothesis '"
-                                       << n << "' is not of the form (x = t) or (t = x)", s);
+                                       << local_pp_name(l) << "' is not of the form (x = t) or (t = x)", s);
         }
     } else {
         bool found = false;
@@ -133,13 +135,13 @@ vm_obj tactic_subst(name const & n, tactic_state const & s) {
             return r;
         } else {
             return mk_tactic_exception(sstream() << "subst tactic failed, hypothesis '"
-                                       << n << "' is not a variable nor an equation of the form (x = t) or (t = x)", s);
+                                       << local_pp_name(l) << "' is not a variable nor an equation of the form (x = t) or (t = x)", s);
         }
     }
 }
 
-vm_obj tactic_subst(vm_obj const & n, vm_obj const & s) {
-    return tactic_subst(to_name(n), to_tactic_state(s));
+vm_obj tactic_subst(vm_obj const & e, vm_obj const & s) {
+    return tactic_subst(to_expr(e), to_tactic_state(s));
 }
 
 void initialize_subst_tactic() {

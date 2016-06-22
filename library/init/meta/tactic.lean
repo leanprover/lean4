@@ -113,7 +113,10 @@ meta_constant mk_app_core   : name → list expr → transparency → tactic exp
    returns the application
      @ite.{1} (a > b) (nat.decidable_gt a b) nat a b -/
 meta_constant mk_mapp_core  : name → list (option expr) → transparency → tactic expr
-meta_constant subst         : name → tactic unit
+/- Given a local constant t, if t has type (lhs = rhs) apply susbstitution.
+   Otherwise, try to find a local constant that has type of the form (t = t') or (t' = t).
+   The tactic fails if the given expression is not a local constant. -/
+meta_constant subst         : expr → tactic unit
 meta_constant exact         : expr → tactic unit
 /- Elaborate the given quoted expression with respect to the current main goal. -/
 meta_constant to_expr       : qexpr → tactic expr

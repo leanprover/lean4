@@ -11,7 +11,7 @@ by do intro "Heq",
       change t',
       trace "---- after change ----",
       trace_state,
-      subst "a",
+      get_local "a" >>= subst,
       t ← target,
       match is_eq t with
       | some (lhs, rhs) := do pr ← mk_app ("eq" <.> "refl") [lhs], exact pr

@@ -5,7 +5,7 @@ rfl
 
 example (a b : nat) : a = b → succ (succ a) = succ (b + 1) :=
 by do intro "Heq",
-      subst "a",
+      get_local "a" >>= subst,
       trace_state,
       dsimp,
       trace "---- after dsimp ----",

@@ -240,6 +240,9 @@ public:
     optional<expr> mk_class_instance(expr const & type);
     optional<expr> mk_subsingleton_instance(expr const & type);
 
+    transparency_mode mode() const { return m_transparency_mode; }
+    unsigned mode_idx() const { return static_cast<unsigned>(mode()); }
+
     /* --------------------------
        Temporary assignment mode.
        It is used when performing type class resolution and matching.

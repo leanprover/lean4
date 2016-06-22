@@ -56,23 +56,22 @@ vm_obj tactic_subst_core(name const & n, bool symm, tactic_state const & s) {
             metavar_context mctx = s2->mctx();
             lean_assert(!mctx.is_assigned(head(s2->goals())));
             type_context ctx     = mk_type_context_for(*s2, mctx);
-            app_builder builder  = mk_app_builder_for(ctx);
             expr motive;
             if (depH) {
-                new_type = instantiate(abstract_local(new_type, H), builder.mk_eq_refl(rhs));
+                new_type = instantiate(abstract_local(new_type, H), mk_eq_refl(ctx, rhs));
                 if (symm) {
                     motive = ctx.mk_lambda({lhs, H}, type);
                 } else {
-                    motive = mk_lambda("H", builder.mk_eq(rhs, lhs), type);
+                    motive = mk_lambda("H", mk_eq(ctx, rhs, lhs), type);
                     motive = ctx.mk_lambda(lhs, motive);
                 }
             } else {
                 motive   = ctx.mk_lambda(lhs, type);
             }
-            expr major   = symm ? H : builder.mk_eq_symm(H);
+            expr major   = symm ? H : mk_eq_symm(ctx, H);
             expr new_M   = mctx.mk_metavar_decl(lctx, new_type);
             expr minor   = new_M;
-            expr new_val = depH ? builder.mk_eq_drec(motive, minor, major) : builder.mk_eq_rec(motive, minor, major);
+            expr new_val = depH ? mk_eq_drec(ctx, motive, minor, major) : mk_eq_rec(ctx, motive, minor, major);
             mctx.assign(head(s2->goals()), new_val);
             list<expr> new_gs(new_M, tail(s.goals()));
             tactic_state s3 = set_mctx_goals(*s2, mctx, new_gs);

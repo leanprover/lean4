@@ -11,7 +11,7 @@ Author: Daniel Selsam
 #include "kernel/inductive/inductive.h"
 #include "library/trace.h"
 #include "library/util.h"
-#include "library/defeq_simplifier.h"
+#include "library/tactic/defeq_simplifier/defeq_simplifier.h"
 
 #ifndef LEAN_DEFAULT_DEFEQ_SIMPLIFY_MAX_SIMP_ROUNDS
 #define LEAN_DEFAULT_DEFEQ_SIMPLIFY_MAX_SIMP_ROUNDS 5000

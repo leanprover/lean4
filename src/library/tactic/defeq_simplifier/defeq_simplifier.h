@@ -6,7 +6,7 @@ Author: Daniel Selsam
 #pragma once
 #include "kernel/expr.h"
 #include "library/type_context.h"
-#include "library/defeq_simp_lemmas.h"
+#include "library/tactic/defeq_simplifier/defeq_simp_lemmas.h"
 
 namespace lean {
 expr defeq_simplify(type_context & ctx, defeq_simp_lemmas const & simp_lemmas, expr const & e);

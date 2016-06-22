@@ -29,7 +29,7 @@ Author: Leonardo de Moura
 #include "library/noncomputable.h"
 #include "library/legacy_type_context.h"
 #include "library/unification_hint.h"
-#include "library/defeq_simp_lemmas.h"
+#include "library/tactic/defeq_simplifier/defeq_simp_lemmas.h"
 #include "library/reducible.h"
 #include "library/definitional/projection.h"
 #include "frontends/lean/parser.h"

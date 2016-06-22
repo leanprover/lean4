@@ -11,8 +11,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   relation_manager.cpp export.cpp user_recursors.cpp idx_metavar.cpp
   composition_manager.cpp tc_multigraph.cpp noncomputable.cpp
   aux_recursors.cpp norm_num.cpp trace.cpp
-  attribute_manager.cpp error_handling.cpp unification_hint.cpp defeq_simp_lemmas.cpp
-  defeq_simplifier.cpp
+  attribute_manager.cpp error_handling.cpp unification_hint.cpp 
   local_context.cpp metavar_context.cpp type_context.cpp export_decl.cpp lazy_abstraction.cpp
   fun_info.cpp
   # Legacy -- The following files will be eventually deleted

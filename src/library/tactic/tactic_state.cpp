@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/type_context.h"
 #include "library/pp_options.h"
-#include "library/defeq_simplifier.h"
 #include "library/trace.h"
 #include "library/vm/vm_environment.h"
 #include "library/vm/vm_exceptional.h"
@@ -19,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_level.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_list.h"
+#include "library/tactic/defeq_simplifier/defeq_simplifier.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {

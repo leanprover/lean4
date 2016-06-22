@@ -47,8 +47,6 @@ Author: Leonardo de Moura
 #include "library/metavar_context.h"
 #include "library/attribute_manager.h"
 #include "library/unification_hint.h"
-#include "library/defeq_simp_lemmas.h"
-#include "library/defeq_simplifier.h"
 #include "library/lazy_abstraction.h"
 #include "library/app_builder.h"
 #include "library/fun_info.h"
@@ -128,8 +126,6 @@ void initialize_library_module() {
     // initialize_congr_lemma_manager();
     initialize_fun_info();
     initialize_unification_hint();
-    initialize_defeq_simp_lemmas();
-    initialize_defeq_simplifier();
     initialize_type_context();
     initialize_lazy_abstraction();
 }
@@ -137,8 +133,6 @@ void initialize_library_module() {
 void finalize_library_module() {
     finalize_lazy_abstraction();
     finalize_type_context();
-    finalize_defeq_simplifier();
-    finalize_defeq_simp_lemmas();
     finalize_unification_hint();
     finalize_fun_info();
     // finalize_congr_lemma_manager();

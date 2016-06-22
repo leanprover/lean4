@@ -10,11 +10,11 @@ Author: Daniel Selsam
 #include "kernel/instantiate.h"
 #include "library/attribute_manager.h"
 #include "library/constants.h"
-#include "library/defeq_simp_lemmas.h"
 #include "library/util.h"
 #include "library/expr_lt.h"
 #include "library/scoped_ext.h"
 #include "library/tmp_type_context.h"
+#include "library/tactic/defeq_simplifier/defeq_simp_lemmas.h"
 
 namespace lean {
 

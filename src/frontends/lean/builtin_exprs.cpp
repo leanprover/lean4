@@ -398,7 +398,7 @@ static expr parse_obtain(parser & p, unsigned, expr const *, pos_info const & po
 }
 
 static expr * g_not  = nullptr;
-static unsigned g_then_else_prec = 45;
+static unsigned g_then_else_prec = 1;
 
 static expr parse_ite(parser & p, expr const & c, pos_info const & pos) {
     if (!p.env().find(get_ite_name()))

@@ -21,6 +21,6 @@ do g ← f,
 inline definition monad.and_then {A B : Type} {m : Type → Type} [monad m] (a : m A) (b : m B) : m B :=
 do a, b
 
-infixr ` <*> `:100 := fapp
-infixl ` >>= `:100 := monad.bind
-infixl ` >> `:100 := monad.and_then
+infixr ` <*> `:2 := fapp
+infixl ` >>= `:2 := monad.bind
+infixl ` >> `:2  := monad.and_then

@@ -80,9 +80,8 @@ meta_constant target        : tactic expr
 meta_constant intro         : name → tactic expr
 meta_constant intron        : nat → tactic unit
 meta_constant rename        : name → name → tactic unit
-meta_constant clear         : name → tactic unit
-/- Clear the given free-variable. The tactic fails if the given expression is not a free variable. -/
-meta_constant clear_fv      : expr → tactic unit
+/- Clear the given local constant. The tactic fails if the given expression is not a local constant. -/
+meta_constant clear         : expr → tactic unit
 meta_constant revert_lst    : list name → tactic unit
 meta_constant whnf          : expr → tactic expr
 meta_constant unify_core    : expr → expr → transparency → tactic unit
@@ -187,7 +186,7 @@ revert_lst [n]
 
 meta_definition clear_lst : list name → tactic unit
 | []      := skip
-| (n::ns) := do clear n, clear_lst ns
+| (n::ns) := do H ← get_local n, clear H, clear_lst ns
 
 meta_definition unify (a b : expr) : tactic unit :=
 unify_core a b transparency.semireducible

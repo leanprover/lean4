@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include "library/tactic/tactic_state.h"
 namespace lean {
-vm_obj clear(name const & n, tactic_state const & s, bool internal_name);
-inline vm_obj clear_internal(name const & n, tactic_state const & s) { return clear(n, s, true); }
+vm_obj clear(expr const & H, tactic_state const & s);
+vm_obj clear_internal(name const & n, tactic_state const & s);
 void initialize_clear_tactic();
 void finalize_clear_tactic();
 }

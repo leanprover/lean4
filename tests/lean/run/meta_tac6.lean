@@ -18,7 +18,7 @@ by do
     trace "----------",
     trace ("num: " + to_string n),
     trace_state,
-    clear "H3",
+    get_local "H3" >>= clear,
     (do {get_local "H3", return ()} <|> trace "get_local failed"),
     trace_state,
     assumption,

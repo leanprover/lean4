@@ -23,7 +23,7 @@ private meta_definition injection_intro : expr → list name → tactic unit
   match is_eq Ht with
   | some (lhs, rhs) :=
     -- Clear new hypothesis if it is of the form (a = a)
-    do {unify lhs rhs, clear_fv H} <|> skip
+    do {unify lhs rhs, clear H} <|> skip
   | none :=
     match is_heq Ht with
     | some (A, lhs, B, rhs) :=
@@ -35,7 +35,7 @@ private meta_definition injection_intro : expr → list name → tactic unit
         Heq ← mk_app "eq" [lhs, rhs],
         pr  ← mk_app "eq_of_heq" [H],
         assertv Hname Heq pr,
-        clear_fv H
+        clear H
       }
       <|> skip
     | none                  := skip

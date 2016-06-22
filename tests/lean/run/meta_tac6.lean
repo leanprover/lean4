@@ -14,7 +14,7 @@ by do
       do t ← infer_type e,
          fmt₁ ← format_expr e,
          fmt₂ ← format_expr t,
-         trace_fmt (fmt₁ + to_fmt " : " + fmt₂)),
+         trace_fmt $ fmt₁ + to_fmt " : " + fmt₂),
     trace "----------",
     trace ("num: " + to_string n),
     trace_state,

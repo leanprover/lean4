@@ -50,8 +50,8 @@ do s ← read,
 meta_definition trace (s : string) : tactic unit :=
 return (_root_.trace s (λ u, ()))
 
-meta_definition trace_fmt (fmt : format) : tactic unit :=
-return (_root_.trace_fmt fmt (λ u, ()))
+meta_definition trace_fmt {A : Type} [has_to_format A] (a : A) : tactic unit :=
+return (_root_.trace_fmt (to_fmt a) (λ u, ()))
 
 /- Trace expression with respect to the main goal -/
 meta_definition trace_expr (e : expr) : tactic unit :=

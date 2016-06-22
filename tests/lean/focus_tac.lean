@@ -2,7 +2,7 @@ open tactic
 
 example (a : nat) : a = a :=
 by do
-   assert "x" (expr.const "nat" []),
+   define "x" (expr.const "nat" []),
    trace "---- after assert ----",
    trace_state,
    focus (do trace "--- inside focus tac ---", trace_state), -- SHOULD FAIL HERE
@@ -15,7 +15,7 @@ by do
 
 definition tst2 (a : nat) : a = a :=
 by do
-   assert "x" (expr.const "nat" []),
+   define "x" (expr.const "nat" []),
    trace "---- after assert ----",
    trace_state,
    focus (do trace "--- inside focus tac ---", trace_state, assumption),

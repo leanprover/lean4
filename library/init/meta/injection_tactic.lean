@@ -34,7 +34,7 @@ private meta_definition injection_intro : expr → list name → tactic unit
         unify A B,
         Heq ← mk_app "eq" [lhs, rhs],
         pr  ← mk_app "eq_of_heq" [H],
-        pose Hname Heq pr,
+        assertv Hname Heq pr,
         clear_fv H
       }
       <|> skip

@@ -2,7 +2,7 @@ open tactic
 
 definition tst1 (a : nat) : a = a :=
 by do
-   assert "x" (expr.const "nat" []),
+   define "x" (expr.const "nat" []),
    trace_state,
    a ← get_local "a",
    exact a,
@@ -13,7 +13,7 @@ print tst1
 
 definition tst2 (a : nat) : a = a :=
 by do
-   assert "x" (expr.const "nat" []),
+   define "x" (expr.const "nat" []),
    a ← get_local "a",
    exact a,
    trace "------------",

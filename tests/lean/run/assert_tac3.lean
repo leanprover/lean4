@@ -15,7 +15,7 @@ print tst2
 
 definition tst3 (a b : nat) : a = a :=
 by do
-   assert "x" (expr.const "nat" []),
+   define "x" (expr.const "nat" []),
    rotate 1,
    trace_state,
    x ← get_local "x",

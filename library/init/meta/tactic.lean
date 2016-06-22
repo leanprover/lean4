@@ -128,10 +128,14 @@ meta_constant defeq_simp    : expr → tactic expr
 /- Change the target of the main goal.
    The input expression must be definitionally equal to the current target. -/
 meta_constant change        : expr → tactic unit
-/- (assert H T), adds a new goal for T, and the hypothesis (H : T := ?M) in the current goal -/
+/- (assert H T), adds a new goal for T, and the hypothesis (H : T) in the current goal. -/
 meta_constant assert        : name → expr → tactic unit
-/- (pose H T P), adds the hypothesis (H : T) in the current goal if P has type T. -/
-meta_constant pose          : name → expr → expr → tactic unit
+/- (assertv H T P), adds the hypothesis (H : T) in the current goal if P has type T. -/
+meta_constant assertv       : name → expr → expr → tactic unit
+/- (define H T), adds a new goal for T, and the hypothesis (H : T := ?M) in the current goal. -/
+meta_constant define        : name → expr → tactic unit
+/- (definev H T P), adds the hypothesis (H : T := P) in the current goal if P has type T. -/
+meta_constant definev       : name → expr → expr → tactic unit
 /- rotate goals to the left -/
 meta_constant rotate_left   : nat → tactic unit
 meta_constant get_goals     : tactic (list expr)
@@ -158,8 +162,7 @@ open list nat
 /- Add (H : T := pr) to the current goal -/
 meta_definition note (n : name) (pr : expr) : tactic unit :=
 do t ← infer_type pr,
-   assert n t,
-   exact pr
+   definev n t pr
 
 meta_definition intros : tactic (list expr) :=
 do t ← target,

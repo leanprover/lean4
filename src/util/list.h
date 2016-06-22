@@ -46,7 +46,7 @@ private:
 public:
     list():m_ptr(nullptr) {}
     list(T const & h, list const & t):m_ptr(new (get_allocator().allocate()) cell(h, t)) {}
-    list(T const & h):m_ptr(new (get_allocator().allocate()) cell(h, list())) {}
+    explicit list(T const & h):m_ptr(new (get_allocator().allocate()) cell(h, list())) {}
     list(list const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     list(list&& s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     list(std::initializer_list<T> const & l):list() {

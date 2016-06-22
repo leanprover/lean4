@@ -1230,7 +1230,7 @@ constraint old_elaborator::mk_equations_cnstr(expr const & m, expr const & eqns)
         expr val            = compile_equations(*tc, _ios, new_eqns, meta, meta_type);
         justification j     = mk_justification("equation compilation", some_expr(eqns));
         constraint c        = mk_eq_cnstr(meta, val, j);
-        return lazy_list<constraints>(c);
+        return lazy_list<constraints>(to_list(c));
     };
     bool owner = true;
     return mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::MaxDelayed), owner, j);

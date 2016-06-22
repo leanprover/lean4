@@ -33,18 +33,18 @@ vm_eval expr.instantiate_var v1 (expr.const "a" [])
 vm_eval expr.instantiate_vars v1 [expr.const "a" [], expr.const "b" []]
 
 meta_definition fv1 := (expr.const "f" [])
-                         (expr.free_var "a" "a" binder_info.default (expr.sort level.zero))
-                         (expr.free_var "b" "b" binder_info.default (expr.sort level.zero))
+                         (expr.local_const "a" "a" binder_info.default (expr.sort level.zero))
+                         (expr.local_const "b" "b" binder_info.default (expr.sort level.zero))
 
 vm_eval fv1
 
-vm_eval expr.abstract_fv (expr.abstract_fv fv1 "a") "b"
-vm_eval expr.abstract_fvs fv1 ["a", "b"]
-vm_eval expr.abstract_fvs fv1 ["b", "a"]
-vm_eval expr.lift_vars (expr.abstract_fvs fv1 ["b", "a"]) 1 1
-vm_eval expr.has_free_var fv1
+vm_eval expr.abstract_local (expr.abstract_local fv1 "a") "b"
+vm_eval expr.abstract_locals fv1 ["a", "b"]
+vm_eval expr.abstract_locals fv1 ["b", "a"]
+vm_eval expr.lift_vars (expr.abstract_locals fv1 ["b", "a"]) 1 1
+vm_eval expr.has_local fv1
 vm_eval expr.has_var fv1
-vm_eval expr.has_var (expr.abstract_fvs fv1 ["b", "a"])
+vm_eval expr.has_var (expr.abstract_locals fv1 ["b", "a"])
 
 meta_definition foo : nat → expr
 | 0     := expr.const "aa" [level.zero, level.succ level.zero]

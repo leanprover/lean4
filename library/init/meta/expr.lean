@@ -13,16 +13,16 @@ meta_constant macro_def : Type₁
 
 /- Reflect a C++ expr object. The VM replaces it with the C++ implementation. -/
 inductive expr :=
-| var      : unsigned → expr
-| sort     : level → expr
-| const    : name → list level → expr
-| meta     : name → expr → expr
-| free_var : name → name → binder_info → expr → expr
-| app      : expr → expr → expr
-| lam      : name → binder_info → expr → expr → expr
-| pi       : name → binder_info → expr → expr → expr
-| elet     : name → expr → expr → expr → expr
-| macro    : macro_def → ∀ n : unsigned, (fin (unsigned.to_nat n) → expr) → expr
+| var         : unsigned → expr
+| sort        : level → expr
+| const       : name → list level → expr
+| meta        : name → expr → expr
+| local_const : name → name → binder_info → expr → expr
+| app         : expr → expr → expr
+| lam         : name → binder_info → expr → expr → expr
+| pi          : name → binder_info → expr → expr → expr
+| elet        : name → expr → expr → expr → expr
+| macro       : macro_def → ∀ n : unsigned, (fin (unsigned.to_nat n) → expr) → expr
 
 definition expr.is_inhabited [instance] : inhabited expr :=
 inhabited.mk (expr.sort level.zero)
@@ -49,18 +49,18 @@ else ordering.gt
 
 meta_constant expr.fold {A :Type} : expr → A → (expr → unsigned → A → A) → A
 
-meta_constant expr.abstract_fv  : expr → name → expr
-meta_constant expr.abstract_fvs : expr → list name → expr
+meta_constant expr.abstract_local  : expr → name → expr
+meta_constant expr.abstract_locals : expr → list name → expr
 
 meta_constant expr.instantiate_var  : expr → expr → expr
 meta_constant expr.instantiate_vars : expr → list expr → expr
 
-meta_constant expr.has_var : expr → bool
-meta_constant expr.has_var_idx : expr → nat → bool
-meta_constant expr.has_free_var : expr → bool
+meta_constant expr.has_var      : expr → bool
+meta_constant expr.has_var_idx  : expr → nat → bool
+meta_constant expr.has_local    : expr → bool
 meta_constant expr.has_meta_var : expr → bool
-meta_constant expr.lift_vars  : expr → nat → nat → expr
-meta_constant expr.lower_vars : expr → nat → nat → expr
+meta_constant expr.lift_vars    : expr → nat → nat → expr
+meta_constant expr.lower_vars   : expr → nat → nat → expr
 
 namespace expr
 open bool decidable option

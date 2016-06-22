@@ -320,7 +320,7 @@ do u ← mk_meta_univ,
 private meta_definition get_arity_aux : expr → tactic nat
 | (expr.pi n bi d b) :=
   do m     ← mk_fresh_name,
-     l     ← return (expr.free_var m n bi d),
+     l     ← return (expr.local_const m n bi d),
      new_b ← whnf (expr.instantiate_var b l),
      r     ← get_arity_aux new_b,
      return (r + 1)

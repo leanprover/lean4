@@ -100,7 +100,7 @@ vm_obj expr_meta(vm_obj const & n, vm_obj const & t) {
     return to_obj(mk_metavar(to_name(n), to_expr(t)));
 }
 
-vm_obj expr_free_var(vm_obj const & n, vm_obj const & ppn, vm_obj const & bi, vm_obj const & t) {
+vm_obj expr_local_const(vm_obj const & n, vm_obj const & ppn, vm_obj const & bi, vm_obj const & t) {
     return to_obj(mk_local(to_name(n), to_name(ppn), to_expr(t), to_binder_info(bi)));
 }
 
@@ -231,7 +231,7 @@ vm_obj expr_instantiate_vars(vm_obj const & e, vm_obj const & vs) {
     return to_obj(instantiate(to_expr(e), vs_buf.size(), vs_buf.data()));
 }
 
-vm_obj expr_abstract_fv(vm_obj const & e, vm_obj const & n) {
+vm_obj expr_abstract_local(vm_obj const & e, vm_obj const & n) {
     return to_obj(abstract_local(to_expr(e), to_name(n)));
 }
 
@@ -245,7 +245,7 @@ static void list_name_to_buffer_local(vm_obj const & o, buffer<expr> & r) {
     }
 }
 
-vm_obj expr_abstract_fvs(vm_obj const & e, vm_obj const & ns) {
+vm_obj expr_abstract_locals(vm_obj const & e, vm_obj const & ns) {
     buffer<expr> locals;
     list_name_to_buffer_local(ns, locals);
     return to_obj(abstract_locals(to_expr(e), locals.size(), locals.data()));
@@ -263,7 +263,7 @@ vm_obj expr_has_var_idx(vm_obj const & e, vm_obj const & u) {
     }
 }
 
-vm_obj expr_has_free_var(vm_obj const & e) {
+vm_obj expr_has_local(vm_obj const & e) {
     return mk_vm_bool(has_local(to_expr(e)));
 }
 
@@ -294,7 +294,7 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort);
     DECLARE_VM_BUILTIN(name({"expr", "const"}),            expr_const);
     DECLARE_VM_BUILTIN(name({"expr", "meta"}),             expr_meta);
-    DECLARE_VM_BUILTIN(name({"expr", "free_var"}),         expr_free_var);
+    DECLARE_VM_BUILTIN(name({"expr", "local_const"}),      expr_local_const);
     DECLARE_VM_BUILTIN(name({"expr", "app"}),              expr_app);
     DECLARE_VM_BUILTIN(name({"expr", "lam"}),              expr_lam);
     DECLARE_VM_BUILTIN(name({"expr", "pi"}),               expr_pi);
@@ -310,11 +310,11 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "fold"}),             expr_fold);
     DECLARE_VM_BUILTIN(name({"expr", "instantiate_var"}),  expr_instantiate_var);
     DECLARE_VM_BUILTIN(name({"expr", "instantiate_vars"}), expr_instantiate_vars);
-    DECLARE_VM_BUILTIN(name({"expr", "abstract_fv"}),      expr_abstract_fv);
-    DECLARE_VM_BUILTIN(name({"expr", "abstract_fvs"}),     expr_abstract_fvs);
+    DECLARE_VM_BUILTIN(name({"expr", "abstract_local"}),   expr_abstract_local);
+    DECLARE_VM_BUILTIN(name({"expr", "abstract_locals"}),  expr_abstract_locals);
     DECLARE_VM_BUILTIN(name({"expr", "has_var"}),          expr_has_var);
     DECLARE_VM_BUILTIN(name({"expr", "has_var_idx"}),      expr_has_var_idx);
-    DECLARE_VM_BUILTIN(name({"expr", "has_free_var"}),     expr_has_free_var);
+    DECLARE_VM_BUILTIN(name({"expr", "has_local"}),        expr_has_local);
     DECLARE_VM_BUILTIN(name({"expr", "has_meta_var"}),     expr_has_meta_var);
     DECLARE_VM_BUILTIN(name({"expr", "lift_vars"}),        expr_lift_vars);
     DECLARE_VM_BUILTIN(name({"expr", "lower_vars"}),       expr_lower_vars);

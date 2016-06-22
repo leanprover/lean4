@@ -129,7 +129,7 @@ fun_info get_fun_info(type_context & ctx, expr const & e) {
     return r;
 }
 
-fun_info get(type_context & ctx, expr const & e, unsigned nargs) {
+fun_info get_fun_info(type_context & ctx, expr const & e, unsigned nargs) {
     fun_info_cache & cache = get_fun_info_cache_for(ctx.env());
     expr_unsigned key(e, nargs);
     auto it = cache.m_cache_get_nargs.find(key);
@@ -149,8 +149,8 @@ static bool has_nonprop_nonsubsingleton_fwd_dep(unsigned i, buffer<param_info> c
         param_info const & fwd_pinfo = pinfos[j];
         if (fwd_pinfo.is_prop() || fwd_pinfo.is_subsingleton())
             continue;
-        auto const & fwd_deps        = fwd_pinfo.get_dependencies();
-        if (std::find(fwd_deps.begin(), fwd_deps.end(), i) != fwd_deps.end()) {
+        auto const & back_deps        = fwd_pinfo.get_back_deps();
+        if (std::find(back_deps.begin(), back_deps.end(), i) != back_deps.end()) {
             return true;
         }
     }
@@ -161,7 +161,7 @@ static void trace_if_unsupported(type_context & ctx,
                           expr const & fn, buffer<expr> const & args, unsigned prefix_sz, fun_info const & result) {
     if (!is_fun_info_trace_enabled())
         return;
-    fun_info info = get(ctx, fn, args.size());
+    fun_info info = get_fun_info(ctx, fn, args.size());
     buffer<param_info> pinfos;
     to_buffer(info.get_params_info(), pinfos);
     /* Check if all remaining arguments are nondependent or
@@ -169,7 +169,7 @@ static void trace_if_unsupported(type_context & ctx,
     unsigned i = prefix_sz;
     for (; i < pinfos.size(); i++) {
         param_info const & pinfo = pinfos[i];
-        if (!pinfo.is_dep())
+        if (!pinfo.has_fwd_deps())
             continue; /* nondependent argument */
         if (has_nonprop_nonsubsingleton_fwd_dep(i, pinfos))
             break; /* failed i-th argument has a forward dependent that is not a prop nor a subsingleton */
@@ -235,7 +235,7 @@ unsigned get_specialization_prefix_size(type_context & ctx, expr const & fn, uns
     auto it = cache.m_cache_prefix.find(key);
     if (it != cache.m_cache_prefix.end())
         return it->second;
-    fun_info info = get(ctx, fn, nargs);
+    fun_info info = get_fun_info(ctx, fn, nargs);
     buffer<param_info> pinfos;
     to_buffer(info.get_params_info(), pinfos);
     /* Compute "prefix": 0 or more parameters s.t.
@@ -243,7 +243,7 @@ unsigned get_specialization_prefix_size(type_context & ctx, expr const & fn, uns
     unsigned i = 0;
     for (; i < pinfos.size(); i++) {
         param_info const & pinfo = pinfos[i];
-        if (!pinfo.is_dep())
+        if (!pinfo.has_fwd_deps())
             break;
         /* search for forward dependency that is not a proposition nor a subsingleton */
         if (!has_nonprop_nonsubsingleton_fwd_dep(i, pinfos))

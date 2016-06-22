@@ -37,6 +37,10 @@ vm_obj format_space() {
     return to_obj(space());
 }
 
+vm_obj format_nil() {
+    return to_obj(format());
+}
+
 vm_obj format_compose(vm_obj const & fmt1, vm_obj const & fmt2) {
     return to_obj(compose(to_format(fmt1), to_format(fmt2)));
 }
@@ -83,6 +87,10 @@ vm_obj format_of_options(vm_obj const & opts) {
     return to_obj(pp(to_options(opts)));
 }
 
+vm_obj format_is_nil(vm_obj const & fmt) {
+    return mk_vm_bool(to_format(fmt).is_nil_fmt());
+}
+
 vm_obj trace_fmt(vm_obj const &, vm_obj const & fmt, vm_obj const & fn) {
     tout() << to_format(fmt) << "\n";
     return invoke(fn, mk_vm_unit());
@@ -91,6 +99,7 @@ vm_obj trace_fmt(vm_obj const &, vm_obj const & fmt, vm_obj const & fn) {
 void initialize_vm_format() {
     DECLARE_VM_BUILTIN(name({"format", "line"}),             format_line);
     DECLARE_VM_BUILTIN(name({"format", "space"}),            format_space);
+    DECLARE_VM_BUILTIN(name({"format", "nil"}),              format_nil);
     DECLARE_VM_BUILTIN(name({"format", "compose"}),          format_compose);
     DECLARE_VM_BUILTIN(name({"format", "nest"}),             format_nest);
     DECLARE_VM_BUILTIN(name({"format", "highlight"}),        format_highlight);
@@ -101,6 +110,7 @@ void initialize_vm_format() {
     DECLARE_VM_BUILTIN(name({"format", "to_string"}),        format_to_string);
     DECLARE_VM_BUILTIN(name({"format", "print_using"}),      format_print_using);
     DECLARE_VM_BUILTIN(name({"format", "of_options"}),       format_of_options);
+    DECLARE_VM_BUILTIN(name({"format", "is_nil"}),           format_is_nil);
     DECLARE_VM_BUILTIN(name("trace_fmt"),                    trace_fmt);
 }
 

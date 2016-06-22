@@ -149,9 +149,6 @@ reserve infix ` ≈ `:50
 reserve infix ` ~ `:50
 reserve infix ` ≡ `:50
 
-reserve infixr ` ∘ `:60                 -- input with \comp
-reserve postfix `⁻¹`:std.prec.max_plus  -- input with \sy or \-1 or \inv
-
 reserve infixl ` ⬝ `:75
 reserve infixr ` ▸ `:75
 reserve infixr ` ▹ `:75
@@ -170,6 +167,9 @@ reserve infixl ` / `:70
 reserve infixl ` % `:70
 reserve prefix `-`:100
 reserve infix ` ^ `:80
+
+reserve infixr ` ∘ `:90                 -- input with \comp
+reserve postfix `⁻¹`:std.prec.max_plus  -- input with \sy or \-1 or \inv
 
 reserve infix ` <= `:50
 reserve infix ` ≤ `:50

@@ -36,19 +36,19 @@ class param_info {
     unsigned       m_inst_implicit:1;
     unsigned       m_prop:1;
     unsigned       m_subsingleton:1;
-    unsigned       m_is_dep:1; // true if rest depends on this parameter
-    list<unsigned> m_deps; // previous arguments it depends on
+    unsigned       m_has_fwd_deps:1; // true if rest depends on this parameter
+    list<unsigned> m_back_deps;      // previous arguments it depends on
 public:
-    param_info(bool spec, bool imp, bool inst_imp, bool prop, bool sub, bool is_dep, list<unsigned> const & deps):
+    param_info(bool spec, bool imp, bool inst_imp, bool prop, bool sub, bool has_fwd_deps, list<unsigned> const & back_deps):
         m_specialized(spec), m_implicit(imp), m_inst_implicit(inst_imp), m_prop(prop), m_subsingleton(sub),
-        m_is_dep(is_dep), m_deps(deps) {}
-    list<unsigned> const & get_dependencies() const { return m_deps; }
+        m_has_fwd_deps(has_fwd_deps), m_back_deps(back_deps) {}
+    list<unsigned> const & get_back_deps() const { return m_back_deps; }
     bool specialized() const { return m_specialized; }
     bool is_implicit() const { return m_implicit; }
     bool is_inst_implicit() const { return m_inst_implicit; }
     bool is_prop() const { return m_prop; }
     bool is_subsingleton() const { return m_subsingleton; }
-    bool is_dep() const { return m_is_dep; }
+    bool has_fwd_deps() const { return m_has_fwd_deps; }
     void set_specialized() { m_specialized = true; }
 };
 
@@ -56,14 +56,14 @@ public:
 class fun_info {
     unsigned         m_arity;
     list<param_info> m_params_info;
-    list<unsigned>   m_deps; // resulting type dependencies
+    list<unsigned>   m_result_deps; // resulting type dependencies
 public:
     fun_info():m_arity(0) {}
-    fun_info(unsigned arity, list<param_info> const & info, list<unsigned> const & deps):
-        m_arity(arity), m_params_info(info), m_deps(deps) {}
+    fun_info(unsigned arity, list<param_info> const & info, list<unsigned> const & result_deps):
+        m_arity(arity), m_params_info(info), m_result_deps(result_deps) {}
     unsigned get_arity() const { return m_arity; }
     list<param_info> const & get_params_info() const { return m_params_info; }
-    list<unsigned> const & get_result_dependencies() const { return m_deps; }
+    list<unsigned> const & get_result_deps() const { return m_result_deps; }
 };
 
 fun_info get_fun_info(type_context & ctx, expr const & fn);

@@ -12,6 +12,7 @@ inductive format.color :=
 meta_constant format : Type₁
 meta_constant format.line          : format
 meta_constant format.space         : format
+meta_constant format.nil           : format
 meta_constant format.compose       : format → format → format
 meta_constant format.nest          : nat → format → format
 meta_constant format.highlight     : format → color → format
@@ -21,7 +22,9 @@ meta_constant format.of_nat        : nat → format
 meta_constant format.flatten       : format → format
 meta_constant format.to_string     : format → options → string
 meta_constant format.of_options    : options → format
+meta_constant format.is_nil        : format → bool
 meta_constant trace_fmt {A : Type} : format → (unit → A) → A
+
 
 meta_definition format.is_inhabited [instance] : inhabited format :=
 inhabited.mk format.space
@@ -35,6 +38,9 @@ has_to_string.mk (λ f, format.to_string f options.mk)
 structure has_to_format [class] (A : Type) :=
 (to_format : A → format)
 
+meta_definition format_has_to_format [instance] : has_to_format format :=
+has_to_format.mk id
+
 meta_definition to_fmt {A : Type} [has_to_format A] : A → format :=
 has_to_format.to_format
 
@@ -43,6 +49,10 @@ attribute [coercion] of_string of_nat
 end format
 
 open format bool list
+
+meta_definition format.when {A : Type} [has_to_format A] : bool → A → format
+| tt a := to_fmt a
+| ff a := nil
 
 meta_definition options.has_to_format [instance] : has_to_format options :=
 has_to_format.mk (λ o, format.of_options o)
@@ -107,3 +117,19 @@ open subtype
 
 meta_definition subtype.has_to_format [instance] {A : Type} {P : A → Prop} [has_to_format A] : has_to_format (subtype P) :=
 has_to_format.mk (λ s, to_fmt (elt_of s))
+
+meta_definition format.bracket : string → string → format → format
+| o c f := to_fmt o + nest (length o) f + to_fmt c
+
+meta_definition format.paren (f : format) : format :=
+format.bracket "(" ")" f
+
+meta_definition format.cbrace (f : format) : format :=
+format.bracket "{" "}" f
+
+meta_definition format.sbracket (f : format) : format :=
+format.bracket "[" "]" f
+
+meta_definition format.dcbrace (f : format) : format :=
+-- TODO(Leo): backet uses length, but ⦃ is unicode, we need a function that computes the utf8 size of a string
+to_fmt "⦃" + nest 1 f + to_fmt "⦄"

@@ -5,8 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/vm/vm_name.h"
+#include "library/vm/vm_nat.h"
 #include "library/vm/vm_level.h"
 #include "library/vm/vm_expr.h"
+#include "library/vm/vm_list.h"
 
 namespace lean {
 template<typename A>
@@ -95,6 +97,10 @@ unsigned list_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
             lean_unreachable();
         }
     }
+}
+
+vm_obj to_obj(list<unsigned> const & ls) {
+    return to_vm_list(ls, [&](unsigned n) { return mk_vm_nat(n); });
 }
 
 void initialize_vm_list() {

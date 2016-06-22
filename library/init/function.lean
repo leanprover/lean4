@@ -10,12 +10,19 @@ import init.prod init.funext init.logic
 
 notation f ` $ `:1 a:0 := f a
 
-namespace function
-
 variables {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}
 
-definition comp [reducible] [unfold_full] (f : B → C) (g : A → B) : A → C :=
+inline definition function.comp [reducible] [unfold_full] (f : B → C) (g : A → B) : A → C :=
 λx, f (g x)
+
+inline definition function.dcomp [reducible] [unfold_full] {B : A → Type} {C : Π {x : A}, B x → Type}
+  (f : Π {x : A} (y : B x), C y) (g : Πx, B x) : Πx, C (g x) :=
+λx, f (g x)
+
+infixr  ` ∘ `      := function.comp
+infixr  ` ∘' `:80  := function.dcomp
+
+namespace function
 
 definition comp_right [reducible] [unfold_full] (f : B → B → B) (g : A → B) : B → A → B :=
 λ b a, f b (g a)
@@ -32,10 +39,6 @@ definition combine [reducible] [unfold_full] (f : A → B → C) (op : C → D �
 
 definition const [reducible] [unfold_full] (B : Type) (a : A) : B → A :=
 λx, a
-
-definition dcomp [reducible] [unfold_full] {B : A → Type} {C : Π {x : A}, B x → Type}
-  (f : Π {x : A} (y : B x), C y) (g : Πx, B x) : Πx, C (g x) :=
-λx, f (g x)
 
 definition swap [reducible] [unfold_full] {C : A → B → Type} (f : Πx y, C x y) : Πy x, C x y :=
 λy x, f x y
@@ -55,8 +58,6 @@ rfl
 theorem uncurry_curry (f : A × B → C) : uncurry (curry f) = f :=
 funext (λ p, match p with (a, b) := rfl end)
 
-infixr  ` ∘ `            := comp
-infixr  ` ∘' `:60        := dcomp
 infixl  ` on `:1         := on_fun
 notation f ` -[` op `]- ` g  := combine f op g
 

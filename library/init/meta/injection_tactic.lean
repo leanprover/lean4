@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.tactic
+import init.meta.tactic init.function
 
 namespace tactic
 open nat tactic option environment bool expr list
@@ -17,7 +17,7 @@ private meta_definition mk_intro_name : name → list name → name
 -- injection tactic
 private meta_definition injection_intro : expr → list name → tactic unit
 | (pi n bi b d) ns := do
-  Hname ← return (mk_intro_name n ns),
+  Hname ← return $ mk_intro_name n ns,
   H ← intro Hname,
   Ht ← infer_type H,
   match is_eq Ht with
@@ -55,7 +55,7 @@ do
        const_name (get_app_fn lhs) = const_name (get_app_fn rhs)
     then do
       tgt    ← target,
-      I_name ← return (name.get_prefix (const_name (get_app_fn lhs))),
+      I_name ← return $ name.get_prefix (const_name (get_app_fn lhs)),
       pr     ← mk_app (I_name <.> "no_confusion") [tgt, lhs, rhs, H],
       pr_type ← infer_type pr,
       pr_type ← whnf pr_type,

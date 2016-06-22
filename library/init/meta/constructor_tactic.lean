@@ -4,16 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.tactic
+import init.meta.tactic init.function
 
 namespace tactic
 open bool option list
 
 private meta_definition get_constructors_for (e : expr) : tactic (list name) :=
 do env ← get_env,
-   I   ← return (expr.const_name (expr.get_app_fn e)),
+   I   ← return $ expr.const_name (expr.get_app_fn e),
    when (environment.is_inductive env I = ff) (fail "constructor tactic failed, target is not an inductive datatype"),
-   return (environment.constructors_of env I)
+   return $ environment.constructors_of env I
 
 private meta_definition try_constructors : list name → tactic unit
 | []      := fail "constructor tactic failed, none of the constructors is applicable"
@@ -64,8 +64,8 @@ private meta_definition apply_num_metavars : expr → expr → nat → tactic ex
   match ftype' with
   | expr.pi _ _ d b := do
     a         ← mk_meta_var d,
-    new_f     ← return (expr.app f a),
-    new_ftype ← return (expr.instantiate_var b a),
+    new_f     ← return $ expr.app f a,
+    new_ftype ← return $ expr.instantiate_var b a,
     apply_num_metavars new_f new_ftype n
   | _           := failed
   end

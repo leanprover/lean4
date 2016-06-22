@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.tactic
+import init.meta.tactic init.function
 
 namespace tactic
 open expr bool option
@@ -12,7 +12,7 @@ open expr bool option
 private meta_definition relation_tactic (op_for : environment → name → option name) (tac_name : string) : tactic unit :=
 do tgt ← target,
    env ← get_env,
-   r   ← return (get_app_fn tgt),
+   r   ← return $ get_app_fn tgt,
    match op_for env (const_name r) with
    | some refl := mk_const refl >>= apply
    | none      := fail (tac_name + " tactic failed, target is not a reflexive relation application")

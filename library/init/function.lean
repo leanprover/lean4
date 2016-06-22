@@ -8,6 +8,8 @@ General operations on functions.
 prelude
 import init.prod init.funext init.logic
 
+notation f ` $ `:1 a:0 := f a
+
 namespace function
 
 variables {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}
@@ -56,7 +58,6 @@ funext (λ p, match p with (a, b) := rfl end)
 infixr  ` ∘ `            := comp
 infixr  ` ∘' `:60        := dcomp
 infixl  ` on `:1         := on_fun
-infixr  ` $ `:1          := app
 notation f ` -[` op `]- ` g  := combine f op g
 
 lemma left_id (f : A → B) : id ∘ f = f := rfl

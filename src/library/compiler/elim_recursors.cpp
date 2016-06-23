@@ -41,7 +41,7 @@ protected:
     typedef rb_map<unsigned, local_decl, unsigned_rev_cmp> idx2decls;
 
     void collect_locals(expr const & e, idx2decls & r) {
-        local_context const & lctx = m_ctx.lctx();
+        local_context const & lctx = ctx().lctx();
         for_each(e, [&](expr const & e, unsigned) {
                 if (is_local_decl_ref(e)) {
                     local_decl d = *lctx.get_local_decl(e);
@@ -109,7 +109,7 @@ protected:
         buffer<expr> abst_locals;
         aux = abstract_locals(aux, abst_locals);
         /* Create expr (rec_fn) for representing recursive calls. */
-        expr aux_decl_type = m_ctx.infer(aux);
+        expr aux_decl_type = ctx().infer(aux);
         name aux_decl_name = mk_fresh_name(m_env, m_prefix, "_rec", m_idx);
         expr rec_fn = mk_rec_fn_macro(aux_decl_name, aux_decl_type);
         /* Create new locals for aux.
@@ -132,23 +132,23 @@ protected:
            These parameters are fixed in recursive calls. */
         rec_fn = mk_app(rec_fn, aux_decl_params);
         /* Create locals for indices and major premise */
-        expr aux_body_type = m_ctx.infer(aux_body);
+        expr aux_body_type = ctx().infer(aux_body);
         buffer<expr> indices;
         for (unsigned i = 0; i < nindices; i++) {
-            aux_body_type = m_ctx.whnf(aux_body_type);
+            aux_body_type = ctx().whnf(aux_body_type);
             lean_assert(is_pi(aux_body_type));
             expr index = locals.push_local_from_binding(aux_body_type);
             indices.push_back(index);
             aux_body_type = instantiate(binding_body(aux_body_type), index);
         }
-        aux_body_type = m_ctx.whnf(aux_body_type);
+        aux_body_type = ctx().whnf(aux_body_type);
         lean_assert(is_pi(aux_body_type));
         expr major = locals.push_local_from_binding(aux_body_type);
         /* Make sure result is eta-expanded */
         buffer<expr> extra_args; /* to make sure result is eta-expanded */
         aux_body_type = instantiate(binding_body(aux_body_type), major);
         while (true) {
-            aux_body_type = m_ctx.whnf(aux_body_type);
+            aux_body_type = ctx().whnf(aux_body_type);
             if (!is_pi(aux_body_type))
                 break;
             expr new_arg = locals.push_local_from_binding(aux_body_type);
@@ -182,11 +182,11 @@ protected:
                     minor = instantiate(binding_body(minor), minor_local);
                     /* Check if minor_local is recursive data */
                     type_context::tmp_locals aux_locals(m_ctx);
-                    expr minor_local_type = m_ctx.whnf(ctx().infer(minor_local));
+                    expr minor_local_type = ctx().whnf(ctx().infer(minor_local));
                     // tout() << ">>> minor_local_type: " << minor_local_type << "\n";
                     while (is_pi(minor_local_type)) {
                         expr aux_local = aux_locals.push_local_from_binding(minor_local_type);
-                        minor_local_type = m_ctx.whnf(instantiate(binding_body(minor_local_type), aux_local));
+                        minor_local_type = ctx().whnf(instantiate(binding_body(minor_local_type), aux_local));
                     }
                     if (is_constant(get_app_fn(minor_local_type), I_name)) {
                         /* Recursive data, we must update minor_recs */

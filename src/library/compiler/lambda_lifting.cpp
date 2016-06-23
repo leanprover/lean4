@@ -43,7 +43,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
     typedef rb_map<unsigned, local_decl, unsigned_rev_cmp> idx2decls;
 
     void collect_locals(expr const & e, idx2decls & r) {
-        local_context const & lctx = m_ctx.lctx();
+        local_context const & lctx = ctx().lctx();
         for_each(e, [&](expr const & e, unsigned) {
                 if (is_local_decl_ref(e)) {
                     local_decl d = *lctx.get_local_decl(e);

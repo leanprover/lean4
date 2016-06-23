@@ -584,10 +584,10 @@ static environment unify_cmd(parser & p) {
     e1 = convert_metavars(mctx, e1);
     e2 = convert_metavars(mctx, e2);
     tout() << e1 << " =?= " << e2 << "\n";
-    type_context ctx(env, p.get_options(), mctx, lctx, transparency_mode::Semireducible);
-    bool success = ctx.is_def_eq(e1, e2);
+    aux_type_context ctx(env, p.get_options(), mctx, lctx, transparency_mode::Semireducible);
+    bool success = ctx->is_def_eq(e1, e2);
     if (success)
-        tout() << ctx.instantiate_mvars(e1) << " =?= " << ctx.instantiate_mvars(e2) << "\n";
+        tout() << ctx->instantiate_mvars(e1) << " =?= " << ctx->instantiate_mvars(e2) << "\n";
     flycheck_information info(p.ios());
     if (info.enabled()) {
         p.display_information_pos(p.cmd_pos());
@@ -680,7 +680,7 @@ static environment elab_cmd(parser & p) {
     expr new_e; level_param_names ls;
     std::tie(new_e, ls) = p.elaborate(e);
     metavar_context mctx;
-    type_context ctx(p.env(), p.get_options(), mctx, p.get_local_context());
+    aux_type_context ctx(p.env(), p.get_options(), mctx, p.get_local_context());
     auto out = regular(p.env(), p.ios(), ctx);
     out << ">> " << e << "\n";
     out << ">> " << new_e << "\n";

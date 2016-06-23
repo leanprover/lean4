@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <vector>
 #include <unordered_map>
+#include "util/flet.h"
 #include "kernel/environment.h"
 #include "kernel/abstract_type_context.h"
 #include "kernel/expr_maps.h"
@@ -145,8 +146,7 @@ class type_context : public abstract_type_context {
 
     metavar_context &  m_mctx;
     local_context      m_lctx;
-    cache *            m_cache;
-    bool               m_cache_owner;
+    cache &            m_cache;
     /* We only cache results when m_used_assignment is false */
     bool               m_used_assignment;
     transparency_mode  m_transparency_mode;
@@ -179,13 +179,10 @@ class type_context : public abstract_type_context {
 public:
     type_context(metavar_context & mctx, local_context const & lctx, type_context_cache & cache,
                  transparency_mode m = transparency_mode::Reducible);
-    /* Constructor for creating a type_context with a temporary type_context_cache object. */
-    type_context(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
-                 transparency_mode m = transparency_mode::Reducible);
     virtual ~type_context();
 
-    virtual environment const & env() const override { return m_cache->m_env; }
-    options const & get_options() const { return m_cache->m_options; }
+    virtual environment const & env() const override { return m_cache.m_env; }
+    options const & get_options() const { return m_cache.m_options; }
     local_context const & lctx() const { return m_lctx; }
 
     bool is_def_eq(level const & l1, level const & l2);
@@ -242,6 +239,12 @@ public:
 
     transparency_mode mode() const { return m_transparency_mode; }
     unsigned mode_idx() const { return static_cast<unsigned>(mode()); }
+
+    struct transparency_scope : public flet<transparency_mode> {
+        transparency_scope(type_context & ctx, transparency_mode m):
+            flet<transparency_mode>(ctx.m_transparency_mode, m) {
+        }
+    };
 
     /* --------------------------
        Temporary assignment mode.
@@ -460,21 +463,32 @@ public:
 
 /** Auxiliary object for automating the creation of temporary type_context objects */
 class aux_type_context {
-    metavar_context m_mctx;
-    type_context    m_ctx;
+    type_context_cache m_cache;
+    metavar_context    m_mctx;
+    type_context       m_ctx;
 public:
+    aux_type_context(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
+                     transparency_mode m = transparency_mode::Reducible):
+        m_cache(env, opts),
+        m_mctx(mctx),
+        m_ctx(m_mctx, lctx, m_cache, m) {}
+
     aux_type_context(environment const & env, options const & opts, local_context const & lctx,
                      transparency_mode m = transparency_mode::Reducible):
-        m_ctx(env, opts, m_mctx, lctx, m) {}
+        m_cache(env, opts),
+        m_ctx(m_mctx, lctx, m_cache, m) {}
+
     aux_type_context(environment const & env, options const & opts,
                      transparency_mode m = transparency_mode::Reducible):
-        m_ctx(env, opts, m_mctx, local_context(), m) {}
+        m_cache(env, opts),
+        m_ctx(m_mctx, local_context(), m_cache, m) {}
+
     aux_type_context(environment const & env, transparency_mode m = transparency_mode::Reducible):
-        m_ctx(env, options(), m_mctx, local_context(), m) {}
+        m_cache(env, options()),
+        m_ctx(m_mctx, local_context(), m_cache, m) {}
 
     type_context & get() { return m_ctx; }
     operator type_context&() { return m_ctx; }
-    operator type_context() { return m_ctx; }
     type_context * operator->() { return &m_ctx; }
 };
 

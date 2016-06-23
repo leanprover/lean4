@@ -1971,8 +1971,8 @@ void old_elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name
                 throw_elaborator_exception("tactic failed, result contains meta-variables", r);
             }
             metavar_decl main_decl = *mctx.get_metavar_decl(new_ts->main());
-            type_context aux_ctx(env(), opts, mctx, main_decl.get_context());
-            r = aux_ctx.mk_lambda(new_locals, r);
+            aux_type_context aux_ctx(env(), opts, mctx, main_decl.get_context());
+            r = aux_ctx->mk_lambda(new_locals, r);
             subst.assign(mvar, r);
         }
     }

@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 namespace lean {
 compiler_step_visitor::compiler_step_visitor(environment const & env):
     m_env(env),
-    m_ctx(m_env, options(), m_mctx, m_lctx, transparency_mode::All) {
+    m_ctx(env, transparency_mode::All) {
 }
 
 compiler_step_visitor::~compiler_step_visitor() {

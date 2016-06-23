@@ -88,7 +88,7 @@ format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g) con
     metavar_decl decl          = *mctx().get_metavar_decl(g);
     local_context const & lctx = decl.get_context();
     metavar_context mctx_tmp   = mctx();
-    type_context ctx(env(), get_options(), mctx_tmp, lctx, transparency_mode::All);
+    aux_type_context ctx(env(), get_options(), mctx_tmp, lctx, transparency_mode::All);
     formatter fmt              = fmtf(env(), get_options(), ctx);
     format r                   = lctx.pp(fmt);
     unsigned indent            = get_pp_indent(get_options());
@@ -236,7 +236,7 @@ vm_obj tactic_format_result(vm_obj const & o) {
     metavar_context mctx = s.mctx();
     expr r = mctx.instantiate_mvars(s.main());
     metavar_decl main_decl = *mctx.get_metavar_decl(s.main());
-    type_context ctx(s.env(), s.get_options(), mctx, main_decl.get_context(), transparency_mode::All);
+    aux_type_context ctx(s.env(), s.get_options(), mctx, main_decl.get_context(), transparency_mode::All);
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     formatter fmt = fmtf(s.env(), s.get_options(), ctx);
     return mk_tactic_success(to_obj(fmt(r)), s);

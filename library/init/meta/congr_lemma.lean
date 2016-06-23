@@ -26,26 +26,57 @@ structure congr_lemma :=
 (type : expr) (proof : expr) (arg_kids : list congr_arg_kind)
 
 namespace tactic
-meta_constant mk_congr_simp   : expr → tactic congr_lemma
-meta_constant mk_congr_simp_n : expr → nat → tactic congr_lemma
+meta_constant mk_congr_simp_core   : expr → transparency → tactic congr_lemma
+meta_constant mk_congr_simp_n_core : expr → nat → transparency → tactic congr_lemma
 /- Create a specialized theorem using (a prefix of) the arguments of the given application. -/
-meta_constant mk_specialized_congr_simp : expr → tactic congr_lemma
+meta_constant mk_specialized_congr_simp_core : expr → transparency → tactic congr_lemma
 
-meta_constant mk_congr   : expr → tactic congr_lemma
-meta_constant mk_congr_n : expr → nat → tactic congr_lemma
+meta_constant mk_congr_core   : expr → transparency → tactic congr_lemma
+meta_constant mk_congr_n_core : expr → nat → transparency → tactic congr_lemma
 /- Create a specialized theorem using (a prefix of) the arguments of the given application. -/
-meta_constant mk_specialized_congr : expr → tactic congr_lemma
+meta_constant mk_specialized_congr_core : expr → transparency → tactic congr_lemma
 
-meta_constant mk_hcongr   : expr → tactic congr_lemma
-meta_constant mk_hcongr_n : expr → nat → tactic congr_lemma
+meta_constant mk_hcongr_core   : expr → transparency → tactic congr_lemma
+meta_constant mk_hcongr_n_core : expr → nat → transparency → tactic congr_lemma
 
 /- If R is an equivalence relation, construct the congruence lemma
    R a1 a2 -> R b1 b2 -> (R a1 b1) <-> (R a2 b2) -/
-meta_constant mk_rel_iff_congr : expr → tactic congr_lemma
+meta_constant mk_rel_iff_congr_core : expr → transparency → tactic congr_lemma
 
 /- Similar to mk_rel_iff_congr
    It fails if propext is not available.
 
    R a1 a2 -> R b1 b2 -> (R a1 b1) = (R a2 b2) -/
-meta_constant mk_rel_eq_congr : expr → tactic congr_lemma
+meta_constant mk_rel_eq_congr_core : expr → transparency → tactic congr_lemma
+
+meta_definition mk_congr_simp (e : expr) : tactic congr_lemma :=
+mk_congr_simp_core e transparency.semireducible
+
+meta_definition mk_congr_simp_n (e : expr) (n : nat) : tactic congr_lemma :=
+mk_congr_simp_n_core e n transparency.semireducible
+
+meta_definition mk_specialized_congr_simp (e : expr) : tactic congr_lemma :=
+mk_specialized_congr_simp_core e transparency.semireducible
+
+meta_definition mk_congr (e : expr) : tactic congr_lemma :=
+mk_congr_core e transparency.semireducible
+
+meta_definition mk_congr_n (e : expr) (n : nat) : tactic congr_lemma :=
+mk_congr_n_core e n transparency.semireducible
+
+meta_definition mk_specialized_congr (e : expr) : tactic congr_lemma :=
+mk_specialized_congr_core e transparency.semireducible
+
+meta_definition mk_hcongr  (e : expr) : tactic congr_lemma :=
+mk_hcongr_core e transparency.semireducible
+
+meta_definition mk_hcongr_n (e : expr) (n : nat) : tactic congr_lemma :=
+mk_hcongr_n_core e n transparency.semireducible
+
+meta_definition mk_rel_iff_congr (R : expr) : tactic congr_lemma :=
+mk_rel_iff_congr_core R transparency.semireducible
+
+meta_definition mk_rel_eq_congr (R : expr) : tactic congr_lemma :=
+mk_rel_eq_congr_core R transparency.semireducible
+
 end tactic

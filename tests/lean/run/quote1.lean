@@ -8,6 +8,6 @@ by do
    a ← get_local "a",
    t1 ← mk_app "add" [a, a],
    t2 ← to_expr (foo (to_qexpr t1)),
-   trace_expr t2,
+   trace t2,
    r ← mk_app ("eq" <.> "refl") [a],
    exact r

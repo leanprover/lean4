@@ -36,7 +36,7 @@ example (a b : nat) : a = 0 → a = b :=
 by do
   intro "H",
   foo ← mk_const "foo",
-  trace_expr foo,
+  trace foo,
   apply foo,
   trace_state,
   assumption

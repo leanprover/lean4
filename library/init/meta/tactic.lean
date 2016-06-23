@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.trace init.meta.base_tactic init.meta.environment init.meta.qexpr
+import init.trace init.function
+import init.meta.base_tactic init.meta.environment init.meta.qexpr
 
 meta_constant tactic_state : Type₁
 
@@ -24,8 +25,23 @@ has_to_format.mk tactic_state.to_format
 
 meta_definition tactic [reducible] (A : Type) := base_tactic tactic_state A
 
+meta_definition tactic.format_expr (e : expr) : tactic format :=
+do s ← tactic.read, return (tactic_state.format_expr s e)
+
+structure has_to_tactic_format [class] (A : Type) :=
+(to_tactic_format : A → tactic format)
+
+meta_definition has_to_format_to_has_to_tactic_format [instance] (A : Type) [has_to_format A] : has_to_tactic_format A :=
+has_to_tactic_format.mk (return ∘ to_fmt)
+
+meta_definition expr_has_to_tactic_format [instance] : has_to_tactic_format expr :=
+has_to_tactic_format.mk tactic.format_expr
+
 namespace tactic
 open tactic_state
+
+meta_definition pp {A : Type} [has_to_tactic_format A] : A → tactic format :=
+has_to_tactic_format.to_tactic_format
 
 meta_definition get_env : tactic environment :=
 do s ← read,
@@ -47,23 +63,13 @@ meta_definition get_decl (n : name) : tactic declaration :=
 do s ← read,
    returnex (environment.get (env s) n)
 
-meta_definition trace (s : string) : tactic unit :=
-return (_root_.trace s (λ u, ()))
-
-meta_definition trace_fmt {A : Type} [has_to_format A] (a : A) : tactic unit :=
-return (_root_.trace_fmt (to_fmt a) (λ u, ()))
-
-/- Trace expression with respect to the main goal -/
-meta_definition trace_expr (e : expr) : tactic unit :=
-do s ← read,
-   trace_fmt (format_expr s e)
+meta_definition trace {A : Type} [has_to_tactic_format A] (a : A) : tactic unit :=
+do fmt ← pp a,
+   return (_root_.trace_fmt fmt (λ u, ()))
 
 meta_definition trace_state : tactic unit :=
 do s ← read,
-   trace_fmt (to_fmt s)
-
-meta_definition format_expr (e : expr) : tactic format :=
-do s ← read, return (tactic_state.format_expr s e)
+   trace (to_fmt s)
 
 inductive transparency :=
 | all | semireducible | reducible | none
@@ -198,7 +204,7 @@ meta_definition get_local_type (n : name) : tactic expr :=
 get_local n >>= infer_type
 
 meta_definition trace_result : tactic unit :=
-format_result >>= trace_fmt
+format_result >>= trace
 
 open bool
 /- (find_same_type t es) tries to find in es an expression with type definitionally equal to t -/
@@ -248,12 +254,12 @@ do gs ← get_goals,
    end
 
 private meta_definition all_goals_core : tactic unit → list expr → list expr → tactic unit
-| tac []        acc := set_goals acc
-| tac (g :: gs) acc :=
+| tac []        ac := set_goals ac
+| tac (g :: gs) ac :=
   do set_goals [g],
      tac,
      new_gs ← get_goals,
-     all_goals_core tac gs (acc ++ new_gs)
+     all_goals_core tac gs (ac ++ new_gs)
 
 /- Apply the given tactic to all goals. -/
 meta_definition all_goals (tac : tactic unit) : tactic unit :=

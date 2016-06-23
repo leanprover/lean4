@@ -14,5 +14,5 @@ by do
   H ← get_local "H",
   f ← get_local "f",
   r ← mk_app "congr_arg" [f, H],
-  trace_expr r,
+  trace r,
   exact r

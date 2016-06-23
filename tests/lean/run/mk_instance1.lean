@@ -9,13 +9,13 @@ by do t ← mk_app "decidable_eq" [expr.const "nat" []],
       i : expr ← mk_instance t,
       a ← get_local "a",
       b ← get_local "b",
-      trace_expr i,
+      trace i,
       exact (i a b)
 
 example (a b : nat) : decidable (a = b) :=
 by do t ← target,
       i ← mk_instance t,
-      trace_expr i,
+      trace i,
       exact i
 
 example (a b : nat) : decidable (a = b) :=

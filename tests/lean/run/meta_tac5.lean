@@ -11,10 +11,10 @@ by do
     rename "H2" "H5",
     trace_state,
     r ← get_local_type "H5",
-    trace_expr r,
+    trace r,
     trace "----------",
     assumption,
     trace_state,
     r ← result,
-    trace_expr r,
+    trace r,
     return ()

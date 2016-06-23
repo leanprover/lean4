@@ -11,7 +11,7 @@ definition bla (a : nat) : boo (to_bool (a > 0)) → foo nat nat :=
 example : true :=
 by do
   bla ← mk_const "bla",
-  infer_type bla >>= trace_expr,
+  infer_type bla >>= trace,
   n   ← get_arity bla,
   trace ("n arity: " + to_string n),
   when (n ≠ 3) (fail "bla is expected to have arity 3"),

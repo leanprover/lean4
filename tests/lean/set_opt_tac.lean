@@ -4,10 +4,10 @@ example (a b : nat) (H : a + b = 0) : a = a :=
 by do
   H ← get_local "H",
   t ← infer_type H,
-  trace_expr t,
+  trace t,
   set_bool_option ("pp" <.> "all") tt,
   trace "after pp.all true",
-  trace_expr t,
+  trace t,
   rfl ← mk_const "rfl",
   apply rfl
 

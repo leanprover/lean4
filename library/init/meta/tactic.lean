@@ -171,6 +171,7 @@ meta_constant abstract_hash : expr → tactic nat
 /- Return the "weight" of the given expr while ignoring inst_implicit arguments,
    and proofs. -/
 meta_constant abstract_weight : expr → tactic nat
+meta_constant abstract_eq     : expr → expr → tactic bool
 open list nat
 
 /- Add (H : T := pr) to the current goal -/

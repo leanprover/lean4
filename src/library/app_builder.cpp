@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/match.h"
 #include "library/constants.h"
+#include "library/cache_helper.h"
 #include "library/app_builder.h"
 #include "library/tmp_type_context.h"
 #include "library/relation_manager.h"
@@ -120,24 +121,13 @@ public:
     environment const & env() const { return m_env; }
 };
 
-struct app_builder_cache_helper {
-    typedef std::unique_ptr<app_builder_cache> cache_ptr;
-    cache_ptr m_cache_ptr[4];
-
-    void ensure_compatible(type_context const & ctx) {
-        unsigned midx = ctx.mode_idx();
-        if (!m_cache_ptr[midx] || !is_eqp(ctx.env(), m_cache_ptr[midx]->env())) {
-            m_cache_ptr[midx].reset(new app_builder_cache(ctx.env()));
-        }
-    }
-};
+typedef cache_compatibility_helper<app_builder_cache> app_builder_cache_helper;
 
 MK_THREAD_LOCAL_GET_DEF(app_builder_cache_helper, get_abch);
 
 /** Return an app_builder_cache for the transparency_mode in ctx, and compatible with the environment. */
 app_builder_cache & get_app_builder_cache_for(type_context const & ctx) {
-    get_abch().ensure_compatible(ctx);
-    return *get_abch().m_cache_ptr[ctx.mode_idx()].get();
+    return get_abch().get_cache_for(ctx);
 }
 
 /** \brief Helper for creating simple applications where some arguments are inferred using

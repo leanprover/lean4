@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/expr_unsigned_map.h"
 #include "library/fun_info.h"
+#include "library/cache_helper.h"
 
 namespace lean {
 static name * g_fun_info = nullptr;
@@ -41,28 +42,19 @@ struct fun_info_cache {
     narg_cache   m_cache_get_spec;
     prefix_cache m_cache_prefix;
     fun_info_cache(environment const & env):m_env(env) {}
+    environment const & env() const { return m_env; }
 };
 
-struct fun_info_cache_helper {
-    typedef std::unique_ptr<fun_info_cache> cache_ptr;
-    cache_ptr m_cache_ptr;
-
-    void ensure_compatible(environment const & env) {
-        if (!m_cache_ptr || !is_eqp(env, m_cache_ptr->m_env)) {
-            m_cache_ptr.reset(new fun_info_cache(env));
-        }
-    }
-};
+typedef cache_compatibility_helper<fun_info_cache> fun_info_cache_helper;
 
 MK_THREAD_LOCAL_GET_DEF(fun_info_cache_helper, get_fich);
 
-fun_info_cache & get_fun_info_cache_for(environment const & env) {
-    get_fich().ensure_compatible(env);
-    return *get_fich().m_cache_ptr.get();
+fun_info_cache & get_fun_info_cache_for(type_context const & ctx) {
+    return get_fich().get_cache_for(ctx);
 }
 
 void clear_fun_info_cache() {
-    get_fich().m_cache_ptr.reset();
+    get_fich().clear();
 }
 
 static list<unsigned> collect_deps(expr const & type, buffer<expr> const & locals) {
@@ -118,7 +110,7 @@ static list<unsigned> get_core(type_context & ctx,
 }
 
 fun_info get_fun_info(type_context & ctx, expr const & e) {
-    fun_info_cache & cache = get_fun_info_cache_for(ctx.env());
+    fun_info_cache & cache = get_fun_info_cache_for(ctx);
     auto it = cache.m_cache_get.find(e);
     if (it != cache.m_cache_get.end())
         return it->second;
@@ -130,7 +122,7 @@ fun_info get_fun_info(type_context & ctx, expr const & e) {
 }
 
 fun_info get_fun_info(type_context & ctx, expr const & e, unsigned nargs) {
-    fun_info_cache & cache = get_fun_info_cache_for(ctx.env());
+    fun_info_cache & cache = get_fun_info_cache_for(ctx);
     expr_unsigned key(e, nargs);
     auto it = cache.m_cache_get_nargs.find(key);
     if (it != cache.m_cache_get_nargs.end())
@@ -230,7 +222,7 @@ unsigned get_specialization_prefix_size(type_context & ctx, expr const & fn, uns
 
       This procecure returns the size of group a)
     */
-    fun_info_cache & cache = get_fun_info_cache_for(ctx.env());
+    fun_info_cache & cache = get_fun_info_cache_for(ctx);
     expr_unsigned key(fn, nargs);
     auto it = cache.m_cache_prefix.find(key);
     if (it != cache.m_cache_prefix.end())
@@ -263,7 +255,7 @@ fun_info get_specialized_fun_info(type_context & ctx, expr const & a) {
     expr g = a;
     for (unsigned i = 0; i < num_rest_args; i++)
         g = app_fn(g);
-    fun_info_cache & cache = get_fun_info_cache_for(ctx.env());
+    fun_info_cache & cache = get_fun_info_cache_for(ctx);
     expr_unsigned key(g, num_rest_args);
     auto it = cache.m_cache_get_spec.find(key);
     if (it != cache.m_cache_get_spec.end()) {

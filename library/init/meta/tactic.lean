@@ -165,6 +165,10 @@ meta_constant get_univ_assignment : level → tactic level
    Fail if argument is not a meta-variable or if it is not assigned. -/
 meta_constant get_assignment : expr → tactic expr
 meta_constant mk_fresh_name : tactic name
+/- Return a hash code for expr that ignores inst_implicit arguments,
+   and proofs. -/
+meta_constant abstract_hash : expr → tactic nat
+
 open list nat
 
 /- Add (H : T := pr) to the current goal -/

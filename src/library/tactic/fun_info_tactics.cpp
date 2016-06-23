@@ -65,32 +65,40 @@ fun_info get_fun_info(type_context & ctx, expr const & fn, unsigned nargs);
 fun_info get_specialized_fun_info(type_context & ctx, expr const & app);
 unsigned get_specialization_prefix_size(type_context & ctx, expr const & fn, unsigned nargs);
 
-vm_obj tactic_get_fun_info(vm_obj const & fn, vm_obj const & s0) {
-    tactic_state const & s = to_tactic_state(s0);
-    metavar_context mctx_tmp   = s.mctx();
-    type_context ctx = mk_type_context_for(s, mctx_tmp);
-    return mk_tactic_success(to_obj(get_fun_info(ctx, to_expr(fn))), s);
+#define TRY   LEAN_TACTIC_TRY
+#define CATCH LEAN_TACTIC_CATCH(to_tactic_state(s))
+
+static vm_obj mk_result(fun_info const & info, vm_obj const & s) {
+    return mk_tactic_success(to_obj(info), to_tactic_state(s));
 }
 
-vm_obj tactic_get_fun_info_n(vm_obj const & fn, vm_obj const & n, vm_obj const & s0) {
-    tactic_state const & s = to_tactic_state(s0);
-    metavar_context mctx_tmp   = s.mctx();
-    type_context ctx = mk_type_context_for(s, mctx_tmp);
-    return mk_tactic_success(to_obj(get_fun_info(ctx, to_expr(fn), force_to_unsigned(n, 0))), s);
+vm_obj tactic_get_fun_info(vm_obj const & fn, vm_obj const & s) {
+    TRY;
+    type_context_scope ctx(s);
+    return mk_result(get_fun_info(ctx, to_expr(fn)), s);
+    CATCH;
 }
 
-vm_obj tactic_get_spec_fun_info(vm_obj const & app, vm_obj const & s0) {
-    tactic_state const & s = to_tactic_state(s0);
-    metavar_context mctx_tmp   = s.mctx();
-    type_context ctx = mk_type_context_for(s, mctx_tmp);
-    return mk_tactic_success(to_obj(get_specialized_fun_info(ctx, to_expr(app))), s);
+vm_obj tactic_get_fun_info_n(vm_obj const & fn, vm_obj const & n, vm_obj const & s) {
+    TRY;
+    type_context_scope ctx(s);
+    return mk_result(get_fun_info(ctx, to_expr(fn), force_to_unsigned(n, 0)), s);
+    CATCH;
 }
 
-vm_obj tactic_get_spec_prefix_size(vm_obj const & fn, vm_obj const & n, vm_obj const & s0) {
-    tactic_state const & s = to_tactic_state(s0);
-    metavar_context mctx_tmp   = s.mctx();
-    type_context ctx = mk_type_context_for(s, mctx_tmp);
-    return mk_tactic_success(to_obj(get_specialization_prefix_size(ctx, to_expr(fn), force_to_unsigned(n, 0))), s);
+vm_obj tactic_get_spec_fun_info(vm_obj const & app, vm_obj const & s) {
+    TRY;
+    type_context_scope ctx(s);
+    return mk_result(get_specialized_fun_info(ctx, to_expr(app)), s);
+    CATCH;
+}
+
+vm_obj tactic_get_spec_prefix_size(vm_obj const & fn, vm_obj const & n, vm_obj const & s) {
+    TRY;
+    type_context_scope ctx(s);
+    return mk_tactic_success(mk_vm_nat(get_specialization_prefix_size(ctx, to_expr(fn), force_to_unsigned(n, 0))),
+                             to_tactic_state(s));
+    CATCH;
 }
 
 void initialize_fun_info_tactics() {

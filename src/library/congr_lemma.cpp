@@ -72,7 +72,7 @@ struct congr_lemma_manager {
             return cast(e, type, tail(deps), eqs);
         } else {
             expr lhs, rhs;
-            lean_verify(is_eq(mlocal_type(*major), lhs, rhs));
+            lean_verify(is_eq(m_ctx.infer(*major), lhs, rhs));
             lean_assert(is_local(lhs));
             lean_assert(is_local(rhs));
             // We compute the new type by replacing rhs with lhs, and major with (refl lhs).
@@ -147,7 +147,7 @@ struct congr_lemma_manager {
         } else {
             expr major = *eqs[i];
             expr x_1, x_2;
-            lean_verify(is_eq(mlocal_type(major), x_1, x_2));
+            lean_verify(is_eq(m_ctx.infer(major), x_1, x_2));
             lean_assert(is_local(x_1));
             lean_assert(is_local(x_2));
             expr motive_eq = mk_eq(m_ctx, lhs, rhs);
@@ -491,9 +491,9 @@ struct congr_lemma_manager {
             lean_assert(closed(type) && closed(motive));
             expr minor  = mk_hcongr_proof(type);
             expr major  = eq_pr;
-            if (is_heq(mlocal_type(eq_pr)))
+            if (is_heq(m_ctx.infer(eq_pr)))
                 major  = mk_eq_of_heq(m_ctx, eq_pr);
-            motive      = Fun(b, motive);
+            motive      = m_ctx.mk_lambda({b}, motive);
             return m_ctx.mk_lambda({a, b, eq_pr}, mk_eq_rec(m_ctx, motive, minor, major));
         }
     }

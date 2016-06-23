@@ -123,6 +123,19 @@ inline type_context mk_type_context_for(tactic_state const & s, metavar_context 
     Code                                                \
 })
 
+struct type_context_scope {
+    metavar_context m_mctx;
+    type_context    m_ctx;
+    type_context_scope(tactic_state const & s, transparency_mode m = transparency_mode::Semireducible):
+        m_mctx(s.mctx()), m_ctx(mk_type_context_for(s, m_mctx, m)) {}
+    type_context_scope(vm_obj const & s, transparency_mode m = transparency_mode::Semireducible):
+        type_context_scope(to_tactic_state(s), m) {}
+    operator type_context &() { return m_ctx; }
+};
+
+#define LEAN_TACTIC_TRY try {
+#define LEAN_TACTIC_CATCH(S) } catch (exception const & ex) { return mk_tactic_exception(ex, S); }
+
 void initialize_tactic_state();
 void finalize_tactic_state();
 }

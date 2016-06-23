@@ -79,8 +79,7 @@ tactic_state set_mctx_goals(tactic_state const & s, metavar_context const & mctx
 }
 
 format tactic_state::pp_expr(formatter_factory const & fmtf, expr const & e) const {
-    metavar_context mctx_tmp   = mctx();
-    type_context ctx = mk_type_context_for(*this, mctx_tmp, transparency_mode::All);
+    type_context_scope ctx(*this, transparency_mode::All);
     formatter fmt = fmtf(env(), get_options(), ctx);
     return fmt(e);
 }

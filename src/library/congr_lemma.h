@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 enum class congr_arg_kind {
-    /* It is a parameter for the congruence lemma, the parit occurs in the left and right hand sides. */
+    /* It is a parameter for the congruence lemma, the parameter occurs in the left and right hand sides. */
     Fixed,
     /* It is not a parameter for the congruence lemma, the lemma was specialized for this parameter.
        This only happens if the parameter is a subsingleton/proposition, and other parameters depend on it. */

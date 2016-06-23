@@ -78,10 +78,10 @@ meta_definition fun_info.has_to_format [instance] : has_to_format fun_info :=
 has_to_format.mk fun_info.to_format
 
 namespace tactic
-meta_constant get_fun_info       : expr → tactic fun_info
+meta_constant get_fun_info_core   : expr → transparency → tactic fun_info
 /- (get_fun_info fn n) return information assuming the function has only n arguments.
    The tactic fail if n > length (params (get_fun_info fn)) -/
-meta_constant get_fun_info_n     : expr → nat → tactic fun_info
+meta_constant get_fun_info_n_core : expr → nat → transparency → tactic fun_info
 /- (get_spec_func_info t) return information for the function application t of the form
    (f a_1 ... a_n).
    This tactic is more precise than (get_fun_info f) and (get_fun_info_n f)
@@ -99,6 +99,18 @@ meta_constant get_fun_info_n     : expr → nat → tactic fun_info
 
     Remark: get_fun_info and get_spec_func_info return the same result for all but
     is_prop and is_subsingleton. -/
-meta_constant get_spec_fun_info   : expr → tactic fun_info
-meta_constant get_spec_prefix_size : expr → nat → tactic nat
+meta_constant get_spec_fun_info_core   : expr → transparency → tactic fun_info
+meta_constant get_spec_prefix_size_core : expr → nat → transparency → tactic nat
+
+meta_definition get_fun_info (e : expr) : tactic fun_info :=
+get_fun_info_core e transparency.semireducible
+
+meta_definition get_fun_info_n (e : expr) (n : nat) : tactic fun_info :=
+get_fun_info_n_core e n transparency.semireducible
+
+meta_definition get_spec_fun_info (e : expr) : tactic fun_info :=
+get_spec_fun_info_core e transparency.semireducible
+
+meta_definition get_spec_prefix_size (e : expr) (n : nat) : tactic nat :=
+get_spec_prefix_size_core e n transparency.semireducible
 end tactic

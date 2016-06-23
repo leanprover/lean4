@@ -130,6 +130,8 @@ struct type_context_scope {
         m_mctx(s.mctx()), m_ctx(mk_type_context_for(s, m_mctx, m)) {}
     type_context_scope(vm_obj const & s, transparency_mode m = transparency_mode::Semireducible):
         type_context_scope(to_tactic_state(s), m) {}
+    type_context_scope(vm_obj const & s, vm_obj const & m):
+        type_context_scope(to_tactic_state(s), to_transparency_mode(m)) {}
     operator type_context &() { return m_ctx; }
 };
 

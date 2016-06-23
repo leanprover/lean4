@@ -57,11 +57,8 @@ namespace tactic
 variables {S A : Type}
 open base_tactic_result
 
-meta_definition fail (e : string) : base_tactic S A :=
-λ s, exception A (λ u, to_fmt e) s
-
-meta_definition fail_fmt (e : format) : base_tactic S A :=
-λ s, exception A (λ u, e) s
+meta_definition fail {A B : Type} [has_to_format B] (msg : B) : base_tactic S A :=
+λ s, exception A (λ u, to_fmt msg) s
 
 meta_definition failed : base_tactic S A :=
 fail "failed"

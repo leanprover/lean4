@@ -168,7 +168,9 @@ meta_constant mk_fresh_name : tactic name
 /- Return a hash code for expr that ignores inst_implicit arguments,
    and proofs. -/
 meta_constant abstract_hash : expr → tactic nat
-
+/- Return the "weight" of the given expr while ignoring inst_implicit arguments,
+   and proofs. -/
+meta_constant abstract_weight : expr → tactic nat
 open list nat
 
 /- Add (H : T := pr) to the current goal -/

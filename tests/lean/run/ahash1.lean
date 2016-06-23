@@ -16,3 +16,12 @@ by do
   if h₁ ≠ h₂ then fail "ERROR" else skip,
   if h₁ = h₃ then fail "UNEXPECTED" else skip,
   constructor
+
+example (a b : nat)
+  (H1 : ∀ d c : nat, @add nat nat_has_add1 a b = c + d)
+  (H2 : ∀ d c : nat, @add nat nat_has_add2 a b = c + d)
+  : true :=
+by do
+  get_local "H1" >>= infer_type >>= abstract_hash >>= trace,
+  get_local "H2" >>= infer_type >>= abstract_hash >>= trace,
+  constructor

@@ -41,15 +41,15 @@ abstract_expr_cache & get_abstract_cache_for(type_context const & ctx) {
     }                                                   \
 }
 
-struct abstract_hash_fn {
+struct abstract_fn {
     type_context &                   m_ctx;
     expr_map<unsigned> &             m_cache;
     buffer<expr>                     m_locals;
     type_context::transparency_scope m_scope;
 
-    abstract_hash_fn(type_context & ctx):
+    abstract_fn(type_context & ctx, expr_map<unsigned> & cache):
         m_ctx(ctx),
-        m_cache(get_abstract_cache_for(ctx).m_hash_cache),
+        m_cache(cache),
         m_scope(m_ctx, transparency_mode::All) {}
 
     expr instantiate_locals(expr const & e) {
@@ -70,6 +70,12 @@ struct abstract_hash_fn {
 
     void pop() {
         m_locals.pop_back();
+    }
+};
+
+struct abstract_hash_fn : public abstract_fn {
+    abstract_hash_fn(type_context & ctx):
+        abstract_fn(ctx, get_abstract_cache_for(ctx).m_hash_cache) {
     }
 
     unsigned hash(expr const & e) {
@@ -132,5 +138,86 @@ struct abstract_hash_fn {
 unsigned abstract_hash(type_context & ctx, expr const & e) {
     EASY_HASH(e);
     return abstract_hash_fn(ctx)(e);
+}
+
+#define EASY_WEIGHT(e) {                                \
+    switch (e.kind()) {                                 \
+    case expr_kind::Constant: case expr_kind::Local:    \
+    case expr_kind::Meta:     case expr_kind::Sort:     \
+    case expr_kind::Var:                                \
+        return 1;                                       \
+    default:                                            \
+        break;                                          \
+    }                                                   \
+}
+
+/* TODO(Leo): this class is too similar to abstract_hash_fn, both are folding expr.
+   We should try to merge both implementations. */
+struct abstract_weight_fn : public abstract_fn {
+    abstract_weight_fn(type_context & ctx):
+        abstract_fn(ctx, get_abstract_cache_for(ctx).m_weight_cache) {}
+
+    unsigned weight(expr const & e) {
+        EASY_WEIGHT(e);
+
+        auto it = m_cache.find(e);
+        if (it != m_cache.end())
+            return it->second;
+
+        unsigned r = 0;
+
+        switch (e.kind()) {
+        case expr_kind::Constant: case expr_kind::Local:
+        case expr_kind::Meta:     case expr_kind::Sort:
+        case expr_kind::Var:
+            lean_unreachable();
+        case expr_kind::Lambda:
+        case expr_kind::Pi:
+            r  = weight(binding_domain(e));
+            push_local(binding_name(e), binding_domain(e));
+            r += weight(binding_body(e));
+            pop();
+            break;
+        case expr_kind::Let:
+            r  = weight(let_type(e));
+            r += weight(let_value(e));
+            push_let(let_name(e), let_type(e), let_value(e));
+            r += weight(let_body(e));
+            pop();
+            break;
+        case expr_kind::Macro:
+            r = 0;
+            for (unsigned i = 0; i < macro_num_args(e); i++)
+                r += weight(macro_arg(e, i));
+            break;
+        case expr_kind::App:
+            buffer<expr> args;
+            expr const & f = get_app_args(e, args);
+            r = weight(f);
+            fun_info info  = get_fun_info(m_ctx, instantiate_locals(f), args.size());
+            unsigned i = 0;
+            for (param_info const & pinfo : info.get_params_info()) {
+                lean_assert(i < args.size());
+                if (!pinfo.is_inst_implicit() && !pinfo.is_prop()) {
+                    r += weight(args[i]);
+                }
+                i++;
+            }
+            /* Remark: the property (i == args.size()) does not necessarily hold here.
+               This can happen whenever the arity of f depends on its arguments. */
+            break;
+        }
+        m_cache.insert(mk_pair(e, r));
+        return r;
+    }
+
+    unsigned operator()(expr const & e) {
+        return weight(e);
+    }
+};
+
+unsigned abstract_weight(type_context & ctx, expr const & e) {
+    EASY_WEIGHT(e);
+    return abstract_weight_fn(ctx)(e);
 }
 }

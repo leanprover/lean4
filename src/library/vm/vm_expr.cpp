@@ -289,6 +289,11 @@ vm_obj expr_lower_vars(vm_obj const & e, vm_obj const & n1, vm_obj const & n2) {
         return e;
 }
 
+vm_obj expr_hash(vm_obj const & e) {
+    unsigned r = to_expr(e).hash() % LEAN_MAX_SMALL_NAT;
+    return mk_vm_simple(r); // make sure it is a simple value
+}
+
 void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "var"}),              expr_var);
     DECLARE_VM_BUILTIN(name({"expr", "sort"}),             expr_sort);
@@ -318,6 +323,7 @@ void initialize_vm_expr() {
     DECLARE_VM_BUILTIN(name({"expr", "has_meta_var"}),     expr_has_meta_var);
     DECLARE_VM_BUILTIN(name({"expr", "lift_vars"}),        expr_lift_vars);
     DECLARE_VM_BUILTIN(name({"expr", "lower_vars"}),       expr_lower_vars);
+    DECLARE_VM_BUILTIN(name({"expr", "hash"}),             expr_hash);
     DECLARE_VM_CASES_BUILTIN(name({"expr", "cases_on"}),   expr_cases_on);
 }
 

@@ -40,6 +40,8 @@ meta_constant expr.to_string : expr → string
 meta_definition expr.has_to_string [instance] : has_to_string expr :=
 has_to_string.mk expr.to_string
 
+meta_constant expr.hash : expr → nat
+
 meta_constant expr.lt : expr → expr → bool
 meta_constant expr.lex_lt : expr → expr → bool
 meta_definition expr.cmp (a b : expr) : ordering :=

@@ -98,6 +98,8 @@ struct defeq_canonize_fn {
         auto it = m_cache.m_C.find(e);
         if (it != m_cache.m_C.end()) {
             expr e1 = it->second;
+            if (e1 == e)
+                return e;
             expr e2 = canonize(e1);
             if (e2 != e1) {
                 replace_C(e, e2);

@@ -11,6 +11,8 @@ Author: Daniel Selsam
 #include "kernel/inductive/inductive.h"
 #include "library/trace.h"
 #include "library/util.h"
+#include "library/fun_info.h"
+#include "library/defeq_canonizer.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/defeq_simplifier/defeq_simplifier.h"
@@ -30,6 +32,9 @@ Author: Daniel Selsam
 #ifndef LEAN_DEFAULT_DEFEQ_SIMPLIFY_MEMOIZE
 #define LEAN_DEFAULT_DEFEQ_SIMPLIFY_MEMOIZE true
 #endif
+#ifndef LEAN_DEFAULT_DEFEQ_SIMPLIFY_CANONIZE_PROOFS
+#define LEAN_DEFAULT_DEFEQ_SIMPLIFY_CANONIZE_PROOFS false
+#endif
 
 namespace lean {
 
@@ -40,6 +45,7 @@ static name * g_simplify_max_rewrite_rounds  = nullptr;
 static name * g_simplify_top_down            = nullptr;
 static name * g_simplify_exhaustive          = nullptr;
 static name * g_simplify_memoize             = nullptr;
+static name * g_simplify_canonize_proofs     = nullptr;
 
 static unsigned get_simplify_max_simp_rounds(options const & o) {
     return o.get_unsigned(*g_simplify_max_simp_rounds, LEAN_DEFAULT_DEFEQ_SIMPLIFY_MAX_SIMP_ROUNDS);
@@ -61,6 +67,10 @@ static bool get_simplify_memoize(options const & o) {
     return o.get_bool(*g_simplify_memoize, LEAN_DEFAULT_DEFEQ_SIMPLIFY_MEMOIZE);
 }
 
+static bool get_simplify_canonize_proofs(options const & o) {
+    return o.get_bool(*g_simplify_canonize_proofs, LEAN_DEFAULT_DEFEQ_SIMPLIFY_CANONIZE_PROOFS);
+}
+
 /* Main simplifier class */
 class defeq_simplify_fn {
     type_context           & m_ctx;
@@ -70,12 +80,15 @@ class defeq_simplify_fn {
     unsigned                 m_num_simp_rounds{0};
     unsigned                 m_num_rewrite_rounds{0};
 
+    bool                     m_need_restart;
+
     /* Options */
     unsigned                 m_max_simp_rounds;
     unsigned                 m_max_rewrite_rounds;
     bool                     m_top_down;
     bool                     m_exhaustive;
     bool                     m_memoize;
+    bool                     m_canonize_proofs;
 
     /* Cache */
     expr_struct_map<expr>    m_cache;
@@ -163,14 +176,32 @@ class defeq_simplify_fn {
     expr defeq_simplify_app(expr const & e) {
         buffer<expr> args;
         bool modified = false;
-        expr f = get_app_rev_args(e, args);
-        for (expr & a : args) {
-            expr new_a = a;
-            if (!m_ctx.is_prop(m_ctx.infer(a)))
-                new_a = defeq_simplify(a);
-            if (new_a != a)
+        expr f        = get_app_args(e, args);
+        fun_info info = get_fun_info(m_ctx, f, args.size());
+        unsigned i    = 0;
+        for (param_info const & pinfo : info.get_params_info()) {
+            lean_assert(i < args.size());
+            expr new_a;
+            if (pinfo.is_inst_implicit() || (m_canonize_proofs && pinfo.is_prop())) {
+                new_a = defeq_canonize(m_ctx, args[i], m_need_restart);
+                lean_trace(name({"defeq_simplifier", "canonize"}),
+                           tout() << "\n" << args[i] << "\n===>\n" << new_a << "\n";);
+            } else if (pinfo.is_prop() || pinfo.is_subsingleton()) {
+                /* Ignore propositions and subsingletons */
+                new_a = args[i];
+            } else {
+                new_a = defeq_simplify(args[i]);
+            }
+            if (new_a != args[i])
                 modified = true;
-            a = new_a;
+            args[i] = new_a;
+            i++;
+        }
+        for (; i < args.size(); i++) {
+            expr new_a = defeq_simplify(args[i]);
+            if (new_a != args[i])
+                modified = true;
+            args[i] = new_a;
         }
 
         /*
@@ -185,7 +216,7 @@ class defeq_simplify_fn {
         if (!modified)
             return e;
 
-        expr r = mk_rev_app(f, args);
+        expr r = mk_app(f, args);
 
         if (is_constant(f) && env().is_recursor(const_name(f))) {
             return defeq_simplify(r);
@@ -285,14 +316,21 @@ public:
         m_max_rewrite_rounds(get_simplify_max_rewrite_rounds(ctx.get_options())),
         m_top_down(get_simplify_top_down(ctx.get_options())),
         m_exhaustive(get_simplify_exhaustive(ctx.get_options())),
-        m_memoize(get_simplify_memoize(ctx.get_options())) {
+        m_memoize(get_simplify_memoize(ctx.get_options())),
+        m_canonize_proofs(get_simplify_canonize_proofs(ctx.get_options())) {
     }
 
     ~defeq_simplify_fn() {}
 
-    expr operator()(expr const & e)  {
+    expr operator()(expr e) {
         scope_trace_env scope(env(), m_ctx);
-        return defeq_simplify(e);
+        while (true) {
+            m_need_restart = false;
+            e = defeq_simplify(e);
+            if (!m_need_restart)
+                return e;
+            m_cache.clear();
+        }
     }
 };
 
@@ -318,12 +356,14 @@ void initialize_defeq_simplifier() {
     register_trace_class("defeq_simplifier");
     register_trace_class(name({"defeq_simplifier", "rewrite"}));
     register_trace_class(name({"defeq_simplifier", "failure"}));
+    register_trace_class(name({"defeq_simplifier", "canonize"}));
 
     g_simplify_max_simp_rounds    = new name{"defeq_simplify", "max_simp_rounds"};
     g_simplify_max_rewrite_rounds = new name{"defeq_simplify", "max_rewrite_rounds"};
     g_simplify_top_down           = new name{"defeq_simplify", "top_down"};
     g_simplify_exhaustive         = new name{"defeq_simplify", "exhaustive"};
     g_simplify_memoize            = new name{"defeq_simplify", "memoize"};
+    g_simplify_canonize_proofs    = new name{"defeq_simplify", "canonize_proofs"};
 
     register_unsigned_option(*g_simplify_max_simp_rounds, LEAN_DEFAULT_DEFEQ_SIMPLIFY_MAX_SIMP_ROUNDS,
                              "(defeq_simplify) max allowed simplification rounds");
@@ -335,6 +375,8 @@ void initialize_defeq_simplifier() {
                          "(defeq_simplify) simplify exhaustively");
     register_bool_option(*g_simplify_memoize, LEAN_DEFAULT_DEFEQ_SIMPLIFY_MEMOIZE,
                          "(defeq_simplify) memoize simplifications");
+    register_bool_option(*g_simplify_canonize_proofs, LEAN_DEFAULT_DEFEQ_SIMPLIFY_CANONIZE_PROOFS,
+                         "(defeq_simplify) use type class instance canonizer to canonize proofs too");
 }
 
 void finalize_defeq_simplifier() {
@@ -343,5 +385,6 @@ void finalize_defeq_simplifier() {
     delete g_simplify_top_down;
     delete g_simplify_max_rewrite_rounds;
     delete g_simplify_max_simp_rounds;
+    delete g_simplify_canonize_proofs;
 }
 }

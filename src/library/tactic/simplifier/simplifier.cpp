@@ -602,8 +602,14 @@ simp_result simplifier::try_congr(expr const & e, user_congr_lemma const & cl) {
                 h_lhs = tmp_tctx.instantiate_mvars(h_lhs);
                 lean_assert(!has_metavar(h_lhs));
 
-                // TODO(dhs): freset cache?
-                simp_result r_congr_hyp = simplify(h_lhs);
+                simp_result r_congr_hyp;
+                if (m_contextual) {
+                    freset<simplify_cache> reset_cache(m_cache);
+                    r_congr_hyp = simplify(h_lhs);
+                } else {
+                    r_congr_hyp = simplify(h_lhs);
+                }
+
                 if (r_congr_hyp.has_proof()) simplified = true;
                 r_congr_hyp = finalize(r_congr_hyp);
                 expr hyp = finalize(r_congr_hyp).get_proof();

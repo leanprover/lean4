@@ -11,6 +11,8 @@ Author: Daniel Selsam
 #include "kernel/inductive/inductive.h"
 #include "library/trace.h"
 #include "library/util.h"
+#include "library/vm/vm_expr.h"
+#include "library/tactic/tactic_state.h"
 #include "library/tactic/defeq_simplifier/defeq_simplifier.h"
 
 #ifndef LEAN_DEFAULT_DEFEQ_SIMPLIFY_MAX_SIMP_ROUNDS
@@ -294,9 +296,28 @@ public:
     }
 };
 
-/* Setup and teardown */
+/* Entry point */
+expr defeq_simplify(type_context & ctx, defeq_simp_lemmas const & simp_lemmas, expr const & e) {
+    return defeq_simplify_fn(ctx, simp_lemmas)(e);
+}
 
+vm_obj tactic_defeq_simp(vm_obj const & e, vm_obj const & s0) {
+    tactic_state const & s   = to_tactic_state(s0);
+    try {
+        metavar_context mctx_tmp   = s.mctx();
+        type_context ctx           = mk_type_context_for(s, mctx_tmp);
+        defeq_simp_lemmas lemmas   = get_defeq_simp_lemmas(s.env());
+        expr new_e                 = defeq_simplify(ctx, lemmas, to_expr(e));
+        return mk_tactic_success(to_obj(new_e), s);
+    } catch (exception & e) {
+        return mk_tactic_exception(e, s);
+    }
+}
+
+/* Setup and teardown */
 void initialize_defeq_simplifier() {
+    DECLARE_VM_BUILTIN(name({"tactic", "defeq_simp"}),          tactic_defeq_simp);
+
     register_trace_class("defeq_simplifier");
     register_trace_class(name({"defeq_simplifier", "rewrite"}));
     register_trace_class(name({"defeq_simplifier", "failure"}));
@@ -325,10 +346,5 @@ void finalize_defeq_simplifier() {
     delete g_simplify_top_down;
     delete g_simplify_max_rewrite_rounds;
     delete g_simplify_max_simp_rounds;
-}
-
-/* Entry point */
-expr defeq_simplify(type_context & ctx, defeq_simp_lemmas const & simp_lemmas, expr const & e) {
-    return defeq_simplify_fn(ctx, simp_lemmas)(e);
 }
 }

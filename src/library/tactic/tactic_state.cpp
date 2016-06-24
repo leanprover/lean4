@@ -18,7 +18,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm_level.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_list.h"
-#include "library/tactic/defeq_simplifier/defeq_simplifier.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
@@ -369,19 +368,6 @@ vm_obj tactic_to_expr(vm_obj const & qe, vm_obj const & s) {
     return mk_tactic_success(qe, to_tactic_state(s));
 }
 
-vm_obj tactic_defeq_simp(vm_obj const & e, vm_obj const & s0) {
-    tactic_state const & s   = to_tactic_state(s0);
-    try {
-        metavar_context mctx_tmp   = s.mctx();
-        type_context ctx           = mk_type_context_for(s, mctx_tmp);
-        defeq_simp_lemmas lemmas   = get_defeq_simp_lemmas(s.env());
-        expr new_e                 = defeq_simplify(ctx, lemmas, to_expr(e));
-        return mk_tactic_success(to_obj(new_e), s);
-    } catch (exception & e) {
-        return mk_tactic_exception(e, s);
-    }
-}
-
 vm_obj rotate_left(unsigned n, tactic_state const & s) {
     buffer<expr> gs;
     to_buffer(s.goals(), gs);
@@ -490,7 +476,6 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "get_local"}),           tactic_get_local);
     DECLARE_VM_BUILTIN(name({"tactic", "local_context"}),       tactic_local_context);
     DECLARE_VM_BUILTIN(name({"tactic", "to_expr"}),             tactic_to_expr);
-    DECLARE_VM_BUILTIN(name({"tactic", "defeq_simp"}),          tactic_defeq_simp);
     DECLARE_VM_BUILTIN(name({"tactic", "rotate_left"}),         tactic_rotate_left);
     DECLARE_VM_BUILTIN(name({"tactic", "get_goals"}),           tactic_get_goals);
     DECLARE_VM_BUILTIN(name({"tactic", "set_goals"}),           tactic_set_goals);

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/trace.h"
 #include "library/util.h"
+#include "library/cache_helper.h"
 #include "library/vm/vm_environment.h"
 #include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_format.h"
@@ -458,6 +459,13 @@ vm_obj tactic_state_set_options(vm_obj const & s, vm_obj const & o) {
 
 vm_obj tactic_mk_fresh_name(vm_obj const & s) {
     return mk_tactic_success(to_obj(mk_fresh_name()), to_tactic_state(s));
+}
+
+typedef transparencyless_cache_compatibility_helper<vm_state> vm_state_cache_helper;
+MK_THREAD_LOCAL_GET_DEF(vm_state_cache_helper, get_vmsc);
+
+vm_state & get_tactic_vm_state(environment const & env) {
+    return get_vmsc().get_cache_for(env);
 }
 
 void initialize_tactic_state() {

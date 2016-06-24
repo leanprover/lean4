@@ -138,6 +138,8 @@ struct type_context_scope {
 #define LEAN_TACTIC_TRY try {
 #define LEAN_TACTIC_CATCH(S) } catch (exception const & ex) { return mk_tactic_exception(ex, S); }
 
+vm_state & get_tactic_vm_state(environment const & env);
+
 void initialize_tactic_state();
 void finalize_tactic_state();
 }

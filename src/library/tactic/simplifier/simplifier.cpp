@@ -27,10 +27,12 @@ Author: Daniel Selsam
 #include "library/app_builder.h"
 #include "library/congr_lemma.h"
 #include "library/fun_info.h"
+#include "library/vm/vm_expr.h"
+#include "library/tactic/tactic_state.h"
+#include "library/tactic/app_builder_tactics.h"
 #include "library/tactic/simplifier/simplifier.h"
 #include "library/tactic/simplifier/simp_lemmas.h"
 #include "library/tactic/simplifier/ceqv.h"
-#include "library/tactic/app_builder_tactics.h"
 
 #ifndef LEAN_DEFAULT_SIMPLIFY_MAX_STEPS
 #define LEAN_DEFAULT_SIMPLIFY_MAX_STEPS 1000
@@ -759,8 +761,28 @@ expr simplifier::remove_unnecessary_casts(expr const & e) {
     return mk_app(f, args);
 }
 
-/* Setup and teardown */
+vm_obj tactic_simp(vm_obj const & e, vm_obj const & s0) {
+    tactic_state const & s   = to_tactic_state(s0);
+    try {
+        // TODO(dhs): use type_context_scope for this
+        metavar_context mctx_tmp   = s.mctx();
+        type_context tctx           = mk_type_context_for(s, mctx_tmp, transparency_mode::Reducible);
+        simp_lemmas lemmas         = get_simp_lemmas(s.env());
+        expr target                = *(s.get_main_goal());
+//        name rel                   = (is_standard(s.env()) && tctx.is_prop(target)) ? get_iff_name() : get_eq_name();
+        name rel                   = get_iff_name();
+        simp_result result         = simplify(tctx, rel, lemmas, to_expr(e));
+        if (result.has_proof()) {
+            return mk_tactic_success(mk_vm_pair(to_obj(result.get_new()), to_obj(result.get_proof())), s);
+        } else {
+            return mk_tactic_exception("simp tactic failed to simplify", s);
+        }
+    } catch (exception & e) {
+        return mk_tactic_exception(e, s);
+    }
+}
 
+/* Setup and teardown */
 void initialize_simplifier() {
     register_trace_class("simplifier");
     register_trace_class(name({"simplifier", "rewrite"}));
@@ -788,6 +810,8 @@ void initialize_simplifier() {
                          "(simplify) use contextual simplification");
     register_bool_option(*g_simplify_numerals, LEAN_DEFAULT_SIMPLIFY_NUMERALS,
                          "(simplify) simplify (+, *, -, /) over numerals");
+
+    DECLARE_VM_BUILTIN(name({"tactic", "simplify"}),            tactic_simp);
 }
 
 void finalize_simplifier() {

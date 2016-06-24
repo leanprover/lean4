@@ -81,7 +81,7 @@ struct defeq_canonize_fn {
 
     void insert_M(name const & h, expr const & e) {
         list<expr> const * lst = m_cache.m_M.find(h);
-        if (*lst) {
+        if (lst) {
             m_cache.m_M.insert(h, cons(e, *lst));
         } else {
             m_cache.m_M.insert(h, to_list(e));

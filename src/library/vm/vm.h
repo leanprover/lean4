@@ -564,6 +564,23 @@ public:
     vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj const & a3, vm_obj const & a4,
                   vm_obj const & a5, vm_obj const & a6, vm_obj const & a7, vm_obj const & a8);
     vm_obj invoke(vm_obj const & fn, unsigned nargs, vm_obj const * args);
+
+    /** \brief Invoke fn_idx with nargs arguments and return the result */
+    vm_obj invoke(unsigned fn_idx, unsigned nargs, vm_obj const * as);
+    vm_obj invoke(unsigned fn_idx, std::initializer_list<vm_obj> const & as) {
+        return invoke(fn_idx, as.size(), as.begin());
+    }
+    vm_obj invoke(unsigned fn_idx, vm_obj const & a) {
+        return invoke(fn_idx, 1, &a);
+    }
+
+    vm_obj invoke(name const & fn, unsigned nargs, vm_obj const * as);
+    vm_obj invoke(name const & fn, std::initializer_list<vm_obj> const & as) {
+        return invoke(fn, as.size(), as.begin());
+    }
+    vm_obj invoke(name const & fn, vm_obj const & a) {
+        return invoke(fn, 1, &a);
+    }
 };
 
 /** \brief Return reference to thread local VM state object. */

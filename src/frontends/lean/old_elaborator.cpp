@@ -1920,16 +1920,7 @@ optional<tactic_state> old_elaborator::execute_tactic(expr const & tactic, tacti
     new_env = new_env.add(cd);
     new_env = vm_compile(new_env, new_env.get(tactic_name));
     vm_state S(new_env);
-    vm_obj initial_state = to_obj(s);
-    S.push(initial_state);
-    vm_decl d = *S.get_decl(tactic_name);
-    S.invoke_fn(tactic_name);
-    if (d.get_arity() == 0) {
-        /* main returned a closure, it did not process initial_state yet.
-           So, we force the execution. */
-        S.apply();
-    }
-    vm_obj r = S.top();
+    vm_obj r = S.invoke(tactic_name, to_obj(s));
     if (optional<tactic_state> new_s = is_tactic_success(r)) {
         return some_tactic_state(*new_s);
     } else if (optional<pair<format, tactic_state>> ex = is_tactic_exception(S, opts, r)) {

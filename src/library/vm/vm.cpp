@@ -1120,6 +1120,27 @@ static void to_cbuffer(vm_obj const & fn, buffer<vm_obj> & args) {
     }
 }
 
+vm_obj vm_state::invoke(unsigned fn_idx, unsigned nargs, vm_obj const * as) {
+    lean_assert(fn_idx < m_decls.size());
+    vm_decl const & d = m_decls[fn_idx];
+    lean_assert(d.get_arity() <= nargs);
+    std::copy(as, as + nargs, std::back_inserter(m_stack));
+    invoke_fn(fn_idx);
+    if (d.get_arity() < nargs)
+        apply(nargs - d.get_arity());
+    vm_obj r = m_stack.back();
+    m_stack.pop_back();
+    return r;
+}
+
+vm_obj vm_state::invoke(name const & fn, unsigned nargs, vm_obj const * as) {
+    if (auto r = m_fn_name2idx.find(fn)) {
+        return invoke(*r, nargs, as);
+    } else {
+        throw exception(sstream() << "VM does not have code for '" << fn << "'");
+    }
+}
+
 vm_obj vm_state::invoke(vm_obj const & fn, vm_obj const & a1) {
     unsigned fn_idx   = cfn_idx(fn);
     vm_decl const & d = m_decls[fn_idx];

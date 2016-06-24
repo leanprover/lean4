@@ -301,22 +301,19 @@ expr defeq_simplify(type_context & ctx, defeq_simp_lemmas const & simp_lemmas, e
     return defeq_simplify_fn(ctx, simp_lemmas)(e);
 }
 
-vm_obj tactic_defeq_simp(vm_obj const & e, vm_obj const & s0) {
-    tactic_state const & s   = to_tactic_state(s0);
-    try {
-        metavar_context mctx_tmp   = s.mctx();
-        type_context ctx           = mk_type_context_for(s, mctx_tmp);
-        defeq_simp_lemmas lemmas   = get_defeq_simp_lemmas(s.env());
-        expr new_e                 = defeq_simplify(ctx, lemmas, to_expr(e));
-        return mk_tactic_success(to_obj(new_e), s);
-    } catch (exception & e) {
-        return mk_tactic_exception(e, s);
-    }
+vm_obj tactic_defeq_simp(vm_obj const & e, vm_obj const & m, vm_obj const & s0) {
+    type_context_scope ctx(s0, m);
+    tactic_state const & s    = to_tactic_state(s0);
+    LEAN_TACTIC_TRY;
+    defeq_simp_lemmas lemmas  = get_defeq_simp_lemmas(s.env());
+    expr new_e                = defeq_simplify(ctx, lemmas, to_expr(e));
+    return mk_tactic_success(to_obj(new_e), s);
+    LEAN_TACTIC_CATCH(s);
 }
 
 /* Setup and teardown */
 void initialize_defeq_simplifier() {
-    DECLARE_VM_BUILTIN(name({"tactic", "defeq_simp"}),          tactic_defeq_simp);
+    DECLARE_VM_BUILTIN(name({"tactic", "defeq_simp_core"}), tactic_defeq_simp);
 
     register_trace_class("defeq_simplifier");
     register_trace_class(name({"defeq_simplifier", "rewrite"}));

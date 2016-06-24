@@ -132,7 +132,7 @@ meta_constant is_class      : expr → tactic bool
 meta_constant mk_instance   : expr → tactic expr
 /- Simplify the given expression using [defeq] lemmas.
    The resulting expression is definitionally equal to the input. -/
-meta_constant defeq_simp    : expr → tactic expr
+meta_constant defeq_simp_core : expr → transparency → tactic expr
 /- Change the target of the main goal.
    The input expression must be definitionally equal to the current target. -/
 meta_constant change        : expr → tactic unit
@@ -227,6 +227,9 @@ do { ctx ← local_context,
      H   ← find_same_type t ctx,
      exact H }
 <|> fail "assumption tactic failed"
+
+meta_definition defeq_simp (e : expr) : tactic expr :=
+defeq_simp_core e transparency.reducible
 
 meta_definition dsimp : tactic unit :=
 target >>= defeq_simp >>= change

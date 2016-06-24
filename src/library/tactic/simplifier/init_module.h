@@ -6,8 +6,6 @@ Author: Daniel Selsam
 #pragma once
 
 namespace lean {
-namespace blast {
 void initialize_simplifier_module();
 void finalize_simplifier_module();
-}
 }

@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/scoped_ext.h"
 #include "library/user_recursors.h"
-#include "library/tmp_type_context.h"
+#include "library/old_tmp_type_context.h"
 #include "library/attribute_manager.h"
 #include "library/blast/blast.h"
 #include "library/blast/backward/backward_lemmas.h"
@@ -57,7 +57,7 @@ struct backward_config {
 
 typedef scoped_ext<backward_config> backward_ext;
 
-static optional<head_index> get_backward_target(tmp_type_context & ctx, expr type) {
+static optional<head_index> get_backward_target(old_tmp_type_context & ctx, expr type) {
     while (is_pi(type)) {
         expr local = ctx.mk_tmp_local(binding_domain(type));
         type = ctx.whnf(instantiate(binding_body(type), local));
@@ -69,7 +69,7 @@ static optional<head_index> get_backward_target(tmp_type_context & ctx, expr typ
         return optional<head_index>();
 }
 
-static optional<head_index> get_backward_target(tmp_type_context & ctx, name const & c) {
+static optional<head_index> get_backward_target(old_tmp_type_context & ctx, name const & c) {
     declaration const & d = ctx.env().get(c);
     buffer<level> us;
     unsigned num_us = d.get_num_univ_params();
@@ -80,7 +80,7 @@ static optional<head_index> get_backward_target(tmp_type_context & ctx, name con
 }
 
 environment add_backward_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent) {
-    tmp_type_context ctx(env, ios.get_options());
+    old_tmp_type_context ctx(env, ios.get_options());
     auto index = get_backward_target(ctx, c);
     if (!index || index->kind() != expr_kind::Constant)
         throw exception(sstream() << "invalid [intro] attribute for '" << c << "', head symbol of resulting type must be a constant");
@@ -130,7 +130,7 @@ unsigned backward_lemma_prio_fn::operator()(backward_lemma const & r) const {
 void backward_lemma_index::init() {
     m_index.clear();
     buffer<name> lemmas;
-    blast_tmp_type_context ctx;
+    blast_old_tmp_type_context ctx;
     auto const & s = backward_ext::get_state(env());
     s.to_buffer(lemmas);
     unsigned i = lemmas.size();
@@ -148,7 +148,7 @@ void backward_lemma_index::init() {
 }
 
 void backward_lemma_index::insert(expr const & href) {
-    blast_tmp_type_context ctx;
+    blast_old_tmp_type_context ctx;
     expr href_type = ctx->infer(href);
     if (optional<head_index> target = get_backward_target(*ctx, href_type)) {
         m_index.insert(*target, backward_lemma(gexpr(href)));
@@ -156,7 +156,7 @@ void backward_lemma_index::insert(expr const & href) {
 }
 
 void backward_lemma_index::erase(expr const & href) {
-    blast_tmp_type_context ctx;
+    blast_old_tmp_type_context ctx;
     expr href_type = ctx->infer(href);
     if (optional<head_index> target = get_backward_target(*ctx, href_type)) {
         m_index.erase(*target, backward_lemma(gexpr(href)));

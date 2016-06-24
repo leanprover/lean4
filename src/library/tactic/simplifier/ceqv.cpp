@@ -10,10 +10,10 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/util.h"
 #include "library/relation_manager.h"
-#include "library/blast/simplifier/ceqv.h"
+#include "library/tactic/simplifier/ceqv.h"
 
 namespace lean {
-bool is_ceqv(tmp_type_context & tctx, expr e);
+bool is_ceqv(type_context & tctx, expr e);
 
 bool is_simp_relation(environment const & env, name const & n) {
     return is_trans_relation(env, n) && is_refl_relation(env, n);
@@ -22,7 +22,7 @@ bool is_simp_relation(environment const & env, name const & n) {
 /** \brief Auxiliary functional object for creating "conditional equations" */
 class to_ceqvs_fn {
     environment const &   m_env;
-    tmp_type_context &    m_tctx;
+    type_context &        m_tctx;
 
     static list<expr_pair> mk_singleton(expr const & e, expr const & H) {
         return list<expr_pair>(mk_pair(e, H));
@@ -41,7 +41,7 @@ class to_ceqvs_fn {
     list<expr_pair> lift(expr const & local, list<expr_pair> const & l) {
         lean_assert(is_local(local));
         return map(l, [&](expr_pair const & e_H) {
-                return mk_pair(Pi(local, e_H.first), Fun(local, e_H.second));
+                return mk_pair(m_tctx.mk_pi({local}, e_H.first), m_tctx.mk_lambda({local}, e_H.second));
             });
     }
 
@@ -66,8 +66,8 @@ class to_ceqvs_fn {
             auto r2 = apply(arg2, H2, restricted);
             return append(r1, r2);
         } else if (is_pi(e)) {
-            // TODO(dhs): keep name?
-            expr local = m_tctx.mk_tmp_local(binding_domain(e), binding_info(e));
+            type_context::tmp_locals local_factory(m_tctx);
+            expr local = local_factory.push_local_from_binding(e);
             expr new_e = instantiate(binding_body(e), local);
             expr new_H = mk_app(H, local);
             auto r = apply(new_e, new_H, restricted);
@@ -82,8 +82,9 @@ class to_ceqvs_fn {
         } else if (is_standard(m_env) && is_ite(e, c, Hdec, A, arg1, arg2) && is_prop(e)) {
             // TODO(Leo): support HoTT mode if users request
             expr not_c = mk_app(mk_constant(get_not_name()), c);
-            expr Hc    = m_tctx.mk_tmp_local(c);
-            expr Hnc   = m_tctx.mk_tmp_local(not_c);
+            type_context::tmp_locals local_factory(m_tctx);
+            expr Hc = local_factory.push_local(name(), c);
+            expr Hnc = local_factory.push_local(name(), not_c);
             expr H1    = mk_app({mk_constant(get_implies_of_if_pos_name()),
                                  c, arg1, arg2, Hdec, e, Hc});
             expr H2    = mk_app({mk_constant(get_implies_of_if_neg_name()),
@@ -109,7 +110,7 @@ class to_ceqvs_fn {
         }
     }
 public:
-    to_ceqvs_fn(tmp_type_context & tctx):m_env(tctx.env()), m_tctx(tctx) {}
+    to_ceqvs_fn(type_context & tctx):m_env(tctx.env()), m_tctx(tctx) {}
 
     list<expr_pair> operator()(expr const & e, expr const & H) {
         bool restricted = false;
@@ -118,7 +119,7 @@ public:
     }
 };
 
-list<expr_pair> to_ceqvs(tmp_type_context & tctx, expr const & e, expr const & H) {
+list<expr_pair> to_ceqvs(type_context & tctx, expr const & e, expr const & H) {
     return to_ceqvs_fn(tctx)(e, H);
 }
 
@@ -140,7 +141,7 @@ bool is_simp_relation(environment const & env, expr const & e, expr & lhs, expr 
     return is_simp_relation(env, e, rel, lhs, rhs);
 }
 
-bool is_ceqv(tmp_type_context & tctx, expr e) {
+bool is_ceqv(type_context & tctx, expr e) {
     if (has_expr_metavar(e))
         return false;
     name_set to_find;
@@ -158,6 +159,7 @@ bool is_ceqv(tmp_type_context & tctx, expr e) {
     environment const & env = tctx.env();
     bool is_std = is_standard(env);
     buffer<expr> hypotheses; // arguments that are propositions
+    type_context::tmp_locals local_factory(tctx);
     while (is_pi(e)) {
         if (!to_find.empty()) {
             // Support for dependent types.
@@ -165,7 +167,7 @@ bool is_ceqv(tmp_type_context & tctx, expr e) {
             // by matching the type.
             for_each(binding_domain(e), visitor_fn);
         }
-        expr local = tctx.mk_tmp_local(binding_domain(e));
+        expr local = local_factory.push_local(name(), binding_domain(e));
         if (binding_info(e).is_inst_implicit()) {
             // If the argument can be instantiated by type class resolution, then
             // we don't need to find it in the lhs

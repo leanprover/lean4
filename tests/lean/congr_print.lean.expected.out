@@ -1,2 +1,2 @@
-theorem perm.perm_erase_dup_of_perm : ∀ {A : Type} [H : decidable_eq A] {l₁ l₂ : list A}, l₁ ~ l₂ → erase_dup l₁ ~ erase_dup l₂ :=
+theorem perm.perm_erase_dup_of_perm [congr] : ∀ {A : Type} [H : decidable_eq A] {l₁ l₂ : list A}, l₁ ~ l₂ → erase_dup l₁ ~ erase_dup l₂ :=
 λ A H l₁ l₂, sorry

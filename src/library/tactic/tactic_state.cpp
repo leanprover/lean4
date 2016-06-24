@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/pp_options.h"
 #include "library/trace.h"
+#include "library/util.h"
 #include "library/vm/vm_environment.h"
 #include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_format.h"

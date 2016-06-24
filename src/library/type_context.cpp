@@ -1357,7 +1357,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
                            For every metavariable `?M'@C'` occurring in `t`, `C'` is a subset of `C`
                         */
                         optional<metavar_decl> const & e_decl = m_mctx.get_metavar_decl(e);
-                        if (!e_decl || e_decl->get_context().is_subset_of(mvar_decl->get_context())) {
+                        if (!e_decl || !e_decl->get_context().is_subset_of(mvar_decl->get_context())) {
                             ok = false;
                             return false;
                         }
@@ -2487,6 +2487,56 @@ optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
     auto r = mk_class_instance(subsingleton);
     m_cache.m_subsingleton_cache.insert(mk_pair(type, r));
     return r;
+}
+
+tmp_type_context::tmp_type_context(type_context & tctx, unsigned num_umeta, unsigned num_emeta): m_tctx(tctx) {
+    m_tmp_uassignment.resize(num_umeta, none_level());
+    m_tmp_eassignment.resize(num_emeta, none_expr());
+}
+
+bool tmp_type_context::is_def_eq(expr const & e1, expr const & e2) {
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_tctx.is_def_eq(e1, e2);
+}
+
+expr tmp_type_context::infer(expr const & e) {
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_tctx.infer(e);
+}
+
+expr tmp_type_context::whnf(expr const & e) {
+    // TODO(dhs): do I need to set the buffers for whnf?
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_tctx.whnf(e);
+}
+
+level tmp_type_context::mk_tmp_univ_mvar() {
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_tctx.mk_tmp_univ_mvar();
+}
+
+expr tmp_type_context::mk_tmp_mvar(expr const & type) {
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_tctx.mk_tmp_mvar(type);
+}
+
+bool tmp_type_context::is_uassigned(unsigned i) {
+    lean_assert(i < m_tmp_uassignment.size());
+    return static_cast<bool>(m_tmp_uassignment[i]);
+}
+
+bool tmp_type_context::is_eassigned(unsigned i) {
+    lean_assert(i < m_tmp_eassignment.size());
+    return static_cast<bool>(m_tmp_eassignment[i]);
+}
+
+void tmp_type_context::clear_eassignment() {
+    m_tmp_eassignment.clear();
+}
+
+expr tmp_type_context::instantiate_mvars(expr const & e) {
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_tctx.instantiate_mvars(e);
 }
 
 void initialize_type_context() {

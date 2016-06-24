@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/kernel_serializer.h"
 #include "library/generic_exception.h"
-#include "library/tmp_type_context.h"
+#include "library/old_tmp_type_context.h"
 #include "library/annotation.h"
 #include "library/util.h"
 #include "library/scoped_ext.h"
@@ -191,7 +191,7 @@ name_set const & get_no_patterns(environment const & env) {
 namespace blast {
 typedef rb_tree<unsigned, unsigned_cmp> idx_metavar_set;
 
-static bool is_higher_order(tmp_type_context & ctx, expr const & e) {
+static bool is_higher_order(old_tmp_type_context & ctx, expr const & e) {
     /* Remark: it is too expensive to use ctx.relaxed_whnf here. */
     return is_pi(ctx.whnf(ctx.infer(e)));
 }
@@ -200,7 +200,7 @@ static bool is_higher_order(tmp_type_context & ctx, expr const & e) {
     create n idx_metavars (one for each a_i), store the meta-variables in mvars,
     and store in trackable and residue the subsets of these meta-variables as
     described in the beginning of this file. Then returns B (instantiated with the new meta-variables) */
-expr extract_trackable(tmp_type_context & ctx, expr const & type,
+expr extract_trackable(old_tmp_type_context & ctx, expr const & type,
                        buffer<expr> & mvars,
                        buffer<bool> & inst_implicit_flags,
                        idx_metavar_set & trackable, idx_metavar_set & residue) {
@@ -286,7 +286,7 @@ expr extract_trackable(tmp_type_context & ctx, expr const & type,
 }
 
 struct mk_hi_lemma_fn {
-    tmp_type_context & m_ctx;
+    old_tmp_type_context & m_ctx;
     name_set const &   m_no_patterns;
     expr               m_H;
     unsigned           m_num_uvars;
@@ -301,7 +301,7 @@ struct mk_hi_lemma_fn {
     idx_metavar_set    m_residue;
     unsigned           m_num_steps;
 
-    mk_hi_lemma_fn(tmp_type_context & ctx, expr const & H,
+    mk_hi_lemma_fn(old_tmp_type_context & ctx, expr const & H,
                    unsigned num_uvars, unsigned prio, unsigned max_steps, bool simp):
         m_ctx(ctx), m_no_patterns(no_pattern_ext::get_state(ctx.env())),
         m_H(H), m_num_uvars(num_uvars), m_priority(prio), m_max_steps(max_steps),
@@ -623,7 +623,7 @@ struct mk_hi_lemma_fn {
     }
 };
 
-hi_lemma mk_hi_lemma_core(tmp_type_context & ctx, expr const & H, unsigned num_uvars,
+hi_lemma mk_hi_lemma_core(old_tmp_type_context & ctx, expr const & H, unsigned num_uvars,
                           unsigned priority, unsigned max_steps, bool simp) {
     try {
         bool erase_hints = false;
@@ -640,14 +640,14 @@ hi_lemma mk_hi_lemma_core(tmp_type_context & ctx, expr const & H, unsigned num_u
 }
 
 hi_lemma mk_hi_lemma(expr const & H) {
-    blast_tmp_type_context ctx;
+    blast_old_tmp_type_context ctx;
     unsigned max_steps = get_config().m_pattern_max_steps;
     bool simp = false;
     return mk_hi_lemma_core(*ctx, H, 0, LEAN_DEFAULT_PRIORITY, max_steps, simp);
 }
 
 hi_lemma mk_hi_lemma(name const & c, unsigned priority, bool simp) {
-    blast_tmp_type_context ctx;
+    blast_old_tmp_type_context ctx;
     unsigned max_steps = get_config().m_pattern_max_steps;
     declaration const & d = env().get(c);
     buffer<level> us;

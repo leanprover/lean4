@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/rb_multi_map.h"
 #include "kernel/environment.h"
 #include "library/expr_lt.h"
-#include "library/tmp_type_context.h"
+#include "library/old_tmp_type_context.h"
 
 namespace lean {
 /** \brief Annotate \c e as a pattern hint */

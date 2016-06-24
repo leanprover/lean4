@@ -4,26 +4,26 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/tmp_type_context.h"
+#include "library/old_tmp_type_context.h"
 #include "library/idx_metavar.h"
 
 namespace lean {
-void tmp_type_context::init(environment const & env, reducible_behavior b) {
+void old_tmp_type_context::init(environment const & env, reducible_behavior b) {
     switch (b) {
     case UnfoldReducible:      m_opaque_pred = mk_not_reducible_pred(env);      break;
     case UnfoldSemireducible:  m_opaque_pred = mk_irreducible_pred(env);        break;
     }
 }
 
-tmp_type_context::tmp_type_context(environment const & env, options const & o, reducible_behavior b):
+old_tmp_type_context::old_tmp_type_context(environment const & env, options const & o, reducible_behavior b):
     old_type_context(env, o) {
     init(env, b);
 }
 
-tmp_type_context::~tmp_type_context() {
+old_tmp_type_context::~old_tmp_type_context() {
 }
 
-void tmp_type_context::clear() {
+void old_tmp_type_context::clear() {
     m_uassignment.clear();
     m_eassignment.clear();
     m_trail.clear();
@@ -31,27 +31,27 @@ void tmp_type_context::clear() {
     clear_infer_cache();
 }
 
-void tmp_type_context::set_next_uvar_idx(unsigned next_idx) {
+void old_tmp_type_context::set_next_uvar_idx(unsigned next_idx) {
     lean_assert(m_uassignment.empty());
     lean_assert(m_scopes.empty());
     m_uassignment.resize(next_idx);
 }
 
-void tmp_type_context::set_next_mvar_idx(unsigned next_idx) {
+void old_tmp_type_context::set_next_mvar_idx(unsigned next_idx) {
     lean_assert(m_eassignment.empty());
     lean_assert(m_scopes.empty());
     m_eassignment.resize(next_idx);
 }
 
-bool tmp_type_context::is_uvar(level const & l) const {
+bool old_tmp_type_context::is_uvar(level const & l) const {
     return is_idx_metauniv(l);
 }
 
-bool tmp_type_context::is_mvar(expr const & e) const {
+bool old_tmp_type_context::is_mvar(expr const & e) const {
     return is_idx_metavar(e);
 }
 
-optional<level> tmp_type_context::get_assignment(level const & u) const {
+optional<level> old_tmp_type_context::get_assignment(level const & u) const {
     unsigned idx = to_meta_idx(u);
     // if the following assetion is violated, we have two options:
     // 1- We should create the meta-variable using mk_uvar
@@ -61,7 +61,7 @@ optional<level> tmp_type_context::get_assignment(level const & u) const {
     return m_uassignment[idx];
 }
 
-optional<expr> tmp_type_context::get_assignment(expr const & m) const {
+optional<expr> old_tmp_type_context::get_assignment(expr const & m) const {
     unsigned idx = to_meta_idx(m);
     // if the following assetion is violated, we have two options:
     // 1- We should create the meta-variable using mk_mvar
@@ -71,7 +71,7 @@ optional<expr> tmp_type_context::get_assignment(expr const & m) const {
     return m_eassignment[idx];
 }
 
-void tmp_type_context::update_assignment(level const & u, level const & v) {
+void old_tmp_type_context::update_assignment(level const & u, level const & v) {
     unsigned idx = to_meta_idx(u);
     lean_assert(idx < m_uassignment.size()); // see comments above
     lean_assert(!m_uassignment[idx]);
@@ -80,7 +80,7 @@ void tmp_type_context::update_assignment(level const & u, level const & v) {
         m_trail.emplace_back(trail_kind::Level, idx);
 }
 
-void tmp_type_context::update_assignment(expr const & m, expr const & v) {
+void old_tmp_type_context::update_assignment(expr const & m, expr const & v) {
     unsigned idx = to_meta_idx(m);
     lean_assert(idx < m_eassignment.size()); // see comments above
     // Remark: type class resolution may update an already assigned meta-variable with a
@@ -93,19 +93,19 @@ void tmp_type_context::update_assignment(expr const & m, expr const & v) {
         m_trail.emplace_back(trail_kind::Expr, idx);
 }
 
-level tmp_type_context::mk_uvar() {
+level old_tmp_type_context::mk_uvar() {
     unsigned idx = m_uassignment.size();
     m_uassignment.push_back(none_level());
     return mk_idx_metauniv(idx);
 }
 
-expr tmp_type_context::mk_mvar(expr const & type) {
+expr old_tmp_type_context::mk_mvar(expr const & type) {
     unsigned idx = m_eassignment.size();
     m_eassignment.push_back(none_expr());
     return mk_idx_metavar(idx, type);
 }
 
-void tmp_type_context::push_core() {
+void old_tmp_type_context::push_core() {
     m_scopes.push_back(scope());
     scope & s = m_scopes.back();
     s.m_uassignment_sz     = m_uassignment.size();
@@ -113,7 +113,7 @@ void tmp_type_context::push_core() {
     s.m_trail_sz           = m_trail.size();
 }
 
-void tmp_type_context::pop_core() {
+void old_tmp_type_context::pop_core() {
     lean_assert(!m_scopes.empty());
     scope const & s  = m_scopes.back();
     unsigned old_sz  = s.m_trail_sz;
@@ -133,11 +133,11 @@ void tmp_type_context::pop_core() {
     m_scopes.pop_back();
 }
 
-unsigned tmp_type_context::get_num_check_points() const {
+unsigned old_tmp_type_context::get_num_check_points() const {
     return m_scopes.size();
 }
 
-void tmp_type_context::commit() {
+void old_tmp_type_context::commit() {
     lean_assert(!m_scopes.empty());
     m_scopes.pop_back();
 }

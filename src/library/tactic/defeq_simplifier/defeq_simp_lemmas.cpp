@@ -13,8 +13,8 @@ Author: Daniel Selsam
 #include "library/util.h"
 #include "library/expr_lt.h"
 #include "library/scoped_ext.h"
-#include "library/tmp_type_context.h"
 #include "library/tactic/defeq_simplifier/defeq_simp_lemmas.h"
+#include "library/old_tmp_type_context.h"
 
 namespace lean {
 
@@ -37,7 +37,7 @@ struct defeq_simp_lemmas_state {
     defeq_simp_lemmas m_defeq_simp_lemmas;
     name_map<unsigned> m_decl_name_to_prio; // Note: redundant but convenient
 
-    void register_defeq_simp_lemma(tmp_type_context & tctx, name const & decl_name, unsigned priority) {
+    void register_defeq_simp_lemma(old_tmp_type_context & tctx, name const & decl_name, unsigned priority) {
         declaration const & d = tctx.env().get(decl_name);
         // TODO(dhs): once we refactor to register this attribute as "definitions-only", this can be an assert
         if (!d.is_definition()) {
@@ -54,7 +54,7 @@ struct defeq_simp_lemmas_state {
         return register_defeq_simp_lemma_core(tctx, decl_name, ls, type, proof, priority);
     }
 
-    void register_defeq_simp_lemma_core(tmp_type_context & tctx, name const & decl_name, levels const & umetas,
+    void register_defeq_simp_lemma_core(old_tmp_type_context & tctx, name const & decl_name, levels const & umetas,
                                         expr const & type, expr const & proof, unsigned priority) {
         m_decl_name_to_prio.insert(decl_name, priority);
         expr rule = type;
@@ -92,7 +92,7 @@ struct defeq_simp_lemmas_config {
     typedef defeq_simp_lemmas_state state;
 
     static void add_entry(environment const & env, io_state const & ios, state & s, entry const & e) {
-        tmp_type_context tctx(env, ios.get_options());
+        old_tmp_type_context tctx(env, ios.get_options());
         s.register_defeq_simp_lemma(tctx, e.m_decl_name, e.m_priority);
     }
     static name const & get_class_name() {
@@ -134,7 +134,7 @@ defeq_simp_lemmas get_defeq_simp_lemmas(environment const & env, name const & ns
     if (_entries) {
         list<defeq_simp_lemmas_entry> entries = reverse(*_entries);
         for (auto const & e : entries) {
-            tmp_type_context tctx(env, get_dummy_ios().get_options());
+            old_tmp_type_context tctx(env, get_dummy_ios().get_options());
             s.register_defeq_simp_lemma(tctx, e.m_decl_name, e.m_priority);
         }
     }

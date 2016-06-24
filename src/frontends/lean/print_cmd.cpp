@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/legacy_type_context.h"
 #include "library/unification_hint.h"
 #include "library/tactic/defeq_simplifier/defeq_simp_lemmas.h"
+#include "library/tactic/simplifier/simp_lemmas.h"
 #include "library/reducible.h"
 #include "library/definitional/projection.h"
 #include "frontends/lean/parser.h"
@@ -554,34 +555,28 @@ static void print_defeq_lemmas(parser & p) {
 }
 
 static void print_simp_rules(parser & p) {
-/*
     type_checker tc(p.env());
     auto out = regular(p.env(), p.ios(), tc);
-    blast::scope_debug scope(p.env(), p.ios());
-    blast::simp_lemmas s;
+    simp_lemmas slss;
     name ns;
     if (p.curr_is_identifier()) {
         ns = p.get_name_val();
         p.next();
-        s = blast::get_simp_lemmas(ns);
+        slss = get_simp_lemmas(p.env(), ns);
     } else {
-        s = blast::get_simp_lemmas();
+        slss = get_simp_lemmas(p.env());
     }
     format header;
     if (!ns.is_anonymous())
         header = format(" at namespace '") + format(ns) + format("'");
-    out << s.pp_simp(out.get_formatter(), header);
-*/
+    out << slss.pp_simp(out.get_formatter(), header);
 }
 
 static void print_congr_rules(parser & p) {
-/*
     type_checker tc(p.env());
     auto out = regular(p.env(), p.ios(), tc);
-    blast::scope_debug scope(p.env(), p.ios());
-    blast::simp_lemmas s = blast::get_simp_lemmas();
-    out << s.pp_congr(out.get_formatter());
-*/
+    simp_lemmas slss = get_simp_lemmas(p.env());
+    out << slss.pp_congr(out.get_formatter());
 }
 
 static void print_light_rules(parser & p) {

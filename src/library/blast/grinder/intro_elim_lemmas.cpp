@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/scoped_ext.h"
 #include "library/user_recursors.h"
-#include "library/tmp_type_context.h"
+#include "library/old_tmp_type_context.h"
 #include "library/attribute_manager.h"
 #include "library/blast/blast.h"
 #include "library/blast/grinder/intro_elim_lemmas.h"
@@ -70,7 +70,7 @@ environment add_elim_lemma(environment const & env, io_state const & ios, name c
     return intro_elim_ext::add_entry(env, ios, intro_elim_entry(true, prio, c), ns, persistent);
 }
 
-optional<name> get_intro_target(tmp_type_context & ctx, name const & c) {
+optional<name> get_intro_target(old_tmp_type_context & ctx, name const & c) {
     declaration const & d = ctx.env().get(c);
     buffer<level> us;
     unsigned num_us = d.get_num_univ_params();
@@ -90,7 +90,7 @@ optional<name> get_intro_target(tmp_type_context & ctx, name const & c) {
 }
 
 environment add_intro_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent) {
-    tmp_type_context ctx(env, ios.get_options());
+    old_tmp_type_context ctx(env, ios.get_options());
     if (!get_intro_target(ctx, c))
         throw exception(sstream() << "invalid [intro!] attribute for '" << c << "', head symbol of resulting type must be a constant");
     return intro_elim_ext::add_entry(env, ios, intro_elim_entry(false, prio, c), ns, persistent);
@@ -148,7 +148,7 @@ namespace blast {
 head_map<gexpr> mk_intro_lemma_index() {
     head_map<gexpr> r;
     buffer<name> lemmas;
-    blast_tmp_type_context ctx;
+    blast_old_tmp_type_context ctx;
     get_intro_lemmas(env(), lemmas);
     unsigned i = lemmas.size();
     while (i > 0) {

@@ -35,7 +35,7 @@ action_result by_contradiction_action() {
         s.set_target(mk_arrow(not_target, mk_constant(get_false_name())));
         return intros_action(1);
     }
-    blast_tmp_type_context tmp_tctx;
+    blast_old_tmp_type_context tmp_tctx;
     optional<expr> target_decidable = tmp_tctx->mk_class_instance(mk_app(mk_constant(get_decidable_name()), target));
     if (!target_decidable) return action_result::failed();
     expr href = s.mk_hypothesis(get_app_builder().mk_not(target));

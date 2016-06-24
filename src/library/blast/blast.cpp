@@ -75,17 +75,17 @@ struct imp_extension_entry {
 unsigned proof_irrel_hash(expr const & e);
 bool proof_irrel_is_equal(expr const & e1, expr const & e2);
 
-class tmp_tctx_pool : public tmp_type_context_pool {
+class tmp_tctx_pool : public old_tmp_type_context_pool {
 public:
-    virtual tmp_type_context * mk_tmp_type_context() override;
-    virtual void recycle_tmp_type_context(tmp_type_context * tmp_tctx) override;
+    virtual old_tmp_type_context * mk_old_tmp_type_context() override;
+    virtual void recycle_old_tmp_type_context(old_tmp_type_context * tmp_tctx) override;
 };
 
 class blastenv {
     friend class scope_assignment;
     friend class scope_unfold_macro_pred;
-    typedef std::vector<tmp_type_context *> tmp_type_context_pool;
-    typedef std::unique_ptr<tmp_type_context> tmp_type_context_ptr;
+    typedef std::vector<old_tmp_type_context *> old_tmp_type_context_pool;
+    typedef std::unique_ptr<old_tmp_type_context> old_tmp_type_context_ptr;
     typedef std::vector<imp_extension_entry> imp_extension_entries;
 
     environment                m_env;
@@ -111,8 +111,8 @@ class blastenv {
     name_map<projection_info>  m_projection_info;
     is_relation_pred           m_is_relation_pred;
     state                      m_curr_state;   // current state
-    tmp_type_context_pool      m_tmp_ctx_pool;
-    tmp_type_context_ptr       m_tmp_ctx; // for app_builder and congr_lemma_manager
+    old_tmp_type_context_pool      m_tmp_ctx_pool;
+    old_tmp_type_context_ptr       m_tmp_ctx; // for app_builder and congr_lemma_manager
     app_builder                m_app_builder;
     fun_info_manager           m_fun_info_manager;
     congr_lemma_manager        m_congr_lemma_manager;
@@ -674,7 +674,7 @@ public:
         m_class_pred(mk_class_pred(env)),
         m_instance_pred(mk_instance_pred(env)),
         m_is_relation_pred(mk_is_relation_pred(env)),
-        m_tmp_ctx(mk_tmp_type_context()),
+        m_tmp_ctx(mk_old_tmp_type_context()),
         m_app_builder(*m_tmp_ctx),
         m_fun_info_manager(*m_tmp_ctx),
         m_congr_lemma_manager(m_app_builder, m_fun_info_manager),
@@ -777,9 +777,9 @@ public:
         return m_tmp_ctx->mk_subsingleton_instance(type);
     }
 
-    tmp_type_context * mk_tmp_type_context();
+    old_tmp_type_context * mk_old_tmp_type_context();
 
-    void recycle_tmp_type_context(tmp_type_context * ctx) {
+    void recycle_old_tmp_type_context(old_tmp_type_context * ctx) {
         lean_assert(ctx);
         ctx->clear();
         m_tmp_ctx_pool.push_back(ctx);
@@ -1446,10 +1446,10 @@ scope_debug::~scope_debug() {}
 
 /** \brief We need to redefine infer_local and infer_metavar, because the types of hypotheses
     and blast meta-variables are stored in the blast state */
-class tmp_tctx : public tmp_type_context {
+class tmp_tctx : public old_tmp_type_context {
 public:
     tmp_tctx(environment const & env, options const & o):
-        tmp_type_context(env, o) {}
+        old_tmp_type_context(env, o) {}
 
     virtual bool should_unfold_macro(expr const & e) const override {
         return get_unfold_macro_pred()(e);
@@ -1483,8 +1483,8 @@ public:
     }
 };
 
-tmp_type_context * blastenv::mk_tmp_type_context() {
-    tmp_type_context * r;
+old_tmp_type_context * blastenv::mk_old_tmp_type_context() {
+    old_tmp_type_context * r;
     if (m_tmp_ctx_pool.empty()) {
         r = new tmp_tctx(m_env, m_ios.get_options());
         // Design decision: in the blast tactic, we only consider the instances that were
@@ -1500,31 +1500,31 @@ tmp_type_context * blastenv::mk_tmp_type_context() {
     return r;
 }
 
-tmp_type_context * tmp_tctx_pool::mk_tmp_type_context() {
+old_tmp_type_context * tmp_tctx_pool::mk_old_tmp_type_context() {
     lean_assert(g_blastenv);
-    return g_blastenv->mk_tmp_type_context();
+    return g_blastenv->mk_old_tmp_type_context();
 }
 
-void tmp_tctx_pool::recycle_tmp_type_context(tmp_type_context * tmp_tctx) {
+void tmp_tctx_pool::recycle_old_tmp_type_context(old_tmp_type_context * tmp_tctx) {
     lean_assert(g_blastenv);
-    g_blastenv->recycle_tmp_type_context(tmp_tctx);
+    g_blastenv->recycle_old_tmp_type_context(tmp_tctx);
 }
 
-blast_tmp_type_context::blast_tmp_type_context(unsigned num_umeta, unsigned num_emeta) {
+blast_old_tmp_type_context::blast_old_tmp_type_context(unsigned num_umeta, unsigned num_emeta) {
     lean_assert(g_blastenv);
-    m_ctx = g_blastenv->mk_tmp_type_context();
+    m_ctx = g_blastenv->mk_old_tmp_type_context();
     m_ctx->clear();
     m_ctx->set_next_uvar_idx(num_umeta);
     m_ctx->set_next_mvar_idx(num_emeta);
 }
 
-blast_tmp_type_context::blast_tmp_type_context() {
+blast_old_tmp_type_context::blast_old_tmp_type_context() {
     lean_assert(g_blastenv);
-    m_ctx = g_blastenv->mk_tmp_type_context();
+    m_ctx = g_blastenv->mk_old_tmp_type_context();
 }
 
-blast_tmp_type_context::~blast_tmp_type_context() {
-    g_blastenv->recycle_tmp_type_context(m_ctx);
+blast_old_tmp_type_context::~blast_old_tmp_type_context() {
+    g_blastenv->recycle_old_tmp_type_context(m_ctx);
 }
 
 expr internalize(expr const & e) {

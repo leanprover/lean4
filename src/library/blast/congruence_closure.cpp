@@ -293,7 +293,7 @@ static optional<ext_congr_lemma> to_ext_congr_lemma(name const & R, expr const &
     if (!all_distinct(lhs_args) || !all_distinct(rhs_args)) {
         return optional<ext_congr_lemma>();
     }
-    blast_tmp_type_context ctx(r.get_num_umeta(), r.get_num_emeta());
+    blast_old_tmp_type_context ctx(r.get_num_umeta(), r.get_num_emeta());
     if (!ctx->is_def_eq(fn, lhs_fn) || !ctx->is_def_eq(fn, rhs_fn)) {
         return optional<ext_congr_lemma>();
     }

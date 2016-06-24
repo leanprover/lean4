@@ -7,25 +7,26 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/environment.h"
 #include "library/io_state.h"
-#include "library/tmp_type_context.h"
+#include "library/type_context.h"
 #include "library/head_map.h"
-#include "library/blast/gexpr.h"
 
 namespace lean {
+
 environment add_simp_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent);
 environment add_congr_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent);
 unsigned get_simp_lemma_priority(environment const & env, name const & n);
+
 bool is_simp_lemma(environment const & env, name const & n);
 bool is_congr_lemma(environment const & env, name const & n);
-void get_simp_lemmas(environment const & env, buffer<name> & r);
-void get_congr_lemmas(environment const & env, buffer<name> & r);
+void get_simp_lemma_names(environment const & env, buffer<name> & r);
+void get_congr_lemma_names(environment const & env, buffer<name> & r);
+
 void initialize_simp_lemmas();
 void finalize_simp_lemmas();
 
 /** Generate a unique id for a set of namespaces containing [simp] and [congr] lemmas */
 unsigned register_simp_lemmas(std::initializer_list<name> const & nss);
 
-namespace blast {
 class simp_lemmas;
 class simp_lemma_core {
 protected:
@@ -66,7 +67,7 @@ class simp_lemma : public simp_lemma_core {
                list<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof,
                bool is_perm, unsigned priority);
 
-    friend simp_lemmas add_core(tmp_type_context & tctx, simp_lemmas const & s, name const & id,
+    friend simp_lemmas add_core(tmp_type_context & tmp_tctx, simp_lemmas const & s, name const & id,
                                 levels const & univ_metas, expr const & e, expr const & h, unsigned priority);
 public:
     friend bool operator==(simp_lemma const & r1, simp_lemma const & r2);
@@ -154,19 +155,11 @@ public:
     ~scope_simp();
 };
 
-simp_lemmas add(tmp_type_context & tctx, simp_lemmas const & s, name const & id, expr const & e, expr const & h, unsigned priority);
+simp_lemmas add(type_context & tctx, simp_lemmas const & s, name const & id, expr const & e, expr const & h, unsigned priority);
 simp_lemmas join(simp_lemmas const & s1, simp_lemmas const & s2);
 
 /** \brief Get (active) simplification lemmas. */
-simp_lemmas get_simp_lemmas();
+simp_lemmas get_simp_lemmas(environment const & env);
 /** \brief Get simplification lemmas in the given namespace. */
-simp_lemmas get_simp_lemmas(name const & ns);
-/** \brief Get simplification lemmas in the given namespaces. */
-// simp_lemmas get_simp_lemmas(std::initializer_list<name> const & nss);
-/** \brief Get simplification lemmas in the namespaces registered at key.
-    The key is created using procedure #register_simp_lemmas at initialization time.
-    This is more efficient than get_simp_lemmas(std::initializer_list<name> const & nss), because
-    results are cached. */
-simp_lemmas get_simp_lemmas(unsigned key);
-}
+simp_lemmas get_simp_lemmas(environment const & env, name const & ns);
 }

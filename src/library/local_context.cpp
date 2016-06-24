@@ -181,16 +181,16 @@ void local_context::clear(local_decl const & d) {
 
 bool local_context::is_subset_of(name_set const & ls) const {
     // TODO(Leo): we can improve performance by implementing the subset operation in the rb_map/rb_tree class
-    return !m_name2local_decl.find_if([&](name const & n, local_decl const &) {
-            return !ls.contains(n);
-        });
+    return !static_cast<bool>(m_name2local_decl.find_if([&](name const & n, local_decl const &) {
+                return !ls.contains(n);
+            }));
 }
 
 bool local_context::is_subset_of(local_context const & ctx) const {
     // TODO(Leo): we can improve performance by implementing the subset operation in the rb_map/rb_tree class
-    return !m_name2local_decl.find_if([&](name const & n, local_decl const &) {
-            return !ctx.m_name2local_decl.contains(n);
-        });
+    return !static_cast<bool>(m_name2local_decl.find_if([&](name const & n, local_decl const &) {
+                return !ctx.m_name2local_decl.contains(n);
+            }));
 }
 
 local_context local_context::remove(buffer<expr> const & locals) const {

@@ -94,6 +94,7 @@ meta_constant unify_core    : expr → expr → transparency → tactic unit
 /- Infer the type of the given expression.
    Remark: transparency does not affect type inference -/
 meta_constant infer_type    : expr → tactic expr
+
 meta_constant get_local     : name → tactic expr
 /- Return the hypothesis in the main goal. Fail if tactic_state does not have any goal left. -/
 meta_constant local_context : tactic (list expr)
@@ -133,6 +134,11 @@ meta_constant mk_instance   : expr → tactic expr
 /- Simplify the given expression using [defeq] lemmas.
    The resulting expression is definitionally equal to the input. -/
 meta_constant defeq_simp_core : expr → transparency → tactic expr
+/- Simplify the given expression using [simp] and [congr] lemmas.
+   The result is the simplified expression along with a proof that the new
+   expression is equivalent to the old one.
+   Fails if no simplifications can be performed. -/
+meta_constant simplify    : expr → tactic (prod expr expr)
 /- Change the target of the main goal.
    The input expression must be definitionally equal to the current target. -/
 meta_constant change        : expr → tactic unit
@@ -233,6 +239,28 @@ defeq_simp_core e transparency.reducible
 
 meta_definition dsimp : tactic unit :=
 target >>= defeq_simp >>= change
+
+set_option unifier.conservative true
+meta_definition simp : tactic unit :=
+do gs ← get_goals,
+   match gs with
+   | (g :: rest)      := do
+                          tgt ← target,
+                          r ← simplify tgt,
+                          new_tgt ← return (prod.pr1 r),
+                          pf ← return (prod.pr2 r),
+                          pf_type ← infer_type pf,
+                          new_g ← mk_meta_var new_tgt,
+                          ns ← return (match expr.is_eq pf_type with
+                                        | (option.some _) := "eq"
+                                        | option.none := "iff"
+                                        end),
+                          g_pf ← mk_app (ns <.> "mpr") [pf, new_g],
+                          g_pf_type ← infer_type g_pf,
+                          unify g g_pf,
+                          set_goals (new_g :: rest)
+   | _              := fail "simp called but no goals"
+   end
 
 /- Return the number of goals that need to be solved -/
 meta_definition num_goals     : tactic nat :=
@@ -347,5 +375,7 @@ private meta_definition get_arity_aux : expr → tactic nat
 /- Compute the arity of the given function -/
 meta_definition get_arity (fn : expr) : tactic nat :=
 infer_type fn >>= whnf >>= get_arity_aux
+
+meta_definition triv : tactic unit := mk_const "trivial" >>= exact
 
 end tactic

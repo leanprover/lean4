@@ -5,27 +5,22 @@ Author: Daniel Selsam
 */
 #pragma once
 #include "kernel/expr_pair.h"
-#include "library/blast/state.h"
-#include "library/blast/simplifier/simp_lemmas.h"
+#include "library/type_context.h"
+#include "library/tactic/simplifier/simp_lemmas.h"
 
 namespace lean {
-namespace blast {
 
-namespace simp {
-
-/* Struct to store results of simplification */
-struct result {
+struct simp_result {
     /* Invariant [m_pf : m_orig <rel> m_new] */
     expr m_new;
 
     /* If proof is not provided, it is assumed to be reflexivity */
     optional<expr> m_proof;
-
 public:
-    result() {}
-    result(expr const & e): m_new(e) {}
-    result(expr const & e, expr const & proof): m_new(e), m_proof(proof) {}
-    result(expr const & e, optional<expr> const & proof): m_new(e), m_proof(proof) {}
+    simp_result() {}
+    simp_result(expr const & e): m_new(e) {}
+    simp_result(expr const & e, expr const & proof): m_new(e), m_proof(proof) {}
+    simp_result(expr const & e, optional<expr> const & proof): m_new(e), m_proof(proof) {}
 
     bool has_proof() const { return static_cast<bool>(m_proof); }
 
@@ -35,16 +30,10 @@ public:
     /* The following assumes that [e] and [m_new] are definitionally equal */
     void update(expr const & e) { m_new = e; }
 };
-}
 
-// TODO(dhs): put this outside of blast module
-typedef std::function<bool(expr const &)> expr_predicate; // NOLINT
-
-simp::result simplify(name const & rel, expr const & e, simp_lemmas const & srss);
-simp::result simplify(name const & rel, expr const & e, simp_lemmas const & srss, expr_predicate const & simp_pred);
+simp_result simplify(type_context & ctx, name const & rel, simp_lemmas const & simp_lemmas, expr const & e);
 
 void initialize_simplifier();
 void finalize_simplifier();
 
-}
 }

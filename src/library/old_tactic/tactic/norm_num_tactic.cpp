@@ -8,7 +8,7 @@ Author: Robert Y. Lewis
 #include "library/reducible.h"
 #include "library/normalize.h"
 #include "library/norm_num.h"
-#include "library/tmp_type_context.h"
+#include "library/old_tmp_type_context.h"
 #include "library/tactic/expr_to_tactic.h"
 
 namespace lean {
@@ -32,7 +32,7 @@ tactic norm_num_tactic() {
             buffer<expr> hyps;
             g.get_hyps(hyps);
             try {
-                tmp_type_context ctx(env, ios.get_options());
+                old_tmp_type_context ctx(env, ios.get_options());
                 ctx.set_local_instances(to_list(hyps));
                 pair<expr, expr> p = mk_norm_num(ctx, lhs);
                 expr new_lhs = p.first;

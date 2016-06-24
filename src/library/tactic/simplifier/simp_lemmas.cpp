@@ -8,17 +8,21 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/priority_queue.h"
 #include "util/sstream.h"
+#include "util/flet.h"
 #include "kernel/error_msgs.h"
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "library/trace.h"
 #include "library/scoped_ext.h"
 #include "library/attribute_manager.h"
-#include "library/blast/blast.h"
-#include "library/blast/simplifier/ceqv.h"
-#include "library/blast/simplifier/simp_lemmas.h"
+#include "library/type_context.h"
+#include "library/tactic/tactic_state.h"
+#include "library/tactic/simplifier/ceqv.h"
+#include "library/tactic/simplifier/simp_lemmas.h"
 
 namespace lean {
+
+/* The environment extension */
 static name * g_class_name = nullptr;
 static std::string * g_key = nullptr;
 
@@ -67,22 +71,29 @@ struct simp_config {
 
 typedef scoped_ext<simp_config> simp_ext;
 
-void validate_simp(environment const & env, io_state const & ios, name const & n);
-void validate_congr(environment const & env, io_state const & ios, name const & n);
+/* Validation */
+
+LEAN_THREAD_VALUE(bool, g_throw_ex, false);
+void validate_simp(type_context & tctx, name const & n);
+void validate_congr(type_context & tctx, name const & n);
+
+/* Registering simp/congr lemmas */
 
 environment add_simp_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent) {
-    validate_simp(env, ios, c);
+    aux_type_context aux_ctx(env);
+    type_context & tctx = aux_ctx.get();
+    validate_simp(tctx, c);
     return simp_ext::add_entry(env, ios, simp_entry(true, prio, c), ns, persistent);
 }
 
 environment add_congr_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent) {
-    validate_congr(env, ios, c);
+    aux_type_context aux_ctx(env);
+    type_context & tctx = aux_ctx.get();
+    validate_congr(tctx, c);
     return simp_ext::add_entry(env, ios, simp_entry(false, prio, c), ns, persistent);
 }
 
-bool is_simp_lemma(environment const & env, name const & c) {
-    return simp_ext::get_state(env).m_simp_lemmas.contains(c);
-}
+/* Getters/checkers */
 
 unsigned get_simp_lemma_priority(environment const & env, name const & n) {
     if (auto r = simp_ext::get_state(env).m_simp_lemmas.get_prio(n))
@@ -91,28 +102,21 @@ unsigned get_simp_lemma_priority(environment const & env, name const & n) {
         return LEAN_DEFAULT_PRIORITY;
 }
 
+bool is_simp_lemma(environment const & env, name const & c) {
+    return simp_ext::get_state(env).m_simp_lemmas.contains(c);
+}
+
 bool is_congr_lemma(environment const & env, name const & c) {
     return simp_ext::get_state(env).m_congr_lemmas.contains(c);
 }
 
-void get_simp_lemmas(environment const & env, buffer<name> & r) {
+void get_simp_lemma_names(environment const & env, buffer<name> & r) {
     return simp_ext::get_state(env).m_simp_lemmas.to_buffer(r);
 }
 
-void get_congr_lemmas(environment const & env, buffer<name> & r) {
+void get_congr_lemma_names(environment const & env, buffer<name> & r) {
     return simp_ext::get_state(env).m_congr_lemmas.to_buffer(r);
 }
-
-static std::vector<std::vector<name>> * g_simp_lemma_ns = nullptr;
-
-unsigned register_simp_lemmas(std::initializer_list<name> const & nss) {
-    unsigned r = g_simp_lemma_ns->size();
-    g_simp_lemma_ns->push_back(std::vector<name>(nss));
-    return r;
-}
-
-namespace blast {
-LEAN_THREAD_VALUE(bool, g_throw_ex, false);
 
 static void report_failure(sstream const & strm) {
     if (g_throw_ex){
@@ -123,26 +127,29 @@ static void report_failure(sstream const & strm) {
     }
 }
 
-simp_lemmas add_core(tmp_type_context & tctx, simp_lemmas const & s,
+simp_lemmas add_core(tmp_type_context & tmp_tctx, simp_lemmas const & s,
                      name const & id, levels const & univ_metas, expr const & e, expr const & h,
                      unsigned priority) {
-    list<expr_pair> ceqvs   = to_ceqvs(tctx, e, h);
+    list<expr_pair> ceqvs   = to_ceqvs(tmp_tctx.tctx(), e, h);
     if (is_nil(ceqvs)) {
         report_failure(sstream() << "invalid [simp] lemma '" << id << "'");
     }
-    environment const & env = tctx.env();
+    environment const & env = tmp_tctx.tctx().env();
     simp_lemmas new_s = s;
     for (expr_pair const & p : ceqvs) {
-        expr rule  = normalizer(tctx)(p.first);
-        expr proof = tctx.whnf(p.second);
+        /* We only clear the eassignment since we want to reuse the temporary universe metavariables associated
+           with the declaration. */
+        tmp_tctx.clear_eassignment();
+        expr rule  = tmp_tctx.whnf(p.first);
+        expr proof = tmp_tctx.whnf(p.second);
         bool is_perm = is_permutation_ceqv(env, rule);
         buffer<expr> emetas;
         buffer<bool> instances;
         while (is_pi(rule)) {
-            expr mvar = tctx.mk_mvar(binding_domain(rule));
+            expr mvar = tmp_tctx.mk_tmp_mvar(binding_domain(rule));
             emetas.push_back(mvar);
             instances.push_back(binding_info(rule).is_inst_implicit());
-            rule = tctx.whnf(instantiate(binding_body(rule), mvar));
+            rule = tmp_tctx.whnf(instantiate(binding_body(rule), mvar));
             proof = mk_app(proof, mvar);
         }
         expr rel, lhs, rhs;
@@ -154,8 +161,9 @@ simp_lemmas add_core(tmp_type_context & tctx, simp_lemmas const & s,
     return new_s;
 }
 
-simp_lemmas add(tmp_type_context & tctx, simp_lemmas const & s, name const & id, expr const & e, expr const & h, unsigned priority) {
-    return add_core(tctx, s, id, list<level>(), e, h, priority);
+simp_lemmas add(type_context & tctx, simp_lemmas const & s, name const & id, expr const & e, expr const & h, unsigned priority) {
+    tmp_type_context tmp_tctx(tctx);
+    return add_core(tmp_tctx, s, id, list<level>(), e, h, priority);
 }
 
 simp_lemmas join(simp_lemmas const & s1, simp_lemmas const & s2) {
@@ -166,17 +174,17 @@ simp_lemmas join(simp_lemmas const & s1, simp_lemmas const & s2) {
     return new_s1;
 }
 
-static simp_lemmas add_core(tmp_type_context & tctx, simp_lemmas const & s, name const & cname, unsigned priority) {
-    declaration const & d = tctx.env().get(cname);
+static simp_lemmas add_core(tmp_type_context & tmp_tctx, simp_lemmas const & s, name const & cname, unsigned priority) {
+    declaration const & d = tmp_tctx.tctx().env().get(cname);
     buffer<level> us;
     unsigned num_univs = d.get_num_univ_params();
     for (unsigned i = 0; i < num_univs; i++) {
-        us.push_back(tctx.mk_uvar());
+        us.push_back(tmp_tctx.mk_tmp_univ_mvar());
     }
     levels ls = to_list(us);
-    expr e    = tctx.whnf(instantiate_type_univ_params(d, ls));
+    expr e    = tmp_tctx.whnf(instantiate_type_univ_params(d, ls));
     expr h    = mk_constant(cname, ls);
-    return add_core(tctx, s, cname, ls, e, h, priority);
+    return add_core(tmp_tctx, s, cname, ls, e, h, priority);
 }
 
 // Return true iff lhs is of the form (B (x : ?m1), ?m2) or (B (x : ?m1), ?m2 x),
@@ -222,30 +230,30 @@ static bool is_valid_congr_hyp_rhs(expr const & rhs, name_set & found_mvars) {
     return true;
 }
 
-simp_lemmas add_congr_core(tmp_type_context & tctx, simp_lemmas const & s, name const & n, unsigned prio) {
-    declaration const & d = tctx.env().get(n);
+simp_lemmas add_congr_core(tmp_type_context & tmp_tctx, simp_lemmas const & s, name const & n, unsigned prio) {
+    declaration const & d = tmp_tctx.tctx().env().get(n);
     buffer<level> us;
     unsigned num_univs = d.get_num_univ_params();
     for (unsigned i = 0; i < num_univs; i++) {
-        us.push_back(tctx.mk_uvar());
+        us.push_back(tmp_tctx.mk_tmp_univ_mvar());
     }
     levels ls = to_list(us);
-    expr rule    = normalizer(tctx)(instantiate_type_univ_params(d, ls));
+    expr rule    = tmp_tctx.whnf(instantiate_type_univ_params(d, ls));
     expr proof   = mk_constant(n, ls);
 
     buffer<expr> emetas;
     buffer<bool> instances, explicits;
 
     while (is_pi(rule)) {
-        expr mvar = tctx.mk_mvar(binding_domain(rule));
+        expr mvar = tmp_tctx.mk_tmp_mvar(binding_domain(rule));
         emetas.push_back(mvar);
         explicits.push_back(is_explicit(binding_info(rule)));
         instances.push_back(binding_info(rule).is_inst_implicit());
-        rule = tctx.whnf(instantiate(binding_body(rule), mvar));
+        rule = tmp_tctx.whnf(instantiate(binding_body(rule), mvar));
         proof = mk_app(proof, mvar);
     }
     expr rel, lhs, rhs;
-    if (!is_simp_relation(tctx.env(), rule, rel, lhs, rhs) || !is_constant(rel)) {
+    if (!is_simp_relation(tmp_tctx.tctx().env(), rule, rel, lhs, rhs) || !is_constant(rel)) {
         report_failure(sstream() << "invalid [congr] lemma, '" << n
                        << "' resulting type is not of the form t ~ s, where '~' is a transitive and reflexive relation");
     }
@@ -292,13 +300,14 @@ simp_lemmas add_congr_core(tmp_type_context & tctx, simp_lemmas const & s, name 
         if (explicits[i] && !found_mvars.contains(mlocal_name(mvar))) {
             buffer<expr> locals;
             expr type = mlocal_type(mvar);
+            type_context::tmp_locals local_factory(tmp_tctx.tctx());
             while (is_pi(type)) {
-                expr local = tctx.mk_tmp_local(binding_domain(type));
+                expr local = local_factory.push_local_from_binding(type);
                 locals.push_back(local);
                 type = instantiate(binding_body(type), local);
             }
             expr h_rel, h_lhs, h_rhs;
-            if (!is_simp_relation(tctx.env(), type, h_rel, h_lhs, h_rhs) || !is_constant(h_rel))
+            if (!is_simp_relation(tmp_tctx.tctx().env(), type, h_rel, h_lhs, h_rhs) || !is_constant(h_rel))
                 continue;
             unsigned j = 0;
             for (expr const & local : locals) {
@@ -328,6 +337,20 @@ simp_lemmas add_congr_core(tmp_type_context & tctx, simp_lemmas const & s, name 
     new_s.insert(const_name(rel), user_congr_lemma(n, ls, reverse_to_list(emetas),
                                                    reverse_to_list(instances), lhs, rhs, proof, to_list(congr_hyps), prio));
     return new_s;
+}
+
+void validate_simp(type_context & tctx, name const & n) {
+    simp_lemmas s;
+    flet<bool> set_ex(g_throw_ex, true);
+    tmp_type_context tmp_tctx(tctx);
+    add_core(tmp_tctx, s, n, LEAN_DEFAULT_PRIORITY);
+}
+
+void validate_congr(type_context & tctx, name const & n) {
+    simp_lemmas s;
+    flet<bool> set_ex(g_throw_ex, true);
+    tmp_type_context tmp_tctx(tctx);
+    add_congr_core(tmp_tctx, s, n, LEAN_DEFAULT_PRIORITY);
 }
 
 simp_lemma_core::simp_lemma_core(name const & id, levels const & umetas, list<expr> const & emetas,
@@ -573,70 +596,43 @@ format simp_lemmas::pp(formatter const & fmt) const {
     return pp(fmt, format(), true, true);
 }
 
-struct simp_lemmas_cache {
-    simp_lemmas                        m_main_cache;
-    std::vector<optional<simp_lemmas>> m_key_cache;
-};
-
-LEAN_THREAD_PTR(simp_lemmas_cache, g_simp_lemmas_cache);
-
-scope_simp::scope_simp() {
-    m_old_cache         = g_simp_lemmas_cache;
-    g_simp_lemmas_cache = nullptr;
-}
-
-scope_simp::~scope_simp() {
-    delete g_simp_lemmas_cache;
-    g_simp_lemmas_cache = m_old_cache;
-}
-
-simp_lemmas get_simp_lemmas_core() {
+simp_lemmas get_simp_lemmas(environment const & env) {
     simp_lemmas r;
     buffer<name> simp_lemmas, congr_lemmas;
-    blast_tmp_type_context ctx;
-    auto const & s = simp_ext::get_state(env());
+    aux_type_context aux_ctx(env);
+    type_context & tctx = aux_ctx.get();
+    auto const & s = simp_ext::get_state(env);
     s.m_simp_lemmas.to_buffer(simp_lemmas);
     s.m_congr_lemmas.to_buffer(congr_lemmas);
     unsigned i = simp_lemmas.size();
     while (i > 0) {
         --i;
-        ctx->clear();
-        r = add_core(*ctx, r, simp_lemmas[i], *s.m_simp_lemmas.get_prio(simp_lemmas[i]));
+        tmp_type_context tmp_tctx(tctx);
+        r = add_core(tmp_tctx, r, simp_lemmas[i], *s.m_simp_lemmas.get_prio(simp_lemmas[i]));
     }
     i = congr_lemmas.size();
     while (i > 0) {
         --i;
-        ctx->clear();
-        r = add_congr_core(*ctx, r, congr_lemmas[i], *s.m_congr_lemmas.get_prio(congr_lemmas[i]));
+        tmp_type_context tmp_tctx(tctx);
+        r = add_congr_core(tmp_tctx, r, congr_lemmas[i], *s.m_congr_lemmas.get_prio(congr_lemmas[i]));
     }
     return r;
 }
 
-static simp_lemmas_cache & get_cache() {
-    if (!g_simp_lemmas_cache) {
-        g_simp_lemmas_cache = new simp_lemmas_cache();
-        g_simp_lemmas_cache->m_main_cache = get_simp_lemmas_core();
-    }
-    return *g_simp_lemmas_cache;
-}
-
-simp_lemmas get_simp_lemmas() {
-    return get_cache().m_main_cache;
-}
-
 template<typename NSS>
-simp_lemmas get_simp_lemmas_core(NSS const & nss) {
+simp_lemmas get_simp_lemmas_core(environment const & env, NSS const & nss) {
     simp_lemmas r;
-    blast_tmp_type_context ctx;
+    aux_type_context aux_ctx(env);
+    type_context & tctx = aux_ctx.get();
     for (name const & ns : nss) {
-        list<simp_entry> const * entries = simp_ext::get_entries(env(), ns);
+        list<simp_entry> const * entries = simp_ext::get_entries(env, ns);
         if (entries) {
             for (auto const & e : *entries) {
                 bool is_simp; unsigned prio; name n;
                 std::tie(is_simp, prio, n) = e;
                 if (is_simp) {
-                    ctx->clear();
-                    r = add_core(*ctx, r, n, prio);
+                    tmp_type_context tmp_tctx(tctx);
+                    r = add_core(tmp_tctx, r, n, prio);
                 }
             }
         }
@@ -644,44 +640,38 @@ simp_lemmas get_simp_lemmas_core(NSS const & nss) {
     return r;
 }
 
-simp_lemmas get_simp_lemmas(std::initializer_list<name> const & nss) {
-    return get_simp_lemmas_core(nss);
+simp_lemmas get_simp_lemmas(environment const & env, std::initializer_list<name> const & nss) {
+    return get_simp_lemmas_core(env, nss);
 }
 
-simp_lemmas get_simp_lemmas(name const & ns) {
-    return get_simp_lemmas({ns});
+simp_lemmas get_simp_lemmas(environment const & env, name const & ns) {
+    return get_simp_lemmas(env, {ns});
 }
 
-simp_lemmas get_simp_lemmas(unsigned key) {
-    simp_lemmas_cache & cache = get_cache();
-    if (key >= g_simp_lemma_ns->size())
-        throw exception("invalid simp lemma cache key");
-    if (key >= cache.m_key_cache.size())
-        cache.m_key_cache.resize(key+1);
-    if (!cache.m_key_cache[key])
-        cache.m_key_cache[key] = get_simp_lemmas_core((*g_simp_lemma_ns)[key]);
-    return *cache.m_key_cache[key];
-}
-}
-
-void validate_simp(environment const & env, io_state const & ios, name const & n) {
-    blast::simp_lemmas s;
-    tmp_type_context ctx(env, ios.get_options());
-    flet<bool> set_ex(blast::g_throw_ex, true);
-    blast::add_core(ctx, s, n, LEAN_DEFAULT_PRIORITY);
-}
-
-void validate_congr(environment const & env, io_state const & ios, name const & n) {
-    blast::simp_lemmas s;
-    tmp_type_context ctx(env, ios.get_options());
-    flet<bool> set_ex(blast::g_throw_ex, true);
-    blast::add_congr_core(ctx, s, n, LEAN_DEFAULT_PRIORITY);
+vm_obj tactic_simp(vm_obj const & e, vm_obj const & s0) {
+    tactic_state const & s   = to_tactic_state(s0);
+    try {
+        // TODO(dhs): use type_context_scope for this
+        metavar_context mctx_tmp   = s.mctx();
+        type_context tctx           = mk_type_context_for(s, mctx_tmp, transparency_mode::Reducible);
+        simp_lemmas lemmas         = get_simp_lemmas(s.env());
+        expr target                = *(s.get_main_goal());
+//        name rel                   = (is_standard(s.env()) && tctx.is_prop(target)) ? get_iff_name() : get_eq_name();
+        name rel                   = get_iff_name();
+        simp_result result         = simplify(tctx, rel, lemmas, to_expr(e));
+        if (result.has_proof()) {
+            return mk_tactic_success(mk_vm_pair(to_obj(result.get_new()), to_obj(result.get_proof())), s);
+        } else {
+            return mk_tactic_exception("simp tactic failed to simplify", s);
+        }
+    } catch (exception & e) {
+        return mk_tactic_exception(e, s);
+    }
 }
 
 void initialize_simp_lemmas() {
     g_class_name    = new name("simp");
     g_key           = new std::string("SIMP");
-    g_simp_lemma_ns = new std::vector<std::vector<name>>();
     simp_ext::initialize();
 
     register_prio_attribute("simp", "simplification lemma",
@@ -704,13 +694,12 @@ void initialize_simp_lemmas() {
                                     return LEAN_DEFAULT_PRIORITY;
                             });
 
-    blast::g_simp_lemmas_cache = nullptr;
+    DECLARE_VM_BUILTIN(name({"tactic", "simplify"}),            tactic_simp);
 }
 
 void finalize_simp_lemmas() {
     simp_ext::finalize();
     delete g_key;
     delete g_class_name;
-    delete g_simp_lemma_ns;
 }
 }

@@ -29,22 +29,6 @@ void initialize_old_attributes() {
                            return env;
                        },
                        [](environment const &, name const &) { return false; });
-    register_prio_attribute("simp", "simplification lemma",
-                            [](environment const & env, io_state const & ios, name const & d, unsigned prio, name const & ns, bool persistent) {
-                                return env;
-                            },
-                            [](environment const &, name const &) { return false; },
-                            [](environment const & env, name const & n) {
-                                return LEAN_DEFAULT_PRIORITY;
-                            });
-    register_prio_attribute("congr", "congruence lemma",
-                            [](environment const & env, io_state const & ios, name const & d, unsigned prio, name const & ns, bool persistent) {
-                                return env;
-                            },
-                            [](environment const &, name const &) { return false; },
-                            [](environment const & env, name const & n) {
-                                return LEAN_DEFAULT_PRIORITY;
-                            });
     register_prio_attribute("forward", "forward chaining",
                             [](environment const & env, io_state const & ios, name const & d, unsigned prio, name const & ns, bool persistent) {
                                 return env;

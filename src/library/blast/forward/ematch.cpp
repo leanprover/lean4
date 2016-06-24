@@ -253,7 +253,7 @@ void finalize_ematch() {}
 struct ematch_fn {
     ematch_branch_extension_core & m_ext;
     instances_branch_extension &   m_inst_ext;
-    blast_tmp_type_context         m_ctx;
+    blast_old_tmp_type_context         m_ctx;
     congruence_closure &           m_cc;
 
     enum frame_kind { DefEqOnly, EqvOnly, Match, MatchSS /* match subsingleton */, Continue };

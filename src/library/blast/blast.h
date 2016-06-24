@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include "kernel/environment.h"
 #include "library/io_state.h"
-#include "library/tmp_type_context.h"
+#include "library/old_tmp_type_context.h"
 #include "library/relation_manager.h"
 #include "library/congr_lemma_manager.h"
 #include "library/fun_info_manager.h"
@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 namespace lean {
 struct projection_info;
 class goal;
-typedef std::unique_ptr<tmp_type_context> tmp_type_context_ptr;
+typedef std::unique_ptr<old_tmp_type_context> old_tmp_type_context_ptr;
 namespace blast {
 /** \brief Create a blast-state universe meta-variable */
 level mk_uref(unsigned idx);
@@ -245,17 +245,17 @@ public:
 /** \brief Create a temporary type_context that is compatible with blast.
     This temporary type context can acces the type of blast hypotheses
     and meta-variables. */
-class blast_tmp_type_context {
-    tmp_type_context * m_ctx;
+class blast_old_tmp_type_context {
+    old_tmp_type_context * m_ctx;
 public:
-    blast_tmp_type_context(unsigned num_umeta, unsigned num_emeta);
-    blast_tmp_type_context();
-    ~blast_tmp_type_context();
+    blast_old_tmp_type_context(unsigned num_umeta, unsigned num_emeta);
+    blast_old_tmp_type_context();
+    ~blast_old_tmp_type_context();
 
-    tmp_type_context const * operator->() const { return m_ctx; }
-    tmp_type_context * operator->() { return m_ctx; }
-    tmp_type_context const & operator*() const { return *m_ctx; }
-    tmp_type_context & operator*() { return *m_ctx; }
+    old_tmp_type_context const * operator->() const { return m_ctx; }
+    old_tmp_type_context * operator->() { return m_ctx; }
+    old_tmp_type_context const & operator*() const { return *m_ctx; }
+    old_tmp_type_context & operator*() { return *m_ctx; }
 };
 
 class scope_curr_state {

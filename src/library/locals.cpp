@@ -105,6 +105,29 @@ void collect_locals(expr const & e, collected_locals & ls, bool restricted) {
     visit(e);
 }
 
+/** \brief Return true iff locals(e1) is a subset of locals(e2) */
+bool locals_subset(expr const & e1, expr const & e2) {
+    if (!has_local(e1)) {
+        // empty set is a subset of anything
+        return true;
+    }
+    if (!has_local(e2)) {
+        lean_assert(has_local(e1));
+        return false;
+    }
+    collected_locals S;
+    collect_locals(e2, S);
+    bool is_sub = true;
+    for_each(e1, [&](expr const & e, unsigned) {
+            if (!is_sub || !has_local(e))
+                return false; // stop search
+            if (is_local(e) && !S.contains(e))
+                is_sub = false;
+            return true;
+        });
+    return is_sub;
+}
+
 bool contains_local(expr const & e, name const & n) {
     if (!has_local(e))
         return false;

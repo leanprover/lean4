@@ -134,12 +134,6 @@ static name const * g_infixr_tk = nullptr;
 static name const * g_postfix_tk = nullptr;
 static name const * g_prefix_tk = nullptr;
 static name const * g_notation_tk = nullptr;
-static name const * g_tactic_infix_tk = nullptr;
-static name const * g_tactic_infixl_tk = nullptr;
-static name const * g_tactic_infixr_tk = nullptr;
-static name const * g_tactic_postfix_tk = nullptr;
-static name const * g_tactic_prefix_tk = nullptr;
-static name const * g_tactic_notation_tk = nullptr;
 static name const * g_calc_tk = nullptr;
 static name const * g_obtain_tk = nullptr;
 static name const * g_root_tk = nullptr;
@@ -282,12 +276,6 @@ void initialize_tokens() {
     g_postfix_tk = new name{"postfix"};
     g_prefix_tk = new name{"prefix"};
     g_notation_tk = new name{"notation"};
-    g_tactic_infix_tk = new name{"tactic_infix"};
-    g_tactic_infixl_tk = new name{"tactic_infixl"};
-    g_tactic_infixr_tk = new name{"tactic_infixr"};
-    g_tactic_postfix_tk = new name{"tactic_postfix"};
-    g_tactic_prefix_tk = new name{"tactic_prefix"};
-    g_tactic_notation_tk = new name{"tactic_notation"};
     g_calc_tk = new name{"calc"};
     g_obtain_tk = new name{"obtain"};
     g_root_tk = new name{"_root_"};
@@ -431,12 +419,6 @@ void finalize_tokens() {
     delete g_postfix_tk;
     delete g_prefix_tk;
     delete g_notation_tk;
-    delete g_tactic_infix_tk;
-    delete g_tactic_infixl_tk;
-    delete g_tactic_infixr_tk;
-    delete g_tactic_postfix_tk;
-    delete g_tactic_prefix_tk;
-    delete g_tactic_notation_tk;
     delete g_calc_tk;
     delete g_obtain_tk;
     delete g_root_tk;
@@ -579,12 +561,6 @@ name const & get_infixr_tk() { return *g_infixr_tk; }
 name const & get_postfix_tk() { return *g_postfix_tk; }
 name const & get_prefix_tk() { return *g_prefix_tk; }
 name const & get_notation_tk() { return *g_notation_tk; }
-name const & get_tactic_infix_tk() { return *g_tactic_infix_tk; }
-name const & get_tactic_infixl_tk() { return *g_tactic_infixl_tk; }
-name const & get_tactic_infixr_tk() { return *g_tactic_infixr_tk; }
-name const & get_tactic_postfix_tk() { return *g_tactic_postfix_tk; }
-name const & get_tactic_prefix_tk() { return *g_tactic_prefix_tk; }
-name const & get_tactic_notation_tk() { return *g_tactic_notation_tk; }
 name const & get_calc_tk() { return *g_calc_tk; }
 name const & get_obtain_tk() { return *g_obtain_tk; }
 name const & get_root_tk() { return *g_root_tk; }

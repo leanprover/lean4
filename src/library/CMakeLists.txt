@@ -13,7 +13,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   aux_recursors.cpp norm_num.cpp trace.cpp
   attribute_manager.cpp error_handling.cpp unification_hint.cpp
   local_context.cpp metavar_context.cpp type_context.cpp export_decl.cpp lazy_abstraction.cpp
-  fun_info.cpp congr_lemma.cpp abstract_expr.cpp defeq_canonizer.cpp
+  fun_info.cpp congr_lemma.cpp defeq_canonizer.cpp
   # Legacy -- The following files will be eventually deleted
   normalize.cpp justification.cpp constraint.cpp metavar.cpp choice.cpp locals.cpp
   unifier.cpp match.cpp class_instance_resolution.cpp old_type_context.cpp
@@ -21,6 +21,6 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   old_util.cpp let.cpp metavar_closure.cpp old_local_context.cpp choice_iterator.cpp
   tmp_type_context.cpp
 
-  # abstract_expr_manager.cpp light_lt_manager.cpp
+  # light_lt_manager.cpp
   # proof_irrel_expr_manager.cpp
   )

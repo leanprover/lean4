@@ -214,10 +214,10 @@ pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, lo
     DEBUG_CODE({
             for (unsigned i = 0; i < to_revert.size(); i++) {
                 lean_assert(is_local_decl_ref(to_revert[i]));
-                optional<local_decl> const & decl = ctx.get_local_decl(to_revert[i]);
+                optional<local_decl> decl = ctx.get_local_decl(to_revert[i]);
                 lean_assert(decl);
                 if (i > 1) {
-                    optional<local_decl> const & prev_decl = ctx.get_local_decl(to_revert[i-1]);
+                    optional<local_decl> prev_decl = ctx.get_local_decl(to_revert[i-1]);
                     lean_assert(prev_decl && prev_decl->get_idx() < decl->get_idx());
                 }
             }
@@ -1356,7 +1356,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
 
                            For every metavariable `?M'@C'` occurring in `t`, `C'` is a subset of `C`
                         */
-                        optional<metavar_decl> const & e_decl = m_mctx.get_metavar_decl(e);
+                        optional<metavar_decl> e_decl = m_mctx.get_metavar_decl(e);
                         if (!e_decl || !e_decl->get_context().is_subset_of(mvar_decl->get_context())) {
                             ok = false;
                             return false;

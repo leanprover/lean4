@@ -16,6 +16,8 @@ class parser;
     Return true when levels were provided.
 */
 bool parse_univ_params(parser & p, buffer<name> & ps);
+void validate_match_pattern(parser const & p, expr const & lhs, buffer<expr> const & locals);
+expr parse_match_pattern(parser & p, buffer<expr> & locals);
 expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos);
 expr parse_local_equations(parser & p, expr const & fn);
 

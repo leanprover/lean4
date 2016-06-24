@@ -450,7 +450,7 @@ static bool is_curr_with_or_comma_or_bar(parser & p) {
 }
 
 /**
-   For convenience, the left-hand-side of a recursive equation may contain
+   For convenience, the left-hand-side of a pattern (e.g., in a recursive equation) may contain
    undeclared variables.
    We use parser::undef_id_to_local_scope to force the parser to create a local constant for
    each undefined identifier.
@@ -458,13 +458,13 @@ static bool is_curr_with_or_comma_or_bar(parser & p) {
    This method validates occurrences of these variables. They can only occur as an application
    or macro argument.
 */
-static void validate_equation_lhs(parser const & p, expr const & lhs, buffer<expr> const & locals) {
+void validate_match_pattern(parser const & p, expr const & lhs, buffer<expr> const & locals) {
     if (is_app(lhs)) {
-        validate_equation_lhs(p, app_fn(lhs), locals);
-        validate_equation_lhs(p, app_arg(lhs), locals);
+        validate_match_pattern(p, app_fn(lhs), locals);
+        validate_match_pattern(p, app_arg(lhs), locals);
     } else if (is_macro(lhs)) {
         for (unsigned i = 0; i < macro_num_args(lhs); i++)
-            validate_equation_lhs(p, macro_arg(lhs, i), locals);
+            validate_match_pattern(p, macro_arg(lhs, i), locals);
     } else if (!is_local(lhs)) {
         for_each(lhs, [&](expr const & e, unsigned) {
                 if (is_local(e) &&
@@ -482,9 +482,9 @@ static void validate_equation_lhs(parser const & p, expr const & lhs, buffer<exp
 /**
    \brief Merge multiple occurrences of a variable in the left-hand-side of a recursive equation.
 
-   \see validate_equation_lhs
+   \see validate_match_pattern
 */
-static expr merge_equation_lhs_vars(expr const & lhs, buffer<expr> & locals) {
+static expr merge_match_pattern_vars(expr const & lhs, buffer<expr> & locals) {
     expr_map<expr> m;
     unsigned j = 0;
     for (unsigned i = 0; i < locals.size(); i++) {
@@ -590,8 +590,8 @@ static void parse_equations_core(parser & p, buffer<expr> const & fns, buffer<ex
                 locals.push_back(p.get_undef_id(i));
             }
         }
-        validate_equation_lhs(p, lhs, locals);
-        lhs = merge_equation_lhs_vars(lhs, locals);
+        validate_match_pattern(p, lhs, locals);
+        lhs = merge_match_pattern_vars(lhs, locals);
         auto assign_pos = p.pos();
         p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
         {
@@ -669,8 +669,24 @@ static name * g_match_name = nullptr;
 
 bool is_match_binder_name(name const & n) { return n == *g_match_name; }
 
+expr parse_match_pattern(parser & p, buffer<expr> & locals) {
+    expr lhs;
+    unsigned prev_num_undef_ids = p.get_num_undef_ids();
+    {
+        parser::undef_id_to_local_scope scope2(p);
+        lhs = p.parse_expr();
+        unsigned num_undef_ids = p.get_num_undef_ids();
+        for (unsigned i = prev_num_undef_ids; i < num_undef_ids; i++) {
+            locals.push_back(p.get_undef_id(i));
+        }
+    }
+    lhs = merge_match_pattern_vars(lhs, locals);
+    return lhs;
+}
+
 /** \brief Use equations compiler infrastructure to implement match-with */
 expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
+    parser::local_scope scope(p);
     buffer<expr> eqns;
     expr t;
     try {
@@ -687,21 +703,11 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
         if (is_eqn_prefix(p))
             p.next(); // optional '|' in the first case
         while (true) {
-            expr lhs;
-            unsigned prev_num_undef_ids = p.get_num_undef_ids();
             buffer<expr> locals;
-            {
-                parser::undef_id_to_local_scope scope2(p);
-                auto lhs_pos = p.pos();
-                lhs = p.parse_expr();
-                lhs = p.mk_app(fn, lhs, lhs_pos);
-                unsigned num_undef_ids = p.get_num_undef_ids();
-                for (unsigned i = prev_num_undef_ids; i < num_undef_ids; i++) {
-                    locals.push_back(p.get_undef_id(i));
-                }
-            }
-            validate_equation_lhs(p, lhs, locals);
-            lhs = merge_equation_lhs_vars(lhs, locals);
+            auto lhs_pos = p.pos();
+            expr lhs = parse_match_pattern(p, locals);
+            validate_match_pattern(p, lhs, locals);
+            lhs = p.mk_app(fn, lhs, lhs_pos);
             auto assign_pos = p.pos();
             p.check_token_next(get_assign_tk(), "invalid 'match' expression, ':=' expected");
             {
@@ -1517,7 +1523,7 @@ void register_decl_cmds(cmd_table & r) {
 }
 
 void initialize_decl_cmds() {
-    g_match_name = new name(name::mk_internal_unique_name(), "match");
+    g_match_name = new name("_match");
 }
 void finalize_decl_cmds() {
     delete g_match_name;

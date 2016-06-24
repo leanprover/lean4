@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/let.h"
 #include "library/constants.h"
 #include "library/quote.h"
+#include "library/trace.h"
 #include "library/tactic/elaborate.h"
 #include "library/definitional/equations.h"
 #include "frontends/lean/builtin_exprs.h"
@@ -511,57 +512,92 @@ static expr parse_pattern(parser & p, unsigned, expr const * args, pos_info cons
     throw parser_error("pattern_hints have been disabled", pos);
 }
 
+static name * g_do_match_name = nullptr;
+
+static expr fix_do_action_lhs(parser & p, expr const & lhs, expr const & type, pos_info const & lhs_pos,
+                              buffer<expr> & new_locals) {
+    // Hack
+    if (is_constant(lhs) || is_local(lhs)) {
+        expr new_lhs;
+        if (is_constant(lhs)) {
+            new_lhs = mk_local(name(const_name(lhs).get_string()), type);
+        } else {
+            new_lhs = mk_local(local_pp_name(lhs), type);
+        }
+        new_lhs = p.save_pos(new_lhs, lhs_pos);
+        new_locals.clear();
+        new_locals.push_back(new_lhs);
+        return new_lhs;
+    } else {
+        return lhs;
+    }
+}
+
+static std::tuple<optional<expr>, expr, expr> parse_do_action(parser & p, buffer<expr> & new_locals) {
+    auto lhs_pos = p.pos();
+    optional<expr> lhs;
+    lhs = parse_match_pattern(p, new_locals);
+    expr type, curr;
+    if (p.curr_is_token(get_colon_tk())) {
+        p.next();
+        type = p.parse_expr();
+        lhs  = fix_do_action_lhs(p, *lhs, type, lhs_pos, new_locals);
+        if (!is_local(*lhs)) {
+            throw parser_error("invalid 'do' notation, unexpected ':' the left hand side is not an identifier", lhs_pos);
+        }
+        p.check_token_next(get_larrow_tk(), "invalid 'do' notation, '←' expected");
+        curr = p.parse_expr();
+    } else if (p.curr_is_token(get_larrow_tk())) {
+        p.next();
+        type = mk_expr_placeholder();
+        lhs  = fix_do_action_lhs(p, *lhs, type, lhs_pos, new_locals);
+        if (!is_local(*lhs))
+            validate_match_pattern(p, *lhs, new_locals);
+        curr = p.parse_expr();
+    } else {
+        if (!new_locals.empty()) {
+            expr undef = new_locals[0];
+            auto undef_pos = p.pos_of(undef, lhs_pos);
+            throw parser_error(sstream() << "unknown identifier '" << local_pp_name(undef) << "'", undef_pos);
+        }
+        curr = *lhs;
+        type = mk_expr_placeholder();
+        lhs  = none_expr();
+    }
+    return std::make_tuple(lhs, type, curr);
+}
+
 static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
     parser::local_scope scope(p);
-    buffer<expr> es;
-    buffer<expr> locals;
+    buffer<expr>           es;
+    buffer<optional<expr>> lhss;
+    buffer<list<expr>>     lhss_locals;
     bool has_braces = false;
     if (p.curr_is_token(get_lcurly_tk())) {
         has_braces = true;
         p.next();
     }
     while (true) {
-        expr curr;
-        optional<name> id;
-        expr type;
-        auto id_pos = p.pos();
-        if (p.curr_is_identifier()) {
-            id = p.get_name_val();
-            p.next();
-            if (p.curr_is_token(get_larrow_tk())) {
-                p.next();
-                type = mk_expr_placeholder();
-                curr = p.parse_expr();
-            } else if (p.curr_is_token(get_colon_tk())) {
-                p.next();
-                type = p.parse_expr();
-                p.check_token_next(get_larrow_tk(), "invalid 'do' notation, '←' expected");
-                curr = p.parse_expr();
-            } else {
-                type      = mk_expr_placeholder();
-                expr left = p.id_to_expr(*id, id_pos);
-                id        = optional<name>();
-                unsigned rbp = 0;
-                while (rbp < p.curr_lbp()) {
-                    left = p.parse_led(left);
-                }
-                curr = left;
-            }
-        } else {
-            id   = optional<name>();
-            type = mk_expr_placeholder();
-            curr = p.parse_expr();
-        }
+        auto lhs_pos = p.pos();
+        buffer<expr> new_locals;
+        optional<expr> lhs;
+        expr type, curr;
+        std::tie(lhs, type, curr) = parse_do_action(p, new_locals);
         es.push_back(curr);
         if (p.curr_is_token(get_comma_tk())) {
             p.next();
-            name n = id ? *id : mk_fresh_name();
-            expr l = p.save_pos(mk_local(n, type), id_pos);
-            p.add_local(l);
-            locals.push_back(l);
+            for (expr const & l : new_locals)
+                p.add_local(l);
+            if (lhs && !is_local(*lhs)) {
+                // if lhs is a pattern, we need to save the locals to create the match
+                lhss_locals.push_back(to_list(new_locals));
+            } else {
+                lhss_locals.push_back(list<expr>());
+            }
+            lhss.push_back(lhs);
         } else {
-            if (id) {
-                throw parser_error("invalid 'do' expression, unnecessary binder", id_pos);
+            if (lhs) {
+                throw parser_error("invalid 'do' expression, unnecessary binder", lhs_pos);
             }
             break;
         }
@@ -570,7 +606,7 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
         p.check_token_next(get_rcurly_tk(), "invalid 'do' expression, '}' expected");
     }
     lean_assert(!es.empty());
-    lean_assert(es.size() == locals.size() + 1);
+    lean_assert(es.size() == lhss.size() + 1);
     if (es.size() == 1)
         return es[0];
     unsigned i = es.size();
@@ -578,7 +614,24 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
     expr r = es[i];
     while (i > 0) {
         --i;
-        r = mk_app(mk_constant(get_monad_bind_name()), es[i], Fun(locals[i], r));
+        if (auto lhs = lhss[i]) {
+            if (is_local(*lhs)) {
+                r = mk_app(mk_constant(get_monad_bind_name()), es[i], Fun(*lhs, r));
+            } else {
+                // must introduce a "fake" match
+                expr fn = mk_local(mk_fresh_name(), *g_do_match_name, mk_expr_placeholder(), binder_info());
+                buffer<expr> locals;
+                to_buffer(lhss_locals[i], locals);
+                auto pos   = p.pos_of(*lhs);
+                expr eq    = Fun(fn, Fun(locals, p.save_pos(mk_equation(mk_app(fn, *lhs), r), pos), p));
+                expr eqns  = p.save_pos(mk_equations(1, 1, &eq), pos);
+                expr local = mk_local("p", mk_expr_placeholder());
+                expr match = p.mk_app(eqns, local, pos);
+                r = mk_app(mk_constant(get_monad_bind_name()), es[i], Fun(local, match));
+            }
+        } else {
+            r = mk_app(mk_constant(get_monad_bind_name()), es[i], mk_lambda("x", mk_expr_placeholder(), r));
+        }
     }
     return r;
 }
@@ -662,12 +715,13 @@ parse_table get_builtin_led_table() {
 }
 
 void initialize_builtin_exprs() {
-    notation::H_obtain_from = new name("H_obtain_from");
-    notation::g_not         = new expr(mk_constant(get_not_name()));
-    g_nud_table             = new parse_table();
-    *g_nud_table            = notation::init_nud_table();
-    g_led_table             = new parse_table();
-    *g_led_table            = notation::init_led_table();
+    notation::H_obtain_from    = new name("H_obtain_from");
+    notation::g_not            = new expr(mk_constant(get_not_name()));
+    g_nud_table                = new parse_table();
+    *g_nud_table               = notation::init_nud_table();
+    g_led_table                = new parse_table();
+    *g_led_table               = notation::init_led_table();
+    notation::g_do_match_name  = new name("_do_match");
 
     g_parser_checkpoint_have = new name{"parser", "checkpoint_have"};
     register_bool_option(*g_parser_checkpoint_have, LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE,
@@ -679,6 +733,7 @@ void finalize_builtin_exprs() {
     delete g_nud_table;
     delete notation::H_obtain_from;
     delete notation::g_not;
+    delete notation::g_do_match_name;
     delete g_parser_checkpoint_have;
 }
 }

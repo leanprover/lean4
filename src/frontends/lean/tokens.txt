@@ -105,6 +105,7 @@ parsing_only [parsing_only]
 simp_attr    [simp]
 congr_attr   [congr]
 light_attr   [light
+simp_ext_attr   [simp_ext]
 no_pattern_attr [no_pattern]
 forward_attr    [forward]
 intro_attr      [intro]

@@ -112,6 +112,7 @@ name const & get_parsing_only_tk();
 name const & get_simp_attr_tk();
 name const & get_congr_attr_tk();
 name const & get_light_attr_tk();
+name const & get_simp_ext_attr_tk();
 name const & get_no_pattern_attr_tk();
 name const & get_forward_attr_tk();
 name const & get_intro_attr_tk();

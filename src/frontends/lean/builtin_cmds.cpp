@@ -24,11 +24,15 @@ Author: Leonardo de Moura
 #include "library/abbreviation.h"
 #include "library/user_recursors.h"
 #include "library/pp_options.h"
+#include "library/attribute_manager.h"
 #include "library/aux_recursors.h"
 #include "library/private.h"
 #include "library/type_context.h"
 #include "library/legacy_type_context.h"
 #include "library/reducible.h"
+#include "library/tactic/defeq_simplifier/defeq_simp_lemmas.h"
+#include "library/tactic/defeq_simplifier/defeq_simplifier.h"
+#include "library/tactic/simplifier/simp_extensions.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_string.h"
 #include "library/compiler/vm_compiler.h"
@@ -493,6 +497,21 @@ static environment init_hits_cmd(parser & p) {
     return module::declare_hits(p.env());
 }
 
+// register_simp_ext <head> <simp_ext_name> ([priority <prio>])
+static environment register_simp_ext_cmd(parser & p) {
+    environment env = p.env();
+    name head = p.check_constant_next("invalid #register_simp_ext_cmd command, constant expected");
+    name simp_ext_name = p.check_constant_next("invalid #register_simp_ext_cmd command, constant expected");
+    unsigned prio = LEAN_DEFAULT_PRIORITY;
+    if (auto oprio = parse_priority(p))
+        prio = *oprio;
+    bool persistent = true;
+    // TODO(dhs): allow some syntax for indicating a namespace other than the current one
+    name ns = get_namespace(env);
+    env = add_simp_extension(env, p.ios(), head, simp_ext_name, prio, ns, persistent);
+    return env;
+}
+
 static environment normalizer_cmd(parser & p) {
 /*
     environment const & env = p.env();
@@ -684,6 +703,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("init_quotient",     "initialize quotient type computational rules", init_quotient_cmd));
     add_cmd(r, cmd_info("init_hits",         "initialize builtin HITs", init_hits_cmd));
     add_cmd(r, cmd_info("declare_trace",     "declare a new trace class (for debugging Lean tactics)", declare_trace_cmd));
+    add_cmd(r, cmd_info("register_simp_ext", "register simplifier extension", register_simp_ext_cmd));
     add_cmd(r, cmd_info("#erase_cache",      "erase cached definition (for debugging purposes)", erase_cache_cmd));
     add_cmd(r, cmd_info("#normalizer",       "(for debugging purposes)", normalizer_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));

@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/unification_hint.h"
 #include "library/tactic/defeq_simplifier/defeq_simp_lemmas.h"
 #include "library/tactic/simplifier/simp_lemmas.h"
+#include "library/tactic/simplifier/simp_extensions.h"
 #include "library/reducible.h"
 #include "library/definitional/projection.h"
 #include "frontends/lean/parser.h"
@@ -578,6 +579,12 @@ static void print_congr_rules(parser & p) {
     out << slss.pp_congr(out.get_formatter());
 }
 
+static void print_simp_extensions(parser & p) {
+    type_checker tc(p.env());
+    auto out = regular(p.env(), p.ios(), tc);
+    out << pp_simp_extensions(p.env());
+}
+
 static void print_light_rules(parser & p) {
 /*
     type_checker tc(p.env());
@@ -762,6 +769,9 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token(get_simp_attr_tk())) {
         p.next();
         print_simp_rules(p);
+    } else if (p.curr_is_token(get_simp_ext_attr_tk())) {
+        p.next();
+        print_simp_extensions(p);
     } else if (p.curr_is_token(get_intro_bang_attr_tk())) {
         p.next();
         print_intro_lemmas(p);

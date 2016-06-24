@@ -109,7 +109,7 @@ void init_token_table(token_table & t) {
         {"theorem", "axiom", "axioms", "variable", "protected", "private", "reveal",
          "definition", "meta_definition", "example", "coercion", "abbreviation", "noncomputable",
          "variables", "parameter", "parameters", "constant", "meta_constant", "constants",
-         "[visible]", "[none]", "[parsing_only]",
+         "[visible]", "[none]", "[parsing_only]", "[simp_ext]",
          "evaluate", "check", "eval", "vm_eval", "[wf]", "[whnf]", "[priority", "[unfold_hints]",
          "print", "end", "namespace", "section", "prelude", "help",
          "import", "inductive", "record", "structure", "module", "universe", "universes", "local",
@@ -118,7 +118,7 @@ void init_token_table(token_table & t) {
          "exit", "set_option", "open", "export", "override", "tactic_hint",
          "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class",
          "multiple_instances", "find_decl", "attribute", "persistent", "inline",
-         "include", "omit", "migrate", "init_quotient", "init_hits", "declare_trace", "#erase_cache",
+         "include", "omit", "migrate", "init_quotient", "init_hits", "declare_trace", "register_simp_ext", "#erase_cache",
          "#compile", "#normalizer", "#unify", "#elab", nullptr};
 
     pair<char const *, char const *> aliases[] =

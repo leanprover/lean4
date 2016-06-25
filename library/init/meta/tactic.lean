@@ -213,6 +213,19 @@ meta_definition clear_lst : list name → tactic unit
 meta_definition unify (a b : expr) : tactic unit :=
 unify_core a b transparency.semireducible
 
+open option
+meta_definition match_eq (e : expr) : tactic (expr × expr) :=
+do match expr.is_eq e with
+| some (lhs, rhs) := return (lhs, rhs)
+| none            := fail "expression is not an equality"
+end
+
+meta_definition match_heq (e : expr) : tactic (expr × expr × expr × expr) :=
+do match expr.is_heq e with
+| some (A, lhs, B, rhs) := return (A, lhs, B, rhs)
+| none                  := fail "expression is not a heterogeneous equality"
+end
+
 meta_definition get_local_type (n : name) : tactic expr :=
 get_local n >>= infer_type
 
@@ -240,25 +253,23 @@ defeq_simp_core e transparency.reducible
 meta_definition dsimp : tactic unit :=
 target >>= defeq_simp >>= change
 
+-- TODO(Leo): remove unifier.conservative after we finish new elaborator
 set_option unifier.conservative true
 meta_definition simp : tactic unit :=
 do gs ← get_goals,
    match gs with
-   | (g :: rest)      := do
-                          tgt ← target,
-                          r ← simplify tgt,
-                          new_tgt ← return (prod.pr1 r),
-                          pf ← return (prod.pr2 r),
-                          pf_type ← infer_type pf,
-                          new_g ← mk_meta_var new_tgt,
-                          ns ← return (match expr.is_eq pf_type with
-                                        | (option.some _) := "eq"
-                                        | option.none := "iff"
-                                        end),
-                          g_pf ← mk_app (ns <.> "mpr") [pf, new_g],
-                          g_pf_type ← infer_type g_pf,
-                          unify g g_pf,
-                          set_goals (new_g :: rest)
+   | (g :: rest) := do
+     (new_tgt, pf) ← target >>= simplify,
+     pf_type ← infer_type pf,
+     new_g ← mk_meta_var new_tgt,
+     ns ← return $ match expr.is_eq pf_type with
+                   | some _ := "eq"
+                   | none   := "iff"
+                   end,
+     g_pf ← mk_app (ns <.> "mpr") [pf, new_g],
+     g_pf_type ← infer_type g_pf,
+     unify g g_pf,
+     set_goals (new_g :: rest)
    | _              := fail "simp called but no goals"
    end
 

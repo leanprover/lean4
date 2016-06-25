@@ -61,7 +61,7 @@ environment section_cmd(parser & p) {
 // Execute open command
 environment execute_open(environment env, io_state const & ios, export_decl const & edecl);
 
-environment replay_export_decls(environment env, io_state const & ios, unsigned old_sz) {
+environment replay_export_decls_core(environment env, io_state const & ios, unsigned old_sz) {
     list<export_decl> new_export_decls = get_export_decls(env);
     unsigned new_sz = length(new_export_decls);
     lean_assert(new_sz >= old_sz);
@@ -73,6 +73,10 @@ environment replay_export_decls(environment env, io_state const & ios, unsigned 
         i++;
     }
     return env;
+}
+
+environment replay_export_decls_core(environment env, io_state const & ios) {
+    return replay_export_decls_core(env, ios, 0);
 }
 
 environment execute_open(environment env, io_state const & ios, export_decl const & edecl) {
@@ -102,7 +106,7 @@ environment execute_open(environment env, io_state const & ios, export_decl cons
         }
     }
     env = update_fingerprint(env, fingerprint);
-    return replay_export_decls(env, ios, old_export_decls_sz);
+    return replay_export_decls_core(env, ios, old_export_decls_sz);
 }
 
 environment namespace_cmd(parser & p) {
@@ -110,7 +114,7 @@ environment namespace_cmd(parser & p) {
     p.push_local_scope();
     unsigned old_export_decls_sz = length(get_export_decls(p.env()));
     environment env = push_scope(p.env(), p.ios(), scope_kind::Namespace, n);
-    return replay_export_decls(env, p.ios(), old_export_decls_sz);
+    return replay_export_decls_core(env, p.ios(), old_export_decls_sz);
 }
 
 static environment redeclare_aliases(environment env, parser & p,

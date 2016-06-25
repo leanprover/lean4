@@ -11,6 +11,9 @@ bool print_id_info(parser & p, name const & id, bool show_value, pos_info const 
 bool print_token_info(parser const & p, name const & tk);
 
 cmd_table get_builtin_cmds();
+/* \brief Replay export declarations in the top-level of imported files */
+environment replay_export_decls_core(environment env, io_state const & ios);
+
 void initialize_builtin_cmds();
 void finalize_builtin_cmds();
 }

@@ -18,7 +18,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   normalize.cpp justification.cpp constraint.cpp metavar.cpp choice.cpp locals.cpp
   unifier.cpp match.cpp class_instance_resolution.cpp old_type_context.cpp
   legacy_type_context.cpp old_type_checker.cpp old_converter.cpp old_default_converter.cpp
-  old_util.cpp let.cpp metavar_closure.cpp old_local_context.cpp choice_iterator.cpp
+  old_util.cpp let.cpp old_local_context.cpp choice_iterator.cpp
   old_tmp_type_context.cpp
 
   # light_lt_manager.cpp

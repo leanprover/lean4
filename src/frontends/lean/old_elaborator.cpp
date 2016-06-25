@@ -34,7 +34,6 @@ Author: Leonardo de Moura
 #include "library/flycheck.h"
 #include "library/deep_copy.h"
 #include "library/typed_expr.h"
-#include "library/metavar_closure.h"
 #include "library/old_local_context.h"
 #include "library/constants.h"
 #include "library/util.h"

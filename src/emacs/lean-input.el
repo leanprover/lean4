@@ -411,7 +411,7 @@ order for the change to take effect."
 
   ;; Arrows.
   ("iff" . ("↔")) ("imp"  . ("→"))
-  ("l"  . ,(lean-input-to-string-list "λ←⇐⇚⇇⇆↤⇦↞↼↽⇠⇺↜⇽⟵⟸↚⇍⇷ ↹     ↢↩↫⇋⇜⇤⟻⟽⤆↶↺⟲                                     "))
+  ("l"  . ,(lean-input-to-string-list "←⇐⇚⇇⇆↤⇦↞↼↽⇠⇺↜⇽⟵⟸↚⇍⇷ ↹     ↢↩↫⇋⇜⇤⟻⟽⤆↶↺⟲                                     "))
   ("r"  . ,(lean-input-to-string-list "→⇒⇛⇉⇄↦⇨↠⇀⇁⇢⇻↝⇾⟶⟹↛⇏⇸⇶ ↴    ↣↪↬⇌⇝⇥⟼⟾⤇↷↻⟳⇰⇴⟴⟿ ➵➸➙➔➛➜➝➞➟➠➡➢➣➤➧➨➩➪➫➬➭➮➯➱➲➳➺➻➼➽➾⊸"))
   ("u"  . ,(lean-input-to-string-list "↑⇑⟰⇈⇅↥⇧↟↿↾⇡⇞          ↰↱➦ ⇪⇫⇬⇭⇮⇯                                           "))
   ("d"  . ,(lean-input-to-string-list "↓⇓⟱⇊⇵↧⇩↡⇃⇂⇣⇟         ↵↲↳➥ ↯                                                "))
@@ -578,6 +578,7 @@ order for the change to take effect."
   ;; lambda
 
   ("fun" . ("λ"))
+  ("lam" . ("λ"))
 
   ("X" . ("⨯"))
 

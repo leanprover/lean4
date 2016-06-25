@@ -12,9 +12,9 @@ vm_obj change(expr const & e, tactic_state const & s) {
     try {
         optional<metavar_decl> g = s.get_main_goal_decl();
         if (!g) return mk_no_goals_exception(s);
-        metavar_context mctx     = s.mctx();
-        type_context ctx         = mk_type_context_for(s, mctx);
+        type_context ctx         = mk_type_context_for(s);
         if (ctx.is_def_eq(e, g->get_type())) {
+            auto mctx    = ctx.mctx();
             expr new_M   = mctx.mk_metavar_decl(g->get_context(), e);
             mctx.assign(head(s.goals()), new_M);
             list<expr> new_gs(new_M, tail(s.goals()));

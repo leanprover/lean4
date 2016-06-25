@@ -13,8 +13,7 @@ vm_obj exact(expr const & e, tactic_state const & s) {
     try {
         optional<metavar_decl> g = s.get_main_goal_decl();
         if (!g) return mk_no_goals_exception(s);
-        metavar_context mctx = s.mctx();
-        type_context ctx     = mk_type_context_for(s, mctx);
+        type_context ctx     = mk_type_context_for(s);
         expr e_type          = ctx.infer(e);
         if (!ctx.is_def_eq(g->get_type(), e_type)) {
             format r("exact tactic failed, type mismatch, given expression has type");
@@ -24,6 +23,7 @@ vm_obj exact(expr const & e, tactic_state const & s) {
             r += nest(indent, line() + pp_expr(s, g->get_type()));
             return mk_tactic_exception(r, s);
         }
+        auto mctx = ctx.mctx();
         mctx.assign(head(s.goals()), e);
         return mk_tactic_success(set_mctx_goals(s, mctx, tail(s.goals())));
     } catch (exception & ex) {

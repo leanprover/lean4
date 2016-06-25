@@ -13,8 +13,7 @@ namespace lean {
 vm_obj assert_define(bool is_assert, name const & n, expr const & t, tactic_state const & s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
-    metavar_context mctx = s.mctx();
-    type_context ctx     = mk_type_context_for(s, mctx);
+    type_context ctx     = mk_type_context_for(s);
     if (!is_sort(ctx.whnf(ctx.infer(t)))) {
         format msg("invalid ");
         if (is_assert) msg += format("assert"); else msg += format("define");
@@ -23,6 +22,7 @@ vm_obj assert_define(bool is_assert, name const & n, expr const & t, tactic_stat
         return mk_tactic_exception(msg, s);
     }
     local_context lctx   = g->get_context();
+    metavar_context mctx = ctx.mctx();
     expr new_M_1         = mctx.mk_metavar_decl(lctx, t);
     expr l;
     if (is_assert)
@@ -51,8 +51,7 @@ vm_obj tactic_define(vm_obj const & n, vm_obj const & t, vm_obj const & s) {
 vm_obj assertv_definev(bool is_assert, name const & n, expr const & t, expr const & v, tactic_state const & s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
-    metavar_context mctx = s.mctx();
-    type_context ctx     = mk_type_context_for(s, mctx);
+    type_context ctx     = mk_type_context_for(s);
     expr v_type          = ctx.infer(v);
     if (!ctx.is_def_eq(t, v_type)) {
         format msg("invalid ");
@@ -64,6 +63,7 @@ vm_obj assertv_definev(bool is_assert, name const & n, expr const & t, expr cons
         return mk_tactic_exception(msg, s);
     }
     local_context lctx   = g->get_context();
+    metavar_context mctx = ctx.mctx();
     expr l;
     if (is_assert)
         l = lctx.mk_local_decl(n, t);

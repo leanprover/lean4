@@ -17,8 +17,7 @@ optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> &
     if (n == 0) return some_tactic_state(s);
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return none_tactic_state();
-    metavar_context mctx = s.mctx();
-    type_context ctx     = mk_type_context_for(s, mctx);
+    type_context ctx     = mk_type_context_for(s);
     expr type            = g->get_type();
     type_context::tmp_locals new_locals(ctx);
     buffer<expr> new_Hs;
@@ -43,8 +42,9 @@ optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> &
             new_Hns.push_back(mlocal_name(H));
         }
     }
-    local_context lctx = ctx.lctx();
-    expr new_M   = mctx.mk_metavar_decl(lctx, type);
+    local_context lctx   = ctx.lctx();
+    metavar_context mctx = ctx.mctx();
+    expr new_M           = mctx.mk_metavar_decl(lctx, type);
     lean_assert(!mctx.is_assigned(new_M));
     expr new_val = abstract_locals(mk_lazy_abstraction_with_locals(new_M, new_Hs), new_Hs.size(), new_Hs.data());
     unsigned i   = new_Hs.size();
@@ -84,8 +84,7 @@ vm_obj tactic_intron(vm_obj const & num, vm_obj const & s) {
 vm_obj intro(name const & n, tactic_state const & s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
-    metavar_context mctx = s.mctx();
-    type_context ctx     = mk_type_context_for(s, mctx);
+    type_context ctx     = mk_type_context_for(s);
     expr type            = g->get_type();
     if (!is_pi(type) && !is_let(type)) {
         type             = ctx.whnf(type);
@@ -93,6 +92,7 @@ vm_obj intro(name const & n, tactic_state const & s) {
             return mk_tactic_exception("intro tactic failed, Pi/let expression expected", s);
     }
     local_context lctx   = g->get_context();
+    metavar_context mctx = ctx.mctx();
     if (is_pi(type)) {
         name n1              = n == "_" ? binding_name(type) : n;
         expr H               = lctx.mk_local_decl(n1, binding_domain(type), binding_info(type));

@@ -16,8 +16,7 @@ namespace lean {
 vm_obj tactic_mk_app_core(vm_obj const & c, vm_obj const & as, vm_obj const & tmode, vm_obj const & _s) {
     tactic_state const & s = to_tactic_state(_s);
     try {
-        metavar_context mctx   = s.mctx();
-        type_context ctx       = mk_type_context_for(s, mctx, to_transparency_mode(tmode));
+        type_context ctx       = mk_type_context_for(s, to_transparency_mode(tmode));
         buffer<expr> args;
         to_buffer_expr(as, args);
         expr r                 = mk_app(ctx, to_name(c), args.size(), args.data());
@@ -30,8 +29,7 @@ vm_obj tactic_mk_app_core(vm_obj const & c, vm_obj const & as, vm_obj const & tm
 vm_obj tactic_mk_mapp_core(vm_obj const & c, vm_obj const & as, vm_obj const & tmode, vm_obj const & _s) {
     tactic_state const & s = to_tactic_state(_s);
     try {
-        metavar_context mctx   = s.mctx();
-        type_context ctx       = mk_type_context_for(s, mctx, to_transparency_mode(tmode));
+        type_context ctx       = mk_type_context_for(s, to_transparency_mode(tmode));
         buffer<bool> mask;
         buffer<expr> args;
         vm_obj it = as;

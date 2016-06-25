@@ -53,9 +53,8 @@ vm_obj tactic_subst_core(name const & n, bool symm, tactic_state const & s) {
             expr H               = lctx.get_local_decl(lhsH[1])->mk_ref();
             bool depH            = depends_on(type, H);
             expr new_type        = instantiate(abstract_local(type, lhs), rhs);
-            metavar_context mctx = s2->mctx();
-            lean_assert(!mctx.is_assigned(head(s2->goals())));
-            type_context ctx     = mk_type_context_for(*s2, mctx);
+            lean_assert(!s2->mctx().is_assigned(head(s2->goals())));
+            type_context ctx     = mk_type_context_for(*s2);
             expr motive;
             if (depH) {
                 new_type = instantiate(abstract_local(new_type, H), mk_eq_refl(ctx, rhs));
@@ -69,12 +68,12 @@ vm_obj tactic_subst_core(name const & n, bool symm, tactic_state const & s) {
                 motive   = ctx.mk_lambda(lhs, type);
             }
             expr major   = symm ? H : mk_eq_symm(ctx, H);
-            expr new_M   = mctx.mk_metavar_decl(lctx, new_type);
+            expr new_M   = ctx.mk_metavar_decl(lctx, new_type);
             expr minor   = new_M;
             expr new_val = depH ? mk_eq_drec(ctx, motive, minor, major) : mk_eq_rec(ctx, motive, minor, major);
-            mctx.assign(head(s2->goals()), new_val);
+            ctx.assign(head(s2->goals()), new_val);
             list<expr> new_gs(new_M, tail(s.goals()));
-            tactic_state s3 = set_mctx_goals(*s2, mctx, new_gs);
+            tactic_state s3 = set_mctx_goals(*s2, ctx.mctx(), new_gs);
             vm_obj o4    = clear_internal(lhsH[1], s3);
             optional<tactic_state> s4 = is_tactic_success(o4);
             if (!s4) return o4;

@@ -144,7 +144,7 @@ class type_context : public abstract_type_context {
     };
     typedef buffer<scope_data> scopes;
 
-    metavar_context &  m_mctx;
+    metavar_context    m_mctx;
     local_context      m_lctx;
     cache &            m_cache;
     /* We only cache results when m_used_assignment is false */
@@ -177,13 +177,15 @@ class type_context : public abstract_type_context {
     std::function<bool(expr const & e)> const * m_unfold_pred; // NOLINT
 
 public:
-    type_context(metavar_context & mctx, local_context const & lctx, type_context_cache & cache,
+    type_context(metavar_context const & mctx, local_context const & lctx, type_context_cache & cache,
                  transparency_mode m = transparency_mode::Reducible);
     virtual ~type_context();
 
     virtual environment const & env() const override { return m_cache.m_env; }
     options const & get_options() const { return m_cache.m_options; }
     local_context const & lctx() const { return m_lctx; }
+    metavar_context const & mctx() const { return m_mctx; }
+    expr mk_metavar_decl(local_context const & ctx, expr const & type) { return m_mctx.mk_metavar_decl(ctx, type); }
 
     bool is_def_eq(level const & l1, level const & l2);
     virtual expr whnf(expr const & e) override;
@@ -349,6 +351,11 @@ public:
     void assign(expr const & m, expr const & v);
     level instantiate_mvars(level const & l);
     expr instantiate_mvars(expr const & e);
+    /** \brief Instantiate the assigned meta-variables in the type of \c m
+        \pre get_metavar_decl(m) is not none */
+    void instantiate_mvars_at_type_of(expr const & m) {
+        m_mctx.instantiate_mvars_at_type_of(m);
+    }
 
 private:
     /* ------------
@@ -464,28 +471,26 @@ public:
 /** Auxiliary object for automating the creation of temporary type_context objects */
 class aux_type_context {
     type_context_cache m_cache;
-    metavar_context    m_mctx;
     type_context       m_ctx;
 public:
     aux_type_context(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
                      transparency_mode m = transparency_mode::Reducible):
         m_cache(env, opts),
-        m_mctx(mctx),
-        m_ctx(m_mctx, lctx, m_cache, m) {}
+        m_ctx(mctx, lctx, m_cache, m) {}
 
     aux_type_context(environment const & env, options const & opts, local_context const & lctx,
                      transparency_mode m = transparency_mode::Reducible):
         m_cache(env, opts),
-        m_ctx(m_mctx, lctx, m_cache, m) {}
+        m_ctx(metavar_context(), lctx, m_cache, m) {}
 
     aux_type_context(environment const & env, options const & opts,
                      transparency_mode m = transparency_mode::Reducible):
         m_cache(env, opts),
-        m_ctx(m_mctx, local_context(), m_cache, m) {}
+        m_ctx(metavar_context(), local_context(), m_cache, m) {}
 
     aux_type_context(environment const & env, transparency_mode m = transparency_mode::Reducible):
         m_cache(env, options()),
-        m_ctx(m_mctx, local_context(), m_cache, m) {}
+        m_ctx(metavar_context(), local_context(), m_cache, m) {}
 
     type_context & get() { return m_ctx; }
     operator type_context&() { return m_ctx; }

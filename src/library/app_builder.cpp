@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/cache_helper.h"
 #include "library/app_builder.h"
-#include "library/old_tmp_type_context.h"
 #include "library/relation_manager.h"
 
 namespace lean {

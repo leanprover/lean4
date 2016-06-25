@@ -108,32 +108,25 @@ optional<pair<format, tactic_state>> is_tactic_exception(vm_state & S, options c
 type_context_cache & get_type_context_cache_for(environment const & env, options const & o);
 type_context_cache & get_type_context_cache_for(tactic_state const & s);
 
-inline type_context mk_type_context_for(tactic_state const & s, metavar_context & mctx,
-                                        transparency_mode m = transparency_mode::Semireducible) {
+inline type_context mk_type_context_for(tactic_state const & s, transparency_mode m = transparency_mode::Semireducible) {
     local_context lctx;
     if (auto d = s.get_main_goal_decl()) lctx = d->get_context();
-    mctx = s.mctx();
-    return type_context(mctx, lctx, get_type_context_cache_for(s), m);
+    return type_context(s.mctx(), lctx, get_type_context_cache_for(s), m);
+}
+
+inline type_context mk_type_context_for(vm_obj const & s) {
+    return mk_type_context_for(to_tactic_state(s));
+}
+
+inline type_context mk_type_context_for(vm_obj const & s, vm_obj const & m) {
+    return mk_type_context_for(to_tactic_state(s), to_transparency_mode(m));
 }
 
 #define lean_tactic_trace(N, S, Code) lean_trace(N, {   \
-    metavar_context _mctx = (S).mctx();                 \
-    type_context _ctx = mk_type_context_for(S, _mctx);  \
+    type_context _ctx = mk_type_context_for(S);         \
     scope_trace_env _scope((S).env(), _ctx);            \
     Code                                                \
 })
-
-struct type_context_scope {
-    metavar_context m_mctx;
-    type_context    m_ctx;
-    type_context_scope(tactic_state const & s, transparency_mode m = transparency_mode::Semireducible):
-        m_mctx(s.mctx()), m_ctx(mk_type_context_for(s, m_mctx, m)) {}
-    type_context_scope(vm_obj const & s, transparency_mode m = transparency_mode::Semireducible):
-        type_context_scope(to_tactic_state(s), m) {}
-    type_context_scope(vm_obj const & s, vm_obj const & m):
-        type_context_scope(to_tactic_state(s), to_transparency_mode(m)) {}
-    operator type_context &() { return m_ctx; }
-};
 
 #define LEAN_TACTIC_TRY try {
 #define LEAN_TACTIC_CATCH(S) } catch (exception const & ex) { return mk_tactic_exception(ex, S); }

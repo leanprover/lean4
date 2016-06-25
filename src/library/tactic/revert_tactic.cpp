@@ -11,11 +11,10 @@ Author: Leonardo de Moura
 namespace lean {
 tactic_state revert(buffer<expr> & locals, tactic_state const & s) {
     lean_assert(s.goals());
-    metavar_context mctx       = s.mctx();
-    type_context ctx           = mk_type_context_for(s, mctx, transparency_mode::All);
+    type_context ctx           = mk_type_context_for(s, transparency_mode::All);
     expr val                   = ctx.revert(locals, head(s.goals()));
     expr new_g                 = get_app_fn(val);
-    return set_mctx_goals(s, mctx, cons(new_g, tail(s.goals())));
+    return set_mctx_goals(s, ctx.mctx(), cons(new_g, tail(s.goals())));
 }
 
 vm_obj revert(list<expr> const & ls, tactic_state const & s) {

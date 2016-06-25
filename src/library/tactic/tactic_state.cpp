@@ -80,7 +80,7 @@ tactic_state set_mctx_goals(tactic_state const & s, metavar_context const & mctx
 }
 
 format tactic_state::pp_expr(formatter_factory const & fmtf, expr const & e) const {
-    type_context_scope ctx(*this, transparency_mode::All);
+    type_context ctx = mk_type_context_for(*this, transparency_mode::All);
     formatter fmt = fmtf(env(), get_options(), ctx);
     return fmt(e);
 }
@@ -282,8 +282,7 @@ type_context_cache & get_type_context_cache_for(tactic_state const & s) {
 
 vm_obj tactic_infer_type(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
-    metavar_context mctx   = s.mctx();
-    type_context ctx       = mk_type_context_for(s, mctx);
+    type_context ctx       = mk_type_context_for(s);
     try {
         return mk_tactic_success(to_obj(ctx.infer(to_expr(e))), s);
     } catch (exception & ex) {
@@ -293,8 +292,7 @@ vm_obj tactic_infer_type(vm_obj const & e, vm_obj const & s0) {
 
 vm_obj tactic_whnf(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
-    metavar_context mctx   = s.mctx();
-    type_context ctx       = mk_type_context_for(s, mctx);
+    type_context ctx       = mk_type_context_for(s);
     try {
         return mk_tactic_success(to_obj(ctx.whnf(to_expr(e))), s);
     } catch (exception & ex) {
@@ -304,8 +302,7 @@ vm_obj tactic_whnf(vm_obj const & e, vm_obj const & s0) {
 
 vm_obj tactic_is_class(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
-    metavar_context mctx   = s.mctx();
-    type_context ctx       = mk_type_context_for(s, mctx);
+    type_context ctx       = mk_type_context_for(s);
     try {
         return mk_tactic_success(mk_vm_bool(static_cast<bool>(ctx.is_class(to_expr(e)))), s);
     } catch (exception & ex) {
@@ -315,8 +312,7 @@ vm_obj tactic_is_class(vm_obj const & e, vm_obj const & s0) {
 
 vm_obj tactic_mk_instance(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
-    metavar_context mctx   = s.mctx();
-    type_context ctx       = mk_type_context_for(s, mctx);
+    type_context ctx       = mk_type_context_for(s);
     try {
         if (auto r = ctx.mk_class_instance(to_expr(e))) {
             return mk_tactic_success(to_obj(*r), s);
@@ -332,12 +328,11 @@ vm_obj tactic_mk_instance(vm_obj const & e, vm_obj const & s0) {
 
 vm_obj tactic_unify_core(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
-    metavar_context mctx   = s.mctx();
-    type_context ctx       = mk_type_context_for(s, mctx, to_transparency_mode(t));
+    type_context ctx       = mk_type_context_for(s, to_transparency_mode(t));
     try {
         bool r = ctx.is_def_eq(to_expr(e1), to_expr(e2));
         if (r)
-            return mk_tactic_success(set_mctx(s, mctx));
+            return mk_tactic_success(set_mctx(s, ctx.mctx()));
         else
             return mk_tactic_exception("unify tactic failed", s);
     } catch (exception & ex) {

@@ -41,70 +41,70 @@ static vm_obj mk_result(optional<congr_lemma> const & l, vm_obj const & s) {
 
 vm_obj tactic_mk_congr_simp(vm_obj const & fn, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context_scope ctx(s, m);
+    type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_congr_simp(ctx, to_expr(fn)), s);
     CATCH;
 }
 
 vm_obj tactic_mk_congr_simp_n(vm_obj const & fn, vm_obj const & n, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context_scope ctx(s, m);
+    type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_congr_simp(ctx, to_expr(fn), force_to_unsigned(n, 0)), s);
     CATCH;
 }
 
 vm_obj tactic_mk_specialized_congr_simp(vm_obj const & a, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context_scope ctx(s, m);
+    type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_specialized_congr_simp(ctx, to_expr(a)), s);
     CATCH;
 }
 
 vm_obj tactic_mk_congr(vm_obj const & fn, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context_scope ctx(s, m);
+    type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_congr(ctx, to_expr(fn)), s);
     CATCH;
 }
 
 vm_obj tactic_mk_congr_n(vm_obj const & fn, vm_obj const & n, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context_scope ctx(s, m);
+    type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_congr(ctx, to_expr(fn), force_to_unsigned(n, 0)), s);
     CATCH;
 }
 
 vm_obj tactic_mk_specialized_congr(vm_obj const & a, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context_scope ctx(s, m);
+    type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_specialized_congr(ctx, to_expr(a)), s);
     CATCH;
 }
 
 vm_obj tactic_mk_hcongr(vm_obj const & fn, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context_scope ctx(s, m);
+    type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_hcongr(ctx, to_expr(fn)), s);
     CATCH;
 }
 
 vm_obj tactic_mk_hcongr_n(vm_obj const & fn, vm_obj const & n, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context_scope ctx(s, m);
+    type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_hcongr(ctx, to_expr(fn), force_to_unsigned(n, 0)), s);
     CATCH;
 }
 
 vm_obj tactic_mk_rel_iff_congr(vm_obj const & r, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context_scope ctx(s, m);
+    type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_rel_iff_congr(ctx, to_expr(r)), s);
     CATCH;
 }
 
 vm_obj tactic_mk_rel_eq_congr(vm_obj const & r, vm_obj const & m, vm_obj const & s) {
     TRY;
-    type_context_scope ctx(s, m);
+    type_context ctx = mk_type_context_for(s, m);
     return mk_result(mk_rel_eq_congr(ctx, to_expr(r)), s);
     CATCH;
 }

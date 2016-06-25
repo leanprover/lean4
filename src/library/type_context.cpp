@@ -192,7 +192,7 @@ void type_context::init_core(transparency_mode m) {
     m_unfold_pred                 = nullptr;
 }
 
-type_context::type_context(metavar_context & mctx, local_context const & lctx, type_context_cache & cache,
+type_context::type_context(metavar_context const & mctx, local_context const & lctx, type_context_cache & cache,
                            transparency_mode m):
     m_mctx(mctx), m_lctx(lctx), m_cache(cache) {
     init_core(m);

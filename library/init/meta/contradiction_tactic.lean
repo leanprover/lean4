@@ -8,7 +8,7 @@ import init.meta.tactic init.function
 
 namespace tactic
 
-open expr tactic option bool decidable environment
+open expr tactic decidable environment
 
 private meta_definition contra_A_not_A : list expr → list expr → tactic unit
 | []         Hs := failed

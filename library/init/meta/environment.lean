@@ -51,7 +51,7 @@ meta_constant refl_for : environment → name → option name
 meta_constant symm_for : environment → name → option name
 /- (trans_for env R) returns the name of the transitivity theorem for the relation R -/
 meta_constant trans_for : environment → name → option name
-open expr bool
+open expr
 
 meta_definition is_constructor_app (env : environment) (e : expr) : bool :=
 let f := get_app_fn e in

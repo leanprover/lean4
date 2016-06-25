@@ -48,7 +48,7 @@ namespace format
 attribute [coercion] of_string of_nat
 end format
 
-open format bool list
+open format list
 
 meta_definition format.when {A : Type} [has_to_format A] : bool → A → format
 | tt a := to_fmt a
@@ -58,7 +58,7 @@ meta_definition options.has_to_format [instance] : has_to_format options :=
 has_to_format.mk (λ o, format.of_options o)
 
 meta_definition bool.has_to_format [instance] : has_to_format bool :=
-has_to_format.mk (λ b, cond b "tt" "ff")
+has_to_format.mk (λ b, if b = tt then "tt" else "ff")
 
 meta_definition decidable.has_to_format [instance] {p : Prop} : has_to_format (decidable p) :=
 has_to_format.mk (λ b, if p then "tt" else "ff")

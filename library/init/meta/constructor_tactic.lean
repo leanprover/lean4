@@ -7,7 +7,6 @@ prelude
 import init.meta.tactic init.function
 
 namespace tactic
-open bool option list
 
 private meta_definition get_constructors_for (e : expr) : tactic (list name) :=
 do env ← get_env,
@@ -44,7 +43,7 @@ do tgt ← target,
 meta_definition constructor_idx (idx : nat) : tactic unit :=
 do tgt ← target,
    cs  ← get_constructors_for tgt,
-   match nth cs (idx - 1) with
+   match list.nth cs (idx - 1) with
    | some c := mk_const c >>= apply
    | none   := fail "constructor_idx tactic failed, target is an inductive datatype, but it does not have sufficient constructors"
    end

@@ -232,7 +232,6 @@ get_local n >>= infer_type
 meta_definition trace_result : tactic unit :=
 format_result >>= trace
 
-open bool
 /- (find_same_type t es) tries to find in es an expression with type definitionally equal to t -/
 meta_definition find_same_type : expr → list expr → tactic expr
 | e []         := failed

@@ -11,13 +11,12 @@ namespace bool
   inline definition bor (a b : bool) :=
   bool.rec_on a (bool.rec_on b ff tt) tt
 
-  notation a || b := bor a b
-
   inline definition band (a b : bool) :=
   bool.rec_on a ff (bool.rec_on b ff tt)
-
-  notation a && b := band a b
 
   inline definition bnot (a : bool) :=
   bool.rec_on a tt ff
 end bool
+
+notation a || b := bool.bor a b
+notation a && b := bool.band a b

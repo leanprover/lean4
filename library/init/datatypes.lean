@@ -105,6 +105,9 @@ inductive option (A : Type) : Type :=
 | none {} : option A
 | some    : A → option A
 
+export option (none some)
+export bool (ff tt)
+
 inductive list (T : Type) : Type :=
 | nil {} : list T
 | cons   : T → list T → list T

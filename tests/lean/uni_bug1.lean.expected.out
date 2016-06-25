@@ -1,1 +1,1 @@
-f 1 0 (Rtrue (pr₁ (pair 1 0)) 0) : ℕ
+f 1 0 (Rtrue (pair 1 0).1 0) : ℕ

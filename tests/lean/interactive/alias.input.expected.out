@@ -3,25 +3,25 @@
 -- BEGINWAIT
 -- ENDWAIT
 -- BEGINFINDP
-bool.tt_bxor_tt|eq (bool.bxor bool.tt bool.tt) bool.ff
-bool.tt_bxor_ff|eq (bool.bxor bool.tt bool.ff) bool.tt
-bool.bor_tt|∀ a, eq (bool.bor a bool.tt) bool.tt
-bool.band_tt|∀ a, eq (bool.band a bool.tt) a
-bool.tt|bool
-bool.bxor_tt|∀ a, eq (bool.bxor a bool.tt) (bool.bnot a)
-bool.eq_tt_of_bnot_eq_ff|eq (bool.bnot ?a) bool.ff → eq ?a bool.tt
-bool.eq_ff_of_bnot_eq_tt|eq (bool.bnot ?a) bool.tt → eq ?a bool.ff
-bool.ff_bxor_tt|eq (bool.bxor bool.ff bool.tt) bool.tt
-bool.absurd_of_eq_ff_of_eq_tt|eq ?a bool.ff → eq ?a bool.tt → ?B
-bool.eq_tt_of_ne_ff|ne ?a bool.ff → eq ?a bool.tt
-bool.tt_band|∀ a, eq (bool.band bool.tt a) a
-bool.cond_tt|∀ t e, eq (bool.cond bool.tt t e) t
+tt|bool
+bool.tt_bxor_tt|eq (bool.bxor tt tt) ff
+bool.tt_bxor_ff|eq (bool.bxor tt ff) tt
+bool.bor_tt|∀ a, eq (bool.bor a tt) tt
+bool.band_tt|∀ a, eq (bool.band a tt) a
+bool.bxor_tt|∀ a, eq (bool.bxor a tt) (bool.bnot a)
+bool.eq_tt_of_bnot_eq_ff|eq (bool.bnot ?a) ff → eq ?a tt
+bool.eq_ff_of_bnot_eq_tt|eq (bool.bnot ?a) tt → eq ?a ff
+bool.ff_bxor_tt|eq (bool.bxor ff tt) tt
+bool.absurd_of_eq_ff_of_eq_tt|eq ?a ff → eq ?a tt → ?B
+bool.eq_tt_of_ne_ff|ne ?a ff → eq ?a tt
+bool.tt_band|∀ a, eq (bool.band tt a) a
+bool.cond_tt|∀ t e, eq (bool.cond tt t e) t
 environment.mk_hott|nat → environment
 decidable.tt|?p → decidable ?p
-bool.ff_ne_tt|eq bool.ff bool.tt → false
-bool.eq_ff_of_ne_tt|ne ?a bool.tt → eq ?a bool.ff
-bool.tt_bxor|∀ a, eq (bool.bxor bool.tt a) (bool.bnot a)
-bool.tt_bor|∀ a, eq (bool.bor bool.tt a) bool.tt
+bool.ff_ne_tt|eq ff tt → false
+bool.eq_ff_of_ne_tt|ne ?a tt → eq ?a ff
+bool.tt_bxor|∀ a, eq (bool.bxor tt a) (bool.bnot a)
+bool.tt_bor|∀ a, eq (bool.bor tt a) tt
 format.flatten|format → format
 -- ENDFINDP
 -- BEGINWAIT

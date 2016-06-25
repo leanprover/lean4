@@ -50,7 +50,6 @@ definition pos_num_has_one [instance] : has_one pos_num :=
 has_one.mk (pos_num.one)
 
 namespace pos_num
-  open bool
   definition is_one (a : pos_num) : bool :=
   pos_num.rec_on a tt (λn r, ff) (λn r, ff)
 

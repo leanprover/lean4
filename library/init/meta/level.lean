@@ -55,7 +55,7 @@ meta_definition level.of_nat : nat → level
 | 0            := level.zero
 | (nat.succ n) := level.succ (level.of_nat n)
 
-open bool decidable
+open decidable
 meta_definition level.has_param : level → name → bool
 | (level.succ l)     n  := level.has_param l n
 | (level.max l₁ l₂)  n  := level.has_param l₁ n || level.has_param l₂ n

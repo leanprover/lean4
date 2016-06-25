@@ -14,11 +14,8 @@ notation `(` h `, ` t:(foldl `, ` (e r, prod.mk r e) h) `)` := t
 namespace prod
   notation `pr₁` := pr1
   notation `pr₂` := pr2
-
-  namespace ops
   postfix `.1`:(max+1) := pr1
   postfix `.2`:(max+1) := pr2
-  end ops
 
 end prod
 

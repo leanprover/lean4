@@ -1,5 +1,5 @@
 import data.nat
-open tactic expr prod option
+open tactic expr
 
 meta_definition is_op_app (op : expr) (e : expr) : option (expr × expr) :=
 match e with

@@ -77,7 +77,7 @@ by_cases
              if_neg `¬ a + b < a`]
   end)
 -/
-open prod.ops
+open prod
 
 theorem unpair_lt_aux {n : nat} : n ≥ 1 → (unpair n).1 < n :=
 sorry

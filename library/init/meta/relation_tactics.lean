@@ -7,7 +7,7 @@ prelude
 import init.meta.tactic init.function
 
 namespace tactic
-open expr bool option
+open expr
 
 private meta_definition relation_tactic (op_for : environment → name → option name) (tac_name : string) : tactic unit :=
 do tgt ← target,

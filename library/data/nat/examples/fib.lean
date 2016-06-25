@@ -19,7 +19,7 @@ private definition fib_fast_aux : nat → (nat × nat)
   | (fn, fn1) := (fn1, fn1 + fn)
   end
 
-open prod.ops -- Get .1 .2 notation for pairs
+open prod -- Get .1 .2 notation for pairs
 
 definition fib_fast (n : nat) := (fib_fast_aux n).2
 

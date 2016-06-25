@@ -3,7 +3,7 @@
 -- Author: Leonardo de Moura
 prelude
 import init.string init.bool init.subtype init.unsigned
-open bool list option sum prod sigma subtype nat
+open bool list sum prod sigma subtype nat
 
 structure has_to_string [class] (A : Type) :=
 (to_string : A → string)

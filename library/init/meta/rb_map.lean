@@ -45,12 +45,12 @@ namespace name_map
   rb_map.mk name data
 end name_map
 
-open rb_map bool prod
+open rb_map prod
 section
 open format
 variables {key : Type} {data : Type} [has_to_format key] [has_to_format data]
 private meta_definition format_key_data (k : key) (d : data) (first : bool) : format :=
-(cond first (to_fmt "") (to_fmt "," + line)) + to_fmt k + space + "←" + space + to_fmt d
+(if first = tt then to_fmt "" else to_fmt "," + line) + to_fmt k + space + "←" + space + to_fmt d
 
 meta_definition rb_map_has_to_format [instance] : has_to_format (rb_map key data) :=
 has_to_format.mk (λ m,
@@ -60,7 +60,7 @@ end
 section
 variables {key : Type} {data : Type} [has_to_string key] [has_to_string data]
 private meta_definition key_data_to_string (k : key) (d : data) (first : bool) : string :=
-(cond first "" ", ") + to_string k + " ← " + to_string d
+(if first = tt then "" else ", ") + to_string k + " ← " + to_string d
 
 meta_definition rb_map_has_to_string [instance] : has_to_string (rb_map key data) :=
 has_to_string.mk (λ m,

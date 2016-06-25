@@ -65,7 +65,7 @@ meta_constant expr.lift_vars    : expr → nat → nat → expr
 meta_constant expr.lower_vars   : expr → nat → nat → expr
 
 namespace expr
-open bool decidable option
+open decidable
 
 meta_definition is_app : expr → bool
 | (app _ _ ) := tt

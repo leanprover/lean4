@@ -697,15 +697,14 @@ namespace bool
   | [none]
 end bool
 
-open bool
 definition is_dec_eq {A : Type} (p : A → A → bool) : Prop   := ∀ ⦃x y : A⦄, p x y = tt → x = y
 definition is_dec_refl {A : Type} (p : A → A → bool) : Prop := ∀x, p x x = tt
 
 open decidable
 protected definition bool.has_decidable_eq [instance] : ∀a b : bool, decidable (a = b)
 | ff ff := tt rfl
-| ff tt := ff ff_ne_tt
-| tt ff := ff (ne.symm ff_ne_tt)
+| ff tt := ff bool.ff_ne_tt
+| tt ff := ff (ne.symm bool.ff_ne_tt)
 | tt tt := tt rfl
 
 definition decidable_eq_of_bool_pred {A : Type} {p : A → A → bool} (H₁ : is_dec_eq p) (H₂ : is_dec_refl p) : decidable_eq A :=

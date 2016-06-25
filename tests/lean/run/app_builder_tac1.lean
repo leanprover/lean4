@@ -1,4 +1,4 @@
-open tactic list nat name option
+open tactic list nat name
 
 set_option trace.app_builder true
 set_option pp.all true

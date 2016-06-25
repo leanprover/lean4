@@ -38,7 +38,7 @@ structure param_info :=
 (has_fwd_deps     : bool)
 (back_deps        : list nat) -- previous parameters it depends on
 
-open format list bool decidable
+open format list decidable
 
 private meta_definition ppfield {A : Type} [has_to_format A] (fname : string) (v : A) : format :=
 group $ fname + space + ":=" + space + nest (length fname + 4) (to_fmt v)

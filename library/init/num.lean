@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.bool
-open bool
 
 namespace pos_num
   protected definition mul (a b : pos_num) : pos_num :=
@@ -41,7 +40,7 @@ namespace num
   open pos_num
 
   definition pred (a : num) : num :=
-  num.rec_on a zero (λp, cond (is_one p) zero (pos (pred p)))
+  num.rec_on a zero (λp, bool.cond (is_one p) zero (pos (pred p)))
 
   definition size (a : num) : num :=
   num.rec_on a (pos one) (λp, pos (size p))
@@ -61,14 +60,14 @@ namespace num
   pos_num.rec_on a
     (λb, zero)
     (λn f b,
-      cond (pos_num.le (bit1 n) b)
+      bool.cond (pos_num.le (bit1 n) b)
         zero
         (pos_num.cases_on b
            (pos (bit0 n))
            (λm, 2 * f m)
            (λm, 2 * f m + 1)))
     (λn f b,
-      cond (pos_num.le (bit0 n) b)
+      bool.cond (pos_num.le (bit0 n) b)
         zero
         (pos_num.cases_on b
            (pos (pos_num.pred (bit0 n)))

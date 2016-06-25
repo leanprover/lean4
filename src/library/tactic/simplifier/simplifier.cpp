@@ -32,6 +32,7 @@ Author: Daniel Selsam
 #include "library/tactic/app_builder_tactics.h"
 #include "library/tactic/simplifier/simplifier.h"
 #include "library/tactic/simplifier/simp_lemmas.h"
+#include "library/tactic/simplifier/simp_extensions.h"
 #include "library/tactic/simplifier/ceqv.h"
 
 #ifndef LEAN_DEFAULT_SIMPLIFY_MAX_STEPS
@@ -170,6 +171,9 @@ class simplifier {
     simp_result simplify_fun(expr const & e);
     optional<simp_result> simplify_numeral(expr const & e);
 
+    /* Extenisons */
+    simp_result simplify_extensions(expr const & e);
+
     /* Proving */
     optional<expr> prove(expr const & thm);
 
@@ -293,7 +297,10 @@ simp_result simplifier::simplify(expr const & e) {
 
     simp_result r(e);
 
-    if (m_top_down) r = join(r, rewrite(whnf_eta(r.get_new())));
+    if (m_top_down) {
+        r = join(r, simplify_extensions(whnf_eta(r.get_new())));
+        r = join(r, rewrite(whnf_eta(r.get_new())));
+    }
 
     r.update(whnf_eta(r.get_new()));
 
@@ -322,7 +329,10 @@ simp_result simplifier::simplify(expr const & e) {
         lean_unreachable();
     }
 
-    if (!m_top_down) r = join(r, rewrite(whnf_eta(r.get_new())));
+    if (!m_top_down) {
+        r = join(r, simplify_extensions(whnf_eta(r.get_new())));
+        r = join(r, rewrite(whnf_eta(r.get_new())));
+    }
 
     if (r.get_new() == e && !using_eq()) {
         simp_result r_eq;
@@ -414,6 +424,49 @@ optional<simp_result> simplifier::simplify_numeral(expr const & e) {
     } catch (exception e) {
         return optional<simp_result>();
     }
+}
+
+/* Extensions */
+simp_result simplifier::simplify_extensions(expr const & _e) {
+    simp_result r(_e);
+    expr op = get_app_fn(_e);
+    if (!is_constant(op)) return simp_result(_e);
+    name head = const_name(op);
+    buffer<unsigned> ext_ids;
+    get_simp_extensions_for(m_tctx.env(), head, ext_ids);
+    for (unsigned ext_id : ext_ids) {
+        expr e = r.get_new();
+        expr e_type = m_tctx.infer(e);
+        metavar_context mctx = m_tctx.get_mctx();
+        expr result_mvar = mctx.mk_metavar_decl(m_tctx.lctx(), e_type);
+        m_tctx.set_mctx(mctx); // the app-builder needs to know about these metavars
+        expr goal_type = mk_app(m_tctx, m_rel, e, result_mvar);
+        expr goal_mvar = mctx.mk_metavar_decl(m_tctx.lctx(), goal_type);
+        vm_obj s = to_obj(tactic_state(m_tctx.env(), m_tctx.get_options(), mctx, list<expr>(goal_mvar), goal_mvar));
+        vm_obj simp_ext_result = get_tactic_vm_state(m_tctx.env()).invoke(ext_id, 1, &s);
+        optional<tactic_state> s_new = is_tactic_success(simp_ext_result);
+        if (s_new) {
+            metavar_context const & mctx = s_new->mctx();
+            optional<expr> result_assignment = mctx.get_assignment(result_mvar);
+            optional<expr> goal_assignment = mctx.get_assignment(goal_mvar);
+            if (result_assignment && goal_assignment) {
+                lean_trace(name({"simplifier", "extensions"}),
+                           tout() << *goal_assignment << " : " << e << " " << m_rel << " " << *result_assignment << "\n";);
+                m_tctx.set_mctx(mctx);
+                // TODO(dhs): detect refl proofs
+                r = join(r, simp_result(*result_assignment, *goal_assignment));
+            } else {
+                lean_trace(name({"simplifier", "extensions"}),
+                           tout() << "extension succeeded but left metavariables unassigned\n";);
+                // TODO(dhs): trace "simplifier.extension.failure"
+            }
+        } else {
+            lean_trace(name({"simplifier", "extensions"}),
+                       tout() << "extension failed\n";);
+            // TODO(dhs): trace "simplifier.extension.failure"
+        }
+    }
+    return r;
 }
 
 /* Proving */
@@ -770,11 +823,12 @@ expr simplifier::remove_unnecessary_casts(expr const & e) {
 vm_obj tactic_simp(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s   = to_tactic_state(s0);
     try {
-        type_context tctx           = mk_type_context_for(s, transparency_mode::Reducible);
+        // TODO(dhs): use type_context_scope for this
+        type_context tctx          = mk_type_context_for(s, transparency_mode::Reducible);
         simp_lemmas lemmas         = get_simp_lemmas(s.env());
-        expr target                = *(s.get_main_goal());
-//        name rel                   = (is_standard(s.env()) && tctx.is_prop(target)) ? get_iff_name() : get_eq_name();
-        name rel                   = get_iff_name();
+        metavar_decl g             = *s.get_main_goal_decl();
+        expr target                = g.get_type();
+        name rel                   = (is_standard(s.env()) && tctx.is_prop(target)) ? get_iff_name() : get_eq_name();
         simp_result result         = simplify(tctx, rel, lemmas, to_expr(e));
         if (result.has_proof()) {
             return mk_tactic_success(mk_vm_pair(to_obj(result.get_new()), to_obj(result.get_proof())), s);
@@ -791,6 +845,7 @@ void initialize_simplifier() {
     register_trace_class("simplifier");
     register_trace_class(name({"simplifier", "rewrite"}));
     register_trace_class(name({"simplifier", "congruence"}));
+    register_trace_class(name({"simplifier", "extensions"}));
     register_trace_class(name({"simplifier", "failure"}));
     register_trace_class(name({"simplifier", "perm"}));
     register_trace_class(name({"simplifier", "try_rewrite"}));

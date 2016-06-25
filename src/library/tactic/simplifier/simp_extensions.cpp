@@ -3,6 +3,7 @@ Copyright (c) 2016 Daniel Selsam. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Daniel Selsam
 */
+#include <string>
 #include "util/priority_queue.h"
 #include "library/trace.h"
 #include "library/scoped_ext.h"
@@ -104,6 +105,16 @@ format pp_simp_extensions(environment const & env) {
             fmt += pp_simp_extensions_for_head(q);
         });
     return fmt;
+}
+
+void get_simp_extensions_for(environment const & env, name const & head, buffer<unsigned> & ext_ids) {
+    simp_ext_state s = simp_ext_ext::get_state(env);
+    if (auto q = s.find(head)) {
+        buffer<simp_ext_record> records;
+        q->for_each([&](simp_ext_record const & r) {
+                ext_ids.push_back(r.m_ext_id);
+            });
+    }
 }
 
 /*

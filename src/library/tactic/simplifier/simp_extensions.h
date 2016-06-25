@@ -14,6 +14,8 @@ environment add_simp_extension(environment const & env, io_state const & ios, na
 
 format pp_simp_extensions(environment const & env);
 
+void get_simp_extensions_for(environment const & env, name const & head, buffer<unsigned> & ext_ids);
+
 void initialize_simp_extensions();
 void finalize_simp_extensions();
 

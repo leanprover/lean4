@@ -140,7 +140,7 @@ struct push_lazy_abstraction_fn : public replace_visitor {
     expr visit_local(expr const & e) override {
         for (unsigned i = 0; i < m_ns.size(); i++) {
             if (m_ns[i] == mlocal_name(e))
-                return lift_free_vars(m_vs[i], m_deltas[i]);
+                return visit(lift_free_vars(m_vs[i], m_deltas[i]));
         }
         return e;
     }
@@ -196,6 +196,10 @@ expr push_lazy_abstraction(expr const & e) {
     }
 }
 
+expr push_lazy_abstraction(expr const & e, buffer<name> const & ns, buffer<expr> const & vs) {
+    return push_lazy_abstraction_fn(ns, vs)(e);
+}
+
 expr mk_lazy_abstraction(expr const & e, buffer<name> const & ns) {
     lean_assert(ns.size() > 0);
     buffer<expr> vs;
@@ -223,6 +227,16 @@ expr mk_lazy_abstraction_with_locals(expr const & e, buffer<expr> const & ls) {
     for (expr const & l : ls)
         ns.push_back(mlocal_name(l));
     return mk_lazy_abstraction_core(e, ns, ls);
+}
+
+expr mk_lazy_abstraction(expr const & e, buffer<name> const & ns, buffer<expr> const & vs) {
+    lean_assert(ns.size() > 0);
+    lean_assert(ns.size() == vs.size());
+    if (is_metavar(e)) {
+        return mk_lazy_abstraction_core(e, ns, vs);
+    } else {
+        return push_lazy_abstraction_fn(ns, vs)(e);
+    }
 }
 
 void initialize_lazy_abstraction() {

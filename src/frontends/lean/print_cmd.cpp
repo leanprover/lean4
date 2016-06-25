@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #include "library/class.h"
 #include "library/aliases.h"
 #include "library/flycheck.h"
-#include "library/light_lt_manager.h"
 #include "library/pp_options.h"
 #include "library/coercion.h"
 #include "library/scoped_ext.h"

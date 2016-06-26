@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
+#include "kernel/environment.h"
 #include "kernel/ext_exception.h"
 #include "kernel/abstract_type_context.h"
 #include "library/generic_exception.h"
@@ -16,15 +17,16 @@ namespace lean {
 /** \brief Base class for \c regular and \c diagnostic wrapper classes. */
 class io_state_stream {
 protected:
-    environment const &  m_env;
-    formatter            m_formatter;
-    output_channel &     m_stream;
-    io_state_stream(environment const & env, formatter const & fmt, output_channel & s):m_env(env), m_formatter(fmt), m_stream(s) {}
+    environment                     m_env;
+    formatter                       m_formatter;
+    std::shared_ptr<output_channel> m_stream;
+    io_state_stream(environment const & env, formatter const & fmt, std::shared_ptr<output_channel> const & s):
+        m_env(env), m_formatter(fmt), m_stream(s) {}
 public:
     io_state_stream(environment const & env, io_state const & ios, abstract_type_context & ctx, bool regular = true):
         m_env(env), m_formatter(ios.get_formatter_factory()(env, ios.get_options(), ctx)),
-        m_stream(regular ? ios.get_regular_channel() : ios.get_diagnostic_channel()) {}
-    std::ostream & get_stream() const { return m_stream.get_stream(); }
+        m_stream(regular ? ios.get_regular_channel_ptr() : ios.get_diagnostic_channel_ptr()) {}
+    std::ostream & get_stream() const { return m_stream->get_stream(); }
     void flush() { get_stream().flush(); }
     formatter const & get_formatter() const { return m_formatter; }
     options get_options() const { return m_formatter.get_options(); }

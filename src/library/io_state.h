@@ -32,6 +32,8 @@ public:
 
     options get_options() const { return m_options; }
     formatter_factory const & get_formatter_factory() const { return m_formatter_factory; }
+    std::shared_ptr<output_channel> const & get_regular_channel_ptr() const { return m_regular_channel; }
+    std::shared_ptr<output_channel> const & get_diagnostic_channel_ptr() const { return m_diagnostic_channel; }
     output_channel & get_regular_channel() const { return *m_regular_channel; }
     output_channel & get_diagnostic_channel() const { return *m_diagnostic_channel; }
     std::ostream & get_regular_stream() const { return m_regular_channel->get_stream(); }

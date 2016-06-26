@@ -1814,7 +1814,8 @@ void parser::parse_command() {
     m_cmd_token = get_token_info().token();
     if (auto it = cmds().find(cmd_name)) {
         lazy_type_context tc(m_env, get_options());
-        scope_trace_env scope(m_env, m_ios, tc);
+        scope_global_ios scope1(m_ios);
+        scope_trace_env  scope2(m_env, m_ios.get_options(), tc);
         if (is_notation_cmd(cmd_name)) {
             in_notation_ctx ctx(*this);
             next();

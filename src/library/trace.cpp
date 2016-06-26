@@ -17,17 +17,12 @@ static name_map<name_set>  * g_trace_aliases = nullptr;
 MK_THREAD_LOCAL_GET_DEF(std::vector<name>, get_enabled_trace_classes);
 MK_THREAD_LOCAL_GET_DEF(std::vector<name>, get_disabled_trace_classes);
 MK_THREAD_LOCAL_GET_DEF(environment, get_dummy_env);
+MK_THREAD_LOCAL_GET_DEF(options,     get_dummy_options);
+LEAN_THREAD_VALUE(bool,                g_silent, false);
 LEAN_THREAD_PTR(environment,           g_env);
-LEAN_THREAD_PTR(io_state,              g_ios);
+LEAN_THREAD_PTR(options,               g_opts);
 LEAN_THREAD_PTR(abstract_type_context, g_ctx);
 LEAN_THREAD_VALUE(unsigned,  g_depth, 0);
-
-io_state const & get_global_ios() {
-    if (g_ios)
-        return *g_ios;
-    else
-        return get_dummy_ios();
-}
 
 void register_trace_class(name const & n) {
     register_option(name("trace") + n, BoolOption, "false",
@@ -99,54 +94,45 @@ bool is_trace_class_enabled(name const & n) {
 }
 
 
-void scope_trace_env::init(environment * env, io_state * ios, abstract_type_context * ctx, bool ios_owner) {
+void scope_trace_env::init(environment * env, options * opts, abstract_type_context * ctx) {
     m_enable_sz  = get_enabled_trace_classes().size();
     m_disable_sz = get_disabled_trace_classes().size();
     m_old_env    = g_env;
-    m_old_ios    = g_ios;
+    m_old_opts   = g_opts;
     m_old_ctx    = g_ctx;
     g_env        = env;
-    g_ios        = ios;
     g_ctx        = ctx;
-    m_ios_owner  = ios_owner;
-    options const & opts = ios->get_options();
     name trace("trace");
-    opts.for_each([&](name const & n) {
-            if (is_prefix_of(trace, n)) {
-                name cls        = n.replace_prefix(trace, name());
-                if (opts.get_bool(n, false))
-                    enable_trace_class(cls);
-                else
-                    disable_trace_class(cls);
-            }
-        });
+    if (opts && g_opts != opts) {
+        opts->for_each([&](name const & n) {
+                if (is_prefix_of(trace, n)) {
+                    name cls        = n.replace_prefix(trace, name());
+                    if (opts->get_bool(n, false))
+                        enable_trace_class(cls);
+                    else
+                        disable_trace_class(cls);
+                }
+            });
+    }
+    g_opts = opts;
 }
 
-scope_trace_env::scope_trace_env(environment const & env, io_state const & ios, abstract_type_context & ctx) {
-    init(const_cast<environment*>(&env), const_cast<io_state*>(&ios), &ctx, false);
+scope_trace_env::scope_trace_env(environment const & env, options const & o, abstract_type_context & ctx) {
+    init(const_cast<environment*>(&env), const_cast<options*>(&o), &ctx);
 }
 
 scope_trace_env::scope_trace_env(environment const & env, abstract_type_context & ctx) {
-    init(const_cast<environment*>(&env), const_cast<io_state*>(&get_global_ios()), &ctx, false);
+    init(const_cast<environment*>(&env), g_opts, &ctx);
 }
 
 scope_trace_env::scope_trace_env(options const & o) {
-    if (!g_ios) {
-        m_ios_owner  = false;
-        m_enable_sz  = 0;
-        m_disable_sz = 0;
-    } else {
-        io_state * tmp_ios = new io_state(*g_ios, o);
-        init(g_env, tmp_ios, g_ctx, true);
-    }
+    init(g_env, const_cast<options*>(&o), g_ctx);
 }
 
 scope_trace_env::~scope_trace_env() {
-    if (m_ios_owner)
-        delete g_ios;
-    g_env = const_cast<environment*>(m_old_env);
-    g_ios = const_cast<io_state*>(m_old_ios);
-    g_ctx = m_old_ctx;
+    g_env  = const_cast<environment*>(m_old_env);
+    g_opts = const_cast<options*>(m_old_opts);
+    g_ctx  = m_old_ctx;
     get_enabled_trace_classes().resize(m_enable_sz);
     get_disabled_trace_classes().resize(m_disable_sz);
 }
@@ -163,19 +149,17 @@ scope_trace_inc_depth::~scope_trace_inc_depth() {
 }
 
 void scope_trace_init_bool_option::init(name const & n, bool v) {
-    m_old_ios = g_ios;
-    if (g_env && g_ios) {
-        m_tmp_ios.reset(new io_state(*g_ios));
-        options o = m_tmp_ios->get_options();
-        o         = o.update_if_undef(n, v);
-        m_tmp_ios->set_options(o);
-        g_ios     = m_tmp_ios.get();
-    }
+    m_initialized = true;
+    m_old_opts = g_opts;
+    if (g_opts)
+        m_opts = *g_opts;
+    m_opts = m_opts.update_if_undef(n, v);
+    g_opts = &m_opts;
 }
 
 scope_trace_init_bool_option::~scope_trace_init_bool_option() {
-    if (m_tmp_ios) {
-        g_ios = const_cast<io_state*>(m_old_ios);
+    if (m_initialized) {
+        g_opts = m_old_opts;
     }
 }
 
@@ -191,18 +175,19 @@ MK_THREAD_LOCAL_GET_DEF(silent_ios_helper, get_silent_ios_helper);
 MK_THREAD_LOCAL_GET(type_checker, get_dummy_tc, get_dummy_env());
 
 scope_trace_silent::scope_trace_silent(bool flag) {
-    m_old_ios = g_ios;
-    if (flag)
-        g_ios     = &get_silent_ios_helper().m_ios;
+    m_old_value = g_silent;
+    g_silent    = flag;
 }
 
 scope_trace_silent::~scope_trace_silent() {
-    g_ios     = m_old_ios;
+    g_silent    = m_old_value;
 }
 
 io_state_stream tout() {
-    if (g_env) {
-        return diagnostic(*g_env, *g_ios, *g_ctx);
+    if (g_env && !g_silent) {
+        options opts = g_opts ? *g_opts : get_dummy_options();
+        io_state ios(get_global_ios(), opts);
+        return diagnostic(*g_env, ios, *g_ctx);
     } else {
         return diagnostic(get_dummy_env(), get_silent_ios_helper().m_ios, get_dummy_tc());
     }

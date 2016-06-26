@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include <unordered_map>
 #include "kernel/environment.h"
 #include "library/relation_manager.h"
-#include "library/io_state.h"
 #include "library/reducible.h"
 #include "library/type_context.h"
 

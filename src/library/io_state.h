@@ -30,7 +30,7 @@ public:
     io_state(io_state const & ios, options const & o);
     ~io_state();
 
-    options get_options() const { return m_options; }
+    options const & get_options() const { return m_options; }
     formatter_factory const & get_formatter_factory() const { return m_formatter_factory; }
     std::shared_ptr<output_channel> const & get_regular_channel_ptr() const { return m_regular_channel; }
     std::shared_ptr<output_channel> const & get_diagnostic_channel_ptr() const { return m_diagnostic_channel; }
@@ -49,6 +49,17 @@ public:
 };
 /** \brief Return a dummy io_state that is meant to be used in contexts that require an io_state, but it is not really used */
 io_state const & get_dummy_ios();
+
+/** \brief Return reference to thread local io_state object. */
+io_state const & get_global_ios();
+
+struct scope_global_ios {
+    io_state * m_old_ios;
+public:
+    scope_global_ios(io_state const & ios);
+    ~scope_global_ios();
+};
+
 void initialize_io_state();
 void finalize_io_state();
 }

@@ -69,4 +69,22 @@ void io_state::set_options(options const & opts) {
 void io_state::set_formatter_factory(formatter_factory const & f) {
     m_formatter_factory = f;
 }
+
+LEAN_THREAD_PTR(io_state, g_ios);
+
+io_state const & get_global_ios() {
+    if (g_ios)
+        return *g_ios;
+    else
+        return get_dummy_ios();
+}
+
+scope_global_ios::scope_global_ios(io_state const & ios) {
+    m_old_ios = g_ios;
+    g_ios     = const_cast<io_state*>(&ios);
+}
+
+scope_global_ios::~scope_global_ios() {
+    g_ios = m_old_ios;
+}
 }

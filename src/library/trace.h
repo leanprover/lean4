@@ -20,12 +20,11 @@ class scope_trace_env {
     unsigned                m_enable_sz;
     unsigned                m_disable_sz;
     environment const *     m_old_env;
-    io_state    const *     m_old_ios;
+    options     const *     m_old_opts;
     abstract_type_context * m_old_ctx;
-    bool                    m_ios_owner;
-    void init(environment * env, io_state * ios, abstract_type_context * ctx, bool ios_owner);
+    void init(environment * env, options * opts, abstract_type_context * ctx);
 public:
-    scope_trace_env(environment const & env, io_state const & ios, abstract_type_context & ctx);
+    scope_trace_env(environment const & env, options const & opts, abstract_type_context & ctx);
     scope_trace_env(environment const & env, abstract_type_context & ctx);
     scope_trace_env(options const & opts);
     ~scope_trace_env();
@@ -49,8 +48,9 @@ if (::lean::is_trace_enabled() && ::lean::is_trace_class_enabled(name(CName))) \
 
 /* Temporarily set an option if it is not already set in the trace environment. */
 class scope_trace_init_bool_option {
-    io_state const *          m_old_ios{nullptr};
-    std::unique_ptr<io_state> m_tmp_ios;
+    bool                      m_initialized{false};
+    options                   m_opts;
+    options *                 m_old_opts;
 public:
     ~scope_trace_init_bool_option();
     void init(name const & opt, bool val);
@@ -64,7 +64,7 @@ if (lean_is_trace_enabled(CName)) {                     \
 
 /* Helper object for temporarily silencing trace messages */
 class scope_trace_silent {
-    io_state * m_old_ios{nullptr};
+    bool m_old_value;
 public:
     scope_trace_silent(bool flag);
     ~scope_trace_silent();
@@ -76,8 +76,6 @@ struct tclass { name m_cls; tclass(name const & c):m_cls(c) {} };
 io_state_stream tout();
 io_state_stream const & operator<<(io_state_stream const & ios, tdepth const &);
 io_state_stream const & operator<<(io_state_stream const & ios, tclass const &);
-
-io_state const & get_global_ios();
 
 #define lean_trace_plain(CName, CODE) {         \
 if (lean_is_trace_enabled(CName)) {             \

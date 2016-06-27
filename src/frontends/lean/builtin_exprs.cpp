@@ -533,11 +533,12 @@ static expr fix_do_action_lhs(parser & p, expr const & lhs, expr const & type, p
     }
 }
 
-static std::tuple<optional<expr>, expr, expr> parse_do_action(parser & p, buffer<expr> & new_locals) {
+static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(parser & p, buffer<expr> & new_locals) {
     auto lhs_pos = p.pos();
     optional<expr> lhs;
     lhs = parse_match_pattern(p, new_locals);
     expr type, curr;
+    optional<expr> else_case;
     if (p.curr_is_token(get_colon_tk())) {
         p.next();
         type = p.parse_expr();
@@ -554,6 +555,10 @@ static std::tuple<optional<expr>, expr, expr> parse_do_action(parser & p, buffer
         if (!is_local(*lhs))
             validate_match_pattern(p, *lhs, new_locals);
         curr = p.parse_expr();
+        if (p.curr_is_token(get_bar_tk())) {
+            p.next();
+            else_case = p.parse_expr();
+        }
     } else {
         if (!new_locals.empty()) {
             expr undef = new_locals[0];
@@ -564,13 +569,14 @@ static std::tuple<optional<expr>, expr, expr> parse_do_action(parser & p, buffer
         type = mk_expr_placeholder();
         lhs  = none_expr();
     }
-    return std::make_tuple(lhs, type, curr);
+    return std::make_tuple(lhs, type, curr, else_case);
 }
 
 static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
     parser::local_scope scope(p);
     buffer<expr>           es;
     buffer<optional<expr>> lhss;
+    buffer<optional<expr>> else_cases;
     buffer<list<expr>>     lhss_locals;
     bool has_braces = false;
     if (p.curr_is_token(get_lcurly_tk())) {
@@ -580,9 +586,9 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
     while (true) {
         auto lhs_pos = p.pos();
         buffer<expr> new_locals;
-        optional<expr> lhs;
+        optional<expr> lhs, else_case;
         expr type, curr;
-        std::tie(lhs, type, curr) = parse_do_action(p, new_locals);
+        std::tie(lhs, type, curr, else_case) = parse_do_action(p, new_locals);
         es.push_back(curr);
         if (p.curr_is_token(get_comma_tk())) {
             p.next();
@@ -595,6 +601,7 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
                 lhss_locals.push_back(list<expr>());
             }
             lhss.push_back(lhs);
+            else_cases.push_back(else_case);
         } else {
             if (lhs) {
                 throw parser_error("invalid 'do' expression, unnecessary binder", lhs_pos);
@@ -623,8 +630,14 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
                 buffer<expr> locals;
                 to_buffer(lhss_locals[i], locals);
                 auto pos   = p.pos_of(*lhs);
-                expr eq    = Fun(fn, Fun(locals, p.save_pos(mk_equation(mk_app(fn, *lhs), r), pos), p));
-                expr eqns  = p.save_pos(mk_equations(1, 1, &eq), pos);
+                buffer<expr> eqs;
+                eqs.push_back(Fun(fn, Fun(locals, p.save_pos(mk_equation(mk_app(fn, *lhs), r), pos), p)));
+                if (optional<expr> else_case = else_cases[i]) {
+                    // add case
+                    //    _ := else_case
+                    eqs.push_back(Fun(fn, p.save_pos(mk_equation(mk_app(fn, mk_expr_placeholder()), *else_case), pos)));
+                }
+                expr eqns  = p.save_pos(mk_equations(1, eqs.size(), eqs.data()), pos);
                 expr local = mk_local("p", mk_expr_placeholder());
                 expr match = p.mk_app(eqns, local, pos);
                 r = mk_app(mk_constant(get_monad_bind_name()), es[i], Fun(local, match));

@@ -37,11 +37,29 @@ has_to_tactic_format.mk (return ∘ to_fmt)
 meta_definition expr_has_to_tactic_format [instance] : has_to_tactic_format expr :=
 has_to_tactic_format.mk tactic.format_expr
 
+meta_definition tactic.pp {A : Type} [has_to_tactic_format A] : A → tactic format :=
+has_to_tactic_format.to_tactic_format
+
+open tactic format
+
+meta_definition list_to_tactic_format_aux {A : Type} [has_to_tactic_format A] : bool → list A → tactic format
+| _  []     := return ""
+| b (x::xs) := do
+  f₁ ← pp x,
+  f₂ ← list_to_tactic_format_aux ff xs,
+  return $ (if b = ff then "," ++ line else nil) ++ f₁ ++ f₂
+
+meta_definition list_to_tactic_format {A : Type} [has_to_tactic_format A] : list A → tactic format
+| []      := return "[]"
+| (x::xs) := do
+  f ← list_to_tactic_format_aux tt (x::xs),
+  return $ "[" ++ group (nest 1 f) ++ "]"
+
+meta_definition list_has_to_tactic_format [instance] {A : Type} [has_to_tactic_format A] : has_to_tactic_format (list A) :=
+has_to_tactic_format.mk list_to_tactic_format
+
 namespace tactic
 open tactic_state
-
-meta_definition pp {A : Type} [has_to_tactic_format A] : A → tactic format :=
-has_to_tactic_format.to_tactic_format
 
 meta_definition get_env : tactic environment :=
 do s ← read,

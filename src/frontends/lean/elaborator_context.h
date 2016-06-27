@@ -20,7 +20,6 @@ class elaborator_context {
     friend class elaborator;
 
     environment               m_env;
-    io_state                  m_ios;
     local_level_decls         m_lls; // local universe levels
     pos_info_provider const * m_pos_provider;
     info_manager *            m_info_manager;
@@ -47,7 +46,7 @@ class elaborator_context {
 
     bool has_show_hole_at(unsigned & line, unsigned & col) const;
 public:
-    elaborator_context(environment const & env, io_state const & ios, local_level_decls const & lls,
+    elaborator_context(environment const & env, options const & opts, local_level_decls const & lls,
                        pos_info_provider const * pp = nullptr, info_manager * info = nullptr,
                        bool check_unassigned = true);
     elaborator_context(elaborator_context const & ctx, options const & o);

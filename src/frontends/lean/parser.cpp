@@ -898,16 +898,16 @@ level parser::parse_level(unsigned rbp) {
 }
 
 elaborator_context parser::mk_elaborator_context(pos_info_provider const &  pp, bool check_unassigned) {
-    return elaborator_context(m_env, m_ios, m_local_level_decls, &pp, m_info_manager, check_unassigned);
+    return elaborator_context(m_env, get_options(), m_local_level_decls, &pp, m_info_manager, check_unassigned);
 }
 
 elaborator_context parser::mk_elaborator_context(environment const & env, pos_info_provider const & pp) {
-    return elaborator_context(env, m_ios, m_local_level_decls, &pp, m_info_manager, true);
+    return elaborator_context(env, get_options(), m_local_level_decls, &pp, m_info_manager, true);
 }
 
 elaborator_context parser::mk_elaborator_context(environment const & env, local_level_decls const & lls,
                                                  pos_info_provider const & pp) {
-    return elaborator_context(env, m_ios, lls, &pp, m_info_manager, true);
+    return elaborator_context(env, get_options(), lls, &pp, m_info_manager, true);
 }
 
 std::tuple<expr, level_param_names> parser::elaborate(expr const & e) {

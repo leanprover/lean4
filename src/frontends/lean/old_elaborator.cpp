@@ -178,7 +178,7 @@ struct old_elaborator::choice_expr_elaborator : public choice_iterator {
 old_elaborator::old_elaborator(elaborator_context & ctx, bool nice_mvar_names):
     m_ctx(ctx),
     m_context(),
-    m_unifier_config(ctx.m_ios.get_options(), true /* use exceptions */, true /* discard */) {
+    m_unifier_config(ctx.m_options, true /* use exceptions */, true /* discard */) {
     m_has_sorry = has_sorry(m_ctx.m_env);
     m_use_tactic_hints  = true;
     m_no_info           = false;
@@ -341,7 +341,7 @@ expr old_elaborator::mk_placeholder_meta(optional<name> const & suffix, optional
                                      tag g, bool is_strict, bool is_inst_implicit, constraint_seq & cs) {
     if (is_inst_implicit) {
         auto ec = mk_class_instance_elaborator(
-            env(), ios(), m_context, suffix,
+            env(), get_global_ios(), m_context, suffix,
             true, is_strict, type, g, m_ctx.m_pos_provider);
         register_meta(ec.first);
         cs += ec.second;
@@ -1214,7 +1214,7 @@ static expr assign_equation_lhs_metas(old_type_checker & tc, expr const & eqns) 
 // \remark original_eqns is eqns before elaboration
 constraint old_elaborator::mk_equations_cnstr(expr const & m, expr const & eqns) {
     environment const & _env = env();
-    io_state const & _ios    = ios();
+    io_state const & _ios    = get_global_ios();
     justification j          = mk_failed_to_synthesize_jst(_env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s) {
         substitution new_s  = s;
@@ -1872,11 +1872,11 @@ void old_elaborator::display_unsolved_tactic_state(expr const & mvar, tactic_sta
     if (!m_displayed_errors.contains(mlocal_name(mvar))) {
         m_displayed_errors.insert(mlocal_name(mvar));
         type_context ctx     = mk_type_context_for(ts);
-        auto out = regular(env(), ios(), ctx);
-        flycheck_error err(ios());
+        auto out = regular(env(), get_global_ios(), ctx);
+        flycheck_error err(get_global_ios());
         if (!err.enabled() || save_error(pip(), pos)) {
             display_error_pos(out.get_stream(), out.get_options(), pip(), pos);
-            out << " " << fmt << "\nstate:\n" << ts.pp(ios().get_formatter_factory()) << endl;
+            out << " " << fmt << "\nstate:\n" << ts.pp(get_global_ios().get_formatter_factory()) << endl;
         }
     }
 }
@@ -1911,7 +1911,7 @@ optional<tactic_state> old_elaborator::execute_tactic(expr const & tactic, tacti
     expr tactic_type = ::lean::mk_app(mk_constant("tactic", {mk_level_one()}), mk_constant("unit"));
     /* compile tactic */
     environment new_env  = env();
-    options const & opts = ios().get_options();
+    options const & opts = m_ctx.m_options;
     bool use_conv_opt    = true;
     bool is_trusted      = false;
     auto cd = check(new_env, mk_definition(new_env, tactic_name, {}, tactic_type, tactic, use_conv_opt, is_trusted));
@@ -1947,7 +1947,7 @@ void old_elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name
         throw_elaborator_exception("failed to synthesize placeholder, type is a unknown (i.e., it is a metavariable) "
                                    "(solution: provide type explicitly)", mvar);
     }
-    options const & opts = m_ctx.m_ios.get_options();
+    options const & opts = m_ctx.m_options;
     buffer<expr> new_locals;
     tactic_state ts      = to_tactic_state(env(), opts, *meta, type, new_locals);
     if (optional<expr> tac = get_tactic_for(mvar)) {
@@ -2056,7 +2056,7 @@ bool old_elaborator::display_unassigned_mvars(expr const & e, substitution const
                     expr meta      = tmp_s.instantiate(*it);
                     expr meta_type = tmp_s.instantiate(type_checker(env()).infer(meta));
                     buffer<expr> new_ctx;
-                    tactic_state ts = to_tactic_state(env(), ios().get_options(), meta, meta_type, new_ctx);
+                    tactic_state ts = to_tactic_state(env(), m_ctx.m_options, meta, meta_type, new_ctx);
                     display_unsolved_tactic_state(mvar, ts, "don't know how to synthesize placeholder");
                     r = true;
                 }

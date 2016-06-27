@@ -60,9 +60,9 @@ end
 section
 variables {key : Type} {data : Type} [has_to_string key] [has_to_string data]
 private meta_definition key_data_to_string (k : key) (d : data) (first : bool) : string :=
-(if first = tt then "" else ", ") + to_string k + " ← " + to_string d
+(if first = tt then "" else ", ") ++ to_string k ++ " ← " ++ to_string d
 
 meta_definition rb_map_has_to_string [instance] : has_to_string (rb_map key data) :=
 has_to_string.mk (λ m,
-  "⟨" + (pr₁ (fold m ("", tt) (λ k d p, (pr₁ p + key_data_to_string k d (pr₂ p), ff)))) + "⟩")
+  "⟨" ++ (pr₁ (fold m ("", tt) (λ k d p, (pr₁ p ++ key_data_to_string k d (pr₂ p), ff)))) ++ "⟩")
 end

@@ -4,11 +4,11 @@
 "AB" : list char
 "ABC" : list char
 "abcD" : list char
-"abc" ++ "cde" : list char
+append "abc" "cde" : list char
 str 67 (str 66 (str 65 empty)) : string
 str 68 (str 65 (str 66 (str 99 (str 98 (str 97 empty))))) : string
 65 :: str 99 (str 98 (str 97 empty)) : list char
 [66, 65] : list char
 [67, 66, 65] : list char
 68 :: str 99 (str 98 (str 97 empty)) : list char
-str 99 (str 98 (str 97 empty)) ++ str 101 (str 100 (str 99 empty)) : list char
+append (str 99 (str 98 (str 97 empty))) (str 101 (str 100 (str 99 empty))) : list char

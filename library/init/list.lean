@@ -36,8 +36,6 @@ definition append : list A → list A → list A
 | []       l := l
 | (h :: s) t := h :: (append s t)
 
-notation l₁ ++ l₂ := append l₁ l₂
-
 definition length : list A → nat
 | []       := 0
 | (a :: l) := length l + 1
@@ -54,3 +52,6 @@ definition tail : list A → list A
 | (a :: l) := l
 
 end list
+
+definition list_has_append [instance] {A : Type} : has_append (list A) :=
+has_append.mk list.append

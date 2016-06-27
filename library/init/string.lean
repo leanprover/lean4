@@ -16,5 +16,5 @@ definition concat (a b : string) : string :=
 list.append b a
 end string
 
-definition string.has_add [instance] : has_add string :=
-has_add.mk string.concat
+definition string.has_append [instance] : has_append string :=
+has_append.mk string.concat

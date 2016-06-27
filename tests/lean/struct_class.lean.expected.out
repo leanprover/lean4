@@ -1,6 +1,7 @@
 decidable : Prop → Type₁
 functor : (Type → Type) → Type
 has_add : Type → Type
+has_append : Type → Type
 has_div : Type → Type
 has_dvd : Type → Type
 has_inv : Type → Type
@@ -28,6 +29,7 @@ well_founded : Π {A}, (A → A → Prop) → Prop
 decidable : Prop → Type₁
 functor : (Type → Type) → Type
 has_add : Type → Type
+has_append : Type → Type
 has_div : Type → Type
 has_dvd : Type → Type
 has_inv : Type → Type

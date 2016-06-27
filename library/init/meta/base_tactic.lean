@@ -22,7 +22,7 @@ variables [has_to_string A]
 
 protected meta_definition base_tactic_result.to_string : base_tactic_result S A → string
 | (success a s)   := to_string a
-| (exception A e s) := "Exception: " + to_string (e options.mk)
+| (exception A e s) := "Exception: " ++ to_string (e options.mk)
 
 protected meta_definition base_tactic_result.has_to_string [instance] : has_to_string (base_tactic_result S A) :=
 has_to_string.mk base_tactic_result.to_string

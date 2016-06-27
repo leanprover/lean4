@@ -97,7 +97,7 @@ list.induction_on l
   (λ p, p)
   (λ x xs r p, skip x (r p))
 
-theorem perm_app [congr] {l₁ l₂ t₁ t₂ : list A} : l₁ ~ l₂ → t₁ ~ t₂ → (l₁++t₁) ~ (l₂++t₂) :=
+theorem perm_app {l₁ l₂ t₁ t₂ : list A} : l₁ ~ l₂ → t₁ ~ t₂ → (l₁++t₁) ~ (l₂++t₂) :=
 assume p₁ p₂, trans (perm_app_left t₁ p₁) (perm_app_right l₂ p₂)
 
 theorem perm_app_cons (a : A) {h₁ h₂ t₁ t₂ : list A} : h₁ ~ h₂ → t₁ ~ t₂ → (h₁ ++ (a::t₁)) ~ (h₂ ++ (a::t₂)) :=

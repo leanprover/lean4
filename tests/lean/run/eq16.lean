@@ -4,15 +4,15 @@ open list
 variable {A : Type}
 set_option pp.implicit true
 
-definition append : list A → list A → list A
-| append nil      l := l
-| append (h :: t) l := h :: (append t l)
+definition app : list A → list A → list A
+| app nil      l := l
+| app (h :: t) l := h :: (app t l)
 
-theorem append_nil (l : list A) : append nil l = l :=
+theorem app_nil (l : list A) : app nil l = l :=
 rfl
 
-theorem append_cons (h : A) (t l : list A) : append (h :: t) l = h :: (append t l) :=
+theorem app_cons (h : A) (t l : list A) : app (h :: t) l = h :: (app t l) :=
 rfl
 
-example : append ((1:num) :: 2 :: nil) (3 :: 4 :: 5 :: nil) = (1 :: 2 :: 3 :: 4 :: 5 :: nil) :=
+example : app ((1:num) :: 2 :: nil) (3 :: 4 :: 5 :: nil) = (1 :: 2 :: 3 :: 4 :: 5 :: nil) :=
 rfl

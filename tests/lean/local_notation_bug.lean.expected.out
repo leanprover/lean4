@@ -8,7 +8,7 @@ expr ↣ _Fun : expr.app
 string ↣ name : mk_simple_name
 expr ↣ [fun-class] : expr.app
 10 : ?M_1
-local_notation_bug.lean:22:8: error: invalid expression
+local_notation_bug.lean:22:10: error: invalid expression
 expr ↣ _Fun : expr.app
 string ↣ name : mk_simple_name
 expr ↣ [fun-class] : expr.app

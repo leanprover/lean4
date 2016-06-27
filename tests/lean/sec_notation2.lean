@@ -11,16 +11,16 @@ section
 
     postfix `+.2`:100 := add2
 
-    local postfix `++2`:100 := add2
+    local postfix `**2`:100 := add2
 
     eval 3 +.2
 
-    example : 3 +.2 = 3 ++2 := rfl
+    example : 3 +.2 = 3 **2 := rfl
  end
 
  eval 3 +.2
 
- example : 3 +.2 = 3 ++2 := rfl -- error
+ example : 3 +.2 = 3 **2 := rfl -- error
 
 end
 

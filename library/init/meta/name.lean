@@ -37,8 +37,8 @@ definition name.to_string : name → string
 | anonymous                := "[anonymous]"
 | (mk_string s anonymous)  := s
 | (mk_numeral v anonymous) := to_string v
-| (mk_string s n)          := name.to_string n + "." + s
-| (mk_numeral v n)         := name.to_string n + "." + to_string v
+| (mk_string s n)          := name.to_string n ++ "." ++ s
+| (mk_numeral v n)         := name.to_string n ++ "." ++ to_string v
 
 definition name.has_to_string [instance] : has_to_string name :=
 has_to_string.mk name.to_string

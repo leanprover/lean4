@@ -1,15 +1,15 @@
 import data.list
 open list
 
-definition append {A : Type} : list A → list A → list A
-| append nil      l := l
-| append (h :: t) l := h :: (append t l)
+definition appd {A : Type} : list A → list A → list A
+| appd nil      l := l
+| appd (h :: t) l := h :: (appd t l)
 
-theorem append_nil {A : Type} (l : list A) : append nil l = l :=
+theorem appd_nil {A : Type} (l : list A) : appd nil l = l :=
 rfl
 
-theorem append_cons {A : Type} (h : A) (t l : list A) : append (h :: t) l = h :: (append t l) :=
+theorem appd_cons {A : Type} (h : A) (t l : list A) : appd (h :: t) l = h :: (appd t l) :=
 rfl
 
-example : append ((1:nat) :: 2 :: nil) (3 :: 4 :: 5 :: nil) = (1 :: 2 :: 3 :: 4 :: 5 :: nil) :=
+example : appd ((1:nat) :: 2 :: nil) (3 :: 4 :: 5 :: nil) = (1 :: 2 :: 3 :: 4 :: 5 :: nil) :=
 rfl

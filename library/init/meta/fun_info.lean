@@ -41,25 +41,25 @@ structure param_info :=
 open format list decidable
 
 private meta_definition ppfield {A : Type} [has_to_format A] (fname : string) (v : A) : format :=
-group $ fname + space + ":=" + space + nest (length fname + 4) (to_fmt v)
+group $ fname ++ space ++ ":=" ++ space ++ nest (length fname + 4) (to_fmt v)
 
 private meta_definition concat_fields (f₁ f₂ : format) : format :=
 if       is_nil f₁ = tt then f₂
 else if  is_nil f₂ = tt then f₁
-else f₁ + "," + line + f₂
+else f₁ ++ "," ++ line ++ f₂
 
-local infix `++`:65 := concat_fields
+local infix `+++`:65 := concat_fields
 
 meta_definition param_info.to_format : param_info → format
 | (param_info.mk s i ii p s d ds) :=
 group ∘ cbrace $
-  when s "specialized" ++
-  when i  "implicit" ++
-  when ii "inst_implicit" ++
-  when p  "prop" ++
-  when s  "subsingleton" ++
-  when d  "has_fwd_deps" ++
-  when (to_bool (length ds > 0)) ("back_deps := " + to_fmt ds)
+  when s "specialized" +++
+  when i  "implicit" +++
+  when ii "inst_implicit" +++
+  when p  "prop" +++
+  when s  "subsingleton" +++
+  when d  "has_fwd_deps" +++
+  when (to_bool (length ds > 0)) ("back_deps := " ++ to_fmt ds)
 
 meta_definition param_info.has_to_format [instance] : has_to_format param_info :=
 has_to_format.mk param_info.to_format

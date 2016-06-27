@@ -106,7 +106,7 @@ end
 meta_definition decorate_ex (msg : format) (t : base_tactic S A) : base_tactic S A :=
 λ s, base_tactic_result.cases_on (t s)
   success
-  (λ e, !exception (λ u, msg + format.nest 2 (format.line + e u)))
+  (λ e, !exception (λ u, msg ++ format.nest 2 (format.line ++ e u)))
 
 inline meta_definition write (s' : S) : base_tactic S unit :=
 λ s, success () s'

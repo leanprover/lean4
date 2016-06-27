@@ -29,8 +29,8 @@ meta_constant trace_fmt {A : Type} : format → (unit → A) → A
 meta_definition format.is_inhabited [instance] : inhabited format :=
 inhabited.mk format.space
 
-meta_definition format_has_add [instance] : has_add format :=
-has_add.mk format.compose
+meta_definition format_has_append [instance] : has_append format :=
+has_append.mk format.compose
 
 meta_definition format_has_to_string [instance] : has_to_string format :=
 has_to_string.mk (λ f, format.to_string f options.mk)
@@ -74,12 +74,12 @@ has_to_format.mk (λ c : char, format.of_string [c])
 
 meta_definition list.to_format_aux {A : Type} [has_to_format A] : bool → list A → format
 | _  []      := ""
-| tt (x::xs) := to_fmt x + list.to_format_aux ff xs
-| ff (x::xs) := "," + line + to_fmt x + list.to_format_aux ff xs
+| tt (x::xs) := to_fmt x ++ list.to_format_aux ff xs
+| ff (x::xs) := "," ++ line ++ to_fmt x ++ list.to_format_aux ff xs
 
 meta_definition list.to_format {A : Type} [has_to_format A] : list A → format
 | []      := "[]"
-| (x::xs) := "[" + group (nest 1 (list.to_format_aux tt (x::xs))) + "]"
+| (x::xs) := "[" ++ group (nest 1 (list.to_format_aux tt (x::xs))) ++ "]"
 
 meta_definition list.has_to_format [instance] {A : Type} [has_to_format A] : has_to_format (list A) :=
 has_to_format.mk list.to_format
@@ -95,23 +95,23 @@ has_to_format.mk (λ u, "star")
 meta_definition option.has_to_format [instance] {A : Type} [has_to_format A] : has_to_format (option A) :=
 has_to_format.mk (λ o, option.cases_on o
   "none"
-  (λ a, "(some " + nest 6 (to_fmt a) + ")"))
+  (λ a, "(some " ++ nest 6 (to_fmt a) ++ ")"))
 
 meta_definition sum.has_to_format [instance] {A B : Type} [has_to_format A] [has_to_format B] : has_to_format (sum A B) :=
 has_to_format.mk (λ s, sum.cases_on s
-  (λ a, "(inl " + nest 5 (to_fmt a) + ")")
-  (λ b, "(inr " + nest 5 (to_fmt b) + ")"))
+  (λ a, "(inl " ++ nest 5 (to_fmt a) ++ ")")
+  (λ b, "(inr " ++ nest 5 (to_fmt b) ++ ")"))
 
 open prod
 
 meta_definition prod.has_to_format [instance] {A B : Type} [has_to_format A] [has_to_format B] : has_to_format (prod A B) :=
-has_to_format.mk (λ p, group (nest 1 ("(" + to_fmt (pr1 p) + "," + line + to_fmt (pr2 p) + ")")))
+has_to_format.mk (λ p, group (nest 1 ("(" ++ to_fmt (pr1 p) ++ "," ++ line ++ to_fmt (pr2 p) ++ ")")))
 
 open sigma
 
 meta_definition sigma.has_to_format [instance] {A : Type} {B : A → Type} [has_to_format A] [s : ∀ x, has_to_format (B x)]
                                           : has_to_format (sigma B) :=
-has_to_format.mk (λ p, group (nest 1 ("⟨"  + to_fmt (pr1 p) + "," + line + to_fmt (pr2 p) + "⟩")))
+has_to_format.mk (λ p, group (nest 1 ("⟨"  ++ to_fmt (pr1 p) ++ "," ++ line ++ to_fmt (pr2 p) ++ "⟩")))
 
 open subtype
 
@@ -119,7 +119,7 @@ meta_definition subtype.has_to_format [instance] {A : Type} {P : A → Prop} [ha
 has_to_format.mk (λ s, to_fmt (elt_of s))
 
 meta_definition format.bracket : string → string → format → format
-| o c f := to_fmt o + nest (length o) f + to_fmt c
+| o c f := to_fmt o ++ nest (length o) f ++ to_fmt c
 
 meta_definition format.paren (f : format) : format :=
 format.bracket "(" ")" f
@@ -132,4 +132,4 @@ format.bracket "[" "]" f
 
 meta_definition format.dcbrace (f : format) : format :=
 -- TODO(Leo): backet uses length, but ⦃ is unicode, we need a function that computes the utf8 size of a string
-to_fmt "⦃" + nest 1 f + to_fmt "⦄"
+to_fmt "⦃" ++ nest 1 f ++ to_fmt "⦄"

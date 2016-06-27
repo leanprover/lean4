@@ -14,7 +14,7 @@ by do
       do t ← infer_type e,
          fmt₁ ← pp e,
          fmt₂ ← pp t,
-         trace $ fmt₁ + to_fmt " : " + fmt₂),
+         trace $ fmt₁ ++ to_fmt " : " ++ fmt₂),
     trace "----------",
     trace $ "num: " ++ to_string n,
     trace_state,

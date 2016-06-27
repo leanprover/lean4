@@ -31,9 +31,6 @@ do s ← tactic.read, return (tactic_state.format_expr s e)
 structure has_to_tactic_format [class] (A : Type) :=
 (to_tactic_format : A → tactic format)
 
-meta_definition has_to_format_to_has_to_tactic_format [instance] (A : Type) [has_to_format A] : has_to_tactic_format A :=
-has_to_tactic_format.mk (return ∘ to_fmt)
-
 meta_definition expr_has_to_tactic_format [instance] : has_to_tactic_format expr :=
 has_to_tactic_format.mk tactic.format_expr
 
@@ -57,6 +54,9 @@ meta_definition list_to_tactic_format {A : Type} [has_to_tactic_format A] : list
 
 meta_definition list_has_to_tactic_format [instance] {A : Type} [has_to_tactic_format A] : has_to_tactic_format (list A) :=
 has_to_tactic_format.mk list_to_tactic_format
+
+meta_definition has_to_format_to_has_to_tactic_format [instance] (A : Type) [has_to_format A] : has_to_tactic_format A :=
+has_to_tactic_format.mk (return ∘ to_fmt)
 
 namespace tactic
 open tactic_state

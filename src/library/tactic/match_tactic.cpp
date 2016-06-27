@@ -144,6 +144,14 @@ vm_obj tactic_match_pattern_core(vm_obj const & m, vm_obj const & p, vm_obj cons
     type_context ctx = mk_type_context_for(s, m);
     type_context::tmp_mode_scope scope(ctx, nuvars, nmvars);
     if (ctx.is_def_eq(t, to_expr(e))) {
+        for (unsigned i = 0; i < nuvars; i++) {
+            if (!ctx.get_tmp_uvar_assignment(i))
+                return mk_tactic_exception(sstream() << "match_pattern failed, universe meta-variable #" << i << " has not been assigned.", to_tactic_state(s));
+        }
+        for (unsigned i = 0; i < nmvars; i++) {
+            if (!ctx.get_tmp_mvar_assignment(i))
+                return mk_tactic_exception(sstream() << "match_pattern failed, meta-variable #" << i << " has not been assigned.", to_tactic_state(s));
+        }
         buffer<expr> inst_os;
         for (expr const & o : os) {
             inst_os.push_back(ctx.instantiate_mvars(o));

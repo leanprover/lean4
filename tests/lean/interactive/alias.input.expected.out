@@ -9,18 +9,30 @@ bool.tt_bxor_ff|eq (bool.bxor tt ff) tt
 bool.bor_tt|∀ a, eq (bool.bor a tt) tt
 bool.band_tt|∀ a, eq (bool.band a tt) a
 bool.bxor_tt|∀ a, eq (bool.bxor a tt) (bool.bnot a)
+tactic.pattern.destruct|Π n, (Π target output nuvars nmvars, ?C (tactic.pattern.mk target output nuvars nmvars)) → ?C n
+tactic.pattern.no_confusion|eq ?v1 ?v2 → tactic.pattern.no_confusion_type ?P ?v1 ?v2
+tactic.pattern.rec|(Π target output nuvars nmvars, ?C (tactic.pattern.mk target output nuvars nmvars)) → (Π n, ?C n)
 bool.eq_tt_of_bnot_eq_ff|eq (bool.bnot ?a) ff → eq ?a tt
+tactic.pattern.no_confusion_type|Type → tactic.pattern → tactic.pattern → Type
 bool.eq_ff_of_bnot_eq_tt|eq (bool.bnot ?a) tt → eq ?a ff
+tactic.mk_pattern|list level → list expr → expr → list expr → tactic tactic.pattern
+tactic.pattern.induction_on|Π n, (Π target output nuvars nmvars, ?C (tactic.pattern.mk target output nuvars nmvars)) → ?C n
+tactic.pattern.cases_on|Π n, (Π target output nuvars nmvars, ?C (tactic.pattern.mk target output nuvars nmvars)) → ?C n
 bool.ff_bxor_tt|eq (bool.bxor ff tt) tt
 bool.absurd_of_eq_ff_of_eq_tt|eq ?a ff → eq ?a tt → ?B
 bool.eq_tt_of_ne_ff|ne ?a ff → eq ?a tt
+tactic.pattern.rec_on|Π n, (Π target output nuvars nmvars, ?C (tactic.pattern.mk target output nuvars nmvars)) → ?C n
+tactic.pattern.mk|expr → list expr → nat → nat → tactic.pattern
 bool.tt_band|∀ a, eq (bool.band tt a) a
 bool.cond_tt|∀ t e, eq (bool.cond tt t e) t
 environment.mk_hott|nat → environment
+tactic.match_pattern_core|tactic.transparency → tactic.pattern → expr → tactic (list expr)
+tactic.pattern|Type
 decidable.tt|?p → decidable ?p
 bool.ff_ne_tt|eq ff tt → false
 bool.eq_ff_of_ne_tt|ne ?a tt → eq ?a ff
 bool.tt_bxor|∀ a, eq (bool.bxor tt a) (bool.bnot a)
+tactic.match_pattern|tactic.pattern → expr → tactic (list expr)
 bool.tt_bor|∀ a, eq (bool.bor tt a) tt
 format.flatten|format → format
 -- ENDFINDP
@@ -36,15 +48,27 @@ tt_bxor_ff|eq (bxor tt ff) tt
 bor_tt|∀ a, eq (bor a tt) tt
 band_tt|∀ a, eq (band a tt) a
 bxor_tt|∀ a, eq (bxor a tt) (bnot a)
+tactic.pattern.destruct|Π n, (Π target output nuvars nmvars, ?C (tactic.pattern.mk target output nuvars nmvars)) → ?C n
+tactic.pattern.no_confusion|eq ?v1 ?v2 → tactic.pattern.no_confusion_type ?P ?v1 ?v2
+tactic.pattern.rec|(Π target output nuvars nmvars, ?C (tactic.pattern.mk target output nuvars nmvars)) → (Π n, ?C n)
 eq_tt_of_bnot_eq_ff|eq (bnot ?a) ff → eq ?a tt
+tactic.pattern.no_confusion_type|Type → tactic.pattern → tactic.pattern → Type
 eq_ff_of_bnot_eq_tt|eq (bnot ?a) tt → eq ?a ff
+tactic.mk_pattern|list level → list expr → expr → list expr → tactic tactic.pattern
+tactic.pattern.induction_on|Π n, (Π target output nuvars nmvars, ?C (tactic.pattern.mk target output nuvars nmvars)) → ?C n
+tactic.pattern.cases_on|Π n, (Π target output nuvars nmvars, ?C (tactic.pattern.mk target output nuvars nmvars)) → ?C n
 ff_bxor_tt|eq (bxor ff tt) tt
 absurd_of_eq_ff_of_eq_tt|eq ?a ff → eq ?a tt → ?B
 eq_tt_of_ne_ff|ne ?a ff → eq ?a tt
+tactic.pattern.rec_on|Π n, (Π target output nuvars nmvars, ?C (tactic.pattern.mk target output nuvars nmvars)) → ?C n
+tactic.pattern.mk|expr → list expr → nat → nat → tactic.pattern
 cond_tt|∀ t e, eq (cond tt t e) t
 environment.mk_hott|nat → environment
+tactic.match_pattern_core|tactic.transparency → tactic.pattern → expr → tactic (list expr)
+tactic.pattern|Type
 decidable.tt|?p → decidable ?p
 ff_ne_tt|eq ff tt → false
 eq_ff_of_ne_tt|ne ?a tt → eq ?a ff
+tactic.match_pattern|tactic.pattern → expr → tactic (list expr)
 format.flatten|format → format
 -- ENDFINDP

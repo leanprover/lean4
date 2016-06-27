@@ -67,6 +67,10 @@ meta_constant expr.lower_vars   : expr → nat → nat → expr
 namespace expr
 open decidable
 
+meta_definition app_of_list : expr → list expr → expr
+| f []      := f
+| f (p::ps) := app_of_list (expr.app f p) ps
+
 meta_definition is_app : expr → bool
 | (app _ _ ) := tt
 | _          := ff
@@ -126,6 +130,16 @@ else none
 meta_definition is_pi : expr → bool
 | (pi _ _ _ _) := tt
 | _            := ff
+
+meta_definition binding_name : expr → name
+| (pi n _ _ _)  := n
+| (lam n _ _ _) := n
+| e             := name.anonymous
+
+meta_definition binding_info : expr → binder_info
+| (pi _ bi _ _)  := bi
+| (lam _ bi _ _) := bi
+| e              := binder_info.default
 
 meta_definition binding_domain : expr → expr
 | (pi _ _ d b)  := d

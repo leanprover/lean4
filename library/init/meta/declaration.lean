@@ -34,3 +34,9 @@ definition declaration.type : declaration → expr
 | (declaration.thm n ls t v) := t
 | (declaration.cnst n ls t tr) := t
 | (declaration.ax n ls t) := t
+
+/- Instantiate a universe polymorphic declaration type with the given universes. -/
+meta_constant declaration.instantiate_type_univ_params : declaration → list level → option expr
+
+/- Instantiate a universe polymorphic declaration value with the given universes. -/
+meta_constant declaration.instantiate_value_univ_params : declaration → list level → option expr

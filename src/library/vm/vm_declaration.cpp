@@ -4,10 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "kernel/instantiate.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_level.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_list.h"
+#include "library/vm/vm_option.h"
 
 namespace lean {
 struct vm_declaration : public vm_external {
@@ -64,11 +66,39 @@ unsigned declaration_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     }
 }
 
+/*
+/- Instantiate a universe polymorphic declaration type with the given universes. -/
+meta_constant declaration.instantiate_type_univ_params : declaration → list level → option expr
+*/
+vm_obj declaration_instantiate_type_univ_params(vm_obj const & _d, vm_obj const & _ls) {
+    declaration const & d  = to_declaration(_d);
+    list<level> const & ls = to_list_level(_ls);
+    if (d.get_num_univ_params() != length(ls))
+        return mk_vm_none();
+    else
+        return mk_vm_some(to_obj(instantiate_type_univ_params(d, ls)));
+}
+
+/*
+/- Instantiate a universe polymorphic declaration type with the given universes. -/
+meta_constant declaration.instantiate_value_univ_params : declaration → list level → option expr
+*/
+vm_obj declaration_instantiate_value_univ_params(vm_obj const & _d, vm_obj const & _ls) {
+    declaration const & d  = to_declaration(_d);
+    list<level> const & ls = to_list_level(_ls);
+    if (!d.is_definition() || d.get_num_univ_params() != length(ls))
+        return mk_vm_none();
+    else
+        return mk_vm_some(to_obj(instantiate_type_univ_params(d, ls)));
+}
+
 void initialize_vm_declaration() {
     DECLARE_VM_BUILTIN(name({"declaration", "def"}),            declaration_def);
     DECLARE_VM_BUILTIN(name({"declaration", "thm"}),            declaration_thm);
     DECLARE_VM_BUILTIN(name({"declaration", "cnst"}),           declaration_cnst);
     DECLARE_VM_BUILTIN(name({"declaration", "ax"}),             declaration_ax);
+    DECLARE_VM_BUILTIN(name({"declaration", "instantiate_type_univ_params"}), declaration_instantiate_type_univ_params);
+    DECLARE_VM_BUILTIN(name({"declaration", "instantiate_value_univ_params"}), declaration_instantiate_value_univ_params);
     DECLARE_VM_CASES_BUILTIN(name({"declaration", "cases_on"}), declaration_cases_on);
 }
 

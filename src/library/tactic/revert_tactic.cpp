@@ -29,7 +29,8 @@ vm_obj revert(list<expr> const & ls, tactic_state const & s) {
             return mk_tactic_exception(sstream() << "revert tactic failed, unknown '" << local_pp_name(l) << "' hypothesis", s);
         }
     }
-    return mk_tactic_success(revert(locals, s));
+    tactic_state new_s = revert(locals, s);
+    return mk_tactic_success(mk_vm_nat(locals.size()), new_s);
 }
 
 vm_obj tactic_revert_lst(vm_obj const & ns, vm_obj const & s) {

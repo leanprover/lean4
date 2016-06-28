@@ -108,7 +108,7 @@ meta_constant intron        : nat → tactic unit
 meta_constant rename        : name → name → tactic unit
 /- Clear the given local constant. The tactic fails if the given expression is not a local constant. -/
 meta_constant clear         : expr → tactic unit
-meta_constant revert_lst    : list expr → tactic unit
+meta_constant revert_lst    : list expr → tactic nat
 meta_constant whnf          : expr → tactic expr
 meta_constant unify_core    : transparency → expr → expr → tactic unit
 /- Infer the type of the given expression.
@@ -223,7 +223,7 @@ mk_app_core semireducible
 meta_definition mk_mapp : name → list (option expr) → tactic expr :=
 mk_mapp_core semireducible
 
-meta_definition revert (l : expr) : tactic unit :=
+meta_definition revert (l : expr) : tactic nat :=
 revert_lst [l]
 
 meta_definition clear_lst : list name → tactic unit

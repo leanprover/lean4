@@ -103,14 +103,14 @@ meta_constant get_spec_fun_info_core   : transparency → expr → tactic fun_in
 meta_constant get_spec_prefix_size_core : transparency → expr → nat → tactic nat
 
 meta_definition get_fun_info : expr → tactic fun_info :=
-get_fun_info_core transparency.semireducible
+get_fun_info_core semireducible
 
 meta_definition get_fun_info_n : expr → nat → tactic fun_info :=
-get_fun_info_n_core transparency.semireducible
+get_fun_info_n_core semireducible
 
 meta_definition get_spec_fun_info : expr → tactic fun_info :=
-get_spec_fun_info_core transparency.semireducible
+get_spec_fun_info_core semireducible
 
 meta_definition get_spec_prefix_size : expr → nat → tactic nat :=
-get_spec_prefix_size_core transparency.semireducible
+get_spec_prefix_size_core semireducible
 end tactic

@@ -92,6 +92,8 @@ do s ← read,
 inductive transparency :=
 | all | semireducible | reducible | none
 
+export transparency (reducible semireducible)
+
 /- Return the partial term/proof constructed so far. Note that the resultant expression
    may contain variables that are not declarate in the current main goal. -/
 meta_constant result        : tactic expr
@@ -126,7 +128,7 @@ meta_constant local_context : tactic (list expr)
         vec.{l} : Pi (A : Type.{l}) (n : nat), Type.{l1}
         f g     : Pi (n : nat), vec real n
     then
-        mk_app_core transparency.semireducible "rel" [f, g]
+        mk_app_core semireducible "rel" [f, g]
     returns the application
         rel.{1 2} nat (fun n : nat, vec real n) f g -/
 meta_constant mk_app_core   : transparency → name → list expr → tactic expr
@@ -134,7 +136,7 @@ meta_constant mk_app_core   : transparency → name → list expr → tactic exp
    Example, given
      a b : nat
    then
-     mk_mapp_core transparency.semireducible "ite" [some (a > b), none, none, some a, some b]
+     mk_mapp_core semireducible "ite" [some (a > b), none, none, some a, some b]
    returns the application
      @ite.{1} (a > b) (nat.decidable_gt a b) nat a b -/
 meta_constant mk_mapp_core  : transparency → name → list (option expr) → tactic expr
@@ -216,10 +218,10 @@ meta_definition intro_lst : list name → tactic (list expr)
 | (n::ns) := do H ← intro n, Hs ← intro_lst ns, return (H :: Hs)
 
 meta_definition mk_app : name → list expr → tactic expr :=
-mk_app_core transparency.semireducible
+mk_app_core semireducible
 
 meta_definition mk_mapp : name → list (option expr) → tactic expr :=
-mk_mapp_core transparency.semireducible
+mk_mapp_core semireducible
 
 meta_definition revert (l : expr) : tactic unit :=
 revert_lst [l]
@@ -229,7 +231,7 @@ meta_definition clear_lst : list name → tactic unit
 | (n::ns) := do H ← get_local n, clear H, clear_lst ns
 
 meta_definition unify : expr → expr → tactic unit :=
-unify_core transparency.semireducible
+unify_core semireducible
 
 open option
 meta_definition match_eq (e : expr) : tactic (expr × expr) :=
@@ -265,7 +267,7 @@ do { ctx ← local_context,
 <|> fail "assumption tactic failed"
 
 meta_definition defeq_simp : expr → tactic expr :=
-defeq_simp_core transparency.reducible
+defeq_simp_core reducible
 
 meta_definition dsimp : tactic unit :=
 target >>= defeq_simp >>= change
@@ -354,10 +356,10 @@ do gs ← get_goals,
    end
 
 meta_definition apply : expr → tactic unit :=
-apply_core transparency.semireducible ff tt
+apply_core semireducible ff tt
 
 meta_definition fapply : expr → tactic unit :=
-apply_core transparency.semireducible tt tt
+apply_core semireducible tt tt
 
 /- Try to solve the main goal using type class resolution. -/
 meta_definition apply_instance : tactic unit :=

@@ -32,6 +32,6 @@ meta_constant mk_pattern : list level → list expr → expr → list expr → t
 meta_constant match_pattern_core : transparency → pattern → expr → tactic (list expr)
 
 meta_definition match_pattern : pattern → expr → tactic (list expr) :=
-match_pattern_core transparency.semireducible
+match_pattern_core semireducible
 
 end tactic

@@ -209,8 +209,12 @@ vm_obj mk_tactic_exception(throwable const & ex, tactic_state const & s) {
 
 vm_obj mk_tactic_exception(format const & fmt, tactic_state const & s) {
     vm_state const & S = get_vm_state();
-    vm_decl K = *S.get_decl(get_combinator_K_name());
-    return mk_tactic_exception(mk_vm_closure(K.get_idx(), to_obj(fmt), mk_vm_unit(), mk_vm_unit()), s);
+    if (optional<vm_decl> K = S.get_decl(get_combinator_K_name())) {
+        return mk_tactic_exception(mk_vm_closure(K->get_idx(), to_obj(fmt), mk_vm_unit(), mk_vm_unit()), s);
+    } else {
+        throw exception("failed to create tactic exceptional result, combinator.K is not in the environment, "
+                        "this can happen when users are hacking the init folder");
+    }
 }
 
 vm_obj mk_tactic_exception(char const * msg, tactic_state const & s) {

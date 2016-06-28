@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.trace init.function
+import init.trace init.function init.option
 import init.meta.base_tactic init.meta.environment init.meta.qexpr
 
 meta_constant tactic_state : Type₁
@@ -272,25 +272,22 @@ defeq_simp_core reducible
 meta_definition dsimp : tactic unit :=
 target >>= defeq_simp >>= change
 
--- TODO(Leo): remove unifier.conservative after we finish new elaborator
-set_option unifier.conservative true
-meta_definition simp : tactic unit :=
+/- Swap first two goals, do nothing if tactic state does not have at least two goals. -/
+meta_definition swap : tactic unit :=
 do gs ← get_goals,
    match gs with
-   | (g :: rest) := do
-     (new_tgt, pf) ← target >>= simplify,
-     pf_type ← infer_type pf,
-     new_g ← mk_meta_var new_tgt,
-     ns ← return $ match expr.is_eq pf_type with
-                   | some _ := "eq"
-                   | none   := "iff"
-                   end,
-     g_pf ← mk_app (ns <.> "mpr") [pf, new_g],
-     g_pf_type ← infer_type g_pf,
-     unify g g_pf,
-     set_goals (new_g :: rest)
-   | _              := fail "simp called but no goals"
+   | g₁ :: g₂ :: rs := set_goals (g₂ :: g₁ :: rs)
+   | _              := skip
    end
+
+set_option unifier.conservative true
+
+meta_definition simp : tactic unit :=
+do (new_target, Heq) ← target >>= simplify,
+   assert "Htarget" new_target, swap,
+   ns       ← return $ (if expr.is_eq Heq ≠ none then "eq" else "iff"),
+   Ht       ← get_local "Htarget",
+   mk_app (ns <.> "mpr") [Heq, Ht] >>= exact
 
 /- Return the number of goals that need to be solved -/
 meta_definition num_goals     : tactic nat :=
@@ -351,14 +348,6 @@ do n ← num_goals,
 meta_definition now : tactic unit :=
 do n ← num_goals,
    when (n ≠ 0) (fail "now tactic failed, there are unsolved goals")
-
-/- Swap first two goals, do nothing if tactic state does not have at least two goals. -/
-meta_definition swap : tactic unit :=
-do gs ← get_goals,
-   match gs with
-   | g₁ :: g₂ :: rs := set_goals (g₂ :: g₁ :: rs)
-   | _              := skip
-   end
 
 meta_definition apply : expr → tactic unit :=
 apply_core semireducible ff tt

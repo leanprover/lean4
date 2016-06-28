@@ -772,9 +772,10 @@ class definition_cmd_fn {
         }
     }
 
-    bool is_trusted() const { return m_kind != MetaDefinition; }
     bool is_meta() const { return m_kind == MetaDefinition; }
+    bool is_trusted() const { return !is_meta(); }
     bool is_definition() const { return m_kind == Definition || m_kind == MetaDefinition || m_kind == Abbreviation || m_kind == LocalAbbreviation; }
+    bool is_example() const { return m_kind == Example; }
     unsigned start_line() const { return m_pos.first; }
     unsigned end_line() const { return m_end_pos.first; }
 
@@ -1164,7 +1165,10 @@ class definition_cmd_fn {
                     m_type  = postprocess(m_env, m_type);
                     m_value = postprocess(m_env, m_value);
                     new_ls = append(m_ls, new_ls);
-                    auto cd = check(mk_theorem(m_env, m_real_name, new_ls, m_type, m_value));
+                    auto cd = is_example() ?
+                        // Examples don't need to be trusted
+                        check(mk_definition(m_env, m_real_name, new_ls, m_type, m_value, false, false))
+                      : check(mk_theorem(m_env, m_real_name, new_ls, m_type, m_value));
                     if (m_kind == Theorem) {
                         // Remark: we don't keep examples
                         if (m_p.keep_new_thms()) {

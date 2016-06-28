@@ -823,7 +823,6 @@ expr simplifier::remove_unnecessary_casts(expr const & e) {
 vm_obj tactic_simp(vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s   = to_tactic_state(s0);
     try {
-        // TODO(dhs): use type_context_scope for this
         type_context tctx          = mk_type_context_for(s, transparency_mode::Reducible);
         simp_lemmas lemmas         = get_simp_lemmas(s.env());
         metavar_decl g             = *s.get_main_goal_decl();

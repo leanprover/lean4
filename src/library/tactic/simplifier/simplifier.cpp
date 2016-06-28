@@ -388,8 +388,13 @@ simp_result simplifier::simplify_app(expr const & _e) {
         else return r_user;
     }
 
-    // TODO(dhs): (2) Synthesize congruence lemma
-
+    // (2) Synthesize congruence lemma
+    if (using_eq()) {
+        optional<simp_result> r_args = synth_congr(e, [&](expr const & e) {
+                return simplify(e);
+            });
+        if (r_args) return join(*r_args, simplify_fun(r_args->get_new()));
+    }
     // (3) Fall back on generic binary congruence
     if (using_eq()) {
         expr const & f = app_fn(e);

@@ -266,12 +266,6 @@ do { ctx ← local_context,
      exact H }
 <|> fail "assumption tactic failed"
 
-meta_definition defeq_simp : expr → tactic expr :=
-defeq_simp_core reducible
-
-meta_definition dsimp : tactic unit :=
-target >>= defeq_simp >>= change
-
 /- Swap first two goals, do nothing if tactic state does not have at least two goals. -/
 meta_definition swap : tactic unit :=
 do gs ← get_goals,
@@ -280,7 +274,21 @@ do gs ← get_goals,
    | _              := skip
    end
 
+-- TODO(Leo): remove unifier.conservative after we finish new elaborator
 set_option unifier.conservative true
+
+meta_definition defeq_simp : expr → tactic expr :=
+defeq_simp_core reducible
+
+meta_definition dsimp : tactic unit :=
+target >>= defeq_simp >>= change
+
+meta_definition dsimp_at (H : expr) : tactic unit :=
+do num_reverted : ℕ ← revert H,
+   (expr.pi n bi d b : expr) ← target | failed,
+   H_simp : expr ← defeq_simp d,
+   change $ expr.pi n bi H_simp b,
+   intron num_reverted
 
 meta_definition simp : tactic unit :=
 do (new_target, Heq) ← target >>= simplify,

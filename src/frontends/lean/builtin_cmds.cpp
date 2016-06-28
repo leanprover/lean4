@@ -29,8 +29,6 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/legacy_type_context.h"
 #include "library/reducible.h"
-#include "library/tactic/defeq_simplifier/defeq_simp_lemmas.h"
-#include "library/tactic/defeq_simplifier/defeq_simplifier.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_string.h"
 #include "library/compiler/vm_compiler.h"
@@ -495,49 +493,6 @@ static environment init_hits_cmd(parser & p) {
     return module::declare_hits(p.env());
 }
 
-static environment simplify_cmd(parser & p) {
-/*
-    name rel = p.check_constant_next("invalid #simplify command, constant expected");
-    name ns = p.check_id_next("invalid #simplify command, id expected");
-    unsigned o = p.parse_small_nat();
-
-    expr e; level_param_names ls;
-    std::tie(e, ls) = parse_local_expr(p);
-
-    blast::scope_debug scope(p.env(), p.ios());
-    blast::simp_lemmas srss;
-    if (ns == name("null")) {
-    } else if (ns == name("env")) {
-        srss = blast::get_simp_lemmas();
-    } else {
-        srss = blast::get_simp_lemmas(ns);
-    }
-
-    blast::simp::result r = blast::simplify(rel, e, srss);
-    type_checker tc(p.env());
-    auto out = regular(p.env(), p.ios(), tc);
-
-    flycheck_information info(p.ios());
-    if (info.enabled()) {
-        p.display_information_pos(p.cmd_pos());
-        out << "simplify result:\n";
-    }
-
-    if (!r.has_proof()) {
-        out << "(refl): " << r.get_new() << endl;
-    } else {
-        auto tc = mk_type_checker(p.env());
-
-        expr pf_type = tc->check(r.get_proof(), ls).first;
-
-        if (o == 0) out << r.get_new() << endl;
-        else if (o == 1) out << r.get_proof() << endl;
-        else out << pf_type << endl;
-    }
-*/
-    return p.env();
-}
-
 static environment normalizer_cmd(parser & p) {
 /*
     environment const & env = p.env();
@@ -734,7 +689,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
     add_cmd(r, cmd_info("#elab",             "(for debugging purposes)", elab_cmd));
-    add_cmd(r, cmd_info("#simplify",         "(for debugging purposes) simplify given expression", simplify_cmd));
 
     register_decl_cmds(r);
     register_inductive_cmd(r);

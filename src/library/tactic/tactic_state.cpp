@@ -456,6 +456,10 @@ vm_obj tactic_mk_fresh_name(vm_obj const & s) {
     return mk_tactic_success(to_obj(mk_fresh_name()), to_tactic_state(s));
 }
 
+vm_obj tactic_is_trace_enabled_for(vm_obj const & n) {
+    return mk_vm_bool(is_trace_class_enabled(to_name(n)));
+}
+
 typedef transparencyless_cache_compatibility_helper<vm_state> vm_state_cache_helper;
 MK_THREAD_LOCAL_GET_DEF(vm_state_cache_helper, get_vmsc);
 
@@ -464,30 +468,31 @@ vm_state & get_tactic_vm_state(environment const & env) {
 }
 
 void initialize_tactic_state() {
-    DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),           tactic_state_env);
-    DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}),   tactic_state_format_expr);
-    DECLARE_VM_BUILTIN(name({"tactic_state", "to_format"}),     tactic_state_to_format);
-    DECLARE_VM_BUILTIN(name({"tactic_state", "get_options"}),   tactic_state_get_options);
-    DECLARE_VM_BUILTIN(name({"tactic_state", "set_options"}),   tactic_state_set_options);
-    DECLARE_VM_BUILTIN(name({"tactic", "target"}),              tactic_target);
-    DECLARE_VM_BUILTIN(name({"tactic", "result"}),              tactic_result);
-    DECLARE_VM_BUILTIN(name({"tactic", "format_result"}),       tactic_format_result);
-    DECLARE_VM_BUILTIN(name({"tactic", "infer_type"}),          tactic_infer_type);
-    DECLARE_VM_BUILTIN(name({"tactic", "whnf"}),                tactic_whnf);
-    DECLARE_VM_BUILTIN(name({"tactic", "is_class"}),            tactic_is_class);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_instance"}),         tactic_mk_instance);
-    DECLARE_VM_BUILTIN(name({"tactic", "unify_core"}),          tactic_unify_core);
-    DECLARE_VM_BUILTIN(name({"tactic", "get_local"}),           tactic_get_local);
-    DECLARE_VM_BUILTIN(name({"tactic", "local_context"}),       tactic_local_context);
-    DECLARE_VM_BUILTIN(name({"tactic", "to_expr"}),             tactic_to_expr);
-    DECLARE_VM_BUILTIN(name({"tactic", "rotate_left"}),         tactic_rotate_left);
-    DECLARE_VM_BUILTIN(name({"tactic", "get_goals"}),           tactic_get_goals);
-    DECLARE_VM_BUILTIN(name({"tactic", "set_goals"}),           tactic_set_goals);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_meta_univ"}),        tactic_mk_meta_univ);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_meta_var"}),         tactic_mk_meta_var);
-    DECLARE_VM_BUILTIN(name({"tactic", "get_univ_assignment"}), tactic_get_univ_assignment);
-    DECLARE_VM_BUILTIN(name({"tactic", "get_assignment"}),      tactic_get_assignment);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_fresh_name"}),       tactic_mk_fresh_name);
+    DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),            tactic_state_env);
+    DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}),    tactic_state_format_expr);
+    DECLARE_VM_BUILTIN(name({"tactic_state", "to_format"}),      tactic_state_to_format);
+    DECLARE_VM_BUILTIN(name({"tactic_state", "get_options"}),    tactic_state_get_options);
+    DECLARE_VM_BUILTIN(name({"tactic_state", "set_options"}),    tactic_state_set_options);
+    DECLARE_VM_BUILTIN(name({"tactic", "target"}),               tactic_target);
+    DECLARE_VM_BUILTIN(name({"tactic", "result"}),               tactic_result);
+    DECLARE_VM_BUILTIN(name({"tactic", "format_result"}),        tactic_format_result);
+    DECLARE_VM_BUILTIN(name({"tactic", "infer_type"}),           tactic_infer_type);
+    DECLARE_VM_BUILTIN(name({"tactic", "whnf"}),                 tactic_whnf);
+    DECLARE_VM_BUILTIN(name({"tactic", "is_class"}),             tactic_is_class);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_instance"}),          tactic_mk_instance);
+    DECLARE_VM_BUILTIN(name({"tactic", "unify_core"}),           tactic_unify_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "get_local"}),            tactic_get_local);
+    DECLARE_VM_BUILTIN(name({"tactic", "local_context"}),        tactic_local_context);
+    DECLARE_VM_BUILTIN(name({"tactic", "to_expr"}),              tactic_to_expr);
+    DECLARE_VM_BUILTIN(name({"tactic", "rotate_left"}),          tactic_rotate_left);
+    DECLARE_VM_BUILTIN(name({"tactic", "get_goals"}),            tactic_get_goals);
+    DECLARE_VM_BUILTIN(name({"tactic", "set_goals"}),            tactic_set_goals);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_meta_univ"}),         tactic_mk_meta_univ);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_meta_var"}),          tactic_mk_meta_var);
+    DECLARE_VM_BUILTIN(name({"tactic", "get_univ_assignment"}),  tactic_get_univ_assignment);
+    DECLARE_VM_BUILTIN(name({"tactic", "get_assignment"}),       tactic_get_assignment);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_fresh_name"}),        tactic_mk_fresh_name);
+    DECLARE_VM_BUILTIN(name({"tactic", "is_trace_enabled_for"}), tactic_is_trace_enabled_for);
 }
 
 void finalize_tactic_state() {

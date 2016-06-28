@@ -337,6 +337,11 @@ do gs ← get_goals,
 meta_definition when (c : Prop) [decidable c] (tac : tactic unit) : tactic unit :=
 if c then tac else skip
 
+meta_constant is_trace_enabled_for : name → bool
+
+meta_definition when_tracing (n : name) (tac : tactic unit) : tactic unit :=
+when (is_trace_enabled_for n = tt) tac
+
 /- Fail if there are no remaining goals. -/
 meta_definition fail_if_no_goals : tactic unit :=
 do n ← num_goals,

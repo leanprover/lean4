@@ -47,7 +47,7 @@ static void remove_redundant_goals(metavar_context & mctx, buffer<expr> & metas)
     metas.shrink(k);
 }
 
-vm_obj apply_core(expr e, transparency_mode md, bool add_all, bool use_instances, tactic_state const & s) {
+vm_obj apply_core(transparency_mode md, bool add_all, bool use_instances, expr e, tactic_state const & s) {
     try {
         optional<metavar_decl> g = s.get_main_goal_decl();
         if (!g) return mk_no_goals_exception(s);
@@ -122,8 +122,8 @@ vm_obj apply_core(expr e, transparency_mode md, bool add_all, bool use_instances
     }
 }
 
-vm_obj tactic_apply_core(vm_obj const & e, vm_obj const & md, vm_obj const & all, vm_obj const & insts, vm_obj const & s) {
-    return apply_core(to_expr(e), static_cast<transparency_mode>(cidx(md)), to_bool(all), to_bool(insts), to_tactic_state(s));
+vm_obj tactic_apply_core(vm_obj const & md, vm_obj const & all, vm_obj const & insts, vm_obj const & e, vm_obj const & s) {
+    return apply_core(static_cast<transparency_mode>(cidx(md)), to_bool(all), to_bool(insts), to_expr(e), to_tactic_state(s));
 }
 
 void initialize_apply_tactic() {

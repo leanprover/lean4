@@ -326,7 +326,7 @@ vm_obj tactic_mk_instance(vm_obj const & e, vm_obj const & s0) {
     }
 }
 
-vm_obj tactic_unify_core(vm_obj const & e1, vm_obj const & e2, vm_obj const & t, vm_obj const & s0) {
+vm_obj tactic_unify_core(vm_obj const & t, vm_obj const & e1, vm_obj const & e2, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
     type_context ctx       = mk_type_context_for(s, to_transparency_mode(t));
     try {

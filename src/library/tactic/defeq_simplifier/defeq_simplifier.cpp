@@ -339,7 +339,7 @@ expr defeq_simplify(type_context & ctx, defeq_simp_lemmas const & simp_lemmas, e
     return defeq_simplify_fn(ctx, simp_lemmas)(e);
 }
 
-vm_obj tactic_defeq_simp(vm_obj const & e, vm_obj const & m, vm_obj const & s0) {
+vm_obj tactic_defeq_simp(vm_obj const & m, vm_obj const & e, vm_obj const & s0) {
     type_context ctx = mk_type_context_for(s0, m);
     tactic_state const & s    = to_tactic_state(s0);
     LEAN_TACTIC_TRY;

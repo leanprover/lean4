@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "library/tactic/app_builder_tactics.h"
 
 namespace lean {
-vm_obj tactic_mk_app_core(vm_obj const & c, vm_obj const & as, vm_obj const & tmode, vm_obj const & _s) {
+vm_obj tactic_mk_app_core(vm_obj const & tmode, vm_obj const & c, vm_obj const & as, vm_obj const & _s) {
     tactic_state const & s = to_tactic_state(_s);
     try {
         type_context ctx       = mk_type_context_for(s, to_transparency_mode(tmode));
@@ -26,7 +26,7 @@ vm_obj tactic_mk_app_core(vm_obj const & c, vm_obj const & as, vm_obj const & tm
     }
 }
 
-vm_obj tactic_mk_mapp_core(vm_obj const & c, vm_obj const & as, vm_obj const & tmode, vm_obj const & _s) {
+vm_obj tactic_mk_mapp_core(vm_obj const & tmode, vm_obj const & c, vm_obj const & as, vm_obj const & _s) {
     tactic_state const & s = to_tactic_state(_s);
     try {
         type_context ctx       = mk_type_context_for(s, to_transparency_mode(tmode));

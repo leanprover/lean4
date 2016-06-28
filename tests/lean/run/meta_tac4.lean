@@ -13,8 +13,8 @@ by do
     unify h1 h2,
     unify h2 h3,
     unify h1 h3,
-    (unify_core h1 h2 transparency.reducible <|> trace "H1 =?= H2 failed if only reducible constants can be unfolded"),
-    unify_core h2 h3 transparency.reducible,
-    (unify_core h1 h3 transparency.reducible <|> trace "H1 =?= H3 failed if only reducible constants can be unfolded"),
+    (unify_core transparency.reducible h1 h2 <|> trace "H1 =?= H2 failed if only reducible constants can be unfolded"),
+    unify_core transparency.reducible h2 h3,
+    (unify_core transparency.reducible h1 h3 <|> trace "H1 =?= H3 failed if only reducible constants can be unfolded"),
     assumption,
     return ()

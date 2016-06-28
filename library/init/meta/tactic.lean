@@ -108,7 +108,7 @@ meta_constant rename        : name → name → tactic unit
 meta_constant clear         : expr → tactic unit
 meta_constant revert_lst    : list expr → tactic unit
 meta_constant whnf          : expr → tactic expr
-meta_constant unify_core    : expr → expr → transparency → tactic unit
+meta_constant unify_core    : transparency → expr → expr → tactic unit
 /- Infer the type of the given expression.
    Remark: transparency does not affect type inference -/
 meta_constant infer_type    : expr → tactic expr
@@ -126,18 +126,18 @@ meta_constant local_context : tactic (list expr)
         vec.{l} : Pi (A : Type.{l}) (n : nat), Type.{l1}
         f g     : Pi (n : nat), vec real n
     then
-        mk_app_core "rel" [f, g] transparency.semireducible
+        mk_app_core transparency.semireducible "rel" [f, g]
     returns the application
         rel.{1 2} nat (fun n : nat, vec real n) f g -/
-meta_constant mk_app_core   : name → list expr → transparency → tactic expr
+meta_constant mk_app_core   : transparency → name → list expr → tactic expr
 /- Similar to mk_app, but allows to specify which arguments are explicit/implicit.
    Example, given
      a b : nat
    then
-     mk_mapp_core "ite" [some (a > b), none, none, some a, some b] transparency.semireducible
+     mk_mapp_core transparency.semireducible "ite" [some (a > b), none, none, some a, some b]
    returns the application
      @ite.{1} (a > b) (nat.decidable_gt a b) nat a b -/
-meta_constant mk_mapp_core  : name → list (option expr) → transparency → tactic expr
+meta_constant mk_mapp_core  : transparency → name → list (option expr) → tactic expr
 /- Given a local constant t, if t has type (lhs = rhs) apply susbstitution.
    Otherwise, try to find a local constant that has type of the form (t = t') or (t' = t).
    The tactic fails if the given expression is not a local constant. -/
@@ -151,7 +151,7 @@ meta_constant is_class      : expr → tactic bool
 meta_constant mk_instance   : expr → tactic expr
 /- Simplify the given expression using [defeq] lemmas.
    The resulting expression is definitionally equal to the input. -/
-meta_constant defeq_simp_core : expr → transparency → tactic expr
+meta_constant defeq_simp_core : transparency → expr → tactic expr
 /- Simplify the given expression using [simp] and [congr] lemmas.
    The result is the simplified expression along with a proof that the new
    expression is equivalent to the old one.
@@ -172,11 +172,11 @@ meta_constant definev       : name → expr → expr → tactic unit
 meta_constant rotate_left   : nat → tactic unit
 meta_constant get_goals     : tactic (list expr)
 meta_constant set_goals     : list expr → tactic unit
-/- (apply_core e t all insts), apply the expression e to the main goal,
+/- (apply_core t all insts e), apply the expression e to the main goal,
    the unification is performed using the given transparency mode.
    If all is tt, then all unassigned meta-variables are added as new goals.
    If insts is tt, then use type class resolution to instantiate unassigned meta-variables. -/
-meta_constant apply_core    : expr → transparency → bool → bool → tactic unit
+meta_constant apply_core    : transparency → bool → bool → expr → tactic unit
 /- Create a fresh meta universe variable. -/
 meta_constant mk_meta_univ  : tactic level
 /- Create a fresh meta-variable with the given type.
@@ -215,11 +215,11 @@ meta_definition intro_lst : list name → tactic (list expr)
 | []      := return []
 | (n::ns) := do H ← intro n, Hs ← intro_lst ns, return (H :: Hs)
 
-meta_definition mk_app (n : name) (es : list expr) : tactic expr :=
-mk_app_core n es transparency.semireducible
+meta_definition mk_app : name → list expr → tactic expr :=
+mk_app_core transparency.semireducible
 
-meta_definition mk_mapp (n : name) (es : list (option expr)) : tactic expr :=
-mk_mapp_core n es transparency.semireducible
+meta_definition mk_mapp : name → list (option expr) → tactic expr :=
+mk_mapp_core transparency.semireducible
 
 meta_definition revert (l : expr) : tactic unit :=
 revert_lst [l]
@@ -228,8 +228,8 @@ meta_definition clear_lst : list name → tactic unit
 | []      := skip
 | (n::ns) := do H ← get_local n, clear H, clear_lst ns
 
-meta_definition unify (a b : expr) : tactic unit :=
-unify_core a b transparency.semireducible
+meta_definition unify : expr → expr → tactic unit :=
+unify_core transparency.semireducible
 
 open option
 meta_definition match_eq (e : expr) : tactic (expr × expr) :=
@@ -264,8 +264,8 @@ do { ctx ← local_context,
      exact H }
 <|> fail "assumption tactic failed"
 
-meta_definition defeq_simp (e : expr) : tactic expr :=
-defeq_simp_core e transparency.reducible
+meta_definition defeq_simp : expr → tactic expr :=
+defeq_simp_core transparency.reducible
 
 meta_definition dsimp : tactic unit :=
 target >>= defeq_simp >>= change
@@ -353,11 +353,11 @@ do gs ← get_goals,
    | _              := skip
    end
 
-meta_definition apply (e : expr) : tactic unit :=
-apply_core e transparency.semireducible ff tt
+meta_definition apply : expr → tactic unit :=
+apply_core transparency.semireducible ff tt
 
-meta_definition fapply (e : expr) : tactic unit :=
-apply_core e transparency.semireducible tt tt
+meta_definition fapply : expr → tactic unit :=
+apply_core transparency.semireducible tt tt
 
 /- Try to solve the main goal using type class resolution. -/
 meta_definition apply_instance : tactic unit :=

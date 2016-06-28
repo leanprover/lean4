@@ -20,7 +20,7 @@ set_option pp.all false
 example (a b : nat) : a = 0 → a = b :=
 by do
   intro "H",
-  apply_core (expr.const "foo" [level.of_nat 1]) transparency.semireducible tt ff,
+  apply_core transparency.semireducible tt ff (expr.const "foo" [level.of_nat 1]),
   trace_state,
   a ← get_local "a",
   trace_state,

@@ -691,6 +691,22 @@ static environment elab_cmd(parser & p) {
     return p.env();
 }
 
+static std::string * g_declare_trace_key = nullptr;
+
+environment declare_trace_cmd(parser & p) {
+    name cls = p.check_id_next("invalid declare_trace command, identifier expected");
+    register_trace_class(cls);
+    return module::add(p.env(), *g_declare_trace_key, [=](environment const &, serializer & s) { s << cls; });
+}
+
+static void declare_trace_reader(deserializer & d, shared_environment &,
+                                 std::function<void(asynch_update_fn const &)> &,
+                                 std::function<void(delayed_update_fn const &)> &) {
+    name cls;
+    d >> cls;
+    register_trace_class(cls);
+}
+
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",              "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
@@ -712,6 +728,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("help",              "brief description of available commands and options", help_cmd));
     add_cmd(r, cmd_info("init_quotient",     "initialize quotient type computational rules", init_quotient_cmd));
     add_cmd(r, cmd_info("init_hits",         "initialize builtin HITs", init_hits_cmd));
+    add_cmd(r, cmd_info("declare_trace",     "declare a new trace class (for debugging Lean tactics)", declare_trace_cmd));
     add_cmd(r, cmd_info("#erase_cache",      "erase cached definition (for debugging purposes)", erase_cache_cmd));
     add_cmd(r, cmd_info("#normalizer",       "(for debugging purposes)", normalizer_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
@@ -735,9 +752,12 @@ cmd_table get_builtin_cmds() {
 void initialize_builtin_cmds() {
     g_cmds = new cmd_table();
     init_cmd_table(*g_cmds);
+    g_declare_trace_key = new std::string("decl_trace");
+    register_module_object_reader(*g_declare_trace_key, declare_trace_reader);
 }
 
 void finalize_builtin_cmds() {
     delete g_cmds;
+    delete g_declare_trace_key;
 }
 }

@@ -458,15 +458,15 @@ static bool is_curr_with_or_comma_or_bar(parser & p) {
    This method validates occurrences of these variables. They can only occur as an application
    or macro argument.
 */
-void validate_match_pattern(parser const & p, expr const & lhs, buffer<expr> const & locals) {
+void validate_match_pattern(parser const & p, expr const & lhs, bool is_fn, buffer<expr> const & locals) {
     if (is_app(lhs)) {
-        validate_match_pattern(p, app_fn(lhs), locals);
-        validate_match_pattern(p, app_arg(lhs), locals);
+        validate_match_pattern(p, app_fn(lhs), true, locals);
+        validate_match_pattern(p, app_arg(lhs), false, locals);
     } else if (is_macro(lhs)) {
         for (unsigned i = 0; i < macro_num_args(lhs); i++)
-            validate_match_pattern(p, macro_arg(lhs, i), locals);
+            validate_match_pattern(p, macro_arg(lhs, i), is_fn, locals);
     } else if (is_local(lhs)) {
-        if (!local_pp_name(lhs).is_atomic())
+        if (!is_fn && !local_pp_name(lhs).is_atomic())
             throw parser_error(sstream() << "invalid pattern variable '" << lhs << "', "
                                << "it must be an atomic identifier", p.pos_of(lhs));
     } else {
@@ -482,6 +482,9 @@ void validate_match_pattern(parser const & p, expr const & lhs, buffer<expr> con
                 return has_local(e);
             });
     }
+}
+void validate_match_pattern(parser const & p, expr const & lhs, buffer<expr> const & locals) {
+    validate_match_pattern(p, lhs, true, locals);
 }
 
 /**

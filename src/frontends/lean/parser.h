@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
+#include "kernel/pos_info_provider.h"
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
 #include "library/local_context.h"
@@ -23,7 +24,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/local_level_decls.h"
 #include "frontends/lean/parser_config.h"
-#include "frontends/lean/parser_pos_provider.h"
 #include "frontends/lean/theorem_queue.h"
 #include "frontends/lean/info_manager.h"
 
@@ -228,10 +228,9 @@ class parser {
     void commit_info(unsigned line, unsigned col);
     void commit_info() { commit_info(m_scanner.get_line(), m_scanner.get_pos()); }
 
-    elaborator_context mk_elaborator_context(pos_info_provider const & pp, bool check_unassigned = true);
-    elaborator_context mk_elaborator_context(environment const & env, pos_info_provider const & pp);
-    elaborator_context mk_elaborator_context(environment const & env, local_level_decls const & lls,
-                                             pos_info_provider const & pp);
+    elaborator_context mk_elaborator_context(bool check_unassigned = true);
+    elaborator_context mk_elaborator_context(environment const & env);
+    elaborator_context mk_elaborator_context(environment const & env, local_level_decls const & lls);
 
     void init_stop_at(options const & opts);
 
@@ -512,9 +511,6 @@ public:
     bool used_sorry() const { return m_used_sorry; }
     void declare_sorry();
 
-    parser_pos_provider get_pos_provider() const {
-        return parser_pos_provider(m_pos_table, get_stream_name(), m_last_cmd_pos);
-    }
     void display_information_pos(pos_info p);
     void display_warning_pos(pos_info p);
 

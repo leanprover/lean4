@@ -25,4 +25,13 @@ public:
     virtual pos_info get_some_pos() const;
     virtual char const * get_file_name() const;
 };
+
+class scope_parser_pos_provider {
+    parser_pos_provider * m_old_ppp;
+public:
+    scope_parser_pos_provider(parser_pos_provider & ppp);
+    ~scope_parser_pos_provider();
+};
+
+parser_pos_provider * get_parser_pos_provider();
 }

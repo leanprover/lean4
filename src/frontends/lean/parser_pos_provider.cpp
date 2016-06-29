@@ -32,4 +32,13 @@ pos_info parser_pos_provider::get_some_pos() const {
 char const * parser_pos_provider::get_file_name() const {
     return m_strm_name.c_str();
 }
+
+LEAN_THREAD_PTR(parser_pos_provider, g_ppp);
+
+scope_parser_pos_provider::scope_parser_pos_provider(parser_pos_provider & ppp):m_old_ppp(g_ppp) { g_ppp = &ppp; }
+scope_parser_pos_provider::~scope_parser_pos_provider() { g_ppp = m_old_ppp; }
+
+parser_pos_provider * get_parser_pos_provider() {
+    return g_ppp;
+}
 }

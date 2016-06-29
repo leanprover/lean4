@@ -73,7 +73,6 @@ class old_elaborator : public coercion_info_manager {
     environment const & env() const { return m_ctx.m_env; }
     local_level_decls const & lls() const { return m_ctx.m_lls; }
     info_manager * infom() const { return m_ctx.m_info_manager; }
-    pos_info_provider const * pip() const { return m_ctx.m_pos_provider; }
     bool check_unassigned() const { return m_ctx.m_check_unassigned; }
 
     expr mk_local(name const & n, expr const & t, binder_info const & bi);

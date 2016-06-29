@@ -211,6 +211,10 @@ optional<expr> old_elaborator::mvar_to_meta(expr const & mvar) {
         return none_expr();
 }
 
+static parser_pos_provider * pip() {
+    return get_parser_pos_provider();
+}
+
 /** \brief Store the pair (pos(e), type(r)) in the info_data if m_info_manager is available. */
 void old_elaborator::save_type_data(expr const & e, expr const & r) {
     if (!m_no_info && infom() && pip() &&
@@ -342,7 +346,7 @@ expr old_elaborator::mk_placeholder_meta(optional<name> const & suffix, optional
     if (is_inst_implicit) {
         auto ec = mk_class_instance_elaborator(
             env(), get_global_ios(), m_context, suffix,
-            true, is_strict, type, g, m_ctx.m_pos_provider);
+            true, is_strict, type, g, nullptr);
         register_meta(ec.first);
         cs += ec.second;
         return ec.first;

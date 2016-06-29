@@ -211,12 +211,12 @@ optional<expr> old_elaborator::mvar_to_meta(expr const & mvar) {
         return none_expr();
 }
 
-static parser_pos_provider * pip() {
-    return get_parser_pos_provider();
-}
+static pos_info_provider * pip() { return get_parser_pos_info_provider(); }
+static info_manager * infom() { return get_info_manager(); }
 
 /** \brief Store the pair (pos(e), type(r)) in the info_data if m_info_manager is available. */
 void old_elaborator::save_type_data(expr const & e, expr const & r) {
+    // std::cout << ">> infom: " << infom() << ", pip: " << pip() << "\n";
     if (!m_no_info && infom() && pip() &&
         (is_constant(e) || is_local(e) || is_placeholder(e) || is_as_atomic(e) ||
          is_consume_args(e) || is_notation_info(e))) {

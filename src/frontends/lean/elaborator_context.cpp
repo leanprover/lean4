@@ -44,13 +44,13 @@ bool get_elaborator_coercions(options const & opts) {
 // ==========================================
 
 elaborator_context::elaborator_context(environment const & env, options const & opts, local_level_decls const & lls,
-                                       info_manager * info, bool check_unassigned):
-    m_env(env), m_lls(lls), m_info_manager(info), m_check_unassigned(check_unassigned) {
+                                       bool check_unassigned):
+    m_env(env), m_lls(lls), m_check_unassigned(check_unassigned) {
     set_options(opts);
 }
 
 elaborator_context::elaborator_context(elaborator_context const & ctx, options const & o):
-    m_env(ctx.m_env), m_lls(ctx.m_lls), m_info_manager(ctx.m_info_manager),
+    m_env(ctx.m_env), m_lls(ctx.m_lls),
     m_check_unassigned(ctx.m_check_unassigned) {
     set_options(o);
 }

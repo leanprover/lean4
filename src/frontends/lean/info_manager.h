@@ -62,6 +62,16 @@ public:
     void start_from(unsigned l);
     unsigned get_processed_upto() const;
 };
+
+class scope_info_manager {
+    info_manager * m_old_infom;
+public:
+    scope_info_manager(info_manager * infom);
+    ~scope_info_manager();
+};
+
+info_manager * get_info_manager();
+
 void initialize_info_manager();
 void finalize_info_manager();
 }

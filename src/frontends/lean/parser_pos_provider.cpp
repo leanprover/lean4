@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <string>
 #include "frontends/lean/parser_pos_provider.h"
+#include "frontends/lean/parser.h"
 
 namespace lean {
 parser_pos_provider::parser_pos_provider(pos_info_table const & pos_table,
@@ -33,12 +34,12 @@ char const * parser_pos_provider::get_file_name() const {
     return m_strm_name.c_str();
 }
 
-LEAN_THREAD_PTR(parser_pos_provider, g_ppp);
+LEAN_THREAD_PTR(parser, g_p);
 
-scope_parser_pos_provider::scope_parser_pos_provider(parser_pos_provider & ppp):m_old_ppp(g_ppp) { g_ppp = &ppp; }
-scope_parser_pos_provider::~scope_parser_pos_provider() { g_ppp = m_old_ppp; }
+scope_parser_pos_info_provider::scope_parser_pos_info_provider(parser & p):m_old_p(g_p) { g_p = &p; }
+scope_parser_pos_info_provider::~scope_parser_pos_info_provider() { g_p = m_old_p; }
 
-parser_pos_provider * get_parser_pos_provider() {
-    return g_ppp;
+pos_info_provider * get_parser_pos_info_provider() {
+    return g_p;
 }
 }

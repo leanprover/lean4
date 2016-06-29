@@ -90,7 +90,7 @@ enum class keep_theorem_mode { All, DiscardImported, DiscardAll };
 
 enum class undef_id_behavior { Error, AssumeConstant, AssumeLocal };
 
-class parser {
+class parser : public pos_info_provider {
     environment             m_env;
     io_state                m_ios;
     bool                    m_verbose;
@@ -525,6 +525,12 @@ public:
     public:
         in_notation_ctx(parser & p):m_ctx(p.m_scanner) {}
     };
+
+public:
+    /* pos_info_provider API */
+    virtual optional<pos_info> get_pos_info(expr const & e) const;
+    virtual pos_info get_some_pos() const;
+    virtual char const * get_file_name() const;
 };
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in,

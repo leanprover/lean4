@@ -21,7 +21,6 @@ class elaborator_context {
 
     environment               m_env;
     local_level_decls         m_lls; // local universe levels
-    info_manager *            m_info_manager;
     // configuration
     options                   m_options;
     bool                      m_check_unassigned;
@@ -46,7 +45,6 @@ class elaborator_context {
     bool has_show_hole_at(unsigned & line, unsigned & col) const;
 public:
     elaborator_context(environment const & env, options const & opts, local_level_decls const & lls,
-                       info_manager * info = nullptr,
                        bool check_unassigned = true);
     elaborator_context(elaborator_context const & ctx, options const & o);
 };

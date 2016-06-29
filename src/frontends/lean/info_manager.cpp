@@ -776,4 +776,9 @@ void info_manager::start_from(unsigned l) { m_ptr->start_from(l); }
 // void info_manager::remove_proof_state_info(unsigned start_line, unsigned start_col, unsigned end_line, unsigned end_col) {
 //     m_ptr->remove_proof_state_info(start_line, start_col, end_line, end_col);
 // }
+
+LEAN_THREAD_PTR(info_manager, g_infom);
+scope_info_manager::scope_info_manager(info_manager * infom):m_old_infom(g_infom) { g_infom = infom; }
+scope_info_manager::~scope_info_manager() { g_infom = m_old_infom; }
+info_manager * get_info_manager() { return g_infom; }
 }

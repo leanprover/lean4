@@ -367,8 +367,7 @@ void parser::display_error(char const * msg, pos_info p) { display_error(msg, p.
 void parser::display_error(throwable const & ex) {
     legacy_type_context tc(env(), get_options());
     auto out = regular(env(), ios(), tc);
-    parser_pos_provider pos_provider(m_pos_table, get_stream_name(), m_last_cmd_pos);
-    ::lean::display_error(out, &pos_provider, ex);
+    ::lean::display_error(out, this, ex);
 }
 
 void parser::throw_parser_exception(char const * msg, pos_info p) {
@@ -899,15 +898,15 @@ level parser::parse_level(unsigned rbp) {
 }
 
 elaborator_context parser::mk_elaborator_context(bool check_unassigned) {
-    return elaborator_context(m_env, get_options(), m_local_level_decls, m_info_manager, check_unassigned);
+    return elaborator_context(m_env, get_options(), m_local_level_decls, check_unassigned);
 }
 
 elaborator_context parser::mk_elaborator_context(environment const & env) {
-    return elaborator_context(env, get_options(), m_local_level_decls, m_info_manager, true);
+    return elaborator_context(env, get_options(), m_local_level_decls, true);
 }
 
 elaborator_context parser::mk_elaborator_context(environment const & env, local_level_decls const & lls) {
-    return elaborator_context(env, get_options(), lls, m_info_manager, true);
+    return elaborator_context(env, get_options(), lls, true);
 }
 
 std::tuple<expr, level_param_names> parser::elaborate(expr const & e) {
@@ -1804,8 +1803,6 @@ void parser::parse_command() {
     m_last_cmd_pos = pos();
     name const & cmd_name = get_token_info().value();
     m_cmd_token = get_token_info().token();
-    parser_pos_provider ppp(parser_pos_provider(m_pos_table, get_stream_name(), m_last_cmd_pos));
-    scope_parser_pos_provider scope(ppp);
     if (auto it = cmds().find(cmd_name)) {
         lazy_type_context tc(m_env, get_options());
         scope_global_ios scope1(m_ios);
@@ -1919,6 +1916,8 @@ bool parser::parse_commands() {
     // We disable hash-consing while parsing to make sure the pos-info are correct.
     scoped_expr_caching disable(false);
     scoped_set_distinguishing_pp_options set(get_distinguishing_pp_options());
+    scope_parser_pos_info_provider scope1(*this);
+    scope_info_manager             scope2(m_info_manager);
     try {
         bool done = false;
         protected_call([&]() {
@@ -2115,6 +2114,24 @@ void parser::save_type_info(expr const & e) {
             return;
         m_pre_info_manager.add_type_info(p.first, p.second, t);
     }
+}
+
+optional<pos_info> parser::get_pos_info(expr const & e) const {
+    tag t = e.get_tag();
+    if (t == nulltag)
+        return optional<pos_info>();
+    if (auto it = m_pos_table.find(t))
+        return optional<pos_info>(*it);
+    else
+        return optional<pos_info>();
+}
+
+pos_info parser::get_some_pos() const {
+    return m_last_cmd_pos;
+}
+
+char const * parser::get_file_name() const {
+    return get_stream_name().c_str();
 }
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name,

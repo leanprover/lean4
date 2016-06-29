@@ -27,10 +27,6 @@ theorem length_replicate : ∀ (i : ℕ) (a : A), length (replicate i a) = i
 end replicate
 
 /- map -/
-definition map (f : A → B) : list A → list B
-| []       := []
-| (a :: l) := f a :: map l
-
 theorem map_nil (f : A → B) : map f [] = [] := rfl
 
 theorem map_cons (f : A → B) (a : A) (l : list A) : map f (a :: l) = f a :: map f l := rfl

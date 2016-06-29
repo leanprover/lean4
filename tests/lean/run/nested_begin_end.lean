@@ -5,12 +5,12 @@ by do
   iff_intro   ← mk_const ("iff" <.> "intro"),
   and_intro   ← mk_const ("and" <.> "intro"),
   apply iff_intro,
-  focus (do
+  solve1 (do
     H ← intro "H",
     apply and_intro,
     mk_app ("and" <.> "right") [H] >>= exact,
     mk_app ("and" <.> "left")  [H] >>= exact),
-  focus (do
+  solve1 (do
     H ← intro "H",
     apply and_intro,
     mk_app ("and" <.> "right") [H] >>= exact,

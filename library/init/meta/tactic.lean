@@ -312,7 +312,14 @@ do ng ← num_goals,
 meta_definition rotate : nat → tactic unit :=
 rotate_left
 
-meta_definition focus (tac : tactic unit) : tactic unit :=
+/- first [t_1, ..., t_n] applies the first tactic that doesn't fail.
+   The tactic fails if all t_i's fail. -/
+meta_definition first : list (tactic unit) → tactic unit
+| []      := fail "first tactic failed, no more alternatives"
+| (t::ts) := t <|> first ts
+
+/- Applies the given tactic to the main goal and fails if it is not solved. -/
+meta_definition solve1 (tac : tactic unit) : tactic unit :=
 do gs ← get_goals,
    match gs with
    | []      := fail "focus tactic failed, there isn't any goal left to focus"
@@ -325,6 +332,21 @@ do gs ← get_goals,
         | _  := fail "focus tactic failed, focused goal has not been solved"
         end
    end
+
+/- solve [t_1, ... t_n] applies the first tactic that solves the main goal. -/
+meta_definition solve (ts : list (tactic unit)) : tactic unit :=
+first $ map solve1 ts
+
+ private meta_definition focus_aux : list (tactic unit) → list expr → list expr → tactic unit
+| []       gs      rs := set_goals $ gs ++ rs
+| (t::ts)  (g::gs) rs := do
+  set_goals [g], t, rs' ← get_goals,
+  focus_aux ts gs (rs ++ rs')
+| (t::ts)  []      rs := fail "focus tactic failed, insufficient number of goals"
+
+/- focus [t_1, ..., t_n] applies t_i to the i-th goal. Fails if there are less tha n goals. -/
+meta_definition focus (ts : list (tactic unit)) : tactic unit :=
+do gs ← get_goals, focus_aux ts gs []
 
 private meta_definition all_goals_core : tactic unit → list expr → list expr → tactic unit
 | tac []        ac := set_goals ac
@@ -339,11 +361,23 @@ meta_definition all_goals (tac : tactic unit) : tactic unit :=
 do gs ← get_goals,
    all_goals_core tac gs []
 
+/- LCF-style AND_THEN tactic. It applies tac1, and if succeed applies tac2 to each subgoal produced by tac1 -/
+meta_definition seq (tac1 : tactic unit) (tac2 : tactic unit) : tactic unit :=
+do g::gs ← get_goals | failed,
+   set_goals [g],
+   tac1, all_goals tac2,
+   gs' ← get_goals,
+   set_goals (gs' ++ gs)
+
+infixl `;`:1 := seq
+
+/- Applies tac if c holds -/
 meta_definition when (c : Prop) [decidable c] (tac : tactic unit) : tactic unit :=
 if c then tac else skip
 
 meta_constant is_trace_enabled_for : name → bool
 
+/- Execute tac only if option trace.n is set to true. -/
 meta_definition when_tracing (n : name) (tac : tactic unit) : tactic unit :=
 when (is_trace_enabled_for n = tt) tac
 

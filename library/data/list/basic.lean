@@ -59,10 +59,6 @@ theorem ne_nil_of_length_eq_succ : ∀ {l : list T} {n : nat}, length l = succ n
 
 /- concat -/
 
-definition concat : Π (x : T), list T → list T
-| a []       := [a]
-| a (b :: l) := b :: concat a l
-
 theorem concat_nil [simp] (x : T) : concat x [] = [x] :=
 rfl
 
@@ -106,10 +102,6 @@ sorry -- by rec_simp
 -- add_rewrite append_nil append_cons
 
 /- reverse -/
-
-definition reverse : list T → list T
-| []       := []
-| (a :: l) := concat a (reverse l)
 
 theorem reverse_nil [simp] : reverse (@nil T) = [] :=
 rfl

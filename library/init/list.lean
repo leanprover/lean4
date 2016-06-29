@@ -29,7 +29,6 @@ notation h :: t  := cons h t
 notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
 
 namespace list
-
 variable {A : Type}
 
 definition append : list A → list A → list A
@@ -43,7 +42,7 @@ definition length : list A → nat
 open option nat
 
 definition nth : list A → nat → option A
-| [] _           := none
+| []       _     := none
 | (a :: l) 0     := some a
 | (a :: l) (n+1) := nth l n
 
@@ -51,6 +50,17 @@ definition tail : list A → list A
 | []       := []
 | (a :: l) := l
 
+definition concat : Π (x : A), list A → list A
+| a []       := [a]
+| a (b :: l) := b :: concat a l
+
+definition reverse : list A → list A
+| []       := []
+| (a :: l) := concat a (reverse l)
+
+definition map {B : Type} (f : A → B) : list A → list B
+| []       := []
+| (a :: l) := f a :: map l
 end list
 
 definition list_has_append [instance] {A : Type} : has_append (list A) :=

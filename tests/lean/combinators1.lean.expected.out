@@ -1,0 +1,23 @@
+first goal
+p q : Prop,
+a : p,
+a : q
+⊢ p ∧ p
+--- Second goal: 
+p q : Prop,
+a : p,
+a : q
+⊢ q
+--- After
+p q : Prop,
+a : p,
+a : q
+⊢ p
+
+p q : Prop,
+a : p,
+a : q
+⊢ p
+should not work
+should not work
+should work

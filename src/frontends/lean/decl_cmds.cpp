@@ -465,7 +465,12 @@ void validate_match_pattern(parser const & p, expr const & lhs, buffer<expr> con
     } else if (is_macro(lhs)) {
         for (unsigned i = 0; i < macro_num_args(lhs); i++)
             validate_match_pattern(p, macro_arg(lhs, i), locals);
-    } else if (!is_local(lhs)) {
+    } else if (is_local(lhs)) {
+        if (!local_pp_name(lhs).is_atomic())
+            throw parser_error(sstream() << "invalid pattern variable '" << lhs << "', "
+                               << "it must be an atomic identifier", p.pos_of(lhs));
+    } else {
+        lean_assert(!is_local(lhs));
         for_each(lhs, [&](expr const & e, unsigned) {
                 if (is_local(e) &&
                     std::any_of(locals.begin(), locals.end(), [&](expr const & local) {

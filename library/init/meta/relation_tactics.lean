@@ -15,7 +15,7 @@ do tgt ← target,
    r   ← return $ get_app_fn tgt,
    match op_for env (const_name r) with
    | some refl := mk_const refl >>= apply
-   | none      := fail (tac_name ++ " tactic failed, target is not a reflexive relation application")
+   | none      := fail $ tac_name ++ " tactic failed, target is not a relation application with the expected property."
    end
 
 meta_definition reflexivity : tactic unit :=

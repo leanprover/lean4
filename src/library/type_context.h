@@ -516,6 +516,13 @@ public:
     expr instantiate_mvars(expr const & e);
 };
 
+class type_context_cache_helper {
+    typedef std::unique_ptr<type_context_cache> cache_ptr;
+    cache_ptr m_cache_ptr;
+public:
+    type_context_cache & get_cache_for(environment const & env, options const & o);
+};
+
 void initialize_type_context();
 void finalize_type_context();
 }

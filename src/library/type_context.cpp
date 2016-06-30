@@ -2552,6 +2552,15 @@ expr tmp_type_context::instantiate_mvars(expr const & e) {
     return m_tctx.instantiate_mvars(e);
 }
 
+type_context_cache & type_context_cache_helper::get_cache_for(environment const & env, options const & o) {
+    if (!m_cache_ptr ||
+        !is_eqp(env, m_cache_ptr->env()) ||
+        !is_eqp(o, m_cache_ptr->get_options())) {
+        m_cache_ptr.reset(new type_context_cache(env, o));
+    }
+    return *m_cache_ptr.get();
+}
+
 void initialize_type_context() {
     register_trace_class("class_instances");
     register_trace_class(name({"type_context", "unification_hint"}));

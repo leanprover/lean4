@@ -254,30 +254,10 @@ vm_obj tactic_target(vm_obj const & o) {
     return mk_tactic_success(to_obj(g->get_type()), s);
 }
 
-struct type_context_cache_helper {
-    typedef std::unique_ptr<type_context_cache> cache_ptr;
-    cache_ptr m_cache_ptr;
-
-    void reset(environment const & env, options const & o) {
-        m_cache_ptr.reset(new type_context_cache(env, o));
-    }
-
-    bool compatible_env(environment const & env) {
-        environment const & curr_env = m_cache_ptr->env();
-        return is_eqp(curr_env, env);
-    }
-
-    void ensure_compatible(environment const & env, options const & o) {
-        if (!m_cache_ptr || !compatible_env(env) || !is_eqp(o, m_cache_ptr->get_options()))
-            reset(env, o);
-    }
-};
-
 MK_THREAD_LOCAL_GET_DEF(type_context_cache_helper, get_tch);
 
 type_context_cache & get_type_context_cache_for(environment const & env, options const & o) {
-    get_tch().ensure_compatible(env, o);
-    return *get_tch().m_cache_ptr.get();
+    return get_tch().get_cache_for(env, o);
 }
 
 type_context_cache & get_type_context_cache_for(tactic_state const & s) {

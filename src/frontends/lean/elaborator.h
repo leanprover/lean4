@@ -12,9 +12,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 class elaborator {
-    environment    m_env;
-    options        m_opts;
-    type_context   m_ctx;
+    environment       m_env;
+    options           m_opts;
+    local_level_decls m_local_level_decls;
+    type_context      m_ctx;
 
     expr visit(expr const & e, optional<expr> const & expected_type);
 
@@ -22,8 +23,9 @@ public:
     elaborator(environment const & env, options const & opts, local_level_decls const & lls,
                metavar_context const & mctx, local_context const & lctx);
 
-    std::tuple<expr, level_param_names> elaborate(expr const & e, optional<expr> const & expected_type);
+    std::tuple<expr, level_param_names> operator()(expr const & e);
 };
 
-std::tuple<expr, level_param_names> elaborate(elaborator_context const & ectx, local_context const & lctx, expr const & e);
+std::tuple<expr, level_param_names> elaborate(environment const & env, options const & opts, local_level_decls const & lls,
+                                              metavar_context const & mctx, local_context const & lctx, expr const & e);
 }

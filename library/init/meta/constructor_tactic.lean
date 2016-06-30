@@ -16,71 +16,48 @@ do env ← get_env,
 
 private meta_definition try_constructors : list name → tactic unit
 | []      := fail "constructor tactic failed, none of the constructors is applicable"
-| (c::cs) :=
-  do { mk_const c >>= apply } <|> try_constructors cs
+| (c::cs) := (mk_const c >>= apply) <|> try_constructors cs
 
 meta_definition constructor : tactic unit :=
-do tgt ← target,
-   cs  ← get_constructors_for tgt,
-   try_constructors cs
+target >>= get_constructors_for >>= try_constructors
 
 meta_definition left : tactic unit :=
 do tgt ← target,
-   cs  ← get_constructors_for tgt,
-   match cs with
-   | [c₁, c₂] := mk_const c₁ >>= apply
-   | _        := fail "left tactic failed, target is not an inductive datatype with two constructors"
-   end
+   [c₁, c₂] ← get_constructors_for tgt | fail "left tactic failed, target is not an inductive datatype with two constructors",
+   mk_const c₁ >>= apply
 
 meta_definition right : tactic unit :=
 do tgt ← target,
-   cs  ← get_constructors_for tgt,
-   match cs with
-   | [c₁, c₂] := mk_const c₂ >>= apply
-   | _        := fail "left tactic failed, target is not an inductive datatype with two constructors"
-   end
+   [c₁, c₂] ← get_constructors_for tgt | fail "left tactic failed, target is not an inductive datatype with two constructors",
+   mk_const c₂ >>= apply
 
 meta_definition constructor_idx (idx : nat) : tactic unit :=
-do tgt ← target,
-   cs  ← get_constructors_for tgt,
-   match list.nth cs (idx - 1) with
-   | some c := mk_const c >>= apply
-   | none   := fail "constructor_idx tactic failed, target is an inductive datatype, but it does not have sufficient constructors"
-   end
+do cs     ← target >>= get_constructors_for,
+   some c ← return $ list.nth cs (idx - 1) | fail "constructor_idx tactic failed, target is an inductive datatype, but it does not have sufficient constructors",
+   mk_const c >>= apply
 
 meta_definition split : tactic unit :=
-do tgt ← target,
-   cs  ← get_constructors_for tgt,
-   match cs with
-   | [c] := mk_const c >>= apply
-   | _   := fail "split tactic failed, target is not an inductive datatype with only one constructor"
-   end
+do [c] ← target >>= get_constructors_for | fail "split tactic failed, target is not an inductive datatype with only one constructor",
+   mk_const c >>= apply
+
+open expr
 
 private meta_definition apply_num_metavars : expr → expr → nat → tactic expr
 | f ftype 0     := return f
 | f ftype (n+1) := do
-  ftype' ← whnf ftype,
-  match ftype' with
-  | expr.pi _ _ d b := do
-    a         ← mk_meta_var d,
-    new_f     ← return $ expr.app f a,
-    new_ftype ← return $ expr.instantiate_var b a,
-    apply_num_metavars new_f new_ftype n
-  | _           := failed
-  end
+  pi _ _ d b ← whnf ftype | failed,
+  a          ← mk_meta_var d,
+  new_f      ← return $ expr.app f a,
+  new_ftype  ← return $ expr.instantiate_var b a,
+  apply_num_metavars new_f new_ftype n
 
 meta_definition existsi (e : expr) : tactic unit :=
-do tgt ← target,
-   cs  ← get_constructors_for tgt,
-   match cs with
-   | [c] := do
-     fn      ← mk_const c,
-     fn_type ← infer_type fn,
-     n       ← get_arity fn,
-     when (n < 2) (fail "existsi tactic failed, constructor must have at least two arguments"),
-     t : expr ← apply_num_metavars fn fn_type (n - 2),
-     apply (t e)
-   | _   := fail "existsi tactic failed, target is not an inductive datatype with only one constructor"
-   end
+do [c]     ← target >>= get_constructors_for | fail "existsi tactic failed, target is not an inductive datatype with only one constructor",
+   fn      ← mk_const c,
+   fn_type ← infer_type fn,
+   n       ← get_arity fn,
+   when (n < 2) (fail "existsi tactic failed, constructor must have at least two arguments"),
+   t : expr ← apply_num_metavars fn fn_type (n - 2),
+   apply (t e)
 
 end tactic

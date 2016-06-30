@@ -33,13 +33,4 @@ pos_info parser_pos_provider::get_some_pos() const {
 char const * parser_pos_provider::get_file_name() const {
     return m_strm_name.c_str();
 }
-
-LEAN_THREAD_PTR(parser, g_p);
-
-scope_parser_pos_info_provider::scope_parser_pos_info_provider(parser & p):m_old_p(g_p) { g_p = &p; }
-scope_parser_pos_info_provider::~scope_parser_pos_info_provider() { g_p = m_old_p; }
-
-pos_info_provider * get_parser_pos_info_provider() {
-    return g_p;
-}
 }

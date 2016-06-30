@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/choice_iterator.h"
 #include "library/legacy_type_context.h"
 #include "library/class_instance_resolution.h"
+#include "library/scope_pos_info_provider.h"
 
 namespace lean {
 [[ noreturn ]] void throw_class_exception(char const * msg, expr const & m) { throw_generic_exception(msg, m); }
@@ -57,10 +58,10 @@ struct cienv {
     }
 
     optional<expr> operator()(environment const & env, options const & o,
-                              pos_info_provider const * pip, list<expr> const & ctx, expr const & type,
+                              list<expr> const & ctx, expr const & type,
                               expr const & pos_ref) {
         ensure_compatible(env, o, ctx);
-        old_type_context::scope_pos_info scope(*m_ti_ptr, pip, pos_ref);
+        old_type_context::scope_pos_info scope(*m_ti_ptr, get_pos_info_provider(), pos_ref);
         return m_ti_ptr->mk_class_instance(type);
     }
 };
@@ -68,22 +69,21 @@ struct cienv {
 MK_THREAD_LOCAL_GET_DEF(cienv, get_cienv);
 
 static optional<expr> mk_class_instance(environment const & env, options const & o, list<expr> const & ctx,
-                                        expr const & e, pos_info_provider const * pip, expr const & pos_ref) {
-    return get_cienv()(env, o, pip, ctx, e, pos_ref);
+                                        expr const & e, expr const & pos_ref) {
+    return get_cienv()(env, o, ctx, e, pos_ref);
 }
 
 optional<expr> mk_class_instance(environment const & env, options const & o, list<expr> const & ctx,
-                                 expr const & e, pos_info_provider const * pip) {
-    return mk_class_instance(env, o, ctx, e, pip, e);
+                                 expr const & e) {
+    return mk_class_instance(env, o, ctx, e, e);
 }
 
-optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx, expr const & e,
-                                 pos_info_provider const * pip) {
-    return mk_class_instance(env, options(), ctx, e, pip);
+optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx, expr const & e) {
+    return mk_class_instance(env, options(), ctx, e);
 }
 
 static constraint mk_class_instance_root_cnstr(environment const & env, io_state const & ios, old_local_context const & _ctx, expr const & m, bool is_strict,
-                                               bool use_local_instances, pos_info_provider const * pip) {
+                                               bool use_local_instances) {
     justification j         = mk_failed_to_synthesize_jst(env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s) {
         old_local_context ctx;
@@ -99,7 +99,7 @@ static constraint mk_class_instance_root_cnstr(environment const & env, io_state
         pair<expr, justification> mj = update_meta(meta, s);
         expr new_meta                = mj.first;
         justification new_j          = mj.second;
-        if (auto r = mk_class_instance(env, ios.get_options(), ctx.get_data(), meta_type, pip, meta)) {
+        if (auto r = mk_class_instance(env, ios.get_options(), ctx.get_data(), meta_type, meta)) {
             constraint c = mk_eq_cnstr(new_meta, *r, new_j);
             return lazy_list<constraints>(constraints(c));
         } else if (is_strict) {
@@ -119,22 +119,22 @@ static constraint mk_class_instance_root_cnstr(environment const & env, io_state
 pair<expr, constraint> mk_new_class_instance_elaborator(
     environment const & env, io_state const & ios, old_local_context const & ctx,
     optional<name> const & suffix, bool use_local_instances,
-    bool is_strict, optional<expr> const & type, tag g, pos_info_provider const * pip) {
+    bool is_strict, optional<expr> const & type, tag g) {
     expr m       = ctx.mk_meta(suffix, type, g);
     constraint c = mk_class_instance_root_cnstr(env, ios, ctx, m, is_strict,
-                                                use_local_instances, pip);
+                                                use_local_instances);
     return mk_pair(m, c);
 }
 
 optional<expr> mk_class_instance(environment const & env, io_state const & ios, old_local_context const & ctx, expr const & type, bool use_local_instances) {
     if (use_local_instances)
-        return mk_class_instance(env, ios.get_options(), ctx.get_data(), type, nullptr);
+        return mk_class_instance(env, ios.get_options(), ctx.get_data(), type);
     else
-        return mk_class_instance(env, ios.get_options(), list<expr>(), type, nullptr);
+        return mk_class_instance(env, ios.get_options(), list<expr>(), type);
 }
 
 optional<expr> mk_class_instance(environment const & env, old_local_context const & ctx, expr const & type) {
-    return mk_class_instance(env, ctx.get_data(), type, nullptr);
+    return mk_class_instance(env, ctx.get_data(), type);
 }
 
 optional<expr> mk_set_instance(old_type_checker & tc, options const & o, list<expr> const & ctx, expr const & type) {
@@ -163,9 +163,8 @@ void finalize_class_instance_resolution() {
 pair<expr, constraint> mk_class_instance_elaborator(
     environment const & env, io_state const & ios, old_local_context const & ctx,
     optional<name> const & suffix, bool use_local_instances,
-    bool is_strict, optional<expr> const & type, tag g,
-    pos_info_provider const * pip) {
+    bool is_strict, optional<expr> const & type, tag g) {
     return mk_new_class_instance_elaborator(env, ios, ctx, suffix, use_local_instances,
-                                            is_strict, type, g, pip);
+                                            is_strict, type, g);
 }
 }

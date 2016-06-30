@@ -41,6 +41,7 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/noncomputable.h"
 #include "library/error_handling.h"
+#include "library/scope_pos_info_provider.h"
 #include "library/legacy_type_context.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/parser.h"
@@ -1916,8 +1917,8 @@ bool parser::parse_commands() {
     // We disable hash-consing while parsing to make sure the pos-info are correct.
     scoped_expr_caching disable(false);
     scoped_set_distinguishing_pp_options set(get_distinguishing_pp_options());
-    scope_parser_pos_info_provider scope1(*this);
-    scope_info_manager             scope2(m_info_manager);
+    scope_pos_info_provider scope1(*this);
+    scope_info_manager      scope2(m_info_manager);
     try {
         bool done = false;
         protected_call([&]() {

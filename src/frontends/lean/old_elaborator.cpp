@@ -43,6 +43,7 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/class_instance_resolution.h"
 #include "library/error_handling.h"
+#include "library/scope_pos_info_provider.h"
 #include "library/definitional/equations.h"
 #include "library/compiler/rec_fn_macro.h"
 #include "library/compiler/vm_compiler.h"
@@ -211,7 +212,7 @@ optional<expr> old_elaborator::mvar_to_meta(expr const & mvar) {
         return none_expr();
 }
 
-static pos_info_provider * pip() { return get_parser_pos_info_provider(); }
+static pos_info_provider * pip() { return get_pos_info_provider(); }
 static info_manager * infom() { return get_info_manager(); }
 
 /** \brief Store the pair (pos(e), type(r)) in the info_data if m_info_manager is available. */
@@ -346,7 +347,7 @@ expr old_elaborator::mk_placeholder_meta(optional<name> const & suffix, optional
     if (is_inst_implicit) {
         auto ec = mk_class_instance_elaborator(
             env(), get_global_ios(), m_context, suffix,
-            true, is_strict, type, g, nullptr);
+            true, is_strict, type, g);
         register_meta(ec.first);
         cs += ec.second;
         return ec.first;

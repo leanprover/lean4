@@ -14,18 +14,6 @@ Author: Leonardo de Moura
 namespace lean {
 typedef rb_map<unsigned, pos_info, unsigned_cmp> pos_info_table;
 
-/* Remark the parser object is also a pos_info_provider */
-class parser;
-
-class scope_parser_pos_info_provider {
-    parser * m_old_p;
-public:
-    scope_parser_pos_info_provider(parser & p);
-    ~scope_parser_pos_info_provider();
-};
-
-pos_info_provider * get_parser_pos_info_provider();
-
 /* Temporary object for providing position information.
    It is only used for exceptions such as parser_nested_exception.
    The idea is to avoid storing the whole parser object in these exceptions. */

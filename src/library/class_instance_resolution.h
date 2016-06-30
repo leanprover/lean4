@@ -7,15 +7,12 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include "kernel/environment.h"
-#include "kernel/pos_info_provider.h"
 #include "library/io_state.h"
 #include "library/old_local_context.h"
 
 namespace lean {
-optional<expr> mk_class_instance(environment const & env, options const & o,
-                                 list<expr> const & ctx, expr const & e, pos_info_provider const * pip = nullptr);
-optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx, expr const & e,
-                                 pos_info_provider const * pip = nullptr);
+optional<expr> mk_class_instance(environment const & env, options const & o, list<expr> const & ctx, expr const & e);
+optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx, expr const & e);
 
 // Old API
 
@@ -35,7 +32,7 @@ optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx
 pair<expr, constraint> mk_class_instance_elaborator(
     environment const & env, io_state const & ios, old_local_context const & ctx,
     optional<name> const & suffix, bool use_local_instances,
-    bool is_strict, optional<expr> const & type, tag g, pos_info_provider const * pip);
+    bool is_strict, optional<expr> const & type, tag g);
 
 optional<expr> mk_class_instance(environment const & env, io_state const & ios, old_local_context const & ctx, expr const & type, bool use_local_instances);
 optional<expr> mk_class_instance(environment const & env, old_local_context const & ctx, expr const & type);

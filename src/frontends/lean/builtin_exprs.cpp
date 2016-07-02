@@ -158,10 +158,6 @@ static expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const &
     return parse_begin_end_core(p, pos, get_end_tk());
 }
 
-static expr parse_tactic_expr(parser & p, unsigned, expr const *, pos_info const &) {
-    return p.parse_tactic();
-}
-
 static expr parse_proof(parser & p);
 
 static expr parse_using_expr(parser & p, pos_info const & using_pos) {
@@ -695,7 +691,6 @@ parse_table init_nud_table() {
     r = r.add({transition("let", mk_ext_action(parse_let_expr))}, x0);
     r = r.add({transition("calc", mk_ext_action(parse_calc_expr))}, x0);
     r = r.add({transition("#", mk_ext_action(parse_override_notation))}, x0);
-    r = r.add({transition("#tactic", mk_ext_action(parse_tactic_expr))}, x0);
     r = r.add({transition("@", mk_ext_action(parse_explicit_expr))}, x0);
     r = r.add({transition("@@", mk_ext_action(parse_partial_explicit_expr))}, x0);
     r = r.add({transition("begin", mk_ext_action_core(parse_begin_end))}, x0);

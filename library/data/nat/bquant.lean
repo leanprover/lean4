@@ -70,7 +70,7 @@ namespace nat
   λ H, absurd (bex_of_bsub H) (not_bex_succ H₁ H₂)
 
   theorem ball_zero (P : nat → Prop) : ball zero P :=
-  λ x Hlt, absurd Hlt !not_lt_zero
+  λ x Hlt, absurd Hlt (not_lt_zero x)
 
   theorem ball_of_ball_succ {n : nat} {P : nat → Prop} (H : ball (succ n) P) : ball n P  :=
   λ x Hlt, H x (lt.step Hlt)
@@ -112,13 +112,13 @@ section
     : decidable (∃ x, x ≤ n ∧ P x) :=
   decidable_of_decidable_of_iff
     (decidable_bex (succ n) P)
-    (exists_congr (λn, and_congr !lt_succ_iff_le !iff.refl))
+    (exists_congr (λn', and_congr (lt_succ_iff_le n' n) (iff.refl (P n'))))
 
   definition decidable_ball_le [instance] (n : nat) (P : nat → Prop) [decidable_pred P]
     : decidable (∀ x, x ≤ n → P x) :=
   decidable_of_decidable_of_iff
     (decidable_ball (succ n) P)
-    (forall_congr (λ n, imp_congr !lt_succ_iff_le !iff.refl))
+    (forall_congr (λ n', imp_congr (lt_succ_iff_le n' n) (iff.refl (P n'))))
 end
 
 namespace nat

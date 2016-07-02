@@ -178,7 +178,7 @@ lemma disjoint_of_disjoint_cons_right {a : A} {l₁ l₂} : disjoint l₁ (a::l�
 λ d, disjoint.comm (disjoint_of_disjoint_cons_left (disjoint.comm d))
 
 lemma disjoint_nil_left (l : list A) : disjoint [] l :=
-λ a ab, absurd ab !not_mem_nil
+λ a ab, absurd ab (not_mem_nil a)
 
 lemma disjoint_nil_right (l : list A) : disjoint l [] :=
 disjoint.comm (disjoint_nil_left l)
@@ -192,7 +192,7 @@ lemma disjoint_cons_of_not_mem_of_disjoint {a : A} {l₁ l₂} : a ∉ l₂ → 
 lemma disjoint_of_disjoint_append_left_left : ∀ {l₁ l₂ l : list A}, disjoint (l₁++l₂) l → disjoint l₁ l
 | []      l₂ l d := disjoint_nil_left l
 | (x::xs) l₂ l d :=
-  have nxinl : x ∉ l, from disjoint_left d !mem_cons,
+  have nxinl : x ∉ l, from disjoint_left d (mem_cons x _),
   have d₁    : disjoint (xs++l₂) l, from disjoint_of_disjoint_cons_left d,
   have d₂    : disjoint xs l, from disjoint_of_disjoint_append_left_left d₁,
   disjoint_cons_of_not_mem_of_disjoint nxinl d₂
@@ -228,7 +228,7 @@ theorem nodup_cons {a : A} {l : list A} : a ∉ l → nodup l → nodup (a::l)  
 λ i n, ndcons i n
 
 theorem nodup_singleton (a : A) : nodup [a] :=
-nodup_cons !not_mem_nil nodup_nil
+nodup_cons (not_mem_nil a) nodup_nil
 
 theorem nodup_of_nodup_cons : ∀ {a : A} {l : list A}, nodup (a::l) → nodup l
 | a xs (ndcons i n) := n
@@ -276,7 +276,7 @@ theorem nodup_append_of_nodup_of_nodup_of_disjoint : ∀ {l₁ l₂ : list A}, n
   have disjoint xs l₂,                 from disjoint_of_disjoint_cons_left dsj,
   have ndxsl₂   : nodup (xs++l₂),      from nodup_append_of_nodup_of_nodup_of_disjoint ndxs d₂ this,
   have nxinxs   : x ∉ xs,              from not_mem_of_nodup_cons d₁,
-  have x ∉ l₂,                         from disjoint_left dsj !mem_cons,
+  have x ∉ l₂,                         from disjoint_left dsj (mem_cons x xs),
   have x ∉ xs++l₂,                     from not_mem_append nxinxs this,
   nodup_cons this ndxsl₂
 
@@ -551,7 +551,7 @@ theorem mem_upto_succ_of_mem_upto {n i : nat} : i ∈ upto n → i ∈ upto (suc
 assume i, mem_cons_of_mem _ i
 
 theorem mem_upto_of_lt : ∀ {n i : nat}, i < n → i ∈ upto n
-| 0        i h := absurd h !not_lt_zero
+| 0        i h := absurd h (not_lt_zero i)
 | (succ n) i h :=
 sorry
 /-
@@ -588,7 +588,7 @@ take l₁, assume nainl₂, calc
                   ...   = a :: union l₁ l₂                                      : if_neg nainl₂
 
 theorem union_nil : ∀ (l : list A), union l [] = l
-| []     := !nil_union
+| []     := nil_union nil
 | (a::l) := sorry -- by rewrite [union_cons_of_not_mem _ !not_mem_nil, union_nil]
 
 theorem mem_or_mem_of_mem_union : ∀ {l₁ l₂} {a : A}, a ∈ union l₁ l₂ → a ∈ l₁ ∨ a ∈ l₂
@@ -764,14 +764,14 @@ decidable.by_cases
   (assume H3: a ∈ l, or.inr (insert_eq_of_mem H3 ▸ H))
   (assume H3: a ∉ l,
     have H4: x ∈ a :: l, from insert_eq_of_not_mem H3 ▸ H,
-    iff.mp !mem_cons_iff H4)
+    iff.mp (mem_cons_iff x a l) H4)
 
 theorem mem_insert_iff (x a : A) (l : list A) : x ∈ insert a l ↔ x = a ∨ x ∈ l :=
 iff.intro
-  (!eq_or_mem_of_mem_insert)
+  eq_or_mem_of_mem_insert
   (assume H, or.elim H
-    (assume H' : x = a, H'⁻¹ ▸ !mem_insert)
-    (assume H' : x ∈ l, !mem_insert_of_mem H'))
+    (assume H' : x = a, H'⁻¹ ▸ mem_insert a l)
+    (assume H' : x ∈ l, mem_insert_of_mem a H'))
 
 theorem nodup_insert (a : A) {l : list A} : nodup l → nodup (insert a l) :=
 sorry

@@ -14,4 +14,4 @@ theorem gcd_def (x y : ℕ) : gcd x y = @ite (y = 0) (nat.has_decidable_eq (pr2 
 sorry
 
 theorem gcd_succ (m n : ℕ) : gcd m (succ n) = gcd (succ n) (m mod succ n) :=
-eq.trans (gcd_def _ _) (if_neg !succ_ne_zero)
+eq.trans (gcd_def _ _) (if_neg (succ_ne_zero _))

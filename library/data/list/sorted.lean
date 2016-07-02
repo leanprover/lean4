@@ -39,18 +39,18 @@ lemma sorted.rect_on {P : list A → Type} : ∀ {l}, sorted R l → P [] → (�
   h₂ a l aux₂ aux₃ aux₁
 
 lemma sorted_singleton (a : A) : sorted R [a] :=
-sorted.step !hd_rel.base !sorted.base
+sorted.step (hd_rel.base R a) (sorted.base R)
 
 lemma sorted_of_locally_sorted : ∀ {l}, locally_sorted R l → sorted R l
-| []        h := !sorted.base
-| [a]       h := !sorted_singleton
+| []        h := sorted.base R
+| [a]       h := sorted_singleton a
 | (a::b::l) (locally_sorted.step h₁ h₂) :=
   have sorted R (b::l), from sorted_of_locally_sorted h₂,
   sorted.step (hd_rel.step _ h₁) this
 
 lemma locally_sorted_of_sorted : ∀ {l}, sorted R l → locally_sorted R l
-| []        h := !locally_sorted.base0
-| [a]       h := !locally_sorted.base
+| []        h := locally_sorted.base0 R
+| [a]       h := locally_sorted.base R a
 | (a::b::l) (sorted.step (hd_rel.step _ h₁) h₂) :=
   have locally_sorted R (b::l), from locally_sorted_of_sorted h₂,
   locally_sorted.step h₁ this
@@ -67,8 +67,8 @@ inductive strongly_sorted : list A → Prop :=
 variable {R}
 
 lemma sorted_of_strongly_sorted : ∀ {l}, strongly_sorted R l → sorted R l
-| []        h := !sorted.base
-| [a]       h := !sorted_singleton
+| []        h := sorted.base R
+| [a]       h := sorted_singleton a
 | (a::b::l) (strongly_sorted.step h₁ h₂) :=
   have aux : hd_rel R a (b::l), from hd_rel.step _ (of_all_cons h₁),
   have sorted R (b::l),   from sorted_of_strongly_sorted h₂,
@@ -91,7 +91,7 @@ lemma sorted_extends (trans : transitive R) : ∀ {a l}, sorted R (a::l) → all
 -/
 
 theorem strongly_sorted_of_sorted_of_transitive (trans : transitive R) : ∀ {l}, sorted R l → strongly_sorted R l
-| []     h := !strongly_sorted.base
+| []     h := strongly_sorted.base R
 | (a::l) h :=
   have sorted R l,          from and.right (sorted_inv h),
   have aux : strongly_sorted R l, from strongly_sorted_of_sorted_of_transitive this,

@@ -26,24 +26,24 @@ or_resolve_right (nat.eq_or_lt_of_le H1)
 
 protected theorem lt_iff_le_and_ne (m n : ℕ) : m < n ↔ m ≤ n ∧ m ≠ n :=
 iff.intro
-  (take H, and.intro (nat.le_of_lt H) (take H1, !nat.lt_irrefl (H1 ▸ H)))
+  (take H, and.intro (nat.le_of_lt H) (take H1, nat.lt_irrefl n (H1 ▸ H)))
   (and.rec nat.lt_of_le_and_ne)
 
 theorem le_add_right (n k : ℕ) : n ≤ n + k :=
-nat.rec !nat.le_refl (λ k, le_succ_of_le) k
+nat.rec (nat.le_refl n) (λ k, le_succ_of_le) k
 
 theorem le_add_left (n m : ℕ): n ≤ m + n :=
-!add.comm ▸ !le_add_right
+add.comm n m ▸ le_add_right n m
 
 theorem le.intro {n m k : ℕ} (h : n + k = m) : n ≤ m :=
-h ▸ !le_add_right
+h ▸ le_add_right n k
 
 theorem le.elim {n m : ℕ} : n ≤ m → ∃ k, n + k = m :=
 le.rec (exists.intro 0 rfl) (λm h, Exists.rec
   (λ k H, exists.intro (succ k) (H ▸ rfl)))
 
 protected theorem le_total {m n : ℕ} : m ≤ n ∨ n ≤ m :=
-or.imp_left nat.le_of_lt !nat.lt_or_ge
+or.imp_left nat.le_of_lt (nat.lt_or_ge m n)
 
 /- addition -/
 
@@ -51,23 +51,23 @@ protected theorem add_le_add_left {n m : ℕ} (H : n ≤ m) (k : ℕ) : k + n �
 sorry -- obtain l Hl, from le.elim H, le.intro (Hl ▸ !add.assoc)
 
 protected theorem add_le_add_right {n m : ℕ} (H : n ≤ m) (k : ℕ) : n + k ≤ m + k :=
-!add.comm ▸ !add.comm ▸ nat.add_le_add_left H k
+add.comm k m ▸ add.comm k n ▸ nat.add_le_add_left H k
 
 protected theorem le_of_add_le_add_left {k n m : ℕ} (H : k + n ≤ k + m) : n ≤ m :=
 sorry -- obtain l Hl, from le.elim H, le.intro (nat.add_left_cancel (!add.assoc⁻¹ ⬝ Hl))
 
 protected theorem lt_of_add_lt_add_left {k n m : ℕ} (H : k + n < k + m) : n < m :=
 let H' := nat.le_of_lt H in
-nat.lt_of_le_and_ne (nat.le_of_add_le_add_left H') (assume Heq, !nat.lt_irrefl (Heq ▸ H))
+nat.lt_of_le_and_ne (nat.le_of_add_le_add_left H') (assume Heq, nat.lt_irrefl (k + m) (Heq ▸ H))
 
 protected theorem add_lt_add_left {n m : ℕ} (H : n < m) (k : ℕ) : k + n < k + m :=
-lt_of_succ_le (!add_succ ▸ nat.add_le_add_left (succ_le_of_lt H) k)
+lt_of_succ_le (add_succ k n ▸ nat.add_le_add_left (succ_le_of_lt H) k)
 
 protected theorem add_lt_add_right {n m : ℕ} (H : n < m) (k : ℕ) : n + k < m + k :=
-!add.comm ▸ !add.comm ▸ nat.add_lt_add_left H k
+add.comm k m ▸ add.comm k n ▸ nat.add_lt_add_left H k
 
 protected theorem lt_add_of_pos_right {n k : ℕ} (H : k > 0) : n < n + k :=
-!add_zero ▸ nat.add_lt_add_left H n
+add_zero (n + k) ▸ nat.add_lt_add_left H n
 
 /- multiplication -/
 
@@ -80,16 +80,16 @@ le.intro this
 -/
 
 theorem mul_le_mul_right {n m : ℕ} (k : ℕ) (H : n ≤ m) : n * k ≤ m * k :=
-!mul.comm ▸ !mul.comm ▸ !mul_le_mul_left H
+mul.comm k m ▸ mul.comm k n ▸ mul_le_mul_left k H
 
 protected theorem mul_le_mul {n m k l : ℕ} (H1 : n ≤ k) (H2 : m ≤ l) : n * m ≤ k * l :=
-nat.le_trans (!nat.mul_le_mul_right H1) (!nat.mul_le_mul_left H2)
+nat.le_trans (nat.mul_le_mul_right m H1) (nat.mul_le_mul_left k H2)
 
 protected theorem mul_lt_mul_of_pos_left {n m k : ℕ} (H : n < m) (Hk : k > 0) : k * n < k * m :=
-nat.lt_of_lt_of_le (nat.lt_add_of_pos_right Hk) (!mul_succ ▸ nat.mul_le_mul_left k (succ_le_of_lt H))
+nat.lt_of_lt_of_le (nat.lt_add_of_pos_right Hk) (mul_succ k n ▸ nat.mul_le_mul_left k (succ_le_of_lt H))
 
 protected theorem mul_lt_mul_of_pos_right {n m k : ℕ} (H : n < m) (Hk : k > 0) : n * k < m * k :=
-!mul.comm ▸ !mul.comm ▸ nat.mul_lt_mul_of_pos_left H Hk
+mul.comm k m ▸ mul.comm k n ▸ nat.mul_lt_mul_of_pos_left H Hk
 
 /- nat is an instance of a linearly ordered semiring and a lattice -/
 
@@ -124,38 +124,38 @@ definition nat_has_dvd [instance] [priority nat.prio] : has_dvd nat :=
 has_dvd.mk has_dvd.dvd
 
 theorem add_pos_left {a : ℕ} (H : 0 < a) (b : ℕ) : 0 < a + b :=
-@add_pos_of_pos_of_nonneg _ _ a b H !zero_le
+@add_pos_of_pos_of_nonneg _ _ a b H (zero_le b)
 
 theorem add_pos_right {a : ℕ} (H : 0 < a) (b : ℕ) : 0 < b + a :=
 sorry -- by rewrite add.comm; apply add_pos_left H b
 
 theorem add_eq_zero_iff_eq_zero_and_eq_zero {a b : ℕ} :
 a + b = 0 ↔ a = 0 ∧ b = 0 :=
-@add_eq_zero_iff_eq_zero_and_eq_zero_of_nonneg_of_nonneg _ _ a b !zero_le !zero_le
+@add_eq_zero_iff_eq_zero_and_eq_zero_of_nonneg_of_nonneg _ _ a b (zero_le a) (zero_le b)
 
 theorem le_add_of_le_left {a b c : ℕ} (H : b ≤ c) : b ≤ a + c :=
-@le_add_of_nonneg_of_le _ _ a b c !zero_le H
+@le_add_of_nonneg_of_le _ _ a b c (zero_le a) H
 
 theorem le_add_of_le_right {a b c : ℕ} (H : b ≤ c) : b ≤ c + a :=
-@le_add_of_le_of_nonneg _ _ a b c H !zero_le
+@le_add_of_le_of_nonneg _ _ a b c H (zero_le a)
 
 theorem lt_add_of_lt_left {b c : ℕ} (H : b < c) (a : ℕ) : b < a + c :=
-@lt_add_of_nonneg_of_lt _ _ a b c !zero_le H
+@lt_add_of_nonneg_of_lt _ _ a b c (zero_le a) H
 
 theorem lt_add_of_lt_right {b c : ℕ} (H : b < c) (a : ℕ) : b < c + a :=
-@lt_add_of_lt_of_nonneg _ _ a b c H !zero_le
+@lt_add_of_lt_of_nonneg _ _ a b c H (zero_le a)
 
 theorem lt_of_mul_lt_mul_left {a b c : ℕ} (H : c * a < c * b) : a < b :=
-@lt_of_mul_lt_mul_left _ _ a b c H !zero_le
+@lt_of_mul_lt_mul_left _ _ a b c H (zero_le c)
 
 theorem lt_of_mul_lt_mul_right {a b c : ℕ} (H : a * c < b * c) : a < b :=
-@lt_of_mul_lt_mul_right _ _ a b c H !zero_le
+@lt_of_mul_lt_mul_right _ _ a b c H (zero_le c)
 
 theorem pos_of_mul_pos_left {a b : ℕ} (H : 0 < a * b) : 0 < b :=
-@pos_of_mul_pos_left _ _ a b H !zero_le
+@pos_of_mul_pos_left _ _ a b H (zero_le a)
 
 theorem pos_of_mul_pos_right {a b : ℕ} (H : 0 < a * b) : 0 < a :=
-@pos_of_mul_pos_right _ _ a b H !zero_le
+@pos_of_mul_pos_right _ _ a b H (zero_le b)
 
 theorem zero_le_one : (0:nat) ≤ 1 :=
 dec_trivial
@@ -169,7 +169,7 @@ theorem lt_elim {n m : ℕ} (H : n < m) : ∃k, succ n + k = m :=
 le.elim (succ_le_of_lt H)
 
 theorem lt_add_succ (n m : ℕ) : n < n + succ m :=
-lt_intro !succ_add_eq_succ_add
+lt_intro (succ_add_eq_succ_add n m)
 
 theorem eq_zero_of_le_zero {n : ℕ} (H : n ≤ 0) : n = 0 :=
 sorry
@@ -190,7 +190,7 @@ theorem lt_succ_iff_le (m n : nat) : m < succ n ↔ m ≤ n :=
 iff.intro le_of_lt_succ lt_succ_of_le
 
 theorem self_le_succ (n : ℕ) : n ≤ succ n :=
-le.intro !add_one
+le.intro (add_one n)
 
 theorem succ_le_or_eq_of_le {n m : ℕ} : n ≤ m → succ n ≤ m ∨ n = m :=
 lt_or_eq_of_le
@@ -205,7 +205,7 @@ theorem pred_le_pred_of_le {n m : ℕ} : n ≤ m → pred n ≤ pred m :=
 pred_le_pred
 
 theorem pre_lt_of_lt {n m : ℕ} : n < m → pred n < m :=
-lt_of_le_of_lt !pred_le
+lt_of_le_of_lt (pred_le n)
 
 theorem lt_of_pred_lt_pred {n m : ℕ} (H : pred n < pred m) : n < m :=
 lt_of_not_ge
@@ -216,16 +216,16 @@ theorem le_or_eq_succ_of_le_succ {n m : ℕ} (H : n ≤ succ m) : n ≤ m ∨ n 
 or.imp_left le_of_succ_le_succ (succ_le_or_eq_of_le H)
 
 theorem le_pred_self (n : ℕ) : pred n ≤ n :=
-!pred_le
+pred_le n
 
 theorem succ_pos (n : ℕ) : 0 < succ n :=
-!zero_lt_succ
+zero_lt_succ n
 
 theorem succ_pred_of_pos {n : ℕ} (H : n > 0) : succ (pred n) = n :=
 (or_resolve_right (eq_zero_or_eq_succ_pred n) (ne.symm (ne_of_lt H)))⁻¹
 
 theorem exists_eq_succ_of_lt {n : ℕ} : Π {m : ℕ}, n < m → ∃k, m = succ k
-| 0        H := absurd H !not_lt_zero
+| 0        H := absurd H $ not_lt_zero n
 | (succ k) H := exists.intro k rfl
 
 theorem lt_succ_self (n : ℕ) : n < succ n :=
@@ -295,10 +295,10 @@ end
 /- other forms of induction -/
 
 protected definition strong_rec_on {P : nat → Type} (n : ℕ) (H : ∀n, (∀m, m < n → P m) → P n) : P n :=
-nat.rec (λm h, absurd h !not_lt_zero)
+nat.rec (λm h, absurd h $ not_lt_zero _)
   (λn' (IH : ∀ {m : ℕ}, m < n' → P m) m l,
      or.by_cases (lt_or_eq_of_le (le_of_lt_succ l))
-    IH (λ e, eq.rec (H n' @IH) e⁻¹)) (succ n) n !lt_succ_self
+    IH (λ e, eq.rec (H n' @IH) e⁻¹)) (succ n) n $ lt_succ_self n
 
 protected theorem strong_induction_on {P : nat → Prop} (n : ℕ) (H : ∀n, (∀m, m < n → P m) → P n) :
     P n :=
@@ -320,7 +320,7 @@ nat.strong_induction_on a
 
 theorem by_cases_zero_pos {P : ℕ → Prop} (y : ℕ) (H0 : P 0) (H1 : ∀ {y : nat}, y > 0 → P y) :
   P y :=
-nat.cases_on y H0 (take y, H1 !succ_pos)
+nat.cases_on y H0 (take y, H1 (succ_pos y))
 
 theorem eq_zero_or_pos (n : ℕ) : n = 0 ∨ n > 0 :=
 sorry
@@ -360,7 +360,7 @@ lt_of_le_of_lt (mul_le_mul_left n H2) (mul_lt_mul_of_pos_right H1 Hl)
 
 theorem mul_lt_mul_of_le_of_le {n m k l : ℕ} (H1 : n < k) (H2 : m < l) : n * m < k * l :=
 have H3 : n * m ≤ k * m, from mul_le_mul_right m (le_of_lt H1),
-have H4 : k * m < k * l, from mul_lt_mul_of_pos_left H2 (lt_of_le_of_lt !zero_le H1),
+have H4 : k * m < k * l, from mul_lt_mul_of_pos_left H2 (lt_of_le_of_lt (zero_le n) H1),
 lt_of_le_of_lt H3 H4
 
 theorem eq_of_mul_eq_mul_left {m k n : ℕ} (Hn : n > 0) (H : n * m = n * k) : m = k :=
@@ -374,14 +374,14 @@ le.antisymm `m ≤ k` this
 -/
 
 theorem eq_of_mul_eq_mul_right {n m k : ℕ} (Hm : m > 0) (H : n * m = k * m) : n = k :=
-eq_of_mul_eq_mul_left Hm (!mul.comm ▸ !mul.comm ▸ H)
+eq_of_mul_eq_mul_left Hm (mul.comm k m ▸ mul.comm n m ▸ H)
 
 theorem eq_zero_or_eq_of_mul_eq_mul_left {n m k : ℕ} (H : n * m = n * k) : n = 0 ∨ m = k :=
-or_of_or_of_imp_right !eq_zero_or_pos
+or_of_or_of_imp_right (eq_zero_or_pos n)
   (assume Hn : n > 0, eq_of_mul_eq_mul_left Hn H)
 
 theorem eq_zero_or_eq_of_mul_eq_mul_right  {n m k : ℕ} (H : n * m = k * m) : m = 0 ∨ n = k :=
-eq_zero_or_eq_of_mul_eq_mul_left (!mul.comm ▸ !mul.comm ▸ H)
+eq_zero_or_eq_of_mul_eq_mul_left (mul.comm k m ▸ mul.comm n m ▸ H)
 
 theorem eq_one_of_mul_eq_one_right {n m : ℕ} (H : n * m = 1) : n = 1 :=
 sorry
@@ -399,13 +399,13 @@ or.elim (le_or_gt n 1)
 -/
 
 theorem eq_one_of_mul_eq_one_left {n m : ℕ} (H : n * m = 1) : m = 1 :=
-eq_one_of_mul_eq_one_right (!mul.comm ▸ H)
+eq_one_of_mul_eq_one_right (mul.comm n m ▸ H)
 
 theorem eq_one_of_mul_eq_self_left {n m : ℕ} (Hpos : n > 0) (H : m * n = n) : m = 1 :=
-eq_of_mul_eq_mul_right Hpos (H ⬝ !one_mul⁻¹)
+eq_of_mul_eq_mul_right Hpos (H ⬝ eq.symm (one_mul n))
 
 theorem eq_one_of_mul_eq_self_right {n m : ℕ} (Hpos : m > 0) (H : m * n = m) : n = 1 :=
-eq_one_of_mul_eq_self_left Hpos (!mul.comm ▸ H)
+eq_one_of_mul_eq_self_left Hpos (mul.comm m n ▸ H)
 
 theorem eq_one_of_dvd_one {n : ℕ} (H : n ∣ 1) : n = 1 :=
 dvd.elim H

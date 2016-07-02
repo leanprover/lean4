@@ -52,7 +52,7 @@ section
                     iHb : expr ← get_local "iHb", b₁ ← get_local "b₁", H ← get_local "H",
                     exact (iHb b₁ H)),
                    -- begin cases eq₂, cases eq₃, exact (iHb b₁ H) end),
-            aux rfl !heq.refl)))
+            aux rfl (heq.refl xb))))
 
   -- The lexicographical order of well founded relations is well-founded
   definition lex.wf (Ha : well_founded Ra) (Hb : ∀ x, well_founded (Rb x)) : well_founded (lex Ra Rb) :=

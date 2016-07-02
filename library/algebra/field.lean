@@ -34,7 +34,7 @@ section division_ring
   theorem inv_mul_cancel [simp] (H : a ≠ 0) : a⁻¹ * a = 1 :=
   division_ring.inv_mul_cancel H
 
-  theorem inv_eq_one_div (a : A) : a⁻¹ = 1 / a := !one_mul⁻¹
+  theorem inv_eq_one_div (a : A) : a⁻¹ = 1 / a := eq.symm $ one_mul (a⁻¹)
 
   theorem div_eq_mul_one_div (a b : A) : a / b = a * (1 / b) :=
   sorry -- by simp
@@ -124,9 +124,9 @@ section division_ring
   theorem division_ring.one_div_neg_eq_neg_one_div (H : a ≠ 0) : 1 / (- a) = - (1 / a) :=
   have -1 ≠ (0:A), from
    (suppose -1 = 0, absurd (symm (calc
-          1 = -(-1)  : eq.symm !neg_neg
+          1 = -(-1)  : eq.symm $ neg_neg 1
         ... = -0     : sorry -- by rewrite this
-        ... = (0:A)  : !neg_zero)) zero_ne_one),
+        ... = (0:A)  : neg_zero)) zero_ne_one),
     calc
       1 / (- a) = 1 / ((-1) * a)        : sorry -- by rewrite neg_eq_neg_one_mul
             ... = (1 / a) * (1 / (- 1)) : sorry -- by rewrite (division_ring.one_div_mul_one_div H this)
@@ -168,7 +168,7 @@ section division_ring
   theorem div_mul_cancel (a : A) {b : A} (Hb : b ≠ 0) : a / b * b = a :=
   sorry -- by simp
 
-  theorem div_add_div_same (a b c : A) : a / c + b / c = (a + b) / c := !right_distrib⁻¹
+  theorem div_add_div_same (a b c : A) : a / c + b / c = (a + b) / c := eq.symm $ right_distrib a b (c⁻¹)
 
   theorem div_sub_div_same (a b c : A) : (a / c) - (b / c) = (a - b) / c :=
   sorry -- by rewrite [sub_eq_add_neg, -neg_div, div_add_div_same]
@@ -199,7 +199,7 @@ section division_ring
   -/
 
   theorem eq_of_div_eq_one (a : A) {b : A} (Hb : b ≠ 0) : a / b = 1 → a = b :=
-    iff.mp (!div_eq_one_iff_eq Hb)
+  iff.mp $ div_eq_one_iff_eq a Hb
 
   theorem eq_div_iff_mul_eq (a : A) {b : A} (Hc : c ≠ 0) : a = b / c ↔ a * c = b :=
   sorry
@@ -210,10 +210,10 @@ section division_ring
   -/
 
   theorem eq_div_of_mul_eq (a b : A) {c : A} (Hc : c ≠ 0) : a * c = b → a = b / c :=
-    iff.mpr (!eq_div_iff_mul_eq Hc)
+  iff.mpr $ eq_div_iff_mul_eq a Hc
 
   theorem mul_eq_of_eq_div (a b: A) {c : A} (Hc : c ≠ 0) : a = b / c → a * c = b :=
-    iff.mp (!eq_div_iff_mul_eq Hc)
+  iff.mp $ eq_div_iff_mul_eq a Hc
 
   theorem add_div_eq_mul_add_div (a b : A) {c : A} (Hc : c ≠ 0) : a + b / c = (a * c + b) / c :=
   sorry
@@ -372,7 +372,7 @@ section discrete_field
   ⦃ integral_domain, s,
     eq_zero_or_eq_zero_of_mul_eq_zero := discrete_field.eq_zero_or_eq_zero_of_mul_eq_zero⦄
 
-  theorem inv_zero : 0⁻¹ = (0:A) := !discrete_field.inv_zero
+  theorem inv_zero : 0⁻¹ = (0:A) := discrete_field.inv_zero A
 
   theorem one_div_zero : 1 / 0 = (0:A) :=
   sorry

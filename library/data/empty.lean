@@ -10,11 +10,11 @@ namespace empty
   empty.rec (λe, A)
 
   protected definition subsingleton [instance] : subsingleton empty :=
-  subsingleton.intro (λ a b, !empty.elim a)
+  subsingleton.intro (λ a b, empty.elim _ a)
 end empty
 
 protected definition empty.has_decidable_eq [instance] : decidable_eq empty :=
-take (a b : empty), decidable.tt (!empty.elim a)
+take (a b : empty), decidable.tt (empty.elim _ a)
 
 definition tneg.tneg (A : Type) := A → empty
 prefix `~` := tneg.tneg
@@ -23,7 +23,7 @@ variables {A B : Type}
 protected definition intro (H : A → empty)        : ~A     := H
 protected definition elim  (H1 : ~A) (H2 : A)     : empty  := H1 H2
 protected definition empty                        : ~empty := λH : empty, H
-definition tabsurd         (H1 : A) (H2 : ~A)     : B      := !empty.elim (H2 H1)
+definition tabsurd         (H1 : A) (H2 : ~A)     : B      := empty.elim _ (H2 H1)
 definition tneg_tneg_intro (H : A)                : ~~A    := λH2 : ~A, tneg.elim H2 H
 definition tmt             (H1 : A → B) (H2 : ~B) : ~A     := λHA : A, tabsurd (H1 HA) H2
 

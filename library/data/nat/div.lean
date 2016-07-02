@@ -30,10 +30,10 @@ theorem div_def (x y : nat) : div x y = if 0 < y ∧ y ≤ x then div (x - y) y 
 congr_fun (fix_eq div.F x) y
 
 protected theorem div_zero [simp] (a : ℕ) : a / 0 = 0 :=
-div_def a 0 ⬝ if_neg (!not_and_of_not_left (lt.irrefl 0))
+div_def a 0 ⬝ if_neg (not_and_of_not_left (0 ≤ a) (lt.irrefl 0))
 
 theorem div_eq_zero_of_lt {a b : ℕ} (h : a < b) : a / b = 0 :=
-div_def a b ⬝ if_neg (!not_and_of_not_right (not_le_of_gt h))
+div_def a b ⬝ if_neg (not_and_of_not_right (0 < b) (not_le_of_gt h))
 
 protected theorem zero_div [simp] (b : ℕ) : 0 / b = 0 :=
 div_def 0 b ⬝ if_neg (and.rec not_le_of_gt)
@@ -51,7 +51,7 @@ calc
 -/
 
 theorem add_div_self_left {x : ℕ} (z : ℕ) (H : x > 0) : (x + z) / x = succ (z / x) :=
-add.comm z x ▸ !add_div_self H
+add.comm z x ▸ add_div_self z H
 
 local attribute succ_mul [simp]
 
@@ -68,7 +68,7 @@ nat.induction_on y
 -/
 
 theorem add_mul_div_self_left (x z : ℕ) {y : ℕ} (H : y > 0) : (x + y * z) / y = x / y + z :=
-!mul.comm ▸ add_mul_div_self H
+mul.comm z y ▸ add_mul_div_self H
 
 protected theorem mul_div_cancel (m : ℕ) {n : ℕ} (H : n > 0) : m * n / n = m :=
 sorry
@@ -80,7 +80,7 @@ calc
 -/
 
 protected theorem mul_div_cancel_left {m : ℕ} (n : ℕ) (H : m > 0) : m * n / m = n :=
-!mul.comm ▸ !nat.mul_div_cancel H
+mul.comm n m ▸ nat.mul_div_cancel n H
 
 /- mod -/
 
@@ -100,10 +100,10 @@ theorem mod_def (x y : nat) : mod x y = if 0 < y ∧ y ≤ x then mod (x - y) y 
 congr_fun (fix_eq mod.F x) y
 
 theorem mod_zero [simp] (a : ℕ) : a % 0 = a :=
-mod_def a 0 ⬝ if_neg (!not_and_of_not_left (lt.irrefl 0))
+mod_def a 0 ⬝ if_neg (not_and_of_not_left (0 ≤ a) (lt.irrefl 0))
 
 theorem mod_eq_of_lt {a b : ℕ} (h : a < b) : a % b = a :=
-mod_def a b ⬝ if_neg (!not_and_of_not_right (not_le_of_gt h))
+mod_def a b ⬝ if_neg (not_and_of_not_right (0 < b) (not_le_of_gt h))
 
 theorem zero_mod [simp] (b : ℕ) : 0 % b = 0 :=
 mod_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt_of_lt_of_le l r) (lt.irrefl 0)))
@@ -124,7 +124,7 @@ by_cases_zero_pos z
 -/
 
 theorem add_mod_self_left [simp] (x z : ℕ) : (x + z) % x = z % x :=
-!add.comm ▸ !add_mod_self
+add.comm z x ▸ add_mod_self z x
 
 local attribute succ_mul [simp]
 
@@ -146,7 +146,7 @@ sorry -- by inst_simp
 
 theorem mod_lt (x : ℕ) {y : ℕ} (H : y > 0) : x % y < y :=
 nat.case_strong_induction_on x
-  (show 0 % y < y, from !zero_mod⁻¹ ▸ H)
+  (show 0 % y < y, from eq.symm (zero_mod y) ▸ H)
   (take x,
     assume IH : ∀x', x' ≤ x → x' % y < y,
     show succ x % y < y, from
@@ -157,12 +157,12 @@ nat.case_strong_induction_on x
         (assume H1 : ¬ succ x < y,
           have y ≤ succ x, from le_of_not_gt H1,
           have h : succ x % y = (succ x - y) % y, from mod_eq_sub_mod H this,
-          have succ x - y < succ x, from sub_lt !succ_pos H,
+          have succ x - y < succ x, from sub_lt (succ_pos x) H,
           have succ x - y ≤ x, from le_of_lt_succ this,
           show succ x % y < y, from h⁻¹ ▸ IH _ this))
 
 theorem mod_one (n : ℕ) : n % 1 = 0 :=
-have H1 : n % 1 < 1, from !mod_lt !succ_pos,
+have H1 : n % 1 < 1, from (mod_lt n) (succ_pos 0),
 eq_zero_of_le_zero (le_of_lt_succ H1)
 
 /- properties of div and mod -/
@@ -208,7 +208,7 @@ end
 -/
 
 theorem mod_eq_sub_div_mul (x y : ℕ) : x % y = x - x / y * y :=
-nat.eq_sub_of_add_eq (!add.comm ▸ !eq_div_mul_add_mod)⁻¹
+nat.eq_sub_of_add_eq (add.comm (x / y * y) (x % y) ▸ eq_div_mul_add_mod x y)⁻¹
 
 theorem mod_add_mod (m n k : ℕ) : (m % n + k) % n = (m + k) % n :=
 sorry -- by rewrite [eq_div_mul_add_mod m n at {2}, add.assoc, add.comm (m / n * n), add_mul_mod_self]
@@ -248,7 +248,7 @@ theorem mod_eq_mod_of_add_mod_eq_add_mod_left {m n k i : ℕ} :
 sorry -- by rewrite [add.comm i m, add.comm i k]; apply mod_eq_mod_of_add_mod_eq_add_mod_right
 
 theorem mod_le {x y : ℕ} : x % y ≤ x :=
-!eq_div_mul_add_mod⁻¹ ▸ !le_add_left
+eq.symm (eq_div_mul_add_mod x y) ▸ le_add_left (x % y) (x / y * y)
 
 theorem eq_remainder {q1 r1 q2 r2 y : ℕ} (H1 : r1 < y) (H2 : r2 < y)
   (H3 : q1 * y + r1 = q2 * y + r2) : r1 = r2 :=
@@ -267,7 +267,7 @@ theorem eq_quotient {q1 r1 q2 r2 y : ℕ} (H1 : r1 < y) (H2 : r2 < y)
   (H3 : q1 * y + r1 = q2 * y + r2) : q1 = q2 :=
 have H4 : q1 * y + r2 = q2 * y + r2, from (eq_remainder H1 H2 H3) ▸ H3,
 have H5 : q1 * y = q2 * y, from add.right_cancel H4,
-have H6 : y > 0, from lt_of_le_of_lt !zero_le H1,
+have H6 : y > 0, from lt_of_le_of_lt (zero_le r1) H1,
 show q1 = q2, from eq_of_mul_eq_mul_right H6 H5
 
 protected theorem mul_div_mul_left {z : ℕ} (x y : ℕ) (zpos : z > 0) :
@@ -290,7 +290,7 @@ else
 -/
 
 protected theorem mul_div_mul_right {x z y : ℕ} (zpos : z > 0) : (x * z) / (y * z) = x / y :=
-!mul.comm ▸ !mul.comm ▸ !nat.mul_div_mul_left zpos
+mul.comm z y ▸ mul.comm z x ▸ nat.mul_div_mul_left x y zpos
 
 theorem mul_mod_mul_left (z x y : ℕ) : (z * x) % (z * y) = z * (x % y) :=
 sorry
@@ -316,7 +316,7 @@ or.elim (eq_zero_or_pos z)
 -/
 
 theorem mul_mod_mul_right (x z y : ℕ) : (x * z) % (y * z) = (x % y) * z :=
-mul.comm z x ▸ mul.comm z y ▸ !mul.comm ▸ !mul_mod_mul_left
+mul.comm z x ▸ mul.comm z y ▸ mul.comm z (x % y) ▸ mul_mod_mul_left z x y
 
 theorem mod_self (n : ℕ) : n % n = 0 :=
 sorry
@@ -335,7 +335,7 @@ calc
 -/
 
 theorem mul_mod_eq_mul_mod_mod (m n k : nat) : (m * n) % k = (m * (n % k)) % k :=
-!mul.comm ▸ !mul.comm ▸ !mul_mod_eq_mod_mul_mod
+mul.comm (n % k) m ▸ mul.comm n m ▸ mul_mod_eq_mod_mul_mod n m k
 
 protected theorem div_one (n : ℕ) : n / 1 = n :=
 sorry
@@ -355,27 +355,27 @@ theorem div_mul_cancel_of_mod_eq_zero {m n : ℕ} (H : m % n = 0) : m / n * n = 
 sorry -- by rewrite [eq_div_mul_add_mod m n at {2}, H, add_zero]
 
 theorem mul_div_cancel_of_mod_eq_zero {m n : ℕ} (H : m % n = 0) : n * (m / n) = m :=
-!mul.comm ▸ div_mul_cancel_of_mod_eq_zero H
+mul.comm (m / n) n ▸ div_mul_cancel_of_mod_eq_zero H
 
 /- dvd -/
 
 theorem dvd_of_mod_eq_zero {m n : ℕ} (H : n % m = 0) : m ∣ n :=
-dvd.intro (!mul.comm ▸ div_mul_cancel_of_mod_eq_zero H)
+dvd.intro (mul.comm (n / m) m ▸ div_mul_cancel_of_mod_eq_zero H)
 
 theorem mod_eq_zero_of_dvd {m n : ℕ} (H : m ∣ n) : n % m = 0 :=
-dvd.elim H (take z, assume H1 : n = m * z, H1⁻¹ ▸ !mul_mod_right)
+dvd.elim H (take z, assume H1 : n = m * z, H1⁻¹ ▸ mul_mod_right m z)
 
 theorem dvd_iff_mod_eq_zero (m n : ℕ) : m ∣ n ↔ n % m = 0 :=
 iff.intro mod_eq_zero_of_dvd dvd_of_mod_eq_zero
 
 definition dvd.decidable_rel : decidable_rel dvd :=
-take m n, decidable_of_decidable_of_iff _ (iff.symm !dvd_iff_mod_eq_zero)
+take m n, decidable_of_decidable_of_iff _ (iff.symm $ dvd_iff_mod_eq_zero m n)
 
 protected theorem div_mul_cancel {m n : ℕ} (H : n ∣ m) : m / n * n = m :=
 div_mul_cancel_of_mod_eq_zero (mod_eq_zero_of_dvd H)
 
 protected theorem mul_div_cancel' {m n : ℕ} (H : n ∣ m) : n * (m / n) = m :=
-!mul.comm ▸ nat.div_mul_cancel H
+mul.comm (m / n) n ▸ nat.div_mul_cancel H
 
 theorem dvd_of_dvd_add_left {m n₁ n₂ : ℕ} (H₁ : m ∣ n₁ + n₂) (H₂ : m ∣ n₁) : m ∣ n₂ :=
 sorry
@@ -391,7 +391,7 @@ dvd.intro aux
 -/
 
 theorem dvd_of_dvd_add_right {m n₁ n₂ : ℕ} (H : m ∣ n₁ + n₂) : m ∣ n₂ → m ∣ n₁ :=
-nat.dvd_of_dvd_add_left (!add.comm ▸ H)
+nat.dvd_of_dvd_add_left (add.comm n₁ n₂ ▸ H)
 
 theorem dvd_sub {m n₁ n₂ : ℕ} (H1 : m ∣ n₁) (H2 : m ∣ n₂) : m ∣ n₁ - n₂ :=
 by_cases
@@ -442,11 +442,11 @@ theorem dvd_of_mul_dvd_mul_left {m n k : ℕ} (kpos : k > 0) (H : k * m ∣ k * 
 dvd.elim H
   (take l,
     assume H1 : k * n = k * m * l,
-    have H2 : n = m * l, from eq_of_mul_eq_mul_left kpos (H1 ⬝ !mul.assoc),
+    have H2 : n = m * l, from eq_of_mul_eq_mul_left kpos (H1 ⬝ mul.assoc k m l),
     dvd.intro H2⁻¹)
 
 theorem dvd_of_mul_dvd_mul_right {m n k : ℕ} (kpos : k > 0) (H : m * k ∣ n * k) : m ∣ n :=
-nat.dvd_of_mul_dvd_mul_left kpos (!mul.comm ▸ !mul.comm ▸ H)
+nat.dvd_of_mul_dvd_mul_left kpos (mul.comm n k ▸ mul.comm m k ▸ H)
 
 lemma dvd_of_eq_mul (i j n : nat) : n = j*i → j ∣ n :=
 sorry -- begin intros, subst n, apply dvd_mul_right end
@@ -456,8 +456,8 @@ have H3 : m = m / k * k, from (nat.div_mul_cancel H1)⁻¹,
 have H4 : n = n / k * k, from (nat.div_mul_cancel (dvd.trans H1 H2))⁻¹,
 or.elim (eq_zero_or_pos k)
   (assume H5 : k = 0,
-    have H6: n / k = 0, from (congr_arg _ H5 ⬝ !nat.div_zero),
-      H6⁻¹ ▸ !dvd_zero)
+    have H6: n / k = 0, from (congr_arg _ H5 ⬝ nat.div_zero n),
+      H6⁻¹ ▸ dvd_zero (m / k))
   (assume H5 : k > 0,
     nat.dvd_of_mul_dvd_mul_right H5 (H3 ▸ H4 ▸ H2))
 
@@ -472,7 +472,7 @@ iff.intro
 
 protected theorem div_eq_iff_eq_mul_left {m n : ℕ} (k : ℕ) (H : n > 0) (H' : n ∣ m) :
   m / n = k ↔ m = k * n :=
-!mul.comm ▸ !nat.div_eq_iff_eq_mul_right H H'
+mul.comm n k ▸ nat.div_eq_iff_eq_mul_right k H H'
 
 protected theorem eq_mul_of_div_eq_right {m n k : ℕ} (H1 : n ∣ m) (H2 : m / n = k) :
   m = n * k :=
@@ -494,11 +494,11 @@ calc
 
 protected theorem eq_mul_of_div_eq_left {m n k : ℕ} (H1 : n ∣ m) (H2 : m / n = k) :
   m = k * n :=
-!mul.comm ▸ !nat.eq_mul_of_div_eq_right H1 H2
+mul.comm n k ▸ nat.eq_mul_of_div_eq_right H1 H2
 
 protected theorem div_eq_of_eq_mul_left {m n k : ℕ} (H1 : n > 0) (H2 : m = k * n) :
   m / n = k :=
-!nat.div_eq_of_eq_mul_right H1 (!mul.comm ▸ H2)
+nat.div_eq_of_eq_mul_right H1 (mul.comm k n ▸ H2)
 
 lemma add_mod_eq_of_dvd (i j n : nat) : n ∣ j → (i + j) % n = i % n :=
 sorry
@@ -565,8 +565,8 @@ nat.cases_on n (!nat.div_zero⁻¹ ▸ !zero_le)
 
 protected theorem mul_le_of_le_div {m n k : ℕ} (H : m ≤ n / k) : m * k ≤ n :=
 calc
-  m * k ≤ n / k * k : !mul_le_mul_right H
-    ... ≤ n         : !div_mul_le
+  m * k ≤ n / k * k : mul_le_mul_right k H
+    ... ≤ n         : div_mul_le n k
 
 protected theorem le_div_of_mul_le {m n k : ℕ} (H1 : k > 0) (H2 : m * k ≤ n) : m ≤ n / k :=
 sorry
@@ -581,7 +581,7 @@ le_of_lt_succ (lt_of_mul_lt_mul_right H3)
 -/
 
 protected theorem le_div_iff_mul_le {m n k : ℕ} (H : k > 0) : m ≤ n / k ↔ m * k ≤ n :=
-iff.intro !nat.mul_le_of_le_div (!nat.le_div_of_mul_le H)
+iff.intro nat.mul_le_of_le_div (nat.le_div_of_mul_le H)
 
 protected theorem div_le_div {m n : ℕ} (k : ℕ) (H : m ≤ n) : m / k ≤ n / k :=
 sorry
@@ -612,7 +612,7 @@ calc
 -/
 
 protected theorem div_lt_iff_lt_mul {m n k : ℕ} (H : k > 0) : m / k < n ↔ m < n * k :=
-iff.intro (!nat.lt_mul_of_div_lt H) !nat.div_lt_of_lt_mul
+iff.intro (nat.lt_mul_of_div_lt H) nat.div_lt_of_lt_mul
 
 protected theorem div_le_iff_le_mul_of_div {m n : ℕ} (k : ℕ) (H : n > 0) (H' : n ∣ m) :
   m / n ≤ k ↔ m ≤ k * n :=
@@ -620,7 +620,7 @@ sorry -- by refine iff.trans (!le_iff_mul_le_mul_right H) _; rewrite [!nat.div_m
 
 protected theorem le_mul_of_div_le_of_div {m n k : ℕ} (H1 : n > 0) (H2 : n ∣ m) (H3 : m / n ≤ k) :
   m ≤ k * n :=
-iff.mp (!nat.div_le_iff_le_mul_of_div H1 H2) H3
+iff.mp (nat.div_le_iff_le_mul_of_div k H1 H2) H3
 
 -- needed for integer division
 theorem mul_sub_div_of_lt {m n k : ℕ} (H : k < m * n) :

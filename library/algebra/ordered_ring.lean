@@ -30,11 +30,11 @@ section
   variables (a b c d e : A)
   include s
 
-  theorem mul_le_mul_of_nonneg_left {a b c : A} (Hab : a ≤ b) (Hc : 0 ≤ c) :
-    c * a ≤ c * b := !ordered_semiring.mul_le_mul_of_nonneg_left Hab Hc
+  theorem mul_le_mul_of_nonneg_left {a b c : A} (Hab : a ≤ b) (Hc : 0 ≤ c) : c * a ≤ c * b :=
+  ordered_semiring.mul_le_mul_of_nonneg_left a b c Hab Hc
 
-  theorem mul_le_mul_of_nonneg_right {a b c : A} (Hab : a ≤ b) (Hc : 0 ≤ c) :
-    a * c ≤ b * c := !ordered_semiring.mul_le_mul_of_nonneg_right Hab Hc
+  theorem mul_le_mul_of_nonneg_right {a b c : A} (Hab : a ≤ b) (Hc : 0 ≤ c) : a * c ≤ b * c :=
+  ordered_semiring.mul_le_mul_of_nonneg_right a b c Hab Hc
 
   -- TODO: there are four variations, depending on which variables we assume to be nonneg
   theorem mul_le_mul {a b c d : A} (Hac : a ≤ c) (Hbd : b ≤ d) (nn_b : 0 ≤ b) (nn_c : 0 ≤ c) :
@@ -73,11 +73,11 @@ section
   end
   -/
 
-  theorem mul_lt_mul_of_pos_left {a b c : A} (Hab : a < b) (Hc : 0 < c) :
-    c * a < c * b := !ordered_semiring.mul_lt_mul_of_pos_left Hab Hc
+  theorem mul_lt_mul_of_pos_left {a b c : A} (Hab : a < b) (Hc : 0 < c) : c * a < c * b :=
+  ordered_semiring.mul_lt_mul_of_pos_left a b c Hab Hc
 
-  theorem mul_lt_mul_of_pos_right {a b c : A} (Hab : a < b) (Hc : 0 < c) :
-    a * c < b * c := !ordered_semiring.mul_lt_mul_of_pos_right Hab Hc
+  theorem mul_lt_mul_of_pos_right {a b c : A} (Hab : a < b) (Hc : 0 < c) : a * c < b * c :=
+  ordered_semiring.mul_lt_mul_of_pos_right a b c Hab Hc
 
   -- TODO: once again, there are variations
   theorem mul_lt_mul {a b c d : A} (Hac : a < c) (Hbd : b ≤ d) (pos_b : 0 < b) (nn_c : 0 ≤ c) :
@@ -226,8 +226,8 @@ structure ordered_ring [class] (A : Type)
 
 theorem ordered_ring.mul_le_mul_of_nonneg_left [s : ordered_ring A] {a b c : A}
         (Hab : a ≤ b) (Hc : 0 ≤ c) : c * a ≤ c * b :=
-have H1 : 0 ≤ b - a, from iff.elim_right !sub_nonneg_iff_le Hab,
-have H2 : 0 ≤ c * (b - a), from ordered_ring.mul_nonneg _ _ Hc H1,
+have H1 : 0 ≤ b - a, from iff.elim_right (sub_nonneg_iff_le b a) Hab,
+have H2 : 0 ≤ c * (b - a), from ordered_ring.mul_nonneg c (b - a) Hc H1,
 sorry
 /-
 begin
@@ -238,8 +238,8 @@ end
 
 theorem ordered_ring.mul_le_mul_of_nonneg_right [s : ordered_ring A] {a b c : A}
         (Hab : a ≤ b) (Hc : 0 ≤ c) : a * c ≤ b * c  :=
-have H1 : 0 ≤ b - a, from iff.elim_right !sub_nonneg_iff_le Hab,
-have H2 : 0 ≤ (b - a) * c, from ordered_ring.mul_nonneg _ _ H1 Hc,
+have H1 : 0 ≤ b - a, from iff.elim_right (sub_nonneg_iff_le b a) Hab,
+have H2 : 0 ≤ (b - a) * c, from ordered_ring.mul_nonneg (b - a) c H1 Hc,
 sorry
 /-
 begin
@@ -250,8 +250,8 @@ end
 
 theorem ordered_ring.mul_lt_mul_of_pos_left [s : ordered_ring A] {a b c : A}
        (Hab : a < b) (Hc : 0 < c) : c * a < c * b :=
-have H1 : 0 < b - a, from iff.elim_right !sub_pos_iff_lt Hab,
-have H2 : 0 < c * (b - a), from ordered_ring.mul_pos _ _ Hc H1,
+have H1 : 0 < b - a, from iff.elim_right (sub_pos_iff_lt b a) Hab,
+have H2 : 0 < c * (b - a), from ordered_ring.mul_pos c (b - a) Hc H1,
 sorry
 /-
 begin
@@ -262,8 +262,8 @@ end
 
 theorem ordered_ring.mul_lt_mul_of_pos_right [s : ordered_ring A] {a b c : A}
        (Hab : a < b) (Hc : 0 < c) : a * c < b * c :=
-have H1 : 0 < b - a, from iff.elim_right !sub_pos_iff_lt Hab,
-have H2 : 0 < (b - a) * c, from ordered_ring.mul_pos _ _ H1 Hc,
+have H1 : 0 < b - a, from iff.elim_right (sub_pos_iff_lt b a) Hab,
+have H2 : 0 < (b - a) * c, from ordered_ring.mul_pos (b - a) c H1 Hc,
 sorry
 /-
 begin
@@ -720,16 +720,16 @@ section
   -/
 
   theorem abs_dvd_iff (a b : A) : abs a ∣ b ↔ a ∣ b :=
-  abs.by_cases !iff.refl !neg_dvd_iff_dvd
+  abs.by_cases (iff.refl $ a ∣ b) (neg_dvd_iff_dvd a b)
 
   theorem abs_dvd_of_dvd {a b : A} : a ∣ b → abs a ∣ b :=
-    iff.mpr !abs_dvd_iff
+  iff.mpr $ abs_dvd_iff a b
 
   theorem dvd_abs_iff (a b : A) : a ∣ abs b ↔ a ∣ b :=
-  abs.by_cases !iff.refl !dvd_neg_iff_dvd
+  abs.by_cases (iff.refl $ a ∣ b) (dvd_neg_iff_dvd a b)
 
   theorem dvd_abs_of_dvd {a b : A} : a ∣ b → a ∣ abs b :=
-    iff.mpr !dvd_abs_iff
+  iff.mpr $ dvd_abs_iff a b
 
   theorem abs_mul (a b : A) : abs (a * b) = abs a * abs b :=
   sorry
@@ -765,7 +765,7 @@ section
   -/
 
   theorem abs_mul_abs_self (a : A) : abs a * abs a = a * a :=
-  abs.by_cases rfl !neg_mul_neg
+  abs.by_cases rfl (neg_mul_neg a a)
 
   theorem abs_mul_self (a : A) : abs (a * a) = a * a :=
   sorry -- by rewrite [abs_mul, abs_mul_abs_self]
@@ -784,7 +784,7 @@ section
   -/
 
   theorem sub_le_of_abs_sub_le_right (H : abs (a - b) ≤ c) : a - c ≤ b :=
-    sub_le_of_abs_sub_le_left (!abs_sub ▸ H)
+  sub_le_of_abs_sub_le_left (abs_sub a b ▸ H)
 
   theorem sub_lt_of_abs_sub_lt_left (H : abs (a - b) < c) : b - c < a :=
   sorry
@@ -800,7 +800,7 @@ section
   -/
 
   theorem sub_lt_of_abs_sub_lt_right (H : abs (a - b) < c) : a - c < b :=
-    sub_lt_of_abs_sub_lt_left (!abs_sub ▸ H)
+  sub_lt_of_abs_sub_lt_left (abs_sub a b ▸ H)
 
   theorem abs_sub_square (a b : A) : abs (a - b) * abs (a - b) = a * a + b * b - (1 + 1) * a * b :=
   sorry

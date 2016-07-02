@@ -7,6 +7,6 @@ section sequence_c
   definition to_lof [instance] : linear_ordered_field Q := lof_Q
   include to_lof
 
-  theorem foo (a b : Q) : a + b = b + a := !add.comm
+  theorem foo (a b : Q) : a + b = b + a := add.comm a b
 
 end sequence_c

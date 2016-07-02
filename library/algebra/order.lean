@@ -20,18 +20,18 @@ structure weak_order [class] (A : Type) extends has_le A :=
 section
   variables [weak_order A]
 
-  theorem le.refl [refl] (a : A) : a ≤ a := !weak_order.le_refl
+  theorem le.refl [refl] (a : A) : a ≤ a := weak_order.le_refl a
 
   theorem le_of_eq {a b : A} (H : a = b) : a ≤ b := H ▸ le.refl a
 
-  theorem le.trans [trans] {a b c : A} : a ≤ b → b ≤ c → a ≤ c := !weak_order.le_trans
+  theorem le.trans [trans] {a b c : A} : a ≤ b → b ≤ c → a ≤ c := weak_order.le_trans a b c
 
   theorem ge.trans [trans] {a b c : A} (H1 : a ≥ b) (H2: b ≥ c) : a ≥ c := le.trans H2 H1
 
-  theorem le.antisymm {a b : A} : a ≤ b → b ≤ a → a = b := !weak_order.le_antisymm
+  theorem le.antisymm {a b : A} : a ≤ b → b ≤ a → a = b := weak_order.le_antisymm a b
 
   -- Alternate syntax. (Abbreviations do not migrate well.)
-  theorem eq_of_le_of_ge {a b : A} : a ≤ b → b ≤ a → a = b := !le.antisymm
+  theorem eq_of_le_of_ge {a b : A} : a ≤ b → b ≤ a → a = b := le.antisymm
 end
 
 structure linear_weak_order [class] (A : Type) extends weak_order A :=
@@ -40,9 +40,9 @@ structure linear_weak_order [class] (A : Type) extends weak_order A :=
 section
   variables [linear_weak_order A]
 
-  theorem le.total (a b : A) : a ≤ b ∨ b ≤ a := !linear_weak_order.le_total
+  theorem le.total (a b : A) : a ≤ b ∨ b ≤ a := linear_weak_order.le_total a b
 
-  theorem le_of_not_ge {a b : A} (H : ¬ a ≥ b) : a ≤ b := or.resolve_left !le.total H
+  theorem le_of_not_ge {a b : A} (H : ¬ a ≥ b) : a ≤ b := or.resolve_left (le.total b a) H
 end
 
 /- strict orders -/
@@ -54,13 +54,13 @@ structure strict_order [class] (A : Type) extends has_lt A :=
 section
   variable [strict_order A]
 
-  theorem lt.irrefl (a : A) : ¬ a < a := !strict_order.lt_irrefl
-  theorem not_lt_self (a : A) : ¬ a < a := !lt.irrefl   -- alternate syntax
+  theorem lt.irrefl (a : A) : ¬ a < a := strict_order.lt_irrefl a
+  theorem not_lt_self (a : A) : ¬ a < a := lt.irrefl a   -- alternate syntax
 
   theorem lt_self_iff_false (a : A) : a < a ↔ false :=
   iff_false_intro (lt.irrefl a)
 
-  theorem lt.trans [trans] {a b c : A} : a < b → b < c → a < c := !strict_order.lt_trans
+  theorem lt.trans [trans] {a b c : A} : a < b → b < c → a < c := strict_order.lt_trans a b c
 
   theorem gt.trans [trans] {a b c : A} (H1 : a > b) (H2: b > c) : a > c := lt.trans H2 H1
 
@@ -74,7 +74,7 @@ section
   theorem lt.asymm {a b : A} (H : a < b) : ¬ b < a :=
   assume H1 : b < a, lt.irrefl _ (lt.trans H H1)
 
-  theorem not_lt_of_gt {a b : A} (H : a > b) : ¬ a < b := !lt.asymm H    -- alternate syntax
+  theorem not_lt_of_gt {a b : A} (H : a > b) : ¬ a < b := lt.asymm H    -- alternate syntax
 end
 
 /- well-founded orders -/
@@ -103,13 +103,13 @@ section
   variables {a b c : A}
   include s
 
-  theorem le_of_lt : a < b → a ≤ b := !order_pair.le_of_lt
+  theorem le_of_lt : a < b → a ≤ b := order_pair.le_of_lt a b
 
-  theorem lt_of_lt_of_le [trans] : a < b → b ≤ c → a < c := !order_pair.lt_of_lt_of_le
+  theorem lt_of_lt_of_le [trans] : a < b → b ≤ c → a < c := order_pair.lt_of_lt_of_le a b c
 
-  theorem lt_of_le_of_lt [trans] : a ≤ b → b < c → a < c := !order_pair.lt_of_le_of_lt
+  theorem lt_of_le_of_lt [trans] : a ≤ b → b < c → a < c := order_pair.lt_of_le_of_lt a b c
 
-  private theorem lt_irrefl (s' : order_pair A) (a : A) : ¬ a < a := !order_pair.lt_irrefl
+  private theorem lt_irrefl (s' : order_pair A) (a : A) : ¬ a < a := order_pair.lt_irrefl a
 
   private theorem lt_trans (s' : order_pair A) (a b c: A) (lt_ab : a < b) (lt_bc : b < c) : a < c :=
     lt_of_lt_of_le lt_ab (le_of_lt lt_bc)
@@ -138,7 +138,7 @@ section strong_order_pair
   variable [strong_order_pair A]
 
   theorem le_iff_lt_or_eq {a b : A} : a ≤ b ↔ a < b ∨ a = b :=
-  !strong_order_pair.le_iff_lt_or_eq
+  strong_order_pair.le_iff_lt_or_eq a b
 
   theorem lt_or_eq_of_le {a b : A} (le_ab : a ≤ b) : a < b ∨ a = b :=
   iff.mp le_iff_lt_or_eq le_ab
@@ -147,14 +147,14 @@ section strong_order_pair
   iff.mpr le_iff_lt_or_eq lt_or_eq
 
   private theorem lt_irrefl' (a : A) : ¬ a < a :=
-  !strong_order_pair.lt_irrefl
+  strong_order_pair.lt_irrefl a
 
   private theorem le_of_lt' (a b : A) : a < b → a ≤ b :=
   take Hlt, le_of_lt_or_eq (or.inl Hlt)
 
   private theorem lt_iff_le_and_ne {a b : A} : a < b ↔ (a ≤ b ∧ a ≠ b) :=
   iff.intro
-    (take Hlt, and.intro (le_of_lt_or_eq (or.inl Hlt)) (take Hab, absurd (Hab ▸ Hlt) !lt_irrefl'))
+    (take Hlt, and.intro (le_of_lt_or_eq (or.inl Hlt)) (take Hab, absurd (Hab ▸ Hlt) (lt_irrefl' b)))
     (take Hand,
      have Hor : a < b ∨ a = b, from lt_or_eq_of_le (and.left Hand),
      or_resolve_left Hor (and.right Hand))
@@ -214,15 +214,15 @@ section
   theorem lt.trichotomy : a < b ∨ a = b ∨ b < a :=
   or.elim (le.total a b)
     (assume H : a ≤ b,
-      or.elim (iff.mp !le_iff_lt_or_eq H) (assume H1, or.inl H1) (assume H1, or.inr (or.inl H1)))
+      or.elim (iff.mp le_iff_lt_or_eq H) (assume H1, or.inl H1) (assume H1, or.inr (or.inl H1)))
     (assume H : b ≤ a,
-      or.elim (iff.mp !le_iff_lt_or_eq H)
+      or.elim (iff.mp le_iff_lt_or_eq H)
         (assume H1, or.inr (or.inr H1))
         (assume H1, or.inr (or.inl (H1⁻¹))))
 
   theorem lt.by_cases {a b : A} {P : Prop}
     (H1 : a < b → P) (H2 : a = b → P) (H3 : b < a → P) : P :=
-  or.elim !lt.trichotomy
+  or.elim (lt.trichotomy a b)
     (assume H, H1 H)
     (assume H, or.elim H (assume H', H2 H') (assume H', H3 H'))
 
@@ -230,12 +230,12 @@ section
   lt.by_cases H1 (λH, H2 (H ▸ le.refl a)) (λH, H2 (le_of_lt H))
 
   theorem le_of_not_gt {a b : A} (H : ¬ a > b) : a ≤ b :=
-  lt.by_cases (assume H', absurd H' H) (assume H', H' ▸ !le.refl) (assume H', le_of_lt H')
+  lt.by_cases (assume H', absurd H' H) (assume H', H' ▸ (le.refl b)) (assume H', le_of_lt H')
 
   theorem lt_of_not_ge {a b : A} (H : ¬ a ≥ b) : a < b :=
   lt.by_cases
     (assume H', absurd (le_of_lt H') H)
-    (assume H', absurd (H' ▸ !le.refl) H)
+    (assume H', absurd (H' ▸ le.refl b) H)
     (assume H', H')
 
   theorem lt_or_ge : a < b ∨ a ≥ b :=
@@ -245,7 +245,7 @@ section
     (assume H1 : a > b, or.inr (le_of_lt H1))
 
   theorem le_or_gt : a ≤ b ∨ a > b :=
-  !or.swap (lt_or_ge b a)
+  or.swap (lt_or_ge b a)
 
   theorem lt_or_gt_of_ne {a b : A} (H : a ≠ b) : a < b ∨ a > b :=
   lt.by_cases (assume H1, or.inl H1) (assume H1, absurd H1 H) (assume H1, or.inr H1)
@@ -281,7 +281,7 @@ section
         (assume H1 : b ≤ a, tt (le.antisymm H H1))
         (assume H1 : ¬ b ≤ a, ff (assume H2 : a = b, H1 (H2 ▸ le.refl a))))
     (assume H : ¬ a ≤ b,
-      (ff (assume H1 : a = b, H (H1 ▸ !le.refl))))
+      (ff (assume H1 : a = b, H (H1 ▸ le.refl a))))
 
   theorem eq_or_lt_of_not_lt {a b : A} (H : ¬ a < b) : a = b ∨ b < a :=
     if Heq : a = b then or.inl Heq else or.inr (lt_of_not_ge (λ Hge, H (lt_of_le_of_ne Hge Heq)))
@@ -374,10 +374,10 @@ section
 
   theorem eq_min {a b c : A} (H₁ : c ≤ a) (H₂ : c ≤ b) (H₃ : ∀{d}, d ≤ a → d ≤ b → d ≤ c) :
     c = min a b :=
-  le.antisymm (le_min H₁ H₂) (H₃ !min_le_left !min_le_right)
+  le.antisymm (le_min H₁ H₂) (H₃ (min_le_left a b) (min_le_right a b))
 
   theorem min.comm (a b : A) : min a b = min b a :=
-  eq_min !min_le_right !min_le_left (λ c H₁ H₂, le_min H₂ H₁)
+  eq_min (min_le_right a b) (min_le_left a b) (λ c H₁ H₂, le_min H₂ H₁)
 
   theorem min.assoc (a b c : A) : min (min a b) c = min a (min b c) :=
   sorry
@@ -404,14 +404,14 @@ section
   sorry -- by apply eq.symm; apply eq_min !le.refl H; intros; assumption
 
   theorem min_eq_right {a b : A} (H : b ≤ a) : min a b = b :=
-  eq.subst !min.comm (min_eq_left H)
+  eq.subst (min.comm b a) (min_eq_left H)
 
   theorem eq_max {a b c : A} (H₁ : a ≤ c) (H₂ : b ≤ c) (H₃ : ∀{d}, a ≤ d → b ≤ d → c ≤ d) :
     c = max a b :=
-  le.antisymm (H₃ !le_max_left !le_max_right) (max_le H₁ H₂)
+  le.antisymm (H₃ (le_max_left a b) (le_max_right a b)) (max_le H₁ H₂)
 
   theorem max.comm (a b : A) : max a b = max b a :=
-  eq_max !le_max_right !le_max_left (λ c H₁ H₂, max_le H₂ H₁)
+  eq_max (le_max_right a b) (le_max_left a b) (λ c H₁ H₂, max_le H₂ H₁)
 
   theorem max.assoc (a b c : A) : max (max a b) c = max a (max b c) :=
   sorry
@@ -438,7 +438,7 @@ section
   sorry -- by apply eq.symm; apply eq_max !le.refl H; intros; assumption
 
   theorem max_eq_right {a b : A} (H : a ≤ b) : max a b = b :=
-  eq.subst !max.comm (max_eq_left H)
+  eq.subst (max.comm b a) (max_eq_left H)
 
   /- these rely on lt_of_lt -/
 
@@ -486,9 +486,9 @@ definition weak_order_Prop [instance] : weak_order Prop :=
 definition weak_order_fun [instance] (A B : Type) [weak_order B] : weak_order (A → B) :=
 ⦃ weak_order,
   le := λx y, ∀b, x b ≤ y b,
-  le_refl := λf b, !le.refl,
-  le_trans := λf g h H1 H2 b, !le.trans (H1 b) (H2 b),
-  le_antisymm := λf g H1 H2, funext (λb, !le.antisymm (H1 b) (H2 b))
+  le_refl := λf b, le.refl (f b),
+  le_trans := λf g h H1 H2 b, le.trans (H1 b) (H2 b),
+  le_antisymm := λf g H1 H2, funext (λb, le.antisymm (H1 b) (H2 b))
 ⦄
 
 definition weak_order_dual {A : Type} (wo : weak_order A) : weak_order A :=

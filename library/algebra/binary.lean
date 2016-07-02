@@ -49,21 +49,21 @@ namespace binary
     include H_comm
     theorem left_comm : left_commutative f :=
     take a b c, calc
-      a*(b*c) = (a*b)*c  : eq.symm !H_assoc
+      a*(b*c) = (a*b)*c  : eq.symm (H_assoc _ _ _)
         ...   = (b*a)*c  : sorry -- by rewrite (H_comm a b)
-        ...   = b*(a*c)  : !H_assoc
+        ...   = b*(a*c)  : H_assoc _ _ _
 
     theorem right_comm : right_commutative f :=
     take a b c, calc
-      (a*b)*c = a*(b*c) : !H_assoc
+      (a*b)*c = a*(b*c) : H_assoc _ _ _
         ...   = a*(c*b) : sorry -- by rewrite (H_comm b c)
-        ...   = (a*c)*b : eq.symm !H_assoc
+        ...   = (a*c)*b : eq.symm (H_assoc _ _ _)
 
     theorem comm4 (a b c d : A) : a*b*(c*d) = a*c*(b*d) :=
     calc
-      a*b*(c*d) = a*b*c*d   : eq.symm !H_assoc
+      a*b*(c*d) = a*b*c*d   : eq.symm (H_assoc _ _ _)
         ...     = a*c*b*d   : sorry -- by rewrite (right_comm H_comm H_assoc a b c)
-        ...     = a*c*(b*d) : !H_assoc
+        ...     = a*c*(b*d) : H_assoc _ _ _
   end
 
   section
@@ -73,15 +73,15 @@ namespace binary
     local infixl `*` := f
     theorem assoc4helper (a b c d) : (a*b)*(c*d) = a*((b*c)*d) :=
     calc
-      (a*b)*(c*d) = a*(b*(c*d)) : !H_assoc
+      (a*b)*(c*d) = a*(b*(c*d)) : H_assoc _ _ _
               ... = a*((b*c)*d) : sorry -- by rewrite (H_assoc b c d)
   end
 
   definition right_commutative_comp_right [reducible]
     {A B : Type} (f : A → A → A) (g : B → A) (rcomm : right_commutative f) : right_commutative (comp_right f g) :=
-  λ a b₁ b₂, !rcomm
+  λ a b₁ b₂, rcomm _ _ _
 
   definition left_commutative_compose_left [reducible]
     {A B : Type} (f : A → A → A) (g : B → A) (lcomm : left_commutative f) : left_commutative (comp_left f g) :=
-  λ a b₁ b₂, !lcomm
+  λ a b₁ b₂, lcomm _ _ _
 end binary

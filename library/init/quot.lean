@@ -73,13 +73,13 @@ namespace quot
 
   protected definition rec_on_subsingleton [reducible]
      [H : ∀ a, subsingleton (B ⟦a⟧)] (q : quot s) (f : Π a, B ⟦a⟧) : B q :=
-  quot.rec f (λ a b h, !subsingleton.elim) q
+  quot.rec f (λ a b h, subsingleton.elim _ (f b)) q
 
   protected definition hrec_on [reducible]
      (q : quot s) (f : Π a, B ⟦a⟧) (c : ∀ (a b : A) (p : a ≈ b), f a == f b) : B q :=
   quot.rec_on q f
     (λ a b p, eq_of_heq (calc
-      eq.rec (f a) (sound p) == f a : !eq_rec_heq
+      eq.rec (f a) (sound p) == f a : eq_rec_heq (sound p) (f a)
                          ... == f b : c a b p))
   end
 
@@ -163,14 +163,14 @@ namespace quot
      {C : quot s₁ → quot s₂ → Type₁} (q₁ : quot s₁) (q₂ : quot s₂)
      (f : Π a b, C ⟦a⟧ ⟦b⟧) (c : ∀ a₁ a₂ b₁ b₂, a₁ ≈ b₁ → a₂ ≈ b₂ → f a₁ a₂ == f b₁ b₂) : C q₁ q₂:=
   quot.hrec_on q₁
-    (λ a, quot.hrec_on q₂ (λ b, f a b) (λ b₁ b₂ p, c _ _ _ _ !setoid.refl p))
+    (λ a, quot.hrec_on q₂ (λ b, f a b) (λ b₁ b₂ p, c _ _ _ _ (setoid.refl _) p))
     (λ a₁ a₂ p, quot.induction_on q₂
       (λ b,
-        have aux : f a₁ b == f a₂ b, from c _ _ _ _ p !setoid.refl,
+        have aux : f a₁ b == f a₂ b, from c _ _ _ _ p (setoid.refl _),
         calc quot.hrec_on ⟦b⟧ (λ (b : B), f a₁ b) _
-                 == f a₁ b                                 : !eq_rec_heq
+                 == f a₁ b                                 : (eq_rec_heq _ _)
              ... == f a₂ b                                 : aux
-             ... == quot.hrec_on ⟦b⟧ (λ (b : B), f a₂ b) _ : heq.symm !eq_rec_heq))
+             ... == quot.hrec_on ⟦b⟧ (λ (b : B), f a₂ b) _ : heq.symm (eq_rec_heq _ _)))
   end
 end quot
 

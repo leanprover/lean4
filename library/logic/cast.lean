@@ -18,7 +18,7 @@ namespace heq
   heq.rec (λ H₁ : a == a, show C a H₁, from H₂) H₁ H₁
 
   theorem to_cast_eq (H : a == b) : cast (type_eq_of_heq H) a = b :=
-  drec_on H !cast_eq
+  drec_on H (cast_eq _ _)
 end heq
 
 section

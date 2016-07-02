@@ -40,7 +40,7 @@ nat.induction_on x
     (λ y₁ ih₂, calc
       succ x₁ + succ y₁ = succ (succ x₁ + y₁) : rfl
                    ...  = succ (succ x₁ ⊕ y₁) : sorry -- by rewrite ih₂
-                   ...  = succ x₁ ⊕ succ y₁   : eq.symm !addl_succ_right))
+                   ...  = succ x₁ ⊕ succ y₁   : eq.symm $ addl_succ_right (succ x₁) y₁))
 
 /- successor and predecessor -/
 
@@ -62,10 +62,10 @@ theorem eq_zero_or_eq_succ_pred (n : ℕ) : n = 0 ∨ n = succ (pred n) :=
 nat.induction_on n
   (or.inl rfl)
   (take m IH, or.inr
-    (show succ m = succ (pred (succ m)), from congr_arg succ !pred_succ⁻¹))
+    (show succ m = succ (pred (succ m)), from congr_arg succ (eq.symm $ pred_succ m)))
 
 theorem exists_eq_succ_of_ne_zero {n : ℕ} (H : n ≠ 0) : ∃k : ℕ, n = succ k :=
-exists.intro _ (or_resolve_right !eq_zero_or_eq_succ_pred H)
+exists.intro _ (or_resolve_right (eq_zero_or_eq_succ_pred n) H)
 
 theorem succ.inj {n m : ℕ} (H : succ n = succ m) : n = m :=
 nat.no_confusion H imp.id
@@ -75,7 +75,7 @@ abbreviation eq_of_succ_eq_succ := @succ.inj
 theorem succ_ne_self {n : ℕ} : succ n ≠ n :=
 nat.induction_on n
   (take H : 1 = 0,
-    have ne : 1 ≠ 0, from !succ_ne_zero,
+    have ne : 1 ≠ 0, from succ_ne_zero 0,
     absurd H ne)
   (take k IH H, IH (succ.inj H))
 
@@ -173,7 +173,7 @@ nat.induction_on n
 -/
 
 theorem eq_zero_of_add_eq_zero_left {n m : ℕ} (H : n + m = 0) : m = 0 :=
-eq_zero_of_add_eq_zero_right (!nat.add_comm ⬝ H)
+eq_zero_of_add_eq_zero_right (nat.add_comm m n ⬝ H)
 
 theorem eq_zero_and_eq_zero_of_add_eq_zero {n m : ℕ} (H : n + m = 0) : n = 0 ∧ m = 0 :=
 and.intro (eq_zero_of_add_eq_zero_right H) (eq_zero_of_add_eq_zero_left H)

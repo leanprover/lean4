@@ -168,8 +168,8 @@ namespace nat
   -- less-than is well-founded
   definition lt.wf [instance] : well_founded lt :=
   well_founded.intro (nat.rec
-    (!acc.intro (λn H, absurd H (not_lt_zero n)))
-    (λn IH, !acc.intro (λm H,
+    (acc.intro 0 (λn H, absurd H (not_lt_zero n)))
+    (λn IH, acc.intro (succ n) (λm H,
       or.elim (nat.eq_or_lt_of_le (le_of_succ_le_succ H))
         (λe, eq.substr e IH) (acc.inv IH))))
 

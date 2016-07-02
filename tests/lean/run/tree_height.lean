@@ -28,9 +28,9 @@ theorem height_lt.trans {A : Type} : transitive (@height_lt A) :=
 inv_image.trans lt height @nat.lt_trans
 
 example : height_lt (leaf (2:nat)) (node (leaf 1) (leaf 2)) :=
-!height_lt.node_right
+height_lt.node_right _ _
 
 example : height_lt  (leaf (2:nat)) (node (node (leaf 1) (leaf 2)) (leaf 3)) :=
-height_lt.trans !height_lt.node_right !height_lt.node_left
+height_lt.trans (height_lt.node_right _ _) (height_lt.node_left _ _)
 
 end tree

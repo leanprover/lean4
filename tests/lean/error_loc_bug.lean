@@ -64,16 +64,16 @@ namespace PropF
   -- by pattern matching on A, we would be creating 10*6 cases instead of 10.
 
   lemma weakening2 : ∀ {Γ A Δ}, Γ ⊢ A → Γ ⊆ Δ → Δ ⊢ A
-  | Γ ⌞A⌟     Δ (Nax Γ A Hin)          Hs := !Nax  (Hs A Hin)
-  | Γ ⌞A ⇒ B⌟ Δ (ImpI Γ A B H)         Hs := !ImpI (weakening2 H (cons_sub_cons A Hs))
-  | Γ ⌞B⌟     Δ (ImpE Γ A B H₁ H₂)     Hs := !ImpE (weakening2 H₁ Hs) (weakening2 H₂ Hs)
-  | Γ ⌞A⌟     Δ (BotC Γ A H)           Hs := !BotC (weakening2 H (cons_sub_cons (~A) Hs))
-  | Γ ⌞A ∧ B⌟ Δ (AndI Γ A B H₁ H₂)     Hs := !AndI (weakening2 H₁ Hs) (weakening2 H₂ Hs)
-  | Γ ⌞A⌟     Δ (AndE₁ Γ A B H)        Hs := !AndE₁ (weakening2 H Hs)
-  | Γ ⌞B⌟     Δ (AndE₂ Γ A B H)        Hs := !AndE₂ (weakening2 H Hs)
-  | Γ ⌞A ∧ B⌟ Δ (OrI₁ Γ A B H)         Hs := !OrI₁ (weakening2 H Hs)
-  | Γ ⌞A ∨ B⌟ Δ (OrI₂ Γ A B H)         Hs := !OrI₂ (weakening2 H Hs)
+  | Γ ⌞A⌟     Δ (Nax Γ A Hin)          Hs := Nax _ _ (Hs A Hin)
+  | Γ ⌞A ⇒ B⌟ Δ (ImpI Γ A B H)         Hs := ImpI _ _ _ (weakening2 H (cons_sub_cons A Hs))
+  | Γ ⌞B⌟     Δ (ImpE Γ A B H₁ H₂)     Hs := ImpE _ _ _ (weakening2 H₁ Hs) (weakening2 H₂ Hs)
+  | Γ ⌞A⌟     Δ (BotC Γ A H)           Hs := BotC _ _ (weakening2 H (cons_sub_cons (~A) Hs))
+  | Γ ⌞A ∧ B⌟ Δ (AndI Γ A B H₁ H₂)     Hs := AndI _ _ _ (weakening2 H₁ Hs) (weakening2 H₂ Hs)
+  | Γ ⌞A⌟     Δ (AndE₁ Γ A B H)        Hs := AndE₁ _ _ _ (weakening2 H Hs)
+  | Γ ⌞B⌟     Δ (AndE₂ Γ A B H)        Hs := AndE₂ _ _ _ (weakening2 H Hs)
+  | Γ ⌞A ∧ B⌟ Δ (OrI₁ Γ A B H)         Hs := OrI₁ _ _ _ (weakening2 H Hs)
+  | Γ ⌞A ∨ B⌟ Δ (OrI₂ Γ A B H)         Hs := OrI₂ _ _ _ (weakening2 H Hs)
   | Γ ⌞C⌟     Δ (OrE Γ A B C H₁ H₂ H₃) Hs :=
-       !OrE (weakening2 H₁ Hs) (weakening2 H₂ (cons_sub_cons A Hs)) (weakening2 H₃ (cons_sub_cons B Hs))
+       OrE _ _ _ _ (weakening2 H₁ Hs) (weakening2 H₂ (cons_sub_cons A Hs)) (weakening2 H₃ (cons_sub_cons B Hs))
 
 end PropF

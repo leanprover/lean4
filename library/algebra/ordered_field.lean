@@ -59,17 +59,17 @@ section linear_ordered_field
       have Hbinv : 1 / b > 0, from  one_div_pos_of_pos Hb, calc
         1  = b * (1 / b) : eq.symm (mul_one_div_cancel Hb')
        ... ≤ a * (1 / b) : mul_le_mul_of_nonneg_right H (le_of_lt Hbinv)
-       ... = a / b       : eq.symm !div_eq_mul_one_div)
+       ... = a / b       : eq.symm $ div_eq_mul_one_div a b)
 
   theorem le_of_one_le_div (Hb : b > 0) (H : 1 ≤ a / b) : b ≤ a :=
-    (iff.mp (!one_le_div_iff_le Hb)) H
+  iff.mp (one_le_div_iff_le a Hb) H
 
   theorem one_le_div_of_le (Hb : b > 0) (H : b ≤ a) : 1 ≤ a / b :=
-    (iff.mpr (!one_le_div_iff_le Hb)) H
+  iff.mpr (one_le_div_iff_le a Hb) H
 
   theorem one_lt_div_iff_lt (a : A) {b : A} (Hb : b > 0) : 1 < a / b ↔ b < a :=
-    have Hb' : b ≠ 0, from ne.symm (ne_of_lt Hb),
-    iff.intro
+  have Hb' : b ≠ 0, from ne.symm (ne_of_lt Hb),
+  iff.intro
     (assume H : 1 < a / b,
       calc
         b   < b * (a / b) : lt_mul_of_gt_one_right Hb H
@@ -78,71 +78,71 @@ section linear_ordered_field
       have Hbinv : 1 / b > 0, from  one_div_pos_of_pos Hb, calc
         1 = b * (1 / b) : eq.symm (mul_one_div_cancel Hb')
       ... < a * (1 / b) : mul_lt_mul_of_pos_right H Hbinv
-      ... = a / b       : eq.symm !div_eq_mul_one_div)
+      ... = a / b       : eq.symm $ div_eq_mul_one_div a b)
 
   theorem lt_of_one_lt_div (Hb : b > 0) (H : 1 < a / b) : b < a :=
-    (iff.mp (!one_lt_div_iff_lt Hb)) H
+  iff.mp (one_lt_div_iff_lt a Hb) H
 
   theorem one_lt_div_of_lt (Hb : b > 0) (H : b < a) : 1 < a / b :=
-    (iff.mpr (!one_lt_div_iff_lt Hb)) H
+  iff.mpr (one_lt_div_iff_lt a Hb) H
 
   theorem exists_lt (a : A) : ∃ x, x < a :=
-    have H : a - 1 < a, from add_lt_of_le_of_neg (le.refl _) zero_gt_neg_one,
-    exists.intro _ H
+  have H : a - 1 < a, from add_lt_of_le_of_neg (le.refl _) zero_gt_neg_one,
+  exists.intro _ H
 
   theorem exists_gt (a : A) : ∃ x, x > a :=
-    have H : a + 1 > a, from lt_add_of_le_of_pos (le.refl _) zero_lt_one,
-    exists.intro _ H
+  have H : a + 1 > a, from lt_add_of_le_of_pos (le.refl _) zero_lt_one,
+  exists.intro _ H
 
   -- the following theorems amount to four iffs, for <, ≤, ≥, >.
 
   theorem mul_le_of_le_div (Hc : 0 < c) (H : a ≤ b / c) : a * c ≤ b :=
-    !div_mul_cancel (ne.symm (ne_of_lt Hc)) ▸ mul_le_mul_of_nonneg_right H (le_of_lt Hc)
+  div_mul_cancel b (ne.symm (ne_of_lt Hc)) ▸ mul_le_mul_of_nonneg_right H (le_of_lt Hc)
 
   theorem le_div_of_mul_le (Hc : 0 < c) (H : a * c ≤ b) : a ≤ b / c :=
-    calc
-      a   = a * c * (1 / c) : !mul_mul_div (ne.symm (ne_of_lt Hc))
+  calc
+      a   = a * c * (1 / c) : mul_mul_div a (ne.symm (ne_of_lt Hc))
       ... ≤ b * (1 / c)     : mul_le_mul_of_nonneg_right H (le_of_lt (one_div_pos_of_pos Hc))
-      ... = b / c           : eq.symm !div_eq_mul_one_div
+      ... = b / c           : eq.symm $ div_eq_mul_one_div b c
 
   theorem mul_lt_of_lt_div (Hc : 0 < c) (H : a < b / c) : a * c < b :=
-    !div_mul_cancel (ne.symm (ne_of_lt Hc)) ▸ mul_lt_mul_of_pos_right H Hc
+  div_mul_cancel b (ne.symm (ne_of_lt Hc)) ▸ mul_lt_mul_of_pos_right H Hc
 
   theorem lt_div_of_mul_lt (Hc : 0 < c) (H : a * c < b) : a < b / c :=
-    calc
-      a   = a * c * (1 / c) : !mul_mul_div (ne.symm (ne_of_lt Hc))
+  calc
+      a   = a * c * (1 / c) : mul_mul_div a (ne.symm (ne_of_lt Hc))
       ... < b * (1 / c)     : mul_lt_mul_of_pos_right H (one_div_pos_of_pos Hc)
-      ... = b / c           : eq.symm !div_eq_mul_one_div
+      ... = b / c           : eq.symm $ div_eq_mul_one_div b c
 
   theorem mul_le_of_div_le_of_neg (Hc : c < 0) (H : b / c ≤ a) : a * c ≤ b :=
-    !div_mul_cancel (ne_of_lt Hc) ▸ mul_le_mul_of_nonpos_right H (le_of_lt Hc)
+  div_mul_cancel b (ne_of_lt Hc) ▸ mul_le_mul_of_nonpos_right H (le_of_lt Hc)
 
   theorem div_le_of_mul_le_of_neg (Hc : c < 0) (H : a * c ≤ b) : b / c ≤ a :=
-    calc
-      a   = a * c * (1 / c) : !mul_mul_div (ne_of_lt Hc)
+  calc
+      a   = a * c * (1 / c) : mul_mul_div a (ne_of_lt Hc)
       ... ≥ b * (1 / c)     : mul_le_mul_of_nonpos_right H (le_of_lt (one_div_neg_of_neg Hc))
-      ... = b / c           : eq.symm !div_eq_mul_one_div
+      ... = b / c           : eq.symm $ div_eq_mul_one_div b c
 
   theorem mul_lt_of_gt_div_of_neg (Hc : c < 0) (H : a > b / c) : a * c < b :=
-    !div_mul_cancel (ne_of_lt Hc) ▸ mul_lt_mul_of_neg_right H Hc
+  div_mul_cancel b (ne_of_lt Hc) ▸ mul_lt_mul_of_neg_right H Hc
 
   theorem div_lt_of_mul_lt_of_pos (Hc : c > 0) (H : b < a * c) : b / c < a :=
-    calc
-      a   = a * c * (1 / c) : !mul_mul_div (ne_of_gt Hc)
+  calc
+      a   = a * c * (1 / c) : mul_mul_div a (ne_of_gt Hc)
       ... > b * (1 / c)     : mul_lt_mul_of_pos_right H (one_div_pos_of_pos Hc)
-      ... = b / c           : eq.symm !div_eq_mul_one_div
+      ... = b / c           : eq.symm $ div_eq_mul_one_div b c
 
   theorem div_lt_of_mul_gt_of_neg (Hc : c < 0) (H : a * c < b) : b / c < a :=
     calc
-      a   = a * c * (1 / c) : !mul_mul_div (ne_of_lt Hc)
+      a   = a * c * (1 / c) : mul_mul_div a (ne_of_lt Hc)
       ... > b * (1 / c)     : mul_lt_mul_of_neg_right H (one_div_neg_of_neg Hc)
-      ... = b / c           : eq.symm !div_eq_mul_one_div
+      ... = b / c           : eq.symm $ div_eq_mul_one_div b c
 
   theorem div_le_of_le_mul (Hb : b > 0) (H : a ≤ b * c) : a / b ≤ c :=
     calc
-      a / b = a * (1 / b)       : !div_eq_mul_one_div
+      a / b = a * (1 / b)       : div_eq_mul_one_div a b
         ... ≤ (b * c) * (1 / b) : mul_le_mul_of_nonneg_right H (le_of_lt (one_div_pos_of_pos Hb))
-        ... = (b * c) / b       : eq.symm !div_eq_mul_one_div
+        ... = (b * c) / b       : eq.symm $ div_eq_mul_one_div (b * c) b
         ... = c                 : mul_div_cancel_left (ne.symm (ne_of_lt Hb))
 
   theorem le_mul_of_div_le (Hc : c > 0) (H : a / c ≤ b) : a ≤ b * c :=
@@ -384,7 +384,7 @@ section linear_ordered_field
   theorem two_gt_one : (2:A) > 1 :=
   calc (2:A) = 1+1 : one_add_one_eq_two
        ...   > 1+0 : add_lt_add_left zero_lt_one _
-       ...   = 1   : !add_zero
+       ...   = 1   : add_zero 1
 
   theorem two_ge_one : (2:A) ≥ 1 :=
   le_of_lt two_gt_one
@@ -404,7 +404,7 @@ section linear_ordered_field
   have Ha : a / (1 + 1) > 0, from div_pos_of_pos_of_pos H (add_pos zero_lt_one zero_lt_one),
   calc
       a / (1 + 1) < a / (1 + 1) + a / (1 + 1) : lt_add_of_pos_left Ha
-              ... = a                         : !add_halves
+              ... = a                         : add_halves a
 
   theorem div_mul_le_div_mul_of_div_le_div_pos {e : A} (Hb : b ≠ 0) (Hd : d ≠ 0) (H : a / b ≤ c / d)
           (He : e > 0) : a / (b * e) ≤ c / (d * e) :=
@@ -476,7 +476,7 @@ section discrete_linear_ordered_field
     have H1 : 0 < 1 / (1 / a), from one_div_pos_of_pos H,
     have H2 : 1 / a ≠ 0, from
       (assume H3 : 1 / a = 0,
-      have H4 : 1 / (1 / a) = 0, from H3⁻¹ ▸ !div_zero,
+      have H4 : 1 / (1 / a) = 0, from H3⁻¹ ▸ div_zero 1,
       absurd H4 (ne.symm (ne_of_lt H1))),
     (division_ring.one_div_one_div (ne_zero_of_one_div_ne_zero H2)) ▸ H1
 
@@ -493,9 +493,9 @@ section discrete_linear_ordered_field
       ... ≤ 1 / b : Hl),
     have H' : 1 ≤ a / b, from (calc
       1   = a / a       : eq.symm (div_self (ne.symm (ne_of_lt H)))
-      ... = a * (1 / a) : !div_eq_mul_one_div
+      ... = a * (1 / a) : div_eq_mul_one_div a a
       ... ≤ a * (1 / b) : mul_le_mul_of_nonneg_left Hl (le_of_lt H)
-      ... = a / b       : eq.symm !div_eq_mul_one_div
+      ... = a / b       : eq.symm $ div_eq_mul_one_div a b
       ), le_of_one_le_div Hb H'
 
   theorem le_of_one_div_le_one_div_of_neg (H : b < 0) (Hl : 1 / a ≤ 1 / b) : b ≤ a :=
@@ -519,9 +519,9 @@ section discrete_linear_ordered_field
       ... < 1 / b : Hl),
     have H : 1 < a / b, from (calc
       1   = a / a       : eq.symm (div_self (ne.symm (ne_of_lt H)))
-      ... = a * (1 / a) : !div_eq_mul_one_div
+      ... = a * (1 / a) : div_eq_mul_one_div a a
       ... < a * (1 / b) : mul_lt_mul_of_pos_left Hl H
-      ... = a / b       : eq.symm !div_eq_mul_one_div),
+      ... = a / b       : eq.symm $ div_eq_mul_one_div a b),
       lt_of_one_lt_div Hb H
 
   theorem lt_of_one_div_lt_one_div_of_neg (H : b < 0) (Hl : 1 / a < 1 / b) : b < a :=

@@ -33,7 +33,7 @@ infixl `≺`:50 := pair_nat.lt
 
 -- Recursive lemma used to justify recursive call
 definition plt_aux (x y : nat) (H : 0 < y ∧ y ≤ x) : (x - y, y) ≺ (x, y) :=
-!lex.left (lt_aux H)
+lex.left _ _ _ (lt_aux H)
 
 definition pdiv.F (p₁ : nat × nat) : (Π p₂ : nat × nat, p₂ ≺ p₁ → nat) → nat :=
 prod.cases_on p₁ (λ x y f,

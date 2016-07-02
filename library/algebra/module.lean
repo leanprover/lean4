@@ -32,15 +32,15 @@ section left_module
   -- Note: the anonymous include does not work in the propositions below.
 
   proposition smul_left_distrib (a : R) (u v : M) : a • (u + v) = a • u + a • v :=
-  !left_module.smul_left_distrib
+  left_module.smul_left_distrib ringR a u v
 
   proposition smul_right_distrib (a b : R) (u : M) : (a + b) • u = a • u + b • u :=
-  !left_module.smul_right_distrib
+  left_module.smul_right_distrib ringR a b u
 
   proposition mul_smul (a : R) (b : R) (u : M) : (a * b) • u = a • (b • u) :=
-  !left_module.mul_smul
+  left_module.mul_smul ringR a b u
 
-  proposition one_smul (u : M) : (1 : R) • u = u := !left_module.one_smul
+  proposition one_smul (u : M) : (1 : R) • u = u := left_module.one_smul ringR u
 
   proposition zero_smul (u : M) : (0 : R) • u = 0 :=
   sorry

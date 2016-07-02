@@ -20,17 +20,17 @@ structure distrib [class] (A : Type) extends has_mul A, has_add A :=
 (right_distrib : ∀a b c, mul (add a b) c = add (mul a c) (mul b c))
 
 theorem left_distrib [distrib A] (a b c : A) : a * (b + c) = a * b + a * c :=
-!distrib.left_distrib
+distrib.left_distrib a b c
 
 theorem right_distrib [distrib A] (a b c : A) : (a + b) * c = a * c + b * c :=
-!distrib.right_distrib
+distrib.right_distrib a b c
 
 structure mul_zero_class [class] (A : Type) extends has_mul A, has_zero A :=
 (zero_mul : ∀a, mul zero a = zero)
 (mul_zero : ∀a, mul a zero = zero)
 
-theorem zero_mul [simp] [mul_zero_class A] (a : A) : 0 * a = 0 := !mul_zero_class.zero_mul
-theorem mul_zero [simp] [mul_zero_class A] (a : A) : a * 0 = 0 := !mul_zero_class.mul_zero
+theorem zero_mul [simp] [mul_zero_class A] (a : A) : 0 * a = 0 := mul_zero_class.zero_mul a
+theorem mul_zero [simp] [mul_zero_class A] (a : A) : a * 0 = 0 := mul_zero_class.mul_zero a
 
 structure zero_ne_one_class [class] (A : Type) extends has_zero A, has_one A :=
 (zero_ne_one : zero ≠ one)
@@ -102,13 +102,13 @@ section comm_semiring
   exists.elim H₁ H₂
 
   theorem exists_eq_mul_left_of_dvd {a b : A} (H : a ∣ b) : ∃c, b = c * a :=
-  dvd.elim H (take c, assume H1 : b = a * c, exists.intro c (H1 ⬝ !mul.comm))
+  dvd.elim H (take c, assume H1 : b = a * c, exists.intro c (H1 ⬝ mul.comm a c))
 
   theorem dvd.elim_left {P : Prop} {a b : A} (H₁ : a ∣ b) (H₂ : ∀c, b = c * a → P) : P :=
   exists.elim (exists_eq_mul_left_of_dvd H₁) (take c, assume H₃ : b = c * a, H₂ c H₃)
 
   theorem dvd.refl [simp] : a ∣ a :=
-  dvd.intro !mul_one
+  dvd.intro (mul_one a)
 
   theorem dvd.trans {a b c : A} (H₁ : a ∣ b) (H₂ : b ∣ c) : a ∣ c :=
   sorry
@@ -122,11 +122,11 @@ section comm_semiring
   -/
 
   theorem eq_zero_of_zero_dvd {a : A} (H : 0 ∣ a) : a = 0 :=
-    dvd.elim H (take c, assume H' : a = 0 * c, H' ⬝ !zero_mul)
+    dvd.elim H (take c, assume H' : a = 0 * c, H' ⬝ zero_mul c)
 
-  theorem dvd_zero [simp] : a ∣ 0 := dvd.intro !mul_zero
+  theorem dvd_zero [simp] : a ∣ 0 := dvd.intro (mul_zero a)
 
-  theorem one_dvd [simp] : 1 ∣ a := dvd.intro !one_mul
+  theorem one_dvd [simp] : 1 ∣ a := dvd.intro (one_mul a)
 
   theorem dvd_mul_right [simp] : a ∣ a * b := dvd.intro rfl
 
@@ -159,7 +159,7 @@ section comm_semiring
   -/
 
   theorem dvd_of_mul_right_dvd {a b c : A} (H : a * b ∣ c) : a ∣ c :=
-  dvd.elim H (take d, assume Habdc : c = a * b * d, dvd.intro (!mul.assoc⁻¹ ⬝ Habdc⁻¹))
+  dvd.elim H (take d, assume Habdc : c = a * b * d, dvd.intro (eq.symm (Habdc ⬝ mul.assoc a b d)))
 
   theorem dvd_of_mul_left_dvd {a b c : A} (H : a * b ∣ c) : b ∣ c :=
   sorry -- dvd_of_mul_right_dvd begin rewrite mul.comm at H, apply H end
@@ -225,8 +225,8 @@ section
      end
   -/
 
-  theorem neg_mul_eq_neg_mul_symm [simp] : - a * b = - (a * b) := eq.symm !neg_mul_eq_neg_mul
-  theorem mul_neg_eq_neg_mul_symm [simp] : a * - b = - (a * b) := eq.symm !neg_mul_eq_mul_neg
+  theorem neg_mul_eq_neg_mul_symm [simp] : - a * b = - (a * b) := eq.symm (neg_mul_eq_neg_mul a b)
+  theorem mul_neg_eq_neg_mul_symm [simp] : a * - b = - (a * b) := eq.symm (neg_mul_eq_mul_neg a b)
 
   theorem neg_mul_neg : -a * -b = a * b :=
   sorry -- by simp
@@ -239,12 +239,12 @@ section
 
   theorem mul_sub_left_distrib : a * (b - c) = a * b - a * c :=
   calc
-    a * (b - c) = a * b + a * -c : !left_distrib
+    a * (b - c) = a * b + a * -c : left_distrib a b (-c)
             ... = a * b - a * c  : sorry -- by simp
 
   theorem mul_sub_right_distrib : (a - b) * c = a * c - b * c :=
   calc
-    (a - b) * c = a * c  + -b * c : !right_distrib
+    (a - b) * c = a * c  + -b * c : right_distrib a (-b) c
             ... = a * c - b * c   : sorry -- by simp
 
   -- TODO: can calc mode be improved to make this easier?
@@ -262,15 +262,15 @@ section
   -/
 
   theorem mul_add_eq_mul_add_of_sub_mul_add_eq : (a - b) * e + c = d → a * e + c = b * e + d :=
-  iff.mpr !mul_add_eq_mul_add_iff_sub_mul_add_eq
+  iff.mpr (mul_add_eq_mul_add_iff_sub_mul_add_eq a b c d e)
 
   theorem sub_mul_add_eq_of_mul_add_eq_mul_add : a * e + c = b * e + d → (a - b) * e + c = d :=
-  iff.mp !mul_add_eq_mul_add_iff_sub_mul_add_eq
+  iff.mp (mul_add_eq_mul_add_iff_sub_mul_add_eq a b c d e)
 
   theorem mul_neg_one_eq_neg : a * (-1) = -a :=
     have a + a * -1 = 0, from calc
       a + a * -1 = a * 1 + a * -1 : sorry -- by simp
-             ... = a * (1 + -1)   : eq.symm !left_distrib
+             ... = a * (1 + -1)   : eq.symm (left_distrib a 1 (-1))
              ... = 0              : sorry, -- by simp,
     symm (neg_eq_of_add_eq_zero this)
 
@@ -331,10 +331,10 @@ section
   -/
 
   theorem dvd_neg_of_dvd : (a ∣ b) → (a ∣ -b) :=
-  iff.mpr !dvd_neg_iff_dvd
+  iff.mpr (dvd_neg_iff_dvd a b)
 
   theorem dvd_of_dvd_neg : (a ∣ -b) → (a ∣ b) :=
-  iff.mp !dvd_neg_iff_dvd
+  iff.mp (dvd_neg_iff_dvd a b)
 
   theorem neg_dvd_iff_dvd : (-a ∣ b) ↔ (a ∣ b) :=
   sorry
@@ -353,13 +353,13 @@ section
   -/
 
   theorem neg_dvd_of_dvd : (a ∣ b) → (-a ∣ b) :=
-  iff.mpr !neg_dvd_iff_dvd
+  iff.mpr (neg_dvd_iff_dvd a b)
 
   theorem dvd_of_neg_dvd : (-a ∣ b) → (a ∣ b) :=
-  iff.mp !neg_dvd_iff_dvd
+  iff.mp (neg_dvd_iff_dvd a b)
 
   theorem dvd_sub (H₁ : (a ∣ b)) (H₂ : (a ∣ c)) : (a ∣ b - c) :=
-  dvd_add H₁ (!dvd_neg_of_dvd H₂)
+  dvd_add H₁ (dvd_neg_of_dvd a c H₂)
 end
 
 /- integral domains -/
@@ -370,7 +370,7 @@ structure no_zero_divisors [class] (A : Type) extends has_mul A, has_zero A :=
 theorem eq_zero_or_eq_zero_of_mul_eq_zero {A : Type} [no_zero_divisors A] {a b : A}
     (H : a * b = 0) :
   a = 0 ∨ b = 0 :=
-!no_zero_divisors.eq_zero_or_eq_zero_of_mul_eq_zero H
+no_zero_divisors.eq_zero_or_eq_zero_of_mul_eq_zero a b H
 
 theorem eq_zero_of_mul_self_eq_zero {A : Type} [no_zero_divisors A] {a : A} (H : a * a = 0) :
   a = 0 :=

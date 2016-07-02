@@ -32,18 +32,18 @@ variables {A B : Type}
 inline protected meta_definition fmap (f : A → B) (e : exceptional A) : exceptional B :=
 exceptional.cases_on e
   (λ a, success (f a))
-  (λ f, !exception f)
+  (λ f, exception B f)
 
 inline protected meta_definition bind (e₁ : exceptional A) (e₂ : A → exceptional B) : exceptional B :=
 exceptional.cases_on e₁
   (λ a, e₂ a)
-  (λ f, !exception f)
+  (λ f, exception B f)
 
 inline protected meta_definition return (a : A) : exceptional A :=
 success a
 
 inline meta_definition fail (f : format) : exceptional A :=
-!exception (λ u, f)
+exception A (λ u, f)
 end exceptional
 
 meta_definition exceptional.is_monad [instance] : monad exceptional :=

@@ -23,9 +23,9 @@ rfl
 
 lemma fact_pos : ∀ n, fact n > 0
 | 0        := zero_lt_one
-| (succ n) := mul_pos !succ_pos (fact_pos n)
+| (succ n) := mul_pos (succ_pos n) (fact_pos n)
 
-lemma fact_ne_zero (n : ℕ) : fact n ≠ 0 := ne_of_gt !fact_pos
+lemma fact_ne_zero (n : ℕ) : fact n ≠ 0 := ne_of_gt (fact_pos n)
 
 lemma dvd_fact : ∀ {m n}, m > 0 → m ≤ n → m ∣ fact n
 | m 0        h₁ h₂ := absurd h₁ (not_lt_of_ge h₂)

@@ -96,8 +96,8 @@ private theorem lt_squared : ∀ {n : nat}, n > 1 → n < n * n
 -/
 
 theorem sqrt_le (n : nat) : sqrt n ≤ n :=
-calc sqrt n ≤ sqrt n * sqrt n : !le_squared
-        ... ≤ n               : !sqrt_lower
+calc sqrt n ≤ sqrt n * sqrt n : le_squared (sqrt n)
+        ... ≤ n               : sqrt_lower n
 
 theorem eq_zero_of_sqrt_eq_zero {n : nat} : sqrt n = 0 → n = 0 :=
 sorry
@@ -185,11 +185,11 @@ theorem sqrt_aux_offset_eq {n k : nat} (h₁ : k ≤ n + n) : ∀ {s}, s ≥ n �
 
 theorem sqrt_offset_eq {n k : nat} : k ≤ n + n → sqrt (n*n + k) = n :=
 assume h,
-have h₁ : n ≤ n*n + k, from le.trans !le_squared !le_add_right,
+have h₁ : n ≤ n*n + k, from le.trans (le_squared n) (le_add_right (n * n) k),
 sqrt_aux_offset_eq h h₁
 
 theorem sqrt_eq (n : nat) : sqrt (n*n) = n :=
-sqrt_offset_eq !zero_le
+sqrt_offset_eq (zero_le (n + n))
 
 theorem mul_square_cancel {a b : nat} : a*a = b*b → a = b :=
 sorry

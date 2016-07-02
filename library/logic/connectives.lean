@@ -85,7 +85,7 @@ theorem and_imp_iff (a b c : Prop) : (a ∧ b → c) ↔ (a → b → c) :=
 iff.intro (λH a b, H (and.intro a b)) and.rec
 
 theorem and_imp_eq (a b c : Prop) : (a ∧ b → c) = (a → b → c) :=
-propext !and_imp_iff
+propext (and_imp_iff a b c)
 
 /- or -/
 
@@ -131,7 +131,7 @@ iff.intro
   (or.rec (and.imp_right or.inl) (and.imp_right or.inr))
 
 theorem and.right_distrib (a b c : Prop) : (a ∨ b) ∧ c ↔ (a ∧ c) ∨ (b ∧ c) :=
-iff.trans (iff.trans !and.comm !and.left_distrib) (or_iff_or !and.comm !and.comm)
+iff.trans (iff.trans and.comm (and.left_distrib c a b)) (or_iff_or and.comm and.comm)
 
 theorem or.left_distrib (a b c : Prop) : a ∨ (b ∧ c) ↔ (a ∨ b) ∧ (a ∨ c) :=
 iff.intro
@@ -139,7 +139,7 @@ iff.intro
   (and.rec (or.rec (imp.syl imp.intro or.inl) (imp.syl or.imp_right and.intro)))
 
 theorem or.right_distrib (a b c : Prop) : (a ∧ b) ∨ c ↔ (a ∨ c) ∧ (b ∨ c) :=
-iff.trans (iff.trans !or.comm !or.left_distrib) (and_congr !or.comm !or.comm)
+iff.trans (iff.trans or.comm (or.left_distrib c a b)) (and_congr or.comm or.comm)
 
 /- iff -/
 

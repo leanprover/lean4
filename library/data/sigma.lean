@@ -28,11 +28,7 @@ namespace sigma
     inhabited (sigma B) :=
   inhabited.destruct H₁ (λa, inhabited.destruct H₂ (λb, inhabited.mk ⟨default A, b⟩))
 
-  theorem eq_rec_dpair_commute {C : Πa, B a → Type} {a a' : A} (H : a = a') (b : B a) (c : C a b) :
-      eq.rec_on H ⟨b, c⟩ = ⟨eq.rec_on H b, eq.rec_on (dcongr_arg2 C H rfl) c⟩ :=
-  eq.drec_on H (dpair_eq rfl (!eq.rec_on_id⁻¹))
-
-  variables {C : Πa, B a → Type} {D : Πa b, C a b → Type}
+    variables {C : Πa, B a → Type} {D : Πa b, C a b → Type}
 
   definition dtrip (a : A) (b : B a) (c : C a b) := ⟨a, b, c⟩
   definition dquad (a : A) (b : B a) (c : C a b) (d : D a b c) := ⟨a, b, c, d⟩

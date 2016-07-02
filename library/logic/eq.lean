@@ -12,7 +12,7 @@ namespace eq
   variables {A B : Type} {a a' a₁ a₂ a₃ a₄ : A}
 
   theorem irrel (H₁ H₂ : a = a') : H₁ = H₂ :=
-  !proof_irrel
+  proof_irrel H₁ H₂
 
   theorem id_refl (H₁ : a = a) : H₁ = (eq.refl a) :=
   rfl

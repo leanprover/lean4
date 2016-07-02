@@ -28,26 +28,26 @@ section
   variable [s : lattice A]
   include s
 
-  theorem inf_le_left (a b : A) : a ⊓ b ≤ a := !lattice.inf_le_left
+  theorem inf_le_left (a b : A) : a ⊓ b ≤ a := lattice.inf_le_left a b
 
-  theorem inf_le_right (a b : A) : a ⊓ b ≤ b := !lattice.inf_le_right
+  theorem inf_le_right (a b : A) : a ⊓ b ≤ b := lattice.inf_le_right a b
 
-  theorem le_inf {a b c : A} (H₁ : c ≤ a) (H₂ : c ≤ b) : c ≤ a ⊓ b := !lattice.le_inf H₁ H₂
+  theorem le_inf {a b c : A} (H₁ : c ≤ a) (H₂ : c ≤ b) : c ≤ a ⊓ b := lattice.le_inf a b c H₁ H₂
 
-  theorem le_sup_left (a b : A) : a ≤ a ⊔ b := !lattice.le_sup_left
+  theorem le_sup_left (a b : A) : a ≤ a ⊔ b := lattice.le_sup_left a b
 
-  theorem le_sup_right (a b : A) : b ≤ a ⊔ b := !lattice.le_sup_right
+  theorem le_sup_right (a b : A) : b ≤ a ⊔ b := lattice.le_sup_right a b
 
-  theorem sup_le {a b c : A} (H₁ : a ≤ c) (H₂ : b ≤ c) : a ⊔ b ≤ c := !lattice.sup_le H₁ H₂
+  theorem sup_le {a b c : A} (H₁ : a ≤ c) (H₂ : b ≤ c) : a ⊔ b ≤ c := lattice.sup_le a b c H₁ H₂
 
   /- inf -/
 
   theorem eq_inf {a b c : A} (H₁ : c ≤ a) (H₂ : c ≤ b) (H₃ : ∀{d}, d ≤ a → d ≤ b → d ≤ c) :
     c = a ⊓ b :=
-  le.antisymm (le_inf H₁ H₂) (H₃ !inf_le_left !inf_le_right)
+  le.antisymm (le_inf H₁ H₂) (H₃ (inf_le_left a b) (inf_le_right a b))
 
   theorem inf.comm (a b : A) : a ⊓ b = b ⊓ a :=
-  eq_inf !inf_le_right !inf_le_left (λ c H₁ H₂, le_inf H₂ H₁)
+  eq_inf (inf_le_right a b) (inf_le_left a b) (λ c H₁ H₂, le_inf H₂ H₁)
 
   theorem inf.assoc (a b c : A) : (a ⊓ b) ⊓ c = a ⊓ (b ⊓ c) :=
   sorry
@@ -74,16 +74,16 @@ section
   sorry -- by apply eq.symm; apply eq_inf !le.refl H; intros; assumption
 
   theorem inf_eq_right {a b : A} (H : b ≤ a) : a ⊓ b = b :=
-  eq.subst !inf.comm (inf_eq_left H)
+  eq.subst (inf.comm b a) (inf_eq_left H)
 
   /- sup -/
 
   theorem eq_sup {a b c : A} (H₁ : a ≤ c) (H₂ : b ≤ c) (H₃ : ∀{d}, a ≤ d → b ≤ d → c ≤ d) :
     c = a ⊔ b :=
-  le.antisymm (H₃ !le_sup_left !le_sup_right) (sup_le H₁ H₂)
+  le.antisymm (H₃ (le_sup_left a b) (le_sup_right a b)) (sup_le H₁ H₂)
 
   theorem sup.comm (a b : A) : a ⊔ b = b ⊔ a :=
-  eq_sup !le_sup_right !le_sup_left (λ c H₁ H₂, sup_le H₂ H₁)
+  eq_sup (le_sup_right a b) (le_sup_left a b) (λ c H₁ H₂, sup_le H₂ H₁)
 
   theorem sup.assoc (a b c : A) : (a ⊔ b) ⊔ c = a ⊔ (b ⊔ c) :=
   sorry
@@ -110,7 +110,7 @@ section
   sorry -- by apply eq.symm; apply eq_sup !le.refl H; intros; assumption
 
   theorem sup_eq_right {a b : A} (H : a ≤ b) : a ⊔ b = b :=
-  eq.subst !sup.comm (sup_eq_left H)
+  eq.subst (sup.comm b a) (sup_eq_left H)
 end
 
 /- lattice instances  -/
@@ -131,12 +131,12 @@ definition lattice_fun [instance] (A B : Type) [lattice B] : lattice (A → B) :
 ⦃ lattice, weak_order_fun A B,
   inf          := λf g x, inf (f x) (g x),
   le_inf       := take f g h Hf Hg x, le_inf (Hf x) (Hg x),
-  inf_le_left  := take f g x, !inf_le_left,
-  inf_le_right := take f g x, !inf_le_right,
+  inf_le_left  := take f g x, inf_le_left (f x) (g x),
+  inf_le_right := take f g x, inf_le_right (f x) (g x),
   sup          := λf g x, sup (f x) (g x),
   sup_le       := take f g h Hf Hg x, sup_le (Hf x) (Hg x),
-  le_sup_left  := take f g x, !le_sup_left,
-  le_sup_right := take t g x, !le_sup_right
+  le_sup_left  := take f g x, le_sup_left (f x) (g x),
+  le_sup_right := take t g x, le_sup_right (t x) (g x)
 ⦄
 
 /-

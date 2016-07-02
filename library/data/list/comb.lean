@@ -101,7 +101,7 @@ theorem exists_of_mem_map {A B : Type} {f : A → B} {b : B} :
 -/
 
 theorem eq_of_map_const {A B : Type} {b₁ b₂ : B} : ∀ {l : list A}, b₁ ∈ map (const A b₂) l → b₁ = b₂
-| []     h := absurd h !not_mem_nil
+| []     h := absurd h (not_mem_nil b₁)
 | (a::l) h :=
   or.elim (eq_or_mem_of_mem_cons h)
     (suppose b₁ = b₂, this)
@@ -145,7 +145,7 @@ theorem filter_cons_of_neg [simp] {p : A → Prop} [h : decidable_pred p] {a : A
 λ l pa, if_neg pa
 
 theorem of_mem_filter {p : A → Prop} [h : decidable_pred p] {a : A} : ∀ {l}, a ∈ filter p l → p a
-| []     ain := absurd ain !not_mem_nil
+| []     ain := absurd ain (not_mem_nil a)
 | (b::l) ain :=
   sorry
   /-
@@ -159,7 +159,7 @@ theorem of_mem_filter {p : A → Prop} [h : decidable_pred p] {a : A} : ∀ {l},
   -/
 
 theorem mem_of_mem_filter {p : A → Prop} [h : decidable_pred p] {a : A} : ∀ {l}, a ∈ filter p l → a ∈ l
-| []     ain := absurd ain !not_mem_nil
+| []     ain := absurd ain (not_mem_nil a)
 | (b::l) ain :=
   sorry
   /-
@@ -304,8 +304,8 @@ theorem of_mem_of_all {p : A → Prop} {a : A} : ∀ {l}, a ∈ l → all l p �
 -/
 
 theorem all_of_forall {p : A → Prop} : ∀ {l}, (∀a, a ∈ l → p a) → all l p
-| []     H := !all_nil
-| (a::l) H := all_cons (H a !mem_cons)
+| []     H := all_nil p
+| (a::l) H := all_cons (H a (mem_cons a l))
                        (all_of_forall (λ a' H', H a' (mem_cons_of_mem _ H')))
 
 theorem any_nil [simp] (p : A → Prop) : any [] p = false := rfl
@@ -513,7 +513,7 @@ theorem mem_of_mem_product_left {a : A} {b : B} : ∀ {l₁ l₂}, (a, b) ∈ pr
 -/
 
 theorem mem_of_mem_product_right {a : A} {b : B} : ∀ {l₁ l₂}, (a, b) ∈ product l₁ l₂ → b ∈ l₂
-| []      l₂ h := absurd h !not_mem_nil
+| []      l₂ h := absurd h (not_mem_nil ((a, b)))
 | (x::l₁) l₂ h :=
   or.elim (mem_or_mem_of_mem_append h)
     (suppose (a, b) ∈ map (λ b, (x, b)) l₂,

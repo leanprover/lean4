@@ -51,7 +51,7 @@ iff.intro
 theorem exists_or_distribute {A : Type} (φ ψ : A → Prop) :
   (∃ x, φ x ∨ ψ x) ↔ (∃ x, φ x) ∨ (∃ x, ψ x) :=
 iff.intro
-  (Exists.rec (λ x, or.imp !exists.intro !exists.intro))
+  (Exists.rec (λ x, or.imp (exists.intro x) (exists.intro x)))
   (or.rec (exists_imp_exists (λ x, or.inl))
           (exists_imp_exists (λ x, or.inr)))
 

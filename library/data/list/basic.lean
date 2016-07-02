@@ -85,12 +85,12 @@ sorry -- by rec_inst_simp
 definition last : Π l : list T, l ≠ [] → T
 | []          h := absurd rfl h
 | [a]         h := a
-| (a₁::a₂::l) h := last (a₂::l) !cons_ne_nil
+| (a₁::a₂::l) h := last (a₂::l) $ cons_ne_nil a₂ l
 
 lemma last_singleton [simp] (a : T) (h : [a] ≠ []) : last [a] h = a :=
 rfl
 
-lemma last_cons_cons [simp] (a₁ a₂ : T) (l : list T) (h : a₁::a₂::l ≠ []) : last (a₁::a₂::l) h = last (a₂::l) !cons_ne_nil :=
+lemma last_cons_cons [simp] (a₁ a₂ : T) (l : list T) (h : a₁::a₂::l ≠ []) : last (a₁::a₂::l) h = last (a₂::l) (cons_ne_nil a₂ l) :=
 rfl
 
 theorem last_congr {l₁ l₂ : list T} (h₁ : l₁ ≠ []) (h₂ : l₂ ≠ []) (h₃ : l₁ = l₂) : last l₁ h₁ = last l₂ h₂ :=
@@ -158,7 +158,7 @@ theorem mem_nil_iff (x : T) : x ∈ [] ↔ false :=
 iff.rfl
 
 theorem not_mem_nil (x : T) : x ∉ [] :=
-iff.mp !mem_nil_iff
+iff.mp $ mem_nil_iff x
 
 theorem mem_cons [simp] (x : T) (l : list T) : x ∈ x :: l :=
 or.inl rfl
@@ -175,7 +175,7 @@ assume h, h
 theorem mem_singleton {x a : T} : x ∈ [a] → x = a :=
 suppose x ∈ [a], or.elim (eq_or_mem_of_mem_cons this)
   (suppose x = a, this)
-  (suppose x ∈ [], absurd this !not_mem_nil)
+  (suppose x ∈ [], absurd this (not_mem_nil x))
 
 theorem mem_of_mem_cons_of_mem {a b : T} {l : list T} : a ∈ b::l → b ∈ l → a ∈ l :=
 sorry
@@ -262,7 +262,7 @@ assume ainl₂, mem_append_of_mem_or_mem (or.inr ainl₂)
 
 definition decidable_mem [instance] [H : decidable_eq T] (x : T) (l : list T) : decidable (x ∈ l) :=
 list.rec_on l
-  (decidable.ff (not_of_iff_false !mem_nil_iff))
+  (decidable.ff (not_of_iff_false (mem_nil_iff _)))
   (take (h : T) (l : list T) (iH : decidable (x ∈ l)),
     show decidable (x ∈ h::l), from
     decidable.rec_on iH
@@ -274,7 +274,7 @@ list.rec_on l
                 (suppose x = h, absurd this xneh)
                 (suppose x ∈ l, absurd this nxinl),
             have ¬x ∈ h::l, from
-              iff.elim_right (not_iff_not_of_iff !mem_cons_iff) this,
+              iff.elim_right (not_iff_not_of_iff (mem_cons_iff x h l)) this,
             decidable.ff this)
           (suppose x = h, decidable.tt (or.inl this)))
       (assume Hp : x ∈ l,
@@ -480,7 +480,7 @@ end nth
 
 section ith
 definition ith : Π (l : list T) (i : nat), i < length l → T
-| nil     i        h := absurd h !not_lt_zero
+| nil     i        h := absurd h (not_lt_zero i)
 | (x::xs) 0        h := x
 | (x::xs) (succ i) h := ith xs i (lt_of_succ_lt_succ h)
 
@@ -512,7 +512,7 @@ theorem qeq_app : ∀ (l₁ : list A) (a : A) (l₂ : list A), l₁++(a::l₂) �
 
 theorem mem_head_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → a ∈ l₁ :=
 take q, qeq.induction_on q
-  (λ l, !mem_cons)
+  (λ l, mem_cons a l)
   (λ b l l' q r, or.inr r)
 
 theorem mem_tail_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → ∀ x, x ∈ l₂ → x ∈ l₁ :=
@@ -610,7 +610,7 @@ lemma firstn_all : ∀ (l : list A), firstn (length l) l = l
 
 lemma firstn_all_of_ge : ∀ {n} {l : list A}, n ≥ length l → firstn n l = l
 | 0     []     h := rfl
-| 0     (a::l) h := absurd h (not_le_of_gt !succ_pos)
+| 0     (a::l) h := absurd h (not_le_of_gt (succ_pos _))
 | (n+1) []     h := rfl
 | (n+1) (a::l) h :=
   sorry

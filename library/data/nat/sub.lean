@@ -137,14 +137,14 @@ calc
 -/
 
 protected theorem sub_add_cancel {n m : ℕ} : n ≥ m → n - m + m = n :=
-!add.comm ▸ !add_sub_of_le
+add.comm m (n - m) ▸ add_sub_of_le
 
 theorem sub_add_of_le {n m : ℕ} : n ≤ m → n - m + m = m :=
-!add.comm ▸ add_sub_of_ge
+add.comm m (n - m) ▸ add_sub_of_ge
 
 theorem sub.cases {P : ℕ → Prop} {n m : ℕ} (H1 : n ≤ m → P 0) (H2 : ∀k, m + k = n -> P k)
   : P (n - m) :=
-or.elim !le.total
+or.elim (le.total n m)
   (assume H3 : n ≤ m, (sub_eq_zero_of_le H3)⁻¹ ▸ (H1 H3))
   (assume H3 : m ≤ n, H2 (n - m) (add_sub_of_le H3))
 
@@ -182,12 +182,12 @@ sub.cases
   (take k : ℕ,
     assume H1 : m + k = n,
     assume H2 : k = 0,
-    have H3 : n = m, from !add_zero ▸ H2 ▸ H1⁻¹,
-    H3 ▸ !le.refl)
+    have H3 : n = m, from add_zero m ▸ H2 ▸ H1⁻¹,
+    H3 ▸ le.refl n)
 
 theorem sub_sub.cases {P : ℕ → ℕ → Prop} {n m : ℕ} (H1 : ∀k, n = m + k -> P k 0)
   (H2 : ∀k, m = n + k → P 0 k) : P (n - m) (m - n) :=
-or.elim !le.total
+or.elim (le.total n m)
   (assume H3 : n ≤ m,
     (sub_eq_zero_of_le H3)⁻¹ ▸  (H2 (m - n) (add_sub_of_le H3)⁻¹))
   (assume H3 : m ≤ n,
@@ -198,14 +198,14 @@ have H2 : k - n + n = m + n, from
   calc
     k - n + n = k     : nat.sub_add_cancel (le.intro H)
           ... = n + m : H⁻¹
-          ... = m + n : !add.comm,
+          ... = m + n : add.comm n m,
 add.right_cancel H2
 
 protected theorem eq_sub_of_add_eq {a b c : ℕ} (H : a + c = b) : a = b - c :=
-(nat.sub_eq_of_add_eq (!add.comm ▸ H))⁻¹
+(nat.sub_eq_of_add_eq (add.comm a c ▸ H))⁻¹
 
 protected theorem sub_eq_of_eq_add {a b c : ℕ} (H : a = c + b) : a - b = c :=
-nat.sub_eq_of_add_eq (!add.comm ▸ H⁻¹)
+nat.sub_eq_of_add_eq (add.comm c b ▸ H⁻¹)
 
 protected theorem sub_le_sub_right {n m : ℕ} (H : n ≤ m) (k : ℕ) : n - k ≤ m - k :=
 sorry
@@ -247,7 +247,7 @@ protected theorem lt_of_sub_pos {m n : ℕ} (H : n - m > 0) : m < n :=
 lt_of_not_ge
   (take H1 : m ≥ n,
     have H2 : n - m = 0, from sub_eq_zero_of_le H1,
-    !lt.irrefl (H2 ▸ H))
+    lt.irrefl 0 (H2 ▸ H))
 
 protected theorem lt_of_sub_lt_sub_right {n m k : ℕ} (H : n - k < m - k) : n < m :=
 lt_of_not_ge
@@ -355,16 +355,16 @@ theorem dist_eq_sub_of_lt {n m : ℕ} (H : n < m) : dist n m = m - n :=
 dist_eq_sub_of_le (le_of_lt H)
 
 theorem dist_eq_sub_of_ge {n m : ℕ} (H : n ≥ m) : dist n m = n - m :=
-!dist.comm ▸ dist_eq_sub_of_le H
+dist.comm m n ▸ dist_eq_sub_of_le H
 
 theorem dist_eq_sub_of_gt {n m : ℕ} (H : n > m) : dist n m = n - m :=
 dist_eq_sub_of_ge (le_of_lt H)
 
 theorem dist_zero_right (n : ℕ) : dist n 0 = n :=
-dist_eq_sub_of_ge !zero_le ⬝ !nat.sub_zero
+dist_eq_sub_of_ge (zero_le n) ⬝ nat.sub_zero n
 
 theorem dist_zero_left (n : ℕ) : dist 0 n = n :=
-dist_eq_sub_of_le !zero_le ⬝ !nat.sub_zero
+dist_eq_sub_of_le (zero_le n) ⬝ nat.sub_zero n
 
 theorem dist.intro {n m k : ℕ} (H : n + m = k) : dist k n = m :=
 calc

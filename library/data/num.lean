@@ -52,7 +52,7 @@ namespace pos_num
   | (bit1 n) :=
       calc bit1 n * one = bit0 (n * one) + one : rfl
                    ...  = bit0 n + one         : sorry -- by rewrite mul_one
-                   ...  = bit1 n               : !bit0_add_one
+                   ...  = bit1 n               : bit0_add_one _
   | (bit0 n) :=
       calc bit0 n * one = bit0 (n * one)       : rfl
                     ... = bit0 n               : sorry -- by rewrite mul_one

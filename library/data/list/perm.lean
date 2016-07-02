@@ -87,9 +87,9 @@ assume p nainl₁ ainl₂, absurd (mem_perm (perm.symm p) ainl₂) nainl₁
 
 theorem perm_app_left {l₁ l₂ : list A} (t₁ : list A) : l₁ ~ l₂ → (l₁++t₁) ~ (l₂++t₁) :=
 assume p, perm.induction_on p
-  !perm.refl
+  (perm.refl (list.nil ++ t₁))
   (λ x l₁ l₂ p₁ r₁, skip x r₁)
-  (λ x y l, !swap)
+  (λ x y l, swap x y _)
   (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂, trans r₁ r₂)
 
 theorem perm_app_right (l : list A) {t₁ t₂ : list A} : t₁ ~ t₂ → (l++t₁) ~ (l++t₂) :=
@@ -104,13 +104,13 @@ theorem perm_app_cons (a : A) {h₁ h₂ t₁ t₂ : list A} : h₁ ~ h₂ → t
 assume p₁ p₂, perm_app p₁ (skip a p₂)
 
 theorem perm_cons_app (a : A) : ∀ (l : list A), (a::l) ~ (l ++ [a])
-| []      := !perm.refl
+| []      := perm.refl _
 | (x::xs) := calc
   a::x::xs ~ x::a::xs     : swap x a xs
        ... ~ x::(xs++[a]) : skip x (perm_cons_app xs)
 
 theorem perm_cons_app_simp [simp] (a : A) : ∀ (l : list A), (l ++ [a]) ~ (a::l) :=
-take l, perm.symm !perm_cons_app
+take l, perm.symm (perm_cons_app a l)
 
 theorem perm_app_comm [simp] {l₁ l₂ : list A} : (l₁++l₂) ~ (l₂++l₁) :=
 sorry
@@ -178,18 +178,18 @@ take l, perm.symm (perm_rev l)
 theorem perm_middle (a : A) (l₁ l₂ : list A) : (a::l₁)++l₂ ~ l₁++(a::l₂) :=
 calc
   (a::l₁) ++ l₂ = a::(l₁++l₂)   : rfl
-           ...  ~ l₁++l₂++[a]   : !perm_cons_app
-           ...  = l₁++(l₂++[a]) : !append.assoc
+           ...  ~ l₁++l₂++[a]   : perm_cons_app a (l₁ ++ l₂)
+           ...  = l₁++(l₂++[a]) : append.assoc l₁ l₂ [a]
            ...  ~ l₁++(a::l₂)   : perm_app_right l₁ (perm.symm (perm_cons_app a l₂))
 
 theorem perm_middle_simp [simp] (a : A) (l₁ l₂ : list A) : l₁++(a::l₂) ~ (a::l₁)++l₂ :=
-perm.symm !perm_middle
+perm.symm $ perm_middle a l₁ l₂
 
 theorem perm_cons_app_cons {l l₁ l₂ : list A} (a : A) : l ~ l₁++l₂ → a::l ~ l₁++(a::l₂) :=
 assume p, calc
-  a::l ~ l++[a]        : !perm_cons_app
+  a::l ~ l++[a]        : perm_cons_app a l
    ... ~ l₁++l₂++[a]   : perm_app_left [a] p
-   ... = l₁++(l₂++[a]) : !append.assoc
+   ... = l₁++(l₂++[a]) : append.assoc l₁ l₂ [a]
    ... ~ l₁++(a::l₂)   : perm_app_right l₁ (perm.symm (perm_cons_app a l₂))
 
 open decidable
@@ -239,12 +239,12 @@ theorem perm_induction_on {P : list A → list A → Prop} {l₁ l₂ : list A} 
    : P l₁ l₂ :=
 have P_refl : ∀ l, P l l
   | []      := h₁
-  | (x::xs) := h₂ x xs xs !perm.refl (P_refl xs),
-perm.induction_on p h₁ h₂ (λ x y l, h₃ x y l l !perm.refl !P_refl) h₄
+  | (x::xs) := h₂ x xs xs (perm.refl xs) (P_refl xs),
+perm.induction_on p h₁ h₂ (λ x y l, h₃ x y l l (perm.refl l) (P_refl l)) h₄
 
 theorem xswap {l₁ l₂ : list A} (x y : A) : l₁ ~ l₂ → x::y::l₁ ~ y::x::l₂ :=
 assume p, calc
-  x::y::l₁  ~  y::x::l₁  : !swap
+  x::y::l₁  ~  y::x::l₁  : swap y x l₁
         ... ~  y::x::l₂  : skip y (skip x p)
 
 theorem perm_map [congr] (f : A → B) {l₁ l₂ : list A} : l₁ ~ l₂ → map f l₁ ~ map f l₂ :=
@@ -256,10 +256,10 @@ assume p, perm_induction_on p
 
 lemma perm_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → l₁~a::l₂ :=
 assume q, qeq.induction_on q
-  (λ h, !perm.refl)
+  (λ h, perm.refl (a :: h))
   (λ b t₁ t₂ q₁ r₁, calc
      b::t₂ ~ b::a::t₁ : skip b r₁
-       ... ~ a::b::t₁ : !swap)
+       ... ~ a::b::t₁ : swap a b t₁)
 
 /- permutation is decidable if A has decidable equality -/
 section dec
@@ -512,9 +512,9 @@ assume p, perm_inv_core p (qeq.qhead a l₁) (qeq.qhead a l₂)
 theorem perm_app_inv {a : A} {l₁ l₂ l₃ l₄ : list A} : l₁++(a::l₂) ~ l₃++(a::l₄) → l₁++l₂ ~ l₃++l₄ :=
 assume p : l₁++(a::l₂) ~ l₃++(a::l₄),
   have p' : a::(l₁++l₂) ~ a::(l₃++l₄), from calc
-    a::(l₁++l₂) ~ l₁++(a::l₂) : !perm_middle
+    a::(l₁++l₂) ~ l₁++(a::l₂) : perm_middle a l₁ l₂
           ...   ~ l₃++(a::l₄) : p
-          ...   ~ a::(l₃++l₄) : perm.symm (!perm_middle),
+          ...   ~ a::(l₃++l₄) : perm.symm (perm_middle a l₃ l₄),
   perm_cons_inv p'
 
 section foldl

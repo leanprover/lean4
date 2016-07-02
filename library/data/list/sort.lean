@@ -182,7 +182,7 @@ lemma sort_perm (l : list A) : sort R l ~ l :=
 sort_aux_perm R rfl
 
 lemma strongly_sorted_sort_aux : ∀ {n : nat} {l : list A} (h : length l = n), strongly_sorted R (sort_aux R n l h)
-| 0        l h := !strongly_sorted.base
+| 0        l h := strongly_sorted.base R
 | (succ n) l h :=
   let m := min R l (ne_nil h) in
   have leq    : length (erase m l) = n,                       from sort_aux_lemma R h,
@@ -205,9 +205,9 @@ lemma sort_eq_of_perm_core {l₁ l₂ : list A} (to : total R) (tr : transitive 
 have s₁ : sorted R (sort R l₁),  from sorted_of_strongly_sorted (strongly_sorted_sort_core to tr rf l₁),
 have s₂ : sorted R (sort R l₂),  from sorted_of_strongly_sorted (strongly_sorted_sort_core to tr rf l₂),
 have p  : sort R l₁ ~ sort R l₂, from calc
-  sort R l₁ ~ l₁        : !sort_perm
+  sort R l₁ ~ l₁        : sort_perm R l₁
     ...     ~ l₂        : h
-    ...     ~ sort R l₂ : perm.symm !sort_perm,
+    ...     ~ sort R l₂ : perm.symm $ sort_perm R l₂,
 eq_of_sorted_of_perm tr asy p s₁ s₂
 
 section

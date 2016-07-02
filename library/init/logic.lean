@@ -218,13 +218,13 @@ end
 
 open eq.ops
 theorem eq_rec_heq {A : Type} {P : A → Type} {a a' : A} (H : a = a') (p : P a) : H ▹ p == p :=
-eq.drec_on H !heq.refl
+eq.drec_on H (heq.refl p)
 
 theorem heq_of_eq_rec_left {A : Type} {P : A → Type} : ∀ {a a' : A} {p₁ : P a} {p₂ : P a'} (e : a = a') (h₂ : e ▹ p₁ = p₂), p₁ == p₂
-| a a p₁ p₂ (eq.refl a) h := eq.rec_on h !heq.refl
+| a a p₁ p₂ (eq.refl a) h := eq.rec_on h (heq.refl p₁)
 
 theorem heq_of_eq_rec_right {A : Type} {P : A → Type} : ∀ {a a' : A} {p₁ : P a} {p₂ : P a'} (e : a' = a) (h₂ : p₁ = e ▹ p₂), p₁ == p₂
-| a a p₁ p₂ (eq.refl a) h := eq.rec_on h !heq.refl
+| a a p₁ p₂ (eq.refl a) h := eq.rec_on h (heq.refl p₁)
 
 theorem of_heq_true {a : Prop} (H : a == true) : a :=
 of_eq_true (eq_of_heq H)
@@ -250,7 +250,7 @@ attribute heq_of_eq_of_heq [trans]
 attribute heq.symm [symm]
 
 theorem cast_heq : ∀ {A B : Type} (H : A = B) (a : A), cast H a == a
-| A A (eq.refl A) a := !heq.refl
+| A A (eq.refl A) a := heq.refl a
 
 /- and -/
 
@@ -347,7 +347,7 @@ iff.intro
   (λ Hr, H)
 
 theorem iff_false_intro (H : ¬a) : a ↔ false :=
-iff.intro H !false.rec
+iff.intro H (false.rec a)
 
 theorem not_non_contradictory_iff_absurd (a : Prop) : ¬¬¬a ↔ ¬a :=
 iff.intro
@@ -428,7 +428,7 @@ iff.intro
   (and.rec (λ Ha, and.rec (λ Hb Hc, and.intro (and.intro Ha Hb) Hc)))
 
 theorem and.left_comm [simp] : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) :=
-iff.trans (iff.symm !and.assoc) (iff.trans (and_congr !and.comm !iff.refl) !and.assoc)
+iff.trans (iff.symm and.assoc) (iff.trans (and_congr and.comm (iff.refl c)) and.assoc)
 
 theorem and_iff_left {a b : Prop} (Hb : b) : (a ∧ b) ↔ a :=
 iff.intro and.left (λHa, and.intro Ha Hb)
@@ -479,7 +479,7 @@ iff.intro
   (or.rec (λ H, or.inl (or.inl H)) (or.imp_left or.inr))
 
 theorem or.left_comm [simp] : a ∨ (b ∨ c) ↔ b ∨ (a ∨ c) :=
-iff.trans (iff.symm !or.assoc) (iff.trans (or_congr !or.comm !iff.refl) !or.assoc)
+iff.trans (iff.symm or.assoc) (iff.trans (or_congr or.comm (iff.refl c)) or.assoc)
 
 theorem or_true [simp] (a : Prop) : a ∨ true ↔ true :=
 iff_true_intro (or.inr trivial)
@@ -491,7 +491,7 @@ theorem or_false [simp] (a : Prop) : a ∨ false ↔ a :=
 iff.intro (or.rec id false.elim) or.inl
 
 theorem false_or [simp] (a : Prop) : false ∨ a ↔ a :=
-iff.trans or.comm !or_false
+iff.trans or.comm (or_false a)
 
 theorem or_self [simp] (a : Prop) : a ∨ a ↔ a :=
 iff.intro (or.rec id id) or.inl
@@ -516,13 +516,13 @@ theorem iff_true [simp] (a : Prop) : (a ↔ true) ↔ a :=
 iff.intro (assume H, iff.mpr H trivial) iff_true_intro
 
 theorem true_iff [simp] (a : Prop) : (true ↔ a) ↔ a :=
-iff.trans iff.comm !iff_true
+iff.trans iff.comm (iff_true a)
 
 theorem iff_false [simp] (a : Prop) : (a ↔ false) ↔ ¬ a :=
 iff.intro and.left iff_false_intro
 
 theorem false_iff [simp] (a : Prop) : (false ↔ a) ↔ ¬ a :=
-iff.trans iff.comm !iff_false
+iff.trans iff.comm (iff_false a)
 
 theorem iff_self [simp] (a : Prop) : (a ↔ a) ↔ true :=
 iff_true_intro iff.rfl
@@ -623,13 +623,13 @@ namespace decidable
 
   definition rec_on_true [H : decidable p] {H1 : p → Type} {H2 : ¬p → Type} (H3 : p) (H4 : H1 H3)
       : decidable.rec_on H H2 H1 :=
-  decidable.rec_on H (λh, !false.rec (h H3)) (λh, H4)
+  decidable.rec_on H (λh, false.rec _ (h H3)) (λh, H4)
 
   definition rec_on_false [H : decidable p] {H1 : p → Type} {H2 : ¬p → Type} (H3 : ¬p) (H4 : H2 H3)
       : decidable.rec_on H H2 H1 :=
   decidable.rec_on H (λh, H4) (λh, false.rec _ (H3 h))
 
-  definition by_cases {q : Type} [C : decidable p] : (p → q) → (¬p → q) → q := !dite
+  definition by_cases {q : Type} [C : decidable p] : (p → q) → (¬p → q) → q := dite _
 
   theorem em (p : Prop) [decidable p] : p ∨ ¬p := by_cases or.inl or.inr
 
@@ -750,7 +750,7 @@ inhabited.rec_on H (λb, inhabited.mk (λa, b))
 
 definition inhabited_Pi [instance] (A : Type) {B : A → Type} [Πx, inhabited (B x)] :
   inhabited (Πx, B x) :=
-inhabited.mk (λa, !default)
+inhabited.mk (λa, default (B a))
 
 inline protected definition bool.is_inhabited [instance] : inhabited bool :=
 inhabited.mk ff
@@ -768,7 +768,7 @@ protected definition nonempty.elim {A : Type} {B : Prop} (H1 : nonempty A) (H2 :
 nonempty.rec H2 H1
 
 theorem nonempty_of_inhabited [instance] {A : Type} [inhabited A] : nonempty A :=
-nonempty.intro !default
+nonempty.intro (default A)
 
 theorem nonempty_of_exists {A : Type} {P : A → Prop} : (∃x, P x) → nonempty A :=
 Exists.rec (λw H, nonempty.intro w)
@@ -785,7 +785,7 @@ protected definition subsingleton.helim {A B : Type} [H : subsingleton A] (h : A
 eq.rec_on h (λ a b : A, heq_of_eq (subsingleton.elim a b))
 
 definition subsingleton_prop [instance] (p : Prop) : subsingleton p :=
-subsingleton.intro (λa b, !proof_irrel)
+subsingleton.intro (λa b, proof_irrel a b)
 
 definition subsingleton_decidable [instance] (p : Prop) : subsingleton (decidable p) :=
 subsingleton.intro (λ d₁,
@@ -945,7 +945,7 @@ definition is_false (c : Prop) [decidable c] : Prop :=
 if c then false else true
 
 definition of_is_true {c : Prop} [H₁ : decidable c] (H₂ : is_true c) : c :=
-decidable.rec_on H₁ (λ Hnc, !false.rec (if_neg Hnc ▸ H₂)) (λ Hc, Hc)
+decidable.rec_on H₁ (λ Hnc, false.rec _ (if_neg Hnc ▸ H₂)) (λ Hc, Hc)
 
 notation `dec_trivial` := of_is_true trivial
 
@@ -953,7 +953,7 @@ theorem not_of_not_is_true {c : Prop} [decidable c] (H : ¬ is_true c) : ¬ c :=
 if Hc : c then absurd trivial (if_pos Hc ▸ H) else Hc
 
 theorem not_of_is_false {c : Prop} [decidable c] (H : is_false c) : ¬ c :=
-if Hc : c then !false.rec (if_pos Hc ▸ H) else Hc
+if Hc : c then false.rec _ (if_pos Hc ▸ H) else Hc
 
 theorem of_not_is_false {c : Prop} [decidable c] (H : ¬ is_false c) : c :=
 if Hc : c then Hc else absurd trivial (if_neg Hc ▸ H)

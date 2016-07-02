@@ -20,11 +20,11 @@ local attribute pair_nat.lt.wf [instance]      -- instance will not be saved in 
 local infixl ` ≺ `:50 := pair_nat.lt
 
 private definition gcd.lt.dec (x y₁ : nat) : (succ y₁, x % succ y₁) ≺ (x, succ y₁) :=
-!mod_lt (succ_pos y₁)
+mod_lt x (succ_pos y₁)
 
 definition gcd.F : Π (p₁ : nat × nat), (Π p₂ : nat × nat, p₂ ≺ p₁ → nat) → nat
 | (x, 0)      f := x
-| (x, succ y) f := f (succ y, x % succ y) !gcd.lt.dec
+| (x, succ y) f := f (succ y, x % succ y) (gcd.lt.dec x y)
 
 definition gcd (x y : nat) := fix gcd.F (x, y)
 
@@ -34,24 +34,24 @@ theorem gcd_succ [simp] (x y : nat) : gcd x (succ y) = gcd (succ y) (x % succ y)
 well_founded.fix_eq gcd.F (x, succ y)
 
 theorem gcd_one_right (n : ℕ) : gcd n 1 = 1 :=
-calc gcd n 1 = gcd 1 (n % 1)  : !gcd_succ
+calc gcd n 1 = gcd 1 (n % 1)  : gcd_succ n 0
          ... = gcd 1 0        : sorry -- by rewrite mod_one
 
 theorem gcd_def (x : ℕ) : Π (y : ℕ), gcd x y = if y = 0 then x else gcd y (x % y)
-| 0        := !gcd_zero_right
-| (succ y) := !gcd_succ ⬝ (if_neg !succ_ne_zero)⁻¹
+| 0        := gcd_zero_right _
+| (succ y) := gcd_succ x y ⬝ (if_neg (succ_ne_zero y))⁻¹
 
 
 theorem gcd_self : Π (n : ℕ), gcd n n = n
 | 0         := rfl
 | (succ n₁) := calc
-    gcd (succ n₁) (succ n₁) = gcd (succ n₁) (succ n₁ % succ n₁) : !gcd_succ
+    gcd (succ n₁) (succ n₁) = gcd (succ n₁) (succ n₁ % succ n₁) : gcd_succ (succ n₁) n₁
                       ...   = gcd (succ n₁) 0                   : sorry -- by rewrite mod_self
 
 theorem gcd_zero_left : Π (n : ℕ), gcd 0 n = n
 | 0         := rfl
 | (succ n₁) := calc
-    gcd 0 (succ n₁) = gcd (succ n₁) (0 % succ n₁)   : !gcd_succ
+    gcd 0 (succ n₁) = gcd (succ n₁) (0 % succ n₁)   : gcd_succ 0 n₁
                 ... = gcd (succ n₁) 0               : sorry -- by rewrite zero_mod
 
 theorem gcd_of_pos (m : ℕ) {n : ℕ} (H : n > 0) : gcd m n = gcd n (m % n) :=
@@ -74,47 +74,47 @@ theorem gcd.induction {P : ℕ → ℕ → Prop}
                  P m n :=
 induction (m, n) (prod.rec (λm, nat.rec (λ IH, H0 m)
    (λ n₁ v (IH : ∀p₂, p₂ ≺ (m, succ n₁) → P (pr₁ p₂) (pr₂ p₂)),
-      H1 m (succ n₁) !succ_pos (IH _ !gcd.lt.dec))))
+      H1 m (succ n₁) (succ_pos n₁) (IH _ (gcd.lt.dec m n₁)))))
 
 theorem gcd_dvd (m n : ℕ) : (gcd m n ∣ m) ∧ (gcd m n ∣ n) :=
 gcd.induction m n
-  (take m, and.intro (!one_mul ▸ !dvd_mul_left) !dvd_zero)
+  (take m, and.intro (one_mul m ▸ dvd_mul_left m 1) (dvd_zero (gcd m 0)))
   (take m n (npos : 0 < n), and.rec
      (assume (IH₁ : gcd n (m % n) ∣ n) (IH₂ : gcd n (m % n) ∣ (m % n)),
     have H : (gcd n (m % n) ∣ (m / n * n + m % n)), from
-      dvd_add (dvd.trans IH₁ !dvd_mul_left) IH₂,
-    have H1 : (gcd n (m % n) ∣ m), from !eq_div_mul_add_mod⁻¹ ▸ H,
-    show (gcd m n ∣ m) ∧ (gcd m n ∣ n), from !gcd_rec⁻¹ ▸ (and.intro H1 IH₁)))
+      dvd_add (dvd.trans IH₁ (dvd_mul_left n (m / n))) IH₂,
+    have H1 : (gcd n (m % n) ∣ m), from eq.symm (eq_div_mul_add_mod m n) ▸ H,
+    show (gcd m n ∣ m) ∧ (gcd m n ∣ n), from eq.symm (gcd_rec m n) ▸ (and.intro H1 IH₁)))
 
-theorem gcd_dvd_left (m n : ℕ) : gcd m n ∣ m := and.left !gcd_dvd
+theorem gcd_dvd_left (m n : ℕ) : gcd m n ∣ m := and.left $ gcd_dvd m n
 
-theorem gcd_dvd_right (m n : ℕ) : gcd m n ∣ n := and.right !gcd_dvd
+theorem gcd_dvd_right (m n : ℕ) : gcd m n ∣ n := and.right $ gcd_dvd m n
 
 theorem dvd_gcd {m n k : ℕ} : k ∣ m → k ∣ n → k ∣ gcd m n :=
 gcd.induction m n (take m, imp.intro)
   (take m n (npos : n > 0)
     (IH : k ∣ n → k ∣ m % n → k ∣ gcd n (m % n))
     (H1 : k ∣ m) (H2 : k ∣ n),
-    have H3 : k ∣ m / n * n + m % n, from !eq_div_mul_add_mod ▸ H1,
-    have H4 : k ∣ m % n, from nat.dvd_of_dvd_add_left H3 (dvd.trans H2 !dvd_mul_left),
-    !gcd_rec⁻¹ ▸ IH H2 H4)
+    have H3 : k ∣ m / n * n + m % n, from eq_div_mul_add_mod m n ▸ H1,
+    have H4 : k ∣ m % n, from nat.dvd_of_dvd_add_left H3 (dvd.trans H2 (dvd_mul_left n (m / n))),
+    eq.symm (gcd_rec m n) ▸ IH H2 H4)
 
 theorem gcd.comm (m n : ℕ) : gcd m n = gcd n m :=
 dvd.antisymm
-  (dvd_gcd !gcd_dvd_right !gcd_dvd_left)
-  (dvd_gcd !gcd_dvd_right !gcd_dvd_left)
+  (dvd_gcd (gcd_dvd_right m n) (gcd_dvd_left m n))
+  (dvd_gcd (gcd_dvd_right n m) (gcd_dvd_left n m))
 
 theorem gcd.assoc (m n k : ℕ) : gcd (gcd m n) k = gcd m (gcd n k) :=
 dvd.antisymm
   (dvd_gcd
-    (dvd.trans !gcd_dvd_left !gcd_dvd_left)
-    (dvd_gcd (dvd.trans !gcd_dvd_left !gcd_dvd_right) !gcd_dvd_right))
+    (dvd.trans (gcd_dvd_left (gcd m n) k) (gcd_dvd_left m n))
+    (dvd_gcd (dvd.trans (gcd_dvd_left (gcd m n) k) (gcd_dvd_right m n)) (gcd_dvd_right (gcd m n) k)))
   (dvd_gcd
-    (dvd_gcd !gcd_dvd_left (dvd.trans !gcd_dvd_right !gcd_dvd_left))
-    (dvd.trans !gcd_dvd_right !gcd_dvd_right))
+    (dvd_gcd (gcd_dvd_left m (gcd n k)) (dvd.trans (gcd_dvd_right m (gcd n k)) (gcd_dvd_left n k)))
+    (dvd.trans (gcd_dvd_right m (gcd n k)) (gcd_dvd_right n k)))
 
 theorem gcd_one_left (m : ℕ) : gcd 1 m = 1 :=
-!gcd.comm ⬝ !gcd_one_right
+gcd.comm 1 m ⬝ gcd_one_right m
 
 theorem gcd_mul_left (m n k : ℕ) : gcd (m * n) (m * k) = m * gcd n k :=
 sorry
@@ -142,18 +142,18 @@ calc
 -/
 
 theorem gcd_pos_of_pos_left {m : ℕ} (n : ℕ) (mpos : m > 0) : gcd m n > 0 :=
-pos_of_dvd_of_pos !gcd_dvd_left mpos
+pos_of_dvd_of_pos (gcd_dvd_left m n) mpos
 
 theorem gcd_pos_of_pos_right (m : ℕ) {n : ℕ} (npos : n > 0) : gcd m n > 0 :=
-pos_of_dvd_of_pos !gcd_dvd_right npos
+pos_of_dvd_of_pos (gcd_dvd_right m n) npos
 
 theorem eq_zero_of_gcd_eq_zero_left {m n : ℕ} (H : gcd m n = 0) : m = 0 :=
 or.elim (eq_zero_or_pos m)
   (assume H1, H1)
-  (assume H1 : m > 0, absurd H⁻¹ (ne_of_lt (!gcd_pos_of_pos_left H1)))
+  (assume H1 : m > 0, absurd H⁻¹ (ne_of_lt (gcd_pos_of_pos_left _ H1)))
 
 theorem eq_zero_of_gcd_eq_zero_right {m n : ℕ} (H : gcd m n = 0) : n = 0 :=
-eq_zero_of_gcd_eq_zero_left (!gcd.comm ▸ H)
+eq_zero_of_gcd_eq_zero_left (gcd.comm m n ▸ H)
 
 theorem gcd_div {m n k : ℕ} (H1 : k ∣ m) (H2 : k ∣ n) :
   gcd (m / k) (n / k) = gcd m n / k :=
@@ -168,16 +168,16 @@ or.elim (eq_zero_or_pos k)
 -/
 
 theorem gcd_dvd_gcd_mul_left (m n k : ℕ) : gcd m n ∣ gcd (k * m) n :=
-dvd_gcd (dvd.trans !gcd_dvd_left !dvd_mul_left) !gcd_dvd_right
+dvd_gcd (dvd.trans (gcd_dvd_left m n) (dvd_mul_left m k)) (gcd_dvd_right m n)
 
 theorem gcd_dvd_gcd_mul_right (m n k : ℕ) : gcd m n ∣ gcd (m * k) n :=
-!mul.comm ▸ !gcd_dvd_gcd_mul_left
+mul.comm k m ▸ gcd_dvd_gcd_mul_left m n k
 
 theorem gcd_dvd_gcd_mul_left_right (m n k : ℕ) : gcd m n ∣ gcd m (k * n) :=
-dvd_gcd  !gcd_dvd_left (dvd.trans !gcd_dvd_right !dvd_mul_left)
+dvd_gcd (gcd_dvd_left m n) (dvd.trans (gcd_dvd_right m n) (dvd_mul_left n k))
 
 theorem gcd_dvd_gcd_mul_right_right (m n k : ℕ) : gcd m n ∣ gcd m (n * k) :=
-!mul.comm ▸ !gcd_dvd_gcd_mul_left_right
+mul.comm k n ▸ gcd_dvd_gcd_mul_left_right m n k
 
 /- lcm -/
 
@@ -202,7 +202,7 @@ calc
       ... = 0               : by rewrite nat.zero_div
 -/
 
-theorem lcm_zero_right (m : ℕ) : lcm m 0 = 0 := !lcm.comm ▸ !lcm_zero_left
+theorem lcm_zero_right (m : ℕ) : lcm m 0 = 0 := lcm.comm 0 m ▸ lcm_zero_left m
 
 theorem lcm_one_left (m : ℕ) : lcm 1 m = m :=
 sorry
@@ -214,7 +214,7 @@ calc
       ... = m                 : by rewrite nat.div_one
 -/
 
-theorem lcm_one_right (m : ℕ) : lcm m 1 = m := !lcm.comm ▸ !lcm_one_left
+theorem lcm_one_right (m : ℕ) : lcm m 1 = m := lcm.comm 1 m ▸ lcm_one_left m
 
 theorem lcm_self (m : ℕ) : lcm m m = m :=
 sorry
@@ -228,14 +228,14 @@ calc
 -/
 
 theorem dvd_lcm_left (m n : ℕ) : m ∣ lcm m n :=
-have H : lcm m n = m * (n / gcd m n), from nat.mul_div_assoc _ !gcd_dvd_right,
+have H : lcm m n = m * (n / gcd m n), from nat.mul_div_assoc _ $ gcd_dvd_right m n,
 dvd.intro H⁻¹
 
 theorem dvd_lcm_right (m n : ℕ) : n ∣ lcm m n :=
-!lcm.comm ▸ !dvd_lcm_left
+lcm.comm n m ▸ dvd_lcm_left n m
 
 theorem gcd_mul_lcm (m n : ℕ) : gcd m n * lcm m n = m * n :=
-eq.symm (nat.eq_mul_of_div_eq_right (dvd.trans !gcd_dvd_left !dvd_mul_right) rfl)
+eq.symm (nat.eq_mul_of_div_eq_right (dvd.trans (gcd_dvd_left m n) (dvd_mul_right m n)) rfl)
 
 theorem lcm_dvd {m n k : ℕ} (H1 : m ∣ k) (H2 : n ∣ k) : lcm m n ∣ k :=
 sorry
@@ -273,11 +273,11 @@ or.elim (eq_zero_or_pos k)
 theorem lcm.assoc (m n k : ℕ) : lcm (lcm m n) k = lcm m (lcm n k) :=
 dvd.antisymm
   (lcm_dvd
-    (lcm_dvd !dvd_lcm_left (dvd.trans !dvd_lcm_left !dvd_lcm_right))
-    (dvd.trans !dvd_lcm_right !dvd_lcm_right))
+    (lcm_dvd (dvd_lcm_left m (lcm n k)) (dvd.trans (dvd_lcm_left n k) (dvd_lcm_right m (lcm n k))))
+    (dvd.trans (dvd_lcm_right n k) (dvd_lcm_right m (lcm n k))))
   (lcm_dvd
-    (dvd.trans !dvd_lcm_left !dvd_lcm_left)
-    (lcm_dvd (dvd.trans !dvd_lcm_right !dvd_lcm_left) !dvd_lcm_right))
+    (dvd.trans (dvd_lcm_left m n) (dvd_lcm_left (lcm m n) k))
+    (lcm_dvd (dvd.trans (dvd_lcm_right m n) (dvd_lcm_left (lcm m n) k)) (dvd_lcm_right (lcm m n) k)))
 
 /- coprime -/
 
@@ -287,7 +287,7 @@ lemma gcd_eq_one_of_coprime {m n : ℕ} : coprime m n → gcd m n = 1 :=
 λ h, h
 
 theorem coprime_swap {m n : ℕ} (H : coprime n m) : coprime m n :=
-!gcd.comm ▸ H
+gcd.comm n m ▸ H
 
 theorem dvd_of_coprime_of_dvd_mul_right {m n k : ℕ} (H1 : coprime k n) (H2 : k ∣ m * n) : k ∣ m :=
 sorry
@@ -302,7 +302,7 @@ H3 ▸ H4
 -/
 
 theorem dvd_of_coprime_of_dvd_mul_left {m n k : ℕ} (H1 : coprime k m) (H2 : k ∣ m * n) : k ∣ n :=
-dvd_of_coprime_of_dvd_mul_right H1 (!mul.comm ▸ H2)
+dvd_of_coprime_of_dvd_mul_right H1 (mul.comm m n ▸ H2)
 
 theorem gcd_mul_left_cancel_of_coprime {k : ℕ} (m : ℕ) {n : ℕ} (H : coprime k n) :
    gcd (k * m) n = gcd m n :=
@@ -320,20 +320,20 @@ dvd.antisymm
 
 theorem gcd_mul_right_cancel_of_coprime (m : ℕ) {k n : ℕ} (H : coprime k n) :
    gcd (m * k) n = gcd m n :=
-!mul.comm ▸ !gcd_mul_left_cancel_of_coprime H
+mul.comm k m ▸ gcd_mul_left_cancel_of_coprime m H
 
 theorem gcd_mul_left_cancel_of_coprime_right {k m : ℕ} (n : ℕ) (H : coprime k m) :
    gcd m (k * n) = gcd m n :=
-!gcd.comm ▸ !gcd.comm ▸ !gcd_mul_left_cancel_of_coprime H
+gcd.comm n m ▸ gcd.comm (k * n) m ▸ gcd_mul_left_cancel_of_coprime n H
 
 theorem gcd_mul_right_cancel_of_coprime_right {k m : ℕ} (n : ℕ) (H : coprime k m) :
    gcd m (n * k) = gcd m n :=
-!gcd.comm ▸ !gcd.comm ▸ !gcd_mul_right_cancel_of_coprime H
+gcd.comm n m ▸ gcd.comm (n * k) m ▸ gcd_mul_right_cancel_of_coprime n H
 
 theorem coprime_div_gcd_div_gcd {m n : ℕ} (H : gcd m n > 0) :
   coprime (m / gcd m n) (n / gcd m n) :=
 calc
-  gcd (m / gcd m n) (n / gcd m n) = gcd m n / gcd m n : gcd_div !gcd_dvd_left !gcd_dvd_right
+  gcd (m / gcd m n) (n / gcd m n) = gcd m n / gcd m n : gcd_div (gcd_dvd_left m n) (gcd_dvd_right m n)
      ... = 1 : nat.div_self H
 
 theorem not_coprime_of_dvd_of_dvd {m n d : ℕ} (dgt1 : d > 1) (Hm : d ∣ m) (Hn : d ∣ n) :
@@ -349,36 +349,36 @@ show false, from not_lt_of_ge `d ≤ 1` `d > 1`
 
 theorem exists_coprime {m n : ℕ} (H : gcd m n > 0) :
   exists m' n', coprime m' n' ∧ m = m' * gcd m n ∧ n = n' * gcd m n :=
-have H1 : m = (m / gcd m n) * gcd m n, from (nat.div_mul_cancel !gcd_dvd_left)⁻¹,
-have H2 : n = (n / gcd m n) * gcd m n, from (nat.div_mul_cancel !gcd_dvd_right)⁻¹,
+have H1 : m = (m / gcd m n) * gcd m n, from (nat.div_mul_cancel (gcd_dvd_left m n))⁻¹,
+have H2 : n = (n / gcd m n) * gcd m n, from (nat.div_mul_cancel (gcd_dvd_right m n))⁻¹,
 exists.intro _ (exists.intro _ (and.intro (coprime_div_gcd_div_gcd H) (and.intro H1 H2)))
 
 theorem coprime_mul {m n k : ℕ} (H1 : coprime m k) (H2 : coprime n k) : coprime (m * n) k :=
 calc
-  gcd (m * n) k = gcd n k : !gcd_mul_left_cancel_of_coprime H1
+  gcd (m * n) k = gcd n k : gcd_mul_left_cancel_of_coprime n H1
             ... = 1       : H2
 
 theorem coprime_mul_right {k m n : ℕ} (H1 : coprime k m) (H2 : coprime k n) : coprime k (m * n) :=
 coprime_swap (coprime_mul (coprime_swap H1) (coprime_swap H2))
 
 theorem coprime_of_coprime_mul_left {k m n : ℕ} (H : coprime (k * m) n) : coprime m n :=
-have H1 : (gcd m n ∣ gcd (k * m) n), from !gcd_dvd_gcd_mul_left,
+have H1 : (gcd m n ∣ gcd (k * m) n), from gcd_dvd_gcd_mul_left m n k,
 eq_one_of_dvd_one (H ▸ H1)
 
 theorem coprime_of_coprime_mul_right {k m n : ℕ} (H : coprime (m * k) n) : coprime m n :=
-coprime_of_coprime_mul_left (!mul.comm ▸ H)
+coprime_of_coprime_mul_left (mul.comm m k ▸ H)
 
 theorem coprime_of_coprime_mul_left_right {k m n : ℕ} (H : coprime m (k * n)) : coprime m n :=
 coprime_swap (coprime_of_coprime_mul_left (coprime_swap H))
 
 theorem coprime_of_coprime_mul_right_right {k m n : ℕ} (H : coprime m (n * k)) : coprime m n :=
-coprime_of_coprime_mul_left_right (!mul.comm ▸ H)
+coprime_of_coprime_mul_left_right (mul.comm n k ▸ H)
 
 theorem comprime_one_left : ∀ n, coprime 1 n :=
-λ n, !gcd_one_left
+λ n, gcd_one_left n
 
 theorem comprime_one_right : ∀ n, coprime n 1 :=
-λ n, !gcd_one_right
+λ n, gcd_one_right n
 
 theorem exists_eq_prod_and_dvd_and_dvd {m n k : nat} (H : k ∣ m * n) :
   ∃ m' n', k = m' * n' ∧ m' ∣ m ∧ n' ∣ n :=

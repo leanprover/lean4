@@ -26,7 +26,7 @@ section
   variables {a b c d e : A}
 
   theorem add_lt_add_left (H : a < b) (c : A) : c + a < c + b :=
-    !ordered_cancel_comm_monoid.add_lt_add_left H c
+   ordered_cancel_comm_monoid.add_lt_add_left a b H c
 
   theorem add_lt_add_right (H : a < b) (c : A) : a + c < b + c :=
   sorry
@@ -38,7 +38,7 @@ section
   -/
 
   theorem add_le_add_left (H : a ≤ b) (c : A) : c + a ≤ c + b :=
-  !ordered_cancel_comm_monoid.add_le_add_left H c
+  ordered_cancel_comm_monoid.add_le_add_left a b H c
 
   theorem add_le_add_right (H : a ≤ b) (c : A) : a + c ≤ b + c :=
   (add.comm c a) ▸ (add.comm c b) ▸ (add_le_add_left H c)
@@ -75,19 +75,19 @@ section
   theorem add_lt_add_of_lt_of_le (Hab : a < b) (Hcd : c ≤ d) : a + c < b + d :=
   lt_of_lt_of_le (add_lt_add_right Hab c) (add_le_add_left Hcd b)
 
-  theorem lt_add_of_pos_right (H : b > 0) : a < a + b := !add_zero ▸ add_lt_add_left H a
+  theorem lt_add_of_pos_right (H : b > 0) : a < a + b := add_zero a ▸ add_lt_add_left H a
 
-  theorem lt_add_of_pos_left (H : b > 0) : a < b + a := !zero_add ▸ add_lt_add_right H a
+  theorem lt_add_of_pos_left (H : b > 0) : a < b + a := zero_add a ▸ add_lt_add_right H a
 
   -- here we start using le_of_add_le_add_left.
   theorem le_of_add_le_add_left (H : a + b ≤ a + c) : b ≤ c :=
-  !ordered_cancel_comm_monoid.le_of_add_le_add_left H
+  ordered_cancel_comm_monoid.le_of_add_le_add_left a b c H
 
   theorem le_of_add_le_add_right (H : a + b ≤ c + b) : a ≤ c :=
   sorry -- le_of_add_le_add_left (show b + a ≤ b + c, begin rewrite [add.comm, {b + _}add.comm], exact H end)
 
   theorem lt_of_add_lt_add_left (H : a + b < a + c) : b < c :=
-  !ordered_cancel_comm_monoid.lt_of_add_lt_add_left H
+  ordered_cancel_comm_monoid.lt_of_add_lt_add_left a b c H
 
   theorem lt_of_add_lt_add_right (H : a + b < c + b) : a < c :=
   lt_of_add_lt_add_left ((add.comm a b) ▸ (add.comm c b) ▸ H)
@@ -106,28 +106,28 @@ section
 
   -- here we start using properties of zero.
   theorem add_nonneg (Ha : 0 ≤ a) (Hb : 0 ≤ b) : 0 ≤ a + b :=
-  !zero_add ▸ (add_le_add Ha Hb)
+  zero_add 0 ▸ (add_le_add Ha Hb)
 
   theorem add_pos (Ha : 0 < a) (Hb : 0 < b) : 0 < a + b :=
-  !zero_add ▸ (add_lt_add Ha Hb)
+  zero_add 0 ▸ (add_lt_add Ha Hb)
 
   theorem add_pos_of_pos_of_nonneg (Ha : 0 < a) (Hb : 0 ≤ b) : 0 < a + b :=
-  !zero_add ▸ (add_lt_add_of_lt_of_le Ha Hb)
+  zero_add 0 ▸ (add_lt_add_of_lt_of_le Ha Hb)
 
   theorem add_pos_of_nonneg_of_pos (Ha : 0 ≤ a) (Hb : 0 < b) : 0 < a + b :=
-  !zero_add ▸ (add_lt_add_of_le_of_lt Ha Hb)
+  zero_add 0 ▸ (add_lt_add_of_le_of_lt Ha Hb)
 
   theorem add_nonpos (Ha : a ≤ 0) (Hb : b ≤ 0) : a + b ≤ 0 :=
-  !zero_add ▸ (add_le_add Ha Hb)
+  zero_add 0 ▸ (add_le_add Ha Hb)
 
   theorem add_neg (Ha : a < 0) (Hb : b < 0) : a + b < 0 :=
-  !zero_add ▸ (add_lt_add Ha Hb)
+  zero_add 0 ▸ (add_lt_add Ha Hb)
 
   theorem add_neg_of_neg_of_nonpos (Ha : a < 0) (Hb : b ≤ 0) : a + b < 0 :=
-  !zero_add ▸ (add_lt_add_of_lt_of_le Ha Hb)
+  zero_add 0 ▸ (add_lt_add_of_lt_of_le Ha Hb)
 
   theorem add_neg_of_nonpos_of_neg (Ha : a ≤ 0) (Hb : b < 0) : a + b < 0 :=
-  !zero_add ▸ (add_lt_add_of_le_of_lt Ha Hb)
+  zero_add 0 ▸ (add_lt_add_of_le_of_lt Ha Hb)
 
   -- TODO: add nonpos version (will be easier with simplifier)
   theorem add_eq_zero_iff_eq_zero_and_eq_zero_of_nonneg_of_nonneg
@@ -155,52 +155,52 @@ section
   -/
 
   theorem le_add_of_nonneg_of_le (Ha : 0 ≤ a) (Hbc : b ≤ c) : b ≤ a + c :=
-  !zero_add ▸ add_le_add Ha Hbc
+  zero_add b ▸ add_le_add Ha Hbc
 
   theorem le_add_of_le_of_nonneg (Hbc : b ≤ c) (Ha : 0 ≤ a) : b ≤ c + a :=
-  !add_zero ▸ add_le_add Hbc Ha
+  add_zero b ▸ add_le_add Hbc Ha
 
   theorem lt_add_of_pos_of_le (Ha : 0 < a) (Hbc : b ≤ c) : b < a + c :=
-  !zero_add ▸ add_lt_add_of_lt_of_le Ha Hbc
+  zero_add b ▸ add_lt_add_of_lt_of_le Ha Hbc
 
   theorem lt_add_of_le_of_pos (Hbc : b ≤ c) (Ha : 0 < a) : b < c + a :=
-  !add_zero ▸ add_lt_add_of_le_of_lt Hbc Ha
+  add_zero b ▸ add_lt_add_of_le_of_lt Hbc Ha
 
   theorem add_le_of_nonpos_of_le (Ha : a ≤ 0) (Hbc : b ≤ c) : a + b ≤ c :=
-  !zero_add ▸ add_le_add Ha Hbc
+  zero_add c ▸ add_le_add Ha Hbc
 
   theorem add_le_of_le_of_nonpos (Hbc : b ≤ c) (Ha : a ≤ 0) : b + a ≤ c :=
-  !add_zero ▸ add_le_add Hbc Ha
+  add_zero c ▸ add_le_add Hbc Ha
 
   theorem add_lt_of_neg_of_le (Ha : a < 0) (Hbc : b ≤ c) : a + b < c :=
-  !zero_add ▸ add_lt_add_of_lt_of_le Ha Hbc
+  zero_add c ▸ add_lt_add_of_lt_of_le Ha Hbc
 
   theorem add_lt_of_le_of_neg (Hbc : b ≤ c) (Ha : a < 0) : b + a < c :=
-  !add_zero ▸ add_lt_add_of_le_of_lt Hbc Ha
+  add_zero c ▸ add_lt_add_of_le_of_lt Hbc Ha
 
   theorem lt_add_of_nonneg_of_lt (Ha : 0 ≤ a) (Hbc : b < c) : b < a + c :=
-  !zero_add ▸ add_lt_add_of_le_of_lt Ha Hbc
+  zero_add b ▸ add_lt_add_of_le_of_lt Ha Hbc
 
   theorem lt_add_of_lt_of_nonneg (Hbc : b < c) (Ha : 0 ≤ a) : b < c + a :=
-  !add_zero ▸ add_lt_add_of_lt_of_le Hbc Ha
+  add_zero b ▸ add_lt_add_of_lt_of_le Hbc Ha
 
   theorem lt_add_of_pos_of_lt (Ha : 0 < a) (Hbc : b < c) : b < a + c :=
-  !zero_add ▸ add_lt_add Ha Hbc
+  zero_add b ▸ add_lt_add Ha Hbc
 
   theorem lt_add_of_lt_of_pos (Hbc : b < c) (Ha : 0 < a) : b < c + a :=
-  !add_zero ▸ add_lt_add Hbc Ha
+  add_zero b ▸ add_lt_add Hbc Ha
 
   theorem add_lt_of_nonpos_of_lt (Ha : a ≤ 0) (Hbc : b < c) : a + b < c :=
-  !zero_add ▸ add_lt_add_of_le_of_lt Ha Hbc
+  zero_add c ▸ add_lt_add_of_le_of_lt Ha Hbc
 
   theorem add_lt_of_lt_of_nonpos (Hbc : b < c) (Ha : a ≤ 0)  : b + a < c :=
-  !add_zero ▸ add_lt_add_of_lt_of_le Hbc Ha
+  add_zero c ▸ add_lt_add_of_lt_of_le Hbc Ha
 
   theorem add_lt_of_neg_of_lt (Ha : a < 0) (Hbc : b < c) : a + b < c :=
-  !zero_add ▸ add_lt_add Ha Hbc
+  zero_add c ▸ add_lt_add Ha Hbc
 
   theorem add_lt_of_lt_of_neg (Hbc : b < c) (Ha : a < 0) : b + a < c :=
-  !add_zero ▸ add_lt_add Hbc Ha
+  add_zero c ▸ add_lt_add Hbc Ha
 
   theorem strictly_increasing_add_left (c : A) : strictly_increasing (λ x, x + c) :=
   take x₁ x₂, assume H, add_lt_add_right H c
@@ -288,8 +288,8 @@ section
   variables [ordered_comm_group A] (a b c d e : A)
 
   theorem neg_le_neg {a b : A} (H : a ≤ b) : -b ≤ -a :=
-  have H1 : 0 ≤ -a + b, from !add.left_inv ▸ !(add_le_add_left H),
-  !add_neg_cancel_right ▸ !zero_add ▸ add_le_add_right H1 (-b)
+  have H1 : 0 ≤ -a + b, from add.left_inv a ▸ add_le_add_left H (-a),
+  add_neg_cancel_right (-a) b ▸ zero_add (-b) ▸ add_le_add_right H1 (-b)
 
   theorem le_of_neg_le_neg {a b : A} (H : -b ≤ -a) : a ≤ b :=
   neg_neg a ▸ neg_neg b ▸ neg_le_neg H
@@ -316,8 +316,8 @@ section
   iff.intro nonpos_of_neg_nonneg neg_nonneg_of_nonpos
 
   theorem neg_lt_neg {a b : A} (H : a < b) : -b < -a :=
-  have H1 : 0 < -a + b, from !add.left_inv ▸ !(add_lt_add_left H),
-  !add_neg_cancel_right ▸ !zero_add ▸ add_lt_add_right H1 (-b)
+  have H1 : 0 < -a + b, from add.left_inv a ▸ add_lt_add_left H (-a),
+  add_neg_cancel_right (-a) b ▸ zero_add (-b) ▸ add_lt_add_right H1 (-b)
 
   theorem lt_of_neg_lt_neg {a b : A} (H : -b < -a) : a < b :=
   neg_neg a ▸ neg_neg b ▸ neg_lt_neg H
@@ -343,161 +343,161 @@ section
   theorem neg_pos_iff_neg : 0 < -a ↔ a < 0 :=
   iff.intro neg_of_neg_pos neg_pos_of_neg
 
-  theorem le_neg_iff_le_neg : a ≤ -b ↔ b ≤ -a := !neg_neg ▸ !neg_le_neg_iff_le
+  theorem le_neg_iff_le_neg : a ≤ -b ↔ b ≤ -a := neg_neg a ▸ neg_le_neg_iff_le (-a) b
 
-  theorem le_neg_of_le_neg {a b : A} : a ≤ -b → b ≤ -a := iff.mp !le_neg_iff_le_neg
+  theorem le_neg_of_le_neg {a b : A} : a ≤ -b → b ≤ -a := iff.mp (le_neg_iff_le_neg a b)
 
-  theorem neg_le_iff_neg_le : -a ≤ b ↔ -b ≤ a := !neg_neg ▸ !neg_le_neg_iff_le
+  theorem neg_le_iff_neg_le : -a ≤ b ↔ -b ≤ a := neg_neg b ▸ neg_le_neg_iff_le a (-b)
 
-  theorem neg_le_of_neg_le {a b : A} : -a ≤ b → -b ≤ a := iff.mp !neg_le_iff_neg_le
+  theorem neg_le_of_neg_le {a b : A} : -a ≤ b → -b ≤ a := iff.mp (neg_le_iff_neg_le a b)
 
-  theorem lt_neg_iff_lt_neg : a < -b ↔ b < -a := !neg_neg ▸ !neg_lt_neg_iff_lt
+  theorem lt_neg_iff_lt_neg : a < -b ↔ b < -a := neg_neg a ▸ neg_lt_neg_iff_lt (-a) b
 
-  theorem lt_neg_of_lt_neg {a b : A} : a < -b → b < -a := iff.mp !lt_neg_iff_lt_neg
+  theorem lt_neg_of_lt_neg {a b : A} : a < -b → b < -a := iff.mp (lt_neg_iff_lt_neg a b)
 
-  theorem neg_lt_iff_neg_lt : -a < b ↔ -b < a := !neg_neg ▸ !neg_lt_neg_iff_lt
+  theorem neg_lt_iff_neg_lt : -a < b ↔ -b < a := neg_neg b ▸ neg_lt_neg_iff_lt a (-b)
 
-  theorem neg_lt_of_neg_lt {a b : A} : -a < b → -b < a := iff.mp !neg_lt_iff_neg_lt
+  theorem neg_lt_of_neg_lt {a b : A} : -a < b → -b < a := iff.mp (neg_lt_iff_neg_lt a b)
 
-  theorem sub_nonneg_iff_le : 0 ≤ a - b ↔ b ≤ a := !sub_self ▸ !add_le_add_right_iff
+  theorem sub_nonneg_iff_le : 0 ≤ a - b ↔ b ≤ a := sub_self b ▸ add_le_add_right_iff b (-b) a
 
-  theorem sub_nonneg_of_le {a b : A} : b ≤ a → 0 ≤ a - b := iff.mpr !sub_nonneg_iff_le
+  theorem sub_nonneg_of_le {a b : A} : b ≤ a → 0 ≤ a - b := iff.mpr (sub_nonneg_iff_le a b)
 
-  theorem le_of_sub_nonneg {a b : A} : 0 ≤ a - b → b ≤ a := iff.mp !sub_nonneg_iff_le
+  theorem le_of_sub_nonneg {a b : A} : 0 ≤ a - b → b ≤ a := iff.mp (sub_nonneg_iff_le a b)
 
-  theorem sub_nonpos_iff_le : a - b ≤ 0 ↔ a ≤ b := !sub_self ▸ !add_le_add_right_iff
+  theorem sub_nonpos_iff_le : a - b ≤ 0 ↔ a ≤ b := sub_self b ▸ add_le_add_right_iff a (-b) b
 
-  theorem sub_nonpos_of_le {a b : A} : a ≤ b → a - b ≤ 0 := iff.mpr !sub_nonpos_iff_le
+  theorem sub_nonpos_of_le {a b : A} : a ≤ b → a - b ≤ 0 := iff.mpr (sub_nonpos_iff_le a b)
 
-  theorem le_of_sub_nonpos {a b : A} : a - b ≤ 0 → a ≤ b := iff.mp !sub_nonpos_iff_le
+  theorem le_of_sub_nonpos {a b : A} : a - b ≤ 0 → a ≤ b := iff.mp (sub_nonpos_iff_le a b)
 
-  theorem sub_pos_iff_lt : 0 < a - b ↔ b < a := !sub_self ▸ !add_lt_add_right_iff
+  theorem sub_pos_iff_lt : 0 < a - b ↔ b < a := sub_self b ▸ add_lt_add_right_iff b (-b) a
 
-  theorem sub_pos_of_lt {a b : A} : b < a → 0 < a - b := iff.mpr !sub_pos_iff_lt
+  theorem sub_pos_of_lt {a b : A} : b < a → 0 < a - b := iff.mpr (sub_pos_iff_lt a b)
 
-  theorem lt_of_sub_pos {a b : A} : 0 < a - b → b < a := iff.mp !sub_pos_iff_lt
+  theorem lt_of_sub_pos {a b : A} : 0 < a - b → b < a := iff.mp (sub_pos_iff_lt a b)
 
-  theorem sub_neg_iff_lt : a - b < 0 ↔ a < b := !sub_self ▸ !add_lt_add_right_iff
+  theorem sub_neg_iff_lt : a - b < 0 ↔ a < b := sub_self b ▸ add_lt_add_right_iff a (-b) b
 
-  theorem sub_neg_of_lt {a b : A} : a < b → a - b < 0 := iff.mpr !sub_neg_iff_lt
+  theorem sub_neg_of_lt {a b : A} : a < b → a - b < 0 := iff.mpr (sub_neg_iff_lt a b)
 
-  theorem lt_of_sub_neg {a b : A} : a - b < 0 → a < b := iff.mp !sub_neg_iff_lt
+  theorem lt_of_sub_neg {a b : A} : a - b < 0 → a < b := iff.mp (sub_neg_iff_lt a b)
 
   theorem add_le_iff_le_neg_add : a + b ≤ c ↔ b ≤ -a + c :=
-  have H: a + b ≤ c ↔ -a + (a + b) ≤ -a + c, from iff.symm (!add_le_add_left_iff),
-  !neg_add_cancel_left ▸ H
+  have H: a + b ≤ c ↔ -a + (a + b) ≤ -a + c, from iff.symm (add_le_add_left_iff (-a) (a + b) c),
+  neg_add_cancel_left a b ▸ H
 
   theorem add_le_of_le_neg_add {a b c : A} : b ≤ -a + c → a + b ≤ c :=
-    iff.mpr !add_le_iff_le_neg_add
+  iff.mpr (add_le_iff_le_neg_add a b c)
 
   theorem le_neg_add_of_add_le {a b c : A} : a + b ≤ c → b ≤ -a + c :=
-    iff.mp !add_le_iff_le_neg_add
+  iff.mp (add_le_iff_le_neg_add a b c)
 
   theorem add_le_iff_le_sub_left : a + b ≤ c ↔ b ≤ c - a :=
   sorry -- by rewrite [sub_eq_add_neg, {c+_}add.comm]; apply add_le_iff_le_neg_add
 
   theorem add_le_of_le_sub_left {a b c : A} : b ≤ c - a → a + b ≤ c :=
-    iff.mpr !add_le_iff_le_sub_left
+  iff.mpr (add_le_iff_le_sub_left a b c)
 
   theorem le_sub_left_of_add_le {a b c : A} : a + b ≤ c → b ≤ c - a :=
-    iff.mp !add_le_iff_le_sub_left
+  iff.mp (add_le_iff_le_sub_left a b c)
 
   theorem add_le_iff_le_sub_right : a + b ≤ c ↔ a ≤ c - b :=
-  have H: a + b ≤ c ↔ a + b - b ≤ c - b, from iff.symm (!add_le_add_right_iff),
-  !add_neg_cancel_right ▸ H
+  have H: a + b ≤ c ↔ a + b - b ≤ c - b, from iff.symm (add_le_add_right_iff (a + b) (-b) c),
+  add_neg_cancel_right a b ▸ H
 
   theorem add_le_of_le_sub_right {a b c : A} : a ≤ c - b → a + b ≤ c :=
-    iff.mpr !add_le_iff_le_sub_right
+  iff.mpr (add_le_iff_le_sub_right a b c)
 
   theorem le_sub_right_of_add_le {a b c : A} : a + b ≤ c → a ≤ c - b :=
-    iff.mp !add_le_iff_le_sub_right
+  iff.mp (add_le_iff_le_sub_right a b c)
 
   theorem le_add_iff_neg_add_le : a ≤ b + c ↔ -b + a ≤ c :=
-  have H: a ≤ b + c ↔ -b + a ≤ -b + (b + c), from iff.symm (!add_le_add_left_iff),
+  have H: a ≤ b + c ↔ -b + a ≤ -b + (b + c), from iff.symm (add_le_add_left_iff (-b) a (b + c)),
   sorry -- by rewrite neg_add_cancel_left at H; exact H
 
   theorem le_add_of_neg_add_le {a b c : A} : -b + a ≤ c → a ≤ b + c :=
-    iff.mpr !le_add_iff_neg_add_le
+  iff.mpr (le_add_iff_neg_add_le a b c)
 
   theorem neg_add_le_of_le_add {a b c : A} : a ≤ b + c → -b + a ≤ c :=
-    iff.mp !le_add_iff_neg_add_le
+  iff.mp (le_add_iff_neg_add_le a b c)
 
   theorem le_add_iff_sub_left_le : a ≤ b + c ↔ a - b ≤ c :=
   sorry -- by rewrite [sub_eq_add_neg, {a+_}add.comm]; apply le_add_iff_neg_add_le
 
   theorem le_add_of_sub_left_le {a b c : A} : a - b ≤ c → a ≤ b + c :=
-    iff.mpr !le_add_iff_sub_left_le
+  iff.mpr (le_add_iff_sub_left_le a b c)
 
   theorem sub_left_le_of_le_add {a b c : A} : a ≤ b + c → a - b ≤ c :=
-    iff.mp !le_add_iff_sub_left_le
+  iff.mp (le_add_iff_sub_left_le a b c)
 
   theorem le_add_iff_sub_right_le : a ≤ b + c ↔ a - c ≤ b :=
-  have H: a ≤ b + c ↔ a - c ≤ b + c - c, from iff.symm (!add_le_add_right_iff),
+  have H: a ≤ b + c ↔ a - c ≤ b + c - c, from iff.symm (add_le_add_right_iff a (-c) (b + c)),
   sorry -- by rewrite [sub_eq_add_neg (b+c) c at H, add_neg_cancel_right at H]; exact H
 
   theorem le_add_of_sub_right_le {a b c : A} : a - c ≤ b → a ≤ b + c :=
-    iff.mpr !le_add_iff_sub_right_le
+  iff.mpr $ le_add_iff_sub_right_le a b c
 
   theorem sub_right_le_of_le_add {a b c : A} : a ≤ b + c → a - c ≤ b :=
-    iff.mp !le_add_iff_sub_right_le
+  iff.mp $ le_add_iff_sub_right_le a b c
 
   theorem le_add_iff_neg_add_le_left : a ≤ b + c ↔ -b + a ≤ c :=
-  have H: a ≤ b + c ↔ -b + a ≤ -b + (b + c), from iff.symm (!add_le_add_left_iff),
+  have H: a ≤ b + c ↔ -b + a ≤ -b + (b + c), from iff.symm $ add_le_add_left_iff (-b) a (b + c),
   sorry -- by rewrite neg_add_cancel_left at H; exact H
 
   theorem le_add_of_neg_add_le_left {a b c : A} : -b + a ≤ c → a ≤ b + c :=
-    iff.mpr !le_add_iff_neg_add_le_left
+  iff.mpr $ le_add_iff_neg_add_le_left a b c
 
   theorem neg_add_le_left_of_le_add {a b c : A} : a ≤ b + c → -b + a ≤ c :=
-    iff.mp !le_add_iff_neg_add_le_left
+  iff.mp $ le_add_iff_neg_add_le_left a b c
 
   theorem le_add_iff_neg_add_le_right : a ≤ b + c ↔ -c + a ≤ b :=
   sorry -- by rewrite add.comm; apply le_add_iff_neg_add_le_left
 
   theorem le_add_of_neg_add_le_right {a b c : A} : -c + a ≤ b → a ≤ b + c :=
-    iff.mpr !le_add_iff_neg_add_le_right
+  iff.mpr $ le_add_iff_neg_add_le_right a b c
 
   theorem neg_add_le_right_of_le_add {a b c : A} : a ≤ b + c → -c + a ≤ b :=
-    iff.mp  !le_add_iff_neg_add_le_right
+  iff.mp $ le_add_iff_neg_add_le_right a b c
 
   theorem le_add_iff_neg_le_sub_left : c ≤ a + b ↔ -a ≤ b - c :=
-  have H : c ≤ a + b ↔ -a + c ≤ b, from !le_add_iff_neg_add_le,
-  have H' : -a + c ≤ b ↔ -a ≤ b - c, from !add_le_iff_le_sub_right,
+  have H : c ≤ a + b ↔ -a + c ≤ b, from le_add_iff_neg_add_le c a b,
+  have H' : -a + c ≤ b ↔ -a ≤ b - c, from add_le_iff_le_sub_right (-a) c b,
   iff.trans H H'
 
   theorem le_add_of_neg_le_sub_left {a b c : A} : -a ≤ b - c → c ≤ a + b :=
-    iff.mpr !le_add_iff_neg_le_sub_left
+  iff.mpr $ le_add_iff_neg_le_sub_left a b c
 
   theorem neg_le_sub_left_of_le_add {a b c : A} : c ≤ a + b → -a ≤ b - c :=
-    iff.mp !le_add_iff_neg_le_sub_left
+  iff.mp $ le_add_iff_neg_le_sub_left a b c
 
   theorem le_add_iff_neg_le_sub_right : c ≤ a + b ↔ -b ≤ a - c :=
   sorry -- by rewrite add.comm; apply le_add_iff_neg_le_sub_left
 
   theorem le_add_of_neg_le_sub_right {a b c : A} : -b ≤ a - c → c ≤ a + b :=
-    iff.mpr !le_add_iff_neg_le_sub_right
+  iff.mpr $ le_add_iff_neg_le_sub_right a b c
 
   theorem neg_le_sub_right_of_le_add {a b c : A} : c ≤ a + b → -b ≤ a - c :=
-    iff.mp !le_add_iff_neg_le_sub_right
+  iff.mp $ le_add_iff_neg_le_sub_right a b c
 
   theorem add_lt_iff_lt_neg_add_left : a + b < c ↔ b < -a + c :=
-  have H: a + b < c ↔ -a + (a + b) < -a + c, from iff.symm (!add_lt_add_left_iff),
+  have H: a + b < c ↔ -a + (a + b) < -a + c, from iff.symm $ add_lt_add_left_iff (-a) (a + b) c,
   sorry -- begin rewrite neg_add_cancel_left at H, exact H end
 
   theorem add_lt_of_lt_neg_add_left {a b c : A} : b < -a + c → a + b < c :=
-    iff.mpr !add_lt_iff_lt_neg_add_left
+  iff.mpr $ add_lt_iff_lt_neg_add_left a b c
 
   theorem lt_neg_add_left_of_add_lt {a b c : A} : a + b < c → b < -a + c :=
-    iff.mp !add_lt_iff_lt_neg_add_left
+  iff.mp $ add_lt_iff_lt_neg_add_left a b c
 
   theorem add_lt_iff_lt_neg_add_right : a + b < c ↔ a < -b + c :=
   sorry -- by rewrite add.comm; apply add_lt_iff_lt_neg_add_left
 
   theorem add_lt_of_lt_neg_add_right {a b c : A} : a < -b + c → a + b < c :=
-    iff.mpr !add_lt_iff_lt_neg_add_right
+  iff.mpr $ add_lt_iff_lt_neg_add_right a b c
 
   theorem lt_neg_add_right_of_add_lt {a b c : A} : a + b < c → a < -b + c :=
-    iff.mp !add_lt_iff_lt_neg_add_right
+  iff.mp $ add_lt_iff_lt_neg_add_right a b c
 
   theorem add_lt_iff_lt_sub_left : a + b < c ↔ b < c - a :=
   sorry
@@ -509,10 +509,10 @@ section
   -/
 
   theorem add_lt_of_lt_sub_left {a b c : A} : b < c - a → a + b < c :=
-    iff.mpr !add_lt_iff_lt_sub_left
+  iff.mpr $ add_lt_iff_lt_sub_left a b c
 
   theorem lt_sub_left_of_add_lt {a b c : A} : a + b < c → b < c - a :=
-    iff.mp !add_lt_iff_lt_sub_left
+  iff.mp $ add_lt_iff_lt_sub_left a b c
 
   theorem add_lt_iff_lt_sub_right : a + b < c ↔ a < c - b :=
   sorry
@@ -522,10 +522,10 @@ section
   -/
 
   theorem add_lt_of_lt_sub_right {a b c : A} : a < c - b → a + b < c :=
-    iff.mpr !add_lt_iff_lt_sub_right
+  iff.mpr $ add_lt_iff_lt_sub_right a b c
 
   theorem lt_sub_right_of_add_lt {a b c : A} : a + b < c → a < c - b :=
-    iff.mp !add_lt_iff_lt_sub_right
+  iff.mp $ add_lt_iff_lt_sub_right a b c
 
   theorem lt_add_iff_neg_add_lt_left : a < b + c ↔ -b + a < c :=
   sorry
@@ -535,37 +535,37 @@ section
   -/
 
   theorem lt_add_of_neg_add_lt_left {a b c : A} : -b + a < c → a < b + c :=
-    iff.mpr !lt_add_iff_neg_add_lt_left
+  iff.mpr $ lt_add_iff_neg_add_lt_left a b c
 
   theorem neg_add_lt_left_of_lt_add {a b c : A} : a < b + c → -b + a < c :=
-    iff.mp !lt_add_iff_neg_add_lt_left
+  iff.mp $ lt_add_iff_neg_add_lt_left a b c
 
   theorem lt_add_iff_neg_add_lt_right : a < b + c ↔ -c + a < b :=
   sorry -- by rewrite add.comm; apply lt_add_iff_neg_add_lt_left
 
   theorem lt_add_of_neg_add_lt_right {a b c : A} : -c + a < b → a < b + c :=
-    iff.mpr !lt_add_iff_neg_add_lt_right
+  iff.mpr $ lt_add_iff_neg_add_lt_right a b c
 
   theorem neg_add_lt_right_of_lt_add {a b c : A} : a < b + c → -c + a < b :=
-    iff.mp !lt_add_iff_neg_add_lt_right
+  iff.mp $ lt_add_iff_neg_add_lt_right a b c
 
   theorem lt_add_iff_sub_lt_left : a < b + c ↔ a - b < c :=
   sorry -- by rewrite [sub_eq_add_neg, {a + _}add.comm]; apply lt_add_iff_neg_add_lt_left
 
   theorem lt_add_of_sub_lt_left {a b c : A} : a - b < c → a < b + c :=
-    iff.mpr !lt_add_iff_sub_lt_left
+  iff.mpr $ lt_add_iff_sub_lt_left a b c
 
   theorem sub_lt_left_of_lt_add {a b c : A} : a < b + c → a - b < c :=
-    iff.mp !lt_add_iff_sub_lt_left
+  iff.mp $ lt_add_iff_sub_lt_left a b c
 
   theorem lt_add_iff_sub_lt_right : a < b + c ↔ a - c < b :=
   sorry -- by rewrite add.comm; apply lt_add_iff_sub_lt_left
 
   theorem lt_add_of_sub_lt_right {a b c : A} : a - c < b → a < b + c :=
-    iff.mpr !lt_add_iff_sub_lt_right
+  iff.mpr $ lt_add_iff_sub_lt_right a b c
 
   theorem sub_lt_right_of_lt_add {a b c : A} : a < b + c → a - c < b :=
-    iff.mp !lt_add_iff_sub_lt_right
+  iff.mp $ lt_add_iff_sub_lt_right a b c
 
   theorem sub_lt_of_sub_lt {a b c : A} : a - b < c → a - c < b :=
   sorry
@@ -657,7 +657,7 @@ section
   add_lt_of_le_of_neg (le.refl a) (neg_neg_of_pos H)
 
   theorem neg_add_neg_le_neg_of_pos {a : A} (H : a > 0) : -a + -a ≤ -a :=
-  !neg_add ▸ neg_le_neg (le_add_of_nonneg_left (le_of_lt H))
+  neg_add a a ▸ neg_le_neg (le_add_of_nonneg_left (le_of_lt H))
 
   variable (A)
   theorem strictly_decreasing_neg : strictly_decreasing (λ x : A, -x) :=
@@ -802,14 +802,14 @@ section
 
   theorem max_neg_neg : max (-a) (-b) = - min a b  :=
   eq.symm (eq_max
-    (show -a ≤ -(min a b), from neg_le_neg !min_le_left)
-    (show -b ≤ -(min a b), from neg_le_neg !min_le_right)
+    (show -a ≤ -(min a b), from neg_le_neg $ min_le_left a b)
+    (show -b ≤ -(min a b), from neg_le_neg $ min_le_right a b)
     (take d,
       assume H₁ : -a ≤ d,
       assume H₂ : -b ≤ d,
       have H : -d ≤ min a b,
-        from le_min (!iff.mp !neg_le_iff_neg_le H₁) (!iff.mp !neg_le_iff_neg_le H₂),
-      show -(min a b) ≤ d, from !iff.mp !neg_le_iff_neg_le H))
+        from le_min (iff.mp (neg_le_iff_neg_le a d) H₁) (iff.mp (neg_le_iff_neg_le b d) H₂),
+      show -(min a b) ≤ d, from iff.mp (neg_le_iff_neg_le d (min a b)) H))
 
   theorem min_eq_neg_max_neg_neg : min a b = - max (-a) (-b) :=
   sorry -- by rewrite [max_neg_neg, neg_neg]
@@ -847,7 +847,7 @@ section
   sorry -- by rewrite (abs_of_pos H); exact H
 
   theorem abs_pos_of_neg (H : a < 0) : abs a > 0 :=
-  !abs_neg ▸ abs_pos_of_pos (neg_pos_of_neg H)
+  abs_neg a ▸ abs_pos_of_pos (neg_pos_of_neg H)
 
   theorem abs_sub (a b : A) : abs (a - b) = abs (b - a) :=
   sorry -- by rewrite [-neg_sub, abs_neg]
@@ -878,15 +878,15 @@ section
         ... = abs a : eq.symm (abs_of_nonpos H))
   -/
 
-  theorem abs_abs (a : A) : abs (abs a) = abs a := abs_of_nonneg !abs_nonneg
+  theorem abs_abs (a : A) : abs (abs a) = abs a := abs_of_nonneg $ abs_nonneg a
 
   theorem le_abs_self (a : A) : a ≤ abs a :=
   or.elim (le.total 0 a)
-    (assume H : 0 ≤ a, abs_of_nonneg H ▸ !le.refl)
-    (assume H : a ≤ 0, le.trans H !abs_nonneg)
+    (assume H : 0 ≤ a, abs_of_nonneg H ▸ le.refl (abs a))
+    (assume H : a ≤ 0, le.trans H $ abs_nonneg a)
 
   theorem neg_le_abs_self (a : A) : -a ≤ abs a :=
-  !abs_neg ▸ !le_abs_self
+  abs_neg a ▸ le_abs_self (-a)
 
   theorem eq_zero_of_abs_eq_zero (H : abs a = 0) : a = 0 :=
   have H1 : a ≤ 0, from H ▸ le_abs_self a,
@@ -894,7 +894,7 @@ section
   le.antisymm H1 (nonneg_of_neg_nonpos H2)
 
   theorem abs_eq_zero_iff_eq_zero (a : A) : abs a = 0 ↔ a = 0 :=
-  iff.intro eq_zero_of_abs_eq_zero (assume H, congr_arg abs H ⬝ !abs_zero)
+  iff.intro eq_zero_of_abs_eq_zero (assume H, congr_arg abs H ⬝ abs_zero)
 
   theorem eq_of_abs_sub_eq_zero {a b : A} (H : abs (a - b) = 0) : a = b :=
   have a - b = 0, from eq_zero_of_abs_eq_zero H,

@@ -70,7 +70,7 @@ variables [decA : decidable_eq A]
 include decA
 
 definition get {a : A} : ∀ {l : list A}, hlist B l → a ∈ l → B a
-| []     nil        e := absurd e !not_mem_nil
+| []     nil        e := absurd e (not_mem_nil a)
 | (t::l) (cons b h) e :=
   or.by_cases (eq_or_mem_of_mem_cons e)
     (suppose a = t, eq.rec_on (eq.symm this) b)

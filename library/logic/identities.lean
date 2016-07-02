@@ -72,14 +72,14 @@ theorem not_implies_iff_and_not (a b : Prop) [Da : decidable a] :
   ¬(a → b) ↔ a ∧ ¬b :=
 calc
   ¬(a → b) ↔ ¬(¬a ∨ b) : sorry -- by rewrite (imp_iff_not_or a b)
-       ... ↔ ¬¬a ∧ ¬b  : !not_or_iff_not_and_not
+       ... ↔ ¬¬a ∧ ¬b  : not_or_iff_not_and_not _ _
        ... ↔ a ∧ ¬b    : sorry -- by rewrite (not_not_iff a)
 
 theorem and_not_of_not_implies {a b : Prop} [Da : decidable a] (H : ¬ (a → b)) : a ∧ ¬ b :=
-iff.mp !not_implies_iff_and_not H
+iff.mp (not_implies_iff_and_not a b) H
 
 theorem not_implies_of_and_not {a b : Prop} [Da : decidable a] (H : a ∧ ¬ b) : ¬ (a → b) :=
-iff.mpr !not_implies_iff_and_not H
+iff.mpr (not_implies_iff_and_not a b) H
 
 theorem peirce (a b : Prop) [D : decidable a] : ((a → b) → a) → a :=
 by_cases imp.intro (imp.syl imp.mp not.elim)

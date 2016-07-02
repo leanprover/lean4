@@ -17,6 +17,10 @@ class elaborator {
     local_level_decls m_local_level_decls;
     type_context      m_ctx;
 
+    /* if m_no_info is true, we do not collect information when true,
+       we set is to true whenever we find no_info annotation. */
+    bool                 m_no_info{true};
+
     expr visit(expr const & e, optional<expr> const & expected_type);
 
 public:

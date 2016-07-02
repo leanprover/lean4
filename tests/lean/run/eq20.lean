@@ -26,6 +26,6 @@ section
   if_neg h ▸ filter_cons a l
 end
 
-check @filter
-check @filter_cons_of_pos
-check @filter_cons_of_neg
+check @_root_.filter
+check @_root_.filter_cons_of_pos
+check @_root_.filter_cons_of_neg

@@ -19,8 +19,15 @@ elaborator::elaborator(environment const & env, options const & opts, local_leve
     m_ctx(mctx, lctx, get_type_context_cache_for(env, opts), transparency_mode::Semireducible) {
 }
 
+expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
+    // TODO(Leo)
+    return e;
+}
+
 std::tuple<expr, level_param_names> elaborator::operator()(expr const & e) {
-    lean_unreachable();
+    expr r = visit(e,  none_expr());
+    level_param_names ls; // TODO(Leo)
+    return std::make_tuple(r, ls);
 }
 
 std::tuple<expr, level_param_names> elaborate(environment const & env, options const & opts, local_level_decls const & lls,

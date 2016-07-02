@@ -452,28 +452,40 @@ static expr parse_override_notation(parser & p, unsigned, expr const *, pos_info
     return p.parse_expr_with_env(env);
 }
 
-static expr parse_explicit_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
-    expr e = p.parse_expr(get_Max_prec());
-    if (is_choice(e)) {
-        buffer<expr> new_choices;
-        for (unsigned i = 0; i < get_num_choices(e); i++)
-            new_choices.push_back(p.save_pos(mk_explicit(get_choice(e, i)), pos));
-        return p.save_pos(mk_choice(new_choices.size(), new_choices.data()), pos);
-    } else {
-        return p.save_pos(mk_explicit(e), pos);
+static expr parse_explicit_core(parser & p, pos_info const & pos, bool partial) {
+    if (!p.curr_is_identifier())
+        throw parser_error(sstream() << "invalid '" << (partial ? "@@" : "@") << "', identifier expected", p.pos());
+    expr fn = p.parse_id();
+    if (is_choice(fn)) {
+        sstream s;
+        s << "invalid '" << (partial ? "@@" : "@") << "', function is overloaded, use fully qualified names (overloads: ";
+        for (unsigned i = 0; i < get_num_choices(fn); i++) {
+            if (i > 0) s << ", ";
+            expr const & c = get_choice(fn, i);
+            if (is_constant(c))
+                s << const_name(c);
+            else if (is_local(c))
+                s << local_pp_name(c);
+            else
+                s << "[other]";
+        }
+        s << ")";
+        throw parser_error(s, pos);
+    } else if (!is_as_atomic(fn) && !is_constant(fn) && !is_local(fn)) {
+        throw parser_error(sstream() << "invalid '" << (partial ? "@@" : "@") << "', function must be a constant or variable", pos);
     }
+    if (partial)
+        return p.save_pos(mk_partial_explicit(fn), pos);
+    else
+        return p.save_pos(mk_explicit(fn), pos);
+}
+
+static expr parse_explicit_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return parse_explicit_core(p, pos, false);
 }
 
 static expr parse_partial_explicit_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
-    expr e = p.parse_expr(get_Max_prec());
-    if (is_choice(e)) {
-        buffer<expr> new_choices;
-        for (unsigned i = 0; i < get_num_choices(e); i++)
-            new_choices.push_back(p.save_pos(mk_partial_explicit(get_choice(e, i)), pos));
-        return p.save_pos(mk_choice(new_choices.size(), new_choices.data()), pos);
-    } else {
-        return p.save_pos(mk_partial_explicit(e), pos);
-    }
+    return parse_explicit_core(p, pos, false);
 }
 
 static expr parse_sorry(parser & p, unsigned, expr const *, pos_info const & pos) {

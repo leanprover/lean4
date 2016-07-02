@@ -15,8 +15,6 @@ head_index::head_index(expr const & e) {
             f = get_app_fn(get_as_atomic_arg(f));
         else if (is_explicit(f))
             f = get_explicit_arg(f);
-        else if (is_consume_args(f))
-            f = get_consume_args_arg(f);
         else
             break;
     }

@@ -476,18 +476,6 @@ static expr parse_partial_explicit_expr(parser & p, unsigned, expr const *, pos_
     }
 }
 
-static expr parse_consume_args_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
-    expr e = p.parse_expr(get_Max_prec());
-    if (is_choice(e)) {
-        buffer<expr> new_choices;
-        for (unsigned i = 0; i < get_num_choices(e); i++)
-            new_choices.push_back(p.save_pos(mk_consume_args(get_choice(e, i)), pos));
-        return p.save_pos(mk_choice(new_choices.size(), new_choices.data()), pos);
-    } else {
-        return p.save_pos(mk_consume_args(e), pos);
-    }
-}
-
 static expr parse_sorry(parser & p, unsigned, expr const *, pos_info const & pos) {
     return p.mk_sorry(pos);
 }

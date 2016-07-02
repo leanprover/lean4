@@ -220,7 +220,7 @@ void old_elaborator::save_type_data(expr const & e, expr const & r) {
     // std::cout << ">> infom: " << infom() << ", pip: " << pip() << "\n";
     if (!m_no_info && infom() && pip() &&
         (is_constant(e) || is_local(e) || is_placeholder(e) || is_as_atomic(e) ||
-         is_consume_args(e) || is_notation_info(e))) {
+         is_notation_info(e))) {
         if (auto p = pip()->get_pos_info(e)) {
             expr t = m_tc->infer(r).first;
             m_pre_info_data.add_type_info(p->first, p->second, t);
@@ -1720,9 +1720,6 @@ expr old_elaborator::visit_core(expr const & e, constraint_seq & cs) {
     } else if (is_as_atomic(e)) {
         // ignore annotation
         return visit_core(get_as_atomic_arg(e), cs);
-    } else if (is_consume_args(e)) {
-        // ignore annotation
-        return visit_core(get_consume_args_arg(e), cs);
     } else if (is_explicit_or_partial_explicit(e)) {
         // ignore annotation
         return visit_core(get_explicit_or_partial_explicit_arg(e), cs);
@@ -1818,9 +1815,6 @@ pair<expr, constraint_seq> old_elaborator::visit(expr const & e) {
             r = get_as_atomic_arg(e);
             if (is_explicit_or_partial_explicit(r)) r = get_explicit_or_partial_explicit_arg(r);
             r = visit_core(r, cs);
-        } else if (is_consume_args(e)) {
-            consume_args = true;
-            r = visit_core(get_consume_args_arg(e), cs);
         } else {
             r = visit_core(e, cs);
         }

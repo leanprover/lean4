@@ -1079,9 +1079,6 @@ bool pretty_fn::match(expr const & p, expr const & e, buffer<optional<expr>> & a
     } else if (is_app(e)) {
         buffer<expr> p_args, e_args;
         expr p_fn    = get_app_args(p, p_args);
-        bool consume = is_consume_args(p_fn);
-        if (consume)
-            p_fn     = get_consume_args_arg(p_fn);
         expr e_fn    = get_app_args(e, e_args);
         if (!match(p_fn, e_fn, args))
             return false;
@@ -1103,7 +1100,7 @@ bool pretty_fn::match(expr const & p, expr const & e, buffer<optional<expr>> & a
                         return false;
                     expr const & body        = binding_body(fn_type);
                     binder_info const & info = binding_info(fn_type);
-                    if ((!consume || closed(body)) && is_explicit(info)) {
+                    if ((closed(body)) && is_explicit(info)) {
                         if (j >= p_args.size())
                             return false;
                         if (!match(p_args[j], e_args[i], args))

@@ -59,16 +59,6 @@ bool is_as_atomic(expr const & e);
 */
 expr const & get_as_atomic_arg(expr const & e);
 
-/** \brief Create the expression '! e'.
-    This only affects the elaborator behavior.
-    It instructs the elaborator to keep adding '_'
-    for \c e arguments.
-*/
-expr mk_consume_args(expr const & e);
-/** \brief Return true iff \c e is an '!f' expression. */
-bool is_consume_args(expr const & e);
-expr const & get_consume_args_arg(expr const & e);
-
 void initialize_explicit();
 void finalize_explicit();
 }

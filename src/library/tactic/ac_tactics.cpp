@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/trace.h"
 #include "library/app_builder.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
@@ -34,6 +35,10 @@ struct flat_assoc_fn {
         return app_fn(fn1) == m_op;
     }
 
+    expr mk_op(expr const & a, expr const & b) {
+        return mk_app(m_op, a, b);
+    }
+
     expr mk_assoc(expr const & a, expr const & b, expr const & c) {
         return mk_app(m_assoc, a, b, c);
     }
@@ -49,6 +54,21 @@ struct flat_assoc_fn {
     expr mk_eq_trans(expr const & H1, optional<expr> const & H2) {
         if (!H2) return H1;
         return mk_eq_trans(H1, *H2);
+    }
+
+    optional<expr> mk_eq_trans(optional<expr> const & H1, optional<expr> const & H2) {
+        if (!H1) return H2;
+        if (!H2) return H1;
+        return some_expr(mk_eq_trans(*H1, *H2));
+    }
+
+    expr mk_eq_symm(expr const & H) {
+        return ::lean::mk_eq_symm(m_ctx, H);
+    }
+
+    optional<expr> mk_eq_symm(optional<expr> const & H) {
+        if (!H) return none_expr();
+        return some_expr(mk_eq_symm(*H));
     }
 
     expr mk_congr_arg(expr const & fn, expr const & H) {
@@ -75,11 +95,11 @@ struct flat_assoc_fn {
                     expr H  = mk_eq_trans(H3, p2.second);
                     return mk_pair(p2.first, some_expr(H));
                 } else {
-                    return mk_pair(mk_app(m_op, lhs, p1.first), some_expr(mk_assoc(lhs, rhs, rest)));
+                    return mk_pair(mk_op(lhs, p1.first), some_expr(mk_assoc(lhs, rhs, rest)));
                 }
             }
         } else {
-            return mk_pair(mk_app(m_op, e, rest), none_expr());
+            return mk_pair(mk_op(e, rest), none_expr());
         }
     }
 
@@ -94,7 +114,7 @@ struct flat_assoc_fn {
                     expr H  = mk_eq_trans(H3, p2.second);
                     return mk_pair(p2.first, some_expr(H));
                 } else {
-                    expr r = mk_app(m_op, lhs, p1.first);
+                    expr r = mk_op(lhs, p1.first);
                     expr H = mk_congr_arg(mk_app(m_op, lhs), *p1.second);
                     return mk_pair(r, some_expr(H));
                 }
@@ -120,8 +140,129 @@ struct flat_assoc_fn {
     }
 };
 
+#define lean_perm_ac_trace(code) lean_trace(name({"tactic", "perm_ac"}), scope_trace_env _scope1(m_ctx.env(), m_ctx); code)
+
+struct perm_ac_fn : public flat_assoc_fn {
+    expr           m_comm;
+    optional<expr> m_left_comm;
+
+    perm_ac_fn(type_context & ctx, expr const & op, expr const & assoc, expr const & comm):
+        flat_assoc_fn(ctx, op, assoc), m_comm(comm) {
+    }
+
+    [[ noreturn ]] void throw_failed() {
+        throw exception("perm_ac failed, arguments are not equal modulo AC");
+    }
+
+    expr mk_comm(expr const & a, expr const & b) {
+        return mk_app(m_comm, a, b);
+    }
+
+    expr mk_left_comm(expr const & a, expr const & b, expr const & c) {
+        if (!m_left_comm) {
+            expr A    = m_ctx.infer(a);
+            level lvl = get_level(m_ctx, A);
+            m_left_comm = mk_app(mk_constant(name{"binary", "left_comm"}, {lvl}), A, m_op, m_comm, m_assoc);
+        }
+        return mk_app(*m_left_comm, a, b, c);
+    }
+
+    /* Given a term \c e of the form (op t_1 (op t_2 ... (op t_{n-1} t_n))), if
+       for some i, t_i == t, then produce the term
+
+           (op t_i (op t_2 ... (op t_{n-1} t_n)))
+
+       and a proof they are equal AC.
+       Throw exception if t is not found. */
+    pair<expr, expr> pull_term(expr const & t, expr const & e) {
+        expr lhs1, rhs1;
+        if (!is_op_app(e, lhs1, rhs1)) {
+            lean_perm_ac_trace(tout() << "right-hand-side does not contain:\n" << t << "\n";);
+            throw_failed();
+        }
+        if (t == rhs1) {
+            return mk_pair(mk_op(rhs1, lhs1), mk_comm(lhs1, rhs1));
+        }
+        expr lhs2, rhs2;
+        if (!is_op_app(rhs1, lhs2, rhs2)) {
+            lean_perm_ac_trace(tout() << "right-hand-side does not contain:\n" << t << "\n";);
+            throw_failed();
+        }
+        if (t == lhs2) {
+            return mk_pair(mk_op(lhs2, mk_op(lhs1, rhs2)), mk_left_comm(lhs1, lhs2, rhs2));
+        }
+        /* We have  e := lhs1 `op` lhs2 `op` rhs2 */
+        auto p = pull_term(t, rhs1);
+        expr lhs3, rhs3;
+        lean_verify(is_op_app(p.first, lhs3, rhs3));
+        lean_assert(t == lhs3);
+        /* p.second : rhs1 = t `op` rhs3 */
+        expr H1 = mk_congr_arg(mk_app(m_op, lhs1), p.second);
+        /* H1 : lhs1 `op` rhs1 = lhs1 `op` t `op` rhs3 */
+        expr H2 = mk_left_comm(lhs1, t, rhs3);
+        /* H2 : lhs1 `op` t `op` rhs3 = t `op` lhs1 `op` rhs3 */
+        return mk_pair(mk_op(t, mk_op(lhs1, rhs3)), mk_eq_trans(H1, H2));
+    }
+
+    /* Return a proof that e1 == e2 modulo AC. Return none if reflexivity.
+       Throw exception if failure */
+    optional<expr> perm_flat(expr const & e1, expr const & e2) {
+        expr lhs1, rhs1;
+        expr lhs2, rhs2;
+        bool b1 = is_op_app(e1, lhs1, rhs1);
+        bool b2 = is_op_app(e2, lhs2, rhs2);
+        if (b1 != b2) {
+            lean_perm_ac_trace(tout() << "left and right-hand-sides have different number of terms\n";);
+            throw_failed();
+        }
+        if (!b1 && !b2) {
+            if (e1 == e2) {
+                return none_expr(); // reflexivity
+            } else {
+                lean_perm_ac_trace(tout() << "the left and right hand sides contain the terms:\n" << e1 << "\n" << e2 << "\n";);
+                throw_failed();
+            }
+        }
+        lean_assert(b1 && b2);
+        if (lhs1 == lhs2) {
+            optional<expr> H = perm_flat(rhs1, rhs2);
+            if (!H) return none_expr();
+            return some_expr(mk_congr_arg(mk_app(m_op, lhs1), *H));
+        } else {
+            auto p = pull_term(lhs2, e1);
+            is_op_app(p.first, lhs1, rhs1);
+            lean_assert(lhs1 == lhs2);
+            optional<expr> H1 = perm_flat(rhs1, rhs2);
+            if (!H1) return some_expr(p.second);
+            expr H2 = mk_congr_arg(mk_app(m_op, lhs1), *H1);
+            return some_expr(mk_eq_trans(p.second, H2));
+        }
+    }
+
+    /* Return a proof that lhs == rhs modulo AC. Return none if reflexivity.
+       Throw exception if failure */
+    optional<expr> perm_core(expr const & lhs, expr const & rhs) {
+        auto p1 = flat_core(lhs);
+        auto p2 = flat_core(rhs);
+        auto H  = perm_flat(p1.first, p2.first);
+        return mk_eq_trans(p1.second, mk_eq_trans(H, mk_eq_symm(p2.second)));
+    }
+
+    expr perm(expr const & lhs, expr const & rhs) {
+        if (auto H = perm_core(lhs, rhs))
+            return *H;
+        else
+            return mk_eq_refl(lhs);
+    }
+};
+
+
 pair<expr, optional<expr>> flat_assoc(type_context & ctx, expr const & op, expr const & assoc, expr const & e) {
     return flat_assoc_fn(ctx, op, assoc).flat_core(e);
+}
+
+expr perm_ac(type_context & ctx, expr const & op, expr const & assoc, expr const & comm, expr const & e1, expr const & e2) {
+    return perm_ac_fn(ctx, op, assoc, comm).perm(e1, e2);
 }
 
 #define TRY   LEAN_TACTIC_TRY
@@ -135,8 +276,18 @@ vm_obj tactic_flat_assoc(vm_obj const & op, vm_obj const & assoc, vm_obj const &
     CATCH;
 }
 
+vm_obj tactic_perm_ac(vm_obj const & op, vm_obj const & assoc, vm_obj const & comm, vm_obj const & e1, vm_obj const & e2, vm_obj const & s) {
+    TRY;
+    type_context ctx   = mk_type_context_for(s);
+    expr H = perm_ac_fn(ctx, to_expr(op), to_expr(assoc), to_expr(comm)).perm(to_expr(e1), to_expr(e2));
+    return mk_tactic_success(to_obj(H), to_tactic_state(s));
+    CATCH;
+}
+
 void initialize_ac_tactics() {
+    register_trace_class(name{"tactic", "perm_ac"});
     DECLARE_VM_BUILTIN(name({"tactic", "flat_assoc"}), tactic_flat_assoc);
+    DECLARE_VM_BUILTIN(name({"tactic", "perm_ac"}),    tactic_perm_ac);
 }
 
 void finalize_ac_tactics() {

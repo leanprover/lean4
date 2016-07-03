@@ -151,6 +151,8 @@ expr mk_partial_right_distrib(type_context & ctx, expr const & A);
 /** \brief False elimination */
 expr mk_false_rec(type_context & ctx, expr const & c, expr const & H);
 
+level get_level(type_context & ctx, expr const & A);
+
 void initialize_app_builder();
 void finalize_app_builder();
 }

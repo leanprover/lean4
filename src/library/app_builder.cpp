@@ -294,6 +294,9 @@ class app_builder {
         lean_app_builder_trace(tout() << "failed to build instance of '" << n << "' for " << A << "\n";);
     }
 
+public:
+    app_builder(type_context & ctx):m_ctx(ctx), m_cache(get_app_builder_cache_for(ctx)) {}
+
     level get_level(expr const & A) {
         expr Type = m_ctx.relaxed_whnf(m_ctx.infer(A));
         if (!is_sort(Type)) {
@@ -302,9 +305,6 @@ class app_builder {
         }
         return sort_level(Type);
     }
-
-public:
-    app_builder(type_context & ctx):m_ctx(ctx), m_cache(get_app_builder_cache_for(ctx)) {}
 
     expr mk_app(name const & c, unsigned nargs, expr const * args) {
         type_context::tmp_mode_scope scope(m_ctx);
@@ -732,6 +732,10 @@ public:
         }
     }
 };
+
+level get_level(type_context & ctx, expr const & A) {
+    return app_builder(ctx).get_level(A);
+}
 
 expr mk_app(type_context & ctx, name const & c, unsigned nargs, expr const * args) {
     return app_builder(ctx).mk_app(c, nargs, args);

@@ -463,12 +463,10 @@ simp_result simplifier::simplify_extensions(expr const & _e) {
             } else {
                 lean_trace(name({"simplifier", "extensions"}),
                            tout() << "extension succeeded but left metavariables unassigned\n";);
-                // TODO(dhs): trace "simplifier.extension.failure"
             }
         } else {
             lean_trace(name({"simplifier", "extensions"}),
                        tout() << "extension failed\n";);
-            // TODO(dhs): trace "simplifier.extension.failure"
         }
     }
     return r;

@@ -117,26 +117,6 @@ void get_simp_extensions_for(environment const & env, name const & head, buffer<
     }
 }
 
-/*
-unsigned get_simp_extension_priority(environment const & env, name const & head, name const & simp_ext_name) {
-    if (auto q = simp_ext_ext::get_state(env).find(head)) {
-        if (auto prio = q->get_prio(simp_ext_name)) {
-            return *prio;
-        }
-    } else {
-        throw exception(sstream() << simp_ext_name << " not registered as a simplifier extension for head symbol " << head << "\n");
-        //   return LEAN_DEFAULT_PRIORITY;
-    }
-}
-
-bool is_simp_extension(environment const & env, name const & head, name const & simp_ext_name) {
-    if (auto q = simp_ext_ext::get_state(env).find(head))
-        return q->contains(simp_ext_name);
-    else
-        return false;
-}
-*/
-
 void initialize_simp_extensions() {
     g_class_name = new name("simp_ext");
     g_key        = new std::string("SIMP_EXT");

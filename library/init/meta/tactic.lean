@@ -290,9 +290,6 @@ do num_reverted : ℕ ← revert H,
    change $ expr.pi n bi H_simp b,
    intron num_reverted
 
--- TODO(Leo): remove unifier.conservative after we finish new elaborator
-set_option unifier.conservative true
-
 meta_definition simp : tactic unit :=
 do (new_target, Heq) ← target >>= simplify,
    assert "Htarget" new_target, swap,

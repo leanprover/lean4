@@ -120,6 +120,10 @@ struct flat_assoc_fn {
     }
 };
 
+pair<expr, optional<expr>> flat_assoc(type_context & ctx, expr const & op, expr const & assoc, expr const & e) {
+    return flat_assoc_fn(ctx, op, assoc).flat_core(e);
+}
+
 #define TRY   LEAN_TACTIC_TRY
 #define CATCH LEAN_TACTIC_CATCH(to_tactic_state(s))
 

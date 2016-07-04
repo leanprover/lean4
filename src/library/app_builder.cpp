@@ -731,6 +731,24 @@ public:
             return ::lean::mk_app(mk_constant(get_empty_rec_name(), {c_lvl}), mk_lambda("e", H_type, c), H);
         }
     }
+
+    expr mk_congr_arg(expr const & f, expr const & H) {
+        expr eq = m_ctx.relaxed_whnf(m_ctx.infer(H));
+        expr pi = m_ctx.relaxed_whnf(m_ctx.infer(f));
+        expr A, B, lhs, rhs;
+        if (!is_eq(eq, A, lhs, rhs)) {
+            lean_app_builder_trace(tout() << "failed to build congr_arg, equality expected:\n" << eq << "\n";);
+            throw app_builder_exception();
+        }
+        if (!is_arrow(pi)) {
+            lean_app_builder_trace(tout() << "failed to build congr_arg, non-dependent function expected:\n" << pi << "\n";);
+            throw app_builder_exception();
+        }
+        B = binding_body(pi);
+        level lvl_1  = get_level(A);
+        level lvl_2  = get_level(B);
+        return ::lean::mk_app({mk_constant(get_congr_arg_name(), {lvl_1, lvl_2}), A, B, lhs, rhs, f, H});
+    }
 };
 
 level get_level(type_context & ctx, expr const & A) {
@@ -830,8 +848,7 @@ expr mk_heq_of_eq(type_context & ctx, expr const & H) {
 }
 
 expr mk_congr_arg(type_context & ctx, expr const & f, expr const & H) {
-    // TODO(Leo): efficient version
-    return mk_app(ctx, get_congr_arg_name(), {f, H});
+    return app_builder(ctx).mk_congr_arg(f, H);
 }
 
 expr mk_congr_fun(type_context & ctx, expr const & H, expr const & a) {

@@ -299,11 +299,12 @@ struct structure_cmd_fn {
         return new_tmp;
     }
 
-    expr update_parents(expr new_tmp) {
+    expr update_parents(expr new_tmp, bool inst) {
         for (unsigned i = 0; i < m_parents.size(); i++) {
             m_parents[i]   = copy_tag(m_parents[i], expr(binding_domain(new_tmp)));
             new_tmp        = binding_body(new_tmp);
-            lean_assert(closed(new_tmp));
+            if (inst)
+                new_tmp = instantiate(new_tmp, mk_parent_expr(i));
         }
         return new_tmp;
     }
@@ -348,7 +349,7 @@ struct structure_cmd_fn {
         m_params.clear();
         m_params.append(ctx);
         m_params.append(explicit_params);
-        new_tmp = update_parents(new_tmp);
+        new_tmp = update_parents(new_tmp, false);
         m_type = new_tmp;
     }
 
@@ -477,6 +478,24 @@ struct structure_cmd_fn {
         solve_constraints(cseq);
     }
 
+    /** \brief Create expression of type \c m_parents[i] from corresponding fields */
+    expr mk_parent_expr(unsigned i) {
+        expr const & parent            = m_parents[i];
+        field_map const & fmap         = m_field_maps[i];
+        buffer<expr> parent_params;
+        expr const & parent_fn         = get_app_args(parent, parent_params);
+        levels const & parent_ls       = const_levels(parent_fn);
+        name const & parent_name       = const_name(parent_fn);
+        auto parent_info               = get_parent_info(parent_name);
+        name const & parent_intro_name = inductive::intro_rule_name(std::get<2>(parent_info));
+        expr parent_intro              = mk_app(mk_constant(parent_intro_name, parent_ls), parent_params);
+        for (unsigned idx : fmap) {
+            expr const & field = m_fields[idx];
+            parent_intro = mk_app(parent_intro, field);
+        }
+        return parent_intro;
+    }
+
     /** \brief Add params, fields and references to parent structures into parser local scope */
     void add_locals() {
         if (m_explicit_universe_params) {
@@ -488,22 +507,8 @@ struct structure_cmd_fn {
         for (expr const & field : m_fields)
             m_p.add_local(field);
         for (unsigned i = 0; i < m_parents.size(); i++) {
-            if (auto n = m_parent_refs[i]) {
-                expr const & parent            = m_parents[i];
-                field_map const & fmap         = m_field_maps[i];
-                buffer<expr> parent_params;
-                expr const & parent_fn         = get_app_args(parent, parent_params);
-                levels const & parent_ls       = const_levels(parent_fn);
-                name const & parent_name       = const_name(parent_fn);
-                auto parent_info               = get_parent_info(parent_name);
-                name const & parent_intro_name = inductive::intro_rule_name(std::get<2>(parent_info));
-                expr parent_intro              = mk_app(mk_constant(parent_intro_name, parent_ls), parent_params);
-                for (unsigned idx : fmap) {
-                    expr const & field = m_fields[idx];
-                    parent_intro = mk_app(parent_intro, field);
-                }
-                m_p.add_local_expr(*n, mk_as_is(parent_intro));
-            }
+            if (auto n = m_parent_refs[i])
+                m_p.add_local_expr(*n, mk_as_is(mk_parent_expr(i)));
         }
     }
 
@@ -558,22 +563,22 @@ struct structure_cmd_fn {
 
     /** \brief Elaborate new fields, and copy them to m_fields */
     void elaborate_new_fields(buffer<expr> & new_fields) {
-        expr dummy = mk_Prop();
+        expr tmp = Pi_as_is(m_fields, Pi(new_fields, mk_Prop(), m_p), m_p);
         unsigned j = m_parents.size();
         while (j > 0) {
             --j;
-            dummy = mk_arrow(mk_as_is(m_parents[j]), dummy);
+            tmp = mk_arrow(mk_as_is(m_parents[j]), tmp);
         }
-        expr tmp = Pi_as_is(m_params, Pi_as_is(m_fields, Pi(new_fields, dummy, m_p), m_p), m_p);
+        tmp = Pi_as_is(m_params, tmp, m_p);
         level_param_names new_ls;
         expr new_tmp;
         std::tie(new_tmp, new_ls) = m_p.old_elaborate_type(tmp, list<expr>());
         for (auto new_l : new_ls)
             m_level_names.push_back(new_l);
         new_tmp = update_locals(new_tmp, m_params);
+        new_tmp = update_parents(new_tmp, true);
         new_tmp = update_locals(new_tmp, m_fields);
         new_tmp = update_locals(new_tmp, new_fields);
-        new_tmp = update_parents(new_tmp);
         lean_assert(new_tmp == mk_Prop());
         m_fields.append(new_fields);
     }

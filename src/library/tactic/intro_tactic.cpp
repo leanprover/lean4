@@ -13,11 +13,20 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
-optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> & new_Hns) {
-    if (n == 0) return some_tactic_state(s);
-    optional<metavar_decl> g = s.get_main_goal_decl();
-    if (!g) return none_tactic_state();
-    type_context ctx     = mk_type_context_for(s);
+static name mk_aux_name(list<name> & given_names, name const & default_name) {
+    if (given_names) {
+        name r      = head(given_names);
+        given_names = tail(given_names);
+        return r;
+    } else {
+        return default_name;
+    }
+}
+
+optional<expr> intron(type_context & ctx, metavar_context & mctx, expr const & mvar, unsigned n, list<name> & given_names, buffer<name> & new_Hns) {
+    lean_assert(is_metavar(mvar));
+    optional<metavar_decl> g = mctx.get_metavar_decl(mvar);
+    if (!g) return none_expr();
     expr type            = g->get_type();
     type_context::tmp_locals new_locals(ctx);
     buffer<expr> new_Hs;
@@ -25,25 +34,25 @@ optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> &
         if (!is_pi(type) && !is_let(type)) {
             type = ctx.whnf(type);
             if (!is_pi(type))
-                return none_tactic_state();
+                return none_expr();
         }
         lean_assert(is_pi(type) || is_let(type));
         if (is_pi(type)) {
-            expr H  = new_locals.push_local(binding_name(type), binding_domain(type), binding_info(type));
+            expr H  = new_locals.push_local(mk_aux_name(given_names, binding_name(type)), binding_domain(type), binding_info(type));
             type    = instantiate(binding_body(type), H);
             new_Hs.push_back(H);
             new_Hns.push_back(mlocal_name(H));
 
         } else {
             lean_assert(is_let(type));
-            expr H  = new_locals.push_let(let_name(type), let_type(type), let_value(type));
+            expr H  = new_locals.push_let(mk_aux_name(given_names, let_name(type)), let_type(type), let_value(type));
             type    = instantiate(let_body(type), H);
             new_Hs.push_back(H);
             new_Hns.push_back(mlocal_name(H));
         }
     }
     local_context lctx   = ctx.lctx();
-    metavar_context mctx = ctx.mctx();
+    mctx                 = ctx.mctx();
     expr new_M           = mctx.mk_metavar_decl(lctx, type);
     lean_assert(!mctx.is_assigned(new_M));
     expr new_val = abstract_locals(mk_lazy_abstraction_with_locals(new_M, new_Hs), new_Hs.size(), new_Hs.data());
@@ -61,9 +70,28 @@ optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> &
         }
     }
     lean_assert(!mctx.is_assigned(new_M));
-    mctx.assign(head(s.goals()), new_val);
-    list<expr> new_gs(new_M, tail(s.goals()));
-    return some_tactic_state(set_mctx_goals(s, mctx, new_gs));
+    mctx.assign(mvar, new_val);
+    return some_expr(new_M);
+}
+
+optional<expr> intron(type_context & ctx, metavar_context & mctx, expr const & mvar, unsigned n, list<name> & given_names) {
+    buffer<name> tmp;
+    return intron(ctx, mctx, mvar, n, given_names, tmp);
+}
+
+optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> & new_Hns) {
+    if (n == 0) return some_tactic_state(s);
+    optional<expr> mvar  = s.get_main_goal();
+    if (!mvar) return none_tactic_state();
+    type_context ctx     = mk_type_context_for(s);
+    metavar_context mctx = s.mctx();
+    list<name> new_names;
+    if (optional<expr> new_M = intron(ctx, mctx, *mvar, n, new_names, new_Hns)) {
+        list<expr> new_gs(*new_M, tail(s.goals()));
+        return some_tactic_state(set_mctx_goals(s, mctx, new_gs));
+    } else {
+        return none_tactic_state();
+    }
 }
 
 optional<tactic_state> intron(unsigned n, tactic_state const & s) {

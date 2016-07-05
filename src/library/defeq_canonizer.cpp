@@ -15,7 +15,7 @@ struct defeq_canonize_cache {
     environment           m_env;
     /* Canonical mapping I -> J (i.e., J is the canonical expression for I).
        Invariant: locals_subset(J, I) */
-    expr_map<expr>        m_C;
+    expr_struct_map<expr> m_C;
     /* Mapping from head symbol N to list of expressions es s.t.
        for each e in es, head_symbol(e) = N. */
     name_map<list<expr>>  m_M;
@@ -116,6 +116,7 @@ struct defeq_canonize_fn {
             if (get_weight(e) < get_weight(*new_e) && locals_subset(e, *new_e)) {
                 replace_C(*new_e, e);
                 replace_M(*h, *new_e, e);
+                insert_C(e, e);
                 return e;
             } else {
                 insert_C(e, *new_e);

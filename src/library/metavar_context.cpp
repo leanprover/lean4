@@ -35,7 +35,7 @@ level metavar_context::mk_univ_metavar_decl() {
 
 expr metavar_context::mk_metavar_decl(local_context const & ctx, expr const & type) {
     name n = mk_meta_decl_name();
-    m_decls.insert(n, metavar_decl(ctx, type));
+    m_decls.insert(n, metavar_decl(ctx, head_beta_reduce(type)));
     return mk_meta_ref(n);
 }
 

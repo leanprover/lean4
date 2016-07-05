@@ -100,6 +100,8 @@ public:
         \remark This method is used to implement tactics such as 'revert'. */
     optional<local_decl> get_local_decl_from_user_name(name const & n) const;
 
+    optional<local_decl> get_last_local_decl() const;
+
     bool rename_user_name(name const & from, name const & to);
 
     /** \brief Execute fn for each local declaration created after \c d. */
@@ -109,6 +111,13 @@ public:
         then it is the name of the local decl that depends on d.
         \pre \c d is in this local context. */
     optional<local_decl> has_dependencies(local_decl const & d) const;
+
+    /** \brief Return an unused hypothesis "user name" with the given prefix, the suffix is an
+        unsigned >= idx. */
+    name get_unused_name(name const & prefix, unsigned & idx);
+    name get_unused_name(name const & suggestion);
+    /** \brief Return true iff the given name is a hypothesis "user name". */
+    bool uses_user_name(name const & n);
 
     /** \brief Remove the given local decl.
         \pre \c d is in this local context, is not frozen, and no other local decl depends on it. */

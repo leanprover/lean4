@@ -136,6 +136,11 @@ optional<local_decl> local_context::get_local_decl_from_user_name(name const & n
     return back_find_if([&](local_decl const & d) { return d.get_pp_name() == n; });
 }
 
+optional<local_decl> local_context::get_last_local_decl() const {
+    if (m_idx2local_decl.empty()) return optional<local_decl>();
+    return optional<local_decl>(m_idx2local_decl.max());
+}
+
 void local_context::for_each_after(local_decl const & d, std::function<void(local_decl const &)> const & fn) const {
     m_idx2local_decl.for_each_greater(d.get_idx(), [&](unsigned, local_decl const & d) { return fn(d); });
 }
@@ -305,6 +310,26 @@ format local_context::pp(formatter const & fmt) const {
     if (get_pp_goal_compact(opts))
         r = group(r);
     return r;
+}
+
+bool local_context::uses_user_name(name const & n) {
+    return static_cast<bool>(m_idx2local_decl.find_if([&](unsigned, local_decl const & d) { return d.get_pp_name() == n; }));
+}
+
+name local_context::get_unused_name(name const & prefix, unsigned & idx) {
+    while (true) {
+        name curr = prefix.append_after(idx);
+        idx++;
+        if (!uses_user_name(curr))
+            return curr;
+    }
+}
+
+name local_context::get_unused_name(name const & suggestion) {
+    if (!uses_user_name(suggestion))
+        return suggestion;
+    unsigned idx = 1;
+    return get_unused_name(suggestion, idx);
 }
 
 void initialize_local_context() {

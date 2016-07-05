@@ -297,19 +297,11 @@ do (new_target, Heq) ← target >>= simplify,
    Ht       ← get_local "Htarget",
    mk_app (ns <.> "mpr") [Heq, Ht] >>= exact
 
-meta_definition mk_eq_simp_ext (simp_ext : expr → tactic (prod expr expr)) : tactic unit :=
-do gs ← get_goals,
-   match gs with
-   | [g] := do tgt ← target,
-               match expr.is_eq tgt with
-               | option.none := fail "simplifier extension expects a goal of the form [ctx |- l = ?r]"
-               | option.some (start, res) := do r ← simp_ext start,
-                                                unify res (prod.pr1 r),
-                                                unify g (prod.pr2 r)
-               end
-   | _ := fail "simplifier extension expects a goal of the form [ctx |- l = ?r]"
-   end
-
+meta_definition mk_eq_simp_ext (simp_ext : expr → tactic (expr × expr)) : tactic unit :=
+do (lhs, rhs)     ← target >>= match_eq,
+   (new_rhs, Heq) ← simp_ext lhs,
+   unify rhs new_rhs,
+   exact Heq
 
 /- Return the number of goals that need to be solved -/
 meta_definition num_goals     : tactic nat :=

@@ -169,23 +169,19 @@ void initialize_normalize() {
     register_params_attribute("unfold", "unfold definition when the given positions are constructors",
                               [](environment const & env, io_state const &, name const & d, list<unsigned> const & idxs, name const & ns, bool persistent) {
                                   return add_unfold_hint(env, d, idxs, ns, persistent);
-                              },
-                              [](environment const & env, name const & n) { return static_cast<bool>(has_unfold_hint(env, n)); },
-                              [](environment const & env, name const & n) { return has_unfold_hint(env, n); });
+                              });
 
-    register_attribute("unfold_full",
-                       "instructs normalizer (and simplifier) that function application (f a_1 ... a_n) should be unfolded when it is fully applied",
-                       [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
-                           return add_unfold_full_hint(env, d, ns, persistent);
-                       },
-                       has_unfold_full_hint);
+    register_no_params_attribute("unfold_full",
+                                 "instructs normalizer (and simplifier) that function application (f a_1 ... a_n) should be unfolded when it is fully applied",
+                                 [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
+                                     return add_unfold_full_hint(env, d, ns, persistent);
+                                 });
 
-    register_attribute("constructor",
-                       "instructs normalizer (and simplifier) that function application (f ...) should be unfolded when it is the major premise of a constructor like operator",
-                       [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
-                           return add_constructor_hint(env, d, ns, persistent);
-                       },
-                       has_constructor_hint);
+    register_no_params_attribute("constructor",
+                                 "instructs normalizer (and simplifier) that function application (f ...) should be unfolded when it is the major premise of a constructor like operator",
+                                 [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
+                                     return add_constructor_hint(env, d, ns, persistent);
+                                 });
 }
 
 void finalize_normalize() {

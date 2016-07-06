@@ -7,121 +7,156 @@ Author: Leonardo de Moura
 #include <vector>
 #include <string>
 #include <algorithm>
+#include "util/priority_queue.h"
 #include "util/sstream.h"
 #include "library/attribute_manager.h"
+#include "library/scoped_ext.h"
 
 namespace lean {
 struct attribute_decl {
     std::string        m_id;
     std::string        m_descr;
     std::string        m_token;
-    has_attribute_proc m_tester;
+    set_attribute_proc m_on_set;
 };
 
-struct default_attribute_decl : public attribute_decl {
-    set_attribute_proc m_setter;
-};
-
-struct prioritized_attribute_decl : public attribute_decl {
-    set_prio_attribute_proc  m_setter;
-    get_attribute_prio_proc  m_getter;
-};
-
-struct param_attribute_decl : public attribute_decl {
-    set_param_attribute_proc m_setter;
-    get_attribute_param_proc m_getter;
-};
-
-struct opt_param_attribute_decl : public attribute_decl {
-    set_opt_param_attribute_proc m_setter;
-    get_attribute_param_proc     m_getter;
-};
-
-struct params_attribute_decl : public attribute_decl {
-    set_params_attribute_proc m_setter;
-    get_attribute_params_proc m_getter;
-};
-
-static std::vector<default_attribute_decl> *         g_default_attrs = nullptr;
-static std::vector<prioritized_attribute_decl> *     g_prio_attrs = nullptr;
-static std::vector<param_attribute_decl> *           g_param_attrs = nullptr;
-static std::vector<opt_param_attribute_decl> *       g_opt_param_attrs = nullptr;
-static std::vector<params_attribute_decl> *          g_params_attrs = nullptr;
+static std::vector<attribute_decl> * g_attr_decls;
 static std::vector<pair<std::string, std::string>> * g_incomp = nullptr;
 
-template<typename Decls>
-bool is_attribute(Decls const & decls, char const * attr) {
-    for (auto const & d : decls) {
+static name * g_class_name = nullptr;
+static std::string * g_key = nullptr;
+
+struct attr_record {
+    name      m_decl;
+    list<unsigned> m_params;
+
+    attr_record() {}
+    attr_record(name decl, list<unsigned> params):
+            m_decl(decl), m_params(params) {}
+
+    unsigned hash() const {
+        unsigned h = m_decl.hash();
+        for (unsigned p : m_params)
+            h = ::lean::hash(h, p);
+        return h;
+    }
+};
+
+struct attr_record_cmp {
+    int operator()(attr_record const & r1, attr_record const & r2) const {
+        // Adding a new record with different arguments should override the old one
+        return quick_cmp(r1.m_decl, r2.m_decl);
+    }
+};
+
+struct attr_entry {
+    name     m_attr;
+    unsigned m_prio;
+    attr_record m_record;
+
+    attr_entry() {}
+    attr_entry(name attr, unsigned prio, attr_record record):
+            m_attr(attr), m_prio(prio), m_record(record) {}
+};
+
+typedef priority_queue<attr_record, attr_record_cmp> attr_records;
+typedef name_map<attr_records> attr_state;
+
+struct attr_config {
+    typedef attr_state state;
+    typedef attr_entry entry;
+    static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
+        attr_records m;
+        if (auto q = s.find(e.m_attr))
+            m = *q;
+        m.insert(e.m_record, e.m_prio);
+        s.insert(e.m_attr, m);
+    }
+    static name const & get_class_name() {
+        return *g_class_name;
+    }
+    static std::string const & get_serialization_key() {
+        return *g_key;
+    }
+    static void write_entry(serializer & s, entry const & e) {
+        s << e.m_attr << e.m_prio << e.m_record.m_decl;
+        write_list(s, e.m_record.m_params);
+    }
+    static entry read_entry(deserializer & d) {
+        entry e;
+        d >> e.m_attr >> e.m_prio >> e.m_record.m_decl;
+        e.m_record.m_params = read_list<unsigned>(d);
+        return e;
+    }
+    static optional<unsigned> get_fingerprint(entry const & e) {
+        return optional<unsigned>(hash(hash(e.m_attr.hash(), e.m_record.hash()), e.m_prio));
+    }
+};
+
+template class scoped_ext<attr_config>;
+typedef scoped_ext<attr_config> attribute_ext;
+
+bool is_attribute(char const * attr) {
+    for (auto const & d : *g_attr_decls) {
         if (d.m_id == attr)
             return true;
     }
     return false;
 }
 
-bool is_attribute(char const * attr) {
-    return
-        is_attribute(*g_default_attrs, attr) ||
-        is_attribute(*g_prio_attrs, attr) ||
-        is_attribute(*g_param_attrs, attr) ||
-        is_attribute(*g_opt_param_attrs, attr) ||
-        is_attribute(*g_params_attrs, attr);
-}
-
-template<typename Decl, typename Setter, typename Tester>
-void set_core_fields(Decl & decl, char const * attr, char const * descr, Setter const & setter, Tester const & tester) {
-    decl.m_id     = attr;
-    decl.m_descr  = descr;
-    decl.m_setter = setter;
-    decl.m_tester = tester;
-}
-
-void register_attribute(char const * attr, char const * descr, set_attribute_proc const & setter,
-                        has_attribute_proc const & tester) {
+void register_attribute(char const * attr, char const * descr, set_attribute_proc const & on_set) {
     lean_assert(!is_attribute(attr));
-    default_attribute_decl decl;
-    set_core_fields(decl, attr, descr, setter, tester);
-    decl.m_token  = std::string("[") + attr + "]";
-    g_default_attrs->push_back(decl);
+    g_attr_decls->push_back(attribute_decl {attr, descr, std::string("[") + attr, on_set});
 }
 
-void register_prio_attribute(char const * attr, char const * descr, set_prio_attribute_proc const & setter,
-                             has_attribute_proc const & tester, get_attribute_prio_proc const & getter) {
-    lean_assert(!is_attribute(attr));
-    prioritized_attribute_decl decl;
-    set_core_fields(decl, attr, descr, setter, tester);
-    decl.m_token  = std::string("[") + attr + "]";
-    decl.m_getter = getter;
-    g_prio_attrs->push_back(decl);
+void register_no_params_attribute(char const * attr, char const * descr, set_no_params_attribute_proc const & on_set) {
+    register_attribute(attr, descr,
+                       [=](environment const & env, io_state const & ios, name const & d, unsigned prio,
+                           list<unsigned> const & idxs, name const & ns, bool persistent) {
+                           if (prio != LEAN_DEFAULT_PRIORITY)
+                               throw exception(sstream() << "invalid [" << attr <<
+                                               "] declaration, unexpected priority declaration");
+                           if (idxs)
+                               throw exception(sstream() << "invalid [" << attr <<
+                                               "] declaration, unexpected parameter");
+                           return on_set(env, ios, d, ns, persistent);
+                       });
 }
 
-void register_param_attribute(char const * attr, char const * descr, set_param_attribute_proc const & setter,
-                              has_attribute_proc const & tester, get_attribute_param_proc const & getter) {
-    lean_assert(!is_attribute(attr));
-    param_attribute_decl decl;
-    set_core_fields(decl, attr, descr, setter, tester);
-    decl.m_token  = std::string("[") + attr;
-    decl.m_getter = getter;
-    g_param_attrs->push_back(decl);
+void register_prio_attribute(char const * attr, char const * descr, set_prio_attribute_proc const & on_set) {
+    register_attribute(attr, descr,
+                       [=](environment const & env, io_state const & ios, name const & d, unsigned prio,
+                          list<unsigned> const & idxs, name const & ns, bool persistent) {
+                           if (idxs)
+                               throw exception(sstream() << "invalid [" << attr <<
+                                               "] declaration, unexpected parameter");
+                           return on_set(env, ios, d, prio, ns, persistent);
+                       });
 }
 
-void register_opt_param_attribute(char const * attr, char const * descr, set_opt_param_attribute_proc const & setter,
-                                  has_attribute_proc const & tester, get_attribute_param_proc const & getter) {
-    lean_assert(!is_attribute(attr));
-    opt_param_attribute_decl decl;
-    set_core_fields(decl, attr, descr, setter, tester);
-    decl.m_token  = std::string("[") + attr;
-    decl.m_getter = getter;
-    g_opt_param_attrs->push_back(decl);
+void register_opt_param_attribute(char const * attr, char const * descr, set_opt_param_attribute_proc const & on_set) {
+    register_attribute(attr, descr,
+                       [=](environment const & env, io_state const & ios, name const & d, unsigned prio,
+                          list<unsigned> const & idxs, name const & ns, bool persistent) {
+                           if (prio != LEAN_DEFAULT_PRIORITY)
+                               throw exception(sstream() << "invalid [" << attr <<
+                                               "] declaration, unexpected priority declaration");
+                           if (idxs && tail(idxs))
+                               throw exception(sstream() << "invalid [" << attr <<
+                                               "] declaration, expected at most one parameter");
+                           return on_set(env, ios, d, head_opt(idxs), ns, persistent);
+                       });
 }
 
-void register_params_attribute(char const * attr, char const * descr, set_params_attribute_proc const & setter,
-                               has_attribute_proc const & tester, get_attribute_params_proc const & getter) {
-    lean_assert(!is_attribute(attr));
-    params_attribute_decl decl;
-    set_core_fields(decl, attr, descr, setter, tester);
-    decl.m_token  = std::string("[") + attr;
-    decl.m_getter = getter;
-    g_params_attrs->push_back(decl);
+void register_params_attribute(char const * attr, char const * descr, set_params_attribute_proc const & on_set) {
+    register_attribute(attr, descr,
+                       [=](environment const & env, io_state const & ios, name const & d, unsigned prio,
+                          list<unsigned> const & idxs, name const & ns, bool persistent) {
+                           if (prio != LEAN_DEFAULT_PRIORITY)
+                               throw exception(sstream() << "invalid [" << attr <<
+                                               "] declaration, unexpected priority declaration");
+                           return on_set(env, ios, d, idxs, ns, persistent);
+                       });
 }
 
 void register_incompatible(char const * attr1, char const * attr2) {
@@ -134,96 +169,52 @@ void register_incompatible(char const * attr1, char const * attr2) {
     g_incomp->emplace_back(s1, s2);
 }
 
-template<typename Decls>
-void get_attributes(Decls const & decls, buffer<char const *> & r) {
-    for (auto const & d : decls)
+void get_attributes(buffer<char const *> & r) {
+    for (auto const & d : *g_attr_decls)
         r.push_back(d.m_id.c_str());
 }
 
-void get_attributes(buffer<char const *> & r) {
-    get_attributes(*g_default_attrs, r);
-    get_attributes(*g_prio_attrs, r);
-    get_attributes(*g_param_attrs, r);
-    get_attributes(*g_opt_param_attrs, r);
-    get_attributes(*g_params_attrs, r);
-}
-
-template<typename Decls>
-void get_attribute_tokens(Decls const & decls, buffer<char const *> & r) {
-    for (auto const & d : decls)
+void get_attribute_tokens(buffer<char const *> & r) {
+    for (auto const & d : *g_attr_decls)
         r.push_back(d.m_token.c_str());
 }
 
-void get_attribute_tokens(buffer<char const *> & r) {
-    get_attribute_tokens(*g_default_attrs, r);
-    get_attribute_tokens(*g_prio_attrs, r);
-    get_attribute_tokens(*g_param_attrs, r);
-    get_attribute_tokens(*g_opt_param_attrs, r);
-    get_attribute_tokens(*g_params_attrs, r);
-}
-
-template<typename Decls>
-char const * get_attribute_from_token(Decls const & decls, char const * tk) {
-    for (auto const & d : decls) {
+char const * get_attribute_from_token(char const * tk) {
+    for (auto const & d : *g_attr_decls) {
         if (d.m_token == tk)
             return d.m_id.c_str();
     }
     return nullptr;
 }
 
-char const * get_attribute_from_token(char const * tk) {
-    if (auto r = get_attribute_from_token(*g_default_attrs, tk)) return r;
-    if (auto r = get_attribute_from_token(*g_prio_attrs, tk)) return r;
-    if (auto r = get_attribute_from_token(*g_param_attrs, tk)) return r;
-    if (auto r = get_attribute_from_token(*g_opt_param_attrs, tk)) return r;
-    if (auto r = get_attribute_from_token(*g_params_attrs, tk)) return r;
-    return nullptr;
-}
-
-template<typename Decls>
-char const * get_attribute_token(Decls const & decls, char const * attr) {
-    for (auto const & d : decls) {
+char const * get_attribute_token(char const * attr) {
+    for (auto const & d : *g_attr_decls) {
         if (d.m_id == attr)
             return d.m_token.c_str();
     }
     return nullptr;
 }
 
-char const * get_attribute_token(char const * attr) {
-    if (auto r = get_attribute_token(*g_default_attrs, attr)) return r;
-    if (auto r = get_attribute_token(*g_prio_attrs, attr)) return r;
-    if (auto r = get_attribute_token(*g_param_attrs, attr)) return r;
-    if (auto r = get_attribute_token(*g_opt_param_attrs, attr)) return r;
-    if (auto r = get_attribute_token(*g_params_attrs, attr)) return r;
-    return nullptr;
-}
-
-attribute_kind get_attribute_kind (char const * attr) {
-    lean_assert(is_attribute(attr));
-    if (is_attribute(*g_default_attrs, attr)) return attribute_kind::Default;
-    if (is_attribute(*g_prio_attrs, attr)) return attribute_kind::Prioritized;
-    if (is_attribute(*g_param_attrs, attr)) return attribute_kind::Parametric;
-    if (is_attribute(*g_opt_param_attrs, attr)) return attribute_kind::OptParametric;
-    if (is_attribute(*g_params_attrs, attr)) return attribute_kind::MultiParametric;
-    lean_unreachable();
-}
-
-template<typename Decls>
-bool has_attribute(Decls const & decls, environment const & env, char const * attr, name const & d) {
-    for (auto const & decl : decls) {
-        if (decl.m_id == attr)
-            return decl.m_tester(env, d);
-    }
+bool has_attribute(environment const & env, char const * attr, name const & d) {
+    if (auto it = attribute_ext::get_state(env).find(attr))
+        return it->contains(attr_record(d, list<unsigned>()));
     return false;
 }
 
-bool has_attribute(environment const & env, char const * attr, name const & d) {
-    return
-        has_attribute(*g_default_attrs, env, attr, d) ||
-        has_attribute(*g_prio_attrs, env, attr, d) ||
-        has_attribute(*g_param_attrs, env, attr, d) ||
-        has_attribute(*g_opt_param_attrs, env, attr, d) ||
-        has_attribute(*g_params_attrs, env, attr, d);
+void get_attribute_instances(environment const & env, char const * attr, buffer<name> & r) {
+    attribute_ext::get_state(env).for_each([&](name const & n, attr_records const & recs){
+        if (n == attr)
+            recs.for_each([&](attr_record const & rec) { r.push_back(rec.m_decl); });
+    });
+}
+
+void get_attribute_instances(environment const & env, char const * attr, name const & ns, buffer<name> & r) {
+    if (auto entries = attribute_ext::get_entries(env, ns)) {
+        for (auto const & e : *entries) {
+            if (e.m_attr == attr)
+                r.push_back(e.m_record.m_decl);
+        }
+    }
 }
 
 [[ noreturn ]] void throw_unknown_attribute(char const * attr) {
@@ -231,74 +222,28 @@ bool has_attribute(environment const & env, char const * attr, name const & d) {
 }
 
 environment set_attribute(environment const & env, io_state const & ios, char const * attr,
-                          name const & d, name const & ns, bool persistent) {
-    for (auto const & decl : *g_default_attrs) {
-        if (decl.m_id == attr)
-            return decl.m_setter(env, ios, d, ns, persistent);
-    }
-    throw_unknown_attribute(attr);
-}
-
-environment set_prio_attribute(environment const & env, io_state const & ios, char const * attr,
-                               name const & d, unsigned prio, name const & ns, bool persistent) {
-    for (auto const & decl : *g_prio_attrs) {
-        if (decl.m_id == attr)
-            return decl.m_setter(env, ios, d, prio, ns, persistent);
-    }
-    throw_unknown_attribute(attr);
-}
-
-environment set_param_attribute(environment const & env, io_state const & ios, char const * attr,
-                                name const & d, unsigned param, name const & ns, bool persistent) {
-    for (auto const & decl : *g_param_attrs) {
-        if (decl.m_id == attr)
-            return decl.m_setter(env, ios, d, param, ns, persistent);
-    }
-    throw_unknown_attribute(attr);
-}
-
-environment set_opt_param_attribute(environment const & env, io_state const & ios, char const * attr,
-                                    name const & d, optional<unsigned> const & param, name const & ns, bool persistent) {
-    for (auto const & decl : *g_opt_param_attrs) {
-        if (decl.m_id == attr)
-            return decl.m_setter(env, ios, d, param, ns, persistent);
-    }
-    throw_unknown_attribute(attr);
-}
-
-environment set_params_attribute(environment const & env, io_state const & ios, char const * attr,
-                                 name const & d, list<unsigned> const & params, name const & ns, bool persistent) {
-    for (auto const & decl : *g_params_attrs) {
-        if (decl.m_id == attr)
-            return decl.m_setter(env, ios, d, params, ns, persistent);
+                          name const & d, unsigned prio, list<unsigned> const & params, name const & ns, bool persistent) {
+    for (auto const & decl : *g_attr_decls) {
+        if (decl.m_id == attr) {
+            auto env2 = attribute_ext::add_entry(env, ios, attr_entry(attr, prio, attr_record(d, params)), ns, persistent);
+            return decl.m_on_set(env2, ios, d, prio, params, ns, persistent);
+        }
     }
     throw_unknown_attribute(attr);
 }
 
 unsigned get_attribute_prio(environment const & env, char const * attr, name const & d) {
-    for (auto const & decl : *g_prio_attrs) {
-        if (decl.m_id == attr)
-            return decl.m_getter(env, d);
-    }
-    throw_unknown_attribute(attr);
-}
-
-unsigned get_attribute_param(environment const & env, char const * attr, name const & d) {
-    for (auto const & decl : *g_param_attrs) {
-        if (decl.m_id == attr)
-            return decl.m_getter(env, d);
-    }
-    for (auto const & decl : *g_opt_param_attrs) {
-        if (decl.m_id == attr)
-            return decl.m_getter(env, d);
+    if (auto it = attribute_ext::get_state(env).find(attr)) {
+        optional<unsigned> prio = it->get_prio({d, list<unsigned>()});
+        return prio ? *prio : LEAN_DEFAULT_PRIORITY;
     }
     throw_unknown_attribute(attr);
 }
 
 list<unsigned> get_attribute_params(environment const & env, char const * attr, name const & d) {
-    for (auto const & decl : *g_params_attrs) {
-        if (decl.m_id == attr)
-            return decl.m_getter(env, d);
+    if (auto it = attribute_ext::get_state(env).find(attr)) {
+        if (auto record = it->get_key(attr_record {d, list<unsigned>()}))
+                return record->m_params;
     }
     throw_unknown_attribute(attr);
 }
@@ -312,20 +257,18 @@ bool are_incompatible(char const * attr1, char const * attr2) {
 }
 
 void initialize_attribute_manager() {
-    g_default_attrs   = new std::vector<default_attribute_decl>();
-    g_prio_attrs      = new std::vector<prioritized_attribute_decl>();
-    g_param_attrs     = new std::vector<param_attribute_decl>();
-    g_opt_param_attrs = new std::vector<opt_param_attribute_decl>();
-    g_params_attrs    = new std::vector<params_attribute_decl>();
-    g_incomp          = new std::vector<pair<std::string, std::string>>();
+    g_attr_decls = new std::vector<attribute_decl>();
+    g_incomp     = new std::vector<pair<std::string, std::string>>();
+    g_class_name = new name("attribute");
+    g_key        = new std::string("ATTR");
+    attribute_ext::initialize();
 }
 
 void finalize_attribute_manager() {
-    delete g_default_attrs;
-    delete g_prio_attrs;
-    delete g_param_attrs;
-    delete g_opt_param_attrs;
-    delete g_params_attrs;
+    attribute_ext::finalize();
+    delete g_key;
+    delete g_class_name;
     delete g_incomp;
+    delete g_attr_decls;
 }
 }

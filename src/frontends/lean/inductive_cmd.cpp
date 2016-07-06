@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
+#include <library/attribute_manager.h>
 #include "util/sstream.h"
 #include "util/name_map.h"
 #include "util/fresh_name.h"
@@ -774,7 +775,8 @@ struct inductive_cmd_fn {
     environment apply_modifiers(environment env) {
         m_modifiers.for_each([&](name const & n, modifiers const & m) {
                 if (m.is_class())
-                    env = add_class(env, n, get_namespace(env), true);
+                    env = set_attribute(env, get_dummy_ios(), "class", n, LEAN_DEFAULT_PRIORITY, list<unsigned>(),
+                                        get_namespace(env), true);
             });
         return env;
     }

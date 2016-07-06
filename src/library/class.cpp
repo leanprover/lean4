@@ -307,19 +307,6 @@ environment add_trans_instance(environment const & env, name const & n, unsigned
     return new_env;
 }
 
-bool is_instance(environment const & env, name const & i) {
-    class_state const & s = class_ext::get_state(env);
-    return s.is_instance(i);
-}
-
-unsigned get_instance_priority(environment const & env, name const & n) {
-    class_state const & s                  = class_ext::get_state(env);
-    class_state::instance_priorities insts = s.m_priorities;
-    if (auto r = insts.find(n))
-        return *r;
-    return LEAN_DEFAULT_PRIORITY;
-}
-
 name_predicate mk_class_pred(environment const & env) {
     class_state const & s = class_ext::get_state(env);
     class_state::class_instances cs = s.m_instances;
@@ -430,47 +417,29 @@ optional<name> is_ext_class(old_type_checker & tc, expr const & type) {
     return is_full_ext_class(tc, type);
 }
 
-/** \brief Return a list of instances of the class \c cls_name that occur in \c ctx */
-list<expr> get_local_instances(old_type_checker & tc, list<expr> const & ctx, name const & cls_name) {
-    buffer<expr> buffer;
-    for (auto const & l : ctx) {
-        if (!is_local(l))
-            continue;
-        expr inst_type    = mlocal_type(l);
-        if (auto it = is_ext_class(tc, inst_type))
-            if (*it == cls_name)
-                buffer.push_back(l);
-    }
-    return to_list(buffer.begin(), buffer.end());
-}
-
 void initialize_class() {
     g_source     = new name("_source");
     g_class_name = new name("class");
     g_key = new std::string("class");
     class_ext::initialize();
 
-    register_attribute("class", "type class",
-                       [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
-                           return add_class(env, d, ns, persistent);
-                       },
-                       is_class);
+    register_no_params_attribute("class", "type class",
+                                 [](environment const & env, io_state const &, name const & d, name const & ns,
+                                    bool persistent) {
+                                     return add_class(env, d, ns, persistent);
+                                 });
 
     register_prio_attribute("instance", "type class instance",
                             [](environment const & env, io_state const &, name const & d, unsigned prio,
                                name const & ns, bool persistent) {
                                 return add_instance(env, d, prio, ns, persistent);
-                            },
-                            is_instance,
-                            get_instance_priority);
+                            });
 
     register_prio_attribute("trans_instance", "transitive type class instance",
                             [](environment const & env, io_state const &, name const & d, unsigned prio,
                                name const & ns, bool persistent) {
                                 return add_trans_instance(env, d, prio, ns, persistent);
-                            },
-                            is_instance,
-                            get_instance_priority);
+                            });
 }
 
 void finalize_class() {

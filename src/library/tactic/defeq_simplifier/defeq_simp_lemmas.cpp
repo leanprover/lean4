@@ -11,7 +11,6 @@ Author: Daniel Selsam
 #include "library/attribute_manager.h"
 #include "library/constants.h"
 #include "library/util.h"
-#include "library/expr_lt.h"
 #include "library/scoped_ext.h"
 #include "library/tactic/defeq_simplifier/defeq_simp_lemmas.h"
 #include "library/old_tmp_type_context.h"
@@ -35,7 +34,6 @@ static std::string * g_key = nullptr;
 
 struct defeq_simp_lemmas_state {
     defeq_simp_lemmas m_defeq_simp_lemmas;
-    name_map<unsigned> m_decl_name_to_prio; // Note: redundant but convenient
 
     void register_defeq_simp_lemma(old_tmp_type_context & tctx, name const & decl_name, unsigned priority) {
         declaration const & d = tctx.env().get(decl_name);
@@ -56,7 +54,6 @@ struct defeq_simp_lemmas_state {
 
     void register_defeq_simp_lemma_core(old_tmp_type_context & tctx, name const & decl_name, levels const & umetas,
                                         expr const & type, expr const & proof, unsigned priority) {
-        m_decl_name_to_prio.insert(decl_name, priority);
         expr rule = type;
         expr pf = proof;
         buffer<expr> emetas;
@@ -120,10 +117,6 @@ environment add_defeq_simp_lemma(environment const & env, io_state const & ios, 
     return defeq_simp_lemmas_ext::add_entry(env, ios, defeq_simp_lemmas_entry(decl_name, prio), ns, persistent);
 }
 
-bool is_defeq_simp_lemma(environment const & env, name const & decl_name) {
-    return defeq_simp_lemmas_ext::get_state(env).m_decl_name_to_prio.contains(decl_name);
-}
-
 defeq_simp_lemmas get_defeq_simp_lemmas(environment const & env) {
     return defeq_simp_lemmas_ext::get_state(env).m_defeq_simp_lemmas;
 }
@@ -172,15 +165,7 @@ void initialize_defeq_simp_lemmas() {
 
     defeq_simp_lemmas_ext::initialize();
 
-    register_prio_attribute("defeq", "defeq simp lemma",
-                            add_defeq_simp_lemma,
-                            is_defeq_simp_lemma,
-                            [](environment const & env, name const & decl_name) {
-                                if (auto p = defeq_simp_lemmas_ext::get_state(env).m_decl_name_to_prio.find(decl_name))
-                                    return *p;
-                                else
-                                    return LEAN_DEFAULT_PRIORITY;
-                            });
+    register_prio_attribute("defeq", "defeq simp lemma", add_defeq_simp_lemma);
 }
 
 void finalize_defeq_simp_lemmas() {

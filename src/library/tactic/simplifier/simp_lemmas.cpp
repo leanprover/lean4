@@ -24,101 +24,27 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-/* The environment extension */
-static name * g_class_name = nullptr;
-static std::string * g_key = nullptr;
-
-struct simp_state {
-    priority_queue<name, name_quick_cmp> m_simp_lemmas;
-    priority_queue<name, name_quick_cmp> m_congr_lemmas;
-};
-
-typedef std::tuple<bool, unsigned, name> simp_entry;
-
-struct simp_config {
-    typedef simp_entry entry;
-    typedef simp_state state;
-
-    static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
-        bool is_simp; unsigned prio; name n;
-        std::tie(is_simp, prio, n) = e;
-        if (is_simp) {
-            s.m_simp_lemmas.insert(n, prio);
-        } else {
-            s.m_congr_lemmas.insert(n, prio);
-        }
-    }
-    static name const & get_class_name() {
-        return *g_class_name;
-    }
-    static std::string const & get_serialization_key() {
-        return *g_key;
-    }
-    static void  write_entry(serializer & s, entry const & e) {
-        bool is_simp; unsigned prio; name n;
-        std::tie(is_simp, prio, n) = e;
-        s << is_simp << prio << n;
-    }
-    static entry read_entry(deserializer & d) {
-        bool is_simp; unsigned prio; name n;
-        d >> is_simp >> prio >> n;
-        return entry(is_simp, prio, n);
-    }
-    static optional<unsigned> get_fingerprint(entry const & e) {
-        bool is_simp; unsigned prio; name n;
-        std::tie(is_simp, prio, n) = e;
-        return some(hash(hash(n.hash(), prio), is_simp ? 17u : 31u));
-    }
-};
-
-typedef scoped_ext<simp_config> simp_ext;
-
 /* Validation */
 
 LEAN_THREAD_VALUE(bool, g_throw_ex, false);
 void validate_simp(type_context & tctx, name const & n);
 void validate_congr(type_context & tctx, name const & n);
 
-/* Registering simp/congr lemmas */
-
-environment add_simp_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent) {
+environment on_add_simp_lemma(environment const & env, io_state const &, name const & c, unsigned, name const &, bool) {
     aux_type_context aux_ctx(env);
     type_context & tctx = aux_ctx.get();
     validate_simp(tctx, c);
-    return simp_ext::add_entry(env, ios, simp_entry(true, prio, c), ns, persistent);
+    return env;
 }
 
-environment add_congr_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent) {
+environment on_add_congr_lemma(environment const & env, io_state const &, name const & c, unsigned, name const &, bool) {
     aux_type_context aux_ctx(env);
     type_context & tctx = aux_ctx.get();
     validate_congr(tctx, c);
-    return simp_ext::add_entry(env, ios, simp_entry(false, prio, c), ns, persistent);
+    return env;
 }
 
 /* Getters/checkers */
-
-unsigned get_simp_lemma_priority(environment const & env, name const & n) {
-    if (auto r = simp_ext::get_state(env).m_simp_lemmas.get_prio(n))
-        return *r;
-    else
-        return LEAN_DEFAULT_PRIORITY;
-}
-
-bool is_simp_lemma(environment const & env, name const & c) {
-    return simp_ext::get_state(env).m_simp_lemmas.contains(c);
-}
-
-bool is_congr_lemma(environment const & env, name const & c) {
-    return simp_ext::get_state(env).m_congr_lemmas.contains(c);
-}
-
-void get_simp_lemma_names(environment const & env, buffer<name> & r) {
-    return simp_ext::get_state(env).m_simp_lemmas.to_buffer(r);
-}
-
-void get_congr_lemma_names(environment const & env, buffer<name> & r) {
-    return simp_ext::get_state(env).m_congr_lemmas.to_buffer(r);
-}
 
 static void report_failure(sstream const & strm) {
     if (g_throw_ex){
@@ -601,20 +527,19 @@ format simp_lemmas::pp(formatter const & fmt) const {
 simp_lemmas get_simp_lemmas(type_context & tctx) {
     simp_lemmas r;
     buffer<name> simp_lemmas, congr_lemmas;
-    auto const & s = simp_ext::get_state(tctx.env());
-    s.m_simp_lemmas.to_buffer(simp_lemmas);
-    s.m_congr_lemmas.to_buffer(congr_lemmas);
+    get_attribute_instances(env, "simp", simp_lemmas);
+    get_attribute_instances(env, "congr", congr_lemmas);
     unsigned i = simp_lemmas.size();
     while (i > 0) {
         --i;
         tmp_type_context tmp_tctx(tctx);
-        r = add_core(tmp_tctx, r, simp_lemmas[i], *s.m_simp_lemmas.get_prio(simp_lemmas[i]));
+        r = add_core(tmp_tctx, r, simp_lemmas[i], get_attribute_prio(env, "simp", simp_lemmas[i]));
     }
     i = congr_lemmas.size();
     while (i > 0) {
         --i;
         tmp_type_context tmp_tctx(tctx);
-        r = add_congr_core(tmp_tctx, r, congr_lemmas[i], *s.m_congr_lemmas.get_prio(congr_lemmas[i]));
+        r = add_congr_core(tmp_tctx, r, congr_lemmas[i], get_attribute_prio(env, "congr", congr_lemmas[i]));
     }
     return r;
 }
@@ -657,37 +582,13 @@ vm_obj tactic_simp_lemmas_insert(vm_obj const & m, vm_obj const & lemmas, vm_obj
 }
 
 void initialize_simp_lemmas() {
-    g_class_name    = new name("simp");
-    g_key           = new std::string("SIMP");
-    simp_ext::initialize();
-
-    register_prio_attribute("simp", "simplification lemma",
-                            add_simp_lemma,
-                            is_simp_lemma,
-                            [](environment const & env, name const & d) {
-                                if (auto p = simp_ext::get_state(env).m_simp_lemmas.get_prio(d))
-                                    return *p;
-                                else
-                                    return LEAN_DEFAULT_PRIORITY;
-                            });
-
-    register_prio_attribute("congr", "congruence lemma",
-                            add_congr_lemma,
-                            is_congr_lemma,
-                            [](environment const & env, name const & d) {
-                                if (auto p = simp_ext::get_state(env).m_congr_lemmas.get_prio(d))
-                                    return *p;
-                                else
-                                    return LEAN_DEFAULT_PRIORITY;
-                            });
-
     DECLARE_VM_BUILTIN(name({"tactic", "mk_simp_lemmas_core"}),      tactic_mk_simp_lemmas);
     DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_core"}),  tactic_simp_lemmas_insert);
+
+    register_prio_attribute("simp", "simplification lemma", &on_add_simp_lemma);
+    register_prio_attribute("congr", "congruence lemma", &on_add_congr_lemma);
 }
 
 void finalize_simp_lemmas() {
-    simp_ext::finalize();
-    delete g_key;
-    delete g_class_name;
 }
 }

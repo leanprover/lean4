@@ -153,10 +153,6 @@ environment add_unification_hint(environment const & env, io_state const & ios, 
     return unification_hint_ext::add_entry(env, ios, unification_hint_entry(decl_name, prio), ns, persistent);
 }
 
-bool is_unification_hint(environment const & env, name const & decl_name) {
-    return unification_hint_ext::get_state(env).m_decl_names_to_prio.contains(decl_name);
-}
-
 unification_hints get_unification_hints(environment const & env) {
     return unification_hint_ext::get_state(env).m_hints;
 }
@@ -225,15 +221,7 @@ void initialize_unification_hint() {
 
     unification_hint_ext::initialize();
 
-    register_prio_attribute("unify", "unification hint",
-                            add_unification_hint,
-                            is_unification_hint,
-                            [](environment const & env, name const & decl_name) {
-                                if (auto p = unification_hint_ext::get_state(env).m_decl_names_to_prio.find(decl_name))
-                                    return *p;
-                                else
-                                    return LEAN_DEFAULT_PRIORITY;
-                            });
+    register_prio_attribute("unify", "unification hint", add_unification_hint);
 }
 
 void finalize_unification_hint() {

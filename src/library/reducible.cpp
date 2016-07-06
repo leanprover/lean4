@@ -67,23 +67,23 @@ void initialize_reducible() {
     g_key        = new std::string("REDU");
     reducible_ext::initialize();
 
-    register_attribute("reducible", "reducible",
-                       [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
-                           return set_reducible(env, d, reducible_status::Reducible, ns, persistent);
-                       },
-                       [](environment const & env, name const & d) { return get_reducible_status(env, d) == reducible_status::Reducible; });
+    register_no_params_attribute("reducible", "reducible",
+                                 [](environment const & env, io_state const &, name const & d, name const & ns,
+                                    bool persistent) {
+                                     return set_reducible(env, d, reducible_status::Reducible, ns, persistent);
+                                 });
 
-    register_attribute("semireducible", "semireducible",
-                       [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
-                           return set_reducible(env, d, reducible_status::Semireducible, ns, persistent);
-                       },
-                       [](environment const & env, name const & d) { return get_reducible_status(env, d) == reducible_status::Semireducible; });
+    register_no_params_attribute("semireducible", "semireducible",
+                                 [](environment const & env, io_state const &, name const & d, name const & ns,
+                                    bool persistent) {
+                                     return set_reducible(env, d, reducible_status::Semireducible, ns, persistent);
+                                 });
 
-    register_attribute("irreducible", "irreducible",
-                       [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
-                           return set_reducible(env, d, reducible_status::Irreducible, ns, persistent);
-                       },
-                       [](environment const & env, name const & d) { return get_reducible_status(env, d) == reducible_status::Irreducible; });
+    register_no_params_attribute("irreducible", "irreducible",
+                                 [](environment const & env, io_state const &, name const & d, name const & ns,
+                                    bool persistent) {
+                                     return set_reducible(env, d, reducible_status::Irreducible, ns, persistent);
+                                 });
 
     register_incompatible("reducible", "semireducible");
     register_incompatible("reducible", "irreducible");

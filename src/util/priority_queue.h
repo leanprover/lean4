@@ -63,6 +63,14 @@ public:
             return optional<unsigned>();
     }
 
+    // useful if \c CMP only compares part of \c K
+    K const * get_key(K const & k) const {
+        if (auto p = m_key_to_pos.find(k))
+            return m_pos_to_key.find(*p);
+        else
+            return nullptr;
+    }
+
     void clear() {
         m_key_to_pos.clear();
         m_pos_to_key.clear();

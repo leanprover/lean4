@@ -168,6 +168,7 @@ void list<T>::cell::dealloc() {
 template<typename T> inline list<T>         cons(T const & h, list<T> const & t) { return list<T>(h, t); }
 template<typename T> inline T const &       car(list<T> const & l) { return head(l); }
 template<typename T> inline list<T> const & cdr(list<T> const & l) { return tail(l); }
+template<typename T> inline optional<T>     head_opt(list<T> const & l) { return l ? some(head(l)) : optional<T>(); }
 template<typename T> inline list<T>         to_list(T const & v) { return list<T>(v); }
 template<typename T> inline list<T>         to_list(optional<T> const & v) { return v ? to_list(*v) : list<T>(); }
 template<typename T> inline list<T>         to_list(T const * v) { return v ? to_list(*v) : list<T>(); }

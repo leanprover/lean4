@@ -269,27 +269,14 @@ static void print_attributes(parser const & p, name const & n) {
             continue;
         if (has_attribute(env, attr, n)) {
             out << " " << get_attribute_token(attr);
-            switch (get_attribute_kind(attr)) {
-            case attribute_kind::Default:
-                break;
-            case attribute_kind::Prioritized: {
-                unsigned prio = get_attribute_prio(env, attr, n);
-                if (prio != LEAN_DEFAULT_PRIORITY)
-                    out << " [priority " << prio << "]";
-                break;
+            list<unsigned> ps = get_attribute_params(env, attr, n);
+            for (auto p : ps) {
+                out << " " << p;
             }
-            case attribute_kind::Parametric:
-            case attribute_kind::OptParametric:
-                out << " " << get_attribute_param(env, attr, n) << "]";
-                break;
-            case attribute_kind::MultiParametric: {
-                list<unsigned> ps = get_attribute_params(env, attr, n);
-                for (auto p : ps) {
-                    out << " " << p;
-                }
-                out << "]";
-                break;
-            }}
+            out << "]";
+            unsigned prio = get_attribute_prio(env, attr, n);
+            if (prio != LEAN_DEFAULT_PRIORITY)
+                out << " [priority " << prio << "]";
         }
     }
 }
@@ -749,6 +736,7 @@ environment print_cmd(parser & p) {
         print_defeq_lemmas(p);
     } else if (p.curr_is_token(get_simp_attr_tk())) {
         p.next();
+        p.check_token_next(get_rbracket_tk(), "invalid 'print [simp]', ']' expected");
         print_simp_rules(p);
     } else if (p.curr_is_token(get_simp_ext_attr_tk())) {
         p.next();

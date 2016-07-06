@@ -27,16 +27,6 @@ void decl_attributes::parse(parser & p) {
         auto pos   = p.pos();
         if (auto it = parse_priority(p)) {
             m_prio = *it;
-            bool has_prio_attr = false;
-            for (auto const & entry : m_entries) {
-                if (get_attribute_kind(entry.m_attr.c_str()) == attribute_kind::Prioritized) {
-                    has_prio_attr = true;
-                    break;
-                }
-            }
-            if (!has_prio_attr) {
-                throw parser_error("invalid '[priority]' attribute, declaration has not been marked with a prioritized attribute", pos);
-            }
         } else if (p.curr_is_token(get_parsing_only_tk())) {
             if (!m_is_abbrev)
                 throw parser_error("invalid '[parsing_only]' attribute, only abbreviations can be "
@@ -55,45 +45,15 @@ void decl_attributes::parse(parser & p) {
                                                << "], declaration was already marked with [" << entry.m_attr << "]", pos);
                         }
                     }
-                    switch (get_attribute_kind(attr)) {
-                    case attribute_kind::Default:
-                    case attribute_kind::Prioritized:
-                        m_entries = cons(entry(attr), m_entries);
-                        break;
-                    case attribute_kind::Parametric: {
+                    buffer<unsigned> vs;
+                    while (!p.curr_is_token(get_rbracket_tk())) {
                         unsigned v = p.parse_small_nat();
                         if (v == 0)
                             throw parser_error("invalid attribute parameter, value must be positive", pos);
-                        p.check_token_next(get_rbracket_tk(), "invalid attribute, ']' expected");
-                        m_entries = cons(entry(attr, v-1), m_entries);
-                        break;
+                        vs.push_back(v-1);
                     }
-                    case attribute_kind::OptParametric:
-                        if (!p.curr_is_token(get_rbracket_tk())) {
-                            unsigned v = p.parse_small_nat();
-                            if (v == 0)
-                                throw parser_error("invalid attribute parameter, value must be positive", pos);
-                            p.check_token_next(get_rbracket_tk(), "invalid attribute, ']' expected");
-                            m_entries = cons(entry(attr, v-1), m_entries);
-                        } else {
-                            p.check_token_next(get_rbracket_tk(), "invalid attribute, ']' expected");
-                            m_entries = cons(entry(attr), m_entries);
-                        }
-                        break;
-                    case attribute_kind::MultiParametric: {
-                        buffer<unsigned> vs;
-                        while (true) {
-                            unsigned v = p.parse_small_nat();
-                            if (v == 0)
-                                throw parser_error("invalid attribute parameter, value must be positive", pos);
-                            vs.push_back(v-1);
-                            if (p.curr_is_token(get_rbracket_tk()))
-                                break;
-                        }
-                        p.next();
-                        m_entries = cons(entry(attr, to_list(vs)), m_entries);
-                        break;
-                    }}
+                    p.next();
+                    m_entries = cons(entry(attr, to_list(vs)), m_entries);
                     found = true;
                     break;
                 }
@@ -112,29 +72,8 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
         --i;
         auto const & entry = entries[i];
         char const * attr = entry.m_attr.c_str();
-        switch (get_attribute_kind(attr)) {
-        case attribute_kind::Default:
-            env = set_attribute(env, ios, attr, d, ns, m_persistent);
-            break;
-        case attribute_kind::Prioritized:
-            if (m_prio)
-                env = set_prio_attribute(env, ios, attr, d, *m_prio, ns, m_persistent);
-            else
-                env = set_prio_attribute(env, ios, attr, d, LEAN_DEFAULT_PRIORITY, ns, m_persistent);
-            break;
-        case attribute_kind::Parametric:
-            env = set_param_attribute(env, ios, attr, d, head(entry.m_params), ns, m_persistent);
-            break;
-        case attribute_kind::OptParametric:
-            if (entry.m_params)
-                env = set_opt_param_attribute(env, ios, attr, d, optional<unsigned>(head(entry.m_params)), ns, m_persistent);
-            else
-                env = set_opt_param_attribute(env, ios, attr, d, optional<unsigned>(), ns, m_persistent);
-            break;
-        case attribute_kind::MultiParametric:
-            env = set_params_attribute(env, ios, attr, d, entry.m_params, ns, m_persistent);
-            break;
-        }
+        unsigned prio = m_prio ? *m_prio : LEAN_DEFAULT_PRIORITY;
+        env = set_attribute(env, ios, attr, d, prio, entry.m_params, ns, m_persistent);
     }
     return env;
 }

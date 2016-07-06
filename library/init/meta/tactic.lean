@@ -157,8 +157,11 @@ meta_constant defeq_simp_core : transparency → expr → tactic expr
 /- Simplify the given expression using [simp] and [congr] lemmas.
    The result is the simplified expression along with a proof that the new
    expression is equivalent to the old one.
-   Fails if no simplifications can be performed. -/
-meta_constant simplify    : expr → tactic (prod expr expr)
+   Fails if no simplifications can be performed.
+   The first argument is a list of additional expressions to be considered as simp rules.
+   The second argument is a tactic to be used to discharge proof obligations.
+-/
+meta_constant simplify_core : list expr → tactic unit → expr → tactic (prod expr expr)
 /- Change the target of the main goal.
    The input expression must be definitionally equal to the current target. -/
 meta_constant change        : expr → tactic unit
@@ -312,19 +315,6 @@ do num_reverted : ℕ ← revert H,
    change $ expr.pi n bi H_simp b,
    intron num_reverted
 
-meta_definition simp : tactic unit :=
-do (new_target, Heq) ← target >>= simplify,
-   assert "Htarget" new_target, swap,
-   ns       ← return $ (if expr.is_eq Heq ≠ none then "eq" else "iff"),
-   Ht       ← get_local "Htarget",
-   mk_app (ns <.> "mpr") [Heq, Ht] >>= exact
-
-meta_definition mk_eq_simp_ext (simp_ext : expr → tactic (expr × expr)) : tactic unit :=
-do (lhs, rhs)     ← target >>= match_eq,
-   (new_rhs, Heq) ← simp_ext lhs,
-   unify rhs new_rhs,
-   exact Heq
-
 /- Return the number of goals that need to be solved -/
 meta_definition num_goals     : tactic nat :=
 do gs ← get_goals,
@@ -471,5 +461,21 @@ meta_definition get_arity (fn : expr) : tactic nat :=
 infer_type fn >>= whnf >>= get_arity_aux
 
 meta_definition triv : tactic unit := mk_const "trivial" >>= exact
+
+meta_definition simp_core (rules : list expr) (prove_fn : tactic unit) : tactic unit :=
+do (new_target, Heq) ← target >>= simplify_core rules prove_fn,
+   assert "Htarget" new_target, swap,
+   ns       ← return $ (if expr.is_eq Heq ≠ none then "eq" else "iff"),
+   Ht       ← get_local "Htarget",
+   mk_app (ns <.> "mpr") [Heq, Ht] >>= exact
+
+meta_definition simp : tactic unit := simp_core [] (simp_core [] triv)
+
+meta_definition mk_eq_simp_ext (simp_ext : expr → tactic (expr × expr)) : tactic unit :=
+do (lhs, rhs)     ← target >>= match_eq,
+   (new_rhs, Heq) ← simp_ext lhs,
+   unify rhs new_rhs,
+   exact Heq
+
 
 end tactic

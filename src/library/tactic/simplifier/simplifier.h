@@ -6,6 +6,7 @@ Author: Daniel Selsam
 #pragma once
 #include "kernel/expr_pair.h"
 #include "library/type_context.h"
+#include "library/vm/vm.h"
 #include "library/tactic/simplifier/simp_lemmas.h"
 
 namespace lean {
@@ -31,7 +32,7 @@ public:
     void update(expr const & e) { m_new = e; }
 };
 
-simp_result simplify(type_context & ctx, name const & rel, simp_lemmas const & simp_lemmas, expr const & e);
+simp_result simplify(type_context & ctx, name const & rel, simp_lemmas const & simp_lemmas, vm_obj const & prove_fn, expr const & e);
 
 void initialize_simplifier();
 void finalize_simplifier();

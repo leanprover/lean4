@@ -29,6 +29,8 @@ Author: Daniel Selsam
 #include "library/congr_lemma.h"
 #include "library/fun_info.h"
 #include "library/vm/vm_expr.h"
+#include "library/vm/vm_list.h"
+#include "library/vm/vm_name.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/app_builder_tactics.h"
 #include "library/tactic/simplifier/simplifier.h"
@@ -106,6 +108,8 @@ class simplifier {
 
     simp_lemmas               m_slss;
     simp_lemmas               m_ctx_slss;
+
+    vm_obj const &            m_prove_fn;
 
     /* Logging */
     unsigned                  m_num_steps{0};
@@ -221,8 +225,8 @@ class simplifier {
     expr whnf_eta(expr const & e);
 
 public:
-    simplifier(type_context & tctx, name const & rel, simp_lemmas const & slss):
-        m_tctx(tctx), m_rel(rel), m_slss(slss),
+    simplifier(type_context & tctx, name const & rel, simp_lemmas const & slss, vm_obj const & prove_fn):
+        m_tctx(tctx), m_rel(rel), m_slss(slss), m_prove_fn(prove_fn),
         /* Options */
         m_max_steps(get_simplify_max_steps(tctx.get_options())),
         m_top_down(get_simplify_top_down(tctx.get_options())),
@@ -536,16 +540,22 @@ simp_result simplifier::finalize(simp_result const & r) {
     return simp_result(r.get_new(), pf);
 }
 
-optional<expr> simplifier::prove(expr const & thm) {
-    flet<name> set_name(m_rel, get_iff_name());
-    simp_result r_cond = simplify(thm);
-    if (is_constant(r_cond.get_new()) && const_name(r_cond.get_new()) == get_true_name()) {
-        expr pf = mk_app(m_tctx, get_iff_elim_right_name(),
-                              finalize(r_cond).get_proof(),
-                              mk_constant(get_true_intro_name()));
-        return some_expr(pf);
+optional<expr> simplifier::prove(expr const & goal) {
+    metavar_context mctx = m_tctx.get_mctx();
+    expr goal_mvar = mctx.mk_metavar_decl(m_tctx.lctx(), goal);
+    lean_trace(name({"simplifier", "prove"}), tout() << goal_mvar << " : " << goal << "\n";);
+    vm_obj s = to_obj(tactic_state(m_tctx.env(), m_tctx.get_options(), mctx, list<expr>(goal_mvar), goal_mvar));
+    vm_obj prove_fn_result = get_tactic_vm_state(m_tctx.env()).invoke(m_prove_fn, s);
+    optional<tactic_state> s_new = is_tactic_success(prove_fn_result);
+    if (s_new) {
+        m_tctx.set_mctx(s_new->mctx());
+        expr proof = m_tctx.instantiate_mvars(goal_mvar);
+        lean_trace(name({"simplifier", "prove"}), tout() << "SUCCESS: " << proof << " : " << m_tctx.infer(proof) << "\n";);
+        return some_expr(proof);
+    } else {
+        lean_trace(name({"simplifier", "prove"}), tout() << "prove_fn failed to prove " << goal << "\n";);
+        return none_expr();
     }
-    return none_expr();
 }
 
 /* Rewriting */
@@ -888,7 +898,7 @@ expr simplifier::remove_unnecessary_casts(expr const & e) {
     return mk_app(f, args);
 }
 
-vm_obj tactic_simp(vm_obj const & e, vm_obj const & s0) {
+vm_obj tactic_simp_core(vm_obj const & rules, vm_obj const & prove_fn, vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s   = to_tactic_state(s0);
     try {
         type_context tctx          = mk_type_context_for(s, transparency_mode::Reducible);
@@ -896,7 +906,20 @@ vm_obj tactic_simp(vm_obj const & e, vm_obj const & s0) {
         metavar_decl g             = *s.get_main_goal_decl();
         expr target                = g.get_type();
         name rel                   = (is_standard(s.env()) && tctx.is_prop(target)) ? get_iff_name() : get_eq_name();
-        simp_result result         = simplify(tctx, rel, lemmas, to_expr(e));
+
+        // Extra rules
+        list<expr> extra_rules     = to_list_expr(rules);
+        for_each(extra_rules, [&](expr const & rule) {
+                name id;
+                if (is_mlocal(rule)) id = mlocal_name(rule);
+                else if (is_constant(rule)) id = const_name(rule);
+                // TODO(dhs): allow users to give priorities?
+                lemmas = add(tctx, lemmas, id, tctx.infer(rule), rule, LEAN_DEFAULT_PRIORITY);
+            });
+
+        // Prove-fn
+        simp_result result = simplify(tctx, rel, lemmas, prove_fn, to_expr(e));
+
         if (result.has_proof()) {
             return mk_tactic_success(mk_vm_pair(to_obj(result.get_new()), to_obj(result.get_proof())), s);
         } else {
@@ -917,6 +940,7 @@ void initialize_simplifier() {
     register_trace_class(name({"simplifier", "perm"}));
     register_trace_class(name({"simplifier", "try_rewrite"}));
     register_trace_class(name({"simplifier", "canonize"}));
+    register_trace_class(name({"simplifier", "prove"}));
 
     g_simplify_max_steps           = new name{"simplify", "max_steps"};
     g_simplify_top_down            = new name{"simplify", "top_down"};
@@ -941,7 +965,7 @@ void initialize_simplifier() {
     register_bool_option(*g_simplify_canonize_proofs, LEAN_DEFAULT_SIMPLIFY_CANONIZE_PROOFS,
                          "(simplify) canonize_proofs");
 
-    DECLARE_VM_BUILTIN(name({"tactic", "simplify"}),            tactic_simp);
+    DECLARE_VM_BUILTIN(name({"tactic", "simplify_core"}), tactic_simp_core);
 }
 
 void finalize_simplifier() {
@@ -955,8 +979,8 @@ void finalize_simplifier() {
 }
 
 /* Entry point */
-simp_result simplify(type_context & ctx, name const & rel, simp_lemmas const & simp_lemmas, expr const & e) {
-    return simplifier(ctx, rel, simp_lemmas)(e);
+simp_result simplify(type_context & ctx, name const & rel, simp_lemmas const & simp_lemmas, vm_obj const & prove_fn, expr const & e) {
+    return simplifier(ctx, rel, simp_lemmas, prove_fn)(e);
 }
 
 }

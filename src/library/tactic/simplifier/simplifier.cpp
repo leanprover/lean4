@@ -28,6 +28,7 @@ Author: Daniel Selsam
 #include "library/app_builder.h"
 #include "library/congr_lemma.h"
 #include "library/fun_info.h"
+#include "library/trace.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_name.h"
@@ -99,6 +100,8 @@ static bool get_simplify_numerals(options const & o) {
 static bool get_simplify_canonize_proofs(options const & o) {
     return o.get_bool(*g_simplify_canonize_proofs, LEAN_DEFAULT_DEFEQ_SIMPLIFY_CANONIZE_PROOFS);
 }
+
+#define lean_simp_trace(tctx, n, code) lean_trace(n, scope_trace_env _scope1(tctx.env(), tctx); code)
 
 /* Main simplifier class */
 
@@ -589,15 +592,15 @@ simp_result simplifier::rewrite(expr const & e, simp_lemmas const & slss) {
 
 simp_result simplifier::rewrite(expr const & e, simp_lemma const & sl) {
     tmp_type_context tmp_tctx(m_tctx, sl.get_num_umeta(), sl.get_num_emeta());
-    lean_trace(name({"simplifier", "try_rewrite"}), tout() << e << " =?= " << sl.get_lhs() << "\n";);
+    lean_simp_trace(tmp_tctx, name({"simplifier", "try_rewrite"}), tout() << e << " =?= " << sl.get_lhs() << "\n";);
 
     if (!tmp_tctx.is_def_eq(e, sl.get_lhs())) return simp_result(e);
 
-    lean_trace(name({"simplifier", "rewrite"}),
-               expr new_lhs = tmp_tctx.instantiate_mvars(sl.get_lhs());
-               expr new_rhs = tmp_tctx.instantiate_mvars(sl.get_rhs());
-               tout() << "(" << sl.get_id() << ") "
-               << "[" << new_lhs << " --> " << new_rhs << "]\n";);
+    lean_simp_trace(tmp_tctx, name({"simplifier", "rewrite"}),
+                    expr new_lhs = tmp_tctx.instantiate_mvars(sl.get_lhs());
+                    expr new_rhs = tmp_tctx.instantiate_mvars(sl.get_rhs());
+                    tout() << "(" << sl.get_id() << ") "
+                    << "[" << new_lhs << " --> " << new_rhs << "]\n";);
 
     if (!instantiate_emetas(tmp_tctx, sl.get_num_emeta(), sl.get_emetas(), sl.get_instances())) return simp_result(e);
 
@@ -611,8 +614,8 @@ simp_result simplifier::rewrite(expr const & e, simp_lemma const & sl) {
     if (sl.is_perm()) {
         // TODO(dhs): restore light-lt
         if (!is_lt(new_rhs, new_lhs, false)) {
-            lean_trace(name({"simplifier", "perm"}),
-                       tout() << "perm rejected: " << new_rhs << " !< " << new_lhs << "\n";);
+            lean_simp_trace(tmp_tctx, name({"simplifier", "perm"}),
+                            tout() << "perm rejected: " << new_rhs << " !< " << new_lhs << "\n";);
             return simp_result(e);
         }
     }
@@ -688,12 +691,11 @@ simp_result simplifier::try_congr(expr const & e, user_congr_lemma const & cl) {
     tmp_type_context tmp_tctx(m_tctx, cl.get_num_umeta(), cl.get_num_emeta());
     if (!tmp_tctx.is_def_eq(e, cl.get_lhs())) return simp_result(e);
 
-    lean_trace(name({"simplifier", "congruence"}),
-               expr new_lhs = tmp_tctx.instantiate_mvars(cl.get_lhs());
-               expr new_rhs = tmp_tctx.instantiate_mvars(cl.get_rhs());
-               diagnostic(m_tctx.env(), get_dummy_ios(), m_tctx)
-               << "(" << cl.get_id() << ") "
-               << "[" << new_lhs << " =?= " << new_rhs << "]\n";);
+    lean_simp_trace(tmp_tctx, name({"simplifier", "congruence"}),
+                    expr new_lhs = tmp_tctx.instantiate_mvars(cl.get_lhs());
+                    expr new_rhs = tmp_tctx.instantiate_mvars(cl.get_rhs());
+                    tout() << "(" << cl.get_id() << ") "
+                    << "[" << new_lhs << " =?= " << new_rhs << "]\n";);
 
     /* First, iterate over the congruence hypotheses */
     bool failed = false;
@@ -712,10 +714,9 @@ simp_result simplifier::try_congr(expr const & e, user_congr_lemma const & cl) {
         m_type = instantiate_rev(m_type, local_factory.as_buffer().size(), local_factory.as_buffer().data());
 
         expr h_rel, h_lhs, h_rhs;
-        lean_verify(is_simp_relation(m_tctx.env(), m_type, h_rel, h_lhs, h_rhs) && is_constant(h_rel));
+        lean_verify(is_simp_relation(tmp_tctx.env(), m_type, h_rel, h_lhs, h_rhs) && is_constant(h_rel));
         {
             flet<name> set_name(m_rel, const_name(h_rel));
-
             flet<simp_lemmas> set_ctx_slss(m_ctx_slss, m_contextual ? add_to_slss(m_ctx_slss, local_factory.as_buffer()) : m_ctx_slss);
 
             h_lhs = tmp_tctx.instantiate_mvars(h_lhs);
@@ -759,7 +760,7 @@ bool simplifier::instantiate_emetas(tmp_type_context & tmp_tctx, unsigned num_em
     for_each2(emetas, instances, [&](expr const & m, bool const & is_instance) {
             i--;
             if (failed) return;
-            expr m_type = tmp_tctx.instantiate_mvars(m_tctx.infer(m));
+            expr m_type = tmp_tctx.instantiate_mvars(tmp_tctx.infer(m));
             lean_assert(!has_metavar(m_type));
 
             if (tmp_tctx.is_eassigned(i)) return;
@@ -767,14 +768,14 @@ bool simplifier::instantiate_emetas(tmp_type_context & tmp_tctx, unsigned num_em
             if (is_instance) {
                 if (auto v = m_tctx.mk_class_instance(m_type)) {
                     if (!tmp_tctx.is_def_eq(m, *v)) {
-                        lean_trace(name({"simplifier", "failure"}),
-                                   tout() << "unable to assign instance for: " << m_type << "\n";);
+                        lean_simp_trace(tmp_tctx, name({"simplifier", "failure"}),
+                                        tout() << "unable to assign instance for: " << m_type << "\n";);
                         failed = true;
                         return;
                     }
                 } else {
-                    lean_trace(name({"simplifier", "failure"}),
-                               tout() << "unable to synthesize instance for: " << m_type << "\n";);
+                    lean_simp_trace(tmp_tctx, name({"simplifier", "failure"}),
+                                    tout() << "unable to synthesize instance for: " << m_type << "\n";);
                     failed = true;
                     return;
                 }
@@ -782,6 +783,7 @@ bool simplifier::instantiate_emetas(tmp_type_context & tmp_tctx, unsigned num_em
 
             if (tmp_tctx.is_eassigned(i)) return;
 
+            // Note: m_type has no metavars
             if (m_tctx.is_prop(m_type)) {
                 if (auto pf = prove(m_type)) {
                     lean_verify(tmp_tctx.is_def_eq(m, *pf));
@@ -789,8 +791,8 @@ bool simplifier::instantiate_emetas(tmp_type_context & tmp_tctx, unsigned num_em
                 }
             }
 
-            lean_trace(name({"simplifier", "failure"}),
-                       tout() << "failed to assign: " << m << " : " << m_type << "\n";);
+            lean_simp_trace(tmp_tctx, name({"simplifier", "failure"}),
+                            tout() << "failed to assign: " << m << " : " << m_type << "\n";);
 
             failed = true;
             return;

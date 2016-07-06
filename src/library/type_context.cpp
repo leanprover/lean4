@@ -2511,12 +2511,12 @@ expr tmp_type_context::mk_tmp_mvar(expr const & type) {
     return m_tctx.mk_tmp_mvar(type);
 }
 
-bool tmp_type_context::is_uassigned(unsigned i) {
+bool tmp_type_context::is_uassigned(unsigned i) const {
     lean_assert(i < m_tmp_uassignment.size());
     return static_cast<bool>(m_tmp_uassignment[i]);
 }
 
-bool tmp_type_context::is_eassigned(unsigned i) {
+bool tmp_type_context::is_eassigned(unsigned i) const {
     lean_assert(i < m_tmp_eassignment.size());
     return static_cast<bool>(m_tmp_eassignment[i]);
 }

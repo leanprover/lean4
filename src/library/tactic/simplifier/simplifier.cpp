@@ -28,7 +28,6 @@ Author: Daniel Selsam
 #include "library/app_builder.h"
 #include "library/congr_lemma.h"
 #include "library/fun_info.h"
-#include "library/trace.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_name.h"

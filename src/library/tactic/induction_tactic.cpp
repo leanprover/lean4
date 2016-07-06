@@ -15,10 +15,11 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/revert_tactic.h"
 #include "library/tactic/intro_tactic.h"
+#include "library/tactic/clear_tactic.h"
 
 namespace lean {
 static vm_obj mk_ill_formed_recursor_exception(recursor_info const & rec_info, tactic_state const & s) {
-    return mk_tactic_exception(sstream() << "invalid 'induction' tactic, recursor '" << rec_info.get_name()
+    return mk_tactic_exception(sstream() << "induction tactic failed, recursor '" << rec_info.get_name()
                                << "' is ill-formed", s);
 }
 
@@ -62,7 +63,7 @@ static vm_obj apply_induction_tactic(tactic_state const & s0, tactic_state const
     buffer<name> indices_H;
     optional<tactic_state> s1 = intron(num_indices+1, s, indices_H);
     if (!s1)
-        return mk_tactic_exception("invalid 'induction' tactic, failed to reintroduce major premise", s0);
+        return mk_tactic_exception("induction tactic failed, failed to reintroduce major premise", s0);
     type_context ctx   = mk_type_context_for(*s1, m);
     metavar_decl g     = *s1->get_main_goal_decl();
     local_context lctx = g.get_context();
@@ -76,7 +77,7 @@ static vm_obj apply_induction_tactic(tactic_state const & s0, tactic_state const
     buffer<expr> H_type_args;
     expr const & I     = get_app_args(H_type, H_type_args);
     if (!is_constant(I))
-        return mk_tactic_exception("invalid 'induction' tactic, major premise is not of the form (C ...)", s0);
+        return mk_tactic_exception("induction tactic failed, major premise is not of the form (C ...)", s0);
     /* Compute recursor universe levels */
     buffer<level> I_lvls;
     to_buffer(const_levels(I), I_lvls);
@@ -93,7 +94,7 @@ static vm_obj apply_induction_tactic(tactic_state const & s0, tactic_state const
         }
     }
     if (!found_g_lvl && !is_zero(g_lvl)) {
-        return mk_tactic_exception(sstream() << "invalid 'induction' tactic, recursor '" << rec_info.get_name()
+        return mk_tactic_exception(sstream() << "induction tactic failed, recursor '" << rec_info.get_name()
                                    << "' can only eliminate into Prop", s0);
     }
     expr rec = mk_constant(rec_info.get_name(), to_list(rec_lvls));
@@ -110,7 +111,7 @@ static vm_obj apply_induction_tactic(tactic_state const & s0, tactic_state const
                 return mk_ill_formed_recursor_exception(rec_info, s0);
             optional<expr> inst = ctx.mk_class_instance(binding_domain(rec_type));
             if (!inst)
-                return mk_tactic_exception(sstream() << "invalid 'induction' tactic, failed to generate "
+                return mk_tactic_exception(sstream() << "induction tactic failed, failed to generate "
                                            "type class instance parameter", s0);
             rec = mk_app(rec, *inst);
         }
@@ -171,7 +172,7 @@ static vm_obj apply_induction_tactic(tactic_state const & s0, tactic_state const
                     set_intron(aux_M, ctx, new_M, nparams, ns);
                     set_intron(aux_M, ctx, aux_M, nextra);
                 } catch (set_intron_failed &) {
-                    return mk_tactic_exception("invalid 'induction' tactic, failed to create new goal", s0);
+                    return mk_tactic_exception("induction tactic failed, failed to create new goal", s0);
                 }
                 new_goals.push_back(aux_M);
                 rec_arg = new_M;
@@ -189,7 +190,7 @@ static vm_obj apply_induction_tactic(tactic_state const & s0, tactic_state const
     mctx.assign(head(s1->goals()), rec);
     list<expr> new_gs = to_list(new_goals.begin(), new_goals.end(), tail(s1->goals()));
     tactic_state s2   = set_mctx_goals(*s1, mctx, new_gs);
-    return mk_tactic_success(s2);
+    return clear(H, s2);
 }
 
 vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name const & rec, list<name> const & ns,
@@ -198,7 +199,7 @@ vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name c
     if (!g) return mk_no_goals_exception(s);
     type_context ctx = mk_type_context_for(s, m);
     environment const & env = ctx.env();
-    if (!is_local(H)) return mk_tactic_exception("invalid 'induction' tactic, argument is not a hypothesis", s);
+    if (!is_local(H)) return mk_tactic_exception("induction tactic failed, argument is not a hypothesis", s);
     expr H_type = ctx.infer(H);
     try {
         recursor_info rec_info = get_recursor_info(env, rec);
@@ -206,28 +207,28 @@ vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name c
         get_app_args(H_type, H_type_args);
         for (optional<unsigned> const & pos : rec_info.get_params_pos()) {
             if (*pos >= H_type_args.size()) {
-                return mk_tactic_exception("invalid 'induction' tactic, major premise type is ill-formed", s);
+                return mk_tactic_exception("induction tactic failed, major premise type is ill-formed", s);
             }
         }
         buffer<expr> indices;
         list<unsigned> const & idx_pos = rec_info.get_indices_pos();
         for (unsigned pos : idx_pos) {
             if (pos >= H_type_args.size()) {
-                return mk_tactic_exception("invalid 'induction' tactic, major premise type is ill-formed", s);
+                return mk_tactic_exception("induction tactic failed, major premise type is ill-formed", s);
             }
             expr const & idx = H_type_args[pos];
             if (!is_local(idx)) {
-                return mk_tactic_exception(sstream() << "invalid 'induction' tactic, argument #"
+                return mk_tactic_exception(sstream() << "induction tactic failed, argument #"
                                         << pos+1 << " of major premise '" << H << "' type is not a variable", s);
             }
             for (unsigned i = 0; i < H_type_args.size(); i++) {
                 if (i != pos && is_local(H_type_args[i]) && mlocal_name(H_type_args[i]) == mlocal_name(idx)) {
-                    return mk_tactic_exception(sstream() << "invalid 'induction' tactic, argument #"
+                    return mk_tactic_exception(sstream() << "induction tactic failed, argument #"
                                             << pos+1 << " of major premise '" << H << "' type is an index, "
                                             << "but it occurs more than once", s);
                 }
                 if (i < pos && depends_on(H_type_args[i], idx)) {
-                    return mk_tactic_exception(sstream() << "invalid 'induction' tactic, argument #"
+                    return mk_tactic_exception(sstream() << "induction tactic failed, argument #"
                                             << pos+1 << " of major premise '" << H << "' type is an index, "
                                             << "but it occurs in previous arguments", s);
                 }
@@ -235,7 +236,7 @@ vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name c
                     std::find(idx_pos.begin(), idx_pos.end(), i) != idx_pos.end() && // it is also an index
                     is_local(H_type_args[i]) && // if it is not an index, it will fail anyway.
                     depends_on(mlocal_type(idx), H_type_args[i])) {
-                    return mk_tactic_exception(sstream() << "invalid 'induction' tactic, argument #"
+                    return mk_tactic_exception(sstream() << "induction tactic failed, argument #"
                                             << pos+1 << " of major premise '" << H << "' type is an index, "
                                             << "but its type depends on the index at position #" << i+1, s);
                 }
@@ -243,7 +244,7 @@ vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name c
             indices.push_back(idx);
         }
         if (!rec_info.has_dep_elim() && depends_on(g->get_type(), H)) {
-            return mk_tactic_exception(sstream() << "invalid 'induction' tactic, recursor '" << rec
+            return mk_tactic_exception(sstream() << "induction tactic failed, recursor '" << rec
                                     << "' does not support dependent elimination, but conclusion "
                                     << "depends on major premise '" << H << "'", s);
         }
@@ -253,7 +254,7 @@ vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name c
         tactic_state s1 = revert(to_revert, s);
         return apply_induction_tactic(s, s1, m, indices.size(), to_revert.size(), ns, rec_info);
     } catch (exception const & ex) {
-        return mk_tactic_exception(sstream() << "invalid 'induction' tactic, " << ex.what(), s);
+        return mk_tactic_exception(sstream() << "induction tactic failed, " << ex.what(), s);
     }
 }
 

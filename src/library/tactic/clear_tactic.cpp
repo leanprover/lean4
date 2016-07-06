@@ -9,24 +9,34 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
-vm_obj clear(expr const & l, tactic_state const & s) {
-    lean_assert(is_local(l));
-    optional<metavar_decl> g   = s.get_main_goal_decl();
-    if (!g) return mk_no_goals_exception(s);
-    metavar_context mctx       = s.mctx();
+expr clear(metavar_context & mctx, expr const & mvar, expr const & H) {
+    lean_assert(is_metavar(mvar));
+    lean_assert(is_local(H));
+    optional<metavar_decl> g   = mctx.get_metavar_decl(mvar);
+    if (!g) throw exception("clear tactic failed, there are no goals to be solved");
     local_context lctx         = g->get_context();
-    optional<local_decl> d     = lctx.get_local_decl(l);
+    optional<local_decl> d     = lctx.get_local_decl(H);
     if (!d)
-        return mk_tactic_exception(sstream() << "clear tactic failed, unknown '" << local_pp_name(l) << "' hypothesis", s);
-    if (depends_on(g->get_type(), 1, &l))
-        return mk_tactic_exception(sstream() << "clear tactic failed, result type depends on '" << local_pp_name(l) << "'", s);
-    if (optional<local_decl> d2 = lctx.has_dependencies(*d))
-        return mk_tactic_exception(sstream() << "clear tactic failed, '" << d2->get_pp_name() << "' depends on '"
-                                   << local_pp_name(l) << "'", s);
+        throw exception(sstream() << "clear tactic failed, unknown '" << local_pp_name(H) << "' hypothesis");
+    if (depends_on(g->get_type(), 1, &H))
+        throw exception(sstream() << "clear tactic failed, target type depends on '" << local_pp_name(H) << "'");
     lctx.clear(*d);
-    expr new_g                 = mctx.mk_metavar_decl(lctx, g->get_type());
-    mctx.assign(head(s.goals()), new_g);
-    return mk_tactic_success(set_mctx_goals(s, mctx, cons(new_g, tail(s.goals()))));
+    expr new_mvar              = mctx.mk_metavar_decl(lctx, g->get_type());
+    mctx.assign(mvar, new_mvar);
+    return new_mvar;
+}
+
+vm_obj clear(expr const & H, tactic_state const & s) {
+    lean_assert(is_local(H));
+    try {
+        optional<expr> mvar  = s.get_main_goal();
+        if (!mvar) return mk_no_goals_exception(s);
+        metavar_context mctx = s.mctx();
+        expr new_mvar        = clear(mctx, *mvar, H);
+        return mk_tactic_success(set_mctx_goals(s, mctx, cons(new_mvar, tail(s.goals()))));
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex, s);
+    }
 }
 
 vm_obj clear_internal(name const & n, tactic_state const & s) {

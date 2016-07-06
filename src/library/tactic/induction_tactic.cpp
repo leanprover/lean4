@@ -44,6 +44,12 @@ static void set_intron(expr & R, type_context & ctx, expr const & M, unsigned n)
     set_intron(R, ctx, M, n, tmp);
 }
 
+static void set_clear(expr & R, type_context & ctx, expr const & M, expr const & H) {
+    metavar_context mctx = ctx.mctx();
+    R = clear(mctx, M, H);
+    ctx.set_mctx(mctx);
+}
+
 /* Helper function for computing the number of nested Pi-expressions.
    It uses head_beta_reduce on intermediate terms. */
 static unsigned get_expr_arity(expr type) {
@@ -171,6 +177,7 @@ static vm_obj apply_induction_tactic(tactic_state const & s0, tactic_state const
                 try {
                     set_intron(aux_M, ctx, new_M, nparams, ns);
                     set_intron(aux_M, ctx, aux_M, nextra);
+                    set_clear(aux_M, ctx, aux_M, H);
                 } catch (set_intron_failed &) {
                     return mk_tactic_exception("induction tactic failed, failed to create new goal", s0);
                 }
@@ -190,7 +197,7 @@ static vm_obj apply_induction_tactic(tactic_state const & s0, tactic_state const
     mctx.assign(head(s1->goals()), rec);
     list<expr> new_gs = to_list(new_goals.begin(), new_goals.end(), tail(s1->goals()));
     tactic_state s2   = set_mctx_goals(*s1, mctx, new_gs);
-    return clear(H, s2);
+    return mk_tactic_success(s2);
 }
 
 vm_obj induction_tactic_core(transparency_mode const & m, expr const & H, name const & rec, list<name> const & ns,

@@ -186,8 +186,9 @@ class defeq_simplify_fn {
                 new_a = defeq_canonize(m_ctx, args[i], m_need_restart);
                 lean_trace(name({"defeq_simplifier", "canonize"}),
                            tout() << "\n" << args[i] << "\n===>\n" << new_a << "\n";);
-            } else if (pinfo.is_prop() || pinfo.is_subsingleton()) {
-                /* Ignore propositions and subsingletons */
+            } else if (pinfo.is_prop()) {
+                /* TODO(Leo): should we also ignore subsingletons */
+                /* Ignore propositions */
                 new_a = args[i];
             } else {
                 new_a = defeq_simplify(args[i]);

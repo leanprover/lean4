@@ -33,14 +33,18 @@ static bool is_fun_info_trace_enabled() {
 }
 
 struct fun_info_cache {
-    typedef expr_map<fun_info>          cache;
-    typedef expr_unsigned_map<fun_info> narg_cache;
-    typedef expr_unsigned_map<unsigned> prefix_cache;
-    environment  m_env;
-    cache        m_cache_get;
-    narg_cache   m_cache_get_nargs;
-    narg_cache   m_cache_get_spec;
-    prefix_cache m_cache_prefix;
+    typedef expr_struct_map<fun_info>         cache;
+    typedef expr_unsigned_map<fun_info>       narg_cache;
+    typedef expr_struct_map<ss_param_infos>   ss_cache;
+    typedef expr_unsigned_map<ss_param_infos> narg_ss_cache;
+    typedef expr_unsigned_map<unsigned>       prefix_cache;
+    environment   m_env;
+    cache         m_cache_get;
+    narg_cache    m_cache_get_nargs;
+    ss_cache      m_ss_cache_get;
+    narg_ss_cache m_ss_cache_get_nargs;
+    narg_ss_cache m_ss_cache_get_spec;
+    prefix_cache  m_cache_prefix;
     fun_info_cache(environment const & env):m_env(env) {}
     environment const & env() const { return m_env; }
 };
@@ -88,18 +92,11 @@ static list<unsigned> get_core(type_context & ctx,
         expr local      = locals.push_local_from_binding(type);
         expr local_type = ctx.infer(local);
         expr new_type   = ctx.relaxed_try_to_pi(instantiate(binding_body(type), local));
-        bool spec       = false;
         bool is_prop    = ctx.is_prop(local_type);
-        bool is_sub     = is_prop;
         bool is_dep     = !closed(binding_body(type));
-        if (!is_sub) {
-            // TODO(Leo): check if the following line is a performance bottleneck.
-            is_sub = static_cast<bool>(ctx.mk_subsingleton_instance(local_type));
-        }
-        pinfos.emplace_back(spec,
-                            binding_info(type).is_implicit(),
+        pinfos.emplace_back(binding_info(type).is_implicit(),
                             binding_info(type).is_inst_implicit(),
-                            is_prop, is_sub, is_dep, collect_deps(local_type, locals.as_buffer()));
+                            is_prop, is_dep, collect_deps(local_type, locals.as_buffer()));
         type = new_type;
         i++;
     }
@@ -134,14 +131,64 @@ fun_info get_fun_info(type_context & ctx, expr const & e, unsigned nargs) {
     return r;
 }
 
-/* Return true if there is j s.t. pinfos[j] is not a
-   proposition/subsingleton and it dependends of argument i */
-static bool has_nonprop_nonsubsingleton_fwd_dep(unsigned i, buffer<param_info> const & pinfos) {
+/* Store subsingleton parameter info for fn in \c ssinfos */
+static void get_ss_core(type_context & ctx, expr const & fn, buffer<ss_param_info> & ssinfos,
+                        unsigned max_args) {
+    expr type = ctx.relaxed_try_to_pi(ctx.infer(fn));
+    type_context::tmp_locals locals(ctx);
+    unsigned i = 0;
+    while (is_pi(type)) {
+        if (i == max_args)
+            break;
+        expr local      = locals.push_local_from_binding(type);
+        expr local_type = ctx.infer(local);
+        expr new_type   = ctx.relaxed_try_to_pi(instantiate(binding_body(type), local));
+        bool spec       = false;
+        bool is_prop    = ctx.is_prop(local_type);
+        bool is_sub     = is_prop;
+        if (!is_sub) {
+            // TODO(Leo): check if the following line is a performance bottleneck.
+            is_sub = static_cast<bool>(ctx.mk_subsingleton_instance(local_type));
+        }
+        ssinfos.emplace_back(spec, is_sub);
+        type = new_type;
+        i++;
+    }
+}
+
+ss_param_infos get_subsingleton_info(type_context & ctx, expr const & e) {
+    fun_info_cache & cache = get_fun_info_cache_for(ctx);
+    auto it = cache.m_ss_cache_get.find(e);
+    if (it != cache.m_ss_cache_get.end())
+        return it->second;
+    buffer<ss_param_info> ssinfos;
+    get_ss_core(ctx, e, ssinfos, std::numeric_limits<unsigned>::max());
+    ss_param_infos r = to_list(ssinfos);
+    cache.m_ss_cache_get.insert(mk_pair(e, r));
+    return r;
+}
+
+ss_param_infos get_subsingleton_info(type_context & ctx, expr const & e, unsigned nargs) {
+    fun_info_cache & cache = get_fun_info_cache_for(ctx);
+    expr_unsigned key(e, nargs);
+    auto it = cache.m_ss_cache_get_nargs.find(key);
+    if (it != cache.m_ss_cache_get_nargs.end())
+        return it->second;
+    buffer<ss_param_info> ssinfos;
+    get_ss_core(ctx, e, ssinfos, nargs);
+    ss_param_infos r = to_list(ssinfos);
+    cache.m_ss_cache_get_nargs.insert(mk_pair(key, r));
+    return r;
+}
+
+/* Return true if there is j s.t. ssinfos[j] is marked as subsingleton,
+   and it dependends of argument i */
+static bool has_nonsubsingleton_fwd_dep(unsigned i, buffer<param_info> const & pinfos, buffer<ss_param_info> const & ssinfos) {
+    lean_assert(pinfos.size() == ssinfos.size());
     for (unsigned j = i+1; j < pinfos.size(); j++) {
-        param_info const & fwd_pinfo = pinfos[j];
-        if (fwd_pinfo.is_prop() || fwd_pinfo.is_subsingleton())
+        if (ssinfos[j].is_subsingleton())
             continue;
-        auto const & back_deps        = fwd_pinfo.get_back_deps();
+        auto const & back_deps = pinfos[j].get_back_deps();
         if (std::find(back_deps.begin(), back_deps.end(), i) != back_deps.end()) {
             return true;
         }
@@ -149,21 +196,25 @@ static bool has_nonprop_nonsubsingleton_fwd_dep(unsigned i, buffer<param_info> c
     return false;
 }
 
-static void trace_if_unsupported(type_context & ctx,
-                          expr const & fn, buffer<expr> const & args, unsigned prefix_sz, fun_info const & result) {
+static void trace_if_unsupported(type_context & ctx, expr const & fn,
+                                 buffer<expr> const & args, unsigned prefix_sz, ss_param_infos const & result) {
+    lean_assert(args.size() == length(result));
     if (!is_fun_info_trace_enabled())
         return;
     fun_info info = get_fun_info(ctx, fn, args.size());
     buffer<param_info> pinfos;
     to_buffer(info.get_params_info(), pinfos);
+    buffer<ss_param_info> ssinfos;
+    to_buffer(get_subsingleton_info(ctx, fn, args.size()), ssinfos);
+    lean_assert(pinfos.size() == ssinfos.size());
     /* Check if all remaining arguments are nondependent or
-       dependent (but all forward dependencies are propositions or subsingletons) */
+       dependent (but all forward dependencies are subsingletons) */
     unsigned i = prefix_sz;
     for (; i < pinfos.size(); i++) {
         param_info const & pinfo = pinfos[i];
         if (!pinfo.has_fwd_deps())
             continue; /* nondependent argument */
-        if (has_nonprop_nonsubsingleton_fwd_dep(i, pinfos))
+        if (has_nonsubsingleton_fwd_dep(i, pinfos, ssinfos))
             break; /* failed i-th argument has a forward dependent that is not a prop nor a subsingleton */
     }
     if (i == pinfos.size())
@@ -175,11 +226,11 @@ static void trace_if_unsupported(type_context & ctx,
        the corresponding pinfo is not a marked a prop/subsingleton.
     */
     i = 0;
-    for (param_info const & pinfo : result.get_params_info()) {
-        if (pinfo.is_prop() || pinfo.is_subsingleton())
+    for (ss_param_info const & ssinfo : result) {
+        if (ssinfo.is_subsingleton())
             continue;
         expr arg_type = ctx.infer(args[i]);
-        if (ctx.is_prop(arg_type) || ctx.mk_subsingleton_instance(arg_type)) {
+        if (ctx.mk_subsingleton_instance(arg_type)) {
             lean_trace_fun_info(
                 tout() << "approximating function information for '" << fn
                 << "', this may affect the effectiveness of the simplifier and congruence closure modules, "
@@ -230,6 +281,9 @@ unsigned get_specialization_prefix_size(type_context & ctx, expr const & fn, uns
     fun_info info = get_fun_info(ctx, fn, nargs);
     buffer<param_info> pinfos;
     to_buffer(info.get_params_info(), pinfos);
+    buffer<ss_param_info> ssinfos;
+    to_buffer(get_subsingleton_info(ctx, fn, nargs), ssinfos);
+    lean_assert(pinfos.size() == ssinfos.size());
     /* Compute "prefix": 0 or more parameters s.t.
        at lest one forward dependency is not a proposition or a subsingleton */
     unsigned i = 0;
@@ -238,7 +292,7 @@ unsigned get_specialization_prefix_size(type_context & ctx, expr const & fn, uns
         if (!pinfo.has_fwd_deps())
             break;
         /* search for forward dependency that is not a proposition nor a subsingleton */
-        if (!has_nonprop_nonsubsingleton_fwd_dep(i, pinfos))
+        if (!has_nonsubsingleton_fwd_dep(i, pinfos, ssinfos))
             break;
     }
     unsigned prefix_sz = i;
@@ -246,7 +300,7 @@ unsigned get_specialization_prefix_size(type_context & ctx, expr const & fn, uns
     return prefix_sz;
 }
 
-fun_info get_specialized_fun_info(type_context & ctx, expr const & a) {
+ss_param_infos get_specialized_subsingleton_info(type_context & ctx, expr const & a) {
     lean_assert(is_app(a));
     buffer<expr> args;
     expr const & fn        = get_app_args(a, args);
@@ -257,19 +311,18 @@ fun_info get_specialized_fun_info(type_context & ctx, expr const & a) {
         g = app_fn(g);
     fun_info_cache & cache = get_fun_info_cache_for(ctx);
     expr_unsigned key(g, num_rest_args);
-    auto it = cache.m_cache_get_spec.find(key);
-    if (it != cache.m_cache_get_spec.end()) {
+    auto it = cache.m_ss_cache_get_spec.find(key);
+    if (it != cache.m_ss_cache_get_spec.end()) {
         return it->second;
     }
-    /* fun_info is not cached */
-    buffer<param_info> pinfos;
-    get_core(ctx, fn, pinfos, prefix_sz, false);
+    buffer<ss_param_info> ssinfos;
+    get_ss_core(ctx, fn, ssinfos, prefix_sz);
     for (unsigned i = 0; i < prefix_sz; i++) {
-        pinfos[i].set_specialized();
+        ssinfos[i].set_specialized();
     }
-    auto result_deps = get_core(ctx, g, pinfos, num_rest_args, true);
-    fun_info r(pinfos.size(), to_list(pinfos), result_deps);
-    cache.m_cache_get_spec.insert(mk_pair(key, r));
+    get_ss_core(ctx, g, ssinfos, num_rest_args);
+    ss_param_infos r = to_list(ssinfos);
+    cache.m_ss_cache_get_spec.insert(mk_pair(key, r));
     trace_if_unsupported(ctx, fn, args, prefix_sz, r);
     return r;
 }

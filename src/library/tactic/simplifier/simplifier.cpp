@@ -853,11 +853,11 @@ optional<simp_result> simplifier::synth_congr(expr const & e, F && simp) {
 expr simplifier::remove_unnecessary_casts(expr const & e) {
     buffer<expr> args;
     expr f = get_app_args(e, args);
-    fun_info f_info = get_specialized_fun_info(m_tctx, e);
+    ss_param_infos ss_infos = get_specialized_subsingleton_info(m_tctx, e);
     int i = -1;
-    for_each(f_info.get_params_info(), [&](param_info const & p_info) {
+    for_each(ss_infos, [&](ss_param_info const & ss_info) {
             i++;
-            if (p_info.is_subsingleton()) {
+            if (ss_info.is_subsingleton()) {
                 while (is_constant(get_app_fn(args[i]))) {
                     buffer<expr> cast_args;
                     expr f_cast = get_app_args(args[i], cast_args);

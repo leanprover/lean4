@@ -352,26 +352,29 @@ struct congr_lemma_manager {
         }
     }
 
-    optional<result> mk_congr_simp(expr const & fn, unsigned nargs, fun_info const & finfo) {
+    optional<result> mk_congr_simp(expr const & fn, unsigned nargs,
+                                   fun_info const & finfo, ss_param_infos const & ssinfos) {
         auto r = m_cache.m_simp_cache.find(key(fn, nargs));
         if (r != m_cache.m_simp_cache.end())
             return optional<result>(r->second);
         list<unsigned> const & result_deps = finfo.get_result_deps();
         buffer<congr_arg_kind> kinds;
         buffer<param_info>     pinfos;
+        buffer<ss_param_info>  ssinfos_buffer;
         to_buffer(finfo.get_params_info(), pinfos);
+        to_buffer(ssinfos, ssinfos_buffer);
         kinds.resize(pinfos.size(), congr_arg_kind::Eq);
         for (unsigned i = 0; i < pinfos.size(); i++) {
             if (std::find(result_deps.begin(), result_deps.end(), i) != result_deps.end()) {
                 kinds[i] = congr_arg_kind::Fixed;
-            } else if (pinfos[i].is_subsingleton()) {
+            } else if (ssinfos_buffer[i].is_subsingleton()) {
                 // See comment at mk_congr.
                 if (!pinfos[i].is_prop() && pinfos[i].has_fwd_deps())
                     kinds[i] = congr_arg_kind::Fixed;
                 else
                     kinds[i] = congr_arg_kind::Cast;
             } else if (pinfos[i].is_inst_implicit()) {
-                lean_assert(!pinfos[i].is_subsingleton());
+                lean_assert(!ssinfos_buffer[i].is_subsingleton());
                 kinds[i] = congr_arg_kind::Fixed;
             }
         }
@@ -410,11 +413,13 @@ struct congr_lemma_manager {
     }
 
     optional<result> mk_congr_simp(expr const & fn, unsigned nargs) {
-        fun_info finfo = get_fun_info(m_ctx, fn, nargs);
-        return mk_congr_simp(fn, nargs, finfo);
+        fun_info finfo         = get_fun_info(m_ctx, fn, nargs);
+        ss_param_infos ssinfos = get_subsingleton_info(m_ctx, fn, nargs);
+        return mk_congr_simp(fn, nargs, finfo, ssinfos);
     }
 
-    optional<result> mk_congr(expr const & fn, unsigned nargs, fun_info const & finfo) {
+    optional<result> mk_congr(expr const & fn, unsigned nargs,
+                              fun_info const & finfo, ss_param_infos const & ssinfos) {
         auto r = m_cache.m_cache.find(key(fn, nargs));
         if (r != m_cache.m_cache.end())
             return optional<result>(r->second);
@@ -423,8 +428,10 @@ struct congr_lemma_manager {
             return optional<result>();
         buffer<congr_arg_kind> kinds;
         buffer<param_info>     pinfos;
+        buffer<ss_param_info>  ssinfos_buffer;
         to_buffer(simp_lemma->get_arg_kinds(), kinds);
         to_buffer(finfo.get_params_info(), pinfos);
+        to_buffer(ssinfos, ssinfos_buffer);
         // For congr lemmas we have the following restriction:
         // if a Cast arg is subsingleton, it is not a proposition,
         // and it is a dependent argument, then we mark it as fixed.
@@ -433,7 +440,7 @@ struct congr_lemma_manager {
         lean_assert(kinds.size() == pinfos.size());
         bool has_cast = false;
         for (unsigned i = 0; i < kinds.size(); i++) {
-            if (!pinfos[i].is_prop() && pinfos[i].is_subsingleton() && pinfos[i].has_fwd_deps()) {
+            if (!pinfos[i].is_prop() && ssinfos_buffer[i].is_subsingleton() && pinfos[i].has_fwd_deps()) {
                 kinds[i] = congr_arg_kind::Fixed;
             }
             if (kinds[i] == congr_arg_kind::Cast)
@@ -450,14 +457,14 @@ struct congr_lemma_manager {
     }
 
     void pre_specialize(expr const & a, expr & g, unsigned & prefix_sz, unsigned & num_rest_args) {
-        fun_info finfo = get_specialized_fun_info(m_ctx, a);
+        ss_param_infos ssinfos = get_specialized_subsingleton_info(m_ctx, a);
         prefix_sz = 0;
-        for (param_info const & pinfo : finfo.get_params_info()) {
-            if (!pinfo.specialized())
+        for (ss_param_info const & ssinfo : ssinfos) {
+            if (!ssinfo.specialized())
                 break;
             prefix_sz++;
         }
-        num_rest_args = finfo.get_arity() - prefix_sz;
+        num_rest_args = get_app_num_args(a) - prefix_sz;
         g = a;
         for (unsigned i = 0; i < num_rest_args; i++) {
             g = app_fn(g);
@@ -549,8 +556,9 @@ struct congr_lemma_manager {
     }
 
     optional<result> mk_congr_simp(expr const & fn) {
-        fun_info finfo = get_fun_info(m_ctx, fn);
-        return mk_congr_simp(fn, finfo.get_arity(), finfo);
+        fun_info finfo         = get_fun_info(m_ctx, fn);
+        ss_param_infos ssinfos = get_subsingleton_info(m_ctx, fn);
+        return mk_congr_simp(fn, finfo.get_arity(), finfo, ssinfos);
     }
 
     optional<result> mk_specialized_congr_simp(expr const & a) {
@@ -571,12 +579,14 @@ struct congr_lemma_manager {
 
     optional<result> mk_congr(expr const & fn, unsigned nargs) {
         fun_info finfo = get_fun_info(m_ctx, fn, nargs);
-        return mk_congr(fn, nargs, finfo);
+        ss_param_infos ssinfos = get_subsingleton_info(m_ctx, fn, nargs);
+        return mk_congr(fn, nargs, finfo, ssinfos);
     }
 
     optional<result> mk_congr(expr const & fn) {
         fun_info finfo = get_fun_info(m_ctx, fn);
-        return mk_congr(fn, finfo.get_arity(), finfo);
+        ss_param_infos ssinfos = get_subsingleton_info(m_ctx, fn);
+        return mk_congr(fn, finfo.get_arity(), finfo, ssinfos);
     }
 
     optional<result> mk_specialized_congr(expr const & a) {

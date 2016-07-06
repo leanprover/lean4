@@ -514,8 +514,11 @@ simp_result simplifier::simplify_extensions(expr const & _e) {
             expr proof = m_tctx.instantiate_mvars(goal_mvar);
             lean_trace(name({"simplifier", "extensions"}),
                        tout() << proof << " : " << e << " " << m_rel << " " << result << "\n";);
-            // TODO(dhs): detect refl proofs
-            r = join(r, simp_result(result, proof));
+            if (is_app_of(proof, get_eq_refl_name(), 2) || is_app_of(proof, get_rfl_name(), 2)) {
+                r.update(result);
+            } else {
+                r = join(r, simp_result(result, proof));
+            }
         } else {
             lean_trace(name({"simplifier", "extensions"}),
                        tout() << "extension failed on goal " << goal_type << "\n";);

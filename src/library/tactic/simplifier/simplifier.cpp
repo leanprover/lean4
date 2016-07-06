@@ -509,24 +509,16 @@ simp_result simplifier::simplify_extensions(expr const & _e) {
         vm_obj simp_ext_result = get_tactic_vm_state(m_tctx.env()).invoke(ext_id, 1, &s);
         optional<tactic_state> s_new = is_tactic_success(simp_ext_result);
         if (s_new) {
-            metavar_context const & mctx = s_new->mctx();
-            optional<expr> result_assignment = mctx.get_assignment(result_mvar);
-            optional<expr> goal_assignment = mctx.get_assignment(goal_mvar);
-            if (result_assignment && goal_assignment) {
-                lean_trace(name({"simplifier", "extensions"}),
-                           tout() << *goal_assignment << " : " << e << " " << m_rel << " " << *result_assignment << "\n";);
-                m_tctx.set_mctx(mctx);
-                // TODO(dhs): detect refl proofs
-                r = join(r, simp_result(*result_assignment, *goal_assignment));
-            } else {
-                lean_trace(name({"simplifier", "extensions"}),
-                           tout() << "extension succeeded but left metavariables unassigned\n";);
-                // TODO(dhs): trace "simplifier.extension.failure"
-            }
+            m_tctx.set_mctx(s_new->mctx());
+            expr result = m_tctx.instantiate_mvars(result_mvar);
+            expr proof = m_tctx.instantiate_mvars(goal_mvar);
+            lean_trace(name({"simplifier", "extensions"}),
+                       tout() << proof << " : " << e << " " << m_rel << " " << result << "\n";);
+            // TODO(dhs): detect refl proofs
+            r = join(r, simp_result(result, proof));
         } else {
             lean_trace(name({"simplifier", "extensions"}),
-                       tout() << "extension failed\n";);
-            // TODO(dhs): trace "simplifier.extension.failure"
+                       tout() << "extension failed on goal " << goal_type << "\n";);
         }
     }
     return r;

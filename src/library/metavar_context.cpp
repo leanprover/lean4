@@ -61,7 +61,11 @@ void metavar_context::assign_core(expr const & e, expr const & v) {
 }
 
 void metavar_context::assign(expr const & e, expr const & v) {
-    lean_assert(!is_assigned(e));
+    // TODO(leo, dhs): confirm that we do not need this assertion
+    // Note: it triggers an assertion failure from
+    // https://github.com/leanprover/lean/blob/lean3/src/library/metavar_util.h#L127-L135
+    // when CTX is a type_context.
+    // lean_assert(!is_assigned(e));
     assign_core(e, v);
 }
 

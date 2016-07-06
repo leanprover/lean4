@@ -23,11 +23,12 @@ static name mk_aux_name(list<name> & given_names, name const & default_name) {
     }
 }
 
-optional<expr> intron(type_context & ctx, expr const & mvar, unsigned n, list<name> & given_names, buffer<name> & new_Hns) {
+optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
+                      expr const & mvar, unsigned n, list<name> & given_names, buffer<name> & new_Hns) {
     lean_assert(is_metavar(mvar));
-    metavar_context mctx     = ctx.mctx();
     optional<metavar_decl> g = mctx.get_metavar_decl(mvar);
     if (!g) return none_expr();
+    type_context ctx         = mk_type_context_for(env, opts, mctx, g->get_context());
     expr type            = g->get_type();
     type_context::tmp_locals new_locals(ctx);
     buffer<expr> new_Hs;
@@ -53,14 +54,12 @@ optional<expr> intron(type_context & ctx, expr const & mvar, unsigned n, list<na
             new_Hns.push_back(mlocal_name(H));
         }
     }
-    local_context lctx   = ctx.lctx();
-    expr new_M           = mctx.mk_metavar_decl(lctx, type);
-    lean_assert(!mctx.is_assigned(new_M));
+    expr new_M   = ctx.mk_metavar_decl(ctx.lctx(), type);
     expr new_val = abstract_locals(mk_lazy_abstraction_with_locals(new_M, new_Hs), new_Hs.size(), new_Hs.data());
     unsigned i   = new_Hs.size();
     while (i > 0) {
         --i;
-        optional<local_decl> d = lctx.get_local_decl(new_Hs[i]);
+        optional<local_decl> d = ctx.lctx().get_local_decl(new_Hs[i]);
         expr type = d->get_type();
         type      = abstract_locals(type, i, new_Hs.data());
         if (auto letval = d->get_value()) {
@@ -70,31 +69,33 @@ optional<expr> intron(type_context & ctx, expr const & mvar, unsigned n, list<na
             new_val   = mk_lambda(d->get_pp_name(), type, new_val, d->get_info());
         }
     }
-    lean_assert(!mctx.is_assigned(new_M));
+    lean_assert(!ctx.mctx().is_assigned(new_M));
+    mctx = ctx.mctx();
     mctx.assign(mvar, new_val);
-    ctx.set_mctx(mctx);
     return some_expr(new_M);
 }
 
-optional<expr> intron(type_context & ctx, expr const & mvar, unsigned n, list<name> & given_names) {
+optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
+                      expr const & mvar, unsigned n, list<name> & given_names) {
     buffer<name> tmp;
-    return intron(ctx, mvar, n, given_names, tmp);
+    return intron(env, opts, mctx, mvar, n, given_names, tmp);
 }
 
-optional<expr> intron(type_context & ctx, expr const & mvar, unsigned n) {
+optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
+                      expr const & mvar, unsigned n) {
     list<name> empty;
-    return intron(ctx, mvar, n, empty);
+    return intron(env, opts, mctx, mvar, n, empty);
 }
 
 optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> & new_Hns) {
     if (n == 0) return some_tactic_state(s);
     optional<expr> mvar  = s.get_main_goal();
     if (!mvar) return none_tactic_state();
-    type_context ctx     = mk_type_context_for(s);
     list<name> new_names;
-    if (optional<expr> new_M = intron(ctx, *mvar, n, new_names, new_Hns)) {
+    metavar_context mctx = s.mctx();
+    if (optional<expr> new_M = intron(s.env(), s.get_options(), mctx, *mvar, n, new_names, new_Hns)) {
         list<expr> new_gs(*new_M, tail(s.goals()));
-        return some_tactic_state(set_mctx_goals(s, ctx.mctx(), new_gs));
+        return some_tactic_state(set_mctx_goals(s, mctx, new_gs));
     } else {
         return none_tactic_state();
     }

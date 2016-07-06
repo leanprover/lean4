@@ -115,6 +115,15 @@ inline type_context mk_type_context_for(tactic_state const & s, transparency_mod
     return type_context(s.mctx(), lctx, get_type_context_cache_for(s), m);
 }
 
+inline type_context mk_type_context_for(tactic_state const & s, local_context const & lctx, transparency_mode m = transparency_mode::Semireducible) {
+    return type_context(s.mctx(), lctx, get_type_context_cache_for(s), m);
+}
+
+inline type_context mk_type_context_for(environment const & env, options const & o,
+                                        metavar_context const & mctx, local_context const & lctx, transparency_mode m = transparency_mode::Semireducible) {
+    return type_context(mctx, lctx, get_type_context_cache_for(env, o), m);
+}
+
 inline type_context mk_type_context_for(vm_obj const & s) {
     return mk_type_context_for(to_tactic_state(s));
 }

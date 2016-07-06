@@ -71,7 +71,7 @@ structure fun_info :=
 meta_definition fun_info.to_format : fun_info → format
 | (fun_info.mk ps ds) :=
 group ∘ dcbrace $
-  ppfield "params" ps ++
+  ppfield "params" ps +++
   ppfield "result_deps" ds
 
 meta_definition fun_info.has_to_format [instance] : has_to_format fun_info :=

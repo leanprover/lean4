@@ -57,6 +57,8 @@ class type_context_cache {
        The NONE mode is used when normalizing expressions without using delta-reduction. */
     transparency_cache            m_transparency_cache[4];
 
+    equiv_manager                 m_equiv_manager[4];
+
     /* We have two modes for caching type class instances.
 
        In the default mode (m_frozen_mode == false), whenever a type_context object is
@@ -176,6 +178,16 @@ class type_context : public abstract_type_context {
 
     std::function<bool(expr const & e)> const * m_unfold_pred; // NOLINT
 
+    static bool is_equiv_cache_target(expr const & e1, expr const & e2) {
+        return !has_metavar(e1) && !has_metavar(e2) && (get_weight(e1) > 1 || get_weight(e2) > 1);
+    }
+    equiv_manager & get_equiv_cache() { return m_cache.m_equiv_manager[static_cast<unsigned>(m_transparency_mode)]; }
+    bool is_cached_equiv(expr const & e1, expr const & e2) {
+        return is_equiv_cache_target(e1, e2) && get_equiv_cache().is_equiv(e1, e2);
+    }
+    void cache_equiv(expr const & e1, expr const & e2) {
+        if (is_equiv_cache_target(e1, e2)) get_equiv_cache().add_equiv(e1, e2);
+    }
 public:
     type_context(metavar_context const & mctx, local_context const & lctx, type_context_cache & cache,
                  transparency_mode m = transparency_mode::Reducible);
@@ -401,6 +413,7 @@ private:
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
 
     bool is_def_eq(levels const & ls1, levels const & ls2);
+    bool is_def_eq_core_core(expr const & t, expr const & s);
     bool is_def_eq_core(expr const & t, expr const & s);
     bool is_def_eq_binding(expr e1, expr e2);
     bool is_def_eq_args(expr const & e1, expr const & e2);

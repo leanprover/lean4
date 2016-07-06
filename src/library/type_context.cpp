@@ -1544,6 +1544,8 @@ bool type_context::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
 lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
     if (e1 == e2)
         return l_true;
+    if (is_cached_equiv(e1, e2))
+        return l_true;
 
     expr const & f1 = get_app_fn(e1);
     if (is_mvar(f1)) {
@@ -1824,7 +1826,7 @@ bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
     return false;
 }
 
-bool type_context::is_def_eq_core(expr const & t, expr const & s) {
+bool type_context::is_def_eq_core_core(expr const & t, expr const & s) {
     lbool r = quick_is_def_eq(t, s);
     if (r != l_undef) return r == l_true;
 
@@ -1874,6 +1876,13 @@ bool type_context::is_def_eq_core(expr const & t, expr const & s) {
     if (is_def_eq_proof_irrel(t_n, s_n))
         return true;
     return on_is_def_eq_failure(t_n, s_n);
+}
+
+bool type_context::is_def_eq_core(expr const & t, expr const & s) {
+    bool r = is_def_eq_core_core(t, s);
+    if (r)
+        cache_equiv(t, s);
+    return r;
 }
 
 bool type_context::is_def_eq(expr const & t, expr const & s) {

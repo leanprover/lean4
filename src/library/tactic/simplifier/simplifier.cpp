@@ -905,7 +905,6 @@ vm_obj tactic_simp_core(vm_obj const & rules, vm_obj const & prove_fn, vm_obj co
                 name id;
                 if (is_mlocal(rule)) id = mlocal_name(rule);
                 else if (is_constant(rule)) id = const_name(rule);
-                // TODO(dhs): allow users to give priorities?
                 lemmas = add(tctx, lemmas, id, tctx.infer(rule), rule, LEAN_DEFAULT_PRIORITY);
             });
 

@@ -124,6 +124,13 @@ format tactic_state::pp_expr(expr const & e) const {
     return pp_expr(fmtf, e);
 }
 
+format tactic_state::pp_goal(expr const & g) const {
+    lean_assert(is_metavar(g));
+    lean_assert(mctx().get_metavar_decl(g));
+    formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
+    return pp_goal(fmtf, g);
+}
+
 struct vm_tactic_state : public vm_external {
     tactic_state m_val;
     vm_tactic_state(tactic_state const & v):m_val(v) {}

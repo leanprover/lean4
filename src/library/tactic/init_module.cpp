@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/tactic/congr_lemma_tactics.h"
 #include "library/tactic/match_tactic.h"
 #include "library/tactic/ac_tactics.h"
+#include "library/tactic/induction_tactic.h"
 #include "library/tactic/elaborate.h"
 #include "library/tactic/defeq_simplifier/init_module.h"
 #include "library/tactic/simplifier/init_module.h"
@@ -40,6 +41,7 @@ void initialize_tactic_module() {
     initialize_congr_lemma_tactics();
     initialize_match_tactic();
     initialize_ac_tactics();
+    initialize_induction_tactic();
     initialize_defeq_simplifier_module();
     initialize_simplifier_module();
     initialize_elaborate();
@@ -48,6 +50,7 @@ void finalize_tactic_module() {
     finalize_elaborate();
     finalize_defeq_simplifier_module();
     finalize_simplifier_module();
+    finalize_induction_tactic();
     finalize_ac_tactics();
     finalize_match_tactic();
     finalize_congr_lemma_tactics();

@@ -198,6 +198,9 @@ meta_constant abstract_hash : expr → tactic nat
    and proofs. -/
 meta_constant abstract_weight : expr → tactic nat
 meta_constant abstract_eq     : expr → expr → tactic bool
+/- (induction_core m H rec ns) induction on H using recursor rec, names for the new hypotheses
+   are retrieved from ns. If ns does not have sufficient names, then use the internal binder names in the recursor. -/
+meta_constant induction_core : transparency → expr → name → list name → tactic unit
 open list nat
 
 /- Add (H : T := pr) to the current goal -/
@@ -234,16 +237,35 @@ meta_definition unify : expr → expr → tactic unit :=
 unify_core semireducible
 
 open option
+meta_definition match_not (e : expr) : tactic expr :=
+match expr.is_not e with
+| some a := return a
+| none   := fail "expression is not a negation"
+end
+
 meta_definition match_eq (e : expr) : tactic (expr × expr) :=
-do match expr.is_eq e with
+match expr.is_eq e with
 | some (lhs, rhs) := return (lhs, rhs)
 | none            := fail "expression is not an equality"
+end
+
+meta_definition match_ne (e : expr) : tactic (expr × expr) :=
+match expr.is_ne e with
+| some (lhs, rhs) := return (lhs, rhs)
+| none            := fail "expression is not a disequality"
 end
 
 meta_definition match_heq (e : expr) : tactic (expr × expr × expr × expr) :=
 do match expr.is_heq e with
 | some (A, lhs, B, rhs) := return (A, lhs, B, rhs)
 | none                  := fail "expression is not a heterogeneous equality"
+end
+
+meta_definition match_refl_app (e : expr) : tactic (name × expr × expr) :=
+do env ← get_env,
+match environment.is_refl_app env e with
+| some (R, lhs, rhs) := return (R, lhs, rhs)
+| none               := fail "expression is not an application of a reflexive relation"
 end
 
 meta_definition get_local_type (n : name) : tactic expr :=

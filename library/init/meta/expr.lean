@@ -119,6 +119,11 @@ if is_app_of e "eq" = tt ∧ get_app_num_args e = 3
 then some (app_arg (app_fn e), app_arg e)
 else none
 
+meta_definition is_ne (e : expr) : option (expr × expr) :=
+if is_app_of e "ne" = tt ∧ get_app_num_args e = 3
+then some (app_arg (app_fn e), app_arg e)
+else none
+
 meta_definition is_heq (e : expr) : option (expr × expr × expr × expr) :=
 if is_app_of e "heq" = tt ∧ get_app_num_args e = 4
 then some (app_arg (app_fn (app_fn (app_fn e))),

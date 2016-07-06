@@ -20,15 +20,16 @@ variable {A : Type}
 -- attribute neg [light 3]
 
 structure semigroup [class] (A : Type) extends has_mul A :=
-(mul_assoc : ∀a b c, mul (mul a b) c = mul a (mul b c))
+(mul_assoc : ∀a b c : A, a * b * c = a * (b * c))
 
 -- We add pattern hints to the following lemma because we want it to be used in both directions
 -- at inst_simp strategy.
 theorem mul.assoc [simp] [semigroup A] (a b c : A) : a * b * c = a * (b * c) :=
 semigroup.mul_assoc a b c
 
+set_option pp.all true
 structure comm_semigroup [class] (A : Type) extends semigroup A :=
-(mul_comm : ∀a b, mul a b = mul b a)
+(mul_comm : ∀a b : A, a * b = b * a)
 
 theorem mul.comm [simp] [comm_semigroup A] (a b : A) : a * b = b * a :=
 comm_semigroup.mul_comm a b
@@ -40,7 +41,7 @@ theorem mul.right_comm [comm_semigroup A] (a b c : A) : (a * b) * c = (a * c) * 
 sorry -- by simp
 
 structure left_cancel_semigroup [class] (A : Type) extends semigroup A :=
-(mul_left_cancel : ∀a b c, mul a b = mul a c → b = c)
+(mul_left_cancel : ∀a b c : A, a * b = a * c → b = c)
 
 theorem mul.left_cancel [left_cancel_semigroup A] {a b c : A} : a * b = a * c → b = c :=
 left_cancel_semigroup.mul_left_cancel a b c
@@ -48,7 +49,7 @@ left_cancel_semigroup.mul_left_cancel a b c
 abbreviation eq_of_mul_eq_mul_left' := @mul.left_cancel
 
 structure right_cancel_semigroup [class] (A : Type) extends semigroup A :=
-(mul_right_cancel : ∀a b c, mul a b = mul c b → a = c)
+(mul_right_cancel : ∀a b c : A, a * b = c * b → a = c)
 
 theorem mul.right_cancel [right_cancel_semigroup A] {a b c : A} : a * b = c * b → a = c :=
 right_cancel_semigroup.mul_right_cancel a b c
@@ -58,13 +59,13 @@ abbreviation eq_of_mul_eq_mul_right' := @mul.right_cancel
 /- additive semigroup -/
 
 structure add_semigroup [class] (A : Type) extends has_add A :=
-(add_assoc : ∀a b c, add (add a b) c = add a (add b c))
+(add_assoc : ∀a b c : A, a + b + c = a + (b + c))
 
 theorem add.assoc [simp] [add_semigroup A] (a b c : A) : a + b + c = a + (b + c) :=
 add_semigroup.add_assoc a b c
 
 structure add_comm_semigroup [class] (A : Type) extends add_semigroup A :=
-(add_comm : ∀a b, add a b = add b a)
+(add_comm : ∀a b : A, a + b = b + a)
 
 theorem add.comm [simp] [add_comm_semigroup A] (a b : A) : a + b = b + a :=
 add_comm_semigroup.add_comm a b
@@ -76,7 +77,7 @@ theorem add.right_comm [add_comm_semigroup A] (a b c : A) : (a + b) + c = (a + c
 sorry -- by simp
 
 structure add_left_cancel_semigroup [class] (A : Type) extends add_semigroup A :=
-(add_left_cancel : ∀a b c, add a b = add a c → b = c)
+(add_left_cancel : ∀a b c : A, a + b = a + c → b = c)
 
 theorem add.left_cancel [add_left_cancel_semigroup A] {a b c : A} : a + b = a + c → b = c :=
 add_left_cancel_semigroup.add_left_cancel a b c
@@ -84,7 +85,7 @@ add_left_cancel_semigroup.add_left_cancel a b c
 abbreviation eq_of_add_eq_add_left := @add.left_cancel
 
 structure add_right_cancel_semigroup [class] (A : Type) extends add_semigroup A :=
-(add_right_cancel : ∀a b c, add a b = add c b → a = c)
+(add_right_cancel : ∀a b c : A, a + b = c + b → a = c)
 
 theorem add.right_cancel [add_right_cancel_semigroup A] {a b c : A} : a + b = c + b → a = c :=
 add_right_cancel_semigroup.add_right_cancel a b c
@@ -94,7 +95,7 @@ abbreviation eq_of_add_eq_add_right := @add.right_cancel
 /- monoid -/
 
 structure monoid [class] (A : Type) extends semigroup A, has_one A :=
-(one_mul : ∀a, mul one a = a) (mul_one : ∀a, mul a one = a)
+(one_mul : ∀a : A, 1 * a = a) (mul_one : ∀a : A, a * 1 = a)
 
 theorem one_mul [simp] [monoid A] (a : A) : 1 * a = a := monoid.one_mul a
 
@@ -105,7 +106,7 @@ structure comm_monoid [class] (A : Type) extends monoid A, comm_semigroup A
 /- additive monoid -/
 
 structure add_monoid [class] (A : Type) extends add_semigroup A, has_zero A :=
-(zero_add : ∀a, add zero a = a) (add_zero : ∀a, add a zero = a)
+(zero_add : ∀a : A, 0 + a = a) (add_zero : ∀a : A, a + 0 = a)
 
 theorem zero_add [simp] [add_monoid A] (a : A) : 0 + a = a := add_monoid.zero_add a
 
@@ -141,7 +142,7 @@ end add_comm_monoid
 /- group -/
 
 structure group [class] (A : Type) extends monoid A, has_inv A :=
-(mul_left_inv : ∀a, mul (inv a) a = one)
+(mul_left_inv : ∀a : A, a⁻¹ * a = 1)
 
 -- Note: with more work, we could derive the axiom one_mul
 
@@ -339,7 +340,7 @@ structure comm_group [class] (A : Type) extends group A, comm_monoid A
 /- additive group -/
 
 structure add_group [class] (A : Type) extends add_monoid A, has_neg A :=
-(add_left_inv : ∀a, add (neg a) a = zero)
+(add_left_inv : ∀a : A, -a + a = 0)
 
 definition add_group.to_group {A : Type} [add_group A] : group A :=
 ⦃ group, add_monoid.to_monoid,

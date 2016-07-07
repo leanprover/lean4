@@ -1,3 +1,5 @@
+alternative : (Type → Type) → Type
+applicative : (Type → Type) → Type
 decidable : Prop → Type₁
 functor : (Type → Type) → Type
 has_add : Type → Type
@@ -26,6 +28,8 @@ point : Type → Type → Type
 setoid : Type → Type
 subsingleton : Type → Prop
 well_founded : Π {A}, (A → A → Prop) → Prop
+alternative : (Type → Type) → Type
+applicative : (Type → Type) → Type
 decidable : Prop → Type₁
 functor : (Type → Type) → Type
 has_add : Type → Type

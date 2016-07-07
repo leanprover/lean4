@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson and Jared Roesch
 -/
 prelude
-import init.functor init.string init.trace
+import init.applicative init.string init.trace
 
 structure monad [class] (m : Type → Type) extends functor m : Type :=
 (ret  : Π {a:Type}, a → m a)
@@ -13,14 +13,16 @@ structure monad [class] (m : Type → Type) extends functor m : Type :=
 inline definition return {m : Type → Type} [monad m] {A : Type} (a : A) : m A :=
 monad.ret m a
 
-inline definition fapp {A B : Type} {m : Type → Type} [monad m] (f : m (A → B)) (a : m A) : m B :=
+definition fapp {m : Type → Type} [monad m] {A B : Type} (f : m (A → B)) (a : m A) : m B :=
 do g ← f,
    b ← a,
    return (g b)
 
+inline definition monad_is_applicative [instance] (m : Type → Type) [monad m] : applicative m :=
+applicative.mk (@monad.map _ _) (@monad.ret _ _) (@fapp _ _)
+
 inline definition monad.and_then {A B : Type} {m : Type → Type} [monad m] (a : m A) (b : m B) : m B :=
 do a, b
 
-infixr ` <*> `:2 := fapp
 infixl ` >>= `:2 := monad.bind
 infixl ` >> `:2  := monad.and_then

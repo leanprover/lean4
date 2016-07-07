@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.monad init.meta.exceptional init.meta.format
+import init.monad init.alternative init.meta.exceptional init.meta.format
 /-
 Remark: we use a function that produces a format object as the exception information.
 Motivation: the formatting object may be big, and we may create it on demand.
@@ -47,35 +47,35 @@ inline protected meta_definition bind (t₁ : base_tactic S A) (t₂ : A → bas
 
 inline protected meta_definition return (a : A) : base_tactic S A :=
 λ s, success a s
-
 end base_tactic
 
-meta_definition base_tactic.is_monad [instance] (S : Type) : monad (base_tactic S) :=
-monad.mk (@base_tactic.fmap S) (@base_tactic.return S) (@base_tactic.bind S)
-
-namespace tactic
-variables {S A : Type}
 open base_tactic_result
-
-meta_definition fail {A B : Type} [has_to_format B] (msg : B) : base_tactic S A :=
-λ s, exception A (λ u, to_fmt msg) s
-
-meta_definition failed : base_tactic S A :=
-fail "failed"
-
-meta_definition try (t : base_tactic S A) : base_tactic S unit :=
-λ s, base_tactic_result.cases_on (t s)
- (λ a, success ())
- (λ e s', success () s)
-
-meta_definition or_else (t₁ t₂ : base_tactic S A) : base_tactic S A :=
+meta_definition tactic_orelse {S A : Type} (t₁ t₂ : base_tactic S A) : base_tactic S A :=
 λ s, base_tactic_result.cases_on (t₁ s)
   success
   (λ e₁ s', base_tactic_result.cases_on (t₂ s)
      success
      (exception A))
 
-infix `<|>`:1 := or_else
+meta_definition base_tactic_is_monad [instance] (S : Type) : monad (base_tactic S) :=
+monad.mk (@base_tactic.fmap S) (@base_tactic.return S) (@base_tactic.bind S)
+
+meta_definition tactic.fail {S A B : Type} [has_to_format B] (msg : B) : base_tactic S A :=
+λ s, exception A (λ u, to_fmt msg) s
+
+meta_definition tactic.failed {S A : Type} : base_tactic S A :=
+tactic.fail "failed"
+
+meta_definition base_tactic_is_alternative [instance] (S : Type) : alternative (base_tactic S) :=
+alternative.mk (@base_tactic.fmap S) (λ A a s, success a s) (@fapp _ _) (@tactic.failed S) (@tactic_orelse S)
+
+namespace tactic
+variables {S A : Type}
+
+meta_definition try (t : base_tactic S A) : base_tactic S unit :=
+λ s, base_tactic_result.cases_on (t s)
+ (λ a, success ())
+ (λ e s', success () s)
 
 meta_definition skip : base_tactic S unit :=
 success ()

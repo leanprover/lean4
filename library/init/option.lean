@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 Basic datatypes
 -/
 prelude
-import init.logic init.monad
+import init.logic init.monad init.alternative
 
 open decidable
 
@@ -23,20 +23,23 @@ definition option_has_decidable_eq [instance] {A : Type} [H : decidable_eq A] : 
   | ff n := ff (λ H, option.no_confusion H (λ e, absurd e n))
   end
 
-namespace option
-  inline protected definition fmap {A B : Type} (f : A → B) (e : option A) : option B :=
-  option.cases_on e
-    none
-    (λ a, some (f a))
+inline definition option_fmap {A B : Type} (f : A → B) (e : option A) : option B :=
+option.cases_on e
+  none
+  (λ a, some (f a))
 
-  inline protected definition bind {A B : Type} (a : option A) (b : A → option B) : option B :=
-  option.cases_on a
-    none
-    (λ a, b a)
+inline definition option_bind {A B : Type} (a : option A) (b : A → option B) : option B :=
+option.cases_on a
+  none
+  (λ a, b a)
 
-  inline protected definition return {A : Type} (a : A) : option A :=
-  some a
-end option
+definition option_is_monad [instance] : monad option :=
+monad.mk @option_fmap @some @option_bind
 
-definition option.is_monad [instance] : monad option :=
-monad.mk @option.fmap @option.return @option.bind
+definition option_orelse {A : Type} : option A → option A → option A
+| (some a) _         := some a
+| none     (some a)  := some a
+| none     none      := none
+
+definition option_is_alternative [instance] {A : Type} : alternative option :=
+alternative.mk @option_fmap @some (@fapp _ _) @none @option_orelse

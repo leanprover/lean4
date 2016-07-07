@@ -61,6 +61,10 @@ definition reverse : list A → list A
 definition map {B : Type} (f : A → B) : list A → list B
 | []       := []
 | (a :: l) := f a :: map l
+
+definition join : list (list A) → list A
+| []        := []
+| (l :: ls) := append l (join ls)
 end list
 
 definition list_has_append [instance] {A : Type} : has_append (list A) :=

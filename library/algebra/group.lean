@@ -5,8 +5,7 @@ Authors: Jeremy Avigad, Leonardo de Moura
 
 Various multiplicative and additive structures. Partially modeled on Isabelle's library.
 -/
-
-import logic.eq data.unit data.sigma data.prod
+import logic.eq data.sigma data.prod
 import algebra.binary algebra.priority
 
 open binary

@@ -7,7 +7,6 @@ Here an "ordered_ring" is partially ordered ring, which is ordered with respect 
 order and an associated strict order. Our numeric structures (int, rat, and real) will be instances
 of "linear_ordered_comm_ring". This development is modeled after Isabelle's library.
 -/
-
 import algebra.ordered_group algebra.ring
 open eq eq.ops
 

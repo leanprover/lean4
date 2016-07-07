@@ -6,9 +6,7 @@ Authors: Jeremy Avigad, Leonardo de Moura
 Structures with multiplicative and additive components, including semirings, rings, and fields.
 The development is modeled after Isabelle's library.
 -/
-
-import logic.eq logic.connectives data.unit data.sigma data.prod
-import algebra.binary algebra.group
+import algebra.group
 open eq eq.ops
 
 variable {A : Type}

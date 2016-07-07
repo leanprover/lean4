@@ -256,6 +256,30 @@ unsigned get_constructor_idx(environment const & env, name const & n) {
     lean_unreachable();
 }
 
+unsigned get_num_inductive_hypotheses_for(environment const & env, name const & n) {
+    lean_assert(inductive::is_intro_rule(env, n));
+    name I_name = *inductive::is_intro_rule(env, n);
+    inductive::inductive_decls decls = *inductive::is_inductive_decl(env, I_name);
+    expr type   = env.get(n).get_type();
+    unsigned r  = 0;
+    while (is_pi(type)) {
+        if (find(binding_domain(type), [&](expr const & e, unsigned) {
+                    if (is_constant(e)) {
+                        name const & c = const_name(e);
+                        for (auto const & d : std::get<2>(decls)) {
+                            if (inductive::inductive_decl_name(d) == c)
+                                return true;
+                        }
+                    }
+                    return false;
+                })) {
+            r++;
+        }
+        type = binding_body(type);
+    }
+    return r;
+}
+
 expr instantiate_univ_param (expr const & e, name const & p, level const & l) {
     return instantiate_univ_params(e, to_list(p), to_list(l));
 }

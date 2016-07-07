@@ -81,6 +81,11 @@ void get_constructor_relevant_fields(environment const & env, name const & n, bu
     \pre inductive::is_intro_rule(env, n) */
 unsigned get_constructor_idx(environment const & env, name const & n);
 
+/** Given a C.rec, each minor premise has n arguments, and some of these arguments are inductive
+    hypotheses. This function return then number of inductive hypotheses for the minor premise associated with
+    the constructor named \c n. */
+unsigned get_num_inductive_hypotheses_for(environment const & env, name const & n);
+
 /** \brief Given an expression \c e, return the number of arguments expected arguments.
 
     \remark This function computes the type of \c e, and then counts the number of nested

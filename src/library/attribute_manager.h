@@ -44,11 +44,11 @@ environment set_attribute(environment const & env, io_state const & ios, char co
                           name const & d, unsigned prio, list<unsigned> const & params, name const & ns, bool persistent);
 
 bool has_attribute(environment const & env, char const * attr, name const & d);
-void get_attribute_instances(environment const & env, char const * attr, buffer<name> &);
-void get_attribute_instances(environment const & env, char const * attr, name const & ns, buffer<name> &);
+void get_attribute_instances(environment const & env, name const & attr, buffer<name> &);
+void get_attribute_instances(environment const & env, name const & attr, name const & ns, buffer<name> &);
 
-unsigned get_attribute_prio(environment const & env, char const * attr, name const & d);
-list<unsigned> get_attribute_params(environment const & env, char const * attr, name const & d);
+unsigned get_attribute_prio(environment const & env, name const & attr, name const & d);
+list<unsigned> get_attribute_params(environment const & env, name const & attr, name const & d);
 
 bool are_incompatible(char const * attr1, char const * attr2);
 

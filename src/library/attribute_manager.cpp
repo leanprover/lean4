@@ -201,14 +201,14 @@ bool has_attribute(environment const & env, char const * attr, name const & d) {
     return false;
 }
 
-void get_attribute_instances(environment const & env, char const * attr, buffer<name> & r) {
+void get_attribute_instances(environment const & env, name const & attr, buffer<name> & r) {
     attribute_ext::get_state(env).for_each([&](name const & n, attr_records const & recs){
         if (n == attr)
             recs.for_each([&](attr_record const & rec) { r.push_back(rec.m_decl); });
     });
 }
 
-void get_attribute_instances(environment const & env, char const * attr, name const & ns, buffer<name> & r) {
+void get_attribute_instances(environment const & env, name const & attr, name const & ns, buffer<name> & r) {
     if (auto entries = attribute_ext::get_entries(env, ns)) {
         for (auto const & e : *entries) {
             if (e.m_attr == attr)
@@ -217,7 +217,7 @@ void get_attribute_instances(environment const & env, char const * attr, name co
     }
 }
 
-[[ noreturn ]] void throw_unknown_attribute(char const * attr) {
+[[ noreturn ]] void throw_unknown_attribute(name const & attr) {
     throw exception(sstream() << "unknown attribute '" << attr << "'");
 }
 
@@ -232,7 +232,7 @@ environment set_attribute(environment const & env, io_state const & ios, char co
     throw_unknown_attribute(attr);
 }
 
-unsigned get_attribute_prio(environment const & env, char const * attr, name const & d) {
+unsigned get_attribute_prio(environment const & env, name const & attr, name const & d) {
     if (auto it = attribute_ext::get_state(env).find(attr)) {
         optional<unsigned> prio = it->get_prio({d, list<unsigned>()});
         return prio ? *prio : LEAN_DEFAULT_PRIORITY;
@@ -240,7 +240,7 @@ unsigned get_attribute_prio(environment const & env, char const * attr, name con
     throw_unknown_attribute(attr);
 }
 
-list<unsigned> get_attribute_params(environment const & env, char const * attr, name const & d) {
+list<unsigned> get_attribute_params(environment const & env, name const & attr, name const & d) {
     if (auto it = attribute_ext::get_state(env).find(attr)) {
         if (auto record = it->get_key(attr_record {d, list<unsigned>()}))
                 return record->m_params;

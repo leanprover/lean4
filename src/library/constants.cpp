@@ -282,6 +282,7 @@ name const * g_select = nullptr;
 name const * g_semiring = nullptr;
 name const * g_sigma = nullptr;
 name const * g_sigma_mk = nullptr;
+name const * g_simp = nullptr;
 name const * g_smt_array = nullptr;
 name const * g_smt_select = nullptr;
 name const * g_smt_store = nullptr;
@@ -599,6 +600,7 @@ void initialize_constants() {
     g_semiring = new name{"semiring"};
     g_sigma = new name{"sigma"};
     g_sigma_mk = new name{"sigma", "mk"};
+    g_simp = new name{"simp"};
     g_smt_array = new name{"smt", "array"};
     g_smt_select = new name{"smt", "select"};
     g_smt_store = new name{"smt", "store"};
@@ -917,6 +919,7 @@ void finalize_constants() {
     delete g_semiring;
     delete g_sigma;
     delete g_sigma_mk;
+    delete g_simp;
     delete g_smt_array;
     delete g_smt_select;
     delete g_smt_store;
@@ -1234,6 +1237,7 @@ name const & get_select_name() { return *g_select; }
 name const & get_semiring_name() { return *g_semiring; }
 name const & get_sigma_name() { return *g_sigma; }
 name const & get_sigma_mk_name() { return *g_sigma_mk; }
+name const & get_simp_name() { return *g_simp; }
 name const & get_smt_array_name() { return *g_smt_array; }
 name const & get_smt_select_name() { return *g_smt_select; }
 name const & get_smt_store_name() { return *g_smt_store; }

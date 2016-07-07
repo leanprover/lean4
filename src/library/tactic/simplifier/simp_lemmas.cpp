@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <string>
+#include <library/constants.h>
 #include "util/priority_queue.h"
 #include "util/sstream.h"
 #include "util/flet.h"
@@ -527,19 +528,19 @@ format simp_lemmas::pp(formatter const & fmt) const {
 simp_lemmas get_simp_lemmas(type_context & tctx) {
     simp_lemmas r;
     buffer<name> simp_lemmas, congr_lemmas;
-    get_attribute_instances(env, "simp", simp_lemmas);
-    get_attribute_instances(env, "congr", congr_lemmas);
+    get_attribute_instances(tctx.env(), get_simp_name(), simp_lemmas);
+    get_attribute_instances(tctx.env(), get_congr_name(), congr_lemmas);
     unsigned i = simp_lemmas.size();
     while (i > 0) {
         --i;
         tmp_type_context tmp_tctx(tctx);
-        r = add_core(tmp_tctx, r, simp_lemmas[i], get_attribute_prio(env, "simp", simp_lemmas[i]));
+        r = add_core(tmp_tctx, r, simp_lemmas[i], get_attribute_prio(tctx.env(), get_simp_name(), simp_lemmas[i]));
     }
     i = congr_lemmas.size();
     while (i > 0) {
         --i;
         tmp_type_context tmp_tctx(tctx);
-        r = add_congr_core(tmp_tctx, r, congr_lemmas[i], get_attribute_prio(env, "congr", congr_lemmas[i]));
+        r = add_congr_core(tmp_tctx, r, congr_lemmas[i], get_attribute_prio(tctx.env(), get_congr_name(), congr_lemmas[i]));
     }
     return r;
 }
@@ -585,8 +586,8 @@ void initialize_simp_lemmas() {
     DECLARE_VM_BUILTIN(name({"tactic", "mk_simp_lemmas_core"}),      tactic_mk_simp_lemmas);
     DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_core"}),  tactic_simp_lemmas_insert);
 
-    register_prio_attribute("simp", "simplification lemma", &on_add_simp_lemma);
-    register_prio_attribute("congr", "congruence lemma", &on_add_congr_lemma);
+    register_prio_attribute(get_simp_name().get_string(), "simplification lemma", &on_add_simp_lemma);
+    register_prio_attribute(get_congr_name().get_string(), "congruence lemma", &on_add_congr_lemma);
 }
 
 void finalize_simp_lemmas() {

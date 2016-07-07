@@ -277,6 +277,7 @@ select
 semiring
 sigma
 sigma.mk
+simp
 smt.array
 smt.select
 smt.store

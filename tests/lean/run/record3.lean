@@ -1,4 +1,4 @@
-import logic data.unit
+import logic
 
 
 structure point (A : Type) (B : Type) :=

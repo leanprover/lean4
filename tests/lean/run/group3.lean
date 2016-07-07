@@ -8,7 +8,7 @@
 -- Various structures with 1, *, inv, including groups.
 
 import logic.eq
-import data.unit data.sigma data.prod
+import data.sigma data.prod
 import algebra.binary
 
 open eq

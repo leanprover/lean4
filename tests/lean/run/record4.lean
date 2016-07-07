@@ -1,4 +1,4 @@
-import logic data.unit
+import logic
 
 set_option structure.eta_thm true
 

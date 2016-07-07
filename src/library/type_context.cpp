@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/unification_hint.h"
 #include "library/lazy_abstraction.h"
+#include "library/fun_info.h"
 
 #ifndef LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH
 #define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 32
@@ -1719,74 +1720,88 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
     }
 }
 
-// Helper function for find_unsynth_metavar
-static bool has_meta_arg(expr e) {
-    if (!has_expr_metavar(e))
-        return false;
-    while (is_app(e)) {
-        if (is_meta(app_arg(e)))
-            return true;
-        e = app_fn(e);
-    }
-    return false;
-}
+struct find_unsynth_metavar_fn {
+    type_context & m_ctx;
+    buffer<expr>   m_locals;
 
-/** IF \c e is of the form (f ... (?m t_1 ... t_n) ...) where ?m is an unassigned
-    metavariable whose type is a type class, and (?m t_1 ... t_n) must be synthesized
-    by type class resolution, then we return ?m.
-    Otherwise, we return none */
-optional<pair<expr, expr>> type_context::find_unsynth_metavar_at_args(expr const & e) {
-    if (!has_meta_arg(e))
-        return optional<pair<expr, expr>>();
-    buffer<expr> args;
-    expr const & fn = get_app_args(e, args);
-    expr type       = infer(fn);
-    unsigned i      = 0;
-    while (i < args.size()) {
-        type = relaxed_whnf(type);
-        if (!is_pi(type))
+    find_unsynth_metavar_fn(type_context & ctx):m_ctx(ctx) {}
+
+    static bool has_meta_arg(expr e) {
+        if (!has_expr_metavar(e))
+            return false;
+        while (is_app(e)) {
+            if (is_meta(app_arg(e)))
+                return true;
+            e = app_fn(e);
+        }
+        return false;
+    }
+
+    /** IF \c e is of the form (f ... (?m t_1 ... t_n) ...) where ?m is an unassigned
+        metavariable whose type is a type class, and (?m t_1 ... t_n) must be synthesized
+        by type class resolution, then we return ?m.
+        Otherwise, we return none */
+    optional<pair<expr, expr>> find_unsynth_metavar_at_args(expr const & e) {
+        if (!has_meta_arg(e))
             return optional<pair<expr, expr>>();
-        expr const & arg = args[i];
-        if (binding_info(type).is_inst_implicit() && is_meta(arg)) {
-            expr const & m = get_app_fn(arg);
-            if (is_mvar(m)) {
-                expr m_type = instantiate_mvars(infer(m));
-                if (!has_expr_metavar_relaxed(m_type)) {
-                    return some(mk_pair(m, m_type));
+        buffer<expr> args;
+        expr fn        = instantiate_rev(get_app_args(e, args), m_locals.size(), m_locals.data());
+        lean_assert(closed(fn));
+        fun_info finfo = get_fun_info(m_ctx, fn, args.size());
+        unsigned i     = 0;
+        for (param_info const & pinfo : finfo.get_params_info()) {
+            expr const & arg = args[i];
+            if (pinfo.is_inst_implicit() && is_meta(arg)) {
+                expr const & m = get_app_fn(arg);
+                if (m_ctx.is_mvar(m)) {
+                    expr m_type = m_ctx.instantiate_mvars(m_ctx.infer(m));
+                    if (!has_expr_metavar_relaxed(m_type)) {
+                        return some(mk_pair(m, m_type));
+                    }
                 }
             }
+            i++;
         }
-        type = ::lean::instantiate(binding_body(type), arg);
-        i++;
+        return optional<pair<expr, expr>>();
     }
-    return optional<pair<expr, expr>>();
-}
 
-/** Search in \c e for an expression of the form (f ... (?m t_1 ... t_n) ...) where ?m is an unassigned
-    metavariable whose type is a type class, and (?m t_1 ... t_n) must be synthesized
-    by type class resolution, then we return ?m.
-    Otherwise, we return none.
-    This procedure goes inside lambdas. */
-optional<pair<expr, expr>> type_context::find_unsynth_metavar(expr const & e) {
-    if (!has_expr_metavar(e))
-        return optional<pair<expr, expr>>();
-    if (is_app(e)) {
-        if (auto r = find_unsynth_metavar_at_args(e))
-            return r;
-        expr it = e;
-        while (is_app(it)) {
-            if (auto r = find_unsynth_metavar(app_arg(it)))
+    /** Search in \c e for an expression of the form (f ... (?m t_1 ... t_n) ...) where ?m is an unassigned
+        metavariable whose type is a type class, and (?m t_1 ... t_n) must be synthesized
+        by type class resolution, then we return ?m.
+        Otherwise, we return none.
+        This procedure goes inside lambdas. */
+    optional<pair<expr, expr>> find_unsynth_metavar(expr const & e) {
+        if (!has_expr_metavar(e))
+            return optional<pair<expr, expr>>();
+        if (is_app(e)) {
+            if (auto r = find_unsynth_metavar_at_args(e))
                 return r;
-            it = app_fn(it);
+            expr it = e;
+            while (is_app(it)) {
+                if (auto r = find_unsynth_metavar(app_arg(it)))
+                    return r;
+                it = app_fn(it);
+            }
+            return optional<pair<expr, expr>>();
+        } else if (is_lambda(e)) {
+            expr type = instantiate_rev(binding_domain(e), m_locals.size(), m_locals.data());
+            m_locals.push_back(m_ctx.push_local(binding_name(e), type));
+            auto r = find_unsynth_metavar(binding_body(e));
+            m_locals.pop_back();
+            m_ctx.pop_local();
+            return r;
+        } else {
+            return optional<pair<expr, expr>>();
         }
-        return optional<pair<expr, expr>>();
-    } else if (is_lambda(e)) {
-        tmp_locals locals(*this);
-        expr l = locals.push_local_from_binding(e);
-        return find_unsynth_metavar(::lean::instantiate(binding_body(e), l));
-    } else {
-        return optional<pair<expr, expr>>();
     }
+
+    optional<pair<expr, expr>> operator()(expr const & e) {
+        return find_unsynth_metavar(e);
+    }
+};
+
+optional<pair<expr, expr>> type_context::find_unsynth_metavar(expr const & e) {
+    return find_unsynth_metavar_fn(*this)(e);
 }
 
 /** \brief Create a nested type class instance of the given type, and assign it to metavariable \c m.

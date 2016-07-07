@@ -425,7 +425,6 @@ private:
     bool is_productive(expr const & e);
     expr reduce_if_productive(expr const & t);
     lbool is_def_eq_lazy_delta(expr & t, expr & s);
-    optional<pair<expr, expr>> find_unsynth_metavar_at_args(expr const & e);
     optional<pair<expr, expr>> find_unsynth_metavar(expr const & e);
     bool mk_nested_instance(expr const & m, expr const & m_type);
     friend class unification_hint_fn;

@@ -14,76 +14,10 @@ Author: Leonardo de Moura
 #include "library/attribute_manager.h"
 
 namespace lean {
-struct reducible_entry {
-    reducible_status m_status;
-    name             m_name;
-    reducible_entry():m_status(reducible_status::Semireducible) {}
-    reducible_entry(reducible_status s, name const & n):m_status(s), m_name(n) {}
-};
-
-typedef name_map<reducible_status> reducible_state;
-
-static reducible_status get_status(reducible_state const & s, name const & n) {
-    if (auto it = s.find(n))
-        return *it;
-    else
-        return reducible_status::Semireducible;
-}
-
-static name * g_class_name = nullptr;
-static std::string * g_key = nullptr;
-
-struct reducible_config {
-    typedef reducible_state  state;
-    typedef reducible_entry  entry;
-    static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
-        s.insert(e.m_name, e.m_status);
-    }
-    static name const & get_class_name() {
-         return *g_class_name;
-    }
-    static std::string const & get_serialization_key() {
-        return *g_key;
-    }
-    static void  write_entry(serializer & s, entry const & e) {
-        s << static_cast<char>(e.m_status) << e.m_name;
-    }
-    static entry read_entry(deserializer & d) {
-        entry e; char s;
-        d >> s >> e.m_name;
-        e.m_status = static_cast<reducible_status>(s);
-        return e;
-    }
-    static optional<unsigned> get_fingerprint(entry const & e) {
-        return some(hash(static_cast<unsigned>(e.m_status), e.m_name.hash()));
-    }
-};
-
-template class scoped_ext<reducible_config>;
-typedef scoped_ext<reducible_config> reducible_ext;
-
 void initialize_reducible() {
-    g_class_name = new name("reducible");
-    g_key        = new std::string("REDU");
-    reducible_ext::initialize();
-
-    register_no_params_attribute("reducible", "reducible",
-                                 [](environment const & env, io_state const &, name const & d, name const & ns,
-                                    bool persistent) {
-                                     return set_reducible(env, d, reducible_status::Reducible, ns, persistent);
-                                 });
-
-    register_no_params_attribute("semireducible", "semireducible",
-                                 [](environment const & env, io_state const &, name const & d, name const & ns,
-                                    bool persistent) {
-                                     return set_reducible(env, d, reducible_status::Semireducible, ns, persistent);
-                                 });
-
-    register_no_params_attribute("irreducible", "irreducible",
-                                 [](environment const & env, io_state const &, name const & d, name const & ns,
-                                    bool persistent) {
-                                     return set_reducible(env, d, reducible_status::Irreducible, ns, persistent);
-                                 });
+    register_no_params_attribute("reducible", "reducible");
+    register_no_params_attribute("semireducible", "semireducible");
+    register_no_params_attribute("irreducible", "irreducible");
 
     register_incompatible("reducible", "semireducible");
     register_incompatible("reducible", "irreducible");
@@ -91,14 +25,6 @@ void initialize_reducible() {
 }
 
 void finalize_reducible() {
-    reducible_ext::finalize();
-    delete g_key;
-    delete g_class_name;
-}
-
-void for_each_reducible(environment const & env, std::function<void(name const &, reducible_status)> const & fn) {
-    reducible_state m_state = reducible_ext::get_state(env);
-    m_state.for_each(fn);
 }
 
 static void check_declaration(environment const & env, name const & n) {
@@ -109,25 +35,30 @@ static void check_declaration(environment const & env, name const & n) {
 
 environment set_reducible(environment const & env, name const & n, reducible_status s, name const & ns, bool persistent) {
     check_declaration(env, n);
-    return reducible_ext::add_entry(env, get_dummy_ios(), reducible_entry(s, n), ns, persistent);
+    return set_attribute(env, get_dummy_ios(),
+                         s == reducible_status::Reducible ? "reducible" :
+                         s == reducible_status::Irreducible ? "irreducible" :
+                         "semireducible", n, ns, persistent);
 }
 
 reducible_status get_reducible_status(environment const & env, name const & n) {
-    reducible_state const & s = reducible_ext::get_state(env);
-    return get_status(s, n);
+    if (has_attribute(env, "reducible", n))
+        return reducible_status::Reducible;
+    else if (has_attribute(env, "irreducible", n))
+        return reducible_status::Irreducible;
+    else
+        return reducible_status::Semireducible;
 }
 
 name_predicate mk_not_reducible_pred(environment const & env) {
-    reducible_state m_state = reducible_ext::get_state(env);
     return [=](name const & n) { // NOLINT
-        return get_status(m_state, n) != reducible_status::Reducible;
+        return !has_attribute(env, "reducible", n);
     };
 }
 
 name_predicate mk_irreducible_pred(environment const & env) {
-    reducible_state m_state = reducible_ext::get_state(env);
     return [=](name const & n) { // NOLINT
-        return get_status(m_state, n) == reducible_status::Irreducible;
+        return has_attribute(env, "irreducible", n);
     };
 }
 

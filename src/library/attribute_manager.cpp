@@ -122,6 +122,12 @@ void register_no_params_attribute(char const * attr, char const * descr, set_no_
                            return on_set(env, ios, d, ns, persistent);
                        });
 }
+void register_no_params_attribute(char const * attr, char const * descr) {
+    register_no_params_attribute(attr, descr,
+                                 [](environment const & env, io_state const &, name const &, name const &, bool) {
+                                     return env;
+                                 });
+}
 
 void register_prio_attribute(char const * attr, char const * descr, set_prio_attribute_proc const & on_set) {
     register_attribute(attr, descr,
@@ -230,6 +236,11 @@ environment set_attribute(environment const & env, io_state const & ios, char co
         }
     }
     throw_unknown_attribute(attr);
+}
+
+environment set_attribute(environment const & env, io_state const & ios, char const * attr,
+                          name const & d, name const & ns, bool persistent) {
+    return set_attribute(env, ios, attr, d, LEAN_DEFAULT_PRIORITY, list<unsigned>(), ns, persistent);
 }
 
 unsigned get_attribute_prio(environment const & env, name const & attr, name const & d) {

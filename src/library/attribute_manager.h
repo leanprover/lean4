@@ -28,6 +28,7 @@ typedef std::function<environment(environment const &, io_state const &, name co
 
 void register_attribute(char const * attr, char const * descr, set_attribute_proc const & on_set);
 void register_no_params_attribute(char const * attr, char const * descr, set_no_params_attribute_proc const & on_set);
+void register_no_params_attribute(char const * attr, char const * descr);
 void register_prio_attribute(char const * attr, char const * descr, set_prio_attribute_proc const & on_set);
 void register_opt_param_attribute(char const * attr, char const * descr, set_opt_param_attribute_proc const & on_set);
 void register_params_attribute(char const * attr, char const * descr, set_params_attribute_proc const & on_set);
@@ -42,6 +43,8 @@ char const * get_attribute_token(char const * attr);
 
 environment set_attribute(environment const & env, io_state const & ios, char const * attr,
                           name const & d, unsigned prio, list<unsigned> const & params, name const & ns, bool persistent);
+environment set_attribute(environment const & env, io_state const & ios, char const * attr,
+                          name const & d, name const & ns, bool persistent);
 
 bool has_attribute(environment const & env, char const * attr, name const & d);
 void get_attribute_instances(environment const & env, name const & attr, buffer<name> &);

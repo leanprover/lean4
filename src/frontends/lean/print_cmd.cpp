@@ -641,12 +641,6 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_no_pattern_attr_tk())) {
         p.next();
         print_no_patterns(p);
-    } else if (p.curr_is_token_or_id(get_reducible_tk())) {
-        p.next();
-        print_reducible_info(p, reducible_status::Reducible);
-    } else if (p.curr_is_token_or_id(get_irreducible_tk())) {
-        p.next();
-        print_reducible_info(p, reducible_status::Irreducible);
     } else if (p.curr_is_token_or_id(get_options_tk())) {
         p.next();
         out << p.ios().get_options() << endl;

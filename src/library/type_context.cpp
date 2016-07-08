@@ -98,6 +98,15 @@ bool type_context_cache::should_unfold_macro(expr const &) {
     return true;
 }
 
+bool type_context_cache::is_aux_recursor(name const & n) {
+    auto it = m_aux_recursor_cache.find(n);
+    if (it != m_aux_recursor_cache.end())
+        return it->second;
+    bool r = ::lean::is_aux_recursor(env(), n);
+    m_aux_recursor_cache.insert(mk_pair(n, r));
+    return r;
+}
+
 static void collect_local_decls(expr const & e, buffer<name> & r, name_set & s) {
     for_each(e, [&](expr const & e, unsigned) {
             if (is_local_decl_ref(e)) {
@@ -452,7 +461,7 @@ optional<expr> type_context::reduce_aux_recursor(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
         return none_expr();
-    if (is_aux_recursor(env(), const_name(f)))
+    if (m_cache.is_aux_recursor(const_name(f)))
         return try_unfold_definition(e);
     else
         return none_expr();
@@ -1621,7 +1630,7 @@ bool type_context::is_productive(expr const & e) {
         expr const & major = args[2];
         return is_productive(major);
     } else {
-        return !is_aux_recursor(env(), n) && !inductive::is_elim_rule(env(), n);
+        return !m_cache.is_aux_recursor(n) && !inductive::is_elim_rule(env(), n);
     }
 }
 

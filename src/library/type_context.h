@@ -20,6 +20,7 @@ enum class transparency_mode { All, Semireducible, Reducible, None };
 /* \brief Cached information for type_context. */
 class type_context_cache {
     typedef std::unordered_map<name, optional<declaration>, name_hash> transparency_cache;
+    typedef std::unordered_map<name, bool, name_hash> name2bool;
     typedef expr_struct_map<expr> infer_cache;
     typedef expr_struct_map<expr> whnf_cache;
     typedef expr_struct_map<optional<expr>> instance_cache;
@@ -61,6 +62,8 @@ class type_context_cache {
 
     whnf_cache                    m_whnf_cache[4];
 
+    name2bool                     m_aux_recursor_cache;
+
     /* We have two modes for caching type class instances.
 
        In the default mode (m_frozen_mode == false), whenever a type_context object is
@@ -101,6 +104,7 @@ class type_context_cache {
     bool is_transparent(transparency_mode m, declaration const & d);
     optional<declaration> is_transparent(transparency_mode m, name const & n);
     bool should_unfold_macro(expr const & e);
+    bool is_aux_recursor(name const & n);
 public:
     type_context_cache(environment const & env, options const & opts);
 

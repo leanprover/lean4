@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <algorithm>
 #include "util/flet.h"
 #include "util/interrupt.h"
 #include "util/sexpr/option_declarations.h"
@@ -1840,15 +1841,126 @@ bool type_context::mk_nested_instance(expr const & m, expr const & m_type) {
     }
 }
 
+/* Try to check whether we have cached the result of on_is_def_eq_failure(e1, e2) */
+lbool type_context::try_on_failure_cache(expr e1, expr e2) {
+    if (!in_tmp_mode())
+        return l_undef; /* We only cache in tmp mode (example scenario: simplifier) */
+    if (has_expr_metavar(e1) && has_expr_metavar(e2)) {
+        /* If both sides contain metavariables, then
+           it is not a matching problem, and we don't cache them. */
+        return l_undef;
+    }
+    auto & cache = m_cache.m_on_failure_cache[static_cast<unsigned>(m_transparency_mode)];
+    if (has_expr_metavar(e2))
+        std::swap(e1, e2);
+    auto it = cache.find(mk_pair(e1, e2));
+    if (it == cache.end()) {
+        /* there is no cached result. */
+        return l_undef;
+    }
+    optional<list<pair<expr, expr>>> r = it->second;
+    if (!r) {
+        /* cached failure */
+        return l_false;
+    }
+    scope s(*this);
+    try {
+        /* Apply assignment associated with the cached result. */
+        for (pair<expr, expr> const & p : *r) {
+            lean_assert(is_metavar(p.first));
+            expr const & mvar = p.first;
+            expr const & val  = p.second;
+            if (m_mctx.is_assigned(mvar)) {
+                if (!is_def_eq_core(mvar, val)) {
+                    /* Cannot reuse the cached value, since previous value is not definitionally equal to
+                       new one */
+                    return l_false;
+                }
+            } else {
+                /* Check types */
+                expr t1 = infer(mvar);
+                expr t2 = infer(val);
+                if (!is_def_eq_core(t1, t2)) {
+                    /* Type of cached metavar is not compatible with the new one. */
+                    return l_false;
+                }
+                assign(mvar, val);
+            }
+        }
+    } catch (exception &) {
+        /* Exception may occur when executing is_def_eq_core.
+           Reason: the local_context for the cached value is not compatible
+           with the current one */
+        return l_false;
+    }
+    return l_true;
+}
+
+void type_context::cache_on_failure_result(expr e1, expr e2, bool r) {
+    /* We only cache the result r IF
+       1- We are in tmp mode.
+       2- Only one of them has meta-variables. That is, it is a matching problem.
+       3  e1 and e2 are applications of the form (pr1 ...) (pr2 ...)
+          where pr1 and pr2 are projections.
+
+       Motivation: simplifier generates a lot of unsolvable matching problems.
+       Thus, on_is_def_eq_failure is invoked many times. */
+    if (!in_tmp_mode())
+        return;
+    if (has_expr_metavar(e1) && has_expr_metavar(e2))
+        return;
+    expr const & f1 = get_app_fn(e1);
+    expr const & f2 = get_app_fn(e2);
+    if (!is_constant(f1) || !is_constant(f2))
+        return;
+    if (!m_cache.m_proj_info.find(const_name(f1)) ||
+        !m_cache.m_proj_info.find(const_name(f2)))
+        return;
+    auto & cache = m_cache.m_on_failure_cache[static_cast<unsigned>(m_transparency_mode)];
+    if (has_expr_metavar(e2))
+        std::swap(e1, e2);
+    if (!r) {
+        cache.insert(mk_pair(mk_pair(e1, e2), optional<list<pair<expr, expr>>>()));
+    } else {
+        buffer<pair<expr, expr>> assignment;
+        for_each(e1, [&](expr const & e, unsigned) {
+                if (!has_expr_metavar(e)) return false;
+                if (is_mvar(e) && is_assigned(e) &&
+                    std::any_of(assignment.begin(), assignment.end(), [&](pair<expr, expr> const & p) {
+                            return p.first == e; })) {
+                    assignment.emplace_back(e, *get_assignment(e));
+                }
+                return true;
+            });
+        cache.insert(mk_pair(mk_pair(e1, e2), some(to_list(assignment))));
+    }
+}
+
 bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
     lean_trace(name({"type_context", "is_def_eq_detail"}),
                tout() << "on failure: " << e1 << " =?= " << e2 << "\n";);
+    if (!is_app(e1) || !is_app(e2))
+        return false;
+    if (!has_expr_metavar(e1) && !has_expr_metavar(e2))
+        return false;
+    if (same_head_symbol(e1, e2)) {
+        /* This is a hackish filter.
+           We currently use on_is_def_eq_failure, for handling unsolvable unification problems
+           such as:
+                 @add_monoid.add ?A ?s =?= @discrete_linear_ordered_field.add A m
+        */
+        return false;
+    }
+    lbool c = try_on_failure_cache(e1, e2);
+    if (c != l_undef) return c == l_true;
     if (is_app(e1)) {
         if (auto p1 = find_unsynth_metavar(e1)) {
             lean_trace(name({"type_context", "is_def_eq_detail"}),
                        tout() << "try to synthesize: " << p1->first << " : " << p1->second << "\n";);
             if (mk_nested_instance(p1->first, p1->second)) {
-                return is_def_eq_core(instantiate_mvars(e1), e2);
+                bool r = is_def_eq_core(instantiate_mvars(e1), e2);
+                cache_on_failure_result(e1, e2, r);
+                return r;
             }
         }
     }
@@ -1857,7 +1969,9 @@ bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
             lean_trace(name({"type_context", "is_def_eq_detail"}),
                        tout() << "try to synthesize: " << p2->first << " : " << p2->second << "\n";);
             if (mk_nested_instance(p2->first, p2->second)) {
-                return is_def_eq_core(e1, instantiate_mvars(e2));
+                bool r = is_def_eq_core(e1, instantiate_mvars(e2));
+                cache_on_failure_result(e1, e2, r);
+                return r;
             }
         }
     }

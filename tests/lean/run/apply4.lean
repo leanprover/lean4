@@ -27,7 +27,7 @@ by do
   mk_app ("inhabited" <.> "mk") [a] >>= exact,
   trace "--------",
   trace_state,
-  assumption
+  reflexivity
 
 print "----------------"
 set_option pp.all true

@@ -1777,7 +1777,7 @@ struct find_unsynth_metavar_fn {
             expr const & arg = args[i];
             if (pinfo.is_inst_implicit() && is_meta(arg)) {
                 expr const & m = get_app_fn(arg);
-                if (m_ctx.is_mvar(m)) {
+                if (m_ctx.is_mvar(m) && !m_ctx.is_assigned(m)) {
                     expr m_type = m_ctx.instantiate_mvars(m_ctx.infer(m));
                     if (!has_expr_metavar_relaxed(m_type)) {
                         return some(mk_pair(m, m_type));

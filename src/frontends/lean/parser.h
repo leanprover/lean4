@@ -199,6 +199,7 @@ class parser : public pos_info_provider {
     expr parse_inst_implicit_decl();
     void parse_inst_implicit_decl(buffer<expr> & r);
     expr parse_binder_core(binder_info const & bi, unsigned rbp);
+    bool parse_binder_collection(buffer<pair<pos_info, name>> const & names, binder_info const & bi, buffer<expr> & r);
     void parse_binder_block(buffer<expr> & r, binder_info const & bi, unsigned rbp);
     void parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentries, bool & last_block_delimited, unsigned rbp, bool simple_only);
     local_environment parse_binders(buffer<expr> & r, buffer<notation_entry> * nentries, bool & last_block_delimited,

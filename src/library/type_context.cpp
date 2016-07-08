@@ -562,12 +562,26 @@ expr type_context::whnf_core(expr const & e) {
 }
 
 expr type_context::whnf(expr const & e) {
+    switch (e.kind()) {
+    case expr_kind::Var:      case expr_kind::Sort:
+    case expr_kind::Pi:       case expr_kind::Lambda:
+        return e;
+    default:
+        break;
+    }
+    auto & cache = m_cache.m_whnf_cache[static_cast<unsigned>(m_transparency_mode)];
+    auto it = cache.find(e);
+    if (it != cache.end())
+        return it->second;
+    reset_used_assignment reset(*this);
     expr t = e;
     while (true) {
         expr t1 = whnf_core(t);
         if (auto next_t = unfold_definition(t1)) {
             t = *next_t;
         } else {
+            if (!m_used_assignment)
+                cache.insert(mk_pair(e, t1));
             return t1;
         }
     }

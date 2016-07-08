@@ -59,6 +59,8 @@ class type_context_cache {
 
     equiv_manager                 m_equiv_manager[4];
 
+    whnf_cache                    m_whnf_cache[4];
+
     /* We have two modes for caching type class instances.
 
        In the default mode (m_frozen_mode == false), whenever a type_context object is

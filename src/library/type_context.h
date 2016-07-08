@@ -21,7 +21,7 @@ enum class transparency_mode { All, Semireducible, Reducible, None };
 class type_context_cache {
     typedef std::unordered_map<name, optional<declaration>, name_hash> transparency_cache;
     typedef expr_struct_map<expr> infer_cache;
-    typedef expr_map<expr>        whnf_cache;
+    typedef expr_struct_map<expr> whnf_cache;
     typedef expr_struct_map<optional<expr>> instance_cache;
     typedef expr_struct_map<optional<expr>> subsingleton_cache;
     environment                   m_env;

@@ -430,6 +430,7 @@ private:
     bool is_def_eq_core_core(expr const & t, expr const & s);
     bool is_def_eq_core(expr const & t, expr const & s);
     bool is_def_eq_binding(expr e1, expr e2);
+    expr complete_instance(expr const & e);
     bool is_def_eq_args(expr const & e1, expr const & e2);
     bool is_def_eq_eta(expr const & e1, expr const & e2);
     bool is_def_eq_proof_irrel(expr const & e1, expr const & e2);

@@ -209,19 +209,10 @@ infix ∣    := dvd
 infix %    := mod
 prefix -   := neg
 postfix ⁻¹ := inv
+infix <=   := le
+infix >=   := ge
 infix ≤    := le
 infix ≥    := ge
 infix <    := lt
 infix >    := gt
 infix ++   := append
-
-notation [parsing_only] x ` +[`:65 A:0 `] `:0 y:65 := @add A _ x y
-notation [parsing_only] x ` -[`:65 A:0 `] `:0 y:65 := @sub A _ x y
-notation [parsing_only] x ` *[`:70 A:0 `] `:0 y:70 := @mul A _ x y
-notation [parsing_only] x ` /[`:70 A:0 `] `:0 y:70 := @div A _ x y
-notation [parsing_only] x ` ∣[`:70 A:0 `] `:0 y:70 := @dvd A _ x y
-notation [parsing_only] x ` %[`:70 A:0 `] `:0 y:70 := @mod A _ x y
-notation [parsing_only] x ` ≤[`:50 A:0 `] `:0 y:50 := @le A _ x y
-notation [parsing_only] x ` ≥[`:50 A:0 `] `:0 y:50 := @ge A _ x y
-notation [parsing_only] x ` <[`:50 A:0 `] `:0 y:50 := @lt A _ x y
-notation [parsing_only] x ` >[`:50 A:0 `] `:0 y:50 := @gt A _ x y

@@ -2,7 +2,7 @@ open nat
 
 notation `foo` a :=
   match a with
-   (c, d) := c +[nat] d
+   (c, d) := c + (d:nat)
   end
 
 eval foo (2, 3)

@@ -5,9 +5,9 @@ attribute A_cg [instance]
 open tactic
 open simplifier.ac
 
-example : x * y = y * x := by simp >> triv
-example : x * y * z * w = ((w * z) * y) * x := by simp >> triv
-example : x * y * z * w = ((z * w) * x) * y := by simp >> triv
+example : x * y = y * x := by simp
+example : x * y * z * w = ((w * z) * y) * x := by simp
+example : x * y * z * w = ((z * w) * x) * y := by simp
 
 open simplifier.unit
-example : x * y * z * 1 * w = ((z * w * 1) * x) * y := by simp >> triv
+example : x * y * z * 1 * w = ((z * w * 1) * x) * y := by simp

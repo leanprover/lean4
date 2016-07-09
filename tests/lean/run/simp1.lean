@@ -5,5 +5,5 @@ lemma bar [simp] : g y = z := sorry
 open tactic
 
 set_option trace.simplifier.failure true
-example : g (f x y) = z := by simp >> triv
-example : g (f x (f x y)) = z := by simp >> triv
+example : g (f x y) = z := by simp
+example : g (f x (f x y)) = z := by simp

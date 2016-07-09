@@ -22,11 +22,11 @@ meta_definition simp_f_to_y₂ : tactic unit := mk_eq_simp_ext $
 
 register_simp_ext f simp_f_to_y
 
-definition foo : g (f x) = z := by simp >> triv
+definition foo : g (f x) = z := by simp
 
 register_simp_ext f simp_f_to_y₂
 
-definition foo₂ : g (f x) = z := by simp >> triv
+definition foo₂ : g (f x) = z := by simp
 
 print foo
 print foo₂

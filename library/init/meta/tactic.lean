@@ -469,13 +469,31 @@ do (new_target, Heq) ← target >>= simplify_core rules prove_fn,
    Ht       ← get_local "Htarget",
    mk_app (ns <.> "mpr") [Heq, Ht] >>= exact
 
-meta_definition simp : tactic unit := simp_core [] (simp_core [] triv)
+meta_definition simp : tactic unit :=
+simp_core [] failed >> try triv
+
+meta_definition simp_using (Hs : list expr) : tactic unit :=
+simp_core Hs failed >> try triv
+
+private meta_definition is_equation : expr → bool
+| (expr.pi _ _ _ b) := is_equation b
+| e                 := match expr.is_eq e with some _ := tt | none := ff end
+
+private meta_definition collect_eqs : list expr → tactic (list expr)
+| []        := return []
+| (H :: Hs) := do
+  Eqs   ← collect_eqs Hs,
+  Htype ← infer_type H >>= whnf,
+  return $ if is_equation Htype = tt then H :: Eqs else Eqs
+
+/- Simplify target using all hypotheses in the local context. -/
+meta_definition simp_using_hs : tactic unit :=
+local_context >>= collect_eqs >>= simp_using
 
 meta_definition mk_eq_simp_ext (simp_ext : expr → tactic (expr × expr)) : tactic unit :=
 do (lhs, rhs)     ← target >>= match_eq,
    (new_rhs, Heq) ← simp_ext lhs,
    unify rhs new_rhs,
    exact Heq
-
 
 end tactic

@@ -18,7 +18,7 @@ register_simp_ext y simp_y_to_z
 
 print [simp_ext]
 
-example : x = z := by simp >> triv
-example : f₁ x = f₁ y := by simp >> triv
-example : f₁ (f₂ x y) = f₁ (f₂ z z) := by simp >> triv
-example : f₁ (f₂ x y) = f₁ (f₂ y x) := by simp >> triv
+example : x = z := by simp
+example : f₁ x = f₁ y := by simp
+example : f₁ (f₂ x y) = f₁ (f₂ z z) := by simp
+example : f₁ (f₂ x y) = f₁ (f₂ y x) := by simp

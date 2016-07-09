@@ -7,7 +7,7 @@ constants (A : Type.{1}) (x y z : A) (Hxy : x = y) (Hxz : x = z)
 attribute Hxy [simp]
 attribute Hxz [simp]
 
-example : x = z := by simp >> triv
+example : x = z := by simp
 
 end simp_lemmas
 
@@ -56,7 +56,7 @@ meta_definition simp_x_to_z : tactic unit := mk_eq_simp_ext $
 register_simp_ext x simp_x_to_y
 register_simp_ext x simp_x_to_z
 
-example : x = z := by simp >> triv
+example : x = z := by simp
 
 end simp_extensions
 

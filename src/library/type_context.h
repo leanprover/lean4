@@ -26,7 +26,6 @@ class type_context_cache {
     typedef expr_struct_map<expr> whnf_cache;
     typedef expr_struct_map<optional<expr>> instance_cache;
     typedef expr_struct_map<optional<expr>> subsingleton_cache;
-    typedef expr_pair_struct_map<optional<list<pair<expr, expr>>>> on_failure_cache;
     environment                   m_env;
     options                       m_options;
     name_map<projection_info>     m_proj_info;
@@ -63,8 +62,6 @@ class type_context_cache {
     equiv_manager                 m_equiv_manager[4];
 
     whnf_cache                    m_whnf_cache[4];
-
-    on_failure_cache              m_on_failure_cache[4];
 
     name2bool                     m_aux_recursor_cache;
 
@@ -198,10 +195,6 @@ class type_context : public abstract_type_context {
     void cache_equiv(expr const & e1, expr const & e2) {
         if (is_equiv_cache_target(e1, e2)) get_equiv_cache().add_equiv(e1, e2);
     }
-
-    lbool try_on_failure_cache(expr e1, expr e2);
-    void cache_on_failure_result(expr e1, expr e2, bool r);
-
 public:
     type_context(metavar_context const & mctx, local_context const & lctx, type_context_cache & cache,
                  transparency_mode m = transparency_mode::Reducible);

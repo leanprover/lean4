@@ -1513,90 +1513,6 @@ bool type_context::is_def_eq_binding(expr e1, expr e2) {
                           instantiate_rev(e2, subst.size(), subst.data()));
 }
 
-struct find_unsynth_metavar_fn {
-    type_context & m_ctx;
-    buffer<expr>   m_locals;
-
-    find_unsynth_metavar_fn(type_context & ctx):m_ctx(ctx) {}
-
-    static bool has_meta_arg(expr e) {
-        if (!has_expr_metavar(e))
-            return false;
-        while (is_app(e)) {
-            if (is_meta(app_arg(e)))
-                return true;
-            e = app_fn(e);
-        }
-        return false;
-    }
-
-    /** IF \c e is of the form (f ... (?m t_1 ... t_n) ...) where ?m is an unassigned
-        metavariable whose type is a type class, and (?m t_1 ... t_n) must be synthesized
-        by type class resolution, then we return ?m.
-        Otherwise, we return none */
-    optional<pair<expr, expr>> find_unsynth_metavar_at_args(expr const & e) {
-        if (!has_meta_arg(e))
-            return optional<pair<expr, expr>>();
-        buffer<expr> args;
-        expr fn        = instantiate_rev(get_app_args(e, args), m_locals.size(), m_locals.data());
-        lean_assert(closed(fn));
-        fun_info finfo = get_fun_info(m_ctx, fn, args.size());
-        unsigned i     = 0;
-        for (param_info const & pinfo : finfo.get_params_info()) {
-            expr const & arg = args[i];
-            if (pinfo.is_inst_implicit() && is_meta(arg)) {
-                expr const & m = get_app_fn(arg);
-                if (m_ctx.is_mvar(m) && !m_ctx.is_assigned(m)) {
-                    expr m_type = m_ctx.instantiate_mvars(m_ctx.infer(m));
-                    if (!has_expr_metavar_relaxed(m_type)) {
-                        return some(mk_pair(m, m_type));
-                    }
-                }
-            }
-            i++;
-        }
-        return optional<pair<expr, expr>>();
-    }
-
-    /** Search in \c e for an expression of the form (f ... (?m t_1 ... t_n) ...) where ?m is an unassigned
-        metavariable whose type is a type class, and (?m t_1 ... t_n) must be synthesized
-        by type class resolution, then we return ?m.
-        Otherwise, we return none.
-        This procedure goes inside lambdas. */
-    optional<pair<expr, expr>> find_unsynth_metavar(expr const & e) {
-        if (!has_expr_metavar(e))
-            return optional<pair<expr, expr>>();
-        if (is_app(e)) {
-            if (auto r = find_unsynth_metavar_at_args(e))
-                return r;
-            expr it = e;
-            while (is_app(it)) {
-                if (auto r = find_unsynth_metavar(app_arg(it)))
-                    return r;
-                it = app_fn(it);
-            }
-            return optional<pair<expr, expr>>();
-        } else if (is_lambda(e)) {
-            expr type = instantiate_rev(binding_domain(e), m_locals.size(), m_locals.data());
-            m_locals.push_back(m_ctx.push_local(binding_name(e), type));
-            auto r = find_unsynth_metavar(binding_body(e));
-            m_locals.pop_back();
-            m_ctx.pop_local();
-            return r;
-        } else {
-            return optional<pair<expr, expr>>();
-        }
-    }
-
-    optional<pair<expr, expr>> operator()(expr const & e) {
-        return find_unsynth_metavar(e);
-    }
-};
-
-optional<pair<expr, expr>> type_context::find_unsynth_metavar(expr const & e) {
-    return find_unsynth_metavar_fn(*this)(e);
-}
-
 /** \brief Create a nested type class instance of the given type, and assign it to metavariable \c m.
     Return true iff the instance was successfully created.
     \remark This method is used to resolve nested type class resolution problems. */
@@ -1610,112 +1526,29 @@ bool type_context::mk_nested_instance(expr const & m, expr const & m_type) {
     }
 }
 
-/* Try to check whether we have cached the result of on_is_def_eq_failure(e1, e2) */
-lbool type_context::try_on_failure_cache(expr e1, expr e2) {
-    if (!in_tmp_mode())
-        return l_undef; /* We only cache in tmp mode (example scenario: simplifier) */
-    if (has_expr_metavar(e1) && has_expr_metavar(e2)) {
-        /* If both sides contain metavariables, then
-           it is not a matching problem, and we don't cache them. */
-        return l_undef;
-    }
-    auto & cache = m_cache.m_on_failure_cache[static_cast<unsigned>(m_transparency_mode)];
-    if (has_expr_metavar(e2))
-        std::swap(e1, e2);
-    auto it = cache.find(mk_pair(e1, e2));
-    if (it == cache.end()) {
-        /* there is no cached result. */
-        return l_undef;
-    }
-    optional<list<pair<expr, expr>>> r = it->second;
-    if (!r) {
-        /* cached failure */
-        return l_false;
-    }
-    scope s(*this);
-    try {
-        /* Apply assignment associated with the cached result. */
-        for (pair<expr, expr> const & p : *r) {
-            lean_assert(is_metavar(p.first));
-            expr const & mvar = p.first;
-            expr const & val  = p.second;
-            if (m_mctx.is_assigned(mvar)) {
-                if (!is_def_eq_core(mvar, val)) {
-                    /* Cannot reuse the cached value, since previous value is not definitionally equal to
-                       new one */
-                    return l_false;
-                }
-            } else {
-                /* Check types */
-                expr t1 = infer(mvar);
-                expr t2 = infer(val);
-                if (!is_def_eq_core(t1, t2)) {
-                    /* Type of cached metavar is not compatible with the new one. */
-                    return l_false;
-                }
-                assign(mvar, val);
-            }
-        }
-    } catch (exception &) {
-        /* Exception may occur when executing is_def_eq_core.
-           Reason: the local_context for the cached value is not compatible
-           with the current one */
-        return l_false;
-    }
-    return l_true;
-}
-
-void type_context::cache_on_failure_result(expr e1, expr e2, bool r) {
-    /* We only cache the result r IF
-       1- We are in tmp mode.
-       2- Only one of them has meta-variables. That is, it is a matching problem.
-       3  e1 and e2 are applications of the form (pr1 ...) (pr2 ...)
-          where pr1 and pr2 are projections.
-
-       Motivation: simplifier generates a lot of unsolvable matching problems.
-       Thus, on_is_def_eq_failure is invoked many times. */
-    if (!in_tmp_mode())
-        return;
-    if (has_expr_metavar(e1) && has_expr_metavar(e2))
-        return;
-    expr const & f1 = get_app_fn(e1);
-    expr const & f2 = get_app_fn(e2);
-    if (!is_constant(f1) || !is_constant(f2))
-        return;
-    if (!m_cache.m_proj_info.find(const_name(f1)) ||
-        !m_cache.m_proj_info.find(const_name(f2)))
-        return;
-    auto & cache = m_cache.m_on_failure_cache[static_cast<unsigned>(m_transparency_mode)];
-    if (has_expr_metavar(e2))
-        std::swap(e1, e2);
-    if (!r) {
-        cache.insert(mk_pair(mk_pair(e1, e2), optional<list<pair<expr, expr>>>()));
-    } else {
-        buffer<pair<expr, expr>> assignment;
-        for_each(e1, [&](expr const & e, unsigned) {
-                if (!has_expr_metavar(e)) return false;
-                if (is_mvar(e) && is_assigned(e) &&
-                    std::any_of(assignment.begin(), assignment.end(), [&](pair<expr, expr> const & p) {
-                            return p.first == e; })) {
-                    assignment.emplace_back(e, *get_assignment(e));
-                }
-                return true;
-            });
-        cache.insert(mk_pair(mk_pair(e1, e2), some(to_list(assignment))));
-    }
-}
-
 expr type_context::complete_instance(expr const & e) {
     if (!has_expr_metavar(e))
         return e;
     if (!is_app(e))
         return e;
-    if (auto p = find_unsynth_metavar(e)) {
-        if (mk_nested_instance(p->first, p->second)) {
-            return complete_instance(instantiate_mvars(e));
-        }
+    bool found = false;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!has_expr_metavar(e)) return false;
+            if (is_mvar(e) && !is_assigned(e)) {
+                expr const & m = e;
+                expr m_type    = instantiate_mvars(infer(m));
+                if (!has_expr_metavar_relaxed(m_type) && is_class(m_type)) {
+                    if (mk_nested_instance(m, m_type))
+                        found = true;
+                }
+            }
+            return true;
+        });
+    if (found) {
+        return instantiate_mvars(e);
+    } else {
+        return e;
     }
-    return e;
 }
 
 bool type_context::is_def_eq_args(expr const & e1, expr const & e2) {

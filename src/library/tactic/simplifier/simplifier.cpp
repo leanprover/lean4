@@ -305,7 +305,6 @@ expr simplifier::whnf_eta(expr const & e) {
 /* Simplification */
 
 simp_result simplifier::simplify(expr const & e) {
-    check_system("simplifier");
     m_num_steps++;
     lean_trace_inc_depth("simplifier");
     lean_trace_d("simplifier", tout() << m_rel << ": " << e << "\n";);
@@ -350,6 +349,7 @@ simp_result simplifier::simplify(expr const & e) {
         r = join(r, simplify_pi(r.get_new()));
         break;
     case expr_kind::App:
+        check_system("simplifier");
         r = join(r, simplify_app(r.get_new()));
         break;
     case expr_kind::Let:

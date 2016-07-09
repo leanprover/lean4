@@ -573,11 +573,12 @@ simp_result simplifier::rewrite(expr const & e, simp_lemmas const & slss) {
         return r;
     }
 
-    for_each(*srs, [&](simp_lemma const & sr) {
-            simp_result r_new = rewrite(r.get_new(), sr);
-            if (!r_new.has_proof()) return;
+    for (simp_lemma const & sr : *srs) {
+        simp_result r_new = rewrite(r.get_new(), sr);
+        if (r_new.has_proof()) {
             r = join(r, r_new);
-        });
+        }
+    }
     return r;
 }
 
@@ -671,10 +672,10 @@ simp_result simplifier::try_congrs(expr const & e) {
     if (!cls) return simp_result(e);
 
     simp_result r(e);
-    for_each(*cls, [&](user_congr_lemma const & cl) {
-            if (r.has_proof()) return;
-            r = try_congr(e, cl);
-        });
+    for (user_congr_lemma const & cl : *cls) {
+        if (r.has_proof()) break;
+        r = try_congr(e, cl);
+    }
     return r;
 }
 
@@ -693,42 +694,46 @@ simp_result simplifier::try_congr(expr const & e, user_congr_lemma const & cl) {
     bool failed = false;
     bool simplified = false;
     list<expr> const & congr_hyps = cl.get_congr_hyps();
-    for_each(congr_hyps, [&](expr const & m) {
-            if (failed) return;
-            type_context::tmp_locals local_factory(m_tctx);
-            expr m_type = tmp_tctx.instantiate_mvars(tmp_tctx.infer(m));
+    for (expr const & m : congr_hyps) {
+        type_context::tmp_locals local_factory(m_tctx);
+        expr m_type = tmp_tctx.instantiate_mvars(tmp_tctx.infer(m));
 
-            while (is_pi(m_type)) {
-                expr l = local_factory.push_local_from_binding(m_type);
-                lean_assert(!has_metavar(l));
-                m_type = instantiate(binding_body(m_type), l);
+        while (is_pi(m_type)) {
+            expr d = instantiate_rev(binding_domain(m_type), local_factory.as_buffer().size(), local_factory.as_buffer().data());
+            expr l = local_factory.push_local(binding_name(m_type), d, binding_info(m_type));
+            lean_assert(!has_metavar(l));
+            m_type = binding_body(m_type);
+        }
+        m_type = instantiate_rev(m_type, local_factory.as_buffer().size(), local_factory.as_buffer().data());
+
+        expr h_rel, h_lhs, h_rhs;
+        lean_verify(is_simp_relation(m_tctx.env(), m_type, h_rel, h_lhs, h_rhs) && is_constant(h_rel));
+        {
+            flet<name> set_name(m_rel, const_name(h_rel));
+
+            flet<simp_lemmas> set_ctx_slss(m_ctx_slss, m_contextual ? add_to_slss(m_ctx_slss, local_factory.as_buffer()) : m_ctx_slss);
+
+            h_lhs = tmp_tctx.instantiate_mvars(h_lhs);
+            lean_assert(!has_metavar(h_lhs));
+
+            simp_result r_congr_hyp;
+            if (m_contextual) {
+                freset<simplify_cache> reset_cache(m_cache);
+                r_congr_hyp = simplify(h_lhs);
+            } else {
+                r_congr_hyp = simplify(h_lhs);
             }
 
-            expr h_rel, h_lhs, h_rhs;
-            lean_verify(is_simp_relation(m_tctx.env(), m_type, h_rel, h_lhs, h_rhs) && is_constant(h_rel));
-            {
-                flet<name> set_name(m_rel, const_name(h_rel));
+            if (r_congr_hyp.has_proof()) simplified = true;
+            r_congr_hyp = finalize(r_congr_hyp);
+            expr hyp = finalize(r_congr_hyp).get_proof();
 
-                flet<simp_lemmas> set_ctx_slss(m_ctx_slss, m_contextual ? add_to_slss(m_ctx_slss, local_factory.as_buffer()) : m_ctx_slss);
-
-                h_lhs = tmp_tctx.instantiate_mvars(h_lhs);
-                lean_assert(!has_metavar(h_lhs));
-
-                simp_result r_congr_hyp;
-                if (m_contextual) {
-                    freset<simplify_cache> reset_cache(m_cache);
-                    r_congr_hyp = simplify(h_lhs);
-                } else {
-                    r_congr_hyp = simplify(h_lhs);
-                }
-
-                if (r_congr_hyp.has_proof()) simplified = true;
-                r_congr_hyp = finalize(r_congr_hyp);
-                expr hyp = finalize(r_congr_hyp).get_proof();
-
-                if (!tmp_tctx.is_def_eq(m, local_factory.mk_lambda(hyp))) failed = true;
+            if (!tmp_tctx.is_def_eq(m, local_factory.mk_lambda(hyp))) {
+                    failed = true;
+                    break;
             }
-        });
+        }
+    }
 
     if (failed || !simplified) return simp_result(e);
 
@@ -802,41 +807,45 @@ optional<simp_result> simplifier::synth_congr(expr const & e, F && simp) {
     expr type = congr_lemma->get_type();
     unsigned i = 0;
     bool has_proof              = false;
-    bool has_cast               = false;
-    for_each(congr_lemma->get_arg_kinds(), [&](congr_arg_kind const & ckind) {
-            switch (ckind) {
-            case congr_arg_kind::HEq:
-                lean_unreachable();
-            case congr_arg_kind::Fixed:
-                proof = mk_app(proof, args[i]);
-                type = instantiate(binding_body(type), args[i]);
-                break;
-            case congr_arg_kind::FixedNoParam:
-                break;
-            case congr_arg_kind::Eq:
-                proof = mk_app(proof, args[i]);
-                type = instantiate(binding_body(type), args[i]);
-                {
-                    simp_result r_arg = simp(args[i]);
-                    if (r_arg.has_proof()) has_proof = true;
-                    r_arg = finalize(r_arg);
-                    proof = mk_app(proof, r_arg.get_new(), r_arg.get_proof());
-                    type = instantiate(binding_body(type), r_arg.get_new());
-                    type = instantiate(binding_body(type), r_arg.get_proof());
-                }
-                break;
-            case congr_arg_kind::Cast:
-                proof = mk_app(proof, args[i]);
-                type = instantiate(binding_body(type), args[i]);
-                has_cast = true;
-                break;
+    /* bool has_cast            = false; */
+    buffer<expr> subst;
+    for (congr_arg_kind const & ckind : congr_lemma->get_arg_kinds()) {
+        switch (ckind) {
+        case congr_arg_kind::HEq:
+            lean_unreachable();
+        case congr_arg_kind::Fixed:
+            proof = mk_app(proof, args[i]);
+            subst.push_back(args[i]);
+            type = binding_body(type);
+            break;
+        case congr_arg_kind::FixedNoParam:
+            break;
+        case congr_arg_kind::Eq:
+            proof = mk_app(proof, args[i]);
+            subst.push_back(args[i]);
+            type = binding_body(type);
+            {
+                simp_result r_arg = simp(args[i]);
+                if (r_arg.has_proof()) has_proof = true;
+                r_arg = finalize(r_arg);
+                proof = mk_app(proof, r_arg.get_new(), r_arg.get_proof());
+                subst.push_back(r_arg.get_new());
+                subst.push_back(r_arg.get_proof());
+                type = binding_body(binding_body(type));
             }
-            i++;
-        });
+            break;
+        case congr_arg_kind::Cast:
+            proof = mk_app(proof, args[i]);
+            subst.push_back(args[i]);
+            type = binding_body(type);
+            /* has_cast = true; */
+            break;
+        }
+        i++;
+    }
     lean_assert(is_eq(type));
-    buffer<expr> type_args;
-    get_app_args(type, type_args);
-    expr e_new = remove_unnecessary_casts(type_args[2]);
+    expr rhs   = instantiate_rev(app_arg(type), subst.size(), subst.data());
+    expr e_new = remove_unnecessary_casts(rhs);
     simp_result r;
     if (has_proof) r = simp_result(e_new, proof);
     else r = simp_result(e_new);
@@ -855,27 +864,27 @@ expr simplifier::remove_unnecessary_casts(expr const & e) {
     expr f = get_app_args(e, args);
     ss_param_infos ss_infos = get_specialized_subsingleton_info(m_tctx, e);
     int i = -1;
-    for_each(ss_infos, [&](ss_param_info const & ss_info) {
-            i++;
-            if (ss_info.is_subsingleton()) {
-                while (is_constant(get_app_fn(args[i]))) {
-                    buffer<expr> cast_args;
-                    expr f_cast = get_app_args(args[i], cast_args);
-                    name n_f = const_name(f_cast);
-                    if (n_f == get_eq_rec_name() || n_f == get_eq_drec_name() || n_f == get_eq_nrec_name()) {
-                        lean_assert(cast_args.size() == 6);
-                        expr major_premise = cast_args[5];
-                        expr f_major_premise = get_app_fn(major_premise);
-                        if (is_constant(f_major_premise) && const_name(f_major_premise) == get_eq_refl_name())
-                            args[i] = cast_args[3];
-                        else
-                            return;
-                    } else {
-                        return;
-                    }
+    for (ss_param_info const & ss_info : ss_infos) {
+        i++;
+        if (ss_info.is_subsingleton()) {
+            while (is_constant(get_app_fn(args[i]))) {
+                buffer<expr> cast_args;
+                expr f_cast = get_app_args(args[i], cast_args);
+                name n_f = const_name(f_cast);
+                if (n_f == get_eq_rec_name() || n_f == get_eq_drec_name() || n_f == get_eq_nrec_name()) {
+                    lean_assert(cast_args.size() == 6);
+                    expr major_premise = cast_args[5];
+                    expr f_major_premise = get_app_fn(major_premise);
+                    if (is_constant(f_major_premise) && const_name(f_major_premise) == get_eq_refl_name())
+                        args[i] = cast_args[3];
+                    else
+                        break;
+                } else {
+                    break;
                 }
             }
-        });
+        }
+    }
     return mk_app(f, args);
 }
 

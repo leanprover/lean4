@@ -132,10 +132,6 @@ theorem length_map₂ : ∀(f : A → B → C) x y, length (map₂ f x y) = min 
       ... = min (length (xh::xr)) (length (yh::yr))   : rfl
 
 /- filter -/
-definition filter (p : A → Prop) [h : decidable_pred p] : list A → list A
-| []     := []
-| (a::l) := if p a then a :: filter l else filter l
-
 theorem filter_nil [simp] (p : A → Prop) [h : decidable_pred p] : filter p [] = [] := rfl
 
 theorem filter_cons_of_pos [simp] {p : A → Prop} [h : decidable_pred p] {a : A} : ∀ l, p a → filter p (a::l) = a :: filter p l :=

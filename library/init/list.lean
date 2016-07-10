@@ -65,6 +65,10 @@ definition map {B : Type} (f : A → B) : list A → list B
 definition join : list (list A) → list A
 | []        := []
 | (l :: ls) := append l (join ls)
+
+definition filter (p : A → Prop) [h : decidable_pred p] : list A → list A
+| []     := []
+| (a::l) := if p a then a :: filter l else filter l
 end list
 
 definition list_has_append [instance] {A : Type} : has_append (list A) :=

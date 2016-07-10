@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <limits>
 #include "util/sexpr/option_declarations.h"
 #include "library/trace.h"
 #include "library/vm/vm_nat.h"

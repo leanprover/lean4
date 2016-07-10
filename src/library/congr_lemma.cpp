@@ -335,7 +335,6 @@ struct congr_lemma_manager {
             expr pr2 = mk_eq_refl(m_ctx, a);
             for (; i < kinds.size(); i++) {
                 if (kinds[i] == congr_arg_kind::Cast && !pinfos[i].is_prop()) {
-                    lean_assert(pinfos[i].is_subsingleton());
                     expr r1   = rhss1[i];
                     expr r2   = rhss[i];
                     expr r1_eq_r2 = mk_app(m_ctx, get_subsingleton_elim_name(), r1, r2);

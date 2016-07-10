@@ -216,12 +216,6 @@ meta_constant abstract_eq     : expr → expr → tactic bool
 /- (induction_core m H rec ns) induction on H using recursor rec, names for the new hypotheses
    are retrieved from ns. If ns does not have sufficient names, then use the internal binder names in the recursor. -/
 meta_constant induction_core : transparency → expr → name → list name → tactic unit
-/- (backward_chaining t insts max_depth leaf_tactic extra_lemmas): perform backward chaining using
-   the lemmas marked as [intro] and extra_lemmas.
-   The search maximum depth is \c max_depth.
-   Whenever no lemma is applicable, the leaf_tactic is invoked, to try to close the goal.
-   If insts is tt, then type class resolution is used to discharge goals. -/
-meta_constant backward_chaining_core : transparency → bool → nat → tactic unit → list expr → tactic unit
 
 open list nat
 
@@ -543,18 +537,4 @@ do tgt : expr ← target,
    <|>
    fail "tactic by_contradiction failed, target is not a negation nor a decidable proposition (remark: when 'open classical' is used all propositions are decidable)",
    intro H
-
-meta_definition back_chaining_core (leaf_tactic : tactic unit) (extra_lemmas : list expr) : tactic unit :=
-do max ← get_nat_option ("back_chaining" <.> "max_depth") 8,
-   backward_chaining_core reducible tt max leaf_tactic extra_lemmas
-
-meta_definition back_chaining : tactic unit :=
-back_chaining_core assumption []
-
-meta_definition back_chaining_using : list expr → tactic unit :=
-back_chaining_core assumption
-
-meta_definition back_chaining_using_hs : tactic unit :=
-local_context >>= back_chaining_core failed
-
 end tactic

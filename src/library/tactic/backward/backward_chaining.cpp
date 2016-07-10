@@ -31,6 +31,7 @@ struct back_chaining_fn {
     type_context         m_ctx;
     bool                 m_use_instances;
     unsigned             m_max_depth;
+    vm_obj               m_pre_tactic;
     vm_obj               m_leaf_tactic;
     backward_lemma_index m_lemmas;
 
@@ -45,12 +46,13 @@ struct back_chaining_fn {
     buffer<choice>      m_choices;
 
     back_chaining_fn(tactic_state const & s, transparency_mode md, bool use_instances,
-                     unsigned max_depth, vm_obj const & leaf_tactic,
+                     unsigned max_depth, vm_obj const & pre_tactic, vm_obj const & leaf_tactic,
                      list<expr> const & extra_lemmas):
         m_initial_state(s),
         m_ctx(mk_type_context_for(s, md)),
         m_use_instances(use_instances),
         m_max_depth(max_depth),
+        m_pre_tactic(pre_tactic),
         m_leaf_tactic(leaf_tactic),
         m_lemmas(backward_lemma_index(m_ctx)),
         m_state(m_initial_state) {
@@ -60,11 +62,31 @@ struct back_chaining_fn {
         }
     }
 
-    bool invoke_leaf_tactic() {
+    vm_obj invoke_tactic(vm_obj const & tac) {
         lean_assert(m_state.goals());
         tactic_state tmp = set_goals(m_state, to_list(head(m_state.goals())));
         vm_obj s = to_obj(tmp);
-        vm_obj r = invoke(m_leaf_tactic, 1, &s);
+        return invoke(tac, 1, &s);
+    }
+
+    lbool invoke_pre_tactic() {
+        vm_obj r = invoke_tactic(m_pre_tactic);
+        if (optional<tactic_state> new_s = is_tactic_success(r)) {
+            if (new_s->goals()) {
+                return l_undef;
+            } else {
+                lean_back_trace(tout() << "pre tactic solved goal\n";);
+                m_state = set_goals(*new_s, tail(m_state.goals()));
+                return l_true;
+            }
+        } else {
+            lean_back_trace(tout() << "pre tactic rejected goal\n";);
+            return l_false;
+        }
+    }
+
+    bool invoke_leaf_tactic() {
+        vm_obj r = invoke_tactic(m_leaf_tactic);
         if (optional<tactic_state> new_s = is_tactic_success(r)) {
             m_state = set_goals(*new_s, tail(m_state.goals()));
             return true;
@@ -118,6 +140,16 @@ struct back_chaining_fn {
                     return false;
                 goto loop_entry;
             }
+            switch (invoke_pre_tactic()) {
+            case l_undef:
+                break;
+            case l_true:
+                goto loop_entry;
+            case l_false:
+                if (!backtrack())
+                    return false;
+                goto loop_entry;
+            }
             metavar_decl g = *m_state.get_main_goal_decl();
             expr target    = m_ctx.whnf(g.get_type());
             list<backward_lemma> lemmas = m_lemmas.find(head_index(target));
@@ -150,17 +182,18 @@ struct back_chaining_fn {
 };
 
 vm_obj back_chaining(transparency_mode md, bool use_instances, unsigned max_depth,
-                     vm_obj const & leaf_tactic, list<expr> const & extra_lemmas, tactic_state const & s) {
+                     vm_obj const & pre_tactic, vm_obj const & leaf_tactic, list<expr> const & extra_lemmas, tactic_state const & s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
-    return back_chaining_fn(s, md, use_instances, max_depth, leaf_tactic, extra_lemmas)();
+    return back_chaining_fn(s, md, use_instances, max_depth, pre_tactic, leaf_tactic, extra_lemmas)();
 }
 
 vm_obj tactic_backward_chaining(vm_obj const & md, vm_obj const & use_instances, vm_obj const & max_depth,
-                                vm_obj const & leaf_tactic, vm_obj const & extra_lemmas, vm_obj const & s) {
+                                vm_obj const & pre_tactics, vm_obj const & leaf_tactic,
+                                vm_obj const & extra_lemmas, vm_obj const & s) {
     return back_chaining(to_transparency_mode(md), to_bool(use_instances),
                          force_to_unsigned(max_depth, std::numeric_limits<unsigned>::max()),
-                         leaf_tactic, to_list_expr(extra_lemmas), to_tactic_state(s));
+                         pre_tactics, leaf_tactic, to_list_expr(extra_lemmas), to_tactic_state(s));
 }
 
 void initialize_backward_chaining() {

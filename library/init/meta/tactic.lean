@@ -63,31 +63,43 @@ open tactic_state
 
 meta_definition get_env : tactic environment :=
 do s ← read,
-   return (env s)
+   return $ env s
 
 meta_definition set_bool_option (n : name) (v : bool) : tactic unit :=
 do s ← read,
-   write (tactic_state.set_options s (options.set_bool (tactic_state.get_options s) n v))
+   write $ tactic_state.set_options s (options.set_bool (tactic_state.get_options s) n v)
 
 meta_definition set_nat_option (n : name) (v : nat) : tactic unit :=
 do s ← read,
-   write (tactic_state.set_options s (options.set_nat (tactic_state.get_options s) n v))
+   write $ tactic_state.set_options s (options.set_nat (tactic_state.get_options s) n v)
 
 meta_definition set_string_option (n : name) (v : string) : tactic unit :=
 do s ← read,
-   write (tactic_state.set_options s (options.set_string (tactic_state.get_options s) n v))
+   write $ tactic_state.set_options s (options.set_string (tactic_state.get_options s) n v)
+
+meta_definition get_bool_option (n : name) (default : bool) : tactic bool :=
+do s ← read,
+   return $ options.get_bool (tactic_state.get_options s) n default
+
+meta_definition get_nat_option (n : name) (default : nat) : tactic nat :=
+do s ← read,
+   return $ options.get_nat (tactic_state.get_options s) n default
+
+meta_definition get_string_option (n : name) (default : string) : tactic string :=
+do s ← read,
+   return $ options.get_string (tactic_state.get_options s) n default
 
 meta_definition get_decl (n : name) : tactic declaration :=
 do s ← read,
-   returnex (environment.get (env s) n)
+   returnex $ environment.get (env s) n
 
 meta_definition trace {A : Type} [has_to_tactic_format A] (a : A) : tactic unit :=
 do fmt ← pp a,
-   return (_root_.trace_fmt fmt (λ u, ()))
+   return $ _root_.trace_fmt fmt (λ u, ())
 
 meta_definition trace_state : tactic unit :=
 do s ← read,
-   trace (to_fmt s)
+   trace $ to_fmt s
 
 inductive transparency :=
 | all | semireducible | reducible | none
@@ -161,7 +173,7 @@ meta_constant defeq_simp_core : transparency → expr → tactic expr
    The first argument is a list of additional expressions to be considered as simp rules.
    The second argument is a tactic to be used to discharge proof obligations.
 -/
-meta_constant simplify_core : list expr → tactic unit → expr → tactic (prod expr expr)
+meta_constant simplify_core : list expr → tactic unit → expr → tactic (expr × expr)
 /- Change the target of the main goal.
    The input expression must be definitionally equal to the current target. -/
 meta_constant change        : expr → tactic unit
@@ -204,6 +216,13 @@ meta_constant abstract_eq     : expr → expr → tactic bool
 /- (induction_core m H rec ns) induction on H using recursor rec, names for the new hypotheses
    are retrieved from ns. If ns does not have sufficient names, then use the internal binder names in the recursor. -/
 meta_constant induction_core : transparency → expr → name → list name → tactic unit
+/- (backward_chaining t insts max_depth leaf_tactic extra_lemmas): perform backward chaining using
+   the lemmas marked as [intro] and extra_lemmas.
+   The search maximum depth is \c max_depth.
+   Whenever no lemma is applicable, the leaf_tactic is invoked, to try to close the goal.
+   If insts is tt, then type class resolution is used to discharge goals. -/
+meta_constant backward_chaining_core : transparency → bool → nat → tactic unit → list expr → tactic unit
+
 open list nat
 
 /- Add (H : T := pr) to the current goal -/
@@ -524,5 +543,18 @@ do tgt : expr ← target,
    <|>
    fail "tactic by_contradiction failed, target is not a negation nor a decidable proposition (remark: when 'open classical' is used all propositions are decidable)",
    intro H
+
+meta_definition back_chaining_core (leaf_tactic : tactic unit) (extra_lemmas : list expr) : tactic unit :=
+do max ← get_nat_option ("back_chaining" <.> "max_depth") 8,
+   backward_chaining_core reducible tt max leaf_tactic extra_lemmas
+
+meta_definition back_chaining : tactic unit :=
+back_chaining_core failed []
+
+meta_definition back_chaining_using : list expr → tactic unit :=
+back_chaining_core failed
+
+meta_definition back_chaining_using_hs : tactic unit :=
+local_context >>= back_chaining_core failed
 
 end tactic

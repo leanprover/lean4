@@ -47,76 +47,105 @@ static void remove_redundant_goals(metavar_context & mctx, buffer<expr> & metas)
     metas.shrink(k);
 }
 
-vm_obj apply_core(transparency_mode md, bool add_all, bool use_instances, expr e, tactic_state const & s) {
-    try {
-        optional<metavar_decl> g = s.get_main_goal_decl();
-        if (!g) return mk_no_goals_exception(s);
-        type_context ctx     = mk_type_context_for(s, md);
-        local_context lctx   = g->get_context();
-        expr target          = g->get_type();
-        expr e_type          = ctx.infer(e);
-        unsigned num_e_t     = get_expect_num_args(ctx, e_type);
-        unsigned num_t       = get_expect_num_args(ctx, target);
-        if (num_t <= num_e_t)
-            num_e_t -= num_t;
-        else
-            num_e_t = 0;
-        /* Generate meta-variables for arguments */
-        buffer<expr> metas;
-        buffer<bool> is_instance;
-        for (unsigned i = 0; i < num_e_t; i++) {
-            e_type    = ctx.relaxed_whnf(e_type);
-            expr meta = ctx.mk_metavar_decl(lctx, binding_domain(e_type));
-            is_instance.push_back(binding_info(e_type).is_inst_implicit());
-            metas.push_back(meta);
-            e          = mk_app(e, meta);
-            e_type     = instantiate(binding_body(e_type), meta);
-        }
-        /* Unify */
-        lean_assert(metas.size() == is_instance.size());
-        if (!ctx.is_def_eq(target, e_type)) {
+/* If out_error_msg is not nullptr, we store an error message there when result is none */
+optional<tactic_state> apply_core(type_context & ctx, bool add_all, bool use_instances, format * out_error_msg,
+                                  expr e, tactic_state const & s) {
+    optional<metavar_decl> g = s.get_main_goal_decl();
+    lean_assert(g);
+    local_context lctx   = g->get_context();
+    expr target          = g->get_type();
+    expr e_type          = ctx.infer(e);
+    unsigned num_e_t     = get_expect_num_args(ctx, e_type);
+    unsigned num_t       = get_expect_num_args(ctx, target);
+    if (num_t <= num_e_t)
+        num_e_t -= num_t;
+    else
+        num_e_t = 0;
+    /* Generate meta-variables for arguments */
+    buffer<expr> metas;
+    buffer<bool> is_instance;
+    for (unsigned i = 0; i < num_e_t; i++) {
+        e_type    = ctx.relaxed_whnf(e_type);
+        expr meta = ctx.mk_metavar_decl(lctx, binding_domain(e_type));
+        is_instance.push_back(binding_info(e_type).is_inst_implicit());
+        metas.push_back(meta);
+        e          = mk_app(e, meta);
+        e_type     = instantiate(binding_body(e_type), meta);
+    }
+    /* Unify */
+    lean_assert(metas.size() == is_instance.size());
+    if (!ctx.is_def_eq(target, e_type)) {
+        if (out_error_msg) {
             format msg = format("invalid apply tactic, failed to unify");
             msg += pp_indented_expr(s, target);
             msg += line() + format("with");
             msg += pp_indented_expr(s, e_type);
-            return mk_tactic_exception(msg, s);
+            *out_error_msg = msg;
         }
-        /* Synthesize type class instances */
-        if (use_instances) {
-            unsigned i = is_instance.size();
-            while (i > 0) {
-                --i;
-                if (!is_instance[i]) continue;
-                expr const & meta   = metas[i];
-                if (ctx.is_assigned(meta)) continue;
-                expr meta_type      = ctx.instantiate_mvars(ctx.infer(meta));
-                optional<expr> inst = ctx.mk_class_instance(meta_type);
-                if (!inst) {
-                    return mk_tactic_exception(sstream() << "invalid apply tactic, failed to synthesize type class instance for #"
-                                               << (i+1) << " argument", s);
+        return none_tactic_state();
+    }
+    /* Synthesize type class instances */
+    if (use_instances) {
+        unsigned i = is_instance.size();
+        while (i > 0) {
+            --i;
+            if (!is_instance[i]) continue;
+            expr const & meta   = metas[i];
+            if (ctx.is_assigned(meta)) continue;
+            expr meta_type      = ctx.instantiate_mvars(ctx.infer(meta));
+            optional<expr> inst = ctx.mk_class_instance(meta_type);
+            if (!inst) {
+                if (out_error_msg) {
+                    format msg("invalid apply tactic, failed to synthesize type class instance for #");
+                    msg += format(i+1);
+                    msg += space() + format("argument");
+                    *out_error_msg = msg;
                 }
-                if (!ctx.is_def_eq(meta, *inst)) {
-                    return mk_tactic_exception(sstream() << "invalid apply tactic, failed to assign type class instance for #"
-                                               << (i+1) << " argument", s);
+                return none_tactic_state();
+            }
+            if (!ctx.is_def_eq(meta, *inst)) {
+                if (out_error_msg) {
+                    format msg("invalid apply tactic, failed to assign type class instance for #");
+                    msg += format(i+1);
+                    msg += space() + format("argument");
+                    *out_error_msg = msg;
                 }
+                return none_tactic_state();
             }
         }
-        /* Collect unassigned meta-variables */
-        buffer<expr> new_goals;
-        for (auto m : metas) {
-            if (!ctx.is_assigned(m)) {
-                ctx.instantiate_mvars_at_type_of(m);
-                new_goals.push_back(m);
-            }
+    }
+    /* Collect unassigned meta-variables */
+    buffer<expr> new_goals;
+    for (auto m : metas) {
+        if (!ctx.is_assigned(m)) {
+            ctx.instantiate_mvars_at_type_of(m);
+            new_goals.push_back(m);
         }
-        metavar_context mctx = ctx.mctx();
-        if (!add_all)
-            remove_redundant_goals(mctx, new_goals);
-        /* Assign, and create new tactic_state */
-        e = mctx.instantiate_mvars(e);
-        mctx.assign(head(s.goals()), e);
-        return mk_tactic_success(set_mctx_goals(s, mctx,
-                                                to_list(new_goals.begin(), new_goals.end(), tail(s.goals()))));
+    }
+    metavar_context mctx = ctx.mctx();
+    if (!add_all)
+        remove_redundant_goals(mctx, new_goals);
+    /* Assign, and create new tactic_state */
+    e = mctx.instantiate_mvars(e);
+    mctx.assign(head(s.goals()), e);
+    return some_tactic_state(set_mctx_goals(s, mctx,
+                                            to_list(new_goals.begin(), new_goals.end(), tail(s.goals()))));
+}
+
+optional<tactic_state> apply(type_context & ctx, bool add_all, bool use_instances, expr const & e, tactic_state const & s) {
+    return apply_core(ctx, add_all, use_instances, nullptr, e, s);
+}
+
+vm_obj apply_core(transparency_mode md, bool add_all, bool use_instances, expr e, tactic_state const & s) {
+    optional<metavar_decl> g = s.get_main_goal_decl();
+    if (!g) return mk_no_goals_exception(s);
+    type_context ctx = mk_type_context_for(s, md);
+    try {
+        format error_msg;
+        optional<tactic_state> new_s = apply_core(ctx, add_all, use_instances, &error_msg, e, s);
+        if (!new_s)
+            return mk_tactic_exception(error_msg, s);
+        return mk_tactic_success(*new_s);
     } catch(exception & ex) {
         return mk_tactic_exception(ex, s);
     }

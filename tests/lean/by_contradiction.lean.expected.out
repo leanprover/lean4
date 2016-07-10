@@ -1,0 +1,24 @@
+a b : ℕ,
+a : a ≠ b,
+H : a = b
+⊢ false
+-------
+a b : ℕ,
+a : ¬¬a = b,
+H : ¬a = b
+⊢ false
+-------
+by_contradiction.lean:23:0: error: tactic by_contradiction failed, target is not a negation nor a decidable proposition (remark: when 'open classical' is used all propositions are decidable)
+state:
+p q : Prop,
+a : ¬¬p
+⊢ p
+by_contradiction.lean:23:0: error: failed to add declaration 'example' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  ?M_1
+-------
+p q : Prop,
+a : ¬¬p,
+H : ¬p
+⊢ false
+by_contradiction.lean:41:0: warning: using 'exit' to interrupt Lean

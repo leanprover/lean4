@@ -516,4 +516,13 @@ meta_definition simp_at_using_hs (H : expr) : tactic unit :=
 do Hs ← local_context >>= collect_eqs,
    simp_core_at (filter (ne H) Hs) failed H
 
+meta_definition by_contradiction (H : name) : tactic expr :=
+do tgt : expr ← target,
+   (match_not tgt >> return ())
+   <|>
+   (mk_mapp ("decidable" <.> "by_contradiction") [some tgt, none] >>= apply)
+   <|>
+   fail "tactic by_contradiction failed, target is not a negation nor a decidable proposition (remark: when 'open classical' is used all propositions are decidable)",
+   intro H
+
 end tactic

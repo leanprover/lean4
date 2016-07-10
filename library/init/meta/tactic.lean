@@ -549,10 +549,10 @@ do max ← get_nat_option ("back_chaining" <.> "max_depth") 8,
    backward_chaining_core reducible tt max leaf_tactic extra_lemmas
 
 meta_definition back_chaining : tactic unit :=
-back_chaining_core failed []
+back_chaining_core assumption []
 
 meta_definition back_chaining_using : list expr → tactic unit :=
-back_chaining_core failed
+back_chaining_core assumption
 
 meta_definition back_chaining_using_hs : tactic unit :=
 local_context >>= back_chaining_core failed

@@ -37,14 +37,6 @@ void initialize_old_attributes() {
                             [](environment const & env, name const & n) {
                                 return LEAN_DEFAULT_PRIORITY;
                             });
-    register_prio_attribute("intro", "introduction rule for backward chaining",
-                            [](environment const & env, io_state const & ios, name const & d, unsigned prio, name const & ns, bool persistent) {
-                                return env;
-                            },
-                            [](environment const &, name const &) { return false; },
-                            [](environment const & env, name const & d) {
-                                return LEAN_DEFAULT_PRIORITY;
-                            });
 }
 void finalize_old_attributes() {}
 }

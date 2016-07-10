@@ -3,6 +3,7 @@ applicative : (Type → Type) → Type
 decidable : Prop → Type₁
 functor : (Type → Type) → Type
 has_add : Type → Type
+has_andthen : Type → Type
 has_append : Type → Type
 has_div : Type → Type
 has_dvd : Type → Type
@@ -33,6 +34,7 @@ applicative : (Type → Type) → Type
 decidable : Prop → Type₁
 functor : (Type → Type) → Type
 has_add : Type → Type
+has_andthen : Type → Type
 has_append : Type → Type
 has_div : Type → Type
 has_dvd : Type → Type

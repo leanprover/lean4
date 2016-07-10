@@ -9,33 +9,35 @@ import init.datatypes
 notation `assume` binders `,` r:(scoped f, f) := r
 notation `take`   binders `,` r:(scoped f, f) := r
 
-structure has_zero   [class] (A : Type) := (zero : A)
-structure has_one    [class] (A : Type) := (one : A)
-structure has_add    [class] (A : Type) := (add : A → A → A)
-structure has_mul    [class] (A : Type) := (mul : A → A → A)
-structure has_inv    [class] (A : Type) := (inv : A → A)
-structure has_neg    [class] (A : Type) := (neg : A → A)
-structure has_sub    [class] (A : Type) := (sub : A → A → A)
-structure has_div    [class] (A : Type) := (div : A → A → A)
-structure has_dvd    [class] (A : Type) := (dvd : A → A → Prop)
-structure has_mod    [class] (A : Type) := (mod : A → A → A)
-structure has_le     [class] (A : Type) := (le : A → A → Prop)
-structure has_lt     [class] (A : Type) := (lt : A → A → Prop)
-structure has_append [class] (A : Type) := (append : A → A → A)
+structure has_zero    [class] (A : Type) := (zero : A)
+structure has_one     [class] (A : Type) := (one : A)
+structure has_add     [class] (A : Type) := (add : A → A → A)
+structure has_mul     [class] (A : Type) := (mul : A → A → A)
+structure has_inv     [class] (A : Type) := (inv : A → A)
+structure has_neg     [class] (A : Type) := (neg : A → A)
+structure has_sub     [class] (A : Type) := (sub : A → A → A)
+structure has_div     [class] (A : Type) := (div : A → A → A)
+structure has_dvd     [class] (A : Type) := (dvd : A → A → Prop)
+structure has_mod     [class] (A : Type) := (mod : A → A → A)
+structure has_le      [class] (A : Type) := (le : A → A → Prop)
+structure has_lt      [class] (A : Type) := (lt : A → A → Prop)
+structure has_append  [class] (A : Type) := (append : A → A → A)
+structure has_andthen [class] (A : Type) := (andthen : A → A → A)
 
-definition zero   {A : Type} [has_zero A]   : A            := has_zero.zero A
-definition one    {A : Type} [has_one A]    : A            := has_one.one A
-definition add    {A : Type} [has_add A]    : A → A → A    := has_add.add
-definition mul    {A : Type} [has_mul A]    : A → A → A    := has_mul.mul
-definition sub    {A : Type} [has_sub A]    : A → A → A    := has_sub.sub
-definition div    {A : Type} [has_div A]    : A → A → A    := has_div.div
-definition dvd    {A : Type} [has_dvd A]    : A → A → Prop := has_dvd.dvd
-definition mod    {A : Type} [has_mod A]    : A → A → A    := has_mod.mod
-definition neg    {A : Type} [has_neg A]    : A → A        := has_neg.neg
-definition inv    {A : Type} [has_inv A]    : A → A        := has_inv.inv
-definition le     {A : Type} [has_le A]     : A → A → Prop := has_le.le
-definition lt     {A : Type} [has_lt A]     : A → A → Prop := has_lt.lt
-definition append {A : Type} [has_append A] : A → A → A    := has_append.append
+definition zero    {A : Type} [has_zero A]    : A            := has_zero.zero A
+definition one     {A : Type} [has_one A]     : A            := has_one.one A
+definition add     {A : Type} [has_add A]     : A → A → A    := has_add.add
+definition mul     {A : Type} [has_mul A]     : A → A → A    := has_mul.mul
+definition sub     {A : Type} [has_sub A]     : A → A → A    := has_sub.sub
+definition div     {A : Type} [has_div A]     : A → A → A    := has_div.div
+definition dvd     {A : Type} [has_dvd A]     : A → A → Prop := has_dvd.dvd
+definition mod     {A : Type} [has_mod A]     : A → A → A    := has_mod.mod
+definition neg     {A : Type} [has_neg A]     : A → A        := has_neg.neg
+definition inv     {A : Type} [has_inv A]     : A → A        := has_inv.inv
+definition le      {A : Type} [has_le A]      : A → A → Prop := has_le.le
+definition lt      {A : Type} [has_lt A]      : A → A → Prop := has_lt.lt
+definition append  {A : Type} [has_append A]  : A → A → A    := has_append.append
+definition andthen {A : Type} [has_andthen A] : A → A → A    := has_andthen.andthen
 
 definition ge [reducible] {A : Type} [s : has_le A] (a b : A) : Prop := le b a
 definition gt [reducible] {A : Type} [s : has_lt A] (a b : A) : Prop := lt b a
@@ -200,6 +202,7 @@ reserve infix ` '- `:75  -- for the preimage of a set under a function
 reserve infix ` ∣ `:50
 reserve infixl ` ++ `:65
 reserve infixr ` :: `:67
+reserve infixl `; `:1
 
 infix +    := add
 infix *    := mul
@@ -216,3 +219,4 @@ infix ≥    := ge
 infix <    := lt
 infix >    := gt
 infix ++   := append
+infix ;    := andthen

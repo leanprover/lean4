@@ -387,7 +387,8 @@ do g::gs ← get_goals | failed,
    gs' ← get_goals,
    set_goals (gs' ++ gs)
 
-infixl `;`:1 := seq
+meta_definition tactic_has_andthen [instance] : has_andthen (tactic unit) :=
+has_andthen.mk seq
 
 /- Applies tac if c holds -/
 meta_definition when (c : Prop) [decidable c] (tac : tactic unit) : tactic unit :=

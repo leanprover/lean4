@@ -6,20 +6,17 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/expr.h"
-#include "library/old_type_context.h"
+#include "library/metavar_context.h"
 #include "library/io_state_stream.h"
 
 namespace lean {
-namespace blast {
-
 /** \brief Generalized expressions. It is a mechanism for representing
     regular expression and universe polymorphic lemmas.
 
     A universe polymorphic lemma can be converted into a regular expression
     by instantiating it with fresh universe meta-variables.
 
-    We use the abstraction to provide a uniform API to some of the actions
-    available in blast. */
+    We use the abstraction to provide a uniform API to some tactics. */
 struct gexpr {
     bool m_univ_poly;
     expr m_expr;
@@ -35,12 +32,8 @@ public:
 
     /** \brief Convert generalized expression into a regular expression.
         If it is universe polymorphic, we accomplish that by creating
-        meta-variables using \c ctx. */
-    expr to_expr(old_type_context & ctx) const;
-
-    /** \brief Similar to previous method, but uses \c mk_fresh_uref to
-        create fresh universe meta-variables */
-    expr to_expr() const;
+        meta-variables using \c mctx. */
+    expr to_expr(environment const & env, metavar_context & mctx) const;
 
     /** \brief Return "bare" expression (without adding fresh metavariables if universe polymorphic) */
     expr to_bare_expr() const { return m_expr; }
@@ -55,4 +48,4 @@ bool operator==(gexpr const & ge1, gexpr const & ge2);
 inline bool operator!=(gexpr const & ge1, gexpr const & ge2) { return !operator==(ge1, ge2); }
 std::ostream & operator<<(std::ostream & out, gexpr const & ge);
 io_state_stream const & operator<<(io_state_stream const & out, gexpr const & ge);
-}}
+}

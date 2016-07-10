@@ -4,28 +4,21 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/blast/gexpr.h"
-#include "library/blast/blast.h"
-#include "library/blast/trace.h"
+#include "library/tactic/gexpr.h"
 
 namespace lean {
-namespace blast {
-expr gexpr::to_expr(old_type_context & ctx) const {
+expr gexpr::to_expr(environment const & env, metavar_context & mctx) const {
     if (m_univ_poly) {
-        declaration const & fdecl = ctx.env().get(const_name(m_expr));
+        declaration const & fdecl = env.get(const_name(m_expr));
         buffer<level> ls_buffer;
         unsigned num_univ_ps = fdecl.get_num_univ_params();
         for (unsigned i = 0; i < num_univ_ps; i++)
-            ls_buffer.push_back(ctx.mk_uvar());
+            ls_buffer.push_back(mctx.mk_univ_metavar_decl());
         levels ls = to_list(ls_buffer.begin(), ls_buffer.end());
         return mk_constant(const_name(m_expr), ls);
     } else {
         return m_expr;
     }
-}
-
-expr gexpr::to_expr() const {
-    return to_expr(get_type_context());
 }
 
 bool operator==(gexpr const & ge1, gexpr const & ge2) { return ge1.m_expr == ge2.m_expr; }
@@ -41,4 +34,4 @@ io_state_stream const & operator<<(io_state_stream const & out, gexpr const & ge
     if (ge.is_universe_polymorphic()) out << " (poly)";
     return out;
 }
-}}
+}

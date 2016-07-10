@@ -496,4 +496,23 @@ do (lhs, rhs)     ← target >>= match_eq,
    unify rhs new_rhs,
    exact Heq
 
+meta_definition simp_core_at (rules : list expr) (prove_fn : tactic unit) (H : expr) : tactic unit :=
+do when (expr.is_local_constant H = ff) (fail "tactic simp_at failed, the given expression is not a hypothesis"),
+   Htype ← infer_type H,
+   (new_Htype, Heq) ← simplify_core rules prove_fn Htype,
+   assert (expr.local_pp_name H) new_Htype,
+   ns ← return $ (if expr.is_eq Heq ≠ none then "eq" else "iff"),
+   mk_app (ns <.> "mp") [Heq, H] >>= exact,
+   try $ clear H
+
+meta_definition simp_at : expr → tactic unit :=
+simp_core_at [] failed
+
+meta_definition simp_at_using (Hs : list expr) : expr → tactic unit :=
+simp_core_at Hs failed
+
+meta_definition simp_at_using_hs (H : expr) : tactic unit :=
+do Hs ← local_context >>= collect_eqs,
+   simp_core_at (filter (ne H) Hs) failed H
+
 end tactic

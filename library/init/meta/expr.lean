@@ -99,6 +99,18 @@ meta_definition is_constant : expr → bool
 | (const n ls) := tt
 | _            := ff
 
+meta_definition is_local_constant : expr → bool
+| (local_const _ _ _ _) := tt
+| _                     := ff
+
+meta_definition local_uniq_name : expr → name
+| (local_const n _ _ _) := n
+| _                     := name.anonymous
+
+meta_definition local_pp_name : expr → name
+| (local_const _ n _ _) := n
+| _                     := name.anonymous
+
 meta_definition is_constant_of : expr → name → bool
 | (const n₁ ls) n₂ := to_bool (n₁ = n₂)
 | _             _  := ff

@@ -20,6 +20,8 @@ expr clear(metavar_context & mctx, expr const & mvar, expr const & H) {
         throw exception(sstream() << "clear tactic failed, unknown '" << local_pp_name(H) << "' hypothesis");
     if (depends_on(g->get_type(), 1, &H))
         throw exception(sstream() << "clear tactic failed, target type depends on '" << local_pp_name(H) << "'");
+    if (optional<local_decl> d2 = lctx.has_dependencies(*d))
+        throw exception(sstream() << "clear tactic failed, hypothesis '" << d2->get_pp_name() << "' depends on '" << local_pp_name(H) << "'");
     lctx.clear(*d);
     expr new_mvar              = mctx.mk_metavar_decl(lctx, g->get_type());
     mctx.assign(mvar, new_mvar);

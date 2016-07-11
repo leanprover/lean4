@@ -48,19 +48,16 @@ struct back_chaining_fn {
 
     back_chaining_fn(tactic_state const & s, transparency_mode md, bool use_instances,
                      unsigned max_depth, vm_obj const & pre_tactic, vm_obj const & leaf_tactic,
-                     list<expr> const & extra_lemmas):
+                     backward_lemma_index const & lemmas):
         m_initial_state(s),
         m_ctx(mk_type_context_for(s, md)),
         m_use_instances(use_instances),
         m_max_depth(max_depth),
         m_pre_tactic(pre_tactic),
         m_leaf_tactic(leaf_tactic),
-        m_lemmas(backward_lemma_index(m_ctx)),
+        m_lemmas(lemmas),
         m_state(m_initial_state) {
         lean_assert(s.goals());
-        for (expr const & extra : extra_lemmas) {
-            m_lemmas.insert(m_ctx, extra);
-        }
     }
 
     vm_obj invoke_tactic(vm_obj const & tac) {
@@ -183,18 +180,18 @@ struct back_chaining_fn {
 };
 
 vm_obj back_chaining(transparency_mode md, bool use_instances, unsigned max_depth,
-                     vm_obj const & pre_tactic, vm_obj const & leaf_tactic, list<expr> const & extra_lemmas, tactic_state const & s) {
+                     vm_obj const & pre_tactic, vm_obj const & leaf_tactic, backward_lemma_index const & lemmas, tactic_state const & s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
-    return back_chaining_fn(s, md, use_instances, max_depth, pre_tactic, leaf_tactic, extra_lemmas)();
+    return back_chaining_fn(s, md, use_instances, max_depth, pre_tactic, leaf_tactic, lemmas)();
 }
 
 vm_obj tactic_backward_chaining(vm_obj const & md, vm_obj const & use_instances, vm_obj const & max_depth,
                                 vm_obj const & pre_tactics, vm_obj const & leaf_tactic,
-                                vm_obj const & extra_lemmas, vm_obj const & s) {
+                                vm_obj const & lemmas, vm_obj const & s) {
     return back_chaining(to_transparency_mode(md), to_bool(use_instances),
                          force_to_unsigned(max_depth, std::numeric_limits<unsigned>::max()),
-                         pre_tactics, leaf_tactic, to_list_expr(extra_lemmas), to_tactic_state(s));
+                         pre_tactics, leaf_tactic, to_backward_lemmas(lemmas), to_tactic_state(s));
 }
 
 void initialize_backward_chaining() {

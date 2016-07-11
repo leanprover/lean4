@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 #include "library/head_map.h"
 #include "library/type_context.h"
+#include "library/vm/vm.h"
 #include "library/tactic/gexpr.h"
 
 namespace lean {
@@ -34,4 +35,7 @@ public:
     void erase(type_context & ctx, expr const & href);
     list<backward_lemma> find(head_index const & h) const;
 };
+
+backward_lemma_index const & to_backward_lemmas(vm_obj const & o);
+vm_obj to_obj(backward_lemma_index const & idx);
 }

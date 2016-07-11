@@ -131,7 +131,7 @@ public:
         m_settings.max_total_number_of_iterations = max_iterations;
     }
 
-    void get_max_iterations_per_stage() const {
+    unsigned get_max_iterations_per_stage() const {
         return m_settings.max_total_number_of_iterations;
     }
 protected:

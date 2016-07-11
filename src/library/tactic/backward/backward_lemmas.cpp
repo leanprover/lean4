@@ -21,46 +21,6 @@ Author: Leonardo de Moura
 #include "library/tactic/backward/backward_lemmas.h"
 
 namespace lean {
-static name * g_class_name = nullptr;
-static std::string * g_key = nullptr;
-
-typedef priority_queue<name, name_quick_cmp> backward_state;
-typedef std::tuple<unsigned, name> backward_entry;
-
-struct backward_config {
-    typedef backward_entry entry;
-    typedef backward_state state;
-
-    static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
-        unsigned prio; name n;
-        std::tie(prio, n) = e;
-        s.insert(n, prio);
-    }
-    static name const & get_class_name() {
-        return *g_class_name;
-    }
-    static std::string const & get_serialization_key() {
-        return *g_key;
-    }
-    static void  write_entry(serializer & s, entry const & e) {
-        unsigned prio; name n;
-        std::tie(prio, n) = e;
-        s << prio << n;
-    }
-    static entry read_entry(deserializer & d) {
-        unsigned prio; name n;
-        d >> prio >> n;
-        return entry(prio, n);
-    }
-    static optional<unsigned> get_fingerprint(entry const & e) {
-        unsigned prio; name n;
-        std::tie(prio, n) = e;
-        return some(hash(n.hash(), prio));
-    }
-};
-
-typedef scoped_ext<backward_config> backward_ext;
-
 static optional<head_index> get_backward_target(type_context & ctx, expr type) {
     type_context::tmp_locals locals(ctx);
     while (is_pi(type)) {
@@ -81,20 +41,12 @@ static optional<head_index> get_backward_target(type_context & ctx, name const &
     return get_backward_target(ctx, type);
 }
 
-environment add_backward_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent) {
-    aux_type_context ctx(env, ios.get_options());
-    auto index = get_backward_target(ctx, c);
-    if (!index || index->kind() != expr_kind::Constant)
-        throw exception(sstream() << "invalid [intro] attribute for '" << c << "', head symbol of resulting type must be a constant");
-    return backward_ext::add_entry(env, ios, backward_entry(prio, c), ns, persistent);
-}
-
 bool is_backward_lemma(environment const & env, name const & c) {
-    return backward_ext::get_state(env).contains(c);
+    return has_attribute(env, "intro", c);
 }
 
 void get_backward_lemmas(environment const & env, buffer<name> & r) {
-    return backward_ext::get_state(env).to_buffer(r);
+    return get_attribute_instances(env, "intro", r);
 }
 
 unsigned backward_lemma_prio_fn::operator()(backward_lemma const & r) const {
@@ -107,10 +59,9 @@ unsigned backward_lemma_prio_fn::operator()(backward_lemma const & r) const {
 }
 
 backward_lemma_index::backward_lemma_index(type_context & ctx):
-    m_index(backward_lemma_prio_fn(backward_ext::get_state(ctx.env()))) {
+    m_index(get_attribute_instances_by_prio(ctx.env(), "intro")) {
     buffer<name> lemmas;
-    auto const & s = backward_ext::get_state(ctx.env());
-    s.to_buffer(lemmas);
+    get_attribute_instances(ctx.env(), "intro", lemmas);
     unsigned i = lemmas.size();
     while (i > 0) {
         --i;
@@ -180,18 +131,15 @@ vm_obj tactic_backward_lemmas_find(vm_obj const & lemmas, vm_obj const & h, vm_o
 }
 
 void initialize_backward_lemmas() {
-    g_class_name = new name("backward");
-    g_key        = new std::string("BWD");
-    backward_ext::initialize();
     register_trace_class(name{"tactic", "back_chaining"});
     register_prio_attribute("intro", "introduction rule for backward chaining",
-                            add_backward_lemma,
-                            is_backward_lemma,
-                            [](environment const & env, name const & d) {
-                                if (auto p = backward_ext::get_state(env).get_prio(d))
-                                    return *p;
-                                else
-                                    return LEAN_DEFAULT_PRIORITY;
+                            [](environment const & env, io_state const & ios, name const & c, unsigned, bool) {
+                                aux_type_context ctx(env, ios.get_options());
+                                auto index = get_backward_target(ctx, c);
+                                if (!index || index->kind() != expr_kind::Constant)
+                                    throw exception(sstream() << "invalid [intro] attribute for '" << c
+                                                              << "', head symbol of resulting type must be a constant");
+                                return env;
                             });
     DECLARE_VM_BUILTIN(name({"tactic", "mk_back_lemmas_core"}),      tactic_mk_backward_lemmas);
     DECLARE_VM_BUILTIN(name({"tactic", "back_lemmas_insert_core"}),  tactic_backward_lemmas_insert);
@@ -199,8 +147,5 @@ void initialize_backward_lemmas() {
 }
 
 void finalize_backward_lemmas() {
-    backward_ext::finalize();
-    delete g_key;
-    delete g_class_name;
 }
 }

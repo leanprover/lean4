@@ -1,1 +1,1 @@
-@add nat nat_has_add 10 3 : nat
+@add nat nat._trans_of_decidable_linear_ordered_semiring_2 10 3 : nat

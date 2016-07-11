@@ -60,11 +60,8 @@ static name const * g_options_tk = nullptr;
 static name const * g_commands_tk = nullptr;
 static name const * g_instances_tk = nullptr;
 static name const * g_classes_tk = nullptr;
-static name const * g_coercions_tk = nullptr;
 static name const * g_arrow_tk = nullptr;
 static name const * g_larrow_tk = nullptr;
-static name const * g_declaration_tk = nullptr;
-static name const * g_decl_tk = nullptr;
 static name const * g_hiding_tk = nullptr;
 static name const * g_exposing_tk = nullptr;
 static name const * g_renaming_tk = nullptr;
@@ -75,7 +72,6 @@ static name const * g_none_tk = nullptr;
 static name const * g_whnf_tk = nullptr;
 static name const * g_wf_tk = nullptr;
 static name const * g_in_tk = nullptr;
-static name const * g_at_tk = nullptr;
 static name const * g_assign_tk = nullptr;
 static name const * g_from_tk = nullptr;
 static name const * g_then_tk = nullptr;
@@ -101,7 +97,6 @@ static name const * g_variables_tk = nullptr;
 static name const * g_priority_tk = nullptr;
 static name const * g_unfold_hints_bracket_tk = nullptr;
 static name const * g_unfold_hints_tk = nullptr;
-static name const * g_coercion_tk = nullptr;
 static name const * g_reducible_tk = nullptr;
 static name const * g_semireducible_tk = nullptr;
 static name const * g_irreducible_tk = nullptr;
@@ -139,7 +134,6 @@ static name const * g_obtain_tk = nullptr;
 static name const * g_root_tk = nullptr;
 static name const * g_fields_tk = nullptr;
 static name const * g_trust_tk = nullptr;
-static name const * g_metaclasses_tk = nullptr;
 static name const * g_inductive_tk = nullptr;
 static name const * g_this_tk = nullptr;
 static name const * g_noncomputable_tk = nullptr;
@@ -203,11 +197,8 @@ void initialize_tokens() {
     g_commands_tk = new name{"commands"};
     g_instances_tk = new name{"instances"};
     g_classes_tk = new name{"classes"};
-    g_coercions_tk = new name{"coercions"};
     g_arrow_tk = new name{"->"};
     g_larrow_tk = new name{"<-"};
-    g_declaration_tk = new name{"declaration"};
-    g_decl_tk = new name{"decl"};
     g_hiding_tk = new name{"hiding"};
     g_exposing_tk = new name{"exposing"};
     g_renaming_tk = new name{"renaming"};
@@ -218,7 +209,6 @@ void initialize_tokens() {
     g_whnf_tk = new name{"[whnf]"};
     g_wf_tk = new name{"[wf]"};
     g_in_tk = new name{"in"};
-    g_at_tk = new name{"at"};
     g_assign_tk = new name{":="};
     g_from_tk = new name{"from"};
     g_then_tk = new name{"then"};
@@ -244,7 +234,6 @@ void initialize_tokens() {
     g_priority_tk = new name{"[priority"};
     g_unfold_hints_bracket_tk = new name{"[unfold_hints]"};
     g_unfold_hints_tk = new name{"unfold_hints"};
-    g_coercion_tk = new name{"[coercion]"};
     g_reducible_tk = new name{"[reducible"};
     g_semireducible_tk = new name{"[semireducible"};
     g_irreducible_tk = new name{"[irreducible"};
@@ -259,8 +248,8 @@ void initialize_tokens() {
     g_intro_bang_attr_tk = new name{"[intro!]"};
     g_elim_attr_tk = new name{"[elim]"};
     g_recursor_tk = new name{"[recursor"};
-    g_unify_attr_tk = new name{"[unify]"};
-    g_defeq_attr_tk = new name{"[defeq]"};
+    g_unify_attr_tk = new name{"[unify"};
+    g_defeq_attr_tk = new name{"[defeq"};
     g_attribute_tk = new name{"attribute"};
     g_with_tk = new name{"with"};
     g_class_tk = new name{"[class"};
@@ -282,7 +271,6 @@ void initialize_tokens() {
     g_root_tk = new name{"_root_"};
     g_fields_tk = new name{"fields"};
     g_trust_tk = new name{"trust"};
-    g_metaclasses_tk = new name{"metaclasses"};
     g_inductive_tk = new name{"inductive"};
     g_this_tk = new name{"this"};
     g_noncomputable_tk = new name{"noncomputable"};
@@ -347,11 +335,8 @@ void finalize_tokens() {
     delete g_commands_tk;
     delete g_instances_tk;
     delete g_classes_tk;
-    delete g_coercions_tk;
     delete g_arrow_tk;
     delete g_larrow_tk;
-    delete g_declaration_tk;
-    delete g_decl_tk;
     delete g_hiding_tk;
     delete g_exposing_tk;
     delete g_renaming_tk;
@@ -362,7 +347,6 @@ void finalize_tokens() {
     delete g_whnf_tk;
     delete g_wf_tk;
     delete g_in_tk;
-    delete g_at_tk;
     delete g_assign_tk;
     delete g_from_tk;
     delete g_then_tk;
@@ -388,7 +372,6 @@ void finalize_tokens() {
     delete g_priority_tk;
     delete g_unfold_hints_bracket_tk;
     delete g_unfold_hints_tk;
-    delete g_coercion_tk;
     delete g_reducible_tk;
     delete g_semireducible_tk;
     delete g_irreducible_tk;
@@ -426,7 +409,6 @@ void finalize_tokens() {
     delete g_root_tk;
     delete g_fields_tk;
     delete g_trust_tk;
-    delete g_metaclasses_tk;
     delete g_inductive_tk;
     delete g_this_tk;
     delete g_noncomputable_tk;
@@ -490,11 +472,8 @@ name const & get_options_tk() { return *g_options_tk; }
 name const & get_commands_tk() { return *g_commands_tk; }
 name const & get_instances_tk() { return *g_instances_tk; }
 name const & get_classes_tk() { return *g_classes_tk; }
-name const & get_coercions_tk() { return *g_coercions_tk; }
 name const & get_arrow_tk() { return *g_arrow_tk; }
 name const & get_larrow_tk() { return *g_larrow_tk; }
-name const & get_declaration_tk() { return *g_declaration_tk; }
-name const & get_decl_tk() { return *g_decl_tk; }
 name const & get_hiding_tk() { return *g_hiding_tk; }
 name const & get_exposing_tk() { return *g_exposing_tk; }
 name const & get_renaming_tk() { return *g_renaming_tk; }
@@ -505,7 +484,6 @@ name const & get_none_tk() { return *g_none_tk; }
 name const & get_whnf_tk() { return *g_whnf_tk; }
 name const & get_wf_tk() { return *g_wf_tk; }
 name const & get_in_tk() { return *g_in_tk; }
-name const & get_at_tk() { return *g_at_tk; }
 name const & get_assign_tk() { return *g_assign_tk; }
 name const & get_from_tk() { return *g_from_tk; }
 name const & get_then_tk() { return *g_then_tk; }
@@ -531,7 +509,6 @@ name const & get_variables_tk() { return *g_variables_tk; }
 name const & get_priority_tk() { return *g_priority_tk; }
 name const & get_unfold_hints_bracket_tk() { return *g_unfold_hints_bracket_tk; }
 name const & get_unfold_hints_tk() { return *g_unfold_hints_tk; }
-name const & get_coercion_tk() { return *g_coercion_tk; }
 name const & get_reducible_tk() { return *g_reducible_tk; }
 name const & get_semireducible_tk() { return *g_semireducible_tk; }
 name const & get_irreducible_tk() { return *g_irreducible_tk; }
@@ -569,7 +546,6 @@ name const & get_obtain_tk() { return *g_obtain_tk; }
 name const & get_root_tk() { return *g_root_tk; }
 name const & get_fields_tk() { return *g_fields_tk; }
 name const & get_trust_tk() { return *g_trust_tk; }
-name const & get_metaclasses_tk() { return *g_metaclasses_tk; }
 name const & get_inductive_tk() { return *g_inductive_tk; }
 name const & get_this_tk() { return *g_this_tk; }
 name const & get_noncomputable_tk() { return *g_noncomputable_tk; }

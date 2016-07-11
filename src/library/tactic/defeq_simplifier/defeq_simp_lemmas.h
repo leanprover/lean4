@@ -49,9 +49,8 @@ struct defeq_simp_lemma_prio_fn { unsigned operator()(defeq_simp_lemma const & s
 typedef head_map_prio<defeq_simp_lemma, defeq_simp_lemma_prio_fn> defeq_simp_lemmas;
 
 defeq_simp_lemmas get_defeq_simp_lemmas(environment const & env);
-defeq_simp_lemmas get_defeq_simp_lemmas(environment const & env, name const & ns);
 
-format pp_defeq_simp_lemmas(defeq_simp_lemmas const & lemmas, formatter const & fmt, format const & header);
+format pp_defeq_simp_lemmas(defeq_simp_lemmas const & lemmas, formatter const & fmt);
 
 void initialize_defeq_simp_lemmas();
 void finalize_defeq_simp_lemmas();

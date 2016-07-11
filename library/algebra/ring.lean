@@ -555,12 +555,9 @@ end norm_num
 
 attribute [simp]
   zero_mul mul_zero
-  at simplifier.unit
 
 attribute [simp]
   neg_mul_eq_neg_mul_symm mul_neg_eq_neg_mul_symm
-  at simplifier.neg
 
 attribute [simp]
   left_distrib right_distrib
-  at simplifier.distrib

@@ -13,10 +13,7 @@ namespace function
 
   protected definition equiv (f₁ f₂ : Πx : A, B x) : Prop := ∀x, f₁ x = f₂ x
 
-  namespace equiv_notation
-    infix `~` := function.equiv
-  end equiv_notation
-  open equiv_notation
+  local infix `~` := function.equiv
 
   protected theorem equiv.refl (f : Πx : A, B x) : f ~ f := take x, rfl
 
@@ -58,7 +55,7 @@ end
 
 attribute funext [intro!]
 
-open function.equiv_notation
+local infix `~` := function.equiv
 
 definition subsingleton_pi [instance] {A : Type} {B : A → Type} (H : ∀ a, subsingleton (B a)) :
   subsingleton (Π a, B a) :=

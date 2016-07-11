@@ -33,12 +33,12 @@ static void check_declaration(environment const & env, name const & n) {
         throw exception(sstream() << "invalid reducible command, '" << n << "' is not a definition");
 }
 
-environment set_reducible(environment const & env, name const & n, reducible_status s, name const & ns, bool persistent) {
+environment set_reducible(environment const & env, name const & n, reducible_status s, bool persistent) {
     check_declaration(env, n);
     return set_attribute(env, get_dummy_ios(),
                          s == reducible_status::Reducible ? "reducible" :
                          s == reducible_status::Irreducible ? "irreducible" :
-                         "semireducible", n, ns, persistent);
+                         "semireducible", n, persistent);
 }
 
 reducible_status get_reducible_status(environment const & env, name const & n) {

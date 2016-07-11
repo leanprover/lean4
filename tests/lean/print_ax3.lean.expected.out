@@ -1,6 +1,6 @@
 no axioms
 ------
-quot.sound : ∀ {A} [s] {a b}, setoid.r a b → quot.mk a = quot.mk b
+quot.sound : ∀ {A} [s] {a b}, a ≈ b → ⟦a⟧ = ⟦b⟧
 classical.strong_indefinite_description : Π {A} P, nonempty A → {x \ Exists P → P x}
 propext : ∀ {a b}, (a ↔ b) → a = b
 ------

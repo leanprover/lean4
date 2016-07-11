@@ -287,7 +287,6 @@ struct recursor_state {
     }
 };
 
-static name * g_class_name = nullptr;
 static std::string * g_key = nullptr;
 
 struct recursor_config {
@@ -296,9 +295,6 @@ struct recursor_config {
 
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
         s.insert(e);
-    }
-    static name const & get_class_name() {
-        return *g_class_name;
     }
     static std::string const & get_serialization_key() {
         return *g_key;
@@ -318,11 +314,11 @@ template class scoped_ext<recursor_config>;
 typedef scoped_ext<recursor_config> recursor_ext;
 
 environment add_user_recursor(environment const & env, name const & r, optional<unsigned> const & major_pos,
-                              name const & ns, bool persistent) {
+                              bool persistent) {
     if (inductive::is_elim_rule(env, r))
         throw exception(sstream() << "invalid user defined recursor, '" << r << "' is a builtin recursor");
     recursor_info info = mk_recursor_info(env, r, major_pos);
-    return recursor_ext::add_entry(env, get_dummy_ios(), info, ns, persistent);
+    return recursor_ext::add_entry(env, get_dummy_ios(), info, persistent);
 }
 
 recursor_info get_recursor_info(environment const & env, name const & r) {
@@ -346,18 +342,16 @@ has_recursors_pred::has_recursors_pred(environment const & env):
     m_type2recursors(recursor_ext::get_state(env).m_type2recursors) {}
 
 void initialize_user_recursors() {
-    g_class_name = new name("recursor");
     g_key        = new std::string("UREC");
     recursor_ext::initialize();
     register_opt_param_attribute("recursor", "user defined recursor",
-                                 [](environment const & env, io_state const &, name const & d, optional<unsigned> const & major, name const & ns, bool persistent) {
-                                     return add_user_recursor(env, d, major, ns, persistent);
+                                 [](environment const & env, io_state const &, name const & d, optional<unsigned> const & major, bool persistent) {
+                                     return add_user_recursor(env, d, major, persistent);
                                  });
 }
 
 void finalize_user_recursors() {
     recursor_ext::finalize();
-    delete g_class_name;
     delete g_key;
 }
 }

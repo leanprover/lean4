@@ -29,7 +29,6 @@ bool operator==(defeq_simp_lemma const & sl1, defeq_simp_lemma const & sl2) {
 
 /* Environment extension */
 
-static name * g_class_name = nullptr;
 static std::string * g_key = nullptr;
 
 struct defeq_simp_lemmas_state {
@@ -92,9 +91,6 @@ struct defeq_simp_lemmas_config {
         old_tmp_type_context tctx(env, ios.get_options());
         s.register_defeq_simp_lemma(tctx, e.m_decl_name, e.m_priority);
     }
-    static name const & get_class_name() {
-        return *g_class_name;
-    }
     static std::string const & get_serialization_key() {
         return *g_key;
     }
@@ -113,25 +109,12 @@ struct defeq_simp_lemmas_config {
 
 typedef scoped_ext<defeq_simp_lemmas_config> defeq_simp_lemmas_ext;
 
-environment add_defeq_simp_lemma(environment const & env, io_state const & ios, name const & decl_name, unsigned prio, name const & ns, bool persistent) {
-    return defeq_simp_lemmas_ext::add_entry(env, ios, defeq_simp_lemmas_entry(decl_name, prio), ns, persistent);
+environment add_defeq_simp_lemma(environment const & env, io_state const & ios, name const & decl_name, unsigned prio, bool persistent) {
+    return defeq_simp_lemmas_ext::add_entry(env, ios, defeq_simp_lemmas_entry(decl_name, prio), persistent);
 }
 
 defeq_simp_lemmas get_defeq_simp_lemmas(environment const & env) {
     return defeq_simp_lemmas_ext::get_state(env).m_defeq_simp_lemmas;
-}
-
-defeq_simp_lemmas get_defeq_simp_lemmas(environment const & env, name const & ns) {
-    list<defeq_simp_lemmas_entry> const * _entries = defeq_simp_lemmas_ext::get_entries(env, ns);
-    defeq_simp_lemmas_state s;
-    if (_entries) {
-        list<defeq_simp_lemmas_entry> entries = reverse(*_entries);
-        for (auto const & e : entries) {
-            old_tmp_type_context tctx(env, get_dummy_ios().get_options());
-            s.register_defeq_simp_lemma(tctx, e.m_decl_name, e.m_priority);
-        }
-    }
-    return s.m_defeq_simp_lemmas;
 }
 
 /* Pretty printing */
@@ -147,10 +130,9 @@ format defeq_simp_lemma::pp(formatter const & fmt) const {
     return r;
 }
 
-format pp_defeq_simp_lemmas(defeq_simp_lemmas const & lemmas, formatter const & fmt, format const & header) {
+format pp_defeq_simp_lemmas(defeq_simp_lemmas const & lemmas, formatter const & fmt) {
     format r;
-    r += format("defeq simp lemmas");
-    r += header + colon() + line();
+    r += format("defeq simp lemmas") + colon() + line();
     lemmas.for_each_entry([&](head_index const &, defeq_simp_lemma const & lemma) {
              r += lemma.pp(fmt) + line();
         });
@@ -160,7 +142,6 @@ format pp_defeq_simp_lemmas(defeq_simp_lemmas const & lemmas, formatter const & 
 /* Setup and teardown */
 
 void initialize_defeq_simp_lemmas() {
-    g_class_name    = new name("defeq_simp_lemmas");
     g_key           = new std::string("DEFEQ_SIMP_LEMMAS");
 
     defeq_simp_lemmas_ext::initialize();
@@ -171,7 +152,6 @@ void initialize_defeq_simp_lemmas() {
 void finalize_defeq_simp_lemmas() {
     defeq_simp_lemmas_ext::finalize();
     delete g_key;
-    delete g_class_name;
 }
 
 }

@@ -31,14 +31,14 @@ LEAN_THREAD_VALUE(bool, g_throw_ex, false);
 void validate_simp(type_context & tctx, name const & n);
 void validate_congr(type_context & tctx, name const & n);
 
-environment on_add_simp_lemma(environment const & env, io_state const &, name const & c, unsigned, name const &, bool) {
+environment on_add_simp_lemma(environment const & env, io_state const &, name const & c, unsigned, bool) {
     aux_type_context aux_ctx(env);
     type_context & tctx = aux_ctx.get();
     validate_simp(tctx, c);
     return env;
 }
 
-environment on_add_congr_lemma(environment const & env, io_state const &, name const & c, unsigned, name const &, bool) {
+environment on_add_congr_lemma(environment const & env, io_state const &, name const & c, unsigned, bool) {
     aux_type_context aux_ctx(env);
     type_context & tctx = aux_ctx.get();
     validate_congr(tctx, c);
@@ -586,8 +586,8 @@ void initialize_simp_lemmas() {
     DECLARE_VM_BUILTIN(name({"tactic", "mk_simp_lemmas_core"}),      tactic_mk_simp_lemmas);
     DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_core"}),  tactic_simp_lemmas_insert);
 
-    register_prio_attribute(get_simp_name().get_string(), "simplification lemma", &on_add_simp_lemma);
-    register_prio_attribute(get_congr_name().get_string(), "congruence lemma", &on_add_congr_lemma);
+    register_prio_attribute(get_simp_name().get_string(), "simplification lemma", on_add_simp_lemma);
+    register_prio_attribute(get_congr_name().get_string(), "congruence lemma", on_add_congr_lemma);
 }
 
 void finalize_simp_lemmas() {

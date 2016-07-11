@@ -23,7 +23,6 @@ struct attribute_decl {
 static std::vector<attribute_decl> * g_attr_decls;
 static std::vector<pair<std::string, std::string>> * g_incomp = nullptr;
 
-static name * g_class_name = nullptr;
 static std::string * g_key = nullptr;
 
 struct attr_record {
@@ -72,9 +71,6 @@ struct attr_config {
         m.insert(e.m_record, e.m_prio);
         s.insert(e.m_attr, m);
     }
-    static name const & get_class_name() {
-        return *g_class_name;
-    }
     static std::string const & get_serialization_key() {
         return *g_key;
     }
@@ -112,19 +108,19 @@ void register_attribute(char const * attr, char const * descr, set_attribute_pro
 void register_no_params_attribute(char const * attr, char const * descr, set_no_params_attribute_proc const & on_set) {
     register_attribute(attr, descr,
                        [=](environment const & env, io_state const & ios, name const & d, unsigned prio,
-                           list<unsigned> const & idxs, name const & ns, bool persistent) {
+                           list<unsigned> const & idxs, bool persistent) {
                            if (prio != LEAN_DEFAULT_PRIORITY)
                                throw exception(sstream() << "invalid [" << attr <<
                                                "] declaration, unexpected priority declaration");
                            if (idxs)
                                throw exception(sstream() << "invalid [" << attr <<
                                                "] declaration, unexpected parameter");
-                           return on_set(env, ios, d, ns, persistent);
+                           return on_set(env, ios, d, persistent);
                        });
 }
 void register_no_params_attribute(char const * attr, char const * descr) {
     register_no_params_attribute(attr, descr,
-                                 [](environment const & env, io_state const &, name const &, name const &, bool) {
+                                 [](environment const & env, io_state const &, name const &, bool) {
                                      return env;
                                  });
 }
@@ -132,37 +128,50 @@ void register_no_params_attribute(char const * attr, char const * descr) {
 void register_prio_attribute(char const * attr, char const * descr, set_prio_attribute_proc const & on_set) {
     register_attribute(attr, descr,
                        [=](environment const & env, io_state const & ios, name const & d, unsigned prio,
-                          list<unsigned> const & idxs, name const & ns, bool persistent) {
+                          list<unsigned> const & idxs, bool persistent) {
                            if (idxs)
                                throw exception(sstream() << "invalid [" << attr <<
                                                "] declaration, unexpected parameter");
-                           return on_set(env, ios, d, prio, ns, persistent);
+                           return on_set(env, ios, d, prio, persistent);
                        });
+}
+void register_prio_attribute(char const * attr, char const * descr) {
+    register_prio_attribute(attr, descr,
+                            [=](environment const & env, io_state const &, name const &, unsigned, bool) {
+                                return env;
+                            });
 }
 
 void register_opt_param_attribute(char const * attr, char const * descr, set_opt_param_attribute_proc const & on_set) {
     register_attribute(attr, descr,
                        [=](environment const & env, io_state const & ios, name const & d, unsigned prio,
-                          list<unsigned> const & idxs, name const & ns, bool persistent) {
+                          list<unsigned> const & idxs, bool persistent) {
                            if (prio != LEAN_DEFAULT_PRIORITY)
                                throw exception(sstream() << "invalid [" << attr <<
                                                "] declaration, unexpected priority declaration");
                            if (idxs && tail(idxs))
                                throw exception(sstream() << "invalid [" << attr <<
                                                "] declaration, expected at most one parameter");
-                           return on_set(env, ios, d, head_opt(idxs), ns, persistent);
+                           return on_set(env, ios, d, head_opt(idxs), persistent);
                        });
 }
 
 void register_params_attribute(char const * attr, char const * descr, set_params_attribute_proc const & on_set) {
     register_attribute(attr, descr,
                        [=](environment const & env, io_state const & ios, name const & d, unsigned prio,
-                          list<unsigned> const & idxs, name const & ns, bool persistent) {
+                          list<unsigned> const & idxs, bool persistent) {
                            if (prio != LEAN_DEFAULT_PRIORITY)
                                throw exception(sstream() << "invalid [" << attr <<
                                                "] declaration, unexpected priority declaration");
-                           return on_set(env, ios, d, idxs, ns, persistent);
+                           return on_set(env, ios, d, idxs, persistent);
                        });
+}
+void register_params_attribute(char const * attr, char const * descr) {
+    register_params_attribute(attr, descr,
+                              [=](environment const & env, io_state const &, name const &,
+                                  list<unsigned> const &, bool) {
+                                  return env;
+                              });
 }
 
 void register_incompatible(char const * attr1, char const * attr2) {
@@ -208,19 +217,13 @@ bool has_attribute(environment const & env, char const * attr, name const & d) {
 }
 
 void get_attribute_instances(environment const & env, name const & attr, buffer<name> & r) {
-    attribute_ext::get_state(env).for_each([&](name const & n, attr_records const & recs){
-        if (n == attr)
-            recs.for_each([&](attr_record const & rec) { r.push_back(rec.m_decl); });
-    });
+    attribute_ext::get_state(env).find(attr)->for_each([&](attr_record const & rec) { r.push_back(rec.m_decl); });
 }
-
-void get_attribute_instances(environment const & env, name const & attr, name const & ns, buffer<name> & r) {
-    if (auto entries = attribute_ext::get_entries(env, ns)) {
-        for (auto const & e : *entries) {
-            if (e.m_attr == attr)
-                r.push_back(e.m_record.m_decl);
-        }
-    }
+priority_queue<name, name_quick_cmp> get_attribute_instances_by_prio(environment const & env, name const & attr) {
+    priority_queue<name, name_quick_cmp> q;
+    auto recs = attribute_ext::get_state(env).find(attr);
+    recs->for_each([&](attr_record const & rec) { q.insert(rec.m_decl, recs->get_prio(rec).value()); });
+    return q;
 }
 
 [[ noreturn ]] void throw_unknown_attribute(name const & attr) {
@@ -228,19 +231,19 @@ void get_attribute_instances(environment const & env, name const & attr, name co
 }
 
 environment set_attribute(environment const & env, io_state const & ios, char const * attr,
-                          name const & d, unsigned prio, list<unsigned> const & params, name const & ns, bool persistent) {
+                          name const & d, unsigned prio, list<unsigned> const & params, bool persistent) {
     for (auto const & decl : *g_attr_decls) {
         if (decl.m_id == attr) {
-            auto env2 = attribute_ext::add_entry(env, ios, attr_entry(attr, prio, attr_record(d, params)), ns, persistent);
-            return decl.m_on_set(env2, ios, d, prio, params, ns, persistent);
+            auto env2 = attribute_ext::add_entry(env, ios, attr_entry(attr, prio, attr_record(d, params)), persistent);
+            return decl.m_on_set(env2, ios, d, prio, params, persistent);
         }
     }
     throw_unknown_attribute(attr);
 }
 
 environment set_attribute(environment const & env, io_state const & ios, char const * attr,
-                          name const & d, name const & ns, bool persistent) {
-    return set_attribute(env, ios, attr, d, LEAN_DEFAULT_PRIORITY, list<unsigned>(), ns, persistent);
+                          name const & d, bool persistent) {
+    return set_attribute(env, ios, attr, d, LEAN_DEFAULT_PRIORITY, list<unsigned>(), persistent);
 }
 
 unsigned get_attribute_prio(environment const & env, name const & attr, name const & d) {
@@ -270,7 +273,6 @@ bool are_incompatible(char const * attr1, char const * attr2) {
 void initialize_attribute_manager() {
     g_attr_decls = new std::vector<attribute_decl>();
     g_incomp     = new std::vector<pair<std::string, std::string>>();
-    g_class_name = new name("attribute");
     g_key        = new std::string("ATTR");
     attribute_ext::initialize();
 }
@@ -278,7 +280,6 @@ void initialize_attribute_manager() {
 void finalize_attribute_manager() {
     attribute_ext::finalize();
     delete g_key;
-    delete g_class_name;
     delete g_incomp;
     delete g_attr_decls;
 }

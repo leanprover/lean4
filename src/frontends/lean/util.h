@@ -92,8 +92,6 @@ optional<name> is_uniquely_aliased(environment const & env, name const & n);
 /** \brief Get declaration 'short-name' that can uniquely identify it. */
 name get_decl_short_name(name const & d, environment const & env);
 
-/** \brief Open 'num' notation and aliases. */
-environment open_num_notation(environment const & env);
 /** \brief Open 'std.prec' aliases */
 environment open_prec_aliases(environment const & env);
 /** \brief Open 'std.priority' aliases */

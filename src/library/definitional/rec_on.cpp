@@ -59,8 +59,8 @@ environment mk_rec_on(environment const & env, name const & n) {
     environment new_env = module::add(env,
                                       check(env, mk_definition_inferring_trusted(env, rec_on_name, rec_decl.get_univ_params(),
                                                                                  rec_on_type, rec_on_val, use_conv_opt)));
-    new_env = set_reducible(new_env, rec_on_name, reducible_status::Reducible, get_namespace(env), true);
-    new_env = add_unfold_hint(new_env, rec_on_name, rec_on_major_idx, get_namespace(env), true);
+    new_env = set_reducible(new_env, rec_on_name, reducible_status::Reducible, true);
+    new_env = add_unfold_hint(new_env, rec_on_name, rec_on_major_idx, true);
     new_env = add_aux_recursor(new_env, rec_on_name);
     return add_protected(new_env, rec_on_name);
 }

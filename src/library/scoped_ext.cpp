@@ -11,13 +11,13 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 
 namespace lean {
-typedef std::tuple<name, using_namespace_fn, push_scope_fn, pop_scope_fn> entry;
+typedef std::tuple<push_scope_fn, pop_scope_fn> entry;
 typedef std::vector<entry> scoped_exts;
 static scoped_exts * g_exts = nullptr;
 static scoped_exts & get_exts() { return *g_exts; }
 
-void register_scoped_ext(name const & c, using_namespace_fn use, push_scope_fn push, pop_scope_fn pop) {
-    get_exts().emplace_back(c, use, push, pop);
+void register_scoped_ext(push_scope_fn push, pop_scope_fn pop) {
+    get_exts().emplace_back(push, pop);
 }
 
 struct scope_mng_ext : public environment_extension {
@@ -55,22 +55,6 @@ bool in_section(environment const & env) {
     return !is_nil(ext.m_scope_kinds) && head(ext.m_scope_kinds) == scope_kind::Section;
 }
 
-void get_metaclasses(buffer<name> & r) {
-    for (auto const & t : get_exts()) {
-        name const & n = std::get<0>(t);
-        if (std::find(r.begin(), r.end(), n) == r.end())
-            r.push_back(n);
-    }
-}
-
-bool is_metaclass(name const & n) {
-    for (auto const & t : get_exts()) {
-        if (std::get<0>(t) == n)
-            return true;
-    }
-    return false;
-}
-
 environment mark_namespace_as_open(environment const & env, name const & n) {
     scope_mng_ext ext = get_extension(env);
     ext.m_opened_namespaces.insert(n);
@@ -79,21 +63,6 @@ environment mark_namespace_as_open(environment const & env, name const & n) {
 
 name_set get_opened_namespaces(environment const & env) {
     return get_extension(env).m_opened_namespaces;
-}
-
-environment using_namespace(environment const & env, io_state const & ios, name const & n, buffer<name> const & metaclasses) {
-    environment r = env;
-    for (auto const & t : get_exts()) {
-        if (metaclasses.empty() ||
-            std::find(metaclasses.begin(), metaclasses.end(), std::get<0>(t)) != metaclasses.end())
-            r = std::get<1>(t)(r, ios, n);
-    }
-    return r;
-}
-
-environment using_namespace(environment const & env, io_state const & ios, name const & n) {
-    buffer<name> metaclasses;
-    return using_namespace(env, ios, n, metaclasses);
 }
 
 optional<name> to_valid_namespace_name(environment const & env, name const & n) {
@@ -142,10 +111,8 @@ environment push_scope(environment const & env, io_state const & ios, scope_kind
     ext.m_scope_kinds = cons(k, ext.m_scope_kinds);
     environment r = update(env, ext);
     for (auto const & t : get_exts()) {
-        r = std::get<2>(t)(r, ios, k);
+        r = std::get<0>(t)(r, ios, k);
     }
-    if (k == scope_kind::Namespace)
-        r = using_namespace(r, ios, new_n);
     if (save_ns)
         r = module::add(r, *g_new_namespace_key, [=](environment const &, serializer & s) { s << new_n; });
     return r;
@@ -173,7 +140,7 @@ environment pop_scope_core(environment const & env, io_state const & ios) {
     ext.m_scope_kinds = tail(ext.m_scope_kinds);
     environment r = update(env, ext);
     for (auto const & t : get_exts()) {
-        r = std::get<3>(t)(r, ios, k);
+        r = std::get<1>(t)(r, ios, k);
     }
     return r;
 }

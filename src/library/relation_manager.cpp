@@ -147,7 +147,6 @@ struct rel_state {
     }
 };
 
-static name * g_rel_name  = nullptr;
 static std::string * g_key = nullptr;
 
 struct rel_config {
@@ -161,9 +160,6 @@ struct rel_config {
         case op_kind::Trans:    s.add_trans(env, e.m_name); break;
         case op_kind::Symm:     s.add_symm(env, e.m_name); break;
         }
-    }
-    static name const & get_class_name() {
-        return *g_rel_name;
     }
     static std::string const & get_serialization_key() {
         return *g_key;
@@ -186,24 +182,24 @@ struct rel_config {
 template class scoped_ext<rel_config>;
 typedef scoped_ext<rel_config> rel_ext;
 
-environment add_relation(environment const & env, name const & n, name const & ns, bool persistent) {
-    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Relation, n), ns, persistent);
+environment add_relation(environment const & env, name const & n, bool persistent) {
+    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Relation, n), persistent);
 }
 
-environment add_subst(environment const & env, name const & n, name const & ns, bool persistent) {
-    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Subst, n), ns, persistent);
+environment add_subst(environment const & env, name const & n, bool persistent) {
+    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Subst, n), persistent);
 }
 
-environment add_refl(environment const & env, name const & n, name const & ns, bool persistent) {
-    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Refl, n), ns, persistent);
+environment add_refl(environment const & env, name const & n, bool persistent) {
+    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Refl, n), persistent);
 }
 
-environment add_symm(environment const & env, name const & n, name const & ns, bool persistent) {
-    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Symm, n), ns, persistent);
+environment add_symm(environment const & env, name const & n, bool persistent) {
+    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Symm, n), persistent);
 }
 
-environment add_trans(environment const & env, name const & n, name const & ns, bool persistent) {
-    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Trans, n), ns, persistent);
+environment add_trans(environment const & env, name const & n, bool persistent) {
+    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Trans, n), persistent);
 }
 
 static optional<relation_lemma_info> get_info(name_map<relation_lemma_info> const & table, name const & op) {
@@ -327,37 +323,31 @@ is_relation_pred mk_is_relation_pred(environment const & env) {
 }
 
 void initialize_relation_manager() {
-    g_rel_name = new name("relation");
     g_key       = new std::string("REL");
     rel_ext::initialize();
     register_no_params_attribute("refl", "reflexive relation",
-                                 [](environment const & env, io_state const &, name const & d, name const & ns,
-                                    bool persistent) {
-                                     return add_refl(env, d, ns, persistent);
+                                 [](environment const & env, io_state const &, name const & d, bool persistent) {
+                                     return add_refl(env, d, persistent);
                                  });
 
     register_no_params_attribute("symm", "symmetric relation",
-                                 [](environment const & env, io_state const &, name const & d, name const & ns,
-                                    bool persistent) {
-                                     return add_symm(env, d, ns, persistent);
+                                 [](environment const & env, io_state const &, name const & d, bool persistent) {
+                                     return add_symm(env, d, persistent);
                                  });
 
     register_no_params_attribute("trans", "transitive relation",
-                                 [](environment const & env, io_state const &, name const & d, name const & ns,
-                                    bool persistent) {
-                                     return add_trans(env, d, ns, persistent);
+                                 [](environment const & env, io_state const &, name const & d, bool persistent) {
+                                     return add_trans(env, d, persistent);
                                  });
 
     register_no_params_attribute("subst", "substitution",
-                                 [](environment const & env, io_state const &, name const & d, name const & ns,
-                                    bool persistent) {
-                                     return add_subst(env, d, ns, persistent);
+                                 [](environment const & env, io_state const &, name const & d, bool persistent) {
+                                     return add_subst(env, d, persistent);
                                  });
 }
 
 void finalize_relation_manager() {
     rel_ext::finalize();
     delete g_key;
-    delete g_rel_name;
 }
 }

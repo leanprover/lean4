@@ -40,7 +40,6 @@ int unification_hint_cmp::operator()(unification_hint const & uh1, unification_h
 
 /* Environment extension */
 
-static name * g_class_name = nullptr;
 static std::string * g_key = nullptr;
 
 struct unification_hint_state {
@@ -128,9 +127,6 @@ struct unification_hint_config {
         // TODO(dhs): the downside to this approach is that a [unify] tag on an actual axiom will be silently ignored.
         if (decl.is_definition()) s.register_hint(e.m_decl_name, decl.get_value(), e.m_priority);
     }
-    static name const & get_class_name() {
-        return *g_class_name;
-    }
     static std::string const & get_serialization_key() {
         return *g_key;
     }
@@ -149,24 +145,13 @@ struct unification_hint_config {
 
 typedef scoped_ext<unification_hint_config> unification_hint_ext;
 
-environment add_unification_hint(environment const & env, io_state const & ios, name const & decl_name, unsigned prio, name const & ns, bool persistent) {
-    return unification_hint_ext::add_entry(env, ios, unification_hint_entry(decl_name, prio), ns, persistent);
+environment add_unification_hint(environment const & env, io_state const & ios, name const & decl_name, unsigned prio,
+                                 bool persistent) {
+    return unification_hint_ext::add_entry(env, ios, unification_hint_entry(decl_name, prio), persistent);
 }
 
 unification_hints get_unification_hints(environment const & env) {
     return unification_hint_ext::get_state(env).m_hints;
-}
-
-unification_hints get_unification_hints(environment const & env, name const & ns) {
-    list<unification_hint_entry> const * entries = unification_hint_ext::get_entries(env, ns);
-    unification_hint_state s;
-    if (entries) {
-        for (auto const & e : *entries) {
-            declaration decl = env.get(e.m_decl_name);
-            s.register_hint(e.m_decl_name, decl.get_value(), e.m_priority);
-        }
-    }
-    return s.m_hints;
 }
 
 void get_unification_hints(environment const & env, name const & n1, name const & n2, buffer<unification_hint> & uhints) {
@@ -202,10 +187,9 @@ format unification_hint::pp(unsigned prio, formatter const & fmt) const {
     return r;
 }
 
-format pp_unification_hints(unification_hints const & hints, formatter const & fmt, format const & header) {
+format pp_unification_hints(unification_hints const & hints, formatter const & fmt) {
     format r;
-    r += format("unification hints");
-    r += header + colon() + line();
+    r += format("unification hints") + colon() + line();
     hints.for_each([&](name_pair const & names, unification_hint_queue const & q) {
             q.for_each([&](unification_hint const & hint) {
                     r += lp() + format(names.first) + comma() + space() + format(names.second) + rp() + space();
@@ -216,7 +200,6 @@ format pp_unification_hints(unification_hints const & hints, formatter const & f
 }
 
 void initialize_unification_hint() {
-    g_class_name    = new name("unification_hint");
     g_key           = new std::string("UNIFICATION_HINT");
 
     unification_hint_ext::initialize();
@@ -227,6 +210,5 @@ void initialize_unification_hint() {
 void finalize_unification_hint() {
     unification_hint_ext::finalize();
     delete g_key;
-    delete g_class_name;
 }
 }

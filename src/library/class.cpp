@@ -214,9 +214,9 @@ name get_class_name(environment const & env, expr const & e) {
     return c_name;
 }
 
-environment add_class(environment const & env, name const & n, name const & ns, bool persistent) {
+environment add_class(environment const &env, name const &n, bool persistent) {
     check_class(env, n);
-    return class_ext::add_entry(env, get_dummy_ios(), class_entry(n), ns, persistent);
+    return class_ext::add_entry(env, get_dummy_ios(), class_entry(n), persistent);
 }
 
 void get_classes(environment const & env, buffer<name> & classes) {
@@ -239,15 +239,15 @@ old_type_checker_ptr mk_class_type_checker(environment const & env, bool conserv
         });
 }
 
-static environment set_reducible_if_def(environment const & env, name const & n, name const & ns, bool persistent) {
+static environment set_reducible_if_def(environment const & env, name const & n, bool persistent) {
     declaration const & d = env.get(n);
     if (d.is_definition() && !d.is_theorem())
-        return set_reducible(env, n, reducible_status::Reducible, ns, persistent);
+        return set_reducible(env, n, reducible_status::Reducible, persistent);
     else
         return env;
 }
 
-environment add_instance(environment const & env, name const & n, unsigned priority, name const & ns, bool persistent) {
+environment add_instance(environment const & env, name const & n, unsigned priority, bool persistent) {
     declaration d = env.get(n);
     expr type = d.get_type();
     auto tc = mk_class_type_checker(env, false);
@@ -260,8 +260,8 @@ environment add_instance(environment const & env, name const & n, unsigned prior
     name c = get_class_name(env, get_app_fn(type));
     check_is_class(env, c);
     environment new_env = class_ext::add_entry(env, get_dummy_ios(), class_entry(class_entry_kind::Instance, c, n, priority),
-                                               ns, persistent);
-    return set_reducible_if_def(new_env, n, ns, persistent);
+                                               persistent);
+    return set_reducible_if_def(new_env, n, persistent);
 }
 
 static name * g_source = nullptr;
@@ -288,7 +288,7 @@ static pair<name, name> get_source_target(environment const & env, old_type_chec
     return mk_pair(*src, *tgt);
 }
 
-environment add_trans_instance(environment const & env, name const & n, unsigned priority, name const & ns, bool persistent) {
+environment add_trans_instance(environment const & env, name const & n, unsigned priority, bool persistent) {
     old_type_checker_ptr  tc     = mk_type_checker(env);
     pair<name, name> src_tgt = get_source_target(env, *tc, n);
     class_state const & s = class_ext::get_state(env);
@@ -296,12 +296,12 @@ environment add_trans_instance(environment const & env, name const & n, unsigned
     pair<environment, list<tc_edge>> new_env_insts = g.add(env, src_tgt.first, n, src_tgt.second);
     environment new_env = new_env_insts.first;
     new_env = class_ext::add_entry(new_env, get_dummy_ios(),
-                                   class_entry::mk_trans_inst(src_tgt.first, src_tgt.second, n, priority), ns, persistent);
-    new_env = set_reducible_if_def(new_env, n, ns, persistent);
+                                   class_entry::mk_trans_inst(src_tgt.first, src_tgt.second, n, priority), persistent);
+    new_env = set_reducible_if_def(new_env, n, persistent);
     for (tc_edge const & edge : new_env_insts.second) {
         new_env = class_ext::add_entry(new_env, get_dummy_ios(),
-                                       class_entry::mk_derived_trans_inst(edge.m_from, edge.m_to, edge.m_cnst), ns, persistent);
-        new_env = set_reducible(new_env, edge.m_cnst, reducible_status::Reducible, ns, persistent);
+                                       class_entry::mk_derived_trans_inst(edge.m_from, edge.m_to, edge.m_cnst), persistent);
+        new_env = set_reducible(new_env, edge.m_cnst, reducible_status::Reducible, persistent);
         new_env = add_protected(new_env, edge.m_cnst);
     }
     return new_env;
@@ -419,33 +419,28 @@ optional<name> is_ext_class(old_type_checker & tc, expr const & type) {
 
 void initialize_class() {
     g_source     = new name("_source");
-    g_class_name = new name("class");
     g_key = new std::string("class");
     class_ext::initialize();
 
     register_no_params_attribute("class", "type class",
-                                 [](environment const & env, io_state const &, name const & d, name const & ns,
-                                    bool persistent) {
-                                     return add_class(env, d, ns, persistent);
+                                 [](environment const & env, io_state const &, name const & d, bool persistent) {
+                                     return add_class(env, d, persistent);
                                  });
 
     register_prio_attribute("instance", "type class instance",
-                            [](environment const & env, io_state const &, name const & d, unsigned prio,
-                               name const & ns, bool persistent) {
-                                return add_instance(env, d, prio, ns, persistent);
+                            [](environment const & env, io_state const &, name const & d, unsigned prio, bool persistent) {
+                                return add_instance(env, d, prio, persistent);
                             });
 
     register_prio_attribute("trans_instance", "transitive type class instance",
-                            [](environment const & env, io_state const &, name const & d, unsigned prio,
-                               name const & ns, bool persistent) {
-                                return add_trans_instance(env, d, prio, ns, persistent);
+                            [](environment const & env, io_state const &, name const & d, unsigned prio, bool persistent) {
+                                return add_trans_instance(env, d, prio, persistent);
                             });
 }
 
 void finalize_class() {
     class_ext::finalize();
     delete g_key;
-    delete g_class_name;
     delete g_source;
 }
 }

@@ -64,7 +64,7 @@ void decl_attributes::parse(parser & p) {
     }
 }
 
-environment decl_attributes::apply(environment env, io_state const & ios, name const & d, name const & ns) const {
+environment decl_attributes::apply(environment env, io_state const & ios, name const & d) const {
     buffer<entry> entries;
     to_buffer(m_entries, entries);
     unsigned i = entries.size();
@@ -73,7 +73,7 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
         auto const & entry = entries[i];
         char const * attr = entry.m_attr.c_str();
         unsigned prio = m_prio ? *m_prio : LEAN_DEFAULT_PRIORITY;
-        env = set_attribute(env, ios, attr, d, prio, entry.m_params, ns, m_persistent);
+        env = set_attribute(env, ios, attr, d, prio, entry.m_params, m_persistent);
     }
     return env;
 }

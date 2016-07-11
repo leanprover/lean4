@@ -23,5 +23,4 @@ end bla2
 
 print definition bla2.tst2
 open bla2
-print definition bla2.tst2
 print definition tst2

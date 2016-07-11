@@ -10,7 +10,7 @@ Author: Daniel Selsam
 
 namespace lean {
 
-environment add_simp_extension(environment const & env, io_state const & ios, name const & head, name const & ext_name, unsigned prio, name const & ns, bool persistent);
+environment add_simp_extension(environment const & env, io_state const & ios, name const & head, name const & ext_name, unsigned prio, bool persistent);
 
 format pp_simp_extensions(environment const & env);
 

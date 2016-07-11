@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 
 namespace lean {
-static name * g_class_name = nullptr;
 static std::string * g_key = nullptr;
 
 static void write_pair_name(serializer & s, pair<name, name> const & p) {
@@ -32,9 +31,7 @@ bool operator==(export_decl const & d1, export_decl const & d2) {
     return
         d1.m_ns           == d2.m_ns &&
         d1.m_as           == d2.m_as &&
-        d1.m_decls        == d2.m_decls &&
         d1.m_had_explicit == d2.m_had_explicit &&
-        d1.m_metacls      == d2.m_metacls &&
         d1.m_renames      == d2.m_renames &&
         d1.m_except_names == d2.m_except_names;
 }
@@ -53,25 +50,19 @@ struct export_decl_config {
         }
     }
 
-    static name const & get_class_name() {
-        return *g_class_name;
-    }
-
     static std::string const & get_serialization_key() {
         return *g_key;
     }
 
     static void  write_entry(serializer & s, entry const & e) {
-        s << e.m_ns << e.m_as << e.m_decls << e.m_had_explicit;
-        write_list<name>(s, e.m_metacls);
+        s << e.m_ns << e.m_as << e.m_had_explicit;
         write_list<name>(s, e.m_except_names);
         write_list<pair<name, name>>(s, e.m_renames);
     }
 
     static entry read_entry(deserializer & d) {
         entry e;
-        d >> e.m_ns >> e.m_as >> e.m_decls >> e.m_had_explicit;
-        e.m_metacls      = read_list<name>(d, read_name);
+        d >> e.m_ns >> e.m_as >> e.m_had_explicit;
         e.m_except_names = read_list<name>(d, read_name);
         e.m_renames      = read_list<pair<name, name>>(d, read_pair_name);
         return e;
@@ -86,25 +77,19 @@ typedef scoped_ext<export_decl_config> export_decl_ext;
 
 environment add_export_decl(environment const & env, export_decl const & entry) {
     bool persistent = true;
-    return export_decl_ext::add_entry(env, get_dummy_ios(), entry, get_namespace(env), persistent);
+    return export_decl_ext::add_entry(env, get_dummy_ios(), entry, persistent);
 }
 
 list<export_decl> get_export_decls(environment const & env) {
     return export_decl_ext::get_state(env);
 }
 
-name const & get_export_decl_class_name() {
-    return *g_class_name;
-}
-
 void initialize_export_decl() {
-    g_class_name = new name("export_decl");
     g_key = new std::string("export_decl");
     export_decl_ext::initialize();
 }
 
 void finalize_export_decl() {
-    delete g_class_name;
     delete g_key;
     export_decl_ext::finalize();
 }

@@ -153,5 +153,4 @@ simp_lemmas join(simp_lemmas const & s1, simp_lemmas const & s2);
 
 simp_lemmas const & to_simp_lemmas(vm_obj const & o);
 vm_obj to_obj(simp_lemmas const & s);
-
 }

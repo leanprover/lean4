@@ -14,7 +14,7 @@ namespace foo
 end foo
 
 check (2:nat) = 1
-check #foo foo.a = 1
+check foo.a = 1
 
 open foo
 check a = 1

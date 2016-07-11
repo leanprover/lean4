@@ -39,15 +39,3 @@ section
   open foo
   check a * c
 end
-
-section
-  open [notation] foo -- use only the notation
-  check foo.a * foo.c
-  check a * c -- Error
-end
-
-section
-  open [decl] foo -- use only the declarations
-  check f a c
-  check a*c -- Error
-end

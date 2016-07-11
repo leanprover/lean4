@@ -84,29 +84,20 @@ environment replay_export_decls_core(environment env, io_state const & ios) {
 
 environment execute_open(environment env, io_state const & ios, export_decl const & edecl) {
     unsigned fingerprint = 0;
-    for (name const & n : edecl.m_metacls)
-        fingerprint = hash(fingerprint, n.hash());
     name const & ns = edecl.m_ns;
     fingerprint = hash(fingerprint, ns.hash());
-    buffer<name> metacls;
-    to_buffer(edecl.m_metacls, metacls);
-    if (!metacls.empty() && std::find(metacls.begin(), metacls.end(), get_export_decl_class_name()) == metacls.end())
-        metacls.push_back(get_export_decl_class_name());
     unsigned old_export_decls_sz = length(get_export_decls(env));
-    env = using_namespace(env, ios, ns, metacls);
-    if (edecl.m_decls) {
-        for (auto const & p : edecl.m_renames) {
-            fingerprint = hash(hash(fingerprint, p.first.hash()), p.second.hash());
-            env = add_expr_alias(env, p.first, p.second);
-        }
-        for (auto const & n : edecl.m_except_names) {
-            fingerprint = hash(fingerprint, n.hash());
-        }
-        if (!edecl.m_had_explicit) {
-            buffer<name> except_names;
-            to_buffer(edecl.m_except_names, except_names);
-            env = add_aliases(env, ns, edecl.m_as, except_names.size(), except_names.data());
-        }
+    for (auto const & p : edecl.m_renames) {
+        fingerprint = hash(hash(fingerprint, p.first.hash()), p.second.hash());
+        env = add_expr_alias(env, p.first, p.second);
+    }
+    for (auto const & n : edecl.m_except_names) {
+        fingerprint = hash(fingerprint, n.hash());
+    }
+    if (!edecl.m_had_explicit) {
+        buffer<name> except_names;
+        to_buffer(edecl.m_except_names, except_names);
+        env = add_aliases(env, ns, edecl.m_as, except_names.size(), except_names.data());
     }
     env = update_fingerprint(env, fingerprint);
     return replay_export_decls_core(env, ios, old_export_decls_sz);
@@ -256,98 +247,16 @@ environment set_option_cmd(parser & p) {
     return update_fingerprint(env, p.get_options().hash());
 }
 
-static bool is_next_metaclass_tk(parser const & p) {
-    return p.curr_is_token(get_lbracket_tk()) || p.curr_is_token(get_unfold_hints_bracket_tk());
-}
-
-static optional<name> parse_metaclass(parser & p) {
-    if (p.curr_is_token(get_lbracket_tk())) {
-        p.next();
-        auto pos = p.pos();
-        name n;
-        while (!p.curr_is_token(get_rbracket_tk())) {
-            if (p.curr_is_identifier())
-                n = n.append_after(p.get_name_val().to_string().c_str());
-            else if (p.curr_is_keyword() || p.curr_is_command())
-                n = n.append_after(p.get_token_info().value().to_string().c_str());
-            else if (p.curr_is_token(get_sub_tk()))
-                n = n.append_after("-");
-            else
-                throw parser_error("invalid 'open' command, identifier or symbol expected", pos);
-            p.next();
-        }
-        p.check_token_next(get_rbracket_tk(), "invalid 'open' command, ']' expected");
-        if ((!is_metaclass(n) && n != get_decl_tk() && n != get_declaration_tk()) ||
-            (n == get_export_decl_class_name()))
-            throw parser_error(sstream() << "invalid metaclass name '[" << n << "]'", pos);
-        return optional<name>(n);
-    } else if (p.curr() == scanner::token_kind::CommandKeyword) {
-        // Meta-classes whose name conflict with tokens of the form `[<id>]` `[<id>`
-        // Example: [class] and [unfold
-        name v = p.get_token_info().value();
-        if (v.is_atomic() && v.is_string() && v.size() > 1 && v.get_string()[0] == '[') {
-            auto pos = p.pos();
-            p.next();
-            std::string s(v.get_string() + 1);
-            if (v.get_string()[v.size()-1] == ']')
-                s.pop_back();
-            name n(s);
-            if (!is_metaclass(n) && n != get_decl_tk() && n != get_declaration_tk())
-                throw parser_error(sstream() << "invalid metaclass name '[" << n << "]'", pos);
-            if (v.get_string()[v.size()-1] != ']') {
-                // Consume ']' for tokens such as `[unfold`
-                p.check_token_next(get_rbracket_tk(), "invalid 'open' command, ']' expected");
-            }
-            return optional<name>(n);
-        }
-    }
-    return optional<name>();
-}
-
-static void parse_metaclasses(parser & p, buffer<name> & r) {
-    if (p.curr_is_token(get_sub_tk())) {
-        p.next();
-        buffer<name> tmp;
-        get_metaclasses(tmp);
-        tmp.push_back(get_decl_tk());
-        while (true) {
-            if (optional<name> m = parse_metaclass(p)) {
-                tmp.erase_elem(*m);
-                if (*m == get_declaration_tk())
-                    tmp.erase_elem(get_decl_tk());
-            } else {
-                break;
-            }
-        }
-        r.append(tmp);
-    } else {
-        while (true) {
-            if (optional<name> m = parse_metaclass(p)) {
-                r.push_back(*m);
-            } else {
-                break;
-            }
-        }
-    }
-}
-
 static void check_identifier(parser & p, environment const & env, name const & ns, name const & id) {
     name full_id = ns + id;
     if (!env.find(full_id))
         throw parser_error(sstream() << "invalid 'open' command, unknown declaration '" << full_id << "'", p.pos());
 }
 
-// open/export [class] id (as id)? (id ...) (renaming id->id id->id) (hiding id ... id)
+// open/export id (as id)? (id ...) (renaming id->id id->id) (hiding id ... id)
 environment open_export_cmd(parser & p, bool open) {
     environment env = p.env();
     while (true) {
-        buffer<name> metacls;
-        parse_metaclasses(p, metacls);
-        bool decls = false;
-        if (metacls.empty() ||
-            std::find(metacls.begin(), metacls.end(), get_decl_tk()) != metacls.end() ||
-            std::find(metacls.begin(), metacls.end(), get_declaration_tk()) != metacls.end())
-            decls = true;
         auto pos   = p.pos();
         name ns    = p.check_id_next("invalid 'open/export' command, identifier expected");
         optional<name> real_ns = to_valid_namespace_name(env, ns);
@@ -362,77 +271,58 @@ environment open_export_cmd(parser & p, bool open) {
         buffer<name> exception_names;
         buffer<pair<name, name>> renames;
         bool found_explicit = false;
-        if (decls) {
-            // Remark: we currently to not allow renaming and hiding of universe levels
-            env = mark_namespace_as_open(env, ns);
-            while (p.curr_is_token(get_lparen_tk())) {
+        // Remark: we currently to not allow renaming and hiding of universe levels
+        env = mark_namespace_as_open(env, ns);
+        while (p.curr_is_token(get_lparen_tk())) {
+            p.next();
+            if (p.curr_is_token_or_id(get_renaming_tk())) {
                 p.next();
-                if (p.curr_is_token_or_id(get_renaming_tk())) {
+                while (p.curr_is_identifier()) {
+                    name from_id = p.get_name_val();
                     p.next();
-                    while (p.curr_is_identifier()) {
-                        name from_id = p.get_name_val();
-                        p.next();
-                        p.check_token_next(get_arrow_tk(), "invalid 'open/export' command renaming, '->' expected");
-                        name to_id = p.check_id_next("invalid 'open/export' command renaming, identifier expected");
-                        check_identifier(p, env, ns, from_id);
-                        exception_names.push_back(from_id);
-                        renames.emplace_back(as+to_id, ns+from_id);
-                    }
-                } else if (p.curr_is_token_or_id(get_hiding_tk())) {
-                    p.next();
-                    while (p.curr_is_identifier()) {
-                        name id = p.get_name_val();
-                        p.next();
-                        check_identifier(p, env, ns, id);
-                        exception_names.push_back(id);
-                    }
-                } else if (p.curr_is_identifier()) {
-                    found_explicit = true;
-                    while (p.curr_is_identifier()) {
-                        name id = p.get_name_val();
-                        p.next();
-                        check_identifier(p, env, ns, id);
-                        renames.emplace_back(as+id, ns+id);
-                    }
-                } else {
-                    throw parser_error("invalid 'open/export' command option, "
-                                       "identifier, 'hiding' or 'renaming' expected", p.pos());
+                    p.check_token_next(get_arrow_tk(), "invalid 'open/export' command renaming, '->' expected");
+                    name to_id = p.check_id_next("invalid 'open/export' command renaming, identifier expected");
+                    check_identifier(p, env, ns, from_id);
+                    exception_names.push_back(from_id);
+                    renames.emplace_back(as+to_id, ns+from_id);
                 }
-                if (found_explicit && !exception_names.empty())
-                    throw parser_error("invalid 'open/export' command option, "
-                                       "mixing explicit and implicit 'open/export' options", p.pos());
-                p.check_token_next(get_rparen_tk(), "invalid 'open/export' command option, ')' expected");
+            } else if (p.curr_is_token_or_id(get_hiding_tk())) {
+                p.next();
+                while (p.curr_is_identifier()) {
+                    name id = p.get_name_val();
+                    p.next();
+                    check_identifier(p, env, ns, id);
+                    exception_names.push_back(id);
+                }
+            } else if (p.curr_is_identifier()) {
+                found_explicit = true;
+                while (p.curr_is_identifier()) {
+                    name id = p.get_name_val();
+                    p.next();
+                    check_identifier(p, env, ns, id);
+                    renames.emplace_back(as+id, ns+id);
+                }
+            } else {
+                throw parser_error("invalid 'open/export' command option, "
+                                   "identifier, 'hiding' or 'renaming' expected", p.pos());
             }
+            if (found_explicit && !exception_names.empty())
+                throw parser_error("invalid 'open/export' command option, "
+                                   "mixing explicit and implicit 'open/export' options", p.pos());
+            p.check_token_next(get_rparen_tk(), "invalid 'open/export' command option, ')' expected");
         }
-        export_decl edecl(ns, as, metacls, decls, found_explicit, renames, exception_names);
+        export_decl edecl(ns, as, found_explicit, renames, exception_names);
         env = execute_open(env, p.ios(), edecl);
         if (!open) {
             env = add_export_decl(env, edecl);
         }
-        if (!is_next_metaclass_tk(p) && !p.curr_is_identifier())
+        if (!p.curr_is_identifier())
             break;
     }
     return env;
 }
 static environment open_cmd(parser & p) { return open_export_cmd(p, true); }
 static environment export_cmd(parser & p) { return open_export_cmd(p, false); }
-
-static environment override_cmd(parser & p) {
-    environment env = p.env();
-    while (p.curr_is_identifier()) {
-        auto pos   = p.pos();
-        name ns    = p.check_id_next("invalid 'override' command, identifier expected");
-        optional<name> real_ns = to_valid_namespace_name(env, ns);
-        if (!real_ns)
-            throw parser_error(sstream() << "invalid namespace name '" << ns << "'", pos);
-        ns = *real_ns;
-        bool persistent = false;
-        env = override_notation(env, ns, persistent);
-        env = overwrite_aliases(env, ns, name());
-        env = update_fingerprint(env, ns.hash());
-    }
-    return env;
-}
 
 static environment erase_cache_cmd(parser & p) {
     name n = p.check_id_next("invalid #erase_cache command, identifier expected");
@@ -507,9 +397,7 @@ static environment register_simp_ext_cmd(parser & p) {
     if (auto oprio = parse_priority(p))
         prio = *oprio;
     bool persistent = true;
-    // TODO(dhs): allow some syntax for indicating a namespace other than the current one
-    name ns = get_namespace(env);
-    env = add_simp_extension(env, p.ios(), head, simp_ext_name, prio, ns, persistent);
+    env = add_simp_extension(env, p.ios(), head, simp_ext_name, prio, persistent);
     return env;
 }
 
@@ -718,8 +606,6 @@ void init_cmd_table(cmd_table & r) {
                         open_cmd));
     add_cmd(r, cmd_info("export",            "create abbreviations for declarations, "
                         "and export objects defined in other namespaces", export_cmd));
-    add_cmd(r, cmd_info("override",          "override notation declarations using the ones defined in the given namespace",
-                        override_cmd));
     add_cmd(r, cmd_info("set_option",        "set configuration option", set_option_cmd));
     add_cmd(r, cmd_info("exit",              "exit", exit_cmd));
     add_cmd(r, cmd_info("print",             "print a string", print_cmd));

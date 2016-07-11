@@ -11,11 +11,11 @@ namespace lean {
 /** \brief Create type checker that treats classes as opaque constants */
 old_type_checker_ptr mk_class_type_checker(environment const & env, bool conservative);
 /** \brief Add a new 'class' to the environment (if it is not already declared) */
-environment add_class(environment const & env, name const & n, name const & ns, bool persistent);
+    environment add_class(environment const &env, name const &n, bool persistent);
 /** \brief Add a new 'class instance' to the environment. */
-environment add_instance(environment const & env, name const & n, unsigned priority, name const & ns, bool persistent);
+environment add_instance(environment const & env, name const & n, unsigned priority, bool persistent);
 /** \brief Add a new 'class transitive instance' to the environment. */
-environment add_trans_instance(environment const & env, name const & n, unsigned priority, name const & ns, bool persistent);
+environment add_trans_instance(environment const & env, name const & n, unsigned priority, bool persistent);
 /** \brief Return true iff \c c was declared with \c add_class. */
 bool is_class(environment const & env, name const & c);
 /** \brief Return true iff \c i was declared with \c add_instance. */

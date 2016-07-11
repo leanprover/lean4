@@ -40,27 +40,20 @@ expr normalize(old_type_checker & tc, expr const & e, std::function<bool(expr co
 
     Of course, kernel opaque constants are not unfolded.
 */
-environment add_unfold_hint(environment const & env, name const & n, list<unsigned> const & idxs, name const & ns, bool persistent);
-inline environment add_unfold_hint(environment const & env, name const & n, unsigned idx, name const & ns, bool persistent) {
-    return add_unfold_hint(env, n, to_list(idx), ns, persistent);
+environment add_unfold_hint(environment const & env, name const & n, list<unsigned> const & idxs, bool persistent);
+inline environment add_unfold_hint(environment const & env, name const & n, unsigned idx, bool persistent) {
+    return add_unfold_hint(env, n, to_list(idx), persistent);
 }
-environment erase_unfold_hint(environment const & env, name const & n, name const & ns, bool persistent);
 /** \brief Retrieve the hint added with the procedure add_unfold_hint. */
 list<unsigned> has_unfold_hint(environment const & env, name const & d);
 
 /** \brief [unfold-full] hint instructs normalizer (and simplifier) that function application
     (f a_1 ... a_n) should be unfolded when it is fully applied */
-environment add_unfold_full_hint(environment const & env, name const & n, name const & ns, bool persistent);
-environment erase_unfold_full_hint(environment const & env, name const & n, name const & ns, bool persistent);
-/** \brief Retrieve the hint added with the procedure add_unfold_full_hint. */
 bool has_unfold_full_hint(environment const & env, name const & d);
 
 
 /** \brief unfold-m hint instructs normalizer (and simplifier) that function application
     (f ...) should be unfolded when it is the major premise of a constructor like operator */
-environment add_constructor_hint(environment const & env, name const & n, name const & ns, bool persistent);
-environment erase_constructor_hint(environment const & env, name const & n, name const & ns, bool persistent);
-/** \brief Retrieve the hint added with the procedure add_constructor_hint. */
 bool has_constructor_hint(environment const & env, name const & d);
 
 void initialize_normalize();

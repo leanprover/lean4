@@ -6,5 +6,5 @@ definition test.bla : ℕ → ℕ :=
 λ a, foo (succ (succ a)) (foo.prf a)
 definition test.bla : ℕ → ℕ :=
 λ a, test.foo (succ (succ a)) (test.foo.prf a)
-definition test.foo.prf : ∀ (x : ℕ), 0 < succ (succ x) :=
+definition test.foo.prf [irreducible] : ∀ (x : ℕ), 0 < succ (succ x) :=
 λ x, lt.step (zero_lt_succ x)

@@ -17,13 +17,10 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/flycheck.h"
 #include "library/pp_options.h"
-#include "library/scoped_ext.h"
-#include "library/export_decl.h"
 #include "library/private.h"
 #include "library/protected.h"
 #include "library/attribute_manager.h"
 #include "library/user_recursors.h"
-#include "library/relation_manager.h"
 #include "library/noncomputable.h"
 #include "library/legacy_type_context.h"
 #include "library/unification_hint.h"
@@ -32,7 +29,6 @@ Author: Leonardo de Moura
 #include "library/tactic/defeq_simplifier/defeq_simp_lemmas.h"
 #include "library/tactic/simplifier/simp_lemmas.h"
 #include "library/tactic/simplifier/simp_extensions.h"
-#include "library/definitional/projection.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
@@ -186,17 +182,6 @@ static void print_notation(parser & p) {
         p.ios().get_regular_stream() << "no notation" << std::endl;
 }
 
-static void print_metaclasses(parser const & p) {
-    buffer<name> c;
-    get_metaclasses(c);
-    for (name const & n : c) {
-        // We do not display internal metaclass export_decl.
-        // This metaclass is used internally for "replaying" export declarations.
-        if (n != get_export_decl_class_name())
-            p.ios().get_regular_stream() << "[" << n << "]" << std::endl;
-    }
-}
-
 static void print_patterns(parser & p, name const & n) {
 /*
     if (is_forward_lemma(p.env(), n)) {
@@ -264,6 +249,7 @@ static void print_attributes(parser const & p, name const & n) {
     std::ostream & out = p.ios().get_regular_stream();
     buffer<char const *> attrs;
     get_attributes(attrs);
+    std::sort(attrs.begin(), attrs.end(), [](char const * n1, char const * n2) { return strcmp(n1, n2) < 0; });
     for (char const * attr : attrs) {
         if (strcmp(attr, "semireducible") == 0)
             continue;
@@ -474,52 +460,16 @@ bool print_polymorphic(parser & p) {
     return false;
 }
 
-static void print_reducible_info(parser & p, reducible_status s1) {
-    buffer<name> r;
-    for_each_reducible(p.env(), [&](name const & n, reducible_status s2) {
-            if (s1 == s2)
-                r.push_back(n);
-        });
-    std::ostream & out = p.ios().get_regular_stream();
-    std::sort(r.begin(), r.end());
-    for (name const & n : r)
-        out << n << "\n";
-}
-
 static void print_unification_hints(parser & p) {
     type_checker tc(p.env());
     auto out = regular(p.env(), p.ios(), tc);
-    unification_hints hints;
-    name ns;
-    if (p.curr_is_identifier()) {
-        ns = p.get_name_val();
-        p.next();
-        hints = get_unification_hints(p.env(), ns);
-    } else {
-        hints = get_unification_hints(p.env());
-    }
-    format header;
-    if (!ns.is_anonymous())
-        header = format(" at namespace '") + format(ns) + format("'");
-    out << pp_unification_hints(hints, out.get_formatter(), header);
+    out << pp_unification_hints(get_unification_hints(p.env()), out.get_formatter());
 }
 
 static void print_defeq_lemmas(parser & p) {
     type_checker tc(p.env());
     auto out = regular(p.env(), p.ios(), tc);
-    defeq_simp_lemmas lemmas;
-    name ns;
-    if (p.curr_is_identifier()) {
-        ns = p.get_name_val();
-        p.next();
-        lemmas = get_defeq_simp_lemmas(p.env(), ns);
-    } else {
-        lemmas = get_defeq_simp_lemmas(p.env());
-    }
-    format header;
-    if (!ns.is_anonymous())
-        header = format(" at namespace '") + format(ns) + format("'");
-    out << pp_defeq_simp_lemmas(lemmas, out.get_formatter(), header);
+    out << pp_defeq_simp_lemmas(get_defeq_simp_lemmas(p.env()), out.get_formatter());
 }
 
 static void print_simp_rules(parser & p) {
@@ -553,48 +503,6 @@ static void print_light_rules(parser & p) {
 */
 }
 
-static void print_elim_lemmas(parser & p) {
-/*
-    buffer<name> lemmas;
-    get_elim_lemmas(p.env(), lemmas);
-    for (auto n : lemmas)
-        p.ios().get_regular_stream() << n << "\n";
-*/
-}
-
-static void print_intro_lemmas(parser & p) {
-/*
-    buffer<name> lemmas;
-    get_intro_lemmas(p.env(), lemmas);
-    for (auto n : lemmas)
-        p.ios().get_regular_stream() << n << "\n";
-*/
-}
-
-static void print_backward_lemmas(parser & p) {
-/*
-    buffer<name> lemmas;
-    get_backward_lemmas(p.env(), lemmas);
-    for (auto n : lemmas)
-        p.ios().get_regular_stream() << n << "\n";
-*/
-}
-
-static void print_no_patterns(parser & p) {
-/*
-    auto s = get_no_patterns(p.env());
-    buffer<name> ns;
-    s.to_buffer(ns);
-    std::sort(ns.begin(), ns.end());
-    std::ostream & out = p.ios().get_regular_stream();
-    for (unsigned i = 0; i < ns.size(); i++) {
-        if (i > 0) out << ", ";
-        out << ns[i];
-    }
-    out << "\n";
-*/
-}
-
 static void print_aliases(parser const & p) {
     std::ostream & out = p.ios().get_regular_stream();
     for_each_expr_alias(p.env(), [&](name const & n, list<name> const & as) {
@@ -620,6 +528,18 @@ static void print_key_equivalences(parser & p) {
         });
 }
 
+static void print_attribute(parser & p, name const & attr) {
+    buffer<name> instances;
+    get_attribute_instances(p.env(), attr, instances);
+
+    // oldest first
+    unsigned i = instances.size();
+    while (i > 0) {
+        --i;
+        p.ios().get_regular_stream() << instances[i] << "\n";
+    }
+}
+
 environment print_cmd(parser & p) {
     flycheck_information info(p.ios());
     environment const & env = p.env();
@@ -638,9 +558,6 @@ environment print_cmd(parser & p) {
         options opts = out.get_options();
         opts = opts.update(get_pp_notation_name(), false);
         out.update_options(opts) << e << endl;
-    } else if (p.curr_is_token_or_id(get_no_pattern_attr_tk())) {
-        p.next();
-        print_no_patterns(p);
     } else if (p.curr_is_token_or_id(get_options_tk())) {
         p.next();
         out << p.ios().get_options() << endl;
@@ -699,9 +616,6 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_aliases_tk())) {
         p.next();
         print_aliases(p);
-    } else if (p.curr_is_token_or_id(get_metaclasses_tk())) {
-        p.next();
-        print_metaclasses(p);
     } else if (p.curr_is_token_or_id(get_axioms_tk())) {
         p.next();
         return print_axioms(p);
@@ -724,9 +638,11 @@ environment print_cmd(parser & p) {
         print_recursor_info(p);
     } else if (p.curr_is_token(get_unify_attr_tk())) {
         p.next();
+        p.check_token_next(get_rbracket_tk(), "invalid 'print [unify]', ']' expected");
         print_unification_hints(p);
     } else if (p.curr_is_token(get_defeq_attr_tk())) {
         p.next();
+        p.check_token_next(get_rbracket_tk(), "invalid 'print [defeq]', ']' expected");
         print_defeq_lemmas(p);
     } else if (p.curr_is_token(get_simp_attr_tk())) {
         p.next();
@@ -735,24 +651,27 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token(get_simp_ext_attr_tk())) {
         p.next();
         print_simp_extensions(p);
-    } else if (p.curr_is_token(get_intro_bang_attr_tk())) {
-        p.next();
-        print_intro_lemmas(p);
-    } else if (p.curr_is_token(get_elim_attr_tk())) {
-        p.next();
-        print_elim_lemmas(p);
     } else if (p.curr_is_token(get_congr_attr_tk())) {
         p.next();
+        p.check_token_next(get_rbracket_tk(), "invalid 'print [congr]', ']' expected");
         print_congr_rules(p);
     } else if (p.curr_is_token(get_light_attr_tk())) {
         p.next();
         p.check_token_next(get_rbracket_tk(), "invalid 'print [light]', ']' expected");
         print_light_rules(p);
-    } else if (p.curr_is_token(get_intro_attr_tk())) {
-        p.next();
-        print_backward_lemmas(p);
     } else if (print_polymorphic(p)) {
     } else {
+        buffer<char const *> attr_tokens;
+        get_attribute_tokens(attr_tokens);
+        for (char const * tk : attr_tokens) {
+            if (p.curr_is_token(tk)) {
+                p.next();
+                p.check_token_next(get_rbracket_tk(), "invalid 'print [<attr>]', ']' expected");
+                char const *attr = get_attribute_from_token(tk);
+                print_attribute(p, attr);
+                return p.env();
+            }
+        }
         throw parser_error("invalid print command", p.pos());
     }
     return p.env();

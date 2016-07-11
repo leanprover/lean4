@@ -1043,9 +1043,9 @@ class definition_cmd_fn {
             }
             if (m_kind == Abbreviation || m_kind == LocalAbbreviation) {
                 bool persistent = m_kind == Abbreviation;
-                m_env = add_abbreviation(m_env, real_n, m_attributes.is_parsing_only(), get_namespace(m_env), persistent);
+                m_env = add_abbreviation(m_env, real_n, m_attributes.is_parsing_only(), persistent);
             }
-            m_env = m_attributes.apply(m_env, m_p.ios(), real_n, get_namespace(m_env));
+            m_env = m_attributes.apply(m_env, m_p.ios(), real_n);
         }
     }
 
@@ -1474,18 +1474,9 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
     }
     if (!parsed_attrs)
         attributes.parse(p);
-    name ns = get_namespace(p.env());
-    if (p.curr_is_token(get_at_tk())) {
-        if (!persistent)
-            throw parser_error("invalid 'attribute' command, 'at' modifier cannot be used with local attributes", p.pos());
-        p.next();
-        ns = p.check_id_next("invalid 'attribute' command, identifier expected");
-        if (ns == get_root_tk())
-            ns = name();
-    }
     environment env = p.env();
     for (name const & d : ds)
-        env = attributes.apply(env, p.ios(), d, ns);
+        env = attributes.apply(env, p.ios(), d);
     return env;
 }
 

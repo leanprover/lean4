@@ -31,7 +31,7 @@ private:
 public:
     decl_attributes(bool is_abbrev = false, bool persistent = true);
     void parse(parser & p);
-    environment apply(environment env, io_state const & ios, name const & d, name const & ns) const;
+    environment apply(environment env, io_state const & ios, name const & d) const;
     bool is_parsing_only() const { return m_parsing_only; }
     void write(serializer & s) const;
     void read(deserializer & d);

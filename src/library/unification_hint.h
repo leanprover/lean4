@@ -59,10 +59,10 @@ typedef priority_queue<unification_hint, unification_hint_cmp> unification_hint_
 typedef rb_map<name_pair, unification_hint_queue, name_pair_quick_cmp> unification_hints;
 
 unification_hints get_unification_hints(environment const & env);
-unification_hints get_unification_hints(environment const & env, name const & ns);
+
 void get_unification_hints(environment const & env, name const & n1, name const & n2, buffer<unification_hint> & hints);
 
-format pp_unification_hints(unification_hints const & hints, formatter const & fmt, format const & header);
+format pp_unification_hints(unification_hints const & hints, formatter const & fmt);
 
 void initialize_unification_hint();
 void finalize_unification_hint();

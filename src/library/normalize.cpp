@@ -29,165 +29,34 @@ namespace lean {
    - [unfold-full] (f a_1 ... a_i ... a_n) should be unfolded when it is fully applied.
    - constructor (f ...) should be unfolded when it is the major premise of a recursor-like operator
 */
-struct unfold_hint_entry {
-    enum kind {Unfold, UnfoldFull, Constructor};
-    kind           m_kind; //!< true if it is an unfold_c hint
-    bool           m_add;  //!< add/remove hint
-    name           m_decl_name;
-    list<unsigned> m_arg_idxs; //!< only relevant if m_kind == Unfold
-    unfold_hint_entry():m_kind(Unfold), m_add(false) {}
-    unfold_hint_entry(kind k, bool add, name const & n):
-        m_kind(k), m_add(add), m_decl_name(n) {}
-    unfold_hint_entry(bool add, name const & n, list<unsigned> const & idxs):
-        m_kind(Unfold), m_add(add), m_decl_name(n), m_arg_idxs(idxs) {}
-};
 
-unfold_hint_entry mk_add_unfold_entry(name const & n, list<unsigned> const & idxs) { return unfold_hint_entry(true, n, idxs); }
-unfold_hint_entry mk_erase_unfold_entry(name const & n) { return unfold_hint_entry(unfold_hint_entry::Unfold, false, n); }
-unfold_hint_entry mk_add_unfold_full_entry(name const & n) { return unfold_hint_entry(unfold_hint_entry::UnfoldFull, true, n); }
-unfold_hint_entry mk_erase_unfold_full_entry(name const & n) { return unfold_hint_entry(unfold_hint_entry::UnfoldFull, false, n); }
-unfold_hint_entry mk_add_constructor_entry(name const & n) { return unfold_hint_entry(unfold_hint_entry::Constructor, true, n); }
-unfold_hint_entry mk_erase_constructor_entry(name const & n) { return unfold_hint_entry(unfold_hint_entry::Constructor, false, n); }
-
-static name * g_unfold_hint_name = nullptr;
-static std::string * g_key = nullptr;
-
-struct unfold_hint_state {
-    name_map<list<unsigned>> m_unfold;
-    name_set                 m_unfold_full;
-    name_set                 m_constructor;
-};
-
-struct unfold_hint_config {
-    typedef unfold_hint_state state;
-    typedef unfold_hint_entry entry;
-
-    static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
-        switch (e.m_kind) {
-        case unfold_hint_entry::Unfold:
-            if (e.m_add)
-                s.m_unfold.insert(e.m_decl_name, e.m_arg_idxs);
-            else
-                s.m_unfold.erase(e.m_decl_name);
-            break;
-        case unfold_hint_entry::UnfoldFull:
-            if (e.m_add)
-                s.m_unfold_full.insert(e.m_decl_name);
-            else
-                s.m_unfold_full.erase(e.m_decl_name);
-            break;
-        case unfold_hint_entry::Constructor:
-            if (e.m_add)
-                s.m_constructor.insert(e.m_decl_name);
-            else
-                s.m_constructor.erase(e.m_decl_name);
-            break;
-        }
-    }
-    static name const & get_class_name() {
-        return *g_unfold_hint_name;
-    }
-    static std::string const & get_serialization_key() {
-        return *g_key;
-    }
-    static void  write_entry(serializer & s, entry const & e) {
-        s << static_cast<char>(e.m_kind) << e.m_add << e.m_decl_name;
-        if (e.m_kind == unfold_hint_entry::Unfold)
-            write_list(s, e.m_arg_idxs);
-    }
-    static entry read_entry(deserializer & d) {
-        char k;
-        entry e;
-        d >> k >> e.m_add >> e.m_decl_name;
-        e.m_kind = static_cast<unfold_hint_entry::kind>(k);
-        if (e.m_kind == unfold_hint_entry::Unfold)
-            e.m_arg_idxs = read_list<unsigned>(d);
-        return e;
-    }
-    static optional<unsigned> get_fingerprint(entry const & e) {
-        return some(e.m_decl_name.hash());
-    }
-};
-
-template class scoped_ext<unfold_hint_config>;
-typedef scoped_ext<unfold_hint_config> unfold_hint_ext;
-
-environment add_unfold_hint(environment const & env, name const & n, list<unsigned> const & idxs, name const & ns, bool persistent) {
-    lean_assert(idxs);
-    declaration const & d = env.get(n);
-    if (!d.is_definition())
-        throw exception("invalid [unfold] hint, declaration must be a non-opaque definition");
-    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_add_unfold_entry(n, idxs), ns, persistent);
+environment add_unfold_hint(environment const & env, name const & n, list<unsigned> const & idxs, bool persistent) {
+    return set_attribute(env, get_dummy_ios(), "unfold", n, LEAN_DEFAULT_PRIORITY, idxs, persistent);
 }
-
 list<unsigned> has_unfold_hint(environment const & env, name const & d) {
-    unfold_hint_state const & s = unfold_hint_ext::get_state(env);
-    if (auto it = s.m_unfold.find(d))
-        return list<unsigned>(*it);
+    if (has_attribute(env, "unfold", d))
+        return get_attribute_params(env, "unfold", d);
     else
         return list<unsigned>();
 }
 
-environment erase_unfold_hint(environment const & env, name const & n, name const & ns, bool persistent) {
-    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_erase_unfold_entry(n), ns, persistent);
-}
-
-environment add_unfold_full_hint(environment const & env, name const & n, name const & ns, bool persistent) {
-    declaration const & d = env.get(n);
-    if (!d.is_definition())
-        throw exception("invalid [unfold_full] hint, declaration must be a non-opaque definition");
-    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_add_unfold_full_entry(n), ns, persistent);
-}
-
 bool has_unfold_full_hint(environment const & env, name const & d) {
-    unfold_hint_state const & s = unfold_hint_ext::get_state(env);
-    return s.m_unfold_full.contains(d);
-}
-
-environment erase_unfold_full_hint(environment const & env, name const & n, name const & ns, bool persistent) {
-    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_erase_unfold_full_entry(n), ns, persistent);
-}
-
-environment add_constructor_hint(environment const & env, name const & n, name const & ns, bool persistent) {
-    env.get(n);
-    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_add_constructor_entry(n), ns, persistent);
+    return has_attribute(env, "unfold_full", d);
 }
 
 bool has_constructor_hint(environment const & env, name const & d) {
-    unfold_hint_state const & s = unfold_hint_ext::get_state(env);
-    return s.m_constructor.contains(d);
-}
-
-environment erase_constructor_hint(environment const & env, name const & n, name const & ns, bool persistent) {
-    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_erase_constructor_entry(n), ns, persistent);
+    return has_attribute(env, "constructor", d);
 }
 
 void initialize_normalize() {
-    g_unfold_hint_name = new name("unfold");
-    g_key = new std::string("UNFOLDH");
-    unfold_hint_ext::initialize();
-    register_params_attribute("unfold", "unfold definition when the given positions are constructors",
-                              [](environment const & env, io_state const &, name const & d, list<unsigned> const & idxs, name const & ns, bool persistent) {
-                                  return add_unfold_hint(env, d, idxs, ns, persistent);
-                              });
-
+    register_params_attribute("unfold", "unfold definition when the given positions are constructors");
     register_no_params_attribute("unfold_full",
-                                 "instructs normalizer (and simplifier) that function application (f a_1 ... a_n) should be unfolded when it is fully applied",
-                                 [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
-                                     return add_unfold_full_hint(env, d, ns, persistent);
-                                 });
-
+                                 "instructs normalizer (and simplifier) that function application (f a_1 ... a_n) should be unfolded when it is fully applied");
     register_no_params_attribute("constructor",
-                                 "instructs normalizer (and simplifier) that function application (f ...) should be unfolded when it is the major premise of a constructor like operator",
-                                 [](environment const & env, io_state const &, name const & d, name const & ns, bool persistent) {
-                                     return add_constructor_hint(env, d, ns, persistent);
-                                 });
+                                 "instructs normalizer (and simplifier) that function application (f ...) should be unfolded when it is the major premise of a constructor like operator");
 }
 
 void finalize_normalize() {
-    unfold_hint_ext::finalize();
-    delete g_unfold_hint_name;
-    delete g_key;
 }
 
 class normalize_fn {

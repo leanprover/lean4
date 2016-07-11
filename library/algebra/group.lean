@@ -758,13 +758,10 @@ end norm_num
 
 attribute [simp]
   zero_add add_zero one_mul mul_one
-  at simplifier.unit
 
 attribute [simp]
   neg_neg sub_eq_add_neg
-  at simplifier.neg
 
 attribute [simp]
   add.assoc add.comm add.left_comm
   mul.left_comm mul.comm mul.assoc
-  at simplifier.ac

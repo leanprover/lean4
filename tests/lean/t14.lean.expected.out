@@ -9,7 +9,3 @@ a : A
 c : A
 A : Type
 a * c : A
-foo.a * foo.c : foo.A
-t14.lean:46:8: error: unknown identifier 'a'
-f a c : A
-t14.lean:52:9: error: unexpected token

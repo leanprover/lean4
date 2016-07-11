@@ -151,6 +151,3 @@ theorem surjective_id : surjective (@id A) := take a, exists.intro a rfl
 theorem bijective_id : bijective (@id A) := and.intro injective_id surjective_id
 
 end function
-
--- copy reducible annotations to top-level
-export [reducible] [unfold] function

@@ -7,7 +7,6 @@ Sigma types, aka dependent sum.
 -/
 import logic.cast
 open inhabited sigma.ops
-override eq.ops
 
 namespace sigma
   universe variables u v

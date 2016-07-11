@@ -4,7 +4,7 @@ g : N → N
 t5.lean:7:13:failed to generate bytecode for 'foo.h'
 code generation failed, VM does not have code for 'f'
 h : N
-t5.lean:9:21:failed to generate bytecode for 'private.891822513.q'
+t5.lean:9:21:failed to generate bytecode for 'private.106392691.q'
 code generation failed, VM does not have code for 'f'
 q : N
 foo.h : N

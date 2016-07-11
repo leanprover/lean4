@@ -37,9 +37,17 @@ simplification rules for iff
 #3, (?M_1 ∨ ?M_2) ∨ ?M_3 ↦ ?M_1 ∨ ?M_2 ∨ ?M_3
 #2 perm, ?M_1 ∨ ?M_2 ↦ ?M_2 ∨ ?M_1
 #2, ?M_2 = ?M_2 ↦ true
+#4, ite ?M_1 ?M_2 ?M_3 ↦ (?M_1 → ?M_2) ∧ (¬?M_1 → ?M_3)
+#0, ¬true ↦ false
 #2, ¬?M_2 = ?M_2 ↦ false
 #0, ¬false ↦ true
-#0, ¬true ↦ false
+#1, false → ?M_1 ↦ true
+#1, true → ?M_1 ↦ ?M_1
+#1, ?M_1 → true ↦ true
+#1, ?M_1 → ?M_1 ↦ true
+#3, ?M_1 → ?M_2 ∧ ?M_3 ↦ (?M_1 → ?M_2) ∧ (?M_1 → ?M_3)
+#3, ?M_1 ∨ ?M_2 → ?M_3 ↦ (?M_1 → ?M_3) ∧ (?M_2 → ?M_3)
+#3, ?M_1 ∧ ?M_2 → ?M_3 ↦ ?M_1 → ?M_2 → ?M_3
 simplification rules for eq
 #1, g ?M_1 ↦ f ?M_1 + 1
 #2, g ?M_1 ↦ 1

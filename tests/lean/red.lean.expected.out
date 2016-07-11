@@ -5,7 +5,7 @@ red.lean:9:19: error: type mismatch at definition 'example', has type
 but is expected to have type
   f = g
 red.lean:12:0: error: type mismatch at application
-  eq.subst H rfl
+  H ▸ rfl
 term
   rfl
 has type
@@ -13,7 +13,7 @@ has type
 but is expected to have type
   f ?M_1 = a
 red.lean:17:0: error: type mismatch at application
-  eq.subst H rfl
+  H ▸ rfl
 term
   rfl
 has type

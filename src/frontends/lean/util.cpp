@@ -417,18 +417,6 @@ name get_decl_short_name(name const & d, environment const & env) {
         return d;
 }
 
-environment open_num_notation(environment const & env) {
-    name num("num");
-    try {
-        bool persistent     = false;
-        environment new_env = override_notation(env, num, persistent);
-        return overwrite_aliases(new_env, num, name());
-    } catch (exception &) {
-        // num namespace is not available, then use only the aliases
-        return overwrite_aliases(env, num, name());
-    }
-}
-
 environment open_prec_aliases(environment const & env) {
     name prec("std", "prec");
     return overwrite_aliases(env, prec, name());

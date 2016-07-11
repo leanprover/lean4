@@ -1,4 +1,3 @@
-import data.list
 constant R : Π {A : Type}, A → A → Prop
 infix `~` := R
 

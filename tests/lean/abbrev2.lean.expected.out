@@ -9,8 +9,6 @@ definition bla.tst : ℕ
 definition bla2.tst2 : ℕ
 foo2
 definition bla2.tst2 : ℕ
-1
-definition bla2.tst2 : ℕ
-foo2
+bla2.foo2
 definition bla2.tst2 : ℕ
 foo2

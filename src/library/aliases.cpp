@@ -90,11 +90,6 @@ struct aliases_ext : public environment_extension {
         m_state.m_aliases.for_each(fn);
     }
 
-    static environment using_namespace(environment const & env, io_state const &, name const &) {
-        // do nothing, aliases are treated in a special way in the frontend.
-        return env;
-    }
-
     static environment push_scope(environment const & env, io_state const &, scope_kind k) {
         aliases_ext ext = get_extension(env);
         ext.push(k != scope_kind::Namespace);
@@ -109,12 +104,10 @@ struct aliases_ext : public environment_extension {
     }
 };
 
-static name * g_aliases = nullptr;
-
 struct aliases_ext_reg {
     unsigned m_ext_id;
     aliases_ext_reg() {
-        register_scoped_ext(*g_aliases, aliases_ext::using_namespace, aliases_ext::push_scope, aliases_ext::pop_scope);
+        register_scoped_ext(aliases_ext::push_scope, aliases_ext::pop_scope);
         m_ext_id = environment::register_extension(std::make_shared<aliases_ext>());
     }
 };
@@ -204,12 +197,10 @@ void for_each_expr_alias(environment const & env, std::function<void(name const 
 }
 
 void initialize_aliases() {
-    g_aliases = new name("alias");
     g_ext     = new aliases_ext_reg();
 }
 
 void finalize_aliases() {
     delete g_ext;
-    delete g_aliases;
 }
 }

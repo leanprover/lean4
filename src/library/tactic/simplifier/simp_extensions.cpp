@@ -13,7 +13,6 @@ Author: Daniel Selsam
 
 namespace lean {
 
-static name * g_class_name = nullptr;
 static std::string * g_key = nullptr;
 
 struct simp_ext_entry {
@@ -60,9 +59,6 @@ struct simp_ext_config {
         s.insert(e.m_head, m);
     }
 
-    static name const & get_class_name() {
-        return *g_class_name;
-    }
     static std::string const & get_serialization_key() {
         return *g_key;
     }
@@ -81,8 +77,8 @@ struct simp_ext_config {
 
 typedef scoped_ext<simp_ext_config> simp_ext_ext;
 
-environment add_simp_extension(environment const & env, io_state const & ios, name const & head, name const & simp_ext_name, unsigned prio, name const & ns, bool persistent) {
-    return simp_ext_ext::add_entry(env, ios, simp_ext_entry(prio, head, simp_ext_name), ns, persistent);
+environment add_simp_extension(environment const & env, io_state const & ios, name const & head, name const & simp_ext_name, unsigned prio, bool persistent) {
+    return simp_ext_ext::add_entry(env, ios, simp_ext_entry(prio, head, simp_ext_name), persistent);
 }
 
 format pp_simp_extensions_for_head(priority_queue<simp_ext_record, simp_ext_record_cmp> const & q) {
@@ -118,7 +114,6 @@ void get_simp_extensions_for(environment const & env, name const & head, buffer<
 }
 
 void initialize_simp_extensions() {
-    g_class_name = new name("simp_ext");
     g_key        = new std::string("SIMP_EXT");
     simp_ext_ext::initialize();
 }
@@ -126,7 +121,6 @@ void initialize_simp_extensions() {
 void finalize_simp_extensions() {
     simp_ext_ext::finalize();
     delete g_key;
-    delete g_class_name;
 }
 
 }

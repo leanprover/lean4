@@ -110,7 +110,7 @@ template class scoped_ext<token_config>;
 typedef scoped_ext<token_config> token_ext;
 
 environment add_token(environment const & env, token_entry const & e, bool persistent) {
-    return token_ext::add_entry(env, get_dummy_ios(), e, get_namespace(env), persistent);
+    return token_ext::add_entry(env, get_dummy_ios(), e, persistent);
 }
 
 environment add_token(environment const & env, char const * val, unsigned prec) {
@@ -327,7 +327,7 @@ template class scoped_ext<notation_config>;
 typedef scoped_ext<notation_config> notation_ext;
 
 environment add_notation(environment const & env, notation_entry const & e, bool persistent) {
-    return notation_ext::add_entry(env, get_dummy_ios(), e, get_namespace(env), persistent);
+    return notation_ext::add_entry(env, get_dummy_ios(), e, persistent);
 }
 
 parse_table const & get_nud_table(environment const & env) {
@@ -363,29 +363,6 @@ list<notation_entry> get_notation_entries(environment const & env, head_index co
         return *it;
     else
         return list<notation_entry>();
-}
-
-environment override_notation(environment const & env, name const & n, bool persistent) {
-    environment r = env;
-    bool found = false;
-    if (auto it = token_ext::get_entries(r, n)) {
-        list<token_entry> entries = *it;
-        found = true;
-        for (token_entry e : entries) {
-            r = add_token(r, e, persistent);
-        }
-    }
-    if (auto it = notation_ext::get_entries(env, n)) {
-        list<notation_entry> entries = *it;
-        found = true;
-        for (notation_entry const & e : entries) {
-            notation_entry new_e(e, false);
-            r = add_notation(r, new_e, persistent);
-        }
-    }
-    if (!found)
-        throw exception(sstream() << "unknown namespace '" << n << "'");
-    return r;
 }
 
 struct cmd_ext : public environment_extension {

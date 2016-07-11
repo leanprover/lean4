@@ -141,7 +141,7 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     declaration new_d = mk_definition_inferring_trusted(env, no_confusion_type_name, lps, no_confusion_type_type, no_confusion_type_value,
                                                         use_conv_opt);
     environment new_env = module::add(env, check(env, new_d));
-    new_env = set_reducible(new_env, no_confusion_type_name, reducible_status::Reducible, get_namespace(new_env), true);
+    new_env = set_reducible(new_env, no_confusion_type_name, reducible_status::Reducible, true);
     return some(add_protected(new_env, no_confusion_type_name));
 }
 
@@ -275,8 +275,8 @@ environment mk_no_confusion(environment const & env, name const & n) {
     declaration new_d = mk_definition_inferring_trusted(new_env, no_confusion_name, lps, no_confusion_ty, no_confusion_val,
                                                         use_conv_opt);
     new_env = module::add(new_env, check(new_env, new_d));
-    new_env = set_reducible(new_env, no_confusion_name, reducible_status::Reducible, get_namespace(env), true);
-    new_env = add_unfold_hint(new_env, no_confusion_name, unfold_hint_idx, get_namespace(env), true);
+    new_env = set_reducible(new_env, no_confusion_name, reducible_status::Reducible, true);
+    new_env = add_unfold_hint(new_env, no_confusion_name, unfold_hint_idx, true);
     new_env = add_no_confusion(new_env, no_confusion_name);
     return add_protected(new_env, no_confusion_name);
 }

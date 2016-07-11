@@ -54,5 +54,3 @@ definition Canonical_hint [unify] (C : Canonical) : unification_hint :=
 print [unify]
 
 end canonical
-
-print [unify] canonical

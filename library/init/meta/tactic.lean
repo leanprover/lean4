@@ -216,7 +216,9 @@ meta_constant abstract_eq     : expr → expr → tactic bool
 /- (induction_core m H rec ns) induction on H using recursor rec, names for the new hypotheses
    are retrieved from ns. If ns does not have sufficient names, then use the internal binder names in the recursor. -/
 meta_constant induction_core : transparency → expr → name → list name → tactic unit
-
+/- (cases_core m H ns) apply cases_on recursor, names for the new hypotheses are retrieved from ns.
+   H must be a local constant -/
+meta_constant cases_core     : transparency → expr → list name → tactic unit
 open list nat
 
 /- Add (H : T := pr) to the current goal -/
@@ -537,4 +539,11 @@ do tgt : expr ← target,
    <|>
    fail "tactic by_contradiction failed, target is not a negation nor a decidable proposition (remark: when 'open classical' is used all propositions are decidable)",
    intro H
+
+meta_definition cases (H : expr) : tactic unit :=
+cases_core semireducible H []
+
+meta_definition cases_using : expr → list name → tactic unit :=
+cases_core semireducible
+
 end tactic

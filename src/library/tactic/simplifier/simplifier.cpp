@@ -502,7 +502,7 @@ simp_result simplifier::simplify_extensions(expr const & _e) {
     for (unsigned ext_id : ext_ids) {
         expr e = r.get_new();
         expr e_type = m_tctx.infer(e);
-        metavar_context mctx = m_tctx.get_mctx();
+        metavar_context mctx = m_tctx.mctx();
         expr result_mvar = mctx.mk_metavar_decl(m_tctx.lctx(), e_type);
         m_tctx.set_mctx(mctx); // the app-builder needs to know about these metavars
         expr goal_type = mk_app(m_tctx, m_rel, e, result_mvar);
@@ -538,7 +538,7 @@ simp_result simplifier::finalize(simp_result const & r) {
 }
 
 optional<expr> simplifier::prove(expr const & goal) {
-    metavar_context mctx = m_tctx.get_mctx();
+    metavar_context mctx = m_tctx.mctx();
     expr goal_mvar = mctx.mk_metavar_decl(m_tctx.lctx(), goal);
     lean_trace(name({"simplifier", "prove"}), tout() << goal_mvar << " : " << goal << "\n";);
     vm_obj s = to_obj(tactic_state(m_tctx.env(), m_tctx.get_options(), mctx, list<expr>(goal_mvar), goal_mvar));

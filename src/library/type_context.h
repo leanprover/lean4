@@ -207,7 +207,6 @@ public:
     expr mk_metavar_decl(local_context const & ctx, expr const & type) { return m_mctx.mk_metavar_decl(ctx, type); }
     level mk_univ_metavar_decl() { return m_mctx.mk_univ_metavar_decl(); }
 
-    metavar_context const & get_mctx() const { return m_mctx; }
     /* note: mctx must be a descendent of m_mctx */
     void set_mctx(metavar_context const & mctx) { m_mctx = mctx; }
 

@@ -312,11 +312,11 @@ format local_context::pp(formatter const & fmt) const {
     return r;
 }
 
-bool local_context::uses_user_name(name const & n) {
+bool local_context::uses_user_name(name const & n) const {
     return static_cast<bool>(m_idx2local_decl.find_if([&](unsigned, local_decl const & d) { return d.get_pp_name() == n; }));
 }
 
-name local_context::get_unused_name(name const & prefix, unsigned & idx) {
+name local_context::get_unused_name(name const & prefix, unsigned & idx) const {
     while (true) {
         name curr = prefix.append_after(idx);
         idx++;
@@ -325,7 +325,7 @@ name local_context::get_unused_name(name const & prefix, unsigned & idx) {
     }
 }
 
-name local_context::get_unused_name(name const & suggestion) {
+name local_context::get_unused_name(name const & suggestion) const {
     if (!uses_user_name(suggestion))
         return suggestion;
     unsigned idx = 1;

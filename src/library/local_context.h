@@ -114,10 +114,10 @@ public:
 
     /** \brief Return an unused hypothesis "user name" with the given prefix, the suffix is an
         unsigned >= idx. */
-    name get_unused_name(name const & prefix, unsigned & idx);
-    name get_unused_name(name const & suggestion);
+    name get_unused_name(name const & prefix, unsigned & idx) const;
+    name get_unused_name(name const & suggestion) const;
     /** \brief Return true iff the given name is a hypothesis "user name". */
-    bool uses_user_name(name const & n);
+    bool uses_user_name(name const & n) const;
 
     /** \brief Remove the given local decl.
         \pre \c d is in this local context, is not frozen, and no other local decl depends on it. */

@@ -9,12 +9,21 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
+expr revert(environment const & env, options const & opts, metavar_context & mctx, expr const & mvar, buffer<expr> & locals) {
+    optional<metavar_decl> g   = mctx.get_metavar_decl(mvar);
+    lean_assert(g);
+    type_context ctx           = mk_type_context_for(env, opts, mctx, g->get_context(), transparency_mode::All);
+    expr val                   = ctx.revert(locals, mvar);
+    expr new_g                 = get_app_fn(val);
+    mctx                       = ctx.mctx();
+    return new_g;
+}
+
 tactic_state revert(buffer<expr> & locals, tactic_state const & s) {
     lean_assert(s.goals());
-    type_context ctx           = mk_type_context_for(s, transparency_mode::All);
-    expr val                   = ctx.revert(locals, head(s.goals()));
-    expr new_g                 = get_app_fn(val);
-    return set_mctx_goals(s, ctx.mctx(), cons(new_g, tail(s.goals())));
+    metavar_context mctx = s.mctx();
+    expr new_g = revert(s.env(), s.get_options(), mctx, head(s.goals()), locals);
+    return set_mctx_goals(s, mctx, cons(new_g, tail(s.goals())));
 }
 
 vm_obj revert(list<expr> const & ls, tactic_state const & s) {

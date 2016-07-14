@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/list_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"
@@ -18,13 +19,12 @@ Author: Leonardo de Moura
 
 namespace lean {
 struct cases_tactic_fn {
-    tactic_state                  m_initial_state;
     environment const &           m_env;
     options const &               m_opts;
     transparency_mode             m_mode;
-    metavar_context               m_mctx;
+    metavar_context &             m_mctx;
     /* User provided ids to name new hypotheses */
-    list<name>                    m_ids;
+    list<name> &                  m_ids;
 
     /* Inductive datatype information */
     bool                          m_dep_elim;
@@ -34,11 +34,15 @@ struct cases_tactic_fn {
     declaration                   m_I_decl;
     declaration                   m_cases_on_decl;
 
-    #define lean_cases_trace(code) lean_trace(name({"tactic", "cases"}), tactic_state TMP = set_mctx(m_initial_state, m_mctx); type_context TMP_CTX = ::lean::mk_type_context_for(TMP, m_mode); scope_trace_env _scope1(m_env, TMP_CTX); code)
-
     type_context mk_type_context_for(metavar_decl const & g) {
         return ::lean::mk_type_context_for(m_env, m_opts, m_mctx, g.get_context(), m_mode);
     }
+
+    type_context mk_type_context_for(expr const & mvar) {
+        return mk_type_context_for(*m_mctx.get_metavar_decl(mvar));
+    }
+
+    #define lean_cases_trace(MVAR, CODE) lean_trace(name({"tactic", "cases"}), type_context TMP_CTX = mk_type_context_for(MVAR); scope_trace_env _scope1(m_env, TMP_CTX); CODE)
 
     void init_inductive_info(name const & n) {
         m_dep_elim       = inductive::has_dep_elim(m_env, n);
@@ -51,8 +55,8 @@ struct cases_tactic_fn {
         m_cases_on_decl  = m_env.get({n, "cases_on"});
     }
 
-    bool is_cases_applicable(expr const & H) {
-        type_context ctx = ::lean::mk_type_context_for(m_initial_state, m_mode);
+    bool is_cases_applicable(expr const & mvar, expr const & H) {
+        type_context ctx = mk_type_context_for(mvar);
         expr t = ctx.infer(H);
         buffer<expr> args;
         expr const & fn = get_app_args(t, args);
@@ -67,7 +71,7 @@ struct cases_tactic_fn {
         init_inductive_info(const_name(fn));
         if (args.size() != m_nindices + m_nparams)
             return false;
-        lean_cases_trace(tout() << "inductive type: " << const_name(fn) << ", num. params: " << m_nparams << ", num. indices: " << m_nindices << "\n";);
+        lean_cases_trace(mvar, tout() << "inductive type: " << const_name(fn) << ", num. params: " << m_nparams << ", num. indices: " << m_nindices << "\n";);
         return true;
     }
 
@@ -202,50 +206,52 @@ struct cases_tactic_fn {
     }
 
     format pp_goal(expr const & mvar) {
-        tactic_state tmp = set_mctx(m_initial_state, m_mctx);
+        tactic_state tmp(m_env, m_opts, m_mctx, to_list(mvar), mvar);
         return tmp.pp_goal(mvar);
     }
 
-    cases_tactic_fn(tactic_state const & s, transparency_mode m, list<name> const & ids):
-        m_initial_state(s),
-        m_env(s.env()),
-        m_opts(s.get_options()),
+    cases_tactic_fn(environment const & env, options const & opts, transparency_mode m, metavar_context & mctx, list<name> & ids):
+        m_env(env),
+        m_opts(opts),
         m_mode(m),
-        m_mctx(s.mctx()),
+        m_mctx(mctx),
         m_ids(ids) {
     }
 
-    tactic_state operator()(expr const & H, intros_list * ilist, renaming_list * rlist) {
-        lean_assert(m_initial_state.goals());
+    list<expr> operator()(expr const & mvar, expr const & H, intros_list * ilist, renaming_list * rlist) {
+        lean_assert(is_metavar(mvar));
+        lean_assert(m_mctx.get_metavar_decl(mvar));
         if (!is_local(H))
             throw exception("cases tactic failed, argumen must be a hypothesis");
-        if (!is_cases_applicable(H))
+        if (!is_cases_applicable(mvar, H))
             throw exception("cases tactic failed, it is not applicable to the given hypothesis");
-        expr mvar      = *m_initial_state.get_main_goal();
         metavar_decl g = *m_mctx.get_metavar_decl(mvar);
         if (has_indep_indices(g, H)) {
-            // TODO(Leo)
-            lean_unreachable();
+            /* Easy case */
+            return induction(m_env, m_opts, m_mode, m_mctx, mvar, H, m_cases_on_decl.get_name(), m_ids, ilist, rlist);
         } else {
             expr mvar1 = generalize_indices(mvar, H);
-            lean_cases_trace(tout() << "after generalize_indices:\n" << pp_goal(mvar1) << "\n";);
-
+            lean_cases_trace(mvar1, tout() << "after generalize_indices:\n" << pp_goal(mvar1) << "\n";);
             lean_unreachable();
         }
     }
 };
 
-tactic_state cases(tactic_state const & s, transparency_mode m, expr const & H, list<name> const & ids, intros_list * ilist, renaming_list * rlist) {
-    return cases_tactic_fn(s, m, ids)(H, ilist, rlist);
+list<expr> cases(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
+                 expr const & mvar, expr const & H, list<name> & ids,
+                 intros_list * ilist, renaming_list * rlist) {
+    return cases_tactic_fn(env, opts, m, mctx, ids)(mvar, H, ilist, rlist);
 }
 
 vm_obj tactic_cases_core(vm_obj const & m, vm_obj const & H, vm_obj const & ns, vm_obj const & _s) {
     tactic_state const & s   = to_tactic_state(_s);
     try {
-        optional<metavar_decl> g = s.get_main_goal_decl();
-        if (!g) return mk_no_goals_exception(s);
-        tactic_state new_s = cases(s, to_transparency_mode(m), to_expr(H), to_list_name(ns), nullptr, nullptr);
-        return mk_tactic_success(new_s);
+        if (!s.goals()) return mk_no_goals_exception(s);
+        list<name> ids       = to_list_name(ns);
+        metavar_context mctx = s.mctx();
+        list<expr> new_goals = cases(s.env(), s.get_options(), to_transparency_mode(m), mctx, head(s.goals()),
+                                     to_expr(H), ids, nullptr, nullptr);
+        return mk_tactic_success(set_mctx_goals(s, mctx, append(new_goals, tail(s.goals()))));
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);
     }

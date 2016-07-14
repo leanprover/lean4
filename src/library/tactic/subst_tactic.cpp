@@ -16,78 +16,84 @@ Author: Leonardo de Moura
 #include "library/tactic/revert_tactic.h"
 #include "library/tactic/intro_tactic.h"
 #include "library/tactic/clear_tactic.h"
+#include "library/tactic/subst_tactic.h"
 #include "library/tactic/app_builder_tactics.h"
 
 namespace lean {
-#define lean_trace_subst(S, Code) lean_tactic_trace(name({"tactic", "subst"}), S, Code)
+expr subst(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
+           expr const & mvar, expr const & H, bool symm, name_map<name> * renames) {
+    #define lean_subst_trace(CODE) lean_trace(name({"tactic", "cases"}), CODE)
+    #define lean_subst_trace_state(MVAR, MSG) lean_trace(name({"tactic", "cases"}), tactic_state S(env, opts, mctx, to_list(MVAR), MVAR); type_context TMP_CTX = mk_type_context_for(S, m); scope_trace_env _scope1(env, TMP_CTX); tout() << MSG << S.pp();)
+
+    lean_subst_trace_state(mvar, "initial:\n");
+    lean_assert(mctx.get_metavar_decl(mvar));
+    metavar_decl g      = *mctx.get_metavar_decl(mvar);
+    type_context ctx    = mk_type_context_for(env, opts, mctx, g.get_context(), m);
+    expr H_type         = ctx.infer(H);
+    expr lhs, rhs;
+    lean_verify(is_eq(H_type, lhs, rhs));
+    if (symm) std::swap(lhs, rhs);
+    buffer<expr> to_revert;
+    to_revert.push_back(lhs);
+    to_revert.push_back(H);
+    expr mvar1 = revert(env, opts, mctx, mvar, to_revert);
+    lean_subst_trace(tout() << "to_revert:"; for (auto h : to_revert) tout() << " " << h; tout() << "\n";);
+    lean_subst_trace_state(mvar1, "after revert:\n");
+    lean_assert(to_revert.size() >= 2);
+    buffer<name> lhsH2;
+    optional<expr> mvar2 = intron(env, opts, mctx, mvar1, 2, lhsH2);
+    if (!mvar2) throw exception("subst tactic failed, unexpected failure during intro");
+    lean_subst_trace_state(*mvar2, "after intro2:\n");
+    metavar_decl g2     = *mctx.get_metavar_decl(*mvar2);
+    local_context lctx  = g2.get_context();
+    expr type           = g2.get_type();
+    lhs                 = lctx.get_local_decl(lhsH2[0])->mk_ref();
+    expr H2             = lctx.get_local_decl(lhsH2[1])->mk_ref();
+    bool depH2          = depends_on(type, H2);
+    expr new_type       = instantiate(abstract_local(type, lhs), rhs);
+    type_context ctx2   = mk_type_context_for(env, opts, mctx, g2.get_context(), m);
+    expr motive;
+    if (depH2) {
+        new_type = instantiate(abstract_local(new_type, H2), mk_eq_refl(ctx2, rhs));
+        if (symm) {
+            motive = ctx2.mk_lambda({lhs, H2}, type);
+        } else {
+            motive = mk_lambda("H", mk_eq(ctx2, rhs, lhs), type);
+            motive = ctx2.mk_lambda(lhs, motive);
+        }
+    } else {
+        motive   = ctx2.mk_lambda(lhs, type);
+    }
+    expr major   = symm ? H2 : mk_eq_symm(ctx2, H2);
+    expr mvar3   = ctx2.mk_metavar_decl(lctx, new_type);
+    expr minor   = mvar3;
+    expr new_val = depH2 ? mk_eq_drec(ctx2, motive, minor, major) : mk_eq_rec(ctx2, motive, minor, major);
+    mctx = ctx2.mctx();
+    mctx.assign(*mvar2, new_val);
+    expr mvar4   = clear(mctx, mvar3, H2);
+    expr mvar5   = clear(mctx, mvar4, lhs);
+    buffer<name> new_Hnames;
+    optional<expr> mvar6 = intron(env, opts, mctx, mvar5, to_revert.size() - 2, new_Hnames);
+    if (renames) {
+        name_map<name> rmap;
+        for (unsigned i = 0; to_revert.size() - 2; i++) {
+            rmap.insert(mlocal_name(to_revert[i+2]), new_Hnames[i]);
+        }
+        *renames = rmap;
+    }
+    if (!mvar6) throw exception("subst tactic failed, unexpected failure when re-introducing dependencies");
+    lean_subst_trace_state(*mvar6, "after intro remaining reverted hypotheses:\n");
+    return *mvar6;
+}
 
 /* n is the internal name of a hypothesis that represents an equality */
 vm_obj tactic_subst_core(name const & n, bool symm, tactic_state const & s) {
     try {
-        scope_trace_env scope(s.get_options());
-        lean_trace_subst(s, tout() << "initial\n" << s.pp() << "\n";);
-        metavar_decl g             = *s.get_main_goal_decl();
-        local_context lctx         = g.get_context();
-        local_decl d               = *lctx.get_local_decl(n);
-        expr lhs, rhs;
-        is_eq(d.get_type(), lhs, rhs);
-        buffer<expr> to_revert;
-        if (symm)
-            std::swap(lhs, rhs);
-        to_revert.push_back(lhs);
-        to_revert.push_back(d.mk_ref());
-        tactic_state s1 = revert(to_revert, s);
-        lean_trace_subst(s1, tout() << "to_revert:"; for (auto h : to_revert) tout() << " " << h; tout() << "\n";);
-        lean_trace_subst(s1, tout() << "after revert\n" << s1.pp() << "\n";
-                         tout() << "num reverted: " << to_revert.size() << "\n";);
-        lean_assert(to_revert.size() >= 2);
-        buffer<name> lhsH;
-        optional<tactic_state> s2 = intron(2, s1, lhsH);
-        if (!s2) return mk_tactic_exception("subst tactic failed, unexpected failure during intro", s);
-        lean_trace_subst(*s2, tout() << "after intro2\n" << s2->pp() << "\n";);
-        lean_assert(!s2->mctx().is_assigned(head(s2->goals())));
-        try {
-            lctx                 = s2->get_main_goal_decl()->get_context();
-            expr type            = s2->get_main_goal_decl()->get_type();
-            lhs                  = lctx.get_local_decl(lhsH[0])->mk_ref();
-            expr H               = lctx.get_local_decl(lhsH[1])->mk_ref();
-            bool depH            = depends_on(type, H);
-            expr new_type        = instantiate(abstract_local(type, lhs), rhs);
-            lean_assert(!s2->mctx().is_assigned(head(s2->goals())));
-            type_context ctx     = mk_type_context_for(*s2);
-            expr motive;
-            if (depH) {
-                new_type = instantiate(abstract_local(new_type, H), mk_eq_refl(ctx, rhs));
-                if (symm) {
-                    motive = ctx.mk_lambda({lhs, H}, type);
-                } else {
-                    motive = mk_lambda("H", mk_eq(ctx, rhs, lhs), type);
-                    motive = ctx.mk_lambda(lhs, motive);
-                }
-            } else {
-                motive   = ctx.mk_lambda(lhs, type);
-            }
-            expr major   = symm ? H : mk_eq_symm(ctx, H);
-            expr new_M   = ctx.mk_metavar_decl(lctx, new_type);
-            expr minor   = new_M;
-            expr new_val = depH ? mk_eq_drec(ctx, motive, minor, major) : mk_eq_rec(ctx, motive, minor, major);
-            ctx.assign(head(s2->goals()), new_val);
-            list<expr> new_gs(new_M, tail(s.goals()));
-            tactic_state s3 = set_mctx_goals(*s2, ctx.mctx(), new_gs);
-            vm_obj o4    = clear_internal(lhsH[1], s3);
-            optional<tactic_state> s4 = is_tactic_success(o4);
-            if (!s4) return o4;
-            vm_obj o5    = clear_internal(lhsH[0], *s4);
-            optional<tactic_state> s5 = is_tactic_success(o5);
-            if (!s5) return o5;
-            lean_trace_subst(*s5, tout() << "after clear\n" << s5->pp() << "\n";);
-            optional<tactic_state> s6 = intron(to_revert.size() - 2, *s5);
-            if (!s6) return mk_tactic_exception("subst tactic failed, unexpected failure during intro", s);
-            lean_trace_subst(*s6, tout() << "after intro remaining reverted hypotheses\n" << s6->pp() << "\n";);
-            return mk_tactic_success(*s6);
-        } catch (exception & ex) {
-            return mk_tactic_exception(ex, *s2);
-        }
+        metavar_context mctx = s.mctx();
+        expr mvar = head(s.goals());
+        expr H    = mctx.get_hypothesis_of(mvar, n)->mk_ref();
+        expr new_mvar = subst(s.env(), s.get_options(), transparency_mode::Semireducible, mctx, mvar, H, symm, nullptr);
+        return mk_tactic_success(set_mctx_goals(s, mctx, cons(new_mvar, tail(s.goals()))));
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);
     }

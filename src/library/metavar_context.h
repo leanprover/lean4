@@ -34,7 +34,9 @@ public:
     level mk_univ_metavar_decl();
     expr mk_metavar_decl(local_context const & ctx, expr const & type);
 
-    optional<metavar_decl> get_metavar_decl(expr const & e) const;
+    optional<metavar_decl> get_metavar_decl(expr const & mvar) const;
+
+    optional<local_decl> get_hypothesis_of(expr const & mvar, name const & H) const;
 
     bool is_assigned(level const & l) const {
         lean_assert(is_metavar_decl_ref(l));

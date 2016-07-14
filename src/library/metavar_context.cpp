@@ -47,6 +47,12 @@ optional<metavar_decl> metavar_context::get_metavar_decl(expr const & e) const {
         return optional<metavar_decl>();
 }
 
+optional<local_decl> metavar_context::get_hypothesis_of(expr const & mvar, name const & H) const {
+    auto mdecl = get_metavar_decl(mvar);
+    if (!mdecl) return optional<local_decl>();
+    return mdecl->get_context().get_local_decl(H);
+}
+
 void metavar_context::assign_core(level const & u, level const & l) {
     m_uassignment.insert(meta_id(u), l);
 }

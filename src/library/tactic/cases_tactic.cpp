@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_expr.h"
 #include "library/tactic/cases_tactic.h"
 #include "library/tactic/intro_tactic.h"
+#include "library/tactic/clear_tactic.h"
 
 namespace lean {
 struct cases_tactic_fn {
@@ -151,7 +152,7 @@ struct cases_tactic_fn {
         Remark: j is sequence of terms, and j' a sequence of local constants.
 
         The original goal is solved if we can solve the produced goal. */
-    expr generalize_indices(expr const & mvar, expr const & h) {
+    expr generalize_indices(expr const & mvar, expr const & h, buffer<name> & new_indices_H) {
         lean_assert(is_standard(m_env));
         metavar_decl g     = *m_mctx.get_metavar_decl(mvar);
         type_context ctx   = mk_type_context_for(g);
@@ -200,7 +201,7 @@ struct cases_tactic_fn {
         /* assign mvar := aux_mvar indices h refls */
         m_mctx.assign(mvar, mk_app(mk_app(mk_app(aux_mvar, I_args.size() - m_nindices, I_args.end() - m_nindices), h), refls));
         /* introduce indices j' and h' */
-        auto r = intron(m_env, m_opts, m_mctx, aux_mvar, m_nindices + 1);
+        auto r = intron(m_env, m_opts, m_mctx, aux_mvar, m_nindices + 1, new_indices_H);
         lean_assert(r);
         return *r;
     }
@@ -208,6 +209,37 @@ struct cases_tactic_fn {
     format pp_goal(expr const & mvar) {
         tactic_state tmp(m_env, m_opts, m_mctx, to_list(mvar), mvar);
         return tmp.pp_goal(mvar);
+    }
+
+    list<expr> elim_aux_indices(list<expr> const & goals, buffer<name> const & aux_indices_H, renaming_list & rlist) {
+        lean_assert(length(goals) == length(rlist));
+        buffer<expr>           new_goals;
+        buffer<name_map<name>> new_rlist;
+        list<expr> it1           = goals;
+        list<name_map<name>> it2 = rlist;
+        while (it1 && it2) {
+            expr mvar           = head(it1);
+            name_map<name> rmap = head(rlist);
+            lean_assert(aux_indices_H.size() > 1);
+            unsigned i = aux_indices_H.size() - 1; /* last element is the auxiliary major premise */
+            while (i > 0) {
+                --i;
+                name idx_name = aux_indices_H[i];
+                if (auto ridx_name = rmap.find(idx_name)) {
+                    idx_name = *ridx_name;
+                    rmap.erase(idx_name);
+                }
+                expr H_idx = m_mctx.get_hypothesis_of(mvar, idx_name)->mk_ref();
+                mvar = clear(m_mctx, mvar, H_idx);
+            }
+            new_goals.push_back(mvar);
+            new_rlist.push_back(rmap);
+            it1 = tail(it1);
+            it2 = tail(it2);
+        }
+        lean_assert(!it1 && !it2);
+        rlist = to_list(new_rlist);
+        return to_list(new_goals);
     }
 
     cases_tactic_fn(environment const & env, options const & opts, transparency_mode m, metavar_context & mctx, list<name> & ids):
@@ -230,8 +262,19 @@ struct cases_tactic_fn {
             /* Easy case */
             return induction(m_env, m_opts, m_mode, m_mctx, mvar, H, m_cases_on_decl.get_name(), m_ids, ilist, rlist);
         } else {
-            expr mvar1 = generalize_indices(mvar, H);
+            buffer<name> aux_indices_H; /* names of auxiliary indices and major  */
+            expr mvar1 = generalize_indices(mvar, H, aux_indices_H);
             lean_cases_trace(mvar1, tout() << "after generalize_indices:\n" << pp_goal(mvar1) << "\n";);
+            expr H1    = m_mctx.get_metavar_decl(mvar1)->get_context().get_last_local_decl()->mk_ref();
+            intros_list tmp_ilist;
+            renaming_list tmp_rlist;
+            list<expr> new_goals1 = induction(m_env, m_opts, m_mode, m_mctx, mvar1, H1, m_cases_on_decl.get_name(), m_ids, &tmp_ilist, &tmp_rlist);
+            lean_cases_trace(mvar1, tout() << "after applying cases_on:";
+                             for (auto g : new_goals1) tout() << "\n" << pp_goal(g) << "\n";);
+            list<expr> new_goals2 = elim_aux_indices(new_goals1, aux_indices_H, tmp_rlist);
+            lean_cases_trace(mvar1, tout() << "after eliminating auxiliary indices:";
+                             for (auto g : new_goals2) tout() << "\n" << pp_goal(g) << "\n";);
+
             lean_unreachable();
         }
     }

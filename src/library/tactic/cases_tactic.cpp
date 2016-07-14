@@ -17,8 +17,14 @@ Author: Leonardo de Moura
 #include "library/tactic/cases_tactic.h"
 #include "library/tactic/intro_tactic.h"
 #include "library/tactic/clear_tactic.h"
+#include "library/tactic/subst_tactic.h"
 
 namespace lean {
+struct cases_tactic_exception : public exception {
+    tactic_state m_state;
+    cases_tactic_exception(tactic_state const & s, char const * msg):exception(msg), m_state(s) {}
+};
+
 struct cases_tactic_fn {
     environment const &           m_env;
     options const &               m_opts;
@@ -41,6 +47,15 @@ struct cases_tactic_fn {
 
     type_context mk_type_context_for(expr const & mvar) {
         return mk_type_context_for(*m_mctx.get_metavar_decl(mvar));
+    }
+
+    [[ noreturn ]] void throw_ill_formed_datatype() {
+        throw exception("tactic cases failed, unexpected inductive datatype type");
+    }
+
+    /* throw exception that stores the intermediate state */
+    [[ noreturn ]] void throw_exception(expr const & mvar, char const * msg) {
+        throw cases_tactic_exception(tactic_state(m_env, m_opts, m_mctx, to_list(mvar), mvar), msg);
     }
 
     #define lean_cases_trace(MVAR, CODE) lean_trace(name({"tactic", "cases"}), type_context TMP_CTX = mk_type_context_for(MVAR); scope_trace_env _scope1(m_env, TMP_CTX); CODE)
@@ -132,10 +147,6 @@ struct cases_tactic_fn {
         }
     }
 
-    [[ noreturn ]] void throw_ill_formed_datatype() {
-        throw exception("tactic cases failed, unexpected inductive datatype type");
-    }
-
     /** \brief Given a goal of the form
 
               Ctx, h : I A j, D |- T
@@ -152,7 +163,7 @@ struct cases_tactic_fn {
         Remark: j is sequence of terms, and j' a sequence of local constants.
 
         The original goal is solved if we can solve the produced goal. */
-    expr generalize_indices(expr const & mvar, expr const & h, buffer<name> & new_indices_H) {
+    expr generalize_indices(expr const & mvar, expr const & h, buffer<name> & new_indices_H, unsigned & num_eqs) {
         lean_assert(is_standard(m_env));
         metavar_decl g     = *m_mctx.get_metavar_decl(mvar);
         type_context ctx   = mk_type_context_for(g);
@@ -203,6 +214,7 @@ struct cases_tactic_fn {
         /* introduce indices j' and h' */
         auto r = intron(m_env, m_opts, m_mctx, aux_mvar, m_nindices + 1, new_indices_H);
         lean_assert(r);
+        num_eqs = eqs.size();
         return *r;
     }
 
@@ -242,6 +254,112 @@ struct cases_tactic_fn {
         return to_list(new_goals);
     }
 
+    /* apply the new_renames at new_names and renames */
+    void merge_renames(bool update_renames, list<name> & new_names, name_map<name> & renames, name_map<name> const & new_renames) {
+        // TODO(Leo)
+    }
+
+    optional<expr> unify_eqs(expr const & mvar, unsigned num_eqs, bool update_renames, list<name> & new_names, name_map<name> & renames) {
+        if (num_eqs == 0)
+            return some_expr(mvar);
+        lean_cases_trace(mvar, tout() << "unifying equalities [" << num_eqs << "]\n" << pp_goal(mvar) << "\n";);
+        /* introduce next equality */
+        optional<expr> mvar1 = intron(m_env, m_opts, m_mctx, mvar, 1);
+        if (!mvar1) throw_exception(mvar, "cases tactic failed, unexpected failure when introducing auxiliary equatilies");
+        metavar_decl g1      = *m_mctx.get_metavar_decl(*mvar1);
+        local_decl H_decl    = *g1.get_context().get_last_local_decl();
+        expr H_type          = H_decl.get_type();
+        expr H               = H_decl.mk_ref();
+        type_context ctx     = mk_type_context_for(*mvar1);
+        expr A, B, lhs, rhs;
+        if (is_heq(H_type, A, lhs, B, rhs)) {
+            if (!ctx.is_def_eq(A, B)) {
+                throw_exception(mvar, "cases tactic failed, when processing auxiliary heterogeneous equality");
+            }
+            /* Create helper goal mvar2 :  ctx |- lhs = rhs -> type, and assign
+               mvar1 := mvar2 (eq_of_heq H) */
+            expr new_type = mk_arrow(::lean::mk_eq(ctx, lhs, rhs), g1.get_type());
+            expr mvar2    = m_mctx.mk_metavar_decl(m_mctx.get_metavar_decl(mvar)->get_context(), new_type);
+            expr val      = mk_app(mvar2, mk_eq_of_heq(ctx, H));
+            m_mctx.assign(*mvar1, val);
+            return unify_eqs(mvar2, num_eqs, update_renames, new_names, renames);
+        } else if (is_eq(H_type, A, lhs, rhs)) {
+            if (is_local(rhs) || is_local(lhs)) {
+                name_map<name> extra_renames;
+                bool symm  = is_local(rhs);
+                expr mvar2 = subst(m_env, m_opts, m_mode, m_mctx, *mvar1, H, symm, update_renames ? &extra_renames : nullptr);
+                merge_renames(update_renames, new_names, renames, extra_renames);
+                return unify_eqs(mvar2, num_eqs - 1, update_renames, new_names, renames);
+            } else {
+                expr lhs_n = ctx.whnf(lhs);
+                expr rhs_n = ctx.whnf(rhs);
+                optional<name> c1 = is_constructor_app(m_env, lhs_n);
+                optional<name> c2 = is_constructor_app(m_env, rhs_n);
+                A = ctx.whnf(A);
+                buffer<expr> A_args;
+                expr const & A_fn   = get_app_args(A, A_args);
+                if (!is_constant(A_fn) || !inductive::is_inductive_decl(m_env, const_name(A_fn)))
+                    throw_ill_formed_datatype();
+                name no_confusion_name(const_name(A_fn), "no_confusion");
+                if (!m_env.find(no_confusion_name)) {
+                    throw exception(sstream() << "cases tactic failed, construction '" << no_confusion_name << "' is not available in the environment");
+                }
+                expr target       = g1.get_type();
+                level target_lvl  = get_level(ctx, target);
+                expr no_confusion = mk_app(mk_app(mk_constant(no_confusion_name, cons(target_lvl, const_levels(A_fn))), A_args), target, lhs, rhs, H);
+                if (c1 && c2) {
+                    if (*c1 == *c2) {
+                        // TODO(Leo)
+                        return some_expr(*mvar1);
+                    } else {
+                        /* conflict, closes the goal */
+                        lean_cases_trace(*mvar1, tout() << "conflicting equality detected, closing goal using no_confusion\n";);
+                        m_mctx.assign(*mvar1, no_confusion);
+                        return none_expr();
+                    }
+                }
+                throw_exception(mvar, "cases tactic failed, unsupported equality");
+            }
+        } else {
+            throw_exception(mvar, "cases tactic failed, equality expected");
+        }
+    }
+
+    list<expr> unify_eqs(list<expr> const & mvars, unsigned num_eqs, intros_list * ilist, renaming_list * rlist) {
+        buffer<expr>            new_goals;
+        buffer<list<name>>      new_ilist;
+        buffer<name_map<name>>  new_rlist;
+        list<expr> it1      = mvars;
+        intros_list const * it2   = ilist;
+        renaming_list const * it3 = rlist;
+        while (it1) {
+            list<name> new_names;
+            name_map<name> renames;
+            if (ilist) {
+                new_names = head(*it2);
+                renames = head(*it3);
+            }
+            optional<expr> new_mvar = unify_eqs(head(it1), num_eqs, ilist != nullptr, new_names, renames);
+            if (new_mvar) {
+                new_goals.push_back(*new_mvar);
+            }
+            it1 = tail(it1);
+            if (ilist) {
+                it2 = &tail(*it2);
+                it3 = &tail(*it3);
+                if (new_mvar) {
+                    new_ilist.push_back(new_names);
+                    new_rlist.push_back(renames);
+                }
+            }
+        }
+        if (ilist) {
+            *ilist = to_list(new_ilist);
+            *rlist = to_list(new_rlist);
+        }
+        return to_list(new_goals);
+    }
+
     cases_tactic_fn(environment const & env, options const & opts, transparency_mode m, metavar_context & mctx, list<name> & ids):
         m_env(env),
         m_opts(opts),
@@ -251,6 +369,7 @@ struct cases_tactic_fn {
     }
 
     list<expr> operator()(expr const & mvar, expr const & H, intros_list * ilist, renaming_list * rlist) {
+        lean_assert((ilist != nullptr) == (rlist != nullptr));
         lean_assert(is_metavar(mvar));
         lean_assert(m_mctx.get_metavar_decl(mvar));
         if (!is_local(H))
@@ -263,7 +382,8 @@ struct cases_tactic_fn {
             return induction(m_env, m_opts, m_mode, m_mctx, mvar, H, m_cases_on_decl.get_name(), m_ids, ilist, rlist);
         } else {
             buffer<name> aux_indices_H; /* names of auxiliary indices and major  */
-            expr mvar1 = generalize_indices(mvar, H, aux_indices_H);
+            unsigned num_eqs; /* number of equations that need to be processed */
+            expr mvar1 = generalize_indices(mvar, H, aux_indices_H, num_eqs);
             lean_cases_trace(mvar1, tout() << "after generalize_indices:\n" << pp_goal(mvar1) << "\n";);
             expr H1    = m_mctx.get_metavar_decl(mvar1)->get_context().get_last_local_decl()->mk_ref();
             intros_list tmp_ilist;
@@ -274,8 +394,9 @@ struct cases_tactic_fn {
             list<expr> new_goals2 = elim_aux_indices(new_goals1, aux_indices_H, tmp_rlist);
             lean_cases_trace(mvar1, tout() << "after eliminating auxiliary indices:";
                              for (auto g : new_goals2) tout() << "\n" << pp_goal(g) << "\n";);
-
-            lean_unreachable();
+            if (ilist) *ilist = tmp_ilist;
+            if (rlist) *rlist = tmp_rlist;
+            return unify_eqs(new_goals2, num_eqs, ilist, rlist);
         }
     }
 };
@@ -295,6 +416,8 @@ vm_obj tactic_cases_core(vm_obj const & m, vm_obj const & H, vm_obj const & ns, 
         list<expr> new_goals = cases(s.env(), s.get_options(), to_transparency_mode(m), mctx, head(s.goals()),
                                      to_expr(H), ids, nullptr, nullptr);
         return mk_tactic_success(set_mctx_goals(s, mctx, append(new_goals, tail(s.goals()))));
+    } catch (cases_tactic_exception & ex) {
+        return mk_tactic_exception(ex.what(), ex.m_state);
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);
     }

@@ -87,6 +87,12 @@ optional<expr> intron(environment const & env, options const & opts, metavar_con
     return intron(env, opts, mctx, mvar, n, empty);
 }
 
+optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
+                      expr const & mvar, unsigned n, buffer<name> & new_Hns) {
+    list<name> empty;
+    return intron(env, opts, mctx, mvar, n, empty, new_Hns);
+}
+
 optional<tactic_state> intron(unsigned n, tactic_state const & s, buffer<name> & new_Hns) {
     if (n == 0) return some_tactic_state(s);
     optional<expr> mvar  = s.get_main_goal();

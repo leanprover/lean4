@@ -19,6 +19,8 @@ optional<expr> intron(environment const & env, options const & opts, metavar_con
 optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
                       expr const & mvar, unsigned n, list<name> & new_hs_names);
 optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
+                      expr const & mvar, unsigned n, buffer<name> & new_Hns);
+optional<expr> intron(environment const & env, options const & opts, metavar_context & mctx,
                       expr const & mvar, unsigned n);
 
 void initialize_intro_tactic();

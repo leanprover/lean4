@@ -349,11 +349,13 @@ struct cases_tactic_fn {
         }
     }
 
-    list<expr> unify_eqs(list<expr> const & mvars, unsigned num_eqs, intros_list * ilist, renaming_list * rlist) {
+    pair<list<expr>, list<name>> unify_eqs(list<expr> const & mvars, list<name> const & cnames, unsigned num_eqs, intros_list * ilist, renaming_list * rlist) {
         buffer<expr>            new_goals;
         buffer<list<name>>      new_ilist;
         buffer<name_map<name>>  new_rlist;
-        list<expr> it1      = mvars;
+        buffer<name>            new_cnames;
+        list<expr> it1            = mvars;
+        list<name> itn            = cnames;
         intros_list const * it2   = ilist;
         renaming_list const * it3 = rlist;
         while (it1) {
@@ -366,8 +368,10 @@ struct cases_tactic_fn {
             optional<expr> new_mvar = unify_eqs(head(it1), num_eqs, ilist != nullptr, new_names, renames);
             if (new_mvar) {
                 new_goals.push_back(*new_mvar);
+                new_cnames.push_back(head(itn));
             }
             it1 = tail(it1);
+            itn = tail(itn);
             if (ilist) {
                 it2 = &tail(*it2);
                 it3 = &tail(*it3);
@@ -381,7 +385,7 @@ struct cases_tactic_fn {
             *ilist = to_list(new_ilist);
             *rlist = to_list(new_rlist);
         }
-        return to_list(new_goals);
+        return mk_pair(to_list(new_goals), to_list(new_cnames));
     }
 
     cases_tactic_fn(environment const & env, options const & opts, transparency_mode m, metavar_context & mctx, list<name> & ids):
@@ -392,7 +396,7 @@ struct cases_tactic_fn {
         m_ids(ids) {
     }
 
-    list<expr> operator()(expr const & mvar, expr const & H, intros_list * ilist, renaming_list * rlist) {
+    pair<list<expr>, list<name>> operator()(expr const & mvar, expr const & H, intros_list * ilist, renaming_list * rlist) {
         lean_assert((ilist != nullptr) == (rlist != nullptr));
         lean_assert(is_metavar(mvar));
         lean_assert(m_mctx.get_metavar_decl(mvar));
@@ -400,10 +404,14 @@ struct cases_tactic_fn {
             throw exception("cases tactic failed, argumen must be a hypothesis");
         if (!is_cases_applicable(mvar, H))
             throw exception("cases tactic failed, it is not applicable to the given hypothesis");
+        buffer<name> cnames;
+        get_intro_rule_names(m_env, m_I_decl.get_name(), cnames);
+        list<name> cname_list = to_list(cnames);
         metavar_decl g = *m_mctx.get_metavar_decl(mvar);
         if (has_indep_indices(g, H)) {
             /* Easy case */
-            return induction(m_env, m_opts, m_mode, m_mctx, mvar, H, m_cases_on_decl.get_name(), m_ids, ilist, rlist);
+            return mk_pair(induction(m_env, m_opts, m_mode, m_mctx, mvar, H, m_cases_on_decl.get_name(), m_ids, ilist, rlist),
+                           cname_list);
         } else {
             buffer<name> aux_indices_H; /* names of auxiliary indices and major  */
             unsigned num_eqs; /* number of equations that need to be processed */
@@ -420,15 +428,17 @@ struct cases_tactic_fn {
                              for (auto g : new_goals2) tout() << "\n" << pp_goal(g) << "\n";);
             if (ilist) *ilist = tmp_ilist;
             if (rlist) *rlist = tmp_rlist;
-            return unify_eqs(new_goals2, num_eqs, ilist, rlist);
+            return unify_eqs(new_goals2, cname_list, num_eqs, ilist, rlist);
         }
     }
 };
 
-list<expr> cases(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
-                 expr const & mvar, expr const & H, list<name> & ids,
-                 intros_list * ilist, renaming_list * rlist) {
-    return cases_tactic_fn(env, opts, m, mctx, ids)(mvar, H, ilist, rlist);
+pair<list<expr>, list<name>>
+cases(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
+      expr const & mvar, expr const & H, list<name> & ids, intros_list * ilist, renaming_list * rlist) {
+    auto r = cases_tactic_fn(env, opts, m, mctx, ids)(mvar, H, ilist, rlist);
+    lean_assert(length(r.first) == length(r.second));
+    return r;
 }
 
 vm_obj tactic_cases_core(vm_obj const & m, vm_obj const & H, vm_obj const & ns, vm_obj const & _s) {
@@ -438,7 +448,7 @@ vm_obj tactic_cases_core(vm_obj const & m, vm_obj const & H, vm_obj const & ns, 
         list<name> ids       = to_list_name(ns);
         metavar_context mctx = s.mctx();
         list<expr> new_goals = cases(s.env(), s.get_options(), to_transparency_mode(m), mctx, head(s.goals()),
-                                     to_expr(H), ids, nullptr, nullptr);
+                                     to_expr(H), ids, nullptr, nullptr).first;
         return mk_tactic_success(set_mctx_goals(s, mctx, append(new_goals, tail(s.goals()))));
     } catch (cases_tactic_exception & ex) {
         return mk_tactic_exception(ex.what(), ex.m_state);

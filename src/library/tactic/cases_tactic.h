@@ -14,10 +14,18 @@ namespace lean {
     1- Store in ilist the new hypotheses introduced for each new goal.
     2- Store in rlist the hypotheses renamed in each new goal.
     \pre (ilist == nullptr) iff (rlist == nullptr)
-    \post ilist != nullptr -> rlist != nullptr -> length(*ilist) == length(*rlist) */
-list<expr> cases(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
-                 expr const & mvar, expr const & H, list<name> & ids,
-                 intros_list * ilist, renaming_list * rlist);
+    \post ilist != nullptr -> rlist != nullptr -> length(*ilist) == length(*rlist)
+
+    The result is a new list of goals and a list of constructor names.
+    The two lists have the same size. Let (m, c) be the i-th elements of each list.
+    Then we have that m is the goal associated with the constructor c.
+
+    \remark The resulting set of goals may be smaller than the number of constructors
+    since some of the goals are discarded. */
+pair<list<expr>, list<name>>
+cases(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
+      expr const & mvar, expr const & H, list<name> & ids, intros_list * ilist, renaming_list * rlist);
+
 void initialize_cases_tactic();
 void finalize_cases_tactic();
 }

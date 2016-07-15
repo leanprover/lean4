@@ -1004,6 +1004,15 @@ void vm_state::invoke_builtin(vm_decl const & d) {
 
 LEAN_THREAD_VALUE(vm_state *, g_vm_state, nullptr);
 
+scope_vm_state::scope_vm_state(vm_state & s):
+    m_prev(g_vm_state) {
+    g_vm_state = &s;
+}
+
+scope_vm_state::~scope_vm_state() {
+    g_vm_state = m_prev;
+}
+
 void vm_state::invoke_cfun(vm_decl const & d) {
     flet<vm_state *> Set(g_vm_state, this);
     auto & S       = m_stack;

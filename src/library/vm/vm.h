@@ -583,6 +583,14 @@ public:
     }
 };
 
+/** \brief Helper class for setting thread local vm_state object */
+class scope_vm_state {
+    vm_state * m_prev;
+public:
+    scope_vm_state(vm_state & s);
+    ~scope_vm_state();
+};
+
 /** \brief Return reference to thread local VM state object. */
 vm_state const & get_vm_state();
 

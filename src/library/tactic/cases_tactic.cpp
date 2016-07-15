@@ -259,11 +259,30 @@ struct cases_tactic_fn {
         // TODO(Leo)
     }
 
-    optional<expr> unify_eqs(expr const & mvar, unsigned num_eqs, bool update_renames, list<name> & new_names, name_map<name> & renames) {
+    optional<expr> unify_eqs(expr mvar, unsigned num_eqs, bool update_renames, list<name> & new_names, name_map<name> & renames) {
         if (num_eqs == 0)
             return some_expr(mvar);
+        expr A, B, lhs, rhs;
         lean_cases_trace(mvar, tout() << "unifying equalities [" << num_eqs << "]\n" << pp_goal(mvar) << "\n";);
-        /* introduce next equality */
+        metavar_decl g       = *m_mctx.get_metavar_decl(mvar);
+        local_context lctx   = g.get_context();
+        /* Normalize next equation lhs and rhs if needed */
+        expr target          = g.get_type();
+        lean_assert(is_pi(target) && is_arrow(target));
+        if (is_eq(binding_domain(target), lhs, rhs)) {
+            type_context ctx     = mk_type_context_for(mvar);
+            expr lhs_n = ctx.whnf(lhs);
+            expr rhs_n = ctx.whnf(rhs);
+            if (lhs != lhs_n || rhs != rhs_n) {
+                expr new_eq     = ::lean::mk_eq(ctx, lhs_n, rhs_n);
+                expr new_target = mk_arrow(new_eq, binding_body(target));
+                expr new_mvar   = m_mctx.mk_metavar_decl(lctx, new_target);
+                m_mctx.assign(mvar, new_mvar);
+                mvar = new_mvar;
+                lean_cases_trace(mvar, tout() << "normalize lhs/rhs:\n" << pp_goal(mvar) << "\n";);
+            }
+        }
+        /* Introduce next equality */
         optional<expr> mvar1 = intron(m_env, m_opts, m_mctx, mvar, 1);
         if (!mvar1) throw_exception(mvar, "cases tactic failed, unexpected failure when introducing auxiliary equatilies");
         metavar_decl g1      = *m_mctx.get_metavar_decl(*mvar1);
@@ -271,30 +290,29 @@ struct cases_tactic_fn {
         expr H_type          = H_decl.get_type();
         expr H               = H_decl.mk_ref();
         type_context ctx     = mk_type_context_for(*mvar1);
-        expr A, B, lhs, rhs;
         if (is_heq(H_type, A, lhs, B, rhs)) {
             if (!ctx.is_def_eq(A, B)) {
                 throw_exception(mvar, "cases tactic failed, when processing auxiliary heterogeneous equality");
             }
             /* Create helper goal mvar2 :  ctx |- lhs = rhs -> type, and assign
                mvar1 := mvar2 (eq_of_heq H) */
-            expr new_type = mk_arrow(::lean::mk_eq(ctx, lhs, rhs), g1.get_type());
-            expr mvar2    = m_mctx.mk_metavar_decl(m_mctx.get_metavar_decl(mvar)->get_context(), new_type);
-            expr val      = mk_app(mvar2, mk_eq_of_heq(ctx, H));
+            expr new_target = mk_arrow(::lean::mk_eq(ctx, lhs, rhs), g1.get_type());
+            expr mvar2      = m_mctx.mk_metavar_decl(lctx, new_target);
+            expr val        = mk_app(mvar2, mk_eq_of_heq(ctx, H));
             m_mctx.assign(*mvar1, val);
+            lean_cases_trace(mvar, tout() << "converted heq => eq\n";);
             return unify_eqs(mvar2, num_eqs, update_renames, new_names, renames);
         } else if (is_eq(H_type, A, lhs, rhs)) {
             if (is_local(rhs) || is_local(lhs)) {
+                lean_cases_trace(mvar, tout() << "substitute\n";);
                 name_map<name> extra_renames;
                 bool symm  = is_local(rhs);
                 expr mvar2 = subst(m_env, m_opts, m_mode, m_mctx, *mvar1, H, symm, update_renames ? &extra_renames : nullptr);
                 merge_renames(update_renames, new_names, renames, extra_renames);
                 return unify_eqs(mvar2, num_eqs - 1, update_renames, new_names, renames);
             } else {
-                expr lhs_n = ctx.whnf(lhs);
-                expr rhs_n = ctx.whnf(rhs);
-                optional<name> c1 = is_constructor_app(m_env, lhs_n);
-                optional<name> c2 = is_constructor_app(m_env, rhs_n);
+                optional<name> c1 = is_constructor_app(m_env, lhs);
+                optional<name> c2 = is_constructor_app(m_env, rhs);
                 A = ctx.whnf(A);
                 buffer<expr> A_args;
                 expr const & A_fn   = get_app_args(A, A_args);
@@ -309,8 +327,14 @@ struct cases_tactic_fn {
                 expr no_confusion = mk_app(mk_app(mk_constant(no_confusion_name, cons(target_lvl, const_levels(A_fn))), A_args), target, lhs, rhs, H);
                 if (c1 && c2) {
                     if (*c1 == *c2) {
-                        // TODO(Leo)
-                        return some_expr(*mvar1);
+                        lean_cases_trace(mvar, tout() << "injection\n";);
+                        expr new_target = binding_domain(ctx.whnf(ctx.infer(no_confusion)));
+                        expr mvar2      = m_mctx.mk_metavar_decl(lctx, new_target);
+                        expr val        = mk_app(no_confusion, mvar2);
+                        m_mctx.assign(*mvar1, val);
+                        unsigned A_nparams = *inductive::get_num_params(m_env, const_name(A_fn));
+                        lean_assert(get_app_num_args(lhs) >= A_nparams);
+                        return unify_eqs(mvar2, num_eqs - 1 + get_app_num_args(lhs) - A_nparams, update_renames, new_names, renames);
                     } else {
                         /* conflict, closes the goal */
                         lean_cases_trace(*mvar1, tout() << "conflicting equality detected, closing goal using no_confusion\n";);

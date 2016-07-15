@@ -254,9 +254,34 @@ struct cases_tactic_fn {
         return to_list(new_goals);
     }
 
-    /* apply the new_renames at new_names and renames */
-    void merge_renames(bool update_renames, list<name> & new_names, name_map<name> & renames, name_map<name> const & new_renames) {
-        // TODO(Leo)
+    /* Apply the new_renames at new_names and renames. */
+    void merge_renames(bool update_renames, list<name> & new_names, name_map<name> & renames, name_map<name> new_renames) {
+        if (!update_renames) return;
+        /* Apply new_renames to new_names. */
+        buffer<name> new_new_names;
+        for (name const & n : new_names) {
+            if (auto r = new_renames.find(n))
+                new_new_names.push_back(*r);
+            else
+                new_new_names.push_back(n);
+        }
+        new_names = to_list(new_new_names);
+        /* Merge renames and new_names */
+        name_map<name> m;
+        renames.for_each([&](name const & k, name const & d) {
+                if (auto r = new_renames.find(d)) {
+                    m.insert(k, *r);
+                    /* entry d -> *r can be removed from new_renames, since d was not in the initial state. */
+                    new_renames.erase(d);
+                } else {
+                    m.insert(k, d);
+                }
+            });
+        /* Copy remaining at new_renames entries to m. */
+        new_renames.for_each([&](name const & k, name const & d) {
+                m.insert(k, d);
+            });
+        renames = m;
     }
 
     optional<expr> unify_eqs(expr mvar, unsigned num_eqs, bool update_renames, list<name> & new_names, name_map<name> & renames) {

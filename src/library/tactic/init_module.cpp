@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/tactic/ac_tactics.h"
 #include "library/tactic/induction_tactic.h"
 #include "library/tactic/cases_tactic.h"
+#include "library/tactic/generalize_tactic.h"
 #include "library/tactic/elaborate.h"
 #include "library/tactic/defeq_simplifier/init_module.h"
 #include "library/tactic/simplifier/init_module.h"
@@ -45,6 +46,7 @@ void initialize_tactic_module() {
     initialize_ac_tactics();
     initialize_induction_tactic();
     initialize_cases_tactic();
+    initialize_generalize_tactic();
     initialize_defeq_simplifier_module();
     initialize_simplifier_module();
     initialize_backward_module();
@@ -55,6 +57,7 @@ void finalize_tactic_module() {
     finalize_backward_module();
     finalize_simplifier_module();
     finalize_defeq_simplifier_module();
+    finalize_generalize_tactic();
     finalize_cases_tactic();
     finalize_induction_tactic();
     finalize_ac_tactics();

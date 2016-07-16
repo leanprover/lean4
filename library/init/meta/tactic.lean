@@ -219,6 +219,8 @@ meta_constant induction_core : transparency → expr → name → list name → 
 /- (cases_core m H ns) apply cases_on recursor, names for the new hypotheses are retrieved from ns.
    H must be a local constant -/
 meta_constant cases_core     : transparency → expr → list name → tactic unit
+/- (generalize_core m e n) -/
+meta_constant generalize_core : transparency → expr → name → tactic unit
 open list nat
 
 /- Add (H : T := pr) to the current goal -/
@@ -545,5 +547,12 @@ cases_core semireducible H []
 
 meta_definition cases_using : expr → list name → tactic unit :=
 cases_core semireducible
+
+meta_definition generalize : expr → name → tactic unit :=
+generalize_core semireducible
+
+meta_definition generalizes : list expr → tactic unit
+| []      := skip
+| (e::es) := generalize e "x" >> generalizes es
 
 end tactic

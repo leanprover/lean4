@@ -126,10 +126,6 @@ sorry -- by rec_inst_simp
 
 /- head and tail -/
 
-definition head [h : inhabited T] : list T → T
-| []       := arbitrary T
-| (a :: l) := a
-
 theorem head_cons [simp] [h : inhabited T] (a : T) (l : list T) : head (a::l) = a :=
 rfl
 

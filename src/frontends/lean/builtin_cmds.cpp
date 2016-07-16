@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/legacy_type_context.h"
 #include "library/reducible.h"
+#include "library/kabstract.h"
 #include "library/tactic/defeq_simplifier/defeq_simp_lemmas.h"
 #include "library/tactic/defeq_simplifier/defeq_simplifier.h"
 #include "library/tactic/simplifier/simp_extensions.h"
@@ -681,6 +682,12 @@ static void declare_trace_reader(deserializer & d, shared_environment &,
     register_trace_class(cls);
 }
 
+environment add_key_equivalence_cmd(parser & p) {
+    name h1 = p.check_constant_next("invalid add_key_equivalence command, constant expected");
+    name h2 = p.check_constant_next("invalid add_key_equivalence command, constant expected");
+    return add_key_equivalence(p.env(), h1, h2);
+}
+
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",              "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
@@ -704,6 +711,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("init_hits",         "initialize builtin HITs", init_hits_cmd));
     add_cmd(r, cmd_info("declare_trace",     "declare a new trace class (for debugging Lean tactics)", declare_trace_cmd));
     add_cmd(r, cmd_info("register_simp_ext", "register simplifier extension", register_simp_ext_cmd));
+    add_cmd(r, cmd_info("add_key_equivalence", "register that to symbols are equivalence for key-matching", add_key_equivalence_cmd));
     add_cmd(r, cmd_info("#erase_cache",      "erase cached definition (for debugging purposes)", erase_cache_cmd));
     add_cmd(r, cmd_info("#normalizer",       "(for debugging purposes)", normalizer_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));

@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 #include "library/tactic/simplifier/simp_lemmas.h"
 #include "library/tactic/simplifier/simp_extensions.h"
 #include "library/reducible.h"
+#include "library/kabstract.h"
 #include "library/definitional/projection.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
@@ -649,6 +650,18 @@ static void print_aliases(parser const & p) {
         });
 }
 
+static void print_key_equivalences(parser & p) {
+    std::ostream & out = p.ios().get_regular_stream();
+    for_each_key_equivalence(p.env(), [&](buffer<name> const & ns) {
+            out << "[";
+            for (unsigned i = 0; i < ns.size(); i++) {
+                if (i > 0) out << ", ";
+                out << ns[i];
+            }
+            out << "]\n";
+        });
+}
+
 environment print_cmd(parser & p) {
     flycheck_information info(p.ios());
     environment const & env = p.env();
@@ -682,6 +695,9 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_trust_tk())) {
         p.next();
         out << "trust level: " << p.env().trust_lvl() << endl;
+    } else if (p.curr_is_token_or_id(get_key_equivalences_tk())) {
+        p.next();
+        print_key_equivalences(p);
     } else if (p.curr_is_token_or_id(get_definition_tk())) {
         p.next();
         auto pos = p.pos();

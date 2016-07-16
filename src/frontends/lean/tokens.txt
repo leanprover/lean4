@@ -140,3 +140,4 @@ inductive    inductive
 this         this
 noncomputable noncomputable
 theory       theory
+key_equivalences key_equivalences

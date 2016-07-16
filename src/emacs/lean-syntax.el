@@ -13,7 +13,7 @@
     "hypothesis" "lemma" "corollary" "variable" "variables" "premise" "premises" "theory"
     "print" "theorem" "proposition" "example" "abbreviation" "abstract"
     "open" "as" "export" "override" "axiom" "axioms" "inductive" "with" "structure" "record" "universe" "universes"
-    "alias" "help" "precedence" "reserve" "declare_trace"
+    "alias" "help" "precedence" "reserve" "declare_trace" "add_key_equivalence"
     "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix"
     "eval" "vm_eval" "check" "end" "reveal" "this" "suppose"
     "using" "namespace" "section" "fields" "find_decl"

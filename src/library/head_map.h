@@ -18,6 +18,7 @@ struct head_index {
     explicit head_index(name const & c):m_kind(expr_kind::Constant), m_name(c) {}
     head_index(expr const & e);
     expr_kind kind() const { return m_kind; }
+    name const & get_name() const { return m_name; }
 
     struct cmp {
         int operator()(head_index const & i1, head_index const & i2) const;
@@ -34,8 +35,7 @@ io_state_stream const & operator<<(io_state_stream const & out, head_index const
 
     The index is the expression kind and a name (if it is a constant).
 
-    This index is very naive, but it is effective for many applications.
-*/
+    This index is very naive, but it is effective for many applications. */
 template<typename V, typename GetPrio>
 class head_map_prio : private GetPrio {
     rb_map<head_index, list<V>, head_index::cmp> m_map;

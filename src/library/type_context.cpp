@@ -1790,7 +1790,15 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
 bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
     lean_trace(name({"type_context", "is_def_eq_detail"}),
                tout() << "on failure: " << e1 << " =?= " << e2 << "\n";);
-    return false;
+    /* TODO(Leo): the following two statements are a performance bottleneck for modules that produce a lot of
+       is_def_eq queries that fail (e.g., simplifier).
+       For example, on the test tests/lean/perf/perm_ac_dlof_50.lean is 40% slower with the following two statements. */
+    expr new_e1 = complete_instance(instantiate_mvars(e1));
+    expr new_e2 = complete_instance(instantiate_mvars(e2));
+    if (e1 != new_e1 || e2 != new_e2)
+        return is_def_eq_core(new_e1, new_e2);
+    else
+        return false;
 }
 
 bool type_context::is_def_eq_core_core(expr const & t, expr const & s) {

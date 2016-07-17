@@ -221,6 +221,7 @@ meta_constant induction_core : transparency → expr → name → list name → 
 meta_constant cases_core     : transparency → expr → list name → tactic unit
 /- (generalize_core m e n) -/
 meta_constant generalize_core : transparency → expr → name → tactic unit
+
 open list nat
 
 /- Add (H : T := pr) to the current goal -/

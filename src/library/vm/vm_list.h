@@ -40,6 +40,17 @@ inline bool is_nil(vm_obj const & o) { return is_simple(o); }
 inline vm_obj head(vm_obj const & o) { lean_assert(!is_nil(o)); return cfield(o, 0); }
 inline vm_obj tail(vm_obj const & o) { lean_assert(!is_nil(o)); return cfield(o, 1); }
 
+template<typename A, typename F>
+list<A> to_list(vm_obj const & o, F const & fn) {
+    if (is_simple(o)) {
+        return list<A>();
+    } else if (is_constructor(o)) {
+        return list<A>(fn(cfield(o, 0)), to_list<A>(cfield(o, 1), fn));
+    } else {
+        lean_unreachable();
+    }
+}
+
 void initialize_vm_list();
 void finalize_vm_list();
 }

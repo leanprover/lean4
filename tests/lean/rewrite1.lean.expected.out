@@ -1,10 +1,5 @@
 a b : ℕ
 ⊢ 0 + 0 + b + 0 = b
-rewrite1.lean:5:0: error: tactic failed, result contains meta-variables
-state:
-a b : ℕ
-⊢ 0 + b = b
-rewrite1.lean:4:0: error: tactic failed, result contains meta-variables
 ---------
 a b : ℕ,
 H : a + 0 + 0 = b

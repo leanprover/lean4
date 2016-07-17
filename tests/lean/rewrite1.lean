@@ -6,7 +6,7 @@ by do
  rewrite "mul_zero",
  trace_state,
  rewrite "add_zero",
- rewrite "zero_add"
+ repeat $ rewrite "zero_add"
 
 print "---------"
 

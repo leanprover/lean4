@@ -65,7 +65,7 @@ environment section_cmd(parser & p) {
 environment execute_open(environment env, io_state const & ios, export_decl const & edecl);
 
 environment replay_export_decls_core(environment env, io_state const & ios, unsigned old_sz) {
-    list<export_decl> new_export_decls = get_export_decls(env);
+    list<export_decl> new_export_decls = get_active_export_decls(env);
     unsigned new_sz = length(new_export_decls);
     lean_assert(new_sz >= old_sz);
     unsigned i = 0;
@@ -86,7 +86,8 @@ environment execute_open(environment env, io_state const & ios, export_decl cons
     unsigned fingerprint = 0;
     name const & ns = edecl.m_ns;
     fingerprint = hash(fingerprint, ns.hash());
-    unsigned old_export_decls_sz = length(get_export_decls(env));
+    unsigned old_export_decls_sz = length(get_active_export_decls(env));
+    env = activate_export_decls(env, ns);
     for (auto const & p : edecl.m_renames) {
         fingerprint = hash(hash(fingerprint, p.first.hash()), p.second.hash());
         env = add_expr_alias(env, p.first, p.second);
@@ -106,8 +107,9 @@ environment execute_open(environment env, io_state const & ios, export_decl cons
 environment namespace_cmd(parser & p) {
     name n = p.check_decl_id_next("invalid namespace declaration, identifier expected");
     p.push_local_scope();
-    unsigned old_export_decls_sz = length(get_export_decls(p.env()));
+    unsigned old_export_decls_sz = length(get_active_export_decls(p.env()));
     environment env = push_scope(p.env(), p.ios(), scope_kind::Namespace, n);
+    env = activate_export_decls(env, get_namespace(env));
     return replay_export_decls_core(env, p.ios(), old_export_decls_sz);
 }
 

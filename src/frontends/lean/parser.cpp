@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <limits>
 #include <vector>
 #include <util/utf8.h>
+#include <library/export_decl.h>
 #include "util/interrupt.h"
 #include "util/sstream.h"
 #include "util/flet.h"
@@ -1965,6 +1966,7 @@ void parser::parse_imports() {
     m_env = import_modules(m_env, base, olean_files.size(), olean_files.data(), num_threads,
                            keep_imported_thms, m_ios);
     m_env = update_fingerprint(m_env, fingerprint);
+    m_env = activate_export_decls(m_env, {}); // explicitly activate exports in root namespace
     m_env = replay_export_decls_core(m_env, m_ios);
     if (imported)
         commit_info(1, 0);

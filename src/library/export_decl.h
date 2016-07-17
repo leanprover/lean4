@@ -23,8 +23,11 @@ struct export_decl {
 };
 
 /** \brief We store export commands to allow us to replay them whenever the namespace is opened. */
+environment add_export_decl(environment const & env, name const & in_ns, export_decl const & e);
 environment add_export_decl(environment const & env, export_decl const & entry);
-list<export_decl> get_export_decls(environment const & env);
+
+environment activate_export_decls(environment, name);
+list<export_decl> get_active_export_decls(environment const & env);
 
 void initialize_export_decl();
 void finalize_export_decl();

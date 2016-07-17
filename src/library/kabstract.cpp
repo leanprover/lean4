@@ -150,6 +150,8 @@ expr kabstract(type_context & ctx, expr const & e, expr const & t) {
                 head_index idx2(s);
                 if (idx1.kind() == idx2.kind() &&
                     ext.is_eqv(idx1.get_name(), idx2.get_name()) &&
+                    /* fail if same function application and different number of arguments */
+                    (idx1.get_name() != idx2.get_name() || get_app_num_args(t) == get_app_num_args(s)) &&
                     ctx.is_def_eq(t, s)) {
                     return some_expr(mk_var(offset));
                 }
@@ -168,6 +170,8 @@ expr kabstract(type_context & ctx, expr const & e, expr const & t, list<unsigned
                 head_index idx2(s);
                 if (idx1.kind() == idx2.kind() &&
                     ext.is_eqv(idx1.get_name(), idx2.get_name()) &&
+                    /* fail if same function application and different number of arguments */
+                    (idx1.get_name() != idx2.get_name() || get_app_num_args(t) == get_app_num_args(s)) &&
                     ctx.is_def_eq(t, s)) {
                     if (std::find(occs.begin(), occs.end(), i) != occs.end()) {
                         i++;

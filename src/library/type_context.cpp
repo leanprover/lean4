@@ -882,7 +882,6 @@ bool type_context::is_prop(expr const & e) {
    ------------------------------- */
 void type_context::set_tmp_mode(buffer<optional<level>> & tmp_uassignment, buffer<optional<expr>> & tmp_eassignment) {
     lean_assert(!in_tmp_mode());
-    lean_assert(m_scopes.empty());
     lean_assert(m_tmp_trail.empty());
     m_tmp_mvar_lctx = m_lctx;
     m_tmp_uassignment = &tmp_uassignment;
@@ -890,7 +889,6 @@ void type_context::set_tmp_mode(buffer<optional<level>> & tmp_uassignment, buffe
 }
 
 void type_context::reset_tmp_mode() {
-    lean_assert(m_scopes.empty());
     m_tmp_trail.clear();
     m_tmp_uassignment = nullptr;
     m_tmp_eassignment = nullptr;

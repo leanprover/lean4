@@ -158,6 +158,29 @@ expr kabstract(type_context & ctx, expr const & e, expr const & t) {
         });
 }
 
+expr kabstract(type_context & ctx, expr const & e, expr const & t, list<unsigned> const & occs) {
+    lean_assert(closed(e));
+    head_index idx1(t);
+    key_equivalence_ext const & ext = get_extension(ctx.env());
+    unsigned i = 1;
+    return replace(e, [&](expr const & s, unsigned offset) {
+            if (closed(s)) {
+                head_index idx2(s);
+                if (idx1.kind() == idx2.kind() &&
+                    ext.is_eqv(idx1.get_name(), idx2.get_name()) &&
+                    ctx.is_def_eq(t, s)) {
+                    if (std::find(occs.begin(), occs.end(), i) != occs.end()) {
+                        i++;
+                        return some_expr(mk_var(offset));
+                    } else {
+                        i++;
+                    }
+                }
+            }
+            return none_expr();
+        });
+}
+
 void initialize_kabstract() {
     g_ext           = new key_equivalence_ext_reg();
     g_key_equivalence_key = new std::string("keyeqv");

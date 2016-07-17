@@ -13,12 +13,12 @@ void for_each_key_equivalence(environment const & env, std::function<void(buffer
 
 /** \brief Abstract occurrences of \c t in \c s. We detect subterms equivalent to \c t using key-matching.
     That is, only perform is_def_eq tests when the head symbol of substerm is equivalent to head symbol of \c t.
-    New equivalent head symbols can be declared using \c add_key_alias. */
-expr kabstract(type_context & ctx, expr const & e, expr const & t);
-/** \brief Similar to previous method, but only abstract the occurrences in occs. */
-expr kabstract(type_context & ctx, expr const & e, expr const & t, list<unsigned> const & occs);
-inline expr kabstract(type_context & ctx, expr const & e, expr const & t, optional<list<unsigned>> const & occs) {
-    return occs ? kabstract(ctx, e, t, *occs) : kabstract(ctx, e, t);
+    New equivalent head symbols can be declared using \c add_key_alias.
+    If occs is not none, then only the specified occurrences are abstracted. */
+expr kabstract(type_context & ctx, expr const & e, expr const & t, optional<list<unsigned>> const & occs);
+inline expr kabstract(type_context & ctx, expr const & e, expr const & t) { return kabstract(ctx, e, t, optional<list<unsigned>>()); }
+inline expr kabstract(type_context & ctx, expr const & e, expr const & t, list<unsigned> const & occs) {
+    return kabstract(ctx, e, t, optional<list<unsigned>>(occs));
 }
 
 void initialize_kabstract();

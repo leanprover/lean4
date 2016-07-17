@@ -141,26 +141,7 @@ static void key_equivalence_reader(deserializer & d, shared_environment & senv,
         });
 }
 
-expr kabstract(type_context & ctx, expr const & e, expr const & t) {
-    lean_assert(closed(e));
-    head_index idx1(t);
-    key_equivalence_ext const & ext = get_extension(ctx.env());
-    return replace(e, [&](expr const & s, unsigned offset) {
-            if (closed(s)) {
-                head_index idx2(s);
-                if (idx1.kind() == idx2.kind() &&
-                    ext.is_eqv(idx1.get_name(), idx2.get_name()) &&
-                    /* fail if same function application and different number of arguments */
-                    (idx1.get_name() != idx2.get_name() || get_app_num_args(t) == get_app_num_args(s)) &&
-                    ctx.is_def_eq(t, s)) {
-                    return some_expr(mk_var(offset));
-                }
-            }
-            return none_expr();
-        });
-}
-
-expr kabstract(type_context & ctx, expr const & e, expr const & t, list<unsigned> const & occs) {
+expr kabstract(type_context & ctx, expr const & e, expr const & t, optional<list<unsigned>> const & occs) {
     lean_assert(closed(e));
     head_index idx1(t);
     key_equivalence_ext const & ext = get_extension(ctx.env());
@@ -173,7 +154,7 @@ expr kabstract(type_context & ctx, expr const & e, expr const & t, list<unsigned
                     /* fail if same function application and different number of arguments */
                     (idx1.get_name() != idx2.get_name() || get_app_num_args(t) == get_app_num_args(s)) &&
                     ctx.is_def_eq(t, s)) {
-                    if (std::find(occs.begin(), occs.end(), i) != occs.end()) {
+                    if (!occs || std::find(occs->begin(), occs->end(), i) != occs->end()) {
                         i++;
                         return some_expr(mk_var(offset));
                     } else {

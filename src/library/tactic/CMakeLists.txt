@@ -1,4 +1,4 @@
-add_library(tactic OBJECT occurrences.cpp tactic_state.cpp
+add_library(tactic OBJECT occurrences.cpp kabstract.cpp tactic_state.cpp
   intro_tactic.cpp revert_tactic.cpp rename_tactic.cpp clear_tactic.cpp
   app_builder_tactics.cpp subst_tactic.cpp exact_tactic.cpp
   change_tactic.cpp assert_tactic.cpp apply_tactic.cpp

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/tactic/kabstract.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/intro_tactic.h"
 #include "library/tactic/revert_tactic.h"
@@ -30,6 +31,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 void initialize_tactic_module() {
+    initialize_kabstract();
     initialize_tactic_state();
     initialize_intro_tactic();
     initialize_revert_tactic();
@@ -78,5 +80,6 @@ void finalize_tactic_module() {
     finalize_revert_tactic();
     finalize_intro_tactic();
     finalize_tactic_state();
+    finalize_kabstract();
 }
 }

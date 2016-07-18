@@ -10,12 +10,12 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/constants.h"
 #include "library/trace.h"
-#include "library/kabstract.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
+#include "library/tactic/kabstract.h"
 #include "library/tactic/clear_tactic.h"
 #include "library/tactic/assert_tactic.h"
 

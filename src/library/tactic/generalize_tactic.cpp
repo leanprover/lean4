@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/kabstract.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_name.h"
 #include "library/tactic/tactic_state.h"
+#include "library/tactic/kabstract.h"
 
 namespace lean {
 vm_obj generalize(transparency_mode m, expr const & e, name const & id, tactic_state const & s) {

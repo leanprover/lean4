@@ -1,0 +1,19 @@
+⊢ fib 0 > 0
+
+n : ℕ,
+iH1 : fib n > 0
+⊢ fib (succ n) > 0
+-------
+⊢ 1 > 0
+
+n : ℕ,
+iH1 : fib n > 0
+⊢ fib (succ n) > 0
+-------
+n : ℕ,
+iH1 : fib n > 0
+⊢ fib (succ n) > 0
+-------
+a : ℕ,
+iH1 : fib (succ a) > 0
+⊢ fib a + fib (succ a) > 0

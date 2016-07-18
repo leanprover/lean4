@@ -9,4 +9,4 @@ import init.meta.level init.meta.expr init.meta.base_tactic init.meta.environmen
 import init.meta.tactic init.meta.contradiction_tactic init.meta.constructor_tactic
 import init.meta.injection_tactic init.meta.relation_tactics init.meta.fun_info
 import init.meta.congr_lemma init.meta.match_tactic init.meta.ac_tactics
-import init.meta.backward init.meta.rewrite_tactic
+import init.meta.backward init.meta.rewrite_tactic init.meta.unfold_tactic

@@ -637,10 +637,6 @@ end firstn
 section dropn
 variables {A : Type}
 -- 'dropn n l' drops the first 'n' elements of 'l'
-definition dropn : ℕ → list A → list A
-| 0 a := a
-| (succ n) [] := []
-| (succ n) (x::r) := dropn n r
 
 theorem length_dropn
 : ∀ (i : ℕ) (l : list A), length (dropn i l) = length l - i

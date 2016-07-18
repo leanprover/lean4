@@ -73,6 +73,11 @@ definition join : list (list A) → list A
 definition filter (p : A → Prop) [h : decidable_pred p] : list A → list A
 | []     := []
 | (a::l) := if p a then a :: filter l else filter l
+
+definition dropn : ℕ → list A → list A
+| 0 a := a
+| (succ n) [] := []
+| (succ n) (x::r) := dropn n r
 end list
 
 definition list_has_append [instance] {A : Type} : has_append (list A) :=

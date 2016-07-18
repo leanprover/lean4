@@ -1727,6 +1727,16 @@ expr parser::parse_string_expr() {
     return from_string(v);
 }
 
+expr parser::parse_char_expr() {
+    auto p = pos();
+    std::string v = get_str_val();
+    lean_assert(v.size() == 1);
+    next();
+    return mk_app(save_pos(mk_constant(get_char_of_nat_name()), p),
+                  save_pos(mk_prenum(mpz(static_cast<unsigned>(v[0]))), p),
+                  p);
+}
+
 expr parser::parse_nud() {
     switch (curr()) {
     case scanner::token_kind::Keyword:     return parse_nud_notation();
@@ -1734,6 +1744,7 @@ expr parser::parse_nud() {
     case scanner::token_kind::Numeral:     return parse_numeral_expr();
     case scanner::token_kind::Decimal:     return parse_decimal_expr();
     case scanner::token_kind::String:      return parse_string_expr();
+    case scanner::token_kind::Char:        return parse_char_expr();
     default: throw parser_error("invalid expression, unexpected token", pos());
     }
 }
@@ -1768,6 +1779,7 @@ unsigned parser::curr_lbp() const {
         return 0;
     case scanner::token_kind::Identifier:     case scanner::token_kind::Numeral:
     case scanner::token_kind::Decimal:        case scanner::token_kind::String:
+    case scanner::token_kind::Char:
         return get_max_prec();
     }
     lean_unreachable(); // LCOV_EXCL_LINE

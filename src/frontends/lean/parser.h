@@ -196,6 +196,7 @@ class parser : public pos_info_provider {
     expr parse_numeral_expr(bool user_notation = true);
     expr parse_decimal_expr();
     expr parse_string_expr();
+    expr parse_char_expr();
     expr parse_inst_implicit_decl();
     void parse_inst_implicit_decl(buffer<expr> & r);
     expr parse_binder_core(binder_info const & bi, unsigned rbp);

@@ -49,9 +49,10 @@ definition subtype.has_to_string [instance] {A : Type} {P : A → Prop} [has_to_
 has_to_string.mk (λ s, to_string (elt_of s))
 
 definition char.quote_core (c : char) : string :=
-if       char.to_nat c = 10 then "\\n"
-else if  char.to_nat c = 92 then "\\\\"
-else if  char.to_nat c = 34 then "\\\""
+if       c = '\n' then "\\n"
+else if  c = '\\' then "\\\\"
+else if  c = '\"' then "\\\""
+else if  c = '\'' then "\\\'"
 else c::nil
 
 definition char.has_to_sting [instance] : has_to_string char :=

@@ -115,6 +115,19 @@ void scanner::check_not_eof(char const * error_msg) {
 }
 
 static char const * g_end_error_str_msg = "unexpected end of string";
+static char const * g_end_error_char_msg = "unexpected end of character";
+
+char scanner::read_quoted_char(char const * error_msg) {
+    lean_assert(curr() == '\\');
+    next();
+    check_not_eof(error_msg);
+    char c = curr();
+    if (c != '\\' && c != '\"' && c != 'n' && c != '\'')
+        throw_exception("invalid escape sequence");
+    if (c == 'n')
+        c = '\n';
+    return c;
+}
 
 auto scanner::read_string() -> token_kind {
     lean_assert(curr() == '\"');
@@ -127,17 +140,24 @@ auto scanner::read_string() -> token_kind {
             next();
             return token_kind::String;
         } else if (c == '\\') {
-            next();
-            check_not_eof(g_end_error_str_msg);
-            c = curr();
-            if (c != '\\' && c != '\"' && c != 'n')
-                throw_exception("invalid escape sequence");
-            if (c == 'n')
-                c = '\n';
+            c = read_quoted_char(g_end_error_str_msg);
         }
         m_buffer += c;
         next();
     }
+}
+
+auto scanner::read_char() -> token_kind {
+    char c = curr();
+    if (c == '\\')
+        c = read_quoted_char(g_end_error_char_msg);
+    next();
+    if (curr() != '\'')
+        throw_exception("invalid character, ' expected");
+    next();
+    m_buffer.clear();
+    m_buffer += c;
+    return token_kind::Char;
 }
 
 auto scanner::read_quoted_symbol() -> token_kind {
@@ -416,15 +436,18 @@ auto scanner::read_key_cmd_id() -> token_kind {
 
 static name * g_begin_comment_tk        = nullptr;
 static name * g_begin_comment_block_tk  = nullptr;
+static name * g_tick_tk                 = nullptr;
 
 void initialize_scanner() {
     g_begin_comment_tk       = new name("--");
     g_begin_comment_block_tk = new name("/-");
+    g_tick_tk                = new name("'");
 }
 
 void finalize_scanner() {
     delete g_begin_comment_tk;
     delete g_begin_comment_block_tk;
+    delete g_tick_tk;
 }
 
 auto scanner::scan(environment const & env) -> token_kind {
@@ -459,6 +482,8 @@ auto scanner::scan(environment const & env) -> token_kind {
                         read_single_line_comment();
                     else if (n == *g_begin_comment_block_tk)
                         read_comment_block();
+                    else if (n == *g_tick_tk)
+                        return read_char();
                     else
                         return k;
                 } else {

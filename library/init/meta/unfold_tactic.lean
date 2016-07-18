@@ -14,7 +14,10 @@ meta_definition unfold_core (force : bool) (occs : occurrences) (ns : list name)
 target >>= unfold_expr_core force occs ns >>= change
 
 meta_definition unfold : list name → tactic unit :=
-unfold_core tt occurrences.all
+unfold_core ff occurrences.all
+
+meta_definition unfold_occs_of (occs : list nat) (c : name) : tactic unit :=
+unfold_core ff (occurrences.pos occs) [c]
 
 meta_definition unfold_core_at (force : bool) (occs : occurrences) (ns : list name) (H : expr) : tactic unit :=
 do num_reverted : ℕ ← revert H,
@@ -24,6 +27,6 @@ do num_reverted : ℕ ← revert H,
    intron num_reverted
 
 meta_definition unfold_at : list name → expr → tactic unit :=
-unfold_core_at tt occurrences.all
+unfold_core_at ff occurrences.all
 
 end tactic

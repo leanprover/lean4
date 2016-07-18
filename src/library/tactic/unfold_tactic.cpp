@@ -180,24 +180,6 @@ class unfold_rec_fn : public replace_visitor_aux {
         }
     }
 
-    expr whnf_rec(expr const & e) {
-        return m_ctx.whnf_pred(e, [&](expr const & c) { return is_rec_building_part(const_name(get_app_fn(c))); });
-    }
-
-    expr get_fn_decl(expr const & fn, buffer<expr> & locals) {
-        lean_assert(is_constant(fn));
-        declaration decl = m_env.get(const_name(fn));
-        if (length(const_levels(fn)) != decl.get_num_univ_params())
-            throw_ill_formed();
-        expr fn_body     = instantiate_value_univ_params(decl, const_levels(fn));
-        while (is_lambda(fn_body)) {
-            expr local = mk_local(mk_fresh_name(), binding_domain(fn_body));
-            locals.push_back(local);
-            fn_body    = instantiate(binding_body(fn_body), local);
-        }
-        return whnf_rec(fn_body);
-    }
-
     struct fold_failed {};
 
     struct fold_rec_fn : public replace_visitor_aux {
@@ -302,8 +284,25 @@ class unfold_rec_fn : public replace_visitor_aux {
         }
     };
 
+    expr whnf_rec(expr const & e) {
+        return m_ctx.whnf_pred(e, [&](expr const & c) { return is_rec_building_part(const_name(get_app_fn(c))); });
+    }
+
+    expr get_fn_decl(expr const & fn, type_context::tmp_locals & locals) {
+        lean_assert(is_constant(fn));
+        declaration decl = m_env.get(const_name(fn));
+        if (length(const_levels(fn)) != decl.get_num_univ_params())
+            throw_ill_formed();
+        expr fn_body     = instantiate_value_univ_params(decl, const_levels(fn));
+        while (is_lambda(fn_body)) {
+            expr local = locals.push_local_from_binding(fn_body);
+            fn_body    = instantiate(binding_body(fn_body), local);
+        }
+        return whnf_rec(fn_body);
+    }
+
     expr unfold(expr const & fn, buffer<expr> args) {
-        buffer<expr> fn_locals;
+        type_context::tmp_locals fn_locals(m_ctx);
         expr fn_body = get_fn_decl(fn, fn_locals);
         if (args.size() < fn_locals.size()) {
             // insufficient args
@@ -313,7 +312,7 @@ class unfold_rec_fn : public replace_visitor_aux {
         unsigned main_pos = 0;
         buffer<unsigned> indices_pos;
         buffer<unsigned> rec_arg_pos;
-        rec_kind k = get_rec_kind(fn_body, fn_locals, rec_name, indices_pos, main_pos, rec_arg_pos);
+        rec_kind k = get_rec_kind(fn_body, fn_locals.as_buffer(), rec_name, indices_pos, main_pos, rec_arg_pos);
         if (k == NOREC || main_pos >= args.size()) {
             // norecursive definition
             return unfold_simple(fn, args);
@@ -327,9 +326,9 @@ class unfold_rec_fn : public replace_visitor_aux {
             throw fold_failed();
         }
         args[main_pos]      = new_main;
-        expr fn_body_abst   = abstract_locals(fn_body, fn_locals.size(), fn_locals.data());
-        expr new_e          = instantiate_rev(fn_body_abst, fn_locals.size(), args.data());
-        new_e               = mk_app(new_e, args.size() - fn_locals.size(), args.data() + fn_locals.size());
+        expr fn_body_abst   = m_ctx.abstract_locals(fn_body, fn_locals.as_buffer().size(), fn_locals.as_buffer().data());
+        expr new_e          = instantiate_rev(fn_body_abst, fn_locals.as_buffer().size(), args.data());
+        new_e               = mk_app(new_e, args.size() - fn_locals.as_buffer().size(), args.data() + fn_locals.as_buffer().size());
         new_e               = whnf_rec(new_e);
         expr const new_head = get_app_fn(new_e);
         // TODO(Leo): create an option for the following conditions?

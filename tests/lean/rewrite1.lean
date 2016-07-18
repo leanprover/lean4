@@ -26,7 +26,7 @@ by rewrite "zero_add"
 
 meta_definition rewrite_occs (th_name : name) (occs : list nat) : tactic unit :=
 do th ← mk_const th_name,
-   rewrite_core reducible tt (some occs) ff th,
+   rewrite_core reducible tt (occurrences.pos occs) ff th,
    try reflexivity
 
 print "---------"

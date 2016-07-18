@@ -15,19 +15,13 @@ Author: Leonardo de Moura
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
+#include "library/tactic/occurrences.h"
 #include "library/tactic/kabstract.h"
 #include "library/tactic/clear_tactic.h"
 #include "library/tactic/assert_tactic.h"
 
 namespace lean {
-static optional<list<unsigned>> to_opt_list(vm_obj const & occs) {
-    if (is_none(occs))
-        return optional<list<unsigned>>();
-    else
-        return optional<list<unsigned>>(to_list<unsigned>(get_some_value(occs), [](vm_obj const & o) { return force_to_unsigned(o, 0); }));
-}
-
-vm_obj rewrite(transparency_mode const & m, bool use_instances, optional<list<unsigned>> const & occs, bool symm, expr H, optional<expr> const & target, tactic_state const & s) {
+vm_obj rewrite(transparency_mode const & m, bool use_instances, occurrences const & occs, bool symm, expr H, optional<expr> const & target, tactic_state const & s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     if (!g) return mk_no_goals_exception(s);
     type_context ctx = mk_type_context_for(s, m);
@@ -123,11 +117,11 @@ vm_obj rewrite(transparency_mode const & m, bool use_instances, optional<list<un
 }
 
 vm_obj tactic_rewrite(vm_obj const & m, vm_obj const & use_instances, vm_obj const & occs, vm_obj const & symm, vm_obj const & H, vm_obj const & s) {
-    return rewrite(to_transparency_mode(m), to_bool(use_instances), to_opt_list(occs), to_bool(symm), to_expr(H), none_expr(), to_tactic_state(s));
+    return rewrite(to_transparency_mode(m), to_bool(use_instances), to_occurrences(occs), to_bool(symm), to_expr(H), none_expr(), to_tactic_state(s));
 }
 
 vm_obj tactic_rewrite_at(vm_obj const & m, vm_obj const & use_instances, vm_obj const & occs, vm_obj const & symm, vm_obj const & H1, vm_obj const & H2, vm_obj const & s) {
-    return rewrite(to_transparency_mode(m), to_bool(use_instances), to_opt_list(occs), to_bool(symm), to_expr(H1), some_expr(to_expr(H2)), to_tactic_state(s));
+    return rewrite(to_transparency_mode(m), to_bool(use_instances), to_occurrences(occs), to_bool(symm), to_expr(H1), some_expr(to_expr(H2)), to_tactic_state(s));
 }
 
 void initialize_rewrite_tactic() {

@@ -293,6 +293,8 @@ class unfold_rec_fn : public replace_visitor_aux {
         declaration decl = m_env.get(const_name(fn));
         if (length(const_levels(fn)) != decl.get_num_univ_params())
             throw_ill_formed();
+        if (!decl.is_definition())
+            throw exception(sstream() << "unfold tactic failed, '" << const_name(fn) << "' is not a definition");
         expr fn_body     = instantiate_value_univ_params(decl, const_levels(fn));
         while (is_lambda(fn_body)) {
             expr local = locals.push_local_from_binding(fn_body);

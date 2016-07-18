@@ -1,10 +1,10 @@
-exit
 import data.nat
-open nat
+open nat tactic
 
 example (a b : nat) : a = succ b → a = b + 1 :=
-begin
-  intro h,
-  try (unfold succ at h),
-  unfold succ at h
-end
+by do
+  H ← intro "H",
+  try (unfold_at ["nat" <.> "succ"] H),
+  unfold ["add"], dsimp, unfold ["nat" <.> "add"],
+  trace_state,
+  assumption

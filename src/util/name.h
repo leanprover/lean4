@@ -119,7 +119,6 @@ public:
     bool is_atomic() const { return m_ptr == nullptr || m_ptr->m_prefix == nullptr; }
     /**
         \brief Return the prefix of a hierarchical name
-        \pre !is_atomic()
     */
     name get_prefix() const { return is_atomic() ? name() : name(m_ptr->m_prefix); }
     /** \brief Convert this hierarchical name into a string. */

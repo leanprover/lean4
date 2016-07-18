@@ -40,7 +40,7 @@ optional<expr> intron(environment const & env, options const & opts, metavar_con
         }
         lean_assert(is_pi(type) || is_let(type));
         if (is_pi(type)) {
-            expr H  = new_locals.push_local(mk_aux_name(given_names, binding_name(type)), binding_domain(type),
+            expr H  = new_locals.push_local(mk_aux_name(given_names, binding_name(type)), head_beta_reduce(binding_domain(type)),
                                             binding_info(type));
             type    = instantiate(binding_body(type), H);
             new_Hs.push_back(H);
@@ -48,7 +48,7 @@ optional<expr> intron(environment const & env, options const & opts, metavar_con
 
         } else {
             lean_assert(is_let(type));
-            expr H  = new_locals.push_let(mk_aux_name(given_names, let_name(type)), let_type(type), let_value(type));
+            expr H  = new_locals.push_let(mk_aux_name(given_names, let_name(type)), head_beta_reduce(let_type(type)), let_value(type));
             type    = instantiate(let_body(type), H);
             new_Hs.push_back(H);
             new_Hns.push_back(mlocal_name(H));
@@ -136,7 +136,7 @@ vm_obj intro(name const & n, tactic_state const & s) {
     metavar_context mctx = ctx.mctx();
     if (is_pi(type)) {
         name n1              = n == "_" ? binding_name(type) : n;
-        expr H               = lctx.mk_local_decl(n1, binding_domain(type), binding_info(type));
+        expr H               = lctx.mk_local_decl(n1, head_beta_reduce(binding_domain(type)), binding_info(type));
         expr new_type        = instantiate(binding_body(type), H);
         expr new_M           = mctx.mk_metavar_decl(lctx, new_type);
         expr new_val         = mk_lambda(n1, binding_domain(type), mk_lazy_abstraction(new_M, mlocal_name(H)));
@@ -146,7 +146,7 @@ vm_obj intro(name const & n, tactic_state const & s) {
     } else {
         lean_assert(is_let(type));
         name n1              = n == "_" ? let_name(type) : n;
-        expr H               = lctx.mk_local_decl(n1, let_type(type), let_value(type));
+        expr H               = lctx.mk_local_decl(n1, head_beta_reduce(let_type(type)), let_value(type));
         expr new_type        = instantiate(let_body(type), H);
         expr new_M           = mctx.mk_metavar_decl(lctx, new_type);
         expr new_val         = mk_let(n1, let_type(type), let_value(type), mk_lazy_abstraction(new_M, mlocal_name(H)));

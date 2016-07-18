@@ -6,7 +6,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn
 Basic properties of lists.
 -/
 import logic data.nat.order data.nat.sub
-open eq.ops nat prod function option
+open eq.ops nat function tactic
 
 namespace list
 variable {T : Type}
@@ -645,7 +645,7 @@ theorem length_dropn
   length (dropn (succ i) []) = 0 - succ i : sorry -- by rewrite (nat.zero_sub (succ i))
 | (succ i) (x::l) := calc
   length (dropn (succ i) (x::l))
-          = length (dropn i l)       : rfl
+          = length (dropn i l)       : by reflexivity
       ... = length l - i             : length_dropn i l
       ... = succ (length l) - succ i : sorry -- by rewrite (succ_sub_succ (length l) i)
 end dropn

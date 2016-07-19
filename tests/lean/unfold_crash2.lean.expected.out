@@ -1,0 +1,85 @@
+A : Type,
+n m k : ℕ,
+v1 : vector A n,
+v2 : vector A m,
+v3 : vector A k
+⊢ vappend (vappend v1 v2) v3 == vappend v1 (vappend v2 v3)
+-----------
+A : Type,
+m k : ℕ,
+v2 : vector A m,
+v3 : vector A k,
+n : ℕ
+⊢ vappend (vappend vector.nil v2) v3 == vappend vector.nil (vappend v2 v3)
+
+A : Type,
+m k : ℕ,
+v2 : vector A m,
+v3 : vector A k,
+n n : ℕ,
+a : A,
+a : vector A n
+⊢ vappend (vappend (vector.cons a a_1) v2) v3 == vappend (vector.cons a a_1) (vappend v2 v3)
+-----------
+A : Type,
+m k : ℕ,
+v2 : vector A m,
+v3 : vector A k,
+n : ℕ
+⊢ vappend (vappend vector.nil v2) v3 == vappend vector.nil (vappend v2 v3)
+
+A : Type,
+m k : ℕ,
+v2 : vector A m,
+v3 : vector A k,
+n n : ℕ,
+a : A,
+a : vector A n
+⊢ vappend (vappend (vector.cons a a_1) v2) v3 == vappend (vector.cons a a_1) (vappend v2 v3)
+-----------
+A : Type,
+k : ℕ,
+v3 : vector A k,
+n m : ℕ
+⊢ vappend (vappend vector.nil vector.nil) v3 == vappend vector.nil (vappend vector.nil v3)
+
+A : Type,
+k : ℕ,
+v3 : vector A k,
+n m n : ℕ,
+a : A,
+a : vector A n
+⊢ vappend (vappend vector.nil (vector.cons a a_1)) v3 == vappend vector.nil (vappend (vector.cons a a_1) v3)
+
+A : Type,
+m k : ℕ,
+v2 : vector A m,
+v3 : vector A k,
+n n : ℕ,
+a : A,
+a : vector A n
+⊢ vappend (vappend (vector.cons a a_1) v2) v3 == vappend (vector.cons a a_1) (vappend v2 v3)
+-----------
+A : Type,
+k : ℕ,
+v3 : vector A k,
+n m : ℕ
+⊢ vappend vector.nil v3 == vappend vector.nil (vappend vector.nil v3)
+
+A : Type,
+k : ℕ,
+v3 : vector A k,
+n m n : ℕ,
+a : A,
+a : vector A n
+⊢ vappend (vappend vector.nil (vector.cons a a_1)) v3 == vappend vector.nil (vappend (vector.cons a a_1) v3)
+
+A : Type,
+m k : ℕ,
+v2 : vector A m,
+v3 : vector A k,
+n n : ℕ,
+a : A,
+a : vector A n
+⊢ vappend (vappend (vector.cons a a_1) v2) v3 == vappend (vector.cons a a_1) (vappend v2 v3)
+-----------

@@ -334,10 +334,10 @@ class unfold_rec_fn : public replace_visitor_aux {
         new_e               = whnf_rec(new_e);
         expr const new_head = get_app_fn(new_e);
         // TODO(Leo): create an option for the following conditions?
-        // if (is_constant(new_head) && inductive::is_elim_rule(m_env, const_name(new_head))) {
-        //    //head is a recursor... so the unfold is probably not generating a nice result...
-        //    throw fold_failed();
-        // }
+        if (is_constant(new_head) && inductive::is_elim_rule(m_env, const_name(new_head))) {
+            //head is a recursor... so the unfold is probably not generating a nice result...
+            throw fold_failed();
+        }
         return fold_rec_fn(m_ctx, fn, args, k, rec_name, indices_pos, main_pos, rec_arg_pos)(new_e);
     }
 

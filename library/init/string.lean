@@ -18,3 +18,21 @@ end string
 
 definition string.has_append [instance] : has_append string :=
 has_append.mk string.concat
+
+open list
+
+private definition utf8_length_aux : nat → nat → string → nat
+| 0 r (c::s) :=
+  let n := char.to_nat c in
+  if                 n < 0x80 then utf8_length_aux 0 (r+1) s
+  else if 0xC0 ≤ n ∧ n < 0xE0 then utf8_length_aux 1 (r+1) s
+  else if 0xE0 ≤ n ∧ n < 0xF0 then utf8_length_aux 2 (r+1) s
+  else if 0xF0 ≤ n ∧ n < 0xF8 then utf8_length_aux 3 (r+1) s
+  else if 0xF8 ≤ n ∧ n < 0xFC then utf8_length_aux 4 (r+1) s
+  else if 0xFC ≤ n ∧ n < 0xFE then utf8_length_aux 5 (r+1) s
+  else                             utf8_length_aux 0 (r+1) s
+| (n+1) r (c::s) := utf8_length_aux n r s
+| _     r []     := r
+
+definition utf8_length : string → nat
+| s := utf8_length_aux 0 0 (reverse s)

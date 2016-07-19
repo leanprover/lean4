@@ -119,7 +119,7 @@ meta_definition subtype.has_to_format [instance] {A : Type} {P : A → Prop} [ha
 has_to_format.mk (λ s, to_fmt (elt_of s))
 
 meta_definition format.bracket : string → string → format → format
-| o c f := to_fmt o ++ nest (length o) f ++ to_fmt c
+| o c f := to_fmt o ++ nest (utf8_length o) f ++ to_fmt c
 
 meta_definition format.paren (f : format) : format :=
 format.bracket "(" ")" f
@@ -131,5 +131,4 @@ meta_definition format.sbracket (f : format) : format :=
 format.bracket "[" "]" f
 
 meta_definition format.dcbrace (f : format) : format :=
--- TODO(Leo): backet uses length, but ⦃ is unicode, we need a function that computes the utf8 size of a string
 to_fmt "⦃" ++ nest 1 f ++ to_fmt "⦄"

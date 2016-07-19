@@ -1,0 +1,5 @@
+vm_eval (0xff : nat)
+vm_eval (0xffff : nat)
+vm_eval (0xaa : nat)
+vm_eval (0x10 : nat)
+vm_eval (0x10000 : nat)

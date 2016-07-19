@@ -117,13 +117,20 @@ void scanner::check_not_eof(char const * error_msg) {
 static char const * g_end_error_str_msg = "unexpected end of string";
 static char const * g_end_error_char_msg = "unexpected end of character";
 
-unsigned scanner::hex_to_unsigned(char c) {
+optional<unsigned> scanner::try_hex_to_unsigned(char c) {
     if ('0' <= c && c <= '9')
-        return c - '0';
+        return optional<unsigned>(c - '0');
     else if ('a' <= c && c <= 'f')
-        return 10 + c - 'a';
+        return optional<unsigned>(10 + c - 'a');
     else if ('A' <= c && c <= 'F')
-        return 10 + c - 'A';
+        return optional<unsigned>(10 + c - 'A');
+    else
+        return optional<unsigned>();
+}
+
+unsigned scanner::hex_to_unsigned(char c) {
+    if (auto r = try_hex_to_unsigned(c))
+        return *r;
     else
         throw_exception("invalid hexadecimal digit");
 }
@@ -225,15 +232,38 @@ bool scanner::is_next_digit() {
         return false;
 }
 
+auto scanner::read_hex_number() -> token_kind {
+    lean_assert(curr() == 'x');
+    next();
+    m_num_val = 0;
+    bool found = false;
+    while (true) {
+        char c = curr();
+        if (auto d = try_hex_to_unsigned(c)) {
+            found = true;
+            m_num_val = 16 * m_num_val + *d;
+            next();
+        } else {
+            break;
+        }
+    }
+    if (!found)
+        throw exception("invalid hexadecimal numeral, hexadecimal digit expected");
+    return token_kind::Decimal;
+}
+
 auto scanner::read_number() -> token_kind {
     lean_assert('0' <= curr() && curr() <= '9');
     mpq q(1);
-    m_num_val = curr() - '0';
+    char c = curr();
     next();
-    bool is_decimal = false;
+    if (c == '0' && curr() == 'x')
+        return read_hex_number();
 
+    m_num_val = c - '0';
+    bool is_decimal = false;
     while (true) {
-        char c = curr();
+        c = curr();
         if ('0' <= c && c <= '9') {
             m_num_val = 10*m_num_val + (c - '0');
             if (is_decimal)

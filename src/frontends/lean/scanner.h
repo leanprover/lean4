@@ -64,10 +64,12 @@ protected:
     void next_utf_core(char c, buffer<char> & cs);
     void next_utf(buffer<char> & cs);
 
+    optional<unsigned> try_hex_to_unsigned(char c);
     unsigned hex_to_unsigned(char c);
     char read_quoted_char(char const * error_msg);
     token_kind read_string();
     token_kind read_char();
+    token_kind read_hex_number();
     token_kind read_number();
     token_kind read_key_cmd_id();
     token_kind read_quoted_symbol();

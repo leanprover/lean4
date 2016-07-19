@@ -64,6 +64,7 @@ protected:
     void next_utf_core(char c, buffer<char> & cs);
     void next_utf(buffer<char> & cs);
 
+    unsigned hex_to_unsigned(char c);
     char read_quoted_char(char const * error_msg);
     token_kind read_string();
     token_kind read_char();

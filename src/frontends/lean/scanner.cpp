@@ -117,16 +117,37 @@ void scanner::check_not_eof(char const * error_msg) {
 static char const * g_end_error_str_msg = "unexpected end of string";
 static char const * g_end_error_char_msg = "unexpected end of character";
 
+unsigned scanner::hex_to_unsigned(char c) {
+    if ('0' <= c && c <= '9')
+        return c - '0';
+    else if ('a' <= c && c <= 'f')
+        return 10 + c - 'a';
+    else if ('A' <= c && c <= 'F')
+        return 10 + c - 'A';
+    else
+        throw_exception("invalid hexadecimal digit");
+}
+
 char scanner::read_quoted_char(char const * error_msg) {
     lean_assert(curr() == '\\');
     next();
     check_not_eof(error_msg);
     char c = curr();
-    if (c != '\\' && c != '\"' && c != 'n' && c != '\'')
+    if (c != '\\' && c != '\"' && c != 'n' && c != '\'' && c != 'x')
         throw_exception("invalid escape sequence");
-    if (c == 'n')
-        c = '\n';
-    return c;
+    if (c == 'n') {
+        return '\n';
+    } else if (c == 'x') {
+        next();
+        char c = curr();
+        unsigned v = hex_to_unsigned(c);
+        next();
+        c = curr();
+        v = 16*v + hex_to_unsigned(c);
+        return static_cast<char>(v);
+    } else {
+        return c;
+    }
 }
 
 auto scanner::read_string() -> token_kind {

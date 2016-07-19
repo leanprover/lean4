@@ -609,8 +609,11 @@ static void vm_eval_core(vm_state & s, name const & main, optional<vm_obj> const
 }
 
 static environment vm_eval_cmd(parser & p) {
+    auto pos = p.pos();
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
+    if (has_metavar(e))
+        throw parser_error("invalid vm_eval command, expression contains metavariables", pos);
     aux_type_context ctx(p.env(), transparency_mode::All);
     type_context & tc = ctx.get();
     expr type0 = tc.infer(e);

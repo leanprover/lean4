@@ -91,6 +91,13 @@ meta_definition get_app_num_args : expr → nat
 | (app f a) := get_app_num_args f + 1
 | _         := 0
 
+meta_definition get_app_args_aux : list expr → expr → list expr
+| r (app f a) := get_app_args_aux (a::r) f
+| r _         := r
+
+meta_definition get_app_args : expr → list expr :=
+get_app_args_aux []
+
 meta_definition const_name : expr → name
 | (const n ls) := n
 | _            := name.anonymous

@@ -260,17 +260,23 @@ class app_builder {
         for (optional<expr> const & inst_arg : e.m_inst_args) {
             lean_assert(i > 0);
             --i;
-            if (inst_arg) {
-                expr type = m_ctx.instantiate_mvars(mlocal_type(*inst_arg));
-                if (auto v = m_ctx.mk_class_instance(type)) {
-                    if (!m_ctx.is_def_eq(*inst_arg, *v))
+            if (!m_ctx.get_tmp_mvar_assignment(i)) {
+                if (inst_arg) {
+                    expr type = m_ctx.instantiate_mvars(mlocal_type(*inst_arg));
+                    if (auto v = m_ctx.mk_class_instance(type)) {
+                        if (!m_ctx.is_def_eq(*inst_arg, *v)) {
+                            // failed to assign instance
+                            return false;
+                        }
+                    } else {
+                        // failed to generate instance
                         return false;
+                    }
                 } else {
+                    // unassined metavar
                     return false;
                 }
             }
-            if (!m_ctx.get_tmp_mvar_assignment(i))
-                return false;
         }
         for (unsigned i = 0; i < e.m_num_umeta; i++) {
             if (!m_ctx.get_tmp_uvar_assignment(i))

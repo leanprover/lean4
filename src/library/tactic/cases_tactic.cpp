@@ -210,7 +210,7 @@ struct cases_tactic_fn {
         expr aux_type   = ctx.mk_pi(ts, ctx.mk_pi(h_new, ctx.mk_pi(eqs, g.get_type())));
         expr aux_mvar   = m_mctx.mk_metavar_decl(g.get_context(), aux_type);
         /* assign mvar := aux_mvar indices h refls */
-        m_mctx.assign(mvar, mk_app(mk_app(mk_app(aux_mvar, I_args.size() - m_nindices, I_args.end() - m_nindices), h), refls));
+        m_mctx.assign(mvar, mk_app(mk_app(mk_app(aux_mvar, m_nindices, I_args.end() - m_nindices), h), refls));
         /* introduce indices j' and h' */
         auto r = intron(m_env, m_opts, m_mctx, aux_mvar, m_nindices + 1, new_indices_H);
         lean_assert(r);

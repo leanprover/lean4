@@ -86,8 +86,10 @@ vm_obj rewrite(transparency_mode const & m, bool use_instances, occurrences cons
     /* Collect unassigned mvars */
     buffer<expr> unassigned_mvars;
     for (expr const & mvar : metas) {
-        if (!ctx.is_assigned(mvar))
+        if (!ctx.is_assigned(mvar)) {
+            ctx.instantiate_mvars_at_type_of(mvar);
             unassigned_mvars.push_back(mvar);
+        }
     }
     /* Motive and resulting type */
     expr new_e  = ctx.instantiate_mvars(instantiate(e_abst, target ? rhs : lhs));

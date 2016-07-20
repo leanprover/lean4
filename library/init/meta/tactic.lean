@@ -556,4 +556,7 @@ meta_definition generalizes : list expr → tactic unit
 | []      := skip
 | (e::es) := generalize e "x" >> generalizes es
 
+meta_definition whnf_target : tactic unit :=
+target >>= whnf >>= change
+
 end tactic

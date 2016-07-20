@@ -285,7 +285,10 @@ class unfold_rec_fn : public replace_visitor_aux {
     };
 
     expr whnf_rec(expr const & e) {
-        return m_ctx.whnf_pred(e, [&](expr const & c) { return is_rec_building_part(const_name(get_app_fn(c))); });
+        return m_ctx.whnf_pred(e, [&](expr const & c) {
+                expr const & fn = get_app_fn(c);
+                return is_constant(fn) && is_rec_building_part(const_name(fn));
+            });
     }
 
     expr get_fn_decl(expr const & fn, type_context::tmp_locals & locals) {

@@ -2104,7 +2104,7 @@ bool type_context::compatible_local_instances(bool frozen_only) {
                 i++;
             }
         });
-    return i == m_cache.m_local_instances.size();
+    return !failed && i == m_cache.m_local_instances.size();
 }
 
 void type_context::set_local_instances() {
@@ -2468,6 +2468,7 @@ struct instance_synthesizer {
 };
 
 optional<expr> type_context::mk_class_instance(expr const & type) {
+    init_local_instances();
     if (in_tmp_mode()) {
         return instance_synthesizer(*this)(type);
     } else {

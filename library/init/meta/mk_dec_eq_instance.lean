@@ -61,9 +61,10 @@ private meta_definition mk_rec_inst_aux : expr → nat → tactic expr
   F' ← mk_app ("prod" <.> "pr2") [F],
   mk_rec_inst_aux F' n
 
-private meta_definition mk_rec_inst (F_name : name) (num_rec : nat) : tactic expr :=
+/- Use brec_on F_name (dictionary) argument to create an decidable_eq instance for (i+1)-th recursive argument. -/
+private meta_definition mk_rec_inst (F_name : name) (i : nat) : tactic expr :=
 do F ← get_local F_name,
-   mk_rec_inst_aux F num_rec
+   mk_rec_inst_aux F i
 
 /- Target is of the form (decidable (C ... = C ...)) where C is a constructor -/
 private meta_definition dec_eq_same_constructor (I_name : name) (F_name : name) (num_rec : nat) : tactic unit :=

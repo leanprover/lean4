@@ -45,18 +45,3 @@ meta_definition occurrences_has_to_format [instance] : has_to_format occurrences
 has_to_format.mk occurrences_to_format
 
 open decidable tactic
-
-definition occurrences_has_decidable_eq [instance] : ∀ a b : occurrences, decidable (a = b)
-| all      all      := tt rfl
-| all      (pos l)  := by left >> intron 1 >> contradiction
-| all      (neg l)  := by left >> intron 1 >> contradiction
-| (pos l)  all      := by left >> intron 1 >> contradiction
-| (pos l₁) (pos l₂) := if H : l₁ = l₂
-                       then by right >> get_local "H" >>= subst >> reflexivity
-                       else by left >> intro "_" >>= injection >> contradiction
-| (pos l₁) (neg l₂) := by left >> intron 1 >> contradiction
-| (neg l₁)  all     := by left >> intron 1 >> contradiction
-| (neg l₁) (pos l₂) := by left >> intron 1 >> contradiction
-| (neg l₁) (neg l₂) := if H : l₁ = l₂
-                       then by right >> get_local "H" >>= subst >> reflexivity
-                       else by left >> intro "_" >>= injection >> contradiction

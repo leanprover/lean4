@@ -17,6 +17,3 @@ subsingleton.intro unit_eq
 
 definition unit_is_inhabited [instance] : inhabited unit :=
 inhabited.mk ()
-
-definition unit_has_decidable_eq [instance] : decidable_eq unit :=
-take (a b : unit), decidable.tt (unit_eq a b)

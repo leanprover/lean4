@@ -161,8 +161,8 @@ vm_obj tactic_intro(vm_obj const & n, vm_obj const & s) {
 }
 
 void initialize_intro_tactic() {
-    DECLARE_VM_BUILTIN(name({"tactic", "intro"}),   tactic_intro);
-    DECLARE_VM_BUILTIN(name({"tactic", "intron"}),  tactic_intron);
+    DECLARE_VM_BUILTIN(name({"tactic", "intro_core"}), tactic_intro);
+    DECLARE_VM_BUILTIN(name({"tactic", "intron"}),     tactic_intron);
 }
 
 void finalize_intro_tactic() {

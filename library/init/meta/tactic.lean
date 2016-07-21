@@ -115,7 +115,7 @@ meta_constant result        : tactic expr
 meta_constant format_result : tactic format
 /- Return target type of the main goal. Fail if tactic_state does not have any goal left. -/
 meta_constant target        : tactic expr
-meta_constant intro         : name → tactic expr
+meta_constant intro_core    : name → tactic expr
 meta_constant intron        : nat → tactic unit
 meta_constant rename        : name → name → tactic unit
 /- Clear the given local constant. The tactic fails if the given expression is not a local constant. -/
@@ -228,6 +228,14 @@ open list nat
 meta_definition note (n : name) (pr : expr) : tactic unit :=
 do t ← infer_type pr,
    definev n t pr
+
+meta_definition whnf_target : tactic unit :=
+target >>= whnf >>= change
+
+meta_definition intro (n : name) : tactic expr :=
+do t ← target,
+   if expr.is_pi t = tt ∨ expr.is_let t = tt then intro_core n
+   else whnf_target >> intro_core n
 
 meta_definition intros : tactic (list expr) :=
 do t ← target,
@@ -555,8 +563,5 @@ generalize_core semireducible
 meta_definition generalizes : list expr → tactic unit
 | []      := skip
 | (e::es) := generalize e "x" >> generalizes es
-
-meta_definition whnf_target : tactic unit :=
-target >>= whnf >>= change
 
 end tactic

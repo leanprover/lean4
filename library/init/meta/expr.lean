@@ -155,6 +155,10 @@ meta_definition is_pi : expr → bool
 | (pi _ _ _ _) := tt
 | _            := ff
 
+meta_definition is_let : expr → bool
+| (elet _ _ _ _) := tt
+| _              := ff
+
 meta_definition binding_name : expr → name
 | (pi n _ _ _)  := n
 | (lam n _ _ _) := n

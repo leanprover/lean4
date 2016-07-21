@@ -93,7 +93,6 @@ do
     intro "_" >>= subst >> dec_eq_same_constructor I_name F_name (if rec = tt then num_rec + 1 else num_rec),
     -- discharge second (negative) case by contradiction
     intro "_", left, -- decidable.ff
-    whnf_target,     -- expand not
     intro "_" >>= injection,
     intros, contradiction,
     return () }

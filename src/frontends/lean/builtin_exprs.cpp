@@ -546,7 +546,7 @@ static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(pa
         curr = p.parse_expr();
     } else if (p.curr_is_token(get_larrow_tk())) {
         p.next();
-        type = mk_expr_placeholder();
+        type = p.save_pos(mk_expr_placeholder(), lhs_pos);
         lhs  = fix_do_action_lhs(p, *lhs, type, lhs_pos, new_locals);
         if (!is_local(*lhs))
             validate_match_pattern(p, *lhs, new_locals);
@@ -562,7 +562,7 @@ static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(pa
             throw parser_error(sstream() << "unknown identifier '" << local_pp_name(undef) << "'", undef_pos);
         }
         curr = *lhs;
-        type = mk_expr_placeholder();
+        type = p.save_pos(mk_expr_placeholder(), lhs_pos);
         lhs  = none_expr();
     }
     return std::make_tuple(lhs, type, curr, else_case);
@@ -621,7 +621,7 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
         --i;
         if (auto lhs = lhss[i]) {
             if (is_local(*lhs)) {
-                r = p.save_pos(mk_app(p.save_pos(mk_constant(get_monad_bind_name()), ps[i]), es[i], Fun(*lhs, r)), ps[i]);
+                r = p.rec_save_pos(mk_app(p.save_pos(mk_constant(get_monad_bind_name()), ps[i]), es[i], Fun(*lhs, r)), ps[i]);
             } else {
                 // must introduce a "fake" match
                 expr fn = mk_local(mk_fresh_name(), *g_do_match_name, mk_expr_placeholder(), binder_info());
@@ -641,17 +641,16 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
                 expr eqns  = p.save_pos(mk_equations(1, eqs.size(), eqs.data()), pos);
                 expr local = mk_local("p", mk_expr_placeholder());
                 expr match = p.mk_app(eqns, local, pos);
-                r = p.save_pos(mk_app(p.save_pos(mk_constant(get_monad_bind_name()), ps[i]),
-                                      es[i],
-                                      p.save_pos(Fun(local, match), pos)),
-                               pos);
+                r = p.rec_save_pos(mk_app(p.save_pos(mk_constant(get_monad_bind_name()), ps[i]),
+                                          es[i],
+                                          p.save_pos(Fun(local, match), pos)),
+                                   pos);
             }
         } else {
-
-            r = p.save_pos(mk_app(p.save_pos(mk_constant(get_monad_bind_name()), ps[i]),
-                                  es[i],
-                                  p.save_pos(mk_lambda("x", mk_expr_placeholder(), r), p.pos_of(r))),
-                           ps[i]);
+            r = p.rec_save_pos(mk_app(p.save_pos(mk_constant(get_monad_bind_name()), ps[i]),
+                                      es[i],
+                                      p.save_pos(mk_lambda("x", mk_expr_placeholder(), r), p.pos_of(r))),
+                               ps[i]);
         }
     }
     return r;

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.meta.tactic
+import init.meta.tactic init.meta.set_get_option_tactics
 
 namespace tactic
 meta_constant back_lemmas : Type₁

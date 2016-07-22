@@ -65,30 +65,6 @@ meta_definition get_env : tactic environment :=
 do s ← read,
    return $ env s
 
-meta_definition set_bool_option (n : name) (v : bool) : tactic unit :=
-do s ← read,
-   write $ tactic_state.set_options s (options.set_bool (tactic_state.get_options s) n v)
-
-meta_definition set_nat_option (n : name) (v : nat) : tactic unit :=
-do s ← read,
-   write $ tactic_state.set_options s (options.set_nat (tactic_state.get_options s) n v)
-
-meta_definition set_string_option (n : name) (v : string) : tactic unit :=
-do s ← read,
-   write $ tactic_state.set_options s (options.set_string (tactic_state.get_options s) n v)
-
-meta_definition get_bool_option (n : name) (default : bool) : tactic bool :=
-do s ← read,
-   return $ options.get_bool (tactic_state.get_options s) n default
-
-meta_definition get_nat_option (n : name) (default : nat) : tactic nat :=
-do s ← read,
-   return $ options.get_nat (tactic_state.get_options s) n default
-
-meta_definition get_string_option (n : name) (default : string) : tactic string :=
-do s ← read,
-   return $ options.get_string (tactic_state.get_options s) n default
-
 meta_definition get_decl (n : name) : tactic declaration :=
 do s ← read,
    returnex $ environment.get (env s) n

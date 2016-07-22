@@ -163,9 +163,6 @@ meta_constant to_expr       : qexpr → tactic expr
 meta_constant is_class      : expr → tactic bool
 /- Try to create an instance of the given type class. -/
 meta_constant mk_instance   : expr → tactic expr
-/- Simplify the given expression using [defeq] lemmas.
-   The resulting expression is definitionally equal to the input. -/
-meta_constant defeq_simp_core : transparency → expr → tactic expr
 /- Change the target of the main goal.
    The input expression must be definitionally equal to the current target. -/
 meta_constant change        : expr → tactic unit
@@ -315,22 +312,6 @@ do gs ← get_goals,
    | g₁ :: g₂ :: rs := set_goals (g₂ :: g₁ :: rs)
    | _              := skip
    end
-
--- TODO(Leo): remove unifier.conservative after we finish new elaborator
-set_option unifier.conservative true
-
-meta_definition defeq_simp : expr → tactic expr :=
-defeq_simp_core reducible
-
-meta_definition dsimp : tactic unit :=
-target >>= defeq_simp >>= change
-
-meta_definition dsimp_at (H : expr) : tactic unit :=
-do num_reverted : ℕ ← revert H,
-   (expr.pi n bi d b : expr) ← target | failed,
-   H_simp : expr ← defeq_simp d,
-   change $ expr.pi n bi H_simp b,
-   intron num_reverted
 
 /- Return the number of goals that need to be solved -/
 meta_definition num_goals     : tactic nat :=

@@ -57,3 +57,17 @@ inline definition optionT_return {m : Type → Type} [monad m] {A : Type} (a : A
 
 definition optionT_is_monad [instance] {m : Type → Type} [monad m] {A : Type} : monad (optionT m) :=
 monad.mk (@optionT_fmap m _) (@optionT_return m _) (@optionT_bind m _)
+
+definition optionT_orelse {m : Type → Type} [monad m] {A : Type} (a : optionT m A) (b : optionT m A) : optionT m A :=
+@monad.bind m _ _ _ a (λ a : option A, option.cases_on a b (λ a, return (some a)))
+
+definition optionT_fail {m : Type → Type} [monad m] {A : Type} : optionT m A :=
+@monad.ret m _ _ none
+
+definition optionT_is_alternative [instance] {m : Type → Type} [monad m] {A : Type} : alternative (optionT m) :=
+alternative.mk
+  (@optionT_fmap m _)
+  (@optionT_return m _)
+  (@fapp (optionT m) (@optionT_is_monad m _ A))
+  (@optionT_fail m _)
+  (@optionT_orelse m _)

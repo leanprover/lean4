@@ -519,13 +519,13 @@ class equation_compiler_fn {
                 buffer<expr> lhs_args;
                 expr const & lhs_fn = get_app_args(lhs, lhs_args);
                 if (!is_local(lhs_fn))
-                    throw_error(sstream() << "invalid recursive equation, "
+                    throw_error(sstream() << "invalid equation, "
                                 << "left-hand-side is not one of the functions being defined", eq);
                 unsigned i = 0;
                 for (; i < m_fns.size(); i++) {
                     if (lhs_fn == m_fns[i]) {
                         if (arities[i] && *arities[i] != lhs_args.size())
-                            throw_error(sstream() << "invalid recursive equation for '" << lhs_fn << "' "
+                            throw_error(sstream() << "invalid equation for '" << lhs_fn << "' "
                                         << "left-hand-side of different equations have different number of arguments", eq);
                         arities[i] = lhs_args.size();
                     }
@@ -572,7 +572,7 @@ class equation_compiler_fn {
 
     void check_in_local_ctx(expr const & e, buffer<expr> const & local_ctx) {
         if (!contains_local(e, local_ctx))
-            throw_error(e, sstream() << "invalid recursive equation, variable '" << e
+            throw_error(e, sstream() << "invalid equation, variable '" << e
                         << "' has the same name of a variable in an outer-scope (solution: rename this variable)");
     }
 
@@ -1001,7 +1001,7 @@ class equation_compiler_fn {
                 options opts  = _fmt.get_options().update_if_undef(get_pp_implicit_name(), true);
                 opts          = opts.update_if_undef(get_pp_purify_locals_name(), false);
                 formatter fmt = _fmt.update_options(opts);
-                format r      = format("invalid non-exhaustive set of recursive equations, "
+                format r      = format("invalid non-exhaustive set of equations, "
                                        "left-hand-side(s) after elaboration:");
                 for (eqn const & e : prg.m_eqns) {
                     expr lhs = prg.m_fn;
@@ -1032,7 +1032,7 @@ class equation_compiler_fn {
             } else {
                 // In some equations the next pattern is an inaccessible term,
                 // and in others it is a constructor.
-                throw_error(sstream() << "invalid recursive equations for '" << local_pp_name(p.m_fn)
+                throw_error(sstream() << "invalid equations for '" << local_pp_name(p.m_fn)
                             << "', inconsistent use of inaccessible term annotation, "
                             << "in some equations a pattern is a constructor, and in another it is an inaccessible term");
             }
@@ -1384,7 +1384,7 @@ class equation_compiler_fn {
                 }
                 return r;
             } else {
-                m_main.throw_error(sstream() << "failed to compile recursive equations using "
+                m_main.throw_error(sstream() << "failed to compile equations using "
                                    << "brec_on approach (possible solution: use well-founded recursion)");
             }
         }
@@ -1449,7 +1449,7 @@ class equation_compiler_fn {
     // Fix the i-th argument in the Pi-type t
     expr fix_fn_type(expr const & t, unsigned i, expr const & p) {
         if (!is_pi(t)) {
-            throw_error(sstream() << "invalid recursive equation, failed to move parameter '" << p << "'");
+            throw_error(sstream() << "invalid equation, failed to move parameter '" << p << "'");
         } else if (i == 0) {
             return instantiate(binding_body(t), p);
         } else {
@@ -1514,7 +1514,7 @@ class equation_compiler_fn {
                 for (eqn & e : new_eqns) {
                     expr const & p = get_ith(e.m_patterns, i);
                     if (!is_local(p)) {
-                        throw_error(sstream() << "invalid recursive equations, "
+                        throw_error(sstream() << "invalid equations, "
                                     << "trying to pattern match inductive datatype parameter '" << p << "'");
                     } else {
                         list<expr> new_local_ctx = remove(e.m_local_context, p);
@@ -1630,7 +1630,7 @@ class equation_compiler_fn {
         bool use_ibelow     = reflexive && is_zero(rlvl);
         if (reflexive) {
             if (!is_zero(rlvl) && !is_not_zero(rlvl))
-                throw_error(sstream() << "invalid recursive equations, "
+                throw_error(sstream() << "invalid equations, "
                             << "when trying to recurse over reflexive inductive datatype, "
                             << "the universe level of the resultant universe must be zero OR "
                             << "not zero for every level assignment");
@@ -1641,7 +1641,7 @@ class equation_compiler_fn {
                 if (auto dlvl = dec_level(rlvl)) {
                     rlvl = *dlvl;
                 } else {
-                    throw_error(sstream() << "invalid recursive equations, "
+                    throw_error(sstream() << "invalid equations, "
                                 << "when trying to recurse over reflexive inductive datatype, "
                                 << "the universe level of the resultant universe must be zero OR "
                                 << "not zero for every level assignment, "
@@ -1752,7 +1752,7 @@ class equation_compiler_fn {
         lean_assert(!prgs.empty());
         buffer<unsigned> arg_pos;
         if (!find_rec_args(prgs, arg_pos)) {
-            throw_error(sstream() << "invalid recursive equations, "
+            throw_error(sstream() << "invalid equations, "
                         << "failed to find recursive arguments that are structurally smaller "
                         << "(possible solution: use well-founded recursion)");
         }

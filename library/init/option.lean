@@ -43,3 +43,19 @@ definition option_orelse {A : Type} : option A → option A → option A
 
 definition option_is_alternative [instance] {A : Type} : alternative option :=
 alternative.mk @option_fmap @some (@fapp _ _) @none @option_orelse
+
+definition optionT (m : Type → Type) [monad m] (A : Type) :=
+m (option A)
+
+inline definition optionT_fmap {m : Type → Type} [monad m] {A B : Type} (f : A → B) (e : optionT m A) : optionT m B :=
+@monad.bind m _ _ _ e (λ a : option A, option.cases_on a (return none) (λ a, return (some (f a))))
+
+inline definition optionT_bind {m : Type → Type} [monad m] {A B : Type} (a : optionT m A) (b : A → optionT m B)
+                               : optionT m B :=
+@monad.bind m _ _ _ a (λ a : option A, option.cases_on a (return none) (λ a, b a))
+
+inline definition optionT_return {m : Type → Type} [monad m] {A : Type} (a : A) : optionT m A :=
+@monad.ret m _ _ (some a)
+
+definition optionT_is_monad [instance] {m : Type → Type} [monad m] {A : Type} : monad (optionT m) :=
+monad.mk (@optionT_fmap m _) (@optionT_return m _) (@optionT_bind m _)

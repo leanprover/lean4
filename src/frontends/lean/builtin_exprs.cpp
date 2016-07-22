@@ -570,10 +570,11 @@ static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(pa
 
 static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
     parser::local_scope scope(p);
-    buffer<expr>           es;
-    buffer<optional<expr>> lhss;
-    buffer<optional<expr>> else_cases;
-    buffer<list<expr>>     lhss_locals;
+    buffer<expr>               es;
+    buffer<pos_info>           ps;
+    buffer<optional<expr>>     lhss;
+    buffer<optional<expr>>     else_cases;
+    buffer<list<expr>>         lhss_locals;
     bool has_braces = false;
     if (p.curr_is_token(get_lcurly_tk())) {
         has_braces = true;
@@ -581,6 +582,7 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
     }
     while (true) {
         auto lhs_pos = p.pos();
+        ps.push_back(lhs_pos);
         buffer<expr> new_locals;
         optional<expr> lhs, else_case;
         expr type, curr;
@@ -619,27 +621,37 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
         --i;
         if (auto lhs = lhss[i]) {
             if (is_local(*lhs)) {
-                r = mk_app(mk_constant(get_monad_bind_name()), es[i], Fun(*lhs, r));
+                r = p.save_pos(mk_app(p.save_pos(mk_constant(get_monad_bind_name()), ps[i]), es[i], Fun(*lhs, r)), ps[i]);
             } else {
                 // must introduce a "fake" match
                 expr fn = mk_local(mk_fresh_name(), *g_do_match_name, mk_expr_placeholder(), binder_info());
                 buffer<expr> locals;
                 to_buffer(lhss_locals[i], locals);
-                auto pos   = p.pos_of(*lhs);
+                auto pos   = ps[i];
                 buffer<expr> eqs;
-                eqs.push_back(Fun(fn, Fun(locals, p.save_pos(mk_equation(mk_app(fn, *lhs), r), pos), p)));
+                eqs.push_back(p.save_pos(Fun(fn, Fun(locals, p.save_pos(mk_equation(mk_app(fn, *lhs), r), pos), p)), pos));
                 if (optional<expr> else_case = else_cases[i]) {
                     // add case
                     //    _ := else_case
-                    eqs.push_back(Fun(fn, p.save_pos(mk_equation(mk_app(fn, mk_expr_placeholder()), *else_case), pos)));
+                    eqs.push_back(p.save_pos(Fun(fn, p.save_pos(mk_equation(mk_app(fn, mk_expr_placeholder()),
+                                                                            *else_case),
+                                                                pos)),
+                                             pos));
                 }
                 expr eqns  = p.save_pos(mk_equations(1, eqs.size(), eqs.data()), pos);
                 expr local = mk_local("p", mk_expr_placeholder());
                 expr match = p.mk_app(eqns, local, pos);
-                r = mk_app(mk_constant(get_monad_bind_name()), es[i], Fun(local, match));
+                r = p.save_pos(mk_app(p.save_pos(mk_constant(get_monad_bind_name()), ps[i]),
+                                      es[i],
+                                      p.save_pos(Fun(local, match), pos)),
+                               pos);
             }
         } else {
-            r = mk_app(mk_constant(get_monad_bind_name()), es[i], mk_lambda("x", mk_expr_placeholder(), r));
+
+            r = p.save_pos(mk_app(p.save_pos(mk_constant(get_monad_bind_name()), ps[i]),
+                                  es[i],
+                                  p.save_pos(mk_lambda("x", mk_expr_placeholder(), r), p.pos_of(r))),
+                           ps[i]);
         }
     }
     return r;

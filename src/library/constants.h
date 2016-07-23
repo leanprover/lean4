@@ -118,6 +118,8 @@ name const & get_mul_name();
 name const & get_mul_one_name();
 name const & get_mul_zero_name();
 name const & get_mul_zero_class_name();
+name const & get_name_anonymous_name();
+name const & get_name_mk_string_name();
 name const & get_nat_name();
 name const & get_nat_of_num_name();
 name const & get_nat_succ_name();

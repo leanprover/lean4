@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/let.h"
 #include "library/constants.h"
 #include "library/quote.h"
+#include "library/string.h"
 #include "library/trace.h"
 #include "library/tactic/elaborate.h"
 #include "library/definitional/equations.h"
@@ -673,6 +674,25 @@ static expr parse_antiquote_expr(parser & p, unsigned, expr const *, pos_info co
     return p.save_pos(mk_antiquote(e), pos);
 }
 
+static expr quote_name(name const & n) {
+    if (n.is_anonymous()) {
+        return mk_constant(get_name_anonymous_name());
+    } else if (n.is_string()) {
+        expr prefix = quote_name(n.get_prefix());
+        expr str    = from_string(n.get_string());
+        return mk_app(mk_constant(get_name_mk_string_name()), str, prefix);
+    } else {
+        lean_unreachable();
+    }
+}
+
+static expr parse_quoted_name(parser & p, unsigned, expr const *, pos_info const & pos) {
+    name id = p.check_id_next("invalid quoted name, identifier expected");
+    lean_assert(id.is_string());
+    expr e  = quote_name(id);
+    return p.rec_save_pos(e, pos);
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -692,6 +712,7 @@ parse_table init_nud_table() {
     r = r.add({transition("(", Expr), transition(":", Expr), transition(")", mk_ext_action(parse_typed_expr))}, x0);
     r = r.add({transition("?(", Expr), transition(")", mk_ext_action(parse_inaccessible))}, x0);
     r = r.add({transition("`(", mk_ext_action(parse_quoted_expr))}, x0);
+    r = r.add({transition("`", mk_ext_action(parse_quoted_name))}, x0);
     r = r.add({transition("%%", mk_ext_action(parse_antiquote_expr))}, x0);
     r = r.add({transition("⌞", Expr), transition("⌟", mk_ext_action(parse_inaccessible))}, x0);
     r = r.add({transition("(:", Expr), transition(":)", mk_ext_action(parse_pattern))}, x0);

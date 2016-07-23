@@ -31,8 +31,8 @@ private meta_definition injection_intro : expr → list name → tactic unit
   try $ do {
     (A, lhs, B, rhs) ← match_heq Ht,
     unify A B,
-    Heq ← mk_app "eq" [lhs, rhs],
-    pr  ← mk_app "eq_of_heq" [H],
+    Heq ← mk_app `eq [lhs, rhs],
+    pr  ← mk_app `eq_of_heq [H],
     assertv Hname Heq pr,
     clear H },
   injection_intro d (tail ns)

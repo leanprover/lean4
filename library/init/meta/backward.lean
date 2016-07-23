@@ -52,7 +52,7 @@ meta_definition back_lemmas_add_extra : transparency → back_lemmas → list ex
 meta_definition back_chaining_core (pre_tactic : tactic unit) (leaf_tactic : tactic unit) (extra_lemmas : list expr) : tactic unit :=
 do intro_lemmas ← mk_back_lemmas_core reducible,
    new_lemmas   ← back_lemmas_add_extra reducible intro_lemmas extra_lemmas,
-   max ← get_nat_option ("back_chaining" <.> "max_depth") 8,
+   max ← get_nat_option `back_chaining.max_depth 8,
    backward_chaining_core reducible tt max pre_tactic leaf_tactic new_lemmas
 
 meta_definition back_chaining : tactic unit :=

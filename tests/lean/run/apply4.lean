@@ -24,7 +24,7 @@ by do
   trace_state,
   a ← get_local "a",
   trace_state,
-  mk_app ("inhabited" <.> "mk") [a] >>= exact,
+  mk_app `inhabited.mk [a] >>= exact,
   trace "--------",
   trace_state,
   reflexivity

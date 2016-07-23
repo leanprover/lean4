@@ -17,7 +17,7 @@ private meta_definition get_dec_eq_type_name : tactic name :=
 do {
   (pi _ _ d1 (pi _ _ d2 b)) ← target >>= whnf | failed,
   (const n _) ← return (get_app_fn b) | failed,
-  when (n ≠ "decidable") failed,
+  when (n ≠ `decidable) failed,
   (const I _) ← return (get_app_fn d1) | failed,
   return I }
 <|>
@@ -36,7 +36,7 @@ private meta_definition find_next_target : list expr → list expr → tactic (e
 /- Create an inhabitant of (decidable (lhs = rhs)) -/
 private meta_definition mk_dec_eq_for (lhs : expr) (rhs : expr) : tactic expr :=
 do lhs_type ← infer_type lhs,
-   dec_type ← mk_app "decidable_eq" [lhs_type] >>= whnf,
+   dec_type ← mk_app `decidable_eq [lhs_type] >>= whnf,
    do {
      inst : expr ← mk_instance dec_type,
      return $ inst lhs rhs }
@@ -52,13 +52,13 @@ do t ← infer_type e,
 /- Auxiliary function for using brec_on "dictionary" -/
 private meta_definition mk_rec_inst_aux : expr → nat → tactic expr
 | F 0     := do
-   F' ← mk_app ("prod" <.> "pr1") [F],
+   F' ← mk_app `prod.pr1 [F],
    F_type ← infer_type F' >>= whnf,
    if is_pi F_type = tt
    then return F'
-   else mk_app ("prod" <.> "pr1") [F']
+   else mk_app `prod.pr1 [F']
 | F (n+1) := do
-  F' ← mk_app ("prod" <.> "pr2") [F],
+  F' ← mk_app `prod.pr2 [F],
   mk_rec_inst_aux F' n
 
 /- Use brec_on F_name (dictionary) argument to create an decidable_eq instance for (i+1)-th recursive argument. -/
@@ -87,7 +87,7 @@ do
       mk_dec_eq_for lhs_arg rhs_arg
     },
     tgt      ← target,
-    by_cases ← mk_mapp_core transparency.all ("decidable" <.> "by_cases") [none, some tgt, some inst],
+    by_cases ← mk_mapp_core transparency.all `decidable.by_cases [none, some tgt, some inst],
     apply by_cases,
     -- discharge first (positive) case by recursion
     intro "_" >>= subst >> dec_eq_same_constructor I_name F_name (if rec = tt then num_rec + 1 else num_rec),

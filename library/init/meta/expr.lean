@@ -126,25 +126,25 @@ meta_definition is_app_of (e : expr) (n : name) : bool :=
 is_app e && is_constant_of (get_app_fn e) n
 
 meta_definition is_false (e : expr) : bool :=
-is_constant_of e "false"
+is_constant_of e `false
 
 meta_definition is_not : expr → option expr
-| (app f a)    := if is_constant_of f "not" = tt then some a else none
+| (app f a)    := if is_constant_of f `not = tt then some a else none
 | (pi _ _ a b) := if is_false b = tt then some a else none
 | _            := none
 
 meta_definition is_eq (e : expr) : option (expr × expr) :=
-if is_app_of e "eq" = tt ∧ get_app_num_args e = 3
+if is_app_of e `eq = tt ∧ get_app_num_args e = 3
 then some (app_arg (app_fn e), app_arg e)
 else none
 
 meta_definition is_ne (e : expr) : option (expr × expr) :=
-if is_app_of e "ne" = tt ∧ get_app_num_args e = 3
+if is_app_of e `ne = tt ∧ get_app_num_args e = 3
 then some (app_arg (app_fn e), app_arg e)
 else none
 
 meta_definition is_heq (e : expr) : option (expr × expr × expr × expr) :=
-if is_app_of e "heq" = tt ∧ get_app_num_args e = 4
+if is_app_of e `heq = tt ∧ get_app_num_args e = 4
 then some (app_arg (app_fn (app_fn (app_fn e))),
            app_arg (app_fn (app_fn e)),
            app_arg (app_fn e),

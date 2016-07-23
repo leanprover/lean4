@@ -18,7 +18,7 @@ private meta_definition contra_A_not_A : list expr → list expr → tactic unit
      (do a ← match_not t,
          H2 ← find_same_type a Hs,
          tgt ← target,
-         pr ← mk_app "absurd" [tgt, H2, H1],
+         pr ← mk_app `absurd [tgt, H2, H1],
          exact pr)
      <|> contra_A_not_A Rs Hs
 
@@ -28,7 +28,7 @@ private meta_definition contra_false : list expr → tactic unit
   do t ← infer_type H,
      if is_false t = tt
      then do tgt ← target,
-             pr  ← mk_app ("false" <.> "rec") [tgt, H],
+             pr  ← mk_app `false.rec [tgt, H],
              exact pr
      else contra_false Hs
 
@@ -39,15 +39,15 @@ private meta_definition contra_not_a_refl_rel_a : list expr → tactic unit
      (do (lhs, rhs) ← match_ne t,
          unify lhs rhs,
          tgt ← target,
-         refl_pr ← mk_app ("eq" <.> "refl") [lhs],
-         mk_app "absurd" [tgt, refl_pr, H] >>= exact)
+         refl_pr ← mk_app `eq.refl [lhs],
+         mk_app `absurd [tgt, refl_pr, H] >>= exact)
      <|>
      (do p ← match_not t,
          (refl_lemma, lhs, rhs) ← match_refl_app p,
          unify lhs rhs,
          tgt ← target,
          refl_pr ← mk_app refl_lemma [lhs],
-         mk_app "absurd" [tgt, refl_pr, H] >>= exact)
+         mk_app `absurd [tgt, refl_pr, H] >>= exact)
      <|>
      contra_not_a_refl_rel_a Hs
 
@@ -81,7 +81,7 @@ do ctx ← local_context,
 
 meta_definition exfalso : tactic unit :=
 do fail_if_no_goals,
-   assert "Hfalse" (expr.const "false" []),
+   assert "Hfalse" (expr.const `false []),
    swap, contradiction
 
 end tactic

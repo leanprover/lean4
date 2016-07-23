@@ -7,7 +7,7 @@ by do
    a ← get_local "a",
    exact a,
    x ← get_local "x",
-   mk_app ("eq" <.> "refl") [x] >>= exact
+   mk_app `eq.refl [x] >>= exact
 
 print tst1
 
@@ -22,6 +22,6 @@ by do
    intro "y",
    trace_state,
    y ← get_local "y",
-   mk_app ("eq" <.> "refl") [y] >>= exact
+   mk_app `eq.refl [y] >>= exact
 
 print tst2

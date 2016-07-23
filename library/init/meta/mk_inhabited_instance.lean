@@ -16,7 +16,7 @@ open expr environment list
 private meta_definition get_inhabited_type_name : tactic name :=
 do {
   (app (const n _) t) ← target >>= whnf | failed,
-  when (n ≠ "inhabited") failed,
+  when (n ≠ `inhabited) failed,
   (const I _) ← return (get_app_fn t) | failed,
   return I }
 <|>
@@ -25,9 +25,9 @@ fail "mk_inhabited_instance tactic failed, target type is expected to be of the 
 /- Try to synthesize constructor argument using type class resolution -/
 private meta_definition mk_inhabited_arg : tactic unit :=
 do tgt  ← target,
-   inh  ← mk_app "inhabited" [tgt],
+   inh  ← mk_app `inhabited [tgt],
    inst ← mk_instance inh,
-   mk_app ("inhabited" <.> "value") [inst] >>= exact
+   mk_app `inhabited.value [inst] >>= exact
 
 private meta_definition try_constructors : nat → nat → tactic unit
 | 0     n := failed

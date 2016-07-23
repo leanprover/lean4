@@ -435,13 +435,13 @@ private meta_definition get_arity_aux : expr → tactic nat
 meta_definition get_arity (fn : expr) : tactic nat :=
 infer_type fn >>= whnf >>= get_arity_aux
 
-meta_definition triv : tactic unit := mk_const "trivial" >>= exact
+meta_definition triv : tactic unit := mk_const `trivial >>= exact
 
 meta_definition by_contradiction (H : name) : tactic expr :=
 do tgt : expr ← target,
    (match_not tgt >> return ())
    <|>
-   (mk_mapp ("decidable" <.> "by_contradiction") [some tgt, none] >>= apply)
+   (mk_mapp `decidable.by_contradiction [some tgt, none] >>= apply)
    <|>
    fail "tactic by_contradiction failed, target is not a negation nor a decidable proposition (remark: when 'open classical' is used all propositions are decidable)",
    intro H

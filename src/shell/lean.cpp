@@ -40,6 +40,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/server.h"
 #include "frontends/lean/dependencies.h"
 #include "frontends/lean/opt_cmd.h"
+#include "frontends/smt2/parser.h"
 #include "init/init.h"
 #include "shell/emscripten.h"
 #include "shell/simple_pos_info_provider.h"
@@ -95,6 +96,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --hlean           use parser for Lean default input format \n";
     std::cout << "                    and use HoTT compatible kernel for files, with unknown extension\n";
     std::cout << "  --server-trace    use lean server trace parser for files with unknown extension\n";
+    std::cout << "  --smt2            use lean as an smt-solver, interpreting all files as smt2 files\n";
     std::cout << "Miscellaneous:\n";
     std::cout << "  --help -h         display this message\n";
     std::cout << "  --version -v      display version number\n";
@@ -159,6 +161,7 @@ static struct option g_long_options[] = {
     {"lean",         no_argument,       0, 'l'},
     {"hlean",        no_argument,       0, 'H'},
     {"server-trace", no_argument,       0, 'R'},
+    {"smt2",         no_argument,       0, 'Y'},
     {"path",         no_argument,       0, 'p'},
     {"githash",      no_argument,       0, 'g'},
     {"output",       required_argument, 0, 'o'},
@@ -258,6 +261,7 @@ int main(int argc, char ** argv) {
     bool export_objects     = false;
     unsigned trust_lvl      = LEAN_BELIEVER_TRUST_LEVEL+1;
     bool server             = false;
+    bool smt2               = false;
     bool only_deps          = false;
     unsigned num_threads    = 1;
     bool read_cache         = false;
@@ -305,6 +309,9 @@ int main(int argc, char ** argv) {
             break;
         case 'R':
             default_k = input_kind::Trace;
+            break;
+        case 'Y':
+            smt2 = true;
             break;
         case 'p':
             if (default_k == input_kind::HLean)
@@ -414,6 +421,25 @@ int main(int argc, char ** argv) {
     lean_assert(!server);
     lean_assert(num_threads == 1);
     #endif
+
+    if (smt2) {
+        // Note: the smt2 flag may override other flags
+        environment env = mk_environment(trust_lvl);
+        io_state ios(opts, lean::mk_pretty_formatter_factory());
+        bool ok = true;
+        for (int i = optind; i < argc; i++) {
+            try {
+                ok = ::lean::smt2::parse_commands(env, ios, argv[i]);
+            } catch (lean::exception & ex) {
+                ok = false;
+                legacy_type_context tc(env, ios.get_options());
+                auto out = diagnostic(env, ios, tc);
+                simple_pos_info_provider pp(argv[i]);
+                lean::display_error(out, &pp, ex);
+            }
+        }
+        return ok ? 0 : 1;
+    }
 
     bool has_lean  = (default_k == input_kind::Lean);
     bool has_hlean = (default_k == input_kind::HLean);

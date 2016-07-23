@@ -80,12 +80,12 @@ public:
 
     mpq const & get_mpq() const { return m_q; }
     virtual name get_name() const { return *g_mpq_macro_name; }
-    virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
+    virtual expr check_type(expr const & m, abstract_type_context &, bool) const {
         check_macro(m);
         return macro_arg(m, 0);
     }
 
-    virtual optional<expr> expand(expr const & m, abstract_type_context & ctx) const {
+    virtual optional<expr> expand(expr const & m, abstract_type_context &) const {
         check_macro(m);
         expr ty = macro_arg(m, 0);
         concrete_arith_type cty;

@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/vm/init_module.h"
 #include "library/compiler/init_module.h"
 #include "frontends/lean/init_module.h"
+#include "frontends/smt2/init_module.h"
 #include "init/init.h"
 
 namespace lean {
@@ -42,11 +43,13 @@ void initialize() {
     // initialize_blast_module();
     initialize_definitional_module();
     initialize_frontend_lean_module();
+    initialize_frontend_smt2_module();
     initialize_vm_module();
 }
 void finalize() {
     run_thread_finalizers();
     finalize_vm_module();
+    finalize_frontend_smt2_module();
     finalize_frontend_lean_module();
     finalize_definitional_module();
     // finalize_blast_module();

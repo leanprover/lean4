@@ -53,3 +53,6 @@ attribute [instance] name.has_decidable_eq
 
 meta_definition name_has_ordering [instance] : has_ordering name :=
 has_ordering.mk name.cmp
+
+/- (name.append_after n i) return a name of the form n_i -/
+meta_constant name.append_after : name → nat → name

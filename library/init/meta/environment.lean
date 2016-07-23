@@ -32,6 +32,8 @@ meta_constant is_constructor  : environment → name → bool
 meta_constant is_recursor     : environment → name → bool
 /- Return tt iff the given name is a recursive inductive datatype -/
 meta_constant is_recursive    : environment → name → bool
+/- Return the name of the inductive datatype of the given constructor. -/
+meta_constant inductive_type_of : environment → name → option name
 /- Return the constructors of the inductive datatype with the given name -/
 meta_constant constructors_of : environment → name → list name
 /- Return the recursor of the given inductive datatype -/

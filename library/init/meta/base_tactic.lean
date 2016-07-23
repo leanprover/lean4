@@ -105,6 +105,12 @@ meta_definition returnex (e : exceptional A) : base_tactic S A :=
 | exceptional.exception A f := base_tactic_result.exception A f s
 end
 
+meta_definition returnopt (e : option A) : base_tactic S A :=
+λ s, match e with
+| some a     := base_tactic_result.success a s
+| none       := base_tactic_result.exception A (λ o, to_fmt "failed") s
+end
+
 /- Decorate t's exceptions with msg -/
 meta_definition decorate_ex (msg : format) (t : base_tactic S A) : base_tactic S A :=
 λ s, base_tactic_result.cases_on (t s)

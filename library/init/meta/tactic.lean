@@ -422,18 +422,22 @@ do u ← mk_meta_univ,
    t ← mk_meta_var (expr.sort u),
    mk_meta_var t
 
-private meta_definition get_arity_aux : expr → tactic nat
+private meta_definition get_pi_arity_aux : expr → tactic nat
 | (expr.pi n bi d b) :=
   do m     ← mk_fresh_name,
      l     ← return (expr.local_const m n bi d),
      new_b ← whnf (expr.instantiate_var b l),
-     r     ← get_arity_aux new_b,
+     r     ← get_pi_arity_aux new_b,
      return (r + 1)
 | _                  := return 0
 
+/- Compute the arity of the given (Pi-)type -/
+meta_definition get_pi_arity (type : expr) : tactic nat :=
+whnf type >>= get_pi_arity_aux
+
 /- Compute the arity of the given function -/
 meta_definition get_arity (fn : expr) : tactic nat :=
-infer_type fn >>= whnf >>= get_arity_aux
+infer_type fn >>= get_pi_arity
 
 meta_definition triv : tactic unit := mk_const `trivial >>= exact
 

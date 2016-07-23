@@ -102,6 +102,13 @@ vm_obj environment_is_constructor(vm_obj const & env, vm_obj const & n) {
     return mk_vm_bool(static_cast<bool>(inductive::is_intro_rule(to_env(env), to_name(n))));
 }
 
+vm_obj environment_inductive_type_of(vm_obj const & env, vm_obj const & n) {
+    if (auto I = inductive::is_intro_rule(to_env(env), to_name(n)))
+        return mk_vm_some(to_obj(*I));
+    else
+        return mk_vm_none();
+}
+
 vm_obj environment_is_recursor(vm_obj const & env, vm_obj const & n) {
     return mk_vm_bool(static_cast<bool>(inductive::is_elim_rule(to_env(env), to_name(n))));
 }
@@ -195,6 +202,7 @@ void initialize_vm_environment() {
     DECLARE_VM_BUILTIN(name({"environment", "is_constructor"}),        environment_is_constructor);
     DECLARE_VM_BUILTIN(name({"environment", "is_recursor"}),           environment_is_recursor);
     DECLARE_VM_BUILTIN(name({"environment", "is_recursive"}),          environment_is_recursive);
+    DECLARE_VM_BUILTIN(name({"environment", "inductive_type_of"}),     environment_inductive_type_of);
     DECLARE_VM_BUILTIN(name({"environment", "constructors_of"}),       environment_constructors_of);
     DECLARE_VM_BUILTIN(name({"environment", "recursor_of"}),           environment_recursor_of);
     DECLARE_VM_BUILTIN(name({"environment", "inductive_num_params"}),  environment_inductive_num_params);

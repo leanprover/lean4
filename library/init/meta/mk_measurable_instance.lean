@@ -46,7 +46,7 @@ private meta_definition mk_sizes_of : bool → name → name → list name → n
   return (sz :: szs)
 
 private meta_definition mk_sum : list expr → expr
-| []      := const `nat.zero []
+| []      := app (const `nat.succ []) (const `nat.zero [])
 | (e::es) := app (app (const `nat.add []) e) (mk_sum es)
 
 private meta_definition measurable_case (use_default : bool) (I_name F_name : name) (field_names : list name) : tactic unit :=

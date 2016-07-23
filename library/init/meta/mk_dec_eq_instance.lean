@@ -8,6 +8,7 @@ Helper tactic for showing that a type has decidable equality.
 prelude
 import init.meta.contradiction_tactic init.meta.constructor_tactic
 import init.meta.injection_tactic init.meta.relation_tactics
+import init.meta.rec_util
 
 namespace tactic
 open expr environment list
@@ -45,27 +46,6 @@ do lhs_type ← infer_type lhs,
      f ← pp dec_type,
      fail $ to_fmt "mk_dec_eq_instance failed, failed to generate instance for" ++ format.nest 2 (format.line ++ f) }
 
-private meta_definition is_rec_arg (I_name : name) (e : expr) : tactic bool :=
-do t ← infer_type e,
-   return $ is_constant_of (get_app_fn t) I_name
-
-/- Auxiliary function for using brec_on "dictionary" -/
-private meta_definition mk_rec_inst_aux : expr → nat → tactic expr
-| F 0     := do
-   F' ← mk_app `prod.pr1 [F],
-   F_type ← infer_type F' >>= whnf,
-   if is_pi F_type = tt
-   then return F'
-   else mk_app `prod.pr1 [F']
-| F (n+1) := do
-  F' ← mk_app `prod.pr2 [F],
-  mk_rec_inst_aux F' n
-
-/- Use brec_on F_name (dictionary) argument to create an decidable_eq instance for (i+1)-th recursive argument. -/
-private meta_definition mk_rec_inst (F_name : name) (i : nat) : tactic expr :=
-do F ← get_local F_name,
-   mk_rec_inst_aux F i
-
 /- Target is of the form (decidable (C ... = C ...)) where C is a constructor -/
 private meta_definition dec_eq_same_constructor (I_name : name) (F_name : name) (num_rec : nat) : tactic unit :=
 do
@@ -78,10 +58,10 @@ do
     rhs_list : list expr ← return $ get_app_args rhs,
     when (length lhs_list ≠ length rhs_list) (fail "mk_dec_eq_instance failed, constructor applications have different number of arguments"),
     (lhs_arg,  rhs_arg) ← find_next_target lhs_list rhs_list,
-    rec ← is_rec_arg I_name lhs_arg,
+    rec ← is_type_app_of lhs_arg I_name,
     inst ← if rec = tt
     then do {
-      inst_fn : expr ← mk_rec_inst F_name num_rec,
+      inst_fn : expr ← mk_brec_on_rec_value F_name num_rec,
       return $ inst_fn rhs_arg }
     else do {
       mk_dec_eq_for lhs_arg rhs_arg

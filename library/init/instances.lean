@@ -8,7 +8,7 @@ import init.meta.mk_dec_eq_instance init.subtype init.meta.occurrences
 
 open tactic subtype
 
-definition subtype_decidable_eq [instance] {A : Type} {P : A → Prop} [decidable_eq A] : decidable_eq {x | P x} :=
+definition subtype_decidable_eq [instance] {A : Type} {P : A → Prop} [decidable_eq A] : decidable_eq {x \ P x} :=
 by mk_dec_eq_instance
 
 definition list_decidable_eq [instance] {A : Type} [decidable_eq A] : decidable_eq (list A) :=

@@ -23,7 +23,7 @@ namespace nat
   ∃ x, x < n ∧ P x
 
   definition bsub [reducible] (n : nat) (P : nat → Prop) : Type₁ :=
-  {x | x < n ∧ P x}
+  {x \ x < n ∧ P x}
 
   definition ball [reducible] (n : nat) (P : nat → Prop) : Prop :=
   ∀ x, x < n → P x
@@ -127,13 +127,13 @@ namespace nat
   variable [decP : decidable_pred P]
   include decP
 
-  definition bsub_not_of_not_ball : ∀ {n : nat}, ¬ ball n P → {i | i < n ∧ ¬ P i}
+  definition bsub_not_of_not_ball : ∀ {n : nat}, ¬ ball n P → {i \ i < n ∧ ¬ P i}
   | 0        h := absurd (ball_zero P) h
   | (succ n) h := decidable.by_cases
     (λ hp : P n,
       have ¬ ball n P, from
         assume b : ball n P, absurd (ball_succ_of_ball b hp) h,
-      have {i | i < n ∧ ¬ P i}, from bsub_not_of_not_ball this,
+      have {i \ i < n ∧ ¬ P i}, from bsub_not_of_not_ball this,
       bsub_succ this)
     (λ hn : ¬ P n, bsub_succ_of_pred hn)
 

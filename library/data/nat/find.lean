@@ -95,7 +95,7 @@ lt.by_cases
 private lemma wf_gtb : well_founded gtb :=
 well_founded.intro acc_of_ex
 
-private definition find.F (x : nat) : (Π x₁, x₁ ≺ x → lbp x₁ → {a : nat | p a}) → lbp x → {a : nat | p a} :=
+private definition find.F (x : nat) : (Π x₁, x₁ ≺ x → lbp x₁ → {a : nat \ p a}) → lbp x → {a : nat \ p a} :=
 match x with
 | 0 := λ f l0, by_cases
   (λ p0 : p 0,    tag 0 p0)
@@ -111,7 +111,7 @@ match x with
     f (succ (succ n)) this lss)
 end
 include ex -- todo remove
-private definition find_x : {x : nat | p x} :=
+private definition find_x : {x : nat \ p x} :=
 @fix _ _ _ wf_gtb find.F 0 lbp_zero
 end find_x
 

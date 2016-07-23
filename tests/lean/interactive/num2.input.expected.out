@@ -28,6 +28,7 @@ pos_num.rec_on|Π n, ?C pos_num.one → (Π a, ?C a → ?C (pos_num.bit1 a)) →
 pos_num.brec_on|Π n, (Π n, pos_num.below n → ?C n) → ?C n
 pos_num.add|pos_num → pos_num → pos_num
 pos_num_has_mul|has_mul pos_num
+pos_num_measurable|measurable pos_num
 pos_num|Type
 pos_num_has_one|has_one pos_num
 pos_num_has_add|has_add pos_num
@@ -61,6 +62,7 @@ pos_num.rec_on|Π n, ?C pos_num.one → (Π a, ?C a → ?C (pos_num.bit1 a)) →
 pos_num.brec_on|Π n, (Π n, pos_num.below n → ?C n) → ?C n
 pos_num.add|pos_num → pos_num → pos_num
 pos_num_has_mul|has_mul pos_num
+pos_num_measurable|measurable pos_num
 pos_num|Type
 pos_num_has_one|has_one pos_num
 pos_num_has_add|has_add pos_num
@@ -90,6 +92,7 @@ pos_num.rec_on|Π n, ?C pos_num.one → (Π a, ?C a → ?C (pos_num.bit1 a)) →
 pos_num.brec_on|Π n, (Π n, pos_num.below n → ?C n) → ?C n
 pos_num.add|pos_num → pos_num → pos_num
 pos_num_has_mul|has_mul pos_num
+pos_num_measurable|measurable pos_num
 pos_num|Type
 pos_num_has_one|has_one pos_num
 pos_num_has_add|has_add pos_num

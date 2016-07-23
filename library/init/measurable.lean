@@ -24,6 +24,9 @@ measurable.mk (λ a, a)
 definition Type_measurable [instance] : measurable Type :=
 measurable.mk (λ t, zero)
 
+definition Prop_measurable [instance] : measurable Prop :=
+measurable.mk (λ t, zero)
+
 definition fn_measurable [instance] (A : Type) (B : A → Type) : measurable (Π x, B x) :=
 measurable.mk (λf, zero)
 
@@ -40,6 +43,9 @@ definition list_measurable [instance] (A : Type) [measurable A] : measurable (li
 by mk_measurable_instance
 
 definition unit_measurable [instance] : measurable unit :=
+by mk_measurable_instance
+
+definition bool_measurable [instance] : measurable bool :=
 by mk_measurable_instance
 
 definition sigma_measurable [instance] (A : Type) (B : A → Type) [measurable A] [∀ x, measurable (B x)] : measurable (Σ x, B x) :=

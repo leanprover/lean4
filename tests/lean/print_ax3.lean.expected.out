@@ -1,7 +1,7 @@
 no axioms
 ------
 quot.sound : ∀ {A} [s] {a b}, setoid.r a b → quot.mk a = quot.mk b
-classical.strong_indefinite_description : Π {A} P, nonempty A → {x | Exists P → P x}
+classical.strong_indefinite_description : Π {A} P, nonempty A → {x \ Exists P → P x}
 propext : ∀ {a b}, (a ↔ b) → a = b
 ------
 theorem foo3 : 0 = 0 :=

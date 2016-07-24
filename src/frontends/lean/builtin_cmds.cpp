@@ -659,13 +659,17 @@ static environment vm_eval_cmd(parser & p) {
 
 static environment elab_cmd(parser & p) {
     expr e = p.parse_expr();
-    expr new_e; level_param_names ls;
-    std::tie(new_e, ls) = p.elaborate(e);
     metavar_context mctx;
     aux_type_context ctx(p.env(), p.get_options(), mctx, p.get_local_context());
     auto out = regular(p.env(), p.ios(), ctx);
-    out << ">> " << e << "\n";
-    out << ">> " << new_e << "\n";
+    out << ">> " << e << endl;
+    expr new_e; level_param_names ls;
+    std::tie(new_e, ls) = p.elaborate(e);
+    out << ">> " << new_e << endl;
+    try {
+        expr type = ctx->infer(new_e);
+        out << ">> " << type << "\n";
+    } catch (exception &) {}
     return p.env();
 }
 

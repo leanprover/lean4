@@ -23,4 +23,8 @@ namespace lean {
 [[ noreturn ]] void throw_elaborator_exception(expr const & m, pp_fn const & fn) {
     throw_generic_exception(m, fn);
 }
+
+[[ noreturn ]] void throw_elaborator_exception(expr const & m, format const & msg) {
+    throw_elaborator_exception(m, [=](formatter const &) { return msg; });
+}
 }

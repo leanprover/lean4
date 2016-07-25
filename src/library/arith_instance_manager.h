@@ -64,6 +64,7 @@ public:
 };
 
 enum class concrete_arith_type { NAT, INT, REAL };
+optional<concrete_arith_type> is_concrete_arith_type(expr const & type);
 
 arith_instance_info & get_arith_instance_info_for(concrete_arith_type type);
 arith_instance_info & get_arith_instance_info_for(type_context & tctx, expr const & type);

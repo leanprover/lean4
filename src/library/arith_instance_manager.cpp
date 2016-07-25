@@ -354,40 +354,6 @@ expr arith_instance_info::get_le() {
     }
 }
 
-// Entry points
-arith_instance_info & get_arith_instance_info_for(concrete_arith_type type) {
-    switch (type) {
-    case concrete_arith_type::NAT:  return *g_nat_instance_info;
-    case concrete_arith_type::INT:  return *g_int_instance_info;
-    case concrete_arith_type::REAL: return *g_real_instance_info;
-    }
-    lean_unreachable();
-}
-
-arith_instance_info & get_arith_instance_info_for_nat() {
-    return *g_nat_instance_info;
-}
-
-arith_instance_info & get_arith_instance_info_for_int() {
-    return *g_int_instance_info;
-}
-
-arith_instance_info & get_arith_instance_info_for_real() {
-    return *g_real_instance_info;
-}
-
-arith_instance_info & get_arith_instance_info_for(type_context & tctx, expr const & type) {
-    expr_struct_map<arith_instance_info> & cache = get_arith_instance_info_cache_for(tctx);
-    auto it = cache.find(type);
-    if (it != cache.end()) {
-        return it->second;
-    } else {
-        auto result = cache.insert({type, arith_instance_info(tctx, type)});
-        lean_assert(result.second);
-        return result.first->second;
-    }
-}
-
 // Setup and teardown
 void initialize_concrete_arith_instance_infos() {
     // nats
@@ -484,6 +450,42 @@ void initialize_arith_instance_manager() {
 
 void finalize_arith_instance_manager() {
     finalize_concrete_arith_instance_infos();
+}
+
+// Entry points
+arith_instance_info & get_arith_instance_info_for(concrete_arith_type type) {
+    switch (type) {
+    case concrete_arith_type::NAT:  return *g_nat_instance_info;
+    case concrete_arith_type::INT:  return *g_int_instance_info;
+    case concrete_arith_type::REAL: return *g_real_instance_info;
+    }
+    lean_unreachable();
+}
+
+optional<concrete_arith_type> is_concrete_arith_type(expr const & type) {
+   if (type == mk_constant(get_nat_name()))
+       return optional<concrete_arith_type>(concrete_arith_type::NAT);
+   if (type == mk_constant(get_int_name()))
+       return optional<concrete_arith_type>(concrete_arith_type::INT);
+   if (type == mk_constant(get_real_name()))
+       return optional<concrete_arith_type>(concrete_arith_type::REAL);
+   else
+       return optional<concrete_arith_type>();
+}
+
+arith_instance_info & get_arith_instance_info_for(type_context & tctx, expr const & type) {
+    if (auto ctype = is_concrete_arith_type(type))
+        return get_arith_instance_info_for(*ctype);
+
+    expr_struct_map<arith_instance_info> & cache = get_arith_instance_info_cache_for(tctx);
+    auto it = cache.find(type);
+    if (it != cache.end()) {
+        return it->second;
+    } else {
+        auto result = cache.insert({type, arith_instance_info(tctx, type)});
+        lean_assert(result.second);
+        return result.first->second;
+    }
 }
 
 }

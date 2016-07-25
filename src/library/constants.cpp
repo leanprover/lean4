@@ -15,9 +15,6 @@ name const * g_and = nullptr;
 name const * g_and_elim_left = nullptr;
 name const * g_and_elim_right = nullptr;
 name const * g_and_intro = nullptr;
-name const * g_array = nullptr;
-name const * g_array_select = nullptr;
-name const * g_array_store = nullptr;
 name const * g_bit0 = nullptr;
 name const * g_bit1 = nullptr;
 name const * g_bool = nullptr;
@@ -31,6 +28,7 @@ name const * g_char = nullptr;
 name const * g_char_of_nat = nullptr;
 name const * g_classical = nullptr;
 name const * g_classical_prop_decidable = nullptr;
+name const * g_classical_type_decidable_eq = nullptr;
 name const * g_combinator_K = nullptr;
 name const * g_comm_ring = nullptr;
 name const * g_comm_semiring = nullptr;
@@ -284,6 +282,10 @@ name const * g_select = nullptr;
 name const * g_semiring = nullptr;
 name const * g_sigma = nullptr;
 name const * g_sigma_mk = nullptr;
+name const * g_smt_array = nullptr;
+name const * g_smt_select = nullptr;
+name const * g_smt_store = nullptr;
+name const * g_smt_prove = nullptr;
 name const * g_sorry = nullptr;
 name const * g_store = nullptr;
 name const * g_string = nullptr;
@@ -330,9 +332,6 @@ void initialize_constants() {
     g_and_elim_left = new name{"and", "elim_left"};
     g_and_elim_right = new name{"and", "elim_right"};
     g_and_intro = new name{"and", "intro"};
-    g_array = new name{"array"};
-    g_array_select = new name{"array", "select"};
-    g_array_store = new name{"array", "store"};
     g_bit0 = new name{"bit0"};
     g_bit1 = new name{"bit1"};
     g_bool = new name{"bool"};
@@ -346,6 +345,7 @@ void initialize_constants() {
     g_char_of_nat = new name{"char", "of_nat"};
     g_classical = new name{"classical"};
     g_classical_prop_decidable = new name{"classical", "prop_decidable"};
+    g_classical_type_decidable_eq = new name{"classical", "type_decidable_eq"};
     g_combinator_K = new name{"combinator", "K"};
     g_comm_ring = new name{"comm_ring"};
     g_comm_semiring = new name{"comm_semiring"};
@@ -599,6 +599,10 @@ void initialize_constants() {
     g_semiring = new name{"semiring"};
     g_sigma = new name{"sigma"};
     g_sigma_mk = new name{"sigma", "mk"};
+    g_smt_array = new name{"smt", "array"};
+    g_smt_select = new name{"smt", "select"};
+    g_smt_store = new name{"smt", "store"};
+    g_smt_prove = new name{"smt", "prove"};
     g_sorry = new name{"sorry"};
     g_store = new name{"store"};
     g_string = new name{"string"};
@@ -646,9 +650,6 @@ void finalize_constants() {
     delete g_and_elim_left;
     delete g_and_elim_right;
     delete g_and_intro;
-    delete g_array;
-    delete g_array_select;
-    delete g_array_store;
     delete g_bit0;
     delete g_bit1;
     delete g_bool;
@@ -662,6 +663,7 @@ void finalize_constants() {
     delete g_char_of_nat;
     delete g_classical;
     delete g_classical_prop_decidable;
+    delete g_classical_type_decidable_eq;
     delete g_combinator_K;
     delete g_comm_ring;
     delete g_comm_semiring;
@@ -915,6 +917,10 @@ void finalize_constants() {
     delete g_semiring;
     delete g_sigma;
     delete g_sigma_mk;
+    delete g_smt_array;
+    delete g_smt_select;
+    delete g_smt_store;
+    delete g_smt_prove;
     delete g_sorry;
     delete g_store;
     delete g_string;
@@ -961,9 +967,6 @@ name const & get_and_name() { return *g_and; }
 name const & get_and_elim_left_name() { return *g_and_elim_left; }
 name const & get_and_elim_right_name() { return *g_and_elim_right; }
 name const & get_and_intro_name() { return *g_and_intro; }
-name const & get_array_name() { return *g_array; }
-name const & get_array_select_name() { return *g_array_select; }
-name const & get_array_store_name() { return *g_array_store; }
 name const & get_bit0_name() { return *g_bit0; }
 name const & get_bit1_name() { return *g_bit1; }
 name const & get_bool_name() { return *g_bool; }
@@ -977,6 +980,7 @@ name const & get_char_name() { return *g_char; }
 name const & get_char_of_nat_name() { return *g_char_of_nat; }
 name const & get_classical_name() { return *g_classical; }
 name const & get_classical_prop_decidable_name() { return *g_classical_prop_decidable; }
+name const & get_classical_type_decidable_eq_name() { return *g_classical_type_decidable_eq; }
 name const & get_combinator_K_name() { return *g_combinator_K; }
 name const & get_comm_ring_name() { return *g_comm_ring; }
 name const & get_comm_semiring_name() { return *g_comm_semiring; }
@@ -1230,6 +1234,10 @@ name const & get_select_name() { return *g_select; }
 name const & get_semiring_name() { return *g_semiring; }
 name const & get_sigma_name() { return *g_sigma; }
 name const & get_sigma_mk_name() { return *g_sigma_mk; }
+name const & get_smt_array_name() { return *g_smt_array; }
+name const & get_smt_select_name() { return *g_smt_select; }
+name const & get_smt_store_name() { return *g_smt_store; }
+name const & get_smt_prove_name() { return *g_smt_prove; }
 name const & get_sorry_name() { return *g_sorry; }
 name const & get_store_name() { return *g_store; }
 name const & get_string_name() { return *g_string; }

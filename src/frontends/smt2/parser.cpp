@@ -43,7 +43,6 @@ namespace lean {
 namespace smt2 {
 
 static name * g_smt2_unique_prefix;
-static name * g_smt2_tactic;
 
 static char const * g_token_use_locals      = ":use_locals";
 
@@ -478,7 +477,7 @@ private:
         metavar_context mctx;
         expr goal_mvar = mctx.mk_metavar_decl(lctx(), mk_constant(get_false_name()));
         vm_obj s = to_obj(tactic_state(env(), ios().get_options(), mctx, list<expr>(goal_mvar), goal_mvar));
-        vm_obj result = get_tactic_vm_state(env()).invoke(*g_smt2_tactic, s);
+        vm_obj result = get_tactic_vm_state(env()).invoke(get_smt_prove_name(), s);
         if (optional<tactic_state> s_new = is_tactic_success(result)) {
             mctx = s_new->mctx();
             expr proof = mctx.instantiate_mvars(goal_mvar);
@@ -643,7 +642,7 @@ public:
         optional<unsigned> k;
 
         olean_files.push_back(module_name(k, name("init")));
-        olean_files.push_back(module_name(k, name({"algebra", "smt2"})));
+        olean_files.push_back(module_name(k, name("smt")));
 
         unsigned num_threads = 0;
         bool keep_imported_theorems = false;
@@ -670,12 +669,10 @@ public:
 void initialize_parser() {
     g_smt2_unique_prefix = new name(name::mk_internal_unique_name());
     // TODO(dhs): write a theorem prover and call that instead
-    g_smt2_tactic = new name({"tactic", "smt2"});
 }
 
 void finalize_parser() {
     delete g_smt2_unique_prefix;
-    delete g_smt2_tactic;
 }
 
 // Entry point

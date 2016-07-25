@@ -288,6 +288,9 @@ assume not_em : ¬(a ∨ ¬a),
 
 theorem or.swap : a ∨ b → b ∨ a := or.rec or.inr or.inl
 
+/- xor -/
+definition xor (a b : Prop) := (a ∧ ¬ b) ∨ (b ∧ ¬ a)
+
 /- iff -/
 
 definition iff (a b : Prop) := (a → b) ∧ (b → a)

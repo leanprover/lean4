@@ -179,6 +179,8 @@ inhabited_of_nonempty
 noncomputable definition prop_decidable [instance] [priority 0] (a : Prop) : decidable a :=
 arbitrary (decidable a)
 
+noncomputable definition type_decidable_eq [instance] [priority 0] (A : Type) : decidable_eq A := _
+
 noncomputable definition type_decidable (A : Type) : sum A (A → false) :=
 match prop_decidable (nonempty A) with
 | tt Hp := sum.inl (inhabited.value (inhabited_of_nonempty Hp))

@@ -171,37 +171,23 @@ private:
 
     expr elaborate_select(buffer<expr> & args) {
         lean_assert(is_constant(args[0]) && const_name(args[0]) == get_select_name());
-        // Have: select <A : Array X Y> <x : X>
-        // Want: array.select.{1 1} X Y x A
         expr ty = m_tctx.infer(args[1]);
         buffer<expr> array_args;
         expr array = get_app_args(ty, array_args);
-        lean_assert(is_constant(array) && const_name(array) == get_array_name());
-        buffer<expr> new_args;
-        new_args.push_back(mk_constant(get_array_select_name(), {l1(), l1()}));
-        new_args.push_back(array_args[0]);
-        new_args.push_back(array_args[1]);
-        new_args.push_back(args[2]);
-        new_args.push_back(args[1]);
-        return mk_app(new_args);
+        lean_assert(is_constant(array) && const_name(array) == get_smt_array_name());
+        args[0] = mk_app(mk_constant(get_smt_select_name(), {l1(), l1()}), array_args[0], array_args[1]);
+        return mk_app(args);
     }
 
     expr elaborate_store(buffer<expr> & args) {
         lean_assert(is_constant(args[0]) && const_name(args[0]) == get_store_name());
-        // Have: store <A : Array X Y> <x : X> <y : Y>
-        // Want: array.store.{1 1} X Y x y A
         expr ty = m_tctx.infer(args[1]);
         buffer<expr> array_args;
         expr array = get_app_args(ty, array_args);
-        lean_assert(is_constant(array) && const_name(array) == get_array_name());
-        buffer<expr> new_args;
-        new_args.push_back(mk_constant(get_array_store_name(), {l1(), l1()}));
-        new_args.push_back(array_args[0]);
-        new_args.push_back(array_args[1]);
-        new_args.push_back(args[2]);
-        new_args.push_back(args[3]);
-        new_args.push_back(args[1]);
-        return mk_app(new_args);
+        lean_assert(is_constant(array) && const_name(array) == get_smt_array_name());
+        expr dec_eq = mk_app(mk_constant(get_classical_type_decidable_eq_name(), {l1()}), array_args[0]);
+        args[0] = mk_app(mk_constant(get_smt_store_name(), {l1(), l1()}), array_args[0], array_args[1], dec_eq);
+        return mk_app(args);
     }
 
     expr elaborate_arith(buffer<expr> & args, arith_app_info const & info) {
@@ -313,7 +299,7 @@ void initialize_elaborator() {
             {"not", mk_constant(get_not_name())},
             {"Int", mk_constant(get_int_name())},
             {"Real", mk_constant(get_real_name())},
-            {"Array", mk_constant(get_array_name(), {l1(), l1()})},
+            {"Array", mk_constant(get_smt_array_name(), {l1(), l1()})},
             {"to_real", mk_constant(get_real_of_int_name())},
             {"to_int", mk_constant(get_real_to_int_name())},
             {"is_int", mk_constant(get_real_is_int_name())}

@@ -10,9 +10,6 @@ and
 and.elim_left
 and.elim_right
 and.intro
-array
-array.select
-array.store
 bit0
 bit1
 bool
@@ -26,6 +23,7 @@ char
 char.of_nat
 classical
 classical.prop_decidable
+classical.type_decidable_eq
 combinator.K
 comm_ring
 comm_semiring
@@ -279,6 +277,10 @@ select
 semiring
 sigma
 sigma.mk
+smt.array
+smt.select
+smt.store
+smt.prove
 sorry
 store
 string

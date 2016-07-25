@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2016 Microsoft Corporation. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
+  Copyright (c) 2016 Microsoft Corporation. All rights reserved.
+  Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Daniel Selsam
+  Author: Daniel Selsam
 */
 #include "util/sstream.h"
 #include "library/constants.h"
@@ -18,20 +18,28 @@ static arith_instance_info * g_nat_instance_info  = nullptr;
 static arith_instance_info * g_int_instance_info  = nullptr;
 static arith_instance_info * g_real_instance_info = nullptr;
 
+struct arith_instance_info_cache_entry {
+    local_context       m_lctx;
+    arith_instance_info m_info;
+
+    arith_instance_info_cache_entry(type_context & tctx, expr const & type):
+        m_lctx(tctx.initial_lctx()), m_info(tctx, type) {}
+};
+
 class arith_instance_info_cache {
 private:
     environment m_env;
-    expr_struct_map<arith_instance_info> m_cache;
+    expr_struct_map<arith_instance_info_cache_entry> m_cache;
 public:
     environment const & env() const { return m_env; }
-    expr_struct_map<arith_instance_info> & get_cache() { return m_cache; }
+    expr_struct_map<arith_instance_info_cache_entry> & get_cache() { return m_cache; }
     arith_instance_info_cache(environment const & env): m_env(env) {}
 };
 
 typedef transparencyless_cache_compatibility_helper<arith_instance_info_cache> arith_instance_info_cache_helper;
 MK_THREAD_LOCAL_GET_DEF(arith_instance_info_cache_helper, get_aiich);
 
-static expr_struct_map<arith_instance_info> & get_arith_instance_info_cache_for(type_context const & tctx) {
+static expr_struct_map<arith_instance_info_cache_entry> & get_arith_instance_info_cache_for(type_context const & tctx) {
     return get_aiich().get_cache_for(tctx).get_cache();
 }
 
@@ -463,28 +471,43 @@ arith_instance_info & get_arith_instance_info_for(concrete_arith_type type) {
 }
 
 optional<concrete_arith_type> is_concrete_arith_type(expr const & type) {
-   if (type == mk_constant(get_nat_name()))
-       return optional<concrete_arith_type>(concrete_arith_type::NAT);
-   if (type == mk_constant(get_int_name()))
-       return optional<concrete_arith_type>(concrete_arith_type::INT);
-   if (type == mk_constant(get_real_name()))
-       return optional<concrete_arith_type>(concrete_arith_type::REAL);
-   else
-       return optional<concrete_arith_type>();
+    if (type == mk_constant(get_nat_name()))
+        return optional<concrete_arith_type>(concrete_arith_type::NAT);
+    if (type == mk_constant(get_int_name()))
+        return optional<concrete_arith_type>(concrete_arith_type::INT);
+    if (type == mk_constant(get_real_name()))
+        return optional<concrete_arith_type>(concrete_arith_type::REAL);
+    else
+        return optional<concrete_arith_type>();
+}
+
+arith_instance_info & cache_insert(expr_struct_map<arith_instance_info_cache_entry> & cache, type_context & tctx, expr const & type) {
+    auto result = cache.emplace(std::piecewise_construct,
+                                std::forward_as_tuple<expr const &>(type),
+                                std::forward_as_tuple<type_context &, expr const &>(tctx, type));
+    lean_assert(result.second);
+    return result.first->second.m_info;
 }
 
 arith_instance_info & get_arith_instance_info_for(type_context & tctx, expr const & type) {
     if (auto ctype = is_concrete_arith_type(type))
         return get_arith_instance_info_for(*ctype);
 
-    expr_struct_map<arith_instance_info> & cache = get_arith_instance_info_cache_for(tctx);
+    expr_struct_map<arith_instance_info_cache_entry> & cache = get_arith_instance_info_cache_for(tctx);
     auto it = cache.find(type);
-    if (it != cache.end()) {
-        return it->second;
+
+    if (it == cache.end()) {
+        return cache_insert(cache, tctx, type);
     } else {
-        auto result = cache.insert({type, arith_instance_info(tctx, type)});
-        lean_assert(result.second);
-        return result.first->second;
+        arith_instance_info_cache_entry & entry = it->second;
+        if (tctx.compatible_local_instances(entry.m_lctx)) {
+            entry.m_lctx = tctx.initial_lctx();
+            entry.m_info.m_tctx_ptr = &tctx;
+            return entry.m_info;
+        } else {
+            cache.erase(type);
+            return cache_insert(cache, tctx, type);
+        }
     }
 }
 

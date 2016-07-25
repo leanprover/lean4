@@ -2065,10 +2065,10 @@ optional<name> type_context::is_class(expr const & type) {
     return is_full_class(type);
 }
 
-bool type_context::compatible_local_instances() {
+bool type_context::compatible_local_instances(local_context const & lctx) {
     unsigned i  = 0;
     bool failed = false;
-    m_init_local_context.for_each([&](local_decl const & decl) {
+    lctx.for_each([&](local_decl const & decl) {
             if (failed) return;
             if (auto cname = is_class(decl.get_type())) {
                 if (i == m_cache.m_local_instances.size()) {
@@ -2087,6 +2087,10 @@ bool type_context::compatible_local_instances() {
     return !failed && i == m_cache.m_local_instances.size();
 }
 
+local_context const & type_context::initial_lctx() const {
+    return m_init_local_context;
+}
+
 void type_context::set_local_instances() {
     m_cache.m_instance_cache.clear();
     m_cache.m_subsingleton_cache.clear();
@@ -2100,7 +2104,7 @@ void type_context::set_local_instances() {
 
 void type_context::init_local_instances() {
     if (!m_local_instances_initialized) {
-        if (!compatible_local_instances()) {
+        if (!compatible_local_instances(m_init_local_context)) {
             set_local_instances();
         }
         m_local_instances_initialized = true;

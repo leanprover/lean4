@@ -32,12 +32,14 @@ class arith_instance_info {
     bool null(expr const & e) { return e == expr(); }
 
     arith_instance_info(expr const & type, level const & l);
-    arith_instance_info(type_context & tctx, expr const & type);
-    arith_instance_info(type_context & tctx, expr const & type, level const & l);
 
     friend void initialize_concrete_arith_instance_infos();
     friend arith_instance_info & get_arith_instance_info_for(type_context & tctx, expr const & type);
+
 public:
+    arith_instance_info(type_context & tctx, expr const & type);
+    arith_instance_info(type_context & tctx, expr const & type, level const & l);
+
     expr get_type() const { return m_type; }
 
     bool is_add_group();

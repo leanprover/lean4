@@ -14,5 +14,3 @@ attribute int_comm_ring [instance]
 #elab int
 
 #elab (2 : int)
-
-#elab @eq.refl

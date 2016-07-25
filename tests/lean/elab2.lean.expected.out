@@ -1,0 +1,44 @@
+>> foo [prenum] [prenum]
+[elaborator_detail] 'polymorphic' elaboration is not used for 'foo' because it has more than one Type parameter
+[elaborator_detail] 'eliminator' elaboration is not used for 'foo' because resulting type is not of the expected form
+[elaborator] elab2.lean:1:29: type class resolution
+  has_add.{1} nat
+instance
+  nat_has_add
+[elaborator] elab2.lean:8:10: type class resolution
+  has_zero.{1} nat
+instance
+  nat_has_zero
+[elaborator] elab2.lean:8:12: type class resolution
+  has_one.{1} nat
+instance
+  nat_has_one
+>> @foo.{1 1} nat nat nat_has_add (@zero.{1} nat nat_has_zero) (@one.{1} nat nat_has_one)
+>> nat
+>> bla nat.zero bool.tt [prenum]
+[elaborator_detail] 'polymorphic' elaboration is not used for 'bla' because it has more than one Type parameter
+[elaborator_detail] 'eliminator' elaboration is not used for 'bla' because resulting type is not of the expected form
+[elaborator_detail] 'eliminator' elaboration is not used for 'nat.zero' because resulting type is not of the expected form
+[elaborator_detail] 'eliminator' elaboration is not used for 'bool.tt' because resulting type is not of the expected form
+elab2.lean:13:6: error: type mismatch at application
+  @bla.{1 ?M_1} nat ?M_2 nat.zero bool.tt
+term
+  bool.tt
+has type
+  bool
+but is expected to have type
+  nat
+>> bla [prenum] [prenum] bool.tt
+[elaborator_detail] 'polymorphic' elaboration is not used for 'bla' because it has more than one Type parameter
+[elaborator_detail] 'eliminator' elaboration is not used for 'bla' because resulting type is not of the expected form
+[elaborator_detail] 'eliminator' elaboration is not used for 'bool.tt' because resulting type is not of the expected form
+[elaborator] elab2.lean:15:10: type class resolution
+  has_zero.{1} nat
+instance
+  nat_has_zero
+[elaborator] elab2.lean:15:12: type class resolution
+  has_zero.{1} nat
+instance
+  nat_has_zero
+>> @bla.{1 1} nat bool (@zero.{1} nat nat_has_zero) (@zero.{1} nat nat_has_zero) bool.tt
+>> nat

@@ -7,4 +7,4 @@ elab1.lean:17:6: error: invalid overloaded application, elaborator has special s
 >> [choice add boo.add foo.add]
 elab1.lean:19:6: error: invalid overloaded application, elaborator has special support for 'add' (it is handled as a polymorphic application), but this kind of constant cannot be overloaded (solution: use fully qualified names) (overloads: add, boo.add, foo.add)
 >> eq.subst H1 H2
-elab1.lean:25:6: error: invalid 'eq.subst' application, elaborator has special support for this kind of application, but the expected type must be known
+elab1.lean:25:6: error: invalid 'eq.subst' application, elaborator has special support for this kind of application (it is handled as an "eliminator"), but the expected type must be known

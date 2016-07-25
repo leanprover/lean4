@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <string>
 #include "kernel/find_fn.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/instantiate.h"
@@ -12,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"
+#include "library/scope_pos_info_provider.h"
 #include "library/choice.h"
 #include "library/typed_expr.h"
 #include "library/compiler/rec_fn_macro.h"
@@ -38,12 +40,21 @@ elaborator::elaborator(environment const & env, options const & opts, local_leve
 format elaborator::pp(expr const & e) {
     formatter_factory const & factory = get_global_ios().get_formatter_factory();
     formatter fmt = factory(m_env, m_opts, m_ctx);
-    return fmt(e);
+    return fmt(instantiate_mvars(e));
 }
 
 format elaborator::pp_indent(expr const & e) {
     unsigned i = get_pp_indent(m_opts);
     return nest(i, line() + pp(e));
+}
+
+static std::string pos_string_for(expr const & e) {
+    pos_info_provider * provider = get_pos_info_provider();
+    if (!provider) return "'unknown'";
+    pos_info pos  = provider->get_pos_info_or_some(e);
+    sstream s;
+    s << provider->get_file_name() << ":" << pos.first << ":" << pos.second << ":";
+    return s.str();
 }
 
 level elaborator::mk_univ_metavar() {
@@ -63,16 +74,31 @@ expr elaborator::mk_type_metavar() {
     return mk_metavar(mk_sort(l));
 }
 
+expr elaborator::mk_instance_core(expr const & C) {
+    optional<expr> inst = m_ctx.mk_class_instance(C);
+    trace_elab(tout() << pos_string_for(C) << " type class resolution\n  " << C << "\ninstance\n";
+               if (!inst) tout() << "[failed]\n";
+               else tout() << "  " << *inst << "\n";);
+    if (!inst)
+        throw_elaborator_exception(C, format("failed to synthesize type class instance for") + pp_indent(C));
+    return *inst;
+}
+
 expr elaborator::mk_instance(expr const & C) {
     if (has_expr_metavar(C)) {
         expr inst = mk_metavar(C);
         m_instance_stack.push_back(inst);
         return inst;
-    } else if (optional<expr> inst = m_ctx.mk_class_instance(C)) {
-        return *inst;
     } else {
-        throw_elaborator_exception(C, format("failed to synthesize type class instance for") + pp_indent(C));
+        return mk_instance_core(C);
     }
+}
+
+expr elaborator::instantiate_mvars(expr const & e) {
+    expr r = m_ctx.instantiate_mvars(e);
+    if (r.get_tag() == nulltag)
+        r.set_tag(e.get_tag());
+    return r;
 }
 
 level elaborator::get_level(expr const & A) {
@@ -147,9 +173,9 @@ auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
 
     buffer<expr> C_args;
     expr const & C = get_app_args(type, C_args);
-    if (!is_local(C) || !std::all_of(C_args.begin(), C_args.end(), is_local)) {
+    if (!is_local(C) || C_args.empty() || !std::all_of(C_args.begin(), C_args.end(), is_local)) {
         trace_elab_detail(tout() << "'eliminator' elaboration is not used for '" << fn <<
-                          "' because of resulting type is not of the expected form\n";);
+                          "' because resulting type is not of the expected form\n";);
         return optional<elim_info>();
     }
 
@@ -223,24 +249,6 @@ auto elaborator::use_elim_elab(name const & fn) -> optional<elim_info> {
     return r;
 }
 
-void elaborator::resolve_instances_from(unsigned old_sz) {
-    unsigned j = old_sz;
-    for (unsigned i = old_sz; i < m_instance_stack.size(); i++) {
-        expr inst_mvar = m_instance_stack[i];
-        if (is_mvar_assigned(inst_mvar))
-            continue;
-        expr C = instantiate_mvars(infer_type(inst_mvar));
-        if (!has_expr_metavar(C)) {
-            if (!assign_mvar(inst_mvar, mk_instance(C)))
-                throw_elaborator_exception(inst_mvar, format("failed to assign type class instance to placeholder"));
-        } else {
-            m_instance_stack[j] = m_instance_stack[i];
-            j++;
-        }
-    }
-    m_instance_stack.shrink(j);
-}
-
 expr elaborator::ensure_function(expr const & e, expr const & ref) {
     // TODO(Leo): infer type and try to apply coercion to function if needed
     // ref is only needed for generating error messages
@@ -253,29 +261,42 @@ expr elaborator::ensure_type(expr const & e, expr const & ref) {
     return e;
 }
 
-expr elaborator::ensure_has_type(expr const & e, expr const & type, expr const & ref) {
-    // TODO(Leo): infer e type, and apply coercions to type if needed.
+optional<expr> elaborator::ensure_has_type(expr const & e, expr const & e_type, expr const & type) {
+    if (is_def_eq(e_type, type))
+        return some_expr(e);
+
+    // TODO(Leo): try coercions
     // ref is only needed for generating error messages
-    return e;
+
+    return none_expr();
 }
 
 expr elaborator::visit_typed_expr(expr const & e) {
-    expr val      = get_typed_expr_expr(e);
-    expr type     = get_typed_expr_type(e);
-    expr new_type = ensure_type(visit(type, none_expr()), type);
-    expr new_val  = visit(val, some_expr(new_type));
-    return ensure_has_type(new_val, new_type, e);
+    expr val          = get_typed_expr_expr(e);
+    expr type         = get_typed_expr_type(e);
+    expr new_type     = ensure_type(visit(type, none_expr()), type);
+    expr new_val      = visit(val, some_expr(new_type));
+    expr new_val_type = infer_type(new_val);
+    if (auto r = ensure_has_type(new_val, new_val_type, new_type))
+        return *r;
+    throw_elaborator_exception(e,
+                               format("invalid type ascription, expression has type") + pp_indent(new_val_type) +
+                               line() + format(", but is expected to have type") + pp_indent(new_type));
 }
 
-expr elaborator::visit_prenum_core(expr const & e, optional<expr> const & expected_type) {
+expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_type) {
     lean_assert(is_prenum(e));
     mpz const & v  = prenum_value(e);
     tag e_tag      = e.get_tag();
     expr A;
-    if (expected_type)
+    if (expected_type) {
         A = *expected_type;
-    else
+        if (is_metavar(*expected_type))
+            m_numeral_type_stack.push_back(A);
+    } else {
         A = mk_type_metavar();
+        m_numeral_type_stack.push_back(A);
+    }
     level A_lvl = get_level(A);
     levels ls(A_lvl);
     if (v.is_neg())
@@ -302,31 +323,13 @@ expr elaborator::visit_prenum_core(expr const & e, optional<expr> const & expect
                     return mk_app(mk_app(mk_app(mk_constant(get_bit0_name(), ls), A, e_tag), S_add, e_tag), r, e_tag);
                 } else {
                     expr r = convert(v / 2);
-                    return mk_app(mk_app(mk_app(mk_app(mk_constant(get_bit1_name(), ls), A, e_tag), S_one, e_tag), S_add, e_tag), r, e_tag);
+                    return mk_app(mk_app(mk_app(mk_app(mk_constant(get_bit1_name(), ls), A, e_tag), S_one, e_tag),
+                                         S_add, e_tag), r, e_tag);
                 }
             };
             return convert(v);
         }
     }
-}
-
-expr elaborator::get_default_numeral_type() {
-    // TODO(Leo): allow user to modify default?
-    return mk_constant(get_nat_name());
-}
-
-expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_type) {
-    unsigned old_sz = m_instance_stack.size();
-    expr r = visit_prenum_core(e, expected_type);
-    if (!expected_type) {
-        expr t = infer_type(r);
-        if (!assign_mvar(t, get_default_numeral_type()))
-            throw_elaborator_exception("invalid numeral, failed to force numeral to be a nat", e);
-        resolve_instances_from(old_sz);
-    }
-    if (m_instance_stack.size() != old_sz)
-        throw_elaborator_exception("invalid numeral, failed to synthesize type class instances", e);
-    return instantiate_mvars(r);
 }
 
 expr elaborator::visit_sort(expr const & e) {
@@ -405,30 +408,126 @@ void elaborator::validate_overloads(buffer<expr> const & fns, expr const & ref) 
     }
 }
 
-expr elaborator::visit_poly_app(expr const & fn, buffer<expr> const & args, optional<expr> const & expected_type) {
+expr elaborator::visit_poly_app(expr const & fn, buffer<expr> const & args, optional<expr> const & expected_type,
+                                expr const & ref) {
     // TODO(Leo)
     lean_unreachable();
 }
 
 expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<expr> const & args,
-                                optional<expr> const & expected_type) {
+                                optional<expr> const & expected_type, expr const & ref) {
     // TODO(Leo): check if fn is fully applied. If it is not, then invoke visit_default_app
     if (!expected_type) {
         throw_elaborator_exception(sstream() << "invalid '" << const_name(fn) << "' application, "
-                                   << "elaborator has special support for this kind of application, "
-                                   << "but the expected type must be known", fn);
+                                   << "elaborator has special support for this kind of application "
+                                   << "(it is handled as an \"eliminator\"), "
+                                   << "but the expected type must be known", ref);
     }
 
     // TODO(Leo)
     lean_unreachable();
 }
 
-expr elaborator::visit_default_app(buffer<expr> const & fns, arg_mask amask, buffer<expr> const & args, optional<expr> const & expected_type) {
-    if (fns.size() == 1 && args.size() == 0)
-        return fns[0]; // Easy case
+expr elaborator::visit_overloaded_app(buffer<expr> const & fns, arg_mask amask, buffer<expr> const & args,
+                                      optional<expr> const & expected_type, expr const & ref) {
+    // Remark: fns have been elaborated, but args have not.
+
+    buffer<expr> fn_types;
+    buffer<bool> ok;
+    for (expr const & fn : fns) {
+        fn_types.push_back(infer_type(fn));
+        ok.push_back(true);
+    }
+
+    buffer<expr> new_args;
+
+    // while the fn_types are compatible, we keep processing arguments
+    unsigned i = 0;
+    while (true) {
+        bool all_pi = true;
+        for (unsigned fn_idx = 0; fn_idx < fns.size(); fn_idx++) {
+            if (!ok[fn_idx])
+                continue;
+            expr & fn_type = fn_types[fn_idx];
+            fn_type = whnf(fn_type);
+            if (!is_pi(fn_type)) {
+                if (i < args.size()) {
+                    trace_elab_detail(tout() << "overloaded application '" << fns[i] << "' is not being considered at" <<
+                                      "position " << pos_string_for(ref) << " because " <<
+                                      "of the number of explicit arguments provided\n";);
+                    ok[fn_idx] = false;
+                } else {
+                    all_pi = false;
+                }
+            }
+        }
+        if (!all_pi) break;
+    }
 
     // TODO(Leo)
     lean_unreachable();
+}
+
+expr elaborator::visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args,
+                                   optional<expr> const & expected_type, expr const & ref) {
+    expr fn_type = try_to_pi(infer_type(fn));
+    unsigned i = 0;
+    buffer<optional<expr>> types_to_check;
+    buffer<expr> new_args;
+    expr type = fn_type;
+    while (is_pi(type)) {
+        binder_info const & bi = binding_info(type);
+        expr const & d = binding_domain(type);
+        expr new_arg;
+        if ((amask == arg_mask::Default && !is_explicit(bi)) ||
+            (amask == arg_mask::Simple && !bi.is_inst_implicit() && !is_first_order(d))) {
+            // implicit argument
+            if (bi.is_inst_implicit())
+                new_arg = mk_instance(d);
+            else
+                new_arg = mk_metavar(d);
+            // we don't types of implicit arguments
+            types_to_check.push_back(none_expr());
+        } else if (i < args.size()) {
+            // explicit argument
+            new_arg = visit(args[i], some_expr(d));
+            types_to_check.push_back(some_expr(d));
+            i++;
+        } else {
+            break;
+        }
+        new_args.push_back(new_arg);
+        type = try_to_pi(instantiate(binding_body(type), new_arg));
+    }
+
+    lean_assert(new_args.size() == types_to_check.size());
+
+    if (i != args.size()) {
+        throw_elaborator_exception(ref, format("invalid function application, too many arguments, function type:") +
+                                   pp_indent(fn_type));
+    }
+
+    for (unsigned i = 0; i < new_args.size(); i++) {
+        if (optional<expr> expected_type = types_to_check[i]) {
+            expr & new_arg    = new_args[i];
+            expr new_arg_type = infer_type(new_arg);
+            if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, *expected_type)) {
+                new_arg = *new_new_arg;
+            } else {
+                throw_elaborator_exception(ref,
+                                           format("type mismatch at application") +
+                                           pp_indent(mk_app(fn, i+1, new_args.data())) +
+                                           line() + format("term") +
+                                           pp_indent(new_arg) +
+                                           line() + format("has type") +
+                                           pp_indent(new_arg_type) +
+                                           line() + format("but is expected to have type") +
+                                           pp_indent(*expected_type));
+            }
+        }
+    }
+
+    return mk_app(fn, new_args.size(), new_args.data());
 }
 
 expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<expr> const & expected_type) {
@@ -440,8 +539,11 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
         fn   = get_partial_explicit_arg(fn);
         amask = arg_mask::Simple;
     }
-    buffer<expr> fns;
+
+    bool has_args = !args.empty();
+
     if (is_choice(fn)) {
+        buffer<expr> fns;
         if (amask != arg_mask::Default)
             throw_elaborator_exception("invalid explicit annotation, symbol is overloaded "
                                        "(solution: use fully qualified names)", fn);
@@ -450,23 +552,21 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
             fns.push_back(fn_i);
         }
         validate_overloads(fns, fn);
+        for (expr & new_fn : fns) {
+            new_fn = visit_function(new_fn, has_args, fn);
+        }
+        return visit_overloaded_app(fns, amask, args, expected_type, fn);
     } else {
-        fns.push_back(fn);
+        expr new_fn = visit_function(fn, has_args, fn);
+        /* Check if we should use a custom elaboration procedure for this application. */
+        if (is_constant(new_fn)) {
+            if (use_poly_elab(const_name(new_fn)))
+                return visit_poly_app(new_fn, args, expected_type, fn);
+            if (auto info = use_elim_elab(const_name(new_fn)))
+                return visit_elim_app(new_fn, *info, args, expected_type, fn);
+        }
+        return visit_default_app(new_fn, amask, args, expected_type, fn);
     }
-    bool has_args = !args.empty();
-    for (expr & new_fn : fns) {
-        new_fn = visit_function(new_fn, has_args, fn);
-    }
-
-    /* Check if we should use a custom elaboration procedure for this application. */
-    if (fns.size() == 1 && is_constant(fns[0])) {
-        if (use_poly_elab(const_name(fns[0])))
-            return visit_poly_app(fns[0], args, expected_type);
-        if (auto info = use_elim_elab(const_name(fns[0])))
-            return visit_elim_app(fns[0], *info, args, expected_type);
-    }
-
-    return visit_default_app(fns, amask, args, expected_type);
 }
 
 expr elaborator::visit_local(expr const & e, optional<expr> const & expected_type) {
@@ -534,8 +634,76 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
+expr elaborator::get_default_numeral_type() {
+    // TODO(Leo): allow user to modify default?
+    return mk_constant(get_nat_name());
+}
+
+void elaborator::ensure_numeral_types_assigned(checkpoint const & C) {
+    for (unsigned i = C.m_numeral_type_stack_sz; i < m_numeral_type_stack.size(); i++) {
+        expr A = instantiate_mvars(m_numeral_type_stack[i]);
+        if (is_metavar(A)) {
+            if (!assign_mvar(A, get_default_numeral_type()))
+                throw_elaborator_exception("invalid numeral, failed to force numeral to be a nat", A);
+        }
+    }
+}
+
+void elaborator::synthesize_type_class_instances(checkpoint const & C) {
+    for (unsigned i = C.m_instance_stack_sz; i < m_instance_stack.size(); i++) {
+        expr inst = instantiate_mvars(m_instance_stack[i]);
+        if (!has_expr_metavar(inst)) {
+            trace_elab(tout() << "skipping type class resolution at " << pos_string_for(m_instance_stack[i])
+                       << ", placeholder instantiated using type inference\n";);
+            continue;
+        }
+        expr inst_type = instantiate_mvars(infer_type(inst));
+        if (!has_expr_metavar(inst_type)) {
+            if (!is_def_eq(inst, mk_instance_core(inst_type)))
+                throw_elaborator_exception(m_instance_stack[i],
+                                           format("failed to assign type class instance to placeholder"));
+        } else {
+            throw_elaborator_exception(m_instance_stack[i],
+                                       format("type class instance cannot be synthesized, type has metavariables") +
+                                       pp_indent(inst_type));
+        }
+    }
+}
+
+void elaborator::invoke_tactics(checkpoint const & C) {
+    // TODO(Leo)
+}
+
+void elaborator::ensure_no_unassigned_metavars(checkpoint const & C) {
+}
+
+void elaborator::process_checkpoint(checkpoint const & C) {
+    ensure_numeral_types_assigned(C);
+    synthesize_type_class_instances(C);
+    invoke_tactics(C);
+    ensure_no_unassigned_metavars(C);
+}
+
+elaborator::checkpoint::checkpoint(elaborator & e):
+    m_elaborator(e),
+    m_uvar_stack_sz(e.m_uvar_stack.size()),
+    m_mvar_stack_sz(e.m_mvar_stack.size()),
+    m_instance_stack_sz(e.m_instance_stack.size()),
+    m_numeral_type_stack_sz(e.m_numeral_type_stack.size()) {
+}
+
+elaborator::checkpoint::~checkpoint() {
+    m_elaborator.m_uvar_stack.shrink(m_uvar_stack_sz);
+    m_elaborator.m_mvar_stack.shrink(m_mvar_stack_sz);
+    m_elaborator.m_instance_stack.shrink(m_instance_stack_sz);
+    m_elaborator.m_numeral_type_stack.shrink(m_numeral_type_stack_sz);
+}
+
 std::tuple<expr, level_param_names> elaborator::operator()(expr const & e) {
+    checkpoint C(*this);
     expr r = visit(e,  none_expr());
+    process_checkpoint(C);
+    r = instantiate_mvars(r);
     // TODO(Leo)
     level_param_names ls;
     return std::make_tuple(r, ls);

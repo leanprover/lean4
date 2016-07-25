@@ -44,13 +44,15 @@ struct arith_app_info {
 
     name const & get_op_name() const { return m_op; }
 
+    bool has_int_inst_name() const { return !m_int_inst.is_anonymous(); }
     name const & get_int_inst_name() const {
-        lean_assert(!m_int_inst.is_anonymous());
+        lean_assert(has_int_inst_name());
         return m_int_inst;
     }
 
+    bool has_real_inst_name() const { return !m_real_inst.is_anonymous(); }
     name const & get_real_inst_name() const {
-        lean_assert(!m_real_inst.is_anonymous());
+        lean_assert(has_real_inst_name());
         return m_real_inst;
     }
 
@@ -226,7 +228,8 @@ private:
             }
         }
         // The arith-normalizer will push the coercions inside.
-        if (found_int && found_real) {
+        bool coerce_all_ints = is_constant(args[0]) && const_name(args[0]) == "/";
+        if (found_int && (found_real || coerce_all_ints)) {
             for (unsigned i = 0; i < is_real.size(); ++i) {
                 if (is_int[i]) {
                     args[i+1] = mk_app(mk_constant(get_real_of_int_name()), args[i+1]);
@@ -319,7 +322,7 @@ void initialize_elaborator() {
             {"div", arith_app_info(get_div_name(), get_int_has_div_name(), name(), fun_attr::LEFT_ASSOC)},
 
             // Real-specific
-            {"/", arith_app_info(get_div_name(), get_int_has_div_name(), get_real_has_div_name(), fun_attr::LEFT_ASSOC)},
+            {"/", arith_app_info(get_div_name(), name(), get_real_has_div_name(), fun_attr::LEFT_ASSOC)},
 
             // Overloaded operators
             {"+", arith_app_info(get_add_name(), get_int_has_add_name(), get_real_has_add_name(), fun_attr::LEFT_ASSOC)},

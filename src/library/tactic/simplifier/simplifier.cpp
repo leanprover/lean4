@@ -377,7 +377,14 @@ simp_result simplifier::simplify(expr const & e) {
         r = join(r, lift_from_eq(r.get_new(), r_eq));
     }
 
-    if (m_exhaustive && r.has_proof()) r = join(r, simplify(r.get_new()));
+    // Note: right now we recurse even if the simplification has yielded a new term
+    // definitionally equal to the original expression, as long as it is not structurally equal.
+    // Given the current functionality of the simplifier, this is not strictly necessary. However,
+    // it may lead to confusing incompleteness in the future if other sources of definitional reductions
+    // are added, such as [defeq-simp] rules. We may revisit this decision in the future if it becomes a
+    // performance concern. Note: if we only recurse here when there is proof, we need to change the
+    // condition accordingly for considering recursing with `eq` above.
+    if (m_exhaustive && r.get_new() != e) r = join(r, simplify(r.get_new()));
 
     if (m_memoize) cache_save(e, r);
 

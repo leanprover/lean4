@@ -43,8 +43,6 @@ namespace smt2 {
 
 static name * g_smt2_unique_prefix;
 
-static char const * g_token_use_locals      = ":use_locals";
-
 // Reserved words
 // (a) General
 // static char const * g_token_as          = "as";
@@ -148,6 +146,7 @@ private:
     scanner::token_kind     m_curr_kind{scanner::token_kind::BEGIN};
 
     bool                    m_use_locals{false};
+    bool                    m_verbose{false};
 
     type_context *          m_tctx_ptr{nullptr};
 
@@ -461,7 +460,10 @@ private:
             flet<type_context *> parsing_a_term(m_tctx_ptr, &aux_tctx.get());
             e = parse_expr("invalid assert command");
         }
-        ios().get_regular_stream() << "[assert] " << e << "\n";
+
+        if (m_verbose)
+            ios().get_regular_stream() << "[assert] " << e << "\n";
+
         register_hypothesis(e);
 
         check_curr_kind(scanner::token_kind::RIGHT_PAREN, "invalid constant declaration, ')' expected");
@@ -501,7 +503,10 @@ private:
         symbol sym = curr_symbol();
         next();
         expr ty = parse_expr("invalid constant declaration");
-        ios().get_regular_stream() << "[declare_const] " << sym << " : " << ty << "\n";
+
+        if (m_verbose)
+            ios().get_regular_stream() << "[declare_const] " << sym << " : " << ty << "\n";
+
         register_hypothesis(sym, ty);
         check_curr_kind(scanner::token_kind::RIGHT_PAREN, "invalid constant declaration, ')' expected");
         next();
@@ -521,7 +526,10 @@ private:
         for (int i = parameter_sorts.size() - 1; i >= 0; --i) {
             ty = mk_arrow(parameter_sorts[i], ty);
         }
-        ios().get_regular_stream() << "[declare_fun] " << sym << " : " << ty << "\n";
+
+        if (m_verbose)
+            ios().get_regular_stream() << "[declare_fun] " << sym << " : " << ty << "\n";
+
         register_hypothesis(sym, ty);
         check_curr_kind(scanner::token_kind::RIGHT_PAREN, "invalid function declaration, ')' expected");
         next();
@@ -554,7 +562,10 @@ private:
         for (unsigned i = 0; i < arity; ++i) {
             ty = mk_arrow(mk_Type(), ty);
         }
-        ios().get_regular_stream() << "[declare_sort] " << sym << " : " << ty << "\n";
+
+        if (m_verbose)
+            ios().get_regular_stream() << "[declare_sort] " << sym << " : " << ty << "\n";
+
         register_hypothesis(sym, ty);
         check_curr_kind(scanner::token_kind::RIGHT_PAREN, "invalid sort declaration, ')' expected");
         next();
@@ -605,7 +616,7 @@ private:
         check_curr_kind(scanner::token_kind::SYMBOL, "invalid set-logic command, symbol expected");
         symbol sym = curr_symbol();
         next();
-        check_curr_kind(scanner::token_kind::RIGHT_PAREN, "invalid set-option, ')' expected");
+        check_curr_kind(scanner::token_kind::RIGHT_PAREN, "invalid set-logic, ')' expected");
         next();
     }
 
@@ -616,8 +627,18 @@ private:
         check_curr_kind(scanner::token_kind::KEYWORD, "invalid set-option command, keyword expected");
         symbol sym = curr_symbol();
         next();
-        if (sym == g_token_use_locals) {
+        if (sym == ":use_locals") {
             m_use_locals = true;
+        } else if (sym == ":verbose") {
+            check_curr_kind(scanner::token_kind::SYMBOL, "invalid set-option command, option ':verbose' requires argument 'true' or 'false'");
+            symbol val = curr_symbol();
+            next();
+            if (val == "true")
+                m_verbose = true;
+            else if (val == "false")
+                m_verbose = false;
+            else
+                throw_parser_exception("invalid set-option command, option ':verbose' requires argument 'true' or 'false'");
         } else {
             // TODO(dhs): just a warning?
             throw_parser_exception(std::string("unsupported option: ") + sym);
@@ -667,7 +688,6 @@ public:
 
 void initialize_parser() {
     g_smt2_unique_prefix = new name(name::mk_internal_unique_name());
-    // TODO(dhs): write a theorem prover and call that instead
 }
 
 void finalize_parser() {

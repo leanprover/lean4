@@ -27,7 +27,6 @@ Author: Daniel Selsam
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
 #include "library/local_context.h"
-#include "library/legacy_type_context.h"
 #include "library/error_handling.h"
 #include "library/pp_options.h"
 #include "library/module.h"
@@ -656,8 +655,8 @@ public:
             return ok;
         } catch (throwable const & ex) {
             ok = false;
-            legacy_type_context tc(m_env, m_ios.get_options());
-            auto out = regular(m_env, m_ios, tc);
+            aux_type_context aux_tctx(m_env, m_ios.get_options(), m_lctx);
+            auto out = regular(m_env, m_ios, aux_tctx.get());
             ::lean::display_error(out, this, ex);
         }
         return ok;

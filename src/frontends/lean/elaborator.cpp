@@ -8,7 +8,10 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/instantiate.h"
+#include "kernel/inductive/inductive.h"
 #include "library/trace.h"
+#include "library/user_recursors.h"
+#include "library/aux_recursors.h"
 #include "library/app_builder.h"
 #include "library/constants.h"
 #include "library/placeholder.h"
@@ -162,8 +165,24 @@ static bool is_first_order(expr const & e) {
         });
 }
 
+bool elaborator::is_elim_elab_candidate(name const & fn) {
+    if (inductive::is_elim_rule(m_env, fn))
+        return true;
+    if (is_aux_recursor(m_env, fn))
+        return true;
+    if (is_user_defined_recursor(m_env, fn))
+        return true;
+    // TODO(Leo): add attribute for adding extra-cases,
+    // and remove hard coded case
+    if (fn == get_eq_subst_name())
+        return true;
+    return false;
+}
+
 /** See comment at elim_info */
 auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
+    if (!is_elim_elab_candidate(fn))
+        return optional<elim_info>();
     type_context::tmp_locals locals(m_ctx);
     declaration d     = m_env.get(fn);
     expr type         = d.get_type();
@@ -507,6 +526,7 @@ expr elaborator::visit_default_app(expr const & fn, arg_mask amask, buffer<expr>
                                    pp_indent(fn_type));
     }
 
+    type_context::approximate_scope scope(m_ctx);
     for (unsigned i = 0; i < new_args.size(); i++) {
         if (optional<expr> expected_type = types_to_check[i]) {
             expr & new_arg    = new_args[i];
@@ -559,7 +579,7 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
     } else {
         expr new_fn = visit_function(fn, has_args, fn);
         /* Check if we should use a custom elaboration procedure for this application. */
-        if (is_constant(new_fn)) {
+        if (is_constant(new_fn) && amask == arg_mask::Default) {
             if (use_poly_elab(const_name(new_fn)))
                 return visit_poly_app(new_fn, args, expected_type, fn);
             if (auto info = use_elim_elab(const_name(new_fn)))

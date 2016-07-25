@@ -183,6 +183,10 @@ class type_context : public abstract_type_context {
     /* Stack of backtracking point (aka scope) */
     scopes             m_scopes;
 
+    /* If m_approximate == true, then enable approximate higher-order unification
+       even if we are not in tmp_mode */
+    bool               m_approximate;
+
     std::function<bool(expr const & e)> const * m_unfold_pred; // NOLINT
 
     static bool is_equiv_cache_target(expr const & e1, expr const & e2) {
@@ -269,6 +273,11 @@ public:
         transparency_scope(type_context & ctx, transparency_mode m):
             flet<transparency_mode>(ctx.m_transparency_mode, m) {
         }
+    };
+
+    struct approximate_scope : public flet<bool> {
+        approximate_scope(type_context & ctx):
+            flet<bool>(ctx.m_approximate, true) {}
     };
 
     /* --------------------------

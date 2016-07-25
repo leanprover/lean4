@@ -96,6 +96,7 @@ class elaborator {
     optional<expr> ensure_has_type(expr const & e, expr const & e_type, expr const & type);
 
     bool use_poly_elab(name const & fn);
+    bool is_elim_elab_candidate(name const & fn);
     optional<elim_info> use_elim_elab_core(name const & fn);
     optional<elim_info> use_elim_elab(name const & fn);
 

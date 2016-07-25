@@ -14,6 +14,8 @@ print raw add   -- add is overloaded
 
 #elab @@subst
 
+open eq
+
 #elab subst
 
 #elab add

@@ -202,6 +202,7 @@ void type_context::init_core(transparency_mode m) {
         m_cache.m_local_instances_initialized = false;
     }
     m_unfold_pred                 = nullptr;
+    m_approximate                 = false;
 }
 
 type_context::type_context(metavar_context const & mctx, local_context const & lctx, type_context_cache & cache,
@@ -1155,8 +1156,7 @@ optional<declaration> type_context::is_delta(expr const & e) {
 }
 
 bool type_context::approximate() {
-    // TODO(Leo): add flag at type_context_cache to force approximated mode.
-    return in_tmp_mode();
+    return in_tmp_mode() || m_approximate;
 }
 
 /* If \c e is a let local-decl, then unfold it, otherwise return e. */

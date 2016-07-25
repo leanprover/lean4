@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <cstring>
 #include "util/debug.h"
+#include "util/optional.h"
 
 namespace lean {
 /**
@@ -161,6 +162,12 @@ public:
                 return;
             }
         }
+    }
+
+    optional<unsigned> index_of(T const & elem) const {
+        for (unsigned i = 0; i < size(); i++)
+            if (m_buffer[i] == elem) return optional<unsigned>(i);
+        return optional<unsigned>();
     }
 
     void insert(unsigned idx, T const & elem) {

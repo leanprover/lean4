@@ -9,19 +9,15 @@ Author: Leonardo de Moura
 #include "frontends/lean/old_elaborator.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/info_annotation.h"
-// #include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/calc.h"
-// #include "frontends/lean/begin_end_annotation.h"
 #include "frontends/lean/builtin_cmds.h"
 #include "frontends/lean/builtin_exprs.h"
-// #include "frontends/lean/builtin_tactics.h"
 #include "frontends/lean/inductive_cmd.h"
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/parse_table.h"
 #include "frontends/lean/token_table.h"
-// #include "frontends/lean/info_tactic.h"
 #include "frontends/lean/find_cmd.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/pp.h"
@@ -32,7 +28,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/nested_declaration.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/old_attributes.h"
-// #include "frontends/lean/parse_with_attributes_tactic.h"
+#include "frontends/lean/elaborator.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {
@@ -44,19 +40,15 @@ void initialize_frontend_lean_module() {
     initialize_parse_table();
     initialize_builtin_cmds();
     initialize_builtin_exprs();
-    // initialize_builtin_tactics();
     initialize_elaborator_context();
     initialize_old_elaborator();
     initialize_scanner();
     initialize_parser();
-    // initialize_tactic_hint();
     initialize_parser_config();
     initialize_calc();
-    // initialize_begin_end_annotation();
     initialize_inductive_cmd();
     initialize_structure_cmd();
     initialize_info_manager();
-    // initialize_info_tactic();
     initialize_pp();
     initialize_server();
     initialize_find_cmd();
@@ -64,11 +56,11 @@ void initialize_frontend_lean_module() {
     initialize_obtain_expr();
     initialize_decl_cmds();
     initialize_nested_declaration();
-    // initialize_with_attributes_tactic();
+    initialize_elaborator();
 }
 void finalize_frontend_lean_module() {
+    finalize_elaborator();
     finalize_old_attributes();
-    // finalize_with_attributes_tactic();
     finalize_nested_declaration();
     finalize_decl_cmds();
     finalize_obtain_expr();
@@ -76,19 +68,15 @@ void finalize_frontend_lean_module() {
     finalize_find_cmd();
     finalize_server();
     finalize_pp();
-    // finalize_info_tactic();
     finalize_info_manager();
     finalize_structure_cmd();
     finalize_inductive_cmd();
-    // finalize_begin_end_annotation();
     finalize_calc();
     finalize_parser_config();
-    // finalize_tactic_hint();
     finalize_parser();
     finalize_scanner();
     finalize_old_elaborator();
     finalize_elaborator_context();
-    // finalize_builtin_tactics();
     finalize_builtin_exprs();
     finalize_builtin_cmds();
     finalize_parse_table();

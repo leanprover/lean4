@@ -28,6 +28,26 @@ class elaborator {
     buffer<expr>      m_mvar_stack;
     buffer<expr>      m_instance_stack;
 
+    /** \brief Cache for constants that are handled using "polymorphic" elaboration. */
+    name_map<bool>    m_poly_cache;
+
+    /** \brief We use a specialized procedure for elaborating recursor applications (e.g., nat.rec_on and eq.rec_on),
+        and similar applications (e.g., eq.subst). We use the specialized procedure for f whenever the type of f is
+        of the form (C a_1 ... a_n) where C and a_i's are parameters. Moreover, the parameters a_i's
+        can be inferred using explicit parameters. */
+    struct elim_info {
+        unsigned       m_arity; /* "arity" of the "eliminator" */
+        unsigned       m_motive_idx; /* Position of the motive (i.e., C) */
+        list<unsigned> m_explicit_idxs; /* Position of the explicit parameters that we use to synthesize the a_i's */
+        elim_info() {}
+        elim_info(unsigned arity, unsigned midx, list<unsigned> const & eidxs):
+            m_arity(arity), m_motive_idx(midx), m_explicit_idxs(eidxs) {}
+    };
+
+    /** \brief Cache for constants that are handled using "eliminator" elaboration. */
+    typedef name_map<optional<elim_info>> elim_cache;
+    elim_cache        m_elim_cache;
+
     /* The following vector contains sorts that we should check
        whether the computed universe is too specific or not. */
     to_check_sorts    m_to_check_sorts;
@@ -61,6 +81,10 @@ class elaborator {
     expr ensure_has_type(expr const & e, expr const & type, expr const & ref);
     expr ensure_function(expr const & e, expr const & ref);
 
+    bool use_poly_elab(name const & fn);
+    optional<elim_info> use_elim_elab_core(name const & fn);
+    optional<elim_info> use_elim_elab(name const & fn);
+
     expr visit_typed_expr(expr const & e);
     expr visit_prenum_core(expr const & e, optional<expr> const & expected_type);
     expr visit_prenum(expr const & e, optional<expr> const & expected_type);
@@ -69,7 +93,11 @@ class elaborator {
     expr visit_const_core(expr const & e);
     expr ensure_function(expr const & e);
     expr visit_function(expr const & fn, bool has_args, expr const & ref);
-    void filter_using_arity(buffer<expr> & fn, arg_mask amask, unsigned num_args);
+    void throw_overload_exception(buffer<expr> const & fns, sstream & ss, expr const & ref);
+    void validate_overloads(buffer<expr> const & fns, expr const & ref);
+    expr visit_poly_app(expr const & fn, buffer<expr> const & args, optional<expr> const & expected_type);
+    expr visit_elim_app(expr const & fn, elim_info const & info, buffer<expr> const & args, optional<expr> const & expected_type);
+    expr visit_default_app(buffer<expr> const & fns, arg_mask amask, buffer<expr> const & args, optional<expr> const & expected_type);
     expr visit_app_core(expr fn, buffer<expr> const & args, optional<expr> const & expected_type);
     expr visit_local(expr const & e, optional<expr> const & expected_type);
     expr visit_constant(expr const & e, optional<expr> const & expected_type);
@@ -89,4 +117,7 @@ public:
 
 std::tuple<expr, level_param_names> elaborate(environment const & env, options const & opts, local_level_decls const & lls,
                                               metavar_context const & mctx, local_context const & lctx, expr const & e);
+
+void initialize_elaborator();
+void finalize_elaborator();
 }

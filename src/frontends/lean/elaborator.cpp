@@ -4,6 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "kernel/find_fn.h"
+#include "kernel/for_each_fn.h"
+#include "kernel/instantiate.h"
+#include "library/trace.h"
 #include "library/app_builder.h"
 #include "library/constants.h"
 #include "library/placeholder.h"
@@ -21,6 +25,9 @@ MK_THREAD_LOCAL_GET_DEF(type_context_cache_helper, get_tch);
 static type_context_cache & get_type_context_cache_for(environment const & env, options const & o) {
     return get_tch().get_cache_for(env, o);
 }
+
+#define trace_elab(CODE) lean_trace("elaborator", scope_trace_env _scope(m_env, m_ctx); CODE)
+#define trace_elab_detail(CODE) lean_trace("elaborator_detail", scope_trace_env _scope(m_env, m_ctx); CODE)
 
 elaborator::elaborator(environment const & env, options const & opts, local_level_decls const & lls,
                        metavar_context const & mctx, local_context const & lctx):
@@ -92,6 +99,128 @@ static bool contains_placeholder(level const & l) {
     };
     for_each(l, fn);
     return contains;
+}
+
+/* We use "polymorphic" elaboration for a function fn IFF
+   1- It has one and only one Type argument.
+   2- The resulting type is
+      a) a variable
+      b) a function application (C ...) where C is a constant. */
+bool elaborator::use_poly_elab(name const & fn) {
+    if (auto it = m_poly_cache.find(fn))
+        return *it;
+    declaration d     = m_env.get(fn);
+    expr type         = d.get_type();
+    unsigned num_Type = 0;
+    while (is_pi(type)) {
+        expr const & d = binding_domain(type);
+        if (is_sort(d)) {
+            num_Type++;
+            if (num_Type > 1) break;
+        }
+        type = binding_body(type);
+    }
+    if (num_Type > 1) {
+        trace_elab_detail(tout() << "'polymorphic' elaboration is not used for '" << fn << "' " <<
+                          "because it has more than one Type parameter\n";);
+    }
+    bool r = num_Type == 1 && (is_var(type) || (is_app(type) && is_constant(get_app_fn(type))));
+    m_poly_cache.insert(fn, r);
+    return r;
+}
+
+/* Here, we say a term is first-order IF all applications are of the form (f ...) where f is a constant. */
+static bool is_first_order(expr const & e) {
+    return !find(e, [&](expr const & e, unsigned) {
+            return is_app(e) && !is_constant(get_app_fn(e));
+        });
+}
+
+/** See comment at elim_info */
+auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
+    type_context::tmp_locals locals(m_ctx);
+    declaration d     = m_env.get(fn);
+    expr type         = d.get_type();
+    while (is_pi(type)) {
+        type = instantiate(binding_body(type), locals.push_local_from_binding(type));
+    }
+
+    buffer<expr> C_args;
+    expr const & C = get_app_args(type, C_args);
+    if (!is_local(C) || !std::all_of(C_args.begin(), C_args.end(), is_local)) {
+        trace_elab_detail(tout() << "'eliminator' elaboration is not used for '" << fn <<
+                          "' because of resulting type is not of the expected form\n";);
+        return optional<elim_info>();
+    }
+
+    buffer<expr> const & params = locals.as_buffer();
+    optional<unsigned> _midx = params.index_of(C);
+    if (!_midx)
+        return optional<elim_info>();
+
+    unsigned midx = *_midx;
+    buffer<unsigned> idxs;
+    buffer<bool>     found;
+    found.resize(C_args.size(), false);
+    unsigned i    = params.size();
+    while (i > 0) {
+        --i;
+        expr const & param = params[i];
+
+        if (!is_explicit(local_info(param))) {
+            continue;
+        }
+
+        if (optional<unsigned> pos = C_args.index_of(param)) {
+            // Parameter is an argument of the resulting type (C ...)
+            if (!found[*pos]) {
+                // We store it if we could not infer it using the type of other arguments.
+                found[*pos] = true;
+                idxs.push_back(i);
+            }
+            continue;
+        }
+
+        expr param_type = m_ctx.infer(param);
+        if (!is_first_order(param_type))
+            continue;
+
+        bool collected = false;
+        for_each(param_type, [&](expr const & e, unsigned) {
+                if (is_local(e)) {
+                    if (optional<unsigned> pos = C_args.index_of(e)) {
+                        if (!found[*pos]) {
+                            collected   = true;
+                            found[*pos] = true;
+                        }
+                    }
+                }
+                return true;
+            });
+        if (collected)
+            idxs.push_back(i);
+    }
+
+    for (unsigned i = 0; i < found.size(); i++) {
+        if (!found[i]) {
+            trace_elab_detail(tout() << "'eliminator' elaboration is not used for '" << fn <<
+                              "' because did not find a (reliable) way to synthesize '" << C_args[i] << "' " <<
+                              "which occurs in the resulting type\n";);
+            return optional<elim_info>();
+        }
+    }
+
+    std::reverse(idxs.begin(), idxs.end());
+    return optional<elim_info>(params.size(), midx, to_list(idxs));
+}
+
+/** See comment at elim_info */
+auto elaborator::use_elim_elab(name const & fn) -> optional<elim_info> {
+    if (auto it = m_elim_cache.find(fn))
+        return *it;
+    optional<elim_info> r = use_elim_elab_core(fn);
+    m_elim_cache.insert(fn, r);
+    return r;
 }
 
 void elaborator::resolve_instances_from(unsigned old_sz) {
@@ -246,9 +375,60 @@ expr elaborator::visit_function(expr const & fn, bool has_args, expr const & ref
     return r;
 }
 
-void elaborator::filter_using_arity(buffer<expr> & fn, arg_mask amask, unsigned num_args) {
-    if (fn.size() == 1) return; // do nothing
-    // TODO(Leo): if there are more than one possibility, then discard alternatives number of explicit arguments.
+void elaborator::throw_overload_exception(buffer<expr> const & fns, sstream & ss, expr const & ref) {
+    ss << " (overloads: ";
+    bool first = true;
+    for (expr const & fn : fns) {
+        if (first) first = false; else ss << ", ";
+        ss << fn;
+    }
+    ss << ")";
+    throw_elaborator_exception(ss, ref);
+}
+
+void elaborator::validate_overloads(buffer<expr> const & fns, expr const & ref) {
+    for (expr const & fn_i : fns) {
+        if (is_constant(fn_i) && use_poly_elab(const_name(fn_i))) {
+            throw_overload_exception(fns, sstream() << "invalid overloaded application, "
+                                     << "elaborator has special support for '"  << fn_i << "'"
+                                     << " (it is handled as a polymorphic application), "
+                                     << "but this kind of constant cannot be overloaded "
+                                     << "(solution: use fully qualified names)", ref);
+        }
+        if (is_constant(fn_i) && use_elim_elab(const_name(fn_i))) {
+            throw_overload_exception(fns, sstream() << "invalid overloaded application, "
+                                     << "elaborator has special support for '"  << fn_i << "'"
+                                     << " (it is handled as an \"eliminator\"), "
+                                     << "but this kind of constant cannot be overloaded "
+                                     << "(solution: use fully qualified names)", ref);
+        }
+    }
+}
+
+expr elaborator::visit_poly_app(expr const & fn, buffer<expr> const & args, optional<expr> const & expected_type) {
+    // TODO(Leo)
+    lean_unreachable();
+}
+
+expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<expr> const & args,
+                                optional<expr> const & expected_type) {
+    // TODO(Leo): check if fn is fully applied. If it is not, then invoke visit_default_app
+    if (!expected_type) {
+        throw_elaborator_exception(sstream() << "invalid '" << const_name(fn) << "' application, "
+                                   << "elaborator has special support for this kind of application, "
+                                   << "but the expected type must be known", fn);
+    }
+
+    // TODO(Leo)
+    lean_unreachable();
+}
+
+expr elaborator::visit_default_app(buffer<expr> const & fns, arg_mask amask, buffer<expr> const & args, optional<expr> const & expected_type) {
+    if (fns.size() == 1 && args.size() == 0)
+        return fns[0]; // Easy case
+
+    // TODO(Leo)
+    lean_unreachable();
 }
 
 expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<expr> const & expected_type) {
@@ -263,10 +443,13 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
     buffer<expr> fns;
     if (is_choice(fn)) {
         if (amask != arg_mask::Default)
-            throw_elaborator_exception("invalid explicit annotation, symbol is overloaded (solution: use fully qualified names)", fn);
+            throw_elaborator_exception("invalid explicit annotation, symbol is overloaded "
+                                       "(solution: use fully qualified names)", fn);
         for (unsigned i = 0; i < get_num_choices(fn); i++) {
-            fns.push_back(get_choice(fn, i));
+            expr const & fn_i = get_choice(fn, i);
+            fns.push_back(fn_i);
         }
+        validate_overloads(fns, fn);
     } else {
         fns.push_back(fn);
     }
@@ -274,13 +457,16 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
     for (expr & new_fn : fns) {
         new_fn = visit_function(new_fn, has_args, fn);
     }
-    filter_using_arity(fns, amask, args.size());
 
-    if (fns.size() == 1 && args.size() == 0)
-        return fns[0]; // Easy case
+    /* Check if we should use a custom elaboration procedure for this application. */
+    if (fns.size() == 1 && is_constant(fns[0])) {
+        if (use_poly_elab(const_name(fns[0])))
+            return visit_poly_app(fns[0], args, expected_type);
+        if (auto info = use_elim_elab(const_name(fns[0])))
+            return visit_elim_app(fns[0], *info, args, expected_type);
+    }
 
-    // TODO(Leo)
-    lean_unreachable();
+    return visit_default_app(fns, amask, args, expected_type);
 }
 
 expr elaborator::visit_local(expr const & e, optional<expr> const & expected_type) {
@@ -304,6 +490,8 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         return visit_prenum(e, expected_type);
     } else if (is_typed_expr(e)) {
         return visit_typed_expr(e);
+    } else if (is_choice(e) || is_explicit(e) || is_partial_explicit(e)) {
+        return visit_app_core(e, buffer<expr>(), expected_type);
     } else if (is_rec_fn_macro(e)) {
         // TODO(Leo)
         lean_unreachable();
@@ -356,5 +544,13 @@ std::tuple<expr, level_param_names> elaborator::operator()(expr const & e) {
 std::tuple<expr, level_param_names> elaborate(environment const & env, options const & opts, local_level_decls const & lls,
                                               metavar_context const & mctx, local_context const & lctx, expr const & e) {
     return elaborator(env, opts, lls, mctx, lctx)(e);
+}
+
+void initialize_elaborator() {
+    register_trace_class("elaborator");
+    register_trace_class("elaborator_detail");
+}
+
+void finalize_elaborator() {
 }
 }

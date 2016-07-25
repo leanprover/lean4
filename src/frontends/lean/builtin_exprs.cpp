@@ -482,7 +482,7 @@ static expr parse_explicit_expr(parser & p, unsigned, expr const *, pos_info con
 }
 
 static expr parse_partial_explicit_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
-    return parse_explicit_core(p, pos, false);
+    return parse_explicit_core(p, pos, true);
 }
 
 static expr parse_sorry(parser & p, unsigned, expr const *, pos_info const & pos) {

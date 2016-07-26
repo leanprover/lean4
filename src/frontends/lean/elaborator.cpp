@@ -208,6 +208,7 @@ auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
     buffer<bool>     found;
     found.resize(C_args.size(), false);
     unsigned i    = params.size();
+    unsigned nexplicit = 0;
     while (i > 0) {
         --i;
         expr const & param = params[i];
@@ -215,6 +216,7 @@ auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
         if (!is_explicit(local_info(param))) {
             continue;
         }
+        nexplicit++;
 
         if (optional<unsigned> pos = C_args.index_of(param)) {
             // Parameter is an argument of the resulting type (C ...)
@@ -256,7 +258,7 @@ auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
     }
 
     std::reverse(idxs.begin(), idxs.end());
-    return optional<elim_info>(params.size(), midx, to_list(idxs));
+    return optional<elim_info>(params.size(), nexplicit, midx, to_list(idxs));
 }
 
 /** See comment at elim_info */
@@ -435,13 +437,14 @@ expr elaborator::visit_poly_app(expr const & fn, buffer<expr> const & args, opti
 
 expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<expr> const & args,
                                 optional<expr> const & expected_type, expr const & ref) {
-    // TODO(Leo): check if fn is fully applied. If it is not, then invoke visit_default_app
     if (!expected_type) {
         throw_elaborator_exception(sstream() << "invalid '" << const_name(fn) << "' application, "
                                    << "elaborator has special support for this kind of application "
                                    << "(it is handled as an \"eliminator\"), "
                                    << "but the expected type must be known", ref);
     }
+
+
 
     // TODO(Leo)
     lean_unreachable();
@@ -582,8 +585,15 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
         if (is_constant(new_fn) && amask == arg_mask::Default) {
             if (use_poly_elab(const_name(new_fn)))
                 return visit_poly_app(new_fn, args, expected_type, fn);
-            if (auto info = use_elim_elab(const_name(new_fn)))
-                return visit_elim_app(new_fn, *info, args, expected_type, fn);
+            if (auto info = use_elim_elab(const_name(new_fn))) {
+                if (args.size() >= info->m_nexplicit) {
+                    return visit_elim_app(new_fn, *info, args, expected_type, fn);
+                } else {
+                    trace_elab(tout() << pos_string_for(fn) << " 'eliminator' elaboration is not used for '" << fn <<
+                               "' because it is not fully applied, #" << info->m_nexplicit <<
+                               " explicit arguments expected\n";);
+                }
+            }
         }
         return visit_default_app(new_fn, amask, args, expected_type, fn);
     }

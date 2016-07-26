@@ -48,11 +48,12 @@ class elaborator {
         can be inferred using explicit parameters. */
     struct elim_info {
         unsigned       m_arity; /* "arity" of the "eliminator" */
+        unsigned       m_nexplicit; /* Number of explicit arguments */
         unsigned       m_motive_idx; /* Position of the motive (i.e., C) */
         list<unsigned> m_explicit_idxs; /* Position of the explicit parameters that we use to synthesize the a_i's */
         elim_info() {}
-        elim_info(unsigned arity, unsigned midx, list<unsigned> const & eidxs):
-            m_arity(arity), m_motive_idx(midx), m_explicit_idxs(eidxs) {}
+        elim_info(unsigned arity, unsigned nexplicit, unsigned midx, list<unsigned> const & eidxs):
+            m_arity(arity), m_nexplicit(nexplicit), m_motive_idx(midx), m_explicit_idxs(eidxs) {}
     };
 
     /** \brief Cache for constants that are handled using "eliminator" elaboration. */

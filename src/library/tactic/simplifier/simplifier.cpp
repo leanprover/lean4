@@ -901,26 +901,11 @@ expr simplifier::remove_unnecessary_casts(expr const & e) {
     return mk_app(f, args);
 }
 
-vm_obj tactic_simp_core(vm_obj const & rules, vm_obj const & prove_fn, vm_obj const & e, vm_obj const & s0) {
+vm_obj tactic_simplify_core(vm_obj const & prove_fn, vm_obj const & rel, vm_obj const & lemmas, vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s   = to_tactic_state(s0);
     try {
-        type_context tctx          = mk_type_context_for(s, transparency_mode::Reducible);
-        simp_lemmas lemmas         = get_simp_lemmas(s.env());
-        metavar_decl g             = *s.get_main_goal_decl();
-        expr target                = g.get_type();
-        name rel                   = (is_standard(s.env()) && tctx.is_prop(target)) ? get_iff_name() : get_eq_name();
-
-        // Extra rules
-        list<expr> extra_rules     = to_list_expr(rules);
-        for_each(extra_rules, [&](expr const & rule) {
-                name id;
-                if (is_mlocal(rule)) id = mlocal_name(rule);
-                else if (is_constant(rule)) id = const_name(rule);
-                lemmas = add(tctx, lemmas, id, tctx.infer(rule), rule, LEAN_DEFAULT_PRIORITY);
-            });
-
-        // Prove-fn
-        simp_result result = simplify(tctx, rel, lemmas, prove_fn, to_expr(e));
+        type_context tctx    = mk_type_context_for(s, transparency_mode::Reducible);
+        simp_result result   = simplify(tctx, to_name(rel), to_simp_lemmas(lemmas), prove_fn, to_expr(e));
 
         if (result.has_proof()) {
             return mk_tactic_success(mk_vm_pair(to_obj(result.get_new()), to_obj(result.get_proof())), s);
@@ -967,7 +952,7 @@ void initialize_simplifier() {
     register_bool_option(*g_simplify_canonize_proofs, LEAN_DEFAULT_SIMPLIFY_CANONIZE_PROOFS,
                          "(simplify) canonize_proofs");
 
-    DECLARE_VM_BUILTIN(name({"tactic", "simplify_core"}), tactic_simp_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "simplify_core"}), tactic_simplify_core);
 }
 
 void finalize_simplifier() {

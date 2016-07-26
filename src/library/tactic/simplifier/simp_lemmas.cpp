@@ -13,9 +13,12 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "library/trace.h"
+#include "library/num.h"
 #include "library/scoped_ext.h"
 #include "library/attribute_manager.h"
 #include "library/type_context.h"
+#include "library/vm/vm_expr.h"
+#include "library/tactic/tactic_state.h"
 #include "library/tactic/simplifier/ceqv.h"
 #include "library/tactic/simplifier/simp_lemmas.h"
 
@@ -595,12 +598,10 @@ format simp_lemmas::pp(formatter const & fmt) const {
     return pp(fmt, format(), true, true);
 }
 
-simp_lemmas get_simp_lemmas(environment const & env) {
+simp_lemmas get_simp_lemmas(type_context & tctx) {
     simp_lemmas r;
     buffer<name> simp_lemmas, congr_lemmas;
-    aux_type_context aux_ctx(env);
-    type_context & tctx = aux_ctx.get();
-    auto const & s = simp_ext::get_state(env);
+    auto const & s = simp_ext::get_state(tctx.env());
     s.m_simp_lemmas.to_buffer(simp_lemmas);
     s.m_congr_lemmas.to_buffer(congr_lemmas);
     unsigned i = simp_lemmas.size();
@@ -618,33 +619,41 @@ simp_lemmas get_simp_lemmas(environment const & env) {
     return r;
 }
 
-template<typename NSS>
-simp_lemmas get_simp_lemmas_core(environment const & env, NSS const & nss) {
-    simp_lemmas r;
-    aux_type_context aux_ctx(env);
-    type_context & tctx = aux_ctx.get();
-    for (name const & ns : nss) {
-        list<simp_entry> const * entries = simp_ext::get_entries(env, ns);
-        if (entries) {
-            for (auto const & e : *entries) {
-                bool is_simp; unsigned prio; name n;
-                std::tie(is_simp, prio, n) = e;
-                if (is_simp) {
-                    tmp_type_context tmp_tctx(tctx);
-                    r = add_core(tmp_tctx, r, n, prio);
-                }
-            }
-        }
-    }
-    return r;
+struct vm_simp_lemmas : public vm_external {
+    simp_lemmas m_val;
+    vm_simp_lemmas(simp_lemmas const & v): m_val(v) {}
+    virtual void dealloc() override { this->~vm_simp_lemmas(); get_vm_allocator().deallocate(sizeof(vm_simp_lemmas), this); }
+};
+
+simp_lemmas const & to_simp_lemmas(vm_obj const & o) {
+    lean_assert(is_external(o));
+    lean_assert(dynamic_cast<vm_simp_lemmas*>(to_external(o)));
+    return static_cast<vm_simp_lemmas*>(to_external(o))->m_val;
 }
 
-simp_lemmas get_simp_lemmas(environment const & env, std::initializer_list<name> const & nss) {
-    return get_simp_lemmas_core(env, nss);
+vm_obj to_obj(simp_lemmas const & idx) {
+    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_simp_lemmas))) vm_simp_lemmas(idx));
 }
 
-simp_lemmas get_simp_lemmas(environment const & env, name const & ns) {
-    return get_simp_lemmas(env, {ns});
+vm_obj tactic_mk_simp_lemmas(vm_obj const & m, vm_obj const & s) {
+    type_context ctx = mk_type_context_for(s, m);
+    return mk_tactic_success(to_obj(get_simp_lemmas(ctx)), to_tactic_state(s));
+}
+
+vm_obj tactic_simp_lemmas_insert(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma, vm_obj const & s) {
+    type_context tctx = mk_type_context_for(s, m);
+    expr e = to_expr(lemma);
+    name id;
+    if (is_constant(e))
+        id = const_name(e);
+    else if (is_local(e))
+        id = local_pp_name(e);
+
+    expr e_type = tctx.infer(e);
+    // TODO(dhs): accept priority as an argument
+    // Reason for postponing: better plumbing of numerals through the vm
+    simp_lemmas new_lemmas = add(tctx, to_simp_lemmas(lemmas), id, tctx.infer(e), e, LEAN_DEFAULT_PRIORITY);
+    return mk_tactic_success(to_obj(new_lemmas), to_tactic_state(s));
 }
 
 void initialize_simp_lemmas() {
@@ -671,6 +680,9 @@ void initialize_simp_lemmas() {
                                 else
                                     return LEAN_DEFAULT_PRIORITY;
                             });
+
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_simp_lemmas_core"}),      tactic_mk_simp_lemmas);
+    DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_core"}),  tactic_simp_lemmas_insert);
 }
 
 void finalize_simp_lemmas() {

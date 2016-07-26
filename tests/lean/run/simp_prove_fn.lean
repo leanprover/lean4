@@ -8,11 +8,10 @@ meta_definition my_prove_fn : tactic unit :=
 do h₁ ← mk_const "H₁",
       h₂ ← mk_const "H₂",
       h₃ ← mk_const "H₃",
-      simp_core [h₁, h₂, h₃] triv,
-      triv
+      simp_using [h₁, h₂, h₃]
 
 set_option trace.simplifier.prove true
 example : f (g x w) = w  :=
 by do h ← mk_const "H",
-      simp_core [h] my_prove_fn,
+      simplify_goal my_prove_fn [h],
       triv

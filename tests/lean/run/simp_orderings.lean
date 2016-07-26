@@ -19,8 +19,7 @@ attribute Hxy [simp]
 
 example : x = z :=
 by do H ← mk_const ("simp_lemmas_args" <.> "Hxz"),
-      simp_core [H] triv,
-      triv
+      simp_using [H]
 
 end simp_lemmas_args
 
@@ -33,8 +32,7 @@ example : x = z :=
 by do Hy ← mk_const ("simp_args" <.> "Hxy"),
       Hz ← mk_const ("simp_args" <.> "Hxz"),
       -- CONFIRM(leo): latter arguments should get priority?
-      simp_core [Hy, Hz] triv,
-      triv
+      simp_using [Hy, Hz]
 
 end simp_args
 

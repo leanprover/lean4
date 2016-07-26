@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 #include "library/type_context.h"
 #include "library/head_map.h"
+#include "library/vm/vm.h"
 
 namespace lean {
 
@@ -145,21 +146,12 @@ public:
     format pp(formatter const & fmt) const;
 };
 
-struct simp_lemmas_cache;
-
-/** \brief Auxiliary class for initializing simp lemmas during blast initialization. */
-class scope_simp {
-    simp_lemmas_cache * m_old_cache;
-public:
-    scope_simp();
-    ~scope_simp();
-};
+simp_lemmas get_simp_lemmas(type_context & tctx);
 
 simp_lemmas add(type_context & tctx, simp_lemmas const & s, name const & id, expr const & e, expr const & h, unsigned priority);
 simp_lemmas join(simp_lemmas const & s1, simp_lemmas const & s2);
 
-/** \brief Get (active) simplification lemmas. */
-simp_lemmas get_simp_lemmas(environment const & env);
-/** \brief Get simplification lemmas in the given namespace. */
-simp_lemmas get_simp_lemmas(environment const & env, name const & ns);
+simp_lemmas const & to_simp_lemmas(vm_obj const & o);
+vm_obj to_obj(simp_lemmas const & s);
+
 }

@@ -12,8 +12,6 @@ Author: Daniel Selsam
 namespace lean {
 
 class arith_instance_info {
-    type_context * m_tctx_ptr;
-
     expr m_type;
     level m_level;
 
@@ -32,38 +30,35 @@ class arith_instance_info {
 
     bool null(expr const & e) { return e == expr(); }
 
-    arith_instance_info(expr const & type, level const & l);
-
     friend void initialize_concrete_arith_instance_infos();
-    friend std::shared_ptr<arith_instance_info> get_arith_instance_info_for(type_context & tctx, expr const & type);
 
 public:
-    arith_instance_info(type_context & tctx, expr const & type);
-    arith_instance_info(type_context & tctx, expr const & type, level const & l);
+    arith_instance_info(expr const & type, level const & l);
 
     expr get_type() const { return m_type; }
 
-    bool is_add_group();
-    bool is_comm_semiring();
-    bool is_comm_ring();
-    bool is_linear_ordered_semiring();
-    bool is_linear_ordered_comm_ring();
-    bool is_field();
-    bool is_discrete_field();
-    optional<mpz> has_cyclic_numerals();
-
-    expr get_zero();
-    expr get_one();
-    expr get_bit0();
-    expr get_bit1();
-    expr get_add();
-    expr get_mul();
-    expr get_sub();
-    expr get_div();
-    expr get_neg();
     expr get_eq();
-    expr get_le();
-    expr get_lt();
+
+    bool is_add_group(type_context * tctx_ptr = nullptr);
+    bool is_comm_semiring(type_context * tctx_ptr = nullptr);
+    bool is_comm_ring(type_context * tctx_ptr = nullptr);
+    bool is_linear_ordered_semiring(type_context * tctx_ptr = nullptr);
+    bool is_linear_ordered_comm_ring(type_context * tctx_ptr = nullptr);
+    bool is_field(type_context * tctx_ptr = nullptr);
+    bool is_discrete_field(type_context * tctx_ptr = nullptr);
+    optional<mpz> has_cyclic_numerals(type_context * tctx_ptr = nullptr);
+
+    expr get_zero(type_context * tctx_ptr = nullptr);
+    expr get_one(type_context * tctx_ptr = nullptr);
+    expr get_bit0(type_context * tctx_ptr = nullptr);
+    expr get_bit1(type_context * tctx_ptr = nullptr);
+    expr get_add(type_context * tctx_ptr = nullptr);
+    expr get_mul(type_context * tctx_ptr = nullptr);
+    expr get_sub(type_context * tctx_ptr = nullptr);
+    expr get_div(type_context * tctx_ptr = nullptr);
+    expr get_neg(type_context * tctx_ptr = nullptr);
+    expr get_le(type_context * tctx_ptr = nullptr);
+    expr get_lt(type_context * tctx_ptr = nullptr);
 };
 
 typedef std::shared_ptr<arith_instance_info> arith_instance_info_ref;

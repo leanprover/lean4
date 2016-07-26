@@ -22,8 +22,8 @@ struct arith_instance_info_cache_entry {
     local_context           m_lctx;
     arith_instance_info_ref m_info;
 
-    arith_instance_info_cache_entry(type_context & tctx, expr const & type):
-        m_lctx(tctx.initial_lctx()), m_info(new arith_instance_info(tctx, type)) {}
+    arith_instance_info_cache_entry(local_context const & lctx, expr const & type, level const & l):
+        m_lctx(lctx), m_info(new arith_instance_info(type, l)) {}
 };
 
 class arith_instance_info_cache {
@@ -43,22 +43,20 @@ static expr_struct_map<arith_instance_info_cache_entry> & get_arith_instance_inf
     return get_aiich().get_cache_for(tctx).get_cache();
 }
 
-arith_instance_info::arith_instance_info(type_context & tctx, expr const & type):
-    m_tctx_ptr(&tctx), m_type(type) { m_level = get_level(*m_tctx_ptr, type);}
-
-arith_instance_info::arith_instance_info(type_context & tctx, expr const & type, level const & l):
-    m_tctx_ptr(&tctx), m_type(type), m_level(l) {}
-
 arith_instance_info::arith_instance_info(expr const & type, level const & l):
     m_type(type), m_level(l) {}
 
-bool arith_instance_info::is_add_group() {
+expr arith_instance_info::get_eq() {
+    return mk_app(mk_constant(get_eq_name(), {m_level}), m_type);
+}
+
+bool arith_instance_info::is_add_group(type_context * tctx_ptr) {
     if (m_is_add_group) {
         return *m_is_add_group;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_add_group_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_is_add_group = optional<bool>(true);
             return true;
         } else {
@@ -68,13 +66,13 @@ bool arith_instance_info::is_add_group() {
     }
 }
 
-bool arith_instance_info::is_comm_semiring() {
+bool arith_instance_info::is_comm_semiring(type_context * tctx_ptr) {
     if (m_is_comm_semiring) {
         return *m_is_comm_semiring;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_comm_semiring_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_is_comm_semiring = optional<bool>(true);
             return true;
         } else {
@@ -84,13 +82,13 @@ bool arith_instance_info::is_comm_semiring() {
     }
 }
 
-bool arith_instance_info::is_comm_ring() {
+bool arith_instance_info::is_comm_ring(type_context * tctx_ptr) {
     if (m_is_comm_ring) {
         return *m_is_comm_ring;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_comm_ring_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_is_comm_ring = optional<bool>(true);
             return true;
         } else {
@@ -100,13 +98,13 @@ bool arith_instance_info::is_comm_ring() {
     }
 }
 
-bool arith_instance_info::is_linear_ordered_semiring() {
+bool arith_instance_info::is_linear_ordered_semiring(type_context * tctx_ptr) {
     if (m_is_linear_ordered_semiring) {
         return *m_is_linear_ordered_semiring;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_linear_ordered_semiring_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_is_linear_ordered_semiring = optional<bool>(true);
             return true;
         } else {
@@ -116,13 +114,13 @@ bool arith_instance_info::is_linear_ordered_semiring() {
     }
 }
 
-bool arith_instance_info::is_linear_ordered_comm_ring() {
+bool arith_instance_info::is_linear_ordered_comm_ring(type_context * tctx_ptr) {
     if (m_is_linear_ordered_comm_ring) {
         return *m_is_linear_ordered_comm_ring;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_linear_ordered_comm_ring_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_is_linear_ordered_comm_ring = optional<bool>(true);
             return true;
         } else {
@@ -132,13 +130,13 @@ bool arith_instance_info::is_linear_ordered_comm_ring() {
     }
 }
 
-bool arith_instance_info::is_field() {
+bool arith_instance_info::is_field(type_context * tctx_ptr) {
     if (m_is_field) {
         return *m_is_field;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_field_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_is_field = optional<bool>(true);
             return true;
         } else {
@@ -148,13 +146,13 @@ bool arith_instance_info::is_field() {
     }
 }
 
-bool arith_instance_info::is_discrete_field() {
+bool arith_instance_info::is_discrete_field(type_context * tctx_ptr) {
     if (m_is_discrete_field) {
         return *m_is_discrete_field;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_discrete_field_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_is_discrete_field = optional<bool>(true);
             return true;
         } else {
@@ -164,13 +162,13 @@ bool arith_instance_info::is_discrete_field() {
     }
 }
 
-optional<mpz> arith_instance_info::has_cyclic_numerals() {
+optional<mpz> arith_instance_info::has_cyclic_numerals(type_context * tctx_ptr) {
     if (!m_has_cyclic_numerals) {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_cyclic_numerals_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_has_cyclic_numerals = optional<bool>(true);
-            expr bound = m_tctx_ptr->whnf(mk_app(mk_constant(get_cyclic_numerals_bound_name(), {m_level}), m_type, *inst));
+            expr bound = tctx_ptr->whnf(mk_app(mk_constant(get_cyclic_numerals_bound_name(), {m_level}), m_type, *inst));
             if (auto n = to_num(bound)) {
                 m_numeral_bound = *n;
                 return optional<mpz>(m_numeral_bound);
@@ -189,13 +187,13 @@ optional<mpz> arith_instance_info::has_cyclic_numerals() {
     }
 }
 
-expr arith_instance_info::get_zero() {
+expr arith_instance_info::get_zero(type_context * tctx_ptr) {
     if (!null(m_zero)) {
         return m_zero;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_has_zero_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_zero = mk_app(mk_constant(get_zero_name(), {m_level}), m_type, *inst);
             return m_zero;
         } else {
@@ -204,13 +202,13 @@ expr arith_instance_info::get_zero() {
     }
 }
 
-expr arith_instance_info::get_one() {
+expr arith_instance_info::get_one(type_context * tctx_ptr) {
     if (!null(m_one)) {
         return m_one;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_has_one_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_one = mk_app(mk_constant(get_one_name(), {m_level}), m_type, *inst);
             return m_one;
         } else {
@@ -219,13 +217,13 @@ expr arith_instance_info::get_one() {
     }
 }
 
-expr arith_instance_info::get_bit0() {
+expr arith_instance_info::get_bit0(type_context * tctx_ptr) {
     if (!null(m_bit0)) {
         return m_bit0;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_has_add_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_bit0 = mk_app(mk_constant(get_bit0_name(), {m_level}), m_type, *inst);
             return m_bit0;
         } else {
@@ -235,15 +233,15 @@ expr arith_instance_info::get_bit0() {
 }
 
 // TODO(dhs): for instances that are used for more than one getter, cache the instances in the structure as well
-expr arith_instance_info::get_bit1() {
+expr arith_instance_info::get_bit1(type_context * tctx_ptr) {
     if (!null(m_bit1)) {
         return m_bit1;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type1 = mk_app(mk_constant(get_has_one_name(), {m_level}), m_type);
-        if (auto inst1 = m_tctx_ptr->mk_class_instance(inst_type1)) {
+        if (auto inst1 = tctx_ptr->mk_class_instance(inst_type1)) {
             expr inst_type2 = mk_app(mk_constant(get_has_add_name(), {m_level}), m_type);
-            if (auto inst2 = m_tctx_ptr->mk_class_instance(inst_type2)) {
+            if (auto inst2 = tctx_ptr->mk_class_instance(inst_type2)) {
                 m_bit1 = mk_app(mk_constant(get_bit1_name(), {m_level}), m_type, *inst1, *inst2);
                 return m_bit1;
             } else {
@@ -255,13 +253,13 @@ expr arith_instance_info::get_bit1() {
     }
 }
 
-expr arith_instance_info::get_add() {
+expr arith_instance_info::get_add(type_context * tctx_ptr) {
     if (!null(m_add)) {
         return m_add;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_has_add_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_add = mk_app(mk_constant(get_add_name(), {m_level}), m_type, *inst);
             return m_add;
         } else {
@@ -270,13 +268,13 @@ expr arith_instance_info::get_add() {
     }
 }
 
-expr arith_instance_info::get_mul() {
+expr arith_instance_info::get_mul(type_context * tctx_ptr) {
     if (!null(m_mul)) {
         return m_mul;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_has_mul_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_mul = mk_app(mk_constant(get_mul_name(), {m_level}), m_type, *inst);
             return m_mul;
         } else {
@@ -285,13 +283,13 @@ expr arith_instance_info::get_mul() {
     }
 }
 
-expr arith_instance_info::get_sub() {
+expr arith_instance_info::get_sub(type_context * tctx_ptr) {
     if (!null(m_sub)) {
         return m_sub;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_has_sub_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_sub = mk_app(mk_constant(get_sub_name(), {m_level}), m_type, *inst);
             return m_sub;
         } else {
@@ -300,13 +298,13 @@ expr arith_instance_info::get_sub() {
     }
 }
 
-expr arith_instance_info::get_div() {
+expr arith_instance_info::get_div(type_context * tctx_ptr) {
     if (!null(m_div)) {
         return m_div;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_has_div_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_div = mk_app(mk_constant(get_div_name(), {m_level}), m_type, *inst);
             return m_div;
         } else {
@@ -315,13 +313,13 @@ expr arith_instance_info::get_div() {
     }
 }
 
-expr arith_instance_info::get_neg() {
+expr arith_instance_info::get_neg(type_context * tctx_ptr) {
     if (!null(m_neg)) {
         return m_neg;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_has_neg_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_neg = mk_app(mk_constant(get_neg_name(), {m_level}), m_type, *inst);
             return m_neg;
         } else {
@@ -330,15 +328,13 @@ expr arith_instance_info::get_neg() {
     }
 }
 
-expr arith_instance_info::get_eq() { return mk_app(mk_constant(get_eq_name(), {m_level}), m_type); }
-
-expr arith_instance_info::get_lt() {
+expr arith_instance_info::get_lt(type_context * tctx_ptr) {
     if (!null(m_lt)) {
         return m_lt;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_has_lt_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_lt = mk_app(mk_constant(get_lt_name(), {m_level}), m_type, *inst);
             return m_lt;
         } else {
@@ -347,13 +343,13 @@ expr arith_instance_info::get_lt() {
     }
 }
 
-expr arith_instance_info::get_le() {
+expr arith_instance_info::get_le(type_context * tctx_ptr) {
     if (!null(m_le)) {
         return m_le;
     } else {
-        lean_assert(m_tctx_ptr);
+        lean_assert(tctx_ptr);
         expr inst_type = mk_app(mk_constant(get_has_le_name(), {m_level}), m_type);
-        if (auto inst = m_tctx_ptr->mk_class_instance(inst_type)) {
+        if (auto inst = tctx_ptr->mk_class_instance(inst_type)) {
             m_le = mk_app(mk_constant(get_le_name(), {m_level}), m_type, *inst);
             return m_le;
         } else {
@@ -484,7 +480,7 @@ optional<concrete_arith_type> is_concrete_arith_type(expr const & type) {
 arith_instance_info_ref cache_insert(expr_struct_map<arith_instance_info_cache_entry> & cache, type_context & tctx, expr const & type) {
     auto result = cache.emplace(std::piecewise_construct,
                                 std::forward_as_tuple<expr const &>(type),
-                                std::forward_as_tuple<type_context &, expr const &>(tctx, type));
+                                std::forward_as_tuple<local_context const &, expr const &, level const &>(tctx.initial_lctx(), type, get_level(tctx, type)));
     lean_assert(result.second);
     return result.first->second.m_info;
 }
@@ -502,7 +498,6 @@ arith_instance_info_ref get_arith_instance_info_for(type_context & tctx, expr co
         arith_instance_info_cache_entry & entry = it->second;
         if (tctx.compatible_local_instances(entry.m_lctx)) {
             entry.m_lctx = tctx.initial_lctx();
-            entry.m_info->m_tctx_ptr = &tctx;
             return entry.m_info;
         } else {
             cache.erase(type);

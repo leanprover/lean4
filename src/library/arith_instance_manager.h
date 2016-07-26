@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Daniel Selsam
 */
 #pragma once
+#include <memory>
 #include "kernel/expr.h"
 #include "library/type_context.h"
 
@@ -34,7 +35,7 @@ class arith_instance_info {
     arith_instance_info(expr const & type, level const & l);
 
     friend void initialize_concrete_arith_instance_infos();
-    friend arith_instance_info & get_arith_instance_info_for(type_context & tctx, expr const & type);
+    friend std::shared_ptr<arith_instance_info> get_arith_instance_info_for(type_context & tctx, expr const & type);
 
 public:
     arith_instance_info(type_context & tctx, expr const & type);
@@ -65,11 +66,13 @@ public:
     expr get_lt();
 };
 
+typedef std::shared_ptr<arith_instance_info> arith_instance_info_ref;
+
 enum class concrete_arith_type { NAT, INT, REAL };
 optional<concrete_arith_type> is_concrete_arith_type(expr const & type);
 
-arith_instance_info & get_arith_instance_info_for(concrete_arith_type type);
-arith_instance_info & get_arith_instance_info_for(type_context & tctx, expr const & type);
+arith_instance_info_ref get_arith_instance_info_for(concrete_arith_type type);
+arith_instance_info_ref get_arith_instance_info_for(type_context & tctx, expr const & type);
 
 void initialize_arith_instance_manager();
 void finalize_arith_instance_manager();

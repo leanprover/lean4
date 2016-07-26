@@ -14,16 +14,16 @@
 
 namespace lean {
 
-static arith_instance_info * g_nat_instance_info  = nullptr;
-static arith_instance_info * g_int_instance_info  = nullptr;
-static arith_instance_info * g_real_instance_info = nullptr;
+static arith_instance_info_ref * g_nat_instance_info  = nullptr;
+static arith_instance_info_ref * g_int_instance_info  = nullptr;
+static arith_instance_info_ref * g_real_instance_info = nullptr;
 
 struct arith_instance_info_cache_entry {
-    local_context       m_lctx;
-    arith_instance_info m_info;
+    local_context           m_lctx;
+    arith_instance_info_ref m_info;
 
     arith_instance_info_cache_entry(type_context & tctx, expr const & type):
-        m_lctx(tctx.initial_lctx()), m_info(tctx, type) {}
+        m_lctx(tctx.initial_lctx()), m_info(new arith_instance_info(tctx, type)) {}
 };
 
 class arith_instance_info_cache {
@@ -366,84 +366,84 @@ expr arith_instance_info::get_le() {
 void initialize_concrete_arith_instance_infos() {
     // nats
     expr nat = mk_constant(get_nat_name());
-    g_nat_instance_info = new arith_instance_info(nat, mk_level_one());
-    g_nat_instance_info->m_is_field                            = optional<bool>(false);
-    g_nat_instance_info->m_is_discrete_field                   = optional<bool>(false);
-    g_nat_instance_info->m_is_comm_ring                        = optional<bool>(false);
-    g_nat_instance_info->m_is_linear_ordered_comm_ring         = optional<bool>(false);
-    g_nat_instance_info->m_is_comm_semiring                    = optional<bool>(true);
-    g_nat_instance_info->m_is_linear_ordered_semiring          = optional<bool>(true);
-    g_nat_instance_info->m_is_add_group                        = optional<bool>(false);
+    g_nat_instance_info = new std::shared_ptr<arith_instance_info>(new arith_instance_info(nat, mk_level_one()));
+    (*g_nat_instance_info)->m_is_field                            = optional<bool>(false);
+    (*g_nat_instance_info)->m_is_discrete_field                   = optional<bool>(false);
+    (*g_nat_instance_info)->m_is_comm_ring                        = optional<bool>(false);
+    (*g_nat_instance_info)->m_is_linear_ordered_comm_ring         = optional<bool>(false);
+    (*g_nat_instance_info)->m_is_comm_semiring                    = optional<bool>(true);
+    (*g_nat_instance_info)->m_is_linear_ordered_semiring          = optional<bool>(true);
+    (*g_nat_instance_info)->m_is_add_group                        = optional<bool>(false);
 
-    g_nat_instance_info->m_has_cyclic_numerals                 = optional<bool>(false);
+    (*g_nat_instance_info)->m_has_cyclic_numerals                 = optional<bool>(false);
 
-    g_nat_instance_info->m_zero    = mk_app({mk_constant(get_zero_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_zero_name())});
-    g_nat_instance_info->m_one     = mk_app({mk_constant(get_one_name(), {mk_level_one()}),  nat, mk_constant(get_nat_has_one_name())});
-    g_nat_instance_info->m_bit0    = mk_app({mk_constant(get_bit0_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_add_name())});
-    g_nat_instance_info->m_bit1    = mk_app({mk_constant(get_bit1_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_one_name()), mk_constant(get_nat_has_add_name())});
+    (*g_nat_instance_info)->m_zero    = mk_app({mk_constant(get_zero_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_zero_name())});
+    (*g_nat_instance_info)->m_one     = mk_app({mk_constant(get_one_name(), {mk_level_one()}),  nat, mk_constant(get_nat_has_one_name())});
+    (*g_nat_instance_info)->m_bit0    = mk_app({mk_constant(get_bit0_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_add_name())});
+    (*g_nat_instance_info)->m_bit1    = mk_app({mk_constant(get_bit1_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_one_name()), mk_constant(get_nat_has_add_name())});
 
-    g_nat_instance_info->m_add     = mk_app({mk_constant(get_add_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_add_name())});
-    g_nat_instance_info->m_mul     = mk_app({mk_constant(get_mul_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_mul_name())});
-    g_nat_instance_info->m_div     = mk_app({mk_constant(get_div_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_div_name())});
-    g_nat_instance_info->m_sub     = mk_app({mk_constant(get_sub_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_sub_name())});
-    g_nat_instance_info->m_neg     = mk_app({mk_constant(get_neg_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_neg_name())});
+    (*g_nat_instance_info)->m_add     = mk_app({mk_constant(get_add_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_add_name())});
+    (*g_nat_instance_info)->m_mul     = mk_app({mk_constant(get_mul_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_mul_name())});
+    (*g_nat_instance_info)->m_div     = mk_app({mk_constant(get_div_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_div_name())});
+    (*g_nat_instance_info)->m_sub     = mk_app({mk_constant(get_sub_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_sub_name())});
+    (*g_nat_instance_info)->m_neg     = mk_app({mk_constant(get_neg_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_neg_name())});
 
-    g_nat_instance_info->m_lt      = mk_app({mk_constant(get_lt_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_lt_name())});
-    g_nat_instance_info->m_le      = mk_app({mk_constant(get_le_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_le_name())});
+    (*g_nat_instance_info)->m_lt      = mk_app({mk_constant(get_lt_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_lt_name())});
+    (*g_nat_instance_info)->m_le      = mk_app({mk_constant(get_le_name(), {mk_level_one()}), nat, mk_constant(get_nat_has_le_name())});
 
     // ints
     expr z = mk_constant(get_int_name());
-    g_int_instance_info = new arith_instance_info(z, mk_level_one());
-    g_int_instance_info->m_is_field                            = optional<bool>(false);
-    g_int_instance_info->m_is_discrete_field                   = optional<bool>(false);
-    g_int_instance_info->m_is_comm_ring                        = optional<bool>(true);
-    g_int_instance_info->m_is_linear_ordered_comm_ring         = optional<bool>(true);
-    g_int_instance_info->m_is_comm_semiring                    = optional<bool>(true);
-    g_int_instance_info->m_is_linear_ordered_semiring          = optional<bool>(true);
-    g_int_instance_info->m_is_add_group                        = optional<bool>(true);
+    g_int_instance_info = new std::shared_ptr<arith_instance_info>(new arith_instance_info(z, mk_level_one()));
+    (*g_int_instance_info)->m_is_field                            = optional<bool>(false);
+    (*g_int_instance_info)->m_is_discrete_field                   = optional<bool>(false);
+    (*g_int_instance_info)->m_is_comm_ring                        = optional<bool>(true);
+    (*g_int_instance_info)->m_is_linear_ordered_comm_ring         = optional<bool>(true);
+    (*g_int_instance_info)->m_is_comm_semiring                    = optional<bool>(true);
+    (*g_int_instance_info)->m_is_linear_ordered_semiring          = optional<bool>(true);
+    (*g_int_instance_info)->m_is_add_group                        = optional<bool>(true);
 
-    g_int_instance_info->m_has_cyclic_numerals                 = optional<bool>(false);
+    (*g_int_instance_info)->m_has_cyclic_numerals                 = optional<bool>(false);
 
-    g_int_instance_info->m_zero    = mk_app({mk_constant(get_zero_name(), {mk_level_one()}), z, mk_constant(get_int_has_zero_name())});
-    g_int_instance_info->m_one     = mk_app({mk_constant(get_one_name(), {mk_level_one()}),  z, mk_constant(get_int_has_one_name())});
-    g_int_instance_info->m_bit0    = mk_app({mk_constant(get_bit0_name(), {mk_level_one()}), z, mk_constant(get_int_has_add_name())});
-    g_int_instance_info->m_bit1    = mk_app({mk_constant(get_bit1_name(), {mk_level_one()}), z, mk_constant(get_int_has_one_name()), mk_constant(get_int_has_add_name())});
+    (*g_int_instance_info)->m_zero    = mk_app({mk_constant(get_zero_name(), {mk_level_one()}), z, mk_constant(get_int_has_zero_name())});
+    (*g_int_instance_info)->m_one     = mk_app({mk_constant(get_one_name(), {mk_level_one()}),  z, mk_constant(get_int_has_one_name())});
+    (*g_int_instance_info)->m_bit0    = mk_app({mk_constant(get_bit0_name(), {mk_level_one()}), z, mk_constant(get_int_has_add_name())});
+    (*g_int_instance_info)->m_bit1    = mk_app({mk_constant(get_bit1_name(), {mk_level_one()}), z, mk_constant(get_int_has_one_name()), mk_constant(get_int_has_add_name())});
 
-    g_int_instance_info->m_add     = mk_app({mk_constant(get_add_name(), {mk_level_one()}), z, mk_constant(get_int_has_add_name())});
-    g_int_instance_info->m_mul     = mk_app({mk_constant(get_mul_name(), {mk_level_one()}), z, mk_constant(get_int_has_mul_name())});
-    g_int_instance_info->m_div     = mk_app({mk_constant(get_div_name(), {mk_level_one()}), z, mk_constant(get_int_has_div_name())});
-    g_int_instance_info->m_sub     = mk_app({mk_constant(get_sub_name(), {mk_level_one()}), z, mk_constant(get_int_has_sub_name())});
-    g_int_instance_info->m_neg     = mk_app({mk_constant(get_neg_name(), {mk_level_one()}), z, mk_constant(get_int_has_neg_name())});
+    (*g_int_instance_info)->m_add     = mk_app({mk_constant(get_add_name(), {mk_level_one()}), z, mk_constant(get_int_has_add_name())});
+    (*g_int_instance_info)->m_mul     = mk_app({mk_constant(get_mul_name(), {mk_level_one()}), z, mk_constant(get_int_has_mul_name())});
+    (*g_int_instance_info)->m_div     = mk_app({mk_constant(get_div_name(), {mk_level_one()}), z, mk_constant(get_int_has_div_name())});
+    (*g_int_instance_info)->m_sub     = mk_app({mk_constant(get_sub_name(), {mk_level_one()}), z, mk_constant(get_int_has_sub_name())});
+    (*g_int_instance_info)->m_neg     = mk_app({mk_constant(get_neg_name(), {mk_level_one()}), z, mk_constant(get_int_has_neg_name())});
 
-    g_int_instance_info->m_lt      = mk_app({mk_constant(get_lt_name(), {mk_level_one()}), z, mk_constant(get_int_has_lt_name())});
-    g_int_instance_info->m_le      = mk_app({mk_constant(get_le_name(), {mk_level_one()}), z, mk_constant(get_int_has_le_name())});
+    (*g_int_instance_info)->m_lt      = mk_app({mk_constant(get_lt_name(), {mk_level_one()}), z, mk_constant(get_int_has_lt_name())});
+    (*g_int_instance_info)->m_le      = mk_app({mk_constant(get_le_name(), {mk_level_one()}), z, mk_constant(get_int_has_le_name())});
 
     // reals
     expr real = mk_constant(get_real_name());
-    g_real_instance_info = new arith_instance_info(real, mk_level_one());
-    g_real_instance_info->m_is_field                            = optional<bool>(true);
-    g_real_instance_info->m_is_discrete_field                   = optional<bool>(true);
-    g_real_instance_info->m_is_comm_ring                        = optional<bool>(true);
-    g_real_instance_info->m_is_linear_ordered_comm_ring         = optional<bool>(true);
-    g_real_instance_info->m_is_comm_semiring                    = optional<bool>(true);
-    g_real_instance_info->m_is_linear_ordered_semiring          = optional<bool>(true);
-    g_real_instance_info->m_is_add_group                        = optional<bool>(true);
+    g_real_instance_info = new std::shared_ptr<arith_instance_info>(new arith_instance_info(real, mk_level_one()));
+    (*g_real_instance_info)->m_is_field                            = optional<bool>(true);
+    (*g_real_instance_info)->m_is_discrete_field                   = optional<bool>(true);
+    (*g_real_instance_info)->m_is_comm_ring                        = optional<bool>(true);
+    (*g_real_instance_info)->m_is_linear_ordered_comm_ring         = optional<bool>(true);
+    (*g_real_instance_info)->m_is_comm_semiring                    = optional<bool>(true);
+    (*g_real_instance_info)->m_is_linear_ordered_semiring          = optional<bool>(true);
+    (*g_real_instance_info)->m_is_add_group                        = optional<bool>(true);
 
-    g_real_instance_info->m_has_cyclic_numerals                 = optional<bool>(false);
+    (*g_real_instance_info)->m_has_cyclic_numerals                 = optional<bool>(false);
 
-    g_real_instance_info->m_zero    = mk_app({mk_constant(get_zero_name(), {mk_level_one()}), real, mk_constant(get_real_has_zero_name())});
-    g_real_instance_info->m_one     = mk_app({mk_constant(get_one_name(), {mk_level_one()}),  real, mk_constant(get_real_has_one_name())});
-    g_real_instance_info->m_bit0    = mk_app({mk_constant(get_bit0_name(), {mk_level_one()}), real, mk_constant(get_real_has_add_name())});
-    g_real_instance_info->m_bit1    = mk_app({mk_constant(get_bit1_name(), {mk_level_one()}), real, mk_constant(get_real_has_one_name()), mk_constant(get_real_has_add_name())});
+    (*g_real_instance_info)->m_zero    = mk_app({mk_constant(get_zero_name(), {mk_level_one()}), real, mk_constant(get_real_has_zero_name())});
+    (*g_real_instance_info)->m_one     = mk_app({mk_constant(get_one_name(), {mk_level_one()}),  real, mk_constant(get_real_has_one_name())});
+    (*g_real_instance_info)->m_bit0    = mk_app({mk_constant(get_bit0_name(), {mk_level_one()}), real, mk_constant(get_real_has_add_name())});
+    (*g_real_instance_info)->m_bit1    = mk_app({mk_constant(get_bit1_name(), {mk_level_one()}), real, mk_constant(get_real_has_one_name()), mk_constant(get_real_has_add_name())});
 
-    g_real_instance_info->m_add     = mk_app({mk_constant(get_add_name(), {mk_level_one()}), real, mk_constant(get_real_has_add_name())});
-    g_real_instance_info->m_mul     = mk_app({mk_constant(get_mul_name(), {mk_level_one()}), real, mk_constant(get_real_has_mul_name())});
-    g_real_instance_info->m_div     = mk_app({mk_constant(get_div_name(), {mk_level_one()}), real, mk_constant(get_real_has_div_name())});
-    g_real_instance_info->m_sub     = mk_app({mk_constant(get_sub_name(), {mk_level_one()}), real, mk_constant(get_real_has_sub_name())});
-    g_real_instance_info->m_neg     = mk_app({mk_constant(get_neg_name(), {mk_level_one()}), real, mk_constant(get_real_has_neg_name())});
+    (*g_real_instance_info)->m_add     = mk_app({mk_constant(get_add_name(), {mk_level_one()}), real, mk_constant(get_real_has_add_name())});
+    (*g_real_instance_info)->m_mul     = mk_app({mk_constant(get_mul_name(), {mk_level_one()}), real, mk_constant(get_real_has_mul_name())});
+    (*g_real_instance_info)->m_div     = mk_app({mk_constant(get_div_name(), {mk_level_one()}), real, mk_constant(get_real_has_div_name())});
+    (*g_real_instance_info)->m_sub     = mk_app({mk_constant(get_sub_name(), {mk_level_one()}), real, mk_constant(get_real_has_sub_name())});
+    (*g_real_instance_info)->m_neg     = mk_app({mk_constant(get_neg_name(), {mk_level_one()}), real, mk_constant(get_real_has_neg_name())});
 
-    g_real_instance_info->m_lt      = mk_app({mk_constant(get_lt_name(), {mk_level_one()}), real, mk_constant(get_real_has_lt_name())});
-    g_real_instance_info->m_le      = mk_app({mk_constant(get_le_name(), {mk_level_one()}), real, mk_constant(get_real_has_le_name())});
+    (*g_real_instance_info)->m_lt      = mk_app({mk_constant(get_lt_name(), {mk_level_one()}), real, mk_constant(get_real_has_lt_name())});
+    (*g_real_instance_info)->m_le      = mk_app({mk_constant(get_le_name(), {mk_level_one()}), real, mk_constant(get_real_has_le_name())});
 }
 
 void finalize_concrete_arith_instance_infos() {
@@ -461,7 +461,7 @@ void finalize_arith_instance_manager() {
 }
 
 // Entry points
-arith_instance_info & get_arith_instance_info_for(concrete_arith_type type) {
+arith_instance_info_ref get_arith_instance_info_for(concrete_arith_type type) {
     switch (type) {
     case concrete_arith_type::NAT:  return *g_nat_instance_info;
     case concrete_arith_type::INT:  return *g_int_instance_info;
@@ -481,7 +481,7 @@ optional<concrete_arith_type> is_concrete_arith_type(expr const & type) {
         return optional<concrete_arith_type>();
 }
 
-arith_instance_info & cache_insert(expr_struct_map<arith_instance_info_cache_entry> & cache, type_context & tctx, expr const & type) {
+arith_instance_info_ref cache_insert(expr_struct_map<arith_instance_info_cache_entry> & cache, type_context & tctx, expr const & type) {
     auto result = cache.emplace(std::piecewise_construct,
                                 std::forward_as_tuple<expr const &>(type),
                                 std::forward_as_tuple<type_context &, expr const &>(tctx, type));
@@ -489,7 +489,7 @@ arith_instance_info & cache_insert(expr_struct_map<arith_instance_info_cache_ent
     return result.first->second.m_info;
 }
 
-arith_instance_info & get_arith_instance_info_for(type_context & tctx, expr const & type) {
+arith_instance_info_ref get_arith_instance_info_for(type_context & tctx, expr const & type) {
     if (auto ctype = is_concrete_arith_type(type))
         return get_arith_instance_info_for(*ctype);
 
@@ -502,7 +502,7 @@ arith_instance_info & get_arith_instance_info_for(type_context & tctx, expr cons
         arith_instance_info_cache_entry & entry = it->second;
         if (tctx.compatible_local_instances(entry.m_lctx)) {
             entry.m_lctx = tctx.initial_lctx();
-            entry.m_info.m_tctx_ptr = &tctx;
+            entry.m_info->m_tctx_ptr = &tctx;
             return entry.m_info;
         } else {
             cache.erase(type);

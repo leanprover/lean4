@@ -377,14 +377,19 @@ expr elaborator::visit_function(expr const & fn, bool has_args, expr const & ref
     return r;
 }
 
-void elaborator::throw_overload_exception(buffer<expr> const & fns, sstream & ss, expr const & ref) {
-    ss << " (overloads: ";
+template<typename Out>
+void display_overloads(Out & out, buffer<expr> const & fns) {
+    out << " (overloads: ";
     bool first = true;
     for (expr const & fn : fns) {
-        if (first) first = false; else ss << ", ";
-        ss << fn;
+        if (first) first = false; else out << ", ";
+        out << fn;
     }
-    ss << ")";
+    out << ")";
+}
+
+void elaborator::throw_overload_exception(buffer<expr> const & fns, sstream & ss, expr const & ref) {
+    display_overloads(ss, fns);
     throw_elaborator_exception(ss, ref);
 }
 
@@ -400,8 +405,7 @@ void elaborator::validate_overloads(buffer<expr> const & fns, expr const & ref) 
     }
 }
 
-void elaborator::throw_app_type_mismatch(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type,
-                                         expr const & ref) {
+format elaborator::mk_app_type_mismatch_error(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type) {
     format msg = format("type mismatch at application");
     msg += pp_indent(t);
     msg += line() + format("term");
@@ -410,7 +414,18 @@ void elaborator::throw_app_type_mismatch(expr const & t, expr const & arg, expr 
     msg += pp_indent(arg_type);
     msg += line() + format("but is expected to have type");
     msg += pp_indent(expected_type);
-    throw_elaborator_exception(ref, msg);
+    return msg;
+}
+
+format elaborator::mk_too_many_args_error(expr const & fn_type) {
+    return
+        format("invalid function application, too many arguments, function type:") +
+        pp_indent(fn_type);
+}
+
+void elaborator::throw_app_type_mismatch(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type,
+                                         expr const & ref) {
+    throw_elaborator_exception(ref, mk_app_type_mismatch_error(t, arg, arg_type, expected_type));
 }
 
 expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<expr> const & args,
@@ -507,44 +522,107 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
     lean_unreachable();
 }
 
-expr elaborator::visit_overloaded_app(buffer<expr> const & fns, arg_mask amask, buffer<expr> const & args,
-                                      optional<expr> const & expected_type, expr const & ref) {
-    // Remark: fns have been elaborated, but args have not.
+struct overload_exception {
+    format m_error_msg;
+    overload_exception(format const & fmt):m_error_msg(fmt) {}
+};
 
-    buffer<expr> fn_types;
-    buffer<bool> ok;
-    for (expr const & fn : fns) {
-        fn_types.push_back(infer_type(fn));
-        ok.push_back(true);
+expr elaborator::visit_overload_candidate(expr const & fn, buffer<expr> const & args,
+                                          optional<expr> const & expected_type, expr const & ref) {
+    expr fn_type = try_to_pi(infer_type(fn));
+    unsigned i = 0;
+    expr type  = fn_type;
+    buffer<expr> new_args;
+    buffer<optional<expr>> types_to_check;
+    while (is_pi(type)) {
+        binder_info const & bi = binding_info(type);
+        expr const & d = binding_domain(type);
+        expr new_arg;
+        if (bi.is_inst_implicit()) {
+            new_arg = mk_instance(d);
+            types_to_check.push_back(none_expr());
+        } else if (bi.is_implicit()) {
+            new_arg = mk_metavar(d);
+            types_to_check.push_back(none_expr());
+        } else if (i < args.size()) {
+            // explicit argument
+            new_arg = args[i];
+            expr new_arg_type = infer_type(new_arg);
+            types_to_check.push_back(some_expr(d));
+            i++;
+        } else {
+            break;
+        }
+        new_args.push_back(new_arg);
+        type = try_to_pi(instantiate(binding_body(type), new_arg));
+    }
+    lean_assert(new_args.size() == types_to_check.size());
+    if (i != args.size()) {
+        throw overload_exception(mk_too_many_args_error(fn_type));
     }
 
-    buffer<expr> new_args;
-
-    // while the fn_types are compatible, we keep processing arguments
-    unsigned i = 0;
-    while (true) {
-        bool all_pi = true;
-        for (unsigned fn_idx = 0; fn_idx < fns.size(); fn_idx++) {
-            if (!ok[fn_idx])
-                continue;
-            expr & fn_type = fn_types[fn_idx];
-            fn_type = whnf(fn_type);
-            if (!is_pi(fn_type)) {
-                if (i < args.size()) {
-                    trace_elab_detail(tout() << "overloaded application '" << fns[i] << "' is not being considered at" <<
-                                      "position " << pos_string_for(ref) << " because " <<
-                                      "of the number of explicit arguments provided\n";);
-                    ok[fn_idx] = false;
-                } else {
-                    all_pi = false;
-                }
+    type_context::approximate_scope scope(m_ctx);
+    for (unsigned i = 0; i < new_args.size(); i++) {
+        if (optional<expr> expected_type = types_to_check[i]) {
+            expr & new_arg    = new_args[i];
+            expr new_arg_type = infer_type(new_arg);
+            if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, *expected_type)) {
+                new_arg = *new_new_arg;
+            } else {
+                throw overload_exception(mk_app_type_mismatch_error(mk_app(fn, i+1, new_args.data()),
+                                                                    new_arg, new_arg_type, *expected_type));
             }
         }
-        if (!all_pi) break;
     }
 
-    // TODO(Leo)
-    lean_unreachable();
+    return mk_app(fn, new_args.size(), new_args.data());
+}
+
+expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> const & args,
+                                      optional<expr> const & expected_type, expr const & ref) {
+    trace_elab_detail(tout() << "overloaded application at " << pos_string_for(ref);
+                      auto out = tout(); display_overloads(out, fns);
+                      tout() << "\n";);
+    buffer<expr> new_args;
+    for (expr const & arg : args) {
+        new_args.push_back(visit(arg, none_expr()));
+    }
+
+    buffer<expr>   candidates;
+    buffer<format> error_msgs;
+    for (expr const & fn : fns) {
+        try {
+            expr c = visit_overload_candidate(fn, new_args, expected_type, ref);
+            candidates.push_back(c);
+        } catch (overload_exception & ex) {
+            error_msgs.push_back(ex.m_error_msg);
+        }
+    }
+    lean_assert(candidates.size() + error_msgs.size() == fns.size());
+
+    if (candidates.empty()) {
+        format r("none of the overloads is applicable");
+        lean_assert(error_msgs.size() == fns.size());
+        for (unsigned i = 0; i < fns.size(); i++) {
+            r += line() + format("- error for") + space() + pp(fns[i]);
+            r += line() + error_msgs[i];
+        }
+        throw_elaborator_exception(ref, r);
+    } else if (candidates.size() > 1) {
+        format r("ambiguous overload, the following functions are applicable: ");
+        bool first = true;
+        for (expr const & c : candidates) {
+            if (first) first = false; else r += format(", ");
+            r += pp(get_app_fn(c));
+        }
+        r += line() + format("applications:");
+        for (expr const & c : candidates) {
+            r += pp_indent(c);
+        }
+        throw_elaborator_exception(ref, r);
+    } else {
+        return candidates[0];
+    }
 }
 
 expr elaborator::visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args,
@@ -582,8 +660,7 @@ expr elaborator::visit_default_app(expr const & fn, arg_mask amask, buffer<expr>
     lean_assert(new_args.size() == types_to_check.size());
 
     if (i != args.size()) {
-        throw_elaborator_exception(ref, format("invalid function application, too many arguments, function type:") +
-                                   pp_indent(fn_type));
+        throw_elaborator_exception(ref, mk_too_many_args_error(fn_type));
     }
 
     type_context::approximate_scope scope(m_ctx);
@@ -627,7 +704,7 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
         for (expr & new_fn : fns) {
             new_fn = visit_function(new_fn, has_args, fn);
         }
-        return visit_overloaded_app(fns, amask, args, expected_type, fn);
+        return visit_overloaded_app(fns, args, expected_type, fn);
     } else {
         expr new_fn = visit_function(fn, has_args, fn);
         /* Check if we should use a custom elaboration procedure for this application. */

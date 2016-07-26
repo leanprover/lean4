@@ -106,13 +106,17 @@ class elaborator {
     expr ensure_function(expr const & e);
     expr visit_function(expr const & fn, bool has_args, expr const & ref);
     void throw_overload_exception(buffer<expr> const & fns, sstream & ss, expr const & ref);
+    format mk_app_type_mismatch_error(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type);
+    format mk_too_many_args_error(expr const & fn_type);
     void throw_app_type_mismatch(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type,
                                  expr const & ref);
     void validate_overloads(buffer<expr> const & fns, expr const & ref);
+    expr visit_overload_candidate(expr const & fn, buffer<expr> const & args,
+                                  optional<expr> const & expected_type, expr const & ref);
+    expr visit_overloaded_app(buffer<expr> const & fns, buffer<expr> const & args,
+                              optional<expr> const & expected_type, expr const & ref);
     expr visit_elim_app(expr const & fn, elim_info const & info, buffer<expr> const & args,
                         optional<expr> const & expected_type, expr const & ref);
-    expr visit_overloaded_app(buffer<expr> const & fns, arg_mask amask, buffer<expr> const & args,
-                              optional<expr> const & expected_type, expr const & ref);
     expr visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args,
                            optional<expr> const & expected_type, expr const & ref);
     expr visit_app_core(expr fn, buffer<expr> const & args, optional<expr> const & expected_type);

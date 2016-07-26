@@ -18,8 +18,6 @@ open eq
 
 #elab subst
 
-#elab add
-
 constants a b : nat
 constant H1 : a = b
 constant H2 : a + b > 0

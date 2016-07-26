@@ -1,5 +1,4 @@
 >> foo [prenum] [prenum]
-[elaborator_detail] 'polymorphic' elaboration is not used for 'foo' because it has more than one Type parameter
 [elaborator] elab2.lean:1:29: type class resolution
   has_add.{1} nat
 instance
@@ -15,7 +14,6 @@ instance
 >> @foo.{1 1} nat nat nat_has_add (@zero.{1} nat nat_has_zero) (@one.{1} nat nat_has_one)
 >> nat
 >> bla nat.zero bool.tt [prenum]
-[elaborator_detail] 'polymorphic' elaboration is not used for 'bla' because it has more than one Type parameter
 elab2.lean:13:6: error: type mismatch at application
   @bla.{1 ?M_1} nat ?M_2 nat.zero bool.tt
 term
@@ -25,7 +23,6 @@ has type
 but is expected to have type
   nat
 >> bla [prenum] [prenum] bool.tt
-[elaborator_detail] 'polymorphic' elaboration is not used for 'bla' because it has more than one Type parameter
 [elaborator] elab2.lean:15:10: type class resolution
   has_zero.{1} nat
 instance

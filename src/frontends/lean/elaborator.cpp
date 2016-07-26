@@ -132,34 +132,6 @@ static bool contains_placeholder(level const & l) {
     return contains;
 }
 
-/* We use "polymorphic" elaboration for a function fn IFF
-   1- It has one and only one Type argument.
-   2- The resulting type is
-      a) a variable
-      b) a function application (C ...) where C is a constant. */
-bool elaborator::use_poly_elab(name const & fn) {
-    if (auto it = m_poly_cache.find(fn))
-        return *it;
-    declaration d     = m_env.get(fn);
-    expr type         = d.get_type();
-    unsigned num_Type = 0;
-    while (is_pi(type)) {
-        expr const & d = binding_domain(type);
-        if (is_sort(d)) {
-            num_Type++;
-            if (num_Type > 1) break;
-        }
-        type = binding_body(type);
-    }
-    if (num_Type > 1) {
-        trace_elab_detail(tout() << "'polymorphic' elaboration is not used for '" << fn << "' " <<
-                          "because it has more than one Type parameter\n";);
-    }
-    bool r = num_Type == 1 && (is_var(type) || (is_app(type) && is_constant(get_app_fn(type))));
-    m_poly_cache.insert(fn, r);
-    return r;
-}
-
 /* Here, we say a term is first-order IF all applications are of the form (f ...) where f is a constant. */
 static bool is_first_order(expr const & e) {
     return !find(e, [&](expr const & e, unsigned) {
@@ -418,13 +390,6 @@ void elaborator::throw_overload_exception(buffer<expr> const & fns, sstream & ss
 
 void elaborator::validate_overloads(buffer<expr> const & fns, expr const & ref) {
     for (expr const & fn_i : fns) {
-        if (is_constant(fn_i) && use_poly_elab(const_name(fn_i))) {
-            throw_overload_exception(fns, sstream() << "invalid overloaded application, "
-                                     << "elaborator has special support for '"  << fn_i << "'"
-                                     << " (it is handled as a polymorphic application), "
-                                     << "but this kind of constant cannot be overloaded "
-                                     << "(solution: use fully qualified names)", ref);
-        }
         if (is_constant(fn_i) && use_elim_elab(const_name(fn_i))) {
             throw_overload_exception(fns, sstream() << "invalid overloaded application, "
                                      << "elaborator has special support for '"  << fn_i << "'"
@@ -446,12 +411,6 @@ void elaborator::throw_app_type_mismatch(expr const & t, expr const & arg, expr 
     msg += line() + format("but is expected to have type");
     msg += pp_indent(expected_type);
     throw_elaborator_exception(ref, msg);
-}
-
-expr elaborator::visit_poly_app(expr const & fn, buffer<expr> const & args, optional<expr> const & expected_type,
-                                expr const & ref) {
-    // TODO(Leo)
-    lean_unreachable();
 }
 
 expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<expr> const & args,
@@ -673,8 +632,6 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
         expr new_fn = visit_function(fn, has_args, fn);
         /* Check if we should use a custom elaboration procedure for this application. */
         if (is_constant(new_fn) && amask == arg_mask::Default) {
-            if (use_poly_elab(const_name(new_fn)))
-                return visit_poly_app(new_fn, args, expected_type, fn);
             if (auto info = use_elim_elab(const_name(new_fn))) {
                 if (args.size() >= info->m_nexplicit) {
                     return visit_elim_app(new_fn, *info, args, expected_type, fn);

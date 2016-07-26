@@ -39,9 +39,6 @@ class elaborator {
         ~checkpoint();
     };
 
-    /** \brief Cache for constants that are handled using "polymorphic" elaboration. */
-    name_map<bool>    m_poly_cache;
-
     /** \brief We use a specialized procedure for elaborating recursor applications (e.g., nat.rec_on and eq.rec_on),
         and similar applications (e.g., eq.subst). We use the specialized procedure for f whenever the type of f is
         of the form (C a_1 ... a_n) where C and a_i's are parameters. Moreover, the parameters a_i's
@@ -96,7 +93,6 @@ class elaborator {
     expr ensure_function(expr const & e, expr const & ref);
     optional<expr> ensure_has_type(expr const & e, expr const & e_type, expr const & type);
 
-    bool use_poly_elab(name const & fn);
     bool is_elim_elab_candidate(name const & fn);
     optional<elim_info> use_elim_elab_core(name const & fn);
     optional<elim_info> use_elim_elab(name const & fn);
@@ -113,8 +109,6 @@ class elaborator {
     void throw_app_type_mismatch(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type,
                                  expr const & ref);
     void validate_overloads(buffer<expr> const & fns, expr const & ref);
-    expr visit_poly_app(expr const & fn, buffer<expr> const & args,
-                        optional<expr> const & expected_type, expr const & ref);
     expr visit_elim_app(expr const & fn, elim_info const & info, buffer<expr> const & args,
                         optional<expr> const & expected_type, expr const & ref);
     expr visit_overloaded_app(buffer<expr> const & fns, arg_mask amask, buffer<expr> const & args,

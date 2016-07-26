@@ -27,8 +27,6 @@ class metavar_context {
     name_map<level>        m_uassignment;
     name_map<expr>         m_eassignment;
     struct interface_impl;
-    void assign_core(level const & u, level const & l);
-    void assign_core(expr const & e, expr const & v);
     friend struct interface_impl;
 public:
     level mk_univ_metavar_decl();

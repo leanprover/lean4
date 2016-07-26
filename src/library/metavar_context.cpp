@@ -53,26 +53,12 @@ optional<local_decl> metavar_context::get_hypothesis_of(expr const & mvar, name 
     return mdecl->get_context().get_local_decl(H);
 }
 
-void metavar_context::assign_core(level const & u, level const & l) {
+void metavar_context::assign(level const & u, level const & l) {
     m_uassignment.insert(meta_id(u), l);
 }
 
-void metavar_context::assign(level const & u, level const & l) {
-    lean_assert(!is_assigned(u));
-    assign_core(u, l);
-}
-
-void metavar_context::assign_core(expr const & e, expr const & v) {
-    m_eassignment.insert(mlocal_name(e), v);
-}
-
 void metavar_context::assign(expr const & e, expr const & v) {
-    // TODO(leo, dhs): confirm that we do not need this assertion
-    // Note: it triggers an assertion failure from
-    // https://github.com/leanprover/lean/blob/lean3/src/library/metavar_util.h#L127-L135
-    // when CTX is a type_context.
-    // lean_assert(!is_assigned(e));
-    assign_core(e, v);
+    m_eassignment.insert(mlocal_name(e), v);
 }
 
 optional<level> metavar_context::get_assignment(level const & l) const {
@@ -98,12 +84,12 @@ struct metavar_context::interface_impl {
     static bool is_mvar(level const & l) { return is_metavar_decl_ref(l); }
     bool is_assigned(level const & l) const { return m_ctx.is_assigned(l); }
     optional<level> get_assignment(level const & l) const { return m_ctx.get_assignment(l); }
-    void assign(level const & u, level const & v) { m_ctx.assign_core(u, v); }
+    void assign(level const & u, level const & v) { m_ctx.assign(u, v); }
 
     static bool is_mvar(expr const & e) { return is_metavar_decl_ref(e); }
     bool is_assigned(expr const & e) const { return m_ctx.is_assigned(e); }
     optional<expr> get_assignment(expr const & e) const { return m_ctx.get_assignment(e); }
-    void assign(expr const & m, expr const & v) { m_ctx.assign_core(m, v); }
+    void assign(expr const & m, expr const & v) { m_ctx.assign(m, v); }
 };
 
 

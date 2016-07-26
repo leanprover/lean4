@@ -53,6 +53,20 @@ io_state const & get_dummy_ios();
 /** \brief Return reference to thread local io_state object. */
 io_state const & get_global_ios();
 
+/** \brief Formatted exceptions where the format object must be eagerly constructed.
+    This is slightly different from ext_exception where the format object is built on demand. */
+class formatted_exception : public exception {
+    format m_fmt;
+public:
+    formatted_exception(format const & fmt):m_fmt(fmt) {}
+    virtual ~formatted_exception() noexcept {}
+    virtual char const * what() const noexcept;
+    virtual throwable * clone() const { return new formatted_exception(m_fmt); }
+    virtual void rethrow() const { throw *this; }
+    virtual optional<expr> get_main_expr() const { return none_expr(); }
+    format pp() const { return m_fmt; }
+};
+
 struct scope_global_ios {
     io_state * m_old_ios;
 public:

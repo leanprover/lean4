@@ -53,6 +53,7 @@ io_state_stream const & operator<<(io_state_stream const & out, expr const & e);
 io_state_stream const & operator<<(io_state_stream const & out, level const & l);
 io_state_stream const & operator<<(io_state_stream const & out, constraint const & c);
 io_state_stream const & operator<<(io_state_stream const & out, ext_exception const & ex);
+io_state_stream const & operator<<(io_state_stream const & out, formatted_exception const & ex);
 io_state_stream const & operator<<(io_state_stream const & out, format const & f);
 template<typename T> io_state_stream const & display(io_state_stream const & out, T const & t) {
     out.get_stream() << t;

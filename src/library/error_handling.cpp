@@ -106,10 +106,17 @@ static void display_error(io_state_stream const & ios, pos_info_provider const *
     ios << " " << mk_pair(j.pp(fmt, p, ex.get_substitution()), opts) << endl;
 }
 
+static void display_error(io_state_stream const & ios, pos_info_provider const * p, formatted_exception const & ex) {
+    display_error_pos(ios, p, ex.get_main_expr());
+    ios << " " << ex << endl;
+}
+
 void display_error(io_state_stream const & ios, pos_info_provider const * p, throwable const & ex) {
     flycheck_error err(ios.get_stream(), ios.get_options());
     if (auto k_ex = dynamic_cast<ext_exception const *>(&ex)) {
         display_error(ios, p, *k_ex);
+    } else if (auto f_ex = dynamic_cast<formatted_exception const *>(&ex)) {
+        display_error(ios, p, *f_ex);
     } else if (auto e_ex = dynamic_cast<unifier_exception const *>(&ex)) {
         display_error(ios, p, *e_ex);
     } else if (p) {

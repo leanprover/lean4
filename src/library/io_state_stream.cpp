@@ -66,4 +66,10 @@ io_state_stream const & operator<<(io_state_stream const & out, format const & f
     out.get_stream() << mk_pair(f, opts);
     return out;
 }
+
+io_state_stream const & operator<<(io_state_stream const & out, formatted_exception const & ex) {
+    options const & opts = out.get_options();
+    out.get_stream() << mk_pair(ex.pp(), opts);
+    return out;
+}
 }

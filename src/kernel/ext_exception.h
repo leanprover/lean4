@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-/** \brief Base class for exceptions with support for pretty printing. */
+/** \brief Base class for exceptions with support for pretty printing on demand. */
 class ext_exception : public exception {
 public:
     ext_exception() {}

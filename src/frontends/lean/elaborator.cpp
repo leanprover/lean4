@@ -249,24 +249,24 @@ auto elaborator::use_elim_elab(name const & fn) -> optional<elim_info> {
 }
 
 expr elaborator::ensure_function(expr const & e, expr const & ref) {
-    // TODO(Leo): infer type and try to apply coercion to function if needed
-    // ref is only needed for generating error messages
+    expr e_type = whnf(infer_type(e));
+    if (!is_pi(e_type)) {
+        throw_elaborator_exception(ref, format("function expected at") + pp_indent(e));
+    }
     return e;
 }
 
 expr elaborator::ensure_type(expr const & e, expr const & ref) {
-    // TODO(Leo): infer e type, and apply coercions if needed.
-    // ref is only needed for generating error messages
+    expr e_type = whnf(infer_type(e));
+    if (!is_sort(e_type)) {
+        throw_elaborator_exception(ref, format("type expected at") + pp_indent(e));
+    }
     return e;
 }
 
 optional<expr> elaborator::ensure_has_type(expr const & e, expr const & e_type, expr const & type) {
     if (is_def_eq(e_type, type))
         return some_expr(e);
-
-    // TODO(Leo): try coercions
-    // ref is only needed for generating error messages
-
     return none_expr();
 }
 

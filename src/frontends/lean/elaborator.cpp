@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/choice.h"
 #include "library/typed_expr.h"
 #include "library/compiler/rec_fn_macro.h"
+#include "library/tactic/kabstract.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator_exception.h"
 #include "frontends/lean/elaborator.h"
@@ -33,6 +34,7 @@ static type_context_cache & get_type_context_cache_for(environment const & env, 
 
 #define trace_elab(CODE) lean_trace("elaborator", scope_trace_env _scope(m_env, m_ctx); CODE)
 #define trace_elab_detail(CODE) lean_trace("elaborator_detail", scope_trace_env _scope(m_env, m_ctx); CODE)
+#define trace_elab_debug(CODE) lean_trace("elaborator_debug", scope_trace_env _scope(m_env, m_ctx); CODE)
 
 elaborator::elaborator(environment const & env, options const & opts, local_level_decls const & lls,
                        metavar_context const & mctx, local_context const & lctx):
@@ -258,6 +260,10 @@ auto elaborator::use_elim_elab_core(name const & fn) -> optional<elim_info> {
     }
 
     std::reverse(idxs.begin(), idxs.end());
+    trace_elab_detail(tout() << "'eliminator' elaboration is going to be used for '" << fn << "' applications, "
+                      << "the motive is computed using the argument(s):";
+                      for (unsigned idx : idxs) tout() << " #" << (idx+1);
+                      tout() << "\n";);
     return optional<elim_info>(params.size(), nexplicit, midx, to_list(idxs));
 }
 
@@ -429,6 +435,19 @@ void elaborator::validate_overloads(buffer<expr> const & fns, expr const & ref) 
     }
 }
 
+void elaborator::throw_app_type_mismatch(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type,
+                                         expr const & ref) {
+    format msg = format("type mismatch at application");
+    msg += pp_indent(t);
+    msg += line() + format("term");
+    msg += pp_indent(arg);
+    msg += line() + format("has type");
+    msg += pp_indent(arg_type);
+    msg += line() + format("but is expected to have type");
+    msg += pp_indent(expected_type);
+    throw_elaborator_exception(ref, msg);
+}
+
 expr elaborator::visit_poly_app(expr const & fn, buffer<expr> const & args, optional<expr> const & expected_type,
                                 expr const & ref) {
     // TODO(Leo)
@@ -436,15 +455,94 @@ expr elaborator::visit_poly_app(expr const & fn, buffer<expr> const & args, opti
 }
 
 expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<expr> const & args,
-                                optional<expr> const & expected_type, expr const & ref) {
-    if (!expected_type) {
+                                optional<expr> const & _expected_type, expr const & ref) {
+    lean_assert(info.m_nexplicit <= args.size());
+    if (!_expected_type) {
         throw_elaborator_exception(sstream() << "invalid '" << const_name(fn) << "' application, "
                                    << "elaborator has special support for this kind of application "
                                    << "(it is handled as an \"eliminator\"), "
                                    << "but the expected type must be known", ref);
     }
 
+    expr expected_type = instantiate_mvars(*_expected_type);
+    if (has_expr_metavar(expected_type)) {
+        throw_elaborator_exception(ref, format("invalid '") + format(const_name(fn)) + format ("' application, ") +
+                                   format("elaborator has special support for this kind of application ") +
+                                   format("(it is handled as an \"eliminator\"), ") +
+                                   format("but expected type must not contain metavariables") +
+                                   pp_indent(expected_type));
+    }
 
+    trace_elab_debug(
+        tout() << "eliminator elaboration for '" << fn << "'\n"
+        << "  arity:     " << info.m_arity << "\n"
+        << "  nexplicit: " << info.m_nexplicit << "\n"
+        << "  motive:    #" << (info.m_motive_idx+1) << "\n"
+        << "  major:    ";
+        for (unsigned idx : info.m_explicit_idxs)
+            tout() << " #" << (idx+1);
+        tout() << "\n";);
+
+    expr fn_type = try_to_pi(infer_type(fn));
+    buffer<expr> new_args;
+
+    // In the first pass we only process the arguments at info.m_explicit_idxs
+    expr type = fn_type;
+    unsigned i = 0;
+    unsigned j = 0;
+    list<unsigned> const & main_idxs = info.m_explicit_idxs;
+    while (is_pi(type)) {
+        expr const & d = binding_domain(type);
+        binder_info const & bi = binding_info(type);
+        expr new_arg;
+        if (std::find(main_idxs.begin(), main_idxs.end(), i) != main_idxs.end()) {
+            new_arg = visit(args[j], some_expr(d));
+            j++;
+            if (has_expr_metavar(new_arg)) {
+                throw_elaborator_exception(ref, format("invalid '") + format(const_name(fn)) + format ("' application, ") +
+                                           format("elaborator has special support for this kind of application ") +
+                                           format("(it is handled as an \"eliminator\"), ") +
+                                           format("but term") + pp_indent(new_arg) +
+                                           line() + format("must not contain metavariables because") +
+                                           format("it is used to compute the motive"));
+            }
+            expr new_arg_type = infer_type(new_arg);
+            if (!is_def_eq(new_arg_type, d)) {
+                throw_app_type_mismatch(mk_app(fn, i+1, new_args.data()), new_arg, new_arg_type, d, ref);
+            }
+        } else if (is_explicit(bi)) {
+            new_arg = mk_metavar(d);
+            j++;
+        } else if (bi.is_inst_implicit()) {
+            new_arg = mk_instance(d);
+        } else {
+            new_arg = mk_metavar(d);
+        }
+        new_args.push_back(new_arg);
+        type = try_to_pi(instantiate(binding_body(type), new_arg));
+        i++;
+    }
+
+    // Compute motive */
+    trace_elab_debug(tout() << "compute motive by using keyed-abstraction:\n  " <<
+                     instantiate_mvars(type) << "\nwith\n  " <<
+                     expected_type << "\n";);
+    buffer<expr> keys;
+    get_app_args(type, keys);
+    expr motive = expected_type;
+    i = keys.size();
+    while (i > 0) {
+        --i;
+        expr k = instantiate_mvars(keys[i]);
+        expr k_type    = infer_type(k);
+        motive = mk_lambda("_x", k_type, kabstract(m_ctx, motive, k));
+    }
+    trace_elab_debug(tout() << "motive:\n  " << instantiate_mvars(motive) << "\n";);
+
+    expr motive_arg = new_args[info.m_motive_idx];
+    if (!is_def_eq(motive_arg, motive)) {
+        throw_elaborator_exception(ref, format("\"eliminator\" elaborator failed to compute the motive"));
+    }
 
     // TODO(Leo)
     lean_unreachable();
@@ -537,15 +635,7 @@ expr elaborator::visit_default_app(expr const & fn, arg_mask amask, buffer<expr>
             if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, *expected_type)) {
                 new_arg = *new_new_arg;
             } else {
-                throw_elaborator_exception(ref,
-                                           format("type mismatch at application") +
-                                           pp_indent(mk_app(fn, i+1, new_args.data())) +
-                                           line() + format("term") +
-                                           pp_indent(new_arg) +
-                                           line() + format("has type") +
-                                           pp_indent(new_arg_type) +
-                                           line() + format("but is expected to have type") +
-                                           pp_indent(*expected_type));
+                throw_app_type_mismatch(mk_app(fn, i+1, new_args.data()), new_arg, new_arg_type, *expected_type, ref);
             }
         }
     }
@@ -747,6 +837,7 @@ std::tuple<expr, level_param_names> elaborate(environment const & env, options c
 void initialize_elaborator() {
     register_trace_class("elaborator");
     register_trace_class("elaborator_detail");
+    register_trace_class("elaborator_debug");
 }
 
 void finalize_elaborator() {

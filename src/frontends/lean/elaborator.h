@@ -110,6 +110,8 @@ class elaborator {
     expr ensure_function(expr const & e);
     expr visit_function(expr const & fn, bool has_args, expr const & ref);
     void throw_overload_exception(buffer<expr> const & fns, sstream & ss, expr const & ref);
+    void throw_app_type_mismatch(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type,
+                                 expr const & ref);
     void validate_overloads(buffer<expr> const & fns, expr const & ref);
     expr visit_poly_app(expr const & fn, buffer<expr> const & args,
                         optional<expr> const & expected_type, expr const & ref);

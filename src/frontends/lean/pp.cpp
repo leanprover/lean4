@@ -791,7 +791,7 @@ auto pretty_fn::pp_lambda(expr const & e) -> result {
     }
     format r = m_unicode ? *g_lambda_n_fmt : *g_lambda_fmt;
     r += pp_binders(locals);
-    r += compose(comma(), nest(m_indent, compose(line(), pp_child(b, 0).fmt())));
+    r += group(compose(comma(), nest(m_indent, compose(line(), pp_child(b, 0).fmt()))));
     return result(0, r);
 }
 
@@ -822,7 +822,7 @@ auto pretty_fn::pp_pi(expr const & e) -> result {
         else
             r = m_unicode ? *g_pi_n_fmt : *g_pi_fmt;
         r += pp_binders(locals);
-        r += compose(comma(), nest(m_indent, compose(line(), pp_child(b, 0).fmt())));
+        r += group(compose(comma(), nest(m_indent, compose(line(), pp_child(b, 0).fmt()))));
         return result(0, r);
     }
 }

@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include "library/compiler/rec_fn_macro.h"
 #include "library/tactic/kabstract.h"
 #include "frontends/lean/prenum.h"
-#include "frontends/lean/elaborator_exception.h"
 #include "frontends/lean/elaborator.h"
 
 namespace lean {
@@ -35,6 +34,11 @@ static type_context_cache & get_type_context_cache_for(environment const & env, 
 #define trace_elab(CODE) lean_trace("elaborator", scope_trace_env _scope(m_env, m_ctx); CODE)
 #define trace_elab_detail(CODE) lean_trace("elaborator_detail", scope_trace_env _scope(m_env, m_ctx); CODE)
 #define trace_elab_debug(CODE) lean_trace("elaborator_debug", scope_trace_env _scope(m_env, m_ctx); CODE)
+
+class elaborator_exception : public formatted_exception {
+public:
+    elaborator_exception(expr const & e, format const & fmt):formatted_exception(e, fmt) {}
+};
 
 elaborator::elaborator(environment const & env, options const & opts, local_level_decls const & lls,
                        metavar_context const & mctx, local_context const & lctx):
@@ -85,7 +89,7 @@ expr elaborator::mk_instance_core(expr const & C) {
                if (!inst) tout() << "[failed]\n";
                else tout() << "  " << *inst << "\n";);
     if (!inst)
-        throw_elaborator_exception(C, format("failed to synthesize type class instance for") + pp_indent(C));
+        throw elaborator_exception(C, format("failed to synthesize type class instance for") + pp_indent(C));
     return *inst;
 }
 
@@ -251,7 +255,7 @@ auto elaborator::use_elim_elab(name const & fn) -> optional<elim_info> {
 expr elaborator::ensure_function(expr const & e, expr const & ref) {
     expr e_type = whnf(infer_type(e));
     if (!is_pi(e_type)) {
-        throw_elaborator_exception(ref, format("function expected at") + pp_indent(e));
+        throw elaborator_exception(ref, format("function expected at") + pp_indent(e));
     }
     return e;
 }
@@ -259,7 +263,7 @@ expr elaborator::ensure_function(expr const & e, expr const & ref) {
 expr elaborator::ensure_type(expr const & e, expr const & ref) {
     expr e_type = whnf(infer_type(e));
     if (!is_sort(e_type)) {
-        throw_elaborator_exception(ref, format("type expected at") + pp_indent(e));
+        throw elaborator_exception(ref, format("type expected at") + pp_indent(e));
     }
     return e;
 }
@@ -278,7 +282,7 @@ expr elaborator::visit_typed_expr(expr const & e) {
     expr new_val_type = infer_type(new_val);
     if (auto r = ensure_has_type(new_val, new_val_type, new_type))
         return *r;
-    throw_elaborator_exception(e,
+    throw elaborator_exception(e,
                                format("invalid type ascription, expression has type") + pp_indent(new_val_type) +
                                line() + format(", but is expected to have type") + pp_indent(new_type));
 }
@@ -299,7 +303,7 @@ expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_ty
     level A_lvl = get_level(A);
     levels ls(A_lvl);
     if (v.is_neg())
-        throw_elaborator_exception("invalid pre-numeral, it must be a non-negative value", e);
+        throw elaborator_exception(e, format("invalid pre-numeral, it must be a non-negative value"));
     if (v.is_zero()) {
         expr has_zero_A = mk_app(mk_constant(get_has_zero_name(), ls), A, e_tag);
         expr S          = mk_instance(has_zero_A);
@@ -345,9 +349,10 @@ expr elaborator::visit_const_core(expr const & e) {
         ls.push_back(replace_univ_placeholder(l));
     unsigned num_univ_params = d.get_num_univ_params();
     if (num_univ_params < ls.size()) {
-        throw_elaborator_exception(sstream() << "incorrect number of universe levels parameters for '"
-                                   << const_name(e) << "', #" << num_univ_params
-                                   << " expected, #" << ls.size() << " provided", e);
+        format msg("incorrect number of universe levels parameters for '");
+        msg += format(const_name(e)) + format("', #") + format(num_univ_params);
+        msg += format(" expected, #") + format(ls.size()) + format("provided");
+        throw elaborator_exception(e, msg);
     }
     // "fill" with meta universe parameters
     for (unsigned i = ls.size(); i < num_univ_params; i++)
@@ -365,7 +370,7 @@ expr elaborator::visit_function(expr const & fn, bool has_args, expr const & ref
     case expr_kind::Pi:
     case expr_kind::Meta:
     case expr_kind::Sort:
-        throw_elaborator_exception("invalid application, function expected", ref);
+        throw elaborator_exception(ref, format("invalid application, function expected"));
     case expr_kind::Local:     r = fn; break;
     case expr_kind::Constant:  r = visit_const_core(fn); break;
     case expr_kind::Macro:     r = visit_macro(fn, none_expr()); break;
@@ -377,35 +382,34 @@ expr elaborator::visit_function(expr const & fn, bool has_args, expr const & ref
     return r;
 }
 
-template<typename Out>
-void display_overloads(Out & out, buffer<expr> const & fns) {
-    out << " (overloads: ";
+format elaborator::pp_overloads(buffer<expr> const & fns) {
+    format r("overloads:");
+    r += space();
     bool first = true;
     for (expr const & fn : fns) {
-        if (first) first = false; else out << ", ";
-        out << fn;
+        if (first) first = false; else r += format(", ");
+        r += pp(fn);
     }
-    out << ")";
-}
-
-void elaborator::throw_overload_exception(buffer<expr> const & fns, sstream & ss, expr const & ref) {
-    display_overloads(ss, fns);
-    throw_elaborator_exception(ss, ref);
+    return paren(r);
 }
 
 void elaborator::validate_overloads(buffer<expr> const & fns, expr const & ref) {
     for (expr const & fn_i : fns) {
         if (is_constant(fn_i) && use_elim_elab(const_name(fn_i))) {
-            throw_overload_exception(fns, sstream() << "invalid overloaded application, "
-                                     << "elaborator has special support for '"  << fn_i << "'"
-                                     << " (it is handled as an \"eliminator\"), "
-                                     << "but this kind of constant cannot be overloaded "
-                                     << "(solution: use fully qualified names)", ref);
+            format msg("invalid overloaded application, "
+                       "elaborator has special support for '");
+            msg += pp(fn_i);
+            msg += format(" (it is handled as an \"eliminator\"), "
+                          "but this kind of constant cannot be overloaded "
+                          "(solution: use fully qualified names) ");
+            msg += pp_overloads(fns);
+            return throw elaborator_exception(ref, msg);
         }
     }
 }
 
-format elaborator::mk_app_type_mismatch_error(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type) {
+format elaborator::mk_app_type_mismatch_error(expr const & t, expr const & arg, expr const & arg_type,
+                                              expr const & expected_type) {
     format msg = format("type mismatch at application");
     msg += pp_indent(t);
     msg += line() + format("term");
@@ -425,22 +429,22 @@ format elaborator::mk_too_many_args_error(expr const & fn_type) {
 
 void elaborator::throw_app_type_mismatch(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type,
                                          expr const & ref) {
-    throw_elaborator_exception(ref, mk_app_type_mismatch_error(t, arg, arg_type, expected_type));
+    throw elaborator_exception(ref, mk_app_type_mismatch_error(t, arg, arg_type, expected_type));
 }
 
 expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<expr> const & args,
                                 optional<expr> const & _expected_type, expr const & ref) {
     lean_assert(info.m_nexplicit <= args.size());
     if (!_expected_type) {
-        throw_elaborator_exception(sstream() << "invalid '" << const_name(fn) << "' application, "
-                                   << "elaborator has special support for this kind of application "
-                                   << "(it is handled as an \"eliminator\"), "
-                                   << "but the expected type must be known", ref);
+        throw elaborator_exception(ref, format("invalid '") + format(const_name(fn)) + format ("' application, ") +
+                                   format("elaborator has special support for this kind of application ") +
+                                   format("(it is handled as an \"eliminator\"), ") +
+                                   format("but the expected type must be known"));
     }
 
     expr expected_type = instantiate_mvars(*_expected_type);
     if (has_expr_metavar(expected_type)) {
-        throw_elaborator_exception(ref, format("invalid '") + format(const_name(fn)) + format ("' application, ") +
+        throw elaborator_exception(ref, format("invalid '") + format(const_name(fn)) + format ("' application, ") +
                                    format("elaborator has special support for this kind of application ") +
                                    format("(it is handled as an \"eliminator\"), ") +
                                    format("but expected type must not contain metavariables") +
@@ -473,7 +477,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
             new_arg = visit(args[j], some_expr(d));
             j++;
             if (has_expr_metavar(new_arg)) {
-                throw_elaborator_exception(ref, format("invalid '") + format(const_name(fn)) + format ("' application, ") +
+                throw elaborator_exception(ref, format("invalid '") + format(const_name(fn)) + format ("' application, ") +
                                            format("elaborator has special support for this kind of application ") +
                                            format("(it is handled as an \"eliminator\"), ") +
                                            format("but term") + pp_indent(new_arg) +
@@ -482,7 +486,8 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
             }
             expr new_arg_type = infer_type(new_arg);
             if (!is_def_eq(new_arg_type, d)) {
-                throw_app_type_mismatch(mk_app(fn, i+1, new_args.data()), new_arg, new_arg_type, d, ref);
+                throw elaborator_exception(ref, mk_app_type_mismatch_error(mk_app(fn, i+1, new_args.data()),
+                                                                           new_arg, new_arg_type, d));
             }
         } else if (is_explicit(bi)) {
             new_arg = mk_metavar(d);
@@ -515,7 +520,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
 
     expr motive_arg = new_args[info.m_motive_idx];
     if (!is_def_eq(motive_arg, motive)) {
-        throw_elaborator_exception(ref, format("\"eliminator\" elaborator failed to compute the motive"));
+        throw elaborator_exception(ref, format("\"eliminator\" elaborator failed to compute the motive"));
     }
 
     // TODO(Leo)
@@ -581,8 +586,7 @@ expr elaborator::visit_overload_candidate(expr const & fn, buffer<expr> const & 
 expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> const & args,
                                       optional<expr> const & expected_type, expr const & ref) {
     trace_elab_detail(tout() << "overloaded application at " << pos_string_for(ref);
-                      auto out = tout(); display_overloads(out, fns);
-                      tout() << "\n";);
+                      tout() << pp_overloads(fns) << "\n";);
     buffer<expr> new_args;
     for (expr const & arg : args) {
         new_args.push_back(visit(arg, none_expr()));
@@ -607,7 +611,7 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
             r += line() + format("- error for") + space() + pp(fns[i]);
             r += line() + error_msgs[i];
         }
-        throw_elaborator_exception(ref, r);
+        throw elaborator_exception(ref, r);
     } else if (candidates.size() > 1) {
         format r("ambiguous overload, the following functions are applicable: ");
         bool first = true;
@@ -619,7 +623,7 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
         for (expr const & c : candidates) {
             r += pp_indent(c);
         }
-        throw_elaborator_exception(ref, r);
+        throw elaborator_exception(ref, r);
     } else {
         return candidates[0];
     }
@@ -660,7 +664,7 @@ expr elaborator::visit_default_app(expr const & fn, arg_mask amask, buffer<expr>
     lean_assert(new_args.size() == types_to_check.size());
 
     if (i != args.size()) {
-        throw_elaborator_exception(ref, mk_too_many_args_error(fn_type));
+        throw elaborator_exception(ref, mk_too_many_args_error(fn_type));
     }
 
     type_context::approximate_scope scope(m_ctx);
@@ -671,7 +675,8 @@ expr elaborator::visit_default_app(expr const & fn, arg_mask amask, buffer<expr>
             if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, *expected_type)) {
                 new_arg = *new_new_arg;
             } else {
-                throw_app_type_mismatch(mk_app(fn, i+1, new_args.data()), new_arg, new_arg_type, *expected_type, ref);
+                throw elaborator_exception(ref, mk_app_type_mismatch_error(mk_app(fn, i+1, new_args.data()),
+                                                                           new_arg, new_arg_type, *expected_type));
             }
         }
     }
@@ -694,8 +699,8 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
     if (is_choice(fn)) {
         buffer<expr> fns;
         if (amask != arg_mask::Default)
-            throw_elaborator_exception("invalid explicit annotation, symbol is overloaded "
-                                       "(solution: use fully qualified names)", fn);
+            throw elaborator_exception(fn, format("invalid explicit annotation, symbol is overloaded "
+                                                  "(solution: use fully qualified names)"));
         for (unsigned i = 0; i < get_num_choices(fn); i++) {
             expr const & fn_i = get_choice(fn, i);
             fns.push_back(fn_i);
@@ -798,7 +803,7 @@ void elaborator::ensure_numeral_types_assigned(checkpoint const & C) {
         expr A = instantiate_mvars(m_numeral_type_stack[i]);
         if (is_metavar(A)) {
             if (!assign_mvar(A, get_default_numeral_type()))
-                throw_elaborator_exception("invalid numeral, failed to force numeral to be a nat", A);
+                throw elaborator_exception(A, format("invalid numeral, failed to force numeral to be a nat"));
         }
     }
 }
@@ -814,10 +819,10 @@ void elaborator::synthesize_type_class_instances(checkpoint const & C) {
         expr inst_type = instantiate_mvars(infer_type(inst));
         if (!has_expr_metavar(inst_type)) {
             if (!is_def_eq(inst, mk_instance_core(inst_type)))
-                throw_elaborator_exception(m_instance_stack[i],
+                throw elaborator_exception(m_instance_stack[i],
                                            format("failed to assign type class instance to placeholder"));
         } else {
-            throw_elaborator_exception(m_instance_stack[i],
+            throw elaborator_exception(m_instance_stack[i],
                                        format("type class instance cannot be synthesized, type has metavariables") +
                                        pp_indent(inst_type));
         }

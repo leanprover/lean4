@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/generic_exception.h"
-#include "frontends/lean/elaborator_exception.h"
+#include "frontends/lean/old_elaborator_exception.h"
 
 namespace lean {
 [[ noreturn ]] void throw_elaborator_exception(char const * msg, expr const & m) {

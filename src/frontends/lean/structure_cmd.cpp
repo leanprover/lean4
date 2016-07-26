@@ -47,7 +47,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/tokens.h"
-#include "frontends/lean/elaborator_exception.h"
+#include "frontends/lean/old_elaborator_exception.h"
 #include "frontends/lean/type_util.h"
 
 #ifndef LEAN_DEFAULT_STRUCTURE_INTRO

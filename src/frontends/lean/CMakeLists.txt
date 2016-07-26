@@ -7,13 +7,15 @@ pp.cpp theorem_queue.cpp
 structure_cmd.cpp info_manager.cpp info_annotation.cpp find_cmd.cpp
 coercion_elaborator.cpp
 init_module.cpp
-type_util.cpp elaborator_exception.cpp local_ref_info.cpp
+type_util.cpp local_ref_info.cpp
 obtain_expr.cpp decl_attributes.cpp nested_declaration.cpp
 opt_cmd.cpp prenum.cpp
-print_cmd.cpp elaborator_context.cpp elaborator.cpp
+print_cmd.cpp elaborator.cpp
 # LEGACY
 old_elaborator.cpp
 old_attributes.cpp
+old_elaborator_exception.cpp
+elaborator_context.cpp
 # begin_end_annotation.cpp tactic_hint.cpp
 # info_tactic.cpp
 # parse_tactic_location.cpp parse_rewrite_tactic.cpp builtin_tactics.cpp

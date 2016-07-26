@@ -69,6 +69,7 @@ class elaborator {
 
     format pp(expr const & e);
     format pp_indent(expr const & e);
+    format pp_overloads(buffer<expr> const & fns);
 
     expr infer_type(expr const & e) { return m_ctx.infer(e); }
     expr whnf(expr const & e) { return m_ctx.whnf(e); }
@@ -105,7 +106,6 @@ class elaborator {
     expr visit_const_core(expr const & e);
     expr ensure_function(expr const & e);
     expr visit_function(expr const & fn, bool has_args, expr const & ref);
-    void throw_overload_exception(buffer<expr> const & fns, sstream & ss, expr const & ref);
     format mk_app_type_mismatch_error(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type);
     format mk_too_many_args_error(expr const & fn_type);
     void throw_app_type_mismatch(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type,

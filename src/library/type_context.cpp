@@ -1620,15 +1620,29 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
         return l_true;
 
     expr const & f1 = get_app_fn(e1);
+    expr const & f2 = get_app_fn(e2);
     if (is_mvar(f1)) {
         if (is_assigned(f1)) {
             return to_lbool(is_def_eq_core(instantiate_mvars(e1), e2));
-        } else {
+        } else if (!is_mvar(f2)) {
             return to_lbool(process_assignment(e1, e2));
+        } else if (is_assigned(f2)) {
+            return to_lbool(is_def_eq_core(e1, instantiate_mvars(e2)));
+        } else {
+            optional<metavar_decl> m1_decl = m_mctx.get_metavar_decl(f1);
+            optional<metavar_decl> m2_decl = m_mctx.get_metavar_decl(f2);
+            if (m1_decl && m2_decl) {
+                if (m2_decl->get_context().is_subset_of(m1_decl->get_context())) {
+                    return to_lbool(process_assignment(e1, e2));
+                } else {
+                    return to_lbool(process_assignment(e2, e1));
+                }
+            } else {
+                return l_false;
+            }
         }
     }
 
-    expr const & f2 = get_app_fn(e2);
     if (is_mvar(f2)) {
         if (is_assigned(f2)) {
             return to_lbool(is_def_eq_core(e1, instantiate_mvars(e2)));

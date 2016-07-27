@@ -527,110 +527,9 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
     lean_unreachable();
 }
 
-struct overload_exception {
-    format m_error_msg;
-    overload_exception(format const & fmt):m_error_msg(fmt) {}
-};
-
-expr elaborator::visit_overload_candidate(expr const & fn, buffer<expr> const & args,
-                                          optional<expr> const & expected_type, expr const & ref) {
-    expr fn_type = try_to_pi(infer_type(fn));
-    unsigned i = 0;
-    expr type  = fn_type;
-    buffer<expr> new_args;
-    buffer<optional<expr>> types_to_check;
-    while (is_pi(type)) {
-        binder_info const & bi = binding_info(type);
-        expr const & d = binding_domain(type);
-        expr new_arg;
-        if (bi.is_inst_implicit()) {
-            new_arg = mk_instance(d);
-            types_to_check.push_back(none_expr());
-        } else if (bi.is_implicit()) {
-            new_arg = mk_metavar(d);
-            types_to_check.push_back(none_expr());
-        } else if (i < args.size()) {
-            // explicit argument
-            new_arg = args[i];
-            expr new_arg_type = infer_type(new_arg);
-            types_to_check.push_back(some_expr(d));
-            i++;
-        } else {
-            break;
-        }
-        new_args.push_back(new_arg);
-        type = try_to_pi(instantiate(binding_body(type), new_arg));
-    }
-    lean_assert(new_args.size() == types_to_check.size());
-    if (i != args.size()) {
-        throw overload_exception(mk_too_many_args_error(fn_type));
-    }
-
-    type_context::approximate_scope scope(m_ctx);
-    for (unsigned i = 0; i < new_args.size(); i++) {
-        if (optional<expr> expected_type = types_to_check[i]) {
-            expr & new_arg    = new_args[i];
-            expr new_arg_type = infer_type(new_arg);
-            if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, *expected_type)) {
-                new_arg = *new_new_arg;
-            } else {
-                throw overload_exception(mk_app_type_mismatch_error(mk_app(fn, i+1, new_args.data()),
-                                                                    new_arg, new_arg_type, *expected_type));
-            }
-        }
-    }
-
-    return mk_app(fn, new_args.size(), new_args.data());
-}
-
-expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> const & args,
-                                      optional<expr> const & expected_type, expr const & ref) {
-    trace_elab_detail(tout() << "overloaded application at " << pos_string_for(ref);
-                      tout() << pp_overloads(fns) << "\n";);
-    buffer<expr> new_args;
-    for (expr const & arg : args) {
-        new_args.push_back(visit(arg, none_expr()));
-    }
-
-    buffer<expr>   candidates;
-    buffer<format> error_msgs;
-    for (expr const & fn : fns) {
-        try {
-            expr c = visit_overload_candidate(fn, new_args, expected_type, ref);
-            candidates.push_back(c);
-        } catch (overload_exception & ex) {
-            error_msgs.push_back(ex.m_error_msg);
-        }
-    }
-    lean_assert(candidates.size() + error_msgs.size() == fns.size());
-
-    if (candidates.empty()) {
-        format r("none of the overloads is applicable");
-        lean_assert(error_msgs.size() == fns.size());
-        for (unsigned i = 0; i < fns.size(); i++) {
-            r += line() + format("- error for") + space() + pp(fns[i]);
-            r += line() + error_msgs[i];
-        }
-        throw elaborator_exception(ref, r);
-    } else if (candidates.size() > 1) {
-        format r("ambiguous overload, the following functions are applicable: ");
-        bool first = true;
-        for (expr const & c : candidates) {
-            if (first) first = false; else r += format(", ");
-            r += pp(get_app_fn(c));
-        }
-        r += line() + format("applications:");
-        for (expr const & c : candidates) {
-            r += pp_indent(c);
-        }
-        throw elaborator_exception(ref, r);
-    } else {
-        return candidates[0];
-    }
-}
-
-expr elaborator::visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args,
-                                   optional<expr> const & expected_type, expr const & ref) {
+expr elaborator::visit_default_app_core(expr const & fn, arg_mask amask, buffer<expr> const & args,
+                                        optional<expr> const & expected_type, bool args_already_visited,
+                                        expr const & ref) {
     expr fn_type = try_to_pi(infer_type(fn));
     unsigned i = 0;
     buffer<optional<expr>> types_to_check;
@@ -651,7 +550,10 @@ expr elaborator::visit_default_app(expr const & fn, arg_mask amask, buffer<expr>
             types_to_check.push_back(none_expr());
         } else if (i < args.size()) {
             // explicit argument
-            new_arg = visit(args[i], some_expr(d));
+            if (args_already_visited)
+                new_arg = args[i];
+            else
+                new_arg = visit(args[i], some_expr(d));
             types_to_check.push_back(some_expr(d));
             i++;
         } else {
@@ -682,6 +584,66 @@ expr elaborator::visit_default_app(expr const & fn, arg_mask amask, buffer<expr>
     }
 
     return mk_app(fn, new_args.size(), new_args.data());
+}
+
+expr elaborator::visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args,
+                                   optional<expr> const & expected_type, expr const & ref) {
+    return visit_default_app_core(fn, amask, args, expected_type, false, ref);
+}
+
+expr elaborator::visit_overload_candidate(expr const & fn, buffer<expr> const & args,
+                                          optional<expr> const & expected_type, expr const & ref) {
+    return visit_default_app_core(fn, arg_mask::Default, args, expected_type, true, ref);
+}
+
+expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> const & args,
+                                      optional<expr> const & expected_type, expr const & ref) {
+    trace_elab_detail(tout() << "overloaded application at " << pos_string_for(ref);
+                      tout() << pp_overloads(fns) << "\n";);
+    unsigned initial_inst_stack_sz = m_instance_stack.size();
+    buffer<expr> new_args;
+    for (expr const & arg : args) {
+        new_args.push_back(visit(arg, none_expr()));
+    }
+
+    metavar_context mctx = m_ctx.mctx();
+    buffer<pair<expr, metavar_context>> candidates;
+    buffer<elaborator_exception> error_msgs;
+    for (expr const & fn : fns) {
+        try {
+            checkpoint C(*this);
+            m_ctx.set_mctx(mctx);
+            expr c = visit_overload_candidate(fn, new_args, expected_type, ref);
+            try_to_synthesize_type_class_instances(initial_inst_stack_sz);
+            candidates.emplace_back(c, m_ctx.mctx());
+            C.commit();
+        } catch (elaborator_exception & ex) {
+            error_msgs.push_back(ex);
+        } catch (exception & ex) {
+            error_msgs.push_back(elaborator_exception(ref, format(ex.what())));
+        }
+    }
+    lean_assert(candidates.size() + error_msgs.size() == fns.size());
+
+    if (candidates.empty()) {
+        format r("none of the overloads is applicable");
+        lean_assert(error_msgs.size() == fns.size());
+        for (unsigned i = 0; i < fns.size(); i++) {
+            if (i > 0) r += line();
+            r += line() + format("error for") + space() + pp(fns[i]);
+            r += line() + error_msgs[i].pp();
+        }
+        throw elaborator_exception(ref, r);
+    } else if (candidates.size() > 1) {
+        format r("ambiguous overload, possible interpretations");
+        for (auto const & c : candidates) {
+            r += pp_indent(c.first);
+        }
+        throw elaborator_exception(ref, r);
+    } else {
+        m_ctx.set_mctx(candidates[0].second);
+        return candidates[0].first;
+    }
 }
 
 expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<expr> const & expected_type) {
@@ -808,8 +770,9 @@ void elaborator::ensure_numeral_types_assigned(checkpoint const & C) {
     }
 }
 
-void elaborator::synthesize_type_class_instances(checkpoint const & C) {
-    for (unsigned i = C.m_instance_stack_sz; i < m_instance_stack.size(); i++) {
+void elaborator::synthesize_type_class_instances_core(unsigned old_sz, bool force) {
+    unsigned j = old_sz;
+    for (unsigned i = old_sz; i < m_instance_stack.size(); i++) {
         expr inst = instantiate_mvars(m_instance_stack[i]);
         if (!has_expr_metavar(inst)) {
             trace_elab(tout() << "skipping type class resolution at " << pos_string_for(m_instance_stack[i])
@@ -822,11 +785,18 @@ void elaborator::synthesize_type_class_instances(checkpoint const & C) {
                 throw elaborator_exception(m_instance_stack[i],
                                            format("failed to assign type class instance to placeholder"));
         } else {
-            throw elaborator_exception(m_instance_stack[i],
-                                       format("type class instance cannot be synthesized, type has metavariables") +
-                                       pp_indent(inst_type));
+            if (force) {
+                throw elaborator_exception(m_instance_stack[i],
+                                           format("type class instance cannot be synthesized, type has metavariables") +
+                                           pp_indent(inst_type));
+            } else {
+                m_instance_stack[j] = m_instance_stack[i];
+                j++;
+            }
         }
     }
+    if (!force)
+        m_instance_stack.shrink(j);
 }
 
 void elaborator::invoke_tactics(checkpoint const & C) {
@@ -845,6 +815,7 @@ void elaborator::process_checkpoint(checkpoint const & C) {
 
 elaborator::checkpoint::checkpoint(elaborator & e):
     m_elaborator(e),
+    m_commit(false),
     m_uvar_stack_sz(e.m_uvar_stack.size()),
     m_mvar_stack_sz(e.m_mvar_stack.size()),
     m_instance_stack_sz(e.m_instance_stack.size()),
@@ -852,10 +823,16 @@ elaborator::checkpoint::checkpoint(elaborator & e):
 }
 
 elaborator::checkpoint::~checkpoint() {
-    m_elaborator.m_uvar_stack.shrink(m_uvar_stack_sz);
-    m_elaborator.m_mvar_stack.shrink(m_mvar_stack_sz);
-    m_elaborator.m_instance_stack.shrink(m_instance_stack_sz);
-    m_elaborator.m_numeral_type_stack.shrink(m_numeral_type_stack_sz);
+    if (!m_commit) {
+        m_elaborator.m_uvar_stack.shrink(m_uvar_stack_sz);
+        m_elaborator.m_mvar_stack.shrink(m_mvar_stack_sz);
+        m_elaborator.m_instance_stack.shrink(m_instance_stack_sz);
+        m_elaborator.m_numeral_type_stack.shrink(m_numeral_type_stack_sz);
+    }
+}
+
+void elaborator::checkpoint::commit() {
+    m_commit = true;
 }
 
 std::tuple<expr, level_param_names> elaborator::operator()(expr const & e) {

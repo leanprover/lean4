@@ -31,12 +31,14 @@ class elaborator {
 
     struct checkpoint {
         elaborator & m_elaborator;
+        bool         m_commit;
         unsigned     m_uvar_stack_sz;
         unsigned     m_mvar_stack_sz;
         unsigned     m_instance_stack_sz;
         unsigned     m_numeral_type_stack_sz;
         checkpoint(elaborator & e);
         ~checkpoint();
+        void commit();
     };
 
     /** \brief We use a specialized procedure for elaborating recursor applications (e.g., nat.rec_on and eq.rec_on),
@@ -110,6 +112,11 @@ class elaborator {
     format mk_too_many_args_error(expr const & fn_type);
     void throw_app_type_mismatch(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type,
                                  expr const & ref);
+    expr visit_default_app_core(expr const & fn, arg_mask amask, buffer<expr> const & args,
+                                optional<expr> const & expected_type, bool args_already_visited,
+                                expr const & ref);
+    expr visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args,
+                           optional<expr> const & expected_type, expr const & ref);
     void validate_overloads(buffer<expr> const & fns, expr const & ref);
     expr visit_overload_candidate(expr const & fn, buffer<expr> const & args,
                                   optional<expr> const & expected_type, expr const & ref);
@@ -117,8 +124,6 @@ class elaborator {
                               optional<expr> const & expected_type, expr const & ref);
     expr visit_elim_app(expr const & fn, elim_info const & info, buffer<expr> const & args,
                         optional<expr> const & expected_type, expr const & ref);
-    expr visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args,
-                           optional<expr> const & expected_type, expr const & ref);
     expr visit_app_core(expr fn, buffer<expr> const & args, optional<expr> const & expected_type);
     expr visit_local(expr const & e, optional<expr> const & expected_type);
     expr visit_constant(expr const & e, optional<expr> const & expected_type);
@@ -130,7 +135,13 @@ class elaborator {
     expr visit(expr const & e, optional<expr> const & expected_type);
 
     void ensure_numeral_types_assigned(checkpoint const & C);
-    void synthesize_type_class_instances(checkpoint const & C);
+    void synthesize_type_class_instances_core(unsigned old_sz, bool force);
+    void try_to_synthesize_type_class_instances(unsigned old_sz) {
+        synthesize_type_class_instances_core(old_sz, false);
+    }
+    void synthesize_type_class_instances(checkpoint const & C) {
+        synthesize_type_class_instances_core(C.m_instance_stack_sz, true);
+    }
     void invoke_tactics(checkpoint const & C);
     void ensure_no_unassigned_metavars(checkpoint const & C);
     void process_checkpoint(checkpoint const & C);

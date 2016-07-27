@@ -1,0 +1,33 @@
+>> [choice bla.f foo.f boo.f] [prenum] [prenum] [prenum]
+>> boo.f 0 1 2
+>> ℕ
+>> [choice bla.f foo.f boo.f] [prenum] [prenum] [prenum] [prenum]
+elab4.lean:13:6: error: none of the overloads is applicable
+error for bla.f
+failed to synthesize type class instance for
+  has_zero bool
+
+error for foo.f
+invalid function application, too many arguments, function type:
+  Π {A} {B}, A → B → A
+
+error for boo.f
+invalid function application, too many arguments, function type:
+  ℕ → ℕ → ℕ → ℕ
+>> [choice bla.f foo.f boo.f] [prenum] [prenum]
+elab4.lean:15:6: error: ambiguous overload, possible interpretations
+  foo.f 0 1
+  boo.f 0 1
+>> [choice bla.f foo.f boo.f] bool.tt [prenum]
+>> foo.f bool.tt 2
+>> bool
+>> [choice bla.f foo.f boo.f] bool.tt bool.ff bool.tt
+>> bla.f bool.tt bool.ff bool.tt
+>> bool → bool
+>> [choice bla.f foo.f boo.f] bool.tt bool.ff
+elab4.lean:21:6: error: ambiguous overload, possible interpretations
+  bla.f bool.tt bool.ff
+  foo.f bool.tt bool.ff
+>> @foo.f _ _ [prenum] [prenum]
+>> foo.f 0 1
+>> ℕ

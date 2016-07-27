@@ -69,9 +69,12 @@ class elaborator {
 
     expr get_default_numeral_type();
 
+    format pp(type_context & ctx, expr const & e);
     format pp(expr const & e);
+    format pp_indent(type_context & ctx, expr const & e);
     format pp_indent(expr const & e);
     format pp_overloads(buffer<expr> const & fns);
+    format pp(local_context const & lctx);
 
     expr infer_type(expr const & e) { return m_ctx.infer(e); }
     expr whnf(expr const & e) { return m_ctx.whnf(e); }
@@ -86,6 +89,8 @@ class elaborator {
     level mk_univ_metavar();
     expr mk_metavar(expr const & A);
     expr mk_type_metavar();
+    expr mk_instance_core(type_context & ctx, expr const & C);
+    expr mk_instance_core(local_context const & lctx, expr const & C);
     expr mk_instance_core(expr const & C);
     expr mk_instance(expr const & C);
     level get_level(expr const & A);

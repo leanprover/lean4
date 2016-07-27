@@ -1,0 +1,18 @@
+>> λ (A : Type) [_inst_1 : has_add A] [_inst_2 : has_one A] [_inst_3 : has_lt A] (a : A), add a [prenum]
+>> λ (A : Type) [_inst_1 : has_add A] [_inst_2 : has_one A] [_inst_3 : has_lt A] (a : A),
+  @add A _inst_1 a (@one A _inst_2)
+>> Π (A : Type) [_inst_1 : has_add A] [_inst_2 : has_one A] [_inst_3 : has_lt A], A → A
+>> λ (A : Type) [_inst_4 : has_add A] [_inst_5 : has_one A] [_inst_6 : has_lt A] (a : A) (H : gt a [prenum]),
+  add a [prenum]
+>> λ (A : Type) [_inst_4 : has_add A] [_inst_5 : has_one A] [_inst_6 : has_lt A] (a : A)
+(H : @gt A _inst_6 a (@one A _inst_5)), @add A _inst_4 a (@one A _inst_5)
+>> Π (A : Type) [_inst_4 : has_add A] [_inst_5 : has_one A] [_inst_6 : has_lt A] (a : A),
+  @gt A _inst_6 a (@one A _inst_5) → A
+>> λ (A : Type) [_inst_7 : has_add A] [_inst_8 : has_one A] [_inst_9 : has_lt A] (a : A) (H₁ : gt a [prenum])
+(H₂ : lt a [prenum]), add a [prenum]
+>> λ (A : Type) [_inst_7 : has_add A] [_inst_8 : has_one A] [_inst_9 : has_lt A] (a : A)
+(H₁ : @gt A _inst_9 a (@one A _inst_8))
+(H₂ : @lt A _inst_9 a (@bit1 A _inst_8 _inst_7 (@bit0 A _inst_7 (@one A _inst_8)))), @add A _inst_7 a (@one A _inst_8)
+>> Π (A : Type) [_inst_7 : has_add A] [_inst_8 : has_one A] [_inst_9 : has_lt A] (a : A),
+  @gt A _inst_9 a (@one A _inst_8) →
+  @lt A _inst_9 a (@bit1 A _inst_8 _inst_7 (@bit0 A _inst_7 (@one A _inst_8))) → A

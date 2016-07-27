@@ -21,13 +21,14 @@ Author: Leonardo de Moura
 #include "library/typed_expr.h"
 #include "library/compiler/rec_fn_macro.h"
 #include "library/tactic/kabstract.h"
+#include "library/tactic/tactic_state.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
 
 namespace lean {
 MK_THREAD_LOCAL_GET_DEF(type_context_cache_helper, get_tch);
 
-static type_context_cache & get_type_context_cache_for(environment const & env, options const & o) {
+static type_context_cache & get_elab_tc_cache_for(environment const & env, options const & o) {
     return get_tch().get_cache_for(env, o);
 }
 
@@ -43,18 +44,32 @@ public:
 elaborator::elaborator(environment const & env, options const & opts, local_level_decls const & lls,
                        metavar_context const & mctx, local_context const & lctx):
     m_env(env), m_opts(opts), m_local_level_decls(lls),
-    m_ctx(mctx, lctx, get_type_context_cache_for(env, opts), transparency_mode::Semireducible) {
+    m_ctx(mctx, lctx, get_elab_tc_cache_for(env, opts), transparency_mode::Semireducible) {
 }
 
-format elaborator::pp(expr const & e) {
+format elaborator::pp(type_context & ctx, expr const & e) {
     formatter_factory const & factory = get_global_ios().get_formatter_factory();
-    formatter fmt = factory(m_env, m_opts, m_ctx);
+    formatter fmt = factory(m_env, m_opts, ctx);
     return fmt(instantiate_mvars(e));
 }
 
-format elaborator::pp_indent(expr const & e) {
+format elaborator::pp(expr const & e) {
+    return pp(m_ctx, e);
+}
+
+format elaborator::pp_indent(type_context & ctx, expr const & e) {
     unsigned i = get_pp_indent(m_opts);
-    return nest(i, line() + pp(e));
+    return nest(i, line() + pp(ctx, e));
+}
+
+format elaborator::pp_indent(expr const & e) {
+    return pp_indent(m_ctx, e);
+}
+
+format elaborator::pp(local_context const & lctx) {
+    formatter_factory const & factory = get_global_ios().get_formatter_factory();
+    formatter fmt = factory(m_env, m_opts, m_ctx);
+    return lctx.pp(fmt);
 }
 
 static std::string pos_string_for(expr const & e) {
@@ -83,14 +98,27 @@ expr elaborator::mk_type_metavar() {
     return mk_metavar(mk_sort(l));
 }
 
-expr elaborator::mk_instance_core(expr const & C) {
-    optional<expr> inst = m_ctx.mk_class_instance(C);
-    trace_elab(tout() << pos_string_for(C) << " type class resolution\n  " << C << "\ninstance\n";
+expr elaborator::mk_instance_core(type_context & ctx, expr const & C) {
+    optional<expr> inst = ctx.mk_class_instance(C);
+    trace_elab(tout() << pos_string_for(C) << " type class resolution\n  " << pp(ctx, C) << "\ninstance\n";
                if (!inst) tout() << "[failed]\n";
                else tout() << "  " << *inst << "\n";);
-    if (!inst)
-        throw elaborator_exception(C, format("failed to synthesize type class instance for") + pp_indent(C));
+    if (!inst) {
+        tactic_state s = mk_tactic_state_for(m_env, m_opts, ctx.mctx(), ctx.lctx(), C);
+        throw elaborator_exception(C, format("failed to synthesize type class instance for") + line() + s.pp());
+    }
     return *inst;
+}
+
+expr elaborator::mk_instance_core(local_context const & lctx, expr const & C) {
+    type_context tmp_ctx(m_ctx.mctx(), lctx, m_ctx.get_cache(), transparency_mode::Semireducible);
+    expr inst = mk_instance_core(tmp_ctx, C);
+    m_ctx.set_mctx(tmp_ctx.mctx());
+    return inst;
+}
+
+expr elaborator::mk_instance_core(expr const & C) {
+    return mk_instance_core(m_ctx.lctx(), C);
 }
 
 expr elaborator::mk_instance(expr const & C) {
@@ -770,7 +798,7 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
         new_b = visit(b, none_expr());
     }
     process_checkpoint(C);
-    expr r = instantiate_mvars(locals.mk_lambda(new_b));
+    expr r = locals.mk_lambda(new_b);
     return r;
 }
 
@@ -829,7 +857,9 @@ void elaborator::ensure_numeral_types_assigned(checkpoint const & C) {
 void elaborator::synthesize_type_class_instances_core(unsigned old_sz, bool force) {
     unsigned j = old_sz;
     for (unsigned i = old_sz; i < m_instance_stack.size(); i++) {
-        expr inst = instantiate_mvars(m_instance_stack[i]);
+        lean_assert(is_metavar(m_instance_stack[i]));
+        metavar_decl mdecl = *m_ctx.mctx().get_metavar_decl(m_instance_stack[i]);
+        expr inst          = instantiate_mvars(m_instance_stack[i]);
         if (!has_expr_metavar(inst)) {
             trace_elab(tout() << "skipping type class resolution at " << pos_string_for(m_instance_stack[i])
                        << ", placeholder instantiated using type inference\n";);
@@ -837,7 +867,8 @@ void elaborator::synthesize_type_class_instances_core(unsigned old_sz, bool forc
         }
         expr inst_type = instantiate_mvars(infer_type(inst));
         if (!has_expr_metavar(inst_type)) {
-            if (!is_def_eq(inst, mk_instance_core(inst_type)))
+            // We must try to synthesize instance using the local context where it was declared
+            if (!is_def_eq(inst, mk_instance_core(mdecl.get_context(), inst_type)))
                 throw elaborator_exception(m_instance_stack[i],
                                            format("failed to assign type class instance to placeholder"));
         } else {

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
 #include "library/replace_visitor.h"
-#include "library/lazy_abstraction.h"
+#include "library/delayed_abstraction.h"
 
 namespace lean {
 /*
@@ -174,8 +174,8 @@ class instantiate_mvars_fn : public replace_visitor {
         for (unsigned i = 0; i < macro_num_args(e); i++)
             new_args.push_back(visit(macro_arg(e, i)));
         expr r = update_macro(e, new_args.size(), new_args.data());
-        if (is_lazy_abstraction(r))
-            return push_lazy_abstraction(r);
+        if (is_delayed_abstraction(r))
+            return push_delayed_abstraction(r);
         else
             return r;
     }

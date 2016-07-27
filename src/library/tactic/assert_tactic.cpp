@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/lazy_abstraction.h"
+#include "library/delayed_abstraction.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
@@ -32,9 +32,9 @@ vm_obj assert_define(bool is_assert, name const & n, expr const & t, tactic_stat
     expr new_M_2         = mctx.mk_metavar_decl(lctx, g->get_type());
     expr new_val;
     if (is_assert)
-        new_val = mk_app(mk_lambda(n, t, mk_lazy_abstraction(new_M_2, mlocal_name(l))), new_M_1);
+        new_val = mk_app(mk_lambda(n, t, mk_delayed_abstraction(new_M_2, mlocal_name(l))), new_M_1);
     else
-        new_val = mk_let(n, t, new_M_1, mk_lazy_abstraction(new_M_2, mlocal_name(l)));
+        new_val = mk_let(n, t, new_M_1, mk_delayed_abstraction(new_M_2, mlocal_name(l)));
     mctx.assign(head(s.goals()), new_val);
     list<expr> new_gs    = cons(new_M_1, cons(new_M_2, tail(s.goals())));
     return mk_tactic_success(set_mctx_goals(s, mctx, new_gs));
@@ -72,9 +72,9 @@ vm_obj assertv_definev(bool is_assert, name const & n, expr const & t, expr cons
     expr new_M           = mctx.mk_metavar_decl(lctx, g->get_type());
     expr new_val;
     if (is_assert)
-        new_val = mk_app(mk_lambda(n, t, mk_lazy_abstraction(new_M, mlocal_name(l))), v);
+        new_val = mk_app(mk_lambda(n, t, mk_delayed_abstraction(new_M, mlocal_name(l))), v);
     else
-        new_val = mk_let(n, t, v, mk_lazy_abstraction(new_M, mlocal_name(l)));
+        new_val = mk_let(n, t, v, mk_delayed_abstraction(new_M, mlocal_name(l)));
     mctx.assign(head(s.goals()), new_val);
     list<expr> new_gs    = cons(new_M, tail(s.goals()));
     return mk_tactic_success(set_mctx_goals(s, mctx, new_gs));

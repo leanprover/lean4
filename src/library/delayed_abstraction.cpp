@@ -9,8 +9,8 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 
 namespace lean {
-static name * g_lazy_abstraction_macro = nullptr;
-/** \brief Lazy abstraction macro. This is an auxiliary temporary macro used by the tactic framework.
+static name * g_delayed_abstraction_macro = nullptr;
+/** \brief Delayed abstraction macro. This is an auxiliary temporary macro used by the tactic framework.
     It is used in the following kind of situation.
     Suppose we have a goal ?M
 
@@ -22,20 +22,20 @@ static name * g_lazy_abstraction_macro = nullptr;
 
     The intro tactic adds the following assignment to the metavariable context
 
-           ?M := fun H : A, (lazy_abstraction[H] ?M' #0)
+           ?M := fun H : A, (delayed_abstraction[H] ?M' #0)
 
-     The lazy_abstraction macro indicates that when ?M' is instantiated, we need to replace
+     The delayed_abstraction macro indicates that when ?M' is instantiated, we need to replace
      the local constant H with the de-bruijn index 0 at this assignment.
 */
-class lazy_abstraction_macro : public macro_definition_cell {
+class delayed_abstraction_macro : public macro_definition_cell {
     list<name> m_value;
 public:
-    lazy_abstraction_macro(list<name> const & v):m_value(v) {}
+    delayed_abstraction_macro(list<name> const & v):m_value(v) {}
     virtual bool lt(macro_definition_cell const & d) const {
         /** TODO(Leo): improve if needed */
-        return length(m_value) < length(static_cast<lazy_abstraction_macro const &>(d).m_value);
+        return length(m_value) < length(static_cast<delayed_abstraction_macro const &>(d).m_value);
     }
-    virtual name get_name() const { return *g_lazy_abstraction_macro; }
+    virtual name get_name() const { return *g_delayed_abstraction_macro; }
     virtual expr check_type(expr const & e, abstract_type_context & ctx, bool) const {
         return ctx.infer(macro_arg(e, macro_num_args(e) - 1));
     }
@@ -44,7 +44,7 @@ public:
     }
     virtual unsigned trust_level() const { return 0; }
     virtual bool operator==(macro_definition_cell const & other) const {
-        lazy_abstraction_macro const * other_ptr = dynamic_cast<lazy_abstraction_macro const *>(&other);
+        delayed_abstraction_macro const * other_ptr = dynamic_cast<delayed_abstraction_macro const *>(&other);
         return other_ptr && m_value == other_ptr->m_value;
     }
     virtual unsigned hash() const {
@@ -56,7 +56,7 @@ public:
 };
 
 /** \brief Each name occurs only once. */
-bool validate_lazy_abstraction(buffer<name> const & b) {
+bool validate_delayed_abstraction(buffer<name> const & b) {
     for (unsigned i = 0; i < b.size(); i++) {
         for (unsigned j = i + 1; j < b.size(); j++) {
             if (b[i] == b[j])
@@ -66,37 +66,37 @@ bool validate_lazy_abstraction(buffer<name> const & b) {
     return true;
 }
 
-bool validate_lazy_abstraction(list<name> const & s) {
+bool validate_delayed_abstraction(list<name> const & s) {
     buffer<name> b;
     to_buffer(s, b);
-    return validate_lazy_abstraction(b);
+    return validate_delayed_abstraction(b);
 }
 
-expr mk_lazy_abstraction_core(expr const & e, buffer<name> const & ns, buffer<expr> const & vs) {
+expr mk_delayed_abstraction_core(expr const & e, buffer<name> const & ns, buffer<expr> const & vs) {
     lean_assert(is_metavar(e));
     lean_assert(ns.size() == vs.size());
     buffer<expr> args;
     args.append(vs);
     args.push_back(e);
-    return mk_macro(macro_definition(new lazy_abstraction_macro(to_list(ns))), args.size(), args.data());
+    return mk_macro(macro_definition(new delayed_abstraction_macro(to_list(ns))), args.size(), args.data());
 }
 
-bool is_lazy_abstraction(expr const & e) {
-    return is_macro(e) && dynamic_cast<lazy_abstraction_macro const *>(macro_def(e).raw()) != nullptr;
+bool is_delayed_abstraction(expr const & e) {
+    return is_macro(e) && dynamic_cast<delayed_abstraction_macro const *>(macro_def(e).raw()) != nullptr;
 }
 
-void get_lazy_abstraction_info(expr const & e, buffer<name> & ns, buffer<expr> & es) {
-    lean_assert(is_lazy_abstraction(e));
-    to_buffer(static_cast<lazy_abstraction_macro const *>(macro_def(e).raw())->get_names(), ns);
+void get_delayed_abstraction_info(expr const & e, buffer<name> & ns, buffer<expr> & es) {
+    lean_assert(is_delayed_abstraction(e));
+    to_buffer(static_cast<delayed_abstraction_macro const *>(macro_def(e).raw())->get_names(), ns);
     es.append(macro_num_args(e) - 1, macro_args(e));
 }
 
-expr const & get_lazy_abstraction_expr(expr const & e) {
-    lean_assert(is_lazy_abstraction(e));
+expr const & get_delayed_abstraction_expr(expr const & e) {
+    lean_assert(is_delayed_abstraction(e));
     return macro_arg(e, macro_num_args(e) - 1);
 }
 
-struct push_lazy_abstraction_fn : public replace_visitor {
+struct push_delayed_abstraction_fn : public replace_visitor {
     buffer<name>     m_ns;
     buffer<expr>     m_vs;
     buffer<unsigned> m_deltas;
@@ -146,17 +146,17 @@ struct push_lazy_abstraction_fn : public replace_visitor {
     }
 
     expr visit_macro(expr const & e) override {
-        if (is_lazy_abstraction(e)) {
+        if (is_delayed_abstraction(e)) {
             unsigned sz = m_vs.size();
             buffer<name> new_ns;
             buffer<expr> new_vs;
-            get_lazy_abstraction_info(e, new_ns, new_vs);
+            get_delayed_abstraction_info(e, new_ns, new_vs);
             lean_assert(new_ns.size() == new_vs.size());
             m_ns.append(new_ns);
             m_vs.append(new_vs);
             m_deltas.resize(m_vs.size(), 0);
             m_cache.clear();
-            expr r = visit(get_lazy_abstraction_expr(e));
+            expr r = visit(get_delayed_abstraction_expr(e));
             m_ns.shrink(sz);
             m_vs.shrink(sz);
             m_deltas.shrink(sz);
@@ -172,10 +172,10 @@ struct push_lazy_abstraction_fn : public replace_visitor {
         for (unsigned i = 0; i < m_vs.size(); i++) {
             new_vs.push_back(lift_free_vars(m_vs[i], m_deltas[i]));
         }
-        return mk_lazy_abstraction_core(e, m_ns, new_vs);
+        return mk_delayed_abstraction_core(e, m_ns, new_vs);
     }
 
-    push_lazy_abstraction_fn(buffer<name> const & ns, buffer<expr> const & vs) {
+    push_delayed_abstraction_fn(buffer<name> const & ns, buffer<expr> const & vs) {
         lean_assert(ns.size() == vs.size());
         m_ns.append(ns);
         m_vs.append(vs);
@@ -183,24 +183,24 @@ struct push_lazy_abstraction_fn : public replace_visitor {
     }
 };
 
-expr push_lazy_abstraction(expr const & e) {
-    lean_assert(is_lazy_abstraction(e));
-    expr const & a = get_lazy_abstraction_expr(e);
+expr push_delayed_abstraction(expr const & e) {
+    lean_assert(is_delayed_abstraction(e));
+    expr const & a = get_delayed_abstraction_expr(e);
     if (is_metavar(a)) {
         return e;
     } else {
         buffer<name> ns;
         buffer<expr> vs;
-        get_lazy_abstraction_info(e, ns, vs);
-        return push_lazy_abstraction_fn(ns, vs)(a);
+        get_delayed_abstraction_info(e, ns, vs);
+        return push_delayed_abstraction_fn(ns, vs)(a);
     }
 }
 
-expr push_lazy_abstraction(expr const & e, buffer<name> const & ns, buffer<expr> const & vs) {
-    return push_lazy_abstraction_fn(ns, vs)(e);
+expr push_delayed_abstraction(expr const & e, buffer<name> const & ns, buffer<expr> const & vs) {
+    return push_delayed_abstraction_fn(ns, vs)(e);
 }
 
-expr mk_lazy_abstraction(expr const & e, buffer<name> const & ns) {
+expr mk_delayed_abstraction(expr const & e, buffer<name> const & ns) {
     lean_assert(ns.size() > 0);
     buffer<expr> vs;
     unsigned sz = ns.size();
@@ -208,42 +208,42 @@ expr mk_lazy_abstraction(expr const & e, buffer<name> const & ns) {
         vs.push_back(mk_var(sz - i - 1));
     }
     if (is_metavar(e)) {
-        return mk_lazy_abstraction_core(e, ns, vs);
+        return mk_delayed_abstraction_core(e, ns, vs);
     } else {
-        return push_lazy_abstraction_fn(ns, vs)(e);
+        return push_delayed_abstraction_fn(ns, vs)(e);
     }
 }
 
-expr mk_lazy_abstraction(expr const & e, name const & n) {
+expr mk_delayed_abstraction(expr const & e, name const & n) {
     buffer<name> ns;
     ns.push_back(n);
-    return mk_lazy_abstraction(e, ns);
+    return mk_delayed_abstraction(e, ns);
 }
 
-expr mk_lazy_abstraction_with_locals(expr const & e, buffer<expr> const & ls) {
+expr mk_delayed_abstraction_with_locals(expr const & e, buffer<expr> const & ls) {
     lean_assert(is_metavar(e));
     lean_assert(std::all_of(ls.begin(), ls.end(), is_local));
     buffer<name> ns;
     for (expr const & l : ls)
         ns.push_back(mlocal_name(l));
-    return mk_lazy_abstraction_core(e, ns, ls);
+    return mk_delayed_abstraction_core(e, ns, ls);
 }
 
-expr mk_lazy_abstraction(expr const & e, buffer<name> const & ns, buffer<expr> const & vs) {
+expr mk_delayed_abstraction(expr const & e, buffer<name> const & ns, buffer<expr> const & vs) {
     lean_assert(ns.size() > 0);
     lean_assert(ns.size() == vs.size());
     if (is_metavar(e)) {
-        return mk_lazy_abstraction_core(e, ns, vs);
+        return mk_delayed_abstraction_core(e, ns, vs);
     } else {
-        return push_lazy_abstraction_fn(ns, vs)(e);
+        return push_delayed_abstraction_fn(ns, vs)(e);
     }
 }
 
-void initialize_lazy_abstraction() {
-    g_lazy_abstraction_macro = new name("lazy_abstraction");
+void initialize_delayed_abstraction() {
+    g_delayed_abstraction_macro = new name("delayed_abstraction");
 }
 
-void finalize_lazy_abstraction() {
-    delete g_lazy_abstraction_macro;
+void finalize_delayed_abstraction() {
+    delete g_delayed_abstraction_macro;
 }
 }

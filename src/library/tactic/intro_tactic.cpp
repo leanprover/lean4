@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
-#include "library/lazy_abstraction.h"
+#include "library/delayed_abstraction.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_expr.h"
@@ -55,7 +55,7 @@ optional<expr> intron(environment const & env, options const & opts, metavar_con
         }
     }
     expr new_M   = ctx.mk_metavar_decl(ctx.lctx(), type);
-    expr new_val = abstract_locals(mk_lazy_abstraction_with_locals(new_M, new_Hs), new_Hs.size(), new_Hs.data());
+    expr new_val = abstract_locals(mk_delayed_abstraction_with_locals(new_M, new_Hs), new_Hs.size(), new_Hs.data());
     unsigned i   = new_Hs.size();
     while (i > 0) {
         --i;
@@ -139,7 +139,7 @@ vm_obj intro(name const & n, tactic_state const & s) {
         expr H               = lctx.mk_local_decl(n1, head_beta_reduce(binding_domain(type)), binding_info(type));
         expr new_type        = instantiate(binding_body(type), H);
         expr new_M           = mctx.mk_metavar_decl(lctx, new_type);
-        expr new_val         = mk_lambda(n1, binding_domain(type), mk_lazy_abstraction(new_M, mlocal_name(H)));
+        expr new_val         = mk_lambda(n1, binding_domain(type), mk_delayed_abstraction(new_M, mlocal_name(H)));
         mctx.assign(head(s.goals()), new_val);
         list<expr> new_gs(new_M, tail(s.goals()));
         return mk_tactic_success(to_obj(H), set_mctx_goals(s, mctx, new_gs));
@@ -149,7 +149,7 @@ vm_obj intro(name const & n, tactic_state const & s) {
         expr H               = lctx.mk_local_decl(n1, head_beta_reduce(let_type(type)), let_value(type));
         expr new_type        = instantiate(let_body(type), H);
         expr new_M           = mctx.mk_metavar_decl(lctx, new_type);
-        expr new_val         = mk_let(n1, let_type(type), let_value(type), mk_lazy_abstraction(new_M, mlocal_name(H)));
+        expr new_val         = mk_let(n1, let_type(type), let_value(type), mk_delayed_abstraction(new_M, mlocal_name(H)));
         mctx.assign(head(s.goals()), new_val);
         list<expr> new_gs(new_M, tail(s.goals()));
         return mk_tactic_success(to_obj(H), set_mctx_goals(s, mctx, new_gs));

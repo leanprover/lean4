@@ -32,7 +32,7 @@ Author: Leonardo de Moura
 #include "library/print.h"
 #include "library/abbreviation.h"
 #include "library/pp_options.h"
-#include "library/lazy_abstraction.h"
+#include "library/delayed_abstraction.h"
 #include "library/constants.h"
 #include "library/replace_visitor.h"
 #include "library/string.h"
@@ -873,14 +873,14 @@ auto pretty_fn::pp_explicit(expr const & e) -> result {
     return result(max_bp(), compose(*g_explicit_fmt, res_arg.fmt()));
 }
 
-auto pretty_fn::pp_lazy_abstraction(expr const & e) -> result {
+auto pretty_fn::pp_delayed_abstraction(expr const & e) -> result {
     if (m_lazy_abstraction) {
-        format r = pp(get_lazy_abstraction_expr(e)).fmt();
+        format r = pp(get_delayed_abstraction_expr(e)).fmt();
         r += format("{");
         format body;
         buffer<name> ns;
         buffer<expr> vs;
-        get_lazy_abstraction_info(e, ns, vs);
+        get_delayed_abstraction_info(e, ns, vs);
         for (unsigned i = 0; i < ns.size(); i++) {
             if (i > 0) body += comma() + line();
             body += format(ns[i]) + space() + format(":=") + space() + nest(m_indent, pp(vs[i]).fmt());
@@ -889,7 +889,7 @@ auto pretty_fn::pp_lazy_abstraction(expr const & e) -> result {
         r += format("}");
         return result(r);
     } else {
-        return pp(get_lazy_abstraction_expr(e));
+        return pp(get_delayed_abstraction_expr(e));
     }
 }
 
@@ -898,8 +898,8 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
         return pp_explicit(e);
     } else if (is_quote(e)) {
         return result(format("`(") + nest(2, pp(get_quote_expr(e)).fmt()) + format(")"));
-    } else if (is_lazy_abstraction(e)) {
-        return pp_lazy_abstraction(e);
+    } else if (is_delayed_abstraction(e)) {
+        return pp_delayed_abstraction(e);
     } else if (is_inaccessible(e)) {
         format li = m_unicode ? format("⌞") : format("?(");
         format ri = m_unicode ? format("⌟") : format(")");

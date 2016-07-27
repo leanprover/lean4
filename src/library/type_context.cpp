@@ -23,7 +23,7 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/aux_recursors.h"
 #include "library/unification_hint.h"
-#include "library/lazy_abstraction.h"
+#include "library/delayed_abstraction.h"
 #include "library/fun_info.h"
 
 #ifndef LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH
@@ -730,17 +730,17 @@ expr type_context::infer_constant(expr const & e) {
 }
 
 expr type_context::infer_macro(expr const & e) {
-    if (is_lazy_abstraction(e)) {
-        expr const & mvar = get_lazy_abstraction_expr(e);
+    if (is_delayed_abstraction(e)) {
+        expr const & mvar = get_delayed_abstraction_expr(e);
         if (!is_metavar_decl_ref(mvar))
-            throw exception("unexpected occurrence of lazy abstraction macro");
+            throw exception("unexpected occurrence of delayed abstraction macro");
         buffer<name> ns;
         buffer<expr> es;
-        get_lazy_abstraction_info(e, ns, es);
+        get_delayed_abstraction_info(e, ns, es);
         auto d = m_mctx.get_metavar_decl(mvar);
         if (!d)
             throw exception("infer type failed, unknown metavariable");
-        return push_lazy_abstraction(d->get_type(), ns, es);
+        return push_delayed_abstraction(d->get_type(), ns, es);
     }
     auto def = macro_def(e);
     bool infer_only = true;

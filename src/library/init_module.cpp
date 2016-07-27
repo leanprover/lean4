@@ -47,7 +47,7 @@ Author: Leonardo de Moura
 #include "library/metavar_context.h"
 #include "library/attribute_manager.h"
 #include "library/unification_hint.h"
-#include "library/lazy_abstraction.h"
+#include "library/delayed_abstraction.h"
 #include "library/app_builder.h"
 #include "library/fun_info.h"
 
@@ -127,11 +127,11 @@ void initialize_library_module() {
     initialize_fun_info();
     initialize_unification_hint();
     initialize_type_context();
-    initialize_lazy_abstraction();
+    initialize_delayed_abstraction();
 }
 
 void finalize_library_module() {
-    finalize_lazy_abstraction();
+    finalize_delayed_abstraction();
     finalize_type_context();
     finalize_unification_hint();
     finalize_fun_info();

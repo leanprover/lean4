@@ -290,10 +290,16 @@ expr elaborator::ensure_function(expr const & e, expr const & ref) {
 
 expr elaborator::ensure_type(expr const & e, expr const & ref) {
     expr e_type = whnf(infer_type(e));
-    if (!is_sort(e_type) && !is_metavar(e_type)) {
-        throw elaborator_exception(ref, format("type expected at") + pp_indent(e));
+    if (is_sort(e_type))
+        return e;
+    if (is_meta(e_type)) {
+        checkpoint C(*this);
+        if (is_def_eq(e_type, mk_sort(mk_univ_metavar()))) {
+            C.commit();
+            return e;
+        }
     }
-    return e;
+    throw elaborator_exception(ref, format("type expected at") + pp_indent(e));
 }
 
 optional<expr> elaborator::ensure_has_type(expr const & e, expr const & e_type, expr const & type) {
@@ -765,23 +771,24 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
     expr ex;
     bool has_expected;
     if (expected_type) {
-        ex = try_to_pi(*expected_type);
+        ex = try_to_pi(instantiate_mvars(*expected_type));
         has_expected = true;
     } else {
         has_expected = false;
     }
     while (is_lambda(it)) {
-        expr d = instantiate_rev(binding_domain(it), locals);
-        expr new_d;
+        expr d     = instantiate_rev(binding_domain(it), locals);
+        expr new_d = visit(d, none_expr());
         if (has_expected) {
             if (is_pi(ex)) {
                 expr ex_d = binding_domain(ex);
-                new_d     = visit(d, some_expr(ex_d));
+                checkpoint C2(*this);
+                if (is_def_eq(new_d, ex_d)) {
+                    C2.commit();
+                }
             } else {
                 has_expected = false;
             }
-        } else {
-            new_d = visit(d, none_expr());
         }
         new_d  = ensure_type(new_d, binding_domain(it));
         expr l = locals.push_local(binding_name(it), new_d, binding_info(it));
@@ -802,9 +809,23 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
     return r;
 }
 
-expr elaborator::visit_pi(expr const & e, optional<expr> const & expected_type) {
-    // TODO(Leo)
-    lean_unreachable();
+expr elaborator::visit_pi(expr const & e) {
+    type_context::tmp_locals locals(m_ctx);
+    checkpoint C(*this);
+    expr it = e;
+    while (is_pi(it)) {
+        expr d     = instantiate_rev(binding_domain(it), locals);
+        expr new_d = visit(d, none_expr());
+        new_d      = ensure_type(new_d, binding_domain(it));
+        locals.push_local(binding_name(it), new_d, binding_info(it));
+        it = binding_body(it);
+    }
+    expr b     = instantiate_rev(it, locals);
+    expr new_b = visit(b, none_expr());
+    new_b      = ensure_type(new_b, it);
+    process_checkpoint(C);
+    expr r = locals.mk_pi(new_b);
+    return r;
 }
 
 expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type) {
@@ -831,7 +852,7 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
         case expr_kind::Constant:   return visit_constant(e, expected_type);
         case expr_kind::Macro:      return visit_macro(e, expected_type);
         case expr_kind::Lambda:     return visit_lambda(e, expected_type);
-        case expr_kind::Pi:         return visit_pi(e, expected_type);
+        case expr_kind::Pi:         return visit_pi(e);
         case expr_kind::App:        return visit_app(e, expected_type);
         case expr_kind::Let:        return visit_let(e, expected_type);
         }

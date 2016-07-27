@@ -135,7 +135,7 @@ class elaborator {
     expr visit_constant(expr const & e, optional<expr> const & expected_type);
     expr visit_macro(expr const & e, optional<expr> const & expected_type);
     expr visit_lambda(expr const & e, optional<expr> const & expected_type);
-    expr visit_pi(expr const & e, optional<expr> const & expected_type);
+    expr visit_pi(expr const & e);
     expr visit_app(expr const & e, optional<expr> const & expected_type);
     expr visit_let(expr const & e, optional<expr> const & expected_type);
     expr visit(expr const & e, optional<expr> const & expected_type);

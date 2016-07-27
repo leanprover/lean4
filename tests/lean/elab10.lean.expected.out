@@ -1,0 +1,9 @@
+∀ (A : Type) [_inst_1 : has_add A] [_inst_2 : has_zero A] [_inst_3 : has_lt A] (a : A),
+  @eq A a (@add A _inst_1 (@zero A _inst_2) (@zero A _inst_2)) →
+  @gt A _inst_3 (@add A _inst_1 a a) (@zero A _inst_2) :
+  Prop
+int → int : Type
+λ (x : int),
+  @add int (@distrib.to_has_add int (@ring.to_distrib int (@comm_ring.to_ring int int_comm_ring))) x
+    (@one int (@monoid.to_has_one int (@ring.to_monoid int (@comm_ring.to_ring int int_comm_ring)))) :
+  int → int

@@ -7,3 +7,8 @@ int → int : Type
   @add int (@distrib.to_has_add int (@ring.to_distrib int (@comm_ring.to_ring int int_comm_ring))) x
     (@one int (@monoid.to_has_one int (@ring.to_monoid int (@comm_ring.to_ring int int_comm_ring)))) :
   int → int
+λ (A : Type) (a b c d : A) (H1 : @eq A a b) (H2 : @eq A b c) (H3 : @eq A d c),
+  have this : @eq A a c, from @eq.trans A a b c H1 H2,
+  have H3' : @eq A c d, from @eq.symm A d c H3,
+  show @eq A a d, from @eq.trans A a c d this H3' :
+  ∀ (A : Type) (a b c d : A), @eq A a b → @eq A b c → @eq A d c → @eq A a d

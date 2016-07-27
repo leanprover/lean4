@@ -13,3 +13,8 @@ attribute int_comm_ring [instance]
 #elab int → int
 
 #elab ((λ x, x + 1) : int → int)
+
+#elab λ (A : Type) (a b c d : A) (H1 : a = b) (H2 : b = c) (H3 : d = c),
+     have a = c, from eq.trans H1 H2,
+     have H3' : c = d, from eq.symm H3,
+     show a = d, from eq.trans this H3'

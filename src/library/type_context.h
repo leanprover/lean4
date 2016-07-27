@@ -357,8 +357,6 @@ private:
     pair<local_context, expr> revert_core(buffer<expr> & to_revert, local_context const & ctx,
                                           expr const & type);
     expr revert_core(buffer<expr> & to_revert, expr const & mvar);
-    void restrict_metavars_context(expr const & e, unsigned num_locals, expr const * locals);
-    void restrict_metavars_context(local_decl const & d, unsigned num_locals, expr const * locals);
     expr mk_binding(bool is_pi, unsigned num_locals, expr const * locals, expr const & e);
 
     /* ------------

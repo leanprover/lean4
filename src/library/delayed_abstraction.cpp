@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/free_vars.h"
+#include "kernel/abstract.h"
 #include "kernel/abstract_type_context.h"
 #include "library/replace_visitor.h"
 
@@ -237,6 +238,19 @@ expr mk_delayed_abstraction(expr const & e, buffer<name> const & ns, buffer<expr
     } else {
         return push_delayed_abstraction_fn(ns, vs)(e);
     }
+}
+
+expr delayed_abstract_locals(expr const & e, unsigned nlocals, expr const * locals) {
+    lean_assert(std::all_of(locals, locals + nlocals, is_local));
+    if (!has_expr_metavar(e))
+        return abstract_locals(e, nlocals, locals);
+    buffer<name> ns;
+    buffer<expr> vs;
+    for (unsigned i = 0; i < nlocals; i++) {
+        ns.push_back(mlocal_name(locals[i]));
+        vs.push_back(mk_var(nlocals - i - 1));
+    }
+    return push_delayed_abstraction_fn(ns, vs)(e);
 }
 
 void initialize_delayed_abstraction() {

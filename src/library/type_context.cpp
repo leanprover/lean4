@@ -281,57 +281,19 @@ expr type_context::revert(buffer<expr> & to_revert, expr const & mvar) {
     return r;
 }
 
-/* Make sure that for any (unassigned) metavariable ?M@C occurring in \c e,
-   \c C does not contain any local in \c locals. This can be achieved by creating new metavariables
-   ?M'@C' where C' is C without any locals (and its dependencies) */
-void type_context::restrict_metavars_context(expr const & e, unsigned num_locals, expr const * locals) {
-    if (!has_expr_metavar(e))
-        return;
-    for_each(e, [&](expr const & e, unsigned) {
-            if (!has_expr_metavar(e)) return false;
-            if (is_metavar_decl_ref(e)) {
-                metavar_decl const & decl  = *m_mctx.get_metavar_decl(e);
-                restrict_metavars_context(decl.get_type(), num_locals, locals);
-                if (optional<expr> v = m_mctx.get_assignment(e)) {
-                    restrict_metavars_context(*v, num_locals, locals);
-                } else {
-                    local_context const &  ctx = decl.get_context();
-                    buffer<expr> to_revert;
-                    for (unsigned i = 0; i < num_locals; i++) {
-                        if (ctx.get_local_decl(locals[i]))
-                            to_revert.push_back(locals[i]);
-                    }
-                    if (!to_revert.empty()) {
-                        revert(to_revert, e);
-                        lean_assert(m_mctx.is_assigned(e));
-                    }
-                }
-            }
-            return true;
-        });
-}
-
-void type_context::restrict_metavars_context(local_decl const & d, unsigned num_locals, expr const * locals) {
-    restrict_metavars_context(d.get_type(), num_locals, locals);
-    if (auto v = d.get_value())
-        restrict_metavars_context(*v, num_locals, locals);
-}
-
+/* We use delayed_abstract_locals to make sure the variables being abstracted
+   will be abstracted correctly when any unassigned metavar ?M occurring in \c e gets instantiated. */
 expr type_context::abstract_locals(expr const & e, unsigned num_locals, expr const * locals) {
     lean_assert(std::all_of(locals, locals+num_locals, is_local_decl_ref));
     if (num_locals == 0)
         return e;
-    if (!in_tmp_mode()) {
-        /* In regular mode, we have to make sure the context of the metavariables occurring \c e
-           does not include the locals being abstracted.
-
-           Claim: this check is not necessary in tmp_mode because
-           1- Regular metavariables should not depend on temporary local constants that have been created in tmp mode.
-           2- The tmp metavariables all share the same fixed local context.
-        */
-        restrict_metavars_context(e, num_locals, locals);
+    if (in_tmp_mode()) {
+        /* 1- Regular metavariables should not depend on temporary local constants that have been created in tmp mode.
+           2- The tmp metavariables all share the same fixed local context. */
+        return ::lean::abstract_locals(e, num_locals, locals);
     }
-    return ::lean::abstract_locals(e, num_locals, locals);
+    expr new_e = instantiate_mvars(e);
+    return delayed_abstract_locals(new_e, num_locals, locals);
 }
 
 expr type_context::mk_binding(bool is_pi, unsigned num_locals, expr const * locals, expr const & e) {

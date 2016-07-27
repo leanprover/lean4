@@ -27,6 +27,11 @@ expr mk_delayed_abstraction_with_locals(expr const & e, buffer<expr> const & ls)
    \pre !ns.empty() */
 expr mk_delayed_abstraction(expr const & e, buffer<name> const & ns, buffer<expr> const & vs);
 
+/* Similar to abstract_locals, but create a delayed_abstraction macro around metavariables
+   occurring in \c e. */
+expr delayed_abstract_locals(expr const & e, unsigned nlocals, expr const * locals);
+inline expr delayed_abstract_local(expr const & e, expr const & s) { return delayed_abstract_locals(e, 1, &s); }
+
 void initialize_delayed_abstraction();
 void finalize_delayed_abstraction();
 }

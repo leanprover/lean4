@@ -262,7 +262,7 @@ expr elaborator::ensure_function(expr const & e, expr const & ref) {
 
 expr elaborator::ensure_type(expr const & e, expr const & ref) {
     expr e_type = whnf(infer_type(e));
-    if (!is_sort(e_type)) {
+    if (!is_sort(e_type) && !is_metavar(e_type)) {
         throw elaborator_exception(ref, format("type expected at") + pp_indent(e));
     }
     return e;
@@ -726,9 +726,52 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
     }
 }
 
+static expr instantiate_rev(expr const & e, type_context::tmp_locals const & locals) {
+    return instantiate_rev(e, locals.as_buffer().size(), locals.as_buffer().data());
+}
+
 expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_type) {
-    // TODO(Leo)
-    lean_unreachable();
+    type_context::tmp_locals locals(m_ctx);
+    checkpoint C(*this);
+    expr it = e;
+    expr ex;
+    bool has_expected;
+    if (expected_type) {
+        ex = try_to_pi(*expected_type);
+        has_expected = true;
+    } else {
+        has_expected = false;
+    }
+    while (is_lambda(it)) {
+        expr d = instantiate_rev(binding_domain(it), locals);
+        expr new_d;
+        if (has_expected) {
+            if (is_pi(ex)) {
+                expr ex_d = binding_domain(ex);
+                new_d     = visit(d, some_expr(ex_d));
+            } else {
+                has_expected = false;
+            }
+        } else {
+            new_d = visit(d, none_expr());
+        }
+        new_d  = ensure_type(new_d, binding_domain(it));
+        expr l = locals.push_local(binding_name(it), new_d, binding_info(it));
+        it = binding_body(it);
+        if (has_expected && is_pi(ex)) {
+            ex = try_to_pi(instantiate(binding_body(ex), l));
+        }
+    }
+    expr b = instantiate_rev(it, locals);
+    expr new_b;
+    if (has_expected) {
+        new_b = visit(b, some_expr(ex));
+    } else {
+        new_b = visit(b, none_expr());
+    }
+    process_checkpoint(C);
+    expr r = instantiate_mvars(locals.mk_lambda(new_b));
+    return r;
 }
 
 expr elaborator::visit_pi(expr const & e, optional<expr> const & expected_type) {

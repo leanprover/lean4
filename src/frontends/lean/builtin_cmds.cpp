@@ -657,19 +657,35 @@ static environment vm_eval_cmd(parser & p) {
     return p.env();
 }
 
+static expr replace_with_simple_metavars(metavar_context & mctx, expr const & e) {
+    return replace(e, [&](expr const & e, unsigned) {
+            if (!is_metavar(e)) return none_expr();
+            if (auto decl = mctx.get_metavar_decl(e)) {
+                return some_expr(mk_metavar(mlocal_name(e), decl->get_type()));
+            }
+            return none_expr();
+        });
+}
+
 static environment elab_cmd(parser & p) {
     expr e = p.parse_expr();
     metavar_context mctx;
-    aux_type_context ctx(p.env(), p.get_options(), mctx, p.get_local_context());
-    auto out = regular(p.env(), p.ios(), ctx);
-    out << ">> " << e << endl;
     expr new_e; level_param_names ls;
-    std::tie(new_e, ls) = p.elaborate(e);
-    out << ">> " << new_e << endl;
-    try {
-        expr type = ctx->infer(new_e);
-        out << ">> " << type << "\n";
-    } catch (exception &) {}
+    std::tie(new_e, ls) = p.elaborate(mctx, e);
+    new_e     = replace_with_simple_metavars(mctx, new_e);
+    aux_type_context ctx(p.env(), p.get_options(), mctx, p.get_local_context());
+    auto out  = regular(p.env(), p.ios(), ctx);
+    auto tc   = mk_type_checker(p.env());
+    expr type = tc->check(new_e, ls).first;
+    formatter fmt         = out.get_formatter();
+    unsigned indent       = get_pp_indent(p.get_options());
+    format r = group(fmt(new_e) + space() + colon() + nest(indent, line() + fmt(type)));
+    flycheck_information info(p.ios());
+    if (info.enabled()) {
+        p.display_information_pos(p.cmd_pos());
+        out << "elab result:\n";
+    }
+    out << mk_pair(r, p.get_options()) << endl;
     return p.env();
 }
 

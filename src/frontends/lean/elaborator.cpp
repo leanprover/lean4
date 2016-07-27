@@ -933,8 +933,11 @@ std::tuple<expr, level_param_names> elaborator::operator()(expr const & e) {
 }
 
 std::tuple<expr, level_param_names> elaborate(environment const & env, options const & opts, local_level_decls const & lls,
-                                              metavar_context const & mctx, local_context const & lctx, expr const & e) {
-    return elaborator(env, opts, lls, mctx, lctx)(e);
+                                              metavar_context & mctx, local_context const & lctx, expr const & e) {
+    elaborator elab(env, opts, lls, mctx, lctx);
+    auto r = elab(e);
+    mctx = elab.mctx();
+    return r;
 }
 
 void initialize_elaborator() {

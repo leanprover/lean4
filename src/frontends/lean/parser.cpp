@@ -910,8 +910,13 @@ elaborator_context parser::mk_elaborator_context(environment const & env, local_
     return elaborator_context(env, get_options(), lls, true);
 }
 
+std::tuple<expr, level_param_names> parser::elaborate(metavar_context & mctx, expr const & e) {
+    return ::lean::elaborate(m_env, get_options(), m_local_level_decls, mctx, m_local_context, e);
+}
+
 std::tuple<expr, level_param_names> parser::elaborate(expr const & e) {
-    return ::lean::elaborate(m_env, get_options(), m_local_level_decls, metavar_context(), m_local_context, e);
+    metavar_context mctx;
+    return elaborate(mctx, e);
 }
 
 std::tuple<expr, level_param_names> parser::old_elaborate_relaxed(expr const & e, list<expr> const & ctx) {

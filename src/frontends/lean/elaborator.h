@@ -155,12 +155,12 @@ class elaborator {
 public:
     elaborator(environment const & env, options const & opts, local_level_decls const & lls,
                metavar_context const & mctx, local_context const & lctx);
-
+    metavar_context const & mctx() const { return m_ctx.mctx(); }
     std::tuple<expr, level_param_names> operator()(expr const & e);
 };
 
 std::tuple<expr, level_param_names> elaborate(environment const & env, options const & opts, local_level_decls const & lls,
-                                              metavar_context const & mctx, local_context const & lctx, expr const & e);
+                                              metavar_context & mctx, local_context const & lctx, expr const & e);
 
 void initialize_elaborator();
 void finalize_elaborator();

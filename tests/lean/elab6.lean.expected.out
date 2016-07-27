@@ -3,18 +3,8 @@ H : @transitive.{1} nat R
 @F.{1} bool ?a ?b bool.tt : Π ⦃e : bool⦄, bool → bool → bool
 @F.{1} bool ?a ?b bool.tt ?e bool.tt : bool → bool
 @F.{1} bool ?a ?b bool.tt ?e bool.tt bool.tt : bool
->> H
->> H
->> @transitive.{1} nat R
->> F
->> @F.{?M_1} ?M_2
->> ∀ ⦃a : ?M_2⦄ {b : ?M_2}, ?M_2 → (∀ ⦃e : ?M_2⦄, ?M_2 → ?M_2 → ?M_2)
->> F bool.tt
->> @F.{1} bool ?M_1 ?M_2 bool.tt
->> Π ⦃e : bool⦄, bool → bool → bool
->> F bool.tt bool.tt
->> @F.{1} bool ?M_1 ?M_2 bool.tt ?M_3 bool.tt
->> bool → bool
->> F bool.tt bool.tt bool.tt
->> @F.{1} bool ?M_1 ?M_2 bool.tt ?M_3 bool.tt bool.tt
->> bool
+H : @transitive.{1} nat R
+@F.{?M_2} ?M_1 : Π ⦃a : ?M_1⦄ {b : ?M_1}, ?M_1 → (Π ⦃e : ?M_1⦄, ?M_1 → ?M_1 → ?M_1)
+@F.{1} bool ?M_1 ?M_2 bool.tt : Π ⦃e : bool⦄, bool → bool → bool
+@F.{1} bool ?M_1 ?M_2 bool.tt ?M_3 bool.tt : bool → bool
+@F.{1} bool ?M_1 ?M_2 bool.tt ?M_3 bool.tt bool.tt : bool

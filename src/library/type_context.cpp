@@ -1044,13 +1044,27 @@ bool type_context::is_def_eq(level const & l1, level const & l2) {
     if (is_equivalent(l1, l2))
         return true;
 
-    if (is_mvar(l1)) {
-        if (auto v1 = get_assignment(l1))
+    if (in_tmp_mode()) {
+        /* Check if tmp metavars are already assigned when in tmp mode */
+        if (is_idx_metauniv(l1)) {
+            if (auto v1 = get_tmp_assignment(l1))
+                return is_def_eq(*v1, l2);
+        }
+        if (is_idx_metauniv(l2)) {
+            if (auto v2 = get_tmp_assignment(l2))
+                return is_def_eq(l1, *v2);
+        }
+    }
+
+    if (is_metavar_decl_ref(l1)) {
+        /* Check if l1 is regular metavar that is already assigned */
+        if (auto v1 = m_mctx.get_assignment(l1))
             return is_def_eq(*v1, l2);
     }
 
-    if (is_mvar(l2)) {
-        if (auto v2 = get_assignment(l2))
+    if (is_metavar_decl_ref(l2)) {
+        /* Check if l2 is regular metavar that is already assigned */
+        if (auto v2 = m_mctx.get_assignment(l2))
             return is_def_eq(l1, *v2);
     }
 

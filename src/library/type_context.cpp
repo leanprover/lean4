@@ -2530,7 +2530,6 @@ expr tmp_type_context::infer(expr const & e) {
 }
 
 expr tmp_type_context::whnf(expr const & e) {
-    // TODO(dhs): do I need to set the buffers for whnf?
     type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
     return m_tctx.whnf(e);
 }

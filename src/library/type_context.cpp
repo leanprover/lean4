@@ -1079,26 +1079,29 @@ void type_context::commit_scope() {
    ----------------------------------- */
 
 bool type_context::is_def_eq(level const & l1, level const & l2) {
-    if (is_equivalent(l1, l2)) {
+    if (is_equivalent(l1, l2))
         return true;
-    }
 
     if (is_mvar(l1)) {
-        if (auto v = get_assignment(l1)) {
-            return is_def_eq(*v, l2);
-        } else {
-            assign(l1, l2);
-            return true;
-        }
+        if (auto v1 = get_assignment(l1))
+            return is_def_eq(*v1, l2);
     }
 
     if (is_mvar(l2)) {
-        if (auto v = get_assignment(l2)) {
-            return is_def_eq(l1, *v);
-        } else {
-            assign(l2, l1);
-            return true;
-        }
+        if (auto v2 = get_assignment(l2))
+            return is_def_eq(l1, *v2);
+    }
+
+    if (is_mvar(l1)) {
+        lean_assert(!is_assigned(l1));
+        assign(l1, l2);
+        return true;
+    }
+
+    if (is_mvar(l2)) {
+        lean_assert(!is_assigned(l2));
+        assign(l2, l1);
+        return true;
     }
 
     level new_l1 = normalize(instantiate_mvars(l1));

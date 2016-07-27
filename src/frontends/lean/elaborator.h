@@ -103,6 +103,7 @@ class elaborator {
     expr visit_typed_expr(expr const & e);
     expr visit_prenum_core(expr const & e, optional<expr> const & expected_type);
     expr visit_prenum(expr const & e, optional<expr> const & expected_type);
+    expr visit_placeholder(expr const & e, optional<expr> const & expected_type);
 
     expr visit_sort(expr const & e);
     expr visit_const_core(expr const & e);

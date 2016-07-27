@@ -739,20 +739,31 @@ expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type)
     lean_unreachable();
 }
 
+expr elaborator::visit_placeholder(expr const & e, optional<expr> const & expected_type) {
+    if (expected_type)
+        return mk_metavar(*expected_type);
+    else
+        return mk_metavar(mk_type_metavar());
+}
+
 expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
-    switch (e.kind()) {
-    case expr_kind::Var:        lean_unreachable();  // LCOV_EXCL_LINE
-    case expr_kind::Meta:       return e;
-    case expr_kind::Sort:       return visit_sort(e);
-    case expr_kind::Local:      return visit_local(e, expected_type);
-    case expr_kind::Constant:   return visit_constant(e, expected_type);
-    case expr_kind::Macro:      return visit_macro(e, expected_type);
-    case expr_kind::Lambda:     return visit_lambda(e, expected_type);
-    case expr_kind::Pi:         return visit_pi(e, expected_type);
-    case expr_kind::App:        return visit_app(e, expected_type);
-    case expr_kind::Let:        return visit_let(e, expected_type);
+    if (is_placeholder(e)) {
+        return visit_placeholder(e, expected_type);
+    } else {
+        switch (e.kind()) {
+        case expr_kind::Var:        lean_unreachable();  // LCOV_EXCL_LINE
+        case expr_kind::Meta:       return e;
+        case expr_kind::Sort:       return visit_sort(e);
+        case expr_kind::Local:      return visit_local(e, expected_type);
+        case expr_kind::Constant:   return visit_constant(e, expected_type);
+        case expr_kind::Macro:      return visit_macro(e, expected_type);
+        case expr_kind::Lambda:     return visit_lambda(e, expected_type);
+        case expr_kind::Pi:         return visit_pi(e, expected_type);
+        case expr_kind::App:        return visit_app(e, expected_type);
+        case expr_kind::Let:        return visit_let(e, expected_type);
+        }
+        lean_unreachable(); // LCOV_EXCL_LINE
     }
-    lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 expr elaborator::get_default_numeral_type() {

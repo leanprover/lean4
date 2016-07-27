@@ -2288,7 +2288,7 @@ struct instance_synthesizer {
             if (p.first == cname)
                 selected.push_back(p.second);
         }
-        return to_list(selected);
+        return reverse_to_list(selected);
     }
 
     bool mk_choice_point(expr const & mvar) {

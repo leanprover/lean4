@@ -539,6 +539,8 @@ expr elaborator::visit_default_app_core(expr const & fn, arg_mask amask, buffer<
         binder_info const & bi = binding_info(type);
         expr const & d = binding_domain(type);
         expr new_arg;
+        if (amask == arg_mask::Default && bi.is_strict_implicit() && i == args.size())
+            break;
         if ((amask == arg_mask::Default && !is_explicit(bi)) ||
             (amask == arg_mask::Simple && !bi.is_inst_implicit() && !is_first_order(d))) {
             // implicit argument

@@ -5,7 +5,7 @@
 elab4.lean:13:6: error: none of the overloads is applicable
 error for bla.f
 failed to synthesize type class instance for
-  has_zero bool
+⊢ has_zero bool
 
 error for foo.f
 invalid function application, too many arguments, function type:

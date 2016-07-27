@@ -399,7 +399,7 @@ void elaborator::validate_overloads(buffer<expr> const & fns, expr const & ref) 
             format msg("invalid overloaded application, "
                        "elaborator has special support for '");
             msg += pp(fn_i);
-            msg += format(" (it is handled as an \"eliminator\"), "
+            msg += format("' (it is handled as an \"eliminator\"), "
                           "but this kind of constant cannot be overloaded "
                           "(solution: use fully qualified names) ");
             msg += pp_overloads(fns);

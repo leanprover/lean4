@@ -1,5 +1,4 @@
 3
 b : ℕ,
 H : b > 0
-⊢ ∀ a,
-    a > 0 → a > b → a = b → true
+⊢ ∀ a, a > 0 → a > b → a = b → true

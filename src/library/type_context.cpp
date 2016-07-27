@@ -1514,17 +1514,35 @@ bool type_context::is_def_eq_binding(expr e1, expr e2) {
                           instantiate_rev(e2, subst.size(), subst.data()));
 }
 
+static bool mk_nested_instance_core(type_context & ctx, expr const & m, expr const & m_type) {
+    if (auto r = ctx.mk_class_instance(m_type)) {
+        ctx.assign(m, *r);
+        return true;
+    }
+    return false;
+}
+
 /** \brief Create a nested type class instance of the given type, and assign it to metavariable \c m.
     Return true iff the instance was successfully created.
     \remark This method is used to resolve nested type class resolution problems. */
 bool type_context::mk_nested_instance(expr const & m, expr const & m_type) {
     lean_assert(is_mvar(m));
-    if (auto r = mk_class_instance(m_type)) {
-        assign(m, *r);
-        return true;
-    } else {
-        return false;
+    /* IMPORTANT: when mk_nested_instance is invoked we must make sure that
+       we use the local context where 'm' was declared. */
+    if (in_tmp_mode()) {
+        /* We don't need to create a temporary type context since all tmp metavars
+           share the same local_context */
+        return mk_nested_instance_core(*this, m, m_type);
     }
+
+    optional<metavar_decl> mdecl = m_mctx.get_metavar_decl(m);
+    if (!mdecl) return false;
+
+    type_context tmp_ctx(m_mctx, mdecl->get_context(), m_cache, m_transparency_mode);
+    bool r = mk_nested_instance_core(tmp_ctx, m, m_type);
+    if (r)
+        m_mctx = tmp_ctx.mctx();
+    return r;
 }
 
 expr type_context::complete_instance(expr const & e) {

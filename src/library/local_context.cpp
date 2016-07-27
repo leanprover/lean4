@@ -148,7 +148,6 @@ void local_context::for_each_after(local_decl const & d, std::function<void(loca
 void local_context::pop_local_decl() {
     lean_assert(!m_idx2local_decl.empty());
     local_decl d = m_idx2local_decl.max();
-    lean_assert(!m_frozen_decls.contains(d.get_name()));
     m_name2local_decl.erase(d.get_name());
     m_idx2local_decl.erase(d.get_idx());
 }
@@ -178,7 +177,6 @@ optional<local_decl> local_context::has_dependencies(local_decl const & d) const
 
 void local_context::clear(local_decl const & d) {
     lean_assert(get_local_decl(d.get_name()));
-    lean_assert(!is_frozen(d.get_name()));
     lean_assert(!has_dependencies(d));
     m_idx2local_decl.erase(d.get_idx());
     m_name2local_decl.erase(d.get_name());
@@ -208,7 +206,6 @@ local_context local_context::remove(buffer<expr> const & locals) const {
     for (expr const & l : locals) {
         r.m_name2local_decl.erase(mlocal_name(l));
         r.m_idx2local_decl.erase(get_local_decl(l)->get_idx());
-        r.m_frozen_decls.erase(mlocal_name(l));
     }
     lean_assert(r.well_formed());
     return r;
@@ -258,11 +255,6 @@ bool local_context::well_formed(expr const & e) const {
             return true;
         });
     return ok;
-}
-
-void local_context::freeze(name const & n) {
-    lean_assert(m_name2local_decl.contains(n));
-    m_frozen_decls.insert(n);
 }
 
 format local_context::pp(formatter const & fmt) const {

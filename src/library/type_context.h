@@ -65,27 +65,13 @@ class type_context_cache {
 
     name2bool                     m_aux_recursor_cache;
 
-    /* We have two modes for caching type class instances.
+    /* We use the following approach for caching type class instances.
 
-       In the default mode (m_frozen_mode == false), whenever a type_context object is
-       initialized with a local_context, we reset m_local_instances_initialized flag.
-       and store a copy of the initial local_context. Then, the first time type class resolution
-       is invoked, we collect local_instances, if they are equal to the ones in m_local_instances,
-       we do nothing. Otherwise, we reset m_local_instances with the new local_instances, and
-       reset the cache m_local_instances.
-
-       When frozen mode is set, we reset m_local_instances_initialized.
-       Then, whenever a type_context object is created we store a copy of the initial local context.
-       Then, whenever type class resolution is invoked and m_local_instances_initialized is false,
-       we copy the set of frozen local_decls instances to m_local_instances.
-       If m_local_instances_initialized is true, and we are in debug mode, then
-       we check if the frozen local_decls instances in the initial local context are indeed
-       equal to the ones in m_local_instances. If they are not, it is an assertion violation.
-
-       We use the same cache policy for m_subsingleton_cache. */
-    bool                          m_frozen_mode;
-    bool                          m_local_instances_initialized;
-    local_context                 m_init_local_context;
+       Whenever a type_context object is initialized with a local_context,
+       we reset m_local_instances_initialized flag, and store a copy of the initial local_context.
+       Then, the first time type class resolution is invoked, we collect local_instances,
+       if they are equal to the ones in m_local_instances, we do nothing. Otherwise,
+       we reset m_local_instances with the new local_instances, and reset the cache m_local_instances. */
     std::vector<pair<name, expr>> m_local_instances;
     instance_cache                m_instance_cache;
     subsingleton_cache            m_subsingleton_cache;
@@ -109,18 +95,9 @@ class type_context_cache {
 public:
     type_context_cache(environment const & env, options const & opts);
 
-    /* Enable frozen mode for type class resolution, and free local instances.
-       Local declarations used by the local instances are also frozen.
-       This method returns a new local_context where the local decls have been marked as frozen.
-
-       \pre !frozen_mode() */
-    local_context freeze_local_instances(metavar_context & mctx, local_context const & lctx);
-
     environment const & env() const { return m_env; }
 
     options const & get_options() const { return m_options; }
-
-    bool frozen_mode() const { return m_frozen_mode; }
 
     /** \brief Auxiliary object used to set position information for the type class resolution trace. */
     class scope_pos_info {
@@ -155,6 +132,8 @@ class type_context : public abstract_type_context {
 
     metavar_context    m_mctx;
     local_context      m_lctx;
+    bool               m_local_instances_initialized;
+    local_context      m_init_local_context;
     cache &            m_cache;
     /* We only cache results when m_used_assignment is false */
     bool               m_used_assignment;
@@ -455,7 +434,7 @@ private:
     optional<name> constant_is_class(expr const & e);
     optional<name> is_full_class(expr type);
     lbool is_quick_class(expr const & type, name & result);
-    bool compatible_local_instances(bool frozen_only);
+    bool compatible_local_instances();
     void set_local_instances();
     void init_local_instances();
 

@@ -66,13 +66,6 @@ class local_context {
     unsigned              m_next_idx;
     name_map<local_decl>  m_name2local_decl;
     idx2local_decl        m_idx2local_decl;
-    /*
-      A local context can optionally have a set of frozen declarations.
-      Moreover, type class resolution can be restricted to use only frozen local
-      declarations. When this restriction is use, we can cache type class instances
-      more efficiently.
-    */
-    name_set              m_frozen_decls; /* declarations that have been frozen */
     friend class type_context;
 
     local_context remove(buffer<expr> const & locals) const;
@@ -119,12 +112,8 @@ public:
     /** \brief Return true iff the given name is a hypothesis "user name". */
     bool uses_user_name(name const & n) const;
 
-    /** \brief Remove the given local decl.
-        \pre \c d is in this local context, is not frozen, and no other local decl depends on it. */
+    /** \brief Remove the given local decl. */
     void clear(local_decl const & d);
-
-    void freeze(name const & n);
-    bool is_frozen(name const & n) const { return m_frozen_decls.contains(n); }
 
     /** \brief Return true iff all locals in this context are in the set \c ls. */
     bool is_subset_of(name_set const & ls) const;

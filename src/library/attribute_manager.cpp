@@ -7,36 +7,51 @@ Author: Leonardo de Moura
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <unordered_map>
 #include "util/priority_queue.h"
 #include "util/sstream.h"
 #include "library/attribute_manager.h"
 #include "library/scoped_ext.h"
 
 namespace lean {
-struct attribute_decl {
-    std::string        m_id;
-    std::string        m_descr;
-    std::string        m_token;
-    set_attribute_proc m_on_set;
-};
 
-static std::vector<attribute_decl> * g_attr_decls;
+static std::unordered_map<std::string, attribute_ptr> * g_attributes;
 static std::vector<pair<std::string, std::string>> * g_incomp = nullptr;
 
 static std::string * g_key = nullptr;
 
+void register_attribute(attribute_ptr attr) {
+    lean_assert(!is_attribute(attr->get_name().c_str()));
+    (*g_attributes)[attr->get_name()] = attr;
+}
+
+bool is_attribute(std::string const & attr) {
+    return g_attributes->find(attr) != g_attributes->end();
+}
+
+[[ noreturn ]] void throw_unknown_attribute(std::string const & attr) {
+    throw exception(sstream() << "unknown attribute '" << attr << "'");
+}
+
+static attribute const & get_attribute(std::string const & attr) {
+    auto it = g_attributes->find(attr);
+    if (it != g_attributes->end())
+        return *it->second;
+    throw_unknown_attribute(attr);
+}
+
 struct attr_record {
-    name      m_decl;
-    list<unsigned> m_params;
+    name          m_decl;
+    attr_data_ptr m_data;
 
     attr_record() {}
-    attr_record(name decl, list<unsigned> params):
-            m_decl(decl), m_params(params) {}
+    attr_record(name decl, attr_data_ptr data):
+            m_decl(decl), m_data(data) {}
 
     unsigned hash() const {
         unsigned h = m_decl.hash();
-        for (unsigned p : m_params)
-            h = ::lean::hash(h, p);
+        if (m_data)
+            h = ::lean::hash(h, m_data->hash());
         return h;
     }
 };
@@ -49,12 +64,12 @@ struct attr_record_cmp {
 };
 
 struct attr_entry {
-    name     m_attr;
-    unsigned m_prio;
+    std::string m_attr;
+    unsigned    m_prio;
     attr_record m_record;
 
     attr_entry() {}
-    attr_entry(name attr, unsigned prio, attr_record record):
+    attr_entry(std::string const & attr, unsigned prio, attr_record const & record):
             m_attr(attr), m_prio(prio), m_record(record) {}
 };
 
@@ -76,102 +91,48 @@ struct attr_config {
     }
     static void write_entry(serializer & s, entry const & e) {
         s << e.m_attr << e.m_prio << e.m_record.m_decl;
-        write_list(s, e.m_record.m_params);
+        lean_assert(e.m_record.m_data);
+        get_attribute(e.m_attr).write_entry(s, *e.m_record.m_data);
     }
     static entry read_entry(deserializer & d) {
         entry e;
         d >> e.m_attr >> e.m_prio >> e.m_record.m_decl;
-        e.m_record.m_params = read_list<unsigned>(d);
+        e.m_record.m_data = get_attribute(e.m_attr).read_entry(d);
         return e;
     }
     static optional<unsigned> get_fingerprint(entry const & e) {
-        return optional<unsigned>(hash(hash(e.m_attr.hash(), e.m_record.hash()), e.m_prio));
+        return optional<unsigned>(hash(hash(name(e.m_attr).hash(), e.m_record.hash()), e.m_prio));
     }
 };
 
 template class scoped_ext<attr_config>;
 typedef scoped_ext<attr_config> attribute_ext;
 
-bool is_attribute(char const * attr) {
-    for (auto const & d : *g_attr_decls) {
-        if (d.m_id == attr)
-            return true;
-    }
-    return false;
+static attr_records const & get_attr_records(environment const & env, std::string const & n) {
+    if (auto state = attribute_ext::get_state(env).find(n))
+        return *state;
+    throw_unknown_attribute(n);
 }
 
-void register_attribute(char const * attr, char const * descr, set_attribute_proc const & on_set) {
-    lean_assert(!is_attribute(attr));
-    g_attr_decls->push_back(attribute_decl {attr, descr, std::string("[") + attr, on_set});
+environment attribute::set_core(environment const & env, io_state const & ios, name const & n, attr_data_ptr data,
+                                bool persistent) const {
+    return attribute_ext::add_entry(env, ios, attr_entry(m_id, LEAN_DEFAULT_PRIORITY, attr_record(n, data)), persistent);
 }
 
-void register_no_params_attribute(char const * attr, char const * descr, set_no_params_attribute_proc const & on_set) {
-    register_attribute(attr, descr,
-                       [=](environment const & env, io_state const & ios, name const & d, unsigned prio,
-                           list<unsigned> const & idxs, bool persistent) {
-                           if (prio != LEAN_DEFAULT_PRIORITY)
-                               throw exception(sstream() << "invalid [" << attr <<
-                                               "] declaration, unexpected priority declaration");
-                           if (idxs)
-                               throw exception(sstream() << "invalid [" << attr <<
-                                               "] declaration, unexpected parameter");
-                           return on_set(env, ios, d, persistent);
-                       });
-}
-void register_no_params_attribute(char const * attr, char const * descr) {
-    register_no_params_attribute(attr, descr,
-                                 [](environment const & env, io_state const &, name const &, bool) {
-                                     return env;
-                                 });
+environment basic_attribute::set(environment const & env, io_state const & ios, name const & n, bool persistent) const {
+    auto env2 = set_core(env, ios, n, attr_data_ptr(new attr_data), persistent);
+    if (m_on_set)
+        env2 = m_on_set(env2, ios, n, persistent);
+    return env2;
 }
 
-void register_prio_attribute(char const * attr, char const * descr, set_prio_attribute_proc const & on_set) {
-    register_attribute(attr, descr,
-                       [=](environment const & env, io_state const & ios, name const & d, unsigned prio,
-                          list<unsigned> const & idxs, bool persistent) {
-                           if (idxs)
-                               throw exception(sstream() << "invalid [" << attr <<
-                                               "] declaration, unexpected parameter");
-                           return on_set(env, ios, d, prio, persistent);
-                       });
-}
-void register_prio_attribute(char const * attr, char const * descr) {
-    register_prio_attribute(attr, descr,
-                            [=](environment const & env, io_state const &, name const &, unsigned, bool) {
-                                return env;
-                            });
-}
-
-void register_opt_param_attribute(char const * attr, char const * descr, set_opt_param_attribute_proc const & on_set) {
-    register_attribute(attr, descr,
-                       [=](environment const & env, io_state const & ios, name const & d, unsigned prio,
-                          list<unsigned> const & idxs, bool persistent) {
-                           if (prio != LEAN_DEFAULT_PRIORITY)
-                               throw exception(sstream() << "invalid [" << attr <<
-                                               "] declaration, unexpected priority declaration");
-                           if (idxs && tail(idxs))
-                               throw exception(sstream() << "invalid [" << attr <<
-                                               "] declaration, expected at most one parameter");
-                           return on_set(env, ios, d, head_opt(idxs), persistent);
-                       });
-}
-
-void register_params_attribute(char const * attr, char const * descr, set_params_attribute_proc const & on_set) {
-    register_attribute(attr, descr,
-                       [=](environment const & env, io_state const & ios, name const & d, unsigned prio,
-                          list<unsigned> const & idxs, bool persistent) {
-                           if (prio != LEAN_DEFAULT_PRIORITY)
-                               throw exception(sstream() << "invalid [" << attr <<
-                                               "] declaration, unexpected priority declaration");
-                           return on_set(env, ios, d, idxs, persistent);
-                       });
-}
-void register_params_attribute(char const * attr, char const * descr) {
-    register_params_attribute(attr, descr,
-                              [=](environment const & env, io_state const &, name const &,
-                                  list<unsigned> const &, bool) {
-                                  return env;
-                              });
+environment prio_attribute::set(environment const & env, io_state const & ios, name const & n, unsigned prio,
+                                bool persistent) const {
+    auto env2 = attribute_ext::add_entry(env, ios, attr_entry(get_name(), prio, attr_record(n, attr_data_ptr(new attr_data))),
+                                         persistent);
+    if (m_on_set)
+        env2 = m_on_set(env2, ios, n, prio, persistent);
+    return env2;
 }
 
 void register_incompatible(char const * attr1, char const * attr2) {
@@ -185,34 +146,34 @@ void register_incompatible(char const * attr1, char const * attr2) {
 }
 
 void get_attributes(buffer<char const *> & r) {
-    for (auto const & d : *g_attr_decls)
-        r.push_back(d.m_id.c_str());
+    for (auto const & p : *g_attributes) {
+        r.push_back(p.second->get_name().c_str());
+    }
 }
 
 void get_attribute_tokens(buffer<char const *> & r) {
-    for (auto const & d : *g_attr_decls)
-        r.push_back(d.m_token.c_str());
+    for (auto const & p : *g_attributes) {
+        r.push_back(p.second->get_token().c_str());
+    }
 }
 
 char const * get_attribute_from_token(char const * tk) {
-    for (auto const & d : *g_attr_decls) {
-        if (d.m_token == tk)
-            return d.m_id.c_str();
+    if (*tk) {
+        // skip '['
+        if (is_attribute(tk + 1))
+            return get_attribute(tk + 1).get_name().c_str();
     }
     return nullptr;
 }
 
-char const * get_attribute_token(char const * attr) {
-    for (auto const & d : *g_attr_decls) {
-        if (d.m_id == attr)
-            return d.m_token.c_str();
-    }
-    return nullptr;
+char const * get_attribute_token(char const * name) {
+    return get_attribute(name).get_token().c_str();
 }
 
 bool has_attribute(environment const & env, char const * attr, name const & d) {
     if (auto it = attribute_ext::get_state(env).find(attr))
-        return it->contains(attr_record(d, list<unsigned>()));
+        // attr_data_ptr is ignored by comparison
+        return it->contains({d, {}});
     return false;
 }
 
@@ -226,40 +187,37 @@ priority_queue<name, name_quick_cmp> get_attribute_instances_by_prio(environment
     return q;
 }
 
-[[ noreturn ]] void throw_unknown_attribute(name const & attr) {
-    throw exception(sstream() << "unknown attribute '" << attr << "'");
-}
-
-environment set_attribute(environment const & env, io_state const & ios, char const * attr,
-                          name const & d, unsigned prio, list<unsigned> const & params, bool persistent) {
-    for (auto const & decl : *g_attr_decls) {
-        if (decl.m_id == attr) {
-            auto env2 = attribute_ext::add_entry(env, ios, attr_entry(attr, prio, attr_record(d, params)), persistent);
-            return decl.m_on_set(env2, ios, d, prio, params, persistent);
-        }
+environment set_attribute(environment const & env, io_state const & ios, char const * name,
+                          lean::name const & d, unsigned prio, list<unsigned> const & params, bool persistent) {
+    auto const & attr = get_attribute(name);
+    if (auto prio_attr = dynamic_cast<prio_attribute const *>(&attr)) {
+        lean_assert(!params);
+        return prio_attr->set(env, ios, d, prio, persistent);
     }
-    throw_unknown_attribute(attr);
-}
-
-environment set_attribute(environment const & env, io_state const & ios, char const * attr,
-                          name const & d, bool persistent) {
-    return set_attribute(env, ios, attr, d, LEAN_DEFAULT_PRIORITY, list<unsigned>(), persistent);
-}
-
-unsigned get_attribute_prio(environment const & env, name const & attr, name const & d) {
-    if (auto it = attribute_ext::get_state(env).find(attr)) {
-        optional<unsigned> prio = it->get_prio({d, list<unsigned>()});
-        return prio ? *prio : LEAN_DEFAULT_PRIORITY;
+    lean_assert(prio == LEAN_DEFAULT_PRIORITY);
+    if (auto params_attr = dynamic_cast<unsigned_params_attribute const *>(&attr)) {
+        return params_attr->set(env, ios, d, {params}, persistent);
     }
-    throw_unknown_attribute(attr);
+    lean_assert(!params);
+    return set_attribute(env, ios, name, d, persistent);
 }
 
-list<unsigned> get_attribute_params(environment const & env, name const & attr, name const & d) {
-    if (auto it = attribute_ext::get_state(env).find(attr)) {
-        if (auto record = it->get_key(attr_record {d, list<unsigned>()}))
-                return record->m_params;
-    }
-    throw_unknown_attribute(attr);
+environment set_attribute(environment const & env, io_state const & ios, char const * name, lean::name const & d,
+                          bool persistent) {
+    auto const & attr = get_attribute(name);
+    lean_assert(dynamic_cast<basic_attribute const *>(&attr));
+    return static_cast<basic_attribute const &>(attr).set(env, ios, d, persistent);
+}
+
+unsigned get_attribute_prio(environment const & env, std::string const & attr, name const & d) {
+    return get_attr_records(env, attr).get_prio({d, {}}).value();
+}
+
+list<unsigned> get_attribute_params(environment const & env, std::string const & attr, name const & d) {
+    auto record = get_attr_records(env, attr).get_key({d, {}});
+    lean_assert(record);
+    lean_assert(dynamic_cast<unsigned_params_attribute_data const *>(record->m_data.get()));
+    return static_cast<unsigned_params_attribute_data const *>(record->m_data.get())->m_params;
 }
 
 bool are_incompatible(char const * attr1, char const * attr2) {
@@ -271,7 +229,7 @@ bool are_incompatible(char const * attr1, char const * attr2) {
 }
 
 void initialize_attribute_manager() {
-    g_attr_decls = new std::vector<attribute_decl>();
+    g_attributes = new std::unordered_map<std::string, attribute_ptr>;
     g_incomp     = new std::vector<pair<std::string, std::string>>();
     g_key        = new std::string("ATTR");
     attribute_ext::initialize();
@@ -281,6 +239,7 @@ void finalize_attribute_manager() {
     attribute_ext::finalize();
     delete g_key;
     delete g_incomp;
-    delete g_attr_decls;
+    delete g_attributes;
 }
+
 }

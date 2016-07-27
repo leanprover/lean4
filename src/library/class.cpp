@@ -422,20 +422,17 @@ void initialize_class() {
     g_key = new std::string("class");
     class_ext::initialize();
 
-    register_no_params_attribute("class", "type class",
-                                 [](environment const & env, io_state const &, name const & d, bool persistent) {
-                                     return add_class(env, d, persistent);
-                                 });
+    register_attribute(basic_attribute("class", "type class", [](environment const & env, io_state const &, name const & d, bool persistent) {
+          return add_class(env, d, persistent);
+        }));
 
-    register_prio_attribute("instance", "type class instance",
-                            [](environment const & env, io_state const &, name const & d, unsigned prio, bool persistent) {
-                                return add_instance(env, d, prio, persistent);
-                            });
+    register_attribute(prio_attribute("instance", "type class instance", [](environment const & env, io_state const &, name const & d, unsigned prio, bool persistent) {
+          return add_instance(env, d, prio, persistent);
+        }));
 
-    register_prio_attribute("trans_instance", "transitive type class instance",
-                            [](environment const & env, io_state const &, name const & d, unsigned prio, bool persistent) {
-                                return add_trans_instance(env, d, prio, persistent);
-                            });
+    register_attribute(prio_attribute("trans_instance", "transitive type class instance", [](environment const & env, io_state const &, name const & d, unsigned prio, bool persistent) {
+          return add_trans_instance(env, d, prio, persistent);
+        }));
 }
 
 void finalize_class() {

@@ -204,7 +204,7 @@ void initialize_unification_hint() {
 
     unification_hint_ext::initialize();
 
-    register_prio_attribute("unify", "unification hint", add_unification_hint);
+    register_attribute(prio_attribute("unify", "unification hint", add_unification_hint));
 }
 
 void finalize_unification_hint() {

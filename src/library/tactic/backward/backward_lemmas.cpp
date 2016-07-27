@@ -132,15 +132,14 @@ vm_obj tactic_backward_lemmas_find(vm_obj const & lemmas, vm_obj const & h, vm_o
 
 void initialize_backward_lemmas() {
     register_trace_class(name{"tactic", "back_chaining"});
-    register_prio_attribute("intro", "introduction rule for backward chaining",
-                            [](environment const & env, io_state const & ios, name const & c, unsigned, bool) {
-                                aux_type_context ctx(env, ios.get_options());
-                                auto index = get_backward_target(ctx, c);
-                                if (!index || index->kind() != expr_kind::Constant)
-                                    throw exception(sstream() << "invalid [intro] attribute for '" << c
-                                                              << "', head symbol of resulting type must be a constant");
-                                return env;
-                            });
+    register_attribute(prio_attribute("intro", "introduction rule for backward chaining", [](environment const & env, io_state const & ios, name const & c, unsigned, bool) {
+          aux_type_context ctx(env, ios.get_options());
+          auto index = get_backward_target(ctx, c);
+          if (!index || index->kind() != expr_kind::Constant)
+            throw exception(sstream() << "invalid [intro] attribute for '" << c
+                            << "', head symbol of resulting type must be a constant");
+          return env;
+        }));
     DECLARE_VM_BUILTIN(name({"tactic", "mk_back_lemmas_core"}),      tactic_mk_backward_lemmas);
     DECLARE_VM_BUILTIN(name({"tactic", "back_lemmas_insert_core"}),  tactic_backward_lemmas_insert);
     DECLARE_VM_BUILTIN(name({"tactic", "back_lemmas_find"}),         tactic_backward_lemmas_find);

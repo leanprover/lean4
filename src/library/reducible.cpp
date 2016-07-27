@@ -15,9 +15,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 void initialize_reducible() {
-    register_no_params_attribute("reducible", "reducible");
-    register_no_params_attribute("semireducible", "semireducible");
-    register_no_params_attribute("irreducible", "irreducible");
+    register_attribute(basic_attribute("reducible", "reducible"));
+    register_attribute(basic_attribute("semireducible", "semireducible"));
+    register_attribute(basic_attribute("irreducible", "irreducible"));
 
     register_incompatible("reducible", "semireducible");
     register_incompatible("reducible", "irreducible");

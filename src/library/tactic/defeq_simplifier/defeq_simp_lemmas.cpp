@@ -146,7 +146,7 @@ void initialize_defeq_simp_lemmas() {
 
     defeq_simp_lemmas_ext::initialize();
 
-    register_prio_attribute("defeq", "defeq simp lemma", add_defeq_simp_lemma);
+    register_attribute(prio_attribute("defeq", "defeq simp lemma", add_defeq_simp_lemma));
 }
 
 void finalize_defeq_simp_lemmas() {

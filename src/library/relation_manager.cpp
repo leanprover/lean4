@@ -325,25 +325,21 @@ is_relation_pred mk_is_relation_pred(environment const & env) {
 void initialize_relation_manager() {
     g_key       = new std::string("REL");
     rel_ext::initialize();
-    register_no_params_attribute("refl", "reflexive relation",
-                                 [](environment const & env, io_state const &, name const & d, bool persistent) {
-                                     return add_refl(env, d, persistent);
-                                 });
+    register_attribute(basic_attribute("refl", "reflexive relation", [](environment const & env, io_state const &, name const & d, bool persistent) {
+          return add_refl(env, d, persistent);
+        }));
 
-    register_no_params_attribute("symm", "symmetric relation",
-                                 [](environment const & env, io_state const &, name const & d, bool persistent) {
-                                     return add_symm(env, d, persistent);
-                                 });
+    register_attribute(basic_attribute("symm", "symmetric relation", [](environment const & env, io_state const &, name const & d, bool persistent) {
+          return add_symm(env, d, persistent);
+        }));
 
-    register_no_params_attribute("trans", "transitive relation",
-                                 [](environment const & env, io_state const &, name const & d, bool persistent) {
-                                     return add_trans(env, d, persistent);
-                                 });
+    register_attribute(basic_attribute("trans", "transitive relation", [](environment const & env, io_state const &, name const & d, bool persistent) {
+          return add_trans(env, d, persistent);
+        }));
 
-    register_no_params_attribute("subst", "substitution",
-                                 [](environment const & env, io_state const &, name const & d, bool persistent) {
-                                     return add_subst(env, d, persistent);
-                                 });
+    register_attribute(basic_attribute("subst", "substitution", [](environment const & env, io_state const &, name const & d, bool persistent) {
+          return add_subst(env, d, persistent);
+        }));
 }
 
 void finalize_relation_manager() {

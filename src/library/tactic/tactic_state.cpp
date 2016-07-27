@@ -44,10 +44,15 @@ optional<metavar_decl> tactic_state::get_main_goal_decl() const {
     return mctx().get_metavar_decl(head(goals()));
 }
 
-tactic_state mk_tactic_state_for(environment const & env, options const & o, local_context const & lctx, expr const & type) {
-    metavar_context mctx;
+tactic_state mk_tactic_state_for(environment const & env, options const & o, metavar_context mctx,
+                                 local_context const & lctx, expr const & type) {
     expr main = mctx.mk_metavar_decl(lctx, type);
     return tactic_state(env, o, mctx, list<expr>(main), main);
+}
+
+tactic_state mk_tactic_state_for(environment const & env, options const & o, local_context const & lctx, expr const & type) {
+    metavar_context mctx;
+    return mk_tactic_state_for(env, o, mctx, lctx, type);
 }
 
 tactic_state set_options(tactic_state const & s, options const & o) {

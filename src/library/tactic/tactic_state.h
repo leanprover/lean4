@@ -73,7 +73,10 @@ inline optional<tactic_state> none_tactic_state() { return optional<tactic_state
 inline optional<tactic_state> some_tactic_state(tactic_state const & e) { return optional<tactic_state>(e); }
 inline optional<tactic_state> some_tactic_state(tactic_state && e) { return optional<tactic_state>(std::forward<tactic_state>(e)); }
 
-tactic_state mk_tactic_state_for(environment const & env, options const & opts, local_context const & lctx, expr const & type);
+tactic_state mk_tactic_state_for(environment const & env, options const & opts, metavar_context mctx,
+                                 local_context const & lctx, expr const & type);
+tactic_state mk_tactic_state_for(environment const & env, options const & opts,
+                                 local_context const & lctx, expr const & type);
 
 tactic_state set_options(tactic_state const & s, options const & o);
 tactic_state set_env(tactic_state const & s, environment const & env);

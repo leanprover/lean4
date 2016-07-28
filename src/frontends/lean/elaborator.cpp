@@ -294,6 +294,7 @@ expr elaborator::ensure_type(expr const & e, expr const & ref) {
 }
 
 optional<expr> elaborator::ensure_has_type(expr const & e, expr const & e_type, expr const & type) {
+    type_context::approximate_scope scope(m_ctx);
     if (is_def_eq(e_type, type))
         return some_expr(e);
     return none_expr();
@@ -600,11 +601,9 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
 }
 
 expr elaborator::visit_default_app_core(expr const & fn, arg_mask amask, buffer<expr> const & args,
-                                        optional<expr> const & expected_type, bool args_already_visited,
-                                        expr const & ref) {
+                                        bool args_already_visited, expr const & ref) {
     expr fn_type = try_to_pi(infer_type(fn));
     unsigned i = 0;
-    buffer<optional<expr>> types_to_check;
     buffer<expr> new_args;
     expr type = fn_type;
     while (is_pi(type)) {
@@ -620,15 +619,21 @@ expr elaborator::visit_default_app_core(expr const & fn, arg_mask amask, buffer<
                 new_arg = mk_instance(d);
             else
                 new_arg = mk_metavar(d);
-            // we don't types of implicit arguments
-            types_to_check.push_back(none_expr());
         } else if (i < args.size()) {
             // explicit argument
             if (args_already_visited)
                 new_arg = args[i];
             else
                 new_arg = visit(args[i], some_expr(d));
-            types_to_check.push_back(some_expr(d));
+            expr new_arg_type = infer_type(new_arg);
+            if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, d)) {
+                new_arg = *new_new_arg;
+            } else {
+                new_args.push_back(new_arg);
+                format msg = mk_app_type_mismatch_error(mk_app(fn, new_args.size(), new_args.data()),
+                                                        new_arg, new_arg_type, d);
+                throw elaborator_exception(ref, msg);
+            }
             i++;
         } else {
             break;
@@ -637,37 +642,18 @@ expr elaborator::visit_default_app_core(expr const & fn, arg_mask amask, buffer<
         type = try_to_pi(instantiate(binding_body(type), new_arg));
     }
 
-    lean_assert(new_args.size() == types_to_check.size());
-
     if (i != args.size()) {
         throw elaborator_exception(ref, mk_too_many_args_error(fn_type));
     }
-
-    type_context::approximate_scope scope(m_ctx);
-    for (unsigned i = 0; i < new_args.size(); i++) {
-        if (optional<expr> expected_type = types_to_check[i]) {
-            expr & new_arg    = new_args[i];
-            expr new_arg_type = infer_type(new_arg);
-            if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, *expected_type)) {
-                new_arg = *new_new_arg;
-            } else {
-                throw elaborator_exception(ref, mk_app_type_mismatch_error(mk_app(fn, i+1, new_args.data()),
-                                                                           new_arg, new_arg_type, *expected_type));
-            }
-        }
-    }
-
     return mk_app(fn, new_args.size(), new_args.data());
 }
 
-expr elaborator::visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args,
-                                   optional<expr> const & expected_type, expr const & ref) {
-    return visit_default_app_core(fn, amask, args, expected_type, false, ref);
+expr elaborator::visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args, expr const & ref) {
+    return visit_default_app_core(fn, amask, args, false, ref);
 }
 
-expr elaborator::visit_overload_candidate(expr const & fn, buffer<expr> const & args,
-                                          optional<expr> const & expected_type, expr const & ref) {
-    return visit_default_app_core(fn, arg_mask::Default, args, expected_type, true, ref);
+expr elaborator::visit_overload_candidate(expr const & fn, buffer<expr> const & args, expr const & ref) {
+    return visit_default_app_core(fn, arg_mask::Default, args, true, ref);
 }
 
 expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> const & args,
@@ -687,8 +673,9 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
         try {
             checkpoint C(*this);
             m_ctx.set_mctx(mctx);
-            expr c = visit_overload_candidate(fn, new_args, expected_type, ref);
+            expr c = visit_overload_candidate(fn, new_args, ref);
             try_to_synthesize_type_class_instances(initial_inst_stack_sz);
+            // TODO(Leo): check expected type
             candidates.emplace_back(c, m_ctx.mctx());
             C.commit();
         } catch (elaborator_exception & ex) {
@@ -761,7 +748,7 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
                 }
             }
         }
-        return visit_default_app(new_fn, amask, args, expected_type, ref);
+        return visit_default_app(new_fn, amask, args, ref);
     }
 }
 

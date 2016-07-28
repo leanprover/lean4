@@ -669,6 +669,8 @@ static expr replace_with_simple_metavars(metavar_context & mctx, expr const & e)
 
 static environment elab_cmd(parser & p) {
     expr e = p.parse_expr();
+    if (p.used_sorry())
+        p.declare_sorry();
     metavar_context mctx;
     expr new_e; level_param_names ls;
     std::tie(new_e, ls) = p.elaborate(mctx, e);

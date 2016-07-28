@@ -1,0 +1,3 @@
+elab11.lean:6:6: error: ambiguous overload, possible interpretations
+  bla.f 1
+  boo.f 1

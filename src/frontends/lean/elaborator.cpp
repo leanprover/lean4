@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/choice.h"
 #include "library/typed_expr.h"
 #include "library/annotation.h"
+#include "library/pp_options.h"
 #include "library/compiler/rec_fn_macro.h"
 #include "library/tactic/kabstract.h"
 #include "library/tactic/tactic_state.h"
@@ -696,6 +697,8 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
         }
         throw elaborator_exception(ref, r);
     } else if (candidates.size() > 1) {
+        options new_opts = m_opts.update_if_undef(get_pp_full_names_name(), true);
+        flet<options> set_opts(m_opts, new_opts);
         format r("ambiguous overload, possible interpretations");
         for (auto const & c : candidates) {
             r += pp_indent(c.first);

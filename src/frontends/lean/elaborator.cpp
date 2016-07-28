@@ -311,7 +311,12 @@ optional<expr> elaborator::ensure_has_type(expr const & e, expr const & e_type, 
 expr elaborator::visit_typed_expr(expr const & e) {
     expr val          = get_typed_expr_expr(e);
     expr type         = get_typed_expr_type(e);
-    expr new_type     = ensure_type(visit(type, none_expr()), type);
+    expr new_type;
+    {
+        checkpoint C(*this);
+        new_type = ensure_type(visit(type, none_expr()), type);
+        process_checkpoint(C);
+    }
     expr new_val      = visit(val, some_expr(new_type));
     expr new_val_type = infer_type(new_val);
     if (auto r = ensure_has_type(new_val, new_val_type, new_type))

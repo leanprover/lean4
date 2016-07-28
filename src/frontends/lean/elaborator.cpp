@@ -98,23 +98,13 @@ expr elaborator::mk_type_metavar() {
     return mk_metavar(mk_sort(l));
 }
 
-expr elaborator::mk_instance_core(type_context & ctx, expr const & C) {
-    optional<expr> inst = ctx.mk_class_instance(C);
-    trace_elab(tout() << pos_string_for(C) << " type class resolution\n  " << pp(ctx, C) << "\ninstance\n";
-               if (!inst) tout() << "[failed]\n";
-               else tout() << "  " << *inst << "\n";);
+expr elaborator::mk_instance_core(local_context const & lctx, expr const & C) {
+    optional<expr> inst = m_ctx.mk_class_instance_at(lctx, C);
     if (!inst) {
-        tactic_state s = mk_tactic_state_for(m_env, m_opts, ctx.mctx(), ctx.lctx(), C);
+        tactic_state s = mk_tactic_state_for(m_env, m_opts, m_ctx.mctx(), lctx, C);
         throw elaborator_exception(C, format("failed to synthesize type class instance for") + line() + s.pp());
     }
     return *inst;
-}
-
-expr elaborator::mk_instance_core(local_context const & lctx, expr const & C) {
-    type_context tmp_ctx(m_ctx.mctx(), lctx, m_ctx.get_cache(), transparency_mode::Semireducible);
-    expr inst = mk_instance_core(tmp_ctx, C);
-    m_ctx.set_mctx(tmp_ctx.mctx());
-    return inst;
 }
 
 expr elaborator::mk_instance_core(expr const & C) {

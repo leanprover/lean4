@@ -1456,12 +1456,13 @@ bool type_context::is_def_eq_binding(expr e1, expr e2) {
                           instantiate_rev(e2, subst.size(), subst.data()));
 }
 
-static bool mk_nested_instance_core(type_context & ctx, expr const & m, expr const & m_type) {
-    if (auto r = ctx.mk_class_instance(m_type)) {
-        ctx.assign(m, *r);
-        return true;
-    }
-    return false;
+optional<expr> type_context::mk_class_instance_at(local_context const & lctx, expr const & type) {
+    type_context tmp_ctx(m_mctx, lctx, m_cache, m_transparency_mode);
+    /* We shared the cache with tmp_ctx. So, it may be tainted with an incompatible local context. */
+    m_local_instances_initialized = false;
+    auto r = tmp_ctx.mk_class_instance(type);
+    if (r) m_mctx = tmp_ctx.mctx();
+    return r;
 }
 
 /** \brief Create a nested type class instance of the given type, and assign it to metavariable \c m.
@@ -1471,22 +1472,22 @@ bool type_context::mk_nested_instance(expr const & m, expr const & m_type) {
     lean_assert(is_mvar(m));
     /* IMPORTANT: when mk_nested_instance is invoked we must make sure that
        we use the local context where 'm' was declared. */
+    optional<expr> inst;
     if (in_tmp_mode()) {
         /* We don't need to create a temporary type context since all tmp metavars
            share the same local_context */
-        return mk_nested_instance_core(*this, m, m_type);
+        inst = mk_class_instance(m_type);
+    } else {
+        optional<metavar_decl> mdecl = m_mctx.get_metavar_decl(m);
+        if (!mdecl) return false;
+        inst = mk_class_instance_at(mdecl->get_context(), m_type);
     }
-
-    optional<metavar_decl> mdecl = m_mctx.get_metavar_decl(m);
-    if (!mdecl) return false;
-
-    type_context tmp_ctx(m_mctx, mdecl->get_context(), m_cache, m_transparency_mode);
-    /* We shared the cache with tmp_ctx. So, it may be tainted with an incompatible local context. */
-    m_local_instances_initialized = false;
-    bool r = mk_nested_instance_core(tmp_ctx, m, m_type);
-    if (r)
-        m_mctx = tmp_ctx.mctx();
-    return r;
+    if (inst) {
+        assign(m, *inst);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 expr type_context::complete_instance(expr const & e) {

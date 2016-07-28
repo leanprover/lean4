@@ -189,7 +189,6 @@ public:
     metavar_context const & mctx() const { return m_mctx; }
     expr mk_metavar_decl(local_context const & ctx, expr const & type) { return m_mctx.mk_metavar_decl(ctx, type); }
     level mk_univ_metavar_decl() { return m_mctx.mk_univ_metavar_decl(); }
-    type_context_cache & get_cache() { return m_cache; }
 
     /* note: mctx must be a descendent of m_mctx */
     void set_mctx(metavar_context const & mctx) { m_mctx = mctx; }
@@ -245,6 +244,8 @@ public:
     optional<name> is_class(expr const & type);
     optional<expr> mk_class_instance(expr const & type);
     optional<expr> mk_subsingleton_instance(expr const & type);
+    /* Create type class instance in a different local context */
+    optional<expr> mk_class_instance_at(local_context const & lctx, expr const & type);
 
     transparency_mode mode() const { return m_transparency_mode; }
     unsigned mode_idx() const { return static_cast<unsigned>(mode()); }

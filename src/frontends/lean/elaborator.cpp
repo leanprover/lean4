@@ -316,7 +316,7 @@ expr elaborator::visit_typed_expr(expr const & e) {
         return *r;
     throw elaborator_exception(e,
                                format("invalid type ascription, expression has type") + pp_indent(new_val_type) +
-                               line() + format(", but is expected to have type") + pp_indent(new_type));
+                               line() + format("but is expected to have type") + pp_indent(new_type));
 }
 
 expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_type) {
@@ -676,8 +676,18 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
             m_ctx.set_mctx(mctx);
             expr c = visit_overload_candidate(fn, new_args, ref);
             try_to_synthesize_type_class_instances(initial_inst_stack_sz);
-            // TODO(Leo): check expected type
-            candidates.emplace_back(c, m_ctx.mctx());
+            if (expected_type) {
+                expr c_type = infer_type(c);
+                if (ensure_has_type(c, c_type, *expected_type)) {
+                    candidates.emplace_back(c, m_ctx.mctx());
+                } else {
+                    throw elaborator_exception(ref, format("invalid overload, expression") + pp_indent(c) +
+                                               line() + format("has type") + pp_indent(c_type) +
+                                               line() + format("but is expected to have type") + pp_indent(*expected_type));
+                }
+            } else {
+                candidates.emplace_back(c, m_ctx.mctx());
+            }
             C.commit();
         } catch (elaborator_exception & ex) {
             error_msgs.push_back(ex);
@@ -692,7 +702,8 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
         lean_assert(error_msgs.size() == fns.size());
         for (unsigned i = 0; i < fns.size(); i++) {
             if (i > 0) r += line();
-            r += line() + format("error for") + space() + pp(fns[i]);
+            format f_fmt = (is_constant(fns[i])) ? format(const_name(fns[i])) : pp(fns[i]);
+            r += line() + format("error for") + space() + f_fmt;
             r += line() + error_msgs[i].pp();
         }
         throw elaborator_exception(ref, r);

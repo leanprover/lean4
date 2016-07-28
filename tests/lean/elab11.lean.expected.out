@@ -1,3 +1,21 @@
 elab11.lean:6:6: error: ambiguous overload, possible interpretations
   bla.f 1
   boo.f 1
+bla.f 1 : ℕ
+boo.f 1 : bool
+elab11.lean:16:7: error: none of the overloads is applicable
+error for bla.f
+invalid overload, expression
+  f 1
+has type
+  ℕ
+but is expected to have type
+  string
+
+error for boo.f
+invalid overload, expression
+  f 1
+has type
+  bool
+but is expected to have type
+  string

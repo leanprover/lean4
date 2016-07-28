@@ -161,44 +161,6 @@ static expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const &
 
 static expr parse_proof(parser & p);
 
-static expr parse_using_expr(parser & p, pos_info const & using_pos) {
-    parser::local_scope scope(p);
-    buffer<expr> locals;
-    buffer<expr> new_locals;
-    while (!p.curr_is_token(get_comma_tk())) {
-        auto id_pos = p.pos();
-        expr l      = p.parse_id();
-        if (!is_local(l))
-            throw parser_error("invalid 'using' declaration, local expected", id_pos);
-        expr new_l;
-        binder_info bi = local_info(l);
-        if (p.is_local_variable_parameter(local_pp_name(l))) {
-            expr new_type = p.save_pos(mk_as_is(mlocal_type(l)), id_pos);
-            new_l = p.save_pos(mk_local(mlocal_name(l), local_pp_name(l), new_type, bi), id_pos);
-        } else {
-            new_l = p.save_pos(update_local(l, bi), id_pos);
-        }
-        p.add_local(new_l);
-        locals.push_back(l);
-        new_locals.push_back(new_l);
-    }
-    p.next(); // consume ','
-    expr pr = p.parse_expr();
-    unsigned i = locals.size();
-    while (i > 0) {
-        --i;
-        expr l     = locals[i];
-        expr new_l = new_locals[i];
-        pr = p.save_pos(Fun(new_l, pr), using_pos);
-        pr = p.save_pos(mk_app(pr, l), using_pos);
-    }
-    return pr;
-}
-
-static expr parse_using(parser & p, unsigned, expr const *, pos_info const & pos) {
-    return parse_using_expr(p, pos);
-}
-
 static expr parse_proof(parser & p) {
     if (p.curr_is_token(get_from_tk())) {
         // parse: 'from' expr
@@ -726,7 +688,6 @@ parse_table init_nud_table() {
     r = r.add({transition("@", mk_ext_action(parse_explicit_expr))}, x0);
     r = r.add({transition("@@", mk_ext_action(parse_partial_explicit_expr))}, x0);
     r = r.add({transition("begin", mk_ext_action_core(parse_begin_end))}, x0);
-    r = r.add({transition("using", mk_ext_action(parse_using))}, x0);
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
     r = r.add({transition("match", mk_ext_action(parse_match))}, x0);
     r = r.add({transition("do", mk_ext_action(parse_do))}, x0);

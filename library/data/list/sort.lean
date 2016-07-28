@@ -29,8 +29,12 @@ include decA
 variable {R}
 variables (to : total R) (tr : transitive R) (rf : reflexive R)
 
+section
+include to tr rf
 lemma min_core_lemma : ∀ {b l} a, b ∈ l ∨ b = a → R (min_core R l a) b
-:= using to tr rf, sorry
+:= sorry
+end
+
 /-
 | b []     a h := or.elim h
   (suppose b ∈ [], absurd this !not_mem_nil)
@@ -123,10 +127,12 @@ lemma min_mem : ∀ (l : list A) (h : l ≠ nil), min R l h ∈ l
   end
   -/
 
+section
+include to tr rf
 lemma min_map (f : B → A) {l : list B} (h : l ≠ nil) :
       all l (λ b, (R (min R (map f l) (map_ne_nil_of_ne_nil _ h))) (f b)):=
-  using to tr rf,
-  sorry
+sorry
+end
   /-
   begin
     apply all_of_forall,

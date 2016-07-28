@@ -176,7 +176,6 @@ parser::parser(environment const & env, io_state const & ios,
     m_base_dir(base_dir),
     m_theorem_queue(*this, num_threads > 1 ? num_threads - 1 : 0),
     m_snapshot_vector(sv), m_info_manager(im), m_cache(nullptr), m_index(nullptr) {
-    m_local_decls_size_at_beg_cmd = 0;
     m_ignore_noncomputable = false;
     m_profile     = ios.get_options().get_bool("profile", false);
     init_stop_at(ios.get_options());
@@ -1883,11 +1882,9 @@ void parser::parse_command() {
         if (is_notation_cmd(cmd_name)) {
             in_notation_ctx ctx(*this);
             next();
-            m_local_decls_size_at_beg_cmd = m_local_decls.size();
             m_env = it->get_fn()(*this);
         } else {
             next();
-            m_local_decls_size_at_beg_cmd = m_local_decls.size();
             m_env = it->get_fn()(*this);
         }
     } else {

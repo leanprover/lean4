@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/scope_pos_info_provider.h"
 #include "library/choice.h"
 #include "library/typed_expr.h"
+#include "library/annotation.h"
 #include "library/compiler/rec_fn_macro.h"
 #include "library/tactic/kabstract.h"
 #include "library/tactic/tactic_state.h"
@@ -789,6 +790,9 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
     } else if (is_rec_fn_macro(e)) {
         // TODO(Leo)
         lean_unreachable();
+    } else if (is_annotation(e)) {
+        expr r = visit(get_annotation_arg(e), expected_type);
+        return update_macro(e, 1, &r);
     } else {
         buffer<expr> args;
         for (unsigned i = 0; i < macro_num_args(e); i++)

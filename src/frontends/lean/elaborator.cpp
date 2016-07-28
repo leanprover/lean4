@@ -298,6 +298,11 @@ optional<expr> elaborator::ensure_has_type(expr const & e, expr const & e_type, 
     type_context::approximate_scope scope(m_ctx);
     if (is_def_eq(e_type, type))
         return some_expr(e);
+
+    // Coercion from bool => Prop
+    if (is_constant(e_type, get_bool_name()) && type == mk_Prop())
+        return some_expr(mk_eq(m_ctx, e, mk_constant(get_bool_tt_name())));
+
     return none_expr();
 }
 

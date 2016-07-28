@@ -675,7 +675,7 @@ static environment elab_cmd(parser & p) {
     expr new_e; level_param_names ls;
     std::tie(new_e, ls) = p.elaborate(mctx, e);
     new_e     = replace_with_simple_metavars(mctx, new_e);
-    aux_type_context ctx(p.env(), p.get_options(), mctx, p.get_local_context());
+    aux_type_context ctx(p.env(), p.get_options(), mctx, local_context());
     auto out  = regular(p.env(), p.ios(), ctx);
     auto tc   = mk_type_checker(p.env());
     expr type = tc->check(new_e, ls).first;

@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/private.h"
 #include "library/locals.h"
+#include "library/local_context.h"
 #include "library/protected.h"
 #include "library/choice.h"
 #include "library/placeholder.h"
@@ -49,8 +50,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/parser_pos_provider.h"
-// #include "frontends/lean/parse_rewrite_tactic.h"
-// #include "frontends/lean/parse_tactic_location.h"
 #include "frontends/lean/update_environment_exception.h"
 #include "frontends/lean/local_ref_info.h"
 #include "frontends/lean/opt_cmd.h"
@@ -187,7 +186,6 @@ parser::parser(environment const & env, io_state const & ios,
     if (s) {
         m_local_level_decls  = s->m_lds;
         m_local_decls        = s->m_eds;
-        m_local_context      = s->m_lctx;
         m_level_variables    = s->m_lvars;
         m_variables          = s->m_vars;
         m_include_vars       = s->m_include_vars;
@@ -601,7 +599,7 @@ expr parser::mk_app(std::initializer_list<expr> const & args, pos_info const & p
 parser_scope parser::mk_parser_scope(optional<options> const & opts) {
     return parser_scope(opts, m_level_variables, m_variables, m_include_vars,
                         m_undef_ids.size(), m_next_inst_idx, m_has_params,
-                        m_local_level_decls, m_local_context, m_local_decls);
+                        m_local_level_decls, m_local_decls);
 }
 
 void parser::restore_parser_scope(parser_scope const & s) {
@@ -610,7 +608,6 @@ void parser::restore_parser_scope(parser_scope const & s) {
         updt_options();
     }
     m_local_level_decls  = s.m_local_level_decls;
-    m_local_context      = s.m_local_context;
     m_local_decls        = s.m_local_decls;
     m_level_variables    = s.m_level_variables;
     m_variables          = s.m_variables;
@@ -638,8 +635,7 @@ void parser::pop_local_scope() {
 
 void parser::clear_locals() {
     m_local_level_decls = local_level_decls();
-    m_local_context     = local_context();
-    m_local_decls       = local_expr_decls(); // TODO(Leo): delete
+    m_local_decls       = local_expr_decls();
 }
 
 void parser::add_local_level(name const & n, level const & l, bool is_variable) {
@@ -917,7 +913,7 @@ elaborator_context parser::mk_elaborator_context(environment const & env, local_
 }
 
 std::tuple<expr, level_param_names> parser::elaborate(metavar_context & mctx, expr const & e) {
-    return ::lean::elaborate(m_env, get_options(), m_local_level_decls, mctx, m_local_context, e);
+    return ::lean::elaborate(m_env, get_options(), m_local_level_decls, mctx, local_context(), e);
 }
 
 std::tuple<expr, level_param_names> parser::elaborate(expr const & e) {
@@ -2119,7 +2115,7 @@ void parser::save_snapshot() {
     if (!m_snapshot_vector)
         return;
     if (m_snapshot_vector->empty() || static_cast<int>(m_snapshot_vector->back().m_line) != m_scanner.get_line())
-        m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_context, m_local_decls,
+        m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_decls,
                                               m_level_variables, m_variables, m_include_vars,
                                               m_ios.get_options(), m_parser_scope_stack, m_scanner.get_line()));
 }

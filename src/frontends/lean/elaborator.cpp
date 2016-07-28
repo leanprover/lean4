@@ -498,43 +498,72 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
     expr fn_type = try_to_pi(infer_type(fn));
     buffer<expr> new_args;
 
-    // In the first pass we only process the arguments at info.m_explicit_idxs
+    /* In the first pass we only process the arguments at info.m_explicit_idxs */
     expr type = fn_type;
     unsigned i = 0;
     unsigned j = 0;
-    list<unsigned> const & main_idxs = info.m_explicit_idxs;
-    while (is_pi(type)) {
-        expr const & d = binding_domain(type);
-        binder_info const & bi = binding_info(type);
-        expr new_arg;
-        if (std::find(main_idxs.begin(), main_idxs.end(), i) != main_idxs.end()) {
-            new_arg = visit(args[j], some_expr(d));
-            j++;
-            if (has_expr_metavar(new_arg)) {
-                throw elaborator_exception(ref, format("invalid '") + format(const_name(fn)) + format ("' application, ") +
-                                           format("elaborator has special support for this kind of application ") +
-                                           format("(it is handled as an \"eliminator\"), ") +
-                                           format("but term") + pp_indent(new_arg) +
-                                           line() + format("must not contain metavariables because") +
-                                           format("it is used to compute the motive"));
+    list<unsigned> main_idxs = info.m_explicit_idxs;
+    buffer<optional<expr>> postponed_args; // mark arguments that must be elaborated in the second pass.
+    {
+        checkpoint C(*this);
+        while (is_pi(type)) {
+            expr const & d = binding_domain(type);
+            binder_info const & bi = binding_info(type);
+            expr new_arg;
+            optional<expr> postponed;
+            if (std::find(main_idxs.begin(), main_idxs.end(), i) != main_idxs.end()) {
+                new_arg = visit(args[j], some_expr(d));
+                j++;
+                if (has_expr_metavar(new_arg)) {
+                    throw elaborator_exception(ref, format("invalid '") + format(const_name(fn)) +
+                                               format ("' application, ") +
+                                               format("elaborator has special support for this kind of application ") +
+                                               format("(it is handled as an \"eliminator\"), ") +
+                                               format("but term") + pp_indent(new_arg) +
+                                               line() + format("must not contain metavariables because") +
+                                               format("it is used to compute the motive"));
+                }
+                expr new_arg_type = infer_type(new_arg);
+                if (!is_def_eq(new_arg_type, d)) {
+                    throw elaborator_exception(ref, mk_app_type_mismatch_error(mk_app(fn, i+1, new_args.data()),
+                                                                               new_arg, new_arg_type, d));
+                }
+            } else if (is_explicit(bi)) {
+                new_arg   = mk_metavar(d);
+                postponed = args[j];
+                j++;
+            } else if (bi.is_inst_implicit()) {
+                new_arg = mk_instance(d);
+            } else {
+                new_arg = mk_metavar(d);
             }
-            expr new_arg_type = infer_type(new_arg);
-            if (!is_def_eq(new_arg_type, d)) {
-                throw elaborator_exception(ref, mk_app_type_mismatch_error(mk_app(fn, i+1, new_args.data()),
-                                                                           new_arg, new_arg_type, d));
-            }
-        } else if (is_explicit(bi)) {
-            new_arg = mk_metavar(d);
-            j++;
-        } else if (bi.is_inst_implicit()) {
-            new_arg = mk_instance(d);
-        } else {
-            new_arg = mk_metavar(d);
+            new_args.push_back(new_arg);
+            postponed_args.push_back(postponed);
+            type = try_to_pi(instantiate(binding_body(type), new_arg));
+            i++;
         }
-        new_args.push_back(new_arg);
-        type = try_to_pi(instantiate(binding_body(type), new_arg));
-        i++;
+
+        lean_assert(new_args.size() == info.m_arity);
+
+        /* Process extra arguments */
+        for (; j < args.size(); j++) {
+            new_args.push_back(visit(args[j], none_expr()));
+        }
+        process_checkpoint(C);
     }
+
+    /* Compute expected_type for the recursor application without extra arguments */
+    buffer<expr> extra_args;
+    i = new_args.size();
+    while (i > info.m_arity) {
+        --i;
+        expr new_arg      = instantiate_mvars(new_args[i]);
+        expr new_arg_type = instantiate_mvars(infer_type(new_arg));
+        expected_type     = mk_pi("_a", new_arg_type, kabstract(m_ctx, expected_type, new_arg));
+        extra_args.push_back(new_arg);
+    }
+    new_args.shrink(i);
+    std::reverse(extra_args.begin(), extra_args.end());
 
     // Compute motive */
     trace_elab_debug(tout() << "compute motive by using keyed-abstraction:\n  " <<
@@ -557,8 +586,21 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
         throw elaborator_exception(ref, format("\"eliminator\" elaborator failed to compute the motive"));
     }
 
-    // TODO(Leo)
-    lean_unreachable();
+    /* Elaborate postponed arguments */
+    for (unsigned i = 0; i < new_args.size(); i++) {
+        if (optional<expr> arg = postponed_args[i]) {
+            lean_assert(is_metavar(new_args[i]));
+            expr new_arg_type = instantiate_mvars(infer_type(new_args[i]));
+            expr new_arg      = visit(*arg, some_expr(new_arg_type));
+            if (!is_def_eq(new_args[i], new_arg)) {
+                throw elaborator_exception(ref, format("\"eliminator\" elaborator failed to assign explicit argument"));
+            }
+        }
+    }
+
+    expr r = instantiate_mvars(mk_app(mk_app(fn, new_args), extra_args));
+    trace_elab_debug(tout() << "elaborated recursor:\n  " << r << "\n";);
+    return r;
 }
 
 expr elaborator::visit_default_app_core(expr const & fn, arg_mask amask, buffer<expr> const & args,

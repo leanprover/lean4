@@ -159,6 +159,9 @@ class parser : public pos_info_provider {
     // noncomputable definitions not tagged as noncomputable.
     bool                   m_ignore_noncomputable;
 
+    // Temporary field for switching to new elaborator
+    bool                   m_new_elaborator{false};
+
     void display_warning_pos(unsigned line, unsigned pos);
     void display_error_pos(unsigned line, unsigned pos);
     void display_error_pos(pos_info p);
@@ -258,6 +261,9 @@ public:
     unsigned curr_lbp() const;
 
     cmd_table const & cmds() const { return get_cmd_table(env()); }
+
+    /* TODO(Leo): delete after we finish the transition to new elaborator */
+    bool use_new_elaborator() const { return m_new_elaborator; }
 
     void set_cache(definition_cache * c) { m_cache = c; }
     void cache_definition(name const & n, expr const & pre_type, expr const & pre_value,

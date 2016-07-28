@@ -306,6 +306,19 @@ optional<expr> elaborator::ensure_has_type(expr const & e, expr const & e_type, 
     return none_expr();
 }
 
+expr elaborator::enforce_type(expr const & e, expr const & expected_type, char const * header, expr const & ref) {
+    expr e_type = infer_type(e);
+    if (auto r = ensure_has_type(e, e_type, expected_type)) {
+        return *r;
+    } else {
+        format msg = format(header);
+        msg += format(", expression") + pp_indent(e);
+        msg += line() + format("has type") + pp_indent(e_type);
+        msg += line() + format("but is expected to have type") + pp_indent(expected_type);
+        throw elaborator_exception(ref, msg);
+    }
+}
+
 expr elaborator::visit_typed_expr(expr const & e) {
     expr val          = get_typed_expr_expr(e);
     expr type         = get_typed_expr_type(e);
@@ -888,9 +901,39 @@ expr elaborator::visit_placeholder(expr const & e, optional<expr> const & expect
         return mk_metavar(mk_type_metavar());
 }
 
+static bool is_have_expr(expr const & e) {
+    return is_app(e) && is_have_annotation(app_fn(e)) && is_lambda(get_annotation_arg(app_fn(e)));
+}
+
+expr elaborator::checkpoint_visit(expr const & e, optional<expr> const & expected_type) {
+    checkpoint C(*this);
+    expr r = visit(e, expected_type);
+    process_checkpoint(C);
+    return r;
+}
+
+expr elaborator::visit_have_expr(expr const & e, optional<expr> const & expected_type) {
+    lean_assert(is_have_expr(e));
+    expr lambda     = get_annotation_arg(app_fn(e));
+    expr type       = binding_domain(lambda);
+    expr proof      = app_arg(e);
+    expr new_type   = checkpoint_visit(type, none_expr());
+    new_type        = ensure_type(new_type, type);
+    expr new_proof  = checkpoint_visit(proof, some_expr(new_type));
+    new_proof       = enforce_type(new_proof, new_type, "invalid have-expression", proof);
+    type_context::tmp_locals locals(m_ctx);
+    locals.push_local(binding_name(lambda), new_type, binding_info(lambda));
+    expr body       = instantiate_rev(binding_body(lambda), locals);
+    expr new_body   = visit(body, expected_type);
+    expr new_lambda = locals.mk_lambda(new_body);
+    return mk_app(mk_have_annotation(new_lambda), new_proof);
+}
+
 expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
     if (is_placeholder(e)) {
         return visit_placeholder(e, expected_type);
+    } else if (is_have_expr(e)) {
+        return visit_have_expr(e, expected_type);
     } else {
         switch (e.kind()) {
         case expr_kind::Var:        lean_unreachable();  // LCOV_EXCL_LINE

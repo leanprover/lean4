@@ -99,15 +99,19 @@ class elaborator {
     expr ensure_type(expr const & e, expr const & ref);
     expr ensure_function(expr const & e, expr const & ref);
     optional<expr> ensure_has_type(expr const & e, expr const & e_type, expr const & type);
+    expr enforce_type(expr const & e, expr const & expected_type, char const * header, expr const & ref);
 
     bool is_elim_elab_candidate(name const & fn);
     optional<elim_info> use_elim_elab_core(name const & fn);
     optional<elim_info> use_elim_elab(name const & fn);
 
+    expr checkpoint_visit(expr const & e, optional<expr> const & expected_type);
+
     expr visit_typed_expr(expr const & e);
     expr visit_prenum_core(expr const & e, optional<expr> const & expected_type);
     expr visit_prenum(expr const & e, optional<expr> const & expected_type);
     expr visit_placeholder(expr const & e, optional<expr> const & expected_type);
+    expr visit_have_expr(expr const & e, optional<expr> const & expected_type);
 
     expr visit_sort(expr const & e);
     expr visit_const_core(expr const & e);

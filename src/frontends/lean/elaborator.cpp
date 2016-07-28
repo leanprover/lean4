@@ -720,7 +720,8 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
     }
 }
 
-expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<expr> const & expected_type) {
+expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<expr> const & expected_type,
+                                expr const & ref) {
     arg_mask amask = arg_mask::Default;
     if (is_explicit(fn)) {
         fn   = get_explicit_arg(fn);
@@ -735,47 +736,47 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
     if (is_choice(fn)) {
         buffer<expr> fns;
         if (amask != arg_mask::Default)
-            throw elaborator_exception(fn, format("invalid explicit annotation, symbol is overloaded "
-                                                  "(solution: use fully qualified names)"));
+            throw elaborator_exception(ref, format("invalid explicit annotation, symbol is overloaded "
+                                                   "(solution: use fully qualified names)"));
         for (unsigned i = 0; i < get_num_choices(fn); i++) {
             expr const & fn_i = get_choice(fn, i);
             fns.push_back(fn_i);
         }
-        validate_overloads(fns, fn);
+        validate_overloads(fns, ref);
         for (expr & new_fn : fns) {
-            new_fn = visit_function(new_fn, has_args, fn);
+            new_fn = visit_function(new_fn, has_args, ref);
         }
-        return visit_overloaded_app(fns, args, expected_type, fn);
+        return visit_overloaded_app(fns, args, expected_type, ref);
     } else {
-        expr new_fn = visit_function(fn, has_args, fn);
+        expr new_fn = visit_function(fn, has_args, ref);
         /* Check if we should use a custom elaboration procedure for this application. */
         if (is_constant(new_fn) && amask == arg_mask::Default) {
             if (auto info = use_elim_elab(const_name(new_fn))) {
                 if (args.size() >= info->m_nexplicit) {
-                    return visit_elim_app(new_fn, *info, args, expected_type, fn);
+                    return visit_elim_app(new_fn, *info, args, expected_type, ref);
                 } else {
-                    trace_elab(tout() << pos_string_for(fn) << " 'eliminator' elaboration is not used for '" << fn <<
+                    trace_elab(tout() << pos_string_for(ref) << " 'eliminator' elaboration is not used for '" << fn <<
                                "' because it is not fully applied, #" << info->m_nexplicit <<
                                " explicit arguments expected\n";);
                 }
             }
         }
-        return visit_default_app(new_fn, amask, args, expected_type, fn);
+        return visit_default_app(new_fn, amask, args, expected_type, ref);
     }
 }
 
 expr elaborator::visit_local(expr const & e, optional<expr> const & expected_type) {
-    return visit_app_core(e, buffer<expr>(), expected_type);
+    return visit_app_core(e, buffer<expr>(), expected_type, e);
 }
 
 expr elaborator::visit_constant(expr const & e, optional<expr> const & expected_type) {
-    return visit_app_core(e, buffer<expr>(), expected_type);
+    return visit_app_core(e, buffer<expr>(), expected_type, e);
 }
 
 expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type) {
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);
-    return visit_app_core(fn, args, expected_type);
+    return visit_app_core(fn, args, expected_type, e);
 }
 
 expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type) {
@@ -786,7 +787,7 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
     } else if (is_typed_expr(e)) {
         return visit_typed_expr(e);
     } else if (is_choice(e) || is_explicit(e) || is_partial_explicit(e)) {
-        return visit_app_core(e, buffer<expr>(), expected_type);
+        return visit_app_core(e, buffer<expr>(), expected_type, e);
     } else if (is_rec_fn_macro(e)) {
         // TODO(Leo)
         lean_unreachable();

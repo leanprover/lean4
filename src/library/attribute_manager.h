@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <string>
 #include "kernel/environment.h"
 #include "library/io_state.h"
 #include "util/priority_queue.h"
@@ -19,6 +20,7 @@ struct attr_data {
     virtual unsigned hash() const {
         return 0;
     }
+    virtual ~attr_data() {}
 };
 
 typedef std::shared_ptr<attr_data> attr_data_ptr;
@@ -32,12 +34,20 @@ private:
     std::string m_token;
 protected:
     environment set_core(environment const &, io_state const &, name const &, attr_data_ptr, bool) const;
+    virtual attr_data_ptr get(environment const &, name const &) const;
     virtual void write_entry(serializer &, attr_data const &) const = 0;
     virtual attr_data_ptr read_entry(deserializer &) const = 0;
 public:
     attribute(char const * id, char const * descr) : m_id(id), m_descr(descr), m_token(std::string("[") + id) {}
+    virtual ~attribute() {}
+
     std::string const & get_name() const { return m_id; }
     std::string const & get_token() const { return m_token; }
+
+    bool is_set_on(environment const & env, name const & d) const {
+        return static_cast<bool>(get(env, d));
+    }
+    virtual void get_instances(environment const &, buffer<name> & b) const;
 };
 
 typedef std::shared_ptr<attribute const> attribute_ptr;
@@ -50,7 +60,7 @@ private:
     on_set_proc m_on_set;
 protected:
     virtual void write_entry(serializer &, attr_data const &) const override final {}
-    virtual attr_data_ptr read_entry(deserializer &) const override final { return {}; }
+    virtual attr_data_ptr read_entry(deserializer &) const override final { return attr_data_ptr(new attr_data); }
 public:
     basic_attribute(char const * id, char const * descr, on_set_proc on_set) : attribute(id, descr),
                                                                                m_on_set(on_set) {}
@@ -67,7 +77,7 @@ private:
     on_set_proc m_on_set;
 protected:
     virtual void write_entry(serializer &, attr_data const &) const override final {}
-    virtual attr_data_ptr read_entry(deserializer &) const override final { return {}; }
+    virtual attr_data_ptr read_entry(deserializer &) const override final { return attr_data_ptr(new attr_data); }
 public:
     prio_attribute(char const * id, char const * descr, on_set_proc on_set) : attribute(id, descr),
                                                                               m_on_set(on_set) {}
@@ -103,6 +113,13 @@ public:
             env2 = m_on_set(env2, ios, n, data, persistent);
         return env2;
     }
+    std::shared_ptr<Data> get_data(environment const & env, name const & n) const {
+        auto data = get(env, n);
+        if (!data)
+            return {};
+        lean_assert(std::dynamic_pointer_cast<Data>(data));
+        return std::static_pointer_cast<Data>(data);
+    }
 };
 
 struct unsigned_params_attribute_data : public attr_data {
@@ -128,6 +145,7 @@ template class typed_attribute<unsigned_params_attribute_data>;
 typedef typed_attribute<unsigned_params_attribute_data> unsigned_params_attribute;
 
 void register_attribute(attribute_ptr);
+attribute const & get_attribute(std::string const & attr);
 
 template<typename Attribute>
 void register_attribute(Attribute attr) {
@@ -149,7 +167,7 @@ environment set_attribute(environment const & env, io_state const & ios, char co
                           name const & d, bool persistent);
 
 bool has_attribute(environment const & env, char const * attr, name const & d);
-void get_attribute_instances(environment const & env, name const & attr, buffer<name> &);
+void get_attribute_instances(environment const & env, char const * attr, buffer<name> &);
 priority_queue<name, name_quick_cmp> get_attribute_instances_by_prio(environment const & env, name const & attr);
 
 unsigned get_attribute_prio(environment const & env, std::string const & attr, name const & d);

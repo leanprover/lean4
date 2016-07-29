@@ -180,7 +180,6 @@ public:
         add_delayed_update([=](environment const & env, io_state const & ios) -> environment {
             return register_entry(env, ios, e);
         });
-
     }
     static state const & get_state(environment const & env) {
         return get(env).m_state;

@@ -33,7 +33,7 @@ bool is_attribute(std::string const & attr) {
     throw exception(sstream() << "unknown attribute '" << attr << "'");
 }
 
-static attribute const & get_attribute(std::string const & attr) {
+attribute const & get_attribute(std::string const & attr) {
     auto it = g_attributes->find(attr);
     if (it != g_attributes->end())
         return *it->second;
@@ -108,15 +108,20 @@ struct attr_config {
 template class scoped_ext<attr_config>;
 typedef scoped_ext<attr_config> attribute_ext;
 
-static attr_records const & get_attr_records(environment const & env, std::string const & n) {
-    if (auto state = attribute_ext::get_state(env).find(n))
-        return *state;
-    throw_unknown_attribute(n);
-}
-
 environment attribute::set_core(environment const & env, io_state const & ios, name const & n, attr_data_ptr data,
                                 bool persistent) const {
     return attribute_ext::add_entry(env, ios, attr_entry(m_id, LEAN_DEFAULT_PRIORITY, attr_record(n, data)), persistent);
+}
+attr_data_ptr attribute::get(environment const & env, name const & n) const {
+    if (auto records = attribute_ext::get_state(env).find(m_id))
+        if (auto record = records->get_key({n, {}}))
+            return record->m_data;
+    return {};
+}
+
+void attribute::get_instances(environment const & env, buffer<name> & r) const {
+    if (auto records = attribute_ext::get_state(env).find(m_id))
+        records->for_each([&](attr_record const & rec) { r.push_back(rec.m_decl); });
 }
 
 environment basic_attribute::set(environment const & env, io_state const & ios, name const & n, bool persistent) const {
@@ -171,15 +176,13 @@ char const * get_attribute_token(char const * name) {
 }
 
 bool has_attribute(environment const & env, char const * attr, name const & d) {
-    if (auto it = attribute_ext::get_state(env).find(attr))
-        // attr_data_ptr is ignored by comparison
-        return it->contains({d, {}});
-    return false;
+    return get_attribute(attr).is_set_on(env, d);
 }
 
-void get_attribute_instances(environment const & env, name const & attr, buffer<name> & r) {
-    attribute_ext::get_state(env).find(attr)->for_each([&](attr_record const & rec) { r.push_back(rec.m_decl); });
+void get_attribute_instances(environment const & env, char const * attr, buffer<name> & r) {
+    return get_attribute(attr).get_instances(env, r);
 }
+
 priority_queue<name, name_quick_cmp> get_attribute_instances_by_prio(environment const & env, name const & attr) {
     priority_queue<name, name_quick_cmp> q;
     auto recs = attribute_ext::get_state(env).find(attr);
@@ -210,14 +213,19 @@ environment set_attribute(environment const & env, io_state const & ios, char co
 }
 
 unsigned get_attribute_prio(environment const & env, std::string const & attr, name const & d) {
-    return get_attr_records(env, attr).get_prio({d, {}}).value();
+    if (auto records = attribute_ext::get_state(env).find(attr))
+        if (auto prio = records->get_prio({d, {}}))
+            return prio.value();
+    return LEAN_DEFAULT_PRIORITY;
 }
 
 list<unsigned> get_attribute_params(environment const & env, std::string const & attr, name const & d) {
-    auto record = get_attr_records(env, attr).get_key({d, {}});
-    lean_assert(record);
-    lean_assert(dynamic_cast<unsigned_params_attribute_data const *>(record->m_data.get()));
-    return static_cast<unsigned_params_attribute_data const *>(record->m_data.get())->m_params;
+    if (auto attribute = dynamic_cast<unsigned_params_attribute const *>(&get_attribute(attr))) {
+        auto data = attribute->get_data(env, d);
+        lean_assert(data);
+        return data->m_params;
+    }
+    return list<unsigned>();
 }
 
 bool are_incompatible(char const * attr1, char const * attr2) {

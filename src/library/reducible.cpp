@@ -14,10 +14,68 @@ Author: Leonardo de Moura
 #include "library/attribute_manager.h"
 
 namespace lean {
+struct reducibility_attribute_data : public attr_data {
+    reducible_status m_status;
+    reducibility_attribute_data() {}
+    reducibility_attribute_data(reducible_status status) : m_status(status) {}
+
+    virtual unsigned hash() const override {
+        return static_cast<unsigned>(m_status);
+    }
+    void write(serializer & s) const {
+        s << static_cast<char>(m_status);
+    }
+    void read(deserializer & d) {
+        char c;
+        d >> c;
+        m_status = static_cast<reducible_status>(c);
+    }
+};
+
+template class typed_attribute<reducibility_attribute_data>;
+typedef typed_attribute<reducibility_attribute_data> reducibility_attribute;
+
+static reducibility_attribute const & get_reducibility_attribute() {
+    return static_cast<reducibility_attribute const &>(get_attribute("reducibility"));
+}
+
+class proxy_attribute : public basic_attribute {
+private:
+    reducible_status m_status;
+protected:
+    virtual attr_data_ptr get(environment const & env, name const & n) const override {
+        if (auto data = get_reducibility_attribute().get_data(env, n)) {
+            if (data->m_status == m_status)
+                return attr_data_ptr(new attr_data);
+        }
+        return {};
+    }
+public:
+    proxy_attribute(char const * id, char const * descr, reducible_status m_status) : basic_attribute(id, descr),
+                                                                                      m_status(m_status) {}
+
+    virtual environment set(environment const & env, io_state const & ios, name const & n, bool persistent) const override {
+        declaration const & d = env.get(n);
+        if (!d.is_definition())
+            throw exception(sstream() << "invalid reducible command, '" << n << "' is not a definition");
+        return get_reducibility_attribute().set(env, ios, n, { m_status }, persistent);
+    }
+
+    virtual void get_instances(environment const & env, buffer<name> & r) const override {
+        buffer<name> tmp;
+        get_reducibility_attribute().get_instances(env, tmp);
+        for (name const & n : tmp)
+            if (get(env, n))
+                r.push_back(n);
+    }
+};
+
 void initialize_reducible() {
-    register_attribute(basic_attribute("reducible", "reducible"));
-    register_attribute(basic_attribute("semireducible", "semireducible"));
-    register_attribute(basic_attribute("irreducible", "irreducible"));
+    register_attribute(reducibility_attribute("reducibility", "internal attribute for storing reducibility"));
+
+    register_attribute(proxy_attribute("reducible", "reducible", reducible_status::Reducible));
+    register_attribute(proxy_attribute("semireducible", "semireducible", reducible_status::Semireducible));
+    register_attribute(proxy_attribute("irreducible", "irreducible", reducible_status::Irreducible));
 
     register_incompatible("reducible", "semireducible");
     register_incompatible("reducible", "irreducible");
@@ -27,27 +85,15 @@ void initialize_reducible() {
 void finalize_reducible() {
 }
 
-static void check_declaration(environment const & env, name const & n) {
-    declaration const & d = env.get(n);
-    if (!d.is_definition())
-        throw exception(sstream() << "invalid reducible command, '" << n << "' is not a definition");
-}
-
 environment set_reducible(environment const & env, name const & n, reducible_status s, bool persistent) {
-    check_declaration(env, n);
-    return set_attribute(env, get_dummy_ios(),
-                         s == reducible_status::Reducible ? "reducible" :
-                         s == reducible_status::Irreducible ? "irreducible" :
-                         "semireducible", n, persistent);
+    return get_reducibility_attribute().set(env, get_dummy_ios(), n, { s }, persistent);
 }
 
 reducible_status get_reducible_status(environment const & env, name const & n) {
-    if (has_attribute(env, "reducible", n))
-        return reducible_status::Reducible;
-    else if (has_attribute(env, "irreducible", n))
-        return reducible_status::Irreducible;
-    else
-        return reducible_status::Semireducible;
+    auto data = get_reducibility_attribute().get_data(env, n);
+    if (data)
+        return data->m_status;
+    return reducible_status::Semireducible;
 }
 
 name_predicate mk_not_reducible_pred(environment const & env) {

@@ -251,7 +251,7 @@ static void print_attributes(parser const & p, name const & n) {
     get_attributes(attrs);
     std::sort(attrs.begin(), attrs.end(), [](char const * n1, char const * n2) { return strcmp(n1, n2) < 0; });
     for (char const * attr : attrs) {
-        if (strcmp(attr, "semireducible") == 0)
+        if (strcmp(attr, "reducibility") == 0)
             continue;
         if (has_attribute(env, attr, n)) {
             out << " " << get_attribute_token(attr);
@@ -528,7 +528,7 @@ static void print_key_equivalences(parser & p) {
         });
 }
 
-static void print_attribute(parser & p, name const & attr) {
+static void print_attribute(parser & p, char const * attr) {
     buffer<name> instances;
     get_attribute_instances(p.env(), attr, instances);
 

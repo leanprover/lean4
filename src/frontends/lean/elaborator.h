@@ -122,10 +122,12 @@ class elaborator {
     void throw_app_type_mismatch(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type,
                                  expr const & ref);
     expr visit_default_app_core(expr const & fn, arg_mask amask, buffer<expr> const & args,
-                                bool args_already_visited, expr const & ref);
-    expr visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args, expr const & ref);
+                                bool args_already_visited, optional<expr> const & expected_type, expr const & ref);
+    expr visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args,
+                           optional<expr> const & expected_type, expr const & ref);
     void validate_overloads(buffer<expr> const & fns, expr const & ref);
-    expr visit_overload_candidate(expr const & fn, buffer<expr> const & args, expr const & ref);
+    expr visit_overload_candidate(expr const & fn, buffer<expr> const & args,
+                                  optional<expr> const & expected_type, expr const & ref);
     expr visit_overloaded_app(buffer<expr> const & fns, buffer<expr> const & args,
                               optional<expr> const & expected_type, expr const & ref);
     expr visit_elim_app(expr const & fn, elim_info const & info, buffer<expr> const & args,

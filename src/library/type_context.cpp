@@ -1197,6 +1197,8 @@ Now, we consider some workarounds/approximations.
        a_{i+k}        =?= b_k
 */
 bool type_context::process_assignment(expr const & m, expr const & v) {
+    lean_trace(name({"type_context", "is_def_eq_detail"}),
+               tout() << "process_assignment " << m << " := " << v << "\n";);
     buffer<expr> args;
     expr const & mvar = get_app_args(m, args);
     lean_assert(is_mvar(mvar));

@@ -1,0 +1,6 @@
+λ c,
+  get_env >>= λ env,
+    returnex (environment.get env c) >>= λ decl,
+      return (length (declaration.univ_params decl)) >>= λ num,
+        mk_num_meta_univs 2 >>= λ ls, return (expr.const c ls) :
+  name → tactic expr

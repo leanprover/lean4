@@ -484,6 +484,7 @@ void elaborator::throw_app_type_mismatch(expr const & t, expr const & arg, expr 
 
 expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<expr> const & args,
                                 optional<expr> const & _expected_type, expr const & ref) {
+    trace_elab_detail(tout() << "recursor/eliminator application at " << pos_string_for(ref) << "\n";);
     lean_assert(info.m_nexplicit <= args.size());
     if (!_expected_type) {
         throw elaborator_exception(ref, format("invalid '") + format(const_name(fn)) + format ("' application, ") +
@@ -620,11 +621,21 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
 }
 
 expr elaborator::visit_default_app_core(expr const & fn, arg_mask amask, buffer<expr> const & args,
-                                        bool args_already_visited, expr const & ref) {
-    expr fn_type = try_to_pi(infer_type(fn));
+                                        bool args_already_visited, optional<expr> const & expected_type, expr const & ref) {
+    expr fn_type = infer_type(fn);
     unsigned i = 0;
     buffer<expr> new_args;
-    expr type = fn_type;
+    /* We manually track the type before whnf. We do that because after the loop
+       we check whether the application type is definitionally equal to expected_type.
+       Suppose, the result type is (tactic expr) and the expected type is (?M1 ?M2).
+       The unification problem can be solved using first-order unification, but if we
+       unfold (tactic expr), we get (tactic_state -> base_tactic_result ...) which cannot.
+
+       The statement
+         expr type = try_to_pi(fn_type);
+       also does not work because (tactic expr) unfolds into a type. */
+    expr type_before_whnf = fn_type;
+    expr type             = whnf(fn_type);
     while (is_pi(type)) {
         binder_info const & bi = binding_info(type);
         expr const & d = binding_domain(type);
@@ -658,21 +669,42 @@ expr elaborator::visit_default_app_core(expr const & fn, arg_mask amask, buffer<
             break;
         }
         new_args.push_back(new_arg);
-        type = try_to_pi(instantiate(binding_body(type), new_arg));
+        /* See comment above at first type_before_whnf assignment */
+        type_before_whnf = instantiate(binding_body(type), new_arg);
+        type             = whnf(type_before_whnf);
     }
+
+    type = type_before_whnf;
 
     if (i != args.size()) {
         throw elaborator_exception(ref, mk_too_many_args_error(fn_type));
     }
-    return mk_app(fn, new_args.size(), new_args.data());
+
+    expr r = mk_app(fn, new_args.size(), new_args.data());
+    if (expected_type) {
+        trace_elab_debug(tout() << "application\n  " << r << "\nhas type\n  " <<
+                         type << "\nexpected\n  " << *expected_type << "\nfunction type:\n  " <<
+                         fn_type << "\n";);
+        if (auto new_r = ensure_has_type(r, instantiate_mvars(type), *expected_type)) {
+            return *new_r;
+        } else {
+            throw elaborator_exception(ref, format("invalid application") + pp_indent(r) +
+                                       line() + format("has type") + pp_indent(type) +
+                                       line() + format("but is expected to have type") + pp_indent(*expected_type));
+        }
+    } else {
+        return r;
+    }
 }
 
-expr elaborator::visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args, expr const & ref) {
-    return visit_default_app_core(fn, amask, args, false, ref);
+expr elaborator::visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args,
+                                   optional<expr> const & expected_type, expr const & ref) {
+    return visit_default_app_core(fn, amask, args, false, expected_type, ref);
 }
 
-expr elaborator::visit_overload_candidate(expr const & fn, buffer<expr> const & args, expr const & ref) {
-    return visit_default_app_core(fn, arg_mask::Default, args, true, ref);
+expr elaborator::visit_overload_candidate(expr const & fn, buffer<expr> const & args,
+                                          optional<expr> const & expected_type, expr const & ref) {
+    return visit_default_app_core(fn, arg_mask::Default, args, true, expected_type, ref);
 }
 
 expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> const & args,
@@ -692,20 +724,9 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
         try {
             checkpoint C(*this);
             m_ctx.set_mctx(mctx);
-            expr c = visit_overload_candidate(fn, new_args, ref);
+            expr c = visit_overload_candidate(fn, new_args, expected_type, ref);
             try_to_synthesize_type_class_instances(initial_inst_stack_sz);
-            if (expected_type) {
-                expr c_type = infer_type(c);
-                if (ensure_has_type(c, c_type, *expected_type)) {
-                    candidates.emplace_back(c, m_ctx.mctx());
-                } else {
-                    throw elaborator_exception(ref, format("invalid overload, expression") + pp_indent(c) +
-                                               line() + format("has type") + pp_indent(c_type) +
-                                               line() + format("but is expected to have type") + pp_indent(*expected_type));
-                }
-            } else {
-                candidates.emplace_back(c, m_ctx.mctx());
-            }
+            candidates.emplace_back(c, m_ctx.mctx());
             C.commit();
         } catch (elaborator_exception & ex) {
             error_msgs.push_back(ex);
@@ -780,7 +801,7 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
                 }
             }
         }
-        return visit_default_app(new_fn, amask, args, ref);
+        return visit_default_app(new_fn, amask, args, expected_type, ref);
     }
 }
 
@@ -832,30 +853,32 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
     expr ex;
     bool has_expected;
     if (expected_type) {
-        ex = try_to_pi(instantiate_mvars(*expected_type));
+        ex = instantiate_mvars(*expected_type);
         has_expected = true;
     } else {
         has_expected = false;
     }
     while (is_lambda(it)) {
+        if (has_expected) {
+            ex = try_to_pi(ex);
+            if (!is_pi(ex))
+                has_expected = false;
+        }
         expr d     = instantiate_rev(binding_domain(it), locals);
         expr new_d = visit(d, none_expr());
         if (has_expected) {
-            if (is_pi(ex)) {
-                expr ex_d = binding_domain(ex);
-                checkpoint C2(*this);
-                if (is_def_eq(new_d, ex_d)) {
-                    C2.commit();
-                }
-            } else {
-                has_expected = false;
+            expr ex_d = binding_domain(ex);
+            checkpoint C2(*this);
+            if (is_def_eq(new_d, ex_d)) {
+                C2.commit();
             }
         }
         new_d  = ensure_type(new_d, binding_domain(it));
         expr l = locals.push_local(binding_name(it), new_d, binding_info(it));
         it = binding_body(it);
-        if (has_expected && is_pi(ex)) {
-            ex = try_to_pi(instantiate(binding_body(ex), l));
+        if (has_expected) {
+            lean_assert(is_pi(ex));
+            ex = instantiate(binding_body(ex), l);
         }
     }
     expr b = instantiate_rev(it, locals);
@@ -1037,6 +1060,7 @@ void elaborator::checkpoint::commit() {
 std::tuple<expr, level_param_names> elaborator::operator()(expr const & e) {
     checkpoint C(*this);
     expr r = visit(e,  none_expr());
+    trace_elab_detail(tout() << "result before final checkpoint\n" << r << "\n";);
     process_checkpoint(C);
     r = instantiate_mvars(r);
     // TODO(Leo)

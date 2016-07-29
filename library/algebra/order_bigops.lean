@@ -293,7 +293,7 @@ end finset
 /- finite set versions -/
 
 namespace set
-open classical
+local attribute classical.prop_decidable [instance]
 
 section decidable_linear_ordered_cancel_comm_monoid_B
   variable [decidable_linear_ordered_cancel_comm_monoid B]

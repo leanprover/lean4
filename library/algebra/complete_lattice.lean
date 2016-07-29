@@ -361,7 +361,7 @@ definition complete_lattice_fun [instance] (A B : Type) [complete_lattice B] :
 ⦄
 
 section
-open classical -- Prop and set are only in the classical setting a complete lattice
+local attribute classical.prop_decidable [instance] -- Prop and set are only in the classical setting a complete lattice
 
 definition complete_lattice_Prop [instance] : complete_lattice Prop :=
 ⦃ complete_lattice, lattice_Prop,

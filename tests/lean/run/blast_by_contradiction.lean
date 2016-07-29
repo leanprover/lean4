@@ -2,7 +2,7 @@ exit
 constants P Q : Prop
 
 namespace with_classical
-open classical
+local attribute classical.prop_decidable [instance]
 
 example : Q → (Q → ¬ P → false) → P := by blast
 example : Q → (Q → P → false) → ¬ P := by blast

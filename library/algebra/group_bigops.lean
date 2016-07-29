@@ -384,7 +384,7 @@ end finset
 -/
 
 namespace set
-open classical
+local attribute classical.prop_decidable [instance]
 
 /- Prod: product indexed by a set -/
 

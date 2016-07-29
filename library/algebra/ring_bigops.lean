@@ -97,7 +97,7 @@ end finset
 -/
 
 namespace set
-open classical
+local attribute classical.prop_decidable [instance]
 
 section comm_semiring
   variable [csB : comm_semiring B]

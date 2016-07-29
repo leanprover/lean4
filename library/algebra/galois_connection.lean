@@ -6,7 +6,7 @@ Author: Johannes Hölzl
 Galois connections - order theoretic adjoints.
 -/
 import standard
-open classical eq.ops algebra set function complete_lattice
+local attribute classical.prop_decidable [instance] eq.ops algebra set function complete_lattice
 
 /- Move to set? -/
 definition kern_image {X Y : Type} (f : X → Y) (S : set X) : set Y := {y | ∀x, f x = y → x ∈ S }

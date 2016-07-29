@@ -8,7 +8,7 @@ analysis in Isabelle/HOL".
 -/
 import data.set.function logic.identities algebra.complete_lattice
 namespace set
-open classical
+local attribute classical.prop_decidable [instance]
 
 structure filter (A : Type) :=
 (sets           : set (set A))
@@ -122,7 +122,7 @@ begin
 end
 
 section
-  open classical
+  local attribute classical.prop_decidable [instance]
 
   theorem not_frequently_iff  : ¬ frequently P F ↔ eventually (λ x, ¬ P x) F :=
   by unfold frequently; rewrite not_not_iff

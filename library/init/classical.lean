@@ -170,16 +170,18 @@ end aux
 
 /- All propositions are decidable -/
 open decidable
-noncomputable definition decidable_inhabited [instance] [priority 0] (a : Prop) : inhabited (decidable a) :=
+noncomputable definition decidable_inhabited (a : Prop) : inhabited (decidable a) :=
 inhabited_of_nonempty
   (or.elim (em a)
     (assume Ha, nonempty.intro (tt Ha))
     (assume Hna, nonempty.intro (ff Hna)))
+local attribute decidable_inhabited [instance]
 
-noncomputable definition prop_decidable [instance] [priority 0] (a : Prop) : decidable a :=
+noncomputable definition prop_decidable (a : Prop) : decidable a :=
 arbitrary (decidable a)
+local attribute prop_decidable [instance]
 
-noncomputable definition type_decidable_eq [instance] [priority 0] (A : Type) : decidable_eq A := _
+noncomputable definition type_decidable_eq (A : Type) : decidable_eq A := _
 
 noncomputable definition type_decidable (A : Type) : sum A (A → false) :=
 match prop_decidable (nonempty A) with

@@ -73,13 +73,13 @@ end
 /- definite description -/
 
 section
-  open classical
+  local attribute classical.prop_decidable [instance]
 
   noncomputable definition the {A : Type} {p : A → Prop} (H : ∃! x, p x) : A :=
-  some (exists_of_exists_unique H)
+  classical.some (exists_of_exists_unique H)
 
   theorem the_spec {A : Type} {p : A → Prop} (H : ∃! x, p x) : p (the H) :=
-  some_spec (exists_of_exists_unique H)
+  classical.some_spec (exists_of_exists_unique H)
 
   theorem eq_the {A : Type} {p : A → Prop} (H : ∃! x, p x) {y : A} (Hy : p y) :
     y = the H :=

@@ -450,7 +450,7 @@ do tgt : expr ← target,
    <|>
    (mk_mapp `decidable.by_contradiction [some tgt, none] >>= apply)
    <|>
-   fail "tactic by_contradiction failed, target is not a negation nor a decidable proposition (remark: when 'open classical' is used all propositions are decidable)",
+   fail "tactic by_contradiction failed, target is not a negation nor a decidable proposition (remark: when 'local attribute classical.prop_decidable [instance]' is used all propositions are decidable)",
    intro H
 
 meta_definition cases (H : expr) : tactic unit :=

@@ -39,7 +39,7 @@ theorem closed_Icc (a b : X) : closed '[a, b] :=
 closed_inter !closed_Ici !closed_Iic
 
 section
-  open classical
+  local attribute classical.prop_decidable [instance]
 
   theorem linorder_separation {x y : X} :
     x < y → ∃ a b, (x < a ∧ b < y) ∧ '(-∞, a) ∩ '(b, ∞) = ∅ :=

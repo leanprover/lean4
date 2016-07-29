@@ -85,7 +85,7 @@ begin
 end
 
 section
-  open classical
+  local attribute classical.prop_decidable [instance]
 
   lemma not_bounded_exists {A : Type} {S : set A} {P : A → Prop} :
     (¬ (∃₀ x ∈ S, P x)) = (∀₀ x ∈ S, ¬ P x) :=
@@ -131,7 +131,7 @@ theorem ne_empty_of_mem {s : set X} {x : X} (H : x ∈ s) : s ≠ ∅ :=
   begin intro Hs, rewrite Hs at H, apply not_mem_empty _ H end
 
 section
-  open classical
+  local attribute classical.prop_decidable [instance]
 
   theorem exists_mem_of_ne_empty {s : set X} (H : s ≠ ∅) : ∃ x, x ∈ s :=
   by_contradiction (assume H', H (eq_empty_of_forall_not_mem (forall_not_of_not_exists H')))
@@ -458,7 +458,7 @@ ext (take x, !not_and_self_iff)
 /- some classical identities -/
 
 section
-  open classical
+  local attribute classical.prop_decidable [instance]
 
   theorem compl_empty : -(∅ : set X) = univ :=
   ext (take x, iff.intro (assume H, trivial) (assume H, not_false))
@@ -885,7 +885,7 @@ ext (take x, iff.intro
    show _, from and.intro xa (exists.intro i xsi)))
 
 section
-  open classical
+  local attribute classical.prop_decidable [instance]
 
   lemma union_distrib_Inter_left {X I : Type} (s : I → set X) (a : set X) :
     a ∪ (⋂ i, s i) = ⋂ i, a ∪ s i :=

@@ -229,7 +229,7 @@ theorem mem_compl_iff (s : finset A) (x : A) : x ∈ -s ↔ x ∉ s :=
 iff.intro not_mem_of_mem_compl mem_compl
 
 section
-  open classical
+  local attribute classical.prop_decidable [instance]
 
   theorem union_eq_compl_compl_inter_compl (s t : finset A) : s ∪ t = -(-s ∩ -t) :=
   ext (take x, by rewrite [mem_union_iff, mem_compl_iff, mem_inter_iff, *mem_compl_iff,

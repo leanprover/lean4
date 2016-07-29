@@ -8,7 +8,7 @@ a : ¬¬a = b,
 H : ¬a = b
 ⊢ false
 -------
-by_contradiction.lean:23:0: error: tactic by_contradiction failed, target is not a negation nor a decidable proposition (remark: when 'open classical' is used all propositions are decidable)
+by_contradiction.lean:23:0: error: tactic by_contradiction failed, target is not a negation nor a decidable proposition (remark: when 'local attribute classical.prop_decidable [instance]' is used all propositions are decidable)
 state:
 p q : Prop,
 a : ¬¬p

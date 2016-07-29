@@ -113,7 +113,7 @@ theorem closed_diff {s t : set X} (Hs : closed s) (Ht : Open t) : closed (s \ t)
 closed_inter Hs (closed_compl Ht)
 
 section
-open classical
+local attribute classical.prop_decidable [instance]
 
 theorem Open_of_forall_exists_Open_nbhd {s : set X} (H : ∀₀ x ∈ s, ∃ tx : set X, Open tx ∧ x ∈ tx ∧ tx ⊆ s) :
         Open s :=

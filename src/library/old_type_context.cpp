@@ -41,7 +41,7 @@ static name * g_class_instance_max_depth     = nullptr;
 static name * g_class_trans_instances        = nullptr;
 
 unsigned get_class_instance_max_depth(options const & o);
-bool get_class_trans_instances(options const & o);
+bool get_class_trans_instances(options const &) { return false; }
 
 old_type_context::old_type_context(environment const & env, options const & o, bool multiple_instances):
     m_env(env),

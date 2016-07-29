@@ -30,20 +30,11 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 32
 #endif
 
-#ifndef LEAN_DEFAULT_CLASS_TRANS_INSTANCES
-#define LEAN_DEFAULT_CLASS_TRANS_INSTANCES true
-#endif
-
 namespace lean {
 static name * g_class_instance_max_depth     = nullptr;
-static name * g_class_trans_instances        = nullptr;
 
 unsigned get_class_instance_max_depth(options const & o) {
     return o.get_unsigned(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH);
-}
-
-bool get_class_trans_instances(options const & o) {
-    return o.get_bool(*g_class_trans_instances, LEAN_DEFAULT_CLASS_TRANS_INSTANCES);
 }
 
 /* =====================
@@ -55,7 +46,6 @@ type_context_cache::type_context_cache(environment const & env, options const & 
     m_options(opts),
     m_proj_info(get_projection_info_map(env)) {
     m_ci_max_depth       = get_class_instance_max_depth(opts);
-    m_ci_trans_instances = get_class_trans_instances(opts);
 }
 
 bool type_context_cache::is_transparent(transparency_mode m, declaration const & d) {
@@ -2116,26 +2106,18 @@ void type_context::init_local_instances() {
 
 struct instance_synthesizer {
     struct stack_entry {
-        /* We only use transitive instances when we can solve the problem in a single step.
-           That is, the transitive instance does not have any instance argument, OR
-           it uses local instances to fill them.
-           We accomplish that by not considering global instances when solving
-           transitive instance subproblems. */
         expr     m_mvar;
         unsigned m_depth;
-        bool     m_trans_inst_subproblem;
-        stack_entry(expr const & m, unsigned d, bool s = false):
-            m_mvar(m), m_depth(d), m_trans_inst_subproblem(s) {}
+        stack_entry(expr const & m, unsigned d):
+            m_mvar(m), m_depth(d) {}
     };
 
     struct state {
-        bool               m_trans_inst_subproblem;
         list<stack_entry>  m_stack; // stack of meta-variables that need to be synthesized;
     };
 
     struct choice {
         list<expr>         m_local_instances;
-        list<name>         m_trans_instances;
         list<name>         m_instances;
         state              m_state;
     };
@@ -2186,9 +2168,8 @@ struct instance_synthesizer {
         out << mvar << " : " << m_ctx.instantiate_mvars(mvar_type) << " := " << r << endl;
     }
 
-    /* Try to synthesize e.m_mvar using instance inst : inst_type.
-       trans_inst is true if inst is a transitive instance. */
-    bool try_instance(stack_entry const & e, expr const & inst, expr const & inst_type, bool trans_inst) {
+    /* Try to synthesize e.m_mvar using instance inst : inst_type. */
+    bool try_instance(stack_entry const & e, expr const & inst, expr const & inst_type) {
         try {
             type_context::tmp_locals locals(m_ctx);
             expr const & mvar = e.m_mvar;
@@ -2225,7 +2206,7 @@ struct instance_synthesizer {
             unsigned i = new_inst_mvars.size();
             while (i > 0) {
                 --i;
-                m_state.m_stack = cons(stack_entry(new_inst_mvars[i], e.m_depth+1, trans_inst), m_state.m_stack);
+                m_state.m_stack = cons(stack_entry(new_inst_mvars[i], e.m_depth+1), m_state.m_stack);
             }
             return true;
         } catch (exception &) {
@@ -2233,7 +2214,7 @@ struct instance_synthesizer {
         }
     }
 
-    bool try_instance(stack_entry const & e, name const & inst_name, bool trans_inst) {
+    bool try_instance(stack_entry const & e, name const & inst_name) {
         if (auto decl = env().find(inst_name)) {
             buffer<level> ls_buffer;
             unsigned num_univ_ps = decl->get_num_univ_params();
@@ -2242,7 +2223,7 @@ struct instance_synthesizer {
             levels ls = to_list(ls_buffer.begin(), ls_buffer.end());
             expr inst_cnst = mk_constant(inst_name, ls);
             expr inst_type = instantiate_type_univ_params(*decl, ls);
-            return try_instance(e, inst_cnst, inst_type, trans_inst);
+            return try_instance(e, inst_cnst, inst_type);
         } else {
             return false;
         }
@@ -2282,12 +2263,8 @@ struct instance_synthesizer {
         if (!cname)
             return false;
         r.m_local_instances = get_local_instances(*cname);
-        if (m_ctx.m_cache.m_ci_trans_instances && toplevel_choice) {
-            // we only use transitive instances in the top-level
-            r.m_trans_instances = get_class_derived_trans_instances(env(), *cname);
-        }
         r.m_instances = get_class_instances(env(), *cname);
-        if (empty(r.m_local_instances) && empty(r.m_trans_instances) && empty(r.m_instances))
+        if (empty(r.m_local_instances) && empty(r.m_instances))
             return false;
         r.m_state = m_state;
         return true;
@@ -2298,18 +2275,17 @@ struct instance_synthesizer {
             expr inst       = head(insts);
             insts           = tail(insts);
             expr inst_type  = m_ctx.infer(inst);
-            bool trans_inst = false;
-            if (try_instance(e, inst, inst_type, trans_inst))
+            if (try_instance(e, inst, inst_type))
                 return true;
         }
         return false;
     }
 
-    bool process_next_alt_core(stack_entry const & e, list<name> & inst_names, bool trans_inst) {
+    bool process_next_alt_core(stack_entry const & e, list<name> & inst_names) {
         while (!empty(inst_names)) {
             name inst_name    = head(inst_names);
             inst_names        = tail(inst_names);
-            if (try_instance(e, inst_name, trans_inst))
+            if (try_instance(e, inst_name))
                 return true;
         }
         return false;
@@ -2325,20 +2301,12 @@ struct instance_synthesizer {
             return true;
         }
         cs.back().m_local_instances = list<expr>();
-        if (!e.m_trans_inst_subproblem) {
-            list<name> trans_insts = cs.back().m_trans_instances;
-            if (process_next_alt_core(e, trans_insts, true)) {
-                cs.back().m_trans_instances = trans_insts;
-                return true;
-            }
-            cs.back().m_trans_instances = list<name>();
-            list<name> insts = cs.back().m_instances;
-            if (process_next_alt_core(e, insts, false)) {
-                cs.back().m_instances = insts;
-                return true;
-            }
-            cs.back().m_instances = list<name>();
+        list<name> insts = cs.back().m_instances;
+        if (process_next_alt_core(e, insts)) {
+            cs.back().m_instances = insts;
+            return true;
         }
+        cs.back().m_instances = list<name>();
         return false;
     }
 
@@ -2538,16 +2506,11 @@ void initialize_type_context() {
     register_trace_class(name({"type_context", "is_def_eq"}));
     register_trace_class(name({"type_context", "is_def_eq_detail"}));
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
-    g_class_trans_instances        = new name{"class", "trans_instances"};
     register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,
                              "(class) max allowed depth in class-instance resolution");
-    register_bool_option(*g_class_trans_instances,  LEAN_DEFAULT_CLASS_TRANS_INSTANCES,
-                         "(class) use automatically derived instances from the transitive closure of "
-                         "the structure instance graph");
 }
 
 void finalize_type_context() {
     delete g_class_instance_max_depth;
-    delete g_class_trans_instances;
 }
 }

@@ -83,7 +83,6 @@ class type_context_cache {
 
     /* Maximum search depth when performing type class resolution. */
     unsigned                      m_ci_max_depth;
-    bool                          m_ci_trans_instances;
 
     friend class type_context;
     friend struct instance_synthesizer;

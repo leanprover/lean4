@@ -8,17 +8,17 @@ definition fib : nat → nat
 
 example (a : nat) : fib a > 0 :=
 by do
-  get_local "a" >>= λ H, induction_core semireducible H ("nat" <.> "rec_on") ["n", "iH1"],
+  get_local `a >>= λ H, induction_core semireducible H `nat.rec_on [`n, `iH1],
   trace_state, trace "-------",
-  unfold ["fib"],
+  unfold [`fib],
   trace_state, trace "-------",
-  mk_const "zero_lt_one" >>= apply,
+  mk_const `zero_lt_one >>= apply,
   trace_state, trace "-------",
-  get_local "n" >>= cases,
-  unfold ["fib"],
-  mk_const "zero_lt_one" >>= apply,
-  unfold ["fib"],
+  get_local `n >>= cases,
+  unfold [`fib],
+  mk_const `zero_lt_one >>= apply,
+  unfold [`fib],
   trace_state,
-  mk_const "add_pos_of_nonneg_of_pos" >>= apply,
-  mk_const ("nat" <.> "zero_le") >>= apply,
+  mk_const `add_pos_of_nonneg_of_pos >>= apply,
+  mk_const `nat.zero_le >>= apply,
   assumption

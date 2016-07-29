@@ -81,7 +81,7 @@ do ctx ← local_context,
 
 meta_definition exfalso : tactic unit :=
 do fail_if_no_goals,
-   assert "Hfalse" (expr.const `false []),
+   assert `Hfalse (expr.const `false []),
    swap, contradiction
 
 end tactic

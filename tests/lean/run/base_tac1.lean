@@ -10,10 +10,10 @@ return v
 open tactic format
 
 meta_definition t2 : tac nat :=
-decorate_ex "executing t2"
+decorate_ex (to_fmt "executing t2")
   (do n₁ ← t,
       n₂ : nat ← return 3,
-      @decorate_ex _ unit "trying nested" (fail "error" <|> fail "error2"),
+      @decorate_ex _ unit (to_fmt "trying nested") (fail "error" <|> fail "error2"),
       return n₁)
 
 vm_eval t2 "initial"

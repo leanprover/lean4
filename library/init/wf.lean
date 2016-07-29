@@ -42,7 +42,7 @@ namespace well_founded
   hypothesis [Hwf : well_founded R]
 
   theorem recursion {C : A → Type} (a : A) (H : Πx, (Πy, y ≺ x → C y) → C x) : C a :=
-  acc.rec_on (Hwf a) (λ x₁ ac₁ iH, H x₁ iH)
+  acc.rec_on (apply Hwf a) (λ x₁ ac₁ iH, H x₁ iH)
 
   theorem induction {C : A → Prop} (a : A) (H : ∀x, (∀y, y ≺ x → C y) → C x) : C a :=
   recursion a H
@@ -63,12 +63,12 @@ namespace well_founded
 
   -- Well-founded fixpoint
   definition fix [Hwf : well_founded R] (F : Πx, (Πy, R y x → C y) → C x) (x : A) : C x :=
-  fix_F F x (Hwf x)
+  fix_F F x (apply Hwf x)
 
   -- Well-founded fixpoint satisfies fixpoint equation
   theorem fix_eq [Hwf : well_founded R] (F : Πx, (Πy, R y x → C y) → C x) (x : A) :
     fix F x = F x (λy h, fix F y) :=
-  fix_F_eq F x (Hwf x)
+  fix_F_eq F x (apply Hwf x)
 end well_founded
 
 open well_founded
@@ -90,7 +90,7 @@ section
     acc.intro x (λ (y : A) (lt : Q y x), ih y (H₁ lt)))
 
   definition wf : well_founded Q :=
-  well_founded.intro (λ a, accessible (H₂ a))
+  well_founded.intro (λ a, accessible (apply H₂ a))
 end
 end subrelation
 
@@ -125,7 +125,7 @@ section
   acc_aux ac a rfl
 
   definition wf : well_founded (inv_image R f) :=
-  well_founded.intro (λ a, accessible (H (f a)))
+  well_founded.intro (λ a, accessible (apply H (f a)))
 end
 end inv_image
 
@@ -159,7 +159,7 @@ section
               ih))
 
   definition wf (H : well_founded R) : well_founded R⁺ :=
-  well_founded.intro (λ a, accessible (H a))
+  well_founded.intro (λ a, accessible (apply H a))
 end
 end tc
 
@@ -227,7 +227,7 @@ namespace prod
 
   -- The lexicographical order of well founded relations is well-founded
   definition lex.wf (Ha : well_founded Ra) (Hb : well_founded Rb) : well_founded (lex Ra Rb) :=
-  well_founded.intro (λp, destruct p (λa b, lex.accessible (Ha a) (well_founded.apply Hb) b))
+  well_founded.intro (λp, destruct p (λa b, lex.accessible (apply Ha a) (well_founded.apply Hb) b))
 
   -- Relational product is a subrelation of the lex
   definition rprod.sub_lex : ∀ a b, rprod Ra Rb a b → lex Ra Rb a b :=

@@ -40,7 +40,7 @@ do lhs_type ← infer_type lhs,
    dec_type ← mk_app `decidable_eq [lhs_type] >>= whnf,
    do {
      inst : expr ← mk_instance dec_type,
-     return $ inst lhs rhs }
+     return $ app_of_list inst [lhs, rhs] }
    <|>
    do {
      f ← pp dec_type,
@@ -62,7 +62,7 @@ do
     inst ← if rec = tt
     then do {
       inst_fn : expr ← mk_brec_on_rec_value F_name num_rec,
-      return $ inst_fn rhs_arg }
+      return $ app inst_fn rhs_arg }
     else do {
       mk_dec_eq_for lhs_arg rhs_arg
     },
@@ -70,10 +70,10 @@ do
     by_cases ← mk_mapp_core transparency.all `decidable.by_cases [none, some tgt, some inst],
     apply by_cases,
     -- discharge first (positive) case by recursion
-    intro "_" >>= subst >> dec_eq_same_constructor I_name F_name (if rec = tt then num_rec + 1 else num_rec),
+    intro1 >>= subst >> dec_eq_same_constructor I_name F_name (if rec = tt then num_rec + 1 else num_rec),
     -- discharge second (negative) case by contradiction
-    intro "_", left, -- decidable.ff
-    intro "_" >>= injection,
+    intro1, left, -- decidable.ff
+    intro1 >>= injection,
     intros, contradiction,
     return () }
 
@@ -93,17 +93,17 @@ do
   else dec_eq_diff_constructor
 
 private meta_definition dec_eq_case_1 (I_name : name) (F_name : name) : tactic unit :=
-intro "w" >>= cases >> all_goals (dec_eq_case_2 I_name F_name)
+intro `w >>= cases >> all_goals (dec_eq_case_2 I_name F_name)
 
 meta_definition mk_dec_eq_instance : tactic unit :=
 do I_name ← get_dec_eq_type_name,
    env ← get_env,
-   v_name ← return ("_v" : name),
-   F_name ← return ("_F" : name),
+   v_name ← return `_v,
+   F_name ← return `_F,
    -- Use brec_on if type is recursive.
    -- We store the functional in the variable F.
    if (is_recursive env I_name = tt)
-   then intro "_" >>= (λ x, induction_core semireducible x (I_name <.> "brec_on") [v_name, F_name])
+   then intro1 >>= (λ x, induction_core semireducible x (I_name <.> "brec_on") [v_name, F_name])
    else intro v_name >> return (),
    -- Apply cases to first element of type (I ...)
    get_local v_name >>= cases,

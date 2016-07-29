@@ -8,7 +8,7 @@ meta_definition is_poly_bin_app : expr → option name
 
 meta_definition is_add (e : expr) : bool  :=
 match is_poly_bin_app e with
-| some op := to_bool (op = "add")
+| some op := to_bool (op = `add)
 | none    := ff
 end
 
@@ -16,8 +16,8 @@ meta_definition flat_add (e : expr) : tactic (expr × expr) :=
 do when (is_add e = ff) (fail "given expression is not an addition"),
    add_fn : expr ← return $ app_fn (app_fn e),
    A      : expr ← return $ app_arg (app_fn add_fn),
-   s      : expr ← mk_app "add_semigroup" [A] >>= mk_instance,
-   assoc  : expr ← mk_mapp ("add" <.> "assoc") [some A, some s],
+   s      : expr ← mk_app `add_semigroup [A] >>= mk_instance,
+   assoc  : expr ← mk_mapp `add.assoc [some A, some s],
    flat_assoc add_fn assoc e
 
 meta_definition tst_flat_add : tactic unit :=

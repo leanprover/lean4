@@ -185,7 +185,7 @@ universe variable u
 variables {A B C : Type.{u}} {a a' : A} {b b' : B} {c : C}
 
 theorem eq_of_heq (H : a == a') : a = a' :=
-have H₁ : ∀ (Ht : A = A), eq.rec a Ht = a, from
+have H₁ : ∀ (Ht : @eq Type A A), eq.rec a Ht = a, from
   λ Ht, eq.refl a,
 have H₂ : ∀ (Ht : A = A), eq.rec a Ht = a', from
   heq.rec H₁ H,

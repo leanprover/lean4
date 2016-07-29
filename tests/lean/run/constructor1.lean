@@ -23,7 +23,7 @@ by constructor
 
 example (a b : nat) : ∃ x, x = a :=
 by do
-  a ← get_local "a",
+  a ← get_local `a,
   existsi a,
   trace_state,
   constructor

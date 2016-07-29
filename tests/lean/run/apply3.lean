@@ -8,7 +8,7 @@ by do
   fapply c₁, /- fapply adds all unassigned variables -/
   trace_state,
   swap, /- swap witness and ?M = a -/
-  a ← get_local "a",
+  a ← get_local `a,
   mk_app `eq.refl [a] >>= exact
 
 print "------- apply version ----------"
@@ -19,5 +19,5 @@ by do
   /- apply does not add the goal |- nat -/
   apply c₁,
   trace_state,
-  a ← get_local "a",
+  a ← get_local `a,
   mk_app `eq.refl [a] >>= exact

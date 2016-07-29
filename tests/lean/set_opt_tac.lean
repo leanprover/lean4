@@ -2,13 +2,13 @@ open tactic bool
 
 example (a b : nat) (H : a + b = 0) : a = a :=
 by do
-  H ← get_local "H",
+  H ← get_local `H,
   t ← infer_type H,
   trace t,
-  set_bool_option ("pp" <.> "all") tt,
+  set_bool_option `pp.all tt,
   trace "after pp.all true",
   trace t,
-  rfl ← mk_const "rfl",
+  rfl ← mk_const `rfl,
   apply rfl
 
 print "set_bool_option tactic does not affect other commands"

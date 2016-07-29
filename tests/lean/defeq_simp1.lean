@@ -8,14 +8,14 @@ open tactic
 
 example (a b : nat) (H : @add nat (id (id nat_has_add)) a b = @add nat nat_has_add2 a b) : true :=
 by do
-  get_local "H" >>= infer_type >>= defeq_simp >>= trace,
+  get_local `H >>= infer_type >>= defeq_simp >>= trace,
   constructor
 
 constant x1 : nat -- update the environment to force defeq_canonize cache to be reset
 
 example (a b : nat) (H : (λ x : nat, @add nat (id (id nat_has_add)) a b) = (λ x : nat, @add nat nat_has_add2 a x)) : true :=
 by do
-  get_local "H" >>= infer_type >>= defeq_simp >>= trace,
+  get_local `H >>= infer_type >>= defeq_simp >>= trace,
   constructor
 
 definition nat_has_add3 [reducible] : nat → has_add nat :=
@@ -25,7 +25,7 @@ constant x2 : nat -- update the environment to force defeq_canonize cache to be 
 
 example (a b : nat) (H : (λ x : nat, @add nat nat_has_add2 a x) = (λ x : nat, @add nat (nat_has_add3 x) a b)) : true :=
 by do
-  get_local "H" >>= infer_type >>= defeq_simp >>= trace,
+  get_local `H >>= infer_type >>= defeq_simp >>= trace,
   constructor
 
 constant x3 : nat
@@ -36,10 +36,10 @@ constant x3 : nat
 -- behavior.
 example (a b : nat) (H : (λ x : nat, @add nat (nat_has_add3 x) a b) = (λ x : nat, @add nat nat_has_add2 a x)) : true :=
 by do
-  get_local "H" >>= infer_type >>= defeq_simp >>= trace,
+  get_local `H >>= infer_type >>= defeq_simp >>= trace,
   trace "---------",
   -- The following should work
-  get_local "H" >>= infer_type >>= defeq_simp >>= defeq_simp >>= trace,
+  get_local `H >>= infer_type >>= defeq_simp >>= defeq_simp >>= trace,
   constructor
 
 constant x4 : nat -- update the environment to force defeq_canonize cache to be reset
@@ -51,5 +51,5 @@ example (a b : nat)
         (H : (λ x y : nat, @add nat (nat_has_add3 x) a b) =
              (λ x y : nat, @add nat (nat_has_add3 y) a x)) : true :=
 by do
-  get_local "H" >>= infer_type >>= defeq_simp >>= trace,
+  get_local `H >>= infer_type >>= defeq_simp >>= trace,
   constructor

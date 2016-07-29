@@ -58,10 +58,10 @@ meta_definition options.has_to_format [instance] : has_to_format options :=
 has_to_format.mk (λ o, format.of_options o)
 
 meta_definition bool.has_to_format [instance] : has_to_format bool :=
-has_to_format.mk (λ b, if b = tt then "tt" else "ff")
+has_to_format.mk (λ b, if b = tt then of_string "tt" else of_string "ff")
 
 meta_definition decidable.has_to_format [instance] {p : Prop} : has_to_format (decidable p) :=
-has_to_format.mk (λ b, if p then "tt" else "ff")
+has_to_format.mk (λ b, if p then of_string "tt" else of_string "ff")
 
 meta_definition string.has_to_format [instance] : has_to_format string :=
 has_to_format.mk (λ s, format.of_string s)
@@ -73,13 +73,13 @@ meta_definition char.has_to_format [instance] : has_to_format char :=
 has_to_format.mk (λ c : char, format.of_string [c])
 
 meta_definition list.to_format_aux {A : Type} [has_to_format A] : bool → list A → format
-| _  []      := ""
+| _  []      := to_fmt ""
 | tt (x::xs) := to_fmt x ++ list.to_format_aux ff xs
-| ff (x::xs) := "," ++ line ++ to_fmt x ++ list.to_format_aux ff xs
+| ff (x::xs) := to_fmt "," ++ line ++ to_fmt x ++ list.to_format_aux ff xs
 
 meta_definition list.to_format {A : Type} [has_to_format A] : list A → format
-| []      := "[]"
-| (x::xs) := "[" ++ group (nest 1 (list.to_format_aux tt (x::xs))) ++ "]"
+| []      := to_fmt "[]"
+| (x::xs) := to_fmt "[" ++ group (nest 1 (list.to_format_aux tt (x::xs))) ++ to_fmt "]"
 
 meta_definition list.has_to_format [instance] {A : Type} [has_to_format A] : has_to_format (list A) :=
 has_to_format.mk list.to_format
@@ -87,31 +87,31 @@ has_to_format.mk list.to_format
 attribute [instance] string.has_to_format
 
 meta_definition name.has_to_format [instance] : has_to_format name :=
-has_to_format.mk (λ n, to_string n)
+has_to_format.mk (λ n, to_fmt (to_string n))
 
 meta_definition unit.has_to_format [instance] : has_to_format unit :=
-has_to_format.mk (λ u, "star")
+has_to_format.mk (λ u, to_fmt "()")
 
 meta_definition option.has_to_format [instance] {A : Type} [has_to_format A] : has_to_format (option A) :=
 has_to_format.mk (λ o, option.cases_on o
-  "none"
-  (λ a, "(some " ++ nest 6 (to_fmt a) ++ ")"))
+  (to_fmt "none")
+  (λ a, to_fmt "(some " ++ nest 6 (to_fmt a) ++ to_fmt ")"))
 
 meta_definition sum.has_to_format [instance] {A B : Type} [has_to_format A] [has_to_format B] : has_to_format (sum A B) :=
 has_to_format.mk (λ s, sum.cases_on s
-  (λ a, "(inl " ++ nest 5 (to_fmt a) ++ ")")
-  (λ b, "(inr " ++ nest 5 (to_fmt b) ++ ")"))
+  (λ a, to_fmt "(inl " ++ nest 5 (to_fmt a) ++ to_fmt ")")
+  (λ b, to_fmt "(inr " ++ nest 5 (to_fmt b) ++ to_fmt ")"))
 
 open prod
 
 meta_definition prod.has_to_format [instance] {A B : Type} [has_to_format A] [has_to_format B] : has_to_format (prod A B) :=
-has_to_format.mk (λ p, group (nest 1 ("(" ++ to_fmt (pr1 p) ++ "," ++ line ++ to_fmt (pr2 p) ++ ")")))
+has_to_format.mk (λ p, group (nest 1 (to_fmt "(" ++ to_fmt (pr1 p) ++ to_fmt "," ++ line ++ to_fmt (pr2 p) ++ to_fmt ")")))
 
 open sigma
 
 meta_definition sigma.has_to_format [instance] {A : Type} {B : A → Type} [has_to_format A] [s : ∀ x, has_to_format (B x)]
                                           : has_to_format (sigma B) :=
-has_to_format.mk (λ p, group (nest 1 ("⟨"  ++ to_fmt (pr1 p) ++ "," ++ line ++ to_fmt (pr2 p) ++ "⟩")))
+has_to_format.mk (λ p, group (nest 1 (to_fmt "⟨"  ++ to_fmt (pr1 p) ++ to_fmt "," ++ line ++ to_fmt (pr2 p) ++ to_fmt "⟩")))
 
 open subtype
 

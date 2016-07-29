@@ -4,8 +4,8 @@ constant foo {A : Type} [inhabited A] (a b : A) : a = default A → a = b
 
 example (a b : nat) : a = 0 → a = b :=
 by do
-  intro "H",
-  apply (expr.const "foo" [level.of_nat 1]),
+  intro `H,
+  apply (expr.const `foo [level.of_nat 1]),
   trace_state,
   assumption
 
@@ -19,10 +19,10 @@ set_option pp.all false
 
 example (a b : nat) : a = 0 → a = b :=
 by do
-  intro "H",
-  apply_core semireducible tt ff (expr.const "foo" [level.of_nat 1]),
+  intro `H,
+  apply_core semireducible tt ff (expr.const `foo [level.of_nat 1]),
   trace_state,
-  a ← get_local "a",
+  a ← get_local `a,
   trace_state,
   mk_app `inhabited.mk [a] >>= exact,
   trace "--------",
@@ -34,8 +34,8 @@ set_option pp.all true
 
 example (a b : nat) : a = 0 → a = b :=
 by do
-  intro "H",
-  foo ← mk_const "foo",
+  intro `H,
+  foo ← mk_const `foo,
   trace foo,
   apply foo,
   trace_state,

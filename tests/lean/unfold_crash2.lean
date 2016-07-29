@@ -23,16 +23,16 @@ theorem vappend_assoc :
 by do
      intros,
      -- should not unfold anything since term does not contains any of the patterns above.
-     unfold ["vappend"],
+     unfold [`vappend],
      trace_state, trace "-----------",
-     get_local "v1" >>= cases,
+     get_local `v1 >>= cases,
      trace_state, trace "-----------",
      -- should not unfold anything since term does not contains any of the patterns above.
-     unfold ["vappend"],
+     unfold [`vappend],
      trace_state, trace "-----------",
-     get_local "v2" >>= cases,
+     get_local `v2 >>= cases,
      trace_state, trace "-----------",
      -- now it should unfold
-     unfold ["vappend"],
+     unfold [`vappend],
      trace_state, trace "-----------",
-     repeat $ mk_const "Sorry" >>= apply
+     repeat $ mk_const `Sorry >>= apply

@@ -106,7 +106,7 @@ end algebra
 section
   open algebra algebra.semigroup algebra.monoid
   variable M : monoid
-  variables a b c : M
+  variables a b c : monoid.carrier M
   check a*b*c*a*b*c*a*b*a*b*c*a
   check a*b
 end

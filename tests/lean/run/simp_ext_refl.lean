@@ -8,15 +8,15 @@ lemma f.def : ∀ (a), f a = y := λ a, rfl
 
 meta_definition simp_f_to_y : tactic unit := mk_eq_simp_ext $
   λ e, if expr.get_app_num_args e = 1
-       then do res ← mk_const "y",
-               pf ← mk_app "rfl" [e],
+       then do res ← mk_const `y,
+               pf ← mk_app `rfl [e],
                return (res, pf)
        else fail "expected f applied to one arg"
 
 meta_definition simp_f_to_y₂ : tactic unit := mk_eq_simp_ext $
   λ e, if expr.get_app_num_args e = 1
-       then do res ← mk_const "y",
-               pf ← mk_app ("f" <.> "def") [expr.app_arg e],
+       then do res ← mk_const `y,
+               pf ← mk_app `f.def [expr.app_arg e],
                return (res, pf)
        else fail "expected f applied to one arg"
 

@@ -40,17 +40,17 @@ has_to_tactic_format.to_tactic_format
 open tactic format
 
 meta_definition list_to_tactic_format_aux {A : Type} [has_to_tactic_format A] : bool → list A → tactic format
-| _  []     := return ""
+| _  []     := return $ to_fmt ""
 | b (x::xs) := do
   f₁ ← pp x,
   f₂ ← list_to_tactic_format_aux ff xs,
-  return $ (if b = ff then "," ++ line else nil) ++ f₁ ++ f₂
+  return $ (if b = ff then to_fmt "," ++ line else nil) ++ f₁ ++ f₂
 
 meta_definition list_to_tactic_format {A : Type} [has_to_tactic_format A] : list A → tactic format
-| []      := return "[]"
+| []      := return $ to_fmt "[]"
 | (x::xs) := do
   f ← list_to_tactic_format_aux tt (x::xs),
-  return $ "[" ++ group (nest 1 f) ++ "]"
+  return $ to_fmt "[" ++ group (nest 1 f) ++ to_fmt "]"
 
 meta_definition list_has_to_tactic_format [instance] {A : Type} [has_to_tactic_format A] : has_to_tactic_format (list A) :=
 has_to_tactic_format.mk list_to_tactic_format
@@ -202,11 +202,14 @@ do t ← target,
    if expr.is_pi t = tt ∨ expr.is_let t = tt then intro_core n
    else whnf_target >> intro_core n
 
+meta_definition intro1 : tactic expr :=
+intro `_
+
 meta_definition intros : tactic (list expr) :=
 do t ← target,
    match t with
-   | expr.pi   _ _ _ _ := do H ← intro "_", Hs ← intros, return (H :: Hs)
-   | expr.elet _ _ _ _ := do H ← intro "_", Hs ← intros, return (H :: Hs)
+   | expr.pi   _ _ _ _ := do H ← intro1, Hs ← intros, return (H :: Hs)
+   | expr.elet _ _ _ _ := do H ← intro1, Hs ← intros, return (H :: Hs)
    | _                 := return []
    end
 
@@ -461,6 +464,6 @@ generalize_core semireducible
 
 meta_definition generalizes : list expr → tactic unit
 | []      := skip
-| (e::es) := generalize e "x" >> generalizes es
+| (e::es) := generalize e `x >> generalizes es
 
 end tactic

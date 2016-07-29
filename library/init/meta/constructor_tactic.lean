@@ -57,7 +57,7 @@ do [c]     ← target >>= get_constructors_for | fail "existsi tactic failed, ta
    fn_type ← infer_type fn,
    n       ← get_arity fn,
    when (n < 2) (fail "existsi tactic failed, constructor must have at least two arguments"),
-   t : expr ← apply_num_metavars fn fn_type (n - 2),
-   apply (t e)
+   t       ← apply_num_metavars fn fn_type (n - 2),
+   apply (app t e)
 
 end tactic

@@ -6,12 +6,12 @@ do get_local Hname >>= rewrite_core reducible tt occurrences.all ff,
 
 example (l : list nat) : list.append l [] = l :=
 by do
-  get_local "l" >>= λ H, induction_core semireducible H ("list" <.> "rec_on") ["h", "t", "iH"],
+  get_local `l >>= λ H, induction_core semireducible H `list.rec_on [`h, `t, `iH],
   --
-  unfold ["list" <.> "append"],
+  unfold [`list.append],
   trace_state,
   trace "------",
   reflexivity,
-  unfold ["list" <.> "append"],
+  unfold [`list.append],
   trace_state,
-  rewriteH "iH"
+  rewriteH `iH

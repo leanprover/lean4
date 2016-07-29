@@ -4,15 +4,15 @@ set_option pp.all true
 
 example (a b : nat) : a = b → a = a :=
 by do
-  intro "H",
-  eqc : expr ← mk_const "eq",
+  intro `H,
+  eqc : expr ← mk_const `eq,
   A   ← mk_mvar,
   m₁  ← mk_mvar,
   m₂  ← mk_mvar,
-  e   ← return (eqc A m₁ m₂),
+  e   ← return (expr.app_of_list eqc [A, m₁, m₂]),
   trace "pattern: ",
   trace e,
-  H   ← get_local "H",
+  H   ← get_local `H,
   Ht  ← infer_type H,
   trace "term to unify: ",
   trace Ht,
@@ -25,4 +25,4 @@ by do
   get_assignment A >>= trace,
   get_assignment m₁ >>= trace,
   get_assignment m₂ >>= trace,
-  mk_app ("eq" <.> "refl") [m₁] >>= exact
+  mk_app `eq.refl [m₁] >>= exact

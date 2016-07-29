@@ -10,11 +10,11 @@ open tactic
 
 definition lemma4 : (P → Q) → (Q → R) → (R → S) → (S → T) → P → T :=
 by do
-  H1 ← intro "H1",
-  H2 ← intro "H2",
-  H3 ← intro "H3",
-  H4 ← intro "H4",
-  H5 ← intro "H5",
+  H1 ← intro `H1,
+  H2 ← intro `H2,
+  H3 ← intro `H3,
+  H4 ← intro `H4,
+  H5 ← intro `H5,
   /- Construct lemma set manually -/
   lemmas ← mk_back_lemmas,
   trace "lemmas for target: ",

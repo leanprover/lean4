@@ -24,10 +24,10 @@ open nat
 
 example (a b : nat) (H : a + b + a + b = 0) : true :=
 by do
-  a ← get_local "a", b ← get_local "b",
-  H ← get_local "H" >>= infer_type,
+  a ← get_local `a, b ← get_local `b,
+  H ← get_local `H >>= infer_type,
   (lhs, rhs) ← match_eq H,
-  p ← mk_pattern_for_constant $ "add" <.> "comm",
+  p ← mk_pattern_for_constant $ `add.comm,
   [rhs_inst, prf] ← match_pattern p lhs | failed,
   trace "match rhs",
   trace rhs_inst,

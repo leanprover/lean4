@@ -26,16 +26,16 @@ theorem vappend_assoc :
   vappend (vappend v1 v2) v3 == vappend v1 (vappend v2 v3) :=
 by do
      intros,
-     v <- get_local "v1",
-     induction_core semireducible v ("vector" <.> "rec_on") [],
-     v2 ← get_local "v2",
-     cases_using v2 ["m", "h2", "t2"],
+     v <- get_local `v1,
+     induction_core semireducible v `vector.rec_on [],
+     v2 ← get_local `v2,
+     cases_using v2 [`m, `h2, `t2],
      trace_state, trace "------",
      -- unfold only the first occurrence (i.e., the one of the form (vappend nil nil)
-     unfold_occs_of [1] "vappend",
+     unfold_occs_of [1] `vappend,
      trace_state, trace "------",
-     mk_const "Sorry" >>= apply,
+     mk_const `Sorry >>= apply,
      -- unfold only the first occurrence (i.e., the one of the form (vappend nil (cons ...))
-     unfold_occs_of [1] "vappend",
+     unfold_occs_of [1] `vappend,
      trace_state, trace "------",
-     repeat $ mk_const "Sorry" >>= apply
+     repeat $ mk_const `Sorry >>= apply

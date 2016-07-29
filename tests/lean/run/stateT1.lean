@@ -22,12 +22,10 @@ do (u, s') ← m s, return s'
 meta_definition lift {A : Type} (t : tactic A) : mytactic A :=
 λ s, do a : A ← t, return (a, s)
 
-prefix `↑`:3 := lift
-
 open tactic
 
 example : list nat :=
 by do
-   l : list nat ← invoke [] (foo >> ins 30 >> ↑trace "foo" >> ins 40),
+   l : list nat ← invoke [] (foo >> ins 30 >> lift (trace "foo") >> ins 40),
    trace l,
-   mk_const ("list" <.> "nil") >>= apply
+   mk_const `list.nil >>= apply

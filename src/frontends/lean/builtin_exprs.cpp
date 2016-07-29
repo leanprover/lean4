@@ -649,7 +649,13 @@ static expr quote_name(name const & n) {
 }
 
 static expr parse_quoted_name(parser & p, unsigned, expr const *, pos_info const & pos) {
-    name id = p.check_id_next("invalid quoted name, identifier expected");
+    name id;
+    if (p.curr_is_token(get_placeholder_tk())) {
+        p.next();
+        id = "_";
+    } else {
+        id = p.check_id_next("invalid quoted name, identifier expected");
+    }
     lean_assert(id.is_string());
     expr e  = quote_name(id);
     return p.rec_save_pos(e, pos);
@@ -675,7 +681,7 @@ parse_table init_nud_table() {
     r = r.add({transition("?(", Expr), transition(")", mk_ext_action(parse_inaccessible))}, x0);
     r = r.add({transition("`(", mk_ext_action(parse_quoted_expr))}, x0);
     r = r.add({transition("`", mk_ext_action(parse_quoted_name))}, x0);
-    r = r.add({transition("%%", mk_ext_action(parse_antiquote_expr))}, x0);
+     r = r.add({transition("%%", mk_ext_action(parse_antiquote_expr))}, x0);
     r = r.add({transition("⌞", Expr), transition("⌟", mk_ext_action(parse_inaccessible))}, x0);
     r = r.add({transition("(:", Expr), transition(":)", mk_ext_action(parse_pattern))}, x0);
     r = r.add({transition("()", mk_ext_action(parse_unit))}, x0);

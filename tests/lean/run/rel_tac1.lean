@@ -12,10 +12,10 @@ print "-----------"
 
 example (a : nat) (b : bool) (c : string) : a == b → b == c → a == c :=
 by do
-  intro_lst ["H1", "H2"],
+  intro_lst [`H1, `H2],
   transitivity,
   trace_state,
-  get_local "H1" >>= exact,
+  get_local `H1 >>= exact,
   assumption
 
 example (a b : bool) : a == a :=

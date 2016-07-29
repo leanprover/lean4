@@ -21,4 +21,3 @@ p q : Prop,
 a : ¬¬p,
 H : ¬p
 ⊢ false
-by_contradiction.lean:41:0: warning: using 'exit' to interrupt Lean

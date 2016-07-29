@@ -10,7 +10,7 @@ definition bla (a : nat) : boo (to_bool (a > 0)) → foo nat nat :=
 
 example : true :=
 by do
-  bla ← mk_const "bla",
+  bla ← mk_const `bla,
   infer_type bla >>= trace,
   n   ← get_arity bla,
   trace ("n arity: " ++ to_string n),

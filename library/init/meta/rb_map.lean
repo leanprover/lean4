@@ -50,11 +50,12 @@ section
 open format
 variables {key : Type} {data : Type} [has_to_format key] [has_to_format data]
 private meta_definition format_key_data (k : key) (d : data) (first : bool) : format :=
-(if first = tt then to_fmt "" else to_fmt "," ++ line) ++ to_fmt k ++ space ++ "←" ++ space ++ to_fmt d
+(if first = tt then to_fmt "" else to_fmt "," ++ line) ++ to_fmt k ++ space ++ to_fmt "←" ++ space ++ to_fmt d
 
 meta_definition rb_map_has_to_format [instance] : has_to_format (rb_map key data) :=
 has_to_format.mk (λ m,
-  group ("⟨" ++ nest 1 (pr₁ (fold m (to_fmt "", tt) (λ k d p, (pr₁ p ++ format_key_data k d (pr₂ p), ff)))) ++ "⟩"))
+  group (to_fmt "⟨" ++ nest 1 (pr₁ (fold m (to_fmt "", tt) (λ k d p, (pr₁ p ++ format_key_data k d (pr₂ p), ff)))) ++
+         to_fmt "⟩"))
 end
 
 section

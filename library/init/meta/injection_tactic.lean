@@ -11,7 +11,7 @@ open nat tactic environment expr list
 
 private meta_definition mk_intro_name : name → list name → name
 | n₁ (n₂ :: ns) := n₂
-| n  []         := if n = "a" then "H" else n
+| n  []         := if n = `a then `H else n
 
 -- Auxiliary function for introducing the new equalities produced by the
 -- injection tactic

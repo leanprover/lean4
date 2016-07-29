@@ -12,15 +12,15 @@ by do env ← get_env,
       assumption
 
 example : ∀ (p : Prop), p → p → p :=
-by do d ← get_decl $ "nat" <.> "add",
+by do d ← get_decl $ `nat.add,
     trace $ declaration.type d,
     trace "nat.rec type:",
-    d ← get_decl $ "nat" <.> "rec",
+    d ← get_decl $ `nat.rec,
     trace $ declaration.type d,
     trace_state,
     r ← result,
     trace r,
-    intro_lst ["_", "H1", "H2"],
+    intro_lst [`_, `H1, `H2],
     trace "-----------",
     trace_result,
     trace "-----------",

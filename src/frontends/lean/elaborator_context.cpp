@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 #endif
 
 #ifndef LEAN_DEFAULT_ELABORATOR_COERCIONS
-#define LEAN_DEFAULT_ELABORATOR_COERCIONS true
+#define LEAN_DEFAULT_ELABORATOR_COERCIONS false
 #endif
 
 

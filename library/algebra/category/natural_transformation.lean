@@ -16,8 +16,8 @@ infixl `⟹`:25 := natural_transformation -- \==>
 namespace natural_transformation
   variables {C D : Category} {F G H I : functor C D}
 
-  definition natural_map [coercion] (η : F ⟹ G) : Π(a : C), F a ⟶ G a :=
-  natural_transformation.rec (λ x y, x) η
+  -- definition natural_map [coercion] (η : F ⟹ G) : Π(a : C), F a ⟶ G a :=
+  -- natural_transformation.rec (λ x y, x) η
 
   theorem naturality (η : F ⟹ G) : Π⦃a b : C⦄ (f : a ⟶ b), G f ∘ η a = η b ∘ F f :=
   natural_transformation.rec (λ x y, y) η

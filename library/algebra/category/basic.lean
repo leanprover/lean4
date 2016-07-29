@@ -48,11 +48,11 @@ namespace category
   definition Mk {ob} (C) : Category := Category.mk ob C
   definition MK (a b c d e f g) : Category := Category.mk a (category.mk b c d e f g)
 
-  definition objects [coercion] [reducible] (C : Category) : Type
-  := Category.rec (fun c s, c) C
+  -- definition objects [coercion] [reducible] (C : Category) : Type
+  --   := Category.rec (fun c s, c) C
 
-  definition category_instance [instance] [coercion] (C : Category) : category (objects C)
-  := Category.rec (fun c s, s) C
+  -- definition category_instance [instance] [coercion] (C : Category) : category (objects C)
+  -- := Category.rec (fun c s, s) C
 
 end category
 

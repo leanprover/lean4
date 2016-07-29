@@ -9,7 +9,7 @@ import algebra.group data .hom .perm .finsubg
 namespace group_theory
 open finset function
 
-local attribute perm.f [coercion]
+-- local attribute perm.f [coercion]
 
 private lemma and_left_true {a b : Prop} (Pa : a) : a ∧ b ↔ b :=
 by rewrite [iff_true_intro Pa, true_and]

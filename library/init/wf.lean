@@ -32,7 +32,7 @@ inductive well_founded [class] {A : Type} (R : A → A → Prop) : Prop :=
 intro : (∀ a, acc R a) → well_founded R
 
 namespace well_founded
-  definition apply [coercion] {A : Type} {R : A → A → Prop} (wf : well_founded R) : ∀a, acc R a :=
+  definition apply {A : Type} {R : A → A → Prop} (wf : well_founded R) : ∀a, acc R a :=
   take a, well_founded.rec_on wf (λp, p) a
 
   section

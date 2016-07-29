@@ -11,7 +11,7 @@ definition unsigned [reducible] := fin unsigned_sz
 
 namespace unsigned
 
-definition of_nat [coercion] (n : nat) : unsigned :=
+definition of_nat (n : nat) : unsigned :=
 if H : n < unsigned_sz then fin.mk n H else fin.mk 0 dec_trivial
 
 definition to_nat (c : unsigned) : nat :=

@@ -193,7 +193,7 @@ lemma rotl1_peo_of_peo {n : nat} {s : seq A n} : peo s → peo (rotl_fun 1 s) :=
 begin rewrite [↑peo, *prodseq_eq, seq_rotl_eq_list_rotl], apply prodl_rotl_eq_one_of_prodl_eq_one end
 
 section
-local attribute perm.f [coercion]
+-- local attribute perm.f [coercion]
 
 lemma rotl_perm_peo_of_peo {n : nat} : ∀ {m} {s : seq A n}, peo s → peo (rotl_perm A n m s)
 | 0        := begin rewrite [↑rotl_perm, rotl_seq_zero], intros, assumption end
@@ -240,7 +240,7 @@ section
 
 variable (A)
 
-local attribute perm.f [coercion]
+-- local attribute perm.f [coercion]
 
 definition rotl_peo_seq (n : nat) (m : nat) (s : peo_seq A n) : peo_seq A n :=
 tag (rotl_perm A (succ n) m (elt_of s)) (rotl_perm_peo_of_peo (has_property s))

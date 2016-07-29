@@ -22,7 +22,7 @@ The construction of the reals is arranged in four files.
 -/
 import data.nat data.rat.order data.pnat
 open nat eq pnat
-open - [coercion] rat
+-- open - [coercion] rat
 
 local postfix `⁻¹` := pnat.inv
 
@@ -1091,10 +1091,10 @@ has_sub.mk real.sub
 
 open rat -- no coercions before
 
-definition of_rat [coercion] (a : ℚ) : ℝ := quot.mk (r_const a)
-definition of_int [coercion] (i : ℤ) : ℝ := i
-definition of_nat [coercion] (n : ℕ) : ℝ := n
-definition of_num [coercion] [reducible] (n : num) : ℝ := of_rat (rat.of_num n)
+-- definition of_rat [coercion] (a : ℚ) : ℝ := quot.mk (r_const a)
+-- definition of_int [coercion] (i : ℤ) : ℝ := i
+-- definition of_nat [coercion] (n : ℕ) : ℝ := n
+-- definition of_num [coercion] [reducible] (n : num) : ℝ := of_rat (rat.of_num n)
 
 definition real_has_zero [reducible] : has_zero real := has_zero.mk (of_rat 0)
 local attribute real_has_zero [instance] [priority real.prio]

@@ -13,7 +13,7 @@ namespace finset
 variable {A : Type}
 variable [deceq : decidable_eq A]
 
-definition to_set [coercion] (s : finset A) : set A := λx, x ∈ s
+definition to_set (s : finset A) : set A := λx, x ∈ s
 abbreviation ts := @to_set A
 
 variables (s t : finset A) (x y : A)

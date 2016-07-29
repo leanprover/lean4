@@ -29,11 +29,11 @@ end
 protected proposition eta (z : ℂ) : complex.mk (complex.re z) (complex.im z) = z :=
 by cases z; exact rfl
 
-definition of_real [coercion] (x : ℝ) : ℂ := complex.mk x 0
-definition of_rat [coercion] (q : ℚ) : ℂ := q
-definition of_int [coercion] (i : ℤ) : ℂ := i
-definition of_nat [coercion] (n : ℕ) : ℂ := n
-definition of_num [coercion] [reducible] (n : num) : ℂ := n
+-- definition of_real [coercion] (x : ℝ) : ℂ := complex.mk x 0
+-- definition of_rat [coercion] (q : ℚ) : ℂ := q
+-- definition of_int [coercion] (i : ℤ) : ℂ := i
+-- definition of_nat [coercion] (n : ℕ) : ℂ := n
+-- definition of_num [coercion] [reducible] (n : num) : ℂ := n
 
 protected definition prio : num := num.pred real.prio
 

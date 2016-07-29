@@ -44,10 +44,6 @@ has_to_format.mk id
 meta_definition to_fmt {A : Type} [has_to_format A] : A → format :=
 has_to_format.to_format
 
-namespace format
-attribute [coercion] of_string of_nat
-end format
-
 open format list
 
 meta_definition format.when {A : Type} [has_to_format A] : bool → A → format

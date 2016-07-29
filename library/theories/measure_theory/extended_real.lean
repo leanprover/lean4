@@ -21,7 +21,7 @@ inductive ereal : Type :=
 | infty : ereal
 | neginfty : ereal
 
-attribute ereal.of_real [coercion]
+-- attribute ereal.of_real [coercion]
 notation `∞` := ereal.infty
 notation `-∞` := ereal.neginfty
 

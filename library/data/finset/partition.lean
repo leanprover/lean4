@@ -21,7 +21,7 @@ structure partition : Type :=
 (set : finset A) (part : A → finset A) (is_part : is_partition part)
   (complete : set = Union set part)
 
-attribute partition.part [coercion]
+-- attribute partition.part [coercion]
 
 namespace partition
 

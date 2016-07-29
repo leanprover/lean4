@@ -11,8 +11,6 @@ structure fin (n : nat) := (val : nat) (is_lt : val < n)
 
 namespace fin
 
-attribute fin.val [coercion]
-
 variable {n : nat}
 
 set_option pp.all true

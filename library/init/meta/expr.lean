@@ -182,6 +182,3 @@ meta_definition binding_body : expr → expr
 meta_definition prop : expr := expr.sort level.zero
 
 end expr
-
-/- Given (f a : expr), the following coercion allow us to write (f a) instead of (expr.app f a) -/
-attribute [coercion] expr.app

@@ -11,7 +11,7 @@ open eq.ops
 namespace set
 
 record map {X Y : Type} (a : set X) (b : set Y) := (func : X → Y) (mapsto : maps_to func a b)
-attribute map.func [coercion]
+-- attribute map.func [coercion]
 
 namespace map
 

@@ -280,7 +280,7 @@ some_spec H
 
 section
 omit strucN
-set_option pp.coercions true
+-- set_option pp.coercions true
 --set_option pp.all true
 
 open pnat rat

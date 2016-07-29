@@ -352,9 +352,9 @@ namespace rat
 
 /- operations -/
 
-definition of_int [coercion] (i : ℤ) : ℚ := ⟦prerat.of_int i⟧
-definition of_nat [coercion] (n : ℕ) : ℚ := n
-definition of_num [coercion] [reducible] (n : num) : ℚ := n
+-- definition of_int [coercion] (i : ℤ) : ℚ := ⟦prerat.of_int i⟧
+-- definition of_nat [coercion] (n : ℕ) : ℚ := n
+-- definition of_num [coercion] [reducible] (n : num) : ℚ := n
 
 protected definition prio := num.pred int.prio
 

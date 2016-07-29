@@ -21,7 +21,7 @@ name.mk_string s n
 definition mk_num_name (n : name) (v : nat) : name :=
 name.mk_numeral (unsigned.of_nat v) n
 
-definition mk_simple_name [coercion] (s : string) : name :=
+definition mk_simple_name (s : string) : name :=
 mk_str_name name.anonymous s
 
 infix ` <.> `:65 := mk_str_name

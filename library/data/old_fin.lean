@@ -14,7 +14,7 @@ definition less_than [reducible] := fin
 
 namespace fin
 
-attribute fin.val [coercion]
+-- attribute fin.val [coercion]
 
 section def_equal
 variable {n : nat}

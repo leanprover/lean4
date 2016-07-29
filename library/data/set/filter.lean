@@ -16,7 +16,7 @@ structure filter (A : Type) :=
 (inter_closed   : ∀ {a b}, a ∈ sets → b ∈ sets → a ∩ b ∈ sets)
 (is_mono        : ∀ {a b}, a ⊆ b → a ∈ sets → b ∈ sets)
 
-attribute filter.sets [coercion]
+-- attribute filter.sets [coercion]
 
 namespace filter -- i.e. set.filter
 

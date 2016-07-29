@@ -37,7 +37,7 @@ end perm
 
 structure perm (A : Type) [h : fintype A] : Type :=
   (f : A → A) (inj : injective f)
-local attribute perm.f [coercion]
+-- local attribute perm.f [coercion]
 
 section perm
 variables {A : Type} [fintype A]

@@ -18,8 +18,8 @@ structure functor (C D : Category) : Type :=
 infixl `⇒`:25 := functor
 
 namespace functor
-  attribute object [coercion]
-  attribute morphism [coercion]
+  -- attribute object [coercion]
+  -- attribute morphism [coercion]
   attribute respect_id [irreducible]
   attribute respect_comp [irreducible]
 

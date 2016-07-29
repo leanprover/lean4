@@ -857,7 +857,7 @@ struct structure_cmd_fn {
                 //    m_env = add_coercion(m_env, m_p.ios(), coercion_name, true);
                 if (m_modifiers.is_class() && is_class(m_env, parent_name)) {
                     // if both are classes, then we also mark coercion_name as an instance
-                    m_env = add_trans_instance(m_env, coercion_name, LEAN_DEFAULT_PRIORITY, true);
+                    m_env = add_instance(m_env, coercion_name, LEAN_DEFAULT_PRIORITY, true);
                 }
             }
         }

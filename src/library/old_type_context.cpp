@@ -1656,10 +1656,6 @@ bool old_type_context::mk_choice_point(expr const & mvar) {
     if (!cname)
         return false;
     r.m_local_instances = get_local_instances(*cname);
-    if (m_ci_trans_instances && toplevel_choice) {
-        // we only use transitive instances in the top-level
-        r.m_trans_instances = get_class_derived_trans_instances(m_env, *cname);
-    }
     r.m_instances = get_class_instances(m_env, *cname);
     if (empty(r.m_local_instances) && empty(r.m_trans_instances) && empty(r.m_instances))
         return false;

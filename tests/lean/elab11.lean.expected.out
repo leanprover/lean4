@@ -3,7 +3,7 @@ elab11.lean:6:6: error: ambiguous overload, possible interpretations
   boo.f 1
 bla.f 1 : ℕ
 boo.f 1 : bool
-elab11.lean:16:7: error: none of the overloads is applicable
+elab11.lean:16:7: error: none of the overloads are applicable
 error for bla.f
 invalid overload, expression
   f 1

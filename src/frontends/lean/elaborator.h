@@ -24,18 +24,24 @@ class elaborator {
     local_level_decls m_local_level_decls;
     type_context      m_ctx;
 
-    buffer<level>     m_uvar_stack;
-    buffer<expr>      m_mvar_stack;
-    buffer<expr>      m_instance_stack;
-    buffer<expr>      m_numeral_type_stack;
+    list<level>     m_uvar_stack;
+    list<expr>      m_mvar_stack;
+    list<expr>      m_instance_stack;
+    list<expr>      m_numeral_type_stack;
 
-    struct checkpoint {
+    struct snapshot {
+        metavar_context m_saved_mctx;
+        list<level>     m_saved_uvar_stack;
+        list<expr>      m_saved_mvar_stack;
+        list<expr>      m_saved_instance_stack;
+        list<expr>      m_saved_numeral_type_stack;
+        snapshot(elaborator & elab);
+        void restore(elaborator & elab);
+    };
+
+    struct checkpoint : public snapshot {
         elaborator & m_elaborator;
         bool         m_commit;
-        unsigned     m_uvar_stack_sz;
-        unsigned     m_mvar_stack_sz;
-        unsigned     m_instance_stack_sz;
-        unsigned     m_numeral_type_stack_sz;
         checkpoint(elaborator & e);
         ~checkpoint();
         void commit();
@@ -84,7 +90,6 @@ class elaborator {
     expr instantiate_mvars(expr const & e);
     bool is_uvar_assigned(level const & l) const { return m_ctx.is_assigned(l); }
     bool is_mvar_assigned(expr const & e) const { return m_ctx.is_assigned(e); }
-    void resolve_instances_from(unsigned old_sz);
 
     level mk_univ_metavar();
     expr mk_metavar(expr const & A);
@@ -143,16 +148,16 @@ class elaborator {
     expr visit(expr const & e, optional<expr> const & expected_type);
 
     void ensure_numeral_types_assigned(checkpoint const & C);
-    void synthesize_type_class_instances_core(unsigned old_sz, bool force);
-    void try_to_synthesize_type_class_instances(unsigned old_sz) {
-        synthesize_type_class_instances_core(old_sz, false);
+    void synthesize_type_class_instances_core(list<expr> const & old_stack, bool force);
+    void try_to_synthesize_type_class_instances(list<expr> const & old_stack) {
+        synthesize_type_class_instances_core(old_stack, false);
     }
     void synthesize_type_class_instances(checkpoint const & C) {
-        synthesize_type_class_instances_core(C.m_instance_stack_sz, true);
+        synthesize_type_class_instances_core(C.m_saved_instance_stack, true);
     }
     void invoke_tactics(checkpoint const & C);
     void ensure_no_unassigned_metavars(checkpoint const & C);
-    void process_checkpoint(checkpoint const & C);
+    void process_checkpoint(checkpoint & C);
 
 public:
     elaborator(environment const & env, options const & opts, local_level_decls const & lls,

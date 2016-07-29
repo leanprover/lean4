@@ -366,7 +366,7 @@ section discrete_field
       or.inr (by rewrite [-one_mul, -(inv_mul_cancel this), mul.assoc, H, mul_zero]))
   -/
 
-  definition discrete_field.to_integral_domain [trans_instance] :
+  definition discrete_field.to_integral_domain [instance] :
     integral_domain A :=
   ⦃ integral_domain, s,
     eq_zero_or_eq_zero_of_mul_eq_zero := discrete_field.eq_zero_or_eq_zero_of_mul_eq_zero⦄

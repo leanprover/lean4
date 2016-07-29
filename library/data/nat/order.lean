@@ -93,7 +93,7 @@ mul.comm k m ▸ mul.comm k n ▸ nat.mul_lt_mul_of_pos_left H Hk
 
 /- nat is an instance of a linearly ordered semiring and a lattice -/
 
-protected definition decidable_linear_ordered_semiring [trans_instance] :
+protected definition decidable_linear_ordered_semiring [instance] :
 decidable_linear_ordered_semiring nat :=
 ⦃ decidable_linear_ordered_semiring, nat.comm_semiring,
   add_left_cancel            := @nat.add_left_cancel,

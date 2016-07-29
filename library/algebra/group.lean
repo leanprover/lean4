@@ -324,12 +324,12 @@ section group
 
 end group
 
-definition group.to_left_cancel_semigroup [trans_instance] [s : group A] :
+definition group.to_left_cancel_semigroup [instance] [s : group A] :
     left_cancel_semigroup A :=
 ⦃ left_cancel_semigroup, s,
   mul_left_cancel := @mul_left_cancel A s ⦄
 
-definition group.to_right_cancel_semigroup [trans_instance] [s : group A] :
+definition group.to_right_cancel_semigroup [instance] [s : group A] :
     right_cancel_semigroup A :=
 ⦃ right_cancel_semigroup, s,
   mul_right_cancel := @mul_right_cancel A s ⦄
@@ -466,11 +466,11 @@ section add_group
   by inst_simp
   -/
 
-  definition add_group.to_left_cancel_semigroup [trans_instance] : add_left_cancel_semigroup A :=
+  definition add_group.to_left_cancel_semigroup [instance] : add_left_cancel_semigroup A :=
   ⦃ add_left_cancel_semigroup, s,
     add_left_cancel := @add_left_cancel A s ⦄
 
-  definition add_group.to_add_right_cancel_semigroup [trans_instance] :
+  definition add_group.to_add_right_cancel_semigroup [instance] :
     add_right_cancel_semigroup A :=
   ⦃ add_right_cancel_semigroup, s,
     add_right_cancel := @add_right_cancel A s ⦄

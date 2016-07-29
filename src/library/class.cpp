@@ -429,10 +429,6 @@ void initialize_class() {
     register_attribute(prio_attribute("instance", "type class instance", [](environment const & env, io_state const &, name const & d, unsigned prio, bool persistent) {
           return add_instance(env, d, prio, persistent);
         }));
-
-    register_attribute(prio_attribute("trans_instance", "transitive type class instance", [](environment const & env, io_state const &, name const & d, unsigned prio, bool persistent) {
-          return add_trans_instance(env, d, prio, persistent);
-        }));
 }
 
 void finalize_class() {

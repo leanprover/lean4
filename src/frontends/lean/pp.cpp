@@ -18,7 +18,6 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/aliases.h"
 #include "library/scoped_ext.h"
-#include "library/coercion.h"
 #include "library/expr_pair.h"
 #include "library/placeholder.h"
 #include "library/private.h"
@@ -386,49 +385,6 @@ bool pretty_fn::is_prop(expr const & e) {
     }
 }
 
-auto pretty_fn::pp_coercion_fn(expr const & e, unsigned sz, bool ignore_hide) -> result {
-    if (sz == 1) {
-        expr arg = app_arg(e);
-        if (auto thm = arg_is_proof(app_fn(e)))
-            arg = mk_inaccessible(*thm);
-        return pp_child(arg, max_bp()-1, ignore_hide);
-    } else if (is_app(e) && is_implicit(app_fn(e))) {
-        return pp_coercion_fn(app_fn(e), sz-1, ignore_hide);
-    } else {
-        expr const & fn = app_fn(e);
-        result res_fn   = pp_coercion_fn(fn, sz-1, ignore_hide);
-        format fn_fmt   = res_fn.fmt();
-        if (m_implict && sz == 2 && has_implicit_args(fn))
-            fn_fmt = compose(*g_explicit_fmt, fn_fmt);
-        expr arg = app_arg(e);
-        if (auto thm = arg_is_proof(fn))
-            arg = mk_inaccessible(*thm);
-        result res_arg  = pp_child(arg, max_bp(), ignore_hide);
-        return result(max_bp()-1, group(compose(fn_fmt, nest(m_indent, compose(line(), res_arg.fmt())))));
-    }
-}
-
-auto pretty_fn::pp_coercion(expr const & e, unsigned bp, bool ignore_hide) -> result {
-    buffer<expr> args;
-    expr const & f = get_app_args(e, args);
-    optional<pair<name, unsigned>> r = is_coercion(m_env, f);
-    lean_assert(r);
-    if (r->second >= args.size()) {
-        return pp_child_core(e, bp, ignore_hide);
-    } else if (r->second == args.size() - 1) {
-        return pp_child(args.back(), bp, ignore_hide);
-    } else {
-        unsigned sz = args.size() - r->second;
-        lean_assert(sz >= 2);
-        auto r = pp_coercion_fn(e, sz, ignore_hide);
-        if (r.rbp() < bp) {
-            return result(paren(r.fmt()));
-        } else {
-            return r;
-        }
-    }
-}
-
 auto pretty_fn::add_paren_if_needed(result const & r, unsigned bp) -> result {
     if (r.rbp() < bp) {
         return result(paren(r.fmt()));
@@ -561,8 +517,6 @@ auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> resul
             return pp_abbreviation(e, *it, true, bp, ignore_hide);
         } else if (is_implicit(f)) {
             return pp_child(f, bp, ignore_hide);
-        } else if (!m_coercion && is_coercion(m_env, get_app_fn(e))) {
-            return pp_coercion(e, bp, ignore_hide);
         } else if (auto thm = arg_is_proof(f)) {
             return pp_child_core(mk_app(f, mk_inaccessible(*thm)), bp, ignore_hide);
         }
@@ -1146,8 +1100,6 @@ auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) ->
             return pp_abbreviation(e, *it, true, rbp);
         } else if (is_implicit(f)) {
             return pp_notation_child(f, lbp, rbp);
-        } else if (!m_coercion && is_coercion(m_env, f)) {
-            return pp_coercion(e, rbp);
         }
     }
     result r = pp(e);

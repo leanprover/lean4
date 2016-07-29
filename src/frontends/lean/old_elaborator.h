@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "library/old_type_checker.h"
 #include "library/tactic/tactic_state.h"
 #include "frontends/lean/elaborator_context.h"
-#include "frontends/lean/coercion_elaborator.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/obtain_expr.h"
 
@@ -23,14 +22,12 @@ namespace lean {
 /** \brief Mapping from metavariable names to metavariable applications (?M ...) */
 typedef name_map<expr> mvar2meta;
 /** \brief Helper class for implementing the \c elaborate functions. */
-class old_elaborator : public coercion_info_manager {
+class old_elaborator {
     typedef name_map<expr> local_tactic_hints;
     typedef rb_map<expr, pair<expr, constraint_seq>, expr_quick_cmp> cache;
     typedef std::vector<pair<expr, expr>> to_check_sorts;
     elaborator_context &     m_ctx;
     old_type_checker_ptr     m_tc;
-    old_type_checker_ptr     m_coercion_from_tc;
-    old_type_checker_ptr     m_coercion_to_tc;
     // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
     // representing the context where ?m was created.
     old_local_context    m_context; // current local context: a list of local constants
@@ -95,8 +92,6 @@ class old_elaborator : public coercion_info_manager {
     void save_identifier_info(expr const & f);
     void save_synth_data(expr const & e, expr const & r);
     void save_placeholder_info(expr const & e, expr const & r);
-    virtual void save_coercion_info(expr const & e, expr const & c);
-    virtual void erase_coercion_info(expr const & e);
     void instantiate_info(substitution s);
     /** \brief If info manager is being used, then create a metavariable suffix based on binding_name(b) */
     optional<name> mk_mvar_suffix(expr const & b);
@@ -113,11 +108,6 @@ class old_elaborator : public coercion_info_manager {
     expr visit_calc_proof(expr const & e, optional<expr> const & t, constraint_seq & cs);
     expr add_implict_args(expr e, constraint_seq & cs);
     pair<expr, expr> ensure_fun(expr f, constraint_seq & cs);
-    bool has_coercions_from(expr const & a_type, bool & lifted_coe);
-    bool has_coercions_to(expr d_type);
-    pair<expr, constraint_seq> apply_coercion(expr const & a, expr a_type, expr d_type, justification const & j);
-    pair<expr, constraint_seq> mk_delayed_coercion(expr const & a, expr const & a_type, expr const & expected_type,
-                                                   justification const & j);
     pair<expr, constraint_seq> ensure_has_type_core(expr const & a, expr const & a_type, expr const & expected_type,
                                                     bool use_expensive_coercions, justification const & j);
     pair<expr, constraint_seq> ensure_has_type(expr const & a, expr const & a_type, expr const & expected_type,

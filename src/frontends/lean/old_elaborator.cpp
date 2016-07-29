@@ -23,7 +23,6 @@ Author: Leonardo de Moura
 #include "kernel/error_msgs.h"
 #include "kernel/free_vars.h"
 #include "kernel/inductive/inductive.h"
-#include "library/coercion.h"
 #include "library/placeholder.h"
 #include "library/choice.h"
 #include "library/explicit.h"
@@ -63,6 +62,9 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/opt_cmd.h"
 #include "frontends/lean/prenum.h"
+
+/* IMPORTANT: coercion module has been removed. All comments regarding coercions should be ignored.
+   This file will be eventually deleted */
 
 namespace lean {
 typedef pair<std::string, pos_info> fname_pos_info;
@@ -108,20 +110,6 @@ static elaborator_reported_errors * g_elaborator_reported_errors = nullptr;
 
 static bool save_error(pos_info_provider const * pip, expr const & e) {
     return g_elaborator_reported_errors->save(pip, e);
-}
-
-old_type_checker_ptr mk_coercion_from_type_checker(environment const & env) {
-    auto irred_pred = mk_irreducible_pred(env);
-    return mk_type_checker(env, [=](name const & n) {
-            return has_coercions_from(env, n) || irred_pred(n);
-        });
-}
-
-old_type_checker_ptr mk_coercion_to_type_checker(environment const & env) {
-    auto irred_pred = mk_irreducible_pred(env);
-    return mk_type_checker(env, [=](name const & n) {
-            return has_coercions_to(env, n) || irred_pred(n);
-        });
 }
 
 /** \brief 'Choice' expressions <tt>(choice e_1 ... e_n)</tt> are mapped into a metavariable \c ?m
@@ -185,8 +173,6 @@ old_elaborator::old_elaborator(elaborator_context & ctx, bool nice_mvar_names):
     m_no_info           = false;
     m_in_equation_lhs   = false;
     m_tc                = mk_type_checker(ctx.m_env);
-    m_coercion_from_tc  = mk_coercion_from_type_checker(ctx.m_env);
-    m_coercion_to_tc    = mk_coercion_to_type_checker(ctx.m_env);
     m_nice_mvar_names   = nice_mvar_names;
 }
 
@@ -288,26 +274,6 @@ void old_elaborator::save_placeholder_info(expr const & e, expr const & r) {
                 m_ctx.reset_show_goal_at();
             }
         }
-    }
-}
-
-/** \brief Auxiliary function for saving information about which coercion was used by the elaborator.
-    It marks that coercion c was used on e.
-*/
-void old_elaborator::save_coercion_info(expr const & e, expr const & c) {
-    if (!m_no_info && infom() && pip()) {
-        if (auto p = pip()->get_pos_info(e)) {
-            expr t = m_tc->infer(c).first;
-            m_pre_info_data.add_coercion_info(p->first, p->second, c, t);
-        }
-    }
-}
-
-/** \brief Remove coercion information associated with \c e */
-void old_elaborator::erase_coercion_info(expr const & e) {
-    if (!m_no_info && infom() && pip()) {
-        if (auto p = pip()->get_pos_info(e))
-            m_pre_info_data.erase_coercion_info(p->first, p->second);
     }
 }
 
@@ -475,13 +441,6 @@ expr old_elaborator::add_implict_args(expr e, constraint_seq & cs) {
     }
 }
 
-static expr mk_coercion_app(expr const & coe, expr const & a) {
-    if (is_inaccessible(a))
-        return copy_tag(a, mk_inaccessible(mk_app(coe, get_annotation_arg(a), a.get_tag())));
-    else
-        return mk_app(coe, a, a.get_tag());
-}
-
 /** \brief Make sure \c f is really a function, if it is not, try to apply coercions.
     The result is a pair <tt>new_f, f_type</tt>, where new_f is the new value for \c f,
     and \c f_type is its type (and a Pi-expression)
@@ -493,169 +452,22 @@ pair<expr, expr> old_elaborator::ensure_fun(expr f, constraint_seq & cs) {
     if (!is_pi(f_type))
         f_type = whnf(f_type, cs);
     if (is_pi(f_type)) {
-        erase_coercion_info(f);
+        // do nothing
     } else {
         if (m_tc->is_stuck(f_type)) {
             f_type = m_tc->ensure_pi(f_type, f, cs);
-            erase_coercion_info(f);
         } else {
             cs     = saved_cs;
-            list<expr> coes;
-            // try coercion to function-class IF coercions are enabled
-            if (m_ctx.m_coercions) {
-                f_type = m_coercion_from_tc->whnf(saved_f_type, cs);
-                coes  = get_coercions_to_fun(env(), f_type);
-            }
-            if (is_nil(coes)) {
-                throw_kernel_exception(env(), f, [=](formatter const & fmt) { return pp_function_expected(fmt, f); });
-            } else if (is_nil(tail(coes))) {
-                expr old_f = f;
-                f = mk_coercion_app(head(coes), f);
-                f = add_implict_args(f, cs);
-                f_type = infer_type(f, cs);
-                save_coercion_info(old_f, f);
-                lean_assert(is_pi(f_type));
-            } else {
-                old_local_context ctx      = m_context;
-                justification j        = mk_justification(f, [=](formatter const & fmt, substitution const & subst, bool) {
-                        return pp_function_expected(fmt, substitution(subst).instantiate(f));
-                    });
-                auto choice_fn = [=](expr const & meta, expr const &, substitution const &) {
-                    flet<old_local_context> save1(m_context,      ctx);
-                    list<constraints> choices = map2<constraints>(coes, [&](expr const & coe) {
-                            expr new_f      = mk_coercion_app(coe, f);
-                            constraint_seq cs;
-                            new_f = add_implict_args(new_f, cs);
-                            cs += mk_eq_cnstr(meta, new_f, j);
-                            return cs.to_list();
-                        });
-                    return choose(std::make_shared<coercion_elaborator>(*this, f, choices, coes, false));
-                };
-                f   = m_context.mk_meta(none_expr(), f.get_tag());
-                register_meta(f);
-                cs += mk_choice_cnstr(f, choice_fn, to_delay_factor(cnstr_group::Basic), true, j);
-                lean_assert(is_meta(f));
-                // let type checker add constraint
-                f_type = infer_type(f, cs);
-                f_type = m_tc->ensure_pi(f_type, f, cs);
-                lean_assert(is_pi(f_type));
-            }
+            throw_kernel_exception(env(), f, [=](formatter const & fmt) { return pp_function_expected(fmt, f); });
         }
     }
     lean_assert(is_pi(f_type));
     return mk_pair(f, f_type);
 }
 
-bool old_elaborator::has_coercions_from(expr const & a_type, bool & lifted_coe) {
-    if (!m_ctx.m_coercions)
-        return false;
-    try {
-        expr a_cls  = get_app_fn(m_coercion_from_tc->whnf(a_type).first);
-        if (m_ctx.m_lift_coercions) {
-            while (is_pi(a_cls)) {
-                expr local = mk_local(binding_name(a_cls), binding_domain(a_cls), binding_info(a_cls));
-                a_cls      = get_app_fn(m_coercion_from_tc->whnf(instantiate(binding_body(a_cls), local)).first);
-                lifted_coe = true;
-            }
-        }
-        return is_constant(a_cls) && ::lean::has_coercions_from(env(), const_name(a_cls));
-    } catch (exception&) {
-        return false;
-    }
-}
-
-bool old_elaborator::has_coercions_to(expr d_type) {
-    if (!m_ctx.m_coercions)
-        return false;
-    try {
-        d_type = m_coercion_to_tc->whnf(d_type).first;
-        expr const & fn = get_app_fn(d_type);
-        if (is_constant(fn))
-            return ::lean::has_coercions_to(env(), const_name(fn));
-        else if (is_pi(d_type))
-            return ::lean::has_coercions_to_fun(env());
-        else if (is_sort(d_type))
-            return ::lean::has_coercions_to_sort(env());
-        else
-            return false;
-    } catch (exception&) {
-        return false;
-    }
-}
-
-pair<expr, constraint_seq> old_elaborator::apply_coercion(expr const & a, expr a_type, expr d_type, justification const & j) {
-    if (!m_ctx.m_coercions) {
-        erase_coercion_info(a);
-        return to_ecs(a);
-    }
-    a_type = m_coercion_from_tc->whnf(a_type).first;
-    d_type = m_coercion_to_tc->whnf(d_type).first;
-    constraint_seq aux_cs;
-    list<expr> coes = get_coercions_from_to(*m_coercion_from_tc, *m_coercion_to_tc, a_type,
-                                            d_type, aux_cs, m_ctx.m_lift_coercions);
-    if (is_nil(coes)) {
-        erase_coercion_info(a);
-        return to_ecs(a);
-    } else if (is_nil(tail(coes))) {
-        expr r = mk_coercion_app(head(coes), a);
-        save_coercion_info(a, r);
-        return to_ecs(r);
-    } else {
-        optional<expr> r;
-        for (expr const & coe : coes) {
-            expr new_r = mk_coercion_app(coe, a);
-            expr new_r_type = infer_type(new_r).first;
-            try {
-                if (m_tc->is_def_eq(new_r_type, d_type).first) {
-                    if (!r) {
-                        r = new_r;
-                    } else {
-                        // More than one coercion seems to be applicable.
-                        // This can happen when the types new_r_type and d_type contain
-                        // metavariables. That is, we don't have sufficient information
-                        // to decide which one should be used.
-                        // So, we switch to the delayed_coercions approach.
-                        // See issue #803
-                        return mk_delayed_coercion(a, a_type, d_type, j);
-                    }
-                }
-            } catch (exception&) {
-            }
-        }
-        if (r) {
-            save_coercion_info(a, *r);
-            return to_ecs(*r);
-        } else {
-            erase_coercion_info(a);
-            return to_ecs(a);
-        }
-    }
-}
-
-/** \brief Given a term <tt>a : a_type</tt>, and an expected type generate a metavariable with a delayed coercion. */
-pair<expr, constraint_seq> old_elaborator::mk_delayed_coercion(
-    expr const & a, expr const & a_type, expr const & expected_type,
-    justification const & j) {
-    expr m       = m_context.mk_meta(some_expr(expected_type), a.get_tag());
-    register_meta(m);
-    constraint c = mk_coercion_cnstr(*m_coercion_from_tc, *m_coercion_to_tc, *this, m, a, a_type, j,
-                                     to_delay_factor(cnstr_group::Basic), m_ctx.m_lift_coercions);
-    return to_ecs(m, c);
-}
-
 /** \brief Given a term <tt>a : a_type</tt>, ensure it has type \c expected_type. Apply coercions if needed */
 pair<expr, constraint_seq> old_elaborator::ensure_has_type_core(
     expr const & a, expr const & a_type, expr const & expected_type, bool use_expensive_coercions, justification const & j) {
-    bool lifted_coe = false;
-    if (m_ctx.m_coercions && !is_meta(a)) {
-        if (use_expensive_coercions &&
-            has_coercions_from(a_type, lifted_coe) && ((!lifted_coe && is_meta(expected_type)) || (lifted_coe && is_pi_meta(expected_type)))) {
-            return mk_delayed_coercion(a, a_type, expected_type, j);
-        } else if (use_expensive_coercions && !m_in_equation_lhs && is_meta(a_type) && has_coercions_to(expected_type)) {
-            return mk_delayed_coercion(a, a_type, expected_type, j);
-        }
-    }
-
     pair<bool, constraint_seq> dcs;
     try {
         dcs = m_tc->is_def_eq(a_type, expected_type, j);
@@ -665,28 +477,7 @@ pair<expr, constraint_seq> old_elaborator::ensure_has_type_core(
     if (dcs.first) {
         return to_ecs(a, dcs.second);
     } else {
-        if (!m_ctx.m_coercions)
-            throw unifier_exception(j, substitution());
-        auto new_a_cs = apply_coercion(a, a_type, expected_type, j);
-        expr new_a    = new_a_cs.first;
-        constraint_seq cs = new_a_cs.second;
-        bool coercion_worked = false;
-        if (!is_eqp(a, new_a)) {
-            expr new_a_type = infer_type(new_a, cs);
-            try {
-                coercion_worked = m_tc->is_def_eq(new_a_type, expected_type, j, cs);
-            } catch (exception&) {
-                coercion_worked = false;
-            }
-        }
-        if (coercion_worked) {
-            return to_ecs(new_a, cs);
-        } else if (has_metavar(a_type) || has_metavar(expected_type)) {
-            // rely on unification hints to solve this constraint
-            return to_ecs(a, mk_eq_cnstr(a_type, expected_type, j));
-        } else {
-            throw unifier_exception(j, substitution());
-        }
+        throw unifier_exception(j, substitution());
     }
 }
 
@@ -775,9 +566,7 @@ expr old_elaborator::visit_app(expr const & e, constraint_seq & cs) {
         expr a_type     = infer_type(a, a_cs);
         expr r          = mk_app(f, a, e.get_tag());
         justification j = mk_app_justification(r, f_type, a, a_type);
-        // If the application is an equations expression, then we are compiling a match-with, and expensive
-        // coercions should not be considered.
-        bool use_expensive_coercions = !is_equations(app_fn(e));
+        bool use_expensive_coercions = false;
         auto new_a_cs   = ensure_has_type_core(a, a_type, d_type, use_expensive_coercions, j);
         expr new_a      = new_a_cs.first;
         cs += f_cs + new_a_cs.second + a_cs;
@@ -856,7 +645,6 @@ expr old_elaborator::visit_constant(expr const & e) {
 /** \brief Make sure \c e is a type. If it is not, then try to apply coercions. */
 expr old_elaborator::ensure_type(expr const & e, constraint_seq & cs) {
     expr t = infer_type(e, cs);
-    erase_coercion_info(e);
     if (is_sort(t))
         return e;
     expr            saved_t = t;
@@ -875,19 +663,7 @@ expr old_elaborator::ensure_type(expr const & e, constraint_seq & cs) {
         }
     }
     cs = saved_cs;
-    list<expr> coes;
-    if (m_ctx.m_coercions) {
-        t  = m_coercion_from_tc->whnf(saved_t, cs);
-        coes = get_coercions_to_sort(env(), t);
-    }
-    if (is_nil(coes)) {
-        throw_kernel_exception(env(), e, [=](formatter const & fmt) { return pp_type_expected(fmt, e); });
-    } else {
-        // Remark: we ignore other coercions to sort
-        expr r = mk_coercion_app(head(coes), e);
-        save_coercion_info(e, r);
-        return r;
-    }
+    throw_kernel_exception(env(), e, [=](formatter const & fmt) { return pp_type_expected(fmt, e); });
 }
 
 /** \brief Similar to instantiate_rev, but assumes that subst contains only local constants.

@@ -55,7 +55,6 @@ options      options
 commands     commands
 instances    instances
 classes      classes
-coercions    coercions
 arrow        ->
 larrow       <-
 declaration  declaration
@@ -96,7 +95,6 @@ variables    variables
 priority     [priority
 unfold_hints_bracket [unfold_hints]
 unfold_hints unfold_hints
-coercion     [coercion]
 reducible    [reducible]
 semireducible [semireducible]
 irreducible  [irreducible]

@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/flycheck.h"
 #include "library/pp_options.h"
-#include "library/coercion.h"
 #include "library/scoped_ext.h"
 #include "library/export_decl.h"
 #include "library/private.h"
@@ -40,25 +39,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/structure_cmd.h"
 
 namespace lean {
-static void print_coercions(parser & p, optional<name> const & C) {
-    environment const & env = p.env();
-    options opts       = p.get_options();
-    std::ostream & out = p.ios().get_regular_stream();
-    char const * arrow = get_pp_unicode(opts) ? "↣" : ">->";
-    for_each_coercion_user(env, [&](name const & C1, name const & c, name const & D) {
-            if (!C || *C == C1)
-                out << C1 << " " << arrow << " " << D << " : " << c << std::endl;
-        });
-    for_each_coercion_sort(env, [&](name const & C1, name const & c) {
-            if (!C || *C == C1)
-                out << C1 << " " << arrow << " [sort-class] : " << c << std::endl;
-        });
-    for_each_coercion_fun(env, [&](name const & C1, name const & c) {
-            if (!C || *C == C1)
-                out << C1 << " " << arrow << " [fun-class] : " << c << std::endl;
-        });
-}
-
 struct print_axioms_deps {
     environment     m_env;
     io_state_stream m_ios;
@@ -738,12 +718,6 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_aliases_tk())) {
         p.next();
         print_aliases(p);
-    } else if (p.curr_is_token_or_id(get_coercions_tk())) {
-        p.next();
-        optional<name> C;
-        if (p.curr_is_identifier())
-            C = p.check_constant_next("invalid 'print coercions', constant expected");
-        print_coercions(p, C);
     } else if (p.curr_is_token_or_id(get_metaclasses_tk())) {
         p.next();
         print_metaclasses(p);

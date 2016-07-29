@@ -29,7 +29,6 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/aliases.h"
 #include "library/annotation.h"
-#include "library/coercion.h"
 #include "library/explicit.h"
 #include "library/protected.h"
 #include "library/class.h"
@@ -854,8 +853,8 @@ struct structure_cmd_fn {
             save_def_info(coercion_name);
             add_alias(coercion_name);
             if (!m_private_parents[i]) {
-                if (!m_modifiers.is_class() || !is_class(m_env, parent_name))
-                    m_env = add_coercion(m_env, m_p.ios(), coercion_name, get_namespace(m_env), true);
+                // if (!m_modifiers.is_class() || !is_class(m_env, parent_name))
+                //    m_env = add_coercion(m_env, m_p.ios(), coercion_name, get_namespace(m_env), true);
                 if (m_modifiers.is_class() && is_class(m_env, parent_name)) {
                     // if both are classes, then we also mark coercion_name as an instance
                     m_env = add_trans_instance(m_env, coercion_name, LEAN_DEFAULT_PRIORITY, get_namespace(m_env), true);

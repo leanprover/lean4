@@ -28,7 +28,7 @@ Author: Leonardo de Moura
 #endif
 
 #ifndef LEAN_DEFAULT_PP_COERCIONS
-#define LEAN_DEFAULT_PP_COERCIONS false
+#define LEAN_DEFAULT_PP_COERCIONS true
 #endif
 
 #ifndef LEAN_DEFAULT_PP_UNIVERSES

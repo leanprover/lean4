@@ -318,7 +318,7 @@ void pretty_fn::set_options_core(options const & _o) {
     m_hide_comp_irrel   = get_pp_hide_comp_irrel(o);
     m_lazy_abstraction  = get_pp_lazy_abstraction(o);
     m_hide_full_terms   = get_formatter_hide_full_terms(o);
-    m_num_nat_coe       = m_numerals && !m_coercion;
+    m_num_nat_coe       = m_numerals;
 }
 
 void pretty_fn::set_options(options const & o) {
@@ -499,6 +499,22 @@ auto pretty_fn::pp_local_ref(expr const & e) -> optional<result> {
     lean_unreachable();
 }
 
+static bool is_coercion(expr const & e) {
+    return is_app_of(e, get_coe_name()) && get_app_num_args(e) >= 4;
+}
+
+auto pretty_fn::pp_hide_coercion(expr const & e, unsigned bp, bool ignore_hide) -> result {
+    lean_assert(is_coercion(e));
+    buffer<expr> args;
+    get_app_args(e, args);
+    if (args.size() == 4) {
+        return pp_child(args[3], bp, ignore_hide);
+    } else {
+        expr new_e = mk_app(args.size() - 4, args.data() + 4);
+        return pp_child(new_e, bp, ignore_hide);
+    }
+}
+
 auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> result {
     if (auto it = is_abbreviated(e))
         return pp_abbreviation(e, *it, false, bp, ignore_hide);
@@ -517,6 +533,8 @@ auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> resul
             return pp_abbreviation(e, *it, true, bp, ignore_hide);
         } else if (is_implicit(f)) {
             return pp_child(f, bp, ignore_hide);
+        } else if (!m_coercion && is_coercion(e)) {
+            return pp_hide_coercion(e, bp, ignore_hide);
         } else if (auto thm = arg_is_proof(f)) {
             return pp_child_core(mk_app(f, mk_inaccessible(*thm)), bp, ignore_hide);
         }
@@ -1100,6 +1118,8 @@ auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) ->
             return pp_abbreviation(e, *it, true, rbp);
         } else if (is_implicit(f)) {
             return pp_notation_child(f, lbp, rbp);
+        } else if (!m_coercion && is_coercion(e)) {
+            return pp_hide_coercion(e, rbp);
         }
     }
     result r = pp(e);

@@ -105,8 +105,7 @@ private:
     bool ignore_local_ref(expr const & e);
     optional<result> pp_local_ref(expr const & e);
 
-    result pp_coercion_fn(expr const & e, unsigned sz, bool ignore_hide = false);
-    result pp_coercion(expr const & e, unsigned bp, bool ignore_hide = false);
+    result pp_hide_coercion(expr const & e, unsigned bp, bool ignore_hide = false);
     result pp_child_core(expr const & e, unsigned bp, bool ignore_hide = false);
     result pp_child(expr const & e, unsigned bp, bool ignore_hide = false);
     result pp_var(expr const & e);

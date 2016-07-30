@@ -22,3 +22,5 @@ has type
 but is expected to have type
   ℕ
 ↑n + x : real
+↑i + x : real
+↑n + x : real

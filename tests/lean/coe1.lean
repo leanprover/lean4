@@ -35,3 +35,6 @@ attribute [instance] int_has_add real_has_add
 #elab n + x -- FAIL
 
 #elab ↑n + x
+
+#elab (i:real) + x
+#elab (n:real) + x

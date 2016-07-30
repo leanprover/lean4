@@ -24,6 +24,9 @@ char.of_nat
 classical
 classical.prop_decidable
 classical.type_decidable_eq
+coe
+coe_fn
+coe_to_lift
 combinator.K
 comm_ring
 comm_semiring
@@ -81,6 +84,8 @@ has_sub
 has_to_string
 has_zero
 has_zero.zero
+has_coe_t
+has_coe_to_fun
 heq
 heq.refl
 heq.symm

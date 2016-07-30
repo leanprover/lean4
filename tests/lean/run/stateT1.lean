@@ -19,13 +19,13 @@ do l : list nat ← read_lst,
 meta_definition invoke (s : list nat) (m : mytactic unit) : tactic (list nat) :=
 do (u, s') ← m s, return s'
 
-meta_definition lift {A : Type} (t : tactic A) : mytactic A :=
+meta_definition tactic_to_mytactic {A : Type} (t : tactic A) : mytactic A :=
 λ s, do a : A ← t, return (a, s)
 
 open tactic
 
 example : list nat :=
 by do
-   l : list nat ← invoke [] (foo >> ins 30 >> lift (trace "foo") >> ins 40),
+   l : list nat ← invoke [] (foo >> ins 30 >> tactic_to_mytactic (trace "foo") >> ins 40),
    trace l,
    mk_const `list.nil >>= apply

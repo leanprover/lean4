@@ -1,6 +1,7 @@
 import data.nat
 open nat
 
+namespace test
 inductive lift .{l} (A : Type.{l}) : Type.{l+1} :=
 up : A → lift A
 
@@ -22,3 +23,4 @@ check nat
 check lift nat
 open lift
 definition one1 : lift nat := up 1
+end test

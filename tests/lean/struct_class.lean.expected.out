@@ -5,10 +5,15 @@ functor : (Type → Type) → Type
 has_add : Type → Type
 has_andthen : Type → Type
 has_append : Type → Type
+has_coe : Type → Type → Type
+has_coe_t : Type → Type → Type
+has_coe_to_fun : Type → Type
 has_div : Type → Type
 has_dvd : Type → Type
 has_inv : Type → Type
 has_le : Type → Type
+has_lift : Type → Type → Type
+has_lift_t : Type → Type → Type
 has_lt : Type → Type
 has_mod : Type → Type
 has_mul : Type → Type
@@ -36,10 +41,15 @@ functor : (Type → Type) → Type
 has_add : Type → Type
 has_andthen : Type → Type
 has_append : Type → Type
+has_coe : Type → Type → Type
+has_coe_t : Type → Type → Type
+has_coe_to_fun : Type → Type
 has_div : Type → Type
 has_dvd : Type → Type
 has_inv : Type → Type
 has_le : Type → Type
+has_lift : Type → Type → Type
+has_lift_t : Type → Type → Type
 has_lt : Type → Type
 has_mod : Type → Type
 has_mul : Type → Type

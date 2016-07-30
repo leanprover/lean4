@@ -1,5 +1,5 @@
 import logic
-
+namespace test
 inductive lift.{l₁ l₂} (A : Type.{l₁}) : Type.{(max 1 l₁ l₂)} :=
 inj : A → lift A
 
@@ -11,3 +11,4 @@ check A = lift B
 universe u
 variables (C : Type.{u+2}) (D : Type.{u})
 check C = lift D
+end test

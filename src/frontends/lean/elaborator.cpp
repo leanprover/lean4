@@ -272,43 +272,77 @@ auto elaborator::use_elim_elab(name const & fn) -> optional<elim_info> {
     return r;
 }
 
-expr elaborator::ensure_function(expr const & e, expr const & ref) {
-    expr e_type = whnf(infer_type(e));
-    if (!is_pi(e_type)) {
-        throw elaborator_exception(ref, format("function expected at") + pp_indent(e));
-    }
-    return e;
+void elaborator::trace_coercion_failure(expr const & e_type, expr const & type, expr const & ref, char const * error_msg) {
+    trace_elab({
+            format msg("coercion at ");
+            msg += format(pos_string_for(ref));
+            msg += space() + format("from");
+            msg += pp_indent(e_type);
+            msg += line() + format("to");
+            msg += pp_indent(type);
+            msg += line () + format(error_msg);
+            tout() << msg << "\n";
+        });
 }
 
-expr elaborator::ensure_type(expr const & e, expr const & ref) {
-    expr e_type = whnf(infer_type(e));
-    if (is_sort(e_type))
-        return e;
-    if (is_meta(e_type)) {
-        checkpoint C(*this);
-        if (is_def_eq(e_type, mk_sort(mk_univ_metavar()))) {
-            C.commit();
-            return e;
+optional<expr> elaborator::mk_coercion(expr const & e, expr const & _e_type, expr const & _type, expr const & ref) {
+    expr e_type = instantiate_mvars(_e_type);
+    expr type   = instantiate_mvars(_type);
+    if (!has_expr_metavar(e_type) && !has_expr_metavar(type)) {
+        expr has_coe_t;
+        try {
+            has_coe_t = mk_app(m_ctx, get_has_coe_t_name(), e_type, type);
+        } catch (app_builder_exception & ex) {
+            trace_coercion_failure(e_type, type, ref,
+                                   "failed create type class expression 'has_coe_t' "
+                                   "('set_option trace.app_builder true' for more information)");
+            return none_expr();
         }
+        optional<expr> inst = m_ctx.mk_class_instance_at(m_ctx.lctx(), has_coe_t);
+        if (!inst) {
+            trace_coercion_failure(e_type, type, ref,
+                                   "failed to synthesize 'has_coe_t' type class instance "
+                                   "('set_option trace.class_instances true' for more information)");
+            return none_expr();
+        }
+        expr coe_to_lift;
+        try {
+            coe_to_lift = mk_app(m_ctx, get_coe_to_lift_name(), *inst);
+        } catch (app_builder_exception & ex) {
+            trace_coercion_failure(e_type, type, ref,
+                                   "failed convert 'has_coe_t' instance into 'has_lift_t' instance "
+                                   "('set_option trace.app_builder true' for more information)");
+            return none_expr();
+        }
+        expr coe;
+        try {
+            coe = mk_app(m_ctx, get_coe_name(), coe_to_lift, e);
+        } catch (app_builder_exception & ex) {
+            trace_coercion_failure(e_type, type, ref,
+                                   "failed create 'coe' application using generated type class instance "
+                                   "('set_option trace.app_builder true' for more information)");
+            return none_expr();
+        }
+        return some_expr(coe);
+    } else {
+        trace_coercion_failure(e_type, type, ref,
+                               "was not considered because types contain metavariables");
+        return none_expr();
     }
-    throw elaborator_exception(ref, format("type expected at") + pp_indent(e));
 }
 
-optional<expr> elaborator::ensure_has_type(expr const & e, expr const & e_type, expr const & type) {
+optional<expr> elaborator::ensure_has_type(expr const & e, expr const & e_type, expr const & type, expr const & ref) {
     type_context::approximate_scope scope(m_ctx);
+
     if (is_def_eq(e_type, type))
         return some_expr(e);
 
-    // Coercion from bool => Prop
-    if (is_constant(e_type, get_bool_name()) && type == mk_Prop())
-        return some_expr(mk_eq(m_ctx, e, mk_constant(get_bool_tt_name())));
-
-    return none_expr();
+    return mk_coercion(e, e_type, type, ref);
 }
 
 expr elaborator::enforce_type(expr const & e, expr const & expected_type, char const * header, expr const & ref) {
     expr e_type = infer_type(e);
-    if (auto r = ensure_has_type(e, e_type, expected_type)) {
+    if (auto r = ensure_has_type(e, e_type, expected_type, ref)) {
         return *r;
     } else {
         format msg = format(header);
@@ -319,7 +353,33 @@ expr elaborator::enforce_type(expr const & e, expr const & expected_type, char c
     }
 }
 
+expr elaborator::ensure_function(expr const & e, expr const & ref) {
+    expr e_type = whnf(infer_type(e));
+    if (!is_pi(e_type)) {
+        throw elaborator_exception(ref, format("function expected at") + pp_indent(e));
+    }
+    return e;
+}
+
+expr elaborator::ensure_type(expr const & e, expr const & ref) {
+    expr e_type = whnf(infer_type(e));
+    if (is_sort(e_type)) {
+        return e;
+    }
+
+    if (is_meta(e_type)) {
+        checkpoint C(*this);
+        if (is_def_eq(e_type, mk_sort(mk_univ_metavar()))) {
+            C.commit();
+            return e;
+        }
+    }
+
+    throw elaborator_exception(ref, format("type expected at") + pp_indent(e));
+}
+
 expr elaborator::visit_typed_expr(expr const & e) {
+    expr ref          = e;
     expr val          = get_typed_expr_expr(e);
     expr type         = get_typed_expr_type(e);
     expr new_type;
@@ -330,9 +390,9 @@ expr elaborator::visit_typed_expr(expr const & e) {
     }
     expr new_val      = visit(val, some_expr(new_type));
     expr new_val_type = infer_type(new_val);
-    if (auto r = ensure_has_type(new_val, new_val_type, new_type))
+    if (auto r = ensure_has_type(new_val, new_val_type, new_type, ref))
         return *r;
-    throw elaborator_exception(e,
+    throw elaborator_exception(ref,
                                format("invalid type ascription, expression has type") + pp_indent(new_val_type) +
                                line() + format("but is expected to have type") + pp_indent(new_type));
 }
@@ -651,12 +711,13 @@ expr elaborator::visit_default_app_core(expr const & fn, arg_mask amask, buffer<
                 new_arg = mk_metavar(d);
         } else if (i < args.size()) {
             // explicit argument
+            expr ref_arg = args[i];
             if (args_already_visited)
                 new_arg = args[i];
             else
                 new_arg = visit(args[i], some_expr(d));
             expr new_arg_type = infer_type(new_arg);
-            if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, d)) {
+            if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, d, ref_arg)) {
                 new_arg = *new_new_arg;
             } else {
                 new_args.push_back(new_arg);
@@ -685,7 +746,7 @@ expr elaborator::visit_default_app_core(expr const & fn, arg_mask amask, buffer<
         trace_elab_debug(tout() << "application\n  " << r << "\nhas type\n  " <<
                          type << "\nexpected\n  " << *expected_type << "\nfunction type:\n  " <<
                          fn_type << "\n";);
-        if (auto new_r = ensure_has_type(r, instantiate_mvars(type), *expected_type)) {
+        if (auto new_r = ensure_has_type(r, instantiate_mvars(type), *expected_type, ref)) {
             return *new_r;
         } else {
             /* We do not generate the error here because we can produce a better one from
@@ -712,7 +773,7 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
     list<expr> saved_instance_stack = m_instance_stack;
     buffer<expr> new_args;
     for (expr const & arg : args) {
-        new_args.push_back(visit(arg, none_expr()));
+        new_args.push_back(copy_tag(arg, visit(arg, none_expr())));
     }
 
     snapshot S(*this);
@@ -729,7 +790,7 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
 
             if (expected_type) {
                 expr c_type = infer_type(c);
-                if (ensure_has_type(c, c_type, *expected_type)) {
+                if (ensure_has_type(c, c_type, *expected_type, ref)) {
                     candidates.emplace_back(c, snapshot(*this));
                 } else {
                     throw elaborator_exception(ref, format("invalid overload, expression") + pp_indent(c) +

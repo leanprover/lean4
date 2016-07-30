@@ -101,9 +101,12 @@ class elaborator {
 
     level replace_univ_placeholder(level const & l);
 
+    void trace_coercion_failure(expr const & e_type, expr const & type, expr const & ref, char const * error_msg);
+    optional<expr> mk_coercion(expr const & e, expr const & e_type, expr const & type, expr const & ref);
+
     expr ensure_type(expr const & e, expr const & ref);
     expr ensure_function(expr const & e, expr const & ref);
-    optional<expr> ensure_has_type(expr const & e, expr const & e_type, expr const & type);
+    optional<expr> ensure_has_type(expr const & e, expr const & e_type, expr const & type, expr const & ref);
     expr enforce_type(expr const & e, expr const & expected_type, char const * header, expr const & ref);
 
     bool is_elim_elab_candidate(name const & fn);

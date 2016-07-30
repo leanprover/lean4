@@ -192,6 +192,7 @@ public:
     /* note: mctx must be a descendent of m_mctx */
     void set_mctx(metavar_context const & mctx) { m_mctx = mctx; }
 
+    bool is_def_eq_core(level const & l1, level const & l2);
     bool is_def_eq(level const & l1, level const & l2);
     virtual expr whnf(expr const & e) override;
     virtual expr infer(expr const & e) override;

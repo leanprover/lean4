@@ -996,32 +996,37 @@ void type_context::commit_scope() {
    Unification / definitional equality
    ----------------------------------- */
 
-bool type_context::is_def_eq(level const & l1, level const & l2) {
+bool type_context::is_def_eq_core(level const & l1, level const & l2) {
     if (is_equivalent(l1, l2))
         return true;
+
+    lean_trace(name({"type_context", "univ_is_def_eq_detail"}),
+               tout() << "[" << m_is_def_eq_depth << "]: " << l1 << " =?= " << l2 << "\n";);
+
+    flet<unsigned> inc_depth(m_is_def_eq_depth, m_is_def_eq_depth+1);
 
     if (in_tmp_mode()) {
         /* Check if tmp metavars are already assigned when in tmp mode */
         if (is_idx_metauniv(l1)) {
             if (auto v1 = get_tmp_assignment(l1))
-                return is_def_eq(*v1, l2);
+                return is_def_eq_core(*v1, l2);
         }
         if (is_idx_metauniv(l2)) {
             if (auto v2 = get_tmp_assignment(l2))
-                return is_def_eq(l1, *v2);
+                return is_def_eq_core(l1, *v2);
         }
     }
 
     if (is_metavar_decl_ref(l1)) {
         /* Check if l1 is regular metavar that is already assigned */
         if (auto v1 = m_mctx.get_assignment(l1))
-            return is_def_eq(*v1, l2);
+            return is_def_eq_core(*v1, l2);
     }
 
     if (is_metavar_decl_ref(l2)) {
         /* Check if l2 is regular metavar that is already assigned */
         if (auto v2 = m_mctx.get_assignment(l2))
-            return is_def_eq(l1, *v2);
+            return is_def_eq_core(l1, *v2);
     }
 
     if (is_mvar(l1)) {
@@ -1040,7 +1045,7 @@ bool type_context::is_def_eq(level const & l1, level const & l2) {
     level new_l2 = normalize(instantiate_mvars(l2));
 
     if (l1 != new_l1 || l2 != new_l2)
-        return is_def_eq(new_l1, new_l2);
+        return is_def_eq_core(new_l1, new_l2);
 
     if (l1.kind() != l2.kind())
         return false;
@@ -1048,14 +1053,14 @@ bool type_context::is_def_eq(level const & l1, level const & l2) {
     switch (l1.kind()) {
     case level_kind::Max:
         return
-            is_def_eq(max_lhs(l1), max_lhs(l2)) &&
-            is_def_eq(max_rhs(l1), max_rhs(l2));
+            is_def_eq_core(max_lhs(l1), max_lhs(l2)) &&
+            is_def_eq_core(max_rhs(l1), max_rhs(l2));
     case level_kind::IMax:
         return
-            is_def_eq(imax_lhs(l1), imax_lhs(l2)) &&
-            is_def_eq(imax_rhs(l1), imax_rhs(l2));
+            is_def_eq_core(imax_lhs(l1), imax_lhs(l2)) &&
+            is_def_eq_core(imax_rhs(l1), imax_rhs(l2));
     case level_kind::Succ:
-        return is_def_eq(succ_of(l1), succ_of(l2));
+        return is_def_eq_core(succ_of(l1), succ_of(l2));
     case level_kind::Param:
     case level_kind::Global:
         return false;
@@ -1064,6 +1069,14 @@ bool type_context::is_def_eq(level const & l1, level const & l2) {
         lean_unreachable();
     }
     lean_unreachable();
+}
+
+bool type_context::is_def_eq(level const & l1, level const & l2) {
+    bool success = is_def_eq_core(l1, l2);
+    lean_trace(name({"type_context", "univ_is_def_eq"}),
+               tout() << l1 << " =?= " << l2 << " ... "
+               << (success ? "success" : "failed") << "\n";);
+    return success;
 }
 
 bool type_context::is_def_eq(levels const & ls1, levels const & ls2) {
@@ -2505,6 +2518,8 @@ void initialize_type_context() {
     register_trace_class(name({"type_context", "unification_hint"}));
     register_trace_class(name({"type_context", "is_def_eq"}));
     register_trace_class(name({"type_context", "is_def_eq_detail"}));
+    register_trace_class(name({"type_context", "univ_is_def_eq"}));
+    register_trace_class(name({"type_context", "univ_is_def_eq_detail"}));
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
     register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,
                              "(class) max allowed depth in class-instance resolution");

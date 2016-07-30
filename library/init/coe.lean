@@ -71,17 +71,17 @@ notation `⇑`:max a:max := coe_fn a
 
 /- Transitive closure for has_lift, has_coe, has_coe_to_fun -/
 
-definition lift_base [instance] {A B : Type} [has_lift A B] : has_lift_t A B :=
-has_lift_t.mk lift
-
 definition lift_trans [instance] {A B C : Type} [has_lift A B] [has_lift_t B C] : has_lift_t A C :=
 has_lift_t.mk (λ a, lift_t (lift a : B))
 
-definition coe_base [instance] {A B : Type} [has_coe A B] : has_coe_t A B :=
-has_coe_t.mk coe_b
+definition lift_base [instance] {A B : Type} [has_lift A B] : has_lift_t A B :=
+has_lift_t.mk lift
 
 definition coe_trans [instance] {A B C : Type} [has_coe A B] [has_coe_t B C] : has_coe_t A C :=
 has_coe_t.mk (λ a, coe_t (coe_b a : B))
+
+definition coe_base [instance] {A B : Type} [has_coe A B] : has_coe_t A B :=
+has_coe_t.mk coe_b
 
 definition coe_fn_trans [instance] {A B : Type} [has_lift_t A B] [has_coe_to_fun B] : has_coe_to_fun A :=
 has_coe_to_fun.mk (has_coe_to_fun.F B) (λ a, coe_fn (coe a))
@@ -95,6 +95,9 @@ has_lift_t.mk coe_t
 
 definition coe_bool_to_Prop [instance] : has_coe bool Prop :=
 has_coe.mk (λ b, b = tt)
+
+definition coe_decidable_eq [instance] (b : bool) : decidable (coe b) :=
+show decidable (b = tt), from _
 
 definition coe_subtype [instance] {A : Type} {P : A → Prop} : has_coe {a \ P a} A :=
 has_coe.mk (λ s, subtype.elt_of s)

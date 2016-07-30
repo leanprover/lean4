@@ -96,19 +96,6 @@ bool type_context_cache::is_aux_recursor(name const & n) {
     return r;
 }
 
-static void collect_local_decls(expr const & e, buffer<name> & r, name_set & s) {
-    for_each(e, [&](expr const & e, unsigned) {
-            if (is_local_decl_ref(e)) {
-                name const & n = mlocal_name(e);
-                if (!s.contains(n)) {
-                    r.push_back(n);
-                    s.insert(n);
-                }
-            }
-            return true;
-        });
-}
-
 type_context_cache::scope_pos_info::scope_pos_info(type_context_cache & o, pos_info_provider const * pip,
                                                    expr const & pos_ref):
     m_owner(o),
@@ -808,6 +795,7 @@ void type_context::set_tmp_mode(buffer<optional<level>> & tmp_uassignment, buffe
 }
 
 void type_context::reset_tmp_mode() {
+    lean_trace(name({"type_context", "tmp_vars"}), tout() << "clear tmp vars\n";);
     m_tmp_trail.clear();
     m_tmp_uassignment = nullptr;
     m_tmp_eassignment = nullptr;
@@ -859,6 +847,8 @@ void type_context::assign_tmp(expr const & m, expr const & v) {
     lean_assert(is_idx_metavar(m));
     lean_assert(to_meta_idx(m) < m_tmp_eassignment->size());
     unsigned idx = to_meta_idx(m);
+    lean_trace(name({"type_context", "tmp_vars"}),
+               tout() << "assign ?x_" << idx << " := " << v << "\n";);
     if (!m_scopes.empty() && !(*m_tmp_eassignment)[idx]) {
         m_tmp_trail.emplace_back(tmp_trail_kind::Expr, idx);
     }
@@ -976,6 +966,8 @@ void type_context::pop_scope() {
             if (t.first == tmp_trail_kind::Level) {
                 (*m_tmp_uassignment)[t.second] = none_level();
             } else {
+                lean_trace(name({"type_context", "tmp_vars"}),
+                           tout() << "unassign ?x_" << t.second << " := " << *((*m_tmp_eassignment)[t.second]) << "\n";);
                 (*m_tmp_eassignment)[t.second] = none_expr();
             }
             m_tmp_trail.pop_back();
@@ -2159,6 +2151,16 @@ struct instance_synthesizer {
 
     environment const & env() const { return m_ctx.env(); }
 
+    void push_scope() {
+        lean_trace(name({"type_context", "tmp_vars"}), tout() << "push_scope, trail_sz: " << m_ctx.m_tmp_trail.size() << "\n";);
+        m_ctx.push_scope();
+    }
+
+    void pop_scope() {
+        lean_trace(name({"type_context", "tmp_vars"}), tout() << "pop_scope, trail_sz: " << m_ctx.m_tmp_trail.size() << "\n";);
+        m_ctx.pop_scope();
+    }
+
     bool is_done() const {
         return empty(m_state.m_stack);
     }
@@ -2268,9 +2270,8 @@ struct instance_synthesizer {
         //    is_nsubg : @is_normal_subgroup A s ?N
         // where ?N is not known. Actually, we can only find the value for ?N by constructing the instance is_nsubg.
         expr mvar_type       = m_ctx.instantiate_mvars(mlocal_type(mvar));
-        bool toplevel_choice = m_choices.empty();
         m_choices.push_back(choice());
-        m_ctx.push_scope();
+        push_scope();
         choice & r = m_choices.back();
         auto cname = m_ctx.is_class(mvar_type);
         if (!cname)
@@ -2338,9 +2339,10 @@ struct instance_synthesizer {
         lean_assert(!m_choices.empty());
         while (true) {
             m_choices.pop_back();
-            m_ctx.pop_scope();
+            pop_scope();
             if (m_choices.empty())
                 return false;
+            pop_scope(); push_scope(); // restore assignment
             m_state         = m_choices.back().m_state;
             stack_entry e   = head(m_state.m_stack);
             m_state.m_stack = tail(m_state.m_stack);
@@ -2362,7 +2364,7 @@ struct instance_synthesizer {
     optional<expr> next_solution() {
         if (m_choices.empty())
             return none_expr();
-        m_ctx.pop_scope(); m_ctx.push_scope(); // restore assignment
+        pop_scope(); push_scope(); // restore assignment
         m_state         = m_choices.back().m_state;
         stack_entry e   = head(m_state.m_stack);
         m_state.m_stack = tail(m_state.m_stack);
@@ -2520,6 +2522,7 @@ void initialize_type_context() {
     register_trace_class(name({"type_context", "is_def_eq_detail"}));
     register_trace_class(name({"type_context", "univ_is_def_eq"}));
     register_trace_class(name({"type_context", "univ_is_def_eq_detail"}));
+    register_trace_class(name({"type_context", "tmp_vars"}));
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
     register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,
                              "(class) max allowed depth in class-instance resolution");

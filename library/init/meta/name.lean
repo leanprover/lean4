@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.ordering
+import init.ordering init.coe
 
 /- Reflect a C++ name object. The VM replaces it with the C++ implementation. -/
 inductive name :=
@@ -23,6 +23,9 @@ name.mk_numeral (unsigned.of_nat v) n
 
 definition mk_simple_name (s : string) : name :=
 mk_str_name name.anonymous s
+
+definition coe_string_to_name [instance] : has_coe string name :=
+has_coe.mk mk_simple_name
 
 infix ` <.> `:65 := mk_str_name
 

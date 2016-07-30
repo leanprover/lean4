@@ -44,6 +44,12 @@ has_to_format.mk id
 meta_definition to_fmt {A : Type} [has_to_format A] : A → format :=
 has_to_format.to_format
 
+meta_definition coe_nat_to_format [instance] : has_coe nat format :=
+has_coe.mk format.of_nat
+
+meta_definition coe_string_to_format [instance] : has_coe string format :=
+has_coe.mk format.of_string
+
 open format list
 
 meta_definition format.when {A : Type} [has_to_format A] : bool → A → format

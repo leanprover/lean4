@@ -29,6 +29,19 @@ bool is_metavar_decl_ref(expr const & e) {
     return is_metavar(e) && mlocal_type(e) == *g_dummy_type;
 }
 
+name get_metavar_decl_ref_suffix(level const & u) {
+    lean_assert(is_metavar_decl_ref(u));
+    return *get_tagged_name_suffix(meta_id(u), *g_meta_prefix);
+}
+
+name get_metavar_decl_ref_suffix(expr const & e) {
+    lean_assert(is_metavar_decl_ref(e));
+    if (auto r = get_tagged_name_suffix(mlocal_name(e), *g_meta_prefix))
+        return *r;
+    else
+        return mlocal_name(e);
+}
+
 level metavar_context::mk_univ_metavar_decl() {
     return mk_meta_univ(mk_meta_decl_name());
 }

@@ -1,5 +1,5 @@
 a : ℕ,
-x : ℕ := ?M_1
+x : ℕ := ?m_818
 ⊢ a = a
 
 a : ℕ
@@ -7,7 +7,7 @@ a : ℕ
 definition tst2 : ∀ (a : ℕ), a = a :=
 λ a, let x : ℕ := a in eq.refl a
 a b : ℕ,
-x : ℕ := ?M_1
+x : ℕ := ?m_1733
 ⊢ a = a
 
 a b : ℕ

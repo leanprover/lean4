@@ -22,6 +22,9 @@ public:
 bool is_metavar_decl_ref(level const & l);
 bool is_metavar_decl_ref(expr const & e);
 
+name get_metavar_decl_ref_suffix(level const & l);
+name get_metavar_decl_ref_suffix(expr const & e);
+
 class metavar_context {
     name_map<metavar_decl> m_decls;
     name_map<level>        m_uassignment;

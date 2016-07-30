@@ -1,59 +1,59 @@
 simplification rules for iff
-#1, ?M_1 ↔ ?M_1 ↦ true
-#1, false ↔ ?M_1 ↦ ¬?M_1
-#1, ?M_1 ↔ false ↦ ¬?M_1
-#1, true ↔ ?M_1 ↦ ?M_1
-#1, ?M_1 ↔ true ↦ ?M_1
+#1, ?x_0 ↔ ?x_0 ↦ true
+#1, false ↔ ?x_0 ↦ ¬?x_0
+#1, ?x_0 ↔ false ↦ ¬?x_0
+#1, true ↔ ?x_0 ↦ ?x_0
+#1, ?x_0 ↔ true ↦ ?x_0
 #0, false ↔ true ↦ false
 #0, true ↔ false ↦ false
-#1, ¬?M_1 ↔ ?M_1 ↦ false
-#1, ?M_1 ↔ ¬?M_1 ↦ false
-#2, ?M_1 - ?M_2 ≤ ?M_1 ↦ true
-#1, 0 ≤ ?M_1 ↦ true
-#1, succ ?M_1 ≤ ?M_1 ↦ false
-#1, pred ?M_1 ≤ ?M_1 ↦ true
-#1, ?M_1 ≤ succ ?M_1 ↦ true
-#1, ?M_1 ∧ ?M_1 ↦ ?M_1
-#1, ?M_1 ∧ ¬?M_1 ↦ false
-#1, ¬?M_1 ∧ ?M_1 ↦ false
-#1, false ∧ ?M_1 ↦ false
-#1, ?M_1 ∧ false ↦ false
-#1, true ∧ ?M_1 ↦ ?M_1
-#1, ?M_1 ∧ true ↦ ?M_1
-#3 perm, ?M_1 ∧ ?M_2 ∧ ?M_3 ↦ ?M_2 ∧ ?M_1 ∧ ?M_3
-#3, (?M_1 ∧ ?M_2) ∧ ?M_3 ↦ ?M_1 ∧ ?M_2 ∧ ?M_3
-#2 perm, ?M_1 ∧ ?M_2 ↦ ?M_2 ∧ ?M_1
-#2, ?M_2 == ?M_2 ↦ true
-#2, ?M_1 - ?M_2 < succ ?M_1 ↦ true
-#1, ?M_1 < 0 ↦ false
-#1, ?M_1 < succ ?M_1 ↦ true
-#1, 0 < succ ?M_1 ↦ true
-#1, ?M_1 ∨ ?M_1 ↦ ?M_1
-#1, false ∨ ?M_1 ↦ ?M_1
-#1, ?M_1 ∨ false ↦ ?M_1
-#1, true ∨ ?M_1 ↦ true
-#1, ?M_1 ∨ true ↦ true
-#3 perm, ?M_1 ∨ ?M_2 ∨ ?M_3 ↦ ?M_2 ∨ ?M_1 ∨ ?M_3
-#3, (?M_1 ∨ ?M_2) ∨ ?M_3 ↦ ?M_1 ∨ ?M_2 ∨ ?M_3
-#2 perm, ?M_1 ∨ ?M_2 ↦ ?M_2 ∨ ?M_1
-#2, ?M_2 = ?M_2 ↦ true
-#4, ite ?M_1 ?M_2 ?M_3 ↦ (?M_1 → ?M_2) ∧ (¬?M_1 → ?M_3)
+#1, ¬?x_0 ↔ ?x_0 ↦ false
+#1, ?x_0 ↔ ¬?x_0 ↦ false
+#2, ?x_0 - ?x_1 ≤ ?x_0 ↦ true
+#1, 0 ≤ ?x_0 ↦ true
+#1, succ ?x_0 ≤ ?x_0 ↦ false
+#1, pred ?x_0 ≤ ?x_0 ↦ true
+#1, ?x_0 ≤ succ ?x_0 ↦ true
+#1, ?x_0 ∧ ?x_0 ↦ ?x_0
+#1, ?x_0 ∧ ¬?x_0 ↦ false
+#1, ¬?x_0 ∧ ?x_0 ↦ false
+#1, false ∧ ?x_0 ↦ false
+#1, ?x_0 ∧ false ↦ false
+#1, true ∧ ?x_0 ↦ ?x_0
+#1, ?x_0 ∧ true ↦ ?x_0
+#3 perm, ?x_0 ∧ ?x_1 ∧ ?x_2 ↦ ?x_1 ∧ ?x_0 ∧ ?x_2
+#3, (?x_0 ∧ ?x_1) ∧ ?x_2 ↦ ?x_0 ∧ ?x_1 ∧ ?x_2
+#2 perm, ?x_0 ∧ ?x_1 ↦ ?x_1 ∧ ?x_0
+#2, ?x_1 == ?x_1 ↦ true
+#2, ?x_0 - ?x_1 < succ ?x_0 ↦ true
+#1, ?x_0 < 0 ↦ false
+#1, ?x_0 < succ ?x_0 ↦ true
+#1, 0 < succ ?x_0 ↦ true
+#1, ?x_0 ∨ ?x_0 ↦ ?x_0
+#1, false ∨ ?x_0 ↦ ?x_0
+#1, ?x_0 ∨ false ↦ ?x_0
+#1, true ∨ ?x_0 ↦ true
+#1, ?x_0 ∨ true ↦ true
+#3 perm, ?x_0 ∨ ?x_1 ∨ ?x_2 ↦ ?x_1 ∨ ?x_0 ∨ ?x_2
+#3, (?x_0 ∨ ?x_1) ∨ ?x_2 ↦ ?x_0 ∨ ?x_1 ∨ ?x_2
+#2 perm, ?x_0 ∨ ?x_1 ↦ ?x_1 ∨ ?x_0
+#2, ?x_1 = ?x_1 ↦ true
+#4, ite ?x_0 ?x_1 ?x_2 ↦ (?x_0 → ?x_1) ∧ (¬?x_0 → ?x_2)
 #0, ¬true ↦ false
-#2, ¬?M_2 = ?M_2 ↦ false
+#2, ¬?x_1 = ?x_1 ↦ false
 #0, ¬false ↦ true
-#1, false → ?M_1 ↦ true
-#1, true → ?M_1 ↦ ?M_1
-#1, ?M_1 → true ↦ true
-#1, ?M_1 → ?M_1 ↦ true
-#3, ?M_1 → ?M_2 ∧ ?M_3 ↦ (?M_1 → ?M_2) ∧ (?M_1 → ?M_3)
-#3, ?M_1 ∨ ?M_2 → ?M_3 ↦ (?M_1 → ?M_3) ∧ (?M_2 → ?M_3)
-#3, ?M_1 ∧ ?M_2 → ?M_3 ↦ ?M_1 → ?M_2 → ?M_3
+#1, false → ?x_0 ↦ true
+#1, true → ?x_0 ↦ ?x_0
+#1, ?x_0 → true ↦ true
+#1, ?x_0 → ?x_0 ↦ true
+#3, ?x_0 → ?x_1 ∧ ?x_2 ↦ (?x_0 → ?x_1) ∧ (?x_0 → ?x_2)
+#3, ?x_0 ∨ ?x_1 → ?x_2 ↦ (?x_0 → ?x_2) ∧ (?x_1 → ?x_2)
+#3, ?x_0 ∧ ?x_1 → ?x_2 ↦ ?x_0 → ?x_1 → ?x_2
 simplification rules for eq
-#1, g ?M_1 ↦ f ?M_1 + 1
-#2, g ?M_1 ↦ 1
-#2, f ?M_1 ↦ 0
-#3, ite false ?M_2 ?M_3 ↦ ?M_3
-#3, ite true ?M_2 ?M_3 ↦ ?M_2
-#4, ite ?M_1 ?M_4 ?M_4 ↦ ?M_4
-#1, 0 - ?M_1 ↦ 0
-#2, succ ?M_1 - succ ?M_2 ↦ ?M_1 - ?M_2
+#1, g ?x_0 ↦ f ?x_0 + 1
+#2, g ?x_0 ↦ 1
+#2, f ?x_0 ↦ 0
+#3, ite false ?x_1 ?x_2 ↦ ?x_2
+#3, ite true ?x_1 ?x_2 ↦ ?x_1
+#4, ite ?x_0 ?x_3 ?x_3 ↦ ?x_3
+#1, 0 - ?x_0 ↦ 0
+#2, succ ?x_0 - succ ?x_1 ↦ ?x_0 - ?x_1

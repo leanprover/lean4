@@ -54,4 +54,21 @@ bool is_tagged_by(name const & n, name const & tag) {
         t = t.get_prefix();
     return t == tag;
 }
+
+/* A tagged name is of the form tag.unique_id.suffix */
+optional<name> get_tagged_name_suffix(name const & n, name const & tag) {
+    if (n.is_atomic()) {
+        return optional<name>();
+    } else if (n.get_prefix() == tag) {
+        return optional<name>(name());
+    } else if (auto new_prefix = get_tagged_name_suffix(n.get_prefix(), tag)) {
+        if (n.is_string()) {
+            return optional<name>(*new_prefix, n.get_string());
+        } else {
+            return optional<name>(*new_prefix, n.get_numeral());
+        }
+    } else {
+        return optional<name>();
+    }
+}
 }

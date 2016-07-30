@@ -36,6 +36,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/string.h"
 #include "library/type_context.h"
+#include "library/idx_metavar.h"
 #include "library/definitional/equations.h"
 #include "library/tactic/tactic_state.h"
 #include "library/compiler/comp_irrelevant.h"
@@ -236,7 +237,7 @@ level pretty_fn::purify(level const & l) {
     return replace(l, [&](level const & l) {
             if (!has_meta(l))
                 return some_level(l);
-            if (is_meta(l))
+            if (is_meta(l) && !is_idx_metauniv(l) && !is_metavar_decl_ref(l))
                 return some_level(mk_meta_univ(mk_metavar_name(meta_id(l))));
             return none_level();
         });
@@ -263,7 +264,7 @@ expr pretty_fn::purify(expr const & e) {
     return replace(e, [&](expr const & e, unsigned) {
             if (!has_expr_metavar(e) && !has_local(e) && (!m_universes || !has_univ_metavar(e))) {
                 return some_expr(e);
-            } else if (is_metavar(e) && m_purify_metavars) {
+            } else if (is_metavar(e) && !is_idx_metavar(e) && !is_metavar_decl_ref(e) && m_purify_metavars) {
                 return some_expr(mk_metavar(mk_metavar_name(mlocal_name(e)), infer_type(e)));
             } else if (is_local(e)) {
                 return some_expr(mk_local(mlocal_name(e), mk_local_name(mlocal_name(e), local_pp_name(e)),
@@ -327,8 +328,63 @@ void pretty_fn::set_options(options const & o) {
     set_options_core(o);
 }
 
+format pretty_fn::pp_child(level const & l) {
+    if (is_explicit(l) || is_param(l) || is_meta(l) || is_global(l)) {
+        return pp_level(l);
+    } else {
+        return paren(pp_level(l));
+    }
+}
+
+format pretty_fn::pp_max(level l) {
+    lean_assert(is_max(l) || is_imax(l));
+    format r  = format(is_max(l) ? "max" : "imax");
+    level lhs = is_max(l) ? max_lhs(l) : imax_lhs(l);
+    level rhs = is_max(l) ? max_rhs(l) : imax_rhs(l);
+    r += nest(m_indent, compose(line(), pp_child(lhs)));
+    while (kind(rhs) == kind(l)) {
+        l = rhs;
+        lhs = is_max(l) ? max_lhs(l) : imax_lhs(l);
+        rhs = is_max(l) ? max_rhs(l) : imax_rhs(l);
+        r += nest(m_indent, compose(line(), pp_child(lhs)));
+    }
+    r += nest(m_indent, compose(line(), pp_child(rhs)));
+    return group(r);
+}
+
+format pretty_fn::pp_meta(level const & l) {
+    if (is_idx_metauniv(l)) {
+        return format((sstream() << "?u_" << to_meta_idx(l)).str());
+    } else if (is_metavar_decl_ref(l)) {
+        return format((sstream() << "?l_" << get_metavar_decl_ref_suffix(l)).str());
+    } else {
+        return compose(format("?"), format(meta_id(l)));
+    }
+}
+
 format pretty_fn::pp_level(level const & l) {
-    return ::lean::pp(l, m_unicode, m_indent);
+    if (is_explicit(l)) {
+        lean_assert(get_depth(l) > 0);
+        return format(get_depth(l) - 1);
+    } else {
+        switch (kind(l)) {
+        case level_kind::Zero:
+            lean_unreachable(); // LCOV_EXCL_LINE
+        case level_kind::Param:
+            return format(param_id(l));
+        case level_kind::Global:
+            return format(global_id(l));
+        case level_kind::Meta:
+            return pp_meta(l);
+        case level_kind::Succ: {
+            auto p = to_offset(l);
+            return pp_child(p.first) + format("+") + format(p.second);
+        }
+        case level_kind::Max: case level_kind::IMax:
+            return pp_max(l);
+        }
+        lean_unreachable(); // LCOV_EXCL_LINE
+    }
 }
 
 // Returns the theorem type if `f` has a Pi type with binding domain a Prop,
@@ -646,10 +702,15 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
 }
 
 auto pretty_fn::pp_meta(expr const & e) -> result {
-    if (m_purify_metavars)
+    if (is_idx_metavar(e)) {
+        return result(format((sstream() << "?x_" << to_meta_idx(e)).str()));
+    } else if (is_metavar_decl_ref(e)) {
+        return result(format((sstream() << "?m_" << get_metavar_decl_ref_suffix(e)).str()));
+    } else if (m_purify_metavars) {
         return result(compose(format("?"), format(mlocal_name(e))));
-    else
+    } else {
         return result(compose(format("?M."), format(mlocal_name(e))));
+    }
 }
 
 auto pretty_fn::pp_local(expr const & e) -> result {

@@ -3,7 +3,7 @@ a : ℕ
 ⊢ ℕ
 
 a : ℕ,
-x : ℕ := ?M_1
+x : ℕ := ?m_1040
 ⊢ a = a
 --- inside focus tac ---
 a : ℕ
@@ -20,12 +20,12 @@ a : ℕ
 ⊢ ℕ
 
 a : ℕ,
-x : ℕ := ?M_1
+x : ℕ := ?m_2139
 ⊢ a = a
 --- inside focus tac ---
 a : ℕ
 ⊢ ℕ
 ---- after focus tac ----
 a : ℕ,
-x : ℕ := ?M_1
+x : ℕ := ?m_2139
 ⊢ a = a

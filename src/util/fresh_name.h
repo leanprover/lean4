@@ -18,4 +18,6 @@ name mk_tagged_fresh_name(name const & tag);
 
 /** \brief Return true iff \c n is tagged by atomic name \c tag */
 bool is_tagged_by(name const & n, name const & tag);
+
+optional<name> get_tagged_name_suffix(name const & n, name const & tag);
 }

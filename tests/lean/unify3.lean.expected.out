@@ -1,5 +1,5 @@
 pattern: 
-@eq.{?M_1} ?M_2 ?M_3 ?M_4
+@eq.{?l_3876} ?m_3879 ?m_3882 ?m_3885
 term to unify: 
 @eq.{1} nat a b
 unification results using whnf: 

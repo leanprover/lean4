@@ -41,10 +41,29 @@ class LeanListPrinter:
     def display_hint(self):
         return 'array'
 
+class LeanBufferPrinter:
+    """Print a lean::buffer object."""
+
+    def __init__(self, val):
+        self.val = val
+
+    def children(self):
+        p = self.val['m_buffer']
+        for i in range(int(self.val['m_pos'])):
+            yield ('[%s]' % i, p.dereference())
+            p += 1
+
+    def to_string(self):
+        return str(self.val.type)
+
+    def display_hint(self):
+        return 'array'
+
 def build_pretty_printer():
     pp = gdb.printing.RegexpCollectionPrettyPrinter("lean")
     pp.add_printer('name', '^lean::name$', LeanNamePrinter)
     pp.add_printer('list', '^lean::list', LeanListPrinter)
+    pp.add_printer('buffer', '^lean::buffer', LeanBufferPrinter)
     return pp
 
 gdb.printing.register_pretty_printer(

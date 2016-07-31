@@ -24,22 +24,33 @@ class elaborator {
     local_level_decls m_local_level_decls;
     type_context      m_ctx;
 
-    list<level>     m_uvar_stack;
-    list<expr>      m_mvar_stack;
-    list<expr>      m_instance_stack;
-    list<expr>      m_numeral_type_stack;
+    list<level>       m_uvar_stack;
+    list<expr>        m_mvar_stack;
+    list<expr>        m_instance_stack;
+    list<expr>        m_numeral_type_stack;
+    list<expr_pair>   m_tactic_stack;
 
-    struct snapshot {
+    unsigned          m_next_param_idx;
+    name_set          m_found_univ_params;
+    buffer<name>      m_new_univ_param_names;
+
+    struct base_snapshot {
         metavar_context m_saved_mctx;
-        list<level>     m_saved_uvar_stack;
         list<expr>      m_saved_mvar_stack;
         list<expr>      m_saved_instance_stack;
         list<expr>      m_saved_numeral_type_stack;
-        snapshot(elaborator & elab);
+        list<expr_pair> m_saved_tactic_stack;
+        base_snapshot(elaborator const & elab);
         void restore(elaborator & elab);
     };
 
-    struct checkpoint : public snapshot {
+    struct snapshot : public base_snapshot {
+        list<level>     m_saved_uvar_stack;
+        snapshot(elaborator const & elab);
+        void restore(elaborator & elab);
+    };
+
+    struct checkpoint : public base_snapshot {
         elaborator & m_elaborator;
         bool         m_commit;
         checkpoint(elaborator & e);
@@ -94,6 +105,7 @@ class elaborator {
     level mk_univ_metavar();
     expr mk_metavar(expr const & A);
     expr mk_type_metavar();
+    expr mk_metavar(optional<expr> const & A);
     expr mk_instance_core(local_context const & lctx, expr const & C);
     expr mk_instance_core(expr const & C);
     expr mk_instance(expr const & C);
@@ -131,6 +143,9 @@ class elaborator {
     expr visit_prenum(expr const & e, optional<expr> const & expected_type);
     expr visit_placeholder(expr const & e, optional<expr> const & expected_type);
     expr visit_have_expr(expr const & e, optional<expr> const & expected_type);
+    expr visit_by(expr const & e, optional<expr> const & expected_type);
+
+    void collect_univ_params(level const & l, expr const & ref);
 
     expr visit_sort(expr const & e);
     expr visit_const_core(expr const & e);
@@ -172,6 +187,7 @@ class elaborator {
     void invoke_tactics(checkpoint const & C);
     void ensure_no_unassigned_metavars(checkpoint const & C);
     void process_checkpoint(checkpoint & C);
+    void unassigned_uvars_to_params();
 
 public:
     elaborator(environment const & env, options const & opts, local_level_decls const & lls,

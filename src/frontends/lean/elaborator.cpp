@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/compiler/rec_fn_macro.h"
 #include "library/tactic/kabstract.h"
 #include "library/tactic/tactic_state.h"
+#include "library/tactic/elaborate.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
 
@@ -47,6 +48,7 @@ elaborator::elaborator(environment const & env, options const & opts, local_leve
                        metavar_context const & mctx, local_context const & lctx):
     m_env(env), m_opts(opts), m_local_level_decls(lls),
     m_ctx(mctx, lctx, get_elab_tc_cache_for(env, opts), transparency_mode::Semireducible) {
+    m_next_param_idx = 1;
 }
 
 format elaborator::pp(type_context & ctx, expr const & e) {
@@ -93,6 +95,13 @@ expr elaborator::mk_metavar(expr const & A) {
     expr r = copy_tag(A, m_ctx.mk_metavar_decl(m_ctx.lctx(), A));
     m_mvar_stack = cons(r, m_mvar_stack);
     return r;
+}
+
+expr elaborator::mk_metavar(optional<expr> const & A) {
+    if (A)
+        return mk_metavar(*A);
+    else
+        return mk_metavar(mk_type_metavar());
 }
 
 expr elaborator::mk_type_metavar() {
@@ -495,8 +504,28 @@ expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_ty
     }
 }
 
+void elaborator::collect_univ_params(level const & l, expr const & ref) {
+    for_each(l, [&](level const & l) {
+            if (is_param(l)) {
+                if (!m_found_univ_params.contains(param_id(l))) {
+                    m_found_univ_params.insert(param_id(l));
+                    if (std::find(m_new_univ_param_names.begin(), m_new_univ_param_names.end(), param_id(l)) !=
+                        m_new_univ_param_names.end()) {
+                        throw elaborator_exception(ref,
+                                                   format((sstream() << "explicitly provided universe parameter " << l
+                                                           << " is conflicts with automatically generated universe parameter name "
+                                                           << "(solution: rename explict parameter)").str()));
+                    }
+                }
+            }
+            return true;
+        });
+}
+
 expr elaborator::visit_sort(expr const & e) {
-    expr r = update_sort(e, replace_univ_placeholder(sort_level(e)));
+    level new_l = replace_univ_placeholder(sort_level(e));
+    collect_univ_params(new_l, e);
+    expr r = update_sort(e, new_l);
     if (contains_placeholder(sort_level(e)))
         m_to_check_sorts.emplace_back(e, r);
     return r;
@@ -505,8 +534,11 @@ expr elaborator::visit_sort(expr const & e) {
 expr elaborator::visit_const_core(expr const & e) {
     declaration d = m_env.get(const_name(e));
     buffer<level> ls;
-    for (level const & l : const_levels(e))
-        ls.push_back(replace_univ_placeholder(l));
+    for (level const & l : const_levels(e)) {
+        level new_l = replace_univ_placeholder(l);
+        collect_univ_params(new_l, e);
+        ls.push_back(new_l);
+    }
     unsigned num_univ_params = d.get_num_univ_params();
     if (num_univ_params < ls.size()) {
         format msg("incorrect number of universe levels parameters for '");
@@ -954,6 +986,22 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
     return visit_app_core(fn, args, expected_type, e);
 }
 
+expr elaborator::visit_by(expr const & e, optional<expr> const & expected_type) {
+    lean_assert(is_by(e));
+    expr unit_type = mk_constant(get_unit_name());
+    expr tac_type  = mk_app(mk_constant(get_tactic_name(), {mk_level_one()}), unit_type);
+    expr tac;
+    {
+        checkpoint C(*this);
+        tac = visit(get_by_arg(e), some_expr(tac_type));
+        process_checkpoint(C);
+    }
+    expr mvar      = copy_tag(e, mk_metavar(expected_type));
+    trace_elab(tout() << "tactic for ?m_" << get_metavar_decl_ref_suffix(mvar) << "\n" << tac << "\n";);
+    m_tactic_stack = cons(mk_pair(mvar, tac), m_tactic_stack);
+    return mvar;
+}
+
 expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type) {
     if (is_as_is(e)) {
         return get_as_is_arg(e);
@@ -963,6 +1011,8 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         return visit_typed_expr(e);
     } else if (is_choice(e) || is_explicit(e) || is_partial_explicit(e)) {
         return visit_app_core(e, buffer<expr>(), expected_type, e);
+    } else if (is_by(e)) {
+        return visit_by(e, expected_type);
     } else if (is_rec_fn_macro(e)) {
         // TODO(Leo)
         lean_unreachable();
@@ -1052,11 +1102,8 @@ expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type)
     lean_unreachable();
 }
 
-expr elaborator::visit_placeholder(expr const &, optional<expr> const & expected_type) {
-    if (expected_type)
-        return mk_metavar(*expected_type);
-    else
-        return mk_metavar(mk_type_metavar());
+expr elaborator::visit_placeholder(expr const & e, optional<expr> const & expected_type) {
+    return copy_tag(e, mk_metavar(expected_type));
 }
 
 static bool is_have_expr(expr const & e) {
@@ -1161,6 +1208,32 @@ void elaborator::synthesize_type_class_instances_core(list<expr> const & old_sta
         m_instance_stack = cons(mvar, m_instance_stack);
 }
 
+void elaborator::unassigned_uvars_to_params() {
+    buffer<level> tmp;
+    to_buffer(m_uvar_stack, tmp);
+    unsigned i = tmp.size();
+    while (i > 0) {
+        --i;
+        level const & u = tmp[i];
+        lean_assert(is_meta(u));
+        if (!m_ctx.is_assigned(u)) {
+            name l("l");
+            name r;
+            while (true) {
+                r = l.append_after(m_next_param_idx);
+                m_next_param_idx++;
+                if (!m_found_univ_params.contains(r))
+                    break;
+            }
+            lean_assert(!m_found_univ_params.contains(r));
+            m_found_univ_params.insert(r);
+            m_new_univ_param_names.push_back(r);
+            m_ctx.assign(u, mk_param_univ(r));
+        }
+    }
+    m_uvar_stack = list<level>();
+}
+
 void elaborator::invoke_tactics(checkpoint const & C) {
     // TODO(Leo)
 }
@@ -1177,23 +1250,34 @@ void elaborator::process_checkpoint(checkpoint & C) {
     C.commit();
 }
 
-elaborator::snapshot::snapshot(elaborator & e):
-    m_saved_mctx(e.m_ctx.mctx()),
-    m_saved_uvar_stack(e.m_uvar_stack),
-    m_saved_mvar_stack(e.m_mvar_stack),
-    m_saved_instance_stack(e.m_instance_stack),
-    m_saved_numeral_type_stack(e.m_numeral_type_stack) {}
+elaborator::base_snapshot::base_snapshot(elaborator const & e) {
+    m_saved_mctx               = e.m_ctx.mctx();
+    m_saved_mvar_stack         = e.m_mvar_stack;
+    m_saved_instance_stack     = e.m_instance_stack;
+    m_saved_numeral_type_stack = e.m_numeral_type_stack;
+    m_saved_tactic_stack       = e.m_tactic_stack;
+}
 
-void elaborator::snapshot::restore(elaborator & e) {
+void elaborator::base_snapshot::restore(elaborator & e) {
     e.m_ctx.set_mctx(m_saved_mctx);
-    e.m_uvar_stack         = m_saved_uvar_stack;
     e.m_mvar_stack         = m_saved_mvar_stack;
     e.m_instance_stack     = m_saved_instance_stack;
     e.m_numeral_type_stack = m_saved_numeral_type_stack;
+    e.m_tactic_stack       = m_saved_tactic_stack;
+}
+
+elaborator::snapshot::snapshot(elaborator const & e):
+    base_snapshot(e) {
+    m_saved_uvar_stack = e.m_uvar_stack;
+}
+
+void elaborator::snapshot::restore(elaborator & e) {
+    base_snapshot::restore(e);
+    e.m_uvar_stack = m_saved_uvar_stack;
 }
 
 elaborator::checkpoint::checkpoint(elaborator & e):
-    snapshot(e),
+    base_snapshot(e),
     m_elaborator(e),
     m_commit(false) {}
 
@@ -1212,9 +1296,9 @@ std::tuple<expr, level_param_names> elaborator::operator()(expr const & e) {
     expr r = visit(e,  none_expr());
     trace_elab_detail(tout() << "result before final checkpoint\n" << r << "\n";);
     process_checkpoint(C);
+    unassigned_uvars_to_params();
     r = instantiate_mvars(r);
-    // TODO(Leo)
-    level_param_names ls;
+    level_param_names ls = to_list(m_new_univ_param_names);
     return std::make_tuple(r, ls);
 }
 

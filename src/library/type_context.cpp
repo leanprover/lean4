@@ -2386,9 +2386,17 @@ struct instance_synthesizer {
                 cache_result(m_ctx.infer(m_main_mvar), r);
                 return none_expr();
             }
-            if (!has_expr_metavar_relaxed(*r)) {
-                cache_result(m_ctx.infer(m_main_mvar), r);
-                return r;
+            if (!has_expr_metavar(*r)) {
+                if (has_idx_metavar(*r)) {
+                    /* r has universe metavariables.
+                       Try to instantiate them. */
+                    r = m_ctx.instantiate_mvars(*r);
+                }
+                if (!has_idx_metavar(*r)) {
+                    /* We only cache the result if it does not contain universe tmp metavars. */
+                    cache_result(m_ctx.infer(m_main_mvar), some_expr(m_ctx.instantiate_mvars(*r)));
+                    return r;
+                }
             }
             r = next_solution();
         }

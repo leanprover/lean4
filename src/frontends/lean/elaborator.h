@@ -35,8 +35,11 @@ class elaborator {
     name_set          m_found_univ_params;
     buffer<name>      m_new_univ_param_names;
 
-    /** If m_check_unassigend is true, then elaborator throws an exception for unassigned metavariables */
+    /* If m_check_unassigend is true, then elaborator throws an exception for unassigned metavariables */
     bool              m_check_unassigend;
+
+    /* m_depth is only used for tracing */
+    unsigned          m_depth{0};
 
     struct base_snapshot {
         metavar_context m_saved_mctx;

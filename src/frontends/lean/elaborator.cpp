@@ -1147,6 +1147,8 @@ expr elaborator::visit_have_expr(expr const & e, optional<expr> const & expected
 }
 
 expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
+    flet<unsigned> inc_depth(m_depth, m_depth+1);
+    trace_elab_detail(tout() << "[" << m_depth << "] visiting\n" << e << "\n";);
     if (is_placeholder(e)) {
         return visit_placeholder(e, expected_type);
     } else if (is_have_expr(e)) {

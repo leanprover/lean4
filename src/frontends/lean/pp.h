@@ -63,7 +63,6 @@ private:
     bool                    m_universes;
     bool                    m_full_names;
     bool                    m_private_names;
-    bool                    m_metavar_args;
     bool                    m_purify_metavars;
     bool                    m_purify_locals;
     bool                    m_beta;

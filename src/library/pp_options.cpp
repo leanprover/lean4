@@ -43,10 +43,6 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_PRIVATE_NAMES false
 #endif
 
-#ifndef LEAN_DEFAULT_PP_METAVAR_ARGS
-#define LEAN_DEFAULT_PP_METAVAR_ARGS false
-#endif
-
 #ifndef LEAN_DEFAULT_PP_PURIFY_METAVARS
 #define LEAN_DEFAULT_PP_PURIFY_METAVARS true
 #endif
@@ -110,7 +106,6 @@ static name * g_pp_coercions         = nullptr;
 static name * g_pp_universes         = nullptr;
 static name * g_pp_full_names        = nullptr;
 static name * g_pp_private_names     = nullptr;
-static name * g_pp_metavar_args      = nullptr;
 static name * g_pp_purify_metavars   = nullptr;
 static name * g_pp_purify_locals     = nullptr;
 static name * g_pp_beta              = nullptr;
@@ -136,7 +131,6 @@ void initialize_pp_options() {
     g_pp_universes         = new name{"pp", "universes"};
     g_pp_full_names        = new name{"pp", "full_names"};
     g_pp_private_names     = new name{"pp", "private_names"};
-    g_pp_metavar_args      = new name{"pp", "metavar_args"};
     g_pp_purify_metavars   = new name{"pp", "purify_metavars"};
     g_pp_purify_locals     = new name{"pp", "purify_locals"};
     g_pp_beta              = new name{"pp", "beta"};
@@ -169,8 +163,6 @@ void initialize_pp_options() {
                          "(pretty printer) display fully qualified names");
     register_bool_option(*g_pp_private_names,  LEAN_DEFAULT_PP_PRIVATE_NAMES,
                          "(pretty printer) display internal names assigned to private declarations");
-    register_bool_option(*g_pp_metavar_args,  LEAN_DEFAULT_PP_METAVAR_ARGS,
-                         "(pretty printer) display metavariable arguments");
     register_bool_option(*g_pp_purify_metavars, LEAN_DEFAULT_PP_PURIFY_METAVARS,
                          "(pretty printer) rename internal metavariable names (with \"user-friendly\" ones) "
                          "before pretty printing");
@@ -228,7 +220,6 @@ void finalize_pp_options() {
     delete g_pp_universes;
     delete g_pp_full_names;
     delete g_pp_private_names;
-    delete g_pp_metavar_args;
     delete g_pp_purify_metavars;
     delete g_pp_purify_locals;
     delete g_pp_beta;
@@ -247,7 +238,6 @@ name const & get_pp_coercions_name() { return *g_pp_coercions; }
 name const & get_pp_full_names_name() { return *g_pp_full_names; }
 name const & get_pp_universes_name() { return *g_pp_universes; }
 name const & get_pp_notation_name() { return *g_pp_notation; }
-name const & get_pp_metavar_args_name() { return *g_pp_metavar_args; }
 name const & get_pp_purify_metavars_name() { return *g_pp_purify_metavars; }
 name const & get_pp_purify_locals_name() { return *g_pp_purify_locals; }
 name const & get_pp_beta_name() { return *g_pp_beta; }
@@ -266,7 +256,6 @@ bool     get_pp_coercions(options const & opts)         { return opts.get_bool(*
 bool     get_pp_universes(options const & opts)         { return opts.get_bool(*g_pp_universes, LEAN_DEFAULT_PP_UNIVERSES); }
 bool     get_pp_full_names(options const & opts)        { return opts.get_bool(*g_pp_full_names, LEAN_DEFAULT_PP_FULL_NAMES); }
 bool     get_pp_private_names(options const & opts)     { return opts.get_bool(*g_pp_private_names, LEAN_DEFAULT_PP_PRIVATE_NAMES); }
-bool     get_pp_metavar_args(options const & opts)      { return opts.get_bool(*g_pp_metavar_args, LEAN_DEFAULT_PP_METAVAR_ARGS); }
 bool     get_pp_purify_metavars(options const & opts)   { return opts.get_bool(*g_pp_purify_metavars, LEAN_DEFAULT_PP_PURIFY_METAVARS); }
 bool     get_pp_purify_locals(options const & opts)     { return opts.get_bool(*g_pp_purify_locals, LEAN_DEFAULT_PP_PURIFY_LOCALS); }
 bool     get_pp_beta(options const & opts)              { return opts.get_bool(*g_pp_beta, LEAN_DEFAULT_PP_BETA); }

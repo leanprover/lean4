@@ -168,19 +168,16 @@ environment check_cmd(parser & p) {
     e = expand_abbreviations(p.env(), e);
     auto tc = mk_type_checker(p.env());
     expr type = tc->check(e, ls).first;
-    options opts          = p.ios().get_options();
-    opts                  = opts.update_if_undef(get_pp_metavar_args_name(), true);
-    io_state new_ios(p.ios(), opts);
-    auto out              = regular(p.env(), new_ios, tc->get_type_context());
+    auto out              = regular(p.env(), p.ios(), tc->get_type_context());
     formatter fmt         = out.get_formatter();
-    unsigned indent       = get_pp_indent(opts);
+    unsigned indent       = get_pp_indent(p.get_options());
     format r = group(fmt(e) + space() + colon() + nest(indent, line() + fmt(type)));
     flycheck_information info(p.ios());
     if (info.enabled()) {
         p.display_information_pos(p.cmd_pos());
         out << "check result:\n";
     }
-    out << mk_pair(r, opts) << endl;
+    out << mk_pair(r, p.get_options()) << endl;
     return p.env();
 }
 

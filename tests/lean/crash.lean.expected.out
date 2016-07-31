@@ -1,6 +1,6 @@
 crash.lean:8:12: error: type mismatch at application
   have H' : ¬P, from H,
-  ?M_1
+  ?M_1 P H H'
 term
   H
 has type

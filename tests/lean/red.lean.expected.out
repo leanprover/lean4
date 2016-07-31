@@ -9,14 +9,14 @@ red.lean:12:0: error: type mismatch at application
 term
   rfl
 has type
-  f ?M_1 = f ?M_1
+  f (?M_1 a H a) = f (?M_1 a H a)
 but is expected to have type
-  f ?M_1 = a
+  f (?M_1 a H a) = a
 red.lean:17:0: error: type mismatch at application
   H ▸ rfl
 term
   rfl
 has type
-  f ?M_1 = f ?M_1
+  f (?M_1 a H a) = f (?M_1 a H a)
 but is expected to have type
-  f ?M_1 = a
+  f (?M_1 a H a) = a

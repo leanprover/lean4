@@ -315,7 +315,6 @@ void pretty_fn::set_options_core(options const & _o) {
     m_universes         = get_pp_universes(o);
     m_full_names        = get_pp_full_names(o);
     m_private_names     = get_pp_private_names(o);
-    m_metavar_args      = get_pp_metavar_args(o);
     m_purify_metavars   = get_pp_purify_metavars(o);
     m_purify_locals     = get_pp_purify_locals(o);
     m_beta              = get_pp_beta(o);
@@ -1473,9 +1472,6 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     if (m_num_nat_coe)
         if (auto k = to_unsigned(e))
             return format(*k);
-    if (!m_metavar_args && is_meta(e))
-        return pp_meta(get_app_fn(e));
-
     switch (e.kind()) {
     case expr_kind::Var:       return pp_var(e);
     case expr_kind::Sort:      return pp_sort(e);

@@ -193,7 +193,7 @@ static name extract_suggestion(name const & m) {
     return r;
 }
 
-name pretty_fn::mk_metavar_name(name const & m) {
+name pretty_fn::mk_metavar_name(name const & m, optional<name> const & prefix) {
     if (auto it = m_purify_meta_table.find(m))
         return *it;
     if (has_embedded_suggestion(m)) {
@@ -208,7 +208,11 @@ name pretty_fn::mk_metavar_name(name const & m) {
         m_purify_meta_table.insert(m, r);
         return r;
     } else {
-        name new_m = m_meta_prefix.append_after(m_next_meta_idx);
+        name new_m;
+        if (prefix)
+            new_m = prefix->append_after(m_next_meta_idx);
+        else
+            new_m = m_meta_prefix.append_after(m_next_meta_idx);
         m_next_meta_idx++;
         m_purify_meta_table.insert(m, new_m);
         return new_m;
@@ -237,7 +241,9 @@ level pretty_fn::purify(level const & l) {
     return replace(l, [&](level const & l) {
             if (!has_meta(l))
                 return some_level(l);
-            if (is_meta(l) && !is_idx_metauniv(l) && !is_metavar_decl_ref(l))
+            if (is_metavar_decl_ref(l))
+                return some_level(mk_meta_univ(mk_metavar_name(meta_id(l), "l")));
+            if (is_meta(l) && !is_idx_metauniv(l))
                 return some_level(mk_meta_univ(mk_metavar_name(meta_id(l))));
             return none_level();
         });
@@ -264,7 +270,9 @@ expr pretty_fn::purify(expr const & e) {
     return replace(e, [&](expr const & e, unsigned) {
             if (!has_expr_metavar(e) && !has_local(e) && (!m_universes || !has_univ_metavar(e))) {
                 return some_expr(e);
-            } else if (is_metavar(e) && !is_idx_metavar(e) && !is_metavar_decl_ref(e) && m_purify_metavars) {
+            } else if (is_metavar_decl_ref(e) && m_purify_metavars) {
+                return some_expr(mk_metavar(mk_metavar_name(mlocal_name(e), "m"), infer_type(e)));
+            } else if (is_metavar(e) && !is_idx_metavar(e) && m_purify_metavars) {
                 return some_expr(mk_metavar(mk_metavar_name(mlocal_name(e)), infer_type(e)));
             } else if (is_local(e)) {
                 return some_expr(mk_local(mlocal_name(e), mk_local_name(mlocal_name(e), local_pp_name(e)),

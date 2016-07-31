@@ -76,7 +76,10 @@ private:
     bool                    m_binder_types;
     bool                    m_lazy_abstraction;
 
-    name mk_metavar_name(name const & m);
+    name mk_metavar_name(name const & m, optional<name> const & prefix = optional<name>());
+    name mk_metavar_name(name const & m, name const & prefix) {
+        return mk_metavar_name(m, optional<name>(prefix));
+    }
     name mk_local_name(name const & n, name const & suggested);
     level purify(level const & l);
     expr purify(expr const & e);

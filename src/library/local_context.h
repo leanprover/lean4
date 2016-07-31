@@ -35,6 +35,7 @@ private:
     friend class local_context;
     friend void initialize_local_context();
     local_decl(unsigned idx, name const & n, name const & pp_n, expr const & t, optional<expr> const & v, binder_info const & bi);
+    local_decl(local_decl const & d, expr const & t, optional<expr> const & v);
 public:
     local_decl();
     local_decl(local_decl const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
@@ -60,6 +61,8 @@ bool depends_on(expr const & e, unsigned num, expr const * locals);
 bool depends_on(local_decl const & d, unsigned num, expr const * locals);
 bool depends_on(expr const & e, buffer<expr> const & locals);
 bool depends_on(local_decl const & d, buffer<expr> const & locals);
+
+class metavar_context;
 
 class local_context {
     typedef rb_map<unsigned, local_decl, unsigned_cmp> idx2local_decl;
@@ -135,6 +138,15 @@ public:
     bool well_formed(expr const & e) const;
 
     format pp(formatter const & fmt) const;
+
+    /** \brief Replaced assigned metavariables with their values.
+        This method is a little bit hackish since it reuses the names and ids of
+        the existing local_decls. So, it may affects cached information.
+
+        This method is mainly used in the elaborator for reporting errors,
+        and for instantiating metavariables created by the elaborator before
+        invoking the tactic framework. */
+    local_context instantiate_mvars(metavar_context & ctx) const;
 };
 
 void initialize_local_context();

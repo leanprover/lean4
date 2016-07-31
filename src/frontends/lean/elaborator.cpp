@@ -103,7 +103,9 @@ expr elaborator::mk_type_metavar() {
 expr elaborator::mk_instance_core(local_context const & lctx, expr const & C) {
     optional<expr> inst = m_ctx.mk_class_instance_at(lctx, C);
     if (!inst) {
-        tactic_state s = mk_tactic_state_for(m_env, m_opts, m_ctx.mctx(), lctx, C);
+        metavar_context mctx   = m_ctx.mctx();
+        local_context new_lctx = lctx.instantiate_mvars(mctx);
+        tactic_state s = mk_tactic_state_for(m_env, m_opts, mctx, new_lctx, C);
         throw elaborator_exception(C, format("failed to synthesize type class instance for") + line() + s.pp());
     }
     return *inst;

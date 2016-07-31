@@ -7,8 +7,9 @@ Author: Leonardo de Moura
 #include <limits>
 #include "util/fresh_name.h"
 #include "kernel/for_each_fn.h"
-#include "library/local_context.h"
 #include "library/pp_options.h"
+#include "library/local_context.h"
+#include "library/metavar_context.h"
 
 namespace lean {
 static name *       g_local_prefix;
@@ -28,6 +29,9 @@ local_decl::local_decl():local_decl(*g_dummy_decl) {}
 local_decl::local_decl(unsigned idx, name const & n, name const & pp_n, expr const & t, optional<expr> const & v, binder_info const & bi) {
     m_ptr = new (get_local_decl_allocator().allocate()) cell(idx, n, pp_n, t, v, bi);
 }
+
+local_decl::local_decl(local_decl const & d, expr const & t, optional<expr> const & v):
+    local_decl(d.m_ptr->m_idx, d.m_ptr->m_name, d.m_ptr->m_pp_name, t, v, d.m_ptr->m_bi) {}
 
 name mk_local_decl_name() {
     return mk_tagged_fresh_name(*g_local_prefix);
@@ -322,6 +326,21 @@ name local_context::get_unused_name(name const & suggestion) const {
         return suggestion;
     unsigned idx = 1;
     return get_unused_name(suggestion, idx);
+}
+
+local_context local_context::instantiate_mvars(metavar_context & mctx) const {
+    local_context r;
+    r.m_next_idx = m_next_idx;
+    m_idx2local_decl.for_each([&](unsigned, local_decl const & d) {
+            expr new_type = mctx.instantiate_mvars(d.m_ptr->m_type);
+            optional<expr> new_value;
+            if (d.m_ptr->m_value)
+                new_value = mctx.instantiate_mvars(*d.m_ptr->m_value);
+            local_decl new_d(d, new_type, new_value);
+            r.m_name2local_decl.insert(d.get_name(), new_d);
+            r.m_idx2local_decl.insert(d.get_idx(), new_d);
+        });
+    return r;
 }
 
 void initialize_local_context() {

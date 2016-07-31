@@ -6,7 +6,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn
 Basic properties of lists.
 -/
 import logic data.nat.order data.nat.sub
-open eq.ops nat function tactic
+open nat function tactic
 
 namespace list
 variable {T : Type}

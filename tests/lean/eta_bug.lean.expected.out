@@ -1,1 +1,1 @@
-λ A x y H₁ H₂, H₂ ▹ H₁
+λ A x y H₁ H₂, eq.rec H₁ H₂

@@ -73,7 +73,6 @@ Prove excluded middle using Hilbert's choice
 The proof follows Diaconescu proof that shows that the axiom of choice implies the excluded middle.
 -/
 section diaconescu
-open eq.ops
 parameter  p : Prop
 
 private definition U (x : Prop) : Prop := x = true ∨ p
@@ -93,7 +92,7 @@ or.elim u_def
   (assume Hut : u = true,
     or.elim v_def
       (assume Hvf : v = false,
-        have Hne : ¬(u = v), from Hvf⁻¹ ▸ Hut⁻¹ ▸ true_ne_false,
+        have Hne : ¬(u = v), from eq.symm Hvf ▸ eq.symm Hut ▸ true_ne_false,
         or.inl Hne)
       (assume Hp : p, or.inr Hp))
   (assume Hp : p, or.inr Hp)
@@ -126,11 +125,10 @@ or.elim (em a)
 definition eq_true_or_eq_false := prop_complete
 
 section aux
-open eq.ops
 theorem cases_true_false (P : Prop → Prop) (H1 : P true) (H2 : P false) (a : Prop) : P a :=
 or.elim (prop_complete a)
-  (assume Ht : a = true,  Ht⁻¹ ▸ H1)
-  (assume Hf : a = false, Hf⁻¹ ▸ H2)
+  (assume Ht : a = true,  eq.symm Ht ▸ H1)
+  (assume Hf : a = false, eq.symm Hf ▸ H2)
 
 theorem cases_on (a : Prop) {P : Prop → Prop} (H1 : P true) (H2 : P false) : P a :=
 cases_true_false P H1 H2 a

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robert Lewis
 -/
 import algebra.ordered_ring algebra.field
-open eq eq.ops
+open eq
 
 structure linear_ordered_field [class] (A : Type) extends linear_ordered_ring A, field A
 
@@ -476,14 +476,14 @@ section discrete_linear_ordered_field
     have H1 : 0 < 1 / (1 / a), from one_div_pos_of_pos H,
     have H2 : 1 / a ≠ 0, from
       (assume H3 : 1 / a = 0,
-      have H4 : 1 / (1 / a) = 0, from H3⁻¹ ▸ div_zero 1,
+      have H4 : 1 / (1 / a) = 0, from symm H3 ▸ div_zero 1,
       absurd H4 (ne.symm (ne_of_lt H1))),
     (division_ring.one_div_one_div (ne_zero_of_one_div_ne_zero H2)) ▸ H1
 
   theorem neg_of_one_div_neg (H : 1 / a < 0) : a < 0 :=
     have H1 : 0 < - (1 / a), from neg_pos_of_neg H,
     have Ha : a ≠ 0, from ne_zero_of_one_div_ne_zero (ne_of_lt H),
-    have H2 : 0 < 1 / (-a), from (division_ring.one_div_neg_eq_neg_one_div Ha)⁻¹ ▸ H1,
+    have H2 : 0 < 1 / (-a), from symm (division_ring.one_div_neg_eq_neg_one_div Ha) ▸ H1,
     have H3 : 0 < -a, from pos_of_one_div_pos H2,
     neg_of_neg_pos H3
 

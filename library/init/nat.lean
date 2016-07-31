@@ -5,7 +5,7 @@ Authors: Floris van Doorn, Leonardo de Moura
 -/
 prelude
 import init.relation init.num
-open eq.ops decidable or
+open decidable or
 
 notation `ℕ` := nat
 

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 import data.bool
-open bool eq.ops decidable
+open bool decidable
 
 namespace pos_num
   theorem succ_not_is_one (a : pos_num) : is_one (succ a) = ff :=

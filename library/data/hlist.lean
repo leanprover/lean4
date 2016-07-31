@@ -40,9 +40,8 @@ definition append : Π {l₁ l₂}, hlist B l₁ → hlist B l₂ → hlist B (l
 lemma append_nil_left : ∀ {l} (h : hlist B l), append nil h = h :=
 sorry -- by intros; reflexivity
 
-open eq.ops
 lemma eq_rec_on_cons : ∀ {a₁ a₂ l₁ l₂} (b : B a₁) (h : hlist B l₁) (e : a₁::l₁ = a₂::l₂),
-                         e ▹ cons b h = cons (head_eq_of_cons_eq e ▹ b) (tail_eq_of_cons_eq e ▹ h) :=
+                         eq.rec_on e (cons b h) = cons (eq.rec_on (head_eq_of_cons_eq e) b) (eq.rec_on (tail_eq_of_cons_eq e) h) :=
 sorry
 /-
 begin
@@ -51,7 +50,7 @@ end
 -/
 
 local attribute list.append [reducible]
-lemma append_nil_right : ∀ {l} (h : hlist B l), append h nil = (list.append_nil_right l)⁻¹ ▹ h
+lemma append_nil_right : ∀ {l} (h : hlist B l), append h nil = eq.rec_on (eq.symm (list.append_nil_right l)) h
 := sorry
 /-
 | []     nil        := by esimp

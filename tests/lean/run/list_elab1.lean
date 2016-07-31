@@ -10,7 +10,7 @@
 -- Basic properties of Lists.
 
 import data.nat
-open nat eq.ops
+open nat
 inductive List (T : Type) : Type :=
 | nil {} : List T
 | cons : T → List T → List T

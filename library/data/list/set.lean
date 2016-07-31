@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 Set-like operations on lists
 -/
 import data.list.basic data.list.comb
-open nat function decidable eq.ops
+open nat function decidable
 
 namespace list
 section erase
@@ -186,7 +186,7 @@ disjoint.comm (disjoint_nil_left l)
 lemma disjoint_cons_of_not_mem_of_disjoint {a : A} {l₁ l₂} : a ∉ l₂ → disjoint l₁ l₂ → disjoint (a::l₁) l₂ :=
 λ nainl₂ d x (xinal₁ : x ∈ a::l₁),
   or.elim (eq_or_mem_of_mem_cons xinal₁)
-    (λ xeqa  : x = a, xeqa⁻¹ ▸ nainl₂)
+    (λ xeqa  : x = a, eq.symm xeqa ▸ nainl₂)
     (λ xinl₁ : x ∈ l₁, disjoint_left d xinl₁)
 
 lemma disjoint_of_disjoint_append_left_left : ∀ {l₁ l₂ l : list A}, disjoint (l₁++l₂) l → disjoint l₁ l
@@ -262,7 +262,7 @@ theorem disjoint_of_nodup_append : ∀ {l₁ l₂ : list A}, nodup (l₁++l₂) 
   have nxinl₂ : x ∉ l₂,        from not_mem_of_not_mem_append_right this,
   take a, suppose a ∈ x::xs,
     or.elim (eq_or_mem_of_mem_cons this)
-      (suppose a = x, this⁻¹ ▸ nxinl₂)
+      (suppose a = x, eq.symm this ▸ nxinl₂)
       (suppose ainxs : a ∈ xs,
         have nodup (x::(xs++l₂)), from d,
         have nodup (xs++l₂),      from nodup_of_nodup_cons this,
@@ -770,7 +770,7 @@ theorem mem_insert_iff (x a : A) (l : list A) : x ∈ insert a l ↔ x = a ∨ x
 iff.intro
   eq_or_mem_of_mem_insert
   (assume H, or.elim H
-    (assume H' : x = a, H'⁻¹ ▸ mem_insert a l)
+    (assume H' : x = a, eq.symm H' ▸ mem_insert a l)
     (assume H' : x ∈ l, mem_insert_of_mem a H'))
 
 theorem nodup_insert (a : A) {l : list A} : nodup l → nodup (insert a l) :=

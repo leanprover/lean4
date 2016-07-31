@@ -1,5 +1,5 @@
 import data.list data.nat
-open nat list eq.ops
+open nat list
 
 section
 

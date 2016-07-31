@@ -5,8 +5,6 @@ Authors: Jeremy Avigad, Leonardo de Moura, Haitao Zhang
 
 The propositional connectives. See also init.datatypes and init.logic.
 -/
-open eq.ops
-
 variables {a b c d : Prop}
 
 /- implies -/

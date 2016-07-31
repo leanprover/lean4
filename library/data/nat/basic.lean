@@ -6,7 +6,7 @@ Authors: Floris van Doorn, Leonardo de Moura, Jeremy Avigad
 Basic operations on the natural numbers.
 -/
 import ..num algebra.ring
-open binary eq.ops
+open binary
 
 namespace nat
 
@@ -173,7 +173,7 @@ nat.induction_on n
 -/
 
 theorem eq_zero_of_add_eq_zero_left {n m : ℕ} (H : n + m = 0) : m = 0 :=
-eq_zero_of_add_eq_zero_right (nat.add_comm m n ⬝ H)
+eq_zero_of_add_eq_zero_right (eq.trans (nat.add_comm m n) H)
 
 theorem eq_zero_and_eq_zero_of_add_eq_zero {n m : ℕ} (H : n + m = 0) : n = 0 ∧ m = 0 :=
 and.intro (eq_zero_of_add_eq_zero_right H) (eq_zero_of_add_eq_zero_left H)

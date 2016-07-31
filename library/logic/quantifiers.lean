@@ -56,7 +56,7 @@ iff.intro
           (exists_imp_exists (λ x, or.inr)))
 
 section
-  open decidable eq.ops
+  open decidable
 
   variables {A : Type} (P : A → Prop) (a : A) [H : decidable (P a)]
   include H

@@ -7,7 +7,7 @@ Structures with multiplicative and additive components, including division rings
 The development is modeled after Isabelle's library.
 -/
 import algebra.ring
-open eq eq.ops
+open eq
 
 variable {A : Type}
 
@@ -386,7 +386,7 @@ section discrete_field
   sorry -- by rewrite [div_eq_mul_one_div, one_div_zero, mul_zero]
 
   theorem ne_zero_of_one_div_ne_zero (H : 1 / a ≠ 0) : a ≠ 0 :=
-    assume Ha : a = 0, absurd (Ha⁻¹ ▸ one_div_zero) H
+    assume Ha : a = 0, absurd (symm Ha ▸ one_div_zero) H
 
   theorem eq_zero_of_one_div_eq_zero (H : 1 / a = 0) : a = 0 :=
     decidable.by_cases

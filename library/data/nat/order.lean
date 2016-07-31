@@ -6,7 +6,6 @@ Authors: Floris van Doorn, Leonardo de Moura, Jeremy Avigad
 The order relation on the natural numbers.
 -/
 import .basic algebra.ordered_ring
-open eq.ops
 
 namespace nat
 
@@ -222,7 +221,7 @@ theorem succ_pos (n : ℕ) : 0 < succ n :=
 zero_lt_succ n
 
 theorem succ_pred_of_pos {n : ℕ} (H : n > 0) : succ (pred n) = n :=
-(or_resolve_right (eq_zero_or_eq_succ_pred n) (ne.symm (ne_of_lt H)))⁻¹
+eq.symm (or_resolve_right (eq_zero_or_eq_succ_pred n) (ne.symm (ne_of_lt H)))
 
 theorem exists_eq_succ_of_lt {n : ℕ} : Π {m : ℕ}, n < m → ∃k, m = succ k
 | 0        H := absurd H $ not_lt_zero n
@@ -298,7 +297,7 @@ protected definition strong_rec_on {P : nat → Type} (n : ℕ) (H : ∀n, (∀m
 nat.rec (λm h, absurd h $ not_lt_zero _)
   (λn' (IH : ∀ {m : ℕ}, m < n' → P m) m l,
      or.by_cases (lt_or_eq_of_le (le_of_lt_succ l))
-    IH (λ e, eq.rec (H n' @IH) e⁻¹)) (succ n) n $ lt_succ_self n
+    IH (λ e, eq.rec (H n' @IH) (eq.symm e))) (succ n) n $ lt_succ_self n
 
 protected theorem strong_induction_on {P : nat → Prop} (n : ℕ) (H : ∀n, (∀m, m < n → P m) → P n) :
     P n :=
@@ -402,7 +401,7 @@ theorem eq_one_of_mul_eq_one_left {n m : ℕ} (H : n * m = 1) : m = 1 :=
 eq_one_of_mul_eq_one_right (mul.comm n m ▸ H)
 
 theorem eq_one_of_mul_eq_self_left {n m : ℕ} (Hpos : n > 0) (H : m * n = n) : m = 1 :=
-eq_of_mul_eq_mul_right Hpos (H ⬝ eq.symm (one_mul n))
+eq_of_mul_eq_mul_right Hpos (eq.trans H (eq.symm (one_mul n)))
 
 theorem eq_one_of_mul_eq_self_right {n m : ℕ} (Hpos : m > 0) (H : m * n = m) : n = 1 :=
 eq_one_of_mul_eq_self_left Hpos (mul.comm m n ▸ H)
@@ -410,7 +409,7 @@ eq_one_of_mul_eq_self_left Hpos (mul.comm m n ▸ H)
 theorem eq_one_of_dvd_one {n : ℕ} (H : n ∣ 1) : n = 1 :=
 dvd.elim H
   (take m, suppose 1 = n * m,
-   eq_one_of_mul_eq_one_right this⁻¹)
+   eq_one_of_mul_eq_one_right (eq.symm this))
 
 /- min and max -/
 open decidable

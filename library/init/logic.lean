@@ -87,14 +87,11 @@ namespace eq
 
   theorem mpr {a b : Type} : (a = b) → b → a :=
   assume H₁ H₂, eq.rec_on (eq.symm H₁) H₂
-
-  namespace ops
-    notation H `⁻¹` := symm H --input with \sy or \-1 or \inv
-    notation H1 ⬝ H2 := trans H1 H2
-    notation H1 ▸ H2 := subst H1 H2
-    notation H1 ▹ H2 := eq.rec H2 H1
-  end ops
 end eq
+
+notation H1 ▸ H2 := eq.subst H1 H2
+
+open eq
 
 theorem congr {A B : Type} {f₁ f₂ : A → B} {a₁ a₂ : A} (H₁ : f₁ = f₂) (H₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂ :=
 eq.subst H₁ (eq.subst H₂ rfl)
@@ -107,21 +104,19 @@ congr rfl
 
 section
   variables {A : Type} {a b c: A}
-  open eq.ops
 
   theorem trans_rel_left (R : A → A → Prop) (H₁ : R a b) (H₂ : b = c) : R a c :=
   H₂ ▸ H₁
 
   theorem trans_rel_right (R : A → A → Prop) (H₁ : a = b) (H₂ : R b c) : R a c :=
-  H₁⁻¹ ▸ H₂
+  symm H₁ ▸ H₂
 end
 
 section
   variable {p : Prop}
-  open eq.ops
 
   theorem of_eq_true (H : p = true) : p :=
-  H⁻¹ ▸ trivial
+  symm H ▸ trivial
 
   theorem not_of_eq_false (H : p = false) : ¬p :=
   assume Hp, H ▸ Hp
@@ -148,7 +143,6 @@ definition ne.def [defeq] {A : Type} (a b : A) : ne a b = ¬ (a = b) := rfl
 notation a ≠ b := ne a b
 
 namespace ne
-  open eq.ops
   variable {A : Type}
   variables {a b : A}
 
@@ -159,13 +153,12 @@ namespace ne
   theorem irrefl (H : a ≠ a) : false := H rfl
 
   theorem symm (H : a ≠ b) : b ≠ a :=
-  assume (H₁ : b = a), H (H₁⁻¹)
+  assume (H₁ : b = a), H (symm H₁)
 end ne
 
 theorem false_of_ne {A : Type} {a : A} : a ≠ a → false := ne.irrefl
 
 section
-  open eq.ops
   variables {p : Prop}
 
   theorem ne_false_of_self : p → p ≠ false :=
@@ -216,31 +209,30 @@ definition type_eq_of_heq (H : a == b) : A = B :=
 heq.rec_on H (eq.refl A)
 end
 
-open eq.ops
-theorem eq_rec_heq {A : Type} {P : A → Type} {a a' : A} (H : a = a') (p : P a) : H ▹ p == p :=
+theorem eq_rec_heq {A : Type} {P : A → Type} {a a' : A} (H : a = a') (p : P a) : eq.rec_on H p == p :=
 eq.drec_on H (heq.refl p)
 
-theorem heq_of_eq_rec_left {A : Type} {P : A → Type} : ∀ {a a' : A} {p₁ : P a} {p₂ : P a'} (e : a = a') (h₂ : e ▹ p₁ = p₂), p₁ == p₂
+theorem heq_of_eq_rec_left {A : Type} {P : A → Type} : ∀ {a a' : A} {p₁ : P a} {p₂ : P a'} (e : a = a') (h₂ : eq.rec_on e p₁ = p₂), p₁ == p₂
 | a a p₁ p₂ (eq.refl a) h := eq.rec_on h (heq.refl p₁)
 
-theorem heq_of_eq_rec_right {A : Type} {P : A → Type} : ∀ {a a' : A} {p₁ : P a} {p₂ : P a'} (e : a' = a) (h₂ : p₁ = e ▹ p₂), p₁ == p₂
+theorem heq_of_eq_rec_right {A : Type} {P : A → Type} : ∀ {a a' : A} {p₁ : P a} {p₂ : P a'} (e : a' = a) (h₂ : p₁ = eq.rec_on e p₂), p₁ == p₂
 | a a p₁ p₂ (eq.refl a) h := eq.rec_on h (heq.refl p₁)
 
 theorem of_heq_true {a : Prop} (H : a == true) : a :=
 of_eq_true (eq_of_heq H)
 
-theorem eq_rec_compose : ∀ {A B C : Type} (p₁ : B = C) (p₂ : A = B) (a : A), p₁ ▹ (p₂ ▹ a : B) = (p₂ ⬝ p₁) ▹ a
+theorem eq_rec_compose : ∀ {A B C : Type} (p₁ : B = C) (p₂ : A = B) (a : A), eq.rec_on p₁ (eq.rec_on p₂ a : B) = eq.rec_on (eq.trans p₂ p₁) a
 | A A A (eq.refl A) (eq.refl A) a := calc
-  eq.refl A ▹ eq.refl A ▹ a = eq.refl A ▹ a               : rfl
-            ...             = (eq.refl A ⬝ eq.refl A) ▹ a  : eq.subst (proof_irrel (eq.refl A) (eq.refl A ⬝ eq.refl A)) rfl
+  eq.rec_on (eq.refl A) (eq.rec_on (eq.refl A) a) = eq.rec_on (eq.refl A) a               : rfl
+            ...             = eq.rec_on (eq.trans (eq.refl A) (eq.refl A)) a  : eq.subst (proof_irrel (eq.refl A) (eq.trans (eq.refl A) (eq.refl A))) rfl
 
-theorem eq_rec_eq_eq_rec {A₁ A₂ : Type} {p : A₁ = A₂} : ∀ {a₁ : A₁} {a₂ : A₂}, p ▹ a₁ = a₂ → a₁ = p⁻¹ ▹ a₂ :=
+theorem eq_rec_eq_eq_rec {A₁ A₂ : Type} {p : A₁ = A₂} : ∀ {a₁ : A₁} {a₂ : A₂}, eq.rec_on p a₁ = a₂ → a₁ = eq.rec_on (eq.symm p) a₂ :=
 eq.drec_on p (λ a₁ a₂ h, eq.drec_on h rfl)
 
-theorem eq_rec_of_heq_left : ∀ {A₁ A₂ : Type} {a₁ : A₁} {a₂ : A₂} (h : a₁ == a₂), type_eq_of_heq h ▹ a₁ = a₂
+theorem eq_rec_of_heq_left : ∀ {A₁ A₂ : Type} {a₁ : A₁} {a₂ : A₂} (h : a₁ == a₂), eq.rec_on (type_eq_of_heq h) a₁ = a₂
 | A A a a (heq.refl a) := rfl
 
-theorem eq_rec_of_heq_right {A₁ A₂ : Type} {a₁ : A₁} {a₂ : A₂} (h : a₁ == a₂) : a₁ = (type_eq_of_heq h)⁻¹ ▹ a₂ :=
+theorem eq_rec_of_heq_right {A₁ A₂ : Type} {a₁ : A₁} {a₂ : A₂} (h : a₁ == a₂) : a₁ = eq.rec_on (eq.symm (type_eq_of_heq h)) a₂ :=
 eq_rec_eq_eq_rec (eq_rec_of_heq_left h)
 
 attribute heq.refl [refl]
@@ -720,7 +712,6 @@ match H a a with
 | ff n := absurd rfl n
 end
 
-open eq.ops
 theorem decidable_eq_inr_neg {A : Type} [H : decidable_eq A] {a b : A} : Π n : a ≠ b, H a b = ff n :=
 assume n,
 match H a b with

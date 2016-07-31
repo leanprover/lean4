@@ -6,7 +6,7 @@ Authors: Jeremy Avigad, Leonardo de Moura
 Definitions and properties of div and mod. Much of the development follows Isabelle's library.
 -/
 import .sub
-open eq.ops well_founded decidable prod
+open well_founded decidable prod
 
 namespace nat
 
@@ -30,16 +30,16 @@ theorem div_def (x y : nat) : div x y = if 0 < y ∧ y ≤ x then div (x - y) y 
 congr_fun (fix_eq div.F x) y
 
 protected theorem div_zero [simp] (a : ℕ) : a / 0 = 0 :=
-div_def a 0 ⬝ if_neg (not_and_of_not_left (0 ≤ a) (lt.irrefl 0))
+eq.trans (div_def a 0) $ if_neg (not_and_of_not_left (0 ≤ a) (lt.irrefl 0))
 
 theorem div_eq_zero_of_lt {a b : ℕ} (h : a < b) : a / b = 0 :=
-div_def a b ⬝ if_neg (not_and_of_not_right (0 < b) (not_le_of_gt h))
+eq.trans (div_def a b) $ if_neg (not_and_of_not_right (0 < b) (not_le_of_gt h))
 
 protected theorem zero_div [simp] (b : ℕ) : 0 / b = 0 :=
-div_def 0 b ⬝ if_neg (and.rec not_le_of_gt)
+eq.trans (div_def 0 b) $ if_neg (and.rec not_le_of_gt)
 
 theorem div_eq_succ_sub_div {a b : ℕ} (h₁ : b > 0) (h₂ : a ≥ b) : a / b = succ ((a - b) / b) :=
-div_def a b ⬝ if_pos (and.intro h₁ h₂)
+eq.trans (div_def a b) $ if_pos (and.intro h₁ h₂)
 
 theorem add_div_self (x : ℕ) {z : ℕ} (H : z > 0) : (x + z) / z = succ (x / z) :=
 sorry
@@ -100,16 +100,16 @@ theorem mod_def (x y : nat) : mod x y = if 0 < y ∧ y ≤ x then mod (x - y) y 
 congr_fun (fix_eq mod.F x) y
 
 theorem mod_zero [simp] (a : ℕ) : a % 0 = a :=
-mod_def a 0 ⬝ if_neg (not_and_of_not_left (0 ≤ a) (lt.irrefl 0))
+eq.trans (mod_def a 0) $ if_neg (not_and_of_not_left (0 ≤ a) (lt.irrefl 0))
 
 theorem mod_eq_of_lt {a b : ℕ} (h : a < b) : a % b = a :=
-mod_def a b ⬝ if_neg (not_and_of_not_right (0 < b) (not_le_of_gt h))
+eq.trans (mod_def a b) $ if_neg (not_and_of_not_right (0 < b) (not_le_of_gt h))
 
 theorem zero_mod [simp] (b : ℕ) : 0 % b = 0 :=
-mod_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt_of_lt_of_le l r) (lt.irrefl 0)))
+eq.trans (mod_def 0 b) $ if_neg (λ h, and.rec_on h (λ l r, absurd (lt_of_lt_of_le l r) (lt.irrefl 0)))
 
 theorem mod_eq_sub_mod {a b : ℕ} (h₁ : b > 0) (h₂ : a ≥ b) : a % b = (a - b) % b :=
-mod_def a b ⬝ if_pos (and.intro h₁ h₂)
+eq.trans (mod_def a b) $ if_pos (and.intro h₁ h₂)
 
 theorem add_mod_self [simp] (x z : ℕ) : (x + z) % z = x % z :=
 sorry
@@ -153,13 +153,13 @@ nat.case_strong_induction_on x
       by_cases -- (succ x < y)
         (assume H1 : succ x < y,
           have succ x % y = succ x, from mod_eq_of_lt H1,
-          show succ x % y < y, from this⁻¹ ▸ H1)
+          show succ x % y < y, from eq.symm this ▸ H1)
         (assume H1 : ¬ succ x < y,
           have y ≤ succ x, from le_of_not_gt H1,
           have h : succ x % y = (succ x - y) % y, from mod_eq_sub_mod H this,
           have succ x - y < succ x, from sub_lt (succ_pos x) H,
           have succ x - y ≤ x, from le_of_lt_succ this,
-          show succ x % y < y, from h⁻¹ ▸ IH _ this))
+          show succ x % y < y, from eq.symm h ▸ IH _ this))
 
 theorem mod_one (n : ℕ) : n % 1 = 0 :=
 have H1 : n % 1 < 1, from (mod_lt n) (succ_pos 0),
@@ -208,7 +208,7 @@ end
 -/
 
 theorem mod_eq_sub_div_mul (x y : ℕ) : x % y = x - x / y * y :=
-nat.eq_sub_of_add_eq (add.comm (x / y * y) (x % y) ▸ eq_div_mul_add_mod x y)⁻¹
+nat.eq_sub_of_add_eq (eq.symm (add.comm (x / y * y) (x % y) ▸ eq_div_mul_add_mod x y))
 
 theorem mod_add_mod (m n k : ℕ) : (m % n + k) % n = (m + k) % n :=
 sorry -- by rewrite [eq_div_mul_add_mod m n at {2}, add.assoc, add.comm (m / n * n), add_mul_mod_self]
@@ -363,7 +363,7 @@ theorem dvd_of_mod_eq_zero {m n : ℕ} (H : n % m = 0) : m ∣ n :=
 dvd.intro (mul.comm (n / m) m ▸ div_mul_cancel_of_mod_eq_zero H)
 
 theorem mod_eq_zero_of_dvd {m n : ℕ} (H : m ∣ n) : n % m = 0 :=
-dvd.elim H (take z, assume H1 : n = m * z, H1⁻¹ ▸ mul_mod_right m z)
+dvd.elim H (take z, assume H1 : n = m * z, eq.symm H1 ▸ mul_mod_right m z)
 
 theorem dvd_iff_mod_eq_zero (m n : ℕ) : m ∣ n ↔ n % m = 0 :=
 iff.intro mod_eq_zero_of_dvd dvd_of_mod_eq_zero
@@ -396,11 +396,11 @@ nat.dvd_of_dvd_add_left (add.comm n₁ n₂ ▸ H)
 theorem dvd_sub {m n₁ n₂ : ℕ} (H1 : m ∣ n₁) (H2 : m ∣ n₂) : m ∣ n₁ - n₂ :=
 by_cases
   (assume H3 : n₁ ≥ n₂,
-    have H4 : n₁ = n₁ - n₂ + n₂, from (nat.sub_add_cancel H3)⁻¹,
+    have H4 : n₁ = n₁ - n₂ + n₂, from eq.symm (nat.sub_add_cancel H3),
     show m ∣ n₁ - n₂, from nat.dvd_of_dvd_add_right (H4 ▸ H1) H2)
   (assume H3 : ¬ (n₁ ≥ n₂),
     have H4 : n₁ - n₂ = 0, from sub_eq_zero_of_le (le_of_lt (lt_of_not_ge H3)),
-    show m ∣ n₁ - n₂, from H4⁻¹ ▸ dvd_zero _)
+    show m ∣ n₁ - n₂, from eq.symm H4 ▸ dvd_zero _)
 
 theorem dvd.antisymm {m n : ℕ} : m ∣ n → n ∣ m → m = n :=
 sorry
@@ -442,8 +442,8 @@ theorem dvd_of_mul_dvd_mul_left {m n k : ℕ} (kpos : k > 0) (H : k * m ∣ k * 
 dvd.elim H
   (take l,
     assume H1 : k * n = k * m * l,
-    have H2 : n = m * l, from eq_of_mul_eq_mul_left kpos (H1 ⬝ mul.assoc k m l),
-    dvd.intro H2⁻¹)
+    have H2 : n = m * l, from eq_of_mul_eq_mul_left kpos (eq.trans H1 $ mul.assoc k m l),
+    dvd.intro (eq.symm H2))
 
 theorem dvd_of_mul_dvd_mul_right {m n k : ℕ} (kpos : k > 0) (H : m * k ∣ n * k) : m ∣ n :=
 nat.dvd_of_mul_dvd_mul_left kpos (mul.comm n k ▸ mul.comm m k ▸ H)
@@ -452,12 +452,12 @@ lemma dvd_of_eq_mul (i j n : nat) : n = j*i → j ∣ n :=
 sorry -- begin intros, subst n, apply dvd_mul_right end
 
 theorem div_dvd_div {k m n : ℕ} (H1 : k ∣ m) (H2 : m ∣ n) : m / k ∣ n / k :=
-have H3 : m = m / k * k, from (nat.div_mul_cancel H1)⁻¹,
-have H4 : n = n / k * k, from (nat.div_mul_cancel (dvd.trans H1 H2))⁻¹,
+have H3 : m = m / k * k, from eq.symm (nat.div_mul_cancel H1),
+have H4 : n = n / k * k, from eq.symm (nat.div_mul_cancel (dvd.trans H1 H2)),
 or.elim (eq_zero_or_pos k)
   (assume H5 : k = 0,
-    have H6: n / k = 0, from (congr_arg _ H5 ⬝ nat.div_zero n),
-      H6⁻¹ ▸ dvd_zero (m / k))
+    have H6: n / k = 0, from (eq.trans (congr_arg _ H5) $ nat.div_zero n),
+      eq.symm H6 ▸ dvd_zero (m / k))
   (assume H5 : k > 0,
     nat.dvd_of_mul_dvd_mul_right H5 (H3 ▸ H4 ▸ H2))
 

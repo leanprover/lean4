@@ -6,7 +6,6 @@ Authors: Floris van Doorn, Jeremy Avigad
 Subtraction on the natural numbers, as well as min, max, and distance.
 -/
 import .order
-open eq.ops
 
 namespace nat
 
@@ -145,7 +144,7 @@ add.comm m (n - m) ▸ add_sub_of_ge
 theorem sub.cases {P : ℕ → Prop} {n m : ℕ} (H1 : n ≤ m → P 0) (H2 : ∀k, m + k = n -> P k)
   : P (n - m) :=
 or.elim (le.total n m)
-  (assume H3 : n ≤ m, (sub_eq_zero_of_le H3)⁻¹ ▸ (H1 H3))
+  (assume H3 : n ≤ m, eq.symm (sub_eq_zero_of_le H3) ▸ (H1 H3))
   (assume H3 : m ≤ n, H2 (n - m) (add_sub_of_le H3))
 
 theorem exists_sub_eq_of_le {n m : ℕ} (H : n ≤ m) : ∃k, m - k = n :=
@@ -182,30 +181,30 @@ sub.cases
   (take k : ℕ,
     assume H1 : m + k = n,
     assume H2 : k = 0,
-    have H3 : n = m, from add_zero m ▸ H2 ▸ H1⁻¹,
+    have H3 : n = m, from add_zero m ▸ H2 ▸ eq.symm H1,
     H3 ▸ le.refl n)
 
 theorem sub_sub.cases {P : ℕ → ℕ → Prop} {n m : ℕ} (H1 : ∀k, n = m + k -> P k 0)
   (H2 : ∀k, m = n + k → P 0 k) : P (n - m) (m - n) :=
 or.elim (le.total n m)
   (assume H3 : n ≤ m,
-    (sub_eq_zero_of_le H3)⁻¹ ▸  (H2 (m - n) (add_sub_of_le H3)⁻¹))
+    eq.symm (sub_eq_zero_of_le H3) ▸ H2 (m - n) (eq.symm (add_sub_of_le H3)))
   (assume H3 : m ≤ n,
-    (sub_eq_zero_of_le H3)⁻¹ ▸ (H1 (n - m) (add_sub_of_le H3)⁻¹))
+    eq.symm (sub_eq_zero_of_le H3) ▸ (H1 (n - m) (eq.symm (add_sub_of_le H3))))
 
 protected theorem sub_eq_of_add_eq {n m k : ℕ} (H : n + m = k) : k - n = m :=
 have H2 : k - n + n = m + n, from
   calc
     k - n + n = k     : nat.sub_add_cancel (le.intro H)
-          ... = n + m : H⁻¹
+          ... = n + m : eq.symm H
           ... = m + n : add.comm n m,
 add.right_cancel H2
 
 protected theorem eq_sub_of_add_eq {a b c : ℕ} (H : a + c = b) : a = b - c :=
-(nat.sub_eq_of_add_eq (add.comm a c ▸ H))⁻¹
+eq.symm (nat.sub_eq_of_add_eq (add.comm a c ▸ H))
 
 protected theorem sub_eq_of_eq_add {a b c : ℕ} (H : a = c + b) : a - b = c :=
-nat.sub_eq_of_add_eq (add.comm c b ▸ H⁻¹)
+nat.sub_eq_of_add_eq (add.comm c b ▸ eq.symm H)
 
 protected theorem sub_le_sub_right {n m : ℕ} (H : n ≤ m) (k : ℕ) : n - k ≤ m - k :=
 sorry
@@ -361,10 +360,10 @@ theorem dist_eq_sub_of_gt {n m : ℕ} (H : n > m) : dist n m = n - m :=
 dist_eq_sub_of_ge (le_of_lt H)
 
 theorem dist_zero_right (n : ℕ) : dist n 0 = n :=
-dist_eq_sub_of_ge (zero_le n) ⬝ nat.sub_zero n
+eq.trans (dist_eq_sub_of_ge (zero_le n)) (nat.sub_zero n)
 
 theorem dist_zero_left (n : ℕ) : dist 0 n = n :=
-dist_eq_sub_of_le (zero_le n) ⬝ nat.sub_zero n
+eq.trans (dist_eq_sub_of_le (zero_le n)) (nat.sub_zero n)
 
 theorem dist.intro {n m k : ℕ} (H : n + m = k) : dist k n = m :=
 calc

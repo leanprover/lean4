@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Jeremy Avigad
 
 General properties of binary operations.
 -/
-open eq.ops function
+open function
 
 namespace binary
   section

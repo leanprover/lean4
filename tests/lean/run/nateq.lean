@@ -1,5 +1,5 @@
 import data.nat.basic data.bool
-open bool nat eq.ops
+open bool nat
 attribute nat.rec_on [reducible]
 
 definition is_eq (a b : nat) : bool :=

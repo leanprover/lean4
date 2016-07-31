@@ -8,7 +8,7 @@ order and an associated strict order. Our numeric structures (int, rat, and real
 of "linear_ordered_comm_ring". This development is modeled after Isabelle's library.
 -/
 import algebra.ordered_group algebra.ring
-open eq eq.ops
+open eq
 
 variable {A : Type}
 

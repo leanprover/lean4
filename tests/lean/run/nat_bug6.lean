@@ -1,5 +1,4 @@
 import logic
-open eq.ops
 namespace experiment
 inductive nat : Type :=
 | zero : nat

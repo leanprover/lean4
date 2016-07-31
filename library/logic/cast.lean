@@ -5,9 +5,7 @@ Author: Leonardo de Moura
 
 Casts and heterogeneous equality. See also init.datatypes and init.logic.
 -/
-
 import logic.eq logic.quantifiers
-open eq.ops
 
 namespace heq
   universe variable u
@@ -75,7 +73,7 @@ section
 
   --TODO: generalize to eq.rec. This is a special case of rec_on_comp in eq.lean
   theorem cast_trans (Hab : A = B) (Hbc : B = C) (a : A) :
-    cast Hbc (cast Hab a) = cast (Hab ⬝ Hbc) a :=
+    cast Hbc (cast Hab a) = cast (eq.trans Hab Hbc) a :=
   sorry -- by subst Hab
 
   theorem pi_eq (H : P = P') : (Π x, P x) = (Π x, P' x) :=

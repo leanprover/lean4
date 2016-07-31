@@ -7,7 +7,7 @@ Structures with multiplicative and additive components, including semirings, rin
 The development is modeled after Isabelle's library.
 -/
 import algebra.group
-open eq eq.ops
+open eq
 
 variable {A : Type}
 
@@ -85,7 +85,7 @@ section comm_semiring
   has_dvd.mk algebra.dvd
 
   theorem dvd.intro {a b c : A} (H : a * c = b) : a ∣ b :=
-  exists.intro _ H⁻¹
+  exists.intro _ (eq.symm H)
 
   theorem dvd_of_mul_right_eq {a b c : A} (H : a * c = b) : a ∣ b := dvd.intro H
 
@@ -100,7 +100,7 @@ section comm_semiring
   exists.elim H₁ H₂
 
   theorem exists_eq_mul_left_of_dvd {a b : A} (H : a ∣ b) : ∃c, b = c * a :=
-  dvd.elim H (take c, assume H1 : b = a * c, exists.intro c (H1 ⬝ mul.comm a c))
+  dvd.elim H (take c, assume H1 : b = a * c, exists.intro c (eq.trans H1 (mul.comm a c)))
 
   theorem dvd.elim_left {P : Prop} {a b : A} (H₁ : a ∣ b) (H₂ : ∀c, b = c * a → P) : P :=
   exists.elim (exists_eq_mul_left_of_dvd H₁) (take c, assume H₃ : b = c * a, H₂ c H₃)
@@ -120,7 +120,7 @@ section comm_semiring
   -/
 
   theorem eq_zero_of_zero_dvd {a : A} (H : 0 ∣ a) : a = 0 :=
-    dvd.elim H (take c, assume H' : a = 0 * c, H' ⬝ zero_mul c)
+    dvd.elim H (take c, assume H' : a = 0 * c, eq.trans H' (zero_mul c))
 
   theorem dvd_zero [simp] : a ∣ 0 := dvd.intro (mul_zero a)
 
@@ -157,7 +157,7 @@ section comm_semiring
   -/
 
   theorem dvd_of_mul_right_dvd {a b c : A} (H : a * b ∣ c) : a ∣ c :=
-  dvd.elim H (take d, assume Habdc : c = a * b * d, dvd.intro (eq.symm (Habdc ⬝ mul.assoc a b d)))
+  dvd.elim H (take d, assume Habdc : c = a * b * d, dvd.intro (eq.symm (eq.trans Habdc (mul.assoc a b d))))
 
   theorem dvd_of_mul_left_dvd {a b c : A} (H : a * b ∣ c) : b ∣ c :=
   sorry -- dvd_of_mul_right_dvd begin rewrite mul.comm at H, apply H end

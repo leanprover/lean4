@@ -6,7 +6,7 @@ Authors: Jeremy Avigad, Leonardo de Moura
 Definitions and properties of gcd, lcm, and coprime.
 -/
 import .div
-open eq.ops well_founded decidable prod
+open well_founded decidable prod
 
 namespace nat
 
@@ -39,7 +39,7 @@ calc gcd n 1 = gcd 1 (n % 1)  : gcd_succ n 0
 
 theorem gcd_def (x : ℕ) : Π (y : ℕ), gcd x y = if y = 0 then x else gcd y (x % y)
 | 0        := gcd_zero_right _
-| (succ y) := gcd_succ x y ⬝ (if_neg (succ_ne_zero y))⁻¹
+| (succ y) := eq.trans (gcd_succ x y) $ eq.symm (if_neg (succ_ne_zero y))
 
 
 theorem gcd_self : Π (n : ℕ), gcd n n = n
@@ -55,7 +55,7 @@ theorem gcd_zero_left : Π (n : ℕ), gcd 0 n = n
                 ... = gcd (succ n₁) 0               : sorry -- by rewrite zero_mod
 
 theorem gcd_of_pos (m : ℕ) {n : ℕ} (H : n > 0) : gcd m n = gcd n (m % n) :=
-gcd_def m n ⬝ if_neg (ne_zero_of_pos H)
+eq.trans (gcd_def m n) $ if_neg (ne_zero_of_pos H)
 
 theorem gcd_rec (m n : ℕ) : gcd m n = gcd n (m % n) :=
 sorry
@@ -114,7 +114,7 @@ dvd.antisymm
     (dvd.trans (gcd_dvd_right m (gcd n k)) (gcd_dvd_right n k)))
 
 theorem gcd_one_left (m : ℕ) : gcd 1 m = 1 :=
-gcd.comm 1 m ⬝ gcd_one_right m
+eq.trans (gcd.comm 1 m) $ gcd_one_right m
 
 theorem gcd_mul_left (m n k : ℕ) : gcd (m * n) (m * k) = m * gcd n k :=
 sorry
@@ -150,7 +150,7 @@ pos_of_dvd_of_pos (gcd_dvd_right m n) npos
 theorem eq_zero_of_gcd_eq_zero_left {m n : ℕ} (H : gcd m n = 0) : m = 0 :=
 or.elim (eq_zero_or_pos m)
   (assume H1, H1)
-  (assume H1 : m > 0, absurd H⁻¹ (ne_of_lt (gcd_pos_of_pos_left _ H1)))
+  (assume H1 : m > 0, absurd (eq.symm H) (ne_of_lt (gcd_pos_of_pos_left _ H1)))
 
 theorem eq_zero_of_gcd_eq_zero_right {m n : ℕ} (H : gcd m n = 0) : n = 0 :=
 eq_zero_of_gcd_eq_zero_left (gcd.comm m n ▸ H)
@@ -229,7 +229,7 @@ calc
 
 theorem dvd_lcm_left (m n : ℕ) : m ∣ lcm m n :=
 have H : lcm m n = m * (n / gcd m n), from nat.mul_div_assoc _ $ gcd_dvd_right m n,
-dvd.intro H⁻¹
+dvd.intro (eq.symm H)
 
 theorem dvd_lcm_right (m n : ℕ) : n ∣ lcm m n :=
 lcm.comm n m ▸ dvd_lcm_left n m
@@ -349,8 +349,8 @@ show false, from not_lt_of_ge `d ≤ 1` `d > 1`
 
 theorem exists_coprime {m n : ℕ} (H : gcd m n > 0) :
   exists m' n', coprime m' n' ∧ m = m' * gcd m n ∧ n = n' * gcd m n :=
-have H1 : m = (m / gcd m n) * gcd m n, from (nat.div_mul_cancel (gcd_dvd_left m n))⁻¹,
-have H2 : n = (n / gcd m n) * gcd m n, from (nat.div_mul_cancel (gcd_dvd_right m n))⁻¹,
+have H1 : m = (m / gcd m n) * gcd m n, from eq.symm (nat.div_mul_cancel (gcd_dvd_left m n)),
+have H2 : n = (n / gcd m n) * gcd m n, from eq.symm (nat.div_mul_cancel (gcd_dvd_right m n)),
 exists.intro _ (exists.intro _ (and.intro (coprime_div_gcd_div_gcd H) (and.intro H1 H2)))
 
 theorem coprime_mul {m n k : ℕ} (H1 : coprime m k) (H2 : coprime n k) : coprime (m * n) k :=

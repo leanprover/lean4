@@ -1,5 +1,5 @@
 import logic data.prod
-open eq.ops prod tactic
+open prod tactic
 
 inductive tree (A : Type) :=
 | leaf : A → tree A

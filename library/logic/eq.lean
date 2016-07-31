@@ -5,9 +5,6 @@ Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 
 Additional declarations/theorems about equality. See also init.datatypes and init.logic.
 -/
-
-open eq.ops
-
 namespace eq
   variables {A B : Type} {a a' a₁ a₂ a₃ a₄ : A}
 
@@ -24,7 +21,7 @@ namespace eq
   eq.drec_on H rfl
 
   theorem rec_on_constant2 (H₁ : a₁ = a₂) (H₂ : a₃ = a₄) (b : B) : eq.rec_on H₁ b = eq.rec_on H₂ b :=
-  rec_on_constant H₁ b ⬝ (rec_on_constant H₂ b)⁻¹
+  trans (rec_on_constant H₁ b) (symm (rec_on_constant H₂ b))
 
   theorem rec_on_irrel {a a' : A} {D : A → Type} (H H' : a = a') (b : D a) :
       eq.drec_on H b = eq.drec_on H' b :=
@@ -87,7 +84,7 @@ section
   H₁ ▸ H₂
 
   theorem eqmpr (H₁ : a = b) (H₂ : b) : a :=
-  H₁⁻¹ ▸ H₂
+  symm H₁ ▸ H₂
 
   theorem imp_trans (H₁ : a → b) (H₂ : b → c) : a → c :=
   assume Ha, H₂ (H₁ Ha)

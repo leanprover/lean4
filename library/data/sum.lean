@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Jeremy Avigad
 The sum type, aka disjoint union.
 -/
 import logic.connectives
-open inhabited eq.ops
+open inhabited
 
 notation A ⊎ B := sum A B
 

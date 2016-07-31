@@ -9,7 +9,7 @@ TODO: we will probably eventually want versions restricted to smaller domains,
 "nondecreasing_on" etc. Maybe we can do this with subtypes.
 -/
 import .order
-open eq eq.ops function
+open eq function
 
 variables {A B C : Type}
 
@@ -82,7 +82,7 @@ section
   take a₁ a₂, suppose a₁ ≤ a₂,
   show f a₁ ≥ f a₂, from or.elim (lt_or_eq_of_le this)
     (suppose a₁ < a₂, le_of_lt (H this))
-    (suppose a₁ = a₂, le_of_eq (congr_arg f this⁻¹))
+    (suppose a₁ = a₂, le_of_eq (congr_arg f (symm this)))
 end
 
 section

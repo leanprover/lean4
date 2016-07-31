@@ -754,7 +754,6 @@ end perm_inter
 
 /- extensionality -/
 section ext
-open eq.ops
 
 theorem perm_ext : ∀ {l₁ l₂ : list A}, nodup l₁ → nodup l₂ → (∀a, a ∈ l₁ ↔ a ∈ l₂) → l₁ ~ l₂
 := sorry

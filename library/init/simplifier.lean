@@ -16,7 +16,6 @@ attribute eq_self_iff_true [simp]
 end prove
 
 namespace unit_simp
-open eq.ops
 
 -- TODO(dhs): prove these lemmas elsewhere and only gather the
 -- [simp] attributes here

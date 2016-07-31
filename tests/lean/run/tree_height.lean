@@ -1,5 +1,5 @@
 import logic data.nat
-open eq.ops nat algebra
+open nat algebra
 
 inductive tree (A : Type) :=
 | leaf : A → tree A

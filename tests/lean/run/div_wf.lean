@@ -1,5 +1,5 @@
 import data.nat data.prod
-open nat well_founded decidable prod eq.ops
+open nat well_founded decidable prod
 
 -- Auxiliary lemma used to justify recursive call
 private definition lt_aux {x y : nat} (H : 0 < y ∧ y ≤ x) : x - y < x :=

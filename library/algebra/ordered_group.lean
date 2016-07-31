@@ -7,7 +7,7 @@ Partially ordered additive groups, modeled on Isabelle's library. These classes 
 if necessary.
 -/
 import algebra.group algebra.order algebra.monotone
-open eq eq.ops   -- note: ⁻¹ will be overloaded
+open eq
 
 variables {A B : Type}
 
@@ -297,7 +297,7 @@ section
   iff.intro le_of_neg_le_neg neg_le_neg
 
   theorem nonneg_of_neg_nonpos {a : A} (H : -a ≤ 0) : 0 ≤ a :=
-  le_of_neg_le_neg (neg_zero⁻¹ ▸ H)
+  le_of_neg_le_neg (symm neg_zero ▸ H)
 
   theorem neg_nonpos_of_nonneg {a : A} (H : 0 ≤ a) : -a ≤ 0 :=
   neg_zero ▸ neg_le_neg H
@@ -306,7 +306,7 @@ section
   iff.intro nonneg_of_neg_nonpos neg_nonpos_of_nonneg
 
   theorem nonpos_of_neg_nonneg {a : A} (H : 0 ≤ -a) : a ≤ 0 :=
-  le_of_neg_le_neg (neg_zero⁻¹ ▸ H)
+  le_of_neg_le_neg (symm neg_zero ▸ H)
 
   theorem neg_nonneg_of_nonpos {a : A} (H : a ≤ 0) : 0 ≤ -a :=
   neg_zero ▸ neg_le_neg H
@@ -325,7 +325,7 @@ section
   iff.intro lt_of_neg_lt_neg neg_lt_neg
 
   theorem pos_of_neg_neg {a : A} (H : -a < 0) : 0 < a :=
-  lt_of_neg_lt_neg (neg_zero⁻¹ ▸ H)
+  lt_of_neg_lt_neg (symm neg_zero ▸ H)
 
   theorem neg_neg_of_pos {a : A} (H : 0 < a) : -a < 0 :=
   neg_zero ▸ neg_lt_neg H
@@ -334,7 +334,7 @@ section
   iff.intro pos_of_neg_neg neg_neg_of_pos
 
   theorem neg_of_neg_pos {a : A} (H : 0 < -a) : a < 0 :=
-  lt_of_neg_lt_neg (neg_zero⁻¹ ▸ H)
+  lt_of_neg_lt_neg (symm neg_zero ▸ H)
 
   theorem neg_pos_of_neg {a : A} (H : a < 0) : 0 < -a :=
   neg_zero ▸ neg_lt_neg H
@@ -852,7 +852,7 @@ section
   sorry -- by rewrite [-neg_sub, abs_neg]
 
   theorem ne_zero_of_abs_ne_zero {a : A} (H : abs a ≠ 0) : a ≠ 0 :=
-   assume Ha, H (Ha⁻¹ ▸ abs_zero)
+   assume Ha, H (symm Ha ▸ abs_zero)
 
   /- these assume a linear order -/
 
@@ -893,7 +893,7 @@ section
   le.antisymm H1 (nonneg_of_neg_nonpos H2)
 
   theorem abs_eq_zero_iff_eq_zero (a : A) : abs a = 0 ↔ a = 0 :=
-  iff.intro eq_zero_of_abs_eq_zero (assume H, congr_arg abs H ⬝ abs_zero)
+  iff.intro eq_zero_of_abs_eq_zero (assume H, trans (congr_arg abs H) abs_zero)
 
   theorem eq_of_abs_sub_eq_zero {a b : A} (H : abs (a - b) = 0) : a = b :=
   have a - b = 0, from eq_zero_of_abs_eq_zero H,
@@ -904,8 +904,8 @@ section
 
   theorem abs.by_cases {P : A → Prop} {a : A} (H1 : P a) (H2 : P (-a)) : P (abs a) :=
   or.elim (le.total 0 a)
-    (assume H : 0 ≤ a, (abs_of_nonneg H)⁻¹ ▸ H1)
-    (assume H : a ≤ 0, (abs_of_nonpos H)⁻¹ ▸ H2)
+    (assume H : 0 ≤ a, symm (abs_of_nonneg H) ▸ H1)
+    (assume H : a ≤ 0, symm (abs_of_nonpos H) ▸ H2)
 
   theorem abs_le_of_le_of_neg_le (H1 : a ≤ b) (H2 : -a ≤ b) : abs a ≤ b :=
   abs.by_cases H1 H2

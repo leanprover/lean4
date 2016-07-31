@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura, Jeremy Avigad
 -/
 import logic.eq
-open inhabited decidable eq.ops
+open inhabited decidable
 
 namespace prod
   variables {A B : Type} {a₁ a₂ : A} {b₁ b₂ : B} {u : A × B}

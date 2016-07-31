@@ -1,10 +1,10 @@
 import logic
-open bool eq.ops tactic
-
+open bool eq tactic
+notation H `⁻¹` := symm H --input with \sy or \-1 or \inv
+notation H1 ⬝ H2 := trans H1 H2
 constants a b c : bool
 axiom H1 : a = b
 axiom H2 : b = c
-
 check show a = c, from H1 ⬝ H2
 print "------------"
 check have e1 : a = b, from H1,

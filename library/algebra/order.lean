@@ -6,7 +6,7 @@ Author: Jeremy Avigad
 Weak orders "≤", strict orders "<", and structures that include both.
 -/
 import logic.eq logic.connectives algebra.binary algebra.priority
-open eq eq.ops function
+open eq function
 
 variables {A : Type}
 
@@ -171,7 +171,7 @@ section strong_order_pair
   have le_ac : a ≤ c, from le.trans (le_of_lt' _ _ lt_ab) le_bc,
   have ne_ac : a ≠ c, from
     assume eq_ac : a = c,
-    have le_ba : b ≤ a, from eq_ac⁻¹ ▸ le_bc,
+    have le_ba : b ≤ a, from symm eq_ac ▸ le_bc,
     have eq_ab : a = b, from le.antisymm  (le_of_lt' _ _ lt_ab) le_ba,
     show false, from ne_of_lt' lt_ab eq_ab,
   show a < c, from iff.mpr (lt_iff_le_and_ne) (and.intro le_ac ne_ac)
@@ -218,7 +218,7 @@ section
     (assume H : b ≤ a,
       or.elim (iff.mp le_iff_lt_or_eq H)
         (assume H1, or.inr (or.inr H1))
-        (assume H1, or.inr (or.inl (H1⁻¹))))
+        (assume H1, or.inr (or.inl (symm H1))))
 
   theorem lt.by_cases {a b : A} {P : Prop}
     (H1 : a < b → P) (H2 : a = b → P) (H3 : b < a → P) : P :=
@@ -305,11 +305,11 @@ section
 
   theorem lt.cases_of_lt {B : Type} {a b : A} {t_lt t_eq t_gt : B} (H : a < b) :
     lt.cases a b t_lt t_eq t_gt = t_lt :=
-  if_neg (ne_of_lt H) ⬝ if_pos H
+  trans (if_neg (ne_of_lt H)) (if_pos H)
 
   theorem lt.cases_of_gt {B : Type} {a b : A} {t_lt t_eq t_gt : B} (H : a > b) :
     lt.cases a b t_lt t_eq t_gt = t_gt :=
-  if_neg (ne.symm (ne_of_lt H)) ⬝ if_neg (lt.asymm H)
+  trans (if_neg (ne.symm (ne_of_lt H))) (if_neg (lt.asymm H))
 
   definition min (a b : A) : A := if a ≤ b then a else b
   definition max (a b : A) : A := if a ≤ b then b else a

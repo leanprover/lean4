@@ -1260,6 +1260,12 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
            Workaround A5. */
         buffer<expr> new_v_args;
         expr new_v_fn = get_app_args(new_v, new_v_args);
+        if (new_v_args.empty()) {
+            /*
+                ?M a_1 ... a_k =?= t,  where t is not an application
+            */
+            return false;
+        }
         expr new_mvar = mvar;
         unsigned i = 0;
         unsigned j = 0;

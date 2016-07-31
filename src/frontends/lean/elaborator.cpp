@@ -353,41 +353,43 @@ expr elaborator::enforce_type(expr const & e, expr const & expected_type, char c
     }
 }
 
-void elaborator::trace_coercion_fn_failure(expr const & e_type, expr const & ref, char const * error_msg) {
+void elaborator::trace_coercion_fn_sort_failure(bool is_fn, expr const & e_type, expr const & ref, char const * error_msg) {
     trace_elab({
             format msg("coercion at ");
             msg += format(pos_string_for(ref));
             msg += space() + format("from");
             msg += pp_indent(e_type);
-            msg += line() + format("to function space");
+            if (is_fn)
+                msg += line() + format("to function space");
+            else
+                msg += line() + format("to sort");
             msg += line() + format(error_msg);
             tout() << msg << "\n";
         });
 }
 
-optional<expr> elaborator::mk_coercion_to_fun(expr const & e, expr const & _e_type, expr const & ref) {
+optional<expr> elaborator::mk_coercion_to_fn_sort(bool is_fn, expr const & e, expr const & _e_type, expr const & ref) {
     expr e_type = instantiate_mvars(_e_type);
     if (!has_expr_metavar(e_type)) {
         try {
             bool mask[3] = { true, false, true };
             expr args[2] = { e_type, e };
-            expr new_e = mk_app(m_ctx, get_coe_fn_name(), 3, mask, args);
+            expr new_e = mk_app(m_ctx, is_fn ? get_coe_fn_name() : get_coe_sort_name(), 3, mask, args);
             expr new_e_type = whnf(infer_type(new_e));
-            if (!is_pi(new_e_type)) {
-                trace_coercion_fn_failure(e_type, ref,
-                                          "coercion was successfully generated, but resulting type is not a Pi");
-                return none_expr();
+            if ((is_fn && is_pi(new_e_type)) || (!is_fn && is_sort(new_e_type))) {
+                return some_expr(new_e);
             }
-            return some_expr(new_e);
+            trace_coercion_fn_sort_failure(is_fn, e_type, ref,
+                                           "coercion was successfully generated, but resulting type is not the expected one");
         } catch (app_builder_exception & ex) {
-            trace_coercion_fn_failure(e_type, ref,
-                                      "failed create 'coe_fn' application using type class resolution "
-                                      "('set_option trace.app_builder true' and 'set_option trace.class_instances true' for more information)");
+            trace_coercion_fn_sort_failure(is_fn, e_type, ref,
+                                           "failed create coercion application using type class resolution "
+                                           "('set_option trace.app_builder true' and 'set_option trace.class_instances true' for more information)");
             return none_expr();
         }
     } else {
-        trace_coercion_fn_failure(e_type, ref,
-                                  "was not considered because type contain metavariables");
+        trace_coercion_fn_sort_failure(is_fn, e_type, ref,
+                                       "was not considered because type contain metavariables");
         return none_expr();
     }
 }
@@ -397,7 +399,7 @@ expr elaborator::ensure_function(expr const & e, expr const & ref) {
     if (is_pi(e_type)) {
         return e;
     }
-    if (auto r = mk_coercion_to_fun(e, e_type, ref)) {
+    if (auto r = mk_coercion_to_fn(e, e_type, ref)) {
         return *r;
     }
     throw elaborator_exception(ref, format("function expected at") + pp_indent(e));
@@ -415,6 +417,10 @@ expr elaborator::ensure_type(expr const & e, expr const & ref) {
             C.commit();
             return e;
         }
+    }
+
+    if (auto r = mk_coercion_to_sort(e, e_type, ref)) {
+        return *r;
     }
 
     throw elaborator_exception(ref, format("type expected at") + pp_indent(e));

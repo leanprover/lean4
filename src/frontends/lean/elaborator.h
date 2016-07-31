@@ -104,8 +104,16 @@ class elaborator {
     void trace_coercion_failure(expr const & e_type, expr const & type, expr const & ref, char const * error_msg);
     optional<expr> mk_coercion(expr const & e, expr const & e_type, expr const & type, expr const & ref);
 
-    void trace_coercion_fn_failure(expr const & e_type, expr const & ref, char const * error_msg);
-    optional<expr> mk_coercion_to_fun(expr const & e, expr const & _e_type, expr const & ref);
+    void trace_coercion_fn_sort_failure(bool is_fn, expr const & e_type, expr const & ref, char const * error_msg);
+    optional<expr> mk_coercion_to_fn_sort(bool is_fn, expr const & e, expr const & _e_type, expr const & ref);
+
+    optional<expr> mk_coercion_to_fn(expr const & e, expr const & e_type, expr const & ref) {
+        return mk_coercion_to_fn_sort(true, e, e_type, ref);
+    }
+
+    optional<expr> mk_coercion_to_sort(expr const & e, expr const & e_type, expr const & ref) {
+        return mk_coercion_to_fn_sort(false, e, e_type, ref);
+    }
 
     expr ensure_type(expr const & e, expr const & ref);
     expr ensure_function(expr const & e, expr const & ref);

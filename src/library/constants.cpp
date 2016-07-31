@@ -31,6 +31,7 @@ name const * g_classical_prop_decidable = nullptr;
 name const * g_classical_type_decidable_eq = nullptr;
 name const * g_coe = nullptr;
 name const * g_coe_fn = nullptr;
+name const * g_coe_sort = nullptr;
 name const * g_coe_to_lift = nullptr;
 name const * g_combinator_K = nullptr;
 name const * g_comm_ring = nullptr;
@@ -90,7 +91,6 @@ name const * g_has_to_string = nullptr;
 name const * g_has_zero = nullptr;
 name const * g_has_zero_zero = nullptr;
 name const * g_has_coe_t = nullptr;
-name const * g_has_coe_to_fun = nullptr;
 name const * g_heq = nullptr;
 name const * g_heq_refl = nullptr;
 name const * g_heq_symm = nullptr;
@@ -354,6 +354,7 @@ void initialize_constants() {
     g_classical_type_decidable_eq = new name{"classical", "type_decidable_eq"};
     g_coe = new name{"coe"};
     g_coe_fn = new name{"coe_fn"};
+    g_coe_sort = new name{"coe_sort"};
     g_coe_to_lift = new name{"coe_to_lift"};
     g_combinator_K = new name{"combinator", "K"};
     g_comm_ring = new name{"comm_ring"};
@@ -413,7 +414,6 @@ void initialize_constants() {
     g_has_zero = new name{"has_zero"};
     g_has_zero_zero = new name{"has_zero", "zero"};
     g_has_coe_t = new name{"has_coe_t"};
-    g_has_coe_to_fun = new name{"has_coe_to_fun"};
     g_heq = new name{"heq"};
     g_heq_refl = new name{"heq", "refl"};
     g_heq_symm = new name{"heq", "symm"};
@@ -678,6 +678,7 @@ void finalize_constants() {
     delete g_classical_type_decidable_eq;
     delete g_coe;
     delete g_coe_fn;
+    delete g_coe_sort;
     delete g_coe_to_lift;
     delete g_combinator_K;
     delete g_comm_ring;
@@ -737,7 +738,6 @@ void finalize_constants() {
     delete g_has_zero;
     delete g_has_zero_zero;
     delete g_has_coe_t;
-    delete g_has_coe_to_fun;
     delete g_heq;
     delete g_heq_refl;
     delete g_heq_symm;
@@ -1001,6 +1001,7 @@ name const & get_classical_prop_decidable_name() { return *g_classical_prop_deci
 name const & get_classical_type_decidable_eq_name() { return *g_classical_type_decidable_eq; }
 name const & get_coe_name() { return *g_coe; }
 name const & get_coe_fn_name() { return *g_coe_fn; }
+name const & get_coe_sort_name() { return *g_coe_sort; }
 name const & get_coe_to_lift_name() { return *g_coe_to_lift; }
 name const & get_combinator_K_name() { return *g_combinator_K; }
 name const & get_comm_ring_name() { return *g_comm_ring; }
@@ -1060,7 +1061,6 @@ name const & get_has_to_string_name() { return *g_has_to_string; }
 name const & get_has_zero_name() { return *g_has_zero; }
 name const & get_has_zero_zero_name() { return *g_has_zero_zero; }
 name const & get_has_coe_t_name() { return *g_has_coe_t; }
-name const & get_has_coe_to_fun_name() { return *g_has_coe_to_fun; }
 name const & get_heq_name() { return *g_heq; }
 name const & get_heq_refl_name() { return *g_heq_refl; }
 name const & get_heq_symm_name() { return *g_heq_symm; }

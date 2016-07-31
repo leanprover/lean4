@@ -17,8 +17,11 @@ of ambiguity.
 
 All coercions and lifts can be identified with the constant coe.
 
-We also have a has_coe_to_fun type class for encoding coercions from
+We use the has_coe_to_fun type class for encoding coercions from
 a type to a function space.
+
+We use the has_coe_to_sort type class for encoding coercions from
+a type to a sort.
 -/
 prelude
 import init.list init.subtype init.prod
@@ -39,6 +42,9 @@ structure has_coe_t [class] (A B : Type) :=
 
 structure has_coe_to_fun [class] (A : Type) :=
 (F : Type) (coe : A → F)
+
+structure has_coe_to_sort [class] (A : Type) :=
+(S : Type) (coe : A → S)
 
 definition lift {A B : Type} [has_lift A B] : A → B :=
 @has_lift.lift A B _
@@ -63,11 +69,16 @@ lift_t
 definition coe_fn {A : Type} [has_coe_to_fun A] : A → has_coe_to_fun.F A :=
 has_coe_to_fun.coe
 
+definition coe_sort {A : Type} [has_coe_to_sort A] : A → has_coe_to_sort.S A :=
+has_coe_to_sort.coe
+
 /- Notation -/
 
 notation `↑`:max a:max := coe a
 
 notation `⇑`:max a:max := coe_fn a
+
+notation `↥`:max a:max := coe_sort a
 
 /- Transitive closure for has_lift, has_coe, has_coe_to_fun -/
 
@@ -85,6 +96,9 @@ has_coe_t.mk coe_b
 
 definition coe_fn_trans [instance] {A B : Type} [has_lift_t A B] [has_coe_to_fun B] : has_coe_to_fun A :=
 has_coe_to_fun.mk (has_coe_to_fun.F B) (λ a, coe_fn (coe a))
+
+definition coe_sort_trans [instance] {A B : Type} [has_lift_t A B] [has_coe_to_sort B] : has_coe_to_sort A :=
+has_coe_to_sort.mk (has_coe_to_sort.S B) (λ a, coe_sort (coe a))
 
 /- Every coercion is also a lift -/
 

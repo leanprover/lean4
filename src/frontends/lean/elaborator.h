@@ -93,12 +93,11 @@ class elaborator {
 
     expr get_default_numeral_type();
 
-    format pp(type_context & ctx, expr const & e);
-    format pp(expr const & e);
-    format pp_indent(type_context & ctx, expr const & e);
-    format pp_indent(expr const & e);
-    format pp_overloads(buffer<expr> const & fns);
-    format pp(local_context const & lctx);
+    typedef std::function<format(expr const &)> pp_fn;
+
+    pp_fn mk_pp_fn(type_context & ctx);
+    format pp_indent(pp_fn const & pp_fn, expr const & e);
+    format pp_overloads(pp_fn const & pp_fn, buffer<expr> const & fns);
 
     expr infer_type(expr const & e) { return m_ctx.infer(e); }
     expr whnf(expr const & e) { return m_ctx.whnf(e); }

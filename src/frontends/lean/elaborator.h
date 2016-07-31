@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/pos_info_provider.h"
 #include "library/local_context.h"
 #include "library/type_context.h"
+#include "library/tactic/tactic_state.h"
 #include "frontends/lean/elaborator_context.h"
 
 namespace lean {
@@ -33,6 +34,9 @@ class elaborator {
     unsigned          m_next_param_idx;
     name_set          m_found_univ_params;
     buffer<name>      m_new_univ_param_names;
+
+    /** If m_check_unassigend is true, then elaborator throws an exception for unassigned metavariables */
+    bool              m_check_unassigend;
 
     struct base_snapshot {
         metavar_context m_saved_mctx;
@@ -184,6 +188,8 @@ class elaborator {
     void synthesize_type_class_instances(checkpoint const & C) {
         synthesize_type_class_instances_core(C.m_saved_instance_stack, true);
     }
+    tactic_state mk_tactic_state_for(expr const & mvar);
+    void invoke_tactic(expr const & mvar, expr const & tac);
     void invoke_tactics(checkpoint const & C);
     void ensure_no_unassigned_metavars(checkpoint const & C);
     void process_checkpoint(checkpoint & C);
@@ -191,13 +197,13 @@ class elaborator {
 
 public:
     elaborator(environment const & env, options const & opts, local_level_decls const & lls,
-               metavar_context const & mctx, local_context const & lctx);
+               metavar_context const & mctx, local_context const & lctx, bool check_unassigend);
     metavar_context const & mctx() const { return m_ctx.mctx(); }
     std::tuple<expr, level_param_names> operator()(expr const & e);
 };
 
 std::tuple<expr, level_param_names> elaborate(environment const & env, options const & opts, local_level_decls const & lls,
-                                              metavar_context & mctx, local_context const & lctx, expr const & e);
+                                              metavar_context & mctx, local_context const & lctx, expr const & e, bool check_unassigend);
 
 void initialize_elaborator();
 void finalize_elaborator();

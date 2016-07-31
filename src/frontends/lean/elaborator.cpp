@@ -21,7 +21,11 @@ Author: Leonardo de Moura
 #include "library/typed_expr.h"
 #include "library/annotation.h"
 #include "library/pp_options.h"
+#include "library/flycheck.h"
+#include "library/error_handling.h"
+#include "library/vm/vm.h"
 #include "library/compiler/rec_fn_macro.h"
+#include "library/compiler/vm_compiler.h"
 #include "library/tactic/kabstract.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/elaborate.h"
@@ -45,10 +49,11 @@ public:
 };
 
 elaborator::elaborator(environment const & env, options const & opts, local_level_decls const & lls,
-                       metavar_context const & mctx, local_context const & lctx):
+                       metavar_context const & mctx, local_context const & lctx, bool check_unassigend):
     m_env(env), m_opts(opts), m_local_level_decls(lls),
     m_ctx(mctx, lctx, get_elab_tc_cache_for(env, opts), transparency_mode::Semireducible) {
-    m_next_param_idx = 1;
+    m_next_param_idx   = 1;
+    m_check_unassigend = check_unassigend;
 }
 
 format elaborator::pp(type_context & ctx, expr const & e) {
@@ -114,7 +119,7 @@ expr elaborator::mk_instance_core(local_context const & lctx, expr const & C) {
     if (!inst) {
         metavar_context mctx   = m_ctx.mctx();
         local_context new_lctx = lctx.instantiate_mvars(mctx);
-        tactic_state s = mk_tactic_state_for(m_env, m_opts, mctx, new_lctx, C);
+        tactic_state s = ::lean::mk_tactic_state_for(m_env, m_opts, mctx, new_lctx, C);
         throw elaborator_exception(C, format("failed to synthesize type class instance for") + line() + s.pp());
     }
     return *inst;
@@ -986,19 +991,26 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
     return visit_app_core(fn, args, expected_type, e);
 }
 
+static expr mk_tactic_unit() {
+    return mk_app(mk_constant(get_tactic_name(), {mk_level_one()}), mk_constant(get_unit_name()));
+}
+
 expr elaborator::visit_by(expr const & e, optional<expr> const & expected_type) {
     lean_assert(is_by(e));
-    expr unit_type = mk_constant(get_unit_name());
-    expr tac_type  = mk_app(mk_constant(get_tactic_name(), {mk_level_one()}), unit_type);
     expr tac;
     {
         checkpoint C(*this);
-        tac = visit(get_by_arg(e), some_expr(tac_type));
+        tac = visit(get_by_arg(e), some_expr(mk_tactic_unit()));
         process_checkpoint(C);
+        tac = instantiate_mvars(tac);
     }
     expr mvar      = copy_tag(e, mk_metavar(expected_type));
-    trace_elab(tout() << "tactic for ?m_" << get_metavar_decl_ref_suffix(mvar) << "\n" << tac << "\n";);
+    lean_assert(mvar == head(m_mvar_stack));
+    // Remove mvar from m_mvar_stack, we keep mvars associated with tactics in a separate stack
+    m_mvar_stack = tail(m_mvar_stack);
     m_tactic_stack = cons(mk_pair(mvar, tac), m_tactic_stack);
+    trace_elab(tout() << "tactic for ?m_" << get_metavar_decl_ref_suffix(mvar) << " at " <<
+               pos_string_for(mvar) << "\n" << tac << "\n";);
     return mvar;
 }
 
@@ -1234,12 +1246,97 @@ void elaborator::unassigned_uvars_to_params() {
     m_uvar_stack = list<level>();
 }
 
+static void throw_unsolved_tactic_state(tactic_state const & ts, format const & fmt, expr const & ref) {
+    format msg = fmt + line() + format("state:") + line() + ts.pp();
+    throw elaborator_exception(ref, msg);
+}
+
+static void throw_unsolved_tactic_state(tactic_state const & ts, char const * msg, expr const & ref) {
+    throw_unsolved_tactic_state(ts, format(msg), ref);
+}
+
+tactic_state elaborator::mk_tactic_state_for(expr const & mvar) {
+    metavar_context mctx = m_ctx.mctx();
+    metavar_decl mdecl   = *mctx.get_metavar_decl(mvar);
+    local_context lctx   = mdecl.get_context().instantiate_mvars(mctx);
+    expr type            = mctx.instantiate_mvars(mdecl.get_type());
+    m_ctx.set_mctx(mctx);
+    return ::lean::mk_tactic_state_for(m_env, m_opts, mctx, lctx, type);
+}
+
+void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
+    expr const & ref = mvar;
+    /* Build initial state */
+    trace_elab(tout() << "executing tactic at " << pos_string_for(ref) << "\n";);
+    tactic_state s       = mk_tactic_state_for(mvar);
+    metavar_context mctx = m_ctx.mctx();
+    trace_elab(tout() << "initial tactic state\n" << s.pp() << "\n";);
+
+    /* Compile tactic into bytecode */
+    name tactic_name("_tactic");
+    expr tactic_type = mk_tactic_unit();
+    environment new_env = m_env;
+    bool use_conv_opt    = true;
+    bool is_trusted      = false;
+    auto cd = check(new_env, mk_definition(new_env, tactic_name, {}, tactic_type, tactic, use_conv_opt, is_trusted));
+    new_env = new_env.add(cd);
+    new_env = vm_compile(new_env, new_env.get(tactic_name));
+
+    /* Invoke tactic */
+    vm_state S(new_env);
+    vm_obj r = S.invoke(tactic_name, to_obj(s));
+
+    if (optional<tactic_state> new_s = is_tactic_success(r)) {
+        trace_elab(tout() << "tactic at " << pos_string_for(ref) << " succeeded\n";);
+        mctx     = new_s->mctx();
+        expr val = mctx.instantiate_mvars(new_s->main());
+        if (has_expr_metavar(val)) {
+            throw_unsolved_tactic_state(*new_s, "tactic failed, result contains meta-variables", ref);
+        }
+        mctx.assign(mvar, val);
+        // TODO(Leo): should we update the environment?!?
+        m_ctx.set_mctx(mctx);
+    } else if (optional<pair<format, tactic_state>> ex = is_tactic_exception(S, m_opts, r)) {
+        throw_unsolved_tactic_state(ex->second, ex->first, ref);
+    } else {
+        lean_unreachable();
+    }
+}
+
 void elaborator::invoke_tactics(checkpoint const & C) {
-    // TODO(Leo)
+    buffer<expr_pair> to_process;
+    list<expr_pair> old_stack = C.m_saved_tactic_stack;
+    while (!is_eqp(m_tactic_stack, old_stack)) {
+        to_process.push_back(head(m_tactic_stack));
+        m_tactic_stack = tail(m_tactic_stack);
+    }
+    if (to_process.empty()) return;
+    unassigned_uvars_to_params();
+
+    unsigned i = to_process.size();
+    while (i > 0) {
+        --i;
+        expr_pair const & p = to_process[i];
+        lean_assert(is_metavar(p.first));
+        invoke_tactic(p.first, p.second);
+    }
 }
 
 void elaborator::ensure_no_unassigned_metavars(checkpoint const & C) {
-    // TODO(Leo)
+    list<expr> old_stack = C.m_saved_mvar_stack;
+    if (m_check_unassigend) {
+        metavar_context mctx = m_ctx.mctx();
+        while (!is_eqp(m_mvar_stack, old_stack)) {
+            expr mvar = head(m_mvar_stack);
+            if (!mctx.is_assigned(mvar)) {
+                tactic_state s = mk_tactic_state_for(mvar);
+                throw_unsolved_tactic_state(s, "don't know how to synthesize placeholder", mvar);
+            }
+            m_mvar_stack = tail(m_mvar_stack);
+        }
+    } else {
+        m_mvar_stack = old_stack;
+    }
 }
 
 void elaborator::process_checkpoint(checkpoint & C) {
@@ -1303,8 +1400,8 @@ std::tuple<expr, level_param_names> elaborator::operator()(expr const & e) {
 }
 
 std::tuple<expr, level_param_names> elaborate(environment const & env, options const & opts, local_level_decls const & lls,
-                                              metavar_context & mctx, local_context const & lctx, expr const & e) {
-    elaborator elab(env, opts, lls, mctx, lctx);
+                                              metavar_context & mctx, local_context const & lctx, expr const & e, bool check_unassigend) {
+    elaborator elab(env, opts, lls, mctx, lctx, check_unassigend);
     auto r = elab(e);
     mctx = elab.mctx();
     return r;

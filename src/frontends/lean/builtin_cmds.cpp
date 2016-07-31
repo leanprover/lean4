@@ -563,7 +563,8 @@ static environment elab_cmd(parser & p) {
         p.declare_sorry();
     metavar_context mctx;
     expr new_e; level_param_names ls;
-    std::tie(new_e, ls) = p.elaborate(mctx, e);
+    bool check_unassigend = false;
+    std::tie(new_e, ls) = p.elaborate(mctx, e, check_unassigend);
     new_e     = replace_with_simple_metavars(mctx, new_e);
     aux_type_context ctx(p.env(), p.get_options(), mctx, local_context());
     auto out  = regular(p.env(), p.ios(), ctx);

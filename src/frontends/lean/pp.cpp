@@ -559,6 +559,10 @@ static bool is_coercion(expr const & e) {
     return is_app_of(e, get_coe_name()) && get_app_num_args(e) >= 4;
 }
 
+static bool is_coercion_fn(expr const & e) {
+    return is_app_of(e, get_coe_fn_name()) && get_app_num_args(e) >= 3;
+}
+
 auto pretty_fn::pp_hide_coercion(expr const & e, unsigned bp, bool ignore_hide) -> result {
     lean_assert(is_coercion(e));
     buffer<expr> args;
@@ -566,7 +570,19 @@ auto pretty_fn::pp_hide_coercion(expr const & e, unsigned bp, bool ignore_hide) 
     if (args.size() == 4) {
         return pp_child(args[3], bp, ignore_hide);
     } else {
-        expr new_e = mk_app(args.size() - 4, args.data() + 4);
+        expr new_e = mk_app(args.size() - 3, args.data() + 3);
+        return pp_child(new_e, bp, ignore_hide);
+    }
+}
+
+auto pretty_fn::pp_hide_coercion_fn(expr const & e, unsigned bp, bool ignore_hide) -> result {
+    lean_assert(is_coercion_fn(e));
+    buffer<expr> args;
+    get_app_args(e, args);
+    if (args.size() == 3) {
+        return pp_child(args[2], bp, ignore_hide);
+    } else {
+        expr new_e = mk_app(args.size() - 2, args.data() + 2);
         return pp_child(new_e, bp, ignore_hide);
     }
 }
@@ -591,6 +607,8 @@ auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> resul
             return pp_child(f, bp, ignore_hide);
         } else if (!m_coercion && is_coercion(e)) {
             return pp_hide_coercion(e, bp, ignore_hide);
+        } else if (!m_coercion && is_coercion_fn(e)) {
+            return pp_hide_coercion_fn(e, bp, ignore_hide);
         } else if (auto thm = arg_is_proof(f)) {
             return pp_child_core(mk_app(f, mk_inaccessible(*thm)), bp, ignore_hide);
         }
@@ -1181,6 +1199,8 @@ auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) ->
             return pp_notation_child(f, lbp, rbp);
         } else if (!m_coercion && is_coercion(e)) {
             return pp_hide_coercion(e, rbp);
+        } else if (!m_coercion && is_coercion_fn(e)) {
+            return pp_hide_coercion_fn(e, rbp);
         }
     }
     result r = pp(e);

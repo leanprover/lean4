@@ -1,7 +1,7 @@
 elab12.lean:1:30: error: type expected at
   0
-elab12.lean:4:42: error: invalid function application, too many arguments, function type:
-  ∀ {A} {a}, a = a
+elab12.lean:4:42: error: function expected at
+  rfl
 elab12.lean:7:44: error: invalid have-expression, expression
   a + 0
 has type

@@ -280,7 +280,7 @@ void elaborator::trace_coercion_failure(expr const & e_type, expr const & type, 
             msg += pp_indent(e_type);
             msg += line() + format("to");
             msg += pp_indent(type);
-            msg += line () + format(error_msg);
+            msg += line() + format(error_msg);
             tout() << msg << "\n";
         });
 }
@@ -353,12 +353,54 @@ expr elaborator::enforce_type(expr const & e, expr const & expected_type, char c
     }
 }
 
+void elaborator::trace_coercion_fn_failure(expr const & e_type, expr const & ref, char const * error_msg) {
+    trace_elab({
+            format msg("coercion at ");
+            msg += format(pos_string_for(ref));
+            msg += space() + format("from");
+            msg += pp_indent(e_type);
+            msg += line() + format("to function space");
+            msg += line() + format(error_msg);
+            tout() << msg << "\n";
+        });
+}
+
+optional<expr> elaborator::mk_coercion_to_fun(expr const & e, expr const & _e_type, expr const & ref) {
+    expr e_type = instantiate_mvars(_e_type);
+    if (!has_expr_metavar(e_type)) {
+        try {
+            bool mask[3] = { true, false, true };
+            expr args[2] = { e_type, e };
+            expr new_e = mk_app(m_ctx, get_coe_fn_name(), 3, mask, args);
+            expr new_e_type = whnf(infer_type(new_e));
+            if (!is_pi(new_e_type)) {
+                trace_coercion_fn_failure(e_type, ref,
+                                          "coercion was successfully generated, but resulting type is not a Pi");
+                return none_expr();
+            }
+            return some_expr(new_e);
+        } catch (app_builder_exception & ex) {
+            trace_coercion_fn_failure(e_type, ref,
+                                      "failed create 'coe_fn' application using type class resolution "
+                                      "('set_option trace.app_builder true' and 'set_option trace.class_instances true' for more information)");
+            return none_expr();
+        }
+    } else {
+        trace_coercion_fn_failure(e_type, ref,
+                                  "was not considered because type contain metavariables");
+        return none_expr();
+    }
+}
+
 expr elaborator::ensure_function(expr const & e, expr const & ref) {
     expr e_type = whnf(infer_type(e));
-    if (!is_pi(e_type)) {
-        throw elaborator_exception(ref, format("function expected at") + pp_indent(e));
+    if (is_pi(e_type)) {
+        return e;
     }
-    return e;
+    if (auto r = mk_coercion_to_fun(e, e_type, ref)) {
+        return *r;
+    }
+    throw elaborator_exception(ref, format("function expected at") + pp_indent(e));
 }
 
 expr elaborator::ensure_type(expr const & e, expr const & ref) {
@@ -680,8 +722,9 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
     return r;
 }
 
-expr elaborator::visit_default_app_core(expr const & fn, arg_mask amask, buffer<expr> const & args,
+expr elaborator::visit_default_app_core(expr const & _fn, arg_mask amask, buffer<expr> const & args,
                                         bool args_already_visited, optional<expr> const & expected_type, expr const & ref) {
+    expr fn      = _fn;
     expr fn_type = infer_type(fn);
     unsigned i = 0;
     buffer<expr> new_args;
@@ -696,50 +739,57 @@ expr elaborator::visit_default_app_core(expr const & fn, arg_mask amask, buffer<
        also does not work because (tactic expr) unfolds into a type. */
     expr type_before_whnf = fn_type;
     expr type             = whnf(fn_type);
-    while (is_pi(type)) {
-        binder_info const & bi = binding_info(type);
-        expr const & d = binding_domain(type);
-        expr new_arg;
-        if (amask == arg_mask::Default && bi.is_strict_implicit() && i == args.size())
-            break;
-        if ((amask == arg_mask::Default && !is_explicit(bi)) ||
-            (amask == arg_mask::Simple && !bi.is_inst_implicit() && !is_first_order(d))) {
-            // implicit argument
-            if (bi.is_inst_implicit())
-                new_arg = mk_instance(d);
-            else
-                new_arg = mk_metavar(d);
-        } else if (i < args.size()) {
-            // explicit argument
-            expr ref_arg = args[i];
-            if (args_already_visited)
-                new_arg = args[i];
-            else
-                new_arg = visit(args[i], some_expr(d));
-            expr new_arg_type = infer_type(new_arg);
-            if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, d, ref_arg)) {
-                new_arg = *new_new_arg;
+    while (true) {
+        if (is_pi(type)) {
+            binder_info const & bi = binding_info(type);
+            expr const & d = binding_domain(type);
+            expr new_arg;
+            if (amask == arg_mask::Default && bi.is_strict_implicit() && i == args.size())
+                break;
+            if ((amask == arg_mask::Default && !is_explicit(bi)) ||
+                (amask == arg_mask::Simple && !bi.is_inst_implicit() && !is_first_order(d))) {
+                // implicit argument
+                if (bi.is_inst_implicit())
+                    new_arg = mk_instance(d);
+                else
+                    new_arg = mk_metavar(d);
+            } else if (i < args.size()) {
+                // explicit argument
+                expr ref_arg = args[i];
+                if (args_already_visited)
+                    new_arg = args[i];
+                else
+                    new_arg = visit(args[i], some_expr(d));
+                expr new_arg_type = infer_type(new_arg);
+                if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, d, ref_arg)) {
+                    new_arg = *new_new_arg;
+                } else {
+                    new_args.push_back(new_arg);
+                    format msg = mk_app_type_mismatch_error(mk_app(fn, new_args.size(), new_args.data()),
+                                                            new_arg, new_arg_type, d);
+                    throw elaborator_exception(ref, msg);
+                }
+                i++;
             } else {
-                new_args.push_back(new_arg);
-                format msg = mk_app_type_mismatch_error(mk_app(fn, new_args.size(), new_args.data()),
-                                                        new_arg, new_arg_type, d);
-                throw elaborator_exception(ref, msg);
+                break;
             }
-            i++;
+            new_args.push_back(new_arg);
+            /* See comment above at first type_before_whnf assignment */
+            type_before_whnf = instantiate(binding_body(type), new_arg);
+            type             = whnf(type_before_whnf);
+        } else if (i < args.size()) {
+            expr new_fn = mk_app(fn, new_args.size(), new_args.data());
+            new_args.clear();
+            fn = ensure_function(new_fn, ref);
+            type_before_whnf = infer_type(fn);
+            type = whnf(type_before_whnf);
         } else {
+            lean_assert(i == args.size());
             break;
         }
-        new_args.push_back(new_arg);
-        /* See comment above at first type_before_whnf assignment */
-        type_before_whnf = instantiate(binding_body(type), new_arg);
-        type             = whnf(type_before_whnf);
     }
 
     type = type_before_whnf;
-
-    if (i != args.size()) {
-        throw elaborator_exception(ref, mk_too_many_args_error(fn_type));
-    }
 
     expr r = mk_app(fn, new_args.size(), new_args.data());
     if (expected_type) {

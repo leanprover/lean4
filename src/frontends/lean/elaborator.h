@@ -104,6 +104,9 @@ class elaborator {
     void trace_coercion_failure(expr const & e_type, expr const & type, expr const & ref, char const * error_msg);
     optional<expr> mk_coercion(expr const & e, expr const & e_type, expr const & type, expr const & ref);
 
+    void trace_coercion_fn_failure(expr const & e_type, expr const & ref, char const * error_msg);
+    optional<expr> mk_coercion_to_fun(expr const & e, expr const & _e_type, expr const & ref);
+
     expr ensure_type(expr const & e, expr const & ref);
     expr ensure_function(expr const & e, expr const & ref);
     optional<expr> ensure_has_type(expr const & e, expr const & e_type, expr const & type, expr const & ref);

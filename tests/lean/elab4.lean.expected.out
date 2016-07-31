@@ -5,12 +5,12 @@ failed to synthesize type class instance for
 ⊢ has_add bool
 
 error for foo.f
-invalid function application, too many arguments, function type:
-  Π {A} {B}, A → B → A
+function expected at
+  foo.f 0 1
 
 error for boo.f
-invalid function application, too many arguments, function type:
-  ℕ → ℕ → ℕ → ℕ
+function expected at
+  boo.f 0 1 2
 elab4.lean:15:6: error: ambiguous overload, possible interpretations
   foo.f 0 1
   boo.f 0 1

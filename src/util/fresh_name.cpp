@@ -63,9 +63,9 @@ optional<name> get_tagged_name_suffix(name const & n, name const & tag) {
         return optional<name>(name());
     } else if (auto new_prefix = get_tagged_name_suffix(n.get_prefix(), tag)) {
         if (n.is_string()) {
-            return optional<name>(*new_prefix, n.get_string());
+            return optional<name>(name(*new_prefix, n.get_string()));
         } else {
-            return optional<name>(*new_prefix, n.get_numeral());
+            return optional<name>(name(*new_prefix, n.get_numeral()));
         }
     } else {
         return optional<name>();

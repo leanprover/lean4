@@ -101,7 +101,6 @@ name::name(name const & prefix, unsigned k, bool) {
 }
 
 name::name(name const & prefix, unsigned k):name(prefix, k, true) {
-    lean_assert(prefix.m_ptr);
 }
 
 name::name(char const * n):name(name(), n) {

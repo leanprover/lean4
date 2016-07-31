@@ -730,7 +730,7 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
 auto pretty_fn::pp_meta(expr const & e) -> result {
     if (is_idx_metavar(e)) {
         return result(format((sstream() << "?x_" << to_meta_idx(e)).str()));
-    } else if (is_metavar_decl_ref(e)) {
+    } else if (is_metavar_decl_ref(e) && !m_purify_metavars) {
         return result(format((sstream() << "?m_" << get_metavar_decl_ref_suffix(e)).str()));
     } else if (m_purify_metavars) {
         return result(compose(format("?"), format(mlocal_name(e))));

@@ -120,7 +120,7 @@ class elaborator {
     expr mk_instance_core(local_context const & lctx, expr const & C);
     expr mk_instance_core(expr const & C);
     expr mk_instance(expr const & C);
-    level get_level(expr const & A);
+    level get_level(expr const & A, expr const & ref);
 
     level replace_univ_placeholder(level const & l);
 

@@ -138,8 +138,23 @@ expr elaborator::instantiate_mvars(expr const & e) {
     return r;
 }
 
-level elaborator::get_level(expr const & A) {
-    return ::lean::get_level(m_ctx, A);
+level elaborator::get_level(expr const & A, expr const & ref) {
+    expr A_type = whnf(infer_type(A));
+    if (is_sort(A_type)) {
+        return sort_level(A_type);
+    }
+
+    if (is_meta(A_type)) {
+        checkpoint C(*this);
+        level l = mk_univ_metavar();
+        if (is_def_eq(A_type, mk_sort(l))) {
+            C.commit();
+            return l;
+        }
+    }
+
+    auto pp_fn = mk_pp_fn(m_ctx);
+    throw elaborator_exception(ref, format("type expected at") + pp_indent(pp_fn, A));
 }
 
 level elaborator::replace_univ_placeholder(level const & l) {
@@ -463,6 +478,7 @@ expr elaborator::visit_typed_expr(expr const & e) {
 
 expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_type) {
     lean_assert(is_prenum(e));
+    expr const & ref = e;
     mpz const & v  = prenum_value(e);
     tag e_tag      = e.get_tag();
     expr A;
@@ -474,10 +490,10 @@ expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_ty
         A = mk_type_metavar();
         m_numeral_type_stack = cons(A, m_numeral_type_stack);
     }
-    level A_lvl = get_level(A);
+    level A_lvl = get_level(A, ref);
     levels ls(A_lvl);
     if (v.is_neg())
-        throw elaborator_exception(e, format("invalid pre-numeral, it must be a non-negative value"));
+        throw elaborator_exception(ref, format("invalid pre-numeral, it must be a non-negative value"));
     if (v.is_zero()) {
         expr has_zero_A = mk_app(mk_constant(get_has_zero_name(), ls), A, e_tag);
         expr S          = mk_instance(has_zero_A);

@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
+#include "kernel/find_fn.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/error_msgs.h"
@@ -886,7 +887,8 @@ level parser::parse_level_led(level left) {
             unsigned k = parse_small_nat();
             return lift(left, k);
         } else {
-            throw parser_error("invalid level expression, right hand side of '+' (aka universe lift operator) must be a numeral", p);
+            throw parser_error("invalid level expression, right hand side of '+' "
+                               "(aka universe lift operator) must be a numeral", p);
         }
     } else {
         throw parser_error("invalid level expression", p);
@@ -901,6 +903,83 @@ level parser::parse_level(unsigned rbp) {
     return left;
 }
 
+/** \brief Temporary helper class that allows us to convert local_expr_decls into local_context,
+    and translate expressions back and forth the two representations.
+
+    This helper class is needed because the old elaborator is based on the local_expr_decls
+    structure, and the new one on the more efficient local_context.
+
+    After the old elaborator is removed from the code base, we will be able to replace
+    local_expr_decls with local_context in the parser, and avoid this adapter. */
+struct local_context_adapter {
+    local_context m_lctx;
+    buffer<expr>  m_locals;
+    buffer<expr>  m_local_refs;
+
+    /* Return true iff \c e has a local_decl reference */
+    static bool has_local_ref(expr const & e) {
+        return static_cast<bool>(find(e, [](expr const & e, unsigned) { return is_local_decl_ref(e); }));
+    }
+
+    /* Return true iff \c e has a local constant that is not a local_decl reference */
+    static bool has_regular_local(expr const & e) {
+        return static_cast<bool>(find(e, [](expr const & e, unsigned) { return is_local(e) && !is_local_decl_ref(e); }));
+    }
+
+public:
+    void init(local_expr_decls const & ldecls) {
+        lean_assert(m_lctx.empty() && m_locals.empty());
+        buffer<pair<name, expr>> entries;
+        to_buffer(ldecls.get_entries(), entries);
+        unsigned i = entries.size();
+        while (i > 0) {
+            --i;
+            pair<name, expr> const & entry = entries[i];
+            expr const & local = entry.second;
+            if (!is_local(local)) continue;
+
+            expr const & local_type = mlocal_type(local);
+            expr new_local_type = translate_to(local_type);
+            expr new_local_ref  = m_lctx.mk_local_decl(local_pp_name(local), new_local_type, local_info(local));
+            m_locals.push_back(local);
+            m_local_refs.push_back(new_local_ref);
+        }
+    }
+
+    expr translate_to(expr const & e) const {
+        lean_assert(!has_local_ref(e));
+        expr r = instantiate_rev(abstract_locals(e, m_locals.size(), m_locals.data()),
+                                 m_local_refs.size(), m_local_refs.data());
+        lean_assert(!has_regular_local(r));
+        return r;
+    }
+
+    expr translate_from(expr const & e) const {
+        lean_assert(!has_regular_local(e));
+        expr r = instantiate_rev(abstract_locals(e, m_local_refs.size(), m_local_refs.data()),
+                                 m_locals.size(), m_locals.data());
+        lean_assert(!has_local_ref(r));
+        return r;
+    }
+
+    local_context const & lctx() const { return m_lctx; }
+};
+
+std::tuple<expr, level_param_names> parser::elaborate(metavar_context & mctx, expr const & e, bool check_unassigned) {
+    local_context_adapter adapter;
+    adapter.init(m_local_decls);
+    expr tmp_e  = adapter.translate_to(e);
+    std::tuple<expr, level_param_names> r =
+        ::lean::elaborate(m_env, get_options(), mctx, adapter.lctx(), tmp_e, check_unassigned);
+    return std::make_tuple(adapter.translate_from(std::get<0>(r)), std::get<1>(r));
+}
+
+std::tuple<expr, level_param_names> parser::elaborate(expr const & e) {
+    metavar_context mctx;
+    return elaborate(mctx, e, true);
+}
+
+/* =========== BEGIN OF OLD ELABORATOR LEGACY CODE =========== */
 elaborator_context parser::mk_elaborator_context(bool check_unassigned) {
     return elaborator_context(m_env, get_options(), m_local_level_decls, check_unassigned);
 }
@@ -911,15 +990,6 @@ elaborator_context parser::mk_elaborator_context(environment const & env) {
 
 elaborator_context parser::mk_elaborator_context(environment const & env, local_level_decls const & lls) {
     return elaborator_context(env, get_options(), lls, true);
-}
-
-std::tuple<expr, level_param_names> parser::elaborate(metavar_context & mctx, expr const & e, bool check_unassigned) {
-    return ::lean::elaborate(m_env, get_options(), mctx, local_context(), e, check_unassigned);
-}
-
-std::tuple<expr, level_param_names> parser::elaborate(expr const & e) {
-    metavar_context mctx;
-    return elaborate(mctx, e, true);
 }
 
 std::tuple<expr, level_param_names> parser::old_elaborate_relaxed(expr const & e, list<expr> const & ctx) {
@@ -974,6 +1044,7 @@ auto parser::old_elaborate_definition_at(environment const & env, local_level_de
     m_pre_info_manager.clear();
     return r;
 }
+/* =========== END OF OLD ELABORATOR LEGACY CODE =========== */
 
 [[ noreturn ]] void throw_invalid_open_binder(pos_info const & pos) {
     throw parser_error("invalid binder, '(', '{', '[', '{{', '⦃' or identifier expected", pos);

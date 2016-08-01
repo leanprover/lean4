@@ -43,9 +43,9 @@ static type_context_cache & get_elab_tc_cache_for(environment const & env, optio
 #define trace_elab_detail(CODE) lean_trace("elaborator_detail", scope_trace_env _scope(m_env, m_ctx); CODE)
 #define trace_elab_debug(CODE) lean_trace("elaborator_debug", scope_trace_env _scope(m_env, m_ctx); CODE)
 
-elaborator::elaborator(environment const & env, options const & opts, local_level_decls const & lls,
-                       metavar_context const & mctx, local_context const & lctx, bool check_unassigend):
-    m_env(env), m_opts(opts), m_local_level_decls(lls),
+elaborator::elaborator(environment const & env, options const & opts, metavar_context const & mctx,
+                       local_context const & lctx, bool check_unassigend):
+    m_env(env), m_opts(opts),
     m_ctx(mctx, lctx, get_elab_tc_cache_for(env, opts), transparency_mode::Semireducible) {
     m_next_param_idx   = 1;
     m_check_unassigend = check_unassigend;
@@ -1439,9 +1439,9 @@ std::tuple<expr, level_param_names> elaborator::operator()(expr const & e) {
     return std::make_tuple(r, ls);
 }
 
-std::tuple<expr, level_param_names> elaborate(environment const & env, options const & opts, local_level_decls const & lls,
+std::tuple<expr, level_param_names> elaborate(environment const & env, options const & opts,
                                               metavar_context & mctx, local_context const & lctx, expr const & e, bool check_unassigend) {
-    elaborator elab(env, opts, lls, mctx, lctx, check_unassigend);
+    elaborator elab(env, opts, mctx, lctx, check_unassigend);
     auto r = elab(e);
     mctx = elab.mctx();
     return r;

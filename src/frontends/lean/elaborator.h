@@ -27,7 +27,6 @@ class elaborator {
     };
     environment       m_env;
     options           m_opts;
-    local_level_decls m_local_level_decls;
     type_context      m_ctx;
 
     list<level>       m_uvar_stack;
@@ -204,14 +203,14 @@ class elaborator {
     void unassigned_uvars_to_params();
 
 public:
-    elaborator(environment const & env, options const & opts, local_level_decls const & lls,
-               metavar_context const & mctx, local_context const & lctx, bool check_unassigend);
+    elaborator(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
+               bool check_unassigend);
     metavar_context const & mctx() const { return m_ctx.mctx(); }
     std::tuple<expr, level_param_names> operator()(expr const & e);
 };
 
-std::tuple<expr, level_param_names> elaborate(environment const & env, options const & opts, local_level_decls const & lls,
-                                              metavar_context & mctx, local_context const & lctx, expr const & e, bool check_unassigend);
+std::tuple<expr, level_param_names> elaborate(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
+                                              expr const & e, bool check_unassigend);
 
 void initialize_elaborator();
 void finalize_elaborator();

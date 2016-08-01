@@ -914,7 +914,7 @@ elaborator_context parser::mk_elaborator_context(environment const & env, local_
 }
 
 std::tuple<expr, level_param_names> parser::elaborate(metavar_context & mctx, expr const & e, bool check_unassigned) {
-    return ::lean::elaborate(m_env, get_options(), m_local_level_decls, mctx, local_context(), e, check_unassigned);
+    return ::lean::elaborate(m_env, get_options(), mctx, local_context(), e, check_unassigned);
 }
 
 std::tuple<expr, level_param_names> parser::elaborate(expr const & e) {

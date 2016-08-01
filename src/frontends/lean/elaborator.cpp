@@ -43,11 +43,6 @@ static type_context_cache & get_elab_tc_cache_for(environment const & env, optio
 #define trace_elab_detail(CODE) lean_trace("elaborator_detail", scope_trace_env _scope(m_env, m_ctx); CODE)
 #define trace_elab_debug(CODE) lean_trace("elaborator_debug", scope_trace_env _scope(m_env, m_ctx); CODE)
 
-class elaborator_exception : public formatted_exception {
-public:
-    elaborator_exception(expr const & e, format const & fmt):formatted_exception(e, fmt) {}
-};
-
 elaborator::elaborator(environment const & env, options const & opts, local_level_decls const & lls,
                        metavar_context const & mctx, local_context const & lctx, bool check_unassigend):
     m_env(env), m_opts(opts), m_local_level_decls(lls),
@@ -567,12 +562,12 @@ expr elaborator::visit_function(expr const & fn, bool has_args, expr const & ref
     expr r;
     switch (fn.kind()) {
     case expr_kind::Var:
-    case expr_kind::App:
-        lean_unreachable();  // LCOV_EXCL_LINE
     case expr_kind::Pi:
     case expr_kind::Meta:
     case expr_kind::Sort:
         throw elaborator_exception(ref, format("invalid application, function expected"));
+    // The expr_kind::App case can only happen when nary notation is used
+    case expr_kind::App:       r = visit(fn, none_expr()); break;
     case expr_kind::Local:     r = fn; break;
     case expr_kind::Constant:  r = visit_const_core(fn); break;
     case expr_kind::Macro:     r = visit_macro(fn, none_expr()); break;
@@ -860,6 +855,19 @@ expr elaborator::visit_overload_candidate(expr const & fn, buffer<expr> const & 
     return visit_default_app_core(fn, arg_mask::Default, args, true, expected_type, ref);
 }
 
+void elaborator::throw_no_overload_applicable(buffer<expr> const & fns, buffer<elaborator_exception> const & error_msgs, expr const & ref) {
+    format r("none of the overloads are applicable");
+    lean_assert(error_msgs.size() == fns.size());
+    for (unsigned i = 0; i < fns.size(); i++) {
+        if (i > 0) r += line();
+        auto pp_fn = mk_pp_fn(m_ctx);
+        format f_fmt = (is_constant(fns[i])) ? format(const_name(fns[i])) : pp_fn(fns[i]);
+        r += line() + format("error for") + space() + f_fmt;
+        r += line() + error_msgs[i].pp();
+    }
+    throw elaborator_exception(ref, r);
+}
+
 expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> const & args,
                                       optional<expr> const & expected_type, expr const & ref) {
     trace_elab_detail(tout() << "overloaded application at " << pos_string_for(ref);
@@ -907,16 +915,7 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
     if (candidates.empty()) {
         S.restore(*this);
 
-        format r("none of the overloads are applicable");
-        lean_assert(error_msgs.size() == fns.size());
-        for (unsigned i = 0; i < fns.size(); i++) {
-            if (i > 0) r += line();
-            auto pp_fn = mk_pp_fn(m_ctx);
-            format f_fmt = (is_constant(fns[i])) ? format(const_name(fns[i])) : pp_fn(fns[i]);
-            r += line() + format("error for") + space() + f_fmt;
-            r += line() + error_msgs[i].pp();
-        }
-        throw elaborator_exception(ref, r);
+        throw_no_overload_applicable(fns, error_msgs, ref);
     } else if (candidates.size() > 1) {
         S.restore(*this);
 
@@ -958,10 +957,29 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
             fns.push_back(fn_i);
         }
         validate_overloads(fns, ref);
-        for (expr & new_fn : fns) {
-            new_fn = visit_function(new_fn, has_args, ref);
+        buffer<expr> new_fns;
+        buffer<elaborator_exception> error_msgs;
+        for (expr const & fn : fns) {
+            /* In most cases fn is a simple object when overloading is used.
+               It may be complex when nary notation is overloaded (e.g., the list notation [a, b, c])
+               We generate a trace message whenever this is the case. */
+            try {
+                checkpoint C(*this);
+                if (!is_constant(fn)) {
+                    trace_elab(tout() << "overloading with non-trivial function at " << pos_string_for(ref) << " it may produce performance problems"
+                               << pp_indent(mk_pp_fn(m_ctx), fn) << "\n";);
+                }
+                expr new_fn = visit_function(fn, has_args, ref);
+                process_checkpoint(C);
+                new_fns.push_back(new_fn);
+            } catch (elaborator_exception & ex) {
+                error_msgs.push_back(ex);
+            }
         }
-        return visit_overloaded_app(fns, args, expected_type, ref);
+        if (new_fns.empty()) {
+            throw_no_overload_applicable(fns, error_msgs, ref);
+        }
+        return visit_overloaded_app(new_fns, args, expected_type, ref);
     } else {
         expr new_fn = visit_function(fn, has_args, ref);
         /* Check if we should use a custom elaboration procedure for this application. */

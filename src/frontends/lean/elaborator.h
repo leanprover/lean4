@@ -13,6 +13,11 @@ Author: Leonardo de Moura
 #include "frontends/lean/elaborator_context.h"
 
 namespace lean {
+class elaborator_exception : public formatted_exception {
+public:
+    elaborator_exception(expr const & e, format const & fmt):formatted_exception(e, fmt) {}
+};
+
 class elaborator {
     typedef std::vector<pair<expr, expr>> to_check_sorts;
     enum class arg_mask {
@@ -166,6 +171,7 @@ class elaborator {
     expr visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args,
                            optional<expr> const & expected_type, expr const & ref);
     void validate_overloads(buffer<expr> const & fns, expr const & ref);
+    void throw_no_overload_applicable(buffer<expr> const & fns, buffer<elaborator_exception> const & error_msgs, expr const & ref);
     expr visit_overload_candidate(expr const & fn, buffer<expr> const & args,
                                   optional<expr> const & expected_type, expr const & ref);
     expr visit_overloaded_app(buffer<expr> const & fns, buffer<expr> const & args,

@@ -1,4 +1,2 @@
 le_eq_trans a d e (le_trans a c d (eq_le_trans a b c H1 H2) H3) H4 : a ≤ e
-calc1.lean:38:10: error: invalid 'calc' expression, transitivity rule is not defined for current step
 le_lt_trans b c d H2 H5 : b < d
-calc1.lean:47:15: error: invalid 'calc' expression, overloaded expressions are not supported

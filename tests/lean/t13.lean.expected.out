@@ -1,2 +1,2 @@
-[choice (g a b) (f a b)]
+[choice g f] a b
 λ h, h a b : (A → A → A) → A

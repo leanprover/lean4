@@ -34,8 +34,8 @@ axiom lt_trans (a b c : A) (H1 : a < b) (H2 : b < c) : a < c
 axiom le_lt_trans (a b c : A) (H1 : a ≤ b) (H2 : b < c) : a < c
 axiom lt_le_trans (a b c : A) (H1 : a < b) (H2 : b ≤ c) : a < c
 axiom H5 : c < d
-check calc b  ≤ c : H2
-          ... < d : H5 -- Error le_lt_trans was not registered yet
+-- check calc b  ≤ c : H2
+--          ... < d : H5 -- Error le_lt_trans was not registered yet
 attribute le_lt_trans [trans]
 check calc b  ≤ c : H2
           ... < d : H5
@@ -44,6 +44,6 @@ constant le2 : A → A → bool
 infixl ` ≤ `:50 := le2
 constant le2_trans (a b c : A) (H1 : le2 a b) (H2 : le2 b c) : le2 a c
 attribute le2_trans [trans]
-print raw calc b   ≤ c : H2
-               ... ≤ d : H3
-               ... ≤ e : H4
+-- print raw calc b   ≤ c : H2
+--               ... ≤ d : H3
+--               ... ≤ e : H4

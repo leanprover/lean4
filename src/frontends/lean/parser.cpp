@@ -1405,6 +1405,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
     //  args.size()  == kinds.size()+1 if left
     //  nargs.size() == number of Exprs in kinds
     //  scoped_info.size() == number of Scoped_Exprs in kinds
+    bool has_Exprs = false;
     local_environment lenv(m_env);
     pos_info binder_pos;
     if (left)
@@ -1462,6 +1463,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
                     throw parser_error(sstream() << "invalid composite expression, '" << *terminator << "' expected", pos());
                 }
             }
+            has_Exprs = true;
             args.push_back(expr()); // placeholder
             kinds.push_back(a.kind());
             nargs.push_back(to_list(r_args));
@@ -1499,7 +1501,21 @@ expr parser::parse_notation(parse_table t, expr * left) {
     }
     lean_assert(left  || args.size() == kinds.size());
     lean_assert(!left || args.size() == kinds.size() + 1);
+    /*
+      IF there are multiple choices and Exprs was not used, we create a lambda for each choice.
+      In this case, we copy args to actual_args and store local constants in args. */
+    buffer<expr> actual_args;
     buffer<expr> cs;
+    bool create_lambdas = length(as) > 1 && !has_Exprs;
+    if (create_lambdas) {
+        name x("x");
+        unsigned idx = 1;
+        for (expr & arg : args) {
+            actual_args.push_back(arg);
+            arg = mk_local(mk_fresh_name(), x.append_after(idx), mk_expr_placeholder(), binder_info());
+            idx++;
+        }
+    }
     for (notation::accepting const & a : as) {
         expr r = copy_with_new_pos(a.get_expr(), p);
         list<notation::action> const & postponed = a.get_postponed();
@@ -1508,7 +1524,6 @@ expr parser::parse_notation(parse_table t, expr * left) {
             process_postponed(args, left, kinds, nargs, ps, scoped_info, postponed, p, new_args);
             lean_assert(!args.empty());
             r = instantiate_rev(r, new_args.size(), new_args.data());
-            cs.push_back(r);
         } else {
             lean_assert(nargs.empty() && scoped_info.empty());
             if (args.empty()) {
@@ -1517,10 +1532,17 @@ expr parser::parse_notation(parse_table t, expr * left) {
             } else {
                 r = instantiate_rev(r, args.size(), args.data());
             }
-            cs.push_back(r);
         }
+        if (create_lambdas) {
+            bool no_cache = false;
+            r = rec_save_pos(eta_reduce(Fun(args, r, no_cache)), p);
+        }
+        cs.push_back(r);
     }
     expr r = save_pos(mk_choice(cs.size(), cs.data()), p);
+    if (create_lambdas) {
+        r = rec_save_pos(::lean::mk_app(r, actual_args), p);
+    }
     save_type_info(r);
     return r;
 }

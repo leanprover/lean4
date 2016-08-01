@@ -472,4 +472,8 @@ meta_definition generalizes : list expr → tactic unit
 | []      := skip
 | (e::es) := generalize e `x >> generalizes es
 
+meta_definition refine (e : qexpr) : tactic unit :=
+do tgt : expr ← target,
+   to_expr_core tt `((%%e : %%tgt)) >>= exact
+
 end tactic

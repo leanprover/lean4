@@ -458,6 +458,13 @@ vm_state & get_tactic_vm_state(environment const & env) {
     return get_vmsc().get_cache_for(env);
 }
 
+vm_obj tactic_instantiate_mvars(vm_obj const & e, vm_obj const & _s) {
+    tactic_state const & s = to_tactic_state(_s);
+    metavar_context mctx = s.mctx();
+    expr r = mctx.instantiate_mvars(to_expr(e));
+    return mk_tactic_success(to_obj(r), set_mctx(s, mctx));
+}
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),            tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}),    tactic_state_format_expr);
@@ -483,6 +490,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "get_assignment"}),       tactic_get_assignment);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_fresh_name"}),        tactic_mk_fresh_name);
     DECLARE_VM_BUILTIN(name({"tactic", "is_trace_enabled_for"}), tactic_is_trace_enabled_for);
+    DECLARE_VM_BUILTIN(name({"tactic", "instantiate_mvars"}),    tactic_instantiate_mvars);
 }
 
 void finalize_tactic_state() {

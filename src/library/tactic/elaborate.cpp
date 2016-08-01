@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "kernel/for_each_fn.h"
 #include "library/annotation.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/elaborate.h"
@@ -37,7 +38,23 @@ vm_obj tactic_to_expr_core(vm_obj const & relaxed, vm_obj const & qe, vm_obj con
     metavar_context mctx = s.mctx();
     try {
         expr r = (*g_elaborate)(s.env(), s.get_options(), mctx, g->get_context(), to_expr(qe), to_bool(relaxed));
-        return mk_tactic_success(to_obj(r), set_mctx(s, mctx));
+        r = mctx.instantiate_mvars(r);
+        if (relaxed && has_expr_metavar(r)) {
+            buffer<expr> new_goals;
+            name_set found;
+            for_each(r, [&](expr const & e, unsigned) {
+                    if (!has_expr_metavar(e)) return false;
+                    if (is_metavar_decl_ref(e) && !found.contains(mlocal_name(e))) {
+                        new_goals.push_back(e);
+                        found.insert(mlocal_name(e));
+                    }
+                    return true;
+                });
+            list<expr> new_gs = to_list(new_goals.begin(), new_goals.end(), s.goals());
+            return mk_tactic_success(to_obj(r), set_mctx_goals(s, mctx, new_gs));
+        } else {
+            return mk_tactic_success(to_obj(r), set_mctx(s, mctx));
+        }
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);
     }

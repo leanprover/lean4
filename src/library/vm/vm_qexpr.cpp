@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
+#include "library/explicit.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_expr.h"
 
@@ -20,8 +21,7 @@ vm_obj qexpr_subst(vm_obj const & _e1, vm_obj const & _e2) {
 }
 
 vm_obj qexpr_of_expr(vm_obj const & e) {
-    // TODO(Leo): use "as_is" macro
-    return e;
+    return to_obj(mk_as_is(to_expr(e)));
 }
 
 vm_obj expr_to_string(vm_obj const &);

@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/module.h"
 #include "library/aliases.h"
-#include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
@@ -32,15 +31,14 @@ std::string const & get_nested_decl_opcode() { return *g_nested_decl_opcode; }
 
 class nested_decl_macro_definition_cell : public macro_definition_cell {
     optional<name>  m_name;
-    decl_attributes m_attributes;
 
     void check_macro(expr const & m) const {
         if (!is_macro(m) || macro_num_args(m) != 1)
             throw exception(sstream() << "invalid nested declaration, incorrect number of arguments");
     }
 public:
-    nested_decl_macro_definition_cell(optional<name> const & n, decl_attributes const & attrs):
-        m_name(n), m_attributes(attrs) {}
+    nested_decl_macro_definition_cell(optional<name> const & n):
+        m_name(n) {}
     virtual name get_name() const { return get_nested_decl_name(); }
     virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
         check_macro(m);
@@ -53,17 +51,15 @@ public:
     virtual void write(serializer & s) const {
         s.write_string(get_nested_decl_opcode());
         s << m_name;
-        m_attributes.write(s);
     }
     virtual unsigned hash() const {
         return get_nested_decl_name().hash();
     }
     optional<name> const & get_decl_name() const { return m_name; }
-    decl_attributes const & get_decl_attributes() const { return m_attributes; }
 };
 
-expr mk_nested_declaration(optional<name> const & n, decl_attributes const & attrs, expr const & e) {
-    macro_definition def(new nested_decl_macro_definition_cell(n, attrs));
+expr mk_nested_declaration(optional<name> const & n, expr const & e) {
+    macro_definition def(new nested_decl_macro_definition_cell(n));
     return mk_macro(def, 1, &e);
 }
 
@@ -86,11 +82,6 @@ optional<name> const & get_nested_declaration_name(expr const & d) {
     return static_cast<nested_decl_macro_definition_cell const*>(macro_def(d).raw())->get_decl_name();
 }
 
-decl_attributes const & get_nested_declaration_attributes(expr const & d) {
-    lean_assert(is_nested_declaration(d));
-    return static_cast<nested_decl_macro_definition_cell const*>(macro_def(d).raw())->get_decl_attributes();
-}
-
 LEAN_THREAD_VALUE(bool, g_allow_nested_declarations, false);
 
 allow_nested_decls_scope::allow_nested_decls_scope(bool enable) {
@@ -105,17 +96,15 @@ allow_nested_decls_scope::~allow_nested_decls_scope() {
 expr parse_nested_declaration(parser & p, unsigned, expr const *, pos_info const & pos) {
     try {
         optional<name> n;
-        decl_attributes attrs;
         if (!g_allow_nested_declarations)
             throw parser_error("invalid 'abstract' expression, it is only allowed inside definitions", pos);
         if (p.curr_is_token(get_as_tk())) {
             p.next();
             n = p.check_id_next("invalid 'abstract' expression, identifier expected");
         }
-        attrs.parse(p);
         expr e = p.parse_expr();
         p.check_token_next(get_end_tk(), "invalid 'abstract' expression, 'end' expected");
-        return p.save_pos(mk_nested_declaration(n, attrs, e), pos);
+        return p.save_pos(mk_nested_declaration(n, e), pos);
     } catch (exception & ex) {
         consume_until_end(p);
         ex.rethrow();
@@ -169,8 +158,6 @@ public:
                                                               new_type, new_value)));
         if (new_name != new_real_name)
             m_env = add_expr_alias_rec(m_env, new_name, new_real_name);
-        decl_attributes const & attrs = get_nested_declaration_attributes(e);
-        m_env = attrs.apply(m_env, m_ios, new_real_name);
         return mk_app(mk_constant(new_real_name, ls), locals.get_collected());
     }
 
@@ -215,9 +202,9 @@ void initialize_nested_declaration() {
                                 [](deserializer & d, unsigned num, expr const * args) {
                                     if (num != 1)
                                         throw corrupted_stream_exception();
-                                    optional<name> n; decl_attributes attrs;
-                                    d >> n; attrs.read(d);
-                                    return mk_nested_declaration(n, attrs, args[0]);
+                                    optional<name> n;
+                                    d >> n;
+                                    return mk_nested_declaration(n, args[0]);
                                 });
 }
 void finalize_nested_declaration() {

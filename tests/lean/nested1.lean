@@ -8,7 +8,9 @@ constant foo (a : nat) : a > 0 → nat
 definition bla (a : nat) :=
 foo
   (succ (succ a))
-  abstract as foo.prf [irreducible] lt.step (zero_lt_succ a) end
+  abstract as foo.prf lt.step (zero_lt_succ a) end
+
+attribute [irreducible] foo.prf
 
 print foo.prf
 print bla

@@ -49,6 +49,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 #include "library/tactic/elaborate.h"
 #include "library/tactic/tactic_state.h"
+#include "frontends/lean/elaborator.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/info_manager.h"
@@ -1682,6 +1683,8 @@ static tactic_state to_tactic_state(environment const & env, options const & opt
 }
 
 optional<tactic_state> old_elaborator::execute_tactic(expr const & tactic, tactic_state const & s, expr const & mvar) {
+    scope_elaborate_fn scope(nested_elaborate);
+
     name tactic_name("_tactic");
     expr tactic_type = ::lean::mk_app(mk_constant("tactic", {mk_level_one()}), mk_constant("unit"));
     /* compile tactic */

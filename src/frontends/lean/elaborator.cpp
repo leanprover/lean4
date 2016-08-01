@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "kernel/find_fn.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
 #include "library/trace.h"
@@ -1343,6 +1344,50 @@ void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
     }
 }
 
+// Auxiliary procedure for #translate
+static expr translate_local_name(environment const & env, local_context const & lctx, name const & local_name, expr const & src) {
+    if (auto decl = lctx.get_local_decl_from_user_name(local_name)) {
+        return decl->mk_ref();
+    }
+    if (env.find(local_name)) {
+        if (is_local(src))
+            return mk_constant(local_name);
+        else
+            return src;
+    }
+    throw elaborator_exception(src, format("unknown identifier '") + format(local_name) + format("'"));
+}
+
+/** \brief Translated local constants (and undefined constants) occurring in \c e into
+    local constants provided by \c ctx.
+    Throw exception is \c ctx does not contain the local constant.
+*/
+static expr translate(environment const & env, local_context const & lctx, expr const & e) {
+    auto fn = [&](expr const & e) {
+        if (is_placeholder(e) || is_by(e)) {
+            return some_expr(e); // ignore placeholders
+        } else if (is_constant(e)) {
+            expr new_e = copy_tag(e, translate_local_name(env, lctx, const_name(e), e));
+            return some_expr(new_e);
+        } else if (is_local(e)) {
+            expr new_e = copy_tag(e, translate_local_name(env, lctx, local_pp_name(e), e));
+            return some_expr(new_e);
+        } else {
+            return none_expr();
+        }
+    };
+    return replace(e, fn);
+}
+
+expr nested_elaborate(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
+                      expr const & e, bool relaxed) {
+    std::tuple<expr, level_param_names> p = elaborate(env, opts, mctx, lctx, translate(env, lctx, e), !relaxed);
+    if (std::get<1>(p)) {
+        throw exception("nested elaboration failed, new universe parameters have been created");
+    }
+    return std::get<0>(p);
+}
+
 void elaborator::invoke_tactics(checkpoint const & C) {
     buffer<expr_pair> to_process;
     list<expr_pair> old_stack = C.m_saved_tactic_stack;
@@ -1352,6 +1397,8 @@ void elaborator::invoke_tactics(checkpoint const & C) {
     }
     if (to_process.empty()) return;
     unassigned_uvars_to_params();
+
+    scope_elaborate_fn scope(nested_elaborate);
 
     unsigned i = to_process.size();
     while (i > 0) {

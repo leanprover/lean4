@@ -356,11 +356,6 @@ vm_obj tactic_local_context(vm_obj const & s0) {
     return mk_tactic_success(to_obj(to_list(r)), s);
 }
 
-vm_obj tactic_to_expr(vm_obj const & qe, vm_obj const & s) {
-    /* TODO(Leo): invoke elaborator */
-    return mk_tactic_success(qe, to_tactic_state(s));
-}
-
 vm_obj rotate_left(unsigned n, tactic_state const & s) {
     buffer<expr> gs;
     to_buffer(s.goals(), gs);
@@ -479,7 +474,6 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "unify_core"}),           tactic_unify_core);
     DECLARE_VM_BUILTIN(name({"tactic", "get_local"}),            tactic_get_local);
     DECLARE_VM_BUILTIN(name({"tactic", "local_context"}),        tactic_local_context);
-    DECLARE_VM_BUILTIN(name({"tactic", "to_expr"}),              tactic_to_expr);
     DECLARE_VM_BUILTIN(name({"tactic", "rotate_left"}),          tactic_rotate_left);
     DECLARE_VM_BUILTIN(name({"tactic", "get_goals"}),            tactic_get_goals);
     DECLARE_VM_BUILTIN(name({"tactic", "set_goals"}),            tactic_set_goals);

@@ -133,8 +133,10 @@ meta_constant mk_mapp_core  : transparency → name → list (option expr) → t
    The tactic fails if the given expression is not a local constant. -/
 meta_constant subst         : expr → tactic unit
 meta_constant exact         : expr → tactic unit
-/- Elaborate the given quoted expression with respect to the current main goal. -/
-meta_constant to_expr       : qexpr → tactic expr
+/- Elaborate the given quoted expression with respect to the current main goal.
+   If the boolean argument is tt, then metavariables are tolerated and
+   become new goals. -/
+meta_constant to_expr_core  : bool → qexpr → tactic expr
 /- Return true if the given expression is a type class. -/
 meta_constant is_class      : expr → tactic bool
 /- Try to create an instance of the given type class. -/
@@ -222,6 +224,9 @@ mk_app_core semireducible
 
 meta_definition mk_mapp : name → list (option expr) → tactic expr :=
 mk_mapp_core semireducible
+
+meta_definition to_expr : qexpr → tactic expr :=
+to_expr_core ff
 
 meta_definition revert (l : expr) : tactic nat :=
 revert_lst [l]

@@ -212,6 +212,9 @@ public:
 std::tuple<expr, level_param_names> elaborate(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
                                               expr const & e, bool check_unassigend);
 
+expr nested_elaborate(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
+                      expr const & e, bool relaxed);
+
 void initialize_elaborator();
 void finalize_elaborator();
 }

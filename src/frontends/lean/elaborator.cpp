@@ -34,7 +34,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/elaborator.h"
 
 namespace lean {
-MK_THREAD_LOCAL_GET_DEF(type_context_cache_helper, get_tch);
+MK_THREAD_LOCAL_GET(type_context_cache_helper, get_tch, true /* use binder information at infer_cache */);
 
 static type_context_cache & get_elab_tc_cache_for(environment const & env, options const & o) {
     return get_tch().get_cache_for(env, o);

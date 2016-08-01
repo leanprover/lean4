@@ -163,6 +163,7 @@ class elaborator {
     expr visit_function(expr const & fn, bool has_args, expr const & ref);
     format mk_app_type_mismatch_error(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type);
     format mk_too_many_args_error(expr const & fn_type);
+    [[ noreturn ]]
     void throw_app_type_mismatch(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type,
                                  expr const & ref);
     expr visit_default_app_core(expr const & fn, arg_mask amask, buffer<expr> const & args,
@@ -170,6 +171,7 @@ class elaborator {
     expr visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args,
                            optional<expr> const & expected_type, expr const & ref);
     void validate_overloads(buffer<expr> const & fns, expr const & ref);
+    [[ noreturn ]]
     void throw_no_overload_applicable(buffer<expr> const & fns, buffer<elaborator_exception> const & error_msgs, expr const & ref);
     expr visit_overload_candidate(expr const & fn, buffer<expr> const & args,
                                   optional<expr> const & expected_type, expr const & ref);

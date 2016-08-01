@@ -14,6 +14,7 @@ show a = d, by do {
     show a = d, by do {
       get_local `Hac >>= clear,
       get_local `H1 >>= clear,
+      trace "NESTED CALL:",
       trace_state,
       transitivity,
       get_local `aux >>= exact,

@@ -22,7 +22,20 @@ enum class transparency_mode { All, Semireducible, Reducible, None };
 class type_context_cache {
     typedef std::unordered_map<name, optional<declaration>, name_hash> transparency_cache;
     typedef std::unordered_map<name, bool, name_hash> name2bool;
-    typedef expr_struct_map<expr> infer_cache;
+
+    /** We use expr_cond_bi_struct_map because sometimes we want the inferred type to
+        contain precise binder information (e.g., in the elaborator).
+        Binder information includes the the binder annotations: {}, [], etc.
+
+        That is, we want the type of (fun {A : Type} (a : A), a) to be (Pi {A : Type}, A -> A).
+
+        When binder information is considered in the infer_cache, we can't reuse the
+        cached value for (fun {A : Type} (a : A), a) when inferring the type of
+        (fun (A : Type) (a : A), a). This is wasteful in modules such as the tactic framework.
+
+        So, when we create a type_context_cache object we can specify whether this extra
+        level of precision is required or not. */
+    typedef expr_cond_bi_struct_map<expr> infer_cache;
     typedef expr_struct_map<expr> whnf_cache;
     typedef expr_struct_map<optional<expr>> instance_cache;
     typedef expr_struct_map<optional<expr>> subsingleton_cache;
@@ -92,7 +105,9 @@ class type_context_cache {
     bool should_unfold_macro(expr const & e);
     bool is_aux_recursor(name const & n);
 public:
-    type_context_cache(environment const & env, options const & opts);
+    /** When use_bi == true, the cache for inferred types take binder information into account.
+        See comment above for infer_cache. */
+    type_context_cache(environment const & env, options const & opts, bool use_bi = false);
 
     environment const & env() const { return m_env; }
 
@@ -535,8 +550,10 @@ public:
 
 class type_context_cache_helper {
     typedef std::unique_ptr<type_context_cache> cache_ptr;
+    bool      m_use_bi;
     cache_ptr m_cache_ptr;
 public:
+    type_context_cache_helper(bool use_bi = false):m_use_bi(use_bi) {}
     type_context_cache & get_cache_for(environment const & env, options const & o);
 };
 

@@ -41,10 +41,11 @@ unsigned get_class_instance_max_depth(options const & o) {
    type_context_cache
    ===================== */
 
-type_context_cache::type_context_cache(environment const & env, options const & opts):
+type_context_cache::type_context_cache(environment const & env, options const & opts, bool use_bi):
     m_env(env),
     m_options(opts),
-    m_proj_info(get_projection_info_map(env)) {
+    m_proj_info(get_projection_info_map(env)),
+    m_infer_cache(use_bi) {
     m_ci_max_depth       = get_class_instance_max_depth(opts);
 }
 
@@ -2526,7 +2527,7 @@ type_context_cache & type_context_cache_helper::get_cache_for(environment const 
     if (!m_cache_ptr ||
         !is_eqp(env, m_cache_ptr->env()) ||
         !is_eqp(o, m_cache_ptr->get_options())) {
-        m_cache_ptr.reset(new type_context_cache(env, o));
+        m_cache_ptr.reset(new type_context_cache(env, o, m_use_bi));
     }
     return *m_cache_ptr.get();
 }

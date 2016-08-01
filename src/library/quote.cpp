@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/constants.h"
 #include "library/annotation.h"
+#include "library/kernel_serializer.h"
 
 namespace lean {
 static std::string * g_quote_opcode = nullptr;
@@ -101,6 +102,15 @@ void initialize_quote() {
 
     g_antiquote  = new name("antiquote");
     register_annotation(*g_antiquote);
+
+    register_macro_deserializer(*g_quote_opcode,
+                                [](deserializer & d, unsigned num, expr const *) {
+                                    if (num != 0)
+                                        throw corrupted_stream_exception();
+                                    expr e;
+                                    d >> e;
+                                    return mk_quote_core(e);
+                                });
 }
 
 void finalize_quote() {

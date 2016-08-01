@@ -45,12 +45,13 @@ vm_obj tactic_to_expr_core(vm_obj const & relaxed, vm_obj const & qe, vm_obj con
             for_each(r, [&](expr const & e, unsigned) {
                     if (!has_expr_metavar(e)) return false;
                     if (is_metavar_decl_ref(e) && !found.contains(mlocal_name(e))) {
+                        mctx.instantiate_mvars_at_type_of(e);
                         new_goals.push_back(e);
                         found.insert(mlocal_name(e));
                     }
                     return true;
                 });
-            list<expr> new_gs = to_list(new_goals.begin(), new_goals.end(), s.goals());
+            list<expr> new_gs = cons(head(s.goals()), to_list(new_goals.begin(), new_goals.end(), tail(s.goals())));
             return mk_tactic_success(to_obj(r), set_mctx_goals(s, mctx, new_gs));
         } else {
             return mk_tactic_success(to_obj(r), set_mctx(s, mctx));

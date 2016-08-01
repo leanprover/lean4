@@ -6,7 +6,6 @@ namespace boo
   export nat (rec add)
   check a + b
   check nat.add
-  check add
 end boo
 
 open boo

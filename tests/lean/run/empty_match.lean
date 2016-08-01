@@ -5,4 +5,4 @@ assume H : a < zero,
 match H with
 end
 
-check not_lt_zero
+check _root_.not_lt_zero

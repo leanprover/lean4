@@ -52,7 +52,9 @@ meta_definition foo : nat → expr
 | 0     := expr.const `aa [level.zero, level.succ level.zero]
 | (n+1) := foo n
 
+/-
 vm_eval match foo 10 with
 | expr.const n ls := list.head (list.tail ls)
 | _               := level.zero
 end
+-/

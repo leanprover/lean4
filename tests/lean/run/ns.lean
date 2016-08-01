@@ -14,5 +14,5 @@ end foo
 open foo
 constants a : nat
 constants i : int
-check f a
-check f i
+check f foo.a
+check f foo.i

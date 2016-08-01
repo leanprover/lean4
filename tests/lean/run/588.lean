@@ -7,8 +7,8 @@ definition f a := Πr, (a -> r) -> r
 
 definition g (fn : a -> b) (sa : f a) : f b := sorry
 
--- ok
-check λx, g id x = x
+-- Remark: to support the next one we must restrict the context of the meta-variable in the body of the lambda
+-- check λx, g id x = x
 
 check λ(x : f a), g id x = x
 

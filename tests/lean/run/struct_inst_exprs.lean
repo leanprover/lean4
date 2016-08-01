@@ -22,4 +22,4 @@ definition s5 : Σ a : nat, a > 0 :=
 
 eval s5
 
-check ⦃ unit ⦄
+-- check ⦃ unit ⦄

@@ -6,9 +6,9 @@ inj : A → lift A
 set_option pp.universes true
 
 variables (A : Type.{3}) (B : Type.{1})
-check A = lift B
+check A = lift.{1 3} B
 
 universe u
 variables (C : Type.{u+2}) (D : Type.{u})
-check C = lift D
+check C = lift.{u u+2} D
 end test

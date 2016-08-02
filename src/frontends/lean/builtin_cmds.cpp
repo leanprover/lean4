@@ -554,31 +554,6 @@ static expr replace_with_simple_metavars(metavar_context & mctx, expr const & e)
         });
 }
 
-static environment elab_cmd(parser & p) {
-    expr e = p.parse_expr();
-    if (p.used_sorry())
-        p.declare_sorry();
-    metavar_context mctx;
-    expr new_e; level_param_names ls;
-    bool check_unassigend = false;
-    std::tie(new_e, ls) = p.elaborate(mctx, e, check_unassigend);
-    new_e     = replace_with_simple_metavars(mctx, new_e);
-    aux_type_context ctx(p.env(), p.get_options(), mctx, local_context());
-    auto out  = regular(p.env(), p.ios(), ctx);
-    auto tc   = mk_type_checker(p.env());
-    expr type = tc->check(new_e, ls).first;
-    formatter fmt         = out.get_formatter();
-    unsigned indent       = get_pp_indent(p.get_options());
-    format r = group(fmt(new_e) + space() + colon() + nest(indent, line() + fmt(type)));
-    flycheck_information info(p.ios());
-    if (info.enabled()) {
-        p.display_information_pos(p.cmd_pos());
-        out << "elab result:\n";
-    }
-    out << mk_pair(r, p.get_options()) << endl;
-    return p.env();
-}
-
 static std::string * g_declare_trace_key = nullptr;
 
 environment declare_trace_cmd(parser & p) {
@@ -627,7 +602,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#normalizer",       "(for debugging purposes)", normalizer_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
-    add_cmd(r, cmd_info("#elab",             "(for debugging purposes)", elab_cmd));
 
     register_decl_cmds(r);
     register_inductive_cmd(r);

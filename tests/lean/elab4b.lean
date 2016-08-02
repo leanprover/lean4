@@ -6,8 +6,8 @@ definition bla.f (a b c d : bool) := a
 
 open boo foo bla
 
-#elab f 0 1 2 3
+check f 0 1 2 3
 
-#elab f 0 1
+check f 0 1
 
-#elab f tt ff
+check f tt ff

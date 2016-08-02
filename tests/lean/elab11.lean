@@ -3,14 +3,14 @@ constant bla.f : nat → nat
 
 open boo bla
 
-#elab f 1
+check f 1
 
 set_option pp.full_names true
 
-#elab (f 1 : nat)
+check (f 1 : nat)
 
-#elab (f 1 : bool)
+check (f 1 : bool)
 
 set_option pp.full_names false
 
-#elab (f 1 : string)
+check (f 1 : string)

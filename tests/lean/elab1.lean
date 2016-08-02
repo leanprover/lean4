@@ -10,16 +10,16 @@ open foo boo
 print raw subst -- subst is overloaded
 print raw add   -- add is overloaded
 
-#elab @subst
+check @subst
 
-#elab @@subst
+check @@subst
 
 open eq
 
-#elab subst
+check subst
 
 constants a b : nat
 constant H1 : a = b
 constant H2 : a + b > 0
 
-#elab eq.subst H1 H2
+check eq.subst H1 H2

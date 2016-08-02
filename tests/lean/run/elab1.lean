@@ -5,14 +5,14 @@ constant int : Type₁
 constant int_comm_ring : comm_ring int
 attribute int_comm_ring [instance]
 
-#elab 3
+check 3
 
-#elab Type
+check Type
 
-#elab Prop
+check Prop
 
-#elab int
+check int
 
-#elab (2 : int)
+check (2 : int)
 
-#elab eq.subst
+check eq.subst

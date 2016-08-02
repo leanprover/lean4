@@ -10,8 +10,8 @@ check F tt
 check F tt tt
 check F tt tt tt
 
-#elab H
-#elab F
-#elab F tt
-#elab F tt tt
-#elab F tt tt tt
+check H
+check F
+check F tt
+check F tt tt
+check F tt tt tt

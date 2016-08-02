@@ -1,4 +1,4 @@
-#elab if tt then "a" else "b"
+check if tt then "a" else "b"
 
 /- Remark: in the standard library nat_to_int and int_to_real are has_lift instances
    instead of has_coe. -/
@@ -13,28 +13,28 @@ constants n m : nat
 constants i j : int
 constants x y : real
 
-#elab sine x
-#elab sine n
-#elab sine i
+check sine x
+check sine n
+check sine i
 
 constant int_has_add  : has_add int
 constant real_has_add : has_add real
 attribute [instance] int_has_add real_has_add
 
-#elab x + i
+check x + i
 
 /- The following one does not work because the implicit argument ?A of add is bound to int
    when x is processed. -/
-#elab i + x  -- FAIL
+check i + x  -- FAIL
 
 /- The workaround is to use the explicit lift -/
-#elab ↑i + x
+check ↑i + x
 
-#elab x + n
+check x + n
 
-#elab n + x -- FAIL
+check n + x -- FAIL
 
-#elab ↑n + x
+check ↑n + x
 
-#elab (i:real) + x
-#elab (n:real) + x
+check (i:real) + x
+check (n:real) + x

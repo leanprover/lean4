@@ -5,17 +5,17 @@ has_coe_to_fun.mk (expr → expr) (λ e, expr.app e)
 
 constants f a b : expr
 
-#elab f a
+check f a
 
-#elab f a b
+check f a b
 
-#elab f a b a
+check f a b a
 
 set_option pp.coercions false
 
-#elab f a b a
+check f a b a
 
 set_option pp.all true
 set_option pp.coercions true
 
-#elab f a b
+check f a b

@@ -11,5 +11,5 @@ constant a : A
 constant f : C → C
 constant g : D → D
 
-#elab f a
-#elab g a
+check f a
+check g a

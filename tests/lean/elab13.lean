@@ -1,6 +1,6 @@
 open tactic list
 
-#elab
+check
 take c : name,
 (
 do {

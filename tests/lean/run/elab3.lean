@@ -1,3 +1,3 @@
 set_option pp.binder_types true
-
-#elab (sorry : ∀ a, a > 0)
+axiom Sorry {A : Type} : A
+check (Sorry : ∀ a, a > 0)

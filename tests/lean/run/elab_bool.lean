@@ -1,7 +1,7 @@
 variable b : bool
 
-#elab if b then tt else ff
+check if b then tt else ff
 
-#elab if b && b then tt else ff
+check if b && b then tt else ff
 
-#elab if b ∧ b then tt else ff
+check if b ∧ b then tt else ff

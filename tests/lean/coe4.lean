@@ -6,16 +6,16 @@ has_coe_to_fun.mk (A → A → A) Functor.fn
 
 constant f : Functor nat
 
-#elab f 0 1
+check f 0 1
 
 set_option pp.coercions false
 
-#elab f 0 1
+check f 0 1
 
 set_option pp.coercions true
 
-#elab f 0 1
+check f 0 1
 
 set_option pp.all true
 
-#elab f 0 1
+check f 0 1

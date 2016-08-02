@@ -254,7 +254,6 @@ bool local_context::well_formed(expr const & e) const {
             if (!ok) return false;
             if (is_local_decl_ref(e) && !get_local_decl(e)) {
                 ok = false;
-                lean_unreachable();
             }
             return true;
         });

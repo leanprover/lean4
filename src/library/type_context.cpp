@@ -1178,8 +1178,6 @@ Now, we consider some workarounds/approximations.
    (approximated) solution: restrict the context of `?M'`
    If `?M'` is assigned, the workaround is precise, and we just unfold `?M'`.
 
-   Remark: we only implement the ?M' assigned case.
-
  A5) If some `a_i` is not a local constant,
      then we use first-order unification (if approximate() is true)
 
@@ -1325,69 +1323,10 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
         return true;
     }
 
-    while (true) {
-        /* We use a loop here to implement workaround A1.
-           If new_v has a "bad" let local decl, we expand it and try again. */
-        bool ok = true;
-        bool bad_let_refs = false;
-        for_each(new_v, [&](expr const & e, unsigned) {
-                if (!ok)
-                    return false; // stop search
-                if (is_mvar(e)) {
-                    if (mvar == e) {
-                        /* mvar occurs in v */
-                        ok = false;
-                        return false;
-                    }
-                    if (!in_tmp_mode()) {
-                        /* Recall that in tmp_mode all metavariables have the same local context.
-                           So, we don't need to check anything.
-                           In regular mode, we need to check condition 4
-
-                           For every metavariable `?M'@C'` occurring in `t`, `C'` is a subset of `C`
-                        */
-                        optional<metavar_decl> e_decl = m_mctx.get_metavar_decl(e);
-                        if (!e_decl || !e_decl->get_context().is_subset_of(mvar_decl->get_context())) {
-                            ok = false;
-                            return false;
-                        }
-                    }
-                    return false;
-                } else if (is_local_decl_ref(e)) {
-                    bool in_ctx;
-                    if (in_tmp_mode()) {
-                        in_ctx = static_cast<bool>(m_tmp_mvar_lctx.get_local_decl(e));
-                    } else {
-                        in_ctx = static_cast<bool>(mvar_decl->get_context().get_local_decl(e));
-                    }
-                    if (!in_ctx) {
-                        if (auto decl = m_lctx.get_local_decl(e)) {
-                            if (decl->get_value()) {
-                                /* let-decl that is not in the metavar context
-                                   workaround A1 */
-                                ok           = false;
-                                bad_let_refs = true;
-                                return false;
-                            }
-                        }
-                        if (std::all_of(locals.begin(), locals.end(), [&](expr const & a) {
-                                    return mlocal_name(a) != mlocal_name(e); })) {
-                            ok = false;
-                            return false;
-                        }
-                    }
-                    return false;
-                }
-                return true;
-            });
-        if (ok) {
-            break;
-        } else if (bad_let_refs) {
-            new_v = instantiate_mvars(expand_let_decls(new_v));
-        } else {
-            return false;
-        }
-    }
+    if (optional<expr> new_new_v = check_assignment(locals, mvar, new_v))
+        new_v = *new_new_v;
+    else
+        return false;
 
     if (args.empty()) {
         /* easy case */
@@ -1434,6 +1373,111 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
     assign(mvar, new_v);
     lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "assign: " << mvar << " := " << new_v << "\n";);
     return true;
+}
+
+/* Auxiliary method for process_assignment */
+optional<expr> type_context::check_assignment(buffer<expr> const & locals, expr const & mvar, expr v) {
+    optional<metavar_decl> mvar_decl;
+    if (!in_tmp_mode()) {
+        mvar_decl = m_mctx.get_metavar_decl(mvar);
+        lean_assert(mvar_decl);
+    }
+    while (true) {
+        /* We use a loop here to implement workaround A1.
+           If new_v has a "bad" let local decl, we expand it and try again. */
+        bool ok = true;
+        bool bad_let_refs = false;
+        bool inst_mvars = false;
+        for_each(v, [&](expr const & e, unsigned) {
+                if (!ok) return false; // stop search
+                if (is_mvar(e)) {
+                    if (is_assigned(e)) {
+                        inst_mvars = true;
+                        return false;
+                    }
+                    if (mvar == e) {
+                        /* mvar occurs in v */
+                        ok = false;
+                        return false;
+                    }
+                    if (!in_tmp_mode()) {
+                        /* Recall that in tmp_mode all metavariables have the same local context.
+                           So, we don't need to check anything.
+                           In regular mode, we need to check condition 4
+
+                           For every metavariable `?M'@C'` occurring in `t`, `C'` is a subset of `C`
+                        */
+                        optional<metavar_decl> e_decl = m_mctx.get_metavar_decl(e);
+                        if (!e_decl) {
+                            ok = false;
+                            return false;
+                        }
+                        local_context mvar_lctx = mvar_decl->get_context();
+                        local_context e_lctx    = e_decl->get_context();
+                        if (!e_lctx.is_subset_of(mvar_lctx)) {
+                            if (approximate() && mvar_lctx.is_subset_of(e_lctx)) {
+                                expr e_type = e_decl->get_type();
+                                if (mvar_lctx.well_formed(e_type)) {
+                                    /* Restrict context of the ?M' */
+                                    expr aux_mvar = m_mctx.mk_metavar_decl(mvar_lctx, e_type);
+                                    if (process_assignment(e, aux_mvar)) {
+                                        inst_mvars = true;
+                                    } else {
+                                        /* Local context restriction failed */
+                                        ok = false;
+                                        return false;
+                                    }
+                                } else {
+                                    /* e_type uses local_decl's that are not in mvar_lctx */
+                                    ok = false;
+                                    return false;
+                                }
+                            } else {
+                                /* The two local contexts are incomparable OR
+                                   approximate mode is not enabled. */
+                                ok = false;
+                                return false;
+                            }
+                        }
+                    }
+                    return false;
+                } else if (is_local_decl_ref(e)) {
+                    bool in_ctx;
+                    if (in_tmp_mode()) {
+                        in_ctx = static_cast<bool>(m_tmp_mvar_lctx.get_local_decl(e));
+                    } else {
+                        in_ctx = static_cast<bool>(mvar_decl->get_context().get_local_decl(e));
+                    }
+                    if (!in_ctx) {
+                        if (auto decl = m_lctx.get_local_decl(e)) {
+                            if (decl->get_value()) {
+                                /* let-decl that is not in the metavar context
+                                   workaround A1 */
+                                ok           = false;
+                                bad_let_refs = true;
+                                return false;
+                            }
+                        }
+                        if (std::all_of(locals.begin(), locals.end(), [&](expr const & a) {
+                                    return mlocal_name(a) != mlocal_name(e); })) {
+                            ok = false;
+                            return false;
+                        }
+                    }
+                    return false;
+                }
+                return true;
+            });
+        if (inst_mvars) {
+            v = instantiate_mvars(v);
+        } else if (ok) {
+            return some_expr(v);
+        } else if (bad_let_refs) {
+            v = instantiate_mvars(expand_let_decls(v));
+        } else {
+            return none_expr();
+        }
+    }
 }
 
 bool type_context::is_def_eq_binding(expr e1, expr e2) {

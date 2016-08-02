@@ -417,6 +417,7 @@ private:
     bool approximate();
     expr try_zeta(expr const & e);
     expr expand_let_decls(expr const & e);
+    optional<expr> check_assignment(buffer<expr> const & locals, expr const & mvar, expr v);
     bool process_assignment(expr const & m, expr const & v);
 
     optional<declaration> is_delta(expr const & e);

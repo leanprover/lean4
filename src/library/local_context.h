@@ -132,9 +132,7 @@ public:
     bool well_formed() const;
 
     /** \brief Return true iff \c e is well-formed with respect to this local context.
-        That is, all local_decl references in \c e are defined in this context.
-
-        \remark This method is for debugging purposes. */
+        That is, all local_decl references in \c e are defined in this context. */
     bool well_formed(expr const & e) const;
 
     format pp(formatter const & fmt) const;

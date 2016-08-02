@@ -1216,13 +1216,19 @@ void elaborator::ensure_numeral_types_assigned(checkpoint const & C) {
 
 void elaborator::synthesize_type_class_instances_core(list<expr> const & old_stack, bool force) {
     buffer<expr> to_keep;
+    buffer<expr> to_process;
     while (!is_eqp(m_instance_stack, old_stack)) {
         lean_assert(m_instance_stack);
         lean_assert(is_metavar(head(m_instance_stack)));
-        expr mvar          = head(m_instance_stack);
+        to_process.push_back(head(m_instance_stack));
+        m_instance_stack   = tail(m_instance_stack);
+    }
+    unsigned i = to_process.size();
+    while (i > 0) {
+        --i;
+        expr mvar          = to_process[i];
         metavar_decl mdecl = *m_ctx.mctx().get_metavar_decl(mvar);
         expr inst          = instantiate_mvars(mvar);
-        m_instance_stack   = tail(m_instance_stack);
         if (!has_expr_metavar(inst)) {
             trace_elab(tout() << "skipping type class resolution at " << pos_string_for(mvar)
                        << ", placeholder instantiated using type inference\n";);
@@ -1245,8 +1251,7 @@ void elaborator::synthesize_type_class_instances_core(list<expr> const & old_sta
             }
         }
     }
-    for (expr const & mvar : to_keep)
-        m_instance_stack = cons(mvar, m_instance_stack);
+    m_instance_stack = to_list(to_keep.begin(), to_keep.end(), m_instance_stack);
 }
 
 void elaborator::unassigned_uvars_to_params() {

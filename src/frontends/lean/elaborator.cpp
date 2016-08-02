@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 #include "library/tactic/elaborate.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
+#include "frontends/lean/info_annotation.h"
 
 namespace lean {
 MK_THREAD_LOCAL_GET(type_context_cache_helper, get_tch, true /* use binder information at infer_cache */);
@@ -1048,6 +1049,14 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         return visit_app_core(e, buffer<expr>(), expected_type, e);
     } else if (is_by(e)) {
         return visit_by(e, expected_type);
+    } else if (is_no_info(e)) {
+        // TODO(Leo): flet<bool> let(m_no_info, true);
+        return visit(get_annotation_arg(e), expected_type);
+    } else if (is_notation_info(e)) {
+        // flet<bool> let(m_no_info, true);
+        expr r = visit(get_annotation_arg(e), expected_type);
+        // save_type_data(e, r);
+        return r;
     } else if (is_rec_fn_macro(e)) {
         // TODO(Leo)
         lean_unreachable();

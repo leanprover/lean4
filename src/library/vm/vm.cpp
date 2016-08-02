@@ -484,6 +484,9 @@ vm_instr::~vm_instr() {
     case opcode::CasesN: case opcode::BuiltinCases:
         delete[] m_npcs;
         break;
+    case opcode::QExpr:
+        delete m_expr;
+        break;
     default:
         break;
     }

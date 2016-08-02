@@ -107,28 +107,28 @@ expr elaborator::mk_type_metavar() {
     return mk_metavar(mk_sort(l));
 }
 
-expr elaborator::mk_instance_core(local_context const & lctx, expr const & C) {
+expr elaborator::mk_instance_core(local_context const & lctx, expr const & C, expr const & ref) {
     optional<expr> inst = m_ctx.mk_class_instance_at(lctx, C);
     if (!inst) {
         metavar_context mctx   = m_ctx.mctx();
         local_context new_lctx = lctx.instantiate_mvars(mctx);
         tactic_state s = ::lean::mk_tactic_state_for(m_env, m_opts, mctx, new_lctx, C);
-        throw elaborator_exception(C, format("failed to synthesize type class instance for") + line() + s.pp());
+        throw elaborator_exception(ref, format("failed to synthesize type class instance for") + line() + s.pp());
     }
     return *inst;
 }
 
-expr elaborator::mk_instance_core(expr const & C) {
-    return mk_instance_core(m_ctx.lctx(), C);
+expr elaborator::mk_instance_core(expr const & C, expr const & ref) {
+    return mk_instance_core(m_ctx.lctx(), C, ref);
 }
 
-expr elaborator::mk_instance(expr const & C) {
+expr elaborator::mk_instance(expr const & C, expr const & ref) {
     if (has_expr_metavar(C)) {
-        expr inst = mk_metavar(C);
+        expr inst = copy_tag(ref, mk_metavar(C));
         m_instance_stack = cons(inst, m_instance_stack);
         return inst;
     } else {
-        return mk_instance_core(C);
+        return mk_instance_core(C, ref);
     }
 }
 
@@ -479,7 +479,7 @@ expr elaborator::visit_typed_expr(expr const & e) {
 
 expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_type) {
     lean_assert(is_prenum(e));
-    expr const & ref = e;
+    expr ref = e;
     mpz const & v  = prenum_value(e);
     tag e_tag      = e.get_tag();
     expr A;
@@ -497,17 +497,17 @@ expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_ty
         throw elaborator_exception(ref, format("invalid pre-numeral, it must be a non-negative value"));
     if (v.is_zero()) {
         expr has_zero_A = mk_app(mk_constant(get_has_zero_name(), ls), A, e_tag);
-        expr S          = mk_instance(has_zero_A);
+        expr S          = mk_instance(has_zero_A, ref);
         return mk_app(mk_app(mk_constant(get_zero_name(), ls), A, e_tag), S, e_tag);
     } else {
         expr has_one_A = mk_app(mk_constant(get_has_one_name(), ls), A, e_tag);
-        expr S_one     = mk_instance(has_one_A);
+        expr S_one     = mk_instance(has_one_A, ref);
         expr one       = mk_app(mk_app(mk_constant(get_one_name(), ls), A, e_tag), S_one, e_tag);
         if (v == 1) {
             return one;
         } else {
             expr has_add_A = mk_app(mk_constant(get_has_add_name(), ls), A, e_tag);
-            expr S_add     = mk_instance(has_add_A);
+            expr S_add     = mk_instance(has_add_A, ref);
             std::function<expr(mpz const & v)> convert = [&](mpz const & v) {
                 lean_assert(v > 0);
                 if (v == 1)
@@ -708,7 +708,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
                 postponed = args[j];
                 j++;
             } else if (bi.is_inst_implicit()) {
-                new_arg = mk_instance(d);
+                new_arg = mk_instance(d, ref);
             } else {
                 new_arg = mk_metavar(d);
             }
@@ -806,7 +806,7 @@ expr elaborator::visit_default_app_core(expr const & _fn, arg_mask amask, buffer
                 (amask == arg_mask::Simple && !bi.is_inst_implicit() && !is_first_order(d))) {
                 // implicit argument
                 if (bi.is_inst_implicit())
-                    new_arg = mk_instance(d);
+                    new_arg = mk_instance(d, ref);
                 else
                     new_arg = mk_metavar(d);
             } else if (i < args.size()) {
@@ -1227,6 +1227,7 @@ void elaborator::synthesize_type_class_instances_core(list<expr> const & old_sta
     while (i > 0) {
         --i;
         expr mvar          = to_process[i];
+        expr ref           = mvar;
         metavar_decl mdecl = *m_ctx.mctx().get_metavar_decl(mvar);
         expr inst          = instantiate_mvars(mvar);
         if (!has_expr_metavar(inst)) {
@@ -1237,7 +1238,7 @@ void elaborator::synthesize_type_class_instances_core(list<expr> const & old_sta
         expr inst_type = instantiate_mvars(infer_type(inst));
         if (!has_expr_metavar(inst_type)) {
             // We must try to synthesize instance using the local context where it was declared
-            if (!is_def_eq(inst, mk_instance_core(mdecl.get_context(), inst_type)))
+            if (!is_def_eq(inst, mk_instance_core(mdecl.get_context(), inst_type, ref)))
                 throw elaborator_exception(mvar,
                                            format("failed to assign type class instance to placeholder"));
         } else {

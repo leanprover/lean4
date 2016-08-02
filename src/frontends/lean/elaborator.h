@@ -116,9 +116,9 @@ class elaborator {
     expr mk_metavar(expr const & A);
     expr mk_type_metavar();
     expr mk_metavar(optional<expr> const & A);
-    expr mk_instance_core(local_context const & lctx, expr const & C);
-    expr mk_instance_core(expr const & C);
-    expr mk_instance(expr const & C);
+    expr mk_instance_core(local_context const & lctx, expr const & C, expr const & ref);
+    expr mk_instance_core(expr const & C, expr const & ref);
+    expr mk_instance(expr const & C, expr const & ref);
     level get_level(expr const & A, expr const & ref);
 
     level replace_univ_placeholder(level const & l);

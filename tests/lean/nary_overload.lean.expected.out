@@ -1,4 +1,6 @@
-[a, b, c] : vec A
+nary_overload.lean:16:6: error: ambiguous overload, possible interpretations
+  [a, b, c]
+  [a, b, c]
 [a, b, c] : vec A
 [a, b, c] : lst A
 @vec.cons.{1} A a (@vec.cons.{1} A b (@vec.cons.{1} A c (@vec.nil.{1} A))) : vec.{1} A

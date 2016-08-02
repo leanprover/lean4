@@ -1,8 +1,8 @@
 H : @transitive.{1} nat R
-@F.{l_1} ?A : Π ⦃a : ?A⦄ {b : ?A}, ?A → (Π ⦃e : ?A⦄, ?A → ?A → ?A)
-@F.{1} bool ?a ?b bool.tt : Π ⦃e : bool⦄, bool → bool → bool
-@F.{1} bool ?a ?b bool.tt ?e bool.tt : bool → bool
-@F.{1} bool ?a ?b bool.tt ?e bool.tt bool.tt : bool
+@F.{l_1} ?M_1 : Π ⦃a : ?M_1⦄ {b : ?M_1}, ?M_1 → (Π ⦃e : ?M_1⦄, ?M_1 → ?M_1 → ?M_1)
+@F.{1} bool ?M_1 ?M_2 bool.tt : Π ⦃e : bool⦄, bool → bool → bool
+@F.{1} bool ?M_1 ?M_2 bool.tt ?M_3 bool.tt : bool → bool
+@F.{1} bool ?M_1 ?M_2 bool.tt ?M_3 bool.tt bool.tt : bool
 H : @transitive.{1} nat R
 @F.{l_1} ?M_1 : Π ⦃a : ?M_1⦄ {b : ?M_1}, ?M_1 → (Π ⦃e : ?M_1⦄, ?M_1 → ?M_1 → ?M_1)
 @F.{1} bool ?M_1 ?M_2 bool.tt : Π ⦃e : bool⦄, bool → bool → bool

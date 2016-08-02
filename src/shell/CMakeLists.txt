@@ -32,9 +32,10 @@ add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${
 add_test(lean_server_trace "${CMAKE_CURRENT_BINARY_DIR}/lean" --server-trace "${LEAN_SOURCE_DIR}/../tests/lean/interactive/consume_args.input")
 add_test(lean_server_trace "${CMAKE_CURRENT_BINARY_DIR}/lean" --server-trace "${LEAN_SOURCE_DIR}/../tests/lean/interactive/options_cmd.trace")
 add_test(lean_server_trace "${CMAKE_CURRENT_BINARY_DIR}/lean" --server-trace "${LEAN_SOURCE_DIR}/../tests/lean/interactive/commands.trace")
-add_test(NAME "lean_eqn_macro"
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
-         COMMAND bash "./test_eqn_macro.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
+# The following test needs new elaborator to support match
+# add_test(NAME "lean_eqn_macro"
+#         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
+#         COMMAND bash "./test_eqn_macro.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
 add_test(NAME "lean_print_notation"
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
          COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "print_tests.lean")
@@ -128,16 +129,17 @@ ENDFOREACH(T)
 #            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
 # ENDFOREACH(T)
 
-if("${MULTI_THREAD}" MATCHES "ON")
-# LEAN INTERACTIVE TESTS
-file(GLOB LEANITTESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.input")
-FOREACH(T ${LEANITTESTS})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leanittest_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/interactive"
-           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-ENDFOREACH(T)
-endif()
+# The new elaborator needs to populate the info_manager for the following tests
+# if("${MULTI_THREAD}" MATCHES "ON")
+# # LEAN INTERACTIVE TESTS
+# file(GLOB LEANITTESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.input")
+# FOREACH(T ${LEANITTESTS})
+#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+#   add_test(NAME "leanittest_${T_NAME}"
+#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/interactive"
+#            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+# ENDFOREACH(T)
+# endif()
 
 # LEAN SLOW TESTS
 file(GLOB LEANSLOWTESTS "${LEAN_SOURCE_DIR}/../tests/lean/slow/*.lean")

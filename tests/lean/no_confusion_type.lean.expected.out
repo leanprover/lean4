@@ -1,2 +1,2 @@
-vector.no_confusion_type : Type → vector ?A ?a → vector ?A ?a → Type
+vector.no_confusion_type : Type → vector ?M_1 ?M_2 → vector ?M_1 ?M_2 → Type
 (2 = 2 → a1 = a2 → v1 == v2 → P) → P

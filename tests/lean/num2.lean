@@ -20,5 +20,6 @@ constant a  : G
 
 notation 0 := gz
 
-check 0 = a
+check a = 0
+check (0:G) = a
 check b = 0

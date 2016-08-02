@@ -1,5 +1,4 @@
-error_full_names.lean:4:8: error: failed to synthesize placeholder
-
+error_full_names.lean:4:8: error: failed to synthesize type class instance for
 ⊢ has_add nat
 error_full_names.lean:8:6: error: type mismatch at application
   nat.succ nat.zero

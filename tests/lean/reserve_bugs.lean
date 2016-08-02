@@ -10,10 +10,10 @@ reserve infixl `-`:65
 reserve prefix `-`:100
 
 
-infixl `+` := g
-infixl `-` := h
-prefix `-` := f
-infixr `&` := h
+local infixl `+` := g
+local infixl `-` := h
+local prefix `-` := f
+local infixr `&` := h
 
 set_option pp.notation false
 

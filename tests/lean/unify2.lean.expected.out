@@ -1,6 +1,0 @@
-@S3.to_S1.{1} nat (@S4.to_S3.{1} nat s) =?= f.{1} nat (@S4.to_S2.{1} nat s)
-@S3.to_S1.{1} nat (@S4.to_S3.{1} nat s) =?= f.{1} nat (@S4.to_S2.{1} nat s)
-success
-@S3.to_S1.{1} nat (@S4.to_S3.{1} nat s) =?= @S2.to_S1.{1} nat (@S4.to_S2.{1} nat s)
-@S3.to_S1.{1} nat (@S4.to_S3.{1} nat s) =?= @S2.to_S1.{1} nat (@S4.to_S2.{1} nat s)
-success

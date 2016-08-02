@@ -1,6 +1,6 @@
 import logic
 
-infixl `*`   := has_mul.mul
+local infixl `*`   := has_mul.mul
 postfix `⁻¹` := has_inv.inv
 notation 1   := has_one.one
 

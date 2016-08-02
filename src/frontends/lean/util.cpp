@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/num.h"
 #include "library/util.h"
 #include "library/normalize.h"
+#include "library/metavar_context.h"
 #include "library/replace_visitor.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
@@ -384,16 +385,18 @@ expr univ_metavars_to_params(environment const & env, local_level_decls const & 
     return univ_metavars_to_params_fn(env, lls, s, ps, new_ps)(e);
 }
 
+std::tuple<expr, level_param_names> parse_local_expr(parser & p, metavar_context & mctx, bool relaxed) {
+    expr e = p.parse_expr();
+    bool check_unassigend = !relaxed;
+    expr new_e; level_param_names ls;
+    std::tie(new_e, ls) = p.elaborate(mctx, e, check_unassigend);
+    level_param_names new_ls = to_level_param_names(collect_univ_params(new_e));
+    return std::make_tuple(new_e, new_ls);
+}
+
 std::tuple<expr, level_param_names> parse_local_expr(parser & p, bool relaxed) {
-    expr e   = p.parse_expr();
-    list<expr> ctx = p.locals_to_context();
-    level_param_names new_ls;
-    if (relaxed)
-        std::tie(e, new_ls) = p.old_elaborate_relaxed(e, ctx);
-    else
-        std::tie(e, new_ls) = p.old_elaborate(e, ctx);
-    level_param_names ls = to_level_param_names(collect_univ_params(e));
-    return std::make_tuple(e, ls);
+    metavar_context mctx;
+    return parse_local_expr(p, mctx, relaxed);
 }
 
 optional<name> is_uniquely_aliased(environment const & env, name const & n) {

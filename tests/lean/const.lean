@@ -13,5 +13,5 @@ section
   variable S : inhabited A
   variable B : @bla A _
   check B
-  check @foo A _
+  check @foo A S
 end

@@ -679,7 +679,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
     list<unsigned> main_idxs = info.m_explicit_idxs;
     buffer<optional<expr>> postponed_args; // mark arguments that must be elaborated in the second pass.
     {
-        checkpoint C(*this);
+        checkpoint C1(*this);
         while (is_pi(type)) {
             expr const & d = binding_domain(type);
             binder_info const & bi = binding_info(type);
@@ -687,9 +687,9 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
             optional<expr> postponed;
             if (std::find(main_idxs.begin(), main_idxs.end(), i) != main_idxs.end()) {
                 {
-                    checkpoint C(*this);
+                    checkpoint C2(*this);
                     new_arg = visit(args[j], some_expr(d));
-                    process_checkpoint(C);
+                    process_checkpoint(C2);
                     new_arg = instantiate_mvars(new_arg);
                 }
                 j++;
@@ -729,7 +729,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
         for (; j < args.size(); j++) {
             new_args.push_back(visit(args[j], none_expr()));
         }
-        process_checkpoint(C);
+        process_checkpoint(C1);
     }
 
     /* Compute expected_type for the recursor application without extra arguments */

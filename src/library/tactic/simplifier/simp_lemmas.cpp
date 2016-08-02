@@ -566,6 +566,10 @@ vm_obj tactic_mk_simp_lemmas(vm_obj const & m, vm_obj const & s) {
     return mk_tactic_success(to_obj(get_simp_lemmas(ctx)), to_tactic_state(s));
 }
 
+vm_obj tactic_mk_empty_simp_lemmas(vm_obj const & s) {
+    return mk_tactic_success(to_obj(simp_lemmas()), to_tactic_state(s));
+}
+
 vm_obj tactic_simp_lemmas_insert(vm_obj const & m, vm_obj const & lemmas, vm_obj const & lemma, vm_obj const & s) {
     type_context tctx = mk_type_context_for(s, m);
     expr e = to_expr(lemma);
@@ -584,6 +588,7 @@ vm_obj tactic_simp_lemmas_insert(vm_obj const & m, vm_obj const & lemmas, vm_obj
 
 void initialize_simp_lemmas() {
     DECLARE_VM_BUILTIN(name({"tactic", "mk_simp_lemmas_core"}),      tactic_mk_simp_lemmas);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_empy_simp_lemmas"}),      tactic_mk_empty_simp_lemmas);
     DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_core"}),  tactic_simp_lemmas_insert);
 
     register_attribute(prio_attribute("simp", "simplification lemma", on_add_simp_lemma));

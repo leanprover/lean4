@@ -15,6 +15,8 @@ meta_constant simp_lemmas : Type₁
    Lemmas with type `<lhs> <eqv_rel> <rhs>` are indexed using the head-symbol of `<lhs>`,
    computed with respect to the given transparency setting. -/
 meta_constant mk_simp_lemmas_core     : transparency → tactic simp_lemmas
+/- Create an empty simp_lemmas. That is, it ignores the lemmas marked with the [simp] attribute.  -/
+meta_constant mk_empy_simp_lemmas     : tactic simp_lemmas
 /- (simp_lemmas_insert_core m lemmas id lemma priority) adds the given lemma to the set simp_lemmas. -/
 meta_constant simp_lemmas_insert_core : transparency → simp_lemmas → expr → tactic simp_lemmas
 

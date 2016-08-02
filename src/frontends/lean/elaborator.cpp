@@ -1046,6 +1046,9 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
     } else if (is_rec_fn_macro(e)) {
         // TODO(Leo)
         lean_unreachable();
+    } else if (is_as_atomic(e)) {
+        // ignore annotation
+        return visit(get_as_atomic_arg(e), expected_type);
     } else if (is_annotation(e)) {
         expr r = visit(get_annotation_arg(e), expected_type);
         return update_macro(e, 1, &r);

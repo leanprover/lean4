@@ -1378,7 +1378,8 @@ void elaborator::invoke_tactics(checkpoint const & C) {
     if (to_process.empty()) return;
     unassigned_uvars_to_params();
 
-    scope_elaborate_fn scope(nested_elaborate);
+    elaborate_fn fn(nested_elaborate);
+    scope_elaborate_fn scope(fn);
 
     unsigned i = to_process.size();
     while (i > 0) {

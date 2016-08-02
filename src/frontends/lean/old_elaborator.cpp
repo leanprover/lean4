@@ -1683,7 +1683,8 @@ static tactic_state to_tactic_state(environment const & env, options const & opt
 }
 
 optional<tactic_state> old_elaborator::execute_tactic(expr const & tactic, tactic_state const & s, expr const & mvar) {
-    scope_elaborate_fn scope(nested_elaborate);
+    elaborate_fn fn(nested_elaborate);
+    scope_elaborate_fn scope(fn);
 
     name tactic_name("_tactic");
     expr tactic_type = ::lean::mk_app(mk_constant("tactic", {mk_level_one()}), mk_constant("unit"));

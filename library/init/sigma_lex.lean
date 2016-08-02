@@ -14,8 +14,8 @@ section
 
   -- Lexicographical order based on Ra and Rb
   inductive lex : sigma B → sigma B → Prop :=
-  | left  : ∀{a₁ b₁} a₂ b₂, Ra a₁ a₂   → lex ⟨a₁, b₁⟩ ⟨a₂, b₂⟩
-  | right : ∀a {b₁ b₂},     Rb a b₁ b₂ → lex ⟨a, b₁⟩  ⟨a, b₂⟩
+  | left  : ∀ {a₁ : A} (b₁ : B a₁) {a₂ : A} (b₂ : B a₂), Ra a₁ a₂ → lex ⟨a₁, b₁⟩ ⟨a₂, b₂⟩
+  | right : ∀ (a : A)  {b₁ b₂ : B a}, Rb a b₁ b₂ → lex ⟨a, b₁⟩  ⟨a, b₂⟩
 end
 
 

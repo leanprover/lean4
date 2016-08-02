@@ -1308,13 +1308,18 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
             */
             lean_assert(new_v_args.size() == args.size());
         }
-        if (!is_def_eq_core(new_mvar, new_v_fn))
-            return false;
+        /* We try to unify arguments before we try to unify the functions.
+           This heuristic is consistently used in the is_def_eq procedure.
+           See is_def_eq_args invocations.
+           The motivation is the following: the universe constraints in
+           the arguments propagate to the function. */
         for (; j < new_v_args.size(); i++, j++) {
             lean_assert(i < args.size());
             if (!is_def_eq_core(args[i], new_v_args[j]))
                 return false;
         }
+        if (!is_def_eq_core(new_mvar, new_v_fn))
+            return false;
         lean_assert(i == args.size());
         lean_assert(j == new_v_args.size());
         return true;

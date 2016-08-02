@@ -125,7 +125,7 @@ class instantiate_mvars_fn : public replace_visitor {
     virtual expr visit_meta(expr const & m) override {
         if (m_ctx.is_mvar(m)) {
             if (auto v1 = m_ctx.get_assignment(m)) {
-                if (!has_expr_metavar(*v1)) {
+                if (!has_metavar(*v1)) {
                     return *v1;
                 } else {
                     expr v2 = instantiate_mvars(m_ctx, *v1);
@@ -147,7 +147,7 @@ class instantiate_mvars_fn : public replace_visitor {
         if (m_ctx.is_mvar(f)) {
             if (auto v = m_ctx.get_assignment(f)) {
                 expr new_app = apply_beta(*v, args.size(), args.data());
-                if (has_expr_metavar(new_app))
+                if (has_metavar(new_app))
                     return visit(new_app);
                 else
                     return new_app;
@@ -196,6 +196,8 @@ template<typename CTX>
 expr instantiate_mvars(CTX & ctx, expr const & e) {
     if (!has_assigned(ctx, e))
         return e;
-    return instantiate_mvars_fn<CTX>(ctx)(e);
+    expr r = instantiate_mvars_fn<CTX>(ctx)(e);
+    lean_assert(!has_assigned(ctx, r));
+    return r;
 }
 }

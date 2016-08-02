@@ -1235,7 +1235,7 @@ void elaborator::synthesize_type_class_instances_core(list<expr> const & old_sta
         expr ref           = mvar;
         metavar_decl mdecl = *m_ctx.mctx().get_metavar_decl(mvar);
         expr inst          = instantiate_mvars(mvar);
-        if (!has_expr_metavar(inst)) {
+        if (!has_metavar(inst)) {
             trace_elab(tout() << "skipping type class resolution at " << pos_string_for(mvar)
                        << ", placeholder instantiated using type inference\n";);
             continue;

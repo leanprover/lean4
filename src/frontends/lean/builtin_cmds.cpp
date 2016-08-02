@@ -544,16 +544,6 @@ static environment vm_eval_cmd(parser & p) {
     return p.env();
 }
 
-static expr replace_with_simple_metavars(metavar_context & mctx, expr const & e) {
-    return replace(e, [&](expr const & e, unsigned) {
-            if (!is_metavar(e)) return none_expr();
-            if (auto decl = mctx.get_metavar_decl(e)) {
-                return some_expr(mk_metavar(mlocal_name(e), decl->get_type()));
-            }
-            return none_expr();
-        });
-}
-
 static std::string * g_declare_trace_key = nullptr;
 
 environment declare_trace_cmd(parser & p) {

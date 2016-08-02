@@ -686,7 +686,12 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
             expr new_arg;
             optional<expr> postponed;
             if (std::find(main_idxs.begin(), main_idxs.end(), i) != main_idxs.end()) {
-                new_arg = visit(args[j], some_expr(d));
+                {
+                    checkpoint C(*this);
+                    new_arg = visit(args[j], some_expr(d));
+                    process_checkpoint(C);
+                    new_arg = instantiate_mvars(new_arg);
+                }
                 j++;
                 if (has_expr_metavar(new_arg)) {
                     auto pp_fn = mk_pp_fn(m_ctx);
@@ -696,7 +701,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
                                                format("(it is handled as an \"eliminator\"), ") +
                                                format("but term") + pp_indent(pp_fn, new_arg) +
                                                line() + format("must not contain metavariables because") +
-                                               format("it is used to compute the motive"));
+                                               format(" it is used to compute the motive"));
                 }
                 expr new_arg_type = infer_type(new_arg);
                 if (!is_def_eq(new_arg_type, d)) {

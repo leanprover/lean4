@@ -587,7 +587,7 @@ expr elaborator::visit_function(expr const & fn, bool has_args, expr const & ref
     case expr_kind::App:       r = visit(fn, none_expr()); break;
     case expr_kind::Local:     r = fn; break;
     case expr_kind::Constant:  r = visit_const_core(fn); break;
-    case expr_kind::Macro:     r = visit_macro(fn, none_expr()); break;
+    case expr_kind::Macro:     r = visit_macro(fn, none_expr(), true); break;
     case expr_kind::Lambda:    r = visit_lambda(fn, none_expr()); break;
     case expr_kind::Let:       r = visit_let(fn, none_expr()); break;
     }
@@ -1032,7 +1032,7 @@ expr elaborator::visit_by(expr const & e, optional<expr> const & expected_type) 
     return mvar;
 }
 
-expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type) {
+expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
     if (is_as_is(e)) {
         return get_as_is_arg(e);
     } else if (is_prenum(e)) {
@@ -1048,7 +1048,12 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         lean_unreachable();
     } else if (is_as_atomic(e)) {
         // ignore annotation
-        return visit(get_as_atomic_arg(e), expected_type);
+        expr new_e = visit(get_as_atomic_arg(e), none_expr());
+        if (is_app_fn)
+            return new_e;
+        /* If the as_atomic macro is not the the function in a function application, then we need to consume
+           implicit arguments. */
+        return visit_default_app_core(new_e, arg_mask::Default, buffer<expr>(), true, expected_type, e);
     } else if (is_annotation(e)) {
         expr r = visit(get_annotation_arg(e), expected_type);
         return update_macro(e, 1, &r);
@@ -1181,7 +1186,7 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
         case expr_kind::Sort:       return visit_sort(e);
         case expr_kind::Local:      return visit_local(e, expected_type);
         case expr_kind::Constant:   return visit_constant(e, expected_type);
-        case expr_kind::Macro:      return visit_macro(e, expected_type);
+        case expr_kind::Macro:      return visit_macro(e, expected_type, false);
         case expr_kind::Lambda:     return visit_lambda(e, expected_type);
         case expr_kind::Pi:         return visit_pi(e);
         case expr_kind::App:        return visit_app(e, expected_type);

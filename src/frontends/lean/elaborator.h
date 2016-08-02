@@ -182,7 +182,7 @@ class elaborator {
     expr visit_app_core(expr fn, buffer<expr> const & args, optional<expr> const & expected_type, expr const & ref);
     expr visit_local(expr const & e, optional<expr> const & expected_type);
     expr visit_constant(expr const & e, optional<expr> const & expected_type);
-    expr visit_macro(expr const & e, optional<expr> const & expected_type);
+    expr visit_macro(expr const & e, optional<expr> const & expected_type, bool is_app_fn);
     expr visit_lambda(expr const & e, optional<expr> const & expected_type);
     expr visit_pi(expr const & e);
     expr visit_app(expr const & e, optional<expr> const & expected_type);

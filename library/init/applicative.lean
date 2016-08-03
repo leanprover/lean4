@@ -6,9 +6,11 @@ Author: Leonardo de Moura
 prelude
 import init.functor
 
-structure applicative [class] (f : Type → Type) extends functor f :=
-(pure : Π {A : Type}, A → f A)
-(seq  : Π {A B : Type}, f (A → B) → f A → f B)
+set_option pp.all true
+
+structure applicative.{u₁ u₂} [class] (f : Type.{u₁} → Type.{u₂}) extends functor f : Type.{max u₁+1 u₂} :=
+(pure : Π {A : Type.{u₁}}, A → f A)
+(seq  : Π {A B : Type.{u₁}}, f (A → B) → f A → f B)
 
 inline definition pure {f : Type → Type} [applicative f] {A : Type} (a : A) : f A :=
 applicative.pure f a

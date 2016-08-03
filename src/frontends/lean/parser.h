@@ -503,14 +503,14 @@ public:
                                                                           name const & n, expr const & t, expr const & v);
 
 private:
-    std::tuple<expr, level_param_names> elaborate(metavar_context & mctx, local_context_adapter const & adapter,
-                                                  expr const & e, bool check_unassigned = true);
+    pair<expr, level_param_names> elaborate(metavar_context & mctx, local_context_adapter const & adapter,
+                                            expr const & e, bool check_unassigned = true);
 
 public:
-    std::tuple<expr, level_param_names> elaborate(expr const & e);
-    std::tuple<expr, level_param_names> elaborate(metavar_context & mctx, expr const & e, bool check_unassigned = true);
-    std::tuple<expr, level_param_names> elaborate(list<expr> const & ctx, expr const & e);
-    std::tuple<expr, level_param_names> elaborate_type(list<expr> const & ctx, expr const & e);
+    pair<expr, level_param_names> elaborate(expr const & e);
+    pair<expr, level_param_names> elaborate(metavar_context & mctx, expr const & e, bool check_unassigned = true);
+    pair<expr, level_param_names> elaborate(list<expr> const & ctx, expr const & e);
+    pair<expr, level_param_names> elaborate_type(list<expr> const & ctx, expr const & e);
 
     expr mk_sorry(pos_info const & p);
     bool used_sorry() const { return m_used_sorry; }

@@ -1364,6 +1364,16 @@ static expr translate(environment const & env, local_context const & lctx, expr 
     return replace(e, fn);
 }
 
+static pair<expr, level_param_names>
+elaborate_core(environment const & env, options const & opts,
+          metavar_context & mctx, local_context const & lctx, expr const & e,
+          bool check_unassigned, bool top_level, bool to_simple_metavar) {
+    elaborator elab(env, opts, mctx, lctx, check_unassigned, top_level, to_simple_metavar);
+    auto r = elab(e);
+    mctx = elab.mctx();
+    return r;
+}
+
 void elaborator::invoke_tactics(checkpoint const & C) {
     buffer<expr_pair> to_process;
     list<expr_pair> old_stack = C.m_saved_tactic_stack;
@@ -1374,7 +1384,14 @@ void elaborator::invoke_tactics(checkpoint const & C) {
     if (to_process.empty()) return;
     unassigned_uvars_to_params();
 
-    elaborate_fn fn(nested_elaborate);
+    elaborate_fn fn = [&](environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
+                          expr const & e, bool relaxed) {
+        pair<expr, level_param_names> p;
+        bool top_level = false;
+        bool to_simple_metavar = false;
+        p = elaborate_core(env, opts, mctx, lctx, translate(env, lctx, e), !relaxed, top_level, to_simple_metavar);
+        return p.first;
+    };
     scope_elaborate_fn scope(fn);
 
     unsigned i = to_process.size();
@@ -1546,7 +1563,7 @@ static expr replace_with_simple_metavars(metavar_context & mctx, expr const & e)
     return replace_with_simple_metavars(mctx, cache, e);
 }
 
-std::tuple<expr, level_param_names> elaborator::operator()(expr const & e) {
+pair<expr, level_param_names> elaborator::operator()(expr const & e) {
     checkpoint C(*this);
     expr r = visit(e,  none_expr());
     trace_elab_detail(tout() << "result before final checkpoint\n" << r << "\n";);
@@ -1565,34 +1582,27 @@ std::tuple<expr, level_param_names> elaborator::operator()(expr const & e) {
         S.apply_renames(m_new_univ_param_names);
     }
     level_param_names ls = to_list(m_new_univ_param_names);
-    return std::make_tuple(r, ls);
+    return mk_pair(r, ls);
 }
 
-static std::tuple<expr, level_param_names>
-elaborate_core(environment const & env, options const & opts,
-          metavar_context & mctx, local_context const & lctx, expr const & e,
-          bool check_unassigned, bool top_level, bool to_simple_metavar) {
-    elaborator elab(env, opts, mctx, lctx, check_unassigned, top_level, to_simple_metavar);
-    auto r = elab(e);
-    mctx = elab.mctx();
-    return r;
-}
-
-std::tuple<expr, level_param_names>
+pair<expr, level_param_names>
 elaborate(environment const & env, options const & opts,
           metavar_context & mctx, local_context const & lctx, expr const & e,
           bool check_unassigned) {
-    return elaborate_core(env, opts, mctx, lctx, e, check_unassigned, true, true);
+    bool top_level = true;
+    bool to_simple_metavar = true;
+    return elaborate_core(env, opts, mctx, lctx, e, check_unassigned, top_level, to_simple_metavar);
 }
 
 expr nested_elaborate(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
                       expr const & e, bool relaxed) {
-    std::tuple<expr, level_param_names> p = elaborate_core(env, opts, mctx, lctx, translate(env, lctx, e), !relaxed,
-                                                           false, false);
-    if (std::get<1>(p)) {
+    bool top_level = false;
+    bool to_simple_metavar = false;
+    pair<expr, level_param_names> p = elaborate_core(env, opts, mctx, lctx, translate(env, lctx, e), !relaxed,
+                                                     top_level, to_simple_metavar);
+    if (p.second)
         throw exception("nested elaboration failed, new universe parameters have been created");
-    }
-    return std::get<0>(p);
+    return p.first;
 }
 
 void initialize_elaborator() {

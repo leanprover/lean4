@@ -207,12 +207,12 @@ public:
     elaborator(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
                bool check_unassigend, bool top_level, bool to_simple_metavar);
     metavar_context const & mctx() const { return m_ctx.mctx(); }
-    std::tuple<expr, level_param_names> operator()(expr const & e);
+    pair<expr, level_param_names> operator()(expr const & e);
 };
 
-std::tuple<expr, level_param_names> elaborate(environment const & env, options const & opts,
-                                              metavar_context & mctx, local_context const & lctx,
-                                              expr const & e, bool check_unassigend);
+pair<expr, level_param_names> elaborate(environment const & env, options const & opts,
+                                        metavar_context & mctx, local_context const & lctx,
+                                        expr const & e, bool check_unassigend);
 
 expr nested_elaborate(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
                       expr const & e, bool relaxed);

@@ -980,35 +980,35 @@ public:
     local_context const & lctx() const { return m_lctx; }
 };
 
-std::tuple<expr, level_param_names> parser::elaborate(metavar_context & mctx, local_context_adapter const & adapter,
-                                                      expr const & e, bool check_unassigned) {
+pair<expr, level_param_names> parser::elaborate(metavar_context & mctx, local_context_adapter const & adapter,
+                                                expr const & e, bool check_unassigned) {
     expr tmp_e  = adapter.translate_to(e);
-    std::tuple<expr, level_param_names> r =
+    pair<expr, level_param_names> r =
         ::lean::elaborate(m_env, get_options(), mctx, adapter.lctx(), tmp_e, check_unassigned);
-    expr new_e = std::get<0>(r);
+    expr new_e = r.first;
     new_e      = adapter.translate_from(new_e);
-    return std::make_tuple(new_e, std::get<1>(r));
+    return mk_pair(new_e, r.second);
 }
 
-std::tuple<expr, level_param_names> parser::elaborate(metavar_context & mctx, expr const & e, bool check_unassigned) {
+pair<expr, level_param_names> parser::elaborate(metavar_context & mctx, expr const & e, bool check_unassigned) {
     local_context_adapter adapter;
     adapter.init(m_local_decls);
     return elaborate(mctx, adapter, e, check_unassigned);
 }
 
-std::tuple<expr, level_param_names> parser::elaborate(expr const & e) {
+pair<expr, level_param_names> parser::elaborate(expr const & e) {
     metavar_context mctx;
     return elaborate(mctx, e, true);
 }
 
-std::tuple<expr, level_param_names> parser::elaborate(list<expr> const & ctx, expr const & e) {
+pair<expr, level_param_names> parser::elaborate(list<expr> const & ctx, expr const & e) {
     metavar_context mctx;
     local_context_adapter adapter;
     adapter.init(ctx);
     return elaborate(mctx, adapter, e, true);
 }
 
-std::tuple<expr, level_param_names> parser::elaborate_type(list<expr> const & ctx, expr const & e) {
+pair<expr, level_param_names> parser::elaborate_type(list<expr> const & ctx, expr const & e) {
     expr Type  = copy_tag(e, mk_sort(mk_level_placeholder()));
     expr new_e = copy_tag(e, mk_typed_expr(Type, e));
     return elaborate(ctx, new_e);

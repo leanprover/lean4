@@ -22,6 +22,6 @@ section sec_cat
   definition id := category.rec (λ comp id assoc idr idl, id) Cat
   local infixr ∘ := compose
   inductive is_section {A B : ob} (f : mor A B) : Type :=
-  mk : ∀g, g ∘ f = id → is_section f
+  mk : ∀g : mor B A, g ∘ f = id → is_section f
 end sec_cat
 end category

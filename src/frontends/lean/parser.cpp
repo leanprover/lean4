@@ -911,7 +911,7 @@ level parser::parse_level(unsigned rbp) {
 
     After the old elaborator is removed from the code base, we will be able to replace
     local_expr_decls with local_context in the parser, and avoid this adapter. */
-struct local_context_adapter {
+class local_context_adapter {
     local_context m_lctx;
     buffer<expr>  m_locals;
     buffer<expr>  m_local_refs;
@@ -926,6 +926,14 @@ struct local_context_adapter {
         return static_cast<bool>(find(e, [](expr const & e, unsigned) { return is_local(e) && !is_local_decl_ref(e); }));
     }
 
+    void add_local(expr const & local) {
+        expr const & local_type = mlocal_type(local);
+        expr new_local_type = translate_to(local_type);
+        expr new_local_ref  = m_lctx.mk_local_decl(local_pp_name(local), new_local_type, local_info(local));
+        m_locals.push_back(local);
+        m_local_refs.push_back(new_local_ref);
+    }
+
 public:
     void init(local_expr_decls const & ldecls) {
         lean_assert(m_lctx.empty() && m_locals.empty());
@@ -937,12 +945,19 @@ public:
             pair<name, expr> const & entry = entries[i];
             expr const & local = entry.second;
             if (!is_local(local)) continue;
+            add_local(local);
+        }
+    }
 
-            expr const & local_type = mlocal_type(local);
-            expr new_local_type = translate_to(local_type);
-            expr new_local_ref  = m_lctx.mk_local_decl(local_pp_name(local), new_local_type, local_info(local));
-            m_locals.push_back(local);
-            m_local_refs.push_back(new_local_ref);
+    void init(list<expr> const & lctx) {
+        lean_assert(std::all_of(lctx.begin(), lctx.end(), is_local));
+        lean_assert(m_lctx.empty() && m_locals.empty());
+        buffer<expr> entries;
+        to_buffer(lctx, entries);
+        unsigned i = entries.size();
+        while (i > 0) {
+            --i;
+            add_local(entries[i]);
         }
     }
 
@@ -990,9 +1005,8 @@ static expr replace_with_simple_metavars(metavar_context & mctx, expr const & e)
     return replace_with_simple_metavars(mctx, cache, e);
 }
 
-std::tuple<expr, level_param_names> parser::elaborate(metavar_context & mctx, expr const & e, bool check_unassigned) {
-    local_context_adapter adapter;
-    adapter.init(m_local_decls);
+std::tuple<expr, level_param_names> parser::elaborate(metavar_context & mctx, local_context_adapter const & adapter,
+                                                      expr const & e, bool check_unassigned) {
     expr tmp_e  = adapter.translate_to(e);
     std::tuple<expr, level_param_names> r =
         ::lean::elaborate(m_env, get_options(), mctx, adapter.lctx(), tmp_e, check_unassigned);
@@ -1004,9 +1018,28 @@ std::tuple<expr, level_param_names> parser::elaborate(metavar_context & mctx, ex
     return std::make_tuple(new_e, std::get<1>(r));
 }
 
+std::tuple<expr, level_param_names> parser::elaborate(metavar_context & mctx, expr const & e, bool check_unassigned) {
+    local_context_adapter adapter;
+    adapter.init(m_local_decls);
+    return elaborate(mctx, adapter, e, check_unassigned);
+}
+
 std::tuple<expr, level_param_names> parser::elaborate(expr const & e) {
     metavar_context mctx;
     return elaborate(mctx, e, true);
+}
+
+std::tuple<expr, level_param_names> parser::elaborate(list<expr> const & ctx, expr const & e) {
+    metavar_context mctx;
+    local_context_adapter adapter;
+    adapter.init(ctx);
+    return elaborate(mctx, adapter, e, true);
+}
+
+std::tuple<expr, level_param_names> parser::elaborate_type(list<expr> const & ctx, expr const & e) {
+    expr Type  = copy_tag(e, mk_sort(mk_level_placeholder()));
+    expr new_e = copy_tag(e, mk_typed_expr(Type, e));
+    return elaborate(ctx, new_e);
 }
 
 /* =========== BEGIN OF OLD ELABORATOR LEGACY CODE =========== */

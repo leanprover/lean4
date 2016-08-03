@@ -2,7 +2,7 @@ import logic
 open nat
 
 inductive vector (A : Type) : nat → Type :=
-vnil  : vector A zero |
+vnil  : vector A nat.zero |
 vcons : Π {n : nat}, A → vector A n → vector A (succ n)
 
 check vector.no_confusion_type

@@ -62,7 +62,7 @@ variable (R)
 
 inductive strongly_sorted : list A → Prop :=
 | base : strongly_sorted []
-| step : ∀ {a l}, all l (R a) → strongly_sorted l → strongly_sorted (a::l)
+| step : ∀ {a : A} {l : list A}, all l (R a) → strongly_sorted l → strongly_sorted (a::l)
 
 variable {R}
 

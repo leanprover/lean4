@@ -1,7 +1,7 @@
 open nat tactic
 
 inductive vec (A : Type) : nat → Type :=
-| nil  : vec A zero
+| nil  : vec A nat.zero
 | cons : ∀ {n}, A → vec A n → vec A (succ n)
 
 example (n : nat) (v w : vec nat n) (a b : nat) : vec.cons a v = vec.cons b w → a = b :=

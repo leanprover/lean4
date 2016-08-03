@@ -2,7 +2,7 @@ import logic data.nat.basic
 open nat
 
 inductive vector (A : Type) : nat → Type :=
-| vnil  : vector A zero
+| vnil  : vector A nat.zero
 | vcons : Π {n : nat}, A → vector A n → vector A (succ n)
 
 namespace vector

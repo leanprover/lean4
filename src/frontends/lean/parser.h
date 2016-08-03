@@ -41,6 +41,7 @@ struct interrupt_parser {};
 typedef local_decls<expr>       local_expr_decls;
 typedef environment             local_environment;
 class metavar_context;
+class local_context_adapter;
 
 /** \brief Extra data needed to be saved when we execute parser::push_local_scope */
 struct parser_scope {
@@ -501,8 +502,15 @@ public:
     std::tuple<expr, expr, level_param_names> old_elaborate_definition_at(environment const & env, local_level_decls const & lls,
                                                                           name const & n, expr const & t, expr const & v);
 
+private:
+    std::tuple<expr, level_param_names> elaborate(metavar_context & mctx, local_context_adapter const & adapter,
+                                                  expr const & e, bool check_unassigned = true);
+
+public:
     std::tuple<expr, level_param_names> elaborate(expr const & e);
     std::tuple<expr, level_param_names> elaborate(metavar_context & mctx, expr const & e, bool check_unassigned = true);
+    std::tuple<expr, level_param_names> elaborate(list<expr> const & ctx, expr const & e);
+    std::tuple<expr, level_param_names> elaborate_type(list<expr> const & ctx, expr const & e);
 
     expr mk_sorry(pos_info const & p);
     bool used_sorry() const { return m_used_sorry; }

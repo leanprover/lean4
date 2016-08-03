@@ -9,4 +9,5 @@ axiom bla : ∀ x, g x = f x + 1
 attribute foo [simp]
 attribute bla [simp]
 
-print [simp]
+set_option pp.notation false
+print [simp] simp

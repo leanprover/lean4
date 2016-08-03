@@ -1,5 +1,4 @@
 exit
 import data.nat
 
-
-print [simp] nat
+print [simp] simp

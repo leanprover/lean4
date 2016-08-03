@@ -10,20 +10,47 @@ Author: Leonardo de Moura
 #include "util/priority_queue.h"
 #include "util/sstream.h"
 #include "util/flet.h"
+#include "util/list_fn.h"
+#include "util/name_hash_map.h"
 #include "kernel/error_msgs.h"
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "library/trace.h"
 #include "library/num.h"
+#include "library/cache_helper.h"
 #include "library/scoped_ext.h"
 #include "library/attribute_manager.h"
 #include "library/type_context.h"
 #include "library/vm/vm_expr.h"
+#include "library/vm/vm_list.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/simplifier/ceqv.h"
 #include "library/tactic/simplifier/simp_lemmas.h"
 
 namespace lean {
+
+/* Caching */
+struct simp_lemma_cache {
+    typedef name_hash_map<simp_lemmas> cache;
+
+    environment                        m_env;
+    cache                              m_simp_lemma_cache;
+    cache                              m_congr_lemma_cache;
+
+    simp_lemma_cache(environment const & env): m_env(env) {}
+    environment const & env() const { return m_env; }
+
+    cache & simp_cache() { return m_simp_lemma_cache; }
+    cache & congr_cache() { return m_congr_lemma_cache; }
+};
+
+typedef cache_compatibility_helper<simp_lemma_cache> simp_lemma_cache_helper;
+
+MK_THREAD_LOCAL_GET_DEF(simp_lemma_cache_helper, get_slch);
+
+simp_lemma_cache & get_simp_lemma_cache_for(type_context const & ctx) {
+    return get_slch().get_cache_for(ctx);
+}
 
 /* Validation */
 
@@ -97,9 +124,21 @@ simp_lemmas add(type_context & tctx, simp_lemmas const & s, name const & id, exp
 
 simp_lemmas join(simp_lemmas const & s1, simp_lemmas const & s2) {
     simp_lemmas new_s1 = s1;
+
+    buffer<pair<name const &, simp_lemma const &>> slemmas;
     s2.for_each_simp([&](name const & eqv, simp_lemma const & r) {
-            new_s1.insert(eqv, r);
+            slemmas.push_back({eqv, r});
         });
+    for (unsigned i = slemmas.size() - 1; i + 1 > 0; --i)
+        new_s1.insert(slemmas[i].first, slemmas[i].second);
+
+    buffer<pair<name const &, user_congr_lemma const &>> clemmas;
+    s2.for_each_congr([&](name const & eqv, user_congr_lemma const & r) {
+            clemmas.push_back({eqv, r});
+        });
+    for (unsigned i = clemmas.size() - 1; i + 1 > 0; --i)
+        new_s1.insert(clemmas[i].first, clemmas[i].second);
+
     return new_s1;
 }
 
@@ -300,6 +339,7 @@ bool operator==(simp_lemma const & r1, simp_lemma const & r2) {
 
 format simp_lemma::pp(formatter const & fmt) const {
     format r;
+    r += format("[") + format(get_id()) + format("]") + space();
     r += format("#") + format(get_num_emeta());
     if (m_priority != LEAN_DEFAULT_PRIORITY)
         r += space() + paren(format(m_priority));
@@ -323,6 +363,7 @@ bool operator==(user_congr_lemma const & r1, user_congr_lemma const & r2) {
 
 format user_congr_lemma::pp(formatter const & fmt) const {
     format r;
+    r += format("[") + format(get_id()) + format("]") + space();
     r += format("#") + format(get_num_emeta());
     if (m_priority != LEAN_DEFAULT_PRIORITY)
         r += space() + paren(format(m_priority));
@@ -525,23 +566,59 @@ format simp_lemmas::pp(formatter const & fmt) const {
     return pp(fmt, format(), true, true);
 }
 
-simp_lemmas get_simp_lemmas(type_context & tctx) {
+simp_lemmas get_simp_lemmas_for_attr(simp_lemma_cache & sl_cache, type_context & tctx, name const & simp_attr) {
+    auto it = sl_cache.simp_cache().find(simp_attr);
+    if (it != sl_cache.simp_cache().end())
+        return it->second;
+
     simp_lemmas r;
-    buffer<name> simp_lemmas, congr_lemmas;
-    get_attribute_instances(tctx.env(), "simp", simp_lemmas);
-    get_attribute_instances(tctx.env(), "congr", congr_lemmas);
+    buffer<name> simp_lemmas;
+    get_attribute_instances(tctx.env(), simp_attr.get_string(), simp_lemmas);
     unsigned i = simp_lemmas.size();
     while (i > 0) {
-        --i;
+        i--;
+        name const & id = simp_lemmas[i];
         tmp_type_context tmp_tctx(tctx);
-        r = add_core(tmp_tctx, r, simp_lemmas[i], get_attribute_prio(tctx.env(), "simp", simp_lemmas[i]));
+        r = add_core(tmp_tctx, r, id, get_attribute_prio(tctx.env(), simp_attr.get_string(), id));
     }
-    i = congr_lemmas.size();
+    sl_cache.simp_cache().insert({simp_attr, r});
+    return r;
+}
+
+simp_lemmas get_congr_lemmas_for_attr(simp_lemma_cache & sl_cache, type_context & tctx, name const & congr_attr) {
+    auto it = sl_cache.congr_cache().find(congr_attr);
+    if (it != sl_cache.congr_cache().end())
+        return it->second;
+
+    simp_lemmas r;
+    buffer<name> congr_lemmas;
+    get_attribute_instances(tctx.env(), congr_attr.get_string(), congr_lemmas);
+    unsigned i = congr_lemmas.size();
     while (i > 0) {
-        --i;
+        i--;
+        name const & id = congr_lemmas[i];
         tmp_type_context tmp_tctx(tctx);
-        r = add_congr_core(tmp_tctx, r, congr_lemmas[i], get_attribute_prio(tctx.env(), "congr", congr_lemmas[i]));
+        r = add_congr_core(tmp_tctx, r, id, get_attribute_prio(tctx.env(), congr_attr.get_string(), id));
     }
+    sl_cache.congr_cache().insert({congr_attr, r});
+    return r;
+}
+
+simp_lemmas get_simp_lemmas(type_context & tctx, buffer<name> const & simp_attrs, buffer<name> const & congr_attrs) {
+    simp_lemma_cache & sl_cache = get_simp_lemma_cache_for(tctx);
+    simp_lemmas r;
+
+    // Optimization for the case when there is only one simp attr
+    // (we avoid the redundant head_map_prio inserts)
+    if (simp_attrs.size() > 0)
+        r = get_simp_lemmas_for_attr(sl_cache, tctx, simp_attrs[0]);
+
+    for (unsigned i = 1; i < simp_attrs.size(); ++i)
+        r = join(r, get_simp_lemmas_for_attr(sl_cache, tctx, simp_attrs[i]));
+
+    for (unsigned i = 0; i < congr_attrs.size(); ++i)
+        r = join(r, get_congr_lemmas_for_attr(sl_cache, tctx, congr_attrs[i]));
+
     return r;
 }
 
@@ -561,9 +638,12 @@ vm_obj to_obj(simp_lemmas const & idx) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_simp_lemmas))) vm_simp_lemmas(idx));
 }
 
-vm_obj tactic_mk_simp_lemmas(vm_obj const & m, vm_obj const & s) {
+vm_obj tactic_mk_simp_lemmas(vm_obj const & m, vm_obj const & sattrs, vm_obj const & cattrs, vm_obj const & s) {
     type_context ctx = mk_type_context_for(s, m);
-    return mk_tactic_success(to_obj(get_simp_lemmas(ctx)), to_tactic_state(s));
+    buffer<name> simp_attrs, congr_attrs;
+    to_buffer(to_list_name(sattrs), simp_attrs);
+    to_buffer(to_list_name(cattrs), congr_attrs);
+    return mk_tactic_success(to_obj(get_simp_lemmas(ctx, simp_attrs, congr_attrs)), to_tactic_state(s));
 }
 
 vm_obj tactic_mk_empty_simp_lemmas(vm_obj const & s) {

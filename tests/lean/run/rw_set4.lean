@@ -1,0 +1,10 @@
+open tactic
+
+theorem forall_congr_prop_eq [congr] [priority std.priority.default+1] {P₁ P₂ Q₁ Q₂ : Prop} :
+  P₁ = P₂ → (P₂ → Q₁ = Q₂) → (P₁ → Q₁) = (P₂ → Q₂) :=
+sorry
+
+print [congr] congr
+
+example (A : Type) (a b c : A) : (a = b) → (a = c) → a = b := by simp
+example (A : Type) (a b c : A) : (a = c) → (a = b) → a = b := by simp

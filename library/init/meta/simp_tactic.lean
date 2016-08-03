@@ -11,17 +11,18 @@ open list nat
 
 meta_constant simp_lemmas : Type₁
 
-/- Create a data-structure containing all lemmas tagged as [simp].
+/- Create a data-structure containing a simp lemma for every constant in the first list of
+   attributes, and a congr lemma for every constant in the second list of attributes.
    Lemmas with type `<lhs> <eqv_rel> <rhs>` are indexed using the head-symbol of `<lhs>`,
    computed with respect to the given transparency setting. -/
-meta_constant mk_simp_lemmas_core     : transparency → tactic simp_lemmas
+meta_constant mk_simp_lemmas_core     : transparency → list name → list name → tactic simp_lemmas
 /- Create an empty simp_lemmas. That is, it ignores the lemmas marked with the [simp] attribute.  -/
 meta_constant mk_empy_simp_lemmas     : tactic simp_lemmas
 /- (simp_lemmas_insert_core m lemmas id lemma priority) adds the given lemma to the set simp_lemmas. -/
 meta_constant simp_lemmas_insert_core : transparency → simp_lemmas → expr → tactic simp_lemmas
 
 meta_definition mk_simp_lemmas        : tactic simp_lemmas :=
-mk_simp_lemmas_core reducible
+mk_simp_lemmas_core reducible [`simp] [`congr]
 
 meta_definition simp_lemmas_add_extra : transparency → simp_lemmas → list expr → tactic simp_lemmas
 | m sls []      := return sls
@@ -40,7 +41,7 @@ meta_definition simp_lemmas_add_extra : transparency → simp_lemmas → list ex
 meta_constant simplify_core : tactic unit → name → simp_lemmas → expr → tactic (expr × expr)
 
 meta_definition simplify (prove_fn : tactic unit) (extra_lemmas : list expr) (e : expr) : tactic (expr × expr) :=
-do simp_lemmas  ← mk_simp_lemmas_core reducible,
+do simp_lemmas  ← mk_simp_lemmas,
    new_lemmas   ← simp_lemmas_add_extra reducible simp_lemmas extra_lemmas,
    e_type       ← infer_type e >>= whnf,
    rel          ← return $ if e_type = expr.prop then `iff else `eq,

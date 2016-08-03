@@ -146,7 +146,7 @@ public:
     format pp(formatter const & fmt) const;
 };
 
-simp_lemmas get_simp_lemmas(type_context & tctx);
+simp_lemmas get_simp_lemmas(type_context & tctx, buffer<name> const & simp_attrs, buffer<name> const & congr_attrs);
 
 simp_lemmas add(type_context & tctx, simp_lemmas const & s, name const & id, expr const & e, expr const & h, unsigned priority);
 simp_lemmas join(simp_lemmas const & s1, simp_lemmas const & s2);

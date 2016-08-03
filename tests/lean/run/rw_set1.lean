@@ -12,5 +12,5 @@ namespace foo
   attribute nat.add_comm [simp]
   open nat
   print "---------"
-  print [simp]
+  print [simp] simp
 end foo

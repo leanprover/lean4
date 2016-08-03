@@ -474,7 +474,11 @@ static void print_defeq_lemmas(parser & p) {
 
 static void print_simp_rules(parser & p) {
     aux_type_context aux_tctx(p.env(), p.get_options());
-    simp_lemmas slss = get_simp_lemmas(aux_tctx.get());
+    name attr = p.check_id_next("invalid 'print [simp]' command, identifier expected");
+    buffer<name> attrs;
+    attrs.push_back(attr);
+    buffer<name> no_congr;
+    simp_lemmas slss = get_simp_lemmas(aux_tctx.get(), attrs, no_congr);
     type_checker tc(p.env());
     auto out = regular(p.env(), p.ios(), tc);
     out << slss.pp_simp(out.get_formatter());
@@ -482,7 +486,11 @@ static void print_simp_rules(parser & p) {
 
 static void print_congr_rules(parser & p) {
     aux_type_context aux_tctx(p.env(), p.get_options());
-    simp_lemmas slss = get_simp_lemmas(aux_tctx.get());
+    name attr = p.check_id_next("invalid 'print [congr]' command, identifier expected");
+    buffer<name> no_simp;
+    buffer<name> attrs;
+    attrs.push_back(attr);
+    simp_lemmas slss = get_simp_lemmas(aux_tctx.get(), no_simp, attrs);
     type_checker tc(p.env());
     auto out = regular(p.env(), p.ios(), tc);
     out << slss.pp_congr(out.get_formatter());

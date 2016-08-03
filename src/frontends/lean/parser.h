@@ -509,8 +509,11 @@ private:
 public:
     pair<expr, level_param_names> elaborate(expr const & e);
     pair<expr, level_param_names> elaborate(metavar_context & mctx, expr const & e, bool check_unassigned = true);
+    pair<expr, level_param_names> elaborate(metavar_context & mctx, list<expr> const & lctx, expr const & e, bool check_unassigned);
     pair<expr, level_param_names> elaborate(list<expr> const & ctx, expr const & e);
-    pair<expr, level_param_names> elaborate_type(list<expr> const & ctx, expr const & e);
+    pair<expr, level_param_names> elaborate_type(list<expr> const & lctx, expr const & e);
+    /* Elaborate \c e as a type using the given metavariable context, and using m_local_decls as the local context */
+    pair<expr, level_param_names> elaborate_type(metavar_context & mctx, expr const & e);
 
     expr mk_sorry(pos_info const & p);
     bool used_sorry() const { return m_used_sorry; }

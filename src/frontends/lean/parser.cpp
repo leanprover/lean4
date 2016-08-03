@@ -990,6 +990,12 @@ pair<expr, level_param_names> parser::elaborate(metavar_context & mctx, local_co
     return mk_pair(new_e, r.second);
 }
 
+pair<expr, level_param_names> parser::elaborate(metavar_context & mctx, list<expr> const & lctx, expr const & e, bool check_unassigned) {
+    local_context_adapter adapter;
+    adapter.init(lctx);
+    return elaborate(mctx, adapter, e, check_unassigned);
+}
+
 pair<expr, level_param_names> parser::elaborate(metavar_context & mctx, expr const & e, bool check_unassigned) {
     local_context_adapter adapter;
     adapter.init(m_local_decls);
@@ -998,20 +1004,25 @@ pair<expr, level_param_names> parser::elaborate(metavar_context & mctx, expr con
 
 pair<expr, level_param_names> parser::elaborate(expr const & e) {
     metavar_context mctx;
-    return elaborate(mctx, e, true);
+    return elaborate(mctx, list<expr>(), e, true);
 }
 
 pair<expr, level_param_names> parser::elaborate(list<expr> const & ctx, expr const & e) {
     metavar_context mctx;
-    local_context_adapter adapter;
-    adapter.init(ctx);
-    return elaborate(mctx, adapter, e, true);
+    return elaborate(mctx, ctx, e, true);
 }
 
 pair<expr, level_param_names> parser::elaborate_type(list<expr> const & ctx, expr const & e) {
+    metavar_context mctx;
     expr Type  = copy_tag(e, mk_sort(mk_level_placeholder()));
     expr new_e = copy_tag(e, mk_typed_expr(Type, e));
-    return elaborate(ctx, new_e);
+    return elaborate(mctx, ctx, new_e, true);
+}
+
+pair<expr, level_param_names> parser::elaborate_type(metavar_context & mctx, expr const & e) {
+    expr Type  = copy_tag(e, mk_sort(mk_level_placeholder()));
+    expr new_e = copy_tag(e, mk_typed_expr(Type, e));
+    return elaborate(mctx, new_e, true);
 }
 
 /* =========== BEGIN OF OLD ELABORATOR LEGACY CODE =========== */

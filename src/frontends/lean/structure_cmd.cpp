@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/fresh_name.h"
 #include "util/sexpr/option_declarations.h"
-#include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
@@ -37,16 +36,18 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/aux_recursors.h"
 #include "library/kernel_serializer.h"
+#include "library/type_context.h"
+#include "library/app_builder.h"
 #include "library/definitional/rec_on.h"
 #include "library/definitional/induction_on.h"
 #include "library/definitional/cases_on.h"
 #include "library/definitional/projection.h"
 #include "library/definitional/no_confusion.h"
+#include "frontends/lean/elaborator_exception.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/tokens.h"
-#include "frontends/lean/old_elaborator_exception.h"
 #include "frontends/lean/type_util.h"
 
 #ifndef LEAN_DEFAULT_STRUCTURE_INTRO
@@ -76,7 +77,8 @@ struct structure_cmd_fn {
 
     parser &                    m_p;
     environment                 m_env;
-    old_type_checker_ptr        m_tc;
+    aux_type_context            m_aux_ctx;
+    type_context &              m_ctx;
     name                        m_namespace;
     name                        m_name;
     pos_info                    m_name_pos;
@@ -100,8 +102,12 @@ struct structure_cmd_fn {
     levels                      m_ctx_levels; // context levels for creating aliases
     buffer<expr>                m_ctx_locals; // context local constants for creating aliases
 
-    structure_cmd_fn(parser & p):m_p(p), m_env(p.env()), m_namespace(get_namespace(m_env)) {
-        m_tc = mk_type_checker(m_env);
+    structure_cmd_fn(parser & p):
+        m_p(p),
+        m_env(p.env()),
+        m_aux_ctx(aux_type_context(p.env())),
+        m_ctx(m_aux_ctx.get()),
+        m_namespace(get_namespace(m_env)) {
         m_explicit_universe_params = false;
         m_infer_result_universe    = false;
         m_inductive_predicate      = false;
@@ -320,8 +326,8 @@ struct structure_cmd_fn {
         expr tmp       = Pi_as_is(ctx, Pi(tmp_locals, m_type, m_p), m_p);
         level_param_names new_ls;
         expr new_tmp;
-        std::tie(new_tmp, new_ls) = m_p.old_elaborate_type(tmp, list<expr>());
-        levels new_meta_ls = map2<level>(new_ls, [](name const & n) { return mk_meta_univ(n); });
+        std::tie(new_tmp, new_ls) = m_p.elaborate_type(list<expr>(), tmp);
+        levels new_meta_ls = map2<level>(new_ls, [&](name const &) { return m_ctx.mk_univ_metavar_decl(); });
         new_tmp = instantiate_univ_params(new_tmp, new_ls, new_meta_ls);
         new_tmp = update_locals(new_tmp, ctx);
         new_tmp = update_locals(new_tmp, m_params);
@@ -350,14 +356,14 @@ struct structure_cmd_fn {
     /** \brief If \c fname matches the name of an existing field, then check if
         the types are definitionally equal (store any generated unification constraints in cseq),
         and return the index of the existing field. */
-    optional<unsigned> merge(expr const & parent, name const & fname, expr const & ftype, constraint_seq & cseq) {
+    optional<unsigned> merge(expr const & parent, name const & fname, expr const & ftype) {
         for (unsigned i = 0; i < m_fields.size(); i++) {
             if (local_pp_name(m_fields[i]) == fname) {
-                if (m_tc->is_def_eq(mlocal_type(m_fields[i]), ftype, justification(), cseq)) {
+                if (m_ctx.is_def_eq(mlocal_type(m_fields[i]), ftype)) {
                     return optional<unsigned>(i);
                 } else {
                     expr prev_ftype = mlocal_type(m_fields[i]);
-                    throw_elaborator_exception(parent, [=](formatter const & fmt) {
+                    throw_generic_exception(parent, [=](formatter const & fmt) {
                             format r = format("invalid 'structure' header, field '");
                             r += format(fname);
                             r += format("' from '");
@@ -375,15 +381,10 @@ struct structure_cmd_fn {
     }
 
     /** \brief Process extends clauses.
-        Return unification constraints when processing fields of parent structures.
-        The constraints are generated when "merging" the fields from different parents.
-
-        This method also populates the vector m_field_maps and m_fields.
-    */
-    constraint_seq process_extends() {
+        This method also populates the vector m_field_maps and m_fields. */
+    void process_extends() {
         lean_assert(m_fields.empty());
         lean_assert(m_field_maps.empty());
-        constraint_seq cseq;
         for (unsigned i = 0; i < m_parents.size(); i++) {
             expr const & parent = m_parents[i];
             rename_vector const & renames = m_renames[i];
@@ -397,9 +398,9 @@ struct structure_cmd_fn {
             expr intro_type = inductive::intro_rule_type(intro);
             intro_type      = instantiate_univ_params(intro_type, lparams, const_levels(parent_fn));
             if (nparams != args.size()) {
-                throw_elaborator_exception(sstream() << "invalid 'structure' header, number of argument "
-                                           "mismatch for parent structure '" << parent_name << "'",
-                                           parent);
+                throw elaborator_exception(parent,
+                                           sstream() << "invalid 'structure' header, number of argument "
+                                           "mismatch for parent structure '" << parent_name << "'");
             }
             for (expr const & arg : args) {
                 if (!is_pi(intro_type))
@@ -411,13 +412,13 @@ struct structure_cmd_fn {
                 fname      = rename(renames, fname);
                 expr const & ftype = binding_domain(intro_type);
                 expr field;
-                if (auto fidx = merge(parent, fname, ftype, cseq)) {
+                if (auto fidx = merge(parent, fname, ftype)) {
                     fmap.push_back(*fidx);
                     field = m_fields[*fidx];
                     if (local_info(field) != binding_info(intro_type)) {
-                        throw_elaborator_exception(sstream() << "invalid 'structure' header, field '" << fname <<
-                                                   "' has already been declared with a different binder annotation",
-                                                   parent);
+                        throw elaborator_exception(parent,
+                                                   sstream() << "invalid 'structure' header, field '" << fname <<
+                                                   "' has already been declared with a different binder annotation");
                     }
                 } else {
                     field = mk_local(fname, ftype, binding_info(intro_type));
@@ -428,35 +429,23 @@ struct structure_cmd_fn {
             }
         }
         lean_assert(m_parents.size() == m_field_maps.size());
-        return cseq;
     }
 
-    void solve_constraints(constraint_seq const & cseq) {
-        if (!cseq)
-            return;
-        buffer<constraint> cs;
-        cseq.linearize(cs);
-        bool use_exceptions = true;
-        bool discard        = true;
-        unifier_config cfg(use_exceptions, discard);
-        unify_result_seq rseq = unify(m_env, cs.size(), cs.data(), substitution(), cfg);
-        auto p = rseq.pull();
-        lean_assert(p);
-        substitution subst = p->first.first;
+    void instantiate_mvars() {
         for (expr & parent : m_parents)
-            parent = subst.instantiate(parent);
+            parent = m_ctx.instantiate_mvars(parent);
         for (expr & param : m_params)
-            param = subst.instantiate(param);
+            param = m_ctx.instantiate_mvars(param);
         for (expr & field : m_fields)
-            field = subst.instantiate(field);
+            field = m_ctx.instantiate_mvars(field);
     }
 
     /** \brief Parse header, elaborate it, and process parents (aka extends clauses) */
     void process_header() {
         parse_header();
         elaborate_header();
-        constraint_seq cseq = process_extends();
-        solve_constraints(cseq);
+        process_extends();
+        instantiate_mvars();
     }
 
     /** \brief Create expression of type \c m_parents[i] from corresponding fields */
@@ -500,9 +489,9 @@ struct structure_cmd_fn {
                              [&](expr const & inherited_field) {
                                  return local_pp_name(inherited_field) == local_pp_name(new_field);
                              }) != m_fields.end()) {
-                throw_elaborator_exception(sstream() << "field '" << local_pp_name(new_field) <<
-                                           "' has been declared in parent structure",
-                                           new_field);
+                throw elaborator_exception(new_field,
+                                           sstream() << "field '" << local_pp_name(new_field) <<
+                                           "' has been declared in parent structure");
             }
         }
     }
@@ -553,7 +542,9 @@ struct structure_cmd_fn {
         tmp = Pi_as_is(m_params, tmp, m_p);
         level_param_names new_ls;
         expr new_tmp;
-        std::tie(new_tmp, new_ls) = m_p.old_elaborate_type(tmp, list<expr>());
+        metavar_context mctx      = m_ctx.mctx();
+        std::tie(new_tmp, new_ls) = m_p.elaborate_type(mctx, tmp);
+        m_ctx.set_mctx(mctx);
         for (auto new_l : new_ls)
             m_level_names.push_back(new_l);
         new_tmp = update_locals(new_tmp, m_params);
@@ -582,8 +573,7 @@ struct structure_cmd_fn {
     */
     void accumulate_levels(buffer<level> & r_lvls) {
         for (expr const & field : m_fields) {
-            expr s  = m_tc->ensure_type(mlocal_type(field)).first;
-            level l = sort_level(s);
+            level l = get_level(m_ctx, mlocal_type(field));
             if (std::find(r_lvls.begin(), r_lvls.end(), l) == r_lvls.end()) {
                 r_lvls.push_back(l);
             }
@@ -808,7 +798,7 @@ struct structure_cmd_fn {
             auto parent_info               = get_parent_info(parent_name);
             name const & parent_intro_name = inductive::intro_rule_name(std::get<2>(parent_info));
             expr parent_intro              = mk_app(mk_constant(parent_intro_name, parent_ls), parent_params);
-            expr parent_type               = m_tc->infer(parent).first;
+            expr parent_type               = m_ctx.infer(parent);
             if (!is_sort(parent_type))
                 throw_ill_formed_parent(parent_name);
             level parent_rlvl              = sort_level(parent_type);

@@ -10,14 +10,9 @@ Author: Leonardo de Moura
 #include "library/local_context.h"
 #include "library/type_context.h"
 #include "library/tactic/tactic_state.h"
-#include "frontends/lean/elaborator_context.h"
+#include "frontends/lean/elaborator_exception.h"
 
 namespace lean {
-class elaborator_exception : public formatted_exception {
-public:
-    elaborator_exception(expr const & e, format const & fmt):formatted_exception(e, fmt) {}
-};
-
 class elaborator {
     typedef std::vector<pair<expr, expr>> to_check_sorts;
     enum class arg_mask {
@@ -34,8 +29,6 @@ class elaborator {
     list<expr>        m_instance_stack;
     list<expr>        m_numeral_type_stack;
     list<expr_pair>   m_tactic_stack;
-
-    buffer<name>      m_new_univ_param_names;
 
     /* If m_check_unassigned is true, then elaborator throws an exception for unassigned metavariables */
     bool              m_check_unassigned;

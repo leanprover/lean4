@@ -1264,7 +1264,6 @@ void elaborator::unassigned_uvars_to_params() {
         lean_assert(is_meta(u));
         if (!m_ctx.is_assigned(u)) {
             name r = mk_tagged_fresh_name(*g_level_prefix);
-            m_new_univ_param_names.push_back(r);
             m_ctx.assign(u, mk_param_univ(r));
         }
     }
@@ -1364,16 +1363,6 @@ static expr translate(environment const & env, local_context const & lctx, expr 
     return replace(e, fn);
 }
 
-static pair<expr, level_param_names>
-elaborate_core(environment const & env, options const & opts,
-          metavar_context & mctx, local_context const & lctx, expr const & e,
-          bool check_unassigned, bool top_level, bool to_simple_metavar) {
-    elaborator elab(env, opts, mctx, lctx, check_unassigned, top_level, to_simple_metavar);
-    auto r = elab(e);
-    mctx = elab.mctx();
-    return r;
-}
-
 void elaborator::invoke_tactics(checkpoint const & C) {
     buffer<expr_pair> to_process;
     list<expr_pair> old_stack = C.m_saved_tactic_stack;
@@ -1384,14 +1373,7 @@ void elaborator::invoke_tactics(checkpoint const & C) {
     if (to_process.empty()) return;
     unassigned_uvars_to_params();
 
-    elaborate_fn fn = [&](environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
-                          expr const & e, bool relaxed) {
-        pair<expr, level_param_names> p;
-        bool top_level = false;
-        bool to_simple_metavar = false;
-        p = elaborate_core(env, opts, mctx, lctx, translate(env, lctx, e), !relaxed, top_level, to_simple_metavar);
-        return p.first;
-    };
+    elaborate_fn fn(nested_elaborate);
     scope_elaborate_fn scope(fn);
 
     unsigned i = to_process.size();
@@ -1469,12 +1451,31 @@ void elaborator::checkpoint::commit() {
     m_commit = true;
 }
 
-/** Auxiliary class for creating nice names for universe parameters introduced by the elaborator */
+/**
+    \brief Auxiliary class for creating nice names for universe
+    parameters introduced by the elaborator.
+
+    This class also transforms remaining universe metavariables
+    into parameters */
 struct sanitize_param_names_fn : public replace_visitor {
+    name            m_p{"l"};
     name_set        m_L; /* All parameter names in the input expression. */
     name_map<level> m_R; /* map from tagged g_level_prefix to "clean" name not in L. */
+    name_map<level> m_U; /* map from universe metavariable name to "clean" name not in L. */
     unsigned        m_idx;
     bool            m_sanitized{false};
+    buffer<name>    m_new_param_names;
+
+    level mk_param() {
+        while (true) {
+            name new_n = m_p.append_after(m_idx);
+            m_idx++;
+            if (!m_L.contains(new_n)) {
+                m_new_param_names.push_back(new_n);
+                return mk_param_univ(new_n);
+            }
+        }
+    }
 
     level sanitize(level const & l) {
         name p("l");
@@ -1482,17 +1483,22 @@ struct sanitize_param_names_fn : public replace_visitor {
                 if (is_param(l)) {
                     name const & n = param_id(l);
                     if (is_tagged_by(n, *g_level_prefix)) {
-                        if (auto new_n = m_R.find(n))
-                            return some_level(*new_n);
-                        while (true) {
-                            name new_n = p.append_after(m_idx);
-                            m_idx++;
-                            if (!m_L.contains(new_n)) {
-                                level r = mk_param_univ(new_n);
-                                m_R.insert(n, r);
-                                return some_level(r);
-                            }
+                        if (auto new_l = m_R.find(n)) {
+                            return some_level(*new_l);
+                        } else {
+                            level r = mk_param();
+                            m_R.insert(n, r);
+                            return some_level(r);
                         }
+                    }
+                } else if (is_meta(l)) {
+                    name const & n = meta_id(l);
+                    if (auto new_l = m_U.find(n)) {
+                        return some_level(*new_l);
+                    } else {
+                        level r = mk_param();
+                        m_U.insert(n, r);
+                        return some_level(r);
                     }
                 }
                 return none_level();
@@ -1521,20 +1527,13 @@ struct sanitize_param_names_fn : public replace_visitor {
             });
     }
 
-    expr sanitize(expr const & e) {
+    pair<expr, level_param_names> sanitize(expr const & e) {
+        lean_assert(!m_sanitized);
         collect_params(e);
         m_idx = 1;
         expr r = operator()(e);
         m_sanitized = true;
-        return r;
-    }
-
-    void apply_renames(buffer<name> & new_names) {
-        lean_assert(m_sanitized);
-        for (name & n : new_names) {
-            if (auto new_l = m_R.find(n))
-                n = param_id(*new_l);
-        }
+        return mk_pair(r, to_list(m_new_param_names));
     }
 };
 
@@ -1578,11 +1577,20 @@ pair<expr, level_param_names> elaborator::operator()(expr const & e) {
     if (m_top_level) {
         sanitize_param_names_fn S;
         S.collect_params(m_ctx.lctx());
-        r = S.sanitize(r);
-        S.apply_renames(m_new_univ_param_names);
+        return S.sanitize(r);
+    } else {
+        return mk_pair(r, level_param_names());
     }
-    level_param_names ls = to_list(m_new_univ_param_names);
-    return mk_pair(r, ls);
+}
+
+static pair<expr, level_param_names>
+elaborate_core(environment const & env, options const & opts,
+          metavar_context & mctx, local_context const & lctx, expr const & e,
+          bool check_unassigned, bool top_level, bool to_simple_metavar) {
+    elaborator elab(env, opts, mctx, lctx, check_unassigned, top_level, to_simple_metavar);
+    auto r = elab(e);
+    mctx = elab.mctx();
+    return r;
 }
 
 pair<expr, level_param_names>

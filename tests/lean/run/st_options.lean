@@ -1,6 +1,3 @@
-set_option structure.eta_thm true
-set_option structure.proj_mk_thm true
-
 structure semigroup [class] (A : Type) extends has_mul A :=
 (mul_assoc : ∀a b c, mul (mul a b) c = mul a (mul b c))
 
@@ -60,5 +57,3 @@ structure semiring [class] (A : Type) extends add_comm_monoid A, monoid A, distr
     mul_zero_class A, zero_ne_one_class A
 
 set_option pp.implicit true
-check @semiring.mul.mk
-check @semiring.eta

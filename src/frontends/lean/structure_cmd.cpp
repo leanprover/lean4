@@ -53,21 +53,8 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_STRUCTURE_INTRO "mk"
 #endif
 
-#ifndef LEAN_DEFAULT_STRUCTURE_ETA
-#define LEAN_DEFAULT_STRUCTURE_ETA false
-#endif
-
-#ifndef LEAN_DEFAULT_STRUCTURE_PROJ_MK
-#define LEAN_DEFAULT_STRUCTURE_PROJ_MK false
-#endif
-
 namespace lean {
 static name * g_tmp_prefix  = nullptr;
-static name * g_gen_eta     = nullptr;
-static name * g_gen_proj_mk = nullptr;
-
-bool get_structure_eta_thm(options const & o) { return o.get_bool(*g_gen_eta, LEAN_DEFAULT_STRUCTURE_ETA); }
-bool get_structure_proj_mk_thm(options const & o) { return o.get_bool(*g_gen_proj_mk, LEAN_DEFAULT_STRUCTURE_ETA); }
 
 /** \brief Return the universe parameters, number of parameters and introduction rule for the given parent structure
 
@@ -113,16 +100,11 @@ struct structure_cmd_fn {
     levels                      m_ctx_levels; // context levels for creating aliases
     buffer<expr>                m_ctx_locals; // context local constants for creating aliases
 
-    bool                        m_gen_eta;
-    bool                        m_gen_proj_mk;
-
     structure_cmd_fn(parser & p):m_p(p), m_env(p.env()), m_namespace(get_namespace(m_env)) {
         m_tc = mk_type_checker(m_env);
         m_explicit_universe_params = false;
         m_infer_result_universe    = false;
         m_inductive_predicate      = false;
-        m_gen_eta     = get_structure_eta_thm(p.get_options());
-        m_gen_proj_mk = get_structure_proj_mk_thm(p.get_options());
     }
 
     /** \brief Parse structure name and (optional) universe parameters */
@@ -863,71 +845,6 @@ struct structure_cmd_fn {
         }
     }
 
-    void declare_eta() {
-        if (!m_gen_eta)
-            return;
-        if (!has_eq_decls(m_env))
-            return;
-        level_param_names lnames = to_list(m_level_names.begin(), m_level_names.end());
-        levels st_ls             = param_names_to_levels(lnames);
-        expr st_type             = mk_app(mk_constant(m_name, st_ls), m_params);
-        expr st                  = mk_local(mk_fresh_name(), "s", st_type, binder_info());
-        expr lhs                 = mk_app(mk_constant(m_mk, st_ls), m_params);
-        for (expr const & field : m_fields) {
-            expr proj = mk_app(mk_app(mk_constant(m_name + mlocal_name(field), st_ls), m_params), st);
-            lhs       = mk_app(lhs, proj);
-        }
-        expr eq                  = mk_app(mk_constant(get_eq_name(), to_list(sort_level(m_type))), st_type, lhs, st);
-        level eq_lvl             = sort_level(m_tc->ensure_type(eq).first);
-        levels rec_ls            = levels(eq_lvl, st_ls);
-        expr rec                 = mk_app(mk_constant(inductive::get_elim_name(m_name), rec_ls), m_params);
-        expr type_former         = Fun(st, eq);
-        expr mk                  = mk_app(mk_app(mk_constant(m_mk, st_ls), m_params), m_fields);
-        expr refl                = mk_app(mk_constant(get_eq_refl_name(), to_list(sort_level(m_type))), st_type, mk);
-        refl                     = Fun(m_fields, refl);
-        rec                      = mk_app(rec, type_former, refl, st);
-        expr eta_type            = infer_implicit(Pi(m_params, Pi(st, eq)), true);
-        expr eta_value           = Fun(m_params, Fun(st, rec));
-        name eta_name(m_name, "eta");
-
-        declaration eta_decl     = mk_theorem(m_env, eta_name, lnames, eta_type, eta_value);
-        m_env = module::add(m_env, check(m_env, eta_decl));
-        save_thm_info(eta_name);
-        add_alias(eta_name);
-    }
-
-    void declare_proj_over_mk() {
-        if (!m_gen_proj_mk)
-            return;
-        if (!has_eq_decls(m_env))
-            return;
-        level_param_names lnames = to_list(m_level_names.begin(), m_level_names.end());
-        levels st_ls             = param_names_to_levels(lnames);
-        expr st_type             = mk_app(mk_constant(m_name, st_ls), m_params);
-        expr mk_fields           = mk_app(mk_app(mk_constant(m_mk, st_ls), m_params), m_fields);
-        for (unsigned i = 0; i < m_fields.size(); i++) {
-            expr const & field      = m_fields[i];
-            name const & field_name = mlocal_name(field);
-            expr const & field_type = mlocal_type(field);
-            if (m_env.prop_proof_irrel() && m_tc->is_prop(field_type).first)
-                continue;
-            level field_level       = sort_level(m_tc->ensure_type(field_type).first);
-            name proj_name          = m_name + field_name;
-            expr lhs                = mk_app(mk_app(mk_constant(proj_name, st_ls), m_params), mk_fields);
-            expr rhs                = field;
-            expr eq                 = mk_app(mk_constant(get_eq_name(), to_list(field_level)), field_type, lhs, rhs);
-            expr refl               = mk_app(mk_constant(get_eq_refl_name(), to_list(field_level)), field_type, lhs);
-            name proj_over_name     = m_name + field_name + m_mk_short;
-            expr proj_over_type     = infer_implicit(Pi(m_params, Pi(m_fields, eq)), m_params.size(), true);
-            expr proj_over_value    = Fun(m_params, Fun(m_fields, refl));
-
-            declaration proj_over_decl = mk_theorem(m_env, proj_over_name, lnames, proj_over_type, proj_over_value);
-            m_env = module::add(m_env, check(m_env, proj_over_decl));
-            save_thm_info(proj_over_name);
-            add_alias(proj_over_name);
-        }
-    }
-
     void declare_no_confustion() {
         if (!has_eq_decls(m_env))
             return;
@@ -974,8 +891,6 @@ struct structure_cmd_fn {
         declare_auxiliary();
         declare_coercions();
         if (!m_inductive_predicate) {
-            declare_eta();
-            declare_proj_over_mk();
             declare_no_confustion();
         }
         return m_env;
@@ -1116,13 +1031,6 @@ void init_structure_instance_parsing_rules(parse_table & r) {
 
 void initialize_structure_cmd() {
     g_tmp_prefix  = new name(name::mk_internal_unique_name());
-    g_gen_eta     = new name{"structure", "eta_thm"};
-    g_gen_proj_mk = new name{"structure", "proj_mk_thm"};
-    register_bool_option(*g_gen_eta, LEAN_DEFAULT_STRUCTURE_ETA,
-                         "(structure) automatically generate 'eta' theorem whenever declaring a new structure");
-    register_bool_option(*g_gen_proj_mk, LEAN_DEFAULT_STRUCTURE_PROJ_MK,
-                         "(structure) automatically gneerate projection over introduction theorem when "
-                         "declaring a new structure, the theorem is never generated for proof irrelevant fields");
     g_structure_instance_name   = new name("structure instance");
     g_structure_instance_opcode = new std::string("STI");
     register_macro_deserializer(*g_structure_instance_opcode,
@@ -1137,8 +1045,6 @@ void initialize_structure_cmd() {
 
 void finalize_structure_cmd() {
     delete g_tmp_prefix;
-    delete g_gen_eta;
-    delete g_gen_proj_mk;
     delete g_structure_instance_opcode;
     delete g_structure_instance_name;
 }

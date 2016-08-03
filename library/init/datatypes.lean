@@ -13,9 +13,6 @@ notation `Type₁` := Type.{1}
 notation `Type₂` := Type.{2}
 notation `Type₃` := Type.{3}
 
-set_option structure.eta_thm     true
-set_option structure.proj_mk_thm true
-
 inductive poly_unit.{l} : Type.{l} :=
 star : poly_unit
 

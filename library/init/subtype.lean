@@ -7,8 +7,6 @@ prelude
 import init.datatypes init.logic
 open decidable
 
-set_option structure.proj_mk_thm true
-
 structure subtype {A : Type} (P : A → Prop) :=
 tag :: (elt_of : A) (has_property : P elt_of)
 

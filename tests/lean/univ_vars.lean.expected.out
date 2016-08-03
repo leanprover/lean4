@@ -1,5 +1,5 @@
 id1 : Π A, A → A
-id2.{l_1} : Π B, B → B
-id3.{l_1} : Π C, C → C
-foo.{l_1} : Π A₁ A₂, A₁ → A₂ → Prop
+id2.{l_2} : Π B, B → B
+id3.{l_2} : Π C, C → C
+foo.{l_2} : Π A₁ A₂, A₁ → A₂ → Prop
 Type.{m} : Type.{m+1}

@@ -35,12 +35,13 @@ class elaborator {
     list<expr>        m_numeral_type_stack;
     list<expr_pair>   m_tactic_stack;
 
-    unsigned          m_next_param_idx;
-    name_set          m_found_univ_params;
     buffer<name>      m_new_univ_param_names;
 
-    /* If m_check_unassigend is true, then elaborator throws an exception for unassigned metavariables */
-    bool              m_check_unassigend;
+    /* If m_check_unassigned is true, then elaborator throws an exception for unassigned metavariables */
+    bool              m_check_unassigned;
+
+    bool              m_top_level;
+    bool              m_to_simple_metavar;
 
     /* m_depth is only used for tracing */
     unsigned          m_depth{0};
@@ -155,8 +156,6 @@ class elaborator {
     expr visit_have_expr(expr const & e, optional<expr> const & expected_type);
     expr visit_by(expr const & e, optional<expr> const & expected_type);
 
-    void collect_univ_params(level const & l, expr const & ref);
-
     expr visit_sort(expr const & e);
     expr visit_const_core(expr const & e);
     expr ensure_function(expr const & e);
@@ -206,12 +205,13 @@ class elaborator {
 
 public:
     elaborator(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
-               bool check_unassigend);
+               bool check_unassigend, bool top_level, bool to_simple_metavar);
     metavar_context const & mctx() const { return m_ctx.mctx(); }
     std::tuple<expr, level_param_names> operator()(expr const & e);
 };
 
-std::tuple<expr, level_param_names> elaborate(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
+std::tuple<expr, level_param_names> elaborate(environment const & env, options const & opts,
+                                              metavar_context & mctx, local_context const & lctx,
                                               expr const & e, bool check_unassigend);
 
 expr nested_elaborate(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,

@@ -980,41 +980,13 @@ public:
     local_context const & lctx() const { return m_lctx; }
 };
 
-static expr replace_with_simple_metavars(metavar_context & mctx, name_map<expr> & cache, expr const & e) {
-    if (!has_expr_metavar(e)) return e;
-    return replace(e, [&](expr const & e, unsigned) {
-            if (!is_metavar(e)) return none_expr();
-            if (auto r = cache.find(mlocal_name(e))) {
-                return some_expr(*r);
-            } else if (auto decl = mctx.get_metavar_decl(e)) {
-                expr new_type = replace_with_simple_metavars(mctx, cache, mctx.instantiate_mvars(decl->get_type()));
-                expr new_mvar = mk_metavar(mlocal_name(e), new_type);
-                cache.insert(mlocal_name(e), new_mvar);
-                return some_expr(new_mvar);
-            } else if (is_metavar_decl_ref(e)) {
-                throw exception("unexpected occurrence of internal elaboration metavariable");
-            }
-            return none_expr();
-        });
-}
-
-/** When the output of the elaborator may contain meta-variables, we convert the type_context level meta-variables
-    into regular kernel meta-variables. */
-static expr replace_with_simple_metavars(metavar_context & mctx, expr const & e) {
-    name_map<expr> cache;
-    return replace_with_simple_metavars(mctx, cache, e);
-}
-
 std::tuple<expr, level_param_names> parser::elaborate(metavar_context & mctx, local_context_adapter const & adapter,
                                                       expr const & e, bool check_unassigned) {
     expr tmp_e  = adapter.translate_to(e);
     std::tuple<expr, level_param_names> r =
         ::lean::elaborate(m_env, get_options(), mctx, adapter.lctx(), tmp_e, check_unassigned);
     expr new_e = std::get<0>(r);
-    if (!check_unassigned) {
-        new_e = replace_with_simple_metavars(mctx, new_e);
-    }
-    new_e = adapter.translate_from(new_e);
+    new_e      = adapter.translate_from(new_e);
     return std::make_tuple(new_e, std::get<1>(r));
 }
 

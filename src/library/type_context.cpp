@@ -1461,6 +1461,10 @@ optional<expr> type_context::check_assignment(buffer<expr> const & locals, expr 
                         if (std::all_of(locals.begin(), locals.end(), [&](expr const & a) {
                                     return mlocal_name(a) != mlocal_name(e); })) {
                             ok = false;
+                            lean_trace(name({"type_context", "is_def_eq_detail"}),
+                                       tout() << "failed to assign " << mvar << " to\n" << v << "\n" <<
+                                       "value contains local declaration " << e <<
+                                       " which is not in the scope of the metavariable";);
                             return false;
                         }
                     }

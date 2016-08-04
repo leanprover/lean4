@@ -473,7 +473,7 @@ optional<unsigned> parse_priority(parser & p) {
         auto pos = p.pos();
         expr pre_val = p.parse_expr();
         pre_val  = mk_typed_expr(mk_constant(get_num_name()), pre_val);
-        expr val = std::get<0>(p.old_elaborate(pre_val, list<expr>()));
+        expr val = p.elaborate(list<expr>(), pre_val).first;
         val = normalize(p.env(), val);
         if (optional<mpz> mpz_val = to_num_core(val)) {
             if (!mpz_val->is_unsigned_int())

@@ -197,7 +197,6 @@ environment set_attribute(environment const & env, io_state const & ios, char co
         lean_assert(!params);
         return prio_attr->set(env, ios, d, prio, persistent);
     }
-    lean_assert(prio == LEAN_DEFAULT_PRIORITY);
     if (auto params_attr = dynamic_cast<unsigned_params_attribute const *>(&attr)) {
         return params_attr->set(env, ios, d, {params}, persistent);
     }

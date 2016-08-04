@@ -4,7 +4,7 @@ parser.cpp parser_pos_provider.cpp builtin_cmds.cpp builtin_exprs.cpp
 server.cpp notation_cmd.cpp calc.cpp decl_cmds.cpp util.cpp
 inductive_cmd.cpp dependencies.cpp
 pp.cpp theorem_queue.cpp
-structure_cmd.cpp info_manager.cpp info_annotation.cpp find_cmd.cpp
+structure_cmd.cpp info_manager.cpp info_annotation.cpp
 init_module.cpp
 type_util.cpp local_ref_info.cpp
 obtain_expr.cpp decl_attributes.cpp nested_declaration.cpp

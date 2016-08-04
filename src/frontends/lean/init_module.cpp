@@ -18,7 +18,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/parse_table.h"
 #include "frontends/lean/token_table.h"
-#include "frontends/lean/find_cmd.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/server.h"
@@ -51,7 +50,6 @@ void initialize_frontend_lean_module() {
     initialize_info_manager();
     initialize_pp();
     initialize_server();
-    initialize_find_cmd();
     initialize_local_ref_info();
     initialize_obtain_expr();
     initialize_decl_cmds();
@@ -65,7 +63,6 @@ void finalize_frontend_lean_module() {
     finalize_decl_cmds();
     finalize_obtain_expr();
     finalize_local_ref_info();
-    finalize_find_cmd();
     finalize_server();
     finalize_pp();
     finalize_info_manager();

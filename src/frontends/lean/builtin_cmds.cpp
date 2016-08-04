@@ -45,7 +45,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/inductive_cmd.h"
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/print_cmd.h"
-#include "frontends/lean/find_cmd.h"
 // #include "frontends/lean/begin_end_annotation.h"
 #include "frontends/lean/decl_cmds.h"
 // #include "frontends/lean/tactic_hint.h"
@@ -580,7 +579,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("check",             "type check given expression, and display its type", check_cmd));
     add_cmd(r, cmd_info("eval",              "evaluate given expression", eval_cmd));
     add_cmd(r, cmd_info("vm_eval",           "VM evaluation", vm_eval_cmd));
-    add_cmd(r, cmd_info("find_decl",         "find definitions and/or theorems", find_cmd));
     add_cmd(r, cmd_info("local",             "define local attributes or notation", local_cmd));
     add_cmd(r, cmd_info("help",              "brief description of available commands and options", help_cmd));
     add_cmd(r, cmd_info("init_quotient",     "initialize quotient type computational rules", init_quotient_cmd));

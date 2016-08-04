@@ -160,6 +160,10 @@ class elaborator {
     [[ noreturn ]]
     void throw_app_type_mismatch(expr const & t, expr const & arg, expr const & arg_type, expr const & expected_type,
                                  expr const & ref);
+
+    bool is_propagate_expected_candidate(expr const & fn);
+    optional<expr> visit_app_propagate_expected(expr const & fn, buffer<expr> const & args,
+                                                expr const & expected_type, expr const & ref);
     expr visit_default_app_core(expr const & fn, arg_mask amask, buffer<expr> const & args,
                                 bool args_already_visited, optional<expr> const & expected_type, expr const & ref);
     expr visit_default_app(expr const & fn, arg_mask amask, buffer<expr> const & args,

@@ -43,7 +43,7 @@ bool get_parser_checkpoint_have(options const & opts) {
     return opts.get_bool(*g_parser_checkpoint_have, LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE);
 }
 
-using namespace notation;
+using namespace notation; // NOLINT
 
 static expr parse_Type(parser & p, unsigned, expr const *, pos_info const & pos) {
     if (p.curr_is_token(get_llevel_curly_tk())) {

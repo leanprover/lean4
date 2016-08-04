@@ -4,3 +4,12 @@ sigma.mk 1 sorry : Σ x, x > 0
 show true, from true.intro : true
 Exists.intro 1 (λ a, nat.no_confusion a) : ∃ x, 1 ≠ 0
 λ A B C Ha Hb Hc, show B ∧ A, from and.intro Hb Ha : ∀ A B C, A → B → C → B ∧ A
+λ A B C Ha Hb Hc, show B ∧ A ∧ C ∧ A, from and.intro Hb (and.intro Ha (and.intro Hc Ha)) :
+  ∀ A B C, A → B → C → B ∧ A ∧ C ∧ A
+λ A B C Ha Hb Hc,
+  show ((B ∧ true) ∧ A) ∧ C ∧ A, from and.intro (and.intro (and.intro Hb true.intro) Ha) (and.intro Hc Ha) :
+  ∀ A B C, A → B → C → ((B ∧ true) ∧ A) ∧ C ∧ A
+λ A P Q a H1 H2, show ∃ x, P x ∧ Q x, from Exists.intro a (and.intro H1 H2) :
+  ∀ A P Q a, P a → Q a → (∃ x, P x ∧ Q x)
+λ A P Q a b H1 H2, show ∃ x y, P x ∧ Q y, from Exists.intro a (Exists.intro b (and.intro H1 H2)) :
+  ∀ A P Q a b, P a → Q b → (∃ x y, P x ∧ Q y)

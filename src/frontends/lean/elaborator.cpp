@@ -39,6 +39,9 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_annotation.h"
 
 namespace lean {
+/* TODO(Leo): fix this, the elaborator is re-entrant. That is, we may have two nested elaboration
+   calls with different environments.
+   Solution: stack of caches. */
 MK_THREAD_LOCAL_GET(type_context_cache_helper, get_tch, true /* use binder information at infer_cache */);
 
 static name * g_level_prefix = nullptr;
@@ -778,12 +781,107 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
     return r;
 }
 
+optional<expr> elaborator::visit_app_propagate_expected(expr const & fn, buffer<expr> const & args,
+                                                        expr const & expected_type, expr const & ref) {
+    snapshot C(*this);
+    buffer<expr> new_args;
+    buffer<expr> args_mvars;
+    buffer<expr> args_expected_types;
+    /* size_at_args[i] contains size of new_args after args_mvars[i] was pushed.
+       We need this information for producing error messages. */
+    buffer<unsigned> size_at_args;
+    expr fn_type          = infer_type(fn);
+    expr type_before_whnf = fn_type;
+    expr type             = whnf(fn_type);
+    unsigned i   = 0;
+    /* First pass: compute type for an fn-application, and unify it with expected_type.
+       We don't visit expelicit arguments at this point. */
+    while (is_pi(type)) {
+        binder_info const & bi = binding_info(type);
+        expr const & d = binding_domain(type);
+        if (bi.is_strict_implicit() && i == args.size())
+            break;
+        expr new_arg;
+        if (!is_explicit(bi)) {
+            // implicit argument
+            if (bi.is_inst_implicit())
+                new_arg = mk_instance(d, ref);
+            else
+                new_arg = mk_metavar(d);
+        } else if (i < args.size()) {
+            // explicit argument
+            i++;
+            args_expected_types.push_back(d);
+            new_arg      = mk_metavar(d);
+            args_mvars.push_back(new_arg);
+            size_at_args.push_back(new_args.size());
+        } else {
+            break;
+        }
+        new_args.push_back(new_arg);
+        /* See comment above at visit_default_app_core */
+        type_before_whnf = instantiate(binding_body(type), new_arg);
+        type             = whnf(type_before_whnf);
+    }
+    type = type_before_whnf;
+    if (i != args.size()) {
+        /* failed to consume all explicit arguments, use default elaboration for applications */
+        C.restore(*this);
+        return none_expr();
+    }
+    if (!is_def_eq(expected_type, type)) {
+        /* failed to unify expected_type and computed type, use default elaboration for applications */
+        C.restore(*this);
+        return none_expr();
+    }
+    lean_assert(args_expected_types.size() == args.size());
+    lean_assert(args_expected_types.size() == args_mvars.size());
+    lean_assert(args_expected_types.size() == size_at_args.size());
+    /* Second pass: visit explicit arguments using the information
+       we gained about their expected types */
+    for (unsigned i = 0; i < args.size(); i++) {
+        expr ref_arg      = args[i];
+        expr new_arg      = visit(args[i], some_expr(args_expected_types[i]));
+        expr new_arg_type = infer_type(new_arg);
+        if (optional<expr> new_new_arg = ensure_has_type(new_arg, new_arg_type, args_expected_types[i], ref_arg)) {
+            new_arg = *new_new_arg;
+        } else {
+            new_args.shrink(size_at_args[i]);
+            new_args.push_back(new_arg);
+            format msg = mk_app_type_mismatch_error(mk_app(fn, new_args.size(), new_args.data()),
+                                                    new_arg, new_arg_type, args_expected_types[i]);
+            throw elaborator_exception(ref, msg);
+        }
+        if (!is_def_eq(args_mvars[i], new_arg)) {
+            throw elaborator_exception(ref_arg, "invalid application, type mismatch when assigning auxiliary metavar");
+        }
+    }
+    return some_expr(mk_app(fn, new_args.size(), new_args.data()));
+}
+
+bool elaborator::is_propagate_expected_candidate(expr const & fn) {
+    /* We only propagate type to arguments for constructors. */
+    if (!is_constant(fn)) return false;
+    return static_cast<bool>(inductive::is_intro_rule(m_env, const_name(fn)));
+}
+
 expr elaborator::visit_default_app_core(expr const & _fn, arg_mask amask, buffer<expr> const & args,
                                         bool args_already_visited, optional<expr> const & expected_type, expr const & ref) {
     expr fn      = _fn;
     expr fn_type = infer_type(fn);
     unsigned i = 0;
     buffer<expr> new_args;
+
+    /** Check if this application is a candidate for propagating the expected type to arguments */
+    if (!args_already_visited && /* if the arguments have already been visited, then there is no point. */
+        expected_type &&         /* the expected type must be known */
+        amask == arg_mask::Default && /* we do not propagate information when @ and @@ are used */
+        is_propagate_expected_candidate(fn)) {
+        if (auto r = visit_app_propagate_expected(fn, args, *expected_type, ref)) {
+            return *r;
+        }
+    }
+
     /* We manually track the type before whnf. We do that because after the loop
        we check whether the application type is definitionally equal to expected_type.
        Suppose, the result type is (tactic expr) and the expected type is (?M1 ?M2).

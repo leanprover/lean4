@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "util/fresh_name.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/replace_fn.h"
-#include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
 #include "kernel/abstract.h"
@@ -26,6 +25,8 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/class.h"
 #include "library/util.h"
+#include "library/app_builder.h"
+#include "library/type_context.h"
 #include "library/definitional/rec_on.h"
 #include "library/definitional/induction_on.h"
 #include "library/definitional/cases_on.h"
@@ -148,7 +149,8 @@ struct inductive_cmd_fn {
 
     parser &            m_p;
     environment         m_env;
-    old_type_checker_ptr    m_tc;
+    aux_type_context    m_aux_ctx;
+    type_context &      m_ctx;
     name                m_namespace; // current namespace
     pos_info            m_pos; // current position for reporting errors
     bool                m_first; // true if parsing the first inductive type in a mutually recursive inductive decl.
@@ -167,8 +169,11 @@ struct inductive_cmd_fn {
     buffer<decl_info> m_decl_info; // auxiliary buffer used to populate declaration_index
 
 
-    inductive_cmd_fn(parser & p):m_p(p) {
-        m_env   = p.env();
+    inductive_cmd_fn(parser & p):
+        m_p(p),
+        m_env(p.env()),
+        m_aux_ctx(p.env()),
+        m_ctx(m_aux_ctx.get()) {
         m_first = true;
         m_using_explicit_levels = false;
         m_num_params = 0;
@@ -177,7 +182,6 @@ struct inductive_cmd_fn {
         m_u = mk_global_univ(u_name);
         m_infer_result_universe = false;
         m_namespace = get_namespace(m_env);
-        m_tc = mk_type_checker(m_env);
     }
 
     [[ noreturn ]] void throw_error(char const * error_msg) { throw parser_error(error_msg, m_pos); }
@@ -267,9 +271,11 @@ struct inductive_cmd_fn {
 
     /** \brief Return the universe level of the given type, if it is not a sort, then raise an exception. */
     level get_datatype_result_level(expr d_type) {
-        d_type = m_tc->whnf(d_type).first;
+        d_type = m_ctx.relaxed_whnf(d_type);
+        type_context::tmp_locals locals(m_ctx);
         while (is_pi(d_type)) {
-            d_type = m_tc->whnf(binding_body(d_type)).first;
+            d_type = instantiate(binding_body(d_type), locals.push_local_from_binding(d_type));
+            d_type = m_ctx.relaxed_whnf(d_type);
         }
         if (!is_sort(d_type))
             throw_error(sstream() << "invalid inductive datatype, resultant type is not a sort");
@@ -440,7 +446,7 @@ struct inductive_cmd_fn {
 
     /** \brief Update the result sort of the given type */
     expr update_result_sort(expr t, level const & l) {
-        t = m_tc->whnf(t).first;
+        t = m_ctx.whnf(t);
         if (is_pi(t)) {
             return update_binding(t, binding_domain(t), update_result_sort(binding_body(t), l));
         } else if (is_sort(t)) {
@@ -465,7 +471,7 @@ struct inductive_cmd_fn {
         if (nintro > 1)
             return false;
         expr intro_type = intro_rule_type(head(inductive_decl_intros(decl)));
-        return !is_pi(m_tc->whnf(intro_type).first);
+        return !is_pi(m_ctx.whnf(intro_type));
     }
 
     /** \brief Convert inductive datatype declarations into local constants, and store them into \c r and \c map.
@@ -585,8 +591,8 @@ struct inductive_cmd_fn {
     */
     void accumulate_levels(expr intro_type, buffer<level> & r_lvls) {
         while (is_pi(intro_type)) {
-            expr s  = m_tc->ensure_type(binding_domain(intro_type)).first;
-            accumulate_levels(sort_level(s), r_lvls);
+            level l = get_level(m_ctx, binding_domain(intro_type));
+            accumulate_levels(l, r_lvls);
             intro_type = instantiate(binding_body(intro_type), mk_local_for(intro_type));
         }
     }

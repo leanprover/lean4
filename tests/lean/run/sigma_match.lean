@@ -7,15 +7,15 @@ definition arrow_ob [reducible] (A B : Type) : Type :=
 
 definition src1 {A B : Type} (x : arrow_ob A B) : A :=
 match x with
-  ⟨a, b, h⟩ := a
+  sigma.mk a (sigma.mk b h) := a
 end
 
 definition src2 {A B : Type} : arrow_ob A B → A
-| src2 ⟨a, _, _⟩ := a
+| src2 (sigma.mk a (sigma.mk _ _)) := a
 
 definition src3 {A B : Type} (x : arrow_ob A B) : A :=
 match x with
-  ⟨a, _, _⟩ := a
+  sigma.mk a (sigma.mk _ _) := a
 end
 
 example (A B : Type) (x : arrow_ob A B) : src1 x = src2 x :=

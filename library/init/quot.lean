@@ -49,7 +49,7 @@ namespace quot
   include s
 
   protected definition indep [reducible] (f : Π a, B ⟦a⟧) (a : A) : Σ q, B q :=
-  ⟨⟦a⟧, f a⟩
+  sigma.mk ⟦a⟧ (f a)
 
   protected lemma indep_coherent (f : Π a, B ⟦a⟧)
                        (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b)

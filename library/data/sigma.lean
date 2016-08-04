@@ -12,11 +12,11 @@ namespace sigma
   universe variables u v
   variables {A A' : Type.{u}} {B : A → Type.{v}} {B' : A' → Type.{v}}
 
-  definition unpack {C : (Σa, B a) → Type} {u : Σa, B a} : C ⟨u.1 , u.2⟩ → C u :=
+  definition unpack {C : (Σa, B a) → Type} {u : Σa, B a} : C (sigma.mk u.1 u.2) → C u :=
   sigma.rec_on u (λ u1 u2 H, H)
 
   theorem dpair_heq {a : A} {a' : A'} {b : B a} {b' : B' a'}
-      (HB : B == B') (Ha : a == a') (Hb : b == b') : ⟨a, b⟩ == ⟨a', b'⟩ :=
+      (HB : B == B') (Ha : a == a') (Hb : b == b') : (sigma.mk a b) == (sigma.mk a' b') :=
   hcongr_arg4 @mk (type_eq_of_heq Ha) HB Ha Hb
 
   protected theorem heq {p : Σa : A, B a} {p' : Σa' : A', B' a'} (HB : B == B') :
@@ -25,12 +25,12 @@ namespace sigma
 
   protected definition is_inhabited [instance] [H₁ : inhabited A] [H₂ : inhabited (B (default A))] :
     inhabited (sigma B) :=
-  inhabited.destruct H₁ (λa, inhabited.destruct H₂ (λb, inhabited.mk ⟨default A, b⟩))
+  inhabited.destruct H₁ (λa, inhabited.destruct H₂ (λb, inhabited.mk (sigma.mk (default A) b)))
 
     variables {C : Πa, B a → Type} {D : Πa b, C a b → Type}
 
-  definition dtrip (a : A) (b : B a) (c : C a b) := ⟨a, b, c⟩
-  definition dquad (a : A) (b : B a) (c : C a b) (d : D a b c) := ⟨a, b, c, d⟩
+  definition dtrip (a : A) (b : B a) (c : C a b) := (sigma.mk a (sigma.mk b c))
+  definition dquad (a : A) (b : B a) (c : C a b) (d : D a b c) := (sigma.mk a (sigma.mk b (sigma.mk c d)))
 
   definition pr1' [reducible] (x : Σ a, B a) := x.1
   definition pr2' [reducible] (x : Σ a b, C a b) := x.2.1

@@ -8,11 +8,9 @@ import init.datatypes init.num init.wf init.logic
 
 definition dpair := @sigma.mk
 notation `Σ` binders `, ` r:(scoped P, sigma P) := r
--- notation for n-ary tuples; input ⟨ ⟩ as \< \>
-notation `⟨`:max t:(foldr `, ` (e r, sigma.mk e r)) `⟩`:0 := t
 
 lemma ex_of_sig {A : Type} {P : A → Prop} : (Σ x, P x) → ∃ x, P x
-| ⟨x, hx⟩ := exists.intro x hx
+| (sigma.mk x hx) := exists.intro x hx
 
 namespace sigma
   notation `pr₁`  := pr1
@@ -30,7 +28,7 @@ namespace sigma
   variable  (Ra  : A → A → Prop)
   variable  (Rb  : ∀ a, B a → B a → Prop)
 
-  theorem dpair_eq : ∀ {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (H₁ : a₁ = a₂), eq.rec_on H₁ b₁ = b₂ → ⟨a₁, b₁⟩ = ⟨a₂, b₂⟩
+  theorem dpair_eq : ∀ {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (H₁ : a₁ = a₂), eq.rec_on H₁ b₁ = b₂ → (sigma.mk a₁ b₁) = (sigma.mk a₂ b₂)
   | a₁ a₁ b₁ b₁ (eq.refl a₁) (eq.refl b₁) := rfl
 
   protected theorem eq {p₁ p₂ : Σa : A, B a} :

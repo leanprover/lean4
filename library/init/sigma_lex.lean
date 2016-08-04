@@ -14,8 +14,8 @@ section
 
   -- Lexicographical order based on Ra and Rb
   inductive lex : sigma B → sigma B → Prop :=
-  | left  : ∀ {a₁ : A} (b₁ : B a₁) {a₂ : A} (b₂ : B a₂), Ra a₁ a₂ → lex ⟨a₁, b₁⟩ ⟨a₂, b₂⟩
-  | right : ∀ (a : A)  {b₁ b₂ : B a}, Rb a b₁ b₂ → lex ⟨a, b₁⟩  ⟨a, b₂⟩
+  | left  : ∀ {a₁ : A} (b₁ : B a₁) {a₂ : A} (b₂ : B a₂), Ra a₁ a₂ → lex (sigma.mk a₁ b₁) (sigma.mk a₂ b₂)
+  | right : ∀ (a : A)  {b₁ b₂ : B a}, Rb a b₁ b₂ → lex (sigma.mk a b₁)  (sigma.mk a b₂)
 end
 
 
@@ -25,16 +25,17 @@ section
   parameters {Ra  : A → A → Prop} {Rb : Π a : A, B a → B a → Prop}
   local infix `≺`:50 := lex Ra Rb
 
-  definition lex.accessible {a} (aca : acc Ra a) (acb : ∀a, well_founded (Rb a)) : ∀ (b : B a), acc (lex Ra Rb) ⟨a, b⟩ :=
+  definition lex.accessible {a} (aca : acc Ra a) (acb : ∀a, well_founded (Rb a))
+             : ∀ (b : B a), acc (lex Ra Rb) (sigma.mk a b) :=
   acc.rec_on aca
-    (λxa aca (iHa : ∀y, Ra y xa → ∀b : B y, acc (lex Ra Rb) ⟨y, b⟩),
+    (λxa aca (iHa : ∀y, Ra y xa → ∀b : B y, acc (lex Ra Rb) (sigma.mk y b)),
       λb : B xa, acc.rec_on (well_founded.apply (acb xa) b)
         (λxb acb
-          (iHb : ∀ (y : B xa), Rb xa y xb → acc (lex Ra Rb) ⟨xa, y⟩),
-          acc.intro ⟨xa, xb⟩ (λp (lt : p ≺ ⟨xa, xb⟩),
+          (iHb : ∀ (y : B xa), Rb xa y xb → acc (lex Ra Rb) (sigma.mk xa y)),
+          acc.intro (sigma.mk xa xb) (λp (lt : p ≺ (sigma.mk xa xb)),
             have aux : xa = xa → xb == xb → acc (lex Ra Rb) p, from
               @sigma.lex.rec_on A B Ra Rb (λp₁ p₂, p₂.1 = xa → p₂.2 == xb → acc (lex Ra Rb) p₁)
-                                p ⟨xa, xb⟩ lt
+                                p (sigma.mk xa xb) lt
                 (λ (a₁ : A) (b₁ : B a₁) (a₂ : A) (b₂ : B a₂) (H : Ra a₁ a₂) (eq₂ : a₂ = xa) (eq₃ : b₂ == xb),
                   by do
                      /- TODO(Leo): cleanup using quotations -/

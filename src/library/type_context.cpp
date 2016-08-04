@@ -411,10 +411,12 @@ expr type_context::whnf_core(expr const & e) {
         /* Remark: we do not unfold Constants eagerly in this method */
         return e;
     case expr_kind::Local:
-        if (auto d = m_lctx.get_local_decl(e)) {
-            if (auto v = d->get_value()) {
-                /* zeta-reduction */
-                return whnf_core(*v);
+        if (is_local_decl_ref(e)) {
+            if (auto d = m_lctx.get_local_decl(e)) {
+                if (auto v = d->get_value()) {
+                    /* zeta-reduction */
+                    return whnf_core(*v);
+                }
             }
         }
         return e;

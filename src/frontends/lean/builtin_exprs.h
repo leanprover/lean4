@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "frontends/lean/parse_table.h"
 namespace lean {
+expr mk_anonymous_constructor(expr const & e);
 bool is_anonymous_constructor(expr const & e);
 expr const & get_anonymous_constructor_arg(expr const & e);
 parse_table get_builtin_nud_table();

@@ -1133,7 +1133,7 @@ expr elaborator::visit_by(expr const & e, optional<expr> const & expected_type) 
 expr elaborator::visit_anonymous_constructor(expr const & e, optional<expr> const & expected_type) {
     lean_assert(is_anonymous_constructor(e));
     buffer<expr> args;
-    get_app_args(get_anonymous_constructor_arg(e), args);
+    expr const & c = get_app_args(get_anonymous_constructor_arg(e), args);
     if (!expected_type)
         throw elaborator_exception(e, "invalid constructor ⟨...⟩, expected type must be known");
     expr I = get_app_fn(m_ctx.relaxed_whnf(instantiate_mvars(*expected_type)));
@@ -1147,6 +1147,20 @@ expr elaborator::visit_anonymous_constructor(expr const & e, optional<expr> cons
     get_intro_rule_names(m_env, I_name, c_names);
     if (c_names.size() != 1)
         throw elaborator_exception(e, sstream() << "invalid constructor ⟨...⟩, '" << I_name << "' must have only one constructor");
+    expr type = m_env.get(c_names[0]).get_type();
+    unsigned num_explicit = 0;
+    while (is_pi(type)) {
+        if (is_explicit(binding_info(type)))
+            num_explicit++;
+        type = binding_body(type);
+    }
+    if (num_explicit > 1 && args.size() > num_explicit) {
+        unsigned num_extra = args.size() - num_explicit;
+        expr rest = copy_tag(e, mk_app(c, num_extra + 1, args.data() + num_explicit - 1));
+        rest = copy_tag(e, mk_anonymous_constructor(rest));
+        args.shrink(num_explicit);
+        args.back() = rest;
+    }
     expr new_e = copy_tag(e, mk_app(mk_constant(c_names[0]), args));
     return visit(new_e, expected_type);
 }

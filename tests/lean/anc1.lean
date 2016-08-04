@@ -24,6 +24,11 @@ check λ (A B C : Prop),
 
 check λ (A B C : Prop),
   assume (Ha : A) (Hb : B) (Hc : C),
+  show B ∧ A ∧ C ∧ A, from
+  ⟨Hb, Ha, Hc, Ha⟩
+
+check λ (A B C : Prop),
+  assume (Ha : A) (Hb : B) (Hc : C),
   show ((B ∧ true) ∧ A) ∧ (C ∧ A), from
   ⟨⟨⟨Hb, ⟨⟩⟩, Ha⟩, ⟨Hc, Ha⟩⟩
 
@@ -36,3 +41,8 @@ check λ (A : Type) (P : A → Prop) (Q : A → Prop),
   take (a : A) (b : A), assume (H1 : P a) (H2 : Q b),
   show ∃ x y, P x ∧ Q y, from
   ⟨a, ⟨b, ⟨H1, H2⟩⟩⟩
+
+check λ (A : Type) (P : A → Prop) (Q : A → Prop),
+  take (a : A) (b : A), assume (H1 : P a) (H2 : Q b),
+  show ∃ x y, P x ∧ Q y, from
+  ⟨a, b, H1, H2⟩

@@ -300,7 +300,7 @@ static environment variable_cmd_core(parser & p, variable_kind k, bool is_protec
     }
     level_param_names new_ls;
     list<expr> ctx = p.locals_to_context();
-    std::tie(type, new_ls) = p.old_elaborate_type(type, ctx);
+    std::tie(type, new_ls) = p.elaborate_type(ctx, type);
     if (k == variable_kind::Variable || k == variable_kind::Parameter)
         update_local_levels(p, new_ls, k == variable_kind::Variable);
     return declare_var(p, p.env(), n, append(ls, new_ls), type, k, bi, pos, is_protected);

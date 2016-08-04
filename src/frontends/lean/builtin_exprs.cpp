@@ -30,7 +30,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/structure_cmd.h"
-#include "frontends/lean/obtain_expr.h"
 #include "frontends/lean/nested_declaration.h"
 
 #ifndef LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE
@@ -324,37 +323,6 @@ static expr parse_suffices_to_show(parser & p, unsigned, expr const *, pos_info 
     expr rest  = p.parse_expr();
     expr r = p.mk_app(proof, rest, pos);
     return r;
-}
-
-static obtain_struct parse_obtain_decls (parser & p, buffer<expr> & ps) {
-    buffer<obtain_struct> children;
-    parser::local_scope scope(p);
-    while (!p.curr_is_token(get_comma_tk()) && !p.curr_is_token(get_rbracket_tk())) {
-        if (p.curr_is_token(get_lbracket_tk())) {
-            p.next();
-            auto s = parse_obtain_decls(p, ps);
-            children.push_back(s);
-            p.check_token_next(get_rbracket_tk(), "invalid 'obtain' expression, ']' expected");
-        } else {
-            unsigned rbp = 0;
-            buffer<expr> new_ps;
-            p.parse_simple_binders(new_ps, rbp);
-            for (expr const & l : new_ps) {
-                ps.push_back(l);
-                p.add_local(l);
-                children.push_back(obtain_struct());
-            }
-        }
-    }
-    if (children.empty())
-        throw parser_error("invalid 'obtain' expression, empty declaration block", p.pos());
-    return obtain_struct(to_list(children));
-}
-
-static name * H_obtain_from = nullptr;
-
-static expr parse_obtain(parser & p, unsigned, expr const *, pos_info const & pos) {
-    throw parser_error("obtain-exprs have been disabled", pos);
 }
 
 static expr * g_not  = nullptr;
@@ -665,7 +633,6 @@ parse_table init_nud_table() {
     r = r.add({transition("suppose", mk_ext_action(parse_suppose))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
     r = r.add({transition("suffices", mk_ext_action(parse_suffices_to_show))}, x0);
-    r = r.add({transition("obtain", mk_ext_action(parse_obtain))}, x0);
     r = r.add({transition("abstract", mk_ext_action(parse_nested_declaration))}, x0);
     r = r.add({transition("if", mk_ext_action(parse_if_then_else))}, x0);
     r = r.add({transition("(", Expr), transition(")", mk_ext_action(parse_rparen))}, x0);
@@ -712,7 +679,6 @@ parse_table get_builtin_led_table() {
 }
 
 void initialize_builtin_exprs() {
-    notation::H_obtain_from    = new name("H_obtain_from");
     notation::g_not            = new expr(mk_constant(get_not_name()));
     g_nud_table                = new parse_table();
     *g_nud_table               = notation::init_nud_table();
@@ -728,7 +694,6 @@ void initialize_builtin_exprs() {
 void finalize_builtin_exprs() {
     delete g_led_table;
     delete g_nud_table;
-    delete notation::H_obtain_from;
     delete notation::g_not;
     delete notation::g_do_match_name;
     delete g_parser_checkpoint_have;

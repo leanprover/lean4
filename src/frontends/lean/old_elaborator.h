@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 #include "frontends/lean/elaborator_context.h"
 #include "frontends/lean/util.h"
-#include "frontends/lean/obtain_expr.h"
 
 namespace lean {
 /** \brief Mapping from metavariable names to metavariable applications (?M ...) */
@@ -168,10 +167,6 @@ class old_elaborator {
 
     bool is_structure_like(expr const & S);
     expr visit_structure_instance(expr const & e, constraint_seq & cs);
-
-    expr process_obtain_expr(list<obtain_struct> const & s_list, list<expr> const & from_list,
-                             expr const & goal, bool first, constraint_seq & cs, expr const & src);
-    expr visit_obtain_expr(expr const & e, constraint_seq & cs);
 
     expr visit_prenum(expr const & e, constraint_seq & cs);
 

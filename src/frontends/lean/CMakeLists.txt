@@ -7,7 +7,7 @@ pp.cpp theorem_queue.cpp
 structure_cmd.cpp info_manager.cpp info_annotation.cpp
 init_module.cpp
 type_util.cpp local_ref_info.cpp
-obtain_expr.cpp decl_attributes.cpp nested_declaration.cpp
+decl_attributes.cpp nested_declaration.cpp
 opt_cmd.cpp prenum.cpp
 print_cmd.cpp elaborator.cpp
 # LEGACY

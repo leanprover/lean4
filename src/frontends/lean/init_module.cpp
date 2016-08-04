@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/pp.h"
 #include "frontends/lean/server.h"
 #include "frontends/lean/local_ref_info.h"
-#include "frontends/lean/obtain_expr.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/nested_declaration.h"
 #include "frontends/lean/prenum.h"
@@ -51,7 +50,6 @@ void initialize_frontend_lean_module() {
     initialize_pp();
     initialize_server();
     initialize_local_ref_info();
-    initialize_obtain_expr();
     initialize_decl_cmds();
     initialize_nested_declaration();
     initialize_elaborator();
@@ -61,7 +59,6 @@ void finalize_frontend_lean_module() {
     finalize_old_attributes();
     finalize_nested_declaration();
     finalize_decl_cmds();
-    finalize_obtain_expr();
     finalize_local_ref_info();
     finalize_server();
     finalize_pp();

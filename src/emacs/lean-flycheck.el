@@ -49,6 +49,7 @@
        (flycheck-sanitize-errors (flycheck-increment-error-columns errors)))
     :modes '(lean-mode))
   (add-to-list 'flycheck-checkers 'lean-checker))
+(flycheck-def-executable-var "lean-checker" (lean-get-executable lean-flycheck-checker-name))
 
 (defun lean-flycheck-turn-on ()
   (interactive)
@@ -118,5 +119,65 @@
      (lean-flycheck-msg-width
       lean-flycheck-msg-width)
      (t (- (lean-flycheck-error-list-buffer-width) other-columns-width margin)))))
+
+(defconst lean-next-error-buffer-name "*Lean Next Error*")
+
+(defun lean-next-error-copy ()
+  (when (and (equal major-mode 'lean-mode)
+             ;; HACK -- princ-ing to another buffer seems to remove the marker
+             (not mark-active))
+
+    (let* ((errors (sort (flycheck-overlay-errors-in (line-beginning-position) (line-end-position)) #'flycheck-error-<))
+           (buffer (get-buffer lean-next-error-buffer-name))
+           ;; output logic taken from with-temp-buffer-window, but don't reset major mode
+           (standard-output buffer))
+
+      ;; prefer error of current position, if any
+      (-if-let (e (get-char-property (point) 'flycheck-error))
+          (setq errors (list e)))
+
+      ;; fall back to next error
+      (if (null errors)
+          (-if-let* ((pos (flycheck-next-error-pos 1))
+                     (e (get-char-property pos 'flycheck-error)))
+              (setq errors (list e))))
+
+      (with-current-buffer buffer
+        (setq buffer-read-only nil)
+        (erase-buffer))
+
+      (if errors
+          (dolist (e errors)
+            (princ (format "%d:%d: " (flycheck-error-line e) (flycheck-error-column e)))
+            (princ (flycheck-error-message e))
+            (princ "\n\n"))
+        (if flycheck-current-errors
+            (princ (format "(%d more messages above...)" (length flycheck-current-errors)))))
+
+      (temp-buffer-window-show buffer))))
+
+(define-minor-mode lean-next-error-mode
+  "Toggle lean-next-error-mode on and off.
+lean-next-error-mode takes the next error (or all errors of the current line, if any) from
+flycheck and shows them in a dedicated buffer set to `lean-info-mode'."
+  :group 'lean
+  :global t
+  (let ((hooks '(flycheck-after-syntax-check-hook post-command-hook)))
+    (if lean-next-error-mode
+        (progn
+
+          (unless (get-buffer lean-next-error-buffer-name)
+            (with-current-buffer (get-buffer-create lean-next-error-buffer-name)
+              (lean-info-mode)))
+
+          (dolist (hook hooks)
+            (add-hook hook 'lean-next-error-copy))
+
+          (setq lean-next-error-old-display-function flycheck-display-errors-function
+                flycheck-display-errors-function nil))
+
+      (setq flycheck-display-errors-function lean-next-error-old-display-function)
+      (dolist (hook hooks)
+        (remove-hook hook 'lean-next-error-copy)))))
 
 (provide 'lean-flycheck)

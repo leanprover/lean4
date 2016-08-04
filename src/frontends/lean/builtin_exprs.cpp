@@ -43,7 +43,8 @@ bool get_parser_checkpoint_have(options const & opts) {
     return opts.get_bool(*g_parser_checkpoint_have, LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE);
 }
 
-namespace notation {
+using namespace notation;
+
 static expr parse_Type(parser & p, unsigned, expr const *, pos_info const & pos) {
     if (p.curr_is_token(get_llevel_curly_tk())) {
         p.next();
@@ -621,6 +622,32 @@ static expr parse_quoted_name(parser & p, unsigned, expr const *, pos_info const
     return p.rec_save_pos(e, pos);
 }
 
+static name * g_anonymous_constructor = nullptr;
+
+expr mk_anonymous_constructor(expr const & e) { return mk_annotation(*g_anonymous_constructor, e); }
+
+bool is_anonymous_constructor(expr const & e) { return is_annotation(e, *g_anonymous_constructor); }
+
+expr const & get_anonymous_constructor_arg(expr const & e) {
+    lean_assert(is_anonymous_constructor(e));
+    return get_annotation_arg(e);
+}
+
+static expr parse_constructor(parser & p, unsigned, expr const *, pos_info const & pos) {
+    buffer<expr> args;
+    while (!p.curr_is_token(get_rangle_tk())) {
+        args.push_back(p.parse_expr());
+        if (p.curr_is_token(get_comma_tk())) {
+            p.next();
+        } else {
+            break;
+        }
+    }
+    p.check_token_next(get_rangle_tk(), "invalid constructor, `⟩` expected");
+    expr fn = p.save_pos(mk_expr_placeholder(), pos);
+    return p.save_pos(mk_anonymous_constructor(p.save_pos(mk_app(fn, args), pos)), pos);
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -637,6 +664,7 @@ parse_table init_nud_table() {
     r = r.add({transition("if", mk_ext_action(parse_if_then_else))}, x0);
     r = r.add({transition("(", Expr), transition(")", mk_ext_action(parse_rparen))}, x0);
     r = r.add({transition("(", Expr), transition(":", Expr), transition(")", mk_ext_action(parse_typed_expr))}, x0);
+    r = r.add({transition("⟨", mk_ext_action(parse_constructor))}, x0);
     r = r.add({transition("?(", Expr), transition(")", mk_ext_action(parse_inaccessible))}, x0);
     r = r.add({transition("`(", mk_ext_action(parse_quoted_expr))}, x0);
     r = r.add({transition("`", mk_ext_action(parse_quoted_name))}, x0);
@@ -665,7 +693,6 @@ parse_table init_led_table() {
     r = r.add({transition("<d", mk_expr_action(get_decreasing_prec()))}, mk_decreasing(Var(1), Var(0)));
     return r;
 }
-}
 
 static parse_table * g_nud_table = nullptr;
 static parse_table * g_led_table = nullptr;
@@ -679,23 +706,27 @@ parse_table get_builtin_led_table() {
 }
 
 void initialize_builtin_exprs() {
-    notation::g_not            = new expr(mk_constant(get_not_name()));
-    g_nud_table                = new parse_table();
-    *g_nud_table               = notation::init_nud_table();
-    g_led_table                = new parse_table();
-    *g_led_table               = notation::init_led_table();
-    notation::g_do_match_name  = new name("_do_match");
+    g_not            = new expr(mk_constant(get_not_name()));
+    g_nud_table      = new parse_table();
+    *g_nud_table     = init_nud_table();
+    g_led_table      = new parse_table();
+    *g_led_table     = init_led_table();
+    g_do_match_name  = new name("_do_match");
 
     g_parser_checkpoint_have = new name{"parser", "checkpoint_have"};
     register_bool_option(*g_parser_checkpoint_have, LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE,
                          "(parser) introduces a checkpoint on have-expressions, checkpoints are like Prolog-cuts");
+
+    g_anonymous_constructor = new name("anonymous_constructor");
+    register_annotation(*g_anonymous_constructor);
 }
 
 void finalize_builtin_exprs() {
     delete g_led_table;
     delete g_nud_table;
-    delete notation::g_not;
-    delete notation::g_do_match_name;
+    delete g_not;
+    delete g_do_match_name;
     delete g_parser_checkpoint_have;
+    delete g_anonymous_constructor;
 }
 }

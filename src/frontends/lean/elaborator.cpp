@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/choice.h"
+#include "library/util.h"
 #include "library/typed_expr.h"
 #include "library/annotation.h"
 #include "library/pp_options.h"
@@ -32,6 +33,7 @@ Author: Leonardo de Moura
 #include "library/tactic/kabstract.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/elaborate.h"
+#include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/info_annotation.h"
@@ -67,6 +69,10 @@ auto elaborator::mk_pp_fn(type_context & ctx) -> pp_fn {
 format elaborator::pp_indent(pp_fn const & pp_fn, expr const & e) {
     unsigned i = get_pp_indent(m_opts);
     return nest(i, line() + pp_fn(e));
+}
+
+format elaborator::pp_indent(expr const & e) {
+    return pp_indent(mk_pp_fn(m_ctx), e);
 }
 
 format elaborator::pp_overloads(pp_fn const & pp_fn, buffer<expr> const & fns) {
@@ -500,7 +506,7 @@ expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_ty
     level A_lvl = get_level(A, ref);
     levels ls(A_lvl);
     if (v.is_neg())
-        throw elaborator_exception(ref, format("invalid pre-numeral, it must be a non-negative value"));
+        throw elaborator_exception(ref, "invalid pre-numeral, it must be a non-negative value");
     if (v.is_zero()) {
         expr has_zero_A = mk_app(mk_constant(get_has_zero_name(), ls), A, e_tag);
         expr S          = mk_instance(has_zero_A, ref);
@@ -562,13 +568,16 @@ expr elaborator::visit_const_core(expr const & e) {
 }
 
 expr elaborator::visit_function(expr const & fn, bool has_args, expr const & ref) {
+    if (is_placeholder(fn)) {
+        throw elaborator_exception(ref, "placeholders '_' cannot be used where a function is expected");
+    }
     expr r;
     switch (fn.kind()) {
     case expr_kind::Var:
     case expr_kind::Pi:
     case expr_kind::Meta:
     case expr_kind::Sort:
-        throw elaborator_exception(ref, format("invalid application, function expected"));
+        throw elaborator_exception(ref, "invalid application, function expected");
     // The expr_kind::App case can only happen when nary notation is used
     case expr_kind::App:       r = visit(fn, none_expr()); break;
     case expr_kind::Local:     r = fn; break;
@@ -749,7 +758,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
 
     expr motive_arg = new_args[info.m_motive_idx];
     if (!is_def_eq(motive_arg, motive)) {
-        throw elaborator_exception(ref, format("\"eliminator\" elaborator failed to compute the motive"));
+        throw elaborator_exception(ref, "\"eliminator\" elaborator failed to compute the motive");
     }
 
     /* Elaborate postponed arguments */
@@ -759,7 +768,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
             expr new_arg_type = instantiate_mvars(infer_type(new_args[i]));
             expr new_arg      = visit(*arg, some_expr(new_arg_type));
             if (!is_def_eq(new_args[i], new_arg)) {
-                throw elaborator_exception(ref, format("\"eliminator\" elaborator failed to assign explicit argument"));
+                throw elaborator_exception(ref, "\"eliminator\" elaborator failed to assign explicit argument");
             }
         }
     }
@@ -960,8 +969,8 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
     if (is_choice(fn)) {
         buffer<expr> fns;
         if (amask != arg_mask::Default)
-            throw elaborator_exception(ref, format("invalid explicit annotation, symbol is overloaded "
-                                                   "(solution: use fully qualified names)"));
+            throw elaborator_exception(ref, "invalid explicit annotation, symbol is overloaded "
+                                       "(solution: use fully qualified names)");
         for (unsigned i = 0; i < get_num_choices(fn); i++) {
             expr const & fn_i = get_choice(fn, i);
             fns.push_back(fn_i);
@@ -1023,9 +1032,34 @@ expr elaborator::visit_by(expr const & e, optional<expr> const & expected_type) 
     return mvar;
 }
 
+expr elaborator::visit_anonymous_constructor(expr const & e, optional<expr> const & expected_type) {
+    lean_assert(is_anonymous_constructor(e));
+    buffer<expr> args;
+    get_app_args(get_anonymous_constructor_arg(e), args);
+    if (!expected_type)
+        throw elaborator_exception(e, "invalid constructor ⟨...⟩, expected type must be known");
+    expr I = get_app_fn(m_ctx.relaxed_whnf(instantiate_mvars(*expected_type)));
+    if (!is_constant(I))
+        throw elaborator_exception(e, format("invalid constructor ⟨...⟩, expected type is not an inductive type") +
+                                   pp_indent(*expected_type));
+    name I_name = const_name(I);
+    if (!inductive::is_inductive_decl(m_env, I_name))
+        throw elaborator_exception(e, sstream() << "invalid constructor ⟨...⟩, '" << I_name << "' is not an inductive type");
+    buffer<name> c_names;
+    get_intro_rule_names(m_env, I_name, c_names);
+    if (c_names.size() != 1)
+        throw elaborator_exception(e, sstream() << "invalid constructor ⟨...⟩, '" << I_name << "' must have only one constructor");
+    expr new_e = copy_tag(e, mk_app(mk_constant(c_names[0]), args));
+    return visit(new_e, expected_type);
+}
+
 expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
     if (is_as_is(e)) {
         return get_as_is_arg(e);
+    } else if (is_anonymous_constructor(e)) {
+        if (is_app_fn)
+            throw elaborator_exception(e, "invalid constructor ⟨...⟩, function expected");
+        return visit_anonymous_constructor(e, expected_type);
     } else if (is_prenum(e)) {
         return visit_prenum(e, expected_type);
     } else if (is_typed_expr(e)) {
@@ -1207,7 +1241,7 @@ void elaborator::ensure_numeral_types_assigned(checkpoint const & C) {
         expr A = instantiate_mvars(head(m_numeral_type_stack));
         if (is_metavar(A)) {
             if (!assign_mvar(A, get_default_numeral_type()))
-                throw elaborator_exception(A, format("invalid numeral, failed to force numeral to be a nat"));
+                throw elaborator_exception(A, "invalid numeral, failed to force numeral to be a nat");
         }
         m_numeral_type_stack = tail(m_numeral_type_stack);
     }
@@ -1238,8 +1272,7 @@ void elaborator::synthesize_type_class_instances_core(list<expr> const & old_sta
         if (!has_expr_metavar(inst_type)) {
             // We must try to synthesize instance using the local context where it was declared
             if (!is_def_eq(inst, mk_instance_core(mdecl.get_context(), inst_type, ref)))
-                throw elaborator_exception(mvar,
-                                           format("failed to assign type class instance to placeholder"));
+                throw elaborator_exception(mvar, "failed to assign type class instance to placeholder");
         } else {
             if (force) {
                 auto pp_fn = mk_pp_fn(m_ctx);

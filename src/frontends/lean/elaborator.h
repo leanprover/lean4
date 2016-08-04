@@ -95,6 +95,7 @@ class elaborator {
 
     pp_fn mk_pp_fn(type_context & ctx);
     format pp_indent(pp_fn const & pp_fn, expr const & e);
+    format pp_indent(expr const & e);
     format pp_overloads(pp_fn const & pp_fn, buffer<expr> const & fns);
 
     expr infer_type(expr const & e) { return m_ctx.infer(e); }
@@ -148,6 +149,7 @@ class elaborator {
     expr visit_placeholder(expr const & e, optional<expr> const & expected_type);
     expr visit_have_expr(expr const & e, optional<expr> const & expected_type);
     expr visit_by(expr const & e, optional<expr> const & expected_type);
+    expr visit_anonymous_constructor(expr const & e, optional<expr> const & expected_type);
 
     expr visit_sort(expr const & e);
     expr visit_const_core(expr const & e);

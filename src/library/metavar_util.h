@@ -69,6 +69,8 @@ bool has_assigned(CTX const & ctx, expr const & e) {
                 found = true;
                 return false; // stop search
             }
+            if (is_metavar(e))
+                return false; // do not search type
             return true; // continue search
         });
     return found;

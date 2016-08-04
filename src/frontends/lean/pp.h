@@ -73,7 +73,7 @@ private:
     bool                    m_hide_comp_irrel;
     bool                    m_preterm;
     bool                    m_binder_types;
-    bool                    m_lazy_abstraction;
+    bool                    m_delayed_abstraction;
 
     name mk_metavar_name(name const & m, optional<name> const & prefix = optional<name>());
     name mk_metavar_name(name const & m, name const & prefix) {

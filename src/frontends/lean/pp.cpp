@@ -324,7 +324,7 @@ void pretty_fn::set_options_core(options const & _o) {
     m_preterm           = get_pp_preterm(o);
     m_binder_types      = get_pp_binder_types(o);
     m_hide_comp_irrel   = get_pp_hide_comp_irrel(o);
-    m_lazy_abstraction  = get_pp_lazy_abstraction(o);
+    m_delayed_abstraction  = get_pp_delayed_abstraction(o);
     m_hide_full_terms   = get_formatter_hide_full_terms(o);
     m_num_nat_coe       = m_numerals;
 }
@@ -932,19 +932,10 @@ auto pretty_fn::pp_explicit(expr const & e) -> result {
 }
 
 auto pretty_fn::pp_delayed_abstraction(expr const & e) -> result {
-    if (m_lazy_abstraction) {
-        format r = pp(get_delayed_abstraction_expr(e)).fmt();
-        r += format("{");
-        format body;
-        buffer<name> ns;
-        buffer<expr> vs;
-        get_delayed_abstraction_info(e, ns, vs);
-        for (unsigned i = 0; i < ns.size(); i++) {
-            if (i > 0) body += comma() + line();
-            body += format(ns[i]) + space() + format(":=") + space() + nest(m_indent, pp(vs[i]).fmt());
-        }
-        r += group(nest(1, body));
-        r += format("}");
+    if (m_delayed_abstraction) {
+        format r = format("delayed[");
+        r += pp(get_delayed_abstraction_expr(e)).fmt();
+        r += format("]");
         return result(r);
     } else {
         return pp(get_delayed_abstraction_expr(e));

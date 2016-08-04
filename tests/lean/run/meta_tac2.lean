@@ -4,7 +4,7 @@ open tactic name list
 
 set_option pp.goal.compact true
 set_option pp.binder_types true
-set_option pp.lazy_abstraction true
+set_option pp.delayed_abstraction true
 
 example : ∀ (p : Prop), p → p → p :=
 by do

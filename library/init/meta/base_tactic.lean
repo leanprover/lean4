@@ -13,7 +13,7 @@ We "merge" them for performance reasons.
 -/
 inductive base_tactic_result (S : Type) (A : Type) :=
 | success   : A → S → base_tactic_result S A
-| exception : (options → format) → S → base_tactic_result S A
+| exception : (unit → format) → S → base_tactic_result S A
 
 section
 open base_tactic_result
@@ -22,7 +22,7 @@ variables [has_to_string A]
 
 protected meta_definition base_tactic_result.to_string : base_tactic_result S A → string
 | (success a s)   := to_string a
-| (exception A e s) := "Exception: " ++ to_string (e options.mk)
+| (exception A e s) := "Exception: " ++ to_string (e ())
 
 protected meta_definition base_tactic_result.has_to_string [instance] : has_to_string (base_tactic_result S A) :=
 has_to_string.mk base_tactic_result.to_string
@@ -102,13 +102,13 @@ repeat_at_most 100000
 meta_definition returnex (e : exceptional A) : base_tactic S A :=
 λ s, match e with
 | exceptional.success a     := base_tactic_result.success a s
-| exceptional.exception A f := base_tactic_result.exception A f s
+| exceptional.exception A f := base_tactic_result.exception A (λ u, f options.mk) s -- TODO(Leo): extract options from environment
 end
 
 meta_definition returnopt (e : option A) : base_tactic S A :=
 λ s, match e with
 | some a     := base_tactic_result.success a s
-| none       := base_tactic_result.exception A (λ o, to_fmt "failed") s
+| none       := base_tactic_result.exception A (λ u, to_fmt "failed") s
 end
 
 /- Decorate t's exceptions with msg -/

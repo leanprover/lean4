@@ -1,5 +1,6 @@
 aliases      aliases
 period       .
+backtick     `
 placeholder  _
 colon        :
 semicolon    ;

@@ -610,12 +610,36 @@ static expr quote_name(name const & n) {
 }
 
 static expr parse_quoted_name(parser & p, unsigned, expr const *, pos_info const & pos) {
+    bool resolve = false;
     name id;
     if (p.curr_is_token(get_placeholder_tk())) {
         p.next();
         id = "_";
     } else {
+        if (p.curr_is_token(get_backtick_tk())) {
+            p.next();
+            resolve = true;
+        }
         id = p.check_id_next("invalid quoted name, identifier expected");
+    }
+    if (resolve) {
+        bool resolve_only = true;
+        expr e = p.id_to_expr(id, pos, resolve_only);
+        if (is_constant(e)) {
+            id = const_name(e);
+        } else if (is_local(e)) {
+            id = local_pp_name(e);
+        } else if (is_choice(e)) {
+            sstream ss;
+            ss << "invalid resolved quoted symbol, it is ambiguous, possible interpretations:";
+            for (unsigned i = 0; i < get_num_choices(e); i++)
+                ss << " " << get_choice(e, i);
+            ss << " (solution: use fully qualified names)";
+            throw parser_error(ss, pos);
+        } else {
+            throw parser_error("invalid quoted symbol, failed to resolve it "
+                               "(solution: use `<identifier> to bypass name resolution)", pos);
+        }
     }
     lean_assert(id.is_string());
     expr e  = quote_name(id);

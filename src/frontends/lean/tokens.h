@@ -7,6 +7,7 @@ void initialize_tokens();
 void finalize_tokens();
 name const & get_aliases_tk();
 name const & get_period_tk();
+name const & get_backtick_tk();
 name const & get_placeholder_tk();
 name const & get_colon_tk();
 name const & get_semicolon_tk();

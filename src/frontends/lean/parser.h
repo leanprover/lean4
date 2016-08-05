@@ -395,7 +395,7 @@ public:
     void parse_close_binder_info(binder_info const & bi) { return parse_close_binder_info(optional<binder_info>(bi)); }
 
     /** \brief Convert an identifier into an expression (constant or local constant) based on the current scope */
-    expr id_to_expr(name const & id, pos_info const & p);
+    expr id_to_expr(name const & id, pos_info const & p, bool resolve_only = false);
 
     expr parse_expr(unsigned rbp = 0);
     /** \brief Parse an (optionally) qualified expression.

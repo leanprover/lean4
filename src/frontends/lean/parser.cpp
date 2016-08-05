@@ -1676,10 +1676,10 @@ expr parser::parse_led_notation(expr left) {
     }
 }
 
-expr parser::id_to_expr(name const & id, pos_info const & p) {
+expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) {
     buffer<level> lvl_buffer;
     levels ls;
-    if (curr_is_token(get_llevel_curly_tk())) {
+    if (!resolve_only && curr_is_token(get_llevel_curly_tk())) {
         next();
         while (!curr_is_token(get_rcurly_tk())) {
             lvl_buffer.push_back(parse_level());
@@ -1694,8 +1694,10 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
             throw parser_error("invalid use of explicit universe parameter, identifier is a variable, "
                                "parameter or a constant bound to parameters in a section", p);
         auto r = copy_with_new_pos(*it1, p);
-        save_type_info(r);
-        save_identifier_info(p, id);
+        if (!resolve_only) {
+            save_type_info(r);
+            save_identifier_info(p, id);
+        }
         return r;
     }
 
@@ -1704,9 +1706,11 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
         if (!ns.is_anonymous() && m_env.find(new_id) &&
             (!id.is_atomic() || !is_protected(m_env, new_id))) {
             auto r = save_pos(mk_constant(new_id, ls), p);
-            save_type_info(r);
-            add_ref_index(new_id, p);
-            save_identifier_info(p, new_id);
+            if (!resolve_only) {
+                save_type_info(r);
+                add_ref_index(new_id, p);
+                save_identifier_info(p, new_id);
+            }
             return r;
         }
     }
@@ -1716,9 +1720,11 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
         new_id = remove_root_prefix(new_id);
         if (m_env.find(new_id)) {
             auto r = save_pos(mk_constant(new_id, ls), p);
-            save_type_info(r);
-            add_ref_index(new_id, p);
-            save_identifier_info(p, new_id);
+            if (!resolve_only) {
+                save_type_info(r);
+                add_ref_index(new_id, p);
+                save_identifier_info(p, new_id);
+            }
             return r;
         }
     }
@@ -1737,25 +1743,29 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
             new_as.push_back(copy_with_new_pos(mk_constant(e, ls), p));
         }
         r = save_pos(mk_choice(new_as.size(), new_as.data()), p);
-        save_overload(*r);
+        if (!resolve_only)
+            save_overload(*r);
     }
     if (!r) {
         if (m_undef_id_behavior == undef_id_behavior::AssumeConstant) {
             r = save_pos(mk_constant(get_namespace(m_env) + id, ls), p);
         } else if (m_undef_id_behavior == undef_id_behavior::AssumeLocal) {
             expr local = mk_local(id, mk_expr_placeholder());
-            m_undef_ids.push_back(local);
+            if (!resolve_only)
+                m_undef_ids.push_back(local);
             r = save_pos(local, p);
         }
     }
     if (!r)
         throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
-    save_type_info(*r);
-    if (is_constant(*r)) {
-        add_ref_index(const_name(*r), p);
-        save_identifier_info(p, const_name(*r));
-    } else if (is_local(*r)) {
-        save_identifier_info(p, local_pp_name(*r));
+    if (!resolve_only) {
+        save_type_info(*r);
+        if (is_constant(*r)) {
+            add_ref_index(const_name(*r), p);
+            save_identifier_info(p, const_name(*r));
+        } else if (is_local(*r)) {
+            save_identifier_info(p, local_pp_name(*r));
+        }
     }
     return *r;
 }

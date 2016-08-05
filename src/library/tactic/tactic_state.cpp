@@ -237,6 +237,10 @@ vm_obj mk_tactic_exception(sstream const & strm, tactic_state const & s) {
     return mk_tactic_exception(strm.str().c_str(), s);
 }
 
+vm_obj mk_tactic_exception(std::function<format()> const & thunk, tactic_state const & s) {
+    return mk_tactic_exception(mk_vm_format_thunk(thunk), s);
+}
+
 vm_obj mk_no_goals_exception(tactic_state const & s) {
     return mk_tactic_exception("tactic failed, there are no goals to be solved", s);
 }
@@ -313,9 +317,12 @@ vm_obj tactic_mk_instance(vm_obj const & e, vm_obj const & s0) {
         if (auto r = ctx.mk_class_instance(to_expr(e))) {
             return mk_tactic_success(to_obj(*r), s);
         } else {
-            format m("tactic.mk_instance failed to generate instance for");
-            m += pp_indented_expr(s, to_expr(e));
-            return mk_tactic_exception(m, s);
+            auto thunk = [=]() {
+                format m("tactic.mk_instance failed to generate instance for");
+                m += pp_indented_expr(s, to_expr(e));
+                return m;
+            };
+            return mk_tactic_exception(thunk, s);
         }
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);

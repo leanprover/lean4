@@ -1,0 +1,9 @@
+format_thunk1.lean:4:0: error: invalid definev tactic, value has type
+  ℕ
+but is expected to have type
+  string
+state:
+⊢ true
+format_thunk1.lean:4:0: error: failed to add declaration 'example' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  ?M_1

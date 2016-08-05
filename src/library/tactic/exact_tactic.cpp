@@ -16,12 +16,15 @@ vm_obj exact(expr const & e, tactic_state const & s) {
         type_context ctx     = mk_type_context_for(s);
         expr e_type          = ctx.infer(e);
         if (!ctx.is_def_eq(g->get_type(), e_type)) {
-            format r("exact tactic failed, type mismatch, given expression has type");
-            unsigned indent = get_pp_indent(s.get_options());
-            r += nest(indent, line() + pp_expr(s, e_type));
-            r += line() + format("but is expected to have type");
-            r += nest(indent, line() + pp_expr(s, g->get_type()));
-            return mk_tactic_exception(r, s);
+            auto thunk = [=]() {
+                format r("exact tactic failed, type mismatch, given expression has type");
+                unsigned indent = get_pp_indent(s.get_options());
+                r += nest(indent, line() + pp_expr(s, e_type));
+                r += line() + format("but is expected to have type");
+                r += nest(indent, line() + pp_expr(s, g->get_type()));
+                return r;
+            };
+            return mk_tactic_exception(thunk, s);
         }
         auto mctx = ctx.mctx();
         mctx.assign(head(s.goals()), e);

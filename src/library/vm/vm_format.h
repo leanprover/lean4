@@ -11,6 +11,11 @@ Author: Leonardo de Moura
 namespace lean {
 format const & to_format(vm_obj const & o);
 vm_obj to_obj(format const & fmt);
+
+/* Return an object of type (unit -> format) */
+vm_obj mk_vm_format_thunk(std::function<format()> const & fn);
+
 void initialize_vm_format();
 void finalize_vm_format();
+void initialize_vm_format_builtin_idxs();
 }

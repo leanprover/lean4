@@ -28,17 +28,26 @@ vm_obj to_obj(throwable const & ex) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_throwable))) vm_throwable(ex));
 }
 
+/** Implement two different signatures:
+    1) throwable -> options -> format
+    2) throwable -> unit -> format */
 vm_obj throwable_to_format(vm_obj const & _ex, vm_obj const & _opts) {
     throwable * ex = to_throwable(_ex);
     if (!ex)
         return to_obj(format("null-exception"));
-    options const & opts = to_options(_opts);
 
     if (auto kex = dynamic_cast<ext_exception*>(ex)) {
-        scope_trace_env scope1(opts);
-        io_state_stream ios = tout();
-        formatter fmt = ios.get_formatter();
-        return to_obj(kex->pp(fmt));
+        if (is_simple) {
+            io_state_stream ios = tout();
+            formatter fmt = ios.get_formatter();
+            return to_obj(kex->pp(fmt));
+        } else {
+            options opts = to_options(_opts);
+            scope_trace_env scope1(opts);
+            io_state_stream ios = tout();
+            formatter fmt = ios.get_formatter();
+            return to_obj(kex->pp(fmt));
+        }
     }
 
     /* TODO(Leo): add support for other exception types that may generate interesting format */

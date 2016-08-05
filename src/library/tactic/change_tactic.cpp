@@ -20,11 +20,14 @@ vm_obj change(expr const & e, tactic_state const & s) {
             list<expr> new_gs(new_M, tail(s.goals()));
             return mk_tactic_success(set_mctx_goals(s, mctx, new_gs));
         } else {
-            format m("tactic.change failed, given type");
-            m += pp_indented_expr(s, e);
-            m += format("is not definitionally equal to");
-            m += pp_indented_expr(s, g->get_type());
-            return mk_tactic_exception(m, s);
+            auto thunk = [=]() {
+                format m("tactic.change failed, given type");
+                m += pp_indented_expr(s, e);
+                m += format("is not definitionally equal to");
+                m += pp_indented_expr(s, g->get_type());
+                return m;
+            };
+            return mk_tactic_exception(thunk, s);
         }
     } catch (exception & e) {
         return mk_tactic_exception(e, s);

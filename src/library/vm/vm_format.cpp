@@ -96,6 +96,35 @@ vm_obj trace_fmt(vm_obj const &, vm_obj const & fmt, vm_obj const & fn) {
     return invoke(fn, mk_vm_unit());
 }
 
+struct vm_format_thunk : public vm_external {
+    std::function<format()> m_val;
+    vm_format_thunk(std::function<format()> const & fn):m_val(fn) {}
+    virtual ~vm_format_thunk() {}
+    virtual void dealloc() override { this->~vm_format_thunk(); get_vm_allocator().deallocate(sizeof(vm_format_thunk), this); }
+};
+
+std::function<format()> const & to_format_thunk(vm_obj const & o) {
+    lean_assert(is_external(o));
+    lean_assert(dynamic_cast<vm_format_thunk*>(to_external(o)));
+    return static_cast<vm_format_thunk*>(to_external(o))->m_val;
+}
+
+vm_obj to_obj(std::function<format()> const & fn) {
+    return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_format_thunk))) vm_format_thunk(fn));
+}
+
+static unsigned g_apply_format_thunk_idx = -1;
+
+vm_obj mk_vm_format_thunk(std::function<format()> const & fn) {
+    vm_obj t = to_obj(fn);
+    return mk_vm_closure(g_apply_format_thunk_idx, 1, &t);
+}
+
+vm_obj apply_format_thunk(vm_obj const & t, vm_obj const & /* u */) {
+    format f = to_format_thunk(t)();
+    return to_obj(f);
+}
+
 void initialize_vm_format() {
     DECLARE_VM_BUILTIN(name({"format", "line"}),             format_line);
     DECLARE_VM_BUILTIN(name({"format", "space"}),            format_space);
@@ -112,8 +141,13 @@ void initialize_vm_format() {
     DECLARE_VM_BUILTIN(name({"format", "of_options"}),       format_of_options);
     DECLARE_VM_BUILTIN(name({"format", "is_nil"}),           format_is_nil);
     DECLARE_VM_BUILTIN(name("trace_fmt"),                    trace_fmt);
+    DECLARE_VM_BUILTIN("_apply_format_thunk", apply_format_thunk);
 }
 
 void finalize_vm_format() {
+}
+
+void initialize_vm_format_builtin_idxs() {
+    g_apply_format_thunk_idx = *get_vm_builtin_idx(name("_apply_format_thunk"));
 }
 }

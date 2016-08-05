@@ -60,6 +60,7 @@ void initialize_vm_module() {
     initialize_vm();
     initialize_vm_expr_builtin_idxs();
     initialize_vm_exceptional_builtin_idxs();
+    initialize_vm_format_builtin_idxs();
 }
 void finalize_vm_module() {
     finalize_vm();

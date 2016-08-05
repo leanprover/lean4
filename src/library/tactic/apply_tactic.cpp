@@ -47,8 +47,8 @@ static void remove_redundant_goals(metavar_context & mctx, buffer<expr> & metas)
     metas.shrink(k);
 }
 
-/* If out_error_msg is not nullptr, we store an error message there when result is none */
-optional<tactic_state> apply_core(type_context & ctx, bool add_all, bool use_instances, format * out_error_msg,
+/* If out_error_obj is not nullptr, we store an the error message there when result is none */
+optional<tactic_state> apply_core(type_context & ctx, bool add_all, bool use_instances, vm_obj * out_error_obj,
                                   expr e, tactic_state const & s) {
     optional<metavar_decl> g = s.get_main_goal_decl();
     lean_assert(g);
@@ -75,12 +75,15 @@ optional<tactic_state> apply_core(type_context & ctx, bool add_all, bool use_ins
     /* Unify */
     lean_assert(metas.size() == is_instance.size());
     if (!ctx.is_def_eq(target, e_type)) {
-        if (out_error_msg) {
-            format msg = format("invalid apply tactic, failed to unify");
-            msg += pp_indented_expr(s, target);
-            msg += line() + format("with");
-            msg += pp_indented_expr(s, e_type);
-            *out_error_msg = msg;
+        if (out_error_obj) {
+            auto thunk = [=]() {
+                format msg = format("invalid apply tactic, failed to unify");
+                msg += pp_indented_expr(s, target);
+                msg += line() + format("with");
+                msg += pp_indented_expr(s, e_type);
+                return msg;
+            };
+            *out_error_obj = mk_tactic_exception(thunk, s);
         }
         return none_tactic_state();
     }
@@ -95,20 +98,26 @@ optional<tactic_state> apply_core(type_context & ctx, bool add_all, bool use_ins
             expr meta_type      = ctx.instantiate_mvars(ctx.infer(meta));
             optional<expr> inst = ctx.mk_class_instance(meta_type);
             if (!inst) {
-                if (out_error_msg) {
-                    format msg("invalid apply tactic, failed to synthesize type class instance for #");
-                    msg += format(i+1);
-                    msg += space() + format("argument");
-                    *out_error_msg = msg;
+                if (out_error_obj) {
+                    auto thunk = [=]() {
+                        format msg("invalid apply tactic, failed to synthesize type class instance for #");
+                        msg += format(i+1);
+                        msg += space() + format("argument");
+                        return msg;
+                    };
+                    *out_error_obj = mk_tactic_exception(thunk, s);
                 }
                 return none_tactic_state();
             }
             if (!ctx.is_def_eq(meta, *inst)) {
-                if (out_error_msg) {
-                    format msg("invalid apply tactic, failed to assign type class instance for #");
-                    msg += format(i+1);
-                    msg += space() + format("argument");
-                    *out_error_msg = msg;
+                if (out_error_obj) {
+                    auto thunk = [=]() {
+                        format msg("invalid apply tactic, failed to assign type class instance for #");
+                        msg += format(i+1);
+                        msg += space() + format("argument");
+                        return msg;
+                    };
+                    *out_error_obj = mk_tactic_exception(thunk, s);
                 }
                 return none_tactic_state();
             }
@@ -141,10 +150,10 @@ vm_obj apply_core(transparency_mode md, bool add_all, bool use_instances, expr e
     if (!g) return mk_no_goals_exception(s);
     type_context ctx = mk_type_context_for(s, md);
     try {
-        format error_msg;
-        optional<tactic_state> new_s = apply_core(ctx, add_all, use_instances, &error_msg, e, s);
+        vm_obj error_obj;
+        optional<tactic_state> new_s = apply_core(ctx, add_all, use_instances, &error_obj, e, s);
         if (!new_s)
-            return mk_tactic_exception(error_msg, s);
+            return error_obj;
         return mk_tactic_success(*new_s);
     } catch(exception & ex) {
         return mk_tactic_exception(ex, s);

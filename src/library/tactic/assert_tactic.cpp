@@ -54,13 +54,16 @@ vm_obj assertv_definev(bool is_assert, name const & n, expr const & t, expr cons
     type_context ctx     = mk_type_context_for(s);
     expr v_type          = ctx.infer(v);
     if (!ctx.is_def_eq(t, v_type)) {
-        format msg("invalid ");
-        if (is_assert) msg += format("assertv"); else msg += format("definev");
-        msg += format(" tactic, value has type");
-        msg += pp_indented_expr(s, v_type);
-        msg += line() + format("but is expected to have type");
-        msg += pp_indented_expr(s, t);
-        return mk_tactic_exception(msg, s);
+        auto thunk = [=]() {
+            format msg("invalid ");
+            if (is_assert) msg += format("assertv"); else msg += format("definev");
+            msg += format(" tactic, value has type");
+            msg += pp_indented_expr(s, v_type);
+            msg += line() + format("but is expected to have type");
+            msg += pp_indented_expr(s, t);
+            return msg;
+        };
+        return mk_tactic_exception(thunk, s);
     }
     local_context lctx   = g->get_context();
     metavar_context mctx = ctx.mctx();

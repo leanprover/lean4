@@ -232,8 +232,8 @@ void vm_instr::display(std::ostream & out,
         display_fn(out, idx2name, m_fn_idx);
         out << " " << m_nargs;
         break;
-    case opcode::QExpr:
-        out << "qexpr " << *m_expr; break;
+    case opcode::Pexpr:
+        out << "pexpr " << *m_expr; break;
     }
 }
 
@@ -331,8 +331,8 @@ vm_instr mk_num_instr(mpz const & v) {
     }
 }
 
-vm_instr mk_qexpr_instr(expr const & v) {
-    vm_instr r(opcode::QExpr);
+vm_instr mk_pexpr_instr(expr const & v) {
+    vm_instr r(opcode::Pexpr);
     r.m_expr = new expr(v);
     return r;
 }
@@ -444,7 +444,7 @@ void vm_instr::copy_args(vm_instr const & i) {
     case opcode::Num:
         m_mpz = new mpz(*i.m_mpz);
         break;
-    case opcode::QExpr:
+    case opcode::Pexpr:
         m_expr = new expr(*i.m_expr);
         break;
     case opcode::Ret:         case opcode::Destruct:
@@ -484,7 +484,7 @@ vm_instr::~vm_instr() {
     case opcode::CasesN: case opcode::BuiltinCases:
         delete[] m_npcs;
         break;
-    case opcode::QExpr:
+    case opcode::Pexpr:
         delete m_expr;
         break;
     default:
@@ -556,7 +556,7 @@ void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & i
     case opcode::Num:
         s << *m_mpz;
         break;
-    case opcode::QExpr:
+    case opcode::Pexpr:
         s << *m_expr;
         break;
     case opcode::Ret:         case opcode::Destruct:
@@ -625,8 +625,8 @@ static vm_instr read_vm_instr(deserializer & d, name_map<unsigned> const & name2
         return mk_constructor_instr(idx, d.read_unsigned());
     case opcode::Num:
         return mk_num_instr(read_mpz(d));
-    case opcode::QExpr:
-        return mk_qexpr_instr(read_expr(d));
+    case opcode::Pexpr:
+        return mk_pexpr_instr(read_expr(d));
     case opcode::Ret:
         return mk_ret_instr();
     case opcode::Destruct:
@@ -1805,8 +1805,8 @@ void vm_state::run() {
             m_stack.push_back(mk_vm_mpz(instr.get_mpz()));
             m_pc++;
             goto main_loop;
-        case opcode::QExpr:
-            /** Instruction: qexpr e
+        case opcode::Pexpr:
+            /** Instruction: pexpr e
 
                 stack before,      after
                 ...                ...

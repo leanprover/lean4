@@ -229,7 +229,7 @@ enum class opcode {
     SConstructor, Constructor, Num,
     Destruct, Cases2, CasesN, NatCases, BuiltinCases, Proj,
     Apply, InvokeGlobal, InvokeBuiltin, InvokeCFun,
-    Closure, Unreachable, QExpr
+    Closure, Unreachable, Pexpr
 };
 
 /** \brief VM instructions */
@@ -260,7 +260,7 @@ class vm_instr {
         };
         /* Num */
         mpz * m_mpz;
-        /* QExpr */
+        /* Pexpr */
         expr * m_expr;
     };
     /* Apply, Ret, Destruct and Unreachable do not have arguments */
@@ -283,7 +283,7 @@ class vm_instr {
     friend vm_instr mk_invoke_cfun_instr(unsigned fn_idx);
     friend vm_instr mk_invoke_builtin_instr(unsigned fn_idx);
     friend vm_instr mk_closure_instr(unsigned fn_idx, unsigned n);
-    friend vm_instr mk_qexpr_instr(expr const & e);
+    friend vm_instr mk_pexpr_instr(expr const & e);
 
     void copy_args(vm_instr const & i);
 public:
@@ -379,7 +379,7 @@ public:
     }
 
     expr const & get_expr() const {
-        lean_assert(m_op == opcode::QExpr);
+        lean_assert(m_op == opcode::Pexpr);
         return *m_expr;
     }
 
@@ -414,7 +414,7 @@ vm_instr mk_invoke_global_instr(unsigned fn_idx);
 vm_instr mk_invoke_cfun_instr(unsigned fn_idx);
 vm_instr mk_invoke_builtin_instr(unsigned fn_idx);
 vm_instr mk_closure_instr(unsigned fn_idx, unsigned n);
-vm_instr mk_qexpr_instr(expr const & e);
+vm_instr mk_pexpr_instr(expr const & e);
 
 class vm_state;
 class vm_instr;

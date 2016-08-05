@@ -23,7 +23,7 @@ has_one : Type → Type
 has_ordering : Type → Type
 has_sub : Type → Type
 has_to_format : Type → Type
-has_to_qexpr : Type → Type
+has_to_pexpr : Type → Type
 has_to_string : Type → Type
 has_to_tactic_format : Type → Type
 has_zero : Type → Type
@@ -60,7 +60,7 @@ has_one : Type → Type
 has_ordering : Type → Type
 has_sub : Type → Type
 has_to_format : Type → Type
-has_to_qexpr : Type → Type
+has_to_pexpr : Type → Type
 has_to_string : Type → Type
 has_to_tactic_format : Type → Type
 has_zero : Type → Type

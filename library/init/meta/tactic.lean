@@ -5,8 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.trace init.function init.option init.monad init.alternative init.meta.exceptional
-import init.meta.format init.meta.environment init.meta.qexpr
-
+import init.meta.format init.meta.environment init.meta.pexpr
 meta_constant tactic_state : Type₁
 
 namespace tactic_state
@@ -246,7 +245,7 @@ meta_constant exact         : expr → tactic unit
 /- Elaborate the given quoted expression with respect to the current main goal.
    If the boolean argument is tt, then metavariables are tolerated and
    become new goals. -/
-meta_constant to_expr_core  : bool → qexpr → tactic expr
+meta_constant to_expr_core  : bool → pexpr → tactic expr
 /- Return true if the given expression is a type class. -/
 meta_constant is_class      : expr → tactic bool
 /- Try to create an instance of the given type class. -/
@@ -336,7 +335,7 @@ mk_app_core semireducible
 meta_definition mk_mapp : name → list (option expr) → tactic expr :=
 mk_mapp_core semireducible
 
-meta_definition to_expr : qexpr → tactic expr :=
+meta_definition to_expr : pexpr → tactic expr :=
 to_expr_core ff
 
 meta_definition revert (l : expr) : tactic nat :=
@@ -582,7 +581,7 @@ meta_definition generalizes : list expr → tactic unit
 | []      := skip
 | (e::es) := generalize e `x >> generalizes es
 
-meta_definition refine (e : qexpr) : tactic unit :=
+meta_definition refine (e : pexpr) : tactic unit :=
 do tgt : expr ← target,
    to_expr_core tt `((%%e : %%tgt)) >>= exact
 

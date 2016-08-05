@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 static std::string * g_quote_opcode = nullptr;
-static expr * g_qexpr               = nullptr;
+static expr * g_pexpr               = nullptr;
 static name * g_quote_macro         = nullptr;
 
 /** \brief The quoted expression macro is a compact way of encoding quoted expressions inside Lean expressions. */
@@ -28,7 +28,7 @@ public:
     }
     virtual name get_name() const { return *g_quote_macro; }
     virtual expr check_type(expr const &, abstract_type_context &, bool) const {
-        return *g_qexpr;
+        return *g_pexpr;
     }
     virtual optional<expr> expand(expr const &, abstract_type_context &) const {
         return optional<expr>();
@@ -87,10 +87,10 @@ expr mk_quote(expr const & e) {
             return none_expr();
         });
     expr r        = mk_quote_core(Fun(locals, s));
-    expr subst    = mk_constant(get_qexpr_subst_name());
-    expr to_qexpr = mk_constant(get_to_qexpr_name());
+    expr subst    = mk_constant(get_pexpr_subst_name());
+    expr to_pexpr = mk_constant(get_to_pexpr_name());
     for (expr const & aq : aqs) {
-        r = mk_app(subst, r, mk_app(to_qexpr, aq));
+        r = mk_app(subst, r, mk_app(to_pexpr, aq));
     }
     return r;
 }
@@ -98,7 +98,7 @@ expr mk_quote(expr const & e) {
 void initialize_quote() {
     g_quote_macro    = new name("quote_macro");
     g_quote_opcode   = new std::string("Quote");
-    g_qexpr          = new expr(Const(get_qexpr_name()));
+    g_pexpr          = new expr(Const(get_pexpr_name()));
 
     g_antiquote  = new name("antiquote");
     register_annotation(*g_antiquote);
@@ -116,7 +116,7 @@ void initialize_quote() {
 void finalize_quote() {
     delete g_quote_macro;
     delete g_quote_opcode;
-    delete g_qexpr;
+    delete g_pexpr;
     delete g_antiquote;
 }
 }

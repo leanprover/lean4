@@ -253,9 +253,9 @@ prod.mk
 prod.pr1
 prod.pr2
 propext
-qexpr
-qexpr.subst
-to_qexpr
+pexpr
+pexpr.subst
+to_pexpr
 quot.mk
 quot.lift
 rat.divide

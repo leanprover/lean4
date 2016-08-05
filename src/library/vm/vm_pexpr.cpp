@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_expr.h"
 
 namespace lean {
-vm_obj qexpr_subst(vm_obj const & _e1, vm_obj const & _e2) {
+vm_obj pexpr_subst(vm_obj const & _e1, vm_obj const & _e2) {
     expr const & e1 = to_expr(_e1);
     expr const & e2 = to_expr(_e2);
     if (is_lambda(e1)) {
@@ -20,22 +20,22 @@ vm_obj qexpr_subst(vm_obj const & _e1, vm_obj const & _e2) {
     }
 }
 
-vm_obj qexpr_of_expr(vm_obj const & e) {
+vm_obj pexpr_of_expr(vm_obj const & e) {
     return to_obj(mk_as_is(to_expr(e)));
 }
 
 vm_obj expr_to_string(vm_obj const &);
 
-vm_obj qexpr_to_string(vm_obj const & e) {
+vm_obj pexpr_to_string(vm_obj const & e) {
     return expr_to_string(e);
 }
 
-void initialize_vm_qexpr() {
-    DECLARE_VM_BUILTIN(name({"qexpr", "subst"}),        qexpr_subst);
-    DECLARE_VM_BUILTIN(name({"qexpr", "of_expr"}),      qexpr_of_expr);
-    DECLARE_VM_BUILTIN(name({"qexpr", "to_string"}),    qexpr_to_string);
+void initialize_vm_pexpr() {
+    DECLARE_VM_BUILTIN(name({"pexpr", "subst"}),        pexpr_subst);
+    DECLARE_VM_BUILTIN(name({"pexpr", "of_expr"}),      pexpr_of_expr);
+    DECLARE_VM_BUILTIN(name({"pexpr", "to_string"}),    pexpr_to_string);
 }
 
-void finalize_vm_qexpr() {
+void finalize_vm_pexpr() {
 }
 }

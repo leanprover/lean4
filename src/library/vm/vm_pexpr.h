@@ -6,6 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 namespace lean {
-void initialize_vm_qexpr();
-void finalize_vm_qexpr();
+void initialize_vm_pexpr();
+void finalize_vm_pexpr();
 }

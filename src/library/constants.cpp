@@ -258,9 +258,9 @@ name const * g_prod_mk = nullptr;
 name const * g_prod_pr1 = nullptr;
 name const * g_prod_pr2 = nullptr;
 name const * g_propext = nullptr;
-name const * g_qexpr = nullptr;
-name const * g_qexpr_subst = nullptr;
-name const * g_to_qexpr = nullptr;
+name const * g_pexpr = nullptr;
+name const * g_pexpr_subst = nullptr;
+name const * g_to_pexpr = nullptr;
 name const * g_quot_mk = nullptr;
 name const * g_quot_lift = nullptr;
 name const * g_rat_divide = nullptr;
@@ -581,9 +581,9 @@ void initialize_constants() {
     g_prod_pr1 = new name{"prod", "pr1"};
     g_prod_pr2 = new name{"prod", "pr2"};
     g_propext = new name{"propext"};
-    g_qexpr = new name{"qexpr"};
-    g_qexpr_subst = new name{"qexpr", "subst"};
-    g_to_qexpr = new name{"to_qexpr"};
+    g_pexpr = new name{"pexpr"};
+    g_pexpr_subst = new name{"pexpr", "subst"};
+    g_to_pexpr = new name{"to_pexpr"};
     g_quot_mk = new name{"quot", "mk"};
     g_quot_lift = new name{"quot", "lift"};
     g_rat_divide = new name{"rat", "divide"};
@@ -905,9 +905,9 @@ void finalize_constants() {
     delete g_prod_pr1;
     delete g_prod_pr2;
     delete g_propext;
-    delete g_qexpr;
-    delete g_qexpr_subst;
-    delete g_to_qexpr;
+    delete g_pexpr;
+    delete g_pexpr_subst;
+    delete g_to_pexpr;
     delete g_quot_mk;
     delete g_quot_lift;
     delete g_rat_divide;
@@ -1228,9 +1228,9 @@ name const & get_prod_mk_name() { return *g_prod_mk; }
 name const & get_prod_pr1_name() { return *g_prod_pr1; }
 name const & get_prod_pr2_name() { return *g_prod_pr2; }
 name const & get_propext_name() { return *g_propext; }
-name const & get_qexpr_name() { return *g_qexpr; }
-name const & get_qexpr_subst_name() { return *g_qexpr_subst; }
-name const & get_to_qexpr_name() { return *g_to_qexpr; }
+name const & get_pexpr_name() { return *g_pexpr; }
+name const & get_pexpr_subst_name() { return *g_pexpr_subst; }
+name const & get_to_pexpr_name() { return *g_to_pexpr; }
 name const & get_quot_mk_name() { return *g_quot_mk; }
 name const & get_quot_lift_name() { return *g_quot_lift; }
 name const & get_rat_divide_name() { return *g_rat_divide; }

@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.trace init.function init.option
-import init.meta.base_tactic init.meta.environment init.meta.qexpr
+import init.trace init.function init.option init.monad init.alternative init.meta.exceptional
+import init.meta.format init.meta.environment init.meta.qexpr
 
 meta_constant tactic_state : Type₁
 
@@ -23,16 +23,126 @@ end tactic_state
 meta_definition tactic_state.has_to_format [instance] : has_to_format tactic_state :=
 has_to_format.mk tactic_state.to_format
 
-meta_definition tactic [reducible] (A : Type) := base_tactic tactic_state A
+inductive tactic_result (A : Type) :=
+| success   : A → tactic_state → tactic_result A
+| exception : (unit → format) → tactic_state → tactic_result A
 
-meta_definition tactic.format_expr (e : expr) : tactic format :=
+open tactic_result
+
+section
+variables {A : Type}
+variables [has_to_string A]
+
+meta_definition tactic_result_to_string : tactic_result A → string
+| (success a s)   := to_string a
+| (exception A e s) := "Exception: " ++ to_string (e ())
+
+meta_definition tactic_result_has_to_string [instance] : has_to_string (tactic_result A) :=
+has_to_string.mk tactic_result_to_string
+end
+
+meta_definition tactic [reducible] (A : Type) :=
+tactic_state → tactic_result A
+
+section
+variables {A B : Type}
+
+inline meta_definition tactic_fmap (f : A → B) (t : tactic A) : tactic B :=
+λ s, tactic_result.cases_on (t s)
+  (λ a s', success (f a) s')
+  (λ e s', exception B e s')
+
+inline meta_definition tactic_bind (t₁ : tactic A) (t₂ : A → tactic B) : tactic B :=
+λ s,  tactic_result.cases_on (t₁ s)
+  (λ a s', t₂ a s')
+  (λ e s', exception B e s')
+
+inline meta_definition tactic_return (a : A) : tactic A :=
+λ s, success a s
+
+meta_definition tactic_orelse {A : Type} (t₁ t₂ : tactic A) : tactic A :=
+λ s, tactic_result.cases_on (t₁ s)
+  success
+  (λ e₁ s', tactic_result.cases_on (t₂ s)
+     success
+     (exception A))
+end
+
+meta_definition tactic_is_monad [instance] : monad tactic :=
+monad.mk @tactic_fmap @tactic_return @tactic_bind
+
+meta_definition tactic.fail {A B : Type} [has_to_format B] (msg : B) : tactic A :=
+λ s, exception A (λ u, to_fmt msg) s
+
+meta_definition tactic.failed {A : Type} : tactic A :=
+tactic.fail "failed"
+
+meta_definition tactic_is_alternative [instance] : alternative tactic :=
+alternative.mk @tactic_fmap (λ A a s, success a s) (@fapp _ _) @tactic.failed @tactic_orelse
+
+namespace tactic
+variables {A : Type}
+
+meta_definition try (t : tactic A) : tactic unit :=
+λ s, tactic_result.cases_on (t s)
+ (λ a, success ())
+ (λ e s', success () s)
+
+meta_definition skip : tactic unit :=
+success ()
+
+open list
+meta_definition foreach : list A → (A → tactic unit) → tactic unit
+| []      fn := skip
+| (e::es) fn := do fn e, foreach es fn
+
+open nat
+/- (repeat_at_most n t): repeat the given tactic at most n times or until t fails -/
+meta_definition repeat_at_most : nat → tactic unit → tactic unit
+| 0        t := skip
+| (succ n) t := (do t, repeat_at_most n t) <|> skip
+
+/- (repeat_exactly n t) : execute t n times -/
+meta_definition repeat_exactly : nat → tactic unit → tactic unit
+| 0        t := skip
+| (succ n) t := do t, repeat_exactly n t
+
+meta_definition repeat : tactic unit → tactic unit :=
+repeat_at_most 100000
+
+meta_definition returnex (e : exceptional A) : tactic A :=
+λ s, match e with
+| exceptional.success a     := tactic_result.success a s
+| exceptional.exception A f := tactic_result.exception A (λ u, f options.mk) s -- TODO(Leo): extract options from environment
+end
+
+meta_definition returnopt (e : option A) : tactic A :=
+λ s, match e with
+| some a     := tactic_result.success a s
+| none       := tactic_result.exception A (λ u, to_fmt "failed") s
+end
+
+/- Decorate t's exceptions with msg -/
+meta_definition decorate_ex (msg : format) (t : tactic A) : tactic A :=
+λ s, tactic_result.cases_on (t s)
+  success
+  (λ e, exception A (λ u, msg ++ format.nest 2 (format.line ++ e u)))
+
+inline meta_definition write (s' : tactic_state) : tactic unit :=
+λ s, success () s'
+
+inline meta_definition read : tactic tactic_state :=
+λ s, success s s
+end tactic
+
+meta_definition tactic_format_expr (e : expr) : tactic format :=
 do s ← tactic.read, return (tactic_state.format_expr s e)
 
 structure has_to_tactic_format [class] (A : Type) :=
 (to_tactic_format : A → tactic format)
 
 meta_definition expr_has_to_tactic_format [instance] : has_to_tactic_format expr :=
-has_to_tactic_format.mk tactic.format_expr
+has_to_tactic_format.mk tactic_format_expr
 
 meta_definition tactic.pp {A : Type} [has_to_tactic_format A] : A → tactic format :=
 has_to_tactic_format.to_tactic_format

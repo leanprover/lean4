@@ -7,22 +7,17 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include "kernel/environment.h"
+#include "library/attribute_manager.h"
 #include "library/io_state.h"
 namespace lean {
 class parser;
 class decl_attributes {
-public:
-    struct entry {
-        std::string    m_attr;
-        list<unsigned> m_params;
-        entry() {}
-        entry(char const * attr):m_attr(attr) {}
-        entry(char const * attr, unsigned p):m_attr(attr), m_params(to_list(p)) {}
-        entry(char const * attr, list<unsigned> const & ps):m_attr(attr), m_params(ps) {}
-        bool operator==(entry const & e) const { return m_attr == e.m_attr && m_params == e.m_params; }
-        bool operator!=(entry const & e) const { return !operator==(e); }
-    };
 private:
+    struct entry {
+        attribute const * m_attr;
+        attr_data_ptr     m_params;
+    };
+
     bool               m_is_abbrev; // if true only abbreviation attributes are allowed
     bool               m_persistent;
     bool               m_parsing_only;
@@ -33,9 +28,5 @@ public:
     void parse(parser & p);
     environment apply(environment env, io_state const & ios, name const & d) const;
     bool is_parsing_only() const { return m_parsing_only; }
-    void write(serializer & s) const;
-    void read(deserializer & d);
-    friend bool operator==(decl_attributes const & d1, decl_attributes const & d2);
 };
-bool operator==(decl_attributes const & d1, decl_attributes const & d2);
 }

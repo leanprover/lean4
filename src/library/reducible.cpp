@@ -42,7 +42,10 @@ static reducibility_attribute const & get_reducibility_attribute() {
 class proxy_attribute : public basic_attribute {
 private:
     reducible_status m_status;
-protected:
+public:
+    proxy_attribute(char const * id, char const * descr, reducible_status m_status) : basic_attribute(id, descr),
+                                                                                      m_status(m_status) {}
+
     virtual attr_data_ptr get(environment const & env, name const & n) const override {
         if (auto data = get_reducibility_attribute().get_data(env, n)) {
             if (data->m_status == m_status)
@@ -50,10 +53,6 @@ protected:
         }
         return {};
     }
-public:
-    proxy_attribute(char const * id, char const * descr, reducible_status m_status) : basic_attribute(id, descr),
-                                                                                      m_status(m_status) {}
-
     virtual environment set(environment const & env, io_state const & ios, name const & n, bool persistent) const override {
         declaration const & d = env.get(n);
         if (!d.is_definition())

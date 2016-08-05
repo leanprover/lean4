@@ -344,10 +344,10 @@ has_recursors_pred::has_recursors_pred(environment const & env):
 void initialize_user_recursors() {
     g_key        = new std::string("UREC");
     recursor_ext::initialize();
-    register_attribute(unsigned_params_attribute("recursor", "user defined recursor", [](environment const & env, io_state const &, name const & n, unsigned_params_attribute_data const & data, bool persistent) {
-          if (data.m_params && tail(data.m_params))
+    register_attribute(indices_attribute("recursor", "user defined recursor", [](environment const & env, io_state const &, name const & n, indices_attribute_data const & data, bool persistent) {
+          if (data.m_idxs && tail(data.m_idxs))
             throw exception(sstream() << "invalid [recursor] declaration, expected at most one parameter");
-          return add_user_recursor(env, n, head_opt(data.m_params), persistent);
+          return add_user_recursor(env, n, head_opt(data.m_idxs), persistent);
         }));
 }
 

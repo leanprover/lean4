@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
-#include "kernel/pos_info_provider.h"
+#include "library/abstract_parser.h"
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
 #include "library/definition_cache.h"
@@ -27,15 +27,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_manager.h"
 
 namespace lean {
-/** \brief Exception used to track parsing erros, it does not leak outside of this class. */
-struct parser_error : public exception {
-    pos_info m_pos;
-    parser_error(char const * msg, pos_info const & p):exception(msg), m_pos(p) {}
-    parser_error(sstream const & msg, pos_info const & p):exception(msg), m_pos(p) {}
-    virtual throwable * clone() const { return new parser_error(m_msg.c_str(), m_pos); }
-    virtual void rethrow() const { throw *this; }
-};
-
 struct interrupt_parser {};
 
 typedef local_decls<expr>       local_expr_decls;
@@ -89,7 +80,7 @@ enum class keep_theorem_mode { All, DiscardImported, DiscardAll };
 
 enum class undef_id_behavior { Error, AssumeConstant, AssumeLocal };
 
-class parser : public pos_info_provider {
+class parser : public abstract_parser {
     environment             m_env;
     io_state                m_ios;
     bool                    m_verbose;
@@ -289,7 +280,7 @@ public:
     template<typename T> void set_option(name const & n, T const & v) { m_ios.set_option(n, v); }
 
     /** \brief Return the current position information */
-    pos_info pos() const { return pos_info(m_scanner.get_line(), m_scanner.get_pos()); }
+    virtual pos_info pos() const override final { return pos_info(m_scanner.get_line(), m_scanner.get_pos()); }
     expr save_pos(expr e, pos_info p);
     expr rec_save_pos(expr const & e, pos_info p);
     expr update_pos(expr e, pos_info p);
@@ -336,7 +327,7 @@ public:
     /** \brief Read the next token if the current one is not End-of-file. */
     void next() { if (m_curr != scanner::token_kind::Eof) scan(); }
     /** \brief Return true iff the current token is a keyword (or command keyword) named \c tk */
-    bool curr_is_token(name const & tk) const;
+    virtual bool curr_is_token(name const & tk) const override final;
     /** \brief Check current token, and move to next characther, throw exception if current token is not \c tk. */
     void check_token_next(name const & tk, char const * msg);
     void check_token_or_id_next(name const & tk, char const * msg);
@@ -361,7 +352,7 @@ public:
     std::string const & get_stream_name() const { return m_scanner.get_stream_name(); }
 
     unsigned get_small_nat();
-    unsigned parse_small_nat();
+    virtual unsigned parse_small_nat() override final;
     double parse_double();
 
     bool parse_local_notation_decl() { return parse_local_notation_decl(nullptr); }

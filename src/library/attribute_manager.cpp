@@ -124,6 +124,10 @@ void attribute::get_instances(environment const & env, buffer<name> & r) const {
         records->for_each([&](attr_record const & rec) { r.push_back(rec.m_decl); });
 }
 
+attr_data_ptr attribute::parse_data(abstract_parser &) const {
+    return lean::attr_data_ptr(new attr_data);
+}
+
 environment basic_attribute::set(environment const & env, io_state const & ios, name const & n, bool persistent) const {
     auto env2 = set_core(env, ios, n, attr_data_ptr(new attr_data), persistent);
     if (m_on_set)
@@ -140,6 +144,18 @@ environment prio_attribute::set(environment const & env, io_state const & ios, n
     return env2;
 }
 
+attr_data_ptr indices_attribute::parse_data(abstract_parser & p) const {
+    buffer<unsigned> vs;
+    while (!p.curr_is_token("]")) {
+        auto pos = p.pos();
+        unsigned v = p.parse_small_nat();
+        if (v == 0)
+            throw parser_error("invalid attribute parameter, value must be positive", pos);
+        vs.push_back(v - 1);
+    }
+    return attr_data_ptr(new indices_attribute_data(to_list(vs)));
+}
+
 void register_incompatible(char const * attr1, char const * attr2) {
     lean_assert(is_attribute(attr1));
     lean_assert(is_attribute(attr2));
@@ -150,9 +166,9 @@ void register_incompatible(char const * attr1, char const * attr2) {
     g_incomp->emplace_back(s1, s2);
 }
 
-void get_attributes(buffer<char const *> & r) {
+void get_attributes(buffer<attribute const *> & r) {
     for (auto const & p : *g_attributes) {
-        r.push_back(p.second->get_name().c_str());
+        r.push_back(&*p.second);
     }
 }
 
@@ -162,21 +178,16 @@ void get_attribute_tokens(buffer<char const *> & r) {
     }
 }
 
-char const * get_attribute_from_token(char const * tk) {
-    if (*tk) {
-        // skip '['
-        if (is_attribute(tk + 1))
-            return get_attribute(tk + 1).get_name().c_str();
+attribute const * get_attribute_from_token(char const * tk) {
+    for (auto const & p : *g_attributes) {
+        if (p.second->get_token() == tk)
+            return &*p.second;
     }
     return nullptr;
 }
 
-char const * get_attribute_token(char const * name) {
-    return get_attribute(name).get_token().c_str();
-}
-
 bool has_attribute(environment const & env, char const * attr, name const & d) {
-    return get_attribute(attr).is_set_on(env, d);
+    return static_cast<bool>(get_attribute(attr).get(env, d));
 }
 
 void get_attribute_instances(environment const & env, char const * attr, buffer<name> & r) {
@@ -197,7 +208,7 @@ environment set_attribute(environment const & env, io_state const & ios, char co
         lean_assert(!params);
         return prio_attr->set(env, ios, d, prio, persistent);
     }
-    if (auto params_attr = dynamic_cast<unsigned_params_attribute const *>(&attr)) {
+    if (auto params_attr = dynamic_cast<indices_attribute const *>(&attr)) {
         return params_attr->set(env, ios, d, {params}, persistent);
     }
     lean_assert(!params);
@@ -219,17 +230,17 @@ unsigned get_attribute_prio(environment const & env, std::string const & attr, n
 }
 
 list<unsigned> get_attribute_params(environment const & env, std::string const & attr, name const & d) {
-    if (auto attribute = dynamic_cast<unsigned_params_attribute const *>(&get_attribute(attr))) {
+    if (auto attribute = dynamic_cast<indices_attribute const *>(&get_attribute(attr))) {
         auto data = attribute->get_data(env, d);
         lean_assert(data);
-        return data->m_params;
+        return data->m_idxs;
     }
     return list<unsigned>();
 }
 
-bool are_incompatible(char const * attr1, char const * attr2) {
-    std::string s1(attr1);
-    std::string s2(attr2);
+bool are_incompatible(attribute const * attr1, attribute const * attr2) {
+    std::string s1(attr1->get_name());
+    std::string s2(attr2->get_name());
     if (s1 > s2)
         std::swap(s1, s2);
     return std::find(g_incomp->begin(), g_incomp->end(), mk_pair(s1, s2)) != g_incomp->end();
@@ -248,5 +259,4 @@ void finalize_attribute_manager() {
     delete g_incomp;
     delete g_attributes;
 }
-
 }

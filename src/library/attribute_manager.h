@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include "kernel/environment.h"
+#include "library/abstract_parser.h"
 #include "library/io_state.h"
 #include "util/priority_queue.h"
 
@@ -20,6 +21,7 @@ struct attr_data {
     virtual unsigned hash() const {
         return 0;
     }
+    virtual void print(std::ostream &) {}
     virtual ~attr_data() {}
 };
 
@@ -28,13 +30,15 @@ struct attr_config;
 
 class attribute {
     friend struct attr_config;
+    friend class  decl_attributes;
 private:
     std::string m_id;
     std::string m_descr;
     std::string m_token;
 protected:
     environment set_core(environment const &, io_state const &, name const &, attr_data_ptr, bool) const;
-    virtual attr_data_ptr get(environment const &, name const &) const;
+
+    virtual environment set_untyped(environment const &, io_state const &, name const &, attr_data_ptr, bool) const = 0;
     virtual void write_entry(serializer &, attr_data const &) const = 0;
     virtual attr_data_ptr read_entry(deserializer &) const = 0;
 public:
@@ -44,10 +48,9 @@ public:
     std::string const & get_name() const { return m_id; }
     std::string const & get_token() const { return m_token; }
 
-    bool is_set_on(environment const & env, name const & d) const {
-        return static_cast<bool>(get(env, d));
-    }
-    virtual void get_instances(environment const &, buffer<name> & b) const;
+    virtual attr_data_ptr get(environment const &, name const &) const;
+    virtual void get_instances(environment const &, buffer<name> &) const;
+    virtual attr_data_ptr parse_data(abstract_parser &) const;
 };
 
 typedef std::shared_ptr<attribute const> attribute_ptr;
@@ -61,6 +64,10 @@ private:
 protected:
     virtual void write_entry(serializer &, attr_data const &) const override final {}
     virtual attr_data_ptr read_entry(deserializer &) const override final { return attr_data_ptr(new attr_data); }
+    virtual environment set_untyped(environment const & env, io_state const & ios, name const & n, attr_data_ptr,
+                                    bool persistent) const override final {
+        return set(env, ios, n, persistent);
+    }
 public:
     basic_attribute(char const * id, char const * descr, on_set_proc on_set) : attribute(id, descr),
                                                                                m_on_set(on_set) {}
@@ -78,6 +85,11 @@ private:
 protected:
     virtual void write_entry(serializer &, attr_data const &) const override final {}
     virtual attr_data_ptr read_entry(deserializer &) const override final { return attr_data_ptr(new attr_data); }
+    virtual environment set_untyped(environment const & env, io_state const & ios, name const & n, attr_data_ptr data,
+                                    bool persistent) const override final {
+        // TODO(sullrich): Use priority from `data` as soon as available
+        lean_unreachable();
+    }
 public:
     prio_attribute(char const * id, char const * descr, on_set_proc on_set) : attribute(id, descr),
                                                                               m_on_set(on_set) {}
@@ -94,6 +106,12 @@ public:
 private:
     on_set_proc m_on_set;
 protected:
+    virtual environment set_untyped(environment const & env, io_state const & ios, name const & n, attr_data_ptr data,
+                                    bool persistent) const override final {
+        lean_assert(dynamic_cast<Data const *>(&*data));
+        return set(env, ios, n, static_cast<Data const &>(*data), persistent);
+    }
+
     virtual void write_entry(serializer & s, attr_data const & data) const final override {
         lean_assert(dynamic_cast<Data const *>(&data));
         static_cast<Data const &>(data).write(s);
@@ -122,30 +140,42 @@ public:
     }
 };
 
-struct unsigned_params_attribute_data : public attr_data {
-    list<unsigned> m_params;
-    unsigned_params_attribute_data(list<unsigned> const & params) : m_params(params) {}
-    unsigned_params_attribute_data() : unsigned_params_attribute_data(list<unsigned>()) {}
+struct indices_attribute_data : public attr_data {
+    list<unsigned> m_idxs;
+    indices_attribute_data(list<unsigned> const & idxs) : m_idxs(idxs) {}
+    indices_attribute_data() : indices_attribute_data(list<unsigned>()) {}
 
     virtual unsigned hash() const override {
         unsigned h = 0;
-        for (unsigned i : m_params)
+        for (unsigned i : m_idxs)
             h = ::lean::hash(h, i);
         return h;
     }
     void write(serializer & s) const {
-        write_list(s, m_params);
+        write_list(s, m_idxs);
     }
     void read(deserializer & d) {
-        m_params = read_list<unsigned>(d);
+        m_idxs = read_list<unsigned>(d);
+    }
+    virtual void print(std::ostream & out) override {
+        for (auto p : m_idxs) {
+            out << " " << p + 1;
+        }
     }
 };
 
-template class typed_attribute<unsigned_params_attribute_data>;
-typedef typed_attribute<unsigned_params_attribute_data> unsigned_params_attribute;
+/** \brief Attribute that represents a list of indices. input and output are 1-indexed for convenience. */
+class indices_attribute : public typed_attribute<indices_attribute_data> {
+public:
+    indices_attribute(char const * id, char const * descr, on_set_proc on_set) : typed_attribute(id, descr, on_set) {}
+    indices_attribute(char const * id, char const * descr) : typed_attribute(id, descr) {}
+
+    virtual attr_data_ptr parse_data(abstract_parser &) const override;
+};
 
 void register_attribute(attribute_ptr);
 attribute const & get_attribute(std::string const & attr);
+void get_attributes(buffer<attribute const *> &);
 
 template<typename Attribute>
 void register_attribute(Attribute attr) {
@@ -156,10 +186,8 @@ void register_incompatible(char const * attr1, char const * attr2);
 
 // TODO(sullrich): all of these should become members of/return attribute or a subclass
 bool is_attribute(std::string const & attr);
-void get_attributes(buffer<char const *> &);
 void get_attribute_tokens(buffer<char const *> &);
-char const * get_attribute_from_token(char const * attr_token);
-char const * get_attribute_token(char const * attr);
+attribute const * get_attribute_from_token(char const * attr_token);
 
 environment set_attribute(environment const & env, io_state const & ios, char const * attr,
                           name const & d, unsigned prio, list<unsigned> const & params, bool persistent);
@@ -173,7 +201,7 @@ priority_queue<name, name_quick_cmp> get_attribute_instances_by_prio(environment
 unsigned get_attribute_prio(environment const & env, std::string const & attr, name const & d);
 list<unsigned> get_attribute_params(environment const & env, std::string const & attr, name const & d);
 
-bool are_incompatible(char const * attr1, char const * attr2);
+bool are_incompatible(attribute const * attr1, attribute const * attr2);
 
 void initialize_attribute_manager();
 void finalize_attribute_manager();

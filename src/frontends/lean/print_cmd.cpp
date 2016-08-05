@@ -247,20 +247,19 @@ static void print_definition(parser const & p, name const & n, pos_info const & 
 static void print_attributes(parser const & p, name const & n) {
     environment const & env = p.env();
     std::ostream & out = p.ios().get_regular_stream();
-    buffer<char const *> attrs;
+    buffer<attribute const *> attrs;
     get_attributes(attrs);
-    std::sort(attrs.begin(), attrs.end(), [](char const * n1, char const * n2) { return strcmp(n1, n2) < 0; });
-    for (char const * attr : attrs) {
-        if (strcmp(attr, "reducibility") == 0)
+    std::sort(attrs.begin(), attrs.end(), [](attribute const * a1, attribute const * a2) {
+        return a1->get_name() < a2->get_name();
+    });
+    for (auto attr : attrs) {
+        if (strcmp(attr->get_name(), "reducibility") == 0)
             continue;
-        if (has_attribute(env, attr, n)) {
-            out << " " << get_attribute_token(attr);
-            list<unsigned> ps = get_attribute_params(env, attr, n);
-            for (auto p : ps) {
-                out << " " << p;
-            }
+        if (auto data = attr->get(env, n)) {
+            out << " [" << attr->get_name();
+            data->print(out);
             out << "]";
-            unsigned prio = get_attribute_prio(env, attr, n);
+            unsigned prio = get_attribute_prio(env, attr->get_name(), n);
             if (prio != LEAN_DEFAULT_PRIORITY)
                 out << " [priority " << prio << "]";
         }
@@ -536,9 +535,9 @@ static void print_key_equivalences(parser & p) {
         });
 }
 
-static void print_attribute(parser & p, char const * attr) {
+static void print_attribute(parser & p, attribute const * attr) {
     buffer<name> instances;
-    get_attribute_instances(p.env(), attr, instances);
+    attr->get_instances(p.env(), instances);
 
     // oldest first
     unsigned i = instances.size();
@@ -663,13 +662,10 @@ environment print_cmd(parser & p) {
         print_light_rules(p);
     } else if (print_polymorphic(p)) {
     } else {
-        buffer<char const *> attr_tokens;
-        get_attribute_tokens(attr_tokens);
-        for (char const * tk : attr_tokens) {
-            if (p.curr_is_token(tk)) {
+        if (p.curr_is_command()) {
+            if (auto attr = get_attribute_from_token(p.get_token_info().token().get_string())) {
                 p.next();
                 p.check_token_next(get_rbracket_tk(), "invalid 'print [<attr>]', ']' expected");
-                char const *attr = get_attribute_from_token(tk);
                 print_attribute(p, attr);
                 return p.env();
             }

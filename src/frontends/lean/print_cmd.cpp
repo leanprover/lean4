@@ -253,7 +253,7 @@ static void print_attributes(parser const & p, name const & n) {
         return a1->get_name() < a2->get_name();
     });
     for (auto attr : attrs) {
-        if (strcmp(attr->get_name(), "reducibility") == 0)
+        if (attr->get_name() == "reducibility")
             continue;
         if (auto data = attr->get(env, n)) {
             out << " [" << attr->get_name();

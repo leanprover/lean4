@@ -548,18 +548,18 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
                 r = p.rec_save_pos(mk_app(p.save_pos(mk_constant(get_monad_bind_name()), ps[i]), es[i], Fun(*lhs, r)), ps[i]);
             } else {
                 // must introduce a "fake" match
-                expr fn = mk_local(mk_fresh_name(), *g_do_match_name, mk_expr_placeholder(), binder_info());
+                auto pos   = ps[i];
+                expr fn = p.save_pos(mk_local(mk_fresh_name(), *g_do_match_name, mk_expr_placeholder(), binder_info()), pos);
                 buffer<expr> locals;
                 to_buffer(lhss_locals[i], locals);
-                auto pos   = ps[i];
                 buffer<expr> eqs;
-                eqs.push_back(p.save_pos(Fun(fn, Fun(locals, p.save_pos(mk_equation(mk_app(fn, *lhs), r), pos), p)), pos));
+                eqs.push_back(p.rec_save_pos(Fun(fn, Fun(locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, *lhs), pos), r), pos), p)), pos));
                 if (optional<expr> else_case = else_cases[i]) {
                     // add case
                     //    _ := else_case
-                    eqs.push_back(p.save_pos(Fun(fn, p.save_pos(mk_equation(mk_app(fn, mk_expr_placeholder()),
-                                                                            *else_case),
-                                                                pos)),
+                    eqs.push_back(p.rec_save_pos(Fun(fn, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, mk_expr_placeholder()), pos),
+                                                                                *else_case),
+                                                                    pos)),
                                              pos));
                 }
                 expr eqns  = p.save_pos(mk_equations(1, eqs.size(), eqs.data()), pos);

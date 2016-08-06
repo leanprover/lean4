@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/lean_path.h"
 #include "util/thread.h"
 #include "util/memory_pool.h"
+#include "util/fresh_name.h"
 
 namespace lean {
 void initialize_util_module() {
@@ -20,8 +21,10 @@ void initialize_util_module() {
     initialize_ascii();
     initialize_name();
     initialize_lean_path();
+    initialize_fresh_name();
 }
 void finalize_util_module() {
+    finalize_fresh_name();
     finalize_lean_path();
     finalize_name();
     finalize_ascii();

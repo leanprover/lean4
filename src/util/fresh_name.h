@@ -20,4 +20,10 @@ name mk_tagged_fresh_name(name const & tag);
 bool is_tagged_by(name const & n, name const & tag);
 
 optional<name> get_tagged_name_suffix(name const & n, name const & tag);
+
+bool is_fresh_name(name const & n);
+name sanitize_if_fresh(name const & n);
+
+void initialize_fresh_name();
+void finalize_fresh_name();
 }

@@ -44,10 +44,12 @@ void decl_attributes::parse(parser & p) {
                auto data = attr->parse_data(p);
                p.check_token_next(get_rbracket_tk(), "invalid attribute declaration, ']' expected");
                m_entries = cons({attr, data}, m_entries);
-           } else
+           } else {
                break;
-        } else
+           }
+        } else {
             break;
+        }
     }
 }
 
@@ -61,8 +63,9 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
         if (auto prio_attr = dynamic_cast<prio_attribute const *>(entry.m_attr)) {
             unsigned prio = m_prio ? *m_prio : LEAN_DEFAULT_PRIORITY;
             env = prio_attr->set(env, ios, d, prio, m_persistent);
-        } else
+        } else {
             env = entry.m_attr->set_untyped(env, ios, d, entry.m_params, m_persistent);
+        }
     }
     return env;
 }

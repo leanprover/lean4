@@ -78,7 +78,10 @@ typedef std::vector<snapshot> snapshot_vector;
 
 enum class keep_theorem_mode { All, DiscardImported, DiscardAll };
 
-enum class undef_id_behavior { Error, AssumeConstant, AssumeLocal };
+enum class undef_id_behavior {
+    Error, /* Default: just generate an error when an undefined identifier is found */
+    AssumeConstant, /* Assume an undefined identifier is a constant, we use it for parsing inductive datatypes. */
+    AssumeLocal /* Assume an undefined identifier is a local constant, we use it when parsing quoted terms and match patterns. */ };
 
 class parser : public abstract_parser {
     environment             m_env;

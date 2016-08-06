@@ -742,7 +742,7 @@ struct structure_cmd_fn {
         if (m_env.impredicative()) {
             m_env = mk_induction_on(m_env, m_name);
             name induction_on_name(m_name, "induction_on");
-            add_rec_alias(induction_on_name);
+            add_alias(induction_on_name);
             save_def_info(induction_on_name);
         }
         add_rec_on_alias(name(m_name, "destruct"));

@@ -1712,7 +1712,9 @@ pair<expr, level_param_names> elaborator::operator()(expr const & e) {
     expr r = visit(e,  none_expr());
     trace_elab_detail(tout() << "result before final checkpoint\n" << r << "\n";);
     process_checkpoint(C);
-    unassigned_uvars_to_params();
+    if (m_top_level) {
+        unassigned_uvars_to_params();
+    }
     r = instantiate_mvars(r);
     if (!m_check_unassigned && m_to_simple_metavar) {
         /* Replace metavar_decl references with simple metavariables. */

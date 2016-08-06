@@ -283,19 +283,21 @@ format local_context::pp(formatter const & fmt) const {
                 ids  = format();
             }
 
+            name n = sanitize_if_fresh(d.get_pp_name());
+
             if (d.get_value()) {
                 if (first) first = false;
                 else r += comma() + line();
-                r += group(format(d.get_pp_name()) + space() + colon() + space() + fmt(d.get_type()) +
+                r += group(format(n) + space() + colon() + space() + fmt(d.get_type()) +
                            space() + format(":=") + nest(indent, line() + fmt(*d.get_value())));
             } else if (!type) {
                 lean_assert(!d.get_value());
-                ids  = format(d.get_pp_name());
+                ids  = format(n);
                 type = d.get_type();
             } else {
                 lean_assert(!d.get_value());
                 lean_assert(type && d.get_type() == *type);
-                ids += space() + format(d.get_pp_name());
+                ids += space() + format(n);
             }
         });
     if (type) {

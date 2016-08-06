@@ -739,7 +739,8 @@ auto pretty_fn::pp_meta(expr const & e) -> result {
 }
 
 auto pretty_fn::pp_local(expr const & e) -> result {
-    return result(format(local_pp_name(e)));
+    name n = sanitize_if_fresh(local_pp_name(e));
+    return result(format(n));
 }
 
 bool pretty_fn::has_implicit_args(expr const & f) {

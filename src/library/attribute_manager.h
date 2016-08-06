@@ -85,8 +85,9 @@ private:
 protected:
     virtual void write_entry(serializer &, attr_data const &) const override final {}
     virtual attr_data_ptr read_entry(deserializer &) const override final { return attr_data_ptr(new attr_data); }
-    virtual environment set_untyped(environment const & env, io_state const & ios, name const & n, attr_data_ptr data,
-                                    bool persistent) const override final {
+    virtual environment set_untyped(environment const & /*env */, io_state const & /* ios */,
+                                    name const & /* n */, attr_data_ptr /* data */,
+                                    bool /* persistent */) const override final {
         // TODO(sullrich): Use priority from `data` as soon as available
         lean_unreachable();
     }

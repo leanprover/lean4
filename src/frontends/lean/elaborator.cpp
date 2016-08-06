@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/error_handling.h"
 #include "library/locals.h"
+#include "library/private.h"
 #include "library/vm/vm.h"
 #include "library/compiler/rec_fn_macro.h"
 #include "library/compiler/vm_compiler.h"
@@ -1141,6 +1142,8 @@ expr elaborator::visit_anonymous_constructor(expr const & e, optional<expr> cons
         throw elaborator_exception(e, format("invalid constructor ⟨...⟩, expected type is not an inductive type") +
                                    pp_indent(*expected_type));
     name I_name = const_name(I);
+    if (is_private(m_env, I_name))
+        throw elaborator_exception(e, "invalid constructor ⟨...⟩, type is a private inductive datatype");
     if (!inductive::is_inductive_decl(m_env, I_name))
         throw elaborator_exception(e, sstream() << "invalid constructor ⟨...⟩, '" << I_name << "' is not an inductive type");
     buffer<name> c_names;

@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/explicit.h"
 #include "library/protected.h"
+#include "library/private.h"
 #include "library/class.h"
 #include "library/constants.h"
 #include "library/util.h"
@@ -76,11 +77,13 @@ struct structure_cmd_fn {
     typedef type_modifiers                modifiers;
 
     parser &                    m_p;
+    bool                        m_is_private;
     environment                 m_env;
     aux_type_context            m_aux_ctx;
     type_context &              m_ctx;
     name                        m_namespace;
     name                        m_name;
+    name                        m_given_name;
     pos_info                    m_name_pos;
     buffer<name>                m_level_names;
     modifiers                   m_modifiers;
@@ -102,8 +105,9 @@ struct structure_cmd_fn {
     levels                      m_ctx_levels; // context levels for creating aliases
     buffer<expr>                m_ctx_locals; // context local constants for creating aliases
 
-    structure_cmd_fn(parser & p):
+    structure_cmd_fn(parser & p, bool is_private):
         m_p(p),
+        m_is_private(is_private),
         m_env(p.env()),
         m_aux_ctx(aux_type_context(p.env())),
         m_ctx(m_aux_ctx.get()),
@@ -115,9 +119,16 @@ struct structure_cmd_fn {
 
     /** \brief Parse structure name and (optional) universe parameters */
     void parse_decl_name() {
-        m_name_pos = m_p.pos();
-        m_name = m_p.check_decl_id_next("invalid 'structure', identifier expected");
-        m_name = m_namespace + m_name;
+        m_name_pos   = m_p.pos();
+        m_given_name = m_p.check_decl_id_next("invalid 'structure', identifier expected");
+        if (m_is_private) {
+            unsigned h   = hash(m_name_pos.first, m_name_pos.second);
+            auto env_n   = add_private_name(m_env, m_given_name, optional<unsigned>(h));
+            m_env        = env_n.first;
+            m_name  = env_n.second;
+        } else {
+            m_name = m_namespace + m_given_name;
+        }
         buffer<name> ls_buffer;
         if (parse_univ_params(m_p, ls_buffer)) {
             m_explicit_universe_params = true;
@@ -669,13 +680,23 @@ struct structure_cmd_fn {
         m_p.add_decl_index(n, pos, k, type);
     }
 
+    void add_alias(name const & given, name const & n) {
+        m_env = ::lean::add_alias(m_p, m_env, given, n, m_ctx_levels, m_ctx_locals);
+    }
+
     void add_alias(name const & n, bool composite = true) {
         m_env = ::lean::add_alias(m_p, m_env, composite, n, m_ctx_levels, m_ctx_locals);
     }
 
     void add_rec_alias(name const & n) {
-        bool composite = true;
-        m_env = ::lean::add_alias(m_p, m_env, composite, n, levels(mk_level_placeholder(), m_ctx_levels), m_ctx_locals);
+        if (m_is_private) {
+            name given_rec_name = name(m_given_name, n.get_string());
+            std::cout << given_rec_name << " ==> " << n << "\n";
+            m_env = ::lean::add_alias(m_p, m_env, given_rec_name, n, levels(mk_level_placeholder(), m_ctx_levels), m_ctx_locals);
+        } else {
+            bool composite = true;
+            m_env = ::lean::add_alias(m_p, m_env, composite, n, levels(mk_level_placeholder(), m_ctx_levels), m_ctx_locals);
+        }
     }
 
     void declare_inductive_type() {
@@ -692,7 +713,7 @@ struct structure_cmd_fn {
         save_info(m_mk, "intro", m_mk_pos);
         m_env = add_namespace(m_env, m_name);
         m_env = add_protected(m_env, rec_name);
-        add_alias(m_name, false);
+        add_alias(m_given_name, m_name);
         add_alias(m_mk);
         add_rec_alias(rec_name);
         if (m_modifiers.is_class())
@@ -888,8 +909,13 @@ struct structure_cmd_fn {
 };
 
 environment structure_cmd(parser & p) {
-    return structure_cmd_fn(p)();
+    return structure_cmd_fn(p, false)();
 }
+
+environment private_structure_cmd(parser & p) {
+    return structure_cmd_fn(p, true)();
+}
+
 
 void get_structure_fields(environment const & env, name const & S, buffer<name> & fields) {
     lean_assert(is_structure_like(env, S));

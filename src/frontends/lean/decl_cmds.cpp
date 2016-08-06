@@ -35,6 +35,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/update_environment_exception.h"
 #include "frontends/lean/nested_declaration.h"
+#include "frontends/lean/structure_cmd.h"
 
 // We don't display profiling information for declarations that take less than 0.01 secs
 #ifndef LEAN_PROFILE_THRESHOLD
@@ -1313,6 +1314,10 @@ static void check_not_inline(parser & p, bool is_inline) {
         throw parser_error("invalid 'inline' use, only definitions can be marked as inline", p.pos());
 }
 static environment private_definition_cmd(parser & p) {
+    if (p.curr_is_token(get_structure_tk())) {
+        p.next();
+        return private_structure_cmd(p);
+    }
     bool is_noncomputable, is_inline;
     parse_opt_noncomputable_inline(p, is_noncomputable, is_inline);
     def_cmd_kind kind = Definition;

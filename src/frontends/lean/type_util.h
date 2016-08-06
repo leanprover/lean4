@@ -22,6 +22,10 @@ public:
     bool is_class() const { return m_is_class; }
 };
 
+/** \brief Add alias id for the fully qualified name \c full_id. */
+environment add_alias(parser & p, environment env, name const & id, name const & full_id,
+                      levels const & ctx_levels, buffer<expr> const & ctx_params);
+
 /** \brief Add an alias for the fully qualified name \c full_id.
 
     If composite is false, then the alias is the last part of \c full_id.

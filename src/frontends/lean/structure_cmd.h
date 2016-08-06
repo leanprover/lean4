@@ -14,6 +14,7 @@ void destruct_structure_instance(expr const & e, expr & t, buffer<name> & field_
                                  buffer<expr> & field_values, buffer<expr> & using_exprs);
 void get_structure_fields(environment const & env, name const & S, buffer<name> & fields);
 void register_structure_cmd(cmd_table & r);
+environment private_structure_cmd(parser & p);
 /** \brief Return true iff \c S is a structure created with the structure command */
 bool is_structure(environment const & env, name const & S);
 void initialize_structure_cmd();

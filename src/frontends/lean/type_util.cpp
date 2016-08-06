@@ -23,13 +23,8 @@ void type_modifiers::parse(parser & p) {
     }
 }
 
-environment add_alias(parser & p, environment env, bool composite,
-                      name const & full_id, levels const & ctx_levels, buffer<expr> const & ctx_params) {
-    name id;
-    if (composite)
-        id = name(name(full_id.get_prefix().get_string()), full_id.get_string());
-    else
-        id = name(full_id.get_string());
+environment add_alias(parser & p, environment env, name const & id, name const & full_id,
+                      levels const & ctx_levels, buffer<expr> const & ctx_params) {
     if (!empty(ctx_levels) || !ctx_params.empty()) {
         expr r = mk_local_ref(full_id, ctx_levels, ctx_params);
         env = p.add_local_ref(env, id, r);
@@ -37,6 +32,16 @@ environment add_alias(parser & p, environment env, bool composite,
     if (full_id != id)
         env = add_expr_alias_rec(env, id, full_id);
     return env;
+}
+
+environment add_alias(parser & p, environment env, bool composite,
+                      name const & full_id, levels const & ctx_levels, buffer<expr> const & ctx_params) {
+    name id;
+    if (composite)
+        id = name(name(full_id.get_prefix().get_string()), full_id.get_string());
+    else
+        id = name(full_id.get_string());
+    return add_alias(p, env, id, full_id, ctx_levels, ctx_params);
 }
 
 implicit_infer_kind parse_implicit_infer_modifier(parser & p) {

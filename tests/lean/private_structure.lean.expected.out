@@ -1,0 +1,26 @@
+point.rec ==> private.1706149582.point.rec
+point.rec_on ==> private.1706149582.point.rec_on
+bla : Type₁
+point : Type₁
+point.mk : ℕ → ℕ → point
+point.rec : (Π x y, ?M_1 (point.mk x y)) → (Π n, ?M_1 n)
+point.rec_on : Π n, (Π x y, ?M_1 (point.mk x y)) → ?M_1 n
+point.cases_on : Π n, (Π x y, ?M_1 (point.mk x y)) → ?M_1 n
+point.induction_on : ∀ n, (∀ x y, ?M_1 (point.mk x y)) → ?M_1 n
+point.no_confusion : ?M_1 = ?M_2 → private.1706149582.point.no_confusion_type ?M_3 ?M_1 ?M_2
+point.x : point → ℕ
+point.y : point → ℕ
+bla : Type₁
+private_structure.lean:25:6: error: unknown identifier 'point'
+private_structure.lean:26:6: error: unknown identifier 'point.mk'
+private_structure.lean:27:6: error: unknown identifier 'point.rec'
+private_structure.lean:28:6: error: unknown identifier 'point.rec_on'
+private_structure.lean:29:6: error: unknown identifier 'point.cases_on'
+private_structure.lean:30:6: error: unknown identifier 'point.induction_on'
+private_structure.lean:31:6: error: unknown identifier 'point.no_confusion'
+private_structure.lean:32:6: error: unknown identifier 'point.x'
+private_structure.lean:33:6: error: unknown identifier 'point.y'
+definition foo.bla : Type.{1} :=
+point
+private_structure.lean:38:7: error: invalid constructor ⟨...⟩, type is a private inductive datatype
+foo.mk : foo.bla

@@ -90,6 +90,7 @@ constants    constants
 meta_constant meta_constant
 variable     variable
 variables    variables
+structure    structure
 priority     [priority
 unfold_hints_bracket [unfold_hints]
 unfold_hints unfold_hints

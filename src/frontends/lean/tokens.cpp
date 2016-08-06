@@ -95,6 +95,7 @@ static name const * g_constants_tk = nullptr;
 static name const * g_meta_constant_tk = nullptr;
 static name const * g_variable_tk = nullptr;
 static name const * g_variables_tk = nullptr;
+static name const * g_structure_tk = nullptr;
 static name const * g_priority_tk = nullptr;
 static name const * g_unfold_hints_bracket_tk = nullptr;
 static name const * g_unfold_hints_tk = nullptr;
@@ -233,6 +234,7 @@ void initialize_tokens() {
     g_meta_constant_tk = new name{"meta_constant"};
     g_variable_tk = new name{"variable"};
     g_variables_tk = new name{"variables"};
+    g_structure_tk = new name{"structure"};
     g_priority_tk = new name{"[priority"};
     g_unfold_hints_bracket_tk = new name{"[unfold_hints]"};
     g_unfold_hints_tk = new name{"unfold_hints"};
@@ -372,6 +374,7 @@ void finalize_tokens() {
     delete g_meta_constant_tk;
     delete g_variable_tk;
     delete g_variables_tk;
+    delete g_structure_tk;
     delete g_priority_tk;
     delete g_unfold_hints_bracket_tk;
     delete g_unfold_hints_tk;
@@ -510,6 +513,7 @@ name const & get_constants_tk() { return *g_constants_tk; }
 name const & get_meta_constant_tk() { return *g_meta_constant_tk; }
 name const & get_variable_tk() { return *g_variable_tk; }
 name const & get_variables_tk() { return *g_variables_tk; }
+name const & get_structure_tk() { return *g_structure_tk; }
 name const & get_priority_tk() { return *g_priority_tk; }
 name const & get_unfold_hints_bracket_tk() { return *g_unfold_hints_bracket_tk; }
 name const & get_unfold_hints_tk() { return *g_unfold_hints_tk; }

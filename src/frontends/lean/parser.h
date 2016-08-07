@@ -78,10 +78,11 @@ typedef std::vector<snapshot> snapshot_vector;
 
 enum class keep_theorem_mode { All, DiscardImported, DiscardAll };
 
-enum class undef_id_behavior {
-    Error, /* Default: just generate an error when an undefined identifier is found */
-    AssumeConstant, /* Assume an undefined identifier is a constant, we use it for parsing inductive datatypes. */
-    AssumeLocal /* Assume an undefined identifier is a local constant, we use it when parsing quoted terms and match patterns. */ };
+enum class id_behavior {
+    ErrorIfUndef, /* Default: just generate an error when an undefined identifier is found */
+    AssumeConstantIfUndef, /* Assume an undefined identifier is a constant, we use it for parsing inductive datatypes. */
+    AssumeLocalIfUndef, /* Assume an undefined identifier is a local constant, we use it when parsing quoted terms. */
+    AllLocal    /* Assume that *all* identifiers (without level annotation) are local constants. */ };
 
 class parser : public abstract_parser {
     environment             m_env;
@@ -111,7 +112,7 @@ class parser : public abstract_parser {
     // By default, when the parser finds a unknown identifier, it signs an error.
     // When the following flag is true, it creates a constant.
     // This flag is when we are trying to parse mutually recursive declarations.
-    undef_id_behavior       m_undef_id_behavior;
+    id_behavior             m_id_behavior;
     // We process theorems in parallel
     theorem_queue           m_theorem_queue;
     name_set                m_theorem_queue_set; // set of theorem names in m_theorem_queue
@@ -426,9 +427,9 @@ public:
     };
 
     struct quote_scope {
-        parser &          m_p;
-        undef_id_behavior m_undef_id_behavior;
-        bool              m_in_quote;
+        parser &    m_p;
+        id_behavior m_id_behavior;
+        bool        m_in_quote;
         quote_scope(parser & p, bool q);
         ~quote_scope();
     };
@@ -472,8 +473,9 @@ public:
         This behavior is useful when we are trying to parse mutually recursive declarations and
         tactics.
     */
-    struct undef_id_to_const_scope : public flet<undef_id_behavior> { undef_id_to_const_scope(parser & p); };
-    struct undef_id_to_local_scope : public flet<undef_id_behavior> { undef_id_to_local_scope(parser &); };
+    struct undef_id_to_const_scope : public flet<id_behavior> { undef_id_to_const_scope(parser & p); };
+    struct undef_id_to_local_scope : public flet<id_behavior> { undef_id_to_local_scope(parser &); };
+    struct all_id_local_scope : public flet<id_behavior> { all_id_local_scope(parser & p); };
 
     /** \brief Return the size of the stack of undefined local constants */
     unsigned get_num_undef_ids() const { return m_undef_ids.size(); }

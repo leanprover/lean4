@@ -112,10 +112,10 @@ parser::local_scope::~local_scope() {
 }
 
 parser::quote_scope::quote_scope(parser & p, bool q):
-    m_p(p), m_undef_id_behavior(m_p.m_undef_id_behavior), m_in_quote(q) {
+    m_p(p), m_id_behavior(m_p.m_id_behavior), m_in_quote(q) {
     if (q) {
         lean_assert(!m_p.m_in_quote);
-        m_p.m_undef_id_behavior = undef_id_behavior::AssumeLocal;
+        m_p.m_id_behavior = id_behavior::AssumeLocalIfUndef;
         m_p.m_in_quote = true;
         m_p.push_local_scope(false);
         m_p.m_quote_stack = cons(m_p.mk_parser_scope(), m_p.m_quote_stack);
@@ -123,7 +123,7 @@ parser::quote_scope::quote_scope(parser & p, bool q):
     } else {
         lean_assert(m_p.m_in_quote);
         lean_assert(m_p.m_quote_stack);
-        m_p.m_undef_id_behavior = undef_id_behavior::Error;
+        m_p.m_id_behavior = id_behavior::ErrorIfUndef;
         m_p.push_local_scope(false);
         m_p.m_in_quote = false;
         m_p.restore_parser_scope(head(m_p.m_quote_stack));
@@ -141,13 +141,15 @@ parser::quote_scope::~quote_scope() {
         m_p.m_in_quote = true;
         m_p.pop_local_scope();
     }
-    m_p.m_undef_id_behavior = m_undef_id_behavior;
+    m_p.m_id_behavior = m_id_behavior;
 }
 
 parser::undef_id_to_const_scope::undef_id_to_const_scope(parser & p):
-    flet<undef_id_behavior>(p.m_undef_id_behavior, undef_id_behavior::AssumeConstant) {}
+    flet<id_behavior>(p.m_id_behavior, id_behavior::AssumeConstantIfUndef) {}
 parser::undef_id_to_local_scope::undef_id_to_local_scope(parser & p):
-    flet<undef_id_behavior>(p.m_undef_id_behavior, undef_id_behavior::AssumeLocal) {}
+    flet<id_behavior>(p.m_id_behavior, id_behavior::AssumeLocalIfUndef) {}
+parser::all_id_local_scope::all_id_local_scope(parser & p):
+    flet<id_behavior>(p.m_id_behavior, id_behavior::AllLocal) {}
 
 static name * g_tmp_prefix = nullptr;
 
@@ -193,10 +195,10 @@ parser::parser(environment const & env, io_state const & ios,
         m_include_vars       = s->m_include_vars;
         m_parser_scope_stack = s->m_parser_scope_stack;
     }
-    m_num_threads = num_threads;
-    m_undef_id_behavior = undef_id_behavior::Error;
+    m_num_threads  = num_threads;
+    m_id_behavior  = id_behavior::ErrorIfUndef;
     m_found_errors = false;
-    m_used_sorry = false;
+    m_used_sorry   = false;
     updt_options();
     m_next_tag_idx  = 0;
     m_next_inst_idx = 1;
@@ -1679,8 +1681,10 @@ expr parser::parse_led_notation(expr left) {
 expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) {
     buffer<level> lvl_buffer;
     levels ls;
+    bool explicit_levels = false;
     if (!resolve_only && curr_is_token(get_llevel_curly_tk())) {
         next();
+        explicit_levels = true;
         while (!curr_is_token(get_rcurly_tk())) {
             lvl_buffer.push_back(parse_level());
         }
@@ -1688,9 +1692,13 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
         ls = to_list(lvl_buffer.begin(), lvl_buffer.end());
     }
 
+    if (!explicit_levels && m_id_behavior == id_behavior::AllLocal) {
+        return save_pos(mk_local(id, mk_expr_placeholder()), p);
+    }
+
     // locals
     if (auto it1 = m_local_decls.find(id)) {
-        if (ls && m_undef_id_behavior != undef_id_behavior::AssumeConstant)
+        if (ls && m_id_behavior != id_behavior::AssumeConstantIfUndef)
             throw parser_error("invalid use of explicit universe parameter, identifier is a variable, "
                                "parameter or a constant bound to parameters in a section", p);
         auto r = copy_with_new_pos(*it1, p);
@@ -1747,9 +1755,9 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) 
             save_overload(*r);
     }
     if (!r) {
-        if (m_undef_id_behavior == undef_id_behavior::AssumeConstant) {
+        if (m_id_behavior == id_behavior::AssumeConstantIfUndef) {
             r = save_pos(mk_constant(get_namespace(m_env) + id, ls), p);
-        } else if (m_undef_id_behavior == undef_id_behavior::AssumeLocal) {
+        } else if (m_id_behavior == id_behavior::AssumeLocalIfUndef) {
             expr local = mk_local(id, mk_expr_placeholder());
             if (!resolve_only)
                 m_undef_ids.push_back(local);

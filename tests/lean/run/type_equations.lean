@@ -25,14 +25,14 @@ definition subterm := tc direct_subterm
 theorem subterm_wf [instance] : well_founded subterm :=
 tc.wf direct_subterm_wf
 
-infix `+` := Expr.add
+local infix `+` := Expr.add
 
 set_option pp.notation false
 
 definition ev : Expr → nat
 | zero             := 0
 | one              := 1
-| ((a : Expr) + b) := ev a + ev b
+| ((a : Expr) + b) := _root_.add (ev a) (ev b)
 
 definition foo : Expr := add zero (add one one)
 

@@ -1,4 +1,6 @@
 open nat
+attribute [pattern] lt.base
+attribute [pattern] lt.step
 
 theorem lt_trans : ∀ {a b c : nat}, a < b → b < c → a < c
 | lt_trans h  (lt.base _)   := lt.step h

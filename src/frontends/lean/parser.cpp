@@ -46,6 +46,7 @@ Author: Leonardo de Moura
 #include "library/error_handling.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/legacy_type_context.h"
+#include "library/definitional/equations.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
@@ -58,6 +59,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/builtin_cmds.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
+#include "frontends/lean/pattern_attribute.h"
 // LEGACY
 #include "frontends/lean/old_elaborator.h"
 
@@ -148,6 +150,8 @@ parser::undef_id_to_const_scope::undef_id_to_const_scope(parser & p):
     flet<id_behavior>(p.m_id_behavior, id_behavior::AssumeConstantIfUndef) {}
 parser::undef_id_to_local_scope::undef_id_to_local_scope(parser & p):
     flet<id_behavior>(p.m_id_behavior, id_behavior::AssumeLocalIfUndef) {}
+parser::error_if_undef_scope::error_if_undef_scope(parser & p):
+    flet<id_behavior>(p.m_id_behavior, id_behavior::ErrorIfUndef) {}
 parser::all_id_local_scope::all_id_local_scope(parser & p):
     flet<id_behavior>(p.m_id_behavior, id_behavior::AllLocal) {}
 
@@ -1676,6 +1680,133 @@ expr parser::parse_led_notation(expr left) {
     } else {
         return mk_app(left, parse_expr(get_max_prec()), pos_of(left));
     }
+}
+
+struct to_pattern_fn {
+    parser &       m_parser;
+    buffer<expr> & m_new_locals;
+    name_map<expr> m_vars;
+
+    environment const & env() { return m_parser.env(); }
+
+    to_pattern_fn(parser & p, buffer<expr> & new_locals):
+        m_parser(p), m_new_locals(new_locals) {}
+
+    /* Return true iff the constant n may occur in a pattern */
+    bool is_pattern_constant(name const & n) {
+        if (inductive::is_intro_rule(env(), n))
+            return true;
+        if (has_pattern_attribute(env(), n))
+            return true;
+        return false;
+    }
+
+    expr visit_local(expr const & e) {
+        if (auto r = m_vars.find(local_pp_name(e)))
+            return *r;
+        bool resolve_only = true;
+        expr new_e = m_parser.id_to_expr(local_pp_name(e), m_parser.pos_of(e), resolve_only);
+        if (is_constant(new_e) && is_pattern_constant(const_name(new_e))) {
+            return new_e;
+        } else if (is_choice(new_e)) {
+            bool all_pattern_constant = true;
+            bool has_pattern_constant = false;
+            for (unsigned i = 0; i < get_num_choices(new_e); i++) {
+                expr const & c = get_choice(new_e, i);
+                if (is_constant(c) && is_pattern_constant(const_name(c)))
+                    has_pattern_constant = true;
+                else
+                    all_pattern_constant = false;
+            }
+            if (all_pattern_constant) {
+                return new_e;
+            } else if (has_pattern_constant) {
+                throw parser_error(sstream() << "invalid pattern, '" << e << "' is overloaded, "
+                                   << "and some interpretations may occur in patterns and others not "
+                                   << "(solution: use fully qualified names)",
+                                   m_parser.pos_of(e));
+            } else {
+                // assume e is a variable shadowing overloaded constants
+            }
+        }
+        if (!local_pp_name(e).is_atomic()) {
+            throw parser_error("invalid pattern, variable, constructor or constant tagged as pattern expected",
+                               m_parser.pos_of(e));
+        }
+        m_vars.insert(local_pp_name(e), e);
+        m_new_locals.push_back(e);
+        return e;
+    }
+
+    expr to_expr(expr const & e) {
+        return replace(e, [&](expr const & e, unsigned) {
+                if (is_local(e)) {
+                    if (auto r = m_vars.find(local_pp_name(e)))
+                        return some_expr(*r);
+                    else
+                        return some_expr(m_parser.patexpr_to_expr(e));
+                }
+                return none_expr();
+            });
+    }
+
+    expr visit(expr const & e, bool skip_main_fn) {
+        if (is_typed_expr(e)) {
+            expr new_v = visit(get_typed_expr_expr(e), false);
+            expr new_t = to_expr(get_typed_expr_type(e));
+            return copy_tag(e, mk_typed_expr(new_t, new_v));
+        } else if (is_prenum(e)) {
+            return e;
+        } else if (is_inaccessible(e)) {
+            return to_expr(e);
+        } else if (is_placeholder(e)) {
+            return e;
+        } else if (is_app(e)) {
+            expr new_f = visit(app_fn(e), skip_main_fn);
+            expr new_a = visit(app_arg(e), false);
+            return update_app(e, new_f, new_a);
+        } else if (is_local(e)) {
+            if (skip_main_fn)
+                return e;
+            else
+                return visit_local(e);
+        } else if (is_annotation(e)) {
+            return copy_tag(e, mk_annotation(get_annotation_kind(e), visit(get_annotation_arg(e), skip_main_fn)));
+        } else if (is_constant(e) && is_pattern_constant(const_name(e))) {
+            return e;
+        } else {
+            throw parser_error("invalid pattern, must be an application, "
+                               "constant, variable, type ascription or inaccessible term",
+                               m_parser.pos_of(e));
+        }
+    }
+
+    expr operator()(expr const & e, bool skip_main_fn) {
+        return visit(e, skip_main_fn);
+    }
+};
+
+expr parser::patexpr_to_pattern(expr const & pat_or_expr, bool skip_main_fn, buffer<expr> & new_locals) {
+    undef_id_to_local_scope scope(*this);
+    return to_pattern_fn(*this, new_locals)(pat_or_expr, skip_main_fn);
+}
+
+expr parser::parse_pattern_or_expr(unsigned rbp) {
+    if (m_in_quote) {
+        throw parser_error("patterns cannot occur inside of quoted terms", pos());
+    }
+    all_id_local_scope scope(*this);
+    return parse_expr(rbp);
+}
+
+expr parser::patexpr_to_expr(expr const & pat_or_expr) {
+    error_if_undef_scope scope(*this);
+    return replace(pat_or_expr, [&](expr const & e, unsigned) {
+            if (is_local(e)) {
+                return some_expr(id_to_expr(local_pp_name(e), pos_of(e), true));
+            }
+            return none_expr();
+        });
 }
 
 expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only) {

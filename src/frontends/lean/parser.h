@@ -395,13 +395,25 @@ public:
     expr parse_expr(unsigned rbp = 0);
     /** \brief Parse an (optionally) qualified expression.
         If the input is of the form <id> : <expr>, then return the pair (some(id), expr).
-        Otherwise, parse the next expression and return (none, expr).
-    */
+        Otherwise, parse the next expression and return (none, expr). */
     pair<optional<name>, expr> parse_qualified_expr(unsigned rbp = 0);
     /** \brief If the input is of the form <id> := <expr>, then return the pair (some(id), expr).
-        Otherwise, parse the next expression and return (none, expr).
-    */
+        Otherwise, parse the next expression and return (none, expr). */
     pair<optional<name>, expr> parse_optional_assignment(unsigned rbp = 0);
+
+    /** \brief Parse a pattern or expression */
+    expr parse_pattern_or_expr(unsigned rbp = 0);
+    /** \brief Convert an expression parsed using parse_pattern_or_expr into a pattern.
+        The new local constants declared by the pattern are stored at new_locals.
+
+        If skip_main_fn == true, then in the top-level application (f ...), the function f
+        is not processed. */
+    expr patexpr_to_pattern(expr const & pat_or_expr, bool skip_main_fn, buffer<expr> & new_locals);
+    /** \brief Convert an expression parsed using parse_pattern_or_expr into a regular term. */
+    expr patexpr_to_expr(expr const & pat_or_expr);
+    expr parse_pattern(buffer<expr> & new_locals, unsigned rbp = 0) {
+        return patexpr_to_pattern(parse_pattern_or_expr(rbp), false, new_locals);
+    }
 
     expr parse_id();
 
@@ -475,6 +487,7 @@ public:
     */
     struct undef_id_to_const_scope : public flet<id_behavior> { undef_id_to_const_scope(parser & p); };
     struct undef_id_to_local_scope : public flet<id_behavior> { undef_id_to_local_scope(parser &); };
+    struct error_if_undef_scope : public flet<id_behavior> { error_if_undef_scope(parser & p); };
     struct all_id_local_scope : public flet<id_behavior> { all_id_local_scope(parser & p); };
 
     /** \brief Return the size of the stack of undefined local constants */

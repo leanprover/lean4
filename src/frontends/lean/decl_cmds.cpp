@@ -450,80 +450,6 @@ static bool is_curr_with_or_comma_or_bar(parser & p) {
     return p.curr_is_token(get_with_tk()) || p.curr_is_token(get_comma_tk()) || p.curr_is_token(get_bar_tk());
 }
 
-/**
-   For convenience, the left-hand-side of a pattern (e.g., in a recursive equation) may contain
-   undeclared variables.
-   We use parser::undef_id_to_local_scope to force the parser to create a local constant for
-   each undefined identifier.
-
-   This method validates occurrences of these variables. They can only occur as an application
-   or macro argument.
-*/
-void validate_match_pattern(parser const & p, expr const & lhs, bool is_fn, buffer<expr> const & locals) {
-    if (is_app(lhs)) {
-        validate_match_pattern(p, app_fn(lhs), true, locals);
-        validate_match_pattern(p, app_arg(lhs), false, locals);
-    } else if (is_macro(lhs)) {
-        for (unsigned i = 0; i < macro_num_args(lhs); i++)
-            validate_match_pattern(p, macro_arg(lhs, i), is_fn, locals);
-    } else if (is_local(lhs)) {
-        if (!is_fn && !local_pp_name(lhs).is_atomic())
-            throw parser_error(sstream() << "invalid pattern variable '" << lhs << "', "
-                               << "it must be an atomic identifier", p.pos_of(lhs));
-    } else {
-        lean_assert(!is_local(lhs));
-        for_each(lhs, [&](expr const & e, unsigned) {
-                if (is_local(e) &&
-                    std::any_of(locals.begin(), locals.end(), [&](expr const & local) {
-                            return mlocal_name(e) == mlocal_name(local);
-                        })) {
-                    throw parser_error(sstream() << "invalid occurrence of variable '" << mlocal_name(e) <<
-                                       "' in the pattern", p.pos_of(lhs));
-                }
-                return has_local(e);
-            });
-    }
-}
-void validate_match_pattern(parser const & p, expr const & lhs, buffer<expr> const & locals) {
-    validate_match_pattern(p, lhs, true, locals);
-}
-
-/**
-   \brief Merge multiple occurrences of a variable in the left-hand-side of a recursive equation.
-
-   \see validate_match_pattern
-*/
-static expr merge_match_pattern_vars(expr const & lhs, buffer<expr> & locals) {
-    expr_map<expr> m;
-    unsigned j = 0;
-    for (unsigned i = 0; i < locals.size(); i++) {
-        unsigned k;
-        for (k = 0; k < i; k++) {
-            if (mlocal_name(locals[k]) == mlocal_name(locals[i])) {
-                m.insert(mk_pair(locals[i], locals[k]));
-                break;
-            }
-        }
-        if (k == i) {
-            locals[j] = locals[i];
-            j++;
-        }
-    }
-    if (j == locals.size())
-        return lhs;
-    locals.shrink(j);
-    return replace(lhs, [&](expr const & e) {
-            if (!has_local(e))
-                return some_expr(e);
-            if (is_local(e)) {
-                auto it = m.find(e);
-                if (it != m.end())
-                    return some_expr(it->second);
-            }
-            return none_expr();
-        });
-}
-
 [[ noreturn ]] static void throw_invalid_equation_lhs(name const & n, pos_info const & p) {
     throw parser_error(sstream() << "invalid recursive equation, head symbol '"
                        << n << "' in the left-hand-side does not correspond to function(s) being defined", p);
@@ -562,8 +488,6 @@ static void parse_equations_core(parser & p, buffer<expr> const & fns, buffer<ex
     }
     while (true) {
         expr lhs;
-        unsigned prev_num_undef_ids = p.get_num_undef_ids();
-        buffer<expr> locals;
         {
             parser::undef_id_to_local_scope scope2(p);
             buffer<expr> lhs_args;
@@ -573,12 +497,12 @@ static void parse_equations_core(parser & p, buffer<expr> const & fns, buffer<ex
                 name fn_name = p.check_decl_id_next("invalid recursive equation, identifier expected");
                 lhs_args.push_back(p.save_pos(mk_explicit(get_equation_fn(fns, fn_name, lhs_pos)), lhs_pos));
             } else {
-                expr first = p.parse_expr(get_max_prec());
+                expr first = p.parse_pattern_or_expr(get_max_prec());
                 expr fn    = first;
                 if (is_explicit(fn))
                     fn = get_explicit_arg(fn);
                 if (is_local(fn) && is_equation_fn(fns, local_pp_name(fn))) {
-                    lhs_args.push_back(first);
+                    lhs_args.push_back(p.patexpr_to_expr(first));
                 } else if (fns.size() == 1) {
                     lhs_args.push_back(p.save_pos(mk_explicit(fns[0]), lhs_pos));
                     lhs_args.push_back(first);
@@ -588,19 +512,15 @@ static void parse_equations_core(parser & p, buffer<expr> const & fns, buffer<ex
                 }
             }
             while (!p.curr_is_token(get_assign_tk()))
-                lhs_args.push_back(p.parse_expr(get_max_prec()));
+                lhs_args.push_back(p.parse_pattern_or_expr(get_max_prec()));
             lean_assert(lhs_args.size() > 0);
             lhs = lhs_args[0];
             for (unsigned i = 1; i < lhs_args.size(); i++)
                 lhs = copy_tag(lhs_args[i], mk_app(lhs, lhs_args[i]));
-
-            unsigned num_undef_ids = p.get_num_undef_ids();
-            for (unsigned i = prev_num_undef_ids; i < num_undef_ids; i++) {
-                locals.push_back(p.get_undef_id(i));
-            }
         }
-        validate_match_pattern(p, lhs, locals);
-        lhs = merge_match_pattern_vars(lhs, locals);
+        buffer<expr> locals;
+        bool skip_main_fn = true;
+        lhs = p.patexpr_to_pattern(lhs, skip_main_fn, locals);
         auto assign_pos = p.pos();
         p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
         {
@@ -678,21 +598,6 @@ static name * g_match_name = nullptr;
 
 bool is_match_binder_name(name const & n) { return n == *g_match_name; }
 
-expr parse_match_pattern(parser & p, buffer<expr> & locals) {
-    expr lhs;
-    unsigned prev_num_undef_ids = p.get_num_undef_ids();
-    {
-        parser::undef_id_to_local_scope scope2(p);
-        lhs = p.parse_expr();
-        unsigned num_undef_ids = p.get_num_undef_ids();
-        for (unsigned i = prev_num_undef_ids; i < num_undef_ids; i++) {
-            locals.push_back(p.get_undef_id(i));
-        }
-    }
-    lhs = merge_match_pattern_vars(lhs, locals);
-    return lhs;
-}
-
 /** \brief Use equations compiler infrastructure to implement match-with */
 expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
     parser::local_scope scope(p);
@@ -714,8 +619,7 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
         while (true) {
             buffer<expr> locals;
             auto lhs_pos = p.pos();
-            expr lhs = parse_match_pattern(p, locals);
-            validate_match_pattern(p, lhs, locals);
+            expr lhs = p.parse_pattern(locals);
             lhs = p.mk_app(fn, lhs, lhs_pos);
             auto assign_pos = p.pos();
             p.check_token_next(get_assign_tk(), "invalid 'match' expression, ':=' expected");

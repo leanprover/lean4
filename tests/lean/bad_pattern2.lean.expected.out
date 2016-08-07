@@ -1,1 +1,1 @@
-bad_pattern2.lean:2:2: error: invalid pattern variable 'bla.boo', it must be an atomic identifier
+bad_pattern2.lean:2:2: error: invalid pattern, variable, constructor or constant tagged as pattern expected

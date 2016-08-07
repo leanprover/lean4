@@ -29,17 +29,17 @@ definition occurrences_is_inhabited [instance] : inhabited occurrences :=
 inhabited.mk all
 
 definition occurrences_to_string : occurrences → string
-| all     := "*"
-| (pos l) := to_string l
-| (neg l) := "-" ++ to_string l
+| occurrences.all     := "*"
+| (occurrences.pos l) := to_string l
+| (occurrences.neg l) := "-" ++ to_string l
 
 definition occurrences_has_to_string [instance] : has_to_string occurrences :=
 has_to_string.mk occurrences_to_string
 
 meta_definition occurrences_to_format : occurrences → format
-| all     := to_fmt "*"
-| (pos l) := to_fmt l
-| (neg l) := to_fmt "-" ++ to_fmt l
+| occurrences.all     := to_fmt "*"
+| (occurrences.pos l) := to_fmt l
+| (occurrences.neg l) := to_fmt "-" ++ to_fmt l
 
 meta_definition occurrences_has_to_format [instance] : has_to_format occurrences :=
 has_to_format.mk occurrences_to_format

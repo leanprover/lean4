@@ -19,8 +19,8 @@ variables {A : Type}
 variables [has_to_string A]
 
 protected meta_definition exceptional.to_string : exceptional A → string
-| (success a)     := to_string a
-| (exception A e) := "Exception: " ++ to_string (e options.mk)
+| (success a)       := to_string a
+| (exception ⌞A⌟ e) := "Exception: " ++ to_string (e options.mk)
 
 protected meta_definition exceptional.has_to_string [instance] : has_to_string (exceptional A) :=
 has_to_string.mk exceptional.to_string

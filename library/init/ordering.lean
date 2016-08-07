@@ -12,7 +12,7 @@ inductive ordering :=
 open ordering
 
 definition ordering.has_to_string [instance] : has_to_string ordering :=
-has_to_string.mk (λ s, match s with | lt := "lt" | eq := "eq" | gt := "gt" end)
+has_to_string.mk (λ s, match s with | ordering.lt := "lt" | ordering.eq := "eq" | ordering.gt := "gt" end)
 
 structure has_ordering [class] (A : Type) :=
 (cmp : A → A → ordering)
@@ -33,9 +33,9 @@ variables {A B : Type} [has_ordering A] [has_ordering B]
 definition prod.cmp : A × B → A × B → ordering
 | (a₁, b₁) (a₂, b₂) :=
    match has_ordering.cmp a₁ a₂ with
-   | lt := lt
-   | eq := has_ordering.cmp b₁ b₂
-   | gt := gt
+   | ordering.lt := lt
+   | ordering.eq := has_ordering.cmp b₁ b₂
+   | ordering.gt := gt
    end
 
 definition prod_has_ordering [instance] {A B : Type} [has_ordering A] [has_ordering B] : has_ordering (A × B) :=

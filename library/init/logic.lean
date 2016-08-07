@@ -53,6 +53,8 @@ false.rec c H
 notation a = b := eq a b
 definition rfl {A : Type} {a : A} : a = a := eq.refl a
 
+attribute [pattern] rfl
+
 definition id.def [defeq] {A : Type} (a : A) : id a = a := rfl
 
 -- proof irrelevance is built in

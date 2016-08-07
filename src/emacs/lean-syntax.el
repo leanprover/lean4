@@ -44,14 +44,14 @@
 
 (defconst lean-modifiers
   (--map (s-concat "[" it "]")
-         '("persistent" "notation" "visible" "instance" "trans_instance"
+         '("persistent" "notation" "visible" "instance"
            "class" "parsing_only" "coercion" "unfold_full" "constructor"
            "reducible" "irreducible" "semireducible" "wf"
            "whnf" "multiple_instances" "none" "decl" "declaration"
            "relation" "symm" "subst" "refl" "trans" "simp" "congr" "simp_ext"
            "backward" "forward" "no_pattern" "begin_end" "abbreviation"
            "reducible" "unfold" "alias" "eqv" "intro" "intro!" "elim" "grinder" "unify" "defeq"
-           "localrefinfo" "recursor"))
+           "localrefinfo" "recursor" "pattern"))
   "lean modifiers")
 (defconst lean-modifiers-regexp
   (regexp-opt lean-modifiers))

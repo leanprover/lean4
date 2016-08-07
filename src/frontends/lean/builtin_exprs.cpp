@@ -456,7 +456,10 @@ static expr fix_do_action_lhs(parser & p, expr const & lhs, expr const & type, p
 static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(parser & p, buffer<expr> & new_locals) {
     auto lhs_pos = p.pos();
     optional<expr> lhs;
-    lhs = parse_match_pattern(p, new_locals);
+    if (p.in_quote())
+        lhs = p.parse_expr();
+    else
+        lhs = p.parse_pattern_or_expr();
     expr type, curr;
     optional<expr> else_case;
     if (p.curr_is_token(get_colon_tk())) {
@@ -472,20 +475,17 @@ static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(pa
         p.next();
         type = p.save_pos(mk_expr_placeholder(), lhs_pos);
         lhs  = fix_do_action_lhs(p, *lhs, type, lhs_pos, new_locals);
-        if (!is_local(*lhs))
-            validate_match_pattern(p, *lhs, new_locals);
+        if (!is_local(*lhs)) {
+            bool skip_main_fn = false;
+            lhs = p.patexpr_to_pattern(*lhs, skip_main_fn, new_locals);
+        }
         curr = p.parse_expr();
         if (p.curr_is_token(get_bar_tk())) {
             p.next();
             else_case = p.parse_expr();
         }
     } else {
-        if (!new_locals.empty()) {
-            expr undef = new_locals[0];
-            auto undef_pos = p.pos_of(undef, lhs_pos);
-            throw parser_error(sstream() << "unknown identifier '" << local_pp_name(undef) << "'", undef_pos);
-        }
-        curr = *lhs;
+        curr = p.patexpr_to_expr(*lhs);
         type = p.save_pos(mk_expr_placeholder(), lhs_pos);
         lhs  = none_expr();
     }

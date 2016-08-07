@@ -25,8 +25,8 @@ inductive PropF :=
 
 namespace PropF
   notation `#`:max P:max := Var P
-  notation A ∨ B         := Disj A B
-  notation A ∧ B         := Conj A B
+  local notation A ∨ B   := Disj A B
+  local notation A ∧ B   := Conj A B
   infixr `⇒`:27          := Impl
   notation `⊥`           := Bot
 
@@ -61,19 +61,18 @@ namespace PropF
 
   -- Remark ⌞t⌟ indicates we should not pattern match on t.
   -- In the following lemma, we only need to pattern match on Γ ⊢ A,
-  -- by pattern matching on A, we would be creating 10*6 cases instead of 10.
 
   lemma weakening2 : ∀ {Γ A Δ}, Γ ⊢ A → Γ ⊆ Δ → Δ ⊢ A
-  | Γ ⌞A⌟     Δ (Nax Γ A Hin)          Hs := Nax _ _ (Hs A Hin)
-  | Γ ⌞A ⇒ B⌟ Δ (ImpI Γ A B H)         Hs := ImpI _ _ _ (weakening2 H (cons_sub_cons A Hs))
-  | Γ ⌞B⌟     Δ (ImpE Γ A B H₁ H₂)     Hs := ImpE _ _ _ (weakening2 H₁ Hs) (weakening2 H₂ Hs)
-  | Γ ⌞A⌟     Δ (BotC Γ A H)           Hs := BotC _ _ (weakening2 H (cons_sub_cons (~A) Hs))
-  | Γ ⌞A ∧ B⌟ Δ (AndI Γ A B H₁ H₂)     Hs := AndI _ _ _ (weakening2 H₁ Hs) (weakening2 H₂ Hs)
-  | Γ ⌞A⌟     Δ (AndE₁ Γ A B H)        Hs := AndE₁ _ _ _ (weakening2 H Hs)
-  | Γ ⌞B⌟     Δ (AndE₂ Γ A B H)        Hs := AndE₂ _ _ _ (weakening2 H Hs)
-  | Γ ⌞A ∧ B⌟ Δ (OrI₁ Γ A B H)         Hs := OrI₁ _ _ _ (weakening2 H Hs)
-  | Γ ⌞A ∨ B⌟ Δ (OrI₂ Γ A B H)         Hs := OrI₂ _ _ _ (weakening2 H Hs)
-  | Γ ⌞C⌟     Δ (OrE Γ A B C H₁ H₂ H₃) Hs :=
+  | Γ A       Δ (Nax Γ A Hin)          Hs := Nax _ _ (Hs A Hin)
+  | Γ (A ⇒ B) Δ (ImpI Γ A B H)         Hs := ImpI _ _ _ (weakening2 H (cons_sub_cons A Hs))
+  | Γ B       Δ (ImpE Γ A B H₁ H₂)     Hs := ImpE _ _ _ (weakening2 H₁ Hs) (weakening2 H₂ Hs)
+  | Γ A       Δ (BotC Γ A H)           Hs := BotC _ _ (weakening2 H (cons_sub_cons (~A) Hs))
+  | Γ (A ∧ B) Δ (AndI Γ A B H₁ H₂)     Hs := AndI _ _ _ (weakening2 H₁ Hs) (weakening2 H₂ Hs)
+  | Γ A       Δ (AndE₁ Γ A B H)        Hs := AndE₁ _ _ _ (weakening2 H Hs)
+  | Γ B       Δ (AndE₂ Γ A B H)        Hs := AndE₂ _ _ _ (weakening2 H Hs)
+  | Γ (A ∧ B) Δ (OrI₁ Γ A B H)         Hs := OrI₁ _ _ _ (weakening2 H Hs)
+  | Γ (A ∨ B) Δ (OrI₂ Γ A B H)         Hs := OrI₂ _ _ _ (weakening2 H Hs)
+  | Γ C       Δ (OrE Γ A B C H₁ H₂ H₃) Hs :=
        OrE _ _ _ _ (weakening2 H₁ Hs) (weakening2 H₂ (cons_sub_cons A Hs)) (weakening2 H₃ (cons_sub_cons B Hs))
 
 end PropF

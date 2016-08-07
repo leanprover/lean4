@@ -34,8 +34,8 @@ lemma eta_nil : ∀ (h : hlist B []), h = nil :=
 sorry -- begin intros, cases h, esimp end
 
 definition append : Π {l₁ l₂}, hlist B l₁ → hlist B l₂ → hlist B (l₁++l₂)
-| ⌞[]⌟    l₂ nil         h₂ := h₂
-| ⌞a::l₁⌟ l₂ (cons b h₁) h₂ := cons b (append h₁ h₂)
+| []     l₂ nil         h₂ := h₂
+| (a::l) l₂ (cons b h₁) h₂ := cons b (append h₁ h₂)
 
 lemma append_nil_left : ∀ {l} (h : hlist B l), append nil h = h :=
 sorry -- by intros; reflexivity
@@ -81,8 +81,8 @@ variable {C : A → Type}
 variable (f : Π ⦃a⦄, B a → C a)
 
 definition map : ∀ {l}, hlist B l → hlist C l
-| ⌞[]⌟   nil        := nil
-| ⌞a::l⌟ (cons b h) := cons (f b) (map h)
+| []     nil        := nil
+| (a::l) (cons b h) := cons (f b) (map h)
 
 lemma map_nil : map f nil = nil :=
 rfl

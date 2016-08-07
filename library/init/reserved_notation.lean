@@ -44,6 +44,8 @@ definition gt [reducible] {A : Type} [s : has_lt A] (a b : A) : Prop := lt b a
 definition bit0 {A : Type} [s  : has_add A] (a  : A)                 : A := add a a
 definition bit1 {A : Type} [s₁ : has_one A] [s₂ : has_add A] (a : A) : A := add (bit0 a) one
 
+attribute [pattern] zero one bit0 bit1 add
+
 definition num_has_zero [instance] : has_zero num :=
 has_zero.mk num.zero
 

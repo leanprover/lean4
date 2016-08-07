@@ -1792,9 +1792,6 @@ expr parser::patexpr_to_pattern(expr const & pat_or_expr, bool skip_main_fn, buf
 }
 
 expr parser::parse_pattern_or_expr(unsigned rbp) {
-    if (m_in_quote) {
-        throw parser_error("patterns cannot occur inside of quoted terms", pos());
-    }
     all_id_local_scope scope(*this);
     return parse_expr(rbp);
 }

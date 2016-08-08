@@ -4,7 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 import data.bool
-open bool decidable
+open bool tactic
+
+definition pos_num_decidable_eq [instance] : decidable_eq pos_num :=
+by mk_dec_eq_instance
+
+definition num_decidable_eq [instance] : decidable_eq num :=
+by mk_dec_eq_instance
 
 namespace pos_num
   theorem succ_not_is_one (a : pos_num) : is_one (succ a) = ff :=
@@ -56,25 +62,6 @@ namespace pos_num
   | (bit0 n) :=
       calc bit0 n * one = bit0 (n * one)       : rfl
                     ... = bit0 n               : sorry -- by rewrite mul_one
-
-  theorem decidable_eq [instance] : ∀ (a b : pos_num), decidable (a = b)
-  | one      one      := tt rfl
-  | one      (bit0 b) := ff sorry -- inr (by contradiction)
-  | one      (bit1 b) := ff sorry -- inr (by contradiction)
-  | (bit0 a) one      := ff sorry -- inr (by contradiction)
-  | (bit0 a) (bit0 b) :=
-    match decidable_eq a b with
-    | tt H₁  := tt sorry -- inl (by rewrite H₁)
-    | ff H₁  := ff sorry -- inr (by intro H; injection H; contradiction)
-    end
-  | (bit0 a) (bit1 b) := ff sorry -- inr (by contradiction)
-  | (bit1 a) one      := ff sorry -- inr (by contradiction)
-  | (bit1 a) (bit0 b) := ff sorry -- inr (by contradiction)
-  | (bit1 a) (bit1 b) :=
-    match decidable_eq a b with
-    | tt H₁  := tt sorry -- inl (by rewrite H₁)
-    | ff H₁  := ff sorry -- inr (by intro H; injection H; contradiction)
-    end
 
   local notation a < b         := (lt a b = tt)
   local notation a ` ≮ `:50 b:50 := (lt a b = ff)
@@ -557,15 +544,3 @@ namespace pos_num
   end
   -/
 end pos_num
-
-namespace num
-  open pos_num
-
-  theorem decidable_eq [instance] : ∀ (a b : num), decidable (a = b)
-  | zero zero       := tt rfl
-  | zero (pos b)    := ff sorry -- (by contradiction)
-  | (pos a) zero    := ff sorry -- (by contradiction)
-  | (pos a) (pos b) :=
-    if H : a = b then tt sorry /- (by rewrite H) -/
-    else ff sorry -- (suppose pos a = pos b, begin injection this, contradiction end)
-end num

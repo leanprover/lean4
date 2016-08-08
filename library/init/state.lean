@@ -11,13 +11,13 @@ definition state (S : Type) (A : Type) := S → A × S
 section
 variables {S A B : Type}
 
-inline definition state_fmap (f : A → B) (a : state S A) : state S B :=
+definition state_fmap [inline] (f : A → B) (a : state S A) : state S B :=
 λ s, match (a s) with (a', s') := (f a', s') end
 
-inline definition state_return (a : A) : state S A :=
+definition state_return [inline] (a : A) : state S A :=
 λ s, (a, s)
 
-inline definition state_bind (a : state S A) (b : A → state S B) : state S B :=
+definition state_bind [inline] (a : state S A) (b : A → state S B) : state S B :=
 λ s, match (a s) with (a', s') := b a' s' end
 
 definition state_is_monad [instance] (S : Type) : monad (state S) :=
@@ -25,10 +25,10 @@ monad.mk (@state_fmap S) (@state_return S) (@state_bind S)
 end
 
 namespace state
-inline definition read {S A : Type} : state S S :=
+definition read [inline] {S A : Type} : state S S :=
 λ s, (s, s)
 
-inline definition write {S : Type} : S → state S unit :=
+definition write [inline] {S : Type} : S → state S unit :=
 λ s' s, ((), s')
 end state
 

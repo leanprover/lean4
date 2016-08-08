@@ -12,10 +12,10 @@ notation f ` $ `:1 a:0 := f a
 
 variables {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}
 
-inline definition function.comp [reducible] [unfold_full] (f : B → C) (g : A → B) : A → C :=
+definition function.comp [inline] [reducible] [unfold_full] (f : B → C) (g : A → B) : A → C :=
 λx, f (g x)
 
-inline definition function.dcomp [reducible] [unfold_full] {B : A → Type} {C : Π {x : A}, B x → Type}
+definition function.dcomp [inline] [reducible] [unfold_full] {B : A → Type} {C : Π {x : A}, B x → Type}
   (f : Π {x : A} (y : B x), C y) (g : Πx, B x) : Πx, C (g x) :=
 λx, f (g x)
 

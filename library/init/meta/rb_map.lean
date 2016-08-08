@@ -19,7 +19,7 @@ meta_constant min {key : Type} {data : Type}            : rb_map key data → op
 meta_constant max {key : Type} {data : Type}            : rb_map key data → option data
 meta_constant fold {key : Type} {data : Type} {A :Type} : rb_map key data → A → (key → data → A → A) → A
 
-inline meta_definition mk (key : Type) [has_ordering key] (data : Type) : rb_map key data :=
+meta_definition mk [inline] (key : Type) [has_ordering key] (data : Type) : rb_map key data :=
 mk_core data has_ordering.cmp
 
 open list
@@ -33,7 +33,7 @@ meta_definition nat_map [reducible] (data : Type) := rb_map nat data
 namespace nat_map
   export rb_map (hiding mk)
 
-  inline meta_definition mk (data : Type) : nat_map data :=
+  meta_definition mk [inline] (data : Type) : nat_map data :=
   rb_map.mk nat data
 end nat_map
 
@@ -41,7 +41,7 @@ meta_definition name_map [reducible] (data : Type) := rb_map name data
 namespace name_map
   export rb_map (hiding mk)
 
-  inline meta_definition mk (data : Type) : name_map data :=
+  meta_definition mk [inline] (data : Type) : name_map data :=
   rb_map.mk name data
 end name_map
 

@@ -2163,7 +2163,7 @@ public:
 void parser::parse_command() {
     lean_assert(curr() == scanner::token_kind::CommandKeyword);
     m_last_cmd_pos = pos();
-    name const & cmd_name = get_token_info().value();
+    name cmd_name = get_token_info().value();
     m_cmd_token = get_token_info().token();
     if (auto it = cmds().find(cmd_name)) {
         lazy_type_context tc(m_env, get_options());

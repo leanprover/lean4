@@ -7,13 +7,13 @@ prelude
 import init.monad init.alternative
 open list
 
-inline definition list_fmap {A B : Type} (f : A → B) (l : list A) : list B :=
+definition list_fmap [inline] {A B : Type} (f : A → B) (l : list A) : list B :=
 map f l
 
-inline definition list_bind {A B : Type} (a : list A) (b : A → list B) : list B :=
+definition list_bind [inline] {A B : Type} (a : list A) (b : A → list B) : list B :=
 join (map b a)
 
-inline definition list_return {A : Type} (a : A) : list A :=
+definition list_return [inline] {A : Type} (a : A) : list A :=
 [a]
 
 definition list_is_monad [instance] : monad list :=

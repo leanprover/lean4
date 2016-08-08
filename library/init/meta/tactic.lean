@@ -46,17 +46,17 @@ tactic_state → tactic_result A
 section
 variables {A B : Type}
 
-inline meta_definition tactic_fmap (f : A → B) (t : tactic A) : tactic B :=
+meta_definition tactic_fmap [inline] (f : A → B) (t : tactic A) : tactic B :=
 λ s, tactic_result.cases_on (t s)
   (λ a s', success (f a) s')
   (λ e s', exception B e s')
 
-inline meta_definition tactic_bind (t₁ : tactic A) (t₂ : A → tactic B) : tactic B :=
+meta_definition tactic_bind [inline] (t₁ : tactic A) (t₂ : A → tactic B) : tactic B :=
 λ s,  tactic_result.cases_on (t₁ s)
   (λ a s', t₂ a s')
   (λ e s', exception B e s')
 
-inline meta_definition tactic_return (a : A) : tactic A :=
+meta_definition tactic_return [inline] (a : A) : tactic A :=
 λ s, success a s
 
 meta_definition tactic_orelse {A : Type} (t₁ t₂ : tactic A) : tactic A :=
@@ -127,10 +127,10 @@ meta_definition decorate_ex (msg : format) (t : tactic A) : tactic A :=
   success
   (λ e, exception A (λ u, msg ++ format.nest 2 (format.line ++ e u)))
 
-inline meta_definition write (s' : tactic_state) : tactic unit :=
+meta_definition write [inline] (s' : tactic_state) : tactic unit :=
 λ s, success () s'
 
-inline meta_definition read : tactic tactic_state :=
+meta_definition read [inline] : tactic tactic_state :=
 λ s, success s s
 end tactic
 

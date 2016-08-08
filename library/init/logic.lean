@@ -21,7 +21,7 @@ definition trivial := true.intro
 definition not (a : Prop) := a → false
 prefix `¬` := not
 
-inline definition absurd {a : Prop} {b : Type} (H1 : a) (H2 : ¬a) : b :=
+definition absurd [inline] {a : Prop} {b : Type} (H1 : a) (H2 : ¬a) : b :=
 false.rec b (H2 H1)
 
 lemma not.intro [intro!] {a : Prop} (H : a → false) : ¬ a :=
@@ -129,7 +129,7 @@ attribute eq.refl [refl]
 attribute eq.trans [trans]
 attribute eq.symm [symm]
 
-inline definition cast {A B : Type} (H : A = B) (a : A) : B :=
+definition cast [inline] {A B : Type} (H : A = B) (a : A) : B :=
 eq.rec a H
 
 theorem cast_proof_irrel {A B : Type} (H₁ H₂ : A = B) (a : A) : cast H₁ a = cast H₂ a :=
@@ -607,12 +607,12 @@ decidable.ff not_false
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches
-inline definition dite (c : Prop) [H : decidable c] {A : Type} : (c → A) → (¬ c → A) → A :=
+definition dite [inline] (c : Prop) [H : decidable c] {A : Type} : (c → A) → (¬ c → A) → A :=
 λ t e, decidable.rec_on H e t
 
 /- if-then-else -/
 
-inline definition ite (c : Prop) [H : decidable c] {A : Type} (t e : A) : A :=
+definition ite [inline] (c : Prop) [H : decidable c] {A : Type} (t e : A) : A :=
 decidable.rec_on H (λ Hnc, e) (λ Hc, t)
 
 namespace decidable
@@ -726,16 +726,16 @@ end
 inductive inhabited [class] (A : Type) : Type :=
 mk : A → inhabited A
 
-inline protected definition inhabited.value {A : Type} : inhabited A → A :=
+protected definition inhabited.value [inline] {A : Type} : inhabited A → A :=
 inhabited.rec (λa, a)
 
-inline protected definition inhabited.destruct {A : Type} {B : Type} (H1 : inhabited A) (H2 : A → B) : B :=
+protected definition inhabited.destruct [inline] {A : Type} {B : Type} (H1 : inhabited A) (H2 : A → B) : B :=
 inhabited.rec H2 H1
 
-inline definition default (A : Type) [H : inhabited A] : A :=
+definition default [inline] (A : Type) [H : inhabited A] : A :=
 inhabited.value H
 
-inline definition arbitrary [irreducible] (A : Type) [H : inhabited A] : A :=
+definition arbitrary [inline] [irreducible] (A : Type) [H : inhabited A] : A :=
 inhabited.value H
 
 definition Prop.is_inhabited [instance] : inhabited Prop :=
@@ -748,13 +748,13 @@ definition inhabited_Pi [instance] (A : Type) {B : A → Type} [Πx, inhabited (
   inhabited (Πx, B x) :=
 inhabited.mk (λa, default (B a))
 
-inline protected definition bool.is_inhabited [instance] : inhabited bool :=
+protected definition bool.is_inhabited [inline] [instance] : inhabited bool :=
 inhabited.mk ff
 
-inline protected definition pos_num.is_inhabited [instance] : inhabited pos_num :=
+protected definition pos_num.is_inhabited [inline] [instance] : inhabited pos_num :=
 inhabited.mk pos_num.one
 
-inline protected definition num.is_inhabited [instance] : inhabited num :=
+protected definition num.is_inhabited [inline] [instance] : inhabited num :=
 inhabited.mk num.zero
 
 inductive nonempty [class] (A : Type) : Prop :=

@@ -29,20 +29,20 @@ end
 namespace exceptional
 variables {A B : Type}
 
-inline protected meta_definition fmap (f : A → B) (e : exceptional A) : exceptional B :=
+protected meta_definition fmap [inline] (f : A → B) (e : exceptional A) : exceptional B :=
 exceptional.cases_on e
   (λ a, success (f a))
   (λ f, exception B f)
 
-inline protected meta_definition bind (e₁ : exceptional A) (e₂ : A → exceptional B) : exceptional B :=
+protected meta_definition bind [inline] (e₁ : exceptional A) (e₂ : A → exceptional B) : exceptional B :=
 exceptional.cases_on e₁
   (λ a, e₂ a)
   (λ f, exception B f)
 
-inline protected meta_definition return (a : A) : exceptional A :=
+protected meta_definition return [inline] (a : A) : exceptional A :=
 success a
 
-inline meta_definition fail (f : format) : exceptional A :=
+meta_definition fail [inline] (f : format) : exceptional A :=
 exception A (λ u, f)
 end exceptional
 

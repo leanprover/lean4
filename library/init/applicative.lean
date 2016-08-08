@@ -12,10 +12,10 @@ structure applicative.{u₁ u₂} [class] (f : Type.{u₁} → Type.{u₂}) exte
 (pure : Π {A : Type.{u₁}}, A → f A)
 (seq  : Π {A B : Type.{u₁}}, f (A → B) → f A → f B)
 
-inline definition pure {f : Type → Type} [applicative f] {A : Type} (a : A) : f A :=
+definition pure [inline] {f : Type → Type} [applicative f] {A : Type} (a : A) : f A :=
 applicative.pure f a
 
-inline definition seq_app {A B : Type} {f : Type → Type} [applicative f] (g : f (A → B)) (a : f A) : f B :=
+definition seq_app [inline] {A B : Type} {f : Type → Type} [applicative f] (g : f (A → B)) (a : f A) : f B :=
 applicative.seq g a
 
 infixr ` <*> `:2 := seq_app

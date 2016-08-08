@@ -71,7 +71,6 @@ static name const * g_extends_tk = nullptr;
 static name const * g_as_tk = nullptr;
 static name const * g_none_tk = nullptr;
 static name const * g_whnf_tk = nullptr;
-static name const * g_wf_tk = nullptr;
 static name const * g_in_tk = nullptr;
 static name const * g_assign_tk = nullptr;
 static name const * g_from_tk = nullptr;
@@ -141,6 +140,7 @@ static name const * g_this_tk = nullptr;
 static name const * g_noncomputable_tk = nullptr;
 static name const * g_theory_tk = nullptr;
 static name const * g_key_equivalences_tk = nullptr;
+static name const * g_using_well_founded_tk = nullptr;
 void initialize_tokens() {
     g_aliases_tk = new name{"aliases"};
     g_period_tk = new name{"."};
@@ -210,7 +210,6 @@ void initialize_tokens() {
     g_as_tk = new name{"as"};
     g_none_tk = new name{"[none]"};
     g_whnf_tk = new name{"[whnf]"};
-    g_wf_tk = new name{"[wf]"};
     g_in_tk = new name{"in"};
     g_assign_tk = new name{":="};
     g_from_tk = new name{"from"};
@@ -280,6 +279,7 @@ void initialize_tokens() {
     g_noncomputable_tk = new name{"noncomputable"};
     g_theory_tk = new name{"theory"};
     g_key_equivalences_tk = new name{"key_equivalences"};
+    g_using_well_founded_tk = new name{"using_well_founded"};
 }
 void finalize_tokens() {
     delete g_aliases_tk;
@@ -350,7 +350,6 @@ void finalize_tokens() {
     delete g_as_tk;
     delete g_none_tk;
     delete g_whnf_tk;
-    delete g_wf_tk;
     delete g_in_tk;
     delete g_assign_tk;
     delete g_from_tk;
@@ -420,6 +419,7 @@ void finalize_tokens() {
     delete g_noncomputable_tk;
     delete g_theory_tk;
     delete g_key_equivalences_tk;
+    delete g_using_well_founded_tk;
 }
 name const & get_aliases_tk() { return *g_aliases_tk; }
 name const & get_period_tk() { return *g_period_tk; }
@@ -489,7 +489,6 @@ name const & get_extends_tk() { return *g_extends_tk; }
 name const & get_as_tk() { return *g_as_tk; }
 name const & get_none_tk() { return *g_none_tk; }
 name const & get_whnf_tk() { return *g_whnf_tk; }
-name const & get_wf_tk() { return *g_wf_tk; }
 name const & get_in_tk() { return *g_in_tk; }
 name const & get_assign_tk() { return *g_assign_tk; }
 name const & get_from_tk() { return *g_from_tk; }
@@ -559,4 +558,5 @@ name const & get_this_tk() { return *g_this_tk; }
 name const & get_noncomputable_tk() { return *g_noncomputable_tk; }
 name const & get_theory_tk() { return *g_theory_tk; }
 name const & get_key_equivalences_tk() { return *g_key_equivalences_tk; }
+name const & get_using_well_founded_tk() { return *g_using_well_founded_tk; }
 }

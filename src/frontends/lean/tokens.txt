@@ -66,7 +66,6 @@ extends      extends
 as           as
 none         [none]
 whnf         [whnf]
-wf           [wf]
 in           in
 assign       :=
 from         from
@@ -136,3 +135,4 @@ this         this
 noncomputable noncomputable
 theory       theory
 key_equivalences key_equivalences
+using_well_founded using_well_founded

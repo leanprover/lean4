@@ -564,11 +564,10 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
             parse_equations_core(p, fns, eqns, bar_only, is_meta);
         }
     }
-    if (p.curr_is_token(get_wf_tk())) {
-        auto pos = p.pos();
+    if (p.curr_is_token(get_using_well_founded_tk())) {
         p.next();
-        expr R   = p.save_pos(mk_expr_placeholder(), pos);
-        expr Hwf = p.parse_expr();
+        expr R   = p.parse_expr(get_max_prec());
+        expr Hwf = p.parse_expr(get_max_prec());
         return p.save_pos(mk_equations(fns.size(), eqns.size(), eqns.data(), R, Hwf), def_pos);
     } else {
         return p.save_pos(mk_equations(fns.size(), eqns.size(), eqns.data()), def_pos);

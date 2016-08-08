@@ -73,7 +73,6 @@ name const & get_extends_tk();
 name const & get_as_tk();
 name const & get_none_tk();
 name const & get_whnf_tk();
-name const & get_wf_tk();
 name const & get_in_tk();
 name const & get_assign_tk();
 name const & get_from_tk();
@@ -143,4 +142,5 @@ name const & get_this_tk();
 name const & get_noncomputable_tk();
 name const & get_theory_tk();
 name const & get_key_equivalences_tk();
+name const & get_using_well_founded_tk();
 }

@@ -16,7 +16,7 @@
     "alias" "help" "precedence" "reserve" "declare_trace" "add_key_equivalence"
     "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix"
     "eval" "vm_eval" "check" "end" "reveal" "this" "suppose"
-    "using" "namespace" "section" "fields" "find_decl"
+    "using_well_founded" "namespace" "section" "fields" "find_decl"
     "attribute" "local" "set_option" "extends" "include" "omit" "classes"
     "instances" "coercions" "metaclasses" "raw" "migrate" "replacing"
     "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "forall" "Pi" "fun"

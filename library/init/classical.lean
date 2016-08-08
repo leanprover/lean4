@@ -182,8 +182,8 @@ local attribute prop_decidable [instance]
 noncomputable definition type_decidable_eq (A : Type) : decidable_eq A := _
 
 noncomputable definition type_decidable (A : Type) : sum A (A → false) :=
-match prop_decidable (nonempty A) with
-| tt Hp := sum.inl (inhabited.value (inhabited_of_nonempty Hp))
-| ff Hn := sum.inr (λ a, absurd (nonempty.intro a) Hn)
+match (prop_decidable (nonempty A)) with
+| (tt Hp) := sum.inl (inhabited.value (inhabited_of_nonempty Hp))
+| (ff Hn) := sum.inr (λ a, absurd (nonempty.intro a) Hn)
 end
 end classical

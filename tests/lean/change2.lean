@@ -11,7 +11,7 @@ by do intro `Heq,
       trace "---- after dsimp ----",
       trace_state,
       t ← target,
-      match is_eq t with
-      | some (lhs, rhs) := do pr ← mk_app `eq.refl [lhs], exact pr
-      | none            := failed
+      match (is_eq t) with
+      | (some (lhs, rhs)) := do pr ← mk_app `eq.refl [lhs], exact pr
+      | none              := failed
       end

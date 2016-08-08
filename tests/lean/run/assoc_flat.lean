@@ -3,13 +3,13 @@ open tactic expr
 
 meta_definition is_op_app (op : expr) (e : expr) : option (expr × expr) :=
 match e with
-| app (app fn a1) a2 := if op = fn then some (a1, a2) else none
-| _                  := none
+| (app (app fn a1) a2) := if op = fn then some (a1, a2) else none
+| _                    := none
 end
 
 meta_definition flat_with (op : expr) (assoc : expr) (e : expr) (rhs : expr) : tactic (expr × expr) :=
-match is_op_app op e with
-| some (a1, a2) :=  do
+match (is_op_app op e) with
+| (some (a1, a2)) :=  do
   -- H₁ is a proof for a2 + rhs = rhs₁
   (rhs₁, H₁)     ← flat_with op assoc a2 rhs,
   -- H₂ is a proof for a1 + rhs₁ = rhs₂
@@ -29,8 +29,8 @@ match is_op_app op e with
 end
 
 meta_definition flat (op : expr) (assoc : expr) (e : expr) : tactic (expr × expr) :=
-match is_op_app op e with
-| some (a1, a2) := do
+match (is_op_app op e) with
+| (some (a1, a2)) := do
   -- H₁ is a proof that a2 = new_a2
   (new_a2, H₁)   ← flat op assoc a2,
   -- H₂ is a proof that a1 + new_a2 = new_app
@@ -54,8 +54,8 @@ by do
   assoc : expr ← mk_const $ `nat.add_assoc,
   op : expr    ← mk_const $ `nat.add,
   tgt          ← target,
-  match is_eq tgt with
-  | some (lhs, rhs) := do
+  match (is_eq tgt) with
+  | (some (lhs, rhs)) := do
     r ← flat op assoc lhs,
     trace (prod.pr2 r),
     exact (prod.pr2 r)

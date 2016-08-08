@@ -3,8 +3,8 @@ open nat
 
 definition foo (a : nat) : nat :=
 match a with
-| zero   := zero
-| succ n := n
+| zero     := zero
+| (succ n) := n
 end
 
 example : foo 3 = 2 := rfl
@@ -16,9 +16,9 @@ protected theorem dec_eq : ∀ x y : nat, decidable (x = y)
 | dec_eq (succ x) zero     := ff (λ h, nat.no_confusion h)
 | dec_eq zero     (succ y) := ff (λ h, nat.no_confusion h)
 | dec_eq (succ x) (succ y) :=
-  match dec_eq x y with
-  | tt H := tt (eq.rec_on H rfl)
-  | ff H := ff (λ h : succ x = succ y, nat.no_confusion h (λ heq : x = y, absurd heq H))
+  match (dec_eq x y) with
+  | (tt H) := tt (eq.rec_on H rfl)
+  | (ff H) := ff (λ h : succ x = succ y, nat.no_confusion h (λ heq : x = y, absurd heq H))
   end
 
 section
@@ -31,9 +31,9 @@ section
   definition filter : list A → list A
   | filter nil      := nil
   | filter (a :: l) :=
-    match H a with
-    | tt h := a :: filter l
-    | ff h := filter l
+    match (H a) with
+    | (tt h) := a :: filter l
+    | (ff h) := filter l
     end
 
   theorem filter_nil : filter nil = nil :=
@@ -45,9 +45,9 @@ end
 
 definition sub2 (a : nat) : nat :=
 match a with
-| 0   := 0
-| 1   := 0
-| b+2 := b
+| 0     := 0
+| 1     := 0
+| (b+2) := b
 end
 
 example (a : nat) : sub2 (succ (succ a)) = a := rfl

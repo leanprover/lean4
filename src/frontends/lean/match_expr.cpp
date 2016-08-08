@@ -21,25 +21,42 @@ bool is_match_binder_name(name const & n) { return n == *g_match_name; }
 expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
     parser::local_scope scope(p);
     buffer<expr> eqns;
-    expr t;
+    buffer<expr> ts;
     try {
-        t  = p.parse_expr();
-        p.check_token_next(get_with_tk(), "invalid 'match' expression, 'with' expected");
-        expr fn = mk_local(mk_fresh_name(), *g_match_name, mk_expr_placeholder(), binder_info());
-        if (p.curr_is_token(get_end_tk())) {
+        ts.push_back(p.parse_expr(get_max_prec()));
+        while (!p.curr_is_token(get_with_tk()) && !p.curr_is_token(get_colon_tk())) {
+            ts.push_back(p.parse_expr(get_max_prec()));
+        }
+        expr fn;
+        /* Parse optional type */
+        if (p.curr_is_token(get_colon_tk())) {
             p.next();
-            // empty match-with
+            expr type = p.parse_expr();
+            fn = mk_local(mk_fresh_name(), *g_match_name, type, binder_info());
+        } else {
+            fn = mk_local(mk_fresh_name(), *g_match_name, mk_expr_placeholder(), binder_info());
+        }
+
+        p.check_token_next(get_with_tk(), "invalid 'match' expression, 'with' expected");
+
+        if (p.curr_is_token(get_end_tk())) {
+            /* Empty match */
+            p.next();
             eqns.push_back(Fun(fn, mk_no_equation()));
             expr f = p.save_pos(mk_equations(1, eqns.size(), eqns.data()), pos);
-            return p.mk_app(f, t, pos);
+            return p.mk_app(f, ts, pos);
         }
         if (is_eqn_prefix(p))
             p.next(); // optional '|' in the first case
         while (true) {
-            buffer<expr> locals;
             auto lhs_pos = p.pos();
-            expr lhs = p.parse_pattern(locals);
-            lhs = p.mk_app(fn, lhs, lhs_pos);
+            buffer<expr> lhs_args;
+            while (!p.curr_is_token(get_assign_tk()))
+                lhs_args.push_back(p.parse_pattern_or_expr(get_max_prec()));
+            expr lhs = p.mk_app(fn, lhs_args, lhs_pos);
+            buffer<expr> locals;
+            bool skip_main_fn = true;
+            lhs = p.patexpr_to_pattern(lhs, skip_main_fn, locals);
             auto assign_pos = p.pos();
             p.check_token_next(get_assign_tk(), "invalid 'match' expression, ':=' expected");
             {
@@ -59,7 +76,7 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
     }
     p.check_token_next(get_end_tk(), "invalid 'match' expression, 'end' expected");
     expr f = p.save_pos(mk_equations(1, eqns.size(), eqns.data()), pos);
-    return p.mk_app(f, t, pos);
+    return p.mk_app(f, ts, pos);
 }
 
 void initialize_match_expr() {

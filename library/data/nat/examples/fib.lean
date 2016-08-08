@@ -15,7 +15,7 @@ private definition fib_fast_aux : nat → (nat × nat)
 | 0     := (0, 1)
 | 1     := (1, 1)
 | (n+2) :=
-  match fib_fast_aux (n+1) with
+  match (fib_fast_aux (n+1)) with
   | (fn, fn1) := (fn1, fn1 + fn)
   end
 

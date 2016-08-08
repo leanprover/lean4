@@ -55,8 +55,8 @@ private meta_definition contra_constructor_eq : list expr → tactic unit
 | []        := failed
 | (H :: Hs) :=
   do t ← infer_type H,
-     match is_eq t with
-     | some (lhs_0, rhs_0) :=
+     match (is_eq t) with
+     | (some (lhs_0, rhs_0)) :=
        do env ← get_env,
           lhs ← whnf lhs_0,
           rhs ← whnf rhs_0,

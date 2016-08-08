@@ -79,9 +79,9 @@ namespace nat
   | has_decidable_eq (succ x) zero     := ff (λ H, nat.no_confusion H)
   | has_decidable_eq zero     (succ y) := ff (λ H, nat.no_confusion H)
   | has_decidable_eq (succ x) (succ y) :=
-      match has_decidable_eq x y with
-      | tt xeqy := tt (eq.subst xeqy (eq.refl (succ x)))
-      | ff xney := ff (λ H : succ x = succ y, nat.no_confusion H (λ xeqy : x = y, absurd xeqy xney))
+      match (has_decidable_eq x y) with
+      | (tt xeqy) := tt (eq.subst xeqy (eq.refl (succ x)))
+      | (ff xney) := ff (λ H : succ x = succ y, nat.no_confusion H (λ xeqy : x = y, absurd xeqy xney))
       end
 
   local attribute [instance] [priority nat.prio] nat.has_decidable_eq

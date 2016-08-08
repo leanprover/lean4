@@ -16,9 +16,9 @@ definition option_has_decidable_eq [instance] {A : Type} [H : decidable_eq A] : 
 | none      (some v₂) := ff (λ H, option.no_confusion H)
 | (some v₁) none      := ff (λ H, option.no_confusion H)
 | (some v₁) (some v₂) :=
-  match H v₁ v₂ with
-  | tt e := tt (congr_arg (@some A) e)
-  | ff n := ff (λ H, option.no_confusion H (λ e, absurd e n))
+  match (H v₁ v₂) with
+  | (tt e) := tt (congr_arg (@some A) e)
+  | (ff n) := ff (λ H, option.no_confusion H (λ e, absurd e n))
   end
 
 inline definition option_fmap {A B : Type} (f : A → B) (e : option A) : option B :=

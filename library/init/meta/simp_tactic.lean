@@ -62,7 +62,7 @@ simplify_goal failed Hs >> try triv
 
 private meta_definition is_equation : expr → bool
 | (expr.pi _ _ _ b) := is_equation b
-| e                 := match expr.is_eq e with some _ := tt | none := ff end
+| e                 := match (expr.is_eq e) with (some _) := tt | none := ff end
 
 private meta_definition collect_eqs : list expr → tactic (list expr)
 | []        := return []

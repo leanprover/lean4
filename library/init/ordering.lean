@@ -32,7 +32,7 @@ variables {A B : Type} [has_ordering A] [has_ordering B]
 
 definition prod.cmp : A × B → A × B → ordering
 | (a₁, b₁) (a₂, b₂) :=
-   match has_ordering.cmp a₁ a₂ with
+   match (has_ordering.cmp a₁ a₂) with
    | ordering.lt := lt
    | ordering.eq := has_ordering.cmp b₁ b₂
    | ordering.gt := gt

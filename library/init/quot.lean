@@ -190,7 +190,7 @@ definition quot.has_decidable_eq [instance] {A : Type} {s : setoid A} [decR : �
 λ q₁ q₂ : quot s,
   quot.rec_on_subsingleton₂ q₁ q₂
     (λ a₁ a₂,
-      match decR a₁ a₂ with
-      | tt h₁ := tt (quot.sound h₁)
-      | ff h₂ := ff (λ h, absurd (quot.exact h) h₂)
+      match (decR a₁ a₂) with
+      | (tt h₁) := tt (quot.sound h₁)
+      | (ff h₂) := ff (λ h, absurd (quot.exact h) h₂)
       end)

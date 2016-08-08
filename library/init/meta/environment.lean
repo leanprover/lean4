@@ -63,8 +63,8 @@ is_constant f && is_constructor env (const_name f)
 
 meta_definition is_refl_app (env : environment) (e : expr) : option (name × expr × expr) :=
 let f := get_app_fn e in
-match refl_for env (const_name f) with
-| some n :=
+match (refl_for env (const_name f)) with
+| (some n) :=
     if get_app_num_args e ≥ 2
     then some (n, app_arg (app_fn e), app_arg e)
     else none

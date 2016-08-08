@@ -709,16 +709,16 @@ take x y : A, if Hp : p x y = tt then tt (H₁ Hp)
  else ff (assume Hxy : x = y, (eq.subst Hxy Hp) (H₂ y))
 
 theorem decidable_eq_inl_refl {A : Type} [H : decidable_eq A] (a : A) : H a a = tt (eq.refl a) :=
-match H a a with
-| tt e := rfl
-| ff n := absurd rfl n
+match (H a a) with
+| (tt e) := rfl
+| (ff n) := absurd rfl n
 end
 
 theorem decidable_eq_inr_neg {A : Type} [H : decidable_eq A] {a b : A} : Π n : a ≠ b, H a b = ff n :=
 assume n,
-match H a b with
-| tt e  := absurd e n
-| ff n₁ := proof_irrel n n₁ ▸ rfl
+match (H a b) with
+| (tt e)  := absurd e n
+| (ff n₁) := proof_irrel n n₁ ▸ rfl
 end
 
 /- inhabited -/
@@ -786,15 +786,15 @@ subsingleton.intro (λa b, proof_irrel a b)
 definition subsingleton_decidable [instance] (p : Prop) : subsingleton (decidable p) :=
 subsingleton.intro (λ d₁,
   match d₁ with
-  | tt t₁ := (λ d₂,
+  | (tt t₁) := (λ d₂,
     match d₂ with
-    | tt t₂ := eq.rec_on (proof_irrel t₁ t₂) rfl
-    | ff f₂ := absurd t₁ f₂
+    | (tt t₂) := eq.rec_on (proof_irrel t₁ t₂) rfl
+    | (ff f₂) := absurd t₁ f₂
     end)
-  | ff f₁ := (λ d₂,
+  | (ff f₁) := (λ d₂,
     match d₂ with
-    | tt t₂ := absurd t₂ f₁
-    | ff f₂ := eq.rec_on (proof_irrel f₁ f₂) rfl
+    | (tt t₂) := absurd t₂ f₁
+    | (ff f₂) := eq.rec_on (proof_irrel f₁ f₂) rfl
     end)
   end)
 

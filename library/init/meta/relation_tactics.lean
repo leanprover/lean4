@@ -13,9 +13,9 @@ private meta_definition relation_tactic (op_for : environment → name → optio
 do tgt ← target,
    env ← get_env,
    r   ← return $ get_app_fn tgt,
-   match op_for env (const_name r) with
-   | some refl := mk_const refl >>= apply
-   | none      := fail $ tac_name ++ " tactic failed, target is not a relation application with the expected property."
+   match (op_for env (const_name r)) with
+   | (some refl) := mk_const refl >>= apply
+   | none        := fail $ tac_name ++ " tactic failed, target is not a relation application with the expected property."
    end
 
 meta_definition reflexivity : tactic unit :=

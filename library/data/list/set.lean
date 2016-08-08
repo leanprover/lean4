@@ -17,9 +17,9 @@ include H
 definition erase (a : A) : list A → list A
 | []     := []
 | (b::l) :=
-  match H a b with
-  | tt e := l
-  | ff n := b :: erase l
+  match (H a b) with
+  | (tt e) := l
+  | (ff n) := b :: erase l
   end
 
 lemma erase_nil (a : A) : erase a [] = [] :=
@@ -429,12 +429,12 @@ theorem erase_dup_eq_of_nodup [decidable_eq A] : ∀ {l : list A}, nodup l → e
 definition decidable_nodup [instance] [decidable_eq A] : ∀ (l : list A), decidable (nodup l)
 | []     := tt nodup_nil
 | (a::l) :=
-  match decidable_mem a l with
-  | tt p := ff (not_nodup_cons_of_mem p)
-  | ff n :=
-    match decidable_nodup l with
-    | tt nd := tt (nodup_cons n nd)
-    | ff d  := ff (not_nodup_cons_of_not_nodup d)
+  match (decidable_mem a l) with
+  | (tt p) := ff (not_nodup_cons_of_mem p)
+  | (ff n) :=
+    match (decidable_nodup l) with
+    | (tt nd) := tt (nodup_cons n nd)
+    | (ff d)  := ff (not_nodup_cons_of_not_nodup d)
     end
   end
 

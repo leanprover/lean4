@@ -13,7 +13,7 @@ by do intro `Heq,
       trace_state,
       get_local `a >>= subst,
       t ← target,
-      match is_eq t with
-      | some (lhs, rhs) := do pr ← mk_app `eq.refl [lhs], exact pr
-      | none            := failed
+      match (is_eq t) with
+      | (some (lhs, rhs)) := do pr ← mk_app `eq.refl [lhs], exact pr
+      | none              := failed
       end

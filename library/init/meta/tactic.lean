@@ -111,14 +111,14 @@ repeat_at_most 100000
 
 meta_definition returnex (e : exceptional A) : tactic A :=
 λ s, match e with
-| exceptional.success a       := tactic_result.success a s
-| exceptional.exception ⌞A⌟ f := tactic_result.exception A (λ u, f options.mk) s -- TODO(Leo): extract options from environment
+| (exceptional.success a)       := tactic_result.success a s
+| (exceptional.exception ⌞A⌟ f) := tactic_result.exception A (λ u, f options.mk) s -- TODO(Leo): extract options from environment
 end
 
 meta_definition returnopt (e : option A) : tactic A :=
 λ s, match e with
-| some a     := tactic_result.success a s
-| none       := tactic_result.exception A (λ u, to_fmt "failed") s
+| (some a) := tactic_result.success a s
+| none     := tactic_result.exception A (λ u, to_fmt "failed") s
 end
 
 /- Decorate t's exceptions with msg -/
@@ -320,9 +320,9 @@ intro `_
 meta_definition intros : tactic (list expr) :=
 do t ← target,
    match t with
-   | expr.pi   _ _ _ _ := do H ← intro1, Hs ← intros, return (H :: Hs)
-   | expr.elet _ _ _ _ := do H ← intro1, Hs ← intros, return (H :: Hs)
-   | _                 := return []
+   | (expr.pi   _ _ _ _) := do H ← intro1, Hs ← intros, return (H :: Hs)
+   | (expr.elet _ _ _ _) := do H ← intro1, Hs ← intros, return (H :: Hs)
+   | _                   := return []
    end
 
 meta_definition intro_lst : list name → tactic (list expr)
@@ -349,34 +349,34 @@ meta_definition unify : expr → expr → tactic unit :=
 unify_core semireducible
 
 meta_definition match_not (e : expr) : tactic expr :=
-match expr.is_not e with
-| some a := return a
-| none   := fail "expression is not a negation"
+match (expr.is_not e) with
+| (some a) := return a
+| none     := fail "expression is not a negation"
 end
 
 meta_definition match_eq (e : expr) : tactic (expr × expr) :=
-match expr.is_eq e with
-| some (lhs, rhs) := return (lhs, rhs)
-| none            := fail "expression is not an equality"
+match (expr.is_eq e) with
+| (some (lhs, rhs)) := return (lhs, rhs)
+| none              := fail "expression is not an equality"
 end
 
 meta_definition match_ne (e : expr) : tactic (expr × expr) :=
-match expr.is_ne e with
-| some (lhs, rhs) := return (lhs, rhs)
-| none            := fail "expression is not a disequality"
+match (expr.is_ne e) with
+| (some (lhs, rhs)) := return (lhs, rhs)
+| none              := fail "expression is not a disequality"
 end
 
 meta_definition match_heq (e : expr) : tactic (expr × expr × expr × expr) :=
-do match expr.is_heq e with
-| some (A, lhs, B, rhs) := return (A, lhs, B, rhs)
-| none                  := fail "expression is not a heterogeneous equality"
+do match (expr.is_heq e) with
+| (some (A, lhs, B, rhs)) := return (A, lhs, B, rhs)
+| none                    := fail "expression is not a heterogeneous equality"
 end
 
 meta_definition match_refl_app (e : expr) : tactic (name × expr × expr) :=
 do env ← get_env,
-match environment.is_refl_app env e with
-| some (R, lhs, rhs) := return (R, lhs, rhs)
-| none               := fail "expression is not an application of a reflexive relation"
+match (environment.is_refl_app env e) with
+| (some (R, lhs, rhs)) := return (R, lhs, rhs)
+| none                 := fail "expression is not an application of a reflexive relation"
 end
 
 meta_definition get_local_type (n : name) : tactic expr :=
@@ -403,8 +403,8 @@ do { ctx ← local_context,
 meta_definition swap : tactic unit :=
 do gs ← get_goals,
    match gs with
-   | g₁ :: g₂ :: rs := set_goals (g₂ :: g₁ :: rs)
-   | _              := skip
+   | (g₁ :: g₂ :: rs) := set_goals (g₂ :: g₁ :: rs)
+   | _                := skip
    end
 
 /- Return the number of goals that need to be solved -/

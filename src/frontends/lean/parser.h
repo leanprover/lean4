@@ -295,6 +295,7 @@ public:
     void set_line(unsigned p) { return m_scanner.set_line(p); }
 
     expr mk_app(expr fn, expr arg, pos_info const & p);
+    expr mk_app(expr fn, buffer<expr> const & args, pos_info const & p);
     expr mk_app(std::initializer_list<expr> const & args, pos_info const & p);
 
     unsigned num_threads() const { return m_num_threads; }

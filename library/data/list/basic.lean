@@ -461,9 +461,9 @@ theorem find_nth [decidable_eq T] {a : T} : ∀ {l}, a ∈ l → nth l (find a l
 -/
 
 definition inth [h : inhabited T] (l : list T) (n : nat) : T :=
-match nth l n with
-| some a := a
-| none   := arbitrary T
+match (nth l n) with
+| (some a) := a
+| none     := arbitrary T
 end
 
 theorem inth_zero [inhabited T] (a : T) (l : list T) : inth (a :: l) 0 = a :=

@@ -33,10 +33,10 @@ definition unit.has_to_string [instance] : has_to_string unit :=
 has_to_string.mk (λ u, "star")
 
 definition option.has_to_string [instance] {A : Type} [has_to_string A] : has_to_string (option A) :=
-has_to_string.mk (λ o, match o with | none := "none" | some a := "(some " ++ to_string a ++ ")" end)
+has_to_string.mk (λ o, match o with | none := "none" | (some a) := "(some " ++ to_string a ++ ")" end)
 
 definition sum.has_to_string [instance] {A B : Type} [has_to_string A] [has_to_string B] : has_to_string (sum A B) :=
-has_to_string.mk (λ s, match s with | inl a := "(inl " ++ to_string a ++ ")" | inr b := "(inr " ++ to_string b ++ ")" end)
+has_to_string.mk (λ s, match s with | (inl a) := "(inl " ++ to_string a ++ ")" | (inr b) := "(inr " ++ to_string b ++ ")" end)
 
 definition prod.has_to_string [instance] {A B : Type} [has_to_string A] [has_to_string B] : has_to_string (prod A B) :=
 has_to_string.mk (λ p, "(" ++ to_string (pr1 p) ++ ", " ++ to_string (pr2 p) ++ ")")

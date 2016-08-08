@@ -7,9 +7,9 @@ meta_definition is_poly_bin_app : expr → option name
 | _  := none
 
 meta_definition is_add (e : expr) : bool  :=
-match is_poly_bin_app e with
-| some op := to_bool (op = `add)
-| none    := ff
+match (is_poly_bin_app e) with
+| (some op) := to_bool (op = `add)
+| none      := ff
 end
 
 meta_definition flat_add (e : expr) : tactic (expr × expr) :=

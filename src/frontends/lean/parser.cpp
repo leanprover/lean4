@@ -594,6 +594,14 @@ expr parser::mk_app(expr fn, expr arg, pos_info const & p) {
     return save_pos(::lean::mk_app(fn, arg), p);
 }
 
+expr parser::mk_app(expr fn, buffer<expr> const & args, pos_info const & p) {
+    expr r = fn;
+    for (expr const & arg : args) {
+        r = mk_app(r, arg, p);
+    }
+    return r;
+}
+
 expr parser::mk_app(std::initializer_list<expr> const & args, pos_info const & p) {
     lean_assert(args.size() >= 2);
     auto it = args.begin();

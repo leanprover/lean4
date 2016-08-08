@@ -39,6 +39,7 @@ Author: Leonardo de Moura
 #include "library/kernel_serializer.h"
 #include "library/type_context.h"
 #include "library/app_builder.h"
+#include "library/compiler/vm_compiler.h"
 #include "library/definitional/rec_on.h"
 #include "library/definitional/induction_on.h"
 #include "library/definitional/cases_on.h"
@@ -845,6 +846,7 @@ struct structure_cmd_fn {
             m_env = set_reducible(m_env, coercion_name, reducible_status::Reducible, true);
             save_def_info(coercion_name);
             add_alias(coercion_name);
+            m_env = vm_compile(m_env, m_env.get(coercion_name));
             if (!m_private_parents[i]) {
                 // if (!m_modifiers.is_class() || !is_class(m_env, parent_name))
                 //    m_env = add_coercion(m_env, m_p.ios(), coercion_name, true);

@@ -1,10 +1,10 @@
 open tactic
 
-example : size_of [tt, tt] < size_of [tt, ff, tt] :=
+example : sizeof [tt, tt] < sizeof [tt, ff, tt] :=
 dec_trivial
 
-example : size_of [tt, tt] = size_of [ff, ff] :=
+example : sizeof [tt, tt] = sizeof [ff, ff] :=
 dec_trivial
 
-example : size_of (3:nat) < size_of ([3] : list nat) :=
+example : sizeof (3:nat) < sizeof ([3] : list nat) :=
 dec_trivial

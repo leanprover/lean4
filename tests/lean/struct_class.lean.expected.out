@@ -21,6 +21,7 @@ has_mul : Type → Type
 has_neg : Type → Type
 has_one : Type → Type
 has_ordering : Type → Type
+has_sizeof : Type → Type
 has_sub : Type → Type
 has_to_format : Type → Type
 has_to_pexpr : Type → Type
@@ -28,7 +29,6 @@ has_to_string : Type → Type
 has_to_tactic_format : Type → Type
 has_zero : Type → Type
 inhabited : Type → Type
-measurable : Type → Type
 monad : (Type → Type) → Type
 nonempty : Type → Prop
 point : Type → Type → Type
@@ -58,6 +58,7 @@ has_mul : Type → Type
 has_neg : Type → Type
 has_one : Type → Type
 has_ordering : Type → Type
+has_sizeof : Type → Type
 has_sub : Type → Type
 has_to_format : Type → Type
 has_to_pexpr : Type → Type
@@ -65,7 +66,6 @@ has_to_string : Type → Type
 has_to_tactic_format : Type → Type
 has_zero : Type → Type
 inhabited : Type → Type
-measurable : Type → Type
 monad : (Type → Type) → Type
 nonempty : Type → Prop
 point : Type → Type → Type

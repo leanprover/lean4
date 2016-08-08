@@ -70,6 +70,10 @@ name remove_root_prefix(name const & n) {
     return n.replace_prefix(get_root_tk(), name());
 }
 
+bool is_eqn_prefix(parser & p, bool bar_only = false) {
+    return p.curr_is_token(get_bar_tk()) || (!bar_only && p.curr_is_token(get_comma_tk()));
+}
+
 // Sort local names by order of occurrence, and copy the associated parameters to ps
 void sort_locals(buffer<expr> const & locals, parser const & p, buffer<expr> & ps) {
     for (expr const & l : locals) {

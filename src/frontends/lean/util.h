@@ -27,6 +27,10 @@ void check_atomic(name const & n);
 void check_in_section(parser const & p);
 bool is_root_namespace(name const & n);
 name remove_root_prefix(name const & n);
+
+/** \brief Return true iff the next token is the prefix of a pattern-matching equation */
+bool is_eqn_prefix(parser & p, bool bar_only = false);
+
 /** \brief Return the local levels in \c ls that are not tagged as variables.
     A local level is tagged as variable if it associated with a variable.
 */

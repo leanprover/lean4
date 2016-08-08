@@ -455,10 +455,6 @@ static bool is_curr_with_or_comma_or_bar(parser & p) {
                        << n << "' in the left-hand-side does not correspond to function(s) being defined", p);
 }
 
-static bool is_eqn_prefix(parser & p, bool bar_only = false) {
-    return p.curr_is_token(get_bar_tk()) || (!bar_only && p.curr_is_token(get_comma_tk()));
-}
-
 static void check_eqn_prefix(parser & p) {
     if (!is_eqn_prefix(p))
         throw parser_error("invalid declaration, ',' or '|' expected", p.pos());
@@ -592,55 +588,6 @@ expr parse_local_equations(parser & p, expr const & fn) {
     bool is_meta  = false;
     parse_equations_core(p, fns, eqns, bar_only, is_meta);
     return p.save_pos(mk_equations(fns.size(), eqns.size(), eqns.data()), pos);
-}
-
-static name * g_match_name = nullptr;
-
-bool is_match_binder_name(name const & n) { return n == *g_match_name; }
-
-/** \brief Use equations compiler infrastructure to implement match-with */
-expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
-    parser::local_scope scope(p);
-    buffer<expr> eqns;
-    expr t;
-    try {
-        t  = p.parse_expr();
-        p.check_token_next(get_with_tk(), "invalid 'match' expression, 'with' expected");
-        expr fn = mk_local(mk_fresh_name(), *g_match_name, mk_expr_placeholder(), binder_info());
-        if (p.curr_is_token(get_end_tk())) {
-            p.next();
-            // empty match-with
-            eqns.push_back(Fun(fn, mk_no_equation()));
-            expr f = p.save_pos(mk_equations(1, eqns.size(), eqns.data()), pos);
-            return p.mk_app(f, t, pos);
-        }
-        if (is_eqn_prefix(p))
-            p.next(); // optional '|' in the first case
-        while (true) {
-            buffer<expr> locals;
-            auto lhs_pos = p.pos();
-            expr lhs = p.parse_pattern(locals);
-            lhs = p.mk_app(fn, lhs, lhs_pos);
-            auto assign_pos = p.pos();
-            p.check_token_next(get_assign_tk(), "invalid 'match' expression, ':=' expected");
-            {
-                parser::local_scope scope2(p);
-                for (expr const & local : locals)
-                    p.add_local(local);
-                expr rhs = p.parse_expr();
-                eqns.push_back(Fun(fn, Fun(locals, p.save_pos(mk_equation(lhs, rhs), assign_pos), p)));
-            }
-            if (!is_eqn_prefix(p))
-                break;
-            p.next();
-        }
-    } catch (exception & ex) {
-        consume_until_end(p);
-        ex.rethrow();
-    }
-    p.check_token_next(get_end_tk(), "invalid 'match' expression, 'end' expected");
-    expr f = p.save_pos(mk_equations(1, eqns.size(), eqns.data()), pos);
-    return p.mk_app(f, t, pos);
 }
 
 // An Lean example is not really a definition, but we use the definition infrastructure to simulate it.
@@ -1435,9 +1382,7 @@ void register_decl_cmds(cmd_table & r) {
 }
 
 void initialize_decl_cmds() {
-    g_match_name = new name("_match");
 }
 void finalize_decl_cmds() {
-    delete g_match_name;
 }
 }

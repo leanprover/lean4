@@ -55,6 +55,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/old_elaborator.h"
+#include "frontends/lean/match_expr.h"
 // #include "frontends/lean/info_tactic.h"
 // #include "frontends/lean/begin_end_annotation.h"
 #include "frontends/lean/old_elaborator_exception.h"

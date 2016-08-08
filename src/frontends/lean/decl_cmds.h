@@ -10,23 +10,18 @@ Author: Leonardo de Moura
 #include "frontends/lean/cmd_table.h"
 namespace lean {
 class parser;
-/**
-    \brief Parse (optional) universe parameters <tt>'.{' l_1 ... l_k '}'</tt>
+/** \brief Parse (optional) universe parameters <tt>'.{' l_1 ... l_k '}'</tt>
     Store the result in \c ps.
-    Return true when levels were provided.
-*/
+
+    Return true when levels were provided. */
 bool parse_univ_params(parser & p, buffer<name> & ps);
-void validate_match_pattern(parser const & p, expr const & lhs, buffer<expr> const & locals);
-expr parse_match_pattern(parser & p, buffer<expr> & locals);
-expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos);
+
 expr parse_local_equations(parser & p, expr const & fn);
 
-/** \brief Return true iff \c n is the auxiliary name used to elaborate match-expressions. */
-bool is_match_binder_name(name const & n);
+/** \brief Add universe levels from \c found_ls to \c ls_buffer
+    (only the levels that do not already occur in \c ls_buffer are added).
 
-/**   \brief Add universe levels from \c found_ls to \c ls_buffer (only the levels that do not already occur in \c ls_buffer are added).
-   Then sort \c ls_buffer (using the order in which the universe levels were declared).
-*/
+    Then sort \c ls_buffer (using the order in which the universe levels were declared). */
 void update_univ_parameters(buffer<name> & ls_buffer, name_set const & found_ls, parser const & p);
 
 /** \brief Parse a local abbreviation command */

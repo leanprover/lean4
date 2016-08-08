@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/nested_declaration.h"
+#include "frontends/lean/match_expr.h"
 
 #ifndef LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE
 #define LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE true

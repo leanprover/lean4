@@ -136,9 +136,15 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
                 return visit(*r);
         }
 
+        /*
+          TODO(Leo): this is not safe here.
+          Reason: we may put recursors have have been eliminated in previous steps.
+          We need to move this code to a different place, or make sure
+          that we can recursors will be eliminated later
         if (auto r = ctx().reduce_projection(e)) {
             return visit(*r);
         }
+        */
 
         return default_visit_app(e);
     }

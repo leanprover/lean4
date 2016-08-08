@@ -250,7 +250,7 @@ classical.by_cases
     by rewrite [complex.inv_def, cmod_of_real, conj_of_real, mul_inv_eq H H, -of_real_mul,
                -mul.assoc, mul_inv_cancel H, one_mul])
 
-noncomputable protected definition div (z w : ℂ) : ℂ := z * w⁻¹
+protected noncomputable definition div (z w : ℂ) : ℂ := z * w⁻¹
 
 noncomputable definition complex_has_div [instance] [priority complex.prio] :
     has_div complex :=

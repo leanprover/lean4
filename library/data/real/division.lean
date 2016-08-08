@@ -583,14 +583,14 @@ end rat_seq
 namespace real
 open [class] rat_seq
 
-noncomputable protected definition inv (x : ℝ) : ℝ :=
+protected noncomputable definition inv (x : ℝ) : ℝ :=
   quot.lift_on x (λ a, quot.mk (rat_seq.r_inv a))
            (λ a b H, quot.sound (rat_seq.r_inv_well_defined H))
 
 noncomputable definition real_has_inv [instance] [priority real.prio] : has_inv real :=
   has_inv.mk real.inv
 
-noncomputable protected definition div (x y : ℝ) : ℝ :=
+protected noncomputable definition div (x y : ℝ) : ℝ :=
   x * y⁻¹
 
 noncomputable definition real_has_div : has_div real :=

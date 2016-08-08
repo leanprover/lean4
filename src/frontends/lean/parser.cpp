@@ -2171,10 +2171,12 @@ void parser::parse_command() {
         scope_trace_env  scope2(m_env, m_ios.get_options(), tc);
         if (is_notation_cmd(cmd_name)) {
             in_notation_ctx ctx(*this);
-            next();
+            if (it->get_skip_token())
+                next();
             m_env = it->get_fn()(*this);
         } else {
-            next();
+            if (it->get_skip_token())
+                next();
             m_env = it->get_fn()(*this);
         }
     } else {

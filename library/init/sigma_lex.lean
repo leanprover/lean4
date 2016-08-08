@@ -25,7 +25,7 @@ section
   parameters {Ra  : A → A → Prop} {Rb : Π a : A, B a → B a → Prop}
   local infix `≺`:50 := lex Ra Rb
 
-  definition lex.accessible {a} (aca : acc Ra a) (acb : ∀a, well_founded (Rb a))
+  definition lex_accessible {a} (aca : acc Ra a) (acb : ∀a, well_founded (Rb a))
              : ∀ (b : B a), acc (lex Ra Rb) (sigma.mk a b) :=
   acc.rec_on aca
     (λxa aca (iHa : ∀y, Ra y xa → ∀b : B y, acc (lex Ra Rb) (sigma.mk y b)),
@@ -56,8 +56,8 @@ section
             aux rfl (heq.refl xb))))
 
   -- The lexicographical order of well founded relations is well-founded
-  definition lex.wf (Ha : well_founded Ra) (Hb : ∀ x, well_founded (Rb x)) : well_founded (lex Ra Rb) :=
-  well_founded.intro (λp, destruct p (λa b, lex.accessible (well_founded.apply Ha a) Hb b))
+  definition lex_wf (Ha : well_founded Ra) (Hb : ∀ x, well_founded (Rb x)) : well_founded (lex Ra Rb) :=
+  well_founded.intro (λp, destruct p (λa b, lex_accessible (well_founded.apply Ha a) Hb b))
 
 end
 end sigma

@@ -16,7 +16,7 @@ definition height_lt {A : Type} : tree A → tree A → Prop :=
 inv_image lt (@height A)
 
 definition height_lt.wf (A : Type) : well_founded (@height_lt A) :=
-inv_image.wf height lt.wf
+inv_image.wf height lt_wf
 
 theorem height_lt.node_left {A : Type} (t₁ t₂ : tree A) : height_lt t₁ (node t₁ t₂) :=
 lt_succ_of_le (le_max_left (height t₁) (height t₂))

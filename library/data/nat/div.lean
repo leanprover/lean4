@@ -19,7 +19,7 @@ and.rec (λ ypos ylex, sub_lt (lt_of_lt_of_le ypos ylex) ypos)
 private definition div.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=
 if H : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma H) y + 1 else zero
 
-protected definition div := fix div.F
+protected definition div := fix lt_wf div.F
 
 definition nat_has_divide : has_div nat :=
 has_div.mk nat.div
@@ -27,7 +27,7 @@ has_div.mk nat.div
 local attribute [instance] nat_has_divide
 
 theorem div_def (x y : nat) : div x y = if 0 < y ∧ y ≤ x then div (x - y) y + 1 else 0 :=
-congr_fun (fix_eq div.F x) y
+congr_fun (fix_eq lt_wf div.F x) y
 
 protected theorem div_zero [simp] (a : ℕ) : a / 0 = 0 :=
 eq.trans (div_def a 0) $ if_neg (not_and_of_not_left (0 ≤ a) (lt.irrefl 0))
@@ -87,7 +87,7 @@ mul.comm n m ▸ nat.mul_div_cancel n H
 private definition mod.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=
 if H : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma H) y else x
 
-protected definition mod := fix mod.F
+protected definition mod := fix lt_wf mod.F
 
 definition nat_has_mod : has_mod nat :=
 has_mod.mk nat.mod
@@ -97,7 +97,7 @@ local attribute [instance] nat_has_mod
 notation [priority nat.prio] a ≡ b `[mod `:0 c:0 `]` := a % c = b % c
 
 theorem mod_def (x y : nat) : mod x y = if 0 < y ∧ y ≤ x then mod (x - y) y else x :=
-congr_fun (fix_eq mod.F x) y
+congr_fun (fix_eq lt_wf mod.F x) y
 
 theorem mod_zero [simp] (a : ℕ) : a % 0 = a :=
 eq.trans (mod_def a 0) $ if_neg (not_and_of_not_left (0 ≤ a) (lt.irrefl 0))

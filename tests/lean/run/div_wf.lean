@@ -10,10 +10,10 @@ definition wdiv.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : 
 if H : 0 < y ∧ y ≤ x then f (x - y) (lt_aux H) y + 1 else zero
 
 definition wdiv (x y : nat) :=
-fix wdiv.F x y
+fix lt_wf wdiv.F x y
 
 theorem wdiv_def (x y : nat) : wdiv x y = if 0 < y ∧ y ≤ x then wdiv (x - y) y + 1 else 0 :=
-congr_fun (well_founded.fix_eq wdiv.F x) y
+congr_fun (well_founded.fix_eq lt_wf wdiv.F x) y
 
 example : wdiv 5 2 = 2 :=
 rfl
@@ -27,8 +27,8 @@ rfl
 -- It will always pack things.
 
 definition pair_nat.lt    := lex nat.lt nat.lt  -- Could also be (lex lt empty_rel)
-definition pair_nat.lt.wf [instance] : well_founded pair_nat.lt :=
-prod.lex.wf lt.wf lt.wf
+definition pair_nat.lt.wf : well_founded pair_nat.lt :=
+prod.lex_wf lt_wf lt_wf
 infixl `≺`:50 := pair_nat.lt
 
 -- Recursive lemma used to justify recursive call
@@ -40,10 +40,10 @@ prod.cases_on p₁ (λ x y f,
   if H : 0 < y ∧ y ≤ x then f (x - y, y) (plt_aux x y H) + 1 else zero)
 
 definition pdiv (x y : nat) :=
-fix pdiv.F (x, y)
+fix pair_nat.lt.wf pdiv.F (x, y)
 
 theorem pdiv_def (x y : nat) : pdiv x y = if 0 < y ∧ y ≤ x then pdiv (x - y) y + 1 else zero :=
-well_founded.fix_eq pdiv.F (x, y)
+well_founded.fix_eq pair_nat.lt.wf pdiv.F (x, y)
 
 example : pdiv 17 2 = 8 :=
 rfl

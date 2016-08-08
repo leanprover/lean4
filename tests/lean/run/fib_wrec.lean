@@ -12,16 +12,16 @@ nat.cases_on n
          f (succ n₂) l₁ + f n₂ l₂))
 
 definition fib (n : nat) :=
-well_founded.fix fib.F n
+well_founded.fix lt_wf fib.F n
 
 theorem fib.zero_eq : fib 0 = 1 :=
-well_founded.fix_eq fib.F 0
+well_founded.fix_eq lt_wf fib.F 0
 
 theorem fib.one_eq  : fib 1 = 1 :=
-well_founded.fix_eq fib.F 1
+well_founded.fix_eq lt_wf fib.F 1
 
 theorem fib.succ_succ_eq (n : nat) : fib (succ (succ n)) = fib (succ n) + fib n :=
-well_founded.fix_eq fib.F (succ (succ n))
+well_founded.fix_eq lt_wf fib.F (succ (succ n))
 
 example : fib 5 = 8 :=
 rfl

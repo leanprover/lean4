@@ -14,9 +14,8 @@ namespace nat
 
 private definition pair_nat.lt : nat × nat → nat × nat → Prop := measure pr₂
 private definition pair_nat.lt.wf : well_founded pair_nat.lt :=
-intro_k (measure.wf pr₂) 20  -- we use intro_k to be able to execute gcd efficiently in the kernel
+intro_k (measure_wf pr₂) 20  -- we use intro_k to be able to execute gcd efficiently in the kernel
 
-local attribute pair_nat.lt.wf [instance]      -- instance will not be saved in .olean
 local infixl ` ≺ `:50 := pair_nat.lt
 
 private definition gcd.lt.dec (x y₁ : nat) : (succ y₁, x % succ y₁) ≺ (x, succ y₁) :=
@@ -26,12 +25,12 @@ definition gcd.F : Π (p₁ : nat × nat), (Π p₂ : nat × nat, p₂ ≺ p₁ 
 | (x, 0)      f := x
 | (x, succ y) f := f (succ y, x % succ y) (gcd.lt.dec x y)
 
-definition gcd (x y : nat) := fix gcd.F (x, y)
+definition gcd (x y : nat) := fix pair_nat.lt.wf gcd.F (x, y)
 
 theorem gcd_zero_right [simp] (x : nat) : gcd x 0 = x := rfl
 
 theorem gcd_succ [simp] (x y : nat) : gcd x (succ y) = gcd (succ y) (x % succ y) :=
-well_founded.fix_eq gcd.F (x, succ y)
+well_founded.fix_eq pair_nat.lt.wf gcd.F (x, succ y)
 
 theorem gcd_one_right (n : ℕ) : gcd n 1 = 1 :=
 calc gcd n 1 = gcd 1 (n % 1)  : gcd_succ n 0
@@ -72,7 +71,7 @@ theorem gcd.induction {P : ℕ → ℕ → Prop}
                    (H0 : ∀m, P m 0)
                    (H1 : ∀m n, 0 < n → P n (m % n) → P m n) :
                  P m n :=
-induction (m, n) (prod.rec (λm, nat.rec (λ IH, H0 m)
+induction pair_nat.lt.wf (m, n) (prod.rec (λm, nat.rec (λ IH, H0 m)
    (λ n₁ v (IH : ∀p₂, p₂ ≺ (m, succ n₁) → P (pr₁ p₂) (pr₂ p₂)),
       H1 m (succ n₁) (succ_pos n₁) (IH _ (gcd.lt.dec m n₁)))))
 

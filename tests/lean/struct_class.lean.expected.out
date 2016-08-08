@@ -34,7 +34,6 @@ nonempty : Type → Prop
 point : Type → Type → Type
 setoid : Type → Type
 subsingleton : Type → Prop
-well_founded : Π {A}, (A → A → Prop) → Prop
 alternative : (Type → Type) → Type
 applicative : (Type → Type) → Type
 decidable : Prop → Type₁
@@ -71,4 +70,3 @@ nonempty : Type → Prop
 point : Type → Type → Type
 setoid : Type → Type
 subsingleton : Type → Prop
-well_founded : Π {A}, (A → A → Prop) → Prop

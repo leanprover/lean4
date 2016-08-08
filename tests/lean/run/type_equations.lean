@@ -22,7 +22,7 @@ end
 
 definition subterm := tc direct_subterm
 
-theorem subterm_wf [instance] : well_founded subterm :=
+theorem subterm_wf : well_founded subterm :=
 tc.wf direct_subterm_wf
 
 local infix `+` := Expr.add

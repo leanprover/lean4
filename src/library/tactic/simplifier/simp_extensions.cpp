@@ -45,18 +45,16 @@ struct simp_ext_config {
     typedef simp_ext_state state;
 
     static void add_entry(environment const & env, io_state const &, state & s, entry const & e) {
-        // TODO(dhs): better way to get the vm_decl?
-        vm_state S(env);
-        optional<vm_decl> ext_decl = S.get_decl(e.m_ext_name);
-        if (!ext_decl) {
+        if (optional<unsigned> fn_idx = get_vm_constant_idx(env, e.m_ext_name)) {
+            priority_queue<simp_ext_record, simp_ext_record_cmp> m;
+            if (auto q = s.find(e.m_head)) {
+                m = *q;
+            }
+            m.insert(simp_ext_record(e.m_ext_name, *fn_idx), e.m_prio);
+            s.insert(e.m_head, m);
+        } else {
             throw exception(sstream() << "error in adding simplifier extension: no vm_decl for " << e.m_ext_name << "\n");
         }
-        priority_queue<simp_ext_record, simp_ext_record_cmp> m;
-        if (auto q = s.find(e.m_head)) {
-            m = *q;
-        }
-        m.insert(simp_ext_record(e.m_ext_name, ext_decl->get_idx()), e.m_prio);
-        s.insert(e.m_head, m);
     }
 
     static std::string const & get_serialization_key() {

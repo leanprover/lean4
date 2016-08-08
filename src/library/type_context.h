@@ -550,6 +550,17 @@ public:
     virtual expr whnf(expr const & e) override;
     virtual bool is_def_eq(expr const & e1, expr const & e2) override;
 
+
+    expr mk_lambda(buffer<expr> const & locals, expr const & e);
+    expr mk_pi(buffer<expr> const & locals, expr const & e);
+    expr mk_lambda(expr const & local, expr const & e);
+    expr mk_pi(expr const & local, expr const & e);
+    expr mk_lambda(std::initializer_list<expr> const & locals, expr const & e);
+    expr mk_pi(std::initializer_list<expr> const & locals, expr const & e);
+
+    bool is_prop(expr const & e);
+    void assign(expr const & m, expr const & v);
+
     level mk_tmp_univ_mvar();
     expr mk_tmp_mvar(expr const & type);
     bool is_uassigned(unsigned i) const;

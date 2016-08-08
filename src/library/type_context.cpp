@@ -427,6 +427,7 @@ expr type_context::whnf_core(expr const & e) {
                 return m_mctx.instantiate_mvars(e);
             }
         } else if (is_idx_metavar(e)) {
+            lean_assert(in_tmp_mode());
             unsigned idx = to_meta_idx(e);
             if (idx < m_tmp_eassignment->size()) {
                 if (auto v = (*m_tmp_eassignment)[idx]) {
@@ -2604,6 +2605,46 @@ void tmp_type_context::clear_eassignment() {
 expr tmp_type_context::instantiate_mvars(expr const & e) {
     type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
     return m_tctx.instantiate_mvars(e);
+}
+
+void tmp_type_context::assign(expr const & m, expr const & v) {
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
+    m_tctx.assign(m, v);
+}
+
+expr tmp_type_context::mk_lambda(buffer<expr> const & locals, expr const & e) {
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_tctx.mk_lambda(locals, e);
+}
+
+expr tmp_type_context::mk_pi(buffer<expr> const & locals, expr const & e) {
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_tctx.mk_pi(locals, e);
+}
+
+expr tmp_type_context::mk_lambda(expr const & local, expr const & e) {
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_tctx.mk_lambda(local, e);
+}
+
+expr tmp_type_context::mk_pi(expr const & local, expr const & e) {
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_tctx.mk_pi(local, e);
+}
+
+expr tmp_type_context::mk_lambda(std::initializer_list<expr> const & locals, expr const & e) {
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_tctx.mk_lambda(locals, e);
+}
+
+expr tmp_type_context::mk_pi(std::initializer_list<expr> const & locals, expr const & e) {
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_tctx.mk_pi(locals, e);
+}
+
+bool tmp_type_context::is_prop(expr const & e) {
+    type_context::tmp_mode_scope_with_buffers tmp_scope(m_tctx, m_tmp_uassignment, m_tmp_eassignment);
+    return m_tctx.is_prop(e);
 }
 
 type_context_cache & type_context_cache_helper::get_cache_for(environment const & env, options const & o) {

@@ -29,6 +29,7 @@ has_to_string : Type → Type
 has_to_tactic_format : Type → Type
 has_zero : Type → Type
 inhabited : Type → Type
+is_associative : Π {A}, (A → A → A) → Type₁
 monad : (Type → Type) → Type
 nonempty : Type → Prop
 point : Type → Type → Type
@@ -65,6 +66,7 @@ has_to_string : Type → Type
 has_to_tactic_format : Type → Type
 has_zero : Type → Type
 inhabited : Type → Type
+is_associative : Π {A}, (A → A → A) → Type₁
 monad : (Type → Type) → Type
 nonempty : Type → Prop
 point : Type → Type → Type

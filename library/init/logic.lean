@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 -/
 prelude
 import init.datatypes init.reserved_notation
+set_option simplify.theory false
 
 attribute [reducible, unfold_full]
 definition id {A : Type} (a : A) : A :=
@@ -367,6 +368,15 @@ theorem imp_congr (H1 : a ↔ c) (H2 : b ↔ d) : (a → b) ↔ (c → d) :=
 iff.intro
   (λHab Hc, iff.mp H2 (Hab (iff.mpr H1 Hc)))
   (λHcd Ha, iff.mpr H2 (Hcd (iff.mp H1 Ha)))
+
+theorem imp_congr_ctx (H1 : a ↔ c) (H2 : c → (b ↔ d)) : (a → b) ↔ (c → d) :=
+iff.intro
+  (λHab Hc, have Ha : a, from iff.mpr H1 Hc,
+            have Hb : b, from Hab Ha,
+            iff.mp (H2 Hc) Hb)
+  (λHcd Ha, have Hc : c, from iff.mp H1 Ha,
+            have Hd : d, from Hcd Hc,
+iff.mpr (H2 Hc) Hd)
 
 theorem imp_congr_right (H : a → (b ↔ c)) : (a → b) ↔ (a → c) :=
 iff.intro

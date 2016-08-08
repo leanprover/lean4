@@ -125,6 +125,8 @@ name const * g_int_has_neg = nullptr;
 name const * g_int_has_mod = nullptr;
 name const * g_int_decidable_linear_ordered_comm_group = nullptr;
 name const * g_IO = nullptr;
+name const * g_is_associative = nullptr;
+name const * g_is_associative_op_assoc = nullptr;
 name const * g_is_int = nullptr;
 name const * g_is_trunc_is_prop = nullptr;
 name const * g_is_trunc_is_prop_elim = nullptr;
@@ -291,6 +293,11 @@ name const * g_sigma_mk = nullptr;
 name const * g_sigma_pr1 = nullptr;
 name const * g_sigma_pr2 = nullptr;
 name const * g_simp = nullptr;
+name const * g_simplifier_assoc_subst = nullptr;
+name const * g_simplifier_congr_bin_op = nullptr;
+name const * g_simplifier_congr_bin_arg1 = nullptr;
+name const * g_simplifier_congr_bin_arg2 = nullptr;
+name const * g_simplifier_congr_bin_args = nullptr;
 name const * g_smt_array = nullptr;
 name const * g_smt_select = nullptr;
 name const * g_smt_store = nullptr;
@@ -454,6 +461,8 @@ void initialize_constants() {
     g_int_has_mod = new name{"int_has_mod"};
     g_int_decidable_linear_ordered_comm_group = new name{"int_decidable_linear_ordered_comm_group"};
     g_IO = new name{"IO"};
+    g_is_associative = new name{"is_associative"};
+    g_is_associative_op_assoc = new name{"is_associative", "op_assoc"};
     g_is_int = new name{"is_int"};
     g_is_trunc_is_prop = new name{"is_trunc", "is_prop"};
     g_is_trunc_is_prop_elim = new name{"is_trunc", "is_prop", "elim"};
@@ -620,6 +629,11 @@ void initialize_constants() {
     g_sigma_pr1 = new name{"sigma", "pr1"};
     g_sigma_pr2 = new name{"sigma", "pr2"};
     g_simp = new name{"simp"};
+    g_simplifier_assoc_subst = new name{"simplifier", "assoc_subst"};
+    g_simplifier_congr_bin_op = new name{"simplifier", "congr_bin_op"};
+    g_simplifier_congr_bin_arg1 = new name{"simplifier", "congr_bin_arg1"};
+    g_simplifier_congr_bin_arg2 = new name{"simplifier", "congr_bin_arg2"};
+    g_simplifier_congr_bin_args = new name{"simplifier", "congr_bin_args"};
     g_smt_array = new name{"smt", "array"};
     g_smt_select = new name{"smt", "select"};
     g_smt_store = new name{"smt", "store"};
@@ -784,6 +798,8 @@ void finalize_constants() {
     delete g_int_has_mod;
     delete g_int_decidable_linear_ordered_comm_group;
     delete g_IO;
+    delete g_is_associative;
+    delete g_is_associative_op_assoc;
     delete g_is_int;
     delete g_is_trunc_is_prop;
     delete g_is_trunc_is_prop_elim;
@@ -950,6 +966,11 @@ void finalize_constants() {
     delete g_sigma_pr1;
     delete g_sigma_pr2;
     delete g_simp;
+    delete g_simplifier_assoc_subst;
+    delete g_simplifier_congr_bin_op;
+    delete g_simplifier_congr_bin_arg1;
+    delete g_simplifier_congr_bin_arg2;
+    delete g_simplifier_congr_bin_args;
     delete g_smt_array;
     delete g_smt_select;
     delete g_smt_store;
@@ -1113,6 +1134,8 @@ name const & get_int_has_neg_name() { return *g_int_has_neg; }
 name const & get_int_has_mod_name() { return *g_int_has_mod; }
 name const & get_int_decidable_linear_ordered_comm_group_name() { return *g_int_decidable_linear_ordered_comm_group; }
 name const & get_IO_name() { return *g_IO; }
+name const & get_is_associative_name() { return *g_is_associative; }
+name const & get_is_associative_op_assoc_name() { return *g_is_associative_op_assoc; }
 name const & get_is_int_name() { return *g_is_int; }
 name const & get_is_trunc_is_prop_name() { return *g_is_trunc_is_prop; }
 name const & get_is_trunc_is_prop_elim_name() { return *g_is_trunc_is_prop_elim; }
@@ -1279,6 +1302,11 @@ name const & get_sigma_mk_name() { return *g_sigma_mk; }
 name const & get_sigma_pr1_name() { return *g_sigma_pr1; }
 name const & get_sigma_pr2_name() { return *g_sigma_pr2; }
 name const & get_simp_name() { return *g_simp; }
+name const & get_simplifier_assoc_subst_name() { return *g_simplifier_assoc_subst; }
+name const & get_simplifier_congr_bin_op_name() { return *g_simplifier_congr_bin_op; }
+name const & get_simplifier_congr_bin_arg1_name() { return *g_simplifier_congr_bin_arg1; }
+name const & get_simplifier_congr_bin_arg2_name() { return *g_simplifier_congr_bin_arg2; }
+name const & get_simplifier_congr_bin_args_name() { return *g_simplifier_congr_bin_args; }
 name const & get_smt_array_name() { return *g_smt_array; }
 name const & get_smt_select_name() { return *g_smt_select; }
 name const & get_smt_store_name() { return *g_smt_store; }

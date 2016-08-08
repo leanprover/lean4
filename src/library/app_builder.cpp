@@ -728,6 +728,11 @@ public:
         return ::lean::mk_app(mk_constant(get_right_distrib_name(), {lvl}), A, *A_distrib);
     }
 
+    expr mk_ss_elim(expr const & A, expr const & ss_inst, expr const & old_e, expr const & new_e) {
+        level lvl = get_level(A);
+        return ::lean::mk_app(mk_constant(get_subsingleton_elim_name(), {lvl}), A, ss_inst, old_e, new_e);
+    }
+
     expr mk_false_rec(expr const & c, expr const & H) {
         level c_lvl = get_level(c);
         if (is_standard(m_ctx.env())) {
@@ -867,6 +872,11 @@ expr mk_congr(type_context & ctx, expr const & H1, expr const & H2) {
     return mk_app(ctx, get_congr_name(), {H1, H2});
 }
 
+expr mk_funext(type_context & ctx, expr const & lam_pf) {
+    // TODO(dhs): efficient version
+    return mk_app(ctx, get_funext_name(), lam_pf);
+}
+
 expr lift_from_eq(type_context & ctx, name const & R, expr const & H) {
     return app_builder(ctx).lift_from_eq(R, H);
 }
@@ -931,6 +941,10 @@ expr mk_partial_left_distrib(type_context & ctx, expr const & A) {
 
 expr mk_partial_right_distrib(type_context & ctx, expr const & A) {
     return app_builder(ctx).mk_partial_right_distrib(A);
+}
+
+expr mk_ss_elim(type_context & ctx, expr const & A, expr const & ss_inst, expr const & old_e, expr const & new_e) {
+    return app_builder(ctx).mk_ss_elim(A, ss_inst, old_e, new_e);
 }
 
 expr mk_false_rec(type_context & ctx, expr const & c, expr const & H) {

@@ -5,17 +5,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/trace.h"
-#include "library/app_builder.h"
+#include "library/util.h"
 #include "library/vm/vm_expr.h"
 #include "library/tactic/tactic_state.h"
 
 namespace lean {
 struct flat_assoc_fn {
-    type_context & m_ctx;
-    expr           m_op;
-    expr           m_assoc;
+    abstract_type_context & m_ctx;
+    expr                    m_op;
+    expr                    m_assoc;
 
-    flat_assoc_fn(type_context & ctx, expr const & op, expr const & assoc):
+    flat_assoc_fn(abstract_type_context & ctx, expr const & op, expr const & assoc):
         m_ctx(ctx), m_op(op), m_assoc(assoc) {}
 
     bool is_op_app(expr const & e, expr & lhs, expr & rhs) {
@@ -146,7 +146,7 @@ struct perm_ac_fn : public flat_assoc_fn {
     expr           m_comm;
     optional<expr> m_left_comm;
 
-    perm_ac_fn(type_context & ctx, expr const & op, expr const & assoc, expr const & comm):
+    perm_ac_fn(abstract_type_context & ctx, expr const & op, expr const & assoc, expr const & comm):
         flat_assoc_fn(ctx, op, assoc), m_comm(comm) {
     }
 
@@ -257,11 +257,11 @@ struct perm_ac_fn : public flat_assoc_fn {
 };
 
 
-pair<expr, optional<expr>> flat_assoc(type_context & ctx, expr const & op, expr const & assoc, expr const & e) {
+pair<expr, optional<expr>> flat_assoc(abstract_type_context & ctx, expr const & op, expr const & assoc, expr const & e) {
     return flat_assoc_fn(ctx, op, assoc).flat_core(e);
 }
 
-expr perm_ac(type_context & ctx, expr const & op, expr const & assoc, expr const & comm, expr const & e1, expr const & e2) {
+expr perm_ac(abstract_type_context & ctx, expr const & op, expr const & assoc, expr const & comm, expr const & e1, expr const & e2) {
     return perm_ac_fn(ctx, op, assoc, comm).perm(e1, e2);
 }
 

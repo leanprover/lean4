@@ -145,7 +145,7 @@ private:
     scanner                 m_scanner;
     scanner::token_kind     m_curr_kind{scanner::token_kind::BEGIN};
 
-    bool                    m_use_locals{false};
+    bool                    m_use_locals{true};
     bool                    m_verbose{false};
 
     type_context *          m_tctx_ptr{nullptr};
@@ -479,7 +479,9 @@ private:
         metavar_context mctx;
         expr goal_mvar = mctx.mk_metavar_decl(lctx(), mk_constant(get_false_name()));
         vm_obj s = to_obj(tactic_state(env(), ios().get_options(), mctx, list<expr>(goal_mvar), goal_mvar));
-        vm_obj result = get_tactic_vm_state(env()).invoke(get_smt_prove_name(), s);
+
+        vm_state state(env());
+        vm_obj result = state.invoke(get_smt_prove_name(), s);
         if (optional<tactic_state> s_new = is_tactic_success(result)) {
             mctx = s_new->mctx();
             expr proof = mctx.instantiate_mvars(goal_mvar);
@@ -640,6 +642,38 @@ private:
                 m_verbose = false;
             else
                 throw_parser_exception("invalid set-option command, option ':verbose' requires argument 'true' or 'false'");
+        } else if (sym == ":lbool") {
+            check_curr_kind(scanner::token_kind::SYMBOL, "invalid set-option, 'true' or 'false' expected");
+            symbol tf = curr_symbol();
+            next();
+            bool status;
+            if (tf == "true")
+                status = true;
+            else if (tf == "false")
+                status = false;
+            else
+                throw_parser_exception("invalid set-option command, option ':lbool' requires next argument 'true' or 'false'");
+            name n;
+            while (curr_kind() == scanner::token_kind::SYMBOL) {
+                symbol sym = curr_symbol();
+                next();
+                n = name(n, sym.c_str());
+            }
+            lean_assert(!n.is_anonymous());
+            m_ios.set_option(n, status);
+        } else if (sym == ":lnat") {
+            check_curr_kind(scanner::token_kind::INT, "invalid set-option, option ':lnat` requires next argument to be a numeral");
+            unsigned val = curr_numeral().get_numerator().get_unsigned_int();
+            next();
+            bool status;
+            name n;
+            while (curr_kind() == scanner::token_kind::SYMBOL) {
+                symbol sym = curr_symbol();
+                next();
+                n = name(n, sym.c_str());
+            }
+            lean_assert(!n.is_anonymous());
+            m_ios.set_option(n, val);
         } else {
             // TODO(dhs): just a warning?
             throw_parser_exception(std::string("unsupported option: ") + sym);

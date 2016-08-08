@@ -44,15 +44,13 @@ meta_definition simplify (prove_fn : tactic unit) (extra_lemmas : list expr) (e 
 do simp_lemmas  ← mk_simp_lemmas,
    new_lemmas   ← simp_lemmas_add_extra reducible simp_lemmas extra_lemmas,
    e_type       ← infer_type e >>= whnf,
-   rel          ← return $ if e_type = expr.prop then `iff else `eq,
-   simplify_core prove_fn rel new_lemmas e
+   simplify_core prove_fn `eq new_lemmas e
 
 meta_definition simplify_goal (prove_fn : tactic unit) (extra_lemmas : list expr) : tactic unit :=
 do (new_target, Heq) ← target >>= simplify prove_fn extra_lemmas,
    assert `Htarget new_target, swap,
-   ns ← return (if expr.is_eq Heq ≠ none then `eq else `iff),
    Ht ← get_local `Htarget,
-   mk_app (ns <.> "mpr") [Heq, Ht] >>= exact
+   mk_app `eq.mpr [Heq, Ht] >>= exact
 
 meta_definition simp : tactic unit :=
 simplify_goal failed [] >> try triv
@@ -80,8 +78,7 @@ do when (expr.is_local_constant H = ff) (fail "tactic simp_at failed, the given 
    Htype ← infer_type H,
    (new_Htype, Heq) ← simplify prove_fn extra_lemmas Htype,
    assert (expr.local_pp_name H) new_Htype,
-   ns ← return (if expr.is_eq Heq ≠ none then `eq else `iff),
-   mk_app (ns <.> "mp") [Heq, H] >>= exact,
+   mk_app `eq.mp [Heq, H] >>= exact,
    try $ clear H
 
 meta_definition simp_at : expr → tactic unit :=

@@ -22,6 +22,14 @@ Author: Leonardo de Moura
 #include "library/old_type_checker.h"
 
 namespace lean {
+
+level get_level(abstract_type_context & ctx, expr const & A) {
+    expr S = ctx.whnf(ctx.infer(A));
+    if (!is_sort(S))
+        throw exception("invalid expression, sort expected");
+    return sort_level(S);
+}
+
 bool occurs(expr const & n, expr const & m) {
     return static_cast<bool>(find(m, [&](expr const & e, unsigned) { return n == e; }));
 }
@@ -337,13 +345,6 @@ expr to_telescope(type_checker & ctx, expr type, buffer<expr> & telescope, optio
     return type;
 }
 
-static level get_level(abstract_type_context & ctx, expr const & A) {
-    expr S = ctx.whnf(ctx.infer(A));
-    if (!is_sort(S))
-        throw exception("invalid expression, sort expected");
-    return sort_level(S);
-}
-
 void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> const & s, buffer<expr> & eqs) {
     lean_assert(t.size() == s.size());
     lean_assert(std::all_of(s.begin(), s.end(), is_local));
@@ -574,13 +575,13 @@ expr mk_eq(abstract_type_context & ctx, expr const & lhs, expr const & rhs) {
     return mk_app(mk_constant(get_eq_name(), {lvl}), A, lhs, rhs);
 }
 
-expr mk_refl(abstract_type_context & ctx, expr const & a) {
+expr mk_eq_refl(abstract_type_context & ctx, expr const & a) {
     expr A    = ctx.whnf(ctx.infer(a));
     level lvl = get_level(ctx, A);
     return mk_app(mk_constant(get_eq_refl_name(), {lvl}), A, a);
 }
 
-expr mk_symm(abstract_type_context & ctx, expr const & H) {
+expr mk_eq_symm(abstract_type_context & ctx, expr const & H) {
     expr p    = ctx.whnf(ctx.infer(H));
     lean_assert(is_eq(p));
     expr lhs  = app_arg(app_fn(p));
@@ -590,7 +591,7 @@ expr mk_symm(abstract_type_context & ctx, expr const & H) {
     return mk_app(mk_constant(get_eq_symm_name(), {lvl}), A, lhs, rhs, H);
 }
 
-expr mk_trans(abstract_type_context & ctx, expr const & H1, expr const & H2) {
+expr mk_eq_trans(abstract_type_context & ctx, expr const & H1, expr const & H2) {
     expr p1    = ctx.whnf(ctx.infer(H1));
     expr p2    = ctx.whnf(ctx.infer(H2));
     lean_assert(is_eq(p1) && is_eq(p2));
@@ -602,8 +603,8 @@ expr mk_trans(abstract_type_context & ctx, expr const & H1, expr const & H2) {
     return mk_app({mk_constant(get_eq_trans_name(), {lvl}), A, lhs1, rhs1, rhs2, H1, H2});
 }
 
-expr mk_subst(abstract_type_context & ctx, expr const & motive,
-              expr const & x, expr const & y, expr const & xeqy, expr const & h) {
+expr mk_eq_subst(abstract_type_context & ctx, expr const & motive,
+                 expr const & x, expr const & y, expr const & xeqy, expr const & h) {
     expr A    = ctx.infer(x);
     level l1  = get_level(ctx, A);
     expr r;
@@ -616,9 +617,21 @@ expr mk_subst(abstract_type_context & ctx, expr const & motive,
     return mk_app({r, A, x, y, motive, xeqy, h});
 }
 
-expr mk_subst(abstract_type_context & ctx, expr const & motive, expr const & xeqy, expr const & h) {
+expr mk_eq_subst(abstract_type_context & ctx, expr const & motive, expr const & xeqy, expr const & h) {
     expr xeqy_type = ctx.whnf(ctx.infer(xeqy));
-    return mk_subst(ctx, motive, app_arg(app_fn(xeqy_type)), app_arg(xeqy_type), xeqy, h);
+    return mk_eq_subst(ctx, motive, app_arg(app_fn(xeqy_type)), app_arg(xeqy_type), xeqy, h);
+}
+
+expr mk_congr_arg(abstract_type_context & ctx, expr const & f, expr const & H) {
+    expr eq = ctx.relaxed_whnf(ctx.infer(H));
+    expr pi = ctx.relaxed_whnf(ctx.infer(f));
+    expr A, B, lhs, rhs;
+    lean_verify(is_eq(eq, A, lhs, rhs));
+    lean_assert(is_arrow(pi));
+    B = binding_body(pi);
+    level lvl_1  = get_level(ctx, A);
+    level lvl_2  = get_level(ctx, B);
+    return ::lean::mk_app({mk_constant(get_congr_arg_name(), {lvl_1, lvl_2}), A, B, lhs, rhs, f, H});
 }
 
 expr mk_subsingleton_elim(abstract_type_context & ctx, expr const & h, expr const & x, expr const & y) {
@@ -787,6 +800,23 @@ bool is_not(environment const & env, expr const & e, expr & a) {
     }
 }
 
+bool is_not(expr const & e, expr & a) {
+    if (is_app(e)) {
+        expr const & f = app_fn(e);
+        if (!is_constant(f) || const_name(f) != get_not_name())
+            return false;
+        a = app_arg(e);
+        return true;
+    } else if (is_pi(e)) {
+        if (!is_false(binding_body(e)))
+            return false;
+        a = binding_domain(e);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 bool is_not(environment const & env, expr const & e) {
     if (is_app(e)) {
         expr const & f = app_fn(e);
@@ -819,6 +849,36 @@ expr mk_absurd(abstract_type_context & ctx, expr const & t, expr const & e, expr
         level e_lvl = get_level(ctx, e_type);
         return mk_app(mk_constant(get_absurd_name(), {e_lvl, t_lvl}), e_type, t, e, not_e);
     }
+}
+
+optional<expr> get_binary_op(expr const & e) {
+    if (!is_app(e) || !is_app(app_fn(e)))
+        return none_expr();
+    return some_expr(app_fn(app_fn(e)));
+}
+
+optional<expr> get_binary_op(expr const & e, expr & arg1, expr & arg2) {
+    if (auto op = get_binary_op(e)) {
+        arg1 = app_arg(app_fn(e));
+        arg2 = app_arg(e);
+        return some_expr(*op);
+    } else {
+        return none_expr();
+    }
+}
+
+expr mk_nary_app(expr const & op, buffer<expr> const & nary_args) {
+    return mk_nary_app(op, nary_args.size(), nary_args.data());
+}
+
+expr mk_nary_app(expr const & op, unsigned num_nary_args, expr const * nary_args) {
+    lean_assert(num_nary_args >= 2);
+    // f x1 x2 x3 ==> f x1 (f x2 x3)
+    expr e = mk_app(op, nary_args[num_nary_args - 2], nary_args[num_nary_args - 1]);
+    for (int i = num_nary_args - 3; i >= 0; --i) {
+        e = mk_app(op, nary_args[i], e);
+    }
+    return e;
 }
 
 optional<expr> lift_down_if_hott(abstract_type_context & ctx, expr const & v) {

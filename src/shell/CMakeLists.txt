@@ -120,6 +120,15 @@ FOREACH(T ${LEANT0TESTS})
            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME} "-t 0")
 ENDFOREACH(T)
 
+# LEAN TESTS using --trust=10
+file(GLOB LEANT0TESTS "${LEAN_SOURCE_DIR}/../tests/lean/trust10/*.lean")
+FOREACH(T ${LEANT0TESTS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leant10test_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/trust10"
+           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME} "-t 10")
+ENDFOREACH(T)
+
 # # LEAN RUN HoTT TESTS
 # file(GLOB LEANRUNHTESTS "${LEAN_SOURCE_DIR}/../tests/lean/hott/*.hlean")
 # FOREACH(T ${LEANRUNHTESTS})

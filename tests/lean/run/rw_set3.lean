@@ -9,4 +9,6 @@ axiom bla : ∀ x, f x = 2
 attribute foo [simp]
 attribute bla [simp]
 
+print [simp] simp
+
 example : f 5 = 2 := by simp

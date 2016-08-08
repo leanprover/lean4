@@ -8,6 +8,12 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
+
+/** \brief Return the universe level of the type of \c A.
+    Throws an exception if the (relaxed) whnf of the type
+    of A is not a sort. */
+level get_level(abstract_type_context & ctx, expr const & A);
+
 /** \brief Return true iff \c n occurs in \c m */
 bool occurs(expr const & n, expr const & m);
 /** \brief Return true iff there is a constant named \c n in \c m. */
@@ -165,12 +171,15 @@ expr mk_iff_refl(expr const & a);
 expr apply_propext(expr const & iff_pr, expr const & iff_term);
 
 expr mk_eq(abstract_type_context & ctx, expr const & lhs, expr const & rhs);
-expr mk_refl(abstract_type_context & ctx, expr const & a);
-expr mk_symm(abstract_type_context & ctx, expr const & H);
-expr mk_trans(abstract_type_context & ctx, expr const & H1, expr const & H2);
-expr mk_subst(abstract_type_context & ctx, expr const & motive,
-              expr const & x, expr const & y, expr const & xeqy, expr const & h);
-expr mk_subst(abstract_type_context & ctx, expr const & motive, expr const & xeqy, expr const & h);
+expr mk_eq_refl(abstract_type_context & ctx, expr const & a);
+expr mk_eq_symm(abstract_type_context & ctx, expr const & H);
+expr mk_eq_trans(abstract_type_context & ctx, expr const & H1, expr const & H2);
+expr mk_eq_subst(abstract_type_context & ctx, expr const & motive,
+                 expr const & x, expr const & y, expr const & xeqy, expr const & h);
+expr mk_eq_subst(abstract_type_context & ctx, expr const & motive, expr const & xeqy, expr const & h);
+
+expr mk_congr_arg(abstract_type_context & ctx, expr const & f, expr const & H);
+
 /** \brief Create an proof for x = y using subsingleton.elim (in standard mode) and is_trunc.is_prop.elim (in HoTT mode) */
 expr mk_subsingleton_elim(abstract_type_context & ctx, expr const & h, expr const & x, expr const & y);
 
@@ -218,11 +227,21 @@ bool is_or(expr const & e, expr & A, expr & B);
 /** \brief Return true if \c e is of the form <tt>(not arg)</tt>, and store \c arg in \c a.
      Return false otherwise */
 bool is_not(environment const & env, expr const & e, expr & a);
+bool is_not(expr const & e, expr & a);
 bool is_not(environment const & env, expr const & e);
 expr mk_not(abstract_type_context & ctx, expr const & e);
 
 /** \brief Create the term <tt>absurd e not_e : t</tt>. */
 expr mk_absurd(abstract_type_context & ctx, expr const & t, expr const & e, expr const & not_e);
+
+/** \brief Returns none if \c e is not an application with at least two arguments.
+    Otherwise it returns <tt>app_fn(app_fn(e))</tt>. */
+optional<expr> get_binary_op(expr const & e);
+optional<expr> get_binary_op(expr const & e, expr & arg1, expr & arg2);
+
+/** \brief Makes n-ary (right-associative) application. */
+expr mk_nary_app(expr const & op, buffer<expr> const & nary_args);
+expr mk_nary_app(expr const & op, unsigned num_nary_args, expr const * nary_args);
 
 expr try_eta(expr const & e);
 expr beta_reduce(expr t);

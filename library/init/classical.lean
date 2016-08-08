@@ -186,4 +186,5 @@ match (prop_decidable (nonempty A)) with
 | (tt Hp) := sum.inl (inhabited.value (inhabited_of_nonempty Hp))
 | (ff Hn) := sum.inr (λ a, absurd (nonempty.intro a) Hn)
 end
+
 end classical

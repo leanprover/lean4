@@ -20,10 +20,10 @@ variable [decidable_eq A]
 definition store (a : array A B) (i : A) (v : B) : array A B :=
 λ j, if j = i then v else select a j
 
-theorem select_store (a : array A B) (i : A) (v : B) : select (store a i v) i = v :=
+theorem select_store [simp] (a : array A B) (i : A) (v : B) : select (store a i v) i = v :=
 by unfold [`smt.store, `smt.select] >> dsimp >> rewrite `if_pos >> reflexivity
 
-theorem select_store_ne (a : array A B) (i j : A) (v : B) : j ≠ i → select (store a i v) j = select a j :=
+theorem select_store_ne [simp] (a : array A B) (i j : A) (v : B) : j ≠ i → select (store a i v) j = select a j :=
 by intros >> unfold [`smt.store, `smt.select] >> dsimp >> rewrite `if_neg >> assumption
 
 end smt

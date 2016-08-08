@@ -86,9 +86,10 @@ static void report_failure(sstream const & strm) {
 simp_lemmas add_core(tmp_type_context & tmp_tctx, simp_lemmas const & s,
                      name const & id, levels const & univ_metas, expr const & e, expr const & h,
                      unsigned priority) {
-    list<expr_pair> ceqvs   = to_ceqvs(tmp_tctx.tctx(), e, h);
+    list<expr_pair> ceqvs   = to_ceqvs(tmp_tctx, e, h);
     if (is_nil(ceqvs)) {
-        report_failure(sstream() << "invalid [simp] lemma '" << id << "'");
+        report_failure(sstream() << "invalid [simp] lemma '" << id << "' : " << e);
+        return s;
     }
     environment const & env = tmp_tctx.tctx().env();
     simp_lemmas new_s = s;

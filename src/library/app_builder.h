@@ -124,6 +124,8 @@ expr mk_congr_arg(type_context & ctx, expr const & f, expr const & H);
 expr mk_congr_fun(type_context & ctx, expr const & H, expr const & a);
 expr mk_congr(type_context & ctx, expr const & H1, expr const & H2);
 
+expr mk_funext(type_context & ctx, expr const & lam_pf);
+
 /** \brief Given a reflexive relation R, and a proof H : a = b,
     build a proof for (R a b) */
 expr lift_from_eq(type_context & ctx, name const & R, expr const & H);
@@ -147,6 +149,8 @@ expr mk_zero(type_context & ctx, expr const & A);
 expr mk_one(type_context & ctx, expr const & A);
 expr mk_partial_left_distrib(type_context & ctx, expr const & A);
 expr mk_partial_right_distrib(type_context & ctx, expr const & A);
+
+expr mk_ss_elim(type_context & ctx, expr const & A, expr const & ss_inst, expr const & old_e, expr const & new_e);
 
 /** \brief False elimination */
 expr mk_false_rec(type_context & ctx, expr const & c, expr const & H);

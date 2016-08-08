@@ -89,24 +89,24 @@ expr mk_eq(old_type_checker & ctx, expr const & lhs, expr const & rhs) {
 }
 
 expr mk_refl(old_type_checker & ctx, expr const & a) {
-    return mk_refl(ctx.get_type_context(), a);
+    return mk_eq_refl(ctx.get_type_context(), a);
 }
 
 expr mk_symm(old_type_checker & ctx, expr const & H) {
-    return mk_symm(ctx.get_type_context(), H);
+    return mk_eq_symm(ctx.get_type_context(), H);
 }
 
 expr mk_trans(old_type_checker & ctx, expr const & H1, expr const & H2) {
-    return mk_trans(ctx.get_type_context(), H1, H2);
+    return mk_eq_trans(ctx.get_type_context(), H1, H2);
 }
 
 expr mk_subst(old_type_checker & ctx, expr const & motive,
               expr const & x, expr const & y, expr const & xeqy, expr const & h) {
-    return mk_subst(ctx.get_type_context(), motive, x, y, xeqy, h);
+    return mk_eq_subst(ctx.get_type_context(), motive, x, y, xeqy, h);
 }
 
 expr mk_subst(old_type_checker & ctx, expr const & motive, expr const & xeqy, expr const & h) {
-    return mk_subst(ctx.get_type_context(), motive, xeqy, h);
+    return mk_eq_subst(ctx.get_type_context(), motive, xeqy, h);
 }
 
 expr mk_subsingleton_elim(old_type_checker & ctx, expr const & h, expr const & x, expr const & y) {

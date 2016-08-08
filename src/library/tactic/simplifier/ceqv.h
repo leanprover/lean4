@@ -14,7 +14,7 @@ bool is_simp_relation(environment const & env, expr const & e, expr & rel, expr 
     a "conditional" rewriting rule. Any equivalence relation registered using
     the relation_manager is considered.
 */
-list<expr_pair> to_ceqvs(type_context & tctx, expr const & e, expr const & H);
-bool is_ceqv(type_context & tctx, expr e);
+list<expr_pair> to_ceqvs(tmp_type_context & tmp_tctx, expr const & e, expr const & H);
+bool is_ceqv(tmp_type_context & tmp_tctx, expr e);
 bool is_permutation_ceqv(environment const & env, expr e);
 }

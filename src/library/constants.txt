@@ -120,6 +120,8 @@ int_has_neg
 int_has_mod
 int_decidable_linear_ordered_comm_group
 IO
+is_associative
+is_associative.op_assoc
 is_int
 is_trunc.is_prop
 is_trunc.is_prop.elim
@@ -286,6 +288,11 @@ sigma.mk
 sigma.pr1
 sigma.pr2
 simp
+simplifier.assoc_subst
+simplifier.congr_bin_op
+simplifier.congr_bin_arg1
+simplifier.congr_bin_arg2
+simplifier.congr_bin_args
 smt.array
 smt.select
 smt.store

@@ -65,7 +65,7 @@ static name_hash_map<arith_app_info> * g_arith_symbol_map  = nullptr;
 static name_hash_map<pair<expr, fun_attr>> * g_constant_fun_attr_map = nullptr;
 
 // (4) special operators that require custom procedures
-enum class special_app_kind { ITE, DISTINCT, EQ, SELECT, STORE };
+enum class special_app_kind { IMPLIES, ITE, DISTINCT, EQ, SELECT, STORE };
 static name_hash_map<special_app_kind> * g_special_map               = nullptr;
 
 // (5) hash-set of all symbols in (2-4), so that the constant-elaborator knows to skip them
@@ -171,6 +171,16 @@ private:
         return mk_chainable_app(args);
     }
 
+    expr elaborate_implies(buffer<expr> & args) {
+        lean_assert(is_constant(args[0]) && const_name(args[0]) == "=>");
+        int k = args.size();
+        expr e = mk_arrow(args[k - 2], args[k - 1]);
+        for (int i = k - 3; i > 0; --i) {
+            e = mk_arrow(args[i], e);
+        }
+        return e;
+    }
+
     expr elaborate_select(buffer<expr> & args) {
         lean_assert(is_constant(args[0]) && const_name(args[0]) == get_select_name());
         expr ty = m_tctx.infer(args[1]);
@@ -262,9 +272,6 @@ private:
             return mk_app_attrs(args, it_fun_attr->second.second);
         }
 
-        if (n != get_store_name()) {
-        }
-
         auto it_arith = g_arith_symbol_map->find(n);
         if (it_arith != g_arith_symbol_map->end()) {
             coerce_mixed_int_real(args);
@@ -277,6 +284,7 @@ private:
             case special_app_kind::EQ:             coerce_mixed_int_real(args); return elaborate_eq(args);
             case special_app_kind::ITE:            coerce_mixed_int_real(args); return elaborate_ite(args);
             case special_app_kind::DISTINCT:       coerce_mixed_int_real(args); return elaborate_distinct(args);
+            case special_app_kind::IMPLIES:                                     return elaborate_implies(args);
             case special_app_kind::SELECT:                                      return elaborate_select(args);
             case special_app_kind::STORE:                                       return elaborate_store(args);
             }
@@ -309,7 +317,6 @@ void initialize_elaborator() {
         });
 
     g_constant_fun_attr_map = new name_hash_map<pair<expr, fun_attr>>({
-            {"=>", mk_pair(mk_constant(get_implies_name()), fun_attr::RIGHT_ASSOC)},
             {"and", mk_pair(mk_constant(get_and_name()), fun_attr::LEFT_ASSOC)},
             {"or", mk_pair(mk_constant(get_or_name()), fun_attr::LEFT_ASSOC)},
             {"xor", mk_pair(mk_constant(get_xor_name()), fun_attr::LEFT_ASSOC)}
@@ -339,6 +346,7 @@ void initialize_elaborator() {
             {"ite", special_app_kind::ITE},
             {"distinct", special_app_kind::DISTINCT},
             {"=", special_app_kind::EQ},
+            {"=>", special_app_kind::IMPLIES},
             {"select", special_app_kind::SELECT},
             {"store", special_app_kind::STORE}
         });

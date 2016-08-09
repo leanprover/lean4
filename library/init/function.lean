@@ -8,7 +8,7 @@ General operations on functions.
 prelude
 import init.prod init.funext init.logic
 
-notation f ` $ `:1 a:0 := f a
+notation f ` $ `:1 a:1 := f a
 
 variables {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}
 

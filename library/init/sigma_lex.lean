@@ -38,21 +38,14 @@ section
                                 p (sigma.mk xa xb) lt
                 (λ (a₁ : A) (b₁ : B a₁) (a₂ : A) (b₂ : B a₂) (H : Ra a₁ a₂) (eq₂ : a₂ = xa) (eq₃ : b₂ == xb),
                   by do
-                     /- TODO(Leo): cleanup using quotations -/
                      get_local `eq₂ >>= subst,
-                     iHa : expr ← get_local `iHa, a₁ ← get_local `a₁, H ← get_local `H, b₁ ← get_local `b₁,
-                     exact (expr.app_of_list iHa [a₁,  H, b₁]))
+                     to_expr `(iHa a₁ H b₁) >>= exact)
                 (λ (a : A) (b₁ b₂ : B a) (H : Rb a b₁ b₂) (eq₂ : a = xa) (eq₃ : b₂ == xb),
                   by do
-                     /- TODO(Leo): cleanup using quotations -/
                     get_local `eq₂ >>= subst,
-                    eq₃ ← get_local `eq₃,
-                    new_eq₃ ← mk_app `eq_of_heq [eq₃],
-                    note `new_eq₃ new_eq₃,
+                    to_expr `(eq_of_heq eq₃) >>= note `new_eq₃,
                     get_local `new_eq₃ >>= subst,
-                    iHb : expr ← get_local `iHb, b₁ ← get_local `b₁, H ← get_local `H,
-                    exact (expr.app_of_list iHb [b₁, H])),
-                   -- begin cases eq₂, cases eq₃, exact (iHb b₁ H) end),
+                    to_expr `(iHb b₁ H) >>= exact),
             aux rfl (heq.refl xb))))
 
   -- The lexicographical order of well founded relations is well-founded

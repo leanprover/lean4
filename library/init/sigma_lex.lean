@@ -51,6 +51,16 @@ section
   -- The lexicographical order of well founded relations is well-founded
   definition lex_wf (Ha : well_founded Ra) (Hb : ∀ x, well_founded (Rb x)) : well_founded (lex Ra Rb) :=
   well_founded.intro (λp, destruct p (λa b, lex_accessible (well_founded.apply Ha a) Hb b))
+end
 
+section
+  parameters {A : Type} {B : Type}
+
+  definition lex_ndep (Ra : A → A → Prop) (Rb : B → B → Prop) :=
+  lex Ra (λ a : A, Rb)
+
+  definition lex_ndep_wf {Ra  : A → A → Prop} {Rb : B → B → Prop} (Ha : well_founded Ra) (Hb : well_founded Rb)
+                         : well_founded (lex_ndep Ra Rb) :=
+  well_founded.intro (λp, destruct p (λa b, lex_accessible (well_founded.apply Ha a) (λ x, Hb) b))
 end
 end sigma

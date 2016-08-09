@@ -1143,40 +1143,6 @@ expr old_elaborator::visit_inaccessible(expr const & e, constraint_seq & cs) {
     return mk_inaccessible(visit(get_annotation_arg(e), cs));
 }
 
-expr old_elaborator::visit_decreasing(expr const & e, constraint_seq & cs) {
-    if (!m_equation_lhs)
-        throw_elaborator_exception("invalid occurrence of 'decreasing' annotation, it must only occur in "
-                                   "the right-hand-side of recursive equations", e);
-    if (!m_equation_R)
-        throw_elaborator_exception("invalid occurrence of 'decreasing' annotation, it can only be used when "
-                                   "recursive equations are being defined by well-founded recursion", e);
-    expr const & lhs_fn = get_app_fn(*m_equation_lhs);
-    if (get_app_fn(decreasing_app(e)) != lhs_fn)
-        throw_elaborator_exception("invalid occurrence of 'decreasing' annotation, expression must be an "
-                                   "application of the recursive function being defined", e);
-    expr dec_app        = visit(decreasing_app(e), cs);
-    expr dec_proof      = visit(decreasing_proof(e), cs);
-    expr f_type         = mlocal_type(get_app_fn(*m_equation_lhs));
-    buffer<expr> ts;
-    old_type_checker & tc = *m_tc;
-    to_telescope(tc, f_type, ts, optional<binder_info>(), cs);
-    buffer<expr> old_args;
-    buffer<expr> new_args;
-    get_app_args(*m_equation_lhs, old_args);
-    get_app_args(dec_app, new_args);
-    if (new_args.size() != old_args.size() || new_args.size() != ts.size())
-        throw_elaborator_exception("invalid recursive application, mistmatch in the number of arguments", e);
-    expr old_tuple  = mk_sigma_mk(tc, ts, old_args, cs);
-    expr new_tuple  = mk_sigma_mk(tc, ts, new_args, cs);
-    expr expected_dec_proof_type = mk_app(mk_app(*m_equation_R, new_tuple, e.get_tag()), old_tuple, e.get_tag());
-    expr dec_proof_type = infer_type(dec_proof, cs);
-    justification j = mk_type_mismatch_jst(dec_proof, dec_proof_type, expected_dec_proof_type, decreasing_proof(e));
-    auto new_dec_proof_cs = ensure_has_type(dec_proof, dec_proof_type, expected_dec_proof_type, j);
-    dec_proof = new_dec_proof_cs.first;
-    cs       += new_dec_proof_cs.second;
-    return mk_decreasing(dec_app, dec_proof);
-}
-
 bool old_elaborator::is_structure_like(expr const & S) {
     expr const & I = get_app_fn(S);
     return is_constant(I) && ::lean::is_structure_like(env(), const_name(I));
@@ -1385,8 +1351,6 @@ expr old_elaborator::visit_core(expr const & e, constraint_seq & cs) {
         return visit_equation(e, cs);
     } else if (is_inaccessible(e)) {
         return visit_inaccessible(e, cs);
-    } else if (is_decreasing(e)) {
-        return visit_decreasing(e, cs);
     } else if (is_structure_instance(e)) {
         return visit_structure_instance(e, cs);
     } else if (is_checkpoint_annotation(e)) {

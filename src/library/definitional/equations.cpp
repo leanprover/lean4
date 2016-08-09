@@ -33,13 +33,11 @@ namespace lean {
 static name * g_equations_name                 = nullptr;
 static name * g_equation_name                  = nullptr;
 static name * g_no_equation_name               = nullptr;
-static name * g_decreasing_name                = nullptr;
 static name * g_inaccessible_name              = nullptr;
 static name * g_equations_result_name          = nullptr;
 static std::string * g_equations_opcode        = nullptr;
 static std::string * g_equation_opcode         = nullptr;
 static std::string * g_no_equation_opcode      = nullptr;
-static std::string * g_decreasing_opcode       = nullptr;
 static std::string * g_equations_result_opcode = nullptr;
 
 [[ noreturn ]] static void throw_eqs_ex() { throw exception("unexpected occurrence of 'equations' expression"); }
@@ -80,28 +78,8 @@ public:
     virtual void write(serializer & s) const { s.write_string(*g_no_equation_opcode); }
 };
 
-class decreasing_macro_cell : public macro_definition_cell {
-    void check_macro(expr const & m) const {
-        if (!is_macro(m) || macro_num_args(m) != 2)
-            throw exception("invalid 'decreasing' expression, incorrect number of arguments");
-    }
-public:
-    decreasing_macro_cell() {}
-    virtual name get_name() const { return *g_decreasing_name; }
-    virtual expr check_type(expr const & m, abstract_type_context & ctx, bool infer_only) const {
-        check_macro(m);
-        return ctx.check(macro_arg(m, 0), infer_only);
-    }
-    virtual optional<expr> expand(expr const & m, abstract_type_context &) const {
-        check_macro(m);
-        return some_expr(macro_arg(m, 0));
-    }
-    virtual void write(serializer & s) const { s.write_string(*g_decreasing_opcode); }
-};
-
 static macro_definition * g_equation    = nullptr;
 static macro_definition * g_no_equation = nullptr;
-static macro_definition * g_decreasing  = nullptr;
 
 bool is_equation(expr const & e) { return is_macro(e) && macro_def(e) == *g_equation; }
 
@@ -126,14 +104,6 @@ bool is_lambda_no_equation(expr const & e) {
         return is_lambda_no_equation(binding_body(e));
     else
         return is_no_equation(e);
-}
-
-bool is_decreasing(expr const & e) { return is_macro(e) && macro_def(e) == *g_decreasing; }
-expr const & decreasing_app(expr const & e) { lean_assert(is_decreasing(e)); return macro_arg(e, 0); }
-expr const & decreasing_proof(expr const & e) { lean_assert(is_decreasing(e)); return macro_arg(e, 1); }
-expr mk_decreasing(expr const & t, expr const & H) {
-    expr args[2] = { t, H };
-    return mk_macro(*g_decreasing, 2, args);
 }
 
 bool is_equations(expr const & e) { return is_macro(e) && macro_def(e).get_name() == *g_equations_name; }
@@ -230,17 +200,14 @@ void initialize_equations() {
     g_equations_name          = new name("equations");
     g_equation_name           = new name("equation");
     g_no_equation_name        = new name("no_equation");
-    g_decreasing_name         = new name("decreasing");
     g_inaccessible_name       = new name("innaccessible");
     g_equations_result_name   = new name("equations_result");
     g_equation                = new macro_definition(new equation_macro_cell());
     g_no_equation             = new macro_definition(new no_equation_macro_cell());
-    g_decreasing              = new macro_definition(new decreasing_macro_cell());
     g_equations_result        = new macro_definition(new equations_result_macro_cell());
     g_equations_opcode        = new std::string("Eqns");
     g_equation_opcode         = new std::string("Eqn");
     g_no_equation_opcode      = new std::string("NEqn");
-    g_decreasing_opcode       = new std::string("Decr");
     g_equations_result_opcode = new std::string("EqnR");
     register_annotation(*g_inaccessible_name);
     register_macro_deserializer(*g_equations_opcode,
@@ -269,12 +236,6 @@ void initialize_equations() {
                                         throw corrupted_stream_exception();
                                     return mk_no_equation();
                                 });
-    register_macro_deserializer(*g_decreasing_opcode,
-                                [](deserializer &, unsigned num, expr const * args) {
-                                    if (num != 2)
-                                        throw corrupted_stream_exception();
-                                    return mk_decreasing(args[0], args[1]);
-                                });
     register_macro_deserializer(*g_equations_result_opcode,
                                 [](deserializer &, unsigned num, expr const * args) {
                                     return mk_equations_result(num, args);
@@ -286,16 +247,13 @@ void finalize_equations() {
     delete g_equation_opcode;
     delete g_no_equation_opcode;
     delete g_equations_opcode;
-    delete g_decreasing_opcode;
     delete g_equations_result;
     delete g_equation;
     delete g_no_equation;
-    delete g_decreasing;
     delete g_equations_result_name;
     delete g_equations_name;
     delete g_equation_name;
     delete g_no_equation_name;
-    delete g_decreasing_name;
     delete g_inaccessible_name;
 }
 

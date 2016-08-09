@@ -22,11 +22,6 @@ bool is_lambda_equation(expr const & e);
 expr mk_no_equation();
 bool is_no_equation(expr const & e);
 
-bool is_decreasing(expr const & e);
-expr const & decreasing_app(expr const & e);
-expr const & decreasing_proof(expr const & e);
-expr mk_decreasing(expr const & t, expr const & H);
-
 bool is_equations(expr const & e);
 bool is_wf_equations(expr const & e);
 unsigned equations_size(expr const & e);

@@ -715,7 +715,6 @@ parse_table init_nud_table() {
 parse_table init_led_table() {
     parse_table r(false);
     r = r.add({transition("->", mk_expr_action(get_arrow_prec()-1))},    mk_arrow(Var(1), Var(1)));
-    r = r.add({transition("<d", mk_expr_action(get_decreasing_prec()))}, mk_decreasing(Var(1), Var(0)));
     return r;
 }
 

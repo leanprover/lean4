@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 static unsigned g_arrow_prec      = 25;
-static unsigned g_decreasing_prec = 100;
 static unsigned g_max_prec        = 1024;
 static unsigned g_Max_prec        = 1024*1024;
 static unsigned g_plus_prec       = 65;
@@ -20,7 +19,6 @@ static unsigned g_cup_prec        = 60;
 unsigned get_max_prec() { return g_max_prec; }
 unsigned get_Max_prec() { return g_Max_prec; }
 unsigned get_arrow_prec() { return g_arrow_prec; }
-unsigned get_decreasing_prec() { return g_decreasing_prec; }
 static token_table update(token_table const & s, char const * token, char const * val,
                           optional<unsigned> expr_prec, optional<unsigned> tac_prec) {
     lean_assert(expr_prec || tac_prec);
@@ -85,7 +83,6 @@ static char const * g_forall_unicode     = "\u2200";
 static char const * g_arrow_unicode      = "\u2192";
 static char const * g_cup                = "\u2294";
 static char const * g_qed_unicode        = "∎";
-static char const * g_decreasing_unicode = "↓";
 
 void init_token_table(token_table & t) {
     pair<char const *, unsigned> builtin[] =
@@ -102,7 +99,7 @@ void init_token_table(token_table & t) {
          {"@@", g_max_prec}, {"@", g_max_prec},
          {"sorry", g_max_prec}, {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec}, {"<-", 0},
          {"?(", g_max_prec}, {"⌞", g_max_prec}, {"⌟", 0}, {"match", 0},
-         {"<d", g_decreasing_prec}, {"renaming", 0}, {"extends", 0}, {nullptr, 0}};
+         {"renaming", 0}, {"extends", 0}, {nullptr, 0}};
 
     char const * commands[] =
         {"theorem", "axiom", "axioms", "variable", "protected", "private", "reveal",
@@ -154,7 +151,6 @@ void init_token_table(token_table & t) {
     }
     t = add_token(t, g_arrow_unicode, "->", get_arrow_prec());
     t = add_token(t, "←", "<-", 0);
-    t = add_token(t, g_decreasing_unicode, "<d", get_decreasing_prec());
 
     auto it4 = cmd_aliases;
     while (it4->first) {

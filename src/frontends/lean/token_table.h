@@ -20,7 +20,6 @@ unsigned get_max_prec();
 // Internal maximum precedence used for @@, @ and ! operators
 unsigned get_Max_prec();
 unsigned get_arrow_prec();
-unsigned get_decreasing_prec();
 class token_info {
     bool        m_command;
     name        m_token;

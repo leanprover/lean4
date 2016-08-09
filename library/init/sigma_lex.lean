@@ -64,3 +64,47 @@ section
   well_founded.intro (λp, destruct p (λa b, lex_accessible (well_founded.apply Ha a) (λ x, Hb) b))
 end
 end sigma
+
+namespace sigma
+section
+  variables {A B : Type}
+  variable  (Ra  : A → A → Prop)
+  variable  (Rb  : B → B → Prop)
+
+  -- Reverse lexicographical order based on Ra and Rb
+  inductive rev_lex : @sigma A (λ a, B) → @sigma A (λ a, B) → Prop :=
+  | left  : ∀ {a₁ a₂ : A} (b : B), Ra a₁ a₂ → rev_lex (sigma.mk a₁ b) (sigma.mk a₂ b)
+  | right : ∀ (a₁ : A) {b₁ : B} (a₂ : A) {b₂ : B}, Rb b₁ b₂ → rev_lex (sigma.mk a₁ b₁) (sigma.mk a₂ b₂)
+end
+
+
+section
+  open ops well_founded tactic
+  parameters {A B : Type}
+  parameters {Ra  : A → A → Prop} {Rb : B → B → Prop}
+  local infix `≺`:50 := rev_lex Ra Rb
+
+  definition rev_lex_accessible {b} (acb : acc Rb b) (aca : ∀a, acc Ra a): ∀a, acc (rev_lex Ra Rb) (sigma.mk a b) :=
+  acc.rec_on acb
+    (λxb acb (iHb : ∀y, Rb y xb → ∀a, acc (rev_lex Ra Rb) (sigma.mk a y)),
+      λa, acc.rec_on (aca a)
+        (λxa aca (iHa : ∀ y, Ra y xa → acc (rev_lex Ra Rb) (mk y xb)),
+          acc.intro (sigma.mk xa xb) (λp (lt : p ≺ (sigma.mk xa xb)),
+            have aux : xa = xa → xb = xb → acc (rev_lex Ra Rb) p, from
+              @rev_lex.rec_on A B Ra Rb (λp₁ p₂, pr₁ p₂ = xa → pr₂ p₂ = xb → acc (rev_lex Ra Rb) p₁)
+                              p (sigma.mk xa xb) lt
+               (λ a₁ a₂ b (H : Ra a₁ a₂) (eq₂ : a₂ = xa) (eq₃ : b = xb),
+                 show acc (rev_lex Ra Rb) (sigma.mk a₁ b), from
+                 have Ra₁ : Ra a₁ xa, from eq.rec_on eq₂ H,
+                 have aux : acc (rev_lex Ra Rb) (sigma.mk a₁ xb), from iHa a₁ Ra₁,
+                 eq.rec_on (eq.symm eq₃) aux)
+               (λ a₁ b₁ a₂ b₂ (H : Rb b₁ b₂) (eq₂ : a₂ = xa) (eq₃ : b₂ = xb),
+                 show acc (rev_lex Ra Rb) (mk a₁ b₁), from
+                 have Rb₁ : Rb b₁ xb, from eq.rec_on eq₃ H,
+                 iHb b₁ Rb₁ a₁),
+            aux rfl rfl)))
+
+  definition rev_lex_wf (Ha : well_founded Ra) (Hb : well_founded Rb) : well_founded (rev_lex Ra Rb) :=
+  well_founded.intro (λp, destruct p (λa b, rev_lex_accessible (apply Hb b) (well_founded.apply Ha) a))
+end
+end sigma

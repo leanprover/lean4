@@ -63,9 +63,7 @@ section
                          : well_founded (lex_ndep Ra Rb) :=
   well_founded.intro (λp, destruct p (λa b, lex_accessible (well_founded.apply Ha a) (λ x, Hb) b))
 end
-end sigma
 
-namespace sigma
 section
   variables {A B : Type}
   variable  (Ra  : A → A → Prop)
@@ -76,7 +74,6 @@ section
   | left  : ∀ {a₁ a₂ : A} (b : B), Ra a₁ a₂ → rev_lex (sigma.mk a₁ b) (sigma.mk a₂ b)
   | right : ∀ (a₁ : A) {b₁ : B} (a₂ : A) {b₂ : B}, Rb b₁ b₂ → rev_lex (sigma.mk a₁ b₁) (sigma.mk a₂ b₂)
 end
-
 
 section
   open ops well_founded tactic
@@ -106,5 +103,17 @@ section
 
   definition rev_lex_wf (Ha : well_founded Ra) (Hb : well_founded Rb) : well_founded (rev_lex Ra Rb) :=
   well_founded.intro (λp, destruct p (λa b, rev_lex_accessible (apply Hb b) (well_founded.apply Ha) a))
+end
+
+section
+  definition skip_left (A : Type) {B : Type} (Rb : B → B → Prop) : @sigma A (λ a, B) → @sigma A (λ a, B) → Prop :=
+  rev_lex empty_relation Rb
+
+  definition skip_left_wf (A : Type) {B : Type} {Rb : B → B → Prop} (Hb : well_founded Rb) : well_founded (skip_left A Rb) :=
+  rev_lex_wf empty_wf Hb
+
+  definition mk_skip_left {A : Type} {B : Type} {b₁ b₂ : B} {Rb : B → B → Prop}
+                          (a₁ a₂ : A) (H : Rb b₁ b₂) : skip_left A Rb (sigma.mk a₁ b₁) (sigma.mk a₂ b₂) :=
+  rev_lex.right _ _ _ H
 end
 end sigma

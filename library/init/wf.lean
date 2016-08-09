@@ -74,7 +74,7 @@ end well_founded
 open well_founded
 
 -- Empty relation is well-founded
-definition empty.wf {A : Type} : well_founded empty_relation :=
+definition empty_wf {A : Type} : well_founded empty_relation :=
 well_founded.intro (λ (a : A),
   acc.intro a (λ (b : A) (lt : false), false.rec _ lt))
 

@@ -1738,13 +1738,14 @@ elaborate(environment const & env, options const & opts,
     return p;
 }
 
-expr nested_elaborate(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
+expr nested_elaborate(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
                       expr const & e, bool relaxed) {
     elaborator elab(env, opts, mctx, lctx);
     expr r = elab(translate(env, lctx, e));
     if (!relaxed)
         elab.ensure_no_unassigned_metavars();
     mctx = elab.mctx();
+    env  = elab.env();
     return r;
 }
 

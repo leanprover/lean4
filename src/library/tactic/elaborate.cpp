@@ -37,7 +37,8 @@ vm_obj tactic_to_expr_core(vm_obj const & relaxed, vm_obj const & qe, vm_obj con
     }
     metavar_context mctx = s.mctx();
     try {
-        expr r = (*g_elaborate)(s.env(), s.get_options(), mctx, g->get_context(), to_expr(qe), to_bool(relaxed));
+        environment env = s.env();
+        expr r = (*g_elaborate)(env, s.get_options(), mctx, g->get_context(), to_expr(qe), to_bool(relaxed));
         r = mctx.instantiate_mvars(r);
         if (relaxed && has_expr_metavar(r)) {
             buffer<expr> new_goals;
@@ -52,9 +53,9 @@ vm_obj tactic_to_expr_core(vm_obj const & relaxed, vm_obj const & qe, vm_obj con
                     return true;
                 });
             list<expr> new_gs = cons(head(s.goals()), to_list(new_goals.begin(), new_goals.end(), tail(s.goals())));
-            return mk_tactic_success(to_obj(r), set_mctx_goals(s, mctx, new_gs));
+            return mk_tactic_success(to_obj(r), set_env_mctx_goals(s, env, mctx, new_gs));
         } else {
-            return mk_tactic_success(to_obj(r), set_mctx(s, mctx));
+            return mk_tactic_success(to_obj(r), set_env_mctx(s, env, mctx));
         }
     } catch (exception & ex) {
         return mk_tactic_exception(ex, s);

@@ -81,8 +81,10 @@ tactic_state mk_tactic_state_for(environment const & env, options const & opts,
 tactic_state set_options(tactic_state const & s, options const & o);
 tactic_state set_env(tactic_state const & s, environment const & env);
 tactic_state set_mctx(tactic_state const & s, metavar_context const & mctx);
+tactic_state set_env_mctx(tactic_state const & s, environment const & env, metavar_context const & mctx);
 tactic_state set_goals(tactic_state const & s, list<expr> const & gs);
 tactic_state set_mctx_goals(tactic_state const & s, metavar_context const & mctx, list<expr> const & gs);
+tactic_state set_env_mctx_goals(tactic_state const & s, environment const & env, metavar_context const & mctx, list<expr> const & gs);
 
 tactic_state const & to_tactic_state(vm_obj const & o);
 vm_obj to_obj(tactic_state const & s);

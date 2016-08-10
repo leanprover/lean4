@@ -67,6 +67,10 @@ tactic_state set_mctx(tactic_state const & s, metavar_context const & mctx) {
     return tactic_state(s.env(), s.get_options(), mctx, s.goals(), s.main());
 }
 
+tactic_state set_env_mctx(tactic_state const & s, environment const & env, metavar_context const & mctx) {
+    return tactic_state(env, s.get_options(), mctx, s.goals(), s.main());
+}
+
 static list<expr> consume_solved_prefix(metavar_context const & mctx, list<expr> const & gs) {
     if (empty(gs))
         return gs;
@@ -82,6 +86,11 @@ tactic_state set_goals(tactic_state const & s, list<expr> const & gs) {
 
 tactic_state set_mctx_goals(tactic_state const & s, metavar_context const & mctx, list<expr> const & gs) {
     return tactic_state(s.env(), s.get_options(), mctx, consume_solved_prefix(mctx, gs), s.main());
+}
+
+tactic_state set_env_mctx_goals(tactic_state const & s, environment const & env,
+                                metavar_context const & mctx, list<expr> const & gs) {
+    return tactic_state(env, s.get_options(), mctx, consume_solved_prefix(mctx, gs), s.main());
 }
 
 format tactic_state::pp_expr(formatter_factory const & fmtf, expr const & e) const {

@@ -201,13 +201,14 @@ public:
     expr operator()(expr const & e);
     pair<expr, level_param_names> finalize(expr const & e, bool check_unassigned, bool to_simple_metavar);
     void ensure_no_unassigned_metavars();
+    environment const & env() const { return m_env; }
 };
 
 pair<expr, level_param_names> elaborate(environment const & env, options const & opts,
                                         metavar_context & mctx, local_context const & lctx,
                                         expr const & e, bool check_unassigend);
 
-expr nested_elaborate(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
+expr nested_elaborate(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
                       expr const & e, bool relaxed);
 
 void initialize_elaborator();

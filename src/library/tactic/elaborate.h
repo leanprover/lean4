@@ -16,7 +16,7 @@ expr const & get_by_arg(expr const & e);
 /* Elaboration function.
    \remark The boolean flag indicates whether metavariables should be tolerated in the result or not.
    \remark The metavariable context is input/output. */
-typedef std::function<expr(environment const &, options const &, metavar_context &, local_context const &, expr const &, bool)> elaborate_fn;
+typedef std::function<expr(environment &, options const &, metavar_context &, local_context const &, expr const &, bool)> elaborate_fn;
 
 /** \brief Auxiliary function for setting the thread local elaboration
     procedure used by the tactic framework. */

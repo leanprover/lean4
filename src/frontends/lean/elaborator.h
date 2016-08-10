@@ -14,6 +14,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 class elaborator {
+public:
+    class checkpoint;
+private:
     typedef std::vector<pair<expr, expr>> to_check_sorts;
     enum class arg_mask {
         All /* @ annotation */,
@@ -47,14 +50,6 @@ class elaborator {
         list<expr>      m_saved_mvar_stack;
         snapshot(elaborator const & elab);
         void restore(elaborator & elab);
-    };
-
-    struct checkpoint : public base_snapshot {
-        elaborator & m_elaborator;
-        bool         m_commit;
-        checkpoint(elaborator & e);
-        ~checkpoint();
-        void commit();
     };
 
     /** \brief We use a specialized procedure for elaborating recursor applications (e.g., nat.rec_on and eq.rec_on),
@@ -201,8 +196,11 @@ public:
     elaborator(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx);
     metavar_context const & mctx() const { return m_ctx.mctx(); }
     local_context const & lctx() const { return m_ctx.lctx(); }
-    expr push_local(name const & n, expr const & type) { return m_ctx.push_local(n, type); }
+    expr push_local(name const & n, expr const & type, binder_info const & bi = binder_info()) {
+        return m_ctx.push_local(n, type, bi);
+    }
     expr elaborate(expr const & e);
+    expr elaborate_type(expr const & e);
     void ensure_no_unassigned_metavars(expr const & e);
     /**
        \brief Finalize all expressions in \c es.
@@ -221,6 +219,16 @@ public:
     /** Simpler version of \c finalize, where \c es contains only one expression. */
     pair<expr, level_param_names> finalize(expr const & e, bool check_unassigned, bool to_simple_metavar);
     environment const & env() const { return m_env; }
+
+    class checkpoint : public base_snapshot {
+        elaborator & m_elaborator;
+        bool         m_commit;
+    public:
+        checkpoint(elaborator & e);
+        ~checkpoint();
+        void commit();
+        void process() { m_elaborator.process_checkpoint(*this); }
+    };
 };
 
 pair<expr, level_param_names> elaborate(environment const & env, options const & opts,

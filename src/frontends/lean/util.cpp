@@ -29,7 +29,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
-
+#include "frontends/lean/decl_util.h" // TODO(Leo): remove
 namespace lean {
 void consume_until_end(parser & p) {
     while (!p.curr_is_token(get_end_tk())) {
@@ -74,25 +74,6 @@ bool is_eqn_prefix(parser & p, bool bar_only = false) {
     return p.curr_is_token(get_bar_tk()) || (!bar_only && p.curr_is_token(get_comma_tk()));
 }
 
-// Sort local names by order of occurrence, and copy the associated parameters to ps
-void sort_locals(buffer<expr> const & locals, parser const & p, buffer<expr> & ps) {
-    for (expr const & l : locals) {
-        // we only copy the locals that are in p's local context
-        if (p.is_local_decl(l))
-            ps.push_back(l);
-    }
-    std::sort(ps.begin(), ps.end(), [&](expr const & p1, expr const & p2) {
-            bool is_var1 = p.is_local_variable(p1);
-            bool is_var2 = p.is_local_variable(p2);
-            if (!is_var1 && is_var2)
-                return true;
-            else if (is_var1 && !is_var2)
-                return false;
-            else
-                return p.get_local_index(p1) < p.get_local_index(p2);
-        });
-}
-
 // Return the local levels in \c ls that are not associated with variables
 levels collect_local_nonvar_levels(parser & p, level_param_names const & ls) {
     buffer<level> section_ls_buffer;
@@ -121,68 +102,6 @@ static void collect_locals_ignoring_tactics(expr const & e, collected_locals & l
         });
 }
 
-void collect_annonymous_inst_implicit(parser const & p, collected_locals & ls) {
-    buffer<pair<name, expr>> entries;
-    to_buffer(p.get_local_entries(), entries);
-    unsigned i = entries.size();
-    while (i > 0) {
-        --i;
-        auto const & entry = entries[i];
-        if (is_local(entry.second) && !ls.contains(entry.second) && local_info(entry.second).is_inst_implicit() &&
-            // remark: remove the following condition condition, if we want to auto inclusion also for non anonymous ones.
-            p.is_anonymous_inst_name(entry.first)) {
-            bool ok = true;
-            for_each(mlocal_type(entry.second), [&](expr const & e, unsigned) {
-                    if (!ok) return false; // stop
-                    if (is_local(e) && !ls.contains(e))
-                        ok = false;
-                    return true;
-                });
-            if (ok)
-                ls.insert(entry.second);
-        }
-    }
-}
-
-// Collect local constants occurring in type and value, sort them, and store in ctx_ps
-void collect_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & ctx_ps) {
-    collected_locals ls;
-    buffer<expr> include_vars;
-    p.get_include_variables(include_vars);
-    for (expr const & param : include_vars) {
-        if (is_local(param)) {
-            collect_locals_ignoring_tactics(mlocal_type(param), ls);
-            ls.insert(param);
-        }
-    }
-    collect_locals_ignoring_tactics(type, ls);
-    collect_locals_ignoring_tactics(value, ls);
-    collect_annonymous_inst_implicit(p, ls);
-    sort_locals(ls.get_collected(), p, ctx_ps);
-}
-
-name_set collect_univ_params_ignoring_tactics(expr const & e, name_set const & ls) {
-    if (!has_param_univ(e)) {
-        return ls;
-    } else {
-        name_set r = ls;
-        for_each(e, [&](expr const & e, unsigned) {
-                if (!has_param_univ(e)) {
-                    return false;
-                    // } else if (is_by(e)) {
-                    // return false; // do not visit children
-                } else if (is_sort(e)) {
-                    collect_univ_params_core(sort_level(e), r);
-                } else if (is_constant(e)) {
-                    for (auto const & l : const_levels(e))
-                        collect_univ_params_core(l, r);
-                }
-                return true;
-            });
-        return r;
-    }
-}
-
 void remove_local_vars(parser const & p, buffer<expr> & locals) {
     unsigned j = 0;
     for (unsigned i = 0; i < locals.size(); i++) {
@@ -200,6 +119,10 @@ levels remove_local_vars(parser const & p, levels const & ls) {
             return !is_param(l) || !p.is_local_level_variable(param_id(l));
         });
 }
+
+// TODO(Leo): delete these headers
+void collect_annonymous_inst_implicit(parser const & p, collected_locals & locals);
+void sort_locals(buffer<expr> const & locals, parser const & p, buffer<expr> & ps);
 
 list<expr> locals_to_context(expr const & e, parser const & p) {
     collected_locals ls;
@@ -326,6 +249,8 @@ level mk_result_level(environment const & env, buffer<level> const & r_lvls) {
 /** \brief Functional object for converting the universe metavariables in an expression in new universe parameters.
     The substitution is updated with the mapping metavar -> new param.
     The set of parameter names m_params and the buffer m_new_params are also updated.
+
+    TODO(Leo): delete after we delete old_elaborator
 */
 class univ_metavars_to_params_fn : public replace_visitor {
     environment const &        m_env;
@@ -384,6 +309,7 @@ public:
     }
 };
 
+// TODO(Leo): delete
 expr univ_metavars_to_params(environment const & env, local_level_decls const & lls, substitution & s,
                              name_set & ps, buffer<name> & new_ps, expr const & e) {
     return univ_metavars_to_params_fn(env, lls, s, ps, new_ps)(e);

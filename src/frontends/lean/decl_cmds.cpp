@@ -29,6 +29,7 @@ Author: Leonardo de Moura
 #include "library/compiler/vm_compiler.h"
 #include "library/vm/vm.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/decl_util.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/decl_attributes.h"
@@ -42,6 +43,9 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
+// TODO(Leo): delete
+void update_univ_parameters(parser & p, buffer<name> & lp_names, name_set const & found);
+
 static environment declare_universe(parser & p, environment env, name const & n, bool local) {
     if (local) {
         p.add_local_level(n, mk_param_univ(n), local);
@@ -86,32 +90,6 @@ static environment universe_cmd(parser & p) {
 
 static environment universes_cmd(parser & p) {
     return universes_cmd_core(p, false);
-}
-
-bool parse_univ_params(parser & p, buffer<name> & ps) {
-    if (p.curr_is_token(get_llevel_curly_tk())) {
-        p.next();
-        while (!p.curr_is_token(get_rcurly_tk())) {
-            name l = p.check_id_next("invalid universe parameter, identifier expected");
-            p.add_local_level(l, mk_param_univ(l));
-            ps.push_back(l);
-        }
-        p.next();
-        return true;
-    } else{
-        return false;
-    }
-}
-
-void update_univ_parameters(buffer<name> & ls_buffer, name_set const & found, parser const & p) {
-    unsigned old_sz = ls_buffer.size();
-    found.for_each([&](name const & n) {
-            if (std::find(ls_buffer.begin(), ls_buffer.begin() + old_sz, n) == ls_buffer.begin() + old_sz)
-                ls_buffer.push_back(n);
-        });
-    std::sort(ls_buffer.begin(), ls_buffer.end(), [&](name const & n1, name const & n2) {
-            return p.get_local_level_index(n1) < p.get_local_level_index(n2);
-        });
 }
 
 enum class variable_kind { Constant, Parameter, Variable, Axiom, MetaConstant };
@@ -295,7 +273,7 @@ static environment variable_cmd_core(parser & p, variable_kind k, bool is_protec
     if (ls_buffer.empty()) {
         ls = to_level_param_names(collect_univ_params(type));
     } else {
-        update_univ_parameters(ls_buffer, collect_univ_params(type), p);
+        update_univ_parameters(p, ls_buffer, collect_univ_params(type));
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
     }
     level_param_names new_ls;
@@ -588,6 +566,25 @@ expr parse_local_equations(parser & p, expr const & fn) {
     return p.save_pos(mk_equations(fns.size(), eqns.size(), eqns.data()), pos);
 }
 
+void collect_locals_ignoring_tactics(expr const & e, collected_locals & ls);
+
+// Collect local constants occurring in type and value, sort them, and store in ctx_ps
+void collect_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & ctx_ps) {
+    collected_locals ls;
+    buffer<expr> include_vars;
+    p.get_include_variables(include_vars);
+    for (expr const & param : include_vars) {
+        if (is_local(param)) {
+            collect_locals_ignoring_tactics(mlocal_type(param), ls);
+            ls.insert(param);
+        }
+    }
+    collect_locals_ignoring_tactics(type, ls);
+    collect_locals_ignoring_tactics(value, ls);
+    collect_annonymous_inst_implicit(p, ls);
+    sort_locals(ls.get_collected(), p, ctx_ps);
+}
+
 // An Lean example is not really a definition, but we use the definition infrastructure to simulate it.
 enum def_cmd_kind { Theorem, Definition, MetaDefinition, Example, Abbreviation, LocalAbbreviation };
 
@@ -800,7 +797,7 @@ class definition_cmd_fn {
             m_value = Fun_as_is(new_locals, m_value, m_p);
             auto ps = collect_univ_params_ignoring_tactics(m_type);
             ps      = collect_univ_params_ignoring_tactics(m_value, ps);
-            update_univ_parameters(m_ls_buffer, ps, m_p);
+            update_univ_parameters(m_p, m_ls_buffer, ps);
             remove_local_vars(m_p, locals);
             m_ls = to_list(m_ls_buffer.begin(), m_ls_buffer.end());
             levels local_ls = collect_local_nonvar_levels(m_p, m_ls);
@@ -813,7 +810,7 @@ class definition_cmd_fn {
                 m_env = m_p.add_local_ref(m_env, m_name, ref);
             }
         } else {
-            update_univ_parameters(m_ls_buffer, collect_univ_params(m_value, collect_univ_params(m_type)), m_p);
+            update_univ_parameters(m_p, m_ls_buffer, collect_univ_params(m_value, collect_univ_params(m_type)));
             m_ls = to_list(m_ls_buffer.begin(), m_ls_buffer.end());
         }
     }

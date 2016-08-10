@@ -1719,6 +1719,12 @@ expr elaborator::elaborate(expr const & e) {
     return r;
 }
 
+expr elaborator::elaborate_type(expr const & e) {
+    expr Type  = copy_tag(e, mk_sort(mk_level_placeholder()));
+    expr new_e = copy_tag(e, mk_typed_expr(Type, e));
+    return elaborate(e);
+}
+
 void elaborator::finalize(buffer<expr> & es, buffer<name> & new_lp_names, bool check_unassigned, bool to_simple_metavar) {
     sanitize_param_names_fn S(m_ctx, new_lp_names);
     name_map<expr> to_simple_mvar_cache;

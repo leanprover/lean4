@@ -56,12 +56,9 @@ static type_context_cache & get_elab_tc_cache_for(environment const & env, optio
 #define trace_elab_debug(CODE) lean_trace("elaborator_debug", scope_trace_env _scope(m_env, m_ctx); CODE)
 
 elaborator::elaborator(environment const & env, options const & opts, metavar_context const & mctx,
-                       local_context const & lctx, bool check_unassigned, bool top_level, bool to_simple_metavar):
+                       local_context const & lctx):
     m_env(env), m_opts(opts),
     m_ctx(mctx, lctx, get_elab_tc_cache_for(env, opts), transparency_mode::Semireducible) {
-    m_check_unassigned  = check_unassigned;
-    m_top_level         = top_level;
-    m_to_simple_metavar = to_simple_metavar;
 }
 
 auto elaborator::mk_pp_fn(type_context & ctx) -> pp_fn {
@@ -1533,20 +1530,18 @@ void elaborator::invoke_tactics(checkpoint const & C) {
     }
 }
 
-void elaborator::ensure_no_unassigned_metavars(checkpoint const & C) {
-    list<expr> old_stack = C.m_saved_mvar_stack;
-    if (m_check_unassigned) {
-        metavar_context mctx = m_ctx.mctx();
-        while (!is_eqp(m_mvar_stack, old_stack)) {
-            expr mvar = head(m_mvar_stack);
-            if (!mctx.is_assigned(mvar)) {
-                tactic_state s = mk_tactic_state_for(mvar);
-                throw_unsolved_tactic_state(s, "don't know how to synthesize placeholder", mvar);
-            }
-            m_mvar_stack = tail(m_mvar_stack);
+void elaborator::ensure_no_unassigned_metavars() {
+    metavar_context mctx = m_ctx.mctx();
+    buffer<expr> stack;
+    to_buffer(m_mvar_stack, stack);
+    unsigned i = stack.size();
+    while (i > 0) {
+        --i;
+        expr mvar = stack[i];
+        if (!mctx.is_assigned(mvar)) {
+            tactic_state s = mk_tactic_state_for(mvar);
+            throw_unsolved_tactic_state(s, "don't know how to synthesize placeholder", mvar);
         }
-    } else {
-        m_mvar_stack = old_stack;
     }
 }
 
@@ -1554,13 +1549,11 @@ void elaborator::process_checkpoint(checkpoint & C) {
     ensure_numeral_types_assigned(C);
     synthesize_type_class_instances(C);
     invoke_tactics(C);
-    ensure_no_unassigned_metavars(C);
     C.commit();
 }
 
 elaborator::base_snapshot::base_snapshot(elaborator const & e) {
     m_saved_mctx               = e.m_ctx.mctx();
-    m_saved_mvar_stack         = e.m_mvar_stack;
     m_saved_instance_stack     = e.m_instance_stack;
     m_saved_numeral_type_stack = e.m_numeral_type_stack;
     m_saved_tactic_stack       = e.m_tactic_stack;
@@ -1568,7 +1561,6 @@ elaborator::base_snapshot::base_snapshot(elaborator const & e) {
 
 void elaborator::base_snapshot::restore(elaborator & e) {
     e.m_ctx.set_mctx(m_saved_mctx);
-    e.m_mvar_stack         = m_saved_mvar_stack;
     e.m_instance_stack     = m_saved_instance_stack;
     e.m_numeral_type_stack = m_saved_numeral_type_stack;
     e.m_tactic_stack       = m_saved_tactic_stack;
@@ -1576,11 +1568,13 @@ void elaborator::base_snapshot::restore(elaborator & e) {
 
 elaborator::snapshot::snapshot(elaborator const & e):
     base_snapshot(e) {
+    m_saved_mvar_stack = e.m_mvar_stack;
     m_saved_uvar_stack = e.m_uvar_stack;
 }
 
 void elaborator::snapshot::restore(elaborator & e) {
     base_snapshot::restore(e);
+    e.m_mvar_stack = m_saved_mvar_stack;
     e.m_uvar_stack = m_saved_uvar_stack;
 }
 
@@ -1710,57 +1704,48 @@ static expr replace_with_simple_metavars(metavar_context & mctx, expr const & e)
     return replace_with_simple_metavars(mctx, cache, e);
 }
 
-pair<expr, level_param_names> elaborator::operator()(expr const & e) {
+expr elaborator::operator()(expr const & e) {
     checkpoint C(*this);
     expr r = visit(e,  none_expr());
     trace_elab_detail(tout() << "result before final checkpoint\n" << r << "\n";);
     process_checkpoint(C);
-    if (m_top_level) {
-        unassigned_uvars_to_params();
-    }
-    r = instantiate_mvars(r);
-    if (!m_check_unassigned && m_to_simple_metavar) {
+    return r;
+}
+
+pair<expr, level_param_names> elaborator::finalize(expr const & e, bool check_unassigned, bool to_simple_metavar) {
+    unassigned_uvars_to_params();
+    if (check_unassigned)
+        ensure_no_unassigned_metavars();
+    expr r = instantiate_mvars(e);
+    if (!check_unassigned && to_simple_metavar) {
         /* Replace metavar_decl references with simple metavariables. */
         metavar_context mctx = m_ctx.mctx();
         r = replace_with_simple_metavars(mctx, r);
     }
-    if (m_top_level) {
-        sanitize_param_names_fn S;
-        S.collect_params(m_ctx.lctx());
-        return S.sanitize(r);
-    } else {
-        return mk_pair(r, level_param_names());
-    }
-}
-
-static pair<expr, level_param_names>
-elaborate_core(environment const & env, options const & opts,
-          metavar_context & mctx, local_context const & lctx, expr const & e,
-          bool check_unassigned, bool top_level, bool to_simple_metavar) {
-    elaborator elab(env, opts, mctx, lctx, check_unassigned, top_level, to_simple_metavar);
-    auto r = elab(e);
-    mctx = elab.mctx();
-    return r;
+    sanitize_param_names_fn S;
+    S.collect_params(m_ctx.lctx());
+    return S.sanitize(r);
 }
 
 pair<expr, level_param_names>
 elaborate(environment const & env, options const & opts,
           metavar_context & mctx, local_context const & lctx, expr const & e,
           bool check_unassigned) {
-    bool top_level = true;
-    bool to_simple_metavar = true;
-    return elaborate_core(env, opts, mctx, lctx, e, check_unassigned, top_level, to_simple_metavar);
+    elaborator elab(env, opts, mctx, lctx);
+    expr r = elab(e);
+    auto p = elab.finalize(r, check_unassigned, true);
+    mctx = elab.mctx();
+    return p;
 }
 
 expr nested_elaborate(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
                       expr const & e, bool relaxed) {
-    bool top_level = false;
-    bool to_simple_metavar = false;
-    pair<expr, level_param_names> p = elaborate_core(env, opts, mctx, lctx, translate(env, lctx, e), !relaxed,
-                                                     top_level, to_simple_metavar);
-    if (p.second)
-        throw exception("nested elaboration failed, new universe parameters have been created");
-    return p.first;
+    elaborator elab(env, opts, mctx, lctx);
+    expr r = elab(translate(env, lctx, e));
+    if (!relaxed)
+        elab.ensure_no_unassigned_metavars();
+    mctx = elab.mctx();
+    return r;
 }
 
 void initialize_elaborator() {

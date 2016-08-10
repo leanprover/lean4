@@ -30,18 +30,11 @@ class elaborator {
     list<expr>        m_numeral_type_stack;
     list<expr_pair>   m_tactic_stack;
 
-    /* If m_check_unassigned is true, then elaborator throws an exception for unassigned metavariables */
-    bool              m_check_unassigned;
-
-    bool              m_top_level;
-    bool              m_to_simple_metavar;
-
     /* m_depth is only used for tracing */
     unsigned          m_depth{0};
 
     struct base_snapshot {
         metavar_context m_saved_mctx;
-        list<expr>      m_saved_mvar_stack;
         list<expr>      m_saved_instance_stack;
         list<expr>      m_saved_numeral_type_stack;
         list<expr_pair> m_saved_tactic_stack;
@@ -51,6 +44,7 @@ class elaborator {
 
     struct snapshot : public base_snapshot {
         list<level>     m_saved_uvar_stack;
+        list<expr>      m_saved_mvar_stack;
         snapshot(elaborator const & elab);
         void restore(elaborator & elab);
     };
@@ -198,15 +192,15 @@ class elaborator {
     tactic_state mk_tactic_state_for(expr const & mvar);
     void invoke_tactic(expr const & mvar, expr const & tac);
     void invoke_tactics(checkpoint const & C);
-    void ensure_no_unassigned_metavars(checkpoint const & C);
     void process_checkpoint(checkpoint & C);
     void unassigned_uvars_to_params();
 
 public:
-    elaborator(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
-               bool check_unassigend, bool top_level, bool to_simple_metavar);
+    elaborator(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx);
     metavar_context const & mctx() const { return m_ctx.mctx(); }
-    pair<expr, level_param_names> operator()(expr const & e);
+    expr operator()(expr const & e);
+    pair<expr, level_param_names> finalize(expr const & e, bool check_unassigned, bool to_simple_metavar);
+    void ensure_no_unassigned_metavars();
 };
 
 pair<expr, level_param_names> elaborate(environment const & env, options const & opts,

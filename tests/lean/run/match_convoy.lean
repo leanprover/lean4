@@ -1,9 +1,9 @@
 definition foo (a b : bool) : bool :=
-match a b with
-| tt ff := tt
-| tt tt := tt
-| ff tt := tt
-| ff ff := ff
+match a, b with
+| tt, ff := tt
+| tt, tt := tt
+| ff, tt := tt
+| ff, ff := ff
 end
 
 example : foo tt tt = tt := rfl
@@ -18,9 +18,9 @@ inductive vec (A : Type) : nat → Type :=
 open vec
 
 definition boo (n : nat) (v : vec bool n) : vec bool n :=
-match n v : ∀ (n : _), vec bool n → _ with
-| 0      nil       := nil
-| (n+1) (cons a v) := cons (bool.bnot a) v
+match n, v : ∀ (n : _), vec bool n → _ with
+| 0,   nil      := nil
+| n+1, cons a v := cons (bool.bnot a) v
 end
 
 
@@ -42,9 +42,29 @@ infix ⊆ := subbag
 
 definition decidable_subbag [instance] {A} (b₁ b₂ : bag A) : decidable (b₁ ⊆ b₂) :=
 quot.rec_on_subsingleton₂ b₁ b₂ (λ l₁ l₂,
-  match (subcount l₁ l₂) rfl : ∀ (b : _), subcount l₁ l₂ = b → _ with
-  | tt H := decidable.tt (all_of_subcount_eq_tt H)
-  | ff H := decidable.ff (λ h,
+  match subcount l₁ l₂, rfl : ∀ (b : _), subcount l₁ l₂ = b → _ with
+  | tt, H := decidable.tt (all_of_subcount_eq_tt H)
+  | ff, H := decidable.ff (λ h,
+            exists.elim (ex_of_subcount_eq_ff H)
+            (λ w hw, absurd (h w) hw))
+  end)
+
+definition decidable_subbag2 [instance] {A} (b₁ b₂ : bag A) : decidable (b₁ ⊆ b₂) :=
+quot.rec_on_subsingleton₂ b₁ b₂ (λ l₁ l₂,
+  match sigma.mk (subcount l₁ l₂) rfl : (Σ (b : _), subcount l₁ l₂ = b) → _ with
+  | sigma.mk tt H := decidable.tt (all_of_subcount_eq_tt H)
+  | sigma.mk ff H := decidable.ff (λ h,
+            exists.elim (ex_of_subcount_eq_ff H)
+            (λ w hw, absurd (h w) hw))
+  end)
+
+local notation ⟦ a , b ⟧ := sigma.mk a b
+
+definition decidable_subbag3 [instance] {A} (b₁ b₂ : bag A) : decidable (b₁ ⊆ b₂) :=
+quot.rec_on_subsingleton₂ b₁ b₂ (λ l₁ l₂,
+  match ⟦subcount l₁ l₂, rfl⟧ : (Σ (b : _), subcount l₁ l₂ = b) → _ with
+  | ⟦tt, H⟧ := decidable.tt (all_of_subcount_eq_tt H)
+  | ⟦ff, H⟧ := decidable.ff (λ h,
             exists.elim (ex_of_subcount_eq_ff H)
             (λ w hw, absurd (h w) hw))
   end)

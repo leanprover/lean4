@@ -1,1 +1,1 @@
-match_bug.lean:3:6: error: invalid expression
+match_bug.lean:3:6: error: invalid pattern, must be an application, constant, variable, type ascription or inaccessible term

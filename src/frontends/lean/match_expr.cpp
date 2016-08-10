@@ -23,9 +23,10 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
     buffer<expr> eqns;
     buffer<expr> ts;
     try {
-        ts.push_back(p.parse_expr(get_max_prec()));
-        while (!p.curr_is_token(get_with_tk()) && !p.curr_is_token(get_colon_tk())) {
-            ts.push_back(p.parse_expr(get_max_prec()));
+        ts.push_back(p.parse_expr());
+        while (p.curr_is_token(get_comma_tk())) {
+            p.next();
+            ts.push_back(p.parse_expr());
         }
         expr fn;
         /* Parse optional type */
@@ -51,8 +52,11 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
         while (true) {
             auto lhs_pos = p.pos();
             buffer<expr> lhs_args;
-            while (!p.curr_is_token(get_assign_tk()))
-                lhs_args.push_back(p.parse_pattern_or_expr(get_max_prec()));
+            lhs_args.push_back(p.parse_pattern_or_expr());
+            while (p.curr_is_token(get_comma_tk())) {
+                p.next();
+                lhs_args.push_back(p.parse_pattern_or_expr());
+            }
             expr lhs = p.mk_app(fn, lhs_args, lhs_pos);
             buffer<expr> locals;
             bool skip_main_fn = true;

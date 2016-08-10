@@ -63,6 +63,7 @@ name const & get_options_tk();
 name const & get_commands_tk();
 name const & get_instances_tk();
 name const & get_classes_tk();
+name const & get_attributes_tk();
 name const & get_arrow_tk();
 name const & get_larrow_tk();
 name const & get_hiding_tk();

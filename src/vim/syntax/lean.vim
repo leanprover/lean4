@@ -32,7 +32,7 @@ syn keyword leanKeyword precedence reserve match infix infixl infixr notation po
 syn keyword leanKeyword tactic_infix tactic_infixl tactic_infixr tactic_notation tactic_postfix
 syn keyword leanKeyword tactic_prefix eval check end reveal this suppose using namespace section
 syn keyword leanKeyword fields find_decl attribute local set_option extends include omit classes
-syn keyword leanKeyword instances coercions metaclasses raw migrate replacing calc have show suffices
+syn keyword leanKeyword instances coercions attributes raw migrate replacing calc have show suffices
 syn keyword leanKeyword by in at let forall fun exists if dif then else assume assert take obtain from
 
 syn match leanOp        ":"

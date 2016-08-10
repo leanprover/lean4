@@ -61,6 +61,7 @@ static name const * g_options_tk = nullptr;
 static name const * g_commands_tk = nullptr;
 static name const * g_instances_tk = nullptr;
 static name const * g_classes_tk = nullptr;
+static name const * g_attributes_tk = nullptr;
 static name const * g_arrow_tk = nullptr;
 static name const * g_larrow_tk = nullptr;
 static name const * g_hiding_tk = nullptr;
@@ -201,6 +202,7 @@ void initialize_tokens() {
     g_commands_tk = new name{"commands"};
     g_instances_tk = new name{"instances"};
     g_classes_tk = new name{"classes"};
+    g_attributes_tk = new name{"attributes"};
     g_arrow_tk = new name{"->"};
     g_larrow_tk = new name{"<-"};
     g_hiding_tk = new name{"hiding"};
@@ -342,6 +344,7 @@ void finalize_tokens() {
     delete g_commands_tk;
     delete g_instances_tk;
     delete g_classes_tk;
+    delete g_attributes_tk;
     delete g_arrow_tk;
     delete g_larrow_tk;
     delete g_hiding_tk;
@@ -482,6 +485,7 @@ name const & get_options_tk() { return *g_options_tk; }
 name const & get_commands_tk() { return *g_commands_tk; }
 name const & get_instances_tk() { return *g_instances_tk; }
 name const & get_classes_tk() { return *g_classes_tk; }
+name const & get_attributes_tk() { return *g_attributes_tk; }
 name const & get_arrow_tk() { return *g_arrow_tk; }
 name const & get_larrow_tk() { return *g_larrow_tk; }
 name const & get_hiding_tk() { return *g_hiding_tk; }

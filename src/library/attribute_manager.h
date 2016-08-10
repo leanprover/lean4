@@ -46,6 +46,7 @@ public:
     virtual ~attribute() {}
 
     std::string const & get_name() const { return m_id; }
+    std::string const & get_description() const { return m_descr; }
     std::string const & get_token() const { return m_token; }
 
     virtual attr_data_ptr get(environment const &, name const &) const;

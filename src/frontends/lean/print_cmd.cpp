@@ -604,12 +604,21 @@ environment print_cmd(parser & p) {
         }
     } else if (p.curr_is_token_or_id(get_classes_tk())) {
         p.next();
-        environment const & env = p.env();
         buffer<name> classes;
         get_classes(env, classes);
         std::sort(classes.begin(), classes.end());
         for (name const & c : classes) {
             out << c << " : " << env.get(c).get_type() << endl;
+        }
+    } else if (p.curr_is_token_or_id(get_attributes_tk())) {
+        p.next();
+        buffer<attribute const *> attrs;
+        get_attributes(attrs);
+        std::sort(attrs.begin(), attrs.end(), [](attribute const * a1, attribute const * a2) {
+            return a1->get_name() < a2->get_name();
+        });
+        for (auto attr : attrs) {
+            out << "[" << attr->get_name() << "] " << attr->get_description() << endl;
         }
     } else if (p.curr_is_token_or_id(get_prefix_tk())) {
         p.next();

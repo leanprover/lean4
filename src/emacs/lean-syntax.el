@@ -18,7 +18,7 @@
     "eval" "vm_eval" "check" "end" "reveal" "this" "suppose"
     "using_well_founded" "namespace" "section" "fields" "find_decl"
     "attribute" "local" "set_option" "extends" "include" "omit" "classes"
-    "instances" "coercions" "metaclasses" "raw" "migrate" "replacing"
+    "instances" "coercions" "attributes" "raw" "migrate" "replacing"
     "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "forall" "Pi" "fun"
     "exists" "if" "dif" "then" "else" "assume" "take" "obtain" "from" "aliases" "register_simp_ext"
     "mutual_definition" "mutual_inductive" "def" "mutual_def")

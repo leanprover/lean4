@@ -105,7 +105,7 @@ void init_token_table(token_table & t) {
         {"theorem", "axiom", "axioms", "variable", "protected", "private", "reveal",
          "definition", "meta_definition", "mutual_definition", "example", "coercion", "abbreviation", "noncomputable",
          "variables", "parameter", "parameters", "constant", "meta_constant", "constants",
-         "[visible]", "[none]", "[parsing_only]", "[simp_ext]",
+         "[visible]", "[none]", "[parsing_only", "[simp_ext]",
          "evaluate", "check", "eval", "vm_eval", "using_well_founded", "[whnf]", "[priority", "[unfold_hints]",
          "print", "end", "namespace", "section", "prelude", "help",
          "import", "inductive", "record", "structure", "module", "universe", "universes", "local",

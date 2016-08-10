@@ -1085,7 +1085,7 @@ public:
     definition_cmd_fn(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable):
         m_p(p), m_env(m_p.env()), m_kind(kind),
         m_is_private(is_private), m_is_protected(is_protected), m_is_noncomputable(is_noncomputable),
-        m_pos(p.pos()), m_attributes(kind == Abbreviation || kind == LocalAbbreviation) {
+        m_pos(p.pos()), m_attributes(true) {
         lean_assert(!(m_is_private && m_is_protected));
         if (!is_standard(m_p.env()) && is_noncomputable)
             throw exception("invalid 'noncomputable' declarations, it can only be used in the standard library");
@@ -1241,8 +1241,7 @@ static environment omit_cmd(parser & p) {
 
 static environment attribute_cmd_core(parser & p, bool persistent) {
     buffer<name> ds;
-    bool abbrev       = false;
-    decl_attributes attributes(abbrev, persistent);
+    decl_attributes attributes(persistent);
     bool parsed_attrs = false;
     if (!p.curr_is_identifier()) {
         attributes.parse(p);
@@ -1255,6 +1254,8 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
     }
     if (!parsed_attrs)
         attributes.parse(p);
+    if (attributes.is_parsing_only())
+        throw exception(sstream() << "invalid [parsing_only] attribute, can only be applied at declaration time");
     environment env = p.env();
     for (name const & d : ds)
         env = attributes.apply(env, p.ios(), d);

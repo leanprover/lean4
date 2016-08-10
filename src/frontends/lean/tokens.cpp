@@ -241,7 +241,7 @@ void initialize_tokens() {
     g_reducible_tk = new name{"[reducible"};
     g_semireducible_tk = new name{"[semireducible"};
     g_irreducible_tk = new name{"[irreducible"};
-    g_parsing_only_tk = new name{"[parsing_only]"};
+    g_parsing_only_tk = new name{"[parsing_only"};
     g_simp_attr_tk = new name{"[simp"};
     g_congr_attr_tk = new name{"[congr"};
     g_light_attr_tk = new name{"[light"};

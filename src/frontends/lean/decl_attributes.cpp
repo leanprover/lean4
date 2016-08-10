@@ -12,25 +12,11 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 
 namespace lean {
-decl_attributes::decl_attributes(bool is_abbrev, bool persistent) {
-    m_is_abbrev              = is_abbrev;
-    m_persistent             = persistent;
-    m_parsing_only           = false;
-    if (is_abbrev)
-        m_entries = to_list(entry {&get_attribute("reducible"), attr_data_ptr(new attr_data)});
-}
-
 void decl_attributes::parse(parser & p) {
     while (true) {
         auto pos   = p.pos();
         if (auto it = parse_priority(p)) {
             m_prio = *it;
-        } else if (p.curr_is_token(get_parsing_only_tk())) {
-            if (!m_is_abbrev)
-                throw parser_error("invalid '[parsing_only]' attribute, only abbreviations can be "
-                                   "marked as '[parsing_only]'", pos);
-            m_parsing_only = true;
-            p.next();
         } else if (p.curr_is_command()) {
            if (auto attr = get_attribute_from_token(p.get_token_info().token().get_string())) {
                p.next();
@@ -44,6 +30,8 @@ void decl_attributes::parse(parser & p) {
                auto data = attr->parse_data(p);
                p.check_token_next(get_rbracket_tk(), "invalid attribute declaration, ']' expected");
                m_entries = cons({attr, data}, m_entries);
+               if (attr->get_name() == "parsing_only")
+                   m_parsing_only = true;
            } else {
                break;
            }

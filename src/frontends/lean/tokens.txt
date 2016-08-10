@@ -96,7 +96,7 @@ unfold_hints unfold_hints
 reducible    [reducible
 semireducible [semireducible
 irreducible  [irreducible
-parsing_only [parsing_only]
+parsing_only [parsing_only
 simp_attr    [simp
 congr_attr   [congr
 light_attr   [light

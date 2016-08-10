@@ -18,13 +18,12 @@ private:
         attr_data_ptr     m_params;
     };
 
-    bool               m_is_abbrev; // if true only abbreviation attributes are allowed
     bool               m_persistent;
     bool               m_parsing_only;
     list<entry>        m_entries;
     optional<unsigned> m_prio;
 public:
-    decl_attributes(bool is_abbrev = false, bool persistent = true);
+    decl_attributes(bool persistent): m_persistent(persistent), m_parsing_only(false) {}
     void parse(parser & p);
     environment apply(environment env, io_state const & ios, name const & d) const;
     bool is_parsing_only() const { return m_parsing_only; }

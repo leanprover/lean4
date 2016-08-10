@@ -685,6 +685,7 @@ struct notation_modifiers {
         while (true) {
             if (p.curr_is_token(get_parsing_only_tk())) {
                 p.next();
+                p.check_token_next(get_rbracket_tk(), "invalid [parsing_only] attribute, ']' expected");
                 m_parse_only = true;
             } else if (auto prio = parse_priority(p)) {
                 m_priority = *prio;

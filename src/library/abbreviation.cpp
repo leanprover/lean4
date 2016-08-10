@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
+#include "library/attribute_manager.h"
 #include "library/scoped_ext.h"
 #include "library/expr_lt.h"
 #include "library/util.h"
@@ -18,14 +19,14 @@ namespace lean {
 typedef pair<name, bool> abbrev_entry;
 
 struct abbrev_state {
-    name_map<bool>                               m_abbrevs;
+    name_set                                     m_abbrevs;
     rb_map<expr, name, expr_cmp_no_level_params> m_inv_map; // for pretty printer
 
     void add(environment const & env, name const & n, bool parsing_only) {
         declaration const & d = env.get(n);
         if (!d.is_definition())
             throw exception(sstream() << "invalid abbreviation '" << n << "', it is not a definition");
-        m_abbrevs.insert(n, parsing_only);
+        m_abbrevs.insert(n);
         if (!parsing_only) {
             expr v = try_eta(d.get_value());
             m_inv_map.insert(v, n);
@@ -33,13 +34,6 @@ struct abbrev_state {
     }
 
     bool is_abbreviation(name const & n) const { return m_abbrevs.contains(n); }
-
-    bool is_parsing_only_abbreviation(name const & n) const {
-        if (auto it = m_abbrevs.find(n))
-            return *it;
-        else
-            return false;
-    }
 
     optional<name> is_abbreviated(expr const & e) const {
         if (auto it = m_inv_map.find(e))
@@ -81,7 +75,8 @@ template class scoped_ext<abbrev_config>;
 typedef scoped_ext<abbrev_config> abbrev_ext;
 
 environment add_abbreviation(environment const & env, name const & n, bool parsing_only, bool persistent) {
-    return abbrev_ext::add_entry(env, get_dummy_ios(), abbrev_entry(n, parsing_only), persistent);
+    auto env2 = abbrev_ext::add_entry(env, get_dummy_ios(), abbrev_entry(n, parsing_only), persistent);
+    return set_attribute(env2, get_dummy_ios(), "reducible", n, persistent);
 }
 
 bool is_abbreviation(environment const & env, name const & n) {
@@ -90,8 +85,7 @@ bool is_abbreviation(environment const & env, name const & n) {
 }
 
 bool is_parsing_only_abbreviation(environment const & env, name const & n) {
-    abbrev_state const & s = abbrev_ext::get_state(env);
-    return s.is_parsing_only_abbreviation(n);
+    return has_attribute(env, "parsing_only", n);
 }
 
 optional<name> is_abbreviated(environment const & env, expr const & e) {
@@ -122,6 +116,11 @@ void initialize_abbreviation() {
     g_class_name = new name("abbreviation");
     g_key        = new std::string("ABBREV");
     abbrev_ext::initialize();
+    register_attribute(basic_attribute("parsing_only", "parsing-only abbreviation", [](environment const & env, io_state const &, name const & d, bool) {
+        if (!is_abbreviation(env, d))
+            throw exception(sstream() << "invalid '[parsing_only]' attribute, " << d << " is not an abbreviation");
+        return env;
+    }));
 }
 
 void finalize_abbreviation() {

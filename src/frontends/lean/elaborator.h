@@ -193,14 +193,33 @@ class elaborator {
     void invoke_tactic(expr const & mvar, expr const & tac);
     void invoke_tactics(checkpoint const & C);
     void process_checkpoint(checkpoint & C);
-    void unassigned_uvars_to_params();
+
+    void unassigned_uvars_to_params(level const & l);
+    void unassigned_uvars_to_params(expr const & e);
 
 public:
     elaborator(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx);
     metavar_context const & mctx() const { return m_ctx.mctx(); }
-    expr operator()(expr const & e);
+    local_context const & lctx() const { return m_ctx.lctx(); }
+    expr push_local(name const & n, expr const & type) { return m_ctx.push_local(n, type); }
+    expr elaborate(expr const & e);
+    void ensure_no_unassigned_metavars(expr const & e);
+    /**
+       \brief Finalize all expressions in \c es.
+       es is input and output, all expr fragments at once.
+
+       The finalization includes:
+       1- Assigning unassigned universe metavariables to fresh parameters.
+       2- Throwing an error if any of \c es contains an unassigned (regular) metavariable when check_unassigned = true
+       3- Substituting assigned metavariables in \c es.
+       4- Converting unassigned metavariable refs (i.e., the ones managed by metavar_context) into kernel
+          metavariables.
+
+       \remark new_lp_names is output only, and contains one fresh universe parameter for each unassigned universe
+       meta-variable. */
+    void finalize(buffer<expr> & es, buffer<name> & new_lp_names, bool check_unassigned, bool to_simple_metavar);
+    /** Simpler version of \c finalize, where \c es contains only one expression. */
     pair<expr, level_param_names> finalize(expr const & e, bool check_unassigned, bool to_simple_metavar);
-    void ensure_no_unassigned_metavars();
     environment const & env() const { return m_env; }
 };
 

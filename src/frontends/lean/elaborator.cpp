@@ -1399,20 +1399,30 @@ void elaborator::synthesize_type_class_instances_core(list<expr> const & old_sta
     m_instance_stack = to_list(to_keep.begin(), to_keep.end(), m_instance_stack);
 }
 
-void elaborator::unassigned_uvars_to_params() {
-    buffer<level> tmp;
-    to_buffer(m_uvar_stack, tmp);
-    unsigned i = tmp.size();
-    while (i > 0) {
-        --i;
-        level const & u = tmp[i];
-        lean_assert(is_meta(u));
-        if (!m_ctx.is_assigned(u)) {
-            name r = mk_tagged_fresh_name(*g_level_prefix);
-            m_ctx.assign(u, mk_param_univ(r));
-        }
-    }
-    m_uvar_stack = list<level>();
+void elaborator::unassigned_uvars_to_params(level const & l) {
+    if (!has_meta(l)) return;
+    for_each(l, [&](level const & l) {
+            if (!has_meta(l)) return false;
+            if (is_meta(l) && !m_ctx.is_assigned(l)) {
+                name r = mk_tagged_fresh_name(*g_level_prefix);
+                m_ctx.assign(l, mk_param_univ(r));
+            }
+            return true;
+        });
+}
+
+void elaborator::unassigned_uvars_to_params(expr const & e) {
+    if (!has_univ_metavar(e)) return;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!has_univ_metavar(e)) return false;
+            if (is_constant(e)) {
+                for (level const & l : const_levels(e))
+                    unassigned_uvars_to_params(l);
+            } else if (is_sort(e)) {
+                unassigned_uvars_to_params(sort_level(e));
+            }
+            return true;
+        });
 }
 
 static void throw_unsolved_tactic_state(tactic_state const & ts, format const & fmt, expr const & ref) {
@@ -1516,7 +1526,6 @@ void elaborator::invoke_tactics(checkpoint const & C) {
         m_tactic_stack = tail(m_tactic_stack);
     }
     if (to_process.empty()) return;
-    unassigned_uvars_to_params();
 
     elaborate_fn fn(nested_elaborate);
     scope_elaborate_fn scope(fn);
@@ -1530,19 +1539,17 @@ void elaborator::invoke_tactics(checkpoint const & C) {
     }
 }
 
-void elaborator::ensure_no_unassigned_metavars() {
+void elaborator::ensure_no_unassigned_metavars(expr const & e) {
+    if (!has_expr_metavar(e)) return;
     metavar_context mctx = m_ctx.mctx();
-    buffer<expr> stack;
-    to_buffer(m_mvar_stack, stack);
-    unsigned i = stack.size();
-    while (i > 0) {
-        --i;
-        expr mvar = stack[i];
-        if (!mctx.is_assigned(mvar)) {
-            tactic_state s = mk_tactic_state_for(mvar);
-            throw_unsolved_tactic_state(s, "don't know how to synthesize placeholder", mvar);
-        }
-    }
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!has_expr_metavar(e)) return false;
+            if (is_metavar_decl_ref(e) && !mctx.is_assigned(e)) {
+                tactic_state s = mk_tactic_state_for(e);
+                throw_unsolved_tactic_state(s, "don't know how to synthesize placeholder", e);
+            }
+            return true;
+        });
 }
 
 void elaborator::process_checkpoint(checkpoint & C) {
@@ -1600,13 +1607,17 @@ void elaborator::checkpoint::commit() {
     This class also transforms remaining universe metavariables
     into parameters */
 struct sanitize_param_names_fn : public replace_visitor {
+    type_context &  m_ctx;
     name            m_p{"l"};
     name_set        m_L; /* All parameter names in the input expression. */
     name_map<level> m_R; /* map from tagged g_level_prefix to "clean" name not in L. */
     name_map<level> m_U; /* map from universe metavariable name to "clean" name not in L. */
-    unsigned        m_idx;
+    unsigned        m_idx{1};
     bool            m_sanitized{false};
-    buffer<name>    m_new_param_names;
+    buffer<name> &  m_new_param_names;
+
+    sanitize_param_names_fn(type_context & ctx, buffer<name> & new_lp_names):
+        m_ctx(ctx), m_new_param_names(new_lp_names) {}
 
     level mk_param() {
         while (true) {
@@ -1634,13 +1645,17 @@ struct sanitize_param_names_fn : public replace_visitor {
                         }
                     }
                 } else if (is_meta(l)) {
-                    name const & n = meta_id(l);
-                    if (auto new_l = m_U.find(n)) {
-                        return some_level(*new_l);
+                    if (is_metavar_decl_ref(l) && m_ctx.is_assigned(l)) {
+                        return some_level(sanitize(*m_ctx.get_assignment(l)));
                     } else {
-                        level r = mk_param();
-                        m_U.insert(n, r);
-                        return some_level(r);
+                        name const & n = meta_id(l);
+                        if (auto new_l = m_U.find(n)) {
+                            return some_level(*new_l);
+                        } else {
+                            level r = mk_param();
+                            m_U.insert(n, r);
+                            return some_level(r);
+                        }
                     }
                 }
                 return none_level();
@@ -1660,26 +1675,25 @@ struct sanitize_param_names_fn : public replace_visitor {
         m_L = collect_univ_params(e, m_L);
     }
 
-    void collect_params(local_context const & lctx) {
+    void collect_local_context_params() {
         lean_assert(!m_sanitized);
-        lctx.for_each([&](local_decl const & l) {
-                collect_params(l.get_type());
+        m_ctx.lctx().for_each([&](local_decl const & l) {
+                collect_params(m_ctx.instantiate_mvars(l.get_type()));
                 if (auto v = l.get_value())
-                    collect_params(*v);
+                    collect_params(m_ctx.instantiate_mvars(*v));
             });
     }
 
-    pair<expr, level_param_names> sanitize(expr const & e) {
-        lean_assert(!m_sanitized);
-        collect_params(e);
-        m_idx = 1;
+    expr sanitize(expr const & e) {
         expr r = operator()(e);
         m_sanitized = true;
-        return mk_pair(r, to_list(m_new_param_names));
+        return r;
     }
 };
 
-static expr replace_with_simple_metavars(metavar_context & mctx, name_map<expr> & cache, expr const & e) {
+/** When the output of the elaborator may contain meta-variables, we convert the type_context level meta-variables
+    into regular kernel meta-variables. */
+static expr replace_with_simple_metavars(metavar_context mctx, name_map<expr> & cache, expr const & e) {
     if (!has_expr_metavar(e)) return e;
     return replace(e, [&](expr const & e, unsigned) {
             if (!is_metavar(e)) return none_expr();
@@ -1697,14 +1711,7 @@ static expr replace_with_simple_metavars(metavar_context & mctx, name_map<expr> 
         });
 }
 
-/** When the output of the elaborator may contain meta-variables, we convert the type_context level meta-variables
-    into regular kernel meta-variables. */
-static expr replace_with_simple_metavars(metavar_context & mctx, expr const & e) {
-    name_map<expr> cache;
-    return replace_with_simple_metavars(mctx, cache, e);
-}
-
-expr elaborator::operator()(expr const & e) {
+expr elaborator::elaborate(expr const & e) {
     checkpoint C(*this);
     expr r = visit(e,  none_expr());
     trace_elab_detail(tout() << "result before final checkpoint\n" << r << "\n";);
@@ -1712,19 +1719,31 @@ expr elaborator::operator()(expr const & e) {
     return r;
 }
 
-pair<expr, level_param_names> elaborator::finalize(expr const & e, bool check_unassigned, bool to_simple_metavar) {
-    unassigned_uvars_to_params();
-    if (check_unassigned)
-        ensure_no_unassigned_metavars();
-    expr r = instantiate_mvars(e);
-    if (!check_unassigned && to_simple_metavar) {
-        /* Replace metavar_decl references with simple metavariables. */
-        metavar_context mctx = m_ctx.mctx();
-        r = replace_with_simple_metavars(mctx, r);
+void elaborator::finalize(buffer<expr> & es, buffer<name> & new_lp_names, bool check_unassigned, bool to_simple_metavar) {
+    sanitize_param_names_fn S(m_ctx, new_lp_names);
+    name_map<expr> to_simple_mvar_cache;
+    for (expr & e : es) {
+        e = instantiate_mvars(e);
+        if (check_unassigned)
+            ensure_no_unassigned_metavars(e);
+        if (!check_unassigned && to_simple_metavar) {
+            e = replace_with_simple_metavars(m_ctx.mctx(), to_simple_mvar_cache, e);
+        }
+        unassigned_uvars_to_params(e);
+        e = instantiate_mvars(e);
+        S.collect_params(e);
     }
-    sanitize_param_names_fn S;
-    S.collect_params(m_ctx.lctx());
-    return S.sanitize(r);
+    S.collect_local_context_params();
+    for (expr & e : es) {
+        e = S.sanitize(e);
+    }
+}
+
+pair<expr, level_param_names> elaborator::finalize(expr const & e, bool check_unassigned, bool to_simple_metavar) {
+    buffer<expr> es; es.push_back(e);
+    buffer<name> new_lp_names;
+    finalize(es, new_lp_names, check_unassigned, to_simple_metavar);
+    return mk_pair(es[0], to_list(new_lp_names));
 }
 
 pair<expr, level_param_names>
@@ -1732,7 +1751,7 @@ elaborate(environment const & env, options const & opts,
           metavar_context & mctx, local_context const & lctx, expr const & e,
           bool check_unassigned) {
     elaborator elab(env, opts, mctx, lctx);
-    expr r = elab(e);
+    expr r = elab.elaborate(e);
     auto p = elab.finalize(r, check_unassigned, true);
     mctx = elab.mctx();
     return p;
@@ -1741,9 +1760,9 @@ elaborate(environment const & env, options const & opts,
 expr nested_elaborate(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
                       expr const & e, bool relaxed) {
     elaborator elab(env, opts, mctx, lctx);
-    expr r = elab(translate(env, lctx, e));
+    expr r = elab.elaborate(translate(env, lctx, e));
     if (!relaxed)
-        elab.ensure_no_unassigned_metavars();
+        elab.ensure_no_unassigned_metavars(e);
     mctx = elab.mctx();
     env  = elab.env();
     return r;

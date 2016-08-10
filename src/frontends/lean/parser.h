@@ -25,11 +25,10 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/theorem_queue.h"
 #include "frontends/lean/info_manager.h"
+#include "frontends/lean/local_context_adapter.h"
 
 namespace lean {
 struct interrupt_parser {};
-
-typedef local_decls<expr>       local_expr_decls;
 typedef environment             local_environment;
 class metavar_context;
 class local_context_adapter;
@@ -517,6 +516,7 @@ private:
                                             expr const & e, bool check_unassigned = true);
 
 public:
+    local_context_adapter mk_local_context_adapter() { return local_context_adapter(m_local_decls); }
     pair<expr, level_param_names> elaborate(expr const & e);
     pair<expr, level_param_names> elaborate(metavar_context & mctx, expr const & e, bool check_unassigned = true);
     pair<expr, level_param_names> elaborate(metavar_context & mctx, list<expr> const & lctx, expr const & e, bool check_unassigned);

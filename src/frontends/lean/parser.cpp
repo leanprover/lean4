@@ -60,6 +60,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/pattern_attribute.h"
+#include "frontends/lean/local_context_adapter.h"
 // LEGACY
 #include "frontends/lean/old_elaborator.h"
 
@@ -917,83 +918,6 @@ level parser::parse_level(unsigned rbp) {
     return left;
 }
 
-/** \brief Temporary helper class that allows us to convert local_expr_decls into local_context,
-    and translate expressions back and forth the two representations.
-
-    This helper class is needed because the old elaborator is based on the local_expr_decls
-    structure, and the new one on the more efficient local_context.
-
-    After the old elaborator is removed from the code base, we will be able to replace
-    local_expr_decls with local_context in the parser, and avoid this adapter. */
-class local_context_adapter {
-    local_context m_lctx;
-    buffer<expr>  m_locals;
-    buffer<expr>  m_local_refs;
-
-    /* Return true iff \c e has a local_decl reference */
-    static bool has_local_ref(expr const & e) {
-        return static_cast<bool>(find(e, [](expr const & e, unsigned) { return is_local_decl_ref(e); }));
-    }
-
-    /* Return true iff \c e has a local constant that is not a local_decl reference */
-    static bool has_regular_local(expr const & e) {
-        return static_cast<bool>(find(e, [](expr const & e, unsigned) { return is_local(e) && !is_local_decl_ref(e); }));
-    }
-
-    void add_local(expr const & local) {
-        expr const & local_type = mlocal_type(local);
-        expr new_local_type = translate_to(local_type);
-        expr new_local_ref  = m_lctx.mk_local_decl(local_pp_name(local), new_local_type, local_info(local));
-        m_locals.push_back(local);
-        m_local_refs.push_back(new_local_ref);
-    }
-
-public:
-    void init(local_expr_decls const & ldecls) {
-        lean_assert(m_lctx.empty() && m_locals.empty());
-        buffer<pair<name, expr>> entries;
-        to_buffer(ldecls.get_entries(), entries);
-        unsigned i = entries.size();
-        while (i > 0) {
-            --i;
-            pair<name, expr> const & entry = entries[i];
-            expr const & local = entry.second;
-            if (!is_local(local)) continue;
-            add_local(local);
-        }
-    }
-
-    void init(list<expr> const & lctx) {
-        lean_assert(std::all_of(lctx.begin(), lctx.end(), is_local));
-        lean_assert(m_lctx.empty() && m_locals.empty());
-        buffer<expr> entries;
-        to_buffer(lctx, entries);
-        unsigned i = entries.size();
-        while (i > 0) {
-            --i;
-            add_local(entries[i]);
-        }
-    }
-
-    expr translate_to(expr const & e) const {
-        lean_assert(!has_local_ref(e));
-        expr r = instantiate_rev(abstract_locals(e, m_locals.size(), m_locals.data()),
-                                 m_local_refs.size(), m_local_refs.data());
-        lean_assert(!has_regular_local(r));
-        return r;
-    }
-
-    expr translate_from(expr const & e) const {
-        lean_assert(!has_regular_local(e));
-        expr r = instantiate_rev(abstract_locals(e, m_local_refs.size(), m_local_refs.data()),
-                                 m_locals.size(), m_locals.data());
-        lean_assert(!has_local_ref(r));
-        return r;
-    }
-
-    local_context const & lctx() const { return m_lctx; }
-};
-
 pair<expr, level_param_names> parser::elaborate(metavar_context & mctx, local_context_adapter const & adapter,
                                                 expr const & e, bool check_unassigned) {
     expr tmp_e  = adapter.translate_to(e);
@@ -1005,14 +929,12 @@ pair<expr, level_param_names> parser::elaborate(metavar_context & mctx, local_co
 }
 
 pair<expr, level_param_names> parser::elaborate(metavar_context & mctx, list<expr> const & lctx, expr const & e, bool check_unassigned) {
-    local_context_adapter adapter;
-    adapter.init(lctx);
+    local_context_adapter adapter(lctx);
     return elaborate(mctx, adapter, e, check_unassigned);
 }
 
 pair<expr, level_param_names> parser::elaborate(metavar_context & mctx, expr const & e, bool check_unassigned) {
-    local_context_adapter adapter;
-    adapter.init(m_local_decls);
+    local_context_adapter adapter(m_local_decls);
     return elaborate(mctx, adapter, e, check_unassigned);
 }
 

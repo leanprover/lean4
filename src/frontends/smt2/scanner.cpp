@@ -337,25 +337,25 @@ static void initialize_g_char_to_kind() {
     g_char_to_kind[16] = scanner::char_kind::WHITESPACE;
     g_char_to_kind[13] = scanner::char_kind::WHITESPACE;
     g_char_to_kind[32] = scanner::char_kind::WHITESPACE;
-    g_char_to_kind['\n'] = scanner::char_kind::WHITESPACE;
+    g_char_to_kind[to_uchar('\n')] = scanner::char_kind::WHITESPACE;
 
     // (3) Comment
-    g_char_to_kind[';'] = scanner::char_kind::COMMENT;
+    g_char_to_kind[to_uchar(';')] = scanner::char_kind::COMMENT;
 
     // (4) Left-paren
-    g_char_to_kind['('] = scanner::char_kind::LEFT_PAREN;
+    g_char_to_kind[to_uchar('(')] = scanner::char_kind::LEFT_PAREN;
 
     // (5) Right-paren
-    g_char_to_kind[')'] = scanner::char_kind::RIGHT_PAREN;
+    g_char_to_kind[to_uchar(')')] = scanner::char_kind::RIGHT_PAREN;
 
     // (6) Keyword
-    g_char_to_kind[':'] = scanner::char_kind::KEYWORD;
+    g_char_to_kind[to_uchar(':')] = scanner::char_kind::KEYWORD;
 
     // (7) Quoted symbol
-    g_char_to_kind['|'] = scanner::char_kind::QUOTED_SYMBOL;
+    g_char_to_kind[to_uchar('|')] = scanner::char_kind::QUOTED_SYMBOL;
 
     // (8) String
-    g_char_to_kind['"'] = scanner::char_kind::STRING;
+    g_char_to_kind[to_uchar('"')] = scanner::char_kind::STRING;
 
     // (9) Number
     lean_assert('0' < '9');
@@ -364,7 +364,7 @@ static void initialize_g_char_to_kind() {
     }
 
     // (10) BV
-    g_char_to_kind['#'] = scanner::char_kind::BV;
+    g_char_to_kind[to_uchar('#')] = scanner::char_kind::BV;
 
     // (11) Symbol
     lean_assert('a' < 'z');

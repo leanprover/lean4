@@ -310,7 +310,7 @@ bool parser::are_info_lines_valid(unsigned start_line, unsigned end_line) const 
     return true;
 }
 
-void parser::remove_proof_state_info(pos_info const & start, pos_info const & end) {
+void parser::remove_proof_state_info(pos_info const & /*start*/, pos_info const & /*end*/) {
     // if (m_info_manager)
     // m_info_manager->remove_proof_state_info(start.first, start.second, end.first, end.second);
 }

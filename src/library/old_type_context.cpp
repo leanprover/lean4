@@ -1648,7 +1648,6 @@ bool old_type_context::mk_choice_point(expr const & mvar) {
     //    is_nsubg : @is_normal_subgroup A s ?N
     // where ?N is not known. Actually, we can only find the value for ?N by constructing the instance is_nsubg.
     expr mvar_type = instantiate_uvars_mvars(mlocal_type(mvar));
-    bool toplevel_choice = m_ci_choices.empty();
     m_ci_choices.push_back(ci_choice());
     push();
     ci_choice & r = m_ci_choices.back();

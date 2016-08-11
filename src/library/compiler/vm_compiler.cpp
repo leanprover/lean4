@@ -108,12 +108,15 @@ class vm_compiler_fn {
         optional<unsigned> builtin_cases_idx;
         if (fn_name == get_nat_cases_on_name()) {
             num = 2;
-        } else if (builtin_cases_idx = get_vm_builtin_cases_idx(m_env, fn_name)) {
-            name const & I_name = fn_name.get_prefix();
-            num = *inductive::get_num_intro_rules(m_env, I_name);
         } else {
-            lean_assert(is_internal_cases(fn));
-            num = *is_internal_cases(fn);
+            builtin_cases_idx = get_vm_builtin_cases_idx(m_env, fn_name);
+            if (builtin_cases_idx) {
+                name const & I_name = fn_name.get_prefix();
+                num = *inductive::get_num_intro_rules(m_env, I_name);
+            } else {
+                lean_assert(is_internal_cases(fn));
+                num = *is_internal_cases(fn);
+            }
         }
         lean_assert(args.size() == num + 1);
         lean_assert(num >= 1);

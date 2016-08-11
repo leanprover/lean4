@@ -151,8 +151,8 @@ static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     return p.save_pos(mk_by(r), pos);
 }
 
-static expr parse_begin_end_core(parser & p, pos_info const & start_pos,
-                                 name const & end_token, bool nested = false) {
+static expr parse_begin_end_core(parser & /*p*/, pos_info const & start_pos,
+                                 name const & /*end_token*/, bool /*nested*/ = false) {
     throw parser_error("begin-end-exprs have been disabled", start_pos);
 }
 
@@ -428,7 +428,7 @@ static expr parse_typed_expr(parser & p, unsigned, expr const * args, pos_info c
     return mk_typed_expr_distrib_choice(p, args[1], args[0], pos);
 }
 
-static expr parse_pattern(parser & p, unsigned, expr const * args, pos_info const & pos) {
+static expr parse_pattern(parser & /* p */, unsigned, expr const * /* args */, pos_info const & pos) {
     // return p.save_pos(mk_pattern_hint(args[0]), pos);
     throw parser_error("pattern_hints have been disabled", pos);
 }
@@ -493,7 +493,7 @@ static std::tuple<optional<expr>, expr, expr, optional<expr>> parse_do_action(pa
     return std::make_tuple(lhs, type, curr, else_case);
 }
 
-static expr parse_do(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_do(parser & p, unsigned, expr const *, pos_info const &) {
     parser::local_scope scope(p);
     buffer<expr>               es;
     buffer<pos_info>           ps;

@@ -37,7 +37,7 @@ vm_obj throwable_to_format(vm_obj const & _ex, vm_obj const & _opts) {
         return to_obj(format("null-exception"));
 
     if (auto kex = dynamic_cast<ext_exception*>(ex)) {
-        if (is_simple) {
+        if (is_simple(_opts)) {
             io_state_stream ios = tout();
             formatter fmt = ios.get_formatter();
             return to_obj(kex->pp(fmt));

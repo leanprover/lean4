@@ -182,8 +182,8 @@ static void print_notation(parser & p) {
         p.ios().get_regular_stream() << "no notation" << std::endl;
 }
 
+#if 0
 static void print_patterns(parser & p, name const & n) {
-/*
     if (is_forward_lemma(p.env(), n)) {
         // we regenerate the patterns to make sure they reflect the current set of reducible constants
         try {
@@ -218,8 +218,8 @@ static void print_patterns(parser & p, name const & n) {
             p.display_error(ex);
         }
     }
-*/
 }
+#endif
 
 static name to_user_name(environment const & env, name const & n) {
     if (auto r = hidden_to_user_name(env, n))
@@ -396,7 +396,7 @@ bool print_id_info(parser & p, name const & id, bool show_value, pos_info const 
                     if (show_value)
                         print_definition(p, c, pos);
                 }
-                print_patterns(p, c);
+                // print_patterns(p, c);
             }
             return true;
         } catch (exception & ex) {}
@@ -501,14 +501,14 @@ static void print_simp_extensions(parser & p) {
     out << pp_simp_extensions(p.env());
 }
 
+#if 0
 static void print_light_rules(parser & p) {
-/*
     type_checker tc(p.env());
     auto out = regular(p.env(), p.ios(), tc);
     light_rule_set lrs = get_light_rule_set(p.env());
     out << lrs;
-*/
 }
+#endif
 
 static void print_aliases(parser const & p) {
     std::ostream & out = p.ios().get_regular_stream();
@@ -659,7 +659,7 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token(get_light_attr_tk())) {
         p.next();
         p.check_token_next(get_rbracket_tk(), "invalid 'print [light]', ']' expected");
-        print_light_rules(p);
+        // print_light_rules(p);
     } else if (print_polymorphic(p)) {
     } else {
         if (p.curr_is_command()) {

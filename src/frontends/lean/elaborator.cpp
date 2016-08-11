@@ -1280,7 +1280,7 @@ expr elaborator::visit_pi(expr const & e) {
     return r;
 }
 
-expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type) {
+expr elaborator::visit_let(expr const & /* e */, optional<expr> const & /* expected_type */) {
     // TODO(Leo)
     lean_unreachable();
 }

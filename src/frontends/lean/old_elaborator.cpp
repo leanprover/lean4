@@ -469,7 +469,7 @@ pair<expr, expr> old_elaborator::ensure_fun(expr f, constraint_seq & cs) {
 
 /** \brief Given a term <tt>a : a_type</tt>, ensure it has type \c expected_type. Apply coercions if needed */
 pair<expr, constraint_seq> old_elaborator::ensure_has_type_core(
-    expr const & a, expr const & a_type, expr const & expected_type, bool use_expensive_coercions, justification const & j) {
+    expr const & a, expr const & a_type, expr const & expected_type, bool /* use_expensive_coercions */, justification const & j) {
     pair<bool, constraint_seq> dcs;
     try {
         dcs = m_tc->is_def_eq(a_type, expected_type, j);

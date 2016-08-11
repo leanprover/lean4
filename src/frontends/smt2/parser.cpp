@@ -289,7 +289,8 @@ private:
         case scanner::token_kind::SYMBOL:
             sym = curr_symbol();
             next();
-            if (l = lctx().get_local_decl_from_user_name(sym))
+            l = lctx().get_local_decl_from_user_name(sym);
+            if (l)
                 return l->mk_ref();
             else
                 return elaborate_constant(sym);

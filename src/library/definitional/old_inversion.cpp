@@ -111,7 +111,6 @@ class inversion_tac {
     declaration                   m_I_decl;
     declaration                   m_cases_on_decl;
 
-    bool                          m_throw_tactic_exception; // if true, then throw tactic_exception in case of failure, instead of returning none
     bool                          m_clear_elim; // if true, then clear eliminated variables
 
     expr whnf(expr const & e) { return m_tc.whnf(e).first; }
@@ -526,7 +525,7 @@ class inversion_tac {
             throw inversion_exception();
     }
 
-    void throw_unification_eq_rec_failure(old_goal const & g, expr const & eq) {
+    void throw_unification_eq_rec_failure(old_goal const & /* g */, expr const & /* eq */) {
         /*
         if (m_throw_tactic_exception) {
             throw tactic_exception([=](formatter const & fmt) {
@@ -707,7 +706,7 @@ class inversion_tac {
         }
     }
 
-    [[ noreturn ]] void throw_unify_eqs_failure(old_goal const & g) {
+    [[ noreturn ]] void throw_unify_eqs_failure(old_goal const & /* g */) {
         /*
         if (m_throw_tactic_exception) {
             throw tactic_exception([=](formatter const & fmt) {
@@ -1033,9 +1032,9 @@ class inversion_tac {
 public:
     inversion_tac(environment const & env, io_state const & ios,
                   old_type_checker & tc, substitution const & subst, list<name> const & ids,
-                  bool throw_tactic_ex, bool clear_elim):
+                  bool /* throw_tactic_ex */, bool clear_elim):
         m_env(env), m_ios(ios), m_tc(tc), m_ids(ids),
-        m_subst(subst), m_throw_tactic_exception(throw_tactic_ex),
+        m_subst(subst),
         m_clear_elim(clear_elim) {
         m_proof_irrel = m_env.prop_proof_irrel();
     }

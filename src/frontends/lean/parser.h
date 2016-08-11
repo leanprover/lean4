@@ -546,9 +546,9 @@ public:
 
 public:
     /* pos_info_provider API */
-    virtual optional<pos_info> get_pos_info(expr const & e) const;
-    virtual pos_info get_some_pos() const;
-    virtual char const * get_file_name() const;
+    virtual optional<pos_info> get_pos_info(expr const & e) const override;
+    virtual pos_info get_some_pos() const override;
+    virtual char const * get_file_name() const override;
 };
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in,

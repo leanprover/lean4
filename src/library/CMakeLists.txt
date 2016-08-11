@@ -14,7 +14,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   attribute_manager.cpp error_handling.cpp unification_hint.cpp
   local_context.cpp metavar_context.cpp type_context.cpp export_decl.cpp delayed_abstraction.cpp
   fun_info.cpp congr_lemma.cpp defeq_canonizer.cpp scope_pos_info_provider.cpp
-  mpq_macro.cpp arith_instance_manager.cpp
+  inductive.cpp mpq_macro.cpp arith_instance_manager.cpp
 
   # Legacy -- The following files will be eventually deleted
   normalize.cpp justification.cpp constraint.cpp metavar.cpp choice.cpp locals.cpp

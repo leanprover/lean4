@@ -141,6 +141,7 @@ static name const * g_noncomputable_tk = nullptr;
 static name const * g_theory_tk = nullptr;
 static name const * g_key_equivalences_tk = nullptr;
 static name const * g_using_well_founded_tk = nullptr;
+static name const * g_mutual_definition_tk = nullptr;
 void initialize_tokens() {
     g_aliases_tk = new name{"aliases"};
     g_period_tk = new name{"."};
@@ -280,6 +281,7 @@ void initialize_tokens() {
     g_theory_tk = new name{"theory"};
     g_key_equivalences_tk = new name{"key_equivalences"};
     g_using_well_founded_tk = new name{"using_well_founded"};
+    g_mutual_definition_tk = new name{"mutual_definition"};
 }
 void finalize_tokens() {
     delete g_aliases_tk;
@@ -420,6 +422,7 @@ void finalize_tokens() {
     delete g_theory_tk;
     delete g_key_equivalences_tk;
     delete g_using_well_founded_tk;
+    delete g_mutual_definition_tk;
 }
 name const & get_aliases_tk() { return *g_aliases_tk; }
 name const & get_period_tk() { return *g_period_tk; }
@@ -559,4 +562,5 @@ name const & get_noncomputable_tk() { return *g_noncomputable_tk; }
 name const & get_theory_tk() { return *g_theory_tk; }
 name const & get_key_equivalences_tk() { return *g_key_equivalences_tk; }
 name const & get_using_well_founded_tk() { return *g_using_well_founded_tk; }
+name const & get_mutual_definition_tk() { return *g_mutual_definition_tk; }
 }

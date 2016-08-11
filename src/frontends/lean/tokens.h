@@ -143,4 +143,5 @@ name const & get_noncomputable_tk();
 name const & get_theory_tk();
 name const & get_key_equivalences_tk();
 name const & get_using_well_founded_tk();
+name const & get_mutual_definition_tk();
 }

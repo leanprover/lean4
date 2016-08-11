@@ -36,6 +36,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/update_environment_exception.h"
 #include "frontends/lean/nested_declaration.h"
 #include "frontends/lean/structure_cmd.h"
+#include "frontends/lean/definition_cmds.h"
 
 // We don't display profiling information for declarations that take less than 0.01 secs
 #ifndef LEAN_PROFILE_THRESHOLD
@@ -1139,6 +1140,9 @@ static environment definition_cmd(parser & p) {
         if (p.curr_is_token(get_structure_tk())) {
             p.next();
             return private_structure_cmd(p);
+        } else if (p.curr_is_token(get_mutual_definition_tk())) {
+            p.next();
+            return private_mutual_definition_cmd(p);
         }
     } else if (p.curr_is_token(get_protected_tk())) {
         is_protected = true;
@@ -1159,6 +1163,9 @@ static environment definition_cmd(parser & p) {
         } else if (p.curr_is_token_or_id(get_constants_tk())) {
             p.next();
             return variables_cmd_core(p, variable_kind::Constant, true);
+        } else if (p.curr_is_token_or_id(get_mutual_definition_tk())) {
+            p.next();
+            return protected_mutual_definition_cmd(p);
         }
     }
 
@@ -1186,6 +1193,16 @@ static environment definition_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_theorem_tk())) {
         p.next();
         kind = Theorem;
+    } else if (p.curr_is_token_or_id(get_mutual_definition_tk())) {
+        if (is_private && is_noncomputable) {
+            return private_noncomputable_mutual_definition_cmd(p);
+        } else if (is_protected && is_noncomputable) {
+            return protected_noncomputable_mutual_definition_cmd(p);
+        } else if (is_noncomputable) {
+            return noncomputable_mutual_definition_cmd(p);
+        } else {
+            lean_unreachable();
+        }
     } else {
         throw parser_error("invalid definition/theorem, 'definition' or 'theorem' expected", p.pos());
     }
@@ -1286,6 +1303,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("attribute",       "set declaration attributes", attribute_cmd));
     add_cmd(r, cmd_info("abbreviation",    "declare a new abbreviation", definition_cmd, false));
     add_cmd(r, cmd_info("omit",            "undo 'include' command", omit_cmd));
+    add_cmd(r, cmd_info("mutual_definition", "declare a mutually recursive definition", mutual_definition_cmd));
 }
 
 void initialize_decl_cmds() {

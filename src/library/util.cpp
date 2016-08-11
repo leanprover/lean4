@@ -909,6 +909,22 @@ expr beta_eta_reduce(expr t) {
     return eta_beta_reduce_fn<true, true>()(t);
 }
 
+expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_kind k) {
+    switch (k) {
+    case implicit_infer_kind::Implicit: {
+        bool strict = true;
+        return infer_implicit(type, nparams, strict);
+    }
+    case implicit_infer_kind::RelaxedImplicit: {
+        bool strict = false;
+        return infer_implicit(type, nparams, strict);
+    }
+    case implicit_infer_kind::None:
+        return type;
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
+}
+
 void initialize_library_util() {
     g_true           = new expr(mk_constant(get_true_name()));
     g_true_intro     = new expr(mk_constant(get_true_intro_name()));

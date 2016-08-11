@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
+#include "library/util.h"
 
 namespace lean {
 /** \brief Create projections operators for the structure named \c n.

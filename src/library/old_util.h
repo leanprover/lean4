@@ -70,13 +70,6 @@ bool is_none(expr const & e, expr & A);
 /** \brief Return true iff \c e is of the form (@option.some A a), and update \c A and \c a */
 bool is_some(expr const & e, expr & A, expr & a);
 
-enum class implicit_infer_kind { Implicit, RelaxedImplicit, None };
-
-/** \brief Infer implicit parameter annotations for the first \c nparams using mode
-    specified by \c k.
-*/
-expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_kind k);
-
 /** \brief Similar to has_expr_metavar, but ignores metavariables occurring in the type
     of local constants */
 bool has_expr_metavar_relaxed(expr const & e);

@@ -262,22 +262,6 @@ bool is_some(expr const & e, expr & A, expr & a) {
     }
 }
 
-expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_kind k) {
-    switch (k) {
-    case implicit_infer_kind::Implicit: {
-        bool strict = true;
-        return infer_implicit(type, nparams, strict);
-    }
-    case implicit_infer_kind::RelaxedImplicit: {
-        bool strict = false;
-        return infer_implicit(type, nparams, strict);
-    }
-    case implicit_infer_kind::None:
-        return type;
-    }
-    lean_unreachable(); // LCOV_EXCL_LINE
-}
-
 bool has_expr_metavar_relaxed(expr const & e) {
     if (!has_expr_metavar(e))
         return false;

@@ -27,7 +27,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/normalize.h"
 #include "library/pp_options.h"
-#include "library/constructions/old_inversion.h"
+#include "library/equations_compiler/old_inversion.h"
 
 namespace lean {
 static name * g_equations_name                 = nullptr;

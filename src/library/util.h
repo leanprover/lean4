@@ -229,6 +229,12 @@ expr beta_reduce(expr t);
 expr eta_reduce(expr t);
 expr beta_eta_reduce(expr t);
 
+enum class implicit_infer_kind { Implicit, RelaxedImplicit, None };
+
+/** \brief Infer implicit parameter annotations for the first \c nparams using mode
+    specified by \c k. */
+expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_kind k);
+
 void initialize_library_util();
 void finalize_library_util();
 }

@@ -43,7 +43,7 @@ Author: Leonardo de Moura
 #include "library/class_instance_resolution.h"
 #include "library/error_handling.h"
 #include "library/scope_pos_info_provider.h"
-#include "library/constructions/equations.h"
+#include "library/equations_compiler/equations.h"
 #include "library/compiler/rec_fn_macro.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/vm/vm.h"

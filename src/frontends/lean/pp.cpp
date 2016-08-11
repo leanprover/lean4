@@ -37,7 +37,7 @@ Author: Leonardo de Moura
 #include "library/string.h"
 #include "library/type_context.h"
 #include "library/idx_metavar.h"
-#include "library/constructions/equations.h"
+#include "library/equations_compiler/equations.h"
 #include "library/tactic/tactic_state.h"
 #include "library/compiler/comp_irrelevant.h"
 #include "library/compiler/erase_irrelevant.h"

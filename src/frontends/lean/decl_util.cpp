@@ -32,18 +32,23 @@ bool parse_univ_params(parser & p, buffer<name> & lp_names) {
     }
 }
 
-pair<expr, expr> parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & params) {
+expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & params) {
     auto c_pos  = p.pos();
     name c_name = p.check_id_next("invalid declaration, identifier expected");
-    expr c      = p.save_pos(mk_local(c_name, mk_expr_placeholder()), c_pos);
     parse_univ_params(p, lp_names);
     p.parse_optional_binders(params);
     for (expr const & param : params)
         p.add_local(param);
-    p.check_token_next(get_colon_tk(), "invalid declaration, ':' expected");
-    expr type = p.parse_expr();
+    expr type;
+    if (p.curr_is_token(get_colon_tk())) {
+        p.next();
+        type = p.parse_expr();
+    } else {
+        type = p.save_pos(mk_expr_placeholder(), c_pos);
+    }
+    expr c    = p.save_pos(mk_local(c_name, type), c_pos);
     p.add_local(c);
-    return mk_pair(c, type);
+    return c;
 }
 
 void parse_mutual_header(parser & p, buffer<name> & lp_names, buffer<expr> & cs, buffer<expr> & params) {
@@ -208,6 +213,11 @@ void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> &
     collect_annonymous_inst_implicit(p, locals);
     sort_locals(locals.get_collected(), p, params);
     update_univ_parameters(p, lp_names, lp_found);
+}
+
+void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> & params, expr const & e) {
+    buffer<expr> all_exprs; all_exprs.push_back(e);
+    collect_implicit_locals(p, lp_names, params, all_exprs);
 }
 
 void elaborate_params(elaborator & elab, buffer<expr> const & params, buffer<expr> & new_params) {

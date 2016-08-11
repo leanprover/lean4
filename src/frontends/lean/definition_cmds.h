@@ -15,7 +15,6 @@ inline environment noncomputable_mutual_definition_cmd(parser & p) { return mutu
 inline environment private_noncomputable_mutual_definition_cmd(parser & p) { return mutual_definition_cmd_core(p, true, false, true); }
 inline environment protected_noncomputable_mutual_definition_cmd(parser & p) { return mutual_definition_cmd_core(p, false, true, true); }
 
-expr parse_equation_lhs(parser & p, expr const & fn, buffer<expr> & locals);
-expr parse_equation(parser & p, expr const & fn);
-
+enum def_cmd_kind { Theorem, Definition, MetaDefinition, Example, Abbreviation, LocalAbbreviation };
+environment xdefinition_cmd_core(parser & p, def_cmd_kind k, bool is_private, bool is_protected, bool is_noncomputable);
 }

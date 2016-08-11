@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/decl_attributes.h"
+#include "frontends/lean/definition_cmds.h"
 
 namespace lean {
 expr parse_equation_lhs(parser & p, expr const & fn, buffer<expr> & locals) {
@@ -87,15 +88,13 @@ expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<expr> &
         eq = replace_locals(eq, pre_fns, fns);
     }
     expr r = mk_equations(p, fns, eqns, R_Rwf, header_pos);
-    buffer<expr> all_exprs; all_exprs.push_back(r);
-    collect_implicit_locals(p, lp_names, params, all_exprs);
+    collect_implicit_locals(p, lp_names, params, r);
     return r;
 }
 
 environment mutual_definition_cmd_core(parser & p, bool is_private, bool is_protected, bool is_noncomputable) {
     decl_attributes attrs;
     attrs.parse(p);
-    parser::local_scope scope(p);
     buffer<name> lp_names;
     buffer<expr> fns, params;
     expr val = parse_mutual_definition(p, lp_names, fns, params);
@@ -106,6 +105,55 @@ environment mutual_definition_cmd_core(parser & p, bool is_private, bool is_prot
 
     // TODO(Leo)
     for (auto p : new_params) { tout() << ">> " << p << " : " << mlocal_type(p) << "\n"; }
+    tout() << val << "\n";
+
+    return p.env();
+}
+
+expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<expr> & params) {
+    parser::local_scope scope(p);
+    auto header_pos = p.pos();
+    expr fn = parse_single_header(p, lp_names, params);
+    expr val;
+    if (p.curr_is_token(get_assign_tk())) {
+        p.next();
+        val = p.parse_expr();
+    } else if (p.curr_is_token(get_bar_tk())) {
+        buffer<expr> eqns;
+        if (p.curr_is_token(get_none_tk())) {
+            auto none_pos = p.pos();
+            p.next();
+            eqns.push_back(p.save_pos(mk_no_equation(), none_pos));
+        } else {
+            while (p.curr_is_token(get_bar_tk())) {
+                eqns.push_back(parse_equation(p, fn));
+            }
+        }
+        optional<expr_pair> R_Rwf = parse_using_well_founded(p);
+        buffer<expr> fns;
+        fns.push_back(fn);
+        val = mk_equations(p, fns, eqns, R_Rwf, header_pos);
+    } else {
+        throw parser_error("invalid definition, '|' or ':=' expected", p.pos());
+    }
+    collect_implicit_locals(p, lp_names, params, val);
+    return mk_pair(fn, val);
+}
+
+environment xdefinition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable) {
+    decl_attributes attrs;
+    attrs.parse(p);
+    buffer<name> lp_names;
+    buffer<expr> params;
+    expr fn, val;
+    std::tie(fn, val) = parse_definition(p, lp_names, params);
+    elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
+    buffer<expr> new_params;
+    elaborate_params(elab, params, new_params);
+    val = replace_locals(val, params, new_params);
+
+    // TODO(Leo)
+    for (auto p : params) { tout() << ">> " << p << " : " << mlocal_type(p) << "\n"; }
     tout() << val << "\n";
 
     return p.env();

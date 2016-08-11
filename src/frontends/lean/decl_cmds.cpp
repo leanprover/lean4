@@ -586,9 +586,6 @@ void collect_locals(expr const & type, expr const & value, parser const & p, buf
     sort_locals(ls.get_collected(), p, ctx_ps);
 }
 
-// An Lean example is not really a definition, but we use the definition infrastructure to simulate it.
-enum def_cmd_kind { Theorem, Definition, MetaDefinition, Example, Abbreviation, LocalAbbreviation };
-
 class definition_cmd_fn {
     parser &          m_p;
     environment       m_env;
@@ -1206,7 +1203,10 @@ static environment definition_cmd(parser & p) {
     } else {
         throw parser_error("invalid definition/theorem, 'definition' or 'theorem' expected", p.pos());
     }
-    return definition_cmd_core(p, kind, is_private, is_protected, is_noncomputable);
+    if (p.use_new_elaborator())
+        return xdefinition_cmd_core(p, kind, is_private, is_protected, is_noncomputable);
+    else
+        return definition_cmd_core(p, kind, is_private, is_protected, is_noncomputable);
 }
 
 static environment include_cmd_core(parser & p, bool include) {

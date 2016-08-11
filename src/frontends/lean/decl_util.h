@@ -18,13 +18,13 @@ bool parse_univ_params(parser & p, buffer<name> & lp_names);
 
          c.{u_1 ... u_k} (params) : type
 
-    The result is the pair (c, type). The explicit universe level parameters are stored
+    The result is the local constant (c : type). The explicit universe level parameters are stored
     at lp_names, and the optional parameters at params.
 
     Both lp_names and params are added to the parser scope.
 
     \remark Caller is responsible for using: parser::local_scope scope2(p, env); */
-pair<expr, expr> parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & params);
+expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & params);
 /** \brief Parse the header of a mutually recursive declaration. It has the form
 
         {u_1 ... u_k} id_1, ... id_n (params)
@@ -51,6 +51,7 @@ expr parse_inner_header(parser & p, name const & c_expected);
     We also add parameters included using the command 'include'.
     lp_names and params are input/output. */
 void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> & params, buffer<expr> const & all_exprs);
+void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> & params, expr const & e);
 
 /** \brief Elaborate the types of the parameters \c params, and update the elaborator local context using them.
     Store the elaborated parameters at new_params.

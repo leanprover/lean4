@@ -24,19 +24,21 @@ bool parse_univ_params(parser & p, buffer<name> & lp_names);
     Both lp_names and params are added to the parser scope.
 
     \remark Caller is responsible for using: parser::local_scope scope2(p, env); */
-pair<name, expr> parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & params);
+pair<expr, expr> parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & params);
 /** \brief Parse the header of a mutually recursive declaration. It has the form
 
         {u_1 ... u_k} id_1, ... id_n (params)
 
     The explicit universe parameters are stored at lp_names,
-    The constant names id_i are stored at c_names.
+    The constant names id_i are stored at cs.
+    The names are local constants. Position information for a constant cs[i] can be retrieved using
+    p.pos_of(cs[i]).
 
     Both lp_names and params are added to the parser scope.
     \remark Caller is responsible for adding expressions encoding the c_names to the parser
     scope.
     \remark Caller is responsible for using: parser::local_scope scope2(p, env); */
-void parse_mutual_header(parser & p, buffer<name> & lp_names, buffer<name> & c_names, buffer<expr> & params);
+void parse_mutual_header(parser & p, buffer<name> & lp_names, buffer<expr> & cs, buffer<expr> & params);
 /** \brief Parse the header for one of the declarations in a mutually recursive declaration.
     It has the form
 

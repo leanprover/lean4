@@ -742,8 +742,7 @@ bool parser::update_local_binder_info(name const & n, binder_info const & bi) {
         expr const & curr_e = entries[i].second;
         expr r = is_local(curr_e) ? mlocal_type(curr_e) : curr_e;
         if (std::any_of(old_locals.begin(), old_locals.end(), [&](expr const & l) { return depends_on(r, l); })) {
-            r  = instantiate_rev(abstract_locals(r, old_locals.size(), old_locals.data()),
-                                 new_locals.size(), new_locals.data());
+            r  = replace_locals(r, old_locals, new_locals);
             if (is_local(curr_e)) {
                 expr new_e = update_mlocal(curr_e, r);
                 entries[i].second = new_e;

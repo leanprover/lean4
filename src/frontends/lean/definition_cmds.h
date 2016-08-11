@@ -14,4 +14,8 @@ inline environment protected_mutual_definition_cmd(parser & p) { return mutual_d
 inline environment noncomputable_mutual_definition_cmd(parser & p) { return mutual_definition_cmd_core(p, false, false, true); }
 inline environment private_noncomputable_mutual_definition_cmd(parser & p) { return mutual_definition_cmd_core(p, true, false, true); }
 inline environment protected_noncomputable_mutual_definition_cmd(parser & p) { return mutual_definition_cmd_core(p, false, true, true); }
+
+expr parse_equation_lhs(parser & p, expr const & fn, buffer<expr> & locals);
+expr parse_equation(parser & p, expr const & fn);
+
 }

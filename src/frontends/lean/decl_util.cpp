@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
 #include "library/locals.h"
+#include "library/placeholder.h"
 #include "library/tactic/elaborate.h"
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/tokens.h"
@@ -31,18 +32,21 @@ bool parse_univ_params(parser & p, buffer<name> & lp_names) {
     }
 }
 
-pair<name, expr> parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & params) {
+pair<expr, expr> parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & params) {
+    auto c_pos  = p.pos();
     name c_name = p.check_id_next("invalid declaration, identifier expected");
+    expr c      = p.save_pos(mk_local(c_name, mk_expr_placeholder()), c_pos);
     parse_univ_params(p, lp_names);
     p.parse_optional_binders(params);
     for (expr const & param : params)
         p.add_local(param);
     p.check_token_next(get_colon_tk(), "invalid declaration, ':' expected");
     expr type = p.parse_expr();
-    return mk_pair(c_name, type);
+    p.add_local(c);
+    return mk_pair(c, type);
 }
 
-void parse_mutual_header(parser & p, buffer<name> & lp_names, buffer<name> & c_names, buffer<expr> & params) {
+void parse_mutual_header(parser & p, buffer<name> & lp_names, buffer<expr> & cs, buffer<expr> & params) {
     if (p.curr_is_token(get_lcurly_tk())) {
         p.next();
         while (!p.curr_is_token(get_rcurly_tk())) {
@@ -53,7 +57,9 @@ void parse_mutual_header(parser & p, buffer<name> & lp_names, buffer<name> & c_n
         p.next();
     }
     while (true) {
-        c_names.push_back(p.check_id_next("invalid mutual declaration, identifier expected"));
+        auto c_pos  = p.pos();
+        name c_name = p.check_id_next("invalid mutual declaration, identifier expected");
+        cs.push_back(p.save_pos(mk_local(c_name, mk_expr_placeholder()), c_pos));
         if (!p.curr_is_token(get_comma_tk()))
             break;
         p.next();
@@ -61,6 +67,8 @@ void parse_mutual_header(parser & p, buffer<name> & lp_names, buffer<name> & c_n
     p.parse_optional_binders(params);
     for (expr const & param : params)
         p.add_local(param);
+    for (expr const & c : cs)
+        p.add_local(c);
 }
 
 expr parse_inner_header(parser & p, name const & c_expected) {
@@ -134,12 +142,17 @@ void collect_annonymous_inst_implicit(parser const & p, collected_locals & local
 
 /** \brief Sort local names by order of occurrence, and copy the associated parameters to ps */
 void sort_locals(buffer<expr> const & locals, parser const & p, buffer<expr> & ps) {
+    buffer<expr> extra;
+    name_set     explicit_param_names;
+    for (expr const & p : ps) {
+        explicit_param_names.insert(mlocal_name(p));
+    }
     for (expr const & l : locals) {
         // we only copy the locals that are in p's local context
-        if (p.is_local_decl(l))
-            ps.push_back(l);
+        if (p.is_local_decl(l) && !explicit_param_names.contains(mlocal_name(l)))
+            extra.push_back(l);
     }
-    std::sort(ps.begin(), ps.end(), [&](expr const & p1, expr const & p2) {
+    std::sort(extra.begin(), extra.end(), [&](expr const & p1, expr const & p2) {
             bool is_var1 = p.is_local_variable(p1);
             bool is_var2 = p.is_local_variable(p2);
             if (!is_var1 && is_var2)
@@ -149,6 +162,11 @@ void sort_locals(buffer<expr> const & locals, parser const & p, buffer<expr> & p
             else
                 return p.get_local_index(p1) < p.get_local_index(p2);
         });
+    buffer<expr> new_ps;
+    new_ps.append(extra);
+    new_ps.append(ps);
+    ps.clear();
+    ps.append(new_ps);
 }
 
 /** TODO(Leo): mark as static */
@@ -195,7 +213,7 @@ void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> &
 void elaborate_params(elaborator & elab, buffer<expr> const & params, buffer<expr> & new_params) {
     for (unsigned i = 0; i < params.size(); i++) {
         expr const & param = params[i];
-        expr type          = instantiate_rev(abstract_locals(mlocal_type(param), i, params.data()), i, new_params.data());
+        expr type          = replace_locals(mlocal_type(param), i, params.data(), new_params.data());
         expr new_type      = elab.elaborate_type(type);
         expr new_param     = elab.push_local(local_pp_name(param), new_type, local_info(param));
         new_params.push_back(new_param);

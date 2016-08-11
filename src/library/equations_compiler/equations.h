@@ -21,6 +21,8 @@ bool is_lambda_equation(expr const & e);
 /** \brief Placeholder to indicate no equations were provided (e.g., to a match-with expression) */
 expr mk_no_equation();
 bool is_no_equation(expr const & e);
+/** \brief Return true if e is of the form <tt>fun a_1 ... a_n, no_equation</tt> */
+bool is_lambda_no_equation(expr const & e);
 
 bool is_equations(expr const & e);
 bool is_wf_equations(expr const & e);
@@ -47,7 +49,6 @@ expr mk_equations_result(unsigned n, expr const * rs);
 unsigned get_equations_result_size(expr const & e);
 expr const & get_equations_result(expr const & e, unsigned i);
 
-bool is_lambda_no_equation(expr const & e);
 
 void initialize_equations();
 void finalize_equations();

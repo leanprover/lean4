@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/find_fn.h"
+#include "library/locals.h"
 #include "frontends/lean/local_context_adapter.h"
 
 namespace lean {
@@ -54,16 +55,14 @@ local_context_adapter::local_context_adapter(list<expr> const & lctx) {
 
 expr local_context_adapter::translate_to(expr const & e) const {
     lean_assert(!has_local_ref(e));
-    expr r = instantiate_rev(abstract_locals(e, m_locals.size(), m_locals.data()),
-                             m_local_refs.size(), m_local_refs.data());
+    expr r = replace_locals(e, m_locals, m_local_refs);
     lean_assert(!has_regular_local(r));
     return r;
 }
 
 expr local_context_adapter::translate_from(expr const & e) const {
     lean_assert(!has_regular_local(e));
-    expr r = instantiate_rev(abstract_locals(e, m_local_refs.size(), m_local_refs.data()),
-                             m_locals.size(), m_locals.data());
+    expr r = replace_locals(e, m_local_refs, m_locals);
     lean_assert(!has_local_ref(r));
     return r;
 }

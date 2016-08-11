@@ -401,20 +401,6 @@ static environment register_simp_ext_cmd(parser & p) {
     return env;
 }
 
-static environment normalizer_cmd(parser & p) {
-/*
-    environment const & env = p.env();
-    expr e; level_param_names ls;
-    std::tie(e, ls) = parse_local_expr(p);
-    blast::scope_debug scope(p.env(), p.ios());
-    expr r = blast::normalize(e);
-    type_checker tc(env);
-    regular(env, p.ios(), tc) << r << endl;
-    return env;
-*/
-    return p.env();
-}
-
 /*
    Temporary procedure that converts metavariables in \c e to metavar_context metavariables.
    After we convert the frontend to type_context, we will not need to use this procedure.
@@ -589,7 +575,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("register_simp_ext", "register simplifier extension", register_simp_ext_cmd));
     add_cmd(r, cmd_info("add_key_equivalence", "register that to symbols are equivalence for key-matching", add_key_equivalence_cmd));
     add_cmd(r, cmd_info("#erase_cache",      "erase cached definition (for debugging purposes)", erase_cache_cmd));
-    add_cmd(r, cmd_info("#normalizer",       "(for debugging purposes)", normalizer_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
 

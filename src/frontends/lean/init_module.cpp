@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/builtin_cmds.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/inductive_cmd.h"
+#include "frontends/lean/inductive_cmds.h"
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/parse_table.h"
@@ -48,6 +49,7 @@ void initialize_frontend_lean_module() {
     initialize_parser_config();
     initialize_calc();
     initialize_inductive_cmd();
+    initialize_inductive_cmds();
     initialize_structure_cmd();
     initialize_info_manager();
     initialize_pp();
@@ -69,6 +71,7 @@ void finalize_frontend_lean_module() {
     finalize_pp();
     finalize_info_manager();
     finalize_structure_cmd();
+    finalize_inductive_cmds();
     finalize_inductive_cmd();
     finalize_calc();
     finalize_parser_config();

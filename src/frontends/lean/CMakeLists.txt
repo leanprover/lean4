@@ -11,6 +11,7 @@ decl_attributes.cpp nested_declaration.cpp
 opt_cmd.cpp prenum.cpp
 print_cmd.cpp elaborator.cpp pattern_attribute.cpp
 match_expr.cpp local_context_adapter.cpp decl_util.cpp definition_cmds.cpp
+inductive_cmds.cpp
 # LEGACY
 old_elaborator.cpp
 old_attributes.cpp

@@ -36,16 +36,18 @@ expr update_equations(expr const & eqns, buffer<expr> const & new_eqs);
 expr mk_inaccessible(expr const & e);
 bool is_inaccessible(expr const & e);
 
-expr compile_equations(old_type_checker & tc, io_state const & ios, expr const & eqns,
-                       expr const & meta, expr const & meta_type);
-
 /** \brief Return true if \c e is an auxiliary macro used to store the result of mutually recursive declarations.
     For example, if a set of recursive equations is defining \c n mutually recursive functions, we wrap
     the \c n resulting functions (and their types) with an \c equations_result macro.
+
+    TODO(Leo): delete this after we implement the new equations compiler
 */
 bool is_equations_result(expr const & e);
+expr mk_equations_result(unsigned n, expr const * rs);
 unsigned get_equations_result_size(expr const & e);
 expr const & get_equations_result(expr const & e, unsigned i);
+
+bool is_lambda_no_equation(expr const & e);
 
 void initialize_equations();
 void finalize_equations();

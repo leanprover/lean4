@@ -7,7 +7,7 @@ point.rec : (Π x y, ?M_1 (point.mk x y)) → (Π n, ?M_1 n)
 point.rec_on : Π n, (Π x y, ?M_1 (point.mk x y)) → ?M_1 n
 point.cases_on : Π n, (Π x y, ?M_1 (point.mk x y)) → ?M_1 n
 point.induction_on : ∀ n, (∀ x y, ?M_1 (point.mk x y)) → ?M_1 n
-point.no_confusion : ?M_1 = ?M_2 → private.1706149582.point.no_confusion_type ?M_3 ?M_1 ?M_2
+point.no_confusion : ?M_2 = ?M_3 → private.1706149582.point.no_confusion_type ?M_1 ?M_2 ?M_3
 point.x : point → ℕ
 point.y : point → ℕ
 bla : Type₁

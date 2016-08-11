@@ -170,7 +170,9 @@ environment check_cmd(parser & p) {
     auto out              = regular(p.env(), p.ios(), tc->get_type_context());
     formatter fmt         = out.get_formatter();
     unsigned indent       = get_pp_indent(p.get_options());
-    format r = group(fmt(e) + space() + colon() + nest(indent, line() + fmt(type)));
+    format e_fmt    = fmt(e);
+    format type_fmt = fmt(type);
+    format r = group(e_fmt + space() + colon() + nest(indent, line() + type_fmt));
     flycheck_information info(p.ios());
     if (info.enabled()) {
         p.display_information_pos(p.cmd_pos());

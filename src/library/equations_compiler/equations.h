@@ -29,11 +29,24 @@ bool is_wf_equations(expr const & e);
 unsigned equations_size(expr const & e);
 unsigned equations_num_fns(expr const & e);
 void to_equations(expr const & e, buffer<expr> & eqns);
-expr const & equations_wf_proof(expr const & e);
-expr const & equations_wf_rel(expr const & e);
+
+struct equations_header {
+    list<name> m_names;
+    bool       m_main;    /* if true, we must add .main suffix to auxiliary declaration */
+    bool       m_meta;    /* the auxiliary declarations should be tagged as meta */
+    bool       m_lemmas;  /* if true, we must create equation lemmas and induction principle */
+};
+
+expr mk_equations(equations_header const & header, unsigned num_eqs, expr const * eqs, expr const & R, expr const & Hwf);
+expr mk_equations(equations_header const & header, unsigned num_eqs, expr const * eqs);
+expr update_equations(expr const & eqns, buffer<expr> const & new_eqs);
+
+/* TODO(Leo): delete the following versions */
 expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs);
 expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs, expr const & R, expr const & Hwf);
-expr update_equations(expr const & eqns, buffer<expr> const & new_eqs);
+expr const & equations_wf_proof(expr const & e);
+expr const & equations_wf_rel(expr const & e);
+/* End of delete ------------- */
 
 expr mk_inaccessible(expr const & e);
 bool is_inaccessible(expr const & e);

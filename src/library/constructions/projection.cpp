@@ -19,7 +19,7 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/scoped_ext.h"
 #include "library/kernel_serializer.h"
-#include "library/definitional/projection.h"
+#include "library/constructions/projection.h"
 
 namespace lean {
 [[ noreturn ]] static void throw_ill_formed(name const & n) {

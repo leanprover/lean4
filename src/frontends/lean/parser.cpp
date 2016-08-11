@@ -46,7 +46,7 @@ Author: Leonardo de Moura
 #include "library/error_handling.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/legacy_type_context.h"
-#include "library/definitional/equations.h"
+#include "library/constructions/equations.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"

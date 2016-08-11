@@ -5,16 +5,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/old_util.h"
-#include "library/definitional/equations.h"
-#include "library/definitional/projection.h"
+#include "library/constructions/equations.h"
+#include "library/constructions/projection.h"
 
 namespace lean{
-void initialize_definitional_module() {
+void initialize_constructions_module() {
     initialize_equations();
     initialize_def_projection();
 }
 
-void finalize_definitional_module() {
+void finalize_constructions_module() {
     finalize_def_projection();
     finalize_equations();
 }

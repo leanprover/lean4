@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 #include "library/string.h"
 #include "library/trace.h"
 #include "library/tactic/elaborate.h"
-#include "library/definitional/equations.h"
+#include "library/constructions/equations.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/token_table.h"

@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "util/fresh_name.h"
 #include "kernel/abstract.h"
 #include "library/placeholder.h"
-#include "library/definitional/equations.h"
+#include "library/constructions/equations.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"

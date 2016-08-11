@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "library/init_module.h"
 // #include "library/blast/init_module.h"
 #include "library/tactic/init_module.h"
-#include "library/definitional/init_module.h"
+#include "library/constructions/init_module.h"
 #include "library/print.h"
 #include "library/vm/init_module.h"
 #include "library/compiler/init_module.h"
@@ -41,7 +41,7 @@ void initialize() {
     initialize_compiler_module();
     initialize_tactic_module();
     // initialize_blast_module();
-    initialize_definitional_module();
+    initialize_constructions_module();
     initialize_frontend_lean_module();
     initialize_frontend_smt2_module();
     initialize_vm_module();
@@ -51,7 +51,7 @@ void finalize() {
     finalize_vm_module();
     finalize_frontend_smt2_module();
     finalize_frontend_lean_module();
-    finalize_definitional_module();
+    finalize_constructions_module();
     // finalize_blast_module();
     finalize_tactic_module();
     finalize_compiler_module();

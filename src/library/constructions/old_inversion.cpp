@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/reducible.h"
 #include "library/class_instance_resolution.h"
-#include "library/definitional/old_inversion.h"
+#include "library/constructions/old_inversion.h"
 
 namespace lean {
 namespace inversion {

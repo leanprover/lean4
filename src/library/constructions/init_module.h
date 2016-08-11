@@ -7,6 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 
 namespace lean {
-void initialize_definitional_module();
-void finalize_definitional_module();
+void initialize_constructions_module();
+void finalize_constructions_module();
 }

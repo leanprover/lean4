@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "library/metavar.h"
 #include "library/util.h"
 #include "library/old_util.h"
-#include "library/definitional/old_goal.h"
+#include "library/constructions/old_goal.h"
 
 namespace lean {
 old_local_context old_goal::to_local_context() const {

@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/expr.h"
 #include "library/metavar.h"
-#include "library/definitional/old_goal.h"
+#include "library/constructions/old_goal.h"
 
 
 namespace lean {

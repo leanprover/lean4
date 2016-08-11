@@ -24,7 +24,7 @@ Author: Leonardo de Moura
 #include "library/abbreviation.h"
 #include "library/flycheck.h"
 #include "library/error_handling.h"
-#include "library/definitional/equations.h"
+#include "library/constructions/equations.h"
 #include "library/compiler/rec_fn_macro.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/vm/vm.h"

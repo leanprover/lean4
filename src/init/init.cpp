@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/tactic/init_module.h"
 #include "library/constructions/init_module.h"
 #include "library/equations_compiler/init_module.h"
+#include "library/inductive_compiler/init_module.h"
 #include "library/print.h"
 #include "library/vm/init_module.h"
 #include "library/compiler/init_module.h"
@@ -42,6 +43,7 @@ void initialize() {
     initialize_tactic_module();
     initialize_constructions_module();
     initialize_equations_compiler_module();
+    initialize_inductive_compiler_module();
     initialize_frontend_lean_module();
     initialize_frontend_smt2_module();
     initialize_vm_module();
@@ -51,6 +53,7 @@ void finalize() {
     finalize_vm_module();
     finalize_frontend_smt2_module();
     finalize_frontend_lean_module();
+    finalize_inductive_compiler_module();
     finalize_equations_compiler_module();
     finalize_constructions_module();
     finalize_tactic_module();

@@ -1082,10 +1082,11 @@ class definition_cmd_fn {
     }
 
 public:
-    definition_cmd_fn(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable):
+    definition_cmd_fn(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable,
+                      decl_attributes const & attributes):
         m_p(p), m_env(m_p.env()), m_kind(kind),
         m_is_private(is_private), m_is_protected(is_protected), m_is_noncomputable(is_noncomputable),
-        m_pos(p.pos()), m_attributes(true) {
+        m_pos(p.pos()), m_attributes(attributes) {
         lean_assert(!(m_is_private && m_is_protected));
         if (!is_standard(m_p.env()) && is_noncomputable)
             throw exception("invalid 'noncomputable' declarations, it can only be used in the standard library");
@@ -1116,53 +1117,50 @@ public:
     }
 };
 
-static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable) {
-    return definition_cmd_fn(p, kind, is_private, is_protected, is_noncomputable)();
+static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable,
+                                       decl_attributes const & attributes) {
+    return definition_cmd_fn(p, kind, is_private, is_protected, is_noncomputable, attributes)();
 }
 environment local_abbreviation_cmd(parser & p) {
-    return definition_cmd_core(p, LocalAbbreviation, true, false, false);
+    return definition_cmd_core(p, LocalAbbreviation, true, false, false, {});
 }
 static environment example_cmd(parser & p) {
-    definition_cmd_core(p, Example, false, false, false);
+    definition_cmd_core(p, Example, false, false, false, {});
     return p.env();
 }
 
-static environment definition_cmd(parser & p) {
+static environment definition_cmd_ex(parser & p, decl_attributes const & attributes) {
     bool is_private   = false;
     bool is_protected = false;
     if (p.curr_is_token(get_private_tk())) {
         is_private = true;
         p.next();
 
-        if (p.curr_is_token(get_structure_tk())) {
+        if (!attributes && p.curr_is_token(get_structure_tk())) {
             p.next();
             return private_structure_cmd(p);
-        } else if (p.curr_is_token(get_mutual_definition_tk())) {
-            p.next();
-            return private_mutual_definition_cmd(p);
         }
     } else if (p.curr_is_token(get_protected_tk())) {
         is_protected = true;
         p.next();
 
-        if (p.curr_is_token_or_id(get_axiom_tk())) {
-            p.next();
-            return variable_cmd_core(p, variable_kind::Axiom, true);
-        } else if (p.curr_is_token_or_id(get_constant_tk())) {
-            p.next();
-            return variable_cmd_core(p, variable_kind::Constant, true);
-        } else if (p.curr_is_token_or_id(get_meta_constant_tk())) {
-            p.next();
-            return variable_cmd_core(p, variable_kind::MetaConstant, true);
-        } else if (p.curr_is_token_or_id(get_axioms_tk())) {
-            p.next();
-            return variables_cmd_core(p, variable_kind::Axiom, true);
-        } else if (p.curr_is_token_or_id(get_constants_tk())) {
-            p.next();
-            return variables_cmd_core(p, variable_kind::Constant, true);
-        } else if (p.curr_is_token_or_id(get_mutual_definition_tk())) {
-            p.next();
-            return protected_mutual_definition_cmd(p);
+        if (!attributes) {
+            if (p.curr_is_token_or_id(get_axiom_tk())) {
+                p.next();
+                return variable_cmd_core(p, variable_kind::Axiom, true);
+            } else if (p.curr_is_token_or_id(get_constant_tk())) {
+                p.next();
+                return variable_cmd_core(p, variable_kind::Constant, true);
+            } else if (p.curr_is_token_or_id(get_meta_constant_tk())) {
+                p.next();
+                return variable_cmd_core(p, variable_kind::MetaConstant, true);
+            } else if (p.curr_is_token_or_id(get_axioms_tk())) {
+                p.next();
+                return variables_cmd_core(p, variable_kind::Axiom, true);
+            } else if (p.curr_is_token_or_id(get_constants_tk())) {
+                p.next();
+                return variables_cmd_core(p, variable_kind::Constant, true);
+            }
         }
     }
 
@@ -1171,7 +1169,7 @@ static environment definition_cmd(parser & p) {
         is_noncomputable = true;
         p.next();
 
-        if (!is_private && !is_protected && p.curr_is_token_or_id(get_theory_tk())) {
+        if (!attributes && !is_private && !is_protected && p.curr_is_token_or_id(get_theory_tk())) {
             p.next();
             p.set_ignore_noncomputable();
             return p.env();
@@ -1191,22 +1189,17 @@ static environment definition_cmd(parser & p) {
         p.next();
         kind = Theorem;
     } else if (p.curr_is_token_or_id(get_mutual_definition_tk())) {
-        if (is_private && is_noncomputable) {
-            return private_noncomputable_mutual_definition_cmd(p);
-        } else if (is_protected && is_noncomputable) {
-            return protected_noncomputable_mutual_definition_cmd(p);
-        } else if (is_noncomputable) {
-            return noncomputable_mutual_definition_cmd(p);
-        } else {
-            lean_unreachable();
-        }
+        return mutual_definition_cmd_core(p, is_private, is_protected, is_noncomputable, attributes);
     } else {
         throw parser_error("invalid definition/theorem, 'definition' or 'theorem' expected", p.pos());
     }
     if (p.use_new_elaborator())
-        return xdefinition_cmd_core(p, kind, is_private, is_protected, is_noncomputable);
+        return xdefinition_cmd_core(p, kind, is_private, is_protected, is_noncomputable, attributes);
     else
-        return definition_cmd_core(p, kind, is_private, is_protected, is_noncomputable);
+        return definition_cmd_core(p, kind, is_private, is_protected, is_noncomputable, attributes);
+}
+static environment definition_cmd(parser & p) {
+    return definition_cmd_ex(p, {});
 }
 
 static environment include_cmd_core(parser & p, bool include) {
@@ -1246,6 +1239,9 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
     if (!p.curr_is_identifier()) {
         attributes.parse(p);
         parsed_attrs  = true;
+        // 'attribute [attr] definition ...'
+        if (p.curr_is_command())
+            return definition_cmd_ex(p, attributes);
     }
     name d          = p.check_constant_next("invalid 'attribute' command, constant expected");
     ds.push_back(d);
@@ -1304,7 +1300,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("attribute",       "set declaration attributes", attribute_cmd));
     add_cmd(r, cmd_info("abbreviation",    "declare a new abbreviation", definition_cmd, false));
     add_cmd(r, cmd_info("omit",            "undo 'include' command", omit_cmd));
-    add_cmd(r, cmd_info("mutual_definition", "declare a mutually recursive definition", mutual_definition_cmd));
+    add_cmd(r, cmd_info("mutual_definition", "declare a mutually recursive definition", definition_cmd));
 }
 
 void initialize_decl_cmds() {

@@ -92,9 +92,8 @@ expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<expr> &
     return r;
 }
 
-environment mutual_definition_cmd_core(parser & p, bool is_private, bool is_protected, bool is_noncomputable) {
-    decl_attributes attrs;
-    attrs.parse(p);
+environment mutual_definition_cmd_core(parser & p, bool is_private, bool is_protected, bool is_noncomputable,
+                                       decl_attributes attrs) {
     buffer<name> lp_names;
     buffer<expr> fns, params;
     expr val = parse_mutual_definition(p, lp_names, fns, params);
@@ -140,9 +139,8 @@ expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<expr> & p
     return mk_pair(fn, val);
 }
 
-environment xdefinition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable) {
-    decl_attributes attrs;
-    attrs.parse(p);
+environment xdefinition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable,
+                                 decl_attributes attrs) {
     buffer<name> lp_names;
     buffer<expr> params;
     expr fn, val;

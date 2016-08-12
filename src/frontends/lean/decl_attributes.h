@@ -23,9 +23,10 @@ private:
     list<entry>        m_entries;
     optional<unsigned> m_prio;
 public:
-    decl_attributes(bool persistent): m_persistent(persistent), m_parsing_only(false) {}
+    decl_attributes(bool persistent = true): m_persistent(persistent), m_parsing_only(false) {}
     void parse(parser & p);
     environment apply(environment env, io_state const & ios, name const & d) const;
     bool is_parsing_only() const { return m_parsing_only; }
+    operator bool() const { return static_cast<bool>(m_entries); }
 };
 }

@@ -1,4 +1,4 @@
-import data.num
+--
 
 
 check 10

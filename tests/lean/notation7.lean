@@ -1,4 +1,4 @@
-import logic data.num
+--
 open num
 
 constant f : num → num

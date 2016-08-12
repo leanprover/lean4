@@ -1,4 +1,4 @@
-import logic data.prod
+--
 set_option pp.notation false
 
 inductive C [class] (A : Type) :=

@@ -1,4 +1,4 @@
-import data.num
+--
 set_option pp.notation false
 set_option pp.implicit true
 

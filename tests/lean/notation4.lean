@@ -1,4 +1,4 @@
-import logic data.sigma
+--
 open sigma
 inductive List (T : Type) : Type := nil {} : List T | cons   : T → List T → List T open List notation h :: t  := cons h t notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 check ∃ (A : Type₁) (x y : A), x = y

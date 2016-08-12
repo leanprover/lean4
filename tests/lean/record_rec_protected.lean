@@ -1,4 +1,4 @@
-import logic
+--
 
 structure point (A : Type) (B : Type) :=
 mk :: (x : A) (y : B)

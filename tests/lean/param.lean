@@ -1,4 +1,4 @@
-import data.num
+--
 open num
 
 definition foo1 a b c := a + b + (c:num)

@@ -1,4 +1,4 @@
-import logic data.num
+--
 open num
 notation `o` := (10:num)
 check 11

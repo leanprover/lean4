@@ -1,8 +1,0 @@
-a : ℕ
-⊢ fact1 a > 0
--------
-n : ℕ,
-iH : fact1 n > 0
-⊢ succ n * fact1 n > 0
-
-⊢ 1 > 0

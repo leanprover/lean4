@@ -1,4 +1,4 @@
-import logic
+--
 -- definition id {A : Type} (a : A) := a
 
 section

@@ -1,4 +1,4 @@
-import data.nat
+--
 open tactic nat
 
 example (a b : nat) : a ≠ b → ¬ a = b :=

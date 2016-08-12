@@ -1,4 +1,4 @@
-import data.list data.nat
+--
 open list nat
 
 structure unification_constraint := {A : Type} (lhs : A) (rhs : A)

@@ -1,4 +1,4 @@
-import logic
+--
 
 namespace N1
   constant num : Type.{1}

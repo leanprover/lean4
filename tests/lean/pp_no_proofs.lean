@@ -1,4 +1,4 @@
-import data.nat
+--
 open nat
 
 constants (P : ∀ {t:true}, ℕ → Prop) (P0 : @P trivial 0)

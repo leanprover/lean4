@@ -1,4 +1,4 @@
-import data.nat
+--
 open nat tactic
 
 example (a b : nat) : a = succ b → a = b + 1 :=

@@ -1,7 +1,7 @@
-import data.nat
-import init.meta.tactic
+--
+--
 open tactic
--- import init.meta.tactics
+--
 
 inductive vector (A : Type) : nat → Type :=
   | nil {} : vector A 0

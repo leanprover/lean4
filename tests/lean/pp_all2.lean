@@ -1,4 +1,4 @@
-import data.nat
+--
 
 set_option pp.all       true
 set_option pp.numerals  true

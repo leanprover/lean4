@@ -1,8 +1,0 @@
-show a = c, from H1 ⬝ H2 : a = c
-------------
-have e1 : a = b, from H1,
-have e2 : a = c, from sorry,
-have e3 : c = a, from e2⁻¹,
-have e4 : b = a, from e1⁻¹,
-show b = c, from e1⁻¹ ⬝ e2 :
-  b = c

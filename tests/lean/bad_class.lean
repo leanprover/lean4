@@ -1,4 +1,4 @@
-import logic
+--
 namespace foo
 definition subsingleton (A : Type) := ∀⦃a b : A⦄, a = b
 attribute subsingleton [class]

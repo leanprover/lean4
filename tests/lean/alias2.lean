@@ -1,4 +1,4 @@
-import logic
+--
 
 namespace foo
    definition t := true

@@ -1,4 +1,4 @@
-import logic
+--
 open inhabited nonempty classical
 
 noncomputable definition v1 : Prop := epsilon (λ x, true)

@@ -1,4 +1,4 @@
-import data.num
+--
 open num
 
 eval 3+(2:num)

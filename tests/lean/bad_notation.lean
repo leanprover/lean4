@@ -1,4 +1,4 @@
-import logic
+--
 open nat
 
 section

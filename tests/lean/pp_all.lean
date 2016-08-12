@@ -1,4 +1,4 @@
-import data.nat
+--
 open nat
 
 variables {a : nat}

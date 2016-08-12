@@ -1,4 +1,4 @@
-import data.num
+--
 
 
 constant f : num → num → num → num

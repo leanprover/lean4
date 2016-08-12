@@ -1,4 +1,4 @@
-import logic
+--
 
 
 definition foo {A : Type} [H : inhabited A] : A :=

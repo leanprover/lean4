@@ -1,4 +1,0 @@
-1 * 1 * a : A
-mul 1 a : A
-0 + a : A
-add 0 a : A

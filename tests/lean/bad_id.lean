@@ -1,4 +1,4 @@
-import data.num
+--
 
 definition x.y : nat := 10
 

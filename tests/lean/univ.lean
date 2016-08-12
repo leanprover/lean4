@@ -1,4 +1,4 @@
-import data.num
+--
 
 definition id2 (A : Type) (a : A) := a
 

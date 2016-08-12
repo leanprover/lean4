@@ -1,4 +1,4 @@
-import logic
+--
 
 section
 hypothesis P : Prop.

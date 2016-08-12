@@ -1,4 +1,4 @@
-import logic
+--
 
 constant f : num → num
 constant g : num → num → num

@@ -1,4 +1,4 @@
-import data.num
+--
 inductive List (T : Type) : Type := nil {} : List T | cons   : T → List T → List T open List notation h :: t  := cons h t notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 infixr `::` := cons
 check (1:num) :: 2 :: nil

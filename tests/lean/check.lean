@@ -1,4 +1,4 @@
-import logic
+--
 
 check and.intro
 check or.elim

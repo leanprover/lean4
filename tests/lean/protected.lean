@@ -1,4 +1,4 @@
-import logic
+--
 
 namespace foo
   protected definition C := true

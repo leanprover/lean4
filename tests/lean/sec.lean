@@ -1,4 +1,4 @@
-import data.prod
+--
 open prod
 
 section

@@ -1,4 +1,4 @@
-import logic
+--
 
 inductive H [class] (A : Type) :=
 mk : A → H A

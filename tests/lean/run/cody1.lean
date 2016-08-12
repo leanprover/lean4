@@ -1,5 +1,3 @@
-import logic
-
 definition subsets (P : Type) := P → Prop.
 
 section

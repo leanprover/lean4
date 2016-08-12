@@ -1,5 +1,3 @@
-import logic
-
 section
   variables (A B C : Type)
   definition foo := A → B

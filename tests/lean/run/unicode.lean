@@ -1,5 +1,3 @@
-import logic
-
 constant N : Type
 constant α : N
 constant β₁ : N

@@ -1,4 +1,5 @@
-import algebra.ordered_ring
+exit
+-- import algebra.ordered_ring
 open tactic
 axiom Sorry : ∀ {A:Type}, A
 

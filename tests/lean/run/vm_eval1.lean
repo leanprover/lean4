@@ -1,5 +1,3 @@
-import data.nat
-
 open bool nat
 
 -- set_option trace.compiler.code_gen true

@@ -1,4 +1,3 @@
-import logic data.nat.basic
 open nat
 
 inductive vector (A : Type) : nat → Type :=

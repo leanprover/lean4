@@ -1,5 +1,3 @@
-import logic
-
 definition b : Prop :=
 sorry
 

@@ -1,4 +1,3 @@
-import data.nat
 open nat
 
 namespace N1

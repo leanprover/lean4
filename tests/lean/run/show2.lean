@@ -1,5 +1,4 @@
-import data.nat
-open nat algebra
+open nat
 
 example : ∀ a b : nat, a + b = b + a :=
 show ∀ a b : nat, a + b = b + a

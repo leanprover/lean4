@@ -1,7 +1,5 @@
-import logic
-
-  set_option pp.universes true
-  set_option pp.implicit true
+set_option pp.universes true
+set_option pp.implicit true
 
 section
   universe k

@@ -1,5 +1,3 @@
-import logic
-
 check
   let f x y := x ∧ y,
       g x   := f x x,

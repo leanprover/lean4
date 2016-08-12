@@ -1,4 +1,3 @@
-import data.nat
 open tactic
 
 inductive vector (A : Type) : nat → Type :=

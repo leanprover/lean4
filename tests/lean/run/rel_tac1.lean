@@ -1,5 +1,3 @@
-import data.list
-
 open tactic
 
 example (a b : nat) : a = a :=
@@ -19,9 +17,4 @@ by do
   assumption
 
 example (a b : bool) : a == a :=
-by reflexivity
-
-open list perm
-
-example (a b : list nat) : a ~ a:=
 by reflexivity

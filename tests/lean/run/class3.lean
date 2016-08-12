@@ -1,4 +1,3 @@
-import logic data.prod
 open prod inhabited
 
 section

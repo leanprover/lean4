@@ -1,4 +1,3 @@
-import data.nat.basic
 open nat
 open eq
 set_option pp.coercions true

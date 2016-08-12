@@ -1,4 +1,3 @@
-import data.nat.basic
 open nat
 
 definition iter (f : nat → nat) (n : nat) : nat :=

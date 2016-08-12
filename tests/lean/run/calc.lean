@@ -1,5 +1,3 @@
-import data.num
-
 namespace foo
   constant le : num → num → Prop
   axiom le_trans {a b c : num} : le a b → le b c → le a c

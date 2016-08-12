@@ -1,4 +1,4 @@
-import system.IO data.list
+import system.IO
 open list
 
 -- set_option pp.all true

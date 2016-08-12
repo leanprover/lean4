@@ -1,4 +1,3 @@
-import logic
 namespace foo
   constant x : num
   check x

@@ -1,5 +1,3 @@
-import logic
-
 constant matrix.{l} : Type.{l} → Type.{l}
 constant same_dim {A : Type} : matrix A → matrix A → Prop
 constant add1 {A : Type} (m1 m2 : matrix A) {H : same_dim m1 m2} : matrix A

@@ -1,4 +1,3 @@
-import logic
 open eq
 section
   variable {A : Type}

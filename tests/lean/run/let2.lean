@@ -1,5 +1,3 @@
-import logic
-
 definition b :=
       let a := true ∧ true,
           a := a ∧ a,

@@ -1,4 +1,3 @@
-import data.nat.basic data.bool
 open bool nat
 attribute nat.rec_on [reducible]
 

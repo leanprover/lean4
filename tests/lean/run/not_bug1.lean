@@ -1,4 +1,3 @@
-import logic
 open bool
 
 constant List : Type.{1}

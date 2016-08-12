@@ -1,4 +1,5 @@
-import data.nat
+constant nat.add_assoc (a b c : nat) : (a + b) + c = a + (b + c)
+constant nat.add_comm (a b : nat) : a + b = b + a
 
 namespace foo
   attribute nat.add_assoc [simp]

@@ -1,4 +1,3 @@
-import logic data.nat
 open nat
 
 inductive Fin : ℕ → Type :=

@@ -1,4 +1,3 @@
-import data.prod data.num
 open prod
 
 definition tst1 : num × Prop × num × Prop := (1, true, 2, false)

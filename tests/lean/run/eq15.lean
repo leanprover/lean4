@@ -1,4 +1,3 @@
-import data.list
 open list
 
 set_option pp.implicit true

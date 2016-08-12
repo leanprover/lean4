@@ -1,5 +1,3 @@
-import logic
-
 namespace foo
 section bla
   definition tst := true

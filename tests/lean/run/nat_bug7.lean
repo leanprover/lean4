@@ -1,4 +1,3 @@
-import logic
 namespace experiment
 inductive nat : Type :=
 | zero : nat

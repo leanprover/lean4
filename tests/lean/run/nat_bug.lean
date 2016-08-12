@@ -1,4 +1,3 @@
-import logic
 open decidable
 open eq
 namespace experiment

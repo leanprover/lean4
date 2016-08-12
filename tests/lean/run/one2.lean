@@ -1,5 +1,3 @@
-import data.num
-
 inductive one1.{l} : Type.{l} :=
 unit : one1
 

@@ -1,5 +1,3 @@
-import data.nat
-
 private definition S := Σ a : nat, nat
 private definition R : S → S → Prop := sigma.skip_left nat lt
 private definition Rwf : well_founded R :=

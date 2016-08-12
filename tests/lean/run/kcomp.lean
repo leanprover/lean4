@@ -1,4 +1,3 @@
-import logic
 set_option pp.notation false
 constant A    : Type
 constants a b : A

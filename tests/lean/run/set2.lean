@@ -1,4 +1,3 @@
-import logic data.bool
 open bool
 
 namespace set

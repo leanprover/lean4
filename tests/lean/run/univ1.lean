@@ -1,5 +1,3 @@
-import logic
-
 namespace S1
 axiom I : Type
 definition F (X : Type) : Type := (X → Prop) → Prop

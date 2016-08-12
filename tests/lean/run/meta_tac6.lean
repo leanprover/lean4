@@ -1,4 +1,3 @@
-import data.list
 open tactic name list
 
 set_option pp.goal.compact true

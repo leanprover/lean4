@@ -1,4 +1,4 @@
-import system.IO data.list
+import system.IO
 open list
 
 /- B and unit must be in the same universe

@@ -1,5 +1,3 @@
-import data.list
-
 open unsigned list
 
 meta_definition e1  := expr.app (expr.app (expr.const `f []) (expr.mk_var 1)) (expr.const `a [])

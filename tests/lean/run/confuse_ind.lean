@@ -1,5 +1,3 @@
-import logic data.prod
-
 definition mk_arrow (A : Type) (B : Type) :=
 A → A → B
 

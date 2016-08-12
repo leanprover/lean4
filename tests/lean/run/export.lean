@@ -1,5 +1,3 @@
-import data.nat
-
 constants a b : nat
 
 namespace boo

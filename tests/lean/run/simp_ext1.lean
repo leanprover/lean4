@@ -1,4 +1,3 @@
-import data.list
 open list tactic option
 constants (A : Type.{1}) (x y z : A) (Hy : x = y) (Hz : y = z)
 constants (f₁ : A → A) (f₂ : A → A → A)

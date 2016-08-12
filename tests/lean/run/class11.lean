@@ -1,5 +1,3 @@
-import logic
-
 constant C {A : Type} : A → Prop
 attribute C [class]
 

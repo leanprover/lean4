@@ -1,4 +1,5 @@
-import data.nat.basic
+exit
+-- import data.nat.basic
 open nat
 
 structure s1 (A : Type) :=

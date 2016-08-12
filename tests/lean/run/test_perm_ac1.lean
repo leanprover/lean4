@@ -1,4 +1,4 @@
-import algebra.group data.nat
+exit
 
 open expr decidable tactic nat
 

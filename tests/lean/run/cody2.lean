@@ -1,4 +1,3 @@
-import logic
 open eq
 definition subsets (P : Type) := P → Prop.
 

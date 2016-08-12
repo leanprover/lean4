@@ -1,5 +1,3 @@
-import logic
-
 check id id
 set_option pp.universes true
 check id id

@@ -1,5 +1,3 @@
-import logic.cast data.list data.sigma
-
 -- The (pre-)quotient type kernel extension would add the following constants
 --    quot, pquot.mk, pquot.eqv and pquot.rec
 -- and a computational rule, which we call pquot.comp here.
@@ -66,7 +64,7 @@ pquot.rec_on q f (λ (a b : A) (H : R a b),
   have aux₂ : P (pquot.abs R a) = P (pquot.abs R b), from congr_arg P aux₁,
   have aux₃ : cast aux₂ (f a) = f b,             from proof_irrel (cast aux₂ (f a)) (f b),
   show f a == f b, from
-    @cast_to_heq _ _ _ _ aux₂ aux₃)
+    sorry) -- @cast_to_heq _ _ _ _ aux₂ aux₃)
 
 theorem pquot.abs.surjective {A : Type} {R : A → A → Prop} : ∀ q : pquot R, ∃ x : A, pquot.abs R x = q :=
 take q, pquot.induction_on q (take a, exists.intro a rfl)

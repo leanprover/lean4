@@ -1,4 +1,3 @@
-import algebra.ring
 open tactic
 
 constants (A : Type.{1}) (x y z w v : A) (f : A → A) (H₁ : f (f x) = f y) (H₂ : f (f y) = f z) (H₃ : f (f z) = w) (g : A → A → A)

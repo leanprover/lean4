@@ -1,5 +1,3 @@
-import logic
-
 set_option pp.universes true
 
 section

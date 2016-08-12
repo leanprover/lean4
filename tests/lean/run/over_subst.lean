@@ -1,4 +1,3 @@
-import logic
 namespace experiment
 namespace nat
 constant nat : Type.{1}

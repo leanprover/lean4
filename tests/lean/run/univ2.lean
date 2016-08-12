@@ -1,5 +1,3 @@
-import logic
-
 axiom I : Type
 definition F (X : Type) : Type := (X → Prop) → Prop
 axiom unfoldd : I → F I

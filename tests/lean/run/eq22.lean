@@ -1,4 +1,3 @@
-import data.list
 open list
 
 definition head {A : Type} : Π (l : list A), l ≠ nil → A

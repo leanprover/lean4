@@ -1,4 +1,3 @@
-import data.nat
 open nat
 
 definition fib.F (n : nat) : (Π (m : nat), m < n → nat) → nat :=

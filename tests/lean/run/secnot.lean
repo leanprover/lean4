@@ -1,9 +1,7 @@
-import data.num
-
 section
 variable {A : Type}
 definition f (a b : A) := a
-infixl `◀`:65 := f
+infixl ` ◀ `:65 := f
 variables a b : A
 check a ◀ b
 end

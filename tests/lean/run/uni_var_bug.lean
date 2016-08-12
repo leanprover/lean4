@@ -1,5 +1,3 @@
-import logic.eq
-
 section
 universe variable u
 variables {A B : Type.{u}}

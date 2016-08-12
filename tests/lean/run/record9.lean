@@ -1,5 +1,3 @@
-import logic
-
 constant fibrant : Type → Prop
 
 structure Fib : Type :=

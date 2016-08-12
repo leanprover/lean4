@@ -1,5 +1,3 @@
-import logic
-
 inductive category (ob : Type) (mor : ob → ob → Type) : Type :=
 mk : Π (comp : Π⦃A B C : ob⦄, mor B C → mor A B → mor A C)
            (id : Π {A : ob}, mor A A),

@@ -1,4 +1,3 @@
-import data.nat.basic
 open nat
 
 definition pred (a : nat) : nat :=

@@ -1,5 +1,3 @@
-import logic
-
 namespace foo
 namespace boo
 theorem tst : true := trivial

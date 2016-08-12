@@ -1,5 +1,3 @@
-import data.nat
-
 inductive star : Type₁ :=
 | z  : star
 | s  : (nat → star) → star

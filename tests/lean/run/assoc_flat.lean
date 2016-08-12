@@ -1,5 +1,6 @@
-import data.nat
 open tactic expr
+
+constant nat.add_assoc (a b c : nat) : (a + b) + c = a + (b + c)
 
 meta_definition is_op_app (op : expr) (e : expr) : option (expr × expr) :=
 match e with

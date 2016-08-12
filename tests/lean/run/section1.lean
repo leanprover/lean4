@@ -1,4 +1,3 @@
-import logic
 open tactic
 
 section

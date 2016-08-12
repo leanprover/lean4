@@ -1,4 +1,3 @@
-import data.list
 open tactic list expr
 
 private meta_definition pattern_telescope (e : expr) (ps : list expr) : tactic (list expr × expr × expr) :=
@@ -21,6 +20,8 @@ do env : environment  ← get_env,
    return p
 
 open nat
+
+constant add.comm (a b : nat) : a + b = b + a
 
 example (a b : nat) (H : a + b + a + b = 0) : true :=
 by do

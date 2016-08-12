@@ -1,5 +1,3 @@
-import logic
-
 inductive Pair1 (A B : Type) :=
 mk ( ) : A → B → Pair1 A B
 

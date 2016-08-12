@@ -1,6 +1,3 @@
-import logic
-
-
 constant foo : Prop
 
 namespace N1

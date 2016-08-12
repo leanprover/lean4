@@ -9,7 +9,6 @@
 --
 -- Basic properties of Lists.
 
-import data.nat
 open nat
 inductive List (T : Type) : Type :=
 | nil {} : List T

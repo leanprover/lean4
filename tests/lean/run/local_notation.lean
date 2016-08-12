@@ -1,5 +1,3 @@
-import logic
-
 section
   variables {A : Type}
   variables f : A → A → A

@@ -1,5 +1,3 @@
-import logic
-
 reserve infix `=?=`:50
 reserve infixr `&&&`:25
 

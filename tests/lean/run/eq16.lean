@@ -1,4 +1,3 @@
-import data.list
 open list
 
 variable {A : Type}

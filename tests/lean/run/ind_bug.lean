@@ -1,4 +1,3 @@
-import logic
 constant N : Type.{1}
 constant I : Type.{1}
 

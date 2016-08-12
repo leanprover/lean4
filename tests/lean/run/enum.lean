@@ -1,5 +1,3 @@
-import logic
-
 inductive Three :=
 | zero : Three
 | one  : Three

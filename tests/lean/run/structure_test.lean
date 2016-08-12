@@ -1,5 +1,3 @@
-import logic data.sigma
-
 inductive point (A B : Type) :=
 mk : Π (x : A) (y : B), point A B
 

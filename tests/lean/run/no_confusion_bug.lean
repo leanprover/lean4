@@ -1,4 +1,3 @@
-import data.nat.basic
 open nat
 
 inductive Fin : nat → Type :=

@@ -1,4 +1,3 @@
-import data.nat data.prod
 open nat well_founded decidable prod
 
 namespace playground

@@ -1,4 +1,3 @@
-import data.list
 open list
 
 definition appd {A : Type} : list A → list A → list A

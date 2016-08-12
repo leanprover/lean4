@@ -1,5 +1,3 @@
-import data.nat
-
 section foo
   variable A : Type
   variable a : nat

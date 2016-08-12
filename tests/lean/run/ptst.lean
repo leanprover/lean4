@@ -1,4 +1,3 @@
-import data.nat logic data.prod
 open prod nat
 
 -- Test tuple notation

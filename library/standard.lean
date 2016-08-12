@@ -6,4 +6,4 @@ Authors: Leonardo de Moura, Jeremy Avigad
 The constructive core of Lean's library.
 -/
 
-import logic data
+-- import logic data

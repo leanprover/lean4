@@ -28,13 +28,13 @@ add_test(NAME c_expr_test
          WORKING_DIRECTORY "${LEAN_BINARY_DIR}"
          COMMAND "${CMAKE_CURRENT_BINARY_DIR}/c_expr_test")
 
-add_executable(c_env_test env.c)
-target_link_libraries(c_env_test ${EXTRA_LIBS} leanshared)
-add_test(NAME c_env_test
-         WORKING_DIRECTORY "${LEAN_BINARY_DIR}"
-         COMMAND "${CMAKE_CURRENT_BINARY_DIR}/c_env_test")
-SET_TESTS_PROPERTIES(c_env_test
-  PROPERTIES ENVIRONMENT "LEAN_PATH=${LEAN_SOURCE_DIR}/../library")
+# add_executable(c_env_test env.c)
+# target_link_libraries(c_env_test ${EXTRA_LIBS} leanshared)
+# add_test(NAME c_env_test
+#          WORKING_DIRECTORY "${LEAN_BINARY_DIR}"
+#          COMMAND "${CMAKE_CURRENT_BINARY_DIR}/c_env_test")
+# SET_TESTS_PROPERTIES(c_env_test
+#   PROPERTIES ENVIRONMENT "LEAN_PATH=${LEAN_SOURCE_DIR}/../library")
 
 add_executable(thread_test thread.cpp)
 target_link_libraries(thread_test ${EXTRA_LIBS} leanshared)

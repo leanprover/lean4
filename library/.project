@@ -2,6 +2,12 @@
 - flycheck*.lean
 - .#*.lean
 - theories/
+- algebra/
+- data/
+- logic/
+- tools/
+- smt/
+- examples/
 - bag.lean
 - bv.lean
 - complex.lean

@@ -54,9 +54,9 @@ add_test(NAME "lean_print_notation"
 # add_test(NAME "print_info"
 #          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
 #          COMMAND bash "./print_info.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
-add_test(NAME "dir_option"
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
-         COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" "--dir=${LEAN_SOURCE_DIR}/../library/data/nat" "dir_option.lean")
+# add_test(NAME "dir_option"
+#          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
+#          COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" "--dir=${LEAN_SOURCE_DIR}/../library/data/nat" "dir_option.lean")
 if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   # The following test cannot be executed on Windows because of the
   # bash script timeout.sh
@@ -74,14 +74,14 @@ FOREACH(T ${LEANTESTS})
            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
 ENDFOREACH(T)
 
-# SMT2 TESTS
-file(GLOB SMT2TESTS "${LEAN_SOURCE_DIR}/../tests/lean/smt2/*.smt2")
-FOREACH(T ${SMT2TESTS})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "smt2test_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/smt2/"
-           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-ENDFOREACH(T)
+# # SMT2 TESTS
+# file(GLOB SMT2TESTS "${LEAN_SOURCE_DIR}/../tests/lean/smt2/*.smt2")
+# FOREACH(T ${SMT2TESTS})
+#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+#   add_test(NAME "smt2test_${T_NAME}"
+#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/smt2/"
+#            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+# ENDFOREACH(T)
 
 # # LEAN HoTT TESTS
 # file(GLOB LEANHTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.hlean")
@@ -102,13 +102,13 @@ FOREACH(T ${LEANRUNTESTS})
 ENDFOREACH(T)
 
 # SMT2 RUN TESTS
-file(GLOB SMT2RUNTESTS "${LEAN_SOURCE_DIR}/../tests/lean/smt2/run/*.smt2")
-FOREACH(T ${SMT2RUNTESTS})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "smt2runtest_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/smt2/run/"
-           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-ENDFOREACH(T)
+# file(GLOB SMT2RUNTESTS "${LEAN_SOURCE_DIR}/../tests/lean/smt2/run/*.smt2")
+# FOREACH(T ${SMT2RUNTESTS})
+#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+#   add_test(NAME "smt2runtest_${T_NAME}"
+#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/smt2/run/"
+#            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+# ENDFOREACH(T)
 
 
 # LEAN TESTS using --trust=0

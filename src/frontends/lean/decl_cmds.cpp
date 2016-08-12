@@ -655,9 +655,6 @@ class definition_cmd_fn {
         parser::local_scope scope1(m_p);
         parse_univ_params(m_p, m_ls_buffer);
 
-        // Parse modifiers
-        m_attributes.parse(m_p);
-
         if (m_p.curr_is_token(get_assign_tk())) {
             auto pos = m_p.pos();
             m_p.next();

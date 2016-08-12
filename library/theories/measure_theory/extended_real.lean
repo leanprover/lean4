@@ -31,10 +31,12 @@ protected definition prio := num.pred real.prio
 
 /- arithmetic operations on the ereals -/
 
-definition ereal_has_zero [instance] [priority ereal.prio] : has_zero ereal :=
+attribute [instance] [priority ereal.prio]
+definition ereal_has_zero : has_zero ereal :=
 has_zero.mk (of_real 0)
 
-definition ereal_has_one [instance] [priority ereal.prio] : has_one ereal :=
+attribute [instance] [priority ereal.prio]
+definition ereal_has_one : has_one ereal :=
 has_one.mk (of_real 1)
 
 protected definition add : ereal → ereal → ereal
@@ -49,7 +51,8 @@ protected definition neg : ereal → ereal
 | ∞           := -∞
 | -∞          := ∞
 
-private definition blow_up [reducible] : ereal → ereal
+attribute [reducible]
+private definition blow_up : ereal → ereal
 | (of_real x) := if x = 0 then of_real 0 else if x > 0 then ∞ else -∞
 | ∞           := ∞
 | -∞          := -∞
@@ -61,18 +64,22 @@ protected definition mul : ereal → ereal → ereal
 | -∞ a                    := ereal.neg (blow_up a)
 | a -∞                    := ereal.neg (blow_up a)
 
-definition ereal_has_add [instance] [priority ereal.prio] : has_add ereal :=
+attribute [instance] [priority ereal.prio]
+definition ereal_has_add : has_add ereal :=
 has_add.mk ereal.add
 
-definition ereal_has_neg [instance] [priority ereal.prio] : has_neg ereal :=
+attribute [instance] [priority ereal.prio]
+definition ereal_has_neg : has_neg ereal :=
 has_neg.mk ereal.neg
 
 protected definition sub (u v : ereal) : ereal := u + -v
 
-definition ereal_has_sub [instance] [priority ereal.prio] : has_sub ereal :=
+attribute [instance] [priority ereal.prio]
+definition ereal_has_sub : has_sub ereal :=
 has_sub.mk ereal.sub
 
-definition ereal_has_mul [instance] [priority ereal.prio] : has_mul ereal :=
+attribute [instance] [priority ereal.prio]
+definition ereal_has_mul : has_mul ereal :=
 has_mul.mk ereal.mul
 
 protected theorem zero_def : (0 : ereal) = of_real 0 := rfl
@@ -281,7 +288,8 @@ by krewrite [ereal.mul_comm, ereal.one_mul]
 
 -- Note that distributivity fails, e.g. ∞ ⬝ (-1 + 1) ≠ ∞ * -1 + ∞ * 1
 
-protected definition comm_monoid [trans_instance] : comm_monoid ereal :=
+attribute [trans_instance]
+protected definition comm_monoid : comm_monoid ereal :=
 ⦃comm_monoid,
   mul       := ereal.mul,
   mul_assoc := ereal.mul_assoc,
@@ -291,7 +299,8 @@ protected definition comm_monoid [trans_instance] : comm_monoid ereal :=
   mul_comm  := ereal.mul_comm
 ⦄
 
-protected definition add_comm_monoid [trans_instance] : add_comm_monoid ereal :=
+attribute [trans_instance]
+protected definition add_comm_monoid : add_comm_monoid ereal :=
 ⦃add_comm_monoid,
   add       := ereal.add,
   add_assoc := ereal.add_assoc,
@@ -311,7 +320,8 @@ protected definition le : ereal → ereal → Prop
 | ∞ (of_real y)           := false
 | ∞ -∞                    := false
 
-definition ereal_has_le [instance] [priority ereal.prio] : has_le ereal :=
+attribute [instance] [priority ereal.prio]
+definition ereal_has_le : has_le ereal :=
 has_le.mk ereal.le
 
 theorem of_real_le_of_real (x y : real) : of_real x ≤ of_real y ↔ x ≤ y :=
@@ -359,7 +369,8 @@ protected theorem le_antisymm : ∀ u v : ereal, u ≤ v → v ≤ u → u = v
 
 protected definition lt (x y : ereal) : Prop := x ≤ y ∧ x ≠ y
 
-definition ereal_has_lt [instance] [priority ereal.prio] :
+attribute [instance] [priority ereal.prio]
+definition ereal_has_lt :
   has_lt ereal :=
 has_lt.mk ereal.lt
 
@@ -390,7 +401,8 @@ theorem neg_infty_lt_of_real (x : real) : -∞ < of_real x :=  and.intro trivial
 
 theorem of_real_lt_infty (x : real) : of_real x < ∞ := and.intro trivial (ne.symm !infty_ne_of_real)
 
-protected definition decidable_linear_order [trans_instance] : decidable_linear_order ereal :=
+attribute [trans_instance]
+protected definition decidable_linear_order : decidable_linear_order ereal :=
 ⦃decidable_linear_order,
   le              := ereal.le,
   le_refl         := ereal.le_refl,

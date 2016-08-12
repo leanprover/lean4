@@ -18,9 +18,11 @@ definition to_nat (c : char) : nat :=
 fin.val c
 end char
 
-definition char_has_decidable_eq [instance] : decidable_eq char :=
+attribute [instance]
+definition char_has_decidable_eq : decidable_eq char :=
 have decidable_eq (fin 256), from _,
 this
 
-definition char_is_inhabited [instance] : inhabited char :=
+attribute [instance]
+definition char_is_inhabited : inhabited char :=
 inhabited.mk (char.of_nat 65)

@@ -11,7 +11,8 @@ This file is based on Floris van Doorn Coq files.
 import data.nat data.list
 open nat bool list decidable
 
-definition PropVar [reducible] := nat
+attribute [reducible]
+definition PropVar := nat
 
 inductive PropF :=
 | Var  : PropVar → PropF
@@ -43,7 +44,8 @@ namespace PropF
   | TrueQ (A ∧ B) := TrueQ A && TrueQ B
   | TrueQ (A ⇒ B) := bnot (TrueQ A) || TrueQ B
 
-  definition is_true [reducible] (b : bool) := b = tt
+  attribute [reducible]
+  definition is_true (b : bool) := b = tt
 
   -- the valuation v satisfies a list of PropF, if forall (A : PropF) in Γ,
   -- (TrueQ v A) is tt (the Boolean true)

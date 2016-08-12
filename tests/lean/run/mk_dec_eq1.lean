@@ -4,7 +4,8 @@ namespace test
 
 inductive enum1 : Type := ea | eb | ec | ed
 
-definition enum1_dec_eq [instance] : decidable_eq enum1 :=
+attribute [instance]
+definition enum1_dec_eq : decidable_eq enum1 :=
 by mk_dec_eq_instance
 
 inductive Expr :=
@@ -13,7 +14,8 @@ inductive Expr :=
 | Elet : Expr → Expr
 | bla  : list nat → Expr
 
-definition Expr_has_dec_eq [instance] : decidable_eq Expr :=
+attribute [instance]
+definition Expr_has_dec_eq : decidable_eq Expr :=
 by mk_dec_eq_instance
 
 definition prod_decidable {A : Type} {B : Type} [decidable_eq A] [decidable_eq B] : decidable_eq (A × B) :=

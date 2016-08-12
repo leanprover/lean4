@@ -23,7 +23,8 @@ namespace category
 
   definition compose := @comp ob _
 
-  definition id [reducible] {a : ob} : hom a a := ID a
+  attribute [reducible]
+  definition id {a : ob} : hom a a := ID a
 
   infixr `∘` := comp
   infixl `⟶`:25 := hom -- input ⟶ using \--> (this is a different arrow than \-> (→))

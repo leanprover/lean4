@@ -98,12 +98,14 @@ namespace is_congruence
 
 end is_congruence
 
-definition congruence_const [instance] {T2 : Type} (R2 : T2 → T2 → Prop)
+attribute [instance]
+definition congruence_const {T2 : Type} (R2 : T2 → T2 → Prop)
     [C : is_reflexive R2] ⦃T1 : Type⦄ (R1 : T1 → T1 → Prop) (c : T2) :
   is_congruence R1 R2 (λu : T1, c) :=
 is_congruence.const R2 (is_reflexive.refl R2) R1 c
 
-definition congruence_trivial [instance] {T : Type} (R : T → T → Prop) :
+attribute [instance]
+definition congruence_trivial {T : Type} (R : T → T → Prop) :
   is_congruence R R (λu, u) :=
 is_congruence.mk (λx y H, H)
 

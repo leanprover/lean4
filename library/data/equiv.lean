@@ -18,7 +18,8 @@ structure equiv [class] (A B : Type) :=
   (right_inv : right_inverse inv_fun to_fun)
 
 namespace equiv
-definition perm [reducible] (A : Type) := equiv A A
+attribute [reducible]
+definition perm (A : Type) := equiv A A
 
 infix ` ≃ `:50 := equiv
 
@@ -39,13 +40,16 @@ lemma eq_of_to_fun_eq {A B : Type} : ∀ {e₁ e₂ : equiv A B}, fn e₁ = fn e
     show g₁ x = g₂ x,             from injective_of_left_inverse l₁ this),
   by congruence; repeat assumption
 
-protected definition refl [refl] (A : Type) : A ≃ A :=
+attribute [refl]
+protected definition refl (A : Type) : A ≃ A :=
 mk (@id A) (@id A) (λ x, rfl) (λ x, rfl)
 
-protected definition symm [symm] {A B : Type} : A ≃ B → B ≃ A
+attribute [symm]
+protected definition symm {A B : Type} : A ≃ B → B ≃ A
 | (mk f g h₁ h₂) := mk g f h₂ h₁
 
-protected definition trans [trans] {A B C : Type} : A ≃ B → B ≃ C → A ≃ C
+attribute [trans]
+protected definition trans {A B C : Type} : A ≃ B → B ≃ C → A ≃ C
 | (mk f₁ g₁ l₁ r₁) (mk f₂ g₂ l₂ r₂) :=
   mk (f₂ ∘ f₁) (g₁ ∘ g₂)
    (show ∀ x, g₁ (g₂ (f₂ (f₁ x))) = x, by intros; rewrite [l₂, l₁]; reflexivity)
@@ -88,7 +92,8 @@ lemma apply_eq_iff_eq_inverse_apply {A B : Type} : ∀ (f : A ≃ B) (x : A) (y 
 definition false_equiv_empty : empty ≃ false :=
 mk (λ e, empty.rec _ e) (λ h, false.rec _ h) (λ e, empty.rec _ e) (λ h, false.rec _ h)
 
-definition arrow_congr [congr] {A₁ B₁ A₂ B₂ : Type} : A₁ ≃ A₂ → B₁ ≃ B₂ → (A₁ → B₁) ≃ (A₂ → B₂)
+attribute [congr]
+definition arrow_congr {A₁ B₁ A₂ B₂ : Type} : A₁ ≃ A₂ → B₁ ≃ B₂ → (A₁ → B₁) ≃ (A₂ → B₂)
 | (mk f₁ g₁ l₁ r₁) (mk f₂ g₂ l₂ r₂) :=
   mk
    (λ (h : A₁ → B₁) (a : A₂), f₂ (h (g₁ a)))
@@ -98,27 +103,32 @@ definition arrow_congr [congr] {A₁ B₁ A₂ B₂ : Type} : A₁ ≃ A₂ → 
 
 section
 open unit
-definition arrow_unit_equiv_unit [simp] (A : Type) : (A → unit) ≃ unit :=
+attribute [simp]
+definition arrow_unit_equiv_unit (A : Type) : (A → unit) ≃ unit :=
 mk (λ f, star) (λ u, (λ f, star))
    (λ f, funext (λ x, by cases (f x); reflexivity))
    (λ u, by cases u; reflexivity)
 
-definition unit_arrow_equiv [simp] (A : Type) : (unit → A) ≃ A :=
+attribute [simp]
+definition unit_arrow_equiv (A : Type) : (unit → A) ≃ A :=
 mk (λ f, f star) (λ a, (λ u, a))
    (λ f, funext (λ x, by cases x; reflexivity))
    (λ u, rfl)
 
-definition empty_arrow_equiv_unit [simp] (A : Type) : (empty → A) ≃ unit :=
+attribute [simp]
+definition empty_arrow_equiv_unit (A : Type) : (empty → A) ≃ unit :=
 mk (λ f, star) (λ u, λ e, empty.rec _ e)
    (λ f, funext (λ x, empty.rec _ x))
    (λ u, by cases u; reflexivity)
 
-definition false_arrow_equiv_unit [simp] (A : Type) : (false → A) ≃ unit :=
+attribute [simp]
+definition false_arrow_equiv_unit (A : Type) : (false → A) ≃ unit :=
 calc (false → A) ≃ (empty → A) : arrow_congr false_equiv_empty !equiv.refl
              ... ≃ unit        : empty_arrow_equiv_unit
 end
 
-definition prod_congr [congr] {A₁ B₁ A₂ B₂ : Type} : A₁ ≃ A₂ → B₁ ≃ B₂ → (A₁ × B₁) ≃ (A₂ × B₂)
+attribute [congr]
+definition prod_congr {A₁ B₁ A₂ B₂ : Type} : A₁ ≃ A₂ → B₁ ≃ B₂ → (A₁ × B₁) ≃ (A₂ × B₂)
 | (mk f₁ g₁ l₁ r₁) (mk f₂ g₂ l₂ r₂) :=
   mk
     (λ p, match p with (a₁, b₁) := (f₁ a₁, f₂ b₁) end)
@@ -126,13 +136,15 @@ definition prod_congr [congr] {A₁ B₁ A₂ B₂ : Type} : A₁ ≃ A₂ → B
     (λ p, begin cases p, esimp, rewrite [l₁, l₂], reflexivity end)
     (λ p, begin cases p, esimp, rewrite [r₁, r₂], reflexivity end)
 
-definition prod_comm [simp] (A B : Type) : (A × B) ≃ (B × A) :=
+attribute [simp]
+definition prod_comm (A B : Type) : (A × B) ≃ (B × A) :=
 mk (λ p, match p with (a, b) := (b, a) end)
    (λ p, match p with (b, a) := (a, b) end)
    (λ p, begin cases p, esimp end)
    (λ p, begin cases p, esimp end)
 
-definition prod_assoc [simp] (A B C : Type) : ((A × B) × C) ≃ (A × (B × C)) :=
+attribute [simp]
+definition prod_assoc (A B C : Type) : ((A × B) × C) ≃ (A × (B × C)) :=
 mk (λ t, match t with ((a, b), c) := (a, (b, c)) end)
    (λ t, match t with (a, (b, c)) := ((a, b), c) end)
    (λ t, begin cases t with ab c, cases ab, esimp end)
@@ -140,27 +152,32 @@ mk (λ t, match t with ((a, b), c) := (a, (b, c)) end)
 
 section
 open unit prod.ops
-definition prod_unit_right [simp] (A : Type) : (A × unit) ≃ A :=
+attribute [simp]
+definition prod_unit_right (A : Type) : (A × unit) ≃ A :=
 mk (λ p, p.1)
    (λ a, (a, star))
    (λ p, begin cases p with a u, cases u, esimp end)
    (λ a, rfl)
 
-definition prod_unit_left [simp] (A : Type) : (unit × A) ≃ A :=
+attribute [simp]
+definition prod_unit_left (A : Type) : (unit × A) ≃ A :=
 calc (unit × A) ≃ (A × unit) : prod_comm
             ... ≃ A          : prod_unit_right
 
-definition prod_empty_right [simp] (A : Type) : (A × empty) ≃ empty :=
+attribute [simp]
+definition prod_empty_right (A : Type) : (A × empty) ≃ empty :=
 mk (λ p, empty.rec _ p.2) (λ e, empty.rec _ e) (λ p, empty.rec _ p.2)  (λ e, empty.rec _ e)
 
-definition prod_empty_left [simp] (A : Type) : (empty × A) ≃ empty :=
+attribute [simp]
+definition prod_empty_left (A : Type) : (empty × A) ≃ empty :=
 calc (empty × A) ≃ (A × empty) : prod_comm
              ... ≃ empty       : prod_empty_right
 end
 
 section
 open sum
-definition sum_congr [congr] {A₁ B₁ A₂ B₂ : Type} : A₁ ≃ A₂ → B₁ ≃ B₂ → (A₁ + B₁) ≃ (A₂ + B₂)
+attribute [congr]
+definition sum_congr {A₁ B₁ A₂ B₂ : Type} : A₁ ≃ A₂ → B₁ ≃ B₂ → (A₁ + B₁) ≃ (A₂ + B₂)
 | (mk f₁ g₁ l₁ r₁) (mk f₂ g₂ l₂ r₂) :=
   mk
    (λ s, match s with inl a₁ := inl (f₁ a₁) | inr b₁ := inr (f₂ b₁) end)
@@ -175,25 +192,29 @@ mk (λ b, match b with tt := inl star | ff := inr star end)
    (λ b, begin cases b, esimp, esimp end)
    (λ s, begin cases s with u u, {cases u, esimp}, {cases u, esimp} end)
 
-definition sum_comm [simp] (A B : Type) : (A + B) ≃ (B + A) :=
+attribute [simp]
+definition sum_comm (A B : Type) : (A + B) ≃ (B + A) :=
 mk (λ s, match s with inl a := inr a | inr b := inl b end)
    (λ s, match s with inl b := inr b | inr a := inl a end)
    (λ s, begin cases s, esimp, esimp end)
    (λ s, begin cases s, esimp, esimp end)
 
-definition sum_assoc [simp] (A B C : Type) : ((A + B) + C) ≃ (A + (B + C)) :=
+attribute [simp]
+definition sum_assoc (A B C : Type) : ((A + B) + C) ≃ (A + (B + C)) :=
 mk (λ s, match s with inl (inl a) := inl a | inl (inr b) := inr (inl b) | inr c := inr (inr c) end)
    (λ s, match s with inl a := inl (inl a) | inr (inl b) := inl (inr b) | inr (inr c) := inr c end)
    (λ s, begin cases s with ab c, cases ab, repeat esimp end)
    (λ s, begin cases s with a bc, esimp, cases bc, repeat esimp end)
 
-definition sum_empty_right [simp] (A : Type) : (A + empty) ≃ A :=
+attribute [simp]
+definition sum_empty_right (A : Type) : (A + empty) ≃ A :=
 mk (λ s, match s with inl a := a | inr e := empty.rec _ e end)
    (λ a, inl a)
    (λ s, begin cases s with a e, esimp, exact empty.rec _ e end)
    (λ a, rfl)
 
-definition sum_empty_left [simp] (A : Type) : (empty + A) ≃ A :=
+attribute [simp]
+definition sum_empty_left (A : Type) : (empty + A) ≃ A :=
 calc (empty + A) ≃ (A + empty) : sum_comm
           ...    ≃ A           : sum_empty_right
 end
@@ -245,23 +266,27 @@ mk (λ n, match n with zero := inr star | succ a := inl a end)
    (λ n, begin cases n, repeat esimp end)
    (λ s, begin cases s with a u, esimp, {cases u, esimp} end)
 
-definition nat_sum_unit_equiv_nat [simp] : (nat + unit) ≃ nat :=
+attribute [simp]
+definition nat_sum_unit_equiv_nat : (nat + unit) ≃ nat :=
 equiv.symm nat_equiv_nat_sum_unit
 
-definition nat_prod_nat_equiv_nat [simp] : (nat × nat) ≃ nat :=
+attribute [simp]
+definition nat_prod_nat_equiv_nat : (nat × nat) ≃ nat :=
 mk (λ p, mkpair p.1 p.2)
    (λ n, unpair n)
    (λ p, begin cases p, apply unpair_mkpair end)
    (λ n, mkpair_unpair n)
 
-definition nat_sum_bool_equiv_nat [simp] : (nat + bool) ≃ nat :=
+attribute [simp]
+definition nat_sum_bool_equiv_nat : (nat + bool) ≃ nat :=
 calc (nat + bool) ≃ (nat + (unit + unit)) : sum_congr !equiv.refl bool_equiv_unit_sum_unit
              ...  ≃ ((nat + unit) + unit) : sum_assoc
              ...  ≃ (nat + unit)          : sum_congr nat_sum_unit_equiv_nat !equiv.refl
              ...  ≃ nat                   : nat_sum_unit_equiv_nat
 
 open decidable
-definition nat_sum_nat_equiv_nat [simp] : (nat + nat) ≃ nat :=
+attribute [simp]
+definition nat_sum_nat_equiv_nat : (nat + nat) ≃ nat :=
 mk (λ s, match s with inl n := 2*n | inr n := 2*n+1 end)
    (λ n, if even n then inl (n / 2) else inr ((n - 1) / 2))
    (λ s, begin

@@ -21,7 +21,8 @@ calc int ≃ (bool × nat)                : int_equiv_bool_nat
      ... ≃ nat + nat                   : sum_congr !prod_unit_left !prod_unit_left
      ... ≃ nat                         : nat_sum_nat_equiv_nat
 
-definition encodable_int [instance] : encodable int :=
+attribute [instance]
+definition encodable_int : encodable int :=
 encodable_of_equiv (_root_.equiv.symm int_equiv_nat)
 
 lemma countable_int : countable int :=

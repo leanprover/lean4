@@ -1,6 +1,7 @@
 open tactic
 
-definition expr_to_app [instance] : has_coe_to_fun expr :=
+attribute [instance]
+definition expr_to_app : has_coe_to_fun expr :=
 has_coe_to_fun.mk (expr → expr) (λ e, expr.app e)
 
 constants f a b : expr

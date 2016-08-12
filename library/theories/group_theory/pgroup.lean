@@ -124,7 +124,8 @@ open fin
 
 definition prodseq {n : nat} (s : seq A n) : A := Prodl (upto n) s
 
-definition peo [reducible] {n : nat} (s : seq A n) := prodseq s = 1
+attribute [reducible]
+definition peo {n : nat} (s : seq A n) := prodseq s = 1
 
 definition constseq {n : nat} (s : seq A (succ n)) := ∀ i, s i = s !zero
 
@@ -154,7 +155,8 @@ include deceqA
 
 variable (A)
 
-definition peo_seq [reducible] (n : nat) := {s : seq A (succ n) | peo s}
+attribute [reducible]
+definition peo_seq (n : nat) := {s : seq A (succ n) | peo s}
 
 definition peo_seq_one (n : nat) : peo_seq A n :=
 tag (λ i : fin (succ n), (1 : A)) peo_const_one
@@ -230,7 +232,8 @@ eq.trans (eq.trans
     by rewrite [-Pmap, length_map]))
   length_all_prodl_eq_one
 
-definition peo_seq_is_fintype [instance] {n : nat} : fintype (peo_seq A n) :=
+attribute [instance]
+definition peo_seq_is_fintype {n : nat} : fintype (peo_seq A n) :=
 fintype.mk (all_peo_seqs A n) nodup_all_peo_seqs all_peo_seqs_complete
 
 lemma card_peo_seq {n : nat} : card (peo_seq A n) = (card A)^n :=
@@ -268,7 +271,8 @@ take ps₁ ps₂, subtype.destruct ps₁ (λ s₁ P₁, subtype.destruct ps₂ (
 
 variable (A)
 
-definition rotl_perm_ps [reducible] (n : nat) (m : fin (succ n)) : perm (peo_seq A n) :=
+attribute [reducible]
+definition rotl_perm_ps (n : nat) (m : fin (succ n)) : perm (peo_seq A n) :=
 perm.mk (rotl_peo_seq A n m) rotl_peo_seq_inj
 
 variable {A}
@@ -288,7 +292,8 @@ eq_of_feq (begin rewrite [↑rotl_perm_ps, {val (i+j)}val_madd, add.comm, -rotl_
 section
 local attribute group_of_add_group [instance]
 
-definition rotl_perm_ps_is_hom [instance] : is_hom_class (rotl_perm_ps A n) :=
+attribute [instance]
+definition rotl_perm_ps_is_hom : is_hom_class (rotl_perm_ps A n) :=
 is_hom_class.mk rotl_perm_ps_hom
 
 open finset

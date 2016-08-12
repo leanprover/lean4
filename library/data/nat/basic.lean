@@ -44,18 +44,22 @@ nat.induction_on x
 
 /- successor and predecessor -/
 
-theorem succ_ne_zero [simp] (n : ℕ) : succ n ≠ 0 :=
+attribute [simp]
+theorem succ_ne_zero (n : ℕ) : succ n ≠ 0 :=
 sorry -- by contradiction
 
-theorem add_one_ne_zero [simp] (n : ℕ) : n + 1 ≠ 0 :=
+attribute [simp]
+theorem add_one_ne_zero (n : ℕ) : n + 1 ≠ 0 :=
 sorry -- by contradiction
 
 -- add_rewrite succ_ne_zero
 
-theorem pred_zero [simp] : pred 0 = 0 :=
+attribute [simp]
+theorem pred_zero : pred 0 = 0 :=
 rfl
 
-theorem pred_succ [simp] (n : ℕ) : pred (succ n) = n :=
+attribute [simp]
+theorem pred_succ (n : ℕ) : pred (succ n) = n :=
 rfl
 
 theorem eq_zero_or_eq_succ_pred (n : ℕ) : n = 0 ∨ n = succ (pred n) :=
@@ -252,7 +256,8 @@ nat.cases_on n (by simp)
           !succ_ne_zero))
 -/
 
-protected definition comm_semiring [instance] : comm_semiring nat :=
+attribute [instance]
+protected definition comm_semiring : comm_semiring nat :=
 ⦃comm_semiring,
  add            := nat.add,
  add_assoc      := nat.add_assoc,

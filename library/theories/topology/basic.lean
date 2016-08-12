@@ -61,7 +61,8 @@ end
 
 /- closed sets -/
 
-definition closed [reducible] (s : set X) : Prop := Open (-s)
+attribute [reducible]
+definition closed (s : set X) : Prop := Open (-s)
 
 theorem closed_iff_Open_compl (s : set X) : closed s ↔ Open (-s) := !iff.refl
 
@@ -166,7 +167,8 @@ end topology
 structure T1_space [class] (X : Type) extends topology X :=
   (T1 : ∀ {x y}, x ≠ y → ∃ U, U ∈ opens ∧ x ∈ U ∧ y ∉ U)
 
-protected definition T0_space.of_T1 [trans_instance] {X : Type} [T : T1_space X] :
+attribute [trans_instance]
+protected definition T0_space.of_T1 {X : Type} [T : T1_space X] :
   T0_space X :=
 ⦃T0_space, T,
   T0 := abstract
@@ -208,7 +210,8 @@ end topology
 structure T2_space [class] (X : Type) extends topology X :=
   (T2 : ∀ {x y}, x ≠ y → ∃ U V, U ∈ opens ∧ V ∈ opens ∧ x ∈ U ∧ y ∈ V ∧ U ∩ V = ∅)
 
-protected definition T1_space.of_T2 [trans_instance] {X : Type} [T : T2_space X] :
+attribute [trans_instance]
+protected definition T1_space.of_T2 {X : Type} [T : T2_space X] :
   T1_space X :=
 ⦃T1_space, T,
   T1 := abstract
@@ -247,7 +250,8 @@ inductive opens_generated_by {X : Type} (B : set (set X)) : set X → Prop :=
                     opens_generated_by B (s ∩ t)
 | sUnion_mem     : ∀ ⦃S : set (set X)⦄, S ⊆ opens_generated_by B → opens_generated_by B (⋃₀ S)
 
-protected definition generated_by [instance] {X : Type} (B : set (set X)) : topology X :=
+attribute [instance]
+protected definition generated_by {X : Type} (B : set (set X)) : topology X :=
 ⦃topology,
   opens            := opens_generated_by B,
   univ_mem_opens   := opens_generated_by.univ_mem B,

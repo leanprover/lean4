@@ -47,11 +47,13 @@ have gen : ∀ (l₁ l₂ : list A) (p : l₁ ~ l₂), l₁ = [] → l₂ = (x::
 assume p, gen [] (x::l) p rfl rfl
 -/
 
-protected theorem refl [refl] : ∀ (l : list A), l ~ l
+attribute [refl]
+protected theorem refl : ∀ (l : list A), l ~ l
 | []      := nil
 | (x::xs) := skip x (refl xs)
 
-protected theorem symm [symm] : ∀ {l₁ l₂ : list A}, l₁ ~ l₂ → l₂ ~ l₁ :=
+attribute [symm]
+protected theorem symm : ∀ {l₁ l₂ : list A}, l₁ ~ l₂ → l₂ ~ l₁ :=
 take l₁ l₂ p, perm.induction_on p
   nil
   (λ x l₁ l₂ p₁ r₁, skip x r₁)
@@ -63,7 +65,8 @@ attribute perm.trans [trans]
 theorem eqv (A : Type) : equivalence (@perm A) :=
 mk_equivalence (@perm A) (@perm.refl A) (@perm.symm A) (@perm.trans A)
 
-protected definition is_setoid [instance] (A : Type) : setoid (list A) :=
+attribute [instance]
+protected definition is_setoid (A : Type) : setoid (list A) :=
 setoid.mk (@perm A) (perm.eqv A)
 
 theorem mem_perm {a : A} {l₁ l₂ : list A} : l₁ ~ l₂ → a ∈ l₁ → a ∈ l₂ :=
@@ -109,10 +112,12 @@ theorem perm_cons_app (a : A) : ∀ (l : list A), (a::l) ~ (l ++ [a])
   a::x::xs ~ x::a::xs     : swap x a xs
        ... ~ x::(xs++[a]) : skip x (perm_cons_app xs)
 
-theorem perm_cons_app_simp [simp] (a : A) : ∀ (l : list A), (l ++ [a]) ~ (a::l) :=
+attribute [simp]
+theorem perm_cons_app_simp (a : A) : ∀ (l : list A), (l ++ [a]) ~ (a::l) :=
 take l, perm.symm (perm_cons_app a l)
 
-theorem perm_app_comm [simp] {l₁ l₂ : list A} : (l₁++l₂) ~ (l₂++l₁) :=
+attribute [simp]
+theorem perm_app_comm {l₁ l₂ : list A} : (l₁++l₂) ~ (l₂++l₁) :=
 sorry
 /-
 list.induction_on l₁
@@ -172,7 +177,8 @@ theorem perm_rev : ∀ (l : list A), l ~ (reverse l)
     ... = reverse (x::xs)   : by rewrite [reverse_cons, concat_eq_append]
 -/
 
-theorem perm_rev_simp [simp] : ∀ (l : list A), (reverse l) ~ l :=
+attribute [simp]
+theorem perm_rev_simp : ∀ (l : list A), (reverse l) ~ l :=
 take l, perm.symm (perm_rev l)
 
 theorem perm_middle (a : A) (l₁ l₂ : list A) : (a::l₁)++l₂ ~ l₁++(a::l₂) :=
@@ -182,7 +188,8 @@ calc
            ...  = l₁++(l₂++[a]) : append.assoc l₁ l₂ [a]
            ...  ~ l₁++(a::l₂)   : perm_app_right l₁ (perm.symm (perm_cons_app a l₂))
 
-theorem perm_middle_simp [simp] (a : A) (l₁ l₂ : list A) : l₁++(a::l₂) ~ (a::l₁)++l₂ :=
+attribute [simp]
+theorem perm_middle_simp (a : A) (l₁ l₂ : list A) : l₁++(a::l₂) ~ (a::l₁)++l₂ :=
 perm.symm $ perm_middle a l₁ l₂
 
 theorem perm_cons_app_cons {l l₁ l₂ : list A} (a : A) : l ~ l₁++l₂ → a::l ~ l₁++(a::l₂) :=
@@ -208,7 +215,8 @@ theorem perm_erase [decidable_eq A] {a : A} : ∀ {l : list A}, a ∈ l → l ~ 
             ... = a::(erase a (x::t)) : by rewrite [!erase_cons_tail naeqx])
 -/
 
-theorem erase_perm_erase_of_perm [congr] [decidable_eq A] (a : A) {l₁ l₂ : list A} : l₁ ~ l₂ → erase a l₁ ~ erase a l₂ :=
+attribute [congr]
+theorem erase_perm_erase_of_perm [decidable_eq A] (a : A) {l₁ l₂ : list A} : l₁ ~ l₂ → erase a l₁ ~ erase a l₂ :=
 sorry
 /-
 assume p, perm.induction_on p
@@ -247,7 +255,8 @@ assume p, calc
   x::y::l₁  ~  y::x::l₁  : swap y x l₁
         ... ~  y::x::l₂  : skip y (skip x p)
 
-theorem perm_map [congr] (f : A → B) {l₁ l₂ : list A} : l₁ ~ l₂ → map f l₁ ~ map f l₂ :=
+attribute [congr]
+theorem perm_map (f : A → B) {l₁ l₂ : list A} : l₁ ~ l₂ → map f l₁ ~ map f l₂ :=
 assume p, perm_induction_on p
   nil
   (λ x l₁ l₂ p r, skip (f x) r)
@@ -294,7 +303,8 @@ definition decidable_perm_aux : ∀ (n : nat) (l₁ l₂ : list A), length l₁ 
       inr (λ p : x::t₁ ~ l₂, absurd (mem_perm p !mem_cons) nxinl₂))
 -/
 
-definition decidable_perm [instance] : ∀ (l₁ l₂ : list A), decidable (l₁ ~ l₂) :=
+attribute [instance]
+definition decidable_perm : ∀ (l₁ l₂ : list A), decidable (l₁ ~ l₂) :=
 λ l₁ l₂,
 by_cases
   (assume eql : length l₁ = length l₂,
@@ -563,7 +573,8 @@ section foldr
   -/
 end foldr
 
-theorem perm_erase_dup_of_perm [congr] [H : decidable_eq A] {l₁ l₂ : list A} : l₁ ~ l₂ → erase_dup l₁ ~ erase_dup l₂ :=
+attribute [congr]
+theorem perm_erase_dup_of_perm [H : decidable_eq A] {l₁ l₂ : list A} : l₁ ~ l₂ → erase_dup l₁ ~ erase_dup l₂ :=
 sorry
 /-
 assume p, perm_induction_on p
@@ -686,7 +697,8 @@ list.induction_on l
       by rewrite [union_cons_of_not_mem _ nxint₁, union_cons_of_not_mem _ nxint₂]; exact (skip _ (r p))))
 -/
 
-theorem perm_union [congr] {l₁ l₂ t₁ t₂ : list A} : l₁ ~ l₂ → t₁ ~ t₂ → (union l₁ t₁) ~ (union l₂ t₂) :=
+attribute [congr]
+theorem perm_union {l₁ l₂ t₁ t₂ : list A} : l₁ ~ l₂ → t₁ ~ t₂ → (union l₁ t₁) ~ (union l₂ t₂) :=
 assume p₁ p₂, trans (perm_union_left t₁ p₁) (perm_union_right l₂ p₂)
 end perm_union
 
@@ -694,7 +706,8 @@ section perm_insert
 variable [H : decidable_eq A]
 include H
 
-theorem perm_insert [congr] (a : A) {l₁ l₂ : list A} : l₁ ~ l₂ → (insert a l₁) ~ (insert a l₂) :=
+attribute [congr]
+theorem perm_insert (a : A) {l₁ l₂ : list A} : l₁ ~ l₂ → (insert a l₁) ~ (insert a l₂) :=
 sorry
 /-
 assume p, by_cases
@@ -748,7 +761,8 @@ list.induction_on l
       have nxint₂ : x ∉ t₂, from not_mem_perm p nxint₁,
       by rewrite [inter_cons_of_not_mem _ nxint₁, inter_cons_of_not_mem _ nxint₂]; exact (r p)))
 -/
-theorem perm_inter [congr] {l₁ l₂ t₁ t₂ : list A} : l₁ ~ l₂ → t₁ ~ t₂ → (inter l₁ t₁) ~ (inter l₂ t₂) :=
+attribute [congr]
+theorem perm_inter {l₁ l₂ t₁ t₂ : list A} : l₁ ~ l₂ → t₁ ~ t₂ → (inter l₁ t₁) ~ (inter l₂ t₂) :=
 assume p₁ p₂, trans (perm_inter_left t₁ p₁) (perm_inter_right l₂ p₂)
 end perm_inter
 
@@ -856,12 +870,14 @@ list.induction_on l
     perm_app (perm_map _ p) (r p))
 -/
 
-theorem perm_product [congr] {l₁ l₂ : list A} {t₁ t₂ : list B} : l₁ ~ l₂ → t₁ ~ t₂ → (product l₁ t₁) ~ (product l₂ t₂) :=
+attribute [congr]
+theorem perm_product {l₁ l₂ : list A} {t₁ t₂ : list B} : l₁ ~ l₂ → t₁ ~ t₂ → (product l₁ t₁) ~ (product l₂ t₂) :=
 assume p₁ p₂, trans (perm_product_left t₁ p₁) (perm_product_right l₂ p₂)
 end product
 
 /- filter -/
-theorem perm_filter [congr] {l₁ l₂ : list A} {p : A → Prop} [decidable_pred p] :
+attribute [congr]
+theorem perm_filter {l₁ l₂ : list A} {p : A → Prop} [decidable_pred p] :
   l₁ ~ l₂ → (filter p l₁) ~ (filter p l₂) :=
 sorry
 /-

@@ -1,6 +1,7 @@
 open tactic
 
-theorem forall_congr_prop_eq [congr] [priority std.priority.default+1] {P₁ P₂ Q₁ Q₂ : Prop} :
+attribute [congr] [priority std.priority.default+1]
+theorem forall_congr_prop_eq {P₁ P₂ Q₁ Q₂ : Prop} :
   P₁ = P₂ → (P₂ → Q₁ = Q₂) → (P₁ → Q₁) = (P₂ → Q₂) :=
 sorry
 

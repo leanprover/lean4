@@ -19,7 +19,8 @@ meta_constant get_options : tactic_state → options
 meta_constant set_options : tactic_state → options → tactic_state
 end tactic_state
 
-meta_definition tactic_state.has_to_format [instance] : has_to_format tactic_state :=
+attribute [instance]
+meta_definition tactic_state.has_to_format : has_to_format tactic_state :=
 has_to_format.mk tactic_state.to_format
 
 inductive tactic_result (A : Type) :=
@@ -36,27 +37,32 @@ meta_definition tactic_result_to_string : tactic_result A → string
 | (success a s)   := to_string a
 | (exception ⌞A⌟ e s) := "Exception: " ++ to_string (e ())
 
-meta_definition tactic_result_has_to_string [instance] : has_to_string (tactic_result A) :=
+attribute [instance]
+meta_definition tactic_result_has_to_string : has_to_string (tactic_result A) :=
 has_to_string.mk tactic_result_to_string
 end
 
-meta_definition tactic [reducible] (A : Type) :=
+attribute [reducible]
+meta_definition tactic (A : Type) :=
 tactic_state → tactic_result A
 
 section
 variables {A B : Type}
 
-meta_definition tactic_fmap [inline] (f : A → B) (t : tactic A) : tactic B :=
+attribute [inline]
+meta_definition tactic_fmap (f : A → B) (t : tactic A) : tactic B :=
 λ s, tactic_result.cases_on (t s)
   (λ a s', success (f a) s')
   (λ e s', exception B e s')
 
-meta_definition tactic_bind [inline] (t₁ : tactic A) (t₂ : A → tactic B) : tactic B :=
+attribute [inline]
+meta_definition tactic_bind (t₁ : tactic A) (t₂ : A → tactic B) : tactic B :=
 λ s,  tactic_result.cases_on (t₁ s)
   (λ a s', t₂ a s')
   (λ e s', exception B e s')
 
-meta_definition tactic_return [inline] (a : A) : tactic A :=
+attribute [inline]
+meta_definition tactic_return (a : A) : tactic A :=
 λ s, success a s
 
 meta_definition tactic_orelse {A : Type} (t₁ t₂ : tactic A) : tactic A :=
@@ -67,7 +73,8 @@ meta_definition tactic_orelse {A : Type} (t₁ t₂ : tactic A) : tactic A :=
      (exception A))
 end
 
-meta_definition tactic_is_monad [instance] : monad tactic :=
+attribute [instance]
+meta_definition tactic_is_monad : monad tactic :=
 monad.mk @tactic_fmap @tactic_return @tactic_bind
 
 meta_definition tactic.fail {A B : Type} [has_to_format B] (msg : B) : tactic A :=
@@ -76,7 +83,8 @@ meta_definition tactic.fail {A B : Type} [has_to_format B] (msg : B) : tactic A 
 meta_definition tactic.failed {A : Type} : tactic A :=
 tactic.fail "failed"
 
-meta_definition tactic_is_alternative [instance] : alternative tactic :=
+attribute [instance]
+meta_definition tactic_is_alternative : alternative tactic :=
 alternative.mk @tactic_fmap (λ A a s, success a s) (@fapp _ _) @tactic.failed @tactic_orelse
 
 namespace tactic
@@ -127,10 +135,12 @@ meta_definition decorate_ex (msg : format) (t : tactic A) : tactic A :=
   success
   (λ e, exception A (λ u, msg ++ format.nest 2 (format.line ++ e u)))
 
-meta_definition write [inline] (s' : tactic_state) : tactic unit :=
+attribute [inline]
+meta_definition write (s' : tactic_state) : tactic unit :=
 λ s, success () s'
 
-meta_definition read [inline] : tactic tactic_state :=
+attribute [inline]
+meta_definition read : tactic tactic_state :=
 λ s, success s s
 end tactic
 
@@ -140,7 +150,8 @@ do s ← tactic.read, return (tactic_state.format_expr s e)
 structure has_to_tactic_format [class] (A : Type) :=
 (to_tactic_format : A → tactic format)
 
-meta_definition expr_has_to_tactic_format [instance] : has_to_tactic_format expr :=
+attribute [instance]
+meta_definition expr_has_to_tactic_format : has_to_tactic_format expr :=
 has_to_tactic_format.mk tactic_format_expr
 
 meta_definition tactic.pp {A : Type} [has_to_tactic_format A] : A → tactic format :=
@@ -161,10 +172,12 @@ meta_definition list_to_tactic_format {A : Type} [has_to_tactic_format A] : list
   f ← list_to_tactic_format_aux tt (x::xs),
   return $ to_fmt "[" ++ group (nest 1 f) ++ to_fmt "]"
 
-meta_definition list_has_to_tactic_format [instance] {A : Type} [has_to_tactic_format A] : has_to_tactic_format (list A) :=
+attribute [instance]
+meta_definition list_has_to_tactic_format {A : Type} [has_to_tactic_format A] : has_to_tactic_format (list A) :=
 has_to_tactic_format.mk list_to_tactic_format
 
-meta_definition has_to_format_to_has_to_tactic_format [instance] (A : Type) [has_to_format A] : has_to_tactic_format A :=
+attribute [instance]
+meta_definition has_to_format_to_has_to_tactic_format (A : Type) [has_to_format A] : has_to_tactic_format A :=
 has_to_tactic_format.mk (return ∘ to_fmt)
 
 namespace tactic
@@ -479,7 +492,8 @@ do g::gs ← get_goals | failed,
    gs' ← get_goals,
    set_goals (gs' ++ gs)
 
-meta_definition tactic_has_andthen [instance] : has_andthen (tactic unit) :=
+attribute [instance]
+meta_definition tactic_has_andthen : has_andthen (tactic unit) :=
 has_andthen.mk seq
 
 /- Applies tac if c holds -/

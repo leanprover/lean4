@@ -9,11 +9,13 @@ namespace empty
   protected definition elim (A : Type) : empty → A :=
   empty.rec (λe, A)
 
-  protected definition subsingleton [instance] : subsingleton empty :=
+  attribute [instance]
+  protected definition subsingleton : subsingleton empty :=
   subsingleton.intro (λ a b, empty.elim _ a)
 end empty
 
-protected definition empty.has_decidable_eq [instance] : decidable_eq empty :=
+attribute [instance]
+protected definition empty.has_decidable_eq : decidable_eq empty :=
 take (a b : empty), decidable.tt (empty.elim _ a)
 
 definition tneg.tneg (A : Type) := A → empty

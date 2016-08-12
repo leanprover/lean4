@@ -114,7 +114,8 @@ definition complete_lattice_Inf_to_complete_lattice_Sup [C : complete_lattice_In
 ⦃ complete_lattice_Sup, C ⦄
 
 -- Every complete_lattice_Inf is a complete_lattice
-definition complete_lattice_Inf_to_complete_lattice [trans_instance] [C : complete_lattice_Inf A] :
+attribute [trans_instance]
+definition complete_lattice_Inf_to_complete_lattice [C : complete_lattice_Inf A] :
   complete_lattice A :=
 ⦃ complete_lattice, C ⦄
 
@@ -180,7 +181,8 @@ definition complete_lattice_Sup_to_complete_lattice_Inf [C : complete_lattice_Su
 
 -- Every complete_lattice_Sup is a complete_lattice
 section
-definition complete_lattice_Sup_to_complete_lattice [trans_instance] [C : complete_lattice_Sup A] :
+attribute [trans_instance]
+definition complete_lattice_Sup_to_complete_lattice [C : complete_lattice_Sup A] :
   complete_lattice A :=
 ⦃ complete_lattice, C ⦄
 end
@@ -345,7 +347,8 @@ end complete_lattice
 section
 open eq.ops complete_lattice
 
-definition complete_lattice_fun [instance] (A B : Type) [complete_lattice B] :
+attribute [instance]
+definition complete_lattice_fun (A B : Type) [complete_lattice B] :
     complete_lattice (A → B) :=
 ⦃ complete_lattice, lattice_fun A B,
   Inf := λS x, Inf ((λf, f x) ' S),
@@ -363,7 +366,8 @@ definition complete_lattice_fun [instance] (A B : Type) [complete_lattice B] :
 section
 local attribute classical.prop_decidable [instance] -- Prop and set are only in the classical setting a complete lattice
 
-definition complete_lattice_Prop [instance] : complete_lattice Prop :=
+attribute [instance]
+definition complete_lattice_Prop : complete_lattice Prop :=
 ⦃ complete_lattice, lattice_Prop,
   Inf := λS, false ∉ S,
   le_Inf := take x S H Hx Hf,
@@ -403,7 +407,8 @@ funext (take x,
     end
     ... = @Sup (A → Prop) _ S x : rfl)
 
-definition complete_lattice_set [instance] (A : Type) : complete_lattice (set A) :=
+attribute [instance]
+definition complete_lattice_set (A : Type) : complete_lattice (set A) :=
 ⦃ complete_lattice,
   le := subset,
   le_refl := @le_refl (A → Prop) _,

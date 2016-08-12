@@ -1,4 +1,5 @@
-definition nat_has_add2 [reducible] : has_add nat :=
+attribute [reducible]
+definition nat_has_add2 : has_add nat :=
 has_add.mk (λ x y : nat, x + y)
 
 set_option pp.all true
@@ -18,7 +19,8 @@ by do
   get_local `H >>= infer_type >>= defeq_simp >>= trace,
   constructor
 
-definition nat_has_add3 [reducible] : nat → has_add nat :=
+attribute [reducible]
+definition nat_has_add3 : nat → has_add nat :=
 λ n, has_add.mk (λ x y : nat, x + y)
 
 constant x2 : nat -- update the environment to force defeq_canonize cache to be reset

@@ -12,7 +12,8 @@ protected meta_constant pexpr.of_expr : expr → pexpr
 protected meta_constant pexpr.subst   : pexpr → pexpr → pexpr
 
 meta_constant pexpr.to_string : pexpr → string
-meta_definition pexpr.has_to_string [instance] : has_to_string pexpr :=
+attribute [instance]
+meta_definition pexpr.has_to_string : has_to_string pexpr :=
 has_to_string.mk pexpr.to_string
 
 structure has_to_pexpr [class] (A : Type) :=
@@ -21,8 +22,10 @@ structure has_to_pexpr [class] (A : Type) :=
 meta_definition to_pexpr {A : Type} [has_to_pexpr A] : A → pexpr :=
 has_to_pexpr.to_pexpr
 
-meta_definition pexpr.has_to_pexpr [instance] : has_to_pexpr pexpr :=
+attribute [instance]
+meta_definition pexpr.has_to_pexpr : has_to_pexpr pexpr :=
 has_to_pexpr.mk id
 
-meta_definition expr.has_to_pexpr [instance] : has_to_pexpr expr :=
+attribute [instance]
+meta_definition expr.has_to_pexpr : has_to_pexpr expr :=
 has_to_pexpr.mk pexpr.of_expr

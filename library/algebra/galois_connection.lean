@@ -130,14 +130,14 @@ lemma is_glb_l {a : A} : is_glb { b | a ≤ u b } (l a) :=
 begin
   apply and.intro,
   { intro b, apply l_le },
-  { intro b H, apply H, apply increasing_u_l }  
+  { intro b H, apply H, apply increasing_u_l }
 end
 
 lemma is_lub_u {b : B} : is_lub { a | l a ≤ b } (u b) :=
 begin
   apply and.intro,
   { intro a, apply le_u },
-  { intro a H, apply H, apply decreasing_l_u }  
+  { intro a H, apply H, apply decreasing_l_u }
 end
 
 end
@@ -155,7 +155,7 @@ begin
   apply iff.symm,
   rewrite le_dual_eq_le,
   rewrite le_dual_eq_le,
-  exact gc, 
+  exact gc,
 end
 
 protected lemma compose {A B C : Type} [weak_order A] [weak_order B] [weak_order C]
@@ -164,7 +164,7 @@ protected lemma compose {A B C : Type} [weak_order A] [weak_order B] [weak_order
   galois_connection (l2 ∘ l1) (u1 ∘ u2) :=
 by intros; rewrite gc2; rewrite gc1
 
-section 
+section
   variables {A B : Type} {f : A → B}
 
   protected lemma image_preimage : galois_connection (image f) (preimage f) :=

@@ -14,7 +14,8 @@ variables {X : Type} [linear_strong_order_pair X]
 
 definition linorder_generators : set (set X) := {y | ∃ a, y = '(a, ∞) } ∪ {y | ∃ a, y = '(-∞, a)}
 
-definition linorder_topology [instance] : topology X :=
+attribute [instance]
+definition linorder_topology : topology X :=
   topology.generated_by linorder_generators
 
 theorem Open_Ioi {a : X} : Open '(a, ∞) :=
@@ -57,7 +58,8 @@ section
     exists.intro y (exists.intro x (and.intro (and.intro `x < y` `x < y`) this))
 end
 
-protected definition T2_space.of_linorder_topology [trans_instance] :
+attribute [trans_instance]
+protected definition T2_space.of_linorder_topology :
   T2_space X :=
 ⦃ T2_space, linorder_topology,
   T2 := abstract

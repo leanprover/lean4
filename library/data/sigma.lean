@@ -23,7 +23,8 @@ namespace sigma
     ∀(H₁ : p.1 == p'.1) (H₂ : p.2 == p'.2), p == p' :=
   destruct p (take a₁ b₁, destruct p' (take a₂ b₂ H₁ H₂, dpair_heq HB H₁ H₂))
 
-  protected definition is_inhabited [instance] [H₁ : inhabited A] [H₂ : inhabited (B (default A))] :
+  attribute [instance]
+  protected definition is_inhabited [H₁ : inhabited A] [H₂ : inhabited (B (default A))] :
     inhabited (sigma B) :=
   inhabited.destruct H₁ (λa, inhabited.destruct H₂ (λb, inhabited.mk (sigma.mk (default A) b)))
 
@@ -32,9 +33,14 @@ namespace sigma
   definition dtrip (a : A) (b : B a) (c : C a b) := (sigma.mk a (sigma.mk b c))
   definition dquad (a : A) (b : B a) (c : C a b) (d : D a b c) := (sigma.mk a (sigma.mk b (sigma.mk c d)))
 
-  definition pr1' [reducible] (x : Σ a, B a) := x.1
-  definition pr2' [reducible] (x : Σ a b, C a b) := x.2.1
-  definition pr3  [reducible] (x : Σ a b, C a b) := x.2.2
-  definition pr3' [reducible] (x : Σ a b c, D a b c) := x.2.2.1
-  definition pr4  [reducible] (x : Σ a b c, D a b c) := x.2.2.2
+  attribute [reducible]
+  definition pr1' (x : Σ a, B a) := x.1
+  attribute [reducible]
+  definition pr2' (x : Σ a b, C a b) := x.2.1
+  attribute [reducible]
+  definition pr3  (x : Σ a b, C a b) := x.2.2
+  attribute [reducible]
+  definition pr3' (x : Σ a b c, D a b c) := x.2.2.1
+  attribute [reducible]
+  definition pr4  (x : Σ a b c, D a b c) := x.2.2.2
 end sigma

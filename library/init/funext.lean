@@ -31,7 +31,8 @@ section
   open quot
   variables {A : Type} {B : A → Type}
 
-  private definition fun_setoid [instance] (A : Type) (B : A → Type) : setoid (Πx : A, B x) :=
+  attribute [instance]
+  private definition fun_setoid (A : Type) (B : A → Type) : setoid (Πx : A, B x) :=
   setoid.mk (@function.equiv A B) (function.equiv.is_equivalence A B)
 
   private definition extfun (A : Type) (B : A → Type) : Type :=
@@ -57,7 +58,8 @@ attribute funext [intro!]
 
 local infix `~` := function.equiv
 
-definition subsingleton_pi [instance] {A : Type} {B : A → Type} (H : ∀ a, subsingleton (B a)) :
+attribute [instance]
+definition subsingleton_pi {A : Type} {B : A → Type} (H : ∀ a, subsingleton (B a)) :
   subsingleton (Π a, B a) :=
 subsingleton.intro (take f₁ f₂,
   have eqv : f₁ ~ f₂, from

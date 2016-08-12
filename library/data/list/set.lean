@@ -426,7 +426,8 @@ theorem erase_dup_eq_of_nodup [decidable_eq A] : ∀ {l : list A}, nodup l → e
   have dl : nodup l,  from nodup_of_nodup_cons d,
   sorry -- by rewrite [erase_dup_cons_of_not_mem nainl, erase_dup_eq_of_nodup dl]
 
-definition decidable_nodup [instance] [decidable_eq A] : ∀ (l : list A), decidable (nodup l)
+attribute [instance]
+definition decidable_nodup [decidable_eq A] : ∀ (l : list A), decidable (nodup l)
 | []     := tt nodup_nil
 | (a::l) :=
   match (decidable_mem a l) with

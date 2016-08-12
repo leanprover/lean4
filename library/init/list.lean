@@ -7,7 +7,8 @@ prelude
 import init.logic init.nat
 open decidable list
 
-protected definition list.is_inhabited [instance] (A : Type) : inhabited (list A) :=
+attribute [instance]
+protected definition list.is_inhabited (A : Type) : inhabited (list A) :=
 inhabited.mk list.nil
 
 notation h :: t  := cons h t
@@ -65,5 +66,6 @@ definition dropn : ℕ → list A → list A
 | (succ n) (x::r) := dropn n r
 end list
 
-definition list_has_append [instance] {A : Type} : has_append (list A) :=
+attribute [instance]
+definition list_has_append {A : Type} : has_append (list A) :=
 has_append.mk list.append

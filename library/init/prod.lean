@@ -6,7 +6,8 @@ Author: Leonardo de Moura, Jeremy Avigad
 prelude
 import init.num init.relation
 
-definition pair [constructor] := @prod.mk
+attribute [constructor]
+definition pair := @prod.mk
 notation A × B := prod A B
 -- notation for n-ary tuples
 notation `(` h `, ` t:(foldl `, ` (e r, prod.mk r e) h) `)` := t
@@ -19,12 +20,14 @@ namespace prod
 
 end prod
 
-protected definition prod.is_inhabited [instance] {A B : Type} [inhabited A] [inhabited B] : inhabited (prod A B) :=
+attribute [instance]
+protected definition prod.is_inhabited {A B : Type} [inhabited A] [inhabited B] : inhabited (prod A B) :=
 inhabited.mk (default A, default B)
 
 open decidable
 
-protected definition prod.has_decidable_eq [instance] {A B : Type} [h₁ : decidable_eq A] [h₂ : decidable_eq B] : ∀ p₁ p₂ : A × B, decidable (p₁ = p₂)
+attribute [instance]
+protected definition prod.has_decidable_eq {A B : Type} [h₁ : decidable_eq A] [h₂ : decidable_eq B] : ∀ p₁ p₂ : A × B, decidable (p₁ = p₂)
 | (a, b) (a', b') :=
   match (h₁ a a') with
   | (tt e₁) :=

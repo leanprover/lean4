@@ -20,13 +20,16 @@ structure weak_order [class] (A : Type) extends has_le A :=
 section
   variables [weak_order A]
 
-  theorem le.refl [refl] (a : A) : a ≤ a := weak_order.le_refl a
+  attribute [refl]
+  theorem le.refl (a : A) : a ≤ a := weak_order.le_refl a
 
   theorem le_of_eq {a b : A} (H : a = b) : a ≤ b := H ▸ le.refl a
 
-  theorem le.trans [trans] {a b c : A} : a ≤ b → b ≤ c → a ≤ c := weak_order.le_trans a b c
+  attribute [trans]
+  theorem le.trans {a b c : A} : a ≤ b → b ≤ c → a ≤ c := weak_order.le_trans a b c
 
-  theorem ge.trans [trans] {a b c : A} (H1 : a ≥ b) (H2: b ≥ c) : a ≥ c := le.trans H2 H1
+  attribute [trans]
+  theorem ge.trans {a b c : A} (H1 : a ≥ b) (H2: b ≥ c) : a ≥ c := le.trans H2 H1
 
   theorem le.antisymm {a b : A} : a ≤ b → b ≤ a → a = b := weak_order.le_antisymm a b
 
@@ -60,9 +63,11 @@ section
   theorem lt_self_iff_false (a : A) : a < a ↔ false :=
   iff_false_intro (lt.irrefl a)
 
-  theorem lt.trans [trans] {a b c : A} : a < b → b < c → a < c := strict_order.lt_trans a b c
+  attribute [trans]
+  theorem lt.trans {a b c : A} : a < b → b < c → a < c := strict_order.lt_trans a b c
 
-  theorem gt.trans [trans] {a b c : A} (H1 : a > b) (H2: b > c) : a > c := lt.trans H2 H1
+  attribute [trans]
+  theorem gt.trans {a b c : A} (H1 : a > b) (H2: b > c) : a > c := lt.trans H2 H1
 
   theorem ne_of_lt {a b : A} (lt_ab : a < b) : a ≠ b :=
   assume eq_ab : a = b,
@@ -105,21 +110,26 @@ section
 
   theorem le_of_lt : a < b → a ≤ b := order_pair.le_of_lt a b
 
-  theorem lt_of_lt_of_le [trans] : a < b → b ≤ c → a < c := order_pair.lt_of_lt_of_le a b c
+  attribute [trans]
+  theorem lt_of_lt_of_le : a < b → b ≤ c → a < c := order_pair.lt_of_lt_of_le a b c
 
-  theorem lt_of_le_of_lt [trans] : a ≤ b → b < c → a < c := order_pair.lt_of_le_of_lt a b c
+  attribute [trans]
+  theorem lt_of_le_of_lt : a ≤ b → b < c → a < c := order_pair.lt_of_le_of_lt a b c
 
   private theorem lt_irrefl (s' : order_pair A) (a : A) : ¬ a < a := order_pair.lt_irrefl a
 
   private theorem lt_trans (s' : order_pair A) (a b c: A) (lt_ab : a < b) (lt_bc : b < c) : a < c :=
     lt_of_lt_of_le lt_ab (le_of_lt lt_bc)
 
-  definition order_pair.to_strict_order [instance] : strict_order A :=
+  attribute [instance]
+  definition order_pair.to_strict_order : strict_order A :=
   ⦃ strict_order, s, lt_irrefl := lt_irrefl s, lt_trans := lt_trans s ⦄
 
-  theorem gt_of_gt_of_ge [trans] (H1 : a > b) (H2 : b ≥ c) : a > c := lt_of_le_of_lt H2 H1
+  attribute [trans]
+  theorem gt_of_gt_of_ge (H1 : a > b) (H2 : b ≥ c) : a > c := lt_of_le_of_lt H2 H1
 
-  theorem gt_of_ge_of_gt [trans] (H1 : a ≥ b) (H2 : b > c) : a > c := lt_of_lt_of_le H2 H1
+  attribute [trans]
+  theorem gt_of_ge_of_gt (H1 : a ≥ b) (H2 : b > c) : a > c := lt_of_lt_of_le H2 H1
 
   theorem not_le_of_gt (H : a > b) : ¬ a ≤ b :=
   assume H1 : a ≤ b,
@@ -188,7 +198,8 @@ section strong_order_pair
   show a < c, from iff.mpr (lt_iff_le_and_ne) (and.intro le_ac ne_ac)
 end strong_order_pair
 
-definition strong_order_pair.to_order_pair [instance]
+attribute [instance]
+definition strong_order_pair.to_order_pair
     [s : strong_order_pair A] : order_pair A :=
 ⦃ order_pair, s,
   lt_irrefl := lt_irrefl',
@@ -203,7 +214,8 @@ structure linear_order_pair [class] (A : Type) extends order_pair A, linear_weak
 structure linear_strong_order_pair [class] (A : Type) extends strong_order_pair A,
     linear_weak_order A
 
-definition linear_strong_order_pair.to_linear_order_pair [instance]
+attribute [instance]
+definition linear_strong_order_pair.to_linear_order_pair
     [s : linear_strong_order_pair A] : linear_order_pair A :=
 ⦃ linear_order_pair, s, strong_order_pair.to_order_pair ⦄
 
@@ -262,10 +274,12 @@ section
   include s
   open decidable
 
-  definition decidable_lt [instance] : decidable (a < b) :=
+  attribute [instance]
+  definition decidable_lt : decidable (a < b) :=
     @decidable_linear_order.decidable_lt _ _ _ _
 
-  definition decidable_le [instance] : decidable (a ≤ b) :=
+  attribute [instance]
+  definition decidable_le : decidable (a ≤ b) :=
   by_cases
     (assume H : a < b, tt (le_of_lt H))
     (assume H : ¬ a < b,
@@ -274,7 +288,8 @@ section
         (assume H2 : b < a, ff (not_le_of_gt H2))
         (assume H2 : ¬ b < a, tt (le_of_not_gt H2)))
 
-  definition has_decidable_eq [instance] : decidable (a = b) :=
+  attribute [instance]
+  definition has_decidable_eq : decidable (a = b) :=
   by_cases
     (assume H : a ≤ b,
       by_cases
@@ -475,7 +490,8 @@ end
 
 /- order instances -/
 
-definition weak_order_Prop [instance] : weak_order Prop :=
+attribute [instance]
+definition weak_order_Prop : weak_order Prop :=
 ⦃ weak_order,
   le           := λx y, x → y,
   le_refl      := λx, id,
@@ -483,7 +499,8 @@ definition weak_order_Prop [instance] : weak_order Prop :=
   le_antisymm  := λf g H1 H2, propext (and.intro H1 H2)
 ⦄
 
-definition weak_order_fun [instance] (A B : Type) [weak_order B] : weak_order (A → B) :=
+attribute [instance]
+definition weak_order_fun (A B : Type) [weak_order B] : weak_order (A → B) :=
 ⦃ weak_order,
   le := λx y, ∀b, x b ≤ y b,
   le_refl := λf b, le.refl (f b),

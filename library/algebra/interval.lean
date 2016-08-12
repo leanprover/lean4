@@ -153,7 +153,8 @@ section nat -- put the instances in the intervals namespace
 open nat eq.ops
   variables m n : ℕ
 
-  proposition nat.Iic_finite [instance] (n : ℕ) : finite '(-∞, n] :=
+  attribute [instance]
+  proposition nat.Iic_finite (n : ℕ) : finite '(-∞, n] :=
   nat.induction_on n
     (have '(-∞, 0] ⊆ '{0}, from λ x H, mem_singleton_of_eq (le.antisymm H !zero_le),
       finite_subset this)
@@ -162,19 +163,23 @@ open nat eq.ops
         by intro x H; rewrite [mem_union_iff, mem_singleton_iff]; apply le_or_eq_succ_of_le_succ H,
         finite_subset this)
 
-  proposition nat.Iio_finite [instance] (n : ℕ) : finite '(-∞, n) :=
+  attribute [instance]
+  proposition nat.Iio_finite (n : ℕ) : finite '(-∞, n) :=
   have '(-∞, n) ⊆ '(-∞, n], from λ x, le_of_lt,
   finite_subset this
 
-  proposition nat.Icc_finite [instance] (m n : ℕ) : finite ('[m, n]) :=
+  attribute [instance]
+  proposition nat.Icc_finite (m n : ℕ) : finite ('[m, n]) :=
   have '[m, n] ⊆ '(-∞, n], from λ x H, and.right H,
   finite_subset this
 
-  proposition nat.Ico_finite [instance] (m n : ℕ) : finite ('[m, n)) :=
+  attribute [instance]
+  proposition nat.Ico_finite (m n : ℕ) : finite ('[m, n)) :=
   have '[m, n) ⊆ '(-∞, n), from λ x H, and.right H,
   finite_subset this
 
-  proposition nat.Ioc_finite [instance] (m n : ℕ) : finite '(m, n] :=
+  attribute [instance]
+  proposition nat.Ioc_finite (m n : ℕ) : finite '(m, n] :=
   have '(m, n] ⊆ '(-∞, n], from λ x H, and.right H,
   finite_subset this
 end nat

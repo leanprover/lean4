@@ -469,7 +469,8 @@ section discrete_linear_ordered_field
       (assume H' : ¬ y < x,
         decidable.tt (le.antisymm (le_of_not_gt H') (le_of_not_gt H))))
 
-  definition discrete_linear_ordered_field.to_discrete_field [instance] :  discrete_field A :=
+  attribute [instance]
+  definition discrete_linear_ordered_field.to_discrete_field :  discrete_field A :=
      ⦃ discrete_field, s, has_decidable_eq := dec_eq_of_dec_lt⦄
 
     theorem pos_of_one_div_pos (H : 0 < 1 / a) : 0 < a :=

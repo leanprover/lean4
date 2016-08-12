@@ -9,12 +9,14 @@ It is implemented as a subtype.
 import logic data.list data.fin
 open nat list subtype function
 
-definition tuple [reducible] (A : Type) (n : nat) := {l : list A | length l = n}
+attribute [reducible]
+definition tuple (A : Type) (n : nat) := {l : list A | length l = n}
 
 namespace tuple
   variables {A B C : Type}
 
-  theorem induction_on [recursor 4] {P : ∀ {n}, tuple A n → Prop}
+  attribute [recursor 4]
+  theorem induction_on {P : ∀ {n}, tuple A n → Prop}
                        : ∀ {n} (v : tuple A n), (∀ (l : list A) {n : nat} (h : length l = n), P (tag l h)) → P v
   | n (tag l h) H := @H l n h
 
@@ -29,11 +31,13 @@ namespace tuple
 
   notation a :: b := cons a b
 
-  protected definition is_inhabited [instance] [h : inhabited A] : ∀ (n : nat), inhabited (tuple A n)
+  attribute [instance]
+  protected definition is_inhabited [h : inhabited A] : ∀ (n : nat), inhabited (tuple A n)
   | 0        := inhabited.mk nil
   | (succ n) := inhabited.mk (inhabited.value h :: inhabited.value (is_inhabited n))
 
-  protected definition has_decidable_eq [instance] [h : decidable_eq A] : ∀ (n : nat), decidable_eq (tuple A n) :=
+  attribute [instance]
+  protected definition has_decidable_eq [h : decidable_eq A] : ∀ (n : nat), decidable_eq (tuple A n) :=
   λ n, subtype.has_decidable_eq
 
   definition head {n : nat} : tuple A (succ n) → A
@@ -153,7 +157,8 @@ namespace tuple
   theorem not_mem_nil (a : A) : a ∉ nil :=
   list.not_mem_nil a
 
-  theorem mem_cons [simp] {n : nat} (a : A) (v : tuple A n) : a ∈ a :: v :=
+  attribute [simp]
+  theorem mem_cons {n : nat} (a : A) (v : tuple A n) : a ∈ a :: v :=
   induction_on v (λ l n h, !list.mem_cons)
 
   theorem mem_cons_of_mem {n : nat} (y : A) {x : A} {v : tuple A n} : x ∈ v → x ∈ y :: v :=

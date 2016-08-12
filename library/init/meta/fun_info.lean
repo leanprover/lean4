@@ -34,7 +34,8 @@ group ∘ cbrace $
   when d  "has_fwd_deps" +++
   when (to_bool (length ds > 0)) (to_fmt "back_deps := " ++ to_fmt ds)
 
-meta_definition param_info.has_to_format [instance] : has_to_format param_info :=
+attribute [instance]
+meta_definition param_info.has_to_format : has_to_format param_info :=
 has_to_format.mk param_info.to_format
 
 structure fun_info :=
@@ -47,7 +48,8 @@ group ∘ dcbrace $
   ppfield "params" ps +++
   ppfield "result_deps" ds
 
-meta_definition fun_info_has_to_format [instance] : has_to_format fun_info :=
+attribute [instance]
+meta_definition fun_info_has_to_format : has_to_format fun_info :=
 has_to_format.mk fun_info_to_format
 
 /-
@@ -82,7 +84,8 @@ group ∘ cbrace $
   when s  "specialized" +++
   when ss "subsingleton"
 
-meta_definition subsingleton_info_has_to_format [instance] : has_to_format subsingleton_info :=
+attribute [instance]
+meta_definition subsingleton_info_has_to_format : has_to_format subsingleton_info :=
 has_to_format.mk subsingleton_info_to_format
 
 namespace tactic

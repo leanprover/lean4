@@ -20,7 +20,8 @@ definition cons (a : A) (s : stream A) : stream A :=
 
 notation h :: t := cons h t
 
-definition head [reducible] (s : stream A) : A :=
+attribute [reducible]
+definition head (s : stream A) : A :=
 s 0
 
 definition tail (s : stream A) : stream A :=
@@ -29,7 +30,8 @@ definition tail (s : stream A) : stream A :=
 definition drop (n : nat) (s : stream A) : stream A :=
 λ i, s (i+n)
 
-definition nth [reducible] (n : nat) (s : stream A) : A :=
+attribute [reducible]
+definition nth (n : nat) (s : stream A) : A :=
 s n
 
 protected theorem eta (s : stream A) : head s :: tail s = s :=

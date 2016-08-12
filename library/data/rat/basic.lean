@@ -24,9 +24,11 @@ definition equiv (a b : prerat) : Prop := num a * denom b = num b * denom a
 
 infix ≡ := equiv
 
-theorem equiv.refl [refl] (a : prerat) : a ≡ a := rfl
+attribute [refl]
+theorem equiv.refl (a : prerat) : a ≡ a := rfl
 
-theorem equiv.symm [symm] {a b : prerat} (H : a ≡ b) : b ≡ a := !eq.symm H
+attribute [symm]
+theorem equiv.symm {a b : prerat} (H : a ≡ b) : b ≡ a := !eq.symm H
 
 theorem num_eq_zero_of_equiv {a b : prerat} (H : a ≡ b) (na_zero : num a = 0) : num b = 0 :=
 have num a * denom b = 0, from !zero_mul ▸ na_zero ▸ rfl,
@@ -48,7 +50,8 @@ neg_of_neg_pos this
 theorem equiv_of_num_eq_zero {a b : prerat} (H1 : num a = 0) (H2 : num b = 0) : a ≡ b :=
 by rewrite [↑equiv, H1, H2, *zero_mul]
 
-theorem equiv.trans [trans] {a b c : prerat} (H1 : a ≡ b) (H2 : b ≡ c) : a ≡ c :=
+attribute [trans]
+theorem equiv.trans {a b c : prerat} (H1 : a ≡ b) (H2 : b ≡ c) : a ≡ c :=
 decidable.by_cases
   (suppose num b = 0,
     have num a = 0, from num_eq_zero_of_equiv (equiv.symm H1) `num b = 0`,
@@ -358,10 +361,12 @@ namespace rat
 
 protected definition prio := num.pred int.prio
 
-definition rat_has_zero [instance] [priority rat.prio] : has_zero rat :=
+attribute [instance] [priority rat.prio]
+definition rat_has_zero : has_zero rat :=
 has_zero.mk (of_int 0)
 
-definition rat_has_one [instance] [priority rat.prio] : has_one rat :=
+attribute [instance] [priority rat.prio]
+definition rat_has_one : has_one rat :=
 has_one.mk (of_int 1)
 
 theorem of_int_zero : of_int (0:int) = (0:rat) :=
@@ -401,21 +406,27 @@ definition denom (a : ℚ) : ℤ := prerat.denom (reduce a)
 theorem denom_pos (a : ℚ): denom a > 0 :=
 prerat.denom_pos (reduce a)
 
-definition rat_has_add [instance] [priority rat.prio] : has_add rat :=
+attribute [instance] [priority rat.prio]
+definition rat_has_add : has_add rat :=
 has_add.mk rat.add
 
-definition rat_has_mul [instance] [priority rat.prio] : has_mul rat :=
+attribute [instance] [priority rat.prio]
+definition rat_has_mul : has_mul rat :=
 has_mul.mk rat.mul
 
-definition rat_has_neg [instance] [priority rat.prio] : has_neg rat :=
+attribute [instance] [priority rat.prio]
+definition rat_has_neg : has_neg rat :=
 has_neg.mk rat.neg
 
-definition rat_has_inv [instance] [priority rat.prio] : has_inv rat :=
+attribute [instance] [priority rat.prio]
+definition rat_has_inv : has_inv rat :=
 has_inv.mk rat.inv
 
-protected definition sub [reducible] (a b : ℚ) : rat := a + (-b)
+attribute [reducible]
+protected definition sub (a b : ℚ) : rat := a + (-b)
 
-definition rat_has_sub [instance] [priority rat.prio] : has_sub rat :=
+attribute [instance] [priority rat.prio]
+definition rat_has_sub : has_sub rat :=
 has_sub.mk rat.sub
 
 lemma sub.def (a b : ℚ) : a - b = a + (-b) :=
@@ -516,7 +527,8 @@ protected theorem inv_mul_cancel {a : ℚ} (H : a ≠ 0) : a⁻¹ * a = 1 :=
 protected theorem zero_ne_one : (0 : ℚ) ≠ 1 :=
 assume H, prerat.zero_not_equiv_one (quot.exact H)
 
-definition has_decidable_eq [instance] : decidable_eq ℚ :=
+attribute [instance]
+definition has_decidable_eq : decidable_eq ℚ :=
 take a b, quot.rec_on_subsingleton₂ a b
   (take u v,
      if H : prerat.num u * prerat.denom v = prerat.num v * prerat.denom u
@@ -550,7 +562,8 @@ decidable.by_cases
       end))
 
 
-protected definition discrete_field [trans_instance] : discrete_field rat :=
+attribute [trans_instance]
+protected definition discrete_field : discrete_field rat :=
 ⦃discrete_field,
  add              := rat.add,
  add_assoc        := rat.add_assoc,
@@ -574,10 +587,12 @@ protected definition discrete_field [trans_instance] : discrete_field rat :=
  inv_zero         := rat.inv_zero,
  has_decidable_eq := has_decidable_eq⦄
 
-definition rat_has_div [instance] [priority rat.prio] : has_div rat :=
+attribute [instance] [priority rat.prio]
+definition rat_has_div : has_div rat :=
 has_div.mk has_div.div
 
-definition rat_has_pow_nat [instance] [priority rat.prio] : has_pow_nat rat :=
+attribute [instance] [priority rat.prio]
+definition rat_has_pow_nat : has_pow_nat rat :=
 has_pow_nat.mk has_pow_nat.pow_nat
 
 theorem eq_num_div_denom (a : ℚ) : a = num a / denom a :=

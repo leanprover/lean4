@@ -22,17 +22,20 @@ namespace unit_simp
 
 variables {A B C : Prop}
 
-lemma and_imp [simp] : (A ∧ B → C) ↔ (A → B → C) :=
+attribute [simp]
+lemma and_imp : (A ∧ B → C) ↔ (A → B → C) :=
 iff.intro (assume H a b, H (and.intro a b))
           (assume H ab, H (and.left ab) (and.right ab))
 
-lemma or_imp [simp] : (A ∨ B → C) ↔ ((A → C) ∧ (B → C)) :=
+attribute [simp]
+lemma or_imp : (A ∨ B → C) ↔ ((A → C) ∧ (B → C)) :=
 iff.intro (assume H, and.intro (assume a, H (or.inl a))
                                (assume b, H (or.inr b)))
           (assume H ab, and.rec_on H
             (assume Hac Hbc, or.rec_on ab Hac Hbc))
 
-lemma imp_and [simp] : (A → B ∧ C) ↔ ((A → B) ∧ (A → C)) :=
+attribute [simp]
+lemma imp_and : (A → B ∧ C) ↔ ((A → B) ∧ (A → C)) :=
 iff.intro (assume H, and.intro (assume a, and.left (H a))
                                (assume a, and.right (H a)))
           (assume H a, and.rec_on H
@@ -40,36 +43,43 @@ iff.intro (assume H, and.intro (assume a, and.left (H a))
 
 -- TODO(dhs, leo): do we want to pre-process away the [iff]s?
 /-
-lemma iff_and_imp [simp] : ((A ↔ B) → C) ↔ (((A → B) ∧ (B → A)) → C) :=
+attribute [simp]
+lemma iff_and_imp : ((A ↔ B) → C) ↔ (((A → B) ∧ (B → A)) → C) :=
 iff.intro (assume H1 H2, and.rec_on H2 (assume ab ba, H1 (iff.intro ab ba)))
           (assume H1 H2, H1 (and.intro (iff.elim_left H2) (iff.elim_right H2)))
 -/
 
-lemma a_of_a [simp] : (A → A) ↔ true :=
+attribute [simp]
+lemma a_of_a : (A → A) ↔ true :=
 iff.intro (assume H, trivial)
           (assume t a, a)
 
-lemma not_true_of_false [simp] : ¬ true ↔ false :=
+attribute [simp]
+lemma not_true_of_false : ¬ true ↔ false :=
 iff.intro (assume H, H trivial)
           (assume f, false.rec (¬ true) f)
 
-lemma imp_true [simp] : (A → true) ↔ true :=
+attribute [simp]
+lemma imp_true : (A → true) ↔ true :=
 iff.intro (assume H, trivial)
           (assume t a, trivial)
 
-lemma true_imp [simp] : (true → A) ↔ A :=
+attribute [simp]
+lemma true_imp : (true → A) ↔ A :=
 iff.intro (assume H, H trivial)
           (assume a t, a)
 
 -- lemma fold_not [simp] : (A → false) ↔ ¬ A :=
 -- iff.intro id id
 
-lemma false_imp [simp] : (false → A) ↔ true :=
+attribute [simp]
+lemma false_imp : (false → A) ↔ true :=
 iff.intro (assume H, trivial)
           (assume t f, false.rec A f)
 
 
-lemma ite_and [simp] [A_dec : decidable A] : ite A B C ↔ ((A → B) ∧ (¬ A → C)) :=
+attribute [simp]
+lemma ite_and [A_dec : decidable A] : ite A B C ↔ ((A → B) ∧ (¬ A → C)) :=
 iff.intro (assume H, and.intro (assume a, implies_of_if_pos H a)
                                (assume a, implies_of_if_neg H a))
           (assume H, and.rec_on H

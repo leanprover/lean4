@@ -11,7 +11,8 @@ end foo
 
 check foo
 
-definition point_nat [instance] : point nat :=
+attribute [instance]
+definition point_nat : point nat :=
 point.mk nat.zero nat.zero
 
 print classes

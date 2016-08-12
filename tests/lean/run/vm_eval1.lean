@@ -2,7 +2,8 @@ open bool nat
 
 -- set_option trace.compiler.code_gen true
 
-definition foo [reducible] (b : bool) : Type₁ :=
+attribute [reducible]
+definition foo (b : bool) : Type₁ :=
 cond b nat (nat → nat)
 
 definition bla (b : bool) : foo b → nat :=

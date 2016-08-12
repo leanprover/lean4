@@ -1,12 +1,15 @@
 import data.finset
 open bool nat list finset
 
-definition fset [class] (A : Type) := finset A
+attribute [class]
+definition fset (A : Type) := finset A
 
-definition fin_nat [instance] : fset nat :=
+attribute [instance]
+definition fin_nat : fset nat :=
 to_finset [0]
 
-definition fin_bool [instance] : fset bool :=
+attribute [instance]
+definition fin_bool : fset bool :=
 to_finset [tt, ff]
 
 definition tst (A : Type) [s : fset A] : finset A :=

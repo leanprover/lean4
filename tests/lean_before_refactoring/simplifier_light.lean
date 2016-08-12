@@ -44,7 +44,8 @@ attribute compl [light 2]
 
 -- TODO(dhs, leo): Where do we put this group of simp rules?
 attribute union_compl_self [simp]
-lemma union_comp_self_left [simp] {X : Type} (s t : set X) : s ∪ (-s ∪ t)= univ := sorry
+attribute [simp]
+lemma union_comp_self_left {X : Type} (s t : set X) : s ∪ (-s ∪ t)= univ := sorry
 
 attribute union_comm [simp]
 attribute union_assoc [simp]
@@ -53,7 +54,8 @@ attribute union_left_comm [simp]
 #simplify eq env 0 x ∪ y ∪ z ∪ -x
 
 attribute inter_compl_self [simp]
-lemma inter_compl_self_left [simp] {X : Type} (s t : set X) : s ∩ (-s ∩ t)= empty := sorry
+attribute [simp]
+lemma inter_compl_self_left {X : Type} (s t : set X) : s ∩ (-s ∩ t)= empty := sorry
 
 attribute inter_comm [simp]
 attribute inter_assoc [simp]

@@ -24,7 +24,8 @@ inductive expr :=
 | elet        : name → expr → expr → expr → expr
 | macro       : macro_def → ∀ n : unsigned, (fin (unsigned.to_nat n) → expr) → expr
 
-definition expr.is_inhabited [instance] : inhabited expr :=
+attribute [instance]
+definition expr.is_inhabited : inhabited expr :=
 inhabited.mk (expr.sort level.zero)
 
 meta_constant expr.mk_macro (d : macro_def) : list expr → expr
@@ -37,7 +38,8 @@ meta_constant expr.alpha_eqv : expr → expr → bool
 notation a ` =ₐ `:50 b:50 := expr.alpha_eqv a b = bool.tt
 
 meta_constant expr.to_string : expr → string
-meta_definition expr.has_to_string [instance] : has_to_string expr :=
+attribute [instance]
+meta_definition expr.has_to_string : has_to_string expr :=
 has_to_string.mk expr.to_string
 
 meta_constant expr.hash : expr → nat

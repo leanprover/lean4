@@ -29,17 +29,20 @@ begin
   rewrite unpair_mkpair, esimp, rewrite [*encodek, dif_pos h]
 end
 
-definition encodable_prerat [instance] : encodable prerat :=
+attribute [instance]
+definition encodable_prerat : encodable prerat :=
 encodable.mk
   encode_prerat
   decode_prerat
   decode_encode_prerat
 
-definition decidable_equiv [instance] : ∀ a b : prerat, decidable (prerat.equiv a b)
+attribute [instance]
+definition decidable_equiv : ∀ a b : prerat, decidable (prerat.equiv a b)
 | (prerat.mk n₁ d₁ h₁) (prerat.mk n₂ d₂ h₂) := begin unfold prerat.equiv, exact _ end
 
 
-definition encodable_rat [instance] : encodable rat :=
+attribute [instance]
+definition encodable_rat : encodable rat :=
 @encodable_quot _ _ decidable_equiv encodable_prerat
 
 lemma countable_rat : countable rat :=

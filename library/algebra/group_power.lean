@@ -40,7 +40,8 @@ definition monoid.pow (a : A) : ℕ → A
 | 0     := 1
 | (n+1) := a * monoid.pow n
 
-definition monoid_has_pow_nat [instance] : has_pow_nat A :=
+attribute [instance]
+definition monoid_has_pow_nat : has_pow_nat A :=
 has_pow_nat.mk monoid.pow
 
 theorem pow_zero (a : A) : a^0 = 1 := rfl

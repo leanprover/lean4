@@ -210,7 +210,8 @@ have Pe : a^(n % order a) = 1, from
   end,
 dvd_of_mod_eq_zero (eq_zero_of_pow_eq_one Pe (mod_lt n !order_pos))
 
-definition cyc_is_finsubg [instance] (a : A) : is_finsubg (cyc a) :=
+attribute [instance]
+definition cyc_is_finsubg (a : A) : is_finsubg (cyc a) :=
 is_finsubg.mk (cyc_has_one a) (cyc_mul_closed a) (cyc_has_inv a)
 
 lemma order_dvd_group_order (a : A) : order a ∣ card A :=
@@ -314,7 +315,8 @@ lemma rotl_eq_rotl : ∀ {n : nat}, map (rotl 1) (upto n) = list.rotl (upto n)
       congruence, rewrite [ mod_add_mod, val_zero, add_zero, mod_eq_of_lt !lt_succ_self ]
   end
 
-definition seq [reducible] (A : Type) (n : nat) := fin n → A
+attribute [reducible]
+definition seq (A : Type) (n : nat) := fin n → A
 
 variable {A : Type}
 
@@ -354,7 +356,8 @@ end rot
 section rotg
 open nat fin fintype
 
-definition rotl_perm [reducible] (A : Type) [finA : fintype A] [deceqA : decidable_eq A] (n : nat) (m : nat) : perm (seq A n) :=
+attribute [reducible]
+definition rotl_perm (A : Type) [finA : fintype A] [deceqA : decidable_eq A] (n : nat) (m : nat) : perm (seq A n) :=
 perm.mk (rotl_fun m) rotl_fun_inj
 
 variable {A : Type}

@@ -156,10 +156,12 @@ begin
 end
 
 namespace complete_lattice
-  definition le [reducible] (F₁ F₂ : filter A) := F₁ ⊇ F₂
+  attribute [reducible]
+  definition le (F₁ F₂ : filter A) := F₁ ⊇ F₂
   local infix `≤`:50 := le
 
-  definition ge [reducible] (F₁ F₂ : filter A) := F₁ ⊆ F₂
+  attribute [reducible]
+  definition ge (F₁ F₂ : filter A) := F₁ ⊆ F₂
   local infix `≥`:50 := ge
 
   theorem le_refl (F : filter A) : F ≤ F := subset.refl _
@@ -286,7 +288,8 @@ namespace complete_lattice
   Sup_le (λ G GS, GS F FS)
 end complete_lattice
 
-protected definition complete_lattice [trans_instance] : complete_lattice (filter A) :=
+attribute [trans_instance]
+protected definition complete_lattice : complete_lattice (filter A) :=
 ⦃ complete_lattice,
   le           := complete_lattice.le,
   le_refl      := complete_lattice.le_refl,
@@ -438,7 +441,8 @@ inductive sets_generated_by {A : Type} (B : set (set A)) : set A → Prop :=
 | inter_mem : ∀ {a b}, sets_generated_by B a → sets_generated_by B b → sets_generated_by B (a ∩ b)
 | mono : ∀ {a b}, a ⊆ b → sets_generated_by B a → sets_generated_by B b
 
-definition filter_generated_by [reducible] {A : Type} (B : set (set A)) : filter A :=
+attribute [reducible]
+definition filter_generated_by {A : Type} (B : set (set A)) : filter A :=
 ⦃filter,
   sets            := sets_generated_by B,
   univ_mem_sets   := sets_generated_by.univ_mem B,

@@ -72,7 +72,8 @@ take ε, assume epos : ε > 0,
 
 notation X `⟶` y `in` `ℕ` := converges_to_seq X y
 
-definition converges_seq [class] (X : ℕ → M) : Prop := ∃ y, X ⟶ y in ℕ
+attribute [class]
+definition converges_seq (X : ℕ → M) : Prop := ∃ y, X ⟶ y in ℕ
 
 noncomputable definition limit_seq (X : ℕ → M) [H : converges_seq X] : M := some H
 
@@ -268,7 +269,8 @@ definition converges_to_at (f : M → N) (y : N) (x : M) :=
 
 notation f `⟶` y `at` x := converges_to_at f y x
 
-definition converges_at [class] (f : M → N) (x : M) :=
+attribute [class]
+definition converges_at (f : M → N) (x : M) :=
 ∃ y, converges_to_at f y x
 
 noncomputable definition limit_at (f : M → N) (x : M) [H : converges_at f x] : N :=
@@ -484,7 +486,8 @@ omit Vmet
 definition open_sets_basis (V : Type) [metric_space V] :=
   image (λ pair : V × ℝ, open_ball (pr1 pair) (pr2 pair)) univ
 
-definition metric_topology [instance] (V : Type) [metric_space V] : topology V :=
+attribute [instance]
+definition metric_topology (V : Type) [metric_space V] : topology V :=
   topology.generated_by (open_sets_basis V)
 
 include Vmet
@@ -743,7 +746,8 @@ exists.intro δ (and.intro
 
 definition continuous (f : M → N) : Prop := ∀ x, continuous_at f x
 
-theorem converges_seq_comp_of_converges_seq_of_cts [instance] (X : ℕ → M) [HX : converges_seq X] {f : M → N}
+attribute [instance]
+theorem converges_seq_comp_of_converges_seq_of_cts (X : ℕ → M) [HX : converges_seq X] {f : M → N}
                                          (Hf : continuous f) :
         converges_seq (λ n, f (X n)) :=
   begin
@@ -792,7 +796,8 @@ end analysis
 
 /- the reals form a metric space -/
 
-noncomputable definition metric_space_real [instance] : metric_space ℝ :=
+attribute [instance]
+noncomputable definition metric_space_real : metric_space ℝ :=
 ⦃ metric_space,
   dist               := λ x y, abs (x - y),
   dist_self          := λ x, abstract by rewrite [sub_self, abs_zero] end,

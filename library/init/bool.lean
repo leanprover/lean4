@@ -5,16 +5,20 @@ prelude
 import init.datatypes init.reserved_notation
 
 namespace bool
-  definition cond [inline] {A : Type} (b : bool) (t e : A) :=
+  attribute [inline]
+  definition cond {A : Type} (b : bool) (t e : A) :=
   bool.rec_on b e t
 
-  definition bor [inline] (a b : bool) :=
+  attribute [inline]
+  definition bor (a b : bool) :=
   bool.rec_on a (bool.rec_on b ff tt) tt
 
-  definition band [inline] (a b : bool) :=
+  attribute [inline]
+  definition band (a b : bool) :=
   bool.rec_on a ff (bool.rec_on b ff tt)
 
-  definition bnot [inline] (a : bool) :=
+  attribute [inline]
+  definition bnot (a : bool) :=
   bool.rec_on a tt ff
 end bool
 

@@ -25,7 +25,8 @@ namespace functor
 
   variables {A B C D : Category}
 
-  protected definition compose [reducible] (G : functor B C) (F : functor A B) : functor A C :=
+  attribute [reducible]
+  protected definition compose (G : functor B C) (F : functor A B) : functor A C :=
   functor.mk
     (λx, G (F x))
     (λ a b f, G (F f))
@@ -43,9 +44,11 @@ namespace functor
       H ∘f (G ∘f F) = (H ∘f G) ∘f F :=
   rfl
 
-  protected definition id [reducible] {C : Category} : functor C C :=
+  attribute [reducible]
+  protected definition id {C : Category} : functor C C :=
   mk (λa, a) (λ a b f, f) (λ a, rfl) (λ a b c f g, rfl)
-  protected definition ID [reducible] (C : Category) : functor C C := @functor.id C
+  attribute [reducible]
+  protected definition ID (C : Category) : functor C C := @functor.id C
 
   protected theorem id_left  (F : functor C D) : (@functor.id D) ∘f F = F :=
   functor.rec (λ obF homF idF compF, dcongr_arg4 mk rfl rfl !proof_irrel !proof_irrel) F
@@ -56,7 +59,8 @@ end functor
 
 namespace category
   open functor
-  definition category_of_categories [reducible] : category Category :=
+  attribute [reducible]
+  definition category_of_categories : category Category :=
   mk (λ a b, functor a b)
      (λ a b c g f, functor.compose g f)
      (λ a, functor.id)
@@ -64,7 +68,8 @@ namespace category
      (λ a b f, !functor.id_left)
      (λ a b f, !functor.id_right)
 
-  definition Category_of_categories [reducible] := Mk category_of_categories
+  attribute [reducible]
+  definition Category_of_categories := Mk category_of_categories
 
   namespace ops
     notation `Cat`:max := Category_of_categories

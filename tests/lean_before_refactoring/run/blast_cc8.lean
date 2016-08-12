@@ -5,7 +5,8 @@ set_option blast.strategy "cc"
 structure finite_set [class] {T : Type} (xs : set T) :=
 (to_finset : finset T) (is_equiv : to_set to_finset = xs)
 
-definition finset_set.is_subsingleton [instance] (T : Type) (xs : set T) : subsingleton (finite_set xs) :=
+attribute [instance]
+definition finset_set.is_subsingleton (T : Type) (xs : set T) : subsingleton (finite_set xs) :=
 begin
   constructor, intro a b,
   induction a with f₁ h₁,
@@ -17,13 +18,20 @@ end
 
 /- Add some instances for finite_sets -/
 variable {A : Type}
-definition finite_set_empty [instance] : finite_set (∅:set A) := sorry
-definition finite_set_finset [instance] (fxs : finset A) : finite_set (to_set fxs) := sorry
-definition finite_set_insert [instance] (xs : set A) [finite_set xs] (x : A) : finite_set (insert x xs) := sorry
-definition finite_set_union [instance] (xs : set A) [finite_set xs] (ys : set A) [finite_set ys] : finite_set (xs ∪ ys) := sorry
-definition finite_set_inter1 [instance] (xs : set A) [finite_set xs] (ys : set A) [decidable_pred ys] : finite_set (xs ∩ ys) := sorry
-definition finite_set_inter2 [instance] (xs : set A) [finite_set xs] (ys : set A) [decidable_pred ys] : finite_set (ys ∩ xs) := sorry
-definition finite_set_set_of [instance] (xs : set A) [finite_set xs] : finite_set (set.set_of xs) := sorry
+attribute [instance]
+definition finite_set_empty : finite_set (∅:set A) := sorry
+attribute [instance]
+definition finite_set_finset (fxs : finset A) : finite_set (to_set fxs) := sorry
+attribute [instance]
+definition finite_set_insert (xs : set A) [finite_set xs] (x : A) : finite_set (insert x xs) := sorry
+attribute [instance]
+definition finite_set_union (xs : set A) [finite_set xs] (ys : set A) [finite_set ys] : finite_set (xs ∪ ys) := sorry
+attribute [instance]
+definition finite_set_inter1 (xs : set A) [finite_set xs] (ys : set A) [decidable_pred ys] : finite_set (xs ∩ ys) := sorry
+attribute [instance]
+definition finite_set_inter2 (xs : set A) [finite_set xs] (ys : set A) [decidable_pred ys] : finite_set (ys ∩ xs) := sorry
+attribute [instance]
+definition finite_set_set_of (xs : set A) [finite_set xs] : finite_set (set.set_of xs) := sorry
 
 /- Defined cardinality using finite_set type class -/
 noncomputable definition mycard {T : Type} (xs : set T) [finite_set xs] :=

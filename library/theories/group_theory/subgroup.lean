@@ -180,10 +180,14 @@ lemma closed_lcontract_set a (H G : set A) : mul_closed_on G → H ⊆ G → a�
       subset.trans PaHsubaG PaGsubG
 definition subgroup.has_inv H := ∀ (a : A), a ∈ H → a⁻¹ ∈ H
 -- two ways to define the same equivalence relatiohship for subgroups
-definition in_lcoset [reducible] H (a b : A) := a ∈ b ∘> H
-definition in_rcoset [reducible] H (a b : A) := a ∈ H <∘ b
-definition same_lcoset [reducible] H (a b : A) := a ∘> H = b ∘> H
-definition same_rcoset [reducible] H (a b : A) := H <∘ a = H <∘ b
+attribute [reducible]
+definition in_lcoset H (a b : A) := a ∈ b ∘> H
+attribute [reducible]
+definition in_rcoset H (a b : A) := a ∈ H <∘ b
+attribute [reducible]
+definition same_lcoset H (a b : A) := a ∘> H = b ∘> H
+attribute [reducible]
+definition same_rcoset H (a b : A) := H <∘ a = H <∘ b
 definition same_left_right_coset (N : set A) := ∀ x, x ∘> N = N <∘ x
 structure is_subgroup [class] (H : set A) : Type :=
   (has_one : H 1)
@@ -311,7 +315,8 @@ lemma nsubg_same_lcoset_inv : ∀ a b, (a ~ b) → (a⁻¹ ~ b⁻¹) :=
   ... = (a⁻¹ ∘> a ∘> N) <∘ b⁻¹ : by rewrite Psame
   ... = N <∘ b⁻¹               : by rewrite glcoset_inv
   ... = b⁻¹ ∘> N               : by rewrite nsubg_normal
-definition nsubg_setoid [instance] : setoid A :=
+attribute [instance]
+definition nsubg_setoid : setoid A :=
   setoid.mk (same_lcoset N)
   (mk_equivalence (same_lcoset N) (subg_same_lcoset.refl) (subg_same_lcoset.symm) (subg_same_lcoset.trans))
 definition coset_of : Type := quot (nsubg_setoid N)
@@ -364,7 +369,8 @@ include s
 variable {N : set A}
 variable [is_nsubg : is_normal_subgroup N]
 include is_nsubg
-definition quotient_group [instance] : group (coset_of N) := mk_quotient_group N
+attribute [instance]
+definition quotient_group : group (coset_of N) := mk_quotient_group N
 
 example (aN : coset_of N) : aN * aN⁻¹ = 1 := mul.right_inv aN
 definition natural (a : A) : coset_of N := ⟦a⟧

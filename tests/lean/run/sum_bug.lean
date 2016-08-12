@@ -32,13 +32,16 @@ have H1 : f (inr A b1), from rfl,
 have H2 : f (inr A b2), from subst H H1,
 H2
 
-theorem sum_inhabited_left [instance] {A B : Type} (H : inhabited A) : inhabited (A + B) :=
+attribute [instance]
+theorem sum_inhabited_left {A B : Type} (H : inhabited A) : inhabited (A + B) :=
 inhabited.mk (inl B (default A))
 
-theorem sum_inhabited_right [instance] {A B : Type} (H : inhabited B) : inhabited (A + B) :=
+attribute [instance]
+theorem sum_inhabited_right {A B : Type} (H : inhabited B) : inhabited (A + B) :=
 inhabited.mk (inr A (default B))
 
-theorem sum_eq_decidable [instance] {A B : Type} (s1 s2 : A + B)
+attribute [instance]
+theorem sum_eq_decidable {A B : Type} (s1 s2 : A + B)
   (H1 : ∀a1 a2 : A, decidable (inl B a1 = inl B a2))
   (H2 : ∀b1 b2 : B, decidable (inr A b1 = inr A b2)) : decidable (s1 = s2) :=
 sum.rec_on s1

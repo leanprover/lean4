@@ -10,7 +10,8 @@ open eq.ops nat function list finset fintype
 
 structure fin (n : nat) := (val : nat) (is_lt : val < n)
 
-definition less_than [reducible] := fin
+attribute [reducible]
+definition less_than := fin
 
 namespace fin
 
@@ -35,7 +36,8 @@ end def_equal
 
 section
 open decidable
-protected definition has_decidable_eq [instance] (n : nat) : ∀ (i j : fin n), decidable (i = j)
+attribute [instance]
+protected definition has_decidable_eq (n : nat) : ∀ (i j : fin n), decidable (i = j)
 | (mk ival ilt) (mk jval jlt) :=
   decidable_of_decidable_of_iff (nat.has_decidable_eq ival jval) eq_iff_veq
 end
@@ -45,7 +47,8 @@ take a1 a2 Pa1 Pa2 Pmkeq, fin.no_confusion Pmkeq (λ Pe Pqe, Pe)
 
 lemma val_mk (n i : nat) (Plt : i < n) : fin.val (fin.mk i Plt) = i := rfl
 
-definition upto [reducible] (n : nat) : list (fin n) :=
+attribute [reducible]
+definition upto (n : nat) : list (fin n) :=
 dmap (λ i, i < n) fin.mk (list.upto n)
 
 lemma nodup_upto (n : nat) : nodup (upto n) :=
@@ -68,7 +71,8 @@ calc
   length (upto n) = length (list.upto n) : (map_val_upto n ▸ length_map fin.val (upto n))⁻¹
               ... = n                    : list.length_upto n
 
-definition is_fintype [instance] (n : nat) : fintype (fin n) :=
+attribute [instance]
+definition is_fintype (n : nat) : fintype (fin n) :=
 fintype.mk (upto n) (nodup_upto n) (mem_upto n)
 
 section pigeonhole
@@ -88,12 +92,14 @@ end pigeonhole
 protected definition zero (n : nat) : fin (succ n) :=
 mk 0 !zero_lt_succ
 
-definition fin_has_zero [instance] (n : nat) : has_zero (fin (succ n)) :=
+attribute [instance]
+definition fin_has_zero (n : nat) : has_zero (fin (succ n)) :=
 has_zero.mk (fin.zero n)
 
 theorem val_zero (n : nat) : val (0 : fin (succ n)) = 0 := rfl
 
-definition mk_mod [reducible] (n i : nat) : fin (succ n) :=
+attribute [reducible]
+definition mk_mod (n i : nat) : fin (succ n) :=
 mk (i % (succ n)) (mod_lt _ !zero_lt_succ)
 
 theorem mk_mod_zero_eq (n : nat) : mk_mod n 0 = 0 :=
@@ -114,7 +120,8 @@ definition lift_succ (i : fin n) : fin (nat.succ n) :=
 have r : fin (n+1), from lift i 1,
 r
 
-definition maxi [reducible] : fin (succ n) :=
+attribute [reducible]
+definition maxi : fin (succ n) :=
 mk n !lt_succ_self
 
 theorem val_lift : ∀ (i : fin n) (m : nat), val i = val (lift i m)
@@ -258,7 +265,8 @@ lemma madd_left_inv : ∀ i : fin (succ n), madd (minv i) i = fin.zero n
 | (mk iv ilt) := eq_of_veq (by
   rewrite [val_madd, ↑minv, ↑fin.zero, mod_add_mod, nat.sub_add_cancel (le_of_lt ilt), mod_self])
 
-definition madd_is_comm_group [instance] : add_comm_group (fin (succ n)) :=
+attribute [instance]
+definition madd_is_comm_group : add_comm_group (fin (succ n)) :=
 add_comm_group.mk madd madd_assoc (fin.zero n) zero_madd madd_zero minv madd_left_inv madd_comm
 
 end madd

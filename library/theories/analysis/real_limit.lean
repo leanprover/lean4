@@ -221,7 +221,8 @@ exists.intro l
 
 end analysis
 
-definition complete_metric_space_real [trans_instance] :
+attribute [trans_instance]
+definition complete_metric_space_real :
   complete_metric_space ℝ :=
 ⦃complete_metric_space, metric_space_real,
   complete := @analysis.converges_seq_of_cauchy
@@ -238,7 +239,8 @@ definition real_vector_space_real : real_vector_space ℝ :=
   one_smul           := one_mul
 ⦄
 
-definition banach_space_real [trans_instance] : banach_space ℝ :=
+attribute [trans_instance]
+definition banach_space_real : banach_space ℝ :=
 ⦃ banach_space, real_vector_space_real,
   norm                    := abs,
   norm_zero               := abs_zero,

@@ -14,7 +14,8 @@ constant quot.{l}   : Π {A : Type.{l}}, setoid A → Type.{l}
 constant propext {a b : Prop} : (a ↔ b) → a = b
 
 -- iff can now be used to do substitutions in a calculation
-theorem iff_subst [subst] {a b : Prop} {P : Prop → Prop} (H₁ : a ↔ b) (H₂ : P a) : P b :=
+attribute [subst]
+theorem iff_subst {a b : Prop} {P : Prop → Prop} (H₁ : a ↔ b) (H₂ : P a) : P b :=
 eq.subst (propext H₁) H₂
 
 namespace quot
@@ -33,7 +34,8 @@ namespace quot
   protected theorem ind_beta {A : Type} [s : setoid A] {B : quot s → Prop} (p : ∀ a, B ⟦a⟧) (a : A) : ind p ⟦a⟧ = p a :=
   rfl
 
-  protected definition lift_on [reducible] {A B : Type} [s : setoid A] (q : quot s) (f : A → B) (c : ∀ a b, a ≈ b → f a = f b) : B :=
+  attribute [reducible]
+  protected definition lift_on {A B : Type} [s : setoid A] (q : quot s) (f : A → B) (c : ∀ a b, a ≈ b → f a = f b) : B :=
   lift f c q
 
   protected theorem induction_on {A : Type} [s : setoid A] {B : quot s → Prop} (q : quot s) (H : ∀ a, B ⟦a⟧) : B q :=
@@ -48,7 +50,8 @@ namespace quot
   variable {B : quot s → Type}
   include s
 
-  protected definition indep [reducible] (f : Π a, B ⟦a⟧) (a : A) : Σ q, B q :=
+  attribute [reducible]
+  protected definition indep (f : Π a, B ⟦a⟧) (a : A) : Σ q, B q :=
   sigma.mk ⟦a⟧ (f a)
 
   protected lemma indep_coherent (f : Π a, B ⟦a⟧)
@@ -61,21 +64,25 @@ namespace quot
     (q : quot s) : (lift (quot.indep f) (quot.indep_coherent f H) q).1 = q  :=
   quot.ind (λ (a : A), eq.refl (quot.indep f a).1) q
 
-  protected definition rec [reducible]
+  attribute [reducible]
+  protected definition rec
      (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b)
      (q : quot s) : B q :=
   let p := lift (quot.indep f) (quot.indep_coherent f H) q in
   eq.rec_on (quot.lift_indep_pr1 f H q) (p.2)
 
-  protected definition rec_on [reducible]
+  attribute [reducible]
+  protected definition rec_on
      (q : quot s) (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b) : B q :=
   quot.rec f H q
 
-  protected definition rec_on_subsingleton [reducible]
+  attribute [reducible]
+  protected definition rec_on_subsingleton
      [H : ∀ a, subsingleton (B ⟦a⟧)] (q : quot s) (f : Π a, B ⟦a⟧) : B q :=
   quot.rec f (λ a b h, subsingleton.elim _ (f b)) q
 
-  protected definition hrec_on [reducible]
+  attribute [reducible]
+  protected definition hrec_on
      (q : quot s) (f : Π a, B ⟦a⟧) (c : ∀ (a b : A) (p : a ≈ b), f a == f b) : B q :=
   quot.rec_on q f
     (λ a b p, eq_of_heq (calc
@@ -88,7 +95,8 @@ namespace quot
   variables [s₁ : setoid A] [s₂ : setoid B]
   include s₁ s₂
 
-  protected definition lift₂ [reducible]
+  attribute [reducible]
+  protected definition lift₂
      (f : A → B → C)(c : ∀ a₁ a₂ b₁ b₂, a₁ ≈ b₁ → a₂ ≈ b₂ → f a₁ a₂ = f b₁ b₂)
      (q₁ : quot s₁) (q₂ : quot s₂) : C :=
   quot.lift
@@ -103,7 +111,8 @@ namespace quot
          q₂)
     q₁
 
-  protected definition lift_on₂ [reducible]
+  attribute [reducible]
+  protected definition lift_on₂
     (q₁ : quot s₁) (q₂ : quot s₂) (f : A → B → C) (c : ∀ a₁ a₂ b₁ b₂, a₁ ≈ b₁ → a₂ ≈ b₂ → f a₁ a₂ = f b₁ b₂) : C :=
   quot.lift₂ f c q₁ q₂
 
@@ -152,14 +161,16 @@ namespace quot
   include s₁ s₂
   variable {C : quot s₁ → quot s₂ → Type}
 
-  protected definition rec_on_subsingleton₂ [reducible]
+  attribute [reducible]
+  protected definition rec_on_subsingleton₂
      {C : quot s₁ → quot s₂ → Type₁} [H : ∀ a b, subsingleton (C ⟦a⟧ ⟦b⟧)]
      (q₁ : quot s₁) (q₂ : quot s₂) (f : Π a b, C ⟦a⟧ ⟦b⟧) : C q₁ q₂:=
   @quot.rec_on_subsingleton _ _ _
     (λ a, quot.ind _ _)
     q₁ (λ a, quot.rec_on_subsingleton q₂ (λ b, f a b))
 
-  protected definition hrec_on₂ [reducible]
+  attribute [reducible]
+  protected definition hrec_on₂
      {C : quot s₁ → quot s₂ → Type₁} (q₁ : quot s₁) (q₂ : quot s₂)
      (f : Π a b, C ⟦a⟧ ⟦b⟧) (c : ∀ a₁ a₂ b₁ b₂, a₁ ≈ b₁ → a₂ ≈ b₂ → f a₁ a₂ == f b₁ b₂) : C q₁ q₂:=
   quot.hrec_on q₁
@@ -186,7 +197,8 @@ attribute quot.hrec_on₂             [unfold 6]
 attribute quot.rec_on_subsingleton₂ [unfold 7]
 
 open decidable
-definition quot.has_decidable_eq [instance] {A : Type} {s : setoid A} [decR : ∀ a b : A, decidable (a ≈ b)] : decidable_eq (quot s) :=
+attribute [instance]
+definition quot.has_decidable_eq {A : Type} {s : setoid A} [decR : ∀ a b : A, decidable (a ≈ b)] : decidable_eq (quot s) :=
 λ q₁ q₂ : quot s,
   quot.rec_on_subsingleton₂ q₁ q₂
     (λ a₁ a₂,

@@ -26,7 +26,8 @@ include s1
 include s2
 
 -- the Prop of being hom
-definition homomorphic [reducible] (f : A → B) : Prop := ∀ a b, f (a*b) = (f a)*(f b)
+attribute [reducible]
+definition homomorphic (f : A → B) : Prop := ∀ a b, f (a*b) = (f a)*(f b)
 -- type class for inference
 structure is_hom_class [class] (f : A → B) : Type :=
           (is_hom : homomorphic f)
@@ -50,7 +51,8 @@ section
 variables {A B : Type}
 variable [s1 : group A]
 
-definition id_is_iso [instance] : @is_hom_class A A s1 s1 (@id A) :=
+attribute [instance]
+definition id_is_iso : @is_hom_class A A s1 s1 (@id A) :=
 is_hom_class.mk (take a b, rfl)
 
 variable [s2 : group B]
@@ -140,11 +142,13 @@ variable {f : A → B}
 variable [h : is_hom_class f]
 include h
 
-definition ker_nsubg [instance] : is_normal_subgroup (ker f) :=
+attribute [instance]
+definition ker_nsubg : is_normal_subgroup (ker f) :=
            is_normal_subgroup.mk (ker.has_one f) (ker.mul_closed f)
            (ker.has_inv f) (ker.normal f)
 
-definition quot_over_ker [instance] : group (coset_of (ker f)) := mk_quotient_group (ker f)
+attribute [instance]
+definition quot_over_ker : group (coset_of (ker f)) := mk_quotient_group (ker f)
 -- under the wrap the tower of concepts collapse to a simple condition
 example (a x : A) : (x ∈ a ∘> ker f) = (f (a⁻¹*x) = 1) := rfl
 lemma ker_coset_same_val (a b : A): same_lcoset (ker f) a b → f a = f b :=

@@ -27,8 +27,10 @@ structure mul_zero_class [class] (A : Type) extends has_mul A, has_zero A :=
 (zero_mul : ∀a, mul zero a = zero)
 (mul_zero : ∀a, mul a zero = zero)
 
-theorem zero_mul [simp] [mul_zero_class A] (a : A) : 0 * a = 0 := mul_zero_class.zero_mul a
-theorem mul_zero [simp] [mul_zero_class A] (a : A) : a * 0 = 0 := mul_zero_class.mul_zero a
+attribute [simp]
+theorem zero_mul [mul_zero_class A] (a : A) : 0 * a = 0 := mul_zero_class.zero_mul a
+attribute [simp]
+theorem mul_zero [mul_zero_class A] (a : A) : a * 0 = 0 := mul_zero_class.mul_zero a
 
 structure zero_ne_one_class [class] (A : Type) extends has_zero A, has_one A :=
 (zero_ne_one : zero ≠ one)
@@ -81,7 +83,8 @@ section comm_semiring
 
   protected definition algebra.dvd (a b : A) : Prop := ∃c, b = a * c
 
-  definition comm_semiring_has_dvd [instance] [priority algebra.prio] : has_dvd A :=
+  attribute [instance] [priority algebra.prio]
+  definition comm_semiring_has_dvd : has_dvd A :=
   has_dvd.mk algebra.dvd
 
   theorem dvd.intro {a b c : A} (H : a * c = b) : a ∣ b :=
@@ -105,7 +108,8 @@ section comm_semiring
   theorem dvd.elim_left {P : Prop} {a b : A} (H₁ : a ∣ b) (H₂ : ∀c, b = c * a → P) : P :=
   exists.elim (exists_eq_mul_left_of_dvd H₁) (take c, assume H₃ : b = c * a, H₂ c H₃)
 
-  theorem dvd.refl [simp] : a ∣ a :=
+  attribute [simp]
+  theorem dvd.refl : a ∣ a :=
   dvd.intro (mul_one a)
 
   theorem dvd.trans {a b c : A} (H₁ : a ∣ b) (H₂ : b ∣ c) : a ∣ c :=
@@ -122,13 +126,17 @@ section comm_semiring
   theorem eq_zero_of_zero_dvd {a : A} (H : 0 ∣ a) : a = 0 :=
     dvd.elim H (take c, assume H' : a = 0 * c, eq.trans H' (zero_mul c))
 
-  theorem dvd_zero [simp] : a ∣ 0 := dvd.intro (mul_zero a)
+  attribute [simp]
+  theorem dvd_zero : a ∣ 0 := dvd.intro (mul_zero a)
 
-  theorem one_dvd [simp] : 1 ∣ a := dvd.intro (one_mul a)
+  attribute [simp]
+  theorem one_dvd : 1 ∣ a := dvd.intro (one_mul a)
 
-  theorem dvd_mul_right [simp] : a ∣ a * b := dvd.intro rfl
+  attribute [simp]
+  theorem dvd_mul_right : a ∣ a * b := dvd.intro rfl
 
-  theorem dvd_mul_left [simp] : a ∣ b * a :=
+  attribute [simp]
+  theorem dvd_mul_left : a ∣ b * a :=
   sorry -- by simp
 
   theorem dvd_mul_of_dvd_left {a b : A} (H : a ∣ b) (c : A) : a ∣ b * c :=
@@ -178,7 +186,8 @@ end comm_semiring
 
 structure ring [class] (A : Type) extends add_comm_group A, monoid A, distrib A
 
-theorem ring.mul_zero [simp] [ring A] (a : A) : a * 0 = 0 :=
+attribute [simp]
+theorem ring.mul_zero [ring A] (a : A) : a * 0 = 0 :=
 sorry
 /-
 have a * 0 + 0 = a * 0 + a * 0, from calc
@@ -187,7 +196,8 @@ have a * 0 + 0 = a * 0 + a * 0, from calc
 show a * 0 = 0, from (add.left_cancel this)⁻¹
 -/
 
-theorem ring.zero_mul [simp] [ring A] (a : A) : 0 * a = 0 :=
+attribute [simp]
+theorem ring.zero_mul [ring A] (a : A) : 0 * a = 0 :=
 sorry
 /-
 have 0 * a + 0 = 0 * a + 0 * a, from calc
@@ -196,7 +206,8 @@ have 0 * a + 0 = 0 * a + 0 * a, from calc
 show 0 * a = 0, from  (add.left_cancel this)⁻¹
 -/
 
-definition ring.to_semiring [instance] [s : ring A] : semiring A :=
+attribute [instance]
+definition ring.to_semiring [s : ring A] : semiring A :=
 ⦃ semiring, s,
   mul_zero := ring.mul_zero,
   zero_mul := ring.zero_mul ⦄
@@ -223,8 +234,10 @@ section
      end
   -/
 
-  theorem neg_mul_eq_neg_mul_symm [simp] : - a * b = - (a * b) := eq.symm (neg_mul_eq_neg_mul a b)
-  theorem mul_neg_eq_neg_mul_symm [simp] : a * - b = - (a * b) := eq.symm (neg_mul_eq_mul_neg a b)
+  attribute [simp]
+  theorem neg_mul_eq_neg_mul_symm : - a * b = - (a * b) := eq.symm (neg_mul_eq_neg_mul a b)
+  attribute [simp]
+  theorem mul_neg_eq_neg_mul_symm : a * - b = - (a * b) := eq.symm (neg_mul_eq_mul_neg a b)
 
   theorem neg_mul_neg : -a * -b = a * b :=
   sorry -- by simp
@@ -289,7 +302,8 @@ end
 
 structure comm_ring [class] (A : Type) extends ring A, comm_semigroup A
 
-definition comm_ring.to_comm_semiring [instance] [s : comm_ring A] : comm_semiring A :=
+attribute [instance]
+definition comm_ring.to_comm_semiring [s : comm_ring A] : comm_semiring A :=
 ⦃ comm_semiring, s,
   mul_zero := mul_zero,
   zero_mul := zero_mul ⦄

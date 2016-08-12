@@ -23,7 +23,8 @@ sign b *
     | -[1+m]   := -[1+ ((m:nat) / (nat_abs b))]
   end)
 
-definition int_has_div [instance] [priority int.prio] : has_div int :=
+attribute [instance] [priority int.prio]
+definition int_has_div : has_div int :=
 has_div.mk int.div
 
 lemma of_nat_div_eq (m : nat) (b : ℤ) : (of_nat m) / b = sign b * of_nat (m / (nat_abs b)) :=
@@ -42,7 +43,8 @@ rfl
 
 protected definition mod (a b : ℤ) : ℤ := a - a / b * b
 
-definition int_has_mod [instance] [priority int.prio] : has_mod int :=
+attribute [instance] [priority int.prio]
+definition int_has_mod : has_mod int :=
 has_mod.mk int.mod
 
 
@@ -527,7 +529,8 @@ dvd.elim H (take z, assume H1 : b = a * z, H1⁻¹ ▸ !mul_mod_right)
 theorem dvd_iff_mod_eq_zero (a b : ℤ) : a ∣ b ↔ b % a = 0 :=
 iff.intro mod_eq_zero_of_dvd dvd_of_mod_eq_zero
 
-definition dvd.decidable_rel [instance] : decidable_rel dvd :=
+attribute [instance]
+definition dvd.decidable_rel : decidable_rel dvd :=
 take a n, decidable_of_decidable_of_iff _ (iff.symm !dvd_iff_mod_eq_zero)
 
 protected theorem div_mul_cancel {a b : ℤ} (H : b ∣ a) : a / b * b = a :=

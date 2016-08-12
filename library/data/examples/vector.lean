@@ -19,7 +19,8 @@ namespace vector
 
   variables {A B C : Type}
 
-  protected definition is_inhabited [instance] [h : inhabited A] : ∀ (n : nat), inhabited (vector A n)
+  attribute [instance]
+  protected definition is_inhabited [h : inhabited A] : ∀ (n : nat), inhabited (vector A n)
   | 0     := inhabited.mk []
   | (n+1) := inhabited.mk (inhabited.value h :: inhabited.value (is_inhabited n))
 

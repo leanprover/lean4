@@ -48,7 +48,8 @@ end semigroup
 section
   variables {A : Type} [s : semigroup A]
   include s
-  definition semigroup_has_mul [instance] : has_mul A := has_mul.mk semigroup.mul
+  attribute [instance]
+  definition semigroup_has_mul : has_mul A := has_mul.mk semigroup.mul
 
 end
 

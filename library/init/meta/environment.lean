@@ -72,8 +72,10 @@ match (refl_for env (const_name f)) with
 end
 end environment
 
-meta_definition environment.has_to_string [instance] : has_to_string environment :=
+attribute [instance]
+meta_definition environment.has_to_string : has_to_string environment :=
 has_to_string.mk (λ e, "[environment]")
 
-meta_definition environment.is_inhabited [instance] : inhabited environment :=
+attribute [instance]
+meta_definition environment.is_inhabited : inhabited environment :=
 inhabited.mk (environment.mk_std 0)

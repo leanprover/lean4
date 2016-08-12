@@ -27,9 +27,11 @@ definition gcd.F : Π (p₁ : nat × nat), (Π p₂ : nat × nat, p₂ ≺ p₁ 
 
 definition gcd (x y : nat) := fix pair_nat.lt.wf gcd.F (x, y)
 
-theorem gcd_zero_right [simp] (x : nat) : gcd x 0 = x := rfl
+attribute [simp]
+theorem gcd_zero_right (x : nat) : gcd x 0 = x := rfl
 
-theorem gcd_succ [simp] (x y : nat) : gcd x (succ y) = gcd (succ y) (x % succ y) :=
+attribute [simp]
+theorem gcd_succ (x y : nat) : gcd x (succ y) = gcd (succ y) (x % succ y) :=
 well_founded.fix_eq pair_nat.lt.wf gcd.F (x, succ y)
 
 theorem gcd_one_right (n : ℕ) : gcd n 1 = 1 :=
@@ -280,7 +282,8 @@ dvd.antisymm
 
 /- coprime -/
 
-definition coprime [reducible] (m n : ℕ) : Prop := gcd m n = 1
+attribute [reducible]
+definition coprime (m n : ℕ) : Prop := gcd m n = 1
 
 lemma gcd_eq_one_of_coprime {m n : ℕ} : coprime m n → gcd m n = 1 :=
 λ h, h

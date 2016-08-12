@@ -172,7 +172,8 @@ have (ip_norm (u + v))^2 ≤ (ip_norm u + ip_norm v)^2, from
                          mul.comm (ip_norm v) (ip_norm u)],
 le_of_squared_le_squared (add_nonneg !ip_norm_nonneg !ip_norm_nonneg) this
 
-definition inner_product_space.to_normed_space [trans_instance] :
+attribute [trans_instance]
+definition inner_product_space.to_normed_space :
   normed_vector_space V :=
 ⦃ normed_vector_space, _inst_1,
   norm                    := ip_norm,

@@ -142,10 +142,12 @@ quot.rec_on_subsingleton a (take u, int.decidable_lt 0 (prerat.num u))
 protected definition lt (a b : ℚ) : Prop := pos (b - a)
 protected definition le (a b : ℚ) : Prop := nonneg (b - a)
 
-definition rat_has_lt [instance] [priority rat.prio] : has_lt rat :=
+attribute [instance] [priority rat.prio]
+definition rat_has_lt : has_lt rat :=
 has_lt.mk rat.lt
 
-definition rat_has_le [instance] [priority rat.prio] : has_le rat :=
+attribute [instance] [priority rat.prio]
+definition rat_has_le : has_le rat :=
 has_le.mk rat.le
 
 protected lemma lt_def (a b : ℚ) : (a < b) = pos (b - a) :=
@@ -266,7 +268,8 @@ protected theorem mul_pos (H1 : a > (0 : ℚ)) (H2 : b > (0 : ℚ)) : a * b > (0
 have pos (a * b), from pos_mul (to_pos H1) (to_pos H2),
 begin rewrite -sub_zero at this, exact this end
 
-definition decidable_lt [instance] : decidable_rel rat.lt :=
+attribute [instance]
+definition decidable_lt : decidable_rel rat.lt :=
 take a b, decidable_pos (b - a)
 
 protected theorem le_of_lt  (H : a < b) : a ≤ b := iff.mpr !rat.le_iff_lt_or_eq (or.inl H)
@@ -301,7 +304,8 @@ let H' := rat.le_of_lt H in
                                   (take Heq, let Heq' := add_left_cancel Heq in
                                    !rat.lt_irrefl (Heq' ▸ H)))
 
-protected definition discrete_linear_ordered_field [trans_instance] :
+attribute [trans_instance]
+protected definition discrete_linear_ordered_field :
     discrete_linear_ordered_field rat :=
 ⦃discrete_linear_ordered_field,
  rat.discrete_field,

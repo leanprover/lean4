@@ -11,24 +11,30 @@ definition state (S : Type) (A : Type) := S → A × S
 section
 variables {S A B : Type}
 
-definition state_fmap [inline] (f : A → B) (a : state S A) : state S B :=
+attribute [inline]
+definition state_fmap (f : A → B) (a : state S A) : state S B :=
 λ s, match (a s) with (a', s') := (f a', s') end
 
-definition state_return [inline] (a : A) : state S A :=
+attribute [inline]
+definition state_return (a : A) : state S A :=
 λ s, (a, s)
 
-definition state_bind [inline] (a : state S A) (b : A → state S B) : state S B :=
+attribute [inline]
+definition state_bind (a : state S A) (b : A → state S B) : state S B :=
 λ s, match (a s) with (a', s') := b a' s' end
 
-definition state_is_monad [instance] (S : Type) : monad (state S) :=
+attribute [instance]
+definition state_is_monad (S : Type) : monad (state S) :=
 monad.mk (@state_fmap S) (@state_return S) (@state_bind S)
 end
 
 namespace state
-definition read [inline] {S A : Type} : state S S :=
+attribute [inline]
+definition read {S A : Type} : state S S :=
 λ s, (s, s)
 
-definition write [inline] {S : Type} : S → state S unit :=
+attribute [inline]
+definition write {S : Type} : S → state S unit :=
 λ s' s, ((), s')
 end state
 
@@ -43,7 +49,8 @@ definition stateT_return {S : Type} {m : Type → Type} [monad m] {A : Type} (a 
 definition stateT_bind.{l} {S : Type} {m : Type → Type} [monad m] {A B : Type.{l}} (a : stateT S m A) (b : A → stateT S m B) : stateT S m B :=
 λ s, @monad.bind m _ _ _ (a s) (λ p : A × S, match p with (a', s') := b a' s' end)
 
-definition stateT_is_monad [instance] (S : Type) (m : Type → Type) [monad m] : monad (stateT S m) :=
+attribute [instance]
+definition stateT_is_monad (S : Type) (m : Type → Type) [monad m] : monad (stateT S m) :=
 monad.mk (@stateT_fmap S m _) (@stateT_return S m _) (@stateT_bind S m _)
 
 namespace stateT

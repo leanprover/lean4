@@ -14,7 +14,8 @@ namespace simplifies_to
 theorem get_eq {T : Type} {t1 t2 : T} (C : simplifies_to t1 t2) : t1 = t2 :=
 simplifies_to.rec (λx, x) C
 
-theorem simp_app [instance] (S : Type) (T : Type) (f1 f2 : S → T) (s1 s2 : S)
+attribute [instance]
+theorem simp_app (S : Type) (T : Type) (f1 f2 : S → T) (s1 s2 : S)
    [C1 : simplifies_to f1 f2] [C2 : simplifies_to s1 s2] : simplifies_to (f1 s1) (f2 s2) :=
 mk (congr (get_eq C1) (get_eq C2))
 

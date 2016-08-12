@@ -18,27 +18,47 @@ definition sq (x : ℝ) := x * x
 
 notation a `²` := sq a
 
-lemma nzero_of_pos [intro!] {x : ℝ} : pos x → nzero x := sorry
+attribute [intro!]
+lemma nzero_of_pos {x : ℝ} : pos x → nzero x := sorry
 
-lemma pos_bit1 [intro!] {x : ℝ} : pos x → pos (: bit1 x :) := sorry
-lemma pos_bit0 [intro!] {x : ℝ} : pos x → pos (: bit0 x :) := sorry
-lemma pos_inv [forward] {x : ℝ} : pos x → (: pos (inv x) :) := sorry
-lemma pos_1 [intro!] : pos (1:ℝ) := sorry
-lemma pos_add [intro!] [forward] {x y : ℝ} : pos x →  pos y → pos (: x + y :) := sorry
-lemma pos_mul [intro!] [forward] {x y : ℝ} : pos x →  pos y → pos (: x * y :) := sorry
-lemma pos_sq [intro!]  {x : ℝ} : pos x → pos (: sq x :) := sorry
-lemma inv_pos [intro!] {x : ℝ} : pos x → pos (: x⁻¹ :) := sorry
-lemma exp_pos [intro!] (x : ℝ) : pos (: exp x :) := sorry
-lemma log_mul [forward] : ∀ (x y : ℝ), pos x →  pos y → (: log (x * y) :) = (: log x + log y :) := sorry
-lemma log_sq [forward] : ∀ (x : ℝ), pos x → (: log (sq x) :) = (: 2 * log x :) := sorry
-lemma log_inv [forward] : ∀ (x : ℝ), pos x →  (: log (x⁻¹) :) = (: - log x :) := sorry
-lemma inv_mul [forward] : ∀ (x y : ℝ), pos x → pos y → (: (x * y)⁻¹ :) = (: x⁻¹ * y⁻¹ :) := sorry
-lemma exp_add [forward] : ∀ (x y : ℝ), (: exp (x + y) :) = (: exp x * exp y :) := sorry
-lemma pair_prod [forward] : ∀ (x y : ℝ), (: sq x + 2 * x * y + sq y :) = sq (x + y) := sorry
-lemma mul_two_sum [forward] : ∀ (x : ℝ), (: 2 * x :) = (: x + x :) := sorry
-lemma sub_def [forward] : ∀ (x y : ℝ), (x - y) = x + -y := sorry
-lemma mul_div_cancel [forward] : ∀ (x y : ℝ), (y * x) / y = x := sorry
-lemma div_neg [forward] : ∀ (x y : ℝ), x / -y = - (x / y) := sorry
+attribute [intro!]
+lemma pos_bit1 {x : ℝ} : pos x → pos (: bit1 x :) := sorry
+attribute [intro!]
+lemma pos_bit0 {x : ℝ} : pos x → pos (: bit0 x :) := sorry
+attribute [forward]
+lemma pos_inv {x : ℝ} : pos x → (: pos (inv x) :) := sorry
+attribute [intro!]
+lemma pos_1 : pos (1:ℝ) := sorry
+attribute [intro!] [forward]
+lemma pos_add {x y : ℝ} : pos x →  pos y → pos (: x + y :) := sorry
+attribute [intro!] [forward]
+lemma pos_mul {x y : ℝ} : pos x →  pos y → pos (: x * y :) := sorry
+attribute [intro!]
+lemma pos_sq {x : ℝ} : pos x → pos (: sq x :) := sorry
+attribute [intro!]
+lemma inv_pos {x : ℝ} : pos x → pos (: x⁻¹ :) := sorry
+attribute [intro!]
+lemma exp_pos (x : ℝ) : pos (: exp x :) := sorry
+attribute [forward]
+lemma log_mul : ∀ (x y : ℝ), pos x →  pos y → (: log (x * y) :) = (: log x + log y :) := sorry
+attribute [forward]
+lemma log_sq : ∀ (x : ℝ), pos x → (: log (sq x) :) = (: 2 * log x :) := sorry
+attribute [forward]
+lemma log_inv : ∀ (x : ℝ), pos x →  (: log (x⁻¹) :) = (: - log x :) := sorry
+attribute [forward]
+lemma inv_mul : ∀ (x y : ℝ), pos x → pos y → (: (x * y)⁻¹ :) = (: x⁻¹ * y⁻¹ :) := sorry
+attribute [forward]
+lemma exp_add : ∀ (x y : ℝ), (: exp (x + y) :) = (: exp x * exp y :) := sorry
+attribute [forward]
+lemma pair_prod : ∀ (x y : ℝ), (: sq x + 2 * x * y + sq y :) = sq (x + y) := sorry
+attribute [forward]
+lemma mul_two_sum : ∀ (x : ℝ), (: 2 * x :) = (: x + x :) := sorry
+attribute [forward]
+lemma sub_def : ∀ (x y : ℝ), (x - y) = x + -y := sorry
+attribute [forward]
+lemma mul_div_cancel : ∀ (x y : ℝ), (y * x) / y = x := sorry
+attribute [forward]
+lemma div_neg : ∀ (x y : ℝ), x / -y = - (x / y) := sorry
 
 
 attribute right_distrib [forward]

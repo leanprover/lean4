@@ -1,6 +1,7 @@
 import data.list.perm
 open list perm option nat
-definition denote [reducible] {X : Type} (default : X) [add_comm_semigroup X] (xs : list X) : list nat -> X
+attribute [reducible]
+definition denote {X : Type} (default : X) [add_comm_semigroup X] (xs : list X) : list nat -> X
 | nil := default
 | (cons i is) := match nth xs i with
                  | none := default

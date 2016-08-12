@@ -33,7 +33,8 @@ perm.symm
 private definition eqv.trans {l₁ l₂ l₃ : nodup_list A} : l₁ ~ l₂ → l₂ ~ l₃ → l₁ ~ l₃ :=
 perm.trans
 
-definition finset.nodup_list_setoid [instance] (A : Type) : setoid (nodup_list A) :=
+attribute [instance]
+definition finset.nodup_list_setoid (A : Type) : setoid (nodup_list A) :=
 setoid.mk (@eqv A) (mk_equivalence (@eqv A) (@eqv.refl A) (@eqv.symm A) (@eqv.trans A))
 
 definition finset (A : Type) : Type :=
@@ -60,7 +61,8 @@ have P : to_nodup_list_of_nodup n = to_nodup_list l, from
   end,
 quot.sound (eq.subst P !setoid.refl)
 
-definition has_decidable_eq [instance] [decidable_eq A] : decidable_eq (finset A) :=
+attribute [instance]
+definition has_decidable_eq [decidable_eq A] : decidable_eq (finset A) :=
 λ s₁ s₂, quot.rec_on_subsingleton₂ s₁ s₂
   (λ l₁ l₂,
      match decidable_perm (elt_of l₁) (elt_of l₂) with
@@ -83,7 +85,8 @@ theorem mem_of_mem_list {a : A} {l : nodup_list A} : a ∈ elt_of l → a ∈ �
 theorem mem_list_of_mem {a : A} {l : nodup_list A} : a ∈ ⟦l⟧ → a ∈ elt_of l :=
 λ ainl, ainl
 
-definition decidable_mem [instance] [h : decidable_eq A] : ∀ (a : A) (s : finset A), decidable (a ∈ s) :=
+attribute [instance]
+definition decidable_mem [h : decidable_eq A] : ∀ (a : A) (s : finset A), decidable (a ∈ s) :=
 λ a s, quot.rec_on_subsingleton s
   (λ l, match list.decidable_mem a (elt_of l) with
         | decidable.inl p := decidable.inl (mem_of_mem_list p)
@@ -106,10 +109,12 @@ to_finset_of_nodup [] nodup_nil
 
 notation [priority finset.prio] `∅` := !empty
 
-theorem not_mem_empty [simp] (a : A) : a ∉ ∅ :=
+attribute [simp]
+theorem not_mem_empty (a : A) : a ∉ ∅ :=
 λ aine : a ∈ ∅, aine
 
-theorem mem_empty_iff [simp] (x : A) : x ∈ ∅ ↔ false :=
+attribute [simp]
+theorem mem_empty_iff (x : A) : x ∈ ∅ ↔ false :=
 iff_false_intro !not_mem_empty
 
 theorem mem_empty_eq (x : A) : x ∈ ∅ = false :=
@@ -224,7 +229,8 @@ theorem card_insert_le (a : A) (s : finset A) :
 if H : a ∈ s then by rewrite [card_insert_of_mem H]; apply le_succ
 else by rewrite [card_insert_of_not_mem H]
 
-protected theorem induction [recursor 6] {P : finset A → Prop}
+attribute [recursor 6]
+protected theorem induction {P : finset A → Prop}
     (H1 : P empty)
     (H2 : ∀ ⦃a : A⦄, ∀{s : finset A}, a ∉ s → P s → P (insert a s)) :
   ∀s, P s :=

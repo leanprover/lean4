@@ -10,10 +10,12 @@ definition head {A : Type} : ∀ {n : nat}, vec A (n+1) → A
 definition tail {A : Type} : ∀ {n : nat}, vec A (n+1) → vec A n
 | n (cons h t) := t
 
-definition head_cons [defeq] {A : Type} {n : nat} (a : A) (v : vec A n) : head (cons a v) = a :=
+attribute [defeq]
+definition head_cons {A : Type} {n : nat} (a : A) (v : vec A n) : head (cons a v) = a :=
 rfl
 
-definition tail_cons [defeq] {A : Type} {n : nat} (a : A) (v : vec A n) : tail (cons a v) = v :=
+attribute [defeq]
+definition tail_cons {A : Type} {n : nat} (a : A) (v : vec A n) : tail (cons a v) = v :=
 rfl
 
 example {A : Type} {n : nat} (v w : vec A (n+1)) : head v = head w → tail v = tail w → v = w :=

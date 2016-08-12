@@ -271,7 +271,8 @@ begin
 end
 -/
 
-definition ordered_ring.to_ordered_semiring [instance]
+attribute [instance]
+definition ordered_ring.to_ordered_semiring
     [s : ordered_ring A] :
   ordered_semiring A :=
 ⦃ ordered_semiring, s,
@@ -371,7 +372,8 @@ structure linear_ordered_ring [class] (A : Type)
     extends ordered_ring A, linear_strong_order_pair A :=
   (zero_lt_one : lt zero one)
 
-definition linear_ordered_ring.to_linear_ordered_semiring [instance]
+attribute [instance]
+definition linear_ordered_ring.to_linear_ordered_semiring
     [s : linear_ordered_ring A] :
   linear_ordered_semiring A :=
 ⦃ linear_ordered_semiring, s,
@@ -428,7 +430,8 @@ lt.by_cases
 -/
 
 -- Linearity implies no zero divisors. Doesn't need commutativity.
-definition linear_ordered_comm_ring.to_integral_domain [instance]
+attribute [instance]
+definition linear_ordered_comm_ring.to_integral_domain
     [s: linear_ordered_comm_ring A] : integral_domain A :=
 ⦃ integral_domain, s,
   eq_zero_or_eq_zero_of_mul_eq_zero :=

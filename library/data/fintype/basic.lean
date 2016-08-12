@@ -27,15 +27,18 @@ definition fintype_of_equiv {A B : Type} [h : fintype A] : A ≃ B → fintype B
       by rewrite r at this; exact this)
 end
 
-definition fintype_unit [instance] : fintype unit :=
+attribute [instance]
+definition fintype_unit : fintype unit :=
 fintype.mk [star] dec_trivial (λ u, match u with star := dec_trivial end)
 
-definition fintype_bool [instance] : fintype bool :=
+attribute [instance]
+definition fintype_bool : fintype bool :=
 fintype.mk [ff, tt]
   dec_trivial
   (λ b, match b with | tt := dec_trivial | ff := dec_trivial end)
 
-definition fintype_product [instance] {A B : Type} : Π [h₁ : fintype A] [h₂ : fintype B], fintype (A × B)
+attribute [instance]
+definition fintype_product {A B : Type} : Π [h₁ : fintype A] [h₂ : fintype B], fintype (A × B)
 | (fintype.mk e₁ u₁ c₁) (fintype.mk e₂ u₂ c₂) :=
   fintype.mk
     (product e₁ e₂)
@@ -86,7 +89,8 @@ theorem all_eq_of_find_discr_eq_none {f g : A → B} : ∀ {l}, find_discr f g l
     by rewrite [find_discr_cons_of_ne l this at e]; contradiction)
 end find_discr
 
-definition decidable_eq_fun [instance] {A B : Type} [h₁ : fintype A] [h₂ : decidable_eq B] : decidable_eq (A → B) :=
+attribute [instance]
+definition decidable_eq_fun {A B : Type} [h₁ : fintype A] [h₂ : decidable_eq B] : decidable_eq (A → B) :=
 λ f g,
   match h₁ with
   | fintype.mk e u c :=
@@ -129,7 +133,8 @@ theorem ex_of_check_pred_eq_ff {p : A → Prop} [h : decidable_pred p] : ∀ {l 
   (suppose ¬ p a, exists.intro a this)
 end check_pred
 
-definition decidable_forall_finite [instance] {A : Type} {p : A → Prop} [h₁ : fintype A] [h₂ : decidable_pred p]
+attribute [instance]
+definition decidable_forall_finite {A : Type} {p : A → Prop} [h₁ : fintype A] [h₂ : decidable_pred p]
            : decidable (∀ x : A, p x) :=
 match h₁ with
 | fintype.mk e u c :=
@@ -142,7 +147,8 @@ match h₁ with
   end rfl
 end
 
-definition decidable_exists_finite [instance] {A : Type} {p : A → Prop} [h₁ : fintype A] [h₂ : decidable_pred p]
+attribute [instance]
+definition decidable_exists_finite {A : Type} {p : A → Prop} [h₁ : fintype A] [h₂ : decidable_pred p]
            : decidable (∃ x : A, p x) :=
 match h₁ with
 | fintype.mk e u c :=
@@ -202,7 +208,8 @@ private theorem mem_ltype_elems {A : Type} {s : list A} {a : ⟪s⟫}
      have aux : a ∈ ltype_elems (sub_of_cons_sub h), from mem_ltype_elems (sub_of_cons_sub h) vainl,
      mem_cons_of_mem _ aux)
 
-definition fintype_list_as_type [instance] {A : Type} [h : decidable_eq A] {s : list A} : fintype ⟪s⟫ :=
+attribute [instance]
+definition fintype_list_as_type {A : Type} [h : decidable_eq A] {s : list A} : fintype ⟪s⟫ :=
 let  nds   : list A := erase_dup s in
 have sub₁  : nds ⊆ s,   from erase_dup_sub s,
 have sub₂  : s ⊆ nds,   from sub_erase_dup s,

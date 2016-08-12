@@ -39,20 +39,25 @@ definition lt      {A : Type} [has_lt A]      : A → A → Prop := has_lt.lt
 definition append  {A : Type} [has_append A]  : A → A → A    := has_append.append
 definition andthen {A : Type} [has_andthen A] : A → A → A    := has_andthen.andthen
 
-definition ge [reducible] {A : Type} [s : has_le A] (a b : A) : Prop := le b a
-definition gt [reducible] {A : Type} [s : has_lt A] (a b : A) : Prop := lt b a
+attribute [reducible]
+definition ge {A : Type} [s : has_le A] (a b : A) : Prop := le b a
+attribute [reducible]
+definition gt {A : Type} [s : has_lt A] (a b : A) : Prop := lt b a
 definition bit0 {A : Type} [s  : has_add A] (a  : A)                 : A := add a a
 definition bit1 {A : Type} [s₁ : has_one A] [s₂ : has_add A] (a : A) : A := add (bit0 a) one
 
 attribute [pattern] zero one bit0 bit1 add
 
-definition num_has_zero [instance] : has_zero num :=
+attribute [instance]
+definition num_has_zero : has_zero num :=
 has_zero.mk num.zero
 
-definition num_has_one [instance] : has_one num :=
+attribute [instance]
+definition num_has_one : has_one num :=
 has_one.mk (num.pos pos_num.one)
 
-definition pos_num_has_one [instance] : has_one pos_num :=
+attribute [instance]
+definition pos_num_has_one : has_one pos_num :=
 has_one.mk (pos_num.one)
 
 namespace pos_num
@@ -79,7 +84,8 @@ namespace pos_num
     b
 end pos_num
 
-definition pos_num_has_add [instance] : has_add pos_num :=
+attribute [instance]
+definition pos_num_has_add : has_add pos_num :=
 has_add.mk pos_num.add
 
 namespace num
@@ -89,7 +95,8 @@ namespace num
   num.rec_on a b (λpa, num.rec_on b (pos pa) (λpb, pos (pos_num.add pa pb)))
 end num
 
-definition num_has_add [instance] : has_add num :=
+attribute [instance]
+definition num_has_add : has_add num :=
 has_add.mk num.add
 
 definition std.priority.default : num := 1000
@@ -109,13 +116,16 @@ end nat
 attribute pos_num_has_add pos_num_has_one num_has_zero num_has_one num_has_add
           [instance] [priority nat.prio]
 
-definition nat_has_zero [instance] [priority nat.prio] : has_zero nat :=
+attribute [instance] [priority nat.prio]
+definition nat_has_zero : has_zero nat :=
 has_zero.mk nat.zero
 
-definition nat_has_one [instance] [priority nat.prio] : has_one nat :=
+attribute [instance] [priority nat.prio]
+definition nat_has_one : has_one nat :=
 has_one.mk (nat.succ (nat.zero))
 
-definition nat_has_add [instance] [priority nat.prio] : has_add nat :=
+attribute [instance] [priority nat.prio]
+definition nat_has_add : has_add nat :=
 has_add.mk nat.add
 
 /-

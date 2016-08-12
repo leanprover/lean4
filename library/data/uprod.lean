@@ -13,15 +13,18 @@ p₁ = p₂ ∨ swap p₁ = p₂
 
 infix `~` := eqv    -- this is "~"
 
-private theorem eqv.refl [refl] {A : Type} : ∀ p : A × A, p ~ p :=
+attribute [refl]
+private theorem eqv.refl {A : Type} : ∀ p : A × A, p ~ p :=
 take p, or.inl rfl
 
-private theorem eqv.symm [symm] {A : Type} : ∀ p₁ p₂ : A × A, p₁ ~ p₂ → p₂ ~ p₁ :=
+attribute [symm]
+private theorem eqv.symm {A : Type} : ∀ p₁ p₂ : A × A, p₁ ~ p₂ → p₂ ~ p₁ :=
 take p₁ p₂ h, or.elim h
   (λ e, by rewrite e)
   (λ e, begin esimp [eqv], rewrite [-e, swap_swap], right, reflexivity end)
 
-private theorem eqv.trans [trans] {A : Type} : ∀ p₁ p₂ p₃ : A × A, p₁ ~ p₂ → p₂ ~ p₃ → p₁ ~ p₃ :=
+attribute [trans]
+private theorem eqv.trans {A : Type} : ∀ p₁ p₂ p₃ : A × A, p₁ ~ p₂ → p₂ ~ p₃ → p₁ ~ p₃ :=
 take p₁ p₂ p₃ h₁ h₂, or.elim h₁
   (λ e₁₂,  or.elim h₂
     (λ e₂₃,  by rewrite [e₁₂, e₂₃])
@@ -33,7 +36,8 @@ take p₁ p₂ p₃ h₁ h₂, or.elim h₁
 private theorem is_equivalence (A : Type) : equivalence (@eqv A) :=
 mk_equivalence (@eqv A) (@eqv.refl A) (@eqv.symm A) (@eqv.trans A)
 
-definition uprod.setoid [instance] (A : Type) : setoid (A × A) :=
+attribute [instance]
+definition uprod.setoid (A : Type) : setoid (A × A) :=
 setoid.mk (@eqv A) (is_equivalence A)
 
 definition uprod (A : Type) : Type :=

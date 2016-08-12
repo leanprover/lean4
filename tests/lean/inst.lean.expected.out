@@ -1,5 +1,5 @@
-inst.lean:11:11:failed to generate bytecode for 'C_magic'
+inst.lean:12:11:failed to generate bytecode for 'C_magic'
 code generation failed, VM does not have code for 'magic'
-inst.lean:21:11:failed to generate bytecode for 'test'
+inst.lean:24:11:failed to generate bytecode for 'test'
 code generation failed, VM does not have code for 'magic'
 C.mk (magic (prod Prop Prop))

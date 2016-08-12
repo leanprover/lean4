@@ -996,7 +996,8 @@ definition rneg_well_defined {s t : reg_seq} (H : requiv s t) : requiv (-s) (-t)
 theorem requiv_is_equiv : equivalence requiv :=
   mk_equivalence requiv requiv.refl requiv.symm requiv.trans
 
-definition reg_seq.to_setoid [instance] : setoid reg_seq :=
+attribute [instance]
+definition reg_seq.to_setoid : setoid reg_seq :=
   ⦃setoid, r := requiv, iseqv := requiv_is_equiv⦄
 
 definition r_zero : reg_seq :=
@@ -1075,18 +1076,23 @@ protected definition neg (x : ℝ) : ℝ :=
                                    quot.sound (rneg_well_defined Hab)))
 --prefix [priority real.prio] `-` := neg
 
-definition real_has_add [instance] [priority real.prio] : has_add real :=
+attribute [instance] [priority real.prio]
+definition real_has_add : has_add real :=
 has_add.mk real.add
 
-definition real_has_mul [instance] [priority real.prio] : has_mul real :=
+attribute [instance] [priority real.prio]
+definition real_has_mul : has_mul real :=
 has_mul.mk real.mul
 
-definition real_has_neg [instance] [priority real.prio] : has_neg real :=
+attribute [instance] [priority real.prio]
+definition real_has_neg : has_neg real :=
 has_neg.mk real.neg
 
-protected definition sub [reducible] (a b : ℝ) : real := a + (-b)
+attribute [reducible]
+protected definition sub (a b : ℝ) : real := a + (-b)
 
-definition real_has_sub [instance] [priority real.prio] : has_sub real :=
+attribute [instance] [priority real.prio]
+definition real_has_sub : has_sub real :=
 has_sub.mk real.sub
 
 open rat -- no coercions before
@@ -1096,10 +1102,12 @@ open rat -- no coercions before
 -- definition of_nat [coercion] (n : ℕ) : ℝ := n
 -- definition of_num [coercion] [reducible] (n : num) : ℝ := of_rat (rat.of_num n)
 
-definition real_has_zero [reducible] : has_zero real := has_zero.mk (of_rat 0)
+attribute [reducible]
+definition real_has_zero : has_zero real := has_zero.mk (of_rat 0)
 local attribute real_has_zero [instance] [priority real.prio]
 
-definition real_has_one [reducible] : has_one real := has_one.mk (of_rat 1)
+attribute [reducible]
+definition real_has_one : has_one real := has_one.mk (of_rat 1)
 local attribute real_has_one [instance] [priority real.prio]
 
 theorem real_zero_eq_rat_zero : (0:real) = of_rat (0:rat) :=
@@ -1145,7 +1153,8 @@ protected theorem zero_ne_one : ¬ (0 : ℝ) = 1 :=
   take H : 0 = 1,
   absurd (quot.exact H) (r_zero_nequiv_one)
 
-protected definition comm_ring [reducible] : comm_ring ℝ :=
+attribute [reducible]
+protected definition comm_ring : comm_ring ℝ :=
   begin
     fapply comm_ring.mk,
     exact real.add,

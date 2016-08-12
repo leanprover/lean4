@@ -10,13 +10,16 @@ structure alternative [class] (f : Type → Type) extends applicative f :=
 (failure : Π {A : Type}, f A)
 (orelse  : Π {A : Type}, f A → f A → f A)
 
-definition failure [inline] {f : Type → Type} [alternative f] {A : Type} : f A :=
+attribute [inline]
+definition failure {f : Type → Type} [alternative f] {A : Type} : f A :=
 alternative.failure f
 
-definition orelse [inline] {f : Type → Type} [alternative f] {A : Type} : f A → f A → f A :=
+attribute [inline]
+definition orelse {f : Type → Type} [alternative f] {A : Type} : f A → f A → f A :=
 alternative.orelse
 
 infixr ` <|> `:2 := orelse
 
-definition guard [inline] {f : Type₁ → Type} [alternative f] (p : Prop) [decidable p] : f unit :=
+attribute [inline]
+definition guard {f : Type₁ → Type} [alternative f] (p : Prop) [decidable p] : f unit :=
 if p then pure () else failure

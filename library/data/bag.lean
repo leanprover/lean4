@@ -11,7 +11,8 @@ open [decl] perm
 
 variable {A : Type}
 
-definition bag.setoid [instance] (A : Type) : setoid (list A) :=
+attribute [instance]
+definition bag.setoid (A : Type) : setoid (list A) :=
 setoid.mk (@perm A) (mk_equivalence (@perm A) (@perm.refl A) (@perm.symm A) (@perm.trans A))
 
 definition bag (A : Type) : Type :=
@@ -63,7 +64,8 @@ calc b₁ ++ insert a b₂  = insert a b₂ ++ b₁   : append.comm
                     ... = insert a (b₂ ++ b₁) : append_insert_left
                     ... = insert a (b₁ ++ b₂) : append.comm
 
-protected lemma induction_on [recursor 3] {C : bag A → Prop} (b : bag A) (h₁ : C empty) (h₂ : ∀ a b, C b → C (insert a b)) : C b :=
+attribute [recursor 3]
+protected lemma induction_on {C : bag A → Prop} (b : bag A) (h₁ : C empty) (h₂ : ∀ a b, C b → C (insert a b)) : C b :=
 quot.induction_on b (λ l, list.induction_on l h₁ (λ h t ih, h₂ h ⟦t⟧ ih))
 
 section decidable_eq
@@ -71,7 +73,8 @@ variable [decA : decidable_eq A]
 include decA
 open decidable
 
-definition has_decidable_eq [instance] (b₁ b₂ : bag A) : decidable (b₁ = b₂) :=
+attribute [instance]
+definition has_decidable_eq (b₁ b₂ : bag A) : decidable (b₁ = b₂) :=
 quot.rec_on_subsingleton₂ b₁ b₂ (λ l₁ l₂,
   match decidable_perm l₁ l₂ with
   | inl h := inl (quot.sound h)
@@ -679,7 +682,8 @@ private lemma ex_of_subcount_eq_ff : ∀ {l₁ l₂ : list A}, subcount l₁ l�
      (suppose w ≠ a, exists.intro w (by rewrite (list.count_cons_of_ne `w ≠ a`); exact hw)))
   (suppose ¬ list.count a (a::l₁) ≤ list.count a l₂, exists.intro a this)
 
-definition decidable_subbag [instance] (b₁ b₂ : bag A) : decidable (b₁ ⊆ b₂) :=
+attribute [instance]
+definition decidable_subbag (b₁ b₂ : bag A) : decidable (b₁ ⊆ b₂) :=
 quot.rec_on_subsingleton₂ b₁ b₂ (λ l₁ l₂,
   match subcount l₁ l₂ with
   | tt := suppose subcount l₁ l₂ = tt, inl (all_of_subcount_eq_tt this)

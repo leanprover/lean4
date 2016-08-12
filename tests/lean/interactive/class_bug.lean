@@ -1,6 +1,7 @@
 import data.nat.basic
 open nonempty inhabited nat classical
 
-theorem int_inhabited [instance] : inhabited nat := inhabited.mk zero
+attribute [instance]
+theorem int_inhabited : inhabited nat := inhabited.mk zero
 
 check epsilon (λ x : nat, true)

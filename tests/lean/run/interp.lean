@@ -8,7 +8,8 @@ inductive univ :=
 
 open univ
 
-definition interp [reducible] : univ → Type₁
+attribute [reducible]
+definition interp : univ → Type₁
 | ubool          := bool
 | unat           := nat
 | (uarrow fr to) := interp fr → interp to

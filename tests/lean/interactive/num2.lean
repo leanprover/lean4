@@ -13,7 +13,8 @@ one  : pos_num|
 bit1 : pos_num → pos_num|
 bit0 : pos_num → pos_num
 
-theorem pos_num.is_inhabited [instance] : inhabited pos_num :=
+attribute [instance]
+theorem pos_num.is_inhabited : inhabited pos_num :=
 inhabited.mk pos_num.one
 
 namespace pos_num
@@ -28,7 +29,8 @@ inductive num : Type :=
 zero  : num,
 pos   : pos_num → num
 
-theorem num.is_inhabited [instance] : inhabited num :=
+attribute [instance]
+theorem num.is_inhabited : inhabited num :=
 inhabited.mk num.zero
 
 namespace num

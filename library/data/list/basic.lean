@@ -11,7 +11,8 @@ open nat function tactic
 namespace list
 variable {T : Type}
 
-lemma cons_ne_nil [simp] (a : T) (l : list T) : a::l ≠ [] :=
+attribute [simp]
+lemma cons_ne_nil (a : T) (l : list T) : a::l ≠ [] :=
 sorry -- by contradiction
 
 lemma head_eq_of_cons_eq {A : Type} {h₁ h₂ : A} {t₁ t₂ : list A} :
@@ -27,26 +28,33 @@ take l₁ l₂, assume Pe, tail_eq_of_cons_eq Pe
 
 /- append -/
 
-theorem append_nil_left [simp] (t : list T) : [] ++ t = t :=
+attribute [simp]
+theorem append_nil_left (t : list T) : [] ++ t = t :=
 rfl
 
-theorem append_cons [simp] (x : T) (s t : list T) : (x::s) ++ t = x::(s ++ t) :=
+attribute [simp]
+theorem append_cons (x : T) (s t : list T) : (x::s) ++ t = x::(s ++ t) :=
 rfl
 
-theorem append_nil_right [simp] : ∀ (t : list T), t ++ [] = t :=
+attribute [simp]
+theorem append_nil_right : ∀ (t : list T), t ++ [] = t :=
 sorry -- by rec_inst_simp
 
-theorem append.assoc [simp] : ∀ (s t u : list T), s ++ t ++ u = s ++ (t ++ u) :=
+attribute [simp]
+theorem append.assoc : ∀ (s t u : list T), s ++ t ++ u = s ++ (t ++ u) :=
 sorry -- by rec_inst_simp
 
 /- length -/
-theorem length_nil [simp] : length (@nil T) = 0 :=
+attribute [simp]
+theorem length_nil : length (@nil T) = 0 :=
 rfl
 
-theorem length_cons [simp] (x : T) (t : list T) : length (x::t) = length t + 1 :=
+attribute [simp]
+theorem length_cons (x : T) (t : list T) : length (x::t) = length t + 1 :=
 rfl
 
-theorem length_append [simp] : ∀ (s t : list T), length (s ++ t) = length s + length t :=
+attribute [simp]
+theorem length_append : ∀ (s t : list T), length (s ++ t) = length s + length t :=
 sorry -- by rec_inst_simp
 
 theorem eq_nil_of_length_eq_zero : ∀ {l : list T}, length l = 0 → l = []
@@ -59,22 +67,28 @@ theorem ne_nil_of_length_eq_succ : ∀ {l : list T} {n : nat}, length l = succ n
 
 /- concat -/
 
-theorem concat_nil [simp] (x : T) : concat x [] = [x] :=
+attribute [simp]
+theorem concat_nil (x : T) : concat x [] = [x] :=
 rfl
 
-theorem concat_cons [simp] (x y : T) (l : list T) : concat x (y::l)  = y::(concat x l) :=
+attribute [simp]
+theorem concat_cons (x y : T) (l : list T) : concat x (y::l)  = y::(concat x l) :=
 rfl
 
-theorem concat_eq_append [simp] (a : T) : ∀ (l : list T), concat a l = l ++ [a] :=
+attribute [simp]
+theorem concat_eq_append (a : T) : ∀ (l : list T), concat a l = l ++ [a] :=
 sorry -- by rec_inst_simp
 
-theorem concat_ne_nil [simp] (a : T) : ∀ (l : list T), concat a l ≠ [] :=
+attribute [simp]
+theorem concat_ne_nil (a : T) : ∀ (l : list T), concat a l ≠ [] :=
 sorry -- by intro l; induction l; repeat contradiction
 
-theorem length_concat [simp] (a : T) : ∀ (l : list T), length (concat a l) = length l + 1 :=
+attribute [simp]
+theorem length_concat (a : T) : ∀ (l : list T), length (concat a l) = length l + 1 :=
 sorry -- by rec_inst_simp
 
-theorem concat_append [simp] (a : T) : ∀ (l₁ l₂ : list T), concat a l₁ ++ l₂ = l₁ ++ a :: l₂ :=
+attribute [simp]
+theorem concat_append (a : T) : ∀ (l₁ l₂ : list T), concat a l₁ ++ l₂ = l₁ ++ a :: l₂ :=
 sorry -- by rec_inst_simp
 
 theorem append_concat (a : T)  : ∀(l₁ l₂ : list T), l₁ ++ concat a l₂ = concat a (l₁ ++ l₂) :=
@@ -87,35 +101,43 @@ definition last : Π l : list T, l ≠ [] → T
 | [a]         h := a
 | (a₁::a₂::l) h := last (a₂::l) $ cons_ne_nil a₂ l
 
-lemma last_singleton [simp] (a : T) (h : [a] ≠ []) : last [a] h = a :=
+attribute [simp]
+lemma last_singleton (a : T) (h : [a] ≠ []) : last [a] h = a :=
 rfl
 
-lemma last_cons_cons [simp] (a₁ a₂ : T) (l : list T) (h : a₁::a₂::l ≠ []) : last (a₁::a₂::l) h = last (a₂::l) (cons_ne_nil a₂ l) :=
+attribute [simp]
+lemma last_cons_cons (a₁ a₂ : T) (l : list T) (h : a₁::a₂::l ≠ []) : last (a₁::a₂::l) h = last (a₂::l) (cons_ne_nil a₂ l) :=
 rfl
 
 theorem last_congr {l₁ l₂ : list T} (h₁ : l₁ ≠ []) (h₂ : l₂ ≠ []) (h₃ : l₁ = l₂) : last l₁ h₁ = last l₂ h₂ :=
 sorry -- by subst l₁
 
-theorem last_concat [simp] {x : T} : ∀ {l : list T} (h : concat x l ≠ []), last (concat x l) h = x :=
+attribute [simp]
+theorem last_concat {x : T} : ∀ {l : list T} (h : concat x l ≠ []), last (concat x l) h = x :=
 sorry -- by rec_simp
 
 -- add_rewrite append_nil append_cons
 
 /- reverse -/
 
-theorem reverse_nil [simp] : reverse (@nil T) = [] :=
+attribute [simp]
+theorem reverse_nil : reverse (@nil T) = [] :=
 rfl
 
-theorem reverse_cons [simp] (x : T) (l : list T) : reverse (x::l) = concat x (reverse l) :=
+attribute [simp]
+theorem reverse_cons (x : T) (l : list T) : reverse (x::l) = concat x (reverse l) :=
 rfl
 
-theorem reverse_singleton [simp] (x : T) : reverse [x] = [x] :=
+attribute [simp]
+theorem reverse_singleton (x : T) : reverse [x] = [x] :=
 rfl
 
-theorem reverse_append [simp] : ∀ (s t : list T), reverse (s ++ t) = (reverse t) ++ (reverse s) :=
+attribute [simp]
+theorem reverse_append : ∀ (s t : list T), reverse (s ++ t) = (reverse t) ++ (reverse s) :=
 sorry -- by rec_inst_simp
 
-theorem reverse_reverse [simp] : ∀ (l : list T), reverse (reverse l) = l :=
+attribute [simp]
+theorem reverse_reverse : ∀ (l : list T), reverse (reverse l) = l :=
 sorry -- by rec_inst_simp
 
 theorem concat_eq_reverse_cons (x : T) (l : list T) : concat x l = reverse (x :: reverse l) :=
@@ -126,16 +148,20 @@ sorry -- by rec_inst_simp
 
 /- head and tail -/
 
-theorem head_cons [simp] [h : inhabited T] (a : T) (l : list T) : head (a::l) = a :=
+attribute [simp]
+theorem head_cons [h : inhabited T] (a : T) (l : list T) : head (a::l) = a :=
 rfl
 
-theorem head_append [simp] [h : inhabited T] (t : list T) : ∀ {s : list T}, s ≠ [] → head (s ++ t) = head s :=
+attribute [simp]
+theorem head_append [h : inhabited T] (t : list T) : ∀ {s : list T}, s ≠ [] → head (s ++ t) = head s :=
 sorry -- by rec_inst_simp
 
-theorem tail_nil [simp] : tail (@nil T) = [] :=
+attribute [simp]
+theorem tail_nil : tail (@nil T) = [] :=
 rfl
 
-theorem tail_cons [simp] (a : T) (l : list T) : tail (a::l) = l :=
+attribute [simp]
+theorem tail_cons (a : T) (l : list T) : tail (a::l) = l :=
 rfl
 
 theorem cons_head_tail [h : inhabited T] {l : list T} : l ≠ [] → (head l)::(tail l) = l :=
@@ -156,7 +182,8 @@ iff.rfl
 theorem not_mem_nil (x : T) : x ∉ [] :=
 iff.mp $ mem_nil_iff x
 
-theorem mem_cons [simp] (x : T) (l : list T) : x ∈ x :: l :=
+attribute [simp]
+theorem mem_cons (x : T) (l : list T) : x ∈ x :: l :=
 or.inl rfl
 
 theorem mem_cons_of_mem (y : T) {x : T} {l : list T} : x ∈ l → x ∈ y :: l :=
@@ -256,7 +283,8 @@ assume ainl₁, mem_append_of_mem_or_mem (or.inl ainl₁)
 theorem mem_append_right {a : T} (l₁ : list T) {l₂ : list T} : a ∈ l₂ → a ∈ l₁ ++ l₂ :=
 assume ainl₂, mem_append_of_mem_or_mem (or.inr ainl₂)
 
-definition decidable_mem [instance] [H : decidable_eq T] (x : T) (l : list T) : decidable (x ∈ l) :=
+attribute [instance]
+definition decidable_mem [H : decidable_eq T] (x : T) (l : list T) : decidable (x ∈ l) :=
 list.rec_on l
   (decidable.ff (not_of_iff_false (mem_nil_iff _)))
   (take (h : T) (l : list T) (iH : decidable (x ∈ l)),
@@ -299,16 +327,19 @@ definition sublist (l₁ l₂ : list T) := ∀ ⦃a : T⦄, a ∈ l₁ → a ∈
 
 infix ⊆ := sublist
 
-theorem nil_sub [simp] (l : list T) : [] ⊆ l :=
+attribute [simp]
+theorem nil_sub (l : list T) : [] ⊆ l :=
 λ b i, false.elim (iff.mp (mem_nil_iff b) i)
 
-theorem sub.refl [simp] (l : list T) : l ⊆ l :=
+attribute [simp]
+theorem sub.refl (l : list T) : l ⊆ l :=
 λ b i, i
 
 theorem sub.trans {l₁ l₂ l₃ : list T} (H₁ : l₁ ⊆ l₂) (H₂ : l₂ ⊆ l₃) : l₁ ⊆ l₃ :=
 λ b i, H₂ (H₁ i)
 
-theorem sub_cons [simp] (a : T) (l : list T) : l ⊆ a::l :=
+attribute [simp]
+theorem sub_cons (a : T) (l : list T) : l ⊆ a::l :=
 λ b i, or.inr i
 
 theorem sub_of_cons_sub {a : T} {l₁ l₂ : list T} : a::l₁ ⊆ l₂ → l₁ ⊆ l₂ :=
@@ -319,10 +350,12 @@ theorem cons_sub_cons  {l₁ l₂ : list T} (a : T) (s : l₁ ⊆ l₂) : (a::l�
   (λ e : b = a,  or.inl e)
   (λ i : b ∈ l₁, or.inr (s i))
 
-theorem sub_append_left [simp] (l₁ l₂ : list T) : l₁ ⊆ l₁++l₂ :=
+attribute [simp]
+theorem sub_append_left (l₁ l₂ : list T) : l₁ ⊆ l₁++l₂ :=
 λ b i, iff.mpr (mem_append_iff b l₁ l₂) (or.inl i)
 
-theorem sub_append_right [simp] (l₁ l₂ : list T) : l₂ ⊆ l₁++l₂ :=
+attribute [simp]
+theorem sub_append_right (l₁ l₂ : list T) : l₂ ⊆ l₁++l₂ :=
 λ b i, iff.mpr (mem_append_iff b l₁ l₂) (or.inr i)
 
 theorem sub_cons_of_sub (a : T) {l₁ l₂ : list T} : l₁ ⊆ l₂ → l₁ ⊆ (a::l₂) :=
@@ -361,7 +394,8 @@ definition find : T → list T → nat
 | a []       := 0
 | a (b :: l) := if a = b then 0 else succ (find a l)
 
-theorem find_nil [simp] (x : T) : find x [] = 0 :=
+attribute [simp]
+theorem find_nil (x : T) : find x [] = 0 :=
 rfl
 
 theorem find_cons (x y : T) (l : list T) : find x (y::l) = if x = y then 0 else succ (find x l) :=
@@ -431,10 +465,12 @@ end
 
 /- nth element -/
 section nth
-theorem nth_zero [simp] (a : T) (l : list T) : nth (a :: l) 0 = some a :=
+attribute [simp]
+theorem nth_zero (a : T) (l : list T) : nth (a :: l) 0 = some a :=
 rfl
 
-theorem nth_succ [simp] (a : T) (l : list T) (n : nat) : nth (a::l) (succ n) = nth l n :=
+attribute [simp]
+theorem nth_succ (a : T) (l : list T) (n : nat) : nth (a::l) (succ n) = nth l n :=
 rfl
 
 theorem nth_eq_some : ∀ {l : list T} {n : nat}, n < length l → Σ a : T, nth l n = some a
@@ -480,10 +516,12 @@ definition ith : Π (l : list T) (i : nat), i < length l → T
 | (x::xs) 0        h := x
 | (x::xs) (succ i) h := ith xs i (lt_of_succ_lt_succ h)
 
-lemma ith_zero [simp] (a : T) (l : list T) (h : 0 < length (a::l)) : ith (a::l) 0 h = a :=
+attribute [simp]
+lemma ith_zero (a : T) (l : list T) (h : 0 < length (a::l)) : ith (a::l) 0 h = a :=
 rfl
 
-lemma ith_succ [simp] (a : T) (l : list T) (i : nat) (h : succ i < length (a::l))
+attribute [simp]
+lemma ith_succ (a : T) (l : list T) (i : nat) (h : succ i < length (a::l))
                       : ith (a::l) (succ i) h = ith l i (lt_of_succ_lt_succ h) :=
 rfl
 end ith
@@ -590,10 +628,12 @@ definition firstn : nat → list A → list A
 | (n+1) []     := []
 | (n+1) (a::l) := a :: firstn n l
 
-lemma firstn_zero [simp] : ∀ (l : list A), firstn 0 l = [] :=
+attribute [simp]
+lemma firstn_zero : ∀ (l : list A), firstn 0 l = [] :=
 sorry -- by intros; reflexivity
 
-lemma firstn_nil [simp] : ∀ n, firstn n [] = ([] : list A)
+attribute [simp]
+lemma firstn_nil : ∀ n, firstn n [] = ([] : list A)
 | 0     := rfl
 | (n+1) := rfl
 

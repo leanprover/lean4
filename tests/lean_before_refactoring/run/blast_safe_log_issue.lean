@@ -10,7 +10,8 @@ constants (safe_log : Π (x : ℝ), pos x → ℝ)
 
 lemma pos_add {x y : ℝ} : pos x →  pos y → pos (x + y) := sorry
 lemma pos_mul {x y : ℝ} : pos x →  pos y → pos (x * y) := sorry
-lemma log_mul [simp] : ∀ (x y : ℝ) (x_pos : pos x) (y_pos : pos y), safe_log (x * y) (pos_mul x_pos y_pos)  = safe_log x x_pos + safe_log y y_pos := sorry
+attribute [simp]
+lemma log_mul : ∀ (x y : ℝ) (x_pos : pos x) (y_pos : pos y), safe_log (x * y) (pos_mul x_pos y_pos)  = safe_log x x_pos + safe_log y y_pos := sorry
 
 example (x y z w : ℝ)
   (x_pos : pos x) (y_pos : pos y) (z_pos : pos z) (w_pos : pos w) :

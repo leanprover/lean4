@@ -23,17 +23,20 @@ have injective encode, from
     by rewrite [*encodek at this]; injection this; assumption,
 exists.intro encode this
 
-definition encodable_fintype [instance] {A : Type} [h₁ : fintype A] [h₂ : decidable_eq A] :
+attribute [instance]
+definition encodable_fintype {A : Type} [h₁ : fintype A] [h₂ : decidable_eq A] :
   encodable A :=
 encodable.mk
   (λ a, find a (elements_of A))
   (λ n, nth (elements_of A) n)
   (λ a, find_nth (fintype.complete a))
 
-definition encodable_nat [instance] : encodable nat :=
+attribute [instance]
+definition encodable_nat : encodable nat :=
 encodable.mk (λ a, a) (λ n, some n) (λ a, rfl)
 
-definition encodable_option [instance] {A : Type} [h : encodable A] : encodable (option A) :=
+attribute [instance]
+definition encodable_option {A : Type} [h : encodable A] : encodable (option A) :=
 encodable.mk
   (λ o, match o with
         | some a := succ (encode a)
@@ -87,7 +90,8 @@ private theorem decode_encode_sum : ∀ s : sum A B, decode_sum (encode_sum s) =
              nat.mul_div_cancel_left _ aux₁, encodable.encodek]
   end
 
-definition encodable_sum [instance] : encodable (sum A B) :=
+attribute [instance]
+definition encodable_sum : encodable (sum A B) :=
 encodable.mk
   (λ s, encode_sum s)
   (λ n, decode_sum n)
@@ -124,7 +128,8 @@ private theorem decode_encode_prod : ∀ p : A × B, decode_prod (encode_prod p)
     rewrite [*encodable.encodek]
   end
 
-definition encodable_product [instance] : encodable (A × B) :=
+attribute [instance]
+definition encodable_product : encodable (A × B) :=
 encodable.mk
   encode_prod
   decode_prod
@@ -200,7 +205,8 @@ begin
   apply decode_encode_list_core
 end
 
-definition encodable_list [instance] : encodable (list A) :=
+attribute [instance]
+definition encodable_list : encodable (list A) :=
 encodable.mk
   encode_list
   decode_list
@@ -230,7 +236,8 @@ have decode A (encode a) = decode A (encode b), by rewrite this,
 have some a = some b, by rewrite [*encodek at this]; exact this,
 option.no_confusion this (λ e, e)
 
-private definition decidable_enle [instance] (a b : A) : decidable (enle a b) :=
+attribute [instance]
+private definition decidable_enle (a b : A) : decidable (enle a b) :=
 decidable_le (encode a) (encode b)
 
 variables [decA : decidable_eq A]
@@ -268,7 +275,8 @@ quot.induction_on s (λ l,
                 ...             ~ l        : sort_perm
   end)
 
-definition encodable_finset [instance] : encodable (finset A) :=
+attribute [instance]
+definition encodable_finset : encodable (finset A) :=
 encodable.mk
   encode_finset
   decode_finset
@@ -300,7 +308,8 @@ private lemma decode_encode_subtype : ∀ s : {a : A | P a}, decode_subtype (enc
     rewrite [dif_pos h]
   end
 
-definition encodable_subtype [instance] : encodable {a : A | P a} :=
+attribute [instance]
+definition encodable_subtype : encodable {a : A | P a} :=
 encodable.mk
   encode_subtype
   decode_subtype

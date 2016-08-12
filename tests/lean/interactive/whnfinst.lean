@@ -1,7 +1,8 @@
 import logic
 open decidable
 
-definition decidable_bin_rel [reducible] {A : Type} (R : A → A → Prop) := Πx y, decidable (R x y)
+attribute [reducible]
+definition decidable_bin_rel {A : Type} (R : A → A → Prop) := Πx y, decidable (R x y)
 
 section
   variable {A : Type}

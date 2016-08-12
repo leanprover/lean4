@@ -10,7 +10,8 @@ open decidable or
 notation `ℕ` := nat
 
 namespace nat
-  protected definition rec_on [reducible]
+  attribute [reducible]
+  protected definition rec_on
                        {C : ℕ → Type} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C a → C (succ a)) : C n :=
   nat.rec H₁ H₂ n
 
@@ -18,19 +19,22 @@ namespace nat
                        {C : ℕ → Prop} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C a → C (succ a)) : C n :=
   nat.rec H₁ H₂ n
 
-  protected definition cases_on [reducible]
+  attribute [reducible]
+  protected definition cases_on
                        {C : ℕ → Type} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C (succ a)) : C n :=
   nat.rec H₁ (λ a ih, H₂ a) n
 
   attribute nat.rec_on [recursor] -- Hack: force rec_on to be the first one. TODO(Leo): we should add priorities to recursors
 
-  protected definition no_confusion_type [reducible] (P : Type) (v₁ v₂ : ℕ) : Type :=
+  attribute [reducible]
+  protected definition no_confusion_type (P : Type) (v₁ v₂ : ℕ) : Type :=
   nat.rec
     (nat.rec (P → P) (λ a₂ ih, P) v₂)
     (λ a₁ ih, nat.rec P (λ a₂ ih, (a₁ = a₂ → P) → P) v₂)
     v₁
 
-  protected definition no_confusion [reducible] [unfold 4]
+  attribute [reducible] [unfold 4]
+  protected definition no_confusion
                        {P : Type} {v₁ v₂ : ℕ} (H : v₁ = v₂) : nat.no_confusion_type P v₁ v₂ :=
   have v₁ = v₁ → nat.no_confusion_type P v₁ v₁, from
     λ H₁ : v₁ = v₁, nat.rec (λ h, h) (λ a ih h, h (eq.refl a)) v₁,
@@ -47,13 +51,16 @@ namespace nat
 
   local attribute [instance] [priority nat.prio] nat_has_le
 
-  protected lemma le_refl [refl] : ∀ a : nat, a ≤ a :=
+  attribute [refl]
+  protected lemma le_refl : ∀ a : nat, a ≤ a :=
   le.nat_refl
 
-  protected definition lt [reducible] (n m : ℕ) := succ n ≤ m
+  attribute [reducible]
+  protected definition lt (n m : ℕ) := succ n ≤ m
   definition nat_has_lt : has_lt nat := has_lt.mk nat.lt
 
-  definition pred [unfold 1] (a : nat) : nat :=
+  attribute [unfold 1]
+  definition pred (a : nat) : nat :=
   nat.cases_on a zero (λ a₁, a₁)
 
   -- add is defined in init.reserved_notation
@@ -98,10 +105,12 @@ namespace nat
   | 0        := le.nat_refl 0
   | (succ a) := le.step (le.nat_refl a)
 
-  theorem le_succ_iff_true [simp] (n : ℕ) : n ≤ succ n ↔ true :=
+  attribute [simp]
+  theorem le_succ_iff_true (n : ℕ) : n ≤ succ n ↔ true :=
   iff_true_intro (le_succ n)
 
-  theorem pred_le_iff_true [simp] (n : ℕ) : pred n ≤ n ↔ true :=
+  attribute [simp]
+  theorem pred_le_iff_true (n : ℕ) : pred n ≤ n ↔ true :=
   iff_true_intro (pred_le n)
 
   protected theorem le_trans {n m k : ℕ} (H1 : n ≤ m) : m ≤ k → n ≤ k :=
@@ -142,13 +151,15 @@ namespace nat
   theorem not_succ_le_self : Π {n : ℕ}, ¬succ n ≤ n :=
   nat.rec (not_succ_le_zero 0) (λa b c, b (le_of_succ_le_succ c))
 
-  theorem succ_le_self_iff_false [simp] (n : ℕ) : succ n ≤ n ↔ false :=
+  attribute [simp]
+  theorem succ_le_self_iff_false (n : ℕ) : succ n ≤ n ↔ false :=
   iff_false_intro not_succ_le_self
 
   theorem zero_le : ∀ (n : ℕ), 0 ≤ n :=
   nat.rec (nat.le_refl 0) (λa, le.step)
 
-  theorem zero_le_iff_true [simp] (n : ℕ) : 0 ≤ n ↔ true :=
+  attribute [simp]
+  theorem zero_le_iff_true (n : ℕ) : 0 ≤ n ↔ true :=
   iff_true_intro (zero_le n)
 
   theorem lt.step {n m : ℕ} : n < m → n < succ m := le.step
@@ -156,7 +167,8 @@ namespace nat
   theorem zero_lt_succ (n : ℕ) : 0 < succ n :=
   succ_le_succ (zero_le n)
 
-  theorem zero_lt_succ_iff_true [simp] (n : ℕ) : 0 < succ n ↔ true :=
+  attribute [simp]
+  theorem zero_lt_succ_iff_true (n : ℕ) : 0 < succ n ↔ true :=
   iff_true_intro (zero_lt_succ n)
 
   protected theorem lt_trans {n m k : ℕ} (H1 : n < m) : m < k → n < k :=
@@ -174,7 +186,8 @@ namespace nat
 
   theorem self_lt_succ (n : ℕ) : n < succ n := nat.le_refl (succ n)
 
-  theorem self_lt_succ_iff_true [simp] (n : ℕ) : n < succ n ↔ true :=
+  attribute [simp]
+  theorem self_lt_succ_iff_true (n : ℕ) : n < succ n ↔ true :=
   iff_true_intro (self_lt_succ n)
 
   theorem lt.base (n : ℕ) : n < succ n := nat.le_refl (succ n)
@@ -193,7 +206,8 @@ namespace nat
 
   theorem not_lt_zero (a : ℕ) : ¬ a < 0 := not_succ_le_zero a
 
-  theorem lt_zero_iff_false [simp] (a : ℕ) : a < 0 ↔ false :=
+  attribute [simp]
+  theorem lt_zero_iff_false (a : ℕ) : a < 0 ↔ false :=
   iff_false_intro (not_lt_zero a)
 
   protected theorem eq_or_lt_of_le {a b : ℕ} (H : a ≤ b) : a = b ∨ a < b :=
@@ -254,7 +268,8 @@ namespace nat
 
   theorem succ_le_of_lt {a b : ℕ} (h : a < b) : succ a ≤ b := h
 
-  theorem succ_sub_succ_eq_sub [simp] (a b : ℕ) : succ a - succ b = a - b :=
+  attribute [simp]
+  theorem succ_sub_succ_eq_sub (a b : ℕ) : succ a - succ b = a - b :=
   nat.rec_on b
     (show succ a - succ zero = a - zero, from (eq.refl (succ a - succ zero)))
     (λ b, congr_arg pred)
@@ -262,7 +277,8 @@ namespace nat
   theorem sub_eq_succ_sub_succ (a b : ℕ) : a - b = succ a - succ b :=
   eq.symm (succ_sub_succ_eq_sub a b)
 
-  theorem zero_sub_eq_zero [simp] (a : ℕ) : 0 - a = 0 :=
+  attribute [simp]
+  theorem zero_sub_eq_zero (a : ℕ) : 0 - a = 0 :=
   nat.rec rfl (λ a, congr_arg pred) a
 
   theorem zero_eq_zero_sub (a : ℕ) : 0 = 0 - a :=
@@ -271,7 +287,8 @@ namespace nat
   theorem sub_le (a b : ℕ) : a - b ≤ a :=
   nat.rec_on b (nat.le_refl (a - 0)) (λ b₁, nat.le_trans (pred_le (a - b₁)))
 
-  theorem sub_le_iff_true [simp] (a b : ℕ) : a - b ≤ a ↔ true :=
+  attribute [simp]
+  theorem sub_le_iff_true (a b : ℕ) : a - b ≤ a ↔ true :=
   iff_true_intro (sub_le a b)
 
   theorem sub_lt {a b : ℕ} (H1 : 0 < a) (H2 : 0 < b) : a - b < a :=
@@ -284,7 +301,8 @@ namespace nat
   theorem sub_lt_succ (a b : ℕ) : a - b < succ a :=
   lt_succ_of_le (sub_le a b)
 
-  theorem sub_lt_succ_iff_true [simp] (a b : ℕ) : a - b < succ a ↔ true :=
+  attribute [simp]
+  theorem sub_lt_succ_iff_true (a b : ℕ) : a - b < succ a ↔ true :=
   iff_true_intro (sub_lt_succ a b)
 
   definition repeat {A : Type} (f : nat → A → A) : nat → A → A
@@ -293,7 +311,8 @@ namespace nat
 
 end nat
 
-protected definition nat.is_inhabited [instance] : inhabited nat :=
+attribute [instance]
+protected definition nat.is_inhabited : inhabited nat :=
 inhabited.mk nat.zero
 
 attribute [recursor] nat.induction_on

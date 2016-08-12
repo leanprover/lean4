@@ -1,8 +1,8 @@
-unification_hints1.lean:9:11:failed to generate bytecode for 'toy.g'
+unification_hints1.lean:10:11:failed to generate bytecode for 'toy.g'
 code generation failed, VM does not have code for 'toy.f'
 g x y =?= f z
 fail
-unification_hints1.lean:13:11:failed to generate bytecode for 'toy.toy_hint'
+unification_hints1.lean:15:11:failed to generate bytecode for 'toy.toy_hint'
 code generation failed, VM does not have code for 'toy.f'
 g x y =?= f z
 g x y =?= f z
@@ -17,11 +17,11 @@ success
 unification hints:
 (add, nat.succ) #4 + 1 =?= succ #3 {#4 =?= #3}
 (toy.g, toy.f) toy.g #1 #0 =?= toy.f toy.z {}
-unification_hints1.lean:43:11:failed to generate bytecode for 'canonical.A_canonical'
+unification_hints1.lean:47:11:failed to generate bytecode for 'canonical.A_canonical'
 code generation failed, VM does not have code for 'canonical.f'
 Canonical.carrier A_canonical =?= A
 fail
-unification_hints1.lean:47:11:failed to generate bytecode for 'canonical.Canonical_hint'
+unification_hints1.lean:52:11:failed to generate bytecode for 'canonical.Canonical_hint'
 code generation failed, VM does not have code for 'canonical.f'
 Canonical.carrier A_canonical =?= A
 Canonical.carrier A_canonical =?= A

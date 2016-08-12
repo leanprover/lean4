@@ -11,7 +11,8 @@ open bool subtype
 namespace nat
 open decidable
 
-definition prime [reducible] (p : nat) := p ≥ 2 ∧ ∀ m, m ∣ p → m = 1 ∨ m = p
+attribute [reducible]
+definition prime (p : nat) := p ≥ 2 ∧ ∀ m, m ∣ p → m = 1 ∨ m = p
 
 definition prime_ext (p : nat) := p ≥ 2 ∧ ∀ m, m ≤ p → m ∣ p → m = 1 ∨ m = p
 local attribute prime_ext [reducible]
@@ -27,7 +28,8 @@ iff.intro
     intro m l d, exact h₂ m d
   end
 
-definition decidable_prime [instance] (p : nat) : decidable (prime p) :=
+attribute [instance]
+definition decidable_prime (p : nat) : decidable (prime p) :=
 decidable_of_decidable_of_iff _ (prime_ext_iff_prime p)
 
 lemma ge_two_of_prime {p : nat} : prime p → p ≥ 2 :=

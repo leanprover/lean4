@@ -61,11 +61,13 @@ section
   variables {A : Type} (P : A → Prop) (a : A) [H : decidable (P a)]
   include H
 
-  definition decidable_forall_eq [instance] : decidable (∀ x, x = a → P x) :=
+  attribute [instance]
+  definition decidable_forall_eq : decidable (∀ x, x = a → P x) :=
   if pa : P a then tt (λ x heq, eq.substr heq pa)
   else ff (not.mto (λH, H a rfl) pa)
 
-  definition decidable_exists_eq [instance] : decidable (∃ x, x = a ∧ P x) :=
+  attribute [instance]
+  definition decidable_exists_eq : decidable (∃ x, x = a ∧ P x) :=
   if pa : P a then tt (exists.intro a (and.intro rfl pa))
   else ff (Exists.rec (λh, and.rec (λheq, eq.substr heq pa)))
 end

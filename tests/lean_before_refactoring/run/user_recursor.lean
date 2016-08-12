@@ -1,7 +1,8 @@
 import data.finset
 check @and.rec
 
-definition and.rec2 [recursor 4] {p r : Prop} (H₁ : p → r) (H₂ : p ∧ p) : r :=
+attribute [recursor 4]
+definition and.rec2 {p r : Prop} (H₁ : p → r) (H₂ : p ∧ p) : r :=
 and.rec_on H₂ (λ h₁ h₁, H₁ h₁)
 
 set_option pp.all true

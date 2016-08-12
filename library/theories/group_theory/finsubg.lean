@@ -21,7 +21,8 @@ section subg
 variables {G : Type} [group G]
 variable [decidable_eq G]
 
-definition finset_mul_closed_on [reducible] (H : finset G) : Prop :=
+attribute [reducible]
+definition finset_mul_closed_on (H : finset G) : Prop :=
            ∀ x y : G, x ∈ H → y ∈ H → x * y ∈ H
 definition finset_has_inv (H : finset G) : Prop :=
            ∀ a : G, a ∈ H → a⁻¹ ∈ H
@@ -31,10 +32,12 @@ structure is_finsubg [class] (H : finset G) : Type :=
           (mul_closed : finset_mul_closed_on H)
           (has_inv : finset_has_inv H)
 
-definition univ_is_finsubg [instance] [finG : fintype G] : is_finsubg (@finset.univ G _) :=
+attribute [instance]
+definition univ_is_finsubg [finG : fintype G] : is_finsubg (@finset.univ G _) :=
 is_finsubg.mk !mem_univ (λ x y Px Py, !mem_univ) (λ a Pa, !mem_univ)
 
-definition one_is_finsubg [instance] : is_finsubg ('{(1:G)}) :=
+attribute [instance]
+definition one_is_finsubg : is_finsubg ('{(1:G)}) :=
 is_finsubg.mk !mem_singleton
   (λ x y Px Py, by rewrite [eq_of_mem_singleton Px, eq_of_mem_singleton Py, one_mul]; apply mem_singleton)
   (λ x Px, by rewrite [eq_of_mem_singleton Px, one_inv]; apply mem_singleton)
@@ -46,7 +49,8 @@ lemma finsubg_mul_closed (H : finset G) [h : is_finsubg H] {x y : G} : x ∈ H �
 lemma finsubg_has_inv (H : finset G) [h : is_finsubg H] {a : G} :  a ∈ H → a⁻¹ ∈ H :=
       @is_finsubg.has_inv G _ _ H h a
 
-definition finsubg_to_subg [instance] {H : finset G} [h : is_finsubg H]
+attribute [instance]
+definition finsubg_to_subg {H : finset G} [h : is_finsubg H]
          : is_subgroup (ts H) :=
            is_subgroup.mk
            (mem_eq_mem_to_set H 1 ▸ finsubg_has_one H)
@@ -191,14 +195,16 @@ variables {A : Type} [group A] [fintype A] [decidable_eq A]
 
 variables G H : finset A
 
-definition is_fin_lcoset [reducible] (S : finset A) : Prop :=
+attribute [reducible]
+definition is_fin_lcoset (S : finset A) : Prop :=
   ∃ g, g ∈ G ∧ fin_lcoset H g = S
 
 definition to_list : list A := list.filter (λ g, g ∈ G) (elems A)
 
 definition list_lcosets : list (finset A) := erase_dup (map (fin_lcoset H) (to_list G))
 
-definition lcoset_type [reducible] : Type := {S : finset A | is_fin_lcoset G H S}
+attribute [reducible]
+definition lcoset_type : Type := {S : finset A | is_fin_lcoset G H S}
 
 definition all_lcosets : list (lcoset_type G H) :=
 dmap (is_fin_lcoset G H) tag (list_lcosets G H)
@@ -287,7 +293,8 @@ injective_of_has_left_inverse (exists.intro (lcoset_lmul (finsubg_has_inv G Pg))
 lemma card_elt_of_lcoset_type (S : lcoset_type G H) : card (elt_of S) = card H :=
 obtain f Pfin Pf, from has_property S, Pf ▸ fin_lcoset_card f
 
-definition lcoset_fintype [instance] : fintype (lcoset_type G H) :=
+attribute [instance]
+definition lcoset_fintype : fintype (lcoset_type G H) :=
 fintype.mk (all_lcosets G H)
   (dmap_nodup_of_dinj (dinj_tag (is_fin_lcoset G H)) !nodup_erase_dup)
   (take s, subtype.destruct s (take S, assume PS, mem_dmap PS (mem_list_lcosets_of_is_lcoset PS)))
@@ -377,7 +384,8 @@ mem_sep_of_mem !mem_univ take h, begin
   exact and.left Pk
 end
 
-definition normalizer_is_finsubg [instance] : is_finsubg (normalizer H) :=
+attribute [instance]
+definition normalizer_is_finsubg : is_finsubg (normalizer H) :=
 is_finsubg.mk normalizer_has_one normalizer_mul_closed normalizer_has_inv
 
 lemma lcoset_subset_normalizer (J : lcoset_type (normalizer H) H) :
@@ -488,7 +496,8 @@ end
 
 variable (H)
 
-definition fin_coset_group [instance] : group (lcoset_type (normalizer H) H) :=
+attribute [instance]
+definition fin_coset_group : group (lcoset_type (normalizer H) H) :=
 group.mk fin_coset_mul fin_coset_mul_assoc fin_coset_one fin_coset_one_mul fin_coset_mul_one fin_coset_inv fin_coset_left_inv
 
 variables {H} (Hc : finset (lcoset_type (normalizer H) H))
@@ -520,7 +529,8 @@ have Pjk : j*k ∈ elt_of (J*K), from mul_mem_lcoset_mul J K PjJ PkK,
 iff.elim_right !mem_Union_iff
   (exists.intro (J*K) (and.intro (finsubg_mul_closed Hc PJ PK) Pjk))
 
-definition fcU_is_finsubg [instance] : is_finsubg (fin_coset_Union Hc) :=
+attribute [instance]
+definition fcU_is_finsubg : is_finsubg (fin_coset_Union Hc) :=
 is_finsubg.mk fcU_has_one fcU_mul_closed fcU_has_inv
 
 end normalizer

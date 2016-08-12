@@ -25,7 +25,8 @@ inductive occurrences :=
 
 open occurrences
 
-definition occurrences_is_inhabited [instance] : inhabited occurrences :=
+attribute [instance]
+definition occurrences_is_inhabited : inhabited occurrences :=
 inhabited.mk all
 
 definition occurrences_to_string : occurrences → string
@@ -33,7 +34,8 @@ definition occurrences_to_string : occurrences → string
 | (occurrences.pos l) := to_string l
 | (occurrences.neg l) := "-" ++ to_string l
 
-definition occurrences_has_to_string [instance] : has_to_string occurrences :=
+attribute [instance]
+definition occurrences_has_to_string : has_to_string occurrences :=
 has_to_string.mk occurrences_to_string
 
 meta_definition occurrences_to_format : occurrences → format
@@ -41,7 +43,8 @@ meta_definition occurrences_to_format : occurrences → format
 | (occurrences.pos l) := to_fmt l
 | (occurrences.neg l) := to_fmt "-" ++ to_fmt l
 
-meta_definition occurrences_has_to_format [instance] : has_to_format occurrences :=
+attribute [instance]
+meta_definition occurrences_has_to_format : has_to_format occurrences :=
 has_to_format.mk occurrences_to_format
 
 open decidable tactic

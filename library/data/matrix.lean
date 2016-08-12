@@ -8,12 +8,14 @@ Matrices
 import algebra.ring data.fin data.fintype
 open fin nat
 
-definition matrix [reducible] (A : Type) (m n : nat) := fin m → fin n → A
+attribute [reducible]
+definition matrix (A : Type) (m n : nat) := fin m → fin n → A
 
 namespace matrix
 variables {A B C : Type} {m n p : nat}
 
-definition val [reducible] (M : matrix A m n) (i : fin m) (j : fin n) : A :=
+attribute [reducible]
+definition val (M : matrix A m n) (i : fin m) (j : fin n) : A :=
 M i j
 
 namespace ops
@@ -68,16 +70,20 @@ protected definition mul (M : matrix A m n) (N : matrix A n p) : matrix A m p :=
 definition smul (a : A) (M : matrix A m n) : matrix A m n :=
 λ i j, a * M[i, j]
 
-definition matrix_has_zero [instance] (m n : nat) : has_zero (matrix A m n) :=
+attribute [instance]
+definition matrix_has_zero (m n : nat) : has_zero (matrix A m n) :=
 has_zero.mk (matrix.zero m n)
 
-definition matrix_has_one [instance] (n : nat) : has_one (matrix A n n) :=
+attribute [instance]
+definition matrix_has_one (n : nat) : has_one (matrix A n n) :=
 has_one.mk (identity n)
 
-definition matrix_has_add [instance] (m n : nat) : has_add (matrix A m n) :=
+attribute [instance]
+definition matrix_has_add (m n : nat) : has_add (matrix A m n) :=
 has_add.mk matrix.add
 
-definition matrix_has_mul [instance] (n : nat) : has_mul (matrix A n n) :=
+attribute [instance]
+definition matrix_has_mul (n : nat) : has_mul (matrix A n n) :=
 has_mul.mk matrix.mul
 
 infix ` × ` := mul

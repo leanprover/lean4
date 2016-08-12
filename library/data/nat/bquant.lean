@@ -19,13 +19,16 @@ import data.nat.order data.nat.div
 namespace nat
   open subtype
 
-  definition bex [reducible] (n : nat) (P : nat → Prop) : Prop :=
+  attribute [reducible]
+  definition bex (n : nat) (P : nat → Prop) : Prop :=
   ∃ x, x < n ∧ P x
 
-  definition bsub [reducible] (n : nat) (P : nat → Prop) : Type₁ :=
+  attribute [reducible]
+  definition bsub (n : nat) (P : nat → Prop) : Type₁ :=
   {x \ x < n ∧ P x}
 
-  definition ball [reducible] (n : nat) (P : nat → Prop) : Prop :=
+  attribute [reducible]
+  definition ball (n : nat) (P : nat → Prop) : Prop :=
   ∀ x, x < n → P x
 
   lemma bex_of_bsub {n : nat} {P : nat → Prop} : bsub n P → bex n P :=
@@ -90,7 +93,8 @@ end nat
 section
   open nat decidable
 
-  definition decidable_bex [instance] (n : nat) (P : nat → Prop) [H : decidable_pred P] : decidable (bex n P) :=
+  attribute [instance]
+  definition decidable_bex (n : nat) (P : nat → Prop) [H : decidable_pred P] : decidable (bex n P) :=
   nat.rec_on n
     (ff (not_bex_zero P))
     (λ a ih, decidable.rec_on ih
@@ -99,7 +103,8 @@ section
          (λ hpa : P a, tt (bex_succ_of_pred hpa)))
       (λ hpos : bex a P, tt (bex_succ hpos)))
 
-  definition decidable_ball [instance] (n : nat) (P : nat → Prop) [H : decidable_pred P] : decidable (ball n P) :=
+  attribute [instance]
+  definition decidable_ball (n : nat) (P : nat → Prop) [H : decidable_pred P] : decidable (ball n P) :=
   nat.rec_on n
     (tt (ball_zero P))
     (λ n₁ ih, decidable.rec_on ih
@@ -108,13 +113,15 @@ section
          (λ p_neg, ff (not_ball_of_not p_neg))
          (λ p_pos, tt (ball_succ_of_ball ih_pos p_pos))))
 
-  definition decidable_bex_le [instance] (n : nat) (P : nat → Prop) [decidable_pred P]
+  attribute [instance]
+  definition decidable_bex_le (n : nat) (P : nat → Prop) [decidable_pred P]
     : decidable (∃ x, x ≤ n ∧ P x) :=
   decidable_of_decidable_of_iff
     (decidable_bex (succ n) P)
     (exists_congr (λn', and_congr (lt_succ_iff_le n' n) (iff.refl (P n'))))
 
-  definition decidable_ball_le [instance] (n : nat) (P : nat → Prop) [decidable_pred P]
+  attribute [instance]
+  definition decidable_ball_le (n : nat) (P : nat → Prop) [decidable_pred P]
     : decidable (∀ x, x ≤ n → P x) :=
   decidable_of_decidable_of_iff
     (decidable_ball (succ n) P)

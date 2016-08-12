@@ -11,10 +11,12 @@ structure has_to_string [class] (A : Type) :=
 definition to_string {A : Type} [has_to_string A] : A → string :=
 has_to_string.to_string
 
-definition bool.has_to_string [instance] : has_to_string bool :=
+attribute [instance]
+definition bool.has_to_string : has_to_string bool :=
 has_to_string.mk (λ b, cond b "tt" "ff")
 
-definition decidable.has_to_string [instance] {p : Prop} : has_to_string (decidable p) :=
+attribute [instance]
+definition decidable.has_to_string {p : Prop} : has_to_string (decidable p) :=
 has_to_string.mk (λ b, if p then "tt" else "ff")
 
 definition list.to_string_aux {A : Type} [has_to_string A] : bool → list A → string
@@ -26,26 +28,33 @@ definition list.to_string {A : Type} [has_to_string A] : list A → string
 | []      := "[]"
 | (x::xs) := "[" ++ list.to_string_aux tt (x::xs) ++ "]"
 
-definition list.has_to_string [instance] {A : Type} [has_to_string A] : has_to_string (list A) :=
+attribute [instance]
+definition list.has_to_string {A : Type} [has_to_string A] : has_to_string (list A) :=
 has_to_string.mk list.to_string
 
-definition unit.has_to_string [instance] : has_to_string unit :=
+attribute [instance]
+definition unit.has_to_string : has_to_string unit :=
 has_to_string.mk (λ u, "star")
 
-definition option.has_to_string [instance] {A : Type} [has_to_string A] : has_to_string (option A) :=
+attribute [instance]
+definition option.has_to_string {A : Type} [has_to_string A] : has_to_string (option A) :=
 has_to_string.mk (λ o, match o with | none := "none" | (some a) := "(some " ++ to_string a ++ ")" end)
 
-definition sum.has_to_string [instance] {A B : Type} [has_to_string A] [has_to_string B] : has_to_string (sum A B) :=
+attribute [instance]
+definition sum.has_to_string {A B : Type} [has_to_string A] [has_to_string B] : has_to_string (sum A B) :=
 has_to_string.mk (λ s, match s with | (inl a) := "(inl " ++ to_string a ++ ")" | (inr b) := "(inr " ++ to_string b ++ ")" end)
 
-definition prod.has_to_string [instance] {A B : Type} [has_to_string A] [has_to_string B] : has_to_string (prod A B) :=
+attribute [instance]
+definition prod.has_to_string {A B : Type} [has_to_string A] [has_to_string B] : has_to_string (prod A B) :=
 has_to_string.mk (λ p, "(" ++ to_string (pr1 p) ++ ", " ++ to_string (pr2 p) ++ ")")
 
-definition sigma.has_to_string [instance] {A : Type} {B : A → Type} [has_to_string A] [s : ∀ x, has_to_string (B x)]
+attribute [instance]
+definition sigma.has_to_string {A : Type} {B : A → Type} [has_to_string A] [s : ∀ x, has_to_string (B x)]
                                           : has_to_string (sigma B) :=
 has_to_string.mk (λ p, "⟨"  ++ to_string (pr1 p) ++ ", " ++ to_string (pr2 p) ++ "⟩")
 
-definition subtype.has_to_string [instance] {A : Type} {P : A → Prop} [has_to_string A] : has_to_string (subtype P) :=
+attribute [instance]
+definition subtype.has_to_string {A : Type} {P : A → Prop} [has_to_string A] : has_to_string (subtype P) :=
 has_to_string.mk (λ s, to_string (elt_of s))
 
 definition char.quote_core (c : char) : string :=
@@ -55,7 +64,8 @@ else if  c = '\"' then "\\\""
 else if  c = '\'' then "\\\'"
 else c::nil
 
-definition char.has_to_sting [instance] : has_to_string char :=
+attribute [instance]
+definition char.has_to_sting : has_to_string char :=
 has_to_string.mk (λ c, "'" ++ char.quote_core c ++ "'")
 
 definition string.quote_aux : string → string
@@ -66,7 +76,8 @@ definition string.quote : string → string
 | []      := "\"\""
 | (x::xs) := "\"" ++ string.quote_aux (x::xs) ++ "\""
 
-definition string.has_to_string [instance] : has_to_string string :=
+attribute [instance]
+definition string.has_to_string : has_to_string string :=
 has_to_string.mk string.quote
 
 /- Remark: the code generator replaces this definition with one that display natural numbers in decimal notation -/
@@ -74,11 +85,14 @@ definition nat.to_string : nat → string
 | 0        := "zero"
 | (succ a) := "(succ " ++ nat.to_string a ++ ")"
 
-definition nat.has_to_string [instance] : has_to_string nat :=
+attribute [instance]
+definition nat.has_to_string : has_to_string nat :=
 has_to_string.mk nat.to_string
 
-definition fin.has_to_string [instance] (n : nat) : has_to_string (fin n) :=
+attribute [instance]
+definition fin.has_to_string (n : nat) : has_to_string (fin n) :=
 has_to_string.mk (λ f, to_string (fin.val f))
 
-definition unsigned.has_to_string [instance] : has_to_string unsigned :=
+attribute [instance]
+definition unsigned.has_to_string : has_to_string unsigned :=
 has_to_string.mk (λ n, to_string (fin.val n))

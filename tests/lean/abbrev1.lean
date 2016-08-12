@@ -12,7 +12,8 @@ set_option pp.abbreviations true
 
 print definition tst
 
-abbreviation id2 [parsing_only] {A : Type} (a : A) := a
+attribute [parsing_only]
+abbreviation id2 {A : Type} (a : A) := a
 
 definition tst1 :nat := id2 10
 

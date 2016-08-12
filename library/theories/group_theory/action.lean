@@ -25,7 +25,8 @@ variables [decidable_eq S]
 definition orbit (hom : G → perm S) (H : finset G) (a : S) : finset S :=
            image (move_by a) (image hom H)
 
-definition fixed_points [reducible] (hom : G → perm S) (H : finset G) : finset S :=
+attribute [reducible]
+definition fixed_points (hom : G → perm S) (H : finset G) : finset S :=
 {a ∈ univ | orbit hom H a = '{a}}
 
 variable [decidable_eq G] -- required by {x ∈ H |p x} filtering
@@ -182,7 +183,8 @@ lemma subg_stab_has_inv : finset_has_inv (stab hom H a) :=
       have PfinvinH : f⁻¹ ∈ H, from finsubg_has_inv H (mem_of_mem_sep Pfstab),
       mem_sep_of_mem PfinvinH Pfinv
 
-definition subg_stab_is_finsubg [instance] :
+attribute [instance]
+definition subg_stab_is_finsubg :
            is_finsubg (stab hom H a) :=
            is_finsubg.mk subg_stab_has_one subg_stab_closed subg_stab_has_inv
 
@@ -385,7 +387,8 @@ take g₁ g₂, assume Peq, perm.no_confusion Peq
       ... = g₂ * 1 : Pappeq
       ... = g₂ : mul_one)
 
-definition action_by_lmul_is_iso [instance] : is_iso_class (@action_by_lmul G _ _) :=
+attribute [instance]
+definition action_by_lmul_is_iso : is_iso_class (@action_by_lmul G _ _) :=
 is_iso_class.mk action_by_lmul_hom action_by_lmul_inj
 
 end cayley
@@ -412,7 +415,8 @@ lemma action_on_lcoset_hom : homomorphic (action_on_lcoset H) :=
 take g₁ g₂, eq_of_feq (funext take S, subtype.eq
   (by rewrite [↑action_on_lcoset, ↑lcoset_lmul, -fin_lcoset_compose]))
 
-definition action_on_lcoset_is_hom [instance] : is_hom_class (action_on_lcoset H) :=
+attribute [instance]
+definition action_on_lcoset_is_hom : is_hom_class (action_on_lcoset H) :=
 is_hom_class.mk action_on_lcoset_hom
 
 variable [finsubgH : is_finsubg H]

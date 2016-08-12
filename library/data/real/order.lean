@@ -1026,10 +1026,12 @@ protected definition lt (x y : ℝ) :=
 protected definition le (x y : ℝ) :=
   quot.lift_on₂ x y (λ a b, rat_seq.r_le a b) rat_seq.r_le_well_defined
 
-definition real_has_lt [instance] [priority real.prio] : has_lt ℝ :=
+attribute [instance] [priority real.prio]
+definition real_has_lt : has_lt ℝ :=
 has_lt.mk real.lt
 
-definition real_has_le [instance] [priority real.prio] : has_le ℝ :=
+attribute [instance] [priority real.prio]
+definition real_has_le : has_le ℝ :=
 has_le.mk real.le
 
 definition sep (x y : ℝ) := quot.lift_on₂ x y (λ a b, rat_seq.r_sep a b) rat_seq.r_sep_well_defined
@@ -1092,7 +1094,8 @@ protected theorem le_of_lt_or_eq (x y : ℝ) : x < y ∨ x = y → x ≤ y :=
         apply (or.inr (quot.exact H'))
       end)))
 
-definition ordered_ring [trans_instance] : ordered_ring ℝ :=
+attribute [trans_instance]
+definition ordered_ring : ordered_ring ℝ :=
 ⦃ ordered_ring, real.comm_ring,
   le_refl := real.le_refl,
   le_trans := @real.le_trans,

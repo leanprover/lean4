@@ -54,11 +54,13 @@ iff.intro eq_of_feq feq_of_eq
 
 lemma perm.f_mk {f : A → A} {Pinj : injective f} : perm.f (perm.mk f Pinj) = f := rfl
 
-definition move_by [reducible] (a : A) (f : perm A) : A := f a
+attribute [reducible]
+definition move_by (a : A) (f : perm A) : A := f a
 
 variable [decidable_eq A]
 
-lemma perm.has_decidable_eq [instance] : decidable_eq (perm A) :=
+attribute [instance]
+lemma perm.has_decidable_eq : decidable_eq (perm A) :=
       take f g,
       perm.destruct f (λ ff finj, perm.destruct g (λ gf ginj,
       decidable.rec_on (decidable_eq_fun ff gf)
@@ -79,12 +81,14 @@ lemma all_perms_complete : ∀ p : perm A, p ∈ all_perms :=
         have Pin : f ∈ all_injs A, from all_injs_complete Pinj,
         mem_dmap Pinj Pin)
 
-definition perm_is_fintype [instance] : fintype (perm A) :=
+attribute [instance]
+definition perm_is_fintype : fintype (perm A) :=
            fintype.mk all_perms nodup_all_perms all_perms_complete
 
 definition perm.mul (f g : perm A) :=
            perm.mk (f∘g) (injective_comp (perm.inj f) (perm.inj g))
-definition perm.one [reducible] : perm A := perm.mk id injective_id
+attribute [reducible]
+definition perm.one : perm A := perm.mk id injective_id
 definition perm.inv (f : perm A) := let inj := perm.inj f in
            perm.mk (perm_inv inj) (perm_inv_inj inj)
 
@@ -103,7 +107,8 @@ lemma perm.right_inv (p : perm A) : p ^ (perm.inv p) = perm.one :=
       rewrite [-perm_inv_right (perm.inj p)], intros, exact rfl
       end
 
-definition perm_group [instance] : group (perm A) :=
+attribute [instance]
+definition perm_group : group (perm A) :=
            group.mk perm.mul perm.assoc perm.one perm.one_mul perm.mul_one perm.inv perm.left_inv
 
 lemma perm_one : (1 : perm A) = perm.one := rfl

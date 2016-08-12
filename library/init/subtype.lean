@@ -32,5 +32,6 @@ end subtype
 open subtype
 
 variables {A : Type} {P : A → Prop}
-protected definition subtype.is_inhabited [instance] {a : A} (H : P a) : inhabited {x \ P x} :=
+attribute [instance]
+protected definition subtype.is_inhabited {a : A} (H : P a) : inhabited {x \ P x} :=
 inhabited.mk (tag a H)

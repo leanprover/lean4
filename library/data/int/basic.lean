@@ -38,7 +38,8 @@ inductive int : Type :=
 
 notation `ℤ` := int
 -- [coercion]
-definition int.of_num [reducible] [constructor] (n : num) : ℤ :=
+attribute [reducible] [constructor]
+definition int.of_num (n : num) : ℤ :=
 int.of_nat (nat.of_num n)
 
 namespace int
@@ -49,10 +50,12 @@ notation `-[1+ ` n `]` := int.neg_succ_of_nat n    -- for pretty-printing output
 
 protected definition prio : num := num.pred nat.prio
 
-definition int_has_zero [instance] [priority int.prio] : has_zero int :=
+attribute [instance] [priority int.prio]
+definition int_has_zero : has_zero int :=
 has_zero.mk (of_nat 0)
 
-definition int_has_one [instance] [priority int.prio] : has_one int :=
+attribute [instance] [priority int.prio]
+definition int_has_one : has_one int :=
 has_one.mk (of_nat 1)
 
 theorem of_nat_zero : of_nat (0:nat) = (0:int) :=
@@ -90,9 +93,12 @@ protected definition mul : ℤ → ℤ → ℤ
 
 /- notation -/
 
-definition int_has_add [instance] [priority int.prio] : has_add int := has_add.mk int.add
-definition int_has_neg [instance] [priority int.prio] : has_neg int := has_neg.mk int.neg
-definition int_has_mul [instance] [priority int.prio] : has_mul int := has_mul.mk int.mul
+attribute [instance] [priority int.prio]
+definition int_has_add : has_add int := has_add.mk int.add
+attribute [instance] [priority int.prio]
+definition int_has_neg : has_neg int := has_neg.mk int.neg
+attribute [instance] [priority int.prio]
+definition int_has_mul : has_mul int := has_mul.mk int.mul
 
 lemma mul_of_nat_of_nat   (m n : nat) : of_nat m * of_nat n = of_nat (m * n) :=
 rfl
@@ -130,7 +136,8 @@ private definition has_decidable_eq₂ : Π (a b : ℤ), decidable (a = b)
 | -[1+ m]    -[1+ n]    := if H : m = n then
     inl (congr_arg neg_succ_of_nat H) else inr (not.mto neg_succ_of_nat.inj H)
 
-definition has_decidable_eq [instance] [priority int.prio] : decidable_eq ℤ := has_decidable_eq₂
+attribute [instance] [priority int.prio]
+definition has_decidable_eq : decidable_eq ℤ := has_decidable_eq₂
 
 theorem of_nat_add (n m : nat) : of_nat (n + m) = of_nat n + of_nat m := rfl
 
@@ -168,14 +175,17 @@ protected definition equiv (p q : ℕ × ℕ) : Prop :=  pr1 p + pr2 q = pr2 p +
 
 local infix ≡ := int.equiv
 
-protected theorem equiv.refl [refl] {p : ℕ × ℕ} : p ≡ p := !add.comm
+attribute [refl]
+protected theorem equiv.refl {p : ℕ × ℕ} : p ≡ p := !add.comm
 
 local attribute int.equiv [reducible]
 
-protected theorem equiv.symm [symm] {p q : ℕ × ℕ} (H : p ≡ q) : q ≡ p :=
+attribute [symm]
+protected theorem equiv.symm {p q : ℕ × ℕ} (H : p ≡ q) : q ≡ p :=
 by simp
 
-protected theorem equiv.trans [trans] {p q r : ℕ × ℕ} (H1 : p ≡ q) (H2 : q ≡ r) : p ≡ r :=
+attribute [trans]
+protected theorem equiv.trans {p q r : ℕ × ℕ} (H1 : p ≡ q) (H2 : q ≡ r) : p ≡ r :=
 add.right_cancel (calc
    pr1 p + pr2 r + pr2 q = pr1 p + pr2 q + pr2 r : by simp_nohyps
                      ... = pr2 p + pr1 r + pr2 q : by simp)
@@ -516,7 +526,8 @@ protected theorem eq_zero_or_eq_zero_of_mul_eq_zero {a b : ℤ} (H : a * b = 0) 
 or.imp eq_zero_of_nat_abs_eq_zero eq_zero_of_nat_abs_eq_zero
   (eq_zero_or_eq_zero_of_mul_eq_zero (by rewrite [-nat_abs_mul, H]))
 
-protected definition integral_domain [trans_instance] : integral_domain int :=
+attribute [trans_instance]
+protected definition integral_domain : integral_domain int :=
 ⦃integral_domain,
   add            := int.add,
   add_assoc      := int.add_assoc,
@@ -537,10 +548,12 @@ protected definition integral_domain [trans_instance] : integral_domain int :=
   zero_ne_one    := int.zero_ne_one,
   eq_zero_or_eq_zero_of_mul_eq_zero := @int.eq_zero_or_eq_zero_of_mul_eq_zero⦄
 
-definition int_has_sub [instance] [priority int.prio] : has_sub int :=
+attribute [instance] [priority int.prio]
+definition int_has_sub : has_sub int :=
 has_sub.mk has_sub.sub
 
-definition int_has_dvd [instance] [priority int.prio] : has_dvd int :=
+attribute [instance] [priority int.prio]
+definition int_has_dvd : has_dvd int :=
 has_dvd.mk has_dvd.dvd
 
 /- additional properties -/
@@ -577,7 +590,8 @@ theorem pred_nat_succ (n : ℕ) : pred (nat.succ n) = n := pred_succ n
 theorem neg_nat_succ (n : ℕ) : -nat.succ n = pred (-n) := !neg_succ
 theorem succ_neg_nat_succ (n : ℕ) : succ (-nat.succ n) = -n := !succ_neg_succ
 
-definition rec_nat_on [unfold 2] {P : ℤ → Type} (z : ℤ) (H0 : P 0)
+attribute [unfold 2]
+definition rec_nat_on {P : ℤ → Type} (z : ℤ) (H0 : P 0)
   (Hsucc : Π⦃n : ℕ⦄, P n → P (succ n)) (Hpred : Π⦃n : ℕ⦄, P (-n) → P (-nat.succ n)) : P z :=
 int.rec (nat.rec H0 Hsucc) (λn, nat.rec H0 Hpred (nat.succ n)) z
 

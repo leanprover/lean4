@@ -265,7 +265,8 @@ quot.induction_on s (λ l H, list.all_of_forall H)
 theorem all_iff_forall (p : A → Prop) (s : finset A) : all s p ↔ (∀a, a ∈ s → p a) :=
 iff.intro forall_of_all all_of_forall
 
-definition decidable_all [instance] (p : A → Prop) [h : decidable_pred p] (s : finset A) :
+attribute [instance]
+definition decidable_all (p : A → Prop) [h : decidable_pred p] (s : finset A) :
   decidable (all s p) :=
 quot.rec_on_subsingleton s (λ l, list.decidable_all p (elt_of l))
 
@@ -301,7 +302,8 @@ iff.intro
   (suppose s ⊆ t, all_of_forall (take x, suppose x ∈ s, mem_of_subset_of_mem `s ⊆ t` `x ∈ s`))
   (suppose all s (λ x, x ∈ t), subset_of_forall (take x, suppose x ∈ s, of_mem_of_all `x ∈ s` `all s (λ x, x ∈ t)`))
 
-definition decidable_subset [instance] (s t : finset A) : decidable (s ⊆ t) :=
+attribute [instance]
+definition decidable_subset (s t : finset A) : decidable (s ⊆ t) :=
 decidable_of_decidable_of_iff _ (iff.symm !subset_iff_all)
 end all
 
@@ -337,7 +339,8 @@ theorem any_of_insert_right [h : decidable_eq A] {p : A → Prop} {s : finset A}
 obtain b (H₁ : b ∈ s) (H₂ : p b), from exists_of_any H,
 any_of_mem (mem_insert_of_mem a H₁) H₂
 
-definition decidable_any [instance] (p : A → Prop) [h : decidable_pred p] (s : finset A) :
+attribute [instance]
+definition decidable_any (p : A → Prop) [h : decidable_pred p] (s : finset A) :
   decidable (any s p) :=
 quot.rec_on_subsingleton s (λ l, list.decidable_any p (elt_of l))
 end any

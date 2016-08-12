@@ -12,8 +12,10 @@ unit.rec_on a (unit.rec_on b rfl)
 theorem unit_eq_unit (a : unit) : a = () :=
 unit_eq a ()
 
-definition unit_subsingleton [instance] : subsingleton unit :=
+attribute [instance]
+definition unit_subsingleton : subsingleton unit :=
 subsingleton.intro unit_eq
 
-definition unit_is_inhabited [instance] : inhabited unit :=
+attribute [instance]
+definition unit_is_inhabited : inhabited unit :=
 inhabited.mk ()

@@ -31,9 +31,11 @@ namespace sum
   definition inr_inj {b₁ b₂ : B} : intro_right A b₁ = intro_right A b₂ → b₁ = b₂ :=
   sorry -- assume H, by injection H; assumption
 
-  protected definition is_inhabited_left [instance] [h : inhabited A] : inhabited (A + B) :=
+  attribute [instance]
+  protected definition is_inhabited_left [h : inhabited A] : inhabited (A + B) :=
   inhabited.mk (inl (default A))
 
-  protected definition is_inhabited_right [instance] [h : inhabited B] : inhabited (A + B) :=
+  attribute [instance]
+  protected definition is_inhabited_right [h : inhabited B] : inhabited (A + B) :=
   inhabited.mk (inr (default B))
 end sum

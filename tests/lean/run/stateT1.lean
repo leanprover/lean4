@@ -1,6 +1,7 @@
 meta_definition mytactic (A : Type) := stateT (list nat) tactic A
 
-meta_definition mytactic_is_monad [instance] : monad mytactic :=
+attribute [instance]
+meta_definition mytactic_is_monad : monad mytactic :=
 @stateT_is_monad _ _ _
 
 meta_definition read_lst : mytactic (list nat) :=

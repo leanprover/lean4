@@ -7,7 +7,8 @@ prelude
 import init.fin
 definition unsigned_sz : nat := 4294967296
 
-definition unsigned [reducible] := fin unsigned_sz
+attribute [reducible]
+definition unsigned := fin unsigned_sz
 
 namespace unsigned
 
@@ -18,6 +19,7 @@ definition to_nat (c : unsigned) : nat :=
 fin.val c
 end unsigned
 
-definition unsigned.has_decidable_eq [instance] : decidable_eq unsigned :=
+attribute [instance]
+definition unsigned.has_decidable_eq : decidable_eq unsigned :=
 have decidable_eq (fin unsigned_sz), from _,
 this

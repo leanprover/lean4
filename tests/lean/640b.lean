@@ -1,2 +1,3 @@
-abbreviation bar [parsing_only] := @eq
+attribute [parsing_only]
+abbreviation bar := @eq
 check @bar

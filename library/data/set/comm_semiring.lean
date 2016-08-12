@@ -8,7 +8,8 @@ Author: Leonardo de Moura
 import data.set.basic algebra.ring
 open set
 
-definition set_comm_semiring [instance] (A : Type) : comm_semiring (set A) :=
+attribute [instance]
+definition set_comm_semiring (A : Type) : comm_semiring (set A) :=
 ⦃ comm_semiring,
   add           := union,
   mul           := inter,

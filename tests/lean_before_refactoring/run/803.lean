@@ -3,12 +3,15 @@ open algebra fin nat
 
 namespace matrix
 
-definition vector [reducible] (A : Type) (n : nat) := fin n → A
+attribute [reducible]
+definition vector (A : Type) (n : nat) := fin n → A
 
-definition to_cvec [reducible] [coercion] {A : Type} {n : nat} (v : vector A n)
+attribute [reducible] [coercion]
+definition to_cvec {A : Type} {n : nat} (v : vector A n)
 : matrix A n 1 := λ i o, v i
 
-definition to_rvec [reducible] [coercion] {A : Type} {n : nat} (v : vector A n)
+attribute [reducible] [coercion]
+definition to_rvec {A : Type} {n : nat} (v : vector A n)
 : matrix A 1 n := λ o i, v i
 
 variables (A : Type) (n : nat)

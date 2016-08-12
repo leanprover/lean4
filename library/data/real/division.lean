@@ -587,7 +587,8 @@ protected noncomputable definition inv (x : ℝ) : ℝ :=
   quot.lift_on x (λ a, quot.mk (rat_seq.r_inv a))
            (λ a b H, quot.sound (rat_seq.r_inv_well_defined H))
 
-noncomputable definition real_has_inv [instance] [priority real.prio] : has_inv real :=
+attribute [instance] [priority real.prio]
+noncomputable definition real_has_inv : has_inv real :=
   has_inv.mk real.inv
 
 protected noncomputable definition div (x y : ℝ) : ℝ :=
@@ -639,7 +640,8 @@ noncomputable definition dec_lt : decidable_rel real.lt :=
     apply prop_decidable
   end
 
-protected noncomputable definition discrete_linear_ordered_field [trans_instance]:
+attribute [trans_instance]
+protected noncomputable definition discrete_linear_ordered_field :
   discrete_linear_ordered_field ℝ :=
   ⦃ discrete_linear_ordered_field, real.comm_ring, real.ordered_ring,
     le_total        := real.le_total,

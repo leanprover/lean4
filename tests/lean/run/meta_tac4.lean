@@ -1,7 +1,8 @@
 open tactic name list
 
 definition foo (a : nat) := a + 1 > 0
-definition boo [reducible] (a : nat) := a + 1 > 0
+attribute [reducible]
+definition boo (a : nat) := a + 1 > 0
 
 example : ∀ (a b : nat), foo a → boo a → a + 1 > 0 → foo a :=
 by do

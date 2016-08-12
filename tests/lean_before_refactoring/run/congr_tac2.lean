@@ -11,7 +11,8 @@ end
 structure finite_set [class] {T : Type} (xs : set T) :=
 (to_finset : finset T) (is_equiv : to_set to_finset = xs)
 
-definition finset_set.is_subsingleton [instance] (T : Type) (xs : set T) : subsingleton (finite_set xs) :=
+attribute [instance]
+definition finset_set.is_subsingleton (T : Type) (xs : set T) : subsingleton (finite_set xs) :=
 begin
   constructor, intro a b,
   induction a with f₁ h₁,

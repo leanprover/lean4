@@ -6,15 +6,18 @@ Author: Leonardo de Moura
 import data.bool
 open bool
 
-protected definition char.is_inhabited [instance] : inhabited char :=
+attribute [instance]
+protected definition char.is_inhabited : inhabited char :=
 inhabited.mk (char.mk ff ff ff ff ff ff ff ff)
 
-protected definition string.is_inhabited [instance] : inhabited string :=
+attribute [instance]
+protected definition string.is_inhabited : inhabited string :=
 inhabited.mk string.empty
 
 open decidable
 
-definition decidable_eq_char [instance] : ∀ c₁ c₂ : char, decidable (c₁ = c₂) :=
+attribute [instance]
+definition decidable_eq_char : ∀ c₁ c₂ : char, decidable (c₁ = c₂) :=
 begin
   intro c₁ c₂,
   cases c₁ with a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈,
@@ -33,7 +36,8 @@ end
 
 open string
 
-definition decidable_eq_string [instance] : ∀ s₁ s₂ : string, decidable (s₁ = s₂)
+attribute [instance]
+definition decidable_eq_string : ∀ s₁ s₂ : string, decidable (s₁ = s₂)
 | empty       empty       := by left; reflexivity
 | empty       (str c₂ r₂) := by right; contradiction
 | (str c₁ r₁) empty       := by right; contradiction

@@ -16,7 +16,8 @@ namespace acc
   acc.rec_on H₁ (λ x₁ ac₁ iH H₂, ac₁ y H₂) H₂
 
   -- dependent elimination for acc
-  protected definition drec [recursor]
+  attribute [recursor]
+  protected definition drec
       {C : Π (a : A), acc R a → Type}
       (h₁ : Π (x : A) (acx : Π (y : A), R y x → acc R y),
               (Π (y : A) (ryx : R y x), C y (acx y ryx)) → C x (acc.intro x acx))

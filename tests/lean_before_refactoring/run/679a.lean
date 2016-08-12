@@ -3,10 +3,12 @@ open bool nat list finset
 
 attribute finset [class]
 
-definition fin_nat [instance] : finset nat :=
+attribute [instance]
+definition fin_nat : finset nat :=
 to_finset [0]
 
-definition fin_bool [instance] : finset bool :=
+attribute [instance]
+definition fin_bool : finset bool :=
 to_finset [tt, ff]
 
 definition tst (A : Type) [s : finset A] : finset A :=

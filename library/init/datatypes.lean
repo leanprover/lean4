@@ -52,10 +52,12 @@ inductive sum (A B : Type) : Type :=
 | inl {} : A → sum A B
 | inr {} : B → sum A B
 
-definition sum.intro_left [reducible] {A : Type} (B : Type) (a : A) : sum A B :=
+attribute [reducible]
+definition sum.intro_left {A : Type} (B : Type) (a : A) : sum A B :=
 sum.inl a
 
-definition sum.intro_right [reducible] (A : Type) {B : Type} (b : B) : sum A B :=
+attribute [reducible]
+definition sum.intro_right (A : Type) {B : Type} (b : B) : sum A B :=
 sum.inr b
 
 inductive or (a b : Prop) : Prop :=

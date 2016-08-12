@@ -39,6 +39,7 @@ namespace PropF
   | (Impl p₁ p₂) (Impl q₁ q₂) H :=
     by rewrite [equal_to_eq (band_elim_left H), equal_to_eq (band_elim_right H)]
 
-  lemma has_decidable_eq [instance] : decidable_eq PropF :=
+  attribute [instance]
+  lemma has_decidable_eq : decidable_eq PropF :=
   decidable_eq_of_bool_pred equal_to_eq equal_refl
 end PropF

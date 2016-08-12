@@ -1,12 +1,17 @@
 prelude
 
-definition id₁ [reducible] {A : Type} (a : A) := a
-definition id₂ [reducible] {A : Type} (a : A) := a
+attribute [reducible]
+definition id₁ {A : Type} (a : A) := a
+attribute [reducible]
+definition id₂ {A : Type} (a : A) := a
 
-definition id₅ [irreducible] {A : Type} (a : A) := a
-definition id₆ [irreducible] {A : Type} (a : A) := a
+attribute [irreducible]
+definition id₅ {A : Type} (a : A) := a
+attribute [irreducible]
+definition id₆ {A : Type} (a : A) := a
 
-definition pr [reducible] {A B : Type} (a : A) (b : B) := a
+attribute [reducible]
+definition pr {A B : Type} (a : A) (b : B) := a
 definition pr2 {A B : Type} (a : A) (b : B) := a
 
 print [reducible]

@@ -5,9 +5,11 @@ structure unification_hint := (pattern : unification_constraint) (constraints : 
 
 namespace toy
 constants (A : Type.{1}) (f h : A → A) (x y z : A)
-definition g [irreducible] (x y : A) : A := f z
+attribute [irreducible]
+definition g (x y : A) : A := f z
 
-definition toy_hint [unify] (x y : A) : unification_hint :=
+attribute [unify]
+definition toy_hint (x y : A) : unification_hint :=
   unification_hint.mk (unification_constraint.mk (g x y) (f z)) []
 
 open tactic
@@ -26,7 +28,8 @@ attribute add [irreducible]
 
 open tactic
 
-definition add_zero_hint [unify] (m n : ℕ) [has_add ℕ] [has_one ℕ] [has_zero ℕ] : unification_hint :=
+attribute [unify]
+definition add_zero_hint (m n : ℕ) [has_add ℕ] [has_one ℕ] [has_zero ℕ] : unification_hint :=
   unification_hint.mk (unification_constraint.mk (m + 1) (succ n)) [unification_constraint.mk m n]
 
 definition ex2 (H : n + 1 = 0) : succ n = 0 :=

@@ -11,42 +11,54 @@ namespace nat
 
 /- subtraction -/
 
-protected theorem sub_zero [simp] (n : ℕ) : n - 0 = n :=
+attribute [simp]
+protected theorem sub_zero (n : ℕ) : n - 0 = n :=
 rfl
 
-theorem sub_succ [simp] (n m : ℕ) : n - succ m = pred (n - m) :=
+attribute [simp]
+theorem sub_succ (n m : ℕ) : n - succ m = pred (n - m) :=
 rfl
 
-protected theorem zero_sub [simp] (n : ℕ) : 0 - n = 0 :=
+attribute [simp]
+protected theorem zero_sub (n : ℕ) : 0 - n = 0 :=
 sorry -- nat.induction_on n (by simp) (by simp)
 
-theorem succ_sub_succ [simp] (n m : ℕ) : succ n - succ m = n - m :=
+attribute [simp]
+theorem succ_sub_succ (n m : ℕ) : succ n - succ m = n - m :=
 succ_sub_succ_eq_sub n m
 
-protected theorem sub_self [simp] (n : ℕ) : n - n = 0 :=
+attribute [simp]
+protected theorem sub_self (n : ℕ) : n - n = 0 :=
 sorry -- nat.induction_on n (by simp) (by simp)
 
 local attribute nat.add_succ [simp]
 
-protected theorem add_sub_add_right [simp] (n k m : ℕ) : (n + k) - (m + k) = n - m :=
+attribute [simp]
+protected theorem add_sub_add_right (n k m : ℕ) : (n + k) - (m + k) = n - m :=
 sorry -- nat.induction_on k (by simp) (by simp)
 
-protected theorem add_sub_add_left [simp] (k n m : ℕ) : (k + n) - (k + m) = n - m :=
+attribute [simp]
+protected theorem add_sub_add_left (k n m : ℕ) : (k + n) - (k + m) = n - m :=
 sorry -- nat.induction_on k (by simp) (by simp)
 
-protected theorem add_sub_cancel [simp] (n m : ℕ) : n + m - m = n :=
+attribute [simp]
+protected theorem add_sub_cancel (n m : ℕ) : n + m - m = n :=
 sorry -- nat.induction_on m (by simp) (by simp)
 
-protected theorem add_sub_cancel_left [simp] (n m : ℕ) : n + m - n = m :=
+attribute [simp]
+protected theorem add_sub_cancel_left (n m : ℕ) : n + m - n = m :=
 sorry -- nat.induction_on n (by simp) (by simp)
 
-protected theorem sub_sub [simp] (n m k : ℕ) : n - m - k = n - (m + k) :=
+attribute [simp]
+protected theorem sub_sub (n m k : ℕ) : n - m - k = n - (m + k) :=
 sorry -- nat.induction_on k (by simp) (by simp)
 
-theorem succ_sub_sub_succ [simp] (n m k : ℕ) : succ n - m - succ k = n - m - k :=
+attribute [simp]
+theorem succ_sub_sub_succ (n m k : ℕ) : succ n - m - succ k = n - m - k :=
 sorry -- by simp
 
-theorem sub_self_add [simp] (n m : ℕ) : n - (n + m) = 0 :=
+attribute [simp]
+theorem sub_self_add (n m : ℕ) : n - (n + m) = 0 :=
 sorry -- by inst_simp
 
 protected theorem sub.right_comm (m n k : ℕ) : m - n - k = m - k - n :=
@@ -55,23 +67,28 @@ sorry -- by simp
 theorem sub_one (n : ℕ) : n - 1 = pred n :=
 rfl
 
-theorem succ_sub_one [simp] (n : ℕ) : succ n - 1 = n :=
+attribute [simp]
+theorem succ_sub_one (n : ℕ) : succ n - 1 = n :=
 rfl
 
 local attribute nat.succ_mul nat.mul_succ [simp]
 
 /- interaction with multiplication -/
 
-theorem mul_pred_left [simp] (n m : ℕ) : pred n * m = n * m - m :=
+attribute [simp]
+theorem mul_pred_left (n m : ℕ) : pred n * m = n * m - m :=
 sorry -- nat.induction_on n (by simp) (by simp)
 
-theorem mul_pred_right [simp] (n m : ℕ) : n * pred m = n * m - n :=
+attribute [simp]
+theorem mul_pred_right (n m : ℕ) : n * pred m = n * m - n :=
 sorry -- by inst_simp
 
-protected theorem mul_sub_right_distrib [simp] (n m k : ℕ) : (n - m) * k = n * k - m * k :=
+attribute [simp]
+protected theorem mul_sub_right_distrib (n m k : ℕ) : (n - m) * k = n * k - m * k :=
 sorry -- nat.induction_on m (by simp) (by simp)
 
-protected theorem mul_sub_left_distrib [simp] (n m k : ℕ) : n * (m - k) = n * m - n * k :=
+attribute [simp]
+protected theorem mul_sub_left_distrib (n m k : ℕ) : n * (m - k) = n * m - n * k :=
 sorry -- by inst_simp
 
 protected theorem mul_self_sub_mul_self_eq (a b : nat) : a * a - b * b = (a + b) * (a - b) :=
@@ -324,7 +341,8 @@ lt_of_succ_le this
 
 /- distance -/
 
-definition dist [reducible] (n m : ℕ) := (n - m) + (m - n)
+attribute [reducible]
+definition dist (n m : ℕ) := (n - m) + (m - n)
 
 theorem dist.comm (n m : ℕ) : dist n m = dist m n :=
 sorry -- by simp

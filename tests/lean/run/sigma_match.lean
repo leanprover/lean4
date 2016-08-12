@@ -2,7 +2,8 @@ open sigma
 
 constant hom.{l₁ l₂} {A : Type.{l₁}} {B : Type.{l₂}} (a : A) (b : B) : Type.{max l₁ l₂}
 
-definition arrow_ob [reducible] (A B : Type) : Type :=
+attribute [reducible]
+definition arrow_ob (A B : Type) : Type :=
 Σ (a : A) (b : B), hom a b
 
 definition src1 {A B : Type} (x : arrow_ob A B) : A :=

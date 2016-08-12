@@ -46,7 +46,8 @@ namespace complex
     by rewrite [-complex.eta, `re x = 0`, `im x = 0`]
   end real_inner_product_space
 
-  protected definition real_inner_product_space [reducible] : inner_product_space ℂ :=
+  attribute [reducible]
+  protected definition real_inner_product_space : inner_product_space ℂ :=
   ⦃ inner_product_space, complex.discrete_field,
     smul               := real_inner_product_space.smul,
     inner              := real_inner_product_space.ip,
@@ -63,7 +64,8 @@ namespace complex
 
   local attribute complex.real_inner_product_space [trans_instance]
 
-  protected definition normed_vector_space [trans_instance] : normed_vector_space ℂ :=
+  attribute [trans_instance]
+  protected definition normed_vector_space : normed_vector_space ℂ :=
   _
 
   theorem norm_squared_eq_cmod (z : ℂ) : ∥ z ∥^2 = cmod z := by rewrite norm_squared

@@ -8,15 +8,23 @@ definition g (x y : A) := h y
 definition f (x y z : A) := g (g x y) z
 definition d (x y z w : A) := f (f x y z) (f y z w) (f x w z)
 
-definition h.rfl [defeq] (x : A) : h x = x := rfl
-definition g.rfl [defeq] (x y : A) : g x y = y := rfl
-definition f.rfl [defeq] (x y z : A) : f x y z = z := rfl
-definition d.rfl [defeq] (x y z w : A) : d x y z w = z := rfl
+attribute [defeq]
+definition h.rfl (x : A) : h x = x := rfl
+attribute [defeq]
+definition g.rfl (x y : A) : g x y = y := rfl
+attribute [defeq]
+definition f.rfl (x y z : A) : f x y z = z := rfl
+attribute [defeq]
+definition d.rfl (x y z w : A) : d x y z w = z := rfl
 
-definition h.def [defeq] (x : A) : h x = q x := rfl
-definition g.def [defeq] (x y : A) : g x y = h y := rfl
-definition f.def [defeq] (x y z : A) : f x y z = g (g x y) z := rfl
-definition d.def [defeq] (x y z w : A) : d x y z w = f (f x y z) (f y z w) (f x w z) := rfl
+attribute [defeq]
+definition h.def (x : A) : h x = q x := rfl
+attribute [defeq]
+definition g.def (x y : A) : g x y = h y := rfl
+attribute [defeq]
+definition f.def (x y z : A) : f x y z = g (g x y) z := rfl
+attribute [defeq]
+definition d.def (x y z w : A) : d x y z w = f (f x y z) (f y z w) (f x w z) := rfl
 
 -- Confirm that more recent annotations get priority
 print [defeq]

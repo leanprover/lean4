@@ -19,7 +19,8 @@ open prod
 open subtype
 open tuple
 
-definition bv [reducible] (n : ℕ) := tuple bool n
+attribute [reducible]
+definition bv (n : ℕ) := tuple bool n
 
 -- Create a zero bitvector
 definition bv_zero (n : ℕ) : bv n := replicate ff
@@ -115,18 +116,24 @@ section arith
   definition bv_sub : bv n → bv n → bv n
   | x y := pr₂ (bv_sbb x y ff)
 
-  definition bv_has_zero [instance] : has_zero (bv n) := has_zero.mk (bv_zero n)
-  definition bv_has_one  [instance] : has_one (bv n)  := has_one.mk (bv_one n)
-  definition bv_has_add  [instance] : has_add (bv n)  := has_add.mk bv_add
-  definition bv_has_sub  [instance] : has_sub (bv n)  := has_sub.mk bv_sub
-  definition bv_has_neg  [instance] : has_neg (bv n)  := has_neg.mk bv_neg
+  attribute [instance]
+  definition bv_has_zero : has_zero (bv n) := has_zero.mk (bv_zero n)
+  attribute [instance]
+  definition bv_has_one  : has_one (bv n)  := has_one.mk (bv_one n)
+  attribute [instance]
+  definition bv_has_add  : has_add (bv n)  := has_add.mk bv_add
+  attribute [instance]
+  definition bv_has_sub  : has_sub (bv n)  := has_sub.mk bv_sub
+  attribute [instance]
+  definition bv_has_neg  : has_neg (bv n)  := has_neg.mk bv_neg
 
   definition bv_mul : bv n → bv n → bv n
   | x y :=
     let f := λr b, cond b (r + r + y) (r + r) in
     foldl f 0 (to_list x)
 
-  definition bv_has_mul  [instance] : has_mul (bv n)  := has_mul.mk bv_mul
+  attribute [instance]
+  definition bv_has_mul  : has_mul (bv n)  := has_mul.mk bv_mul
 
   definition bv_ult : bv n → bv n → bool := λx y, pr₁ (bv_sbb x y ff)
   definition bv_ugt : bv n → bv n → bool := λx y, bv_ult y x

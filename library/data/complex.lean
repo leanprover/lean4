@@ -37,10 +37,12 @@ by cases z; exact rfl
 
 protected definition prio : num := num.pred real.prio
 
-definition complex_has_zero [instance] [priority complex.prio] : has_zero ℂ :=
+attribute [instance] [priority complex.prio]
+definition complex_has_zero : has_zero ℂ :=
 has_zero.mk (of_nat 0)
 
-definition complex_has_one [instance] [priority complex.prio] : has_one ℂ :=
+attribute [instance] [priority complex.prio]
+definition complex_has_one : has_one ℂ :=
 has_one.mk (of_nat 1)
 
 theorem re_of_real (x : ℝ) : re (of_real x) = x := rfl
@@ -60,13 +62,16 @@ complex.mk
 
 /- notation -/
 
-definition complex_has_add [instance] [priority complex.prio] : has_add complex :=
+attribute [instance] [priority complex.prio]
+definition complex_has_add : has_add complex :=
 has_add.mk complex.add
 
-definition complex_has_neg [instance] [priority complex.prio] : has_neg complex :=
+attribute [instance] [priority complex.prio]
+definition complex_has_neg : has_neg complex :=
 has_neg.mk complex.neg
 
-definition complex_has_mul [instance] [priority complex.prio] : has_mul complex :=
+attribute [instance] [priority complex.prio]
+definition complex_has_mul : has_mul complex :=
 has_mul.mk complex.mul
 
 protected theorem add_def (z w : ℂ) :
@@ -156,7 +161,8 @@ iff.intro eq_of_of_real_eq_of_real !congr_arg
 
 /- make complex an instance of ring -/
 
-protected definition comm_ring [reducible] : comm_ring complex :=
+attribute [reducible]
+protected definition comm_ring : comm_ring complex :=
   begin
     fapply comm_ring.mk,
     exact complex.add,
@@ -179,7 +185,8 @@ protected definition comm_ring [reducible] : comm_ring complex :=
 
 local attribute complex.comm_ring [instance]
 
-definition complex_has_sub [instance] [priority complex.prio] : has_sub complex :=
+attribute [instance] [priority complex.prio]
+definition complex_has_sub : has_sub complex :=
 has_sub.mk has_sub.sub
 
 theorem of_real_sub (x y : ℝ) : of_real (x - y) = of_real x - of_real y :=
@@ -234,7 +241,8 @@ end
 
 protected noncomputable definition inv (z : ℂ) : complex := conj z * of_real (cmod z)⁻¹
 
-protected noncomputable definition complex_has_inv [instance] [priority complex.prio] :
+attribute [instance] [priority complex.prio]
+protected noncomputable definition complex_has_inv :
   has_inv complex := has_inv.mk complex.inv
 
 protected theorem inv_def (z : ℂ) : z⁻¹ = conj z * of_real (cmod z)⁻¹ := rfl
@@ -252,7 +260,8 @@ classical.by_cases
 
 protected noncomputable definition div (z w : ℂ) : ℂ := z * w⁻¹
 
-noncomputable definition complex_has_div [instance] [priority complex.prio] :
+attribute [instance] [priority complex.prio]
+noncomputable definition complex_has_div :
     has_div complex :=
   has_div.mk complex.div
 
@@ -278,7 +287,8 @@ take z w, classical.prop_decidable (z = w)
 protected theorem zero_ne_one : (0 : ℂ) ≠ 1 :=
 assume H, zero_ne_one (eq_of_of_real_eq_of_real H)
 
-protected noncomputable definition discrete_field [trans_instance] :
+attribute [trans_instance]
+protected noncomputable definition discrete_field :
   discrete_field ℂ :=
 ⦃ discrete_field, complex.comm_ring,
   mul_inv_cancel   := @complex.mul_inv_cancel,

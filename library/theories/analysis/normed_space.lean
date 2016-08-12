@@ -86,7 +86,8 @@ section
   variable {V : Type}
   variable [normed_vector_space V]
 
-  private definition nvs_dist [reducible] (u v : V) := ∥ u - v ∥
+  attribute [reducible]
+  private definition nvs_dist (u v : V) := ∥ u - v ∥
 
   private lemma nvs_dist_self (u : V) : nvs_dist u u = 0 :=
   by rewrite [↑nvs_dist, sub_self, norm_zero]
@@ -103,7 +104,8 @@ section
   private lemma nvs_dist_comm  (u v : V) : nvs_dist u v = nvs_dist v u :=
   by rewrite [↑nvs_dist, -norm_neg, neg_sub]
 
-  definition normed_vector_space_to_metric_space [trans_instance]
+  attribute [trans_instance]
+  definition normed_vector_space_to_metric_space
       (V : Type) [nvsV : normed_vector_space V] :
     metric_space V :=
   ⦃ metric_space,
@@ -132,7 +134,8 @@ structure banach_space [class] (V : Type) extends nvsV : normed_vector_space V :
 (complete : ∀ X, @analysis.cauchy V (@normed_vector_space_to_metric_space V nvsV) X →
     @analysis.converges_seq V (@normed_vector_space_to_metric_space V nvsV) X)
 
-definition banach_space_to_metric_space [trans_instance] (V : Type) [bsV : banach_space V] :
+attribute [trans_instance]
+definition banach_space_to_metric_space (V : Type) [bsV : banach_space V] :
   complete_metric_space V :=
 ⦃ complete_metric_space, normed_vector_space_to_metric_space V,
   complete := banach_space.complete

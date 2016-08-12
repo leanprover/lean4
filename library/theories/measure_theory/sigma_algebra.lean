@@ -112,7 +112,8 @@ theorem measurable_generated_by {G : set (set X)} :
 
 protected definition le (M N : sigma_algebra X) : Prop := @sets _ M ⊆ @sets _ N
 
-definition sigma_algebra_has_le [instance] :
+attribute [instance]
+definition sigma_algebra_has_le :
   has_le (sigma_algebra X) :=
 has_le.mk sigma_algebra.le
 
@@ -200,7 +201,8 @@ protected theorem Sup_le {N : sigma_algebra X} {MS : set (sigma_algebra X)} (H :
 have (⋃ M ∈ MS, @sets _ M) ⊆ @sets _ N, from bUnion_subset H,
 sets_generated_by_initial this
 
-protected definition complete_lattice [trans_instance] :
+attribute [trans_instance]
+protected definition complete_lattice :
   complete_lattice (sigma_algebra X) :=
 ⦃complete_lattice,
   le           := sigma_algebra.le,

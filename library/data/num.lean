@@ -6,10 +6,12 @@ Author: Leonardo de Moura
 import data.bool
 open bool tactic
 
-definition pos_num_decidable_eq [instance] : decidable_eq pos_num :=
+attribute [instance]
+definition pos_num_decidable_eq : decidable_eq pos_num :=
 by mk_dec_eq_instance
 
-definition num_decidable_eq [instance] : decidable_eq num :=
+attribute [instance]
+definition num_decidable_eq : decidable_eq num :=
 by mk_dec_eq_instance
 
 namespace pos_num

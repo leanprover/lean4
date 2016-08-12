@@ -14,12 +14,14 @@ open decidable
 
 definition even (n : nat) := n % 2 = 0
 
-definition decidable_even [instance] : ∀ n, decidable (even n) :=
+attribute [instance]
+definition decidable_even : ∀ n, decidable (even n) :=
 take n, !nat.has_decidable_eq
 
 definition odd (n : nat) := ¬even n
 
-definition decidable_odd [instance] : ∀ n, decidable (odd n) :=
+attribute [instance]
+definition decidable_odd : ∀ n, decidable (odd n) :=
 take n, decidable_not
 
 lemma even_of_dvd {n} : 2 ∣ n → even n :=

@@ -46,8 +46,10 @@ end squash
 
 open squash decidable
 
-definition decidable_eq_squash [instance] (A : Type) : decidable_eq ∥A∥ :=
+attribute [instance]
+definition decidable_eq_squash (A : Type) : decidable_eq ∥A∥ :=
 λ a b, inl (squash.irrelevant a b)
 
-definition subsingleton_squash [instance] (A : Type) : subsingleton ∥A∥ :=
+attribute [instance]
+definition subsingleton_squash (A : Type) : subsingleton ∥A∥ :=
 subsingleton.intro (@squash.irrelevant A)

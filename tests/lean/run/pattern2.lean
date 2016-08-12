@@ -4,7 +4,8 @@ attribute g [no_pattern]
 
 namespace foo
 
-definition lemma1 [forward] {a b : nat} : f a b = g a b :=
+attribute [forward]
+definition lemma1 {a b : nat} : f a b = g a b :=
 sorry
 
 end foo

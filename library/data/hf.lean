@@ -20,10 +20,12 @@ local attribute hf [reducible]
 
 protected definition prio : num := num.succ std.priority.default
 
-protected definition is_inhabited [instance] : inhabited hf :=
+attribute [instance]
+protected definition is_inhabited : inhabited hf :=
 nat.is_inhabited
 
-protected definition has_decidable_eq [instance] : decidable_eq hf :=
+attribute [instance]
+protected definition has_decidable_eq : decidable_eq hf :=
 nat.has_decidable_eq
 
 definition of_finset (s : finset hf) : hf :=
@@ -88,7 +90,8 @@ begin
 end
 
 open decidable
-protected definition decidable_mem [instance] : ∀ a s, decidable (a ∈ s) :=
+attribute [instance]
+protected definition decidable_mem : ∀ a s, decidable (a ∈ s) :=
 λ a s, finset.decidable_mem a (to_finset s)
 
 lemma insert_le (a s : hf) : s ≤ insert a s :=
@@ -120,7 +123,8 @@ by rewrite [*of_finset_to_finset at this]; exact this
 theorem insert_eq_of_mem {a : hf} {s : hf} : a ∈ s → insert a s = s :=
 begin unfold mem, intro h, unfold [mem, insert], rewrite (finset.insert_eq_of_mem h), rewrite of_finset_to_finset end
 
-protected theorem induction [recursor 4] {P : hf → Prop}
+attribute [recursor 4]
+protected theorem induction {P : hf → Prop}
     (h₁ : P empty) (h₂ : ∀ (a s : hf), a ∉ s → P s → P (insert a s)) (s : hf) : P s :=
 have P (of_finset (to_finset s)), from
   @finset.induction _ _ _ h₁
@@ -528,29 +532,36 @@ of_list (list.append (to_list l₁) (to_list l₂))
 
 notation l₁ ++ l₂ := append l₁ l₂
 
-theorem append_nil_left [simp] (t : hf) : nil ++ t = t :=
+attribute [simp]
+theorem append_nil_left (t : hf) : nil ++ t = t :=
 begin unfold [nil, append], rewrite [to_list_of_list, list.append_nil_left, of_list_to_list] end
 
-theorem append_cons [simp] (x s t : hf) : (x::s) ++ t = x::(s ++ t) :=
+attribute [simp]
+theorem append_cons (x s t : hf) : (x::s) ++ t = x::(s ++ t) :=
 begin unfold [cons, append], rewrite [*to_list_of_list, list.append_cons] end
 
-theorem append_nil_right [simp] (t : hf) : t ++ nil = t :=
+attribute [simp]
+theorem append_nil_right (t : hf) : t ++ nil = t :=
 begin unfold [nil, append], rewrite [to_list_of_list, list.append_nil_right, of_list_to_list] end
 
-theorem append.assoc [simp] (s t u : hf) : s ++ t ++ u = s ++ (t ++ u) :=
+attribute [simp]
+theorem append.assoc (s t u : hf) : s ++ t ++ u = s ++ (t ++ u) :=
 begin unfold append, rewrite [*to_list_of_list, list.append.assoc] end
 
 /- length -/
 definition length (l : hf) : nat :=
 list.length (to_list l)
 
-theorem length_nil [simp] : length nil = 0 :=
+attribute [simp]
+theorem length_nil : length nil = 0 :=
 begin unfold [length, nil] end
 
-theorem length_cons [simp] (x t : hf) : length (x::t) = length t + 1 :=
+attribute [simp]
+theorem length_cons (x t : hf) : length (x::t) = length t + 1 :=
 begin unfold [length, cons], rewrite to_list_of_list end
 
-theorem length_append [simp] (s t : hf) : length (s ++ t) = length s + length t :=
+attribute [simp]
+theorem length_append (s t : hf) : length (s ++ t) = length s + length t :=
 begin unfold [length, append], rewrite [to_list_of_list, list.length_append] end
 
 theorem eq_nil_of_length_eq_zero {l : hf} : length l = 0 → l = nil :=
@@ -563,7 +574,8 @@ begin unfold [length, nil], intro h₁ h₂, subst l, rewrite to_list_of_list at
 definition head (l : hf) : hf :=
 list.head (to_list l)
 
-theorem head_cons [simp] (a l : hf) : head (a::l) = a :=
+attribute [simp]
+theorem head_cons (a l : hf) : head (a::l) = a :=
 begin unfold [head, cons], rewrite to_list_of_list end
 
 private lemma to_list_ne_list_nil {s : hf} : s ≠ nil → to_list s ≠ list.nil :=
@@ -574,7 +586,8 @@ begin
   by rewrite [-this at h, of_list_to_list at h]; exact absurd rfl h
 end
 
-theorem head_append [simp] (t : hf) {s : hf} : s ≠ nil → head (s ++ t) = head s :=
+attribute [simp]
+theorem head_append (t : hf) {s : hf} : s ≠ nil → head (s ++ t) = head s :=
 begin
   unfold [nil, head, append], rewrite to_list_of_list,
   suppose s ≠ of_list list.nil,
@@ -584,10 +597,12 @@ end
 definition tail (l : hf) : hf :=
 of_list (list.tail (to_list l))
 
-theorem tail_nil [simp] : tail nil = nil :=
+attribute [simp]
+theorem tail_nil : tail nil = nil :=
 begin unfold [tail, nil] end
 
-theorem tail_cons [simp] (a l : hf) : tail (a::l) = l :=
+attribute [simp]
+theorem tail_cons (a l : hf) : tail (a::l) = l :=
 begin unfold [tail, cons], rewrite [to_list_of_list, list.tail_cons, of_list_to_list] end
 
 theorem cons_head_tail {l : hf} : l ≠ nil → (head l)::(tail l) = l :=

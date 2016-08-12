@@ -92,7 +92,8 @@ mul.comm k m ▸ mul.comm k n ▸ nat.mul_lt_mul_of_pos_left H Hk
 
 /- nat is an instance of a linearly ordered semiring and a lattice -/
 
-protected definition decidable_linear_ordered_semiring [instance] :
+attribute [instance]
+protected definition decidable_linear_ordered_semiring :
 decidable_linear_ordered_semiring nat :=
 ⦃ decidable_linear_ordered_semiring, nat.comm_semiring,
   add_left_cancel            := @nat.add_left_cancel,
@@ -119,7 +120,8 @@ decidable_linear_ordered_semiring nat :=
   mul_lt_mul_of_pos_right    := @nat.mul_lt_mul_of_pos_right,
   decidable_lt               := nat.decidable_lt ⦄
 
-definition nat_has_dvd [instance] [priority nat.prio] : has_dvd nat :=
+attribute [instance] [priority nat.prio]
+definition nat_has_dvd : has_dvd nat :=
 has_dvd.mk has_dvd.dvd
 
 theorem add_pos_left {a : ℕ} (H : 0 < a) (b : ℕ) : 0 < a + b :=
@@ -414,19 +416,24 @@ dvd.elim H
 /- min and max -/
 open decidable
 
-theorem min_zero [simp] (a : ℕ) : min a 0 = 0 :=
+attribute [simp]
+theorem min_zero (a : ℕ) : min a 0 = 0 :=
 sorry -- by rewrite [min_eq_right !zero_le]
 
-theorem zero_min [simp] (a : ℕ) : min 0 a = 0 :=
+attribute [simp]
+theorem zero_min (a : ℕ) : min 0 a = 0 :=
 sorry -- by rewrite [min_eq_left !zero_le]
 
-theorem max_zero [simp] (a : ℕ) : max a 0 = a :=
+attribute [simp]
+theorem max_zero (a : ℕ) : max a 0 = a :=
 sorry -- by rewrite [max_eq_left !zero_le]
 
-theorem zero_max [simp] (a : ℕ) : max 0 a = a :=
+attribute [simp]
+theorem zero_max (a : ℕ) : max 0 a = a :=
 sorry -- by rewrite [max_eq_right !zero_le]
 
-theorem min_succ_succ [simp] (a b : ℕ) : min (succ a) (succ b) = succ (min a b) :=
+attribute [simp]
+theorem min_succ_succ (a b : ℕ) : min (succ a) (succ b) = succ (min a b) :=
 sorry
 /-
 or.elim !lt_or_ge
@@ -434,7 +441,8 @@ or.elim !lt_or_ge
   (suppose a ≥ b, by rewrite [min_eq_right this, min_eq_right (succ_le_succ this)])
 -/
 
-theorem max_succ_succ [simp] (a b : ℕ) : max (succ a) (succ b) = succ (max a b) :=
+attribute [simp]
+theorem max_succ_succ (a b : ℕ) : max (succ a) (succ b) = succ (max a b) :=
 sorry
 /-
 or.elim !lt_or_ge

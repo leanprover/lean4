@@ -12,10 +12,12 @@ notation f ` $ `:1 a:1 := f a
 
 variables {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}
 
-definition function.comp [inline] [reducible] [unfold_full] (f : B → C) (g : A → B) : A → C :=
+attribute [inline] [reducible] [unfold_full]
+definition function.comp (f : B → C) (g : A → B) : A → C :=
 λx, f (g x)
 
-definition function.dcomp [inline] [reducible] [unfold_full] {B : A → Type} {C : Π {x : A}, B x → Type}
+attribute [inline] [reducible] [unfold_full]
+definition function.dcomp {B : A → Type} {C : Π {x : A}, B x → Type}
   (f : Π {x : A} (y : B x), C y) (g : Πx, B x) : Πx, C (g x) :=
 λx, f (g x)
 
@@ -24,32 +26,41 @@ infixr  ` ∘' `:80  := function.dcomp
 
 namespace function
 
-definition comp_right [reducible] [unfold_full] (f : B → B → B) (g : A → B) : B → A → B :=
+attribute [reducible] [unfold_full]
+definition comp_right (f : B → B → B) (g : A → B) : B → A → B :=
 λ b a, f b (g a)
 
-definition comp_left [reducible] [unfold_full] (f : B → B → B) (g : A → B) : A → B → B :=
+attribute [reducible] [unfold_full]
+definition comp_left (f : B → B → B) (g : A → B) : A → B → B :=
 λ a b, f (g a) b
 
-definition on_fun [reducible] [unfold_full] (f : B → B → C) (g : A → B) : A → A → C :=
+attribute [reducible] [unfold_full]
+definition on_fun (f : B → B → C) (g : A → B) : A → A → C :=
 λx y, f (g x) (g y)
 
-definition combine [reducible] [unfold_full] (f : A → B → C) (op : C → D → E) (g : A → B → D)
+attribute [reducible] [unfold_full]
+definition combine (f : A → B → C) (op : C → D → E) (g : A → B → D)
   : A → B → E :=
 λx y, op (f x y) (g x y)
 
-definition const [reducible] [unfold_full] (B : Type) (a : A) : B → A :=
+attribute [reducible] [unfold_full]
+definition const (B : Type) (a : A) : B → A :=
 λx, a
 
-definition swap [reducible] [unfold_full] {C : A → B → Type} (f : Πx y, C x y) : Πy x, C x y :=
+attribute [reducible] [unfold_full]
+definition swap {C : A → B → Type} (f : Πx y, C x y) : Πy x, C x y :=
 λy x, f x y
 
-definition app [reducible] {B : A → Type} (f : Πx, B x) (x : A) : B x :=
+attribute [reducible]
+definition app {B : A → Type} (f : Πx, B x) (x : A) : B x :=
 f x
 
-definition curry [reducible] [unfold_full] : (A × B → C) → A → B → C :=
+attribute [reducible] [unfold_full]
+definition curry : (A × B → C) → A → B → C :=
 λ f a b, f (a, b)
 
-definition uncurry [reducible] [unfold 5] : (A → B → C) → (A × B → C) :=
+attribute [reducible] [unfold 5]
+definition uncurry : (A → B → C) → (A × B → C) :=
 λ f p, match p with (a, b) := f a b end
 
 theorem curry_uncurry (f : A → B → C) : curry (uncurry f) = f :=
@@ -73,13 +84,15 @@ theorem comp.right_id (f : A → B) : f ∘ id = f := rfl
 
 theorem comp_const_right (f : B → C) (b : B) : f ∘ (const A b) = const A (f b) := rfl
 
-definition injective [reducible] (f : A → B) : Prop := ∀ ⦃a₁ a₂⦄, f a₁ = f a₂ → a₁ = a₂
+attribute [reducible]
+definition injective (f : A → B) : Prop := ∀ ⦃a₁ a₂⦄, f a₁ = f a₂ → a₁ = a₂
 
 theorem injective_comp {g : B → C} {f : A → B} (Hg : injective g) (Hf : injective f) :
   injective (g ∘ f) :=
 take a₁ a₂, assume Heq, Hf (Hg Heq)
 
-definition surjective [reducible] (f : A → B) : Prop := ∀ b, ∃ a, f a = b
+attribute [reducible]
+definition surjective (f : A → B) : Prop := ∀ b, ∃ a, f a = b
 
 theorem surjective_comp {g : B → C} {f : A → B} (Hg : surjective g) (Hf : surjective f) :
   surjective (g ∘ f) :=

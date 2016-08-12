@@ -35,19 +35,24 @@ protected definition le (p q : ℕ+) := p~ ≤ q~
 
 protected definition lt (p q : ℕ+) := p~ < q~
 
-definition pnat_has_add [instance] : has_add pnat :=
+attribute [instance]
+definition pnat_has_add : has_add pnat :=
 has_add.mk pnat.add
 
-definition pnat_has_mul [instance] : has_mul pnat :=
+attribute [instance]
+definition pnat_has_mul : has_mul pnat :=
 has_mul.mk pnat.mul
 
-definition pnat_has_le [instance] : has_le pnat :=
+attribute [instance]
+definition pnat_has_le : has_le pnat :=
 has_le.mk pnat.le
 
-definition pnat_has_lt [instance] : has_lt pnat :=
+attribute [instance]
+definition pnat_has_lt : has_lt pnat :=
 has_lt.mk pnat.lt
 
-definition pnat_has_one [instance] : has_one pnat :=
+attribute [instance]
+definition pnat_has_one : has_one pnat :=
 has_one.mk (pos (1:nat) dec_trivial)
 
 protected lemma mul_def (p q : ℕ+) : p * q = tag (p~ * q~) (mul_pos (pnat_pos p) (pnat_pos q)) :=
@@ -62,10 +67,12 @@ rfl
 protected theorem pnat.eq {p q : ℕ+} : p~ = q~ → p = q :=
 subtype.eq
 
-definition pnat_le_decidable [instance] (p q : ℕ+) : decidable (p ≤ q) :=
+attribute [instance]
+definition pnat_le_decidable (p q : ℕ+) : decidable (p ≤ q) :=
 begin rewrite pnat.le_def, exact nat.decidable_le p~ q~ end
 
-definition pnat_lt_decidable [instance] {p q : ℕ+} : decidable (p < q) :=
+attribute [instance]
+definition pnat_lt_decidable {p q : ℕ+} : decidable (p < q) :=
 begin rewrite pnat.lt_def, exact nat.decidable_lt p~ q~ end
 
 protected theorem le_trans {p q r : ℕ+} : p ≤ q → q ≤ r → p ≤ r :=
@@ -105,7 +112,8 @@ notation 2 := (tag 2 dec_trivial : ℕ+)
 notation 3 := (tag 3 dec_trivial : ℕ+)
 definition pone : ℕ+ := tag 1 dec_trivial
 
-definition rat_of_pnat [reducible] (n : ℕ+) : ℚ :=
+attribute [reducible]
+definition rat_of_pnat (n : ℕ+) : ℚ :=
 n~
 
 theorem pnat.to_rat_of_nat (n : ℕ+) : rat_of_pnat n = of_nat n~ :=

@@ -276,7 +276,8 @@ theorem ordered_comm_group.lt_of_add_lt_add_left [ordered_comm_group A] {a b c :
 have H' : -a + (a + b) < -a + (a + c), from ordered_comm_group.add_lt_add_left _ _ H _,
 sorry -- by rewrite *neg_add_cancel_left at H'; exact H'
 
-definition ordered_comm_group.to_ordered_cancel_comm_monoid [instance] [s : ordered_comm_group A] : ordered_cancel_comm_monoid A :=
+attribute [instance]
+definition ordered_comm_group.to_ordered_cancel_comm_monoid [s : ordered_comm_group A] : ordered_cancel_comm_monoid A :=
 ⦃ ordered_cancel_comm_monoid, s,
   add_left_cancel       := @add.left_cancel A _,
   add_right_cancel      := @add.right_cancel A _,

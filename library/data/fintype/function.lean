@@ -318,7 +318,8 @@ lemma length_all_funs : length (@all_funs A B _ _ _) = (card B) ^ (card A) := ca
            ... = length (all_lists_of_len (card A)) : all_funs_to_all_lists
            ... = (card B) ^ (card A) : length_all_lists
 
-definition fun_is_fintype [instance] : fintype (A → B) :=
+attribute [instance]
+definition fun_is_fintype : fintype (A → B) :=
            fintype.mk all_funs nodup_all_funs all_funs_complete
 
 lemma card_funs : card (A → B) = (card B) ^ (card A) := length_all_funs

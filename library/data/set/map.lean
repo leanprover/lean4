@@ -20,7 +20,8 @@ variables {a : set X} {b : set Y} {c : set Z}
 
 /- the equivalence relation -/
 
-protected definition equiv [reducible] (f1 f2 : map a b) : Prop := eq_on f1 f2 a
+attribute [reducible]
+protected definition equiv (f1 f2 : map a b) : Prop := eq_on f1 f2 a
 
 namespace equiv_notation
   infix `~` := map.equiv

@@ -7,10 +7,12 @@ mk : Π (obF : obC → obD) (homF : Π{A B : obC}, hom A B → hom (obF A) (obF 
     (Π {A B C : obC} {f : hom A B} {g : hom B C}, homF (g ∘ f) = homF g ∘ homF f) →
      my_functor C D
 
-definition my_object [coercion] {obC obD : Type} {C : category obC} {D : category obD} (F : my_functor C D) : obC → obD :=
+attribute [coercion]
+definition my_object {obC obD : Type} {C : category obC} {D : category obD} (F : my_functor C D) : obC → obD :=
 my_functor.rec (λ obF homF Hid Hcomp, obF) F
 
-definition my_homphism [coercion] {obC obD : Type} {C : category obC} {D : category obD} (F : my_functor C D) :
+attribute [coercion]
+definition my_homphism {obC obD : Type} {C : category obC} {D : category obD} (F : my_functor C D) :
       Π{A B : obC}, hom A B → hom (my_object F A) (my_object F B) :=
 my_functor.rec (λ obF homF Hid Hcomp, homF) F
 

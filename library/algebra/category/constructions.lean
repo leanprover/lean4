@@ -12,7 +12,8 @@ open eq eq.ops prod
 namespace category
   namespace opposite
   section
-  definition opposite [reducible] {ob : Type} (C : category ob) : category ob :=
+  attribute [reducible]
+  definition opposite {ob : Type} (C : category ob) : category ob :=
   mk (λa b, hom b a)
      (λ a b c f g, g ∘ f)
      (λ a, id)
@@ -20,7 +21,8 @@ namespace category
      (λ a b f, !id_right)
      (λ a b f, !id_left)
 
-  definition Opposite [reducible] (C : Category) : Category := Mk (opposite C)
+  attribute [reducible]
+  definition Opposite (C : Category) : Category := Mk (opposite C)
   --direct construction:
   -- MK C
   --    (λa b, hom b a)
@@ -45,7 +47,8 @@ namespace category
   end
   end opposite
 
-  definition type_category [reducible] : category Type :=
+  attribute [reducible]
+  definition type_category : category Type :=
   mk (λa b, a → b)
      (λ a b c, function.comp)
      (λ a, _root_.id)
@@ -53,15 +56,19 @@ namespace category
      (λ a b f, function.comp.left_id f)
      (λ a b f, function.comp.right_id f)
 
-  definition Type_category [reducible] : Category := Mk type_category
+  attribute [reducible]
+  definition Type_category : Category := Mk type_category
 
   section
   open decidable unit empty
   variables {A : Type} [H : decidable_eq A]
   include H
-  definition set_hom [reducible] (a b : A) := decidable.rec_on (H a b) (λh, unit) (λh, empty)
-  theorem set_hom_subsingleton [instance] (a b : A) : subsingleton (set_hom a b) := rec_subsingleton
-  definition set_compose [reducible] {a b c : A} (g : set_hom b c) (f : set_hom a b) : set_hom a c :=
+  attribute [reducible]
+  definition set_hom (a b : A) := decidable.rec_on (H a b) (λh, unit) (λh, empty)
+  attribute [instance]
+  theorem set_hom_subsingleton (a b : A) : subsingleton (set_hom a b) := rec_subsingleton
+  attribute [reducible]
+  definition set_compose {a b c : A} (g : set_hom b c) (f : set_hom a b) : set_hom a c :=
   decidable.rec_on
     (H b c)
     (λ Hbc g, decidable.rec_on
@@ -106,7 +113,8 @@ namespace category
   namespace product
     section
     open prod
-    definition prod_category [reducible] {obC obD : Type} (C : category obC) (D : category obD)
+    attribute [reducible]
+    definition prod_category {obC obD : Type} (C : category obC) (D : category obD)
         : category (obC × obD) :=
     mk (λa b, hom (pr1 a) (pr1 b) × hom (pr2 a) (pr2 b))
        (λ a b c g f, (pr1 g ∘ pr1 f , pr2 g ∘ pr2 f) )
@@ -115,7 +123,8 @@ namespace category
        (λ a b f,         prod.eq !id_left  !id_left )
        (λ a b f,         prod.eq !id_right !id_right)
 
-    definition Prod_category [reducible] (C D : Category) : Category := Mk (prod_category C D)
+    attribute [reducible]
+    definition Prod_category (C D : Category) : Category := Mk (prod_category C D)
     end
   end product
 
@@ -133,7 +142,8 @@ namespace category
   namespace opposite
   section
   open functor
-  definition opposite_functor [reducible] {C D : Category} (F : C ⇒ D) : Cᵒᵖ ⇒ Dᵒᵖ :=
+  attribute [reducible]
+  definition opposite_functor {C D : Category} (F : C ⇒ D) : Cᵒᵖ ⇒ Dᵒᵖ :=
   @functor.mk (Cᵒᵖ) (Dᵒᵖ)
               (λ a, F a)
               (λ a b f, F f)
@@ -145,7 +155,8 @@ namespace category
   namespace product
   section
   open ops functor
-  definition prod_functor [reducible] {C C' D D' : Category} (F : C ⇒ D) (G : C' ⇒ D')
+  attribute [reducible]
+  definition prod_functor {C C' D D' : Category} (F : C ⇒ D) (G : C' ⇒ D')
       : C ×c C' ⇒ D ×c D' :=
   functor.mk (λ a, pair (F (pr1 a)) (G (pr2 a)))
              (λ a b f, pair (F (pr1 f)) (G (pr2 f)))
@@ -224,7 +235,8 @@ namespace category
   --    (λ a b f,         sigma.equal !id_right !proof_irrel)
   -- We use !proof_irrel instead of rfl, to give the unifier an easier time
 
-  definition Slice_category [reducible] (C : Category) (c : C) := Mk (slice_category C c)
+  attribute [reducible]
+  definition Slice_category (C : Category) (c : C) := Mk (slice_category C c)
   open category.ops
   attribute slice_category [instance]
   variables {D : Category}

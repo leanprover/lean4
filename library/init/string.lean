@@ -6,7 +6,8 @@ Author: Leonardo de Moura
 prelude
 import init.char init.list
 
-definition string [reducible] := list char
+attribute [reducible]
+definition string := list char
 
 namespace string
 definition empty : string := list.nil
@@ -16,7 +17,8 @@ definition concat (a b : string) : string :=
 list.append b a
 end string
 
-definition string.has_append [instance] : has_append string :=
+attribute [instance]
+definition string.has_append : has_append string :=
 has_append.mk string.concat
 
 open list

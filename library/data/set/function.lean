@@ -108,7 +108,8 @@ or.elim xmem
 
 /- maps to -/
 
-definition maps_to [reducible] (f : X → Y) (a : set X) (b : set Y) : Prop := ∀⦃x⦄, x ∈ a → f x ∈ b
+attribute [reducible]
+definition maps_to (f : X → Y) (a : set X) (b : set Y) : Prop := ∀⦃x⦄, x ∈ a → f x ∈ b
 
 theorem maps_to_of_eq_on {f1 f2 : X → Y} {a : set X} {b : set Y} (eq_on_a : eq_on f1 f2 a)
     (maps_to_f1 : maps_to f1 a b) :
@@ -141,7 +142,8 @@ image_subset_of_maps_to_of_subset mfab (subset.refl a)
 
 /- injectivity -/
 
-definition inj_on [reducible] (f : X → Y) (a : set X) : Prop :=
+attribute [reducible]
+definition inj_on (f : X → Y) (a : set X) : Prop :=
 ∀⦃x1 x2 : X⦄, x1 ∈ a → x2 ∈ a → f x1 = f x2 → x1 = x2
 
 theorem inj_on_empty (f : X → Y) : inj_on f ∅ :=
@@ -184,7 +186,8 @@ iff.intro
 
 /- surjectivity -/
 
-definition surj_on [reducible] (f : X → Y) (a : set X) (b : set Y) : Prop := b ⊆ f ' a
+attribute [reducible]
+definition surj_on (f : X → Y) (a : set X) (b : set Y) : Prop := b ⊆ f ' a
 
 theorem surj_on_of_eq_on {f1 f2 : X → Y} {a : set X} {b : set Y} (eq_f1_f2 : eq_on f1 f2 a)
     (surj_f1 : surj_on f1 a b) :
@@ -226,7 +229,8 @@ eq_of_subset_of_subset (image_subset_of_maps_to H1) H2
 
 /- bijectivity -/
 
-definition bij_on [reducible] (f : X → Y) (a : set X) (b : set Y) : Prop :=
+attribute [reducible]
+definition bij_on (f : X → Y) (a : set X) (b : set Y) : Prop :=
 maps_to f a b ∧ inj_on f a ∧ surj_on f a b
 
 lemma maps_to_of_bij_on {f : X → Y} {a : set X} {b : set Y} (H : bij_on f a b) :
@@ -290,7 +294,8 @@ iff.intro
 /- left inverse -/
 
 -- g is a left inverse to f on a
-definition left_inv_on [reducible] (g : Y → X) (f : X → Y) (a : set X) : Prop :=
+attribute [reducible]
+definition left_inv_on (g : Y → X) (f : X → Y) (a : set X) : Prop :=
 ∀₀ x ∈ a, g (f x) = x
 
 theorem left_inv_on_of_eq_on_left {g1 g2 : Y → X} {f : X → Y} {a : set X} {b : set Y}
@@ -333,7 +338,8 @@ calc
 /- right inverse -/
 
 -- g is a right inverse to f on a
-definition right_inv_on [reducible] (g : Y → X) (f : X → Y) (b : set Y) : Prop :=
+attribute [reducible]
+definition right_inv_on (g : Y → X) (f : X → Y) (b : set Y) : Prop :=
 left_inv_on f g b
 
 theorem right_inv_on_of_eq_on_left {g1 g2 : Y → X} {f : X → Y} {a : set X} {b : set Y}
@@ -386,7 +392,8 @@ calc
 /- inverses -/
 
 -- g is an inverse to f viewed as a map from a to b
-definition inv_on [reducible] (g : Y → X) (f : X → Y) (a : set X) (b : set Y) : Prop :=
+attribute [reducible]
+definition inv_on (g : Y → X) (f : X → Y) (a : set X) (b : set Y) : Prop :=
 left_inv_on g f a ∧ right_inv_on g f b
 
 theorem bij_on_of_inv_on {g : Y → X} {f : X → Y} {a : set X} {b : set Y} (fab : maps_to f a b)

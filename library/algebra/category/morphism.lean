@@ -41,16 +41,20 @@ namespace morphism
   theorem compose_section (f : a ⟶ b) [H : is_retraction f] : f ∘ section_of f = id :=
   is_retraction.rec (λg h, h) H
 
-  theorem iso_imp_retraction [instance] (f : a ⟶ b) [H : is_iso f] : is_section f :=
+  attribute [instance]
+  theorem iso_imp_retraction (f : a ⟶ b) [H : is_iso f] : is_section f :=
   is_section.mk !inverse_compose
 
-  theorem iso_imp_section [instance] (f : a ⟶ b) [H : is_iso f] : is_retraction f :=
+  attribute [instance]
+  theorem iso_imp_section (f : a ⟶ b) [H : is_iso f] : is_retraction f :=
   is_retraction.mk !compose_inverse
 
-  theorem id_is_iso [instance] : is_iso (ID a) :=
+  attribute [instance]
+  theorem id_is_iso : is_iso (ID a) :=
   is_iso.mk !id_compose !id_compose
 
-  theorem inverse_is_iso [instance] (f : a ⟶ b) [H : is_iso f] : is_iso (f⁻¹) :=
+  attribute [instance]
+  theorem inverse_is_iso (f : a ⟶ b) [H : is_iso f] : is_iso (f⁻¹) :=
   is_iso.mk !compose_inverse !inverse_compose
 
   theorem left_inverse_eq_right_inverse {f : a ⟶ b} {g g' : hom b a}
@@ -97,7 +101,8 @@ namespace morphism
   theorem iso_of_id : (ID a)⁻¹ = id :=
   inverse_eq_intro_left !id_compose
 
-  theorem composition_is_section [instance] [Hf : is_section f] [Hg : is_section g]
+  attribute [instance]
+  theorem composition_is_section [Hf : is_section f] [Hg : is_section g]
       : is_section (g ∘ f) :=
   is_section.mk
     (calc
@@ -108,7 +113,8 @@ namespace morphism
         ... = retraction_of f ∘ f                         : by rewrite id_left
         ... = id                                          : by rewrite retraction_compose)
 
-  theorem composition_is_retraction [instance] [Hf : is_retraction f] [Hg : is_retraction g]
+  attribute [instance]
+  theorem composition_is_retraction [Hf : is_retraction f] [Hg : is_retraction g]
       : is_retraction (g ∘ f) :=
   is_retraction.mk
     (calc
@@ -119,7 +125,8 @@ namespace morphism
         ... = g ∘ section_of g                      : by rewrite id_left
         ... = id                                    : by rewrite compose_section)
 
-  theorem composition_is_inverse [instance] [Hf : is_iso f] [Hg : is_iso g] : is_iso (g ∘ f) :=
+  attribute [instance]
+  theorem composition_is_inverse [Hf : is_iso f] [Hg : is_iso g] : is_iso (g ∘ f) :=
   !section_retraction_imp_iso
 
   structure isomorphic (a b : ob) :=
@@ -136,7 +143,8 @@ namespace morphism
   theorem symm  ⦃a b   : ob⦄ (H  : a ≅ b)              : b ≅ a := mk (inverse (iso H))
   theorem trans ⦃a b c : ob⦄ (H1 : a ≅ b) (H2 : b ≅ c) : a ≅ c := mk (iso H2 ∘ iso H1)
 
-  theorem is_equivalence_eq [instance] (T : Type) : is_equivalence (isomorphic : ob → ob → Type) :=
+  attribute [instance]
+  theorem is_equivalence_eq (T : Type) : is_equivalence (isomorphic : ob → ob → Type) :=
   is_equivalence.mk refl symm trans
   end isomorphic
 
@@ -155,7 +163,8 @@ namespace morphism
     is_epi.mk H3 := H3 c g h H2
   end
 
-  theorem section_is_mono [instance] (f : a ⟶ b) [H : is_section f] : is_mono f :=
+  attribute [instance]
+  theorem section_is_mono (f : a ⟶ b) [H : is_section f] : is_mono f :=
   is_mono.mk
     (λ c g h H, calc
         g = id ∘ g                    : by rewrite id_left
@@ -164,7 +173,8 @@ namespace morphism
       ... = id ∘ h                    : by rewrite retraction_compose
       ... = h                         : by rewrite id_left)
 
-  theorem retraction_is_epi [instance] (f : a ⟶ b) [H : is_retraction f] : is_epi f :=
+  attribute [instance]
+  theorem retraction_is_epi (f : a ⟶ b) [H : is_retraction f] : is_epi f :=
   is_epi.mk
     (λ c g h H, calc
         g = g ∘ id                 : by rewrite id_right
@@ -178,7 +188,8 @@ namespace morphism
   theorem id_is_mono : is_mono (ID a)
   theorem id_is_epi  : is_epi  (ID a)
 
-  theorem composition_is_mono [instance] [Hf : is_mono f] [Hg : is_mono g] : is_mono (g ∘ f) :=
+  attribute [instance]
+  theorem composition_is_mono [Hf : is_mono f] [Hg : is_mono g] : is_mono (g ∘ f) :=
   is_mono.mk
     (λ d h₁ h₂ H,
       have H2 : g ∘ (f ∘ h₁) = g ∘ (f ∘ h₂),
@@ -187,7 +198,8 @@ namespace morphism
       end,
       mono_elim (mono_elim H2))
 
-  theorem composition_is_epi  [instance] [Hf : is_epi f] [Hg : is_epi g] : is_epi  (g ∘ f) :=
+  attribute [instance]
+  theorem composition_is_epi  [Hf : is_epi f] [Hg : is_epi g] : is_epi  (g ∘ f) :=
   is_epi.mk
     (λ d h₁ h₂ H,
       have H2 : (h₁ ∘ g) ∘ f = (h₂ ∘ g) ∘ f,

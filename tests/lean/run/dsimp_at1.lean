@@ -3,7 +3,8 @@ open tactic
 constants (A : Type.{1}) (x y : A)
 
 definition f (z : A) : A := z
-definition f.def [defeq] (z:A) : f z = z := rfl
+attribute [defeq]
+definition f.def (z:A) : f z = z := rfl
 
 definition foo (z₁ z₂ : A) : f z₁ = f z₂ → z₁ = z₂ :=
 by do H ← intro `H,

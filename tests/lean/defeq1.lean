@@ -1,7 +1,8 @@
 open nat tactic
 variables {A : Type}
 
-definition succ_eq_add [defeq] (n : nat) : succ n = n + 1 :=
+attribute [defeq]
+definition succ_eq_add (n : nat) : succ n = n + 1 :=
 rfl
 
 example (n m : nat) (H : succ (succ n) = succ m) : true :=

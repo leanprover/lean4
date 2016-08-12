@@ -15,29 +15,45 @@ namespace binary
     local notation a * b := op₁ a b
     local notation a ⁻¹  := inv a
 
-    definition commutative [reducible]       := ∀a b, a * b = b * a
-    definition associative [reducible]       := ∀a b c, (a * b) * c = a * (b * c)
-    definition left_identity [reducible]     := ∀a, one * a = a
-    definition right_identity [reducible]    := ∀a, a * one = a
-    definition left_inverse [reducible]      := ∀a, a⁻¹ * a = one
-    definition right_inverse [reducible]     := ∀a, a * a⁻¹ = one
-    definition left_cancelative [reducible]  := ∀a b c, a * b = a * c → b = c
-    definition right_cancelative [reducible] := ∀a b c, a * b = c * b → a = c
+    attribute [reducible]
+    definition commutative := ∀a b, a * b = b * a
+    attribute [reducible]
+    definition associative := ∀a b c, (a * b) * c = a * (b * c)
+    attribute [reducible]
+    definition left_identity := ∀a, one * a = a
+    attribute [reducible]
+    definition right_identity := ∀a, a * one = a
+    attribute [reducible]
+    definition left_inverse := ∀a, a⁻¹ * a = one
+    attribute [reducible]
+    definition right_inverse := ∀a, a * a⁻¹ = one
+    attribute [reducible]
+    definition left_cancelative := ∀a b c, a * b = a * c → b = c
+    attribute [reducible]
+    definition right_cancelative := ∀a b c, a * b = c * b → a = c
 
-    definition inv_op_cancel_left [reducible] := ∀a b, a⁻¹ * (a * b) = b
-    definition op_inv_cancel_left [reducible] := ∀a b, a * (a⁻¹ * b) = b
-    definition inv_op_cancel_right [reducible] := ∀a b, a * b⁻¹ * b =  a
-    definition op_inv_cancel_right [reducible] := ∀a b, a * b * b⁻¹ = a
+    attribute [reducible]
+    definition inv_op_cancel_left := ∀a b, a⁻¹ * (a * b) = b
+    attribute [reducible]
+    definition op_inv_cancel_left := ∀a b, a * (a⁻¹ * b) = b
+    attribute [reducible]
+    definition inv_op_cancel_right := ∀a b, a * b⁻¹ * b =  a
+    attribute [reducible]
+    definition op_inv_cancel_right := ∀a b, a * b * b⁻¹ = a
 
     variable (op₂ : A → A → A)
 
     local notation a + b := op₂ a b
 
-    definition left_distributive [reducible] := ∀a b c, a * (b + c) = a * b + a * c
-    definition right_distributive [reducible] := ∀a b c, (a + b) * c = a * c + b * c
+    attribute [reducible]
+    definition left_distributive := ∀a b c, a * (b + c) = a * b + a * c
+    attribute [reducible]
+    definition right_distributive := ∀a b c, (a + b) * c = a * c + b * c
 
-    definition right_commutative [reducible] {B : Type} (f : B → A → B) := ∀ b a₁ a₂, f (f b a₁) a₂ = f (f b a₂) a₁
-    definition left_commutative [reducible] {B : Type}  (f : A → B → B) := ∀ a₁ a₂ b, f a₁ (f a₂ b) = f a₂ (f a₁ b)
+    attribute [reducible]
+    definition right_commutative {B : Type} (f : B → A → B) := ∀ b a₁ a₂, f (f b a₁) a₂ = f (f b a₂) a₁
+    attribute [reducible]
+    definition left_commutative {B : Type}  (f : A → B → B) := ∀ a₁ a₂ b, f a₁ (f a₂ b) = f a₂ (f a₁ b)
   end
 
   section
@@ -77,11 +93,13 @@ namespace binary
               ... = a*((b*c)*d) : sorry -- by rewrite (H_assoc b c d)
   end
 
-  definition right_commutative_comp_right [reducible]
+  attribute [reducible]
+  definition right_commutative_comp_right
     {A B : Type} (f : A → A → A) (g : B → A) (rcomm : right_commutative f) : right_commutative (comp_right f g) :=
   λ a b₁ b₂, rcomm _ _ _
 
-  definition left_commutative_compose_left [reducible]
+  attribute [reducible]
+  definition left_commutative_compose_left
     {A B : Type} (f : A → A → A) (g : B → A) (lcomm : left_commutative f) : left_commutative (comp_left f g) :=
   λ a b₁ b₂, lcomm _ _ _
 end binary

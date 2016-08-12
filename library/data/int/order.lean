@@ -16,18 +16,23 @@ namespace int
 private definition nonneg (a : ℤ) : Prop := int.cases_on a (take n, true) (take n, false)
 protected definition le (a b : ℤ) : Prop := nonneg (b - a)
 
-definition int_has_le [instance] [priority int.prio]: has_le int :=
+attribute [instance] [priority int.prio]
+definition int_has_le : has_le int :=
 has_le.mk int.le
 
 protected definition lt (a b : ℤ) : Prop := (a + 1) ≤ b
 
-definition int_has_lt [instance] [priority int.prio]: has_lt int :=
+attribute [instance] [priority int.prio]
+definition int_has_lt : has_lt int :=
 has_lt.mk int.lt
 
 local attribute nonneg [reducible]
-private definition decidable_nonneg [instance] (a : ℤ) : decidable (nonneg a) := int.cases_on a _ _
-definition decidable_le [instance] (a b : ℤ) : decidable (a ≤ b) := decidable_nonneg _
-definition decidable_lt [instance] (a b : ℤ) : decidable (a < b) := decidable_nonneg _
+attribute [instance]
+private definition decidable_nonneg (a : ℤ) : decidable (nonneg a) := int.cases_on a _ _
+attribute [instance]
+definition decidable_le (a b : ℤ) : decidable (a ≤ b) := decidable_nonneg _
+attribute [instance]
+definition decidable_lt (a b : ℤ) : decidable (a < b) := decidable_nonneg _
 
 private theorem nonneg.elim {a : ℤ} : nonneg a → ∃n : ℕ, a = n :=
 int.cases_on a (take n H, exists.intro n rfl) (take n', false.elim)
@@ -232,7 +237,8 @@ protected theorem lt_of_le_of_lt  {a b c : ℤ} (Hab : a ≤ b) (Hbc : b < c) : 
   (iff.mpr !int.lt_iff_le_and_ne) (and.intro Hac
     (assume Heq, int.not_le_of_gt (Heq⁻¹ ▸ Hbc) Hab))
 
-protected definition linear_ordered_comm_ring [trans_instance] :
+attribute [trans_instance]
+protected definition linear_ordered_comm_ring :
     linear_ordered_comm_ring int :=
 ⦃linear_ordered_comm_ring, int.integral_domain,
   le               := int.le,
@@ -253,7 +259,8 @@ protected definition linear_ordered_comm_ring [trans_instance] :
   zero_lt_one      := int.zero_lt_one,
   add_lt_add_left  := @int.add_lt_add_left⦄
 
-protected definition decidable_linear_ordered_comm_ring [instance] :
+attribute [instance]
+protected definition decidable_linear_ordered_comm_ring :
     decidable_linear_ordered_comm_ring int :=
 ⦃decidable_linear_ordered_comm_ring,
  int.linear_ordered_comm_ring,

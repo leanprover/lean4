@@ -13,7 +13,8 @@ import data.nat.basic data.nat.order data.nat.div data.nat.gcd algebra.ring_powe
 
 namespace nat
 
-definition nat_has_pow_nat [instance] [priority nat.prio] : has_pow_nat nat :=
+attribute [instance] [priority nat.prio]
+definition nat_has_pow_nat : has_pow_nat nat :=
 has_pow_nat.mk has_pow_nat.pow_nat
 
 theorem pow_le_pow_of_le {x y : ℕ} (i : ℕ) (H : x ≤ y) : x^i ≤ y^i :=

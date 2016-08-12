@@ -32,6 +32,7 @@ end fin
 
 open decidable fin
 
-protected definition fin.has_decidable_eq [instance] (n : nat) : ∀ (i j : fin n), decidable (i = j)
+attribute [instance]
+protected definition fin.has_decidable_eq (n : nat) : ∀ (i j : fin n), decidable (i = j)
 | (mk ival ilt) (mk jval jlt) :=
   decidable_of_decidable_of_iff (nat.has_decidable_eq ival jval) eq_iff_veq

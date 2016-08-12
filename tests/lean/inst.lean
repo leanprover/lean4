@@ -8,13 +8,16 @@ definition val {A : Type} (c : C A) : A :=
 C.rec (λa, a) c
 
 constant magic (A : Type) : A
-definition C_magic [instance] [priority std.priority.max] (A : Type) : C A :=
+attribute [instance] [priority std.priority.max]
+definition C_magic (A : Type) : C A :=
 C.mk (magic A)
 
-definition C_prop [instance] : C Prop :=
+attribute [instance]
+definition C_prop : C Prop :=
 C.mk true
 
-definition C_prod [instance] {A B : Type} (Ha : C A) (Hb : C B) : C (prod A B) :=
+attribute [instance]
+definition C_prod {A B : Type} (Ha : C A) (Hb : C B) : C (prod A B) :=
 C.mk (pair (val Ha) (val Hb))
 
 -- C_magic will be used because it has max priority

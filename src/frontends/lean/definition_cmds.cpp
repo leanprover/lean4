@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/protected.h"
 #include "library/abbreviation.h"
 #include "library/scoped_ext.h"
+#include "library/noncomputable.h"
 #include "library/module.h"
 #include "library/error_handling.h"
 #include "library/equations_compiler/equations.h"
@@ -238,6 +239,24 @@ static certified_declaration check(parser & p, environment const & env, name con
     }
 }
 
+static void check_noncomputable(parser & p, environment const & env, name const & c_name, name const & c_real_name, bool is_noncomputable) {
+    if (p.ignore_noncomputable())
+        return;
+    if (!is_noncomputable && is_marked_noncomputable(env, c_real_name)) {
+        auto reason = get_noncomputable_reason(env, c_real_name);
+        lean_assert(reason);
+        if (p.in_theorem_queue(*reason)) {
+            throw exception(sstream() << "definition '" << c_name << "' was marked as noncomputable because '" << *reason
+                            << "' is still in theorem queue (solution: use command 'reveal " << *reason << "'");
+        } else {
+            throw exception(sstream() << "definition '" << c_name << "' is noncomputable, it depends on '" << *reason << "'");
+        }
+    }
+    if (is_noncomputable && !is_marked_noncomputable(env, c_real_name)) {
+        throw exception(sstream() << "definition '" << c_name << "' was incorrectly marked as noncomputable");
+    }
+}
+
 static environment declare_definition(parser & p, def_cmd_kind kind, buffer<name> const & lp_names, name const & c_name,
                                       expr const & type, expr const & val, bool is_private, bool is_protected, bool is_noncomputable,
                                       decl_attributes attrs, pos_info const & pos) {
@@ -250,6 +269,8 @@ static environment declare_definition(parser & p, def_cmd_kind kind, buffer<name
     auto def          = mk_definition(new_env, c_real_name, to_list(lp_names), type, val, use_conv_opt, is_trusted);
     auto cdef         = check(p, new_env, c_name, def, pos);
     new_env = module::add(new_env, cdef);
+
+    check_noncomputable(p, new_env, c_name, c_real_name, is_noncomputable);
 
     if (is_protected)
         new_env = add_protected(new_env, c_real_name);

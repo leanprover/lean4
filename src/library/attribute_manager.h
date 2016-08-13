@@ -33,9 +33,8 @@ class attribute {
     friend struct attr_config;
     friend class  decl_attributes;
 private:
-    std::string m_id;
+    name        m_id;
     std::string m_descr;
-    std::string m_token;
 protected:
     environment set_core(environment const &, io_state const &, name const &, unsigned, attr_data_ptr, bool) const;
 
@@ -43,12 +42,11 @@ protected:
     virtual void write_entry(serializer &, attr_data const &) const = 0;
     virtual attr_data_ptr read_entry(deserializer &) const = 0;
 public:
-    attribute(char const * id, char const * descr) : m_id(id), m_descr(descr), m_token(std::string("[") + id) {}
+    attribute(name const & id, char const * descr) : m_id(id), m_descr(descr) {}
     virtual ~attribute() {}
 
-    std::string const & get_name() const { return m_id; }
+    name const & get_name() const { return m_id; }
     std::string const & get_description() const { return m_descr; }
-    std::string const & get_token() const { return m_token; }
 
     virtual attr_data_ptr get(environment const &, name const &) const;
     unsigned get_prio(environment const &, name const &) const;
@@ -72,9 +70,9 @@ protected:
         return set(env, ios, n, prio, persistent);
     }
 public:
-    basic_attribute(char const * id, char const * descr, on_set_proc on_set) : attribute(id, descr),
+    basic_attribute(name const & id, char const * descr, on_set_proc on_set) : attribute(id, descr),
                                                                                m_on_set(on_set) {}
-    basic_attribute(char const * id, char const * descr) : basic_attribute(id, descr, {}) {}
+    basic_attribute(name const & id, char const * descr) : basic_attribute(id, descr, {}) {}
     virtual environment set(environment const & env, io_state const & ios, name const & n, unsigned, bool persistent) const;
 };
 
@@ -87,7 +85,7 @@ private:
     on_set_proc m_on_set;
 protected:
     virtual environment set_untyped(environment const & env, io_state const & ios, name const & n, unsigned prio,
-                                    attr_data_ptr data, bool persistent) const override final {
+                                    attr_data_ptr data, bool persistent) const final override {
         lean_assert(dynamic_cast<Data const *>(&*data));
         return set(env, ios, n, prio, static_cast<Data const &>(*data), persistent);
     }
@@ -158,7 +156,7 @@ template class typed_attribute<indices_attribute_data>;
 typedef typed_attribute<indices_attribute_data> indices_attribute;
 
 void register_attribute(attribute_ptr);
-attribute const & get_attribute(std::string const & attr);
+attribute const & get_attribute(name const & attr);
 void get_attributes(buffer<attribute const *> &);
 
 template<typename Attribute>
@@ -169,9 +167,7 @@ void register_attribute(Attribute attr) {
 void register_incompatible(char const * attr1, char const * attr2);
 
 // TODO(sullrich): all of these should become members of/return attribute or a subclass
-bool is_attribute(std::string const & attr);
-void get_attribute_tokens(buffer<char const *> &);
-attribute const * get_attribute_from_token(char const * attr_token);
+bool is_attribute(name const & attr);
 
 environment set_attribute(environment const & env, io_state const & ios, char const * attr,
                           name const & d, unsigned prio, list<unsigned> const & params, bool persistent);
@@ -184,10 +180,10 @@ bool has_attribute(environment const & env, char const * attr, name const & d);
 void get_attribute_instances(environment const & env, char const * attr, buffer<name> &);
 priority_queue<name, name_quick_cmp> get_attribute_instances_by_prio(environment const & env, name const & attr);
 
-unsigned get_attribute_prio(environment const & env, std::string const & attr, name const & d);
-list<unsigned> get_attribute_params(environment const & env, std::string const & attr, name const & d);
+unsigned get_attribute_prio(environment const & env, name const & attr, name const & d);
+list<unsigned> get_attribute_params(environment const & env, name const & attr, name const & d);
 
-bool are_incompatible(attribute const * attr1, attribute const * attr2);
+bool are_incompatible(attribute const & attr1, attribute const & attr2);
 
 void initialize_attribute_manager();
 void finalize_attribute_manager();

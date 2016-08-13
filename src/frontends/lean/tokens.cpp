@@ -96,25 +96,6 @@ static name const * g_meta_constant_tk = nullptr;
 static name const * g_variable_tk = nullptr;
 static name const * g_variables_tk = nullptr;
 static name const * g_structure_tk = nullptr;
-static name const * g_priority_tk = nullptr;
-static name const * g_unfold_hints_bracket_tk = nullptr;
-static name const * g_unfold_hints_tk = nullptr;
-static name const * g_reducible_tk = nullptr;
-static name const * g_semireducible_tk = nullptr;
-static name const * g_irreducible_tk = nullptr;
-static name const * g_parsing_only_tk = nullptr;
-static name const * g_simp_attr_tk = nullptr;
-static name const * g_congr_attr_tk = nullptr;
-static name const * g_light_attr_tk = nullptr;
-static name const * g_simp_ext_attr_tk = nullptr;
-static name const * g_no_pattern_attr_tk = nullptr;
-static name const * g_forward_attr_tk = nullptr;
-static name const * g_intro_attr_tk = nullptr;
-static name const * g_intro_bang_attr_tk = nullptr;
-static name const * g_elim_attr_tk = nullptr;
-static name const * g_recursor_tk = nullptr;
-static name const * g_unify_attr_tk = nullptr;
-static name const * g_defeq_attr_tk = nullptr;
 static name const * g_attribute_tk = nullptr;
 static name const * g_with_tk = nullptr;
 static name const * g_class_tk = nullptr;
@@ -238,28 +219,9 @@ void initialize_tokens() {
     g_variable_tk = new name{"variable"};
     g_variables_tk = new name{"variables"};
     g_structure_tk = new name{"structure"};
-    g_priority_tk = new name{"[priority"};
-    g_unfold_hints_bracket_tk = new name{"[unfold_hints]"};
-    g_unfold_hints_tk = new name{"unfold_hints"};
-    g_reducible_tk = new name{"[reducible"};
-    g_semireducible_tk = new name{"[semireducible"};
-    g_irreducible_tk = new name{"[irreducible"};
-    g_parsing_only_tk = new name{"[parsing_only"};
-    g_simp_attr_tk = new name{"[simp"};
-    g_congr_attr_tk = new name{"[congr"};
-    g_light_attr_tk = new name{"[light"};
-    g_simp_ext_attr_tk = new name{"[simp_ext]"};
-    g_no_pattern_attr_tk = new name{"[no_pattern"};
-    g_forward_attr_tk = new name{"[forward]"};
-    g_intro_attr_tk = new name{"[intro]"};
-    g_intro_bang_attr_tk = new name{"[intro!]"};
-    g_elim_attr_tk = new name{"[elim]"};
-    g_recursor_tk = new name{"[recursor"};
-    g_unify_attr_tk = new name{"[unify"};
-    g_defeq_attr_tk = new name{"[defeq"};
     g_attribute_tk = new name{"attribute"};
     g_with_tk = new name{"with"};
-    g_class_tk = new name{"[class"};
+    g_class_tk = new name{"[class]"};
     g_prev_tk = new name{"prev"};
     g_scoped_tk = new name{"scoped"};
     g_foldr_tk = new name{"foldr"};
@@ -381,25 +343,6 @@ void finalize_tokens() {
     delete g_variable_tk;
     delete g_variables_tk;
     delete g_structure_tk;
-    delete g_priority_tk;
-    delete g_unfold_hints_bracket_tk;
-    delete g_unfold_hints_tk;
-    delete g_reducible_tk;
-    delete g_semireducible_tk;
-    delete g_irreducible_tk;
-    delete g_parsing_only_tk;
-    delete g_simp_attr_tk;
-    delete g_congr_attr_tk;
-    delete g_light_attr_tk;
-    delete g_simp_ext_attr_tk;
-    delete g_no_pattern_attr_tk;
-    delete g_forward_attr_tk;
-    delete g_intro_attr_tk;
-    delete g_intro_bang_attr_tk;
-    delete g_elim_attr_tk;
-    delete g_recursor_tk;
-    delete g_unify_attr_tk;
-    delete g_defeq_attr_tk;
     delete g_attribute_tk;
     delete g_with_tk;
     delete g_class_tk;
@@ -523,25 +466,6 @@ name const & get_meta_constant_tk() { return *g_meta_constant_tk; }
 name const & get_variable_tk() { return *g_variable_tk; }
 name const & get_variables_tk() { return *g_variables_tk; }
 name const & get_structure_tk() { return *g_structure_tk; }
-name const & get_priority_tk() { return *g_priority_tk; }
-name const & get_unfold_hints_bracket_tk() { return *g_unfold_hints_bracket_tk; }
-name const & get_unfold_hints_tk() { return *g_unfold_hints_tk; }
-name const & get_reducible_tk() { return *g_reducible_tk; }
-name const & get_semireducible_tk() { return *g_semireducible_tk; }
-name const & get_irreducible_tk() { return *g_irreducible_tk; }
-name const & get_parsing_only_tk() { return *g_parsing_only_tk; }
-name const & get_simp_attr_tk() { return *g_simp_attr_tk; }
-name const & get_congr_attr_tk() { return *g_congr_attr_tk; }
-name const & get_light_attr_tk() { return *g_light_attr_tk; }
-name const & get_simp_ext_attr_tk() { return *g_simp_ext_attr_tk; }
-name const & get_no_pattern_attr_tk() { return *g_no_pattern_attr_tk; }
-name const & get_forward_attr_tk() { return *g_forward_attr_tk; }
-name const & get_intro_attr_tk() { return *g_intro_attr_tk; }
-name const & get_intro_bang_attr_tk() { return *g_intro_bang_attr_tk; }
-name const & get_elim_attr_tk() { return *g_elim_attr_tk; }
-name const & get_recursor_tk() { return *g_recursor_tk; }
-name const & get_unify_attr_tk() { return *g_unify_attr_tk; }
-name const & get_defeq_attr_tk() { return *g_defeq_attr_tk; }
 name const & get_attribute_tk() { return *g_attribute_tk; }
 name const & get_with_tk() { return *g_with_tk; }
 name const & get_class_tk() { return *g_class_tk; }

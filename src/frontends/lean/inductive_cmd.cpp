@@ -781,8 +781,7 @@ struct inductive_cmd_fn {
     environment apply_modifiers(environment env) {
         m_modifiers.for_each([&](name const & n, modifiers const & m) {
                 if (m.is_class())
-                    env = set_attribute(env, get_dummy_ios(), "class", n, LEAN_DEFAULT_PRIORITY, list<unsigned>(),
-                                        true);
+                    env = add_class(env, n, true);
             });
         return env;
     }

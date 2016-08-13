@@ -535,9 +535,9 @@ static void print_key_equivalences(parser & p) {
         });
 }
 
-static void print_attribute(parser & p, attribute const * attr) {
+static void print_attribute(parser & p, attribute const & attr) {
     buffer<name> instances;
-    attr->get_instances(p.env(), instances);
+    attr.get_instances(p.env(), instances);
 
     // oldest first
     unsigned i = instances.size();
@@ -642,43 +642,34 @@ environment print_cmd(parser & p) {
         auto pos = p.pos();
         name c = p.check_constant_next("invalid 'print inductive', constant expected");
         print_inductive(p, c, pos);
-    } else if (p.curr_is_token(get_recursor_tk())) {
+    } else if (p.curr_is_token(get_lbracket_tk())) {
         p.next();
-        p.check_token_next(get_rbracket_tk(), "invalid 'print [recursor]', ']' expected");
-        print_recursor_info(p);
-    } else if (p.curr_is_token(get_unify_attr_tk())) {
-        p.next();
-        p.check_token_next(get_rbracket_tk(), "invalid 'print [unify]', ']' expected");
-        print_unification_hints(p);
-    } else if (p.curr_is_token(get_defeq_attr_tk())) {
-        p.next();
-        p.check_token_next(get_rbracket_tk(), "invalid 'print [defeq]', ']' expected");
-        print_defeq_lemmas(p);
-    } else if (p.curr_is_token(get_simp_attr_tk())) {
-        p.next();
-        p.check_token_next(get_rbracket_tk(), "invalid 'print [simp]', ']' expected");
-        print_simp_rules(p);
-    } else if (p.curr_is_token(get_simp_ext_attr_tk())) {
-        p.next();
-        print_simp_extensions(p);
-    } else if (p.curr_is_token(get_congr_attr_tk())) {
-        p.next();
-        p.check_token_next(get_rbracket_tk(), "invalid 'print [congr]', ']' expected");
-        print_congr_rules(p);
-    } else if (p.curr_is_token(get_light_attr_tk())) {
-        p.next();
-        p.check_token_next(get_rbracket_tk(), "invalid 'print [light]', ']' expected");
-        // print_light_rules(p);
+        auto pos = p.pos();
+        auto name = p.check_id_next("invalid attribute declaration, identifier expected");
+        p.check_token_next(get_rbracket_tk(), "invalid 'print [<attr>]', ']' expected");
+
+        if (name == "recursor")
+            print_recursor_info(p);
+        else if (name == "unify")
+            print_unification_hints(p);
+        else if (name == "defeq")
+            print_defeq_lemmas(p);
+        else if (name == "simp")
+            print_simp_rules(p);
+        else if (name == "simp_ext")
+            print_simp_extensions(p);
+        else if (name == "congr")
+            print_congr_rules(p);
+        else if (name == "light") {
+            // print_light_rules(p);
+        } else {
+            if (!is_attribute(name))
+                throw parser_error(sstream() << "unknown attribute [" << name << "]", pos);
+            auto const & attr = get_attribute(name);
+            print_attribute(p, attr);
+        }
     } else if (print_polymorphic(p)) {
     } else {
-        if (p.curr_is_command()) {
-            if (auto attr = get_attribute_from_token(p.get_token_info().token().get_string())) {
-                p.next();
-                p.check_token_next(get_rbracket_tk(), "invalid 'print [<attr>]', ']' expected");
-                print_attribute(p, attr);
-                return p.env();
-            }
-        }
         throw parser_error("invalid print command", p.pos());
     }
     return p.env();

@@ -397,27 +397,6 @@ expr elim_choice_num(expr const & e) {
     return elim_choice_num_fn()(e);
 }
 
-optional<unsigned> parse_priority(parser & p) {
-    if (p.curr_is_token(get_priority_tk())) {
-        p.next();
-        auto pos = p.pos();
-        expr pre_val = p.parse_expr();
-        pre_val  = mk_typed_expr(mk_constant(get_num_name()), pre_val);
-        expr val = p.elaborate(list<expr>(), pre_val).first;
-        val = normalize(p.env(), val);
-        if (optional<mpz> mpz_val = to_num_core(val)) {
-            if (!mpz_val->is_unsigned_int())
-                throw parser_error("invalid 'priority', argument does not fit in a machine integer", pos);
-            p.check_token_next(get_rbracket_tk(), "invalid 'priority', ']' expected");
-            return optional<unsigned>(mpz_val->get_unsigned_int());
-        } else {
-            throw parser_error("invalid 'priority', argument does not evaluate to a numeral", pos);
-        }
-    } else {
-        return optional<unsigned>();
-    }
-}
-
 pair<name, option_kind> parse_option_name(parser & p, char const * error_msg) {
     auto id_pos  = p.pos();
     name id = p.check_id_next(error_msg);

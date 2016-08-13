@@ -15,28 +15,28 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-static std::unordered_map<std::string, attribute_ptr> * g_attributes;
-static std::vector<pair<std::string, std::string>> * g_incomp = nullptr;
+static name_map<attribute_ptr> * g_attributes;
+static std::vector<pair<name, name>> * g_incomp = nullptr;
 
 static std::string * g_key = nullptr;
 
 void register_attribute(attribute_ptr attr) {
-    lean_assert(!is_attribute(attr->get_name().c_str()));
+    lean_assert(!is_attribute(attr->get_name()));
     (*g_attributes)[attr->get_name()] = attr;
 }
 
-bool is_attribute(std::string const & attr) {
-    return g_attributes->find(attr) != g_attributes->end();
+bool is_attribute(name const & attr) {
+    return g_attributes->find(attr) != nullptr;
 }
 
-[[ noreturn ]] void throw_unknown_attribute(std::string const & attr) {
+[[ noreturn ]] void throw_unknown_attribute(name const & attr) {
     throw exception(sstream() << "unknown attribute '" << attr << "'");
 }
 
-attribute const & get_attribute(std::string const & attr) {
+attribute const & get_attribute(name const & attr) {
     auto it = g_attributes->find(attr);
-    if (it != g_attributes->end())
-        return *it->second;
+    if (it)
+        return **it;
     throw_unknown_attribute(attr);
 }
 
@@ -64,12 +64,12 @@ struct attr_record_cmp {
 };
 
 struct attr_entry {
-    std::string m_attr;
+    name m_attr;
     unsigned    m_prio;
     attr_record m_record;
 
     attr_entry() {}
-    attr_entry(std::string const & attr, unsigned prio, attr_record const & record):
+    attr_entry(name const & attr, unsigned prio, attr_record const & record):
             m_attr(attr), m_prio(prio), m_record(record) {}
 };
 
@@ -101,7 +101,7 @@ struct attr_config {
         return e;
     }
     static optional<unsigned> get_fingerprint(entry const & e) {
-        return optional<unsigned>(hash(hash(name(e.m_attr).hash(), e.m_record.hash()), e.m_prio));
+        return optional<unsigned>(hash(hash(e.m_attr.hash(), e.m_record.hash()), e.m_prio));
     }
 };
 
@@ -158,31 +158,17 @@ void indices_attribute_data::parse(abstract_parser & p) {
 void register_incompatible(char const * attr1, char const * attr2) {
     lean_assert(is_attribute(attr1));
     lean_assert(is_attribute(attr2));
-    std::string s1(attr1);
-    std::string s2(attr2);
+    name s1(attr1);
+    name s2(attr2);
     if (s1 > s2)
         std::swap(s1, s2);
     g_incomp->emplace_back(s1, s2);
 }
 
 void get_attributes(buffer<attribute const *> & r) {
-    for (auto const & p : *g_attributes) {
-        r.push_back(&*p.second);
-    }
-}
-
-void get_attribute_tokens(buffer<char const *> & r) {
-    for (auto const & p : *g_attributes) {
-        r.push_back(p.second->get_token().c_str());
-    }
-}
-
-attribute const * get_attribute_from_token(char const * tk) {
-    for (auto const & p : *g_attributes) {
-        if (p.second->get_token() == tk)
-            return &*p.second;
-    }
-    return nullptr;
+    g_attributes->for_each([&](name const &, attribute_ptr const & attr) {
+        r.push_back(&*attr);
+    });
 }
 
 bool has_attribute(environment const & env, char const * attr, name const & d) {
@@ -218,11 +204,11 @@ environment set_attribute(environment const & env, io_state const & ios, char co
     return set_attribute(env, ios, attr, d, LEAN_DEFAULT_PRIORITY, persistent);
 }
 
-unsigned get_attribute_prio(environment const & env, std::string const & attr, name const & d) {
+unsigned get_attribute_prio(environment const & env, name const & attr, name const & d) {
     return get_attribute(attr).get_prio(env, d);
 }
 
-list<unsigned> get_attribute_params(environment const & env, std::string const & attr, name const & d) {
+list<unsigned> get_attribute_params(environment const & env, name const & attr, name const & d) {
     if (auto attribute = dynamic_cast<indices_attribute const *>(&get_attribute(attr))) {
         auto data = attribute->get_data(env, d);
         lean_assert(data);
@@ -231,17 +217,17 @@ list<unsigned> get_attribute_params(environment const & env, std::string const &
     return list<unsigned>();
 }
 
-bool are_incompatible(attribute const * attr1, attribute const * attr2) {
-    std::string s1(attr1->get_name());
-    std::string s2(attr2->get_name());
+bool are_incompatible(attribute const & attr1, attribute const & attr2) {
+    name s1(attr1.get_name());
+    name s2(attr2.get_name());
     if (s1 > s2)
         std::swap(s1, s2);
     return std::find(g_incomp->begin(), g_incomp->end(), mk_pair(s1, s2)) != g_incomp->end();
 }
 
 void initialize_attribute_manager() {
-    g_attributes = new std::unordered_map<std::string, attribute_ptr>;
-    g_incomp     = new std::vector<pair<std::string, std::string>>();
+    g_attributes = new name_map<attribute_ptr>();
+    g_incomp     = new std::vector<pair<name, name>>();
     g_key        = new std::string("ATTR");
     attribute_ext::initialize();
 }

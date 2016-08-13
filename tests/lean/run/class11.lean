@@ -1,5 +1,4 @@
-constant C {A : Type} : A → Prop
-attribute C [class]
+inductive C [class] {A : Type} : A → Prop
 
 constant f {A : Type} (a : A) [H : C a] : Prop
 

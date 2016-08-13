@@ -106,15 +106,15 @@ void init_token_table(token_table & t) {
          "definition", "meta_definition", "mutual_definition", "mutual_meta_definition",
          "example", "coercion", "abbreviation", "noncomputable",
          "variables", "parameter", "parameters", "constant", "meta_constant", "constants",
-         "[visible]", "[none]", "[parsing_only", "[simp_ext]",
-         "evaluate", "check", "eval", "vm_eval", "using_well_founded", "[whnf]", "[priority", "[unfold_hints]",
+         "[visible]", "[none]", "[class]",
+         "evaluate", "check", "eval", "vm_eval", "using_well_founded", "[whnf]", "[unfold_hints]",
          "print", "end", "namespace", "section", "prelude", "help",
          "import", "inductive", "record", "structure", "module", "universe", "universes", "local",
          "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation",
          "tactic_infixl", "tactic_infixr", "tactic_infix", "tactic_postfix", "tactic_prefix", "tactic_notation",
          "exit", "set_option", "open", "export", "override", "tactic_hint",
-         "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class",
-         "multiple_instances", "find_decl", "attribute", "persistent", "inline",
+         "add_begin_end_tactic", "set_begin_end_tactic",
+         "multiple_instances", "find_decl", "attribute", "persistent",
          "include", "omit", "migrate", "init_quotient", "init_hits", "declare_trace", "register_simp_ext",
          "add_key_equivalence", "#erase_cache",
          "#compile", "#unify", nullptr};
@@ -139,11 +139,6 @@ void init_token_table(token_table & t) {
         t = add_command_token(t, *it2);
         ++it2;
     }
-
-    buffer<char const *> attrs;
-    get_attribute_tokens(attrs);
-    for (char const * attr : attrs)
-        t = add_command_token(t, attr);
 
     auto it3 = aliases;
     while (it3->first) {

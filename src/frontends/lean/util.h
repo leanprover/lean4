@@ -111,9 +111,6 @@ expr postprocess(environment const & env, expr const & e);
 /** Replaces every (choice a_0 ... a_n), where a_0 is a numeral, with a_0. */
 expr elim_choice_num(expr const & e);
 
-/** \brief Parse `[priority <num>]`. Return none if current token is not `[priority` */
-optional<unsigned> parse_priority(parser & p);
-
 /** \brief Parse option name */
 pair<name, option_kind> parse_option_name(parser & p, char const * error_msg);
 }

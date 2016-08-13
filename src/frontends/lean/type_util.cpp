@@ -12,14 +12,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 void type_modifiers::parse(parser & p) {
-    while (true) {
-        if (p.curr_is_token(get_class_tk())) {
-            m_is_class = true;
-            p.next();
-            p.check_token_next(get_rbracket_tk(), "invalid [class] declaration, ']' expected");
-        } else {
-            break;
-        }
+    if (p.curr_is_token(get_class_tk())) {
+        m_is_class = true;
+        p.next();
     }
 }
 

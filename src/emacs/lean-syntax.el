@@ -43,20 +43,6 @@
              (one-or-more digit) (optional (and "." (zero-or-more digit)))
              word-end)))
 
-(defconst lean-modifiers
-  (--map (s-concat "[" it "]")
-         '("persistent" "notation" "visible" "instance"
-           "class" "parsing_only" "coercion" "unfold_full" "constructor"
-           "reducible" "irreducible" "semireducible" "wf"
-           "whnf" "multiple_instances" "none" "decl" "declaration"
-           "relation" "symm" "subst" "refl" "trans" "simp" "congr" "simp_ext"
-           "backward" "forward" "no_pattern" "begin_end" "abbreviation"
-           "reducible" "unfold" "alias" "eqv" "intro" "intro!" "elim" "grinder" "unify" "defeq"
-           "localrefinfo" "recursor" "pattern"))
-  "lean modifiers")
-(defconst lean-modifiers-regexp
-  (regexp-opt lean-modifiers))
-
 (defconst lean-warnings '("sorry" "exit") "lean warnings")
 (defconst lean-warnings-regexp
   (eval `(rx word-start (or ,@lean-warnings) word-end)))
@@ -138,12 +124,9 @@
     st))
 
 (defconst lean-font-lock-defaults
-  `((;; modifiers
-     (,lean-modifiers-regexp . 'font-lock-doc-face)
-     (,(rx "\[priority " (one-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
-     (,(rx "\[recursor " (one-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
-     (,(rx "\[unfold " (one-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
-     (,(rx "\[light " (one-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
+  `((;; attributes
+     (,(rx word-start "attribute" word-end (zero-or-more whitespace) (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace))))
+      (1 'font-lock-doc-face))
      ;; Constants which have a keyword as subterm
      (,(rx (or "∘if")) . 'font-lock-constant-face)
      ;; Keywords
@@ -161,7 +144,8 @@
      (,lean-numerals-regexp . 'font-lock-constant-face)
      ;; universe/inductive/theorem... "names"
      (,(rx word-start
-           (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary" "hypothesis" "definition" "meta_definition" "constant" "meta_constant" "abbreviation"))
+           (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
+                      "hypothesis" "definition" "meta_definition" "constant" "meta_constant" "abbreviation"))
            word-end
            (zero-or-more (or whitespace "(" "{" "["))
            (group (zero-or-more (not (any " \t\n\r{([")))))

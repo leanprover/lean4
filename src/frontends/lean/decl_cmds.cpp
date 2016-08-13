@@ -1186,7 +1186,11 @@ static environment definition_cmd_ex(parser & p, decl_attributes const & attribu
         p.next();
         kind = Theorem;
     } else if (p.curr_is_token_or_id(get_mutual_definition_tk())) {
-        return mutual_definition_cmd_core(p, is_private, is_protected, is_noncomputable, attributes);
+        p.next();
+        return mutual_definition_cmd_core(p, Definition, is_private, is_protected, is_noncomputable, attributes);
+    } else if (p.curr_is_token_or_id(get_mutual_meta_definition_tk())) {
+        p.next();
+        return mutual_definition_cmd_core(p, MetaDefinition, is_private, is_protected, is_noncomputable, attributes);
     } else {
         throw parser_error("invalid definition/theorem, 'definition' or 'theorem' expected", p.pos());
     }
@@ -1195,6 +1199,7 @@ static environment definition_cmd_ex(parser & p, decl_attributes const & attribu
     else
         return definition_cmd_core(p, kind, is_private, is_protected, is_noncomputable, attributes);
 }
+
 static environment definition_cmd(parser & p) {
     return definition_cmd_ex(p, {});
 }
@@ -1297,7 +1302,8 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("attribute",       "set declaration attributes", attribute_cmd));
     add_cmd(r, cmd_info("abbreviation",    "declare a new abbreviation", definition_cmd, false));
     add_cmd(r, cmd_info("omit",            "undo 'include' command", omit_cmd));
-    add_cmd(r, cmd_info("mutual_definition", "declare a mutually recursive definition", definition_cmd));
+    add_cmd(r, cmd_info("mutual_definition",      "declare a mutually recursive definition", definition_cmd, false));
+    add_cmd(r, cmd_info("mutual_meta_definition", "declare a mutually recursive meta_definition", definition_cmd, false));
 }
 
 void initialize_decl_cmds() {

@@ -21,7 +21,7 @@
     "instances" "coercions" "attributes" "raw" "migrate" "replacing"
     "calc" "have" "show" "suffices" "by" "in" "at" "do" "let" "forall" "Pi" "fun"
     "exists" "if" "dif" "then" "else" "assume" "take" "obtain" "from" "aliases" "register_simp_ext"
-    "mutual_definition" "mutual_inductive" "def" "mutual_def")
+    "mutual_definition" "mutual_meta_definition" "mutual_inductive" "def" "mutual_def")
   "lean keywords ending with 'word' (not symbol)")
 (defconst lean-keywords1-regexp
   (eval `(rx word-start (or ,@lean-keywords1) word-end)))

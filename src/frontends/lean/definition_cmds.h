@@ -7,10 +7,12 @@ Author: Leonardo de Moura
 #pragma once
 #include "frontends/lean/parser.h"
 namespace lean {
-environment mutual_definition_cmd_core(parser & p, bool is_private, bool is_protected, bool is_noncomputable,
+enum def_cmd_kind { Theorem, Definition, MetaDefinition, Example, Abbreviation, LocalAbbreviation };
+
+environment mutual_definition_cmd_core(parser & p, def_cmd_kind k,
+                                       bool is_private, bool is_protected, bool is_noncomputable,
                                        decl_attributes attributes);
 
-enum def_cmd_kind { Theorem, Definition, MetaDefinition, Example, Abbreviation, LocalAbbreviation };
 environment xdefinition_cmd_core(parser & p, def_cmd_kind k, bool is_private, bool is_protected, bool is_noncomputable,
                                  decl_attributes attributes);
 }

@@ -34,7 +34,7 @@ expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & par
     The names are local constants. Position information for a constant cs[i] can be retrieved using
     p.pos_of(cs[i]).
 
-    Both lp_names and params are added to the parser scope.
+    Both lp_names, params and cs are added to the parser scope.
     \remark Caller is responsible for adding expressions encoding the c_names to the parser
     scope.
     \remark Caller is responsible for using: parser::local_scope scope2(p, env); */

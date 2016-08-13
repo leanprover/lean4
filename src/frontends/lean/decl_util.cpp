@@ -46,8 +46,7 @@ expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & par
     } else {
         type = p.save_pos(mk_expr_placeholder(), c_pos);
     }
-    expr c    = p.save_pos(mk_local(c_name, type), c_pos);
-    p.add_local(c);
+    expr c   = p.save_pos(mk_local(c_name, type), c_pos);
     return c;
 }
 

@@ -1725,6 +1725,28 @@ expr elaborator::elaborate_type(expr const & e) {
     return elaborate(e);
 }
 
+expr_pair elaborator::elaborate_with_type(expr const & e, expr const & e_type) {
+    expr const & ref = e;
+    expr new_e, new_e_type;
+    {
+        checkpoint C(*this);
+        expr Type  = visit(copy_tag(e_type, mk_sort(mk_level_placeholder())), none_expr());
+        new_e_type = visit(e_type, some_expr(Type));
+        new_e      = visit(e,      some_expr(new_e_type));
+        process_checkpoint(C);
+    }
+    expr inferred_type = infer_type(new_e);
+    if (auto r = ensure_has_type(new_e, inferred_type, new_e_type, ref)) {
+        new_e = *r;
+    } else {
+        auto pp_fn = mk_pp_fn(m_ctx);
+        throw elaborator_exception(ref,
+                                   format("type mismatch, expression has type") + pp_indent(pp_fn, inferred_type) +
+                                   line() + format("but is expected to have type") + pp_indent(pp_fn, new_e_type));
+    }
+    return mk_pair(new_e, new_e_type);
+}
+
 void elaborator::finalize(buffer<expr> & es, buffer<name> & new_lp_names, bool check_unassigned, bool to_simple_metavar) {
     sanitize_param_names_fn S(m_ctx, new_lp_names);
     name_map<expr> to_simple_mvar_cache;

@@ -196,11 +196,13 @@ public:
     elaborator(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx);
     metavar_context const & mctx() const { return m_ctx.mctx(); }
     local_context const & lctx() const { return m_ctx.lctx(); }
+    type_context & ctx() { return m_ctx; }
     expr push_local(name const & n, expr const & type, binder_info const & bi = binder_info()) {
         return m_ctx.push_local(n, type, bi);
     }
     expr elaborate(expr const & e);
     expr elaborate_type(expr const & e);
+    expr_pair elaborate_with_type(expr const & e, expr const & e_type);
     void ensure_no_unassigned_metavars(expr const & e);
     /**
        \brief Finalize all expressions in \c es.

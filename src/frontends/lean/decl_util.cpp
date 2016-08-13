@@ -214,6 +214,11 @@ void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> &
     update_univ_parameters(p, lp_names, lp_found);
 }
 
+void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> & params, std::initializer_list<expr> const & all_exprs) {
+    buffer<expr> tmp; tmp.append(all_exprs.size(), all_exprs.begin());
+    collect_implicit_locals(p, lp_names, params, tmp);
+}
+
 void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> & params, expr const & e) {
     buffer<expr> all_exprs; all_exprs.push_back(e);
     collect_implicit_locals(p, lp_names, params, all_exprs);

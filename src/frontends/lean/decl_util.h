@@ -51,6 +51,7 @@ expr parse_inner_header(parser & p, name const & c_expected);
     We also add parameters included using the command 'include'.
     lp_names and params are input/output. */
 void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> & params, buffer<expr> const & all_exprs);
+void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> & params, std::initializer_list<expr> const & all_exprs);
 void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> & params, expr const & e);
 
 /** \brief Elaborate the types of the parameters \c params, and update the elaborator local context using them.

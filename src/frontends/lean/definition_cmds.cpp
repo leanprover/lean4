@@ -4,7 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/timeit.h"
+#include "kernel/type_checker.h"
+#include "kernel/declaration.h"
 #include "library/trace.h"
+#include "library/explicit.h"
+#include "library/typed_expr.h"
+#include "library/private.h"
+#include "library/protected.h"
+#include "library/abbreviation.h"
+#include "library/scoped_ext.h"
+#include "library/module.h"
+#include "library/error_handling.h"
 #include "library/equations_compiler/equations.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
@@ -14,7 +25,18 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/definition_cmds.h"
 
+// We don't display profiling information for declarations that take less than 0.01 secs
+#ifndef LEAN_PROFILE_THRESHOLD
+#define LEAN_PROFILE_THRESHOLD 0.01
+#endif
+
 namespace lean {
+environment ensure_decl_namespaces(environment const & env, name const & full_n) {
+    if (full_n.is_atomic())
+        return env;
+    return add_namespace(env, full_n.get_prefix());
+}
+
 expr parse_equation_lhs(parser & p, expr const & fn, buffer<expr> & locals) {
     auto lhs_pos = p.pos();
     buffer<expr> lhs_args;
@@ -118,6 +140,7 @@ expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<expr> & p
         p.next();
         val = p.parse_expr();
     } else if (p.curr_is_token(get_bar_tk())) {
+        p.add_local(fn);
         buffer<expr> eqns;
         if (p.curr_is_token(get_none_tk())) {
             auto none_pos = p.pos();
@@ -139,21 +162,127 @@ expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<expr> & p
     return mk_pair(fn, val);
 }
 
+static void replace_params(buffer<expr> const & params, buffer<expr> const & new_params, expr & fn, expr & val) {
+    expr fn_type = replace_locals(mlocal_type(fn), params, new_params);
+    expr new_fn  = update_mlocal(fn, fn_type);
+    val          = replace_locals(val, params, new_params);
+    val          = replace_local(val, fn, new_fn);
+    fn           = new_fn;
+}
+
+static expr_pair elaborate_theorem(elaborator & elab, expr const & fn, expr val) {
+    expr fn_type = elab.elaborate_type(mlocal_type(fn));
+    expr new_fn  = update_mlocal(fn, fn_type);
+    val = replace_local(val, fn, new_fn);
+    return elab.elaborate_with_type(val, mk_as_is(fn_type));
+}
+
+static expr_pair elaborate_definition_core(elaborator & elab, def_cmd_kind kind, expr const & fn, expr const & val) {
+    if (kind == Theorem) {
+        return elaborate_theorem(elab, fn, val);
+    } else {
+        return elab.elaborate_with_type(val, mlocal_type(fn));
+    }
+}
+
+static expr_pair elaborate_definition(parser & p, elaborator & elab, def_cmd_kind kind, expr const & fn, expr const & val, pos_info const & pos) {
+    if (p.profiling()) {
+        std::ostringstream msg;
+        display_pos(msg, p.get_stream_name().c_str(), pos.first, pos.second);
+        msg << " elaboration time for " << local_pp_name(fn);
+        timeit timer(p.ios().get_diagnostic_stream(), msg.str().c_str(), LEAN_PROFILE_THRESHOLD);
+        return elaborate_definition_core(elab, kind, fn, val);
+    } else {
+        return elaborate_definition_core(elab, kind, fn, val);
+    }
+}
+
+static void finalize_definition(elaborator & elab, buffer<expr> const & params, expr & type, expr & val, buffer<name> & lp_names) {
+    type = elab.ctx().mk_pi(params, type);
+    val  = elab.ctx().mk_lambda(params, val);
+    buffer<expr> type_val;
+    buffer<name> implicit_lp_names;
+    type_val.push_back(type);
+    type_val.push_back(val);
+    elab.finalize(type_val, implicit_lp_names, true, false);
+    type = type_val[0];
+    val  = type_val[1];
+    lp_names.append(implicit_lp_names);
+}
+
+static pair<environment, name> mk_real_name(environment const & env, name const & c_name, bool is_private, pos_info const & pos) {
+    environment new_env = env;
+    name c_real_name;
+    if (is_private) {
+        unsigned h  = hash(pos.first, pos.second);
+        auto env_n  = add_private_name(new_env, c_name, optional<unsigned>(h));
+        new_env     = env_n.first;
+        c_real_name = env_n.second;
+    } else {
+        name const & ns = get_namespace(env);
+        c_real_name     = ns + c_name;
+    }
+    return mk_pair(new_env, c_real_name);
+}
+
+static certified_declaration check(parser & p, environment const & env, name const & c_name, declaration const & d, pos_info const & pos) {
+    if (p.profiling()) {
+        std::ostringstream msg;
+        display_pos(msg, p.get_stream_name().c_str(), pos.first, pos.second);
+        msg << " type checking time for " << c_name;
+        timeit timer(p.ios().get_diagnostic_stream(), msg.str().c_str(), LEAN_PROFILE_THRESHOLD);
+        return ::lean::check(env, d);
+    } else {
+        return ::lean::check(env, d);
+    }
+}
+
+static environment declare_definition(parser & p, def_cmd_kind kind, buffer<name> const & lp_names, name const & c_name,
+                                      expr const & type, expr const & val, bool is_private, bool is_protected, bool is_noncomputable,
+                                      decl_attributes attrs, pos_info const & pos) {
+    auto env_n = mk_real_name(p.env(), c_name, is_private, pos);
+    environment new_env = env_n.first;
+    name c_real_name    = env_n.second;
+
+    bool use_conv_opt = true;
+    bool is_trusted   = kind != MetaDefinition;
+    auto def          = mk_definition(new_env, c_real_name, to_list(lp_names), type, val, use_conv_opt, is_trusted);
+    auto cdef         = check(p, new_env, c_name, def, pos);
+    new_env = module::add(new_env, cdef);
+
+    if (is_protected)
+        new_env = add_protected(new_env, c_real_name);
+
+    if (!is_private) {
+        p.add_decl_index(c_real_name, pos, p.get_cmd_token(), type);
+        new_env = ensure_decl_namespaces(new_env, c_real_name);
+    }
+
+    if (kind == Abbreviation || kind == LocalAbbreviation) {
+        bool persistent = kind == Abbreviation;
+        new_env = add_abbreviation(new_env, c_real_name, attrs.is_parsing_only(), persistent);
+    }
+
+    return attrs.apply(new_env, p.ios(), c_real_name);
+}
+
 environment xdefinition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable,
                                  decl_attributes attrs) {
     buffer<name> lp_names;
     buffer<expr> params;
     expr fn, val;
+    auto header_pos = p.pos();
     std::tie(fn, val) = parse_definition(p, lp_names, params);
     elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
-    val = replace_locals(val, params, new_params);
-
-    // TODO(Leo)
-    for (auto p : params) { tout() << ">> " << p << " : " << mlocal_type(p) << "\n"; }
-    tout() << val << "\n";
-
-    return p.env();
+    replace_params(params, new_params, fn, val);
+    expr type;
+    std::tie(val, type) = elaborate_definition(p, elab, kind, fn, val, header_pos);
+    // TODO(Leo): postprocess nested matches and equations
+    finalize_definition(elab, new_params, type, val, lp_names);
+    if (kind == Example) return p.env();
+    return declare_definition(p, kind, lp_names, mlocal_name(fn), type, val,
+                              is_private, is_protected, is_noncomputable, attrs, header_pos);
 }
 }

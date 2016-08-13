@@ -104,12 +104,6 @@ static void check_parameter_type(parser & p, name const & n, expr const & type, 
         });
 }
 
-static environment ensure_decl_namespaces(environment const & env, name const & full_n) {
-    if (full_n.is_atomic())
-        return env;
-    return add_namespace(env, full_n.get_prefix());
-}
-
 static environment declare_var(parser & p, environment env,
                                name const & n, level_param_names const & ls, expr const & type,
                                variable_kind k, optional<binder_info> const & _bi, pos_info const & pos,

@@ -16,8 +16,10 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/noncomputable.h"
 #include "library/module.h"
+#include "library/flycheck.h"
 #include "library/error_handling.h"
 #include "library/equations_compiler/equations.h"
+#include "library/compiler/vm_compiler.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/elaborator.h"
@@ -187,10 +189,14 @@ static expr_pair elaborate_definition_core(elaborator & elab, def_cmd_kind kind,
     }
 }
 
+static void display_pos(std::ostream & out, parser const & p, pos_info const & pos) {
+    display_pos(out, p.get_stream_name().c_str(), pos.first, pos.second);
+}
+
 static expr_pair elaborate_definition(parser & p, elaborator & elab, def_cmd_kind kind, expr const & fn, expr const & val, pos_info const & pos) {
     if (p.profiling()) {
         std::ostringstream msg;
-        display_pos(msg, p.get_stream_name().c_str(), pos.first, pos.second);
+        display_pos(msg, p, pos);
         msg << " elaboration time for " << local_pp_name(fn);
         timeit timer(p.ios().get_diagnostic_stream(), msg.str().c_str(), LEAN_PROFILE_THRESHOLD);
         return elaborate_definition_core(elab, kind, fn, val);
@@ -230,7 +236,7 @@ static pair<environment, name> mk_real_name(environment const & env, name const 
 static certified_declaration check(parser & p, environment const & env, name const & c_name, declaration const & d, pos_info const & pos) {
     if (p.profiling()) {
         std::ostringstream msg;
-        display_pos(msg, p.get_stream_name().c_str(), pos.first, pos.second);
+        display_pos(msg, p, pos);
         msg << " type checking time for " << c_name;
         timeit timer(p.ios().get_diagnostic_stream(), msg.str().c_str(), LEAN_PROFILE_THRESHOLD);
         return ::lean::check(env, d);
@@ -254,6 +260,23 @@ static void check_noncomputable(parser & p, environment const & env, name const 
     }
     if (is_noncomputable && !is_marked_noncomputable(env, c_real_name)) {
         throw exception(sstream() << "definition '" << c_name << "' was incorrectly marked as noncomputable");
+    }
+}
+
+static environment compile_decl(parser & p, environment const & env, def_cmd_kind kind, bool is_noncomputable,
+                                name const & c_name, name const & c_real_name, pos_info const & pos) {
+    if (is_noncomputable || kind == Theorem || is_vm_builtin_function(c_real_name))
+        return env;
+    try {
+        declaration d = env.get(c_real_name);
+        return vm_compile(env, d);
+    } catch (exception & ext) {
+        flycheck_warning wrn(p.ios());
+        auto & out = p.ios().get_regular_stream();
+        display_pos(out, p, pos);
+        out << "failed to generate bytecode for '" << c_name << "'" << std::endl;
+        out << ext.what() << std::endl;
+        return env;
     }
 }
 
@@ -285,7 +308,8 @@ static environment declare_definition(parser & p, def_cmd_kind kind, buffer<name
         new_env = add_abbreviation(new_env, c_real_name, attrs.is_parsing_only(), persistent);
     }
 
-    return attrs.apply(new_env, p.ios(), c_real_name);
+    new_env = attrs.apply(new_env, p.ios(), c_real_name);
+    return compile_decl(p, new_env, kind, is_noncomputable, c_name, c_real_name, pos);
 }
 
 environment xdefinition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable,

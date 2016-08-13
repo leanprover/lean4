@@ -65,4 +65,7 @@ inline bool depends_on_any(expr const & e, buffer<expr> const & hs) {
 /** \brief Replace the given local constants occurring in \c e with the given terms */
 expr replace_locals(expr const & e, unsigned sz, expr const * locals, expr const * terms);
 expr replace_locals(expr const & e, buffer<expr> const & locals, buffer<expr> const & terms);
+inline expr replace_local(expr const & e, expr const & local, expr const & term) {
+    return replace_locals(e, 1, &local, &term);
+}
 }

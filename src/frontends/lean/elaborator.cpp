@@ -769,7 +769,13 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
             expr new_arg_type = instantiate_mvars(infer_type(new_args[i]));
             expr new_arg      = visit(*arg, some_expr(new_arg_type));
             if (!is_def_eq(new_args[i], new_arg)) {
-                throw elaborator_exception(ref, "\"eliminator\" elaborator failed to assign explicit argument");
+                auto pp_fn = mk_pp_fn(m_ctx);
+                throw elaborator_exception(ref, format("\"eliminator\" elaborator type mismatch, term") +
+                                           pp_indent(pp_fn, new_arg) +
+                                           line() + format("has type") +
+                                           pp_indent(pp_fn, infer_type(new_arg)) +
+                                           line() + format("but is expected to have type") +
+                                           pp_indent(pp_fn, new_arg_type));
             }
         }
     }

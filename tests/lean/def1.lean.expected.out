@@ -1,0 +1,6 @@
+def1.lean:6:16: error: "eliminator" elaborator type mismatch, term
+  rfl
+has type
+  ?m_2 = ?m_2
+but is expected to have type
+  f b = f c

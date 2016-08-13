@@ -24,44 +24,45 @@ bool is_no_equation(expr const & e);
 /** \brief Return true if e is of the form <tt>fun a_1 ... a_n, no_equation</tt> */
 bool is_lambda_no_equation(expr const & e);
 
-bool is_equations(expr const & e);
-bool is_wf_equations(expr const & e);
-unsigned equations_size(expr const & e);
-unsigned equations_num_fns(expr const & e);
-void to_equations(expr const & e, buffer<expr> & eqns);
+expr mk_inaccessible(expr const & e);
+bool is_inaccessible(expr const & e);
 
 struct equations_header {
-    list<name> m_names;
-    bool       m_main;    /* if true, we must add .main suffix to auxiliary declaration */
-    bool       m_meta;    /* the auxiliary declarations should be tagged as meta */
-    bool       m_lemmas;  /* if true, we must create equation lemmas and induction principle */
+    unsigned   m_num_fns{0};     /* number of functions being defined */
+    list<name> m_suggested;      /* suggested names for functions */
+    bool       m_meta{false};    /* the auxiliary declarations should be tagged as meta */
+    bool       m_lemmas{false};  /* if true, we must create equation lemmas and induction principle */
+    equations_header() {}
+    equations_header(unsigned num_fns):m_num_fns(num_fns) {}
 };
 
 expr mk_equations(equations_header const & header, unsigned num_eqs, expr const * eqs, expr const & R, expr const & Hwf);
 expr mk_equations(equations_header const & header, unsigned num_eqs, expr const * eqs);
-expr update_equations(expr const & eqns, buffer<expr> const & new_eqs);
+expr update_equations(expr const & eqns, buffer<expr> const & new_eqs_R_Hwf);
+
+bool is_equations(expr const & e);
+bool is_wf_equations(expr const & e);
+unsigned equations_size(expr const & e);
+equations_header const & get_equations_header(expr const & e);
+unsigned equations_num_fns(expr const & e);
+void to_equations(expr const & e, buffer<expr> & eqns);
+expr const & equations_wf_proof(expr const & e);
+expr const & equations_wf_rel(expr const & e);
 
 /* TODO(Leo): delete the following versions */
 expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs);
 expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs, expr const & R, expr const & Hwf);
-expr const & equations_wf_proof(expr const & e);
-expr const & equations_wf_rel(expr const & e);
 /* End of delete ------------- */
-
-expr mk_inaccessible(expr const & e);
-bool is_inaccessible(expr const & e);
 
 /** \brief Return true if \c e is an auxiliary macro used to store the result of mutually recursive declarations.
     For example, if a set of recursive equations is defining \c n mutually recursive functions, we wrap
     the \c n resulting functions (and their types) with an \c equations_result macro.
 
-    TODO(Leo): delete this after we implement the new equations compiler
-*/
+    TODO(Leo): delete this after we implement the new equations compiler */
 bool is_equations_result(expr const & e);
 expr mk_equations_result(unsigned n, expr const * rs);
 unsigned get_equations_result_size(expr const & e);
 expr const & get_equations_result(expr const & e, unsigned i);
-
 
 void initialize_equations();
 void finalize_equations();

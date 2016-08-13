@@ -27,7 +27,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/normalize.h"
 #include "library/pp_options.h"
-#include "library/equations_compiler/old_inversion.h"
+#include "library/equations_compiler/equations.h"
 
 namespace lean {
 static name * g_equations_name                 = nullptr;
@@ -43,14 +43,17 @@ static std::string * g_equations_result_opcode = nullptr;
 [[ noreturn ]] static void throw_eqs_ex() { throw exception("unexpected occurrence of 'equations' expression"); }
 
 class equations_macro_cell : public macro_definition_cell {
-    unsigned m_num_fns;
+    equations_header m_header;
 public:
-    equations_macro_cell(unsigned num_fns):m_num_fns(num_fns) {}
+    equations_macro_cell(equations_header const & h):m_header(h) {}
     virtual name get_name() const { return *g_equations_name; }
     virtual expr check_type(expr const &, abstract_type_context &, bool) const { throw_eqs_ex(); }
     virtual optional<expr> expand(expr const &, abstract_type_context &) const { throw_eqs_ex(); }
-    virtual void write(serializer & s) const { s << *g_equations_opcode << m_num_fns; }
-    unsigned get_num_fns() const { return m_num_fns; }
+    virtual void write(serializer & s) const {
+        s << *g_equations_opcode << m_header.m_num_fns << m_header.m_meta << m_header.m_lemmas;
+        write_list(s, m_header.m_suggested);
+    }
+    equations_header const & get_header() const { return m_header; }
 };
 
 class equation_base_macro_cell : public macro_definition_cell {
@@ -106,6 +109,9 @@ bool is_lambda_no_equation(expr const & e) {
         return is_no_equation(e);
 }
 
+expr mk_inaccessible(expr const & e) { return mk_annotation(*g_inaccessible_name, e); }
+bool is_inaccessible(expr const & e) { return is_annotation(e, *g_inaccessible_name); }
+
 bool is_equations(expr const & e) { return is_macro(e) && macro_def(e).get_name() == *g_equations_name; }
 bool is_wf_equations_core(expr const & e) {
     lean_assert(is_equations(e));
@@ -119,9 +125,12 @@ unsigned equations_size(expr const & e) {
     else
         return macro_num_args(e);
 }
-unsigned equations_num_fns(expr const & e) {
+equations_header const & get_equations_header(expr const & e) {
     lean_assert(is_equations(e));
-    return static_cast<equations_macro_cell const*>(macro_def(e).raw())->get_num_fns();
+    return static_cast<equations_macro_cell const*>(macro_def(e).raw())->get_header();
+}
+unsigned equations_num_fns(expr const & e) {
+    return get_equations_header(e).m_num_fns;
 }
 expr const & equations_wf_proof(expr const & e) {
     lean_assert(is_wf_equations(e));
@@ -137,40 +146,46 @@ void to_equations(expr const & e, buffer<expr> & eqns) {
     for (unsigned i = 0; i < sz; i++)
         eqns.push_back(macro_arg(e, i));
 }
-expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs) {
-    lean_assert(num_fns > 0);
+expr mk_equations(equations_header const & h, unsigned num_eqs, expr const * eqs) {
+    lean_assert(h.m_num_fns > 0);
     lean_assert(num_eqs > 0);
     lean_assert(std::all_of(eqs, eqs+num_eqs, [](expr const & e) {
                 return is_lambda_equation(e) || is_lambda_no_equation(e);
             }));
-    macro_definition def(new equations_macro_cell(num_fns));
+    macro_definition def(new equations_macro_cell(h));
     return mk_macro(def, num_eqs, eqs);
 }
-expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs, expr const & R, expr const & Hwf) {
-    lean_assert(num_fns > 0);
+expr mk_equations(equations_header const & h, unsigned num_eqs, expr const * eqs, expr const & R, expr const & Hwf) {
+    lean_assert(h.m_num_fns > 0);
     lean_assert(num_eqs > 0);
     lean_assert(std::all_of(eqs, eqs+num_eqs, is_lambda_equation));
     buffer<expr> args;
     args.append(num_eqs, eqs);
     args.push_back(R);
     args.push_back(Hwf);
-    macro_definition def(new equations_macro_cell(num_fns));
+    macro_definition def(new equations_macro_cell(h));
     return mk_macro(def, args.size(), args.data());
 }
-
 expr update_equations(expr const & eqns, buffer<expr> const & new_eqs) {
     lean_assert(is_equations(eqns));
     lean_assert(!new_eqs.empty());
     if (is_wf_equations(eqns)) {
-        return mk_equations(equations_num_fns(eqns), new_eqs.size(), new_eqs.data(),
+        return mk_equations(get_equations_header(eqns), new_eqs.size(), new_eqs.data(),
                             equations_wf_rel(eqns), equations_wf_proof(eqns));
     } else {
-        return mk_equations(equations_num_fns(eqns), new_eqs.size(), new_eqs.data());
+        return mk_equations(get_equations_header(eqns), new_eqs.size(), new_eqs.data());
     }
 }
 
-expr mk_inaccessible(expr const & e) { return mk_annotation(*g_inaccessible_name, e); }
-bool is_inaccessible(expr const & e) { return is_annotation(e, *g_inaccessible_name); }
+
+// LEGACY
+expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs) {
+    return mk_equations(equations_header(num_fns), num_eqs, eqs);
+}
+// LEGACY
+expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs, expr const & R, expr const & Hwf) {
+    return mk_equations(equations_header(num_fns), num_eqs, eqs, R, Hwf);
+}
 
 // Auxiliary macro used to store the result of a set of equations defining a mutually recursive
 // definition.
@@ -212,16 +227,17 @@ void initialize_equations() {
     register_annotation(*g_inaccessible_name);
     register_macro_deserializer(*g_equations_opcode,
                                 [](deserializer & d, unsigned num, expr const * args) {
-                                    unsigned num_fns;
-                                    d >> num_fns;
-                                    if (num == 0 || num_fns == 0)
+                                    equations_header h;
+                                    d >> h.m_num_fns >> h.m_meta >> h.m_lemmas;
+                                    h.m_suggested = read_list<name>(d);
+                                    if (num == 0 || h.m_num_fns == 0)
                                         throw corrupted_stream_exception();
                                     if (!is_lambda_equation(args[num-1]) && !is_lambda_no_equation(args[num-1])) {
                                         if (num <= 2)
                                             throw corrupted_stream_exception();
-                                        return mk_equations(num_fns, num-2, args, args[num-2], args[num-1]);
+                                        return mk_equations(h, num-2, args, args[num-2], args[num-1]);
                                     } else {
-                                        return mk_equations(num_fns, num, args);
+                                        return mk_equations(h, num, args);
                                     }
                                 });
     register_macro_deserializer(*g_equation_opcode,

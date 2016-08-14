@@ -265,6 +265,8 @@ public:
     transparency_mode mode() const { return m_transparency_mode; }
     unsigned mode_idx() const { return static_cast<unsigned>(mode()); }
 
+    expr eta_expand(expr const & e);
+
     struct transparency_scope : public flet<transparency_mode> {
         transparency_scope(type_context & ctx, transparency_mode m):
             flet<transparency_mode>(ctx.m_transparency_mode, m) {

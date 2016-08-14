@@ -220,6 +220,7 @@ meta_constant rename        : name → name → tactic unit
 meta_constant clear         : expr → tactic unit
 meta_constant revert_lst    : list expr → tactic nat
 meta_constant whnf_core     : transparency → expr → tactic expr
+meta_constant eta_expand    : expr → tactic expr
 meta_constant unify_core    : transparency → expr → expr → tactic unit
 /- Infer the type of the given expression.
    Remark: transparency does not affect type inference -/

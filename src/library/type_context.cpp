@@ -2529,6 +2529,31 @@ optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
     return r;
 }
 
+/* -------------
+   Auxiliary
+   ------------- */
+
+expr type_context::eta_expand(expr const & e) {
+    tmp_locals locals(*this);
+    expr it = e;
+    while (is_lambda(it)) {
+        expr d = instantiate_rev(binding_domain(it), locals.as_buffer().size(), locals.as_buffer().data());
+        locals.push_local(binding_name(it), d, binding_info(it));
+        it     = binding_body(it);
+    }
+    it = instantiate_rev(it, locals.as_buffer().size(), locals.as_buffer().data());
+    expr it_type = relaxed_whnf(infer(it));
+    if (!is_pi(it_type)) return e;
+    buffer<expr> extra_args;
+    while (is_pi(it_type)) {
+        expr arg = locals.push_local_from_binding(it_type);
+        extra_args.push_back(arg);
+        it_type  = relaxed_whnf(instantiate(binding_body(it_type), arg));
+    }
+    expr r = mk_app(it, extra_args);
+    return locals.mk_lambda(r);
+}
+
 tmp_type_context::tmp_type_context(type_context & tctx, unsigned num_umeta, unsigned num_emeta): m_tctx(tctx) {
     m_tmp_uassignment.resize(num_umeta, none_level());
     m_tmp_eassignment.resize(num_emeta, none_expr());

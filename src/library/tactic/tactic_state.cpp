@@ -299,9 +299,9 @@ vm_obj tactic_infer_type(vm_obj const & e, vm_obj const & s0) {
     }
 }
 
-vm_obj tactic_whnf(vm_obj const & e, vm_obj const & s0) {
+vm_obj tactic_whnf_core(vm_obj const & t, vm_obj const & e, vm_obj const & s0) {
     tactic_state const & s = to_tactic_state(s0);
-    type_context ctx       = mk_type_context_for(s);
+    type_context ctx       = mk_type_context_for(s, to_transparency_mode(t));
     try {
         return mk_tactic_success(to_obj(ctx.whnf(to_expr(e))), s);
     } catch (exception & ex) {
@@ -491,7 +491,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "result"}),               tactic_result);
     DECLARE_VM_BUILTIN(name({"tactic", "format_result"}),        tactic_format_result);
     DECLARE_VM_BUILTIN(name({"tactic", "infer_type"}),           tactic_infer_type);
-    DECLARE_VM_BUILTIN(name({"tactic", "whnf"}),                 tactic_whnf);
+    DECLARE_VM_BUILTIN(name({"tactic", "whnf_core"}),            tactic_whnf_core);
     DECLARE_VM_BUILTIN(name({"tactic", "is_class"}),             tactic_is_class);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_instance"}),          tactic_mk_instance);
     DECLARE_VM_BUILTIN(name({"tactic", "unify_core"}),           tactic_unify_core);

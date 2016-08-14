@@ -1,0 +1,4 @@
+nat.succ (nat.rec a (λ b₁, nat.succ) (nat.rec 1 (λ b₁, nat.succ) 0))
+nat.succ (nat.rec a (λ b₁, nat.succ) (nat.rec 1 (λ b₁, nat.succ) 0))
+f a
+a + 2

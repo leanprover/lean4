@@ -219,7 +219,7 @@ meta_constant rename        : name → name → tactic unit
 /- Clear the given local constant. The tactic fails if the given expression is not a local constant. -/
 meta_constant clear         : expr → tactic unit
 meta_constant revert_lst    : list expr → tactic nat
-meta_constant whnf          : expr → tactic expr
+meta_constant whnf_core     : transparency → expr → tactic expr
 meta_constant unify_core    : transparency → expr → expr → tactic unit
 /- Infer the type of the given expression.
    Remark: transparency does not affect type inference -/
@@ -318,6 +318,9 @@ open list nat
 meta_definition note (n : name) (pr : expr) : tactic unit :=
 do t ← infer_type pr,
    definev n t pr
+
+meta_definition whnf : expr → tactic expr :=
+whnf_core semireducible
 
 meta_definition whnf_target : tactic unit :=
 target >>= whnf >>= change

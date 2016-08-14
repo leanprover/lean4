@@ -1689,7 +1689,9 @@ struct to_pattern_fn {
         } else if (is_inaccessible(e)) {
             return to_expr(e);
         } else if (is_placeholder(e)) {
-            return e;
+            expr r = mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info());
+            m_new_locals.push_back(r);
+            return r;
         } else if (is_app(e)) {
             expr new_f = visit(app_fn(e), skip_main_fn);
             expr new_a = visit(app_arg(e), false);

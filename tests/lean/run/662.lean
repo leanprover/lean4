@@ -38,9 +38,9 @@ example : count_vars (App (App (var (Func Nat (Func Nat Nat))) (var Nat)) (var N
 rfl
 
 definition count_vars2 : Π {t : type}, @term (λ x, unit) t -> nat
-| _  (Var _)       := 1
-| _  (Const _)     := 0
-| _  (Plus e1 e2)  := count_vars2 e1 + count_vars2 e2
-| _  (Abs e1)      := count_vars2 (e1 star)
-| _  (App e1 e2)   := count_vars2 e1 + count_vars2 e2
-| _  (Let e1 e2)   := count_vars2 e1 + count_vars2 (e2 star)
+| _   (Var _)              := 1
+| Nat (Const _)            := 0
+| Nat (Plus e1 e2)         := count_vars2 e1 + count_vars2 e2
+| (Func _ _) (Abs e1)      := count_vars2 (e1 star)
+| _          (App e1 e2)   := count_vars2 e1 + count_vars2 e2
+| _          (Let e1 e2)   := count_vars2 e1 + count_vars2 (e2 star)

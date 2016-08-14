@@ -47,7 +47,7 @@ expr parse_equation_lhs(parser & p, expr const & fn, buffer<expr> & locals) {
     while (!p.curr_is_token(get_assign_tk())) {
         lhs_args.push_back(p.parse_pattern_or_expr(get_max_prec()));
     }
-    expr lhs = p.mk_app(fn, lhs_args, lhs_pos);
+    expr lhs = p.mk_app(p.save_pos(mk_explicit(fn), lhs_pos), lhs_args, lhs_pos);
     bool skip_main_fn = true;
     return p.patexpr_to_pattern(lhs, skip_main_fn, locals);
 }

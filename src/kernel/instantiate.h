@@ -20,6 +20,9 @@ expr instantiate(expr const & e, expr const & s);
 
 /** \brief Replace the free variables with indices 0, ..., n-1 with s[n-1], ..., s[0] in e. */
 expr instantiate_rev(expr const & e, unsigned n, expr const * s);
+inline expr instantiate_rev(expr const & e, buffer<expr> const & s) {
+    return instantiate_rev(e, s.size(), s.data());
+}
 
 expr apply_beta(expr f, unsigned num_args, expr const * args);
 bool is_head_beta(expr const & t);

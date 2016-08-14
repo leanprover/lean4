@@ -280,9 +280,11 @@ static environment compile_decl(parser & p, environment const & env, def_cmd_kin
     }
 }
 
-static environment declare_definition(parser & p, def_cmd_kind kind, buffer<name> const & lp_names, name const & c_name,
-                                      expr const & type, expr const & val, bool is_private, bool is_protected, bool is_noncomputable,
-                                      decl_attributes attrs, pos_info const & pos) {
+static pair<environment, name>
+declare_definition(parser & p, def_cmd_kind kind, buffer<name> const & lp_names,
+                   name const & c_name, expr const & type, expr const & val,
+                   bool is_private, bool is_protected, bool is_noncomputable,
+                   decl_attributes attrs, pos_info const & pos) {
     auto env_n = mk_real_name(p.env(), c_name, is_private, pos);
     environment new_env = env_n.first;
     name c_real_name    = env_n.second;
@@ -309,7 +311,8 @@ static environment declare_definition(parser & p, def_cmd_kind kind, buffer<name
     }
 
     new_env = attrs.apply(new_env, p.ios(), c_real_name);
-    return compile_decl(p, new_env, kind, is_noncomputable, c_name, c_real_name, pos);
+    new_env = compile_decl(p, new_env, kind, is_noncomputable, c_name, c_real_name, pos);
+    return mk_pair(new_env, c_real_name);
 }
 
 environment xdefinition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable,
@@ -329,7 +332,11 @@ environment xdefinition_cmd_core(parser & p, def_cmd_kind kind, bool is_private,
     // TODO(Leo): postprocess nested matches and equations
     finalize_definition(elab, new_params, type, val, lp_names);
     if (kind == Example) return p.env();
-    return declare_definition(p, kind, lp_names, mlocal_name(fn), type, val,
-                              is_private, is_protected, is_noncomputable, attrs, header_pos);
+    name c_name = mlocal_name(fn);
+    auto env_n  = declare_definition(p, kind, lp_names, c_name, type, val,
+                                     is_private, is_protected, is_noncomputable, attrs, header_pos);
+    environment new_env = env_n.first;
+    name c_real_name    = env_n.second;
+    return add_local_ref(p, new_env, c_name, c_real_name, lp_names, params);
 }
 }

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/placeholder.h"
 #include "library/tactic/elaborate.h"
+#include "frontends/lean/util.h"
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/parser.h"
@@ -232,5 +233,24 @@ void elaborate_params(elaborator & elab, buffer<expr> const & params, buffer<exp
         expr new_param     = elab.push_local(local_pp_name(param), new_type, local_info(param));
         new_params.push_back(new_param);
     }
+}
+
+environment add_local_ref(parser & p, environment const & env, name const & c_name, name const & c_real_name, buffer<name> const & lp_names, buffer<expr> const & var_params) {
+    if (!p.has_params()) return env;
+    buffer<expr> params;
+    buffer<name> lps;
+    for (name const & u : lp_names) {
+        if (p.is_local_level_variable(u))
+            break;
+        lps.push_back(u);
+    }
+    for (expr const & e : var_params) {
+        if (p.is_local_variable(e))
+            break;
+        params.push_back(e);
+    }
+    if (lps.empty() && params.empty()) return env;
+    expr ref = mk_local_ref(c_real_name, param_names_to_levels(to_list(lps)), params);
+    return p.add_local_ref(env, c_name, ref);
 }
 }

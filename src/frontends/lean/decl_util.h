@@ -59,4 +59,10 @@ void collect_implicit_locals(parser & p, buffer<name> & lp_names, buffer<expr> &
 
     \post params.size() == new_params.size() */
 void elaborate_params(elaborator & elab, buffer<expr> const & params, buffer<expr> & new_params);
+
+/** \brief Create an alias c_name --> (c_real_name.{level_params} params)
+    level_params and params are subsets of lp_names and var_params that were
+    declared using the parameter command. */
+environment add_local_ref(parser & p, environment const & env, name const & c_name, name const & c_real_name,
+                          buffer<name> const & lp_names, buffer<expr> const & var_params);
 }

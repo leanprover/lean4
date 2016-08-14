@@ -1,0 +1,21 @@
+f : A → A
+def4.lean:10:8: error: type mismatch at application
+  f 0
+term
+  0
+has type
+  ℕ
+but is expected to have type
+  A
+g : A → A
+def4.lean:18:8: error: type mismatch at application
+  g 0
+term
+  0
+has type
+  ℕ
+but is expected to have type
+  A
+f : Π A, A → A
+f ℕ 0 : ℕ
+g 0 : ℕ

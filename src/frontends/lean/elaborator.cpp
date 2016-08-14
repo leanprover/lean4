@@ -1264,13 +1264,28 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
     return mk_app(new_eqns, new_args);
 }
 
+/** \brief Given two binding expressions \c source and \c target
+    s.t. they have at least \c num binders, replace the first \c num binders of \c target with \c source.
+    The binder types are wrapped with \c mk_as_is to make sure the elaborator will not process
+    them again. */
+static expr copy_domain(unsigned num, expr const & source, expr const & target) {
+    if (num == 0) {
+        return target;
+    } else {
+        lean_assert(is_binding(source) && is_binding(target));
+        return update_binding(source, mk_as_is(binding_domain(source)),
+                              copy_domain(num-1, binding_body(source), binding_body(target)));
+    }
+}
+
 expr elaborator::visit_equations(expr const & e) {
     expr const & ref = e;
     buffer<expr> eqs;
     buffer<expr> new_eqs;
     optional<expr> new_R;
     optional<expr> new_Rwf;
-
+    checkpoint C(*this);
+    unsigned num_fns = equations_num_fns(e);
     to_equations(e, eqs);
     lean_assert(!eqs.empty());
 
@@ -1281,8 +1296,61 @@ expr elaborator::visit_equations(expr const & e) {
         new_Rwf = enforce_type(*new_Rwf, wf, "invalid well-founded relation proof", ref);
     }
 
-    // TODO(Leo)
+    optional<expr> first_eq;
+    for (expr const & eq : eqs) {
+        expr new_eq;
+        buffer<expr> fns_locals;
+        fun_to_telescope(eq, fns_locals, optional<binder_info>());
+        list<expr> locals = to_list(fns_locals.begin() + num_fns, fns_locals.end());
+        if (first_eq) {
+            // Replace first num_fns domains of eq with the ones in first_eq.
+            // This is a trick/hack to ensure the fns in each equation have
+            // the same elaborated type.
+            new_eq   = visit(copy_domain(num_fns, *first_eq, eq), none_expr());
+        } else {
+            new_eq   = visit(eq, none_expr());
+            first_eq = new_eq;
+        }
+        new_eqs.push_back(new_eq);
+    }
+    process_checkpoint(C);
+    expr new_e;
+    if (new_R) {
+        new_e = copy_tag(e, mk_equations(num_fns, new_eqs.size(), new_eqs.data(), *new_R, *new_Rwf));
+    } else {
+        new_e = copy_tag(e, mk_equations(num_fns, new_eqs.size(), new_eqs.data()));
+    }
+    // TODO(Leo): convert unassigned metavars in lhs into new variables.
+
+    tout() << new_e << "\n";
+    // TODO(Leo): invoke equation compiler
     lean_unreachable();
+}
+
+expr elaborator::visit_equation(expr const & eq) {
+    expr const & lhs = equation_lhs(eq);
+    expr const & rhs = equation_rhs(eq);
+    expr lhs_fn = get_app_fn(lhs);
+    if (is_explicit_or_partial_explicit(lhs_fn))
+        lhs_fn = get_explicit_or_partial_explicit_arg(lhs_fn);
+    if (!is_local(lhs_fn))
+        throw exception("ill-formed equation");
+    expr new_lhs;
+    {
+        flet<bool> set(m_in_pattern, true);
+        new_lhs = visit(lhs, none_expr());
+    }
+    expr new_lhs_type = infer_type(new_lhs);
+    expr new_rhs      = visit(rhs, some_expr(new_lhs_type));
+    new_rhs = enforce_type(new_rhs, new_lhs_type, "equation type mismatch", eq);
+    return copy_tag(eq, mk_equation(new_lhs, new_rhs));
+}
+
+expr elaborator::visit_inaccessible(expr const & e, optional<expr> const & expected_type) {
+    if (!m_in_pattern)
+        throw elaborator_exception(e, "invalid occurrence of 'inaccessible' annotation, "
+                                   "it must only occur in the patterns");
+    return mk_inaccessible(visit(get_annotation_arg(e), expected_type));
 }
 
 expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
@@ -1303,6 +1371,13 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
     } else if (is_equations(e)) {
         lean_assert(!is_app_fn); // visit_convoy is used in this case
         return visit_equations(e);
+    } else if (is_equation(e)) {
+        lean_assert(!is_app_fn);
+        return visit_equation(e);
+    } else if (is_inaccessible(e)) {
+        if (is_app_fn)
+            throw elaborator_exception(e, "invalid inaccessible term, function expected");
+        return visit_inaccessible(e, expected_type);
     } else if (is_no_info(e)) {
         // TODO(Leo): flet<bool> let(m_no_info, true);
         return visit(get_annotation_arg(e), expected_type);

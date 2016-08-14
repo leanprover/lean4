@@ -78,6 +78,8 @@ private:
        we set is to true whenever we find no_info annotation. */
     bool              m_no_info{true};
 
+    bool              m_in_pattern{false};
+
     expr get_default_numeral_type();
 
     typedef std::function<format(expr const &)> pp_fn;
@@ -176,6 +178,8 @@ private:
     expr visit_let(expr const & e, optional<expr> const & expected_type);
     expr visit_convoy(expr const & e, optional<expr> const & expected_type);
     expr visit_equations(expr const & e);
+    expr visit_equation(expr const & eq);
+    expr visit_inaccessible(expr const & e, optional<expr> const & expected_type);
     expr visit(expr const & e, optional<expr> const & expected_type);
 
     void ensure_numeral_types_assigned(checkpoint const & C);

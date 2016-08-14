@@ -170,10 +170,10 @@ expr update_equations(expr const & eqns, buffer<expr> const & new_eqs) {
     lean_assert(is_equations(eqns));
     lean_assert(!new_eqs.empty());
     if (is_wf_equations(eqns)) {
-        return mk_equations(get_equations_header(eqns), new_eqs.size(), new_eqs.data(),
-                            equations_wf_rel(eqns), equations_wf_proof(eqns));
+        return copy_tag(eqns, mk_equations(get_equations_header(eqns), new_eqs.size(), new_eqs.data(),
+                                           equations_wf_rel(eqns), equations_wf_proof(eqns)));
     } else {
-        return mk_equations(get_equations_header(eqns), new_eqs.size(), new_eqs.data());
+        return copy_tag(eqns, mk_equations(get_equations_header(eqns), new_eqs.size(), new_eqs.data()));
     }
 }
 

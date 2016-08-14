@@ -174,6 +174,8 @@ private:
     expr visit_pi(expr const & e);
     expr visit_app(expr const & e, optional<expr> const & expected_type);
     expr visit_let(expr const & e, optional<expr> const & expected_type);
+    expr visit_convoy(expr const & e, optional<expr> const & expected_type);
+    expr visit_equations(expr const & e);
     expr visit(expr const & e, optional<expr> const & expected_type);
 
     void ensure_numeral_types_assigned(checkpoint const & C);

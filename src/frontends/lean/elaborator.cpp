@@ -34,6 +34,7 @@ Author: Leonardo de Moura
 #include "library/tactic/kabstract.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/elaborate.h"
+#include "library/equations_compiler/equations.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
@@ -1108,7 +1109,10 @@ expr elaborator::visit_constant(expr const & e, optional<expr> const & expected_
 expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type) {
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);
-    return visit_app_core(fn, args, expected_type, e);
+    if (is_equations(fn))
+        return visit_convoy(e, expected_type);
+    else
+        return visit_app_core(fn, args, expected_type, e);
 }
 
 static expr mk_tactic_unit() {
@@ -1171,6 +1175,116 @@ expr elaborator::visit_anonymous_constructor(expr const & e, optional<expr> cons
     return visit(new_e, expected_type);
 }
 
+static expr get_equations_fn_type(expr const & eqns) {
+    buffer<expr> eqs;
+    to_equations(eqns, eqs);
+    lean_assert(!eqs.empty());
+    lean_assert(is_lambda(eqs[0]));
+    return binding_domain(eqs[0]);
+}
+
+static expr instantiate_rev(expr const & e, type_context::tmp_locals const & locals) {
+    return instantiate_rev(e, locals.as_buffer().size(), locals.as_buffer().data());
+}
+
+static expr update_equations_fn_type(expr const & eqns, expr const & new_fn_type) {
+    expr fn_type = mk_as_is(new_fn_type);
+    buffer<expr> eqs;
+    to_equations(eqns, eqs);
+    for (expr & eq : eqs) {
+        lean_assert(is_lambda(eq));
+        eq = update_binding(eq, fn_type, binding_body(eq));
+    }
+    return update_equations(eqns, eqs);
+}
+
+expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_type) {
+    lean_assert(is_app(e));
+    lean_assert(is_equations(get_app_fn(e)));
+    expr const & ref = e;
+    if (!expected_type)
+        throw elaborator_exception(ref, "invalid match/convoy expression, expected type is not known");
+    buffer<expr> args, new_args;
+    expr const & eqns = get_app_args(e, args);
+    lean_assert(equations_num_fns(eqns) == 1);
+    lean_assert(equations_size(eqns) > 0);
+    expr fn_type = get_equations_fn_type(eqns);
+    expr new_fn_type;
+    if (is_placeholder(fn_type)) {
+        /* User did not provide the type for the match,
+           we try to infer one using expected_type and the type of the arguments */
+        checkpoint C(*this);
+        for (unsigned i = 0; i < args.size(); i++)
+            new_args.push_back(visit(args[i], none_expr()));
+        process_checkpoint(C);
+        new_fn_type = *expected_type;
+        unsigned i = args.size();
+        while (i > 0) {
+            --i;
+            expr new_arg      = instantiate_mvars(new_args[i]);
+            expr new_arg_type = instantiate_mvars(infer_type(new_arg));
+            new_fn_type       = mk_pi("_a", new_arg_type, kabstract(m_ctx, new_fn_type, new_arg));
+        }
+    } else {
+        // User provided some typing information for the match
+        type_context::tmp_locals locals(m_ctx);
+        checkpoint C(*this);
+        expr it = fn_type;
+        for (unsigned i = 0; i < args.size(); i++) {
+            if (!is_pi(it))
+                throw elaborator_exception(it, "type expected in match-expression");
+            expr d        = instantiate_rev(binding_domain(it), locals);
+            expr new_d    = visit(d, none_expr());
+            new_d         = ensure_type(new_d, binding_domain(it));
+            expr expected = replace_locals(new_d, locals.as_buffer(), new_args);
+            expr new_arg  = visit(args[i], some_expr(expected));
+            new_arg       = enforce_type(new_arg, expected, "type mismatch in match expression", args[i]);
+            locals.push_local(binding_name(it), new_d, binding_info(it));
+            it            = binding_body(it);
+            new_args.push_back(new_arg);
+        }
+        expr b      = instantiate_rev(it, locals);
+        expr new_b  = visit(b, none_expr());
+        expr inst_b = replace_locals(new_b, locals.as_buffer(), new_args);
+        if (!is_def_eq(inst_b, *expected_type)) {
+            auto pp_fn = mk_pp_fn(m_ctx);
+            throw elaborator_exception(ref, format("type mismatch at match expected type") +
+                                       pp_indent(pp_fn, inst_b) +
+                                       line() + format("but is expected") +
+                                       pp_indent(pp_fn, *expected_type));
+        }
+        process_checkpoint(C);
+        new_fn_type = instantiate_mvars(locals.mk_pi(instantiate_mvars(new_b)));
+    }
+    if (has_expr_metavar(new_fn_type)) {
+        throw elaborator_exception(ref, "invalid match/convoy expression, type contains meta-variables");
+    }
+    trace_elab(tout() << "match/convoy function type: " << new_fn_type << "\n";);
+    expr new_eqns = visit_equations(update_equations_fn_type(eqns, new_fn_type));
+    return mk_app(new_eqns, new_args);
+}
+
+expr elaborator::visit_equations(expr const & e) {
+    expr const & ref = e;
+    buffer<expr> eqs;
+    buffer<expr> new_eqs;
+    optional<expr> new_R;
+    optional<expr> new_Rwf;
+
+    to_equations(e, eqs);
+    lean_assert(!eqs.empty());
+
+    if (is_wf_equations(e)) {
+        new_R   = visit(equations_wf_rel(e), none_expr());
+        new_Rwf = visit(equations_wf_proof(e), none_expr());
+        expr wf = mk_app(m_ctx, get_well_founded_name(), *new_R);
+        new_Rwf = enforce_type(*new_Rwf, wf, "invalid well-founded relation proof", ref);
+    }
+
+    // TODO(Leo)
+    lean_unreachable();
+}
+
 expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
     if (is_as_is(e)) {
         return get_as_is_arg(e);
@@ -1186,6 +1300,9 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         return visit_app_core(e, buffer<expr>(), expected_type, e);
     } else if (is_by(e)) {
         return visit_by(e, expected_type);
+    } else if (is_equations(e)) {
+        lean_assert(!is_app_fn); // visit_convoy is used in this case
+        return visit_equations(e);
     } else if (is_no_info(e)) {
         // TODO(Leo): flet<bool> let(m_no_info, true);
         return visit(get_annotation_arg(e), expected_type);
@@ -1214,10 +1331,6 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
             args.push_back(visit(macro_arg(e, i), none_expr()));
         return update_macro(e, args.size(), args.data());
     }
-}
-
-static expr instantiate_rev(expr const & e, type_context::tmp_locals const & locals) {
-    return instantiate_rev(e, locals.as_buffer().size(), locals.as_buffer().data());
 }
 
 expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_type) {

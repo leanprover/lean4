@@ -282,6 +282,8 @@ select
 semiring
 sigma
 sigma.mk
+sigma.pr1
+sigma.pr2
 simp
 smt.array
 smt.select

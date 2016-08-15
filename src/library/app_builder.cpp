@@ -293,7 +293,8 @@ class app_builder {
         lean_app_builder_trace(
             trace_fun(n);
             tout () << ", failed to solve unification constraint for #" << (i+1)
-            << " argument (" << m_ctx.infer(m) << " =?= " << m_ctx.infer(v) << ")\n";);
+            << " argument (" << m_ctx.instantiate_mvars(m_ctx.infer(m)) << " =?= "
+            << m_ctx.instantiate_mvars(m_ctx.infer(v)) << ")\n";);
     }
 
     void trace_inst_failure(expr const & A, char const * n) {

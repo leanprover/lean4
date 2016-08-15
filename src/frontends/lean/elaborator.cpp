@@ -34,7 +34,7 @@ Author: Leonardo de Moura
 #include "library/tactic/kabstract.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/elaborate.h"
-#include "library/equations_compiler/equations.h"
+#include "library/equations_compiler/compiler.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
@@ -1261,7 +1261,8 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
     }
     trace_elab(tout() << "match/convoy function type: " << new_fn_type << "\n";);
     expr new_eqns = visit_equations(update_equations_fn_type(eqns, new_fn_type));
-    return mk_app(new_eqns, new_args);
+    expr fn       = get_equations_result(new_eqns, 0);
+    return mk_app(fn, new_args);
 }
 
 /** \brief Given two binding expressions \c source and \c target
@@ -1320,11 +1321,11 @@ expr elaborator::visit_equations(expr const & e) {
     } else {
         new_e = copy_tag(e, mk_equations(num_fns, new_eqs.size(), new_eqs.data()));
     }
-    // TODO(Leo): convert unassigned metavars in lhs into new variables.
-
-    tout() << new_e << "\n";
-    // TODO(Leo): invoke equation compiler
-    lean_unreachable();
+    new_e = instantiate_mvars(new_e);
+    metavar_context mctx = m_ctx.mctx();
+    expr r = compile_equations(m_env, m_opts, mctx, m_ctx.lctx(), new_e);
+    m_ctx.set_mctx(mctx);
+    return r;
 }
 
 expr elaborator::visit_equation(expr const & eq) {
@@ -1386,11 +1387,8 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
         expr r = visit(get_annotation_arg(e), expected_type);
         // save_type_data(e, r);
         return r;
-    } else if (is_rec_fn_macro(e)) {
-        // TODO(Leo)
-        lean_unreachable();
     } else if (is_as_atomic(e)) {
-        // ignore annotation
+        /* ignore annotation */
         expr new_e = visit(get_as_atomic_arg(e), none_expr());
         if (is_app_fn)
             return new_e;

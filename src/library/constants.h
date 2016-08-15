@@ -289,6 +289,8 @@ name const & get_select_name();
 name const & get_semiring_name();
 name const & get_sigma_name();
 name const & get_sigma_mk_name();
+name const & get_sigma_pr1_name();
+name const & get_sigma_pr2_name();
 name const & get_simp_name();
 name const & get_smt_array_name();
 name const & get_smt_select_name();

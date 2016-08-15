@@ -185,13 +185,14 @@ struct sigma_packer_fn {
             expr const & fn = get_app_args(e, args);
             auto fnidx = get_fn_idx(fn);
             if (!fnidx) return replace_visitor_with_tc::visit_app(e);
+            expr new_fn = m_editor.get_fn(*fnidx);
+            if (fn == new_fn) return replace_visitor_with_tc::visit_app(e);
             unsigned arity = m_editor.get_arity(*fnidx);
             if (args.size() < arity) {
                 expr new_e = m_ctx.eta_expand(e);
                 if (!is_lambda(new_e)) throw_ill_formed_eqns();
                 return visit(new_e);
             }
-            expr new_fn      = m_editor.get_fn(*fnidx);
             expr new_fn_type = m_ctx.infer(new_fn);
             expr sigma_type  = binding_domain(new_fn_type);
             expr arg         = pack(0, arity, args, sigma_type);
@@ -208,12 +209,18 @@ struct sigma_packer_fn {
         equations_editor editor;
         editor.unpack(e);
         buffer<expr> old_fns;
+        bool modified = false;
         for (unsigned fidx = 0; fidx < editor.get_num_fns(); fidx++) {
             expr & fn = editor.get_fn(fidx);
             old_fns.push_back(fn);
-            expr new_type = pack_as_unary(mlocal_type(fn), editor.get_arity(fidx));
-            fn = update_mlocal(fn, new_type);
+            unsigned arity = editor.get_arity(fidx);
+            if (arity > 1) {
+                expr new_type = pack_as_unary(mlocal_type(fn), arity);
+                fn = update_mlocal(fn, new_type);
+                modified = true;
+            }
         }
+        if (!modified) return e;
         update_apps_fn updt(m_ctx, old_fns, editor);
         for (unsigned fidx = 0; fidx < editor.get_num_fns(); fidx++) {
             buffer<expr> & eqs = editor.get_eqs_of(fidx);

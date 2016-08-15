@@ -43,7 +43,5 @@ public:
     unsigned get_arity(unsigned fidx) const { return m_arity[fidx]; }
 };
 
-/** \brief Create a new equations object where all functions being defined are unary.
-    The trick is to pack multiple arguments using a Sigma type. */
-expr pack_equations_domain(type_context & ctx, expr const & e);
+void throw_ill_formed_eqns();
 }

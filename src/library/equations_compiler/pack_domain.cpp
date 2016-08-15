@@ -54,8 +54,8 @@ struct sigma_packer_fn {
     }
 
     class update_apps_fn : public replace_visitor_with_tc {
-        buffer<expr> const &     m_old_fns;
-        equations_editor const & m_editor;
+        buffer<expr> const & m_old_fns;
+        unpack_eqns const &  m_ues;
 
         optional<unsigned> get_fn_idx(expr const & fn) {
             if (!is_local(fn)) return optional<unsigned>();
@@ -89,9 +89,9 @@ struct sigma_packer_fn {
             expr const & fn = get_app_args(e, args);
             auto fnidx = get_fn_idx(fn);
             if (!fnidx) return replace_visitor_with_tc::visit_app(e);
-            expr new_fn = m_editor.get_fn(*fnidx);
+            expr new_fn = m_ues.get_fn(*fnidx);
             if (fn == new_fn) return replace_visitor_with_tc::visit_app(e);
-            unsigned arity = m_editor.get_arity(*fnidx);
+            unsigned arity = m_ues.get_arity_of(*fnidx);
             if (args.size() < arity) {
                 expr new_e = m_ctx.eta_expand(e);
                 if (!is_lambda(new_e)) throw_ill_formed_eqns();
@@ -105,33 +105,32 @@ struct sigma_packer_fn {
         }
 
     public:
-        update_apps_fn(type_context & ctx, buffer<expr> const & old_fns, equations_editor const & editor):
-            replace_visitor_with_tc(ctx), m_old_fns(old_fns), m_editor(editor) {}
+        update_apps_fn(type_context & ctx, buffer<expr> const & old_fns, unpack_eqns const & ues):
+            replace_visitor_with_tc(ctx), m_old_fns(old_fns), m_ues(ues) {}
     };
 
     expr operator()(expr const & e) {
-        equations_editor editor;
-        editor.unpack(e);
+        unpack_eqns ues(m_ctx, e);
         buffer<expr> old_fns;
         bool modified = false;
-        for (unsigned fidx = 0; fidx < editor.get_num_fns(); fidx++) {
-            expr & fn = editor.get_fn(fidx);
+        for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {
+            expr const & fn = ues.get_fn(fidx);
             old_fns.push_back(fn);
-            unsigned arity = editor.get_arity(fidx);
+            unsigned arity = ues.get_arity_of(fidx);
             if (arity > 1) {
-                expr new_type = pack_as_unary(mlocal_type(fn), arity);
-                fn = update_mlocal(fn, new_type);
+                expr new_type = pack_as_unary(m_ctx.infer(fn), arity);
+                ues.update_fn_type(fidx, new_type);
                 modified = true;
             }
         }
         if (!modified) return e;
-        update_apps_fn updt(m_ctx, old_fns, editor);
-        for (unsigned fidx = 0; fidx < editor.get_num_fns(); fidx++) {
-            buffer<expr> & eqs = editor.get_eqs_of(fidx);
+        update_apps_fn updt(m_ctx, old_fns, ues);
+        for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {
+            buffer<expr> & eqs = ues.get_eqns_of(fidx);
             for (expr & eq : eqs)
                 eq = updt(eq);
         }
-        return editor.repack();
+        return ues.repack();
     }
 };
 

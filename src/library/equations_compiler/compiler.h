@@ -10,4 +10,6 @@ Author: Leonardo de Moura
 namespace lean {
 expr compile_equations(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
                        expr const & eqns);
+void initialize_compiler();
+void finalize_compiler();
 }

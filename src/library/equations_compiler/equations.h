@@ -49,16 +49,9 @@ void to_equations(expr const & e, buffer<expr> & eqns);
 expr const & equations_wf_proof(expr const & e);
 expr const & equations_wf_rel(expr const & e);
 
-/* TODO(Leo): delete the following versions */
-expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs);
-expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs, expr const & R, expr const & Hwf);
-/* End of delete ------------- */
-
 /** \brief Return true if \c e is an auxiliary macro used to store the result of mutually recursive declarations.
     For example, if a set of recursive equations is defining \c n mutually recursive functions, we wrap
-    the \c n resulting functions (and their types) with an \c equations_result macro.
-
-    TODO(Leo): delete this after we implement the new equations compiler */
+    the \c n resulting functions (and their types) with an \c equations_result macro. */
 bool is_equations_result(expr const & e);
 expr mk_equations_result(unsigned n, expr const * rs);
 unsigned get_equations_result_size(expr const & e);
@@ -66,4 +59,9 @@ expr const & get_equations_result(expr const & e, unsigned i);
 
 void initialize_equations();
 void finalize_equations();
+
+/* TODO(Leo): delete the following versions */
+expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs);
+expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs, expr const & R, expr const & Hwf);
+/* End of delete ------------- */
 }

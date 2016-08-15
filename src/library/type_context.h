@@ -471,6 +471,8 @@ public:
         tmp_locals(type_context & ctx):m_ctx(ctx) {}
         ~tmp_locals();
 
+        type_context & ctx() { return m_ctx; }
+
         expr push_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) {
             expr r = m_ctx.push_local(pp_name, type, bi);
             m_locals.push_back(r);
@@ -486,6 +488,11 @@ public:
         expr push_local_from_binding(expr const & e) {
             lean_assert(is_binding(e));
             return push_local(binding_name(e), binding_domain(e), binding_info(e));
+        }
+
+        expr push_local_from_let(expr const & e) {
+            lean_assert(is_let(e));
+            return push_let(let_name(e), let_type(e), let_value(e));
         }
 
         unsigned size() const { return m_locals.size(); }

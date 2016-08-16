@@ -252,18 +252,26 @@ static void print_attributes(parser const & p, name const & n) {
     std::sort(attrs.begin(), attrs.end(), [](attribute const * a1, attribute const * a2) {
         return a1->get_name() < a2->get_name();
     });
+    bool first = true;
     for (auto attr : attrs) {
         if (attr->get_name() == "reducibility")
             continue;
         if (auto data = attr->get(env, n)) {
-            out << " [" << attr->get_name();
+            if (first) {
+                out << "attribute [";
+                first = false;
+            } else {
+                out << ", ";
+            }
+            out << attr->get_name();
             data->print(out);
-            out << "]";
             unsigned prio = attr->get_prio(env, n);
             if (prio != LEAN_DEFAULT_PRIORITY)
-                out << " [priority " << prio << "]";
+                out << ", priority " << prio;
         }
     }
+    if (!first)
+        out << "]\n";
 }
 
 static void print_inductive(parser const & p, name const & n, pos_info const & pos) {
@@ -273,12 +281,12 @@ static void print_inductive(parser const & p, name const & n, pos_info const & p
     if (auto idecls = inductive::is_inductive_decl(env, n)) {
         level_param_names ls; unsigned nparams; list<inductive::inductive_decl> dlist;
         std::tie(ls, nparams, dlist) = *idecls;
+        print_attributes(p, n);
         if (is_structure(env, n))
             out << "structure";
         else
             out << "inductive";
         out << " " << n;
-        print_attributes(p, n);
         out << " : " << env.get(n).get_type() << "\n";
         if (is_structure(env, n)) {
             out << "fields:\n";
@@ -338,12 +346,12 @@ static void print_recursor_info(parser & p) {
 static bool print_constant(parser const & p, char const * kind, declaration const & d, bool is_def = false) {
     type_checker tc(p.env());
     auto out = regular(p.env(), p.ios(), tc);
-    if (d.is_definition() && is_marked_noncomputable(p.env(), d.get_name()))
-        out << "noncomputable ";
+    print_attributes(p, d.get_name());
     if (is_protected(p.env(), d.get_name()))
         out << "protected ";
+    if (d.is_definition() && is_marked_noncomputable(p.env(), d.get_name()))
+        out << "noncomputable ";
     out << kind << " " << to_user_name(p.env(), d.get_name());
-    print_attributes(p, d.get_name());
     out.update_options(out.get_options().update((name {"pp", "binder_types"}), true)) << " : " << d.get_type();
     if (is_def)
         out << " :=";

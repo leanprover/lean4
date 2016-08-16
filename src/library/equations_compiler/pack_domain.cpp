@@ -20,7 +20,6 @@ struct sigma_packer_fn {
     sigma_packer_fn(type_context & ctx):m_ctx(ctx) {}
 
     expr_pair mk_sigma_domain(expr const & pi_type, buffer<expr> & out_locals, unsigned n) {
-        if (n == 0) return mk_pair(mk_constant(get_unit_name()), pi_type);
         expr type = pi_type;
         if (!is_pi(type)) type = m_ctx.relaxed_whnf(type);
         if (!is_pi(type)) throw_ill_formed_eqns();
@@ -28,18 +27,21 @@ struct sigma_packer_fn {
         type_context::tmp_locals locals(m_ctx);
         expr a = locals.push_local_from_binding(type);
         out_locals.push_back(a);
+        expr next_pi_type = instantiate(binding_body(type), a);
+        if (n == 1) return mk_pair(A, next_pi_type);
         expr B, codomain;
-        std::tie(B, codomain) = mk_sigma_domain(instantiate(binding_body(type), a), out_locals, n-1);
+        std::tie(B, codomain) = mk_sigma_domain(next_pi_type, out_locals, n-1);
         B = locals.mk_lambda(B);
         return mk_pair(mk_app(m_ctx, get_sigma_name(), A, B), codomain);
     }
 
     expr mk_codomain(expr const & codomain, expr p, buffer<expr> const & locals, unsigned n) {
         buffer<expr> terms;
-        for (unsigned i = 0; i < n; i++) {
+        for (unsigned i = 0; i < n - 1; i++) {
             terms.push_back(mk_app(m_ctx, get_sigma_pr1_name(), p));
             p = mk_app(m_ctx, get_sigma_pr2_name(), p);
         }
+        terms.push_back(p);
         return replace_locals(codomain, locals, terms);
     }
 
@@ -67,9 +69,9 @@ struct sigma_packer_fn {
         }
 
         expr pack(unsigned i, unsigned arity, buffer<expr> const & args, expr const & type) {
-            if (i == arity) {
-                lean_assert(is_constant(type, get_unit_name()));
-                return mk_constant(get_unit_star_name());
+            lean_assert(arity > 0);
+            if (i == arity - 1) {
+                return args[i];
             } else {
                 lean_assert(is_constant(get_app_fn(type), get_sigma_name()));
                 expr a        = args[i];

@@ -943,6 +943,88 @@ auto pretty_fn::pp_delayed_abstraction(expr const & e) -> result {
     }
 }
 
+auto pretty_fn::pp_equation(expr const & e) -> format {
+    lean_assert(is_equation(e));
+    format r = format("|");
+    buffer<expr> args;
+    get_app_args(equation_lhs(e), args);
+    for (expr const & arg : args) {
+        r += space() + pp_child(arg, max_bp()).fmt();
+    }
+    r += space() + *g_assign_fmt + space() + pp_child(equation_rhs(e), 0).fmt();
+    return r;
+}
+
+auto pretty_fn::pp_equations(expr const & e) -> optional<result> {
+    buffer<expr> eqns;
+    unsigned num_fns = equations_num_fns(e);
+    to_equations(e, eqns);
+    buffer<expr> fns;
+    expr eqn = eqns[0];
+    for (unsigned i = 0; i < num_fns; i++) {
+        if (!is_lambda(eqn)) return optional<result>();
+        if (!closed(binding_domain(eqn))) return optional<result>();
+        auto p = binding_body_fresh(eqn, true);
+        fns.push_back(p.second);
+        eqn = p.first;
+    }
+    format r;
+    if (num_fns > 1) {
+        r = format("mutual_def") + space();
+        for (unsigned i = 0; i < num_fns; i++) {
+            if (i > 0) r += format(", ");
+            r += pp(fns[i]).fmt();
+        }
+        r += line();
+    } else {
+        r = format("def") + space() + pp(fns[0]).fmt() + space() + colon() + space() + pp(mlocal_type(fns[0])).fmt();
+    }
+    unsigned eqnidx = 0;
+    for (unsigned fidx = 0; fidx < num_fns; fidx++) {
+        if (num_fns > 1) {
+            r += format("with") + space() + pp(fns[fidx]).fmt() + space() + colon() +
+                space() + pp(mlocal_type(fns[fidx])).fmt();
+        }
+        if (eqnidx >= eqns.size()) return optional<result>();
+        expr eqn = eqns[eqnidx];
+        while (is_lambda(eqn)) {
+            eqn = binding_body_fresh(eqn, true).first;
+        }
+        eqnidx++;
+        if (is_equation(eqn)) {
+            r += line() + pp_equation(eqn);
+            while (eqnidx < eqns.size()) {
+                expr eqn = eqns[eqnidx];
+                while (is_lambda(eqn)) {
+                    eqn = binding_body_fresh(eqn, true).first;
+                }
+                if (is_equation(eqn) &&
+                    get_app_fn(equation_lhs(eqn)) == fns[fidx]) {
+                    r += line() + pp_equation(eqn);
+                    eqnidx++;
+                } else {
+                    break;
+                }
+            }
+        } else {
+            /* noequation */
+            r += line() + format("[none]");
+        }
+    }
+    if (eqns.size() != eqnidx) return optional<result>();
+    return optional<result>(r);
+}
+
+auto pretty_fn::pp_macro_default(expr const & e) -> result {
+    // TODO(Leo): have macro annotations
+    // fix macro<->pp interface
+    format r = compose(format("["), format(macro_def(e).get_name()));
+    for (unsigned i = 0; i < macro_num_args(e); i++)
+        r += nest(m_indent, compose(line(), pp_child(macro_arg(e, i), max_bp()).fmt()));
+    r += format("]");
+    return result(group(r));
+}
+
 auto pretty_fn::pp_macro(expr const & e) -> result {
     if (is_explicit(e)) {
         return pp_explicit(e);
@@ -964,18 +1046,17 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
     } else if (!m_strings && to_string(e)) {
         expr n = *macro_def(e).expand(e, m_ctx);
         return pp(n);
+    } else if (is_equations(e)) {
+        if (auto r = pp_equations(e))
+            return *r;
+        else
+            return pp_macro_default(e);
     } else if (is_annotation(e)) {
         return pp(get_annotation_arg(e));
     } else if (is_rec_fn_macro(e)) {
         return format("[") + format(get_rec_fn_name(e)) + format("]");
     } else {
-        // TODO(Leo): have macro annotations
-        // fix macro<->pp interface
-        format r = compose(format("["), format(macro_def(e).get_name()));
-        for (unsigned i = 0; i < macro_num_args(e); i++)
-            r += nest(m_indent, compose(line(), pp_child(macro_arg(e, i), max_bp()).fmt()));
-        r += format("]");
-        return result(group(r));
+        return pp_macro_default(e);
     }
 }
 

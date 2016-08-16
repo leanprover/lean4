@@ -125,6 +125,9 @@ private:
     result pp_pi(expr const & e);
     result pp_have(expr const & e);
     result pp_show(expr const & e);
+    format pp_equation(expr const & e);
+    optional<result> pp_equations(expr const & e);
+    result pp_macro_default(expr const & e);
     result pp_macro(expr const & e);
     result pp_explicit(expr const & e);
     result pp_delayed_abstraction(expr const & e);

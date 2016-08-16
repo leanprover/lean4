@@ -16,8 +16,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 void decl_attributes::parse(parser & p) {
-    while (p.curr_is_token(get_lbracket_tk())) {
-        p.next();
+    if (!p.curr_is_token(get_lbracket_tk()))
+        return;
+    p.next();
+    while (true) {
         auto pos = p.pos();
         auto name = p.check_id_next("invalid attribute declaration, identifier expected");
         if (name == "priority") {
@@ -50,7 +52,15 @@ void decl_attributes::parse(parser & p) {
             if (name == "parsing_only")
                 m_parsing_only = true;
         }
-        p.check_token_next(get_rbracket_tk(), "invalid attribute declaration, ']' expected");
+        if (p.curr_is_token(get_comma_tk())) {
+            p.next();
+        } else {
+            p.check_token_next(get_rbracket_tk(), "invalid attribute declaration, ']' expected");
+            if (p.curr_is_token(get_lbracket_tk()))
+                p.next();
+            else
+                break;
+        }
     }
 }
 

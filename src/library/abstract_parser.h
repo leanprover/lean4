@@ -25,6 +25,8 @@ public:
 
     /** \brief Return true iff the current token is a keyword (or command keyword) named \c tk */
     virtual bool curr_is_token(name const & tk) const = 0;
+    /** \brief Return true iff the current token is a numeral */
+    virtual bool curr_is_numeral() const = 0;
     /** \brief Read the next token if the current one is not End-of-file. */
     virtual void next() = 0;
 

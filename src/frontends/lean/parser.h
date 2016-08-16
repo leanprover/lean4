@@ -312,7 +312,7 @@ public:
     /** \brief Return true iff the current token is an identifier */
     bool curr_is_identifier() const { return curr() == scanner::token_kind::Identifier; }
     /** \brief Return true iff the current token is a numeral */
-    bool curr_is_numeral() const { return curr() == scanner::token_kind::Numeral; }
+    virtual bool curr_is_numeral() const final override { return curr() == scanner::token_kind::Numeral; }
     bool curr_is_decimal() const { return curr() == scanner::token_kind::Decimal; }
     /** \brief Return true iff the current token is a string */
     bool curr_is_string() const { return curr() == scanner::token_kind::String; }

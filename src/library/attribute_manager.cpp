@@ -145,7 +145,7 @@ environment basic_attribute::set(environment const & env, io_state const & ios, 
 
 void indices_attribute_data::parse(abstract_parser & p) {
     buffer<unsigned> vs;
-    while (!p.curr_is_token("]")) {
+    while (p.curr_is_numeral()) {
         auto pos = p.pos();
         unsigned v = p.parse_small_nat();
         if (v == 0)

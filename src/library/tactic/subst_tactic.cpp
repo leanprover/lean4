@@ -111,9 +111,9 @@ vm_obj tactic_subst(expr const & l, tactic_state const & s) {
     expr const & type = d->get_type();
     expr lhs, rhs;
     if (is_eq(type, lhs, rhs)) {
-        if (is_local(rhs) && !depends_on(rhs, lhs)) {
+        if (is_local(rhs) && !depends_on(lhs, rhs)) {
             return tactic_subst_core(d->get_name(), true, s);
-        } else if (is_local(lhs) && !depends_on(lhs, rhs)) {
+        } else if (is_local(lhs) && !depends_on(rhs, lhs)) {
             return tactic_subst_core(d->get_name(), false, s);
         } else {
             return mk_tactic_exception(sstream() << "subst tactic failed, hypothesis '"

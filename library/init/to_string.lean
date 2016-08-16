@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 prelude
-import init.string init.bool init.subtype init.unsigned
+import init.string init.bool init.subtype init.unsigned init.prod init.sum
 open bool list sum prod sigma subtype nat
 
 structure has_to_string [class] (A : Type) :=
@@ -41,11 +41,11 @@ definition option.has_to_string {A : Type} [has_to_string A] : has_to_string (op
 has_to_string.mk (λ o, match o with | none := "none" | (some a) := "(some " ++ to_string a ++ ")" end)
 
 attribute [instance]
-definition sum.has_to_string {A B : Type} [has_to_string A] [has_to_string B] : has_to_string (sum A B) :=
+definition sum.has_to_string {A B : Type} [has_to_string A] [has_to_string B] : has_to_string (A ⊕ B) :=
 has_to_string.mk (λ s, match s with | (inl a) := "(inl " ++ to_string a ++ ")" | (inr b) := "(inr " ++ to_string b ++ ")" end)
 
 attribute [instance]
-definition prod.has_to_string {A B : Type} [has_to_string A] [has_to_string B] : has_to_string (prod A B) :=
+definition prod.has_to_string {A B : Type} [has_to_string A] [has_to_string B] : has_to_string (A × B) :=
 has_to_string.mk (λ p, "(" ++ to_string (pr1 p) ++ ", " ++ to_string (pr2 p) ++ ")")
 
 attribute [instance]

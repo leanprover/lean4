@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.to_string init.prod
+import init.to_string init.prod init.sum
 
 inductive ordering :=
 | lt | eq | gt
@@ -50,14 +50,14 @@ open sum
 
 variables {A B : Type} [has_ordering A] [has_ordering B]
 
-definition sum.cmp : sum A B → sum A B → ordering
+definition sum.cmp : A ⊕ B → A ⊕ B → ordering
 | (inl a₁) (inl a₂) := has_ordering.cmp a₁ a₂
 | (inr b₁) (inr b₂) := has_ordering.cmp b₁ b₂
 | (inl a₁) (inr b₂) := lt
 | (inr b₁) (inl a₂) := gt
 
 attribute [instance]
-definition sum_has_ordering {A B : Type} [has_ordering A] [has_ordering B] : has_ordering (sum A B) :=
+definition sum_has_ordering {A B : Type} [has_ordering A] [has_ordering B] : has_ordering (A ⊕ B) :=
 has_ordering.mk sum.cmp
 end
 

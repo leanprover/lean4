@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.meta.mk_dec_eq_instance init.subtype init.meta.occurrences
+import init.meta.mk_dec_eq_instance init.subtype init.meta.occurrences init.sum
 
 open tactic subtype
 
@@ -25,5 +25,5 @@ definition unit_decidable_eq : decidable_eq unit :=
 by mk_dec_eq_instance
 
 attribute [instance]
-definition sum_decidable {A : Type} {B : Type} [decidable_eq A] [decidable_eq B] : decidable_eq (sum A B) :=
+definition sum_decidable {A : Type} {B : Type} [decidable_eq A] [decidable_eq B] : decidable_eq (A ⊕ B) :=
 by mk_dec_eq_instance

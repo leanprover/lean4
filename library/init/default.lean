@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.datatypes init.reserved_notation init.logic
-import init.relation init.nat init.prod init.combinator
+import init.relation init.nat init.prod init.sum init.combinator
 import init.bool init.unit init.num init.sigma init.setoid init.quot
 import init.funext init.function init.subtype init.classical init.simplifier
 import init.monad init.option init.state init.fin init.list init.char init.string init.to_string

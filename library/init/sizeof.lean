@@ -40,11 +40,11 @@ definition option.has_sizeof (A : Type) [has_sizeof A] : has_sizeof (option A) :
 by mk_has_sizeof_instance
 
 attribute [instance]
-definition prod_has_sizeof (A B : Type) [has_sizeof A] [has_sizeof B] : has_sizeof (prod A B) :=
+definition prod_has_sizeof (A B : Type) [has_sizeof A] [has_sizeof B] : has_sizeof (A × B) :=
 by mk_has_sizeof_instance
 
 attribute [instance]
-definition sum_has_sizeof (A B : Type) [has_sizeof A] [has_sizeof B] : has_sizeof (sum A B) :=
+definition sum_has_sizeof (A B : Type) [has_sizeof A] [has_sizeof B] : has_sizeof (A ⊕ B) :=
 by mk_has_sizeof_instance
 
 attribute [instance]

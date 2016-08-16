@@ -362,6 +362,21 @@ vm_obj tactic_unify_core(vm_obj const & t, vm_obj const & e1, vm_obj const & e2,
     }
 }
 
+vm_obj tactic_is_def_eq_core(vm_obj const & t, vm_obj const & e1, vm_obj const & e2, vm_obj const & s0) {
+    tactic_state const & s = to_tactic_state(s0);
+    type_context ctx       = mk_type_context_for(s, to_transparency_mode(t));
+    type_context::tmp_mode_scope scope(ctx);
+    try {
+        bool r = ctx.is_def_eq(to_expr(e1), to_expr(e2));
+        if (r)
+            return mk_tactic_success(s);
+        else
+            return mk_tactic_exception("is_def_eq failed", s);
+    } catch (exception & ex) {
+        return mk_tactic_exception(ex, s);
+    }
+}
+
 vm_obj tactic_get_local(vm_obj const & n, vm_obj const & s0) {
     tactic_state const & s   = to_tactic_state(s0);
     optional<metavar_decl> g = s.get_main_goal_decl();
@@ -502,6 +517,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "format_result"}),        tactic_format_result);
     DECLARE_VM_BUILTIN(name({"tactic", "infer_type"}),           tactic_infer_type);
     DECLARE_VM_BUILTIN(name({"tactic", "whnf_core"}),            tactic_whnf_core);
+    DECLARE_VM_BUILTIN(name({"tactic", "is_def_eq_core"}),       tactic_is_def_eq_core);
     DECLARE_VM_BUILTIN(name({"tactic", "eta_expand"}),           tactic_eta_expand);
     DECLARE_VM_BUILTIN(name({"tactic", "is_class"}),             tactic_is_class);
     DECLARE_VM_BUILTIN(name({"tactic", "mk_instance"}),          tactic_mk_instance);

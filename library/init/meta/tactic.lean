@@ -222,6 +222,8 @@ meta_constant revert_lst    : list expr → tactic nat
 meta_constant whnf_core     : transparency → expr → tactic expr
 meta_constant eta_expand    : expr → tactic expr
 meta_constant unify_core    : transparency → expr → expr → tactic unit
+/- is_def_eq_core is similar to unify_core, but it treats metavariables as constants. -/
+meta_constant is_def_eq_core : transparency → expr → expr → tactic unit
 /- Infer the type of the given expression.
    Remark: transparency does not affect type inference -/
 meta_constant infer_type    : expr → tactic expr
@@ -364,6 +366,9 @@ meta_definition clear_lst : list name → tactic unit
 
 meta_definition unify : expr → expr → tactic unit :=
 unify_core semireducible
+
+meta_definition is_def_eq : expr → expr → tactic unit :=
+is_def_eq_core semireducible
 
 meta_definition match_not (e : expr) : tactic expr :=
 match (expr.is_not e) with

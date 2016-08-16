@@ -259,7 +259,7 @@ static void print_attributes(parser const & p, name const & n) {
             out << " [" << attr->get_name();
             data->print(out);
             out << "]";
-            unsigned prio = get_attribute_prio(env, attr->get_name(), n);
+            unsigned prio = attr->get_prio(env, n);
             if (prio != LEAN_DEFAULT_PRIORITY)
                 out << " [priority " << prio << "]";
         }

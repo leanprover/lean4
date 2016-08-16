@@ -320,11 +320,11 @@ void initialize_class() {
     g_key = new std::string("class");
     class_ext::initialize();
 
-    register_attribute(basic_attribute("class", "type class", [](environment const & env, io_state const &, name const & d, bool persistent) {
+    register_attribute(basic_attribute("class", "type class", [](environment const & env, io_state const &, name const & d, unsigned, bool persistent) {
           return add_class(env, d, persistent);
         }));
 
-    register_attribute(prio_attribute("instance", "type class instance", [](environment const & env, io_state const &, name const & d, unsigned prio, bool persistent) {
+    register_attribute(basic_attribute("instance", "type class instance", [](environment const & env, io_state const &, name const & d, unsigned prio, bool persistent) {
           return add_instance(env, d, prio, persistent);
         }));
 }

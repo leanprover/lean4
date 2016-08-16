@@ -116,7 +116,7 @@ void initialize_abbreviation() {
     g_class_name = new name("abbreviation");
     g_key        = new std::string("ABBREV");
     abbrev_ext::initialize();
-    register_attribute(basic_attribute("parsing_only", "parsing-only abbreviation", [](environment const & env, io_state const &, name const & d, bool) {
+    register_attribute(basic_attribute("parsing_only", "parsing-only abbreviation", [](environment const & env, io_state const &, name const & d, unsigned, bool) {
         if (!is_abbreviation(env, d))
             throw exception(sstream() << "invalid '[parsing_only]' attribute, " << d << " is not an abbreviation");
         return env;

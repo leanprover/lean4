@@ -48,12 +48,8 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
     while (i > 0) {
         --i;
         auto const & entry = entries[i];
-        if (auto prio_attr = dynamic_cast<prio_attribute const *>(entry.m_attr)) {
-            unsigned prio = m_prio ? *m_prio : LEAN_DEFAULT_PRIORITY;
-            env = prio_attr->set(env, ios, d, prio, m_persistent);
-        } else {
-            env = entry.m_attr->set_untyped(env, ios, d, entry.m_params, m_persistent);
-        }
+        unsigned prio = m_prio ? *m_prio : LEAN_DEFAULT_PRIORITY;
+        env = entry.m_attr->set_untyped(env, ios, d, prio, entry.m_params, m_persistent);
     }
     return env;
 }

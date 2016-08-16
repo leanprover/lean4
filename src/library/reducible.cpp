@@ -53,11 +53,11 @@ public:
         }
         return {};
     }
-    virtual environment set(environment const & env, io_state const & ios, name const & n, bool persistent) const override {
+    virtual environment set(environment const & env, io_state const & ios, name const & n, unsigned prio, bool persistent) const override {
         declaration const & d = env.get(n);
         if (!d.is_definition())
             throw exception(sstream() << "invalid reducible command, '" << n << "' is not a definition");
-        return get_reducibility_attribute().set(env, ios, n, { m_status }, persistent);
+        return get_reducibility_attribute().set(env, ios, n, prio, {m_status}, persistent);
     }
 
     virtual void get_instances(environment const & env, buffer<name> & r) const override {
@@ -85,7 +85,7 @@ void finalize_reducible() {
 }
 
 environment set_reducible(environment const & env, name const & n, reducible_status s, bool persistent) {
-    return get_reducibility_attribute().set(env, get_dummy_ios(), n, { s }, persistent);
+    return get_reducibility_attribute().set(env, get_dummy_ios(), n, LEAN_DEFAULT_PRIORITY, {s}, persistent);
 }
 
 reducible_status get_reducible_status(environment const & env, name const & n) {

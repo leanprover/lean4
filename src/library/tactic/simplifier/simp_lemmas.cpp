@@ -671,8 +671,8 @@ void initialize_simp_lemmas() {
     DECLARE_VM_BUILTIN(name({"tactic", "mk_empy_simp_lemmas"}),      tactic_mk_empty_simp_lemmas);
     DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_core"}),  tactic_simp_lemmas_insert);
 
-    register_attribute(prio_attribute("simp", "simplification lemma", on_add_simp_lemma));
-    register_attribute(prio_attribute("congr", "congruence lemma", on_add_congr_lemma));
+    register_attribute(basic_attribute("simp", "simplification lemma", on_add_simp_lemma));
+    register_attribute(basic_attribute("congr", "congruence lemma", on_add_congr_lemma));
 }
 
 void finalize_simp_lemmas() {

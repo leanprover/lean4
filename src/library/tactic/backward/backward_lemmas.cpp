@@ -132,7 +132,7 @@ vm_obj tactic_backward_lemmas_find(vm_obj const & lemmas, vm_obj const & h, vm_o
 
 void initialize_backward_lemmas() {
     register_trace_class(name{"tactic", "back_chaining"});
-    register_attribute(prio_attribute("intro", "introduction rule for backward chaining", [](environment const & env, io_state const & ios, name const & c, unsigned, bool) {
+    register_attribute(basic_attribute("intro", "introduction rule for backward chaining", [](environment const & env, io_state const & ios, name const & c, unsigned, bool) {
           aux_type_context ctx(env, ios.get_options());
           auto index = get_backward_target(ctx, c);
           if (!index || index->kind() != expr_kind::Constant)

@@ -108,15 +108,22 @@ struct attr_config {
 template class scoped_ext<attr_config>;
 typedef scoped_ext<attr_config> attribute_ext;
 
-environment attribute::set_core(environment const & env, io_state const & ios, name const & n, attr_data_ptr data,
-                                bool persistent) const {
-    return attribute_ext::add_entry(env, ios, attr_entry(m_id, LEAN_DEFAULT_PRIORITY, attr_record(n, data)), persistent);
+environment attribute::set_core(environment const & env, io_state const & ios, name const & n, unsigned prio,
+                                attr_data_ptr data, bool persistent) const {
+    return attribute_ext::add_entry(env, ios, attr_entry(m_id, prio, attr_record(n, data)), persistent);
 }
 attr_data_ptr attribute::get(environment const & env, name const & n) const {
     if (auto records = attribute_ext::get_state(env).find(m_id))
         if (auto record = records->get_key({n, {}}))
             return record->m_data;
     return {};
+}
+
+unsigned attribute::get_prio(environment const & env, name const & n) const {
+    if (auto records = attribute_ext::get_state(env).find(get_name()))
+        if (auto prio = records->get_prio({n, {}}))
+            return prio.value();
+    return LEAN_DEFAULT_PRIORITY;
 }
 
 void attribute::get_instances(environment const & env, buffer<name> & r) const {
@@ -128,17 +135,9 @@ attr_data_ptr attribute::parse_data(abstract_parser &) const {
     return lean::attr_data_ptr(new attr_data);
 }
 
-environment basic_attribute::set(environment const & env, io_state const & ios, name const & n, bool persistent) const {
-    auto env2 = set_core(env, ios, n, attr_data_ptr(new attr_data), persistent);
-    if (m_on_set)
-        env2 = m_on_set(env2, ios, n, persistent);
-    return env2;
-}
-
-environment prio_attribute::set(environment const & env, io_state const & ios, name const & n, unsigned prio,
-                                bool persistent) const {
-    auto env2 = attribute_ext::add_entry(env, ios, attr_entry(get_name(), prio, attr_record(n, attr_data_ptr(new attr_data))),
-                                         persistent);
+environment basic_attribute::set(environment const & env, io_state const & ios, name const & n, unsigned prio,
+                                 bool persistent) const {
+    auto env2 = set_core(env, ios, n, prio, attr_data_ptr(new attr_data), persistent);
     if (m_on_set)
         env2 = m_on_set(env2, ios, n, prio, persistent);
     return env2;
@@ -204,29 +203,23 @@ priority_queue<name, name_quick_cmp> get_attribute_instances_by_prio(environment
 environment set_attribute(environment const & env, io_state const & ios, char const * name,
                           lean::name const & d, unsigned prio, list<unsigned> const & params, bool persistent) {
     auto const & attr = get_attribute(name);
-    if (auto prio_attr = dynamic_cast<prio_attribute const *>(&attr)) {
-        lean_assert(!params);
-        return prio_attr->set(env, ios, d, prio, persistent);
-    }
-    if (auto params_attr = dynamic_cast<indices_attribute const *>(&attr)) {
-        return params_attr->set(env, ios, d, {params}, persistent);
-    }
-    lean_assert(!params);
-    return set_attribute(env, ios, name, d, persistent);
+    lean_assert(dynamic_cast<indices_attribute const *>(&attr));
+    return static_cast<indices_attribute const &>(attr).set(env, ios, d, prio, {params}, persistent);
 }
 
 environment set_attribute(environment const & env, io_state const & ios, char const * name, lean::name const & d,
-                          bool persistent) {
+                          unsigned prio, bool persistent) {
     auto const & attr = get_attribute(name);
     lean_assert(dynamic_cast<basic_attribute const *>(&attr));
-    return static_cast<basic_attribute const &>(attr).set(env, ios, d, persistent);
+    return static_cast<basic_attribute const &>(attr).set(env, ios, d, prio, persistent);
+}
+environment set_attribute(environment const & env, io_state const & ios, char const * attr,
+                          name const & d, bool persistent) {
+    return set_attribute(env, ios, attr, d, LEAN_DEFAULT_PRIORITY, persistent);
 }
 
 unsigned get_attribute_prio(environment const & env, std::string const & attr, name const & d) {
-    if (auto records = attribute_ext::get_state(env).find(attr))
-        if (auto prio = records->get_prio({d, {}}))
-            return prio.value();
-    return LEAN_DEFAULT_PRIORITY;
+    return get_attribute(attr).get_prio(env, d);
 }
 
 list<unsigned> get_attribute_params(environment const & env, std::string const & attr, name const & d) {

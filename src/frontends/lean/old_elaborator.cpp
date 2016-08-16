@@ -52,7 +52,7 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic_state.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/local_decls.h"
-#include "frontends/lean/structure_cmd.h"
+#include "frontends/lean/structure_instance.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/old_elaborator.h"

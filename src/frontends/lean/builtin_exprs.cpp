@@ -29,7 +29,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/info_annotation.h"
-#include "frontends/lean/structure_cmd.h"
+#include "frontends/lean/structure_instance.h"
 #include "frontends/lean/nested_declaration.h"
 #include "frontends/lean/match_expr.h"
 

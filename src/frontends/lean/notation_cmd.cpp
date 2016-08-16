@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/nested_declaration.h"
+#include "frontends/lean/decl_attributes.h"
 
 namespace lean {
 static std::string parse_symbol(parser & p, char const * msg) {
@@ -682,17 +683,18 @@ struct notation_modifiers {
     unsigned m_priority;
     notation_modifiers():m_parse_only(false), m_priority(LEAN_DEFAULT_NOTATION_PRIORITY) {}
     void parse(parser & p) {
-        while (true) {
-            if (p.curr_is_token(get_parsing_only_tk())) {
-                p.next();
-                p.check_token_next(get_rbracket_tk(), "invalid [parsing_only] attribute, ']' expected");
+        auto pos = p.pos();
+        decl_attributes attrs;
+        attrs.parse(p);
+        for (auto const & entry : attrs.get_entries()) {
+            if (entry.m_attr->get_name() == "parsing_only")
                 m_parse_only = true;
-            } else if (auto prio = parse_priority(p)) {
-                m_priority = *prio;
-            } else {
-                return;
-            }
+            else
+                throw parser_error(sstream() << "invalid notation: unexpected attribute ["
+                                             << entry.m_attr->get_name() << "]", pos);
         }
+        if (attrs.get_priority())
+            m_priority = *attrs.get_priority();
     }
 };
 

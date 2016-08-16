@@ -50,6 +50,7 @@ Author: Leonardo de Moura
 // #include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/parse_table.h"
+#include "frontends/lean/decl_attributes.h"
 
 namespace lean {
 environment section_cmd(parser & p) {
@@ -393,9 +394,16 @@ static environment register_simp_ext_cmd(parser & p) {
     environment env = p.env();
     name head = p.check_constant_next("invalid #register_simp_ext_cmd command, constant expected");
     name simp_ext_name = p.check_constant_next("invalid #register_simp_ext_cmd command, constant expected");
+
     unsigned prio = LEAN_DEFAULT_PRIORITY;
-    if (auto oprio = parse_priority(p))
-        prio = *oprio;
+    auto pos = p.pos();
+    decl_attributes attrs;
+    attrs.parse(p);
+    if (auto const & entry = head_opt(attrs.get_entries()))
+        throw parser_error(sstream() << "invalid #register_simp_ext_cmd command, unexpected attribute ["
+                                     << entry->m_attr->get_name() << "]", pos);
+    if (attrs.get_priority())
+        prio = *attrs.get_priority();
     bool persistent = true;
     env = add_simp_extension(env, p.ios(), head, simp_ext_name, prio, persistent);
     return env;

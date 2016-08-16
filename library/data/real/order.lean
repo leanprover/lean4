@@ -13,8 +13,8 @@ open rat nat eq pnat
 
 local postfix `⁻¹` := pnat.inv
 
-local attribute real.real_has_zero [instance] [priority real.prio]
-local attribute real.real_has_one [instance] [priority real.prio]
+local attribute real.real_has_zero [instance, priority real.prio]
+local attribute real.real_has_one [instance, priority real.prio]
 
 namespace rat_seq
 definition pos (s : seq) := ∃ n : ℕ+, n⁻¹ < (s n)
@@ -1026,11 +1026,11 @@ protected definition lt (x y : ℝ) :=
 protected definition le (x y : ℝ) :=
   quot.lift_on₂ x y (λ a b, rat_seq.r_le a b) rat_seq.r_le_well_defined
 
-attribute [instance] [priority real.prio]
+attribute [instance, priority real.prio]
 definition real_has_lt : has_lt ℝ :=
 has_lt.mk real.lt
 
-attribute [instance] [priority real.prio]
+attribute [instance, priority real.prio]
 definition real_has_le : has_le ℝ :=
 has_le.mk real.le
 

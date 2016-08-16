@@ -120,7 +120,7 @@ decidable_linear_ordered_semiring nat :=
   mul_lt_mul_of_pos_right    := @nat.mul_lt_mul_of_pos_right,
   decidable_lt               := nat.decidable_lt ⦄
 
-attribute [instance] [priority nat.prio]
+attribute [instance, priority nat.prio]
 definition nat_has_dvd : has_dvd nat :=
 has_dvd.mk has_dvd.dvd
 

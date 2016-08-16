@@ -19,7 +19,7 @@ do g ← f,
    b ← a,
    return (g b)
 
-attribute [inline] [instance]
+attribute [inline, instance]
 definition monad_is_applicative (m : Type → Type) [monad m] : applicative m :=
 applicative.mk (@monad.map _ _) (@monad.ret _ _) (@fapp _ _)
 

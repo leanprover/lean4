@@ -8,7 +8,7 @@ definition val {A : Type} (c : C A) : A :=
 C.rec (λa, a) c
 
 constant magic (A : Type) : A
-attribute [instance] [priority std.priority.max]
+attribute [instance, priority std.priority.max]
 definition C_magic (A : Type) : C A :=
 C.mk (magic A)
 

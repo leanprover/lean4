@@ -1,15 +1,15 @@
 import algebra.group data.real
 open nat
 
-attribute [instance] [priority 2]
+attribute [instance, priority 2]
 definition foo1 : inhabited nat := inhabited.mk 10
 
-attribute [instance] [priority 1]
+attribute [instance, priority 1]
 definition foo2 : inhabited nat := inhabited.mk 10
 
 open algebra
 
-attribute [instance] [priority 1]
+attribute [instance, priority 1]
 definition foo3 : inhabited nat := inhabited.mk 10
 
 attribute [unfold 2 3]

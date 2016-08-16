@@ -4,7 +4,7 @@ postfix `x`:(max+1) := eq
 
 postfix [priority 1] `y`:max := eq
 
-attribute [instance] [priority 1]
+attribute [instance, priority 1]
 definition foo : inhabited nat := inhabited.mk nat.zero
 
 attribute [unfold 1]

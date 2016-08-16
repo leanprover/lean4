@@ -29,9 +29,9 @@ attribute [forward]
 lemma pos_inv {x : ℝ} : pos x → (: pos (inv x) :) := sorry
 attribute [intro!]
 lemma pos_1 : pos (1:ℝ) := sorry
-attribute [intro!] [forward]
+attribute [intro!, forward]
 lemma pos_add {x y : ℝ} : pos x →  pos y → pos (: x + y :) := sorry
-attribute [intro!] [forward]
+attribute [intro!, forward]
 lemma pos_mul {x y : ℝ} : pos x →  pos y → pos (: x * y :) := sorry
 attribute [intro!]
 lemma pos_sq {x : ℝ} : pos x → pos (: sq x :) := sorry

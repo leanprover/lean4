@@ -33,7 +33,7 @@ namespace nat
     (λ a₁ ih, nat.rec P (λ a₂ ih, (a₁ = a₂ → P) → P) v₂)
     v₁
 
-  attribute [reducible] [unfold 4]
+  attribute [reducible, unfold 4]
   protected definition no_confusion
                        {P : Type} {v₁ v₂ : ℕ} (H : v₁ = v₂) : nat.no_confusion_type P v₁ v₂ :=
   have v₁ = v₁ → nat.no_confusion_type P v₁ v₁, from
@@ -49,7 +49,7 @@ namespace nat
 
   definition nat_has_le : has_le nat := has_le.mk nat.le
 
-  local attribute [instance] [priority nat.prio] nat_has_le
+  local attribute [instance, priority nat.prio] nat_has_le
 
   attribute [refl]
   protected lemma le_refl : ∀ a : nat, a ≤ a :=
@@ -77,7 +77,7 @@ namespace nat
   definition nat_has_mul : has_mul nat :=
   has_mul.mk nat.mul
 
-  local attribute [instance] [priority nat.prio] nat_has_sub nat_has_mul nat_has_lt
+  local attribute [instance, priority nat.prio] nat_has_sub nat_has_mul nat_has_lt
 
   /- properties of ℕ -/
 
@@ -91,7 +91,7 @@ namespace nat
       | (ff xney) := ff (λ H : succ x = succ y, nat.no_confusion H (λ xeqy : x = y, absurd xeqy xney))
       end
 
-  local attribute [instance] [priority nat.prio] nat.has_decidable_eq
+  local attribute [instance, priority nat.prio] nat.has_decidable_eq
 
   /- properties of inequality -/
 
@@ -236,7 +236,7 @@ namespace nat
   protected definition decidable_lt : ∀ a b : nat, decidable (a < b) :=
   λ a b, nat.decidable_le (succ a) b
 
-  local attribute [instance] [priority nat.prio] nat.has_decidable_eq nat.decidable_le nat.decidable_lt
+  local attribute [instance, priority nat.prio] nat.has_decidable_eq nat.decidable_le nat.decidable_lt
 
   protected theorem lt_or_ge (a b : ℕ) : a < b ∨ a ≥ b :=
   nat.rec_on b (inr (zero_le a)) (λn, or.rec
@@ -316,8 +316,8 @@ protected definition nat.is_inhabited : inhabited nat :=
 inhabited.mk nat.zero
 
 attribute [recursor] nat.induction_on
-attribute [recursor] [unfold 2] nat.cases_on
-attribute [recursor] [unfold 2] nat.rec_on
-attribute [instance] [priority nat.prio]
+attribute [recursor, unfold 2] nat.cases_on
+attribute [recursor, unfold 2] nat.rec_on
+attribute [instance, priority nat.prio]
    nat.nat_has_le nat.nat_has_sub nat.nat_has_mul nat.nat_has_lt
    nat.has_decidable_eq nat.decidable_le nat.decidable_lt

@@ -37,11 +37,11 @@ by cases z; exact rfl
 
 protected definition prio : num := num.pred real.prio
 
-attribute [instance] [priority complex.prio]
+attribute [instance, priority complex.prio]
 definition complex_has_zero : has_zero ℂ :=
 has_zero.mk (of_nat 0)
 
-attribute [instance] [priority complex.prio]
+attribute [instance, priority complex.prio]
 definition complex_has_one : has_one ℂ :=
 has_one.mk (of_nat 1)
 
@@ -62,15 +62,15 @@ complex.mk
 
 /- notation -/
 
-attribute [instance] [priority complex.prio]
+attribute [instance, priority complex.prio]
 definition complex_has_add : has_add complex :=
 has_add.mk complex.add
 
-attribute [instance] [priority complex.prio]
+attribute [instance, priority complex.prio]
 definition complex_has_neg : has_neg complex :=
 has_neg.mk complex.neg
 
-attribute [instance] [priority complex.prio]
+attribute [instance, priority complex.prio]
 definition complex_has_mul : has_mul complex :=
 has_mul.mk complex.mul
 
@@ -185,7 +185,7 @@ protected definition comm_ring : comm_ring complex :=
 
 local attribute complex.comm_ring [instance]
 
-attribute [instance] [priority complex.prio]
+attribute [instance, priority complex.prio]
 definition complex_has_sub : has_sub complex :=
 has_sub.mk has_sub.sub
 
@@ -241,7 +241,7 @@ end
 
 protected noncomputable definition inv (z : ℂ) : complex := conj z * of_real (cmod z)⁻¹
 
-attribute [instance] [priority complex.prio]
+attribute [instance, priority complex.prio]
 protected noncomputable definition complex_has_inv :
   has_inv complex := has_inv.mk complex.inv
 
@@ -260,7 +260,7 @@ classical.by_cases
 
 protected noncomputable definition div (z w : ℂ) : ℂ := z * w⁻¹
 
-attribute [instance] [priority complex.prio]
+attribute [instance, priority complex.prio]
 noncomputable definition complex_has_div :
     has_div complex :=
   has_div.mk complex.div

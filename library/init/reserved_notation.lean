@@ -114,17 +114,17 @@ namespace nat
 end nat
 
 attribute pos_num_has_add pos_num_has_one num_has_zero num_has_one num_has_add
-          [instance] [priority nat.prio]
+          [instance, priority nat.prio]
 
-attribute [instance] [priority nat.prio]
+attribute [instance, priority nat.prio]
 definition nat_has_zero : has_zero nat :=
 has_zero.mk nat.zero
 
-attribute [instance] [priority nat.prio]
+attribute [instance, priority nat.prio]
 definition nat_has_one : has_one nat :=
 has_one.mk (nat.succ (nat.zero))
 
-attribute [instance] [priority nat.prio]
+attribute [instance, priority nat.prio]
 definition nat_has_add : has_add nat :=
 has_add.mk nat.add
 

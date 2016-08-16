@@ -13,7 +13,7 @@ import data.nat.basic data.nat.order data.nat.div data.nat.gcd algebra.ring_powe
 
 namespace nat
 
-attribute [instance] [priority nat.prio]
+attribute [instance, priority nat.prio]
 definition nat_has_pow_nat : has_pow_nat nat :=
 has_pow_nat.mk has_pow_nat.pow_nat
 

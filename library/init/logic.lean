@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 prelude
 import init.datatypes init.reserved_notation
 
-attribute [reducible] [unfold_full]
+attribute [reducible, unfold_full]
 definition id {A : Type} (a : A) : A :=
 a
 
@@ -306,7 +306,7 @@ attribute iff.intro [intro!]
 
 theorem iff.elim : ((a → b) → (b → a) → c) → (a ↔ b) → c := and.rec
 
-attribute iff.elim [recursor 5] [elim]
+attribute iff.elim [recursor 5, elim]
 
 theorem iff.elim_left : (a ↔ b) → a → b := and.left
 
@@ -605,7 +605,7 @@ theorem exists_unique.intro {A : Type} {p : A → Prop} (w : A) (H1 : p w) (H2 :
   ∃!x, p x :=
 exists.intro w (and.intro H1 H2)
 
-attribute [recursor 4] [elim]
+attribute [recursor 4, elim]
 theorem exists_unique.elim {A : Type} {p : A → Prop} {b : Prop}
     (H2 : ∃!x, p x) (H1 : ∀x, p x → (∀y, p y → y = x) → b) : b :=
 exists.elim H2 (λ w Hw, H1 w (and.left Hw) (and.right Hw))
@@ -805,7 +805,7 @@ attribute [inline]
 definition default (A : Type) [H : inhabited A] : A :=
 inhabited.value H
 
-attribute [inline] [irreducible]
+attribute [inline, irreducible]
 definition arbitrary (A : Type) [H : inhabited A] : A :=
 inhabited.value H
 
@@ -822,15 +822,15 @@ definition inhabited_Pi (A : Type) {B : A → Type} [Πx, inhabited (B x)] :
   inhabited (Πx, B x) :=
 inhabited.mk (λa, default (B a))
 
-attribute [inline] [instance]
+attribute [inline, instance]
 protected definition bool.is_inhabited : inhabited bool :=
 inhabited.mk ff
 
-attribute [inline] [instance]
+attribute [inline, instance]
 protected definition pos_num.is_inhabited : inhabited pos_num :=
 inhabited.mk pos_num.one
 
-attribute [inline] [instance]
+attribute [inline, instance]
 protected definition num.is_inhabited : inhabited num :=
 inhabited.mk num.zero
 

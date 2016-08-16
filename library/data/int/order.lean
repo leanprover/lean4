@@ -16,13 +16,13 @@ namespace int
 private definition nonneg (a : ℤ) : Prop := int.cases_on a (take n, true) (take n, false)
 protected definition le (a b : ℤ) : Prop := nonneg (b - a)
 
-attribute [instance] [priority int.prio]
+attribute [instance, priority int.prio]
 definition int_has_le : has_le int :=
 has_le.mk int.le
 
 protected definition lt (a b : ℤ) : Prop := (a + 1) ≤ b
 
-attribute [instance] [priority int.prio]
+attribute [instance, priority int.prio]
 definition int_has_lt : has_lt int :=
 has_lt.mk int.lt
 

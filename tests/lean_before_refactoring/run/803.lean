@@ -6,11 +6,11 @@ namespace matrix
 attribute [reducible]
 definition vector (A : Type) (n : nat) := fin n → A
 
-attribute [reducible] [coercion]
+attribute [reducible, coercion]
 definition to_cvec {A : Type} {n : nat} (v : vector A n)
 : matrix A n 1 := λ i o, v i
 
-attribute [reducible] [coercion]
+attribute [reducible, coercion]
 definition to_rvec {A : Type} {n : nat} (v : vector A n)
 : matrix A 1 n := λ o i, v i
 

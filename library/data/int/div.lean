@@ -23,7 +23,7 @@ sign b *
     | -[1+m]   := -[1+ ((m:nat) / (nat_abs b))]
   end)
 
-attribute [instance] [priority int.prio]
+attribute [instance, priority int.prio]
 definition int_has_div : has_div int :=
 has_div.mk int.div
 
@@ -43,7 +43,7 @@ rfl
 
 protected definition mod (a b : ℤ) : ℤ := a - a / b * b
 
-attribute [instance] [priority int.prio]
+attribute [instance, priority int.prio]
 definition int_has_mod : has_mod int :=
 has_mod.mk int.mod
 

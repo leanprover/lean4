@@ -12,11 +12,11 @@ notation f ` $ `:1 a:1 := f a
 
 variables {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}
 
-attribute [inline] [reducible] [unfold_full]
+attribute [inline, reducible, unfold_full]
 definition function.comp (f : B → C) (g : A → B) : A → C :=
 λx, f (g x)
 
-attribute [inline] [reducible] [unfold_full]
+attribute [inline, reducible, unfold_full]
 definition function.dcomp {B : A → Type} {C : Π {x : A}, B x → Type}
   (f : Π {x : A} (y : B x), C y) (g : Πx, B x) : Πx, C (g x) :=
 λx, f (g x)
@@ -26,28 +26,28 @@ infixr  ` ∘' `:80  := function.dcomp
 
 namespace function
 
-attribute [reducible] [unfold_full]
+attribute [reducible, unfold_full]
 definition comp_right (f : B → B → B) (g : A → B) : B → A → B :=
 λ b a, f b (g a)
 
-attribute [reducible] [unfold_full]
+attribute [reducible, unfold_full]
 definition comp_left (f : B → B → B) (g : A → B) : A → B → B :=
 λ a b, f (g a) b
 
-attribute [reducible] [unfold_full]
+attribute [reducible, unfold_full]
 definition on_fun (f : B → B → C) (g : A → B) : A → A → C :=
 λx y, f (g x) (g y)
 
-attribute [reducible] [unfold_full]
+attribute [reducible, unfold_full]
 definition combine (f : A → B → C) (op : C → D → E) (g : A → B → D)
   : A → B → E :=
 λx y, op (f x y) (g x y)
 
-attribute [reducible] [unfold_full]
+attribute [reducible, unfold_full]
 definition const (B : Type) (a : A) : B → A :=
 λx, a
 
-attribute [reducible] [unfold_full]
+attribute [reducible, unfold_full]
 definition swap {C : A → B → Type} (f : Πx y, C x y) : Πy x, C x y :=
 λy x, f x y
 
@@ -55,11 +55,11 @@ attribute [reducible]
 definition app {B : A → Type} (f : Πx, B x) (x : A) : B x :=
 f x
 
-attribute [reducible] [unfold_full]
+attribute [reducible, unfold_full]
 definition curry : (A × B → C) → A → B → C :=
 λ f a b, f (a, b)
 
-attribute [reducible] [unfold 5]
+attribute [reducible, unfold 5]
 definition uncurry : (A → B → C) → (A × B → C) :=
 λ f p, match p with (a, b) := f a b end
 

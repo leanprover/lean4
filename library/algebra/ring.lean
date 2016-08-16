@@ -83,7 +83,7 @@ section comm_semiring
 
   protected definition algebra.dvd (a b : A) : Prop := ∃c, b = a * c
 
-  attribute [instance] [priority algebra.prio]
+  attribute [instance, priority algebra.prio]
   definition comm_semiring_has_dvd : has_dvd A :=
   has_dvd.mk algebra.dvd
 

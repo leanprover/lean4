@@ -38,7 +38,7 @@ inductive int : Type :=
 
 notation `ℤ` := int
 -- [coercion]
-attribute [reducible] [constructor]
+attribute [reducible, constructor]
 definition int.of_num (n : num) : ℤ :=
 int.of_nat (nat.of_num n)
 
@@ -50,11 +50,11 @@ notation `-[1+ ` n `]` := int.neg_succ_of_nat n    -- for pretty-printing output
 
 protected definition prio : num := num.pred nat.prio
 
-attribute [instance] [priority int.prio]
+attribute [instance, priority int.prio]
 definition int_has_zero : has_zero int :=
 has_zero.mk (of_nat 0)
 
-attribute [instance] [priority int.prio]
+attribute [instance, priority int.prio]
 definition int_has_one : has_one int :=
 has_one.mk (of_nat 1)
 
@@ -93,11 +93,11 @@ protected definition mul : ℤ → ℤ → ℤ
 
 /- notation -/
 
-attribute [instance] [priority int.prio]
+attribute [instance, priority int.prio]
 definition int_has_add : has_add int := has_add.mk int.add
-attribute [instance] [priority int.prio]
+attribute [instance, priority int.prio]
 definition int_has_neg : has_neg int := has_neg.mk int.neg
-attribute [instance] [priority int.prio]
+attribute [instance, priority int.prio]
 definition int_has_mul : has_mul int := has_mul.mk int.mul
 
 lemma mul_of_nat_of_nat   (m n : nat) : of_nat m * of_nat n = of_nat (m * n) :=
@@ -136,7 +136,7 @@ private definition has_decidable_eq₂ : Π (a b : ℤ), decidable (a = b)
 | -[1+ m]    -[1+ n]    := if H : m = n then
     inl (congr_arg neg_succ_of_nat H) else inr (not.mto neg_succ_of_nat.inj H)
 
-attribute [instance] [priority int.prio]
+attribute [instance, priority int.prio]
 definition has_decidable_eq : decidable_eq ℤ := has_decidable_eq₂
 
 theorem of_nat_add (n m : nat) : of_nat (n + m) = of_nat n + of_nat m := rfl
@@ -548,11 +548,11 @@ protected definition integral_domain : integral_domain int :=
   zero_ne_one    := int.zero_ne_one,
   eq_zero_or_eq_zero_of_mul_eq_zero := @int.eq_zero_or_eq_zero_of_mul_eq_zero⦄
 
-attribute [instance] [priority int.prio]
+attribute [instance, priority int.prio]
 definition int_has_sub : has_sub int :=
 has_sub.mk has_sub.sub
 
-attribute [instance] [priority int.prio]
+attribute [instance, priority int.prio]
 definition int_has_dvd : has_dvd int :=
 has_dvd.mk has_dvd.dvd
 

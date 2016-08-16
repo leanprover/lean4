@@ -1076,22 +1076,22 @@ protected definition neg (x : ℝ) : ℝ :=
                                    quot.sound (rneg_well_defined Hab)))
 --prefix [priority real.prio] `-` := neg
 
-attribute [instance] [priority real.prio]
+attribute [instance, priority real.prio]
 definition real_has_add : has_add real :=
 has_add.mk real.add
 
-attribute [instance] [priority real.prio]
+attribute [instance, priority real.prio]
 definition real_has_mul : has_mul real :=
 has_mul.mk real.mul
 
-attribute [instance] [priority real.prio]
+attribute [instance, priority real.prio]
 definition real_has_neg : has_neg real :=
 has_neg.mk real.neg
 
 attribute [reducible]
 protected definition sub (a b : ℝ) : real := a + (-b)
 
-attribute [instance] [priority real.prio]
+attribute [instance, priority real.prio]
 definition real_has_sub : has_sub real :=
 has_sub.mk real.sub
 
@@ -1104,11 +1104,11 @@ open rat -- no coercions before
 
 attribute [reducible]
 definition real_has_zero : has_zero real := has_zero.mk (of_rat 0)
-local attribute real_has_zero [instance] [priority real.prio]
+local attribute real_has_zero [instance, priority real.prio]
 
 attribute [reducible]
 definition real_has_one : has_one real := has_one.mk (of_rat 1)
-local attribute real_has_one [instance] [priority real.prio]
+local attribute real_has_one [instance, priority real.prio]
 
 theorem real_zero_eq_rat_zero : (0:real) = of_rat (0:rat) :=
 rfl

@@ -727,4 +727,4 @@ lemma div_lt_of_ne_zero : ∀ {n : nat}, n ≠ 0 → n / 2 < n
   end
 -/
 end nat
-attribute [instance] [priority nat.prio] nat.nat_has_divide nat.nat_has_mod nat.dvd.decidable_rel
+attribute [instance, priority nat.prio] nat.nat_has_divide nat.nat_has_mod nat.dvd.decidable_rel

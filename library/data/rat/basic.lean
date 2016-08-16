@@ -361,11 +361,11 @@ namespace rat
 
 protected definition prio := num.pred int.prio
 
-attribute [instance] [priority rat.prio]
+attribute [instance, priority rat.prio]
 definition rat_has_zero : has_zero rat :=
 has_zero.mk (of_int 0)
 
-attribute [instance] [priority rat.prio]
+attribute [instance, priority rat.prio]
 definition rat_has_one : has_one rat :=
 has_one.mk (of_int 1)
 
@@ -406,26 +406,26 @@ definition denom (a : ℚ) : ℤ := prerat.denom (reduce a)
 theorem denom_pos (a : ℚ): denom a > 0 :=
 prerat.denom_pos (reduce a)
 
-attribute [instance] [priority rat.prio]
+attribute [instance, priority rat.prio]
 definition rat_has_add : has_add rat :=
 has_add.mk rat.add
 
-attribute [instance] [priority rat.prio]
+attribute [instance, priority rat.prio]
 definition rat_has_mul : has_mul rat :=
 has_mul.mk rat.mul
 
-attribute [instance] [priority rat.prio]
+attribute [instance, priority rat.prio]
 definition rat_has_neg : has_neg rat :=
 has_neg.mk rat.neg
 
-attribute [instance] [priority rat.prio]
+attribute [instance, priority rat.prio]
 definition rat_has_inv : has_inv rat :=
 has_inv.mk rat.inv
 
 attribute [reducible]
 protected definition sub (a b : ℚ) : rat := a + (-b)
 
-attribute [instance] [priority rat.prio]
+attribute [instance, priority rat.prio]
 definition rat_has_sub : has_sub rat :=
 has_sub.mk rat.sub
 
@@ -587,11 +587,11 @@ protected definition discrete_field : discrete_field rat :=
  inv_zero         := rat.inv_zero,
  has_decidable_eq := has_decidable_eq⦄
 
-attribute [instance] [priority rat.prio]
+attribute [instance, priority rat.prio]
 definition rat_has_div : has_div rat :=
 has_div.mk has_div.div
 
-attribute [instance] [priority rat.prio]
+attribute [instance, priority rat.prio]
 definition rat_has_pow_nat : has_pow_nat rat :=
 has_pow_nat.mk has_pow_nat.pow_nat
 

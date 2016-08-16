@@ -31,11 +31,11 @@ protected definition prio := num.pred real.prio
 
 /- arithmetic operations on the ereals -/
 
-attribute [instance] [priority ereal.prio]
+attribute [instance, priority ereal.prio]
 definition ereal_has_zero : has_zero ereal :=
 has_zero.mk (of_real 0)
 
-attribute [instance] [priority ereal.prio]
+attribute [instance, priority ereal.prio]
 definition ereal_has_one : has_one ereal :=
 has_one.mk (of_real 1)
 
@@ -64,21 +64,21 @@ protected definition mul : ereal → ereal → ereal
 | -∞ a                    := ereal.neg (blow_up a)
 | a -∞                    := ereal.neg (blow_up a)
 
-attribute [instance] [priority ereal.prio]
+attribute [instance, priority ereal.prio]
 definition ereal_has_add : has_add ereal :=
 has_add.mk ereal.add
 
-attribute [instance] [priority ereal.prio]
+attribute [instance, priority ereal.prio]
 definition ereal_has_neg : has_neg ereal :=
 has_neg.mk ereal.neg
 
 protected definition sub (u v : ereal) : ereal := u + -v
 
-attribute [instance] [priority ereal.prio]
+attribute [instance, priority ereal.prio]
 definition ereal_has_sub : has_sub ereal :=
 has_sub.mk ereal.sub
 
-attribute [instance] [priority ereal.prio]
+attribute [instance, priority ereal.prio]
 definition ereal_has_mul : has_mul ereal :=
 has_mul.mk ereal.mul
 
@@ -320,7 +320,7 @@ protected definition le : ereal → ereal → Prop
 | ∞ (of_real y)           := false
 | ∞ -∞                    := false
 
-attribute [instance] [priority ereal.prio]
+attribute [instance, priority ereal.prio]
 definition ereal_has_le : has_le ereal :=
 has_le.mk ereal.le
 
@@ -369,7 +369,7 @@ protected theorem le_antisymm : ∀ u v : ereal, u ≤ v → v ≤ u → u = v
 
 protected definition lt (x y : ereal) : Prop := x ≤ y ∧ x ≠ y
 
-attribute [instance] [priority ereal.prio]
+attribute [instance, priority ereal.prio]
 definition ereal_has_lt :
   has_lt ereal :=
 has_lt.mk ereal.lt

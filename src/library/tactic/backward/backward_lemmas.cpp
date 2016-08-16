@@ -41,6 +41,37 @@ static optional<head_index> get_backward_target(type_context & ctx, name const &
     return get_backward_target(ctx, type);
 }
 
+struct intro_attr_data : public attr_data {
+    bool m_eager;
+
+    void write(serializer & s) const {
+        s.write_bool(m_eager);
+    }
+    void read(deserializer & d) {
+        m_eager = d.read_bool();
+    }
+
+
+    void parse(abstract_parser & p) override {
+        if (p.curr_is_token("!")) {
+            p.next();
+            m_eager = true;
+        }
+    }
+    virtual void print(std::ostream & out) override {
+        if (m_eager)
+            out << "!";
+    }
+
+    virtual unsigned hash() const override {
+        return static_cast<unsigned>(m_eager);
+    }
+};
+
+
+template class typed_attribute<intro_attr_data>;
+typedef typed_attribute<intro_attr_data> intro_attribute;
+
 bool is_backward_lemma(environment const & env, name const & c) {
     return has_attribute(env, "intro", c);
 }
@@ -132,14 +163,16 @@ vm_obj tactic_backward_lemmas_find(vm_obj const & lemmas, vm_obj const & h, vm_o
 
 void initialize_backward_lemmas() {
     register_trace_class(name{"tactic", "back_chaining"});
-    register_attribute(basic_attribute("intro", "introduction rule for backward chaining", [](environment const & env, io_state const & ios, name const & c, unsigned, bool) {
-          aux_type_context ctx(env, ios.get_options());
-          auto index = get_backward_target(ctx, c);
-          if (!index || index->kind() != expr_kind::Constant)
+    register_attribute(intro_attribute("intro", "introduction rule for backward chaining", [](environment const & env, io_state const & ios, name const & c, unsigned, intro_attr_data data, bool) {
+        if (data.m_eager)
+            return env; // FIXME: support old blast attributes
+        aux_type_context ctx(env, ios.get_options());
+        auto index = get_backward_target(ctx, c);
+        if (!index || index->kind() != expr_kind::Constant)
             throw exception(sstream() << "invalid [intro] attribute for '" << c
-                            << "', head symbol of resulting type must be a constant");
-          return env;
-        }));
+                                      << "', head symbol of resulting type must be a constant");
+        return env;
+    }));
     DECLARE_VM_BUILTIN(name({"tactic", "mk_back_lemmas_core"}),      tactic_mk_backward_lemmas);
     DECLARE_VM_BUILTIN(name({"tactic", "back_lemmas_insert_core"}),  tactic_backward_lemmas_insert);
     DECLARE_VM_BUILTIN(name({"tactic", "back_lemmas_find"}),         tactic_backward_lemmas_find);

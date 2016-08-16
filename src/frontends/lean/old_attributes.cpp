@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 void initialize_old_attributes() {
-    register_attribute(prio_attribute("intro!", "introduction rule that is eagerly applied by blast grinder"));
     register_attribute(basic_attribute("elim", "elimination rule that is eagerly applied by blast grinder"));
     register_attribute(basic_attribute("no_pattern", "do not consider terms containing this declaration in the pattern inference procedure"));
     register_attribute(basic_attribute("forward", "forward chaining"));

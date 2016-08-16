@@ -329,7 +329,7 @@ public:
     /** \brief Return true iff the current token is a command, EOF, period or script block */
     bool curr_is_command_like() const;
     /** \brief Read the next token if the current one is not End-of-file. */
-    void next() { if (m_curr != scanner::token_kind::Eof) scan(); }
+    virtual void next() override final { if (m_curr != scanner::token_kind::Eof) scan(); }
     /** \brief Return true iff the current token is a keyword (or command keyword) named \c tk */
     virtual bool curr_is_token(name const & tk) const override final;
     /** \brief Check current token, and move to next characther, throw exception if current token is not \c tk. */

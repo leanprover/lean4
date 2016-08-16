@@ -1367,7 +1367,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                         e = *new_e;
                         matched_once = true;
                     }
-                    if (!matched_once)
+                    if (!matched_once && ini)
                         return optional<result>();
                     if (ini) {
                         if (!match(*ini, e, args))

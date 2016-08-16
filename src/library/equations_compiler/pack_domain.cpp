@@ -130,7 +130,9 @@ struct sigma_packer_fn {
             for (expr & eq : eqs)
                 eq = updt(eq);
         }
-        return ues.repack();
+        expr r = ues.repack();
+        lean_trace("eqn_compiler", tout() << "making function(s) unary:\n" << r << "\n";);
+        return r;
     }
 };
 

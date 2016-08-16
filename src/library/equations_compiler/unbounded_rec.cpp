@@ -1,0 +1,35 @@
+/*
+Copyright (c) 2016 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
+#include "library/locals.h"
+#include "library/trace.h"
+#include "library/compiler/rec_fn_macro.h"
+#include "library/equations_compiler/util.h"
+#include "library/equations_compiler/unbounded_rec.h"
+namespace lean {
+expr unbounded_rec(type_context & ctx, expr const & e) {
+    unpack_eqns ues(ctx, e);
+    buffer<expr> fns;
+    buffer<expr> macro_fns;
+    for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {
+        expr const & fn = ues.get_fn(fidx);
+        fns.push_back(fn);
+        macro_fns.push_back(mk_rec_fn_macro(local_pp_name(fn), ctx.infer(fn)));
+    }
+    for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {
+        buffer<expr> & eqns = ues.get_eqns_of(fidx);
+        for (expr & eqn : eqns) {
+            unpack_eqn ue(ctx, eqn);
+            expr new_rhs = replace_locals(ue.rhs(), fns, macro_fns);
+            ue.rhs() = new_rhs;
+            eqn = ue.repack();
+        }
+    }
+    expr r = ues.repack();
+    lean_trace("eqn_compiler", tout() << "using unbounded recursion (meta-definition):\n" << r << "\n";);
+    return r;
+}
+}

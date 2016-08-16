@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/pack_domain.h"
 #include "library/equations_compiler/structural_rec.h"
+#include "library/equations_compiler/unbounded_rec.h"
 
 namespace lean {
 #define trace_compiler(Code) lean_trace("eqn_compiler", scope_trace_env _scope1(ctx->env(), ctx); Code)
@@ -19,10 +20,16 @@ expr compile_equations(environment const & env, options const & opts, metavar_co
     trace_compiler(tout() << "compiling\n" << eqns << "\n";);
     trace_compiler(tout() << "recursive: " << is_recursive_eqns(ctx, eqns) << "\n";);
 
-    // expr eqns1 = pack_domain(ctx.get(), eqns);
-    // tout() << eqns1 << "\n";
+    // test pack_domain
+    pack_domain(ctx.get(), eqns);
+
+    // test structural_rec
     unsigned arg_idx;
-    optional<expr> eqns1 = try_structural_rec(ctx.get(), eqns, arg_idx);
+    try_structural_rec(ctx.get(), eqns, arg_idx);
+
+    // test unbounded_rec
+    unbounded_rec(ctx.get(), eqns);
+
     lean_unreachable();
 }
 

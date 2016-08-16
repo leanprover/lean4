@@ -380,7 +380,7 @@ struct structural_rec_fn {
             return none_expr();
         }
         expr new_eqns = ues.repack();
-        trace_struct(tout() << "result:\n" << new_eqns << "\n";);
+        lean_trace("eqn_compiler", tout() << "using structural recursion:\n" << new_eqns << "\n";);
         return some_expr(new_eqns);
     }
 };

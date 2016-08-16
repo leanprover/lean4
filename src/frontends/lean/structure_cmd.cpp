@@ -24,7 +24,6 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/locals.h"
 #include "library/reducible.h"
-#include "library/unifier.h"
 #include "library/module.h"
 #include "library/aliases.h"
 #include "library/annotation.h"

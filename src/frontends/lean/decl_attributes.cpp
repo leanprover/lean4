@@ -36,10 +36,10 @@ void decl_attributes::parse(parser & p) {
                 throw parser_error("invalid 'priority', argument does not evaluate to a numeral", pos);
             }
         } else {
-            if (!is_attribute(name))
+            if (!is_attribute(p.env(), name))
                 throw parser_error(sstream() << "unknown attribute [" << name << "]", pos);
 
-            auto const & attr = get_attribute(name);
+            auto const & attr = get_attribute(p.env(), name);
             for (auto const & entry : m_entries) {
                 if (are_incompatible(*entry.m_attr, attr)) {
                     throw parser_error(sstream() << "invalid attribute [" << name

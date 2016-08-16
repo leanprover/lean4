@@ -248,7 +248,7 @@ static void print_attributes(parser const & p, name const & n) {
     environment const & env = p.env();
     std::ostream & out = p.ios().get_regular_stream();
     buffer<attribute const *> attrs;
-    get_attributes(attrs);
+    get_attributes(p.env(), attrs);
     std::sort(attrs.begin(), attrs.end(), [](attribute const * a1, attribute const * a2) {
         return a1->get_name() < a2->get_name();
     });
@@ -621,7 +621,7 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_attributes_tk())) {
         p.next();
         buffer<attribute const *> attrs;
-        get_attributes(attrs);
+        get_attributes(p.env(), attrs);
         std::sort(attrs.begin(), attrs.end(), [](attribute const * a1, attribute const * a2) {
             return a1->get_name() < a2->get_name();
         });
@@ -671,9 +671,9 @@ environment print_cmd(parser & p) {
         else if (name == "light") {
             // print_light_rules(p);
         } else {
-            if (!is_attribute(name))
+            if (!is_attribute(p.env(), name))
                 throw parser_error(sstream() << "unknown attribute [" << name << "]", pos);
-            auto const & attr = get_attribute(name);
+            auto const & attr = get_attribute(p.env(), name);
             print_attribute(p, attr);
         }
     } else if (print_polymorphic(p)) {

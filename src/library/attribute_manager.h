@@ -100,9 +100,9 @@ protected:
         return attr_data_ptr(data);
     }
 public:
-    typed_attribute(char const * id, char const * descr, on_set_proc on_set) : attribute(id, descr),
+    typed_attribute(name const & id, char const * descr, on_set_proc on_set) : attribute(id, descr),
                                                                                m_on_set(on_set) {}
-    typed_attribute(char const * id, char const * descr) : typed_attribute(id, descr, {}) {}
+    typed_attribute(name const & id, char const * descr) : typed_attribute(id, descr, {}) {}
 
     virtual attr_data_ptr parse_data(abstract_parser & p) const final override {
       auto data = new Data;
@@ -155,20 +155,31 @@ template class typed_attribute<indices_attribute_data>;
 /** \brief Attribute that represents a list of indices. input and output are 1-indexed for convenience. */
 typedef typed_attribute<indices_attribute_data> indices_attribute;
 
-void register_attribute(attribute_ptr);
-attribute const & get_attribute(name const & attr);
-void get_attributes(buffer<attribute const *> &);
+class user_attribute_ext {
+public:
+    virtual name_map<attribute_ptr> get_attributes(environment const & env);
+    virtual void write_entry(serializer &, attr_data const &) {}
+    virtual attr_data_ptr read_entry(deserializer &) {
+        return attr_data_ptr(new attr_data);
+    }
+};
 
+/** \brief Register the user_attribute handlers, if included in the compilation */
+void set_user_attribute_ext(std::unique_ptr<user_attribute_ext>);
+
+void register_system_attribute(attribute_ptr);
 template<typename Attribute>
-void register_attribute(Attribute attr) {
-    register_attribute(attribute_ptr(new Attribute(attr)));
+void register_system_attribute(Attribute attr) {
+    register_system_attribute(attribute_ptr(new Attribute(attr)));
 }
-
 void register_incompatible(char const * attr1, char const * attr2);
 
-// TODO(sullrich): all of these should become members of/return attribute or a subclass
-bool is_attribute(name const & attr);
+bool is_attribute(environment const & env, name const & attr);
+attribute const & get_attribute(environment const & env, name const & attr);
+attribute const & get_system_attribute(name const & attr);
+void get_attributes(environment const & env, buffer<attribute const *> &);
 
+// TODO(sullrich): all of these should become members of/return attribute or a subclass
 environment set_attribute(environment const & env, io_state const & ios, char const * attr,
                           name const & d, unsigned prio, list<unsigned> const & params, bool persistent);
 environment set_attribute(environment const & env, io_state const & ios, char const * attr,

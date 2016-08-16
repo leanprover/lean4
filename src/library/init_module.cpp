@@ -67,9 +67,15 @@ namespace lean {
 void initialize_library_core_module() {
     initialize_constants();
     initialize_trace();
+    initialize_module();
+    initialize_scoped_ext();
+    initialize_attribute_manager();
 }
 
 void finalize_library_core_module() {
+    finalize_attribute_manager();
+    finalize_scoped_ext();
+    finalize_module();
     finalize_trace();
     finalize_constants();
 }
@@ -98,11 +104,8 @@ void initialize_library_module() {
     initialize_annotation();
     initialize_quote();
     initialize_explicit();
-    initialize_module();
     initialize_protected();
     initialize_private();
-    initialize_scoped_ext();
-    initialize_attribute_manager();
     initialize_reducible();
     initialize_aliases();
     initialize_export_decl();
@@ -160,10 +163,8 @@ void finalize_library_module() {
     finalize_export_decl();
     finalize_aliases();
     finalize_reducible();
-    finalize_scoped_ext();
     finalize_private();
     finalize_protected();
-    finalize_module();
     finalize_explicit();
     finalize_quote();
     finalize_annotation();
@@ -179,7 +180,6 @@ void finalize_library_module() {
     finalize_placeholder();
     finalize_print();
     finalize_fingerprint();
-    finalize_attribute_manager();
     finalize_metavar_context();
     finalize_local_context();
 

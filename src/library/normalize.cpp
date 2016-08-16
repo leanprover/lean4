@@ -49,9 +49,12 @@ bool has_constructor_hint(environment const & env, name const & d) {
 }
 
 void initialize_normalize() {
-    register_attribute(indices_attribute("unfold", "unfold definition when the given positions are constructors"));
-    register_attribute(basic_attribute("unfold_full", "instructs normalizer (and simplifier) that function application (f a_1 ... a_n) should be unfolded when it is fully applied"));
-    register_attribute(basic_attribute("constructor", "instructs normalizer (and simplifier) that function application (f ...) should be unfolded when it is the major premise of a constructor like operator"));
+    register_system_attribute(
+            indices_attribute("unfold", "unfold definition when the given positions are constructors"));
+    register_system_attribute(basic_attribute("unfold_full",
+                                              "instructs normalizer (and simplifier) that function application (f a_1 ... a_n) should be unfolded when it is fully applied"));
+    register_system_attribute(basic_attribute("constructor",
+                                              "instructs normalizer (and simplifier) that function application (f ...) should be unfolded when it is the major premise of a constructor like operator"));
 }
 
 void finalize_normalize() {

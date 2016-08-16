@@ -21,12 +21,15 @@ bool is_inline(environment const & env, name const & n) {
 }
 
 void initialize_inliner() {
-    register_attribute(basic_attribute("inline", "mark definition to always be inlined", [](environment const & env, io_state const &, name const & d, unsigned, bool) {
-        auto decl = env.get(d);
-        if (!decl.is_definition() || decl.is_theorem())
-            throw exception("invalid 'inline' use, only definitions can be marked as inline");
-        return env;
-    }));
+    register_system_attribute(basic_attribute("inline", "mark definition to always be inlined",
+                                              [](environment const & env, io_state const &, name const & d, unsigned,
+                                                 bool) {
+                                                  auto decl = env.get(d);
+                                                  if (!decl.is_definition() || decl.is_theorem())
+                                                      throw exception(
+                                                              "invalid 'inline' use, only definitions can be marked as inline");
+                                                  return env;
+                                              }));
 }
 
 void finalize_inliner() {

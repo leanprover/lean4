@@ -12,8 +12,8 @@ bool has_pattern_attribute(environment const & env, name const & d) {
 }
 
 void initialize_pattern_attribute() {
-    register_attribute(basic_attribute("pattern", "mark that a definition can be used in a pattern"
-                                       "(remark: the dependent pattern matching compiler will unfold the definition)"));
+    register_system_attribute(basic_attribute("pattern", "mark that a definition can be used in a pattern"
+            "(remark: the dependent pattern matching compiler will unfold the definition)"));
 }
 
 void finalize_pattern_attribute() {

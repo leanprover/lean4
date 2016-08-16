@@ -318,6 +318,7 @@ unification_constraint
 unification_constraint.mk
 unit
 unit.star
+user_attribute
 weak_order
 well_founded
 xor

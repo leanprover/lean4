@@ -323,6 +323,7 @@ name const * g_unification_constraint = nullptr;
 name const * g_unification_constraint_mk = nullptr;
 name const * g_unit = nullptr;
 name const * g_unit_star = nullptr;
+name const * g_user_attribute = nullptr;
 name const * g_weak_order = nullptr;
 name const * g_well_founded = nullptr;
 name const * g_xor = nullptr;
@@ -651,6 +652,7 @@ void initialize_constants() {
     g_unification_constraint_mk = new name{"unification_constraint", "mk"};
     g_unit = new name{"unit"};
     g_unit_star = new name{"unit", "star"};
+    g_user_attribute = new name{"user_attribute"};
     g_weak_order = new name{"weak_order"};
     g_well_founded = new name{"well_founded"};
     g_xor = new name{"xor"};
@@ -980,6 +982,7 @@ void finalize_constants() {
     delete g_unification_constraint_mk;
     delete g_unit;
     delete g_unit_star;
+    delete g_user_attribute;
     delete g_weak_order;
     delete g_well_founded;
     delete g_xor;
@@ -1308,6 +1311,7 @@ name const & get_unification_constraint_name() { return *g_unification_constrain
 name const & get_unification_constraint_mk_name() { return *g_unification_constraint_mk; }
 name const & get_unit_name() { return *g_unit; }
 name const & get_unit_star_name() { return *g_unit_star; }
+name const & get_user_attribute_name() { return *g_user_attribute; }
 name const & get_weak_order_name() { return *g_weak_order; }
 name const & get_well_founded_name() { return *g_well_founded; }
 name const & get_xor_name() { return *g_xor; }

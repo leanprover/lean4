@@ -36,7 +36,7 @@ template class typed_attribute<reducibility_attribute_data>;
 typedef typed_attribute<reducibility_attribute_data> reducibility_attribute;
 
 static reducibility_attribute const & get_reducibility_attribute() {
-    return static_cast<reducibility_attribute const &>(get_attribute("reducibility"));
+    return static_cast<reducibility_attribute const &>(get_system_attribute("reducibility"));
 }
 
 class proxy_attribute : public basic_attribute {
@@ -70,11 +70,11 @@ public:
 };
 
 void initialize_reducible() {
-    register_attribute(reducibility_attribute("reducibility", "internal attribute for storing reducibility"));
+    register_system_attribute(reducibility_attribute("reducibility", "internal attribute for storing reducibility"));
 
-    register_attribute(proxy_attribute("reducible", "reducible", reducible_status::Reducible));
-    register_attribute(proxy_attribute("semireducible", "semireducible", reducible_status::Semireducible));
-    register_attribute(proxy_attribute("irreducible", "irreducible", reducible_status::Irreducible));
+    register_system_attribute(proxy_attribute("reducible", "reducible", reducible_status::Reducible));
+    register_system_attribute(proxy_attribute("semireducible", "semireducible", reducible_status::Semireducible));
+    register_system_attribute(proxy_attribute("irreducible", "irreducible", reducible_status::Irreducible));
 
     register_incompatible("reducible", "semireducible");
     register_incompatible("reducible", "irreducible");

@@ -1,0 +1,64 @@
+[class] type class
+[congr] congruence lemma
+[constructor] instructs normalizer (and simplifier) that function application (f ...) should be unfolded when it is the major premise of a constructor like operator
+[defeq] defeq simp lemma
+[elim] elimination rule that is eagerly applied by blast grinder
+[foo] bar
+[forward] forward chaining
+[inline] mark definition to always be inlined
+[instance] type class instance
+[intro] introduction rule for backward chaining
+[irreducible] irreducible
+[no_pattern] do not consider terms containing this declaration in the pattern inference procedure
+[parsing_only] parsing-only abbreviation
+[pattern] mark that a definition can be used in a pattern(remark: the dependent pattern matching compiler will unfold the definition)
+[recursor] user defined recursor
+[reducibility] internal attribute for storing reducibility
+[reducible] reducible
+[refl] reflexive relation
+[semireducible] semireducible
+[simp] simplification lemma
+[subst] substitution
+[symm] symmetric relation
+[trans] transitive relation
+[unfold] unfold definition when the given positions are constructors
+[unfold_full] instructs normalizer (and simplifier) that function application (f a_1 ... a_n) should be unfolded when it is fully applied
+[unify] unification hint
+[user_attribute] declare user-defined attribute
+eq.refl
+attribute [foo, refl]
+constructor eq.refl : ∀ {A : Type} (a : A), a = a
+[class] type class
+[congr] congruence lemma
+[constructor] instructs normalizer (and simplifier) that function application (f ...) should be unfolded when it is the major premise of a constructor like operator
+[defeq] defeq simp lemma
+[elim] elimination rule that is eagerly applied by blast grinder
+[foo] bar
+[foo.baz] bar
+[forward] forward chaining
+[inline] mark definition to always be inlined
+[instance] type class instance
+[intro] introduction rule for backward chaining
+[irreducible] irreducible
+[no_pattern] do not consider terms containing this declaration in the pattern inference procedure
+[parsing_only] parsing-only abbreviation
+[pattern] mark that a definition can be used in a pattern(remark: the dependent pattern matching compiler will unfold the definition)
+[recursor] user defined recursor
+[reducibility] internal attribute for storing reducibility
+[reducible] reducible
+[refl] reflexive relation
+[semireducible] semireducible
+[simp] simplification lemma
+[subst] substitution
+[symm] symmetric relation
+[trans] transitive relation
+[unfold] unfold definition when the given positions are constructors
+[unfold_full] instructs normalizer (and simplifier) that function application (f a_1 ... a_n) should be unfolded when it is fully applied
+[unify] unification hint
+[user_attribute] declare user-defined attribute
+eq.refl
+attribute [foo, foo.baz, refl]
+constructor eq.refl : ∀ {A : Type} (a : A), a = a
+user_attribute.lean:25:0: error: an attribute named [reducible] has already been registered
+user_attribute.lean:30:0: error: malformed [user_attribute] application, definition must be an instance of user_attribute
+user_attribute.lean:36:2: error: malformed [user_attribute] application, definition must be an instance of user_attribute

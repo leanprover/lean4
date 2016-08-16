@@ -21,6 +21,7 @@ struct attr_data {
     virtual unsigned hash() const {
         return 0;
     }
+    virtual void parse(abstract_parser &) {}
     virtual void print(std::ostream &) {}
     virtual ~attr_data() {}
 };
@@ -104,6 +105,13 @@ public:
     typed_attribute(char const * id, char const * descr, on_set_proc on_set) : attribute(id, descr),
                                                                                m_on_set(on_set) {}
     typed_attribute(char const * id, char const * descr) : typed_attribute(id, descr, {}) {}
+
+    virtual attr_data_ptr parse_data(abstract_parser & p) const final override {
+      auto data = new Data;
+      data->parse(p);
+      return attr_data_ptr(data);
+    }
+
     virtual environment set(environment const & env, io_state const & ios, name const & n, unsigned prio,
                             Data const & data, bool persistent) const {
         auto env2 = set_core(env, ios, n, prio, std::unique_ptr<attr_data>(new Data(data)), persistent);
@@ -137,6 +145,7 @@ struct indices_attribute_data : public attr_data {
     void read(deserializer & d) {
         m_idxs = read_list<unsigned>(d);
     }
+    void parse(abstract_parser & p) override;
     virtual void print(std::ostream & out) override {
         for (auto p : m_idxs) {
             out << " " << p + 1;
@@ -144,14 +153,9 @@ struct indices_attribute_data : public attr_data {
     }
 };
 
+template class typed_attribute<indices_attribute_data>;
 /** \brief Attribute that represents a list of indices. input and output are 1-indexed for convenience. */
-class indices_attribute : public typed_attribute<indices_attribute_data> {
-public:
-    indices_attribute(char const * id, char const * descr, on_set_proc on_set) : typed_attribute(id, descr, on_set) {}
-    indices_attribute(char const * id, char const * descr) : typed_attribute(id, descr) {}
-
-    virtual attr_data_ptr parse_data(abstract_parser &) const override;
-};
+typedef typed_attribute<indices_attribute_data> indices_attribute;
 
 void register_attribute(attribute_ptr);
 attribute const & get_attribute(std::string const & attr);

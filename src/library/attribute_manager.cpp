@@ -143,7 +143,7 @@ environment basic_attribute::set(environment const & env, io_state const & ios, 
     return env2;
 }
 
-attr_data_ptr indices_attribute::parse_data(abstract_parser & p) const {
+void indices_attribute_data::parse(abstract_parser & p) {
     buffer<unsigned> vs;
     while (!p.curr_is_token("]")) {
         auto pos = p.pos();
@@ -152,7 +152,7 @@ attr_data_ptr indices_attribute::parse_data(abstract_parser & p) const {
             throw parser_error("invalid attribute parameter, value must be positive", pos);
         vs.push_back(v - 1);
     }
-    return attr_data_ptr(new indices_attribute_data(to_list(vs)));
+    m_idxs = to_list(vs);
 }
 
 void register_incompatible(char const * attr1, char const * attr2) {

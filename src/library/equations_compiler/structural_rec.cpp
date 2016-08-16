@@ -6,8 +6,11 @@ Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
 #include "library/trace.h"
+#include "library/constants.h"
 #include "library/locals.h"
+#include "library/util.h"
 #include "library/app_builder.h"
+#include "library/replace_visitor_with_tc.h"
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/structural_rec.h"
 
@@ -40,8 +43,9 @@ struct structural_rec_fn {
         }
 
         /** Return true iff \c s is structurally smaller than \c t */
-        bool is_lt(expr s, expr const & t) {
+        bool is_lt(expr s, expr t) {
             s = m_ctx.whnf(s);
+            t = m_ctx.whnf(t);
             if (is_app(s)) {
                 expr const & s_fn = get_app_fn(s);
                 if (!is_constructor(s_fn))
@@ -201,7 +205,8 @@ struct structural_rec_fn {
         return optional<unsigned>();
     }
 
-    expr mk_new_fn_type(unpack_eqns const & ues, unsigned arg_idx) {
+    /* Return the type of the new function, and the type of the motive for below/brec_on */
+    pair<expr, expr> mk_new_fn_motive_types(unpack_eqns const & ues, unsigned arg_idx) {
         type_context::tmp_locals locals(m_ctx);
         expr fn        = ues.get_fn(0);
         expr fn_type   = m_ctx.infer(fn);
@@ -219,19 +224,130 @@ struct structural_rec_fn {
             }
             fn_type  = instantiate(binding_body(fn_type), arg);
         }
+        buffer<expr> I_args;
+        expr I = get_app_args(m_ctx.infer(rec_arg), I_args);
         expr  motive = m_ctx.mk_pi(other_args, fn_type);
         level u      = get_level(m_ctx, motive);
         motive       = m_ctx.mk_lambda(rec_arg, motive);
-        buffer<expr> I_args;
-        expr I = get_app_args(m_ctx.infer(rec_arg), I_args);
         lean_assert(is_constant(I));
         buffer<level> below_lvls;
         below_lvls.push_back(u);
         for (level const & v : const_levels(I))
             below_lvls.push_back(v);
-        expr below  = mk_app(mk_constant(name(const_name(I), "below"), to_list(below_lvls)), motive, rec_arg);
+        expr below       = mk_app(mk_constant(name(const_name(I), "below"), to_list(below_lvls)), I_args);
+        expr motive_type = binding_domain(m_ctx.relaxed_whnf(m_ctx.infer(below)));
+        below            = mk_app(below, motive, rec_arg);
         locals.push_local("_F", below);
-        return locals.mk_pi(fn_type);
+        return mk_pair(locals.mk_pi(fn_type), motive_type);
+    }
+
+    struct elim_rec_apps_failed {};
+
+    struct elim_rec_apps_fn : public replace_visitor_with_tc {
+        expr           m_fn;
+        unsigned       m_arg_idx;
+        expr           m_F;
+        expr           m_C;
+
+        elim_rec_apps_fn(type_context & ctx, expr const & fn,
+                         unsigned arg_idx, expr const & F, expr const & C):
+            replace_visitor_with_tc(ctx),
+            m_fn(fn), m_arg_idx(arg_idx), m_F(F), m_C(C) {}
+
+        /** \brief Retrieve result for \c a from the below dictionary \c d. \c d is a term made of products,
+            and m_C (the abstract local). */
+        optional<expr> to_below(expr const & d, expr const & a, expr const & F) {
+            expr const & fn = get_app_fn(d);
+            if (is_constant(fn, get_prod_name())) {
+                expr d_arg1 = m_ctx.whnf(app_arg(app_fn(d)));
+                expr d_arg2 = m_ctx.whnf(app_arg(d));
+                if (auto r = to_below(d_arg1, a, mk_pr1(m_ctx, F)))
+                    return r;
+                else if (auto r = to_below(d_arg2, a, mk_pr2(m_ctx, F)))
+                    return r;
+                else
+                    return none_expr();
+            } else if (is_local(fn)) {
+                if (mlocal_name(m_C) == mlocal_name(fn) && m_ctx.is_def_eq(app_arg(d), a))
+                    return some_expr(F);
+                return none_expr();
+            } else if (is_pi(d)) {
+                if (is_app(a)) {
+                    expr new_d = m_ctx.whnf(instantiate(binding_body(d), app_arg(a)));
+                    return to_below(new_d, a, mk_app(F, app_arg(a)));
+                } else {
+                    return none_expr();
+                }
+            } else {
+                return none_expr();
+            }
+        }
+
+        expr elim(buffer<expr> const & args, tag g) {
+            /* Replace motives with abstract one m_C.
+               We use the abstract motive m_C as "marker". */
+            buffer<expr> below_args;
+            expr const & below_cnst = get_app_args(m_ctx.infer(m_F), below_args);
+            below_args[below_args.size() - 2] = m_C;
+            expr abst_below   = mk_app(below_cnst, below_args);
+            expr below_dict   = m_ctx.whnf(abst_below);
+            expr rec_arg      = m_ctx.whnf(args[m_arg_idx]);
+            if (optional<expr> b = to_below(below_dict, rec_arg, m_F)) {
+                expr r = *b;
+                for (unsigned i = 0; i < args.size(); i++) {
+                    if (i != m_arg_idx)
+                        r = mk_app(r, args[i], g);
+                }
+                return r;
+            } else {
+                throw elim_rec_apps_failed();
+            }
+        }
+
+        virtual expr visit_local(expr const & e) {
+            if (mlocal_name(e) == mlocal_name(m_fn)) {
+                /* unexpected occurrence of recursive function */
+                throw elim_rec_apps_failed();
+            }
+            return e;
+        }
+
+        virtual expr visit_app(expr const & e) {
+            expr const & fn = get_app_fn(e);
+            if (is_local(fn) && mlocal_name(fn) == mlocal_name(m_fn)) {
+                buffer<expr> args;
+                get_app_args(e, args);
+                if (m_arg_idx >= args.size()) throw elim_rec_apps_failed();
+                buffer<expr> new_args;
+                for (expr const & arg : args)
+                    new_args.push_back(visit(arg));
+                return elim(new_args, e.get_tag());
+            } else {
+                return replace_visitor_with_tc::visit_app(e);
+            }
+        }
+    };
+
+    void update_eqs(unpack_eqns & ues, expr const & fn, expr const & new_fn, unsigned arg_idx, expr const & motive_type) {
+        /* C is a temporary "abstract" motive, we use it to access the "brec_on dictionary".
+           The "brec_on dictionary is an element of type below, and it is the last argument of the new function. */
+        expr C = mk_local(mk_fresh_name(), "_C", motive_type, binder_info());
+        buffer<expr> & eqns = ues.get_eqns_of(0);
+        for (expr & eqn : eqns) {
+            unpack_eqn ue(m_ctx, eqn);
+            expr lhs = ue.lhs();
+            expr rhs = ue.rhs();
+            buffer<expr> lhs_args;
+            get_app_args(lhs, lhs_args);
+            expr new_lhs = mk_app(new_fn, lhs_args);
+            expr type    = m_ctx.whnf(m_ctx.infer(new_lhs));
+            lean_assert(is_pi(type));
+            expr F       = ue.add_var(binding_name(type), binding_domain(type));
+            new_lhs      = mk_app(new_lhs, F);
+            ue.lhs()     = new_lhs;
+            ue.rhs()     = elim_rec_apps_fn(m_ctx, fn, arg_idx, F, C)(rhs);
+            eqn          = ue.repack();
+        }
     }
 
     optional<expr> operator()(expr const & e, unsigned & arg_idx) {
@@ -246,15 +362,26 @@ struct structural_rec_fn {
         optional<unsigned> r = find_rec_arg(ues);
         if (!r) return none_expr();
         arg_idx = *r;
+        expr fn = ues.get_fn(0);
         trace_struct(tout() << "using structural recursion on argument #" << (arg_idx+1) <<
-                     " for '" << ues.get_fn(0) << "'\n";);
-        expr new_fn_type = mk_new_fn_type(ues, arg_idx);
-
-        trace_struct(tout() << "new function type: " << new_fn_type << "\n";);
-
-        // TODO(Leo)
-
-        return some_expr(ues.repack());
+                     " for '" << fn << "'\n";);
+        expr new_fn_type, motive_type;
+        std::tie(new_fn_type, motive_type) = mk_new_fn_motive_types(ues, arg_idx);
+        trace_struct(
+            tout() << "\n";
+            tout() << "new function type: " << new_fn_type << "\n";
+            tout() << "motive type:       " << motive_type << "\n";);
+        expr new_fn = ues.update_fn_type(0, new_fn_type);
+        try {
+            update_eqs(ues, fn, new_fn, arg_idx, motive_type);
+        } catch (elim_rec_apps_failed &) {
+            trace_struct(tout() << "failed to compile equations/match using structural recursion, "
+                         << "when creating new set of equations\n";);
+            return none_expr();
+        }
+        expr new_eqns = ues.repack();
+        trace_struct(tout() << "result:\n" << new_eqns << "\n";);
+        return some_expr(new_eqns);
     }
 };
 

@@ -108,8 +108,8 @@ struct structure_cmd_fn {
         m_env(p.env()),
         m_aux_ctx(aux_type_context(p.env())),
         m_ctx(m_aux_ctx.get()),
-        m_attrs(attrs),
-        m_namespace(get_namespace(m_env)) {
+        m_namespace(get_namespace(m_env)),
+        m_attrs(attrs) {
         m_explicit_universe_params = false;
         m_infer_result_universe    = false;
         m_inductive_predicate      = false;

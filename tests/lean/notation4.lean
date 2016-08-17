@@ -1,6 +1,6 @@
 --
 open sigma
-inductive List (T : Type) : Type := nil {} : List T | cons   : T → List T → List T open List notation h :: t  := cons h t notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
+inductive List (T : Type) : Type | nil {} : List | cons   : T → List → List open List notation h :: t  := cons h t notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 check ∃ (A : Type₁) (x y : A), x = y
 check ∃ (x : num), x = 0
 check Σ (x : num), x = 10

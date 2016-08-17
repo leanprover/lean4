@@ -98,7 +98,6 @@ static name const * g_variables_tk = nullptr;
 static name const * g_structure_tk = nullptr;
 static name const * g_attribute_tk = nullptr;
 static name const * g_with_tk = nullptr;
-static name const * g_class_tk = nullptr;
 static name const * g_prev_tk = nullptr;
 static name const * g_scoped_tk = nullptr;
 static name const * g_foldr_tk = nullptr;
@@ -125,6 +124,7 @@ static name const * g_key_equivalences_tk = nullptr;
 static name const * g_using_well_founded_tk = nullptr;
 static name const * g_mutual_definition_tk = nullptr;
 static name const * g_mutual_meta_definition_tk = nullptr;
+static name const * g_mutual_inductive_tk = nullptr;
 void initialize_tokens() {
     g_aliases_tk = new name{"aliases"};
     g_period_tk = new name{"."};
@@ -221,7 +221,6 @@ void initialize_tokens() {
     g_structure_tk = new name{"structure"};
     g_attribute_tk = new name{"attribute"};
     g_with_tk = new name{"with"};
-    g_class_tk = new name{"[class]"};
     g_prev_tk = new name{"prev"};
     g_scoped_tk = new name{"scoped"};
     g_foldr_tk = new name{"foldr"};
@@ -248,6 +247,7 @@ void initialize_tokens() {
     g_using_well_founded_tk = new name{"using_well_founded"};
     g_mutual_definition_tk = new name{"mutual_definition"};
     g_mutual_meta_definition_tk = new name{"mutual_meta_definition"};
+    g_mutual_inductive_tk = new name{"mutual_inductive"};
 }
 void finalize_tokens() {
     delete g_aliases_tk;
@@ -345,7 +345,6 @@ void finalize_tokens() {
     delete g_structure_tk;
     delete g_attribute_tk;
     delete g_with_tk;
-    delete g_class_tk;
     delete g_prev_tk;
     delete g_scoped_tk;
     delete g_foldr_tk;
@@ -372,6 +371,7 @@ void finalize_tokens() {
     delete g_using_well_founded_tk;
     delete g_mutual_definition_tk;
     delete g_mutual_meta_definition_tk;
+    delete g_mutual_inductive_tk;
 }
 name const & get_aliases_tk() { return *g_aliases_tk; }
 name const & get_period_tk() { return *g_period_tk; }
@@ -468,7 +468,6 @@ name const & get_variables_tk() { return *g_variables_tk; }
 name const & get_structure_tk() { return *g_structure_tk; }
 name const & get_attribute_tk() { return *g_attribute_tk; }
 name const & get_with_tk() { return *g_with_tk; }
-name const & get_class_tk() { return *g_class_tk; }
 name const & get_prev_tk() { return *g_prev_tk; }
 name const & get_scoped_tk() { return *g_scoped_tk; }
 name const & get_foldr_tk() { return *g_foldr_tk; }
@@ -495,4 +494,5 @@ name const & get_key_equivalences_tk() { return *g_key_equivalences_tk; }
 name const & get_using_well_founded_tk() { return *g_using_well_founded_tk; }
 name const & get_mutual_definition_tk() { return *g_mutual_definition_tk; }
 name const & get_mutual_meta_definition_tk() { return *g_mutual_meta_definition_tk; }
+name const & get_mutual_inductive_tk() { return *g_mutual_inductive_tk; }
 }

@@ -1,5 +1,5 @@
-inductive day :=
-monday | tuesday | wednesday | thursday | friday | saturday | sunday
+inductive day
+| monday | tuesday | wednesday | thursday | friday | saturday | sunday
 
 open day
 

@@ -5,7 +5,7 @@ Authors: Luke Nelson and Jared Roesch
 -/
 prelude
 
-structure functor [class] (f : Type → Type) : Type :=
+structure [class] functor (f : Type → Type) : Type :=
 (map : Π {a b: Type}, (a → b) → f a → f b)
 
 attribute [inline]

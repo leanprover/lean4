@@ -9,7 +9,7 @@ prelude
 import init.nat init.meta.mk_has_sizeof_instance
 open nat tactic
 
-structure has_sizeof [class] (A : Type) :=
+structure [class] has_sizeof (A : Type) :=
 (sizeof : A → nat)
 
 definition sizeof {A : Type} [s : has_sizeof A] : A → nat :=

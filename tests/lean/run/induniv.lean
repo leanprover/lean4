@@ -1,17 +1,17 @@
 prelude
-inductive list (A : Type) : Type :=
-| nil {} : list A
-| cons   : A → list A → list A
+inductive list (A : Type) : Type
+| nil {} : list
+| cons   : A → list → list
 
 section
   variable A : Type
-  inductive list2 : Type :=
+  inductive list2 : Type
   | nil2 {} : list2
   | cons2   : A → list2 → list2
 end
 
 constant num : Type.{1}
-
+exit
 namespace Tree
 inductive tree (A : Type) : Type :=
 | node : A → forest A → tree A

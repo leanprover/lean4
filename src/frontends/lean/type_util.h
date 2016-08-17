@@ -10,18 +10,6 @@ Author: Leonardo de Moura
 namespace lean {
 class parser;
 
-/** \brief Helper class for parsing type declaration modifiers.
-
-    \remark This used when parsing inductive and structure declarations.
-*/
-class type_modifiers {
-    bool m_is_class;
-public:
-    type_modifiers():m_is_class(false) {}
-    void parse(parser & p);
-    bool is_class() const { return m_is_class; }
-};
-
 /** \brief Add alias id for the fully qualified name \c full_id. */
 environment add_alias(parser & p, environment env, name const & id, name const & full_id,
                       levels const & ctx_levels, buffer<expr> const & ctx_params);

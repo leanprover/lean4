@@ -23,9 +23,9 @@ attribute [instance]
 meta_definition tactic_state.has_to_format : has_to_format tactic_state :=
 has_to_format.mk tactic_state.to_format
 
-inductive tactic_result (A : Type) :=
-| success   : A → tactic_state → tactic_result A
-| exception : (unit → format) → tactic_state → tactic_result A
+inductive tactic_result (A : Type)
+| success   : A → tactic_state → tactic_result
+| exception : (unit → format) → tactic_state → tactic_result
 
 open tactic_result
 
@@ -147,7 +147,7 @@ end tactic
 meta_definition tactic_format_expr (e : expr) : tactic format :=
 do s ← tactic.read, return (tactic_state.format_expr s e)
 
-structure has_to_tactic_format [class] (A : Type) :=
+structure [class] has_to_tactic_format (A : Type) :=
 (to_tactic_format : A → tactic format)
 
 attribute [instance]
@@ -199,7 +199,7 @@ meta_definition trace_state : tactic unit :=
 do s ← read,
    trace $ to_fmt s
 
-inductive transparency :=
+inductive transparency
 | all | semireducible | reducible | none
 
 export transparency (reducible semireducible)

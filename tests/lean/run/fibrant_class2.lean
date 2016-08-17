@@ -1,12 +1,12 @@
-inductive fibrant [class] (T : Type) : Type :=
-fibrant_mk : fibrant T
+inductive [class] fibrant (T : Type) : Type
+| fibrant_mk : fibrant
 
 axiom pi_fibrant {A : Type} {B : A → Type} [C1 : fibrant A] [C2 : Πx : A, fibrant (B x)] :
   fibrant (Πx : A, B x)
 attribute pi_fibrant [instance]
 
-inductive path {A : Type} [fA : fibrant A] (a : A) : A → Type :=
-idpath : path a a
+inductive path {A : Type} [fA : fibrant A] (a : A) : A → Type
+| idpath : path a
 
 axiom path_fibrant {A : Type} [fA : fibrant A] (a b : A) : fibrant (path a b)
 attribute path_fibrant [instance]

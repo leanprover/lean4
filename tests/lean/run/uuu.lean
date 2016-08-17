@@ -4,20 +4,20 @@ notation `assume` binders `,` r:(scoped f, f) := r
 notation `take`   binders `,` r:(scoped f, f) := r
 
 inductive empty : Type
-inductive unit : Type :=
-tt : unit
+inductive unit : Type
+| tt : unit
 definition tt := @unit.tt
-inductive nat : Type :=
+inductive nat : Type
 | O : nat
 | S : nat → nat
 
-inductive paths {A : Type} (a : A) : A → Type :=
-idpath : paths a a
+inductive paths {A : Type} (a : A) : A → Type
+| idpath : paths a
 definition idpath := @paths.idpath
 
-inductive sum (A : Type) (B : Type) : Type :=
-| inl : A -> sum A B
-| inr : B -> sum A B
+inductive sum (A : Type) (B : Type) : Type
+| inl : A -> sum
+| inr : B -> sum
 
 definition coprod := sum
 definition ii1fun {A : Type} (B : Type) (a : A) := sum.inl B a
@@ -25,8 +25,8 @@ definition ii2fun (A : Type) {B : Type} (b : B) := sum.inr A b
 definition ii1 {A : Type} {B : Type} (a : A) := sum.inl B a
 definition ii2 {A : Type} {B : Type} (b : B) := sum.inl A b
 
-inductive total2 {T: Type} (P: T → Type) : Type :=
-tpair : Π (t : T) (tp : P t), total2 P
+inductive total2 {T: Type} (P: T → Type) : Type
+| tpair : Π (t : T) (tp : P t), total2
 definition tpair := @total2.tpair
 
 definition pr1 {T : Type} {P : T → Type} (tp : total2 P) : T
@@ -34,8 +34,8 @@ definition pr1 {T : Type} {P : T → Type} (tp : total2 P) : T
 definition pr2 {T : Type} {P : T → Type} (tp : total2 P) : P (pr1 tp)
 := total2.rec (λ a b, b) tp
 
-inductive Phant (T : Type) : Type :=
-phant : Phant T
+inductive Phant (T : Type) : Type
+| phant : Phant
 
 definition fromempty {X : Type} : empty → X
 := λe, empty.rec (λe, X) e

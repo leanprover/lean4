@@ -100,7 +100,6 @@ name const & get_variables_tk();
 name const & get_structure_tk();
 name const & get_attribute_tk();
 name const & get_with_tk();
-name const & get_class_tk();
 name const & get_prev_tk();
 name const & get_scoped_tk();
 name const & get_foldr_tk();
@@ -127,4 +126,5 @@ name const & get_key_equivalences_tk();
 name const & get_using_well_founded_tk();
 name const & get_mutual_definition_tk();
 name const & get_mutual_meta_definition_tk();
+name const & get_mutual_inductive_tk();
 }

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/expr.h"
+#include "frontends/lean/decl_attributes.h"
 namespace lean {
 class parser;
 class elaborator;
@@ -42,10 +43,10 @@ void parse_mutual_header(parser & p, buffer<name> & lp_names, buffer<expr> & cs,
 /** \brief Parse the header for one of the declarations in a mutually recursive declaration.
     It has the form
 
-         with id : type
+         with <attrs> id : type
 
-    The result is type. */
-expr parse_inner_header(parser & p, name const & c_expected);
+    The result is (type, attrs). */
+pair<expr, decl_attributes> parse_inner_header(parser & p, name const & c_expected);
 
 /** \brief Add section/namespace parameters (and universes) used by params and all_exprs.
     We also add parameters included using the command 'include'.

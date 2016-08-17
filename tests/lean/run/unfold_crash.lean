@@ -1,8 +1,8 @@
 open tactic
 
-inductive vector (A : Type) : nat → Type :=
-  | nil {} : vector A 0
-  | cons : Π {n}, A -> vector A n -> vector A (nat.succ n)
+inductive vector (A : Type) : nat → Type
+  | nil {} : vector 0
+  | cons : Π {n}, A -> vector n -> vector (nat.succ n)
 
 definition vmap {A B : Type} (f : A -> B) : Π {n}, vector A n -> vector B n
 | vmap vector.nil := vector.nil

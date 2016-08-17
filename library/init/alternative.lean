@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 prelude
 import init.logic init.applicative
 
-structure alternative [class] (f : Type → Type) extends applicative f :=
+structure [class] alternative (f : Type → Type) extends applicative f :=
 (failure : Π {A : Type}, f A)
 (orelse  : Π {A : Type}, f A → f A → f A)
 

@@ -7,7 +7,7 @@ Authors: Leonardo de Moura
 prelude
 import init.relation
 
-structure setoid [class] (A : Type) :=
+structure [class] setoid (A : Type) :=
 (r : A → A → Prop) (iseqv : equivalence r)
 
 namespace setoid

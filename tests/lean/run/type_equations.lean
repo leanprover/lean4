@@ -1,13 +1,13 @@
 open nat
 
-inductive Expr :=
+inductive Expr
 | zero : Expr
 | one  : Expr
 | add  : Expr → Expr → Expr
 
 namespace Expr
 
-inductive direct_subterm : Expr → Expr → Prop :=
+inductive direct_subterm : Expr → Expr → Prop
 | add_1 : ∀ e₁ e₂ : Expr, direct_subterm e₁ (add e₁ e₂)
 | add_2 : ∀ e₁ e₂ : Expr, direct_subterm e₂ (add e₁ e₂)
 

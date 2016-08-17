@@ -6,9 +6,9 @@ variables a b : A
 check a ◀ b
 end
 
-inductive List (T : Type) : Type :=
-| nil {} : List T
-| cons   : T → List T → List T
+inductive List (T : Type) : Type
+| nil {} : List
+| cons   : T → List → List
 
 namespace List
 section

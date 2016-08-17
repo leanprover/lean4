@@ -126,6 +126,12 @@ environment environment::add_universe(name const & n) const {
     return environment(m_header, m_id, m_declarations, insert(m_global_levels, n), m_extensions);
 }
 
+environment environment::remove_universe(name const & n) const {
+    if (!m_global_levels.contains(n))
+        throw_kernel_exception(*this, "no universe of the given name");
+    return environment(m_header, m_id, m_declarations, erase(m_global_levels, n), m_extensions);
+}
+
 bool environment::is_universe(name const & n) const {
     return m_global_levels.contains(n);
 }

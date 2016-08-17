@@ -1,8 +1,8 @@
 open nat
 
 namespace test
-inductive lift .{l} (A : Type.{l}) : Type.{l+1} :=
-up : A → lift A
+inductive lift .{l} (A : Type.{l}) : Type.{l+1}
+| up : A → lift
 
 namespace lift
 definition down {A : Type} (a : lift A) : A :=

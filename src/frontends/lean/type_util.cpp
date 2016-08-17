@@ -11,13 +11,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 
 namespace lean {
-void type_modifiers::parse(parser & p) {
-    if (p.curr_is_token(get_class_tk())) {
-        m_is_class = true;
-        p.next();
-    }
-}
-
 environment add_alias(parser & p, environment env, name const & id, name const & full_id,
                       levels const & ctx_levels, buffer<expr> const & ctx_params) {
     if (!empty(ctx_levels) || !ctx_params.empty()) {

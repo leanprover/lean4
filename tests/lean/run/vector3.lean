@@ -1,8 +1,8 @@
 open nat
 
-inductive vector (A : Type) : nat → Type :=
-| vnil  : vector A nat.zero
-| vcons : Π {n : nat}, A → vector A n → vector A (succ n)
+inductive vector (A : Type) : nat → Type
+| vnil  : vector nat.zero
+| vcons : Π {n : nat}, A → vector n → vector (succ n)
 
 namespace vector
   theorem vcons.inj₁ {A : Type} {n : nat} (a₁ a₂ : A) (v₁ v₂ : vector A n) : vcons a₁ v₁ = vcons a₂ v₂ → a₁ = a₂ :=

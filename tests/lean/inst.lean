@@ -1,8 +1,8 @@
 --
 set_option pp.notation false
 
-inductive C [class] (A : Type) :=
-mk : A → C A
+inductive [class] C (A : Type)
+| mk : A → C
 
 definition val {A : Type} (c : C A) : A :=
 C.rec (λa, a) c

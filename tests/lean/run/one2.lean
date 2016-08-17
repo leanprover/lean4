@@ -1,18 +1,18 @@
-inductive one1.{l} : Type.{l} :=
-unit : one1
+inductive one1.{l} : Type.{l}
+| unit : one1
 
-inductive pone : Type.{0} :=
-unit : pone
+inductive pone : Type.{0}
+| unit : pone
 
-inductive two.{l} : Type.{max 1 l} :=
+inductive two.{l} : Type.{max 1 l}
 | o : two
 | u : two
 
-inductive wrap.{l} : Type.{max 1 l} :=
-mk : true → wrap
+inductive wrap.{l} : Type.{max 1 l}
+| mk : true → wrap
 
-inductive wrap2.{l} (A : Type.{l}) : Type.{max 1 l} :=
-mk : A → wrap2 A
+inductive wrap2.{l} (A : Type.{l}) : Type.{max 1 l}
+| mk : A → wrap2
 
 set_option pp.universes true
 check @one1.rec

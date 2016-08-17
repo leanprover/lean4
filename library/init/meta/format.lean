@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.options
 
-inductive format.color :=
+inductive format.color
 | red | green | orange | blue | pink | cyan | grey
 
 meta_constant format : Type₁
@@ -38,7 +38,7 @@ attribute [instance]
 meta_definition format_has_to_string : has_to_string format :=
 has_to_string.mk (λ f, format.to_string f options.mk)
 
-structure has_to_format [class] (A : Type) :=
+structure [class] has_to_format (A : Type) :=
 (to_format : A → format)
 
 attribute [instance]

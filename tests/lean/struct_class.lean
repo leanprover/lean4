@@ -1,4 +1,4 @@
-structure point [class] (A : Type) (B : Type) :=
+structure [class] point (A : Type) (B : Type) :=
 mk :: (x : A) (y : B)
 
 print classes

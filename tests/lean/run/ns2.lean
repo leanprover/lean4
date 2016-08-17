@@ -3,7 +3,7 @@ constant foo.T : Type.{1}
 check foo.id
 check foo.T
 
-inductive foo.v.I := unit : foo.v.I
+inductive foo.v.I | unit : foo.v.I
 
 check foo.v.I
 check foo.v.I.unit

@@ -5,7 +5,7 @@ section foo
 
   check foo
 
-  structure point [class] :=
+  structure [class] point :=
   (x : A) (y : A)
 end foo
 

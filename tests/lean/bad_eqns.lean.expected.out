@@ -1,8 +1,0 @@
-bad_eqns.lean:4:10: error: invalid argument, it is not a constructor, variable, nor it is marked as an inaccessible pattern
-  0 + x
-in the following equation left-hand-side
-  foo1 (0 + x)
-bad_eqns.lean:8:10: error: unknown identifier 'y'
-bad_eqns.lean:12:8: error: unknown identifier 'x'
-bad_eqns.lean:21:11: error: mutual recursion is not needed when defining non-recursive functions
-bad_eqns.lean:34:11: error: invalid equations, failed to find recursive arguments that are structurally smaller (possible solution: use well-founded recursion)

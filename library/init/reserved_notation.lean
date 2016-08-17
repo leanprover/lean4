@@ -9,20 +9,20 @@ import init.datatypes
 notation `assume` binders `,` r:(scoped f, f) := r
 notation `take`   binders `,` r:(scoped f, f) := r
 
-structure has_zero    [class] (A : Type) := (zero : A)
-structure has_one     [class] (A : Type) := (one : A)
-structure has_add     [class] (A : Type) := (add : A → A → A)
-structure has_mul     [class] (A : Type) := (mul : A → A → A)
-structure has_inv     [class] (A : Type) := (inv : A → A)
-structure has_neg     [class] (A : Type) := (neg : A → A)
-structure has_sub     [class] (A : Type) := (sub : A → A → A)
-structure has_div     [class] (A : Type) := (div : A → A → A)
-structure has_dvd     [class] (A : Type) := (dvd : A → A → Prop)
-structure has_mod     [class] (A : Type) := (mod : A → A → A)
-structure has_le      [class] (A : Type) := (le : A → A → Prop)
-structure has_lt      [class] (A : Type) := (lt : A → A → Prop)
-structure has_append  [class] (A : Type) := (append : A → A → A)
-structure has_andthen [class] (A : Type) := (andthen : A → A → A)
+structure [class] has_zero   (A : Type) := (zero : A)
+structure [class] has_one    (A : Type) := (one : A)
+structure [class] has_add    (A : Type) := (add : A → A → A)
+structure [class] has_mul    (A : Type) := (mul : A → A → A)
+structure [class] has_inv    (A : Type) := (inv : A → A)
+structure [class] has_neg    (A : Type) := (neg : A → A)
+structure [class] has_sub    (A : Type) := (sub : A → A → A)
+structure [class] has_div    (A : Type) := (div : A → A → A)
+structure [class] has_dvd    (A : Type) := (dvd : A → A → Prop)
+structure [class] has_mod    (A : Type) := (mod : A → A → A)
+structure [class] has_le     (A : Type) := (le : A → A → Prop)
+structure [class] has_lt     (A : Type) := (lt : A → A → Prop)
+structure [class] has_append (A : Type) := (append : A → A → A)
+structure [class] has_andthen(A : Type) := (andthen : A → A → A)
 
 definition zero    {A : Type} [has_zero A]    : A            := has_zero.zero A
 definition one     {A : Type} [has_one A]     : A            := has_one.one A

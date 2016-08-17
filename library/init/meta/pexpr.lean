@@ -16,7 +16,7 @@ attribute [instance]
 meta_definition pexpr.has_to_string : has_to_string pexpr :=
 has_to_string.mk pexpr.to_string
 
-structure has_to_pexpr [class] (A : Type) :=
+structure [class] has_to_pexpr (A : Type) :=
 (to_pexpr : A → pexpr)
 
 meta_definition to_pexpr {A : Type} [has_to_pexpr A] : A → pexpr :=

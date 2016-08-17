@@ -1,3 +1,4 @@
+exit
 inductive tree.{u} (A : Type.{u}) : Type.{max u 1} :=
 | node : A → forest.{u} A → tree.{u} A
 with forest : Type.{max u 1} :=

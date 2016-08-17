@@ -13,7 +13,7 @@ section
   variable  (Rb  : ∀ a, B a → B a → Prop)
 
   -- Lexicographical order based on Ra and Rb
-  inductive lex : sigma B → sigma B → Prop :=
+  inductive lex : sigma B → sigma B → Prop
   | left  : ∀ {a₁ : A} (b₁ : B a₁) {a₂ : A} (b₂ : B a₂), Ra a₁ a₂ → lex (sigma.mk a₁ b₁) (sigma.mk a₂ b₂)
   | right : ∀ (a : A)  {b₁ b₂ : B a}, Rb a b₁ b₂ → lex (sigma.mk a b₁)  (sigma.mk a b₂)
 end
@@ -70,7 +70,7 @@ section
   variable  (Rb  : B → B → Prop)
 
   -- Reverse lexicographical order based on Ra and Rb
-  inductive rev_lex : @sigma A (λ a, B) → @sigma A (λ a, B) → Prop :=
+  inductive rev_lex : @sigma A (λ a, B) → @sigma A (λ a, B) → Prop
   | left  : ∀ {a₁ a₂ : A} (b : B), Ra a₁ a₂ → rev_lex (sigma.mk a₁ b) (sigma.mk a₂ b)
   | right : ∀ (a₁ : A) {b₁ : B} (a₂ : A) {b₂ : B}, Rb b₁ b₂ → rev_lex (sigma.mk a₁ b₁) (sigma.mk a₂ b₂)
 end

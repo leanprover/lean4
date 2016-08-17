@@ -577,8 +577,8 @@ and_congr (imp_congr H1 H2) (imp_congr H2 H1)
 
 /- exists -/
 
-inductive Exists {A : Type} (P : A → Prop) : Prop :=
-intro : ∀ (a : A), P a → Exists P
+inductive Exists {A : Type} (P : A → Prop) : Prop
+| intro : ∀ (a : A), P a → Exists
 
 attribute Exists.intro [intro]
 
@@ -648,9 +648,9 @@ end
 
 /- decidable -/
 
-inductive decidable [class] (p : Prop) : Type :=
-| ff : ¬p → decidable p
-| tt :  p → decidable p
+inductive [class] decidable (p : Prop) : Type
+| ff : ¬p → decidable
+| tt :  p → decidable
 
 attribute [instance]
 definition decidable_true : decidable true :=
@@ -790,8 +790,8 @@ end
 
 /- inhabited -/
 
-inductive inhabited [class] (A : Type) : Type :=
-mk : A → inhabited A
+inductive [class] inhabited (A : Type) : Type
+| mk : A → inhabited
 
 attribute [inline]
 protected definition inhabited.value {A : Type} : inhabited A → A :=
@@ -834,8 +834,8 @@ attribute [inline, instance]
 protected definition num.is_inhabited : inhabited num :=
 inhabited.mk num.zero
 
-inductive nonempty [class] (A : Type) : Prop :=
-intro : A → nonempty A
+inductive [class] nonempty (A : Type) : Prop
+| intro : A → nonempty
 
 protected definition nonempty.elim {A : Type} {B : Prop} (H1 : nonempty A) (H2 : A → B) : B :=
 nonempty.rec H2 H1
@@ -849,8 +849,8 @@ Exists.rec (λw H, nonempty.intro w)
 
 /- subsingleton -/
 
-inductive subsingleton [class] (A : Type) : Prop :=
-intro : (∀ a b : A, a = b) → subsingleton A
+inductive [class] subsingleton (A : Type) : Prop
+| intro : (∀ a b : A, a = b) → subsingleton
 
 protected definition subsingleton.elim {A : Type} [H : subsingleton A] : ∀(a b : A), a = b :=
 subsingleton.rec (λp, p) H

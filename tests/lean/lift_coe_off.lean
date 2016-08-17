@@ -1,8 +1,8 @@
 open nat
 
-inductive tree (A : Type) :=
-leaf : A → tree A,
-node : tree A → tree A → tree A
+inductive tree (A : Type)
+| leaf : A → tree
+| node : tree → tree → tree
 
 -- set_option elaborator.lift_coercions false
 

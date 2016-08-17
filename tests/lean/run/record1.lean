@@ -10,8 +10,8 @@ check point.rec_on
 check point.induction_on
 check point.destruct
 
-inductive color :=
-red | green | blue
+inductive color
+| red | green | blue
 
 structure color_point (A : Type) (B : Type) extends point A B :=
 mk :: (c : color)

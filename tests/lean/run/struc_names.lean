@@ -1,9 +1,9 @@
 namespace foo
 
-  structure structA [class] :=
+  structure [class] structA :=
   mk :: (a : nat)
 
-  structure structB [class] extends structA :=
+  structure [class] structB extends structA :=
   mk :: (b : nat)
 
   check @structA.a

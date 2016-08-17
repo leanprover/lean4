@@ -2,13 +2,13 @@ open tactic
 
 namespace test
 
-inductive enum1 : Type := ea | eb | ec | ed
+inductive enum1 : Type | ea | eb | ec | ed
 
 attribute [instance]
 definition enum1_dec_eq : decidable_eq enum1 :=
 by mk_dec_eq_instance
 
-inductive Expr :=
+inductive Expr
 | var  : nat → Expr
 | app  : ∀ (n : nat) (e1 : Expr) (e2 : Expr) (e3 : Expr) (e4 : Expr),  Expr
 | Elet : Expr → Expr

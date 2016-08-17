@@ -1,4 +1,4 @@
-structure is_equiv [class] {A B : Type} (f : A → B) :=
+structure [class] is_equiv {A B : Type} (f : A → B) :=
   (inv : B → A)
 
 check @is_equiv.inv

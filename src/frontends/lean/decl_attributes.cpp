@@ -76,4 +76,19 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
     }
     return env;
 }
+
+bool decl_attributes::ok_for_inductive_type() const {
+    for (entry const & e : m_entries)
+        if (e.m_attr->get_name() != "class")
+            return false;
+    return true;
+}
+
+bool decl_attributes::has_class() const {
+    for (entry const & e : m_entries)
+        if (e.m_attr->get_name() == "class")
+            return true;
+    return false;
+}
+
 }

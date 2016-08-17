@@ -11,9 +11,9 @@ example : foo tt ff = tt := rfl
 example : foo ff tt = tt := rfl
 example : foo ff ff = ff := rfl
 
-inductive vec (A : Type) : nat → Type :=
-| nil {} : vec A nat.zero
-| cons   : ∀ {n}, A → vec A n → vec A (nat.succ n)
+inductive vec (A : Type) : nat → Type
+| nil {} : vec nat.zero
+| cons   : ∀ {n}, A → vec n → vec (nat.succ n)
 
 open vec
 

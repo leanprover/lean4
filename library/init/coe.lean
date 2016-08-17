@@ -26,24 +26,24 @@ a type to a sort.
 prelude
 import init.list init.subtype init.prod
 
-structure has_lift [class] (A B : Type) :=
+structure [class] has_lift (A B : Type) :=
 (lift : A → B)
 
 /- Auxiliary class that contains the transitive closure of has_lift. -/
-structure has_lift_t [class] (A B : Type) :=
+structure [class] has_lift_t (A B : Type) :=
 (lift : A → B)
 
-structure has_coe [class] (A B : Type) :=
+structure [class] has_coe (A B : Type) :=
 (coe : A → B)
 
 /- Auxiliary class that contains the transitive closure of has_coe. -/
-structure has_coe_t [class] (A B : Type) :=
+structure [class] has_coe_t (A B : Type) :=
 (coe : A → B)
 
-structure has_coe_to_fun [class] (A : Type) :=
+structure [class] has_coe_to_fun (A : Type) :=
 (F : Type) (coe : A → F)
 
-structure has_coe_to_sort [class] (A : Type) :=
+structure [class] has_coe_to_sort (A : Type) :=
 (S : Type) (coe : A → S)
 
 definition lift {A B : Type} [has_lift A B] : A → B :=

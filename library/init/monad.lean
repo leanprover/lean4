@@ -6,7 +6,7 @@ Authors: Luke Nelson and Jared Roesch
 prelude
 import init.applicative init.string init.trace
 
-structure monad [class] (m : Type → Type) extends functor m : Type :=
+structure [class] monad (m : Type → Type) extends functor m : Type :=
 (ret  : Π {a:Type}, a → m a)
 (bind : Π {a b: Type}, m a → (a → m b) → m b)
 

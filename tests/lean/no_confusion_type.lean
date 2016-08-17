@@ -1,9 +1,9 @@
 --
 open nat
 
-inductive vector (A : Type) : nat → Type :=
-vnil  : vector A nat.zero |
-vcons : Π {n : nat}, A → vector A n → vector A (succ n)
+inductive vector (A : Type) : nat → Type
+| vnil  : vector nat.zero
+| vcons : Π {n : nat}, A → vector n → vector (succ n)
 
 check vector.no_confusion_type
 constants a1 a2 : num

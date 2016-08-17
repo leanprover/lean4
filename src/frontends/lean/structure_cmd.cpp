@@ -50,6 +50,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/type_util.h"
+#include "frontends/lean/decl_attributes.h"
 
 #ifndef LEAN_DEFAULT_STRUCTURE_INTRO
 #define LEAN_DEFAULT_STRUCTURE_INTRO "mk"
@@ -71,7 +72,6 @@ struct structure_cmd_fn {
     typedef std::vector<pair<name, name>> rename_vector;
     // field_map[i] contains the position of the \c i-th field of a parent structure into this one.
     typedef std::vector<unsigned>         field_map;
-    typedef type_modifiers                modifiers;
 
     parser &                    m_p;
     bool                        m_is_private;
@@ -83,7 +83,7 @@ struct structure_cmd_fn {
     name                        m_given_name;
     pos_info                    m_name_pos;
     buffer<name>                m_level_names;
-    modifiers                   m_modifiers;
+    decl_attributes             m_attrs;
     buffer<expr>                m_params;
     expr                        m_type;
     buffer<optional<name>>      m_parent_refs;
@@ -102,21 +102,29 @@ struct structure_cmd_fn {
     levels                      m_ctx_levels; // context levels for creating aliases
     buffer<expr>                m_ctx_locals; // context local constants for creating aliases
 
-    structure_cmd_fn(parser & p, bool is_private):
+    structure_cmd_fn(parser & p, decl_attributes const & attrs, bool is_private):
         m_p(p),
         m_is_private(is_private),
         m_env(p.env()),
         m_aux_ctx(aux_type_context(p.env())),
         m_ctx(m_aux_ctx.get()),
+        m_attrs(attrs),
         m_namespace(get_namespace(m_env)) {
         m_explicit_universe_params = false;
         m_infer_result_universe    = false;
         m_inductive_predicate      = false;
     }
 
+    void check_attrs(decl_attributes const & attrs, pos_info const & pos) const {
+        if (!attrs.ok_for_inductive_type())
+            throw parser_error("only attribute [class] accepted for structures", pos);
+    }
+
     /** \brief Parse structure name and (optional) universe parameters */
     void parse_decl_name() {
-        m_name_pos   = m_p.pos();
+        m_name_pos = m_p.pos();
+        m_attrs.parse(m_p);
+        check_attrs(m_attrs, m_name_pos);
         m_given_name = m_p.check_decl_id_next("invalid 'structure', identifier expected");
         if (m_is_private) {
             unsigned h   = hash(m_name_pos.first, m_name_pos.second);
@@ -135,7 +143,6 @@ struct structure_cmd_fn {
             m_explicit_universe_params = false;
             m_infer_result_universe    = true;
         }
-        m_modifiers.parse(m_p);
     }
 
     /** \brief Parse structure parameters */
@@ -713,8 +720,7 @@ struct structure_cmd_fn {
         add_alias(m_given_name, m_name);
         add_alias(m_mk);
         add_rec_alias(rec_name);
-        if (m_modifiers.is_class())
-            m_env = add_class(m_env, m_name, true);
+        m_env = m_attrs.apply(m_env, m_p.ios(), m_name);
     }
 
     void save_def_info(name const & n) {
@@ -730,7 +736,7 @@ struct structure_cmd_fn {
     }
 
     void declare_projections() {
-        m_env = mk_projections(m_env, m_name, m_mk_infer, m_modifiers.is_class());
+        m_env = mk_projections(m_env, m_name, m_mk_infer, m_attrs.has_class());
         for (expr const & field : m_fields) {
             name field_name = m_name + mlocal_name(field);
             save_proj_info(field_name);
@@ -822,7 +828,7 @@ struct structure_cmd_fn {
             level parent_rlvl              = sort_level(parent_type);
             expr st_type                   = mk_app(mk_constant(m_name, st_ls), m_params);
             binder_info bi;
-            if (m_modifiers.is_class())
+            if (m_attrs.has_class())
                 bi = mk_inst_implicit_binder_info();
             expr st                        = mk_local(mk_fresh_name(), "s", st_type, bi);
             expr coercion_type             = infer_implicit(Pi(m_params, Pi(st, parent)), m_params.size(), true);;
@@ -844,9 +850,7 @@ struct structure_cmd_fn {
             add_alias(coercion_name);
             m_env = vm_compile(m_env, m_env.get(coercion_name));
             if (!m_private_parents[i]) {
-                // if (!m_modifiers.is_class() || !is_class(m_env, parent_name))
-                //    m_env = add_coercion(m_env, m_p.ios(), coercion_name, true);
-                if (m_modifiers.is_class() && is_class(m_env, parent_name)) {
+                if (m_attrs.has_class() && is_class(m_env, parent_name)) {
                     // if both are classes, then we also mark coercion_name as an instance
                     m_env = add_instance(m_env, coercion_name, LEAN_DEFAULT_PRIORITY, true);
                 }
@@ -906,12 +910,14 @@ struct structure_cmd_fn {
     }
 };
 
-environment structure_cmd(parser & p) {
-    return structure_cmd_fn(p, false)();
+environment structure_cmd_ex(parser & p, decl_attributes const & attrs, bool is_private) {
+    lean_assert(p.curr_is_token_or_id(get_structure_tk()));
+    p.next();
+    return structure_cmd_fn(p, attrs, is_private)();
 }
 
-environment private_structure_cmd(parser & p) {
-    return structure_cmd_fn(p, true)();
+environment structure_cmd(parser & p) {
+    return structure_cmd_ex(p, {}, false);
 }
 
 void get_structure_fields(environment const & env, name const & S, buffer<name> & fields) {
@@ -946,6 +952,6 @@ bool is_structure(environment const & env, name const & S) {
 }
 
 void register_structure_cmd(cmd_table & r) {
-    add_cmd(r, cmd_info("structure",   "declare a new structure/record type", structure_cmd));
+    add_cmd(r, cmd_info("structure",   "declare a new structure/record type", structure_cmd, false));
 }
 }

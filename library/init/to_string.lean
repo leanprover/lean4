@@ -5,7 +5,7 @@ prelude
 import init.string init.bool init.subtype init.unsigned init.prod init.sum
 open bool list sum prod sigma subtype nat
 
-structure has_to_string [class] (A : Type) :=
+structure [class] has_to_string (A : Type) :=
 (to_string : A → string)
 
 definition to_string {A : Type} [has_to_string A] : A → string :=

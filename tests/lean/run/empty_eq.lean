@@ -1,6 +1,6 @@
 open nat
 
-inductive Fin : nat → Type :=
+inductive Fin : nat → Type
 | fz : Π n, Fin (succ n)
 | fs : Π {n}, Fin n → Fin (succ n)
 

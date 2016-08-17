@@ -6,13 +6,13 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.level
 
-inductive binder_info :=
+inductive binder_info
 | default | implicit | strict_implicit | inst_implicit | other
 
 meta_constant macro_def : Type₁
 
 /- Reflect a C++ expr object. The VM replaces it with the C++ implementation. -/
-inductive expr :=
+inductive expr
 | var         : unsigned → expr
 | sort        : level → expr
 | const       : name → list level → expr

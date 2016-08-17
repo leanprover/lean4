@@ -7,7 +7,7 @@ prelude
 import init.meta.expr init.meta.name
 
 /- Reflect a C++ declaration object. The VM replaces it with the C++ implementation. -/
-inductive declaration :=
+inductive declaration
 /- definition: name, list universe parameters, type, value, is_trusted -/
 | def  : name → list name → expr → expr → bool → declaration
 /- theorem: name, list universe parameters, type, value (remark: theorems are always trusted) -/

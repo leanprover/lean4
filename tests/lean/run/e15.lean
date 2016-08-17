@@ -1,12 +1,12 @@
 prelude
-inductive nat : Type :=
+inductive nat : Type
 | zero : nat
 | succ : nat → nat
 namespace nat end nat open nat
 
-inductive list (A : Type) : Type :=
-| nil {} : list A
-| cons   : A → list A → list A
+inductive list (A : Type) : Type
+| nil {} : list
+| cons   : A → list → list
 namespace list end list open list
 check nil
 check nil.{1}
@@ -15,9 +15,9 @@ check @nil nat
 
 check cons zero nil
 
-inductive vector (A : Type) : nat → Type :=
-| vnil {} : vector A zero
-| vcons   : forall {n : nat}, A → vector A n → vector A (succ n)
+inductive vector (A : Type) : nat → Type
+| vnil {} : vector zero
+| vcons   : forall {n : nat}, A → vector n → vector (succ n)
 namespace vector end vector open vector
 
 check vcons zero vnil

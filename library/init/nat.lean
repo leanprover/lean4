@@ -43,9 +43,9 @@ namespace nat
   this H
 
   /- basic definitions on natural numbers -/
-  inductive le (a : ℕ) : ℕ → Prop :=
-  | nat_refl : le a a    -- use nat_refl to avoid overloading le.refl
-  | step : Π {b}, le a b → le a (succ b)
+  inductive le (a : ℕ) : ℕ → Prop
+  | nat_refl : le a    -- use nat_refl to avoid overloading le.refl
+  | step : Π {b}, le b → le (succ b)
 
   definition nat_has_le : has_le nat := has_le.mk nat.le
 

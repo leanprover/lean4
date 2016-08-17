@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.tactic init.meta.format init.function
 
-inductive congr_arg_kind :=
+inductive congr_arg_kind
 /- It is a parameter for the congruence lemma, the parameter occurs in the left and right hand sides. -/
 | fixed
 /- It is not a parameter for the congruence lemma, the lemma was specialized for this parameter.

@@ -10,9 +10,9 @@
 -- Basic properties of Lists.
 
 open nat
-inductive List (T : Type) : Type :=
-| nil {} : List T
-| cons : T → List T → List T
+inductive List (T : Type) : Type
+| nil {} : List
+| cons : T → List → List
 
 namespace List
 theorem List_induction_on {T : Type} {P : List T → Prop} (l : List T) (Hnil : P nil)

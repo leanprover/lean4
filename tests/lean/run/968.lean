@@ -9,7 +9,7 @@ structure foo :=
 
 check @foo nat nat.is_inhabited
 
-inductive bla :=
+inductive bla
 | mk : A → bla
 
 check @bla nat nat.is_inhabited

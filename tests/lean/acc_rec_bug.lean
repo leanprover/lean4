@@ -1,6 +1,6 @@
 namespace play
-inductive acc {A : Type} (R : A → A → Prop) : A → Prop :=
-intro : ∀x, (∀ y, R y x → acc R y) → acc R x
+inductive acc {A : Type} (R : A → A → Prop) : A → Prop
+| intro : ∀x, (∀ y, R y x → acc y) → acc x
 
 variables {A : Type} (R : A → A → Prop) (C : A → Type) (x₁ : A) (ac : ∀y, R y x₁ → acc R y)
 variable F : Πx, (Πy, R y x → C y) → C x

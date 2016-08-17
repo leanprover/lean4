@@ -1,5 +1,5 @@
 --
-inductive List (T : Type) : Type := nil {} : List T | cons   : T → List T → List T open List notation h :: t  := cons h t notation `[` l:(foldr `, ` (h t, cons h t) nil) `]` := l
+inductive List (T : Type) : Type | nil {} : List | cons   : T → List → List open List notation h :: t  := cons h t notation `[` l:(foldr `, ` (h t, cons h t) nil) `]` := l
 open prod num
 constants a b : num
 check [a, b, b]

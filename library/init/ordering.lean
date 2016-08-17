@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.to_string init.prod init.sum
 
-inductive ordering :=
+inductive ordering
 | lt | eq | gt
 
 open ordering
@@ -15,7 +15,7 @@ attribute [instance]
 definition ordering.has_to_string : has_to_string ordering :=
 has_to_string.mk (λ s, match s with | ordering.lt := "lt" | ordering.eq := "eq" | ordering.gt := "gt" end)
 
-structure has_ordering [class] (A : Type) :=
+structure [class] has_ordering (A : Type) :=
 (cmp : A → A → ordering)
 
 definition nat.cmp (a b : nat) : ordering :=

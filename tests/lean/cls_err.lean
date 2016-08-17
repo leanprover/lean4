@@ -1,7 +1,7 @@
 --
 
-inductive H [class] (A : Type) :=
-mk : A → H A
+inductive [class] H (A : Type)
+| mk : A → H
 
 definition foo {A : Type} [h : H A] : A :=
 H.rec (λa, a) h

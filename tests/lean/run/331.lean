@@ -1,7 +1,7 @@
 namespace nat
-  inductive less (a : nat) : nat → Prop :=
-  | base : less a (succ a)
-  | step : Π {b}, less a b → less a (succ b)
+  inductive less (a : nat) : nat → Prop
+  | base : less (succ a)
+  | step : Π {b}, less b → less (succ b)
 
 end nat
 

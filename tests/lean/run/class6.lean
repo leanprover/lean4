@@ -1,10 +1,10 @@
 open prod
 
-inductive t1 : Type :=
-mk1 : t1
+inductive t1 : Type
+| mk1 : t1
 
-inductive t2 : Type :=
-mk2 : t2
+inductive t2 : Type
+| mk2 : t2
 
 theorem inhabited_t1 : inhabited t1
 := inhabited.mk t1.mk1

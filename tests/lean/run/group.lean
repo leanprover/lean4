@@ -10,11 +10,11 @@ section
   definition is_inv   := ∀ a, a*a^-1 = one
 end
 
-inductive group_struct [class] (A : Type) : Type :=
-mk_group_struct : Π (mul : A → A → A) (one : A) (inv : A → A), is_assoc mul → is_id mul one → is_inv mul one inv → group_struct A
+inductive [class] group_struct (A : Type) : Type
+| mk_group_struct : Π (mul : A → A → A) (one : A) (inv : A → A), is_assoc mul → is_id mul one → is_inv mul one inv → group_struct
 
-inductive group : Type :=
-mk_group : Π (A : Type), group_struct A → group
+inductive group : Type
+| mk_group : Π (A : Type), group_struct A → group
 
 definition carrier (g : group) : Type
 := group.rec (λ c s, c) g

@@ -1,6 +1,6 @@
-inductive vec (A : Type) : nat → Type :=
-| nil  : vec A 0
-| cons : ∀ {n}, A → vec A n → vec A (n+1)
+inductive vec (A : Type) : nat → Type
+| nil  : vec 0
+| cons : ∀ {n}, A → vec n → vec (n+1)
 
 open tactic nat vec
 

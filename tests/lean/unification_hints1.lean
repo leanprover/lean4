@@ -36,8 +36,8 @@ print [unify]
 end add
 
 namespace canonical
-inductive Canonical :=
-mk : Π (carrier : Type) (op : carrier → carrier), Canonical
+inductive Canonical
+| mk : Π (carrier : Type) (op : carrier → carrier), Canonical
 
 attribute [irreducible]
 definition Canonical.carrier (s : Canonical) : Type :=

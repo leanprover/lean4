@@ -93,7 +93,8 @@ expr parse_mutual_definition(parser & p, def_cmd_kind k, buffer<name> & lp_names
     parse_mutual_header(p, lp_names, pre_fns, params);
     buffer<expr> eqns;
     for (expr const & pre_fn : pre_fns) {
-        expr fn_type = parse_inner_header(p, local_pp_name(pre_fn));
+        // TODO(leo, dhs): make use of attributes
+        expr fn_type = parse_inner_header(p, local_pp_name(pre_fn)).first;
         if (p.curr_is_token(get_none_tk())) {
             auto none_pos = p.pos();
             p.next();

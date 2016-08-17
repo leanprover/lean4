@@ -167,6 +167,12 @@ public:
     */
     environment add_universe(name const & n) const;
 
+    /**
+        \brief Remove global universe level with name \c n
+        This method throws an exception if the environment does not contain a level named \c n.
+    */
+    environment remove_universe(name const & n) const;
+
     /** \brief Return true iff the environment has a universe level named \c n. */
     bool is_universe(name const & n) const;
 

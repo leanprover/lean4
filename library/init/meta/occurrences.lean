@@ -18,7 +18,7 @@ import init.meta.relation_tactics init.meta.injection_tactic
 
    - neg [2] : all but the second occurrence of a given term
      are considered. -/
-inductive occurrences :=
+inductive occurrences
 | all
 | pos : list nat → occurrences
 | neg : list nat → occurrences

@@ -44,6 +44,6 @@ theorem inv_image.trans (f : A → B) (H : transitive R) : transitive (inv_image
 theorem inv_image.irreflexive (f : A → B) (H : irreflexive R) : irreflexive (inv_image R f) :=
 λ (a : A) (H₁ : inv_image R f a a), H (f a) H₁
 
-inductive tc {A : Type} (R : A → A → Prop) : A → A → Prop :=
-| base  : ∀a b, R a b → tc R a b
-| trans : ∀a b c, tc R a b → tc R b c → tc R a c
+inductive tc {A : Type} (R : A → A → Prop) : A → A → Prop
+| base  : ∀a b, R a b → tc a b
+| trans : ∀a b c, tc a b → tc b c → tc a c

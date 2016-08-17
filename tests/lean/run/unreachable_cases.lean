@@ -1,6 +1,6 @@
 open nat prod
 
-inductive ifin : ℕ → Type := -- inductively defined fin-type
+inductive ifin : ℕ → Type -- inductively defined fin-type
 | fz : Π n, ifin (succ n)
 | fs : Π {n}, ifin n → ifin (succ n)
 

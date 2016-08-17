@@ -1,6 +1,6 @@
 namespace foo
 open nat
-inductive nat : Type := zero | foosucc : nat → nat
+inductive nat : Type | zero, foosucc : nat → nat
 check 0 + nat.zero --error
 end foo
 

@@ -1,7 +1,7 @@
 namespace list
-  inductive list (A : Type) : Type :=
-  | nil  : list A
-  | cons : A → list A → list A
+  inductive list (A : Type) : Type
+  | nil  : list
+  | cons : A → list → list
 
   check list.{1}
   check list.cons.{1}

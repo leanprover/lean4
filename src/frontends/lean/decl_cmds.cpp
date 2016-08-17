@@ -844,7 +844,7 @@ class definition_cmd_fn {
         return false;
     }
 
-    void register_decl(name const & n, name const & real_n, expr const & type) {
+    void register_decl(name const & n, name const & real_n, expr const & type, bool generate_bytecode = true) {
         if (m_kind != Example) {
             if (!m_p.ignore_noncomputable()) {
                 if (!m_is_noncomputable && is_marked_noncomputable(m_env, real_n)) {
@@ -879,6 +879,8 @@ class definition_cmd_fn {
                 bool persistent = m_kind == Abbreviation;
                 m_env = add_abbreviation(m_env, real_n, m_attributes.is_parsing_only(), persistent);
             }
+            if (generate_bytecode)
+                compile_decl();
             m_env = m_attributes.apply(m_env, m_p.ios(), real_n);
         }
     }
@@ -1055,7 +1057,7 @@ class definition_cmd_fn {
         m_ls = append(m_ls, new_ls);
         m_type = postprocess(m_env, m_type);
         m_env = module::add(m_env, check(mk_axiom(m_real_name, m_ls, m_type)));
-        register_decl(m_name, m_real_name, m_type);
+        register_decl(m_name, m_real_name, m_type, false);
     }
 
     void compile_decl() {
@@ -1092,7 +1094,6 @@ public:
             process_locals();
             elaborate();
             register_decl();
-            compile_decl();
             return m_env;
         } catch (exception & ex) {
             if (m_type_checkpoint) {

@@ -1611,15 +1611,50 @@ expr parser::parse_led_notation(expr left) {
     }
 }
 
+/**
+   \brief Auxiliary object for converting pattern_or_expr into a pattern.
+   The main points are:
+
+   1- Collect all pattern variables. Each pattern variable can only be
+      "declared" once. That is, the following equation is not valid
+
+        definition f : nat -> nat -> nat
+        | a a := a
+
+   2- We do not collect pattern variables inside inaccessible term (e.g., ⌞f a⌟)
+
+      Remark: An inaccessible term may contain a reference to a variable defined
+      later. Here is an example:
+
+      inductive imf {A B : Type} (f : A → B) : B → Type
+      | mk : ∀ (a : A), imf (f a)
+
+      definition inv {A B : Type} (f : A → B) : ∀ (b : B), imf f b → A
+      | ⌞f a⌟ (imf.mk ⌞f⌟ a)  := a
+
+      The 'a' in ⌞f a⌟ is a reference to the variable 'a' being declared at
+      (imf.mk ⌞f⌟ a)
+
+   3- The type in type ascriptions is implicitly marked as inaccessible.
+
+   4- An inaccessible term cannot be the function in an application.
+      Example: (⌞f⌟ a) is not allowed.
+
+   5- In a pattern (f a), f must be a constructor or a constant tagged with the
+      [pattern] attribute
+
+   6- A '_' is treated as an anonymous variable in patterns, and as placeholder
+      inside of inaccessible terms. */
 struct to_pattern_fn {
     parser &       m_parser;
     buffer<expr> & m_new_locals;
-    name_map<expr> m_vars;
-
-    environment const & env() { return m_parser.env(); }
+    name_map<expr> m_locals_map; // local variable name --> its interpretation
+    expr_map<expr> m_anonymous_vars; // for _
 
     to_pattern_fn(parser & p, buffer<expr> & new_locals):
         m_parser(p), m_new_locals(new_locals) {}
+
+    environment const & env() { return m_parser.env(); }
 
     /* Return true iff the constant n may occur in a pattern */
     bool is_pattern_constant(name const & n) {
@@ -1630,13 +1665,13 @@ struct to_pattern_fn {
         return false;
     }
 
-    expr visit_local(expr const & e) {
-        if (auto r = m_vars.find(local_pp_name(e)))
-            return *r;
+    void collect_new_local(expr const & e) {
+        name const & n = local_pp_name(e);
         bool resolve_only = true;
-        expr new_e = m_parser.id_to_expr(local_pp_name(e), m_parser.pos_of(e), resolve_only);
+        expr new_e = m_parser.id_to_expr(n, m_parser.pos_of(e), resolve_only);
         if (is_constant(new_e) && is_pattern_constant(const_name(new_e))) {
-            return new_e;
+            m_locals_map.insert(n, new_e);
+            return;
         } else if (is_choice(new_e)) {
             bool all_pattern_constant = true;
             bool has_pattern_constant = false;
@@ -1648,7 +1683,8 @@ struct to_pattern_fn {
                     all_pattern_constant = false;
             }
             if (all_pattern_constant) {
-                return new_e;
+                m_locals_map.insert(n, new_e);
+                return;
             } else if (has_pattern_constant) {
                 throw parser_error(sstream() << "invalid pattern, '" << e << "' is overloaded, "
                                    << "and some interpretations may occur in patterns and others not "
@@ -1658,19 +1694,53 @@ struct to_pattern_fn {
                 // assume e is a variable shadowing overloaded constants
             }
         }
-        if (!local_pp_name(e).is_atomic()) {
+        if (!n.is_atomic()) {
             throw parser_error("invalid pattern, variable, constructor or constant tagged as pattern expected",
                                m_parser.pos_of(e));
         }
-        m_vars.insert(local_pp_name(e), e);
+        if (m_locals_map.contains(n)) {
+            throw parser_error(sstream() << "invalid pattern, '" << n << "' already appeared in this pattern",
+                               m_parser.pos_of(e));
+        }
+        m_locals_map.insert(n, e);
         m_new_locals.push_back(e);
-        return e;
+    }
+
+    void collect_new_locals(expr const & e, bool skip_main_fn) {
+        if (is_typed_expr(e)) {
+            collect_new_locals(get_typed_expr_expr(e), false);
+        } else if (is_prenum(e)) {
+            // do nothing
+        } else if (is_inaccessible(e)) {
+            // do nothing
+        } else if (is_placeholder(e)) {
+            expr r = mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info());
+            m_new_locals.push_back(r);
+            m_anonymous_vars.insert(mk_pair(e, r));
+        } else if (is_app(e)) {
+            collect_new_locals(app_fn(e), skip_main_fn);
+            collect_new_locals(app_arg(e), false);
+        } else if (is_local(e)) {
+            if (skip_main_fn) {
+                // do nothing
+            } else {
+                collect_new_local(e);
+            }
+        } else if (is_annotation(e)) {
+            collect_new_locals(get_annotation_arg(e), skip_main_fn);
+        } else if (is_constant(e) && is_pattern_constant(const_name(e))) {
+            // do nothing
+        } else {
+            throw parser_error("invalid pattern, must be an application, "
+                               "constant, variable, type ascription or inaccessible term",
+                               m_parser.pos_of(e));
+        }
     }
 
     expr to_expr(expr const & e) {
         return replace(e, [&](expr const & e, unsigned) {
                 if (is_local(e)) {
-                    if (auto r = m_vars.find(local_pp_name(e)))
+                    if (auto r = m_locals_map.find(local_pp_name(e)))
                         return some_expr(*r);
                     else
                         return some_expr(m_parser.patexpr_to_expr(e));
@@ -1679,9 +1749,9 @@ struct to_pattern_fn {
             });
     }
 
-    expr visit(expr const & e, bool skip_main_fn) {
+    expr visit(expr const & e) {
         if (is_typed_expr(e)) {
-            expr new_v = visit(get_typed_expr_expr(e), false);
+            expr new_v = visit(get_typed_expr_expr(e));
             expr new_t = to_expr(get_typed_expr_type(e));
             return copy_tag(e, mk_typed_expr(new_t, new_v));
         } else if (is_prenum(e)) {
@@ -1689,20 +1759,22 @@ struct to_pattern_fn {
         } else if (is_inaccessible(e)) {
             return to_expr(e);
         } else if (is_placeholder(e)) {
-            expr r = mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info());
-            m_new_locals.push_back(r);
-            return r;
+            return m_anonymous_vars.find(e)->second;
         } else if (is_app(e)) {
-            expr new_f = visit(app_fn(e), skip_main_fn);
-            expr new_a = visit(app_arg(e), false);
+            if (is_inaccessible(app_fn(e))) {
+                throw parser_error("invalid inaccessible annotation, it cannot be used around functions in applications",
+                                   m_parser.pos_of(e));
+            }
+            expr new_f = visit(app_fn(e));
+            expr new_a = visit(app_arg(e));
             return update_app(e, new_f, new_a);
         } else if (is_local(e)) {
-            if (skip_main_fn)
-                return e;
+            if (auto r = m_locals_map.find(local_pp_name(e)))
+                return *r;
             else
-                return visit_local(e);
+                return e;
         } else if (is_annotation(e)) {
-            return copy_tag(e, mk_annotation(get_annotation_kind(e), visit(get_annotation_arg(e), skip_main_fn)));
+            return copy_tag(e, mk_annotation(get_annotation_kind(e), visit(get_annotation_arg(e))));
         } else if (is_constant(e) && is_pattern_constant(const_name(e))) {
             return e;
         } else {
@@ -1713,7 +1785,9 @@ struct to_pattern_fn {
     }
 
     expr operator()(expr const & e, bool skip_main_fn) {
-        return visit(e, skip_main_fn);
+        collect_new_locals(e, skip_main_fn);
+        expr r = visit(e);
+        return r;
     }
 };
 

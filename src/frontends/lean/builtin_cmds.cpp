@@ -564,7 +564,7 @@ environment add_key_equivalence_cmd(parser & p) {
     return add_key_equivalence(p.env(), h1, h2);
 }
 
-static environment run_tactic_cmd(parser & p) {
+static environment run_command_cmd(parser & p) {
     /* initial state for executing the tactic */
     environment env      = p.env();
     options opts         = p.get_options();
@@ -599,7 +599,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("declare_trace",     "declare a new trace class (for debugging Lean tactics)", declare_trace_cmd));
     add_cmd(r, cmd_info("register_simp_ext", "register simplifier extension", register_simp_ext_cmd));
     add_cmd(r, cmd_info("add_key_equivalence", "register that to symbols are equivalence for key-matching", add_key_equivalence_cmd));
-    add_cmd(r, cmd_info("run_tactic",        "execute a tactic at top-level", run_tactic_cmd));
+    add_cmd(r, cmd_info("run_command",       "execute an user defined command at top-level", run_command_cmd));
     add_cmd(r, cmd_info("#erase_cache",      "erase cached definition (for debugging purposes)", erase_cache_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));

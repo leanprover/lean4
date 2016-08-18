@@ -1,8 +1,8 @@
 open tactic
 
-run_tactic tactic.trace "hello world"
+run_command tactic.trace "hello world"
 
-run_tactic do
+run_command do
  N ← to_expr `(nat),
  v ← to_expr `(10),
  add_decl (declaration.def `val10 [] N v tt)
@@ -11,7 +11,7 @@ vm_eval val10
 
 example : val10 = 10 := rfl
 
-meta_definition mk_defs : nat → tactic unit
+meta_definition mk_defs : nat → command
 | 0     := skip
 | (n+1) := do
    N ← to_expr `(nat),
@@ -19,7 +19,7 @@ meta_definition mk_defs : nat → tactic unit
    add_decl (declaration.def (name.append_after `val n) [] N v tt),
    mk_defs n
 
-run_tactic mk_defs 10
+run_command mk_defs 10
 
 example : val_1 = 1 := rfl
 example : val_2 = 2 := rfl

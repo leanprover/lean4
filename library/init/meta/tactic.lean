@@ -617,4 +617,6 @@ else do
 r : expr ← expr_of_nat (n / 2),
 if n % 2 = 0 then to_expr `(bit0 %%r)
 else to_expr `(bit1 %%r)
+
+notation `command`:max := tactic unit
 end tactic

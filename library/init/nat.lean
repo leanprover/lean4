@@ -10,21 +10,20 @@ open decidable or
 notation `ℕ` := nat
 
 namespace nat
-  attribute [reducible]
+  attribute [reducible, unfold 2]
   protected definition rec_on
                        {C : ℕ → Type} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C a → C (succ a)) : C n :=
   nat.rec H₁ H₂ n
 
+  attribute [recursor]
   protected theorem induction_on
                        {C : ℕ → Prop} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C a → C (succ a)) : C n :=
   nat.rec H₁ H₂ n
 
-  attribute [reducible]
+  attribute [reducible, unfold 2]
   protected definition cases_on
                        {C : ℕ → Type} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C (succ a)) : C n :=
   nat.rec H₁ (λ a ih, H₂ a) n
-
-  attribute nat.rec_on [recursor] -- Hack: force rec_on to be the first one. TODO(Leo): we should add priorities to recursors
 
   attribute [reducible]
   protected definition no_confusion_type (P : Type) (v₁ v₂ : ℕ) : Type :=
@@ -47,9 +46,9 @@ namespace nat
   | nat_refl : le a    -- use nat_refl to avoid overloading le.refl
   | step : Π {b}, le b → le (succ b)
 
+  attribute [instance, priority nat.prio]
   definition nat_has_le : has_le nat := has_le.mk nat.le
 
-  local attribute [instance, priority nat.prio] nat_has_le
 
   attribute [refl]
   protected lemma le_refl : ∀ a : nat, a ≤ a :=
@@ -57,6 +56,8 @@ namespace nat
 
   attribute [reducible]
   protected definition lt (n m : ℕ) := succ n ≤ m
+
+  attribute [instance, priority nat.prio]
   definition nat_has_lt : has_lt nat := has_lt.mk nat.lt
 
   attribute [unfold 1]
@@ -71,16 +72,17 @@ namespace nat
   protected definition mul (a b : nat) : nat :=
   nat.rec_on b zero (λ b₁ r, r + a)
 
+  attribute [instance, priority nat.prio]
   definition nat_has_sub : has_sub nat :=
   has_sub.mk nat.sub
 
+  attribute [instance, priority nat.prio]
   definition nat_has_mul : has_mul nat :=
   has_mul.mk nat.mul
 
-  local attribute [instance, priority nat.prio] nat_has_sub nat_has_mul nat_has_lt
-
   /- properties of ℕ -/
 
+  attribute [instance, priority nat.prio]
   protected definition has_decidable_eq : ∀ x y : nat, decidable (x = y)
   | has_decidable_eq zero     zero     := tt rfl
   | has_decidable_eq (succ x) zero     := ff (λ H, nat.no_confusion H)
@@ -90,8 +92,6 @@ namespace nat
       | (tt xeqy) := tt (eq.subst xeqy (eq.refl (succ x)))
       | (ff xney) := ff (λ H : succ x = succ y, nat.no_confusion H (λ xeqy : x = y, absurd xeqy xney))
       end
-
-  local attribute [instance, priority nat.prio] nat.has_decidable_eq
 
   /- properties of inequality -/
 
@@ -225,6 +225,7 @@ namespace nat
   theorem lt_of_succ_lt_succ {a b : ℕ} : succ a < succ b → a < b :=
   le_of_succ_le_succ
 
+  attribute [instance, priority nat.prio]
   protected definition decidable_le : ∀ a b : nat, decidable (a ≤ b)  :=
   nat.rec (λm, (decidable.tt (zero_le m)))
      (λn IH m, nat.cases_on m
@@ -233,10 +234,9 @@ namespace nat
           (λH, decidable.ff (λa, H (le_of_succ_le_succ a)))
           (λH, decidable.tt (succ_le_succ H))))
 
+  attribute [instance, priority nat.prio]
   protected definition decidable_lt : ∀ a b : nat, decidable (a < b) :=
   λ a b, nat.decidable_le (succ a) b
-
-  local attribute [instance, priority nat.prio] nat.has_decidable_eq nat.decidable_le nat.decidable_lt
 
   protected theorem lt_or_ge (a b : ℕ) : a < b ∨ a ≥ b :=
   nat.rec_on b (inr (zero_le a)) (λn, or.rec
@@ -309,15 +309,7 @@ namespace nat
   | 0         a := a
   | (succ n)  a := f n (repeat n a)
 
+  attribute [instance]
+  protected definition nat.is_inhabited : inhabited nat :=
+  inhabited.mk nat.zero
 end nat
-
-attribute [instance]
-protected definition nat.is_inhabited : inhabited nat :=
-inhabited.mk nat.zero
-
-attribute [recursor] nat.induction_on
-attribute [recursor, unfold 2] nat.cases_on
-attribute [recursor, unfold 2] nat.rec_on
-attribute [instance, priority nat.prio]
-   nat.nat_has_le nat.nat_has_sub nat.nat_has_mul nat.nat_has_lt
-   nat.has_decidable_eq nat.decidable_le nat.decidable_lt

@@ -10,7 +10,7 @@ open decidable or
 notation `ℕ` := nat
 
 namespace nat
-  attribute [reducible, unfold 2]
+  attribute [reducible, recursor, unfold 2]
   protected definition rec_on
                        {C : ℕ → Type} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C a → C (succ a)) : C n :=
   nat.rec H₁ H₂ n
@@ -20,7 +20,7 @@ namespace nat
                        {C : ℕ → Prop} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C a → C (succ a)) : C n :=
   nat.rec H₁ H₂ n
 
-  attribute [reducible, unfold 2]
+  attribute [reducible, recursor, unfold 2]
   protected definition cases_on
                        {C : ℕ → Type} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C (succ a)) : C n :=
   nat.rec H₁ (λ a ih, H₂ a) n
@@ -310,6 +310,6 @@ namespace nat
   | (succ n)  a := f n (repeat n a)
 
   attribute [instance]
-  protected definition nat.is_inhabited : inhabited nat :=
+  protected definition is_inhabited : inhabited nat :=
   inhabited.mk nat.zero
 end nat

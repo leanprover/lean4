@@ -2628,7 +2628,7 @@ public:
 std::function<format(expr const &)>
 mk_pp_ctx(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx) {
     auto pp_fn = std::make_shared<pp_ctx>(env, opts, mctx, lctx);
-    return [=](expr const & e) {
+    return [=](expr const & e) { // NOLINT
         metavar_context mctx_tmp(mctx);
         return pp_fn->pp(mctx_tmp.instantiate_mvars(e));
     };

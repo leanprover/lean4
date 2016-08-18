@@ -6,13 +6,15 @@ Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
 #include "library/trace.h"
+#include "library/pp_options.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/cases_tactic.h"
 #include "library/equations_compiler/equations.h"
 #include "library/equations_compiler/util.h"
 
 namespace lean {
-// #define trace_match(Code) lean_trace(name({"eqn_compiler", "elim_match"}), scope_trace_env _scope1(m_ctx.env(), m_ctx); Code)
+#define trace_match(Code) lean_trace(name({"eqn_compiler", "elim_match"}), Code)
+
 struct elim_match_fn {
     environment     m_env;
     options         m_opts;
@@ -32,6 +34,7 @@ struct elim_match_fn {
     };
 
     struct program {
+        name           m_fn_name; /* for debugging purposes */
         /* Metavariable containing the context for the program */
         expr           m_goal;
         /* Variables that still need to be matched/processed */
@@ -41,6 +44,10 @@ struct elim_match_fn {
 
     type_context mk_type_context(local_context const & lctx) {
         return mk_type_context_for(m_env, m_opts, m_mctx, lctx);
+    }
+
+    format nest(format const & fmt) const {
+        return ::lean::nest(get_pp_indent(m_opts), fmt);
     }
 
     unsigned get_arity(local_context const & lctx, expr const & e) {
@@ -91,7 +98,7 @@ struct elim_match_fn {
         buffer<expr> patterns;
         get_app_args(equation_lhs(it), patterns);
         for (expr & p : patterns) {
-            p = instantiate_rev(p, patterns);
+            p = instantiate_rev(p, locals);
         }
         E.m_patterns = to_list(patterns);
         E.m_ref  = eqn;
@@ -121,10 +128,41 @@ struct elim_match_fn {
         to_equations(e, eqns);
         unsigned arity   = get_arity(lctx, e);
         program P;
+        P.m_fn_name   = binding_name(eqns[0]);
         expr fn_type  = binding_domain(eqns[0]);
         std::tie(P.m_goal, P.m_var_stack) = mk_main_goal(lctx, fn_type, arity);
         P.m_equations = mk_equations(lctx, eqns);
         return P;
+    }
+
+    format pp_equation(equation const & eqn) {
+        format r;
+        auto pp = mk_pp_ctx(m_env, m_opts, m_mctx, eqn.m_lctx);
+        bool first = true;
+        for (expr const & p : eqn.m_patterns) {
+            if (first) first = false; else r += format(" ");
+            r += paren(pp(p));
+        }
+        r += space() + format(":=") + nest(line() + pp(eqn.m_rhs));
+        return group(r);
+    }
+
+    format pp_program(program const & P) {
+        format r;
+        r += format("program") + space() + format(P.m_fn_name);
+        metavar_decl mdecl = *m_mctx.get_metavar_decl(P.m_goal);
+        local_context lctx = mdecl.get_context();
+        auto pp = mk_pp_ctx(m_env, m_opts, m_mctx, lctx);
+        format vstack;
+        for (name const & x : P.m_var_stack) {
+            local_decl x_decl = *lctx.get_local_decl(x);
+            vstack += line() + paren(format(x_decl.get_pp_name()) + space() + colon() + space() + pp(x_decl.get_type()));
+        }
+        r += group(nest(vstack));
+        for (equation const & eqn : P.m_equations) {
+            r += nest(line() + pp_equation(eqn));
+        }
+        return r;
     }
 
     expr operator()(local_context const & lctx, expr const & eqns) {
@@ -134,6 +172,7 @@ struct elim_match_fn {
                 lean_assert(!is_recursive_eqns(ctx, eqns));
             });
         program P = mk_program(lctx, eqns);
+        trace_match(tout() << "processing:\n" << pp_program(P) << "\n";);
 
         lean_unreachable();
     }

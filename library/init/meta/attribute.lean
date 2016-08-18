@@ -4,11 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 prelude
-import init.meta.environment
+import init.meta.tactic
 
-meta_constant attribute.get_instances : environment → name → list name
+meta_constant attribute.get_instances : name → tactic (list name)
 
-/- The structure of a user-defined attribute. To declare a new attribute, define an instance of this
-   structure and annotate it with the (built-in) [user_attribute] attribute. -/
 structure user_attribute :=
 (descr : string)
+
+/- Registers a new user-defined attribute. The argument must be the name of a definition of type
+   `user_attribute`. -/
+meta_constant attribute.register : name → command

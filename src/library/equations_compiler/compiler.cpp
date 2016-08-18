@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 namespace lean {
 #define trace_compiler(Code) lean_trace("eqn_compiler", scope_trace_env _scope1(ctx->env(), ctx); Code)
 
-expr compile_equations(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
+expr compile_equations(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
                        expr const & eqns) {
     aux_type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
     trace_compiler(tout() << "compiling\n" << eqns << "\n";);
@@ -28,7 +28,7 @@ expr compile_equations(environment const & env, options const & opts, metavar_co
     unsigned arg_idx;
     optional<expr> eqns1 = try_structural_rec(ctx.get(), eqns, arg_idx);
     if (eqns1) {
-        elim_match(ctx.get(), eqns);
+        elim_match(env, opts, mctx, lctx, *eqns1);
     }
 
     // test unbounded_rec

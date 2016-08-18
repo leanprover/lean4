@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "library/metavar_context.h"
 #include "library/equations_compiler/equations.h"
 namespace lean {
-expr compile_equations(environment const & env, options const & opts, metavar_context & mctx, local_context const & lctx,
+expr compile_equations(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
                        expr const & eqns);
 void initialize_compiler();
 void finalize_compiler();

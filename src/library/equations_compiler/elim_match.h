@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "library/type_context.h"
 namespace lean {
-pair<expr, environment> elim_match(type_context & ctx, expr const & eqns);
+expr elim_match(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx, expr const & eqns);
 void initialize_elim_match();
 void finalize_elim_match();
 }

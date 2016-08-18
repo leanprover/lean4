@@ -83,6 +83,7 @@ private:
     expr get_default_numeral_type();
 
     typedef std::function<format(expr const &)> pp_fn;
+    pp_fn mk_pp_ctx(type_context const & ctx);
     format pp_indent(pp_fn const & pp_fn, expr const & e);
     format pp_indent(expr const & e);
     format pp_overloads(pp_fn const & pp_fn, buffer<expr> const & fns);

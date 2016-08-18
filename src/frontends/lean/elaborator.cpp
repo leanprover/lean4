@@ -63,6 +63,10 @@ elaborator::elaborator(environment const & env, options const & opts, metavar_co
     m_ctx(mctx, lctx, get_elab_tc_cache_for(env, opts), transparency_mode::Semireducible) {
 }
 
+auto elaborator::mk_pp_ctx(type_context const & ctx) -> pp_fn {
+    return ::lean::mk_pp_ctx(ctx.env(), m_opts, ctx.mctx(), ctx.lctx());
+}
+
 format elaborator::pp_indent(pp_fn const & pp_fn, expr const & e) {
     unsigned i = get_pp_indent(m_opts);
     return nest(i, line() + pp_fn(e));

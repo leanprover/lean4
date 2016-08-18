@@ -66,7 +66,8 @@ elaborator::elaborator(environment const & env, options const & opts, metavar_co
 auto elaborator::mk_pp_fn(type_context & ctx) -> pp_fn {
     formatter_factory const & factory = get_global_ios().get_formatter_factory();
     formatter fmt = factory(m_env, m_opts, ctx);
-    return [=](expr const & e) { return fmt(instantiate_mvars(e)); }; // NOLINT
+    metavar_context mctx = ctx.mctx();
+    return [=](expr const & e) { return fmt(metavar_context(mctx).instantiate_mvars(e)); }; // NOLINT
 }
 
 format elaborator::pp_indent(pp_fn const & pp_fn, expr const & e) {

@@ -448,7 +448,7 @@ rotate_left
 
 /- first [t_1, ..., t_n] applies the first tactic that doesn't fail.
    The tactic fails if all t_i's fail. -/
-meta_definition first : list (tactic unit) → tactic unit
+meta_definition first {A : Type} : list (tactic A) → tactic A
 | []      := fail "first tactic failed, no more alternatives"
 | (t::ts) := t <|> first ts
 

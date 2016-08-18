@@ -148,6 +148,7 @@ monad
 monad.map
 monad.bind
 monad.ret
+monad.and_then
 monadIO
 monoid
 mul
@@ -302,6 +303,8 @@ subtype.tag
 subtype.elt_of
 subtype.rec
 tactic
+tactic.try
+tactic.constructor
 to_string
 to_int
 to_real

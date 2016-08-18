@@ -30,10 +30,12 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/legacy_type_context.h"
 #include "library/reducible.h"
+#include "library/typed_expr.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_string.h"
 #include "library/compiler/vm_compiler.h"
 #include "library/tactic/kabstract.h"
+#include "library/tactic/elaborate.h"
 #include "library/tactic/defeq_simplifier/defeq_simp_lemmas.h"
 #include "library/tactic/defeq_simplifier/defeq_simplifier.h"
 #include "library/tactic/simplifier/simp_extensions.h"
@@ -42,6 +44,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/calc.h"
 #include "frontends/lean/notation_cmd.h"
+#include "frontends/lean/elaborator.h"
 #include "frontends/lean/inductive_cmds.h"
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/print_cmd.h"
@@ -561,6 +564,20 @@ environment add_key_equivalence_cmd(parser & p) {
     return add_key_equivalence(p.env(), h1, h2);
 }
 
+static environment run_tactic_cmd(parser & p) {
+    /* initial state for executing the tactic */
+    environment env      = p.env();
+    options opts         = p.get_options();
+    metavar_context mctx;
+    expr tactic          = p.parse_expr();
+    expr try_constructor = mk_app(mk_constant(get_tactic_try_name()), mk_constant(get_tactic_constructor_name()));
+    tactic               = mk_app(mk_constant(get_monad_and_then_name()), tactic, try_constructor);
+    expr val             = mk_typed_expr(mk_true(), mk_by(tactic));
+    bool check_unassigned = false;
+    elaborate(env, opts, mctx, local_context(), val, check_unassigned);
+    return env;
+}
+
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",              "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
@@ -582,6 +599,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("declare_trace",     "declare a new trace class (for debugging Lean tactics)", declare_trace_cmd));
     add_cmd(r, cmd_info("register_simp_ext", "register simplifier extension", register_simp_ext_cmd));
     add_cmd(r, cmd_info("add_key_equivalence", "register that to symbols are equivalence for key-matching", add_key_equivalence_cmd));
+    add_cmd(r, cmd_info("run_tactic",        "execute a tactic at top-level", run_tactic_cmd));
     add_cmd(r, cmd_info("#erase_cache",      "erase cached definition (for debugging purposes)", erase_cache_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));

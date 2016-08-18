@@ -115,9 +115,9 @@ void init_token_table(token_table & t) {
          "exit", "set_option", "open", "export", "override", "tactic_hint",
          "add_begin_end_tactic", "set_begin_end_tactic",
          "multiple_instances", "find_decl", "attribute", "persistent",
-         "mutual_inductive",
-         "include", "omit", "migrate", "init_quotient", "init_hits", "declare_trace", "register_simp_ext",
-         "add_key_equivalence", "#erase_cache",
+         "mutual_inductive", "include", "omit", "migrate",
+         "init_quotient", "init_hits", "declare_trace", "register_simp_ext",
+         "run_tactic", "add_key_equivalence", "#erase_cache",
          "#compile", "#unify", nullptr};
 
     pair<char const *, char const *> aliases[] =

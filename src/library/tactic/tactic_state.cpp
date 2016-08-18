@@ -5,12 +5,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/fresh_name.h"
+#include "kernel/type_checker.h"
 #include "library/constants.h"
 #include "library/type_context.h"
 #include "library/pp_options.h"
 #include "library/trace.h"
 #include "library/util.h"
 #include "library/cache_helper.h"
+#include "library/module.h"
 #include "library/vm/vm_environment.h"
 #include "library/vm/vm_exceptional.h"
 #include "library/vm/vm_format.h"
@@ -18,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_level.h"
+#include "library/vm/vm_declaration.h"
 #include "library/vm/vm_expr.h"
 #include "library/vm/vm_list.h"
 #include "library/tactic/tactic_state.h"
@@ -506,6 +509,16 @@ vm_obj tactic_instantiate_mvars(vm_obj const & e, vm_obj const & _s) {
     return mk_tactic_success(to_obj(r), set_mctx(s, mctx));
 }
 
+vm_obj tactic_add_decl(vm_obj const & d, vm_obj const & _s) {
+    tactic_state const & s  = to_tactic_state(_s);
+    try {
+        environment new_env = module::add(s.env(), check(s.env(), to_declaration(d)));
+        return mk_tactic_success(set_env(s, new_env));
+    } catch (throwable & ex) {
+        return mk_tactic_exception(ex, s);
+    }
+}
+
 void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic_state", "env"}),            tactic_state_env);
     DECLARE_VM_BUILTIN(name({"tactic_state", "format_expr"}),    tactic_state_format_expr);
@@ -534,6 +547,7 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "mk_fresh_name"}),        tactic_mk_fresh_name);
     DECLARE_VM_BUILTIN(name({"tactic", "is_trace_enabled_for"}), tactic_is_trace_enabled_for);
     DECLARE_VM_BUILTIN(name({"tactic", "instantiate_mvars"}),    tactic_instantiate_mvars);
+    DECLARE_VM_BUILTIN(name({"tactic", "add_decl"}),             tactic_add_decl);
 }
 
 void finalize_tactic_state() {

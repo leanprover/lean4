@@ -113,4 +113,7 @@ expr elim_choice_num(expr const & e);
 
 /** \brief Parse option name */
 pair<name, option_kind> parse_option_name(parser & p, char const * error_msg);
+
+/** Create (tactic unit) type */
+expr mk_tactic_unit();
 }

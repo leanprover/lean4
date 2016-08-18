@@ -153,6 +153,7 @@ name const * g_monad = nullptr;
 name const * g_monad_map = nullptr;
 name const * g_monad_bind = nullptr;
 name const * g_monad_ret = nullptr;
+name const * g_monad_and_then = nullptr;
 name const * g_monadIO = nullptr;
 name const * g_monoid = nullptr;
 name const * g_mul = nullptr;
@@ -307,6 +308,8 @@ name const * g_subtype_tag = nullptr;
 name const * g_subtype_elt_of = nullptr;
 name const * g_subtype_rec = nullptr;
 name const * g_tactic = nullptr;
+name const * g_tactic_try = nullptr;
+name const * g_tactic_constructor = nullptr;
 name const * g_to_string = nullptr;
 name const * g_to_int = nullptr;
 name const * g_to_real = nullptr;
@@ -478,6 +481,7 @@ void initialize_constants() {
     g_monad_map = new name{"monad", "map"};
     g_monad_bind = new name{"monad", "bind"};
     g_monad_ret = new name{"monad", "ret"};
+    g_monad_and_then = new name{"monad", "and_then"};
     g_monadIO = new name{"monadIO"};
     g_monoid = new name{"monoid"};
     g_mul = new name{"mul"};
@@ -632,6 +636,8 @@ void initialize_constants() {
     g_subtype_elt_of = new name{"subtype", "elt_of"};
     g_subtype_rec = new name{"subtype", "rec"};
     g_tactic = new name{"tactic"};
+    g_tactic_try = new name{"tactic", "try"};
+    g_tactic_constructor = new name{"tactic", "constructor"};
     g_to_string = new name{"to_string"};
     g_to_int = new name{"to_int"};
     g_to_real = new name{"to_real"};
@@ -804,6 +810,7 @@ void finalize_constants() {
     delete g_monad_map;
     delete g_monad_bind;
     delete g_monad_ret;
+    delete g_monad_and_then;
     delete g_monadIO;
     delete g_monoid;
     delete g_mul;
@@ -958,6 +965,8 @@ void finalize_constants() {
     delete g_subtype_elt_of;
     delete g_subtype_rec;
     delete g_tactic;
+    delete g_tactic_try;
+    delete g_tactic_constructor;
     delete g_to_string;
     delete g_to_int;
     delete g_to_real;
@@ -1129,6 +1138,7 @@ name const & get_monad_name() { return *g_monad; }
 name const & get_monad_map_name() { return *g_monad_map; }
 name const & get_monad_bind_name() { return *g_monad_bind; }
 name const & get_monad_ret_name() { return *g_monad_ret; }
+name const & get_monad_and_then_name() { return *g_monad_and_then; }
 name const & get_monadIO_name() { return *g_monadIO; }
 name const & get_monoid_name() { return *g_monoid; }
 name const & get_mul_name() { return *g_mul; }
@@ -1283,6 +1293,8 @@ name const & get_subtype_tag_name() { return *g_subtype_tag; }
 name const & get_subtype_elt_of_name() { return *g_subtype_elt_of; }
 name const & get_subtype_rec_name() { return *g_subtype_rec; }
 name const & get_tactic_name() { return *g_tactic; }
+name const & get_tactic_try_name() { return *g_tactic_try; }
+name const & get_tactic_constructor_name() { return *g_tactic_constructor; }
 name const & get_to_string_name() { return *g_to_string; }
 name const & get_to_int_name() { return *g_to_int; }
 name const & get_to_real_name() { return *g_to_real; }

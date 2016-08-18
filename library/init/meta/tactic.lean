@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.trace init.function init.option init.monad init.alternative init.meta.exceptional
-import init.meta.format init.meta.environment init.meta.pexpr
+import init.trace init.function init.option init.monad init.alternative init.nat_div
+import init.meta.exceptional init.meta.format init.meta.environment init.meta.pexpr
 meta_constant tactic_state : Type₁
 
 namespace tactic_state
@@ -315,6 +315,8 @@ meta_constant cases_core     : transparency → expr → list name → tactic un
 meta_constant generalize_core : transparency → expr → name → tactic unit
 /- instantiate assigned metavariables in the given expression -/
 meta_constant instantiate_mvars : expr → tactic expr
+/- Add the given declaration to the environment -/
+meta_constant add_decl : declaration → tactic unit
 open list nat
 
 /- Add (H : T := pr) to the current goal -/
@@ -608,4 +610,11 @@ meta_definition refine (e : pexpr) : tactic unit :=
 do tgt : expr ← target,
    to_expr_core tt `((%%e : %%tgt)) >>= exact
 
+meta_definition expr_of_nat (n : ℕ) : tactic expr :=
+if n = 0 then to_expr `(0)
+else if n = 1 then to_expr `(1)
+else do
+r : expr ← expr_of_nat (n / 2),
+if n % 2 = 0 then to_expr `(bit0 %%r)
+else to_expr `(bit1 %%r)
 end tactic

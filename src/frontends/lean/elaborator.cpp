@@ -36,6 +36,7 @@ Author: Leonardo de Moura
 #include "library/tactic/elaborate.h"
 #include "library/equations_compiler/compiler.h"
 #include "frontends/lean/builtin_exprs.h"
+#include "frontends/lean/util.h"
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/info_annotation.h"
@@ -1115,10 +1116,6 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
         return visit_app_core(fn, args, expected_type, e);
 }
 
-static expr mk_tactic_unit() {
-    return mk_app(mk_constant(get_tactic_name(), {mk_level_one()}), mk_constant(get_unit_name()));
-}
-
 expr elaborator::visit_by(expr const & e, optional<expr> const & expected_type) {
     lean_assert(is_by(e));
     expr tac;
@@ -1665,7 +1662,7 @@ void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
             throw_unsolved_tactic_state(*new_s, "tactic failed, result contains meta-variables", ref);
         }
         mctx.assign(mvar, val);
-        // TODO(Leo): should we update the environment?!?
+        m_env = new_s->env();
         m_ctx.set_mctx(mctx);
     } else if (optional<pair<format, tactic_state>> ex = is_tactic_exception(S, m_opts, r)) {
         throw_unsolved_tactic_state(ex->second, ex->first, ref);
@@ -1967,13 +1964,14 @@ pair<expr, level_param_names> elaborator::finalize(expr const & e, bool check_un
 }
 
 pair<expr, level_param_names>
-elaborate(environment const & env, options const & opts,
+elaborate(environment & env, options const & opts,
           metavar_context & mctx, local_context const & lctx, expr const & e,
           bool check_unassigned) {
     elaborator elab(env, opts, mctx, lctx);
     expr r = elab.elaborate(e);
     auto p = elab.finalize(r, check_unassigned, true);
     mctx = elab.mctx();
+    env  = elab.env();
     return p;
 }
 

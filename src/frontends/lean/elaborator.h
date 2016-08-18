@@ -239,7 +239,7 @@ public:
     };
 };
 
-pair<expr, level_param_names> elaborate(environment const & env, options const & opts,
+pair<expr, level_param_names> elaborate(environment & env, options const & opts,
                                         metavar_context & mctx, local_context const & lctx,
                                         expr const & e, bool check_unassigend);
 

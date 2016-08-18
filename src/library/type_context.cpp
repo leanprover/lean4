@@ -2612,6 +2612,33 @@ type_context_cache & type_context_cache_helper::get_cache_for(environment const 
     return *m_cache_ptr.get();
 }
 
+/** \brief Helper class for pretty printing terms that contain local_decl_ref's and metavar_decl_ref's */
+class pp_ctx {
+    aux_type_context m_ctx;
+    formatter        m_fmt;
+public:
+    pp_ctx(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx):
+        m_ctx(env, opts, mctx, lctx),
+        m_fmt(get_global_ios().get_formatter_factory()(env, opts, m_ctx.get())) {}
+    format pp(expr const & e) {
+        return m_fmt(m_ctx->instantiate_mvars(e));
+    }
+};
+
+std::function<format(expr const &)>
+mk_pp_ctx(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx) {
+    auto pp_fn = std::make_shared<pp_ctx>(env, opts, mctx, lctx);
+    return [=](expr const & e) {
+        metavar_context mctx_tmp(mctx);
+        return pp_fn->pp(mctx_tmp.instantiate_mvars(e));
+    };
+}
+
+std::function<format(expr const &)>
+mk_pp_ctx(type_context const & ctx) {
+    return mk_pp_ctx(ctx.env(), ctx.get_options(), ctx.mctx(), ctx.lctx());
+}
+
 void initialize_type_context() {
     register_trace_class("class_instances");
     register_trace_class(name({"type_context", "unification_hint"}));

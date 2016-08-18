@@ -63,20 +63,13 @@ elaborator::elaborator(environment const & env, options const & opts, metavar_co
     m_ctx(mctx, lctx, get_elab_tc_cache_for(env, opts), transparency_mode::Semireducible) {
 }
 
-auto elaborator::mk_pp_fn(type_context & ctx) -> pp_fn {
-    formatter_factory const & factory = get_global_ios().get_formatter_factory();
-    formatter fmt = factory(m_env, m_opts, ctx);
-    metavar_context mctx = ctx.mctx();
-    return [=](expr const & e) { return fmt(metavar_context(mctx).instantiate_mvars(e)); }; // NOLINT
-}
-
 format elaborator::pp_indent(pp_fn const & pp_fn, expr const & e) {
     unsigned i = get_pp_indent(m_opts);
     return nest(i, line() + pp_fn(e));
 }
 
 format elaborator::pp_indent(expr const & e) {
-    return pp_indent(mk_pp_fn(m_ctx), e);
+    return pp_indent(mk_pp_ctx(m_ctx), e);
 }
 
 format elaborator::pp_overloads(pp_fn const & pp_fn, buffer<expr> const & fns) {
@@ -170,7 +163,7 @@ level elaborator::get_level(expr const & A, expr const & ref) {
         }
     }
 
-    auto pp_fn = mk_pp_fn(m_ctx);
+    auto pp_fn = mk_pp_ctx(m_ctx);
     throw elaborator_exception(ref, format("type expected at") + pp_indent(pp_fn, A));
 }
 
@@ -314,7 +307,7 @@ auto elaborator::use_elim_elab(name const & fn) -> optional<elim_info> {
 
 void elaborator::trace_coercion_failure(expr const & e_type, expr const & type, expr const & ref, char const * error_msg) {
     trace_elab({
-            auto pp_fn = mk_pp_fn(m_ctx);
+            auto pp_fn = mk_pp_ctx(m_ctx);
             format msg("coercion at ");
             msg += format(pos_string_for(ref));
             msg += space() + format("from");
@@ -387,7 +380,7 @@ expr elaborator::enforce_type(expr const & e, expr const & expected_type, char c
         return *r;
     } else {
         format msg = format(header);
-        auto pp_fn = mk_pp_fn(m_ctx);
+        auto pp_fn = mk_pp_ctx(m_ctx);
         msg += format(", expression") + pp_indent(pp_fn, e);
         msg += line() + format("has type") + pp_indent(pp_fn, e_type);
         msg += line() + format("but is expected to have type") + pp_indent(pp_fn, expected_type);
@@ -398,7 +391,7 @@ expr elaborator::enforce_type(expr const & e, expr const & expected_type, char c
 void elaborator::trace_coercion_fn_sort_failure(bool is_fn, expr const & e_type, expr const & ref, char const * error_msg) {
     trace_elab({
             format msg("coercion at ");
-            auto pp_fn = mk_pp_fn(m_ctx);
+            auto pp_fn = mk_pp_ctx(m_ctx);
             msg += format(pos_string_for(ref));
             msg += space() + format("from");
             msg += pp_indent(pp_fn, e_type);
@@ -446,7 +439,7 @@ expr elaborator::ensure_function(expr const & e, expr const & ref) {
     if (auto r = mk_coercion_to_fn(e, e_type, ref)) {
         return *r;
     }
-    auto pp_fn = mk_pp_fn(m_ctx);
+    auto pp_fn = mk_pp_ctx(m_ctx);
     throw elaborator_exception(ref, format("function expected at") + pp_indent(pp_fn, e));
 }
 
@@ -468,7 +461,7 @@ expr elaborator::ensure_type(expr const & e, expr const & ref) {
         return *r;
     }
 
-    auto pp_fn = mk_pp_fn(m_ctx);
+    auto pp_fn = mk_pp_ctx(m_ctx);
     throw elaborator_exception(ref, format("type expected at") + pp_indent(pp_fn, e));
 }
 
@@ -487,7 +480,7 @@ expr elaborator::visit_typed_expr(expr const & e) {
     if (auto r = ensure_has_type(new_val, new_val_type, new_type, ref))
         return *r;
 
-    auto pp_fn = mk_pp_fn(m_ctx);
+    auto pp_fn = mk_pp_ctx(m_ctx);
     throw elaborator_exception(ref,
                                format("invalid type ascription, expression has type") + pp_indent(pp_fn, new_val_type) +
                                line() + format("but is expected to have type") + pp_indent(pp_fn, new_type));
@@ -598,7 +591,7 @@ expr elaborator::visit_function(expr const & fn, bool has_args, expr const & ref
 void elaborator::validate_overloads(buffer<expr> const & fns, expr const & ref) {
     for (expr const & fn_i : fns) {
         if (is_constant(fn_i) && use_elim_elab(const_name(fn_i))) {
-            auto pp_fn = mk_pp_fn(m_ctx);
+            auto pp_fn = mk_pp_ctx(m_ctx);
             format msg("invalid overloaded application, "
                        "elaborator has special support for '");
             msg += pp_fn(fn_i);
@@ -613,7 +606,7 @@ void elaborator::validate_overloads(buffer<expr> const & fns, expr const & ref) 
 
 format elaborator::mk_app_type_mismatch_error(expr const & t, expr const & arg, expr const & arg_type,
                                               expr const & expected_type) {
-    auto pp_fn = mk_pp_fn(m_ctx);
+    auto pp_fn = mk_pp_ctx(m_ctx);
     format msg = format("type mismatch at application");
     msg += pp_indent(pp_fn, t);
     msg += line() + format("term");
@@ -626,7 +619,7 @@ format elaborator::mk_app_type_mismatch_error(expr const & t, expr const & arg, 
 }
 
 format elaborator::mk_too_many_args_error(expr const & fn_type) {
-    auto pp_fn = mk_pp_fn(m_ctx);
+    auto pp_fn = mk_pp_ctx(m_ctx);
     return
         format("invalid function application, too many arguments, function type:") +
         pp_indent(pp_fn, fn_type);
@@ -650,7 +643,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
 
     expr expected_type = instantiate_mvars(*_expected_type);
     if (has_expr_metavar(expected_type)) {
-        auto pp_fn = mk_pp_fn(m_ctx);
+        auto pp_fn = mk_pp_ctx(m_ctx);
         throw elaborator_exception(ref, format("invalid '") + format(const_name(fn)) + format ("' application, ") +
                                    format("elaborator has special support for this kind of application ") +
                                    format("(it is handled as an \"eliminator\"), ") +
@@ -693,7 +686,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
                 }
                 j++;
                 if (has_expr_metavar(new_arg)) {
-                    auto pp_fn = mk_pp_fn(m_ctx);
+                    auto pp_fn = mk_pp_ctx(m_ctx);
                     throw elaborator_exception(ref, format("invalid '") + format(const_name(fn)) +
                                                format ("' application, ") +
                                                format("elaborator has special support for this kind of application ") +
@@ -772,7 +765,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
             expr new_arg_type = instantiate_mvars(infer_type(new_args[i]));
             expr new_arg      = visit(*arg, some_expr(new_arg_type));
             if (!is_def_eq(new_args[i], new_arg)) {
-                auto pp_fn = mk_pp_fn(m_ctx);
+                auto pp_fn = mk_pp_ctx(m_ctx);
                 throw elaborator_exception(ref, format("\"eliminator\" elaborator type mismatch, term") +
                                            pp_indent(pp_fn, new_arg) +
                                            line() + format("has type") +
@@ -982,7 +975,7 @@ void elaborator::throw_no_overload_applicable(buffer<expr> const & fns, buffer<e
     lean_assert(error_msgs.size() == fns.size());
     for (unsigned i = 0; i < fns.size(); i++) {
         if (i > 0) r += line();
-        auto pp_fn = mk_pp_fn(m_ctx);
+        auto pp_fn = mk_pp_ctx(m_ctx);
         format f_fmt = (is_constant(fns[i])) ? format(const_name(fns[i])) : pp_fn(fns[i]);
         r += line() + format("error for") + space() + f_fmt;
         r += line() + error_msgs[i].pp();
@@ -993,7 +986,7 @@ void elaborator::throw_no_overload_applicable(buffer<expr> const & fns, buffer<e
 expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> const & args,
                                       optional<expr> const & expected_type, expr const & ref) {
     trace_elab_detail(tout() << "overloaded application at " << pos_string_for(ref);
-                      auto pp_fn = mk_pp_fn(m_ctx);
+                      auto pp_fn = mk_pp_ctx(m_ctx);
                       tout() << pp_overloads(pp_fn, fns) << "\n";);
     list<expr> saved_instance_stack = m_instance_stack;
     buffer<expr> new_args;
@@ -1019,7 +1012,7 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
                 if (ensure_has_type(c, c_type, *expected_type, ref)) {
                     candidates.emplace_back(c, snapshot(*this));
                 } else {
-                    auto pp_fn = mk_pp_fn(m_ctx);
+                    auto pp_fn = mk_pp_ctx(m_ctx);
                     throw elaborator_exception(ref, format("invalid overload, expression") + pp_indent(pp_fn, c) +
                                                line() + format("has type") + pp_indent(pp_fn, c_type) +
                                                line() + format("but is expected to have type") +
@@ -1045,7 +1038,7 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
 
         options new_opts = m_opts.update_if_undef(get_pp_full_names_name(), true);
         flet<options> set_opts(m_opts, new_opts);
-        auto pp_fn = mk_pp_fn(m_ctx);
+        auto pp_fn = mk_pp_ctx(m_ctx);
         format r("ambiguous overload, possible interpretations");
         for (auto const & c : candidates) {
             r += pp_indent(pp_fn, c.first);
@@ -1245,7 +1238,7 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
         expr new_b  = visit(b, none_expr());
         expr inst_b = replace_locals(new_b, locals.as_buffer(), new_args);
         if (!is_def_eq(inst_b, *expected_type)) {
-            auto pp_fn = mk_pp_fn(m_ctx);
+            auto pp_fn = mk_pp_ctx(m_ctx);
             throw elaborator_exception(ref, format("type mismatch at match expected type") +
                                        pp_indent(pp_fn, inst_b) +
                                        line() + format("but is expected") +
@@ -1577,7 +1570,7 @@ void elaborator::synthesize_type_class_instances_core(list<expr> const & old_sta
                 throw elaborator_exception(mvar, "failed to assign type class instance to placeholder");
         } else {
             if (force) {
-                auto pp_fn = mk_pp_fn(m_ctx);
+                auto pp_fn = mk_pp_ctx(m_ctx);
                 throw elaborator_exception(mvar,
                                            format("type class instance cannot be synthesized, type has metavariables") +
                                            pp_indent(pp_fn, inst_type));
@@ -1929,7 +1922,7 @@ expr_pair elaborator::elaborate_with_type(expr const & e, expr const & e_type) {
     if (auto r = ensure_has_type(new_e, inferred_type, new_e_type, ref)) {
         new_e = *r;
     } else {
-        auto pp_fn = mk_pp_fn(m_ctx);
+        auto pp_fn = mk_pp_ctx(m_ctx);
         throw elaborator_exception(ref,
                                    format("type mismatch, expression has type") + pp_indent(pp_fn, inferred_type) +
                                    line() + format("but is expected to have type") + pp_indent(pp_fn, new_e_type));

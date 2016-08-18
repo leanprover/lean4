@@ -567,6 +567,16 @@ public:
     type_context_cache & get_cache_for(environment const & env, options const & o);
 };
 
+/** Create a formatting function that can 'decode' metavar_decl_refs and local_decl_refs
+    with declarations stored in mctx and lctx */
+std::function<format(expr const &)>
+mk_pp_ctx(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx);
+
+/** Create a formatting function that can 'decode' metavar_decl_refs and local_decl_refs
+    with declarations stored in ctx */
+std::function<format(expr const &)>
+mk_pp_ctx(type_context const & ctx);
+
 void initialize_type_context();
 void finalize_type_context();
 }

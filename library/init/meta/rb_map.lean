@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
 import init.ordering init.meta.name init.meta.format
@@ -74,3 +74,35 @@ meta_definition rb_map_has_to_string : has_to_string (rb_map key data) :=
 has_to_string.mk (λ m,
   "⟨" ++ (pr₁ (fold m ("", tt) (λ k d p, (pr₁ p ++ key_data_to_string k d (pr₂ p), ff)))) ++ "⟩")
 end
+
+/- a variant of rb_maps that stores a list of elements for each key.
+   "find" returns the list of elements in the opposite order that they were inserted. -/
+
+meta_definition rb_lmap (key : Type) (data : Type) : Type := rb_map key (list data)
+
+namespace rb_lmap
+
+protected meta_definition mk (key : Type) [has_ordering key] (data : Type) : rb_lmap key data :=
+rb_map.mk key (list data)
+
+meta_definition insert {key : Type} {data : Type} (rbl : rb_lmap key data) (k : key) (d : data) :
+  rb_lmap key data :=
+match (rb_map.find rbl k) with
+| none     := rb_map.insert rbl k [d]
+| (some l) := rb_map.insert (rb_map.erase rbl k) k (d :: l)
+end
+
+meta_definition erase {key : Type} {data : Type} (rbl : rb_lmap key data) (k : key) :
+  rb_lmap key data :=
+rb_map.erase rbl k
+
+meta_definition contains {key : Type} {data : Type} (rbl : rb_lmap key data) (k : key) : bool :=
+rb_map.contains rbl k
+
+meta_definition find {key : Type} {data : Type} (rbl : rb_lmap key data) (k : key) : list data :=
+match (rb_map.find rbl k) with
+| none     := []
+| (some l) := l
+end
+
+end rb_lmap

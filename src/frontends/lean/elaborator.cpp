@@ -1346,7 +1346,11 @@ expr elaborator::visit_inaccessible(expr const & e, optional<expr> const & expec
     if (!m_in_pattern)
         throw elaborator_exception(e, "invalid occurrence of 'inaccessible' annotation, "
                                    "it must only occur in the patterns");
-    return mk_inaccessible(visit(get_annotation_arg(e), expected_type));
+    expr m = copy_tag(e, mk_metavar(expected_type));
+    expr a = get_annotation_arg(e);
+    expr new_a = visit(a, expected_type);
+    m_inaccessible_stack = cons(mk_pair(m, new_a), m_inaccessible_stack);
+    return copy_tag(e, mk_inaccessible(m));
 }
 
 expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_type, bool is_app_fn) {
@@ -1739,10 +1743,44 @@ void elaborator::ensure_no_unassigned_metavars(expr const & e) {
         });
 }
 
+void elaborator::check_inaccessible(checkpoint const & C) {
+    buffer<expr_pair> to_process;
+    list<expr_pair> old_stack = C.m_saved_inaccessible_stack;
+    while (!is_eqp(m_inaccessible_stack, old_stack)) {
+        to_process.push_back(head(m_inaccessible_stack));
+        m_inaccessible_stack = tail(m_inaccessible_stack);
+    }
+    if (to_process.empty()) return;
+
+    unsigned i = to_process.size();
+    while (i > 0) {
+        --i;
+        expr_pair const & p = to_process[i];
+        expr const & m = p.first;
+        lean_assert(is_metavar(m));
+        if (!m_ctx.is_assigned(m)) {
+            throw elaborator_exception(m, "invalid use of inaccessible term, it is not fixed by other arguments");
+        }
+        expr v = instantiate_mvars(m);
+        if (has_expr_metavar(v)) {
+            throw elaborator_exception(m, format("invalid use of inaccessible term, it is not completely fixed by other arguments") +
+                                       pp_indent(v));
+        }
+        if (!is_def_eq(v, p.second)) {
+            auto pp_fn = mk_pp_ctx(m_ctx);
+            throw elaborator_exception(m, format("invalid use of inaccessible term, the provided term is") +
+                                       pp_indent(pp_fn, p.second) +
+                                       line() + format("but is expected to be") +
+                                       pp_indent(pp_fn, v));
+        }
+    }
+}
+
 void elaborator::process_checkpoint(checkpoint & C) {
     ensure_numeral_types_assigned(C);
     synthesize_type_class_instances(C);
     invoke_tactics(C);
+    check_inaccessible(C);
     C.commit();
 }
 
@@ -1751,6 +1789,7 @@ elaborator::base_snapshot::base_snapshot(elaborator const & e) {
     m_saved_instance_stack     = e.m_instance_stack;
     m_saved_numeral_type_stack = e.m_numeral_type_stack;
     m_saved_tactic_stack       = e.m_tactic_stack;
+    m_saved_inaccessible_stack = e.m_inaccessible_stack;
 }
 
 void elaborator::base_snapshot::restore(elaborator & e) {
@@ -1758,6 +1797,7 @@ void elaborator::base_snapshot::restore(elaborator & e) {
     e.m_instance_stack     = m_saved_instance_stack;
     e.m_numeral_type_stack = m_saved_numeral_type_stack;
     e.m_tactic_stack       = m_saved_tactic_stack;
+    e.m_inaccessible_stack = m_saved_inaccessible_stack;
 }
 
 elaborator::snapshot::snapshot(elaborator const & e):

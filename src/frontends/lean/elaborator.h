@@ -32,6 +32,7 @@ private:
     list<expr>        m_instance_stack;
     list<expr>        m_numeral_type_stack;
     list<expr_pair>   m_tactic_stack;
+    list<expr_pair>   m_inaccessible_stack;
 
     /* m_depth is only used for tracing */
     unsigned          m_depth{0};
@@ -41,6 +42,7 @@ private:
         list<expr>      m_saved_instance_stack;
         list<expr>      m_saved_numeral_type_stack;
         list<expr_pair> m_saved_tactic_stack;
+        list<expr_pair> m_saved_inaccessible_stack;
         base_snapshot(elaborator const & elab);
         void restore(elaborator & elab);
     };
@@ -192,6 +194,7 @@ private:
     tactic_state mk_tactic_state_for(expr const & mvar);
     void invoke_tactic(expr const & mvar, expr const & tac);
     void invoke_tactics(checkpoint const & C);
+    void check_inaccessible(checkpoint const & C);
     void process_checkpoint(checkpoint & C);
 
     void unassigned_uvars_to_params(level const & l);

@@ -10,7 +10,11 @@ attribute [reducible]
 definition string := list char
 
 namespace string
+
+attribute [pattern]
 definition empty : string := list.nil
+
+attribute [pattern]
 definition str : char → string → string := list.cons
 
 definition concat (a b : string) : string :=

@@ -1709,7 +1709,7 @@ struct to_pattern_fn {
     void collect_new_locals(expr const & e, bool skip_main_fn) {
         if (is_typed_expr(e)) {
             collect_new_locals(get_typed_expr_expr(e), false);
-        } else if (is_prenum(e)) {
+        } else if (is_prenum(e) || is_string_macro(e)) {
             // do nothing
         } else if (is_inaccessible(e)) {
             // do nothing
@@ -1754,7 +1754,7 @@ struct to_pattern_fn {
             expr new_v = visit(get_typed_expr_expr(e));
             expr new_t = to_expr(get_typed_expr_type(e));
             return copy_tag(e, mk_typed_expr(new_t, new_v));
-        } else if (is_prenum(e)) {
+        } else if (is_prenum(e) || is_string_macro(e)) {
             return e;
         } else if (is_inaccessible(e)) {
             return to_expr(e);

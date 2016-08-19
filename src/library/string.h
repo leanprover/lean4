@@ -17,6 +17,8 @@ expr from_string(std::string const & s);
     \see from_string */
 optional<std::string> to_string(expr const & e);
 
+bool is_string_macro(expr const & e);
+
 optional<char> to_char(expr const & e);
 
 format pp_string_literal(std::string const & s);

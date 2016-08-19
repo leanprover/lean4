@@ -11,6 +11,7 @@ definition char := fin 256
 
 namespace char
 
+attribute [pattern]
 definition of_nat (n : nat) : char :=
 if H : n < 256 then fin.mk n H else fin.mk 0 dec_trivial
 

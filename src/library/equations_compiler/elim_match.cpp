@@ -4,11 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/flet.h"
 #include "kernel/instantiate.h"
 #include "library/trace.h"
 #include "library/num.h"
 #include "library/string.h"
 #include "library/pp_options.h"
+#include "library/generic_exception.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/cases_tactic.h"
 #include "library/equations_compiler/equations.h"
@@ -21,6 +23,10 @@ struct elim_match_fn {
     environment     m_env;
     options         m_opts;
     metavar_context m_mctx;
+
+    expr            m_ref;
+    unsigned        m_depth{0};
+    buffer<bool>    m_used_eqns;
 
     elim_match_fn(environment const & env, options const & opts,
                   metavar_context const & mctx):
@@ -43,6 +49,14 @@ struct elim_match_fn {
         list<name>     m_var_stack;
         list<equation> m_equations;
     };
+
+    [[ noreturn ]] void throw_error(char const * msg) {
+        throw_generic_exception(msg, m_ref);
+    }
+
+    [[ noreturn ]] void throw_error(sstream const & strm) {
+        throw_generic_exception(strm, m_ref);
+    }
 
     type_context mk_type_context(local_context const & lctx) {
         return mk_type_context_for(m_env, m_opts, m_mctx, lctx);
@@ -72,9 +86,17 @@ struct elim_match_fn {
         return to_num(e) || to_char(e) || to_string(e) || is_constructor(e);
     }
 
+    /* Normalize until head is constructor or value */
     expr whnf_pattern(type_context & ctx, expr const & e) {
         return ctx.whnf_pred(e, [&](expr const & e) {
                 return !is_constructor_app(e) && !is_value(e);
+            });
+    }
+
+    /* Normalize until head is constructor */
+    expr whnf_constructor(type_context & ctx, expr const & e) {
+        return ctx.whnf_pred(e, [&](expr const & e) {
+                return !is_constructor_app(e);
             });
     }
 
@@ -137,6 +159,7 @@ struct elim_match_fn {
                 lean_assert(eqns.size() == 1);
                 return list<equation>();
             }
+            m_used_eqns.push_back(false);
             idx++;
         }
         return to_list(R);
@@ -207,7 +230,9 @@ struct elim_match_fn {
 
     /* Return true iff the next pattern in all equations is a constructor. */
     bool is_constructor_transition(program const & P) const {
-        return all_next_pattern(P, [&](expr const & p) { return is_constructor_app(p); });
+        return all_next_pattern(P, [&](expr const & p) {
+                return is_constructor_app(p) || is_value(p);
+            });
     }
 
     /* Return true iff the next pattern of every equation is a constructor or variable,
@@ -246,14 +271,116 @@ struct elim_match_fn {
         return r && has_value && has_variable;
     }
 
+    /** Return true iff the next pattern of some equations is an inaccessible term, and
+        others are not */
+    bool some_inaccessible(program const & P) const {
+        bool found_inaccessible     = false;
+        bool found_not_inaccessible = false;
+        for (equation const & eqn : P.m_equations) {
+            lean_assert(eqn.m_patterns);
+            expr const & p = head(eqn.m_patterns);
+            if (is_inaccessible(p))
+                found_inaccessible = true;
+            else
+                found_not_inaccessible = true;
+        }
+        return found_inaccessible && found_not_inaccessible;
+    }
+
+    /** Result for the compilation procedure. */
+    struct result {
+        /* m_code is the expression that implements a program. */
+        expr                    m_code;
+        /* List of equation lemmas that hold for m_code, and their proofs */
+        list<pair<expr, expr>>  m_eqns_proofs;
+    };
+
+    result compile_no_equation(program const & P) {
+        trace_match(tout() << "no equation transition\n";);
+        lean_unreachable();
+    }
+
+    result compile_skip(program const & P) {
+        trace_match(tout() << "skip transition\n";);
+        lean_unreachable();
+    }
+
+    result compile_variable(program const & P) {
+        trace_match(tout() << "variable transition\n";);
+        lean_unreachable();
+    }
+
+    result compile_constructor(program const & P) {
+        trace_match(tout() << "constructor transition\n";);
+        lean_unreachable();
+    }
+
+    result compile_value(program const & P) {
+        trace_match(tout() << "value+variable transition\n";);
+        lean_unreachable();
+    }
+
+    result compile_complete(program const & P) {
+        trace_match(tout() << "complete transition\n";);
+        lean_unreachable();
+    }
+
+    result compile_leaf(program const & P) {
+        lean_unreachable();
+    }
+
+    result compile_core(program const & P) {
+        flet<unsigned> inc_depth(m_depth, m_depth+1);
+        trace_match(tout() << "depth [" << m_depth << "]\n" << pp_program(P) << "\n";);
+        if (P.m_var_stack) {
+            if (!P.m_equations) {
+                return compile_no_equation(P);
+            } else if (is_inaccessible_transition(P)) {
+                return compile_skip(P);
+            } else if (is_variable_transition(P)) {
+                return compile_variable(P);
+            } else if (is_constructor_transition(P)) {
+                return compile_constructor(P);
+            } else if (is_value_transition(P)) {
+                return compile_value(P);
+            } else if (is_complete_transition(P)) {
+                return compile_complete(P);
+            } else if (some_inaccessible(P)) {
+                throw_error("invalid equations, inconsistent use of inaccessible term annotation, "
+                            "in some equations pattern is an inaccessible term and in others it is not");
+            } else {
+                trace_match(tout() << "compilation faild at\n" << pp_program(P) << "\n";);
+                throw_error("equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' "
+                            "for additional details)");
+            }
+        } else {
+            return compile_leaf(P);
+        }
+    }
+
+    void check_all_equations_used() {
+        for (unsigned i = 0; i < m_used_eqns.size(); i++) {
+            if (!m_used_eqns[i]) {
+                throw_error(sstream() << "equation #" << (i+1) << " is redundant");
+            }
+        }
+    }
+
+    result compile(program const & P) {
+        result R = compile_core(P);
+        check_all_equations_used();
+        return R;
+    }
+
     expr operator()(local_context const & lctx, expr const & eqns) {
         lean_assert(equations_num_fns(eqns) == 1);
         DEBUG_CODE({
                 type_context ctx = mk_type_context(lctx);
                 lean_assert(!is_recursive_eqns(ctx, eqns));
             });
+        m_ref     = eqns;
         program P = mk_program(lctx, eqns);
-        trace_match(tout() << "processing:\n" << pp_program(P) << "\n";);
+        result R  = compile(P);
 
         lean_unreachable();
     }

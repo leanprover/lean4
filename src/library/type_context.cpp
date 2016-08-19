@@ -499,7 +499,7 @@ expr type_context::whnf(expr const & e) {
         if (auto next_t = unfold_definition(t1)) {
             t = *next_t;
         } else {
-            if (!m_used_assignment)
+            if (!m_used_assignment && !is_stuck(t1))
                 cache.insert(mk_pair(e, t1));
             return t1;
         }
@@ -524,9 +524,12 @@ expr type_context::relaxed_whnf(expr const & e) {
     return whnf(e);
 }
 
-optional<expr> type_context::is_stuck(expr const &) {
-    // TODO(Leo): check whether we need this method after refactoring
-    return none_expr();
+optional<expr> type_context::is_stuck(expr const & e) {
+    if (is_meta(e)) {
+        return some_expr(e);
+    } else {
+        return env().norm_ext().is_stuck(e, *this);
+    }
 }
 
 expr type_context::try_to_pi(expr const & e) {

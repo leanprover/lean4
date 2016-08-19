@@ -29,6 +29,8 @@ expr compile_equations(environment & env, options const & opts, metavar_context 
     optional<expr> eqns1 = try_structural_rec(ctx.get(), eqns, arg_idx);
     if (eqns1) {
         elim_match(env, opts, mctx, lctx, *eqns1);
+    } else if (!is_recursive_eqns(ctx, eqns)) {
+        elim_match(env, opts, mctx, lctx, eqns);
     }
 
     // test unbounded_rec

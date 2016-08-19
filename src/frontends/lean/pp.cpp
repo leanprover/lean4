@@ -606,6 +606,7 @@ auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> resul
         }
         if (m_strings) {
             if (auto r = to_string(e)) return pp_string_literal(*r);
+            if (auto r = to_char(e)) return pp_char_literal(*r);
         }
         expr const & f = app_fn(e);
         if (auto it = is_abbreviated(f)) {

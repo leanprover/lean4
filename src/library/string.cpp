@@ -29,22 +29,33 @@ static expr * g_list_nil_char        = nullptr;
 
 expr from_string_core(std::string const & s);
 
+static void display_char_literal_core(std::ostream & out, char c, bool in_string) {
+    if (c == '\n')
+        out << "\\n";
+    else if (c == '\t')
+        out << "\\t";
+    else if (c == '\r')
+        out << "\\r";
+    else if (c == 0)
+        out << "\\0";
+    else if (in_string && c == '\"')
+        out << "\\\"";
+    else if (!in_string && c == '\'')
+        out << "\\'";
+    else
+        out << c;
+}
+
+static void display_char_literal(std::ostream & out, char c) {
+    out << "'";
+    display_char_literal_core(out, c, false);
+    out << "'";
+}
+
 static void display_string_literal(std::ostream & out, std::string const & s) {
     out << "\"";
     for (unsigned i = 0; i < s.size(); i++) {
-        char c = s[i];
-        if (c == '\n')
-            out << "\\n";
-        else if (c == '\t')
-            out << "\\t";
-        else if (c == '\r')
-            out << "\\r";
-        else if (c == 0)
-            out << "\\0";
-        else if (c == '\"')
-            out << "\\\"";
-        else
-            out << c;
+        display_char_literal_core(out, s[i], true);
     }
     out << "\"";
 }
@@ -52,6 +63,12 @@ static void display_string_literal(std::ostream & out, std::string const & s) {
 format pp_string_literal(std::string const & s) {
     std::ostringstream out;
     display_string_literal(out, s);
+    return format(out.str());
+}
+
+format pp_char_literal(char c) {
+    std::ostringstream out;
+    display_char_literal(out, c);
     return format(out.str());
 }
 
@@ -151,23 +168,30 @@ expr from_string(std::string const & s) {
     return mk_string_macro(s);
 }
 
-bool to_char_core(expr const & e, std::string & r) {
+optional<char> to_char(expr const & e) {
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);
     if (fn == *g_fin_mk && args.size() == 3) {
         if (auto n = to_num(args[1])) {
-            r.push_back(n->get_unsigned_int());
-            return true;
+            return optional<char>(n->get_unsigned_int());
         } else {
-            return false;
+            return optional<char>();
         }
     } else if (fn == *g_char_of_nat && args.size() == 1) {
         if (auto n = to_num(args[0])) {
-            r.push_back(n->get_unsigned_int());
-            return true;
+            return optional<char>(n->get_unsigned_int());
         } else {
-            return false;
+            return optional<char>();
         }
+    } else {
+        return optional<char>();
+    }
+}
+
+static bool append_char(expr const & e, std::string & r) {
+    if (auto c = to_char(e)) {
+        r.push_back(*c);
+        return true;
     } else {
         return false;
     }
@@ -183,9 +207,9 @@ bool to_string_core(expr const & e, std::string & r) {
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
         if (fn == *g_str && args.size() == 2) {
-            return to_string_core(args[1], r) && to_char_core(args[0], r);
+            return to_string_core(args[1], r) && append_char(args[0], r);
         } else if (fn == *g_list_cons && args.size() == 3 && args[0] == *g_char) {
-            return to_string_core(args[2], r) && to_char_core(args[1], r);
+            return to_string_core(args[2], r) && append_char(args[1], r);
         } else {
             return false;
         }

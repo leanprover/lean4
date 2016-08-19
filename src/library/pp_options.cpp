@@ -174,7 +174,7 @@ void initialize_pp_options() {
     register_bool_option(*g_pp_numerals, LEAN_DEFAULT_PP_NUMERALS,
                          "(pretty printer) display nat/num numerals in decimal notation");
     register_bool_option(*g_pp_strings, LEAN_DEFAULT_PP_STRINGS,
-                         "(pretty printer) pretty print string literals");
+                         "(pretty printer) pretty print string and character literals");
     register_bool_option(*g_pp_abbreviations, LEAN_DEFAULT_PP_ABBREVIATIONS,
                          "(pretty printer) display abbreviations (i.e., revert abbreviation expansion when pretty printing)");
     register_bool_option(*g_pp_preterm, LEAN_DEFAULT_PP_PRETERM,

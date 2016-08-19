@@ -84,6 +84,7 @@ public:
     optional<name> is_constructor(expr const & e) const;
     unsigned get_inductive_num_params(name const & n) const;
     unsigned get_inductive_num_indices(name const & n) const;
+    expr whnf_upto_constructor(type_context & ctx, expr const & e);
 };
 
 /** \brief Return true iff \c e is recursive. That is, some equation

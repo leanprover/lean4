@@ -165,6 +165,10 @@ unsigned eqns_env_interface::get_inductive_num_indices(name const & n) const {
     return *inductive::get_num_indices(m_env, n);
 }
 
+expr eqns_env_interface::whnf_upto_constructor(type_context & ctx, expr const & e) {
+    return ctx.relaxed_whnf(e);
+}
+
 bool is_recursive_eqns(type_context & ctx, expr const & e) {
     unpack_eqns ues(ctx, e);
     for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {

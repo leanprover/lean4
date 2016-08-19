@@ -98,7 +98,7 @@ struct elim_match_fn {
         buffer<expr> patterns;
         get_app_args(equation_lhs(it), patterns);
         for (expr & p : patterns) {
-            p = instantiate_rev(p, locals);
+            p = eqns_env_interface(m_env).whnf_upto_constructor(ctx, instantiate_rev(p, locals));
         }
         E.m_patterns = to_list(patterns);
         E.m_ref  = eqn;
@@ -163,6 +163,49 @@ struct elim_match_fn {
             r += nest(line() + pp_equation(eqn));
         }
         return r;
+    }
+
+    bool is_constructor(expr const & e) const {
+        return static_cast<bool>(eqns_env_interface(m_env).is_constructor(get_app_fn(e)));
+    }
+
+    template<typename Pred>
+    bool all_next_pattern(program const & P, Pred && p) const {
+        for (equation const & eqn : P.m_equations) {
+            lean_assert(eqn.m_patterns);
+            if (!p(head(eqn.m_patterns)))
+                return false;
+        }
+        return true;
+    }
+
+    /* Return true iff the next pattern in all equations is a variable. */
+    bool is_variable_transition(program const & P) const {
+        return all_next_pattern(P, is_local);
+    }
+
+    /* Return true iff the next pattern in all equations is an inaccessible term. */
+    bool is_inaccessible_transition(program const & P) const {
+        return all_next_pattern(P, is_inaccessible);
+    }
+
+    /* Return true iff the next pattern in all equations is a constructor. */
+    bool is_constructor_transition(program const & P) const {
+        return all_next_pattern(P, [&](expr const & p) { return is_constructor(p); });
+    }
+
+    /* Return true iff the next pattern of every equation is a constructor or variable,
+       and there are at least one equation where it is a variable and another where it is a
+       constructor. */
+    bool is_complete_transition(program const & P) const {
+        bool has_variable    = false;
+        bool has_constructor = false;
+        bool r = all_next_pattern(P, [&](expr const & p) {
+                if (is_local(p)) { has_variable = true; return true; }
+                else if (is_constructor(p)) { has_constructor = true; return true; }
+                else { return false; }
+            });
+        return r && has_variable && has_constructor;
     }
 
     expr operator()(local_context const & lctx, expr const & eqns) {

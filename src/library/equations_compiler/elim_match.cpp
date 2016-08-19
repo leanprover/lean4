@@ -228,36 +228,22 @@ struct elim_match_fn {
         return r && has_variable && has_constructor;
     }
 
-    /* Return true iff the equations are of the form
-
-          v_1 ... := ...
-          ...
-          v_n ... := ...
-          x_1 ... := ...
-          ...
-          x_m ... := ...
-
-      where v_i's are values and x_j's are variables.
-      This transition is used to compile patterns containing
-      numerals, characters, strings and enumeration types.
-      It is much more efficient than using complete_transition followed by constructor_transition.
-      This optimization addresses issue #1089 raised by Jared Roesch. */
+    /* Return true iff the next pattern of every equation is a value or variable,
+       and there are at least one equation where it is a variable and another where it is a
+       value. */
     bool is_value_transition(program const & P) const {
-        bool found_value = false;
-        bool found_var   = false;
-        for (equation const & eqn : P.m_equations) {
-            lean_assert(eqn.m_patterns);
-            expr const & p = head(eqn.m_patterns);
-            if (is_value(p)) {
-                found_value = true;
-                if (found_var) return false;
-            } if (is_local(p)) {
-                found_var = true;
-            } else {
-                return false;
-            }
-        }
-        return found_value && found_var;
+        bool has_value    = false;
+        bool has_variable = false;
+        bool r = all_next_pattern(P, [&](expr const & p) {
+                if (is_local(p)) {
+                    has_variable = true; return true;
+                } else if (is_value(p)) {
+                    has_value    = true; return true;
+                } else {
+                    return false;
+                }
+            });
+        return r && has_value && has_variable;
     }
 
     expr operator()(local_context const & lctx, expr const & eqns) {

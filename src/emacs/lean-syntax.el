@@ -121,6 +121,9 @@
     ;; Strings
     (modify-syntax-entry ?\" "\"" st)
     (modify-syntax-entry ?\\ "/" st)
+
+    ;; Chars
+    (modify-syntax-entry ?\' "\"" st)
     st))
 
 (defconst lean-font-lock-defaults

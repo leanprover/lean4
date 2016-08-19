@@ -256,7 +256,7 @@ static void print_attributes(parser const & p, name const & n) {
     for (auto attr : attrs) {
         if (attr->get_name() == "reducibility")
             continue;
-        if (auto data = attr->get(env, n)) {
+        if (auto data = attr->get_untyped(env, n)) {
             if (first) {
                 out << "attribute [";
                 first = false;

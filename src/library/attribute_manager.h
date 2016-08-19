@@ -48,9 +48,13 @@ public:
     name const & get_name() const { return m_id; }
     std::string const & get_description() const { return m_descr; }
 
-    virtual attr_data_ptr get(environment const &, name const &) const;
+    virtual attr_data_ptr get_untyped(environment const &, name const &) const;
+    bool is_instance(environment const & env, name const &n ) const {
+        return static_cast<bool>(get_untyped(env, n));
+    }
     unsigned get_prio(environment const &, name const &) const;
     virtual void get_instances(environment const &, buffer<name> &) const;
+    priority_queue<name, name_quick_cmp> get_instances_by_prio(environment const &) const;
     virtual attr_data_ptr parse_data(abstract_parser &) const;
 };
 
@@ -117,8 +121,8 @@ public:
             env2 = m_on_set(env2, ios, n, prio, data, persistent);
         return env2;
     }
-    std::shared_ptr<Data> get_data(environment const & env, name const & n) const {
-        auto data = get(env, n);
+    std::shared_ptr<Data> get(environment const & env, name const & n) const {
+        auto data = get_untyped(env, n);
         if (!data)
             return {};
         lean_assert(std::dynamic_pointer_cast<Data>(data));
@@ -179,20 +183,7 @@ attribute const & get_attribute(environment const & env, name const & attr);
 attribute const & get_system_attribute(name const & attr);
 void get_attributes(environment const & env, buffer<attribute const *> &);
 
-// TODO(sullrich): all of these should become members of/return attribute or a subclass
-environment set_attribute(environment const & env, io_state const & ios, char const * attr,
-                          name const & d, unsigned prio, list<unsigned> const & params, bool persistent);
-environment set_attribute(environment const & env, io_state const & ios, char const * attr,
-                          name const & d, unsigned prio, bool persistent);
-environment set_attribute(environment const & env, io_state const & ios, char const * attr,
-                          name const & d, bool persistent);
-
-bool has_attribute(environment const & env, char const * attr, name const & d);
-void get_attribute_instances(environment const & env, char const * attr, buffer<name> &);
-priority_queue<name, name_quick_cmp> get_attribute_instances_by_prio(environment const & env, name const & attr);
-
-unsigned get_attribute_prio(environment const & env, name const & attr, name const & d);
-list<unsigned> get_attribute_params(environment const & env, name const & attr, name const & d);
+bool has_attribute(environment const & env, name const & attr, name const & d);
 
 bool are_incompatible(attribute const & attr1, attribute const & attr2);
 

@@ -72,12 +72,16 @@ struct intro_attr_data : public attr_data {
 template class typed_attribute<intro_attr_data>;
 typedef typed_attribute<intro_attr_data> intro_attribute;
 
+static intro_attribute const & get_intro_attribute() {
+    return static_cast<intro_attribute const &>(get_system_attribute("intro"));
+}
+
 bool is_backward_lemma(environment const & env, name const & c) {
-    return has_attribute(env, "intro", c);
+    return get_intro_attribute().is_instance(env, c);
 }
 
 void get_backward_lemmas(environment const & env, buffer<name> & r) {
-    return get_attribute_instances(env, "intro", r);
+    return get_intro_attribute().get_instances(env, r);
 }
 
 unsigned backward_lemma_prio_fn::operator()(backward_lemma const & r) const {
@@ -90,9 +94,9 @@ unsigned backward_lemma_prio_fn::operator()(backward_lemma const & r) const {
 }
 
 backward_lemma_index::backward_lemma_index(type_context & ctx):
-    m_index(get_attribute_instances_by_prio(ctx.env(), "intro")) {
+    m_index(get_intro_attribute().get_instances_by_prio(ctx.env())) {
     buffer<name> lemmas;
-    get_attribute_instances(ctx.env(), "intro", lemmas);
+    get_intro_attribute().get_instances(ctx.env(), lemmas);
     unsigned i = lemmas.size();
     while (i > 0) {
         --i;

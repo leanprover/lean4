@@ -46,8 +46,8 @@ public:
     proxy_attribute(char const * id, char const * descr, reducible_status m_status) : basic_attribute(id, descr),
                                                                                       m_status(m_status) {}
 
-    virtual attr_data_ptr get(environment const & env, name const & n) const override {
-        if (auto data = get_reducibility_attribute().get_data(env, n)) {
+    virtual attr_data_ptr get_untyped(environment const & env, name const & n) const override {
+        if (auto data = get_reducibility_attribute().get(env, n)) {
             if (data->m_status == m_status)
                 return attr_data_ptr(new attr_data);
         }
@@ -64,7 +64,7 @@ public:
         buffer<name> tmp;
         get_reducibility_attribute().get_instances(env, tmp);
         for (name const & n : tmp)
-            if (get(env, n))
+            if (is_instance(env, n))
                 r.push_back(n);
     }
 };
@@ -89,7 +89,7 @@ environment set_reducible(environment const & env, name const & n, reducible_sta
 }
 
 reducible_status get_reducible_status(environment const & env, name const & n) {
-    auto data = get_reducibility_attribute().get_data(env, n);
+    auto data = get_reducibility_attribute().get(env, n);
     if (data)
         return data->m_status;
     return reducible_status::Semireducible;
@@ -97,13 +97,13 @@ reducible_status get_reducible_status(environment const & env, name const & n) {
 
 name_predicate mk_not_reducible_pred(environment const & env) {
     return [=](name const & n) { // NOLINT
-        return !has_attribute(env, "reducible", n);
+        return get_reducible_status(env, n) != reducible_status::Reducible;
     };
 }
 
 name_predicate mk_irreducible_pred(environment const & env) {
     return [=](name const & n) { // NOLINT
-        return has_attribute(env, "irreducible", n);
+        return get_reducible_status(env, n) == reducible_status::Irreducible;
     };
 }
 

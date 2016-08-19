@@ -138,7 +138,7 @@ environment attribute::set_core(environment const & env, io_state const & ios, n
                                 attr_data_ptr data, bool persistent) const {
     return attribute_ext::add_entry(env, ios, attr_entry(m_id, prio, attr_record(n, data)), persistent);
 }
-attr_data_ptr attribute::get(environment const & env, name const & n) const {
+attr_data_ptr attribute::get_untyped(environment const & env, name const & n) const {
     if (auto records = attribute_ext::get_state(env).find(m_id))
         if (auto record = records->get_key({n, {}}))
             return record->m_data;
@@ -155,6 +155,15 @@ unsigned attribute::get_prio(environment const & env, name const & n) const {
 void attribute::get_instances(environment const & env, buffer<name> & r) const {
     if (auto records = attribute_ext::get_state(env).find(m_id))
         records->for_each([&](attr_record const & rec) { r.push_back(rec.m_decl); });
+}
+
+priority_queue<name, name_quick_cmp> attribute::get_instances_by_prio(environment const & env) const {
+    priority_queue<name, name_quick_cmp> q;
+    buffer<name> b;
+    get_instances(env, b);
+    for (auto const & n : b)
+        q.insert(n, get_prio(env, n));
+    return q;
 }
 
 attr_data_ptr attribute::parse_data(abstract_parser &) const {
@@ -201,18 +210,11 @@ void get_attributes(environment const & env, buffer<attribute const *> & r) {
 }
 
 bool has_attribute(environment const & env, char const * attr, name const & d) {
-    return static_cast<bool>(get_attribute(env, attr).get(env, d));
+    return static_cast<bool>(get_attribute(env, attr).get_untyped(env, d));
 }
 
 void get_attribute_instances(environment const & env, char const * attr, buffer<name> & r) {
     return get_attribute(env, attr).get_instances(env, r);
-}
-
-priority_queue<name, name_quick_cmp> get_attribute_instances_by_prio(environment const & env, name const & attr) {
-    priority_queue<name, name_quick_cmp> q;
-    auto recs = attribute_ext::get_state(env).find(attr);
-    recs->for_each([&](attr_record const & rec) { q.insert(rec.m_decl, recs->get_prio(rec).value()); });
-    return q;
 }
 
 environment set_attribute(environment const & env, io_state const & ios, char const * name,
@@ -239,11 +241,15 @@ unsigned get_attribute_prio(environment const & env, name const & attr, name con
 
 list<unsigned> get_attribute_params(environment const & env, name const & attr, name const & d) {
     if (auto attribute = dynamic_cast<indices_attribute const *>(&get_attribute(env, attr))) {
-        auto data = attribute->get_data(env, d);
+        auto data = attribute->get(env, d);
         lean_assert(data);
         return data->m_idxs;
     }
     return list<unsigned>();
+}
+
+bool has_attribute(environment const & env, name const & attr, name const & d) {
+    return get_attribute(env, attr).is_instance(env, d);
 }
 
 bool are_incompatible(attribute const & attr1, attribute const & attr2) {

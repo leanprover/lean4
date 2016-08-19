@@ -30,12 +30,15 @@ namespace lean {
    - constructor (f ...) should be unfolded when it is the major premise of a recursor-like operator
 */
 
+static indices_attribute const & get_unfold_attribute() {
+    return static_cast<indices_attribute const &>(get_system_attribute("unfold"));
+}
 environment add_unfold_hint(environment const & env, name const & n, list<unsigned> const & idxs, bool persistent) {
-    return set_attribute(env, get_dummy_ios(), "unfold", n, LEAN_DEFAULT_PRIORITY, idxs, persistent);
+    return get_unfold_attribute().set(env, get_dummy_ios(), n, LEAN_DEFAULT_PRIORITY, idxs, persistent);
 }
 list<unsigned> has_unfold_hint(environment const & env, name const & d) {
-    if (has_attribute(env, "unfold", d))
-        return get_attribute_params(env, "unfold", d);
+    if (auto data = get_unfold_attribute().get(env, d))
+        return data->m_idxs;
     else
         return list<unsigned>();
 }

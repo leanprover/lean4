@@ -572,15 +572,16 @@ simp_lemmas get_simp_lemmas_for_attr(simp_lemma_cache & sl_cache, type_context &
     if (it != sl_cache.simp_cache().end())
         return it->second;
 
+    auto const & attr = get_attribute(tctx.env(), simp_attr);
     simp_lemmas r;
     buffer<name> simp_lemmas;
-    get_attribute_instances(tctx.env(), simp_attr.get_string(), simp_lemmas);
+    attr.get_instances(tctx.env(), simp_lemmas);
     unsigned i = simp_lemmas.size();
     while (i > 0) {
         i--;
         name const & id = simp_lemmas[i];
         tmp_type_context tmp_tctx(tctx);
-        r = add_core(tmp_tctx, r, id, get_attribute_prio(tctx.env(), simp_attr.get_string(), id));
+        r = add_core(tmp_tctx, r, id, attr.get_prio(tctx.env(), id));
     }
     sl_cache.simp_cache().insert({simp_attr, r});
     return r;
@@ -591,15 +592,16 @@ simp_lemmas get_congr_lemmas_for_attr(simp_lemma_cache & sl_cache, type_context 
     if (it != sl_cache.congr_cache().end())
         return it->second;
 
+    auto const & attr = get_attribute(tctx.env(), congr_attr);
     simp_lemmas r;
     buffer<name> congr_lemmas;
-    get_attribute_instances(tctx.env(), congr_attr.get_string(), congr_lemmas);
+    attr.get_instances(tctx.env(), congr_lemmas);
     unsigned i = congr_lemmas.size();
     while (i > 0) {
         i--;
         name const & id = congr_lemmas[i];
         tmp_type_context tmp_tctx(tctx);
-        r = add_congr_core(tmp_tctx, r, id, get_attribute_prio(tctx.env(), congr_attr.get_string(), id));
+        r = add_congr_core(tmp_tctx, r, id, attr.get_prio(tctx.env(), id));
     }
     sl_cache.congr_cache().insert({congr_attr, r});
     return r;

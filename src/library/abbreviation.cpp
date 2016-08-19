@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/expr_lt.h"
 #include "library/util.h"
 #include "library/normalize.h"
+#include "library/reducible.h"
 
 namespace lean {
 typedef pair<name, bool> abbrev_entry;
@@ -76,7 +77,7 @@ typedef scoped_ext<abbrev_config> abbrev_ext;
 
 environment add_abbreviation(environment const & env, name const & n, bool parsing_only, bool persistent) {
     auto env2 = abbrev_ext::add_entry(env, get_dummy_ios(), abbrev_entry(n, parsing_only), persistent);
-    return set_attribute(env2, get_dummy_ios(), "reducible", n, persistent);
+    return set_reducible(env2, n, reducible_status::Reducible, persistent);
 }
 
 bool is_abbreviation(environment const & env, name const & n) {

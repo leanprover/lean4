@@ -74,8 +74,8 @@ meta_definition app_of_list : expr → list expr → expr
 | f (p::ps) := app_of_list (expr.app f p) ps
 
 meta_definition is_app : expr → bool
-| (app _ _ ) := tt
-| _          := ff
+| (app f a) := tt
+| e         := ff
 
 meta_definition app_fn : expr → expr
 | (app f a) := f
@@ -91,38 +91,38 @@ meta_definition get_app_fn : expr → expr
 
 meta_definition get_app_num_args : expr → nat
 | (app f a) := get_app_num_args f + 1
-| _         := 0
+| e         := 0
 
 meta_definition get_app_args_aux : list expr → expr → list expr
 | r (app f a) := get_app_args_aux (a::r) f
-| r _         := r
+| r e         := r
 
 meta_definition get_app_args : expr → list expr :=
 get_app_args_aux []
 
 meta_definition const_name : expr → name
 | (const n ls) := n
-| _            := name.anonymous
+| e            := name.anonymous
 
 meta_definition is_constant : expr → bool
 | (const n ls) := tt
-| _            := ff
+| e            := ff
 
 meta_definition is_local_constant : expr → bool
-| (local_const _ _ _ _) := tt
-| _                     := ff
+| (local_const n m bi t) := tt
+| e                      := ff
 
 meta_definition local_uniq_name : expr → name
-| (local_const n _ _ _) := n
-| _                     := name.anonymous
+| (local_const n m bi t) := n
+| e                      := name.anonymous
 
 meta_definition local_pp_name : expr → name
-| (local_const _ n _ _) := n
-| _                     := name.anonymous
+| (local_const x n bi t) := n
+| e                      := name.anonymous
 
 meta_definition is_constant_of : expr → name → bool
 | (const n₁ ls) n₂ := to_bool (n₁ = n₂)
-| _             _  := ff
+| e             n  := ff
 
 meta_definition is_app_of (e : expr) (n : name) : bool :=
 is_app e && is_constant_of (get_app_fn e) n
@@ -131,9 +131,9 @@ meta_definition is_false (e : expr) : bool :=
 is_constant_of e `false
 
 meta_definition is_not : expr → option expr
-| (app f a)    := if is_constant_of f `not = tt then some a else none
-| (pi _ _ a b) := if is_false b = tt then some a else none
-| _            := none
+| (app f a)     := if is_constant_of f `not = tt then some a else none
+| (pi n bi a b) := if is_false b = tt then some a else none
+| e             := none
 
 meta_definition is_eq (e : expr) : option (expr × expr) :=
 if is_app_of e `eq = tt ∧ get_app_num_args e = 3
@@ -154,31 +154,31 @@ then some (app_arg (app_fn (app_fn (app_fn e))),
 else none
 
 meta_definition is_pi : expr → bool
-| (pi _ _ _ _) := tt
-| _            := ff
+| (pi n bi d b) := tt
+| e             := ff
 
 meta_definition is_let : expr → bool
-| (elet _ _ _ _) := tt
-| _              := ff
+| (elet n t v b) := tt
+| e              := ff
 
 meta_definition binding_name : expr → name
-| (pi n _ _ _)  := n
-| (lam n _ _ _) := n
+| (pi n m d b)  := n
+| (lam n m d b) := n
 | e             := name.anonymous
 
 meta_definition binding_info : expr → binder_info
-| (pi _ bi _ _)  := bi
-| (lam _ bi _ _) := bi
+| (pi n bi d b)  := bi
+| (lam n bi d b) := bi
 | e              := binder_info.default
 
 meta_definition binding_domain : expr → expr
-| (pi _ _ d b)  := d
-| (lam _ _ d b) := d
+| (pi n bi d b)  := d
+| (lam n bi d b) := d
 | e             := e
 
 meta_definition binding_body : expr → expr
-| (pi _ _ d b)  := b
-| (lam _ _ d b) := b
+| (pi n bi d b)  := b
+| (lam n bi d b) := b
 | e             := e
 
 meta_definition prop : expr := expr.sort level.zero

@@ -26,15 +26,12 @@ static name const * g_rangle_tk = nullptr;
 static name const * g_triangle_tk = nullptr;
 static name const * g_caret_tk = nullptr;
 static name const * g_up_tk = nullptr;
-static name const * g_down_tk = nullptr;
 static name const * g_bar_tk = nullptr;
 static name const * g_comma_tk = nullptr;
 static name const * g_add_tk = nullptr;
 static name const * g_sub_tk = nullptr;
 static name const * g_greater_tk = nullptr;
 static name const * g_question_tk = nullptr;
-static name const * g_question_lp_tk = nullptr;
-static name const * g_bang_tk = nullptr;
 static name const * g_slash_tk = nullptr;
 static name const * g_plus_tk = nullptr;
 static name const * g_star_tk = nullptr;
@@ -149,15 +146,12 @@ void initialize_tokens() {
     g_triangle_tk = new name{"▸"};
     g_caret_tk = new name{"^"};
     g_up_tk = new name{"↑"};
-    g_down_tk = new name{"<d"};
     g_bar_tk = new name{"|"};
     g_comma_tk = new name{","};
     g_add_tk = new name{"+"};
     g_sub_tk = new name{"-"};
     g_greater_tk = new name{">"};
     g_question_tk = new name{"?"};
-    g_question_lp_tk = new name{"?("};
-    g_bang_tk = new name{"!"};
     g_slash_tk = new name{"/"};
     g_plus_tk = new name{"+"};
     g_star_tk = new name{"*"};
@@ -273,15 +267,12 @@ void finalize_tokens() {
     delete g_triangle_tk;
     delete g_caret_tk;
     delete g_up_tk;
-    delete g_down_tk;
     delete g_bar_tk;
     delete g_comma_tk;
     delete g_add_tk;
     delete g_sub_tk;
     delete g_greater_tk;
     delete g_question_tk;
-    delete g_question_lp_tk;
-    delete g_bang_tk;
     delete g_slash_tk;
     delete g_plus_tk;
     delete g_star_tk;
@@ -396,15 +387,12 @@ name const & get_rangle_tk() { return *g_rangle_tk; }
 name const & get_triangle_tk() { return *g_triangle_tk; }
 name const & get_caret_tk() { return *g_caret_tk; }
 name const & get_up_tk() { return *g_up_tk; }
-name const & get_down_tk() { return *g_down_tk; }
 name const & get_bar_tk() { return *g_bar_tk; }
 name const & get_comma_tk() { return *g_comma_tk; }
 name const & get_add_tk() { return *g_add_tk; }
 name const & get_sub_tk() { return *g_sub_tk; }
 name const & get_greater_tk() { return *g_greater_tk; }
 name const & get_question_tk() { return *g_question_tk; }
-name const & get_question_lp_tk() { return *g_question_lp_tk; }
-name const & get_bang_tk() { return *g_bang_tk; }
 name const & get_slash_tk() { return *g_slash_tk; }
 name const & get_plus_tk() { return *g_plus_tk; }
 name const & get_star_tk() { return *g_star_tk; }

@@ -20,7 +20,7 @@ definition decidable.has_to_string {p : Prop} : has_to_string (decidable p) :=
 has_to_string.mk (λ b, if p then "tt" else "ff")
 
 definition list.to_string_aux {A : Type} [has_to_string A] : bool → list A → string
-| _  []      := ""
+| b  []      := ""
 | tt (x::xs) := to_string x ++ list.to_string_aux ff xs
 | ff (x::xs) := ", " ++ to_string x ++ list.to_string_aux ff xs
 

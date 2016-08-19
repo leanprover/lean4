@@ -5,7 +5,7 @@ constant nat.add_assoc (a b c : nat) : (a + b) + c = a + (b + c)
 meta_definition is_op_app (op : expr) (e : expr) : option (expr × expr) :=
 match e with
 | (app (app fn a1) a2) := if op = fn then some (a1, a2) else none
-| _                    := none
+| e                    := none
 end
 
 meta_definition flat_with (op : expr) (assoc : expr) (e : expr) (rhs : expr) : tactic (expr × expr) :=

@@ -28,7 +28,7 @@ definition length : list A → nat
 open option nat
 
 definition nth : list A → nat → option A
-| []       _     := none
+| []       n     := none
 | (a :: l) 0     := some a
 | (a :: l) (n+1) := nth l n
 

@@ -77,15 +77,15 @@ class nat_numeral_pp {
     expr m_num_type;
     name m_nat;
     expr m_nat_of_num;
-    expr m_zero;
-    expr m_succ;
+    expr m_nat_zero;
+    expr m_nat_succ;
 public:
     nat_numeral_pp():
         m_num_type(mk_constant(get_num_name())),
         m_nat(get_nat_name()),
         m_nat_of_num(mk_constant(get_nat_of_num_name())),
-        m_zero(mk_constant(get_nat_zero_name())),
-        m_succ(mk_constant(get_nat_succ_name())) {
+        m_nat_zero(mk_constant(get_nat_zero_name())),
+        m_nat_succ(mk_constant(get_nat_succ_name())) {
     }
 
     // Return an unsigned if \c e if of the form (succ^k zero), and k
@@ -94,13 +94,15 @@ public:
         unsigned r = 0;
         expr const * it = &e;
         while (true) {
-            if (*it == m_zero) {
+            if (*it == m_nat_zero) {
                 return optional<unsigned>(r);
-            } else if (is_app(*it) && app_fn(*it) == m_succ) {
+            } else if (is_app(*it) && app_fn(*it) == m_nat_succ) {
                 if (r == std::numeric_limits<unsigned>::max())
                     return optional<unsigned>(); // just in case, it does not really happen in practice
                 r++;
                 it = &app_arg(*it);
+            } else if (is_constant(get_app_fn(*it), get_zero_name())) {
+                return optional<unsigned>(r);
             } else {
                 return optional<unsigned>();
             }
@@ -394,25 +396,6 @@ format pretty_fn::pp_level(level const & l) {
     }
 }
 
-// Returns the theorem type if `f` has a Pi type with binding domain a Prop,
-// and `m_proofs` is set to false.
-optional<expr> pretty_fn::arg_is_proof(expr const & f) {
-    if (m_proofs)
-        return none_expr(); // showing proof terms
-    if (!closed(f))
-        // the Lean type checker assumes expressions are closed.
-        return none_expr();
-    try {
-        expr t = m_ctx.relaxed_whnf(m_ctx.infer(f));
-        if (is_pi(t) && is_prop(binding_domain(t)))
-            return some_expr(binding_domain(t));
-        else
-            return none_expr();
-    } catch (exception &) {
-        return none_expr();
-    }
-}
-
 bool pretty_fn::is_implicit(expr const & f) {
     // Remark: we assume preterms do not have implicit arguments,
     // since they have not been elaborated yet.
@@ -617,8 +600,6 @@ auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> resul
             return pp_hide_coercion(e, bp, ignore_hide);
         } else if (!m_coercion && is_coercion_fn(e)) {
             return pp_hide_coercion_fn(e, bp, ignore_hide);
-        } else if (auto thm = arg_is_proof(f)) {
-            return pp_child_core(mk_app(f, mk_inaccessible(*thm)), bp, ignore_hide);
         }
     }
     return pp_child_core(e, bp, ignore_hide);
@@ -1034,9 +1015,8 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
     } else if (is_delayed_abstraction(e)) {
         return pp_delayed_abstraction(e);
     } else if (is_inaccessible(e)) {
-        format li = m_unicode ? format("⌞") : format("?(");
-        format ri = m_unicode ? format("⌟") : format(")");
-        return result(group(nest(1, li + pp(get_annotation_arg(e)).fmt() + ri)));
+        format r = format(".") + pp_child(get_annotation_arg(e), max_bp()).fmt();
+        return result(r);
         // } else if (is_pattern_hint(e)) {
         // return result(group(nest(2, format("(:") + pp(get_pattern_hint_arg(e)).fmt() + format(":)"))));
     } else if (is_marked_as_comp_irrelevant(e)) {
@@ -1514,6 +1494,30 @@ static bool is_pp_atomic(expr const & e) {
     }
 }
 
+/* Returns the theorem type if `e` is a proof and `m_proofs` is set to false. */
+optional<expr> pretty_fn::is_proof(expr const & e) {
+    if (m_proofs)
+        return none_expr(); // showing proof terms
+    if (!closed(e))
+        // the Lean type checker assumes expressions are closed.
+        return none_expr();
+    try {
+        expr t = m_ctx.infer(e);
+        if (is_prop(t))
+            return some_expr(head_beta_reduce(t));
+        else
+            return none_expr();
+    } catch (exception &) {
+        return none_expr();
+    }
+}
+
+auto pretty_fn::pp_proof_type(expr const & t) -> result {
+    format li = m_unicode ? format("⌞") : format("[proof ");
+    format ri = m_unicode ? format("⌟") : format("]");
+    return result(group(nest(1, li + pp(t).fmt() + ri)));
+}
+
 auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     check_system("pretty printer");
     if ((m_depth >= m_max_depth ||
@@ -1532,6 +1536,10 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     if (m_strings) {
         if (auto r = to_string(e)) return pp_string_literal(*r);
     }
+    if (auto t = is_proof(e)) {
+        return pp_proof_type(*t);
+    }
+
     if (auto n = is_abbreviated(e))
         return pp_abbreviation(e, *n, false);
     if (auto r = pp_notation(e))

@@ -8,7 +8,7 @@ definition next_weekday : day → day
 | next_weekday tuesday   := wednesday
 | next_weekday wednesday := thursday
 | next_weekday thursday  := friday
-| next_weekday _         := monday
+| next_weekday d         := monday
 
 theorem next_weekday_monday    : next_weekday monday    = tuesday   := rfl
 theorem next_weekday_tuesday   : next_weekday tuesday   = wednesday := rfl

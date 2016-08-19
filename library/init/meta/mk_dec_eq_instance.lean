@@ -16,10 +16,10 @@ open expr environment list
 /- Retrieve the name of the type we are building a decidable equality proof for. -/
 private meta_definition get_dec_eq_type_name : tactic name :=
 do {
-  (pi _ _ d1 (pi _ _ d2 b)) ← target >>= whnf | failed,
-  (const n _) ← return (get_app_fn b) | failed,
+  (pi x1 i1 d1 (pi x2 i2 d2 b)) ← target >>= whnf | failed,
+  (const n ls) ← return (get_app_fn b) | failed,
   when (n ≠ `decidable) failed,
-  (const I _) ← return (get_app_fn d1) | failed,
+  (const I ls) ← return (get_app_fn d1) | failed,
   return I }
 <|>
 fail "mk_dec_eq_instance tactic failed, target type is expected to be of the form (decidable_eq ...)"
@@ -32,7 +32,7 @@ do
 
 private meta_definition find_next_target : list expr → list expr → tactic (expr × expr)
 | (t::ts) (r::rs) := if t = r then find_next_target ts rs else return (t, r)
-| _       _       := failed
+| l1       l2     := failed
 
 /- Create an inhabitant of (decidable (lhs = rhs)) -/
 private meta_definition mk_dec_eq_for (lhs : expr) (rhs : expr) : tactic expr :=

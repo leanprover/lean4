@@ -45,7 +45,7 @@ open expr
 private meta_definition apply_num_metavars : expr → expr → nat → tactic expr
 | f ftype 0     := return f
 | f ftype (n+1) := do
-  pi _ _ d b ← whnf ftype | failed,
+  pi m bi d b ← whnf ftype | failed,
   a          ← mk_meta_var d,
   new_f      ← return $ expr.app f a,
   new_ftype  ← return $ expr.instantiate_var b a,

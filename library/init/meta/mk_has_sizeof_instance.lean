@@ -15,9 +15,9 @@ open expr environment list
 /- Retrieve the name of the type we are building a has_sizeof instance for. -/
 private meta_definition get_has_sizeof_type_name : tactic name :=
 do {
-  (app (const n _) t) ← target >>= whnf | failed,
+  (app (const n ls) t) ← target >>= whnf | failed,
   when (n ≠ `has_sizeof) failed,
-  (const I _) ← return (get_app_fn t) | failed,
+  (const I ls) ← return (get_app_fn t) | failed,
   return I }
 <|>
 fail "mk_has_sizeof_instance tactic failed, target type is expected to be of the form (has_sizeof ...)"
@@ -37,7 +37,7 @@ do t    ← infer_type a,
      fail (to_fmt "mk_has_sizeof_instance failed, failed to generate instance for" ++ format.nest 2 (format.line ++ f))
 
 private meta_definition mk_sizeof : bool → name → name → list name → nat → tactic (list expr)
-| _           _      _      []              num_rec := return []
+| use_default I_name F_name []              num_rec := return []
 | use_default I_name F_name (fname::fnames) num_rec := do
   field ← get_local fname,
   rec   ← is_type_app_of field I_name,

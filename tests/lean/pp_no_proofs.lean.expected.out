@@ -3,6 +3,4 @@ code generation failed, VM does not have code for 'f'
 f (Ps (Ps (Ps (Ps (Ps (Ps P0))))))
 f ⌞P 6⌟
 @f 6 ⌞@P ⌞true⌟ 6⌟
-@f 6
-  (@Ps (succ (succ (succ (succ (succ 0)))))
-     (@Ps (succ (succ (succ (succ 0)))) (@Ps (succ (succ (succ 0))) (@Ps (succ (succ 0)) (@Ps (succ 0) (@Ps 0 P0))))))
+@f 6 (@Ps 5 (@Ps 4 (@Ps 3 (@Ps 2 (@Ps 1 (@Ps 0 P0))))))

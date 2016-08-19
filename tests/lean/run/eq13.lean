@@ -1,9 +1,9 @@
 open nat
 
 definition f : nat → nat → nat
-| f _ 0 := 0
-| f 0 _ := 1
-| f _ _ := arbitrary nat
+| f n 0 := 0
+| f 0 n := 1
+| f n m := arbitrary nat
 
 theorem f_zero_right : ∀ a, f a 0 = 0
 | f_zero_right 0        := rfl

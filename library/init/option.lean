@@ -40,7 +40,7 @@ definition option_is_monad : monad option :=
 monad.mk @option_fmap @some @option_bind
 
 definition option_orelse {A : Type} : option A → option A → option A
-| (some a) _         := some a
+| (some a) o         := some a
 | none     (some a)  := some a
 | none     none      := none
 

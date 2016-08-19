@@ -115,7 +115,8 @@ parser::local_scope::~local_scope() {
 }
 
 parser::quote_scope::quote_scope(parser & p, bool q):
-    m_p(p), m_id_behavior(m_p.m_id_behavior), m_in_quote(q) {
+    m_p(p), m_id_behavior(m_p.m_id_behavior), m_in_quote(q), m_saved_in_pattern(p.m_in_pattern) {
+    m_p.m_in_pattern = false;
     if (q) {
         lean_assert(!m_p.m_in_quote);
         m_p.m_id_behavior = id_behavior::AssumeLocalIfUndef;
@@ -134,6 +135,7 @@ parser::quote_scope::quote_scope(parser & p, bool q):
 }
 
 parser::quote_scope::~quote_scope() {
+    m_p.m_in_pattern = m_saved_in_pattern;
     if (m_in_quote) {
         lean_assert(m_p.m_in_quote);
         m_p.m_in_quote = false;
@@ -190,6 +192,7 @@ parser::parser(environment const & env, io_state const & ios,
     if (num_threads > 1 && m_profile)
         throw exception("option --profile cannot be used when theorems are compiled in parallel");
     m_in_quote = false;
+    m_in_pattern = false;
     m_has_params = false;
     m_keep_theorem_mode = tmode;
     if (s) {
@@ -1603,6 +1606,30 @@ expr parser::parse_nud_notation() {
     return parse_notation(nud(), nullptr);
 }
 
+expr parser::parse_inaccessible() {
+    auto p = pos();
+    next();
+    expr t = parse_expr(get_max_prec());
+    return save_pos(mk_inaccessible(t), p);
+}
+
+expr parser::parse_placeholder() {
+    auto p = pos();
+    next();
+    expr t = save_pos(mk_explicit_expr_placeholder(), p);
+    if (m_in_pattern)
+        return save_pos(mk_inaccessible(t), p);
+    else
+        return t;
+}
+
+expr parser::parse_anonymous_var_pattern() {
+    auto p = pos();
+    next();
+    expr t = mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info());
+    return save_pos(t, p);
+}
+
 expr parser::parse_led_notation(expr left) {
     if (led().find(get_token_info().value())) {
         return parse_notation(led(), &left);
@@ -1621,7 +1648,9 @@ expr parser::parse_led_notation(expr left) {
         definition f : nat -> nat -> nat
         | a a := a
 
-   2- We do not collect pattern variables inside inaccessible term (e.g., ⌞f a⌟)
+   2- We do not collect pattern variables inside inaccessible term such as:
+              .(f a)
+
 
       Remark: An inaccessible term may contain a reference to a variable defined
       later. Here is an example:
@@ -1630,26 +1659,22 @@ expr parser::parse_led_notation(expr left) {
       | mk : ∀ (a : A), imf (f a)
 
       definition inv {A B : Type} (f : A → B) : ∀ (b : B), imf f b → A
-      | ⌞f a⌟ (imf.mk ⌞f⌟ a)  := a
+      | .(f a) (imf.mk .f a)  := a
 
-      The 'a' in ⌞f a⌟ is a reference to the variable 'a' being declared at
-      (imf.mk ⌞f⌟ a)
+      The 'a' in .(f a) is a reference to the variable 'a' being declared at
+      (imf.mk .f a)
 
    3- The type in type ascriptions is implicitly marked as inaccessible.
 
    4- An inaccessible term cannot be the function in an application.
-      Example: (⌞f⌟ a) is not allowed.
+      Example: (.f a) is not allowed.
 
    5- In a pattern (f a), f must be a constructor or a constant tagged with the
-      [pattern] attribute
-
-   6- A '_' is treated as an anonymous variable in patterns, and as placeholder
-      inside of inaccessible terms. */
+      [pattern] attribute */
 struct to_pattern_fn {
     parser &       m_parser;
     buffer<expr> & m_new_locals;
     name_map<expr> m_locals_map; // local variable name --> its interpretation
-    expr_map<expr> m_anonymous_vars; // for _
 
     to_pattern_fn(parser & p, buffer<expr> & new_locals):
         m_parser(p), m_new_locals(new_locals) {}
@@ -1713,10 +1738,6 @@ struct to_pattern_fn {
             // do nothing
         } else if (is_inaccessible(e)) {
             // do nothing
-        } else if (is_placeholder(e)) {
-            expr r = mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info());
-            m_new_locals.push_back(r);
-            m_anonymous_vars.insert(mk_pair(e, r));
         } else if (is_app(e)) {
             collect_new_locals(app_fn(e), skip_main_fn);
             collect_new_locals(app_arg(e), false);
@@ -1758,8 +1779,6 @@ struct to_pattern_fn {
             return e;
         } else if (is_inaccessible(e)) {
             return to_expr(e);
-        } else if (is_placeholder(e)) {
-            return m_anonymous_vars.find(e)->second;
         } else if (is_app(e)) {
             if (is_inaccessible(app_fn(e))) {
                 throw parser_error("invalid inaccessible annotation, it cannot be used around functions in applications",
@@ -1798,6 +1817,7 @@ expr parser::patexpr_to_pattern(expr const & pat_or_expr, bool skip_main_fn, buf
 
 expr parser::parse_pattern_or_expr(unsigned rbp) {
     all_id_local_scope scope(*this);
+    flet<bool> set_in_pattern(m_in_pattern, true);
     return parse_expr(rbp);
 }
 
@@ -1806,8 +1826,11 @@ expr parser::patexpr_to_expr(expr const & pat_or_expr) {
     return replace(pat_or_expr, [&](expr const & e, unsigned) {
             if (is_local(e)) {
                 return some_expr(id_to_expr(local_pp_name(e), pos_of(e), true));
+            } else if (is_inaccessible(e) && is_placeholder(get_annotation_arg(e))) {
+                return some_expr(get_annotation_arg(e));
+            } else {
+                return none_expr();
             }
-            return none_expr();
         });
 }
 
@@ -2037,7 +2060,13 @@ expr parser::parse_char_expr() {
 
 expr parser::parse_nud() {
     switch (curr()) {
-    case scanner::token_kind::Keyword:     return parse_nud_notation();
+    case scanner::token_kind::Keyword:
+        if (m_in_pattern && curr_is_token(get_period_tk()))
+            return parse_inaccessible();
+        else if (curr_is_token(get_placeholder_tk()))
+            return parse_placeholder();
+        else
+            return parse_nud_notation();
     case scanner::token_kind::Identifier:  return parse_id();
     case scanner::token_kind::Numeral:     return parse_numeral_expr();
     case scanner::token_kind::Decimal:     return parse_decimal_expr();
@@ -2071,7 +2100,10 @@ expr parser::parse_led(expr left) {
 unsigned parser::curr_lbp() const {
     switch (curr()) {
     case scanner::token_kind::Keyword:
-        return get_token_info().expr_precedence();
+        if (m_in_pattern && curr_is_token(get_period_tk()))
+            return get_max_prec();
+        else
+            return get_token_info().expr_precedence();
     case scanner::token_kind::CommandKeyword: case scanner::token_kind::Eof:
     case scanner::token_kind::QuotedSymbol:
         return 0;

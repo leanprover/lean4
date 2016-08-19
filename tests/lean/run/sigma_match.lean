@@ -12,11 +12,11 @@ match x with
 end
 
 definition src2 {A B : Type} : arrow_ob A B → A
-| src2 (sigma.mk a (sigma.mk _ _)) := a
+| src2 (sigma.mk a (sigma.mk b c)) := a
 
 definition src3 {A B : Type} (x : arrow_ob A B) : A :=
 match x with
-  (sigma.mk a (sigma.mk _ _)) := a
+  (sigma.mk a (sigma.mk b c)) := a
 end
 
 example (A B : Type) (x : arrow_ob A B) : src1 x = src2 x :=

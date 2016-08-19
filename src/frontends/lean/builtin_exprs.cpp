@@ -132,10 +132,6 @@ static expr parse_let_expr(parser & p, unsigned, expr const *, pos_info const & 
     return parse_let(p, pos);
 }
 
-static expr parse_placeholder(parser & p, unsigned, expr const *, pos_info const & pos) {
-    return p.save_pos(mk_explicit_expr_placeholder(), pos);
-}
-
 static expr parse_unit(parser & p, unsigned, expr const *, pos_info const & pos) {
     return p.save_pos(mk_constant(get_unit_star_name()), pos);
 }
@@ -420,10 +416,6 @@ static expr parse_rparen(parser & p, unsigned, expr const * args, pos_info const
         return args[0];
 }
 
-static expr parse_inaccessible(parser & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_inaccessible(args[0]), pos);
-}
-
 static expr parse_typed_expr(parser & p, unsigned, expr const * args, pos_info const & pos) {
     return mk_typed_expr_distrib_choice(p, args[1], args[0], pos);
 }
@@ -679,7 +671,6 @@ parse_table init_nud_table() {
     action Binders(mk_binders_action());
     expr x0 = mk_var(0);
     parse_table r;
-    r = r.add({transition("_", mk_ext_action(parse_placeholder))}, x0);
     r = r.add({transition("by", mk_ext_action_core(parse_by))}, x0);
     r = r.add({transition("have", mk_ext_action(parse_have))}, x0);
     r = r.add({transition("suppose", mk_ext_action(parse_suppose))}, x0);
@@ -690,11 +681,9 @@ parse_table init_nud_table() {
     r = r.add({transition("(", Expr), transition(")", mk_ext_action(parse_rparen))}, x0);
     r = r.add({transition("(", Expr), transition(":", Expr), transition(")", mk_ext_action(parse_typed_expr))}, x0);
     r = r.add({transition("⟨", mk_ext_action(parse_constructor))}, x0);
-    r = r.add({transition("?(", Expr), transition(")", mk_ext_action(parse_inaccessible))}, x0);
     r = r.add({transition("`(", mk_ext_action(parse_quoted_expr))}, x0);
     r = r.add({transition("`", mk_ext_action(parse_quoted_name))}, x0);
-     r = r.add({transition("%%", mk_ext_action(parse_antiquote_expr))}, x0);
-    r = r.add({transition("⌞", Expr), transition("⌟", mk_ext_action(parse_inaccessible))}, x0);
+    r = r.add({transition("%%", mk_ext_action(parse_antiquote_expr))}, x0);
     r = r.add({transition("(:", Expr), transition(":)", mk_ext_action(parse_pattern))}, x0);
     r = r.add({transition("()", mk_ext_action(parse_unit))}, x0);
     r = r.add({transition("fun", Binders), transition(",", mk_scoped_expr_action(x0))}, x0);

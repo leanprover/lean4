@@ -38,7 +38,7 @@ private definition utf8_length_aux : nat → nat → string → nat
   else if 0xFC ≤ n ∧ n < 0xFE then utf8_length_aux 5 (r+1) s
   else                             utf8_length_aux 0 (r+1) s
 | (n+1) r (c::s) := utf8_length_aux n r s
-| _     r []     := r
+| n     r []     := r
 
 definition utf8_length : string → nat
 | s := utf8_length_aux 0 0 (reverse s)

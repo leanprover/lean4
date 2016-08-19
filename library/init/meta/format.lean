@@ -87,7 +87,7 @@ meta_definition char.has_to_format : has_to_format char :=
 has_to_format.mk (λ c : char, format.of_string [c])
 
 meta_definition list.to_format_aux {A : Type} [has_to_format A] : bool → list A → format
-| _  []      := to_fmt ""
+| b  []      := to_fmt ""
 | tt (x::xs) := to_fmt x ++ list.to_format_aux ff xs
 | ff (x::xs) := to_fmt "," ++ line ++ to_fmt x ++ list.to_format_aux ff xs
 

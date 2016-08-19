@@ -65,4 +65,4 @@ meta_definition level.has_param : level → name → bool
 | (level.max l₁ l₂)  n  := level.has_param l₁ n || level.has_param l₂ n
 | (level.imax l₁ l₂) n  := level.has_param l₁ n || level.has_param l₂ n
 | (level.param n₁)   n  := to_bool (n₁ = n)
-| _                  n  := ff
+| l                  n  := ff

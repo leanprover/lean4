@@ -24,8 +24,8 @@ definition Term t := Π (var : type → Type), @term var t
 open unit
 
 definition count_vars : Π {t : type}, @term (λ x, unit) t -> nat
-| count_vars (Var _)       := 1
-| count_vars (Const _)     := 0
+| count_vars (Var x)       := 1
+| count_vars (Const x)     := 0
 | count_vars (Plus e1 e2)  := count_vars e1 + count_vars e2
 | count_vars (Abs e1)      := count_vars (e1 star)
 | count_vars (App e1 e2)   := count_vars e1 + count_vars e2
@@ -38,9 +38,9 @@ example : count_vars (App (App (var (Func Nat (Func Nat Nat))) (var Nat)) (var N
 rfl
 
 definition count_vars2 : Π {t : type}, @term (λ x, unit) t -> nat
-| _   (Var _)              := 1
-| Nat (Const _)            := 0
-| Nat (Plus e1 e2)         := count_vars2 e1 + count_vars2 e2
-| (Func _ _) (Abs e1)      := count_vars2 (e1 star)
-| _          (App e1 e2)   := count_vars2 e1 + count_vars2 e2
-| _          (Let e1 e2)   := count_vars2 e1 + count_vars2 (e2 star)
+| t          (Var x)       := 1
+| Nat        (Const x)     := 0
+| Nat        (Plus e1 e2)  := count_vars2 e1 + count_vars2 e2
+| (Func A B) (Abs e1)      := count_vars2 (e1 star)
+| t          (App e1 e2)   := count_vars2 e1 + count_vars2 e2
+| t          (Let e1 e2)   := count_vars2 e1 + count_vars2 (e2 star)

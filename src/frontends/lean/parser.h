@@ -102,6 +102,7 @@ class parser : public abstract_parser {
     parser_scope_stack      m_parser_scope_stack;
     parser_scope_stack      m_quote_stack;
     bool                    m_in_quote;
+    bool                    m_in_pattern;
     pos_info                m_last_cmd_pos;
     unsigned                m_next_tag_idx;
     unsigned                m_next_inst_idx;
@@ -183,6 +184,9 @@ class parser : public abstract_parser {
     expr parse_notation(parse_table t, expr * left);
     expr parse_nud_notation();
     expr parse_led_notation(expr left);
+    expr parse_inaccessible();
+    expr parse_placeholder();
+    expr parse_anonymous_var_pattern();
     expr parse_nud();
     bool curr_starts_expr();
     expr parse_numeral_expr(bool user_notation = true);
@@ -442,6 +446,7 @@ public:
         parser &    m_p;
         id_behavior m_id_behavior;
         bool        m_in_quote;
+        bool        m_saved_in_pattern;
         quote_scope(parser & p, bool q);
         ~quote_scope();
     };

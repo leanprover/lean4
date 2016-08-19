@@ -21,15 +21,12 @@ rangle       ⟩
 triangle     ▸
 caret        ^
 up           ↑
-down         <d
 bar          |
 comma        ,
 add          +
 sub          -
 greater      >
 question     ?
-question_lp  ?(
-bang         !
 slash        /
 plus         +
 star         *

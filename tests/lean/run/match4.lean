@@ -2,10 +2,10 @@ open nat bool inhabited prod
 
 definition diag (a b c : bool) : nat :=
 match (a, b, c) with
-  | (_,  tt, ff) := 1
-  | (ff, _,  tt) := 2
-  | (tt, ff, _)  := 3
-  | (_,  _,  _)  := arbitrary nat
+  | (b,  tt, ff)  := 1
+  | (ff, b,  tt)  := 2
+  | (tt, ff, b)   := 3
+  | (b1, b2, b3)  := arbitrary nat
 end
 
 theorem diag1 (a : bool) : diag a tt ff = 1 :=

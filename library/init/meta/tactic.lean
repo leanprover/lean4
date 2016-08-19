@@ -35,7 +35,7 @@ variables [has_to_string A]
 
 meta_definition tactic_result_to_string : tactic_result A → string
 | (success a s)   := to_string a
-| (exception ⌞A⌟ e s) := "Exception: " ++ to_string (e ())
+| (exception _ e s) := "Exception: " ++ to_string (e ())
 
 attribute [instance]
 meta_definition tactic_result_has_to_string : has_to_string (tactic_result A) :=
@@ -120,7 +120,7 @@ repeat_at_most 100000
 meta_definition returnex (e : exceptional A) : tactic A :=
 λ s, match e with
 | (exceptional.success a)       := tactic_result.success a s
-| (exceptional.exception ⌞A⌟ f) := tactic_result.exception A (λ u, f options.mk) s -- TODO(Leo): extract options from environment
+| (exceptional.exception _ f) := tactic_result.exception A (λ u, f options.mk) s -- TODO(Leo): extract options from environment
 end
 
 meta_definition returnopt (e : option A) : tactic A :=
@@ -160,7 +160,7 @@ has_to_tactic_format.to_tactic_format
 open tactic format
 
 meta_definition list_to_tactic_format_aux {A : Type} [has_to_tactic_format A] : bool → list A → tactic format
-| _  []     := return $ to_fmt ""
+| b  []     := return $ to_fmt ""
 | b (x::xs) := do
   f₁ ← pp x,
   f₂ ← list_to_tactic_format_aux ff xs,
@@ -341,9 +341,9 @@ intro `_
 meta_definition intros : tactic (list expr) :=
 do t ← target,
    match t with
-   | (expr.pi   _ _ _ _) := do H ← intro1, Hs ← intros, return (H :: Hs)
-   | (expr.elet _ _ _ _) := do H ← intro1, Hs ← intros, return (H :: Hs)
-   | _                   := return []
+   | (expr.pi   n bi d b) := do H ← intro1, Hs ← intros, return (H :: Hs)
+   | (expr.elet n t v b) := do H ← intro1, Hs ← intros, return (H :: Hs)
+   | e                   := return []
    end
 
 meta_definition intro_lst : list name → tactic (list expr)
@@ -428,7 +428,7 @@ meta_definition swap : tactic unit :=
 do gs ← get_goals,
    match gs with
    | (g₁ :: g₂ :: rs) := set_goals (g₂ :: g₁ :: rs)
-   | _                := skip
+   | e                := skip
    end
 
 /- Return the number of goals that need to be solved -/
@@ -463,7 +463,7 @@ do gs ← get_goals,
         gs' ← get_goals,
         match gs' with
         | [] := set_goals rs
-        | _  := fail "focus tactic failed, focused goal has not been solved"
+        | gs := fail "focus tactic failed, focused goal has not been solved"
         end
    end
 
@@ -572,7 +572,7 @@ private meta_definition get_pi_arity_aux : expr → tactic nat
      new_b ← whnf (expr.instantiate_var b l),
      r     ← get_pi_arity_aux new_b,
      return (r + 1)
-| _                  := return 0
+| e                  := return 0
 
 /- Compute the arity of the given (Pi-)type -/
 meta_definition get_pi_arity (type : expr) : tactic nat :=

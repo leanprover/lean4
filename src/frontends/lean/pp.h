@@ -83,7 +83,7 @@ private:
     level purify(level const & l);
     expr purify(expr const & e);
     bool is_implicit(expr const & f);
-    optional<expr> arg_is_proof(expr const & f);
+    optional<expr> is_proof(expr const & f);
     bool is_prop(expr const & e);
     bool has_implicit_args(expr const & f);
     optional<name> is_aliased(name const & n) const;
@@ -134,6 +134,7 @@ private:
     result pp_let_macro(expr e);
     result pp_let(expr e);
     result pp_num(mpz const & n);
+    result pp_proof_type(expr const & t);
     // If fn is true, then \c e is of the form (f a), and the abbreviation is \c f.
     result pp_abbreviation(expr const & e, name const & abbrev, bool fn, unsigned bp = 0, bool ignore_hide = false);
     void set_options_core(options const & o);

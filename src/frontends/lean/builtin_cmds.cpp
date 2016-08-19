@@ -354,12 +354,12 @@ static environment help_cmd(parser & p) {
     }
     if (p.curr_is_token_or_id(get_options_tk())) {
         p.next();
-        for (auto odecl : get_option_declarations()) {
-            auto opt = odecl.second;
-            p.ios().get_regular_stream()
-                << "  " << opt.get_name() << " (" << opt.kind() << ") "
-                << opt.get_description() << " (default: " << opt.get_default_value() << ")" << std::endl;
-        }
+        auto decls = get_option_declarations();
+        decls.for_each([&](name const &, option_declaration const & opt) {
+                p.ios().get_regular_stream()
+                    << "  " << opt.get_name() << " (" << opt.kind() << ") "
+                    << opt.get_description() << " (default: " << opt.get_default_value() << ")" << std::endl;
+            });
     } else if (p.curr_is_token_or_id(get_commands_tk())) {
         p.next();
         buffer<name> ns;

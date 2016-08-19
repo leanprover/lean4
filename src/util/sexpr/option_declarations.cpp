@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/shared_mutex.h"
 #include "util/sexpr/option_declarations.h"
 #include "util/sexpr/format.h"
 
@@ -53,20 +54,29 @@ void option_declaration::display_value(std::ostream & out, options const & o) co
 }
 
 static option_declarations * g_option_declarations = nullptr;
+static shared_mutex *        g_option_declarations_guard = nullptr;
 
 void initialize_option_declarations() {
-    g_option_declarations = new option_declarations();
+    g_option_declarations       = new option_declarations();
+    g_option_declarations_guard = new shared_mutex();
 }
 
 void finalize_option_declarations() {
     delete g_option_declarations;
+    delete g_option_declarations_guard;
 }
 
-option_declarations const & get_option_declarations() {
-    return *g_option_declarations;
+option_declarations get_option_declarations() {
+    option_declarations r;
+    {
+        shared_lock lock(*g_option_declarations_guard);
+        r = *g_option_declarations;
+    }
+    return r;
 }
 
 void register_option(name const & n, option_kind k, char const * default_value, char const * description) {
-    g_option_declarations->insert(mk_pair(n, option_declaration(n, k, default_value, description)));
+    exclusive_lock lock(*g_option_declarations_guard);
+    g_option_declarations->insert(n, option_declaration(n, k, default_value, description));
 }
 }

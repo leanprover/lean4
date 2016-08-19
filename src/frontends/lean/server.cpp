@@ -537,13 +537,12 @@ void server::eval(std::string const & line) {
 void server::show_options() {
     m_out << "-- BEGINOPTIONS" << std::endl;
     options const & o = m_ios.get_options();
-    option_declarations const & decls = get_option_declarations();
-    for (auto it = decls.begin(); it != decls.end(); it++) {
-        option_declaration const & d = it->second;
-        m_out << "-- " << d.get_name() << "|" << d.kind() << "|";
-        d.display_value(m_out, o);
-        m_out << "|" << d.get_description() << "\n";
-    }
+    option_declarations decls = get_option_declarations();
+    decls.for_each([&](name const &, option_declaration const & d) {
+            m_out << "-- " << d.get_name() << "|" << d.kind() << "|";
+            d.display_value(m_out, o);
+            m_out << "|" << d.get_description() << "\n";
+        });
     m_out << "-- ENDOPTIONS" << std::endl;
 }
 

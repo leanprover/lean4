@@ -133,13 +133,12 @@ static void tst4() {
 static void tst5() {
     option_declarations const & decls = get_option_declarations();
     auto it = decls.find("fakeopt");
-    lean_assert(it != decls.end());
-    auto decl = it->second;
-    lean_assert(decl.get_name() == "fakeopt");
-    lean_assert(decl.get_default_value() == "false");
-    lean_assert(decl.get_description() == "fake option");
+    lean_assert(it);
+    lean_assert(it->get_name() == "fakeopt");
+    lean_assert(it->get_default_value() == "false");
+    lean_assert(it->get_description() == "fake option");
     auto it2 = decls.find("fakeopt2");
-    lean_assert(it2 == decls.end());
+    lean_assert(!it2);
 }
 
 static void tst6() {

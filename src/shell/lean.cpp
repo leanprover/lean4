@@ -225,8 +225,8 @@ options set_config_option(options const & opts, char const * in) {
     std::string val = in_str.substr(pos+1);
     auto decls = lean::get_option_declarations();
     auto it = decls.find(opt);
-    if (it != decls.end()) {
-        switch (it->second.kind()) {
+    if (it) {
+        switch (it->kind()) {
         case lean::BoolOption:
             if (val == "true")
                 return opts.update(opt, true);

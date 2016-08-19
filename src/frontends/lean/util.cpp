@@ -400,19 +400,20 @@ expr elim_choice_num(expr const & e) {
 pair<name, option_kind> parse_option_name(parser & p, char const * error_msg) {
     auto id_pos  = p.pos();
     name id = p.check_id_next(error_msg);
-    auto decl_it = get_option_declarations().find(id);
-    if (decl_it == get_option_declarations().end()) {
+    option_declarations decls = get_option_declarations();
+    auto it = decls.find(id);
+    if (!it) {
         // add "lean" prefix
         name lean_id = name("lean") + id;
-        decl_it = get_option_declarations().find(lean_id);
-        if (decl_it == get_option_declarations().end()) {
+        it = decls.find(lean_id);
+        if (!it) {
             throw parser_error(sstream() << "unknown option '" << id
                                << "', type 'help options.' for list of available options", id_pos);
         } else {
             id = lean_id;
         }
     }
-    return mk_pair(id, decl_it->second.kind());
+    return mk_pair(id, it->kind());
 }
 
 expr mk_tactic_unit() {

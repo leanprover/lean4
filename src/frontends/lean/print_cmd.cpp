@@ -422,14 +422,17 @@ bool print_id_info(parser & p, name const & id, bool show_value, pos_info const 
         }
 
         // options
-        for (auto odecl : get_option_declarations()) {
-            auto opt = odecl.second;
-            if (opt.get_name() == id || opt.get_name() == name("lean") + id) {
-                out << "option  " << opt.get_name() << " (" << opt.kind() << ") "
-                    << opt.get_description() << " (default: " << opt.get_default_value() << ")" << endl;
-                return true;
-            }
-        }
+        auto decls = get_option_declarations();
+        bool found = false;
+        decls.for_each([&](name const &, option_declaration const & opt) {
+                if (found) return;
+                if (opt.get_name() == id || opt.get_name() == name("lean") + id) {
+                    out << "option  " << opt.get_name() << " (" << opt.kind() << ") "
+                        << opt.get_description() << " (default: " << opt.get_default_value() << ")" << endl;
+                    found = true;
+                }
+            });
+        if (found) return true;
     } catch (exception &) {}
     return false;
 }

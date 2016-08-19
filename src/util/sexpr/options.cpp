@@ -177,7 +177,7 @@ options add_prefix(name const & prefix, options const & opts) {
     option_declarations const & decls = get_option_declarations();
     return map(opts.m_value, [&](sexpr const & p) {
             name n = prefix + to_name(car(p));
-            if (decls.find(n) == decls.end())
+            if (!decls.contains(n))
                 throw exception(sstream() << "unknown option '" << n << "'");
             return cons(sexpr(n), cdr(p));
         });

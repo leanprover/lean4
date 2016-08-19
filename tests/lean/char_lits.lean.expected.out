@@ -1,4 +1,4 @@
-char.of_nat 97 : char
+'a' : char
 'a'
 '\n'
 '\\'

@@ -201,9 +201,13 @@ struct elim_match_fn {
         bool has_variable    = false;
         bool has_constructor = false;
         bool r = all_next_pattern(P, [&](expr const & p) {
-                if (is_local(p)) { has_variable = true; return true; }
-                else if (is_constructor(p)) { has_constructor = true; return true; }
-                else { return false; }
+                if (is_local(p)) {
+                    has_variable = true; return true;
+                } else if (is_constructor(p)) {
+                    has_constructor = true; return true;
+                } else {
+                    return false;
+                }
             });
         return r && has_variable && has_constructor;
     }

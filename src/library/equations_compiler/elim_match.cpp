@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
 #include "library/trace.h"
+#include "library/num.h"
+#include "library/string.h"
 #include "library/pp_options.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/cases_tactic.h"
@@ -58,6 +60,24 @@ struct elim_match_fn {
         return ues.get_arity_of(0);
     }
 
+    bool is_constructor(expr const & e) const {
+        return static_cast<bool>(eqns_env_interface(m_env).is_constructor(e));
+    }
+
+    bool is_constructor_app(expr const & e) const {
+        return is_constructor(get_app_fn(e));
+    }
+
+    bool is_value(expr const & e) const {
+        return to_num(e) || to_char(e) || to_string(e) || is_constructor(e);
+    }
+
+    expr whnf_pattern(type_context & ctx, expr const & e) {
+        return ctx.whnf_pred(e, [&](expr const & e) {
+                return !is_constructor_app(e) && !is_value(e);
+            });
+    }
+
     pair<expr, list<name>>
     mk_main_goal(local_context lctx, expr fn_type, unsigned arity) {
         type_context ctx = mk_type_context(lctx);
@@ -98,7 +118,7 @@ struct elim_match_fn {
         buffer<expr> patterns;
         get_app_args(equation_lhs(it), patterns);
         for (expr & p : patterns) {
-            p = eqns_env_interface(m_env).whnf_upto_constructor(ctx, instantiate_rev(p, locals));
+            p = whnf_pattern(ctx, instantiate_rev(p, locals));
         }
         E.m_patterns = to_list(patterns);
         E.m_ref  = eqn;
@@ -165,10 +185,6 @@ struct elim_match_fn {
         return r;
     }
 
-    bool is_constructor(expr const & e) const {
-        return static_cast<bool>(eqns_env_interface(m_env).is_constructor(get_app_fn(e)));
-    }
-
     template<typename Pred>
     bool all_next_pattern(program const & P, Pred && p) const {
         for (equation const & eqn : P.m_equations) {
@@ -191,7 +207,7 @@ struct elim_match_fn {
 
     /* Return true iff the next pattern in all equations is a constructor. */
     bool is_constructor_transition(program const & P) const {
-        return all_next_pattern(P, [&](expr const & p) { return is_constructor(p); });
+        return all_next_pattern(P, [&](expr const & p) { return is_constructor_app(p); });
     }
 
     /* Return true iff the next pattern of every equation is a constructor or variable,
@@ -203,13 +219,45 @@ struct elim_match_fn {
         bool r = all_next_pattern(P, [&](expr const & p) {
                 if (is_local(p)) {
                     has_variable = true; return true;
-                } else if (is_constructor(p)) {
+                } else if (is_constructor_app(p)) {
                     has_constructor = true; return true;
                 } else {
                     return false;
                 }
             });
         return r && has_variable && has_constructor;
+    }
+
+    /* Return true iff the equations are of the form
+
+          v_1 ... := ...
+          ...
+          v_n ... := ...
+          x_1 ... := ...
+          ...
+          x_m ... := ...
+
+      where v_i's are values and x_j's are variables.
+      This transition is used to compile patterns containing
+      numerals, characters, strings and enumeration types.
+      It is much more efficient than using complete_transition followed by constructor_transition.
+      This optimization addresses issue #1089 raised by Jared Roesch. */
+    bool is_value_transition(program const & P) const {
+        bool found_value = false;
+        bool found_var   = false;
+        for (equation const & eqn : P.m_equations) {
+            lean_assert(eqn.m_patterns);
+            expr const & p = head(eqn.m_patterns);
+            if (is_value(p)) {
+                found_value = true;
+                if (found_var) return false;
+            } if (is_local(p)) {
+                found_var = true;
+            } else {
+                return false;
+            }
+        }
+        return found_value && found_var;
     }
 
     expr operator()(local_context const & lctx, expr const & eqns) {

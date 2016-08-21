@@ -76,7 +76,7 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
     optional<expr> mvar6 = intron(env, opts, mctx, mvar5, to_revert.size() - 2, new_Hnames);
     if (renames) {
         name_map<name> rmap;
-        for (unsigned i = 0; to_revert.size() - 2; i++) {
+        for (unsigned i = 0; i < to_revert.size() - 2; i++) {
             rmap.insert(mlocal_name(to_revert[i+2]), new_Hnames[i]);
         }
         *renames = rmap;

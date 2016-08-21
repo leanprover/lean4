@@ -20,6 +20,16 @@ Author: Leonardo de Moura
 #include "library/tactic/app_builder_tactics.h"
 
 namespace lean {
+/* For debugging purposes, make sure H is in the local context for mvar */
+static bool check_hypothesis_in_context(metavar_context const & mctx, expr const & mvar, name const & H) {
+    local_context lctx = mctx.get_metavar_decl(mvar)->get_context();
+    if (!lctx.get_local_decl(H)) {
+        lean_unreachable();
+        return false;
+    }
+    return true;
+}
+
 expr subst(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
            expr const & mvar, expr const & H, bool symm, name_map<name> * renames) {
     #define lean_subst_trace(CODE) lean_trace(name({"tactic", "subst"}), CODE)
@@ -74,14 +84,17 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
     expr mvar5   = clear(mctx, mvar4, lhs);
     buffer<name> new_Hnames;
     optional<expr> mvar6 = intron(env, opts, mctx, mvar5, to_revert.size() - 2, new_Hnames);
+    if (!mvar6) throw exception("subst tactic failed, unexpected failure when re-introducing dependencies");
+    lean_assert(new_Hnames.size() == to_revert.size() - 2);
     if (renames) {
         name_map<name> rmap;
         for (unsigned i = 0; i < to_revert.size() - 2; i++) {
+            lean_assert(check_hypothesis_in_context(mctx, mvar, mlocal_name(to_revert[i+2])));
+            lean_assert(check_hypothesis_in_context(mctx, *mvar6, new_Hnames[i]));
             rmap.insert(mlocal_name(to_revert[i+2]), new_Hnames[i]);
         }
         *renames = rmap;
     }
-    if (!mvar6) throw exception("subst tactic failed, unexpected failure when re-introducing dependencies");
     lean_subst_trace_state(*mvar6, "after intro remaining reverted hypotheses:\n");
     return *mvar6;
 }

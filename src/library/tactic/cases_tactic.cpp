@@ -71,6 +71,18 @@ struct cases_tactic_fn {
         m_cases_on_decl  = m_env.get({n, "cases_on"});
     }
 
+    /* For debugging purposes, check whether all hypotheses in Hs are in the local context for mvar */
+    bool check_hypotheses_in_context(expr const & mvar, list<optional<name>> const & Hs) {
+        local_context lctx = m_mctx.get_metavar_decl(mvar)->get_context();
+        for (optional<name> const & H : Hs) {
+            if (H && !lctx.get_local_decl(*H)) {
+                lean_unreachable();
+                return false;
+            }
+        }
+        return true;
+    }
+
     bool is_cases_applicable(expr const & mvar, expr const & H) {
         type_context ctx = mk_type_context_for(mvar);
         expr t = ctx.infer(H);
@@ -255,18 +267,21 @@ struct cases_tactic_fn {
     }
 
     /* Apply the new_renames at new_names and renames. */
-    void merge_renames(bool update_renames, list<name> & new_names, name_map<name> & renames, name_map<name> new_renames) {
-        if (!update_renames) return;
+    void merge_renames(bool update_names, list<optional<name>> & new_names, name_map<name> & renames, name_map<name> new_renames) {
+        if (!update_names) return;
+        if (new_renames.empty()) return;
         /* Apply new_renames to new_names. */
-        buffer<name> new_new_names;
-        for (name const & n : new_names) {
-            if (auto r = new_renames.find(n))
-                new_new_names.push_back(*r);
+        buffer<optional<name>> new_new_names;
+        for (optional<name> const & n : new_names) {
+            if (!n)
+                new_new_names.push_back(n);
+            else if (auto r = new_renames.find(*n))
+                new_new_names.push_back(optional<name>(*r));
             else
                 new_new_names.push_back(n);
         }
         new_names = to_list(new_new_names);
-        /* Merge renames and new_names */
+        /* Merge renames and new_renames */
         name_map<name> m;
         renames.for_each([&](name const & k, name const & d) {
                 if (auto r = new_renames.find(d)) {
@@ -284,7 +299,7 @@ struct cases_tactic_fn {
         renames = m;
     }
 
-    optional<expr> unify_eqs(expr mvar, unsigned num_eqs, bool update_renames, list<name> & new_names, name_map<name> & renames) {
+    optional<expr> unify_eqs(expr mvar, unsigned num_eqs, bool updating_names, list<optional<name>> & new_names, name_map<name> & renames) {
         if (num_eqs == 0)
             return some_expr(mvar);
         expr A, B, lhs, rhs;
@@ -326,15 +341,24 @@ struct cases_tactic_fn {
             expr val        = mk_app(mvar2, mk_eq_of_heq(ctx, H));
             m_mctx.assign(*mvar1, val);
             lean_cases_trace(mvar, tout() << "converted heq => eq\n";);
-            return unify_eqs(mvar2, num_eqs, update_renames, new_names, renames);
+            return unify_eqs(mvar2, num_eqs, updating_names, new_names, renames);
         } else if (is_eq(H_type, A, lhs, rhs)) {
             if (is_local(rhs) || is_local(lhs)) {
                 lean_cases_trace(mvar, tout() << "substitute\n";);
                 name_map<name> extra_renames;
                 bool symm  = is_local(rhs);
-                expr mvar2 = subst(m_env, m_opts, m_mode, m_mctx, *mvar1, H, symm, update_renames ? &extra_renames : nullptr);
-                merge_renames(update_renames, new_names, renames, extra_renames);
-                return unify_eqs(mvar2, num_eqs - 1, update_renames, new_names, renames);
+                lean_assert(check_hypotheses_in_context(*mvar1, new_names));
+                if (updating_names && is_local(rhs)) {
+                    /* The next substitution may eliminate introduced hypothesis */
+                    name from_name = mlocal_name(rhs);
+                    new_names = map(new_names, [&](optional<name> const & n) {
+                            return (n && *n == from_name) ? optional<name>() : n;
+                        });
+                }
+                expr mvar2 = subst(m_env, m_opts, m_mode, m_mctx, *mvar1, H, symm, updating_names ? &extra_renames : nullptr);
+                merge_renames(updating_names, new_names, renames, extra_renames);
+                lean_assert(check_hypotheses_in_context(mvar2, new_names));
+                return unify_eqs(mvar2, num_eqs - 1, updating_names, new_names, renames);
             } else {
                 optional<name> c1 = is_constructor_app(m_env, lhs);
                 optional<name> c2 = is_constructor_app(m_env, rhs);
@@ -359,7 +383,7 @@ struct cases_tactic_fn {
                         m_mctx.assign(*mvar1, val);
                         unsigned A_nparams = *inductive::get_num_params(m_env, const_name(A_fn));
                         lean_assert(get_app_num_args(lhs) >= A_nparams);
-                        return unify_eqs(mvar2, num_eqs - 1 + get_app_num_args(lhs) - A_nparams, update_renames, new_names, renames);
+                        return unify_eqs(mvar2, num_eqs - 1 + get_app_num_args(lhs) - A_nparams, updating_names, new_names, renames);
                     } else {
                         /* conflict, closes the goal */
                         lean_cases_trace(*mvar1, tout() << "conflicting equality detected, closing goal using no_confusion\n";);
@@ -374,23 +398,25 @@ struct cases_tactic_fn {
         }
     }
 
-    pair<list<expr>, list<name>> unify_eqs(list<expr> const & mvars, list<name> const & cnames, unsigned num_eqs, intros_list * ilist, renaming_list * rlist) {
-        buffer<expr>            new_goals;
-        buffer<list<name>>      new_ilist;
-        buffer<name_map<name>>  new_rlist;
-        buffer<name>            new_cnames;
+    pair<list<expr>, list<name>> unify_eqs(list<expr> const & mvars, list<name> const & cnames, unsigned num_eqs, cintros_list * ilist, renaming_list * rlist) {
+        lean_assert((ilist == nullptr) == (rlist == nullptr));
+        buffer<expr>                 new_goals;
+        buffer<list<optional<name>>> new_ilist;
+        buffer<name_map<name>>       new_rlist;
+        buffer<name>                 new_cnames;
         list<expr> it1            = mvars;
         list<name> itn            = cnames;
-        intros_list const * it2   = ilist;
+        cintros_list const * it2  = ilist;
         renaming_list const * it3 = rlist;
         while (it1) {
-            list<name> new_names;
+            list<optional<name>> new_names;
             name_map<name> renames;
             if (ilist) {
                 new_names = head(*it2);
-                renames = head(*it3);
+                renames   = head(*it3);
             }
-            optional<expr> new_mvar = unify_eqs(head(it1), num_eqs, ilist != nullptr, new_names, renames);
+            bool updating_names = ilist != nullptr;
+            optional<expr> new_mvar = unify_eqs(head(it1), num_eqs, updating_names, new_names, renames);
             if (new_mvar) {
                 new_goals.push_back(*new_mvar);
                 new_cnames.push_back(head(itn));
@@ -401,6 +427,7 @@ struct cases_tactic_fn {
                 it2 = &tail(*it2);
                 it3 = &tail(*it3);
                 if (new_mvar) {
+                    lean_assert(check_hypotheses_in_context(*new_mvar, new_names));
                     new_ilist.push_back(new_names);
                     new_rlist.push_back(renames);
                 }
@@ -421,7 +448,14 @@ struct cases_tactic_fn {
         m_ids(ids) {
     }
 
-    pair<list<expr>, list<name>> operator()(expr const & mvar, expr const & H, intros_list * ilist, renaming_list * rlist) {
+    cintros_list to_cintros_list(intros_list const & ilist) {
+        return map2<list<optional<name>>>(ilist, [](list<name> const & ls) {
+                return map2<optional<name>>(ls, [](name const & n) {
+                        return optional<name>(n); });
+            });
+    }
+
+    pair<list<expr>, list<name>> operator()(expr const & mvar, expr const & H, cintros_list * ilist, renaming_list * rlist) {
         lean_assert((ilist != nullptr) == (rlist != nullptr));
         lean_assert(is_metavar(mvar));
         lean_assert(m_mctx.get_metavar_decl(mvar));
@@ -435,8 +469,11 @@ struct cases_tactic_fn {
         metavar_decl g = *m_mctx.get_metavar_decl(mvar);
         if (has_indep_indices(g, H)) {
             /* Easy case */
-            return mk_pair(induction(m_env, m_opts, m_mode, m_mctx, mvar, H, m_cases_on_decl.get_name(), m_ids, ilist, rlist),
-                           cname_list);
+            intros_list tmp_ilist;
+            auto p = mk_pair(induction(m_env, m_opts, m_mode, m_mctx, mvar, H, m_cases_on_decl.get_name(), m_ids, ilist ? &tmp_ilist : nullptr, rlist),
+                             cname_list);
+            if (ilist) *ilist = to_cintros_list(tmp_ilist);
+            return p;
         } else {
             buffer<name> aux_indices_H; /* names of auxiliary indices and major  */
             unsigned num_eqs; /* number of equations that need to be processed */
@@ -451,7 +488,7 @@ struct cases_tactic_fn {
             list<expr> new_goals2 = elim_aux_indices(new_goals1, aux_indices_H, tmp_rlist);
             lean_cases_trace(mvar1, tout() << "after eliminating auxiliary indices:";
                              for (auto g : new_goals2) tout() << "\n" << pp_goal(g) << "\n";);
-            if (ilist) *ilist = tmp_ilist;
+            if (ilist) *ilist = to_cintros_list(tmp_ilist);
             if (rlist) *rlist = tmp_rlist;
             return unify_eqs(new_goals2, cname_list, num_eqs, ilist, rlist);
         }
@@ -460,7 +497,7 @@ struct cases_tactic_fn {
 
 pair<list<expr>, list<name>>
 cases(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
-      expr const & mvar, expr const & H, list<name> & ids, intros_list * ilist, renaming_list * rlist) {
+      expr const & mvar, expr const & H, list<name> & ids, cintros_list * ilist, renaming_list * rlist) {
     auto r = cases_tactic_fn(env, opts, m, mctx, ids)(mvar, H, ilist, rlist);
     lean_assert(length(r.first) == length(r.second));
     return r;

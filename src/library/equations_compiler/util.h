@@ -81,6 +81,7 @@ public:
 
     bool is_inductive(name const & n) const;
     bool is_inductive(expr const & e) const;
+    optional<name> is_constructor(name const & n) const;
     optional<name> is_constructor(expr const & e) const;
     unsigned get_inductive_num_params(name const & n) const;
     unsigned get_inductive_num_indices(name const & n) const;

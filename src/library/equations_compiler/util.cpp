@@ -150,9 +150,13 @@ bool eqns_env_interface::is_inductive(expr const & e) const {
     return is_inductive(const_name(e));
 }
 
+optional<name> eqns_env_interface::is_constructor(name const & n) const {
+    return inductive::is_intro_rule(m_env, n);
+}
+
 optional<name> eqns_env_interface::is_constructor(expr const & e) const {
     if (!is_constant(e)) return optional<name>();
-    return inductive::is_intro_rule(m_env, const_name(e));
+    return is_constructor(const_name(e));
 }
 
 unsigned eqns_env_interface::get_inductive_num_params(name const & n) const {

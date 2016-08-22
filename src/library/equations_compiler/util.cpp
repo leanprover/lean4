@@ -83,10 +83,12 @@ unpack_eqns::unpack_eqns(type_context & ctx, expr const & e):
             }
         } else {
             /* noequation, guess arity using type of function */
-            expr type = mlocal_type(m_fns[fidx]);
+            expr type = ctx.infer(m_fns[fidx]);
             unsigned arity = 0;
-            while (is_pi(type))
+            while (is_pi(type)) {
+                arity++;
                 type = binding_body(type);
+            }
             if (arity == 0) throw_ill_formed_eqns();
             m_arity.push_back(arity);
         }
@@ -178,18 +180,20 @@ bool is_recursive_eqns(type_context & ctx, expr const & e) {
             while (is_lambda(it)) {
                 it = binding_body(it);
             }
-            if (!is_equation(it)) throw_ill_formed_eqns();
-            expr const & rhs = equation_rhs(it);
-            if (find(rhs, [&](expr const & e, unsigned) {
-                        if (is_local(e)) {
-                            for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {
-                                if (mlocal_name(e) == mlocal_name(ues.get_fn(fidx)))
-                                    return true;
+            if (!is_equation(it) && !is_no_equation(it)) throw_ill_formed_eqns();
+            if (is_equation(it)) {
+                expr const & rhs = equation_rhs(it);
+                if (find(rhs, [&](expr const & e, unsigned) {
+                            if (is_local(e)) {
+                                for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {
+                                    if (mlocal_name(e) == mlocal_name(ues.get_fn(fidx)))
+                                        return true;
+                                }
                             }
-                        }
-                        return false;
-                    })) {
-                return true;
+                            return false;
+                        })) {
+                    return true;
+                }
             }
         }
     }

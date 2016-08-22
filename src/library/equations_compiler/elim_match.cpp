@@ -477,13 +477,25 @@ struct elim_match_fn {
         return new_R;
     }
 
+    /* Helper method for producing variable names based on user provided names.
+       \remark The result is a list because the intro tactic takes a list of suggestions. */
+    list<name> select_var_name(list<equation> const & eqns) {
+        for (equation const & eqn : eqns) {
+            if (eqn.m_patterns && is_local(head(eqn.m_patterns))) {
+                return to_list(local_pp_name(head(eqn.m_patterns)));
+            }
+        }
+        return list<name>();
+    }
+
     result compile_variable(program const & P) {
         lean_assert(is_variable_transition(P));
         trace_match(tout() << "variable transition\n";);
         program new_P;
         new_P.m_fn_name   = P.m_fn_name;
+        list<name> suggestion = select_var_name(P.m_equations);
         buffer<name> new_names;
-        optional<expr> new_goal = intron(m_env, m_opts, m_mctx, P.m_goal, 1, new_names);
+        optional<expr> new_goal = intron(m_env, m_opts, m_mctx, P.m_goal, 1, suggestion, new_names);
         if (!new_goal) throw_ill_formed_eqns();
         lean_assert(new_names.size() == 1);
         new_P.m_goal      = *new_goal;

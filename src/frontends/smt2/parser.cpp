@@ -662,10 +662,11 @@ private:
             lean_assert(!n.is_anonymous());
             m_ios.set_option(n, status);
         } else if (sym == ":lnat") {
-            check_curr_kind(scanner::token_kind::INT, "invalid set-option, option ':lnat` requires next argument to be a numeral");
+            check_curr_kind(scanner::token_kind::INT,
+                            "invalid set-option, option ':lnat` "
+                            "requires next argument to be a numeral");
             unsigned val = curr_numeral().get_numerator().get_unsigned_int();
             next();
-            bool status;
             name n;
             while (curr_kind() == scanner::token_kind::SYMBOL) {
                 symbol sym = curr_symbol();

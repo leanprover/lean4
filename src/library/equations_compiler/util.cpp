@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/find_fn.h"
 #include "kernel/inductive/inductive.h"
+#include "library/util.h"
 #include "library/equations_compiler/equations.h"
 #include "library/equations_compiler/util.h"
 
@@ -169,6 +170,11 @@ unsigned eqns_env_interface::get_inductive_num_params(name const & n) const {
 unsigned eqns_env_interface::get_inductive_num_indices(name const & n) const {
     lean_assert(is_inductive(n));
     return *inductive::get_num_indices(m_env, n);
+}
+
+void eqns_env_interface::get_constructors_of(name const & n, buffer<name> & c_names) const {
+    lean_assert(is_inductive(n));
+    get_intro_rule_names(m_env, n, c_names);
 }
 
 bool is_recursive_eqns(type_context & ctx, expr const & e) {

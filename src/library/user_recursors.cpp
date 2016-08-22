@@ -74,7 +74,14 @@ static void throw_invalid_motive(expr const & C) {
 }
 
 recursor_info mk_recursor_info(environment const & env, name const & r, optional<unsigned> const & _given_major_pos) {
-    optional<unsigned> given_major_pos = _given_major_pos;
+    /* The has_given_major_pos/given_major_pos hack is used to workaround a g++ false warning.
+       Note that the pragma
+          #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+       doesn't fix the problem here since the uninitialized variable is reported in an inlined buffer method.
+       I think it would be even hackier to put the pragma at buffer.h */
+    bool has_given_major_pos = static_cast<bool>(_given_major_pos);
+    unsigned given_major_pos = 0;
+    if (_given_major_pos) given_major_pos = *_given_major_pos;
     if (auto I = inductive::is_elim_rule(env, r)) {
         if (*inductive::get_num_type_formers(env, *I) > 1)
             throw exception(sstream() << "unsupported recursor '" << r << "', it has multiple motives");
@@ -103,7 +110,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         name I = r.get_prefix();
         unsigned num_indices  = *inductive::get_num_indices(env, I);
         unsigned num_params   = *inductive::get_num_params(env, I);
-        given_major_pos = num_params + 1 /* motive */ + num_indices;
+        given_major_pos       = num_params + 1 /* motive */ + num_indices;
     }
     declaration d = env.get(r);
     old_type_checker tc(env);
@@ -129,12 +136,12 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
     expr major;
     unsigned major_pos = 0;
     bool dep_elim;
-    if (given_major_pos) {
-        if (*given_major_pos >= tele.size())
+    if (has_given_major_pos) {
+        if (given_major_pos >= tele.size())
             throw exception(sstream() << "invalid user defined recursor, invalid major premise position, "
                             "recursor has only " << tele.size() << "arguments");
-        major     = tele[*given_major_pos];
-        major_pos = *given_major_pos;
+        major_pos = given_major_pos;
+        major     = tele[major_pos];
         if (!C_args.empty() && tc.is_def_eq(C_args.back(), major).first)
             dep_elim = true;
         else

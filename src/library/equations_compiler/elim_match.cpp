@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/locals.h"
 #include "library/app_builder.h"
+#include "library/annotation.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/revert_tactic.h"
 #include "library/tactic/clear_tactic.h"
@@ -63,13 +64,15 @@ struct elim_match_fn {
     };
 
     struct lemma {
-        local_context m_lctx;
-        list<expr>    m_vars;
-        expr          m_eqn; /* equation (it might be conditional) */
-        expr          m_proof;
-        lemma() {}
-        lemma(local_context const & lctx, list<expr> const & vars, expr const & eqn, expr const & proof):
-            m_lctx(lctx), m_vars(vars), m_eqn(eqn), m_proof(proof) {}
+        local_context          m_lctx;
+        list<expr>             m_vars;
+        /* equation (it might be conditional) */
+        expr                   m_eqn;
+        expr                   m_proof;
+        /* m_renames contain variable renaming, it is needed to implement skip transition (for inaccessible terms) */
+        list<pair<expr, expr>> m_renames;
+        /* idx of the user-provided equation that was used to generate this lemma. */
+        unsigned               m_idx;
     };
 
     /** Result for the compilation procedure. */
@@ -348,6 +351,16 @@ struct elim_match_fn {
         return found_inaccessible && found_not_inaccessible;
     }
 
+    /** Replace the variables renaming[i].first with renaming[i].second in `e` */
+    expr apply_renaming(expr const & e, list<pair<expr, expr>> const & renaming) {
+        buffer<expr> from, to;
+        for (pair<expr, expr> const & p : renaming) {
+            from.push_back(p.first);
+            to.push_back(p.second);
+        }
+        return replace_locals(e, from, to);
+    }
+
     /* See update_eqn_lhs */
     template<typename F>
     expr update_eqn_lhs_core(expr const & lhs, unsigned arity, F && updt) {
@@ -402,6 +415,30 @@ struct elim_match_fn {
         lean_unreachable();
     }
 
+    /** Return the first of pattern of the equation with the given index. */
+    expr find_pattern(list<equation> const & eqns, unsigned idx) {
+        for (equation const & eqn : eqns) {
+            if (eqn.m_idx == idx) {
+                return head(eqn.m_patterns);
+            }
+        }
+        lean_unreachable();
+    }
+
+    /* Update the equation left hand side
+
+            (f a_1 ... a_n)
+
+       where n == arity, with
+
+            (new_fn x a_1 ... a_n) */
+    expr update_eqn_with_extra_arg(expr const & eqn, unsigned arity, expr const & new_fn, expr const & x) {
+        return update_eqn_lhs(eqn, arity, [&](buffer<expr> & args) {
+                args.push_back(x);
+                return mk_rev_app(new_fn, args);
+            });
+    }
+
     result compile_skip(program const & P) {
         trace_match(tout() << "skip transition\n";);
         program new_P;
@@ -422,26 +459,22 @@ struct elim_match_fn {
         new_P.m_equations = to_list(new_eqns);
         result R = compile_core(new_P);
         result new_R;
-        type_context ctx = mk_type_context(P);
+        new_R.m_code = m_mctx.instantiate_mvars(P.m_goal);
         if (m_lemmas) {
-            // TODO(Leo)
-
+            buffer<lemma> new_lemmas;
+            for (lemma const & L : R.m_lemmas) {
+                lemma new_L  = L;
+                expr pattern = find_pattern(P.m_equations, L.m_idx);
+                lean_assert(is_inaccessible(pattern));
+                pattern      = get_annotation_arg(pattern);
+                expr new_arg = apply_renaming(pattern, L.m_renames);
+                new_L.m_eqn  = update_eqn_with_extra_arg(L.m_eqn, new_P.m_nvars, new_R.m_code, new_arg);
+                new_lemmas.push_back(new_L);
+            }
+            trace_lemmas(P, "skip transition", new_lemmas);
+            new_R.m_lemmas = to_list(new_lemmas);
         }
         return new_R;
-    }
-
-    /* Update the equation left hand side
-
-            (f a_1 ... a_n)
-
-       where n == arity, with
-
-            (new_fn x a_1 ... a_n) */
-    expr update_eqn_for_variable_transition(expr const & eqn, unsigned arity, expr const & new_fn, expr const & x) {
-        return update_eqn_lhs(eqn, arity, [&](buffer<expr> & args) {
-                args.push_back(x);
-                return mk_rev_app(new_fn, args);
-            });
     }
 
     result compile_variable(program const & P) {
@@ -467,16 +500,13 @@ struct elim_match_fn {
         new_P.m_equations = to_list(new_eqns);
         result R = compile_core(new_P);
         result new_R;
-        type_context ctx = mk_type_context(P);
         new_R.m_code     = m_mctx.instantiate_mvars(P.m_goal);
         if (m_lemmas) {
             buffer<lemma> new_lemmas;
             for (lemma const & L : R.m_lemmas) {
-                lemma new_L;
-                new_L.m_lctx  = L.m_lctx;
+                lemma new_L   = L;
                 new_L.m_vars  = cons(x, L.m_vars);
-                new_L.m_eqn   = update_eqn_for_variable_transition(L.m_eqn, new_P.m_nvars, new_R.m_code, x);
-                new_L.m_proof = L.m_proof;
+                new_L.m_eqn   = update_eqn_with_extra_arg(L.m_eqn, new_P.m_nvars, new_R.m_code, x);
                 new_lemmas.push_back(new_L);
             }
             trace_lemmas(P, "variable transition", new_lemmas);
@@ -694,11 +724,8 @@ struct elim_match_fn {
                     unsigned arity     = std::get<2>(entry);
                     result const & Rc  = std::get<3>(entry);
                     for (lemma const & L : Rc.m_lemmas) {
-                        lemma new_L;
-                        new_L.m_lctx  = L.m_lctx;
-                        new_L.m_vars  = L.m_vars;
+                        lemma new_L = L;
                         new_L.m_eqn   = update_eqn_for_constructor_transition(L, mask, arity, new_R.m_code, cname, I_params);
-                        new_L.m_proof = L.m_proof;
                         new_lemmas.push_back(new_L);
                     }
                 }
@@ -726,20 +753,19 @@ struct elim_match_fn {
         }
         equation const & eqn   = head(P.m_equations);
         m_used_eqns[eqn.m_idx] = true;
-        buffer<expr> from, to;
-        for (pair<expr, expr> const & p : eqn.m_renames) {
-            from.push_back(p.first);
-            to.push_back(p.second);
-        }
-        expr rhs = replace_locals(eqn.m_rhs, from, to);
+        expr rhs = apply_renaming(eqn.m_rhs, eqn.m_renames);
         m_mctx.assign(P.m_goal, rhs);
         result R;
         R.m_code = rhs;
         if (m_lemmas) {
             type_context ctx = mk_type_context(get_local_context(P));
-            expr eq    = mk_eq(ctx, rhs, rhs);
-            expr H     = mk_eq_refl(ctx, rhs);
-            R.m_lemmas = to_list(lemma(ctx.lctx(), list<expr>(), eq, H));
+            lemma L;
+            L.m_lctx    = ctx.lctx();
+            L.m_idx     = eqn.m_idx;
+            L.m_renames = eqn.m_renames;
+            L.m_eqn     = mk_eq(ctx, rhs, rhs);
+            L.m_proof   = mk_eq_refl(ctx, rhs);
+            R.m_lemmas  = to_list(L);
         }
         return R;
     }

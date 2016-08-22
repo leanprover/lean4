@@ -144,7 +144,7 @@ expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<expr> & p
     if (p.curr_is_token(get_assign_tk())) {
         p.next();
         val = p.parse_expr();
-    } else if (p.curr_is_token(get_bar_tk())) {
+    } else if (p.curr_is_token(get_bar_tk()) || p.curr_is_token(get_none_tk())) {
         p.add_local(fn);
         buffer<expr> eqns;
         if (p.curr_is_token(get_none_tk())) {

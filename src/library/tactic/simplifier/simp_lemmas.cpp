@@ -671,7 +671,7 @@ vm_obj tactic_simp_lemmas_insert(vm_obj const & m, vm_obj const & lemmas, vm_obj
 
 void initialize_simp_lemmas() {
     DECLARE_VM_BUILTIN(name({"tactic", "mk_simp_lemmas_core"}),      tactic_mk_simp_lemmas);
-    DECLARE_VM_BUILTIN(name({"tactic", "mk_empy_simp_lemmas"}),      tactic_mk_empty_simp_lemmas);
+    DECLARE_VM_BUILTIN(name({"tactic", "mk_empty_simp_lemmas"}),     tactic_mk_empty_simp_lemmas);
     DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_core"}),  tactic_simp_lemmas_insert);
 
     register_system_attribute(basic_attribute("simp", "simplification lemma", on_add_simp_lemma));

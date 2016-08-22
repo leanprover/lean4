@@ -21,7 +21,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 /* For debugging purposes, make sure H is in the local context for mvar */
-static bool check_hypothesis_in_context(metavar_context const & mctx, expr const & mvar, name const & H) {
+bool check_hypothesis_in_context(metavar_context const & mctx, expr const & mvar, name const & H) {
     local_context lctx = mctx.get_metavar_decl(mvar)->get_context();
     if (!lctx.get_local_decl(H)) {
         lean_unreachable();

@@ -412,7 +412,14 @@ struct elim_match_fn {
 
     result compile_no_equation(program const & P) {
         trace_match(tout() << "no equation transition\n";);
-        lean_unreachable();
+        type_context ctx = mk_type_context(P);
+        expr type        = ctx.relaxed_whnf(ctx.infer(P.m_goal));
+        if (!is_pi(type)) throw_ill_formed_eqns();
+        expr arg_type    = whnf_inductive(ctx, binding_domain(type));
+        if (is_inductive_app(arg_type))
+            return compile_constructor(P);
+        else
+            return compile_variable(P);
     }
 
     /** Return the first of pattern of the equation with the given index. */

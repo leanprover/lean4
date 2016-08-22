@@ -731,8 +731,10 @@ struct elim_match_fn {
                 levels I_lvls    = get_inductive_levels_and_params(ctx, I, I_params);
                 buffer<lemma> new_lemmas;
                 for (std::tuple<name, list<bool>, unsigned, result> const & entry : result_by_constructor) {
-                    name const & cname = std::get<0>(entry); /* constructor name */
-                    list<bool> mask    = std::get<1>(entry); /* bitmask indicating which constructor fields have been introduced by cases-tactic. */
+                    /* cname is the constructor name */
+                    name const & cname = std::get<0>(entry);
+                    /* mask is a bitmask indicating which constructor fields have been introduced by cases-tactic. */
+                    list<bool> mask    = std::get<1>(entry);
                     unsigned arity     = std::get<2>(entry);
                     result const & Rc  = std::get<3>(entry);
                     for (lemma const & L : Rc.m_lemmas) {
@@ -754,8 +756,50 @@ struct elim_match_fn {
     }
 
     result compile_complete(program const & P) {
+        lean_assert(is_complete_transition(P));
         trace_match(tout() << "complete transition\n";);
-        lean_unreachable();
+        /* The next pattern of every equation is a constructor or variable.
+           We split the equations where the next pattern is a variable into cases.
+           That is, we are reducing this case to the compile_constructor case. */
+        buffer<equation> new_eqns;
+        for (equation const & eqn : P.m_equations) {
+            expr const & pattern = head(eqn.m_patterns);
+            if (is_local(pattern)) {
+                type_context ctx  = mk_type_context(eqn.m_lctx);
+                expr pattern_type = whnf_inductive(ctx, ctx.infer(pattern));
+                buffer<expr> I_args;
+                expr const & I      = get_app_args(pattern_type, I_args);
+                name const & I_name = const_name(I);
+                levels const & I_ls = const_levels(I);
+                unsigned nparams    = eqns_env_interface(m_env).get_inductive_num_params(I_name);
+                buffer<expr> I_params;
+                I_params.append(nparams, I_args.data());
+                buffer<name> constructor_names;
+                eqns_env_interface(m_env).get_constructors_of(I_name, constructor_names);
+                for (name const & c_name : constructor_names) {
+                    buffer<expr> new_args;
+                    expr c  = mk_app(mk_constant(c_name, I_ls), I_params);
+                    expr it = whnf_inductive(ctx, ctx.infer(c));
+                    while (is_pi(it)) {
+                        expr new_arg = ctx.push_local(binding_name(it), binding_domain(it));
+                        new_args.push_back(new_arg);
+                        c  = mk_app(c, new_arg);
+                        it = whnf_inductive(ctx, instantiate(binding_body(new_arg), new_arg));
+                    }
+                    if (ctx.is_def_eq(pattern_type, it)) {
+                        equation new_eqn   = eqn;
+                        new_eqn.m_lctx     = ctx.lctx();
+                        new_eqn.m_patterns = cons(c, tail(eqn.m_patterns));
+                        new_eqns.push_back(new_eqn);
+                    }
+                }
+            } else {
+                new_eqns.push_back(eqn);
+            }
+        }
+        program new_P = P;
+        new_P.m_equations = to_list(new_eqns);
+        return compile_core(new_P);
     }
 
     result compile_leaf(program const & P) {

@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/old_type_checker.h"
 #include "library/kernel_serializer.h"
 #include "library/user_recursors.h"
+#include "library/aux_recursors.h"
 #include "library/attribute_manager.h"
 
 namespace lean {
@@ -72,7 +73,8 @@ static void throw_invalid_motive(expr const & C) {
                     "and I is a constant");
 }
 
-recursor_info mk_recursor_info(environment const & env, name const & r, optional<unsigned> const & given_major_pos) {
+recursor_info mk_recursor_info(environment const & env, name const & r, optional<unsigned> const & _given_major_pos) {
+    optional<unsigned> given_major_pos = _given_major_pos;
     if (auto I = inductive::is_elim_rule(env, r)) {
         if (*inductive::get_num_type_formers(env, *I) > 1)
             throw exception(sstream() << "unsupported recursor '" << r << "', it has multiple motives");
@@ -94,6 +96,14 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         list<unsigned> indices_pos = mk_list_range(num_params, num_params + num_indices);
         return recursor_info(r, *I, universe_pos, inductive::has_dep_elim(env, *I), is_rec,
                              num_args, major_pos, params_pos, indices_pos, produce_motive);
+    } else if (is_aux_recursor(env, r) &&
+               (strcmp(r.get_string(), "cases_on") == 0 ||
+                strcmp(r.get_string(), "rec_on") == 0   ||
+                strcmp(r.get_string(), "brec_on") == 0)) {
+        name I = r.get_prefix();
+        unsigned num_indices  = *inductive::get_num_indices(env, I);
+        unsigned num_params   = *inductive::get_num_params(env, I);
+        given_major_pos = num_params + 1 /* motive */ + num_indices;
     }
     declaration d = env.get(r);
     old_type_checker tc(env);

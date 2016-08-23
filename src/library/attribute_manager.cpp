@@ -230,45 +230,6 @@ void get_attributes(environment const & env, buffer<attribute const *> & r) {
     });
 }
 
-bool has_attribute(environment const & env, char const * attr, name const & d) {
-    return static_cast<bool>(get_attribute(env, attr).get_untyped(env, d));
-}
-
-void get_attribute_instances(environment const & env, char const * attr, buffer<name> & r) {
-    return get_attribute(env, attr).get_instances(env, r);
-}
-
-environment set_attribute(environment const & env, io_state const & ios, char const * name,
-                          lean::name const & d, unsigned prio, list<unsigned> const & params, bool persistent) {
-    auto const & attr = get_attribute(env, name);
-    lean_assert(dynamic_cast<indices_attribute const *>(&attr));
-    return static_cast<indices_attribute const &>(attr).set(env, ios, d, prio, {params}, persistent);
-}
-
-environment set_attribute(environment const & env, io_state const & ios, char const * name, lean::name const & d,
-                          unsigned prio, bool persistent) {
-    auto const & attr = get_attribute(env, name);
-    lean_assert(dynamic_cast<basic_attribute const *>(&attr));
-    return static_cast<basic_attribute const &>(attr).set(env, ios, d, prio, persistent);
-}
-environment set_attribute(environment const & env, io_state const & ios, char const * attr,
-                          name const & d, bool persistent) {
-    return set_attribute(env, ios, attr, d, LEAN_DEFAULT_PRIORITY, persistent);
-}
-
-unsigned get_attribute_prio(environment const & env, name const & attr, name const & d) {
-    return get_attribute(env, attr).get_prio(env, d);
-}
-
-list<unsigned> get_attribute_params(environment const & env, name const & attr, name const & d) {
-    if (auto attribute = dynamic_cast<indices_attribute const *>(&get_attribute(env, attr))) {
-        auto data = attribute->get(env, d);
-        lean_assert(data);
-        return data->m_idxs;
-    }
-    return list<unsigned>();
-}
-
 bool has_attribute(environment const & env, name const & attr, name const & d) {
     return get_attribute(env, attr).is_instance(env, d);
 }

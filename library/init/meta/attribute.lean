@@ -7,6 +7,7 @@ prelude
 import init.meta.tactic
 
 meta_constant attribute.get_instances : name → tactic (list name)
+meta_constant attribute.fingerprint : name → tactic nat
 
 structure user_attribute :=
 (descr : string)

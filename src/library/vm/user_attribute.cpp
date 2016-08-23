@@ -104,9 +104,20 @@ static vm_obj attribute_register(vm_obj const & vm_n, vm_obj const & vm_s) {
     LEAN_TACTIC_CATCH(s);
 }
 
+static vm_obj attribute_fingerprint(vm_obj const & vm_n, vm_obj const & vm_s) {
+    auto const & s = to_tactic_state(vm_s);
+    auto const & n = to_name(vm_n);
+    unsigned h;
+    LEAN_TACTIC_TRY;
+    h = get_attribute(s.env(), n).get_fingerprint(s.env());
+    LEAN_TACTIC_CATCH(s);
+    return mk_tactic_success(mk_vm_nat(h), s);
+}
+
 void initialize_user_attribute() {
     DECLARE_VM_BUILTIN(name({"attribute", "get_instances"}), attribute_get_instances);
     DECLARE_VM_BUILTIN(name({"attribute", "register"}), attribute_register);
+    DECLARE_VM_BUILTIN(name({"attribute", "fingerprint"}), attribute_fingerprint);
 
     g_ext = new user_attr_ext_reg();
     g_key = new std::string("USR_ATTR");

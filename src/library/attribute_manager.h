@@ -56,6 +56,8 @@ public:
     virtual void get_instances(environment const &, buffer<name> &) const;
     priority_queue<name, name_quick_cmp> get_instances_by_prio(environment const &) const;
     virtual attr_data_ptr parse_data(abstract_parser &) const;
+
+    virtual unsigned get_fingerprint(environment const & env) const;
 };
 
 typedef std::shared_ptr<attribute const> attribute_ptr;

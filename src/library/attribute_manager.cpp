@@ -92,21 +92,32 @@ struct attr_entry {
 };
 
 typedef priority_queue<attr_record, attr_record_cmp> attr_records;
-typedef name_map<attr_records> attr_state;
+typedef name_map<pair<attr_records, unsigned>> attr_state;
 
 struct attr_config {
     typedef attr_state state;
     typedef attr_entry entry;
+
+    static unsigned get_entry_hash(entry const & e) {
+        return hash(hash(e.m_attr.hash(), e.m_record.hash()), e.m_prio);
+    }
+
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
         attr_records m;
-        if (auto q = s.find(e.m_attr))
-            m = *q;
+        unsigned h = 0;
+        if (auto q = s.find(e.m_attr)) {
+            m = q->first;
+            h = q->second;
+        }
         m.insert(e.m_record, e.m_prio);
-        s.insert(e.m_attr, m);
+        h = hash(h, get_entry_hash(e));
+        s.insert(e.m_attr, mk_pair(m, h));
     }
+
     static std::string const & get_serialization_key() {
         return *g_key;
     }
+
     static void write_entry(serializer & s, entry const & e) {
         s << e.m_attr << e.m_prio << e.m_record.m_decl;
         lean_assert(e.m_record.m_data);
@@ -116,6 +127,7 @@ struct attr_config {
             // dispatch over the extension, since we can't call get_attribute without an env
             g_user_attribute_ext->write_entry(s, *e.m_record.m_data);
     }
+
     static entry read_entry(deserializer & d) {
         entry e;
         d >> e.m_attr >> e.m_prio >> e.m_record.m_decl;
@@ -126,8 +138,9 @@ struct attr_config {
             e.m_record.m_data = g_user_attribute_ext->read_entry(d);
         return e;
     }
+
     static optional<unsigned> get_fingerprint(entry const & e) {
-        return optional<unsigned>(hash(hash(e.m_attr.hash(), e.m_record.hash()), e.m_prio));
+        return optional<unsigned>(get_entry_hash(e));
     }
 };
 
@@ -139,22 +152,35 @@ environment attribute::set_core(environment const & env, io_state const & ios, n
     return attribute_ext::add_entry(env, ios, attr_entry(m_id, prio, attr_record(n, data)), persistent);
 }
 attr_data_ptr attribute::get_untyped(environment const & env, name const & n) const {
-    if (auto records = attribute_ext::get_state(env).find(m_id))
-        if (auto record = records->get_key({n, {}}))
+    if (auto p = attribute_ext::get_state(env).find(m_id)) {
+        attr_records const & records = p->first;
+        if (auto record = records.get_key({n, {}}))
             return record->m_data;
+    }
     return {};
 }
 
 unsigned attribute::get_prio(environment const & env, name const & n) const {
-    if (auto records = attribute_ext::get_state(env).find(get_name()))
-        if (auto prio = records->get_prio({n, {}}))
+    if (auto p = attribute_ext::get_state(env).find(get_name())) {
+        attr_records const & records = p->first;
+        if (auto prio = records.get_prio({n, {}}))
             return prio.value();
+    }
     return LEAN_DEFAULT_PRIORITY;
 }
 
 void attribute::get_instances(environment const & env, buffer<name> & r) const {
-    if (auto records = attribute_ext::get_state(env).find(m_id))
-        records->for_each([&](attr_record const & rec) { r.push_back(rec.m_decl); });
+    if (auto p = attribute_ext::get_state(env).find(m_id)) {
+        attr_records const & records = p->first;
+        records.for_each([&](attr_record const & rec) { r.push_back(rec.m_decl); });
+    }
+}
+
+unsigned attribute::get_fingerprint(environment const & env) const {
+    if (auto p = attribute_ext::get_state(env).find(m_id)) {
+        return p->second;
+    }
+    return 0;
 }
 
 priority_queue<name, name_quick_cmp> attribute::get_instances_by_prio(environment const & env) const {

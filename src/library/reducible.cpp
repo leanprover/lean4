@@ -68,6 +68,10 @@ public:
             if (is_instance(env, n))
                 r.push_back(n);
     }
+
+    virtual unsigned get_fingerprint(environment const & env) const {
+        return get_reducibility_attribute().get_fingerprint(env);
+    }
 };
 
 void initialize_reducible() {

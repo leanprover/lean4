@@ -1468,9 +1468,11 @@ void initialize_simplifier() {
 void finalize_simplifier() {
     delete g_simplify_canonize_subsingletons;
     delete g_simplify_canonize_instances_fixed_point;
+    delete g_simplify_canonize_proofs_fixed_point;
     delete g_simplify_lift_eq;
     delete g_simplify_topdown;
     delete g_simplify_theory;
+    delete g_simplify_unsafe_nary;
     delete g_simplify_rewrite;
     delete g_simplify_user_extensions;
     delete g_simplify_contextual;

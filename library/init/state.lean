@@ -30,7 +30,7 @@ end
 
 namespace state
 attribute [inline]
-definition read {S A : Type} : state S S :=
+definition read {S : Type} : state S S :=
 λ s, (s, s)
 
 attribute [inline]

@@ -540,6 +540,7 @@ void initialize_inductive_cmds() {
     g_tmp_prefix = new name(name::mk_internal_unique_name());
 }
 
-void finalize_inductive_cmds() {}
-
+void finalize_inductive_cmds() {
+    delete g_tmp_prefix;
+}
 }

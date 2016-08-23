@@ -169,7 +169,8 @@ void initialize_backward_lemmas() {
     register_trace_class(name{"tactic", "back_chaining"});
     register_system_attribute(intro_attribute("intro", "introduction rule for backward chaining",
                                               [](environment const & env, io_state const & ios, name const & c,
-                                                 unsigned, intro_attr_data data, bool) {
+                                                 unsigned, bool) {
+                                                  auto const & data = *get_intro_attribute().get(env, c);
                                                   if (data.m_eager)
                                                       return env; // FIXME: support old blast attributes
                                                   aux_type_context ctx(env, ios.get_options());

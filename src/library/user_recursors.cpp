@@ -359,12 +359,17 @@ bool is_user_defined_recursor(environment const & env, name const & r) {
 has_recursors_pred::has_recursors_pred(environment const & env):
     m_type2recursors(recursor_ext::get_state(env).m_type2recursors) {}
 
+static indices_attribute const & get_recursor_attribute() {
+    return static_cast<indices_attribute const &>(get_system_attribute("recursor"));
+}
+
 void initialize_user_recursors() {
     g_key        = new std::string("UREC");
     recursor_ext::initialize();
     register_system_attribute(indices_attribute("recursor", "user defined recursor",
                                                 [](environment const & env, io_state const &, name const & n, unsigned,
-                                                   indices_attribute_data const & data, bool persistent) {
+                                                   bool persistent) {
+                                                    auto const & data = *get_recursor_attribute().get(env, n);
                                                     if (data.m_idxs && tail(data.m_idxs))
                                                         throw exception(sstream()
                                                                                 << "invalid [recursor] declaration, expected at most one parameter");

@@ -149,7 +149,10 @@ typedef scoped_ext<attr_config> attribute_ext;
 
 environment attribute::set_core(environment const & env, io_state const & ios, name const & n, unsigned prio,
                                 attr_data_ptr data, bool persistent) const {
-    return attribute_ext::add_entry(env, ios, attr_entry(m_id, prio, attr_record(n, data)), persistent);
+    auto env2 = attribute_ext::add_entry(env, ios, attr_entry(m_id, prio, attr_record(n, data)), persistent);
+    if (m_after_set)
+        env2 = m_after_set(env2, ios, n, prio, persistent);
+    return env2;
 }
 attr_data_ptr attribute::get_untyped(environment const & env, name const & n) const {
     if (auto p = attribute_ext::get_state(env).find(m_id)) {
@@ -194,14 +197,6 @@ priority_queue<name, name_quick_cmp> attribute::get_instances_by_prio(environmen
 
 attr_data_ptr attribute::parse_data(abstract_parser &) const {
     return lean::attr_data_ptr(new attr_data);
-}
-
-environment basic_attribute::set(environment const & env, io_state const & ios, name const & n, unsigned prio,
-                                 bool persistent) const {
-    auto env2 = set_core(env, ios, n, prio, attr_data_ptr(new attr_data), persistent);
-    if (m_on_set)
-        env2 = m_on_set(env2, ios, n, prio, persistent);
-    return env2;
 }
 
 void indices_attribute_data::parse(abstract_parser & p) {

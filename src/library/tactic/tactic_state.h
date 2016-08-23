@@ -147,8 +147,6 @@ inline type_context mk_type_context_for(vm_obj const & s, vm_obj const & m) {
 #define LEAN_TACTIC_TRY try {
 #define LEAN_TACTIC_CATCH(S) } catch (exception const & ex) { return mk_tactic_exception(ex, S); }
 
-vm_state & get_tactic_vm_state(environment const & env);
-
 void initialize_tactic_state();
 void finalize_tactic_state();
 }

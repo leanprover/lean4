@@ -693,6 +693,9 @@ vm_obj invoke(vm_obj const & fn, vm_obj const & a1, vm_obj const & a2, vm_obj co
               vm_obj const & a5, vm_obj const & a6, vm_obj const & a7, vm_obj const & a8);
 vm_obj invoke(vm_obj const & fn, unsigned nargs, vm_obj const * args);
 
+vm_obj invoke(unsigned fn_idx, unsigned nargs, vm_obj const * args);
+vm_obj invoke(unsigned fn_idx, vm_obj const & arg);
+
 void display_vm_code(std::ostream & out, environment const & env, unsigned code_sz, vm_instr const * code);
 
 void initialize_vm_core();

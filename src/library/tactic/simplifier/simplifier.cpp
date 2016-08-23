@@ -333,7 +333,7 @@ class simplifier {
             expr goal_type = mk_app(m_tctx, m_rel, old_e, result_mvar);
             expr goal_mvar = mctx.mk_metavar_decl(m_tctx.lctx(), goal_type);
             vm_obj s = to_obj(tactic_state(m_tctx.env(), m_tctx.get_options(), mctx, list<expr>(goal_mvar), goal_mvar));
-            vm_obj simp_ext_result = get_tactic_vm_state(m_tctx.env()).invoke(ext_id, 1, &s);
+            vm_obj simp_ext_result = invoke(ext_id, s);
             optional<tactic_state> s_new = is_tactic_success(simp_ext_result);
             // TODO(dhs): create a bool metavar for the `done` flag
             if (s_new) {

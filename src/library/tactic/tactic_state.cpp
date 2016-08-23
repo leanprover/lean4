@@ -495,13 +495,6 @@ vm_obj tactic_is_trace_enabled_for(vm_obj const & n) {
     return mk_vm_bool(is_trace_class_enabled(to_name(n)));
 }
 
-typedef transparencyless_cache_compatibility_helper<vm_state> vm_state_cache_helper;
-MK_THREAD_LOCAL_GET_DEF(vm_state_cache_helper, get_vmsc);
-
-vm_state & get_tactic_vm_state(environment const & env) {
-    return get_vmsc().get_cache_for(env);
-}
-
 vm_obj tactic_instantiate_mvars(vm_obj const & e, vm_obj const & _s) {
     tactic_state const & s = to_tactic_state(_s);
     metavar_context mctx = s.mctx();

@@ -1616,11 +1616,7 @@ expr parser::parse_inaccessible() {
 expr parser::parse_placeholder() {
     auto p = pos();
     next();
-    expr t = save_pos(mk_explicit_expr_placeholder(), p);
-    if (m_in_pattern)
-        return save_pos(mk_inaccessible(t), p);
-    else
-        return t;
+    return save_pos(mk_explicit_expr_placeholder(), p);
 }
 
 expr parser::parse_anonymous_var_pattern() {
@@ -1675,6 +1671,8 @@ struct to_pattern_fn {
     parser &       m_parser;
     buffer<expr> & m_new_locals;
     name_map<expr> m_locals_map; // local variable name --> its interpretation
+    expr_map<expr> m_anonymous_vars; // for _
+
 
     to_pattern_fn(parser & p, buffer<expr> & new_locals):
         m_parser(p), m_new_locals(new_locals) {}
@@ -1738,6 +1736,10 @@ struct to_pattern_fn {
             // do nothing
         } else if (is_inaccessible(e)) {
             // do nothing
+        } else if (is_placeholder(e)) {
+            expr r = mk_local(mk_fresh_name(), "_x", mk_expr_placeholder(), binder_info());
+            m_new_locals.push_back(r);
+            m_anonymous_vars.insert(mk_pair(e, r));
         } else if (is_app(e)) {
             collect_new_locals(app_fn(e), skip_main_fn);
             collect_new_locals(app_arg(e), false);
@@ -1779,6 +1781,8 @@ struct to_pattern_fn {
             return e;
         } else if (is_inaccessible(e)) {
             return to_expr(e);
+        } else if (is_placeholder(e)) {
+            return m_anonymous_vars.find(e)->second;
         } else if (is_app(e)) {
             if (is_inaccessible(app_fn(e))) {
                 throw parser_error("invalid inaccessible annotation, it cannot be used around functions in applications",

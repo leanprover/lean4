@@ -29,7 +29,7 @@ namespace sigma
   variable  (Rb  : ∀ a, B a → B a → Prop)
 
   theorem dpair_eq : ∀ {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (H₁ : a₁ = a₂), eq.rec_on H₁ b₁ = b₂ → (sigma.mk a₁ b₁) = (sigma.mk a₂ b₂)
-  | a₁ _ b₁ _ (eq.refl _) (eq.refl _) := rfl
+  | a₁ ._ b₁ ._ rfl rfl := rfl
 
   protected theorem eq {p₁ p₂ : Σa : A, B a} :
     ∀(H₁ : p₁.1 = p₂.1) (H₂ : eq.rec_on H₁ p₁.2 = p₂.2), p₁ = p₂ :=

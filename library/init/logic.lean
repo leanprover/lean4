@@ -224,7 +224,7 @@ theorem eq_rec_heq {A : Type} {P : A → Type} {a a' : A} (H : a = a') (p : P a)
 eq.drec_on H (heq.refl p)
 
 theorem heq_of_eq_rec_left {A : Type} {P : A → Type} : ∀ {a a' : A} {p₁ : P a} {p₂ : P a'} (e : a = a') (h₂ : eq.rec_on e p₁ = p₂), p₁ == p₂
-| a _ p₁ p₂ (eq.refl _) h := eq.rec_on h (heq.refl p₁)
+| a .a p₁ p₂ (eq.refl .a) h := eq.rec_on h (heq.refl p₁)
 
 theorem heq_of_eq_rec_right {A : Type} {P : A → Type} : ∀ {a a' : A} {p₁ : P a} {p₂ : P a'} (e : a' = a) (h₂ : p₁ = eq.rec_on e p₂), p₁ == p₂
 | a .a p₁ p₂ (eq.refl .a) h := eq.rec_on h (heq.refl p₁)
@@ -233,7 +233,7 @@ theorem of_heq_true {a : Prop} (H : a == true) : a :=
 of_eq_true (eq_of_heq H)
 
 theorem eq_rec_compose : ∀ {A B C : Type} (p₁ : B = C) (p₂ : A = B) (a : A), eq.rec_on p₁ (eq.rec_on p₂ a : B) = eq.rec_on (eq.trans p₂ p₁) a
-| A _ _ (eq.refl _) (eq.refl _) a := calc
+| A .A .A (eq.refl .A) (eq.refl .A) a := calc
   eq.rec_on (eq.refl A) (eq.rec_on (eq.refl A) a) = eq.rec_on (eq.refl A) a               : rfl
             ...             = eq.rec_on (eq.trans (eq.refl A) (eq.refl A)) a  : eq.subst (proof_irrel (eq.refl A) (eq.trans (eq.refl A) (eq.refl A))) rfl
 
@@ -241,7 +241,7 @@ theorem eq_rec_eq_eq_rec {A₁ A₂ : Type} {p : A₁ = A₂} : ∀ {a₁ : A₁
 eq.drec_on p (λ a₁ a₂ h, eq.drec_on h rfl)
 
 theorem eq_rec_of_heq_left : ∀ {A₁ A₂ : Type} {a₁ : A₁} {a₂ : A₂} (h : a₁ == a₂), eq.rec_on (type_eq_of_heq h) a₁ = a₂
-| A _ a _ (heq.refl _) := rfl
+| A .A a .a (heq.refl .a) := rfl
 
 theorem eq_rec_of_heq_right {A₁ A₂ : Type} {a₁ : A₁} {a₂ : A₂} (h : a₁ == a₂) : a₁ = eq.rec_on (eq.symm (type_eq_of_heq h)) a₂ :=
 eq_rec_eq_eq_rec (eq_rec_of_heq_left h)
@@ -253,7 +253,7 @@ attribute heq_of_eq_of_heq [trans]
 attribute heq.symm [symm]
 
 theorem cast_heq : ∀ {A B : Type} (H : A = B) (a : A), cast H a == a
-| A _ (eq.refl _) a := heq.refl a
+| A .A (eq.refl .A) a := heq.refl a
 
 /- and -/
 

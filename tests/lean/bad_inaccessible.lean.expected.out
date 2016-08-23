@@ -3,5 +3,5 @@ bad_inaccessible.lean:7:7: error: invalid use of inaccessible term, the provided
   b
 but is expected to be
   a
-bad_inaccessible.lean:15:2: error: invalid use of inaccessible term, it is not completely fixed by other arguments
+bad_inaccessible.lean:15:3: error: invalid use of inaccessible term, it is not completely fixed by other arguments
   ?m_1 + 1

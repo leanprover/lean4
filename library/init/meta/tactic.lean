@@ -35,7 +35,7 @@ variables [has_to_string A]
 
 meta_definition tactic_result_to_string : tactic_result A → string
 | (success a s)   := to_string a
-| (exception _ e s) := "Exception: " ++ to_string (e ())
+| (exception .A e s) := "Exception: " ++ to_string (e ())
 
 attribute [instance]
 meta_definition tactic_result_has_to_string : has_to_string (tactic_result A) :=
@@ -120,7 +120,7 @@ repeat_at_most 100000
 meta_definition returnex (e : exceptional A) : tactic A :=
 λ s, match e with
 | (exceptional.success a)       := tactic_result.success a s
-| (exceptional.exception _ f) := tactic_result.exception A (λ u, f options.mk) s -- TODO(Leo): extract options from environment
+| (exceptional.exception .A f) := tactic_result.exception A (λ u, f options.mk) s -- TODO(Leo): extract options from environment
 end
 
 meta_definition returnopt (e : option A) : tactic A :=

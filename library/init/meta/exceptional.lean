@@ -20,7 +20,7 @@ variables [has_to_string A]
 
 protected meta_definition exceptional.to_string : exceptional A → string
 | (success a)       := to_string a
-| (exception _ e) := "Exception: " ++ to_string (e options.mk)
+| (exception .A e) := "Exception: " ++ to_string (e options.mk)
 
 attribute [instance]
 protected meta_definition exceptional.has_to_string : has_to_string (exceptional A) :=

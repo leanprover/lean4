@@ -272,7 +272,7 @@ void finalize_attribute_manager() {
     attribute_ext::finalize();
     delete g_key;
     delete g_incomp;
-    g_user_attribute_ext.release();
+    g_user_attribute_ext.reset();
     delete g_system_attributes;
 }
 }

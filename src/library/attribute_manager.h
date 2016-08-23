@@ -30,14 +30,16 @@ typedef std::shared_ptr<attr_data> attr_data_ptr;
 struct attr_config;
 
 typedef std::function<environment(environment const &, io_state const &, name const &, unsigned, bool)> after_set_proc;
+typedef std::function<environment(environment const &, name const &, bool)> before_unset_proc;
 
 class attribute {
     friend struct attr_config;
     friend class  decl_attributes;
 private:
-    name           m_id;
-    std::string    m_descr;
-    after_set_proc m_after_set;
+    name              m_id;
+    std::string       m_descr;
+    after_set_proc    m_after_set;
+    before_unset_proc m_before_unset;
 protected:
     environment set_core(environment const &, io_state const &, name const &, unsigned, attr_data_ptr, bool) const;
 
@@ -45,8 +47,8 @@ protected:
     virtual void write_entry(serializer &, attr_data const &) const = 0;
     virtual attr_data_ptr read_entry(deserializer &) const = 0;
 public:
-    attribute(name const & id, char const * descr, after_set_proc after_set = {}) : m_id(id), m_descr(descr),
-                                                                                    m_after_set(after_set) {}
+    attribute(name const & id, char const * descr, after_set_proc after_set = {}, before_unset_proc before_unset = {}) :
+            m_id(id), m_descr(descr), m_after_set(after_set), m_before_unset(before_unset) {}
     virtual ~attribute() {}
 
     name const & get_name() const { return m_id; }
@@ -61,6 +63,7 @@ public:
     priority_queue<name, name_quick_cmp> get_instances_by_prio(environment const &) const;
     virtual attr_data_ptr parse_data(abstract_parser &) const;
 
+    virtual environment unset(environment env, io_state const & ios, name const & n, bool persistent) const;
     virtual unsigned get_fingerprint(environment const & env) const;
 };
 
@@ -76,8 +79,8 @@ protected:
         return set(env, ios, n, prio, persistent);
     }
 public:
-    basic_attribute(name const & id, char const * descr, after_set_proc after_set = {}) :
-            attribute(id, descr, after_set) {}
+    basic_attribute(name const & id, char const * descr, after_set_proc after_set = {}, before_unset_proc before_unset = {}) :
+            attribute(id, descr, after_set, before_unset) {}
     virtual environment set(environment const & env, io_state const & ios, name const & n, unsigned prio, bool persistent) const {
         return set_core(env, ios, n, prio, attr_data_ptr(new attr_data), persistent);
     }
@@ -102,8 +105,8 @@ protected:
         return attr_data_ptr(data);
     }
 public:
-    typed_attribute(name const & id, char const * descr, after_set_proc after_set = {}) :
-            attribute(id, descr, after_set) {}
+    typed_attribute(name const & id, char const * descr, after_set_proc after_set = {}, before_unset_proc before_unset = {}) :
+            attribute(id, descr, after_set, before_unset) {}
 
     virtual attr_data_ptr parse_data(abstract_parser & p) const final override {
         auto data = new Data;

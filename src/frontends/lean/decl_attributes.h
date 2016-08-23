@@ -16,6 +16,10 @@ public:
     struct entry {
         attribute const * m_attr;
         attr_data_ptr     m_params;
+
+        bool deleted() const {
+            return !static_cast<bool>(m_params);
+        }
     };
 private:
     bool               m_persistent;

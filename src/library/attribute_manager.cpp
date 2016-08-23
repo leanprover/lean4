@@ -60,7 +60,7 @@ attribute const & get_attribute(environment const & env, name const & attr) {
 
 struct attr_record {
     name          m_decl;
-    attr_data_ptr m_data;
+    attr_data_ptr m_data; // no data -> deleted
 
     attr_record() {}
     attr_record(name decl, attr_data_ptr data):
@@ -71,6 +71,10 @@ struct attr_record {
         if (m_data)
             h = ::lean::hash(h, m_data->hash());
         return h;
+    }
+
+    bool deleted() const {
+        return !static_cast<bool>(m_data);
     }
 };
 
@@ -119,23 +123,26 @@ struct attr_config {
     }
 
     static void write_entry(serializer & s, entry const & e) {
-        s << e.m_attr << e.m_prio << e.m_record.m_decl;
-        lean_assert(e.m_record.m_data);
-        if (is_system_attribute(e.m_attr))
-            get_system_attribute(e.m_attr).write_entry(s, *e.m_record.m_data);
-        else
-            // dispatch over the extension, since we can't call get_attribute without an env
-            g_user_attribute_ext->write_entry(s, *e.m_record.m_data);
+        s << e.m_attr << e.m_prio << e.m_record.m_decl << e.m_record.deleted();
+        if (!e.m_record.deleted()) {
+            if (is_system_attribute(e.m_attr))
+                get_system_attribute(e.m_attr).write_entry(s, *e.m_record.m_data);
+            else
+                // dispatch over the extension, since we can't call get_attribute without an env
+                g_user_attribute_ext->write_entry(s, *e.m_record.m_data);
+        }
     }
 
     static entry read_entry(deserializer & d) {
-        entry e;
-        d >> e.m_attr >> e.m_prio >> e.m_record.m_decl;
-        if (is_system_attribute(e.m_attr))
-            e.m_record.m_data = get_system_attribute(e.m_attr).read_entry(d);
-        else
-            // dispatch over the extension, since we can't call get_attribute without an env
-            e.m_record.m_data = g_user_attribute_ext->read_entry(d);
+        entry e; bool deleted;
+        d >> e.m_attr >> e.m_prio >> e.m_record.m_decl >> deleted;
+        if (!deleted) {
+            if (is_system_attribute(e.m_attr))
+                e.m_record.m_data = get_system_attribute(e.m_attr).read_entry(d);
+            else
+                // dispatch over the extension, since we can't call get_attribute without an env
+                e.m_record.m_data = g_user_attribute_ext->read_entry(d);
+        }
         return e;
     }
 
@@ -154,6 +161,17 @@ environment attribute::set_core(environment const & env, io_state const & ios, n
         env2 = m_after_set(env2, ios, n, prio, persistent);
     return env2;
 }
+
+environment attribute::unset(environment env, io_state const & ios, name const & n, bool persistent) const {
+    if (m_before_unset) {
+        env = m_before_unset(env, n, persistent);
+    } else {
+        if (m_after_set)
+            throw exception(sstream() << "cannot remove attribute [" << get_name() << "]");
+    }
+    return attribute_ext::add_entry(env, ios, attr_entry(m_id, get_prio(env, n), attr_record(n, {})), persistent);
+}
+
 attr_data_ptr attribute::get_untyped(environment const & env, name const & n) const {
     if (auto p = attribute_ext::get_state(env).find(m_id)) {
         attr_records const & records = p->first;

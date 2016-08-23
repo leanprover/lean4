@@ -60,6 +60,9 @@ public:
             throw exception(sstream() << "invalid reducible command, '" << n << "' is not a definition");
         return get_reducibility_attribute().set(env, ios, n, prio, {m_status}, persistent);
     }
+    virtual environment unset(environment, io_state const &, name const &, bool) const override {
+        throw exception(sstream() << "cannot remove attribute [" << get_name() << "]");
+    }
 
     virtual void get_instances(environment const & env, buffer<name> & r) const override {
         buffer<name> tmp;

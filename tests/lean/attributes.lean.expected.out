@@ -1,0 +1,17 @@
+attributes.lean:3:0: error: cannot remove attribute [unfold]: no prior declaration on foo
+definition foo : Type → Type :=
+λ A, A
+attribute [unfold 1]
+definition foo : Type → Type :=
+λ A, A
+definition foo : Type → Type :=
+λ A, A
+attributes.lean:16:0: error: cannot remove attribute [unfold]: no prior declaration on foo
+attribute [unfold]
+definition foo : Type → Type :=
+λ A, A
+attributes.lean:24:0: error: cannot remove attribute [reducible]
+attribute [reducible, unfold]
+definition foo : Type → Type :=
+λ A, A
+attributes.lean:29:0: error: cannot remove attribute [instance]

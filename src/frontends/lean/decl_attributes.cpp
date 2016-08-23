@@ -21,8 +21,13 @@ void decl_attributes::parse(parser & p) {
     p.next();
     while (true) {
         auto pos = p.pos();
+        bool deleted = p.curr_is_token_or_id(get_sub_tk());
+        if (deleted)
+            p.next();
         auto name = p.check_id_next("invalid attribute declaration, identifier expected");
         if (name == "priority") {
+            if (deleted)
+                throw parser_error("cannot remove priority attribute", pos);
             auto pos = p.pos();
             expr pre_val = p.parse_expr();
             pre_val = mk_typed_expr(mk_constant(get_num_name()), pre_val);
@@ -40,14 +45,17 @@ void decl_attributes::parse(parser & p) {
                 throw parser_error(sstream() << "unknown attribute [" << name << "]", pos);
 
             auto const & attr = get_attribute(p.env(), name);
-            for (auto const & entry : m_entries) {
-                if (are_incompatible(*entry.m_attr, attr)) {
-                    throw parser_error(sstream() << "invalid attribute [" << name
-                                                 << "], declaration was already marked with [" << entry.m_attr->get_name()
-                                                 << "]", pos);
+            if (!deleted) {
+                for (auto const & entry : m_entries) {
+                    if (!entry.deleted() && are_incompatible(*entry.m_attr, attr)) {
+                        throw parser_error(sstream() << "invalid attribute [" << name
+                                                     << "], declaration was already marked with ["
+                                                     << entry.m_attr->get_name()
+                                                     << "]", pos);
+                    }
                 }
             }
-            auto data = attr.parse_data(p);
+            auto data = deleted ? attr_data_ptr() : attr.parse_data(p);
             m_entries = cons({&attr, data}, m_entries);
             if (name == "parsing_only")
                 m_parsing_only = true;
@@ -71,22 +79,29 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
     while (i > 0) {
         --i;
         auto const & entry = entries[i];
-        unsigned prio = m_prio ? *m_prio : LEAN_DEFAULT_PRIORITY;
-        env = entry.m_attr->set_untyped(env, ios, d, prio, entry.m_params, m_persistent);
+        if (entry.deleted()) {
+            if (!entry.m_attr->is_instance(env, d))
+                throw exception(sstream() << "cannot remove attribute [" << entry.m_attr->get_name()
+                                          << "]: no prior declaration on " << d);
+            env = entry.m_attr->unset(env, ios, d, m_persistent);
+        } else {
+            unsigned prio = m_prio ? *m_prio : LEAN_DEFAULT_PRIORITY;
+            env = entry.m_attr->set_untyped(env, ios, d, prio, entry.m_params, m_persistent);
+        }
     }
     return env;
 }
 
 bool decl_attributes::ok_for_inductive_type() const {
     for (entry const & e : m_entries)
-        if (e.m_attr->get_name() != "class")
+        if (e.m_attr->get_name() != "class" || e.deleted())
             return false;
     return true;
 }
 
 bool decl_attributes::has_class() const {
     for (entry const & e : m_entries)
-        if (e.m_attr->get_name() == "class")
+        if (e.m_attr->get_name() == "class" && !e.deleted())
             return true;
     return false;
 }

@@ -22,8 +22,11 @@ void decl_attributes::parse(parser & p) {
     while (true) {
         auto pos = p.pos();
         bool deleted = p.curr_is_token_or_id(get_sub_tk());
-        if (deleted)
+        if (deleted) {
+            if (m_persistent)
+                throw parser_error("cannot remove attribute globally (solution: use 'local attribute')", pos);
             p.next();
+        }
         auto name = p.check_id_next("invalid attribute declaration, identifier expected");
         if (name == "priority") {
             if (deleted)

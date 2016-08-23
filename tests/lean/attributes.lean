@@ -1,8 +1,10 @@
 definition foo (A : Type) := A
 
-attribute [-unfold] foo
+local attribute [-unfold] foo
 
-attribute [unfold 1] foo
+local attribute [unfold 1] foo
+
+attribute [-unfold]
 
 section
   local attribute [-unfold] foo
@@ -10,20 +12,19 @@ section
 end
 print foo
 
-attribute [-unfold] foo
+local attribute [-unfold] foo
 print foo
 
-attribute [-unfold] foo
+local attribute [-unfold] foo
 
-attribute [unfold] foo
-print foo
-
---
-
-attribute [reducible] foo
-attribute [-reducible] foo -- use [semireducible] instead
+local attribute [unfold] foo
 print foo
 
 --
 
-attribute [-instance] nat_has_one
+local attribute [reducible] foo
+local attribute [-reducible] foo -- use [semireducible] instead
+
+--
+
+local attribute [-instance] nat_has_one

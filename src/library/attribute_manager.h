@@ -109,9 +109,9 @@ public:
     typed_attribute(name const & id, char const * descr) : typed_attribute(id, descr, {}) {}
 
     virtual attr_data_ptr parse_data(abstract_parser & p) const final override {
-      auto data = new Data;
-      data->parse(p);
-      return attr_data_ptr(data);
+        auto data = new Data;
+        data->parse(p);
+        return attr_data_ptr(data);
     }
 
     virtual environment set(environment const & env, io_state const & ios, name const & n, unsigned prio,

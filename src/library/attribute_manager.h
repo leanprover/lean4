@@ -184,6 +184,8 @@ bool has_attribute(environment const & env, name const & attr, name const & d);
 
 bool are_incompatible(attribute const & attr1, attribute const & attr2);
 
+unsigned get_attribute_fingerprint(environment const & env, name const & attr);
+
 void initialize_attribute_manager();
 void finalize_attribute_manager();
 }

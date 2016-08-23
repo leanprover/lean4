@@ -260,6 +260,10 @@ bool are_incompatible(attribute const & attr1, attribute const & attr2) {
     return std::find(g_incomp->begin(), g_incomp->end(), mk_pair(s1, s2)) != g_incomp->end();
 }
 
+unsigned get_attribute_fingerprint(environment const & env, name const & attr) {
+    return get_attribute(env, attr).get_fingerprint(env);
+}
+
 void initialize_attribute_manager() {
     g_system_attributes  = new name_map<attribute_ptr>();
     g_user_attribute_ext.reset(new user_attribute_ext());

@@ -15,6 +15,8 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/app_builder.h"
 #include "library/annotation.h"
+#include "library/private.h"
+#include "library/aux_definition.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/revert_tactic.h"
 #include "library/tactic/clear_tactic.h"
@@ -25,7 +27,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 #define trace_match(Code) lean_trace(name({"eqn_compiler", "elim_match"}), Code)
-#define trace_match_detail(Code) lean_trace(name({"eqn_compiler", "elim_match_detail"}), Code)
+#define trace_match_debug(Code) lean_trace(name({"debug", "eqn_compiler", "elim_match"}), Code)
 
 struct elim_match_fn {
     environment     m_env;
@@ -35,7 +37,8 @@ struct elim_match_fn {
     expr            m_ref;
     unsigned        m_depth{0};
     buffer<bool>    m_used_eqns;
-    bool            m_lemmas{true};
+    bool            m_lemmas{true};   // TODO(Leo): extract from header
+    bool            m_trusted{true};  // TODO(Leo): extract from header
 
     elim_match_fn(environment const & env, options const & opts,
                   metavar_context const & mctx):
@@ -150,7 +153,7 @@ struct elim_match_fn {
     }
 
     bool is_value(expr const & e) const {
-        return to_num(e) || to_char(e) || to_string(e) || is_constructor(e);
+        return false; // to_num(e) || to_char(e) || to_string(e) || is_constructor(e);
     }
 
     /* Normalize until head is constructor or value */
@@ -397,7 +400,7 @@ struct elim_match_fn {
 
     /* Helper method for tracing intermediate lemmas produced during the compilation process. */
     void trace_lemmas(program const & P, char const * header, buffer<lemma> const & lemmas) {
-        trace_match_detail({
+        trace_match_debug({
                 tout() << "[" << m_depth << "] " << header << " lemmas:\n";
                 for (lemma const & L : lemmas) {
                     /* Replace function with its name. */
@@ -887,35 +890,69 @@ struct elim_match_fn {
         }
     }
 
+    expr mk_definitions(local_context const & lctx, name suggested, expr const & fn_type, unsigned arity, result const & R) {
+        type_context ctx = mk_type_context(lctx);
+        buffer<expr_pair> Hs;
+        if (m_lemmas) {
+            abstract_eqns_vars(R.m_lemmas, Hs);
+        }
+        name n(suggested, "_match");
+        std::tie(m_env, n) = add_private_name(m_env, n, optional<unsigned>(R.m_code.hash()));
+        expr r;
+        std::tie(m_env, r) = mk_aux_definition(m_env, m_mctx, lctx, n, fn_type, R.m_code);
+        tout() << r << "\n";
+        /* Define lemmas */
+        unsigned lemma_idx = 1;
+        name lemma("lemma");
+        name prefix(n, "lemmas");
+        for (expr_pair const & p : Hs) {
+            name lname(prefix, lemma.append_after(lemma_idx).get_string());
+            expr type  = p.first;
+            expr proof = p.second;
+            expr new_type = update_eqn_lhs(type, arity, [&](buffer<expr> & args) {
+                    return mk_rev_app(r, args);
+                });
+            expr c;
+            tout() << new_type << "\n";
+            std::tie(m_env, c) = mk_aux_definition(m_env, m_mctx, lctx, lname, new_type, proof);
+            lemma_idx++;
+        }
+        return r;
+    }
+
+    name mk_suggested_name(expr const & eqns) {
+        equations_header const & H = get_equations_header(eqns);
+        if (H.m_suggested)
+            return head(H.m_suggested);
+        else
+            return name("_aux");
+    }
+
     expr operator()(local_context const & lctx, expr const & eqns) {
         lean_assert(equations_num_fns(eqns) == 1);
         DEBUG_CODE({
                 type_context ctx = mk_type_context(lctx);
                 lean_assert(!is_recursive_eqns(ctx, eqns));
             });
-        m_ref     = eqns;
-        program P = mk_program(lctx, eqns);
-        result R  = compile(P);
-
-#if 0
-        if (m_lemmas) {
-            buffer<expr_pair> Hs;
-            abstract_eqns_vars(R.m_lemmas, Hs);
-        }
-#endif
-
-        lean_unreachable();
+        m_ref        = eqns;
+        program P    = mk_program(lctx, eqns);
+        result R     = compile(P);
+        expr fn_type = m_mctx.get_metavar_decl(P.m_goal)->get_type();
+        return mk_definitions(lctx, mk_suggested_name(eqns), fn_type, P.m_nvars, R);
     }
 };
 
 expr elim_match(environment & env, options const & opts, metavar_context & mctx,
                 local_context const & lctx, expr const & eqns) {
-    return elim_match_fn(env, opts, mctx)(lctx, eqns);
+    elim_match_fn elim(env, opts, mctx);
+    expr r = elim(lctx, eqns);
+    env = elim.m_env;
+    return r;
 }
 
 void initialize_elim_match() {
     register_trace_class({"eqn_compiler", "elim_match"});
-    register_trace_class({"eqn_compiler", "elim_match_detail"});
+    register_trace_class({"debug", "eqn_compiler", "elim_match"});
 }
 void finalize_elim_match() {
 }

@@ -20,21 +20,26 @@ expr compile_equations(environment & env, options const & opts, metavar_context 
     aux_type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
     trace_compiler(tout() << "compiling\n" << eqns << "\n";);
     trace_compiler(tout() << "recursive: " << is_recursive_eqns(ctx, eqns) << "\n";);
+    if (equations_num_fns(eqns) == 1) {
+        if (!is_recursive_eqns(ctx, eqns)) {
+            return elim_match(env, opts, mctx, lctx, eqns);
+        } else {
+            // TODO(Leo): use unbounded_rec if meta
+            unsigned arg_idx;
+            if (optional<expr> eqns1 = try_structural_rec(ctx.get(), eqns, arg_idx)) {
+                expr r = elim_match(env, opts, mctx, lctx, *eqns1);
+                // TODO(Leo): apply brec_on
+                lean_unreachable();
+            }
+            // Try rec_on
+        }
+    }
 
     // test pack_domain
     pack_domain(ctx.get(), eqns);
 
-    // test structural_rec
-    unsigned arg_idx;
-    optional<expr> eqns1 = try_structural_rec(ctx.get(), eqns, arg_idx);
-    if (eqns1) {
-        elim_match(env, opts, mctx, lctx, *eqns1);
-    } else if (!is_recursive_eqns(ctx, eqns)) {
-        elim_match(env, opts, mctx, lctx, eqns);
-    }
-
     // test unbounded_rec
-    unbounded_rec(ctx.get(), eqns);
+    // unbounded_rec(ctx.get(), eqns);
 
 
     lean_unreachable();

@@ -58,16 +58,14 @@ LEAN_THREAD_VALUE(bool, g_throw_ex, false);
 void validate_simp(type_context & tctx, name const & n);
 void validate_congr(type_context & tctx, name const & n);
 
-environment on_add_simp_lemma(environment const & env, io_state const &, name const & c, unsigned, bool) {
+void on_add_simp_lemma(environment const & env, name const & c, bool) {
     type_context tctx(env);
     validate_simp(tctx, c);
-    return env;
 }
 
-environment on_add_congr_lemma(environment const & env, io_state const &, name const & c, unsigned, bool) {
+void on_add_congr_lemma(environment const & env, name const & c, bool) {
     type_context tctx(env);
     validate_congr(tctx, c);
-    return env;
 }
 
 /* Getters/checkers */
@@ -672,8 +670,8 @@ void initialize_simp_lemmas() {
     DECLARE_VM_BUILTIN(name({"tactic", "mk_empty_simp_lemmas"}),     tactic_mk_empty_simp_lemmas);
     DECLARE_VM_BUILTIN(name({"tactic", "simp_lemmas_insert_core"}),  tactic_simp_lemmas_insert);
 
-    register_system_attribute(basic_attribute("simp", "simplification lemma", on_add_simp_lemma));
-    register_system_attribute(basic_attribute("congr", "congruence lemma", on_add_congr_lemma));
+    register_system_attribute(basic_attribute::with_check("simp", "simplification lemma", on_add_simp_lemma));
+    register_system_attribute(basic_attribute::with_check("congr", "congruence lemma", on_add_congr_lemma));
 }
 
 void finalize_simp_lemmas() {

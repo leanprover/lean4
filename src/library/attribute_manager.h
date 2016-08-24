@@ -30,6 +30,7 @@ typedef std::shared_ptr<attr_data> attr_data_ptr;
 struct attr_config;
 
 typedef std::function<environment(environment const &, io_state const &, name const &, unsigned, bool)> after_set_proc;
+typedef std::function<void(environment const &, name const &, bool)> after_set_check_proc;
 typedef std::function<environment(environment const &, name const &, bool)> before_unset_proc;
 
 class attribute {
@@ -81,6 +82,19 @@ protected:
 public:
     basic_attribute(name const & id, char const * descr, after_set_proc after_set = {}, before_unset_proc before_unset = {}) :
             attribute(id, descr, after_set, before_unset) {}
+
+    static basic_attribute with_check(name const & id, char const * descr, after_set_check_proc after_set) {
+        return basic_attribute(
+                id, descr,
+                [=](environment const & env, io_state const &, name const & n, unsigned, bool persistent) {
+                    after_set(env, n, persistent);
+                    return env;
+                },
+                [](environment const & env, name const &, bool) {
+                    return env;
+                });
+    }
+
     virtual environment set(environment const & env, io_state const & ios, name const & n, unsigned prio, bool persistent) const {
         return set_core(env, ios, n, prio, attr_data_ptr(new attr_data), persistent);
     }

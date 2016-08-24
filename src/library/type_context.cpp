@@ -49,6 +49,7 @@ type_context_cache::type_context_cache(environment const & env, options const & 
     m_proj_info(get_projection_info_map(env)),
     m_infer_cache(use_bi) {
     m_ci_max_depth       = get_class_instance_max_depth(opts);
+    lean_trace("type_context_cache", tout() << "type_context_cache constructed\n";);
 }
 
 bool type_context_cache::is_transparent(transparency_mode m, declaration const & d) {
@@ -134,8 +135,13 @@ type_context_cache_ptr type_context_cache_manager::mk(environment const & env, o
         m_cache_ptr->m_options = o;
         return release();
     }
-    if (!env.is_descendant(m_env) || get_attribute_fingerprint(env, *g_reducibility) != m_reducibility_fingerprint)
+    if (!env.is_descendant(m_env) || get_attribute_fingerprint(env, *g_reducibility) != m_reducibility_fingerprint) {
+        lean_trace("type_context_cache",
+                   bool c = (get_attribute_fingerprint(env, *g_reducibility) == m_reducibility_fingerprint);
+                   tout() << "creating new cache, is_descendant: " << env.is_descendant(m_env)
+                   << ", reducibility compatibility: " << c << "\n";);
         return mk_cache(env, o, m_use_bi);
+    }
     m_cache_ptr->m_options = o;
     m_cache_ptr->m_env     = env;
     return release();
@@ -173,6 +179,7 @@ bool type_context::tmp_locals::all_let_decls() const {
 /* =====================
    type_context
    ===================== */
+MK_THREAD_LOCAL_GET_DEF(type_context_cache_manager, get_tcm);
 
 void type_context::init_core(transparency_mode m) {
     m_used_assignment             = false;
@@ -189,10 +196,7 @@ void type_context::init_core(transparency_mode m) {
 
 type_context::type_context(environment const & env, options const & o, metavar_context const & mctx,
                            local_context const & lctx, transparency_mode m):
-    m_mctx(mctx), m_lctx(lctx),
-    m_cache_manager(nullptr),
-    m_cache(mk_cache(env, o, false)) {
-    init_core(m);
+    type_context(env, o, mctx, lctx, get_tcm(), m) {
 }
 
 type_context::type_context(environment const & env, options const & o, metavar_context const & mctx,
@@ -2751,6 +2755,7 @@ void initialize_type_context() {
     register_trace_class(name({"type_context", "univ_is_def_eq"}));
     register_trace_class(name({"type_context", "univ_is_def_eq_detail"}));
     register_trace_class(name({"type_context", "tmp_vars"}));
+    register_trace_class("type_context_cache");
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
     g_reducibility                 = new name{"reducibility"};
     register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,

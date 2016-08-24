@@ -899,8 +899,8 @@ struct elim_match_fn {
         name n(suggested, "_match");
         std::tie(m_env, n) = add_private_name(m_env, n, optional<unsigned>(R.m_code.hash()));
         expr r;
+        trace_match_debug(tout() << "code:\n" << R.m_code << "\n";);
         std::tie(m_env, r) = mk_aux_definition(m_env, m_mctx, lctx, n, fn_type, R.m_code);
-        tout() << r << "\n";
         /* Define lemmas */
         unsigned lemma_idx = 1;
         name lemma("lemma");
@@ -913,7 +913,7 @@ struct elim_match_fn {
                     return mk_rev_app(r, args);
                 });
             expr c;
-            tout() << new_type << "\n";
+            trace_match_debug(tout() << "lemma:\n" << new_type << "\n";);
             std::tie(m_env, c) = mk_aux_definition(m_env, m_mctx, lctx, lname, new_type, proof);
             lemma_idx++;
         }

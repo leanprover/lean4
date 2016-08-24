@@ -163,7 +163,7 @@ expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<expr> & p
     } else {
         throw parser_error("invalid definition, '|' or ':=' expected", p.pos());
     }
-    collect_implicit_locals(p, lp_names, params, {fn, val});
+    collect_implicit_locals(p, lp_names, params, {mlocal_type(fn), val});
     return mk_pair(fn, val);
 }
 
@@ -282,11 +282,11 @@ static environment compile_decl(parser & p, environment const & env, def_cmd_kin
 }
 
 static pair<environment, name>
-declare_definition(parser & p, def_cmd_kind kind, buffer<name> const & lp_names,
+declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffer<name> const & lp_names,
                    name const & c_name, expr const & type, expr const & val,
                    bool is_private, bool is_protected, bool is_noncomputable,
                    decl_attributes attrs, pos_info const & pos) {
-    auto env_n = mk_real_name(p.env(), c_name, is_private, pos);
+    auto env_n = mk_real_name(env, c_name, is_private, pos);
     environment new_env = env_n.first;
     name c_real_name    = env_n.second;
 
@@ -334,7 +334,7 @@ environment xdefinition_cmd_core(parser & p, def_cmd_kind kind, bool is_private,
     finalize_definition(elab, new_params, type, val, lp_names);
     if (kind == Example) return p.env();
     name c_name = mlocal_name(fn);
-    auto env_n  = declare_definition(p, kind, lp_names, c_name, type, val,
+    auto env_n  = declare_definition(p, elab.env(), kind, lp_names, c_name, type, val,
                                      is_private, is_protected, is_noncomputable, attrs, header_pos);
     environment new_env = env_n.first;
     name c_real_name    = env_n.second;

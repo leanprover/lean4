@@ -154,14 +154,14 @@ struct mk_aux_definition_fn {
 
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
                                           name const & c, expr const & type, expr const & value) {
-    aux_type_context ctx(env, options(), mctx, lctx, transparency_mode::All);
-    return mk_aux_definition_fn(ctx.get())(c, type, value);
+    type_context ctx(env, options(), mctx, lctx, transparency_mode::All);
+    return mk_aux_definition_fn(ctx)(c, type, value);
 }
 
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
                                           name const & c, expr const & value) {
-    aux_type_context ctx(env, options(), mctx, lctx, transparency_mode::All);
-    expr type = ctx->infer(value);
-    return mk_aux_definition_fn(ctx.get())(c, type, value);
+    type_context ctx(env, options(), mctx, lctx, transparency_mode::All);
+    expr type = ctx.infer(value);
+    return mk_aux_definition_fn(ctx)(c, type, value);
 }
 }

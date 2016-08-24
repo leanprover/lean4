@@ -106,7 +106,7 @@ format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g) con
     metavar_decl decl          = *mctx().get_metavar_decl(g);
     local_context const & lctx = decl.get_context();
     metavar_context mctx_tmp   = mctx();
-    aux_type_context ctx(env(), get_options(), mctx_tmp, lctx, transparency_mode::All);
+    type_context ctx(env(), get_options(), mctx_tmp, lctx, transparency_mode::All);
     formatter fmt              = fmtf(env(), get_options(), ctx);
     format r                   = lctx.pp(fmt);
     unsigned indent            = get_pp_indent(get_options());
@@ -269,7 +269,7 @@ vm_obj tactic_format_result(vm_obj const & o) {
     metavar_context mctx = s.mctx();
     expr r = mctx.instantiate_mvars(s.main());
     metavar_decl main_decl = *mctx.get_metavar_decl(s.main());
-    aux_type_context ctx(s.env(), s.get_options(), mctx, main_decl.get_context(), transparency_mode::All);
+    type_context ctx(s.env(), s.get_options(), mctx, main_decl.get_context(), transparency_mode::All);
     formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
     formatter fmt = fmtf(s.env(), s.get_options(), ctx);
     return mk_tactic_success(to_obj(fmt(r)), s);
@@ -282,14 +282,29 @@ vm_obj tactic_target(vm_obj const & o) {
     return mk_tactic_success(to_obj(g->get_type()), s);
 }
 
-MK_THREAD_LOCAL_GET_DEF(type_context_cache_helper, get_tch);
+MK_THREAD_LOCAL_GET_DEF(type_context_cache_manager, get_tcm);
 
-type_context_cache & get_type_context_cache_for(environment const & env, options const & o) {
-    return get_tch().get_cache_for(env, o);
+type_context mk_type_context_for(environment const & env, options const & o, metavar_context const & mctx,
+                                 local_context const & lctx, transparency_mode m) {
+    return type_context(env, o, mctx, lctx, get_tcm(), m);
 }
 
-type_context_cache & get_type_context_cache_for(tactic_state const & s) {
-    return get_type_context_cache_for(s.env(), s.get_options());
+type_context mk_type_context_for(tactic_state const & s, local_context const & lctx, transparency_mode m) {
+    return mk_type_context_for(s.env(), s.get_options(), s.mctx(), lctx, m);
+}
+
+type_context mk_type_context_for(tactic_state const & s, transparency_mode m) {
+    local_context lctx;
+    if (auto d = s.get_main_goal_decl()) lctx = d->get_context();
+    return mk_type_context_for(s, lctx, m);
+}
+
+type_context mk_type_context_for(vm_obj const & s) {
+    return mk_type_context_for(to_tactic_state(s));
+}
+
+type_context mk_type_context_for(vm_obj const & s, vm_obj const & m) {
+    return mk_type_context_for(to_tactic_state(s), to_transparency_mode(m));
 }
 
 vm_obj tactic_infer_type(vm_obj const & e, vm_obj const & s0) {

@@ -173,7 +173,7 @@ void initialize_backward_lemmas() {
                                                   auto const & data = *get_intro_attribute().get(env, c);
                                                   if (data.m_eager)
                                                       return env; // FIXME: support old blast attributes
-                                                  aux_type_context ctx(env, ios.get_options());
+                                                  type_context ctx(env, ios.get_options());
                                                   auto index = get_backward_target(ctx, c);
                                                   if (!index || index->kind() != expr_kind::Constant)
                                                       throw exception(

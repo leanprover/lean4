@@ -42,16 +42,9 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_annotation.h"
 
 namespace lean {
-/* TODO(Leo): fix this, the elaborator is re-entrant. That is, we may have two nested elaboration
-   calls with different environments.
-   Solution: stack of caches. */
-MK_THREAD_LOCAL_GET(type_context_cache_helper, get_tch, true /* use binder information at infer_cache */);
+MK_THREAD_LOCAL_GET(type_context_cache_manager, get_tcm, true /* use binder information at infer_cache */);
 
 static name * g_level_prefix = nullptr;
-
-static type_context_cache & get_elab_tc_cache_for(environment const & env, options const & o) {
-    return get_tch().get_cache_for(env, o);
-}
 
 #define trace_elab(CODE) lean_trace("elaborator", scope_trace_env _scope(m_env, m_ctx); CODE)
 #define trace_elab_detail(CODE) lean_trace("elaborator_detail", scope_trace_env _scope(m_env, m_ctx); CODE)
@@ -60,7 +53,7 @@ static type_context_cache & get_elab_tc_cache_for(environment const & env, optio
 elaborator::elaborator(environment const & env, options const & opts, metavar_context const & mctx,
                        local_context const & lctx):
     m_env(env), m_opts(opts),
-    m_ctx(mctx, lctx, get_elab_tc_cache_for(env, opts), transparency_mode::Semireducible) {
+    m_ctx(env, opts, mctx, lctx, get_tcm(), transparency_mode::Semireducible) {
 }
 
 auto elaborator::mk_pp_ctx(type_context const & ctx) -> pp_fn {

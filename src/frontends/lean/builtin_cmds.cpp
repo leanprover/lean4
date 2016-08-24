@@ -448,10 +448,10 @@ static environment unify_cmd(parser & p) {
     e1 = convert_metavars(mctx, e1);
     e2 = convert_metavars(mctx, e2);
     tout() << e1 << " =?= " << e2 << "\n";
-    aux_type_context ctx(env, p.get_options(), mctx, lctx, transparency_mode::Semireducible);
-    bool success = ctx->is_def_eq(e1, e2);
+    type_context ctx(env, p.get_options(), mctx, lctx, transparency_mode::Semireducible);
+    bool success = ctx.is_def_eq(e1, e2);
     if (success)
-        tout() << ctx->instantiate_mvars(e1) << " =?= " << ctx->instantiate_mvars(e2) << "\n";
+        tout() << ctx.instantiate_mvars(e1) << " =?= " << ctx.instantiate_mvars(e2) << "\n";
     flycheck_information info(p.ios());
     if (info.enabled()) {
         p.display_information_pos(p.cmd_pos());
@@ -499,8 +499,7 @@ static environment vm_eval_cmd(parser & p) {
     std::tie(e, ls) = parse_local_expr(p);
     if (has_metavar(e))
         throw parser_error("invalid vm_eval command, expression contains metavariables", pos);
-    aux_type_context ctx(p.env(), transparency_mode::All);
-    type_context & tc = ctx.get();
+    type_context tc(p.env(), transparency_mode::All);
     expr type0 = tc.infer(e);
     expr type  = tc.whnf(type0);
     bool is_IO = is_constant(get_app_fn(type), get_IO_name());

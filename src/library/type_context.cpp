@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/metavar_util.h"
 #include "library/type_context.h"
 #include "library/aux_recursors.h"
+#include "library/attribute_manager.h"
 #include "library/unification_hint.h"
 #include "library/delayed_abstraction.h"
 #include "library/fun_info.h"
@@ -31,7 +32,8 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-static name * g_class_instance_max_depth     = nullptr;
+static name * g_class_instance_max_depth = nullptr;
+static name * g_reducibility             = nullptr;
 
 unsigned get_class_instance_max_depth(options const & o) {
     return o.get_unsigned(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH);
@@ -113,6 +115,42 @@ type_context_cache::scope_pos_info::~scope_pos_info() {
 }
 
 /* =====================
+   type_context_cache_manager
+   ===================== */
+
+static type_context_cache_ptr mk_cache(environment const & env, options const & o, bool use_bi) {
+    return std::make_shared<type_context_cache>(env, o, use_bi);
+}
+
+type_context_cache_ptr type_context_cache_manager::release() {
+    type_context_cache_ptr c = m_cache_ptr;
+    m_cache_ptr.reset();
+    return c;
+}
+
+type_context_cache_ptr type_context_cache_manager::mk(environment const & env, options const & o) {
+    if (!m_cache_ptr || get_class_instance_max_depth(o) != m_max_depth) return mk_cache(env, o, m_use_bi);
+    if (is_eqp(env, m_env)) {
+        m_cache_ptr->m_options = o;
+        return release();
+    }
+    if (!env.is_descendant(m_env) || get_attribute_fingerprint(env, *g_reducibility) != m_reducibility_fingerprint)
+        return mk_cache(env, o, m_use_bi);
+    m_cache_ptr->m_options = o;
+    m_cache_ptr->m_env     = env;
+    return release();
+}
+
+void type_context_cache_manager::recycle(type_context_cache_ptr const & ptr) {
+    m_max_depth = ptr->m_ci_max_depth;
+    m_cache_ptr = ptr;
+    if (!is_eqp(ptr->m_env, m_env)) {
+        m_env = ptr->m_env;
+        m_reducibility_fingerprint = get_attribute_fingerprint(ptr->m_env, *g_reducibility);
+    }
+}
+
+/* =====================
    type_context::tmp_locals
    ===================== */
 type_context::tmp_locals::~tmp_locals() {
@@ -149,13 +187,34 @@ void type_context::init_core(transparency_mode m) {
     m_approximate                 = false;
 }
 
-type_context::type_context(metavar_context const & mctx, local_context const & lctx, type_context_cache & cache,
+type_context::type_context(environment const & env, options const & o, metavar_context const & mctx,
+                           local_context const & lctx, transparency_mode m):
+    m_mctx(mctx), m_lctx(lctx),
+    m_cache_manager(nullptr),
+    m_cache(mk_cache(env, o, false)) {
+    init_core(m);
+}
+
+type_context::type_context(environment const & env, options const & o, metavar_context const & mctx,
+                           local_context const & lctx, type_context_cache_manager & manager, transparency_mode m):
+    m_mctx(mctx), m_lctx(lctx),
+    m_cache_manager(&manager),
+    m_cache(manager.mk(env, o)) {
+    init_core(m);
+}
+
+/** This constructor is only used internally during type class resolution. */
+type_context::type_context(type_context_cache_ptr const & ptr, metavar_context const & mctx, local_context const & lctx,
                            transparency_mode m):
-    m_mctx(mctx), m_lctx(lctx), m_cache(cache) {
+    m_mctx(mctx), m_lctx(lctx),
+    m_cache_manager(nullptr),
+    m_cache(ptr) {
     init_core(m);
 }
 
 type_context::~type_context() {
+    if (m_cache_manager)
+        m_cache_manager->recycle(m_cache);
 }
 
 expr type_context::push_local(name const & pp_name, expr const & type, binder_info const & bi) {
@@ -298,7 +357,7 @@ expr type_context::mk_pi(std::initializer_list<expr> const & locals, expr const 
    -------------------- */
 
 optional<declaration> type_context::is_transparent(transparency_mode m, name const & n) {
-    return m_cache.is_transparent(m, n);
+    return m_cache->is_transparent(m, n);
 }
 
 optional<declaration> type_context::is_transparent(name const & n) {
@@ -342,7 +401,7 @@ optional<expr> type_context::reduce_projection(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
         return none_expr();
-    projection_info const * info = m_cache.m_proj_info.find(const_name(f));
+    projection_info const * info = m_cache->m_proj_info.find(const_name(f));
     if (!info)
         return none_expr();
     buffer<expr> args;
@@ -369,7 +428,7 @@ optional<expr> type_context::reduce_aux_recursor(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
         return none_expr();
-    if (m_cache.is_aux_recursor(const_name(f)))
+    if (m_cache->is_aux_recursor(const_name(f)))
         return try_unfold_definition(e);
     else
         return none_expr();
@@ -382,7 +441,7 @@ bool type_context::should_unfold_macro(expr const & e) {
     return
         m_transparency_mode == transparency_mode::All ||
         m_in_is_def_eq ||
-        m_cache.should_unfold_macro(e);
+        m_cache->should_unfold_macro(e);
 }
 
 optional<expr> type_context::expand_macro(expr const & e) {
@@ -489,7 +548,7 @@ expr type_context::whnf(expr const & e) {
     default:
         break;
     }
-    auto & cache = m_cache.m_whnf_cache[static_cast<unsigned>(m_transparency_mode)];
+    auto & cache = m_cache->m_whnf_cache[static_cast<unsigned>(m_transparency_mode)];
     auto it = cache.find(e);
     if (it != cache.end())
         return it->second;
@@ -559,7 +618,7 @@ expr type_context::infer_core(expr const & e) {
     lean_assert(!is_var(e));
     lean_assert(closed(e));
 
-    auto & cache = m_cache.m_infer_cache;
+    auto & cache = m_cache->m_infer_cache;
     auto it = cache.find(e);
     if (it != cache.end())
         return it->second;
@@ -1520,7 +1579,7 @@ bool type_context::is_def_eq_binding(expr e1, expr e2) {
 }
 
 optional<expr> type_context::mk_class_instance_at(local_context const & lctx, expr const & type) {
-    type_context tmp_ctx(m_mctx, lctx, m_cache, m_transparency_mode);
+    type_context tmp_ctx(m_cache, m_mctx, lctx, m_transparency_mode);
     /* We shared the cache with tmp_ctx. So, it may be tainted with an incompatible local context. */
     m_local_instances_initialized = false;
     auto r = tmp_ctx.mk_class_instance(type);
@@ -1723,7 +1782,7 @@ bool type_context::is_productive(expr const & e) {
         expr const & major = args[2];
         return is_productive(major);
     } else {
-        return !m_cache.is_aux_recursor(n) && !inductive::is_elim_rule(env(), n);
+        return !m_cache->is_aux_recursor(n) && !inductive::is_elim_rule(env(), n);
     }
 }
 
@@ -2134,12 +2193,12 @@ bool type_context::compatible_local_instances(local_context const & lctx) {
     lctx.for_each([&](local_decl const & decl) {
             if (failed) return;
             if (auto cname = is_class(decl.get_type())) {
-                if (i == m_cache.m_local_instances.size()) {
+                if (i == m_cache->m_local_instances.size()) {
                     /* initial local context has more local instances than the ones cached at found m_local_instances */
                     failed = true;
                     return;
                 }
-                if (decl.get_name() != mlocal_name(m_cache.m_local_instances[i].second)) {
+                if (decl.get_name() != mlocal_name(m_cache->m_local_instances[i].second)) {
                     /* local instance in initial local constext is not compatible with the one cached at m_local_instances */
                     failed = true;
                     return;
@@ -2147,7 +2206,7 @@ bool type_context::compatible_local_instances(local_context const & lctx) {
                 i++;
             }
         });
-    return !failed && i == m_cache.m_local_instances.size();
+    return !failed && i == m_cache->m_local_instances.size();
 }
 
 local_context const & type_context::initial_lctx() const {
@@ -2155,12 +2214,12 @@ local_context const & type_context::initial_lctx() const {
 }
 
 void type_context::set_local_instances() {
-    m_cache.m_instance_cache.clear();
-    m_cache.m_subsingleton_cache.clear();
-    m_cache.m_local_instances.clear();
+    m_cache->m_instance_cache.clear();
+    m_cache->m_subsingleton_cache.clear();
+    m_cache->m_local_instances.clear();
     m_init_local_context.for_each([&](local_decl const & decl) {
             if (auto cls_name = is_class(decl.get_type())) {
-                m_cache.m_local_instances.emplace_back(*cls_name, decl.mk_ref());
+                m_cache->m_local_instances.emplace_back(*cls_name, decl.mk_ref());
             }
         });
 }
@@ -2237,12 +2296,12 @@ struct instance_synthesizer {
         auto out = tout();
         if (!m_displayed_trace_header && m_choices.size() == 1) {
             out << tclass("class_instances");
-            if (m_ctx.m_cache.m_pip) {
-                if (auto fname = m_ctx.m_cache.m_pip->get_file_name()) {
+            if (m_ctx.m_cache->m_pip) {
+                if (auto fname = m_ctx.m_cache->m_pip->get_file_name()) {
                     out << fname << ":";
                 }
-                if (m_ctx.m_cache.m_ci_pos)
-                    out << m_ctx.m_cache.m_ci_pos->first << ":" << m_ctx.m_cache.m_ci_pos->second << ":";
+                if (m_ctx.m_cache->m_ci_pos)
+                    out << m_ctx.m_cache->m_ci_pos->first << ":" << m_ctx.m_cache->m_ci_pos->second << ":";
             }
             out << " class-instance resolution trace" << endl;
             m_displayed_trace_header = true;
@@ -2314,7 +2373,7 @@ struct instance_synthesizer {
 
     list<expr> get_local_instances(name const & cname) {
         buffer<expr> selected;
-        for (pair<name, expr> const & p : m_ctx.m_cache.m_local_instances) {
+        for (pair<name, expr> const & p : m_ctx.m_cache->m_local_instances) {
             if (p.first == cname)
                 selected.push_back(p.second);
         }
@@ -2323,7 +2382,7 @@ struct instance_synthesizer {
 
     bool mk_choice_point(expr const & mvar) {
         lean_assert(is_metavar(mvar));
-        if (m_choices.size() > m_ctx.m_cache.m_ci_max_depth) {
+        if (m_choices.size() > m_ctx.m_cache->m_ci_max_depth) {
             throw_class_exception("maximum class-instance resolution depth has been reached "
                                   "(the limit can be increased by setting option 'class.instance_max_depth') "
                                   "(the class-instance resolution trace can be visualized "
@@ -2445,7 +2504,7 @@ struct instance_synthesizer {
     }
 
     void cache_result(expr const & type, optional<expr> const & inst) {
-        m_ctx.m_cache.m_instance_cache.insert(mk_pair(type, inst));
+        m_ctx.m_cache->m_instance_cache.insert(mk_pair(type, inst));
     }
 
     optional<expr> ensure_no_meta(optional<expr> r) {
@@ -2472,8 +2531,8 @@ struct instance_synthesizer {
 
     optional<expr> mk_class_instance_core(expr const & type) {
         /* We do not cache results when multiple instances have to be generated. */
-        auto it = m_ctx.m_cache.m_instance_cache.find(type);
-        if (it != m_ctx.m_cache.m_instance_cache.end()) {
+        auto it = m_ctx.m_cache->m_instance_cache.find(type);
+        if (it != m_ctx.m_cache->m_instance_cache.end()) {
             /* instance/failure is already cached */
             lean_trace("class_instances",
                        if (it->second)
@@ -2514,12 +2573,12 @@ optional<expr> type_context::mk_class_instance(expr const & type) {
 }
 
 optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
-    auto it = m_cache.m_subsingleton_cache.find(type);
-    if (it != m_cache.m_subsingleton_cache.end())
+    auto it = m_cache->m_subsingleton_cache.find(type);
+    if (it != m_cache->m_subsingleton_cache.end())
         return it->second;
     expr Type  = whnf(infer(type));
     if (!is_sort(Type)) {
-        m_cache.m_subsingleton_cache.insert(mk_pair(type, none_expr()));
+        m_cache->m_subsingleton_cache.insert(mk_pair(type, none_expr()));
         return none_expr();
     }
     level lvl    = sort_level(Type);
@@ -2529,7 +2588,7 @@ optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
     else
         subsingleton = whnf(mk_app(mk_constant(get_is_trunc_is_prop_name(), {lvl}), type));
     auto r = mk_class_instance(subsingleton);
-    m_cache.m_subsingleton_cache.insert(mk_pair(type, r));
+    m_cache->m_subsingleton_cache.insert(mk_pair(type, r));
     return r;
 }
 
@@ -2647,25 +2706,16 @@ bool tmp_type_context::is_prop(expr const & e) {
     return m_tctx.is_prop(e);
 }
 
-type_context_cache & type_context_cache_helper::get_cache_for(environment const & env, options const & o) {
-    if (!m_cache_ptr ||
-        !is_eqp(env, m_cache_ptr->env()) ||
-        !is_eqp(o, m_cache_ptr->get_options())) {
-        m_cache_ptr.reset(new type_context_cache(env, o, m_use_bi));
-    }
-    return *m_cache_ptr.get();
-}
-
 /** \brief Helper class for pretty printing terms that contain local_decl_ref's and metavar_decl_ref's */
 class pp_ctx {
-    aux_type_context m_ctx;
-    formatter        m_fmt;
+    type_context m_ctx;
+    formatter    m_fmt;
 public:
     pp_ctx(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx):
         m_ctx(env, opts, mctx, lctx),
-        m_fmt(get_global_ios().get_formatter_factory()(env, opts, m_ctx.get())) {}
+        m_fmt(get_global_ios().get_formatter_factory()(env, opts, m_ctx)) {}
     format pp(expr const & e) {
-        return m_fmt(m_ctx->instantiate_mvars(e));
+        return m_fmt(m_ctx.instantiate_mvars(e));
     }
 };
 
@@ -2692,11 +2742,13 @@ void initialize_type_context() {
     register_trace_class(name({"type_context", "univ_is_def_eq_detail"}));
     register_trace_class(name({"type_context", "tmp_vars"}));
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
+    g_reducibility                 = new name{"reducibility"};
     register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,
                              "(class) max allowed depth in class-instance resolution");
 }
 
 void finalize_type_context() {
     delete g_class_instance_max_depth;
+    delete g_reducibility;
 }
 }

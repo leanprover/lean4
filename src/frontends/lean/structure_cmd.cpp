@@ -76,8 +76,7 @@ struct structure_cmd_fn {
     parser &                    m_p;
     bool                        m_is_private;
     environment                 m_env;
-    aux_type_context            m_aux_ctx;
-    type_context &              m_ctx;
+    type_context                m_ctx;
     name                        m_namespace;
     name                        m_name;
     name                        m_given_name;
@@ -106,8 +105,7 @@ struct structure_cmd_fn {
         m_p(p),
         m_is_private(is_private),
         m_env(p.env()),
-        m_aux_ctx(aux_type_context(p.env())),
-        m_ctx(m_aux_ctx.get()),
+        m_ctx(p.env()),
         m_namespace(get_namespace(m_env)),
         m_attrs(attrs) {
         m_explicit_universe_params = false;

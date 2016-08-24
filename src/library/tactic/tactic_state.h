@@ -112,31 +112,12 @@ optional<tactic_state> is_tactic_success(vm_obj const & r);
    The vm_state S is used to execute (fn opts). */
 optional<pair<format, tactic_state>> is_tactic_exception(vm_state & S, options const & opts, vm_obj const & ex);
 
-type_context_cache & get_type_context_cache_for(environment const & env, options const & o);
-type_context_cache & get_type_context_cache_for(tactic_state const & s);
-
-inline type_context mk_type_context_for(tactic_state const & s, transparency_mode m = transparency_mode::Semireducible) {
-    local_context lctx;
-    if (auto d = s.get_main_goal_decl()) lctx = d->get_context();
-    return type_context(s.mctx(), lctx, get_type_context_cache_for(s), m);
-}
-
-inline type_context mk_type_context_for(tactic_state const & s, local_context const & lctx, transparency_mode m = transparency_mode::Semireducible) {
-    return type_context(s.mctx(), lctx, get_type_context_cache_for(s), m);
-}
-
-inline type_context mk_type_context_for(environment const & env, options const & o,
-                                        metavar_context const & mctx, local_context const & lctx, transparency_mode m = transparency_mode::Semireducible) {
-    return type_context(mctx, lctx, get_type_context_cache_for(env, o), m);
-}
-
-inline type_context mk_type_context_for(vm_obj const & s) {
-    return mk_type_context_for(to_tactic_state(s));
-}
-
-inline type_context mk_type_context_for(vm_obj const & s, vm_obj const & m) {
-    return mk_type_context_for(to_tactic_state(s), to_transparency_mode(m));
-}
+type_context mk_type_context_for(tactic_state const & s, transparency_mode m = transparency_mode::Semireducible);
+type_context mk_type_context_for(tactic_state const & s, local_context const & lctx, transparency_mode m = transparency_mode::Semireducible);
+type_context mk_type_context_for(environment const & env, options const & o,
+                                 metavar_context const & mctx, local_context const & lctx, transparency_mode m = transparency_mode::Semireducible);
+type_context mk_type_context_for(vm_obj const & s);
+type_context mk_type_context_for(vm_obj const & s, vm_obj const & m);
 
 #define lean_tactic_trace(N, S, Code) lean_trace(N, {   \
     type_context _ctx = mk_type_context_for(S);         \

@@ -884,30 +884,30 @@ simp_result simplifier::simplify_subterms_pi(expr const & e) {
 }
 
 expr simplifier::defeq_canonize_args_step(expr const & e) {
-        buffer<expr> args;
-        bool modified = false;
-        expr f        = get_app_args(e, args);
-        fun_info info = get_fun_info(m_tctx, f, args.size());
-        unsigned i    = 0;
-        for (param_info const & pinfo : info.get_params_info()) {
-            lean_assert(i < args.size());
-            expr new_a;
-            if ((m_canonize_instances_fixed_point && pinfo.is_inst_implicit()) || (m_canonize_proofs_fixed_point && pinfo.is_prop())) {
-                new_a = ::lean::defeq_canonize(m_tctx, args[i], m_need_restart);
-                lean_trace(name({"simplifier", "canonize"}),
-                           tout() << "\n" << args[i] << "\n==>\n" << new_a << "\n";);
-                if (new_a != args[i]) {
-                    modified = true;
-                    args[i] = new_a;
-                }
+    buffer<expr> args;
+    bool modified = false;
+    expr f        = get_app_args(e, args);
+    fun_info info = get_fun_info(m_tctx, f, args.size());
+    unsigned i    = 0;
+    for (param_info const & pinfo : info.get_params_info()) {
+        lean_assert(i < args.size());
+        expr new_a;
+        if ((m_canonize_instances_fixed_point && pinfo.is_inst_implicit()) || (m_canonize_proofs_fixed_point && pinfo.is_prop())) {
+            new_a = ::lean::defeq_canonize(m_tctx, args[i], m_need_restart);
+            lean_trace(name({"simplifier", "canonize"}),
+                       tout() << "\n" << args[i] << "\n==>\n" << new_a << "\n";);
+            if (new_a != args[i]) {
+                modified = true;
+                args[i] = new_a;
             }
-            i++;
         }
+        i++;
+    }
 
-        if (!modified)
-            return e;
-        else
-            return mk_app(f, args);
+    if (!modified)
+        return e;
+    else
+        return mk_app(f, args);
 }
 
 simp_result simplifier::simplify_operator_of_app(expr const & e) {

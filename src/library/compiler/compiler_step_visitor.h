@@ -13,8 +13,8 @@ namespace lean {
     Types are ignored during compilation steps. */
 class compiler_step_visitor : public replace_visitor {
 protected:
-    environment      m_env;
-    aux_type_context m_ctx;
+    environment  m_env;
+    type_context m_ctx;
 
     expr visit_lambda_let(expr const & e);
 protected:

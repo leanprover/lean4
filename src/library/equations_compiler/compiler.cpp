@@ -13,11 +13,11 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/elim_match.h"
 
 namespace lean {
-#define trace_compiler(Code) lean_trace("eqn_compiler", scope_trace_env _scope1(ctx->env(), ctx); Code)
+#define trace_compiler(Code) lean_trace("eqn_compiler", scope_trace_env _scope1(ctx.env(), ctx); Code)
 
 expr compile_equations(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx,
                        expr const & eqns) {
-    aux_type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
+    type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
     trace_compiler(tout() << "compiling\n" << eqns << "\n";);
     trace_compiler(tout() << "recursive: " << is_recursive_eqns(ctx, eqns) << "\n";);
     if (equations_num_fns(eqns) == 1) {
@@ -26,7 +26,7 @@ expr compile_equations(environment & env, options const & opts, metavar_context 
         } else {
             // TODO(Leo): use unbounded_rec if meta
             unsigned arg_idx;
-            if (optional<expr> eqns1 = try_structural_rec(ctx.get(), eqns, arg_idx)) {
+            if (optional<expr> eqns1 = try_structural_rec(ctx, eqns, arg_idx)) {
                 expr r = elim_match(env, opts, mctx, lctx, *eqns1);
                 // TODO(Leo): apply brec_on
                 lean_unreachable();
@@ -36,7 +36,7 @@ expr compile_equations(environment & env, options const & opts, metavar_context 
     }
 
     // test pack_domain
-    pack_domain(ctx.get(), eqns);
+    pack_domain(ctx, eqns);
 
     // test unbounded_rec
     // unbounded_rec(ctx.get(), eqns);

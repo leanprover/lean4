@@ -98,6 +98,7 @@ class type_context_cache {
     unsigned                      m_ci_max_depth;
 
     friend class type_context;
+    friend class type_context_cache_manager;
     friend struct instance_synthesizer;
     void init(local_context const & lctx);
     bool is_transparent(transparency_mode m, declaration const & d);
@@ -108,7 +109,6 @@ public:
     /** When use_bi == true, the cache for inferred types take binder information into account.
         See comment above for infer_cache. */
     type_context_cache(environment const & env, options const & opts, bool use_bi = false);
-
     environment const & env() const { return m_env; }
 
     options const & get_options() const { return m_options; }
@@ -124,10 +124,28 @@ public:
     };
 };
 
+typedef std::shared_ptr<type_context_cache> type_context_cache_ptr;
+
+/* \brief Type context cache managers are thread local data that we use
+   to try to reuse type_context_cache objects */
+class type_context_cache_manager {
+    type_context_cache_ptr m_cache_ptr;
+    unsigned               m_reducibility_fingerprint;
+    environment            m_env;
+    unsigned               m_max_depth;
+    bool                   m_use_bi;
+    type_context_cache_ptr release();
+public:
+    type_context_cache_manager(bool use_bi = false):m_use_bi(use_bi) {}
+    type_context_cache_ptr mk(environment const & env, options const & o);
+    void recycle(type_context_cache_ptr const & ptr);
+};
+
 class unification_hint;
 
 class type_context : public abstract_type_context {
-    typedef type_context_cache cache;
+    typedef type_context_cache_ptr cache_ptr;
+    typedef type_context_cache_manager cache_manager;
     typedef buffer<optional<level>> tmp_uassignment;
     typedef buffer<optional<expr>>  tmp_eassignment;
     typedef buffer<metavar_context> mctx_stack;
@@ -148,7 +166,8 @@ class type_context : public abstract_type_context {
     local_context      m_lctx;
     bool               m_local_instances_initialized;
     local_context      m_init_local_context;
-    cache &            m_cache;
+    cache_manager *    m_cache_manager;
+    cache_ptr          m_cache;
     /* We only cache results when m_used_assignment is false */
     bool               m_used_assignment;
     transparency_mode  m_transparency_mode;
@@ -185,20 +204,32 @@ class type_context : public abstract_type_context {
     static bool is_equiv_cache_target(expr const & e1, expr const & e2) {
         return !has_metavar(e1) && !has_metavar(e2) && (get_weight(e1) > 1 || get_weight(e2) > 1);
     }
-    equiv_manager & get_equiv_cache() { return m_cache.m_equiv_manager[static_cast<unsigned>(m_transparency_mode)]; }
+    equiv_manager & get_equiv_cache() { return m_cache->m_equiv_manager[static_cast<unsigned>(m_transparency_mode)]; }
     bool is_cached_equiv(expr const & e1, expr const & e2) {
         return is_equiv_cache_target(e1, e2) && get_equiv_cache().is_equiv(e1, e2);
     }
     void cache_equiv(expr const & e1, expr const & e2) {
         if (is_equiv_cache_target(e1, e2)) get_equiv_cache().add_equiv(e1, e2);
     }
+
+    type_context(type_context_cache_ptr const & ptr, metavar_context const & mctx, local_context const & lctx,
+                 transparency_mode m);
 public:
-    type_context(metavar_context const & mctx, local_context const & lctx, type_context_cache & cache,
+    type_context(environment const & env, options const & o, metavar_context const & mctx, local_context const & lctx,
                  transparency_mode m = transparency_mode::Reducible);
+    type_context(environment const & env, options const & o, local_context const & lctx,
+                 transparency_mode m = transparency_mode::Reducible):
+        type_context(env, o, metavar_context(), lctx, m) {}
+    type_context(environment const & env, transparency_mode m = transparency_mode::Reducible):
+        type_context(env, options(), metavar_context(), local_context(), m) {}
+    type_context(environment const & env, options const & o, transparency_mode m = transparency_mode::Reducible):
+        type_context(env, o, metavar_context(), local_context(), m) {}
+    type_context(environment const & env, options const & o, metavar_context const & mctx, local_context const & lctx,
+                 type_context_cache_manager & manager, transparency_mode m = transparency_mode::Reducible);
     virtual ~type_context();
 
-    virtual environment const & env() const override { return m_cache.m_env; }
-    options const & get_options() const { return m_cache.m_options; }
+    virtual environment const & env() const override { return m_cache->m_env; }
+    options const & get_options() const { return m_cache->m_options; }
     local_context const & lctx() const { return m_lctx; }
     metavar_context const & mctx() const { return m_mctx; }
     expr mk_metavar_decl(local_context const & ctx, expr const & type) { return m_mctx.mk_metavar_decl(ctx, type); }
@@ -507,35 +538,6 @@ public:
     friend class tmp_locals;
 };
 
-/** Auxiliary object for automating the creation of temporary type_context objects */
-class aux_type_context {
-    type_context_cache m_cache;
-    type_context       m_ctx;
-public:
-    aux_type_context(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
-                     transparency_mode m = transparency_mode::Reducible):
-        m_cache(env, opts),
-        m_ctx(mctx, lctx, m_cache, m) {}
-
-    aux_type_context(environment const & env, options const & opts, local_context const & lctx,
-                     transparency_mode m = transparency_mode::Reducible):
-        m_cache(env, opts),
-        m_ctx(metavar_context(), lctx, m_cache, m) {}
-
-    aux_type_context(environment const & env, options const & opts,
-                     transparency_mode m = transparency_mode::Reducible):
-        m_cache(env, opts),
-        m_ctx(metavar_context(), local_context(), m_cache, m) {}
-
-    aux_type_context(environment const & env, transparency_mode m = transparency_mode::Reducible):
-        m_cache(env, options()),
-        m_ctx(metavar_context(), local_context(), m_cache, m) {}
-
-    type_context & get() { return m_ctx; }
-    operator type_context&() { return m_ctx; }
-    type_context * operator->() { return &m_ctx; }
-};
-
 class tmp_type_context : public abstract_type_context {
     type_context & m_tctx;
     buffer<optional<level>> m_tmp_uassignment;
@@ -567,15 +569,6 @@ public:
     bool is_eassigned(unsigned i) const;
     void clear_eassignment();
     expr instantiate_mvars(expr const & e);
-};
-
-class type_context_cache_helper {
-    typedef std::unique_ptr<type_context_cache> cache_ptr;
-    bool      m_use_bi;
-    cache_ptr m_cache_ptr;
-public:
-    type_context_cache_helper(bool use_bi = false):m_use_bi(use_bi) {}
-    type_context_cache & get_cache_for(environment const & env, options const & o);
 };
 
 /** Create a formatting function that can 'decode' metavar_decl_refs and local_decl_refs

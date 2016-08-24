@@ -69,8 +69,7 @@ class inductive_cmd_fn {
     environment                     m_env;
     decl_attributes                 m_attrs;
     buffer<decl_attributes>         m_mut_attrs;
-    aux_type_context                m_aux_ctx;
-    type_context &                  m_ctx;
+    type_context                    m_ctx;
     buffer<name>                    m_lp_names;
     pos_info                        m_pos;
     name_map<implicit_infer_kind>   m_implicit_infer_map;
@@ -457,7 +456,7 @@ class inductive_cmd_fn {
             throw_error("only attribute [class] accepted for inductive types");
     }
 public:
-    inductive_cmd_fn(parser & p, decl_attributes const & attrs): m_p(p), m_env(p.env()), m_attrs(attrs), m_aux_ctx(p.env()), m_ctx(m_aux_ctx.get()) {
+    inductive_cmd_fn(parser & p, decl_attributes const & attrs): m_p(p), m_env(p.env()), m_attrs(attrs), m_ctx(p.env()) {
         m_env = m_env.add_universe(tmp_global_univ_name());
         m_u = mk_global_univ(tmp_global_univ_name());
         check_attrs(m_attrs);

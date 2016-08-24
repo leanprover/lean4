@@ -455,10 +455,10 @@ private:
         lean_assert(curr_symbol() == g_token_assert);
         next();
 
-        aux_type_context aux_tctx(m_env, m_ios.get_options(), m_lctx);
+        type_context aux_tctx(m_env, m_ios.get_options(), m_lctx);
         expr e;
         {
-            flet<type_context *> parsing_a_term(m_tctx_ptr, &aux_tctx.get());
+            flet<type_context *> parsing_a_term(m_tctx_ptr, &aux_tctx);
             e = parse_expr("invalid assert command");
         }
 
@@ -713,8 +713,8 @@ public:
             return ok;
         } catch (throwable const & ex) {
             ok = false;
-            aux_type_context aux_tctx(m_env, m_ios.get_options(), m_lctx);
-            auto out = regular(m_env, m_ios, aux_tctx.get());
+            type_context aux_tctx(m_env, m_ios.get_options(), m_lctx);
+            auto out = regular(m_env, m_ios, aux_tctx);
             ::lean::display_error(out, this, ex);
         }
         return ok;

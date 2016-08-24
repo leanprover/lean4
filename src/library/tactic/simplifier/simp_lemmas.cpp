@@ -59,15 +59,13 @@ void validate_simp(type_context & tctx, name const & n);
 void validate_congr(type_context & tctx, name const & n);
 
 environment on_add_simp_lemma(environment const & env, io_state const &, name const & c, unsigned, bool) {
-    aux_type_context aux_ctx(env);
-    type_context & tctx = aux_ctx.get();
+    type_context tctx(env);
     validate_simp(tctx, c);
     return env;
 }
 
 environment on_add_congr_lemma(environment const & env, io_state const &, name const & c, unsigned, bool) {
-    aux_type_context aux_ctx(env);
-    type_context & tctx = aux_ctx.get();
+    type_context tctx(env);
     validate_congr(tctx, c);
     return env;
 }

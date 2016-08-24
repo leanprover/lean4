@@ -1312,6 +1312,7 @@ expr elaborator::visit_equations(expr const & e) {
     new_e = instantiate_mvars(new_e);
     metavar_context mctx = m_ctx.mctx();
     expr r = compile_equations(m_env, m_opts, mctx, m_ctx.lctx(), new_e);
+    m_ctx.set_env(m_env);
     m_ctx.set_mctx(mctx);
     return r;
 }
@@ -1658,6 +1659,7 @@ void elaborator::invoke_tactic(expr const & mvar, expr const & tactic) {
         }
         mctx.assign(mvar, val);
         m_env = new_s->env();
+        m_ctx.set_env(m_env);
         m_ctx.set_mctx(mctx);
     } else if (optional<pair<format, tactic_state>> ex = is_tactic_exception(S, m_opts, r)) {
         throw_unsolved_tactic_state(ex->second, ex->first, ref);

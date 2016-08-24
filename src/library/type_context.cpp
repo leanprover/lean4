@@ -217,6 +217,16 @@ type_context::~type_context() {
         m_cache_manager->recycle(m_cache);
 }
 
+void type_context::set_env(environment const & env) {
+    options o = m_cache->m_options;
+    if (m_cache_manager) {
+        m_cache_manager->recycle(m_cache);
+        m_cache = m_cache_manager->mk(env, o);
+    } else {
+        m_cache = mk_cache(env, o, false);
+    }
+}
+
 expr type_context::push_local(name const & pp_name, expr const & type, binder_info const & bi) {
     return m_lctx.mk_local_decl(pp_name, type, bi);
 }

@@ -8,14 +8,14 @@ Author: Leonardo de Moura
 #include "library/tactic/induction_tactic.h"
 
 namespace lean {
-typedef list<list<optional<name>>>  cintros_list;
+typedef list<list<expr>> xintros_list;
 
 /** \brief Similar to induction, but applies 'cases_on' and has bettern support for dependent types. Failures are reported using exceptions.
     \c ids (if available) provides the names for new hypotheses.
     If cilist and rlist are not nullptr, then
-    1- Store in ilist the new hypotheses introduced for each new goal.
-       We have a new hypothesis for each constructor field.
-       The entry is none if the field was eliminated during dependent pattern matching.
+    1- Store in ilist the new "hypotheses" introduced for each new goal.
+       We have a new "hypothesis" for each constructor field.
+       We say "hypothesis" because it may be an arbitrary term. This may happen because of dependent pattern matching.
     2- Store in rlist the hypotheses renamed in each new goal.
     \pre (ilist == nullptr) iff (rlist == nullptr)
     \post ilist != nullptr -> rlist != nullptr -> length(*ilist) == length(*rlist)
@@ -28,7 +28,7 @@ typedef list<list<optional<name>>>  cintros_list;
     since some of the goals are discarded. */
 pair<list<expr>, list<name>>
 cases(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
-      expr const & mvar, expr const & H, list<name> & ids, cintros_list * ilist, renaming_list * rlist);
+      expr const & mvar, expr const & H, list<name> & ids, xintros_list * ilist, renaming_list * rlist);
 
 void initialize_cases_tactic();
 void finalize_cases_tactic();

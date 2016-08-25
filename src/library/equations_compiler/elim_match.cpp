@@ -694,7 +694,7 @@ struct elim_match_fn {
         optional<expr> aux_mvar1 = intron(m_env, m_opts, m_mctx, P.m_goal, 1, new_names);
         if (!aux_mvar1) throw_ill_formed_eqns();
         expr x             = get_local_context(*aux_mvar1).get_local_decl(new_names[0])->mk_ref();
-        cintros_list ilist;
+        xintros_list ilist;
         renaming_list rlist;
         list<expr> new_goals; list<name> new_goal_cnames;
         try {
@@ -729,7 +729,15 @@ struct elim_match_fn {
                 expr new_goal   = head(new_goals);
                 /* Revert constructor fields (which have not been eliminated by dependent pattern matching). */
                 buffer<expr> to_revert;
-                to_buffer_local(new_goal, head(ilist), to_revert);
+                // Temporary hack to be able to compile lean before major elim_match reorg
+                list<optional<name>> new_fields = map2<optional<name>>(head(ilist),
+                                                                       [&](expr const & e) {
+                                                                           if (is_local(e))
+                                                                               return optional<name>(mlocal_name(e));
+                                                                           else
+                                                                               return optional<name>();
+                                                                       });
+                to_buffer_local(new_goal, new_fields, to_revert);
                 unsigned to_revert_size   = to_revert.size();
                 unsigned num_intro_fields = to_revert_size;
                 expr aux_mvar2            = revert(m_env, m_opts, m_mctx, head(new_goals), to_revert);
@@ -738,10 +746,10 @@ struct elim_match_fn {
                 /* The arity of the auxiliary program is the arity of the original program
                    - 1 (we consumed one argument in this step) and + number of introduced constructor fields. */
                 new_P.m_nvars     = P.m_nvars - 1 + num_intro_fields;
-                new_P.m_equations = get_equations_for(head(new_goal_cnames), head(ilist), head(rlist),
+                new_P.m_equations = get_equations_for(head(new_goal_cnames), new_fields, head(rlist),
                                                       get_local_context(aux_mvar2), equations_by_constructor);
                 result new_R = compile_core(new_P);
-                result_by_constructor.emplace_back(head(new_goal_cnames), to_bitmask(head(ilist)), new_P.m_nvars, new_R);
+                result_by_constructor.emplace_back(head(new_goal_cnames), to_bitmask(new_fields), new_P.m_nvars, new_R);
 
                 new_goals       = tail(new_goals);
                 new_goal_cnames = tail(new_goal_cnames);

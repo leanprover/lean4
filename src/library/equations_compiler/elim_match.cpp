@@ -152,6 +152,22 @@ struct elim_match_fn {
         return is_inductive(get_app_fn(e));
     }
 
+    unsigned get_inductive_num_params(name const & n) const {
+        return eqns_env_interface(m_env).get_inductive_num_params(n);
+    }
+
+    unsigned get_inductive_num_params(expr const & I) const {
+        return get_inductive_num_params(const_name(I));
+    }
+
+    /* Return the number of constructor parameters.
+       That is, the fixed parameters used in the inductive declaration. */
+    unsigned get_constructor_num_params(expr const & n) const {
+        lean_assert(is_constructor(n));
+        name I_name = *eqns_env_interface(m_env).is_constructor(n);
+        return get_inductive_num_params(I_name);
+    }
+
     bool is_value(expr const & e) const {
         return false; // to_num(e) || to_char(e) || to_string(e) || is_constructor(e);
     }

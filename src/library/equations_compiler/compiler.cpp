@@ -47,6 +47,7 @@ expr compile_equations(environment & env, options const & opts, metavar_context 
 
 void initialize_compiler() {
     register_trace_class("eqn_compiler");
+    register_trace_class(name{"debug", "eqn_compiler"});
 }
 void finalize_compiler() {
 }

@@ -465,11 +465,14 @@ void scanner::next_utf(buffer<uchar> & cs) {
     next_utf_core(curr(), cs);
 }
 
-static bool is_id_first(buffer<uchar> const & cs, unsigned i) {
-    if (std::isalpha(cs[i]) || cs[i] == '_')
+constexpr char16_t id_begin_escape = u'«';
+constexpr char16_t id_end_escape = u'»';
+
+static bool is_id_first(uchar const * begin, uchar const * end) {
+    if (std::isalpha(*begin) || *begin == '_')
         return true;
-    unsigned u = utf8_to_unicode(cs.begin() + i, cs.end());
-    return is_letter_like_unicode(u);
+    unsigned u = utf8_to_unicode(begin, end);
+    return u == id_begin_escape || is_letter_like_unicode(u);
 }
 
 bool is_id_rest(uchar const * begin, uchar const * end) {
@@ -504,6 +507,53 @@ auto scanner::read_key_cmd_id() -> token_kind {
     unsigned num_utfs  = 1;
     unsigned id_sz     = 0;
     unsigned id_utf_sz = 0;
+
+    auto read_id_part = [&]() {
+        bool escaped = false;
+        while (true) {
+            unsigned u = utf8_to_unicode(&cs[id_sz], cs.end());
+            if (escaped) {
+                if (u == id_end_escape) {
+                    escaped = false;
+                } else if (u == '\r' || u == '\n' || u == '\t' || u == id_begin_escape) {
+                    throw_exception("illegal character in escaped identifier");
+                }
+            } else {
+                if (u == id_begin_escape) {
+                    escaped = true;
+                } else if (!is_id_rest(&cs[id_sz], cs.end())) {
+                    return;
+                }
+            }
+            id_sz = cs.size();
+            id_utf_sz = num_utfs;
+            next_utf(cs);
+            num_utfs++;
+        }
+    };
+
+    auto cs_to_name = [&]() {
+        name n;
+        std::string & id_part = m_buffer;
+        id_part.clear();
+        bool escaped = false;
+        for (unsigned i = 0; i < id_sz; i += get_utf8_size(cs[i])) {
+            unsigned u = utf8_to_unicode(&cs[i], cs.end());
+            if (u == id_begin_escape) {
+                escaped = true;
+            } else if (u == id_end_escape) {
+                escaped = false;
+            } else if (!escaped && cs[i] == '.') {
+                n = name(n, id_part.c_str());
+                id_part.clear();
+            } else {
+                id_part.append(&cs[i], &cs[i + get_utf8_size(cs[i])]);
+            }
+        }
+        n = name(n, id_part.c_str());
+        return n;
+    };
+
     if (m_field_notation && cs[0] == '.') {
         next_utf(cs);
         num_utfs++;
@@ -512,45 +562,32 @@ auto scanner::read_key_cmd_id() -> token_kind {
             read_field_idx();
             return token_kind::FieldNum;
         } else {
-            if (is_id_first(cs, 1) && cs[1] != '_') {
+            if (is_id_first(&cs[1], cs.end()) && cs[1] != '_') {
                 /* field notation `.` <atomic_id> */
                 num_utfs--;
-                cs[0] = cs[1];
-                cs.pop_back();
-                while (true) {
-                    id_sz      = cs.size();
-                    unsigned i = id_sz;
-                    next_utf(cs);
-                    num_utfs++;
-                    if (!is_id_rest(&cs[i], cs.end())) {
-                        break;
-                    }
-                }
+                cs.erase(0);
+                read_id_part();
                 move_back(cs.size() - id_sz, 1);
-                cs.shrink(id_sz);
-                cs.push_back(0);
-                m_name_val = name(reinterpret_cast<const char *>(cs.data()));
+                m_name_val = cs_to_name();
                 return token_kind::FieldName;
             }
         }
-    } else if (is_id_first(cs, 0)) {
+    } else if (is_id_first(cs.begin(), cs.end())) {
         while (true) {
-            id_sz     = cs.size();
-            id_utf_sz = num_utfs;
-            unsigned i = id_sz;
-            next_utf(cs);
-            num_utfs++;
-            if (is_id_rest(&cs[i], cs.end())) {
-            } else if (cs[i] == '.') {
+            read_id_part();
+            if (cs[id_sz] == '.') {
                 next_utf(cs);
                 num_utfs++;
-                if (!is_id_first(cs, i+1))
-                    break;
-            } else {
-                break;
+                if (is_id_first(&cs[id_sz + 1], cs.end())) {
+                    id_sz++;
+                    id_utf_sz++;
+                    continue;
+                }
             }
+            break;
         }
     }
+
     unsigned i = 0;
     token_table const * it  = m_tokens;
     token_info const * info = nullptr;
@@ -591,18 +628,7 @@ auto scanner::read_key_cmd_id() -> token_kind {
         throw_exception(g_error_key_msg);
     if (id_sz > key_sz) {
         move_back(cs.size() - id_sz, num_utfs - id_utf_sz);
-        m_name_val = name();
-        std::string & id_part = m_buffer;
-        id_part.clear();
-        for (unsigned i = 0; i < id_sz; i++) {
-            if (cs[i] == '.') {
-                m_name_val = name(m_name_val, id_part.c_str());
-                id_part.clear();
-            } else {
-                id_part.push_back(cs[i]);
-            }
-        }
-        m_name_val = name(m_name_val, id_part.c_str());
+        m_name_val = cs_to_name();
         return token_kind::Identifier;
     } else {
         move_back(cs.size() - key_sz, num_utfs - key_utf_sz);

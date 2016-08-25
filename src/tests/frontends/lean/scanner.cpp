@@ -191,6 +191,25 @@ static void tst4(unsigned N) {
     std::cout << i << "\n";
 }
 
+static void tst_id_escape() {
+    check_name("«a»", name("a"));
+    check_name("«a».b", name({"a", "b"}));
+    check_name("a.«b»", name({"a", "b"}));
+    check_name("a.«b».c", name({"a", "b", "c"}));
+
+    check_name("«a.b».c", name({"a.b", "c"}));
+    check_name("«a b».c", name({"a b", "c"}));
+    check_name("«a🍏b».c", name({"a🍏b", "c"}));
+
+    check_name("a«b»", "ab");
+    check_name("«a»b", "ab");
+
+    scan_error("«");
+    scan_error("«a");
+    scan_error("«a\nb»");
+    scan_error("a.«");
+}
+
 int main() {
     save_stack_info();
     initialize();
@@ -198,6 +217,7 @@ int main() {
     tst2();
     tst3();
     tst4(100000);
+    tst_id_escape();
     finalize();
     return has_violations() ? 1 : 0;
 }

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/fresh_name.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/type_checker.h"
 #include "library/constants.h"
 #include "library/type_context.h"
@@ -25,7 +26,17 @@ Author: Leonardo de Moura
 #include "library/vm/vm_list.h"
 #include "library/tactic/tactic_state.h"
 
+#ifndef LEAN_DEFAULT_PP_INSTANTIATE_GOAL_MVARS
+#define LEAN_DEFAULT_PP_INSTANTIATE_GOAL_MVARS true
+#endif
+
 namespace lean {
+static name * g_pp_instantiate_goal_mvars = nullptr;
+
+unsigned get_pp_instantiate_goal_mvars(options const & o) {
+    return o.get_unsigned(*g_pp_instantiate_goal_mvars, LEAN_DEFAULT_PP_INSTANTIATE_GOAL_MVARS);
+}
+
 void tactic_state_cell::dealloc() {
     this->~tactic_state_cell();
     get_vm_allocator().deallocate(sizeof(tactic_state_cell), this);
@@ -103,18 +114,24 @@ format tactic_state::pp_expr(formatter_factory const & fmtf, expr const & e) con
 }
 
 format tactic_state::pp_goal(formatter_factory const & fmtf, expr const & g) const {
+    bool inst_mvars            = get_pp_instantiate_goal_mvars(get_options());
     metavar_decl decl          = *mctx().get_metavar_decl(g);
-    local_context const & lctx = decl.get_context();
+    local_context lctx         = decl.get_context();
     metavar_context mctx_tmp   = mctx();
     type_context ctx(env(), get_options(), mctx_tmp, lctx, transparency_mode::All);
     formatter fmt              = fmtf(env(), get_options(), ctx);
+    if (inst_mvars)
+        lctx                   = lctx.instantiate_mvars(mctx_tmp);
     format r                   = lctx.pp(fmt);
     unsigned indent            = get_pp_indent(get_options());
     bool unicode               = get_pp_unicode(get_options());
     if (!lctx.empty())
         r += line();
     format turnstile           = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
-    r += turnstile + space() + nest(indent, fmt(decl.get_type()));
+    expr type                  = decl.get_type();
+    if (inst_mvars)
+        type                   = mctx_tmp.instantiate_mvars(type);
+    r += turnstile + space() + nest(indent, fmt(type));
     if (get_pp_goal_compact(get_options()))
         r = group(r);
     return r;
@@ -556,8 +573,12 @@ void initialize_tactic_state() {
     DECLARE_VM_BUILTIN(name({"tactic", "is_trace_enabled_for"}), tactic_is_trace_enabled_for);
     DECLARE_VM_BUILTIN(name({"tactic", "instantiate_mvars"}),    tactic_instantiate_mvars);
     DECLARE_VM_BUILTIN(name({"tactic", "add_decl"}),             tactic_add_decl);
+    g_pp_instantiate_goal_mvars = new name{"pp", "instantiate_goal_mvars"};
+    register_bool_option(*g_pp_instantiate_goal_mvars, LEAN_DEFAULT_PP_INSTANTIATE_GOAL_MVARS,
+                         "(pretty printer) instantiate assigned metavariables before pretty printing goals");
 }
 
 void finalize_tactic_state() {
+    delete g_pp_instantiate_goal_mvars;
 }
 }

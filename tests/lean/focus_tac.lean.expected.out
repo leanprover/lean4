@@ -27,5 +27,5 @@ a : ℕ
 ⊢ ℕ
 ---- after focus tac ----
 a : ℕ,
-x : ℕ := ?m_1
+x : ℕ := a
 ⊢ a = a

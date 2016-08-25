@@ -267,7 +267,7 @@ pair<local_context, expr> type_context::revert_core(buffer<expr> & to_revert, lo
                 }
             }
             /* We may still need to revert d if it depends on locals already in reverted */
-            if (depends_on(d, to_revert)) {
+            if (depends_on(d, m_mctx, to_revert)) {
                 to_revert.push_back(d.mk_ref());
             }
         });
@@ -320,13 +320,13 @@ expr type_context::mk_binding(bool is_pi, unsigned num_locals, expr const * loca
     for (unsigned i = 0; i < num_locals; i++) {
         local_decl const & decl = *m_lctx.get_local_decl(locals[i]);
         decls.push_back(decl);
-        types.push_back(abstract_locals(decl.get_type(), i, locals));
+        types.push_back(abstract_locals(instantiate_mvars(decl.get_type()), i, locals));
         if (auto v = decl.get_value())
-            values.push_back(some_expr(abstract_locals(*v, i, locals)));
+            values.push_back(some_expr(abstract_locals(instantiate_mvars(*v), i, locals)));
         else
             values.push_back(none_expr());
     }
-    expr new_e = abstract_locals(e, num_locals, locals);
+    expr new_e = abstract_locals(instantiate_mvars(e), num_locals, locals);
     lean_assert(types.size() == values.size());
     unsigned i = types.size();
     while (i > 0) {

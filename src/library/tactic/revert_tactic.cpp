@@ -35,7 +35,8 @@ vm_obj revert(list<expr> const & ls, tactic_state const & s) {
         if (lctx.get_local_decl(l)) {
             locals.push_back(l);
         } else {
-            return mk_tactic_exception(sstream() << "revert tactic failed, unknown '" << local_pp_name(l) << "' hypothesis", s);
+            return mk_tactic_exception(sstream() << "revert tactic failed, unknown '"
+                                       << local_pp_name(l) << "' hypothesis", s);
         }
     }
     tactic_state new_s = revert(locals, s);

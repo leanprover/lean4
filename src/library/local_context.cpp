@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/local_context.h"
 #include "library/metavar_context.h"
+#include "library/trace.h"
 
 namespace lean {
 static name *       g_local_prefix;
@@ -49,39 +50,58 @@ expr local_decl::mk_ref() const {
     return mk_local_ref(m_ptr->m_name, m_ptr->m_pp_name, m_ptr->m_bi);
 }
 
-bool depends_on(expr const & e, unsigned num, expr const * locals) {
+static bool depends_on_core(expr const & e, metavar_context const & mctx, unsigned num, expr const * locals,
+                            name_set & visited_mvars) {
     lean_assert(std::all_of(locals, locals+num, is_local_decl_ref));
-    if (!has_local(e))
+    if (!has_local(e) && !has_expr_metavar(e))
         return false;
     bool found = false;
     for_each(e, [&](expr const & e, unsigned) {
             if (found) return false;
-            if (!has_local(e)) return false;
+            if (!has_local(e) && !has_expr_metavar(e)) return false;
             if (is_local_decl_ref(e) &&
                 std::any_of(locals, locals+num,
                             [&](expr const & l) { return mlocal_name(e) == mlocal_name(l); })) {
                 found = true;
                 return false;
             }
+            if (is_metavar_decl_ref(e)) {
+                if (auto v = mctx.get_assignment(e)) {
+                    if (!visited_mvars.contains(mlocal_name(e))) {
+                        visited_mvars.insert(mlocal_name(e));
+                        if (depends_on_core(*v, mctx, num, locals, visited_mvars)) {
+                            found = true;
+                            return false;
+                        }
+                    }
+                }
+            }
             return true;
         });
     return found;
 }
 
-bool depends_on(local_decl const & d, unsigned num, expr const * locals) {
-    if (depends_on(d.get_type(), num, locals))
+bool depends_on(expr const & e, metavar_context const & mctx, unsigned num, expr const * locals) {
+    name_set visited_mvars;
+    return depends_on_core(e, mctx, num, locals, visited_mvars);
+}
+
+bool depends_on(local_decl const & d, metavar_context const & mctx, unsigned num, expr const * locals) {
+    name_set visited_mvars;
+    if (depends_on_core(d.get_type(), mctx, num, locals, visited_mvars))
         return true;
-    if (auto v = d.get_value())
-        return depends_on(*v, num, locals);
+    if (auto v = d.get_value()) {
+        return depends_on_core(*v, mctx, num, locals, visited_mvars);
+    }
     return false;
 }
 
-bool depends_on(expr const & e, buffer<expr> const & locals) {
-    return depends_on(e, locals.size(), locals.data());
+bool depends_on(expr const & e, metavar_context const & mctx, buffer<expr> const & locals) {
+    return depends_on(e, mctx, locals.size(), locals.data());
 }
 
-bool depends_on(local_decl const & d, buffer<expr> const & locals) {
-    return depends_on(d, locals.size(), locals.data());
+bool depends_on(local_decl const & d, metavar_context const & mctx, buffer<expr> const & locals) {
+    return depends_on(d, mctx, locals.size(), locals.data());
 }
 
 expr local_context::mk_local_decl(name const & n, name const & ppn, expr const & type, optional<expr> const & value, binder_info const & bi) {
@@ -167,13 +187,13 @@ bool local_context::rename_user_name(name const & from, name const & to) {
     }
 }
 
-optional<local_decl> local_context::has_dependencies(local_decl const & d) const {
+optional<local_decl> local_context::has_dependencies(local_decl const & d, metavar_context const & mctx) const {
     lean_assert(get_local_decl(d.get_name()));
     expr l = d.mk_ref();
     optional<local_decl> r;
     for_each_after(d, [&](local_decl const & d2) {
             if (r) return;
-            if (depends_on(d2, 1, &l))
+            if (depends_on(d2, mctx, 1, &l))
                 r = d2;
         });
     return r;
@@ -181,7 +201,6 @@ optional<local_decl> local_context::has_dependencies(local_decl const & d) const
 
 void local_context::clear(local_decl const & d) {
     lean_assert(get_local_decl(d.get_name()));
-    lean_assert(!has_dependencies(d));
     m_idx2local_decl.erase(d.get_idx());
     m_name2local_decl.erase(d.get_name());
 }

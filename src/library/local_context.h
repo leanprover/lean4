@@ -57,10 +57,12 @@ public:
 
 bool is_local_decl_ref(expr const & e);
 
-bool depends_on(expr const & e, unsigned num, expr const * locals);
-bool depends_on(local_decl const & d, unsigned num, expr const * locals);
-bool depends_on(expr const & e, buffer<expr> const & locals);
-bool depends_on(local_decl const & d, buffer<expr> const & locals);
+class metavar_context;
+
+bool depends_on(expr const & e, metavar_context const & mctx, unsigned num, expr const * locals);
+bool depends_on(local_decl const & d, metavar_context const & mctx,  unsigned num, expr const * locals);
+bool depends_on(expr const & e, metavar_context const & mctx,  buffer<expr> const & locals);
+bool depends_on(local_decl const & d, metavar_context const & mctx, buffer<expr> const & locals);
 
 class metavar_context;
 
@@ -106,7 +108,7 @@ public:
     /** \brief Return a non-none iff other local decls depends on \c d. If the result is not none,
         then it is the name of the local decl that depends on d.
         \pre \c d is in this local context. */
-    optional<local_decl> has_dependencies(local_decl const & d) const;
+    optional<local_decl> has_dependencies(local_decl const & d, metavar_context const & mctx) const;
 
     /** \brief Return an unused hypothesis "user name" with the given prefix, the suffix is an
         unsigned >= idx. */

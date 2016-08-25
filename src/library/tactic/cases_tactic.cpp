@@ -138,7 +138,7 @@ struct cases_tactic_fn {
         lctx.for_each_after(*h_decl, [&](local_decl const & h1) {
                 if (!ok) return;
                 /* h1 must not depend on the indices */
-                if (depends_on(h1, m_nindices, args.end() - m_nindices))
+                if (depends_on(h1, m_mctx, m_nindices, args.end() - m_nindices))
                     ok = false;
             });
         return ok;

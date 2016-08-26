@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 */
 #include <string>
-#include <library/tactic/tactic_state.h>
+#include "util/sstream.h"
 #include "library/attribute_manager.h"
 #include "library/constants.h"
 #include "library/scoped_ext.h"
@@ -13,7 +13,7 @@ Author: Sebastian Ullrich
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_string.h"
-#include "util/sstream.h"
+#include "library/tactic/tactic_state.h"
 
 namespace lean {
 

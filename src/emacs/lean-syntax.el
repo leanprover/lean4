@@ -57,6 +57,8 @@
     (modify-syntax-entry ?/ ". 14nb" st)
     (modify-syntax-entry ?- ". 123" st)
     (modify-syntax-entry ?\n ">" st)
+    (modify-syntax-entry ?« "<" st)
+    (modify-syntax-entry ?» ">" st)
 
     ;; Word constituent
     (--map (modify-syntax-entry it "w" st)
@@ -166,6 +168,11 @@
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
      ;; warnings
      (,lean-warnings-regexp . 'font-lock-warning-face)
+     ;; escaped identifiers
+     (,(rx (and (group "«") (group (one-or-more (not (any "»")))) (group "»")))
+      (1 font-lock-comment-face t)
+      (2 nil t)
+      (3 font-lock-comment-face t))
      )))
 
 ;; Syntax Highlighting for Lean Info Mode

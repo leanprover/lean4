@@ -23,23 +23,71 @@ Author: Leonardo de Moura
 namespace lean {
 constexpr char const * anonymous_str = "[anonymous]";
 
-void name::imp::display_core(std::ostream & out, imp * p, char const * sep) {
-    lean_assert(p != nullptr);
-    if (p->m_prefix) {
-        display_core(out, p->m_prefix, sep);
-        out << sep;
-    }
-    if (p->m_is_string)
-        out << p->m_str;
-    else
-        out << p->m_k;
+bool is_greek_unicode(unsigned u) { return 0x391 <= u && u <= 0x3DD; }
+bool is_letter_like_unicode(unsigned u) {
+    return
+            (0x3b1  <= u && u <= 0x3c9 && u != 0x3bb) || // Lower greek, but lambda
+            (0x391  <= u && u <= 0x3A9 && u != 0x3A0 && u != 0x3A3) || // Upper greek, but Pi and Sigma
+            (0x3ca  <= u && u <= 0x3fb) ||               // Coptic letters
+            (0x1f00 <= u && u <= 0x1ffe) ||              // Polytonic Greek Extended Character Set
+            (0x2100 <= u && u <= 0x214f);                // Letter like block
+}
+bool is_sub_script_alnum_unicode(unsigned u) {
+    return
+            (0x207f <= u && u <= 0x2089) || // n superscript and numberic subscripts
+            (0x2090 <= u && u <= 0x209c);   // letter-like subscripts
 }
 
-void name::imp::display(std::ostream & out, imp * p, char const * sep) {
+bool is_id_first(char const * begin, char const * end) {
+    if (std::isalpha(*begin) || *begin == '_')
+        return true;
+    unsigned u = utf8_to_unicode(begin, end);
+    return u == id_begin_escape || is_letter_like_unicode(u);
+}
+
+bool is_id_rest(char const * begin, char const * end) {
+    if (std::isalnum(*begin) || *begin == '_' || *begin == '\'')
+        return true;
+    unsigned u = utf8_to_unicode(begin, end);
+    return is_letter_like_unicode(u) || is_sub_script_alnum_unicode(u);
+}
+
+void name::imp::display_core(std::ostream & out, imp * p, bool escape, char const * sep) {
+    lean_assert(p != nullptr);
+    if (p->m_prefix) {
+        display_core(out, p->m_prefix, escape, sep);
+        out << sep;
+    }
+    if (p->m_is_string) {
+        size_t sz = strlen(p->m_str);
+        bool must_escape = false;
+        if (escape && *p->m_str) {
+            if (!is_id_first(p->m_str, p->m_str + sz))
+                must_escape = true;
+            // don't escape names produced by server::display_decl
+            if (must_escape && p->m_str[0] == '?')
+                must_escape = false;
+            if (escape) {
+                for (char * s = p->m_str + get_utf8_size(p->m_str[0]); !must_escape && *s; s += get_utf8_size(*s)) {
+                    if (!is_id_rest(s, p->m_str + sz))
+                        must_escape = true;
+                }
+            }
+        }
+        if (must_escape)
+            out << "«" << p->m_str << "»";
+        else
+            out << p->m_str;
+    } else {
+        out << p->m_k;
+    }
+}
+
+void name::imp::display(std::ostream & out, imp * p, bool escape, char const * sep) {
     if (p == nullptr)
         out << anonymous_str;
     else
-        display_core(out, p, sep);
+        display_core(out, p, escape, sep);
 }
 
 void copy_limbs(name::imp * p, buffer<name::imp *> & limbs) {
@@ -297,12 +345,18 @@ name name::get_root() const {
 
 std::string name::to_string(char const * sep) const {
     std::ostringstream s;
-    imp::display(s, m_ptr, sep);
+    imp::display(s, m_ptr, false, sep);
+    return s.str();
+}
+
+std::string name::escape(char const * sep) const {
+    std::ostringstream s;
+    imp::display(s, m_ptr, true, sep);
     return s.str();
 }
 
 std::ostream & operator<<(std::ostream & out, name const & n) {
-    name::imp::display(out, n.m_ptr);
+    name::imp::display(out, n.m_ptr, false);
     return out;
 }
 

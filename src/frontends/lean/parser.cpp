@@ -1988,7 +1988,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, 
         } catch (exception &) {}
     }
     if (!r) {
-        return parser_error_or_expr({sstream() << "unknown identifier '" << id << "'", p});
+        return parser_error_or_expr({sstream() << "unknown identifier '" << id.escape() << "'", p});
     }
     return *r;
 }
@@ -2043,7 +2043,7 @@ list<name> parser::to_constants(name const & id, char const * msg, pos_info cons
     }
 
     if (rs.empty()) {
-        throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
+        throw parser_error(sstream() << "unknown identifier '" << id.escape() << "'", p);
     }
 
     return to_list(rs);

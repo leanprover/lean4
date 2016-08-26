@@ -669,6 +669,10 @@ optional<name> pretty_fn::is_aliased(name const & n) const {
     }
 }
 
+static format escape(name const & n) {
+    return format(n.escape());
+}
+
 auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ_params) -> result {
     if (is_neutral_expr(e) && m_unicode)
         return format("◾");
@@ -720,11 +724,11 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
         to_buffer(const_levels(e), ls);
         if (num_ref_univ_params) {
             if (ls.size() <= *num_ref_univ_params)
-                return result(format(n));
+                return result(escape(n));
             else
                 first_idx = *num_ref_univ_params;
         }
-        format r = compose(format(n), format(".{"));
+        format r = compose(escape(n), format(".{"));
         bool first = true;
         for (unsigned i = first_idx; i < ls.size(); i++) {
             level const & l = ls[i];
@@ -740,7 +744,7 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
         r += format("}");
         return result(group(r));
     } else {
-        return result(format(n));
+        return result(escape(n));
     }
 }
 
@@ -765,7 +769,7 @@ auto pretty_fn::pp_local(expr const & e) -> result {
     if (m_locals_full_names)
         return result(format("<") + format(n + mlocal_name(e)) + format(">"));
     else
-        return format(n);
+        return format(escape(n));
 }
 
 bool pretty_fn::has_implicit_args(expr const & f) {
@@ -893,7 +897,7 @@ format pretty_fn::pp_binder(expr const & local) {
     auto bi = local_info(local);
     if (bi != binder_info())
         r += format(open_binder_string(bi, m_unicode));
-    r += format(local_pp_name(local));
+    r += escape(local_pp_name(local));
     if (m_binder_types) {
         r += space();
         r += compose(colon(), nest(m_indent, compose(line(), pp_child(mlocal_type(local), 0).fmt())));
@@ -908,7 +912,7 @@ format pretty_fn::pp_binder_block(buffer<name> const & names, expr const & type,
     if (m_binder_types || bi != binder_info())
         r += format(open_binder_string(bi, m_unicode));
     for (name const & n : names) {
-        r += format(n);
+        r += escape(n);
     }
     if (m_binder_types) {
         r += space();
@@ -1009,7 +1013,7 @@ auto pretty_fn::pp_have(expr const & e) -> result {
     format proof_fmt = pp_child(proof, 0).fmt();
     format body_fmt  = pp_child(body, 0).fmt();
     format head_fmt  = *g_have_fmt;
-    format r = head_fmt + space() + format(n) + space();
+    format r = head_fmt + space() + escape(n) + space();
     r += colon() + nest(m_indent, line() + type_fmt + comma() + space() + *g_from_fmt);
     r = group(r);
     r += nest(m_indent, line() + proof_fmt + comma());

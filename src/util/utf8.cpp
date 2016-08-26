@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/debug.h"
 #include "util/optional.h"
+#include "util/utf8.h"
 
 namespace lean {
 bool is_utf8_next(unsigned char c) { return (c & 0xC0) == 0x80; }
@@ -80,5 +81,34 @@ std::string utf8_trim(std::string const & s) {
     if (stop == -1)
         stop = s.size();
     return s.substr(start, stop - start);
+}
+
+unsigned utf8_to_unicode(uchar const * begin, uchar const * end) {
+    unsigned result = 0;
+    if (begin == end)
+        return result;
+    auto it = begin;
+    unsigned c = *it;
+    ++it;
+    if (c < 128)
+        return c;
+    unsigned mask     = (1u << 6) -1;
+    unsigned hmask    = mask;
+    unsigned shift    = 0;
+    unsigned num_bits = 0;
+    while ((c & 0xC0) == 0xC0) {
+        c <<= 1;
+        c &= 0xff;
+        num_bits += 6;
+        hmask >>= 1;
+        shift++;
+        result <<= 6;
+        if (it == end)
+            return 0;
+        result |= *it & mask;
+        ++it;
+    }
+    result |= ((c >> shift) & hmask) << num_bits;
+    return result;
 }
 }

@@ -3853,7 +3853,7 @@ static expr resolve_local_name(environment const & env, local_context const & lc
         } catch (exception &) {}
     }
     if (!r)
-        throw elaborator_exception(src, format("unknown identifier '") + format(id) + format("'"));
+        throw elaborator_exception(src, format("unknown identifier '") + format(id.escape()) + format("'"));
     return *r;
 }
 

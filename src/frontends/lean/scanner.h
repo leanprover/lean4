@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/pos_info_provider.h"
 #include "util/name.h"
 #include "util/flet.h"
+#include "util/utf8.h"
 #include "util/numerics/mpq.h"
 #include "kernel/environment.h"
 #include "library/io_state.h"
@@ -19,8 +20,6 @@ namespace lean {
 enum class token_kind {Keyword, CommandKeyword, Identifier, Numeral, Decimal,
         String, Char, QuotedSymbol,
         DocBlock, ModDocBlock, FieldNum, FieldName, Eof};
-
-using uchar = unsigned char;
 
 /**
     \brief Scanner. The behavior of the scanner is controlled using a token set.
@@ -119,11 +118,6 @@ public:
     };
 };
 std::ostream & operator<<(std::ostream & out, token_kind k);
-bool is_id_rest(uchar const * begin, uchar const * end);
-inline bool is_id_rest(char const * begin, char const * end) {
-    return is_id_rest(reinterpret_cast<uchar const *>(begin),
-                      reinterpret_cast<uchar const *>(end));
-}
 
 class token {
     token_kind  m_kind;

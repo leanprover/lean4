@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <cctype>
 #include <string>
 #include "util/exception.h"
+#include "util/name.h"
 #include "util/utf8.h"
 #include "library/type_context.h"
 #include "library/message_builder.h"
@@ -23,50 +24,6 @@ unsigned scanner::get_utf8_size(uchar c) {
     if (r == 0)
         throw_exception("invalid utf-8 head character");
     return r;
-}
-
-static unsigned utf8_to_unicode(uchar const * begin, uchar const * end) {
-    unsigned result = 0;
-    if (begin == end)
-        return result;
-    auto it = begin;
-    unsigned c = *it;
-    ++it;
-    if (c < 128)
-        return c;
-    unsigned mask     = (1u << 6) -1;
-    unsigned hmask    = mask;
-    unsigned shift    = 0;
-    unsigned num_bits = 0;
-    while ((c & 0xC0) == 0xC0) {
-        c <<= 1;
-        c &= 0xff;
-        num_bits += 6;
-        hmask >>= 1;
-        shift++;
-        result <<= 6;
-        if (it == end)
-            return 0;
-        result |= *it & mask;
-        ++it;
-    }
-    result |= ((c >> shift) & hmask) << num_bits;
-    return result;
-}
-
-bool is_greek_unicode(unsigned u) { return 0x391 <= u && u <= 0x3DD; }
-bool is_letter_like_unicode(unsigned u) {
-    return
-        (0x3b1  <= u && u <= 0x3c9 && u != 0x3bb) || // Lower greek, but lambda
-        (0x391  <= u && u <= 0x3A9 && u != 0x3A0 && u != 0x3A3) || // Upper greek, but Pi and Sigma
-        (0x3ca  <= u && u <= 0x3fb) ||               // Coptic letters
-        (0x1f00 <= u && u <= 0x1ffe) ||              // Polytonic Greek Extended Character Set
-        (0x2100 <= u && u <= 0x214f);                // Letter like block
-}
-bool is_sub_script_alnum_unicode(unsigned u) {
-    return
-        (0x207f <= u && u <= 0x2089) || // n superscript and numberic subscripts
-        (0x2090 <= u && u <= 0x209c);   // letter-like subscripts
 }
 
 void scanner::fetch_line() {
@@ -463,23 +420,6 @@ void scanner::next_utf_core(uchar c, buffer<uchar> & cs) {
 void scanner::next_utf(buffer<uchar> & cs) {
     next();
     next_utf_core(curr(), cs);
-}
-
-constexpr char16_t id_begin_escape = u'«';
-constexpr char16_t id_end_escape = u'»';
-
-static bool is_id_first(uchar const * begin, uchar const * end) {
-    if (std::isalpha(*begin) || *begin == '_')
-        return true;
-    unsigned u = utf8_to_unicode(begin, end);
-    return u == id_begin_escape || is_letter_like_unicode(u);
-}
-
-bool is_id_rest(uchar const * begin, uchar const * end) {
-    if (std::isalnum(*begin) || *begin == '_' || *begin == '\'')
-        return true;
-    unsigned u = utf8_to_unicode(begin, end);
-    return is_letter_like_unicode(u) || is_sub_script_alnum_unicode(u);
 }
 
 static char const * g_error_key_msg = "unexpected token";

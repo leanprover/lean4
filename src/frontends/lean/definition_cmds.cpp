@@ -104,7 +104,7 @@ expr parse_mutual_definition(parser & p, def_cmd_kind k, buffer<name> & lp_names
                 eqns.push_back(parse_equation(p, pre_fn));
             }
         }
-        expr fn      = mk_local(local_pp_name(pre_fn), fn_type);
+        expr fn      = mk_local(mlocal_name(pre_fn), local_pp_name(pre_fn), fn_type, mk_rec_info(true));
         fns.push_back(fn);
     }
     if (p.curr_is_token(get_with_tk()))
@@ -145,6 +145,7 @@ expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<expr> & p
         p.next();
         val = p.parse_expr();
     } else if (p.curr_is_token(get_bar_tk()) || p.curr_is_token(get_none_tk())) {
+        fn = mk_local(mlocal_name(fn), local_pp_name(fn), mlocal_type(fn), mk_rec_info(true));
         p.add_local(fn);
         buffer<expr> eqns;
         if (p.curr_is_token(get_none_tk())) {

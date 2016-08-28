@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/class.h"
 #include "library/pp_options.h"
+#include "library/annotation.h"
 #include "library/idx_metavar.h"
 #include "library/reducible.h"
 #include "library/constants.h"
@@ -1543,7 +1544,7 @@ optional<expr> type_context::check_assignment(buffer<expr> const & locals, expr 
                             lean_trace(name({"type_context", "is_def_eq_detail"}),
                                        tout() << "failed to assign " << mvar << " to\n" << v << "\n" <<
                                        "value contains local declaration " << e <<
-                                       " which is not in the scope of the metavariable";);
+                                       " which is not in the scope of the metavariable\n";);
                             return false;
                         }
                     }
@@ -1720,6 +1721,10 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
         return l_true;
     if (is_cached_equiv(e1, e2))
         return l_true;
+    if (is_annotation(e1))
+        return to_lbool(is_def_eq_core(get_annotation_arg(e1), e2));
+    if (is_annotation(e2))
+        return to_lbool(is_def_eq_core(e1, get_annotation_arg(e2)));
 
     expr const & f1 = get_app_fn(e1);
     expr const & f2 = get_app_fn(e2);

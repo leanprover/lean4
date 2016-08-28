@@ -309,8 +309,10 @@ struct cases_tactic_fn {
 
     optional<expr> unify_eqs(expr mvar, unsigned num_eqs, bool updating_intros,
                              list<expr> & new_intros, name_map<name> & renames) {
-        if (num_eqs == 0)
+        if (num_eqs == 0) {
+            lean_cases_trace(mvar, tout() << "solved equalities\n" << pp_goal(mvar) << "\n";);
             return some_expr(mvar);
+        }
         expr A, B, lhs, rhs;
         lean_cases_trace(mvar, tout() << "unifying equalities [" << num_eqs << "]\n" << pp_goal(mvar) << "\n";);
         metavar_decl g       = *m_mctx.get_metavar_decl(mvar);

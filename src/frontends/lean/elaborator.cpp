@@ -807,6 +807,9 @@ optional<expr> elaborator::visit_app_propagate_expected(expr const & fn, buffer<
                 new_arg = mk_instance(d, ref);
             else
                 new_arg = mk_metavar(d);
+            // implicit arguments are tagged as inaccessible in patterns
+            if (m_in_pattern)
+                new_arg = copy_tag(ref, mk_inaccessible(new_arg));
         } else if (i < args.size()) {
             // explicit argument
             i++;
@@ -908,6 +911,9 @@ expr elaborator::visit_default_app_core(expr const & _fn, arg_mask amask, buffer
                     new_arg = mk_instance(d, ref);
                 else
                     new_arg = mk_metavar(d);
+                // implicit arguments are tagged as inaccessible in patterns
+                if (m_in_pattern)
+                    new_arg = copy_tag(ref, mk_inaccessible(new_arg));
             } else if (i < args.size()) {
                 // explicit argument
                 expr ref_arg = args[i];

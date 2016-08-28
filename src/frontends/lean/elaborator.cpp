@@ -769,6 +769,8 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
                                            pp_indent(pp_fn, infer_type(new_arg)) +
                                            line() + format("but is expected to have type") +
                                            pp_indent(pp_fn, new_arg_type));
+            } else {
+                new_args[i] = new_arg;
             }
         }
     }
@@ -851,6 +853,8 @@ optional<expr> elaborator::visit_app_propagate_expected(expr const & fn, buffer<
         }
         if (!is_def_eq(args_mvars[i], new_arg)) {
             throw elaborator_exception(ref_arg, "invalid application, type mismatch when assigning auxiliary metavar");
+        } else {
+            new_args[size_at_args[i]] = new_arg;
         }
     }
     return some_expr(mk_app(fn, new_args.size(), new_args.data()));

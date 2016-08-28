@@ -179,6 +179,8 @@ private:
     expr visit_let(expr const & e, optional<expr> const & expected_type);
     expr visit_convoy(expr const & e, optional<expr> const & expected_type);
     expr visit_equations(expr const & e);
+    void check_pattern_inaccessible_annotations(expr const & p);
+    void check_inaccessible_annotations(expr const & lhs);
     expr visit_equation(expr const & eq);
     expr visit_inaccessible(expr const & e, optional<expr> const & expected_type);
     expr visit(expr const & e, optional<expr> const & expected_type);

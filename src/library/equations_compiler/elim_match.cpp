@@ -578,7 +578,7 @@ struct elim_match_fn {
         lean_assert(is_inductive_app(x_type));
         name I_name        = const_name(get_app_fn(x_type));
         unsigned I_nparams = get_inductive_num_params(I_name);
-        xintros_list ilist;
+        intros_list ilist;
         substitutions_list slist;
         list<expr> new_goals;
         list<name> new_goal_cnames;

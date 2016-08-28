@@ -9,9 +9,6 @@ Author: Leonardo de Moura
 #include "library/tactic/subst_tactic.h"
 
 namespace lean {
-typedef list<list<expr>>    xintros_list;
-typedef list<substitutions> substitutions_list;
-
 /** \brief Similar to induction, but applies 'cases_on' and has bettern support for dependent types. Failures are reported using exceptions.
     \c ids (if available) provides the names for new hypotheses.
     If ilist and slist are not nullptr, then
@@ -32,7 +29,7 @@ typedef list<substitutions> substitutions_list;
     since some of the goals are discarded. */
 pair<list<expr>, list<name>>
 cases(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
-      expr const & mvar, expr const & H, list<name> & ids, xintros_list * ilist, substitutions_list * slist);
+      expr const & mvar, expr const & H, list<name> & ids, intros_list * ilist, substitutions_list * slist);
 
 void initialize_cases_tactic();
 void finalize_cases_tactic();

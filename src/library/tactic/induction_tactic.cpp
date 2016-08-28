@@ -61,11 +61,31 @@ static unsigned get_expr_arity(expr type) {
     return r;
 }
 
+bool check_intro_renaming(list<name> const & intros, name_map<name> const & renames) {
+    for (name const & H : intros) {
+        lean_assert(!renames.contains(H));
+    }
+    return true;
+}
+
+bool check_ilist_rlist(intros_list const & ilist, renaming_list const & rlist) {
+    auto it1 = ilist;
+    auto it2 = rlist;
+    lean_assert(length(it1) == length(it2));
+    while (it1 && it2) {
+        lean_assert(check_intro_renaming(head(it1), head(it2)));
+        it1 = tail(it1);
+        it2 = tail(it2);
+    }
+    return true;
+}
+
 list<expr> induction(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
                      expr const & mvar, expr const & H, name const & rec_name, list<name> & ns,
                      intros_list * ilist, renaming_list * rlist) {
     lean_assert(is_metavar(mvar));
     lean_assert(is_local(H));
+    lean_assert((ilist == nullptr) == (rlist == nullptr));
     optional<metavar_decl> g = mctx.get_metavar_decl(mvar);
     lean_assert(g);
     type_context ctx1 = mk_type_context_for(env, opts, mctx, g->get_context(), m);
@@ -274,8 +294,12 @@ list<expr> induction(environment const & env, options const & opts, transparency
     }
     mctx = ctx2.mctx();
     mctx.assign(*mvar2, rec);
-    if (ilist) *ilist = to_list(param_names_buffer);
-    if (rlist) *rlist = to_list(rename_buffer);
+    if (ilist) {
+        lean_assert(rlist);
+        *ilist = to_list(param_names_buffer);
+        *rlist = to_list(rename_buffer);
+        lean_assert(check_ilist_rlist(*ilist, *rlist));
+    }
     return to_list(new_goals);
 }
 

@@ -6,9 +6,6 @@ definition f : bool → bool → nat
 example : f tt tt = 10 :=
 rfl
 
-definition ex1 (a : nat) : nat.succ a = 0 → false
-[none]
-
 definition g : bool → bool → bool → nat
 | tt _  tt := 1
 | _  ff ff := 2

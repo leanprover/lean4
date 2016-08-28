@@ -1,5 +1,4 @@
 set_option new_elaborator true
-exit
 
 inductive vec (A : Type) : nat → Type
 | nil {} : vec 0

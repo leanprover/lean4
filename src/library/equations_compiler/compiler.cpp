@@ -22,12 +22,12 @@ expr compile_equations(environment & env, options const & opts, metavar_context 
     trace_compiler(tout() << "recursive: " << is_recursive_eqns(ctx, eqns) << "\n";);
     if (equations_num_fns(eqns) == 1) {
         if (!is_recursive_eqns(ctx, eqns)) {
-            return elim_match(env, opts, mctx, lctx, eqns);
+            return elim_match(env, opts, mctx, lctx, eqns).m_fn;
         } else {
             // TODO(Leo): use unbounded_rec if meta
             unsigned arg_idx;
             if (optional<expr> eqns1 = try_structural_rec(ctx, eqns, arg_idx)) {
-                expr r = elim_match(env, opts, mctx, lctx, *eqns1);
+                expr r = elim_match(env, opts, mctx, lctx, *eqns1).m_fn;
                 // TODO(Leo): apply brec_on
                 lean_unreachable();
             }

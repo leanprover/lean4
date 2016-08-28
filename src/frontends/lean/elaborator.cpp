@@ -1343,10 +1343,14 @@ expr elaborator::visit_equation(expr const & eq) {
 expr elaborator::visit_inaccessible(expr const & e, optional<expr> const & expected_type) {
     if (!m_in_pattern)
         throw elaborator_exception(e, "invalid occurrence of 'inaccessible' annotation, "
-                                   "it must only occur in the patterns");
+                                   "it must only occur in patterns");
     expr m = copy_tag(e, mk_metavar(expected_type));
     expr a = get_annotation_arg(e);
-    expr new_a = visit(a, expected_type);
+    expr new_a;
+    {
+        flet<bool> set(m_in_pattern, false);
+        new_a = visit(a, expected_type);
+    }
     m_inaccessible_stack = cons(mk_pair(m, new_a), m_inaccessible_stack);
     return copy_tag(e, mk_inaccessible(m));
 }

@@ -6,22 +6,11 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "library/tactic/induction_tactic.h"
+#include "library/tactic/subst_tactic.h"
 
 namespace lean {
 typedef list<list<expr>>    xintros_list;
-typedef name_map<expr>      substitutions;
 typedef list<substitutions> substitutions_list;
-
-/* \brief Given `e`, for each (x := v) in `s` replace `x` with `v` in `e` */
-expr apply_substitutions(expr const & e, substitutions const & s);
-list<expr> apply_substitutions(list<expr> const & es, substitutions const & s);
-
-/* \brief Return a new set of substitutions containing (x := apply_substitutions(v, s2)) for
-   each (x := v) in `s1`. */
-substitutions apply_substitutions(substitutions const & s1, substitutions const & s2);
-
-/* \brief Return a new set of substitutions containing the entries of `s1` and `s2`. */
-substitutions merge(substitutions const & s1, substitutions const & s2);
 
 /** \brief Similar to induction, but applies 'cases_on' and has bettern support for dependent types. Failures are reported using exceptions.
     \c ids (if available) provides the names for new hypotheses.

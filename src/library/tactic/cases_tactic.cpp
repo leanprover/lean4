@@ -21,43 +21,6 @@ Author: Leonardo de Moura
 #include "library/tactic/subst_tactic.h"
 
 namespace lean {
-expr apply_substitutions(expr const & e, substitutions const & s) {
-    if (s.empty()) return e;
-    if (!has_local(e)) return e;
-    return replace(e, [&](expr const & e, unsigned) {
-            if (!has_local(e)) return some_expr(e);
-            if (is_local(e)) {
-                if (auto r = s.find(mlocal_name(e)))
-                    return some_expr(*r);
-            }
-            return none_expr();
-        });
-}
-
-list<expr> apply_substitutions(list<expr> const & es, substitutions const & s) {
-    if (s.empty()) return es;
-    return map(es, [&](expr const & e) { return apply_substitutions(e, s); });
-}
-
-substitutions apply_substitutions(substitutions const & s1, substitutions const & s2) {
-    if (s2.empty()) return s1;
-    substitutions R;
-    s1.for_each([&](name const & x, expr const & e) {
-            R.insert(x, apply_substitutions(e, s2));
-        });
-    return R;
-}
-
-substitutions merge(substitutions const & s1, substitutions const & s2) {
-    if (s1.empty()) return s2;
-    if (s2.empty()) return s1;
-    substitutions R = s1;
-    s2.for_each([&](name const & x, expr const & e) {
-            R.insert(x, e);
-        });
-    return R;
-}
-
 struct cases_tactic_exception : public exception {
     tactic_state m_state;
     cases_tactic_exception(tactic_state const & s, char const * msg):exception(msg), m_state(s) {}
@@ -410,17 +373,10 @@ struct cases_tactic_fn {
         } else if (is_eq(H_type, A, lhs, rhs)) {
             if (is_local(rhs) || is_local(lhs)) {
                 lean_cases_trace(mvar, tout() << "substitute\n";);
-                name_map<name> extra_renames;
+                substitutions extra_substs;
                 bool symm  = !is_local(lhs) && is_local(rhs);
                 expr mvar2 = subst(m_env, m_opts, m_mode, m_mctx, *mvar1, H, symm,
-                                   updating ? &extra_renames : nullptr);
-                substitutions extra_substs = to_substitutions(mvar2, extra_renames);
-                if (updating) {
-                    if (symm)
-                        extra_substs.insert(mlocal_name(rhs), apply_substitutions(lhs, extra_substs));
-                    else
-                        extra_substs.insert(mlocal_name(lhs), apply_substitutions(rhs, extra_substs));
-                }
+                                   updating ? &extra_substs : nullptr);
                 new_intros = apply_substitutions(new_intros, extra_substs);
                 substs     = merge(apply_substitutions(substs, extra_substs), extra_substs);
                 return unify_eqs(mvar2, num_eqs - 1, updating, new_intros, substs);

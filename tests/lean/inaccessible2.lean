@@ -5,3 +5,9 @@ inductive imf {A B : Type} (f : A → B) : B → Type
 
 definition inv_1 {A B : Type} (f : A → B) : ∀ (b : B), imf f b → A
 | .(f .a) (imf.mk .f a)  := a  -- Error inaccessible annotation inside inaccessible annotation
+
+definition inv_2 {A B : Type} (f : A → B) : ∀ (b : B), imf f b → A
+| .(f a) (let x := (imf.mk .f a) in x)  := a  -- Error invalid occurrence of 'let' expression
+
+definition inv_3 {A B : Type} (f : A → B) : ∀ (b : B), imf f b → A
+| .(f a) ((λ (x : imf f b), x) (imf.mk .f a)) := a  -- Error invalid occurrence of 'lambda' expression

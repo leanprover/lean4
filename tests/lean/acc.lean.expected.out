@@ -1,2 +1,2 @@
 acc.rec :
-  Π {A} {R} {C}, (Π x, (∀ y, R y x → acc A R y) → (Π y, R y x → C y) → C x) → (Π {a}, acc A R a → C a)
+  Π {A} {R} {C}, (Π x, (∀ y, R y x → acc A R y) → (Π y, R y x → C y) → C x) → Π {a}, acc A R a → C a

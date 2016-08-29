@@ -1,1 +1,1 @@
-foo : Π B, B → (Π A, A → A = B → Prop)
+foo : Π B, B → Π A, A → A = B → Prop

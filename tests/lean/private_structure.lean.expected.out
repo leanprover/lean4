@@ -3,7 +3,7 @@ point.rec_on ==> private.1706149582.point.rec_on
 bla : Type₁
 point : Type₁
 point.mk : ℕ → ℕ → point
-point.rec : (Π x y, ?M_1 (point.mk x y)) → (Π n, ?M_1 n)
+point.rec : (Π x y, ?M_1 (point.mk x y)) → Π n, ?M_1 n
 point.rec_on : Π n, (Π x y, ?M_1 (point.mk x y)) → ?M_1 n
 point.cases_on : Π n, (Π x y, ?M_1 (point.mk x y)) → ?M_1 n
 point.induction_on : ∀ n, (∀ x y, ?M_1 (point.mk x y)) → ?M_1 n

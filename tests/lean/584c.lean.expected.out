@@ -2,4 +2,4 @@ tst₁ : Π A, A → A
 tst₂ : Π {A}, A → A
 symm₂ : ∀ {A} a b, a = b → b = a
 tst₃ : Π A, A → A
-foo : ∀ {A} {a b}, a = b → (∀ c, c = b → c = a)
+foo : ∀ {A} {a b}, a = b → ∀ c, c = b → c = a

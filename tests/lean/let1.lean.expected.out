@@ -2,8 +2,8 @@ let bool := Prop,
     and := λ p q, Π c, (p → q → c) → c,
     and_intro := λ p q H1 H2 c H, H H1 H2
 in and_intro :
-  ∀ p q, p → q → (∀ c, (p → q → c) → c)
+  ∀ p q, p → q → ∀ c, (p → q → c) → c
 let1.lean:19:19: error: invalid type ascription, expression has type
-  ∀ p q, p → q → (∀ c, (p → q → c) → c)
+  ∀ p q, p → q → ∀ c, (p → q → c) → c
 but is expected to have type
   ∀ p q, p → q → (λ p q, ∀ c, (p → q → c) → c) q p

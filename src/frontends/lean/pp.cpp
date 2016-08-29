@@ -846,7 +846,8 @@ static bool is_default_arrow(expr const & e) {
 auto pretty_fn::pp_pi(expr const & e) -> result {
     if (is_default_arrow(e)) {
         result lhs = pp_child(binding_domain(e), get_arrow_prec());
-        result rhs = pp_child(lift_free_vars(binding_body(e), 1), get_arrow_prec()-1);
+        expr   b   = lift_free_vars(binding_body(e), 1);
+        result rhs = is_pi(b) ? pp(b) : pp_child(b, get_arrow_prec()-1);
         format r   = group(lhs.fmt() + space() + (m_unicode ? *g_arrow_n_fmt : *g_arrow_fmt) + line() + rhs.fmt());
         return result(get_arrow_prec(), get_arrow_prec()-1, r);
     } else {

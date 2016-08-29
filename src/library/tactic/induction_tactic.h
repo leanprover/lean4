@@ -6,11 +6,11 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "library/tactic/tactic_state.h"
-#include "library/tactic/subst_tactic.h"
+#include "library/tactic/hsubstitution.h"
 
 namespace lean {
 typedef list<list<expr>>    intros_list;
-typedef list<substitutions> substitutions_list;
+typedef list<hsubstitution> hsubstitution_list;
 
 /** \brief Apply the induction lemma \c rec_name on the hypothesis \c H at goal \c mvar.
     The tactic uses ns (if available) to name parameters associated with minor premises.
@@ -28,7 +28,7 @@ typedef list<substitutions> substitutions_list;
     \post slist != nullptr ==> length(*slist) == length(result) */
 list<expr> induction(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
                      expr const & mvar, expr const & H, name const & rec_name, list<name> & ns,
-                     intros_list * ilist, substitutions_list * slist);
+                     intros_list * ilist, hsubstitution_list * slist);
 
 void initialize_induction_tactic();
 void finalize_induction_tactic();

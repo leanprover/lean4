@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "library/tactic/induction_tactic.h"
-#include "library/tactic/subst_tactic.h"
 
 namespace lean {
 /** \brief Similar to induction, but applies 'cases_on' and has bettern support for dependent types. Failures are reported using exceptions.
@@ -29,7 +28,7 @@ namespace lean {
     since some of the goals are discarded. */
 pair<list<expr>, list<name>>
 cases(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
-      expr const & mvar, expr const & H, list<name> & ids, intros_list * ilist, substitutions_list * slist);
+      expr const & mvar, expr const & H, list<name> & ids, intros_list * ilist, hsubstitution_list * slist);
 
 void initialize_cases_tactic();
 void finalize_cases_tactic();

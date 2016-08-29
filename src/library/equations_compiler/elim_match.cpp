@@ -54,7 +54,7 @@ struct elim_match_fn {
         list<expr>     m_patterns;
         expr           m_rhs;
         /* m_renames map variables in this->m_lctx to problem local context */
-        substitutions  m_substs;
+        hsubstitution  m_subst;
         expr           m_ref; /* for producing error messages */
         unsigned       m_eqn_idx; /* for producing error message */
     };
@@ -72,7 +72,7 @@ struct elim_match_fn {
         list<expr>     m_hs;
         list<expr>     m_args;
         expr           m_rhs;
-        substitutions  m_substs;
+        hsubstitution  m_subst;
         unsigned       m_eqn_idx;
     };
 
@@ -108,7 +108,7 @@ struct elim_match_fn {
     bool check_equation(problem const & P, equation const & eqn) {
         lean_assert(length(eqn.m_patterns) == length(P.m_var_stack));
         local_context const & lctx = get_local_context(P);
-        eqn.m_substs.for_each([&](name const & n, expr const & e) {
+        eqn.m_subst.for_each([&](name const & n, expr const & e) {
                 lean_assert(eqn.m_lctx.get_local_decl(n));
                 lean_assert(check_locals_decl_at(e, lctx));
             });
@@ -430,11 +430,11 @@ struct elim_match_fn {
         lean_unreachable();
     }
 
-    substitutions add_subst(substitutions substs, expr const & src, expr const & target) {
+    hsubstitution add_subst(hsubstitution subst, expr const & src, expr const & target) {
         lean_assert(is_local(src));
-        if (!substs.contains(mlocal_name(src)))
-            substs.insert(mlocal_name(src), target);
-        return substs;
+        if (!subst.contains(mlocal_name(src)))
+            subst.insert(mlocal_name(src), target);
+        return subst;
     }
 
     /* Variable and Inaccessible transition are very similar, this method implements both. */
@@ -450,7 +450,7 @@ struct elim_match_fn {
             equation new_eqn   = eqn;
             new_eqn.m_patterns = tail(eqn.m_patterns);
             if (is_var_transition) {
-                new_eqn.m_substs  = add_subst(eqn.m_substs, head(eqn.m_patterns), head(P.m_var_stack));
+                new_eqn.m_subst  = add_subst(eqn.m_subst, head(eqn.m_patterns), head(P.m_var_stack));
             }
             new_eqns.push_back(new_eqn);
         }
@@ -505,26 +505,26 @@ struct elim_match_fn {
 
     /* Append `ilist` and `var_stack`. Due to dependent pattern matching, ilist may contain terms that
        are not local constants. */
-    list<expr> update_var_stack(list<expr> const & ilist, list<expr> const & var_stack, substitutions const & substs) {
+    list<expr> update_var_stack(list<expr> const & ilist, list<expr> const & var_stack, hsubstitution const & subst) {
         buffer<expr> new_var_stack;
         for (expr const & e : ilist) {
             new_var_stack.push_back(e);
         }
         for (expr const & v : var_stack) {
-            new_var_stack.push_back(apply_substitutions(v, substs));
+            new_var_stack.push_back(apply(v, subst));
         }
         return to_list(new_var_stack);
     }
 
     /* eqns is the data-structured returned by distribute_constructor_equations.
        This method selects the ones such that eqns[i].first == C.
-       It also updates eqns[i].second.m_substs using \c new_substs.
+       It also updates eqns[i].second.m_subst using \c new_subst.
        It also "replaces" the next pattern (a constructor) with its fields.
 
-       The map \c new_substs is produced by the `cases` tactic.
+       The map \c new_subst is produced by the `cases` tactic.
        It is needed because the `cases` tactic may revert and reintroduce hypothesis that
        depend on the hypothesis being destructed. */
-    list<equation> get_equations_for(name const & C, unsigned nparams, substitutions const & new_substs,
+    list<equation> get_equations_for(name const & C, unsigned nparams, hsubstitution const & new_subst,
                                      local_context const & lctx, list<equation> const & eqns) {
         buffer<equation> R;
         for (equation const & eqn : eqns) {
@@ -533,7 +533,7 @@ struct elim_match_fn {
             expr const & C2 = get_app_args(pattern, pattern_args);
             if (!is_constant(C2, C)) continue;
             equation new_eqn   = eqn;
-            new_eqn.m_substs   = apply_substitutions(eqn.m_substs, new_substs);
+            new_eqn.m_subst    = apply(eqn.m_subst, new_subst);
             /* Update patterns */
             type_context ctx   = mk_type_context(eqn.m_lctx);
             new_eqn.m_patterns = to_list(pattern_args.begin() + nparams, pattern_args.end(), tail(eqn.m_patterns));
@@ -579,7 +579,7 @@ struct elim_match_fn {
         name I_name        = const_name(get_app_fn(x_type));
         unsigned I_nparams = get_inductive_num_params(I_name);
         intros_list ilist;
-        substitutions_list slist;
+        hsubstitution_list slist;
         list<expr> new_goals;
         list<name> new_goal_cnames;
         try {
@@ -711,7 +711,7 @@ struct elim_match_fn {
             new_var_stack.push_back(C_args[i]);
         to_buffer(tail(P.m_var_stack), new_var_stack);
         new_P.m_var_stack   = to_list(new_var_stack);
-        new_P.m_equations   = get_equations_for(const_name(C), I_nparams, substitutions(),
+        new_P.m_equations   = get_equations_for(const_name(C), I_nparams, hsubstitution(),
                                                 get_local_context(P.m_goal), eqns);
         list<lemma> Ls      = process(new_P);
         buffer<lemma> new_Ls;
@@ -728,7 +728,7 @@ struct elim_match_fn {
         }
         equation const & eqn       = head(P.m_equations);
         m_used_eqns[eqn.m_eqn_idx] = true;
-        expr rhs                   = apply_substitutions(eqn.m_rhs, eqn.m_substs);
+        expr rhs                   = apply(eqn.m_rhs, eqn.m_subst);
         m_mctx.assign(P.m_goal, rhs);
         if (m_lemmas) {
             lemma L;

@@ -63,7 +63,7 @@ static unsigned get_expr_arity(expr type) {
 
 list<expr> induction(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
                      expr const & mvar, expr const & H, name const & rec_name, list<name> & ns,
-                     intros_list * ilist, substitutions_list * slist) {
+                     intros_list * ilist, hsubstitution_list * slist) {
     lean_assert(is_metavar(mvar));
     lean_assert(is_local(H));
     lean_assert((ilist == nullptr) == (slist == nullptr));
@@ -128,12 +128,12 @@ list<expr> induction(environment const & env, options const & opts, transparency
     optional<expr> mvar2 = intron(env, opts, mctx, mvar1, indices.size() + 1, indices_H);
     if (!mvar2)
         throw exception("induction tactic failed, failed to reintroduce major premise");
-    substitutions base_substs; /* substitutions for all branches */
+    hsubstitution base_subst; /* substitutions for all branches */
     if (slist) {
         local_context lctx = mctx.get_metavar_decl(*mvar2)->get_context();
         /* store old index name -> new index name */
         for (unsigned i = 0; i < indices.size(); i++) {
-            base_substs.insert(mlocal_name(indices[i]), lctx.get_local_decl(indices_H[i])->mk_ref());
+            base_subst.insert(mlocal_name(indices[i]), lctx.get_local_decl(indices_H[i])->mk_ref());
         }
     }
     optional<metavar_decl> g2 = mctx.get_metavar_decl(*mvar2);
@@ -205,7 +205,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
     bool consumed_major    = false;
     buffer<expr> new_goals;
     buffer<list<expr>>      params_buffer;
-    buffer<substitutions>   substs_buffer;
+    buffer<hsubstitution>   subst_buffer;
     list<bool> produce_motive = rec_info.get_produce_motive();
     while (is_pi(rec_type) && curr_pos < rec_info.get_num_args()) {
         if (first_idx_pos == curr_pos) {
@@ -257,12 +257,12 @@ list<expr> induction(environment const & env, options const & opts, transparency
                 }
                 if (slist) {
                     /* Save renaming for hypothesis that depend on indices and/or major premise. */
-                    substitutions S = base_substs;
+                    hsubstitution S = base_subst;
                     lean_assert(extra_names.size() == nextra);
                     for (unsigned i = indices.size() + 1, j = 0; i < to_revert.size(); i++, j++) {
                         S.insert(mlocal_name(to_revert[i]), aux_M_lctx.get_local_decl(extra_names[j])->mk_ref());
                     }
-                    substs_buffer.push_back(S);
+                    subst_buffer.push_back(S);
                 }
                 /* Clear hypothesis in the new goal. */
                 set_clear(aux_M, ctx2, aux_M, H2);
@@ -283,7 +283,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
     if (ilist) {
         lean_assert(slist);
         *ilist = to_list(params_buffer);
-        *slist = to_list(substs_buffer);
+        *slist = to_list(subst_buffer);
     }
     return to_list(new_goals);
 }

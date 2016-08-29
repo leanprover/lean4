@@ -237,15 +237,15 @@ struct cases_tactic_fn {
         return tmp.pp_goal(mvar);
     }
 
-    list<expr> elim_aux_indices(list<expr> const & goals, buffer<name> const & aux_indices_H, substitutions_list & slist) {
+    list<expr> elim_aux_indices(list<expr> const & goals, buffer<name> const & aux_indices_H, hsubstitution_list & slist) {
         lean_assert(!slist || length(goals) == length(slist));
         buffer<expr>           new_goals;
-        buffer<substitutions>  new_slist;
+        buffer<hsubstitution>  new_slist;
         list<expr> it1           = goals;
-        substitutions_list it2   = slist;
+        hsubstitution_list it2   = slist;
         while (it1 && it2) {
             expr mvar            = head(it1);
-            substitutions substs = head(it2);
+            hsubstitution subst  = head(it2);
             name_set removed;
             lean_assert(aux_indices_H.size() > 1);
             unsigned i = aux_indices_H.size() - 1; /* last element is the auxiliary major premise */
@@ -253,23 +253,23 @@ struct cases_tactic_fn {
                 --i;
                 name idx_name = aux_indices_H[i];
                 removed.insert(idx_name);
-                if (auto ridx = substs.find(idx_name)) {
+                if (auto ridx = subst.find(idx_name)) {
                     lean_assert(is_local(*ridx));
                     name new_name = mlocal_name(*ridx);
-                    substs.erase(idx_name);
+                    subst.erase(idx_name);
                     idx_name = new_name;
                 }
                 expr H_idx = m_mctx.get_hypothesis_of(mvar, idx_name)->mk_ref();
                 mvar = clear(m_mctx, mvar, H_idx);
             }
-            substitutions new_substs;
-            substs.for_each([&](name const & from, expr const & to) {
+            hsubstitution new_subst;
+            subst.for_each([&](name const & from, expr const & to) {
                     lean_assert(is_local(to));
                     if (!removed.contains(mlocal_name(to)))
-                        new_substs.insert(from, to);
+                        new_subst.insert(from, to);
                 });
             new_goals.push_back(mvar);
-            new_slist.push_back(new_substs);
+            new_slist.push_back(new_subst);
             it1 = tail(it1);
             it2 = tail(it2);
         }
@@ -278,7 +278,7 @@ struct cases_tactic_fn {
     }
 
     optional<expr> unify_eqs(expr mvar, unsigned num_eqs, bool updating,
-                             list<expr> & new_intros, substitutions & substs) {
+                             list<expr> & new_intros, hsubstitution & subst) {
         if (num_eqs == 0) {
             lean_cases_trace(mvar, tout() << "solved equalities\n" << pp_goal(mvar) << "\n";);
             return some_expr(mvar);
@@ -322,17 +322,17 @@ struct cases_tactic_fn {
             expr val        = mk_app(mvar2, mk_eq_of_heq(ctx, H));
             m_mctx.assign(*mvar1, val);
             lean_cases_trace(mvar, tout() << "converted heq => eq\n";);
-            return unify_eqs(mvar2, num_eqs, updating, new_intros, substs);
+            return unify_eqs(mvar2, num_eqs, updating, new_intros, subst);
         } else if (is_eq(H_type, A, lhs, rhs)) {
             if (is_local(rhs) || is_local(lhs)) {
                 lean_cases_trace(mvar, tout() << "substitute\n";);
-                substitutions extra_substs;
+                hsubstitution extra_subst;
                 bool symm  = !is_local(lhs) && is_local(rhs);
-                expr mvar2 = subst(m_env, m_opts, m_mode, m_mctx, *mvar1, H, symm,
-                                   updating ? &extra_substs : nullptr);
-                new_intros = apply_substitutions(new_intros, extra_substs);
-                substs     = merge(apply_substitutions(substs, extra_substs), extra_substs);
-                return unify_eqs(mvar2, num_eqs - 1, updating, new_intros, substs);
+                expr mvar2 = ::lean::subst(m_env, m_opts, m_mode, m_mctx, *mvar1, H, symm,
+                                           updating ? &extra_subst : nullptr);
+                new_intros = apply(new_intros, extra_subst);
+                subst      = merge(apply(subst, extra_subst), extra_subst);
+                return unify_eqs(mvar2, num_eqs - 1, updating, new_intros, subst);
             } else {
                 optional<name> c1 = is_constructor_app(m_env, lhs);
                 optional<name> c2 = is_constructor_app(m_env, rhs);
@@ -360,7 +360,7 @@ struct cases_tactic_fn {
                         unsigned A_nparams = *inductive::get_num_params(m_env, const_name(A_fn));
                         lean_assert(get_app_num_args(lhs) >= A_nparams);
                         return unify_eqs(mvar2, num_eqs - 1 + get_app_num_args(lhs) - A_nparams,
-                                         updating, new_intros, substs);
+                                         updating, new_intros, subst);
                     } else {
                         /* conflict, closes the goal */
                         lean_cases_trace(*mvar1, tout() << "conflicting equality detected, "
@@ -377,25 +377,25 @@ struct cases_tactic_fn {
     }
 
     pair<list<expr>, list<name>> unify_eqs(list<expr> const & mvars, list<name> const & cnames, unsigned num_eqs,
-                                           intros_list * ilist, substitutions_list * slist) {
+                                           intros_list * ilist, hsubstitution_list * slist) {
         lean_assert((ilist == nullptr) == (slist == nullptr));
         buffer<expr>              new_goals;
         buffer<list<expr>>        new_ilist;
-        buffer<substitutions>     new_slist;
+        buffer<hsubstitution>     new_slist;
         buffer<name>              new_cnames;
         list<expr> it1            = mvars;
         list<name> itn            = cnames;
         intros_list const * it2   = ilist;
-        substitutions_list const * it3 = slist;
+        hsubstitution_list const * it3 = slist;
         while (it1) {
             list<expr> new_intros;
-            substitutions substs;
+            hsubstitution subst;
             if (ilist) {
                 new_intros = head(*it2);
-                substs     = head(*it3);
+                subst      = head(*it3);
             }
             bool updating = ilist != nullptr;
-            optional<expr> new_mvar = unify_eqs(head(it1), num_eqs, updating, new_intros, substs);
+            optional<expr> new_mvar = unify_eqs(head(it1), num_eqs, updating, new_intros, subst);
             if (new_mvar) {
                 new_goals.push_back(*new_mvar);
                 new_cnames.push_back(head(itn));
@@ -407,7 +407,7 @@ struct cases_tactic_fn {
                 it3 = &tail(*it3);
                 if (new_mvar) {
                     new_ilist.push_back(new_intros);
-                    new_slist.push_back(substs);
+                    new_slist.push_back(subst);
                 }
             }
         }
@@ -427,7 +427,8 @@ struct cases_tactic_fn {
         m_ids(ids){
     }
 
-    pair<list<expr>, list<name>> operator()(expr const & mvar, expr const & H, intros_list * ilist, substitutions_list * slist) {
+    pair<list<expr>, list<name>> operator()(expr const & mvar, expr const & H,
+                                            intros_list * ilist, hsubstitution_list * slist) {
         lean_assert((ilist != nullptr) == (slist != nullptr));
         lean_assert(is_metavar(mvar));
         lean_assert(m_mctx.get_metavar_decl(mvar));
@@ -454,7 +455,7 @@ struct cases_tactic_fn {
             lean_cases_trace(mvar1, tout() << "after generalize_indices:\n" << pp_goal(mvar1) << "\n";);
             expr H1    = m_mctx.get_metavar_decl(mvar1)->get_context().get_last_local_decl()->mk_ref();
             intros_list tmp_ilist;
-            substitutions_list tmp_slist;
+            hsubstitution_list tmp_slist;
             list<expr> new_goals1 = induction(m_env, m_opts, m_mode, m_mctx, mvar1, H1, m_cases_on_decl.get_name(),
                                               m_ids, &tmp_ilist, &tmp_slist);
             lean_cases_trace(mvar1, tout() << "after applying cases_on:";
@@ -474,7 +475,7 @@ struct cases_tactic_fn {
 
 pair<list<expr>, list<name>>
 cases(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
-      expr const & mvar, expr const & H, list<name> & ids, intros_list * ilist, substitutions_list * slist) {
+      expr const & mvar, expr const & H, list<name> & ids, intros_list * ilist, hsubstitution_list * slist) {
     auto r = cases_tactic_fn(env, opts, m, mctx, ids)(mvar, H, ilist, slist);
     lean_assert(length(r.first) == length(r.second));
     return r;

@@ -21,43 +21,6 @@ Author: Leonardo de Moura
 #include "library/tactic/app_builder_tactics.h"
 
 namespace lean {
-expr apply_substitutions(expr const & e, substitutions const & s) {
-    if (s.empty()) return e;
-    if (!has_local(e)) return e;
-    return replace(e, [&](expr const & e, unsigned) {
-            if (!has_local(e)) return some_expr(e);
-            if (is_local(e)) {
-                if (auto r = s.find(mlocal_name(e)))
-                    return some_expr(*r);
-            }
-            return none_expr();
-        });
-}
-
-list<expr> apply_substitutions(list<expr> const & es, substitutions const & s) {
-    if (s.empty()) return es;
-    return map(es, [&](expr const & e) { return apply_substitutions(e, s); });
-}
-
-substitutions apply_substitutions(substitutions const & s1, substitutions const & s2) {
-    if (s2.empty()) return s1;
-    substitutions R;
-    s1.for_each([&](name const & x, expr const & e) {
-            R.insert(x, apply_substitutions(e, s2));
-        });
-    return R;
-}
-
-substitutions merge(substitutions const & s1, substitutions const & s2) {
-    if (s1.empty()) return s2;
-    if (s2.empty()) return s1;
-    substitutions R = s1;
-    s2.for_each([&](name const & x, expr const & e) {
-            R.insert(x, e);
-        });
-    return R;
-}
-
 /* For debugging purposes, make sure H is in the local context for mvar */
 bool check_hypothesis_in_context(metavar_context const & mctx, expr const & mvar, name const & H) {
     local_context lctx = mctx.get_metavar_decl(mvar)->get_context();
@@ -69,7 +32,7 @@ bool check_hypothesis_in_context(metavar_context const & mctx, expr const & mvar
 }
 
 expr subst(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
-           expr const & mvar, expr const & H, bool symm, substitutions * substs) {
+           expr const & mvar, expr const & H, bool symm, hsubstitution * subst) {
     #define lean_subst_trace(CODE) lean_trace(name({"tactic", "subst"}), CODE)
 #define lean_subst_trace_state(MVAR, MSG) lean_trace(name({"tactic", "subst"}), tactic_state S(env, opts, mctx, to_list(MVAR), MVAR); type_context TMP_CTX = mk_type_context_for(S, m); scope_trace_env _scope1(env, TMP_CTX); tout() << MSG << S.pp() << "\n";)
 
@@ -125,16 +88,16 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
     optional<expr> mvar6 = intron(env, opts, mctx, mvar5, to_revert.size() - 2, new_Hnames);
     if (!mvar6) throw exception("subst tactic failed, unexpected failure when re-introducing dependencies");
     lean_assert(new_Hnames.size() == to_revert.size() - 2);
-    if (substs) {
+    if (subst) {
         local_context lctx = mctx.get_metavar_decl(*mvar6)->get_context();
-        substitutions new_substs;
+        hsubstitution new_subst;
         for (unsigned i = 0; i < to_revert.size() - 2; i++) {
             lean_assert(check_hypothesis_in_context(mctx, mvar, mlocal_name(to_revert[i+2])));
             lean_assert(check_hypothesis_in_context(mctx, *mvar6, new_Hnames[i]));
-            new_substs.insert(mlocal_name(to_revert[i+2]), lctx.get_local_decl(new_Hnames[i])->mk_ref());
+            new_subst.insert(mlocal_name(to_revert[i+2]), lctx.get_local_decl(new_Hnames[i])->mk_ref());
         }
-        new_substs.insert(mlocal_name(init_lhs), apply_substitutions(rhs, new_substs));
-        *substs = new_substs;
+        new_subst.insert(mlocal_name(init_lhs), apply(rhs, new_subst));
+        *subst = new_subst;
     }
     lean_subst_trace_state(*mvar6, "after intro remaining reverted hypotheses:\n");
     return *mvar6;

@@ -71,4 +71,7 @@ public:
     in the rhs has a reference to a function being defined by the
     equations. */
 bool is_recursive_eqns(type_context & ctx, expr const & e);
+
+
+
 }

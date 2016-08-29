@@ -476,12 +476,12 @@ struct elim_match_fn {
     }
 
     list<lemma> process_variable(problem const & P) {
-        trace_match(tout() << "variable transition\n";);
+        trace_match(tout() << "step: variables only\n";);
         return process_variable_inaccessible(P, true);
     }
 
     list<lemma> process_inaccessible(problem const & P) {
-        trace_match(tout() << "inaccessible transition\n";);
+        trace_match(tout() << "step: inaccessible terms only\n";);
         return process_variable_inaccessible(P, false);
     }
 
@@ -536,6 +536,8 @@ struct elim_match_fn {
             new_eqn.m_subst    = apply(eqn.m_subst, new_subst);
             /* Update patterns */
             type_context ctx   = mk_type_context(eqn.m_lctx);
+            for (unsigned i = nparams; i < pattern_args.size(); i++)
+                pattern_args[i] = whnf_pattern(ctx, pattern_args[i]);
             new_eqn.m_patterns = to_list(pattern_args.begin() + nparams, pattern_args.end(), tail(eqn.m_patterns));
             R.push_back(new_eqn);
         }
@@ -570,7 +572,7 @@ struct elim_match_fn {
     }
 
     list<lemma> process_constructor(problem const & P) {
-        trace_match(tout() << "constructor transition\n";);
+        trace_match(tout() << "step: constructors only\n";);
         lean_assert(is_constructor_transition(P));
         type_context ctx   = mk_type_context(P);
         expr x             = head(P.m_var_stack);
@@ -627,7 +629,7 @@ struct elim_match_fn {
 
     list<lemma> process_complete(problem const & P) {
         lean_assert(is_complete_transition(P));
-        trace_match(tout() << "complete transition\n";);
+        trace_match(tout() << "step: variables and constructors\n";);
         /* The next pattern of every equation is a constructor or variable.
            We split the equations where the next pattern is a variable into cases.
            That is, we are reducing this case to the compile_constructor case. */
@@ -687,13 +689,14 @@ struct elim_match_fn {
     }
 
     list<lemma> process_non_variable(problem const & P) {
-        trace_match(tout() << "constructor-filter transition\n";);
+        trace_match(tout() << "step: filter equations using constructor\n";);
         type_context ctx   = mk_type_context(P);
         expr p = head(P.m_var_stack);
         lean_assert(!is_local(p));
         p      = whnf_constructor(ctx, p);
         if (!is_constructor_app(p)) {
-            throw_error("dependent pattern matching result is not a constructor application (use 'set_option trace.eqn_compiler.elim_match true' "
+            throw_error("dependent pattern matching result is not a constructor application "
+                        "(use 'set_option trace.eqn_compiler.elim_match true' "
                         "for additional details)");
         }
         expr p_type         = whnf_inductive(ctx, ctx.infer(p));

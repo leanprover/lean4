@@ -14,11 +14,10 @@ namespace lean {
     The procedure fails when:
     1- \c e is defining more than one function
     2- None of the arguments is a primitive inductive datatype with support for brec_on
-       construction, where every recursive call is structurally smaller.
-
-    \remark arg_idx is an ouput parameter. When successful, it contains the argument that
-    we should apply brec_on too. */
-optional<expr> try_structural_rec(type_context & ctx, expr const & e, unsigned & arg_idx);
+       construction, where every recursive call is structurally smaller. */
+optional<expr> try_structural_rec(environment & env, options const & opts,
+                                  metavar_context & mctx, local_context const & lctx,
+                                  expr const & eqns);
 
 void initialize_structural_rec();
 void finalize_structural_rec();

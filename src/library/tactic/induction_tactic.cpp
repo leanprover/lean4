@@ -133,7 +133,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
         local_context lctx = mctx.get_metavar_decl(*mvar2)->get_context();
         /* store old index name -> new index name */
         for (unsigned i = 0; i < indices.size(); i++) {
-            base_subst.insert(mlocal_name(indices[i]), lctx.get_local_decl(indices_H[i])->mk_ref());
+            base_subst.insert(mlocal_name(indices[i]), lctx.get_local(indices_H[i]));
         }
     }
     optional<metavar_decl> g2 = mctx.get_metavar_decl(*mvar2);
@@ -142,7 +142,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
     local_context lctx2 = g2->get_context();
     indices.clear(); /* update indices buffer */
     for (unsigned i = 0; i < indices_H.size() - 1; i++)
-        indices.push_back(lctx2.get_local_decl(indices_H[i])->mk_ref());
+        indices.push_back(lctx2.get_local(indices_H[i]));
     level g_lvl         = get_level(ctx2, g2->get_type());
     local_decl H2_decl  = *lctx2.get_last_local_decl();
     expr H2             = H2_decl.mk_ref();
@@ -252,7 +252,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
                     /* Save name of constructor parameters that have been introduced for new goal. */
                     buffer<expr> params;
                     for (name const & n : param_names)
-                        params.push_back(aux_M_lctx.get_local_decl(n)->mk_ref());
+                        params.push_back(aux_M_lctx.get_local(n));
                     params_buffer.push_back(to_list(params));
                 }
                 if (slist) {
@@ -260,7 +260,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
                     hsubstitution S = base_subst;
                     lean_assert(extra_names.size() == nextra);
                     for (unsigned i = indices.size() + 1, j = 0; i < to_revert.size(); i++, j++) {
-                        S.insert(mlocal_name(to_revert[i]), aux_M_lctx.get_local_decl(extra_names[j])->mk_ref());
+                        S.insert(mlocal_name(to_revert[i]), aux_M_lctx.get_local(extra_names[j]));
                     }
                     subst_buffer.push_back(S);
                 }

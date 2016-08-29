@@ -37,7 +37,16 @@ public:
 
     optional<metavar_decl> get_metavar_decl(expr const & mvar) const;
 
-    optional<local_decl> get_hypothesis_of(expr const & mvar, name const & H) const;
+    /** \brief Return the local_decl for `n` in the local context for the metavariable `mvar`
+        \pre is_metavar(mvar) */
+    optional<local_decl> get_local_decl(expr const & mvar, name const & n) const;
+
+    /** \brief Return the local_decl_ref for `n` in the local context for the metavariable `mvar`
+
+        \pre is_metavar(mvar)
+        \pre get_metavar_decl(mvar)
+        \pre get_metavar_decl(mvar)->get_context().get_local_decl(n) */
+    expr get_local(expr const & mvar, name const & n) const;
 
     bool is_assigned(level const & l) const {
         lean_assert(is_metavar_decl_ref(l));

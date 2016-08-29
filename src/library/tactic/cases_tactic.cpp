@@ -259,7 +259,7 @@ struct cases_tactic_fn {
                     subst.erase(idx_name);
                     idx_name = new_name;
                 }
-                expr H_idx = m_mctx.get_hypothesis_of(mvar, idx_name)->mk_ref();
+                expr H_idx = m_mctx.get_local(mvar, idx_name);
                 mvar = clear(m_mctx, mvar, H_idx);
             }
             hsubstitution new_subst;

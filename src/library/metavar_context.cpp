@@ -60,10 +60,14 @@ optional<metavar_decl> metavar_context::get_metavar_decl(expr const & e) const {
         return optional<metavar_decl>();
 }
 
-optional<local_decl> metavar_context::get_hypothesis_of(expr const & mvar, name const & H) const {
+optional<local_decl> metavar_context::get_local_decl(expr const & mvar, name const & n) const {
     auto mdecl = get_metavar_decl(mvar);
     if (!mdecl) return optional<local_decl>();
-    return mdecl->get_context().get_local_decl(H);
+    return mdecl->get_context().get_local_decl(n);
+}
+
+expr metavar_context::get_local(expr const & mvar, name const & n) const {
+    return get_local_decl(mvar, n)->mk_ref();
 }
 
 void metavar_context::assign(level const & u, level const & l) {

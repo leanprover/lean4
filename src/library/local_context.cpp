@@ -144,6 +144,11 @@ optional<local_decl> local_context::get_local_decl(expr const & e) const {
     return get_local_decl(mlocal_name(e));
 }
 
+expr local_context::get_local(name const & n) const {
+    lean_assert(get_local_decl(n));
+    return get_local_decl(n)->mk_ref();
+}
+
 void local_context::for_each(std::function<void(local_decl const &)> const & fn) const {
     m_idx2local_decl.for_each([&](unsigned, local_decl const & d) { fn(d); });
 }

@@ -100,6 +100,11 @@ public:
 
     optional<local_decl> get_last_local_decl() const;
 
+    /** Return a local_decl_ref associated with the given name.
+
+        \pre get_local_decl(n) */
+    expr get_local(name const & n) const;
+
     bool rename_user_name(name const & from, name const & to);
 
     /** \brief Execute fn for each local declaration created after \c d. */

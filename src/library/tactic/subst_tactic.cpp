@@ -59,8 +59,8 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
     metavar_decl g2     = *mctx.get_metavar_decl(*mvar2);
     local_context lctx  = g2.get_context();
     expr type           = g2.get_type();
-    lhs                 = lctx.get_local_decl(lhsH2[0])->mk_ref();
-    expr H2             = lctx.get_local_decl(lhsH2[1])->mk_ref();
+    lhs                 = lctx.get_local(lhsH2[0]);
+    expr H2             = lctx.get_local(lhsH2[1]);
     bool depH2          = depends_on(type, H2);
     expr new_type       = instantiate(abstract_local(type, lhs), rhs);
     type_context ctx2   = mk_type_context_for(env, opts, mctx, g2.get_context(), m);
@@ -94,7 +94,7 @@ expr subst(environment const & env, options const & opts, transparency_mode cons
         for (unsigned i = 0; i < to_revert.size() - 2; i++) {
             lean_assert(check_hypothesis_in_context(mctx, mvar, mlocal_name(to_revert[i+2])));
             lean_assert(check_hypothesis_in_context(mctx, *mvar6, new_Hnames[i]));
-            new_subst.insert(mlocal_name(to_revert[i+2]), lctx.get_local_decl(new_Hnames[i])->mk_ref());
+            new_subst.insert(mlocal_name(to_revert[i+2]), lctx.get_local(new_Hnames[i]));
         }
         new_subst.insert(mlocal_name(init_lhs), apply(rhs, new_subst));
         *subst = new_subst;
@@ -108,7 +108,7 @@ vm_obj tactic_subst_core(name const & n, bool symm, tactic_state const & s) {
     try {
         metavar_context mctx = s.mctx();
         expr mvar = head(s.goals());
-        expr H    = mctx.get_hypothesis_of(mvar, n)->mk_ref();
+        expr H    = mctx.get_local(mvar, n);
         expr new_mvar = subst(s.env(), s.get_options(), transparency_mode::Semireducible, mctx, mvar, H, symm, nullptr);
         return mk_tactic_success(set_mctx_goals(s, mctx, cons(new_mvar, tail(s.goals()))));
     } catch (exception & ex) {

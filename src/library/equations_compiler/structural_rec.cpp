@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
+#include "kernel/inductive/inductive.h"
 #include "library/trace.h"
 #include "library/constants.h"
 #include "library/locals.h"
@@ -34,7 +35,7 @@ struct structural_rec_fn {
             m_ctx(ctx), m_lhs(lhs), m_fn(fn), m_pattern(pattern), m_arg_idx(arg_idx) {}
 
         bool is_constructor(expr const & e) const {
-            return static_cast<bool>(eqns_env_interface(m_ctx).is_constructor(e));
+            return is_constant(e) && inductive::is_intro_rule(m_ctx.env(), const_name(e));
         }
 
         /** \brief Return true iff \c s is structurally smaller than \c t OR equal to \c t */
@@ -156,10 +157,10 @@ struct structural_rec_fn {
             fn_type = instantiate(binding_body(fn_type), locals.push_local_from_binding(fn_type));
         }
         if (!is_pi(fn_type)) throw_ill_formed_eqns();
-        expr arg_type = binding_domain(fn_type);
+        expr arg_type = m_ctx.relaxed_whnf(binding_domain(fn_type));
         buffer<expr> I_args;
         expr I        = get_app_args(arg_type, I_args);
-        if (!eqns_env_interface(m_ctx).is_inductive(I)) {
+        if (is_constant(I) && !inductive::is_inductive_decl(m_ctx.env(), const_name(I))) {
             trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
                          << "for '" << fn << "' because type is not inductive\n  "
                          << arg_type << "\n";);
@@ -171,7 +172,7 @@ struct structural_rec_fn {
                          << arg_type << "\n";);
             return false;
         }
-        unsigned nindices = eqns_env_interface(m_ctx).get_inductive_num_indices(const_name(I));
+        unsigned nindices = *inductive::get_num_indices(m_ctx.env(), const_name(I));
         if (nindices > 0) {
             trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
                          << "for '" << fn << "' because the inductive type '" << I << "' is an indexed family\n  "

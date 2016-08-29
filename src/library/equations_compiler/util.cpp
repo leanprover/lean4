@@ -144,39 +144,6 @@ expr unpack_eqn::repack() {
     return copy_tag(m_src, m_locals.ctx().mk_lambda(m_vars, new_eq));
 }
 
-bool eqns_env_interface::is_inductive(name const & n) const {
-    return static_cast<bool>(inductive::is_inductive_decl(m_env, n));
-}
-
-bool eqns_env_interface::is_inductive(expr const & e) const {
-    if (!is_constant(e)) return false;
-    return is_inductive(const_name(e));
-}
-
-optional<name> eqns_env_interface::is_constructor(name const & n) const {
-    return inductive::is_intro_rule(m_env, n);
-}
-
-optional<name> eqns_env_interface::is_constructor(expr const & e) const {
-    if (!is_constant(e)) return optional<name>();
-    return is_constructor(const_name(e));
-}
-
-unsigned eqns_env_interface::get_inductive_num_params(name const & n) const {
-    lean_assert(is_inductive(n));
-    return *inductive::get_num_params(m_env, n);
-}
-
-unsigned eqns_env_interface::get_inductive_num_indices(name const & n) const {
-    lean_assert(is_inductive(n));
-    return *inductive::get_num_indices(m_env, n);
-}
-
-void eqns_env_interface::get_constructors_of(name const & n, buffer<name> & c_names) const {
-    lean_assert(is_inductive(n));
-    get_intro_rule_names(m_env, n, c_names);
-}
-
 bool is_recursive_eqns(type_context & ctx, expr const & e) {
     unpack_eqns ues(ctx, e);
     for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {

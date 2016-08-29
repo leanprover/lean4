@@ -67,27 +67,6 @@ public:
     expr repack();
 };
 
-/** \brief Interface object for providing extra functionality
-    required by the equation compiler from the environment.
-
-    For example, it abstracts the inductive datatype API.
-    So, if we add new forms of inductive datatype, we need
-    to change this class. */
-class eqns_env_interface {
-    environment m_env;
-public:
-    eqns_env_interface(environment const & env):m_env(env) {}
-    eqns_env_interface(type_context const & ctx):m_env(ctx.env()) {}
-
-    bool is_inductive(name const & n) const;
-    bool is_inductive(expr const & e) const;
-    optional<name> is_constructor(name const & n) const;
-    optional<name> is_constructor(expr const & e) const;
-    unsigned get_inductive_num_params(name const & n) const;
-    unsigned get_inductive_num_indices(name const & n) const;
-    void get_constructors_of(name const & n, buffer<name> & c_names) const;
-};
-
 /** \brief Return true iff \c e is recursive. That is, some equation
     in the rhs has a reference to a function being defined by the
     equations. */

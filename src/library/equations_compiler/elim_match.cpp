@@ -215,7 +215,7 @@ struct elim_match_fn {
        That is, the fixed parameters used in the inductive declaration. */
     unsigned get_constructor_num_params(expr const & n) const {
         lean_assert(is_constructor(n));
-        name I_name = *eqns_env_interface(m_env).is_constructor(n);
+        name I_name = *inductive::is_intro_rule(m_env, const_name(n));
         return get_inductive_num_params(I_name);
     }
 

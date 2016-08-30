@@ -1944,24 +1944,83 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
     }
 }
 
+expr type_context::try_to_unstuck_using_complete_instance(expr const & e) {
+    lean_assert(is_stuck(e));
+    /* This method tries to unstuck terms such as:
+
+          @has_add.add nat ?m a b
+
+          @nat.rec C cz cs (has_zero.zero nat ?m)
+
+       by instantiating metavariables using type classes synthesis.
+
+       In principle, we could simply invoke complete_instance(e).
+       However, we use a small optimization to avoid visiting unnecessary terms.
+       For a recursor application such as
+
+          @nat.rec C cz cs (has_zero.zero nat ?m)
+
+       It is sufficient to invoke complete_instance at the major premise
+
+          @nat.rec C cz cs (has_zero.zero nat ?m)
+
+       We believe this is an useful optimization since the major premise is usually
+       much smaller than the whole term.
+
+       The optimization is only relevant for modules that generate many
+       is_def_eq queries that return false (e.g., simplifier).
+       Reason: this method is invoked by on_is_def_eq_failure.
+
+       Remark: on_is_def_eq_failure uses this method to allow us to solve constraints such as
+
+          nat.succ n  =?=  @has_add.add nat ?m n 1
+
+    */
+    if (!is_app(e))
+        return e; /* do nothing */
+    buffer<expr> args;
+    expr const & fn = get_app_args(e, args);
+    if (!is_constant(fn))
+        return e; /* do nothing */
+    if (optional<unsigned> major_idx = inductive::get_elim_major_idx(env(), const_name(fn))) {
+        /* This is an optimization for recursor/eliminator applications.
+           In this case, we only need to instantiate metavariables in the major premise */
+        if (*major_idx < args.size()) {
+            expr major     = args[*major_idx];
+            expr new_major = complete_instance(major);
+            if (new_major != major) {
+                args[*major_idx] = new_major;
+                return mk_app(fn, args);
+            }
+        }
+        return e;
+    }
+    /* For projections and other builtin constants that compute in the kernel, we
+       do not have any special optimization, we just invoke complete_instance */
+    return complete_instance(e);
+}
+
 bool type_context::on_is_def_eq_failure(expr const & e1, expr const & e2) {
     lean_trace(name({"type_context", "is_def_eq_detail"}),
                tout() << "on failure: " << e1 << " =?= " << e2 << "\n";);
-#if 0
-    /* TODO(Leo): the following two statements are a performance bottleneck for modules that produce a lot of
-       is_def_eq queries that fail (e.g., simplifier).
-       For example, on the test tests/lean/perf/perm_ac_dlof_50.lean is 40% slower with the following two statements. */
-    /* So, we are currently disabling these two statements. They do not seem necessary after we fixed a bug at complete_instance. */
-    expr new_e1 = complete_instance(instantiate_mvars(e1));
-    expr new_e2 = complete_instance(instantiate_mvars(e2));
-    if (e1 != new_e1 || e2 != new_e2)
-        return is_def_eq_core(new_e1, new_e2);
-    else
-        return false;
-#else
-    /* Do nothing */
+
+    if (is_stuck(e1)) {
+        expr new_e1 = try_to_unstuck_using_complete_instance(e1);
+        if (new_e1 != e1) {
+            lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "synthesized instances on right\n";);
+            return is_def_eq_core(new_e1, e2);
+        }
+    }
+
+    if (is_stuck(e2)) {
+        expr new_e2 = try_to_unstuck_using_complete_instance(e2);
+        if (new_e2 != e2) {
+            lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "synthesized instances on left\n";);
+            return is_def_eq_core(e1, new_e2);
+        }
+    }
+
     return false;
-#endif
 }
 
 bool type_context::is_def_eq_core_core(expr const & t, expr const & s) {

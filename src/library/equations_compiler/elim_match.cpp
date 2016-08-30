@@ -42,8 +42,7 @@ struct elim_match_fn {
     expr            m_ref;
     unsigned        m_depth{0};
     buffer<bool>    m_used_eqns;
-    bool            m_lemmas{false};   // TODO(Leo): extract from header
-    bool            m_trusted{true};  // TODO(Leo): extract from header
+    bool            m_lemmas;
 
     elim_match_fn(environment const & env, options const & opts,
                   metavar_context const & mctx):
@@ -458,10 +457,8 @@ struct elim_match_fn {
         list<lemma> Ls = process(new_P);
         buffer<lemma> new_Ls;
         for (lemma const & L : Ls) {
-            // TODO(Leo): fix
             lemma new_L  = L;
             expr p       = get_next_pattern_of(P.m_equations, L.m_eqn_idx);
-            // p            = apply_renaming(p, L.m_renames);
             if (is_var_transition) {
                 lean_assert(is_local(p));
                 new_L.m_vars = cons(p, L.m_vars);
@@ -525,7 +522,7 @@ struct elim_match_fn {
        It is needed because the `cases` tactic may revert and reintroduce hypothesis that
        depend on the hypothesis being destructed. */
     list<equation> get_equations_for(name const & C, unsigned nparams, hsubstitution const & new_subst,
-                                     local_context const & lctx, list<equation> const & eqns) {
+                                     list<equation> const & eqns) {
         buffer<equation> R;
         for (equation const & eqn : eqns) {
             expr pattern = head(eqn.m_patterns);
@@ -545,9 +542,6 @@ struct elim_match_fn {
     }
 
     lemma mk_constructor_lemma(lemma const & L, unsigned I_nparams, list<equation> const & eqns) {
-        // TODO(Leo): fix
-        return L;
-        /*
         lemma new_L  = L;
         expr pattern = get_next_pattern_of(eqns, L.m_eqn_idx);
         lean_assert(is_constructor_app(pattern));
@@ -555,9 +549,6 @@ struct elim_match_fn {
         expr const & C = get_app_args(pattern, C_args);
         buffer<expr> lemma_args;
         to_buffer(L.m_args, lemma_args);
-        for (unsigned i = 0; i < I_nparams; i++) {
-            C_args[i] = apply_renaming(C_args[i], L.m_renames);
-        }
         for (unsigned j = 0, i = I_nparams; i < C_args.size(); i++, j++) {
             C_args[i] = lemma_args[j];
         }
@@ -568,7 +559,6 @@ struct elim_match_fn {
             new_lemma_args.push_back(lemma_args[i]);
         new_L.m_args = to_list(new_lemma_args);
         return new_L;
-        */
     }
 
     list<lemma> process_constructor(problem const & P) {
@@ -608,8 +598,7 @@ struct elim_match_fn {
             new_P.m_var_stack      = update_var_stack(head(ilist), tail(P.m_var_stack), head(slist));
             new_P.m_goal           = new_goal;
             name const & C         = head(new_goal_cnames);
-            new_P.m_equations      = get_equations_for(C, I_nparams, head(slist),
-                                                       get_local_context(new_goal), eqns);
+            new_P.m_equations      = get_equations_for(C, I_nparams, head(slist), eqns);
             list<lemma> Ls         = process(new_P);
             for (lemma const & L : Ls) {
                 new_Ls.push_back(mk_constructor_lemma(L, I_nparams, eqns));
@@ -714,8 +703,7 @@ struct elim_match_fn {
             new_var_stack.push_back(C_args[i]);
         to_buffer(tail(P.m_var_stack), new_var_stack);
         new_P.m_var_stack   = to_list(new_var_stack);
-        new_P.m_equations   = get_equations_for(const_name(C), I_nparams, hsubstitution(),
-                                                get_local_context(P.m_goal), eqns);
+        new_P.m_equations   = get_equations_for(const_name(C), I_nparams, hsubstitution(), eqns);
         list<lemma> Ls      = process(new_P);
         buffer<lemma> new_Ls;
         for (lemma const & L : Ls) {
@@ -735,8 +723,8 @@ struct elim_match_fn {
         m_mctx.assign(P.m_goal, rhs);
         if (m_lemmas) {
             lemma L;
-            L.m_lctx    = get_local_context(P);
-            L.m_rhs     = rhs;
+            L.m_lctx    = eqn.m_lctx;
+            L.m_rhs     = eqn.m_rhs;
             L.m_eqn_idx = eqn.m_eqn_idx;
             return to_list(L);
         } else {
@@ -802,6 +790,7 @@ struct elim_match_fn {
                 type_context ctx = mk_type_context(lctx);
                 lean_assert(!is_recursive_eqns(ctx, eqns));
             });
+        m_lemmas                 = get_equations_header(eqns).m_lemmas;
         m_ref                    = eqns;
         problem P; expr fn;
         std::tie(P, fn)          = mk_problem(lctx, eqns);

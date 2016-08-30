@@ -1843,8 +1843,8 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
     while (true) {
         if (try_unification_hints(t, s))
             return l_true;
-        auto d_t = is_delta(t);
-        auto d_s = is_delta(s);
+        optional<declaration> d_t = is_delta(t);
+        optional<declaration> d_s = is_delta(s);
         if (!d_t && !d_s) {
             /* none of them can be delta-reduced */
             return l_undef;

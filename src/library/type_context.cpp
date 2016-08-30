@@ -617,6 +617,8 @@ optional<expr> type_context::is_stuck(expr const & e) {
         return some_expr(e);
     } else if (auto r = is_stuck_projection(e)) {
         return r;
+    } else if (is_annotation(e)) {
+        return is_stuck(get_annotation_arg(e));
     } else {
         return env().norm_ext().is_stuck(e, *this);
     }

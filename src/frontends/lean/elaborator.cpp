@@ -1284,7 +1284,8 @@ expr elaborator::visit_equations(expr const & e) {
     optional<expr> new_R;
     optional<expr> new_Rwf;
     checkpoint C(*this);
-    unsigned num_fns = equations_num_fns(e);
+    equations_header const & header = get_equations_header(e);
+    unsigned num_fns = header.m_num_fns;
     to_equations(e, eqs);
     lean_assert(!eqs.empty());
 
@@ -1315,9 +1316,9 @@ expr elaborator::visit_equations(expr const & e) {
     process_checkpoint(C);
     expr new_e;
     if (new_R) {
-        new_e = copy_tag(e, mk_equations(num_fns, new_eqs.size(), new_eqs.data(), *new_R, *new_Rwf));
+        new_e = copy_tag(e, mk_equations(header, new_eqs.size(), new_eqs.data(), *new_R, *new_Rwf));
     } else {
-        new_e = copy_tag(e, mk_equations(num_fns, new_eqs.size(), new_eqs.data()));
+        new_e = copy_tag(e, mk_equations(header, new_eqs.size(), new_eqs.data()));
     }
     new_e = instantiate_mvars(new_e);
     metavar_context mctx = m_ctx.mctx();

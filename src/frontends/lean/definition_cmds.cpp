@@ -73,28 +73,39 @@ optional<expr_pair> parse_using_well_founded(parser & p) {
     }
 }
 
-expr mk_equations(parser & p, buffer<expr> const & fns, buffer<expr> const & eqs,
+expr mk_equations(parser & p, buffer<expr> const & fns, buffer<name> const & fn_full_names, buffer<expr> const & eqs,
                   optional<expr_pair> const & R_Rwf, pos_info const & pos) {
     buffer<expr> new_eqs;
     for (expr const & eq : eqs) {
         new_eqs.push_back(Fun(fns, eq, p));
     }
+    equations_header h = mk_equations_header(to_list(fn_full_names));
     if (R_Rwf) {
-        return p.save_pos(mk_equations(fns.size(), new_eqs.size(), new_eqs.data(), R_Rwf->first, R_Rwf->second), pos);
+        return p.save_pos(mk_equations(h, new_eqs.size(), new_eqs.data(), R_Rwf->first, R_Rwf->second), pos);
     } else {
-        return p.save_pos(mk_equations(fns.size(), new_eqs.size(), new_eqs.data()), pos);
+        return p.save_pos(mk_equations(h, new_eqs.size(), new_eqs.data()), pos);
     }
 }
 
+expr mk_equations(parser & p, expr const & fn, name const & full_name, buffer<expr> const & eqs,
+                  optional<expr_pair> const & R_Rwf, pos_info const & pos) {
+    buffer<expr> fns; fns.push_back(fn);
+    buffer<name> full_names; full_names.push_back(full_name);
+    return mk_equations(p, fns, full_names, eqs, R_Rwf, pos);
+}
+
 expr parse_mutual_definition(parser & p, def_cmd_kind k, buffer<name> & lp_names, buffer<expr> & fns, buffer<expr> & params) {
-    parser::local_scope scope(p);
+    parser::local_scope scope1(p);
     auto header_pos = p.pos();
     buffer<expr> pre_fns;
     parse_mutual_header(p, lp_names, pre_fns, params);
     buffer<expr> eqns;
+    buffer<name> full_names;
     for (expr const & pre_fn : pre_fns) {
         // TODO(leo, dhs): make use of attributes
         expr fn_type = parse_inner_header(p, local_pp_name(pre_fn)).first;
+        declaration_name_scope scope2(local_pp_name(pre_fn));
+        full_names.push_back(scope2.get_name());
         if (p.curr_is_token(get_none_tk())) {
             auto none_pos = p.pos();
             p.next();
@@ -113,7 +124,7 @@ expr parse_mutual_definition(parser & p, def_cmd_kind k, buffer<name> & lp_names
     for (expr & eq : eqns) {
         eq = replace_locals(eq, pre_fns, fns);
     }
-    expr r = mk_equations(p, fns, eqns, R_Rwf, header_pos);
+    expr r = mk_equations(p, fns, full_names, eqns, R_Rwf, header_pos);
     collect_implicit_locals(p, lp_names, params, r);
     return r;
 }
@@ -122,6 +133,7 @@ environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, bool is_pr
                                        decl_attributes attrs) {
     buffer<name> lp_names;
     buffer<expr> fns, params;
+    declaration_info_scope scope(p.env(), is_private, kind);
     expr val = parse_mutual_definition(p, kind, lp_names, fns, params);
     if (p.used_sorry()) p.declare_sorry();
     elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
@@ -136,10 +148,11 @@ environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, bool is_pr
     return p.env();
 }
 
-expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<expr> & params) {
-    parser::local_scope scope(p);
+static expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<expr> & params) {
+    parser::local_scope scope1(p);
     auto header_pos = p.pos();
     expr fn = parse_single_header(p, lp_names, params);
+    declaration_name_scope scope2(local_pp_name(fn));
     expr val;
     if (p.curr_is_token(get_assign_tk())) {
         p.next();
@@ -158,9 +171,7 @@ expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<expr> & p
             }
         }
         optional<expr_pair> R_Rwf = parse_using_well_founded(p);
-        buffer<expr> fns;
-        fns.push_back(fn);
-        val = mk_equations(p, fns, eqns, R_Rwf, header_pos);
+        val = mk_equations(p, fn, scope2.get_name(), eqns, R_Rwf, header_pos);
     } else {
         throw parser_error("invalid definition, '|' or ':=' expected", p.pos());
     }
@@ -323,6 +334,7 @@ environment xdefinition_cmd_core(parser & p, def_cmd_kind kind, bool is_private,
     buffer<expr> params;
     expr fn, val;
     auto header_pos = p.pos();
+    declaration_info_scope scope(p.env(), is_private, kind);
     std::tie(fn, val) = parse_definition(p, lp_names, params);
     if (p.used_sorry()) p.declare_sorry();
     elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());

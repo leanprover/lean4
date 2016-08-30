@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/decl_util.h"
 
 namespace lean {
 static name * g_match_name = nullptr;
@@ -19,7 +20,9 @@ bool is_match_binder_name(name const & n) { return n == *g_match_name; }
 
 /** \brief Use equations compiler infrastructure to implement match-with */
 expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
-    parser::local_scope scope(p);
+    parser::local_scope scope1(p);
+    match_definition_scope scope2;
+    equations_header header = mk_equations_header(scope2.get_name());
     buffer<expr> eqns;
     buffer<expr> ts;
     try {
@@ -44,7 +47,7 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
             /* Empty match */
             p.next();
             eqns.push_back(Fun(fn, mk_no_equation()));
-            expr f = p.save_pos(mk_equations(1, eqns.size(), eqns.data()), pos);
+            expr f = p.save_pos(mk_equations(header, eqns.size(), eqns.data()), pos);
             return p.mk_app(f, ts, pos);
         }
         if (is_eqn_prefix(p))
@@ -79,7 +82,7 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
         ex.rethrow();
     }
     p.check_token_next(get_end_tk(), "invalid 'match' expression, 'end' expected");
-    expr f = p.save_pos(mk_equations(1, eqns.size(), eqns.data()), pos);
+    expr f = p.save_pos(mk_equations(header, eqns.size(), eqns.data()), pos);
     return p.mk_app(f, ts, pos);
 }
 

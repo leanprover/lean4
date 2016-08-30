@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/structure_instance.h"
 #include "frontends/lean/nested_declaration.h"
 #include "frontends/lean/match_expr.h"
+#include "frontends/lean/decl_util.h"
 
 #ifndef LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE
 #define LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE true
@@ -542,6 +543,7 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const &) {
             } else {
                 // must introduce a "fake" match
                 auto pos   = ps[i];
+                match_definition_scope match_scope;
                 expr fn = p.save_pos(mk_local(mk_fresh_name(), *g_do_match_name, mk_expr_placeholder(), binder_info()), pos);
                 buffer<expr> locals;
                 to_buffer(lhss_locals[i], locals);
@@ -555,7 +557,8 @@ static expr parse_do(parser & p, unsigned, expr const *, pos_info const &) {
                                                                     pos)),
                                              pos));
                 }
-                expr eqns  = p.save_pos(mk_equations(1, eqs.size(), eqs.data()), pos);
+                equations_header h = mk_equations_header(match_scope.get_name());
+                expr eqns  = p.save_pos(mk_equations(h, eqs.size(), eqs.data()), pos);
                 expr local = mk_local("p", mk_expr_placeholder());
                 expr match = p.mk_app(eqns, local, pos);
                 r = p.rec_save_pos(mk_app(p.save_pos(mk_constant(get_monad_bind_name()), ps[i]),

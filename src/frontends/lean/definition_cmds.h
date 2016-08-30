@@ -6,9 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "frontends/lean/parser.h"
+#include "frontends/lean/decl_attributes.h"
 namespace lean {
-enum def_cmd_kind { Theorem, Definition, MetaDefinition, Example, Abbreviation, LocalAbbreviation };
-
 environment mutual_definition_cmd_core(parser & p, def_cmd_kind k,
                                        bool is_private, bool is_protected, bool is_noncomputable,
                                        decl_attributes attributes);

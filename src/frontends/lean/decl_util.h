@@ -6,10 +6,14 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/expr.h"
+#include "library/equations_compiler/equations.h"
 #include "frontends/lean/decl_attributes.h"
 namespace lean {
 class parser;
 class elaborator;
+
+enum def_cmd_kind { Theorem, Definition, MetaDefinition, Example, Abbreviation, LocalAbbreviation };
+
 /** \brief Parse explict universe parameters of the form:
            .{u_1 ... u_k}
 
@@ -66,4 +70,41 @@ void elaborate_params(elaborator & elab, buffer<expr> const & params, buffer<exp
     declared using the parameter command. */
 environment add_local_ref(parser & p, environment const & env, name const & c_name, name const & c_real_name,
                           buffer<name> const & lp_names, buffer<expr> const & var_params);
+
+
+/** \brief In Lean, declarations may contain nested definitions.
+    This object is used to propagate relevant flags to
+    nested definitions. */
+class declaration_info_scope {
+public:
+    declaration_info_scope(environment const & env, bool is_private, bool is_meta, bool lemmas);
+    declaration_info_scope(environment const & env, bool is_private, def_cmd_kind k);
+    ~declaration_info_scope();
+};
+
+/** \brief Similar to declaration_info_scope, but it is used to update
+    naming prefix for nested definitions. */
+class declaration_name_scope {
+    name     m_name;
+    name     m_old_prefix;
+    unsigned m_old_next_match_idx;
+public:
+    declaration_name_scope(name const & n);
+    ~declaration_name_scope();
+    name const & get_name() const { return m_name; }
+};
+
+/** \brief Auxiliary scope to compute the name for a nested match expression.
+    In Lean, we create auxiliary declarations for match expressions. */
+class match_definition_scope {
+    name m_name;
+public:
+    match_definition_scope();
+    name const & get_name() const { return m_name; }
+};
+
+/** \brief Create an equations header for the given function names.
+    It uses the information set using declaration_info_scope */
+equations_header mk_equations_header(list<name> const & fn_names);
+equations_header mk_equations_header(name const & fn_name);
 }

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "library/locals.h"
 #include "library/placeholder.h"
+#include "library/scoped_ext.h"
 #include "library/tactic/elaborate.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/decl_util.h"
@@ -37,6 +38,7 @@ bool parse_univ_params(parser & p, buffer<name> & lp_names) {
 expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & params) {
     auto c_pos  = p.pos();
     name c_name = p.check_decl_id_next("invalid declaration, identifier expected");
+    declaration_name_scope scope(c_name);
     parse_univ_params(p, lp_names);
     p.parse_optional_binders(params);
     for (expr const & param : params)
@@ -86,6 +88,7 @@ pair<expr, decl_attributes> parse_inner_header(parser & p, name const & c_expect
     if (c_expected != n)
         throw parser_error(sstream() << "invalid mutual declaration, '" << c_expected << "' expected",
                            id_pos);
+    declaration_name_scope scope(n);
     p.check_token_next(get_colon_tk(), "invalid mutual declaration, ':' expected");
     return mk_pair(p.parse_expr(), attrs);
 }
@@ -255,5 +258,68 @@ environment add_local_ref(parser & p, environment const & env, name const & c_na
     if (lps.empty() && params.empty()) return env;
     expr ref = mk_local_ref(c_real_name, param_names_to_levels(to_list(lps)), params);
     return p.add_local_ref(env, c_name, ref);
+}
+
+struct definition_info {
+    name     m_prefix;
+    bool     m_is_private{false};
+    bool     m_is_meta{false};
+    bool     m_lemmas{false};
+    unsigned m_next_match_idx{1};
+};
+
+MK_THREAD_LOCAL_GET_DEF(definition_info, get_definition_info);
+
+declaration_info_scope::declaration_info_scope(environment const & env, bool is_private, bool is_meta, bool lemmas) {
+    definition_info & info = get_definition_info();
+    lean_assert(info.m_prefix.is_anonymous());
+    info.m_prefix         = is_private ? name() : get_namespace(env);
+    info.m_is_private     = is_private;
+    info.m_is_meta        = is_meta;
+    info.m_lemmas         = lemmas;
+    info.m_next_match_idx = 1;
+}
+
+declaration_info_scope::declaration_info_scope(environment const & env, bool is_private, def_cmd_kind k):
+    declaration_info_scope(env, is_private, k == MetaDefinition, k == Definition) {}
+
+declaration_info_scope::~declaration_info_scope() {
+    definition_info & info = get_definition_info();
+    info.m_prefix = name();
+}
+
+equations_header mk_equations_header(list<name> const & ns) {
+    equations_header h;
+    h.m_num_fns    = length(ns);
+    h.m_fn_names   = ns;
+    h.m_is_private = get_definition_info().m_is_private;
+    h.m_is_meta    = get_definition_info().m_is_meta;
+    h.m_lemmas     = get_definition_info().m_lemmas;
+    return h;
+}
+
+equations_header mk_equations_header(name const & n) {
+    return mk_equations_header(to_list(n));
+}
+
+declaration_name_scope::declaration_name_scope(name const & n) {
+    definition_info & info = get_definition_info();
+    m_old_prefix          = info.m_prefix;
+    m_old_next_match_idx  = info.m_next_match_idx;
+    info.m_prefix         = info.m_prefix + n;
+    info.m_next_match_idx = 1;
+    m_name                = info.m_prefix;
+}
+
+declaration_name_scope::~declaration_name_scope() {
+    definition_info & info = get_definition_info();
+    info.m_prefix          = m_old_prefix;
+    info.m_next_match_idx  = m_old_next_match_idx;
+}
+
+match_definition_scope::match_definition_scope() {
+    definition_info & info = get_definition_info();
+    m_name = info.m_prefix + name("_match").append_after(info.m_next_match_idx);
+    info.m_next_match_idx++;
 }
 }

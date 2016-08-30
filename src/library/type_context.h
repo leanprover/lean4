@@ -250,6 +250,7 @@ public:
     virtual expr relaxed_whnf(expr const & e) override;
     virtual bool relaxed_is_def_eq(expr const & e1, expr const & e2) override;
 
+    optional<expr> is_stuck_projection(expr const & e);
     virtual optional<expr> is_stuck(expr const &) override;
 
     virtual expr push_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) override;

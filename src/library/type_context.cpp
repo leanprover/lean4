@@ -599,9 +599,24 @@ expr type_context::relaxed_whnf(expr const & e) {
     return whnf(e);
 }
 
+optional<expr> type_context::is_stuck_projection(expr const & e) {
+    expr const & f = get_app_fn(e);
+    if (!is_constant(f)) return none_expr(); // it is not projection app
+    projection_info const * info = m_cache->m_proj_info.find(const_name(f));
+    if (!info) return none_expr(); // it is not projection app
+    buffer<expr> args;
+    get_app_args(e, args);
+    if (args.size() <= info->m_nparams) return none_expr(); // partially applied projection
+    unsigned mkidx  = info->m_nparams;
+    expr mk         = args[mkidx];
+    return is_stuck(mk);
+}
+
 optional<expr> type_context::is_stuck(expr const & e) {
     if (is_meta(e)) {
         return some_expr(e);
+    } else if (auto r = is_stuck_projection(e)) {
+        return r;
     } else {
         return env().norm_ext().is_stuck(e, *this);
     }

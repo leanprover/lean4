@@ -1645,32 +1645,45 @@ bool type_context::mk_nested_instance(expr const & m, expr const & m_type) {
 }
 
 expr type_context::complete_instance(expr const & e) {
-    if (!has_expr_metavar(e))
-        return e;
-    if (!is_app(e))
-        return e;
-    bool found = false;
-    for_each(e, [&](expr const & e, unsigned) {
-            if (!has_expr_metavar(e)) return false;
-            if (is_mvar(e)) {
-                if (is_assigned(e)) {
-                    found = true;
-                } else {
-                    expr const & m = e;
-                    expr m_type    = instantiate_mvars(infer(m));
-                    if (!has_expr_metavar_relaxed(m_type) && is_class(m_type)) {
-                        if (mk_nested_instance(m, m_type))
-                            found = true;
+    if (!has_expr_metavar(e)) return e;
+
+    if (is_app(e)) {
+        buffer<expr> args;
+        expr const & fn = get_app_args(e, args);
+        fun_info finfo = get_fun_info(*this, fn, args.size());
+        unsigned i = 0;
+        bool modified = false;
+        for (param_info const & pinfo : finfo.get_params_info()) {
+            lean_assert(i < args.size());
+            expr arg     = args[i];
+            expr new_arg = arg;
+            /* Remove annotations */
+            while (is_annotation(new_arg)) {
+                new_arg = get_annotation_arg(new_arg);
+            }
+            if (is_mvar(new_arg) && pinfo.is_inst_implicit() && !is_assigned(new_arg)) {
+                /* If new_arg is an unassigned metavariable that in an instance-implicit slot,
+                   then try to synthesize it */
+                expr const & m = new_arg;
+                expr m_type    = instantiate_mvars(infer(m));
+                if (!has_expr_metavar_relaxed(m_type) && is_class(m_type)) {
+                    if (mk_nested_instance(m, m_type)) {
+                        new_arg = instantiate_mvars(new_arg);
                     }
                 }
+            } else {
+                new_arg = complete_instance(new_arg);
             }
-            return true;
-        });
-    if (found) {
-        return instantiate_mvars(e);
-    } else {
-        return e;
+            if (new_arg != arg) modified = true;
+            args[i] = new_arg;
+            i++;
+        }
+        if (!modified)
+            return e;
+        else
+            return mk_app(fn, args);
     }
+    return e;
 }
 
 bool type_context::is_def_eq_args(expr const & e1, expr const & e2) {

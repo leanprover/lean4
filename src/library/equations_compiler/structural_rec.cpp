@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/app_builder.h"
 #include "library/replace_visitor_with_tc.h"
+#include "library/equations_compiler/equations.h"
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/structural_rec.h"
 #include "library/equations_compiler/elim_match.h"
@@ -27,6 +28,8 @@ struct structural_rec_fn {
     metavar_context  m_mctx;
     local_context    m_lctx;
 
+    equations_header m_header;
+    expr             m_fn_type;
     unsigned         m_arity;
     unsigned         m_arg_pos;
     buffer<unsigned> m_indices_pos;
@@ -457,7 +460,8 @@ struct structural_rec_fn {
                          tout() << "\n";);
             return none_expr();
         }
-        m_arity = ues.get_arity_of(0);
+        m_fn_type = ctx.infer(ues.get_fn(0));
+        m_arity   = ues.get_arity_of(0);
         if (!find_rec_arg(ctx, ues)) return none_expr();
         expr fn = ues.get_fn(0);
         trace_struct(tout() << "using structural recursion on argument #" << (m_arg_pos+1) <<
@@ -493,7 +497,7 @@ struct structural_rec_fn {
         return std::find(m_indices_pos.begin(), m_indices_pos.end(), idx) != m_indices_pos.end();
     }
 
-    expr mk_brec_on(expr const & aux_fn, list<expr_pair> const & aux_lemmas) {
+    expr mk_function(expr const & aux_fn) {
         type_context ctx = mk_type_context();
         type_context::tmp_locals locals(ctx);
         buffer<expr> fn_args;
@@ -541,14 +545,37 @@ struct structural_rec_fn {
         brec_on_args.push_back(F);
         expr new_fn = ctx.mk_lambda(fn_args, mk_app(mk_app(brec_on_fn, brec_on_args), extra_args));
         lean_trace("eqn_compiler", tout() << "result:\n" << new_fn << "\ntype:\n" << ctx.infer(new_fn) << "\n";);
-        return new_fn;
+        if (m_header.m_is_meta) {
+            /* We don't create auxiliary definitions for meta-definitions because we don't create lemmas
+               for them. */
+            return new_fn;
+        } else {
+            expr r;
+            std::tie(m_env, r) = mk_aux_definition(m_env, m_mctx, m_lctx, m_header.m_is_private, head(m_header.m_fn_names),
+                                                   m_fn_type, new_fn);
+            return r;
+        }
+    }
+
+    void mk_lemmas(expr const & fn, expr const & aux_fn, list<expr_pair> const & lemmas) {
+        for (expr_pair const & p : lemmas) {
+            expr type, proof;
+            std::tie(type, proof) = p;
+            // TODO(Leo)
+        }
     }
 
     optional<expr> operator()(expr const & eqns) {
+        m_header = get_equations_header(eqns);
         auto new_eqns = elim_recursion(eqns);
         if (!new_eqns) return none_expr();
         elim_match_result R = elim_match(m_env, m_opts, m_mctx, m_lctx, *new_eqns);
-        return some_expr(mk_brec_on(R.m_fn, R.m_lemmas));
+        expr fn = mk_function(R.m_fn);
+        if (m_header.m_lemmas) {
+            lean_assert(!m_header.m_is_meta);
+            mk_lemmas(fn, R.m_fn, R.m_lemmas);
+        }
+        return some_expr(fn);
     }
 };
 

@@ -105,6 +105,7 @@ expr parse_mutual_definition(parser & p, def_cmd_kind k, buffer<name> & lp_names
         // TODO(leo, dhs): make use of attributes
         expr fn_type = parse_inner_header(p, local_pp_name(pre_fn)).first;
         declaration_name_scope scope2(local_pp_name(pre_fn));
+        declaration_name_scope scope3("_main");
         full_names.push_back(scope2.get_name());
         if (p.curr_is_token(get_none_tk())) {
             auto none_pos = p.pos();
@@ -158,6 +159,7 @@ static expr_pair parse_definition(parser & p, buffer<name> & lp_names, buffer<ex
         p.next();
         val = p.parse_expr();
     } else if (p.curr_is_token(get_bar_tk()) || p.curr_is_token(get_none_tk())) {
+        declaration_name_scope scope2("_main");
         fn = mk_local(mlocal_name(fn), local_pp_name(fn), mlocal_type(fn), mk_rec_info(true));
         p.add_local(fn);
         buffer<expr> eqns;

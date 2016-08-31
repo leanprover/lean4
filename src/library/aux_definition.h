@@ -15,12 +15,14 @@ namespace lean {
 
     where l_i's and a_j's are the collected dependencies.
 
-    The function also computes whether the new definition should be tagged as trusted or not.
+    If is_meta is none, then function also computes whether the new definition should be tagged as trusted or not.
 
     The updated environment is an extension of ctx.env() */
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
-                                          name const & c, expr const & type, expr const & value);
+                                          name const & c, expr const & type, expr const & value,
+                                          optional<bool> const & is_meta = optional<bool>());
 /** \brief Similar to mk_aux_definition, but the type of value is inferred using ctx. */
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
-                                          name const & c, expr const & value);
+                                          name const & c, expr const & value,
+                                          optional<bool> const & is_meta = optional<bool>());
 }

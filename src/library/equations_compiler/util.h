@@ -72,6 +72,9 @@ public:
     equations. */
 bool is_recursive_eqns(type_context & ctx, expr const & e);
 
+pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
+                                          bool is_private, name const & c, expr const & type, expr const & value);
 
-
+pair<environment, expr> mk_equation_lemma(environment const & env, metavar_context const & mctx, local_context const & lctx,
+                                          bool is_private, name const & c, expr const & type, expr const & value);
 }

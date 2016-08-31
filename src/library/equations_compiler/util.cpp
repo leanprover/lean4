@@ -9,6 +9,9 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"
+#include "library/private.h"
+#include "library/aux_definition.h"
+#include "library/scope_pos_info_provider.h"
 #include "library/equations_compiler/equations.h"
 #include "library/equations_compiler/util.h"
 
@@ -171,5 +174,38 @@ bool is_recursive_eqns(type_context & ctx, expr const & e) {
         }
     }
     return false;
+}
+
+static pair<environment, name> mk_def_name(environment const & env, bool is_private, name const & c) {
+    if (is_private) {
+        unsigned h = 31;
+        if (auto pinfo = get_pos_info_provider()) {
+            h = hash(pinfo->get_some_pos().first, pinfo->get_some_pos().second);
+            char const * fname = pinfo->get_file_name();
+            h = hash_str(strlen(fname), fname, h);
+        }
+        return add_private_name(env, c, optional<unsigned>(h));
+    } else {
+        return mk_pair(env, c);
+    }
+}
+
+pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
+                                          bool is_private, name const & c, expr const & type, expr const & value) {
+    environment new_env = env;
+    name new_c;
+    std::tie(new_env, new_c) = mk_def_name(env, is_private, c);
+    return mk_aux_definition(new_env, mctx, lctx, new_c, type, value);
+}
+
+pair<environment, expr> mk_equation_lemma(environment const & env, metavar_context const & mctx, local_context const & lctx,
+                                          bool is_private, name const & c, expr const & type, expr const & value) {
+    environment new_env = env;
+    name new_c;
+    std::tie(new_env, new_c) = mk_def_name(env, is_private, c);
+    expr r;
+    std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_c, type, value);
+    // TODO(Leo): add simp (and dsimp) rule
+    return mk_pair(new_env, r);
 }
 }

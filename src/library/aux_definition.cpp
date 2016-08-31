@@ -120,7 +120,7 @@ struct mk_aux_definition_fn {
         }
     }
 
-    pair<environment, expr> operator()(name const & c, expr const & type, expr const & value) {
+    pair<environment, expr> operator()(name const & c, expr const & type, expr const & value, optional<bool> const & is_meta) {
         expr new_type  = collect(m_ctx.instantiate_mvars(type));
         expr new_value = collect(m_ctx.instantiate_mvars(value));
         buffer<expr> norm_params;
@@ -131,7 +131,11 @@ struct mk_aux_definition_fn {
         expr def_value = m_ctx.mk_lambda(norm_params, new_value);
         bool use_conv_opt = true;
         environment const & env = m_ctx.env();
-        declaration d = mk_definition_inferring_trusted(env, c, to_list(m_level_params), def_type, def_value, use_conv_opt);
+        declaration d;
+        if (is_meta)
+            d = mk_definition(env, c, to_list(m_level_params), def_type, def_value, use_conv_opt, !*is_meta);
+        else
+            d = mk_definition_inferring_trusted(env, c, to_list(m_level_params), def_type, def_value, use_conv_opt);
         environment new_env = module::add(env, check(env, d));
         buffer<level> ls;
         for (name const & n : m_level_params) {
@@ -153,15 +157,15 @@ struct mk_aux_definition_fn {
 };
 
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
-                                          name const & c, expr const & type, expr const & value) {
+                                          name const & c, expr const & type, expr const & value, optional<bool> const & is_meta) {
     type_context ctx(env, options(), mctx, lctx, transparency_mode::All);
-    return mk_aux_definition_fn(ctx)(c, type, value);
+    return mk_aux_definition_fn(ctx)(c, type, value, is_meta);
 }
 
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
-                                          name const & c, expr const & value) {
+                                          name const & c, expr const & value, optional<bool> const & is_meta) {
     type_context ctx(env, options(), mctx, lctx, transparency_mode::All);
     expr type = ctx.infer(value);
-    return mk_aux_definition_fn(ctx)(c, type, value);
+    return mk_aux_definition_fn(ctx)(c, type, value, is_meta);
 }
 }

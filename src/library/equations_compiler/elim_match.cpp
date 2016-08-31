@@ -764,7 +764,7 @@ struct elim_match_fn {
         }
     }
 
-    expr_pair finalize_lemma(expr const & fn, lemma const & L) {
+    expr finalize_lemma(expr const & fn, lemma const & L) {
         buffer<expr> args;
         to_buffer(L.m_args, args);
         type_context ctx = mk_type_context(L.m_lctx);
@@ -773,15 +773,11 @@ struct elim_match_fn {
         buffer<expr> locals;
         to_buffer(L.m_vars, locals);
         to_buffer(L.m_hs, locals);
-        expr prop  = ctx.mk_pi(locals, eq);
-        // TODO(Leo): handle value and pack/unpack
-        expr proof = mk_eq_refl(ctx, lhs);
-        proof      = ctx.mk_lambda(locals, proof);
-        return mk_pair(prop, proof);
+        return ctx.mk_pi(locals, eq);
     }
 
-    list<expr_pair> finalize_lemmas(expr const & fn, list<lemma> const & Ls) {
-        return map2<expr_pair>(Ls, [&](lemma const & L) { return finalize_lemma(fn, L); });
+    list<expr> finalize_lemmas(expr const & fn, list<lemma> const & Ls) {
+        return map2<expr>(Ls, [&](lemma const & L) { return finalize_lemma(fn, L); });
     }
 
     elim_match_result operator()(local_context const & lctx, expr const & eqns) {
@@ -798,7 +794,7 @@ struct elim_match_fn {
         list<lemma> pre_Ls       = process(P);
         fn                       = m_mctx.instantiate_mvars(fn);
         trace_match_debug(tout() << "code:\n" << fn << "\n";);
-        list<expr_pair> Ls       = finalize_lemmas(fn, pre_Ls);
+        list<expr> Ls            = finalize_lemmas(fn, pre_Ls);
         return elim_match_result(fn, Ls);
     }
 };

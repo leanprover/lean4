@@ -20,6 +20,8 @@ Author: Leonardo de Moura
 namespace lean {
 #define trace_struct(Code) lean_trace(name({"eqn_compiler", "structural_rec"}), type_context ctx = mk_type_context(); scope_trace_env _scope1(m_env, ctx); Code)
 #define trace_struct_aux(Code) lean_trace(name({"eqn_compiler", "structural_rec"}), scope_trace_env _scope1(m_ctx.env(), m_ctx); Code)
+#define trace_debug_struct(Code) lean_trace(name({"debug", "eqn_compiler", "structural_rec"}), type_context ctx = mk_type_context(); scope_trace_env _scope1(m_env, ctx); Code)
+#define trace_debug_struct_aux(Code) lean_trace(name({"debug", "eqn_compiler", "structural_rec"}), scope_trace_env _scope1(m_ctx.env(), m_ctx); Code)
 
 struct structural_rec_fn {
     environment      m_env;
@@ -557,15 +559,18 @@ struct structural_rec_fn {
     }
 
     struct mk_lemma_rhs_fn : public replace_visitor_with_tc {
+        expr                     m_fn;
         expr                     m_F;
         expr                     m_lhs_rec_arg;
         unsigned                 m_arg_pos;
         buffer<unsigned> const & m_indices_pos;
     public:
-        mk_lemma_rhs_fn(type_context & ctx, expr const & F, expr const & rec_arg,
+        mk_lemma_rhs_fn(type_context & ctx, expr const & fn, expr const & F, expr const & rec_arg,
                         unsigned arg_pos, buffer<unsigned> const & indices_pos):
-            replace_visitor_with_tc(ctx), m_F(F), m_lhs_rec_arg(rec_arg),
+            replace_visitor_with_tc(ctx), m_fn(fn), m_F(F), m_lhs_rec_arg(rec_arg),
             m_arg_pos(arg_pos), m_indices_pos(indices_pos) {}
+
+        environment const & env() const { return m_ctx.env(); }
 
         /* Auxiliary method for detecting terms representing "recursive calls". Examples:
               F.1.1
@@ -658,25 +663,54 @@ struct structural_rec_fn {
                 buffer<unsigned> path;
                 if (is_F_instance(args[2], path)) {
                     path.push_back(1);
-                    expr rec_arg = decode_rec_arg(path);
-                    // TODO(Leo): use rec_arg to build recursive call.
-                    tout() << "found: " << e << " ==> " << rec_arg << "\n";
-                    return e;
+                    expr rec_arg          = decode_rec_arg(path);
+                    expr rec_arg_type     = m_ctx.relaxed_whnf(m_ctx.infer(rec_arg));
+                    buffer<expr> I_args;
+                    expr const & I        = get_app_args(rec_arg_type, I_args);
+                    lean_assert(is_constant(I));
+                    name I_name           = const_name(I);
+                    lean_assert(inductive::is_inductive_decl(env(), I_name));
+                    unsigned nindices     = m_indices_pos.size();
+                    lean_assert(*inductive::get_num_indices(env(), I_name) == m_indices_pos.size());
+                    unsigned I_next_idx   = I_args.size() - nindices;
+                    unsigned b_next_idx   = 3; /* pr1 A B F b_1 ... */
+                    unsigned new_nargs    = nindices + 1 + args.size() - 3;
+                    buffer<expr> new_args;
+                    for (unsigned i = 0; i < new_nargs; i++) {
+                        if (i == m_arg_pos) {
+                            new_args.push_back(rec_arg);
+                        } else if (std::find(m_indices_pos.begin(), m_indices_pos.end(), i) != m_indices_pos.end()) {
+                            new_args.push_back(I_args[I_next_idx]);
+                            I_next_idx++;
+                        } else {
+                            new_args.push_back(args[b_next_idx]);
+                            b_next_idx++;
+                        }
+                    }
+                    expr new_e = mk_app(m_fn, new_args);
+                    trace_debug_struct_aux(tout() << "decoded equation rhs term:\n" << e << "\n==>\n" << new_e << "\n";);
+                    return new_e;
                 }
             }
             return replace_visitor_with_tc::visit_app(e);
         }
     };
 
-    expr mk_lemma_rhs(type_context & ctx, expr const & F, expr const & rec_arg, expr const & rhs) {
-        return mk_lemma_rhs_fn(ctx, F, rec_arg, m_arg_pos, m_indices_pos)(rhs);
+    expr mk_lemma_rhs(type_context & ctx, expr const & fn, expr const & F, expr const & rec_arg, expr const & rhs) {
+        return mk_lemma_rhs_fn(ctx, fn, F, rec_arg, m_arg_pos, m_indices_pos)(rhs);
     }
 
-    void mk_lemmas(expr const & fn, list<expr_pair> const & lemmas) {
+    expr prove_eqn_lemma(type_context & ctx, buffer<expr> const & Hs, expr const & lhs, expr const & /* rhs */) {
+        /* TODO(Leo): add support for pack/unpack lemmas and value */
+        expr proof = mk_eq_refl(ctx, lhs);
+        return ctx.mk_lambda(Hs, proof);
+    }
+
+    void mk_lemmas(expr const & fn, list<expr> const & lemmas) {
+        name base_name(const_name(get_app_fn(fn)), "lemmas");
+        unsigned eqn_idx = 1;
         type_context ctx = mk_type_context();
-        for (expr_pair const & p : lemmas) {
-            expr type, proof;
-            std::tie(type, proof) = p;
+        for (expr type : lemmas) {
             type_context::tmp_locals locals(ctx);
             type = ctx.relaxed_whnf(type);
             while (is_pi(type)) {
@@ -686,16 +720,25 @@ struct structural_rec_fn {
             lean_assert(is_eq(type));
             expr lhs = app_arg(app_fn(type));
             expr rhs = app_arg(type);
+            trace_debug_struct(tout() << "elim_match equation rhs:\n" << rhs << "\n";);
             buffer<expr> lhs_args;
             get_app_args(lhs, lhs_args);
             lean_assert(lhs_args.size() == m_arity + 1);
             expr F = lhs_args.back();
             expr new_lhs = mk_app(fn, lhs_args.size() - 1, lhs_args.data());
-            expr new_rhs = mk_lemma_rhs(ctx, F, lhs_args[m_arg_pos], rhs);
-
-            tout() << new_lhs << "\n";
-            tout() << new_rhs << "\n------\n";
-            // TODO(Leo)
+            expr new_rhs = mk_lemma_rhs(ctx, fn, F, lhs_args[m_arg_pos], rhs);
+            buffer<expr> new_locals;
+            for (expr const & local : locals.as_buffer()) {
+                if (local != F)
+                    new_locals.push_back(local);
+            }
+            expr new_type   = ctx.mk_pi(new_locals, mk_eq(ctx, new_lhs, new_rhs));
+            trace_struct(tout() << "lemma:\n" << new_type << "\n";);
+            expr new_proof  = prove_eqn_lemma(ctx, new_locals, new_lhs, new_rhs);
+            name lemma_name = base_name + name("eqn").append_after(eqn_idx);
+            m_env           = mk_equation_lemma(m_env, m_mctx, m_lctx, m_header.m_is_private,
+                                                lemma_name, new_type, new_proof);
+            eqn_idx++;
         }
     }
 
@@ -727,6 +770,7 @@ optional<expr> try_structural_rec(environment & env, options const & opts, metav
 
 void initialize_structural_rec() {
     register_trace_class({"eqn_compiler", "structural_rec"});
+    register_trace_class({"debug", "eqn_compiler", "structural_rec"});
 }
 void finalize_structural_rec() {}
 }

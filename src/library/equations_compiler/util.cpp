@@ -198,14 +198,14 @@ pair<environment, expr> mk_aux_definition(environment const & env, metavar_conte
     return mk_aux_definition(new_env, mctx, lctx, new_c, type, value);
 }
 
-pair<environment, expr> mk_equation_lemma(environment const & env, metavar_context const & mctx, local_context const & lctx,
-                                          bool is_private, name const & c, expr const & type, expr const & value) {
+environment mk_equation_lemma(environment const & env, metavar_context const & mctx, local_context const & lctx,
+                              bool is_private, name const & c, expr const & type, expr const & value) {
     environment new_env = env;
     name new_c;
     std::tie(new_env, new_c) = mk_def_name(env, is_private, c);
     expr r;
     std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_c, type, value);
     // TODO(Leo): add simp (and dsimp) rule
-    return mk_pair(new_env, r);
+    return new_env;
 }
 }

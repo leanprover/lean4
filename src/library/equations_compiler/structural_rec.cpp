@@ -21,7 +21,6 @@ namespace lean {
 #define trace_struct(Code) lean_trace(name({"eqn_compiler", "structural_rec"}), type_context ctx = mk_type_context(); scope_trace_env _scope1(m_env, ctx); Code)
 #define trace_struct_aux(Code) lean_trace(name({"eqn_compiler", "structural_rec"}), scope_trace_env _scope1(m_ctx.env(), m_ctx); Code)
 
-
 struct structural_rec_fn {
     environment      m_env;
     options          m_opts;
@@ -557,10 +556,145 @@ struct structural_rec_fn {
         }
     }
 
-    void mk_lemmas(expr const & fn, expr const & aux_fn, list<expr_pair> const & lemmas) {
+    struct mk_lemma_rhs_fn : public replace_visitor_with_tc {
+        expr                     m_F;
+        expr                     m_lhs_rec_arg;
+        unsigned                 m_arg_pos;
+        buffer<unsigned> const & m_indices_pos;
+    public:
+        mk_lemma_rhs_fn(type_context & ctx, expr const & F, expr const & rec_arg,
+                        unsigned arg_pos, buffer<unsigned> const & indices_pos):
+            replace_visitor_with_tc(ctx), m_F(F), m_lhs_rec_arg(rec_arg),
+            m_arg_pos(arg_pos), m_indices_pos(indices_pos) {}
+
+        /* Auxiliary method for detecting terms representing "recursive calls". Examples:
+              F.1.1
+              F.2.2.1.2.1.1
+
+           It stores the path (.e.g., [2,2,1,2,1,1]) in the output parameter `path`.
+
+           \remark This is encoding is defined in the automatically generated `below` functions.
+           Example: consider the inductive datatype
+
+           inductive tree (A : Type)
+           | leaf : A → tree
+           | node : tree → tree → tree → tree
+
+           Then, we can use the follow command to "visualize" how the information is encoded.
+
+           eval ∀ (A : Type) (n₁ n₂ n₃ n₄ n₅ : tree A) (C : tree A → Type), @tree.below A C (node (node n₁ n₂ n₃) n₄ n₅)
+        */
+        bool is_F_instance(expr const & e, buffer<unsigned> & path) const {
+            if (e == m_F) return true;
+            buffer<expr> args;
+            expr const & fn = get_app_args(e, args);
+            if (args.size() == 3) {
+                if (is_constant(fn, get_prod_pr1_name())) {
+                    bool r = is_F_instance(args[2], path);
+                    path.push_back(1);
+                    return r;
+                } else if (is_constant(fn, get_prod_pr2_name())) {
+                    bool r = is_F_instance(args[2], path);
+                    path.push_back(2);
+                    return r;
+                }
+            }
+            return false;
+        }
+
+        /* Return the ith recursive argument of \c e */
+        expr get_ith_rec_arg(expr const & e, unsigned ith) {
+            buffer<expr> rec_args;
+            if (get_constructor_rec_args(m_ctx.env(), e, rec_args)) {
+                lean_assert(ith < rec_args.size());
+                return rec_args[ith];
+            }
+            lean_unreachable();
+        }
+
+        /* Auxiliary method for decode_rec_arg */
+        expr decode_rec_arg_core(expr const & e, unsigned i, buffer<unsigned> const & path) {
+            unsigned rec_arg_idx = 0;
+            while (true) {
+                lean_assert(i < path.size());
+                if (path[i] == 1)
+                    break;
+                rec_arg_idx++;
+                i++;
+            }
+            i++;
+            expr new_e = get_ith_rec_arg(e, rec_arg_idx);
+            if (path[i] == 1) {
+                return new_e;
+            } else {
+                i++;
+                return decode_rec_arg_core(new_e, i, path);
+            }
+        }
+
+        /* Decode the argument for the recursive call.
+
+           Example: consider the inductive datatype
+
+           inductive tree (A : Type)
+           | leaf : A → tree
+           | node : tree → tree → tree → tree
+
+           and the term (F.1.2.2.2.1.1). We extract the path
+           [1,2,2,2,1,1] for this term.
+           Now, assume the recursive argument in the left-hand-side is
+
+                (node (node n₁ n₂ n₃) n₄ n₅).
+
+           Then, the result of this method is the term n₃ */
+        expr decode_rec_arg(buffer<unsigned> const & path) {
+            return decode_rec_arg_core(m_lhs_rec_arg, 0, path);
+        }
+
+        virtual expr visit_app(expr const & e) {
+            buffer<expr> args;
+            expr const & fn = get_app_args(e, args);
+            if (is_constant(fn, get_prod_pr1_name()) && args.size() >= 3) {
+                buffer<unsigned> path;
+                if (is_F_instance(args[2], path)) {
+                    path.push_back(1);
+                    expr rec_arg = decode_rec_arg(path);
+                    // TODO(Leo): use rec_arg to build recursive call.
+                    tout() << "found: " << e << " ==> " << rec_arg << "\n";
+                    return e;
+                }
+            }
+            return replace_visitor_with_tc::visit_app(e);
+        }
+    };
+
+    expr mk_lemma_rhs(type_context & ctx, expr const & F, expr const & rec_arg, expr const & rhs) {
+        return mk_lemma_rhs_fn(ctx, F, rec_arg, m_arg_pos, m_indices_pos)(rhs);
+    }
+
+    void mk_lemmas(expr const & fn, list<expr_pair> const & lemmas) {
+        type_context ctx = mk_type_context();
         for (expr_pair const & p : lemmas) {
             expr type, proof;
             std::tie(type, proof) = p;
+            type_context::tmp_locals locals(ctx);
+            type = ctx.relaxed_whnf(type);
+            while (is_pi(type)) {
+                expr local = locals.push_local_from_binding(type);
+                type = instantiate(binding_body(type), local);
+            }
+            lean_assert(is_eq(type));
+            expr lhs = app_arg(app_fn(type));
+            expr rhs = app_arg(type);
+            buffer<expr> lhs_args;
+            get_app_args(lhs, lhs_args);
+            lean_assert(lhs_args.size() == m_arity + 1);
+            expr F = lhs_args.back();
+            expr new_lhs = mk_app(fn, lhs_args.size() - 1, lhs_args.data());
+            expr new_rhs = mk_lemma_rhs(ctx, F, lhs_args[m_arg_pos], rhs);
+
+            tout() << new_lhs << "\n";
+            tout() << new_rhs << "\n------\n";
             // TODO(Leo)
         }
     }
@@ -573,7 +707,7 @@ struct structural_rec_fn {
         expr fn = mk_function(R.m_fn);
         if (m_header.m_lemmas) {
             lean_assert(!m_header.m_is_meta);
-            mk_lemmas(fn, R.m_fn, R.m_lemmas);
+            mk_lemmas(fn, R.m_lemmas);
         }
         return some_expr(fn);
     }

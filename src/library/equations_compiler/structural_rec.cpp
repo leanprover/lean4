@@ -813,7 +813,7 @@ struct structural_rec_fn {
             trace_struct(tout() << "lemma:\n" << new_type << "\n";);
             expr new_proof  = prove_eqn_lemma(ctx, new_locals, new_lhs, new_rhs);
             name lemma_name = base_name + name("eqn").append_after(eqn_idx);
-            m_env           = mk_equation_lemma(m_env, m_mctx, m_lctx, m_header.m_is_private,
+            m_env           = mk_equation_lemma(m_env, m_opts, m_mctx, m_lctx, m_header.m_is_private,
                                                 lemma_name, new_type, new_proof);
             eqn_idx++;
         }

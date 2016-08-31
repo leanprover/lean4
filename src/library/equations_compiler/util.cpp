@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/sexpr/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/find_fn.h"
@@ -12,10 +13,21 @@ Author: Leonardo de Moura
 #include "library/private.h"
 #include "library/aux_definition.h"
 #include "library/scope_pos_info_provider.h"
+#include "library/tactic/defeq_simplifier/defeq_simplifier.h"
 #include "library/equations_compiler/equations.h"
 #include "library/equations_compiler/util.h"
 
+#ifndef LEAN_DEFAULT_EQN_COMPILER_DSIMP
+#define LEAN_DEFAULT_EQN_COMPILER_DSIMP true
+#endif
+
 namespace lean {
+static name * g_eqn_compiler_dsimp = nullptr;
+
+static bool get_eqn_compiler_dsimp(options const & o) {
+    return o.get_bool(*g_eqn_compiler_dsimp, LEAN_DEFAULT_EQN_COMPILER_DSIMP);
+}
+
 [[ noreturn ]] void throw_ill_formed_eqns() {
     throw exception("ill-formed match/equations expression");
 }
@@ -198,14 +210,37 @@ pair<environment, expr> mk_aux_definition(environment const & env, metavar_conte
     return mk_aux_definition(new_env, mctx, lctx, new_c, type, value);
 }
 
-environment mk_equation_lemma(environment const & env, metavar_context const & mctx, local_context const & lctx,
+environment mk_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
                               bool is_private, name const & c, expr const & type, expr const & value) {
     environment new_env = env;
     name new_c;
     std::tie(new_env, new_c) = mk_def_name(env, is_private, c);
     expr r;
-    std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_c, type, value);
+    expr new_type  = type;
+    bool use_dsimp = get_eqn_compiler_dsimp(opts);
+    if (use_dsimp) {
+        try {
+            type_context ctx(env, opts, mctx, lctx, transparency_mode::None);
+            new_type = defeq_simplify(ctx, type);
+        } catch (exception &) {
+            throw exception("equation compiler failed to simplify type of automatically generated lemma using defeq simplifier "
+                            "(possible solutions: use `set_option trace.defeq_simplifier true` to diagnose the problen; "
+                            "disable simplification step using `set_option eqn_compiler.dsimp false`)");
+        }
+    }
+    std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_c, new_type, value);
     // TODO(Leo): add simp (and dsimp) rule
     return new_env;
+}
+
+void initialize_eqn_compiler_util() {
+    g_eqn_compiler_dsimp = new name{"eqn_compiler", "dsimp"};
+    register_bool_option(*g_eqn_compiler_dsimp, LEAN_DEFAULT_EQN_COMPILER_DSIMP,
+                         "(equation compiler) use defeq simplifier to cleanup types of "
+                         "automatically synthesized equational lemmas");
+}
+
+void finalize_eqn_compiler_util() {
+    delete g_eqn_compiler_dsimp;
 }
 }

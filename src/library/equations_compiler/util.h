@@ -75,6 +75,9 @@ bool is_recursive_eqns(type_context & ctx, expr const & e);
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
                                           bool is_private, name const & c, expr const & type, expr const & value);
 
-environment mk_equation_lemma(environment const & env, metavar_context const & mctx, local_context const & lctx,
+environment mk_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
                               bool is_private, name const & c, expr const & type, expr const & value);
+
+void initialize_eqn_compiler_util();
+void finalize_eqn_compiler_util();
 }

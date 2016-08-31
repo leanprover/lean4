@@ -29,16 +29,27 @@ struct structural_rec_fn {
     metavar_context  m_mctx;
     local_context    m_lctx;
 
+    expr             m_ref;
     equations_header m_header;
     expr             m_fn_type;
     unsigned         m_arity;
     unsigned         m_arg_pos;
+    bool             m_reflexive;
+    bool             m_use_ibelow;
     buffer<unsigned> m_indices_pos;
     expr             m_motive_type;
 
     structural_rec_fn(environment const & env, options const & opts,
                       metavar_context const & mctx, local_context const & lctx):
         m_env(env), m_opts(opts), m_mctx(mctx), m_lctx(lctx) {
+    }
+
+    [[ noreturn ]] void throw_error(char const * msg) {
+        throw_generic_exception(msg, m_ref);
+    }
+
+    [[ noreturn ]] void throw_error(sstream const & strm) {
+        throw_generic_exception(strm, m_ref);
     }
 
     type_context mk_type_context() {
@@ -173,8 +184,10 @@ struct structural_rec_fn {
 
     /* Return true iff argument arg_idx is a candidate for structural recursion.
        If the argument type is an indexed family, we store the position of the
-       indices (in the function being defined) in the buffer idx_positions.*/
-    bool check_arg_type(type_context & ctx, unpack_eqns const & ues, unsigned arg_idx, buffer<unsigned> & idx_positions) {
+       indices (in the function being defined) at m_indices_pos.
+       This method also updates m_reflexive (true iff the inductive datatype is reflexive). */
+    bool check_arg_type(type_context & ctx, unpack_eqns const & ues, unsigned arg_idx) {
+        m_indices_pos.clear();
         type_context::tmp_locals locals(ctx);
         /* We can only use structural recursion on arg_idx IF
            1- Type is an inductive datatype with support for the brec_on construction.
@@ -196,13 +209,22 @@ struct structural_rec_fn {
                          << arg_type << "\n";);
             return false;
         }
-        if (!m_env.find(name(const_name(I), "brec_on"))) {
+        name I_name   = const_name(I);
+        m_reflexive   = is_reflexive_datatype(ctx, I_name);
+        if (!m_env.find(name(I_name, "brec_on"))) {
             trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
                          << "for '" << fn << "' because the inductive type '" << I << "' does have brec_on recursor\n  "
                          << arg_type << "\n";);
             return false;
         }
-        unsigned nindices = *inductive::get_num_indices(m_env, const_name(I));
+        if (m_reflexive && !m_env.find(name(I_name, "binduction_on"))) {
+            trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
+                         << "for '" << fn << "' because the reflexive inductive type '" << I << "' does "
+                         << "have binduction_on recursor\n  "
+                         << arg_type << "\n";);
+            return false;
+        }
+        unsigned nindices = *inductive::get_num_indices(m_env, I_name);
         if (nindices > 0) {
             lean_assert(I_args.size() >= nindices);
             for (unsigned i = I_args.size() - nindices; i < I_args.size(); i++) {
@@ -233,7 +255,8 @@ struct structural_rec_fn {
                 /* Index can only depend on other indices in the function being defined. */
                 expr idx_type = ctx.infer(idx);
                 for (unsigned j = 0; j < idx_pos; j++) {
-                    bool j_is_not_index = std::find(idx_positions.begin(), idx_positions.end(), j) == idx_positions.end();
+                    bool j_is_not_index =
+                        std::find(m_indices_pos.begin(), m_indices_pos.end(), j) == m_indices_pos.end();
                     if (j_is_not_index && depends_on(idx_type, xs[j])) {
                         trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
                                      << "for '" << fn << "' because the inductive type '" << I << "' is an indexed family, "
@@ -243,7 +266,7 @@ struct structural_rec_fn {
                         return false;
                     }
                 }
-                idx_positions.push_back(idx_pos);
+                m_indices_pos.push_back(idx_pos);
                 /* Each index can only occur once */
                 for (unsigned j = 0; j < i; j++) {
                     expr const & prev_idx = I_args[j];
@@ -276,8 +299,7 @@ struct structural_rec_fn {
         buffer<expr> const & eqns = ues.get_eqns_of(0);
         unsigned arity = ues.get_arity_of(0);
         for (unsigned i = 0; i < arity; i++) {
-            m_indices_pos.clear();
-            if (check_arg_type(ctx, ues, i, m_indices_pos)) {
+            if (check_arg_type(ctx, ues, i)) {
                 bool ok = true;
                 for (expr const & eqn : eqns) {
                     if (!check_eq(ctx, eqn, i)) {
@@ -323,15 +345,49 @@ struct structural_rec_fn {
         I_params.shrink(I_params.size() - nindices);
         expr  motive = ctx.mk_pi(other_args, fn_type);
         level u      = get_level(ctx, motive);
-        motive       = ctx.mk_lambda(idx_args, ctx.mk_lambda(rec_arg, motive));
+        if (m_reflexive) {
+            if (!is_zero(u) && !is_not_zero(u))
+                throw_error(sstream() << "invalid equations, "
+                            << "when trying to recurse over reflexive inductive datatype "
+                            << "'" << const_name(I) << "' "
+                            << "(argument #" << (m_arg_pos+1) << ") "
+                            << "the universe level of the resultant universe must be zero OR "
+                            << "not zero for every level assignment "
+                            << "(possible solutions: provide universe levels explicitly, "
+                            << "or force well_founded recursion by using `using_well_founded` keyword)");
+            if (!is_zero(u)) {
+                // For reflexive type, the type of brec_on and ibelow perform a +1 on the motive universe.
+                // Example: for a reflexive formula type, we have:
+                //     formula.below.{l_1} : Π {C : formula → Type.{l_1+1}}, formula → Type.{max (l_1+1) 1}
+                if (auto dlvl = dec_level(u)) {
+                    u = *dlvl;
+                } else {
+                    throw_error(sstream() << "invalid equations, "
+                                << "when trying to recurse over reflexive inductive datatype "
+                                << "'" << const_name(I) << "' "
+                                << "(argument #" << (m_arg_pos+1) << ") "
+                                << "the universe level of the resultant universe must be zero OR "
+                                << "not zero for every level assignment. "
+                                << "The compiler managed to establish that the resultant "
+                                << "universe level u := (" << u << ") is never zero, but failed to compute "
+                                << "the new resulting level (u - 1) "
+                                << "(possible solutions: provide universe levels explicitly, "
+                                << "or force well_founded recursion by using `using_well_founded` keyword)");
+                }
+            }
+        }
+        m_use_ibelow    = m_reflexive && is_zero(u);
+        motive          = ctx.mk_lambda(idx_args, ctx.mk_lambda(rec_arg, motive));
         lean_assert(is_constant(I));
         buffer<level> below_lvls;
-        below_lvls.push_back(u);
+        if (!m_use_ibelow)
+            below_lvls.push_back(u);
         for (level const & v : const_levels(I))
             below_lvls.push_back(v);
-        expr below    = mk_app(mk_constant(name(const_name(I), "below"), to_list(below_lvls)), I_params);
-        m_motive_type = binding_domain(ctx.relaxed_whnf(ctx.infer(below)));
-        below         = mk_app(mk_app(mk_app(below, motive), idx_args), rec_arg);
+        name below_name = name(const_name(I), m_use_ibelow ? "ibelow" : "below");
+        expr below      = mk_app(mk_constant(below_name, to_list(below_lvls)), I_params);
+        m_motive_type   = binding_domain(ctx.relaxed_whnf(ctx.infer(below)));
+        below           = mk_app(mk_app(mk_app(below, motive), idx_args), rec_arg);
         locals.push_local("_F", below);
         return locals.mk_pi(fn_type);
     }
@@ -523,7 +579,8 @@ struct structural_rec_fn {
         buffer<expr> below_args;
         expr below        = get_app_args(below_type, below_args);
         expr motive       = below_args[nparams];
-        expr brec_on_fn   = mk_constant(name(I_name, "brec_on"), const_levels(below));
+        name brec_on_name = name(I_name, m_use_ibelow ? "binduction_on" : "brec_on");
+        expr brec_on_fn   = mk_constant(brec_on_name, const_levels(below));
         buffer<expr> brec_on_args;
         buffer<expr> F_domain; /* domain for F argument for brec_on */
         brec_on_args.append(nparams, I_args.data());
@@ -608,8 +665,8 @@ struct structural_rec_fn {
         }
 
         /* Return the ith recursive argument of \c e */
-        expr get_ith_rec_arg(expr const & e, unsigned ith) {
-            buffer<expr> rec_args;
+        pair<expr, unsigned> get_ith_rec_arg(expr const & e, unsigned ith) {
+            buffer<pair<expr, unsigned>> rec_args;
             if (get_constructor_rec_args(m_ctx.env(), e, rec_args)) {
                 lean_assert(ith < rec_args.size());
                 return rec_args[ith];
@@ -618,7 +675,7 @@ struct structural_rec_fn {
         }
 
         /* Auxiliary method for decode_rec_arg */
-        expr decode_rec_arg_core(expr const & e, unsigned i, buffer<unsigned> const & path) {
+        pair<expr, unsigned> decode_rec_arg_core(expr const & e, unsigned i, buffer<unsigned> const & path) {
             unsigned rec_arg_idx = 0;
             while (true) {
                 lean_assert(i < path.size());
@@ -628,12 +685,12 @@ struct structural_rec_fn {
                 i++;
             }
             i++;
-            expr new_e = get_ith_rec_arg(e, rec_arg_idx);
+            auto result = get_ith_rec_arg(e, rec_arg_idx);
             if (path[i] == 1) {
-                return new_e;
+                return result;
             } else {
                 i++;
-                return decode_rec_arg_core(new_e, i, path);
+                return decode_rec_arg_core(result.first, i, path);
             }
         }
 
@@ -651,8 +708,24 @@ struct structural_rec_fn {
 
                 (node (node n₁ n₂ n₃) n₄ n₅).
 
-           Then, the result of this method is the term n₃ */
-        expr decode_rec_arg(buffer<unsigned> const & path) {
+           Then, the result of this method is the pair (n₃, 0).
+
+           The unsigned value is only relevant for reflexive inductive types.
+
+           Example: consider the reflexive inductive datatype
+
+           inductive inftree (A : Type)
+           | leaf : A → inftree
+           | node : (nat → inftree) → inftree
+
+           and the term (F.1.1). We extract the path [1,1] for this term.
+           Now, assume the recursive argument in the left-hand-side is
+
+                (node f).
+
+           Then, the result of this method is the pair (f, 1).
+           The value 1 indicates that f takes one argument. */
+        pair<expr, unsigned> decode_rec_arg(buffer<unsigned> const & path) {
             return decode_rec_arg_core(m_lhs_rec_arg, 0, path);
         }
 
@@ -663,7 +736,12 @@ struct structural_rec_fn {
                 buffer<unsigned> path;
                 if (is_F_instance(args[2], path)) {
                     path.push_back(1);
-                    expr rec_arg          = decode_rec_arg(path);
+                    unsigned b_next_idx   = 3; /* pr1 A B F b_1 ... */
+                    expr rec_arg; unsigned rec_arg_arity;
+                    std::tie(rec_arg, rec_arg_arity) = decode_rec_arg(path);
+                    for (unsigned i = 0; i < rec_arg_arity; i++, b_next_idx++) {
+                        rec_arg = mk_app(rec_arg, args[b_next_idx]);
+                    }
                     expr rec_arg_type     = m_ctx.relaxed_whnf(m_ctx.infer(rec_arg));
                     buffer<expr> I_args;
                     expr const & I        = get_app_args(rec_arg_type, I_args);
@@ -673,8 +751,7 @@ struct structural_rec_fn {
                     unsigned nindices     = m_indices_pos.size();
                     lean_assert(*inductive::get_num_indices(env(), I_name) == m_indices_pos.size());
                     unsigned I_next_idx   = I_args.size() - nindices;
-                    unsigned b_next_idx   = 3; /* pr1 A B F b_1 ... */
-                    unsigned new_nargs    = nindices + 1 + args.size() - 3;
+                    unsigned new_nargs    = nindices + 1 + args.size() - b_next_idx;
                     buffer<expr> new_args;
                     for (unsigned i = 0; i < new_nargs; i++) {
                         if (i == m_arg_pos) {
@@ -743,6 +820,7 @@ struct structural_rec_fn {
     }
 
     optional<expr> operator()(expr const & eqns) {
+        m_ref    = eqns;
         m_header = get_equations_header(eqns);
         auto new_eqns = elim_recursion(eqns);
         if (!new_eqns) return none_expr();

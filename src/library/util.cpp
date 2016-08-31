@@ -985,8 +985,7 @@ expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_k
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-/* Return the ith recursive argument of constructor application \c e */
-bool get_constructor_rec_args(environment const & env, expr const & e, buffer<expr> & rec_args) {
+bool get_constructor_rec_args(environment const & env, expr const & e, buffer<pair<expr, unsigned>> & rec_args) {
     type_checker ctx(env);
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);
@@ -1003,7 +1002,7 @@ bool get_constructor_rec_args(environment const & env, expr const & e, buffer<ex
         expr r  = to_telescope(ctx, mlocal_type(d), tele_tele);
         expr fn = get_app_fn(r);
         if (is_constant(fn, *I_name)) {
-            rec_args.push_back(args[i]);
+            rec_args.push_back(mk_pair(args[i], tele_tele.size()));
         }
     }
     return true;

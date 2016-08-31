@@ -350,6 +350,11 @@ vm_obj tactic_defeq_simp(vm_obj const & m, vm_obj const & e, vm_obj const & s0) 
     LEAN_TACTIC_CATCH(s);
 }
 
+expr defeq_simplify(type_context & ctx, expr const & e) {
+    defeq_simp_lemmas lemmas  = get_defeq_simp_lemmas(ctx.env());
+    return defeq_simplify(ctx, lemmas, e);
+}
+
 /* Setup and teardown */
 void initialize_defeq_simplifier() {
     DECLARE_VM_BUILTIN(name({"tactic", "defeq_simp_core"}), tactic_defeq_simp);

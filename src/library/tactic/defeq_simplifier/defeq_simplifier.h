@@ -10,6 +10,7 @@ Author: Daniel Selsam
 
 namespace lean {
 expr defeq_simplify(type_context & ctx, defeq_simp_lemmas const & simp_lemmas, expr const & e);
+expr defeq_simplify(type_context & ctx, expr const & e);
 void initialize_defeq_simplifier();
 void finalize_defeq_simplifier();
 }

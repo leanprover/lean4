@@ -985,6 +985,30 @@ expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_k
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
+/* Return the ith recursive argument of constructor application \c e */
+bool get_constructor_rec_args(environment const & env, expr const & e, buffer<expr> & rec_args) {
+    type_checker ctx(env);
+    buffer<expr> args;
+    expr const & fn = get_app_args(e, args);
+    if (!is_constant(fn)) return false;
+    optional<name> I_name = inductive::is_intro_rule(env, const_name(fn));
+    if (!I_name) return false;
+    expr type       = env.get(const_name(fn)).get_type();
+    buffer<expr> tele;
+    to_telescope(ctx, type, tele);
+    if (tele.size() != args.size()) return false;
+    for (unsigned i = 0; i < tele.size(); i++) {
+        expr d = tele[i];
+        buffer<expr> tele_tele;
+        expr r  = to_telescope(ctx, mlocal_type(d), tele_tele);
+        expr fn = get_app_fn(r);
+        if (is_constant(fn, *I_name)) {
+            rec_args.push_back(args[i]);
+        }
+    }
+    return true;
+}
+
 void initialize_library_util() {
     g_true           = new expr(mk_constant(get_true_name()));
     g_true_intro     = new expr(mk_constant(get_true_intro_name()));

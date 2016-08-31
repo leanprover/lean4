@@ -92,6 +92,9 @@ unsigned get_constructor_idx(environment const & env, name const & n);
     the constructor named \c n. */
 unsigned get_num_inductive_hypotheses_for(environment const & env, name const & n);
 
+/* Return the ith recursive argument of constructor application \c e */
+bool get_constructor_rec_args(environment const & env, expr const & e, buffer<expr> & rec_args);
+
 /** \brief Given an expression \c e, return the number of arguments expected arguments.
 
     \remark This function computes the type of \c e, and then counts the number of nested

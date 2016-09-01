@@ -85,7 +85,7 @@ class type_context_cache {
        Then, the first time type class resolution is invoked, we collect local_instances,
        if they are equal to the ones in m_local_instances, we do nothing. Otherwise,
        we reset m_local_instances with the new local_instances, and reset the cache m_local_instances. */
-    std::vector<pair<name, expr>> m_local_instances;
+    list<pair<name, expr>>        m_local_instances;
     instance_cache                m_instance_cache;
     subsingleton_cache            m_subsingleton_cache;
 

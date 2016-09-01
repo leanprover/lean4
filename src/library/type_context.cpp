@@ -230,8 +230,10 @@ type_context::~type_context() {
 void type_context::set_env(environment const & env) {
     options o = m_cache->m_options;
     if (m_cache_manager) {
+        auto saved_local_instances = m_cache->m_local_instances;
         m_cache_manager->recycle(m_cache);
         m_cache = m_cache_manager->mk(env, o);
+        m_cache->m_local_instances = saved_local_instances;
     } else {
         m_cache = mk_cache(env, o, false);
     }
@@ -2301,25 +2303,25 @@ optional<name> type_context::is_class(expr const & type) {
 }
 
 bool type_context::compatible_local_instances(local_context const & lctx) {
-    unsigned i  = 0;
     bool failed = false;
+    auto it     = m_cache->m_local_instances;
     lctx.for_each([&](local_decl const & decl) {
             if (failed) return;
             if (auto cname = is_class(decl.get_type())) {
-                if (i == m_cache->m_local_instances.size()) {
+                if (!it) {
                     /* initial local context has more local instances than the ones cached at found m_local_instances */
                     failed = true;
                     return;
                 }
-                if (decl.get_name() != mlocal_name(m_cache->m_local_instances[i].second)) {
+                if (decl.get_name() != mlocal_name(head(it).second)) {
                     /* local instance in initial local constext is not compatible with the one cached at m_local_instances */
                     failed = true;
                     return;
                 }
-                i++;
+                it = tail(it);
             }
         });
-    return !failed && i == m_cache->m_local_instances.size();
+    return !failed && !it;
 }
 
 local_context const & type_context::initial_lctx() const {
@@ -2329,12 +2331,13 @@ local_context const & type_context::initial_lctx() const {
 void type_context::set_local_instances() {
     m_cache->m_instance_cache.clear();
     m_cache->m_subsingleton_cache.clear();
-    m_cache->m_local_instances.clear();
+    buffer<pair<name, expr>> new_instances;
     m_init_local_context.for_each([&](local_decl const & decl) {
             if (auto cls_name = is_class(decl.get_type())) {
-                m_cache->m_local_instances.emplace_back(*cls_name, decl.mk_ref());
+                new_instances.emplace_back(*cls_name, decl.mk_ref());
             }
         });
+    m_cache->m_local_instances = to_list(new_instances);
 }
 
 void type_context::init_local_instances() {

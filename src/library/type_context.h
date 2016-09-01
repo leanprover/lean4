@@ -131,6 +131,7 @@ typedef std::shared_ptr<type_context_cache> type_context_cache_ptr;
 class type_context_cache_manager {
     type_context_cache_ptr m_cache_ptr;
     unsigned               m_reducibility_fingerprint;
+    unsigned               m_instance_fingerprint;
     environment            m_env;
     unsigned               m_max_depth;
     bool                   m_use_bi;

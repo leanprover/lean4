@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 -/
 prelude
-import init.datatypes init.reserved_notation
+import init.datatypes
 set_option simplify.theory false
 
 attribute [reducible, unfold_full]

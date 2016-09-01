@@ -12,5 +12,5 @@ import init.monad init.option init.state init.fin init.list init.char init.strin
 import init.monad_combinators
 import init.timeit init.trace init.unsigned init.ordering init.list_classes init.coe
 import init.wf init.nat_div init.meta init.instances
-import init.wf_k init.sigma_lex init.sizeof
+import init.wf_k init.sigma_lex
 import init.simplifier

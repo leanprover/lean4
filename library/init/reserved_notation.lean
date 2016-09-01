@@ -105,9 +105,6 @@ definition std.priority.max     : num := 4294967295
 namespace nat
   protected definition prio := num.add std.priority.default 100
 
-  protected definition add (a b : nat) : nat :=
-  nat.rec a (λ b₁ r, succ r) b
-
   definition of_num (n : num) : nat :=
   num.rec zero
     (λ n, pos_num.rec (succ zero) (λ n r, nat.add (nat.add r r) (succ zero)) (λ n r, nat.add r r) n) n

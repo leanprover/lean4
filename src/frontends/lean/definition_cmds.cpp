@@ -221,8 +221,8 @@ static expr_pair elaborate_definition(parser & p, elaborator & elab, def_cmd_kin
 }
 
 static void finalize_definition(elaborator & elab, buffer<expr> const & params, expr & type, expr & val, buffer<name> & lp_names) {
-    type = elab.ctx().mk_pi(params, type);
-    val  = elab.ctx().mk_lambda(params, val);
+    type = elab.mk_pi(params, type);
+    val  = elab.mk_lambda(params, val);
     buffer<expr> type_val;
     buffer<name> implicit_lp_names;
     type_val.push_back(type);

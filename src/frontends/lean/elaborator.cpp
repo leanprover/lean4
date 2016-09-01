@@ -728,7 +728,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
         --i;
         expr new_arg      = instantiate_mvars(new_args[i]);
         expr new_arg_type = instantiate_mvars(infer_type(new_arg));
-        expected_type     = mk_pi("_a", new_arg_type, kabstract(m_ctx, expected_type, new_arg));
+        expected_type     = ::lean::mk_pi("_a", new_arg_type, kabstract(m_ctx, expected_type, new_arg));
         extra_args.push_back(new_arg);
     }
     new_args.shrink(i);
@@ -746,7 +746,7 @@ expr elaborator::visit_elim_app(expr const & fn, elim_info const & info, buffer<
         --i;
         expr k = instantiate_mvars(keys[i]);
         expr k_type    = infer_type(k);
-        motive = mk_lambda("_x", k_type, kabstract(m_ctx, motive, k));
+        motive = ::lean::mk_lambda("_x", k_type, kabstract(m_ctx, motive, k));
     }
     trace_elab_debug(tout() << "motive:\n  " << instantiate_mvars(motive) << "\n";);
 
@@ -1221,7 +1221,7 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
             --i;
             expr new_arg      = instantiate_mvars(new_args[i]);
             expr new_arg_type = instantiate_mvars(infer_type(new_arg));
-            new_fn_type       = mk_pi("_a", new_arg_type, kabstract(m_ctx, new_fn_type, new_arg));
+            new_fn_type       = ::lean::mk_pi("_a", new_arg_type, kabstract(m_ctx, new_fn_type, new_arg));
         }
     } else {
         // User provided some typing information for the match

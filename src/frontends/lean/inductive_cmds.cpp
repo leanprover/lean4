@@ -48,9 +48,9 @@ static name * g_tmp_prefix  = nullptr;
 
 static name tmp_global_univ_name() { return name(*g_tmp_prefix, "u"); }
 
-static void convert_params_to_kernel(type_context & tctx, buffer<expr> const & lctx_params, buffer<expr> & kernel_params) {
+static void convert_params_to_kernel(elaborator & elab, buffer<expr> const & lctx_params, buffer<expr> & kernel_params) {
     for (unsigned i = 0; i < lctx_params.size(); ++i) {
-        expr new_type = replace_locals(tctx.infer(lctx_params[i]), i, lctx_params.data(), kernel_params.data());
+        expr new_type = replace_locals(elab.infer_type(lctx_params[i]), i, lctx_params.data(), kernel_params.data());
         kernel_params.push_back(update_mlocal(lctx_params[i], new_type));
     }
 }
@@ -281,7 +281,8 @@ class inductive_cmd_fn {
 
     void elaborate_inductive_decls(buffer<expr> const & params, buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules,
                                    buffer<expr> & new_params, buffer<expr> & new_inds, buffer<buffer<expr> > & new_intro_rules) {
-        elaborator elab(m_env, m_p.get_options(), metavar_context(), local_context());
+        options opts = m_p.get_options();
+        elaborator elab(m_env, opts, metavar_context(), local_context());
 
         buffer<expr> params_no_inds;
         for (expr const & p : params) {
@@ -292,7 +293,7 @@ class inductive_cmd_fn {
         buffer<expr> elab_params;
         elaborate_params(elab, params_no_inds, elab_params);
 
-        convert_params_to_kernel(elab.ctx(), elab_params, new_params);
+        convert_params_to_kernel(elab, elab_params, new_params);
 
         for (expr const & ind : inds) {
             expr new_ind_type = mlocal_type(ind);

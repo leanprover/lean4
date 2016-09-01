@@ -90,7 +90,6 @@ private:
     format pp_indent(expr const & e);
     format pp_overloads(pp_fn const & pp_fn, buffer<expr> const & fns);
 
-    expr infer_type(expr const & e) { return m_ctx.infer(e); }
     expr whnf(expr const & e) { return m_ctx.whnf(e); }
     expr try_to_pi(expr const & e) { return m_ctx.try_to_pi(e); }
     bool is_def_eq(expr const & e1, expr const & e2) { return m_ctx.is_def_eq(e1, e2); }
@@ -201,15 +200,16 @@ private:
 
     void unassigned_uvars_to_params(level const & l);
     void unassigned_uvars_to_params(expr const & e);
-
 public:
     elaborator(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx);
     metavar_context const & mctx() const { return m_ctx.mctx(); }
     local_context const & lctx() const { return m_ctx.lctx(); }
-    type_context & ctx() { return m_ctx; }
     expr push_local(name const & n, expr const & type, binder_info const & bi = binder_info()) {
         return m_ctx.push_local(n, type, bi);
     }
+    expr mk_pi(buffer<expr> const & params, expr const & type) { return m_ctx.mk_pi(params, type); }
+    expr mk_lambda(buffer<expr> const & params, expr const & type) { return m_ctx.mk_lambda(params, type); }
+    expr infer_type(expr const & e) { return m_ctx.infer(e); }
     expr elaborate(expr const & e);
     expr elaborate_type(expr const & e);
     expr_pair elaborate_with_type(expr const & e, expr const & e_type);

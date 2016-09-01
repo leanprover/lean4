@@ -1,4 +1,3 @@
-exit -- TODO(Leo): enable this test after we have sizeof instance generation in the inductive module
 open tactic
 
 example : sizeof [tt, tt] < sizeof [tt, ff, tt] :=

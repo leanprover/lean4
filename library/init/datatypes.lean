@@ -73,67 +73,6 @@ or.inr Hb
 structure sigma {A : Type} (B : A → Type) :=
 mk :: (pr1 : A) (pr2 : B pr1)
 
--- Remark: we manually generate the nat.rec_on, nat.induction_on, nat.cases_on and nat.no_confusion.
--- We do that because we want 0 instead of nat.zero in these eliminators.
-set_option inductive.rec_on   false
-set_option inductive.cases_on false
-
-inductive nat
-| zero : nat
-| succ : nat → nat
-
-set_option inductive.rec_on   true
-set_option inductive.cases_on true
-
-protected definition nat.add (a b : nat) : nat :=
-nat.rec a (λ b₁ r, nat.succ r) b
-
-structure [class] has_sizeof (A : Type) :=
-(sizeof : A → nat)
-
-definition sizeof {A : Type} [s : has_sizeof A] : A → nat :=
-has_sizeof.sizeof
-
-attribute [instance]
-definition prop_has_sizeof (p : Prop) : has_sizeof p :=
-has_sizeof.mk (λ t, nat.zero)
-
-attribute [instance]
-definition Type_has_sizeof : has_sizeof Type :=
-has_sizeof.mk (λ t, nat.zero)
-
-attribute [instance]
-definition Prop_has_sizeof : has_sizeof Prop :=
-has_sizeof.mk (λ t, nat.zero)
-
-attribute [instance]
-definition nat_has_sizeof : has_sizeof nat :=
-has_sizeof.mk (λ a, a)
-
-attribute [instance]
-definition prod_has_sizeof (A B : Type) [has_sizeof A] [has_sizeof B] : has_sizeof (prod A B) :=
-has_sizeof.mk (λ p, prod.cases_on p (λ a b, nat.add (nat.add (sizeof a) (sizeof b)) (nat.succ nat.zero)))
-
-attribute [instance]
-definition sum_has_sizeof (A B : Type) [has_sizeof A] [has_sizeof B] : has_sizeof (sum A B) :=
-has_sizeof.mk (λ s, sum.cases_on s (λ a, nat.succ (sizeof a)) (λ b, nat.succ (sizeof b)))
-
-attribute [instance]
-definition sigma_has_sizeof (A : Type) (B : A → Type) [has_sizeof A] [∀ a, has_sizeof (B a)] : has_sizeof (sigma B) :=
-has_sizeof.mk (λ p, sigma.cases_on p (λ a b, nat.add (nat.add (sizeof a) (sizeof b)) (nat.succ nat.zero)))
-
-attribute [instance]
-definition fn_has_sizeof (A : Type) (B : A → Type) : has_sizeof (Π x, B x) :=
-has_sizeof.mk (λf, nat.zero)
-
-attribute [instance]
-definition unit_has_sizeof : has_sizeof unit :=
-has_sizeof.mk (λ u, nat.succ nat.zero)
-
-attribute [instance]
-definition poly_unit_has_sizeof : has_sizeof poly_unit :=
-has_sizeof.mk (λ u, nat.succ nat.zero)
-
 -- pos_num and num are two auxiliary datatypes used when parsing numerals such as 13, 0, 26.
 -- The parser will generate the terms (pos (bit1 (bit1 (bit0 one)))), zero, and (pos (bit0 (bit1 (bit1 one)))).
 -- This representation can be coerced in whatever we want (e.g., naturals, integers, reals, etc).
@@ -171,6 +110,19 @@ export bool (ff tt)
 inductive list (T : Type) : Type
 | nil {} : list
 | cons   : T → list → list
+
+section
+-- Remark: we manually generate the nat.rec_on, nat.induction_on, nat.cases_on and nat.no_confusion.
+-- We do that because we want 0 instead of nat.zero in these eliminators.
+  set_option inductive.rec_on   false
+  set_option inductive.cases_on false
+
+  inductive nat
+  | zero : nat
+  | succ : nat → nat
+end
+
+/- Declare builtin and reserved notation -/
 
 notation `assume` binders `,` r:(scoped f, f) := r
 notation `take`   binders `,` r:(scoped f, f) := r
@@ -271,9 +223,14 @@ definition std.priority.max     : num := 4294967295
 namespace nat
   protected definition prio := num.add std.priority.default 100
 
+  protected definition add (a b : nat) : nat :=
+  nat.rec a (λ b₁ r, nat.succ r) b
+
+  definition of_pos_num (p : pos_num) : nat :=
+  pos_num.rec (succ zero) (λ n r, nat.add (nat.add r r) (succ zero)) (λ n r, nat.add r r) p
+
   definition of_num (n : num) : nat :=
-  num.rec zero
-    (λ n, pos_num.rec (succ zero) (λ n r, nat.add (nat.add r r) (succ zero)) (λ n r, nat.add r r) n) n
+  num.rec zero (λ p, of_pos_num p) n
 end nat
 
 attribute pos_num_has_add pos_num_has_one num_has_zero num_has_one num_has_add
@@ -395,3 +352,175 @@ infix <    := lt
 infix >    := gt
 infix ++   := append
 infix ;    := andthen
+
+/- eq basic support -/
+notation a = b := eq a b
+
+attribute [pattern]
+definition rfl {A : Type} {a : A} : a = a := eq.refl a
+
+namespace eq
+  variables {A : Type}
+  variables {a b c a': A}
+
+  theorem subst {P : A → Prop} (H₁ : a = b) (H₂ : P a) : P b :=
+  eq.rec H₂ H₁
+
+  theorem trans (H₁ : a = b) (H₂ : b = c) : a = c :=
+  subst H₂ H₁
+
+  theorem symm : a = b → b = a :=
+  eq.rec (refl a)
+end eq
+
+notation H1 ▸ H2 := eq.subst H1 H2
+
+attribute eq.subst [subst]
+attribute eq.refl [refl]
+attribute eq.trans [trans]
+attribute eq.symm [symm]
+
+/- sizeof -/
+
+structure [class] has_sizeof (A : Type) :=
+(sizeof : A → nat)
+
+definition sizeof {A : Type} [s : has_sizeof A] : A → nat :=
+has_sizeof.sizeof
+
+/-
+Declare sizeof instances and lemmas for types declared before has_sizeof.
+From now on, the inductive compiler will automatically generate sizeof instances and lemmas.
+-/
+
+attribute [instance]
+definition Type_has_sizeof : has_sizeof Type :=
+has_sizeof.mk (λ t, nat.zero)
+
+attribute [simp, defeq]
+definition sizeof_Type_eq : sizeof Type = 0 :=
+rfl
+
+attribute [instance]
+definition Prop_has_sizeof : has_sizeof Prop :=
+has_sizeof.mk (λ t, nat.zero)
+
+attribute [simp, defeq]
+definition sizeof_Prop_eq : sizeof Prop = 0 :=
+rfl
+
+attribute [instance]
+definition proof_has_sizeof (p : Prop) : has_sizeof p :=
+has_sizeof.mk (λ t, nat.zero)
+
+attribute [simp, defeq]
+definition sizeof_proof_eq {p : Prop} (H : p) : sizeof H = 0 :=
+rfl
+
+attribute [instance]
+definition nat_has_sizeof : has_sizeof nat :=
+has_sizeof.mk (λ a, a)
+
+attribute [simp, defeq]
+definition sizeof_nat_eq (a : nat) : sizeof a = a :=
+rfl
+
+attribute [instance]
+definition prod_has_sizeof (A B : Type) [has_sizeof A] [has_sizeof B] : has_sizeof (prod A B) :=
+has_sizeof.mk (λ p, prod.cases_on p (λ a b, sizeof a + sizeof b + 1))
+
+attribute [simp, defeq]
+definition sizeof_prod_eq {A B : Type} [has_sizeof A] [has_sizeof B] (a : A) (b : B) : sizeof (prod.mk a b) = sizeof a + sizeof b + 1 :=
+rfl
+
+attribute [instance]
+definition sum_has_sizeof (A B : Type) [has_sizeof A] [has_sizeof B] : has_sizeof (sum A B) :=
+has_sizeof.mk (λ s, sum.cases_on s (λ a, sizeof a + 1) (λ b, sizeof b + 1))
+
+attribute [simp, defeq]
+definition sizeof_sum_eq_left {A B : Type} [has_sizeof A] [has_sizeof B] (a : A) : sizeof (@sum.inl A B a) = sizeof a + 1 :=
+rfl
+
+attribute [simp, defeq]
+definition sizeof_sum_eq_right {A B : Type} [has_sizeof A] [has_sizeof B] (b : B) : sizeof (@sum.inr A B b) = sizeof b + 1 :=
+rfl
+
+attribute [instance]
+definition sigma_has_sizeof (A : Type) (B : A → Type) [has_sizeof A] [∀ a, has_sizeof (B a)] : has_sizeof (sigma B) :=
+has_sizeof.mk (λ p, sigma.cases_on p (λ a b, sizeof a + sizeof b + 1))
+
+attribute [simp, defeq]
+definition sizeof_sigma_eq {A : Type} {B : A → Type} [has_sizeof A] [∀ a, has_sizeof (B a)] (a : A) (b : B a) : sizeof (@sigma.mk A B a b) = sizeof a + sizeof b + 1 :=
+rfl
+
+attribute [instance]
+definition fn_has_sizeof (A : Type) (B : A → Type) : has_sizeof (Π x, B x) :=
+has_sizeof.mk (λf, 0)
+
+attribute [simp, defeq]
+definition sizeof_fn_eq {A : Type} {B : A → Type} (f : Π a, B a) : sizeof f = 0 :=
+rfl
+
+attribute [instance]
+definition unit_has_sizeof : has_sizeof unit :=
+has_sizeof.mk (λ u, 1)
+
+attribute [simp, defeq]
+definition sizeof_unit_eq (u : unit) : sizeof u = 1 :=
+rfl
+
+attribute [instance]
+definition poly_unit_has_sizeof : has_sizeof poly_unit :=
+has_sizeof.mk (λ u, 1)
+
+attribute [simp, defeq]
+definition sizeof_poly_unit_eq (u : poly_unit) : sizeof u = 1 :=
+rfl
+
+attribute [instance]
+definition bool_has_sizeof : has_sizeof bool :=
+has_sizeof.mk (λ u, 1)
+
+attribute [simp, defeq]
+definition sizeof_bool_eq (b : bool) : sizeof b = 1 :=
+rfl
+
+attribute [instance]
+definition pos_num_has_sizeof : has_sizeof pos_num :=
+has_sizeof.mk (λ p, nat.of_pos_num p)
+
+attribute [simp, defeq]
+definition sizeof_pos_num_eq (p : pos_num) : sizeof p = nat.of_pos_num p :=
+rfl
+
+attribute [instance]
+definition num_has_sizeof : has_sizeof num :=
+has_sizeof.mk (λ p, nat.of_num p)
+
+attribute [simp, defeq]
+definition sizeof_num_eq (n : num) : sizeof n = nat.of_num n :=
+rfl
+
+attribute [instance]
+definition option_has_sizeof (A : Type) [has_sizeof A] : has_sizeof (option A) :=
+has_sizeof.mk (λ o, option.cases_on o 1 (λ a, sizeof a + 1))
+
+attribute [simp, defeq]
+definition sizeof_option_none_eq (A : Type) [has_sizeof A] : sizeof (@none A) = 1 :=
+rfl
+
+attribute [simp, defeq]
+definition sizeof_option_some_eq {A : Type} [has_sizeof A] (a : A) : sizeof (some a) = sizeof a + 1 :=
+rfl
+
+attribute [instance]
+definition list_has_sizeof (A : Type) [has_sizeof A] : has_sizeof (list A) :=
+has_sizeof.mk (λ l, list.rec_on l 1 (λ a t ih, sizeof a + ih + 1))
+
+attribute [simp, defeq]
+definition sizeof_list_nil_eq (A : Type) [has_sizeof A] : sizeof (@list.nil A) = 1 :=
+rfl
+
+attribute [simp, defeq]
+definition sizeof_list_cons_eq {A : Type} [has_sizeof A] (a : A) (l : list A) : sizeof (list.cons a l) = sizeof a + sizeof l + 1 :=
+rfl

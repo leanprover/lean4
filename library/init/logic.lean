@@ -55,17 +55,12 @@ false.rec c H
 
 /- eq -/
 
-notation a = b := eq a b
-definition rfl {A : Type} {a : A} : a = a := eq.refl a
-
-attribute [pattern] rfl
-
-attribute [defeq]
-definition id.def {A : Type} (a : A) : id a = a := rfl
-
 -- proof irrelevance is built in
 theorem proof_irrel {a : Prop} (H₁ H₂ : a) : H₁ = H₂ :=
 rfl
+
+attribute [defeq]
+definition id.def {A : Type} (a : A) : id a = a := rfl
 
 -- Remark: we provide the universe levels explicitly to make sure `eq.drec` has the same type of `eq.rec` in the HoTT library
 protected theorem eq.drec.{l₁ l₂} {A : Type.{l₂}} {a : A} {C : Π (x : A), a = x → Type.{l₁}} (h₁ : C a (eq.refl a)) {b : A} (h₂ : a = b) : C b h₂ :=
@@ -78,15 +73,6 @@ namespace eq
   protected theorem drec_on {a : A} {C : Π (x : A), a = x → Type} {b : A} (h₂ : a = b) (h₁ : C a (refl a)) : C b h₂ :=
   eq.drec h₁ h₂
 
-  theorem subst {P : A → Prop} (H₁ : a = b) (H₂ : P a) : P b :=
-  eq.rec H₂ H₁
-
-  theorem trans (H₁ : a = b) (H₂ : b = c) : a = c :=
-  subst H₂ H₁
-
-  theorem symm : a = b → b = a :=
-  eq.rec (refl a)
-
   theorem substr {P : A → Prop} (H₁ : b = a) : P a → P b :=
   subst (symm H₁)
 
@@ -96,8 +82,6 @@ namespace eq
   theorem mpr {a b : Type} : (a = b) → b → a :=
   assume H₁ H₂, eq.rec_on (eq.symm H₁) H₂
 end eq
-
-notation H1 ▸ H2 := eq.subst H1 H2
 
 open eq
 
@@ -129,11 +113,6 @@ section
   theorem not_of_eq_false (H : p = false) : ¬p :=
   assume Hp, H ▸ Hp
 end
-
-attribute eq.subst [subst]
-attribute eq.refl [refl]
-attribute eq.trans [trans]
-attribute eq.symm [symm]
 
 attribute [inline]
 definition cast {A B : Type} (H : A = B) (a : A) : B :=

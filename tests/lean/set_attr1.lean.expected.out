@@ -1,0 +1,4 @@
+set_attr1.lean:15:0: error: tactic failed, result contains meta-variables
+state:
+n : ℕ
+⊢ f n = n + 1

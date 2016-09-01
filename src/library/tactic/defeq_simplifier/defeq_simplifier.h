@@ -9,6 +9,14 @@ Author: Daniel Selsam
 #include "library/tactic/defeq_simplifier/defeq_simp_lemmas.h"
 
 namespace lean {
+class defeq_simplifier_exception : public exception {
+public:
+    defeq_simplifier_exception(char const * msg):exception(msg) {}
+    defeq_simplifier_exception(sstream const & strm):exception(strm) {}
+    virtual throwable * clone() const override { return new defeq_simplifier_exception(m_msg.c_str()); }
+    virtual void rethrow() const override { throw *this; }
+};
+
 expr defeq_simplify(type_context & ctx, defeq_simp_lemmas const & simp_lemmas, expr const & e);
 expr defeq_simplify(type_context & ctx, expr const & e);
 void initialize_defeq_simplifier();

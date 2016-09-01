@@ -222,10 +222,12 @@ environment mk_equation_lemma(environment const & env, options const & opts, met
         try {
             type_context ctx(env, opts, mctx, lctx, transparency_mode::None);
             new_type = defeq_simplify(ctx, type);
-        } catch (exception &) {
-            throw exception("equation compiler failed to simplify type of automatically generated lemma using defeq simplifier "
-                            "(possible solutions: use `set_option trace.defeq_simplifier true` to diagnose the problen; "
-                            "disable simplification step using `set_option eqn_compiler.dsimp false`)");
+        } catch (defeq_simplifier_exception & ex) {
+            throw exception(sstream() <<
+                            "equation compiler failed to simplify type of automatically generated lemma using "
+                            "defeq simplifier "
+                            "(possible solution: disable simplification step using `set_option eqn_compiler.dsimp false`), "
+                            "defeq simplifier error message:\n" << ex.what());
         }
     }
     std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_c, new_type, value);

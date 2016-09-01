@@ -116,9 +116,14 @@ class defeq_simplify_fn {
 
             check_system("defeq_simplifier");
             m_num_simp_rounds++;
-            if (m_num_simp_rounds > m_max_simp_rounds)
-                throw exception("defeq_simplifier failed, maximum number of simp rounds exceeded");
-
+            if (m_num_simp_rounds > m_max_simp_rounds) {
+                throw defeq_simplifier_exception(sstream() <<
+                                                 "defeq simplifier failed, maximum number of simp rounds exceeded "
+                                                 "(possible solution: increase limit using "
+                                                 "`set_option defeq_simplify.max_simp_rounds <limit>`, "
+                                                 "the current limit is " << m_max_simp_rounds << ") "
+                                                 "(use `set_option trace.defeq_simplifier true` to obtain more information");
+            }
             if (m_memoize) {
                 if (auto it = cache_lookup(e)) return *it;
             }
@@ -233,9 +238,14 @@ class defeq_simplify_fn {
             check_system("defeq_simplifier");
 
             m_num_rewrite_rounds++;
-            if (m_num_rewrite_rounds > m_max_rewrite_rounds)
-                throw exception("defeq_simplifier failed, maximum number of rewrite rounds exceeded");
-
+            if (m_num_rewrite_rounds > m_max_rewrite_rounds) {
+                throw defeq_simplifier_exception(sstream() <<
+                                                 "defeq simplifier failed, maximum number of rewrite rounds exceeded "
+                                                 "(possible solution: increase limit using "
+                                                 "`set_option defeq_simplify.max_rewrite_rounds <limit>`, "
+                                                 "the current limit is " << m_max_rewrite_rounds << ") "
+                                                 "(use `set_option trace.defeq_simplifier true` to obtain more information");
+            }
             list<defeq_simp_lemma> const * simp_lemmas_ptr = m_simp_lemmas.find(e);
             if (!simp_lemmas_ptr) return e;
             buffer<defeq_simp_lemma> simp_lemmas;

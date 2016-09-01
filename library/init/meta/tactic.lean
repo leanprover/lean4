@@ -317,6 +317,15 @@ meta_constant generalize_core : transparency → expr → name → tactic unit
 meta_constant instantiate_mvars : expr → tactic expr
 /- Add the given declaration to the environment -/
 meta_constant add_decl : declaration → tactic unit
+/- (set_basic_attribute_core attr_name c_name prio) set attribute attr_name for constant c_name with the given priority.
+   If the priority is none, then use default -/
+meta_constant set_basic_attribute_core : name → name → option nat → tactic unit
+/- (unset_attribute attr_name c_name) -/
+meta_constant unset_attribute : name → name → tactic unit
+
+meta_definition set_basic_attribute : name → name → tactic unit :=
+λ a n, set_basic_attribute_core a n none
+
 open list nat
 
 /- Add (H : T := pr) to the current goal -/

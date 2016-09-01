@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 */
 #include <string>
+#include <limits>
 #include "util/sstream.h"
 #include "library/attribute_manager.h"
 #include "library/constants.h"
@@ -12,6 +13,8 @@ Author: Sebastian Ullrich
 #include "library/vm/vm_environment.h"
 #include "library/vm/vm_list.h"
 #include "library/vm/vm_name.h"
+#include "library/vm/vm_nat.h"
+#include "library/vm/vm_option.h"
 #include "library/vm/vm_string.h"
 #include "library/tactic/tactic_state.h"
 
@@ -84,7 +87,7 @@ public:
     }
 };
 
-static vm_obj attribute_get_instances(vm_obj const & vm_n, vm_obj const & vm_s) {
+vm_obj attribute_get_instances(vm_obj const & vm_n, vm_obj const & vm_s) {
     auto const & s = to_tactic_state(vm_s);
     auto const & n = to_name(vm_n);
     buffer<name> b;
@@ -94,7 +97,7 @@ static vm_obj attribute_get_instances(vm_obj const & vm_n, vm_obj const & vm_s) 
     return mk_tactic_success(to_obj(b), s);
 }
 
-static vm_obj attribute_register(vm_obj const & vm_n, vm_obj const & vm_s) {
+vm_obj attribute_register(vm_obj const & vm_n, vm_obj const & vm_s) {
     auto const & s = to_tactic_state(vm_s);
     auto const & n = to_name(vm_n);
     LEAN_TACTIC_TRY;
@@ -104,7 +107,7 @@ static vm_obj attribute_register(vm_obj const & vm_n, vm_obj const & vm_s) {
     LEAN_TACTIC_CATCH(s);
 }
 
-static vm_obj attribute_fingerprint(vm_obj const & vm_n, vm_obj const & vm_s) {
+vm_obj attribute_fingerprint(vm_obj const & vm_n, vm_obj const & vm_s) {
     auto const & s = to_tactic_state(vm_s);
     auto const & n = to_name(vm_n);
     unsigned h;
@@ -114,10 +117,45 @@ static vm_obj attribute_fingerprint(vm_obj const & vm_n, vm_obj const & vm_s) {
     return mk_tactic_success(mk_vm_nat(h), s);
 }
 
+vm_obj set_basic_attribute_core(vm_obj const & vm_attr_n, vm_obj const & vm_n, vm_obj const & vm_prio, vm_obj const & vm_s) {
+    name const & attr_n    = to_name(vm_attr_n);
+    name const & n         = to_name(vm_n);
+    unsigned prio;
+    if (is_none(vm_prio))
+        prio = LEAN_DEFAULT_PRIORITY;
+    else
+        prio = force_to_unsigned(get_some_value(vm_prio), std::numeric_limits<unsigned>::max());
+    tactic_state const & s = to_tactic_state(vm_s);
+    LEAN_TACTIC_TRY;
+    attribute const & attr = get_attribute(s.env(), attr_n);
+    if (basic_attribute const * basic_attr = dynamic_cast<basic_attribute const *>(&attr)) {
+        bool persistent     = false;
+        environment new_env = basic_attr->set(s.env(), get_global_ios(), n, prio, persistent);
+        return mk_tactic_success(set_env(s, new_env));
+    } else {
+        return mk_tactic_exception(sstream() << "set_basic_attribute tactic failed, '" << attr_n << "' is not a basic attribute", s);
+    }
+    LEAN_TACTIC_CATCH(s);
+}
+
+vm_obj unset_attribute(vm_obj const & vm_attr_n, vm_obj const & vm_n, vm_obj const & vm_s) {
+    name const & attr_n    = to_name(vm_attr_n);
+    name const & n         = to_name(vm_n);
+    tactic_state const & s = to_tactic_state(vm_s);
+    LEAN_TACTIC_TRY;
+    attribute const & attr = get_attribute(s.env(), attr_n);
+    bool persistent        = false;
+    environment new_env    = attr.unset(s.env(), get_global_ios(), n, persistent);
+    return mk_tactic_success(set_env(s, new_env));
+    LEAN_TACTIC_CATCH(s);
+}
+
 void initialize_user_attribute() {
-    DECLARE_VM_BUILTIN(name({"attribute", "get_instances"}), attribute_get_instances);
-    DECLARE_VM_BUILTIN(name({"attribute", "register"}), attribute_register);
-    DECLARE_VM_BUILTIN(name({"attribute", "fingerprint"}), attribute_fingerprint);
+    DECLARE_VM_BUILTIN(name({"attribute", "get_instances"}),            attribute_get_instances);
+    DECLARE_VM_BUILTIN(name({"attribute", "register"}),                 attribute_register);
+    DECLARE_VM_BUILTIN(name({"attribute", "fingerprint"}),              attribute_fingerprint);
+    DECLARE_VM_BUILTIN(name({"tactic",    "set_basic_attribute_core"}), set_basic_attribute_core);
+    DECLARE_VM_BUILTIN(name({"tactic",    "unset_attribute"}),          unset_attribute);
 
     g_ext = new user_attr_ext_reg();
     g_key = new std::string("USR_ATTR");

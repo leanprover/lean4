@@ -193,7 +193,10 @@ unsigned attribute::get_prio(environment const & env, name const & n) const {
 void attribute::get_instances(environment const & env, buffer<name> & r) const {
     if (auto p = attribute_ext::get_state(env).find(m_id)) {
         attr_records const & records = p->first;
-        records.for_each([&](attr_record const & rec) { r.push_back(rec.m_decl); });
+        records.for_each([&](attr_record const & rec) {
+                if (!rec.deleted())
+                    r.push_back(rec.m_decl);
+            });
     }
 }
 

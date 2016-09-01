@@ -56,7 +56,7 @@ public:
     std::string const & get_description() const { return m_descr; }
 
     virtual attr_data_ptr get_untyped(environment const &, name const &) const;
-    bool is_instance(environment const & env, name const &n ) const {
+    bool is_instance(environment const & env, name const & n) const {
         return static_cast<bool>(get_untyped(env, n));
     }
     unsigned get_prio(environment const &, name const &) const;

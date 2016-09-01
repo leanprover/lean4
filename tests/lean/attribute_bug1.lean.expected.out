@@ -1,0 +1,15 @@
+attribute_bug1.lean:8:0: error: simp tactic failed to simplify
+state:
+n : ℕ
+⊢ f n = n + 1
+attribute_bug1.lean:8:0: error: failed to add declaration 'example' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  ?M_1
+constant fdef : ∀ (n : ℕ), f n = n + 1
+attribute_bug1.lean:20:0: error: simp tactic failed to simplify
+state:
+n : ℕ
+⊢ f n = n + 1
+attribute_bug1.lean:20:0: error: failed to add declaration 'example' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  ?M_1

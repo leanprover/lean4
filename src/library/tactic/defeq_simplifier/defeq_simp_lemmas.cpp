@@ -12,8 +12,8 @@ Author: Daniel Selsam
 #include "library/constants.h"
 #include "library/util.h"
 #include "library/scoped_ext.h"
+#include "library/type_context.h"
 #include "library/tactic/defeq_simplifier/defeq_simp_lemmas.h"
-#include "library/old_tmp_type_context.h"
 
 namespace lean {
 
@@ -34,7 +34,7 @@ static std::string * g_key = nullptr;
 struct defeq_simp_lemmas_state {
     defeq_simp_lemmas m_defeq_simp_lemmas;
 
-    void register_defeq_simp_lemma(old_tmp_type_context & tctx, name const & decl_name, unsigned priority) {
+    void register_defeq_simp_lemma(type_context & tctx, name const & decl_name, unsigned priority) {
         declaration const & d = tctx.env().get(decl_name);
         // TODO(dhs): once we refactor to register this attribute as "definitions-only", this can be an assert
         if (!d.is_definition()) {
@@ -43,7 +43,7 @@ struct defeq_simp_lemmas_state {
         buffer<level> us;
         unsigned num_univs = d.get_num_univ_params();
         for (unsigned i = 0; i < num_univs; i++) {
-            us.push_back(tctx.mk_uvar());
+            us.push_back(tctx.mk_tmp_univ_mvar());
         }
         levels ls = to_list(us);
         expr type    = instantiate_type_univ_params(d, ls);
@@ -51,14 +51,14 @@ struct defeq_simp_lemmas_state {
         return register_defeq_simp_lemma_core(tctx, decl_name, ls, type, proof, priority);
     }
 
-    void register_defeq_simp_lemma_core(old_tmp_type_context & tctx, name const & decl_name, levels const & umetas,
+    void register_defeq_simp_lemma_core(type_context & tctx, name const & decl_name, levels const & umetas,
                                         expr const & type, expr const & proof, unsigned priority) {
         expr rule = type;
         expr pf = proof;
         buffer<expr> emetas;
         buffer<bool> instances;
         while (is_pi(rule)) {
-            expr mvar = tctx.mk_mvar(binding_domain(rule));
+            expr mvar = tctx.mk_tmp_mvar(binding_domain(rule));
             emetas.push_back(mvar);
             instances.push_back(binding_info(rule).is_inst_implicit());
             rule = instantiate(binding_body(rule), mvar);
@@ -88,7 +88,8 @@ struct defeq_simp_lemmas_config {
     typedef defeq_simp_lemmas_state state;
 
     static void add_entry(environment const & env, io_state const & ios, state & s, entry const & e) {
-        old_tmp_type_context tctx(env, ios.get_options());
+        type_context tctx(env, ios.get_options());
+        type_context::tmp_mode_scope scope(tctx);
         s.register_defeq_simp_lemma(tctx, e.m_decl_name, e.m_priority);
     }
     static std::string const & get_serialization_key() {

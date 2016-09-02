@@ -71,7 +71,6 @@ struct elim_match_fn {
         list<expr>     m_hs;
         list<expr>     m_args;
         expr           m_rhs;
-        hsubstitution  m_subst;
         unsigned       m_eqn_idx;
     };
 

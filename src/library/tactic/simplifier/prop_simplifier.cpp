@@ -203,7 +203,7 @@ optional<expr> prop_simplifier::simplify_not(expr const & e) {
 }
 
 optional<expr> prop_simplifier::simplify_pi(expr const & dom, expr const & body, bool is_arrow) {
-    if (m_tctx.is_def_eq(body, mk_true()))
+    if (is_arrow && m_tctx.is_def_eq(body, mk_true()))
         return some_expr(mk_true());
     if (m_tctx.is_def_eq(dom, mk_false()))
         return some_expr(mk_true());

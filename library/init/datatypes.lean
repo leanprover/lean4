@@ -393,28 +393,13 @@ Declare sizeof instances and lemmas for types declared before has_sizeof.
 From now on, the inductive compiler will automatically generate sizeof instances and lemmas.
 -/
 
+/- Every type `A` has a default has_sizeof instance that just returns 0 for every element of `A` -/
 attribute [instance]
-definition Type_has_sizeof : has_sizeof Type :=
-has_sizeof.mk (λ t, nat.zero)
+definition default_has_sizeof (A : Type) : has_sizeof A :=
+has_sizeof.mk (λ a, nat.zero)
 
 attribute [simp, defeq]
-definition sizeof_Type_eq : sizeof Type = 0 :=
-rfl
-
-attribute [instance]
-definition Prop_has_sizeof : has_sizeof Prop :=
-has_sizeof.mk (λ t, nat.zero)
-
-attribute [simp, defeq]
-definition sizeof_Prop_eq : sizeof Prop = 0 :=
-rfl
-
-attribute [instance]
-definition proof_has_sizeof (p : Prop) : has_sizeof p :=
-has_sizeof.mk (λ t, nat.zero)
-
-attribute [simp, defeq]
-definition sizeof_proof_eq {p : Prop} (H : p) : sizeof H = 0 :=
+definition default_has_sizeof_eq (A : Type) (a : A) : @sizeof A (default_has_sizeof A) a = 0 :=
 rfl
 
 attribute [instance]
@@ -451,14 +436,6 @@ has_sizeof.mk (λ p, sigma.cases_on p (λ a b, sizeof a + sizeof b + 1))
 
 attribute [simp, defeq]
 definition sizeof_sigma_eq {A : Type} {B : A → Type} [has_sizeof A] [∀ a, has_sizeof (B a)] (a : A) (b : B a) : sizeof (@sigma.mk A B a b) = sizeof a + sizeof b + 1 :=
-rfl
-
-attribute [instance]
-definition fn_has_sizeof (A : Type) (B : A → Type) : has_sizeof (Π x, B x) :=
-has_sizeof.mk (λf, 0)
-
-attribute [simp, defeq]
-definition sizeof_fn_eq {A : Type} {B : A → Type} (f : Π a, B a) : sizeof f = 0 :=
 rfl
 
 attribute [instance]

@@ -10,15 +10,12 @@ defeq simp lemmas:
 #1, sizeof ?x_0 ↦ 1
 #1, sizeof ?x_0 ↦ 1
 #1, sizeof ?x_0 ↦ 1
-#3, sizeof ?x_2 ↦ 0
 #6, sizeof (sigma.mk ?x_4 ?x_5) ↦ sizeof ?x_4 + sizeof ?x_5 + 1
 #5, sizeof (sum.inr ?x_4) ↦ sizeof ?x_4 + 1
 #5, sizeof (sum.inl ?x_4) ↦ sizeof ?x_4 + 1
 #6, sizeof (?x_4, ?x_5) ↦ sizeof ?x_4 + sizeof ?x_5 + 1
 #1, sizeof ?x_0 ↦ ?x_0
 #2, sizeof ?x_1 ↦ 0
-#0, sizeof Prop ↦ 0
-#0, sizeof Type ↦ 0
 #2, id ?x_1 ↦ ?x_1
 #2, g ?x_0 ?x_1 ↦ h ?x_1
 #3, ?x_1 ≠ ?x_2 ↦ ¬?x_1 = ?x_2

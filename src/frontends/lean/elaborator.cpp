@@ -1449,10 +1449,21 @@ expr elaborator::visit_macro(expr const & e, optional<expr> const & expected_typ
     }
 }
 
+/* If the instance fingerprint has been set, then make sure `type` is not a local instance.
+   Then, add a new local declaration to locals. */
+expr elaborator::push_local(type_context::tmp_locals & locals,
+                            name const & n, expr const & type, binder_info const & binfo, expr const & ref) {
+    if (m_ctx.lctx().get_instance_fingerprint() &&
+        m_ctx.is_class(type)) {
+        throw elaborator_exception(ref, "invalid occurrence of local instance, it must be a declaration parameter");
+    }
+    return locals.push_local(n, type, binfo);
+}
+
 expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_type) {
     type_context::tmp_locals locals(m_ctx);
     checkpoint C(*this);
-    expr it = e;
+    expr it  = e;
     expr ex;
     bool has_expected;
     if (expected_type) {
@@ -1477,7 +1488,8 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
             }
         }
         new_d  = ensure_type(new_d, binding_domain(it));
-        expr l = locals.push_local(binding_name(it), new_d, binding_info(it));
+        expr ref = binding_domain(it);
+        expr l   = push_local(locals, binding_name(it), new_d, binding_info(it), ref);
         it = binding_body(it);
         if (has_expected) {
             lean_assert(is_pi(ex));
@@ -1499,12 +1511,13 @@ expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_ty
 expr elaborator::visit_pi(expr const & e) {
     type_context::tmp_locals locals(m_ctx);
     checkpoint C(*this);
-    expr it = e;
+    expr it  = e;
     while (is_pi(it)) {
         expr d     = instantiate_rev(binding_domain(it), locals);
         expr new_d = visit(d, none_expr());
         new_d      = ensure_type(new_d, binding_domain(it));
-        locals.push_local(binding_name(it), new_d, binding_info(it));
+        expr ref   = binding_domain(it);
+        push_local(locals, binding_name(it), new_d, binding_info(it), ref);
         it = binding_body(it);
     }
     expr b     = instantiate_rev(it, locals);
@@ -1545,7 +1558,8 @@ expr elaborator::visit_have_expr(expr const & e, optional<expr> const & expected
     expr new_proof  = checkpoint_visit(proof, some_expr(new_type));
     new_proof       = enforce_type(new_proof, new_type, "invalid have-expression", proof);
     type_context::tmp_locals locals(m_ctx);
-    locals.push_local(binding_name(lambda), new_type, binding_info(lambda));
+    expr ref        = binding_domain(lambda);
+    push_local(locals, binding_name(lambda), new_type, binding_info(lambda), ref);
     expr body       = instantiate_rev(binding_body(lambda), locals);
     expr new_body   = visit(body, expected_type);
     expr new_lambda = locals.mk_lambda(new_body);

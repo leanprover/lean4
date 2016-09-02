@@ -1,0 +1,3 @@
+instance_cache1.lean:4:5: error: invalid occurrence of local instance, it must be a declaration parameter
+instance_cache1.lean:7:34: error: invalid occurrence of local instance, it must be a declaration parameter
+instance_cache1.lean:11:6: error: invalid occurrence of local instance, it must be a declaration parameter

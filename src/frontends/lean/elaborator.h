@@ -98,6 +98,9 @@ private:
     bool is_uvar_assigned(level const & l) const { return m_ctx.is_assigned(l); }
     bool is_mvar_assigned(expr const & e) const { return m_ctx.is_assigned(e); }
 
+    expr push_local(type_context::tmp_locals & locals, name const & n, expr const & type,
+                    binder_info const & binfo, expr const & ref);
+
     level mk_univ_metavar();
     expr mk_metavar(expr const & A);
     expr mk_type_metavar();

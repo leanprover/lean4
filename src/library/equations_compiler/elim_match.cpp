@@ -644,7 +644,7 @@ struct elim_match_fn {
                         expr new_arg = ctx.push_local(binding_name(it), binding_domain(it));
                         new_args.push_back(new_arg);
                         c  = mk_app(c, new_arg);
-                        it = whnf_inductive(ctx, instantiate(binding_body(new_arg), new_arg));
+                        it = whnf_inductive(ctx, instantiate(binding_body(it), new_arg));
                     }
                     if (ctx.is_def_eq(pattern_type, it)) {
                         equation new_eqn   = eqn;

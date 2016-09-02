@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <string>
 #include "util/flet.h"
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
@@ -56,6 +57,10 @@ struct elim_match_fn {
         hsubstitution  m_subst;
         expr           m_ref; /* for producing error messages */
         unsigned       m_eqn_idx; /* for producing error message */
+        /* The following fields are only used for lemma generation */
+        list<expr>     m_hs;
+        list<expr>     m_vars;
+        list<expr>     m_lhs_args;
     };
 
     struct problem {
@@ -69,7 +74,7 @@ struct elim_match_fn {
         local_context  m_lctx;
         list<expr>     m_vars;
         list<expr>     m_hs;
-        list<expr>     m_args;
+        list<expr>     m_lhs_args;
         expr           m_rhs;
         unsigned       m_eqn_idx;
     };
@@ -267,17 +272,21 @@ struct elim_match_fn {
         }
         lean_assert(is_equation(it));
         equation E;
+        E.m_vars = to_list(locals);
         E.m_lctx = ctx.lctx();
         E.m_rhs  = instantiate_rev(equation_rhs(it), locals);
         /* The function being defined is not recursive. So, E.m_rhs
            must be closed even if we "consumed" the fn header in
            the beginning of the method. */
         lean_assert(closed(E.m_rhs));
+        buffer<expr> lhs_args;
+        get_app_args(equation_lhs(it), lhs_args);
         buffer<expr> patterns;
-        get_app_args(equation_lhs(it), patterns);
-        for (expr & p : patterns) {
-            p = whnf_pattern(ctx, instantiate_rev(p, locals));
+        for (expr & arg : lhs_args) {
+            arg = instantiate_rev(arg, locals);
+            patterns.push_back(whnf_pattern(ctx, arg));
         }
+        E.m_lhs_args = to_list(lhs_args);
         E.m_patterns = to_list(patterns);
         E.m_ref      = eqn;
         E.m_eqn_idx  = idx;
@@ -464,22 +473,7 @@ struct elim_match_fn {
             new_eqns.push_back(new_eqn);
         }
         new_P.m_equations = to_list(new_eqns);
-        list<lemma> Ls = process(new_P);
-        buffer<lemma> new_Ls;
-        for (lemma const & L : Ls) {
-            lemma new_L  = L;
-            expr p       = get_next_pattern_of(P.m_equations, L.m_eqn_idx);
-            if (is_var_transition) {
-                lean_assert(is_local(p));
-                new_L.m_vars = cons(p, L.m_vars);
-            } else {
-                lean_assert(is_inaccessible(p));
-                p = get_annotation_arg(p);
-            }
-            new_L.m_args = cons(p, L.m_args);
-            new_Ls.push_back(new_L);
-        }
-        return to_list(new_Ls);
+        return process(new_P);
     }
 
     list<lemma> process_variable(problem const & P) {
@@ -551,26 +545,6 @@ struct elim_match_fn {
         return to_list(R);
     }
 
-    lemma mk_constructor_lemma(lemma const & L, unsigned I_nparams, list<equation> const & eqns) {
-        lemma new_L  = L;
-        expr pattern = get_next_pattern_of(eqns, L.m_eqn_idx);
-        lean_assert(is_constructor_app(pattern));
-        buffer<expr> C_args;
-        expr const & C = get_app_args(pattern, C_args);
-        buffer<expr> lemma_args;
-        to_buffer(L.m_args, lemma_args);
-        for (unsigned j = 0, i = I_nparams; i < C_args.size(); i++, j++) {
-            C_args[i] = lemma_args[j];
-        }
-        expr new_lemma_arg  = mk_app(C, C_args);
-        buffer<expr> new_lemma_args;
-        new_lemma_args.push_back(new_lemma_arg);
-        for (unsigned i = C_args.size() - I_nparams; i < lemma_args.size(); i++)
-            new_lemma_args.push_back(lemma_args[i]);
-        new_L.m_args = to_list(new_lemma_args);
-        return new_L;
-    }
-
     list<lemma> process_constructor(problem const & P) {
         trace_match(tout() << "step: constructors only\n";);
         lean_assert(is_constructor_transition(P));
@@ -611,7 +585,7 @@ struct elim_match_fn {
             new_P.m_equations      = get_equations_for(C, I_nparams, head(slist), eqns);
             list<lemma> Ls         = process(new_P);
             for (lemma const & L : Ls) {
-                new_Ls.push_back(mk_constructor_lemma(L, I_nparams, eqns));
+                new_Ls.push_back(L);
             }
             new_goals       = tail(new_goals);
             new_goal_cnames = tail(new_goal_cnames);
@@ -648,19 +622,48 @@ struct elim_match_fn {
                 buffer<name> constructor_names;
                 get_constructors_of(I_name, constructor_names);
                 for (name const & c_name : constructor_names) {
-                    buffer<expr> new_args;
+                    buffer<expr> c_vars;
                     expr c  = mk_app(mk_constant(c_name, I_ls), I_params);
                     expr it = whnf_inductive(ctx, ctx.infer(c));
                     while (is_pi(it)) {
                         expr new_arg = ctx.push_local(binding_name(it), binding_domain(it));
-                        new_args.push_back(new_arg);
+                        c_vars.push_back(new_arg);
                         c  = mk_app(c, new_arg);
                         it = whnf_inductive(ctx, instantiate(binding_body(it), new_arg));
                     }
                     if (ctx.is_def_eq(pattern_type, it)) {
+                        expr var = pattern;
+                        /* We are replacing `var` with `c` */
+                        buffer<expr> from;
+                        buffer<expr> to;
+                        buffer<expr> new_vars;
+                        for (expr const & curr : eqn.m_vars) {
+                            if (curr == var) {
+                                from.push_back(var);
+                                to.push_back(c);
+                                new_vars.append(c_vars);
+                            } else {
+                                expr curr_type     = ctx.infer(curr);
+                                expr new_curr_type = replace_locals(curr_type, from, to);
+                                if (curr_type == new_curr_type) {
+                                    new_vars.push_back(curr);
+                                } else {
+                                    expr new_curr = ctx.push_local(local_pp_name(curr), new_curr_type);
+                                    from.push_back(curr);
+                                    to.push_back(new_curr);
+                                    new_vars.push_back(new_curr);
+                                }
+                            }
+                        }
                         equation new_eqn   = eqn;
                         new_eqn.m_lctx     = ctx.lctx();
-                        new_eqn.m_patterns = cons(c, tail(eqn.m_patterns));
+                        new_eqn.m_vars     = to_list(new_vars);
+                        new_eqn.m_lhs_args = map(eqn.m_lhs_args, [&](expr const & arg) {
+                                return replace_locals(arg, from, to); });
+                        new_eqn.m_rhs      = replace_locals(eqn.m_rhs, from, to);
+                        new_eqn.m_patterns =
+                            cons(c, map(tail(eqn.m_patterns), [&](expr const & p) {
+                                        return replace_locals(p, from, to); }));
                         new_eqns.push_back(new_eqn);
                     }
                 }
@@ -716,12 +719,7 @@ struct elim_match_fn {
         to_buffer(tail(P.m_var_stack), new_var_stack);
         new_P.m_var_stack   = to_list(new_var_stack);
         new_P.m_equations   = get_equations_for(const_name(C), I_nparams, hsubstitution(), eqns);
-        list<lemma> Ls      = process(new_P);
-        buffer<lemma> new_Ls;
-        for (lemma const & L : Ls) {
-            new_Ls.push_back(mk_constructor_lemma(L, I_nparams, eqns));
-        }
-        return to_list(new_Ls);
+        return process(new_P);
     }
 
     list<lemma> process_leaf(problem const & P) {
@@ -735,9 +733,12 @@ struct elim_match_fn {
         m_mctx.assign(P.m_goal, rhs);
         if (m_lemmas) {
             lemma L;
-            L.m_lctx    = eqn.m_lctx;
-            L.m_rhs     = eqn.m_rhs;
-            L.m_eqn_idx = eqn.m_eqn_idx;
+            L.m_lctx     = eqn.m_lctx;
+            L.m_vars     = eqn.m_vars;
+            L.m_hs       = eqn.m_hs;
+            L.m_lhs_args = eqn.m_lhs_args;
+            L.m_rhs      = eqn.m_rhs;
+            L.m_eqn_idx  = eqn.m_eqn_idx;
             return to_list(L);
         } else {
             return list<lemma>();
@@ -778,7 +779,7 @@ struct elim_match_fn {
 
     expr finalize_lemma(expr const & fn, lemma const & L) {
         buffer<expr> args;
-        to_buffer(L.m_args, args);
+        to_buffer(L.m_lhs_args, args);
         type_context ctx = mk_type_context(L.m_lctx);
         expr lhs = mk_app(fn, args);
         expr eq  = mk_eq(ctx, lhs, L.m_rhs);

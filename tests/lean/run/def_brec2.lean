@@ -1,4 +1,5 @@
 set_option new_elaborator true
+set_option trace.eqn_compiler true
 
 definition fib : nat → nat
 | 0     := 1

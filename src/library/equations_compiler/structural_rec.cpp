@@ -665,13 +665,39 @@ struct structural_rec_fn {
         }
 
         /* Return the ith recursive argument of \c e */
-        pair<expr, unsigned> get_ith_rec_arg(expr const & e, unsigned ith) {
+        pair<expr, unsigned> get_ith_rec_arg(expr e, unsigned ith) {
+            e = m_ctx.relaxed_whnf(e);
             buffer<pair<expr, unsigned>> rec_args;
             if (get_constructor_rec_args(m_ctx.env(), e, rec_args)) {
                 lean_assert(ith < rec_args.size());
                 return rec_args[ith];
             }
             lean_unreachable();
+        }
+
+        optional<name> is_constructor(name const & n) const { return inductive::is_intro_rule(m_ctx.env(), n); }
+        optional<name> is_constructor(expr const & e) const {
+            if (!is_constant(e)) return optional<name>();
+            return is_constructor(const_name(e));
+        }
+        optional<name> is_constructor_app(expr const & e) const { return is_constructor(get_app_fn(e)); }
+
+        /* Move to different module? */
+        expr normalize_constructor_apps(expr const & e) {
+            expr new_e = m_ctx.relaxed_whnf(e);
+            if (optional<name> I_name = is_constructor_app(new_e)) {
+                buffer<expr> args;
+                expr const & c_fn = get_app_args(new_e, args);
+                unsigned nparams = *inductive::get_num_params(m_ctx.env(), *I_name);
+                for (unsigned i = nparams; i < args.size(); i++) {
+                    args[i] = normalize_constructor_apps(args[i]);
+                }
+                return mk_app(c_fn, args);
+            } else if (is_local(new_e)) {
+                return new_e;
+            } else {
+                return e;
+            }
         }
 
         /* Auxiliary method for decode_rec_arg */
@@ -687,7 +713,7 @@ struct structural_rec_fn {
             i++;
             auto result = get_ith_rec_arg(e, rec_arg_idx);
             if (path[i] == 1) {
-                return result;
+                return mk_pair(normalize_constructor_apps(result.first), result.second);
             } else {
                 i++;
                 return decode_rec_arg_core(result.first, i, path);

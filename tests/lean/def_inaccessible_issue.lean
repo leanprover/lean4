@@ -3,10 +3,6 @@ open nat
 
 set_option pp.binder_types true
 
-attribute [defeq]
-definition my_nat_rec_zero (n : nat) : (nat.rec n (λ b : nat, succ) 0 : nat) = n :=
-rfl
-
 inductive bv : nat → Type
 | nil  : bv 0
 | cons : ∀ (n) (hd : bool) (tl : bv n), bv (succ n)

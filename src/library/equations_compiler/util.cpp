@@ -210,6 +210,8 @@ pair<environment, expr> mk_aux_definition(environment const & env, metavar_conte
     return mk_aux_definition(new_env, mctx, lctx, new_c, type, value);
 }
 
+static unsigned g_eqn_sanitizer_token;
+
 environment mk_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
                               bool is_private, name const & c, expr const & type, expr const & value) {
     environment new_env = env;
@@ -221,7 +223,8 @@ environment mk_equation_lemma(environment const & env, options const & opts, met
     if (use_dsimp) {
         try {
             type_context ctx(env, opts, mctx, lctx, transparency_mode::None);
-            new_type = defeq_simplify(ctx, type);
+            defeq_simp_lemmas_ptr lemmas = get_defeq_simp_lemmas(env, g_eqn_sanitizer_token);
+            new_type = defeq_simplify(ctx, *lemmas, type);
         } catch (defeq_simplifier_exception & ex) {
             throw exception(sstream() <<
                             "equation compiler failed to simplify type of automatically generated lemma using "
@@ -231,7 +234,6 @@ environment mk_equation_lemma(environment const & env, options const & opts, met
         }
     }
     std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_c, new_type, value);
-    // TODO(Leo): add simp (and dsimp) rule
     return new_env;
 }
 
@@ -240,6 +242,7 @@ void initialize_eqn_compiler_util() {
     register_bool_option(*g_eqn_compiler_dsimp, LEAN_DEFAULT_EQN_COMPILER_DSIMP,
                          "(equation compiler) use defeq simplifier to cleanup types of "
                          "automatically synthesized equational lemmas");
+    g_eqn_sanitizer_token = register_defeq_simp_attribute("eqn_sanitizer");
 }
 
 void finalize_eqn_compiler_util() {

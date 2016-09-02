@@ -736,7 +736,7 @@ struct elim_match_fn {
             L.m_lctx     = eqn.m_lctx;
             L.m_vars     = eqn.m_vars;
             L.m_hs       = eqn.m_hs;
-            L.m_lhs_args = eqn.m_lhs_args;
+            L.m_lhs_args = erase_inaccessible_annotations(eqn.m_lhs_args);
             L.m_rhs      = eqn.m_rhs;
             L.m_eqn_idx  = eqn.m_eqn_idx;
             return to_list(L);

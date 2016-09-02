@@ -78,6 +78,9 @@ pair<environment, expr> mk_aux_definition(environment const & env, metavar_conte
 environment mk_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
                               bool is_private, name const & c, expr const & type, expr const & value);
 
+expr erase_inaccessible_annotations(expr const & e);
+list<expr> erase_inaccessible_annotations(list<expr> const & es);
+
 void initialize_eqn_compiler_util();
 void finalize_eqn_compiler_util();
 }

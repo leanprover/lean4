@@ -11,6 +11,8 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"
 #include "library/private.h"
+#include "library/annotation.h"
+#include "library/replace_visitor.h"
 #include "library/aux_definition.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/tactic/defeq_simplifier/defeq_simplifier.h"
@@ -235,6 +237,24 @@ environment mk_equation_lemma(environment const & env, options const & opts, met
     }
     std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_c, new_type, value);
     return new_env;
+}
+
+class erase_inaccessible_annotations_fn : public replace_visitor {
+    virtual expr visit_macro(expr const & e) override {
+        if (is_inaccessible(e)) {
+            return visit(get_annotation_arg(e));
+        } else {
+            return replace_visitor::visit_macro(e);
+        }
+    }
+};
+
+expr erase_inaccessible_annotations(expr const & e) {
+    return erase_inaccessible_annotations_fn()(e);
+}
+
+list<expr> erase_inaccessible_annotations(list<expr> const & es) {
+    return map(es, [&](expr const & e) { return erase_inaccessible_annotations(e); });
 }
 
 void initialize_eqn_compiler_util() {

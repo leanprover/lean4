@@ -479,7 +479,7 @@ static void print_unification_hints(parser & p) {
 static void print_defeq_lemmas(parser & p) {
     type_checker tc(p.env());
     auto out = regular(p.env(), p.ios(), tc);
-    out << pp_defeq_simp_lemmas(get_defeq_simp_lemmas(p.env()), out.get_formatter());
+    out << pp_defeq_simp_lemmas(*get_defeq_simp_lemmas(p.env()), out.get_formatter());
 }
 
 static void print_simp_rules(parser & p) {

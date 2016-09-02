@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Daniel Selsam
 */
 #pragma once
+#include <memory>
 #include "kernel/environment.h"
-#include "library/io_state.h"
 #include "library/head_map.h"
 
 namespace lean {
@@ -48,7 +48,15 @@ inline bool operator!=(defeq_simp_lemma const & sl1, defeq_simp_lemma const & sl
 struct defeq_simp_lemma_prio_fn { unsigned operator()(defeq_simp_lemma const & sl) const { return sl.get_priority(); } };
 typedef head_map_prio<defeq_simp_lemma, defeq_simp_lemma_prio_fn> defeq_simp_lemmas;
 
-defeq_simp_lemmas get_defeq_simp_lemmas(environment const & env);
+typedef unsigned defeq_lemmas_token;
+
+/* Register a system level defeq attribute. This method must only be invoked during initialization.
+   It returns an internal "token" for retrieving the lemmas */
+defeq_lemmas_token register_defeq_simp_attribute(name const & attr_name);
+
+typedef std::shared_ptr<defeq_simp_lemmas> defeq_simp_lemmas_ptr;
+defeq_simp_lemmas_ptr get_defeq_simp_lemmas(environment const & env);
+defeq_simp_lemmas_ptr get_defeq_simp_lemmas(environment const & env, defeq_lemmas_token token);
 
 format pp_defeq_simp_lemmas(defeq_simp_lemmas const & lemmas, formatter const & fmt);
 

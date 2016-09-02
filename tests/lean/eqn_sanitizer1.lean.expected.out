@@ -1,2 +1,2 @@
-definition fib._main.lemmas.eqn_3 : ∀ (n : ℕ), fib._main (n + 2) = fib._main (n + 1) + fib._main n :=
+definition fib._main.equations.eqn_3 : ∀ (n : ℕ), fib._main (n + 2) = fib._main (n + 1) + fib._main n :=
 λ n, eq.refl (fib._main (nat.succ (nat.succ n)))

@@ -784,7 +784,7 @@ struct structural_rec_fn {
     }
 
     void mk_lemmas(expr const & fn, list<expr> const & lemmas) {
-        name base_name(const_name(get_app_fn(fn)), "lemmas");
+        name base_name(const_name(get_app_fn(fn)), "equations");
         unsigned eqn_idx = 1;
         type_context ctx = mk_type_context();
         for (expr type : lemmas) {

@@ -15,7 +15,7 @@ definition map2 : ∀ {n}, bv n → bv n → bv n
 | 0     nil            nil             := nil
 | (n+1) (cons .n b1 v1) (cons .n b2 v2) := cons n (f b1 b2) (map2 v1 v2)
 
-check map2._main.lemmas.eqn_2
+check map2._main.equations.eqn_2
 
 set_option eqn_compiler.dsimp false
 
@@ -25,4 +25,4 @@ definition map2' : ∀ {n}, bv n → bv n → bv n
 | 0     nil            nil             := nil
 | (n+1) (cons .n b1 v1) (cons .n b2 v2) := cons n (f b1 b2) (map2' v1 v2)
 
-check map2'._main.lemmas.eqn_2
+check map2'._main.equations.eqn_2

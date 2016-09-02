@@ -17,4 +17,4 @@ example : fib 0 = 1 := rfl
 example : fib 1 = 1 := rfl
 example (n : nat) : fib (n+2) = fib (n+1) + fib n := rfl
 
-print fib._main.lemmas.eqn_3
+print fib._main.equations.eqn_3

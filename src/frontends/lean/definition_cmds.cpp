@@ -342,6 +342,7 @@ environment xdefinition_cmd_core(parser & p, def_cmd_kind kind, bool is_private,
     elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
+    elab.set_instance_fingerprint();
     replace_params(params, new_params, fn, val);
     expr type;
     std::tie(val, type) = elaborate_definition(p, elab, kind, fn, val, header_pos);

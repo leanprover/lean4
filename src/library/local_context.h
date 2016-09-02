@@ -71,13 +71,25 @@ class local_context {
     unsigned              m_next_idx;
     name_map<local_decl>  m_name2local_decl;
     idx2local_decl        m_idx2local_decl;
+    optional<unsigned>    m_instance_fingerprint;
     friend class type_context;
+    /* Return the instance fingerprint for empty local_contexts */
+    static unsigned get_empty_instance_fingerprint() { return 31; }
 
     local_context remove(buffer<expr> const & locals) const;
     expr mk_local_decl(name const & n, name const & ppn, expr const & type,
                        optional<expr> const & value, binder_info const & bi);
 public:
     local_context():m_next_idx(0) {}
+
+    /* Return an empty local context with instance fingerprint set. */
+    static local_context mk_with_instance_fingerprint() {
+        local_context lctx;
+        lctx.m_instance_fingerprint = optional<unsigned>(get_empty_instance_fingerprint());
+        return lctx;
+    }
+
+    optional<unsigned> get_instance_fingerprint() const { return m_instance_fingerprint; }
 
     bool empty() const { return m_idx2local_decl.empty(); }
 

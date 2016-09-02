@@ -80,11 +80,24 @@ class type_context_cache {
 
     /* We use the following approach for caching type class instances.
 
-       Whenever a type_context object is initialized with a local_context,
-       we reset m_local_instances_initialized flag, and store a copy of the initial local_context.
-       Then, the first time type class resolution is invoked, we collect local_instances,
-       if they are equal to the ones in m_local_instances, we do nothing. Otherwise,
-       we reset m_local_instances with the new local_instances, and reset the cache m_local_instances. */
+       Whenever a type_context object is initialized with a local_context lctx
+
+       1) If lctx has an instance_fingerprint, then we compare with the instance_fingerprint
+          stored in this cache, if they are equal, we keep m_local_instances,
+          m_instance_cache and m_subsingleton_cache.
+
+          New local instances added using methods type_context::push_local and type_context::push_let will
+          be ignored.
+
+       2) If lctx doesn't have one, we clear m_local_instances, m_instance_cache and m_subsingleton_cache.
+          We also traverse lctx and collect the local instances.
+
+          The methods type_context::push_local and type_context::push_let will flush the cache
+          whenever new local instances are pushed into the local context.
+
+          m_instance_cache and m_subsingleton_cache are flushed before the cache is returned to the
+          cache manager. */
+    optional<unsigned>            m_instance_fingerprint;
     list<pair<name, expr>>        m_local_instances;
     instance_cache                m_instance_cache;
     subsingleton_cache            m_subsingleton_cache;
@@ -162,13 +175,12 @@ class type_context : public abstract_type_context {
             m_mctx(mctx), m_tmp_uassignment_sz(usz), m_tmp_eassignment_sz(esz), m_tmp_trail_sz(tsz) {}
     };
     typedef buffer<scope_data> scopes;
-
+    typedef list<pair<name, expr>> local_instances;
     metavar_context    m_mctx;
     local_context      m_lctx;
-    bool               m_local_instances_initialized;
-    local_context      m_init_local_context;
     cache_manager *    m_cache_manager;
     cache_ptr          m_cache;
+    local_instances    m_local_instances;
     /* We only cache results when m_used_assignment is false */
     bool               m_used_assignment;
     transparency_mode  m_transparency_mode;
@@ -213,6 +225,10 @@ class type_context : public abstract_type_context {
         if (is_equiv_cache_target(e1, e2)) get_equiv_cache().add_equiv(e1, e2);
     }
 
+    void init_local_instances();
+    void flush_instance_cache();
+    void update_local_instances(expr const & new_local, expr const & new_type);
+
     type_context(type_context_cache_ptr const & ptr, metavar_context const & mctx, local_context const & lctx,
                  transparency_mode m);
 public:
@@ -240,6 +256,12 @@ public:
     void set_mctx(metavar_context const & mctx) { m_mctx = mctx; }
     /* note: env must be a descendant of m_env */
     void set_env(environment const & env);
+
+    /* Set the instance fingerprint of the current local context.
+
+       \remark After this method is invoked we cannot push local instances anymore
+       using the method push_local. */
+    void set_instance_fingerprint();
 
     bool is_def_eq_core(level const & l1, level const & l2);
     bool is_def_eq(level const & l1, level const & l2);
@@ -285,9 +307,7 @@ public:
     expr mk_pi(std::initializer_list<expr> const & locals, expr const & e);
 
     /* Add a let-decl (aka local definition) to the local context */
-    expr push_let(name const & ppn, expr const & type, expr const & value) {
-        return m_lctx.mk_local_decl(ppn, type, value);
-    }
+    expr push_let(name const & ppn, expr const & type, expr const & value);
 
     bool is_prop(expr const & e);
 
@@ -489,13 +509,8 @@ private:
     optional<name> constant_is_class(expr const & e);
     optional<name> is_full_class(expr type);
     lbool is_quick_class(expr const & type, name & result);
-    void set_local_instances();
-    void init_local_instances();
 
 public:
-    bool compatible_local_instances(local_context const & lctx);
-    local_context const & initial_lctx() const;
-
     /* Helper class for creating pushing local declarations into the local context m_lctx */
     class tmp_locals {
         type_context & m_ctx;

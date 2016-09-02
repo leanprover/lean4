@@ -480,7 +480,9 @@ optional<concrete_arith_type> is_concrete_arith_type(expr const & type) {
 arith_instance_info_ref cache_insert(expr_struct_map<arith_instance_info_cache_entry> & cache, type_context & tctx, expr const & type) {
     auto result = cache.emplace(std::piecewise_construct,
                                 std::forward_as_tuple<expr const &>(type),
-                                std::forward_as_tuple<local_context const &, expr const &, level const &>(tctx.initial_lctx(), type, get_level(tctx, type)));
+                                // TODO(dselsam): the method initial_lctx was removed
+                                std::forward_as_tuple<local_context const &, expr const &, level const &>(tctx.lctx(), type, get_level(tctx, type)));
+//                                std::forward_as_tuple<local_context const &, expr const &, level const &>(tctx.initial_lctx(), type, get_level(tctx, type)));
     lean_assert(result.second);
     return result.first->second.m_info;
 }
@@ -496,8 +498,8 @@ arith_instance_info_ref get_arith_instance_info_for(type_context & tctx, expr co
         return cache_insert(cache, tctx, type);
     } else {
         arith_instance_info_cache_entry & entry = it->second;
-        if (tctx.compatible_local_instances(entry.m_lctx)) {
-            entry.m_lctx = tctx.initial_lctx();
+        if (false) { // tctx.compatible_local_instances(entry.m_lctx)) { // <<< This method was removed
+            // entry.m_lctx = tctx.initial_lctx(); // << initial_lctx was removed
             return entry.m_info;
         } else {
             cache.erase(type);

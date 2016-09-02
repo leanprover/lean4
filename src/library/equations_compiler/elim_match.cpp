@@ -201,6 +201,17 @@ struct elim_match_fn {
     bool is_inductive(expr const & e) const { return is_constant(e) && is_inductive(const_name(e)); }
     bool is_inductive_app(expr const & e) const { return is_inductive(get_app_fn(e)); }
 
+    /* Return true iff `e` is of the form (I.below ...) or (I.ibelow ...) where `I` is an inductive datatype.
+       Move to a different module? */
+    bool is_below_type(expr const & e) const {
+        expr const & fn = get_app_fn(e);
+        if (!is_constant(fn)) return false;
+        name const & fn_name = const_name(fn);
+        if (fn_name.is_atomic() || !fn_name.is_string()) return false;
+        std::string s(fn_name.get_string());
+        return is_inductive(fn_name.get_prefix()) && (s == "below" || s == "ibelow");
+    }
+
     unsigned get_inductive_num_params(name const & n) const { return *inductive::get_num_params(m_env, n); }
     unsigned get_inductive_num_params(expr const & I) const { return get_inductive_num_params(const_name(I)); }
 
@@ -668,8 +679,10 @@ struct elim_match_fn {
         } else {
             type_context ctx = mk_type_context(P);
             expr x           = head(P.m_var_stack);
-            expr arg_type    = whnf_inductive(ctx, ctx.infer(x));
-            if (is_inductive_app(arg_type))
+            expr arg_type    = ctx.infer(x);
+            if (is_below_type(arg_type))
+                return process_variable(P);
+            else if (is_inductive_app(whnf_inductive(ctx, arg_type)))
                 return process_constructor(P);
             else
                 return process_variable(P);

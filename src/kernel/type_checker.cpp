@@ -608,6 +608,10 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
         t_n = whnf_core(*unfold_definition(t_n));
     } else if (!d_s->is_theorem() && d_t->is_theorem()) {
         s_n = whnf_core(*unfold_definition(s_n));
+    } else if (!d_t->is_theorem() && d_t->get_height() > d_s->get_height()) {
+        t_n = whnf_core(*unfold_definition(t_n));
+    } else if (!d_s->is_theorem() && d_t->get_height() < d_s->get_height()) {
+        s_n = whnf_core(*unfold_definition(s_n));
     } else {
         if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
             // If t_n and s_n are both applications of the same (non-opaque) definition,

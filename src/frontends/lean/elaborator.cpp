@@ -2027,7 +2027,8 @@ expr_pair elaborator::elaborate_with_type(expr const & e, expr const & e_type) {
     } else {
         auto pp_fn = mk_pp_ctx();
         throw elaborator_exception(ref,
-                                   format("type mismatch, expression has type") + pp_indent(pp_fn, inferred_type) +
+                                   format("type mismatch, expression") + pp_indent(pp_fn, new_e) +
+                                   line() + format("has type") + pp_indent(pp_fn, inferred_type) +
                                    line() + format("but is expected to have type") + pp_indent(pp_fn, new_e_type));
     }
     return mk_pair(new_e, new_e_type);

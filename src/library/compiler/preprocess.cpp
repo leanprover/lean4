@@ -153,23 +153,23 @@ public:
         expr v = d.get_value();
         lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";)
         v = expand_aux(m_env, v);
-        lean_assert(check(d, v));
+        lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "expand_aux"}), tout() << "\n" << v << "\n";)
         v = mark_comp_irrelevant_subterms(m_env, v);
-        lean_assert(check(d, v));
+        lean_cond_assert("compiler", check(d, v));
         v = find_nat_values(m_env, v);
-        lean_assert(check(d, v));
+        lean_cond_assert("compiler", check(d, v));
         v = eta_expand(m_env, v);
-        lean_assert(check(d, v));
+        lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "eta_expansion"}), tout() << "\n" << v << "\n";)
         v = simp_pr1_rec(m_env, v);
-        lean_assert(check(d, v));
+        lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "simplify_pr1"}), tout() << "\n" << v << "\n";)
         v = inline_simple_definitions(m_env, v);
-        lean_assert(check(d, v));
+        lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "inline"}), tout() << "\n" << v << "\n";)
         v = mark_comp_irrelevant_subterms(m_env, v);
-        lean_assert(check(d, v));
+        lean_cond_assert("compiler", check(d, v));
         buffer<name> aux_decls;
         v = elim_recursors(m_env, d.get_name(), v, aux_decls);
         for (name const & n : aux_decls) {
@@ -177,7 +177,7 @@ public:
             procs.emplace_back(d.get_name(), d.get_value());
         }
         procs.emplace_back(d.get_name(), v);
-        check(d, procs.back().second);
+        lean_cond_assert("compiler", check(d, procs.back().second));
         lean_trace(name({"compiler", "elim_recursors"}), tout() << "\n"; display(procs););
         erase_irrelevant(procs);
         lean_trace(name({"compiler", "erase_irrelevant"}), tout() << "\n"; display(procs););

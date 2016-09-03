@@ -155,6 +155,9 @@ expr mk_ss_elim(type_context & ctx, expr const & A, expr const & ss_inst, expr c
 /** \brief False elimination */
 expr mk_false_rec(type_context & ctx, expr const & c, expr const & H);
 
+/* (if c then t else e) */
+expr mk_ite(type_context & ctx, expr const & c, expr const & t, expr const & e);
+
 level get_level(type_context & ctx, expr const & A);
 
 void initialize_app_builder();

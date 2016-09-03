@@ -47,13 +47,11 @@ environment add_no_confusion(environment const & env, name const & r) {
 }
 
 bool is_aux_recursor(environment const & env, name const & r) {
-    /* nat.cases_on is manually defined in the standard library */
-    return get_extension(env).m_aux_recursor_set.contains(r) || r == get_nat_cases_on_name();
+    return get_extension(env).m_aux_recursor_set.contains(r);
 }
 
 bool is_no_confusion(environment const & env, name const & r) {
-    /* nat.no_confusion is manually defined in the standard library */
-    return get_extension(env).m_no_confusion_set.contains(r) || r == get_nat_no_confusion_name();
+    return get_extension(env).m_no_confusion_set.contains(r);
 }
 
 static void aux_recursor_reader(deserializer & d, shared_environment & senv,

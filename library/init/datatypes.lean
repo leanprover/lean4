@@ -111,16 +111,9 @@ inductive list (T : Type) : Type
 | nil {} : list
 | cons   : T → list → list
 
-section
--- Remark: we manually generate the nat.rec_on, nat.induction_on, nat.cases_on and nat.no_confusion.
--- We do that because we want 0 instead of nat.zero in these eliminators.
-  set_option inductive.rec_on   false
-  set_option inductive.cases_on false
-
-  inductive nat
-  | zero : nat
-  | succ : nat → nat
-end
+inductive nat
+| zero : nat
+| succ : nat → nat
 
 /- Declare builtin and reserved notation -/
 

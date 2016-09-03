@@ -10,37 +10,6 @@ open decidable or
 notation `ℕ` := nat
 
 namespace nat
-  attribute [reducible, recursor, unfold 2]
-  protected definition rec_on
-                       {C : ℕ → Type} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C a → C (succ a)) : C n :=
-  nat.rec H₁ H₂ n
-
-  attribute [recursor]
-  protected theorem induction_on
-                       {C : ℕ → Prop} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C a → C (succ a)) : C n :=
-  nat.rec H₁ H₂ n
-
-  attribute [reducible, recursor, unfold 2]
-  protected definition cases_on
-                       {C : ℕ → Type} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C (succ a)) : C n :=
-  nat.rec H₁ (λ a ih, H₂ a) n
-
-  attribute [reducible]
-  protected definition no_confusion_type (P : Type) (v₁ v₂ : ℕ) : Type :=
-  nat.rec
-    (nat.rec (P → P) (λ a₂ ih, P) v₂)
-    (λ a₁ ih, nat.rec P (λ a₂ ih, (a₁ = a₂ → P) → P) v₂)
-    v₁
-
-  attribute [reducible, unfold 4]
-  protected definition no_confusion
-                       {P : Type} {v₁ v₂ : ℕ} (H : v₁ = v₂) : nat.no_confusion_type P v₁ v₂ :=
-  have v₁ = v₁ → nat.no_confusion_type P v₁ v₁, from
-    λ H₁ : v₁ = v₁, nat.rec (λ h, h) (λ a ih h, h (eq.refl a)) v₁,
-  have v₁ = v₂ → nat.no_confusion_type P v₁ v₂, from
-    eq.rec this H,
-  this H
-
   /- basic definitions on natural numbers -/
   inductive le (a : ℕ) : ℕ → Prop
   | nat_refl : le a    -- use nat_refl to avoid overloading le.refl

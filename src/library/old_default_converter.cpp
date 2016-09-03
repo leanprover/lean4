@@ -524,8 +524,8 @@ auto old_default_converter::lazy_delta_reduction_step(expr & t_n, expr & s_n, co
                 }
             }
         }
-        t_n = whnf_core(unfold_names(t_n, d_t->get_height() - 1));
-        s_n = whnf_core(unfold_names(s_n, d_s->get_height() - 1));
+        t_n = whnf_core(unfold_names(t_n, d_t->get_height() > 0 ? d_t->get_height() - 1 : 0));
+        s_n = whnf_core(unfold_names(s_n, d_s->get_height() > 0 ? d_s->get_height() - 1 : 0));
     }
     switch (quick_is_def_eq(t_n, s_n, cs)) {
     case l_true:  return reduction_status::DefEqual;

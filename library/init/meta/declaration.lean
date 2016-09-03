@@ -9,7 +9,7 @@ import init.meta.expr init.meta.name
 /- Reflect a C++ declaration object. The VM replaces it with the C++ implementation. -/
 inductive declaration
 /- definition: name, list universe parameters, type, value, is_trusted -/
-| def  : name → list name → expr → expr → bool → declaration
+| defn : name → list name → expr → expr → bool → declaration
 /- theorem: name, list universe parameters, type, value (remark: theorems are always trusted) -/
 | thm  : name → list name → expr → expr → declaration
 /- constant assumption: name, list universe parameters, type, is_trusted -/
@@ -18,19 +18,19 @@ inductive declaration
 | ax   : name → list name → expr → declaration
 
 definition declaration.to_name : declaration → name
-| (declaration.def n ls t v tr) := n
+| (declaration.defn n ls t v tr) := n
 | (declaration.thm n ls t v) := n
 | (declaration.cnst n ls t tr) := n
 | (declaration.ax n ls t) := n
 
 definition declaration.univ_params : declaration → list name
-| (declaration.def n ls t v tr) := ls
+| (declaration.defn n ls t v tr) := ls
 | (declaration.thm n ls t v) := ls
 | (declaration.cnst n ls t tr) := ls
 | (declaration.ax n ls t) := ls
 
 definition declaration.type : declaration → expr
-| (declaration.def n ls t v tr) := t
+| (declaration.defn n ls t v tr) := t
 | (declaration.thm n ls t v) := t
 | (declaration.cnst n ls t tr) := t
 | (declaration.ax n ls t) := t

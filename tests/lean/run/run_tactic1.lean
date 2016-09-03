@@ -5,7 +5,7 @@ run_command tactic.trace "hello world"
 run_command do
  N ← to_expr `(nat),
  v ← to_expr `(10),
- add_decl (declaration.def `val10 [] N v tt)
+ add_decl (declaration.defn `val10 [] N v tt)
 
 vm_eval val10
 
@@ -16,7 +16,7 @@ meta_definition mk_defs : nat → command
 | (n+1) := do
    N ← to_expr `(nat),
    v ← expr_of_nat n,
-   add_decl (declaration.def (name.append_after `val n) [] N v tt),
+   add_decl (declaration.defn (name.append_after `val n) [] N v tt),
    mk_defs n
 
 run_command mk_defs 10

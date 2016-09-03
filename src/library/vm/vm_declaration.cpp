@@ -28,7 +28,7 @@ vm_obj to_obj(declaration const & n) {
     return mk_vm_external(new (get_vm_allocator().allocate(sizeof(vm_declaration))) vm_declaration(n));
 }
 
-vm_obj declaration_def(vm_obj const & n, vm_obj const & ls, vm_obj const & type, vm_obj const & value,
+vm_obj declaration_defn(vm_obj const & n, vm_obj const & ls, vm_obj const & type, vm_obj const & value,
                        vm_obj const & trusted) {
     return to_obj(mk_definition(to_name(n), to_list_name(ls), to_expr(type), to_expr(value), 0, true, to_bool(trusted)));
 }
@@ -93,7 +93,7 @@ vm_obj declaration_instantiate_value_univ_params(vm_obj const & _d, vm_obj const
 }
 
 void initialize_vm_declaration() {
-    DECLARE_VM_BUILTIN(name({"declaration", "def"}),            declaration_def);
+    DECLARE_VM_BUILTIN(name({"declaration", "defn"}),           declaration_defn);
     DECLARE_VM_BUILTIN(name({"declaration", "thm"}),            declaration_thm);
     DECLARE_VM_BUILTIN(name({"declaration", "cnst"}),           declaration_cnst);
     DECLARE_VM_BUILTIN(name({"declaration", "ax"}),             declaration_ax);

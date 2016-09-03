@@ -7,8 +7,6 @@ Basic datatypes
 -/
 prelude
 notation `Prop`  := Type.{0}
-notation [parsing_only] `Type'` := Type.{_+1}
-notation [parsing_only] `Type₊` := Type.{_+1}
 notation `Type₁` := Type.{1}
 notation `Type₂` := Type.{2}
 notation `Type₃` := Type.{3}

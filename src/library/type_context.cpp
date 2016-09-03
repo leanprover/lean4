@@ -2005,6 +2005,18 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
                         s = whnf_core(*unfold_definition(s));
                     }
                 }
+                /* If we haven't reduced t nor s, and they do not contain metavariables,
+                   then we try to use the definitional height to decide which one we will unfold
+                   (i.e., we mimic the behavior of the kernel type checker. */
+                if (!progress && !has_expr_metavar(t) && !has_expr_metavar(s)) {
+                    if (!d_t->is_theorem() && d_t->get_height() > d_s->get_height()) {
+                        progress = true;
+                        t        = whnf_core(*unfold_definition(t));
+                    } else if (!d_s->is_theorem() && d_t->get_height() < d_s->get_height()) {
+                        progress = true;
+                        s        = whnf_core(*unfold_definition(s));
+                    }
+                }
                 /* If we haven't reduced t nor s, then we reduce both IF the reduction is productive.
                    That is, the result of the reduction is not a recursor application. */
                 if (!progress) {

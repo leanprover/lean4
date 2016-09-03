@@ -1475,7 +1475,7 @@ bool type_context::process_assignment(expr const & m, expr const & v) {
                a_k =?= b_{i+k}
             */
             new_v_fn = mk_app(new_v_fn, new_v_args.size() - args.size(), new_v_args.data());
-            j        = args.size();
+            j        = new_v_args.size() - args.size();
         } else {
             /*
                ?M a_1 ... a_k =?= f b_1 ... b_k

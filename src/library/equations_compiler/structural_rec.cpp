@@ -803,12 +803,6 @@ struct structural_rec_fn {
         return mk_lemma_rhs_fn(ctx, fn, F, rec_arg, m_arg_pos, m_indices_pos)(rhs);
     }
 
-    expr prove_eqn_lemma(type_context & ctx, buffer<expr> const & Hs, expr const & lhs, expr const & /* rhs */) {
-        /* TODO(Leo): add support for pack/unpack lemmas and value */
-        expr proof = mk_eq_refl(ctx, lhs);
-        return ctx.mk_lambda(Hs, proof);
-    }
-
     void mk_lemmas(expr const & fn, list<expr> const & lemmas) {
         name base_name(const_name(get_app_fn(fn)), "equations");
         unsigned eqn_idx = 1;

@@ -81,6 +81,8 @@ environment mk_equation_lemma(environment const & env, options const & opts, met
 expr erase_inaccessible_annotations(expr const & e);
 list<expr> erase_inaccessible_annotations(list<expr> const & es);
 
+expr prove_eqn_lemma(type_context & ctx, buffer<expr> const & Hs, expr const & lhs, expr const & rhs);
+
 void initialize_eqn_compiler_util();
 void finalize_eqn_compiler_util();
 }

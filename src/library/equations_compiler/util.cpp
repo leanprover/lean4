@@ -10,7 +10,9 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"
+#include "library/trace.h"
 #include "library/private.h"
+#include "library/constants.h"
 #include "library/annotation.h"
 #include "library/replace_visitor.h"
 #include "library/aux_definition.h"
@@ -256,6 +258,57 @@ expr erase_inaccessible_annotations(expr const & e) {
 list<expr> erase_inaccessible_annotations(list<expr> const & es) {
     return map(es, [&](expr const & e) { return erase_inaccessible_annotations(e); });
 }
+
+
+static expr whnf_ite(type_context & ctx, expr const & e) {
+    return ctx.whnf_pred(e, [&](expr const & e) {
+            expr const & fn = get_app_fn(e);
+            return !is_constant(fn, get_ite_name());
+        });
+}
+
+static optional<expr> find_hypothesis_to_unstuck_ite(type_context & ctx, buffer<expr> const & Hs, expr const & lhs, buffer<expr> & ite_args) {
+    ite_args.clear();
+    expr const & fn = get_app_args(lhs, ite_args);
+    if (!is_constant(fn, get_ite_name()) || ite_args.size() != 5) return none_expr();
+    expr const & c = ite_args[0];
+    for (expr const & H : Hs) {
+        expr H_type = ctx.infer(H);
+        expr arg;
+        if (is_not(ctx.env(), H_type, arg) && ctx.is_def_eq(c, arg)) {
+            return some_expr(H);
+        }
+    }
+    return none_expr();
+}
+
+static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, expr const & lhs, expr const & rhs) {
+    if (ctx.is_def_eq(lhs, rhs)) {
+        return mk_eq_refl(ctx, lhs);
+    }
+
+    expr new_lhs     = whnf_ite(ctx, lhs);
+    buffer<expr> ite_args;
+    if (auto H = find_hypothesis_to_unstuck_ite(ctx, Hs, new_lhs, ite_args)) {
+        expr lhs_else = ite_args[4];
+        expr A        = ite_args[2];
+        level A_lvl   = get_level(ctx, A);
+        expr H1       = mk_app(mk_constant(get_if_neg_name(), {A_lvl}), {ite_args[0], ite_args[1], *H, A, ite_args[3], lhs_else});
+        expr H2       = prove_eqn_lemma_core(ctx, Hs, lhs_else, rhs);
+        return mk_eq_trans(ctx, H1, H2);
+    }
+
+    /* TODO(Leo): add support for pack/unpack lemmas */
+
+    throw exception("equation compiler failed to prove equation lemma (workaround: "
+                    "disable lemma generation using `set_option eqn_compiler.lemmas false`)");
+}
+
+expr prove_eqn_lemma(type_context & ctx, buffer<expr> const & Hs, expr const & lhs, expr const & rhs) {
+    expr body = prove_eqn_lemma_core(ctx, Hs, lhs, rhs);
+    return ctx.mk_lambda(Hs, body);
+}
+
 
 void initialize_eqn_compiler_util() {
     g_eqn_compiler_dsimp = new name{"eqn_compiler", "dsimp"};

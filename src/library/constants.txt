@@ -91,6 +91,7 @@ heq.refl
 heq.symm
 heq.trans
 heq_of_eq
+if_neg
 iff
 iff.elim_left
 iff.elim_right

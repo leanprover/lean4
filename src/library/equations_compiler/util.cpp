@@ -267,11 +267,15 @@ static expr whnf_ite(type_context & ctx, expr const & e) {
         });
 }
 
-static optional<expr> find_hypothesis_to_unstuck_ite(type_context & ctx, buffer<expr> const & Hs, expr const & lhs, buffer<expr> & ite_args) {
-    ite_args.clear();
+/* Return true iff `lhs` is of the form (@ite (x = y) s A t e).
+   If the result is true, then the ite args are stored in `ite_args`. */
+static bool is_ite_eq(expr const & lhs, buffer<expr> & ite_args) {
     expr const & fn = get_app_args(lhs, ite_args);
-    if (!is_constant(fn, get_ite_name()) || ite_args.size() != 5) return none_expr();
-    expr const & c = ite_args[0];
+    return is_constant(fn, get_ite_name()) && ite_args.size() == 5 && is_eq(ite_args[0]);
+}
+
+/* Try to find (H : not c) at Hs */
+static optional<expr> find_if_neg_hypothesis(type_context & ctx, expr const & c, buffer<expr> const & Hs) {
     for (expr const & H : Hs) {
         expr H_type = ctx.infer(H);
         expr arg;
@@ -283,19 +287,33 @@ static optional<expr> find_hypothesis_to_unstuck_ite(type_context & ctx, buffer<
 }
 
 static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, expr const & lhs, expr const & rhs) {
-    if (ctx.is_def_eq(lhs, rhs)) {
-        return mk_eq_refl(ctx, lhs);
+    buffer<expr> ite_args;
+    expr new_lhs = whnf_ite(ctx, lhs);
+    if (is_ite_eq(new_lhs, ite_args)) {
+        expr const & c = ite_args[0];
+        expr c_lhs, c_rhs;
+        lean_verify(is_eq(c, c_lhs, c_rhs));
+        if (ctx.is_def_eq(c_lhs, c_rhs)) {
+            expr H = mk_eq_refl(ctx, c_lhs);
+            expr lhs_then = ite_args[3];
+            expr A        = ite_args[2];
+            level A_lvl   = get_level(ctx, A);
+            expr H1       = mk_app(mk_constant(get_if_pos_name(), {A_lvl}), {c, ite_args[1], H, A, lhs_then, ite_args[4]});
+            expr H2       = prove_eqn_lemma_core(ctx, Hs, lhs_then, rhs);
+            expr eq_trans = mk_constant(get_eq_trans_name(), {A_lvl});
+            return mk_app(eq_trans, {A, lhs, lhs_then, rhs, H1, H2});
+        } else if (auto H = find_if_neg_hypothesis(ctx, c, Hs)) {
+            expr lhs_else = ite_args[4];
+            expr A        = ite_args[2];
+            level A_lvl   = get_level(ctx, A);
+            expr H1       = mk_app(mk_constant(get_if_neg_name(), {A_lvl}), {c, ite_args[1], *H, A, ite_args[3], lhs_else});
+            expr H2       = prove_eqn_lemma_core(ctx, Hs, lhs_else, rhs);
+            return mk_app(mk_constant(get_eq_trans_name(), {A_lvl}), {A, lhs, lhs_else, rhs, H1, H2});
+        }
     }
 
-    expr new_lhs     = whnf_ite(ctx, lhs);
-    buffer<expr> ite_args;
-    if (auto H = find_hypothesis_to_unstuck_ite(ctx, Hs, new_lhs, ite_args)) {
-        expr lhs_else = ite_args[4];
-        expr A        = ite_args[2];
-        level A_lvl   = get_level(ctx, A);
-        expr H1       = mk_app(mk_constant(get_if_neg_name(), {A_lvl}), {ite_args[0], ite_args[1], *H, A, ite_args[3], lhs_else});
-        expr H2       = prove_eqn_lemma_core(ctx, Hs, lhs_else, rhs);
-        return mk_eq_trans(ctx, H1, H2);
+    if (ctx.is_def_eq(lhs, rhs)) {
+        return mk_eq_refl(ctx, rhs);
     }
 
     /* TODO(Leo): add support for pack/unpack lemmas */

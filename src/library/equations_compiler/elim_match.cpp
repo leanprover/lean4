@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "util/flet.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
@@ -31,7 +32,17 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/elim_match.h"
 
+#ifndef LEAN_DEFAULT_EQN_COMPILER_ITE
+#define LEAN_DEFAULT_EQN_COMPILER_ITE true
+#endif
+
 namespace lean {
+static name * g_eqn_compiler_ite = nullptr;
+
+static bool get_eqn_compiler_ite(options const & o) {
+    return o.get_bool(*g_eqn_compiler_ite, LEAN_DEFAULT_EQN_COMPILER_ITE);
+}
+
 #define trace_match(Code) lean_trace(name({"eqn_compiler", "elim_match"}), Code)
 #define trace_match_debug(Code) lean_trace(name({"debug", "eqn_compiler", "elim_match"}), Code)
 
@@ -44,10 +55,16 @@ struct elim_match_fn {
     unsigned        m_depth{0};
     buffer<bool>    m_used_eqns;
     bool            m_lemmas;
+    bool            m_use_ite;
+    /* m_enum is a mapping from inductive type name to flag indicating whether it is
+       an enumeration type or not. */
+    name_map<bool>  m_enum;
 
     elim_match_fn(environment const & env, options const & opts,
                   metavar_context const & mctx):
-        m_env(env), m_opts(opts), m_mctx(mctx) {}
+        m_env(env), m_opts(opts), m_mctx(mctx) {
+        m_use_ite = get_eqn_compiler_ite(opts);
+    }
 
     struct equation {
         local_context  m_lctx;
@@ -99,8 +116,8 @@ struct elim_match_fn {
        in `e` are defined in `lctx` */
     bool check_locals_decl_at(expr const & e, local_context const & lctx) {
         for_each(e, [&](expr const & e, unsigned) {
-                if (is_local(e)) {
-                    lean_assert(lctx.get_local_decl(e));
+                if (is_local(e) && !lctx.get_local_decl(e)) {
+                    lean_unreachable();
                 }
                 return true;
             });
@@ -112,12 +129,18 @@ struct elim_match_fn {
         lean_assert(length(eqn.m_patterns) == length(P.m_var_stack));
         local_context const & lctx = get_local_context(P);
         eqn.m_subst.for_each([&](name const & n, expr const & e) {
-                lean_assert(eqn.m_lctx.get_local_decl(n));
-                lean_assert(check_locals_decl_at(e, lctx));
+                if (!eqn.m_lctx.get_local_decl(n)) {
+                    lean_unreachable();
+                }
+                if (!check_locals_decl_at(e, lctx)) {
+                    lean_unreachable();
+                }
             });
         lean_assert(check_locals_decl_at(eqn.m_rhs, eqn.m_lctx));
         for (expr const & p : eqn.m_patterns) {
-            lean_assert(check_locals_decl_at(p, eqn.m_lctx));
+            if (!check_locals_decl_at(p, eqn.m_lctx)) {
+                lean_unreachable();
+            }
         }
         return true;
     }
@@ -126,10 +149,14 @@ struct elim_match_fn {
     bool check_problem(problem const & P) {
         local_context const & lctx = get_local_context(P);
         for (expr const & x : P.m_var_stack) {
-            lean_assert(check_locals_decl_at(x, lctx));
+            if (!check_locals_decl_at(x, lctx)) {
+                lean_unreachable();
+            }
         }
         for (equation const & eqn : P.m_equations) {
-            lean_assert(check_equation(P, eqn));
+            if (!check_equation(P, eqn)) {
+                lean_unreachable();
+            }
         }
         return true;
     }
@@ -189,12 +216,6 @@ struct elim_match_fn {
         return r;
     }
 
-    bool is_value(expr const & /* e */) const {
-        return false;
-        // TODO(Leo)
-        // return to_num(e) || to_char(e) || to_string(e) || is_constructor(e);
-    }
-
     optional<name> is_constructor(name const & n) const { return inductive::is_intro_rule(m_env, n); }
     optional<name> is_constructor(expr const & e) const {
         if (!is_constant(e)) return optional<name>();
@@ -215,6 +236,39 @@ struct elim_match_fn {
         if (fn_name.is_atomic() || !fn_name.is_string()) return false;
         std::string s(fn_name.get_string());
         return is_inductive(fn_name.get_prefix()) && (s == "below" || s == "ibelow");
+    }
+
+    /* Return true iff I_name is an enumeration type with more than 2 elements.
+
+       \remark It is not worth to apply the if-then-else compilation step if the enumeration
+       types has only 2 (or 1) element. */
+    bool is_nontrivial_enum(name const & I_name) {
+        if (auto r = m_enum.find(I_name))
+            return *r;
+        buffer<name> c_names;
+        get_constructors_of(I_name, c_names);
+        bool result = true;
+        if (c_names.size() <= 2) {
+            result = false;
+        } else {
+            for (name const & c_name : c_names) {
+                declaration d = m_env.get(c_name);
+                expr type = d.get_type();
+                if (!is_constant(type) || const_name(type) != I_name) {
+                    result = false;
+                    break;
+                }
+            }
+        }
+        m_enum.insert(I_name, result);
+        return result;
+    }
+
+    bool is_value(expr const & e) {
+        if (!m_use_ite) return false;
+        if (to_num(e) || to_char(e) || to_string(e)) return true;
+        if (optional<name> I_name = is_constructor(e)) return is_nontrivial_enum(*I_name);
+        return false;
     }
 
     unsigned get_inductive_num_params(name const & n) const { return *inductive::get_num_params(m_env, n); }
@@ -370,7 +424,7 @@ struct elim_match_fn {
     }
 
     /* Return true iff the next pattern in all equations is a constructor. */
-    bool is_constructor_transition(problem const & P) const {
+    bool is_constructor_transition(problem const & P) {
         return all_next_pattern(P, [&](expr const & p) {
                 return is_constructor_app(p) || is_value(p);
             });
@@ -397,7 +451,7 @@ struct elim_match_fn {
     /* Return true iff the next pattern of every equation is a value or variable,
        and there are at least one equation where it is a variable and another where it is a
        value. */
-    bool is_value_transition(problem const & P) const {
+    bool is_value_transition(problem const & P) {
         bool has_value    = false;
         bool has_variable = false;
         bool r = all_next_pattern(P, [&](expr const & p) {
@@ -583,10 +637,7 @@ struct elim_match_fn {
             new_P.m_goal           = new_goal;
             name const & C         = head(new_goal_cnames);
             new_P.m_equations      = get_equations_for(C, I_nparams, head(slist), eqns);
-            list<lemma> Ls         = process(new_P);
-            for (lemma const & L : Ls) {
-                new_Ls.push_back(L);
-            }
+            to_buffer(process(new_P), new_Ls);
             new_goals       = tail(new_goals);
             new_goal_cnames = tail(new_goal_cnames);
             ilist           = tail(ilist);
@@ -596,8 +647,122 @@ struct elim_match_fn {
     }
 
     list<lemma> process_value(problem const & P) {
-        // TODO(Leo):
-        lean_unreachable();
+        trace_match(tout() << "step: if-then-else\n";);
+        bool is_last       = !tail(P.m_var_stack);
+        expr x             = head(P.m_var_stack);
+        local_context lctx = get_local_context(P.m_goal);
+        type_context ctx   = mk_type_context(P);
+        expr goal_type     = ctx.infer(P.m_goal);
+        expr else_goal     = ctx.mk_metavar_decl(lctx, goal_type);
+        buffer<expr> values;
+        buffer<expr> value_goals;
+        buffer<expr> eqs;
+        for (equation const & eqn : P.m_equations) {
+            expr const & p = head(eqn.m_patterns);
+            if (is_last && is_local(p))
+                break;
+            if (!is_local(p) &&
+                std::find(values.begin(), values.end(), p) == values.end()) {
+                values.push_back(p);
+                value_goals.push_back(ctx.mk_metavar_decl(lctx, goal_type));
+                expr const & eq = mk_eq(ctx, x, p);
+                eqs.push_back(eq);
+            }
+        }
+        expr goal_val = else_goal;
+        unsigned i    = value_goals.size();
+        while (i > 0) {
+            --i;
+            goal_val  = mk_ite(ctx, eqs[i], value_goals[i], goal_val);
+        }
+        m_mctx = ctx.mctx();
+        m_mctx.assign(P.m_goal, goal_val);
+        buffer<lemma> new_Ls;
+        for (unsigned i = 0; i < values.size(); i++) {
+            /* Process equations for values[i] */
+            problem new_P;
+            expr val          = values[i];
+            new_P.m_fn_name   = name(P.m_fn_name, "_ite_val");
+            new_P.m_goal      = value_goals[i];
+            new_P.m_var_stack = tail(P.m_var_stack);
+            buffer<equation> new_eqns;
+            for (equation const & eqn : P.m_equations) {
+                expr const & p = head(eqn.m_patterns);
+                if (p == val) {
+                    equation new_eqn    = eqn;
+                    new_eqn.m_patterns  = tail(new_eqn.m_patterns);
+                    new_eqns.push_back(new_eqn);
+                    if (is_last) break;
+                } else if (is_local(p)) {
+                    /* Replace variable `p` with `val` in this equation */
+                    type_context ctx   = mk_type_context(eqn.m_lctx);
+                    buffer<expr> from;
+                    buffer<expr> to;
+                    buffer<expr> new_vars;
+                    for (expr const & curr : eqn.m_vars) {
+                        if (curr == p) {
+                            from.push_back(p);
+                            to.push_back(val);
+                        } else {
+                            expr curr_type     = ctx.infer(curr);
+                            expr new_curr_type = replace_locals(curr_type, from, to);
+                            if (curr_type == new_curr_type) {
+                                new_vars.push_back(curr);
+                            } else {
+                                expr new_curr = ctx.push_local(local_pp_name(curr), new_curr_type);
+                                from.push_back(curr);
+                                to.push_back(new_curr);
+                                new_vars.push_back(new_curr);
+                            }
+                        }
+                    }
+                    equation new_eqn   = eqn;
+                    new_eqn.m_vars     = to_list(new_vars);
+                    new_eqn.m_lctx     = ctx.lctx();
+                    new_eqn.m_lhs_args = map(eqn.m_lhs_args, [&](expr const & arg) {
+                            return replace_locals(arg, from, to); });
+                    new_eqn.m_rhs      = replace_locals(eqn.m_rhs, from, to);
+                    new_eqn.m_patterns = map(tail(eqn.m_patterns), [&](expr const & p) {
+                            return replace_locals(p, from, to); });
+                    new_eqns.push_back(new_eqn);
+                    if (is_last) break;
+                }
+            }
+            new_P.m_equations = to_list(new_eqns);
+            to_buffer(process(new_P), new_Ls);
+        }
+        {
+            /* Else-case */
+            problem new_P;
+            new_P.m_fn_name   = name(P.m_fn_name, "_ite_else");
+            new_P.m_goal      = else_goal;
+            new_P.m_var_stack = tail(P.m_var_stack);
+            buffer<equation> new_eqns;
+            for (equation const & eqn : P.m_equations) {
+                expr const & p = head(eqn.m_patterns);
+                if (is_local(p)) {
+                    equation new_eqn = eqn;
+                    new_eqn.m_patterns = tail(new_eqn.m_patterns);
+                    new_eqn.m_subst    = add_subst(eqn.m_subst, p, x);
+                    type_context ctx   = mk_type_context(eqn.m_lctx);
+                    new_eqn.m_hs       = eqn.m_hs;
+                    unsigned idx       = length(eqn.m_hs) + 1;
+                    for (unsigned i = 0; i < values.size(); i++) {
+                        expr eq        = mk_eq(ctx, p, values[i]);
+                        expr ne        = mk_not(ctx, eq);
+                        expr H         = ctx.push_local(name("_h").append_after(idx), ne);
+                        idx++;
+                        new_eqn.m_hs   = cons(H, new_eqn.m_hs);
+                    }
+                    new_eqn.m_lctx     = ctx.lctx();
+                    new_eqns.push_back(new_eqn);
+                    if (is_last) break;
+                }
+            }
+            new_P.m_equations = to_list(new_eqns);
+            to_buffer(process(new_P), new_Ls);
+        }
+        return to_list(new_Ls);
     }
 
     list<lemma> process_complete(problem const & P) {
@@ -823,7 +988,13 @@ elim_match_result elim_match(environment & env, options const & opts, metavar_co
 void initialize_elim_match() {
     register_trace_class({"eqn_compiler", "elim_match"});
     register_trace_class({"debug", "eqn_compiler", "elim_match"});
+
+    g_eqn_compiler_ite = new name{"eqn_compiler", "ite"};
+    register_bool_option(*g_eqn_compiler_ite, LEAN_DEFAULT_EQN_COMPILER_ITE,
+                         "(equation compiler) use if-then-else terms when pattern matching on simple values "
+                         "(e.g., strings and characters)");
 }
 void finalize_elim_match() {
+    delete g_eqn_compiler_ite;
 }
 }

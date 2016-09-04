@@ -604,40 +604,39 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
         t_n = whnf_core(*unfold_definition(t_n));
     } else if (!d_t && d_s) {
         s_n = whnf_core(*unfold_definition(s_n));
-    } else if (!d_t->is_theorem() && d_s->is_theorem()) {
-        t_n = whnf_core(*unfold_definition(t_n));
-    } else if (!d_s->is_theorem() && d_t->is_theorem()) {
-        s_n = whnf_core(*unfold_definition(s_n));
-    } else if (!d_t->is_theorem() && d_t->get_height() > d_s->get_height()) {
-        t_n = whnf_core(*unfold_definition(t_n));
-    } else if (!d_s->is_theorem() && d_t->get_height() < d_s->get_height()) {
-        s_n = whnf_core(*unfold_definition(s_n));
     } else {
-        if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
-            // If t_n and s_n are both applications of the same (non-opaque) definition,
-            if (has_expr_metavar(t_n) || has_expr_metavar(s_n)) {
-                // We let the unifier deal with cases such as
-                // (f ...) =?= (f ...)
-                // when t_n or s_n contains metavariables
-                return reduction_status::DefUnknown;
-            } else {
-                // Optimization:
-                // We try to check if their arguments are definitionally equal.
-                // If they are, then t_n and s_n must be definitionally equal, and we can
-                // skip the delta-reduction step.
-                // If the flag use_conv_opt() is not true, then we skip this optimization
-                if (d_t->use_conv_opt() && !failed_before(t_n, s_n)) {
-                    if (is_def_eq(const_levels(get_app_fn(t_n)), const_levels(get_app_fn(s_n))) &&
-                        is_def_eq_args(t_n, s_n)) {
-                        return reduction_status::DefEqual;
-                    } else {
-                        cache_failure(t_n, s_n);
+        int c = compare(d_t->get_hints(), d_s->get_hints());
+        if (c < 0) {
+            t_n = whnf_core(*unfold_definition(t_n));
+        } else if (c > 0) {
+            s_n = whnf_core(*unfold_definition(s_n));
+        } else {
+            if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
+                // If t_n and s_n are both applications of the same (non-opaque) definition,
+                if (has_expr_metavar(t_n) || has_expr_metavar(s_n)) {
+                    // We let the unifier deal with cases such as
+                    // (f ...) =?= (f ...)
+                    // when t_n or s_n contains metavariables
+                    return reduction_status::DefUnknown;
+                } else {
+                    // Optimization:
+                    // We try to check if their arguments are definitionally equal.
+                    // If they are, then t_n and s_n must be definitionally equal, and we can
+                    // skip the delta-reduction step.
+                    // If the flag use_self_opt() is not true, then we skip this optimization
+                    if (d_t->get_hints().use_self_opt() && !failed_before(t_n, s_n)) {
+                        if (is_def_eq(const_levels(get_app_fn(t_n)), const_levels(get_app_fn(s_n))) &&
+                            is_def_eq_args(t_n, s_n)) {
+                            return reduction_status::DefEqual;
+                        } else {
+                            cache_failure(t_n, s_n);
+                        }
                     }
                 }
             }
+            t_n = whnf_core(*unfold_definition(t_n));
+            s_n = whnf_core(*unfold_definition(s_n));
         }
-        t_n = whnf_core(*unfold_definition(t_n));
-        s_n = whnf_core(*unfold_definition(s_n));
     }
     switch (quick_is_def_eq(t_n, s_n)) {
     case l_true:  return reduction_status::DefEqual;

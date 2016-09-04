@@ -25,36 +25,37 @@ static environment add_decl(environment const & env, declaration const & d) {
 
 static void tst1() {
     environment env1;
-    auto env2 = add_decl(env1, mk_definition("Prop", level_param_names(), mk_Type(), mk_Prop()));
+    reducibility_hints hints = reducibility_hints::mk_abbreviation();
+    auto env2 = add_decl(env1, mk_definition("Prop", level_param_names(), mk_Type(), mk_Prop(), hints));
     lean_assert(!env1.find("Prop"));
     lean_assert(env2.find("Prop"));
     lean_assert(env2.find("Prop")->get_value() == mk_Prop());
     try {
-        auto env3 = add_decl(env2, mk_definition("Prop", level_param_names(), mk_Type(), mk_Prop()));
+        auto env3 = add_decl(env2, mk_definition("Prop", level_param_names(), mk_Type(), mk_Prop(), hints));
         lean_unreachable();
     } catch (kernel_exception & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
     try {
-        auto env4 = add_decl(env2, mk_definition("BuggyProp", level_param_names(), mk_Prop(), mk_Prop()));
+        auto env4 = add_decl(env2, mk_definition("BuggyProp", level_param_names(), mk_Prop(), mk_Prop(), hints));
         lean_unreachable();
     } catch (kernel_exception & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
     try {
-        auto env5 = add_decl(env2, mk_definition("Type1", level_param_names(), mk_metavar("T", mk_sort(mk_meta_univ("l"))), mk_Type()));
+        auto env5 = add_decl(env2, mk_definition("Type1", level_param_names(), mk_metavar("T", mk_sort(mk_meta_univ("l"))), mk_Type(), hints));
         lean_unreachable();
     } catch (kernel_exception & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
     try {
-        auto env6 = add_decl(env2, mk_definition("Type1", level_param_names(), mk_Type(), mk_metavar("T", mk_sort(mk_meta_univ("l")))));
+        auto env6 = add_decl(env2, mk_definition("Type1", level_param_names(), mk_Type(), mk_metavar("T", mk_sort(mk_meta_univ("l"))), hints));
         lean_unreachable();
     } catch (kernel_exception & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
     try {
-        auto env7 = add_decl(env2, mk_definition("foo", level_param_names(), mk_Type() >> mk_Type(), mk_Prop()));
+        auto env7 = add_decl(env2, mk_definition("foo", level_param_names(), mk_Type() >> mk_Type(), mk_Prop(), hints));
         lean_unreachable();
     } catch (kernel_exception & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
@@ -64,7 +65,7 @@ static void tst1() {
     expr x = Local("x", A);
     auto env3 = add_decl(env2, mk_definition("id", level_param_names(),
                                              Pi(A, A >> A),
-                                             Fun({A, x}, x)));
+                                             Fun({A, x}, x), hints));
     expr Prop = mk_Prop();
     expr c  = mk_local("c", Prop);
     expr id = Const("id");
@@ -79,13 +80,14 @@ static void tst1() {
 
 static void tst2() {
     environment env;
+    reducibility_hints hints = reducibility_hints::mk_abbreviation();
     expr Type = mk_Type();
     expr A = Local("A", Type);
     expr x = Local("x", A);
     expr id = Const("id");
     env = add_decl(env, mk_definition("id", level_param_names(),
                                       Pi(A, A >> A),
-                                      Fun({A, x}, x)));
+                                      Fun({A, x}, x), hints));
     expr mk = Const("mk");
     expr proj1 = Const("proj1");
     expr a = Const("a");

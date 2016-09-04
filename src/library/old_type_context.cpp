@@ -220,7 +220,7 @@ expr old_type_context::whnf_core(expr const & e) {
 expr old_type_context::unfold_name_core(expr e, unsigned h) {
     if (is_constant(e)) {
         if (auto d = is_transparent(const_name(e))) {
-            if (d->get_height() >= h && length(const_levels(e)) == d->get_num_univ_params())
+            if (d->get_hints().get_height() >= h && length(const_levels(e)) == d->get_num_univ_params())
                 return unfold_name_core(instantiate_value_univ_params(*d, const_levels(e)), h);
         }
     }
@@ -872,23 +872,26 @@ auto old_type_context::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> redu
         t_n = whnf_core(unfold_names(t_n, 0));
     } else if (!d_t && d_s) {
         s_n = whnf_core(unfold_names(s_n, 0));
-    } else if (d_t->get_height() > d_s->get_height()) {
-        t_n = whnf_core(unfold_names(t_n, d_s->get_height() + 1));
-    } else if (d_t->get_height() < d_s->get_height()) {
-        s_n = whnf_core(unfold_names(s_n, d_t->get_height() + 1));
     } else {
-        if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
-            if (!is_opaque(*d_t)) {
-                scope s(*this);
-                if (is_def_eq_args(t_n, s_n) &&
-                    is_def_eq(const_levels(get_app_fn(t_n)), const_levels(get_app_fn(s_n)))) {
-                    s.commit();
-                    return reduction_status::DefEqual;
+        int c = compare(d_t->get_hints(), d_s->get_hints());
+        if (c < 0) {
+            t_n = whnf_core(unfold_names(t_n, d_t->get_hints().get_height()));
+        } else if (c > 0) {
+            s_n = whnf_core(unfold_names(s_n, d_s->get_hints().get_height()));
+        } else {
+            if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
+                if (!is_opaque(*d_t)) {
+                    scope s(*this);
+                    if (is_def_eq_args(t_n, s_n) &&
+                        is_def_eq(const_levels(get_app_fn(t_n)), const_levels(get_app_fn(s_n)))) {
+                        s.commit();
+                        return reduction_status::DefEqual;
+                    }
                 }
             }
+            t_n = whnf_core(unfold_names(t_n, d_t->get_hints().get_height() - 1));
+            s_n = whnf_core(unfold_names(s_n, d_s->get_hints().get_height() - 1));
         }
-        t_n = whnf_core(unfold_names(t_n, d_t->get_height() - 1));
-        s_n = whnf_core(unfold_names(s_n, d_s->get_height() - 1));
     }
     switch (quick_is_def_eq(t_n, s_n)) {
     case l_true:  return reduction_status::DefEqual;

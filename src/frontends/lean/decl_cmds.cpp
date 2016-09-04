@@ -820,7 +820,7 @@ class definition_cmd_fn {
                     c_type  = postprocess(m_env, c_type);
                     c_value = postprocess(m_env, c_value);
                     if (m_kind == Theorem) {
-                        cd = check(mk_theorem(m_env, m_real_name, c_ls, c_type, c_value));
+                        cd = check(mk_theorem(m_real_name, c_ls, c_type, c_value));
                         if (m_p.keep_new_thms()) {
                             if (!m_is_private)
                                 m_p.add_decl_index(m_real_name, m_pos, m_p.get_cmd_token(), c_type);
@@ -970,9 +970,9 @@ class definition_cmd_fn {
                 m_env = module::add(m_env, check(mk_definition(m_env, m_real_aux_names[i], new_ls,
                                                                m_aux_types[i], aux_values[i], use_conv_opt, is_trusted())));
         } else {
-            m_env = module::add(m_env, check(mk_theorem(m_env, m_real_name, new_ls, m_type, m_value)));
+            m_env = module::add(m_env, check(mk_theorem(m_real_name, new_ls, m_type, m_value)));
             for (unsigned i = 0; i < aux_values.size(); i++)
-                m_env = module::add(m_env, check(mk_theorem(m_env, m_real_aux_names[i], new_ls,
+                m_env = module::add(m_env, check(mk_theorem(m_real_aux_names[i], new_ls,
                                                             m_aux_types[i], aux_values[i])));
         }
     }
@@ -1007,7 +1007,7 @@ class definition_cmd_fn {
                     auto cd = is_example() ?
                         // Examples don't need to be trusted
                         check(mk_definition(m_env, m_real_name, new_ls, m_type, m_value, false, false))
-                      : check(mk_theorem(m_env, m_real_name, new_ls, m_type, m_value));
+                      : check(mk_theorem(m_real_name, new_ls, m_type, m_value));
                     if (m_kind == Theorem) {
                         // Remark: we don't keep examples
                         if (m_p.keep_new_thms()) {

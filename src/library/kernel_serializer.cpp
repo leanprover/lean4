@@ -283,24 +283,44 @@ expr read_expr(deserializer & d) {
     return d.get_extension<expr_deserializer>(g_expr_sd->m_d_extid).read();
 }
 
+serializer & operator<<(serializer & s, reducibility_hints const & h) {
+    s << static_cast<char>(h.get_kind());
+    if (h.is_regular())
+        s << static_cast<char>(h.use_self_opt()) << h.get_height();
+    return s;
+}
+
+reducibility_hints read_hints(deserializer & d) {
+    char k;
+    d >> k;
+    reducibility_hints::kind kind = static_cast<reducibility_hints::kind>(k);
+    if (kind == reducibility_hints::Regular) {
+        char use_conv; unsigned height;
+        d >> use_conv >> height;
+        return reducibility_hints::mk_regular(height, static_cast<bool>(use_conv));
+    } else if (kind == reducibility_hints::Opaque) {
+        return reducibility_hints::mk_opaque();
+    } else {
+        return reducibility_hints::mk_abbreviation();
+    }
+}
+
 // Declaration serialization
 serializer & operator<<(serializer & s, level_param_names const & ps) { return write_list<name>(s, ps); }
 level_param_names read_level_params(deserializer & d) { return read_list<name>(d); }
 serializer & operator<<(serializer & s, declaration const & d) {
     char k = 0;
-    if (d.is_definition()) {
+    if (d.is_definition())
         k |= 1;
-        if (d.use_conv_opt())
-            k |= 2;
-    }
     if (d.is_theorem() || d.is_axiom())
-        k |= 4;
+        k |= 2;
     if (d.is_trusted())
-        k |= 8;
+        k |= 4;
     s << k << d.get_name() << d.get_univ_params() << d.get_type();
     if (d.is_definition()) {
         s << d.get_value();
-        s << d.get_height();
+        if (!d.is_theorem())
+            s << d.get_hints();
     }
     return s;
 }
@@ -308,19 +328,18 @@ serializer & operator<<(serializer & s, declaration const & d) {
 declaration read_declaration(deserializer & d) {
     char k               = d.read_char();
     bool has_value       = (k & 1) != 0;
-    bool is_th_ax        = (k & 4) != 0;
-    bool is_trusted      = (k & 8) != 0;
+    bool is_th_ax        = (k & 2) != 0;
+    bool is_trusted      = (k & 4) != 0;
     name n               = read_name(d);
     level_param_names ps = read_level_params(d);
     expr t               = read_expr(d);
     if (has_value) {
         expr v      = read_expr(d);
-        unsigned w  = d.read_unsigned();
         if (is_th_ax) {
-            return mk_theorem(n, ps, t, v, w);
+            return mk_theorem(n, ps, t, v);
         } else {
-            bool use_conv_opt = (k & 2) != 0;
-            return mk_definition(n, ps, t, v, w, use_conv_opt, is_trusted);
+            reducibility_hints hints = read_hints(d);
+            return mk_definition(n, ps, t, v, hints, is_trusted);
         }
     } else {
         if (is_th_ax)

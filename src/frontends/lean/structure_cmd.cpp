@@ -746,7 +746,8 @@ struct structure_cmd_fn {
         name rec_on_name(m_name, "rec_on");
         declaration rec_on_decl = m_env.get(rec_on_name);
         declaration new_decl = mk_definition_inferring_trusted(m_env, n, rec_on_decl.get_univ_params(),
-                                                               rec_on_decl.get_type(), rec_on_decl.get_value());
+                                                               rec_on_decl.get_type(), rec_on_decl.get_value(),
+                                                               reducibility_hints::mk_abbreviation());
         m_env = module::add(m_env, check(m_env, new_decl));
         m_env = set_reducible(m_env, n, reducible_status::Reducible, true);
         if (list<unsigned> idx = has_unfold_hint(m_env, rec_on_name))

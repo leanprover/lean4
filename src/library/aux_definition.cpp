@@ -129,13 +129,13 @@ struct mk_aux_definition_fn {
         new_value = replace_locals(new_value, m_params, norm_params);
         expr def_type  = m_ctx.mk_pi(norm_params, new_type);
         expr def_value = m_ctx.mk_lambda(norm_params, new_value);
-        bool use_conv_opt = true;
+        bool use_self_opt = true;
         environment const & env = m_ctx.env();
         declaration d;
         if (is_meta)
-            d = mk_definition(env, c, to_list(m_level_params), def_type, def_value, use_conv_opt, !*is_meta);
+            d = mk_definition(env, c, to_list(m_level_params), def_type, def_value, use_self_opt, !*is_meta);
         else
-            d = mk_definition_inferring_trusted(env, c, to_list(m_level_params), def_type, def_value, use_conv_opt);
+            d = mk_definition_inferring_trusted(env, c, to_list(m_level_params), def_type, def_value, use_self_opt);
         environment new_env = module::add(env, check(env, d));
         buffer<level> ls;
         for (name const & n : m_level_params) {

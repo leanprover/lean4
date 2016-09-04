@@ -155,12 +155,11 @@ declaration unfold_untrusted_macros(environment const & env, declaration const &
         expr new_t = unfold_untrusted_macros(env, d.get_type(), trust_lvl);
         if (d.is_theorem()) {
             expr new_v = unfold_untrusted_macros(env, d.get_value(), trust_lvl);
-            return mk_theorem(d.get_name(), d.get_univ_params(), new_t, new_v,
-                              d.get_height());
+            return mk_theorem(d.get_name(), d.get_univ_params(), new_t, new_v);
         } else if (d.is_definition()) {
             expr new_v = unfold_untrusted_macros(env, d.get_value(), trust_lvl);
             return mk_definition(d.get_name(), d.get_univ_params(), new_t, new_v,
-                                 d.get_height(), d.use_conv_opt(), d.is_trusted());
+                                 d.get_hints(), d.is_trusted());
         } else if (d.is_axiom()) {
             return mk_axiom(d.get_name(), d.get_univ_params(), new_t);
         } else if (d.is_constant_assumption()) {

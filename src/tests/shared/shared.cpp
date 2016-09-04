@@ -33,7 +33,7 @@ int main() {
     expr a = Local("a", A);
     env = add_decl(env, mk_definition("id", level_param_names(),
                                       Pi(A, A >> A),
-                                      Fun({A, a}, a)));
+                                      Fun({A, a}, a), reducibility_hints::mk_abbreviation()));
     type_checker checker(env);
     expr f96 = Const(name(base, 96));
     expr f97 = Const(name(base, 97));

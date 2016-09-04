@@ -178,9 +178,8 @@ environment mk_cases_on(environment const & env, name const & n) {
     expr cases_on_type  = Pi(cases_on_params, rec_type);
     expr cases_on_value = Fun(cases_on_params,  mk_app(rec_cnst, rec_args));
 
-    bool use_conv_opt = true;
     declaration new_d = mk_definition_inferring_trusted(env, cases_on_name, rec_decl.get_univ_params(), cases_on_type, cases_on_value,
-                                                        use_conv_opt);
+                                                        reducibility_hints::mk_abbreviation());
     environment new_env = module::add(env, check(env, new_d));
     new_env = set_reducible(new_env, cases_on_name, reducible_status::Reducible, true);
     new_env = add_unfold_hint(new_env, cases_on_name, cases_on_major_idx, false);

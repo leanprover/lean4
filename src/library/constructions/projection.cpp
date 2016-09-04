@@ -253,9 +253,8 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
                                            nparams + i, lvl_params, mtype, mval, proj_args.back());
             proj_val = Fun(proj_args, proj_val);
         }
-        bool use_conv_opt = false;
         declaration new_d = mk_definition_inferring_trusted(env, proj_name, lvl_params, proj_type, proj_val,
-                                                            use_conv_opt);
+                                                            reducibility_hints::mk_abbreviation());
         new_env = module::add(new_env, check(new_env, new_d));
         new_env = set_reducible(new_env, proj_name, reducible_status::Reducible, true);
         new_env = add_unfold_hint(new_env, proj_name, nparams, true);

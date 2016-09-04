@@ -130,7 +130,7 @@ bool old_default_converter::is_opaque(declaration const &) const {
 expr old_default_converter::unfold_name_core(expr e, unsigned h) {
     if (is_constant(e)) {
         if (auto d = m_env.find(const_name(e))) {
-            if (d->is_definition() && !is_opaque(*d) && d->get_height() >= h &&
+            if (d->is_definition() && !is_opaque(*d) && d->get_hints().get_height() >= h &&
                 length(const_levels(e)) == d->get_num_univ_params())
                 return unfold_name_core(instantiate_value_univ_params(*d, const_levels(e)), h);
         }
@@ -490,42 +490,41 @@ auto old_default_converter::lazy_delta_reduction_step(expr & t_n, expr & s_n, co
         t_n = whnf_core(unfold_names(t_n, 0));
     } else if (!d_t && d_s) {
         s_n = whnf_core(unfold_names(s_n, 0));
-    } else if (!d_t->is_theorem() && d_s->is_theorem()) {
-        t_n = whnf_core(unfold_names(t_n, d_t->get_height()));
-    } else if (!d_s->is_theorem() && d_t->is_theorem()) {
-        s_n = whnf_core(unfold_names(s_n, d_s->get_height()));
-    } else if (!d_t->is_theorem() && d_t->get_height() > d_s->get_height()) {
-        t_n = whnf_core(unfold_names(t_n, d_s->get_height() + 1));
-    } else if (!d_s->is_theorem() && d_t->get_height() < d_s->get_height()) {
-        s_n = whnf_core(unfold_names(s_n, d_t->get_height() + 1));
     } else {
-        if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
-            // If t_n and s_n are both applications of the same (non-opaque) definition,
-            if (has_expr_metavar(t_n) || has_expr_metavar(s_n)) {
-                // We let the unifier deal with cases such as
-                // (f ...) =?= (f ...)
-                // when t_n or s_n contains metavariables
+        int c = compare(d_t->get_hints(), d_s->get_hints());
+        if (c < 0) {
+            t_n = whnf_core(unfold_names(t_n, d_t->get_hints().get_height()));
+        } else if (c > 0) {
+            s_n = whnf_core(unfold_names(s_n, d_s->get_hints().get_height()));
+        } else {
+            if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
+                // If t_n and s_n are both applications of the same (non-opaque) definition,
+                if (has_expr_metavar(t_n) || has_expr_metavar(s_n)) {
+                    // We let the unifier deal with cases such as
+                    // (f ...) =?= (f ...)
+                    // when t_n or s_n contains metavariables
                 return reduction_status::DefUnknown;
-            } else {
-                // Optimization:
-                // We try to check if their arguments are definitionally equal.
-                // If they are, then t_n and s_n must be definitionally equal, and we can
-                // skip the delta-reduction step.
-                // If the flag use_conv_opt() is not true, then we skip this optimization
-                constraint_seq tmp_cs;
-                if (!is_opaque(*d_t) && d_t->use_conv_opt() && !failed_before(t_n, s_n)) {
-                    if (is_def_eq(const_levels(get_app_fn(t_n)), const_levels(get_app_fn(s_n)), tmp_cs) &&
-                        is_def_eq_args(t_n, s_n, tmp_cs)) {
-                        cs += tmp_cs;
-                        return reduction_status::DefEqual;
-                    } else {
-                        cache_failure(t_n, s_n);
+                } else {
+                    // Optimization:
+                    // We try to check if their arguments are definitionally equal.
+                    // If they are, then t_n and s_n must be definitionally equal, and we can
+                    // skip the delta-reduction step.
+                    // If the flag use_self_opt() is not true, then we skip this optimization
+                    constraint_seq tmp_cs;
+                    if (!is_opaque(*d_t) && d_t->get_hints().use_self_opt() && !failed_before(t_n, s_n)) {
+                        if (is_def_eq(const_levels(get_app_fn(t_n)), const_levels(get_app_fn(s_n)), tmp_cs) &&
+                            is_def_eq_args(t_n, s_n, tmp_cs)) {
+                            cs += tmp_cs;
+                            return reduction_status::DefEqual;
+                        } else {
+                            cache_failure(t_n, s_n);
+                        }
                     }
                 }
             }
+            t_n = whnf_core(unfold_names(t_n, d_t->get_hints().get_height() > 0 ? d_t->get_hints().get_height() - 1 : 0));
+            s_n = whnf_core(unfold_names(s_n, d_s->get_hints().get_height() > 0 ? d_s->get_hints().get_height() - 1 : 0));
         }
-        t_n = whnf_core(unfold_names(t_n, d_t->get_height() > 0 ? d_t->get_height() - 1 : 0));
-        s_n = whnf_core(unfold_names(s_n, d_s->get_height() > 0 ? d_s->get_height() - 1 : 0));
     }
     switch (quick_is_def_eq(t_n, s_n, cs)) {
     case l_true:  return reduction_status::DefEqual;

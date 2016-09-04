@@ -55,10 +55,9 @@ environment mk_rec_on(environment const & env, name const & n) {
     expr rec  = mk_constant(rec_decl.get_name(), ls);
     expr rec_on_val = Fun(new_locals, mk_app(rec, locals));
 
-    bool use_conv_opt = true;
     environment new_env = module::add(env,
                                       check(env, mk_definition_inferring_trusted(env, rec_on_name, rec_decl.get_univ_params(),
-                                                                                 rec_on_type, rec_on_val, use_conv_opt)));
+                                                                                 rec_on_type, rec_on_val, reducibility_hints::mk_abbreviation())));
     new_env = set_reducible(new_env, rec_on_name, reducible_status::Reducible, true);
     new_env = add_unfold_hint(new_env, rec_on_name, rec_on_major_idx, true);
     new_env = add_aux_recursor(new_env, rec_on_name);

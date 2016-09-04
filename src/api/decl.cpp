@@ -33,7 +33,7 @@ lean_bool lean_decl_mk_def(lean_name n, lean_list_name p, lean_expr t, lean_expr
     check_nonnull(p);
     check_nonnull(t);
     check_nonnull(v);
-    *r = of_decl(new declaration(mk_definition(to_name_ref(n), to_list_name_ref(p), to_expr_ref(t), to_expr_ref(v), h, static_cast<bool>(o))));
+    *r = of_decl(new declaration(mk_definition(to_name_ref(n), to_list_name_ref(p), to_expr_ref(t), to_expr_ref(v), reducibility_hints::mk_regular(h, static_cast<bool>(o)))));
     LEAN_CATCH;
 }
 
@@ -48,24 +48,25 @@ lean_bool lean_decl_mk_def_with(lean_env e, lean_name n, lean_list_name p, lean_
     LEAN_CATCH;
 }
 
-lean_bool lean_decl_mk_thm(lean_name n, lean_list_name p, lean_expr t, lean_expr v, unsigned h, lean_decl * r, lean_exception * ex) {
+// TODO(Leo): delete unnecessary argument h
+lean_bool lean_decl_mk_thm(lean_name n, lean_list_name p, lean_expr t, lean_expr v, unsigned /* h */, lean_decl * r, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(n);
     check_nonnull(p);
     check_nonnull(t);
     check_nonnull(v);
-    *r = of_decl(new declaration(mk_theorem(to_name_ref(n), to_list_name_ref(p), to_expr_ref(t), to_expr_ref(v), h)));
+    *r = of_decl(new declaration(mk_theorem(to_name_ref(n), to_list_name_ref(p), to_expr_ref(t), to_expr_ref(v))));
     LEAN_CATCH;
 }
 
-lean_bool lean_decl_mk_thm_with(lean_env e, lean_name n, lean_list_name p, lean_expr t, lean_expr v, lean_decl * r, lean_exception * ex) {
+// TODO(Leo): delete unnecessary argument e
+lean_bool lean_decl_mk_thm_with(lean_env /* e */, lean_name n, lean_list_name p, lean_expr t, lean_expr v, lean_decl * r, lean_exception * ex) {
     LEAN_TRY;
-    check_nonnull(e);
     check_nonnull(n);
     check_nonnull(p);
     check_nonnull(t);
     check_nonnull(v);
-    *r = of_decl(new declaration(mk_theorem(to_env_ref(e), to_name_ref(n), to_list_name_ref(p), to_expr_ref(t), to_expr_ref(v))));
+    *r = of_decl(new declaration(mk_theorem(to_name_ref(n), to_list_name_ref(p), to_expr_ref(t), to_expr_ref(v))));
     LEAN_CATCH;
 }
 
@@ -125,7 +126,7 @@ lean_bool lean_decl_get_value(lean_decl d, lean_expr * r, lean_exception * ex) {
 lean_bool lean_decl_get_height(lean_decl d, unsigned * r, lean_exception * ex) {
     LEAN_TRY;
     check_def_thm(d);
-    *r = to_decl_ref(d).get_height();
+    *r = to_decl_ref(d).get_hints().get_height();
     LEAN_CATCH;
 }
 
@@ -138,7 +139,7 @@ static void check_def(lean_decl d) {
 lean_bool lean_decl_get_conv_opt(lean_decl d, lean_bool * r, lean_exception * ex) {
     LEAN_TRY;
     check_def(d);
-    *r = to_decl_ref(d).use_conv_opt();
+    *r = to_decl_ref(d).get_hints().use_self_opt();
     LEAN_CATCH;
 }
 

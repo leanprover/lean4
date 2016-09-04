@@ -25,14 +25,13 @@ environment mk_induction_on(environment const & env, name const & n) {
     declaration ind_decl      = env.get(n);
     unsigned rec_on_num_univs = rec_on_decl.get_num_univ_params();
     unsigned ind_num_univs    = ind_decl.get_num_univ_params();
-    bool use_conv_opt         = true;
     environment new_env       = env;
     if (rec_on_num_univs == ind_num_univs) {
         // easy case, induction_on is just an alias for rec_on
         certified_declaration cdecl = check(new_env,
                                             mk_definition_inferring_trusted(new_env, induction_on_name, rec_on_decl.get_univ_params(),
                                                                             rec_on_decl.get_type(), rec_on_decl.get_value(),
-                                                                            use_conv_opt));
+                                                                            reducibility_hints::mk_opaque()));
         new_env = module::add(new_env, cdecl);
     } else {
         level_param_names induction_on_univs = tail(rec_on_decl.get_univ_params());
@@ -43,7 +42,7 @@ environment mk_induction_on(environment const & env, name const & n) {
         certified_declaration cdecl = check(new_env,
                                             mk_definition_inferring_trusted(new_env, induction_on_name, induction_on_univs,
                                                                             induction_on_type, induction_on_value,
-                                                                            use_conv_opt));
+                                                                            reducibility_hints::mk_opaque()));
         new_env = add_aux_recursor(new_env, induction_on_name);
         new_env = module::add(new_env, cdecl);
     }

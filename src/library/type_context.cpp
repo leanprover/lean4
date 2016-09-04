@@ -2009,10 +2009,11 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
                    then we try to use the definitional height to decide which one we will unfold
                    (i.e., we mimic the behavior of the kernel type checker. */
                 if (!progress && !has_expr_metavar(t) && !has_expr_metavar(s)) {
-                    if (!d_t->is_theorem() && d_t->get_height() > d_s->get_height()) {
+                    int c = compare(d_t->get_hints(), d_s->get_hints());
+                    if (c < 0) {
                         progress = true;
                         t        = whnf_core(*unfold_definition(t));
-                    } else if (!d_s->is_theorem() && d_t->get_height() < d_s->get_height()) {
+                    } else if (c > 0) {
                         progress = true;
                         s        = whnf_core(*unfold_definition(s));
                     }

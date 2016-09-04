@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/num.h"
 #include "library/kernel_serializer.h"
-#include "library/compiler/compiler_step_visitor.h"
+#include "library/replace_visitor_with_tc.h"
 
 namespace lean {
 static expr * g_nat               = nullptr;
@@ -92,18 +92,19 @@ optional<expr> to_nat_value(type_context & ctx, expr const & e) {
     return none_expr();
 }
 
-class find_nat_values_fn : public compiler_step_visitor {
+class find_nat_values_fn : public replace_visitor_with_tc {
     expr visit_app(expr const & e) override {
-        if (auto v = to_nat_value(ctx(), e))
+        if (auto v = to_nat_value(m_ctx, e))
             return *v;
-        return compiler_step_visitor::visit_app(e);
+        return replace_visitor_with_tc::visit_app(e);
     }
 public:
-    find_nat_values_fn(environment const & env):compiler_step_visitor(env) {}
+    find_nat_values_fn(type_context & ctx):replace_visitor_with_tc(ctx) {}
 };
 
 expr find_nat_values(environment const & env, expr const & e) {
-    return find_nat_values_fn(env)(e);
+    type_context ctx(env, transparency_mode::All);
+    return find_nat_values_fn(ctx)(e);
 }
 
 void initialize_nat_value() {

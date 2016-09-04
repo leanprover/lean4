@@ -29,7 +29,6 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/let.h"
 #include "library/print.h"
-#include "library/abbreviation.h"
 #include "library/pp_options.h"
 #include "library/delayed_abstraction.h"
 #include "library/constants.h"
@@ -302,7 +301,6 @@ void pretty_fn::set_options_core(options const & _o) {
         o = o.update_if_undef(get_pp_beta_name(), false);
         o = o.update_if_undef(get_pp_numerals_name(), false);
         o = o.update_if_undef(get_pp_strings_name(), false);
-        o = o.update_if_undef(get_pp_abbreviations_name(), false);
         o = o.update_if_undef(get_pp_binder_types_name(), true);
     }
     m_options           = o;
@@ -322,7 +320,6 @@ void pretty_fn::set_options_core(options const & _o) {
     m_beta              = get_pp_beta(o);
     m_numerals          = get_pp_numerals(o);
     m_strings           = get_pp_strings(o);
-    m_abbreviations     = get_pp_abbreviations(o);
     m_preterm           = get_pp_preterm(o);
     m_binder_types      = get_pp_binder_types(o);
     m_hide_comp_irrel   = get_pp_hide_comp_irrel(o);
@@ -578,8 +575,6 @@ auto pretty_fn::pp_hide_coercion_fn(expr const & e, unsigned bp, bool ignore_hid
 }
 
 auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> result {
-    if (auto it = is_abbreviated(e))
-        return pp_abbreviation(e, *it, false, bp, ignore_hide);
     if (is_app(e)) {
         if (auto r = pp_local_ref(e))
             return add_paren_if_needed(*r, bp);
@@ -592,9 +587,7 @@ auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> resul
             if (auto r = to_char(e)) return pp_char_literal(*r);
         }
         expr const & f = app_fn(e);
-        if (auto it = is_abbreviated(f)) {
-            return pp_abbreviation(e, *it, true, bp, ignore_hide);
-        } else if (is_implicit(f)) {
+        if (is_implicit(f)) {
             return pp_child(f, bp, ignore_hide);
         } else if (!m_coercion && is_coercion(e)) {
             return pp_hide_coercion(e, bp, ignore_hide);
@@ -633,19 +626,11 @@ optional<name> pretty_fn::is_aliased(name const & n) const {
     }
 }
 
-optional<name> pretty_fn::is_abbreviated(expr const & e) const {
-    if (m_abbreviations)
-        return ::lean::is_abbreviated(m_env, e);
-    return optional<name>();
-}
-
 auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ_params) -> result {
     if (is_neutral_expr(e) && m_unicode)
         return format("◾");
     if (is_unreachable_expr(e) && m_unicode)
         return format("⊥");
-    if (auto it = is_abbreviated(e))
-        return pp_abbreviation(e, *it, false);
     name n = const_name(e);
     if (m_notation && n == get_unit_star_name())
         return format("()");
@@ -752,8 +737,6 @@ auto pretty_fn::pp_app(expr const & e) -> result {
     if (auto r = pp_local_ref(e))
         return *r;
     expr const & fn = app_fn(e);
-    if (auto it = is_abbreviated(fn))
-        return pp_abbreviation(e, *it, true);
     // If the application contains a metavariable, then we want to
     // show the function, otherwise it would be hard to understand the
     // context where the metavariable occurs. This is hack to implement
@@ -1244,8 +1227,6 @@ static unsigned get_some_precedence(token_table const & t, name const & tk) {
 }
 
 auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) -> result {
-    if (auto it = is_abbreviated(e))
-        return pp_abbreviation(e, *it, false, rbp);
     if (is_app(e)) {
         if (m_numerals) {
             if (auto n = to_num(e)) return pp_num(*n);
@@ -1255,9 +1236,7 @@ auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) ->
             if (auto r = to_string(e)) return pp_string_literal(*r);
         }
         expr const & f = app_fn(e);
-        if (auto it = is_abbreviated(f)) {
-            return pp_abbreviation(e, *it, true, rbp);
-        } else if (is_implicit(f)) {
+        if (is_implicit(f)) {
             return pp_notation_child(f, lbp, rbp);
         } else if (!m_coercion && is_coercion(e)) {
             return pp_hide_coercion(e, rbp);
@@ -1471,18 +1450,6 @@ auto pretty_fn::pp_notation(expr const & e) -> optional<result> {
     return optional<result>();
 }
 
-auto pretty_fn::pp_abbreviation(expr const & e, name const & abbrev, bool fn, unsigned bp, bool ignore_hide) -> result {
-    declaration const & d = m_env.get(abbrev);
-    unsigned num_univs    = d.get_num_univ_params();
-    buffer<level> ls;
-    for (unsigned i = 0; i < num_univs; i++)
-        ls.push_back(mk_meta_univ(name("?l", i+1)));
-    expr r = mk_constant(abbrev, to_list(ls));
-    if (fn)
-        r = mk_app(r, app_arg(e));
-    return pp_child(r, bp, ignore_hide);
-}
-
 static bool is_pp_atomic(expr const & e) {
     switch (e.kind()) {
     case expr_kind::App:
@@ -1541,8 +1508,6 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
         return pp_proof_type(*t);
     }
 
-    if (auto n = is_abbreviated(e))
-        return pp_abbreviation(e, *n, false);
     if (auto r = pp_notation(e))
         return *r;
 

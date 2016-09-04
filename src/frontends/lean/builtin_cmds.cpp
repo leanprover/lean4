@@ -21,7 +21,6 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/class.h"
 #include "library/flycheck.h"
-#include "library/abbreviation.h"
 #include "library/user_recursors.h"
 #include "library/pp_options.h"
 #include "library/attribute_manager.h"
@@ -168,7 +167,6 @@ environment end_scoped_cmd(parser & p) {
 environment check_cmd(parser & p) {
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
-    e = expand_abbreviations(p.env(), e);
     auto tc = mk_type_checker(p.env());
     expr type = tc->check(e, ls).first;
     auto out              = regular(p.env(), p.ios(), tc->get_type_context());
@@ -338,9 +336,6 @@ static environment local_cmd(parser & p) {
     if (p.curr_is_token_or_id(get_attribute_tk())) {
         p.next();
         return local_attribute_cmd(p);
-    } else if (p.curr_is_token(get_abbreviation_tk())) {
-        p.next();
-        return local_abbreviation_cmd(p);
     } else {
         return local_notation_cmd(p);
     }
@@ -580,8 +575,7 @@ static environment run_command_cmd(parser & p) {
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",              "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
-    add_cmd(r, cmd_info("export",            "create abbreviations for declarations, "
-                        "and export objects defined in other namespaces", export_cmd));
+    add_cmd(r, cmd_info("export",            "create aliases for declarations", export_cmd));
     add_cmd(r, cmd_info("set_option",        "set configuration option", set_option_cmd));
     add_cmd(r, cmd_info("exit",              "exit", exit_cmd));
     add_cmd(r, cmd_info("print",             "print a string", print_cmd));

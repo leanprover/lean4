@@ -23,4 +23,7 @@ environment local_notation_cmd(parser & p);
 void register_notation_cmds(cmd_table & r);
 
 bool is_notation_cmd(name const & cmd_name);
+
+void initialize_notation_cmd();
+void finalize_notation_cmd();
 }

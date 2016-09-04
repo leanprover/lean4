@@ -19,7 +19,6 @@ name const & get_pp_beta_name();
 name const & get_pp_preterm_name();
 name const & get_pp_numerals_name();
 name const & get_pp_strings_name();
-name const & get_pp_abbreviations_name();
 name const & get_pp_binder_types_name();
 
 unsigned get_pp_max_depth(options const & opts);
@@ -36,7 +35,6 @@ bool     get_pp_purify_metavars(options const & opts);
 bool     get_pp_purify_locals(options const & opts);
 bool     get_pp_numerals(options const & opts);
 bool     get_pp_strings(options const & opts);
-bool     get_pp_abbreviations(options const & opts);
 bool     get_pp_preterm(options const & opts);
 bool     get_pp_goal_compact(options const & opts);
 unsigned get_pp_goal_max_hyps(options const & opts);

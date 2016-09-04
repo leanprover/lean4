@@ -68,7 +68,6 @@ private:
     bool                    m_beta;
     bool                    m_numerals;
     bool                    m_strings;
-    bool                    m_abbreviations;
     bool                    m_hide_full_terms;
     bool                    m_hide_comp_irrel;
     bool                    m_preterm;
@@ -87,7 +86,6 @@ private:
     bool is_prop(expr const & e);
     bool has_implicit_args(expr const & f);
     optional<name> is_aliased(name const & n) const;
-    optional<name> is_abbreviated(expr const & e) const;
 
     format pp_child(level const & l);
     format pp_max(level l);
@@ -135,8 +133,6 @@ private:
     result pp_let(expr e);
     result pp_num(mpz const & n);
     result pp_proof_type(expr const & t);
-    // If fn is true, then \c e is of the form (f a), and the abbreviation is \c f.
-    result pp_abbreviation(expr const & e, name const & abbrev, bool fn, unsigned bp = 0, bool ignore_hide = false);
     void set_options_core(options const & o);
 
     expr infer_type(expr const & e);

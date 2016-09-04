@@ -7,9 +7,8 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   declaration_index.cpp class.cpp util.cpp print.cpp annotation.cpp quote.cpp
   typed_expr.cpp protected.cpp reducible.cpp init_module.cpp
   generic_exception.cpp fingerprint.cpp flycheck.cpp hott_kernel.cpp pp_options.cpp
-  unfold_macros.cpp app_builder.cpp projection.cpp abbreviation.cpp
-  relation_manager.cpp export.cpp user_recursors.cpp idx_metavar.cpp
-  noncomputable.cpp
+  unfold_macros.cpp app_builder.cpp projection.cpp relation_manager.cpp
+  export.cpp user_recursors.cpp idx_metavar.cpp noncomputable.cpp
   aux_recursors.cpp norm_num.cpp trace.cpp
   attribute_manager.cpp error_handling.cpp unification_hint.cpp
   local_context.cpp metavar_context.cpp type_context.cpp export_decl.cpp delayed_abstraction.cpp

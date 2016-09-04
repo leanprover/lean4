@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/typed_expr.h"
 #include "library/private.h"
 #include "library/protected.h"
-#include "library/abbreviation.h"
 #include "library/scoped_ext.h"
 #include "library/noncomputable.h"
 #include "library/module.h"
@@ -318,11 +317,6 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
     if (!is_private) {
         p.add_decl_index(c_real_name, pos, p.get_cmd_token(), type);
         new_env = ensure_decl_namespaces(new_env, c_real_name);
-    }
-
-    if (kind == Abbreviation || kind == LocalAbbreviation) {
-        bool persistent = kind == Abbreviation;
-        new_env = add_abbreviation(new_env, c_real_name, attrs.is_parsing_only(), persistent);
     }
 
     new_env = attrs.apply(new_env, p.ios(), c_real_name);

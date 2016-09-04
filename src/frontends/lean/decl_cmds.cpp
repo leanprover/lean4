@@ -21,7 +21,6 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/locals.h"
 #include "library/explicit.h"
-#include "library/abbreviation.h"
 #include "library/flycheck.h"
 #include "library/error_handling.h"
 #include "library/equations_compiler/equations.h"
@@ -621,7 +620,7 @@ class definition_cmd_fn {
 
     bool is_meta() const { return m_kind == MetaDefinition; }
     bool is_trusted() const { return !is_meta(); }
-    bool is_definition() const { return m_kind == Definition || m_kind == MetaDefinition || m_kind == Abbreviation || m_kind == LocalAbbreviation; }
+    bool is_definition() const { return m_kind == Definition || m_kind == MetaDefinition; }
     bool is_example() const { return m_kind == Example; }
     unsigned start_line() const { return m_pos.first; }
     unsigned end_line() const { return m_end_pos.first; }
@@ -875,10 +874,6 @@ class definition_cmd_fn {
                 else
                     m_env = add_expr_alias_rec(m_env, n, real_n);
             }
-            if (m_kind == Abbreviation || m_kind == LocalAbbreviation) {
-                bool persistent = m_kind == Abbreviation;
-                m_env = add_abbreviation(m_env, real_n, m_attributes.is_parsing_only(), persistent);
-            }
             if (generate_bytecode)
                 compile_decl();
             m_env = m_attributes.apply(m_env, m_p.ios(), real_n);
@@ -1114,9 +1109,6 @@ static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_pr
                                        decl_attributes const & attributes) {
     return definition_cmd_fn(p, kind, is_private, is_protected, is_noncomputable, attributes)();
 }
-environment local_abbreviation_cmd(parser & p) {
-    return definition_cmd_core(p, LocalAbbreviation, true, false, false, {});
-}
 static environment example_cmd(parser & p) {
     definition_cmd_core(p, Example, false, false, false, {});
     return p.env();
@@ -1173,9 +1165,6 @@ static environment definition_cmd_ex(parser & p, decl_attributes const & attribu
         p.next();
     } else if (p.curr_is_token_or_id(get_meta_definition_tk())) {
         kind = MetaDefinition;
-        p.next();
-    } else if (p.curr_is_token_or_id(get_abbreviation_tk())) {
-        kind = Abbreviation;
         p.next();
     } else if (p.curr_is_token_or_id(get_theorem_tk())) {
         p.next();
@@ -1304,7 +1293,6 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("reveal",          "reveal given theorems", reveal_cmd));
     add_cmd(r, cmd_info("include",         "force section parameter/variable to be included", include_cmd));
     add_cmd(r, cmd_info("attribute",       "set declaration attributes", attribute_cmd));
-    add_cmd(r, cmd_info("abbreviation",    "declare a new abbreviation", definition_cmd, false));
     add_cmd(r, cmd_info("omit",            "undo 'include' command", omit_cmd));
     add_cmd(r, cmd_info("mutual_definition",      "declare a mutually recursive definition", definition_cmd, false));
     add_cmd(r, cmd_info("mutual_meta_definition", "declare a mutually recursive meta_definition", definition_cmd, false));

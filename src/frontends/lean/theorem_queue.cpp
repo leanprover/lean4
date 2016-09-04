@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include "library/unfold_macros.h"
-#include "library/abbreviation.h"
 #include "kernel/type_checker.h"
 #include "frontends/lean/theorem_queue.h"
 #include "frontends/lean/parser.h"

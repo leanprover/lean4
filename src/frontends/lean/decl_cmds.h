@@ -24,9 +24,6 @@ expr parse_local_equations(parser & p, expr const & fn);
     Then sort \c ls_buffer (using the order in which the universe levels were declared). */
 void update_univ_parameters(buffer<name> & ls_buffer, name_set const & found_ls, parser const & p);
 
-/** \brief Parse a local abbreviation command */
-environment local_abbreviation_cmd(parser & p);
-
 /** \brief Parse a local attribute command */
 environment local_attribute_cmd(parser & p);
 void register_decl_cmds(cmd_table & r);

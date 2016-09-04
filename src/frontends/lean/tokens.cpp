@@ -84,7 +84,6 @@ static name const * g_inline_tk = nullptr;
 static name const * g_definition_tk = nullptr;
 static name const * g_meta_definition_tk = nullptr;
 static name const * g_theorem_tk = nullptr;
-static name const * g_abbreviation_tk = nullptr;
 static name const * g_axiom_tk = nullptr;
 static name const * g_axioms_tk = nullptr;
 static name const * g_constant_tk = nullptr;
@@ -204,7 +203,6 @@ void initialize_tokens() {
     g_definition_tk = new name{"definition"};
     g_meta_definition_tk = new name{"meta_definition"};
     g_theorem_tk = new name{"theorem"};
-    g_abbreviation_tk = new name{"abbreviation"};
     g_axiom_tk = new name{"axiom"};
     g_axioms_tk = new name{"axioms"};
     g_constant_tk = new name{"constant"};
@@ -325,7 +323,6 @@ void finalize_tokens() {
     delete g_definition_tk;
     delete g_meta_definition_tk;
     delete g_theorem_tk;
-    delete g_abbreviation_tk;
     delete g_axiom_tk;
     delete g_axioms_tk;
     delete g_constant_tk;
@@ -445,7 +442,6 @@ name const & get_inline_tk() { return *g_inline_tk; }
 name const & get_definition_tk() { return *g_definition_tk; }
 name const & get_meta_definition_tk() { return *g_meta_definition_tk; }
 name const & get_theorem_tk() { return *g_theorem_tk; }
-name const & get_abbreviation_tk() { return *g_abbreviation_tk; }
 name const & get_axiom_tk() { return *g_axiom_tk; }
 name const & get_axioms_tk() { return *g_axioms_tk; }
 name const & get_constant_tk() { return *g_constant_tk; }

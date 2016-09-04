@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/typed_expr.h"
 #include "library/placeholder.h"
-#include "library/abbreviation.h"
 #include "library/unfold_macros.h"
 #include "library/choice.h"
 #include "library/num.h"
@@ -372,7 +371,7 @@ char const * close_binder_string(binder_info const & bi, bool unicode) {
 }
 
 expr postprocess(environment const & env, expr const & e) {
-    return eta_reduce(expand_abbreviations(env, unfold_untrusted_macros(env, e)));
+    return eta_reduce(unfold_untrusted_macros(env, e));
 }
 
 // Auxiliary object for eliminating choice-expressions associated with numerals.

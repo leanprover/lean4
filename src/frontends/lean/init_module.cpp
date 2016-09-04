@@ -29,6 +29,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/old_attributes.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/match_expr.h"
+#include "frontends/lean/notation_cmd.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {
@@ -57,8 +58,10 @@ void initialize_frontend_lean_module() {
     initialize_nested_declaration();
     initialize_match_expr();
     initialize_elaborator();
+    initialize_notation_cmd();
 }
 void finalize_frontend_lean_module() {
+    finalize_notation_cmd();
     finalize_elaborator();
     finalize_match_expr();
     finalize_old_attributes();

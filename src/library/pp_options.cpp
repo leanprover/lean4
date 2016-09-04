@@ -63,10 +63,6 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_STRINGS true
 #endif
 
-#ifndef LEAN_DEFAULT_PP_ABBREVIATIONS
-#define LEAN_DEFAULT_PP_ABBREVIATIONS true
-#endif
-
 #ifndef LEAN_DEFAULT_PP_PRETERM
 #define LEAN_DEFAULT_PP_PRETERM false
 #endif
@@ -111,7 +107,6 @@ static name * g_pp_purify_locals     = nullptr;
 static name * g_pp_beta              = nullptr;
 static name * g_pp_numerals          = nullptr;
 static name * g_pp_strings           = nullptr;
-static name * g_pp_abbreviations     = nullptr;
 static name * g_pp_preterm           = nullptr;
 static name * g_pp_goal_compact      = nullptr;
 static name * g_pp_goal_max_hyps     = nullptr;
@@ -136,7 +131,6 @@ void initialize_pp_options() {
     g_pp_beta              = new name{"pp", "beta"};
     g_pp_numerals          = new name{"pp", "numerals"};
     g_pp_strings           = new name{"pp", "strings"};
-    g_pp_abbreviations     = new name{"pp", "abbreviations"};
     g_pp_preterm           = new name{"pp", "preterm"};
     g_pp_binder_types      = new name{"pp", "binder_types"};
     g_pp_hide_comp_irrel   = new name{"pp", "hide_comp_irrelevant"};
@@ -175,8 +169,6 @@ void initialize_pp_options() {
                          "(pretty printer) display nat/num numerals in decimal notation");
     register_bool_option(*g_pp_strings, LEAN_DEFAULT_PP_STRINGS,
                          "(pretty printer) pretty print string and character literals");
-    register_bool_option(*g_pp_abbreviations, LEAN_DEFAULT_PP_ABBREVIATIONS,
-                         "(pretty printer) display abbreviations (i.e., revert abbreviation expansion when pretty printing)");
     register_bool_option(*g_pp_preterm, LEAN_DEFAULT_PP_PRETERM,
                          "(pretty printer) assume the term is a preterm (i.e., a term before elaboration)");
     register_bool_option(*g_pp_goal_compact, LEAN_DEFAULT_PP_GOAL_COMPACT,
@@ -191,7 +183,7 @@ void initialize_pp_options() {
                          "(pretty printer) display the location of delayed-abstractions (for debugging purposes)");
     register_bool_option(*g_pp_all, LEAN_DEFAULT_PP_ALL,
                          "(pretty printer) display coercions, implicit parameters, proof terms, fully qualified names, universes, "
-                         "and disable abbreviations, beta reduction and notation during pretty printing");
+                         "and disable beta reduction and notation during pretty printing");
     options universes_true(*g_pp_universes, true);
     options full_names_true(*g_pp_full_names, true);
     options implicit_true(*g_pp_implicit, true);
@@ -208,7 +200,6 @@ void initialize_pp_options() {
 
 void finalize_pp_options() {
     delete g_pp_preterm;
-    delete g_pp_abbreviations;
     delete g_pp_numerals;
     delete g_pp_strings;
     delete g_pp_max_depth;
@@ -244,7 +235,6 @@ name const & get_pp_beta_name() { return *g_pp_beta; }
 name const & get_pp_preterm_name() { return *g_pp_preterm; }
 name const & get_pp_numerals_name() { return *g_pp_numerals; }
 name const & get_pp_strings_name() { return *g_pp_strings; }
-name const & get_pp_abbreviations_name() { return *g_pp_abbreviations; }
 name const & get_pp_binder_types_name() { return *g_pp_binder_types; }
 
 unsigned get_pp_max_depth(options const & opts)         { return opts.get_unsigned(*g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH); }
@@ -261,7 +251,6 @@ bool     get_pp_purify_locals(options const & opts)     { return opts.get_bool(*
 bool     get_pp_beta(options const & opts)              { return opts.get_bool(*g_pp_beta, LEAN_DEFAULT_PP_BETA); }
 bool     get_pp_numerals(options const & opts)          { return opts.get_bool(*g_pp_numerals, LEAN_DEFAULT_PP_NUMERALS); }
 bool     get_pp_strings(options const & opts)           { return opts.get_bool(*g_pp_strings, LEAN_DEFAULT_PP_STRINGS); }
-bool     get_pp_abbreviations(options const & opts)     { return opts.get_bool(*g_pp_abbreviations, LEAN_DEFAULT_PP_ABBREVIATIONS); }
 bool     get_pp_preterm(options const & opts)           { return opts.get_bool(*g_pp_preterm, LEAN_DEFAULT_PP_PRETERM); }
 bool     get_pp_goal_compact(options const & opts)      { return opts.get_bool(*g_pp_goal_compact, LEAN_DEFAULT_PP_GOAL_COMPACT); }
 unsigned get_pp_goal_max_hyps(options const & opts)     { return opts.get_unsigned(*g_pp_goal_max_hyps, LEAN_DEFAULT_PP_GOAL_MAX_HYPS); }

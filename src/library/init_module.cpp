@@ -34,7 +34,6 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/projection.h"
 #include "library/normalize.h"
-#include "library/abbreviation.h"
 #include "library/relation_manager.h"
 #include "library/user_recursors.h"
 #include "library/noncomputable.h"
@@ -115,7 +114,6 @@ void initialize_library_module() {
     initialize_pp_options();
     initialize_projection();
     initialize_normalize();
-    initialize_abbreviation();
     initialize_relation_manager();
     initialize_user_recursors();
     initialize_noncomputable();
@@ -153,7 +151,6 @@ void finalize_library_module() {
     finalize_noncomputable();
     finalize_user_recursors();
     finalize_relation_manager();
-    finalize_abbreviation();
     finalize_normalize();
     finalize_projection();
     finalize_pp_options();

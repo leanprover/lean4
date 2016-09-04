@@ -1,6 +1,0 @@
-definition tst : ℕ
-(λ a, 2 + 3) ℕ
-definition tst : ℕ
-foo ℕ
-definition tst1 : ℕ
-(λ A a, a) ℕ 10

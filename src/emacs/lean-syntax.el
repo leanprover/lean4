@@ -11,7 +11,7 @@
   '("import" "prelude" "tactic_hint" "protected" "private" "inline" "noncomputable" "definition" "meta_definition" "renaming"
     "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture" "constant" "constants" "meta_constant"
     "hypothesis" "lemma" "corollary" "variable" "variables" "premise" "premises" "theory"
-    "print" "theorem" "proposition" "example" "abbreviation" "abstract"
+    "print" "theorem" "proposition" "example" "abstract"
     "open" "as" "export" "override" "axiom" "axioms" "inductive" "with" "structure" "record" "universe" "universes"
     "alias" "help" "precedence" "reserve" "declare_trace" "add_key_equivalence"
     "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix"
@@ -131,7 +131,7 @@
      ;; attributes after definitions
      (,(rx word-start
            (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
-                      "hypothesis" "definition" "meta_definition" "constant" "meta_constant" "abbreviation"))
+                      "hypothesis" "definition" "meta_definition" "constant" "meta_constant"))
            word-end (zero-or-more whitespace) (group (one-or-more "[" (zero-or-more (not (any "]"))) "]" (zero-or-more whitespace)))
            (zero-or-more whitespace)
            (group (zero-or-more (not (any " \t\n\r{([")))))
@@ -161,7 +161,7 @@
      ;; universe/inductive/theorem... "names" (without attributes)
      (,(rx word-start
            (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary"
-                      "hypothesis" "definition" "meta_definition" "constant" "meta_constant" "abbreviation"))
+                      "hypothesis" "definition" "meta_definition" "constant" "meta_constant"))
            word-end
            (zero-or-more whitespace)
            (group (zero-or-more (not (any " \t\n\r{([")))))

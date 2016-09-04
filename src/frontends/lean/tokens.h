@@ -86,7 +86,6 @@ name const & get_inline_tk();
 name const & get_definition_tk();
 name const & get_meta_definition_tk();
 name const & get_theorem_tk();
-name const & get_abbreviation_tk();
 name const & get_axiom_tk();
 name const & get_axioms_tk();
 name const & get_constant_tk();

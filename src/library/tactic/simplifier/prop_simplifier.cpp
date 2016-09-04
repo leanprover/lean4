@@ -43,31 +43,31 @@ public:
     // TODO(dhs): this can be raised once we implement proof generation
     virtual unsigned trust_level() const override { return 2; }
 
-    virtual name get_name() const { return *g_prop_simplifier_macro_name; }
-    virtual expr check_type(expr const & m, abstract_type_context & tctx, bool infer_only) const {
+    virtual name get_name() const override { return *g_prop_simplifier_macro_name; }
+    virtual expr check_type(expr const & m, abstract_type_context & /* tctx */, bool /* infer_only */) const override {
         check_macro(m);
         return mk_app(mk_constant(get_eq_name(), {mk_level_one()}), mk_Prop(), macro_arg(m, 0), macro_arg(m, 1));
     }
 
-    virtual optional<expr> expand(expr const & m, abstract_type_context & tctx) const {
+    virtual optional<expr> expand(expr const & m, abstract_type_context & /* tctx */) const override {
         check_macro(m);
         throw exception(sstream() << "proof generation for the prop_simplifier macro has not been implemented yet");
         lean_unreachable();
     }
 
-    virtual void write(serializer & s) const {
+    virtual void write(serializer & s) const override {
         s.write_string(*g_prop_simplifier_opcode);
     }
 
-    virtual bool operator==(macro_definition_cell const & other) const {
-        if (auto other_ptr = dynamic_cast<prop_simplifier_macro_definition_cell const *>(&other)) {
+    virtual bool operator==(macro_definition_cell const & other) const override {
+        if (dynamic_cast<prop_simplifier_macro_definition_cell const *>(&other)) {
             return true;
         } else {
             return false;
         }
     }
 
-    virtual unsigned hash() const {
+    virtual unsigned hash() const override {
         return get_name().hash();
     }
 };
@@ -388,7 +388,7 @@ void initialize_prop_simplifier() {
     g_prop_simplifier_macro_name = new name("prop_simplifier");
     g_prop_simplifier_opcode     = new std::string("Prop_Simp");
     register_macro_deserializer(*g_prop_simplifier_opcode,
-                                [](deserializer & d, unsigned num, expr const * args) {
+                                [](deserializer & /* d */, unsigned num, expr const * args) {
                                     if (num == 2)
                                         return mk_prop_simplifier_macro(args[0], args[1]);
                                     else
@@ -440,7 +440,7 @@ simp_result prop_simplifier::simplify_binary(expr const & old_e) {
     return simp_result(old_e);
 }
 
-optional<simp_result> prop_simplifier::simplify_nary(expr const & assoc, expr const & old_e, expr const & op, buffer<expr> & args) {
+optional<simp_result> prop_simplifier::simplify_nary(expr const & /* assoc */, expr const & old_e, expr const & op, buffer<expr> & args) {
     if (!is_constant(op))
         return optional<simp_result>();
 

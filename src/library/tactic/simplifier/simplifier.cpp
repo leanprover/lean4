@@ -620,7 +620,7 @@ class simplifier {
         return optional<simp_result>(simp_result(new_rhs, pf));
     }
 
-    optional<simp_result> simplify_user_extensions_nary(expr const & assoc, expr const & old_e, expr const & op, buffer<expr> const & nary_args) {
+    optional<simp_result> simplify_user_extensions_nary(expr const & /* assoc */, expr const & old_e, expr const & /* op */, buffer<expr> const & /* nary_args */) {
         // For now, user extensions are not aware of the binary/nary distinction, except that they are guaranteed that
         // if an operator is an instance of [is_associative] for the relation in question, the user extension will only be
         // called on the outermost applications.

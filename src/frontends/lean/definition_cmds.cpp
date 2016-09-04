@@ -93,7 +93,7 @@ expr mk_equations(parser & p, expr const & fn, name const & full_name, buffer<ex
     return mk_equations(p, fns, full_names, eqs, R_Rwf, pos);
 }
 
-expr parse_mutual_definition(parser & p, def_cmd_kind k, buffer<name> & lp_names, buffer<expr> & fns, buffer<expr> & params) {
+expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<expr> & fns, buffer<expr> & params) {
     parser::local_scope scope1(p);
     auto header_pos = p.pos();
     buffer<expr> pre_fns;
@@ -129,12 +129,12 @@ expr parse_mutual_definition(parser & p, def_cmd_kind k, buffer<name> & lp_names
     return r;
 }
 
-environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable,
-                                       decl_attributes attrs) {
+environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool /* is_protected */, bool /* is_noncomputable */,
+                                       decl_attributes /* attrs */) {
     buffer<name> lp_names;
     buffer<expr> fns, params;
     declaration_info_scope scope(p.env(), is_private, kind);
-    expr val = parse_mutual_definition(p, kind, lp_names, fns, params);
+    expr val = parse_mutual_definition(p, lp_names, fns, params);
     if (p.used_sorry()) p.declare_sorry();
     elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
     buffer<expr> new_params;

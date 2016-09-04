@@ -113,7 +113,7 @@ class flat_macro_definition_cell : public macro_definition_cell {
 public:
     flat_macro_definition_cell() {}
 
-    virtual name get_name() const { return *g_flat_macro_name; }
+    virtual name get_name() const override { return *g_flat_macro_name; }
     virtual expr check_type(expr const & m, abstract_type_context &, bool) const override {
         check_macro(m);
         return macro_arg(m, 1);
@@ -144,7 +144,7 @@ public:
     }
 
     virtual bool operator==(macro_definition_cell const & other) const override {
-        if (auto other_ptr = dynamic_cast<flat_macro_definition_cell const *>(&other)) {
+        if (dynamic_cast<flat_macro_definition_cell const *>(&other)) {
             return true;
         } else {
             return false;
@@ -212,11 +212,11 @@ public:
         check_macro(m);
         expr const & assoc      = macro_arg(m, 0);
         expr const & thm        = macro_arg(m, 1);
-        expr const & step_rhs   = macro_arg(m, 2);
+        /* expr const & step_rhs   = macro_arg(m, 2); */
         expr pf_of_step         = macro_arg(m, 3);
 
         expr const & old_e = app_arg(app_fn(thm));
-        expr const & new_e = app_arg(thm);
+        /* expr const & new_e = app_arg(thm); */
 
         expr op = app_fn(app_fn(old_e));
 
@@ -307,7 +307,7 @@ void initialize_simp_util() {
     g_flat_macro_name = new name("flat");
     g_flat_opcode     = new std::string("FLAT");
     register_macro_deserializer(*g_flat_opcode,
-                                [](deserializer & d, unsigned num, expr const * args) {
+                                [](deserializer & /* d */, unsigned num, expr const * args) {
                                     if (num != 3)
                                         throw corrupted_stream_exception();
                                     return mk_flat_macro(num, args);

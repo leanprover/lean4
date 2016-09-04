@@ -72,7 +72,7 @@ public:
                 r.push_back(n);
     }
 
-    virtual unsigned get_fingerprint(environment const & env) const {
+    virtual unsigned get_fingerprint(environment const & env) const override {
         return get_reducibility_attribute().get_fingerprint(env);
     }
 };

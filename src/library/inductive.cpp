@@ -9,15 +9,15 @@ Author: Daniel Selsam
 
 namespace lean {
 
-bool is_inductive(environment const & env, name const & ind_name) {
+bool is_inductive(environment const & /* env */, name const & /* ind_name */) {
     throw exception("TODO(dhs): implement");
 }
 
-list<name> get_intro_rule_names(environment const & env, name const & ind_name) {
+list<name> get_intro_rule_names(environment const & /* env */, name const & /* ind_name */) {
     throw exception("TODO(dhs): implement");
 }
 
-optional<name> is_intro_rule_name(environment const & env, name const & ir_name) {
+optional<name> is_intro_rule_name(environment const & /* env */, name const & /* ir_name */) {
     throw exception("TODO(dhs): implement");
 }
 
@@ -28,11 +28,11 @@ optional<name> is_intro_rule_name(environment const & env, name const & ir_name)
    We then prove the lemma <tt>forall c1 c2, cidx c1 != cidx c2 -> c1 != c2</tt> and
    use it to prove the desired theorem.
 */
-expr prove_intro_rules_disjoint(environment const & env, name const & ir_name1, name const & ir_name2) {
+expr prove_intro_rules_disjoint(environment const & /* env */, name const & /* ir_name1 */, name const & /* ir_name2 */) {
     throw exception("TODO(dhs): implement");
 }
 
-unsigned get_inductive_num_params(environment const & env, name const & ind_name) {
+unsigned get_inductive_num_params(environment const & /* env */, name const & /* ind_name */) {
     throw exception("TODO(dhs): implement");
 }
 

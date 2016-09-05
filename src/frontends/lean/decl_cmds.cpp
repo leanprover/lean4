@@ -1107,8 +1107,12 @@ public:
 
 static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable,
                                        decl_attributes const & attributes) {
-    return definition_cmd_fn(p, kind, is_private, is_protected, is_noncomputable, attributes)();
+    if (p.use_new_elaborator())
+        return xdefinition_cmd_core(p, kind, is_private, is_protected, is_noncomputable, attributes);
+    else
+        return definition_cmd_fn(p, kind, is_private, is_protected, is_noncomputable, attributes)();
 }
+
 static environment example_cmd(parser & p) {
     definition_cmd_core(p, Example, false, false, false, {});
     return p.env();
@@ -1178,10 +1182,7 @@ static environment definition_cmd_ex(parser & p, decl_attributes const & attribu
     } else {
         throw parser_error("invalid definition/theorem, 'definition' or 'theorem' expected", p.pos());
     }
-    if (p.use_new_elaborator())
-        return xdefinition_cmd_core(p, kind, is_private, is_protected, is_noncomputable, attributes);
-    else
-        return definition_cmd_core(p, kind, is_private, is_protected, is_noncomputable, attributes);
+    return definition_cmd_core(p, kind, is_private, is_protected, is_noncomputable, attributes);
 }
 
 static environment definition_cmd(parser & p) {

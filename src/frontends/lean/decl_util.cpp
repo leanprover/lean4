@@ -35,9 +35,13 @@ bool parse_univ_params(parser & p, buffer<name> & lp_names) {
     }
 }
 
-expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & params) {
+expr parse_single_header(parser & p, buffer<name> & lp_names, buffer<expr> & params, bool is_example) {
     auto c_pos  = p.pos();
-    name c_name = p.check_decl_id_next("invalid declaration, identifier expected");
+    name c_name;
+    if (is_example)
+        c_name = name("this");
+    else
+        c_name = p.check_decl_id_next("invalid declaration, identifier expected");
     declaration_name_scope scope(c_name);
     parse_univ_params(p, lp_names);
     p.parse_optional_binders(params);

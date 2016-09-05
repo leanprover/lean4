@@ -298,7 +298,7 @@ expr mk_rewrite_assoc_proof(expr const & assoc, expr const & thm, unsigned arg_i
 expr mk_rewrite_assoc_macro(unsigned num_args, expr const * args, unsigned arg_idx, unsigned num_patterns, unsigned num_e_args) {
     lean_assert(num_args == 4);
     macro_definition m(new rewrite_assoc_macro_definition_cell(arg_idx, num_patterns, num_e_args));
-    return mk_macro(m, 4, args);
+    return mk_macro(m, num_args, args);
 }
 
 // Setup and teardown

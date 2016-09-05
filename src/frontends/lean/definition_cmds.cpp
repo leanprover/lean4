@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/flycheck.h"
 #include "library/error_handling.h"
+#include "library/scope_pos_info_provider.h"
 #include "library/equations_compiler/equations.h"
 #include "library/compiler/vm_compiler.h"
 #include "frontends/lean/parser.h"
@@ -289,7 +290,9 @@ static environment compile_decl(parser & p, environment const & env, def_cmd_kin
         auto & out = p.ios().get_regular_stream();
         display_pos(out, p, pos);
         out << "failed to generate bytecode for '" << c_name << "'" << std::endl;
-        out << ext.what() << std::endl;
+        type_context ctx(p.env());
+        auto out2  = regular(p.env(), p.ios(), ctx);
+        display_error(out2, get_pos_info_provider(), ext);
         return env;
     }
 }

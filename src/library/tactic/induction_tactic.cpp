@@ -70,7 +70,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
     optional<metavar_decl> g = mctx.get_metavar_decl(mvar);
     lean_assert(g);
     type_context ctx1 = mk_type_context_for(env, opts, mctx, g->get_context(), m);
-    expr H_type = ctx1.infer(H);
+    expr H_type = ctx1.relaxed_whnf(ctx1.infer(H));
     recursor_info rec_info = get_recursor_info(env, rec_name);
     buffer<expr> H_type_args;
     get_app_args(H_type, H_type_args);
@@ -146,7 +146,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
     level g_lvl         = get_level(ctx2, g2->get_type());
     local_decl H2_decl  = *lctx2.get_last_local_decl();
     expr H2             = H2_decl.mk_ref();
-    expr H2_type        = H2_decl.get_type();
+    expr H2_type        = ctx2.relaxed_whnf(H2_decl.get_type());
     buffer<expr> H2_type_args;
     expr const & I     = get_app_args(H2_type, H2_type_args);
     if (!is_constant(I))

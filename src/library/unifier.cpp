@@ -23,7 +23,6 @@ Author: Leonardo de Moura
 #include "kernel/error_msgs.h"
 #include "library/trace.h"
 #include "library/util.h"
-#include "library/normalize.h"
 #include "library/locals.h"
 #include "library/module.h"
 #include "library/unifier.h"
@@ -797,8 +796,9 @@ struct unifier_fn {
             // Try to normalize rhs
             // Example:  ?M := f (pr1 (pair 0 ?M))
             try {
-                unsigned counter = 0;
+                // unsigned counter = 0;
                 constraint_seq cs;
+                /*
                 auto is_target_fn = [&](expr const & e) {
                     if ((status == occurs_check_status::FailLocal && occurs(bad_local, e)) ||
                         (status == occurs_check_status::FailCircular && occurs(*m, e))) {
@@ -810,7 +810,8 @@ struct unifier_fn {
                         return false;
                     }
                 };
-                expr rhs_n = normalize(*m_tc, rhs, is_target_fn, cs);
+                */
+                expr rhs_n = rhs; // normalize(*m_tc, rhs, is_target_fn, cs);
                 if (rhs != rhs_n && process_constraints(cs))
                     return process_metavar_eq(lhs, rhs_n, j);
             } catch (interrupt_normalizer &) {

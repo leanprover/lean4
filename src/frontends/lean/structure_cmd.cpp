@@ -750,8 +750,6 @@ struct structure_cmd_fn {
                                                                reducibility_hints::mk_abbreviation());
         m_env = module::add(m_env, check(m_env, new_decl));
         m_env = set_reducible(m_env, n, reducible_status::Reducible, true);
-        if (list<unsigned> idx = has_unfold_hint(m_env, rec_on_name))
-            m_env = add_unfold_hint(m_env, n, idx, true);
         save_def_info(n);
         add_alias(n);
     }

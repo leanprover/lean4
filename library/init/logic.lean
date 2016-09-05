@@ -7,7 +7,7 @@ prelude
 import init.datatypes
 set_option simplify.theory false
 
-attribute [reducible, unfold_full]
+attribute [reducible]
 definition id {A : Type} (a : A) : A :=
 a
 

@@ -29,7 +29,6 @@ namespace nat
   attribute [instance, priority nat.prio]
   definition nat_has_lt : has_lt nat := has_lt.mk nat.lt
 
-  attribute [unfold 1]
   definition pred (a : nat) : nat :=
   nat.cases_on a zero (λ a₁, a₁)
 

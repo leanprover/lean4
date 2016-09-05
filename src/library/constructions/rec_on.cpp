@@ -46,7 +46,6 @@ environment mk_rec_on(environment const & env, name const & n) {
         new_locals.push_back(locals[i]);
     for (unsigned i = 0; i < idx_major_sz; i++)
         new_locals.push_back(locals[AC_sz + minor_sz + i]);
-    unsigned rec_on_major_idx = new_locals.size() - 1;
     for (unsigned i = 0; i < minor_sz; i++)
         new_locals.push_back(locals[AC_sz + i]);
     expr rec_on_type = Pi(new_locals, rec_type);
@@ -59,7 +58,6 @@ environment mk_rec_on(environment const & env, name const & n) {
                                       check(env, mk_definition_inferring_trusted(env, rec_on_name, rec_decl.get_univ_params(),
                                                                                  rec_on_type, rec_on_val, reducibility_hints::mk_abbreviation())));
     new_env = set_reducible(new_env, rec_on_name, reducible_status::Reducible, true);
-    new_env = add_unfold_hint(new_env, rec_on_name, rec_on_major_idx, true);
     new_env = add_aux_recursor(new_env, rec_on_name);
     return add_protected(new_env, rec_on_name);
 }

@@ -257,7 +257,6 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
                                                             reducibility_hints::mk_abbreviation());
         new_env = module::add(new_env, check(new_env, new_d));
         new_env = set_reducible(new_env, proj_name, reducible_status::Reducible, true);
-        new_env = add_unfold_hint(new_env, proj_name, nparams, true);
         new_env = save_projection_info(new_env, proj_name, inductive::intro_rule_name(intro), nparams, i, inst_implicit);
         expr proj         = mk_app(mk_app(mk_constant(proj_name, lvls), params), c);
         intro_type        = instantiate(binding_body(intro_type), proj);

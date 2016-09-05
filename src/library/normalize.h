@@ -32,26 +32,6 @@ expr normalize(old_type_checker & tc, expr const & e, constraint_seq & cs, bool 
 expr normalize(old_type_checker & tc, expr const & e, std::function<bool(expr const&)> const & pred, // NOLINT
                constraint_seq & cs, bool eta = false);
 
-/** \brief [unfold] hint instructs the normalizer (and simplifier) that
-    a function application (f a_1 ... a_i ... a_n) should be unfolded
-    when argument a_i is a constructor.
-
-    The constant will be unfolded even if it the whnf procedure did not unfolded it.
-
-    Of course, kernel opaque constants are not unfolded.
-*/
-environment add_unfold_hint(environment const & env, name const & n, list<unsigned> const & idxs, bool persistent);
-inline environment add_unfold_hint(environment const & env, name const & n, unsigned idx, bool persistent) {
-    return add_unfold_hint(env, n, to_list(idx), persistent);
-}
-/** \brief Retrieve the hint added with the procedure add_unfold_hint. */
-list<unsigned> has_unfold_hint(environment const & env, name const & d);
-
-/** \brief [unfold-full] hint instructs normalizer (and simplifier) that function application
-    (f a_1 ... a_n) should be unfolded when it is fully applied */
-bool has_unfold_full_hint(environment const & env, name const & d);
-
-
 /** \brief unfold-m hint instructs normalizer (and simplifier) that function application
     (f ...) should be unfolded when it is the major premise of a constructor like operator */
 bool has_constructor_hint(environment const & env, name const & d);

@@ -202,7 +202,6 @@ environment mk_no_confusion(environment const & env, name const & n) {
     no_confusion_type_args.push_back(P);
     no_confusion_type_args.push_back(v1);
     no_confusion_type_args.push_back(v1);
-    unsigned unfold_hint_idx = no_confusion_type_args.size();
     expr no_confusion_type_app = mk_app(mk_constant(no_confusion_type_decl.get_name(), ls), no_confusion_type_args);
     expr type_former = Fun(type_former_args, no_confusion_type_app);
     // create cases_on
@@ -274,7 +273,6 @@ environment mk_no_confusion(environment const & env, name const & n) {
                                                         reducibility_hints::mk_abbreviation());
     new_env = module::add(new_env, check(new_env, new_d));
     new_env = set_reducible(new_env, no_confusion_name, reducible_status::Reducible, true);
-    new_env = add_unfold_hint(new_env, no_confusion_name, unfold_hint_idx, true);
     new_env = add_no_confusion(new_env, no_confusion_name);
     return add_protected(new_env, no_confusion_name);
 }

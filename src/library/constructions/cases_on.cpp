@@ -128,8 +128,6 @@ environment mk_cases_on(environment const & env, name const & n) {
     // Add indices and major-premise to rec_params
     for (unsigned i = 0; i < num_idx_major; i++)
         cases_on_params.push_back(rec_params[num_params + num_types + num_minors + i]);
-    unsigned cases_on_major_idx = cases_on_params.size() - 1;
-
     // Add minor premises to rec_params and rec_args
     i = num_params + num_types;
     for (auto const & d : idecls) {
@@ -182,7 +180,6 @@ environment mk_cases_on(environment const & env, name const & n) {
                                                         reducibility_hints::mk_abbreviation());
     environment new_env = module::add(env, check(env, new_d));
     new_env = set_reducible(new_env, cases_on_name, reducible_status::Reducible, true);
-    new_env = add_unfold_hint(new_env, cases_on_name, cases_on_major_idx, false);
     new_env = add_aux_recursor(new_env, cases_on_name);
     return add_protected(new_env, cases_on_name);
 }

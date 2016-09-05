@@ -186,15 +186,6 @@ namespace quot
 end quot
 
 attribute quot.mk                   [constructor]
-attribute quot.lift_on              [unfold 4]
-attribute quot.rec                  [unfold 6]
-attribute quot.rec_on               [unfold 4]
-attribute quot.hrec_on              [unfold 4]
-attribute quot.rec_on_subsingleton  [unfold 5]
-attribute quot.lift₂                [unfold 8]
-attribute quot.lift_on₂             [unfold 6]
-attribute quot.hrec_on₂             [unfold 6]
-attribute quot.rec_on_subsingleton₂ [unfold 7]
 
 open decidable
 attribute [instance]

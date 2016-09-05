@@ -21,41 +21,11 @@ Author: Leonardo de Moura
 #include "library/old_type_checker.h"
 
 namespace lean {
-/**
-   \brief unfold hints instruct the normalizer (and simplifier) that
-   a function application. We have two kinds of hints:
-   - [unfold] (f a_1 ... a_i ... a_n) should be unfolded
-     when argument a_i is a constructor.
-   - [unfold-full] (f a_1 ... a_i ... a_n) should be unfolded when it is fully applied.
-   - constructor (f ...) should be unfolded when it is the major premise of a recursor-like operator
-*/
-
-static indices_attribute const & get_unfold_attribute() {
-    return static_cast<indices_attribute const &>(get_system_attribute("unfold"));
-}
-environment add_unfold_hint(environment const & env, name const & n, list<unsigned> const & idxs, bool persistent) {
-    return get_unfold_attribute().set(env, get_dummy_ios(), n, LEAN_DEFAULT_PRIORITY, idxs, persistent);
-}
-list<unsigned> has_unfold_hint(environment const & env, name const & d) {
-    if (auto data = get_unfold_attribute().get(env, d))
-        return data->m_idxs;
-    else
-        return list<unsigned>();
-}
-
-bool has_unfold_full_hint(environment const & env, name const & d) {
-    return has_attribute(env, "unfold_full", d);
-}
-
 bool has_constructor_hint(environment const & env, name const & d) {
     return has_attribute(env, "constructor", d);
 }
 
 void initialize_normalize() {
-    register_system_attribute(
-            indices_attribute("unfold", "unfold definition when the given positions are constructors"));
-    register_system_attribute(basic_attribute("unfold_full",
-                                              "instructs normalizer (and simplifier) that function application (f a_1 ... a_n) should be unfolded when it is fully applied"));
     register_system_attribute(basic_attribute("constructor",
                                               "instructs normalizer (and simplifier) that function application (f ...) should be unfolded when it is the major premise of a constructor like operator"));
 }
@@ -85,16 +55,6 @@ class normalize_fn {
         expr l = mk_local(mk_fresh_name(), binding_name(e), d, binding_info(e));
         expr b = abstract(normalize(instantiate(binding_body(e), l)), l);
         return update_binding(e, d, b);
-    }
-
-    list<unsigned> has_unfold_hint(expr const & f) {
-        if (!is_constant(f))
-            return list<unsigned>();
-        return ::lean::has_unfold_hint(env(), const_name(f));
-    }
-
-    bool has_unfold_full_hint(expr const & f) {
-        return is_constant(f) &&  ::lean::has_unfold_full_hint(env(), const_name(f));
     }
 
     optional<expr> is_constructor_like(expr const & e) {
@@ -157,17 +117,6 @@ class normalize_fn {
             if (new_a != a)
                 modified = true;
             a = new_a;
-        }
-        if (has_unfold_full_hint(f)) {
-            if (!is_pi(m_full_tc.whnf(m_full_tc.infer(e).first).first)) {
-                if (optional<expr> r = unfold_app(env(), mk_rev_app(f, args))) {
-                    return normalize(*r);
-                }
-            }
-        }
-        if (auto idxs = has_unfold_hint(f)) {
-            if (auto r = unfold_recursor_like(f, idxs, args))
-                return *r;
         }
         if (is_constant(f)) {
             if (auto idx = inductive::get_elim_major_idx(env(), const_name(f))) {

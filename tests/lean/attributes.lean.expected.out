@@ -1,15 +1,2 @@
-attributes.lean:3:0: error: cannot remove attribute [unfold]: no prior declaration on foo
-attributes.lean:7:11: error: cannot remove attribute globally (solution: use 'local attribute')
-definition foo : Type → Type :=
-λ A, A
-attribute [unfold 1]
-definition foo : Type → Type :=
-λ A, A
-definition foo : Type → Type :=
-λ A, A
-attributes.lean:18:0: error: cannot remove attribute [unfold]: no prior declaration on foo
-attribute [unfold]
-definition foo : Type → Type :=
-λ A, A
-attributes.lean:26:0: error: cannot remove attribute [reducible]
-attributes.lean:30:0: error: cannot remove attribute [instance]
+attributes.lean:4:0: error: cannot remove attribute [reducible]
+attributes.lean:8:0: error: cannot remove attribute [instance]

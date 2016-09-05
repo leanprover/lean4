@@ -31,11 +31,4 @@ expr normalize(old_type_checker & tc, expr const & e, constraint_seq & cs, bool 
 */
 expr normalize(old_type_checker & tc, expr const & e, std::function<bool(expr const&)> const & pred, // NOLINT
                constraint_seq & cs, bool eta = false);
-
-/** \brief unfold-m hint instructs normalizer (and simplifier) that function application
-    (f ...) should be unfolded when it is the major premise of a constructor like operator */
-bool has_constructor_hint(environment const & env, name const & d);
-
-void initialize_normalize();
-void finalize_normalize();
 }

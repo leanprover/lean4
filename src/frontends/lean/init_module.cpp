@@ -30,9 +30,11 @@ Author: Leonardo de Moura
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/match_expr.h"
 #include "frontends/lean/notation_cmd.h"
+#include "frontends/lean/constructor_hint.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {
+    initialize_constructor_hint();
     initialize_pattern_attribute();
     initialize_old_attributes();
     initialize_prenum();
@@ -87,5 +89,6 @@ void finalize_frontend_lean_module() {
     finalize_info_annotation();
     finalize_prenum();
     finalize_pattern_attribute();
+    finalize_constructor_hint();
 }
 }

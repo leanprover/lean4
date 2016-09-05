@@ -8,6 +8,7 @@ info_manager.cpp info_annotation.cpp init_module.cpp
 type_util.cpp local_ref_info.cpp decl_attributes.cpp nested_declaration.cpp
 opt_cmd.cpp prenum.cpp print_cmd.cpp elaborator.cpp pattern_attribute.cpp
 match_expr.cpp local_context_adapter.cpp decl_util.cpp definition_cmds.cpp
+constructor_hint.cpp
 # LEGACY
 old_elaborator.cpp
 old_attributes.cpp

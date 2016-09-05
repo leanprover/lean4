@@ -21,18 +21,6 @@ Author: Leonardo de Moura
 #include "library/old_type_checker.h"
 
 namespace lean {
-bool has_constructor_hint(environment const & env, name const & d) {
-    return has_attribute(env, "constructor", d);
-}
-
-void initialize_normalize() {
-    register_system_attribute(basic_attribute("constructor",
-                                              "instructs normalizer (and simplifier) that function application (f ...) should be unfolded when it is the major premise of a constructor like operator"));
-}
-
-void finalize_normalize() {
-}
-
 class normalize_fn {
     old_type_checker   &                  m_tc;
     // Remark: the normalizer/type-checker m_tc has been provided by the "user".
@@ -60,15 +48,8 @@ class normalize_fn {
     optional<expr> is_constructor_like(expr const & e) {
         if (is_constructor_app(env(), e))
             return some_expr(e);
-        expr const & f = get_app_fn(e);
-        if (is_constant(f) && has_constructor_hint(env(), const_name(f))) {
-            if (auto r = unfold_term(env(), e))
-                return r;
-            else
-                return some_expr(e);
-        } else {
+        else
             return none_expr();
-        }
     }
 
     optional<expr> unfold_recursor_core(expr const & f, unsigned i,

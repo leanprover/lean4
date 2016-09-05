@@ -40,6 +40,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/info_annotation.h"
+#include "frontends/lean/constructor_hint.h"
 
 namespace lean {
 MK_THREAD_LOCAL_GET(type_context_cache_manager, get_tcm, true /* use binder information at infer_cache */);
@@ -866,7 +867,9 @@ optional<expr> elaborator::visit_app_propagate_expected(expr const & fn, buffer<
 bool elaborator::is_propagate_expected_candidate(expr const & fn) {
     /* We only propagate type to arguments for constructors. */
     if (!is_constant(fn)) return false;
-    return static_cast<bool>(inductive::is_intro_rule(m_env, const_name(fn)));
+    return
+        static_cast<bool>(inductive::is_intro_rule(m_env, const_name(fn))) ||
+        has_constructor_hint(m_env, const_name(fn));
 }
 
 expr elaborator::visit_default_app_core(expr const & _fn, arg_mask amask, buffer<expr> const & args,

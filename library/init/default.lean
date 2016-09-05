@@ -13,4 +13,4 @@ import init.monad_combinators
 import init.timeit init.trace init.unsigned init.ordering init.list_classes init.coe
 import init.wf init.nat_div init.meta init.instances
 import init.wf_k init.sigma_lex
-import init.simplifier
+import init.simplifier init.id_locked

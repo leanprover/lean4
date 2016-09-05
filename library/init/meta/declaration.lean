@@ -6,10 +6,15 @@ Authors: Leonardo de Moura
 prelude
 import init.meta.expr init.meta.name
 
+inductive reducibility_hints
+| opaque  : reducibility_hints
+| abbrev  : reducibility_hints
+| regular : nat → bool → reducibility_hints
+
 /- Reflect a C++ declaration object. The VM replaces it with the C++ implementation. -/
 inductive declaration
 /- definition: name, list universe parameters, type, value, is_trusted -/
-| defn : name → list name → expr → expr → bool → declaration
+| defn : name → list name → expr → expr → reducibility_hints → bool → declaration
 /- theorem: name, list universe parameters, type, value (remark: theorems are always trusted) -/
 | thm  : name → list name → expr → expr → declaration
 /- constant assumption: name, list universe parameters, type, is_trusted -/
@@ -18,19 +23,19 @@ inductive declaration
 | ax   : name → list name → expr → declaration
 
 definition declaration.to_name : declaration → name
-| (declaration.defn n ls t v tr) := n
+| (declaration.defn n ls t v h tr) := n
 | (declaration.thm n ls t v) := n
 | (declaration.cnst n ls t tr) := n
 | (declaration.ax n ls t) := n
 
 definition declaration.univ_params : declaration → list name
-| (declaration.defn n ls t v tr) := ls
+| (declaration.defn n ls t v h tr) := ls
 | (declaration.thm n ls t v) := ls
 | (declaration.cnst n ls t tr) := ls
 | (declaration.ax n ls t) := ls
 
 definition declaration.type : declaration → expr
-| (declaration.defn n ls t v tr) := t
+| (declaration.defn n ls t v h tr) := t
 | (declaration.thm n ls t v) := t
 | (declaration.cnst n ls t tr) := t
 | (declaration.ax n ls t) := t

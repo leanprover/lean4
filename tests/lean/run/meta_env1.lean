@@ -2,18 +2,20 @@ open list
 
 meta_definition e := environment.mk_std 0
 
+definition hints := reducibility_hints.regular 10 tt
+
 vm_eval environment.trust_lvl e
 vm_eval environment.is_std e
 
 vm_eval (environment.add e (declaration.defn `foo []
                                              (expr.sort (level.succ (level.zero)))
                                              (expr.sort (level.succ (level.zero)))
-                                             bool.tt) : exceptional environment)
+                                             hints tt) : exceptional environment)
 
 meta_definition e1 := (environment.add e (declaration.defn `foo []
                                             (expr.sort (level.succ (level.zero)))
                                             (expr.sort level.zero)
-                                            bool.tt) : exceptional environment)
+                                            hints tt) : exceptional environment)
 
 print "-----------"
 open name
@@ -22,7 +24,7 @@ vm_eval do
    e₁ ← environment.add e (declaration.defn `foo []
                                             (expr.sort (level.succ (level.zero)))
                                             (expr.sort level.zero)
-                                            bool.tt),
+                                            hints tt),
    e₂ ← environment.add_inductive e₁ `Two [] 0 (expr.sort (level.succ level.zero))
                                   [(`Zero, expr.const `Two []),
                                    (`One,  expr.const `Two [])],

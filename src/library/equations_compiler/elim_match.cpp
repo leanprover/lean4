@@ -620,8 +620,8 @@ struct elim_match_fn {
             lean_assert(length(new_goals) == length(new_goal_cnames));
             lean_assert(length(new_goals) == length(ilist));
             lean_assert(length(new_goals) == length(slist));
-        } catch (exception &) {
-            trace_match(tout() << "dependent pattern matching step failed\n";);
+        } catch (exception & ex) {
+            trace_match(tout() << "dependent pattern matching step failed\n" << ex.what() << "\n";);
             throw_error("equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' "
                         "for additional details)");
         }

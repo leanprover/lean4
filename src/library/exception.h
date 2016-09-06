@@ -35,6 +35,27 @@ public:
     virtual void rethrow() const override { throw *this; }
 };
 
+class nested_exception : public generic_exception {
+    std::shared_ptr<throwable>          m_exception;
+public:
+    nested_exception(optional<expr> const & m, pp_fn const & fn, throwable const & ex):
+        generic_exception(m, fn), m_exception(std::shared_ptr<throwable>(ex.clone())) {}
+    nested_exception(optional<expr> const & m, char const * msg, throwable const & ex):
+        generic_exception(m, msg), m_exception(std::shared_ptr<throwable>(ex.clone())) {}
+    nested_exception(optional<expr> const & m, sstream const & strm, throwable const & ex):
+        generic_exception(m, strm), m_exception(std::shared_ptr<throwable>(ex.clone())) {}
+    explicit nested_exception(char const * msg, throwable const & ex):
+        nested_exception(none_expr(), msg, ex) {}
+    explicit nested_exception(sstream const & strm, throwable const & ex):
+        nested_exception(none_expr(), strm, ex) {}
+    virtual ~nested_exception() noexcept {}
+
+    virtual optional<expr> get_main_expr() const override;
+    virtual format pp(formatter const & fmt) const override;
+    virtual throwable * clone() const override;
+    virtual void rethrow() const override { throw *this; }
+};
+
 /** \brief Lean exception occurred when parsing file. */
 class parser_nested_exception : public exception {
     std::shared_ptr<throwable>          m_exception;

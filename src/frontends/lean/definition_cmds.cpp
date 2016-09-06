@@ -278,22 +278,15 @@ static void check_noncomputable(parser & p, environment const & env, name const 
     }
 }
 
-static environment compile_decl(parser & p, environment const & env, def_cmd_kind kind, bool is_noncomputable,
-                                name const & c_name, name const & c_real_name, pos_info const & pos) {
+static environment compile_decl(environment const & env, def_cmd_kind kind, bool is_noncomputable,
+                                name const & c_name, name const & c_real_name) {
     if (is_noncomputable || kind == Theorem || is_vm_builtin_function(c_real_name))
         return env;
     try {
         declaration d = env.get(c_real_name);
         return vm_compile(env, d);
-    } catch (exception & ext) {
-        flycheck_warning wrn(p.ios());
-        auto & out = p.ios().get_regular_stream();
-        display_pos(out, p, pos);
-        out << "failed to generate bytecode for '" << c_name << "'" << std::endl;
-        type_context ctx(p.env());
-        auto out2  = regular(p.env(), p.ios(), ctx);
-        display_error(out2, get_pos_info_provider(), ext);
-        return env;
+    } catch (exception & ex) {
+        throw nested_exception(sstream() << "failed to generate bytecode for '" << c_name << "'", ex);
     }
 }
 
@@ -323,7 +316,7 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
     }
 
     new_env = attrs.apply(new_env, p.ios(), c_real_name);
-    new_env = compile_decl(p, new_env, kind, is_noncomputable, c_name, c_real_name, pos);
+    new_env = compile_decl(new_env, kind, is_noncomputable, c_name, c_real_name);
     return mk_pair(new_env, c_real_name);
 }
 

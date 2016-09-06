@@ -621,9 +621,8 @@ struct elim_match_fn {
             lean_assert(length(new_goals) == length(ilist));
             lean_assert(length(new_goals) == length(slist));
         } catch (exception & ex) {
-            trace_match(tout() << "dependent pattern matching step failed\n" << ex.what() << "\n";);
-            throw_error("equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' "
-                        "for additional details)");
+            throw nested_exception("equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' "
+                                   "for additional details)", ex);
         }
         if (empty(new_goals)) return list<lemma>();
         list<equation> eqns = normalize_next_pattern(P.m_equations);

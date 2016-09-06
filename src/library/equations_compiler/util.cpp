@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/aux_definition.h"
 #include "library/scope_pos_info_provider.h"
+#include "library/compiler/vm_compiler.h"
 #include "library/tactic/defeq_simplifier/defeq_simplifier.h"
 #include "library/equations_compiler/equations.h"
 #include "library/equations_compiler/util.h"
@@ -211,7 +212,16 @@ pair<environment, expr> mk_aux_definition(environment const & env, metavar_conte
     environment new_env = env;
     name new_c;
     std::tie(new_env, new_c) = mk_def_name(env, is_private, c);
-    return mk_aux_definition(new_env, mctx, lctx, new_c, type, value);
+    expr r;
+    std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_c, type, value);
+    try {
+        declaration d = new_env.get(new_c);
+        new_env = vm_compile(new_env, d);
+    } catch (exception & ex) {
+        throw nested_exception(sstream() << "equation compiler failed to generate bytecode for "
+                               << "auxiliary declaration '" << c << "'", ex);
+    }
+    return mk_pair(new_env, r);
 }
 
 static unsigned g_eqn_sanitizer_token;

@@ -20,21 +20,20 @@ public:
         ext_exception(msg), m_main_expr(m), m_pp_fn(fn) {}
     generic_exception(optional<expr> const & m, pp_fn const & fn):
         ext_exception(), m_main_expr(m), m_pp_fn(fn) {}
+    generic_exception(optional<expr> const & m, char const * msg);
+    generic_exception(optional<expr> const & m, sstream const & strm):generic_exception(m, strm.str().c_str()) {}
+    explicit generic_exception(char const * msg):generic_exception(none_expr(), msg) {}
+    explicit generic_exception(sstream const & strm):generic_exception(none_expr(), strm) {}
+    generic_exception(expr const & m, char const * msg):generic_exception(some_expr(m), msg) {}
+    generic_exception(expr const & m, sstream const & strm):generic_exception(some_expr(m), strm) {}
+    generic_exception(expr const & m, pp_fn const & fn):generic_exception(some_expr(m), fn) {}
+
     virtual ~generic_exception() noexcept {}
     virtual optional<expr> get_main_expr() const override { return m_main_expr; }
     virtual format pp(formatter const & fmt) const override { return m_pp_fn(fmt); }
     virtual throwable * clone() const override { return new generic_exception(m_msg.c_str(), m_main_expr, m_pp_fn); }
     virtual void rethrow() const override { throw *this; }
 };
-
-[[ noreturn ]] void throw_generic_exception(char const * msg, optional<expr> const & m);
-[[ noreturn ]] void throw_generic_exception(sstream const & strm, optional<expr> const & m);
-[[ noreturn ]] void throw_generic_exception(char const * msg, expr const & m);
-[[ noreturn ]] void throw_generic_exception(sstream const & strm, expr const & m);
-[[ noreturn ]] void throw_generic_exception(char const * msg, optional<expr> const & m, pp_fn const & fn);
-[[ noreturn ]] void throw_generic_exception(char const * msg, expr const & m, pp_fn const & fn);
-[[ noreturn ]] void throw_generic_exception(optional<expr> const & m, pp_fn const & fn);
-[[ noreturn ]] void throw_generic_exception(expr const & m, pp_fn const & fn);
 
 /** \brief Lean exception occurred when parsing file. */
 class parser_nested_exception : public exception {

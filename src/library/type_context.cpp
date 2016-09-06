@@ -2403,7 +2403,7 @@ optional<name> type_context::is_class(expr const & type) {
     return is_full_class(type);
 }
 
-[[ noreturn ]] static void throw_class_exception(char const * msg, expr const & m) { throw_generic_exception(msg, m); }
+[[ noreturn ]] static void throw_class_exception(expr const & m, char const * msg) { throw generic_exception(m, msg); }
 
 struct instance_synthesizer {
     struct stack_entry {
@@ -2552,11 +2552,11 @@ struct instance_synthesizer {
     bool mk_choice_point(expr const & mvar) {
         lean_assert(is_metavar(mvar));
         if (m_choices.size() > m_ctx.m_cache->m_ci_max_depth) {
-            throw_class_exception("maximum class-instance resolution depth has been reached "
+            throw_class_exception(m_ctx.infer(m_main_mvar),
+                                  "maximum class-instance resolution depth has been reached "
                                   "(the limit can be increased by setting option 'class.instance_max_depth') "
                                   "(the class-instance resolution trace can be visualized "
-                                  "by setting option 'trace.class_instances')",
-                                  m_ctx.infer(m_main_mvar));
+                                  "by setting option 'trace.class_instances')");
         }
         // Remark: we initially tried to reject branches where mvar_type contained unassigned metavariables.
         // The idea was to make the procedure easier to understand.

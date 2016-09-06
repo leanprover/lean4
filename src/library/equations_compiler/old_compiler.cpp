@@ -82,11 +82,11 @@ class equation_compiler_fn {
         return ::lean::to_telescope(m_tc, e, tele, optional<binder_info>());
     }
 
-    [[ noreturn ]] static void throw_error(char const * msg, expr const & src) { throw_generic_exception(msg, src); }
-    [[ noreturn ]] static void throw_error(sstream const & ss, expr const & src) { throw_generic_exception(ss, src); }
-    [[ noreturn ]] static void throw_error(expr const & src, pp_fn const & fn) { throw_generic_exception(src, fn); }
-    [[ noreturn ]] void throw_error(sstream const & ss) const { throw_generic_exception(ss, m_meta); }
-    [[ noreturn ]] void throw_error(expr const & src, sstream const & ss) const { throw_generic_exception(ss, src); }
+    [[ noreturn ]] static void throw_error(char const * msg, expr const & src) { throw generic_exception(src, msg); }
+    [[ noreturn ]] static void throw_error(sstream const & ss, expr const & src) { throw generic_exception(src, ss); }
+    [[ noreturn ]] static void throw_error(expr const & src, pp_fn const & fn) { throw generic_exception(src, fn); }
+    [[ noreturn ]] void throw_error(sstream const & ss) const { throw generic_exception(m_meta, ss); }
+    [[ noreturn ]] void throw_error(expr const & src, sstream const & ss) const { throw generic_exception(src, ss); }
 
     void check_limitations(expr const & eqns) const {
         if (is_wf_equations(eqns) && equations_num_fns(eqns) != 1)

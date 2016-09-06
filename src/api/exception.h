@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include "util/exception.h"
-#include "library/parser_nested_exception.h"
+#include "library/exception.h"
 #include "api/lean_macros.h"
 #include "api/lean_bool.h"
 #include "api/lean_exception.h"

@@ -8,37 +8,11 @@ Author: Leonardo de Moura
 #include "library/exception.h"
 
 namespace lean {
-
-[[ noreturn ]] void throw_generic_exception(char const * msg, optional<expr> const & m) {
+static pp_fn mk_pp_fn(char const * msg) {
     std::string msg_str = msg;
-    throw generic_exception(msg, m, [=](formatter const &) { return format(msg_str); });
+    return [=](formatter const &) { return format(msg_str); }; // NOLINT
 }
 
-[[ noreturn ]] void throw_generic_exception(sstream const & strm, optional<expr> const & m) {
-    throw_generic_exception(strm.str().c_str(), m);
-}
-
-[[ noreturn ]] void throw_generic_exception(char const * msg, expr const & m) {
-    throw_generic_exception(msg, some_expr(m));
-}
-
-[[ noreturn ]] void throw_generic_exception(sstream const & strm, expr const & m) {
-    throw_generic_exception(strm, some_expr(m));
-}
-
-[[ noreturn ]] void throw_generic_exception(char const * msg, optional<expr> const & m, pp_fn const & fn) {
-    throw generic_exception(msg, m, fn);
-}
-
-[[ noreturn ]] void throw_generic_exception(char const * msg, expr const & m, pp_fn const & fn) {
-    throw_generic_exception(msg, some_expr(m), fn);
-}
-
-[[ noreturn ]] void throw_generic_exception(optional<expr> const & m, pp_fn const & fn) {
-    throw generic_exception(m, fn);
-}
-
-[[ noreturn ]] void throw_generic_exception(expr const & m, pp_fn const & fn) {
-    throw_generic_exception(some_expr(m), fn);
-}
+generic_exception::generic_exception(optional<expr> const & m, char const * msg):
+    generic_exception(msg, m, mk_pp_fn(msg)) {}
 }

@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/unifier.h"
 #include "library/print.h"
-// #include "library/tactic/tactic.h"
 #include "library/error_handling.h"
 #include "api/exception.h"
 #include "api/string.h"

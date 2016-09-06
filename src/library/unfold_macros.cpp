@@ -38,7 +38,7 @@ class unfold_untrusted_macros_fn {
             if (optional<expr> new_r = m_tc.expand_macro(r)) {
                 return *new_r;
             } else {
-                throw_generic_exception("failed to expand macro", e);
+                throw generic_exception(e, "failed to expand macro");
             }
         } else {
             return r;

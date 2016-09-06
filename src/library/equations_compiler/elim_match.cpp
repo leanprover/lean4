@@ -97,11 +97,11 @@ struct elim_match_fn {
     };
 
     [[ noreturn ]] void throw_error(char const * msg) {
-        throw_generic_exception(msg, m_ref);
+        throw generic_exception(m_ref, msg);
     }
 
     [[ noreturn ]] void throw_error(sstream const & strm) {
-        throw_generic_exception(strm, m_ref);
+        throw generic_exception(m_ref, strm);
     }
 
     local_context get_local_context(expr const & mvar) {

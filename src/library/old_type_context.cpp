@@ -1534,7 +1534,7 @@ bool old_type_context::update_options(options const & opts) {
     return r;
 }
 
-[[ noreturn ]] static void throw_class_exception(char const * msg, expr const & m) { throw_generic_exception(msg, m); }
+[[ noreturn ]] static void throw_class_exception(char const * msg, expr const & m) { throw generic_exception(m, msg); }
 
 void old_type_context::trace(unsigned depth, expr const & mvar, expr const & mvar_type, expr const & r) {
     auto out = tout();

@@ -700,7 +700,7 @@ environment parser::add_local_ref(environment const & env, name const & n, expr 
 static void check_no_metavars(name const & n, expr const & e) {
     lean_assert(is_local(e));
     if (has_metavar(e)) {
-        throw_generic_exception(none_expr(), [=](formatter const & fmt) {
+        throw generic_exception(none_expr(), [=](formatter const & fmt) {
                 format r("failed to add declaration '");
                 r += format(n);
                 r += format("' to local context, type has metavariables");

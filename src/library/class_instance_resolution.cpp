@@ -28,8 +28,8 @@ Author: Leonardo de Moura
 #include "library/scope_pos_info_provider.h"
 
 namespace lean {
-[[ noreturn ]] void throw_class_exception(char const * msg, expr const & m) { throw_generic_exception(msg, m); }
-[[ noreturn ]] void throw_class_exception(expr const & m, pp_fn const & fn) { throw_generic_exception(m, fn); }
+[[ noreturn ]] void throw_class_exception(char const * msg, expr const & m) { throw generic_exception(m, msg); }
+[[ noreturn ]] void throw_class_exception(expr const & m, pp_fn const & fn) { throw generic_exception(m, fn); }
 
 static name * g_class_force_new              = nullptr;
 

@@ -9,19 +9,15 @@ Author: Leonardo de Moura
 
 namespace lean {
 [[ noreturn ]] void throw_elaborator_exception(char const * msg, expr const & m) {
-    throw_generic_exception(msg, m);
+    throw generic_exception(m, msg);
 }
 
 [[ noreturn ]] void throw_elaborator_exception(sstream const & strm, expr const & m) {
-    throw_generic_exception(strm, m);
-}
-
-[[ noreturn ]] void throw_elaborator_exception(char const * msg, expr const & m, pp_fn const & fn) {
-    throw_generic_exception(msg, m, fn);
+    throw generic_exception(m, strm);
 }
 
 [[ noreturn ]] void throw_elaborator_exception(expr const & m, pp_fn const & fn) {
-    throw_generic_exception(m, fn);
+    throw generic_exception(m, fn);
 }
 
 [[ noreturn ]] void throw_elaborator_exception(expr const & m, format const & msg) {

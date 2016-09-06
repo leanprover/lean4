@@ -376,7 +376,7 @@ struct structure_cmd_fn {
                     return optional<unsigned>(i);
                 } else {
                     expr prev_ftype = mlocal_type(m_fields[i]);
-                    throw_generic_exception(parent, [=](formatter const & fmt) {
+                    throw generic_exception(parent, [=](formatter const & fmt) {
                             format r = format("invalid 'structure' header, field '");
                             r += format(fname);
                             r += format("' from '");

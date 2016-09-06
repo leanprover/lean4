@@ -268,24 +268,27 @@ struct definition_info {
     name     m_prefix;
     bool     m_is_private{false};
     bool     m_is_meta{false};
-    bool     m_lemmas{false};
+    bool     m_is_lemma{false};
+    bool     m_aux_lemmas{false};
     unsigned m_next_match_idx{1};
 };
 
 MK_THREAD_LOCAL_GET_DEF(definition_info, get_definition_info);
 
-declaration_info_scope::declaration_info_scope(environment const & env, bool is_private, bool is_meta, bool lemmas) {
+declaration_info_scope::declaration_info_scope(environment const & env, bool is_private, bool is_meta,
+                                               bool is_lemma, bool aux_lemmas) {
     definition_info & info = get_definition_info();
     lean_assert(info.m_prefix.is_anonymous());
     info.m_prefix         = is_private ? name() : get_namespace(env);
     info.m_is_private     = is_private;
     info.m_is_meta        = is_meta;
-    info.m_lemmas         = lemmas;
+    info.m_is_lemma       = is_lemma;
+    info.m_aux_lemmas     = aux_lemmas;
     info.m_next_match_idx = 1;
 }
 
 declaration_info_scope::declaration_info_scope(environment const & env, bool is_private, def_cmd_kind k):
-    declaration_info_scope(env, is_private, k == MetaDefinition, k == Definition) {}
+    declaration_info_scope(env, is_private, k == MetaDefinition, k == Theorem, k == Definition) {}
 
 declaration_info_scope::~declaration_info_scope() {
     definition_info & info = get_definition_info();
@@ -298,7 +301,8 @@ equations_header mk_equations_header(list<name> const & ns) {
     h.m_fn_names   = ns;
     h.m_is_private = get_definition_info().m_is_private;
     h.m_is_meta    = get_definition_info().m_is_meta;
-    h.m_lemmas     = get_definition_info().m_lemmas;
+    h.m_is_lemma   = get_definition_info().m_is_lemma;
+    h.m_aux_lemmas = get_definition_info().m_aux_lemmas;
     return h;
 }
 

@@ -77,7 +77,7 @@ environment add_local_ref(parser & p, environment const & env, name const & c_na
     nested definitions. */
 class declaration_info_scope {
 public:
-    declaration_info_scope(environment const & env, bool is_private, bool is_meta, bool lemmas);
+    declaration_info_scope(environment const & env, bool is_private, bool is_meta, bool is_lemma, bool aux_lemmas);
     declaration_info_scope(environment const & env, bool is_private, def_cmd_kind k);
     ~declaration_info_scope();
 };

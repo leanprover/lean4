@@ -846,7 +846,7 @@ struct structural_rec_fn {
         if (!new_eqns) return none_expr();
         elim_match_result R = elim_match(m_env, m_opts, m_mctx, m_lctx, *new_eqns);
         expr fn = mk_function(R.m_fn);
-        if (m_header.m_lemmas) {
+        if (m_header.m_aux_lemmas) {
             lean_assert(!m_header.m_is_meta);
             mk_lemmas(fn, R.m_lemmas);
         }

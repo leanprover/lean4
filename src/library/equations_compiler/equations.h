@@ -28,11 +28,12 @@ expr mk_inaccessible(expr const & e);
 bool is_inaccessible(expr const & e);
 
 struct equations_header {
-    unsigned   m_num_fns{0};        /* number of functions being defined */
-    list<name> m_fn_names;          /* names for functions */
-    bool       m_is_private{false}; /* if true, it must be a private definition */
-    bool       m_is_meta{false};    /* the auxiliary declarations should be tagged as meta */
-    bool       m_lemmas{false};     /* if true, we must create equation lemmas and induction principle */
+    unsigned   m_num_fns{0};         /* number of functions being defined */
+    list<name> m_fn_names;           /* names for functions */
+    bool       m_is_private{false};  /* if true, it must be a private definition */
+    bool       m_is_lemma{false};    /* if true, equations are defining a lemma */
+    bool       m_is_meta{false};     /* the auxiliary declarations should be tagged as meta */
+    bool       m_aux_lemmas{false};  /* if true, we must create equation lemmas and induction principle */
     equations_header() {}
     equations_header(unsigned num_fns):m_num_fns(num_fns) {}
 };

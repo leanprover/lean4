@@ -54,7 +54,7 @@ struct elim_match_fn {
     expr            m_ref;
     unsigned        m_depth{0};
     buffer<bool>    m_used_eqns;
-    bool            m_lemmas;
+    bool            m_aux_lemmas;
     bool            m_use_ite;
     /* m_enum is a mapping from inductive type name to flag indicating whether it is
        an enumeration type or not. */
@@ -895,7 +895,7 @@ struct elim_match_fn {
         m_used_eqns[eqn.m_eqn_idx] = true;
         expr rhs                   = apply(eqn.m_rhs, eqn.m_subst);
         m_mctx.assign(P.m_goal, rhs);
-        if (m_lemmas) {
+        if (m_aux_lemmas) {
             lemma L;
             L.m_lctx     = eqn.m_lctx;
             L.m_vars     = eqn.m_vars;
@@ -963,7 +963,7 @@ struct elim_match_fn {
                 type_context ctx = mk_type_context(lctx);
                 lean_assert(!is_recursive_eqns(ctx, eqns));
             });
-        m_lemmas                 = get_equations_header(eqns).m_lemmas;
+        m_aux_lemmas             = get_equations_header(eqns).m_aux_lemmas;
         m_ref                    = eqns;
         problem P; expr fn;
         std::tie(P, fn)          = mk_problem(lctx, eqns);

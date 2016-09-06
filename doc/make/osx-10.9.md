@@ -31,7 +31,7 @@ need to use `-DCMAKE_CXX_COMPILER` option to specify the compiler
 that you want to use when you run `cmake`. For example, do the
 following to use `g++`.
 
-    cmake -DCMAKE_CXX_COMPILER=g++-4.9 ...
+    cmake -DCMAKE_CXX_COMPILER=g++ ...
 
 
 Required Packages: CMake, GMP, MPFR, LUA

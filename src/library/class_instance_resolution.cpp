@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/class.h"
 #include "library/old_local_context.h"
-#include "library/generic_exception.h"
+#include "library/exception.h"
 #include "library/io_state_stream.h"
 #include "library/replace_visitor.h"
 #include "library/constants.h"

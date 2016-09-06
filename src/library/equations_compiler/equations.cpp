@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
 #include "kernel/replace_fn.h"
-#include "library/generic_exception.h"
+#include "library/exception.h"
 #include "library/kernel_serializer.h"
 #include "library/io_state_stream.h"
 #include "library/annotation.h"

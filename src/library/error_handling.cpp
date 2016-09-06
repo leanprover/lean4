@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "library/io_state_stream.h"
 #include "library/unifier.h"
-#include "library/parser_nested_exception.h"
+#include "library/exception.h"
 #include "library/flycheck.h"
 #include "library/pp_options.h"
 #include "library/error_handling.h"

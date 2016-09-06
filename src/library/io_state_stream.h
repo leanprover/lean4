@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/ext_exception.h"
 #include "kernel/abstract_type_context.h"
-#include "library/generic_exception.h"
+#include "library/exception.h"
 #include "library/io_state.h"
 #include "library/constraint.h"
 

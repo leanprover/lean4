@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "library/num.h"
 #include "library/string.h"
 #include "library/pp_options.h"
-#include "library/generic_exception.h"
+#include "library/exception.h"
 #include "library/util.h"
 #include "library/locals.h"
 #include "library/app_builder.h"

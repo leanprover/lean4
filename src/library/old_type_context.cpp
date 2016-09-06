@@ -21,7 +21,7 @@ Author: Leonardo de Moura
 #include "library/old_type_context.h"
 #include "library/pp_options.h"
 #include "library/reducible.h"
-#include "library/generic_exception.h"
+#include "library/exception.h"
 #include "library/class.h"
 #include "library/constants.h"
 #include "library/unification_hint.h"

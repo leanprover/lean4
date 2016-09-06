@@ -22,7 +22,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/error_msgs.h"
 #include "library/trace.h"
-#include "library/parser_nested_exception.h"
+#include "library/exception.h"
 #include "library/aliases.h"
 #include "library/constants.h"
 #include "library/private.h"

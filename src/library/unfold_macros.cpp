@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "library/unfold_macros.h"
 #include "library/replace_visitor.h"
-#include "library/generic_exception.h"
+#include "library/exception.h"
 
 namespace lean {
 class unfold_untrusted_macros_fn {

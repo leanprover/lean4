@@ -208,18 +208,22 @@ static pair<environment, name> mk_def_name(environment const & env, bool is_priv
 }
 
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
-                                          bool is_private, name const & c, expr const & type, expr const & value) {
+                                          bool is_private, bool is_lemma, name const & c, expr const & type, expr const & value) {
     environment new_env = env;
     name new_c;
     std::tie(new_env, new_c) = mk_def_name(env, is_private, c);
     expr r;
-    std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_c, type, value);
-    try {
-        declaration d = new_env.get(new_c);
-        new_env = vm_compile(new_env, d);
-    } catch (exception & ex) {
-        throw nested_exception(sstream() << "equation compiler failed to generate bytecode for "
-                               << "auxiliary declaration '" << c << "'", ex);
+    std::tie(new_env, r) = is_lemma ?
+        mk_aux_lemma(new_env, mctx, lctx, new_c, type, value) :
+        mk_aux_definition(new_env, mctx, lctx, new_c, type, value);
+    if (!is_lemma) {
+        try {
+            declaration d = new_env.get(new_c);
+            new_env = vm_compile(new_env, d);
+        } catch (exception & ex) {
+            throw nested_exception(sstream() << "equation compiler failed to generate bytecode for "
+                                   << "auxiliary declaration '" << c << "'", ex);
+        }
     }
     return mk_pair(new_env, r);
 }

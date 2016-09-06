@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "kernel/ext_exception.h"
 
 namespace lean {
-/* Legacy code. TODO(Leo): remove */
 class generic_exception : public ext_exception {
 protected:
     optional<expr> m_main_expr;

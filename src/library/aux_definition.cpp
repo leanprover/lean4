@@ -120,7 +120,9 @@ struct mk_aux_definition_fn {
         }
     }
 
-    pair<environment, expr> operator()(name const & c, expr const & type, expr const & value, optional<bool> const & is_meta) {
+    pair<environment, expr> operator()(name const & c, expr const & type, expr const & value, bool is_lemma, optional<bool> const & is_meta) {
+        lean_assert(!is_lemma || is_meta);
+        lean_assert(!is_lemma || *is_meta == false);
         expr new_type  = collect(m_ctx.instantiate_mvars(type));
         expr new_value = collect(m_ctx.instantiate_mvars(value));
         buffer<expr> norm_params;
@@ -129,13 +131,17 @@ struct mk_aux_definition_fn {
         new_value = replace_locals(new_value, m_params, norm_params);
         expr def_type  = m_ctx.mk_pi(norm_params, new_type);
         expr def_value = m_ctx.mk_lambda(norm_params, new_value);
-        bool use_self_opt = true;
         environment const & env = m_ctx.env();
         declaration d;
-        if (is_meta)
+        if (is_lemma) {
+            d = mk_theorem(c, to_list(m_level_params), def_type, def_value);
+        } else if (is_meta) {
+            bool use_self_opt = true;
             d = mk_definition(env, c, to_list(m_level_params), def_type, def_value, use_self_opt, !*is_meta);
-        else
+        } else {
+            bool use_self_opt = true;
             d = mk_definition_inferring_trusted(env, c, to_list(m_level_params), def_type, def_value, use_self_opt);
+        }
         environment new_env = module::add(env, check(env, d));
         buffer<level> ls;
         for (name const & n : m_level_params) {
@@ -159,13 +165,23 @@ struct mk_aux_definition_fn {
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
                                           name const & c, expr const & type, expr const & value, optional<bool> const & is_meta) {
     type_context ctx(env, options(), mctx, lctx, transparency_mode::All);
-    return mk_aux_definition_fn(ctx)(c, type, value, is_meta);
+    bool is_lemma = false;
+    return mk_aux_definition_fn(ctx)(c, type, value, is_lemma, is_meta);
 }
 
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
                                           name const & c, expr const & value, optional<bool> const & is_meta) {
     type_context ctx(env, options(), mctx, lctx, transparency_mode::All);
-    expr type = ctx.infer(value);
-    return mk_aux_definition_fn(ctx)(c, type, value, is_meta);
+    expr type     = ctx.infer(value);
+    bool is_lemma = false;
+    return mk_aux_definition_fn(ctx)(c, type, value, is_lemma, is_meta);
+}
+
+pair<environment, expr> mk_aux_lemma(environment const & env, metavar_context const & mctx, local_context const & lctx,
+                                     name const & c, expr const & type, expr const & value) {
+    type_context ctx(env, options(), mctx, lctx, transparency_mode::All);
+    bool is_lemma = true;
+    optional<bool> is_meta(false);
+    return mk_aux_definition_fn(ctx)(c, type, value, is_lemma, is_meta);
 }
 }

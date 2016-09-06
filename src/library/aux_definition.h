@@ -25,4 +25,7 @@ pair<environment, expr> mk_aux_definition(environment const & env, metavar_conte
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
                                           name const & c, expr const & value,
                                           optional<bool> const & is_meta = optional<bool>());
+/** \brief Similar to mk_aux_definition, but creates a lemma */
+pair<environment, expr> mk_aux_lemma(environment const & env, metavar_context const & mctx, local_context const & lctx,
+                                     name const & c, expr const & type, expr const & value);
 }

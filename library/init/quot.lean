@@ -185,7 +185,7 @@ namespace quot
   end
 end quot
 
-attribute quot.mk                   [constructor]
+attribute [elab_with_expected_type] quot.mk
 
 open decidable
 attribute [instance]

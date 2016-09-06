@@ -28,6 +28,7 @@ Author: Leonardo de Moura
 #include "library/error_handling.h"
 #include "library/locals.h"
 #include "library/private.h"
+#include "library/attribute_manager.h"
 #include "library/vm/vm.h"
 #include "library/compiler/rec_fn_macro.h"
 #include "library/compiler/vm_compiler.h"
@@ -40,16 +41,20 @@ Author: Leonardo de Moura
 #include "frontends/lean/prenum.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/info_annotation.h"
-#include "frontends/lean/constructor_hint.h"
 
 namespace lean {
 MK_THREAD_LOCAL_GET(type_context_cache_manager, get_tcm, true /* use binder information at infer_cache */);
 
 static name * g_level_prefix = nullptr;
+static name * g_elab_with_expected_type = nullptr;
 
 #define trace_elab(CODE) lean_trace("elaborator", scope_trace_env _scope(m_env, m_ctx); CODE)
 #define trace_elab_detail(CODE) lean_trace("elaborator_detail", scope_trace_env _scope(m_env, m_ctx); CODE)
 #define trace_elab_debug(CODE) lean_trace("elaborator_debug", scope_trace_env _scope(m_env, m_ctx); CODE)
+
+bool elab_with_expected_type(environment const & env, name const & d) {
+    return has_attribute(env, *g_elab_with_expected_type, d);
+}
 
 elaborator::elaborator(environment const & env, options const & opts, metavar_context const & mctx,
                        local_context const & lctx):
@@ -869,7 +874,7 @@ bool elaborator::is_propagate_expected_candidate(expr const & fn) {
     if (!is_constant(fn)) return false;
     return
         static_cast<bool>(inductive::is_intro_rule(m_env, const_name(fn))) ||
-        has_constructor_hint(m_env, const_name(fn));
+        elab_with_expected_type(m_env, const_name(fn));
 }
 
 expr elaborator::visit_default_app_core(expr const & _fn, arg_mask amask, buffer<expr> const & args,
@@ -2088,13 +2093,18 @@ expr nested_elaborate(environment & env, options const & opts, metavar_context &
 }
 
 void initialize_elaborator() {
+    g_elab_with_expected_type = new name("elab_with_expected_type");
     g_level_prefix = new name("_elab_u");
     register_trace_class("elaborator");
     register_trace_class("elaborator_detail");
     register_trace_class("elaborator_debug");
+    register_system_attribute(basic_attribute(*g_elab_with_expected_type,
+                                              "instructs elaborator that the arguments of the function application (f ...) "
+                                              "should be elaborated using information about the expected type"));
 }
 
 void finalize_elaborator() {
     delete g_level_prefix;
+    delete g_elab_with_expected_type;
 }
 }

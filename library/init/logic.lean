@@ -571,7 +571,7 @@ inductive Exists {A : Type} (P : A → Prop) : Prop
 
 attribute Exists.intro [intro]
 
-attribute [constructor]
+attribute [elab_with_expected_type]
 definition exists.intro := @Exists.intro
 
 notation `exists` binders `, ` r:(scoped P, Exists P) := r

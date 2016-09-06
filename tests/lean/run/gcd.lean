@@ -27,7 +27,7 @@ nat.cases_on x
                    else f (succ x₁, y₁ - x₁) (lt₂ _ _))))
 
 definition gcd (x y : nat) :=
-fix pair_nat.lt.wf gcd.F (pair x y)
+fix pair_nat.lt.wf gcd.F (x, y)
 
 theorem gcd_def_z_y (y : nat) : gcd 0 y = y :=
 well_founded.fix_eq pair_nat.lt.wf gcd.F (0, y)

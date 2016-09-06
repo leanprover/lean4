@@ -18,7 +18,7 @@ C.mk true
 
 attribute [instance]
 definition C_prod {A B : Type} (Ha : C A) (Hb : C B) : C (prod A B) :=
-C.mk (pair (val Ha) (val Hb))
+C.mk (prod.mk (val Ha) (val Hb))
 
 -- C_magic will be used because it has max priority
 definition test : C (prod Prop Prop) := _

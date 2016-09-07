@@ -58,6 +58,23 @@ void display_warning_pos(io_state_stream const & ios, char const * strm_name, un
     display_warning_pos(ios.get_stream(), ios.get_options(), strm_name, line, pos);
 }
 
+void display_warning_pos(io_state_stream const & ios, pos_info_provider const * p, expr const & e) {
+    if (p) {
+        auto pos = p->get_pos_info_or_some(e);
+        display_warning_pos(ios, p->get_file_name(), pos.first, pos.second);
+    } else {
+        ios << "warning:";
+    }
+}
+
+void display_warning_pos(io_state_stream const & ios, pos_info_provider const * p, optional<expr> const & e) {
+    if (e) {
+        display_warning_pos(ios, p, *e);
+    } else {
+        ios << "warning:";
+    }
+}
+
 void display_information_pos(std::ostream & out, options const & o, char const * strm_name, unsigned line, unsigned pos) {
     display_pos(out, o, strm_name, line, pos);
     out << " information:";
@@ -91,39 +108,61 @@ void display_error_pos(io_state_stream const & ios, pos_info_provider const * p,
     }
 }
 
-void display_error(io_state_stream const & ios, pos_info_provider const * p, throwable const & ex);
+static void display_error_warning_pos(bool is_error, io_state_stream const & ios, pos_info_provider const * p, optional<expr> const & e) {
+    if (is_error)
+        display_error_pos(ios, p, e);
+    else
+        display_warning_pos(ios, p, e);
+}
 
-static void display_error(io_state_stream const & ios, pos_info_provider const * p, ext_exception const & ex) {
-    display_error_pos(ios, p, ex.get_main_expr());
+static void display_error_warning_pos(bool is_error, io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos) {
+    if (is_error)
+        display_error_pos(ios, strm_name, line, pos);
+    else
+        display_warning_pos(ios, strm_name, line, pos);
+}
+
+static void display_error_warning(bool is_error, io_state_stream const & ios, pos_info_provider const * p, throwable const & ex);
+
+static void display_error_warning(bool is_error, io_state_stream const & ios, pos_info_provider const * p, ext_exception const & ex) {
+    display_error_warning_pos(is_error, ios, p, ex.get_main_expr());
     ios << " " << ex << endl;
 }
 
-static void display_error(io_state_stream const & ios, pos_info_provider const * p, unifier_exception const & ex) {
+static void display_error_warning(bool is_error, io_state_stream const & ios, pos_info_provider const * p, unifier_exception const & ex) {
     formatter fmt = ios.get_formatter();
     options opts  = ios.get_options();
     auto j = ex.get_justification();
-    display_error_pos(ios, p, j.get_main_expr());
+    display_error_warning_pos(is_error, ios, p, j.get_main_expr());
     ios << " " << mk_pair(j.pp(fmt, p, ex.get_substitution()), opts) << endl;
 }
 
-static void display_error(io_state_stream const & ios, pos_info_provider const * p, formatted_exception const & ex) {
-    display_error_pos(ios, p, ex.get_main_expr());
+static void display_error_warning(bool is_error, io_state_stream const & ios, pos_info_provider const * p, formatted_exception const & ex) {
+    display_error_warning_pos(is_error, ios, p, ex.get_main_expr());
     ios << " " << ex << endl;
 }
 
-void display_error(io_state_stream const & ios, pos_info_provider const * p, throwable const & ex) {
+static void display_error_warning(bool is_error, io_state_stream const & ios, pos_info_provider const * p, throwable const & ex) {
     flycheck_error err(ios.get_stream(), ios.get_options());
     if (auto k_ex = dynamic_cast<ext_exception const *>(&ex)) {
-        display_error(ios, p, *k_ex);
+        display_error_warning(is_error, ios, p, *k_ex);
     } else if (auto f_ex = dynamic_cast<formatted_exception const *>(&ex)) {
-        display_error(ios, p, *f_ex);
+        display_error_warning(is_error, ios, p, *f_ex);
     } else if (auto e_ex = dynamic_cast<unifier_exception const *>(&ex)) {
-        display_error(ios, p, *e_ex);
+        display_error_warning(is_error, ios, p, *e_ex);
     } else if (p) {
-        display_error_pos(ios, p->get_file_name(), p->get_some_pos().first, p->get_some_pos().second);
+        display_error_warning_pos(is_error, ios, p->get_file_name(), p->get_some_pos().first, p->get_some_pos().second);
         ios << " " << ex.what() << endl;
     } else {
-        ios << "error: " << ex.what() << endl;
+        ios << (is_error ? "error: " : "warning: ") << ex.what() << endl;
     }
+}
+
+void display_error(io_state_stream const & ios, pos_info_provider const * p, throwable const & ex) {
+    display_error_warning(true, ios, p, ex);
+}
+
+void display_warning(io_state_stream const & ios, pos_info_provider const * p, throwable const & ex) {
+    display_error_warning(false, ios, p, ex);
 }
 }

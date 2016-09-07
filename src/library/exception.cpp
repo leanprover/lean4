@@ -27,7 +27,7 @@ optional<expr> nested_exception::get_main_expr() const {
 
 format nested_exception::pp(formatter const & fmt) const {
     format r = m_pp_fn(fmt);
-    r += line() + format("nested exception message") + line();
+    r += line() + format("nested exception message:") + line();
     if (ext_exception * ex = dynamic_cast<ext_exception *>(m_exception.get())) {
         r += ex->pp(fmt);
     } else {

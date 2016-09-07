@@ -49,6 +49,7 @@ Author: Leonardo de Moura
 #include "library/inductive.h"
 #include "library/mpq_macro.h"
 #include "library/arith_instance_manager.h"
+#include "library/injectivity.h"
 
 // #include "library/congr_lemma_manager.h"
 // #include "library/light_lt_manager.h"
@@ -129,9 +130,11 @@ void initialize_library_module() {
     initialize_library_inductive();
     initialize_mpq_macro();
     initialize_arith_instance_manager();
+    initialize_injectivity();
 }
 
 void finalize_library_module() {
+    finalize_injectivity();
     finalize_arith_instance_manager();
     finalize_mpq_macro();
     finalize_library_inductive();

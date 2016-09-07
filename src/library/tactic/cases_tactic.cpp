@@ -115,7 +115,7 @@ struct cases_tactic_fn {
         if (m_nindices == 0)
             return true;
         type_context ctx = mk_type_context_for(g);
-        expr h_type = ctx.infer(h);
+        expr h_type = ctx.relaxed_whnf(ctx.infer(h));
         buffer<expr> args;
         get_app_args(h_type, args);
         lean_assert(m_nindices <= args.size());
@@ -181,7 +181,7 @@ struct cases_tactic_fn {
         lean_assert(is_standard(m_env));
         metavar_decl g     = *m_mctx.get_metavar_decl(mvar);
         type_context ctx   = mk_type_context_for(g);
-        expr h_type        = ctx.infer(h);
+        expr h_type        = ctx.relaxed_whnf(ctx.infer(h));
         buffer<expr> I_args;
         expr const & I     = get_app_args(h_type, I_args);
         lean_assert(I_args.size() == m_nparams + m_nindices);

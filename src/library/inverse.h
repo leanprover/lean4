@@ -8,15 +8,16 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-struct injectivity_info {
+struct inverse_info {
     unsigned m_arity;
     name     m_inv;
+    unsigned m_inv_arity;
     name     m_lemma;
 };
 
-optional<injectivity_info> has_inverse(environment const & env, name const & fn);
+optional<inverse_info> has_inverse(environment const & env, name const & fn);
 optional<name> is_inverse(environment const & env, name const & inv);
-environment add_injectivity_lemma(environment const & env, name const & lemma, bool persistent);
-void initialize_injectivity();
-void finalize_injectivity();
+environment add_inverse_lemma(environment const & env, name const & lemma, bool persistent);
+void initialize_inverse();
+void finalize_inverse();
 }

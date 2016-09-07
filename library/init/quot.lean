@@ -163,7 +163,7 @@ namespace quot
 
   attribute [reducible]
   protected definition rec_on_subsingleton₂
-     {C : quot s₁ → quot s₂ → Type₁} [H : ∀ a b, subsingleton (C ⟦a⟧ ⟦b⟧)]
+     {C : quot s₁ → quot s₂ → Type} [H : ∀ a b, subsingleton (C ⟦a⟧ ⟦b⟧)]
      (q₁ : quot s₁) (q₂ : quot s₂) (f : Π a b, C ⟦a⟧ ⟦b⟧) : C q₁ q₂:=
   @quot.rec_on_subsingleton _ _ _
     (λ a, quot.ind _ _)
@@ -171,7 +171,7 @@ namespace quot
 
   attribute [reducible]
   protected definition hrec_on₂
-     {C : quot s₁ → quot s₂ → Type₁} (q₁ : quot s₁) (q₂ : quot s₂)
+     {C : quot s₁ → quot s₂ → Type} (q₁ : quot s₁) (q₂ : quot s₂)
      (f : Π a b, C ⟦a⟧ ⟦b⟧) (c : ∀ a₁ a₂ b₁ b₂, a₁ ≈ b₁ → a₂ ≈ b₂ → f a₁ a₂ == f b₁ b₂) : C q₁ q₂:=
   quot.hrec_on q₁
     (λ a, quot.hrec_on q₂ (λ b, f a b) (λ b₁ b₂ p, c _ _ _ _ (setoid.refl _) p))

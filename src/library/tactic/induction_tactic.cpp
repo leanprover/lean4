@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/list_fn.h"
 #include "kernel/instantiate.h"
+#include "kernel/error_msgs.h"
 #include "library/trace.h"
 #include "library/user_recursors.h"
 #include "library/locals.h"
@@ -61,6 +62,21 @@ static unsigned get_expr_arity(expr type) {
     return r;
 }
 
+static void throw_invalid_major_premise_type(unsigned arg_idx, expr const & H_type, char const * msg) {
+    throw generic_exception(none_expr(), [=](formatter const & fmt) {
+            format r("induction tactic failed, argument #");
+            r += format(arg_idx);
+            r += space() + format("of major premise type");
+            r += pp_indent_expr(fmt, H_type);
+            r += line() + format(msg);
+            return r;
+        });
+}
+
+static void throw_invalid_major_premise_type(unsigned arg_idx, expr const & H_type, sstream const & strm) {
+    throw_invalid_major_premise_type(arg_idx, H_type, strm.str().c_str());
+}
+
 list<expr> induction(environment const & env, options const & opts, transparency_mode const & m, metavar_context & mctx,
                      expr const & mvar, expr const & H, name const & rec_name, list<name> & ns,
                      intros_list * ilist, hsubstitution_list * slist) {
@@ -87,27 +103,21 @@ list<expr> induction(environment const & env, options const & opts, transparency
         }
         expr const & idx = H_type_args[pos];
         if (!is_local(idx)) {
-            throw exception(sstream() << "induction tactic failed, argument #"
-                            << pos+1 << " of major premise '" << H << "' type is not a variable");
+            throw_invalid_major_premise_type(pos+1, H_type, "is not a variable");
         }
         for (unsigned i = 0; i < H_type_args.size(); i++) {
             if (i != pos && is_local(H_type_args[i]) && mlocal_name(H_type_args[i]) == mlocal_name(idx)) {
-                throw exception(sstream() << "induction tactic failed, argument #"
-                                << pos+1 << " of major premise '" << H << "' type is an index, "
-                                << "but it occurs more than once");
+                throw_invalid_major_premise_type(pos+1, H_type, "is an index, but it occurs more than once");
             }
             if (i < pos && depends_on(H_type_args[i], idx)) {
-                throw exception(sstream() << "induction tactic failed, argument #"
-                                << pos+1 << " of major premise '" << H << "' type is an index, "
-                                << "but it occurs in previous arguments");
+                throw_invalid_major_premise_type(pos+1, H_type, "is an index, but it occurs in previous arguments");
             }
             if (i > pos && // occurs after idx
                 std::find(idx_pos.begin(), idx_pos.end(), i) != idx_pos.end() && // it is also an index
                 is_local(H_type_args[i]) && // if it is not an index, it will fail anyway.
                 depends_on(mlocal_type(idx), H_type_args[i])) {
-                throw exception(sstream() << "induction tactic failed, argument #"
-                                << pos+1 << " of major premise '" << H << "' type is an index, "
-                                << "but its type depends on the index at position #" << i+1);
+                throw_invalid_major_premise_type(pos+1, H_type,
+                                                 sstream() << "is an index, but its type depends on index at position #" << i+1);
             }
         }
         indices.push_back(idx);
@@ -115,7 +125,7 @@ list<expr> induction(environment const & env, options const & opts, transparency
     if (!rec_info.has_dep_elim() && depends_on(g->get_type(), H)) {
         throw exception(sstream() << "induction tactic failed, recursor '" << rec_name
                         << "' does not support dependent elimination, but conclusion "
-                        << "depends on major premise '" << H << "'");
+                        << "depends on major premise");
     }
     /* Revert indices and major premise */
     buffer<expr> to_revert;

@@ -278,15 +278,22 @@ static void check_noncomputable(parser & p, environment const & env, name const 
     }
 }
 
-static environment compile_decl(environment const & env, def_cmd_kind kind, bool is_noncomputable,
-                                name const & c_name, name const & c_real_name) {
+static environment compile_decl(parser & p, environment const & env, def_cmd_kind kind, bool is_noncomputable,
+                                name const & c_name, name const & c_real_name, pos_info const & pos) {
     if (is_noncomputable || kind == Theorem || is_vm_builtin_function(c_real_name))
         return env;
     try {
         declaration d = env.get(c_real_name);
         return vm_compile(env, d);
     } catch (exception & ex) {
-        throw nested_exception(sstream() << "failed to generate bytecode for '" << c_name << "'", ex);
+        flycheck_warning wrn(p.ios());
+        auto & out = p.ios().get_regular_stream();
+        display_pos(out, p, pos);
+        out << "failed to generate bytecode for '" << c_name << "'" << std::endl;
+        type_context ctx(p.env());
+        auto out2  = regular(p.env(), p.ios(), ctx);
+        display_warning(out2, get_pos_info_provider(), ex);
+        return env;
     }
 }
 
@@ -303,7 +310,7 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
     bool is_trusted   = kind != MetaDefinition;
     auto def          = mk_definition(new_env, c_real_name, to_list(lp_names), type, val, use_conv_opt, is_trusted);
     auto cdef         = check(p, new_env, c_name, def, pos);
-    new_env = module::add(new_env, cdef);
+    new_env           = module::add(new_env, cdef);
 
     check_noncomputable(p, new_env, c_name, c_real_name, is_noncomputable);
 
@@ -316,7 +323,7 @@ declare_definition(parser & p, environment const & env, def_cmd_kind kind, buffe
     }
 
     new_env = attrs.apply(new_env, p.ios(), c_real_name);
-    new_env = compile_decl(new_env, kind, is_noncomputable, c_name, c_real_name);
+    new_env = compile_decl(p, new_env, kind, is_noncomputable, c_name, c_real_name, pos);
     return mk_pair(new_env, c_real_name);
 }
 

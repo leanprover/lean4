@@ -24,12 +24,28 @@ definition unpack {A : Type} : ∀ {b}, tree_core A b → list (tree A)
 | .ff (leaf' a)    := []
 | .ff (node' l)    := []
 
-attribute [injectivity]
+attribute [inverse]
 lemma unpack_pack {A : Type} : ∀ (l : list (tree A)), unpack (pack l) = l
 | []     := rfl
 | (a::l) :=
   show a :: unpack (pack l) = a :: l, from
   congr_arg (λ x, a :: x) (unpack_pack l)
 
+attribute [pattern]
 definition tree.node {A : Type} (l : list (tree A)) : tree A :=
 tree_core.node' (pack l)
+
+attribute [pattern]
+definition tree.leaf {A : Type} : A → tree A :=
+tree_core.leaf'
+
+definition sz {A : Type} : tree A → nat
+| (tree.leaf a) := 0
+| (tree.node l) := list.length l
+
+open tree
+
+print sz
+
+example : sz (node [leaf tt, leaf tt, leaf ff]) = 3 :=
+rfl

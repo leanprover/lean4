@@ -18,10 +18,11 @@ Author: Leonardo de Moura
 #include "library/exception.h"
 #include "library/util.h"
 #include "library/locals.h"
-#include "library/app_builder.h"
 #include "library/annotation.h"
 #include "library/private.h"
+#include "library/inverse.h"
 #include "library/aux_definition.h"
+#include "library/app_builder.h"
 #include "library/delayed_abstraction.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/revert_tactic.h"
@@ -271,6 +272,15 @@ struct elim_match_fn {
         return false;
     }
 
+    bool is_invertible_app(expr const & e) {
+        if (!is_app(e)) return false;
+        expr const & fn = get_app_fn(e);
+        if (!is_constant(fn)) return false;
+        optional<inverse_info> info = has_inverse(m_env, const_name(fn));
+        if (!info) return false;
+        return info->m_arity == get_app_num_args(e);
+    }
+
     unsigned get_inductive_num_params(name const & n) const { return *inductive::get_num_params(m_env, n); }
     unsigned get_inductive_num_params(expr const & I) const { return get_inductive_num_params(const_name(I)); }
 
@@ -293,7 +303,7 @@ struct elim_match_fn {
             return e;
         } else {
             return ctx.whnf_pred(e, [&](expr const & e) {
-                    return !is_constructor_app(e) && !is_value(e);
+                    return !is_constructor_app(e) && !is_value(e) && !is_invertible_app(e);
                 });
         }
     }
@@ -427,6 +437,22 @@ struct elim_match_fn {
     bool is_constructor_transition(problem const & P) {
         return all_next_pattern(P, [&](expr const & p) {
                 return is_constructor_app(p) || is_value(p);
+            });
+    }
+
+    /* Return true iff the next pattern in all equations is the same invertible function. */
+    bool is_invertible_transition(problem const & P) {
+        if (!P.m_equations) return false;
+        optional<name> fn_name;
+        return all_next_pattern(P, [&](expr const & p) {
+                if (!is_invertible_app(p)) return false;
+                name const & curr_name = const_name(get_app_fn(p));
+                if (fn_name) {
+                    return *fn_name == curr_name;
+                } else {
+                    fn_name = curr_name;
+                    return true;
+                }
             });
     }
 
@@ -886,6 +912,51 @@ struct elim_match_fn {
         return process(new_P);
     }
 
+    list<lemma> process_invertible(problem const & P) {
+        trace_match(tout() << "step: invertible function\n";);
+        type_context ctx  = mk_type_context(P);
+        expr const & x    = head(P.m_var_stack);
+        /* make inverse */
+        expr const & p    = head(head(P.m_equations).m_patterns);
+        lean_assert(is_invertible_app(p));
+        expr const & fn   = get_app_fn(p);
+        inverse_info info = *has_inverse(m_env, const_name(fn));
+        buffer<bool> mask;
+        mask.resize(info.m_inv_arity - 1, false);
+        mask.push_back(true);
+        expr inv;
+        try {
+            inv = mk_app(ctx, info.m_inv, mask.size(), mask.data(), &x);
+        } catch (exception &) {
+            throw_error(sstream() << "equation compiler failed, when trying to inverse function "
+                        << "'" << const_name(fn) << "' (use 'set_option trace.eqn_compiler.elim_match true' "
+                        << "for additional details)");
+        }
+        expr inv_type      = ctx.infer(inv);
+        local_context lctx = ctx.lctx();
+        name y_name("_y");
+        expr y             = lctx.mk_local_decl(y_name, inv_type, inv);
+        expr goal_type     = ctx.infer(P.m_goal);
+        expr new_goal      = ctx.mk_metavar_decl(lctx, goal_type);
+        expr new_val       = mk_let(y_name, inv_type, inv, mk_delayed_abstraction(new_goal, mlocal_name(y)));
+        m_mctx             = ctx.mctx();
+        m_mctx.assign(P.m_goal, new_val);
+        problem new_P;
+        new_P.m_fn_name    = name(P.m_fn_name, "_inv");
+        new_P.m_var_stack  = cons(y, tail(P.m_var_stack));
+        new_P.m_goal       = new_goal;
+        buffer<equation> new_eqns;
+        for (equation const & eqn : P.m_equations) {
+            equation new_eqn   = eqn;
+            expr const & p     = head(eqn.m_patterns);
+            expr new_p         = app_arg(p);
+            new_eqn.m_patterns = cons(new_p, tail(eqn.m_patterns));
+            new_eqns.push_back(new_eqn);
+        }
+        new_P.m_equations  = to_list(new_eqns);
+        return process(new_P);
+    }
+
     list<lemma> process_leaf(problem const & P) {
         if (!P.m_equations) {
             throw_error("invalid non-exhaustive set of equations (use 'set_option trace.eqn_compiler.elim_match true' "
@@ -926,6 +997,8 @@ struct elim_match_fn {
                 return process_value(P);
             } else if (is_constructor_transition(P)) {
                 return process_constructor(P);
+            } else if (is_invertible_transition(P)) {
+                return process_invertible(P);
             } else if (is_inaccessible_transition(P)) {
                 return process_inaccessible(P);
             } else if (some_inaccessible(P)) {

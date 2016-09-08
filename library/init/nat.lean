@@ -18,6 +18,85 @@ namespace nat
   attribute [instance, priority nat.prio]
   definition nat_has_le : has_le nat := has_le.mk nat.le
 
+  protected theorem zero_add (n : ℕ) : 0 + n = n :=
+  nat.induction_on n
+    rfl
+    (λ n ih, show succ (0 + n) = succ n, from congr_arg succ ih)
+
+  theorem succ_add (n m : ℕ) : (succ n) + m = succ (n + m) :=
+  nat.induction_on m
+    rfl
+    (λ m ih, show succ (succ n + m) = succ (succ (n + m)), from congr_arg succ ih)
+
+  theorem bit0_succ_eq (n : nat) : bit0 (succ n) = succ (succ (bit0 n)) :=
+  show succ (succ n + n) = succ (succ (n + n)), from
+  succ_add n n ▸ rfl
+
+  theorem bit1_eq_succ_bit0 (n : nat) : bit1 n = succ (bit0 n) :=
+  rfl
+
+  theorem bit1_succ_eq (n : nat) : bit1 (succ n) = succ (succ (bit1 n)) :=
+  eq.trans (bit1_eq_succ_bit0 (succ n)) (congr_arg succ (bit0_succ_eq n))
+
+  theorem succ_ne_zero (n : ℕ) : succ n ≠ 0 :=
+  assume h, nat.no_confusion h
+
+  theorem succ_ne_self (n : ℕ) : succ n ≠ n :=
+  nat.induction_on n
+    (λ h, absurd h (succ_ne_zero 0))
+    (λ k ih h, ih (nat.no_confusion h (λ h1, h1)))
+
+  theorem one_ne_zero : 1 ≠ (0 : nat) :=
+  assume h, nat.no_confusion h
+
+  theorem bit1_ne_zero (n : nat) : bit1 n ≠ 0 :=
+  show succ (n + n) ≠ 0, from
+  succ_ne_zero (n + n)
+
+  theorem bit0_ne_zero (n : nat) : n ≠ 0 → bit0 n ≠ 0 :=
+  nat.cases_on n
+    (λ h, absurd rfl h)
+    (λ m h,
+      show succ (succ m + m) ≠ 0, from
+      succ_ne_zero (succ m + m))
+
+  theorem bit1_ne_one (n : nat) : n ≠ 0 → bit1 n ≠ 1 :=
+  nat.cases_on n
+    (λ h : 0 ≠ 0, absurd rfl h)
+    (λ m h (h1 : succ (succ (succ m + m)) = succ 0),
+       nat.no_confusion h1 (λ h2 : succ (succ m + m) = 0,
+          absurd h2 (succ_ne_zero (succ m + m))))
+
+  theorem bit0_ne_one (n : nat) : bit0 n ≠ 1 :=
+  nat.cases_on n
+    (show 0 ≠ 1, from ne.symm one_ne_zero)
+    (λ m (h1 : succ (succ m + m) = 1),
+      have h2 : succ (succ (m + m)) = 1, from succ_add m m ▸ h1,
+      nat.no_confusion h2
+        (λ h3 : succ (m + m) = 0, absurd h3 (succ_ne_zero (m + m))))
+
+  theorem add_self_ne_one (n : nat) : n + n ≠ 1 :=
+  nat.cases_on n
+    (ne.symm one_ne_zero)
+    (λ n (h : succ (succ n + n) = 1),
+      have h1 : succ (succ (n + n)) = 1, from succ_add n n ▸ h,
+      nat.no_confusion h1 (λ h2 : succ (n + n) = 0, absurd h2 (succ_ne_zero (n + n))))
+
+  theorem bit1_ne_bit0 : ∀ (n m : nat), bit1 n ≠ bit0 m :=
+  λ n, nat.induction_on n
+    (λ m, ne.symm (add_self_ne_one m))
+    (λ n (ih : ∀ m, bit1 n ≠ bit0 m) m, nat.cases_on m
+       (λ (h : bit1 (succ n) = bit0 0),
+         have h1 : succ (bit0 (succ n)) = 0, from h,
+         absurd h1 (succ_ne_zero (bit0 (succ n))))
+       (λ m (h : bit1 (succ n) = bit0 (succ m)),
+         have h1 : succ (succ (bit1 n)) = bit0 (succ m), from
+           bit1_succ_eq n ▸ h,
+         have h2 : succ (succ (bit1 n)) = succ (succ (bit0 m)), from
+           bit0_succ_eq m ▸ h1,
+         have h3 : bit1 n = bit0 m, from
+           nat.no_confusion h2 (λ h2', nat.no_confusion h2' (λ h2'', h2'')),
+         absurd h3 (ih m)))
 
   attribute [refl]
   protected lemma le_refl : ∀ a : nat, a ≤ a :=

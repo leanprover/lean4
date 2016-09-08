@@ -195,6 +195,24 @@ bool is_recursive_eqns(type_context & ctx, expr const & e) {
     return false;
 }
 
+class erase_inaccessible_annotations_fn : public replace_visitor {
+    virtual expr visit_macro(expr const & e) override {
+        if (is_inaccessible(e)) {
+            return visit(get_annotation_arg(e));
+        } else {
+            return replace_visitor::visit_macro(e);
+        }
+    }
+};
+
+expr erase_inaccessible_annotations(expr const & e) {
+    return erase_inaccessible_annotations_fn()(e);
+}
+
+list<expr> erase_inaccessible_annotations(list<expr> const & es) {
+    return map(es, [&](expr const & e) { return erase_inaccessible_annotations(e); });
+}
+
 static pair<environment, name> mk_def_name(environment const & env, bool is_private, name const & c) {
     if (is_private) {
         unsigned h = 31;
@@ -232,8 +250,8 @@ pair<environment, expr> mk_aux_definition(environment const & env, metavar_conte
 
 static unsigned g_eqn_sanitizer_token;
 
-environment mk_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
-                              bool is_private, name const & c, expr const & type, expr const & value) {
+static environment add_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
+                                      bool is_private, name const & c, expr const & type, expr const & value) {
     environment new_env = env;
     name new_c;
     std::tie(new_env, new_c) = mk_def_name(env, is_private, c);
@@ -255,25 +273,6 @@ environment mk_equation_lemma(environment const & env, options const & opts, met
     std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_c, new_type, value);
     return new_env;
 }
-
-class erase_inaccessible_annotations_fn : public replace_visitor {
-    virtual expr visit_macro(expr const & e) override {
-        if (is_inaccessible(e)) {
-            return visit(get_annotation_arg(e));
-        } else {
-            return replace_visitor::visit_macro(e);
-        }
-    }
-};
-
-expr erase_inaccessible_annotations(expr const & e) {
-    return erase_inaccessible_annotations_fn()(e);
-}
-
-list<expr> erase_inaccessible_annotations(list<expr> const & es) {
-    return map(es, [&](expr const & e) { return erase_inaccessible_annotations(e); });
-}
-
 
 static expr whnf_ite(type_context & ctx, expr const & e) {
     return ctx.whnf_pred(e, [&](expr const & e) {
@@ -432,11 +431,20 @@ static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, ex
                     "disable lemma generation using `set_option eqn_compiler.lemmas false`)");
 }
 
-expr prove_eqn_lemma(type_context & ctx, buffer<expr> const & Hs, expr const & lhs, expr const & rhs) {
+static expr prove_eqn_lemma(type_context & ctx, buffer<expr> const & Hs, expr const & lhs, expr const & rhs) {
     expr body = prove_eqn_lemma_core(ctx, Hs, lhs, rhs);
     return ctx.mk_lambda(Hs, body);
 }
 
+environment mk_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
+                              name const & f_name, unsigned eqn_idx, bool is_private,
+                              buffer<expr> const & Hs, expr const & lhs, expr const & rhs) {
+    type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
+    expr type     = ctx.mk_pi(Hs, mk_eq(ctx, lhs, rhs));
+    expr proof    = prove_eqn_lemma(ctx, Hs, lhs, rhs);
+    name eqn_name = name(name(f_name, "equations"), "eqn").append_after(eqn_idx);
+    return add_equation_lemma(env, opts, mctx, lctx, is_private, eqn_name, type, proof);
+}
 
 void initialize_eqn_compiler_util() {
     g_eqn_compiler_dsimp = new name{"eqn_compiler", "dsimp"};

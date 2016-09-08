@@ -804,9 +804,9 @@ struct structural_rec_fn {
     }
 
     void mk_lemmas(expr const & fn, list<expr> const & lemmas) {
-        name base_name(const_name(get_app_fn(fn)), "equations");
-        unsigned eqn_idx = 1;
-        type_context ctx = mk_type_context();
+        name const & fn_name = const_name(get_app_fn(fn));
+        unsigned eqn_idx     = 1;
+        type_context ctx     = mk_type_context();
         for (expr type : lemmas) {
             type_context::tmp_locals locals(ctx);
             type = ctx.relaxed_whnf(type);
@@ -829,12 +829,8 @@ struct structural_rec_fn {
                 if (local != F)
                     new_locals.push_back(local);
             }
-            expr new_type   = ctx.mk_pi(new_locals, mk_eq(ctx, new_lhs, new_rhs));
-            trace_struct(tout() << "lemma:\n" << new_type << "\n";);
-            expr new_proof  = prove_eqn_lemma(ctx, new_locals, new_lhs, new_rhs);
-            name lemma_name = base_name + name("eqn").append_after(eqn_idx);
-            m_env           = mk_equation_lemma(m_env, m_opts, m_mctx, m_lctx, m_header.m_is_private,
-                                                lemma_name, new_type, new_proof);
+            m_env = mk_equation_lemma(m_env, m_opts, m_mctx, ctx.lctx(), fn_name,
+                                      eqn_idx, m_header.m_is_private, new_locals, new_lhs, new_rhs);
             eqn_idx++;
         }
     }

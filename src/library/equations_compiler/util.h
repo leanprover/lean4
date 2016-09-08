@@ -72,16 +72,15 @@ public:
     equations. */
 bool is_recursive_eqns(type_context & ctx, expr const & e);
 
+expr erase_inaccessible_annotations(expr const & e);
+list<expr> erase_inaccessible_annotations(list<expr> const & es);
+
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
                                           bool is_private, bool is_lemma, name const & c, expr const & type, expr const & value);
 
 environment mk_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
-                              bool is_private, name const & c, expr const & type, expr const & value);
-
-expr erase_inaccessible_annotations(expr const & e);
-list<expr> erase_inaccessible_annotations(list<expr> const & es);
-
-expr prove_eqn_lemma(type_context & ctx, buffer<expr> const & Hs, expr const & lhs, expr const & rhs);
+                              name const & f_name, unsigned eqn_idx, bool is_private,
+                              buffer<expr> const & Hs, expr const & lhs, expr const & rhs);
 
 void initialize_eqn_compiler_util();
 void finalize_eqn_compiler_util();

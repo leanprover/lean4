@@ -2,7 +2,7 @@ open tactic
 
 constants (A : Type.{1}) (x y : A)
 
-definition f (z : A) : A := z
+noncomputable definition f (z : A) : A := z
 attribute [defeq]
 definition f.def (z:A) : f z = z := rfl
 

@@ -1,11 +1,9 @@
-nested1.lean:8:11:failed to generate bytecode for 'test.bla'
-code generation failed, VM does not have code for 'test.foo'
 attribute [irreducible]
 definition test.foo.prf : ∀ (x : ℕ), 0 < succ (succ x) :=
 λ x, lt.step (zero_lt_succ x)
-definition test.bla : ℕ → ℕ :=
+noncomputable definition test.bla : ℕ → ℕ :=
 λ a, foo (succ (succ a)) (foo.prf a)
-definition test.bla : ℕ → ℕ :=
+noncomputable definition test.bla : ℕ → ℕ :=
 λ a, test.foo (succ (succ a)) (test.foo.prf a)
 attribute [irreducible]
 definition test.foo.prf : ∀ (x : ℕ), 0 < succ (succ x) :=

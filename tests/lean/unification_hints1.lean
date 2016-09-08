@@ -7,12 +7,12 @@ structure unification_hint := (pattern : unification_constraint) (constraints : 
 namespace toy
 constants (A : Type.{1}) (f h : A → A) (x y z : A)
 attribute [irreducible]
-definition g (x y : A) : A := f z
+noncomputable definition g (x y : A) : A := f z
 
 #unify (g x y), (f z)
 
 attribute [unify]
-definition toy_hint (x y : A) : unification_hint :=
+noncomputable definition toy_hint (x y : A) : unification_hint :=
   unification_hint.mk (unification_constraint.mk (g x y) (f z)) []
 
 #unify (g x y), (f z)
@@ -44,12 +44,12 @@ definition Canonical.carrier (s : Canonical) : Type :=
 Canonical.rec_on s (λ c op, c)
 
 constants (A : Type.{1}) (f : A → A) (x : A)
-definition A_canonical : Canonical := Canonical.mk A f
+noncomputable definition A_canonical : Canonical := Canonical.mk A f
 
 #unify (Canonical.carrier A_canonical), A
 
 attribute [unify]
-definition Canonical_hint (C : Canonical) : unification_hint :=
+noncomputable definition Canonical_hint (C : Canonical) : unification_hint :=
   unification_hint.mk (unification_constraint.mk (Canonical.carrier C) A) [unification_constraint.mk C A_canonical]
 
 -- TODO(dhs): we mark carrier as irreducible and prove A_canonical explicitly to work around the fact that

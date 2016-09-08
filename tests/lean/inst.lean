@@ -9,7 +9,7 @@ C.rec (λa, a) c
 
 constant magic (A : Type) : A
 attribute [instance, priority std.priority.max]
-definition C_magic (A : Type) : C A :=
+noncomputable definition C_magic (A : Type) : C A :=
 C.mk (magic A)
 
 attribute [instance]
@@ -21,6 +21,6 @@ definition C_prod {A B : Type} (Ha : C A) (Hb : C B) : C (prod A B) :=
 C.mk (prod.mk (val Ha) (val Hb))
 
 -- C_magic will be used because it has max priority
-definition test : C (prod Prop Prop) := _
+noncomputable definition test : C (prod Prop Prop) := _
 
 eval test

@@ -5,7 +5,7 @@ definition tst.{l} (A : Type) (B : Type) (C : Type.{l}) : Type := A → B → C
 check tst
 constant group.{l} : Type.{l+1}
 constant carrier.{l} : group.{l} → Type.{l}
-definition to_carrier (g : group) := carrier g
+noncomputable definition to_carrier (g : group) := carrier g
 
 check to_carrier.{1}
 
@@ -44,8 +44,8 @@ section
   variable {T2 : Type.{l}}
   variable {T3 : Type.{u}}
   variable f  : T1 → T2 → T2
-  definition is_proj2 := ∀ x y, f x y = y
-  definition is_proj3 (f : T1 → T2 → T3 → T3) := ∀ x y z, f x y z = z
+  noncomputable definition is_proj2 := ∀ x y, f x y = y
+  noncomputable definition is_proj3 (f : T1 → T2 → T3 → T3) := ∀ x y z, f x y z = z
 end
 
 check @is_proj2.{1}
@@ -56,8 +56,8 @@ section
   variables {T1 T2 : Type}
   variable  {T3 : Type}
   variable  f : T1 → T2 → T2
-  definition is_proj2 := ∀ x y, f x y = y
-  definition is_proj3 (f : T1 → T2 → T3 → T3) := ∀ x y z, f x y z = z
+  noncomputable definition is_proj2 := ∀ x y, f x y = y
+  noncomputable definition is_proj3 (f : T1 → T2 → T3 → T3) := ∀ x y z, f x y z = z
 end
 check @foo.is_proj2.{1}
 check @foo.is_proj3.{1 2}
@@ -69,8 +69,8 @@ section
   variable  {T2 : Type}
   variable  {T3 : Type}
   variable  f : T1 → T2 → T2
-  definition is_proj2 := ∀ x y, f x y = y
-  definition is_proj3 (f : T1 → T2 → T3 → T3) := ∀ x y z, f x y z = z
+  noncomputable definition is_proj2 := ∀ x y, f x y = y
+  noncomputable definition is_proj3 (f : T1 → T2 → T3 → T3) := ∀ x y z, f x y z = z
 end
 check @bla.is_proj2.{1 2}
 check @bla.is_proj3.{1 2 3}

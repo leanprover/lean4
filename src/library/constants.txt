@@ -72,6 +72,7 @@ fin
 fin.mk
 funext
 ge
+get_line
 gt
 has_add
 has_div
@@ -260,6 +261,8 @@ prod.pr2
 propext
 pexpr
 pexpr.subst
+put_str
+put_nat
 to_pexpr
 quot.mk
 quot.lift

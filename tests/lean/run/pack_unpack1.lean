@@ -61,9 +61,12 @@ constant P {A : Type} : tree A → Type₁
 constant mk1 {A : Type} (a : A) : P (tree.leaf a)
 constant mk2 {A : Type} (l : list (tree A)) : P (tree.node l)
 
-definition bla {A : Type} : ∀ n : tree A, P n
+noncomputable definition bla {A : Type} : ∀ n : tree A, P n
 | (tree.leaf a) := mk1 a
 | (tree.node l) := mk2 l
+
+check bla._main.equations.eqn_1
+check bla._main.equations.eqn_2
 
 definition foo {A : Type} : nat → tree A → nat
 | 0     _                   := 0

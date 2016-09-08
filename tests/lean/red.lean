@@ -1,6 +1,6 @@
 constant g : nat → nat
 
-definition f := g
+noncomputable definition f := g
 
 example : f = g := rfl
 

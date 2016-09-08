@@ -27,21 +27,21 @@ end
 constant bag_setoid : ∀ A, setoid (list A)
 attribute [instance] bag_setoid
 
-definition bag (A : Type) : Type :=
+noncomputable definition bag (A : Type) : Type :=
 quot (bag_setoid A)
 
 constant subcount : ∀ {A}, list A → list A → bool
 constant list.count : ∀ {A}, A → list A → nat
 constant all_of_subcount_eq_tt : ∀ {A} {l₁ l₂ : list A}, subcount l₁ l₂ = tt → ∀ a, list.count a l₁ ≤ list.count a l₂
 constant ex_of_subcount_eq_ff : ∀ {A} {l₁ l₂ : list A}, subcount l₁ l₂ = ff → ∃ a, ¬ list.count a l₁ ≤ list.count a l₂
-definition count {A} (a : A) (b : bag A) : nat :=
+noncomputable definition count {A} (a : A) (b : bag A) : nat :=
 quot.lift_on b (λ l, list.count a l)
   (λ l₁ l₂ h, sorry)
-definition subbag {A} (b₁ b₂ : bag A) := ∀ a, count a b₁ ≤ count a b₂
+noncomputable definition subbag {A} (b₁ b₂ : bag A) := ∀ a, count a b₁ ≤ count a b₂
 infix ⊆ := subbag
 
 attribute [instance]
-definition decidable_subbag {A} (b₁ b₂ : bag A) : decidable (b₁ ⊆ b₂) :=
+noncomputable definition decidable_subbag {A} (b₁ b₂ : bag A) : decidable (b₁ ⊆ b₂) :=
 quot.rec_on_subsingleton₂ b₁ b₂ (λ l₁ l₂,
   match subcount l₁ l₂, rfl : ∀ (b : _), subcount l₁ l₂ = b → _ with
   | tt, H := decidable.tt (all_of_subcount_eq_tt H)
@@ -51,7 +51,7 @@ quot.rec_on_subsingleton₂ b₁ b₂ (λ l₁ l₂,
   end)
 
 attribute [instance]
-definition decidable_subbag2 {A} (b₁ b₂ : bag A) : decidable (b₁ ⊆ b₂) :=
+noncomputable definition decidable_subbag2 {A} (b₁ b₂ : bag A) : decidable (b₁ ⊆ b₂) :=
 quot.rec_on_subsingleton₂ b₁ b₂ (λ l₁ l₂,
   match sigma.mk (subcount l₁ l₂) rfl : (Σ (b : _), subcount l₁ l₂ = b) → _ with
   | sigma.mk tt H := decidable.tt (all_of_subcount_eq_tt H)
@@ -63,7 +63,7 @@ quot.rec_on_subsingleton₂ b₁ b₂ (λ l₁ l₂,
 local notation ⟦ a , b ⟧ := sigma.mk a b
 
 attribute [instance]
-definition decidable_subbag3 {A} (b₁ b₂ : bag A) : decidable (b₁ ⊆ b₂) :=
+noncomputable definition decidable_subbag3 {A} (b₁ b₂ : bag A) : decidable (b₁ ⊆ b₂) :=
 quot.rec_on_subsingleton₂ b₁ b₂ (λ l₁ l₂,
   match ⟦subcount l₁ l₂, rfl⟧ : (Σ (b : _), subcount l₁ l₂ = b) → _ with
   | ⟦tt, H⟧ := decidable.tt (all_of_subcount_eq_tt H)

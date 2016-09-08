@@ -8,10 +8,11 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/sstream.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/type_checker.h"
 #include "library/module.h"
 #include "library/util.h"
 #include "library/fingerprint.h"
-#include "library/old_type_checker.h"
+#include "library/library_system.h"
 
 namespace lean {
 struct noncomputable_ext : public environment_extension {
@@ -49,15 +50,24 @@ static void noncomputable_reader(deserializer & d, shared_environment & senv,
         });
 }
 
-static bool is_noncomputable(old_type_checker & tc, noncomputable_ext const & ext, name const & n) {
+static bool is_noncomputable(type_checker & tc, noncomputable_ext const & ext, name const & n) {
+    environment const & env = tc.env();
     if (ext.m_noncomputable.contains(n))
         return true;
-    declaration const & d = tc.env().get(n);
-    return d.is_axiom() && !tc.is_prop(d.get_type()).first;
+    declaration const & d = env.get(n);
+    if (!d.is_trusted()) {
+        return false; /* ignore nontrusted definitions */
+    } else if (d.is_axiom() && !tc.is_prop(d.get_type())) {
+        return true;
+    } else if (d.is_constant_assumption()) {
+        return !env.is_builtin(d.get_name()) && !is_system_builtin(d.get_name()) && !tc.is_prop(d.get_type());
+    } else {
+        return false;
+    }
 }
 
 bool is_noncomputable(environment const & env, name const & n) {
-    old_type_checker tc(env);
+    type_checker tc(env);
     auto ext = get_extension(env);
     return is_noncomputable(tc, ext, n);
 }
@@ -80,8 +90,8 @@ optional<name> get_noncomputable_reason(environment const & env, name const & n)
     declaration const & d = env.get(n);
     if (!d.is_definition())
         return optional<name>();
-    old_type_checker tc(env);
-    if (tc.is_prop(d.get_type()).first)
+    type_checker tc(env);
+    if (tc.is_prop(d.get_type()))
         return optional<name>(); // definition is a proposition, then do nothing
     expr const & v = d.get_value();
     auto ext = get_extension(env);

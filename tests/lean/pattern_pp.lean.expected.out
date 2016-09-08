@@ -1,5 +1,3 @@
-pattern_pp.lean:1:11:failed to generate bytecode for 'Sum'
-code generation failed, VM does not have code for 'sorry'
 attribute [forward]
 definition Sum_weird : ∀ (f g h : ℕ → ℕ) (n : ℕ), Sum n (λ (x : ℕ), f (g (h x))) = 1 :=
 λ f g h n, sorry

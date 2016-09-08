@@ -24,8 +24,8 @@ attribute H₂ [simp]
 
 example : f A ss_A a₁ a₂ ss_a₁ ss_a₂ = f A ss_A a₁' a₂' ss_a₁' ss_a₂' := by simp
 
-attribute [reducible] definition c₁' := a₁'
-attribute [reducible] definition c₂' := a₂'
+attribute [reducible] noncomputable definition c₁' := a₁'
+attribute [reducible] noncomputable definition c₂' := a₂'
 
 example : f A ss_A a₁' a₂' ss_a₁' ss_a₂' = f A ss_A c₁' c₂' ss_a₁' ss_a₂' := by simp
 example : f A ss_A a₁ a₂ ss_a₁ ss_a₂ = f A ss_A c₁' c₂' ss_a₁' ss_a₂' := by simp

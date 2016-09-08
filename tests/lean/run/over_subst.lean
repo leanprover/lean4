@@ -19,7 +19,7 @@ infixl `+` := add
 infix `≤`  := le
 axiom add_assoc (a b c : int) : (a + b) + c = a + (b + c)
 axiom add_le_left {a b : int} (H : a ≤ b) (c : int) : c + a ≤ c + b
-definition lt (a b : int) := a + one1 ≤ b
+noncomputable definition lt (a b : int) := a + one1 ≤ b
 infix `<`  := lt
 end int
 

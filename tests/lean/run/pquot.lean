@@ -31,7 +31,7 @@ have aux : ∀ (P : pquot R → Prop), P (pquot.abs R a) → P (pquot.abs R b), 
   pquot.eqv R H,
 aux (λ x : pquot R, pquot.abs R a = x) rfl
 
-definition pquot.rec_on {A : Type} {R : A → A → Prop} {C : pquot R → Type}
+noncomputable definition pquot.rec_on {A : Type} {R : A → A → Prop} {C : pquot R → Type}
                         (q : pquot R)
                         (f : Π a, C (pquot.abs R a))
                         (sound : ∀ (a b : A), R a b → f a == f b)
@@ -48,7 +48,7 @@ pquot.rec f
       aux₄ (f a) (f b) aux₁ Ha)
   q
 
-definition pquot.lift {A : Type} {R : A → A → Prop} {B : Type}
+noncomputable definition pquot.lift {A : Type} {R : A → A → Prop} {B : Type}
                       (f : A → B)
                       (sound : ∀ (a b : A), R a b → f a = f b)
                       (q : pquot R)
@@ -69,7 +69,7 @@ pquot.rec_on q f (λ (a b : A) (H : R a b),
 theorem pquot.abs.surjective {A : Type} {R : A → A → Prop} : ∀ q : pquot R, ∃ x : A, pquot.abs R x = q :=
 take q, pquot.induction_on q (take a, exists.intro a rfl)
 
-definition pquot.exact {A : Type} (R : A → A → Prop) :=
+noncomputable definition pquot.exact {A : Type} (R : A → A → Prop) :=
 ∀ a b : A, pquot.abs R a = pquot.abs R b → R a b
 
 -- Definable quotient

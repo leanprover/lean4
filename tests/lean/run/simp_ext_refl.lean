@@ -3,7 +3,7 @@ open tactic
 constants (A : Type.{1}) (x y z : A) (g : A → A) (Hg : g y = z)
 attribute Hg [simp]
 
-definition f (a : A) := y
+noncomputable definition f (a : A) := y
 lemma f.def : ∀ (a), f a = y := λ a, rfl
 
 meta_definition simp_f_to_y : tactic unit := mk_eq_simp_ext $

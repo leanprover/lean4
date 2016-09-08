@@ -1,4 +1,4 @@
-definition Sum : nat → (nat → nat) → nat := sorry
+noncomputable definition Sum : nat → (nat → nat) → nat := sorry
 attribute [forward]
 definition Sum_weird (f g h : nat → nat) (n : nat) : (Sum n (λ x, f (g (h x)))) = 1 := sorry
 print Sum_weird

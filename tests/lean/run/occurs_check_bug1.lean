@@ -6,7 +6,7 @@ infixl `mod`:70 := modulo1
 
 constant gcd_aux : ℕ × ℕ → ℕ
 
-definition gcd (x y : ℕ) : ℕ := gcd_aux (x, y)
+noncomputable definition gcd (x y : ℕ) : ℕ := gcd_aux (x, y)
 
 theorem gcd_def (x y : ℕ) : gcd x y = @ite (y = 0) (nat.has_decidable_eq (pr2 (x, y)) 0) nat x (gcd y (x mod y)) :=
 sorry

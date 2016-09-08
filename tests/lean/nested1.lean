@@ -5,7 +5,7 @@ namespace test
 
 constant foo (a : nat) : a > 0 → nat
 
-definition bla (a : nat) :=
+noncomputable definition bla (a : nat) :=
 foo
   (succ (succ a))
   abstract as foo.prf lt.step (zero_lt_succ a) end

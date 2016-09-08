@@ -31,7 +31,7 @@ example : w = z := by simp
 set_option simplify.topdown false
 example : w = f y := by simp
 
-attribute [reducible] definition u := f (f x)
+attribute [reducible] noncomputable definition u := f (f x)
 
 set_option simplify.topdown true
 example : u = z := by simp

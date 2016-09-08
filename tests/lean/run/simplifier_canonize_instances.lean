@@ -18,8 +18,8 @@ constants (f₁ : Π (X : Type) (X_grp : group X), X)
 constants (f₂ : Π (X : Type) [X_grp : group X], X)
 constants (A : Type.{l}) (A_grp₁ : group A)
 
-attribute [irreducible] definition A_grp₂ : group A := A_grp₁
-attribute [irreducible] definition A_grp₃ (t : true) : group A := A_grp₁
+attribute [irreducible] noncomputable definition A_grp₂ : group A := A_grp₁
+attribute [irreducible] noncomputable definition A_grp₃ (t : true) : group A := A_grp₁
 
 set_option simplify.canonize_instances_fixed_point true
 example : @f₂ A A_grp₁ = @f₂ A A_grp₂ := by simplify_goal_force

@@ -2,11 +2,11 @@ namespace foo
 universe l
 constants (A : Type.{l})
 
-definition q (x : A) := x
-definition h (x : A) : A := q x
-definition g (x y : A) := h y
-definition f (x y z : A) := g (g x y) z
-definition d (x y z w : A) := f (f x y z) (f y z w) (f x w z)
+noncomputable definition q (x : A) := x
+noncomputable definition h (x : A) : A := q x
+noncomputable definition g (x y : A) := h y
+noncomputable definition f (x y z : A) := g (g x y) z
+noncomputable definition d (x y z w : A) := f (f x y z) (f y z w) (f x w z)
 
 attribute [defeq]
 definition h.def (x : A) : h x = q x := rfl

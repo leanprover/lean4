@@ -6,10 +6,10 @@ structure unification_hint := (pattern : unification_constraint) (constraints : 
 namespace toy
 constants (A : Type.{1}) (f h : A → A) (x y z : A)
 attribute [irreducible]
-definition g (x y : A) : A := f z
+noncomputable definition g (x y : A) : A := f z
 
 attribute [unify]
-definition toy_hint (x y : A) : unification_hint :=
+noncomputable definition toy_hint (x y : A) : unification_hint :=
   unification_hint.mk (unification_constraint.mk (g x y) (f z)) []
 
 open tactic

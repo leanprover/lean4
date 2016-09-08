@@ -16,7 +16,7 @@ check λ H : a = a, H₂
 inductive to_type {B : Type} : B → Type
 | mk : Π (b : B), to_type b
 
-definition tst1 : to_type (λ H : a = a, H₂) := to_type.mk (@eq.rec A a P H₂ a)
+noncomputable definition tst1 : to_type (λ H : a = a, H₂) := to_type.mk (@eq.rec A a P H₂ a)
 check to_type.mk(λ H : a = a, H₂)
 check to_type.mk(@eq.rec A a P H₂ a)
 check to_type.mk(λ H : a = a, H₂) = to_type.mk(@eq.rec A a P H₂ a)

@@ -64,3 +64,14 @@ constant mk2 {A : Type} (l : list (tree A)) : P (tree.node l)
 definition bla {A : Type} : ∀ n : tree A, P n
 | (tree.leaf a) := mk1 a
 | (tree.node l) := mk2 l
+
+definition foo {A : Type} : nat → tree A → nat
+| 0     _                   := 0
+| (n+1) (tree.leaf a)       := 0
+| (n+1) (tree.node [])      := foo n (tree.node [])
+| (n+1) (tree.node (x::xs)) := foo n x
+
+check @foo._main.equations.eqn_1
+check @foo._main.equations.eqn_2
+check @foo._main.equations.eqn_3
+check @foo._main.equations.eqn_4

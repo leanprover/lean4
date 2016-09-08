@@ -369,6 +369,9 @@ static optional<expr_pair> prove_eq_rec_invertible(type_context & ctx, expr cons
     expr pr_minor   = mk_lambda("_H", f_a_eq_f_a, refl_h_a);
     type_context::tmp_locals aux_locals(ctx);
     expr x          = aux_locals.push_local("_x", A);
+    /* Remark: we cannot use mk_app(f, x) in the following line.
+       Reason: f may have implicit arguments. So, app_fn(f_x) is not equal to f in general,
+       and app_fn(f_a) is f + implicit arguments. */
     expr f_x        = mk_app(app_fn(f_a), x);
     expr f_x_eq_f_a = mk_eq(ctx, f_x, f_a);
     expr H          = aux_locals.push_local("_H", f_x_eq_f_a);

@@ -1329,6 +1329,7 @@ expr elaborator::visit_equations(expr const & e) {
         new_e = copy_tag(e, mk_equations(header, new_eqs.size(), new_eqs.data()));
     }
     new_e = instantiate_mvars(new_e);
+    ensure_no_unassigned_metavars(new_e);
     metavar_context mctx = m_ctx.mctx();
     expr r = compile_equations(m_env, m_opts, mctx, m_ctx.lctx(), new_e);
     m_ctx.set_env(m_env);

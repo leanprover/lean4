@@ -22,7 +22,7 @@ expr compile_equations(environment & env, options const & opts, metavar_context 
     trace_compiler(tout() << "recursive: " << is_recursive_eqns(ctx, eqns) << "\n";);
     if (equations_num_fns(eqns) == 1) {
         if (!is_recursive_eqns(ctx, eqns)) {
-            return elim_match(env, opts, mctx, lctx, eqns).m_fn;
+            return mk_nonrec(env, opts, mctx, lctx, eqns);
         } else if (optional<expr> r = try_structural_rec(env, opts, mctx, lctx, eqns)) {
             return *r;
         }

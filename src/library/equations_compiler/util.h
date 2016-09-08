@@ -76,7 +76,7 @@ expr erase_inaccessible_annotations(expr const & e);
 list<expr> erase_inaccessible_annotations(list<expr> const & es);
 
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
-                                          bool is_private, bool is_lemma, name const & c, expr const & type, expr const & value);
+                                          bool is_private, bool is_lemma, bool is_noncomputable, name const & n, expr const & type, expr const & value);
 
 environment mk_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
                               name const & f_name, unsigned eqn_idx, bool is_private,

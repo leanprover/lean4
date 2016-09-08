@@ -28,11 +28,20 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_EQN_COMPILER_DSIMP true
 #endif
 
+#ifndef LEAN_DEFAULT_EQN_COMPILER_LEMMAS
+#define LEAN_DEFAULT_EQN_COMPILER_LEMMAS true
+#endif
+
 namespace lean {
-static name * g_eqn_compiler_dsimp = nullptr;
+static name * g_eqn_compiler_dsimp  = nullptr;
+static name * g_eqn_compiler_lemmas = nullptr;
 
 static bool get_eqn_compiler_dsimp(options const & o) {
     return o.get_bool(*g_eqn_compiler_dsimp, LEAN_DEFAULT_EQN_COMPILER_DSIMP);
+}
+
+static bool get_eqn_compiler_lemmas(options const & o) {
+    return o.get_bool(*g_eqn_compiler_lemmas, LEAN_DEFAULT_EQN_COMPILER_LEMMAS);
 }
 
 [[ noreturn ]] void throw_ill_formed_eqns() {
@@ -228,7 +237,8 @@ static pair<environment, name> mk_def_name(environment const & env, bool is_priv
 }
 
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
-                                          bool is_private, bool is_lemma, name const & c, expr const & type, expr const & value) {
+                                          bool is_private, bool is_lemma, bool is_noncomputable,
+                                          name const & c, expr const & type, expr const & value) {
     environment new_env = env;
     name new_c;
     std::tie(new_env, new_c) = mk_def_name(env, is_private, c);
@@ -236,7 +246,7 @@ pair<environment, expr> mk_aux_definition(environment const & env, metavar_conte
     std::tie(new_env, r) = is_lemma ?
         mk_aux_lemma(new_env, mctx, lctx, new_c, type, value) :
         mk_aux_definition(new_env, mctx, lctx, new_c, type, value);
-    if (!is_lemma) {
+    if (!is_lemma && !is_noncomputable) {
         try {
             declaration d = new_env.get(new_c);
             new_env = vm_compile(new_env, d);
@@ -397,7 +407,14 @@ static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, ex
         expr const & c = ite_args[0];
         expr c_lhs, c_rhs;
         lean_verify(is_eq(c, c_lhs, c_rhs));
-        if (ctx.is_def_eq(c_lhs, c_rhs)) {
+        if (auto H = find_if_neg_hypothesis(ctx, c, Hs)) {
+            expr lhs_else = ite_args[4];
+            expr A        = ite_args[2];
+            level A_lvl   = get_level(ctx, A);
+            expr H1       = mk_app(mk_constant(get_if_neg_name(), {A_lvl}), {c, ite_args[1], *H, A, ite_args[3], lhs_else});
+            expr H2       = prove_eqn_lemma_core(ctx, Hs, lhs_else, rhs);
+            return mk_app(mk_constant(get_eq_trans_name(), {A_lvl}), {A, lhs, lhs_else, rhs, H1, H2});
+        } else if (ctx.is_def_eq(c_lhs, c_rhs)) {
             expr H = mk_eq_refl(ctx, c_lhs);
             expr lhs_then = ite_args[3];
             expr A        = ite_args[2];
@@ -406,13 +423,6 @@ static expr prove_eqn_lemma_core(type_context & ctx, buffer<expr> const & Hs, ex
             expr H2       = prove_eqn_lemma_core(ctx, Hs, lhs_then, rhs);
             expr eq_trans = mk_constant(get_eq_trans_name(), {A_lvl});
             return mk_app(eq_trans, {A, lhs, lhs_then, rhs, H1, H2});
-        } else if (auto H = find_if_neg_hypothesis(ctx, c, Hs)) {
-            expr lhs_else = ite_args[4];
-            expr A        = ite_args[2];
-            level A_lvl   = get_level(ctx, A);
-            expr H1       = mk_app(mk_constant(get_if_neg_name(), {A_lvl}), {c, ite_args[1], *H, A, ite_args[3], lhs_else});
-            expr H2       = prove_eqn_lemma_core(ctx, Hs, lhs_else, rhs);
-            return mk_app(mk_constant(get_eq_trans_name(), {A_lvl}), {A, lhs, lhs_else, rhs, H1, H2});
         }
     }
 
@@ -439,6 +449,7 @@ static expr prove_eqn_lemma(type_context & ctx, buffer<expr> const & Hs, expr co
 environment mk_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
                               name const & f_name, unsigned eqn_idx, bool is_private,
                               buffer<expr> const & Hs, expr const & lhs, expr const & rhs) {
+    if (!get_eqn_compiler_lemmas(opts)) return env;
     type_context ctx(env, opts, mctx, lctx, transparency_mode::Semireducible);
     expr type     = ctx.mk_pi(Hs, mk_eq(ctx, lhs, rhs));
     expr proof    = prove_eqn_lemma(ctx, Hs, lhs, rhs);
@@ -447,14 +458,18 @@ environment mk_equation_lemma(environment const & env, options const & opts, met
 }
 
 void initialize_eqn_compiler_util() {
-    g_eqn_compiler_dsimp = new name{"eqn_compiler", "dsimp"};
+    g_eqn_compiler_dsimp  = new name{"eqn_compiler", "dsimp"};
+    g_eqn_compiler_lemmas = new name{"eqn_compiler", "lemmas"};
     register_bool_option(*g_eqn_compiler_dsimp, LEAN_DEFAULT_EQN_COMPILER_DSIMP,
                          "(equation compiler) use defeq simplifier to cleanup types of "
                          "automatically synthesized equational lemmas");
+    register_bool_option(*g_eqn_compiler_lemmas, LEAN_DEFAULT_EQN_COMPILER_LEMMAS,
+                         "(equation compiler) generate equation lemmas and induction principle");
     g_eqn_sanitizer_token = register_defeq_simp_attribute("eqn_sanitizer");
 }
 
 void finalize_eqn_compiler_util() {
     delete g_eqn_compiler_dsimp;
+    delete g_eqn_compiler_lemmas;
 }
 }

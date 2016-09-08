@@ -130,11 +130,11 @@ expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<expr> &
     return r;
 }
 
-environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool /* is_protected */, bool /* is_noncomputable */,
+environment mutual_definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool /* is_protected */, bool is_noncomputable,
                                        decl_attributes /* attrs */) {
     buffer<name> lp_names;
     buffer<expr> fns, params;
-    declaration_info_scope scope(p.env(), is_private, kind);
+    declaration_info_scope scope(p.env(), is_private, is_noncomputable, kind);
     expr val = parse_mutual_definition(p, lp_names, fns, params);
     if (p.used_sorry()) p.declare_sorry();
     elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());
@@ -333,7 +333,7 @@ environment xdefinition_cmd_core(parser & p, def_cmd_kind kind, bool is_private,
     buffer<expr> params;
     expr fn, val;
     auto header_pos = p.pos();
-    declaration_info_scope scope(p.env(), is_private, kind);
+    declaration_info_scope scope(p.env(), is_private, is_noncomputable, kind);
     std::tie(fn, val) = parse_definition(p, lp_names, params, kind == def_cmd_kind::Example);
     if (p.used_sorry()) p.declare_sorry();
     elaborator elab(p.env(), p.get_options(), metavar_context(), local_context());

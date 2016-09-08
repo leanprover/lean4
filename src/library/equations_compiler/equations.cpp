@@ -51,7 +51,7 @@ public:
     virtual optional<expr> expand(expr const &, abstract_type_context &) const { throw_eqs_ex(); }
     virtual void write(serializer & s) const {
         s << *g_equations_opcode << m_header.m_num_fns << m_header.m_is_private << m_header.m_is_meta
-          << m_header.m_is_lemma << m_header.m_aux_lemmas;
+          << m_header.m_is_noncomputable << m_header.m_is_lemma << m_header.m_aux_lemmas;
         write_list(s, m_header.m_fn_names);
     }
     equations_header const & get_header() const { return m_header; }
@@ -229,7 +229,8 @@ void initialize_equations() {
     register_macro_deserializer(*g_equations_opcode,
                                 [](deserializer & d, unsigned num, expr const * args) {
                                     equations_header h;
-                                    d >> h.m_num_fns >> h.m_is_private >> h.m_is_meta >> h.m_is_lemma >> h.m_aux_lemmas;
+                                    d >> h.m_num_fns >> h.m_is_private >> h.m_is_meta >> h.m_is_noncomputable
+                                      >> h.m_is_lemma >> h.m_aux_lemmas;
                                     h.m_fn_names = read_list<name>(d);
                                     if (num == 0 || h.m_num_fns == 0)
                                         throw corrupted_stream_exception();

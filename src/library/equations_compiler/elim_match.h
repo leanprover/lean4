@@ -13,6 +13,8 @@ struct elim_match_result {
     elim_match_result(expr const & fn, list<expr> const & lemmas):m_fn(fn), m_lemmas(lemmas) {}
 };
 elim_match_result elim_match(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx, expr const & eqns);
+expr mk_nonrec(environment & env, options const & opts, metavar_context & mctx,
+               local_context const & lctx, expr const & eqns);
 void initialize_elim_match();
 void finalize_elim_match();
 }

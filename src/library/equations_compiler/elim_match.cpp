@@ -1151,6 +1151,38 @@ elim_match_result elim_match(environment & env, options const & opts, metavar_co
     return r;
 }
 
+expr mk_nonrec(environment & env, options const & opts, metavar_context & mctx,
+               local_context const & lctx, expr const & eqns) {
+    equations_header header = get_equations_header(eqns);
+    auto R = elim_match(env, opts, mctx, lctx, eqns);
+    type_context ctx1(env, opts, mctx, lctx, transparency_mode::Semireducible);
+    expr fn_type = ctx1.infer(R.m_fn);
+    expr fn;
+    std::tie(env, fn) = mk_aux_definition(env, mctx, lctx, header.m_is_private, header.m_is_lemma, header.m_is_noncomputable,
+                                          head(header.m_fn_names), fn_type, R.m_fn);
+    name fn_name = const_name(get_app_fn(fn));
+    unsigned eqn_idx     = 1;
+    type_context ctx2(env, opts, mctx, lctx, transparency_mode::Semireducible);
+    for (expr type : R.m_lemmas) {
+        type_context::tmp_locals locals(ctx2);
+        type = ctx2.relaxed_whnf(type);
+        while (is_pi(type)) {
+            expr local = locals.push_local_from_binding(type);
+            type = instantiate(binding_body(type), local);
+        }
+        lean_assert(is_eq(type));
+        expr lhs = app_arg(app_fn(type));
+        expr rhs = app_arg(type);
+        buffer<expr> lhs_args;
+        get_app_args(lhs, lhs_args);
+        expr new_lhs = mk_app(fn, lhs_args);
+        env = mk_equation_lemma(env, opts, mctx, ctx2.lctx(), fn_name,
+                                eqn_idx, header.m_is_private, locals.as_buffer(), new_lhs, rhs);
+        eqn_idx++;
+    }
+    return fn;
+}
+
 void initialize_elim_match() {
     register_trace_class({"eqn_compiler", "elim_match"});
     register_trace_class({"debug", "eqn_compiler", "elim_match"});

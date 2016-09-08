@@ -173,10 +173,10 @@ namespace nat
   le_of_succ_le H
 
   theorem succ_le_succ {n m : ℕ} : n ≤ m → succ n ≤ succ m :=
-  le.rec (nat.le_refl (succ n)) (λa b, le.step)
+  le.rec (nat.le_refl (succ n)) (λ a b, le.step)
 
   theorem pred_le_pred {n m : ℕ} : n ≤ m → pred n ≤ pred m :=
-  le.rec (nat.le_refl (pred n)) (nat.rec (λa b, b) (λa b c, le.step))
+  le.rec (nat.le_refl (pred n)) (nat.rec (λ a b, b) (λ a b c, le.step))
 
   theorem le_of_succ_le_succ {n m : ℕ} : succ n ≤ succ m → n ≤ m :=
   pred_le_pred

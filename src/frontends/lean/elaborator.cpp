@@ -1428,11 +1428,13 @@ expr elaborator::visit_equation(expr const & eq) {
         throw exception("ill-formed equation");
     expr new_lhs;
     {
+        list<expr> saved_instance_stack = m_instance_stack;
         flet<bool> set(m_in_pattern, true);
         new_lhs = visit(lhs, none_expr());
         check_inaccessible_annotations(new_lhs);
+        try_to_synthesize_type_class_instances(saved_instance_stack);
     }
-    expr new_lhs_type = infer_type(new_lhs);
+    expr new_lhs_type = instantiate_mvars(infer_type(new_lhs));
     expr new_rhs      = visit(rhs, some_expr(new_lhs_type));
     new_rhs = enforce_type(new_rhs, new_lhs_type, "equation type mismatch", eq);
     return copy_tag(eq, mk_equation(new_lhs, new_rhs));

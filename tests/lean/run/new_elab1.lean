@@ -1,3 +1,4 @@
+set_option new_elaborator true
 open nat
 
 protected theorem my_add_comm : ∀ (n m : ℕ), n + m = m + n

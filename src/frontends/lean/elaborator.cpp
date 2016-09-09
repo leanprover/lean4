@@ -1575,6 +1575,28 @@ expr elaborator::visit_have_expr(expr const & e, optional<expr> const & expected
     return mk_app(mk_have_annotation(new_lambda), new_proof);
 }
 
+expr elaborator::visit_suffices_expr(expr const & e, optional<expr> const & expected_type) {
+    lean_assert(is_suffices_annotation(e));
+    expr body = get_annotation_arg(e);
+    if (!is_app(body)) throw elaborator_exception(e, "ill-formed suffices expression");
+    expr fn   = app_fn(body);
+    expr rest = app_arg(body);
+    if (!is_lambda(fn)) throw elaborator_exception(e, "ill-formed suffices expression");
+    expr new_fn;
+    expr type     = binding_domain(fn);
+    expr new_type = checkpoint_visit(type, none_expr());
+    {
+        type_context::tmp_locals locals(m_ctx);
+        expr ref        = binding_domain(fn);
+        push_local(locals, binding_name(fn), new_type, binding_info(fn), ref);
+        expr body       = instantiate_rev(binding_body(fn), locals);
+        expr new_body   = checkpoint_visit(body, expected_type);
+        new_fn          = locals.mk_lambda(new_body);
+    }
+    expr new_rest = visit(rest, some_expr(new_type));
+    return mk_suffices_annotation(mk_app(new_fn, new_rest));
+}
+
 expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
     flet<unsigned> inc_depth(m_depth, m_depth+1);
     trace_elab_detail(tout() << "[" << m_depth << "] visiting\n" << e << "\n";);
@@ -1582,6 +1604,8 @@ expr elaborator::visit(expr const & e, optional<expr> const & expected_type) {
         return visit_placeholder(e, expected_type);
     } else if (is_have_expr(e)) {
         return visit_have_expr(e, expected_type);
+    } else if (is_suffices_annotation(e)) {
+        return visit_suffices_expr(e, expected_type);
     } else {
         switch (e.kind()) {
         case expr_kind::Var:        lean_unreachable();  // LCOV_EXCL_LINE

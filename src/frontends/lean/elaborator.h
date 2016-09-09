@@ -142,6 +142,7 @@ private:
     expr visit_prenum(expr const & e, optional<expr> const & expected_type);
     expr visit_placeholder(expr const & e, optional<expr> const & expected_type);
     expr visit_have_expr(expr const & e, optional<expr> const & expected_type);
+    expr visit_suffices_expr(expr const & e, optional<expr> const & expected_type);
     expr visit_by(expr const & e, optional<expr> const & expected_type);
     expr visit_anonymous_constructor(expr const & e, optional<expr> const & expected_type);
 

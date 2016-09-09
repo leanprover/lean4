@@ -284,7 +284,7 @@ static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos)
     }
 }
 
-static expr parse_suffices_to_show(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_suffices(parser & p, unsigned, expr const *, pos_info const & pos) {
     auto prop_pos = p.pos();
     name id;
     expr from;
@@ -307,8 +307,6 @@ static expr parse_suffices_to_show(parser & p, unsigned, expr const *, pos_info 
         id    = get_this_tk();
         from  = p.parse_expr();
     }
-    expr to    = p.save_pos(mk_expr_placeholder(), prop_pos);
-    expr prop  = p.save_pos(mk_arrow(from, to), prop_pos);
     expr local = p.save_pos(mk_local(id, from), prop_pos);
     p.check_token_next(get_comma_tk(), "invalid 'suffices' declaration, ',' expected");
     expr body;
@@ -321,7 +319,7 @@ static expr parse_suffices_to_show(parser & p, unsigned, expr const *, pos_info 
     p.check_token_next(get_comma_tk(), "invalid 'suffices' declaration, ',' expected");
     expr rest  = p.parse_expr();
     expr r = p.mk_app(proof, rest, pos);
-    return r;
+    return p.save_pos(mk_suffices_annotation(r), pos);
 }
 
 static expr * g_not  = nullptr;
@@ -678,7 +676,7 @@ parse_table init_nud_table() {
     r = r.add({transition("have", mk_ext_action(parse_have))}, x0);
     r = r.add({transition("suppose", mk_ext_action(parse_suppose))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
-    r = r.add({transition("suffices", mk_ext_action(parse_suffices_to_show))}, x0);
+    r = r.add({transition("suffices", mk_ext_action(parse_suffices))}, x0);
     r = r.add({transition("abstract", mk_ext_action(parse_nested_declaration))}, x0);
     r = r.add({transition("if", mk_ext_action(parse_if_then_else))}, x0);
     r = r.add({transition("(", Expr), transition(")", mk_ext_action(parse_rparen))}, x0);

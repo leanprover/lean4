@@ -1332,6 +1332,40 @@ static expr copy_domain(unsigned num, expr const & source, expr const & target) 
     }
 }
 
+static void check_equations_arity(buffer<expr> const & eqns) {
+    buffer<optional<unsigned>> fidx2arity;
+    for (expr eqn : eqns) {
+        unsigned nbinders = 0;
+        expr curr = eqn;
+        while (is_lambda(eqn)) {
+            nbinders++;
+            eqn = binding_body(eqn);
+        }
+        if (is_equation(eqn)) {
+            expr const & lhs = equation_lhs(eqn);
+            expr const & fn  = get_app_fn(lhs);
+            unsigned arity   = get_app_num_args(lhs);
+            if (!is_var(fn) || var_idx(fn) >= nbinders)
+                throw elaborator_exception(eqn, "ill-formed match/equations expression");
+            unsigned fidx    = nbinders - var_idx(fn) - 1;
+            if (fidx >= fidx2arity.size())
+                fidx2arity.resize(fidx+1, optional<unsigned>());
+            if (auto r = fidx2arity[fidx]) {
+                if (*r != arity) {
+                    throw elaborator_exception(eqn, "invalid match/equations expression, "
+                                               "each case must have the same number of patterns");
+                }
+            } else {
+                fidx2arity[fidx] = arity;
+            }
+        } else if (is_no_equation(eqn)) {
+            /* do nothing */
+        } else {
+            throw elaborator_exception(curr, "ill-formed match/equations expression");
+        }
+    }
+}
+
 expr elaborator::visit_equations(expr const & e) {
     expr const & ref = e;
     buffer<expr> eqs;
@@ -1361,13 +1395,14 @@ expr elaborator::visit_equations(expr const & e) {
             // Replace first num_fns domains of eq with the ones in first_eq.
             // This is a trick/hack to ensure the fns in each equation have
             // the same elaborated type.
-            new_eq   = visit(copy_domain(num_fns, *first_eq, eq), none_expr());
+            new_eq   = copy_tag(eq, visit(copy_domain(num_fns, *first_eq, eq), none_expr()));
         } else {
-            new_eq   = visit(eq, none_expr());
+            new_eq   = copy_tag(eq, visit(eq, none_expr()));
             first_eq = new_eq;
         }
         new_eqs.push_back(new_eq);
     }
+    check_equations_arity(new_eqs);
     process_checkpoint(C);
     expr new_e;
     if (new_R) {

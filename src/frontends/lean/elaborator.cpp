@@ -1066,6 +1066,51 @@ expr elaborator::visit_overloaded_app(buffer<expr> const & fns, buffer<expr> con
     }
 }
 
+expr elaborator::visit_no_confusion(expr const & fn, buffer<expr> const & args, optional<expr> const & expected_type, expr const & ref) {
+    name fn_name = const_name(fn);
+    if (!expected_type) {
+        throw elaborator_exception(ref, format("invalid '") + format(fn_name) + format ("' application, ") +
+                                   format("elaborator has special support for no_confusion ") +
+                                   format("but the expected type must be known"));
+    }
+    if (args.empty()) {
+        throw elaborator_exception(ref,
+                                   format("invalid occurrence of function '") + format(fn_name) +
+                                   format ("', it must be applied to at least one argument (possible solution: use '@')"));
+    }
+    /* I.no_confusion functions have a type of the form
+
+       Pi (params) (indices) (C : Type) (lhs rhs : I params indices) (H : lhs = rhs), I.no_confusion_type params indices C lhs rhs
+
+       The type (I.no_confusion_type params indices C lhs rhs) is C if lhs and rhs are distinct constructors,
+       and (Pi Hs, C) if they are the same constructor where Hs is a sequence of equalities.
+
+       (C : Type) is the expected type.
+
+       To make the elaborator more effective, we first elaborate the first explicit argument (i.e., args[0]) and obtain Heq,
+       and create the fake pre-term
+
+       (I.no_confusion _ ... _ (as-is expected_type) _ _ (as-is Heq) args[1] ... args[n-1])
+
+       Then, we elaborate this new fake pre-term.
+    */
+    expr Heq      = checkpoint_visit(args[0], none_expr());
+    name I_name   = fn_name.get_prefix();
+    unsigned nparams  = *inductive::get_num_params(m_env, I_name);
+    unsigned nindices = *inductive::get_num_indices(m_env, I_name);
+    buffer<expr> new_args;
+    for (unsigned i = 0; i < nparams + nindices; i++) {
+        new_args.push_back(copy_tag(ref, mk_expr_placeholder()));
+    }
+    new_args.push_back(copy_tag(ref, mk_as_is(*expected_type)));
+    new_args.push_back(copy_tag(ref, mk_expr_placeholder())); // lhs
+    new_args.push_back(copy_tag(ref, mk_expr_placeholder())); // rhs
+    new_args.push_back(copy_tag(args[0], mk_as_is(Heq)));
+    for (unsigned i = 1; i < args.size(); i++)
+        new_args.push_back(args[i]);
+    return visit_default_app_core(fn, arg_mask::All, new_args, false, expected_type, ref);
+}
+
 expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<expr> const & expected_type,
                                 expr const & ref) {
     arg_mask amask = arg_mask::Default;
@@ -1102,6 +1147,8 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
                                "' because it is not fully applied, #" << info->m_nexplicit <<
                                " explicit arguments expected\n";);
                 }
+            } else if (is_no_confusion(m_env, const_name(new_fn))) {
+                return visit_no_confusion(new_fn, args, expected_type, ref);
             }
         }
         return visit_default_app(new_fn, amask, args, expected_type, ref);

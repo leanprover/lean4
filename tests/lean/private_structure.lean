@@ -11,7 +11,7 @@ check point.rec
 check point.rec_on
 check point.cases_on
 check point.induction_on
-check point.no_confusion
+check @point.no_confusion
 check point.x
 check point.y
 

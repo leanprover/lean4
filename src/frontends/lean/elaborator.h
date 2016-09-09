@@ -172,6 +172,7 @@ private:
                               optional<expr> const & expected_type, expr const & ref);
     expr visit_elim_app(expr const & fn, elim_info const & info, buffer<expr> const & args,
                         optional<expr> const & expected_type, expr const & ref);
+    expr visit_no_confusion(expr const & fn, buffer<expr> const & args, optional<expr> const & expected_type, expr const & ref);
     expr visit_app_core(expr fn, buffer<expr> const & args, optional<expr> const & expected_type, expr const & ref);
     expr visit_local(expr const & e, optional<expr> const & expected_type);
     expr visit_constant(expr const & e, optional<expr> const & expected_type);

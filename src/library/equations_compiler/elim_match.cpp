@@ -909,7 +909,11 @@ struct elim_match_fn {
                 if (is_inductive_app(I)) {
                     metavar_context saved_mctx = m_mctx;
                     bool fail_if_subgoals      = is_recursive_datatype(m_env, const_name(get_app_fn(I)));
-                    if (auto r = process_constructor_core(P, fail_if_subgoals)) {
+                    optional<list<lemma>> r;
+                    try {
+                        r = process_constructor_core(P, fail_if_subgoals);
+                    } catch (exception &) {}
+                    if (r) {
                         return list<lemma>();
                     } else {
                         /* Process_constructor_core produced subgoals for recursive datatype,

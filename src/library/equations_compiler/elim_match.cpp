@@ -37,11 +37,21 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_EQN_COMPILER_ITE true
 #endif
 
+#ifndef LEAN_DEFAULT_EQN_COMPILER_MAX_STEPS
+#define LEAN_DEFAULT_EQN_COMPILER_MAX_STEPS 128
+#endif
+
+
 namespace lean {
-static name * g_eqn_compiler_ite = nullptr;
+static name * g_eqn_compiler_ite       = nullptr;
+static name * g_eqn_compiler_max_steps = nullptr;
 
 static bool get_eqn_compiler_ite(options const & o) {
     return o.get_bool(*g_eqn_compiler_ite, LEAN_DEFAULT_EQN_COMPILER_ITE);
+}
+
+static unsigned get_eqn_compiler_max_steps(options const & o) {
+    return o.get_unsigned(*g_eqn_compiler_max_steps, LEAN_DEFAULT_EQN_COMPILER_MAX_STEPS);
 }
 
 #define trace_match(Code) lean_trace(name({"eqn_compiler", "elim_match"}), Code)
@@ -56,7 +66,12 @@ struct elim_match_fn {
     unsigned        m_depth{0};
     buffer<bool>    m_used_eqns;
     bool            m_aux_lemmas;
+    unsigned        m_num_steps{0};
+
+    /* configuration options */
     bool            m_use_ite;
+    unsigned        m_max_steps;
+
     /* m_enum is a mapping from inductive type name to flag indicating whether it is
        an enumeration type or not. */
     name_map<bool>  m_enum;
@@ -64,7 +79,8 @@ struct elim_match_fn {
     elim_match_fn(environment const & env, options const & opts,
                   metavar_context const & mctx):
         m_env(env), m_opts(opts), m_mctx(mctx) {
-        m_use_ite = get_eqn_compiler_ite(opts);
+        m_use_ite   = get_eqn_compiler_ite(opts);
+        m_max_steps = get_eqn_compiler_max_steps(opts);
     }
 
     struct equation {
@@ -1078,6 +1094,12 @@ struct elim_match_fn {
         flet<unsigned> inc_depth(m_depth, m_depth+1);
         trace_match(tout() << "depth [" << m_depth << "]\n" << pp_problem(P) << "\n";);
         lean_assert(check_problem(P));
+        m_num_steps++;
+        if (m_num_steps > m_max_steps) {
+            throw_error(sstream() << "equation compiler failed, maximum number of steps (" << m_max_steps << ") exceeded"
+                        << " (possible solution: use 'set_option eqn_compiler.max_steps <new-threshold>')"
+                        << " (use 'set_option trace.eqn_compiler.elim_match true' for additional details)");
+        }
         if (P.m_var_stack) {
             if (!P.m_equations) {
                 return process_no_equation(P);
@@ -1187,12 +1209,16 @@ void initialize_elim_match() {
     register_trace_class({"eqn_compiler", "elim_match"});
     register_trace_class({"debug", "eqn_compiler", "elim_match"});
 
-    g_eqn_compiler_ite = new name{"eqn_compiler", "ite"};
+    g_eqn_compiler_ite       = new name{"eqn_compiler", "ite"};
+    g_eqn_compiler_max_steps = new name{"eqn_compiler", "max_steps"};
     register_bool_option(*g_eqn_compiler_ite, LEAN_DEFAULT_EQN_COMPILER_ITE,
                          "(equation compiler) use if-then-else terms when pattern matching on simple values "
                          "(e.g., strings and characters)");
+    register_unsigned_option(*g_eqn_compiler_max_steps, LEAN_DEFAULT_EQN_COMPILER_MAX_STEPS,
+                             "(equation compiler) maximum number of pattern matching compilation steps");
 }
 void finalize_elim_match() {
     delete g_eqn_compiler_ite;
+    delete g_eqn_compiler_max_steps;
 }
 }

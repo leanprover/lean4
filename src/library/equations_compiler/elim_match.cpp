@@ -645,7 +645,7 @@ struct elim_match_fn {
         return to_list(R);
     }
 
-    list<lemma> process_constructor(problem const & P) {
+    optional<list<lemma>> process_constructor_core(problem const & P, bool fail_if_subgoals) {
         trace_match(tout() << "step: constructors only\n";);
         lean_assert(is_constructor_transition(P));
         type_context ctx   = mk_type_context(P);
@@ -670,7 +670,11 @@ struct elim_match_fn {
             throw nested_exception("equation compiler failed (use 'set_option trace.eqn_compiler.elim_match true' "
                                    "for additional details)", ex);
         }
-        if (empty(new_goals)) return list<lemma>();
+        if (empty(new_goals)) {
+            return some(list<lemma>());
+        } else if (fail_if_subgoals) {
+            return optional<list<lemma>>();
+        }
         list<equation> eqns = normalize_next_pattern(P.m_equations);
         buffer<lemma> new_Ls;
         while (new_goals) {
@@ -688,7 +692,12 @@ struct elim_match_fn {
             ilist           = tail(ilist);
             slist           = tail(slist);
         }
-        return to_list(new_Ls);
+        return some(to_list(new_Ls));
+    }
+
+    list<lemma> process_constructor(problem const & P) {
+        bool fail_if_subgoals = false;
+        return *process_constructor_core(P, fail_if_subgoals);
     }
 
     list<lemma> process_value(problem const & P) {
@@ -893,12 +902,25 @@ struct elim_match_fn {
             type_context ctx = mk_type_context(P);
             expr x           = head(P.m_var_stack);
             expr arg_type    = ctx.infer(x);
-            if (is_below_type(arg_type))
+            if (is_below_type(arg_type)) {
                 return process_variable(P);
-            else if (is_inductive_app(whnf_inductive(ctx, arg_type)))
-                return process_constructor(P);
-            else
-                return process_variable(P);
+            } else {
+                expr I = whnf_inductive(ctx, arg_type);
+                if (is_inductive_app(I)) {
+                    metavar_context saved_mctx = m_mctx;
+                    bool fail_if_subgoals      = is_recursive_datatype(m_env, const_name(get_app_fn(I)));
+                    if (auto r = process_constructor_core(P, fail_if_subgoals)) {
+                        return list<lemma>();
+                    } else {
+                        /* Process_constructor_core produced subgoals for recursive datatype,
+                           this may produce non-termination. So, if fail and handle it as a variable case. */
+                        m_mctx = saved_mctx;
+                        return process_variable(P);
+                    }
+                } else {
+                    return process_variable(P);
+                }
+            }
         }
     }
 

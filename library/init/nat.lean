@@ -5,38 +5,33 @@ Authors: Floris van Doorn, Leonardo de Moura
 -/
 prelude
 import init.relation init.num
-open decidable or
-
 notation `ℕ` := nat
 
 namespace nat
-  /- basic definitions on natural numbers -/
-  inductive le (a : ℕ) : ℕ → Prop
-  | nat_refl : le a    -- use nat_refl to avoid overloading le.refl
-  | step : Π {b}, le b → le (succ b)
+  protected theorem zero_add : ∀ (n : ℕ), 0 + n = n
+  | 0     := rfl
+  | (n+1) := congr_arg succ (zero_add n)
 
-  attribute [instance, priority nat.prio]
-  definition nat_has_le : has_le nat := has_le.mk nat.le
+  theorem succ_add : ∀ (n m : ℕ), (succ n) + m = succ (n + m)
+  | n 0     := rfl
+  | n (m+1) := congr_arg succ (succ_add n m)
 
-  protected theorem zero_add (n : ℕ) : 0 + n = n :=
-  nat.induction_on n
-    rfl
-    (λ n ih, show succ (0 + n) = succ n, from congr_arg succ ih)
+  protected theorem add_comm : ∀ (n m : ℕ), n + m = m + n
+  | n 0     := eq.symm (nat.zero_add n)
+  | n (m+1) :=
+    suffices succ (n + m) = succ (m + n), from
+      eq.symm (succ_add m n) ▸ this,
+    congr_arg succ (add_comm n m)
 
-  theorem succ_add (n m : ℕ) : (succ n) + m = succ (n + m) :=
-  nat.induction_on m
-    rfl
-    (λ m ih, show succ (succ n + m) = succ (succ (n + m)), from congr_arg succ ih)
-
-  theorem bit0_succ_eq (n : nat) : bit0 (succ n) = succ (succ (bit0 n)) :=
+  protected theorem bit0_succ_eq (n : ℕ) : bit0 (succ n) = succ (succ (bit0 n)) :=
   show succ (succ n + n) = succ (succ (n + n)), from
   succ_add n n ▸ rfl
 
-  theorem bit1_eq_succ_bit0 (n : nat) : bit1 n = succ (bit0 n) :=
+  protected theorem bit1_eq_succ_bit0 (n : ℕ) : bit1 n = succ (bit0 n) :=
   rfl
 
-  theorem bit1_succ_eq (n : nat) : bit1 (succ n) = succ (succ (bit1 n)) :=
-  eq.trans (bit1_eq_succ_bit0 (succ n)) (congr_arg succ (bit0_succ_eq n))
+  protected theorem bit1_succ_eq (n : ℕ) : bit1 (succ n) = succ (succ (bit1 n)) :=
+  eq.trans (nat.bit1_eq_succ_bit0 (succ n)) (congr_arg succ (nat.bit0_succ_eq n))
 
   theorem succ_ne_zero (n : ℕ) : succ n ≠ 0 :=
   assume h, nat.no_confusion h
@@ -46,98 +41,101 @@ namespace nat
     (λ h, absurd h (succ_ne_zero 0))
     (λ k ih h, ih (nat.no_confusion h (λ h1, h1)))
 
-  theorem one_ne_zero : 1 ≠ (0 : nat) :=
+  protected theorem one_ne_zero : 1 ≠ (0 : ℕ) :=
   assume h, nat.no_confusion h
 
-  theorem bit1_ne_zero (n : nat) : bit1 n ≠ 0 :=
+  protected theorem bit1_ne_zero (n : ℕ) : bit1 n ≠ 0 :=
   show succ (n + n) ≠ 0, from
   succ_ne_zero (n + n)
 
-  theorem bit0_ne_zero (n : nat) : n ≠ 0 → bit0 n ≠ 0 :=
+  protected theorem bit0_ne_zero (n : ℕ) : n ≠ 0 → bit0 n ≠ 0 :=
   nat.cases_on n
     (λ h, absurd rfl h)
     (λ m h,
       show succ (succ m + m) ≠ 0, from
       succ_ne_zero (succ m + m))
 
-  theorem bit1_ne_one (n : nat) : n ≠ 0 → bit1 n ≠ 1 :=
+  protected theorem bit1_ne_one (n : ℕ) : n ≠ 0 → bit1 n ≠ 1 :=
   nat.cases_on n
     (λ h : 0 ≠ 0, absurd rfl h)
     (λ m h (h1 : succ (succ (succ m + m)) = succ 0),
        nat.no_confusion h1 (λ h2 : succ (succ m + m) = 0,
           absurd h2 (succ_ne_zero (succ m + m))))
 
-  theorem bit0_ne_one (n : nat) : bit0 n ≠ 1 :=
+  protected theorem bit0_ne_one (n : ℕ) : bit0 n ≠ 1 :=
   nat.cases_on n
-    (show 0 ≠ 1, from ne.symm one_ne_zero)
+    (show 0 ≠ 1, from ne.symm nat.one_ne_zero)
     (λ m (h1 : succ (succ m + m) = 1),
       have h2 : succ (succ (m + m)) = 1, from succ_add m m ▸ h1,
       nat.no_confusion h2
         (λ h3 : succ (m + m) = 0, absurd h3 (succ_ne_zero (m + m))))
 
-  theorem add_self_ne_one (n : nat) : n + n ≠ 1 :=
+  protected theorem add_self_ne_one (n : ℕ) : n + n ≠ 1 :=
   nat.cases_on n
-    (ne.symm one_ne_zero)
+    (ne.symm nat.one_ne_zero)
     (λ n (h : succ (succ n + n) = 1),
       have h1 : succ (succ (n + n)) = 1, from succ_add n n ▸ h,
       nat.no_confusion h1 (λ h2 : succ (n + n) = 0, absurd h2 (succ_ne_zero (n + n))))
 
-  theorem bit1_ne_bit0 : ∀ (n m : nat), bit1 n ≠ bit0 m :=
+  protected theorem bit1_ne_bit0 : ∀ (n m : ℕ), bit1 n ≠ bit0 m :=
   λ n, nat.induction_on n
-    (λ m, ne.symm (add_self_ne_one m))
+    (λ m, ne.symm (nat.add_self_ne_one m))
     (λ n (ih : ∀ m, bit1 n ≠ bit0 m) m, nat.cases_on m
        (λ (h : bit1 (succ n) = bit0 0),
          have h1 : succ (bit0 (succ n)) = 0, from h,
          absurd h1 (succ_ne_zero (bit0 (succ n))))
        (λ m (h : bit1 (succ n) = bit0 (succ m)),
          have h1 : succ (succ (bit1 n)) = bit0 (succ m), from
-           bit1_succ_eq n ▸ h,
+           nat.bit1_succ_eq n ▸ h,
          have h2 : succ (succ (bit1 n)) = succ (succ (bit0 m)), from
-           bit0_succ_eq m ▸ h1,
+           nat.bit0_succ_eq m ▸ h1,
          have h3 : bit1 n = bit0 m, from
            nat.no_confusion h2 (λ h2', nat.no_confusion h2' (λ h2'', h2'')),
          absurd h3 (ih m)))
 
+  inductive le (a : ℕ) : ℕ → Prop
+  | nat_refl : le a    -- use nat_refl to avoid overloading le.refl
+  | step : Π {b}, le b → le (succ b)
+
+  attribute [instance, priority nat.prio]
+  definition nat_has_le : has_le ℕ := has_le.mk nat.le
+
   attribute [refl]
-  protected lemma le_refl : ∀ a : nat, a ≤ a :=
+  protected lemma le_refl : ∀ a : ℕ, a ≤ a :=
   le.nat_refl
 
   attribute [reducible]
   protected definition lt (n m : ℕ) := succ n ≤ m
 
   attribute [instance, priority nat.prio]
-  definition nat_has_lt : has_lt nat := has_lt.mk nat.lt
+  definition nat_has_lt : has_lt ℕ := has_lt.mk nat.lt
 
-  definition pred (a : nat) : nat :=
+  definition pred (a : ℕ) : ℕ :=
   nat.cases_on a zero (λ a₁, a₁)
 
-  -- add is defined in init.reserved_notation
-
-  protected definition sub (a b : nat) : nat :=
+  protected definition sub (a b : ℕ) : ℕ :=
   nat.rec_on b a (λ b₁, pred)
 
-  protected definition mul (a b : nat) : nat :=
+  protected definition mul (a b : ℕ) : ℕ :=
   nat.rec_on b zero (λ b₁ r, r + a)
 
   attribute [instance, priority nat.prio]
-  definition nat_has_sub : has_sub nat :=
+  definition nat_has_sub : has_sub ℕ :=
   has_sub.mk nat.sub
 
   attribute [instance, priority nat.prio]
-  definition nat_has_mul : has_mul nat :=
+  definition nat_has_mul : has_mul ℕ :=
   has_mul.mk nat.mul
 
-  /- properties of ℕ -/
-
   attribute [instance, priority nat.prio]
-  protected definition has_decidable_eq : ∀ x y : nat, decidable (x = y)
-  | has_decidable_eq zero     zero     := tt rfl
-  | has_decidable_eq (succ x) zero     := ff (λ H, nat.no_confusion H)
-  | has_decidable_eq zero     (succ y) := ff (λ H, nat.no_confusion H)
+  protected definition has_decidable_eq : ∀ x y : ℕ, decidable (x = y)
+  | has_decidable_eq zero     zero     := decidable.tt rfl
+  | has_decidable_eq (succ x) zero     := decidable.ff (λ H, nat.no_confusion H)
+  | has_decidable_eq zero     (succ y) := decidable.ff (λ H, nat.no_confusion H)
   | has_decidable_eq (succ x) (succ y) :=
       match (has_decidable_eq x y) with
-      | (tt xeqy) := tt (eq.subst xeqy (eq.refl (succ x)))
-      | (ff xney) := ff (λ H : succ x = succ y, nat.no_confusion H (λ xeqy : x = y, absurd xeqy xney))
+      | (decidable.tt xeqy) := decidable.tt (eq.subst xeqy (eq.refl (succ x)))
+      | (decidable.ff xney) := decidable.ff (λ H : succ x = succ y, nat.no_confusion H (λ xeqy : x = y, absurd xeqy xney))
       end
 
   /- properties of inequality -/
@@ -209,6 +207,18 @@ namespace nat
   theorem zero_le_iff_true (n : ℕ) : 0 ≤ n ↔ true :=
   iff_true_intro (zero_le n)
 
+  protected theorem one_le_bit1 (n : ℕ) : 1 ≤ bit1 n :=
+  show 1 ≤ succ (bit0 n), from
+  succ_le_succ (zero_le (bit0 n))
+
+  protected theorem one_le_bit0 (n : ℕ) : n ≠ 0 → 1 ≤ bit0 n :=
+  nat.cases_on n
+    (λ h, absurd rfl h)
+    (λ n h,
+      suffices 1 ≤ succ (succ (bit0 n)), from
+        eq.symm (nat.bit0_succ_eq n) ▸ this,
+      succ_le_succ (zero_le (succ (bit0 n))))
+
   theorem lt.step {n m : ℕ} : n < m → n < succ m := le.step
 
   theorem zero_lt_succ (n : ℕ) : 0 < succ n :=
@@ -258,7 +268,7 @@ namespace nat
   iff_false_intro (not_lt_zero a)
 
   protected theorem eq_or_lt_of_le {a b : ℕ} (H : a ≤ b) : a = b ∨ a < b :=
-  le.cases_on H (inl rfl) (λn h, inr (succ_le_succ h))
+  le.cases_on H (or.inl rfl) (λn h, or.inr (succ_le_succ h))
 
   protected theorem le_of_eq_or_lt {a b : ℕ} (H : a = b ∨ a < b) : a ≤ b :=
   or.elim H nat.le_of_eq nat.le_of_lt
@@ -286,14 +296,14 @@ namespace nat
   λ a b, nat.decidable_le (succ a) b
 
   protected theorem lt_or_ge (a b : ℕ) : a < b ∨ a ≥ b :=
-  nat.rec_on b (inr (zero_le a)) (λn, or.rec
-    (λh, inl (le_succ_of_le h))
+  nat.rec_on b (or.inr (zero_le a)) (λn, or.rec
+    (λh, or.inl (le_succ_of_le h))
     (λh, or.elim (nat.eq_or_lt_of_le h)
-         (λe : n = a, inl ((eq.subst e (λ (h : n ≤ n), iff.mpr (self_lt_succ_iff_true n) true.intro)) h))
-         inr))
+         (λe : n = a, or.inl ((eq.subst e (λ (h : n ≤ n), iff.mpr (self_lt_succ_iff_true n) true.intro)) h))
+         or.inr))
 
   protected definition lt_ge_by_cases {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a ≥ b → P) : P :=
-  by_cases H1 (λh, H2 (or.elim (nat.lt_or_ge a b) (λa, absurd a h) (λa, a)))
+  decidable.by_cases H1 (λh, H2 (or.elim (nat.lt_or_ge a b) (λa, absurd a h) (λa, a)))
 
   protected definition lt_by_cases {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a = b → P)
     (H3 : b < a → P) : P :=
@@ -301,7 +311,7 @@ namespace nat
     nat.lt_ge_by_cases H3 (λh₂, H2 (nat.le_antisymm h₂ h₁)))
 
   protected theorem lt_trichotomy (a b : ℕ) : a < b ∨ a = b ∨ b < a :=
-  nat.lt_by_cases (λH, inl H) (λH, inr (inl H)) (λH, inr (inr H))
+  nat.lt_by_cases (λH, or.inl H) (λH, or.inr (or.inl H)) (λH, or.inr (or.inr H))
 
   protected theorem eq_or_lt_of_not_lt {a b : ℕ} (hnlt : ¬ a < b) : a = b ∨ b < a :=
   or.rec_on (nat.lt_trichotomy a b)
@@ -351,6 +361,12 @@ namespace nat
   attribute [simp]
   theorem sub_lt_succ_iff_true (a b : ℕ) : a - b < succ a ↔ true :=
   iff_true_intro (sub_lt_succ a b)
+
+  theorem le_add_right (n k : ℕ) : n ≤ n + k :=
+  nat.rec (nat.le_refl n) (λ k, le_succ_of_le) k
+
+  theorem le_add_left (n m : ℕ): n ≤ m + n :=
+  nat.add_comm n m ▸ le_add_right n m
 
   definition repeat {A : Type} (f : nat → A → A) : nat → A → A
   | 0         a := a

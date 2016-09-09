@@ -106,6 +106,20 @@ struct sigma_packer_fn {
             return mk_app(r, args.size() - arity, args.data() + arity);
         }
 
+        virtual expr visit_local(expr const & e) override {
+            auto fnidx = get_fn_idx(e);
+            if (!fnidx) return replace_visitor_with_tc::visit_local(e);
+            expr new_fn = m_ues.get_fn(*fnidx);
+            if (e == new_fn) return replace_visitor_with_tc::visit_app(e);
+            unsigned arity = m_ues.get_arity_of(*fnidx);
+            if (0 < arity) {
+                expr new_e = m_ctx.eta_expand(e);
+                if (!is_lambda(new_e)) throw_ill_formed_eqns();
+                return visit(new_e);
+            }
+            return new_fn;
+        }
+
     public:
         update_apps_fn(type_context & ctx, buffer<expr> const & old_fns, unpack_eqns const & ues):
             replace_visitor_with_tc(ctx), m_old_fns(old_fns), m_ues(ues) {}

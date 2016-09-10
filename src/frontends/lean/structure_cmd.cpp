@@ -693,7 +693,6 @@ struct structure_cmd_fn {
     void add_rec_alias(name const & n) {
         if (m_is_private) {
             name given_rec_name = name(m_given_name, n.get_string());
-            std::cout << given_rec_name << " ==> " << n << "\n";
             m_env = ::lean::add_alias(m_p, m_env, given_rec_name, n, levels(mk_level_placeholder(), m_ctx_levels), m_ctx_locals);
         } else {
             bool composite = true;

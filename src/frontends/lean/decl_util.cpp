@@ -326,11 +326,22 @@ equations_header mk_equations_header(name const & n) {
     return mk_equations_header(to_list(n));
 }
 
+/* Auxiliary function for creating names for auxiliary declarations.
+   We avoid propagating the suffix `_main` used by the top-level equations
+   to the nested declarations. */
+static name mk_decl_name(name const & prefix, name const & n) {
+    if (!prefix.is_atomic() && prefix.is_string() && strcmp(prefix.get_string(), "_main") == 0) {
+        return prefix.get_prefix() + n;
+    } else {
+        return prefix + n;
+    }
+}
+
 declaration_name_scope::declaration_name_scope(name const & n) {
     definition_info & info = get_definition_info();
     m_old_prefix          = info.m_prefix;
     m_old_next_match_idx  = info.m_next_match_idx;
-    info.m_prefix         = info.m_prefix + n;
+    info.m_prefix         = mk_decl_name(info.m_prefix, n);
     info.m_next_match_idx = 1;
     m_name                = info.m_prefix;
 }
@@ -343,7 +354,7 @@ declaration_name_scope::~declaration_name_scope() {
 
 match_definition_scope::match_definition_scope() {
     definition_info & info = get_definition_info();
-    m_name = info.m_prefix + name("_match").append_after(info.m_next_match_idx);
+    m_name = mk_decl_name(info.m_prefix, name("_match").append_after(info.m_next_match_idx));
     info.m_next_match_idx++;
 }
 }

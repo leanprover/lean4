@@ -1976,11 +1976,15 @@ lbool type_context::is_def_eq_lazy_delta(expr & t, expr & s) {
                         S.commit();
                         return l_true;
                     }
+                    /* Heuristic failed, then unfold both of them */
+                    lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold left&right: " << d_t->get_name() << "\n";);
+                    t = whnf_core(*unfold_definition(t));
+                    s = whnf_core(*unfold_definition(s));
+                } else if (!is_app(t) && !is_app(s)) {
+                    return to_lbool(is_def_eq(const_levels(t), const_levels(s)));
+                } else {
+                    return l_false;
                 }
-                /* Heuristic failed, then unfold both of them */
-                lean_trace(name({"type_context", "is_def_eq_detail"}), tout() << "unfold left&right: " << d_t->get_name() << "\n";);
-                t = whnf_core(*unfold_definition(t));
-                s = whnf_core(*unfold_definition(s));
             } else {
                 bool progress = false;
                 if (m_transparency_mode == transparency_mode::Semireducible ||

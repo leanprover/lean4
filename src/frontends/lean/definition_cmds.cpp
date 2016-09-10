@@ -343,7 +343,12 @@ environment xdefinition_cmd_core(parser & p, def_cmd_kind kind, bool is_private,
     replace_params(params, new_params, fn, val);
     expr type;
     std::tie(val, type) = elaborate_definition(p, elab, kind, fn, val, header_pos);
-    // TODO(Leo): postprocess nested matches and equations
+    if (is_equations_result(val)) {
+        // TODO(Leo): generate equation lemmas and induction principle
+        lean_assert(is_equations_result(val));
+        lean_assert(get_equations_result_size(val) == 1);
+        val = get_equations_result(val, 0);
+    }
     finalize_definition(elab, new_params, type, val, lp_names);
     if (kind == Example) return p.env();
     name c_name = mlocal_name(fn);

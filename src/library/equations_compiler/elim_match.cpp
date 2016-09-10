@@ -479,7 +479,7 @@ struct elim_match_fn {
     /* Return true iff the next pattern of every equation is a constructor or variable,
        and there are at least one equation where it is a variable and another where it is a
        constructor. */
-    bool is_complete_transition(problem const & P) const {
+    bool is_complete_transition(problem const & P) {
         bool has_variable    = false;
         bool has_constructor = false;
         bool r = all_next_pattern(P, [&](expr const & p) {
@@ -487,6 +487,8 @@ struct elim_match_fn {
                     has_variable = true; return true;
                 } else if (is_constructor_app(p)) {
                     has_constructor = true; return true;
+                } else if (is_value(p)) {
+                    return true;
                 } else {
                     return false;
                 }

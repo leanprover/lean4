@@ -610,11 +610,8 @@ class add_mutual_inductive_decl_fn {
                     ir_arg = instantiate(binding_body(ir_arg), ir_arg_arg);
                 }
 
-                buffer<expr> inner_args, inner_indices;
-                expr arg_fn = get_app_args(ir_arg, inner_args);
-                m_mut_decl.args_to_indices(inner_args, inner_indices);
-
-                if (arg_fn == m_mut_decl.get_c_ind(ind_idx)) {
+                buffer<expr> inner_indices;
+                if (m_mut_decl.is_ind_app(ir_arg, ind_idx, inner_indices)) {
                     expr rec_arg_type;
                     if (dep_elim()) {
                         rec_arg_type = Pi(ir_arg_args, mk_app(mk_app(C, inner_indices), mk_app(minor_premise_arg, ir_arg_args)));
@@ -626,9 +623,8 @@ class add_mutual_inductive_decl_fn {
                 }
                 ir_ty = m_tctx.whnf(instantiate(binding_body(ir_ty), minor_premise_arg));
             }
-            buffer<expr> result_args, result_indices;
-            get_app_args(ir_ty, result_args);
-            m_mut_decl.args_to_indices(result_args, result_indices);
+            buffer<expr> result_indices;
+            m_mut_decl.get_app_indices(ir_ty, result_indices);
 
             expr minor_premise_type;
             if (dep_elim()) {
@@ -692,22 +688,19 @@ class add_mutual_inductive_decl_fn {
                         ir_arg = instantiate(binding_body(ir_arg), ir_arg_arg);
                     }
 
-                    buffer<expr> inner_args, inner_indices;
-                    expr arg_fn = get_app_args(ir_arg, inner_args);
-                    m_mut_decl.args_to_indices(inner_args, inner_indices);
-
-                    ir_type = m_tctx.whnf(instantiate(binding_body(ir_type), l));
-                    return_args.push_back(l);
-                    if (m_mut_decl.is_ind(arg_fn)) {
+                    buffer<expr> inner_indices;
+                    if (m_mut_decl.is_ind_app(ir_arg, inner_indices)) {
+                        bool this_ind_app = m_mut_decl.is_ind_app(ir_arg, ind_idx);
                         expr C_term = dep_elim() ? mk_app(mk_app(C, inner_indices), mk_app(l, ir_arg_args)) : mk_app(C, inner_indices);
-                        expr rec_arg_type = Pi(ir_arg_args, (arg_fn == m_mut_decl.get_c_ind(ind_idx)) ? C_term : poly_unit());
+                        expr rec_arg_type = Pi(ir_arg_args, this_ind_app ? C_term : poly_unit());
                         expr l2 = mk_local_pp("x", rec_arg_type);
                         rec_args.push_back(l2);
                         // We only pass recursive arguments of the inductive type in question to the minor premise
-                        if (arg_fn == m_mut_decl.get_c_ind(ind_idx)) {
+                        if (this_ind_app)
                             return_rec_args.push_back(l2);
-                        }
                     }
+                    ir_type = m_tctx.whnf(instantiate(binding_body(ir_type), l));
+                    return_args.push_back(l);
                 }
                 locals.append(rec_args);
                 expr return_value;

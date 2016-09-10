@@ -11,6 +11,7 @@ Author: Daniel Selsam
 namespace lean {
 
 class ginductive_decl {
+    // TODO(dhs): separate from ginductive extension, and put methods in .cpp
     buffer<name> m_lp_names;
     buffer<expr> m_params;
     buffer<expr> m_inds;
@@ -60,11 +61,6 @@ public:
         return mk_app(mk_constant(mlocal_name(m_intro_rules[ind_idx][ir_idx]), get_levels()), m_params);
     }
 
-    void args_to_indices(buffer<expr> const & args, buffer<expr> & indices) const {
-        for (unsigned i = get_num_params(); i < args.size(); ++i)
-            indices.push_back(args[i]);
-    }
-
     bool is_ind(expr const & e) const {
         return is_constant(e)
             && std::any_of(m_inds.begin(), m_inds.end(), [&](expr const & ind) {
@@ -72,8 +68,56 @@ public:
                 });
     }
 
+    bool is_ind(expr const & e, unsigned ind_idx) const {
+        return e == get_c_ind(ind_idx);
+    }
+
     bool has_ind_occ(expr const & t) const {
         return static_cast<bool>(find(t, [&](expr const & e, unsigned) { return is_ind(e); }));
+    }
+
+    bool is_ind_app(expr const & e, unsigned ind_idx) const { return is_ind(get_app_fn(e), ind_idx); }
+
+    bool is_ind_app(expr const & e, unsigned ind_idx, buffer<expr> & indices) const {
+        buffer<expr> args;
+        expr fn = get_app_args(e, args);
+        if (!is_ind(fn, ind_idx))
+            return false;
+        lean_assert(args.size() >= m_params.size());
+        for (unsigned i = m_params.size(); i < args.size(); ++i) {
+            indices.push_back(args[i]);
+        }
+        return true;
+    }
+
+    bool is_ind_app(expr const & e) const { return is_ind(get_app_fn(e)); }
+
+    bool is_ind_app(expr const & e, buffer<expr> & indices) const {
+        buffer<expr> args;
+        expr fn = get_app_args(e, args);
+        if (!is_ind(fn))
+            return false;
+        lean_assert(args.size() >= m_params.size());
+        for (unsigned i = m_params.size(); i < args.size(); ++i) {
+            indices.push_back(args[i]);
+        }
+        return true;
+    }
+
+    void args_to_indices(buffer<expr> const & args, buffer<expr> & indices) const {
+        for (unsigned i = get_num_params(); i < args.size(); ++i)
+            indices.push_back(args[i]);
+    }
+
+    expr get_app_indices(expr const & e, buffer<expr> & indices) const {
+        buffer<expr> args;
+        expr fn = get_app_args(e, args);
+        lean_assert(is_ind(fn));
+        lean_assert(args.size() >= m_params.size());
+        for (unsigned i = m_params.size(); i < args.size(); ++i) {
+            indices.push_back(args[i]);
+        }
+        return fn;
     }
 };
 

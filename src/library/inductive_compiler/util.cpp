@@ -46,4 +46,15 @@ void assert_def_eq(environment const & env, expr const & e1, expr const & e2) {
     }
 }
 
+void assert_type_correct(environment const & env, expr const & e) {
+    type_checker checker(env);
+    try {
+        checker.check(e);
+    } catch (exception ex) {
+        // TODO(dhs): this is only for debugging
+        // We prefer to enter GDB than to throw an exception
+        lean_assert(false);
+        throw ex;
+    }
+}
 }

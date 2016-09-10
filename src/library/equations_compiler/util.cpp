@@ -25,7 +25,7 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/util.h"
 
 #ifndef LEAN_DEFAULT_EQN_COMPILER_DSIMP
-#define LEAN_DEFAULT_EQN_COMPILER_DSIMP true
+#define LEAN_DEFAULT_EQN_COMPILER_DSIMP false
 #endif
 
 #ifndef LEAN_DEFAULT_EQN_COMPILER_LEMMAS

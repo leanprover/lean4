@@ -1,5 +1,5 @@
 set_option new_elaborator true
-
+set_option eqn_compiler.dsimp true
 attribute [eqn_sanitizer]
 definition succ_eq (a : nat) : nat.succ a = a + 1 :=
 rfl

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "library/trace.h"
+#include "library/locals.h"
 #include "library/replace_visitor.h"
 #include "library/equations_compiler/compiler.h"
 #include "library/equations_compiler/util.h"
@@ -69,17 +70,20 @@ static expr compile_equations_core(environment & env, options const & opts,
     we consinder (f n (b, a + 1)) to be a nested recursive call.
     Then, we transform the expression to
 
-      let g := fun a b, f n (b, a + 1) in
-      match m with
-      | (a, b) := g a b
-      end
+      (fun g,
+       match m with
+       | (a, b) := g a b
+       end) (fun a b, f n (b, a + 1))
+
+    Compile the match, and then beta-reduce.
 */
 struct pull_nested_rec_fn : public replace_visitor {
     environment &         m_env;
     options               m_opts;
     metavar_context &     m_mctx;
     buffer<local_context> m_lctx_stack;
-    buffer<expr>          m_new_let_decls;
+    buffer<expr>          m_new_locals;
+    buffer<expr>          m_new_values;
 
     pull_nested_rec_fn(environment & env, options const & opts, metavar_context & mctx, local_context const & lctx):
         m_env(env), m_opts(opts), m_mctx(mctx) {
@@ -175,15 +179,15 @@ struct pull_nested_rec_fn : public replace_visitor {
             });
     }
 
-    expr declare_let(name const & uid, name const & n, expr const & type, expr const & val) {
+    expr declare_new_local(name const & uid, name const & n, expr const & type) {
         lean_assert(m_lctx_stack.size() > 1);
         expr r;
         for (unsigned i = 0; i < m_lctx_stack.size(); i++) {
             local_context & lctx = m_lctx_stack[i];
             if (i == 0) {
-                r = lctx.mk_local_decl(uid, n, type, val);
+                r = lctx.mk_local_decl(uid, n, type);
             } else {
-                DEBUG_CODE(expr r2 =) lctx.mk_local_decl(uid, n, type, val);
+                DEBUG_CODE(expr r2 =) lctx.mk_local_decl(uid, n, type);
                 lean_assert(r == r2);
             }
         }
@@ -199,10 +203,11 @@ struct pull_nested_rec_fn : public replace_visitor {
             type_context ctx = mk_type_context(lctx());
             expr val         = ctx.mk_lambda(local_deps, e);
             expr val_type    = ctx.infer(val);
-            name fn_aux      = name(local_pp_name(fn), "_rec").append_after(m_new_let_decls.size() + 1);
+            name fn_aux      = name("_f").append_after(m_new_locals.size() + 1);
             name uid         = mk_local_decl_name();
-            expr g           = declare_let(uid, fn_aux, val_type, val);
-            m_new_let_decls.push_back(g);
+            expr g           = declare_new_local(uid, fn_aux, val_type);
+            m_new_locals.push_back(g);
+            m_new_values.push_back(val);
             return mk_app(g, local_deps);
         } else {
             return default_visit_app(e, fn, args);
@@ -215,7 +220,7 @@ struct pull_nested_rec_fn : public replace_visitor {
         local_context new_lctx = m_lctx_stack[0];
         expr r                 = compile_equations_core(m_env, m_opts, m_mctx, new_lctx, new_e);
         type_context ctx       = mk_type_context(new_lctx);
-        expr new_r             = ctx.mk_lambda(m_new_let_decls, r);
+        expr new_r             = replace_locals(r, m_new_locals, m_new_values);
         m_mctx                 = ctx.mctx();
         return new_r;
     }

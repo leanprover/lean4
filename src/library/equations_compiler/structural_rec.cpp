@@ -340,7 +340,7 @@ struct structural_rec_fn {
             fn_type  = instantiate(binding_body(fn_type), arg);
         }
         buffer<expr> I_params;
-        expr I = get_app_args(ctx.infer(rec_arg), I_params);
+        expr I = get_app_args(ctx.relaxed_whnf(ctx.infer(rec_arg)), I_params);
         unsigned nindices = m_indices_pos.size();
         I_params.shrink(I_params.size() - nindices);
         expr  motive = ctx.mk_pi(other_args, fn_type);

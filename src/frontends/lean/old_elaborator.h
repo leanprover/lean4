@@ -126,7 +126,6 @@ class old_elaborator {
     expr visit_pi(expr const & e, constraint_seq & cs);
     expr visit_lambda(expr const & e, constraint_seq & cs);
     expr visit_typed_expr(expr const & e, constraint_seq & cs);
-    expr visit_let_value(expr const & e, constraint_seq & cs);
     bool is_sorry(expr const & e) const;
     expr visit_sorry(expr const & e);
     expr visit_core(expr const & e, constraint_seq & cs);

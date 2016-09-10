@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
 #include "library/annotation.h"
-#include "library/let.h"
 #include "library/print.h"
 
 namespace lean {
@@ -20,9 +19,7 @@ bool is_used_name(expr const & t, name const & n) {
     for_each(t, [&](expr const & e, unsigned) {
             if (found) return false; // already found
             if ((is_constant(e) && const_name(e) == n)  // t has a constant named n
-                || (is_local(e) && (mlocal_name(e) == n || local_pp_name(e) == n)) // t has a local constant named n
-                // TODO(Leo): remove after we transition to kernel Let-expression
-                || (is_let_macro(e) && get_let_var_name(e) == n)) {
+                || (is_local(e) && (mlocal_name(e) == n || local_pp_name(e) == n))) { // t has a local constant named n
                 found = true;
                 return false; // found it
             }

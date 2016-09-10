@@ -129,7 +129,6 @@ private:
     result pp_macro(expr const & e);
     result pp_explicit(expr const & e);
     result pp_delayed_abstraction(expr const & e);
-    result pp_let_macro(expr e);
     result pp_let(expr e);
     result pp_num(mpz const & n);
     result pp_proof_type(expr const & t);

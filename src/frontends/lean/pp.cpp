@@ -27,7 +27,6 @@ Author: Leonardo de Moura
 #include "library/typed_expr.h"
 #include "library/num.h"
 #include "library/util.h"
-#include "library/let.h"
 #include "library/print.h"
 #include "library/pp_options.h"
 #include "library/delayed_abstraction.h"
@@ -1025,44 +1024,6 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
     }
 }
 
-/* TODO(Leo): delete after lean3 is done */
-auto pretty_fn::pp_let_macro(expr e) -> result {
-    buffer<pair<name, expr>> decls;
-    while (true) {
-        if (!is_let_macro(e))
-            break;
-        name n   = get_let_var_name(e);
-        expr v   = get_let_value(e);
-        expr b   = get_let_body(e);
-        lean_assert(closed(b));
-        expr b1  = abstract(b, v);
-        if (closed(b1)) {
-            e = b1;
-        } else {
-            n = pick_unused_name(b1, n);
-            decls.emplace_back(n, v);
-            e = instantiate(b1, mk_constant(n));
-        }
-    }
-    if (decls.empty())
-        return pp(e);
-    format r    = *g_let_fmt;
-    unsigned sz = decls.size();
-    for (unsigned i = 0; i < sz; i++) {
-        name const & n = decls[i].first;
-        expr const & v = decls[i].second;
-        format beg     = i == 0 ? space() : line();
-        format sep     = i < sz - 1 ? comma() : format();
-        format entry   = format(n);
-        format v_fmt   = pp_child(v, 0).fmt();
-        entry += space() + *g_assign_fmt + nest(m_indent, line() + v_fmt + sep);
-        r += nest(3 + 1, beg + group(entry));
-    }
-    format b = pp_child(e, 0).fmt();
-    r += line() + *g_in_fmt + space() + nest(2 + 1, b);
-    return result(0, r);
-}
-
 auto pretty_fn::pp_let(expr e) -> result {
     buffer<std::tuple<expr, expr, expr>> decls;
     while (true) {
@@ -1514,9 +1475,7 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     if (is_placeholder(e))  return result(*g_placeholder_fmt);
     if (is_show(e))         return pp_show(e);
     if (is_have(e))         return pp_have(e);
-    if (is_let_macro(e))    return pp_let_macro(e);
     if (is_typed_expr(e))   return pp(get_typed_expr_expr(e));
-    if (is_let_value(e))    return pp(get_let_value_expr(e));
     if (m_num_nat_coe)
         if (auto k = to_unsigned(e))
             return format(*k);

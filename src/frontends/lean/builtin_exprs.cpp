@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/typed_expr.h"
 #include "library/choice.h"
-#include "library/let.h"
 #include "library/constants.h"
 #include "library/quote.h"
 #include "library/string.h"

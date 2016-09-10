@@ -28,7 +28,6 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/reducible.h"
 #include "library/locals.h"
-#include "library/let.h"
 #include "library/sorry.h"
 #include "library/flycheck.h"
 #include "library/deep_copy.h"
@@ -748,19 +747,6 @@ expr old_elaborator::visit_typed_expr(expr const & e, constraint_seq & cs) {
     return v;
 }
 
-expr old_elaborator::visit_let_value(expr const & e, constraint_seq & cs) {
-    if (auto p = m_cache.find(e)) {
-        cs += p->second;
-        return p->first;
-    } else {
-        auto ecs = visit(get_let_value_expr(e));
-        expr r = copy_tag(ecs.first, mk_let_value(ecs.first));
-        m_cache.insert(e, mk_pair(r, ecs.second));
-        cs += ecs.second;
-        return r;
-    }
-}
-
 bool old_elaborator::is_sorry(expr const & e) const {
     return m_has_sorry && ::lean::is_sorry(e);
 }
@@ -1327,8 +1313,6 @@ expr old_elaborator::visit_core(expr const & e, constraint_seq & cs) {
         return visit_placeholder(e, cs);
     } else if (is_choice(e)) {
         return visit_choice(e, none_expr(), cs);
-    } else if (is_let_value(e)) {
-        return visit_let_value(e, cs);
     } else if (is_by(e)) {
         return visit_by(e, none_expr(), cs);
     } else if (is_calc_annotation(e)) {

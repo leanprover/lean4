@@ -64,6 +64,11 @@ bool depends_on(local_decl const & d, metavar_context const & mctx,  unsigned nu
 bool depends_on(expr const & e, metavar_context const & mctx,  buffer<expr> const & locals);
 bool depends_on(local_decl const & d, metavar_context const & mctx, buffer<expr> const & locals);
 
+/* Create an unieq local_decl name.
+   This is a low-level function. The high-level methods
+   at local_context use this function internally. */
+name mk_local_decl_name();
+
 class metavar_context;
 
 class local_context {
@@ -97,6 +102,14 @@ public:
     expr mk_local_decl(expr const & type, expr const & value);
     expr mk_local_decl(name const & ppn, expr const & type, binder_info const & bi = binder_info());
     expr mk_local_decl(name const & ppn, expr const & type, expr const & value);
+
+    /* Low-level version of the methods above.
+
+       \pre `n` was created using mk_local_decl_name
+       \pre there is no local_decl named `n` in this local_context. */
+    expr mk_local_decl(name const & n, name const & ppn, expr const & type, binder_info const & bi = binder_info());
+    expr mk_local_decl(name const & n, name const & ppn, expr const & type, expr const & value);
+
     /** \brief Return the local declarations for the given reference.
         \pre is_local_decl_ref(e) */
     optional<local_decl> get_local_decl(expr const & e) const;

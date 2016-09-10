@@ -38,6 +38,10 @@ name mk_local_decl_name() {
     return mk_tagged_fresh_name(*g_local_prefix);
 }
 
+static bool is_local_decl_name(name const & n) {
+    return is_tagged_by(n, *g_local_prefix);
+}
+
 static expr mk_local_ref(name const & n, name const & pp_n, binder_info const & bi) {
     return mk_local(n, pp_n, *g_dummy_type, bi);
 }
@@ -105,6 +109,7 @@ bool depends_on(local_decl const & d, metavar_context const & mctx, buffer<expr>
 }
 
 expr local_context::mk_local_decl(name const & n, name const & ppn, expr const & type, optional<expr> const & value, binder_info const & bi) {
+    lean_assert(is_local_decl_name(n));
     lean_assert(!m_name2local_decl.contains(n));
     unsigned idx = m_next_idx;
     m_next_idx++;
@@ -130,6 +135,14 @@ expr local_context::mk_local_decl(name const & ppn, expr const & type, binder_in
 
 expr local_context::mk_local_decl(name const & ppn, expr const & type, expr const & value) {
     return mk_local_decl(mk_local_decl_name(), ppn, type, some_expr(value), binder_info());
+}
+
+expr local_context::mk_local_decl(name const & n, name const & ppn, expr const & type, binder_info const & bi) {
+    return mk_local_decl(n, ppn, type, none_expr(), bi);
+}
+
+expr local_context::mk_local_decl(name const & n, name const & ppn, expr const & type, expr const & value) {
+    return mk_local_decl(n, ppn, type, some_expr(value), binder_info());
 }
 
 optional<local_decl> local_context::get_local_decl(name const & n) const {

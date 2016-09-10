@@ -71,6 +71,8 @@ void elaborate_params(elaborator & elab, buffer<expr> const & params, buffer<exp
 environment add_local_ref(parser & p, environment const & env, name const & c_name, name const & c_real_name,
                           buffer<name> const & lp_names, buffer<expr> const & var_params);
 
+/** \brief Add alias for new declaration. */
+environment add_alias(environment const & env, bool is_protected, name const & c_name, name const & c_real_name);
 
 /** \brief In Lean, declarations may contain nested definitions.
     This object is used to propagate relevant flags to

@@ -10,6 +10,8 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "library/locals.h"
 #include "library/placeholder.h"
+#include "library/protected.h"
+#include "library/aliases.h"
 #include "library/scoped_ext.h"
 #include "library/tactic/elaborate.h"
 #include "frontends/lean/util.h"
@@ -262,6 +264,17 @@ environment add_local_ref(parser & p, environment const & env, name const & c_na
     if (lps.empty() && params.empty()) return env;
     expr ref = mk_local_ref(c_real_name, param_names_to_levels(to_list(lps)), params);
     return p.add_local_ref(env, c_name, ref);
+}
+
+environment add_alias(environment const & env, bool is_protected, name const & c_name, name const & c_real_name) {
+    if (c_name != c_real_name) {
+        if (is_protected)
+            return add_expr_alias_rec(env, get_protected_shortest_name(c_real_name), c_real_name);
+        else
+            return add_expr_alias_rec(env, c_name, c_real_name);
+    } else {
+        return env;
+    }
 }
 
 struct definition_info {

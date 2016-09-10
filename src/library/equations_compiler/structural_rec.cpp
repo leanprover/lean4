@@ -609,7 +609,7 @@ struct structural_rec_fn {
             return new_fn;
         } else {
             expr r;
-            std::tie(m_env, r) = mk_aux_definition(m_env, m_mctx, m_lctx, m_header.m_is_private, m_header.m_is_lemma,
+            std::tie(m_env, r) = mk_aux_definition(m_env, m_opts, m_mctx, m_lctx, m_header.m_is_private, m_header.m_is_lemma,
                                                    m_header.m_is_noncomputable, head(m_header.m_fn_names), m_fn_type, new_fn);
             return r;
         }

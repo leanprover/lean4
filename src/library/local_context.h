@@ -179,6 +179,12 @@ public:
     local_context instantiate_mvars(metavar_context & ctx) const;
 };
 
+/** \brief Return true iff `e` contains a local_decl_ref that contains a value */
+bool contains_let_local_decl(local_context const & lctx, expr const & e);
+
+/** \brief Expand all local_decl_refs (that have values) in `e` */
+expr zeta_expand(local_context const & lctx, expr const & e);
+
 void initialize_local_context();
 void finalize_local_context();
 }

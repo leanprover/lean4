@@ -75,7 +75,7 @@ bool is_recursive_eqns(type_context & ctx, expr const & e);
 expr erase_inaccessible_annotations(expr const & e);
 list<expr> erase_inaccessible_annotations(list<expr> const & es);
 
-pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
+pair<environment, expr> mk_aux_definition(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
                                           bool is_private, bool is_lemma, bool is_noncomputable, name const & n, expr const & type, expr const & value);
 
 environment mk_equation_lemma(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,

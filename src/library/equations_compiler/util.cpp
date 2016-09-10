@@ -32,9 +32,14 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_EQN_COMPILER_LEMMAS true
 #endif
 
+#ifndef LEAN_DEFAULT_EQN_COMPILER_ZETA
+#define LEAN_DEFAULT_EQN_COMPILER_ZETA false
+#endif
+
 namespace lean {
 static name * g_eqn_compiler_dsimp  = nullptr;
 static name * g_eqn_compiler_lemmas = nullptr;
+static name * g_eqn_compiler_zeta   = nullptr;
 
 static bool get_eqn_compiler_dsimp(options const & o) {
     return o.get_bool(*g_eqn_compiler_dsimp, LEAN_DEFAULT_EQN_COMPILER_DSIMP);
@@ -42,6 +47,10 @@ static bool get_eqn_compiler_dsimp(options const & o) {
 
 static bool get_eqn_compiler_lemmas(options const & o) {
     return o.get_bool(*g_eqn_compiler_lemmas, LEAN_DEFAULT_EQN_COMPILER_LEMMAS);
+}
+
+static bool get_eqn_compiler_zeta(options const & o) {
+    return o.get_bool(*g_eqn_compiler_zeta, LEAN_DEFAULT_EQN_COMPILER_ZETA);
 }
 
 [[ noreturn ]] void throw_ill_formed_eqns() {
@@ -236,16 +245,37 @@ static pair<environment, name> mk_def_name(environment const & env, bool is_priv
     }
 }
 
-pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
+static void throw_mk_aux_definition_error(local_context const & lctx, name const & c, expr const & type, expr const & value, exception & ex) {
+    sstream strm;
+    strm << "equation compiler failed to create auxiliary declaration '" << c << "'";
+    if (contains_let_local_decl(lctx, type) || contains_let_local_decl(lctx, value)) {
+        strm << ", auxiliary declaration has references to let-declarations (possible solution: use 'set_option eqn_compiler.zeta true')";
+    }
+    throw nested_exception(strm, ex);
+}
+
+pair<environment, expr> mk_aux_definition(environment const & env, options const & opts, metavar_context const & mctx, local_context const & lctx,
                                           bool is_private, bool is_lemma, bool is_noncomputable,
                                           name const & c, expr const & type, expr const & value) {
+    lean_trace("eqn_compiler", tout() << "declaring auxiliary definition\n" << c << " : " << type << "\n";);
     environment new_env = env;
+    expr new_type       = type;
+    expr new_value      = value;
+    bool zeta           = get_eqn_compiler_zeta(opts);
+    if (zeta) {
+        new_type  = zeta_expand(lctx, new_type);
+        new_value = zeta_expand(lctx, new_value);
+    }
     name new_c;
     std::tie(new_env, new_c) = mk_def_name(env, is_private, c);
     expr r;
-    std::tie(new_env, r) = is_lemma ?
-        mk_aux_lemma(new_env, mctx, lctx, new_c, type, value) :
-        mk_aux_definition(new_env, mctx, lctx, new_c, type, value);
+    try {
+        std::tie(new_env, r) = is_lemma ?
+            mk_aux_lemma(new_env, mctx, lctx, new_c, new_type, new_value) :
+            mk_aux_definition(new_env, mctx, lctx, new_c, new_type, new_value);
+    } catch (exception & ex) {
+        throw_mk_aux_definition_error(lctx, c, new_type, new_value, ex);
+    }
     if (!is_lemma && !is_noncomputable) {
         try {
             declaration d = new_env.get(new_c);
@@ -280,7 +310,17 @@ static environment add_equation_lemma(environment const & env, options const & o
                                    "defeq simplifier error message:\n", ex);
         }
     }
-    std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_c, new_type, value);
+    expr new_value = value;
+    bool zeta      = get_eqn_compiler_zeta(opts);
+    if (zeta) {
+        new_type   = zeta_expand(lctx, new_type);
+        new_value  = zeta_expand(lctx, new_value);
+    }
+    try {
+        std::tie(new_env, r) = mk_aux_definition(new_env, mctx, lctx, new_c, new_type, new_value);
+    } catch (exception & ex) {
+        throw_mk_aux_definition_error(lctx, c, new_type, new_value, ex);
+    }
     return new_env;
 }
 
@@ -458,13 +498,18 @@ environment mk_equation_lemma(environment const & env, options const & opts, met
 }
 
 void initialize_eqn_compiler_util() {
+    register_trace_class("eqn_compiler");
+    register_trace_class(name{"debug", "eqn_compiler"});
     g_eqn_compiler_dsimp  = new name{"eqn_compiler", "dsimp"};
     g_eqn_compiler_lemmas = new name{"eqn_compiler", "lemmas"};
+    g_eqn_compiler_zeta   = new name{"eqn_compiler", "zeta"};
     register_bool_option(*g_eqn_compiler_dsimp, LEAN_DEFAULT_EQN_COMPILER_DSIMP,
                          "(equation compiler) use defeq simplifier to cleanup types of "
                          "automatically synthesized equational lemmas");
     register_bool_option(*g_eqn_compiler_lemmas, LEAN_DEFAULT_EQN_COMPILER_LEMMAS,
                          "(equation compiler) generate equation lemmas and induction principle");
+    register_bool_option(*g_eqn_compiler_zeta, LEAN_DEFAULT_EQN_COMPILER_ZETA,
+                         "(equation compiler) apply zeta-expansion (expand references to let-declarations) before creating auxiliary definitions.");
     g_eqn_sanitizer_token = register_defeq_simp_attribute("eqn_sanitizer");
 }
 

@@ -7,6 +7,8 @@ Author: Leonardo de Moura
 #include <limits>
 #include "util/fresh_name.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/find_fn.h"
+#include "kernel/replace_fn.h"
 #include "library/pp_options.h"
 #include "library/local_context.h"
 #include "library/metavar_context.h"
@@ -380,6 +382,29 @@ local_context local_context::instantiate_mvars(metavar_context & mctx) const {
             r.m_idx2local_decl.insert(d.get_idx(), new_d);
         });
     return r;
+}
+
+bool contains_let_local_decl(local_context const & lctx, expr const & e) {
+    if (!has_local(e)) return false;
+    return static_cast<bool>(find(e, [&](expr const & e, unsigned) {
+                if (!is_local(e)) return false;
+                auto d = lctx.get_local_decl(e);
+                return d && d->get_value();
+            }));
+}
+
+expr zeta_expand(local_context const & lctx, expr const & e) {
+    if (!contains_let_local_decl(lctx, e)) return e;
+    return replace(e, [&](expr const & e, unsigned) {
+            if (!has_local(e)) return some_expr(e);
+            if (is_local(e)) {
+                if (auto d = lctx.get_local_decl(e)) {
+                    if (auto v = d->get_value())
+                        return some_expr(zeta_expand(lctx, *v));
+                }
+            }
+            return none_expr();
+        });
 }
 
 void initialize_local_context() {

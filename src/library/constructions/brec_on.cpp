@@ -41,7 +41,7 @@ static optional<unsigned> is_typeformer_app(buffer<name> const & typeformer_name
 static environment mk_below(environment const & env, name const & n, bool ibelow) {
     if (!is_recursive_datatype(env, n))
         return env;
-    if (is_inductive_predicate(env, n))
+    if (is_inductive_predicate(env, n) || !can_elim_to_type(env, n))
         return env;
     inductive::inductive_decls decls = *inductive::is_inductive_decl(env, n);
     type_checker tc(env);
@@ -161,7 +161,7 @@ environment mk_ibelow(environment const & env, name const & n) {
 static environment mk_brec_on(environment const & env, name const & n, bool ind) {
     if (!is_recursive_datatype(env, n))
         return env;
-    if (is_inductive_predicate(env, n))
+    if (is_inductive_predicate(env, n) || !can_elim_to_type(env, n))
         return env;
     inductive::inductive_decls decls = *inductive::is_inductive_decl(env, n);
     type_checker tc(env);

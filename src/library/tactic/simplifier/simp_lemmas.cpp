@@ -114,31 +114,6 @@ simp_lemmas add_core(tmp_type_context & tmp_tctx, simp_lemmas const & s,
     return new_s;
 }
 
-simp_lemmas add(type_context & tctx, simp_lemmas const & s, name const & id, expr const & e, expr const & h, unsigned priority) {
-    tmp_type_context tmp_tctx(tctx);
-    return add_core(tmp_tctx, s, id, list<level>(), e, h, priority);
-}
-
-simp_lemmas join(simp_lemmas const & s1, simp_lemmas const & s2) {
-    simp_lemmas new_s1 = s1;
-
-    buffer<pair<name const &, simp_lemma const &>> slemmas;
-    s2.for_each_simp([&](name const & eqv, simp_lemma const & r) {
-            slemmas.push_back({eqv, r});
-        });
-    for (unsigned i = slemmas.size() - 1; i + 1 > 0; --i)
-        new_s1.insert(slemmas[i].first, slemmas[i].second);
-
-    buffer<pair<name const &, user_congr_lemma const &>> clemmas;
-    s2.for_each_congr([&](name const & eqv, user_congr_lemma const & r) {
-            clemmas.push_back({eqv, r});
-        });
-    for (unsigned i = clemmas.size() - 1; i + 1 > 0; --i)
-        new_s1.insert(clemmas[i].first, clemmas[i].second);
-
-    return new_s1;
-}
-
 static simp_lemmas add_core(tmp_type_context & tmp_tctx, simp_lemmas const & s, name const & cname, unsigned priority) {
     declaration const & d = tmp_tctx.tctx().env().get(cname);
     buffer<level> us;
@@ -151,6 +126,7 @@ static simp_lemmas add_core(tmp_type_context & tmp_tctx, simp_lemmas const & s, 
     expr h    = mk_constant(cname, ls);
     return add_core(tmp_tctx, s, cname, ls, e, h, priority);
 }
+
 
 // Return true iff lhs is of the form (B (x : ?m1), ?m2) or (B (x : ?m1), ?m2 x),
 // where B is lambda or Pi
@@ -302,6 +278,36 @@ simp_lemmas add_congr_core(tmp_type_context & tmp_tctx, simp_lemmas const & s, n
     new_s.insert(const_name(rel), user_congr_lemma(n, ls, reverse_to_list(emetas),
                                                    reverse_to_list(instances), lhs, rhs, proof, to_list(congr_hyps), prio));
     return new_s;
+}
+
+simp_lemmas add_poly(type_context & tctx, simp_lemmas const & s, name const & id, unsigned priority) {
+    tmp_type_context tmp_tctx(tctx);
+    return add_core(tmp_tctx, s, id, priority);
+}
+
+simp_lemmas add(type_context & tctx, simp_lemmas const & s, name const & id, expr const & e, expr const & h, unsigned priority) {
+    tmp_type_context tmp_tctx(tctx);
+    return add_core(tmp_tctx, s, id, list<level>(), e, h, priority);
+}
+
+simp_lemmas join(simp_lemmas const & s1, simp_lemmas const & s2) {
+    simp_lemmas new_s1 = s1;
+
+    buffer<pair<name const &, simp_lemma const &>> slemmas;
+    s2.for_each_simp([&](name const & eqv, simp_lemma const & r) {
+            slemmas.push_back({eqv, r});
+        });
+    for (unsigned i = slemmas.size() - 1; i + 1 > 0; --i)
+        new_s1.insert(slemmas[i].first, slemmas[i].second);
+
+    buffer<pair<name const &, user_congr_lemma const &>> clemmas;
+    s2.for_each_congr([&](name const & eqv, user_congr_lemma const & r) {
+            clemmas.push_back({eqv, r});
+        });
+    for (unsigned i = clemmas.size() - 1; i + 1 > 0; --i)
+        new_s1.insert(clemmas[i].first, clemmas[i].second);
+
+    return new_s1;
 }
 
 void validate_simp(type_context & tctx, name const & n) {

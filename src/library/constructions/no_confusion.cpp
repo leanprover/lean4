@@ -29,8 +29,8 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     optional<inductive::inductive_decls> decls = inductive::is_inductive_decl(env, n);
     if (!decls)
         throw exception(sstream() << "error in 'no_confusion' generation, '" << n << "' is not an inductive datatype");
-    if (is_inductive_predicate(env, n))
-        return optional<environment>(); // type is a proposition
+    if (is_inductive_predicate(env, n) || !can_elim_to_type(env, n))
+        return optional<environment>();
     bool impredicative     = env.impredicative();
     unsigned nparams       = std::get<1>(*decls);
     declaration ind_decl   = env.get(n);
@@ -45,8 +45,6 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
         rlvl = plvl;
     else
         rlvl = mk_max(plvl, ind_lvl);
-    if (length(ilvls) != ind_decl.get_num_univ_params())
-        return optional<environment>(); // type does not have only a restricted eliminator
     // All inductive datatype parameters and indices are arguments
     buffer<expr> args;
     ind_type = to_telescope(ind_type, args, some(mk_implicit_binder_info()));

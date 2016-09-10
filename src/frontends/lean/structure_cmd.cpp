@@ -44,6 +44,7 @@ Author: Leonardo de Moura
 #include "library/constructions/cases_on.h"
 #include "library/constructions/projection.h"
 #include "library/constructions/no_confusion.h"
+#include "library/inductive_compiler/add_decl.h"
 #include "frontends/lean/elaborator_exception.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
@@ -718,6 +719,7 @@ struct structure_cmd_fn {
         add_alias(m_mk);
         add_rec_alias(rec_name);
         m_env = m_attrs.apply(m_env, m_p.ios(), m_name);
+        m_env = add_structure_declaration_aux(m_env, m_p.get_options(), m_level_names, m_params, mk_local(m_name, mk_structure_type()), mk_local(m_mk, mk_intro_type()));
     }
 
     void save_def_info(name const & n) {

@@ -45,7 +45,6 @@ Author: Leonardo de Moura
 #include "library/delayed_abstraction.h"
 #include "library/app_builder.h"
 #include "library/fun_info.h"
-#include "library/inductive.h"
 #include "library/mpq_macro.h"
 #include "library/arith_instance_manager.h"
 #include "library/inverse.h"
@@ -125,7 +124,6 @@ void initialize_library_module() {
     initialize_unification_hint();
     initialize_type_context();
     initialize_delayed_abstraction();
-    initialize_library_inductive();
     initialize_mpq_macro();
     initialize_arith_instance_manager();
     initialize_inverse();
@@ -135,7 +133,6 @@ void finalize_library_module() {
     finalize_inverse();
     finalize_arith_instance_manager();
     finalize_mpq_macro();
-    finalize_library_inductive();
     finalize_delayed_abstraction();
     finalize_type_context();
     finalize_unification_hint();

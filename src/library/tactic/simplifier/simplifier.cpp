@@ -168,7 +168,7 @@ class simplifier {
 
     optional<expr>            m_curr_nary_op;
 
-    vm_obj                    m_prove_fn;
+    optional<vm_obj>          m_prove_fn;
 
     /* Logging */
     unsigned                  m_num_steps{0};
@@ -360,25 +360,30 @@ class simplifier {
 
         list<simp_lemma> const * srs = sr->find_simp(e);
         if (!srs) {
-            lean_trace(name({"debug", "simplifier", "try_rewrite"}), tout() << "no simp lemmas for: " << e << "\n";);
+            lean_trace_d(name({"debug", "simplifier", "try_rewrite"}), tout() << "no simp lemmas for: " << e << "\n";);
             return simp_result(e);
         }
 
         for (simp_lemma const & lemma : *srs) {
             simp_result r = rewrite_binary(e, lemma);
-            if (r.has_proof())
+            if (r.has_proof()) {
+                lean_trace_d(name({"simplifier", "rewrite"}), tout() << "[" << lemma.get_id() << "]: " << e << " ==> " << r.get_new() << "\n";);
                 return r;
+            }
         }
         return simp_result(e);
     }
 
     simp_result rewrite_binary(expr const & e, simp_lemma const & sl) {
         tmp_type_context tmp_tctx(m_tctx, sl.get_num_umeta(), sl.get_num_emeta());
-        if (!tmp_tctx.is_def_eq(e, sl.get_lhs()))
+        if (!tmp_tctx.is_def_eq(e, sl.get_lhs())) {
+            lean_trace_d(name({"debug", "simplifier", "try_rewrite"}), tout() << "fail to unify: " << sl.get_id() << "\n";);
             return simp_result(e);
-
-        if (!instantiate_emetas(tmp_tctx, sl.get_num_emeta(), sl.get_emetas(), sl.get_instances()))
+        }
+        if (!instantiate_emetas(tmp_tctx, sl.get_num_emeta(), sl.get_emetas(), sl.get_instances())) {
+            lean_trace_d(name({"debug", "simplifier", "try_rewrite"}), tout() << "fail to instantiate emetas: " << sl.get_id() << "\n";);
             return simp_result(e);
+        }
 
         for (unsigned i = 0; i < sl.get_num_umeta(); i++) {
             if (!tmp_tctx.is_uassigned(i))
@@ -442,7 +447,6 @@ class simplifier {
             if (m_rewrite) {
                 simp_result r_rewrite = simplify_rewrite_binary(e);
                 if (r_rewrite.get_new() != e) {
-                    lean_trace_d(name({"simplifier", "rewrite"}), tout() << e << " ==> " << r_rewrite.get_new() << "\n";);
                     return r_rewrite;
                 }
             }
@@ -769,7 +773,7 @@ class simplifier {
     expr whnf_eta(expr const & e);
 
 public:
-    simplifier(type_context & tctx, name const & rel, simp_lemmas const & slss, vm_obj const & prove_fn):
+    simplifier(type_context & tctx, name const & rel, simp_lemmas const & slss, optional<vm_obj> const & prove_fn):
         m_tctx(tctx), m_theory_simplifier(tctx), m_rel(rel), m_slss(slss), m_prove_fn(prove_fn),
         /* Options */
         m_max_steps(get_simplify_max_steps(tctx.get_options())),
@@ -920,11 +924,14 @@ simp_result simplifier::simplify_operator_of_app(expr const & e) {
 
 /* Proving */
 optional<expr> simplifier::prove(expr const & goal) {
+    if (!m_prove_fn)
+        return none_expr();
+
     metavar_context mctx = m_tctx.mctx();
     expr goal_mvar = mctx.mk_metavar_decl(m_tctx.lctx(), goal);
     lean_trace(name({"simplifier", "prove"}), tout() << "goal: " << goal_mvar << " : " << goal << "\n";);
     vm_obj s = to_obj(tactic_state(m_tctx.env(), m_tctx.get_options(), mctx, list<expr>(goal_mvar), goal_mvar));
-    vm_obj prove_fn_result = invoke(m_prove_fn, s);
+    vm_obj prove_fn_result = invoke(*m_prove_fn, s);
     optional<tactic_state> s_new = is_tactic_success(prove_fn_result);
     if (s_new) {
         if (!s_new->mctx().is_assigned(goal_mvar)) {
@@ -1483,7 +1490,11 @@ void finalize_simplifier() {
 
 /* Entry point */
 simp_result simplify(type_context & ctx, name const & rel, simp_lemmas const & simp_lemmas, vm_obj const & prove_fn, expr const & e) {
-    return simplifier(ctx, rel, simp_lemmas, prove_fn)(e);
+    return simplifier(ctx, rel, simp_lemmas, optional<vm_obj>(prove_fn))(e);
+}
+
+simp_result simplify(type_context & ctx, name const & rel, simp_lemmas const & simp_lemmas, expr const & e) {
+    return simplifier(ctx, rel, simp_lemmas, optional<vm_obj>())(e);
 }
 
 }

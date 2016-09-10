@@ -65,6 +65,9 @@ bool is_reflexive_datatype(abstract_type_context & tc, name const & n);
     \remark If \c env does not have Prop (i.e., Type.{0} is not impredicative), then this method always return false. */
 bool is_inductive_predicate(environment const & env, name const & n);
 
+/** \brief Return true iff \c n is an inductive type with a recursor with an extra level parameter. */
+bool can_elim_to_type(environment const & env, name const & n);
+
 /** \brief Store in \c result the introduction rules of the given inductive datatype.
     \remark this procedure does nothing if \c n is not an inductive datatype. */
 void get_intro_rule_names(environment const & env, name const & n, buffer<name> & result);
@@ -170,6 +173,9 @@ expr mk_prod(abstract_type_context & ctx, expr const & a, expr const & b, bool p
 expr mk_pair(abstract_type_context & ctx, expr const & a, expr const & b, bool prop);
 expr mk_pr1(abstract_type_context & ctx, expr const & p, bool prop);
 expr mk_pr2(abstract_type_context & ctx, expr const & p, bool prop);
+
+expr mk_nat_one();
+expr mk_nat_add(expr const & e1, expr const & e2);
 
 bool is_ite(expr const & e, expr & c, expr & H, expr & A, expr & t, expr & f);
 bool is_ite(expr const & e);

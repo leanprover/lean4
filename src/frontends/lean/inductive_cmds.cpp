@@ -28,12 +28,7 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "library/trace.h"
 #include "library/app_builder.h"
 #include "library/type_context.h"
-#include "library/constructions/rec_on.h"
-#include "library/constructions/induction_on.h"
-#include "library/constructions/cases_on.h"
-#include "library/constructions/brec_on.h"
-#include "library/constructions/no_confusion.h"
-#include "library/inductive_compiler/compiler.h"
+#include "library/inductive_compiler/add_decl.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/util.h"
@@ -295,6 +290,8 @@ class inductive_cmd_fn {
 
         convert_params_to_kernel(elab, elab_params, new_params);
 
+        level result_level;
+        bool first = true;
         for (expr const & ind : inds) {
             expr new_ind_type = mlocal_type(ind);
             if (is_placeholder(new_ind_type))
@@ -305,6 +302,14 @@ class inductive_cmd_fn {
                     throw_error("resultant universe must be provided, when using explicit universe levels");
                 new_ind_type = update_result_sort(new_ind_type, m_u);
                 m_infer_result_universe = true;
+            }
+            if (first) {
+                result_level = l;
+                first = false;
+            } else {
+                if (!is_placeholder(l) && result_level != l) {
+                    throw_error("mutually inductive types must live in the same universe");
+                }
             }
             new_inds.push_back(update_mlocal(ind, elab.elaborate(replace_locals(new_ind_type, params_no_inds, new_params))));
         }
@@ -359,14 +364,17 @@ class inductive_cmd_fn {
                 new_params.push_back(all_exprs[i]);
         }
 
-        // TODO(dhs): I don't think we actually need to keep replacing all the locals, as long as the names are the same
-        m_env = m_env.remove_universe(tmp_global_univ_name());
+        // We replace the inds appearing in the types of introduction rules with constants
+        buffer<expr> c_inds;
+        for (expr const & ind : inds) {
+            c_inds.push_back(mk_app(mk_constant(mlocal_name(ind), param_names_to_levels(to_list(m_lp_names))), new_params));
+        }
 
+        unsigned offset = offsets[0] + offsets[1];
         for (unsigned i = 2; i < offsets.size(); ++i) {
             new_intro_rules.emplace_back();
-            unsigned offset = offsets[0] + offsets[1];
             for (unsigned j = 0; j < offsets[i]; ++j) {
-                expr new_ir = replace_locals(all_exprs[offset+j], offsets[1], all_exprs.data() + offsets[0], new_inds.data());
+                expr new_ir = replace_locals(all_exprs[offset+j], offsets[1], all_exprs.data() + offsets[0], c_inds.data());
                 if (m_infer_result_universe)
                     new_ir = update_mlocal(new_ir, replace_u(mlocal_type(new_ir), resultant_level));
                 new_intro_rules.back().push_back(new_ir);

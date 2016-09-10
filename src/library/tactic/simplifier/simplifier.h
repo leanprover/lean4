@@ -13,6 +13,7 @@ Author: Daniel Selsam
 namespace lean {
 
 simp_result simplify(type_context & ctx, name const & rel, simp_lemmas const & simp_lemmas, vm_obj const & prove_fn, expr const & e);
+simp_result simplify(type_context & ctx, name const & rel, simp_lemmas const & simp_lemmas, expr const & e);
 
 void initialize_simplifier();
 void finalize_simplifier();

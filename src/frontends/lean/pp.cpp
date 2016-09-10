@@ -316,6 +316,7 @@ void pretty_fn::set_options_core(options const & _o) {
     m_private_names     = get_pp_private_names(o);
     m_purify_metavars   = get_pp_purify_metavars(o);
     m_purify_locals     = get_pp_purify_locals(o);
+    m_locals_full_names = get_pp_locals_full_names(o);
     m_beta              = get_pp_beta(o);
     m_numerals          = get_pp_numerals(o);
     m_strings           = get_pp_strings(o);
@@ -706,7 +707,10 @@ auto pretty_fn::pp_meta(expr const & e) -> result {
 
 auto pretty_fn::pp_local(expr const & e) -> result {
     name n = sanitize_if_fresh(local_pp_name(e));
-    return result(format(n));
+    if (m_locals_full_names)
+        return result(format("<") + format(n + mlocal_name(e)) + format(">"));
+    else
+        return format(n);
 }
 
 bool pretty_fn::has_implicit_args(expr const & f) {

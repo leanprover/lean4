@@ -82,6 +82,9 @@ has_lt
 has_neg
 has_one
 has_one.one
+has_sizeof
+has_sizeof.mk
+has_sizeof.sizeof
 has_sub
 has_to_string
 has_zero
@@ -289,6 +292,7 @@ ring
 select
 semiring
 sigma
+sigma.cases_on
 sigma.mk
 sigma.pr1
 sigma.pr2
@@ -298,6 +302,7 @@ simplifier.congr_bin_op
 simplifier.congr_bin_arg1
 simplifier.congr_bin_arg2
 simplifier.congr_bin_args
+sizeof
 smt.array
 smt.select
 smt.store
@@ -314,6 +319,10 @@ subsingleton.helim
 subtype.tag
 subtype.elt_of
 subtype.rec
+sum
+sum.cases_on
+sum.inl
+sum.inr
 tactic
 tactic.try
 tactic.constructor
@@ -329,6 +338,7 @@ unification_hint.mk
 unification_constraint
 unification_constraint.mk
 unit
+unit.cases_on
 unit.star
 user_attribute
 weak_order

@@ -397,7 +397,7 @@ attribute [instance]
 definition nat_has_sizeof : has_sizeof nat :=
 has_sizeof.mk (λ a, a)
 
-attribute [simp, defeq]
+attribute [simp, defeq, simp.sizeof]
 definition sizeof_nat_eq (a : nat) : sizeof a = a :=
 rfl
 
@@ -405,7 +405,7 @@ attribute [instance]
 definition prod_has_sizeof (A B : Type) [has_sizeof A] [has_sizeof B] : has_sizeof (prod A B) :=
 has_sizeof.mk (λ p, prod.cases_on p (λ a b, sizeof a + sizeof b + 1))
 
-attribute [simp, defeq]
+attribute [simp, defeq, simp.sizeof]
 definition sizeof_prod_eq {A B : Type} [has_sizeof A] [has_sizeof B] (a : A) (b : B) : sizeof (prod.mk a b) = sizeof a + sizeof b + 1 :=
 rfl
 
@@ -413,11 +413,11 @@ attribute [instance]
 definition sum_has_sizeof (A B : Type) [has_sizeof A] [has_sizeof B] : has_sizeof (sum A B) :=
 has_sizeof.mk (λ s, sum.cases_on s (λ a, sizeof a + 1) (λ b, sizeof b + 1))
 
-attribute [simp, defeq]
+attribute [simp, defeq, simp.sizeof]
 definition sizeof_sum_eq_left {A B : Type} [has_sizeof A] [has_sizeof B] (a : A) : sizeof (@sum.inl A B a) = sizeof a + 1 :=
 rfl
 
-attribute [simp, defeq]
+attribute [simp, defeq, simp.sizeof]
 definition sizeof_sum_eq_right {A B : Type} [has_sizeof A] [has_sizeof B] (b : B) : sizeof (@sum.inr A B b) = sizeof b + 1 :=
 rfl
 
@@ -425,7 +425,7 @@ attribute [instance]
 definition sigma_has_sizeof (A : Type) (B : A → Type) [has_sizeof A] [∀ a, has_sizeof (B a)] : has_sizeof (sigma B) :=
 has_sizeof.mk (λ p, sigma.cases_on p (λ a b, sizeof a + sizeof b + 1))
 
-attribute [simp, defeq]
+attribute [simp, defeq, simp.sizeof]
 definition sizeof_sigma_eq {A : Type} {B : A → Type} [has_sizeof A] [∀ a, has_sizeof (B a)] (a : A) (b : B a) : sizeof (@sigma.mk A B a b) = sizeof a + sizeof b + 1 :=
 rfl
 
@@ -433,7 +433,7 @@ attribute [instance]
 definition unit_has_sizeof : has_sizeof unit :=
 has_sizeof.mk (λ u, 1)
 
-attribute [simp, defeq]
+attribute [simp, defeq, simp.sizeof]
 definition sizeof_unit_eq (u : unit) : sizeof u = 1 :=
 rfl
 
@@ -441,7 +441,7 @@ attribute [instance]
 definition poly_unit_has_sizeof : has_sizeof poly_unit :=
 has_sizeof.mk (λ u, 1)
 
-attribute [simp, defeq]
+attribute [simp, defeq, simp.sizeof]
 definition sizeof_poly_unit_eq (u : poly_unit) : sizeof u = 1 :=
 rfl
 
@@ -449,7 +449,7 @@ attribute [instance]
 definition bool_has_sizeof : has_sizeof bool :=
 has_sizeof.mk (λ u, 1)
 
-attribute [simp, defeq]
+attribute [simp, defeq, simp.sizeof]
 definition sizeof_bool_eq (b : bool) : sizeof b = 1 :=
 rfl
 
@@ -457,7 +457,7 @@ attribute [instance]
 definition pos_num_has_sizeof : has_sizeof pos_num :=
 has_sizeof.mk (λ p, nat.of_pos_num p)
 
-attribute [simp, defeq]
+attribute [simp, defeq, simp.sizeof]
 definition sizeof_pos_num_eq (p : pos_num) : sizeof p = nat.of_pos_num p :=
 rfl
 
@@ -465,7 +465,7 @@ attribute [instance]
 definition num_has_sizeof : has_sizeof num :=
 has_sizeof.mk (λ p, nat.of_num p)
 
-attribute [simp, defeq]
+attribute [simp, defeq, simp.sizeof]
 definition sizeof_num_eq (n : num) : sizeof n = nat.of_num n :=
 rfl
 
@@ -473,11 +473,11 @@ attribute [instance]
 definition option_has_sizeof (A : Type) [has_sizeof A] : has_sizeof (option A) :=
 has_sizeof.mk (λ o, option.cases_on o 1 (λ a, sizeof a + 1))
 
-attribute [simp, defeq]
+attribute [simp, defeq, simp.sizeof]
 definition sizeof_option_none_eq (A : Type) [has_sizeof A] : sizeof (@none A) = 1 :=
 rfl
 
-attribute [simp, defeq]
+attribute [simp, defeq, simp.sizeof]
 definition sizeof_option_some_eq {A : Type} [has_sizeof A] (a : A) : sizeof (some a) = sizeof a + 1 :=
 rfl
 
@@ -485,10 +485,10 @@ attribute [instance]
 definition list_has_sizeof (A : Type) [has_sizeof A] : has_sizeof (list A) :=
 has_sizeof.mk (λ l, list.rec_on l 1 (λ a t ih, sizeof a + ih + 1))
 
-attribute [simp, defeq]
+attribute [simp, defeq, simp.sizeof]
 definition sizeof_list_nil_eq (A : Type) [has_sizeof A] : sizeof (@list.nil A) = 1 :=
 rfl
 
-attribute [simp, defeq]
+attribute [simp, defeq, simp.sizeof]
 definition sizeof_list_cons_eq {A : Type} [has_sizeof A] (a : A) (l : list A) : sizeof (list.cons a l) = sizeof a + sizeof l + 1 :=
 rfl

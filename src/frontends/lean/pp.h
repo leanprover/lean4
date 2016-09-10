@@ -65,6 +65,7 @@ private:
     bool                    m_private_names;
     bool                    m_purify_metavars;
     bool                    m_purify_locals;
+    bool                    m_locals_full_names;
     bool                    m_beta;
     bool                    m_numerals;
     bool                    m_strings;

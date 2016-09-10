@@ -52,7 +52,6 @@ assume Hna : ¬a, absurd Ha Hna
 theorem false.elim {c : Prop} (H : false) : c :=
 false.rec c H
 
-
 /- eq -/
 
 -- proof irrelevance is built in

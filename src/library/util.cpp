@@ -200,6 +200,16 @@ bool is_inductive_predicate(environment const & env, name const & n) {
     return is_zero(get_datatype_level(env.get(n).get_type()));
 }
 
+bool can_elim_to_type(environment const & env, name const & n) {
+    if (!is_standard(env))
+        return true;
+    if (!inductive::is_inductive_decl(env, n))
+        return false; // n is not inductive datatype
+    declaration ind_decl = env.get(n);
+    declaration rec_decl = env.get(inductive::get_elim_name(n));
+    return rec_decl.get_num_univ_params() > ind_decl.get_num_univ_params();
+}
+
 void get_intro_rule_names(environment const & env, name const & n, buffer<name> & result) {
     if (auto decls = inductive::is_inductive_decl(env, n)) {
         for (inductive::inductive_decl const & decl : std::get<2>(*decls)) {
@@ -502,6 +512,15 @@ expr mk_pr2(abstract_type_context & ctx, expr const & p) {
     expr const & A = app_arg(app_fn(AxB));
     expr const & B = app_arg(AxB);
     return mk_app(mk_constant(get_prod_pr2_name(), const_levels(get_app_fn(AxB))), A, B, p);
+}
+
+expr mk_nat_one() {
+    return mk_app(mk_constant(get_one_name(), {mk_level_one()}), {mk_constant(get_nat_name()), mk_constant(get_nat_has_one_name())});
+}
+
+expr mk_nat_add(expr const & e1, expr const & e2) {
+    expr nat_add = mk_app(mk_constant(get_add_name(), {mk_level_one()}), {mk_constant(get_nat_name()), mk_constant(get_nat_has_add_name())});
+    return mk_app(nat_add, e1, e2);
 }
 
 expr mk_unit(level const & l, bool prop) { return prop ? mk_true() : mk_unit(l); }

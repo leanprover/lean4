@@ -13,14 +13,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-environment add_simp_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent);
-environment add_congr_lemma(environment const & env, io_state const & ios, name const & c, unsigned prio, name const & ns, bool persistent);
-unsigned get_simp_lemma_priority(environment const & env, name const & n);
-
-bool is_simp_lemma(environment const & env, name const & n);
-bool is_congr_lemma(environment const & env, name const & n);
-void get_simp_lemma_names(environment const & env, buffer<name> & r);
-void get_congr_lemma_names(environment const & env, buffer<name> & r);
+void on_add_simp_lemma(environment const & env, name const & c, bool);
+void on_add_congr_lemma(environment const & env, name const & c, bool);
 
 void initialize_simp_lemmas();
 void finalize_simp_lemmas();
@@ -148,6 +142,7 @@ public:
 
 simp_lemmas get_simp_lemmas(type_context & tctx, buffer<name> const & simp_attrs, buffer<name> const & congr_attrs);
 
+simp_lemmas add_poly(type_context & tctx, simp_lemmas const & s, name const & id, unsigned priority);
 simp_lemmas add(type_context & tctx, simp_lemmas const & s, name const & id, expr const & e, expr const & h, unsigned priority);
 simp_lemmas join(simp_lemmas const & s1, simp_lemmas const & s2);
 

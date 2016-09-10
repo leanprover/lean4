@@ -51,6 +51,10 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_PURIFY_LOCALS true
 #endif
 
+#ifndef LEAN_DEFAULT_PP_LOCALS_FULL_NAMES
+#define LEAN_DEFAULT_PP_LOCALS_FULL_NAMES false
+#endif
+
 #ifndef LEAN_DEFAULT_PP_BETA
 #define LEAN_DEFAULT_PP_BETA true
 #endif
@@ -104,6 +108,7 @@ static name * g_pp_full_names        = nullptr;
 static name * g_pp_private_names     = nullptr;
 static name * g_pp_purify_metavars   = nullptr;
 static name * g_pp_purify_locals     = nullptr;
+static name * g_pp_locals_full_names = nullptr;
 static name * g_pp_beta              = nullptr;
 static name * g_pp_numerals          = nullptr;
 static name * g_pp_strings           = nullptr;
@@ -128,6 +133,7 @@ void initialize_pp_options() {
     g_pp_private_names     = new name{"pp", "private_names"};
     g_pp_purify_metavars   = new name{"pp", "purify_metavars"};
     g_pp_purify_locals     = new name{"pp", "purify_locals"};
+    g_pp_locals_full_names = new name{"pp", "locals_full_names"};
     g_pp_beta              = new name{"pp", "beta"};
     g_pp_numerals          = new name{"pp", "numerals"};
     g_pp_strings           = new name{"pp", "strings"};
@@ -163,6 +169,8 @@ void initialize_pp_options() {
     register_bool_option(*g_pp_purify_locals, LEAN_DEFAULT_PP_PURIFY_LOCALS,
                          "(pretty printer) rename local names to avoid name capture, "
                          "before pretty printing");
+    register_bool_option(*g_pp_locals_full_names, LEAN_DEFAULT_PP_LOCALS_FULL_NAMES,
+                         "(pretty printer) show full names of locals");
     register_bool_option(*g_pp_beta,  LEAN_DEFAULT_PP_BETA,
                          "(pretty printer) apply beta-reduction when pretty printing");
     register_bool_option(*g_pp_numerals, LEAN_DEFAULT_PP_NUMERALS,
@@ -213,6 +221,7 @@ void finalize_pp_options() {
     delete g_pp_private_names;
     delete g_pp_purify_metavars;
     delete g_pp_purify_locals;
+    delete g_pp_locals_full_names;
     delete g_pp_beta;
     delete g_pp_goal_compact;
     delete g_pp_goal_max_hyps;
@@ -231,6 +240,7 @@ name const & get_pp_universes_name() { return *g_pp_universes; }
 name const & get_pp_notation_name() { return *g_pp_notation; }
 name const & get_pp_purify_metavars_name() { return *g_pp_purify_metavars; }
 name const & get_pp_purify_locals_name() { return *g_pp_purify_locals; }
+name const & get_pp_locals_full_names_name() { return *g_pp_locals_full_names; }
 name const & get_pp_beta_name() { return *g_pp_beta; }
 name const & get_pp_preterm_name() { return *g_pp_preterm; }
 name const & get_pp_numerals_name() { return *g_pp_numerals; }
@@ -248,6 +258,7 @@ bool     get_pp_full_names(options const & opts)        { return opts.get_bool(*
 bool     get_pp_private_names(options const & opts)     { return opts.get_bool(*g_pp_private_names, LEAN_DEFAULT_PP_PRIVATE_NAMES); }
 bool     get_pp_purify_metavars(options const & opts)   { return opts.get_bool(*g_pp_purify_metavars, LEAN_DEFAULT_PP_PURIFY_METAVARS); }
 bool     get_pp_purify_locals(options const & opts)     { return opts.get_bool(*g_pp_purify_locals, LEAN_DEFAULT_PP_PURIFY_LOCALS); }
+bool     get_pp_locals_full_names(options const & opts) { return opts.get_bool(*g_pp_locals_full_names, LEAN_DEFAULT_PP_LOCALS_FULL_NAMES); }
 bool     get_pp_beta(options const & opts)              { return opts.get_bool(*g_pp_beta, LEAN_DEFAULT_PP_BETA); }
 bool     get_pp_numerals(options const & opts)          { return opts.get_bool(*g_pp_numerals, LEAN_DEFAULT_PP_NUMERALS); }
 bool     get_pp_strings(options const & opts)           { return opts.get_bool(*g_pp_strings, LEAN_DEFAULT_PP_STRINGS); }

@@ -38,9 +38,10 @@ name mk_local_decl_name() {
     return mk_tagged_fresh_name(*g_local_prefix);
 }
 
+DEBUG_CODE(
 static bool is_local_decl_name(name const & n) {
     return is_tagged_by(n, *g_local_prefix);
-}
+})
 
 static expr mk_local_ref(name const & n, name const & pp_n, binder_info const & bi) {
     return mk_local(n, pp_n, *g_dummy_type, bi);

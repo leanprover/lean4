@@ -1563,6 +1563,16 @@ expr elaborator::push_local(type_context::tmp_locals & locals,
     return locals.push_local(n, type, binfo);
 }
 
+/* See method above */
+expr elaborator::push_let(type_context::tmp_locals & locals,
+                          name const & n, expr const & type, expr const & value, expr const & ref) {
+    if (m_ctx.lctx().get_instance_fingerprint() &&
+        m_ctx.is_class(type)) {
+        throw elaborator_exception(ref, "invalid occurrence of local instance, it must be a declaration parameter");
+    }
+    return locals.push_let(n, type, value);
+}
+
 expr elaborator::visit_lambda(expr const & e, optional<expr> const & expected_type) {
     type_context::tmp_locals locals(m_ctx);
     checkpoint C(*this);
@@ -1631,9 +1641,21 @@ expr elaborator::visit_pi(expr const & e) {
     return r;
 }
 
-expr elaborator::visit_let(expr const & /* e */, optional<expr> const & /* expected_type */) {
-    // TODO(Leo)
-    lean_unreachable();
+expr elaborator::visit_let(expr const & e, optional<expr> const & expected_type) {
+    expr ref = e;
+    checkpoint C(*this);
+    expr new_type  = visit(let_type(e), none_expr());
+    expr new_value = visit(let_value(e), some_expr(new_type));
+    new_value      = enforce_type(new_value, new_type, "invalid let-expression", let_value(e));
+    process_checkpoint(C);
+    new_type       = instantiate_mvars(new_type);
+    new_value      = instantiate_mvars(new_value);
+    type_context::tmp_locals locals(m_ctx);
+    push_let(locals, let_name(e), new_type, new_value, ref);
+    expr body      = instantiate_rev(let_body(e), locals);
+    expr new_body  = visit(body, expected_type);
+    expr new_e     = locals.mk_lambda(new_body);
+    return new_e;
 }
 
 expr elaborator::visit_placeholder(expr const & e, optional<expr> const & expected_type) {

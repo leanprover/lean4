@@ -142,11 +142,10 @@ injf H
 theorem surjective_of_has_right_inverse {f : A → B} : has_right_inverse f → surjective f :=
 assume h, take b,
 exists.elim h (λ finv inv,
-let  a : A := finv b in
-have h : f a = b, from calc
-  f a  = f (finv b)   : rfl
-   ... = b            : eq.subst (inv b) rfl,
-exists.intro a h)
+have h : f (finv b) = b, from calc
+  f (finv b)  = f (finv b)   : rfl
+          ... = b            : eq.subst (inv b) rfl,
+exists.intro (finv b) h)
 
 theorem left_inverse_of_surjective_of_right_inverse {f : A → B} {g : B → A}
     (surjf : surjective f) (rfg : right_inverse f g) :

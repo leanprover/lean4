@@ -1,9 +1,13 @@
-let bool := Prop,
-    and := λ p q, Π c, (p → q → c) → c,
-    and_intro := λ p q H1 H2 c H, H H1 H2
+let bool : Type := Prop,
+    and : bool → bool → Prop := λ p q, Π c, (p → q → c) → c,
+    and_intro : Π p q, p → q → and p q := λ p q H1 H2 c H, H H1 H2,
+    and_elim_left : Π p q, and p q → p := λ p q H, H p (λ H1 H2, H1),
+    and_elim_right : Π p q, and p q → q := λ p q H, H q (λ H1 H2, H2)
 in and_intro :
   ∀ p q, p → q → ∀ c, (p → q → c) → c
-let1.lean:19:19: error: invalid type ascription, expression has type
-  ∀ p q, p → q → ∀ c, (p → q → c) → c
+let1.lean:20:19: error: invalid let-expression, expression
+  λ p q H1 H2 c H, H H1 H2
+has type
+  Π p q, p → q → Π c, (p → q → c) → c
 but is expected to have type
-  ∀ p q, p → q → (λ p q, ∀ c, (p → q → c) → c) q p
+  Π p q, p → q → and q p

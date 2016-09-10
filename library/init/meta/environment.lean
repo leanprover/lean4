@@ -58,12 +58,10 @@ meta_constant trans_for : environment → name → option name
 open expr
 
 meta_definition is_constructor_app (env : environment) (e : expr) : bool :=
-let f := get_app_fn e in
-is_constant f && is_constructor env (const_name f)
+is_constant (get_app_fn e) && is_constructor env (const_name (get_app_fn e))
 
 meta_definition is_refl_app (env : environment) (e : expr) : option (name × expr × expr) :=
-let f := get_app_fn e in
-match (refl_for env (const_name f)) with
+match (refl_for env (const_name (get_app_fn e))) with
 | (some n) :=
     if get_app_num_args e ≥ 2
     then some (n, app_arg (app_fn e), app_arg e)

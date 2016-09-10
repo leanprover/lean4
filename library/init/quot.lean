@@ -68,8 +68,7 @@ namespace quot
   protected definition rec
      (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b)
      (q : quot s) : B q :=
-  let p := lift (quot.indep f) (quot.indep_coherent f H) q in
-  eq.rec_on (quot.lift_indep_pr1 f H q) (p.2)
+  eq.rec_on (quot.lift_indep_pr1 f H q) ((lift (quot.indep f) (quot.indep_coherent f H) q).2)
 
   attribute [reducible]
   protected definition rec_on

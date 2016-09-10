@@ -100,6 +100,8 @@ private:
 
     expr push_local(type_context::tmp_locals & locals, name const & n, expr const & type,
                     binder_info const & binfo, expr const & ref);
+    expr push_let(type_context::tmp_locals & locals,
+                  name const & n, expr const & type, expr const & value, expr const & ref);
 
     level mk_univ_metavar();
     expr mk_metavar(expr const & A);

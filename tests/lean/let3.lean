@@ -1,10 +1,10 @@
 --
-
+set_option new_elaborator true
 
 constant f : num → num → num → num
 
 check
-  let a := 10
+  let a : num := 10
   in f a 10
 
 /-

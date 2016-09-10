@@ -20,8 +20,7 @@ theorem exists_true_of_nonempty {A : Type} (H : nonempty A) : ∃x : A, true :=
 nonempty.elim H (take x, exists.intro x trivial)
 
 noncomputable definition inhabited_of_nonempty {A : Type} (H : nonempty A) : inhabited A :=
-let u : {x \ (∃y : A, true) → true} := strong_indefinite_description (λa, true) H in
-inhabited.mk (elt_of u)
+inhabited.mk (elt_of (strong_indefinite_description (λa, true) H))
 
 noncomputable definition inhabited_of_exists {A : Type} {P : A → Prop} (H : ∃x, P x) : inhabited A :=
 inhabited_of_nonempty (exists.elim H (λ w Hw, nonempty.intro w))
@@ -29,15 +28,11 @@ inhabited_of_nonempty (exists.elim H (λ w Hw, nonempty.intro w))
 /- the Hilbert epsilon function -/
 
 noncomputable definition epsilon {A : Type} [H : nonempty A] (P : A → Prop) : A :=
-let u : {x \ (∃y, P y) → P x} :=
-  strong_indefinite_description P H in
-elt_of u
+elt_of (strong_indefinite_description P H)
 
 theorem epsilon_spec_aux {A : Type} (H : nonempty A) (P : A → Prop) (Hex : ∃y, P y) :
     P (@epsilon A H P) :=
-let u : {x \ (∃y, P y) → P x} :=
-  strong_indefinite_description P H in
-have aux : (∃y, P y) → P (elt_of (strong_indefinite_description P H)), from has_property u,
+have aux : (∃y, P y) → P (elt_of (strong_indefinite_description P H)), from has_property (strong_indefinite_description P H),
 aux Hex
 
 theorem epsilon_spec {A : Type} {P : A → Prop} (Hex : ∃y, P y) :

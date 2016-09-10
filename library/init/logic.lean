@@ -988,7 +988,8 @@ theorem dif_ctx_congr {A : Type} {b c : Prop} [dec_b : decidable b] [dec_c : dec
                       (h_e : ∀ (h : ¬c),   y (iff.mpr (not_iff_not_of_iff h_c) h) = v h) :
         (@dite b dec_b A x y) = (@dite c dec_c A u v) :=
 decidable.rec_on dec_b
-  (λ hn : ¬b, let h_nc : ¬b ↔ ¬c := not_iff_not_of_iff h_c in calc
+  (λ hn : ¬b,
+    have h_nc : ¬b ↔ ¬c, from not_iff_not_of_iff h_c, calc
     dite b x y = y hn                              : dif_neg hn
           ...  = y (iff.mpr h_nc (iff.mp h_nc hn)) : rfl
           ...  = v (iff.mp h_nc hn)                : h_e (iff.mp h_nc hn)

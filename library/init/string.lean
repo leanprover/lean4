@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.char init.list
-
+set_option new_elaborator true
 attribute [reducible]
 definition string := list char
 

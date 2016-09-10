@@ -86,16 +86,20 @@ static expr mk_typed_expr_distrib_choice(parser & p, expr const & type, expr con
 }
 
 static expr parse_let(parser & p, pos_info const & pos) {
+    if (!p.use_new_elaborator()) {
+        throw parser_error("let-expressions are not supported in the old elaborator anymore", pos);
+    }
     parser::local_scope scope1(p);
     if (p.parse_local_notation_decl()) {
         return parse_let_body(p, pos);
     } else {
         auto id_pos     = p.pos();
         name id         = p.check_atomic_id_next("invalid let declaration, atomic identifier expected");
-        optional<expr> type;
+        expr type;
         expr value;
         if (p.curr_is_token(get_assign_tk())) {
             p.next();
+            type  = p.save_pos(mk_expr_placeholder(), id_pos);
             value = p.parse_expr();
         } else if (p.curr_is_token(get_colon_tk())) {
             p.next();
@@ -110,22 +114,18 @@ static expr parse_let(parser & p, pos_info const & pos) {
             if (p.curr_is_token(get_colon_tk())) {
                 p.next();
                 type  = p.parse_scoped_expr(ps, lenv);
-                type  = Pi(ps, *type, p);
+                type  = Pi(ps, type, p);
+            } else {
+                type  = p.save_pos(mk_expr_placeholder(), id_pos);
             }
             p.check_token_next(get_assign_tk(), "invalid let declaration, ':=' expected");
             value = p.parse_scoped_expr(ps, lenv);
             value = Fun(ps, value, p);
         }
-        expr v;
-        if (type)
-            v = mk_typed_expr_distrib_choice(p, *type, value, p.pos_of(value));
-        else
-            v = value;
-        v = p.save_pos(mk_let_value(v), id_pos);
-        p.add_local_expr(id, v);
+        expr x = p.save_pos(mk_local(id, type), id_pos);
+        p.add_local_expr(id, x);
         expr b = parse_let_body(p, pos);
-        // TODO(Leo): use let-expression after we reimplement elaborator
-        return p.save_pos(mk_let_macro(id, v, b), pos);
+        return p.save_pos(mk_let(id, type, value, abstract_local(b, x)), pos);
     }
 }
 

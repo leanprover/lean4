@@ -47,6 +47,7 @@ MK_THREAD_LOCAL_GET(type_context_cache_manager, get_tcm, true /* use binder info
 
 static name * g_level_prefix = nullptr;
 static name * g_elab_with_expected_type = nullptr;
+static name * g_elab_as_eliminator = nullptr;
 
 #define trace_elab(CODE) lean_trace("elaborator", scope_trace_env _scope(m_env, m_ctx); CODE)
 #define trace_elab_detail(CODE) lean_trace("elaborator_detail", scope_trace_env _scope(m_env, m_ctx); CODE)
@@ -54,6 +55,10 @@ static name * g_elab_with_expected_type = nullptr;
 
 bool elab_with_expected_type(environment const & env, name const & d) {
     return has_attribute(env, *g_elab_with_expected_type, d);
+}
+
+bool elab_as_eliminator(environment const & env, name const & d) {
+    return has_attribute(env, *g_elab_as_eliminator, d);
 }
 
 elaborator::elaborator(environment const & env, options const & opts, metavar_context const & mctx,
@@ -206,9 +211,7 @@ bool elaborator::is_elim_elab_candidate(name const & fn) {
         return true;
     if (is_user_defined_recursor(m_env, fn))
         return true;
-    // TODO(Leo): add attribute for adding extra-cases,
-    // and remove hard coded case
-    if (fn == get_eq_subst_name())
+    if (elab_as_eliminator(m_env, fn))
         return true;
     return false;
 }
@@ -2232,6 +2235,7 @@ expr nested_elaborate(environment & env, options const & opts, metavar_context &
 
 void initialize_elaborator() {
     g_elab_with_expected_type = new name("elab_with_expected_type");
+    g_elab_as_eliminator      = new name("elab_as_eliminator");
     g_level_prefix = new name("_elab_u");
     register_trace_class("elaborator");
     register_trace_class("elaborator_detail");
@@ -2239,10 +2243,14 @@ void initialize_elaborator() {
     register_system_attribute(basic_attribute(*g_elab_with_expected_type,
                                               "instructs elaborator that the arguments of the function application (f ...) "
                                               "should be elaborated using information about the expected type"));
+    register_system_attribute(basic_attribute(*g_elab_as_eliminator,
+                                              "instructs elaborator that the arguments of the function application (f ...) "
+                                              "should be elaborated as f were an eliminator"));
 }
 
 void finalize_elaborator() {
     delete g_level_prefix;
     delete g_elab_with_expected_type;
+    delete g_elab_as_eliminator;
 }
 }

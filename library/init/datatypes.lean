@@ -354,6 +354,7 @@ namespace eq
   variables {A : Type}
   variables {a b c a': A}
 
+  attribute [elab_as_eliminator]
   theorem subst {P : A → Prop} (H₁ : a = b) (H₂ : P a) : P b :=
   eq.rec H₂ H₁
 

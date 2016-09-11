@@ -1307,7 +1307,14 @@ expr elaborator::visit_convoy(expr const & e, optional<expr> const & expected_ty
                                        pp_indent(pp_fn, *expected_type));
         }
         process_checkpoint(C);
-        new_fn_type = instantiate_mvars(locals.mk_pi(instantiate_mvars(new_b)));
+        new_fn_type = instantiate_mvars(inst_b);
+        unsigned i = args.size();
+        while (i > 0) {
+            --i;
+            expr new_arg      = instantiate_mvars(new_args[i]);
+            expr new_arg_type = instantiate_mvars(infer_type(new_arg));
+            new_fn_type       = m_ctx.mk_pi(locals.as_buffer()[i], kabstract(m_ctx, new_fn_type, new_arg));
+        }
     }
     if (has_expr_metavar(new_fn_type)) {
         throw elaborator_exception(ref, "invalid match/convoy expression, type contains meta-variables");

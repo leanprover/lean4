@@ -1640,8 +1640,7 @@ optional<expr> type_context::check_assignment(buffer<expr> const & locals, expr 
                                            } else {
                                                tout() << ", but the two local contexts used to declare these metavariables "
                                                       << " are incomparable\n";
-                                           }
-                                    );
+                                           });
                                 return false;
                             }
                         }
